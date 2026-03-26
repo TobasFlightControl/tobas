@@ -4,6 +4,8 @@
 
 #include "./base.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -21,8 +23,9 @@ public:
   void setValue(double value) override;
 
 private:
-  qt::DoubleSpinBox* spin_box_;
+  tobas::qt::DoubleSpinBox* spin_box_;
 };
 }  // namespace field
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

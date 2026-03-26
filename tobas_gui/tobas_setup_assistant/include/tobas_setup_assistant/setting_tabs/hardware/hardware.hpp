@@ -8,6 +8,8 @@
 #include "./dshot.hpp"
 #include "./pwm.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -87,8 +89,8 @@ public:
   int numDShotChannels() const;
 
 private:
-  qt::ComboBox* type_;
-  qt::StackedWidget* hardwares_;
+  tobas::qt::ComboBox* type_;
+  tobas::qt::StackedWidget* hardwares_;
   PwmWidget* pwm_;
   DShotWidget* dshot_;
 
@@ -101,3 +103,4 @@ private Q_SLOTS:
 };  // namespace hw
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

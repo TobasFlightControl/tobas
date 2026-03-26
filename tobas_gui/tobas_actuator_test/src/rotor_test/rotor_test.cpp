@@ -10,6 +10,8 @@
 #include <tobas_qt_tools/widgets/description_widget.hpp>
 #include <tobas_std_tools/array.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace at
@@ -18,11 +20,11 @@ RotorTestWidget::RotorTestWidget(rclcpp::Node::SharedPtr node, const RosQtBridge
   : node_(node), bridge_(bridge), drone_(drone)
 {
   const auto warning =
-    new qt::DescriptionWidget("Warning: Ensure that propellers are removed from motors.\n\n", cmn::kBodyPSize);
+    new tobas::qt::DescriptionWidget("Warning: Ensure that propellers are removed from motors.\n\n", cmn::kBodyPSize);
   warning->setStyleSheet("color: red; font-weight: bold;");
   rows_->addWidget(warning);
 
-  const auto instruction = new qt::DescriptionWidget(
+  const auto instruction = new tobas::qt::DescriptionWidget(
     "1. Connect the ESCs to the FC in the correct order.\n\n"
     "2. Click \"Start\" to enable motors.\n\n"
     "3. For each channel, confirm the following:\n"
@@ -122,7 +124,7 @@ void RotorTestWidget::updateInternalDataStructures()
       const auto erotor = eprop_->getRotor(link_name);
 
       if (erotor->channel >= kChannelSize) {
-        qt::qWarnBox(this, "Rotor channel " + QString::number(erotor->channel) + " is not supported.");
+        tobas::qt::qWarnBox(this, "Rotor channel " + QString::number(erotor->channel) + " is not supported.");
         continue;
       }
 
@@ -185,13 +187,13 @@ bool RotorTestWidget::loadCurrentGains()
 {
   const auto req = std::make_shared<tobas_msgs::srv::GetRotorControlGains::Request>();
   if (!get_gains_sc_->call(req, kWaitForService)) {
-    qt::qErrorBox(this, "Failed to connect to the rotor controller.");
+    tobas::qt::qErrorBox(this, "Failed to connect to the rotor controller.");
     return false;
   }
 
   const auto res = get_gains_sc_->getResponse();
   if (!res->success) {
-    qt::qErrorBox(this, "Failed to connect to the rotor controller.");
+    tobas::qt::qErrorBox(this, "Failed to connect to the rotor controller.");
     return false;
   }
 
@@ -199,7 +201,8 @@ bool RotorTestWidget::loadCurrentGains()
   for (const auto& [link_name, _] : eprop_->rotors) {
     const auto erotor = eprop_->getRotor(link_name);
     if (erotor->channel >= cur_gains.size()) {
-      qt::qErrorBox(this, "Failed to get the rotor control gain of channel " + QString::number(erotor->channel) + ".");
+      tobas::qt::qErrorBox(
+        this, "Failed to get the rotor control gain of channel " + QString::number(erotor->channel) + ".");
       return false;
     }
     rotor_widgets_.at(erotor->channel)->setGain(cur_gains.at(erotor->channel));
@@ -214,11 +217,11 @@ void RotorTestWidget::onStartButtonClicked()
 
   // アームされていないことを確認
   if (!arming_) {
-    qt::qWarnBox(this, "This operation cannot be performed because the arming status has not been received yet.");
+    tobas::qt::qWarnBox(this, "This operation cannot be performed because the arming status has not been received yet.");
     return;
   }
   if (arming_->data) {
-    qt::qWarnBox(this, "This operation cannot be performed because the rotors are already armed.");
+    tobas::qt::qWarnBox(this, "This operation cannot be performed because the rotors are already armed.");
     return;
   }
 
@@ -246,7 +249,7 @@ void RotorTestWidget::onStartButtonClicked()
 
   running_ = true;
 
-  qt::qInfoBox(this, "Rotor test started.");
+  tobas::qt::qInfoBox(this, "Rotor test started.");
 }
 
 void RotorTestWidget::onStopButtonClicked()
@@ -255,7 +258,7 @@ void RotorTestWidget::onStopButtonClicked()
 
   reset();
 
-  qt::qInfoBox(this, "Rotor test stopped.");
+  tobas::qt::qInfoBox(this, "Rotor test stopped.");
 }
 
 void RotorTestWidget::onSaveButtonClicked()
@@ -265,17 +268,17 @@ void RotorTestWidget::onSaveButtonClicked()
   const auto req = std::make_shared<std_srvs::srv::Trigger::Request>();
 
   if (!save_gains_sc_->call(req, kWaitForService)) {
-    qt::qErrorBox(this, "Failed to connect to the rotor controller.");
+    tobas::qt::qErrorBox(this, "Failed to connect to the rotor controller.");
     return;
   }
 
   const auto res = set_gains_sc_->getResponse();
   if (!res->success) {
-    qt::qErrorBox(this, "Failed to save control gains: " + QString::fromStdString(res->message));
+    tobas::qt::qErrorBox(this, "Failed to save control gains: " + QString::fromStdString(res->message));
     return;
   }
 
-  qt::qInfoBox(this, "Control gains are saved successfully.");
+  tobas::qt::qInfoBox(this, "Control gains are saved successfully.");
 }
 
 void RotorTestWidget::onTargetRPMChanged(int rpm, size_t ch)
@@ -295,13 +298,13 @@ void RotorTestWidget::onGainChanged(int gain, size_t ch)
   req->gains.back().gain = gain;
 
   if (!set_gains_sc_->call(req, kWaitForService)) {
-    qt::qErrorBox(this, "Failed to connect to the rotor controller.");
+    tobas::qt::qErrorBox(this, "Failed to connect to the rotor controller.");
     return;
   }
 
   const auto res = set_gains_sc_->getResponse();
   if (!res->success) {
-    qt::qErrorBox(this, "Failed to set control gains: " + QString::fromStdString(res->message));
+    tobas::qt::qErrorBox(this, "Failed to set control gains: " + QString::fromStdString(res->message));
     return;
   }
 }
@@ -328,10 +331,11 @@ void RotorTestWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& ar
   // テスト実行中にアームされたら，強制的にテストを終了する
   if (running_ && arming->data) {
     reset();
-    qt::qWarnBox(this, "Rotor test was terminated because an arming command was issued.");
+    tobas::qt::qWarnBox(this, "Rotor test was terminated because an arming command was issued.");
   }
 
   arming_ = arming;
 }
 }  // namespace at
 }  // namespace gui
+}  // namespace tobas

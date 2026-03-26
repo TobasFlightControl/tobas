@@ -5,11 +5,13 @@
 
 #include <tobas_qt_tools/widgets/widget.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace at
 {
-class BaseWidget : public qt::Widget
+class BaseWidget : public tobas::qt::Widget
 {
   Q_OBJECT
 
@@ -33,3 +35,4 @@ private Q_SLOTS:
 };
 }  // namespace at
 }  // namespace gui
+}  // namespace tobas

@@ -47,7 +47,7 @@ private:
   QPushButton* remove_button_;
   QPushButton* clear_button_;
 
-  qt::TableWidget* table_;
+  tobas::qt::TableWidget* table_;
 
   QString getKeyMgmt(int row) const;
   QString getSsid(int row) const;

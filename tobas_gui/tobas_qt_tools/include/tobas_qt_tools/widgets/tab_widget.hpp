@@ -4,6 +4,8 @@
 #include <QTabWidget>
 #include <QWheelEvent>
 
+namespace tobas
+{
 namespace qt
 {
 class TabBar : public QTabBar
@@ -67,3 +69,4 @@ private:
   TabBar* tab_bar_;
 };
 }  // namespace qt
+}  // namespace tobas

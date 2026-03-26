@@ -7,6 +7,8 @@
 #include <tobas_drone_core/propulsion_system/ice_propulsion_system/aerodynamics.hpp>
 #include <tobas_drone_core/propulsion_system/turning_direction.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -150,3 +152,4 @@ void addBaseStaticJoint(tinyxml2::XMLElement* robot, const std::string& root_lin
 }  // namespace xml
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

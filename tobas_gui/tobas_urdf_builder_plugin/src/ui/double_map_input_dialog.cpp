@@ -7,6 +7,8 @@
 
 #include <tobas_qt_tools/cast.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ub
@@ -58,10 +60,11 @@ const double& DoubleMapInputDialog::getValue(const QString& field) const
 
 void DoubleMapInputDialog::onSpinBoxValueChanged(double value)
 {
-  const auto obj = qt::qPointerCast<QDoubleSpinBox>(sender());
+  const auto obj = tobas::qt::qPointerCast<QDoubleSpinBox>(sender());
   const auto field_name = spinbox2field_.at(obj);
   field2value_[field_name] = value;
 }
 }  // namespace ui
 }  // namespace ub
 }  // namespace gui
+}  // namespace tobas

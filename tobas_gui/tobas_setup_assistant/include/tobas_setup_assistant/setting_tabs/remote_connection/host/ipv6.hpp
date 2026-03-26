@@ -4,6 +4,8 @@
 
 #include "./base.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -29,8 +31,9 @@ public:
   QString host() const override;
 
 private:
-  qt::IPv6Edit* ipv6_;
+  tobas::qt::IPv6Edit* ipv6_;
 };
 }  // namespace rc
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

@@ -1,5 +1,7 @@
 #pragma once
 
+namespace tobas
+{
 namespace gazebo
 {
 // Gazebo Topics
@@ -30,3 +32,4 @@ static constexpr char kAttachSuspenedLoadSrv[] = "gazebo/attach_suspended_load";
 static constexpr char kDetachSuspenedLoadSrv[] = "gazebo/detach_suspended_load";
 static constexpr char kBreakRotorSrvNS[] = "gazebo/break_rotor";
 }  // namespace gazebo
+}  // namespace tobas

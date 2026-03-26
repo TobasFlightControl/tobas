@@ -5,6 +5,8 @@
 
 #include "./base.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -22,8 +24,9 @@ public:
   void setValue(tobas::mission::AltitudeFrame value) override;
 
 private:
-  qt::ComboBox* combobox_;
+  tobas::qt::ComboBox* combobox_;
 };
 }  // namespace field
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

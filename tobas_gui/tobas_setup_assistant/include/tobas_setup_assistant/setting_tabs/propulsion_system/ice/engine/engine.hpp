@@ -5,6 +5,8 @@
 #include "./dynamics.hpp"
 #include "./response.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -13,12 +15,12 @@ namespace propulsion
 {
 namespace ice
 {
-class EngineWidget : public qt::TabWidget
+class EngineWidget : public tobas::qt::TabWidget
 {
   Q_OBJECT
 
   using self = EngineWidget;
-  using super = qt::TabWidget;
+  using super = tobas::qt::TabWidget;
 
   static constexpr int kTabWidth = 135;
   static constexpr int kTabHeight = 45;
@@ -45,3 +47,4 @@ private:
 }  // namespace propulsion
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

@@ -6,6 +6,8 @@
 #include <QIcon>
 #include <QVBoxLayout>
 
+namespace tobas
+{
 namespace qt
 {
 MainWidget::MainWidget(const QString& title, const QString& icon_path, QWidget* widget) : widget_(widget)
@@ -32,3 +34,4 @@ void MainWidget::closeEvent(QCloseEvent* event)
   }
 }
 }  // namespace qt
+}  // namespace tobas

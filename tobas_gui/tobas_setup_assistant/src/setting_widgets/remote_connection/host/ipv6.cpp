@@ -5,6 +5,8 @@
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_yaml_tools/convert/uint128.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -16,7 +18,7 @@ IPv6Widget::IPv6Widget()
   const auto cols = new QHBoxLayout();
   setLayout(cols);
 
-  ipv6_ = new qt::IPv6Edit();
+  ipv6_ = new tobas::qt::IPv6Edit();
   cols->addWidget(ipv6_);
 }
 
@@ -28,7 +30,7 @@ const char* IPv6Widget::label() const
 bool IPv6Widget::isValid()
 {
   if (!ipv6_->isFilled()) {
-    qt::qWarnBox(this, "Please enter the flight controller’s IP address.");
+    tobas::qt::qWarnBox(this, "Please enter the flight controller’s IP address.");
     return false;
   }
 
@@ -57,3 +59,4 @@ QString IPv6Widget::host() const
 }  // namespace rc
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

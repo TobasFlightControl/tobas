@@ -3,6 +3,8 @@
 #include <string>
 #include <vector>
 
+namespace tobas
+{
 namespace gui
 {
 namespace cmn
@@ -33,3 +35,4 @@ private:
 };
 }  // namespace cmn
 }  // namespace gui
+}  // namespace tobas

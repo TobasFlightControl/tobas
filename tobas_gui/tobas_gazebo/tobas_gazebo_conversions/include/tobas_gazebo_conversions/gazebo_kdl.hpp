@@ -9,6 +9,8 @@
 #include <tobas_kdl/rotation.hpp>
 #include <tobas_kdl/vector.hpp>
 
+namespace tobas
+{
 namespace gazebo
 {
 void vectorGazeboToKDL(const gz::math::Vector3d& g, kdl::Vector& k);
@@ -23,3 +25,4 @@ void quaternionKDLToGazebo(const kdl::Quaternion& k, gz::math::Quaterniond& g);
 void poseGazeboToKDL(const gz::math::Pose3d& g, kdl::Frame& k);
 void poseKDLToGazebo(const kdl::Frame& k, gz::math::Pose3d& g);
 }  // namespace gazebo
+}  // namespace tobas

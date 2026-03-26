@@ -7,6 +7,8 @@
 #include <tobas_std_tools/unit_conversions.hpp>
 #include <tobas_yaml_tools/format.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -62,7 +64,7 @@ const char* PropellerWidget::name() const
 bool PropellerWidget::isValid()
 {
   if (min_chord_->getValue() > max_chord_->getValue()) {
-    qt::qWarnBox(this, "Blade chord range is invalid.");
+    tobas::qt::qWarnBox(this, "Blade chord range is invalid.");
     return false;
   }
 
@@ -71,7 +73,7 @@ bool PropellerWidget::isValid()
 
 void PropellerWidget::copyFrom(const BaseSelectedLinkSettingWidget* src)
 {
-  const auto derived = qt::qConstPointerCast<PropellerWidget>(src);
+  const auto derived = tobas::qt::qConstPointerCast<PropellerWidget>(src);
 
   num_blades_->setValue(derived->num_blades_->getValue());
   diameter_->setValue(derived->diameter_->getValue());
@@ -146,3 +148,4 @@ double PropellerWidget::meanChord() const
 }  // namespace propulsion
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

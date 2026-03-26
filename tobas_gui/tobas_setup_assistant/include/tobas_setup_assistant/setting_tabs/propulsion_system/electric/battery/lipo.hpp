@@ -3,6 +3,8 @@
 #include "./base.hpp"
 #include "tobas_setup_assistant/param_getters/spin_box.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -50,3 +52,4 @@ private:
 }  // namespace propulsion
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

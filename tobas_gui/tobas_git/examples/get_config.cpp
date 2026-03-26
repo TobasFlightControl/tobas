@@ -4,8 +4,8 @@
 
 int main()
 {
-  const auto name = git::getGitConfigValue("user.name");
-  const auto email = git::getGitConfigValue("user.email");
+  const auto name = tobas::git::getGitConfigValue("user.name");
+  const auto email = tobas::git::getGitConfigValue("user.email");
 
   std::cout << "Git User Name: " << name << std::endl;
   std::cout << "Git Email: " << email << std::endl;

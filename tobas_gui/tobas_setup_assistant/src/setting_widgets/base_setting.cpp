@@ -6,6 +6,8 @@
 #include <tobas_qt_tools/font.hpp>
 #include <tobas_qt_tools/util.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -13,10 +15,10 @@ namespace sa
 BaseSettingWidget::BaseSettingWidget()
 {
   title_ = new QLabel();
-  title_->setFont(qt::DefaultFont(cmn::kTitlePSize, QFont::Bold));
+  title_->setFont(tobas::qt::DefaultFont(cmn::kTitlePSize, QFont::Bold));
   title_->setAlignment(Qt::AlignTop);
 
-  description_ = new qt::DescriptionWidget("", cmn::kBodyPSize);
+  description_ = new tobas::qt::DescriptionWidget("", cmn::kBodyPSize);
 
   // Layout
   header_rows_ = new QVBoxLayout();
@@ -42,7 +44,7 @@ void BaseSettingWidget::addWidget(QWidget* widget, int stretch)
 
 void BaseSettingWidget::addWidgetCenter(QWidget* widget, int stretch)
 {
-  qt::addWidgetCenter(widget, content_rows_, stretch);
+  tobas::qt::addWidgetCenter(widget, content_rows_, stretch);
 }
 
 void BaseSettingWidget::addLayout(QLayout* layout, int stretch)
@@ -67,3 +69,4 @@ void BaseSettingWidget::initialize()
 }
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

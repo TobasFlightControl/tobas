@@ -25,16 +25,18 @@
 #include "./plots/twist_plot.hpp"
 #include "./plots/vibration_level_plot.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace log
 {
-class PlotTabWidget : public qt::TabWidget
+class PlotTabWidget : public tobas::qt::TabWidget
 {
   Q_OBJECT
 
   using self = PlotTabWidget;
-  using super = qt::TabWidget;
+  using super = tobas::qt::TabWidget;
 
   static constexpr int kTabWidth = 110;
   static constexpr int kTabHeight = 50;
@@ -122,3 +124,4 @@ private Q_SLOTS:
 };
 }  // namespace log
 }  // namespace gui
+}  // namespace tobas

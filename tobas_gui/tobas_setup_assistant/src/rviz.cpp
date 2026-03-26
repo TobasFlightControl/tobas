@@ -12,6 +12,8 @@
 #include "tobas_setup_assistant/constants.hpp"
 #include "tobas_setup_assistant/util.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -32,12 +34,16 @@ RvizWidget::RvizWidget(const uadf::Model& uadf, const kdl::Tree& tree)
   display_ = rviz_manager_.getDisplays("RobotState").at(0);
 
   // 使用するプロパティを取得
-  enable_visual_ = qt::qPointerCast<rviz_common::properties::BoolProperty>(display_->subProp("Visual Enabled"));
-  enable_collision_ = qt::qPointerCast<rviz_common::properties::BoolProperty>(display_->subProp("Collision Enabled"));
-  enable_inertia_ = qt::qPointerCast<rviz_common::properties::BoolProperty>(display_->subProp("Inertial Enabled"));
-  highlight_link_ = qt::qPointerCast<rviz_common::properties::StringProperty>(display_->subProp("Highlight Link"));
-  unhighlight_link_ = qt::qPointerCast<rviz_common::properties::StringProperty>(display_->subProp("Unhighlight Link"));
-  reload_ = qt::qPointerCast<rviz_common::properties::BoolProperty>(display_->subProp("Reload"));
+  enable_visual_ = tobas::qt::qPointerCast<rviz_common::properties::BoolProperty>(display_->subProp("Visual Enabled"));
+  enable_collision_ =
+    tobas::qt::qPointerCast<rviz_common::properties::BoolProperty>(display_->subProp("Collision Enabled"));
+  enable_inertia_ =
+    tobas::qt::qPointerCast<rviz_common::properties::BoolProperty>(display_->subProp("Inertial Enabled"));
+  highlight_link_ =
+    tobas::qt::qPointerCast<rviz_common::properties::StringProperty>(display_->subProp("Highlight Link"));
+  unhighlight_link_ =
+    tobas::qt::qPointerCast<rviz_common::properties::StringProperty>(display_->subProp("Unhighlight Link"));
+  reload_ = tobas::qt::qPointerCast<rviz_common::properties::BoolProperty>(display_->subProp("Reload"));
 
   enable_visual_->setBool(kDefaultVisualEnabled);
   enable_collision_->setBool(kDefaultCollisionEnabled);
@@ -125,3 +131,4 @@ void RvizWidget::onInertiaBoxToggled(bool checked)
 }
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

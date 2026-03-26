@@ -4,6 +4,8 @@
 
 #include <tobas_qt_tools/message.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -15,7 +17,7 @@ IPv4Widget::IPv4Widget()
   const auto cols = new QHBoxLayout();
   setLayout(cols);
 
-  ipv4_ = new qt::IPv4Edit();
+  ipv4_ = new tobas::qt::IPv4Edit();
   cols->addWidget(ipv4_);
 }
 
@@ -27,7 +29,7 @@ const char* IPv4Widget::label() const
 bool IPv4Widget::isValid()
 {
   if (!ipv4_->isFilled()) {
-    qt::qWarnBox(this, "Please enter the flight controller’s IP address.");
+    tobas::qt::qWarnBox(this, "Please enter the flight controller’s IP address.");
     return false;
   }
 
@@ -56,3 +58,4 @@ QString IPv4Widget::host() const
 }  // namespace rc
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

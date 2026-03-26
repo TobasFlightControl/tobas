@@ -38,8 +38,8 @@ public:
 private:
   std::unordered_map<QString, BootMedia> medias_;
 
-  qt::ComboBox* media_name_;
-  qt::ToggleButton* connect_btn_;
+  tobas::qt::ComboBox* media_name_;
+  tobas::qt::ToggleButton* connect_btn_;
 
   QTimer scan_timer_;
 

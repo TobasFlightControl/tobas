@@ -5,20 +5,22 @@
 
 #include <tobas_qt_tools/widgets/label.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
 {
 StatusWidget::StatusWidget(const QString& text)
 {
-  led_ = new qt::CircleWidget();
+  led_ = new tobas::qt::CircleWidget();
   led_->setFixedSize(kLEDSize, kLEDSize);
 
   reset();
 
   const auto cols = new QHBoxLayout();
   cols->addWidget(led_);
-  cols->addWidget(new qt::Label(text, kTextPSize));
+  cols->addWidget(new tobas::qt::Label(text, kTextPSize));
   setLayout(cols);
 }
 
@@ -61,3 +63,4 @@ void StatusWidget::setStatus(bool ok)
 }
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

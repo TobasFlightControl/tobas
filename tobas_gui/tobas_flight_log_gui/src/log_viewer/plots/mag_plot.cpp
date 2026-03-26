@@ -4,6 +4,8 @@
 
 #include <tobas_ros2_tools/time.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace log
@@ -57,3 +59,4 @@ void MagPlotWidget::setData(const QVector<tobas_msgs::msg::MagneticField>& mag_m
 }
 }  // namespace log
 }  // namespace gui
+}  // namespace tobas

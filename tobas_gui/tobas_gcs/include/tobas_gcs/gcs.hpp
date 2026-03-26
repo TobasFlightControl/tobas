@@ -29,6 +29,8 @@
 #include "./restart_button.hpp"
 #include "./shutdown_button.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace gcs
@@ -83,7 +85,7 @@ private:
   RestartButton* restart_btn_;
   ShutdownButton* shutdown_btn_;
 
-  qt::WaitSpinnerWidget spinner_;
+  tobas::qt::WaitSpinnerWidget spinner_;
 
   sc::SensorCalibrationWidget* sensor_calib_;
   at::ActuatorTestWidget* actuator_test_;
@@ -113,3 +115,4 @@ private Q_SLOTS:
 };
 }  // namespace gcs
 }  // namespace gui
+}  // namespace tobas

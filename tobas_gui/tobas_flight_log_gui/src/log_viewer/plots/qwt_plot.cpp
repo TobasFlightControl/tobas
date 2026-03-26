@@ -3,6 +3,8 @@
 #include <qwt/qwt_plot_legenditem.h>
 #include <qwt/qwt_scale_draw.h>
 
+namespace tobas
+{
 namespace gui
 {
 namespace log
@@ -100,3 +102,4 @@ void QwtPlot2::setupIndexedLabelPlot(const QStringList& labels)
 }
 }  // namespace log
 }  // namespace gui
+}  // namespace tobas

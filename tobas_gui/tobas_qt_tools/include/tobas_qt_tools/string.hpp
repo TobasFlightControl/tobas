@@ -5,6 +5,8 @@
 
 #include <QStringList>
 
+namespace tobas
+{
 namespace qt
 {
 QStringList stringListFromStdToQt(const std::vector<std::string>& src);
@@ -14,3 +16,4 @@ bool isControlChar(const QChar& c);
 
 bool containsControlChars(const QStringView& s);
 }  // namespace qt
+}  // namespace tobas

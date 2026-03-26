@@ -4,6 +4,8 @@
 
 #include <rclcpp/serialization.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace log
@@ -37,3 +39,4 @@ const MsgType& MessageDecoder<MsgType>::decode(const SerializedDataPtr& ser_data
 }
 }  // namespace log
 }  // namespace gui
+}  // namespace tobas

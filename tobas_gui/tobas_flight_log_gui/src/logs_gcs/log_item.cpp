@@ -6,6 +6,8 @@
 
 #include "tobas_flight_log_gui/constants.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace log
@@ -13,7 +15,7 @@ namespace log
 FlightLogItemWidgetGCS::FlightLogItemWidgetGCS(const QString& log_name)
 {
   log_name_ = new QLabel(log_name);
-  log_name_->setFont(qt::DefaultFont(kPSize3));
+  log_name_->setFont(tobas::qt::DefaultFont(kPSize3));
 
   export_button_ = new QPushButton("Export");
   export_button_->setFixedWidth(kButtonWidth);
@@ -49,3 +51,4 @@ void FlightLogItemWidgetGCS::onDeleteButtonClicked()
 }
 }  // namespace log
 }  // namespace gui
+}  // namespace tobas

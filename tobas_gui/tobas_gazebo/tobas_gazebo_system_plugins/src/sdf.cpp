@@ -2,6 +2,8 @@
 
 #include <tobas_drone_core/propulsion_system/turning_direction.hpp>
 
+namespace tobas
+{
 namespace gazebo
 {
 bool getTurningDirection(const sdf::ElementConstPtr& sdf, int& dst)
@@ -22,3 +24,4 @@ bool getTurningDirection(const sdf::ElementConstPtr& sdf, int& dst)
   return true;
 }
 }  // namespace gazebo
+}  // namespace tobas

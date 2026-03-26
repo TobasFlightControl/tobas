@@ -14,6 +14,8 @@
 namespace ch = std::chrono;
 namespace cmp = gz::sim::components;
 
+namespace tobas
+{
 namespace gazebo
 {
 class GazeboJointPositionControllerPlugin : public BaseNode,
@@ -123,9 +125,10 @@ void GazeboJointPositionControllerPlugin::commandCb(const tobas_gazebo_msgs::msg
   tar_pos_ = std::clamp(cmd->data, lower, upper);
 }
 }  // namespace gazebo
+}  // namespace tobas
 
 GZ_ADD_PLUGIN(
-  gazebo::GazeboJointPositionControllerPlugin,
+  tobas::gazebo::GazeboJointPositionControllerPlugin,
   gz::sim::System,
-  gazebo::GazeboJointPositionControllerPlugin::ISystemConfigure,
-  gazebo::GazeboJointPositionControllerPlugin::ISystemPreUpdate)
+  tobas::gazebo::GazeboJointPositionControllerPlugin::ISystemConfigure,
+  tobas::gazebo::GazeboJointPositionControllerPlugin::ISystemPreUpdate)

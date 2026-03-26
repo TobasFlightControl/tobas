@@ -12,6 +12,8 @@
 
 #include "tobas_setup_assistant/setting_tabs/hardware/constants.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -54,7 +56,7 @@ bool PwmWidget::isValid()
       continue;
     }
     if (target_name_set.contains(target_name)) {
-      qt::qWarnBox(this, "PWM target \"" + target_name + "\" is duplicated.");
+      tobas::qt::qWarnBox(this, "PWM target \"" + target_name + "\" is duplicated.");
       return false;
     }
     target_name_set.insert(target_name);
@@ -163,34 +165,34 @@ int PwmWidget::channel(const QString& target_name) const
   return -1;
 }
 
-qt::ComboBox* PwmWidget::targetNameWidget(int row)
+tobas::qt::ComboBox* PwmWidget::targetNameWidget(int row)
 {
-  return qt::qPointerCast<qt::ComboBox>(cellWidget(row, kTargetNameCol));
+  return tobas::qt::qPointerCast<tobas::qt::ComboBox>(cellWidget(row, kTargetNameCol));
 }
 
-qt::DoubleSpinBox* PwmWidget::periodLbWidget(int row)
+tobas::qt::DoubleSpinBox* PwmWidget::periodLbWidget(int row)
 {
-  return qt::qPointerCast<qt::DoubleSpinBox>(cellWidget(row, kPeriodLbCol));
+  return tobas::qt::qPointerCast<tobas::qt::DoubleSpinBox>(cellWidget(row, kPeriodLbCol));
 }
 
-qt::DoubleSpinBox* PwmWidget::periodUbWidget(int row)
+tobas::qt::DoubleSpinBox* PwmWidget::periodUbWidget(int row)
 {
-  return qt::qPointerCast<qt::DoubleSpinBox>(cellWidget(row, kPeriodUbCol));
+  return tobas::qt::qPointerCast<tobas::qt::DoubleSpinBox>(cellWidget(row, kPeriodUbCol));
 }
 
-const qt::ComboBox* PwmWidget::targetNameWidget(int row) const
+const tobas::qt::ComboBox* PwmWidget::targetNameWidget(int row) const
 {
-  return qt::qConstPointerCast<qt::ComboBox>(cellWidget(row, kTargetNameCol));
+  return tobas::qt::qConstPointerCast<tobas::qt::ComboBox>(cellWidget(row, kTargetNameCol));
 }
 
-const qt::DoubleSpinBox* PwmWidget::periodLbWidget(int row) const
+const tobas::qt::DoubleSpinBox* PwmWidget::periodLbWidget(int row) const
 {
-  return qt::qConstPointerCast<qt::DoubleSpinBox>(cellWidget(row, kPeriodLbCol));
+  return tobas::qt::qConstPointerCast<tobas::qt::DoubleSpinBox>(cellWidget(row, kPeriodLbCol));
 }
 
-const qt::DoubleSpinBox* PwmWidget::periodUbWidget(int row) const
+const tobas::qt::DoubleSpinBox* PwmWidget::periodUbWidget(int row) const
 {
-  return qt::qConstPointerCast<qt::DoubleSpinBox>(cellWidget(row, kPeriodUbCol));
+  return tobas::qt::qConstPointerCast<tobas::qt::DoubleSpinBox>(cellWidget(row, kPeriodUbCol));
 }
 
 void PwmWidget::addLastChannel()
@@ -198,7 +200,7 @@ void PwmWidget::addLastChannel()
   const auto row = rowCount();
 
   // Target name
-  const auto target_name = new qt::ComboBox();
+  const auto target_name = new tobas::qt::ComboBox();
   target_name->addItem("");  // 未選択
   for (const auto& [joint_name, _] : uadf_.tilts) {
     target_name->addItem(QString::fromStdString(joint_name));
@@ -222,7 +224,7 @@ void PwmWidget::addLastChannel()
   }
 
   // PWM period (LB)
-  const auto period_lb = new qt::DoubleSpinBox();
+  const auto period_lb = new tobas::qt::DoubleSpinBox();
   period_lb->setDecimals(kPeriodDecimals);
   period_lb->setMinimum(0);
   period_lb->setMaximum(2500);
@@ -230,7 +232,7 @@ void PwmWidget::addLastChannel()
   period_lb->setSuffix(" us");
 
   // PWM period (UB)
-  const auto period_ub = new qt::DoubleSpinBox();
+  const auto period_ub = new tobas::qt::DoubleSpinBox();
   period_ub->setDecimals(kPeriodDecimals);
   period_ub->setMinimum(0);
   period_ub->setMaximum(2500);
@@ -258,7 +260,7 @@ void PwmWidget::removeLastChannel()
   removeRow(row);
 
   if (!target_name.isEmpty()) {
-    qt::qWarnBox(this, "PWM configuration for \"" + target_name + "\" has been removed.");
+    tobas::qt::qWarnBox(this, "PWM configuration for \"" + target_name + "\" has been removed.");
   }
 }
 
@@ -323,3 +325,4 @@ void PwmWidget::onPropulsionTypeChanged(const tobas::PropulsionSystem& new_prop_
 }  // namespace hw
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

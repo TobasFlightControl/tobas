@@ -2,6 +2,8 @@
 
 #include <iostream>
 
+namespace tobas
+{
 namespace uadf
 {
 Model::Model()
@@ -97,3 +99,4 @@ bool Model::valid() const
   return true;
 }
 }  // namespace uadf
+}  // namespace tobas

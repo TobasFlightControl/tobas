@@ -7,6 +7,8 @@
 #include "../utils/time.hpp"
 #include "./base_view_model.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace ub
@@ -39,3 +41,4 @@ using MaterialViewModelPtr = std::shared_ptr<MaterialViewModel>;
 }  // namespace view_model
 }  // namespace ub
 }  // namespace gui
+}  // namespace tobas

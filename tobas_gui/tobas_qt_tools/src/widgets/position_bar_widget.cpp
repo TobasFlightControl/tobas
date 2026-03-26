@@ -7,6 +7,8 @@
 
 #include "tobas_qt_tools/font.hpp"
 
+namespace tobas
+{
 namespace qt
 {
 PositionBarWidget::PositionBarWidget(QWidget* parent) : super(parent)
@@ -364,3 +366,4 @@ void VPositionBarWidget::drawTextCommon(QPainter& painter)
   painter.rotate(90);
 }
 }  // namespace qt
+}  // namespace tobas

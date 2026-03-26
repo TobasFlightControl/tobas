@@ -6,6 +6,8 @@
 #include <tobas_qt_tools/widgets/description_widget.hpp>
 #include <tobas_ros2_tools/register.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace at
@@ -17,7 +19,7 @@ JointTestWidget::JointTestWidget(
   const tobas::Drone& drone)
   : node_(node), tree_(tree), drone_(drone)
 {
-  const auto instruction = new qt::DescriptionWidget(
+  const auto instruction = new tobas::qt::DescriptionWidget(
     "1. Click \"Start\" to start joint test.\n\n"
     "2. For each channel, confirm that the position, velocity, or effort is correctly following the command.\n\n"
     "3. If any joint does not behave as expected, please review the UADF or Setup Assistant settings.\n\n"
@@ -96,11 +98,11 @@ void JointTestWidget::onStartButtonClicked()
 {
   // アームされていないことを確認
   if (!arming_) {
-    qt::qWarnBox(this, "This operation cannot be performed because the arming status has not been received yet.");
+    tobas::qt::qWarnBox(this, "This operation cannot be performed because the arming status has not been received yet.");
     return;
   }
   if (arming_->data) {
-    qt::qWarnBox(this, "This operation cannot be performed while the vehicle is armed.");
+    tobas::qt::qWarnBox(this, "This operation cannot be performed while the vehicle is armed.");
     return;
   }
 
@@ -111,7 +113,7 @@ void JointTestWidget::onStartButtonClicked()
   zero_button_->setEnabled(true);
   home_button_->setEnabled(true);
 
-  qt::qInfoBox(this, "Joint test started.");
+  tobas::qt::qInfoBox(this, "Joint test started.");
 }
 
 void JointTestWidget::onStopButtonClicked()
@@ -120,7 +122,7 @@ void JointTestWidget::onStopButtonClicked()
 
   reset();
 
-  qt::qInfoBox(this, "Joint test stopped.");
+  tobas::qt::qInfoBox(this, "Joint test stopped.");
 }
 
 void JointTestWidget::onZeroButtonClicked()
@@ -139,3 +141,4 @@ void JointTestWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& ar
 }
 }  // namespace at
 }  // namespace gui
+}  // namespace tobas

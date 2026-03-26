@@ -3,6 +3,8 @@
 #include <tobas_qt_tools/widgets/position_bar_widget.hpp>
 #include <tobas_rqt_bridge/bridge.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -28,10 +30,10 @@ public:
   void reset();
 
 private:
-  qt::HPositionBarWidget* roll_range_;
-  qt::VPositionBarWidget* pitch_range_;
-  qt::HPositionBarWidget* yaw_range_;
-  qt::VPositionBarWidget* throt_range_;
+  tobas::qt::HPositionBarWidget* roll_range_;
+  tobas::qt::VPositionBarWidget* pitch_range_;
+  tobas::qt::HPositionBarWidget* yaw_range_;
+  tobas::qt::VPositionBarWidget* throt_range_;
 
 private Q_SLOTS:
   void rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin);
@@ -39,3 +41,4 @@ private Q_SLOTS:
 }  // namespace rcin
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

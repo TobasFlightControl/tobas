@@ -4,6 +4,8 @@
 
 #include <rclcpp/serialization.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace log
@@ -49,3 +51,4 @@ void MessageDecoder<MsgType>::clearCache()
 }
 }  // namespace log
 }  // namespace gui
+}  // namespace tobas

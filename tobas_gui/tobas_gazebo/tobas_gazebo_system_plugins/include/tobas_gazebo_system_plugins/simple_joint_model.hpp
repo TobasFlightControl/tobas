@@ -2,6 +2,8 @@
 
 #include <tobas_std_tools/range.hpp>
 
+namespace tobas
+{
 namespace gazebo
 {
 /* 位置と最大速度の制約を含む単純な関節モデル． */
@@ -23,3 +25,4 @@ private:
   double tar_pos_ = 0.;
 };
 }  // namespace gazebo
+}  // namespace tobas

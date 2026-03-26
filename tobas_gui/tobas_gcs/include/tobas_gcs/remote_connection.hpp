@@ -7,6 +7,8 @@
 
 #include <tobas_rqt_bridge/bridge.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace gcs
@@ -63,3 +65,4 @@ private Q_SLOTS:
 };
 }  // namespace gcs
 }  // namespace gui
+}  // namespace tobas

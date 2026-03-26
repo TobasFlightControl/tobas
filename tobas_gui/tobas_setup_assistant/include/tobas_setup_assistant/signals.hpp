@@ -4,6 +4,8 @@
 
 #include <tobas_drone_core/propulsion_system/type.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -22,3 +24,4 @@ Q_SIGNALS:
 };
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

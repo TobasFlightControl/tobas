@@ -11,22 +11,24 @@
 
 #define MAX_FUEL_QUANTITY 100.  // TODO: 燃料容量をEngineConfigに含める
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
 {
 EngineViewerWidget::EngineViewerWidget(const RosQtBridge& bridge, const tobas::Drone& drone) : drone_(drone)
 {
-  fuel_quantity_ = new qt::HPositionBarWidget();
-  oil_temp_ = new qt::HPositionBarWidget();
+  fuel_quantity_ = new tobas::qt::HPositionBarWidget();
+  oil_temp_ = new tobas::qt::HPositionBarWidget();
 
   fuel_quantity_->setFixedHeight(kBarHeight);
   oil_temp_->setFixedHeight(kBarHeight);
 
   // Layout
-  const auto form = new qt::FormLayout();
-  form->addVAlignedRow(new qt::Label("Fuel QTY", kLabelPSize), fuel_quantity_);
-  form->addVAlignedRow(new qt::Label("Oil Temp", kLabelPSize), oil_temp_);
+  const auto form = new tobas::qt::FormLayout();
+  form->addVAlignedRow(new tobas::qt::Label("Fuel QTY", kLabelPSize), fuel_quantity_);
+  form->addVAlignedRow(new tobas::qt::Label("Oil Temp", kLabelPSize), oil_temp_);
   setLayout(form);
 
   // Connection
@@ -110,3 +112,4 @@ void EngineViewerWidget::engineStateCb(const tobas_msgs::msg::EngineState::Const
 }
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

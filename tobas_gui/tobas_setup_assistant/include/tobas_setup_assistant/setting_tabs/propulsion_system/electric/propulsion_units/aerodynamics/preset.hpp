@@ -9,6 +9,8 @@
 #include "../propeller.hpp"
 #include "./base.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -47,7 +49,7 @@ public:
 private:
   const PropellerWidget* const propeller_;
 
-  qt::ComboBox* data_name_;
+  tobas::qt::ComboBox* data_name_;
 
   std::filesystem::path getCurrentDataPath() const;
   DataType getCurrentDataType() const;
@@ -64,3 +66,4 @@ private:
 }  // namespace propulsion
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

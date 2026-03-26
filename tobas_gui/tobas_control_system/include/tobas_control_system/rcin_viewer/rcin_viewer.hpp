@@ -3,6 +3,8 @@
 #include "./throttles_viewer.hpp"
 #include "./toggles_viewer.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -25,3 +27,4 @@ private:
 }  // namespace rcin
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

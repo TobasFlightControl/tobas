@@ -3,6 +3,8 @@
 #include <QHBoxLayout>
 #include <QLabel>
 
+namespace tobas
+{
 namespace qt
 {
 LabeledDoubleSpinBox::LabeledDoubleSpinBox(const QString& label_text)
@@ -13,11 +15,11 @@ LabeledDoubleSpinBox::LabeledDoubleSpinBox(const QString& label_text)
   const auto label = new QLabel(label_text + ":");
   cols->addWidget(label);
 
-  data_ = new qt::DoubleSpinBox();
+  data_ = new tobas::qt::DoubleSpinBox();
   data_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);  // こうしないとSpinBoxがLabelに押されてしまう
   cols->addWidget(data_);
 
-  connect(data_, QOverload<double>::of(&qt::DoubleSpinBox::valueChanged), this, &self::onValueChanged);
+  connect(data_, QOverload<double>::of(&tobas::qt::DoubleSpinBox::valueChanged), this, &self::onValueChanged);
 }
 
 double LabeledDoubleSpinBox::getValue() const
@@ -65,3 +67,4 @@ void LabeledDoubleSpinBox::onValueChanged(double value)
   Q_EMIT valueChanged(value);
 }
 }  // namespace qt
+}  // namespace tobas

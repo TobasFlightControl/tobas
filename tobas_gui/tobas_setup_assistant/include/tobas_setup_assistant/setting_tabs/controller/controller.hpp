@@ -8,6 +8,8 @@
 #include "./base.hpp"
 #include "tobas_setup_assistant/frame_type.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -51,7 +53,7 @@ private:
   FrameType frame_type_ = FrameType::kUndefined;
 
   QCheckBox* dont_use_builtin_ctrl_;
-  qt::StackedWidget* stack_;
+  tobas::qt::StackedWidget* stack_;
 
   BaseControllerWidget* widget(int index);
   const BaseControllerWidget* widget(int index) const;
@@ -67,3 +69,4 @@ private Q_SLOTS:
 }  // namespace ctrl
 };  // namespace sa
 }  // namespace gui
+}  // namespace tobas

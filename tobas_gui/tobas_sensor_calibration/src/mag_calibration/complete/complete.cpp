@@ -30,6 +30,8 @@
 #include "tobas_sensor_calibration/constants.hpp"
 #include "tobas_sensor_calibration/util.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sc
@@ -37,7 +39,7 @@ namespace sc
 CompleteMagCalibWidget::CompleteMagCalibWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge)
   : node_(node), rviz_manager_("rviz_mag_calibration")
 {
-  const auto instruction = new qt::DescriptionWidget(
+  const auto instruction = new tobas::qt::DescriptionWidget(
     "1. Click \"Start,\" and the magnetic field points (white) will begin appearing in the view.\n\n"
     "2. With each face up, rotate the FC around the gravity vector until each gauge is full and green.\n\n"
     "3. When all six faces are green and the progress bar reaches 100%, click \"Finish.\"\n\n"
@@ -371,7 +373,7 @@ bool CompleteMagCalibWidget::computeHardBias(
 
   eigen::Ellipsoid ellipsoid;
   if (!ellipsoid.initialize(coefs)) {
-    qt::qErrorBox(this, "Sphere fitting failed.");
+    tobas::qt::qErrorBox(this, "Sphere fitting failed.");
     return false;
   }
 
@@ -426,7 +428,7 @@ bool CompleteMagCalibWidget::computeSoftBias(
 
   eigen::Ellipsoid ellipsoid;
   if (!ellipsoid.initialize(coefs)) {
-    qt::qErrorBox(this, "Ellipsoid fitting failed.");
+    tobas::qt::qErrorBox(this, "Ellipsoid fitting failed.");
     return false;
   }
 
@@ -445,14 +447,14 @@ bool CompleteMagCalibWidget::updateRemoteParameters(const Eigen::Vector3d& hard_
   ros2::SyncServiceClient<tobas_real_msgs::srv::SetMagnetometerParams> sc(
     node_, path::join(ns_, tobas::kRemoteIfaceNS, real::handler::mag::kSetParamSrv));
   if (!sc.call(req, kSetParamTimeout)) {
-    qt::qErrorBox(this, "Failed to send calibration results.");
+    tobas::qt::qErrorBox(this, "Failed to send calibration results.");
     return false;
   }
 
   // 結果を確認
   const auto res = sc.getResponse();
   if (!res->success) {
-    qt::qErrorBox(this, "Calibration results are rejected: " + QString::fromStdString(res->message));
+    tobas::qt::qErrorBox(this, "Calibration results are rejected: " + QString::fromStdString(res->message));
     return false;
   }
 
@@ -562,21 +564,21 @@ void CompleteMagCalibWidget::onStartButtonClicked()
 {
   // アームされていないことを確認
   if (!arming_) {
-    qt::qWarnBox(this, "This operation cannot be performed because the arming status has not been received yet.");
+    tobas::qt::qWarnBox(this, "This operation cannot be performed because the arming status has not been received yet.");
     return;
   }
   if (arming_->data) {
-    qt::qWarnBox(this, "This operation cannot be performed while the vehicle is armed.");
+    tobas::qt::qWarnBox(this, "This operation cannot be performed while the vehicle is armed.");
     return;
   }
 
   // 必要なトピックが受け取れていることを確認
   if (!mag_raw_) {
-    qt::qWarnBox(this, "Magnetic field has not been received yet.");
+    tobas::qt::qWarnBox(this, "Magnetic field has not been received yet.");
     return;
   }
   if (!odom_) {
-    qt::qWarnBox(
+    tobas::qt::qWarnBox(
       this,
       "This operation cannot be performed because the odometry has not been received yet. "
       "Please check whether the accelerometer has been calibrated.");
@@ -589,7 +591,7 @@ void CompleteMagCalibWidget::onStartButtonClicked()
   cancel_button_->setEnabled(true);
 
   running_ = true;
-  qt::qInfoBox(this, "Magnetometer calibration started.");
+  tobas::qt::qInfoBox(this, "Magnetometer calibration started.");
 }
 
 void CompleteMagCalibWidget::onCancelButtonClicked()
@@ -597,7 +599,7 @@ void CompleteMagCalibWidget::onCancelButtonClicked()
   resetToPreStart();
   clearDisplayPoints();
 
-  qt::qInfoBox(this, "Magnetometer calibration is cancelled.");
+  tobas::qt::qInfoBox(this, "Magnetometer calibration is cancelled.");
 }
 
 void CompleteMagCalibWidget::onFinishButtonClicked()
@@ -605,7 +607,7 @@ void CompleteMagCalibWidget::onFinishButtonClicked()
   TOBAS_CHECK(cnt_ <= kMaxDataSize);
 
   if (cnt_ < kMinDataSize) {
-    qt::qWarnBox(this, "The number of collected samples is too small.");
+    tobas::qt::qWarnBox(this, "The number of collected samples is too small.");
     return;
   }
 
@@ -672,7 +674,7 @@ void CompleteMagCalibWidget::onFinishButtonClicked()
   std::cout << "Soft-iron bias: " << soft_bias.transpose() << std::endl;
 
   resetToPreStart();
-  qt::qInfoBox(this, "Magnetometer calibration finished successfully. Please restart the flight controller.");
+  tobas::qt::qInfoBox(this, "Magnetometer calibration finished successfully. Please restart the flight controller.");
 }
 
 void CompleteMagCalibWidget::magCb(const tobas_msgs::MagneticField::ConstSharedPtr& msg)
@@ -693,7 +695,7 @@ void CompleteMagCalibWidget::magCb(const tobas_msgs::MagneticField::ConstSharedP
   // 最大点数に達したら強制終了
   if (cnt_ >= kMaxDataSize) {
     resetToPreStart();
-    qt::qErrorBox(this, "Magnetometer sample limit reached. Calibration canceled.");
+    tobas::qt::qErrorBox(this, "Magnetometer sample limit reached. Calibration canceled.");
     return;
   }
 
@@ -764,7 +766,7 @@ void CompleteMagCalibWidget::armingCb(const tobas_msgs::msg::Arming::ConstShared
   if (running_ && msg->data) {
     resetToPreStart();
     clearDisplayPoints();
-    qt::qWarnBox(this, "Magnetometer calibration was canceled because an arming command was issued.");
+    tobas::qt::qWarnBox(this, "Magnetometer calibration was canceled because an arming command was issued.");
   }
 
   arming_ = msg;
@@ -776,3 +778,4 @@ void CompleteMagCalibWidget::odomCb(const tobas_msgs::OdometryWithCovarianceStam
 }
 }  // namespace sc
 }  // namespace gui
+}  // namespace tobas

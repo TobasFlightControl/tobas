@@ -2,6 +2,8 @@
 
 #include <QAbstractListModel>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -67,3 +69,4 @@ void MapItemModel<Args...>::clear()
 }  // namespace map
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

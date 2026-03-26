@@ -3,6 +3,8 @@
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -78,7 +80,7 @@ void ObserverWidget::updateInternalDataStructures()
 bool ObserverWidget::isValid()
 {
   if (useMagnetometer() && useBarometer()) {
-    qt::qWarnBox(
+    tobas::qt::qWarnBox(
       this,
       "You cannot enable both the barometer and GNSS at the same time "
       "because both provide altitude information.");
@@ -171,3 +173,4 @@ bool ObserverWidget::doGravityEstimation() const
 }
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

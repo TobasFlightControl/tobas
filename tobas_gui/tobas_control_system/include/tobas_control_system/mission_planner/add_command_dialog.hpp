@@ -6,6 +6,8 @@
 
 #include "./command_type.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -23,7 +25,7 @@ public:
   Command selectedCommand() const;
 
 private:
-  qt::ListWidget* command_list_;
+  tobas::qt::ListWidget* command_list_;
   Command selected_command_;
 
 private Q_SLOTS:
@@ -31,3 +33,4 @@ private Q_SLOTS:
 };
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

@@ -11,6 +11,8 @@
 
 namespace cmp = gz::sim::components;
 
+namespace tobas
+{
 namespace gazebo
 {
 class GazeboGroundTruthStatePlugin : public BaseNode,
@@ -124,9 +126,10 @@ void GazeboGroundTruthStatePlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
   getSdfParam(sdf, "updateRate", update_rate_, kDefaultUpdateRate, kNonNegative);
 }
 }  // namespace gazebo
+}  // namespace tobas
 
 GZ_ADD_PLUGIN(
-  gazebo::GazeboGroundTruthStatePlugin,
+  tobas::gazebo::GazeboGroundTruthStatePlugin,
   gz::sim::System,
-  gazebo::GazeboGroundTruthStatePlugin::ISystemConfigure,
-  gazebo::GazeboGroundTruthStatePlugin::ISystemPostUpdate)
+  tobas::gazebo::GazeboGroundTruthStatePlugin::ISystemConfigure,
+  tobas::gazebo::GazeboGroundTruthStatePlugin::ISystemPostUpdate)

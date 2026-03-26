@@ -19,8 +19,10 @@
 
 #include "tobas_sensor_calibration/constants.hpp"
 
-using namespace real::handler::rcin;
+using namespace tobas::real::handler::rcin;
 
+namespace tobas
+{
 namespace gui
 {
 namespace sc
@@ -31,7 +33,7 @@ RCInputCalibrationWidget::RCInputCalibrationWidget(
   const tobas::Drone& drone)
   : node_(node), drone_(drone)
 {
-  const auto instruction = new qt::DescriptionWidget(
+  const auto instruction = new tobas::qt::DescriptionWidget(
     "1. Click \"Start\" to begin displaying S.BUS data in the view.\n\n"
     "2. For each channel, operate the stick or switch to ensure it covers the entire range. "
     "If the stick's movement is opposite to that of the bar, adjust the transmitter settings accordingly.\n\n"
@@ -62,17 +64,17 @@ RCInputCalibrationWidget::RCInputCalibrationWidget(
   // Sticks
   const auto stick_cols = new QHBoxLayout();
 
-  pitch_range_ = new qt::VPositionBarWidget(kMinPeriod, kMaxPeriod);
+  pitch_range_ = new tobas::qt::VPositionBarWidget(kMinPeriod, kMaxPeriod);
   pitch_range_->setFixedWidth(kRangeSideShort);
   stick_cols->addWidget(pitch_range_);
 
   const auto roll_yaw_rows = new QVBoxLayout();
   stick_cols->addLayout(roll_yaw_rows);
 
-  roll_range_ = new qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
+  roll_range_ = new tobas::qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
   roll_range_->setFixedHeight(kRangeSideShort);
   roll_yaw_rows->addWidget(roll_range_);
-  qt::addWidgetCenter(new QLabel(std::format("Roll (CH{})", tobas::kRcChannelRoll + 1).c_str()), roll_yaw_rows);
+  tobas::qt::addWidgetCenter(new QLabel(std::format("Roll (CH{})", tobas::kRcChannelRoll + 1).c_str()), roll_yaw_rows);
 
   roll_yaw_rows->addStretch();
 
@@ -89,47 +91,47 @@ RCInputCalibrationWidget::RCInputCalibrationWidget(
 
   roll_yaw_rows->addStretch();
 
-  qt::addWidgetCenter(new QLabel(std::format("Yaw (CH{})", tobas::kRcChannelYaw + 1).c_str()), roll_yaw_rows);
-  yaw_range_ = new qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
+  tobas::qt::addWidgetCenter(new QLabel(std::format("Yaw (CH{})", tobas::kRcChannelYaw + 1).c_str()), roll_yaw_rows);
+  yaw_range_ = new tobas::qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
   yaw_range_->setFixedHeight(kRangeSideShort);
   roll_yaw_rows->addWidget(yaw_range_);
 
-  throt_range_ = new qt::VPositionBarWidget(kMaxPeriod, kMinPeriod);
+  throt_range_ = new tobas::qt::VPositionBarWidget(kMaxPeriod, kMinPeriod);
   throt_range_->setFixedWidth(kRangeSideShort);
   stick_cols->addWidget(throt_range_);
 
   // Control Switches
-  const auto ctrl_switch_form = new qt::FormLayout();
+  const auto ctrl_switch_form = new tobas::qt::FormLayout();
 
-  mode_range_ = new qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
+  mode_range_ = new tobas::qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
   mode_range_->setFixedHeight(kRangeSideShort);
   ctrl_switch_form->addVAlignedRow(std::format("Mode (CH{})", tobas::kRcChannelMode + 1).c_str(), mode_range_);
 
   ctrl_switch_form->addStretch();
 
-  sub_mode_range_ = new qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
+  sub_mode_range_ = new tobas::qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
   sub_mode_range_->setFixedHeight(kRangeSideShort);
   ctrl_switch_form->addVAlignedRow(
     std::format("Sub Mode (CH{})", tobas::kRcChannelSubMode + 1).c_str(), sub_mode_range_);
 
   ctrl_switch_form->addStretch();
 
-  enable_range_ = new qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
+  enable_range_ = new tobas::qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
   enable_range_->setFixedHeight(kRangeSideShort);
   ctrl_switch_form->addVAlignedRow(std::format("Enable (CH{})", tobas::kRcChannelEnable + 1).c_str(), enable_range_);
 
   ctrl_switch_form->addStretch();
 
-  kill_range_ = new qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
+  kill_range_ = new tobas::qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
   kill_range_->setFixedHeight(kRangeSideShort);
   ctrl_switch_form->addVAlignedRow(std::format("Kill (CH{})", tobas::kRcChannelKill + 1).c_str(), kill_range_);
 
   // General Purpose Switches
-  const auto gpsw_form = new qt::FormLayout();
+  const auto gpsw_form = new tobas::qt::FormLayout();
 
   for (size_t i = 0; i < tobas::kMaxNumOfGpsw; ++i) {
     gpsw_labels_[i] = new QLabel();
-    gpsw_ranges_[i] = new qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
+    gpsw_ranges_[i] = new tobas::qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
     gpsw_ranges_[i]->setFixedHeight(kRangeSideShort);
     gpsw_form->addVAlignedRow(gpsw_labels_[i], gpsw_ranges_[i]);
     if (i < tobas::kMaxNumOfGpsw - 1) {
@@ -238,7 +240,7 @@ bool RCInputCalibrationWidget::saveParamsToGcs()
 {
   ptree::PropertyTree pt;
   if (!pt.initialize((ros2::expandUser(tobas::kConfigDirHome) / kConfigFileName))) {
-    qt::qErrorBox(this, "Failed to initialize property tree.");
+    tobas::qt::qErrorBox(this, "Failed to initialize property tree.");
     return false;
   }
 
@@ -276,7 +278,7 @@ bool RCInputCalibrationWidget::saveParamsToGcs()
   pt.set(ns, kGpswOffKey, gpsw_off);
 
   if (!pt.save()) {
-    qt::qErrorBox(this, "Failed to save calibration results on GCS.");
+    tobas::qt::qErrorBox(this, "Failed to save calibration results on GCS.");
     return false;
   }
 
@@ -318,13 +320,13 @@ bool RCInputCalibrationWidget::saveParamsToFc()
   ros2::SyncServiceClient<tobas_real_msgs::srv::SetRcInputParams> sc(
     node_, path::join(drone_.name, tobas::kRemoteIfaceNS, kSetParamSrv));
   if (!sc.call(req, kSetParamTimeout)) {
-    qt::qErrorBox(this, "Failed to send calibration results to FC.");
+    tobas::qt::qErrorBox(this, "Failed to send calibration results to FC.");
     return false;
   }
 
   const auto res = sc.getResponse();
   if (!res->success) {
-    qt::qErrorBox(this, "Calibration results are rejected: " + QString::fromStdString(res->message));
+    tobas::qt::qErrorBox(this, "Calibration results are rejected: " + QString::fromStdString(res->message));
     return false;
   }
 
@@ -335,17 +337,17 @@ void RCInputCalibrationWidget::onStartButtonClicked()
 {
   // アームされていないことを確認
   if (!arming_) {
-    qt::qWarnBox(this, "This operation cannot be performed because the arming status has not been received yet.");
+    tobas::qt::qWarnBox(this, "This operation cannot be performed because the arming status has not been received yet.");
     return;
   }
   if (arming_->data) {
-    qt::qWarnBox(this, "This operation cannot be performed while the vehicle is armed.");
+    tobas::qt::qWarnBox(this, "This operation cannot be performed while the vehicle is armed.");
     return;
   }
 
   // 必要なトピックが受け取れていることを確認
   if (!sbus_) {
-    qt::qWarnBox(this, "S.BUS has not been received yet.");
+    tobas::qt::qWarnBox(this, "S.BUS has not been received yet.");
     return;
   }
 
@@ -354,12 +356,12 @@ void RCInputCalibrationWidget::onStartButtonClicked()
   cancel_button_->setEnabled(true);
 
   running_ = true;
-  qt::qInfoBox(this, "Radio calibration started.");
+  tobas::qt::qInfoBox(this, "Radio calibration started.");
 }
 
 void RCInputCalibrationWidget::onCancelButtonClicked()
 {
-  qt::qInfoBox(this, "Radio calibration is cancelled.");
+  tobas::qt::qInfoBox(this, "Radio calibration is cancelled.");
   reset();
 }
 
@@ -367,47 +369,47 @@ void RCInputCalibrationWidget::onFinishButtonClicked()
 {
   // メッセージの受信を確認
   if (!roll_range_->hasValue()) {
-    qt::qWarnBox(this, "No S.BUS message is received.");
+    tobas::qt::qWarnBox(this, "No S.BUS message is received.");
     return;
   }
 
   // 各チャンネルの値の範囲をチェック
   if (roll_range_->getRange() < kMinSignalRange) {
-    qt::qWarnBox(this, "The signal range of Roll channel is too narrow.");
+    tobas::qt::qWarnBox(this, "The signal range of Roll channel is too narrow.");
     return;
   }
   if (pitch_range_->getRange() < kMinSignalRange) {
-    qt::qWarnBox(this, "The signal range of Pitch channel is too narrow.");
+    tobas::qt::qWarnBox(this, "The signal range of Pitch channel is too narrow.");
     return;
   }
   if (yaw_range_->getRange() < kMinSignalRange) {
-    qt::qWarnBox(this, "The signal range of Yaw channel is too narrow.");
+    tobas::qt::qWarnBox(this, "The signal range of Yaw channel is too narrow.");
     return;
   }
   if (throt_range_->getRange() < kMinSignalRange) {
-    qt::qWarnBox(this, "The signal range of Throttle channel is too narrow.");
+    tobas::qt::qWarnBox(this, "The signal range of Throttle channel is too narrow.");
     return;
   }
   if (mode_range_->getRange() < kMinSignalRange) {
-    qt::qWarnBox(this, "The signal range of Mode channel is too narrow.");
+    tobas::qt::qWarnBox(this, "The signal range of Mode channel is too narrow.");
     return;
   }
   if (sub_mode_range_->getRange() < kMinSignalRange) {
-    qt::qWarnBox(this, "The signal range of Sub-Mode channel is too narrow.");
+    tobas::qt::qWarnBox(this, "The signal range of Sub-Mode channel is too narrow.");
     return;
   }
   if (enable_range_->getRange() < kMinSignalRange) {
-    qt::qWarnBox(this, "The signal range of Enable channel is too narrow.");
+    tobas::qt::qWarnBox(this, "The signal range of Enable channel is too narrow.");
     return;
   }
   if (kill_range_->getRange() < kMinSignalRange) {
-    qt::qWarnBox(this, "The signal range of Kill channel is too narrow.");
+    tobas::qt::qWarnBox(this, "The signal range of Kill channel is too narrow.");
     return;
   }
 
   for (size_t i = 0; i < numOfGpswChannels(); ++i) {
     if (gpsw_ranges_.at(i)->getRange() < kMinSignalRange) {
-      qt::qWarnBox(this, "The signal range of GPSw " + QString::number(i + 1) + " channel is too narrow.");
+      tobas::qt::qWarnBox(this, "The signal range of GPSw " + QString::number(i + 1) + " channel is too narrow.");
       return;
     }
   }
@@ -420,7 +422,7 @@ void RCInputCalibrationWidget::onFinishButtonClicked()
   }
 
   reset();
-  qt::qInfoBox(this, "Radio calibration finished successfully.");
+  tobas::qt::qInfoBox(this, "Radio calibration finished successfully.");
 }
 
 void RCInputCalibrationWidget::sbusCb(const tobas_msgs::msg::Sbus::ConstSharedPtr& sbus)
@@ -454,10 +456,11 @@ void RCInputCalibrationWidget::armingCb(const tobas_msgs::msg::Arming::ConstShar
 {
   if (running_ && arming->data) {
     reset();
-    qt::qWarnBox(this, "Radio calibration was canceled because an arming command was issued.");
+    tobas::qt::qWarnBox(this, "Radio calibration was canceled because an arming command was issued.");
   }
 
   arming_ = arming;
 }
 }  // namespace sc
 }  // namespace gui
+}  // namespace tobas

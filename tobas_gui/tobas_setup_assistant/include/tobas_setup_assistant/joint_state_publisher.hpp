@@ -13,6 +13,8 @@
 
 #include <tobas_visualization_msgs/msg/display_robot_state.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -41,7 +43,7 @@ private:
   QVBoxLayout* slider_rows_;
 
   sensor_msgs::msg::JointState js_;
-  std::vector<qt::DoubleSliderDisplay*> sliders_;
+  std::vector<tobas::qt::DoubleSliderDisplay*> sliders_;
 
   ros2::PublisherPtr<sensor_msgs::msg::JointState> js_pub_;
   ros2::PublisherPtr<tobas_visualization_msgs::msg::DisplayRobotState> drs_pub_;
@@ -59,3 +61,4 @@ private Q_SLOTS:
 };
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

@@ -5,6 +5,8 @@
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sim
@@ -15,7 +17,7 @@ DebugWidget::DebugWidget()
 
   // Layout
   const auto rows = new QVBoxLayout();
-  rows->addWidget(new qt::Label("Debug", cmn::kLabelPSize, QFont::Bold));
+  rows->addWidget(new tobas::qt::Label("Debug", cmn::kLabelPSize, QFont::Bold));
   rows->addWidget(user_debug_);
 
   setLayout(rows);
@@ -27,3 +29,4 @@ bool DebugWidget::userDebug() const
 }
 }  // namespace sim
 }  // namespace gui
+}  // namespace tobas

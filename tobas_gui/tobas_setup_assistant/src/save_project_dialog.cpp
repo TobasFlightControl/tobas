@@ -11,6 +11,8 @@
 #include <tobas_ros2_tools/package.hpp>
 #include <tobas_ros2_tools/util.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -34,9 +36,9 @@ SaveProjectDialog::SaveProjectDialog(QWidget* parent, const QString& dir, const 
   proj_name_->installEventFilter(this);
 
   // 警告文をレイアウトの一番下に挿入
-  warn_text_ = new qt::Label();
+  warn_text_ = new tobas::qt::Label();
   warn_text_->setTextColor(Qt::red);
-  const auto grid = qt::qPointerCast<QGridLayout>(layout());
+  const auto grid = tobas::qt::qPointerCast<QGridLayout>(layout());
   grid->addWidget(warn_text_, grid->rowCount(), 0, 1, grid->columnCount());
 
   // パスが変わったらその都度保存可能性をチェック
@@ -113,7 +115,7 @@ void SaveProjectDialog::onProjectPathChanged()
       return;
     }
 
-    if (qt::getBaseName(proj_name).isEmpty()) {
+    if (tobas::qt::getBaseName(proj_name).isEmpty()) {
       warn_text_->setText("The base name of the project is empty.");
       save_button_->setEnabled(false);
       return;
@@ -125,3 +127,4 @@ void SaveProjectDialog::onProjectPathChanged()
 }
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

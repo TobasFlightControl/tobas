@@ -8,6 +8,8 @@
 
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/constants.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -34,7 +36,7 @@ EngineDynamicsWidget::EngineDynamicsWidget(rclcpp::Node::SharedPtr node)
 bool EngineDynamicsWidget::isValid()
 {
   if (data_->count() == 0) {
-    qt::qWarnBox(this, "Engine dynamics data is blank.");
+    tobas::qt::qWarnBox(this, "Engine dynamics data is blank.");
     return false;
   }
 
@@ -86,3 +88,4 @@ std::pair<double, double> EngineDynamicsWidget::engineConstant() const
 }  // namespace propulsion
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

@@ -7,6 +7,8 @@
 
 #include "tobas_flight_log_gui/recorder/constants.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace log
@@ -48,3 +50,4 @@ void RecordStartThread::setLogName(const std::string& log_name)
 }
 }  // namespace log
 }  // namespace gui
+}  // namespace tobas

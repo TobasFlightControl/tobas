@@ -2,6 +2,8 @@
 
 #include "./base_view_model.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace ub
@@ -32,3 +34,4 @@ using JointLimitsViewModelPtr = std::shared_ptr<JointLimitsViewModel>;
 }  // namespace view_model
 }  // namespace ub
 }  // namespace gui
+}  // namespace tobas

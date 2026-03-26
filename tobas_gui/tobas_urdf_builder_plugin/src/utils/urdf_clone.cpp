@@ -1,5 +1,7 @@
 #include "tobas_urdf_builder_plugin/utils/urdf_clone.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace ub
@@ -116,3 +118,4 @@ urdf::LinkSharedPtr clone(const urdf::LinkSharedPtr& link)
 }  // namespace utils
 }  // namespace ub
 }  // namespace gui
+}  // namespace tobas

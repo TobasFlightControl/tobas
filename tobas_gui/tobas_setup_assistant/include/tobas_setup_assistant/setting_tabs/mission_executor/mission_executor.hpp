@@ -7,6 +7,8 @@
 #include "./none.hpp"
 #include "tobas_setup_assistant/frame_type.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -44,7 +46,7 @@ public:
   YAML::Node staticParams() const;
 
 private:
-  qt::StackedWidget* stack_;
+  tobas::qt::StackedWidget* stack_;
 
   NoneWidget* none_;
   MulticopterWidget* multicopter_;
@@ -58,3 +60,4 @@ private:
 }  // namespace mission
 };  // namespace sa
 }  // namespace gui
+}  // namespace tobas

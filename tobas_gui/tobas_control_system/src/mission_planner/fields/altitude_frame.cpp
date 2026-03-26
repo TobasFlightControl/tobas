@@ -11,6 +11,8 @@
 #define MEAN_SEA_LEVEL_LABEL "Mean Sea Level"
 #define RELATIVE_TO_LAUNCH_LABEL "Relative to Launch"
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -47,7 +49,7 @@ tobas::mission::AltitudeFrame textToAltFrame(const char* text)
 
 AltitudeFrameWidget::AltitudeFrameWidget()
 {
-  combobox_ = new qt::ComboBox();
+  combobox_ = new tobas::qt::ComboBox();
   combobox_->addItem(altFrameToText(tobas::mission::kRelativeToLaunch));  // TODO: 他の選択肢も選べるようにする
   // for (const auto alt_frame : magic_enum::enum_values<tobas::mission::AltitudeFrame>())
   //   combobox_->addItem(altFrameToText(alt_frame));
@@ -76,3 +78,4 @@ void AltitudeFrameWidget::setValue(tobas::mission::AltitudeFrame value)
 }  // namespace field
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

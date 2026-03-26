@@ -4,16 +4,18 @@
 #include <tobas_rqt_bridge/bridge.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
 {
-class PoseViewerWidget : public qt::Widget
+class PoseViewerWidget : public tobas::qt::Widget
 {
   Q_OBJECT
 
   using self = PoseViewerWidget;
-  using super = qt::Widget;
+  using super = tobas::qt::Widget;
 
   static constexpr int kOriginalSize = 640;
   static constexpr int kLineWidth = 3;       // ゲージ線の幅
@@ -61,3 +63,4 @@ private Q_SLOTS:
 };
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

@@ -4,6 +4,8 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ub
@@ -76,3 +78,4 @@ void StringInputDialog::enableOkButton(bool enable)
 }  // namespace ui
 }  // namespace ub
 }  // namespace gui
+}  // namespace tobas

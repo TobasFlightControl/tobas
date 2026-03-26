@@ -7,6 +7,8 @@
 #define tbswarn gzwarn << "[" << name_ << "] "
 #define tbserr gzerr << "[" << name_ << "] "
 
+namespace tobas
+{
 namespace gazebo
 {
 BaseNode::BaseNode()
@@ -91,3 +93,4 @@ std::string BaseNode::createID(const char* file, int line)
   return std::string(file) + ":" + std::to_string(line);
 }
 }  // namespace gazebo
+}  // namespace tobas

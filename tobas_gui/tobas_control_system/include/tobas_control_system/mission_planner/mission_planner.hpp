@@ -14,6 +14,8 @@
 #include "./commands/base.hpp"
 #include "./map/map.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -58,11 +60,11 @@ private:
   CommandButton* cancel_button_;
   CommandButton* focus_button_;
 
-  qt::ListWidget* command_list_;
-  qt::StackedWidget* commands_;
+  tobas::qt::ListWidget* command_list_;
+  tobas::qt::StackedWidget* commands_;
   std::set<std::pair<QListWidgetItem*, BaseCommandWidget*>> pairs_;
 
-  qt::WaitSpinnerWidget spinner_;
+  tobas::qt::WaitSpinnerWidget spinner_;
 
   bool mission_executing_;
   Client::SharedPtr mission_ac_;
@@ -109,3 +111,4 @@ private Q_SLOTS:
 };
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

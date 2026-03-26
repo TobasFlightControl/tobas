@@ -13,6 +13,8 @@
 #include <tobas_ros2_tools/util.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace log
@@ -515,3 +517,4 @@ bool CsvExportThread::exportOldestImuLine(std::ofstream& file, Time before_this_
 }
 }  // namespace log
 }  // namespace gui
+}  // namespace tobas

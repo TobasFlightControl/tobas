@@ -11,6 +11,8 @@
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/constants.hpp"
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/ice/propulsion_units/blade_theory.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -44,22 +46,22 @@ const char* AerodynamicsWidget::name() const
 bool AerodynamicsWidget::isValid()
 {
   if (data_->count() == 0) {
-    qt::qWarnBox(this, "Propeller test data is blank.");
+    tobas::qt::qWarnBox(this, "Propeller test data is blank.");
     return false;
   }
 
   if (!motorConst().isValid()) {
-    qt::qWarnBox(this, "Failed to estimate the motor constant of the variable pitch propeller.");
+    tobas::qt::qWarnBox(this, "Failed to estimate the motor constant of the variable pitch propeller.");
     return false;
   }
 
   if (!momentConst().isValid()) {
-    qt::qWarnBox(this, "Failed to estimate the moment constant of the variable pitch propeller.");
+    tobas::qt::qWarnBox(this, "Failed to estimate the moment constant of the variable pitch propeller.");
     return false;
   }
 
   if (!dragConst().isValid()) {
-    qt::qWarnBox(this, "Failed to estimate the drag constant of the variable pitch propeller.");
+    tobas::qt::qWarnBox(this, "Failed to estimate the drag constant of the variable pitch propeller.");
     return false;
   }
 
@@ -68,7 +70,7 @@ bool AerodynamicsWidget::isValid()
 
 void AerodynamicsWidget::copyFrom(const BaseSelectedLinkSettingWidget* src)
 {
-  const auto derived = qt::qConstPointerCast<AerodynamicsWidget>(src);
+  const auto derived = tobas::qt::qConstPointerCast<AerodynamicsWidget>(src);
   data_->setValue(derived->data_->getValue());
 }
 
@@ -166,3 +168,4 @@ std::tuple<Eigen::VectorXd, Eigen::VectorXd, Eigen::VectorXd, Eigen::VectorXd> A
 }  // namespace propulsion
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

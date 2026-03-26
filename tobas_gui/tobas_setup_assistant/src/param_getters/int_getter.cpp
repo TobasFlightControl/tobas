@@ -7,6 +7,8 @@
 #include <tobas_qt_tools/font.hpp>
 #include <tobas_string_tools/core.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -17,14 +19,14 @@ IntGetter::IntGetter(const QString& name)
   setLayout(cols);
 
   const auto label = new QLabel(name + ":");
-  label->setFont(qt::DefaultFont(cmn::kBodyPSize));
+  label->setFont(tobas::qt::DefaultFont(cmn::kBodyPSize));
   cols->addWidget(label);
 
-  data_ = new qt::SpinBox();
+  data_ = new tobas::qt::SpinBox();
   data_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
   cols->addWidget(data_);
 
-  connect(data_, QOverload<int>::of(&qt::SpinBox::valueChanged), this, &self::onValueChanged);
+  connect(data_, QOverload<int>::of(&tobas::qt::SpinBox::valueChanged), this, &self::onValueChanged);
 }
 
 int IntGetter::getValue() const
@@ -68,3 +70,4 @@ void IntGetter::onValueChanged(int value)
 }
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

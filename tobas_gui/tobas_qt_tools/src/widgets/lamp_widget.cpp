@@ -2,6 +2,8 @@
 
 #include <format>
 
+namespace tobas
+{
 namespace qt
 {
 LampWidget::LampWidget(QWidget* parent) : super(parent)
@@ -36,3 +38,4 @@ void LampWidget::draw()
   setStyleSheet(QString::fromStdString(qss));
 }
 }  // namespace qt
+}  // namespace tobas

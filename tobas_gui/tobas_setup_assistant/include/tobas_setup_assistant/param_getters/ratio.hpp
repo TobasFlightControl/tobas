@@ -4,6 +4,8 @@
 
 #include "./base.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -34,10 +36,11 @@ private Q_SLOTS:
   void onValueChanged();
 
 private:
-  qt::SpinBox* left_value_;
-  qt::SpinBox* right_value_;
+  tobas::qt::SpinBox* left_value_;
+  tobas::qt::SpinBox* right_value_;
   QLabel* left_text_;
   QLabel* right_text_;
 };
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

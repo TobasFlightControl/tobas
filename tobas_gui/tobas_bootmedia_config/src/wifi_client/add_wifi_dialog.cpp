@@ -25,9 +25,9 @@ AddWifiDialog::AddWifiDialog(QWidget* parent) : super(parent)
 
   ssid_ = new QLineEdit();
 
-  psk_ = new qt::PasswordEdit();
+  psk_ = new tobas::qt::PasswordEdit();
 
-  priority_ = new qt::SpinBox();
+  priority_ = new tobas::qt::SpinBox();
   priority_->setMinimum(0);
   priority_->setMaximum(99);
   priority_->setValue(0);

@@ -8,6 +8,8 @@
 #include <urdf/model.h>
 #include <rviz_default_plugins/robot/link_updater.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ub
@@ -40,3 +42,4 @@ private:
 }  // namespace ogre
 }  // namespace ub
 }  // namespace gui
+}  // namespace tobas

@@ -8,6 +8,8 @@
 
 namespace fs = std::filesystem;
 
+namespace tobas
+{
 namespace gui
 {
 namespace cmn
@@ -70,7 +72,7 @@ const std::string& LocalProjectBuilder::errorMessage() const
 std::expected<void, QString> buildLocalProject(const fs::path& proj_path)
 {
   LocalProjectBuilderThread thread(proj_path);
-  const auto [success, message] = qt::startThreadAndWait(thread, &LocalProjectBuilderThread::finished);
+  const auto [success, message] = tobas::qt::startThreadAndWait(thread, &LocalProjectBuilderThread::finished);
 
   if (success) {
     return {};
@@ -81,5 +83,6 @@ std::expected<void, QString> buildLocalProject(const fs::path& proj_path)
 }
 }  // namespace cmn
 }  // namespace gui
+}  // namespace tobas
 
 #include "local_project_builder.moc"

@@ -3,6 +3,8 @@
 #include "./base.hpp"
 #include "tobas_setup_assistant/param_getters/ratio.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -37,3 +39,4 @@ private:
 }  // namespace propulsion
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

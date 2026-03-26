@@ -12,6 +12,8 @@
 
 namespace fs = std::filesystem;
 
+namespace tobas
+{
 namespace gui
 {
 namespace param
@@ -48,7 +50,7 @@ ParameterTuningWidget::ParameterTuningWidget(rclcpp::Node::SharedPtr node)
   button_cols->addWidget(reset_button_);
   button_cols->addStretch();
 
-  const auto param_rows = qt::createScrollableQVBoxLayout(root_rows);
+  const auto param_rows = tobas::qt::createScrollableQVBoxLayout(root_rows);
   for (const auto& block : blocks_) {
     param_rows->addWidget(block);
   }
@@ -82,7 +84,7 @@ bool ParameterTuningWidget::updateProject(const fs::path& proj_path)
   // Load drone configuration
   const auto tbsdrn_path = proj_paths_.tbsdrnPath();
   if (!drone_.load(tbsdrn_path)) {
-    qt::qErrorBox(this, "Failed to load drone configuration.");
+    tobas::qt::qErrorBox(this, "Failed to load drone configuration.");
     return false;
   }
 
@@ -105,7 +107,7 @@ void ParameterTuningWidget::onLoadButtonClicked()
   save_button_->setEnabled(true);
   reset_button_->setEnabled(true);
 
-  qt::qInfoBox(this, "Dynamic parameters are loaded successfully.");
+  tobas::qt::qInfoBox(this, "Dynamic parameters are loaded successfully.");
 }
 
 void ParameterTuningWidget::onSaveButtonClicked()
@@ -119,7 +121,7 @@ void ParameterTuningWidget::onSaveButtonClicked()
     }
   }
 
-  qt::qInfoBox(
+  tobas::qt::qInfoBox(
     this,
     "Dynamic parameters have been saved to the local project. "
     "Please click \"Write\" button again to flash them to the FC.");
@@ -128,7 +130,7 @@ void ParameterTuningWidget::onSaveButtonClicked()
 void ParameterTuningWidget::onResetButtonClicked()
 {
   // 本当に全てのパラメータをリセットしてよいか確認
-  if (!qt::yesOrNo(this, "Are you sure you want to reset all parameters to their defaults?", qt::WARN)) {
+  if (!tobas::qt::yesOrNo(this, "Are you sure you want to reset all parameters to their defaults?", tobas::qt::WARN)) {
     return;
   }
 
@@ -138,7 +140,8 @@ void ParameterTuningWidget::onResetButtonClicked()
     }
   }
 
-  qt::qInfoBox(this, "Dynamic parameters are set to their defaults successfully.");
+  tobas::qt::qInfoBox(this, "Dynamic parameters are set to their defaults successfully.");
 }
 }  // namespace param
 }  // namespace gui
+}  // namespace tobas

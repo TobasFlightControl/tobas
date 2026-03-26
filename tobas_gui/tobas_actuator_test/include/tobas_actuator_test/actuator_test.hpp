@@ -5,16 +5,18 @@
 #include "./joint_test/joint_test.hpp"
 #include "./rotor_test/rotor_test.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace at
 {
-class ActuatorTestWidget : public qt::VerticalTabWidget
+class ActuatorTestWidget : public tobas::qt::VerticalTabWidget
 {
   Q_OBJECT
 
   using self = ActuatorTestWidget;
-  using super = qt::VerticalTabWidget;
+  using super = tobas::qt::VerticalTabWidget;
 
   static constexpr int kTabHeight = 35;  // これ以上無いと何故かTabBarの文字が横に見切れてしまう
   static constexpr int kTabWidth = 70;
@@ -42,3 +44,4 @@ private:
 };
 }  // namespace at
 }  // namespace gui
+}  // namespace tobas

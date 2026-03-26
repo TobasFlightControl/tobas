@@ -6,6 +6,8 @@
 #include <tobas_string_tools/core.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -49,17 +51,17 @@ bool AuthorInformationWidget::isValid()
 {
   const auto author_name = name_->getValue();
   if (author_name.isEmpty()) {
-    qt::qWarnBox(this, "Please specify author name.");
+    tobas::qt::qWarnBox(this, "Please specify author name.");
     return false;
   }
 
   const auto author_email = email_->getValue();
   if (author_email.isEmpty()) {
-    qt::qWarnBox(this, "Please specify author email address.");
+    tobas::qt::qWarnBox(this, "Please specify author email address.");
     return false;
   }
   if (!str::isValidEmail(author_email.toStdString())) {
-    qt::qWarnBox(this, "Invalid email address.");
+    tobas::qt::qWarnBox(this, "Invalid email address.");
     return false;
   }
 
@@ -94,7 +96,7 @@ QString AuthorInformationWidget::authorEmail() const
 
 QString AuthorInformationWidget::getDefaultName()
 {
-  const auto git_user_name = git::getGitConfigValue("user.name");
+  const auto git_user_name = tobas::git::getGitConfigValue("user.name");
   if (!git_user_name.empty()) {
     return QString::fromStdString(git_user_name);
   }
@@ -109,7 +111,7 @@ QString AuthorInformationWidget::getDefaultName()
 
 QString AuthorInformationWidget::getDefaultEmail()
 {
-  const auto git_user_email = git::getGitConfigValue("user.email");
+  const auto git_user_email = tobas::git::getGitConfigValue("user.email");
   if (!git_user_email.empty()) {
     return QString::fromStdString(git_user_email);
   }
@@ -118,3 +120,4 @@ QString AuthorInformationWidget::getDefaultEmail()
 }
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

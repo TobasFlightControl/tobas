@@ -2,6 +2,8 @@
 
 #include <tobas_qt_tools/cast.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace log
@@ -106,7 +108,7 @@ PlotTabWidget::PlotTabWidget(
 void PlotTabWidget::clear()
 {
   for (int i = 0; i < count(); ++i) {
-    const auto plot = qt::qPointerCast<BasePlotWidget>(widget(i));
+    const auto plot = tobas::qt::qPointerCast<BasePlotWidget>(widget(i));
     plot->clear();
   }
 }
@@ -114,7 +116,7 @@ void PlotTabWidget::clear()
 void PlotTabWidget::setTimeScale(double t_start, double t_stop)
 {
   for (int i = 0; i < count(); ++i) {
-    const auto plot = qt::qPointerCast<BasePlotWidget>(widget(i));
+    const auto plot = tobas::qt::qPointerCast<BasePlotWidget>(widget(i));
     plot->setTimeScale(t_start, t_stop);
   }
 }
@@ -205,3 +207,4 @@ void PlotTabWidget::onCurrentWidgetChanged(int index)
 }
 }  // namespace log
 }  // namespace gui
+}  // namespace tobas

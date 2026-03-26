@@ -8,6 +8,8 @@
 
 #include "./base.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -38,7 +40,7 @@ public:
   Eigen::MatrixXd getValue() const override;
   bool setValue(const Eigen::MatrixXd& src) override;
 
-  qt::TableWidget* table();
+  tobas::qt::TableWidget* table();
 
   void setDecimals(const QVector<int>& decimals);
   void setMinimum(const QVector<double>& minimum);
@@ -65,7 +67,7 @@ private:
   QVector<double> default_;
   QVector<int> decimals_;
 
-  qt::TableWidget* table_;
+  tobas::qt::TableWidget* table_;
 
   ptree::PropertyClient property_client_;
 
@@ -75,3 +77,4 @@ private:
 };
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

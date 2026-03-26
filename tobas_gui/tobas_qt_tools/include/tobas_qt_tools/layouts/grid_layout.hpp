@@ -2,6 +2,8 @@
 
 #include <QGridLayout>
 
+namespace tobas
+{
 namespace qt
 {
 /**
@@ -21,3 +23,4 @@ public:
   void clear();
 };
 }  // namespace qt
+}  // namespace tobas

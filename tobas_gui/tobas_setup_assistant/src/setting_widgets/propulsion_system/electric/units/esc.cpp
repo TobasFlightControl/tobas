@@ -2,6 +2,8 @@
 
 #include <tobas_qt_tools/cast.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -40,7 +42,7 @@ bool ESCWidget::isValid()
 
 void ESCWidget::copyFrom(const BaseSelectedLinkSettingWidget* src)
 {
-  const auto derived = qt::qConstPointerCast<ESCWidget>(src);
+  const auto derived = tobas::qt::qConstPointerCast<ESCWidget>(src);
   max_current_->setValue(derived->max_current_->getValue());
 }
 
@@ -66,3 +68,4 @@ double ESCWidget::maxCurrent() const
 }  // namespace propulsion
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

@@ -4,6 +4,8 @@
 
 #include <tobas_ros2_tools/time.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace log
@@ -81,3 +83,4 @@ void LatencyPlotWidget::setControlLatencyData(const QVector<tobas_msgs::msg::Lat
 }
 }  // namespace log
 }  // namespace gui
+}  // namespace tobas

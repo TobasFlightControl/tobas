@@ -14,6 +14,8 @@
 namespace ch = std::chrono;
 namespace cmp = gz::sim::components;
 
+namespace tobas
+{
 namespace gazebo
 {
 /**
@@ -223,9 +225,10 @@ void GazeboWindPlugin::setParamsCb(const SetSrv::Request::ConstSharedPtr& req, c
   TOBAS_INFO("Wind parameters are updated.");
 }
 }  // namespace gazebo
+}  // namespace tobas
 
 GZ_ADD_PLUGIN(
-  gazebo::GazeboWindPlugin,
+  tobas::gazebo::GazeboWindPlugin,
   gz::sim::System,
-  gazebo::GazeboWindPlugin::ISystemConfigure,
-  gazebo::GazeboWindPlugin::ISystemPostUpdate)
+  tobas::gazebo::GazeboWindPlugin::ISystemConfigure,
+  tobas::gazebo::GazeboWindPlugin::ISystemPostUpdate)

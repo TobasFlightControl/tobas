@@ -3,6 +3,8 @@
 #include <tobas_qt_tools/widgets/position_bar_widget.hpp>
 #include <tobas_rqt_bridge/bridge.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -28,11 +30,12 @@ public:
   void reset();
 
 private:
-  qt::HPositionBarWidget* temp_;
-  qt::HPositionBarWidget* load_;
+  tobas::qt::HPositionBarWidget* temp_;
+  tobas::qt::HPositionBarWidget* load_;
 
 private Q_SLOTS:
   void cpuCb(const tobas_msgs::msg::Cpu::ConstSharedPtr& cpu);
 };
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

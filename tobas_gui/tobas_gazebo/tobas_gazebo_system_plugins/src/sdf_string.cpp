@@ -4,6 +4,8 @@
 
 #include "tobas_gazebo_system_plugins/inertia.hpp"
 
+namespace tobas
+{
 namespace gazebo
 {
 std::string makeBoxSdf(
@@ -70,3 +72,4 @@ std::string makeBoxSdf(
     sz);
 }
 }  // namespace gazebo
+}  // namespace tobas

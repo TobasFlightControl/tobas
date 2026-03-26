@@ -1,5 +1,7 @@
 #include "tobas_qt_tools/color.hpp"
 
+namespace tobas
+{
 namespace qt
 {
 QString toCssColor(Qt::GlobalColor c, bool with_alpha)
@@ -18,3 +20,4 @@ QString toCssColor(Qt::GlobalColor c, bool with_alpha)
   }
 }
 }  // namespace qt
+}  // namespace tobas

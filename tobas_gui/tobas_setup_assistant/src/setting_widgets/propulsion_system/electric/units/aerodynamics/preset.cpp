@@ -13,6 +13,8 @@
 
 namespace fs = std::filesystem;
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -23,7 +25,7 @@ namespace electric
 {
 AerodynamicsWidget_Preset::AerodynamicsWidget_Preset(const PropellerWidget* propeller) : propeller_(propeller)
 {
-  data_name_ = new qt::ComboBox();
+  data_name_ = new tobas::qt::ComboBox();
 
   // Add thrust data names
   for (const auto& entry : fs::recursive_directory_iterator(thrustStandDataDir())) {
@@ -70,7 +72,7 @@ bool AerodynamicsWidget_Preset::isValid()
 
 void AerodynamicsWidget_Preset::copyFrom(const AerodynamicsWidget_Base* src)
 {
-  const auto derived = qt::qConstPointerCast<AerodynamicsWidget_Preset>(src);
+  const auto derived = tobas::qt::qConstPointerCast<AerodynamicsWidget_Preset>(src);
   data_name_->setCurrentText(derived->data_name_->currentText());
 }
 
@@ -199,3 +201,4 @@ fs::path AerodynamicsWidget_Preset::uiucDataDir()
 }  // namespace propulsion
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

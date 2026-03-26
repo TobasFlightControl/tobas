@@ -8,16 +8,18 @@
 
 #include "./speedmeter.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
 {
-class RotorsViewerWiddget : public qt::ScrollArea
+class RotorsViewerWiddget : public tobas::qt::ScrollArea
 {
   Q_OBJECT
 
   using self = RotorsViewerWiddget;
-  using super = qt::ScrollArea;
+  using super = tobas::qt::ScrollArea;
 
   static constexpr char kAliveBackgroundColor[] = "transparent";
   static constexpr char kDeadBackgroundColor[] = "red";
@@ -44,3 +46,4 @@ private Q_SLOTS:
 };
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

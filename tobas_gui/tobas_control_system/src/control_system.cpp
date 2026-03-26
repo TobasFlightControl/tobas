@@ -3,6 +3,8 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -74,3 +76,4 @@ void ControlSystemWidget::updateInternalDataStructures()
 }
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

@@ -2,6 +2,8 @@
 
 #include <QWidget>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -29,3 +31,4 @@ public:
 }  // namespace field
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

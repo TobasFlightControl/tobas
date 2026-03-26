@@ -12,6 +12,8 @@
 #include <tobas_qt_tools/widgets/slider.hpp>
 #include <tobas_ros2_tools/register.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace param
@@ -23,7 +25,7 @@ struct IntConfig
 
   QPushButton* down_button_;
   QPushButton* up_button_;
-  qt::Slider* slider;
+  tobas::qt::Slider* slider;
   QLineEdit* line_edit;
 };
 
@@ -35,7 +37,7 @@ struct DoubleConfig
 
   QPushButton* down_button_;
   QPushButton* up_button_;
-  qt::Slider* slider;
+  tobas::qt::Slider* slider;
   QLineEdit* line_edit;
 };
 
@@ -71,7 +73,7 @@ private:
   std::map<std::string, DoubleConfig> double_configs_;
 
   QLabel* label_;
-  qt::FormLayout* form_;
+  tobas::qt::FormLayout* form_;
 
   YAML::Node createCurrentConfig() const;
 
@@ -86,3 +88,4 @@ private Q_SLOTS:
 };
 }  // namespace param
 }  // namespace gui
+}  // namespace tobas

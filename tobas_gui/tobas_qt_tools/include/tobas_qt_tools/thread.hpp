@@ -6,6 +6,8 @@
 #include <QEventLoop>
 #include <QThread>
 
+namespace tobas
+{
 namespace qt
 {
 namespace detail
@@ -76,3 +78,4 @@ void spinFor(std::chrono::duration<RepType, DurType> time)
   startThreadAndWait([msec]() { QThread::msleep(msec); });
 }
 }  // namespace qt
+}  // namespace tobas

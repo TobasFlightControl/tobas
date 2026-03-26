@@ -2,6 +2,8 @@
 
 #include <QHBoxLayout>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -13,7 +15,7 @@ MaxVerticalVelocityWidget::MaxVerticalVelocityWidget()
   // https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_Z_V_AUTO_DN
   // https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_Z_V_AUTO_UP
   // TODO: 上昇と下降で設定を分ける
-  spin_box_ = new qt::DoubleSpinBox();
+  spin_box_ = new tobas::qt::DoubleSpinBox();
   spin_box_->setDecimals(1);
   spin_box_->setMinimum(0.5);
   spin_box_->setMaximum(4.);
@@ -44,3 +46,4 @@ void MaxVerticalVelocityWidget::setValue(double value)
 }  // namespace field
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

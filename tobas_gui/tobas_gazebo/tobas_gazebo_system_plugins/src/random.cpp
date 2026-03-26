@@ -2,6 +2,8 @@
 
 using namespace gz::math;
 
+namespace tobas
+{
 namespace gazebo
 {
 NormalDistribution3d::NormalDistribution3d(std::random_device& rnd_dev, const Vector3d& mean, const Vector3d& stddev)
@@ -56,3 +58,4 @@ Vector3d createUnitSpherePoint(std::random_device& rnd_dev)
   return Vector3d(sin(phi) * cos(theta), sin(phi) * sin(theta), cos(phi));
 }
 }  // namespace gazebo
+}  // namespace tobas

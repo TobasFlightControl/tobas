@@ -4,6 +4,8 @@
 
 #include "./base.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -29,8 +31,9 @@ public:
   QString host() const override;
 
 private:
-  qt::IPv4Edit* ipv4_;
+  tobas::qt::IPv4Edit* ipv4_;
 };
 }  // namespace rc
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

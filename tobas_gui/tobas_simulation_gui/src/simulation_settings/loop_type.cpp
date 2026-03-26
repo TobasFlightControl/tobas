@@ -5,6 +5,8 @@
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sim
@@ -28,7 +30,7 @@ LoopTypeWidget::LoopTypeWidget()
 
   // Layout
   const auto rows = new QVBoxLayout();
-  rows->addWidget(new qt::Label("Simulation Type", cmn::kLabelPSize, QFont::Bold));
+  rows->addWidget(new tobas::qt::Label("Simulation Type", cmn::kLabelPSize, QFont::Bold));
   rows->addWidget(sitl_btn_);
   rows->addWidget(hitl_btn_);
 
@@ -51,3 +53,4 @@ LoopType LoopTypeWidget::loopType() const
 }
 }  // namespace sim
 }  // namespace gui
+}  // namespace tobas

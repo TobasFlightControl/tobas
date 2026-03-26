@@ -8,6 +8,8 @@
 #include "./thrust.hpp"
 #include "./tilt_rotor.hpp"
 
+namespace tobas
+{
 namespace uadf
 {
 class Model
@@ -26,3 +28,4 @@ public:
   bool valid() const;
 };
 }  // namespace uadf
+}  // namespace tobas

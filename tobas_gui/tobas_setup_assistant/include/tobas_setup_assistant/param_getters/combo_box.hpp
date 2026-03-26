@@ -4,6 +4,8 @@
 
 #include "./base.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -35,7 +37,8 @@ private Q_SLOTS:
   void onTextChanged(const QString& text);
 
 private:
-  qt::ComboBox* box_;
+  tobas::qt::ComboBox* box_;
 };
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

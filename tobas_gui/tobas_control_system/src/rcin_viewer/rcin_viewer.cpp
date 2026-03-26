@@ -2,6 +2,8 @@
 
 #include <QHBoxLayout>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -30,3 +32,4 @@ void RCInputViewerWidget::reset()
 }  // namespace rcin
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

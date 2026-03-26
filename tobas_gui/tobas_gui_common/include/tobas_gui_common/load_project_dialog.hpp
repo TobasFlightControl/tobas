@@ -3,6 +3,8 @@
 #include <QFileDialog>
 #include <QSortFilterProxyModel>
 
+namespace tobas
+{
 namespace gui
 {
 namespace cmn
@@ -22,3 +24,4 @@ private Q_SLOTS:
 };
 }  // namespace cmn
 }  // namespace gui
+}  // namespace tobas

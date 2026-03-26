@@ -6,6 +6,8 @@
 
 #include "./common.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace log
@@ -25,7 +27,7 @@ public:
 private:
   QVector<QwtPlot2*> plots_;
   QVector<qwt::QwtPlotCurveWrapper> curves_;
-  qt::GridLayout* grid_;
+  tobas::qt::GridLayout* grid_;
 
   size_t num_rotors_;                                 // The number of rotors
   std::unordered_map<std::string, size_t> name2idx_;  // Link Name -> Index
@@ -34,3 +36,4 @@ private:
 };
 }  // namespace log
 }  // namespace gui
+}  // namespace tobas

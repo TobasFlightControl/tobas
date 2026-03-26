@@ -8,6 +8,8 @@ namespace fs = std::filesystem;
 
 Q_DECLARE_METATYPE(ssh::SshClient::Error);
 
+namespace tobas
+{
 namespace gui
 {
 namespace cmn
@@ -238,27 +240,27 @@ ssh::SshClient::Error SshClientWrapper::setEndpoint(const std::string& host, con
 ssh::SshClient::Error SshClientWrapper::connect()
 {
   SshConnectThread thread(impl_);
-  return std::get<0>(qt::startThreadAndWait(thread, &SshConnectThread::finished));
+  return std::get<0>(tobas::qt::startThreadAndWait(thread, &SshConnectThread::finished));
 }
 
 ssh::SshClient::Error
 SshClientWrapper::execute(const std::string& command, std::string& output, bool superuser, bool background)
 {
   SshExecuteThread thread(impl_, command, output, superuser, background);
-  return std::get<0>(qt::startThreadAndWait(thread, &SshExecuteThread::finished));
+  return std::get<0>(tobas::qt::startThreadAndWait(thread, &SshExecuteThread::finished));
 }
 
 ssh::SshClient::Error SshClientWrapper::execute(const std::string& command, bool superuser, bool background)
 {
   std::string output;
   SshExecuteThread thread(impl_, command, output, superuser, background);
-  return std::get<0>(qt::startThreadAndWait(thread, &SshExecuteThread::finished));
+  return std::get<0>(tobas::qt::startThreadAndWait(thread, &SshExecuteThread::finished));
 }
 
 ssh::SshClient::Error SshClientWrapper::scpGet(const std::string& remote_path, const std::string& local_path)
 {
   ScpGetThread thread(impl_, remote_path, local_path);
-  return std::get<0>(qt::startThreadAndWait(thread, &ScpGetThread::finished));
+  return std::get<0>(tobas::qt::startThreadAndWait(thread, &ScpGetThread::finished));
 }
 
 ssh::SshClient::Error SshClientWrapper::scpPut(
@@ -269,28 +271,29 @@ ssh::SshClient::Error SshClientWrapper::scpPut(
   bool superuser)
 {
   ScpPutThread thread(impl_, local_dir, remote_dir, parents, exclude_dirs, superuser);
-  return std::get<0>(qt::startThreadAndWait(thread, &ScpPutThread::finished));
+  return std::get<0>(tobas::qt::startThreadAndWait(thread, &ScpPutThread::finished));
 }
 
 ssh::SshClient::Error SshClientWrapper::sftpRead(const std::string& remote_path, std::string& text, bool superuser)
 {
   SftpReadThread thread(impl_, remote_path, text, superuser);
-  return std::get<0>(qt::startThreadAndWait(thread, &SftpReadThread::finished));
+  return std::get<0>(tobas::qt::startThreadAndWait(thread, &SftpReadThread::finished));
 }
 
 ssh::SshClient::Error
 SshClientWrapper::sftpWrite(const std::string& remote_path, const std::string& text, bool superuser)
 {
   SftpWriteThread thread(impl_, remote_path, text, superuser);
-  return std::get<0>(qt::startThreadAndWait(thread, &SftpWriteThread::finished));
+  return std::get<0>(tobas::qt::startThreadAndWait(thread, &SftpWriteThread::finished));
 }
 
 ssh::SshClient::Error SshClientWrapper::list(const std::string& pardir, std::vector<std::string>& dst)
 {
   SshListThread thread(impl_, pardir, dst);
-  return std::get<0>(qt::startThreadAndWait(thread, &SshListThread::finished));
+  return std::get<0>(tobas::qt::startThreadAndWait(thread, &SshListThread::finished));
 }
 }  // namespace cmn
 }  // namespace gui
+}  // namespace tobas
 
 #include "ssh_client.moc"  // cppをMOCに加えるために必要

@@ -2,6 +2,8 @@
 
 #include <QtQuickWidgets/QQuickWidget>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -40,3 +42,4 @@ private:
 };
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

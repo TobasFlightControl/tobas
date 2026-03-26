@@ -14,6 +14,8 @@
 
 #include "tobas_simulation_gui/commanders/constants.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sim
@@ -30,37 +32,37 @@ BasePoseCommanderWidget::BasePoseCommanderWidget(
   const auto header_cols = new QHBoxLayout();
   root_rows->addLayout(header_cols);
 
-  const auto title = new qt::Label("Base Pose", cmn::kLabelPSize, QFont::Bold);
+  const auto title = new tobas::qt::Label("Base Pose", cmn::kLabelPSize, QFont::Bold);
   header_cols->addWidget(title);
   header_cols->addStretch();
 
-  arming_button_ = new qt::ToggleButton("Arm", "Disarm");
+  arming_button_ = new tobas::qt::ToggleButton("Arm", "Disarm");
   arming_button_->setFixedSize(kHeaderButtonWidth, kHeaderButtonHeight);
   header_cols->addWidget(arming_button_);
-  connect(arming_button_, &qt::ToggleButton::checked, this, &self::onArmRequested);
-  connect(arming_button_, &qt::ToggleButton::unchecked, this, &self::onDisarmRequested);
+  connect(arming_button_, &tobas::qt::ToggleButton::checked, this, &self::onArmRequested);
+  connect(arming_button_, &tobas::qt::ToggleButton::unchecked, this, &self::onDisarmRequested);
 
   static constexpr std::array<const char*, 3> kLabelsXYZ = { "X", "Y", "Z" };
   for (size_t i = 0; i < 3; ++i) {
-    cmd_xyz_[i] = new qt::DoubleSliderDisplay();
+    cmd_xyz_[i] = new tobas::qt::DoubleSliderDisplay();
     cmd_xyz_[i]->setRange(-10., 10.);
     cmd_xyz_[i]->setText(kLabelsXYZ[i]);
     cmd_xyz_[i]->setSuffix(" m");
     cmd_xyz_[i]->setDecimals(2);
 
     root_rows->addWidget(cmd_xyz_[i]);
-    connect(cmd_xyz_[i], &qt::DoubleSliderDisplay::valueChanged, this, &self::onValueChanged);
+    connect(cmd_xyz_[i], &tobas::qt::DoubleSliderDisplay::valueChanged, this, &self::onValueChanged);
   }
 
   static constexpr std::array<const char*, 3> kLabelsRPY = { "Roll", "Pitch", "Yaw" };
   for (size_t i = 0; i < 3; ++i) {
-    cmd_rpy_[i] = new qt::IntSliderDisplay();
+    cmd_rpy_[i] = new tobas::qt::IntSliderDisplay();
     cmd_rpy_[i]->setRange(-180, 180);
     cmd_rpy_[i]->setText(kLabelsRPY[i]);
     cmd_rpy_[i]->setSuffix(" deg");
 
     root_rows->addWidget(cmd_rpy_[i]);
-    connect(cmd_rpy_[i], &qt::IntSliderDisplay::valueChanged, this, &self::onValueChanged);
+    connect(cmd_rpy_[i], &tobas::qt::IntSliderDisplay::valueChanged, this, &self::onValueChanged);
   }
 
   const auto button_cols = new QHBoxLayout();
@@ -98,7 +100,7 @@ bool BasePoseCommanderWidget::start()
   bool success = true;
   QString message;
 
-  qt::startThreadAndWait(
+  tobas::qt::startThreadAndWait(
     [&]()
     {
       if (!set_arm_sc_->waitForService()) {
@@ -109,7 +111,7 @@ bool BasePoseCommanderWidget::start()
     });
 
   if (!success) {
-    qt::qErrorBox(this, message);
+    tobas::qt::qErrorBox(this, message);
     return false;
   }
 
@@ -200,13 +202,13 @@ bool BasePoseCommanderWidget::armRotors(bool arming)
   const auto req = std::make_shared<tobas_msgs::srv::SetArm::Request>();
   req->arming = arming;
   if (!set_arm_sc_->call(req, kServiceCallTimeout)) {
-    qt::qErrorBox(this, "Failed to connect to the rotor controller.");
+    tobas::qt::qErrorBox(this, "Failed to connect to the rotor controller.");
     return false;
   }
 
   const auto res = set_arm_sc_->getResponse();
   if (!res->success) {
-    qt::qErrorBox(this, "Arming service failed: " + QString::fromStdString(res->message));
+    tobas::qt::qErrorBox(this, "Arming service failed: " + QString::fromStdString(res->message));
     return false;
   }
 
@@ -216,20 +218,20 @@ bool BasePoseCommanderWidget::armRotors(bool arming)
 void BasePoseCommanderWidget::onArmRequested()
 {
   if (!arming_) {
-    qt::qWarnBox(this, "Arming status has not been received yet.");
+    tobas::qt::qWarnBox(this, "Arming status has not been received yet.");
     return;
   }
   if (!odom_) {
-    qt::qWarnBox(this, "Odometry has not been received yet.");
+    tobas::qt::qWarnBox(this, "Odometry has not been received yet.");
     return;
   }
   if (!rcin_) {
-    qt::qWarnBox(this, "RC input has not been received yet.");
+    tobas::qt::qWarnBox(this, "RC input has not been received yet.");
     return;
   }
 
   if (rcin_->enable) {
-    qt::qWarnBox(this, "GUI teleoperation cannot be started because manual control is enabled.");
+    tobas::qt::qWarnBox(this, "GUI teleoperation cannot be started because manual control is enabled.");
     return;
   }
 
@@ -261,13 +263,13 @@ void BasePoseCommanderWidget::onArmRequested()
     cmd->setEnabled(true);
   }
 
-  qt::qInfoBox(this, "GUI teleoperation is ready.");
+  tobas::qt::qInfoBox(this, "GUI teleoperation is ready.");
 }
 
 void BasePoseCommanderWidget::onDisarmRequested()
 {
   if (!arming_) {
-    qt::qWarnBox(this, "Arming status has not been received yet.");
+    tobas::qt::qWarnBox(this, "Arming status has not been received yet.");
     return;
   }
 
@@ -279,7 +281,7 @@ void BasePoseCommanderWidget::onDisarmRequested()
 
   reset();
 
-  qt::qInfoBox(this, "GUI teleoperation was finished.");
+  tobas::qt::qInfoBox(this, "GUI teleoperation was finished.");
 }
 
 void BasePoseCommanderWidget::onValueChanged()
@@ -323,3 +325,4 @@ void BasePoseCommanderWidget::rcInputCb(const tobas_msgs::RCInput::ConstSharedPt
 }
 }  // namespace sim
 }  // namespace gui
+}  // namespace tobas

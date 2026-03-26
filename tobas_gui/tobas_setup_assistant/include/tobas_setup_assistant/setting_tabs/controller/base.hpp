@@ -7,6 +7,8 @@
 
 #include "tobas_setup_assistant/frame_type.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -38,3 +40,4 @@ public:
 }  // namespace ctrl
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

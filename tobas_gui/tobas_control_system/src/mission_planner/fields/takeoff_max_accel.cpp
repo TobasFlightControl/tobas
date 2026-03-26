@@ -2,6 +2,8 @@
 
 #include <QHBoxLayout>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -11,7 +13,7 @@ namespace field
 TakeoffMaxAccelWidget::TakeoffMaxAccelWidget()
 {
   // https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_ACC_UP_MAX
-  spin_box_ = new qt::DoubleSpinBox();
+  spin_box_ = new tobas::qt::DoubleSpinBox();
   spin_box_->setDecimals(1);
   spin_box_->setMinimum(1.);
   spin_box_->setMaximum(15.);
@@ -42,3 +44,4 @@ void TakeoffMaxAccelWidget::setValue(double value)
 }  // namespace field
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

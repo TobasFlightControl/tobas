@@ -8,6 +8,8 @@
 
 using GeometryType = decltype(urdf::Geometry::type);
 
+namespace tobas
+{
 namespace gui
 {
 namespace ub
@@ -67,3 +69,4 @@ using GeometryViewModelPtr = std::shared_ptr<GeometryViewModel>;
 }  // namespace view_model
 }  // namespace ub
 }  // namespace gui
+}  // namespace tobas

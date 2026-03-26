@@ -2,6 +2,8 @@
 
 #include <tobas_qt_tools/cast.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sc
@@ -57,12 +59,12 @@ void SensorCalibrationWidget::updateInternalDataStructures()
 
 BaseWidget* SensorCalibrationWidget::getWidget(int index)
 {
-  return qt::qPointerCast<BaseWidget>(widget(index));
+  return tobas::qt::qPointerCast<BaseWidget>(widget(index));
 }
 
 const BaseWidget* SensorCalibrationWidget::getWidget(int index) const
 {
-  return qt::qConstPointerCast<BaseWidget>(widget(index));
+  return tobas::qt::qConstPointerCast<BaseWidget>(widget(index));
 }
 
 void SensorCalibrationWidget::setTabsEnabled(bool enabled)
@@ -110,3 +112,4 @@ void SensorCalibrationWidget::rcInputCb(const tobas_msgs::RCInput::ConstSharedPt
 }
 }  // namespace sc
 }  // namespace gui
+}  // namespace tobas

@@ -4,6 +4,8 @@
 
 #include <tobas_qt_tools/message.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace gcs
@@ -21,7 +23,8 @@ void NetworkChecker::heartbeatCb(const tobas_msgs::msg::Heartbeat::ConstSharedPt
 
 void NetworkChecker::onTimeout()
 {
-  if (qt::yesOrNo(parent_, "Network connection was lost. Do you want to close the application?", qt::WARN)) {
+  if (tobas::qt::yesOrNo(
+        parent_, "Network connection was lost. Do you want to close the application?", tobas::qt::WARN)) {
     QApplication::quit();
   }
 
@@ -29,3 +32,4 @@ void NetworkChecker::onTimeout()
 }
 }  // namespace gcs
 }  // namespace gui
+}  // namespace tobas

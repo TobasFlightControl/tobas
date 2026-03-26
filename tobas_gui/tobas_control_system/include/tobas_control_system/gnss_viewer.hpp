@@ -3,6 +3,8 @@
 #include <tobas_qt_tools/widgets/framed_label.hpp>
 #include <tobas_rqt_bridge/bridge.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -22,8 +24,8 @@ public:
   void reset();
 
 private:
-  qt::FramedLabel* status_;
-  qt::FramedLabel* nsats_;
+  tobas::qt::FramedLabel* status_;
+  tobas::qt::FramedLabel* nsats_;
 
   void setStatus(uint8_t status);
   void setNSats(int nsats);
@@ -33,3 +35,4 @@ private Q_SLOTS:
 };
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

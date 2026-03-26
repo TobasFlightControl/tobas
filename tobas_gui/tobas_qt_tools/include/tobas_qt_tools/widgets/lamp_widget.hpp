@@ -4,6 +4,8 @@
 
 #include "tobas_qt_tools/rgb_color.hpp"
 
+namespace tobas
+{
 namespace qt
 {
 class LampWidget : public QLabel
@@ -37,3 +39,4 @@ private:
   void draw();
 };
 }  // namespace qt
+}  // namespace tobas

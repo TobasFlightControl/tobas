@@ -6,6 +6,8 @@
 
 #include <tobas_qt_tools/path.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ub
@@ -50,7 +52,7 @@ void SaveUrdfDialog::onLineEditTextChanged()
   // Enable the save button only if the file name is valid
   const auto file_name = line_edit_->text();
   if (file_name.contains('.')) {
-    save_button_->setEnabled(file_name.endsWith(".urdf") && !qt::getBaseName(file_name).isEmpty());
+    save_button_->setEnabled(file_name.endsWith(".urdf") && !tobas::qt::getBaseName(file_name).isEmpty());
   }
   else {
     save_button_->setEnabled(file_name.length() > 0);
@@ -59,3 +61,4 @@ void SaveUrdfDialog::onLineEditTextChanged()
 }  // namespace ui
 }  // namespace ub
 }  // namespace gui
+}  // namespace tobas

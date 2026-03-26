@@ -10,6 +10,8 @@
 
 #include "./simple_joint_model.hpp"
 
+namespace tobas
+{
 namespace gazebo
 {
 class IceRotorModel;
@@ -73,3 +75,4 @@ private:
   bool initializeGazeboObjects(gz::sim::EntityComponentManager& ecm, const gz::sim::Model& model);
 };
 }  // namespace gazebo
+}  // namespace tobas

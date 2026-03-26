@@ -3,6 +3,8 @@
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -27,7 +29,7 @@ void RotorsViewerWiddget::reset()
 void RotorsViewerWiddget::updateInternalDataStructures()
 {
   meters_.clear();
-  qt::clearLayout(cols_);
+  tobas::qt::clearLayout(cols_);
 
   for (const auto& [link_name, rotor] : drone_.prop->rotors) {
     const auto meter = new SpeedmeterWidget();
@@ -88,3 +90,4 @@ QString RotorsViewerWiddget::bottomText(int rpm)
 }
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

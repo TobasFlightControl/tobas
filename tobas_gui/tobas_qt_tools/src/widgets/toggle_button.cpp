@@ -2,6 +2,8 @@
 
 #include <QDebug>
 
+namespace tobas
+{
 namespace qt
 {
 ToggleButton::ToggleButton(const QString& off_text, const QString& on_text, QWidget* parent)
@@ -49,3 +51,4 @@ void ToggleButton::onClicked()
   }
 }
 }  // namespace qt
+}  // namespace tobas

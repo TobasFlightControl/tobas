@@ -9,6 +9,8 @@
 #include "../propeller.hpp"
 #include "./base.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -45,8 +47,8 @@ public:
 private:
   const PropellerWidget* const propeller_;
 
-  qt::ComboBox* method_name_;
-  qt::StackedWidget* methods_;
+  tobas::qt::ComboBox* method_name_;
+  tobas::qt::StackedWidget* methods_;
 
   AerodynamicsWidget_Base* selected();
   const AerodynamicsWidget_Base* selected() const;
@@ -55,3 +57,4 @@ private:
 }  // namespace propulsion
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

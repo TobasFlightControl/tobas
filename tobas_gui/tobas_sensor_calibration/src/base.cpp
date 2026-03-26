@@ -5,6 +5,8 @@
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/font.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sc
@@ -14,7 +16,7 @@ BaseWidget::BaseWidget()
   setBackgroundColor(QPalette::Base);
 
   title_ = new QLabel();
-  title_->setFont(qt::DefaultFont(cmn::kTitlePSize, QFont::Bold));
+  title_->setFont(tobas::qt::DefaultFont(cmn::kTitlePSize, QFont::Bold));
 
   rows_ = new QVBoxLayout();
   rows_->addWidget(title_, 0, Qt::AlignTop);
@@ -31,3 +33,4 @@ void BaseWidget::initialize()
 }
 }  // namespace sc
 }  // namespace gui
+}  // namespace tobas

@@ -2,6 +2,8 @@
 
 #include <tobas_constants/rc_input.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -63,3 +65,4 @@ int RcInputWidget::numOfSbusChannels() const
 }
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

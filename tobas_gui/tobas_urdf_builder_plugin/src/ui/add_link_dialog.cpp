@@ -6,6 +6,8 @@
 
 #include "tobas_urdf_builder_plugin/ui/urdf_builder_panel.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace ub
@@ -96,3 +98,4 @@ void AddLinkDialog::enableOkButton(bool enable)
 }  // namespace ui
 }  // namespace ub
 }  // namespace gui
+}  // namespace tobas

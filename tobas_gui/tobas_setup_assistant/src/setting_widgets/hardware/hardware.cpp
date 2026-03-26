@@ -11,6 +11,8 @@
 
 #include "tobas_setup_assistant/setting_tabs/hardware/fc1xx.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -19,15 +21,15 @@ namespace hw
 {
 HardwareWidget::HardwareWidget(const uadf::Model& uadf, const Signals& sig)
 {
-  type_ = new qt::ComboBox();
-  hardwares_ = new qt::StackedWidget();
+  type_ = new tobas::qt::ComboBox();
+  hardwares_ = new tobas::qt::StackedWidget();
   pwm_ = new PwmWidget(uadf, sig);
   dshot_ = new DShotWidget(uadf, sig);
 
   hardwares_->addWidget(new T1Widget());
 
   for (int i = 0; i < hardwares_->count(); ++i) {
-    const auto hardware = qt::qConstPointerCast<BaseHardwareWidget>(hardwares_->widget(i));
+    const auto hardware = tobas::qt::qConstPointerCast<BaseHardwareWidget>(hardwares_->widget(i));
     type_->addItem(hardware->name());
   }
 
@@ -35,11 +37,11 @@ HardwareWidget::HardwareWidget(const uadf::Model& uadf, const Signals& sig)
 
   // Layout
   const auto pwm_rows = new QVBoxLayout();
-  pwm_rows->addWidget(new qt::Label(kPwmLabel, cmn::kLabelPSize, QFont::Bold));
+  pwm_rows->addWidget(new tobas::qt::Label(kPwmLabel, cmn::kLabelPSize, QFont::Bold));
   pwm_rows->addWidget(pwm_);
 
   const auto dshot_rows = new QVBoxLayout();
-  dshot_rows->addWidget(new qt::Label(kDShotLabel, cmn::kLabelPSize, QFont::Bold));
+  dshot_rows->addWidget(new tobas::qt::Label(kDShotLabel, cmn::kLabelPSize, QFont::Bold));
   dshot_rows->addWidget(dshot_);
 
   const auto rcout_cols = new QHBoxLayout();
@@ -52,7 +54,7 @@ HardwareWidget::HardwareWidget(const uadf::Model& uadf, const Signals& sig)
   addLayout(rcout_cols, 1);
 
   // Connection
-  connect(type_, QOverload<int>::of(&qt::ComboBox::currentIndexChanged), this, &self::setCurrentHardware);
+  connect(type_, QOverload<int>::of(&tobas::qt::ComboBox::currentIndexChanged), this, &self::setCurrentHardware);
 }
 
 const char* HardwareWidget::name() const
@@ -100,7 +102,7 @@ YAML::Node HardwareWidget::dump() const
   node[kTypeKey] = type_->currentText();
 
   for (int i = 0; i < hardwares_->count(); ++i) {
-    const auto hardware = qt::qConstPointerCast<BaseHardwareWidget>(hardwares_->widget(i));
+    const auto hardware = tobas::qt::qConstPointerCast<BaseHardwareWidget>(hardwares_->widget(i));
     node[hardware->name()] = hardware->dump();
   }
 
@@ -115,7 +117,7 @@ void HardwareWidget::load(const YAML::Node& node)
   type_->setCurrentText(node[kTypeKey].as<QString>());
 
   for (int i = 0; i < hardwares_->count(); ++i) {
-    const auto hardware = qt::qPointerCast<BaseHardwareWidget>(hardwares_->widget(i));
+    const auto hardware = tobas::qt::qPointerCast<BaseHardwareWidget>(hardwares_->widget(i));
     hardware->load(node[hardware->name()]);
   }
 
@@ -242,20 +244,21 @@ void HardwareWidget::setCurrentHardware(int index)
 {
   hardwares_->setCurrentIndex(index);
 
-  const auto hardware = qt::qConstPointerCast<BaseHardwareWidget>(hardwares_->widget(index));
+  const auto hardware = tobas::qt::qConstPointerCast<BaseHardwareWidget>(hardwares_->widget(index));
   pwm_->setNumChannels(hardware->numPwmChannels());
   dshot_->setNumChannels(hardware->numDShotChannels());
 }
 
 BaseHardwareWidget* HardwareWidget::selected()
 {
-  return qt::qPointerCast<BaseHardwareWidget>(hardwares_->currentWidget());
+  return tobas::qt::qPointerCast<BaseHardwareWidget>(hardwares_->currentWidget());
 }
 
 const BaseHardwareWidget* HardwareWidget::selected() const
 {
-  return qt::qConstPointerCast<BaseHardwareWidget>(hardwares_->currentWidget());
+  return tobas::qt::qConstPointerCast<BaseHardwareWidget>(hardwares_->currentWidget());
 }
 }  // namespace hw
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

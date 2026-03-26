@@ -15,6 +15,8 @@
 namespace ch = std::chrono;
 namespace cmp = gz::sim::components;
 
+namespace tobas
+{
 namespace gazebo
 {
 /**
@@ -242,9 +244,10 @@ void GazeboGnssPlugin::updateVelocity(
   vectorGazeboToKDL(W_Linvel_WS, gnss_msg.ground_speed);
 }
 }  // namespace gazebo
+}  // namespace tobas
 
 GZ_ADD_PLUGIN(
-  gazebo::GazeboGnssPlugin,
+  tobas::gazebo::GazeboGnssPlugin,
   gz::sim::System,
-  gazebo::GazeboGnssPlugin::ISystemConfigure,
-  gazebo::GazeboGnssPlugin::ISystemPostUpdate)
+  tobas::gazebo::GazeboGnssPlugin::ISystemConfigure,
+  tobas::gazebo::GazeboGnssPlugin::ISystemPostUpdate)

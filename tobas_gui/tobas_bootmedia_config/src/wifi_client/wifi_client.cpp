@@ -26,7 +26,7 @@ WifiClientWidget::WifiClientWidget()
   remove_button_->setFixedSize(kCtrlButtonWidth, kCtrlButtonHeight);
   clear_button_->setFixedSize(kCtrlButtonWidth, kCtrlButtonHeight);
 
-  table_ = new qt::TableWidget(0, kNumCols);
+  table_ = new tobas::qt::TableWidget(0, kNumCols);
   table_->setHorizontalHeaderLabels({ "AKM", "SSID", "PSK", "Priority", "Hidden" });
   table_->setColumnsWidth(kColWidth);
   table_->setEditTriggers(QAbstractItemView::NoEditTriggers);    // 編集禁止
@@ -130,7 +130,7 @@ bool WifiClientWidget::writeCurrentConfig()
 
     const auto key_mgmt = getKeyMgmt(row);
     if (!wpa::enumFromLabel(key_mgmt.toStdString(), network.key_mgmt)) {
-      qt::qErrorBox(this, "Invalid key management: " + key_mgmt);
+      tobas::qt::qErrorBox(this, "Invalid key management: " + key_mgmt);
       return false;
     }
 
@@ -146,11 +146,11 @@ bool WifiClientWidget::writeCurrentConfig()
   const auto path = configPath();
   const auto text = wpa_exporter_.exportText(wpa_data_);
   if (!str::writeText(path, text)) {
-    qt::qErrorBox(this, "Failed to write to " + QString::fromStdString(path));
+    tobas::qt::qErrorBox(this, "Failed to write to " + QString::fromStdString(path));
     return false;
   }
 
-  qt::qInfoBox(this, "Network configuration is updated successfully.");
+  tobas::qt::qInfoBox(this, "Network configuration is updated successfully.");
   return true;
 }
 
@@ -164,13 +164,13 @@ void WifiClientWidget::onReadButtonClicked()
   // 設定ファイルを読み込む
   std::string text;
   if (!str::readText(configPath(), text)) {
-    qt::qErrorBox(this, "Failed to read network configuration file.");
+    tobas::qt::qErrorBox(this, "Failed to read network configuration file.");
     return;
   }
 
   // 設定ファイルを解析
   if (!wpa_parser_.parseFromText(text, wpa_data_)) {
-    qt::qErrorBox(this, "Failed to parse network configuration.");
+    tobas::qt::qErrorBox(this, "Failed to parse network configuration.");
     return;
   }
 
@@ -190,7 +190,7 @@ void WifiClientWidget::onReadButtonClicked()
   remove_button_->setEnabled(true);
   clear_button_->setEnabled(true);
 
-  qt::qInfoBox(this, "Network configuration is read successfully.");
+  tobas::qt::qInfoBox(this, "Network configuration is read successfully.");
 }
 
 void WifiClientWidget::onAddButtonClicked()
@@ -217,12 +217,12 @@ void WifiClientWidget::onRemoveButtonClicked()
   // 消すべき行を取得
   const auto row = table_->currentRow();
   if (row < 0) {
-    qt::qWarnBox(this, "Please select the network to remove.");
+    tobas::qt::qWarnBox(this, "Please select the network to remove.");
     return;
   }
 
   // 本当に選択したネットワークを消して大丈夫か確認
-  if (!qt::yesOrNo(this, "Are you sure you want to remove \"" + getSsid(row) + "\"?", qt::WARN)) {
+  if (!tobas::qt::yesOrNo(this, "Are you sure you want to remove \"" + getSsid(row) + "\"?", tobas::qt::WARN)) {
     return;
   }
 
@@ -239,7 +239,7 @@ void WifiClientWidget::onRemoveButtonClicked()
 void WifiClientWidget::onClearButtonClicked()
 {
   // 本当に全削除して大丈夫か確認
-  if (!qt::yesOrNo(this, "Are you sure you want to remove all networks?", qt::WARN)) {
+  if (!tobas::qt::yesOrNo(this, "Are you sure you want to remove all networks?", tobas::qt::WARN)) {
     return;
   }
 

@@ -9,16 +9,18 @@
 
 #include "../param_getters/base.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
 {
-class BaseSettingWidget : public qt::ScrollArea
+class BaseSettingWidget : public tobas::qt::ScrollArea
 {
   Q_OBJECT
 
   using self = BaseSettingWidget;
-  using super = qt::ScrollArea;
+  using super = tobas::qt::ScrollArea;
 
 public:
   explicit BaseSettingWidget();
@@ -48,7 +50,7 @@ protected:
 
 private:
   QLabel* title_;
-  qt::DescriptionWidget* description_;
+  tobas::qt::DescriptionWidget* description_;
 
   QVBoxLayout* header_rows_;
   QVBoxLayout* content_rows_;
@@ -58,3 +60,4 @@ private Q_SLOTS:
 };
 };  // namespace sa
 }  // namespace gui
+}  // namespace tobas

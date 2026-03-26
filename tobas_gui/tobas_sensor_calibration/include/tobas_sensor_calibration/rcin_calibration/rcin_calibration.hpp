@@ -10,6 +10,8 @@
 
 #include "../base.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sc
@@ -55,17 +57,17 @@ private:
   QPushButton* finish_button_;
   QPushButton* cancel_button_;
 
-  qt::HPositionBarWidget* roll_range_;
-  qt::VPositionBarWidget* pitch_range_;
-  qt::HPositionBarWidget* yaw_range_;
-  qt::VPositionBarWidget* throt_range_;
-  qt::HPositionBarWidget* mode_range_;
-  qt::HPositionBarWidget* sub_mode_range_;
-  qt::HPositionBarWidget* enable_range_;
-  qt::HPositionBarWidget* kill_range_;
+  tobas::qt::HPositionBarWidget* roll_range_;
+  tobas::qt::VPositionBarWidget* pitch_range_;
+  tobas::qt::HPositionBarWidget* yaw_range_;
+  tobas::qt::VPositionBarWidget* throt_range_;
+  tobas::qt::HPositionBarWidget* mode_range_;
+  tobas::qt::HPositionBarWidget* sub_mode_range_;
+  tobas::qt::HPositionBarWidget* enable_range_;
+  tobas::qt::HPositionBarWidget* kill_range_;
 
   std::array<QLabel*, tobas::kMaxNumOfGpsw> gpsw_labels_;
-  std::array<qt::HPositionBarWidget*, tobas::kMaxNumOfGpsw> gpsw_ranges_;
+  std::array<tobas::qt::HPositionBarWidget*, tobas::kMaxNumOfGpsw> gpsw_ranges_;
 
   size_t numOfGpswChannels() const;
 
@@ -82,3 +84,4 @@ private Q_SLOTS:
 };
 }  // namespace sc
 }  // namespace gui
+}  // namespace tobas

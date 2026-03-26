@@ -16,6 +16,8 @@
 #include "../base.hpp"
 #include "./face_circle.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sc
@@ -143,3 +145,4 @@ private Q_SLOTS:
 };
 }  // namespace sc
 }  // namespace gui
+}  // namespace tobas

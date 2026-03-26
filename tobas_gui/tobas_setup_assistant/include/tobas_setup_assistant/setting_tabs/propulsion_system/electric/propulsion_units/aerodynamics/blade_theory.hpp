@@ -3,6 +3,8 @@
 #include <tobas_math/definitions.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -54,3 +56,4 @@ private:
 }  // namespace propulsion
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

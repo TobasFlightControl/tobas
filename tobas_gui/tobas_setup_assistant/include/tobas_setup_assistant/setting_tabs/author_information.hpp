@@ -3,6 +3,8 @@
 #include "../param_getters/line_edit.hpp"
 #include "./base_setting.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -39,3 +41,4 @@ private:
 };
 };  // namespace sa
 }  // namespace gui
+}  // namespace tobas

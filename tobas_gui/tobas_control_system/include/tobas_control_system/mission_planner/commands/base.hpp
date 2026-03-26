@@ -11,6 +11,8 @@
 
 #include "../fields/base.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -47,8 +49,8 @@ protected:
 private:
   QLabel* label_;
   QPushButton* delete_button_;
-  qt::FormLayout* form_;
-  QMap<field::BaseFieldWidget*, qt::CheckBox*> checkboxes_;
+  tobas::qt::FormLayout* form_;
+  QMap<field::BaseFieldWidget*, tobas::qt::CheckBox*> checkboxes_;
 
   int row_ = 0;
 
@@ -65,3 +67,4 @@ T BaseCommandWidget::getValue(field::FieldWidget<T>* widget) const
 }
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

@@ -7,6 +7,8 @@
 
 #include <tobas_msgs/msg/engine_state.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -34,8 +36,8 @@ private:
   const tobas::Drone& drone_;
   tobas::IcePropulsionSystemConfig::ConstSharedPtr iprop_;
 
-  qt::HPositionBarWidget* fuel_quantity_;
-  qt::HPositionBarWidget* oil_temp_;
+  tobas::qt::HPositionBarWidget* fuel_quantity_;
+  tobas::qt::HPositionBarWidget* oil_temp_;
 
   void updateFuelQuantity(const double& fuel_quantity);
   void updateOilTemperature(const double& oil_temp);
@@ -45,3 +47,4 @@ private Q_SLOTS:
 };
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

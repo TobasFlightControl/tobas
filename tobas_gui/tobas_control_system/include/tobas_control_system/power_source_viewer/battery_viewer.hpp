@@ -5,6 +5,8 @@
 #include <tobas_qt_tools/widgets/position_bar_widget.hpp>
 #include <tobas_rqt_bridge/bridge.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -29,8 +31,8 @@ private:
   const tobas::Drone& drone_;
   tobas::ElectricPropulsionSystemConfig::ConstSharedPtr eprop_;
 
-  qt::HPositionBarWidget* voltage_;
-  qt::HPositionBarWidget* current_;
+  tobas::qt::HPositionBarWidget* voltage_;
+  tobas::qt::HPositionBarWidget* current_;
 
   void updateVoltage(const double& voltage);
   void updateCurrent(const double& current);
@@ -40,3 +42,4 @@ private Q_SLOTS:
 };
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

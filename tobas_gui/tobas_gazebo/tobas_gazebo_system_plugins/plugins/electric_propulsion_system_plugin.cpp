@@ -35,6 +35,8 @@
 namespace ch = std::chrono;
 namespace cmp = gz::sim::components;
 
+namespace tobas
+{
 namespace gazebo
 {
 /* Simulates ESC, rotor and propeller. */
@@ -465,9 +467,10 @@ void GazeboElectricPropulsionSystemPlugin::breakCb(
   res->success = true;
 }
 }  // namespace gazebo
+}  // namespace tobas
 
 GZ_ADD_PLUGIN(
-  gazebo::GazeboElectricPropulsionSystemPlugin,
+  tobas::gazebo::GazeboElectricPropulsionSystemPlugin,
   gz::sim::System,
-  gazebo::GazeboElectricPropulsionSystemPlugin::ISystemConfigure,
-  gazebo::GazeboElectricPropulsionSystemPlugin::ISystemPreUpdate)
+  tobas::gazebo::GazeboElectricPropulsionSystemPlugin::ISystemConfigure,
+  tobas::gazebo::GazeboElectricPropulsionSystemPlugin::ISystemPreUpdate)

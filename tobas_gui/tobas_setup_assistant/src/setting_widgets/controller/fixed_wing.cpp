@@ -2,6 +2,8 @@
 
 #include <QVBoxLayout>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -68,3 +70,4 @@ bool FixedWingWidget::isValid()
 }  // namespace ctrl
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

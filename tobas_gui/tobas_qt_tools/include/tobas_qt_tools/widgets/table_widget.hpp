@@ -2,6 +2,8 @@
 
 #include <QTableWidget>
 
+namespace tobas
+{
 namespace qt
 {
 /**
@@ -30,3 +32,4 @@ public:
   void setHeaderSectionsClickable(bool clickable);
 };
 }  // namespace qt
+}  // namespace tobas

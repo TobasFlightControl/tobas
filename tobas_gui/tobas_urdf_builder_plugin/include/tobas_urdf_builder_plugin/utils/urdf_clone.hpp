@@ -3,6 +3,8 @@
 #include <urdf_model/joint.h>
 #include <urdf_model/link.h>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ub
@@ -32,3 +34,4 @@ urdf::LinkSharedPtr clone(const urdf::LinkSharedPtr& link);
 }  // namespace utils
 }  // namespace ub
 }  // namespace gui
+}  // namespace tobas

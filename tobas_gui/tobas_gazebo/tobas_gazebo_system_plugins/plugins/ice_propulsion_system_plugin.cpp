@@ -22,6 +22,8 @@
 
 namespace ch = std::chrono;
 
+namespace tobas
+{
 namespace gazebo
 {
 /* Simulates engine and propellers. */
@@ -220,7 +222,7 @@ void GazeboIcePropulsionSystemPlugin::registerPubSub()
   }
 
   ice_cmd_sub_ = createSubscriber(tobas::topic::kIcePropulsionSystemCmd, &self::iceCommandCb, this);
-  wind_gt_sub_ = createSubscriber(gazebo::kWindGtTopic, &self::windSpeedGtCb, this);
+  wind_gt_sub_ = createSubscriber(tobas::gazebo::kWindGtTopic, &self::windSpeedGtCb, this);
 }
 
 void GazeboIcePropulsionSystemPlugin::iceCommandCb(
@@ -267,10 +269,11 @@ void GazeboIcePropulsionSystemPlugin::windSpeedGtCb(const tobas_msgs::Wind::Cons
   vectorKDLToGazebo(wind_gt->vel, wind_vel_W_);
 }
 }  // namespace gazebo
+}  // namespace tobas
 
 GZ_ADD_PLUGIN(
-  gazebo::GazeboIcePropulsionSystemPlugin,
+  tobas::gazebo::GazeboIcePropulsionSystemPlugin,
   gz::sim::System,
-  gazebo::GazeboIcePropulsionSystemPlugin::ISystemConfigure,
-  gazebo::GazeboIcePropulsionSystemPlugin::ISystemPreUpdate,
-  gazebo::GazeboIcePropulsionSystemPlugin::ISystemPostUpdate)
+  tobas::gazebo::GazeboIcePropulsionSystemPlugin::ISystemConfigure,
+  tobas::gazebo::GazeboIcePropulsionSystemPlugin::ISystemPreUpdate,
+  tobas::gazebo::GazeboIcePropulsionSystemPlugin::ISystemPostUpdate)

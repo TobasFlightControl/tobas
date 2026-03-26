@@ -2,6 +2,8 @@
 
 #include <QPushButton>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -21,3 +23,4 @@ public:
 };
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

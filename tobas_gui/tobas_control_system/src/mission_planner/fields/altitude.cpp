@@ -2,6 +2,8 @@
 
 #include <QHBoxLayout>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -10,7 +12,7 @@ namespace field
 {
 AltitudeWidget::AltitudeWidget()
 {
-  spin_box_ = new qt::DoubleSpinBox();
+  spin_box_ = new tobas::qt::DoubleSpinBox();
   spin_box_->setDecimals(2);
   spin_box_->setValue(5.);
   spin_box_->setSuffix(" m");
@@ -39,3 +41,4 @@ void AltitudeWidget::setValue(double value)
 }  // namespace field
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

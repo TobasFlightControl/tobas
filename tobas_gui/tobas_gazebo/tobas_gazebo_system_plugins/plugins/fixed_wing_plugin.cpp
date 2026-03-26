@@ -27,6 +27,8 @@
 namespace ch = std::chrono;
 namespace cmp = gz::sim::components;
 
+namespace tobas
+{
 namespace gazebo
 {
 /**
@@ -509,9 +511,10 @@ void GazeboFixedWingPlugin::windSpeedCb(const tobas_msgs::Wind::ConstSharedPtr& 
   vectorKDLToGazebo(wind->vel, wind_vel_W_);
 }
 }  // namespace gazebo
+}  // namespace tobas
 
 GZ_ADD_PLUGIN(
-  gazebo::GazeboFixedWingPlugin,
+  tobas::gazebo::GazeboFixedWingPlugin,
   gz::sim::System,
-  gazebo::GazeboFixedWingPlugin::ISystemConfigure,
-  gazebo::GazeboFixedWingPlugin::ISystemPreUpdate)
+  tobas::gazebo::GazeboFixedWingPlugin::ISystemConfigure,
+  tobas::gazebo::GazeboFixedWingPlugin::ISystemPreUpdate)

@@ -6,16 +6,18 @@
 #include "./mag_calibration/mag_calibration.hpp"
 #include "./rcin_calibration/rcin_calibration.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sc
 {
-class SensorCalibrationWidget : public qt::VerticalTabWidget
+class SensorCalibrationWidget : public tobas::qt::VerticalTabWidget
 {
   Q_OBJECT
 
   using self = SensorCalibrationWidget;
-  using super = qt::VerticalTabWidget;
+  using super = tobas::qt::VerticalTabWidget;
 
   static constexpr int kTabHeight = 35;  // これ以上無いと何故かTabBarの文字が横に見切れてしまう
   static constexpr int kTabWidth = 70;
@@ -50,3 +52,4 @@ private Q_SLOTS:
 };
 }  // namespace sc
 }  // namespace gui
+}  // namespace tobas

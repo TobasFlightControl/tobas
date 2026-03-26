@@ -5,6 +5,8 @@
 
 #include <tobas_qt_tools/widgets/description_widget.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -39,7 +41,7 @@ protected:
   QVBoxLayout* rows_;
 
 private:
-  qt::DescriptionWidget* description_;
+  tobas::qt::DescriptionWidget* description_;
 
 private Q_SLOTS:
   void initialize();
@@ -48,3 +50,4 @@ private Q_SLOTS:
 }  // namespace propulsion
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

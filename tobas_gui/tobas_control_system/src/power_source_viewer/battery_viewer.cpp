@@ -9,22 +9,24 @@
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
 {
 BatteryViewerWidget::BatteryViewerWidget(const RosQtBridge& bridge, const tobas::Drone& drone) : drone_(drone)
 {
-  voltage_ = new qt::HPositionBarWidget();
-  current_ = new qt::HPositionBarWidget();
+  voltage_ = new tobas::qt::HPositionBarWidget();
+  current_ = new tobas::qt::HPositionBarWidget();
 
   voltage_->setFixedHeight(kBarHeight);
   current_->setFixedHeight(kBarHeight);
 
   // Layout
-  const auto form = new qt::FormLayout();
-  form->addVAlignedRow(new qt::Label("Batt Volt", kLabelPSize), voltage_);
-  form->addVAlignedRow(new qt::Label("Batt Curr", kLabelPSize), current_);
+  const auto form = new tobas::qt::FormLayout();
+  form->addVAlignedRow(new tobas::qt::Label("Batt Volt", kLabelPSize), voltage_);
+  form->addVAlignedRow(new tobas::qt::Label("Batt Curr", kLabelPSize), current_);
   setLayout(form);
 
   // Connection
@@ -104,3 +106,4 @@ void BatteryViewerWidget::batteryCb(const tobas_msgs::msg::Battery::ConstSharedP
 }
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

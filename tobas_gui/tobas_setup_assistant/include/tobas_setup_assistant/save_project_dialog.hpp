@@ -6,6 +6,8 @@
 
 #include <tobas_qt_tools/widgets/label.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -26,10 +28,11 @@ protected:
 private:
   QPushButton* save_button_;
   QLineEdit* proj_name_;
-  qt::Label* warn_text_;
+  tobas::qt::Label* warn_text_;
 
 private Q_SLOTS:
   void onProjectPathChanged();
 };
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

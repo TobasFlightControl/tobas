@@ -7,6 +7,8 @@
 #include <tobas_std_tools/array.hpp>
 #include <tobas_std_tools/check.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace at
@@ -29,7 +31,7 @@ void JointCommandsPublisherWidget::updateInternalDataStructures()
 
   // 初期化
   commanders_.clear();
-  qt::clearLayout(rows_);
+  tobas::qt::clearLayout(rows_);
 
   // アクティブ回転ジョイントのコマンダーを作成
   for (const auto& [jnt_name, joint] : drone_.joints) {
@@ -40,7 +42,7 @@ void JointCommandsPublisherWidget::updateInternalDataStructures()
       continue;
     }
 
-    const auto commander = new qt::DoubleSliderDisplay();
+    const auto commander = new tobas::qt::DoubleSliderDisplay();
     commander->setDecimals(3);
     commander->setText(QString::fromStdString(jnt_name));
     commander->setEnabled(false);
@@ -50,7 +52,8 @@ void JointCommandsPublisherWidget::updateInternalDataStructures()
         const auto min_pos = joint_parser_.lowerLimit(jnt_name);
         const auto max_pos = joint_parser_.upperLimit(jnt_name);
         if (std::isinf(min_pos) || std::isinf(max_pos)) {
-          qt::qErrorBox(this, "The position limit of joint \"" + QString::fromStdString(jnt_name) + "\" is invalid.");
+          tobas::qt::qErrorBox(
+            this, "The position limit of joint \"" + QString::fromStdString(jnt_name) + "\" is invalid.");
           continue;
         }
 
@@ -88,7 +91,8 @@ void JointCommandsPublisherWidget::updateInternalDataStructures()
         break;
       }
       case tobas::JointCommandInterface::kNone: {
-        qt::qErrorBox(this, "The command interface of joint \"" + QString::fromStdString(jnt_name) + "\" is not set.");
+        tobas::qt::qErrorBox(
+          this, "The command interface of joint \"" + QString::fromStdString(jnt_name) + "\" is not set.");
         continue;
       }
       default: {
@@ -97,7 +101,7 @@ void JointCommandsPublisherWidget::updateInternalDataStructures()
     }
 
     rows_->addWidget(commander);
-    connect(commander, &qt::DoubleSliderDisplay::valueChanged, this, &self::onValueChanged);
+    connect(commander, &tobas::qt::DoubleSliderDisplay::valueChanged, this, &self::onValueChanged);
     commanders_[jnt_name] = commander;
   }
 
@@ -240,3 +244,4 @@ void JointCommandsPublisherWidget::onValueChanged()
 }
 }  // namespace at
 }  // namespace gui
+}  // namespace tobas

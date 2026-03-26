@@ -2,6 +2,8 @@
 
 #include <tobas_string_tools/core.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -11,9 +13,9 @@ ParamGetterWidget_DoubleSpinBox::ParamGetterWidget_DoubleSpinBox(
   const QString& description_text)
   : super(param_name, description_text)
 {
-  spin_box_ = new qt::DoubleSpinBox();
+  spin_box_ = new tobas::qt::DoubleSpinBox();
   rows_->addWidget(spin_box_);
-  connect(spin_box_, QOverload<double>::of(&qt::DoubleSpinBox::valueChanged), this, &self::onValueChanged);
+  connect(spin_box_, QOverload<double>::of(&tobas::qt::DoubleSpinBox::valueChanged), this, &self::onValueChanged);
 }
 
 double ParamGetterWidget_DoubleSpinBox::getValue() const
@@ -62,3 +64,4 @@ void ParamGetterWidget_DoubleSpinBox::onValueChanged(double value)
 }
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

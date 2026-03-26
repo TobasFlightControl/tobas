@@ -9,6 +9,8 @@
 #include "./motor.hpp"
 #include "./propeller.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -44,7 +46,7 @@ public:
   const AerodynamicsWidget* aerodynamics() const;
 
 private:
-  qt::TabWidget* tabs_;
+  tobas::qt::TabWidget* tabs_;
 
   QPushButton* copy_to_all_btn_;
 
@@ -57,3 +59,4 @@ private:
 }  // namespace propulsion
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

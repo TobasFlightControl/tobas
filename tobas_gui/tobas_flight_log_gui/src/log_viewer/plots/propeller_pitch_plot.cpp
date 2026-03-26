@@ -6,13 +6,15 @@
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace log
 {
 PropellerPitchPlotWidget::PropellerPitchPlotWidget()
 {
-  grid_ = new qt::GridLayout();
+  grid_ = new tobas::qt::GridLayout();
   setLayout(grid_);
 }
 
@@ -117,3 +119,4 @@ bool PropellerPitchPlotWidget::updateInternalDataStructures(const tobas_msgs::ms
 }
 }  // namespace log
 }  // namespace gui
+}  // namespace tobas

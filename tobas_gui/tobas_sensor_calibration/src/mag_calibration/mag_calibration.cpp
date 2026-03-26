@@ -7,6 +7,8 @@
 #include "tobas_sensor_calibration/mag_calibration/complete/complete.hpp"
 #include "tobas_sensor_calibration/mag_calibration/large_vehicle/large_vehicle.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sc
@@ -16,7 +18,7 @@ MagCalibrationWidget::MagCalibrationWidget(rclcpp::Node::SharedPtr node, const R
   btn_group_ = new QButtonGroup(this);
   btn_group_->setExclusive(true);
 
-  stack_ = new qt::StackedWidget();
+  stack_ = new tobas::qt::StackedWidget();
 
   int id = 0;
   addMagCalibWidget(new CompleteMagCalibWidget(node, bridge), "Complete Calibration (Recommended)", id++);
@@ -27,7 +29,7 @@ MagCalibrationWidget::MagCalibrationWidget(rclcpp::Node::SharedPtr node, const R
   rows_->addSpacing(20);
   rows_->addWidget(stack_);
 
-  connect(btn_group_, &QButtonGroup::idClicked, stack_, &qt::StackedWidget::setCurrentIndex);
+  connect(btn_group_, &QButtonGroup::idClicked, stack_, &tobas::qt::StackedWidget::setCurrentIndex);
 }
 
 const char* MagCalibrationWidget::title() const
@@ -64,7 +66,7 @@ void MagCalibrationWidget::addMagCalibWidget(BaseMagCalibWidget* widget, const Q
 
 BaseMagCalibWidget* MagCalibrationWidget::getWidget(int index)
 {
-  return qt::qPointerCast<BaseMagCalibWidget>(stack_->widget(index));
+  return tobas::qt::qPointerCast<BaseMagCalibWidget>(stack_->widget(index));
 }
 
 void MagCalibrationWidget::setCurrentIndex(int index)
@@ -74,3 +76,4 @@ void MagCalibrationWidget::setCurrentIndex(int index)
 }
 }  // namespace sc
 }  // namespace gui
+}  // namespace tobas

@@ -10,20 +10,22 @@
 using namespace std::chrono_literals;
 namespace fs = std::filesystem;
 
+namespace tobas
+{
 namespace gui
 {
 namespace sim
 {
 SbusWidget::SbusWidget() : dir_(kDirPath)
 {
-  device_names_ = new qt::ComboBox();
+  device_names_ = new tobas::qt::ComboBox();
 
   // Layout
   const auto form = new QFormLayout();
   form->addRow("Device", device_names_);
 
   const auto rows = new QVBoxLayout();
-  rows->addWidget(new qt::Label("S.BUS", cmn::kLabelPSize, QFont::Bold));
+  rows->addWidget(new tobas::qt::Label("S.BUS", cmn::kLabelPSize, QFont::Bold));
   rows->addLayout(form);
 
   setLayout(rows);
@@ -96,3 +98,4 @@ void SbusWidget::onScanTimerTimeout()
 }
 }  // namespace sim
 }  // namespace gui
+}  // namespace tobas

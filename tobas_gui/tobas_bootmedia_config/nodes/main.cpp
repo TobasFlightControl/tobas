@@ -9,13 +9,13 @@
 
 int main(int argc, char** argv)
 {
-  qInstallMessageHandler(qt::colorMessageHandler);
+  qInstallMessageHandler(tobas::qt::colorMessageHandler);
 
   QApplication qapp(argc, argv);
-  const auto title = "Tobas Bootmedia Config (" + gui::cmn::Version::Current().toString() + ")";
+  const auto title = "Tobas Bootmedia Config (" + tobas::gui::cmn::Version::Current().toString() + ")";
   const auto icon_path = tobas::gui::bm::getPkgShareDir() / "resources/icon.png";
   const auto widget = new tobas::gui::bm::BootmediaConfigWidget();
-  qt::MainWidget main(title, QString::fromStdString(icon_path), widget);
+  tobas::qt::MainWidget main(title, QString::fromStdString(icon_path), widget);
   main.show();
 
   const auto result = qapp.exec();

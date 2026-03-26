@@ -8,6 +8,8 @@
 
 #include "tobas_flight_log_gui/recorder/constants.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace log
@@ -43,3 +45,4 @@ void RecordStopThread::setNamespace(const std::string& ns)
 }
 }  // namespace log
 }  // namespace gui
+}  // namespace tobas

@@ -5,6 +5,8 @@
 #include <tobas_constants/rc_input.hpp>
 #include <tobas_ros2_tools/time.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace log
@@ -174,3 +176,4 @@ void RcInputPlotWidget::setData(const QVector<tobas_msgs::msg::RCInput>& msgs)
 }
 }  // namespace log
 }  // namespace gui
+}  // namespace tobas

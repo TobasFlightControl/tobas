@@ -1,5 +1,7 @@
 #include "tobas_qt_tools/widgets/framed_label.hpp"
 
+namespace tobas
+{
 namespace qt
 {
 FramedLabel::FramedLabel(const QString& text, QWidget* parent) : super(text, parent)
@@ -8,3 +10,4 @@ FramedLabel::FramedLabel(const QString& text, QWidget* parent) : super(text, par
   setAlignment(Qt::AlignRight | Qt::AlignVCenter);
 }
 }  // namespace qt
+}  // namespace tobas

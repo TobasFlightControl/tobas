@@ -1,5 +1,7 @@
 #pragma once
 
+namespace tobas
+{
 namespace uadf
 {
 struct Thrust
@@ -11,3 +13,4 @@ struct Thrust
   } direction = CW;
 };
 }  // namespace uadf
+}  // namespace tobas

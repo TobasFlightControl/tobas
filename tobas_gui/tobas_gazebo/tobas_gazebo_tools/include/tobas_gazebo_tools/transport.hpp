@@ -5,6 +5,8 @@
 #include <gz/common/Console.hh>
 #include <gz/transport/Node.hh>
 
+namespace tobas
+{
 namespace gazebo
 {
 /* Gazeboメッセージを1通だけ取得する． */
@@ -55,3 +57,4 @@ bool waitForMessage(
   return got;
 }
 }  // namespace gazebo
+}  // namespace tobas

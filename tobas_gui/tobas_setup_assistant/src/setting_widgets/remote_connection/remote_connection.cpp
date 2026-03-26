@@ -4,6 +4,8 @@
 #include <tobas_qt_tools/widgets/description_widget.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -15,12 +17,13 @@ RemoteConnectionWidget::RemoteConnectionWidget()
   host_ = new HostWidget();
   nif_ = new NetworkIfaceWidget();
 
-  addWidget(new qt::Label(kNetworkIfaceLabel, cmn::kLabelPSize, QFont::Bold));
-  addWidget(new qt::DescriptionWidget("Specify the network interface used by the flight controller.", cmn::kBodyPSize));
+  addWidget(new tobas::qt::Label(kNetworkIfaceLabel, cmn::kLabelPSize, QFont::Bold));
+  addWidget(
+    new tobas::qt::DescriptionWidget("Specify the network interface used by the flight controller.", cmn::kBodyPSize));
   addWidget(nif_);
 
-  addWidget(new qt::Label(kHostLabel, cmn::kLabelPSize, QFont::Bold));
-  addWidget(new qt::DescriptionWidget(
+  addWidget(new tobas::qt::Label(kHostLabel, cmn::kLabelPSize, QFont::Bold));
+  addWidget(new tobas::qt::DescriptionWidget(
     "Specify the target FC host as either a hostname, an IPv4 address, or an IPv6 address.", cmn::kBodyPSize));
   addWidget(host_);
 
@@ -88,3 +91,4 @@ QString RemoteConnectionWidget::host() const
 }  // namespace rc
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

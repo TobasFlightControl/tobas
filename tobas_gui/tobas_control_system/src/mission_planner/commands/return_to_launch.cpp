@@ -1,5 +1,7 @@
 #include "tobas_control_system/mission_planner/commands/return_to_launch.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -147,3 +149,4 @@ void ReturnToLaunchWidget::altitudeTolerance(double value)
 }
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

@@ -2,6 +2,8 @@
 
 #include <tobas_string_tools/core.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -13,8 +15,8 @@ ParamGetterWidget_LinearEquation::ParamGetterWidget_LinearEquation(
   const QString& description_text)
   : super(param_name, description_text)
 {
-  c0_ = new qt::DoubleSpinBox();
-  c1_ = new qt::DoubleSpinBox();
+  c0_ = new tobas::qt::DoubleSpinBox();
+  c1_ = new tobas::qt::DoubleSpinBox();
   suffix_ = new QLabel();
 
   const auto cols = new QHBoxLayout();
@@ -27,8 +29,8 @@ ParamGetterWidget_LinearEquation::ParamGetterWidget_LinearEquation(
   cols->addWidget(suffix_);
   cols->addStretch();
 
-  connect(c0_, QOverload<double>::of(&qt::DoubleSpinBox::valueChanged), this, &self::onValueChanged);
-  connect(c1_, QOverload<double>::of(&qt::DoubleSpinBox::valueChanged), this, &self::onValueChanged);
+  connect(c0_, QOverload<double>::of(&tobas::qt::DoubleSpinBox::valueChanged), this, &self::onValueChanged);
+  connect(c1_, QOverload<double>::of(&tobas::qt::DoubleSpinBox::valueChanged), this, &self::onValueChanged);
 }
 
 ParamGetterWidget_LinearEquation::ValueType ParamGetterWidget_LinearEquation::getValue() const
@@ -61,3 +63,4 @@ void ParamGetterWidget_LinearEquation::onValueChanged()
 }
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

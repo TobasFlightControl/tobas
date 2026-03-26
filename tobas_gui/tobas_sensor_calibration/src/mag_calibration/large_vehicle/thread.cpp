@@ -11,6 +11,8 @@
 
 #include "tobas_sensor_calibration/constants.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sc
@@ -166,3 +168,4 @@ void LargeVehicleMagCalibThread::armingCb(const tobas_msgs::msg::Arming::ConstSh
 }
 }  // namespace sc
 }  // namespace gui
+}  // namespace tobas

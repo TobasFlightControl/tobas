@@ -10,6 +10,8 @@
 #include <tobas_std_tools/check.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -20,9 +22,9 @@ CustomFrameWidget::CustomFrameWidget()
 {
   TOBAS_CHECK(command_map_.size() == magic_enum::enum_count<tobas::RcCommand>());
 
-  acrobat_mode_ = new qt::ComboBox();
-  stabilize_mode_ = new qt::ComboBox();
-  loiter_mode_ = new qt::ComboBox();
+  acrobat_mode_ = new tobas::qt::ComboBox();
+  stabilize_mode_ = new tobas::qt::ComboBox();
+  loiter_mode_ = new tobas::qt::ComboBox();
 
   // Add command choices
   for (const auto& [text, _] : command_map_) {
@@ -37,13 +39,13 @@ CustomFrameWidget::CustomFrameWidget()
   loiter_mode_->setCurrentText(kPosVelAccYawLabel);
 
   // Layout
-  const auto form = new qt::FormLayout();
+  const auto form = new tobas::qt::FormLayout();
   form->addRow(kAcrobatLabel, acrobat_mode_);
   form->addRow(kStabilizeLabel, stabilize_mode_);
   form->addRow(kLoiterLabel, loiter_mode_);
 
   const auto rows = new QVBoxLayout();
-  rows->addWidget(new qt::Label("RC Command", cmn::kLabelPSize, QFont::Bold));
+  rows->addWidget(new tobas::qt::Label("RC Command", cmn::kLabelPSize, QFont::Bold));
   rows->addLayout(form);
   rows->addStretch();
 
@@ -110,3 +112,4 @@ bool CustomFrameWidget::isValid()
 }  // namespace ctrl
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

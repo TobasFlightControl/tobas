@@ -20,6 +20,8 @@ namespace fs = std::filesystem;
 
 Q_DECLARE_METATYPE(rclcpp_action::ResultCode);
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -38,11 +40,11 @@ MissionPlannerWidget::MissionPlannerWidget(rclcpp::Node::SharedPtr node, const R
   cancel_button_ = new CommandButton("Cancel");
   focus_button_ = new CommandButton("Focus");
 
-  command_list_ = new qt::ListWidget();
+  command_list_ = new tobas::qt::ListWidget();
   command_list_->setSelectionMode(QListWidget::SingleSelection);
   command_list_->setDragDropMode(QListWidget::InternalMove);
 
-  commands_ = new qt::StackedWidget();
+  commands_ = new tobas::qt::StackedWidget();
   commands_->setStyleSheet("QStackedWidget { border: 1px solid black; background-color: white; }");
 
   reset();
@@ -80,8 +82,8 @@ MissionPlannerWidget::MissionPlannerWidget(rclcpp::Node::SharedPtr node, const R
   connect(execute_button_, &CommandButton::clicked, this, &self::onExecuteButtonClicked);
   connect(cancel_button_, &CommandButton::clicked, this, &self::onCancelButtonClicked);
   connect(focus_button_, &CommandButton::clicked, this, &self::onFocusButtonClicked);
-  connect(command_list_, &qt::ListWidget::itemClicked, this, &self::onListItemChanged);
-  connect(command_list_, &qt::ListWidget::itemMoved, this, &self::onListItemChanged);
+  connect(command_list_, &tobas::qt::ListWidget::itemClicked, this, &self::onListItemChanged);
+  connect(command_list_, &tobas::qt::ListWidget::itemMoved, this, &self::onListItemChanged);
   connect(&bridge, &RosQtBridge::gnssReceived, this, &self::gnssCb, Qt::QueuedConnection);
   connect(&bridge, &RosQtBridge::odomReceived, this, &self::odomCb, Qt::QueuedConnection);
   connect(this, &self::goalResponseReceived, this, &self::actionGoalResponseCb, Qt::QueuedConnection);
@@ -178,7 +180,7 @@ void MissionPlannerWidget::commandsToMap()
 
     switch (cmd_type) {
       case Command::kWaypoint: {
-        const auto waypoint = qt::qConstPointerCast<WaypointWidget>(cmd_widget);
+        const auto waypoint = tobas::qt::qConstPointerCast<WaypointWidget>(cmd_widget);
         const auto latitude = waypoint->latitude();
         const auto longitude = waypoint->longitude();
         const auto coord = QGeoCoordinate(latitude, longitude);
@@ -243,7 +245,7 @@ MissionPlannerWidget::Action::Goal MissionPlannerWidget::createMissionGoal() con
 
     switch (cmd_type) {
       case Command::kWaypoint: {
-        const auto widget = qt::qConstPointerCast<WaypointWidget>(base_widget);
+        const auto widget = tobas::qt::qConstPointerCast<WaypointWidget>(base_widget);
 
         tobas::mission::Waypoint waypoint;
         waypoint.latitude = widget->latitude();
@@ -269,7 +271,7 @@ MissionPlannerWidget::Action::Goal MissionPlannerWidget::createMissionGoal() con
         break;
       }
       case Command::kTakeoff: {
-        const auto widget = qt::qConstPointerCast<TakeoffWidget>(base_widget);
+        const auto widget = tobas::qt::qConstPointerCast<TakeoffWidget>(base_widget);
 
         tobas::mission::Takeoff takeoff;
         takeoff.altitude = widget->altitude();
@@ -286,7 +288,7 @@ MissionPlannerWidget::Action::Goal MissionPlannerWidget::createMissionGoal() con
         break;
       }
       case Command::kLand: {
-        const auto widget = qt::qConstPointerCast<LandWidget>(base_widget);
+        const auto widget = tobas::qt::qConstPointerCast<LandWidget>(base_widget);
 
         tobas::mission::Land land;
         land.speed = widget->speed();
@@ -298,7 +300,7 @@ MissionPlannerWidget::Action::Goal MissionPlannerWidget::createMissionGoal() con
         break;
       }
       case Command::kReturnToLaunch: {
-        const auto widget = qt::qConstPointerCast<ReturnToLaunchWidget>(base_widget);
+        const auto widget = tobas::qt::qConstPointerCast<ReturnToLaunchWidget>(base_widget);
 
         tobas::mission::ReturnToLaunch rtl;
         rtl.min_altitude = widget->minAltitude();
@@ -334,14 +336,14 @@ void MissionPlannerWidget::onLoadButtonClicked()
 {
   RCLCPP_DEBUG(node_->get_logger(), "MissionPlannerWidget::onLoadButtonClicked");
 
-  qt::qWarnBox(this, "Not implemented yet.");  // TODO
+  tobas::qt::qWarnBox(this, "Not implemented yet.");  // TODO
 }
 
 void MissionPlannerWidget::onSaveButtonClicked()
 {
   RCLCPP_DEBUG(node_->get_logger(), "MissionPlannerWidget::onSaveButtonClicked");
 
-  qt::qWarnBox(this, "Not implemented yet.");  // TODO
+  tobas::qt::qWarnBox(this, "Not implemented yet.");  // TODO
 }
 
 void MissionPlannerWidget::onAddButtonClicked()
@@ -403,7 +405,7 @@ void MissionPlannerWidget::onClearButtonClicked()
 {
   RCLCPP_DEBUG(node_->get_logger(), "MissionPlannerWidget::onClearButtonClicked");
 
-  if (!qt::yesOrNo(this, "Do you want to clear all the commands?", qt::WARN)) {
+  if (!tobas::qt::yesOrNo(this, "Do you want to clear all the commands?", tobas::qt::WARN)) {
     return;
   }
 
@@ -417,7 +419,7 @@ void MissionPlannerWidget::onCacheButtonClicked()
 {
   RCLCPP_DEBUG(node_->get_logger(), "MissionPlannerWidget::onCacheButtonClicked");
 
-  if (!qt::yesOrNo(this, "Do you want to cache map tiles to offline storage?", qt::WARN)) {
+  if (!tobas::qt::yesOrNo(this, "Do you want to cache map tiles to offline storage?", tobas::qt::WARN)) {
     return;
   }
 
@@ -472,26 +474,26 @@ void MissionPlannerWidget::onCacheButtonClicked()
     }
   }
 
-  qt::qInfoBox(this, QString("Map tiles are cached to %1.").arg(kCacheDirOffline));
+  tobas::qt::qInfoBox(this, QString("Map tiles are cached to %1.").arg(kCacheDirOffline));
 }
 
 void MissionPlannerWidget::onExecuteButtonClicked()
 {
   RCLCPP_DEBUG(node_->get_logger(), "MissionPlannerWidget::onExecuteButtonClicked");
 
-  if (!qt::yesOrNo(this, "Do you want to execute the mission?", qt::WARN)) {
+  if (!tobas::qt::yesOrNo(this, "Do you want to execute the mission?", tobas::qt::WARN)) {
     return;
   }
 
   // ミッションが設定されているかどうかを確認
   if (command_list_->count() == 0) {
-    qt::qWarnBox(this, "Mission is empty.");
+    tobas::qt::qWarnBox(this, "Mission is empty.");
     return;
   }
 
   // ミッション実行サーバの状態を確認
   if (!mission_ac_->action_server_is_ready()) {
-    qt::qWarnBox(this, "Mission executor is not ready.");
+    tobas::qt::qWarnBox(this, "Mission executor is not ready.");
     return;
   }
 
@@ -512,7 +514,7 @@ void MissionPlannerWidget::onCancelButtonClicked()
 {
   RCLCPP_DEBUG(node_->get_logger(), "MissionPlannerWidget::onCancelButtonClicked");
 
-  if (!qt::yesOrNo(this, "Do you want to cancel the mission?", qt::WARN)) {
+  if (!tobas::qt::yesOrNo(this, "Do you want to cancel the mission?", tobas::qt::WARN)) {
     return;
   }
 
@@ -570,7 +572,7 @@ void MissionPlannerWidget::onWaypointMoved(int index, double latitude, double lo
   RCLCPP_DEBUG(node_->get_logger(), "MissionPlannerWidget::onWaypointMoved");
 
   if (mission_executing_) {
-    qt::qWarnBox(this, "You cannot edit the mission while executing it.");
+    tobas::qt::qWarnBox(this, "You cannot edit the mission while executing it.");
     commandsToMap();
     return;
   }
@@ -583,7 +585,7 @@ void MissionPlannerWidget::onWaypointMoved(int index, double latitude, double lo
       ++cur_idx;
     }
     if (cur_idx == index) {
-      const auto waypoint = qt::qPointerCast<WaypointWidget>(getCommandWidget(item));
+      const auto waypoint = tobas::qt::qPointerCast<WaypointWidget>(getCommandWidget(item));
       waypoint->latitude(latitude);
       waypoint->longitude(longitude);
       break;
@@ -615,7 +617,7 @@ void MissionPlannerWidget::actionGoalResponseCb(bool ok)
   spinner_.stop();
 
   if (!ok) {
-    qt::qErrorBox(this, "The request to execute the mission was rejected.");
+    tobas::qt::qErrorBox(this, "The request to execute the mission was rejected.");
     return;
   }
 
@@ -633,19 +635,19 @@ void MissionPlannerWidget::actionResultCb(rclcpp_action::ResultCode code, const 
 {
   switch (code) {
     case rclcpp_action::ResultCode::UNKNOWN:
-      qt::qWarnBox(this, "The result of the mission is unknown.");
+      tobas::qt::qWarnBox(this, "The result of the mission is unknown.");
       break;
     case rclcpp_action::ResultCode::SUCCEEDED:
-      qt::qInfoBox(this, "The mission has been completed.");
+      tobas::qt::qInfoBox(this, "The mission has been completed.");
       break;
     case rclcpp_action::ResultCode::CANCELED:
-      qt::qWarnBox(this, "The mission was canceled.");
+      tobas::qt::qWarnBox(this, "The mission was canceled.");
       break;
     case rclcpp_action::ResultCode::ABORTED:
-      qt::qErrorBox(this, "The mission was aborted:\n\n" + message);
+      tobas::qt::qErrorBox(this, "The mission was aborted:\n\n" + message);
       break;
     default:
-      qt::qErrorBox(this, "Invalid action result code: " + QString::number((int)code));
+      tobas::qt::qErrorBox(this, "Invalid action result code: " + QString::number((int)code));
       break;
   }
 
@@ -654,3 +656,4 @@ void MissionPlannerWidget::actionResultCb(rclcpp_action::ResultCode code, const 
 }
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

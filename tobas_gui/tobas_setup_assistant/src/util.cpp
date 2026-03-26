@@ -6,6 +6,8 @@
 
 namespace fs = std::filesystem;
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -16,3 +18,4 @@ fs::path getPkgShareDir()
 }
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

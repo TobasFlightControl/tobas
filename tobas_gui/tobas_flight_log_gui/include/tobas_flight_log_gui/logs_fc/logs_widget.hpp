@@ -6,6 +6,8 @@
 #include <tobas_qt_tools/widgets/list_widget.hpp>
 #include <tobas_qt_tools/widgets/wait_spinner.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace log
@@ -42,9 +44,9 @@ private:
   QPushButton* read_button_;
   QPushButton* clean_button_;
 
-  qt::WaitSpinnerWidget spinner_;
+  tobas::qt::WaitSpinnerWidget spinner_;
 
-  qt::ListWidget* log_list_;
+  tobas::qt::ListWidget* log_list_;
 
 private Q_SLOTS:
   void onReadButtonClicked();
@@ -54,3 +56,4 @@ private Q_SLOTS:
 };
 }  // namespace log
 }  // namespace gui
+}  // namespace tobas

@@ -2,6 +2,8 @@
 
 #include <QWidget>
 
+namespace tobas
+{
 namespace qt
 {
 enum QMessageLevel
@@ -18,3 +20,4 @@ void qErrorBox(QWidget* parent, const QString& msg);
 /* Yes/No型の質問を含むダイアログを表示し，Yesの場合にtrueを返す． */
 bool yesOrNo(QWidget* parent, const QString& text, QMessageLevel level);
 }  // namespace qt
+}  // namespace tobas

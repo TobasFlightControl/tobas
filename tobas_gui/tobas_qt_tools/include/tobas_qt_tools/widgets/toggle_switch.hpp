@@ -2,14 +2,16 @@
 
 #include "./widget.hpp"
 
+namespace tobas
+{
 namespace qt
 {
-class ToggleSwitch : public qt::Widget
+class ToggleSwitch : public tobas::qt::Widget
 {
   Q_OBJECT
 
   using self = ToggleSwitch;
-  using super = qt::Widget;
+  using super = tobas::qt::Widget;
 
 Q_SIGNALS:
   void toggled(bool checked);
@@ -52,3 +54,4 @@ private:
   void drawText(QPainter& painter);
 };
 }  // namespace qt
+}  // namespace tobas

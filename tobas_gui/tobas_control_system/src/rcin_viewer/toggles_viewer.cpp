@@ -8,6 +8,8 @@
 #include <tobas_algorithm/core.hpp>
 #include <tobas_qt_tools/util.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -16,8 +18,8 @@ namespace rcin
 {
 TogglesViewer::TogglesViewer(const RosQtBridge& bridge)
 {
-  kill_ = new qt::ToggleSwitch();
-  sub_mode_ = new qt::ToggleSwitch();
+  kill_ = new tobas::qt::ToggleSwitch();
+  sub_mode_ = new tobas::qt::ToggleSwitch();
 
   kill_->setText("Kill");
   sub_mode_->setText("Sub Mode");
@@ -25,9 +27,9 @@ TogglesViewer::TogglesViewer(const RosQtBridge& bridge)
   kill_->ignoreMousePressEvent(true);
   sub_mode_->ignoreMousePressEvent(true);
 
-  acrobat_mode_ = new qt::CircleWidget("Acrobat");
-  stabilize_mode_ = new qt::CircleWidget("Stabilize");
-  loiter_mode_ = new qt::CircleWidget("Loiter");
+  acrobat_mode_ = new tobas::qt::CircleWidget("Acrobat");
+  stabilize_mode_ = new tobas::qt::CircleWidget("Stabilize");
+  loiter_mode_ = new tobas::qt::CircleWidget("Loiter");
 
   // Layout
   const auto toggle_cols = new QGridLayout();
@@ -153,3 +155,4 @@ void TogglesViewer::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
 }  // namespace rcin
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

@@ -3,6 +3,8 @@
 #include <gz/math/Quaternion.hh>
 #include <gz/math/Vector3.hh>
 
+namespace tobas
+{
 namespace gazebo
 {
 class Wrench
@@ -111,3 +113,4 @@ inline Wrench operator*(const gz::math::Quaterniond& lhs, const Wrench& rhs)
   return Wrench(lhs.RotateVector(rhs.force), lhs.RotateVector(rhs.torque));
 }
 }  // namespace gazebo
+}  // namespace tobas

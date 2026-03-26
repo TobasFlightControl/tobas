@@ -2,6 +2,8 @@
 
 #include <tobas_qt_tools/cast.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace at
@@ -52,12 +54,12 @@ void ActuatorTestWidget::updateInternalDataStructures()
 
 BaseWidget* ActuatorTestWidget::getWidget(int index)
 {
-  return qt::qPointerCast<BaseWidget>(widget(index));
+  return tobas::qt::qPointerCast<BaseWidget>(widget(index));
 }
 
 const BaseWidget* ActuatorTestWidget::getWidget(int index) const
 {
-  return qt::qConstPointerCast<BaseWidget>(widget(index));
+  return tobas::qt::qConstPointerCast<BaseWidget>(widget(index));
 }
 
 void ActuatorTestWidget::setTabsEnabled(bool enabled)
@@ -68,3 +70,4 @@ void ActuatorTestWidget::setTabsEnabled(bool enabled)
 }
 }  // namespace at
 }  // namespace gui
+}  // namespace tobas

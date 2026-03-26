@@ -7,6 +7,8 @@
 
 #include "tobas_gcs/util.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace gcs
@@ -28,8 +30,8 @@ RemoteConnectionWidget::RemoteConnectionWidget(const RosQtBridge& bridge) : brid
 
   // Layout
   const auto rows = new QVBoxLayout();
-  qt::addWidgetCenter(icon_, rows);
-  qt::addWidgetCenter(label_, rows);
+  tobas::qt::addWidgetCenter(icon_, rows);
+  tobas::qt::addWidgetCenter(label_, rows);
   setLayout(rows);
 
   // Connection
@@ -72,7 +74,7 @@ void RemoteConnectionWidget::restart()
   }
 
   stop();
-  qt::processAllQueuedEvents();
+  tobas::qt::processAllQueuedEvents();
   start();
 }
 
@@ -117,3 +119,4 @@ void RemoteConnectionWidget::onTimeout()
 }
 }  // namespace gcs
 }  // namespace gui
+}  // namespace tobas

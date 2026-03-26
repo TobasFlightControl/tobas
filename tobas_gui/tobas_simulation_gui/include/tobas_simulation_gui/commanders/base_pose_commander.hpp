@@ -17,6 +17,8 @@
 #include <tobas_command_msgs_adapter/pos_vel_acc_yaw.hpp>
 #include <tobas_msgs/srv/set_arm.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sim
@@ -42,10 +44,10 @@ private:
   const rclcpp::Node::SharedPtr node_;
   const tobas::Drone& drone_;
 
-  qt::ToggleButton* arming_button_;
+  tobas::qt::ToggleButton* arming_button_;
 
-  std::array<qt::DoubleSliderDisplay*, 3> cmd_xyz_;  // [m]
-  std::array<qt::IntSliderDisplay*, 3> cmd_rpy_;     // [deg]
+  std::array<tobas::qt::DoubleSliderDisplay*, 3> cmd_xyz_;  // [m]
+  std::array<tobas::qt::IntSliderDisplay*, 3> cmd_rpy_;     // [deg]
 
   QPushButton* home_button_;
 
@@ -79,3 +81,4 @@ private Q_SLOTS:
 };
 }  // namespace sim
 }  // namespace gui
+}  // namespace tobas

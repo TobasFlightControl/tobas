@@ -2,6 +2,8 @@
 
 #include <qwt/qwt_plot_curve.h>  // <= C++17
 
+namespace tobas
+{
 namespace qwt
 {
 QwtPlotCurveWrapper::QwtPlotCurveWrapper(const QString& title)
@@ -54,3 +56,4 @@ void QwtPlotCurveWrapper::clear()
   setSamples(empty, empty);
 }
 }  // namespace qwt
+}  // namespace tobas

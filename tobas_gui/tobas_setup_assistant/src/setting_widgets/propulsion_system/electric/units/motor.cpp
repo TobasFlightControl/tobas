@@ -4,6 +4,8 @@
 #include <tobas_std_tools/unit_conversions.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -61,7 +63,7 @@ bool MotorWidget::isValid()
 
 void MotorWidget::copyFrom(const BaseSelectedLinkSettingWidget* src)
 {
-  const auto derived = qt::qConstPointerCast<MotorWidget>(src);
+  const auto derived = tobas::qt::qConstPointerCast<MotorWidget>(src);
 
   num_poles_->setValue(derived->num_poles_->getValue());
   kv_->setValue(derived->kv_->getValue());
@@ -112,3 +114,4 @@ double MotorWidget::minimumSpeed() const
 }  // namespace propulsion
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

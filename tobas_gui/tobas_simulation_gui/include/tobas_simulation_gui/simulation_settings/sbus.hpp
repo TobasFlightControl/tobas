@@ -9,6 +9,8 @@
 
 #include <tobas_qt_tools/widgets/combo_box.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sim
@@ -30,7 +32,7 @@ public:
 private:
   const QDir dir_;
 
-  qt::ComboBox* device_names_;
+  tobas::qt::ComboBox* device_names_;
 
   QTimer scan_timer_;
 
@@ -39,3 +41,4 @@ private Q_SLOTS:
 };
 }  // namespace sim
 }  // namespace gui
+}  // namespace tobas

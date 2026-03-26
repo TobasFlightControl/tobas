@@ -8,6 +8,8 @@
 #include "./joint_view_model.hpp"
 #include "./link_view_model.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace ub
@@ -66,3 +68,4 @@ private:
 }  // namespace view_model
 }  // namespace ub
 }  // namespace gui
+}  // namespace tobas

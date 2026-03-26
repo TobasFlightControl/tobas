@@ -17,6 +17,8 @@
 #include "./setting_tabs/rc_input.hpp"
 #include "./setting_tabs/remote_connection/remote_connection.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -56,9 +58,9 @@ private:
   const uadf::Model& uadf_;
 
   QToolBox* toolbox_;
-  qt::StackedWidget* stack_;
-  qt::ListWidget* basic_list_;
-  qt::ListWidget* additional_list_;
+  tobas::qt::StackedWidget* stack_;
+  tobas::qt::ListWidget* basic_list_;
+  tobas::qt::ListWidget* additional_list_;
 
   int getIndex(BaseSettingWidget* page) const;
   void addEntry(QListWidget* list, BaseSettingWidget* page);
@@ -73,3 +75,4 @@ private Q_SLOTS:
 };
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

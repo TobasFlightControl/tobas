@@ -25,6 +25,8 @@
 
 namespace fs = std::filesystem;
 
+namespace tobas
+{
 namespace gui
 {
 namespace ub
@@ -585,6 +587,7 @@ void UrdfBuilderPanel::collectUncheckedLinks(QTreeWidgetItem* item, QSet<QString
 }  // namespace ui
 }  // namespace ub
 }  // namespace gui
+}  // namespace tobas
 
 // rviz_common::Panelの派生クラスならばRvizのメインウィジェットにプラグインできる
-PLUGINLIB_EXPORT_CLASS(gui::ub::ui::UrdfBuilderPanel, rviz_common::Panel)
+PLUGINLIB_EXPORT_CLASS(tobas::gui::ub::ui::UrdfBuilderPanel, rviz_common::Panel)

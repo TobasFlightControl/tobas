@@ -4,6 +4,8 @@
 #include "./engine/engine.hpp"
 #include "./propulsion_units/propulsion_units.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -45,3 +47,4 @@ public:
 }  // namespace propulsion
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

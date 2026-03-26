@@ -17,6 +17,8 @@
 
 namespace cmp = gz::sim::components;
 
+namespace tobas
+{
 namespace gazebo
 {
 /**
@@ -150,9 +152,10 @@ void GazeboMagnetometerPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
   getSdfParam(sdf, "hardBiasNorm", hard_bias_norm_, kNonNegative);
 }
 }  // namespace gazebo
+}  // namespace tobas
 
 GZ_ADD_PLUGIN(
-  gazebo::GazeboMagnetometerPlugin,
+  tobas::gazebo::GazeboMagnetometerPlugin,
   gz::sim::System,
-  gazebo::GazeboMagnetometerPlugin::ISystemConfigure,
-  gazebo::GazeboMagnetometerPlugin::ISystemPostUpdate)
+  tobas::gazebo::GazeboMagnetometerPlugin::ISystemConfigure,
+  tobas::gazebo::GazeboMagnetometerPlugin::ISystemPostUpdate)

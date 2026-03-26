@@ -5,6 +5,8 @@
 #include <QLineEdit>
 #include <QWidget>
 
+namespace tobas
+{
 namespace qt
 {
 class IPv6Edit : public QWidget
@@ -36,3 +38,4 @@ private:
   void setFieldValue(size_t idx, uint16_t value);
 };
 }  // namespace qt
+}  // namespace tobas

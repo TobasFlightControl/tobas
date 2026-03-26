@@ -11,6 +11,8 @@
 
 namespace ch = std::chrono;
 
+namespace tobas
+{
 namespace gazebo
 {
 TobasRenderInfo::TobasRenderInfo()
@@ -23,7 +25,7 @@ void TobasRenderInfo::LoadConfig(const tinyxml2::XMLElement*)
     title = "Rendering Information Plugin";
   }
 
-  fps_pub_ = node_.Advertise<gz::msgs::Double>(gazebo::kGzRenderFpsTopic);
+  fps_pub_ = node_.Advertise<gz::msgs::Double>(tobas::gazebo::kGzRenderFpsTopic);
 
   gz::gui::App()->findChild<gz::gui::MainWindow*>()->installEventFilter(this);
 }
@@ -75,5 +77,6 @@ void TobasRenderInfo::onRender()
   }
 }
 }  // namespace gazebo
+}  // namespace tobas
 
-GZ_ADD_PLUGIN(gazebo::TobasRenderInfo, gz::gui::Plugin)
+GZ_ADD_PLUGIN(tobas::gazebo::TobasRenderInfo, gz::gui::Plugin)

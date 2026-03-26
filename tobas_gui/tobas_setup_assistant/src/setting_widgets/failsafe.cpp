@@ -8,6 +8,8 @@
 #include <tobas_qt_tools/widgets/label.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -36,13 +38,13 @@ FailsafeWidget::FailsafeWidget()
   items_.at(kMagOffsetIdx)->setChecked(false);
   items_.at(kMagAlignmentIdx)->setChecked(false);
 
-  esc_no_comm_timeout_ = new qt::SpinBox();
+  esc_no_comm_timeout_ = new tobas::qt::SpinBox();
   esc_no_comm_timeout_->setSuffix(" ms");
   esc_no_comm_timeout_->setValue(200);
 
   // Layout
   const auto checklist_rows = new QVBoxLayout();
-  checklist_rows->addWidget(new qt::Label("Checklist", cmn::kLabelPSize, QFont::Bold));
+  checklist_rows->addWidget(new tobas::qt::Label("Checklist", cmn::kLabelPSize, QFont::Bold));
   for (const auto& item : items_) {
     checklist_rows->addWidget(item);
   }
@@ -52,7 +54,7 @@ FailsafeWidget::FailsafeWidget()
   form->addRow("ESC no communication timeout", esc_no_comm_timeout_);
 
   const auto detail_rows = new QVBoxLayout();
-  detail_rows->addWidget(new qt::Label("Details", cmn::kLabelPSize, QFont::Bold));
+  detail_rows->addWidget(new tobas::qt::Label("Details", cmn::kLabelPSize, QFont::Bold));
   detail_rows->addLayout(form);
   detail_rows->addStretch();
 
@@ -187,3 +189,4 @@ double FailsafeWidget::escNoCommunicationTimeout() const
 }
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

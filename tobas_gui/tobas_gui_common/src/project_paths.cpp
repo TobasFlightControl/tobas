@@ -6,6 +6,8 @@
 
 namespace fs = std::filesystem;
 
+namespace tobas
+{
 namespace gui
 {
 namespace cmn
@@ -166,3 +168,4 @@ fs::path ProjectPaths::versionPath() const
 }
 }  // namespace cmn
 }  // namespace gui
+}  // namespace tobas

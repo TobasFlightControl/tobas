@@ -5,6 +5,8 @@
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -28,7 +30,7 @@ const char* HostnameWidget::label() const
 bool HostnameWidget::isValid()
 {
   if (hostname_->text().isEmpty()) {
-    qt::qWarnBox(this, "Please enter the flight controller’s hostname.");
+    tobas::qt::qWarnBox(this, "Please enter the flight controller’s hostname.");
     return false;
   }
 
@@ -57,3 +59,4 @@ QString HostnameWidget::host() const
 }  // namespace rc
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

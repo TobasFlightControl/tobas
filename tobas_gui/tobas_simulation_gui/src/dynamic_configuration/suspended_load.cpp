@@ -15,41 +15,43 @@
 
 #include "tobas_simulation_gui/dynamic_configuration/constants.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sim
 {
 SuspendedLoadWidget::SuspendedLoadWidget(rclcpp::Node::SharedPtr node) : node_(node)
 {
-  const auto title = new qt::Label("Suspended Load", cmn::kLabelPSize, QFont::Bold);
+  const auto title = new tobas::qt::Label("Suspended Load", cmn::kLabelPSize, QFont::Bold);
 
-  attach_detach_btn_ = new qt::ToggleButton("Attach", "Detach");
+  attach_detach_btn_ = new tobas::qt::ToggleButton("Attach", "Detach");
   attach_detach_btn_->setFixedSize(kHeaderButtonWidth, kHeaderButtonHeight);
 
-  attach_point_ = new qt::Vector3dEditVertical();
+  attach_point_ = new tobas::qt::Vector3dEditVertical();
   attach_point_->setDecimals(3);
   attach_point_->setSuffix(" m");
 
-  load_size_ = new qt::Vector3dEditVertical();
+  load_size_ = new tobas::qt::Vector3dEditVertical();
   load_size_->setDecimals(3);
   load_size_->setMinimum(1e-3);
   load_size_->setSuffix(" m");
 
-  load_mass_ = new qt::DoubleSpinBox();
+  load_mass_ = new tobas::qt::DoubleSpinBox();
   load_mass_->setDecimals(3);
   load_mass_->setMinimum(1e-3);
   load_mass_->setSuffix(" kg");
 
-  cable_length_ = new qt::DoubleSpinBox();
+  cable_length_ = new tobas::qt::DoubleSpinBox();
   cable_length_->setDecimals(1);
   cable_length_->setMinimum(0.1);
   cable_length_->setSuffix(" m");
 
-  cable_young_ = new qt::SpinBox();
+  cable_young_ = new tobas::qt::SpinBox();
   cable_young_->setMinimum(1);
   cable_young_->setSuffix(" MPa");
 
-  cable_csa_ = new qt::SpinBox();
+  cable_csa_ = new tobas::qt::SpinBox();
   cable_csa_->setMinimum(1);
   cable_csa_->setSuffix(QString::fromStdString(str::convertToSuperscript(" mm^2")));
 
@@ -61,7 +63,7 @@ SuspendedLoadWidget::SuspendedLoadWidget(rclcpp::Node::SharedPtr node) : node_(n
   header_cols->addStretch();
   header_cols->addWidget(attach_detach_btn_);
 
-  const auto form = new qt::FormLayout();
+  const auto form = new tobas::qt::FormLayout();
   form->addVAlignedRow("Vehicle Attachment Point", attach_point_);
   form->addVAlignedRow("Load Size", load_size_);
   form->addVAlignedRow("Load Mass", load_mass_);
@@ -76,16 +78,16 @@ SuspendedLoadWidget::SuspendedLoadWidget(rclcpp::Node::SharedPtr node) : node_(n
   setLayout(rows);
 
   // Connection
-  connect(attach_detach_btn_, &qt::ToggleButton::checked, this, &self::onAttachRequested);
-  connect(attach_detach_btn_, &qt::ToggleButton::unchecked, this, &self::onDetachRequested);
+  connect(attach_detach_btn_, &tobas::qt::ToggleButton::checked, this, &self::onAttachRequested);
+  connect(attach_detach_btn_, &tobas::qt::ToggleButton::unchecked, this, &self::onDetachRequested);
 }
 
 void SuspendedLoadWidget::updateNamespace(const std::string& ns)
 {
   attach_sc_ =
-    std::make_shared<ros2::SyncServiceClient<AttachSrv>>(node_, path::join(ns, gazebo::kAttachSuspenedLoadSrv));
+    std::make_shared<ros2::SyncServiceClient<AttachSrv>>(node_, path::join(ns, tobas::gazebo::kAttachSuspenedLoadSrv));
   detach_sc_ =
-    std::make_shared<ros2::SyncServiceClient<DetachSrv>>(node_, path::join(ns, gazebo::kDetachSuspenedLoadSrv));
+    std::make_shared<ros2::SyncServiceClient<DetachSrv>>(node_, path::join(ns, tobas::gazebo::kDetachSuspenedLoadSrv));
 
   setParamsToDefault();
 }
@@ -95,23 +97,23 @@ bool SuspendedLoadWidget::start()
   bool success = true;
   QString message;
 
-  qt::startThreadAndWait(
+  tobas::qt::startThreadAndWait(
     [&]()
     {
       if (!attach_sc_->waitForService()) {
         success = false;
-        message = "Failed to connect to \"" + QString(gazebo::kAttachSuspenedLoadSrv) + "\" service server.";
+        message = "Failed to connect to \"" + QString(tobas::gazebo::kAttachSuspenedLoadSrv) + "\" service server.";
         return;
       }
       if (!detach_sc_->waitForService()) {
         success = false;
-        message = "Failed to connect to \"" + QString(gazebo::kDetachSuspenedLoadSrv) + "\" service server.";
+        message = "Failed to connect to \"" + QString(tobas::gazebo::kDetachSuspenedLoadSrv) + "\" service server.";
         return;
       }
     });
 
   if (!success) {
-    qt::qErrorBox(this, message);
+    tobas::qt::qErrorBox(this, message);
     return false;
   }
 
@@ -146,14 +148,14 @@ void SuspendedLoadWidget::onAttachRequested()
   req->cable_cross_sectional_area = cable_csa_->value() * 1e-6;
 
   if (!attach_sc_->call(req, kServiceCallTimeout)) {
-    qt::qErrorBox(this, "Failed to call \"" + QString(gazebo::kAttachSuspenedLoadSrv) + "\" service.");
+    tobas::qt::qErrorBox(this, "Failed to call \"" + QString(tobas::gazebo::kAttachSuspenedLoadSrv) + "\" service.");
     reset();
     return;
   }
 
   const auto res = attach_sc_->getResponse();
   if (!res->success) {
-    qt::qErrorBox(this, "Failed to attach a load: " + QString::fromStdString(res->message));
+    tobas::qt::qErrorBox(this, "Failed to attach a load: " + QString::fromStdString(res->message));
     reset();
     return;
   }
@@ -164,17 +166,18 @@ void SuspendedLoadWidget::onDetachRequested()
   const auto req = std::make_shared<DetachSrv::Request>();
 
   if (!detach_sc_->call(req, kServiceCallTimeout)) {
-    qt::qErrorBox(this, "Failed to call \"" + QString(gazebo::kDetachSuspenedLoadSrv) + "\" service.");
+    tobas::qt::qErrorBox(this, "Failed to call \"" + QString(tobas::gazebo::kDetachSuspenedLoadSrv) + "\" service.");
     reset();
     return;
   }
 
   const auto res = detach_sc_->getResponse();
   if (!res->success) {
-    qt::qErrorBox(this, "Failed to detach the load: " + QString::fromStdString(res->message));
+    tobas::qt::qErrorBox(this, "Failed to detach the load: " + QString::fromStdString(res->message));
     reset();
     return;
   }
 }
 }  // namespace sim
 }  // namespace gui
+}  // namespace tobas

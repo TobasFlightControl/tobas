@@ -6,16 +6,18 @@
 
 #include "./frame_type.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
 {
-class RobotPropertiesWidget : public qt::ScrollArea
+class RobotPropertiesWidget : public tobas::qt::ScrollArea
 {
   Q_OBJECT
 
   using self = RobotPropertiesWidget;
-  using super = qt::ScrollArea;
+  using super = tobas::qt::ScrollArea;
 
 public:
   explicit RobotPropertiesWidget(const kdl::Tree& tree);
@@ -27,8 +29,9 @@ public:
 private:
   kdl::TreeMassHolder mass_holder_;
 
-  qt::FramedLabel* frame_type_;
-  qt::FramedLabel* mass_;
+  tobas::qt::FramedLabel* frame_type_;
+  tobas::qt::FramedLabel* mass_;
 };
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

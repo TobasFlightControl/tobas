@@ -2,6 +2,8 @@
 
 #include <QRegularExpression>
 
+namespace tobas
+{
 namespace qt
 {
 QStringList stringListFromStdToQt(const std::vector<std::string>& src)
@@ -38,3 +40,4 @@ bool containsControlChars(const QStringView& s)
   return false;
 }
 }  // namespace qt
+}  // namespace tobas

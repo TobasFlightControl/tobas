@@ -8,6 +8,8 @@
 #include <tobas_qt_tools/font.hpp>
 #include <tobas_qt_tools/widgets/scroll_area.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -21,7 +23,7 @@ BaseCommandWidget::BaseCommandWidget()
   root_rows->addLayout(header_cols);
 
   label_ = new QLabel();
-  label_->setFont(qt::DefaultFont(kLablePSize, QFont::Bold));
+  label_->setFont(tobas::qt::DefaultFont(kLablePSize, QFont::Bold));
   header_cols->addWidget(label_);
 
   header_cols->addStretch();
@@ -31,7 +33,7 @@ BaseCommandWidget::BaseCommandWidget()
   header_cols->addWidget(delete_button_);
   connect(delete_button_, &QPushButton::clicked, this, &self::onDeleteButtonClicked);
 
-  const auto scroll_area = new qt::ScrollArea();
+  const auto scroll_area = new tobas::qt::ScrollArea();
   root_rows->addWidget(scroll_area);
 
   const auto field_rows = new QVBoxLayout();
@@ -39,7 +41,7 @@ BaseCommandWidget::BaseCommandWidget()
 
   scroll_area->setBackgroundTransparent();
 
-  form_ = new qt::FormLayout();
+  form_ = new tobas::qt::FormLayout();
   field_rows->addLayout(form_);
 
   field_rows->addStretch(1);  // フォームウィジェットを最小化
@@ -50,7 +52,7 @@ BaseCommandWidget::BaseCommandWidget()
 
 void BaseCommandWidget::addField(field::BaseFieldWidget* widget, bool overridable)
 {
-  const auto checkbox = new qt::CheckBox(widget->label());
+  const auto checkbox = new tobas::qt::CheckBox(widget->label());
   checkbox->setDisabledTextNormal();
   checkboxes_[widget] = checkbox;
 
@@ -98,3 +100,4 @@ void BaseCommandWidget::onDeleteButtonClicked()
 }
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

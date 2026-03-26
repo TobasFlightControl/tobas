@@ -16,6 +16,8 @@ class UpdateLinkDialogUI;
 using UpdateLinkDialogUIPtr = std::shared_ptr<UpdateLinkDialogUI>;
 }  // namespace Ui
 
+namespace tobas
+{
 namespace gui
 {
 namespace ub
@@ -115,3 +117,4 @@ private:
 }  // namespace ui
 }  // namespace ub
 }  // namespace gui
+}  // namespace tobas

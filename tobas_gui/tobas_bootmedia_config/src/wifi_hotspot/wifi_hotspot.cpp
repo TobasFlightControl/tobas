@@ -24,9 +24,9 @@ namespace bm
 WifiHotspotWidget::WifiHotspotWidget()
 {
   ssid_ = new QLineEdit();
-  psk_ = new qt::PasswordEdit();
+  psk_ = new tobas::qt::PasswordEdit();
 
-  warn_text_ = new qt::Label();
+  warn_text_ = new tobas::qt::Label();
   warn_text_->setTextColor(Qt::red);
 
   write_button_ = new QPushButton("Write");
@@ -41,7 +41,7 @@ WifiHotspotWidget::WifiHotspotWidget()
   rows_->addLayout(form);
   rows_->addWidget(warn_text_);
   rows_->addSpacing(30);
-  qt::addWidgetCenter(write_button_, rows_);
+  tobas::qt::addWidgetCenter(write_button_, rows_);
   rows_->addStretch();
 
   // Connection
@@ -91,7 +91,7 @@ bool WifiHotspotWidget::checkSsid(QString& msg) const
   }
 
   // 制御文字はダメ
-  if (qt::containsControlChars(ssid)) {
+  if (tobas::qt::containsControlChars(ssid)) {
     msg = "SSID must not contain control characters.";
     return false;
   }
@@ -170,11 +170,11 @@ void WifiHotspotWidget::onWriteButtonClicked()
     env.write(temp, tpl_data, out_path);
   }
   catch (const std::exception& e) {
-    qt::qErrorBox(this, "Failed to write AP configuration: " + QString(e.what()));
+    tobas::qt::qErrorBox(this, "Failed to write AP configuration: " + QString(e.what()));
     return;
   }
 
-  qt::qInfoBox(this, "Access point configuration was written successfully.");
+  tobas::qt::qInfoBox(this, "Access point configuration was written successfully.");
 }
 
 void WifiHotspotWidget::onTextChanged()

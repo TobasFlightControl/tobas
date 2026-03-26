@@ -2,6 +2,8 @@
 
 #include <QWidget>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sc
@@ -16,3 +18,4 @@ public:
 };
 }  // namespace sc
 }  // namespace gui
+}  // namespace tobas

@@ -1,5 +1,7 @@
 #pragma once
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -10,3 +12,4 @@ static constexpr int kTableHeaderSectionSize = 150;
 }  // namespace hw
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

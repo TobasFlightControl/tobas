@@ -8,6 +8,8 @@
 #include "tobas_setup_assistant/param_getters/double_spin_box.hpp"
 #include "tobas_setup_assistant/param_getters/vector3d.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -46,3 +48,4 @@ private:
 }  // namespace fw
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

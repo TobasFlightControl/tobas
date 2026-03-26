@@ -67,7 +67,7 @@ void JointCommandHandlerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
   // Resister publishers
   ctrl_map_.clear();
   for (const auto& [_, joint] : drone->joints) {
-    const auto topic = path::join(gazebo::kJointCommandTopicNS, joint.name);
+    const auto topic = path::join(tobas::gazebo::kJointCommandTopicNS, joint.name);
     ctrl_map_[joint.name] = { static_cast<tobas::JointCommandInterface>(joint.cmd_iface),
                               createPublisher<tobas_gazebo_msgs::msg::JointCommand>(topic, false, true) };
   }

@@ -5,6 +5,8 @@
 
 #include <tobas_math/core.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -365,3 +367,4 @@ void PoseViewerWidget::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::C
 }
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

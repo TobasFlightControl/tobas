@@ -20,6 +20,8 @@
 #include "../base.hpp"
 #include "./rotor_widget.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace at
@@ -92,3 +94,4 @@ private Q_SLOTS:
 };
 }  // namespace at
 }  // namespace gui
+}  // namespace tobas

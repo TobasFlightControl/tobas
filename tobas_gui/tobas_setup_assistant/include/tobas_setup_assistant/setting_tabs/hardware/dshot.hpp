@@ -9,18 +9,20 @@
 
 #include "tobas_setup_assistant/signals.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
 {
 namespace hw
 {
-class DShotWidget : public qt::TableWidget
+class DShotWidget : public tobas::qt::TableWidget
 {
   Q_OBJECT
 
   using self = DShotWidget;
-  using super = qt::TableWidget;
+  using super = tobas::qt::TableWidget;
 
   static constexpr int kTargetNameCol = 0;
   static constexpr int kBidirectionalCol = kTargetNameCol + 1;
@@ -51,10 +53,10 @@ private:
 
   tobas::PropulsionSystem prop_type_ = tobas::PropulsionSystem::kElectric;
 
-  qt::ComboBox* targetNameWidget(int row);
+  tobas::qt::ComboBox* targetNameWidget(int row);
   QPushButton* bidirectionalWidget(int row);
 
-  const qt::ComboBox* targetNameWidget(int row) const;
+  const tobas::qt::ComboBox* targetNameWidget(int row) const;
   const QPushButton* bidirectionalWidget(int row) const;
 
   void addLastChannel();
@@ -70,3 +72,4 @@ private Q_SLOTS:
 }  // namespace hw
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

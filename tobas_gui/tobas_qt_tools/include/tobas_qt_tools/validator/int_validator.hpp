@@ -2,6 +2,8 @@
 
 #include <QIntValidator>
 
+namespace tobas
+{
 namespace qt
 {
 /**
@@ -20,3 +22,4 @@ public:
   State validate(QString& input, int& pos) const override;
 };
 }  // namespace qt
+}  // namespace tobas

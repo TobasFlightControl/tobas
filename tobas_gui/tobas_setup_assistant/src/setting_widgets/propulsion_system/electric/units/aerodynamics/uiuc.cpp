@@ -7,6 +7,8 @@
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/constants.hpp"
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/aerodynamics/util.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -42,7 +44,7 @@ const char* AerodynamicsWidget_UIUC::description() const
 bool AerodynamicsWidget_UIUC::isValid()
 {
   if (data_->count() == 0) {
-    qt::qWarnBox(this, "Measurements in static condition is blank.");
+    tobas::qt::qWarnBox(this, "Measurements in static condition is blank.");
     return false;
   }
 
@@ -51,7 +53,7 @@ bool AerodynamicsWidget_UIUC::isValid()
 
 void AerodynamicsWidget_UIUC::copyFrom(const AerodynamicsWidget_Base* src)
 {
-  const auto derived = qt::qConstPointerCast<AerodynamicsWidget_UIUC>(src);
+  const auto derived = tobas::qt::qConstPointerCast<AerodynamicsWidget_UIUC>(src);
   data_->setValue(derived->data_->getValue());
 }
 
@@ -89,3 +91,4 @@ double AerodynamicsWidget_UIUC::momentConst() const
 }  // namespace propulsion
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

@@ -5,13 +5,15 @@
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_ros2_tools/time.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace log
 {
 RotorLinkPlotWidget::RotorLinkPlotWidget()
 {
-  grid_ = new qt::GridLayout();
+  grid_ = new tobas::qt::GridLayout();
   setLayout(grid_);
 }
 
@@ -119,3 +121,4 @@ bool RotorLinkPlotWidget::updateInternalDataStructures(const tobas_msgs::msg::Ro
 }
 }  // namespace log
 }  // namespace gui
+}  // namespace tobas

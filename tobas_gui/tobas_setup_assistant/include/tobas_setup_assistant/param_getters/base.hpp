@@ -8,6 +8,8 @@
 #include <tobas_qt_tools/font.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -38,12 +40,12 @@ ParamGetterWidget<T>::ParamGetterWidget(const QString& param_name, const QString
   setLayout(rows_);
 
   label_ = new QLabel(param_name);
-  label_->setFont(qt::DefaultFont(cmn::kLabelPSize, QFont::Bold));
+  label_->setFont(tobas::qt::DefaultFont(cmn::kLabelPSize, QFont::Bold));
   label_->setAlignment(Qt::AlignTop);
   rows_->addWidget(label_);
 
   if (!description_text.isEmpty()) {
-    const auto description = new qt::DescriptionWidget(description_text, cmn::kBodyPSize);
+    const auto description = new tobas::qt::DescriptionWidget(description_text, cmn::kBodyPSize);
     rows_->addWidget(description);
   }
 }
@@ -55,3 +57,4 @@ std::string ParamGetterWidget<T>::name() const
 }
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

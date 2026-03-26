@@ -12,13 +12,15 @@
 
 #include "tobas_setup_assistant/constants.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
 {
 ExtraJointsWidget::ExtraJointsWidget(const uadf::Model& uadf, const kdl::Tree& tree) : uadf_(uadf), tree_(tree)
 {
-  table_ = new qt::TableWidget(0, kNumCols);
+  table_ = new tobas::qt::TableWidget(0, kNumCols);
   table_->setHeaderSectionsClickable(false);
   table_->setHorizontalHeaderLabels({ kLinkNameLabel, kJointNameLabel, kRoleLabel, kCmdIfaceLabel, kHomePosLabel });
   table_->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);  // 内容に合わせて横幅を自動調整
@@ -59,7 +61,7 @@ void ExtraJointsWidget::updateInternalDataStructures()
 
     // TODO: 直動ジョイントにも対応
     if (joint.type == kdl::Joint::kTranslation) {
-      qt::qWarnBox(this, "Translational joint is not supported yet.");
+      tobas::qt::qWarnBox(this, "Translational joint is not supported yet.");
       continue;
     }
 
@@ -248,52 +250,52 @@ int ExtraJointsWidget::findJoint(const QString& joint_name) const
 
 QLabel* ExtraJointsWidget::linkNameWidget(int row)
 {
-  return qt::qPointerCast<QLabel>(table_->cellWidget(row, kLinkNameCol));
+  return tobas::qt::qPointerCast<QLabel>(table_->cellWidget(row, kLinkNameCol));
 }
 
 QLabel* ExtraJointsWidget::jointNameWidget(int row)
 {
-  return qt::qPointerCast<QLabel>(table_->cellWidget(row, kJointNameCol));
+  return tobas::qt::qPointerCast<QLabel>(table_->cellWidget(row, kJointNameCol));
 }
 
-qt::ComboBox* ExtraJointsWidget::roleWidget(int row)
+tobas::qt::ComboBox* ExtraJointsWidget::roleWidget(int row)
 {
-  return qt::qPointerCast<qt::ComboBox>(table_->cellWidget(row, kRoleCol));
+  return tobas::qt::qPointerCast<tobas::qt::ComboBox>(table_->cellWidget(row, kRoleCol));
 }
 
-qt::ComboBox* ExtraJointsWidget::commandIfaceWidget(int row)
+tobas::qt::ComboBox* ExtraJointsWidget::commandIfaceWidget(int row)
 {
-  return qt::qPointerCast<qt::ComboBox>(table_->cellWidget(row, kCmdIfaceCol));
+  return tobas::qt::qPointerCast<tobas::qt::ComboBox>(table_->cellWidget(row, kCmdIfaceCol));
 }
 
-qt::SpinBox* ExtraJointsWidget::homePositionWidget(int row)
+tobas::qt::SpinBox* ExtraJointsWidget::homePositionWidget(int row)
 {
-  return qt::qPointerCast<qt::SpinBox>(table_->cellWidget(row, kHomePosCol));
+  return tobas::qt::qPointerCast<tobas::qt::SpinBox>(table_->cellWidget(row, kHomePosCol));
 }
 
 const QLabel* ExtraJointsWidget::linkNameWidget(int row) const
 {
-  return qt::qConstPointerCast<QLabel>(table_->cellWidget(row, kLinkNameCol));
+  return tobas::qt::qConstPointerCast<QLabel>(table_->cellWidget(row, kLinkNameCol));
 }
 
 const QLabel* ExtraJointsWidget::jointNameWidget(int row) const
 {
-  return qt::qConstPointerCast<QLabel>(table_->cellWidget(row, kJointNameCol));
+  return tobas::qt::qConstPointerCast<QLabel>(table_->cellWidget(row, kJointNameCol));
 }
 
-const qt::ComboBox* ExtraJointsWidget::roleWidget(int row) const
+const tobas::qt::ComboBox* ExtraJointsWidget::roleWidget(int row) const
 {
-  return qt::qConstPointerCast<qt::ComboBox>(table_->cellWidget(row, kRoleCol));
+  return tobas::qt::qConstPointerCast<tobas::qt::ComboBox>(table_->cellWidget(row, kRoleCol));
 }
 
-const qt::ComboBox* ExtraJointsWidget::commandIfaceWidget(int row) const
+const tobas::qt::ComboBox* ExtraJointsWidget::commandIfaceWidget(int row) const
 {
-  return qt::qConstPointerCast<qt::ComboBox>(table_->cellWidget(row, kCmdIfaceCol));
+  return tobas::qt::qConstPointerCast<tobas::qt::ComboBox>(table_->cellWidget(row, kCmdIfaceCol));
 }
 
-const qt::SpinBox* ExtraJointsWidget::homePositionWidget(int row) const
+const tobas::qt::SpinBox* ExtraJointsWidget::homePositionWidget(int row) const
 {
-  return qt::qConstPointerCast<qt::SpinBox>(table_->cellWidget(row, kHomePosCol));
+  return tobas::qt::qConstPointerCast<tobas::qt::SpinBox>(table_->cellWidget(row, kHomePosCol));
 }
 
 void ExtraJointsWidget::clear()
@@ -362,14 +364,14 @@ void ExtraJointsWidget::addLink(const std::string& link_name)
   const auto joint_name_label = new QLabel(QString::fromStdString(joint.name));
 
   // Role
-  const auto role = new qt::ComboBox();
+  const auto role = new tobas::qt::ComboBox();
   role->addItems({
     kRoleLabel_UserActive,
     kRoleLabel_UserPassive,
   });
 
   // Command Interface
-  const auto cmd_iface = new qt::ComboBox();
+  const auto cmd_iface = new tobas::qt::ComboBox();
   cmd_iface->addItems({
     kCmdIfaceLabel_Position,
     kCmdIfaceLabel_Velocity,
@@ -378,7 +380,7 @@ void ExtraJointsWidget::addLink(const std::string& link_name)
   });
 
   // Home Position
-  const auto home_pos = new qt::SpinBox();
+  const auto home_pos = new tobas::qt::SpinBox();
   home_pos->setMinimum(std::round(tbs::rad2deg(std::isinf(joint.lower_limit) ? -M_PI : joint.lower_limit)));
   home_pos->setMaximum(std::round(tbs::rad2deg(std::isinf(joint.upper_limit) ? M_PI : joint.upper_limit)));
   home_pos->setSuffix(" deg");
@@ -395,7 +397,7 @@ void ExtraJointsWidget::addLink(const std::string& link_name)
   reset(row);
 
   // Connection
-  connect(role, &qt::ComboBox::currentTextChanged, std::bind(&self::onRoleChanged, this, row));
+  connect(role, &tobas::qt::ComboBox::currentTextChanged, std::bind(&self::onRoleChanged, this, row));
 }
 
 void ExtraJointsWidget::onRoleChanged(int row)
@@ -405,3 +407,4 @@ void ExtraJointsWidget::onRoleChanged(int row)
 }
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

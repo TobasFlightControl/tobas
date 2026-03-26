@@ -10,6 +10,8 @@
 #include "./material_view_model.hpp"
 #include "./visual_view_model.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace ub
@@ -51,3 +53,4 @@ private:
 }  // namespace view_model
 }  // namespace ub
 }  // namespace gui
+}  // namespace tobas

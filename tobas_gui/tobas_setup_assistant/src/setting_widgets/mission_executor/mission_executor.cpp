@@ -13,6 +13,8 @@
 #include "tobas_setup_assistant/setting_tabs/controller/random_axis_tilt_multicopter.hpp"
 #include "tobas_setup_assistant/setting_tabs/controller/y_axis_tilt_multicopter.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -21,7 +23,7 @@ namespace mission
 {
 MissionExecutorWidget::MissionExecutorWidget()
 {
-  stack_ = new qt::StackedWidget();
+  stack_ = new tobas::qt::StackedWidget();
 
   none_ = new NoneWidget();
   multicopter_ = new MulticopterWidget();
@@ -87,7 +89,7 @@ void MissionExecutorWidget::setFrameType(const FrameType& type)
     stack_->setCurrentWidget(multicopter_);
   }
   else {
-    qt::qWarnBox(this, "The Mission Planner does not support this frame type.");
+    tobas::qt::qWarnBox(this, "The Mission Planner does not support this frame type.");
     stack_->setCurrentWidget(none_);
   }
 }
@@ -109,23 +111,24 @@ YAML::Node MissionExecutorWidget::staticParams() const
 
 BaseExecutorWidget* MissionExecutorWidget::widget(int index)
 {
-  return qt::qPointerCast<BaseExecutorWidget>(stack_->widget(index));
+  return tobas::qt::qPointerCast<BaseExecutorWidget>(stack_->widget(index));
 }
 
 const BaseExecutorWidget* MissionExecutorWidget::widget(int index) const
 {
-  return qt::qConstPointerCast<BaseExecutorWidget>(stack_->widget(index));
+  return tobas::qt::qConstPointerCast<BaseExecutorWidget>(stack_->widget(index));
 }
 
 BaseExecutorWidget* MissionExecutorWidget::selected()
 {
-  return qt::qPointerCast<BaseExecutorWidget>(stack_->currentWidget());
+  return tobas::qt::qPointerCast<BaseExecutorWidget>(stack_->currentWidget());
 }
 
 const BaseExecutorWidget* MissionExecutorWidget::selected() const
 {
-  return qt::qConstPointerCast<BaseExecutorWidget>(stack_->currentWidget());
+  return tobas::qt::qConstPointerCast<BaseExecutorWidget>(stack_->currentWidget());
 }
 }  // namespace mission
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

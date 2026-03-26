@@ -11,6 +11,8 @@
 #include <tobas_yaml_tools/convert/qstring.hpp>
 #include <tobas_yaml_tools/format.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -20,7 +22,7 @@ namespace mission
 MulticopterWidget::MulticopterWidget()
 {
   // https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_XY_CRUISE
-  wp_max_hor_vel_ = new qt::DoubleSpinBox();
+  wp_max_hor_vel_ = new tobas::qt::DoubleSpinBox();
   wp_max_hor_vel_->setDecimals(1);
   wp_max_hor_vel_->setMinimum(1.);  // 3 m/s -> 1 m/s
   wp_max_hor_vel_->setMaximum(20.);
@@ -28,7 +30,7 @@ MulticopterWidget::MulticopterWidget()
   wp_max_hor_vel_->setSuffix(" m/s");
 
   // https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_ACC_HOR_MAX
-  wp_max_hor_acc_ = new qt::DoubleSpinBox();
+  wp_max_hor_acc_ = new tobas::qt::DoubleSpinBox();
   wp_max_hor_acc_->setDecimals(1);
   wp_max_hor_acc_->setMinimum(2.);
   wp_max_hor_acc_->setMaximum(15.);
@@ -36,7 +38,7 @@ MulticopterWidget::MulticopterWidget()
   wp_max_hor_acc_->setSuffix(" m/s²");
 
   // https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_JERK_AUTO
-  wp_max_hor_jerk_ = new qt::DoubleSpinBox();
+  wp_max_hor_jerk_ = new tobas::qt::DoubleSpinBox();
   wp_max_hor_jerk_->setDecimals(1);
   wp_max_hor_jerk_->setMinimum(1.);
   wp_max_hor_jerk_->setMaximum(80.);
@@ -46,7 +48,7 @@ MulticopterWidget::MulticopterWidget()
   // https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_Z_V_AUTO_DN
   // https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_Z_V_AUTO_UP
   // TODO: 上昇と下降で設定を分ける
-  wp_max_ver_vel_ = new qt::DoubleSpinBox();
+  wp_max_ver_vel_ = new tobas::qt::DoubleSpinBox();
   wp_max_ver_vel_->setDecimals(1);
   wp_max_ver_vel_->setMinimum(0.5);
   wp_max_ver_vel_->setMaximum(4.);
@@ -56,7 +58,7 @@ MulticopterWidget::MulticopterWidget()
   // https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_ACC_DOWN_MAX
   // https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_ACC_UP_MAX
   // TODO: 上昇と下降で設定を分ける
-  wp_max_ver_acc_ = new qt::DoubleSpinBox();
+  wp_max_ver_acc_ = new tobas::qt::DoubleSpinBox();
   wp_max_ver_acc_->setDecimals(1);
   wp_max_ver_acc_->setMinimum(2.);
   wp_max_ver_acc_->setMaximum(15.);
@@ -64,7 +66,7 @@ MulticopterWidget::MulticopterWidget()
   wp_max_ver_acc_->setSuffix(" m/s²");
 
   // https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_JERK_AUTO
-  wp_max_ver_jerk_ = new qt::DoubleSpinBox();
+  wp_max_ver_jerk_ = new tobas::qt::DoubleSpinBox();
   wp_max_ver_jerk_->setDecimals(1);
   wp_max_ver_jerk_->setMinimum(1.);
   wp_max_ver_jerk_->setMaximum(80.);
@@ -72,21 +74,21 @@ MulticopterWidget::MulticopterWidget()
   wp_max_ver_jerk_->setSuffix(" m/s³");
 
   // https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_YAWRAUTO_MAX
-  wp_max_head_rate_ = new qt::SpinBox();
+  wp_max_head_rate_ = new tobas::qt::SpinBox();
   wp_max_head_rate_->setMinimum(5);
   wp_max_head_rate_->setMaximum(360);
   wp_max_head_rate_->setValue(60);
   wp_max_head_rate_->setSuffix(" deg/s");
 
   // https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_YAWRAUTO_ACC
-  wp_max_head_acc_ = new qt::SpinBox();
+  wp_max_head_acc_ = new tobas::qt::SpinBox();
   wp_max_head_acc_->setMinimum(5);
   wp_max_head_acc_->setMaximum(360);
   wp_max_head_acc_->setValue(120);  // 20 deg/s^2 -> 120 deg/s^2
   wp_max_head_acc_->setSuffix(" deg/s²");
 
   // https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_TKO_SPEED
-  takeoff_max_speed_ = new qt::DoubleSpinBox();
+  takeoff_max_speed_ = new tobas::qt::DoubleSpinBox();
   takeoff_max_speed_->setDecimals(1);
   takeoff_max_speed_->setMinimum(1.);
   takeoff_max_speed_->setMaximum(5.);
@@ -94,7 +96,7 @@ MulticopterWidget::MulticopterWidget()
   takeoff_max_speed_->setSuffix(" m/s");
 
   // https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_ACC_UP_MAX
-  takeoff_max_accel_ = new qt::DoubleSpinBox();
+  takeoff_max_accel_ = new tobas::qt::DoubleSpinBox();
   takeoff_max_accel_->setDecimals(1);
   takeoff_max_accel_->setMinimum(1.);
   takeoff_max_accel_->setMaximum(15.);
@@ -102,7 +104,7 @@ MulticopterWidget::MulticopterWidget()
   takeoff_max_accel_->setSuffix(" m/s²");
 
   // https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_JERK_AUTO
-  takeoff_max_jerk_ = new qt::DoubleSpinBox();
+  takeoff_max_jerk_ = new tobas::qt::DoubleSpinBox();
   takeoff_max_jerk_->setDecimals(1);
   takeoff_max_jerk_->setMinimum(1.);
   takeoff_max_jerk_->setMaximum(80.);
@@ -110,7 +112,7 @@ MulticopterWidget::MulticopterWidget()
   takeoff_max_jerk_->setSuffix(" m/s³");
 
   // https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_LAND_SPEED
-  land_speed_ = new qt::DoubleSpinBox();
+  land_speed_ = new tobas::qt::DoubleSpinBox();
   land_speed_->setDecimals(1);
   land_speed_->setMinimum(0.6);
   land_speed_->setMaximum(2.);
@@ -118,14 +120,14 @@ MulticopterWidget::MulticopterWidget()
   land_speed_->setSuffix(" m/s");
 
   // https://docs.px4.io/main/en/advanced_config/parameter_reference#RTL_RETURN_ALT
-  rtl_min_alt_ = new qt::DoubleSpinBox();
+  rtl_min_alt_ = new tobas::qt::DoubleSpinBox();
   rtl_min_alt_->setDecimals(2);
   rtl_min_alt_->setMinimum(0.);
   rtl_min_alt_->setMaximum(150.);  // 日本の飛行禁止空域
   rtl_min_alt_->setValue(15.);     // https://ardupilot.org/copter/docs/rtl-mode.html
   rtl_min_alt_->setSuffix(" m");
 
-  const auto wp_form = new qt::FormLayout();
+  const auto wp_form = new tobas::qt::FormLayout();
   wp_form->addVAlignedRow("Maximum Horizontal Velocity", wp_max_hor_vel_);
   wp_form->addVAlignedRow("Maximum Horizontal Acceleration", wp_max_hor_acc_);
   wp_form->addVAlignedRow("Maximum Horizontal Jerk", wp_max_hor_jerk_);
@@ -135,25 +137,25 @@ MulticopterWidget::MulticopterWidget()
   wp_form->addVAlignedRow("Maximum Heading Rate", wp_max_head_rate_);
   wp_form->addVAlignedRow("Maximum Heading Acceleration", wp_max_head_acc_);
 
-  const auto takeoff_form = new qt::FormLayout();
+  const auto takeoff_form = new tobas::qt::FormLayout();
   takeoff_form->addVAlignedRow("Maximum Speed", takeoff_max_speed_);
   takeoff_form->addVAlignedRow("Maximum Acceleration", takeoff_max_accel_);
   takeoff_form->addVAlignedRow("Maximum Jerk", takeoff_max_jerk_);
 
-  const auto land_form = new qt::FormLayout();
+  const auto land_form = new tobas::qt::FormLayout();
   land_form->addVAlignedRow("Speed", land_speed_);
 
-  const auto rtl_form = new qt::FormLayout();
+  const auto rtl_form = new tobas::qt::FormLayout();
   rtl_form->addVAlignedRow("Minimum Altitude (wrt. Home)", rtl_min_alt_);
 
   const auto rows = new QVBoxLayout();
-  rows->addWidget(new qt::Label("Waypoint", cmn::kLabelPSize, QFont::Bold));
+  rows->addWidget(new tobas::qt::Label("Waypoint", cmn::kLabelPSize, QFont::Bold));
   rows->addLayout(wp_form);
-  rows->addWidget(new qt::Label("Takeoff", cmn::kLabelPSize, QFont::Bold));
+  rows->addWidget(new tobas::qt::Label("Takeoff", cmn::kLabelPSize, QFont::Bold));
   rows->addLayout(takeoff_form);
-  rows->addWidget(new qt::Label("Land", cmn::kLabelPSize, QFont::Bold));
+  rows->addWidget(new tobas::qt::Label("Land", cmn::kLabelPSize, QFont::Bold));
   rows->addLayout(land_form);
-  rows->addWidget(new qt::Label("Return-to-Home", cmn::kLabelPSize, QFont::Bold));
+  rows->addWidget(new tobas::qt::Label("Return-to-Home", cmn::kLabelPSize, QFont::Bold));
   rows->addLayout(rtl_form);
 
   setLayout(rows);
@@ -244,3 +246,4 @@ bool MulticopterWidget::isValid()
 }  // namespace mission
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

@@ -1,5 +1,7 @@
 #include "tobas_setup_assistant/param_getters/double_range.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -10,14 +12,14 @@ ParamGetterWidget_DoubleRange::ParamGetterWidget_DoubleRange(const QString& para
   const auto cols = new QHBoxLayout();
   rows_->addLayout(cols);
 
-  min_ = new qt::LabeledDoubleSpinBox("min");
+  min_ = new tobas::qt::LabeledDoubleSpinBox("min");
   cols->addWidget(min_);
 
-  max_ = new qt::LabeledDoubleSpinBox("max");
+  max_ = new tobas::qt::LabeledDoubleSpinBox("max");
   cols->addWidget(max_);
 
-  connect(min_, &qt::LabeledDoubleSpinBox::valueChanged, this, &self::onValueChanged);
-  connect(max_, &qt::LabeledDoubleSpinBox::valueChanged, this, &self::onValueChanged);
+  connect(min_, &tobas::qt::LabeledDoubleSpinBox::valueChanged, this, &self::onValueChanged);
+  connect(max_, &tobas::qt::LabeledDoubleSpinBox::valueChanged, this, &self::onValueChanged);
 }
 
 ParamGetterWidget_DoubleRange::ValueType ParamGetterWidget_DoubleRange::getValue() const
@@ -83,3 +85,4 @@ void ParamGetterWidget_DoubleRange::onValueChanged(double)
 }
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

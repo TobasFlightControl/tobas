@@ -10,6 +10,8 @@ static inline Ogre::Quaternion URDFRotationToOgre(const urdf::Rotation& r)
   return Ogre::Quaternion(r.w, r.x, r.y, r.z);
 }
 
+namespace tobas
+{
 namespace gui
 {
 namespace ub
@@ -79,3 +81,4 @@ Ogre::Matrix4 StaticLinkUpdater::findTransform(const urdf::LinkConstSharedPtr& l
 }  // namespace ogre
 }  // namespace ub
 }  // namespace gui
+}  // namespace tobas

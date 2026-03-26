@@ -2,6 +2,8 @@
 
 #include <QFormLayout>
 
+namespace tobas
+{
 namespace qt
 {
 /**
@@ -43,3 +45,4 @@ public:
   void setVisible(int row, bool visible);
 };
 }  // namespace qt
+}  // namespace tobas

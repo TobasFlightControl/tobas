@@ -9,6 +9,8 @@
 
 #include "./param_block.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace param
@@ -48,3 +50,4 @@ private Q_SLOTS:
 };
 }  // namespace param
 }  // namespace gui
+}  // namespace tobas

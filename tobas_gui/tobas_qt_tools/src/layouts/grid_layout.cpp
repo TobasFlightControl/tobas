@@ -2,6 +2,8 @@
 
 #include "tobas_qt_tools/util.hpp"
 
+namespace tobas
+{
 namespace qt
 {
 void GridLayout::clear()
@@ -19,3 +21,4 @@ void GridLayout::clear()
   }
 }
 }  // namespace qt
+}  // namespace tobas

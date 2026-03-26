@@ -8,6 +8,8 @@
 #include "../fields/takeoff_max_speed.hpp"
 #include "./base.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -48,3 +50,4 @@ private:
 };
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

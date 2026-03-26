@@ -6,6 +6,8 @@
 #include <tobas_constants/frame.hpp>
 #include <tobas_path_tools/join.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -92,7 +94,7 @@ void addBatteryPlugin(
   double internal_registance,
   const std::vector<std::string>& rotor_link_names)
 {
-  const auto plugin = addGazeboPlugin(robot, "tobas_gazebo_battery_plugin", "gazebo::GazeboBatteryPlugin");
+  const auto plugin = addGazeboPlugin(robot, "tobas_gazebo_battery_plugin", "tobas::gazebo::GazeboBatteryPlugin");
   plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
   plugin->InsertNewChildElement("updateRate")->SetText(toString(update_rate).c_str());
   plugin->InsertNewChildElement("maxVoltage")->SetText(toString(max_voltage).c_str());
@@ -117,7 +119,7 @@ void addImuPlugin(
   double acc_bias_corr_time,
   const std::vector<std::string>& rotor_link_names)
 {
-  const auto plugin = addGazeboPlugin(robot, "tobas_gazebo_imu_plugin", "gazebo::GazeboImuPlugin");
+  const auto plugin = addGazeboPlugin(robot, "tobas_gazebo_imu_plugin", "tobas::gazebo::GazeboImuPlugin");
   plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
   plugin->InsertNewChildElement("linkName")->SetText(link_name.c_str());
   plugin->InsertNewChildElement("updateRate")->SetText(toString(update_rate).c_str());
@@ -140,7 +142,8 @@ void addMagnetometerPlugin(
   double noise_stddev,
   double hard_bias_norm)
 {
-  const auto plugin = addGazeboPlugin(robot, "tobas_gazebo_magnetometer_plugin", "gazebo::GazeboMagnetometerPlugin");
+  const auto plugin =
+    addGazeboPlugin(robot, "tobas_gazebo_magnetometer_plugin", "tobas::gazebo::GazeboMagnetometerPlugin");
   plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
   plugin->InsertNewChildElement("linkName")->SetText(link_name.c_str());
   plugin->InsertNewChildElement("updateRate")->SetText(toString(update_rate).c_str());
@@ -157,7 +160,7 @@ void addBarometerPlugin(
   const Eigen::Vector3d& offset,
   double noise_stddev)
 {
-  const auto plugin = addGazeboPlugin(robot, "tobas_gazebo_barometer_plugin", "gazebo::GazeboBarometerPlugin");
+  const auto plugin = addGazeboPlugin(robot, "tobas_gazebo_barometer_plugin", "tobas::gazebo::GazeboBarometerPlugin");
   plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
   plugin->InsertNewChildElement("linkName")->SetText(link_name.c_str());
   plugin->InsertNewChildElement("updateRate")->SetText(toString(update_rate).c_str());
@@ -178,7 +181,7 @@ void addGnssPlugin(
   double ver_vel_stddev,
   double hor_vel_stddev)
 {
-  const auto plugin = addGazeboPlugin(robot, "tobas_gazebo_gnss_plugin", "gazebo::GazeboGnssPlugin");
+  const auto plugin = addGazeboPlugin(robot, "tobas_gazebo_gnss_plugin", "tobas::gazebo::GazeboGnssPlugin");
   plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
   plugin->InsertNewChildElement("linkName")->SetText(link_name.c_str());
   plugin->InsertNewChildElement("updateRate")->SetText(toString(update_rate).c_str());
@@ -205,7 +208,7 @@ void addElectricPropulsionSystemPlugin(
   double max_current)
 {
   const auto plugin = addGazeboPlugin(
-    robot, "tobas_gazebo_electric_propulsion_system_plugin", "gazebo::GazeboElectricPropulsionSystemPlugin");
+    robot, "tobas_gazebo_electric_propulsion_system_plugin", "tobas::gazebo::GazeboElectricPropulsionSystemPlugin");
   plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
   plugin->InsertNewChildElement("linkName")->SetText(link_name.c_str());
   plugin->InsertNewChildElement("kv")->SetText(toString(kv).c_str());
@@ -225,8 +228,8 @@ void addIcePropulsionSystemPlugin(
   const std::vector<IceRotorParam>& rotor_params)
 {
   // robot/gazebo/plugin
-  const auto plugin =
-    addGazeboPlugin(robot, "tobas_gazebo_ice_propulsion_system_plugin", "gazebo::GazeboIcePropulsionSystemPlugin");
+  const auto plugin = addGazeboPlugin(
+    robot, "tobas_gazebo_ice_propulsion_system_plugin", "tobas::gazebo::GazeboIcePropulsionSystemPlugin");
   plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
 
   // robot/gazebo/plugin/engine
@@ -268,7 +271,7 @@ void addFixedWingPlugin(
   const auto& aerodynamics = fixed_wing.aerodynamics;
   const auto& control_surfaces = fixed_wing.control_surfaces;
 
-  const auto plugin = addGazeboPlugin(robot, "tobas_gazebo_fixed_wing_plugin", "gazebo::GazeboFixedWingPlugin");
+  const auto plugin = addGazeboPlugin(robot, "tobas_gazebo_fixed_wing_plugin", "tobas::gazebo::GazeboFixedWingPlugin");
   plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
   plugin->InsertNewChildElement("baseLinkName")->SetText(base_link_name.c_str());
 
@@ -317,8 +320,8 @@ void addJointStateBroadcasterPlugin(
   const std::vector<std::string>& joint_names,
   int update_rate)
 {
-  const auto plugin =
-    addGazeboPlugin(robot, "tobas_gazebo_joint_state_broadcaster_plugin", "gazebo::GazeboJointStateBroadcasterPlugin");
+  const auto plugin = addGazeboPlugin(
+    robot, "tobas_gazebo_joint_state_broadcaster_plugin", "tobas::gazebo::GazeboJointStateBroadcasterPlugin");
   plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
   addList(plugin, "jointNames", joint_names);
   plugin->InsertNewChildElement("updateRate")->SetText(toString(update_rate).c_str());
@@ -332,7 +335,7 @@ void addJointPositionControllerPlugin(
   double time_const)
 {
   const auto plugin = addGazeboPlugin(
-    robot, "tobas_gazebo_joint_position_controller_plugin", "gazebo::GazeboJointPositionControllerPlugin");
+    robot, "tobas_gazebo_joint_position_controller_plugin", "tobas::gazebo::GazeboJointPositionControllerPlugin");
   plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
   plugin->InsertNewChildElement("jointName")->SetText(joint_name.c_str());
   plugin->InsertNewChildElement("homePosition")->SetText(toString(home_pos).c_str());
@@ -346,7 +349,7 @@ void addJointVelocityControllerPlugin(
   double home_pos)
 {
   const auto plugin = addGazeboPlugin(
-    robot, "tobas_gazebo_joint_velocity_controller_plugin", "gazebo::GazeboJointVelocityControllerPlugin");
+    robot, "tobas_gazebo_joint_velocity_controller_plugin", "tobas::gazebo::GazeboJointVelocityControllerPlugin");
   plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
   plugin->InsertNewChildElement("jointName")->SetText(joint_name.c_str());
   plugin->InsertNewChildElement("homePosition")->SetText(toString(home_pos).c_str());
@@ -358,8 +361,8 @@ void addJointEffortControllerPlugin(
   const std::string& joint_name,
   double home_pos)
 {
-  const auto plugin =
-    addGazeboPlugin(robot, "tobas_gazebo_joint_effort_controller_plugin", "gazebo::GazeboJointEffortControllerPlugin");
+  const auto plugin = addGazeboPlugin(
+    robot, "tobas_gazebo_joint_effort_controller_plugin", "tobas::gazebo::GazeboJointEffortControllerPlugin");
   plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
   plugin->InsertNewChildElement("jointName")->SetText(joint_name.c_str());
   plugin->InsertNewChildElement("homePosition")->SetText(toString(home_pos).c_str());
@@ -367,7 +370,7 @@ void addJointEffortControllerPlugin(
 
 void addGazeboWindPlugin(tinyxml2::XMLElement* robot, const std::string& ns, const std::string& link_name)
 {
-  const auto plugin = addGazeboPlugin(robot, "tobas_gazebo_wind_plugin", "gazebo::GazeboWindPlugin");
+  const auto plugin = addGazeboPlugin(robot, "tobas_gazebo_wind_plugin", "tobas::gazebo::GazeboWindPlugin");
   plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
   plugin->InsertNewChildElement("linkName")->SetText(link_name.c_str());
 }
@@ -375,7 +378,7 @@ void addGazeboWindPlugin(tinyxml2::XMLElement* robot, const std::string& ns, con
 void addGazeboGroundTruthStatePlugin(tinyxml2::XMLElement* robot, const std::string& ns, const std::string& link_name)
 {
   const auto plugin =
-    addGazeboPlugin(robot, "tobas_gazebo_ground_truth_state_plugin", "gazebo::GazeboGroundTruthStatePlugin");
+    addGazeboPlugin(robot, "tobas_gazebo_ground_truth_state_plugin", "tobas::gazebo::GazeboGroundTruthStatePlugin");
   plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
   plugin->InsertNewChildElement("linkName")->SetText(link_name.c_str());
 }
@@ -383,14 +386,15 @@ void addGazeboGroundTruthStatePlugin(tinyxml2::XMLElement* robot, const std::str
 void addGazeboLookAtPositionPlugin(tinyxml2::XMLElement* robot, const std::string& ns, const std::string& link_name)
 {
   const auto plugin =
-    addGazeboPlugin(robot, "tobas_gazebo_lookat_position_plugin", "gazebo::GazeboLookAtPositionPlugin");
+    addGazeboPlugin(robot, "tobas_gazebo_lookat_position_plugin", "tobas::gazebo::GazeboLookAtPositionPlugin");
   plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
   plugin->InsertNewChildElement("linkName")->SetText(link_name.c_str());
 }
 
 void addGazeboSuspendedLoadPlugin(tinyxml2::XMLElement* robot, const std::string& ns, const std::string& link_name)
 {
-  const auto plugin = addGazeboPlugin(robot, "tobas_gazebo_suspended_load_plugin", "gazebo::GazeboSuspendedLoadPlugin");
+  const auto plugin =
+    addGazeboPlugin(robot, "tobas_gazebo_suspended_load_plugin", "tobas::gazebo::GazeboSuspendedLoadPlugin");
   plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
   plugin->InsertNewChildElement("linkName")->SetText(link_name.c_str());
 }
@@ -415,3 +419,4 @@ void addBaseStaticJoint(tinyxml2::XMLElement* robot, const std::string& root_lin
 }  // namespace xml
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

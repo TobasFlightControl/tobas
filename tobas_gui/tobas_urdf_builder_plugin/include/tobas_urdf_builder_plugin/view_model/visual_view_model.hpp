@@ -4,6 +4,8 @@
 #include "./geometry_view_model.hpp"
 #include "./material_view_model.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace ub
@@ -36,3 +38,4 @@ using V_VisualViewModelPtr = std::vector<VisualViewModelPtr>;
 }  // namespace view_model
 }  // namespace ub
 }  // namespace gui
+}  // namespace tobas

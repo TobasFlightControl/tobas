@@ -12,6 +12,8 @@
 
 #include "tobas_simulation_gui/commanders/constants.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sim
@@ -19,9 +21,9 @@ namespace sim
 JointCommanderWidget::JointCommanderWidget(rclcpp::Node::SharedPtr node, const kdl::Tree& tree, const tobas::Drone& drone)
   : node_(node), tree_(tree), drone_(drone), rnd_gen_(rnd_dev_()), joint_parser_(tree)
 {
-  const auto title = new qt::Label("User Joint", cmn::kLabelPSize, QFont::Bold);
+  const auto title = new tobas::qt::Label("User Joint", cmn::kLabelPSize, QFont::Bold);
 
-  start_stop_button_ = new qt::ToggleButton("Start", "Stop");
+  start_stop_button_ = new tobas::qt::ToggleButton("Start", "Stop");
   start_stop_button_->setFixedSize(kHeaderButtonWidth, kHeaderButtonHeight);
 
   cmd_rows_ = new QVBoxLayout();
@@ -54,8 +56,8 @@ JointCommanderWidget::JointCommanderWidget(rclcpp::Node::SharedPtr node, const k
   setLayout(root_rows);
 
   // Connection
-  connect(start_stop_button_, &qt::ToggleButton::checked, this, &self::onStartRequested);
-  connect(start_stop_button_, &qt::ToggleButton::unchecked, this, &self::onStopRequested);
+  connect(start_stop_button_, &tobas::qt::ToggleButton::checked, this, &self::onStartRequested);
+  connect(start_stop_button_, &tobas::qt::ToggleButton::unchecked, this, &self::onStopRequested);
   connect(home_button_, &QPushButton::clicked, this, &self::onHomeButtonClicked);
   connect(center_button_, &QPushButton::clicked, this, &self::onCenterButtonClicked);
   connect(random_button_, &QPushButton::clicked, this, &self::onRandomButtonClicked);
@@ -65,13 +67,13 @@ JointCommanderWidget::JointCommanderWidget(rclcpp::Node::SharedPtr node, const k
 void JointCommanderWidget::updateInternalDataStructures()
 {
   if (!joint_parser_.updateInternalDataStructures()) {
-    qt::qErrorBox(this, "Failed to update joint parser.");
+    tobas::qt::qErrorBox(this, "Failed to update joint parser.");
     return;
   }
 
   // Clear joints for previous robot
   commanders_.clear();
-  qt::clearLayout(cmd_rows_);
+  tobas::qt::clearLayout(cmd_rows_);
 
   tar_js_pos_.commands.clear();
   tar_js_vel_.commands.clear();
@@ -91,7 +93,7 @@ void JointCommanderWidget::updateInternalDataStructures()
       continue;
     }
 
-    const auto commander = new qt::DoubleSliderDisplay();
+    const auto commander = new tobas::qt::DoubleSliderDisplay();
     commander->setText(QString::fromStdString(jnt_name));
 
     switch (joint.cmd_iface) {
@@ -167,7 +169,8 @@ void JointCommanderWidget::updateInternalDataStructures()
         break;
       }
       default: {
-        qt::qErrorBox(this, "The command interface of joint " + QString::fromStdString(jnt_name) + " is invalid.");
+        tobas::qt::qErrorBox(
+          this, "The command interface of joint " + QString::fromStdString(jnt_name) + " is invalid.");
         continue;
       }
     }
@@ -176,7 +179,7 @@ void JointCommanderWidget::updateInternalDataStructures()
     commander->setEnabled(false);
     connect(
       commander,
-      &qt::DoubleSliderDisplay::valueChanged,
+      &tobas::qt::DoubleSliderDisplay::valueChanged,
       std::bind(&self::onValueChanged, this, std::placeholders::_1, jnt_name));
     commanders_[jnt_name] = commander;
     cmd_rows_->addWidget(commander);
@@ -263,14 +266,14 @@ void JointCommanderWidget::onStartRequested()
   // 一定時間間隔でコマンド送信開始
   publish_cmd_timer_.start(kPublishCommandPeriod);
 
-  qt::qInfoBox(this, "GUI teleoperation is ready.");
+  tobas::qt::qInfoBox(this, "GUI teleoperation is ready.");
 }
 
 void JointCommanderWidget::onStopRequested()
 {
   reset();
 
-  qt::qInfoBox(this, "GUI teleoperation is ready.");
+  tobas::qt::qInfoBox(this, "GUI teleoperation is ready.");
 }
 
 void JointCommanderWidget::onValueChanged(double value, const std::string& jnt_name)
@@ -377,3 +380,4 @@ void JointCommanderWidget::onPublishCommandTimerTimeout()
 }
 }  // namespace sim
 }  // namespace gui
+}  // namespace tobas

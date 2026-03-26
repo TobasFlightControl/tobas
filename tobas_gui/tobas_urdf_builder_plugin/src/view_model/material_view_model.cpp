@@ -1,5 +1,7 @@
 #include "tobas_urdf_builder_plugin/view_model/material_view_model.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace ub
@@ -65,3 +67,4 @@ void MaterialViewModel::textureFileName(const QString& filename)
 }  // namespace view_model
 }  // namespace ub
 }  // namespace gui
+}  // namespace tobas

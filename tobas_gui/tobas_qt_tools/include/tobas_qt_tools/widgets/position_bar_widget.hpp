@@ -2,6 +2,8 @@
 
 #include <QWidget>
 
+namespace tobas
+{
 namespace qt
 {
 class PositionBarWidget : public QWidget
@@ -113,3 +115,4 @@ private:
   void drawTextCommon(QPainter& painter);
 };
 }  // namespace qt
+}  // namespace tobas

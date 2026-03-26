@@ -5,28 +5,30 @@
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
 {
 CpuViewerWidget::CpuViewerWidget(const RosQtBridge& bridge)
 {
-  temp_ = new qt::HPositionBarWidget();
+  temp_ = new tobas::qt::HPositionBarWidget();
   temp_->setFixedHeight(kBarHeight);
   temp_->setLower(kMinTemp);
   temp_->setMinimum(kMinTemp);
   temp_->setMaximum(kMaxTemp);
 
-  load_ = new qt::HPositionBarWidget();
+  load_ = new tobas::qt::HPositionBarWidget();
   load_->setFixedHeight(kBarHeight);
   load_->setLower(kMinLoad);
   load_->setMinimum(kMinLoad);
   load_->setMaximum(kMaxLoad);
 
   // Layout
-  const auto form = new qt::FormLayout();
-  form->addVAlignedRow(new qt::Label("CPU Temp", kLabelPSize), temp_);
-  form->addVAlignedRow(new qt::Label("CPU Load", kLabelPSize), load_);
+  const auto form = new tobas::qt::FormLayout();
+  form->addVAlignedRow(new tobas::qt::Label("CPU Temp", kLabelPSize), temp_);
+  form->addVAlignedRow(new tobas::qt::Label("CPU Load", kLabelPSize), load_);
   setLayout(form);
 
   // Connection
@@ -76,3 +78,4 @@ void CpuViewerWidget::cpuCb(const tobas_msgs::msg::Cpu::ConstSharedPtr& cpu)
 }
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

@@ -6,6 +6,8 @@
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/battery/lipo.hpp"
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/battery/other.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -16,8 +18,8 @@ namespace electric
 {
 BatteryWidget::BatteryWidget()
 {
-  type_ = new qt::ComboBox();
-  batteries_ = new qt::StackedWidget();
+  type_ = new tobas::qt::ComboBox();
+  batteries_ = new tobas::qt::StackedWidget();
 
   batteries_->addWidget(new BatteryWidget_LiPo());
   batteries_->addWidget(new BatteryWidget_Other());
@@ -33,7 +35,10 @@ BatteryWidget::BatteryWidget()
   setLayout(rows);
 
   connect(
-    type_, QOverload<int>::of(&qt::ComboBox::currentIndexChanged), batteries_, &qt::StackedWidget::setCurrentIndex);
+    type_,
+    QOverload<int>::of(&tobas::qt::ComboBox::currentIndexChanged),
+    batteries_,
+    &tobas::qt::StackedWidget::setCurrentIndex);
 }
 
 bool BatteryWidget::isValid()
@@ -101,24 +106,25 @@ double BatteryWidget::internalRegistance()
 
 BatteryWidget_Base* BatteryWidget::widget(int index)
 {
-  return qt::qPointerCast<BatteryWidget_Base>(batteries_->widget(index));
+  return tobas::qt::qPointerCast<BatteryWidget_Base>(batteries_->widget(index));
 }
 
 const BatteryWidget_Base* BatteryWidget::widget(int index) const
 {
-  return qt::qConstPointerCast<BatteryWidget_Base>(batteries_->widget(index));
+  return tobas::qt::qConstPointerCast<BatteryWidget_Base>(batteries_->widget(index));
 }
 
 BatteryWidget_Base* BatteryWidget::selected()
 {
-  return qt::qPointerCast<BatteryWidget_Base>(batteries_->currentWidget());
+  return tobas::qt::qPointerCast<BatteryWidget_Base>(batteries_->currentWidget());
 }
 
 const BatteryWidget_Base* BatteryWidget::selected() const
 {
-  return qt::qConstPointerCast<BatteryWidget_Base>(batteries_->currentWidget());
+  return tobas::qt::qConstPointerCast<BatteryWidget_Base>(batteries_->currentWidget());
 }
 }  // namespace electric
 }  // namespace propulsion
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

@@ -13,6 +13,8 @@
 #include "./start_thread.hpp"
 #include "./stop_thread.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace log
@@ -35,15 +37,15 @@ public:
 
 private:
   QLineEdit* log_name_;
-  qt::ToggleButton* start_stop_button_;
+  tobas::qt::ToggleButton* start_stop_button_;
   QLCDNumber* duration_;
-  qt::HPositionBarWidget* file_size_;
-  qt::FramedLabel* message_count_;
+  tobas::qt::HPositionBarWidget* file_size_;
+  tobas::qt::FramedLabel* message_count_;
 
   RecordStartThread start_thread_;
   RecordStopThread stop_thread_;
 
-  qt::WaitSpinnerWidget spinner_;
+  tobas::qt::WaitSpinnerWidget spinner_;
 
   tobas_msgs::msg::RosbagState::ConstSharedPtr rosbag_state_;
 
@@ -57,3 +59,4 @@ private Q_SLOTS:
 };
 }  // namespace log
 }  // namespace gui
+}  // namespace tobas

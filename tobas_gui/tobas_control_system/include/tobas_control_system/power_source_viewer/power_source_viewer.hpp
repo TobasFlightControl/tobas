@@ -5,11 +5,13 @@
 #include "./battery_viewer.hpp"
 #include "./engine_viewer.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
 {
-class PowerSourceViewerWidget : public qt::StackedWidget
+class PowerSourceViewerWidget : public tobas::qt::StackedWidget
 {
   Q_OBJECT
 
@@ -27,3 +29,4 @@ private:
 };
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

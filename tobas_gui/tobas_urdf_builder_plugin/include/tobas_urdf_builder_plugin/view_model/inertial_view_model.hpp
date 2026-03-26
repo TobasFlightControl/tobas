@@ -4,6 +4,8 @@
 
 #include "./base_view_model.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace ub
@@ -47,3 +49,4 @@ using InertialViewModelPtr = std::shared_ptr<InertialViewModel>;
 }  // namespace view_model
 }  // namespace ub
 }  // namespace gui
+}  // namespace tobas

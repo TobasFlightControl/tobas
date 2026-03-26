@@ -2,6 +2,8 @@
 
 #include <QHeaderView>
 
+namespace tobas
+{
 namespace qt
 {
 void TableWidget::removeAll()
@@ -33,3 +35,4 @@ void TableWidget::setHeaderSectionsClickable(bool clickable)
   verticalHeader()->setSectionsClickable(clickable);
 }
 }  // namespace qt
+}  // namespace tobas

@@ -6,6 +6,8 @@
 
 #include <tobas_std_tools/typeinfo.hpp>
 
+namespace tobas
+{
 namespace qt
 {
 template <typename T>
@@ -30,3 +32,4 @@ const T* qConstPointerCast(const QObject* obj)
   return casted;
 }
 }  // namespace qt
+}  // namespace tobas

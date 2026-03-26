@@ -6,6 +6,8 @@
 
 #include <tobas_qt_tools/widgets/framed_label.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace at
@@ -46,9 +48,9 @@ private:
   QwtThermo* cur_rpm_meter_;
   QwtSlider* tar_rpm_slider_;
   QwtSlider* gain_slider_;
-  qt::FramedLabel* cur_rpm_box_;
-  qt::FramedLabel* tar_rpm_box_;
-  qt::FramedLabel* gain_box_;
+  tobas::qt::FramedLabel* cur_rpm_box_;
+  tobas::qt::FramedLabel* tar_rpm_box_;
+  tobas::qt::FramedLabel* gain_box_;
 
   void setCurrentRPMBox(int rpm);
   void setTargetRPMBox(int rpm);
@@ -62,3 +64,4 @@ private Q_SLOTS:
 };
 }  // namespace at
 }  // namespace gui
+}  // namespace tobas

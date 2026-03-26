@@ -5,6 +5,8 @@
 #include "./control_surfaces.hpp"
 #include "./vehicle.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -49,3 +51,4 @@ private:
 };  // namespace fw
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

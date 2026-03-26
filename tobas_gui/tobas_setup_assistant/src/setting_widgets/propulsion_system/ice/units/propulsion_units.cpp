@@ -5,6 +5,8 @@
 #include <tobas_qt_tools/stream.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -96,12 +98,12 @@ int PropulsionUnitsWidget::index(const QString& link_name) const
 
 PropulsionUnitWidget* PropulsionUnitsWidget::widget(int index)
 {
-  return qt::qPointerCast<PropulsionUnitWidget>(super::widget(index));
+  return tobas::qt::qPointerCast<PropulsionUnitWidget>(super::widget(index));
 }
 
 const PropulsionUnitWidget* PropulsionUnitsWidget::widget(int index) const
 {
-  return qt::qConstPointerCast<PropulsionUnitWidget>(super::widget(index));
+  return tobas::qt::qConstPointerCast<PropulsionUnitWidget>(super::widget(index));
 }
 
 PropulsionUnitWidget* PropulsionUnitsWidget::widget(const QString& link_name)
@@ -127,9 +129,10 @@ void PropulsionUnitsWidget::onCopyToAllButtonClicked(const QString& link_name)
     dst_widget->copyFrom(src_widget);
   }
 
-  qt::qInfoBox(this, "The settings of \"" + link_name + "\" have been copied to all the other propulsion units.");
+  tobas::qt::qInfoBox(this, "The settings of \"" + link_name + "\" have been copied to all the other propulsion units.");
 }
 }  // namespace ice
 }  // namespace propulsion
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

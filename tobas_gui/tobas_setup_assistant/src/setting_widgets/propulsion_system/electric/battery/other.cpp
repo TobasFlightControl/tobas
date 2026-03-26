@@ -3,6 +3,8 @@
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_yaml_tools/format.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -68,7 +70,7 @@ const char* BatteryWidget_Other::name() const
 bool BatteryWidget_Other::isValid()
 {
   if (max_voltage_->getValue() <= sag_voltage_->getValue()) {
-    qt::qWarnBox(this, "Maximum voltage must be greater than voltage threshold.");
+    tobas::qt::qWarnBox(this, "Maximum voltage must be greater than voltage threshold.");
     return false;
   }
 
@@ -132,3 +134,4 @@ double BatteryWidget_Other::internalRegistance()
 }  // namespace propulsion
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

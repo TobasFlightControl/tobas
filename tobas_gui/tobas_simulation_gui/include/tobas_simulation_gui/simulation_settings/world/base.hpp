@@ -4,6 +4,8 @@
 
 #include <QWidget>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sim
@@ -17,3 +19,4 @@ public:
 };
 }  // namespace sim
 }  // namespace gui
+}  // namespace tobas

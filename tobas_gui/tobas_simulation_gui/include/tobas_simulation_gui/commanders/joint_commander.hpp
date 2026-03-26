@@ -14,6 +14,8 @@
 
 #include <tobas_msgs/msg/joint_command_array.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sim
@@ -46,9 +48,9 @@ private:
 
   kdl::TreeJointParser joint_parser_;
 
-  qt::ToggleButton* start_stop_button_;
+  tobas::qt::ToggleButton* start_stop_button_;
 
-  std::map<std::string, qt::DoubleSliderDisplay*> commanders_;
+  std::map<std::string, tobas::qt::DoubleSliderDisplay*> commanders_;
   QVBoxLayout* cmd_rows_;
 
   QPushButton* home_button_;
@@ -81,3 +83,4 @@ private Q_SLOTS:
 };
 }  // namespace sim
 }  // namespace gui
+}  // namespace tobas

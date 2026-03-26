@@ -3,16 +3,18 @@
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_std_tools/check.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
 {
 RobotPropertiesWidget::RobotPropertiesWidget(const kdl::Tree& tree) : mass_holder_(tree)
 {
-  frame_type_ = new qt::FramedLabel();
-  mass_ = new qt::FramedLabel();
+  frame_type_ = new tobas::qt::FramedLabel();
+  mass_ = new tobas::qt::FramedLabel();
 
-  const auto form = new qt::FormLayout();
+  const auto form = new tobas::qt::FormLayout();
   form->setHorizontalSpacing(30);
   setLayout(form);
   form->addRow("Frame Type", frame_type_);
@@ -32,3 +34,4 @@ void RobotPropertiesWidget::setFrameType(const FrameType& type)
 }
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

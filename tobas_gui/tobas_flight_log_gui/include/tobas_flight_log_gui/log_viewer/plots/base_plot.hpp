@@ -2,6 +2,8 @@
 
 #include <QWidget>
 
+namespace tobas
+{
 namespace gui
 {
 namespace log
@@ -16,3 +18,4 @@ public:
 };
 }  // namespace log
 }  // namespace gui
+}  // namespace tobas

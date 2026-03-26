@@ -9,6 +9,8 @@
 #include "../base.hpp"
 #include "./base.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sc
@@ -33,7 +35,7 @@ public:
 
 private:
   QButtonGroup* btn_group_;
-  qt::StackedWidget* stack_;
+  tobas::qt::StackedWidget* stack_;
 
   void addMagCalibWidget(BaseMagCalibWidget* widget, const QString& label, int id);
 
@@ -43,3 +45,4 @@ private:
 };
 }  // namespace sc
 }  // namespace gui
+}  // namespace tobas

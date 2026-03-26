@@ -6,6 +6,8 @@
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace log
@@ -112,3 +114,4 @@ void PosePlotWidget::updateTargetSamples(const QVector<tobas_msgs::msg::Odometry
 }
 }  // namespace log
 }  // namespace gui
+}  // namespace tobas

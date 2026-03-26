@@ -29,10 +29,10 @@ public:
   void reset() override;
 
 private:
-  qt::PasswordEdit* pswd1_;
-  qt::PasswordEdit* pswd2_;
+  tobas::qt::PasswordEdit* pswd1_;
+  tobas::qt::PasswordEdit* pswd2_;
 
-  qt::Label* warn_text_;
+  tobas::qt::Label* warn_text_;
 
   QPushButton* write_button_;
 

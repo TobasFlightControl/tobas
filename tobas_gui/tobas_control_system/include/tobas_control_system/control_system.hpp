@@ -10,6 +10,8 @@
 #include "./rotors_viewer/rotors_viewer.hpp"
 #include "./status_viewer/status_viewer.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -39,3 +41,4 @@ private:
 };
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

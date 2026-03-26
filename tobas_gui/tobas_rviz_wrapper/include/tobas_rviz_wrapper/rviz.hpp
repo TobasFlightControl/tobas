@@ -10,6 +10,8 @@ class VisualizationManager;
 class DisplayGroup;
 }  // namespace rviz_common
 
+namespace tobas
+{
 namespace rviz
 {
 class RvizFrameManager
@@ -40,3 +42,4 @@ private:
   void removeDefaultColorMaterials();
 };
 }  // namespace rviz
+}  // namespace tobas

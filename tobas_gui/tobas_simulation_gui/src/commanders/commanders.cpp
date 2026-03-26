@@ -6,6 +6,8 @@
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sim
@@ -19,10 +21,10 @@ CommandersWidget::CommandersWidget(
   const auto rows = new QVBoxLayout();
   setLayout(rows);
 
-  const auto title = new qt::Label("Commanders", cmn::kTitlePSize, QFont::Bold);
-  qt::addWidgetCenter(title, rows);
+  const auto title = new tobas::qt::Label("Commanders", cmn::kTitlePSize, QFont::Bold);
+  tobas::qt::addWidgetCenter(title, rows);
 
-  const auto scroll_rows = qt::createScrollableQVBoxLayout(rows);
+  const auto scroll_rows = tobas::qt::createScrollableQVBoxLayout(rows);
 
   base_pose_commander_ = new BasePoseCommanderWidget(node, bridge, drone);
   scroll_rows->addWidget(base_pose_commander_);
@@ -59,3 +61,4 @@ void CommandersWidget::reset()
 }
 }  // namespace sim
 }  // namespace gui
+}  // namespace tobas

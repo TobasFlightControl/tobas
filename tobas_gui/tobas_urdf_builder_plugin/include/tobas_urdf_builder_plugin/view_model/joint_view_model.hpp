@@ -8,6 +8,8 @@
 #include "./base_view_model.hpp"
 #include "./joint_limits_view_model.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace ub
@@ -53,3 +55,4 @@ using V_JointViewModelPtr = std::vector<JointViewModelPtr>;
 }  // namespace view_model
 }  // namespace ub
 }  // namespace gui
+}  // namespace tobas

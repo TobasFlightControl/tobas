@@ -2,6 +2,8 @@
 
 using namespace gz::math;
 
+namespace tobas
+{
 namespace gazebo
 {
 Quaterniond quaternionFromAngleAxis(const Vector3d& w)
@@ -31,3 +33,4 @@ Matrix3d skewMatrix(const Vector3d& v)
   return res;
 }
 }  // namespace gazebo
+}  // namespace tobas

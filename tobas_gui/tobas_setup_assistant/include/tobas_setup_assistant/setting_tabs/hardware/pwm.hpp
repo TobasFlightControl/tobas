@@ -9,18 +9,20 @@
 
 #include "tobas_setup_assistant/signals.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
 {
 namespace hw
 {
-class PwmWidget : public qt::TableWidget
+class PwmWidget : public tobas::qt::TableWidget
 {
   Q_OBJECT
 
   using self = PwmWidget;
-  using super = qt::TableWidget;
+  using super = tobas::qt::TableWidget;
 
   static constexpr int kTargetNameCol = 0;
   static constexpr int kPeriodLbCol = kTargetNameCol + 1;
@@ -69,13 +71,13 @@ private:
 
   tobas::PropulsionSystem prop_type_ = tobas::PropulsionSystem::kElectric;
 
-  qt::ComboBox* targetNameWidget(int row);
-  qt::DoubleSpinBox* periodLbWidget(int row);
-  qt::DoubleSpinBox* periodUbWidget(int row);
+  tobas::qt::ComboBox* targetNameWidget(int row);
+  tobas::qt::DoubleSpinBox* periodLbWidget(int row);
+  tobas::qt::DoubleSpinBox* periodUbWidget(int row);
 
-  const qt::ComboBox* targetNameWidget(int row) const;
-  const qt::DoubleSpinBox* periodLbWidget(int row) const;
-  const qt::DoubleSpinBox* periodUbWidget(int row) const;
+  const tobas::qt::ComboBox* targetNameWidget(int row) const;
+  const tobas::qt::DoubleSpinBox* periodLbWidget(int row) const;
+  const tobas::qt::DoubleSpinBox* periodUbWidget(int row) const;
 
   void addLastChannel();
   void removeLastChannel();
@@ -86,3 +88,4 @@ private Q_SLOTS:
 }  // namespace hw
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

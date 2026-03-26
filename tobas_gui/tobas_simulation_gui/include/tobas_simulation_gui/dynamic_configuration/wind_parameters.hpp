@@ -8,6 +8,8 @@
 #include <tobas_gazebo_msgs/srv/get_wind_params.hpp>
 #include <tobas_gazebo_msgs/srv/set_wind_params.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sim
@@ -36,11 +38,11 @@ private:
 
   QPushButton* reset_button_;
 
-  qt::DoubleSliderTextWidget* mean_speed_;
-  qt::IntSliderTextWidget* direction_;
-  qt::DoubleSliderTextWidget* gust_speed_factor_;
-  qt::DoubleSliderTextWidget* gust_duration_;
-  qt::DoubleSliderTextWidget* gust_interval_;
+  tobas::qt::DoubleSliderTextWidget* mean_speed_;
+  tobas::qt::IntSliderTextWidget* direction_;
+  tobas::qt::DoubleSliderTextWidget* gust_speed_factor_;
+  tobas::qt::DoubleSliderTextWidget* gust_duration_;
+  tobas::qt::DoubleSliderTextWidget* gust_interval_;
 
   double init_mean_speed_;
   int init_direction_;
@@ -69,3 +71,4 @@ private Q_SLOTS:
 };
 }  // namespace sim
 }  // namespace gui
+}  // namespace tobas

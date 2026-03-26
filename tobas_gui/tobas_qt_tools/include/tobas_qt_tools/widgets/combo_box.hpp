@@ -2,6 +2,8 @@
 
 #include <QComboBox>
 
+namespace tobas
+{
 namespace qt
 {
 /**
@@ -36,3 +38,4 @@ public Q_SLOTS:
   void setCurrentText(const QString& text);
 };
 }  // namespace qt
+}  // namespace tobas

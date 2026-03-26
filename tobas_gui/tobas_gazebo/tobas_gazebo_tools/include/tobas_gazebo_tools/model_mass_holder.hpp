@@ -2,6 +2,8 @@
 
 #include "./model_links_parser.hpp"
 
+namespace tobas
+{
 namespace gazebo
 {
 /* モデルの合計質量を保持する． */
@@ -22,3 +24,4 @@ private:
   ModelLinksParser model_links_parser_;
 };
 }  // namespace gazebo
+}  // namespace tobas

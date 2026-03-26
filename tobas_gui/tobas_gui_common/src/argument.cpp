@@ -7,6 +7,8 @@
 
 #define QT_QPA_PLATFORM "QT_QPA_PLATFORM"
 
+namespace tobas
+{
 namespace gui
 {
 namespace cmn
@@ -57,3 +59,4 @@ bool NonRosArgumentParser::setPlatformXcb()
 }
 }  // namespace cmn
 }  // namespace gui
+}  // namespace tobas

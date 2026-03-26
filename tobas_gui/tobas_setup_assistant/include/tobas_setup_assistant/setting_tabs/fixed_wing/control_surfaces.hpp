@@ -5,18 +5,20 @@
 #include <tobas_qt_tools/widgets/table_widget.hpp>
 #include <tobas_uadf/model.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
 {
 namespace fw
 {
-class ControlSurfacesWidget : public qt::TableWidget
+class ControlSurfacesWidget : public tobas::qt::TableWidget
 {
   Q_OBJECT
 
   using self = ControlSurfacesWidget;
-  using super = qt::TableWidget;
+  using super = tobas::qt::TableWidget;
 
   static constexpr int kColWidth = 120;
   static constexpr double kAngleLimit = M_PI_4;
@@ -89,3 +91,4 @@ private:
 }  // namespace fw
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

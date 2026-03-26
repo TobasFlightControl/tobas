@@ -14,6 +14,8 @@
 
 #include <tobas_msgs/msg/joint_command_array.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace at
@@ -49,7 +51,7 @@ private:
 
   kdl::TreeJointParser joint_parser_;
 
-  std::map<std::string, qt::DoubleSliderDisplay*> commanders_;
+  std::map<std::string, tobas::qt::DoubleSliderDisplay*> commanders_;
   QVBoxLayout* rows_;
 
   ros2::PublisherPtr<tobas_msgs::msg::JointCommandArray> pos_pub_;
@@ -67,3 +69,4 @@ private Q_SLOTS:
 };
 }  // namespace at
 }  // namespace gui
+}  // namespace tobas

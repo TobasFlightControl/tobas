@@ -4,6 +4,8 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
+namespace tobas
+{
 namespace gui
 {
 namespace log
@@ -70,3 +72,4 @@ void FlightLogWidget::onLogDeselected()
 }
 }  // namespace log
 }  // namespace gui
+}  // namespace tobas

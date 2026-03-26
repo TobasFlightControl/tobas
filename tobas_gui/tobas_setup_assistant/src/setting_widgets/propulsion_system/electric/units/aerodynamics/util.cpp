@@ -4,6 +4,8 @@
 #include <tobas_math/definitions.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -50,3 +52,4 @@ double momentConstFromUiuc(const Eigen::VectorXd& cts, const Eigen::VectorXd& cp
 }  // namespace propulsion
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

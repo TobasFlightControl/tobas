@@ -5,19 +5,21 @@
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
 {
 GnssViewerWidget::GnssViewerWidget(const RosQtBridge& bridge)
 {
-  status_ = new qt::FramedLabel();
-  nsats_ = new qt::FramedLabel();
+  status_ = new tobas::qt::FramedLabel();
+  nsats_ = new tobas::qt::FramedLabel();
 
   // Layout
-  const auto form = new qt::FormLayout();
-  form->addVAlignedRow(new qt::Label("GNSS Status", kLabelPSize), status_);
-  form->addVAlignedRow(new qt::Label("GNSS NSats", kLabelPSize), nsats_);
+  const auto form = new tobas::qt::FormLayout();
+  form->addVAlignedRow(new tobas::qt::Label("GNSS Status", kLabelPSize), status_);
+  form->addVAlignedRow(new tobas::qt::Label("GNSS NSats", kLabelPSize), nsats_);
   setLayout(form);
 
   // Connection
@@ -70,3 +72,4 @@ void GnssViewerWidget::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss)
 }
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

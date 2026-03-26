@@ -19,6 +19,8 @@
 #include "./dynamic_configuration/dynamic_configuration.hpp"
 #include "./simulation_settings/simulation_settings.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sim
@@ -62,9 +64,9 @@ private:
   tobas::Drone drone_;
   pid_t launch_pid_ = -1;
 
-  qt::WaitSpinnerWidget spinner_;
+  tobas::qt::WaitSpinnerWidget spinner_;
 
-  qt::ToggleButton* start_stop_button_;
+  tobas::qt::ToggleButton* start_stop_button_;
 
   SimulationSettingsWidget* sim_settings_;
   DynamicConfigWidget* dynamic_config_;
@@ -93,3 +95,4 @@ private Q_SLOTS:
 };
 }  // namespace sim
 }  // namespace gui
+}  // namespace tobas

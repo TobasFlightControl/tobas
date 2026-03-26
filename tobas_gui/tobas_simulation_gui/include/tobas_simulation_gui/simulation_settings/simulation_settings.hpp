@@ -6,6 +6,8 @@
 #include "./sbus.hpp"
 #include "./world/world.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sim
@@ -44,3 +46,4 @@ private:
 };
 }  // namespace sim
 }  // namespace gui
+}  // namespace tobas

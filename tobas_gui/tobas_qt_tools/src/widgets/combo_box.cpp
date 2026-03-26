@@ -5,6 +5,8 @@
 
 #include "tobas_qt_tools/cast.hpp"
 
+namespace tobas
+{
 namespace qt
 {
 void ComboBox::wheelEvent(QWheelEvent* event)
@@ -50,7 +52,7 @@ void ComboBox::sort()
 
 void ComboBox::setItemEnabled(int row, bool enabled)
 {
-  const auto model = qt::qConstPointerCast<QStandardItemModel>(this->model());
+  const auto model = tobas::qt::qConstPointerCast<QStandardItemModel>(this->model());
   const auto item = model->item(row);
   const auto cur_flags = item->flags();
   const auto new_flags = enabled ? cur_flags | Qt::ItemIsEnabled : cur_flags & ~Qt::ItemIsEnabled;
@@ -62,3 +64,4 @@ void ComboBox::setItemEnabled(const QString& text, bool enabled)
   setItemEnabled(findText(text), enabled);
 }
 }  // namespace qt
+}  // namespace tobas

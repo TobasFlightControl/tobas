@@ -8,6 +8,8 @@
 
 #include "./base.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sim
@@ -28,7 +30,7 @@ private:
   QVector<QRadioButton*> buttons_;
   QVector<BaseWorldWidget*> widgets_;
 
-  void addRow(qt::FormLayout* form, QButtonGroup* btn_group, BaseWorldWidget* widget, const QString& label);
+  void addRow(tobas::qt::FormLayout* form, QButtonGroup* btn_group, BaseWorldWidget* widget, const QString& label);
 
   void updateEnabled();
 
@@ -40,3 +42,4 @@ private Q_SLOTS:
 };
 }  // namespace sim
 }  // namespace gui
+}  // namespace tobas

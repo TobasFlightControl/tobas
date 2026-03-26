@@ -21,6 +21,8 @@
 
 namespace fs = std::filesystem;
 
+namespace tobas
+{
 namespace gui
 {
 namespace ub
@@ -915,3 +917,4 @@ void UpdateLinkDialog::arrangeVisualGeometryTypeFrames(const std::map<QString, Q
 }  // namespace ui
 }  // namespace ub
 }  // namespace gui
+}  // namespace tobas

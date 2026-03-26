@@ -8,6 +8,8 @@
 
 namespace fs = std::filesystem;
 
+namespace tobas
+{
 namespace gui
 {
 namespace sim
@@ -17,10 +19,10 @@ SimulationSettingsWidget::SimulationSettingsWidget(rclcpp::Node::SharedPtr node)
   const auto rows = new QVBoxLayout();
   setLayout(rows);
 
-  const auto title = new qt::Label("Simulation Settings", cmn::kTitlePSize, QFont::Bold);
-  qt::addWidgetCenter(title, rows);
+  const auto title = new tobas::qt::Label("Simulation Settings", cmn::kTitlePSize, QFont::Bold);
+  tobas::qt::addWidgetCenter(title, rows);
 
-  const auto scroll_rows = qt::createScrollableQVBoxLayout(rows);
+  const auto scroll_rows = tobas::qt::createScrollableQVBoxLayout(rows);
 
   type_ = new LoopTypeWidget();
   scroll_rows->addWidget(type_);
@@ -91,3 +93,4 @@ bool SimulationSettingsWidget::userDebug() const
 }
 }  // namespace sim
 }  // namespace gui
+}  // namespace tobas

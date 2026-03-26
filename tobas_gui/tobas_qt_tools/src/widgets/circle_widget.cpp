@@ -3,6 +3,8 @@
 #include <QDebug>
 #include <QPainter>
 
+namespace tobas
+{
 namespace qt
 {
 CircleWidget::CircleWidget(QWidget* parent) : super(parent)
@@ -143,3 +145,4 @@ void CircleWidget::drawText(QPainter& painter)
   painter.restore();
 }
 }  // namespace qt
+}  // namespace tobas

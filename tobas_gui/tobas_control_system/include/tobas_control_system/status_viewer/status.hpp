@@ -2,6 +2,8 @@
 
 #include <tobas_qt_tools/widgets/circle_widget.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -36,7 +38,8 @@ public:
   void setStatus(bool ok);
 
 private:
-  qt::CircleWidget* led_;
+  tobas::qt::CircleWidget* led_;
 };
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

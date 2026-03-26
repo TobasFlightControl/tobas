@@ -4,6 +4,8 @@
 
 #include "./base.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -34,7 +36,8 @@ private Q_SLOTS:
   void onValueChanged(const Eigen::Vector3d& value);
 
 private:
-  qt::Vector3dEditHorizontal* vector3d_;
+  tobas::qt::Vector3dEditHorizontal* vector3d_;
 };
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

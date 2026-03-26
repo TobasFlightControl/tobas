@@ -6,6 +6,8 @@
 
 #include <tobas_qt_tools/util.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace at
@@ -32,9 +34,9 @@ RotorWidget::RotorWidget()
   gain_slider_->setTrough(false);
   gain_slider_->setGroove(true);
 
-  cur_rpm_box_ = new qt::FramedLabel();
-  tar_rpm_box_ = new qt::FramedLabel();
-  gain_box_ = new qt::FramedLabel();
+  cur_rpm_box_ = new tobas::qt::FramedLabel();
+  tar_rpm_box_ = new tobas::qt::FramedLabel();
+  gain_box_ = new tobas::qt::FramedLabel();
 
   // Layout
   const auto rpm_cols = new QHBoxLayout();
@@ -52,7 +54,7 @@ RotorWidget::RotorWidget()
   rows->addWidget(text_, 0);
   rows->addLayout(rpm_cols, 1);
   rows->addLayout(rpm_form, 0);
-  qt::addWidgetCenter(gain_slider_, rows, 1);
+  tobas::qt::addWidgetCenter(gain_slider_, rows, 1);
   rows->addLayout(gain_form, 0);
 
   setLayout(rows);
@@ -167,3 +169,4 @@ void RotorWidget::onGainChanged(int gain)
 }
 }  // namespace at
 }  // namespace gui
+}  // namespace tobas

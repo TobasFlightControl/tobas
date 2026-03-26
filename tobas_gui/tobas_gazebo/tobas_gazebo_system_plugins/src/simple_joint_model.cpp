@@ -4,6 +4,8 @@
 
 #define POS_MARGIN 1e-2  // [rad]
 
+namespace tobas
+{
 namespace gazebo
 {
 SimpleJointModel::SimpleJointModel(double _min_pos, double _max_pos, double _max_vel)
@@ -47,3 +49,4 @@ void SimpleJointModel::step(double dt)
   cur_pos_ = pos_limit.clamp(cnd_angle);
 }
 }  // namespace gazebo
+}  // namespace tobas

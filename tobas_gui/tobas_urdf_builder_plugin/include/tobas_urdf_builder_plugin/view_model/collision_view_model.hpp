@@ -3,6 +3,8 @@
 #include "./base_view_model.hpp"
 #include "./geometry_view_model.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace ub
@@ -33,3 +35,4 @@ using V_CollisionViewModelPtr = std::vector<CollisionViewModelPtr>;
 }  // namespace view_model
 }  // namespace ub
 }  // namespace gui
+}  // namespace tobas

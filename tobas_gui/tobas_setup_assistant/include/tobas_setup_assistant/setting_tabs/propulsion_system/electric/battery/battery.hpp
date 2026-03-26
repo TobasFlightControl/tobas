@@ -6,6 +6,8 @@
 
 #include "./base.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -14,12 +16,12 @@ namespace propulsion
 {
 namespace electric
 {
-class BatteryWidget : public qt::ScrollArea
+class BatteryWidget : public tobas::qt::ScrollArea
 {
   Q_OBJECT
 
   using self = BatteryWidget;
-  using super = qt::ScrollArea;
+  using super = tobas::qt::ScrollArea;
 
   static constexpr char kTypeKey[] = "battery_type";
 
@@ -39,8 +41,8 @@ public:
   double internalRegistance();
 
 private:
-  qt::ComboBox* type_;
-  qt::StackedWidget* batteries_;
+  tobas::qt::ComboBox* type_;
+  tobas::qt::StackedWidget* batteries_;
 
   BatteryWidget_Base* widget(int index);
   const BatteryWidget_Base* widget(int index) const;
@@ -52,3 +54,4 @@ private:
 }  // namespace propulsion
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

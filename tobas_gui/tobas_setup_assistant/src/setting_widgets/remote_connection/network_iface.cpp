@@ -10,6 +10,8 @@
 #include <tobas_qt_tools/widgets/label.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -54,7 +56,7 @@ bool NetworkIfaceWidget::isValid()
 {
   if (nif_btn_group_->checkedId() == kOtherIdx) {
     if (other_nif_name_->text().isEmpty()) {
-      qt::qWarnBox(this, "Please specify a network interface name.");
+      tobas::qt::qWarnBox(this, "Please specify a network interface name.");
       return false;
     }
   }
@@ -123,3 +125,4 @@ void NetworkIfaceWidget::onOtherButtonToggled(bool checked)
 }  // namespace rc
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

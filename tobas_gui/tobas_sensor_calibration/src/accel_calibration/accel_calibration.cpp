@@ -5,6 +5,8 @@
 #include <tobas_qt_tools/thread.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sc
@@ -12,7 +14,7 @@ namespace sc
 AccelCalibrationWidget::AccelCalibrationWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge)
   : spinner_(Qt::WindowModal, this), thread_(node, bridge)
 {
-  const auto instruction = new qt::DescriptionWidget(
+  const auto instruction = new tobas::qt::DescriptionWidget(
     "1. Place the flight controller on a level surface.\n\n"
     "2. Click \"Start\". Calibration will complete in a few seconds.\n\n",
     cmn::kBodyPSize);
@@ -55,23 +57,23 @@ void AccelCalibrationWidget::onStartButtonClicked()
 {
   // アームされていないことを確認
   if (!arming_) {
-    qt::qWarnBox(this, "This operation cannot be performed because the arming status has not been received yet.");
+    tobas::qt::qWarnBox(this, "This operation cannot be performed because the arming status has not been received yet.");
     return;
   }
   if (arming_->data) {
-    qt::qWarnBox(this, "This operation cannot be performed while the vehicle is armed.");
+    tobas::qt::qWarnBox(this, "This operation cannot be performed while the vehicle is armed.");
     return;
   }
 
   spinner_.start();
-  const auto [success, message] = qt::startThreadAndWait(thread_, &AccelCalibrationThread::finished);
+  const auto [success, message] = tobas::qt::startThreadAndWait(thread_, &AccelCalibrationThread::finished);
   spinner_.stop();
 
   if (success) {
-    qt::qInfoBox(this, message);
+    tobas::qt::qInfoBox(this, message);
   }
   else {
-    qt::qErrorBox(this, message);
+    tobas::qt::qErrorBox(this, message);
   }
 }
 
@@ -81,3 +83,4 @@ void AccelCalibrationWidget::armingCb(const tobas_msgs::msg::Arming::ConstShared
 }
 }  // namespace sc
 }  // namespace gui
+}  // namespace tobas

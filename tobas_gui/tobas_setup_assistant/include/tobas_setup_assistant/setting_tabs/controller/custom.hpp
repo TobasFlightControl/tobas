@@ -4,6 +4,8 @@
 
 #include "./base.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -65,10 +67,11 @@ private:
     { kSpeedRollDeltaPitchLabel, tobas::RcCommand::kSpeedRollDPitch },
   };
 
-  qt::ComboBox* acrobat_mode_;
-  qt::ComboBox* stabilize_mode_;
-  qt::ComboBox* loiter_mode_;
+  tobas::qt::ComboBox* acrobat_mode_;
+  tobas::qt::ComboBox* stabilize_mode_;
+  tobas::qt::ComboBox* loiter_mode_;
 };
 }  // namespace ctrl
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

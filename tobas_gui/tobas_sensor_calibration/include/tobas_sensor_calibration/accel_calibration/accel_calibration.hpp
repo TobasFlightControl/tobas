@@ -8,6 +8,8 @@
 #include "../base.hpp"
 #include "./thread.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sc
@@ -34,7 +36,7 @@ public:
 private:
   QPushButton* start_button_;
 
-  qt::WaitSpinnerWidget spinner_;
+  tobas::qt::WaitSpinnerWidget spinner_;
   AccelCalibrationThread thread_;
 
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
@@ -46,3 +48,4 @@ private Q_SLOTS:
 };
 }  // namespace sc
 }  // namespace gui
+}  // namespace tobas

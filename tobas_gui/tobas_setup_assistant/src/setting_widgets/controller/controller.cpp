@@ -15,6 +15,8 @@
 #include "tobas_setup_assistant/setting_tabs/controller/random_axis_tilt_multicopter.hpp"
 #include "tobas_setup_assistant/setting_tabs/controller/y_axis_tilt_multicopter.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -25,7 +27,7 @@ ControllerWidget::ControllerWidget()
 {
   dont_use_builtin_ctrl_ = new QCheckBox("Do not use the built-in controller");
 
-  stack_ = new qt::StackedWidget();
+  stack_ = new tobas::qt::StackedWidget();
 
   stack_->addWidget(new CustomFrameWidget());
   stack_->addWidget(new PlanarMulticopterWidget());
@@ -152,22 +154,22 @@ YAML::Node ControllerWidget::staticParams() const
 
 BaseControllerWidget* ControllerWidget::widget(int index)
 {
-  return qt::qPointerCast<BaseControllerWidget>(stack_->widget(index));
+  return tobas::qt::qPointerCast<BaseControllerWidget>(stack_->widget(index));
 }
 
 const BaseControllerWidget* ControllerWidget::widget(int index) const
 {
-  return qt::qConstPointerCast<BaseControllerWidget>(stack_->widget(index));
+  return tobas::qt::qConstPointerCast<BaseControllerWidget>(stack_->widget(index));
 }
 
 BaseControllerWidget* ControllerWidget::selected()
 {
-  return qt::qPointerCast<BaseControllerWidget>(stack_->currentWidget());
+  return tobas::qt::qPointerCast<BaseControllerWidget>(stack_->currentWidget());
 }
 
 const BaseControllerWidget* ControllerWidget::selected() const
 {
-  return qt::qConstPointerCast<BaseControllerWidget>(stack_->currentWidget());
+  return tobas::qt::qConstPointerCast<BaseControllerWidget>(stack_->currentWidget());
 }
 
 void ControllerWidget::showCtrlWidgetWithFrameType(const FrameType& type)
@@ -194,3 +196,4 @@ void ControllerWidget::onDontUseBuiltinCtrlCheckBoxToggled(bool checked)
 }  // namespace ctrl
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

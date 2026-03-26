@@ -5,6 +5,8 @@
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -18,7 +20,7 @@ AerodynamicsWidget_Base::AerodynamicsWidget_Base()
   rows_ = new QVBoxLayout();
   setLayout(rows_);
 
-  description_ = new qt::DescriptionWidget("", cmn::kBodyPSize);
+  description_ = new tobas::qt::DescriptionWidget("", cmn::kBodyPSize);
   rows_->addWidget(description_);
 
   QTimer::singleShot(0, this, &AerodynamicsWidget_Base::initialize);
@@ -32,3 +34,4 @@ void AerodynamicsWidget_Base::initialize()
 }  // namespace propulsion
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

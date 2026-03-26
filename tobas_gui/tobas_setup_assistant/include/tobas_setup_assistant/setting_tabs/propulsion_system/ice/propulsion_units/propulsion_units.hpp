@@ -5,6 +5,8 @@
 
 #include "./propulsion_unit.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -13,12 +15,12 @@ namespace propulsion
 {
 namespace ice
 {
-class PropulsionUnitsWidget : public qt::TabWidget
+class PropulsionUnitsWidget : public tobas::qt::TabWidget
 {
   Q_OBJECT
 
   using self = PropulsionUnitsWidget;
-  using super = qt::TabWidget;
+  using super = tobas::qt::TabWidget;
 
   static constexpr int kTabWidth = 150;
   static constexpr int kTabHeight = 50;
@@ -55,3 +57,4 @@ private Q_SLOTS:
 }  // namespace propulsion
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

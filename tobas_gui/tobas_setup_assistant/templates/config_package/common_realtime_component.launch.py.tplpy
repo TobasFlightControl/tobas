@@ -72,7 +72,7 @@ def generate_launch_description():
             composable_node_descriptions=[
                 ComposableNode(
                     package="tobas_eskf",
-                    plugin="ErrorStateKalmanFilterNode",
+                    plugin="tobas::ErrorStateKalmanFilterNode",
                     name="observer",
                     namespace=DRONE_NAME,
                     parameters=[
@@ -93,12 +93,12 @@ def generate_launch_description():
                 ),
                 ComposableNode(
                     package="tobas_rotor_controller",
-                    plugin="RotorControllerNode",
+                    plugin="tobas::RotorControllerNode",
                     namespace=DRONE_NAME,
                 ),
                 ComposableNode(
                     package="tobas_disturbance_observer",
-                    plugin="DisturbanceObserverNode",
+                    plugin="tobas::DisturbanceObserverNode",
                     namespace=DRONE_NAME,
                 ),
             ],
@@ -136,12 +136,12 @@ def generate_launch_description():
             composable_node_descriptions=[
                 ComposableNode(
                     package="tobas_tree_server",
-                    plugin="TreeServerNode",
+                    plugin="tobas::TreeServerNode",
                     namespace=DRONE_NAME,
                 ),
                 ComposableNode(
                     package="tobas_drone_server",
-                    plugin="DroneServerNode",
+                    plugin="tobas::DroneServerNode",
                     namespace=DRONE_NAME,
                     parameters=[
                         {
@@ -151,50 +151,50 @@ def generate_launch_description():
                 ),
                 ComposableNode(
                     package="tobas_rosbag_recorder",
-                    plugin="RosbagRecorderNode",
+                    plugin="tobas::RosbagRecorderNode",
                     namespace=DRONE_NAME,
                 ),
                 ComposableNode(
                     package="tobas_config_servers",
-                    plugin="ImuFilterConfigServer",
+                    plugin="tobas::ImuFilterConfigServer",
                     namespace=DRONE_NAME,
                     parameters=[PathJoinSubstitution([config_pkg_share, "config", "imu_filter_dynamic.yaml"])],
                 ),
                 ComposableNode(
                     package="tobas_failsafe",
-                    plugin="HealthMonitorNode",
+                    plugin="tobas::HealthMonitorNode",
                     namespace=DRONE_NAME,
                     parameters=[PathJoinSubstitution([config_pkg_share, "config", "health_monitor.yaml"])],
                 ),
                 ComposableNode(
                     package="tobas_failsafe",
-                    plugin="FailsafeExecutorNode",
+                    plugin="tobas::FailsafeExecutorNode",
                     namespace=DRONE_NAME,
                 ),
                 ComposableNode(
                     package="tobas_landing_detection",
-                    plugin="LandingDetectorNode",
+                    plugin="tobas::LandingDetectorNode",
                     namespace=DRONE_NAME,
                 ),
                 ComposableNode(
                     package="tobas_rotor_anomaly_detection",
-                    plugin="RotorAnomalyDetectorNode",
+                    plugin="tobas::RotorAnomalyDetectorNode",
                     namespace=DRONE_NAME,
                     parameters=[PathJoinSubstitution([config_pkg_share, "config", "rotor_anomaly_detector.yaml"])],
                 ),
                 ComposableNode(
                     package="tobas_vibration_filter",
-                    plugin="VibrationFilterNode",
+                    plugin="tobas::VibrationFilterNode",
                     namespace=DRONE_NAME,
                 ),
                 ComposableNode(
                     package="tobas_joint_states_bridge",
-                    plugin="JointStatesBridgeNode",
+                    plugin="tobas::JointStatesBridgeNode",
                     namespace=DRONE_NAME,
                 ),
                 ComposableNode(
                     package="tobas_topic_throttle",
-                    plugin="TopicThrottleNode",
+                    plugin="tobas::TopicThrottleNode",
                     namespace=DRONE_NAME,
                 ),
             ],

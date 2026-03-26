@@ -4,6 +4,8 @@
 
 #include <QString>
 
+namespace tobas
+{
 namespace gui
 {
 namespace cmn
@@ -42,3 +44,4 @@ public:
 };
 }  // namespace cmn
 }  // namespace gui
+}  // namespace tobas

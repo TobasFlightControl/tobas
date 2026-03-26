@@ -20,6 +20,8 @@
 
 namespace fs = std::filesystem;
 
+namespace tobas
+{
 namespace gui
 {
 namespace sim
@@ -27,7 +29,7 @@ namespace sim
 SimulationWidget::SimulationWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge)
   : node_(node), ssh_client_(node), remote_proj_builder_(node), spinner_(Qt::WindowModal, this)
 {
-  start_stop_button_ = new qt::ToggleButton("Start", "Terminate");
+  start_stop_button_ = new tobas::qt::ToggleButton("Start", "Terminate");
   start_stop_button_->setFixedSize(kButtonWidth, kButtonHeight);
 
   sim_settings_ = new SimulationSettingsWidget(node);
@@ -37,7 +39,7 @@ SimulationWidget::SimulationWidget(rclcpp::Node::SharedPtr node, const RosQtBrid
   // Layout
   const auto config_rows = new QVBoxLayout();
   config_rows->addWidget(sim_settings_);
-  qt::addWidgetCenter(start_stop_button_, config_rows);
+  tobas::qt::addWidgetCenter(start_stop_button_, config_rows);
 
   const auto cols = new QHBoxLayout();
   cols->addLayout(config_rows, 1);
@@ -47,8 +49,8 @@ SimulationWidget::SimulationWidget(rclcpp::Node::SharedPtr node, const RosQtBrid
   setLayout(cols);
 
   // Connection
-  connect(start_stop_button_, &qt::ToggleButton::checked, this, &self::onStartRequested);
-  connect(start_stop_button_, &qt::ToggleButton::unchecked, this, &self::onTerminateRequested);
+  connect(start_stop_button_, &tobas::qt::ToggleButton::checked, this, &self::onStartRequested);
+  connect(start_stop_button_, &tobas::qt::ToggleButton::unchecked, this, &self::onTerminateRequested);
   connect(&bridge, &RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
 
   reset();
@@ -85,11 +87,11 @@ bool SimulationWidget::updateProject(const fs::path& proj_path)
   // Load KDL tree
   const auto uadf_path = proj_paths_.originalUadfPath();
   if (!uadf_parser_.parseFromPath(uadf_path, uadf_)) {
-    qt::qErrorBox(this, "Failed to parse UADF:\n\n" + QString::fromStdString(uadf_parser_.errorMessage()));
+    tobas::qt::qErrorBox(this, "Failed to parse UADF:\n\n" + QString::fromStdString(uadf_parser_.errorMessage()));
     return false;
   }
   if (!tree_parser_.parseFromUrdf(*uadf_.urdf, tree_)) {
-    qt::qErrorBox(
+    tobas::qt::qErrorBox(
       this, "Failed to construct KDL tree from URDF:\n\n" + QString::fromStdString(tree_parser_.errorMessage()));
     return false;
   }
@@ -97,7 +99,7 @@ bool SimulationWidget::updateProject(const fs::path& proj_path)
   // Load drone configuration
   const auto tbsdrn_path = proj_paths_.tbsdrnPath();
   if (!drone_.load(tbsdrn_path)) {
-    qt::qErrorBox(this, "Failed to load drone configuration.");
+    tobas::qt::qErrorBox(this, "Failed to load drone configuration.");
     return false;
   }
 
@@ -128,12 +130,12 @@ bool SimulationWidget::startSITL()
 {
   // フライトコードが起動していないことを確認
   if (arming_) {
-    qt::qWarnBox(this, "This operation cannot be performed while flight controller is active.");
+    tobas::qt::qWarnBox(this, "This operation cannot be performed while flight controller is active.");
     return false;
   }
 
   // プログレスバーを作成
-  qt::ProgressDialog progress("Start SITL", 6, this);
+  tobas::qt::ProgressDialog progress("Start SITL", 6, this);
   progress.setCancelButton(nullptr);
   progress.show();
 
@@ -143,17 +145,18 @@ bool SimulationWidget::startSITL()
   if (!build_res) {
     const auto& error_msg = build_res.error();
     if (error_msg.size() < cmn::kSaveLogTextSizeThresh) {
-      qt::qErrorBox(this, "Failed to build the Tobas project:\n\n" + error_msg);
+      tobas::qt::qErrorBox(this, "Failed to build the Tobas project:\n\n" + error_msg);
     }
     else {
-      const auto log_path =
-        qt::writeTimestampedFile(error_msg + '\n', qt::expandUser(tobas::kGuiLogDir), "", "builderr_local");
+      const auto log_path = tobas::qt::writeTimestampedFile(
+        error_msg + '\n', tobas::qt::expandUser(tobas::kGuiLogDir), "", "builderr_local");
       if (log_path) {
-        qt::qErrorBox(this, "Failed to build the Tobas project. The output has been saved to:\n" + log_path.value());
+        tobas::qt::qErrorBox(
+          this, "Failed to build the Tobas project. The output has been saved to:\n" + log_path.value());
       }
       else {
         qWarning() << "Failed to save the build error output.";
-        qt::qErrorBox(this, "Failed to build the Tobas project:\n\n" + error_msg);
+        tobas::qt::qErrorBox(this, "Failed to build the Tobas project:\n\n" + error_msg);
       }
     }
     progress.close();
@@ -173,7 +176,7 @@ bool SimulationWidget::startSITL()
   // Gazeboサーバの起動を待つ
   progress.setLabelText("Waiting for the Gazebo server to start.");
   if (!waitUntilGazeboServerReady()) {
-    qt::qErrorBox(this, "Failed to start the Gazebo server.");
+    tobas::qt::qErrorBox(this, "Failed to start the Gazebo server.");
     progress.close();
     reset();
     return false;
@@ -183,7 +186,7 @@ bool SimulationWidget::startSITL()
   // Gazeboレンダリングの開始を待つ
   progress.setLabelText("Waiting for Gazebo rendering to start.");
   if (!waitUntilGazeboRenderingReady()) {
-    qt::qErrorBox(this, "Failed to get the Gazebo rendering information.");
+    tobas::qt::qErrorBox(this, "Failed to get the Gazebo rendering information.");
     progress.close();
     reset();
     return false;
@@ -225,32 +228,32 @@ void SimulationWidget::terminateSITL()
 
   // シミュレーションが正常に終了できなければアプリケーション全体を落とす
   if (!kill_gazebo_res) {
-    qt::qErrorBox(this, kill_gazebo_res.error());
+    tobas::qt::qErrorBox(this, kill_gazebo_res.error());
     QApplication::quit();
     return;
   }
 
   reset();
   Q_EMIT terminated();
-  qt::qInfoBox(this, "SITL has been terminated successfully.");
+  tobas::qt::qInfoBox(this, "SITL has been terminated successfully.");
 }
 
 bool SimulationWidget::startHITL()
 {
   // アームされていないことを確認
   if (!arming_) {
-    qt::qWarnBox(this, "This operation cannot be performed because the arming status has not been received yet.");
+    tobas::qt::qWarnBox(this, "This operation cannot be performed because the arming status has not been received yet.");
     return false;
   }
   else {
     if (arming_->data) {
-      qt::qWarnBox(this, "This operation cannot be performed while the vehicle is armed.");
+      tobas::qt::qWarnBox(this, "This operation cannot be performed while the vehicle is armed.");
       return false;
     }
   }
 
   // プログレスバーを作成
-  qt::ProgressDialog progress("Start HITL", 11, this);
+  tobas::qt::ProgressDialog progress("Start HITL", 11, this);
   progress.setCancelButton(nullptr);
   progress.show();
 
@@ -258,7 +261,7 @@ bool SimulationWidget::startHITL()
   progress.setLabelText("Building the Tobas project.");
   const auto local_build_res = cmn::buildLocalProject(proj_paths_.getProjPath());
   if (!local_build_res) {
-    qt::qErrorBox(this, "Failed to build the Tobas project:\n\n" + local_build_res.error());
+    tobas::qt::qErrorBox(this, "Failed to build the Tobas project:\n\n" + local_build_res.error());
     progress.close();
     return false;
   }
@@ -267,7 +270,7 @@ bool SimulationWidget::startHITL()
   // SSH接続
   progress.setLabelText("Connecting to the flight controller.");
   if (ssh_client_.connect() != ssh::SshClient::kNoError) {
-    qt::qErrorBox(this, "No SSH connection: " + QString(ssh_client_.errorMessage()));
+    tobas::qt::qErrorBox(this, "No SSH connection: " + QString(ssh_client_.errorMessage()));
     progress.close();
     return false;
   }
@@ -276,7 +279,7 @@ bool SimulationWidget::startHITL()
   // Realサービスを停止
   progress.setLabelText("Stopping the Tobas real service.");
   if (ssh_client_.execute("systemctl stop tobas_real.target", true) != ssh::SshClient::kNoError) {
-    qt::qErrorBox(this, "Failed to stop Tobas real service:\n\n" + QString(ssh_client_.errorMessage()));
+    tobas::qt::qErrorBox(this, "Failed to stop Tobas real service:\n\n" + QString(ssh_client_.errorMessage()));
     progress.close();
     return false;
   }
@@ -288,7 +291,7 @@ bool SimulationWidget::startHITL()
   const auto mesh_path = proj_paths_.cfgMeshDirPath();
   const auto remote_dir = fs::path(tobas::kColconWSPathRoot) / "src/";
   if (ssh_client_.scpPut(proj_path, remote_dir, true, { mesh_path }, true) != ssh::SshClient::kNoError) {
-    qt::qErrorBox(this, "Failed to send Tobas project:\n\n" + QString(ssh_client_.errorMessage()));
+    tobas::qt::qErrorBox(this, "Failed to send Tobas project:\n\n" + QString(ssh_client_.errorMessage()));
     progress.close();
     return false;
   }
@@ -297,7 +300,8 @@ bool SimulationWidget::startHITL()
   // リモートパッケージをビルド
   progress.setLabelText("Building the Tobas project.");
   if (!remote_proj_builder_.build(proj_paths_.remoteProjPath())) {
-    qt::qErrorBox(this, "Failed to build the Tobas project:\n\n" + QString(remote_proj_builder_.getErrorMessage()));
+    tobas::qt::qErrorBox(
+      this, "Failed to build the Tobas project:\n\n" + QString(remote_proj_builder_.getErrorMessage()));
     progress.close();
     return false;
   }
@@ -331,7 +335,7 @@ bool SimulationWidget::startHITL()
   // HITLサービスを起動
   progress.setLabelText("Starting the Tobas HITL service.");
   if (ssh_client_.execute("systemctl restart tobas_hitl.service", true) != ssh::SshClient::kNoError) {
-    qt::qErrorBox(this, "Failed to restart Tobas HITL service:\n\n" + QString(ssh_client_.errorMessage()));
+    tobas::qt::qErrorBox(this, "Failed to restart Tobas HITL service:\n\n" + QString(ssh_client_.errorMessage()));
     progress.close();
     return false;
   }
@@ -360,7 +364,7 @@ bool SimulationWidget::startHITL()
 void SimulationWidget::terminateHITL()
 {
   // プログレスバーを作成
-  qt::ProgressDialog progress("Terminate HITL", 3, this);
+  tobas::qt::ProgressDialog progress("Terminate HITL", 3, this);
   progress.setCancelButton(nullptr);
   progress.show();
 
@@ -368,7 +372,7 @@ void SimulationWidget::terminateHITL()
   progress.setLabelText("Terminating the simulation.");
   const auto kill_gazebo_res = killGazebo(node_, launch_pid_);
   if (!kill_gazebo_res) {
-    qt::qErrorBox(this, kill_gazebo_res.error());
+    tobas::qt::qErrorBox(this, kill_gazebo_res.error());
     progress.close();
     reset();
     return;
@@ -378,7 +382,7 @@ void SimulationWidget::terminateHITL()
   // HITLサービスを停止
   progress.setLabelText("Stopping the Tobas HITL service.");
   if (ssh_client_.execute("systemctl stop tobas_hitl.service", true) != ssh::SshClient::kNoError) {
-    qt::qErrorBox(this, "Failed to stop Tobas HITL service:\n\n" + QString(ssh_client_.errorMessage()));
+    tobas::qt::qErrorBox(this, "Failed to stop Tobas HITL service:\n\n" + QString(ssh_client_.errorMessage()));
     progress.close();
     reset();
     return;
@@ -388,7 +392,7 @@ void SimulationWidget::terminateHITL()
   // Realサービスを起動
   progress.setLabelText("Starting the Tobas real service.");
   if (ssh_client_.execute("systemctl restart tobas_real.target", true) != ssh::SshClient::kNoError) {
-    qt::qErrorBox(this, "Failed to start Tobas real service:\n\n" + QString(ssh_client_.errorMessage()));
+    tobas::qt::qErrorBox(this, "Failed to start Tobas real service:\n\n" + QString(ssh_client_.errorMessage()));
     progress.close();
     reset();
     return;
@@ -399,7 +403,7 @@ void SimulationWidget::terminateHITL()
 
   reset();
   Q_EMIT terminated();
-  qt::qInfoBox(this, "HITL has been terminated successfully.");
+  tobas::qt::qInfoBox(this, "HITL has been terminated successfully.");
 }
 
 std::map<std::string, std::string> SimulationWidget::makeGazeboLaunchArguments(bool launch_core) const
@@ -433,7 +437,7 @@ bool SimulationWidget::launchGazebo(bool launch_core)
   const auto args = makeGazeboLaunchArguments(launch_core);
   launch_pid_ = cmn::roslaunch(proj_paths_.cfgPkgName(), "gazebo.launch.xml", args);
   if (launch_pid_ < 0) {
-    qt::qErrorBox(this, "Failed to start Gazebo process.");
+    tobas::qt::qErrorBox(this, "Failed to start Gazebo process.");
     return false;
   }
 
@@ -482,7 +486,7 @@ void SimulationWidget::onStartRequested()
   dynamic_config_->setEnabled(true);
   commanders_->setEnabled(true);
 
-  qt::qInfoBox(this, "The simulation has started successfully.");
+  tobas::qt::qInfoBox(this, "The simulation has started successfully.");
 
   Q_EMIT started();
 }
@@ -507,3 +511,4 @@ void SimulationWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& a
 }
 }  // namespace sim
 }  // namespace gui
+}  // namespace tobas

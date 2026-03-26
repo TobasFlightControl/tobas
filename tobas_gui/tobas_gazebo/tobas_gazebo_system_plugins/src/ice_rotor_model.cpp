@@ -10,6 +10,8 @@
 
 namespace cmp = gz::sim::components;
 
+namespace tobas
+{
 namespace gazebo
 {
 bool IceRotorModel::initialize(
@@ -270,3 +272,4 @@ bool IceRotorModel::initializeGazeboObjects(gz::sim::EntityComponentManager& ecm
 }
 
 }  // namespace gazebo
+}  // namespace tobas

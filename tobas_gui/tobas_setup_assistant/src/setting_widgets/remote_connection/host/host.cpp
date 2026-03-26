@@ -6,6 +6,8 @@
 #include "tobas_setup_assistant/setting_tabs/remote_connection/host/ipv4.hpp"
 #include "tobas_setup_assistant/setting_tabs/remote_connection/host/ipv6.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -14,7 +16,7 @@ namespace rc
 {
 HostWidget::HostWidget()
 {
-  const auto form = new qt::FormLayout();
+  const auto form = new tobas::qt::FormLayout();
   setLayout(form);
 
   const auto btn_group = new QButtonGroup();
@@ -69,7 +71,7 @@ QString HostWidget::host() const
   return widgets_.at(findCurrentRow())->host();
 }
 
-void HostWidget::addRow(qt::FormLayout* form, QButtonGroup* btn_group, BaseHostWidget* widget)
+void HostWidget::addRow(tobas::qt::FormLayout* form, QButtonGroup* btn_group, BaseHostWidget* widget)
 {
   const auto button = new QRadioButton(widget->label());
   btn_group->addButton(button, rowCount());
@@ -111,3 +113,4 @@ void HostWidget::onButtonGroupIdClicked()
 }  // namespace rc
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

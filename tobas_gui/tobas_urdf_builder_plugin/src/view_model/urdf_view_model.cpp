@@ -6,6 +6,8 @@
 #include <tobas_std_tools/vector.hpp>
 #include <tobas_urdf/exporter.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ub
@@ -312,3 +314,4 @@ void URDFViewModel::removeTextureTagsWithoutFilename(tinyxml2::XMLElement* eleme
 }  // namespace view_model
 }  // namespace ub
 }  // namespace gui
+}  // namespace tobas

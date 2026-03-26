@@ -5,16 +5,18 @@
 
 #include "./status.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
 {
-class StatusViewerWidget : public qt::ScrollArea
+class StatusViewerWidget : public tobas::qt::ScrollArea
 {
   Q_OBJECT
 
   using self = StatusViewerWidget;
-  using super = qt::ScrollArea;
+  using super = tobas::qt::ScrollArea;
 
 public:
   explicit StatusViewerWidget(const RosQtBridge& bridge);
@@ -48,3 +50,4 @@ private Q_SLOTS:
 };
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

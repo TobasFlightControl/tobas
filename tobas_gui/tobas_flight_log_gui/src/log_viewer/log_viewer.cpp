@@ -15,6 +15,8 @@
 
 namespace fs = std::filesystem;
 
+namespace tobas
+{
 namespace gui
 {
 namespace log
@@ -109,11 +111,11 @@ void FlightLogViewerWidget::setLogName(const QString& log_name)
   // rosbagを開く
   if (!open(log_path_)) {
     if (!ros2::reindexRosBag(log_path_)) {
-      qt::qErrorBox(this, "The log file is broken and failed to fix it.");
+      tobas::qt::qErrorBox(this, "The log file is broken and failed to fix it.");
       return;
     }
     if (!open(log_path_)) {
-      qt::qErrorBox(this, "Failed to open the log file. The data is probably corrupted.");
+      tobas::qt::qErrorBox(this, "Failed to open the log file. The data is probably corrupted.");
       return;
     }
   }
@@ -271,7 +273,7 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
       }
     }
     catch (const std::exception& e) {
-      qt::qErrorBox(this, "Failed to deserialize \"" + QString::fromStdString(topic) + "\".");
+      tobas::qt::qErrorBox(this, "Failed to deserialize \"" + QString::fromStdString(topic) + "\".");
       decode_fail_topics_.insert(topic);
     }
   }
@@ -290,3 +292,4 @@ void FlightLogViewerWidget::onPlaybackTimeChanged(double time_from_start)
 }
 }  // namespace log
 }  // namespace gui
+}  // namespace tobas

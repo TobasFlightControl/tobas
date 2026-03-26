@@ -6,6 +6,8 @@
 
 namespace fs = std::filesystem;
 
+namespace tobas
+{
 namespace gui
 {
 namespace cmn
@@ -58,3 +60,4 @@ const char* RemoteProjectBuilder::getErrorMessage() const
 }
 }  // namespace cmn
 }  // namespace gui
+}  // namespace tobas

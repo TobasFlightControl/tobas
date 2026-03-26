@@ -11,6 +11,8 @@
 
 #include "tobas_setup_assistant/setting_tabs/hardware/constants.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -53,7 +55,7 @@ bool DShotWidget::isValid()
       continue;
     }
     if (target_name_set.contains(target_name)) {
-      qt::qWarnBox(this, "DShot target \"" + target_name + "\" is duplicated.");
+      tobas::qt::qWarnBox(this, "DShot target \"" + target_name + "\" is duplicated.");
       return false;
     }
     target_name_set.insert(target_name);
@@ -134,24 +136,24 @@ int DShotWidget::channel(const QString& target_name) const
   return -1;
 }
 
-qt::ComboBox* DShotWidget::targetNameWidget(int row)
+tobas::qt::ComboBox* DShotWidget::targetNameWidget(int row)
 {
-  return qt::qPointerCast<qt::ComboBox>(cellWidget(row, kTargetNameCol));
+  return tobas::qt::qPointerCast<tobas::qt::ComboBox>(cellWidget(row, kTargetNameCol));
 }
 
 QPushButton* DShotWidget::bidirectionalWidget(int row)
 {
-  return qt::qPointerCast<QPushButton>(cellWidget(row, kBidirectionalCol));
+  return tobas::qt::qPointerCast<QPushButton>(cellWidget(row, kBidirectionalCol));
 }
 
-const qt::ComboBox* DShotWidget::targetNameWidget(int row) const
+const tobas::qt::ComboBox* DShotWidget::targetNameWidget(int row) const
 {
-  return qt::qConstPointerCast<qt::ComboBox>(cellWidget(row, kTargetNameCol));
+  return tobas::qt::qConstPointerCast<tobas::qt::ComboBox>(cellWidget(row, kTargetNameCol));
 }
 
 const QPushButton* DShotWidget::bidirectionalWidget(int row) const
 {
-  return qt::qConstPointerCast<QPushButton>(cellWidget(row, kBidirectionalCol));
+  return tobas::qt::qConstPointerCast<QPushButton>(cellWidget(row, kBidirectionalCol));
 }
 
 void DShotWidget::addLastChannel()
@@ -159,7 +161,7 @@ void DShotWidget::addLastChannel()
   const auto row = rowCount();
 
   // Target name
-  const auto target_name = new qt::ComboBox();
+  const auto target_name = new tobas::qt::ComboBox();
   target_name->addItem("");  // 未選択
   switch (prop_type_) {
     case tobas::PropulsionSystem::kElectric: {
@@ -205,7 +207,7 @@ void DShotWidget::removeLastChannel()
   removeRow(row);
 
   if (!target_name.isEmpty()) {
-    qt::qWarnBox(this, "PWM configuration for \"" + target_name + "\" has been removed.");
+    tobas::qt::qWarnBox(this, "PWM configuration for \"" + target_name + "\" has been removed.");
   }
 }
 
@@ -282,3 +284,4 @@ void DShotWidget::onBidirectionalButtonToggled(QPushButton* button, bool checked
 }  // namespace hw
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

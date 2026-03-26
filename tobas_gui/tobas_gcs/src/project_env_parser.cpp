@@ -4,6 +4,8 @@
 
 #include <tobas_string_tools/core.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace gcs
@@ -50,3 +52,4 @@ std::string ProjectEnvParser::exportText() const
 }
 }  // namespace gcs
 }  // namespace gui
+}  // namespace tobas

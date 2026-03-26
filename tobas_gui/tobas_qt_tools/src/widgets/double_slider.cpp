@@ -2,6 +2,8 @@
 
 #include <tobas_math/core.hpp>
 
+namespace tobas
+{
 namespace qt
 {
 DoubleSlider::DoubleSlider(Qt::Orientation orientation, QWidget* parent) : super(orientation, parent)
@@ -61,3 +63,4 @@ double DoubleSlider::valueFromSlider(int slider_value) const
   return math::remap<double>(slider_value, 0, kRange, min_, max_);
 }
 }  // namespace qt
+}  // namespace tobas

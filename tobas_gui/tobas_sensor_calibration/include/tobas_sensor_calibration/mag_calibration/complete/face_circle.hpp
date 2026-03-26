@@ -2,16 +2,18 @@
 
 #include <tobas_qt_tools/widgets/widget.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sc
 {
-class FaceCircleWidget : public qt::Widget
+class FaceCircleWidget : public tobas::qt::Widget
 {
   Q_OBJECT
 
   using self = FaceCircleWidget;
-  using super = qt::Widget;
+  using super = tobas::qt::Widget;
 
   static constexpr int kLineWidth = 10;
   static constexpr auto kFillColorComplete = Qt::green;
@@ -51,3 +53,4 @@ private:
 };
 }  // namespace sc
 }  // namespace gui
+}  // namespace tobas

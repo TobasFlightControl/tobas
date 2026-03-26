@@ -13,6 +13,8 @@
 
 #include "./base_setting.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -87,19 +89,19 @@ private:
   const uadf::Model& uadf_;
   const kdl::Tree& tree_;
 
-  qt::TableWidget* table_;
+  tobas::qt::TableWidget* table_;
 
   QLabel* linkNameWidget(int row);
   QLabel* jointNameWidget(int row);
-  qt::ComboBox* roleWidget(int row);
-  qt::ComboBox* commandIfaceWidget(int row);
-  qt::SpinBox* homePositionWidget(int row);
+  tobas::qt::ComboBox* roleWidget(int row);
+  tobas::qt::ComboBox* commandIfaceWidget(int row);
+  tobas::qt::SpinBox* homePositionWidget(int row);
 
   const QLabel* linkNameWidget(int row) const;
   const QLabel* jointNameWidget(int row) const;
-  const qt::ComboBox* roleWidget(int row) const;
-  const qt::ComboBox* commandIfaceWidget(int row) const;
-  const qt::SpinBox* homePositionWidget(int row) const;
+  const tobas::qt::ComboBox* roleWidget(int row) const;
+  const tobas::qt::ComboBox* commandIfaceWidget(int row) const;
+  const tobas::qt::SpinBox* homePositionWidget(int row) const;
 
   void clear();
   void reset(int row);
@@ -112,3 +114,4 @@ private Q_SLOTS:
 };
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

@@ -5,13 +5,15 @@
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_ros2_tools/time.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace log
 {
 JointEffortPlotWidget::JointEffortPlotWidget()
 {
-  grid_ = new qt::GridLayout();
+  grid_ = new tobas::qt::GridLayout();
   setLayout(grid_);
 }
 
@@ -133,3 +135,4 @@ void JointEffortPlotWidget::updateTargetSamples(const QVector<tobas_msgs::msg::J
 }
 }  // namespace log
 }  // namespace gui
+}  // namespace tobas

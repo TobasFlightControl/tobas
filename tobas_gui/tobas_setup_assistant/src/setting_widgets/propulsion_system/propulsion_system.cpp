@@ -8,6 +8,8 @@
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -20,7 +22,7 @@ PropulsionSystemWidget::PropulsionSystemWidget(rclcpp::Node::SharedPtr node, con
   type_btn_group_ = new QButtonGroup(this);
   type_btn_group_->setExclusive(true);
 
-  propulsion_stack_ = new qt::StackedWidget();
+  propulsion_stack_ = new tobas::qt::StackedWidget();
 
   int id = 0;
   addPropulsionSystemWidget(new electric::PropulsionSystemWidget(node, uadf), id++);
@@ -121,22 +123,22 @@ QString PropulsionSystemWidget::linkName(int index) const
 
 BasePropulsionSystemWidget* PropulsionSystemWidget::widget(int index)
 {
-  return qt::qPointerCast<BasePropulsionSystemWidget>(propulsion_stack_->widget(index));
+  return tobas::qt::qPointerCast<BasePropulsionSystemWidget>(propulsion_stack_->widget(index));
 }
 
 const BasePropulsionSystemWidget* PropulsionSystemWidget::widget(int index) const
 {
-  return qt::qConstPointerCast<BasePropulsionSystemWidget>(propulsion_stack_->widget(index));
+  return tobas::qt::qConstPointerCast<BasePropulsionSystemWidget>(propulsion_stack_->widget(index));
 }
 
 BasePropulsionSystemWidget* PropulsionSystemWidget::selected()
 {
-  return qt::qPointerCast<BasePropulsionSystemWidget>(propulsion_stack_->currentWidget());
+  return tobas::qt::qPointerCast<BasePropulsionSystemWidget>(propulsion_stack_->currentWidget());
 }
 
 const BasePropulsionSystemWidget* PropulsionSystemWidget::selected() const
 {
-  return qt::qConstPointerCast<BasePropulsionSystemWidget>(propulsion_stack_->currentWidget());
+  return tobas::qt::qConstPointerCast<BasePropulsionSystemWidget>(propulsion_stack_->currentWidget());
 }
 
 void PropulsionSystemWidget::addPropulsionSystemWidget(BasePropulsionSystemWidget* widget, int id)
@@ -182,8 +184,8 @@ void PropulsionSystemWidget::onPropulsionTypeClicked(int new_idx)
     return;
   }
 
-  if (!qt::yesOrNo(
-        this, "Changing the propulsion type will reset the wiring settings. Do you want to continue?", qt::WARN)) {
+  if (!tobas::qt::yesOrNo(
+        this, "Changing the propulsion type will reset the wiring settings. Do you want to continue?", tobas::qt::WARN)) {
     setCurrentButtonIndex(cur_idx_);
     return;
   }
@@ -198,3 +200,4 @@ void PropulsionSystemWidget::onPropulsionTypeClicked(int new_idx)
 }  // namespace propulsion
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

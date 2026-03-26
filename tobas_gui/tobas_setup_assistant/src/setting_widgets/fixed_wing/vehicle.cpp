@@ -5,6 +5,8 @@
 #include <tobas_yaml_tools/convert/range.hpp>
 #include <tobas_yaml_tools/format.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -57,7 +59,7 @@ void VehicleParametersWidget::updateInternalDataStructures()
 bool VehicleParametersWidget::isValid()
 {
   if (!alpha_limit_->isValid()) {
-    qt::qWarnBox(this, "Invalid limitation of angle of attack.");
+    tobas::qt::qWarnBox(this, "Invalid limitation of angle of attack.");
     return false;
   }
 
@@ -113,3 +115,4 @@ tbs::Range<double> VehicleParametersWidget::alphaLimit() const
 }  // namespace fw
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

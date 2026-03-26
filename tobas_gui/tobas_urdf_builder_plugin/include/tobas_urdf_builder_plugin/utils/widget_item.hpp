@@ -7,6 +7,8 @@
 #include "../view_model/link_view_model.hpp"
 #include "../view_model/visual_view_model.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace ub
@@ -48,3 +50,4 @@ private:
 }  // namespace ui
 }  // namespace ub
 }  // namespace gui
+}  // namespace tobas

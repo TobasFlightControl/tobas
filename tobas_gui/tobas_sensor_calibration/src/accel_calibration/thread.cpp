@@ -10,6 +10,8 @@
 
 #include "tobas_sensor_calibration/constants.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sc
@@ -142,3 +144,4 @@ void AccelCalibrationThread::armingCb(const tobas_msgs::msg::Arming::ConstShared
 }
 }  // namespace sc
 }  // namespace gui
+}  // namespace tobas

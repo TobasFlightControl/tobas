@@ -2,6 +2,8 @@
 
 #include "./tab_widget.hpp"
 
+namespace tobas
+{
 namespace qt
 {
 class VerticalTabBar : public TabBar
@@ -31,3 +33,4 @@ private:
   VerticalTabBar* tab_bar_;
 };
 }  // namespace qt
+}  // namespace tobas

@@ -1,5 +1,7 @@
 #include "tobas_setup_assistant/param_getters/double_pair.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -10,14 +12,14 @@ ParamGetterWidget_DoublePair::ParamGetterWidget_DoublePair(const QString& param_
   const auto cols = new QHBoxLayout();
   rows_->addLayout(cols);
 
-  first_ = new qt::DoubleSpinBox();
+  first_ = new tobas::qt::DoubleSpinBox();
   cols->addWidget(first_);
 
-  second_ = new qt::DoubleSpinBox();
+  second_ = new tobas::qt::DoubleSpinBox();
   cols->addWidget(second_);
 
-  connect(first_, QOverload<double>::of(&qt::DoubleSpinBox::valueChanged), this, &self::onValueChanged);
-  connect(second_, QOverload<double>::of(&qt::DoubleSpinBox::valueChanged), this, &self::onValueChanged);
+  connect(first_, QOverload<double>::of(&tobas::qt::DoubleSpinBox::valueChanged), this, &self::onValueChanged);
+  connect(second_, QOverload<double>::of(&tobas::qt::DoubleSpinBox::valueChanged), this, &self::onValueChanged);
 }
 
 std::pair<double, double> ParamGetterWidget_DoublePair::getValue() const
@@ -78,3 +80,4 @@ void ParamGetterWidget_DoublePair::onValueChanged(double)
 }
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

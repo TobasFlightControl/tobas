@@ -4,6 +4,8 @@
 
 #include <tobas_std_tools/universal_constants.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -135,3 +137,4 @@ int T1Widget::numDShotChannels() const
 }  // namespace hw
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

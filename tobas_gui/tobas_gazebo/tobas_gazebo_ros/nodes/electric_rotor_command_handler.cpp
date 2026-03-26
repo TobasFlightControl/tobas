@@ -56,7 +56,7 @@ void ElectricRotorCommandHandlerNode::droneCb(const tobas::Drone::ConstSharedPtr
   // Register publishers
   throttle_pubs_.clear();
   for (const auto& [link_name, _] : eprop_->rotors) {
-    const auto topic = path::join(gazebo::kRotorThrottleCmdTopicNS, link_name);
+    const auto topic = path::join(tobas::gazebo::kRotorThrottleCmdTopicNS, link_name);
     throttle_pubs_[link_name] = createPublisher<tobas_gazebo_msgs::msg::Throttle>(topic);
   }
   latency_pub_.initialize(shared_from_this());

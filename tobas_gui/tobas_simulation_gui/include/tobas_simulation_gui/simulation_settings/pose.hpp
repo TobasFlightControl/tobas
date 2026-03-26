@@ -5,6 +5,8 @@
 #include <tobas_qt_tools/widgets/double_spin_box.hpp>
 #include <tobas_qt_tools/widgets/spin_box.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sim
@@ -32,8 +34,9 @@ public:
   double yaw() const;    // [rad]
 
 private:
-  std::array<qt::DoubleSpinBox*, 3> xyz_;  // [m]
-  std::array<qt::SpinBox*, 3> rpy_;        // [deg]
+  std::array<tobas::qt::DoubleSpinBox*, 3> xyz_;  // [m]
+  std::array<tobas::qt::SpinBox*, 3> rpy_;        // [deg]
 };
 }  // namespace sim
 }  // namespace gui
+}  // namespace tobas

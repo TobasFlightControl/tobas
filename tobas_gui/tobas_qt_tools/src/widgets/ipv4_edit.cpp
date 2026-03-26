@@ -7,6 +7,8 @@
 #include <tobas_qt_tools/validator/int_validator.hpp>
 #include <tobas_std_tools/check.hpp>
 
+namespace tobas
+{
 namespace qt
 {
 IPv4Edit::IPv4Edit(QWidget* parent) : super(parent)
@@ -16,7 +18,7 @@ IPv4Edit::IPv4Edit(QWidget* parent) : super(parent)
 
   for (int i = kNumFields - 1; i >= 0; --i) {
     fields_[i] = new QLineEdit();
-    fields_[i]->setValidator(new qt::IntValidator(0, UINT8_MAX));
+    fields_[i]->setValidator(new tobas::qt::IntValidator(0, UINT8_MAX));
 
     cols->addWidget(fields_[i]);
     if (i != 0) {
@@ -101,3 +103,4 @@ void IPv4Edit::setFieldValue(size_t idx, uint8_t value)
   fields_.at(idx)->setText(QString::number(value));
 }
 }  // namespace qt
+}  // namespace tobas

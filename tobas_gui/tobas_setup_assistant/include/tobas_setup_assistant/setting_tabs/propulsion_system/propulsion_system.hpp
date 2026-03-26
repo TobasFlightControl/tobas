@@ -10,6 +10,8 @@
 #include "./ice/propulsion_system.hpp"
 #include "tobas_setup_assistant/signals.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -54,7 +56,7 @@ private:
   Signals& sig_;
 
   QButtonGroup* type_btn_group_;
-  qt::StackedWidget* propulsion_stack_;
+  tobas::qt::StackedWidget* propulsion_stack_;
 
   int cur_idx_;
 
@@ -69,3 +71,4 @@ private Q_SLOTS:
 };  // namespace propulsion
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

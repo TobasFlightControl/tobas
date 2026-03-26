@@ -1,5 +1,7 @@
 #include "tobas_control_system/mission_planner/map/items/line.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -18,3 +20,4 @@ QByteArrayList LineModel::argNames() const
 }  // namespace map
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

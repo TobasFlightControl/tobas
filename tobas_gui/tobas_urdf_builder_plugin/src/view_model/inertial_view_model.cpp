@@ -4,6 +4,8 @@
 
 #include <tobas_math/core.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ub
@@ -97,3 +99,4 @@ void InertialViewModel::buildInertiaSphere(double radius)
 }  // namespace view_model
 }  // namespace ub
 }  // namespace gui
+}  // namespace tobas

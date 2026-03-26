@@ -43,7 +43,7 @@ void RotorStatesPublisherNode::droneCb(const tobas::Drone::ConstSharedPtr& drone
   rotor_state_subs_.clear();
 
   for (const auto& [link_name, _] : drone->prop->rotors) {
-    const auto topic = path::join(gazebo::kRotorStateTopicNS, link_name);
+    const auto topic = path::join(tobas::gazebo::kRotorStateTopicNS, link_name);
     rotor_state_subs_[link_name] = createSubscriber(topic, &self::rotorStateCb, this);
   }
 

@@ -2,6 +2,8 @@
 
 #include <QFormLayout>
 
+namespace tobas
+{
 namespace qt
 {
 Vector3dEditVertical::Vector3dEditVertical(QWidget* parent) : super(parent)
@@ -90,3 +92,4 @@ void Vector3dEditVertical::onValueChanged(double)
   Q_EMIT valueChanged({ x(), y(), z() });
 }
 }  // namespace qt
+}  // namespace tobas

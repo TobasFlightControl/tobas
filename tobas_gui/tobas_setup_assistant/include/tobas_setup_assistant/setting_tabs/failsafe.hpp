@@ -6,6 +6,8 @@
 
 #include "./base_setting.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -68,7 +70,8 @@ public:
 private:
   std::array<QCheckBox*, kItemSize> items_;
 
-  qt::SpinBox* esc_no_comm_timeout_;
+  tobas::qt::SpinBox* esc_no_comm_timeout_;
 };
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

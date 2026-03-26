@@ -6,6 +6,8 @@
 
 #define VALUE_WIDTH 100
 
+namespace tobas
+{
 namespace qt
 {
 IntSliderTextWidget::IntSliderTextWidget(int minimum, int maximum, QWidget* parent) : super(parent)
@@ -127,3 +129,4 @@ void DoubleSliderTextWidget::setLineEditText(double value)
   line_edit_->setText(QString::number(value, 'f', decimals_));
 }
 }  // namespace qt
+}  // namespace tobas

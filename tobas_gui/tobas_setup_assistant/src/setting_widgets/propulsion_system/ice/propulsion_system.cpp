@@ -7,6 +7,8 @@
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -22,11 +24,11 @@ PropulsionSystemWidget::PropulsionSystemWidget(rclcpp::Node::SharedPtr node, con
 
   // Layout
   const auto battery_rows = new QVBoxLayout();
-  qt::addWidgetCenter(new qt::Label("Engine", cmn::kTitlePSize, QFont::Bold), battery_rows);
+  tobas::qt::addWidgetCenter(new tobas::qt::Label("Engine", cmn::kTitlePSize, QFont::Bold), battery_rows);
   battery_rows->addWidget(engine);
 
   const auto units_rows = new QVBoxLayout();
-  qt::addWidgetCenter(new qt::Label("Propulsion Units", cmn::kTitlePSize, QFont::Bold), units_rows);
+  tobas::qt::addWidgetCenter(new tobas::qt::Label("Propulsion Units", cmn::kTitlePSize, QFont::Bold), units_rows);
   units_rows->addWidget(units);
 
   const auto cols = new QHBoxLayout();
@@ -93,3 +95,4 @@ QString PropulsionSystemWidget::linkName(int index) const
 }  // namespace propulsion
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

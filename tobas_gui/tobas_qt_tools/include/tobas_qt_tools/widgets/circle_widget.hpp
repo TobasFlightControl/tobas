@@ -2,14 +2,16 @@
 
 #include "./widget.hpp"
 
+namespace tobas
+{
 namespace qt
 {
-class CircleWidget : public qt::Widget
+class CircleWidget : public tobas::qt::Widget
 {
   Q_OBJECT
 
   using self = CircleWidget;
-  using super = qt::Widget;
+  using super = tobas::qt::Widget;
 
 public:
   explicit CircleWidget(QWidget* parent = nullptr);
@@ -40,3 +42,4 @@ private:
   void drawText(QPainter& painter);
 };
 }  // namespace qt
+}  // namespace tobas

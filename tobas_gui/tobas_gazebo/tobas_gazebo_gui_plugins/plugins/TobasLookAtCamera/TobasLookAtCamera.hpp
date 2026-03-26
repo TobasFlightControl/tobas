@@ -6,6 +6,8 @@
 #include <gz/rendering/Scene.hh>
 #include <gz/transport/Node.hh>
 
+namespace tobas
+{
 namespace gazebo
 {
 /* cf. gz-gui/src/plugins/camera_tracking/CameraTracking.cc */
@@ -39,3 +41,4 @@ private:
   std::mutex mutex_;
 };
 }  // namespace gazebo
+}  // namespace tobas

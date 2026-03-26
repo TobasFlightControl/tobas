@@ -4,6 +4,8 @@
 #include <gz/sim/System.hh>
 #include <gz/sim/components.hh>
 
+namespace tobas
+{
 namespace gazebo
 {
 class LinkWorldPoseSolver
@@ -25,3 +27,4 @@ private:
   gz::math::Pose3d pose_out_;
 };
 }  // namespace gazebo
+}  // namespace tobas

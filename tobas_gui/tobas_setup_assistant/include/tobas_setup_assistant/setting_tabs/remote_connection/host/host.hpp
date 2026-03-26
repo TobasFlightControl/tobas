@@ -7,6 +7,8 @@
 
 #include "./base.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -37,7 +39,7 @@ private:
   QVector<QRadioButton*> buttons_;
   QVector<BaseHostWidget*> widgets_;
 
-  void addRow(qt::FormLayout* form, QButtonGroup* btn_group, BaseHostWidget* widget);
+  void addRow(tobas::qt::FormLayout* form, QButtonGroup* btn_group, BaseHostWidget* widget);
 
   void updateEnabled();
 
@@ -50,3 +52,4 @@ private Q_SLOTS:
 }  // namespace rc
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

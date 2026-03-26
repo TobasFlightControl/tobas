@@ -2,6 +2,8 @@
 
 #include <tobas_qt_tools/widgets/spin_box.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -31,7 +33,8 @@ private Q_SLOTS:
   void onValueChanged(int value);
 
 private:
-  qt::SpinBox* data_;
+  tobas::qt::SpinBox* data_;
 };
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

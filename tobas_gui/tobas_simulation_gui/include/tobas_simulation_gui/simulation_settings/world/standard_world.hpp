@@ -4,6 +4,8 @@
 
 #include "./base.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sim
@@ -21,9 +23,10 @@ public:
   std::filesystem::path worldPath() const override;
 
 private:
-  qt::ComboBox* combo_box_;
+  tobas::qt::ComboBox* combo_box_;
 
   static std::filesystem::path worldDirectoryPath();
 };
 }  // namespace sim
 }  // namespace gui
+}  // namespace tobas

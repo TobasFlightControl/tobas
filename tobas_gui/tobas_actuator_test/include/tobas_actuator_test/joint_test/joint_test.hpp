@@ -6,6 +6,8 @@
 #include "../base.hpp"
 #include "./commands_publisher.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace at
@@ -59,3 +61,4 @@ private Q_SLOTS:
 };
 }  // namespace at
 }  // namespace gui
+}  // namespace tobas

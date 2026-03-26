@@ -4,6 +4,8 @@
 
 #include <tobas_std_tools/unit_conversions.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -13,7 +15,7 @@ namespace field
 MaxHeadingRateWidget::MaxHeadingRateWidget()
 {
   // https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_YAWRAUTO_MAX
-  spin_box_ = new qt::SpinBox();
+  spin_box_ = new tobas::qt::SpinBox();
   spin_box_->setMinimum(5);
   spin_box_->setMaximum(360);
   spin_box_->setValue(60);
@@ -43,3 +45,4 @@ void MaxHeadingRateWidget::setValue(double value)
 }  // namespace field
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

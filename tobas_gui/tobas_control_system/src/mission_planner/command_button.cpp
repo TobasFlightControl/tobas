@@ -1,5 +1,7 @@
 #include "tobas_control_system/mission_planner/command_button.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -12,3 +14,4 @@ CommandButton::CommandButton(const QString& text) : super(text)
 }
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

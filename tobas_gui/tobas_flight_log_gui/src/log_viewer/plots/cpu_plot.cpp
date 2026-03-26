@@ -4,6 +4,8 @@
 
 #include <tobas_ros2_tools/time.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace log
@@ -79,3 +81,4 @@ void CpuPlotWidget::setData(const QVector<tobas_msgs::msg::Cpu>& msgs)
 }
 }  // namespace log
 }  // namespace gui
+}  // namespace tobas

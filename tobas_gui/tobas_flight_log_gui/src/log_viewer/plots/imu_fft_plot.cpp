@@ -4,6 +4,8 @@
 
 #include <tobas_ros2_tools/time.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace log
@@ -99,3 +101,4 @@ void ImuFftPlotWidget::setData(const QVector<tobas_msgs::msg::Imu>& imu_msgs)
 }
 }  // namespace log
 }  // namespace gui
+}  // namespace tobas

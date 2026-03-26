@@ -16,6 +16,8 @@ static const std::map<QString, JointType> kJointNameToTypeMap = {
   { "Floating", urdf::Joint::FLOATING },     { "Planar", urdf::Joint::PLANAR },
 };
 
+namespace tobas
+{
 namespace gui
 {
 namespace ub
@@ -124,3 +126,4 @@ bool JointViewModel::isFixed() const
 }  // namespace view_model
 }  // namespace ub
 }  // namespace gui
+}  // namespace tobas

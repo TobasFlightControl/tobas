@@ -11,6 +11,8 @@
 
 namespace cmp = gz::sim::components;
 
+namespace tobas
+{
 namespace gazebo
 {
 class GazeboBarometerPlugin : public BaseNode,
@@ -117,9 +119,10 @@ void GazeboBarometerPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
   getSdfParam(sdf, "noiseStddev", noise_stddev_, kNonNegative);
 }
 }  // namespace gazebo
+}  // namespace tobas
 
 GZ_ADD_PLUGIN(
-  gazebo::GazeboBarometerPlugin,
+  tobas::gazebo::GazeboBarometerPlugin,
   gz::sim::System,
-  gazebo::GazeboBarometerPlugin::ISystemConfigure,
-  gazebo::GazeboBarometerPlugin::ISystemPostUpdate)
+  tobas::gazebo::GazeboBarometerPlugin::ISystemConfigure,
+  tobas::gazebo::GazeboBarometerPlugin::ISystemPostUpdate)

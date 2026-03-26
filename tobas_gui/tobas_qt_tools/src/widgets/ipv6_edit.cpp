@@ -8,6 +8,8 @@
 
 #include <tobas_std_tools/check.hpp>
 
+namespace tobas
+{
 namespace qt
 {
 IPv6Edit::IPv6Edit(QWidget* parent) : super(parent)
@@ -103,3 +105,4 @@ void IPv6Edit::setFieldValue(size_t idx, uint16_t value)
   fields_.at(idx)->setText(QString::number(value, 16).rightJustified(4, '0'));
 }
 }  // namespace qt
+}  // namespace tobas

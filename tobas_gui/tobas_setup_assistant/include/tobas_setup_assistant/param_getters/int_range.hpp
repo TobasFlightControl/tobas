@@ -5,6 +5,8 @@
 #include "./base.hpp"
 #include "./int_getter.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -44,3 +46,4 @@ private:
 };
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

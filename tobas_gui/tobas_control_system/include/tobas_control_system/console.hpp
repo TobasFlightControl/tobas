@@ -3,6 +3,8 @@
 #include <tobas_qt_tools/widgets/table_widget.hpp>
 #include <tobas_rqt_bridge/bridge.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -36,10 +38,11 @@ public:
   void reset();
 
 private:
-  qt::TableWidget* table_;
+  tobas::qt::TableWidget* table_;
 
 private Q_SLOTS:
   void messageCb(const tobas_msgs::msg::Message::ConstSharedPtr& msg);
 };
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

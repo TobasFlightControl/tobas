@@ -7,6 +7,8 @@
 
 #include "tobas_setup_assistant/param_getters/double_spin_box.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -57,25 +59,26 @@ private:
   const rclcpp::Node::SharedPtr node_;
   ptree::PropertyClient property_client_;
 
-  qt::FormLayout* form_;
+  tobas::qt::FormLayout* form_;
 
-  qt::DoubleSpinBox* c_lift_0_;
-  qt::DoubleSpinBox* c_lift_alpha_;
-  qt::DoubleSpinBox* c_drag_0_;
-  qt::DoubleSpinBox* c_drag_alpha_;
-  qt::DoubleSpinBox* c_side_beta_;
-  qt::DoubleSpinBox* c_roll_beta_;
-  qt::DoubleSpinBox* c_roll_p_;
-  qt::DoubleSpinBox* c_roll_r_;
-  qt::DoubleSpinBox* c_pitch_0_;
-  qt::DoubleSpinBox* c_pitch_alpha_;
-  qt::DoubleSpinBox* c_pitch_abs_beta_;
-  qt::DoubleSpinBox* c_pitch_alpha_rate_;
-  qt::DoubleSpinBox* c_pitch_q_;
-  qt::DoubleSpinBox* c_yaw_beta_;
-  qt::DoubleSpinBox* c_yaw_p_;
-  qt::DoubleSpinBox* c_yaw_r_;
+  tobas::qt::DoubleSpinBox* c_lift_0_;
+  tobas::qt::DoubleSpinBox* c_lift_alpha_;
+  tobas::qt::DoubleSpinBox* c_drag_0_;
+  tobas::qt::DoubleSpinBox* c_drag_alpha_;
+  tobas::qt::DoubleSpinBox* c_side_beta_;
+  tobas::qt::DoubleSpinBox* c_roll_beta_;
+  tobas::qt::DoubleSpinBox* c_roll_p_;
+  tobas::qt::DoubleSpinBox* c_roll_r_;
+  tobas::qt::DoubleSpinBox* c_pitch_0_;
+  tobas::qt::DoubleSpinBox* c_pitch_alpha_;
+  tobas::qt::DoubleSpinBox* c_pitch_abs_beta_;
+  tobas::qt::DoubleSpinBox* c_pitch_alpha_rate_;
+  tobas::qt::DoubleSpinBox* c_pitch_q_;
+  tobas::qt::DoubleSpinBox* c_yaw_beta_;
+  tobas::qt::DoubleSpinBox* c_yaw_p_;
+  tobas::qt::DoubleSpinBox* c_yaw_r_;
 };
 }  // namespace fw
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

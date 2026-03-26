@@ -2,6 +2,8 @@
 
 #include "tobas_urdf_builder_plugin/utils/urdf_clone.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace ub
@@ -149,3 +151,4 @@ void LinkViewModel::remove(const CollisionViewModelPtr& collision)
 }  // namespace view_model
 }  // namespace ub
 }  // namespace gui
+}  // namespace tobas
