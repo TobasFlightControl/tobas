@@ -636,7 +636,7 @@ ErrorStateKalmanFilter::quatRotationDerivative(const StateVector& x, const Eigen
 
 Eigen::RowVector4d ErrorStateKalmanFilter::hamiltonToYawOutputMatrix(const StateVector& x) const
 {
-  // cf. Ekf::fuseYaw321: https://github.com/PX4/PX4-ECL/blob/master/EKF/mag_fusion.cpp#L420
+  // cf. Ekf::fuseYaw321: https://github.com/PX4/PX4-ECL/blob/46dd05a9159817035dab6acebc33f8a3da69d3a7/EKF/mag_fusion.cpp#L420
 
   constexpr double kEpsilon = 1e-6;
 
