@@ -8,6 +8,8 @@
 
 using namespace std::chrono_literals;
 
+namespace tobas
+{
 class TreeServerNode : public tobas::BaseNode
 {
   using self = TreeServerNode;
@@ -67,5 +69,6 @@ void TreeServerNode::descriptionCb(const std_msgs::msg::String::ConstSharedPtr& 
 
   publishTree();
 }
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(TreeServerNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::TreeServerNode)

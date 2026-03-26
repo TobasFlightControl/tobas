@@ -7,6 +7,8 @@
 #include <tobas_msgs_adapter/imu.hpp>
 #include <tobas_msgs_adapter/vibration_level.hpp>
 
+namespace tobas
+{
 class VibrationFilterNode : public tobas::BaseNode
 {
   using self = VibrationFilterNode;
@@ -67,5 +69,6 @@ void VibrationFilterNode::imuCb(const tobas_msgs::Imu::ConstSharedPtr& imu)
   vibe->data = acc_vibe_rms;
   vibe_pub_->publish(std::move(vibe));
 }
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(VibrationFilterNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::VibrationFilterNode)

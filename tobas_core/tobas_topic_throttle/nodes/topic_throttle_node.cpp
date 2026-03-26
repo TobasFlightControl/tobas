@@ -18,6 +18,8 @@
 
 using namespace std::chrono_literals;
 
+namespace tobas
+{
 template <typename MsgType>
 class TopicThrottle
 {
@@ -109,5 +111,6 @@ void TopicThrottleNode::initialize()
 
   initialize_timer_->cancel();
 }
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(TopicThrottleNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::TopicThrottleNode)

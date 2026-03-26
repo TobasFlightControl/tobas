@@ -10,6 +10,8 @@
 
 using namespace std::chrono_literals;
 
+namespace tobas
+{
 class RotorAnomalyDetectorNode : public tobas::BaseNode
 {
   using self = RotorAnomalyDetectorNode;
@@ -138,5 +140,6 @@ void RotorAnomalyDetectorNode::statesCb(const tobas_msgs::msg::RotorStateArray::
     }
   }
 }
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(RotorAnomalyDetectorNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::RotorAnomalyDetectorNode)

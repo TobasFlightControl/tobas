@@ -16,6 +16,8 @@
 
 using namespace std::chrono_literals;
 
+namespace tobas
+{
 /* 推進系の目標推力を実現する． */
 class RotorControllerNode : public tobas::BaseNode
 {
@@ -309,5 +311,6 @@ void RotorControllerNode::autoDisarmAfterCmdTimerCb()
     kAutoDisarmAfterCmdTimeout,
     " have elapsed since the last command.");
 }
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(RotorControllerNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::RotorControllerNode)

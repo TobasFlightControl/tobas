@@ -47,6 +47,8 @@
 using namespace std::chrono_literals;
 namespace fs = std::filesystem;
 
+namespace tobas
+{
 class RosbagRecorderNode : public tobas::BaseNode
 {
   using self = RosbagRecorderNode;
@@ -394,5 +396,6 @@ void RosbagRecorderNode::mainTimerCb()
 {
   publishRosbagState();
 }
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(RosbagRecorderNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::RosbagRecorderNode)
