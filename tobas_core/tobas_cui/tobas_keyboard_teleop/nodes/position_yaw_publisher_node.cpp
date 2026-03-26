@@ -84,7 +84,7 @@ int main(int argc, char** argv)
   auto cmd_yaw = init_pose.value().M.getYaw();
 
   // 1度のキーボード入力での目標値の変化量を計算
-  const auto repeat_interval_ms = keyboard::getKeyboardRepeatInterval();
+  const auto repeat_interval_ms = tobas::keyboard::getKeyboardRepeatInterval();
   if (!repeat_interval_ms) {
     RCLCPP_ERROR(node->get_logger(), repeat_interval_ms.error());
     return EXIT_FAILURE;
@@ -100,7 +100,7 @@ int main(int argc, char** argv)
   const tbs::Range<double> yaw_limit(-M_PI, M_PI);
 
   // キーボードリーダを作成
-  keyboard::KeyboardReader key_reader;
+  tobas::keyboard::KeyboardReader key_reader;
 
   // コマンドパブリッシャーを登録
   const auto cmd_pub = ros2::createPublisher<tobas_command_msgs::PosVelAccYaw>(node, tobas::topic::kPosVelAccYawCmd);
@@ -149,25 +149,25 @@ int main(int argc, char** argv)
         RCLCPP_INFO_STREAM(node->get_logger(), "[Moving right] pos[m]: " << cmd_pos << ", yaw[rad]: " << cmd_yaw);
         break;
       }
-      case keyboard::UP:  // Z+
+      case tobas::keyboard::UP:  // Z+
       {
         cmd_pos.z(z_limit.clamp(cmd_pos.z() + delta_pos));
         RCLCPP_INFO_STREAM(node->get_logger(), "[Moving up] pos[m]: " << cmd_pos << ", yaw[rad]: " << cmd_yaw);
         break;
       }
-      case keyboard::DOWN:  // Z-
+      case tobas::keyboard::DOWN:  // Z-
       {
         cmd_pos.z(z_limit.clamp(cmd_pos.z() - delta_pos));
         RCLCPP_INFO_STREAM(node->get_logger(), "[Moving down] pos[m]: " << cmd_pos << ", yaw[rad]: " << cmd_yaw);
         break;
       }
-      case keyboard::LEFT:  // Yaw+
+      case tobas::keyboard::LEFT:  // Yaw+
       {
         cmd_yaw = yaw_limit.clamp(cmd_yaw + delta_rot);
         RCLCPP_INFO_STREAM(node->get_logger(), "[Rotating left] pos[m]: " << cmd_pos << ", yaw[rad]: " << cmd_yaw);
         break;
       }
-      case keyboard::RIGHT:  // Yaw-
+      case tobas::keyboard::RIGHT:  // Yaw-
       {
         cmd_yaw = yaw_limit.clamp(cmd_yaw - delta_rot);
         RCLCPP_INFO_STREAM(node->get_logger(), "[Rotating right] pos[m]: " << cmd_pos << ", yaw[rad]: " << cmd_yaw);
