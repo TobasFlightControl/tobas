@@ -20,6 +20,8 @@
 
 using namespace std::chrono_literals;
 
+namespace tobas
+{
 class HealthMonitorNode : public tobas::BaseNode
 {
   static constexpr auto kMainTimerPeriod = 100ms;
@@ -606,5 +608,6 @@ void HealthMonitorNode::mainTimerCb()
 
   health_pub_->publish(std::move(health));
 }
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(HealthMonitorNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::HealthMonitorNode)

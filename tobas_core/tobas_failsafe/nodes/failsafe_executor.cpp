@@ -11,6 +11,8 @@
 #include <tobas_msgs/srv/set_arm.hpp>
 #include <tobas_msgs_adapter/rc_input.hpp>
 
+namespace tobas
+{
 class FailsafeExecutorNode : public tobas::BaseNode
 {
   using self = FailsafeExecutorNode;
@@ -260,5 +262,6 @@ void FailsafeExecutorNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& 
 {
   is_manual_ctrl_enabled_ = (rcin->ok && rcin->enable);
 }
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(FailsafeExecutorNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::FailsafeExecutorNode)
