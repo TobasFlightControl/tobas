@@ -19,14 +19,14 @@ IntGetter::IntGetter(const QString& name)
   setLayout(cols);
 
   const auto label = new QLabel(name + ":");
-  label->setFont(tobas::qt::DefaultFont(cmn::kBodyPSize));
+  label->setFont(qt::DefaultFont(cmn::kBodyPSize));
   cols->addWidget(label);
 
-  data_ = new tobas::qt::SpinBox();
+  data_ = new qt::SpinBox();
   data_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
   cols->addWidget(data_);
 
-  connect(data_, QOverload<int>::of(&tobas::qt::SpinBox::valueChanged), this, &self::onValueChanged);
+  connect(data_, QOverload<int>::of(&qt::SpinBox::valueChanged), this, &self::onValueChanged);
 }
 
 int IntGetter::getValue() const

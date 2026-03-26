@@ -30,7 +30,7 @@ private:
   QVector<QRadioButton*> buttons_;
   QVector<BaseWorldWidget*> widgets_;
 
-  void addRow(tobas::qt::FormLayout* form, QButtonGroup* btn_group, BaseWorldWidget* widget, const QString& label);
+  void addRow(qt::FormLayout* form, QButtonGroup* btn_group, BaseWorldWidget* widget, const QString& label);
 
   void updateEnabled();
 

@@ -65,7 +65,7 @@ ParamGetterWidget_DoubleTable::ParamGetterWidget_DoubleTable(
 
   cols->addStretch();  // ボタンを左詰めにする
 
-  table_ = new tobas::qt::TableWidget(0, num_entry_);
+  table_ = new qt::TableWidget(0, num_entry_);
   table_->verticalHeader()->setVisible(true);  // 行番号を表示
   table_->setHorizontalHeaderLabels(labels);
   rows_->addWidget(table_);
@@ -73,7 +73,7 @@ ParamGetterWidget_DoubleTable::ParamGetterWidget_DoubleTable(
   // Connection
   connect(add_row_btn, &QPushButton::clicked, this, &self::addRow);
   connect(delete_row_btn, &QPushButton::clicked, this, &self::deleteRow);
-  connect(clear_btn, &QPushButton::clicked, table_, &tobas::qt::TableWidget::removeAll);
+  connect(clear_btn, &QPushButton::clicked, table_, &qt::TableWidget::removeAll);
   connect(load_csv_btn, &QPushButton::clicked, this, &self::loadCsv);
 }
 
@@ -84,7 +84,7 @@ Eigen::MatrixXd ParamGetterWidget_DoubleTable::getValue() const
   Eigen::MatrixXd res(rows, num_entry_);
   for (int row = 0; row < rows; ++row) {
     for (int col = 0; col < num_entry_; ++col) {
-      const auto cell = tobas::qt::qConstPointerCast<tobas::qt::DoubleSpinBox>(table_->cellWidget(row, col));
+      const auto cell = qt::qConstPointerCast<qt::DoubleSpinBox>(table_->cellWidget(row, col));
       res(row, col) = cell->value();
     }
   }
@@ -103,7 +103,7 @@ bool ParamGetterWidget_DoubleTable::setValue(const Eigen::MatrixXd& src)
   for (int row = 0; row < src.rows(); ++row) {
     addRow();
     for (int col = 0; col < src.cols(); ++col) {
-      const auto cell = tobas::qt::qPointerCast<tobas::qt::DoubleSpinBox>(table_->cellWidget(row, col));
+      const auto cell = qt::qPointerCast<qt::DoubleSpinBox>(table_->cellWidget(row, col));
       cell->setValue(src(row, col));
     }
   }
@@ -111,7 +111,7 @@ bool ParamGetterWidget_DoubleTable::setValue(const Eigen::MatrixXd& src)
   return true;
 }
 
-tobas::qt::TableWidget* ParamGetterWidget_DoubleTable::table()
+qt::TableWidget* ParamGetterWidget_DoubleTable::table()
 {
   return table_;
 }
@@ -151,13 +151,13 @@ void ParamGetterWidget_DoubleTable::addRow()
   table_->insertRow(rows);
 
   for (int col = 0; col < num_entry_; ++col) {
-    const auto cell = new tobas::qt::DoubleSpinBox();
+    const auto cell = new qt::DoubleSpinBox();
     cell->setButtonSymbols(QAbstractSpinBox::NoButtons);  // 増減ボタンを削除
     cell->setMinimum(minimum_[col]);
     cell->setMaximum(maximum_[col]);
     cell->setValue(default_[col]);
     cell->setDecimals(decimals_[col]);
-    connect(cell, QOverload<double>::of(&tobas::qt::DoubleSpinBox::valueChanged), this, &self::onCellValueChanged);
+    connect(cell, QOverload<double>::of(&qt::DoubleSpinBox::valueChanged), this, &self::onCellValueChanged);
     table_->setCellWidget(rows, col, cell);
   }
 }
@@ -187,7 +187,7 @@ void ParamGetterWidget_DoubleTable::loadCsv()
   for (int i = 0; i < num_entry_; ++i) {
     const auto& label = labels_.at(i);
     if (!csv::getColumn(doc, label.toStdString(), columns[i])) {
-      tobas::qt::qErrorBox(this, "Failed to get column: " + label);
+      qt::qErrorBox(this, "Failed to get column: " + label);
       return;
     }
   }
@@ -197,7 +197,7 @@ void ParamGetterWidget_DoubleTable::loadCsv()
   Eigen::MatrixXd data_array(num_data, num_entry_);
   for (int col = 0; col < num_entry_; ++col) {
     if (columns.at(col).size() != num_data) {
-      tobas::qt::qErrorBox(this, "Data size mismatch.");
+      qt::qErrorBox(this, "Data size mismatch.");
       return;
     }
     for (size_t row = 0; row < num_data; ++row) {
@@ -210,7 +210,7 @@ void ParamGetterWidget_DoubleTable::loadCsv()
     return;
   }
 
-  tobas::qt::qInfoBox(this, "Data is loaded successfully.");
+  qt::qInfoBox(this, "Data is loaded successfully.");
 }
 
 void ParamGetterWidget_DoubleTable::onCellValueChanged()
@@ -241,14 +241,14 @@ QString ParamGetterWidget_DoubleTable::getCsvPath()
 bool ParamGetterWidget_DoubleTable::isValidData(const Eigen::MatrixXd& src)
 {
   if (src.cols() != num_entry_) {
-    tobas::qt::qErrorBox(this, "Column size mismatch.");
+    qt::qErrorBox(this, "Column size mismatch.");
     return false;
   }
 
   for (int col = 0; col < num_entry_; ++col) {
     const auto column = src.col(col).array().eval();
     if ((column < minimum_.at(col)).any() || (maximum_.at(col) < column).any()) {
-      tobas::qt::qErrorBox(this, "Some values of field \"" + labels_.at(col) + "\" are out of limits.");
+      qt::qErrorBox(this, "Some values of field \"" + labels_.at(col) + "\" are out of limits.");
       return false;
     }
   }

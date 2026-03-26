@@ -15,12 +15,12 @@ namespace propulsion
 {
 namespace electric
 {
-class PropulsionUnitsWidget : public tobas::qt::TabWidget
+class PropulsionUnitsWidget : public qt::TabWidget
 {
   Q_OBJECT
 
   using self = PropulsionUnitsWidget;
-  using super = tobas::qt::TabWidget;
+  using super = qt::TabWidget;
 
   static constexpr int kTabWidth = 150;
   static constexpr int kTabHeight = 50;

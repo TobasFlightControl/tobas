@@ -27,7 +27,7 @@ ControllerWidget::ControllerWidget()
 {
   dont_use_builtin_ctrl_ = new QCheckBox("Do not use the built-in controller");
 
-  stack_ = new tobas::qt::StackedWidget();
+  stack_ = new qt::StackedWidget();
 
   stack_->addWidget(new CustomFrameWidget());
   stack_->addWidget(new PlanarMulticopterWidget());
@@ -132,17 +132,17 @@ QString ControllerWidget::pluginName() const
   return selected()->pluginName();
 }
 
-tobas::RcCommand ControllerWidget::acrobatModeCommand() const
+RcCommand ControllerWidget::acrobatModeCommand() const
 {
   return selected()->acrobatModeCommand();
 }
 
-tobas::RcCommand ControllerWidget::stabilizeModeCommand() const
+RcCommand ControllerWidget::stabilizeModeCommand() const
 {
   return selected()->stabilizeModeCommand();
 }
 
-tobas::RcCommand ControllerWidget::loiterModeCommand() const
+RcCommand ControllerWidget::loiterModeCommand() const
 {
   return selected()->loiterModeCommand();
 }
@@ -154,22 +154,22 @@ YAML::Node ControllerWidget::staticParams() const
 
 BaseControllerWidget* ControllerWidget::widget(int index)
 {
-  return tobas::qt::qPointerCast<BaseControllerWidget>(stack_->widget(index));
+  return qt::qPointerCast<BaseControllerWidget>(stack_->widget(index));
 }
 
 const BaseControllerWidget* ControllerWidget::widget(int index) const
 {
-  return tobas::qt::qConstPointerCast<BaseControllerWidget>(stack_->widget(index));
+  return qt::qConstPointerCast<BaseControllerWidget>(stack_->widget(index));
 }
 
 BaseControllerWidget* ControllerWidget::selected()
 {
-  return tobas::qt::qPointerCast<BaseControllerWidget>(stack_->currentWidget());
+  return qt::qPointerCast<BaseControllerWidget>(stack_->currentWidget());
 }
 
 const BaseControllerWidget* ControllerWidget::selected() const
 {
-  return tobas::qt::qConstPointerCast<BaseControllerWidget>(stack_->currentWidget());
+  return qt::qConstPointerCast<BaseControllerWidget>(stack_->currentWidget());
 }
 
 void ControllerWidget::showCtrlWidgetWithFrameType(const FrameType& type)

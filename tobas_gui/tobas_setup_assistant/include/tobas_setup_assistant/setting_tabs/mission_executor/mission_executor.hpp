@@ -46,7 +46,7 @@ public:
   YAML::Node staticParams() const;
 
 private:
-  tobas::qt::StackedWidget* stack_;
+  qt::StackedWidget* stack_;
 
   NoneWidget* none_;
   MulticopterWidget* multicopter_;

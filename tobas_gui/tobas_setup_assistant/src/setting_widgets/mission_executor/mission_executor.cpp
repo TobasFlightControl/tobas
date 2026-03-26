@@ -23,7 +23,7 @@ namespace mission
 {
 MissionExecutorWidget::MissionExecutorWidget()
 {
-  stack_ = new tobas::qt::StackedWidget();
+  stack_ = new qt::StackedWidget();
 
   none_ = new NoneWidget();
   multicopter_ = new MulticopterWidget();
@@ -89,7 +89,7 @@ void MissionExecutorWidget::setFrameType(const FrameType& type)
     stack_->setCurrentWidget(multicopter_);
   }
   else {
-    tobas::qt::qWarnBox(this, "The Mission Planner does not support this frame type.");
+    qt::qWarnBox(this, "The Mission Planner does not support this frame type.");
     stack_->setCurrentWidget(none_);
   }
 }
@@ -111,22 +111,22 @@ YAML::Node MissionExecutorWidget::staticParams() const
 
 BaseExecutorWidget* MissionExecutorWidget::widget(int index)
 {
-  return tobas::qt::qPointerCast<BaseExecutorWidget>(stack_->widget(index));
+  return qt::qPointerCast<BaseExecutorWidget>(stack_->widget(index));
 }
 
 const BaseExecutorWidget* MissionExecutorWidget::widget(int index) const
 {
-  return tobas::qt::qConstPointerCast<BaseExecutorWidget>(stack_->widget(index));
+  return qt::qConstPointerCast<BaseExecutorWidget>(stack_->widget(index));
 }
 
 BaseExecutorWidget* MissionExecutorWidget::selected()
 {
-  return tobas::qt::qPointerCast<BaseExecutorWidget>(stack_->currentWidget());
+  return qt::qPointerCast<BaseExecutorWidget>(stack_->currentWidget());
 }
 
 const BaseExecutorWidget* MissionExecutorWidget::selected() const
 {
-  return tobas::qt::qConstPointerCast<BaseExecutorWidget>(stack_->currentWidget());
+  return qt::qConstPointerCast<BaseExecutorWidget>(stack_->currentWidget());
 }
 }  // namespace mission
 }  // namespace sa

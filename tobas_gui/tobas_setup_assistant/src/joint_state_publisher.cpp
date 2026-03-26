@@ -20,7 +20,7 @@ JointStatePublisherWidget::JointStatePublisherWidget(rclcpp::Node::SharedPtr nod
 {
   slider_rows_ = new QVBoxLayout();
 
-  const auto scroll_area = new tobas::qt::ScrollArea();
+  const auto scroll_area = new qt::ScrollArea();
   scroll_area->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
   scroll_area->setLayout(slider_rows_);
 
@@ -61,7 +61,7 @@ void JointStatePublisherWidget::updateInternalDataStructures()
   js_.name.clear();
   js_.position.clear();
   sliders_.clear();
-  tobas::qt::clearLayout(slider_rows_);
+  qt::clearLayout(slider_rows_);
 
   for (const auto& [_, elem] : tree_.getSegments()) {
     const auto& joint = elem.segment.joint();
@@ -72,7 +72,7 @@ void JointStatePublisherWidget::updateInternalDataStructures()
     js_.name.push_back(joint.name);
     js_.position.push_back(0.);
 
-    const auto slider = new tobas::qt::DoubleSliderDisplay();
+    const auto slider = new qt::DoubleSliderDisplay();
     slider->setText(QString::fromStdString(joint.name));
 
     auto lower_limit = joint.lower_limit;
@@ -88,7 +88,7 @@ void JointStatePublisherWidget::updateInternalDataStructures()
 
     connect(
       slider,
-      &tobas::qt::DoubleSliderDisplay::valueChanged,
+      &qt::DoubleSliderDisplay::valueChanged,
       this,
       std::bind(&self::onValueChanged, this, std::placeholders::_1, joint.name));
 

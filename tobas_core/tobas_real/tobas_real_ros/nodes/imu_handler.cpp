@@ -75,7 +75,7 @@ ImuHandlerNode::ImuHandlerNode(const rclcpp::NodeOptions& options)
 {
   TOBAS_CHECK(gyro_lpf_.setCutoffFrequency(kGyroLpfCutoff));
 
-  const auto cfg_dir = linux::isSuperUser() ? fs::path(tobas::kConfigDirRoot) : ros2::expandUser(tobas::kConfigDirHome);
+  const auto cfg_dir = linux::isSuperUser() ? fs::path(kConfigDirRoot) : ros2::expandUser(kConfigDirHome);
   if (!pt_.initialize((cfg_dir / kConfigFileName))) {
     TOBAS_ERROR("Failed to initialize property tree. This node will not work.");
     return;
@@ -139,8 +139,8 @@ void ImuHandlerNode::imuRawCb(const tobas_msgs::Imu::ConstSharedPtr& imu_raw_in)
       const auto& gyro_filt = gyro_lpf_.getValue();
 
       // 角速度が大きすぎる場合は機体が運動しているとみなしてやり直し
-      if (gyro_filt.norm() > tobas::kStaticGyroThresh) {
-        TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Motion was detected while measuring the gyro bias. Retrying...");
+      if (gyro_filt.norm() > kStaticGyroThresh) {
+        TOBAS_WARN_THROTTLE(kTypicalWarnPeriod, "Motion was detected while measuring the gyro bias. Retrying...");
         gyro_bias_cnt_ = 0;
         for (auto& sum : gyro_sum_) {
           sum.reset();

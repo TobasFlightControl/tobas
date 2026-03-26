@@ -25,7 +25,7 @@ public:
   Command selectedCommand() const;
 
 private:
-  tobas::qt::ListWidget* command_list_;
+  qt::ListWidget* command_list_;
   Command selected_command_;
 
 private Q_SLOTS:

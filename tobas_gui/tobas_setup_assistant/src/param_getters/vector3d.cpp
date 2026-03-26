@@ -11,9 +11,9 @@ namespace sa
 ParamGetterWidget_Vector3d::ParamGetterWidget_Vector3d(const QString& param_name, const QString& description_text)
   : super(param_name, description_text)
 {
-  vector3d_ = new tobas::qt::Vector3dEditHorizontal();
+  vector3d_ = new qt::Vector3dEditHorizontal();
   rows_->addWidget(vector3d_);
-  connect(vector3d_, &tobas::qt::Vector3dEditHorizontal::valueChanged, this, &self::onValueChanged);
+  connect(vector3d_, &qt::Vector3dEditHorizontal::valueChanged, this, &self::onValueChanged);
 }
 
 Eigen::Vector3d ParamGetterWidget_Vector3d::getValue() const

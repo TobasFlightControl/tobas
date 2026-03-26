@@ -32,7 +32,7 @@ public:
 private:
   const QDir dir_;
 
-  tobas::qt::ComboBox* device_names_;
+  qt::ComboBox* device_names_;
 
   QTimer scan_timer_;
 

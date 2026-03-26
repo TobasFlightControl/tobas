@@ -84,5 +84,5 @@ void GazeboLookAtPositionPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 GZ_ADD_PLUGIN(
   tobas::gazebo::GazeboLookAtPositionPlugin,
   gz::sim::System,
-  tobas::gazebo::GazeboLookAtPositionPlugin::ISystemConfigure,
-  tobas::gazebo::GazeboLookAtPositionPlugin::ISystemPostUpdate)
+  gz::sim::ISystemConfigure,
+  gz::sim::ISystemPostUpdate)

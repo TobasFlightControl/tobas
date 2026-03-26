@@ -30,8 +30,8 @@ public:
   void reset();
 
 private:
-  tobas::qt::HPositionBarWidget* temp_;
-  tobas::qt::HPositionBarWidget* load_;
+  qt::HPositionBarWidget* temp_;
+  qt::HPositionBarWidget* load_;
 
 private Q_SLOTS:
   void cpuCb(const tobas_msgs::msg::Cpu::ConstSharedPtr& cpu);

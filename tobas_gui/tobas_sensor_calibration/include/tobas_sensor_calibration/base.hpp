@@ -11,7 +11,7 @@ namespace gui
 {
 namespace sc
 {
-class BaseWidget : public tobas::qt::Widget
+class BaseWidget : public qt::Widget
 {
   Q_OBJECT
 

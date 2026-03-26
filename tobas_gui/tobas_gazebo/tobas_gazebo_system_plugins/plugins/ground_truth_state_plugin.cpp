@@ -131,5 +131,5 @@ void GazeboGroundTruthStatePlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 GZ_ADD_PLUGIN(
   tobas::gazebo::GazeboGroundTruthStatePlugin,
   gz::sim::System,
-  tobas::gazebo::GazeboGroundTruthStatePlugin::ISystemConfigure,
-  tobas::gazebo::GazeboGroundTruthStatePlugin::ISystemPostUpdate)
+  gz::sim::ISystemConfigure,
+  gz::sim::ISystemPostUpdate)

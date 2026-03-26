@@ -379,5 +379,5 @@ void GazeboSuspendedLoadPlugin::detachLoadCb(
 GZ_ADD_PLUGIN(
   tobas::gazebo::GazeboSuspendedLoadPlugin,
   gz::sim::System,
-  tobas::gazebo::GazeboSuspendedLoadPlugin::ISystemConfigure,
-  tobas::gazebo::GazeboSuspendedLoadPlugin::ISystemPreUpdate)
+  gz::sim::ISystemConfigure,
+  gz::sim::ISystemPreUpdate)

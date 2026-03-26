@@ -20,11 +20,11 @@ namespace ctrl
 {
 CustomFrameWidget::CustomFrameWidget()
 {
-  TOBAS_CHECK(command_map_.size() == magic_enum::enum_count<tobas::RcCommand>());
+  TOBAS_CHECK(command_map_.size() == magic_enum::enum_count<RcCommand>());
 
-  acrobat_mode_ = new tobas::qt::ComboBox();
-  stabilize_mode_ = new tobas::qt::ComboBox();
-  loiter_mode_ = new tobas::qt::ComboBox();
+  acrobat_mode_ = new qt::ComboBox();
+  stabilize_mode_ = new qt::ComboBox();
+  loiter_mode_ = new qt::ComboBox();
 
   // Add command choices
   for (const auto& [text, _] : command_map_) {
@@ -39,13 +39,13 @@ CustomFrameWidget::CustomFrameWidget()
   loiter_mode_->setCurrentText(kPosVelAccYawLabel);
 
   // Layout
-  const auto form = new tobas::qt::FormLayout();
+  const auto form = new qt::FormLayout();
   form->addRow(kAcrobatLabel, acrobat_mode_);
   form->addRow(kStabilizeLabel, stabilize_mode_);
   form->addRow(kLoiterLabel, loiter_mode_);
 
   const auto rows = new QVBoxLayout();
-  rows->addWidget(new tobas::qt::Label("RC Command", cmn::kLabelPSize, QFont::Bold));
+  rows->addWidget(new qt::Label("RC Command", cmn::kLabelPSize, QFont::Bold));
   rows->addLayout(form);
   rows->addStretch();
 
@@ -64,20 +64,20 @@ QString CustomFrameWidget::controllerPackage() const
 
 QString CustomFrameWidget::pluginName() const
 {
-  return "tobas::DummyNode";
+  return "DummyNode";
 }
 
-tobas::RcCommand CustomFrameWidget::acrobatModeCommand() const
+RcCommand CustomFrameWidget::acrobatModeCommand() const
 {
   return command_map_.at(acrobat_mode_->currentText());
 }
 
-tobas::RcCommand CustomFrameWidget::stabilizeModeCommand() const
+RcCommand CustomFrameWidget::stabilizeModeCommand() const
 {
   return command_map_.at(stabilize_mode_->currentText());
 }
 
-tobas::RcCommand CustomFrameWidget::loiterModeCommand() const
+RcCommand CustomFrameWidget::loiterModeCommand() const
 {
   return command_map_.at(loiter_mode_->currentText());
 }

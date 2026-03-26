@@ -30,22 +30,22 @@ QString FixedWingWidget::controllerPackage() const
 
 QString FixedWingWidget::pluginName() const
 {
-  return "tobas::fixed_wing::ControllerNode";
+  return "fixed_wing::ControllerNode";
 }
 
-tobas::RcCommand FixedWingWidget::acrobatModeCommand() const
+RcCommand FixedWingWidget::acrobatModeCommand() const
 {
-  return tobas::RcCommand::kSpeedRollDPitch;  // TODO
+  return RcCommand::kSpeedRollDPitch;  // TODO
 }
 
-tobas::RcCommand FixedWingWidget::stabilizeModeCommand() const
+RcCommand FixedWingWidget::stabilizeModeCommand() const
 {
-  return tobas::RcCommand::kSpeedRollDPitch;  // TODO
+  return RcCommand::kSpeedRollDPitch;  // TODO
 }
 
-tobas::RcCommand FixedWingWidget::loiterModeCommand() const
+RcCommand FixedWingWidget::loiterModeCommand() const
 {
-  return tobas::RcCommand::kSpeedRollDPitch;  // TODO
+  return RcCommand::kSpeedRollDPitch;  // TODO
 }
 
 YAML::Node FixedWingWidget::staticParams() const

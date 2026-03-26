@@ -16,7 +16,7 @@ WorldWidget_Standard::WorldWidget_Standard()
   const auto cols = new QHBoxLayout();
   setLayout(cols);
 
-  combo_box_ = new tobas::qt::ComboBox();
+  combo_box_ = new qt::ComboBox();
   combo_box_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
   cols->addWidget(combo_box_);
 

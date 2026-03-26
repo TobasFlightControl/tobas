@@ -9,10 +9,7 @@ namespace gui
 {
 namespace ctrl
 {
-ControlSystemWidget::ControlSystemWidget(
-  rclcpp::Node::SharedPtr node,
-  const RosQtBridge& bridge,
-  const tobas::Drone& drone)
+ControlSystemWidget::ControlSystemWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge, const Drone& drone)
   : drone_(drone)
 {
   // Components

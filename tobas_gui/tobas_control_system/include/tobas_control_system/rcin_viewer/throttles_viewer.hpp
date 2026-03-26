@@ -30,10 +30,10 @@ public:
   void reset();
 
 private:
-  tobas::qt::HPositionBarWidget* roll_range_;
-  tobas::qt::VPositionBarWidget* pitch_range_;
-  tobas::qt::HPositionBarWidget* yaw_range_;
-  tobas::qt::VPositionBarWidget* throt_range_;
+  qt::HPositionBarWidget* roll_range_;
+  qt::VPositionBarWidget* pitch_range_;
+  qt::HPositionBarWidget* yaw_range_;
+  qt::VPositionBarWidget* throt_range_;
 
 private Q_SLOTS:
   void rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin);

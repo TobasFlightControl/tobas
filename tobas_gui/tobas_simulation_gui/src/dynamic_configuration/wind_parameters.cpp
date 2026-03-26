@@ -22,16 +22,16 @@ namespace sim
 {
 WindParamsWidget::WindParamsWidget(rclcpp::Node::SharedPtr node) : node_(node)
 {
-  const auto title = new tobas::qt::Label("Wind Parameters", cmn::kLabelPSize, QFont::Bold);
+  const auto title = new qt::Label("Wind Parameters", cmn::kLabelPSize, QFont::Bold);
 
   reset_button_ = new QPushButton("Reset");
   reset_button_->setFixedSize(kHeaderButtonWidth, kHeaderButtonHeight);
 
-  mean_speed_ = new tobas::qt::DoubleSliderTextWidget(0., 20., 1);
-  direction_ = new tobas::qt::IntSliderTextWidget(-180, 180);
-  gust_speed_factor_ = new tobas::qt::DoubleSliderTextWidget(0., 10., 1);
-  gust_duration_ = new tobas::qt::DoubleSliderTextWidget(0., 10., 1);
-  gust_interval_ = new tobas::qt::DoubleSliderTextWidget(0., 30., 1);
+  mean_speed_ = new qt::DoubleSliderTextWidget(0., 20., 1);
+  direction_ = new qt::IntSliderTextWidget(-180, 180);
+  gust_speed_factor_ = new qt::DoubleSliderTextWidget(0., 10., 1);
+  gust_duration_ = new qt::DoubleSliderTextWidget(0., 10., 1);
+  gust_interval_ = new qt::DoubleSliderTextWidget(0., 30., 1);
 
   reset();
 
@@ -41,7 +41,7 @@ WindParamsWidget::WindParamsWidget(rclcpp::Node::SharedPtr node) : node_(node)
   header_cols->addStretch();
   header_cols->addWidget(reset_button_);
 
-  const auto form = new tobas::qt::FormLayout();
+  const auto form = new qt::FormLayout();
   form->addVAlignedRow("Mean Speed [m/s]", mean_speed_);
   form->addVAlignedRow("Direction [deg]", direction_);
   form->addVAlignedRow("Gust Speed Factor [-]", gust_speed_factor_);
@@ -56,17 +56,17 @@ WindParamsWidget::WindParamsWidget(rclcpp::Node::SharedPtr node) : node_(node)
 
   // Connection
   connect(reset_button_, &QPushButton::clicked, this, &self::onResetButtonClicked);
-  connect(mean_speed_, &tobas::qt::DoubleSliderTextWidget::valueChanged, this, &self::onValueChanged);
-  connect(direction_, &tobas::qt::IntSliderTextWidget::valueChanged, this, &self::onValueChanged);
-  connect(gust_speed_factor_, &tobas::qt::DoubleSliderTextWidget::valueChanged, this, &self::onValueChanged);
-  connect(gust_duration_, &tobas::qt::DoubleSliderTextWidget::valueChanged, this, &self::onValueChanged);
-  connect(gust_interval_, &tobas::qt::DoubleSliderTextWidget::valueChanged, this, &self::onValueChanged);
+  connect(mean_speed_, &qt::DoubleSliderTextWidget::valueChanged, this, &self::onValueChanged);
+  connect(direction_, &qt::IntSliderTextWidget::valueChanged, this, &self::onValueChanged);
+  connect(gust_speed_factor_, &qt::DoubleSliderTextWidget::valueChanged, this, &self::onValueChanged);
+  connect(gust_duration_, &qt::DoubleSliderTextWidget::valueChanged, this, &self::onValueChanged);
+  connect(gust_interval_, &qt::DoubleSliderTextWidget::valueChanged, this, &self::onValueChanged);
 }
 
 void WindParamsWidget::updateNamespace(const std::string& ns)
 {
-  get_sc_ = std::make_shared<ros2::SyncServiceClient<GetSrv>>(node_, path::join(ns, tobas::gazebo::kGetWindParamsSrv));
-  set_sc_ = std::make_shared<ros2::SyncServiceClient<SetSrv>>(node_, path::join(ns, tobas::gazebo::kSetWindParamsSrv));
+  get_sc_ = std::make_shared<ros2::SyncServiceClient<GetSrv>>(node_, path::join(ns, gazebo::kGetWindParamsSrv));
+  set_sc_ = std::make_shared<ros2::SyncServiceClient<SetSrv>>(node_, path::join(ns, gazebo::kSetWindParamsSrv));
 }
 
 bool WindParamsWidget::start()
@@ -75,23 +75,23 @@ bool WindParamsWidget::start()
   bool success = true;
   QString message;
 
-  tobas::qt::startThreadAndWait(
+  qt::startThreadAndWait(
     [&]()
     {
       if (!get_sc_->waitForService()) {
         success = false;
-        message = "Failed to connect to \"" + QString(tobas::gazebo::kGetWindParamsSrv) + "\" service server.";
+        message = "Failed to connect to \"" + QString(gazebo::kGetWindParamsSrv) + "\" service server.";
         return;
       }
       if (!set_sc_->waitForService()) {
         success = false;
-        message = "Failed to connect to \"" + QString(tobas::gazebo::kSetWindParamsSrv) + "\" service server.";
+        message = "Failed to connect to \"" + QString(gazebo::kSetWindParamsSrv) + "\" service server.";
         return;
       }
     });
 
   if (!success) {
-    tobas::qt::qErrorBox(this, message);
+    qt::qErrorBox(this, message);
     return false;
   }
 
@@ -179,7 +179,7 @@ bool WindParamsWidget::loadSimParams()
   const auto get_req = std::make_shared<GetSrv::Request>();
 
   if (!get_sc_->call(get_req, kServiceCallTimeout)) {
-    tobas::qt::qErrorBox(this, "Failed to call \"" + QString(tobas::gazebo::kGetWindParamsSrv) + "\" service.");
+    qt::qErrorBox(this, "Failed to call \"" + QString(gazebo::kGetWindParamsSrv) + "\" service.");
     return false;
   }
 
@@ -205,13 +205,13 @@ bool WindParamsWidget::sendGuiParams()
   set_req->params.gust_interval = getGustInterval();
 
   if (!set_sc_->call(set_req, kServiceCallTimeout)) {
-    tobas::qt::qErrorBox(this, "Failed to call \"" + QString(tobas::gazebo::kSetWindParamsSrv) + "\" service.");
+    qt::qErrorBox(this, "Failed to call \"" + QString(gazebo::kSetWindParamsSrv) + "\" service.");
     return false;
   }
 
   const auto set_res = set_sc_->getResponse();
   if (!set_res->success) {
-    tobas::qt::qErrorBox(this, "Failed to set wind parameters.");
+    qt::qErrorBox(this, "Failed to set wind parameters.");
     return false;
   }
 

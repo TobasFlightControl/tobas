@@ -10,12 +10,12 @@ namespace gui
 {
 namespace ctrl
 {
-class PoseViewerWidget : public tobas::qt::Widget
+class PoseViewerWidget : public qt::Widget
 {
   Q_OBJECT
 
   using self = PoseViewerWidget;
-  using super = tobas::qt::Widget;
+  using super = qt::Widget;
 
   static constexpr int kOriginalSize = 640;
   static constexpr int kLineWidth = 3;       // ゲージ線の幅

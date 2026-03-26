@@ -24,10 +24,10 @@ namespace bm
 {
 MediaManagerWidget::MediaManagerWidget()
 {
-  media_name_ = new tobas::qt::ComboBox();
+  media_name_ = new qt::ComboBox();
   media_name_->setFixedWidth(kMediaNameWidth);
 
-  connect_btn_ = new tobas::qt::ToggleButton("Connect", "Disconnect");
+  connect_btn_ = new qt::ToggleButton("Connect", "Disconnect");
   connect_btn_->setFixedWidth(kConnectButtonWidth);
   connect_btn_->setEnabled(false);
 
@@ -38,8 +38,8 @@ MediaManagerWidget::MediaManagerWidget()
   cols->addWidget(connect_btn_);
 
   // Connection
-  connect(connect_btn_, &tobas::qt::ToggleButton::checked, this, &self::onConnectRequested);
-  connect(connect_btn_, &tobas::qt::ToggleButton::unchecked, this, &self::onDisconnectRequested);
+  connect(connect_btn_, &qt::ToggleButton::checked, this, &self::onConnectRequested);
+  connect(connect_btn_, &qt::ToggleButton::unchecked, this, &self::onDisconnectRequested);
   connect(&scan_timer_, &QTimer::timeout, this, &self::onScanTimerTimeout);
 
   scan_timer_.start(1s);
@@ -62,8 +62,8 @@ const BootMedia& MediaManagerWidget::currentBootMedia() const
 
 std::pair<std::string, std::string> MediaManagerWidget::getVendorAndModel(udev_device* dev)
 {
-  auto vendor = tobas::udv::getPropertyValue(dev, "ID_VENDOR");
-  auto model = tobas::udv::getPropertyValue(dev, "ID_MODEL");
+  auto vendor = udv::getPropertyValue(dev, "ID_VENDOR");
+  auto model = udv::getPropertyValue(dev, "ID_MODEL");
 
   // 取得できなかった場合はUSBデバイスから補完
   if (vendor.empty() || model.empty()) {
@@ -73,13 +73,13 @@ std::pair<std::string, std::string> MediaManagerWidget::getVendorAndModel(udev_d
     }
 
     if (vendor.empty()) {
-      vendor = tobas::udv::getSysAttrValue(usb, "manufacturer");
+      vendor = udv::getSysAttrValue(usb, "manufacturer");
       if (vendor.empty()) {
         return {};
       }
     }
     if (model.empty()) {
-      model = tobas::udv::getSysAttrValue(usb, "product");
+      model = udv::getSysAttrValue(usb, "product");
       if (model.empty()) {
         return {};
       }
@@ -114,15 +114,15 @@ void MediaManagerWidget::onScanTimerTimeout()
       continue;
     }
 
-    const auto devnode = tobas::udv::getDevNode(disk);  // e.g. /dev/sda
+    const auto devnode = udv::getDevNode(disk);  // e.g. /dev/sda
     if (devnode.empty()) {
       udev_device_unref(disk);
       continue;
     }
 
     // ラベルがbootfs/rootfsであることを確認
-    const auto label1 = tobas::udv::getBlockLabel(udev_ctx, devnode + '1');
-    const auto label2 = tobas::udv::getBlockLabel(udev_ctx, devnode + '2');
+    const auto label1 = udv::getBlockLabel(udev_ctx, devnode + '1');
+    const auto label2 = udv::getBlockLabel(udev_ctx, devnode + '2');
     if (label1 != "bootfs" || label2 != "rootfs") {
       udev_device_unref(disk);
       continue;
@@ -161,7 +161,7 @@ void MediaManagerWidget::onScanTimerTimeout()
 
     // 接続中に切断された場合
     if (isConnected() && media_name_->currentText() == removed_media) {
-      tobas::qt::qErrorBox(this, "The connected media was ejected unexpectedly.");
+      qt::qErrorBox(this, "The connected media was ejected unexpectedly.");
       media_name_->setEnabled(true);
       connect_btn_->setChecked(false);
       Q_EMIT disconnected();
@@ -191,19 +191,19 @@ void MediaManagerWidget::onConnectRequested()
 {
   // 管理者権限を確認
   if (!linux::isSuperUser()) {
-    tobas::qt::qErrorBox(this, "Permission denied. Run as root (or use sudo) to perform this operation.");
+    qt::qErrorBox(this, "Permission denied. Run as root (or use sudo) to perform this operation.");
     connect_btn_->setChecked(false);
     return;
   }
 
   // マウント先のディレクトリを作成
   if (mkdir(kBootPath, kPermission) < 0 && errno != EEXIST) {
-    tobas::qt::qErrorBox(this, "Failed to create " + QString(kBootPath) + ".");
+    qt::qErrorBox(this, "Failed to create " + QString(kBootPath) + ".");
     connect_btn_->setChecked(false);
     return;
   }
   if (mkdir(kRootPath, kPermission) < 0 && errno != EEXIST) {
-    tobas::qt::qErrorBox(this, "Failed to create " + QString(kRootPath) + ".");
+    qt::qErrorBox(this, "Failed to create " + QString(kRootPath) + ".");
     connect_btn_->setChecked(false);
     return;
   }
@@ -213,12 +213,12 @@ void MediaManagerWidget::onConnectRequested()
   const auto sdx1 = media.devnode + '1';
   const auto sdx2 = media.devnode + '2';
   if (mount(sdx1.toUtf8().constData(), kBootPath, "vfat", MS_NOATIME, nullptr) < 0) {
-    tobas::qt::qErrorBox(this, "Failed to mount " + sdx1 + " on " + kBootPath + ": " + linux::strError().c_str());
+    qt::qErrorBox(this, "Failed to mount " + sdx1 + " on " + kBootPath + ": " + linux::strError().c_str());
     connect_btn_->setChecked(false);
     return;
   }
   if (mount(sdx2.toUtf8().constData(), kRootPath, "ext4", MS_NOATIME, nullptr) < 0) {
-    tobas::qt::qErrorBox(this, "Failed to mount " + sdx2 + " on " + kRootPath + ": " + linux::strError().c_str());
+    qt::qErrorBox(this, "Failed to mount " + sdx2 + " on " + kRootPath + ": " + linux::strError().c_str());
     connect_btn_->setChecked(false);
     return;
   }
@@ -230,7 +230,7 @@ void MediaManagerWidget::onConnectRequested()
 
   Q_EMIT connected(media);
 
-  tobas::qt::qInfoBox(this, "The boot device was mounted successfully.");
+  qt::qInfoBox(this, "The boot device was mounted successfully.");
 }
 
 void MediaManagerWidget::onDisconnectRequested()
@@ -240,12 +240,12 @@ void MediaManagerWidget::onDisconnectRequested()
 
   // 外部ストレージをアンマウント
   if (umount2(kBootPath, 0) < 0) {
-    tobas::qt::qErrorBox(this, "Failed to unmount " + QString(kBootPath) + ": " + linux::strError().c_str());
+    qt::qErrorBox(this, "Failed to unmount " + QString(kBootPath) + ": " + linux::strError().c_str());
     connect_btn_->setChecked(true);
     return;
   }
   if (umount2(kRootPath, 0) < 0) {
-    tobas::qt::qErrorBox(this, "Failed to unmount " + QString(kRootPath) + ": " + linux::strError().c_str());
+    qt::qErrorBox(this, "Failed to unmount " + QString(kRootPath) + ": " + linux::strError().c_str());
     connect_btn_->setChecked(true);
     return;
   }
@@ -255,7 +255,7 @@ void MediaManagerWidget::onDisconnectRequested()
 
   Q_EMIT disconnected();
 
-  tobas::qt::qInfoBox(this, "The boot device was unmounted successfully.");
+  qt::qInfoBox(this, "The boot device was unmounted successfully.");
 }
 }  // namespace bm
 }  // namespace gui

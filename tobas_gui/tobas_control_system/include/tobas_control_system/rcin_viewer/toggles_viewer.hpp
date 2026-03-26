@@ -32,12 +32,12 @@ protected:
   void paintEvent(QPaintEvent* event) override;
 
 private:
-  tobas::qt::ToggleSwitch* kill_;
-  tobas::qt::ToggleSwitch* sub_mode_;
+  qt::ToggleSwitch* kill_;
+  qt::ToggleSwitch* sub_mode_;
 
-  tobas::qt::CircleWidget* acrobat_mode_;
-  tobas::qt::CircleWidget* stabilize_mode_;
-  tobas::qt::CircleWidget* loiter_mode_;
+  qt::CircleWidget* acrobat_mode_;
+  qt::CircleWidget* stabilize_mode_;
+  qt::CircleWidget* loiter_mode_;
 
   void setToggleSwitchPointSizes();
   void setFlightModePointSizes();

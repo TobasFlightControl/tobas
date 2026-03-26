@@ -42,7 +42,7 @@ private:
   QPushButton* clear_button_;
 
   std::vector<ssh::ak::Data> keys_;
-  tobas::qt::ListWidget* list_;
+  qt::ListWidget* list_;
 
   void addKey(const ssh::ak::Data& key);
   bool writeCurrentConfig();

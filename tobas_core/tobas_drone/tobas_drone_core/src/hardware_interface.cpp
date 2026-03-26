@@ -24,11 +24,11 @@ string textFromEnum(HardwareInterface value)
 bool enumFromText(const string& text, HardwareInterface& dst)
 {
   if (text == PWM_TEXT) {
-    dst = tobas::HardwareInterface::kPwm;
+    dst = HardwareInterface::kPwm;
     return true;
   }
   else if (text == OTHER_TEXT) {
-    dst = tobas::HardwareInterface::kOther;
+    dst = HardwareInterface::kOther;
     return true;
   }
   else {

@@ -36,7 +36,7 @@ private Q_SLOTS:
   void onValueChanged(const Eigen::Vector3d& value);
 
 private:
-  tobas::qt::Vector3dEditHorizontal* vector3d_;
+  qt::Vector3dEditHorizontal* vector3d_;
 };
 }  // namespace sa
 }  // namespace gui

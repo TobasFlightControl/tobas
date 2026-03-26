@@ -23,14 +23,14 @@ public:
   explicit JointCommandHandlerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  tobas::Drone::ConstSharedPtr drone_;
+  Drone::ConstSharedPtr drone_;
 
   std::unordered_map<
     std::string,
-    std::pair<tobas::JointCommandInterface, ros2::PublisherPtr<tobas_gazebo_msgs::msg::JointCommand>>>
+    std::pair<JointCommandInterface, ros2::PublisherPtr<tobas_gazebo_msgs::msg::JointCommand>>>
     ctrl_map_;
 
-  ros2::SubscriberPtr<tobas::Drone> drone_sub_;
+  ros2::SubscriberPtr<Drone> drone_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::JointCommandArray> positions_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::JointCommandArray> velocities_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::JointCommandArray> efforts_sub_;
@@ -38,7 +38,7 @@ private:
   void publishJointCommand(const std::string& jnt_name, double command);
   void publishJointCommand(const tobas_msgs::msg::JointCommand& cmd);
 
-  void droneCb(const tobas::Drone::ConstSharedPtr& drone);
+  void droneCb(const Drone::ConstSharedPtr& drone);
   void jointPositionsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& positions);
   void jointVelocitiesCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& velocities);
   void jointEffortsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& efforts);
@@ -64,15 +64,15 @@ void JointCommandHandlerNode::publishJointCommand(const tobas_msgs::msg::JointCo
   publishJointCommand(cmd.name, cmd.data);
 }
 
-void JointCommandHandlerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
+void JointCommandHandlerNode::droneCb(const Drone::ConstSharedPtr& drone)
 {
   drone_ = drone;
 
   // Resister publishers
   ctrl_map_.clear();
   for (const auto& [_, joint] : drone->joints) {
-    const auto topic = path::join(tobas::gazebo::kJointCommandTopicNS, joint.name);
-    ctrl_map_[joint.name] = { static_cast<tobas::JointCommandInterface>(joint.cmd_iface),
+    const auto topic = path::join(gazebo::kJointCommandTopicNS, joint.name);
+    ctrl_map_[joint.name] = { static_cast<JointCommandInterface>(joint.cmd_iface),
                               createPublisher<tobas_gazebo_msgs::msg::JointCommand>(topic, false, true) };
   }
 
@@ -92,7 +92,7 @@ void JointCommandHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCo
     }
 
     const auto& cmd_iface = ctrl_map_[jnt_name].first;
-    if (cmd_iface != tobas::JointCommandInterface::kPosition) {
+    if (cmd_iface != JointCommandInterface::kPosition) {
       TOBAS_ERROR(
         "The command interface of joint \"",
         jnt_name,
@@ -117,7 +117,7 @@ void JointCommandHandlerNode::jointVelocitiesCmdCb(const tobas_msgs::msg::JointC
     }
 
     const auto& cmd_iface = ctrl_map_[jnt_name].first;
-    if (cmd_iface != tobas::JointCommandInterface::kVelocity) {
+    if (cmd_iface != JointCommandInterface::kVelocity) {
       TOBAS_ERROR(
         "The command interface of joint \"",
         jnt_name,
@@ -141,7 +141,7 @@ void JointCommandHandlerNode::jointEffortsCmdCb(const tobas_msgs::msg::JointComm
     }
 
     const auto& cmd_iface = ctrl_map_[jnt_name].first;
-    if (cmd_iface != tobas::JointCommandInterface::kEffort) {
+    if (cmd_iface != JointCommandInterface::kEffort) {
       TOBAS_ERROR(
         "The command interface of joint \"",
         jnt_name,

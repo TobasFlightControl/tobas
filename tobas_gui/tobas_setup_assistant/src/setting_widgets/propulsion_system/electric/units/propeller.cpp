@@ -64,7 +64,7 @@ const char* PropellerWidget::name() const
 bool PropellerWidget::isValid()
 {
   if (min_chord_->getValue() > max_chord_->getValue()) {
-    tobas::qt::qWarnBox(this, "Blade chord range is invalid.");
+    qt::qWarnBox(this, "Blade chord range is invalid.");
     return false;
   }
 
@@ -73,7 +73,7 @@ bool PropellerWidget::isValid()
 
 void PropellerWidget::copyFrom(const BaseSelectedLinkSettingWidget* src)
 {
-  const auto derived = tobas::qt::qConstPointerCast<PropellerWidget>(src);
+  const auto derived = qt::qConstPointerCast<PropellerWidget>(src);
 
   num_blades_->setValue(derived->num_blades_->getValue());
   diameter_->setValue(derived->diameter_->getValue());

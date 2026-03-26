@@ -49,7 +49,7 @@ public:
 private:
   const PropellerWidget* const propeller_;
 
-  tobas::qt::ComboBox* data_name_;
+  qt::ComboBox* data_name_;
 
   std::filesystem::path getCurrentDataPath() const;
   DataType getCurrentDataType() const;

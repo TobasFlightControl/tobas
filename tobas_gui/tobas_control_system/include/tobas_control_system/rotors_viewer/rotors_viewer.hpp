@@ -14,24 +14,24 @@ namespace gui
 {
 namespace ctrl
 {
-class RotorsViewerWiddget : public tobas::qt::ScrollArea
+class RotorsViewerWiddget : public qt::ScrollArea
 {
   Q_OBJECT
 
   using self = RotorsViewerWiddget;
-  using super = tobas::qt::ScrollArea;
+  using super = qt::ScrollArea;
 
   static constexpr char kAliveBackgroundColor[] = "transparent";
   static constexpr char kDeadBackgroundColor[] = "red";
 
 public:
-  explicit RotorsViewerWiddget(const RosQtBridge& bridge, const tobas::Drone& drone);
+  explicit RotorsViewerWiddget(const RosQtBridge& bridge, const Drone& drone);
 
   void reset();
   void updateInternalDataStructures();
 
 private:
-  const tobas::Drone& drone_;
+  const Drone& drone_;
 
   std::map<std::string, SpeedmeterWidget*> meters_;
   QHBoxLayout* cols_;

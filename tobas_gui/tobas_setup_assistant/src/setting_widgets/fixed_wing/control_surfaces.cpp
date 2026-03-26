@@ -131,46 +131,46 @@ void ControlSurfacesWidget::add(const QString& link_name)
   insertRow(row);
 
   const auto link_name_label = new QLabel(link_name);
-  link_name_label->setFont(tobas::qt::DefaultFont(cmn::kBodyPSize));
+  link_name_label->setFont(qt::DefaultFont(cmn::kBodyPSize));
   link_name_label->setAlignment(Qt::AlignCenter);
   setCellWidget(row, kLinkNameCol, link_name_label);
 
   const auto joint_name_label = new QLabel(QString::fromStdString(joint->name));
-  joint_name_label->setFont(tobas::qt::DefaultFont(cmn::kBodyPSize));
+  joint_name_label->setFont(qt::DefaultFont(cmn::kBodyPSize));
   joint_name_label->setAlignment(Qt::AlignCenter);
   setCellWidget(row, kJointNameCol, joint_name_label);
 
-  const auto c_lift_delta = new tobas::qt::DoubleSpinBox();
+  const auto c_lift_delta = new qt::DoubleSpinBox();
   c_lift_delta->setDecimals(kStabilityCoefDecimals);
   c_lift_delta->setValue(0.);
   c_lift_delta->setSuffix(" /rad");
   setCellWidget(row, kLiftCoefCol, c_lift_delta);
 
-  const auto c_drag_delta = new tobas::qt::DoubleSpinBox();
+  const auto c_drag_delta = new qt::DoubleSpinBox();
   c_drag_delta->setDecimals(kStabilityCoefDecimals);
   c_drag_delta->setValue(0.);
   c_drag_delta->setSuffix(" /rad");
   setCellWidget(row, kDragCoefCol, c_drag_delta);
 
-  const auto c_side_delta = new tobas::qt::DoubleSpinBox();
+  const auto c_side_delta = new qt::DoubleSpinBox();
   c_side_delta->setDecimals(kStabilityCoefDecimals);
   c_side_delta->setValue(0.);
   c_side_delta->setSuffix(" /rad");
   setCellWidget(row, kSideCoefCol, c_side_delta);
 
-  const auto c_roll_delta = new tobas::qt::DoubleSpinBox();
+  const auto c_roll_delta = new qt::DoubleSpinBox();
   c_roll_delta->setDecimals(kStabilityCoefDecimals);
   c_roll_delta->setValue(0.);
   c_roll_delta->setSuffix(" /rad");
   setCellWidget(row, kRollCoefCol, c_roll_delta);
 
-  const auto c_pitch_delta = new tobas::qt::DoubleSpinBox();
+  const auto c_pitch_delta = new qt::DoubleSpinBox();
   c_pitch_delta->setDecimals(kStabilityCoefDecimals);
   c_pitch_delta->setValue(0.);
   c_pitch_delta->setSuffix(" /rad");
   setCellWidget(row, kPitchCoefCol, c_pitch_delta);
 
-  const auto c_yaw_delta = new tobas::qt::DoubleSpinBox();
+  const auto c_yaw_delta = new qt::DoubleSpinBox();
   c_yaw_delta->setDecimals(kStabilityCoefDecimals);
   c_yaw_delta->setValue(0.);
   c_yaw_delta->setSuffix(" /rad");
@@ -185,97 +185,97 @@ void ControlSurfacesWidget::remove(const QString& link_name)
 
 QString ControlSurfacesWidget::linkName(int row) const
 {
-  const auto cell = tobas::qt::qConstPointerCast<QLabel>(cellWidget(row, kLinkNameCol));
+  const auto cell = qt::qConstPointerCast<QLabel>(cellWidget(row, kLinkNameCol));
   return cell->text();
 }
 
 QString ControlSurfacesWidget::jointName(int row) const
 {
-  const auto cell = tobas::qt::qConstPointerCast<QLabel>(cellWidget(row, kJointNameCol));
+  const auto cell = qt::qConstPointerCast<QLabel>(cellWidget(row, kJointNameCol));
   return cell->text();
 }
 
 double ControlSurfacesWidget::liftCoef(int row) const
 {
-  const auto cell = tobas::qt::qConstPointerCast<tobas::qt::DoubleSpinBox>(cellWidget(row, kLiftCoefCol));
+  const auto cell = qt::qConstPointerCast<qt::DoubleSpinBox>(cellWidget(row, kLiftCoefCol));
   return cell->value();
 }
 
 double ControlSurfacesWidget::dragCoef(int row) const
 {
-  const auto cell = tobas::qt::qConstPointerCast<tobas::qt::DoubleSpinBox>(cellWidget(row, kDragCoefCol));
+  const auto cell = qt::qConstPointerCast<qt::DoubleSpinBox>(cellWidget(row, kDragCoefCol));
   return cell->value();
 }
 
 double ControlSurfacesWidget::sideCoef(int row) const
 {
-  const auto cell = tobas::qt::qConstPointerCast<tobas::qt::DoubleSpinBox>(cellWidget(row, kSideCoefCol));
+  const auto cell = qt::qConstPointerCast<qt::DoubleSpinBox>(cellWidget(row, kSideCoefCol));
   return cell->value();
 }
 
 double ControlSurfacesWidget::rollCoef(int row) const
 {
-  const auto cell = tobas::qt::qConstPointerCast<tobas::qt::DoubleSpinBox>(cellWidget(row, kRollCoefCol));
+  const auto cell = qt::qConstPointerCast<qt::DoubleSpinBox>(cellWidget(row, kRollCoefCol));
   return cell->value();
 }
 
 double ControlSurfacesWidget::pitchCoef(int row) const
 {
-  const auto cell = tobas::qt::qConstPointerCast<tobas::qt::DoubleSpinBox>(cellWidget(row, kPitchCoefCol));
+  const auto cell = qt::qConstPointerCast<qt::DoubleSpinBox>(cellWidget(row, kPitchCoefCol));
   return cell->value();
 }
 
 double ControlSurfacesWidget::yawCoef(int row) const
 {
-  const auto cell = tobas::qt::qConstPointerCast<tobas::qt::DoubleSpinBox>(cellWidget(row, kYawCoefCol));
+  const auto cell = qt::qConstPointerCast<qt::DoubleSpinBox>(cellWidget(row, kYawCoefCol));
   return cell->value();
 }
 
 void ControlSurfacesWidget::linkName(int row, const QString& text)
 {
-  const auto cell = tobas::qt::qPointerCast<QLabel>(cellWidget(row, kLinkNameCol));
+  const auto cell = qt::qPointerCast<QLabel>(cellWidget(row, kLinkNameCol));
   return cell->setText(text);
 }
 
 void ControlSurfacesWidget::jointName(int row, const QString& text)
 {
-  const auto cell = tobas::qt::qPointerCast<QLabel>(cellWidget(row, kJointNameCol));
+  const auto cell = qt::qPointerCast<QLabel>(cellWidget(row, kJointNameCol));
   return cell->setText(text);
 }
 
 void ControlSurfacesWidget::liftCoef(int row, double value)
 {
-  const auto cell = tobas::qt::qPointerCast<tobas::qt::DoubleSpinBox>(cellWidget(row, kLiftCoefCol));
+  const auto cell = qt::qPointerCast<qt::DoubleSpinBox>(cellWidget(row, kLiftCoefCol));
   return cell->setValue(value);
 }
 
 void ControlSurfacesWidget::dragCoef(int row, double value)
 {
-  const auto cell = tobas::qt::qPointerCast<tobas::qt::DoubleSpinBox>(cellWidget(row, kDragCoefCol));
+  const auto cell = qt::qPointerCast<qt::DoubleSpinBox>(cellWidget(row, kDragCoefCol));
   return cell->setValue(value);
 }
 
 void ControlSurfacesWidget::sideCoef(int row, double value)
 {
-  const auto cell = tobas::qt::qPointerCast<tobas::qt::DoubleSpinBox>(cellWidget(row, kSideCoefCol));
+  const auto cell = qt::qPointerCast<qt::DoubleSpinBox>(cellWidget(row, kSideCoefCol));
   return cell->setValue(value);
 }
 
 void ControlSurfacesWidget::rollCoef(int row, double value)
 {
-  const auto cell = tobas::qt::qPointerCast<tobas::qt::DoubleSpinBox>(cellWidget(row, kRollCoefCol));
+  const auto cell = qt::qPointerCast<qt::DoubleSpinBox>(cellWidget(row, kRollCoefCol));
   return cell->setValue(value);
 }
 
 void ControlSurfacesWidget::pitchCoef(int row, double value)
 {
-  const auto cell = tobas::qt::qPointerCast<tobas::qt::DoubleSpinBox>(cellWidget(row, kPitchCoefCol));
+  const auto cell = qt::qPointerCast<qt::DoubleSpinBox>(cellWidget(row, kPitchCoefCol));
   return cell->setValue(value);
 }
 
 void ControlSurfacesWidget::yawCoef(int row, double value)
 {
-  const auto cell = tobas::qt::qPointerCast<tobas::qt::DoubleSpinBox>(cellWidget(row, kYawCoefCol));
+  const auto cell = qt::qPointerCast<qt::DoubleSpinBox>(cellWidget(row, kYawCoefCol));
   return cell->setValue(value);
 }
 }  // namespace fw

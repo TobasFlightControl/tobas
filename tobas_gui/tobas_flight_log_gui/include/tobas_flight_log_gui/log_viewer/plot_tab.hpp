@@ -31,12 +31,12 @@ namespace gui
 {
 namespace log
 {
-class PlotTabWidget : public tobas::qt::TabWidget
+class PlotTabWidget : public qt::TabWidget
 {
   Q_OBJECT
 
   using self = PlotTabWidget;
-  using super = tobas::qt::TabWidget;
+  using super = qt::TabWidget;
 
   static constexpr int kTabWidth = 110;
   static constexpr int kTabHeight = 50;

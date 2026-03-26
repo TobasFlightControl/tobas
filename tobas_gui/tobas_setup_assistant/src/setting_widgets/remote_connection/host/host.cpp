@@ -16,7 +16,7 @@ namespace rc
 {
 HostWidget::HostWidget()
 {
-  const auto form = new tobas::qt::FormLayout();
+  const auto form = new qt::FormLayout();
   setLayout(form);
 
   const auto btn_group = new QButtonGroup();
@@ -71,7 +71,7 @@ QString HostWidget::host() const
   return widgets_.at(findCurrentRow())->host();
 }
 
-void HostWidget::addRow(tobas::qt::FormLayout* form, QButtonGroup* btn_group, BaseHostWidget* widget)
+void HostWidget::addRow(qt::FormLayout* form, QButtonGroup* btn_group, BaseHostWidget* widget)
 {
   const auto button = new QRadioButton(widget->label());
   btn_group->addButton(button, rowCount());

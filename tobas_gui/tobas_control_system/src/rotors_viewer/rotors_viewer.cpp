@@ -9,7 +9,7 @@ namespace gui
 {
 namespace ctrl
 {
-RotorsViewerWiddget::RotorsViewerWiddget(const RosQtBridge& bridge, const tobas::Drone& drone) : drone_(drone)
+RotorsViewerWiddget::RotorsViewerWiddget(const RosQtBridge& bridge, const Drone& drone) : drone_(drone)
 {
   cols_ = new QHBoxLayout();
   setLayout(cols_);
@@ -29,7 +29,7 @@ void RotorsViewerWiddget::reset()
 void RotorsViewerWiddget::updateInternalDataStructures()
 {
   meters_.clear();
-  tobas::qt::clearLayout(cols_);
+  qt::clearLayout(cols_);
 
   for (const auto& [link_name, rotor] : drone_.prop->rotors) {
     const auto meter = new SpeedmeterWidget();

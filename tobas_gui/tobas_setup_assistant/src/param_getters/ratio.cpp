@@ -9,8 +9,8 @@ namespace sa
 ParamGetterWidget_Ratio::ParamGetterWidget_Ratio(const QString& param_name, const QString& description_text)
   : super(param_name, description_text)
 {
-  left_value_ = new tobas::qt::SpinBox();
-  right_value_ = new tobas::qt::SpinBox();
+  left_value_ = new qt::SpinBox();
+  right_value_ = new qt::SpinBox();
   left_text_ = new QLabel();
   right_text_ = new QLabel();
 
@@ -24,8 +24,8 @@ ParamGetterWidget_Ratio::ParamGetterWidget_Ratio(const QString& param_name, cons
   cols->addWidget(right_text_);
   cols->addStretch();
 
-  connect(left_value_, QOverload<int>::of(&tobas::qt::SpinBox::valueChanged), this, &self::onValueChanged);
-  connect(right_value_, QOverload<int>::of(&tobas::qt::SpinBox::valueChanged), this, &self::onValueChanged);
+  connect(left_value_, QOverload<int>::of(&qt::SpinBox::valueChanged), this, &self::onValueChanged);
+  connect(right_value_, QOverload<int>::of(&qt::SpinBox::valueChanged), this, &self::onValueChanged);
 }
 
 ParamGetterWidget_Ratio::ValueType ParamGetterWidget_Ratio::getValue() const

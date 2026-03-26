@@ -38,7 +38,7 @@ public:
   void reset();
 
 private:
-  tobas::qt::TableWidget* table_;
+  qt::TableWidget* table_;
 
 private Q_SLOTS:
   void messageCb(const tobas_msgs::msg::Message::ConstSharedPtr& msg);

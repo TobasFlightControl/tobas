@@ -106,16 +106,16 @@ void FlightLogViewerWidget::setLogName(const QString& log_name)
   reset();
 
   // rosbagの絶対パスを更新
-  log_path_ = ros2::expandUser(tobas::kRosbagDirHome) / log_name.toStdString();
+  log_path_ = ros2::expandUser(kRosbagDirHome) / log_name.toStdString();
 
   // rosbagを開く
   if (!open(log_path_)) {
     if (!ros2::reindexRosBag(log_path_)) {
-      tobas::qt::qErrorBox(this, "The log file is broken and failed to fix it.");
+      qt::qErrorBox(this, "The log file is broken and failed to fix it.");
       return;
     }
     if (!open(log_path_)) {
-      tobas::qt::qErrorBox(this, "Failed to open the log file. The data is probably corrupted.");
+      qt::qErrorBox(this, "Failed to open the log file. The data is probably corrupted.");
       return;
     }
   }
@@ -273,7 +273,7 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
       }
     }
     catch (const std::exception& e) {
-      tobas::qt::qErrorBox(this, "Failed to deserialize \"" + QString::fromStdString(topic) + "\".");
+      qt::qErrorBox(this, "Failed to deserialize \"" + QString::fromStdString(topic) + "\".");
       decode_fail_topics_.insert(topic);
     }
   }

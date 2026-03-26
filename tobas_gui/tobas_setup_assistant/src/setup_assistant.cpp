@@ -114,7 +114,7 @@ bool SetupAssistantWidget::resolveMeshPaths(const fs::path& config_pkg_path, tin
   if (strcmp(elem->Name(), "mesh") == 0) {
     const auto filename = elem->Attribute("filename");
     if (!filename) {
-      tobas::qt::qErrorBox(settings_, "Mesh element does not have attribute: \"filename\"");
+      qt::qErrorBox(settings_, "Mesh element does not have attribute: \"filename\"");
       return false;
     }
 
@@ -161,7 +161,7 @@ bool SetupAssistantWidget::updateInternalDataStructures()
   const auto urdf_doc = urdf::exportUrdf(*uadf_.urdf);
   const auto urdf_text = xml::xmlDocumentToString(urdf_doc);
   if (!rsp_client_.setParam("robot_description", urdf_text)) {
-    tobas::qt::qErrorBox(this, "Failed to update robot state publisher.");
+    qt::qErrorBox(this, "Failed to update robot state publisher.");
     return false;
   }
 
@@ -191,7 +191,7 @@ FrameType SetupAssistantWidget::determineFrameType()
       if (uadf_.thrusts.size() < 3)  // プロペラの枚数が3枚未満
       {
         msg += "  • which has fewer than 3 propellers\n";
-        tobas::qt::qWarnBox(this, msg + kIsNotSupported);
+        qt::qWarnBox(this, msg + kIsNotSupported);
         return FrameType::kUndefined;  // TODO: 2枚なら制御可能かも
       }
       else  // プロペラの枚数が3枚以上
@@ -227,7 +227,7 @@ FrameType SetupAssistantWidget::determineFrameType()
           }
           else {  // 全てのチルト軸が常にY軸平行でない
             msg += "  • whose tilt axes are not parallel to the Y axis\n";
-            tobas::qt::qWarnBox(this, msg + kIsNotSupported);
+            qt::qWarnBox(this, msg + kIsNotSupported);
             return FrameType::kUndefined;
           }
         }
@@ -238,7 +238,7 @@ FrameType SetupAssistantWidget::determineFrameType()
       }
       else {  // チルトロータのうち，チルト軸とロータ軸が直行しないものがある
         msg += "  • which has a tilt axis that is not perpendicular to the propeller rotation axis\n";
-        tobas::qt::qWarnBox(this, msg + kIsNotSupported);
+        qt::qWarnBox(this, msg + kIsNotSupported);
         return FrameType::kUndefined;  // TODO: チルト軸と回転軸が直行しないモデルにも対応
       }
     }
@@ -246,7 +246,7 @@ FrameType SetupAssistantWidget::determineFrameType()
   else  // 固定翼をもつ場合
   {
     msg += "  • which has fixed wings\n";
-    tobas::qt::qWarnBox(this, msg + kIsNotSupported);
+    qt::qWarnBox(this, msg + kIsNotSupported);
     return FrameType::kUndefined;  // TODO: 固定翼に対応
   }
 }
@@ -385,16 +385,15 @@ void SetupAssistantWidget::onNewButtonClicked()
   if (pkg_path && !ros2::isAlreadyBuiltAndInstalled(pkg_path.value())) {
     const auto pkg_name = ros2::getPackageNameOf(pkg_path.value());
     if (!pkg_name) {
-      tobas::qt::qErrorBox(
-        this, "Failed to get the ROS package name of the UADF: " + QString::fromStdString(pkg_name.error()));
+      qt::qErrorBox(this, "Failed to get the ROS package name of the UADF: " + QString::fromStdString(pkg_name.error()));
       return;
     }
 
-    const auto ws_path = ros2::expandUser(tobas::kColconWSPathHome);
+    const auto ws_path = ros2::expandUser(kColconWSPathHome);
 
     qInfo().nospace() << "UADF is in ROS package " << QString::fromStdString(pkg_name.value()) << ". Building it.";
     if (!colcon_.build(pkg_path.value(), ws_path)) {
-      tobas::qt::qErrorBox(
+      qt::qErrorBox(
         this,
         "Failed to build \"" + QString::fromStdString(pkg_name.value()) + "\":\n\n" +
           QString::fromStdString(colcon_.errorMessage()));
@@ -405,20 +404,20 @@ void SetupAssistantWidget::onNewButtonClicked()
   // XACROを解析
   std::string uadf_text;
   if (!xacro_parser_.parseFromPath(uadf_path.toStdString(), uadf_text)) {
-    tobas::qt::qErrorBox(this, "Failed to parse XACRO:\n\n" + QString::fromStdString(xacro_parser_.getOutput()));
+    qt::qErrorBox(this, "Failed to parse XACRO:\n\n" + QString::fromStdString(xacro_parser_.getOutput()));
     return;
   }
 
   // Load UADF
   if (!uadf_parser_.parseFromText(uadf_text, uadf_)) {
-    tobas::qt::qErrorBox(this, "Failed to parse UADF:\n\n" + QString::fromStdString(uadf_parser_.errorMessage()));
+    qt::qErrorBox(this, "Failed to parse UADF:\n\n" + QString::fromStdString(uadf_parser_.errorMessage()));
     reset();
     return;
   }
 
   // Load KDL tree
   if (!tree_parser_.parseFromUrdf(*uadf_.urdf, tree_)) {
-    tobas::qt::qErrorBox(
+    qt::qErrorBox(
       this, "Failed to construct KDL tree from URDF:\n\n" + QString::fromStdString(tree_parser_.errorMessage()));
     reset();
     return;
@@ -427,12 +426,12 @@ void SetupAssistantWidget::onNewButtonClicked()
   // Check model validity
   std::string error_msg;
   if (!uadf_.valid()) {
-    tobas::qt::qErrorBox(this, "UADF is invalid.");  // TODO: 詳細なエラーメッセージを表示
+    qt::qErrorBox(this, "UADF is invalid.");  // TODO: 詳細なエラーメッセージを表示
     reset();
     return;
   }
   if (!tree_.isValid(error_msg)) {
-    tobas::qt::qErrorBox(this, "UADF is invalid: " + QString::fromStdString(error_msg));
+    qt::qErrorBox(this, "UADF is invalid: " + QString::fromStdString(error_msg));
     reset();
     return;
   }
@@ -449,7 +448,7 @@ void SetupAssistantWidget::onNewButtonClicked()
   // 保存ボタンを有効化
   enableSaveButtons(true);
 
-  tobas::qt::qInfoBox(this, "UADF has been loaded successfully. Configure the settings for each tab.");
+  qt::qInfoBox(this, "UADF has been loaded successfully. Configure the settings for each tab.");
 }
 
 void SetupAssistantWidget::onLoadButtonClicked()
@@ -458,7 +457,7 @@ void SetupAssistantWidget::onLoadButtonClicked()
   std::string last_opened_dir;
   if (property_client_.get(kLastOpenedDirKey_Load, last_opened_dir) < 0) {
     qWarning() << property_client_.errorMessage();
-    last_opened_dir = ros2::expandUser(tobas::kColconWSPathHome) / "src";
+    last_opened_dir = ros2::expandUser(kColconWSPathHome) / "src";
     if (!fs::is_directory(last_opened_dir)) {
       last_opened_dir = ros2::getHomeDir();
     }
@@ -475,7 +474,7 @@ void SetupAssistantWidget::onLoadButtonClicked()
   // プロジェクトのバージョンを取得
   cmn::Version version;
   if (!version.load(proj_paths.versionPath())) {
-    tobas::qt::qErrorBox(this, "Failed to read the project version. Please create a new project.");
+    qt::qErrorBox(this, "Failed to read the project version. Please create a new project.");
     return;
   }
 
@@ -484,14 +483,14 @@ void SetupAssistantWidget::onLoadButtonClicked()
     prj_gen_->setClearDynamicParams(false);
   }
   else {
-    if (!tobas::qt::yesOrNo(
+    if (!qt::yesOrNo(
           this,
           "The current Tobas version (" + cmn::Version::Current().toString() +
             ") is incompatible with the version used to create this project (" + version.toString() +
             "). Errors may occur during loading, "
             "and if you save the project again, the dynamic parameters will be reset to their default values. "
             "Would you like to proceed?",
-          tobas::qt::QMessageLevel::WARN)) {
+          qt::QMessageLevel::WARN)) {
       return;
     }
     prj_gen_->setClearDynamicParams(true);
@@ -512,7 +511,7 @@ void SetupAssistantWidget::onLoadButtonClicked()
   // バックアップUADFのメッシュパスを解決 (config_pkgのビルドなしで解析可能に)
   tinyxml2::XMLDocument uadf_doc;
   if (uadf_doc.LoadFile(proj_paths.originalUadfPath().c_str()) != tinyxml2::XML_SUCCESS) {
-    tobas::qt::qErrorBox(this, "Failed to parse UADF document:\n\n" + QString(uadf_doc.ErrorStr()));
+    qt::qErrorBox(this, "Failed to parse UADF document:\n\n" + QString(uadf_doc.ErrorStr()));
     return;
   }
   const auto robot = uadf_doc.RootElement();
@@ -522,14 +521,14 @@ void SetupAssistantWidget::onLoadButtonClicked()
 
   // Load the backup UADF whose mesh paths are resolved
   if (!uadf_parser_.parseFromXml(&uadf_doc, uadf_)) {
-    tobas::qt::qErrorBox(this, "Failed to parse UADF:\n\n" + QString::fromStdString(uadf_parser_.errorMessage()));
+    qt::qErrorBox(this, "Failed to parse UADF:\n\n" + QString::fromStdString(uadf_parser_.errorMessage()));
     reset();
     return;
   }
 
   // Load KDL tree
   if (!tree_parser_.parseFromUrdf(*uadf_.urdf, tree_)) {
-    tobas::qt::qErrorBox(
+    qt::qErrorBox(
       this, "Failed to construct KDL tree from URDF:\n\n" + QString::fromStdString(tree_parser_.errorMessage()));
     reset();
     return;
@@ -538,12 +537,12 @@ void SetupAssistantWidget::onLoadButtonClicked()
   // Check model validity
   std::string error_msg;
   if (!uadf_.valid()) {
-    tobas::qt::qErrorBox(this, "UADF is invalid.");  // TODO: 詳細なエラーメッセージを表示
+    qt::qErrorBox(this, "UADF is invalid.");  // TODO: 詳細なエラーメッセージを表示
     reset();
     return;
   }
   if (!tree_.isValid(error_msg)) {
-    tobas::qt::qErrorBox(this, "UADF is invalid: " + QString::fromStdString(error_msg));
+    qt::qErrorBox(this, "UADF is invalid: " + QString::fromStdString(error_msg));
     reset();
     return;
   }
@@ -558,7 +557,7 @@ void SetupAssistantWidget::onLoadButtonClicked()
   const auto settings_path = proj_paths.backupSettingsPath();
   const auto node = yaml::load(settings_path);
   if (!node) {
-    tobas::qt::qErrorBox(this, "The user configuration file is collapsed. Please create a new Tobas project.");
+    qt::qErrorBox(this, "The user configuration file is collapsed. Please create a new Tobas project.");
     reset();
     return;
   }
@@ -566,7 +565,7 @@ void SetupAssistantWidget::onLoadButtonClicked()
   // ユーザ設定を書くウィジェットに反映
   // 失敗してもリセットはしない
   if (settings_->load(node.value())) {
-    tobas::qt::qInfoBox(this, "Tobas project has been loaded successfully.");
+    qt::qInfoBox(this, "Tobas project has been loaded successfully.");
   }
 
   // 保存ボタンを有効化
@@ -594,7 +593,7 @@ void SetupAssistantWidget::onSaveButtonClicked()
     return;
   }
 
-  tobas::qt::qInfoBox(this, "Tobas project has been updated.");
+  qt::qInfoBox(this, "Tobas project has been updated.");
 }
 
 void SetupAssistantWidget::onSaveAsButtonClicked()
@@ -603,7 +602,7 @@ void SetupAssistantWidget::onSaveAsButtonClicked()
   std::string last_opened_dir;
   if (property_client_.get(kLastOpenedDirKey_Save, last_opened_dir) < 0) {
     qWarning() << property_client_.errorMessage();
-    last_opened_dir = ros2::expandUser(tobas::kColconWSPathHome) / "src";
+    last_opened_dir = ros2::expandUser(kColconWSPathHome) / "src";
     TOBAS_CHECK(path::createDirectories(last_opened_dir, true));
   }
 
@@ -627,11 +626,11 @@ void SetupAssistantWidget::onSaveAsButtonClicked()
 
   // 読み込んでいないパッケージパスが既に存在する場合は置換するかどうかをユーザに確認
   if (proj_path != proj_path_->text() && fs::exists(proj_path.toStdString())) {
-    if (!tobas::qt::yesOrNo(this, proj_path + " already exists. Do you want to replace it?", tobas::qt::WARN)) {
+    if (!qt::yesOrNo(this, proj_path + " already exists. Do you want to replace it?", qt::WARN)) {
       return;
     }
     if (fs::remove_all(proj_path.toStdString()) == 0) {
-      tobas::qt::qErrorBox(this, "Failed to remove " + proj_path);
+      qt::qErrorBox(this, "Failed to remove " + proj_path);
       return;
     }
   }
@@ -644,7 +643,7 @@ void SetupAssistantWidget::onSaveAsButtonClicked()
   // プロジェクトのパスを設定
   proj_path_->setText(proj_path);
 
-  tobas::qt::qInfoBox(this, "New Tobas project has been generated.");
+  qt::qInfoBox(this, "New Tobas project has been generated.");
 }
 }  // namespace sa
 }  // namespace gui

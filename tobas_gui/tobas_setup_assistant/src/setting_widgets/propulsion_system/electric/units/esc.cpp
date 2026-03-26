@@ -42,7 +42,7 @@ bool ESCWidget::isValid()
 
 void ESCWidget::copyFrom(const BaseSelectedLinkSettingWidget* src)
 {
-  const auto derived = tobas::qt::qConstPointerCast<ESCWidget>(src);
+  const auto derived = qt::qConstPointerCast<ESCWidget>(src);
   max_current_->setValue(derived->max_current_->getValue());
 }
 

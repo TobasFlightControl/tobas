@@ -25,7 +25,7 @@ void TobasRenderInfo::LoadConfig(const tinyxml2::XMLElement*)
     title = "Rendering Information Plugin";
   }
 
-  fps_pub_ = node_.Advertise<gz::msgs::Double>(tobas::gazebo::kGzRenderFpsTopic);
+  fps_pub_ = node_.Advertise<gz::msgs::Double>(gazebo::kGzRenderFpsTopic);
 
   gz::gui::App()->findChild<gz::gui::MainWindow*>()->installEventFilter(this);
 }

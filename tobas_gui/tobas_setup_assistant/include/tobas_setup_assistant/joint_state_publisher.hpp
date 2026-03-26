@@ -43,7 +43,7 @@ private:
   QVBoxLayout* slider_rows_;
 
   sensor_msgs::msg::JointState js_;
-  std::vector<tobas::qt::DoubleSliderDisplay*> sliders_;
+  std::vector<qt::DoubleSliderDisplay*> sliders_;
 
   ros2::PublisherPtr<sensor_msgs::msg::JointState> js_pub_;
   ros2::PublisherPtr<tobas_visualization_msgs::msg::DisplayRobotState> drs_pub_;

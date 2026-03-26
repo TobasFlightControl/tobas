@@ -19,14 +19,14 @@ public:
   explicit RotorStatesPublisherNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  tobas::Drone::ConstSharedPtr drone_;
+  Drone::ConstSharedPtr drone_;
   std::map<std::string, tobas_msgs::msg::RotorState> rotor_states_;
 
   ros2::PublisherPtr<tobas_msgs::msg::RotorStateArray> rotor_states_pub_;
-  ros2::SubscriberPtr<tobas::Drone> drone_sub_;
+  ros2::SubscriberPtr<Drone> drone_sub_;
   std::map<std::string, ros2::SubscriberPtr<tobas_msgs::msg::RotorState>> rotor_state_subs_;
 
-  void droneCb(const tobas::Drone::ConstSharedPtr& drone);
+  void droneCb(const Drone::ConstSharedPtr& drone);
   void rotorStateCb(const tobas_msgs::msg::RotorState::ConstSharedPtr& rotor_state);
 };
 
@@ -37,7 +37,7 @@ RotorStatesPublisherNode::RotorStatesPublisherNode(const rclcpp::NodeOptions& op
   drone_sub_ = createSubscriber(topic::kDrone, &self::droneCb, this, true, true);
 }
 
-void RotorStatesPublisherNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
+void RotorStatesPublisherNode::droneCb(const Drone::ConstSharedPtr& drone)
 {
   if (!drone->prop) {
     return;
@@ -47,7 +47,7 @@ void RotorStatesPublisherNode::droneCb(const tobas::Drone::ConstSharedPtr& drone
   rotor_state_subs_.clear();
 
   for (const auto& [link_name, _] : drone->prop->rotors) {
-    const auto topic = path::join(tobas::gazebo::kRotorStateTopicNS, link_name);
+    const auto topic = path::join(gazebo::kRotorStateTopicNS, link_name);
     rotor_state_subs_[link_name] = createSubscriber(topic, &self::rotorStateCb, this);
   }
 

@@ -11,10 +11,10 @@ namespace sa
 {
 RobotPropertiesWidget::RobotPropertiesWidget(const kdl::Tree& tree) : mass_holder_(tree)
 {
-  frame_type_ = new tobas::qt::FramedLabel();
-  mass_ = new tobas::qt::FramedLabel();
+  frame_type_ = new qt::FramedLabel();
+  mass_ = new qt::FramedLabel();
 
-  const auto form = new tobas::qt::FormLayout();
+  const auto form = new qt::FormLayout();
   form->setHorizontalSpacing(30);
   setLayout(form);
   form->addRow("Frame Type", frame_type_);

@@ -49,11 +49,11 @@ public:
   explicit ControllerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  tobas::Drone drone_;
+  Drone drone_;
   kdl::Tree tree_;
 
   kdl::TreeMassHolder mass_holder_;
-  tobas::MicroDisturbanceEoM eom_;  // 微小擾乱状態方程式
+  MicroDisturbanceEoM eom_;  // 微小擾乱状態方程式
 
   // 固定値
   kdl::JntArray q_0_;
@@ -62,7 +62,7 @@ private:
   bool drone_received_ = false;
   bool tree_received_ = false;
   bool topics_received_ = false;
-  tobas::CommandPriorityHandler cmd_priority_handler_;
+  CommandPriorityHandler cmd_priority_handler_;
   tobas_msgs::msg::FluidPressure::ConstSharedPtr air_pressure_;           // 大気圧
   tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr odom_flu_;    // 現在の状態 (FLU座標系)
   tobas_command_msgs::msg::SpeedRollDeltaPitch::ConstSharedPtr cmd_flu_;  // 現在のコマンド (FLU座標系)
@@ -77,7 +77,7 @@ private:
   ros2::PublisherPtr<tobas_msgs::msg::JointCommandArray> tar_angles_pub_;
 
   // Subscribers
-  ros2::SubscriberPtr<tobas::Drone> drone_sub_;
+  ros2::SubscriberPtr<Drone> drone_sub_;
   ros2::SubscriberPtr<kdl::Tree> tree_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::FluidPressure> air_pressure_sub_;
   ros2::SubscriberPtr<tobas_msgs::OdometryWithCovarianceStamped> odom_sub_;
@@ -115,7 +115,7 @@ private:
   bool deflectionWeightLog10Cb(const long& p);
   bool deflectionRateWeightLog10Cb(const long& p);
 
-  void droneCb(const tobas::Drone::ConstSharedPtr& drone);
+  void droneCb(const Drone::ConstSharedPtr& drone);
   void treeCb(const kdl::Tree::ConstSharedPtr& tree);
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
   void airPressureCb(const tobas_msgs::msg::FluidPressure::ConstSharedPtr& pressure);
@@ -126,7 +126,7 @@ private:
 };
 
 ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
-  : super(tobas::node::kController, nodeOptions_DParam(options)), mass_holder_(tree_), eom_(drone_, tree_)
+  : super(node::kController, nodeOptions_DParam(options)), mass_holder_(tree_), eom_(drone_, tree_)
 {
   // Register dynamic parameters
   addDynamicIntParam("forward_speed_weight", &self::forwardSpeedWeightCb, this, 1, 1, 100);
@@ -152,7 +152,7 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   cmd_sub_ = createSubscriber(topic::kSpeedRollDpitchCmd, &self::commandCb, this);
 
   // Register timers
-  check_topics_timer_ = createTimer(tobas::kCheckTopicsPeriod, &self::checkTopicsTimerCb, this);
+  check_topics_timer_ = createTimer(kCheckTopicsPeriod, &self::checkTopicsTimerCb, this);
 }
 
 bool ControllerNode::initialize()
@@ -204,8 +204,8 @@ void ControllerNode::updateCurrentStateVector()
 
   // TODO: 横系のトリムも考慮
   lqd_.current_state(eom_.kStateIdx_u) = odom_frd_.twist.vel.x() - trim.u();
-  lqd_.current_state(eom_.kStateIdx_alpha) = tobas::angleOfAttack(odom_frd_.twist.vel.data) - trim.alpha();
-  lqd_.current_state(eom_.kStateIdx_beta) = tobas::angleOfSideSlip(odom_frd_.twist.vel.data);
+  lqd_.current_state(eom_.kStateIdx_alpha) = angleOfAttack(odom_frd_.twist.vel.data) - trim.alpha();
+  lqd_.current_state(eom_.kStateIdx_beta) = angleOfSideSlip(odom_frd_.twist.vel.data);
   lqd_.current_state(eom_.kStateIdx_phi) = roll;
   lqd_.current_state(eom_.kStateIdx_theta) = pitch - trim.theta();
   lqd_.current_state(eom_.kStateIdx_p) = odom_frd_.twist.rot.x();
@@ -270,17 +270,17 @@ void ControllerNode::publishDeflections(const builtin_interfaces::msg::Time& sta
 bool ControllerNode::isCommandAccepted(const tobas_command_msgs::msg::Priority& priority)
 {
   if (!topics_received_) {
-    TOBAS_WARN_THROTTLE(tobas::kIgnoreCmdMsgPeriod, "The command is ignored because some topics are not received yet.");
+    TOBAS_WARN_THROTTLE(kIgnoreCmdMsgPeriod, "The command is ignored because some topics are not received yet.");
     return false;
   }
 
   if (!arming_->data) {
-    TOBAS_WARN_THROTTLE(tobas::kIgnoreCmdMsgPeriod, "The command is ignored because the vehicle is disarmed.");
+    TOBAS_WARN_THROTTLE(kIgnoreCmdMsgPeriod, "The command is ignored because the vehicle is disarmed.");
     return false;
   }
 
   if (!cmd_priority_handler_.update(priority.data, now())) {
-    TOBAS_WARN_THROTTLE(tobas::kIgnoreCmdMsgPeriod, "The command is ignored because of the its priority.");
+    TOBAS_WARN_THROTTLE(kIgnoreCmdMsgPeriod, "The command is ignored because of the its priority.");
     return false;
   }
 
@@ -433,7 +433,7 @@ bool ControllerNode::deflectionRateWeightLog10Cb(const long& p)
   return true;
 }
 
-void ControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
+void ControllerNode::droneCb(const Drone::ConstSharedPtr& drone)
 {
   drone_ = *drone;
 
@@ -493,18 +493,18 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
   }
 
   // FLU -> FRD
-  tobas::odometryFluToFrd(odom_flu_->odom.odom, odom_frd_);
-  tobas::speedRollDeltaPitchFluToFrd(*cmd_flu_, cmd_frd_);
+  odometryFluToFrd(odom_flu_->odom.odom, odom_frd_);
+  speedRollDeltaPitchFluToFrd(*cmd_flu_, cmd_frd_);
 
   // 現在の速度を使って状態方程式を更新
   const auto rho = st::pressureToDensity(air_pressure_->pressure);
   switch (eom_.update(odom_frd_.twist.vel.norm(), rho, q_0_)) {
-    case tobas::SolverI::kNoError:
+    case SolverI::kNoError:
       break;
-    case tobas::SolverI::kWarn:
+    case SolverI::kWarn:
       TOBAS_WARN(eom_.errorMessage());
       break;
-    case tobas::SolverI::kError:
+    case SolverI::kError:
       TOBAS_ERROR(eom_.errorMessage());
       return;
     default:

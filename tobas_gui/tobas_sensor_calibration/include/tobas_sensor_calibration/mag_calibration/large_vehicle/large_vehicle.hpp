@@ -33,7 +33,7 @@ public:
 private:
   QPushButton* start_button_;
 
-  tobas::qt::WaitSpinnerWidget spinner_;
+  qt::WaitSpinnerWidget spinner_;
   LargeVehicleMagCalibThread thread_;
 
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;

@@ -15,12 +15,12 @@ namespace propulsion
 {
 namespace ice
 {
-class EngineWidget : public tobas::qt::TabWidget
+class EngineWidget : public qt::TabWidget
 {
   Q_OBJECT
 
   using self = EngineWidget;
-  using super = tobas::qt::TabWidget;
+  using super = qt::TabWidget;
 
   static constexpr int kTabWidth = 135;
   static constexpr int kTabHeight = 45;

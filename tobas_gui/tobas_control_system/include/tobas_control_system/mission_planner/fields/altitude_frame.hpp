@@ -13,18 +13,18 @@ namespace ctrl
 {
 namespace field
 {
-class AltitudeFrameWidget : public FieldWidget<tobas::mission::AltitudeFrame>
+class AltitudeFrameWidget : public FieldWidget<mission::AltitudeFrame>
 {
 public:
   explicit AltitudeFrameWidget();
 
   const char* label() const override;
 
-  tobas::mission::AltitudeFrame getValue() const override;
-  void setValue(tobas::mission::AltitudeFrame value) override;
+  mission::AltitudeFrame getValue() const override;
+  void setValue(mission::AltitudeFrame value) override;
 
 private:
-  tobas::qt::ComboBox* combobox_;
+  qt::ComboBox* combobox_;
 };
 }  // namespace field
 }  // namespace ctrl

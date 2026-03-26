@@ -30,7 +30,7 @@ const char* HostnameWidget::label() const
 bool HostnameWidget::isValid()
 {
   if (hostname_->text().isEmpty()) {
-    tobas::qt::qWarnBox(this, "Please enter the flight controller’s hostname.");
+    qt::qWarnBox(this, "Please enter the flight controller’s hostname.");
     return false;
   }
 

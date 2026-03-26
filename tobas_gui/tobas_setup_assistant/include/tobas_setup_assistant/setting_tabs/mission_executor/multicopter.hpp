@@ -48,22 +48,22 @@ public:
   bool isValid() override;
 
 private:
-  tobas::qt::DoubleSpinBox* wp_max_hor_vel_;
-  tobas::qt::DoubleSpinBox* wp_max_hor_acc_;
-  tobas::qt::DoubleSpinBox* wp_max_hor_jerk_;
-  tobas::qt::DoubleSpinBox* wp_max_ver_vel_;
-  tobas::qt::DoubleSpinBox* wp_max_ver_acc_;
-  tobas::qt::DoubleSpinBox* wp_max_ver_jerk_;
-  tobas::qt::SpinBox* wp_max_head_rate_;
-  tobas::qt::SpinBox* wp_max_head_acc_;
+  qt::DoubleSpinBox* wp_max_hor_vel_;
+  qt::DoubleSpinBox* wp_max_hor_acc_;
+  qt::DoubleSpinBox* wp_max_hor_jerk_;
+  qt::DoubleSpinBox* wp_max_ver_vel_;
+  qt::DoubleSpinBox* wp_max_ver_acc_;
+  qt::DoubleSpinBox* wp_max_ver_jerk_;
+  qt::SpinBox* wp_max_head_rate_;
+  qt::SpinBox* wp_max_head_acc_;
 
-  tobas::qt::DoubleSpinBox* takeoff_max_speed_;
-  tobas::qt::DoubleSpinBox* takeoff_max_accel_;
-  tobas::qt::DoubleSpinBox* takeoff_max_jerk_;
+  qt::DoubleSpinBox* takeoff_max_speed_;
+  qt::DoubleSpinBox* takeoff_max_accel_;
+  qt::DoubleSpinBox* takeoff_max_jerk_;
 
-  tobas::qt::DoubleSpinBox* land_speed_;
+  qt::DoubleSpinBox* land_speed_;
 
-  tobas::qt::DoubleSpinBox* rtl_min_alt_;
+  qt::DoubleSpinBox* rtl_min_alt_;
 };
 }  // namespace mission
 }  // namespace sa

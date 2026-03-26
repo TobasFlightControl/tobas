@@ -23,10 +23,10 @@ ParameterTuningWidget::ParameterTuningWidget(rclcpp::Node::SharedPtr node)
                  cmn::ProjectPaths::kObserverDynamicParamFileName,
                  cmn::ProjectPaths::kControllerDynamicParamFileName,
                  cmn::ProjectPaths::kRcTeleopDynamicParamFileName }
-  , blocks_{ new ParamBlockWidget(node, tobas::node::kImuFilterConfigServer, "IMU Filter"),
-             new ParamBlockWidget(node, tobas::node::kObserver, "State Estimator"),
-             new ParamBlockWidget(node, tobas::node::kController, "Flight Controller"),
-             new ParamBlockWidget(node, tobas::node::kRcTeleop, "Radio Control") }
+  , blocks_{ new ParamBlockWidget(node, node::kImuFilterConfigServer, "IMU Filter"),
+             new ParamBlockWidget(node, node::kObserver, "State Estimator"),
+             new ParamBlockWidget(node, node::kController, "Flight Controller"),
+             new ParamBlockWidget(node, node::kRcTeleop, "Radio Control") }
 {
   load_button_ = new QPushButton("Load");
   save_button_ = new QPushButton("Save");
@@ -50,7 +50,7 @@ ParameterTuningWidget::ParameterTuningWidget(rclcpp::Node::SharedPtr node)
   button_cols->addWidget(reset_button_);
   button_cols->addStretch();
 
-  const auto param_rows = tobas::qt::createScrollableQVBoxLayout(root_rows);
+  const auto param_rows = qt::createScrollableQVBoxLayout(root_rows);
   for (const auto& block : blocks_) {
     param_rows->addWidget(block);
   }
@@ -84,7 +84,7 @@ bool ParameterTuningWidget::updateProject(const fs::path& proj_path)
   // Load drone configuration
   const auto tbsdrn_path = proj_paths_.tbsdrnPath();
   if (!drone_.load(tbsdrn_path)) {
-    tobas::qt::qErrorBox(this, "Failed to load drone configuration.");
+    qt::qErrorBox(this, "Failed to load drone configuration.");
     return false;
   }
 
@@ -107,7 +107,7 @@ void ParameterTuningWidget::onLoadButtonClicked()
   save_button_->setEnabled(true);
   reset_button_->setEnabled(true);
 
-  tobas::qt::qInfoBox(this, "Dynamic parameters are loaded successfully.");
+  qt::qInfoBox(this, "Dynamic parameters are loaded successfully.");
 }
 
 void ParameterTuningWidget::onSaveButtonClicked()
@@ -121,7 +121,7 @@ void ParameterTuningWidget::onSaveButtonClicked()
     }
   }
 
-  tobas::qt::qInfoBox(
+  qt::qInfoBox(
     this,
     "Dynamic parameters have been saved to the local project. "
     "Please click \"Write\" button again to flash them to the FC.");
@@ -130,7 +130,7 @@ void ParameterTuningWidget::onSaveButtonClicked()
 void ParameterTuningWidget::onResetButtonClicked()
 {
   // 本当に全てのパラメータをリセットしてよいか確認
-  if (!tobas::qt::yesOrNo(this, "Are you sure you want to reset all parameters to their defaults?", tobas::qt::WARN)) {
+  if (!qt::yesOrNo(this, "Are you sure you want to reset all parameters to their defaults?", qt::WARN)) {
     return;
   }
 
@@ -140,7 +140,7 @@ void ParameterTuningWidget::onResetButtonClicked()
     }
   }
 
-  tobas::qt::qInfoBox(this, "Dynamic parameters are set to their defaults successfully.");
+  qt::qInfoBox(this, "Dynamic parameters are set to their defaults successfully.");
 }
 }  // namespace param
 }  // namespace gui

@@ -17,7 +17,7 @@ DebugWidget::DebugWidget()
 
   // Layout
   const auto rows = new QVBoxLayout();
-  rows->addWidget(new tobas::qt::Label("Debug", cmn::kLabelPSize, QFont::Bold));
+  rows->addWidget(new qt::Label("Debug", cmn::kLabelPSize, QFont::Bold));
   rows->addWidget(user_debug_);
 
   setLayout(rows);

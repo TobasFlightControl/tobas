@@ -56,7 +56,7 @@ bool NetworkIfaceWidget::isValid()
 {
   if (nif_btn_group_->checkedId() == kOtherIdx) {
     if (other_nif_name_->text().isEmpty()) {
-      tobas::qt::qWarnBox(this, "Please specify a network interface name.");
+      qt::qWarnBox(this, "Please specify a network interface name.");
       return false;
     }
   }

@@ -27,14 +27,14 @@ public:
   const char* name() const override;
 
   double altitude() const;
-  tobas::mission::AltitudeFrame altitudeFrame() const;
+  mission::AltitudeFrame altitudeFrame() const;
   double maxSpeed() const;
   double maxAccel() const;
   double maxJerk() const;
   double altitudeTolerance() const;
 
   void altitude(double value);
-  void altitudeFrame(tobas::mission::AltitudeFrame value);
+  void altitudeFrame(mission::AltitudeFrame value);
   void maxSpeed(double value);
   void maxAccel(double value);
   void maxJerk(double value);

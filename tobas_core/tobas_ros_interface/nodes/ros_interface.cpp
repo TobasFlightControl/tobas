@@ -187,25 +187,24 @@ RosInterfaceNode::RosInterfaceNode(const rclcpp::NodeOptions& options)
   addTopicLogicToIface<tobas_msgs::msg::Message>(topic::kMessage, topic::kMessage);
   addTopicLogicToIface<tobas_drone_msgs::msg::Drone>(topic::kDrone, topic::kDrone, true, true);
   addTopicLogicToIface<tobas_kdl_msgs::msg::Tree>(topic::kKdlTree, topic::kKdlTree, true, true);
-  addTopicLogicToIface<tobas_msgs::msg::Battery>(tobas::addThrotNS(topic::kBattery), topic::kBattery);
-  addTopicLogicToIface<tobas_msgs::msg::EngineState>(tobas::addThrotNS(topic::kEngineState), topic::kEngineState);
+  addTopicLogicToIface<tobas_msgs::msg::Battery>(addThrotNS(topic::kBattery), topic::kBattery);
+  addTopicLogicToIface<tobas_msgs::msg::EngineState>(addThrotNS(topic::kEngineState), topic::kEngineState);
   addTopicLogicToIface<tobas_msgs::msg::Cpu>(topic::kCpu, topic::kCpu);
-  addTopicLogicToIface<tobas_msgs::msg::Sbus>(tobas::addThrotNS(topic::kSbus), topic::kSbus);
-  addTopicLogicToIface<tobas_msgs::msg::RCInput>(tobas::addThrotNS(topic::kRcInput), topic::kRcInput);
-  addTopicLogicToIface<tobas_msgs::msg::Imu>(tobas::addThrotNS(topic::kImuFilt), topic::kImuFilt);
-  addTopicLogicToIface<tobas_msgs::msg::MagneticField>(tobas::addThrotNS(topic::kMagneticField), topic::kMagneticField);
-  addTopicLogicToIface<tobas_msgs::msg::FluidPressure>(tobas::addThrotNS(topic::kAirPressure), topic::kAirPressure);
+  addTopicLogicToIface<tobas_msgs::msg::Sbus>(addThrotNS(topic::kSbus), topic::kSbus);
+  addTopicLogicToIface<tobas_msgs::msg::RCInput>(addThrotNS(topic::kRcInput), topic::kRcInput);
+  addTopicLogicToIface<tobas_msgs::msg::Imu>(addThrotNS(topic::kImuFilt), topic::kImuFilt);
+  addTopicLogicToIface<tobas_msgs::msg::MagneticField>(addThrotNS(topic::kMagneticField), topic::kMagneticField);
+  addTopicLogicToIface<tobas_msgs::msg::FluidPressure>(addThrotNS(topic::kAirPressure), topic::kAirPressure);
   addTopicLogicToIface<tobas_msgs::msg::Gnss>(topic::kGnss, topic::kGnss);
-  addTopicLogicToIface<tobas_msgs::msg::RotorStateArray>(tobas::addThrotNS(topic::kRotorStates), topic::kRotorStates);
+  addTopicLogicToIface<tobas_msgs::msg::RotorStateArray>(addThrotNS(topic::kRotorStates), topic::kRotorStates);
   addTopicLogicToIface<tobas_msgs::msg::RotorLivelinessArray>(topic::kRotorLiv, topic::kRotorLiv);
-  addTopicLogicToIface<tobas_msgs::msg::JointStateArray>(tobas::addThrotNS(topic::kJointStates), topic::kJointStates);
-  addTopicLogicToIface<tobas_msgs::msg::OdometryWithCovarianceStamped>(
-    tobas::addThrotNS(topic::kOdometry), topic::kOdometry);
+  addTopicLogicToIface<tobas_msgs::msg::JointStateArray>(addThrotNS(topic::kJointStates), topic::kJointStates);
+  addTopicLogicToIface<tobas_msgs::msg::OdometryWithCovarianceStamped>(addThrotNS(topic::kOdometry), topic::kOdometry);
   addTopicLogicToIface<tobas_msgs::msg::Arming>(topic::kArming, topic::kArming);
   addTopicLogicToIface<tobas_msgs::msg::VehicleHealth>(topic::kVehicleHealth, topic::kVehicleHealth);
-  addTopicLogicToIface<tobas_msgs::msg::Imu>(tobas::addThrotNS(real::topic::kImuRaw), real::topic::kImuRaw);
+  addTopicLogicToIface<tobas_msgs::msg::Imu>(addThrotNS(real::topic::kImuRaw), real::topic::kImuRaw);
   addTopicLogicToIface<tobas_msgs::msg::MagneticField>(
-    tobas::addThrotNS(real::topic::kMagneticField), real::topic::kMagneticField);
+    addThrotNS(real::topic::kMagneticField), real::topic::kMagneticField);
   addTopicLogicToIface<tobas_msgs::msg::RosbagState>(topic::kRosbagState, topic::kRosbagState);
 
   // Topics (Interface -> Logic)
@@ -240,11 +239,10 @@ RosInterfaceNode::RosInterfaceNode(const rclcpp::NodeOptions& options)
   addService<tobas_msgs::srv::GetRotorControlGains>(service::kGetRotorControlGains);
   addService<tobas_msgs::srv::SetRotorControlGains>(service::kSetRotorControlGains);
   addService<std_srvs::srv::Trigger>(service::kSaveRotorControlGains);
-  addService<tobas_dparam_msgs::srv::GetParams>(
-    path::join(tobas::node::kImuFilterConfigServer, service::kGetDynamicParams));
-  addService<tobas_dparam_msgs::srv::GetParams>(path::join(tobas::node::kObserver, service::kGetDynamicParams));
-  addService<tobas_dparam_msgs::srv::GetParams>(path::join(tobas::node::kController, service::kGetDynamicParams));
-  addService<tobas_dparam_msgs::srv::GetParams>(path::join(tobas::node::kRcTeleop, service::kGetDynamicParams));
+  addService<tobas_dparam_msgs::srv::GetParams>(path::join(node::kImuFilterConfigServer, service::kGetDynamicParams));
+  addService<tobas_dparam_msgs::srv::GetParams>(path::join(node::kObserver, service::kGetDynamicParams));
+  addService<tobas_dparam_msgs::srv::GetParams>(path::join(node::kController, service::kGetDynamicParams));
+  addService<tobas_dparam_msgs::srv::GetParams>(path::join(node::kRcTeleop, service::kGetDynamicParams));
   addService<tobas_real_msgs::srv::SetImuParams>(real::handler::imu::kSetParamSrv);
   addService<tobas_real_msgs::srv::SetMagnetometerParams>(real::handler::mag::kSetParamSrv);
   addService<tobas_real_msgs::srv::SetRcInputParams>(real::handler::rcin::kSetParamSrv);
@@ -285,7 +283,7 @@ void RosInterfaceNode::addTopicLogicToIface(
   bool reliable,
   size_t queue_size)
 {
-  addTopic<MsgType>(sub_topic, tobas::addIfaceNS(pub_topic), latch, reliable, queue_size);
+  addTopic<MsgType>(sub_topic, addIfaceNS(pub_topic), latch, reliable, queue_size);
 }
 
 template <typename MsgType>
@@ -296,7 +294,7 @@ void RosInterfaceNode::addTopicIfaceToLogic(
   bool reliable,
   size_t queue_size)
 {
-  addTopic<MsgType>(tobas::addIfaceNS(sub_topic), pub_topic, latch, reliable, queue_size);
+  addTopic<MsgType>(addIfaceNS(sub_topic), pub_topic, latch, reliable, queue_size);
 }
 
 template <typename SrvType>
@@ -310,7 +308,7 @@ void RosInterfaceNode::addService(const std::string& service_name)
     [this, service](const typename SrvType::Request::SharedPtr& req, const typename SrvType::Response::SharedPtr& res)
   { serviceCallback<SrvType>(service, req, res); };
   const auto qos = rclcpp::ServicesQoS();
-  service->server = create_service<SrvType>(tobas::addIfaceNS(service_name), cb, qos, group_);
+  service->server = create_service<SrvType>(addIfaceNS(service_name), cb, qos, group_);
 
   // Create client
   service->client = create_client<SrvType>(service_name);
@@ -335,7 +333,7 @@ void RosInterfaceNode::addAction(const std::string& action_name)
   const auto handle_accepted = [this, action](const GoalHandlePtr& gh) { actionHandleAccepted<ActType>(action, gh); };
   action->server = rclcpp_action::create_server<ActType>(
     this,
-    tobas::addIfaceNS(action_name),
+    addIfaceNS(action_name),
     handle_goal,
     handle_cancel,
     handle_accepted,
@@ -378,7 +376,7 @@ void RosInterfaceNode::actionFeedbackCallback(
   const typename ActType::Feedback::ConstSharedPtr& fb_in)
 {
   if (!action->server_gh) {
-    TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Waiting for \"", action->name, "\" action server goal handle.");
+    TOBAS_WARN_THROTTLE(kTypicalWarnPeriod, "Waiting for \"", action->name, "\" action server goal handle.");
     return;
   }
 

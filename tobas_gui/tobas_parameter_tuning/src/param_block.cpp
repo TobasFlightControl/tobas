@@ -31,10 +31,10 @@ ParamBlockWidget::ParamBlockWidget(rclcpp::Node::SharedPtr node, const std::stri
   setLayout(rows);
 
   label_ = new QLabel(label);
-  label_->setFont(tobas::qt::DefaultFont(kLabelPSize, QFont::Bold));
-  tobas::qt::addWidgetCenter(label_, rows);
+  label_->setFont(qt::DefaultFont(kLabelPSize, QFont::Bold));
+  qt::addWidgetCenter(label_, rows);
 
-  form_ = new tobas::qt::FormLayout();
+  form_ = new qt::FormLayout();
   rows->addLayout(form_);
 }
 
@@ -45,11 +45,11 @@ bool ParamBlockWidget::load(const std::string& ns)
   clear();
 
   // Get dynamic parameters
-  const auto service_name = path::join(ns, tobas::kRemoteIfaceNS, node_name_, service::kGetDynamicParams);
+  const auto service_name = path::join(ns, kRemoteIfaceNS, node_name_, service::kGetDynamicParams);
   ros2::SyncServiceClient<tobas_dparam_msgs::srv::GetParams> sc(node_, service_name);
   const auto req = std::make_shared<tobas_dparam_msgs::srv::GetParams::Request>();
   if (!sc.call(req, kLoadParamTimeout)) {
-    tobas::qt::qErrorBox(this, "Failed to get dynamic parameters configuration of \"" + label_->text() + "\".");
+    qt::qErrorBox(this, "Failed to get dynamic parameters configuration of \"" + label_->text() + "\".");
     return false;
   }
   const auto res = sc.getResponse();
@@ -70,7 +70,7 @@ bool ParamBlockWidget::load(const std::string& ns)
     config.up_button_ = new QPushButton();
     config.up_button_->setIcon(style()->standardIcon(QStyle::SP_ArrowUp));
 
-    config.slider = new tobas::qt::Slider(Qt::Horizontal);
+    config.slider = new qt::Slider(Qt::Horizontal);
     config.slider->setRange(param.min, param.max);
     config.slider->setValue(param.value);
 
@@ -93,7 +93,7 @@ bool ParamBlockWidget::load(const std::string& ns)
     connect(config.up_button_, &QPushButton::clicked, bind(&self::onIntUpButtonClicked, this, param.name));
     connect(
       config.slider,
-      &tobas::qt::Slider::valueChanged,
+      &qt::Slider::valueChanged,
       std::bind(&self::onIntSliderValueChanged, this, std::placeholders::_1, param.name));
   }
 
@@ -112,7 +112,7 @@ bool ParamBlockWidget::load(const std::string& ns)
     config.up_button_ = new QPushButton();
     config.up_button_->setIcon(style()->standardIcon(QStyle::SP_ArrowUp));
 
-    config.slider = new tobas::qt::Slider(Qt::Horizontal);
+    config.slider = new qt::Slider(Qt::Horizontal);
     config.slider->setRange(param.min, param.max);
     config.slider->setValue(param.value);
 
@@ -135,7 +135,7 @@ bool ParamBlockWidget::load(const std::string& ns)
     connect(config.up_button_, &QPushButton::clicked, bind(&self::onDoubleUpButtonClicked, this, param.name));
     connect(
       config.slider,
-      &tobas::qt::Slider::valueChanged,
+      &qt::Slider::valueChanged,
       std::bind(&self::onDoubleSliderValueChanged, this, std::placeholders::_1, param.name));
   }
 
@@ -148,13 +148,13 @@ bool ParamBlockWidget::save(const fs::path& path)
 
   // 設定ファイルが存在することを確認
   if (!fs::is_regular_file(path)) {
-    tobas::qt::qErrorBox(this, QString::fromStdString(path) + " does not exist on PC.");
+    qt::qErrorBox(this, QString::fromStdString(path) + " does not exist on PC.");
     return false;
   }
 
   // PCに保存
   if (!yaml::save(path, config)) {
-    tobas::qt::qErrorBox(this, "Failed to save configuration to PC.");
+    qt::qErrorBox(this, "Failed to save configuration to PC.");
     return false;
   }
 
@@ -176,7 +176,7 @@ bool ParamBlockWidget::setToDefaults()
     }
 
     if (dparam_client_->setInt(name, config.dflt) != dparam::DynamicParamClient::kNoError) {
-      tobas::qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter \"" + name.c_str() + "\".");
+      qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter \"" + name.c_str() + "\".");
       return false;
     }
 
@@ -191,7 +191,7 @@ bool ParamBlockWidget::setToDefaults()
     }
 
     if (dparam_client_->setDouble(name, config.dflt) != dparam::DynamicParamClient::kNoError) {
-      tobas::qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter \"" + name.c_str() + "\".");
+      qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter \"" + name.c_str() + "\".");
       return false;
     }
 
@@ -236,7 +236,7 @@ void ParamBlockWidget::onIntSliderValueChanged(long value, const std::string& na
   config.line_edit->setText(QString::number(value) + config.prefix);
 
   if (dparam_client_->setInt(name, value) != dparam::DynamicParamClient::kNoError) {
-    tobas::qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter \"" + name.c_str() + "\".");
+    qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter \"" + name.c_str() + "\".");
   }
 }
 
@@ -258,7 +258,7 @@ void ParamBlockWidget::onDoubleSliderValueChanged(long value, const std::string&
   config.line_edit->setText(QString::number(config.step * value) + config.prefix);
 
   if (dparam_client_->setDouble(name, value) != dparam::DynamicParamClient::kNoError) {
-    tobas::qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter \"" + name.c_str() + "\".");
+    qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter \"" + name.c_str() + "\".");
   }
 }
 }  // namespace param

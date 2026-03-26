@@ -35,7 +35,7 @@ protected:
 
 private:
   MediaManagerWidget* media_manager_;
-  tobas::qt::VerticalTabWidget* tabs_;
+  qt::VerticalTabWidget* tabs_;
 
   HostnameWidget* hostname_;
   LoginPasswordWidget* login_password_;

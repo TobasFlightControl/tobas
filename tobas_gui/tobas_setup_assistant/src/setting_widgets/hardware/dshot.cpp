@@ -55,7 +55,7 @@ bool DShotWidget::isValid()
       continue;
     }
     if (target_name_set.contains(target_name)) {
-      tobas::qt::qWarnBox(this, "DShot target \"" + target_name + "\" is duplicated.");
+      qt::qWarnBox(this, "DShot target \"" + target_name + "\" is duplicated.");
       return false;
     }
     target_name_set.insert(target_name);
@@ -136,24 +136,24 @@ int DShotWidget::channel(const QString& target_name) const
   return -1;
 }
 
-tobas::qt::ComboBox* DShotWidget::targetNameWidget(int row)
+qt::ComboBox* DShotWidget::targetNameWidget(int row)
 {
-  return tobas::qt::qPointerCast<tobas::qt::ComboBox>(cellWidget(row, kTargetNameCol));
+  return qt::qPointerCast<qt::ComboBox>(cellWidget(row, kTargetNameCol));
 }
 
 QPushButton* DShotWidget::bidirectionalWidget(int row)
 {
-  return tobas::qt::qPointerCast<QPushButton>(cellWidget(row, kBidirectionalCol));
+  return qt::qPointerCast<QPushButton>(cellWidget(row, kBidirectionalCol));
 }
 
-const tobas::qt::ComboBox* DShotWidget::targetNameWidget(int row) const
+const qt::ComboBox* DShotWidget::targetNameWidget(int row) const
 {
-  return tobas::qt::qConstPointerCast<tobas::qt::ComboBox>(cellWidget(row, kTargetNameCol));
+  return qt::qConstPointerCast<qt::ComboBox>(cellWidget(row, kTargetNameCol));
 }
 
 const QPushButton* DShotWidget::bidirectionalWidget(int row) const
 {
-  return tobas::qt::qConstPointerCast<QPushButton>(cellWidget(row, kBidirectionalCol));
+  return qt::qConstPointerCast<QPushButton>(cellWidget(row, kBidirectionalCol));
 }
 
 void DShotWidget::addLastChannel()
@@ -161,16 +161,16 @@ void DShotWidget::addLastChannel()
   const auto row = rowCount();
 
   // Target name
-  const auto target_name = new tobas::qt::ComboBox();
+  const auto target_name = new qt::ComboBox();
   target_name->addItem("");  // 未選択
   switch (prop_type_) {
-    case tobas::PropulsionSystem::kElectric: {
+    case PropulsionSystem::kElectric: {
       for (const auto& [joint_name, _] : uadf_.thrusts) {
         target_name->addItem(QString::fromStdString(joint_name));
       }
       break;
     }
-    case tobas::PropulsionSystem::kIce: {
+    case PropulsionSystem::kIce: {
       break;
     }
     default:
@@ -207,7 +207,7 @@ void DShotWidget::removeLastChannel()
   removeRow(row);
 
   if (!target_name.isEmpty()) {
-    tobas::qt::qWarnBox(this, "PWM configuration for \"" + target_name + "\" has been removed.");
+    qt::qWarnBox(this, "PWM configuration for \"" + target_name + "\" has been removed.");
   }
 }
 
@@ -227,7 +227,7 @@ void DShotWidget::setBidirectionalButtonText(QPushButton* button, bool checked)
   }
 }
 
-void DShotWidget::onPropulsionTypeChanged(const tobas::PropulsionSystem& new_prop_type)
+void DShotWidget::onPropulsionTypeChanged(const PropulsionSystem& new_prop_type)
 {
   if (new_prop_type == prop_type_) {
     return;
@@ -235,7 +235,7 @@ void DShotWidget::onPropulsionTypeChanged(const tobas::PropulsionSystem& new_pro
 
   // 前の推進系の不要な選択肢を外す
   switch (prop_type_) {
-    case tobas::PropulsionSystem::kElectric: {
+    case PropulsionSystem::kElectric: {
       for (int channel = 0; channel < rowCount(); ++channel) {
         const auto target_name = targetNameWidget(channel);
 
@@ -248,7 +248,7 @@ void DShotWidget::onPropulsionTypeChanged(const tobas::PropulsionSystem& new_pro
       }
       break;
     }
-    case tobas::PropulsionSystem::kIce: {
+    case PropulsionSystem::kIce: {
       break;
     }
     default:
@@ -257,7 +257,7 @@ void DShotWidget::onPropulsionTypeChanged(const tobas::PropulsionSystem& new_pro
 
   // 新しい推進系の選択肢を追加
   switch (new_prop_type) {
-    case tobas::PropulsionSystem::kElectric: {
+    case PropulsionSystem::kElectric: {
       for (int channel = 0; channel < rowCount(); ++channel) {
         const auto target_name = targetNameWidget(channel);
 
@@ -267,7 +267,7 @@ void DShotWidget::onPropulsionTypeChanged(const tobas::PropulsionSystem& new_pro
       }
       break;
     }
-    case tobas::PropulsionSystem::kIce: {
+    case PropulsionSystem::kIce: {
       break;
     }
     default:

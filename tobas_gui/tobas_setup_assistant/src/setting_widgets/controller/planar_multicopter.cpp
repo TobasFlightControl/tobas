@@ -42,22 +42,22 @@ QString PlanarMulticopterWidget::controllerPackage() const
 
 QString PlanarMulticopterWidget::pluginName() const
 {
-  return "tobas::planar_multicopter::ControllerNode";
+  return "planar_multicopter::ControllerNode";
 }
 
-tobas::RcCommand PlanarMulticopterWidget::acrobatModeCommand() const
+RcCommand PlanarMulticopterWidget::acrobatModeCommand() const
 {
-  return tobas::RcCommand::kRateThrottle;
+  return RcCommand::kRateThrottle;
 }
 
-tobas::RcCommand PlanarMulticopterWidget::stabilizeModeCommand() const
+RcCommand PlanarMulticopterWidget::stabilizeModeCommand() const
 {
-  return tobas::RcCommand::kAngleThrottle;
+  return RcCommand::kAngleThrottle;
 }
 
-tobas::RcCommand PlanarMulticopterWidget::loiterModeCommand() const
+RcCommand PlanarMulticopterWidget::loiterModeCommand() const
 {
-  return tobas::RcCommand::kPosVelAccYaw;
+  return RcCommand::kPosVelAccYaw;
 }
 
 YAML::Node PlanarMulticopterWidget::staticParams() const

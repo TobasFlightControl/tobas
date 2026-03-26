@@ -47,7 +47,7 @@ private:
 MagnetometerHandlerNode::MagnetometerHandlerNode(const rclcpp::NodeOptions& options)
   : super("real_magnetometer_handler", nodeOptions_Default(options))
 {
-  const auto cfg_dir = linux::isSuperUser() ? fs::path(tobas::kConfigDirRoot) : ros2::expandUser(tobas::kConfigDirHome);
+  const auto cfg_dir = linux::isSuperUser() ? fs::path(kConfigDirRoot) : ros2::expandUser(kConfigDirHome);
   if (!pt_.initialize((cfg_dir / kConfigFileName))) {
     TOBAS_ERROR("Failed to initialize property tree. This node will not work.");
     return;

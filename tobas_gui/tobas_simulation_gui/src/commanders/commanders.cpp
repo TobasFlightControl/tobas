@@ -16,15 +16,15 @@ CommandersWidget::CommandersWidget(
   rclcpp::Node::SharedPtr node,
   const RosQtBridge& bridge,
   const kdl::Tree& tree,
-  const tobas::Drone& drone)
+  const Drone& drone)
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);
 
-  const auto title = new tobas::qt::Label("Commanders", cmn::kTitlePSize, QFont::Bold);
-  tobas::qt::addWidgetCenter(title, rows);
+  const auto title = new qt::Label("Commanders", cmn::kTitlePSize, QFont::Bold);
+  qt::addWidgetCenter(title, rows);
 
-  const auto scroll_rows = tobas::qt::createScrollableQVBoxLayout(rows);
+  const auto scroll_rows = qt::createScrollableQVBoxLayout(rows);
 
   base_pose_commander_ = new BasePoseCommanderWidget(node, bridge, drone);
   scroll_rows->addWidget(base_pose_commander_);

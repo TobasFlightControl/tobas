@@ -25,7 +25,7 @@ struct IntConfig
 
   QPushButton* down_button_;
   QPushButton* up_button_;
-  tobas::qt::Slider* slider;
+  qt::Slider* slider;
   QLineEdit* line_edit;
 };
 
@@ -37,7 +37,7 @@ struct DoubleConfig
 
   QPushButton* down_button_;
   QPushButton* up_button_;
-  tobas::qt::Slider* slider;
+  qt::Slider* slider;
   QLineEdit* line_edit;
 };
 
@@ -73,7 +73,7 @@ private:
   std::map<std::string, DoubleConfig> double_configs_;
 
   QLabel* label_;
-  tobas::qt::FormLayout* form_;
+  qt::FormLayout* form_;
 
   YAML::Node createCurrentConfig() const;
 

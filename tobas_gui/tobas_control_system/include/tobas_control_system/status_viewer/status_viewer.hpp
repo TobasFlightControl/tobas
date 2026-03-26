@@ -11,12 +11,12 @@ namespace gui
 {
 namespace ctrl
 {
-class StatusViewerWidget : public tobas::qt::ScrollArea
+class StatusViewerWidget : public qt::ScrollArea
 {
   Q_OBJECT
 
   using self = StatusViewerWidget;
-  using super = tobas::qt::ScrollArea;
+  using super = qt::ScrollArea;
 
 public:
   explicit StatusViewerWidget(const RosQtBridge& bridge);

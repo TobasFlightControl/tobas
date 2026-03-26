@@ -23,7 +23,7 @@ public:
   void setValue(double value) override;
 
 private:
-  tobas::qt::DoubleSpinBox* spin_box_;
+  qt::DoubleSpinBox* spin_box_;
 };
 }  // namespace field
 }  // namespace ctrl

@@ -15,7 +15,7 @@ namespace log
 FlightLogItemWidgetFC::FlightLogItemWidgetFC(const QString& log_name)
 {
   log_name_ = new QLabel(log_name);
-  log_name_->setFont(tobas::qt::DefaultFont(kPSize3));
+  log_name_->setFont(qt::DefaultFont(kPSize3));
 
   download_button_ = new QPushButton("Download");
   download_button_->setFixedWidth(kButtonWidth);

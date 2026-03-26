@@ -130,5 +130,5 @@ void GazeboJointPositionControllerPlugin::commandCb(const tobas_gazebo_msgs::msg
 GZ_ADD_PLUGIN(
   tobas::gazebo::GazeboJointPositionControllerPlugin,
   gz::sim::System,
-  tobas::gazebo::GazeboJointPositionControllerPlugin::ISystemConfigure,
-  tobas::gazebo::GazeboJointPositionControllerPlugin::ISystemPreUpdate)
+  gz::sim::ISystemConfigure,
+  gz::sim::ISystemPreUpdate)

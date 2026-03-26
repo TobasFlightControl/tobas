@@ -24,8 +24,8 @@ public:
   void reset();
 
 private:
-  tobas::qt::FramedLabel* status_;
-  tobas::qt::FramedLabel* nsats_;
+  qt::FramedLabel* status_;
+  qt::FramedLabel* nsats_;
 
   void setStatus(uint8_t status);
   void setNSats(int nsats);

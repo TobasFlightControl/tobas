@@ -18,7 +18,7 @@ IPv4Edit::IPv4Edit(QWidget* parent) : super(parent)
 
   for (int i = kNumFields - 1; i >= 0; --i) {
     fields_[i] = new QLineEdit();
-    fields_[i]->setValidator(new tobas::qt::IntValidator(0, UINT8_MAX));
+    fields_[i]->setValidator(new qt::IntValidator(0, UINT8_MAX));
 
     cols->addWidget(fields_[i]);
     if (i != 0) {

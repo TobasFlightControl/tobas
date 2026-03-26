@@ -32,7 +32,7 @@ class JointCommandsPublisherWidget : public QWidget
   static constexpr double kDefaultMaxEff = 10.;    // [Nm]
 
 public:
-  explicit JointCommandsPublisherWidget(rclcpp::Node::SharedPtr node, const kdl::Tree& tree, const tobas::Drone& drone);
+  explicit JointCommandsPublisherWidget(rclcpp::Node::SharedPtr node, const kdl::Tree& tree, const Drone& drone);
 
   void updateInternalDataStructures();
 
@@ -47,11 +47,11 @@ public:
 private:
   const rclcpp::Node::SharedPtr node_;
   const kdl::Tree& tree_;
-  const tobas::Drone& drone_;
+  const Drone& drone_;
 
   kdl::TreeJointParser joint_parser_;
 
-  std::map<std::string, tobas::qt::DoubleSliderDisplay*> commanders_;
+  std::map<std::string, qt::DoubleSliderDisplay*> commanders_;
   QVBoxLayout* rows_;
 
   ros2::PublisherPtr<tobas_msgs::msg::JointCommandArray> pos_pub_;

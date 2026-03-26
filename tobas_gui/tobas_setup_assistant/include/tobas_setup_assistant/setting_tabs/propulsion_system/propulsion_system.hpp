@@ -40,7 +40,7 @@ public:
   YAML::Node dump() const override;
   void load(const YAML::Node& node) override;
 
-  tobas::PropulsionSystem type() const;
+  PropulsionSystem type() const;
   int numUnits() const;
 
   QString linkName(int index) const;
@@ -56,7 +56,7 @@ private:
   Signals& sig_;
 
   QButtonGroup* type_btn_group_;
-  tobas::qt::StackedWidget* propulsion_stack_;
+  qt::StackedWidget* propulsion_stack_;
 
   int cur_idx_;
 

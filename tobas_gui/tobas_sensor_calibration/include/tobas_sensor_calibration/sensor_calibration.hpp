@@ -12,24 +12,24 @@ namespace gui
 {
 namespace sc
 {
-class SensorCalibrationWidget : public tobas::qt::VerticalTabWidget
+class SensorCalibrationWidget : public qt::VerticalTabWidget
 {
   Q_OBJECT
 
   using self = SensorCalibrationWidget;
-  using super = tobas::qt::VerticalTabWidget;
+  using super = qt::VerticalTabWidget;
 
   static constexpr int kTabHeight = 35;  // これ以上無いと何故かTabBarの文字が横に見切れてしまう
   static constexpr int kTabWidth = 70;
 
 public:
-  explicit SensorCalibrationWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge, const tobas::Drone& drone);
+  explicit SensorCalibrationWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge, const Drone& drone);
 
   void reset();
   void updateInternalDataStructures();
 
 private:
-  const tobas::Drone& drone_;
+  const Drone& drone_;
 
   AccelCalibrationWidget* accel_calib_;
   MagCalibrationWidget* mag_calib_;

@@ -11,18 +11,18 @@ namespace gui
 {
 namespace ctrl
 {
-class PowerSourceViewerWidget : public tobas::qt::StackedWidget
+class PowerSourceViewerWidget : public qt::StackedWidget
 {
   Q_OBJECT
 
 public:
-  explicit PowerSourceViewerWidget(const RosQtBridge& bridge, const tobas::Drone& drone);
+  explicit PowerSourceViewerWidget(const RosQtBridge& bridge, const Drone& drone);
 
   void reset();
   void updateInternalDataStructures();
 
 private:
-  const tobas::Drone& drone_;
+  const Drone& drone_;
 
   BatteryViewerWidget* battery_viewer_;
   EngineViewerWidget* engine_viewer_;

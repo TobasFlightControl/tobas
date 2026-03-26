@@ -33,12 +33,12 @@ FlightLogsWidgetFC::FlightLogsWidgetFC(rclcpp::Node::SharedPtr node)
   read_button_->setEnabled(false);  // ホストが決まらないとSSH接続できないためTBSが読み込まれるまでは無効化
   clean_button_->setEnabled(false);
 
-  log_list_ = new tobas::qt::ListWidget();
+  log_list_ = new qt::ListWidget();
   log_list_->setSelectionMode(QListWidget::NoSelection);
 
   // Layout
   const auto cols = new QHBoxLayout();
-  cols->addWidget(new tobas::qt::Label("Flight Controller", kPSize1, QFont::Bold));
+  cols->addWidget(new qt::Label("Flight Controller", kPSize1, QFont::Bold));
   cols->addStretch();
   cols->addWidget(read_button_);
   cols->addWidget(clean_button_);
@@ -61,7 +61,7 @@ void FlightLogsWidgetFC::onProjectLoaded()
 
 void FlightLogsWidgetFC::addLog(const QString& log_name)
 {
-  const auto list_item = new tobas::qt::ListWidgetItem();
+  const auto list_item = new qt::ListWidgetItem();
   list_item->setSizeHint(QSize(0, kListItemHeight));
   list_item->setData(Qt::UserRole, log_name);
   log_list_->addItem(list_item);
@@ -83,7 +83,7 @@ QListWidgetItem* FlightLogsWidgetFC::findLog(const QString& log_name)
 {
   for (int row = 0; row < log_list_->count(); ++row) {
     const auto list_item = log_list_->item(row);
-    const auto log_widget = tobas::qt::qConstPointerCast<FlightLogItemWidgetFC>(log_list_->itemWidget(list_item));
+    const auto log_widget = qt::qConstPointerCast<FlightLogItemWidgetFC>(log_list_->itemWidget(list_item));
 
     if (log_widget->logName() == log_name) {
       return list_item;
@@ -108,18 +108,18 @@ void FlightLogsWidgetFC::onReadButtonClicked()
   std::vector<std::string> log_names;
 
   spinner_.start();
-  const auto res = ssh_client_.list(tobas::kRosbagDirRoot, log_names);
+  const auto res = ssh_client_.list(kRosbagDirRoot, log_names);
   spinner_.stop();
 
   if (res != ssh::SshClient::kNoError) {
-    tobas::qt::qErrorBox(this, ssh_client_.errorMessage());
+    qt::qErrorBox(this, ssh_client_.errorMessage());
     return;
   }
 
   clearLogs();
 
   if (log_names.empty()) {
-    tobas::qt::qWarnBox(this, "There are no flight logs saved on the flight controller.");
+    qt::qWarnBox(this, "There are no flight logs saved on the flight controller.");
     return;
   }
 
@@ -134,16 +134,16 @@ void FlightLogsWidgetFC::onReadButtonClicked()
 
 void FlightLogsWidgetFC::onCleanButtonClicked()
 {
-  if (!tobas::qt::yesOrNo(this, "Do you want to clean all the flight logs saved in the FC?", tobas::qt::WARN)) {
+  if (!qt::yesOrNo(this, "Do you want to clean all the flight logs saved in the FC?", qt::WARN)) {
     return;
   }
 
   spinner_.start();
-  const auto res = ssh_client_.execute("rm -rf " + std::string(tobas::kRosbagDirRoot) + "/*", true);
+  const auto res = ssh_client_.execute("rm -rf " + std::string(kRosbagDirRoot) + "/*", true);
   spinner_.stop();
 
   if (res != ssh::SshClient::kNoError) {
-    tobas::qt::qErrorBox(this, ssh_client_.errorMessage());
+    qt::qErrorBox(this, ssh_client_.errorMessage());
     return;
   }
 
@@ -152,11 +152,10 @@ void FlightLogsWidgetFC::onCleanButtonClicked()
 
 void FlightLogsWidgetFC::onDownloadButtonClicked(const QString& log_name)
 {
-  const auto rosbag_path = ros2::expandUser(tobas::kRosbagDirHome) / log_name.toStdString();
+  const auto rosbag_path = ros2::expandUser(kRosbagDirHome) / log_name.toStdString();
 
   if (fs::exists(rosbag_path)) {
-    if (tobas::qt::yesOrNo(
-          this, QString(rosbag_path.c_str()) + " already exists. Do you want to overwrite it?", tobas::qt::WARN)) {
+    if (qt::yesOrNo(this, QString(rosbag_path.c_str()) + " already exists. Do you want to overwrite it?", qt::WARN)) {
       fs::remove_all(rosbag_path);
     }
     else {
@@ -164,8 +163,8 @@ void FlightLogsWidgetFC::onDownloadButtonClicked(const QString& log_name)
     }
   }
 
-  const auto remote_rosbag_path = fs::path(tobas::kRosbagDirRoot) / log_name.toStdString();
-  const auto local_pardir = ros2::expandUser(tobas::kRosbagDirHome);
+  const auto remote_rosbag_path = fs::path(kRosbagDirRoot) / log_name.toStdString();
+  const auto local_pardir = ros2::expandUser(kRosbagDirHome);
 
   if (!fs::is_directory(local_pardir)) {
     fs::create_directories(local_pardir);
@@ -176,7 +175,7 @@ void FlightLogsWidgetFC::onDownloadButtonClicked(const QString& log_name)
   spinner_.stop();
 
   if (res != ssh::SshClient::kNoError) {
-    tobas::qt::qErrorBox(this, ssh_client_.errorMessage());
+    qt::qErrorBox(this, ssh_client_.errorMessage());
     return;
   }
 
@@ -185,20 +184,20 @@ void FlightLogsWidgetFC::onDownloadButtonClicked(const QString& log_name)
 
 void FlightLogsWidgetFC::onDeleteButtonClicked(const QString& log_name)
 {
-  const auto log_path = ros2::expandUser(tobas::kRosbagDirHome) / log_name.toStdString();
+  const auto log_path = ros2::expandUser(kRosbagDirHome) / log_name.toStdString();
 
-  if (!tobas::qt::yesOrNo(this, "Do you want to delete flight log \"" + log_name + "\"?", tobas::qt::WARN)) {
+  if (!qt::yesOrNo(this, "Do you want to delete flight log \"" + log_name + "\"?", qt::WARN)) {
     return;
   }
 
-  const auto rosbag_path = fs::path(tobas::kRosbagDirRoot) / log_name.toStdString();
+  const auto rosbag_path = fs::path(kRosbagDirRoot) / log_name.toStdString();
 
   spinner_.start();
   const auto res = ssh_client_.execute("rm -rf " + rosbag_path.string(), true);
   spinner_.stop();
 
   if (res != ssh::SshClient::kNoError) {
-    tobas::qt::qErrorBox(this, ssh_client_.errorMessage());
+    qt::qErrorBox(this, ssh_client_.errorMessage());
     return;
   }
 

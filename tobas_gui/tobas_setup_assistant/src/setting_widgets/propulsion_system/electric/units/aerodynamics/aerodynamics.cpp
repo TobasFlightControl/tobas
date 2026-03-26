@@ -24,19 +24,19 @@ AerodynamicsWidget::AerodynamicsWidget(rclcpp::Node::SharedPtr node, const Prope
   const auto rows = new QVBoxLayout();
   setLayout(rows);
 
-  method_name_ = new tobas::qt::ComboBox();
+  method_name_ = new qt::ComboBox();
 
   const auto preset = new AerodynamicsWidget_Preset(propeller);
   const auto thrust_stand = new AerodynamicsWidget_ThrustStand(node);
   const auto uiuc = new AerodynamicsWidget_UIUC(node, propeller);
 
-  methods_ = new tobas::qt::StackedWidget();
+  methods_ = new qt::StackedWidget();
   methods_->addWidget(preset);
   methods_->addWidget(thrust_stand);
   methods_->addWidget(uiuc);
 
   for (int i = 0; i < methods_->count(); ++i) {
-    const auto method = tobas::qt::qPointerCast<AerodynamicsWidget_Base>(methods_->widget(i));
+    const auto method = qt::qPointerCast<AerodynamicsWidget_Base>(methods_->widget(i));
     method_name_->addItem(method->name());
   }
 
@@ -46,10 +46,7 @@ AerodynamicsWidget::AerodynamicsWidget(rclcpp::Node::SharedPtr node, const Prope
 
   // Connection
   connect(
-    method_name_,
-    QOverload<int>::of(&tobas::qt::ComboBox::currentIndexChanged),
-    methods_,
-    &tobas::qt::StackedWidget::setCurrentIndex);
+    method_name_, QOverload<int>::of(&qt::ComboBox::currentIndexChanged), methods_, &qt::StackedWidget::setCurrentIndex);
 }
 
 const char* AerodynamicsWidget::name() const
@@ -68,13 +65,13 @@ bool AerodynamicsWidget::isValid()
 
 void AerodynamicsWidget::copyFrom(const BaseSelectedLinkSettingWidget* src)
 {
-  const auto derived = tobas::qt::qConstPointerCast<AerodynamicsWidget>(src);
+  const auto derived = qt::qConstPointerCast<AerodynamicsWidget>(src);
 
   method_name_->setCurrentIndex(derived->method_name_->currentIndex());
 
   for (int i = 0; i < methods_->count(); ++i) {
-    const auto des_method = tobas::qt::qPointerCast<AerodynamicsWidget_Base>(methods_->widget(i));
-    const auto src_method = tobas::qt::qConstPointerCast<AerodynamicsWidget_Base>(derived->methods_->widget(i));
+    const auto des_method = qt::qPointerCast<AerodynamicsWidget_Base>(methods_->widget(i));
+    const auto src_method = qt::qConstPointerCast<AerodynamicsWidget_Base>(derived->methods_->widget(i));
     des_method->copyFrom(src_method);
   }
 }
@@ -86,7 +83,7 @@ YAML::Node AerodynamicsWidget::dump() const
   node[kMethodNameKey] = method_name_->currentText();
 
   for (int i = 0; i < methods_->count(); ++i) {
-    const auto method = tobas::qt::qConstPointerCast<AerodynamicsWidget_Base>(methods_->widget(i));
+    const auto method = qt::qConstPointerCast<AerodynamicsWidget_Base>(methods_->widget(i));
     node[method->name()] = method->dump();
   }
 
@@ -98,7 +95,7 @@ void AerodynamicsWidget::load(const YAML::Node& node)
   method_name_->setCurrentText(node[kMethodNameKey].as<QString>());
 
   for (int i = 0; i < methods_->count(); ++i) {
-    const auto method = tobas::qt::qPointerCast<AerodynamicsWidget_Base>(methods_->widget(i));
+    const auto method = qt::qPointerCast<AerodynamicsWidget_Base>(methods_->widget(i));
     method->load(node[method->name()]);
   }
 }
@@ -122,12 +119,12 @@ double AerodynamicsWidget::dragConst() const
 
 AerodynamicsWidget_Base* AerodynamicsWidget::selected()
 {
-  return tobas::qt::qPointerCast<AerodynamicsWidget_Base>(methods_->currentWidget());
+  return qt::qPointerCast<AerodynamicsWidget_Base>(methods_->currentWidget());
 }
 
 const AerodynamicsWidget_Base* AerodynamicsWidget::selected() const
 {
-  return tobas::qt::qConstPointerCast<AerodynamicsWidget_Base>(methods_->currentWidget());
+  return qt::qConstPointerCast<AerodynamicsWidget_Base>(methods_->currentWidget());
 }
 }  // namespace electric
 }  // namespace propulsion

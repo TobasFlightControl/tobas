@@ -23,8 +23,7 @@ void NetworkChecker::heartbeatCb(const tobas_msgs::msg::Heartbeat::ConstSharedPt
 
 void NetworkChecker::onTimeout()
 {
-  if (tobas::qt::yesOrNo(
-        parent_, "Network connection was lost. Do you want to close the application?", tobas::qt::WARN)) {
+  if (qt::yesOrNo(parent_, "Network connection was lost. Do you want to close the application?", qt::WARN)) {
     QApplication::quit();
   }
 

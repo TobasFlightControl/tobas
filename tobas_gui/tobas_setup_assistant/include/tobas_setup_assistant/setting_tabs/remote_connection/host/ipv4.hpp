@@ -31,7 +31,7 @@ public:
   QString host() const override;
 
 private:
-  tobas::qt::IPv4Edit* ipv4_;
+  qt::IPv4Edit* ipv4_;
 };
 }  // namespace rc
 }  // namespace sa

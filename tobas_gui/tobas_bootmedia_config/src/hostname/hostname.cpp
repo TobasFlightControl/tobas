@@ -31,7 +31,7 @@ HostnameWidget::HostnameWidget()
   hostname_ = new QLineEdit();
   hostname_->setMaxLength(HOST_NAME_MAX);
 
-  warn_text_ = new tobas::qt::Label();
+  warn_text_ = new qt::Label();
   warn_text_->setTextColor(Qt::red);
 
   // Layout
@@ -85,7 +85,7 @@ bool HostnameWidget::writeHostnameFile(const QString& hostname)
   const auto hostname_file_content = (hostname + '\n').toStdString();
 
   if (!str::writeText(hostname_file_path, hostname_file_content)) {
-    tobas::qt::qErrorBox(this, "Failed to write hostname to " + QString::fromStdString(hostname_file_path) + ".");
+    qt::qErrorBox(this, "Failed to write hostname to " + QString::fromStdString(hostname_file_path) + ".");
     return false;
   }
 
@@ -109,7 +109,7 @@ bool HostnameWidget::writeHostsFile(const QString& hostname)
     env.write(temp, tpl_data, out_path);
   }
   catch (const std::exception& e) {
-    tobas::qt::qErrorBox(this, "Failed to write hostname to " + QString::fromStdString(out_path) + ": " + e.what());
+    qt::qErrorBox(this, "Failed to write hostname to " + QString::fromStdString(out_path) + ": " + e.what());
     return false;
   }
 
@@ -178,14 +178,14 @@ void HostnameWidget::onReadButtonClicked()
 {
   std::string file_content;
   if (!str::readText(hostnameFilePath(), file_content)) {
-    tobas::qt::qErrorBox(this, "Failed to read the current hostname.");
+    qt::qErrorBox(this, "Failed to read the current hostname.");
     return;
   }
 
   const auto hostname = QString::fromStdString(file_content).trimmed();  // 末尾の改行コードを削除
   hostname_->setText(hostname);
 
-  tobas::qt::qInfoBox(this, "Hostname was read successfully.");
+  qt::qInfoBox(this, "Hostname was read successfully.");
 }
 
 void HostnameWidget::onWriteButtonClicked()
@@ -199,7 +199,7 @@ void HostnameWidget::onWriteButtonClicked()
     return;
   }
 
-  tobas::qt::qInfoBox(this, "Hostname was written successfully.");
+  qt::qInfoBox(this, "Hostname was written successfully.");
 }
 }  // namespace bm
 }  // namespace gui

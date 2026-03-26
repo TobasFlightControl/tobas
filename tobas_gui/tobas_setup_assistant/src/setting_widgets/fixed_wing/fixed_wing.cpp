@@ -16,17 +16,17 @@ namespace fw
 FixedWingWidget::FixedWingWidget(rclcpp::Node::SharedPtr node, const uadf::Model& uadf) : node_(node)
 {
   // Vehicle
-  addWidget(new tobas::qt::Label(kVehicleLabel, cmn::kTitlePSize));
+  addWidget(new qt::Label(kVehicleLabel, cmn::kTitlePSize));
   vehicle_ = new VehicleParametersWidget();
   addWidget(vehicle_);
 
   // Aerodynamic Coefficients
-  addWidget(new tobas::qt::Label(kAeroCoefsLabel, cmn::kTitlePSize));
+  addWidget(new qt::Label(kAeroCoefsLabel, cmn::kTitlePSize));
   aero_coefs_ = new AerodynamicsCoefficientsWidget(node_);
   addWidget(aero_coefs_);
 
   // Control Surfaces
-  addWidget(new tobas::qt::Label(kControlSurfacesLabel, cmn::kTitlePSize));
+  addWidget(new qt::Label(kControlSurfacesLabel, cmn::kTitlePSize));
   control_surfaces_ = new ControlSurfacesWidget(uadf);
   addWidget(control_surfaces_);
 }

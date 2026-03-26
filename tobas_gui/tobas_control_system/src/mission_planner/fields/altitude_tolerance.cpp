@@ -14,7 +14,7 @@ AltitudeToleranceWidget::AltitudeToleranceWidget()
 {
   // https://docs.px4.io/main/en/advanced_config/parameter_reference#NAV_MC_ALT_RAD
   // PX4 のデフォルトの 0.8m だと小さすぎるケースが多いため， ArduPilot のデフォルト値 (WPNAV_WP_RADIUS) を採用
-  spin_box_ = new tobas::qt::DoubleSpinBox();
+  spin_box_ = new qt::DoubleSpinBox();
   spin_box_->setDecimals(2);
   spin_box_->setMinimum(0.05);
   spin_box_->setMaximum(200.);

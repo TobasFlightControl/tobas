@@ -43,9 +43,9 @@ public:
   QString controllerPackage() const;
   QString pluginName() const;
 
-  tobas::RcCommand acrobatModeCommand() const;
-  tobas::RcCommand stabilizeModeCommand() const;
-  tobas::RcCommand loiterModeCommand() const;
+  RcCommand acrobatModeCommand() const;
+  RcCommand stabilizeModeCommand() const;
+  RcCommand loiterModeCommand() const;
 
   YAML::Node staticParams() const;
 
@@ -53,7 +53,7 @@ private:
   FrameType frame_type_ = FrameType::kUndefined;
 
   QCheckBox* dont_use_builtin_ctrl_;
-  tobas::qt::StackedWidget* stack_;
+  qt::StackedWidget* stack_;
 
   BaseControllerWidget* widget(int index);
   const BaseControllerWidget* widget(int index) const;

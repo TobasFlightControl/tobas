@@ -80,7 +80,7 @@ void ObserverWidget::updateInternalDataStructures()
 bool ObserverWidget::isValid()
 {
   if (useMagnetometer() && useBarometer()) {
-    tobas::qt::qWarnBox(
+    qt::qWarnBox(
       this,
       "You cannot enable both the barometer and GNSS at the same time "
       "because both provide altitude information.");

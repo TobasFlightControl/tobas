@@ -36,7 +36,7 @@ EngineDynamicsWidget::EngineDynamicsWidget(rclcpp::Node::SharedPtr node)
 bool EngineDynamicsWidget::isValid()
 {
   if (data_->count() == 0) {
-    tobas::qt::qWarnBox(this, "Engine dynamics data is blank.");
+    qt::qWarnBox(this, "Engine dynamics data is blank.");
     return false;
   }
 

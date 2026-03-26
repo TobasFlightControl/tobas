@@ -34,15 +34,15 @@ private:
   // Parameters
   std::unordered_set<std::string> jnt_names_;
 
-  tobas::Drone::ConstSharedPtr drone_;
+  Drone::ConstSharedPtr drone_;
   kdl::Tree tree_;
 
   kdl::TreeJointParser jnt_parser_;
   kdl::TreeActiveJointsExtractor active_jnts_extractor_;
   kdl::TreeJntSpacePID pid_js_;
   kdl::TreeTaskSpacePID pid_ts_;
-  tobas::TreeJointStateConverter cur_js_conv_;
-  tobas::TreeJointStateConverter tar_js_conv_;
+  TreeJointStateConverter cur_js_conv_;
+  TreeJointStateConverter tar_js_conv_;
 
   ros2::TransformListener::SharedPtr tf_listener_;
   tobas_msgs::msg::JointStateArray home_js_;
@@ -54,7 +54,7 @@ private:
   ros2::PublisherPtr<tobas_msgs::msg::JointCommandArray> efforts_pub_;
 
   // Subscribers
-  ros2::SubscriberPtr<tobas::Drone> drone_sub_;
+  ros2::SubscriberPtr<Drone> drone_sub_;
   ros2::SubscriberPtr<kdl::Tree> tree_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::JointStateArray> cur_js_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::JointStateArray> tar_js_sub_;
@@ -82,7 +82,7 @@ private:
   bool linearDampingCb(const long& p);
   bool angularDampingCb(const long& p);
 
-  void droneCb(const tobas::Drone::ConstSharedPtr& drone);
+  void droneCb(const Drone::ConstSharedPtr& drone);
   void treeCb(const kdl::Tree::ConstSharedPtr& tree);
   void currentJointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& cur_js);
   void targetJointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& tar_js);
@@ -295,7 +295,7 @@ bool EffortControllerNode::angularDampingCb(const long& p)
   return true;
 }
 
-void EffortControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
+void EffortControllerNode::droneCb(const Drone::ConstSharedPtr& drone)
 {
   drone_ = drone;
 
@@ -309,7 +309,7 @@ void EffortControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
       continue;
     }
     const auto& joint = joint_it->second;
-    if (joint.cmd_iface != tobas::JointCommandInterface::kEffort) {
+    if (joint.cmd_iface != JointCommandInterface::kEffort) {
       TOBAS_WARN("The command interface of joint \"", jnt_name, "\" is not effort.");
       continue;
     }

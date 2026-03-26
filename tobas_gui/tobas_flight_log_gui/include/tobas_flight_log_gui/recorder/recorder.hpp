@@ -37,15 +37,15 @@ public:
 
 private:
   QLineEdit* log_name_;
-  tobas::qt::ToggleButton* start_stop_button_;
+  qt::ToggleButton* start_stop_button_;
   QLCDNumber* duration_;
-  tobas::qt::HPositionBarWidget* file_size_;
-  tobas::qt::FramedLabel* message_count_;
+  qt::HPositionBarWidget* file_size_;
+  qt::FramedLabel* message_count_;
 
   RecordStartThread start_thread_;
   RecordStopThread stop_thread_;
 
-  tobas::qt::WaitSpinnerWidget spinner_;
+  qt::WaitSpinnerWidget spinner_;
 
   tobas_msgs::msg::RosbagState::ConstSharedPtr rosbag_state_;
 

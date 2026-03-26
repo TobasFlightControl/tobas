@@ -204,7 +204,7 @@ void addElectricPropulsionSystemPlugin(
   double motor_const,
   double moment_const,
   double drag_const,
-  tobas::TurningDirection direction,
+  TurningDirection direction,
   double max_current)
 {
   const auto plugin = addGazeboPlugin(
@@ -217,7 +217,7 @@ void addElectricPropulsionSystemPlugin(
   plugin->InsertNewChildElement("motorConstant")->SetText(toString(motor_const).c_str());
   plugin->InsertNewChildElement("momentConstant")->SetText(toString(moment_const).c_str());
   plugin->InsertNewChildElement("dragConstant")->SetText(toString(drag_const).c_str());
-  plugin->InsertNewChildElement("turningDirection")->SetText(tobas::textFromEnum(direction).c_str());
+  plugin->InsertNewChildElement("turningDirection")->SetText(textFromEnum(direction).c_str());
   plugin->InsertNewChildElement("maxCurrent")->SetText(toString(max_current).c_str());
 }
 
@@ -242,7 +242,7 @@ void addIcePropulsionSystemPlugin(
   for (const auto& rotor_param : rotor_params) {
     const auto rotor = plugin->InsertNewChildElement("rotor");
     rotor->InsertNewChildElement("linkName")->SetText(rotor_param.link_name.c_str());
-    rotor->InsertNewChildElement("turningDirection")->SetText(tobas::textFromEnum(rotor_param.direction).c_str());
+    rotor->InsertNewChildElement("turningDirection")->SetText(textFromEnum(rotor_param.direction).c_str());
     rotor->InsertNewChildElement("gearRatio")->SetText(toString(rotor_param.gear_ratio).c_str());
     rotor->InsertNewChildElement("numberOfBlades")->SetText(toString(rotor_param.num_blades).c_str());
     rotor->InsertNewChildElement("minPitchAngle")->SetText(toString(rotor_param.pitch_angle_limit.lower).c_str());
@@ -265,7 +265,7 @@ void addFixedWingPlugin(
   tinyxml2::XMLElement* robot,
   const std::string& ns,
   const std::string& base_link_name,
-  const tobas::FixedWingConfig& fixed_wing)
+  const FixedWingConfig& fixed_wing)
 {
   const auto& vehicle = fixed_wing.vehicle;
   const auto& aerodynamics = fixed_wing.aerodynamics;
@@ -407,13 +407,13 @@ void addBaseStaticJoint(tinyxml2::XMLElement* robot, const std::string& root_lin
 
   // robot/xacro:if/link
   const auto link = xacro_if->InsertNewChildElement("link");
-  link->SetAttribute("name", tobas::frame::kWorld);
+  link->SetAttribute("name", frame::kWorld);
 
   // robot/xacro:if/joint
   const auto joint = xacro_if->InsertNewChildElement("joint");
   joint->SetAttribute("name", "base_static_joint");
   joint->SetAttribute("type", "fixed");
-  joint->InsertNewChildElement("parent")->SetAttribute("link", tobas::frame::kWorld);
+  joint->InsertNewChildElement("parent")->SetAttribute("link", frame::kWorld);
   joint->InsertNewChildElement("child")->SetAttribute("link", root_link_name.c_str());
 }
 }  // namespace xml

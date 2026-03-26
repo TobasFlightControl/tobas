@@ -71,7 +71,7 @@ private:
   ch::steady_clock::duration gust_state_change_time_;
   GustState gust_state_ = kOff;
   double gust_speed_ = 0.;
-  tobas::DrydenSimulator dryden_;
+  DrydenSimulator dryden_;
 
   ros2::PublisherPtr<tobas_msgs::Wind> wind_pub_;
 
@@ -163,7 +163,7 @@ void GazeboWindPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim
 
   // 風速メッセージを作成
   auto wind_msg = std::make_unique<tobas_msgs::Wind>();
-  wind_msg->header.frame_id = tobas::frame::kWorld;
+  wind_msg->header.frame_id = frame::kWorld;
   vectorGazeboToKDL(wind_W, wind_msg->vel);
 
   // 風速を発行
@@ -227,8 +227,4 @@ void GazeboWindPlugin::setParamsCb(const SetSrv::Request::ConstSharedPtr& req, c
 }  // namespace gazebo
 }  // namespace tobas
 
-GZ_ADD_PLUGIN(
-  tobas::gazebo::GazeboWindPlugin,
-  gz::sim::System,
-  tobas::gazebo::GazeboWindPlugin::ISystemConfigure,
-  tobas::gazebo::GazeboWindPlugin::ISystemPostUpdate)
+GZ_ADD_PLUGIN(tobas::gazebo::GazeboWindPlugin, gz::sim::System, gz::sim::ISystemConfigure, gz::sim::ISystemPostUpdate)

@@ -37,7 +37,7 @@ class RCInputCalibrationWidget : public BaseWidget
   static constexpr int kButtonHeight = 40;
 
 public:
-  explicit RCInputCalibrationWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge, const tobas::Drone& drone);
+  explicit RCInputCalibrationWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge, const Drone& drone);
 
   const char* title() const override;
 
@@ -47,7 +47,7 @@ public:
 
 private:
   const rclcpp::Node::SharedPtr node_;
-  const tobas::Drone& drone_;
+  const Drone& drone_;
 
   bool running_;
   tobas_msgs::msg::Sbus::ConstSharedPtr sbus_;
@@ -57,17 +57,17 @@ private:
   QPushButton* finish_button_;
   QPushButton* cancel_button_;
 
-  tobas::qt::HPositionBarWidget* roll_range_;
-  tobas::qt::VPositionBarWidget* pitch_range_;
-  tobas::qt::HPositionBarWidget* yaw_range_;
-  tobas::qt::VPositionBarWidget* throt_range_;
-  tobas::qt::HPositionBarWidget* mode_range_;
-  tobas::qt::HPositionBarWidget* sub_mode_range_;
-  tobas::qt::HPositionBarWidget* enable_range_;
-  tobas::qt::HPositionBarWidget* kill_range_;
+  qt::HPositionBarWidget* roll_range_;
+  qt::VPositionBarWidget* pitch_range_;
+  qt::HPositionBarWidget* yaw_range_;
+  qt::VPositionBarWidget* throt_range_;
+  qt::HPositionBarWidget* mode_range_;
+  qt::HPositionBarWidget* sub_mode_range_;
+  qt::HPositionBarWidget* enable_range_;
+  qt::HPositionBarWidget* kill_range_;
 
-  std::array<QLabel*, tobas::kMaxNumOfGpsw> gpsw_labels_;
-  std::array<tobas::qt::HPositionBarWidget*, tobas::kMaxNumOfGpsw> gpsw_ranges_;
+  std::array<QLabel*, kMaxNumOfGpsw> gpsw_labels_;
+  std::array<qt::HPositionBarWidget*, kMaxNumOfGpsw> gpsw_ranges_;
 
   size_t numOfGpswChannels() const;
 

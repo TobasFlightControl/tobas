@@ -59,7 +59,7 @@ LocalProjectBuilder::LocalProjectBuilder()
 bool LocalProjectBuilder::build(const fs::path& proj_path)
 {
   const auto meta_pkg_path = ProjectPaths(proj_path).metaPkgPath();
-  const auto ws_path = ros2::expandUser(tobas::kColconWSPathHome);
+  const auto ws_path = ros2::expandUser(kColconWSPathHome);
 
   return colcon_.build(meta_pkg_path, ws_path);
 }
@@ -72,7 +72,7 @@ const std::string& LocalProjectBuilder::errorMessage() const
 std::expected<void, QString> buildLocalProject(const fs::path& proj_path)
 {
   LocalProjectBuilderThread thread(proj_path);
-  const auto [success, message] = tobas::qt::startThreadAndWait(thread, &LocalProjectBuilderThread::finished);
+  const auto [success, message] = qt::startThreadAndWait(thread, &LocalProjectBuilderThread::finished);
 
   if (success) {
     return {};

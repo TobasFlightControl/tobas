@@ -80,12 +80,12 @@ bool PropellerWidget::isValid()
 {
   const auto [min_pitch, max_pitch] = pitchAngleLimit();
   if (0. <= min_pitch || max_pitch <= 0.) {
-    tobas::qt::qWarnBox(this, "Pitch angle range must include 0.");
+    qt::qWarnBox(this, "Pitch angle range must include 0.");
     return false;
   }
 
   if (min_chord_->getValue() > max_chord_->getValue()) {
-    tobas::qt::qWarnBox(this, "Blade chord range is invalid.");
+    qt::qWarnBox(this, "Blade chord range is invalid.");
     return false;
   }
 
@@ -94,7 +94,7 @@ bool PropellerWidget::isValid()
 
 void PropellerWidget::copyFrom(const BaseSelectedLinkSettingWidget* src)
 {
-  const auto derived = tobas::qt::qConstPointerCast<PropellerWidget>(src);
+  const auto derived = qt::qConstPointerCast<PropellerWidget>(src);
 
   num_blades_->setValue(derived->num_blades_->getValue());
   diameter_->setValue(derived->diameter_->getValue());

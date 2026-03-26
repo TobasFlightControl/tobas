@@ -37,8 +37,8 @@ private Q_SLOTS:
   void onValueChanged();
 
 private:
-  tobas::qt::DoubleSpinBox* c0_;
-  tobas::qt::DoubleSpinBox* c1_;
+  qt::DoubleSpinBox* c0_;
+  qt::DoubleSpinBox* c1_;
   QLabel* suffix_;
 };
 }  // namespace sa

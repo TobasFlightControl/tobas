@@ -31,7 +31,7 @@ public:
   QString host() const override;
 
 private:
-  tobas::qt::IPv6Edit* ipv6_;
+  qt::IPv6Edit* ipv6_;
 };
 }  // namespace rc
 }  // namespace sa

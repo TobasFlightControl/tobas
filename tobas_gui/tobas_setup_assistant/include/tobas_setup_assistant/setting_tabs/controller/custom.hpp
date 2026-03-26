@@ -40,9 +40,9 @@ public:
   QString controllerPackage() const override;
   QString pluginName() const override;
 
-  tobas::RcCommand acrobatModeCommand() const override;
-  tobas::RcCommand stabilizeModeCommand() const override;
-  tobas::RcCommand loiterModeCommand() const override;
+  RcCommand acrobatModeCommand() const override;
+  RcCommand stabilizeModeCommand() const override;
+  RcCommand loiterModeCommand() const override;
 
   YAML::Node staticParams() const override;
 
@@ -52,24 +52,24 @@ public:
   bool isValid() override;
 
 private:
-  const std::map<QString, tobas::RcCommand> command_map_{
-    { kRateThrottleLabel, tobas::RcCommand::kRateThrottle },
-    { kRateThrottleVectorLabel, tobas::RcCommand::kRateThrottleVector },
-    { kAngleThrottleLabel, tobas::RcCommand::kAngleThrottle },
-    { kAngleThrottleVectorLabel, tobas::RcCommand::kAngleThrottleVector },
-    { kAccelYawLabel, tobas::RcCommand::kAccelYaw },
-    { kAccelPitchYawLabel, tobas::RcCommand::kAccelPitchYaw },
-    { kPosVelAccYawLabel, tobas::RcCommand::kPosVelAccYaw },
-    { kPosVelAccPitchYawLabel, tobas::RcCommand::kPosVelAccPitchYaw },
-    { kAccelRateLabel, tobas::RcCommand::kAccelRate },
-    { kAccelAngleLabel, tobas::RcCommand::kAccelAngle },
-    { kPosVelAccAngleLabel, tobas::RcCommand::kPosVelAccAngle },
-    { kSpeedRollDeltaPitchLabel, tobas::RcCommand::kSpeedRollDPitch },
+  const std::map<QString, RcCommand> command_map_{
+    { kRateThrottleLabel, RcCommand::kRateThrottle },
+    { kRateThrottleVectorLabel, RcCommand::kRateThrottleVector },
+    { kAngleThrottleLabel, RcCommand::kAngleThrottle },
+    { kAngleThrottleVectorLabel, RcCommand::kAngleThrottleVector },
+    { kAccelYawLabel, RcCommand::kAccelYaw },
+    { kAccelPitchYawLabel, RcCommand::kAccelPitchYaw },
+    { kPosVelAccYawLabel, RcCommand::kPosVelAccYaw },
+    { kPosVelAccPitchYawLabel, RcCommand::kPosVelAccPitchYaw },
+    { kAccelRateLabel, RcCommand::kAccelRate },
+    { kAccelAngleLabel, RcCommand::kAccelAngle },
+    { kPosVelAccAngleLabel, RcCommand::kPosVelAccAngle },
+    { kSpeedRollDeltaPitchLabel, RcCommand::kSpeedRollDPitch },
   };
 
-  tobas::qt::ComboBox* acrobat_mode_;
-  tobas::qt::ComboBox* stabilize_mode_;
-  tobas::qt::ComboBox* loiter_mode_;
+  qt::ComboBox* acrobat_mode_;
+  qt::ComboBox* stabilize_mode_;
+  qt::ComboBox* loiter_mode_;
 };
 }  // namespace ctrl
 }  // namespace sa

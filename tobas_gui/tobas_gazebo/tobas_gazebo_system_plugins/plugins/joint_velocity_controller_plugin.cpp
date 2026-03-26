@@ -118,5 +118,5 @@ void GazeboJointVelocityControllerPlugin::commandCb(const tobas_gazebo_msgs::msg
 GZ_ADD_PLUGIN(
   tobas::gazebo::GazeboJointVelocityControllerPlugin,
   gz::sim::System,
-  tobas::gazebo::GazeboJointVelocityControllerPlugin::ISystemConfigure,
-  tobas::gazebo::GazeboJointVelocityControllerPlugin::ISystemPreUpdate)
+  gz::sim::ISystemConfigure,
+  gz::sim::ISystemPreUpdate)

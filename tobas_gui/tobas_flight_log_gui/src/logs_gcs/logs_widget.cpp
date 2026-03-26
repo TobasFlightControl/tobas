@@ -36,12 +36,12 @@ FlightLogsWidgetGCS::FlightLogsWidgetGCS(rclcpp::Node::SharedPtr node)
   read_button_->setEnabled(true);
   clean_button_->setEnabled(false);
 
-  log_list_ = new tobas::qt::ListWidget();
+  log_list_ = new qt::ListWidget();
   log_list_->setSelectionMode(QListWidget::SingleSelection);
 
   // Layout
   const auto cols = new QHBoxLayout();
-  cols->addWidget(new tobas::qt::Label("Ground Station", kPSize1, QFont::Bold));
+  cols->addWidget(new qt::Label("Ground Station", kPSize1, QFont::Bold));
   cols->addStretch();
   cols->addWidget(read_button_);
   cols->addWidget(clean_button_);
@@ -60,7 +60,7 @@ FlightLogsWidgetGCS::FlightLogsWidgetGCS(rclcpp::Node::SharedPtr node)
 
 void FlightLogsWidgetGCS::addLog(const QString& log_name)
 {
-  const auto list_item = new tobas::qt::ListWidgetItem();
+  const auto list_item = new qt::ListWidgetItem();
   list_item->setSizeHint(QSize(0, kListItemHeight));
   list_item->setData(Qt::UserRole, log_name);
   log_list_->addItem(list_item);
@@ -82,7 +82,7 @@ QListWidgetItem* FlightLogsWidgetGCS::findLog(const QString& log_name)
 {
   for (int row = 0; row < log_list_->count(); ++row) {
     const auto list_item = log_list_->item(row);
-    const auto log_widget = tobas::qt::qConstPointerCast<FlightLogItemWidgetGCS>(log_list_->itemWidget(list_item));
+    const auto log_widget = qt::qConstPointerCast<FlightLogItemWidgetGCS>(log_list_->itemWidget(list_item));
 
     if (log_widget->logName() == log_name) {
       return list_item;
@@ -133,7 +133,7 @@ void FlightLogsWidgetGCS::onReadButtonClicked()
 
   clearLogs();
 
-  const auto rosbag_dir = ros2::expandUser(tobas::kRosbagDirHome);
+  const auto rosbag_dir = ros2::expandUser(kRosbagDirHome);
   if (!fs::is_directory(rosbag_dir)) {
     fs::create_directories(rosbag_dir);
   }
@@ -145,13 +145,12 @@ void FlightLogsWidgetGCS::onReadButtonClicked()
     }
   }
   catch (const std::exception& e) {
-    tobas::qt::qErrorBox(
-      this, "Exception occurred while iterating " + QString::fromStdString(rosbag_dir) + ": " + e.what());
+    qt::qErrorBox(this, "Exception occurred while iterating " + QString::fromStdString(rosbag_dir) + ": " + e.what());
     return;
   }
 
   if (log_list_->count() == 0) {
-    tobas::qt::qWarnBox(this, "There are no flight logs saved on the ground control station.");
+    qt::qWarnBox(this, "There are no flight logs saved on the ground control station.");
     return;
   }
 
@@ -167,11 +166,11 @@ void FlightLogsWidgetGCS::onReadButtonClicked()
 
 void FlightLogsWidgetGCS::onCleanButtonClicked()
 {
-  if (!tobas::qt::yesOrNo(this, "Do you want to clean all the flight logs saved in the GCS?", tobas::qt::WARN)) {
+  if (!qt::yesOrNo(this, "Do you want to clean all the flight logs saved in the GCS?", qt::WARN)) {
     return;
   }
 
-  const auto rosbag_dir = ros2::expandUser(tobas::kRosbagDirHome);
+  const auto rosbag_dir = ros2::expandUser(kRosbagDirHome);
   if (!fs::is_directory(rosbag_dir)) {
     fs::create_directories(rosbag_dir);
   }
@@ -179,13 +178,13 @@ void FlightLogsWidgetGCS::onCleanButtonClicked()
   try {
     for (const auto& entry : fs::directory_iterator(rosbag_dir)) {
       if (fs::remove_all(entry.path()) == 0) {
-        tobas::qt::qErrorBox(this, "Failed to delete " + QString::fromStdString(entry.path()));
+        qt::qErrorBox(this, "Failed to delete " + QString::fromStdString(entry.path()));
         return;
       }
     }
   }
   catch (const std::exception& e) {
-    tobas::qt::qErrorBox(
+    qt::qErrorBox(
       this, "Exception occurred while iterating " + QString::fromStdString(rosbag_dir) + ": " + QString(e.what()));
     return;
   }
@@ -237,28 +236,28 @@ void FlightLogsWidgetGCS::onExportButtonClicked(const QString& log_name)
   // Export CSV file
   CsvExportThread thread(log_name, save_path);
   spinner_.start();
-  const auto [success, message] = tobas::qt::startThreadAndWait(thread, &CsvExportThread::finished);
+  const auto [success, message] = qt::startThreadAndWait(thread, &CsvExportThread::finished);
   spinner_.stop();
 
   // Show the result
   if (success) {
-    tobas::qt::qInfoBox(this, "The flight log has been exported successfully.");
+    qt::qInfoBox(this, "The flight log has been exported successfully.");
   }
   else {
-    tobas::qt::qErrorBox(this, "Failed to export the flight log: " + message);
+    qt::qErrorBox(this, "Failed to export the flight log: " + message);
   }
 }
 
 void FlightLogsWidgetGCS::onDeleteButtonClicked(const QString& log_name)
 {
-  const auto log_path = ros2::expandUser(tobas::kRosbagDirHome) / log_name.toStdString();
+  const auto log_path = ros2::expandUser(kRosbagDirHome) / log_name.toStdString();
 
-  if (!tobas::qt::yesOrNo(this, "Do you want to delete flight log \"" + log_name + "\"?", tobas::qt::WARN)) {
+  if (!qt::yesOrNo(this, "Do you want to delete flight log \"" + log_name + "\"?", qt::WARN)) {
     return;
   }
 
   if (fs::remove_all(log_path) == 0) {
-    tobas::qt::qErrorBox(this, "Failed to delete " + QString::fromStdString(log_path));
+    qt::qErrorBox(this, "Failed to delete " + QString::fromStdString(log_path));
     return;
   }
 
@@ -272,7 +271,7 @@ void FlightLogsWidgetGCS::onDeleteButtonClicked(const QString& log_name)
 
 void FlightLogsWidgetGCS::onListItemClicked(QListWidgetItem* item)
 {
-  const auto log_widget = tobas::qt::qConstPointerCast<FlightLogItemWidgetGCS>(log_list_->itemWidget(item));
+  const auto log_widget = qt::qConstPointerCast<FlightLogItemWidgetGCS>(log_list_->itemWidget(item));
   Q_EMIT logSelected(log_widget->logName());
 }
 }  // namespace log

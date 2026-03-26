@@ -13,14 +13,14 @@ namespace ctrl
 {
 StatusWidget::StatusWidget(const QString& text)
 {
-  led_ = new tobas::qt::CircleWidget();
+  led_ = new qt::CircleWidget();
   led_->setFixedSize(kLEDSize, kLEDSize);
 
   reset();
 
   const auto cols = new QHBoxLayout();
   cols->addWidget(led_);
-  cols->addWidget(new tobas::qt::Label(text, kTextPSize));
+  cols->addWidget(new qt::Label(text, kTextPSize));
   setLayout(cols);
 }
 

@@ -23,7 +23,7 @@ public:
   std::filesystem::path worldPath() const override;
 
 private:
-  tobas::qt::ComboBox* combo_box_;
+  qt::ComboBox* combo_box_;
 
   static std::filesystem::path worldDirectoryPath();
 };

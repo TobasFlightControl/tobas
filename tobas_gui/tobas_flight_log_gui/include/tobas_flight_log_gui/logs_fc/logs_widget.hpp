@@ -44,9 +44,9 @@ private:
   QPushButton* read_button_;
   QPushButton* clean_button_;
 
-  tobas::qt::WaitSpinnerWidget spinner_;
+  qt::WaitSpinnerWidget spinner_;
 
-  tobas::qt::ListWidget* log_list_;
+  qt::ListWidget* log_list_;
 
 private Q_SLOTS:
   void onReadButtonClicked();

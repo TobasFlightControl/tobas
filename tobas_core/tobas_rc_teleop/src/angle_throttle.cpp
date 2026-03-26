@@ -33,7 +33,7 @@ bool AngleThrottleController::requireHeading()
   return true;
 }
 
-void AngleThrottleController::initialize(BaseNode* node, tobas::FlightMode mode)
+void AngleThrottleController::initialize(BaseNode* node, FlightMode mode)
 {
   node->addDynamicDoubleParam(addMode("max_attitude", mode), &self::maxAttitudeCb, this, 5., 9, 1, 16, " deg");
   node->addDynamicDoubleParam(addMode("max_attitude_rate", mode), &self::maxAttitudeRateCb, this, 45., 8, 1, 16, " dps");
@@ -80,7 +80,7 @@ void AngleThrottleController::update(const tobas_msgs::RCInput& rcin, const toba
   cmd->angle.yaw = tar_yaw_;
 
   // Throttle
-  cmd->throttle = expo(remap(rcin.throttle, tobas::kMinThrot, tobas::kMaxThrot), throt_expo_);
+  cmd->throttle = expo(remap(rcin.throttle, kMinThrot, kMaxThrot), throt_expo_);
 
   // Publish the command
   cmd_pub_->publish(std::move(cmd));

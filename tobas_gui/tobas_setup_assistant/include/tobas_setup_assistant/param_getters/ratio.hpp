@@ -36,8 +36,8 @@ private Q_SLOTS:
   void onValueChanged();
 
 private:
-  tobas::qt::SpinBox* left_value_;
-  tobas::qt::SpinBox* right_value_;
+  qt::SpinBox* left_value_;
+  qt::SpinBox* right_value_;
   QLabel* left_text_;
   QLabel* right_text_;
 };

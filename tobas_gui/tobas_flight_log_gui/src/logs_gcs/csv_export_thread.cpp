@@ -27,7 +27,7 @@ CsvExportThread::CsvExportThread(const QString& log_name, const QString& save_pa
 void CsvExportThread::run()
 {
   // Open rosbag
-  const auto log_path = ros2::expandUser(tobas::kRosbagDirHome) / log_name_.toStdString();
+  const auto log_path = ros2::expandUser(kRosbagDirHome) / log_name_.toStdString();
   if (!openRosBag(log_path.string())) {
     if (!ros2::reindexRosBag(log_path.string())) {
       Q_EMIT finished(false, "The log file is broken and failed to fix it.");

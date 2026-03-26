@@ -34,7 +34,7 @@ public:
 
 private:
   cmn::ProjectPaths proj_paths_;
-  tobas::Drone drone_;
+  Drone drone_;
 
   const std::array<std::string, kNumBlocks> file_names_;
   const std::array<ParamBlockWidget*, kNumBlocks> blocks_;

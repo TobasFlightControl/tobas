@@ -157,5 +157,5 @@ void GazeboMagnetometerPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 GZ_ADD_PLUGIN(
   tobas::gazebo::GazeboMagnetometerPlugin,
   gz::sim::System,
-  tobas::gazebo::GazeboMagnetometerPlugin::ISystemConfigure,
-  tobas::gazebo::GazeboMagnetometerPlugin::ISystemPostUpdate)
+  gz::sim::ISystemConfigure,
+  gz::sim::ISystemPostUpdate)

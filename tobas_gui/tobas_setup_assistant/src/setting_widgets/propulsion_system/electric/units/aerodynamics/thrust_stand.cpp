@@ -44,7 +44,7 @@ const char* AerodynamicsWidget_ThrustStand::description() const
 bool AerodynamicsWidget_ThrustStand::isValid()
 {
   if (data_->count() == 0) {
-    tobas::qt::qWarnBox(this, "Thrust stand data is blank.");
+    qt::qWarnBox(this, "Thrust stand data is blank.");
     return false;
   }
 
@@ -53,7 +53,7 @@ bool AerodynamicsWidget_ThrustStand::isValid()
 
 void AerodynamicsWidget_ThrustStand::copyFrom(const AerodynamicsWidget_Base* src)
 {
-  const auto derived = tobas::qt::qConstPointerCast<AerodynamicsWidget_ThrustStand>(src);
+  const auto derived = qt::qConstPointerCast<AerodynamicsWidget_ThrustStand>(src);
   data_->setValue(derived->data_->getValue());
 }
 

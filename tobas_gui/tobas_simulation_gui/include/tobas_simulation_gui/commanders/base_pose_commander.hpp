@@ -33,7 +33,7 @@ class BasePoseCommanderWidget : public QWidget
   static constexpr double kHomeAltitude = 3.;  // [m]
 
 public:
-  explicit BasePoseCommanderWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge, const tobas::Drone& drone);
+  explicit BasePoseCommanderWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge, const Drone& drone);
 
   void updateInternalDataStructures();
 
@@ -42,12 +42,12 @@ public:
 
 private:
   const rclcpp::Node::SharedPtr node_;
-  const tobas::Drone& drone_;
+  const Drone& drone_;
 
-  tobas::qt::ToggleButton* arming_button_;
+  qt::ToggleButton* arming_button_;
 
-  std::array<tobas::qt::DoubleSliderDisplay*, 3> cmd_xyz_;  // [m]
-  std::array<tobas::qt::IntSliderDisplay*, 3> cmd_rpy_;     // [deg]
+  std::array<qt::DoubleSliderDisplay*, 3> cmd_xyz_;  // [m]
+  std::array<qt::IntSliderDisplay*, 3> cmd_rpy_;     // [deg]
 
   QPushButton* home_button_;
 

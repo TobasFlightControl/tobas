@@ -24,17 +24,17 @@ public:
   explicit ElectricRotorCommandHandlerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  tobas::ElectricPropulsionSystemConfig::ConstSharedPtr eprop_;
+  ElectricPropulsionSystemConfig::ConstSharedPtr eprop_;
   tobas_msgs::msg::Battery::ConstSharedPtr battery_;
 
   std::map<std::string, ros2::PublisherPtr<tobas_gazebo_msgs::msg::Throttle>> throttle_pubs_;
-  tobas::ControlLatencyPublisher latency_pub_;
+  ControlLatencyPublisher latency_pub_;
 
-  ros2::SubscriberPtr<tobas::Drone> drone_sub_;
+  ros2::SubscriberPtr<Drone> drone_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Battery> battery_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::RotorSpeedArray> tar_speeds_sub_;
 
-  void droneCb(const tobas::Drone::ConstSharedPtr& drone);
+  void droneCb(const Drone::ConstSharedPtr& drone);
   void batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery);
   void targetSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::ConstSharedPtr& tar_speeds);
 };
@@ -45,22 +45,22 @@ ElectricRotorCommandHandlerNode::ElectricRotorCommandHandlerNode(const rclcpp::N
   drone_sub_ = createSubscriber(topic::kDrone, &self::droneCb, this, true, true);
 }
 
-void ElectricRotorCommandHandlerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
+void ElectricRotorCommandHandlerNode::droneCb(const Drone::ConstSharedPtr& drone)
 {
   if (!drone->prop) {
     return;
   }
 
-  if (drone->prop->type() != tobas::PropulsionSystem::kElectric) {
+  if (drone->prop->type() != PropulsionSystem::kElectric) {
     return;
   }
 
-  eprop_ = boost::polymorphic_pointer_downcast<tobas::ElectricPropulsionSystemConfig>(drone->prop);
+  eprop_ = boost::polymorphic_pointer_downcast<ElectricPropulsionSystemConfig>(drone->prop);
 
   // Register publishers
   throttle_pubs_.clear();
   for (const auto& [link_name, _] : eprop_->rotors) {
-    const auto topic = path::join(tobas::gazebo::kRotorThrottleCmdTopicNS, link_name);
+    const auto topic = path::join(gazebo::kRotorThrottleCmdTopicNS, link_name);
     throttle_pubs_[link_name] = createPublisher<tobas_gazebo_msgs::msg::Throttle>(topic);
   }
   latency_pub_.initialize(shared_from_this());
@@ -78,11 +78,11 @@ void ElectricRotorCommandHandlerNode::batteryCb(const tobas_msgs::msg::Battery::
 void ElectricRotorCommandHandlerNode::targetSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::ConstSharedPtr& tar_speeds)
 {
   if (!eprop_) {
-    TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Drone message has not been received yet.");
+    TOBAS_WARN_THROTTLE(kTypicalWarnPeriod, "Drone message has not been received yet.");
     return;
   }
   if (!battery_) {
-    TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Battery message has not been received yet.");
+    TOBAS_WARN_THROTTLE(kTypicalWarnPeriod, "Battery message has not been received yet.");
     return;
   }
 

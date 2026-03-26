@@ -16,12 +16,12 @@ namespace propulsion
 {
 namespace electric
 {
-class BatteryWidget : public tobas::qt::ScrollArea
+class BatteryWidget : public qt::ScrollArea
 {
   Q_OBJECT
 
   using self = BatteryWidget;
-  using super = tobas::qt::ScrollArea;
+  using super = qt::ScrollArea;
 
   static constexpr char kTypeKey[] = "battery_type";
 
@@ -41,8 +41,8 @@ public:
   double internalRegistance();
 
 private:
-  tobas::qt::ComboBox* type_;
-  tobas::qt::StackedWidget* batteries_;
+  qt::ComboBox* type_;
+  qt::StackedWidget* batteries_;
 
   BatteryWidget_Base* widget(int index);
   const BatteryWidget_Base* widget(int index) const;

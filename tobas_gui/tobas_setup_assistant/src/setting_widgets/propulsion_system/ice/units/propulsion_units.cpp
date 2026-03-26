@@ -98,12 +98,12 @@ int PropulsionUnitsWidget::index(const QString& link_name) const
 
 PropulsionUnitWidget* PropulsionUnitsWidget::widget(int index)
 {
-  return tobas::qt::qPointerCast<PropulsionUnitWidget>(super::widget(index));
+  return qt::qPointerCast<PropulsionUnitWidget>(super::widget(index));
 }
 
 const PropulsionUnitWidget* PropulsionUnitsWidget::widget(int index) const
 {
-  return tobas::qt::qConstPointerCast<PropulsionUnitWidget>(super::widget(index));
+  return qt::qConstPointerCast<PropulsionUnitWidget>(super::widget(index));
 }
 
 PropulsionUnitWidget* PropulsionUnitsWidget::widget(const QString& link_name)
@@ -129,7 +129,7 @@ void PropulsionUnitsWidget::onCopyToAllButtonClicked(const QString& link_name)
     dst_widget->copyFrom(src_widget);
   }
 
-  tobas::qt::qInfoBox(this, "The settings of \"" + link_name + "\" have been copied to all the other propulsion units.");
+  qt::qInfoBox(this, "The settings of \"" + link_name + "\" have been copied to all the other propulsion units.");
 }
 }  // namespace ice
 }  // namespace propulsion

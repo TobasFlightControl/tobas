@@ -31,19 +31,19 @@ private:
     builtin_interfaces::msg::Time last_dead_time;
   };
 
-  tobas::Drone::ConstSharedPtr drone_;
+  Drone::ConstSharedPtr drone_;
   std::map<std::string, RotorData> data_;  // Link Name -> RotorData
 
   ros2::PublisherPtr<tobas_msgs::msg::RotorLivelinessArray> rotor_liveliness_pub_;
 
-  ros2::SubscriberPtr<tobas::Drone> drone_sub_;
+  ros2::SubscriberPtr<Drone> drone_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::RotorStateArray> rotor_states_sub_;
 
   ros2::TimerPtr publish_rotor_liveliness_timer_;
 
   void publishRotorLiveliness();
 
-  void droneCb(const tobas::Drone::ConstSharedPtr& drone);
+  void droneCb(const Drone::ConstSharedPtr& drone);
   void statesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& states);
 };
 
@@ -55,7 +55,7 @@ RotorAnomalyDetectorNode::RotorAnomalyDetectorNode(const rclcpp::NodeOptions& op
   rotor_liveliness_pub_ = createPublisher<tobas_msgs::msg::RotorLivelinessArray>(topic::kRotorLiv);
 
   drone_sub_ = createSubscriber(topic::kDrone, &self::droneCb, this, true, true);
-  rotor_states_sub_ = createSubscriber(tobas::addThrotNS(topic::kRotorStates), &self::statesCb, this);
+  rotor_states_sub_ = createSubscriber(addThrotNS(topic::kRotorStates), &self::statesCb, this);
 
   publish_rotor_liveliness_timer_ = createTimer(1s, &self::publishRotorLiveliness, this);
 }
@@ -74,7 +74,7 @@ void RotorAnomalyDetectorNode::publishRotorLiveliness()
   rotor_liveliness_pub_->publish(std::move(msg));
 }
 
-void RotorAnomalyDetectorNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
+void RotorAnomalyDetectorNode::droneCb(const Drone::ConstSharedPtr& drone)
 {
   if (!drone->prop) {
     return;
@@ -91,7 +91,7 @@ void RotorAnomalyDetectorNode::droneCb(const tobas::Drone::ConstSharedPtr& drone
 void RotorAnomalyDetectorNode::statesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& states)
 {
   if (!drone_) {
-    TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Drone configuration has not been received yet.");
+    TOBAS_WARN_THROTTLE(kTypicalWarnPeriod, "Drone configuration has not been received yet.");
     return;
   }
 
@@ -99,7 +99,7 @@ void RotorAnomalyDetectorNode::statesCb(const tobas_msgs::msg::RotorStateArray::
 
   for (const auto& state : states->states) {
     if (!data_.contains(state.link_name)) {
-      TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Invalid rotor: \"", state.link_name, "\"");
+      TOBAS_WARN_THROTTLE(kTypicalWarnPeriod, "Invalid rotor: \"", state.link_name, "\"");
       continue;
     }
 

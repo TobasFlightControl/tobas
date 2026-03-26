@@ -18,12 +18,12 @@ namespace gui
 {
 namespace sim
 {
-JointCommanderWidget::JointCommanderWidget(rclcpp::Node::SharedPtr node, const kdl::Tree& tree, const tobas::Drone& drone)
+JointCommanderWidget::JointCommanderWidget(rclcpp::Node::SharedPtr node, const kdl::Tree& tree, const Drone& drone)
   : node_(node), tree_(tree), drone_(drone), rnd_gen_(rnd_dev_()), joint_parser_(tree)
 {
-  const auto title = new tobas::qt::Label("User Joint", cmn::kLabelPSize, QFont::Bold);
+  const auto title = new qt::Label("User Joint", cmn::kLabelPSize, QFont::Bold);
 
-  start_stop_button_ = new tobas::qt::ToggleButton("Start", "Stop");
+  start_stop_button_ = new qt::ToggleButton("Start", "Stop");
   start_stop_button_->setFixedSize(kHeaderButtonWidth, kHeaderButtonHeight);
 
   cmd_rows_ = new QVBoxLayout();
@@ -56,8 +56,8 @@ JointCommanderWidget::JointCommanderWidget(rclcpp::Node::SharedPtr node, const k
   setLayout(root_rows);
 
   // Connection
-  connect(start_stop_button_, &tobas::qt::ToggleButton::checked, this, &self::onStartRequested);
-  connect(start_stop_button_, &tobas::qt::ToggleButton::unchecked, this, &self::onStopRequested);
+  connect(start_stop_button_, &qt::ToggleButton::checked, this, &self::onStartRequested);
+  connect(start_stop_button_, &qt::ToggleButton::unchecked, this, &self::onStopRequested);
   connect(home_button_, &QPushButton::clicked, this, &self::onHomeButtonClicked);
   connect(center_button_, &QPushButton::clicked, this, &self::onCenterButtonClicked);
   connect(random_button_, &QPushButton::clicked, this, &self::onRandomButtonClicked);
@@ -67,13 +67,13 @@ JointCommanderWidget::JointCommanderWidget(rclcpp::Node::SharedPtr node, const k
 void JointCommanderWidget::updateInternalDataStructures()
 {
   if (!joint_parser_.updateInternalDataStructures()) {
-    tobas::qt::qErrorBox(this, "Failed to update joint parser.");
+    qt::qErrorBox(this, "Failed to update joint parser.");
     return;
   }
 
   // Clear joints for previous robot
   commanders_.clear();
-  tobas::qt::clearLayout(cmd_rows_);
+  qt::clearLayout(cmd_rows_);
 
   tar_js_pos_.commands.clear();
   tar_js_vel_.commands.clear();
@@ -82,7 +82,7 @@ void JointCommanderWidget::updateInternalDataStructures()
   // Add joints of current robot
   for (const auto& [jnt_name, joint] : drone_.joints) {
     // User active joint only
-    if (joint.role != tobas::JointRole::kUserActive) {
+    if (joint.role != JointRole::kUserActive) {
       continue;
     }
 
@@ -93,11 +93,11 @@ void JointCommanderWidget::updateInternalDataStructures()
       continue;
     }
 
-    const auto commander = new tobas::qt::DoubleSliderDisplay();
+    const auto commander = new qt::DoubleSliderDisplay();
     commander->setText(QString::fromStdString(jnt_name));
 
     switch (joint.cmd_iface) {
-      case tobas::JointCommandInterface::kPosition: {
+      case JointCommandInterface::kPosition: {
         commander->setMinimum(joint_parser_.lowerLimit(jnt_name));
         commander->setMaximum(joint_parser_.upperLimit(jnt_name));
         switch (jnt_type) {
@@ -119,7 +119,7 @@ void JointCommanderWidget::updateInternalDataStructures()
 
         break;
       }
-      case tobas::JointCommandInterface::kVelocity: {
+      case JointCommandInterface::kVelocity: {
         const auto max_vel = joint_parser_.maxVelocity(jnt_name);
         commander->setMinimum(-max_vel);
         commander->setMaximum(+max_vel);
@@ -142,7 +142,7 @@ void JointCommanderWidget::updateInternalDataStructures()
 
         break;
       }
-      case tobas::JointCommandInterface::kEffort: {
+      case JointCommandInterface::kEffort: {
         const auto max_eff = joint_parser_.maxEffort(jnt_name);
         commander->setMinimum(-max_eff);
         commander->setMaximum(+max_eff);
@@ -165,12 +165,11 @@ void JointCommanderWidget::updateInternalDataStructures()
 
         break;
       }
-      case tobas::JointCommandInterface::kNone: {
+      case JointCommandInterface::kNone: {
         break;
       }
       default: {
-        tobas::qt::qErrorBox(
-          this, "The command interface of joint " + QString::fromStdString(jnt_name) + " is invalid.");
+        qt::qErrorBox(this, "The command interface of joint " + QString::fromStdString(jnt_name) + " is invalid.");
         continue;
       }
     }
@@ -179,7 +178,7 @@ void JointCommanderWidget::updateInternalDataStructures()
     commander->setEnabled(false);
     connect(
       commander,
-      &tobas::qt::DoubleSliderDisplay::valueChanged,
+      &qt::DoubleSliderDisplay::valueChanged,
       std::bind(&self::onValueChanged, this, std::placeholders::_1, jnt_name));
     commanders_[jnt_name] = commander;
     cmd_rows_->addWidget(commander);
@@ -266,14 +265,14 @@ void JointCommanderWidget::onStartRequested()
   // 一定時間間隔でコマンド送信開始
   publish_cmd_timer_.start(kPublishCommandPeriod);
 
-  tobas::qt::qInfoBox(this, "GUI teleoperation is ready.");
+  qt::qInfoBox(this, "GUI teleoperation is ready.");
 }
 
 void JointCommanderWidget::onStopRequested()
 {
   reset();
 
-  tobas::qt::qInfoBox(this, "GUI teleoperation is ready.");
+  qt::qInfoBox(this, "GUI teleoperation is ready.");
 }
 
 void JointCommanderWidget::onValueChanged(double value, const std::string& jnt_name)
@@ -287,7 +286,7 @@ void JointCommanderWidget::onValueChanged(double value, const std::string& jnt_n
   bool jnt_found = false;
 
   switch (joint.cmd_iface) {
-    case tobas::JointCommandInterface::kPosition: {
+    case JointCommandInterface::kPosition: {
       for (auto& cmd : tar_js_pos_.commands) {
         if (cmd.name == jnt_name) {
           cmd.data = value;
@@ -303,7 +302,7 @@ void JointCommanderWidget::onValueChanged(double value, const std::string& jnt_n
 
       break;
     }
-    case tobas::JointCommandInterface::kVelocity: {
+    case JointCommandInterface::kVelocity: {
       for (auto& cmd : tar_js_vel_.commands) {
         if (cmd.name == jnt_name) {
           cmd.data = value;
@@ -319,7 +318,7 @@ void JointCommanderWidget::onValueChanged(double value, const std::string& jnt_n
 
       break;
     }
-    case tobas::JointCommandInterface::kEffort: {
+    case JointCommandInterface::kEffort: {
       for (auto& cmd : tar_js_eff_.commands) {
         if (cmd.name == jnt_name) {
           cmd.data = value;
@@ -335,7 +334,7 @@ void JointCommanderWidget::onValueChanged(double value, const std::string& jnt_n
 
       break;
     }
-    case tobas::JointCommandInterface::kNone: {
+    case JointCommandInterface::kNone: {
       break;
     }
     default: {

@@ -13,7 +13,7 @@ namespace field
 LandSpeedWidget::LandSpeedWidget()
 {
   // https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_LAND_SPEED
-  spin_box_ = new tobas::qt::DoubleSpinBox();
+  spin_box_ = new qt::DoubleSpinBox();
   spin_box_->setDecimals(1);
   spin_box_->setMinimum(0.6);
   spin_box_->setMaximum(2.);

@@ -29,7 +29,7 @@ public:
   virtual YAML::Node dump() const = 0;
   virtual void load(const YAML::Node& node) = 0;
 
-  virtual tobas::PropulsionSystem type() const = 0;
+  virtual PropulsionSystem type() const = 0;
   virtual int numUnits() const = 0;
 
   virtual QString linkName(int index) const = 0;

@@ -40,7 +40,7 @@ void FakeRcInputPublisherNode::timerCb()
   msg->pitch = 0.;
   msg->throttle = -1.;
   msg->yaw = 0.;
-  msg->mode = tobas::FlightMode::kAcrobat;
+  msg->mode = FlightMode::kAcrobat;
   msg->sub_mode = false;
   msg->enable = false;
   msg->kill = false;

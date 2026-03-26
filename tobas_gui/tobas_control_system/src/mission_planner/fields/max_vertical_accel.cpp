@@ -15,7 +15,7 @@ MaxVerticalAccelWidget::MaxVerticalAccelWidget()
   // https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_ACC_DOWN_MAX
   // https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_ACC_UP_MAX
   // TODO: 上昇と下降で設定を分ける
-  spin_box_ = new tobas::qt::DoubleSpinBox();
+  spin_box_ = new qt::DoubleSpinBox();
   spin_box_->setDecimals(1);
   spin_box_->setMinimum(2.);
   spin_box_->setMaximum(15.);

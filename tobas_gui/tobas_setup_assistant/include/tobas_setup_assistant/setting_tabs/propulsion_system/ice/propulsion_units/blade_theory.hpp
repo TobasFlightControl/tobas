@@ -30,9 +30,9 @@ public:
     double pitch_angle,
     double air_density = st::kStandardAirDensity);
 
-  tobas::VppMotorConstant motorConst() const;
-  tobas::VppMomentConstant momentConst() const;
-  tobas::VppDragConstant dragConst() const;
+  VppMotorConstant motorConst() const;
+  VppMomentConstant momentConst() const;
+  VppDragConstant dragConst() const;
 
 private:
   const int N_;

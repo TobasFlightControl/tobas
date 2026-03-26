@@ -32,7 +32,7 @@ bool RateThrottleController::requireHeading()
   return false;
 }
 
-void RateThrottleController::initialize(BaseNode* node, tobas::FlightMode mode)
+void RateThrottleController::initialize(BaseNode* node, FlightMode mode)
 {
   node->addDynamicDoubleParam(addMode("max_attitude_rate", mode), &self::maxAttitudeRateCb, this, 45., 8, 1, 16, " dps");
   node->addDynamicDoubleParam(addMode("max_heading_rate", mode), &self::maxHeadingRateCb, this, 45., 8, 1, 16, " dps");
@@ -56,7 +56,7 @@ void RateThrottleController::update(const tobas_msgs::RCInput& rcin, const tobas
   cmd->rate.x(expoRemap(rcin.roll, atti_expo_, -max_atti_rate_, max_atti_rate_));
   cmd->rate.y(expoRemap(rcin.pitch, atti_expo_, -max_atti_rate_, max_atti_rate_));
   cmd->rate.z(expoRemap(rcin.yaw, head_expo_, -max_head_rate_, max_head_rate_));
-  cmd->throttle = expo(remap(rcin.throttle, tobas::kMinThrot, tobas::kMaxThrot), throt_expo_);
+  cmd->throttle = expo(remap(rcin.throttle, kMinThrot, kMaxThrot), throt_expo_);
 
   // コマンドを発行
   cmd_pub_->publish(std::move(cmd));

@@ -41,7 +41,7 @@ protected:
   QVBoxLayout* rows_;
 
 private:
-  tobas::qt::DescriptionWidget* description_;
+  qt::DescriptionWidget* description_;
 
 private Q_SLOTS:
   void initialize();

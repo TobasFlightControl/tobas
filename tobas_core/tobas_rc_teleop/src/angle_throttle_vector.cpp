@@ -33,7 +33,7 @@ bool AngleThrottleVectorController::requireHeading()
   return true;
 }
 
-void AngleThrottleVectorController::initialize(BaseNode* node, tobas::FlightMode mode)
+void AngleThrottleVectorController::initialize(BaseNode* node, FlightMode mode)
 {
   node->addDynamicDoubleParam(addMode("max_roll", mode), &self::maxRollCb, this, 5., 9, 1, 16, " deg");
   node->addDynamicDoubleParam(addMode("max_roll_rate", mode), &self::maxRollRateCb, this, 45., 8, 1, 16, " dps");
@@ -86,7 +86,7 @@ void AngleThrottleVectorController::update(const tobas_msgs::RCInput& rcin, cons
   cmd->angle.yaw = tar_yaw_;
 
   // Throttle
-  cmd->throttle = expo(remap(rcin.throttle, tobas::kMinThrot, tobas::kMaxThrot), throt_expo_);
+  cmd->throttle = expo(remap(rcin.throttle, kMinThrot, kMaxThrot), throt_expo_);
 
   // Pitch & Thrust Angle
   if (rcin.sub_mode)  // Translation mode

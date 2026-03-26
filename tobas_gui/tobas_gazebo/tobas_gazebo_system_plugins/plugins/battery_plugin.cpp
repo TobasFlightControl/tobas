@@ -206,8 +206,4 @@ void GazeboBatteryPlugin::chargeCb(
 }  // namespace gazebo
 }  // namespace tobas
 
-GZ_ADD_PLUGIN(
-  tobas::gazebo::GazeboBatteryPlugin,
-  gz::sim::System,
-  tobas::gazebo::GazeboBatteryPlugin::ISystemConfigure,
-  tobas::gazebo::GazeboBatteryPlugin::ISystemPostUpdate)
+GZ_ADD_PLUGIN(tobas::gazebo::GazeboBatteryPlugin, gz::sim::System, gz::sim::ISystemConfigure, gz::sim::ISystemPostUpdate)

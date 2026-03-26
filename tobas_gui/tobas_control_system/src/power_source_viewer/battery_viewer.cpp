@@ -15,18 +15,18 @@ namespace gui
 {
 namespace ctrl
 {
-BatteryViewerWidget::BatteryViewerWidget(const RosQtBridge& bridge, const tobas::Drone& drone) : drone_(drone)
+BatteryViewerWidget::BatteryViewerWidget(const RosQtBridge& bridge, const Drone& drone) : drone_(drone)
 {
-  voltage_ = new tobas::qt::HPositionBarWidget();
-  current_ = new tobas::qt::HPositionBarWidget();
+  voltage_ = new qt::HPositionBarWidget();
+  current_ = new qt::HPositionBarWidget();
 
   voltage_->setFixedHeight(kBarHeight);
   current_->setFixedHeight(kBarHeight);
 
   // Layout
-  const auto form = new tobas::qt::FormLayout();
-  form->addVAlignedRow(new tobas::qt::Label("Batt Volt", kLabelPSize), voltage_);
-  form->addVAlignedRow(new tobas::qt::Label("Batt Curr", kLabelPSize), current_);
+  const auto form = new qt::FormLayout();
+  form->addVAlignedRow(new qt::Label("Batt Volt", kLabelPSize), voltage_);
+  form->addVAlignedRow(new qt::Label("Batt Curr", kLabelPSize), current_);
   setLayout(form);
 
   // Connection
@@ -46,8 +46,8 @@ void BatteryViewerWidget::updateInternalDataStructures()
 {
   reset();
 
-  if (drone_.prop->type() == tobas::PropulsionSystem::kElectric) {
-    eprop_ = boost::polymorphic_pointer_downcast<tobas::ElectricPropulsionSystemConfig>(drone_.prop);
+  if (drone_.prop->type() == PropulsionSystem::kElectric) {
+    eprop_ = boost::polymorphic_pointer_downcast<ElectricPropulsionSystemConfig>(drone_.prop);
 
     voltage_->setLower(eprop_->battery.sag_voltage);
     voltage_->setMinimum(eprop_->battery.sag_voltage);

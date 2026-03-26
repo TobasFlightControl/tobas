@@ -41,8 +41,8 @@ private Q_SLOTS:
   void onValueChanged(double value);
 
 private:
-  tobas::qt::DoubleSpinBox* first_;
-  tobas::qt::DoubleSpinBox* second_;
+  qt::DoubleSpinBox* first_;
+  qt::DoubleSpinBox* second_;
 };
 }  // namespace sa
 }  // namespace gui

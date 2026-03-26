@@ -13,7 +13,7 @@ namespace ctrl
 {
 ConsoleWidget::ConsoleWidget(const RosQtBridge& bridge)
 {
-  table_ = new tobas::qt::TableWidget(0, kNumCols);
+  table_ = new qt::TableWidget(0, kNumCols);
   table_->setHorizontalHeaderLabels({ "Stamp", "Name", "Level", "Message" });
   table_->setEditTriggers(QAbstractItemView::NoEditTriggers);  // 編集禁止
   table_->setSelectionMode(QAbstractItemView::NoSelection);    // 選択禁止

@@ -17,13 +17,12 @@ RemoteConnectionWidget::RemoteConnectionWidget()
   host_ = new HostWidget();
   nif_ = new NetworkIfaceWidget();
 
-  addWidget(new tobas::qt::Label(kNetworkIfaceLabel, cmn::kLabelPSize, QFont::Bold));
-  addWidget(
-    new tobas::qt::DescriptionWidget("Specify the network interface used by the flight controller.", cmn::kBodyPSize));
+  addWidget(new qt::Label(kNetworkIfaceLabel, cmn::kLabelPSize, QFont::Bold));
+  addWidget(new qt::DescriptionWidget("Specify the network interface used by the flight controller.", cmn::kBodyPSize));
   addWidget(nif_);
 
-  addWidget(new tobas::qt::Label(kHostLabel, cmn::kLabelPSize, QFont::Bold));
-  addWidget(new tobas::qt::DescriptionWidget(
+  addWidget(new qt::Label(kHostLabel, cmn::kLabelPSize, QFont::Bold));
+  addWidget(new qt::DescriptionWidget(
     "Specify the target FC host as either a hostname, an IPv4 address, or an IPv6 address.", cmn::kBodyPSize));
   addWidget(host_);
 

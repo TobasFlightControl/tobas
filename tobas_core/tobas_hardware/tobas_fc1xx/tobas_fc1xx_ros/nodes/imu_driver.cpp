@@ -38,7 +38,7 @@ private:
 
   ros2::PublisherPtr<tobas_msgs::Imu> imu_raw_pub_;
   ros2::PublisherPtr<tobas_msgs::Imu> imu_filt_pub_;
-  tobas::ImuSamplingTimePublisher sampling_time_pub_;
+  ImuSamplingTimePublisher sampling_time_pub_;
 
   ros2::ServiceServerPtr<tobas_msgs::srv::ConfigureImuFilter> config_ss_;
 

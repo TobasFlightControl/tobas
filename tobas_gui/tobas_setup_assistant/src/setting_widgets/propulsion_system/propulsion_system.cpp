@@ -22,7 +22,7 @@ PropulsionSystemWidget::PropulsionSystemWidget(rclcpp::Node::SharedPtr node, con
   type_btn_group_ = new QButtonGroup(this);
   type_btn_group_->setExclusive(true);
 
-  propulsion_stack_ = new tobas::qt::StackedWidget();
+  propulsion_stack_ = new qt::StackedWidget();
 
   int id = 0;
   addPropulsionSystemWidget(new electric::PropulsionSystemWidget(node, uadf), id++);
@@ -106,7 +106,7 @@ void PropulsionSystemWidget::load(const YAML::Node& node)
   }
 }
 
-tobas::PropulsionSystem PropulsionSystemWidget::type() const
+PropulsionSystem PropulsionSystemWidget::type() const
 {
   return selected()->type();
 }
@@ -123,22 +123,22 @@ QString PropulsionSystemWidget::linkName(int index) const
 
 BasePropulsionSystemWidget* PropulsionSystemWidget::widget(int index)
 {
-  return tobas::qt::qPointerCast<BasePropulsionSystemWidget>(propulsion_stack_->widget(index));
+  return qt::qPointerCast<BasePropulsionSystemWidget>(propulsion_stack_->widget(index));
 }
 
 const BasePropulsionSystemWidget* PropulsionSystemWidget::widget(int index) const
 {
-  return tobas::qt::qConstPointerCast<BasePropulsionSystemWidget>(propulsion_stack_->widget(index));
+  return qt::qConstPointerCast<BasePropulsionSystemWidget>(propulsion_stack_->widget(index));
 }
 
 BasePropulsionSystemWidget* PropulsionSystemWidget::selected()
 {
-  return tobas::qt::qPointerCast<BasePropulsionSystemWidget>(propulsion_stack_->currentWidget());
+  return qt::qPointerCast<BasePropulsionSystemWidget>(propulsion_stack_->currentWidget());
 }
 
 const BasePropulsionSystemWidget* PropulsionSystemWidget::selected() const
 {
-  return tobas::qt::qConstPointerCast<BasePropulsionSystemWidget>(propulsion_stack_->currentWidget());
+  return qt::qConstPointerCast<BasePropulsionSystemWidget>(propulsion_stack_->currentWidget());
 }
 
 void PropulsionSystemWidget::addPropulsionSystemWidget(BasePropulsionSystemWidget* widget, int id)
@@ -184,8 +184,8 @@ void PropulsionSystemWidget::onPropulsionTypeClicked(int new_idx)
     return;
   }
 
-  if (!tobas::qt::yesOrNo(
-        this, "Changing the propulsion type will reset the wiring settings. Do you want to continue?", tobas::qt::WARN)) {
+  if (!qt::yesOrNo(
+        this, "Changing the propulsion type will reset the wiring settings. Do you want to continue?", qt::WARN)) {
     setCurrentButtonIndex(cur_idx_);
     return;
   }

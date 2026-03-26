@@ -80,7 +80,7 @@ void addElectricPropulsionSystemPlugin(
   double motor_const,
   double moment_const,
   double drag_const,
-  tobas::TurningDirection direction,
+  TurningDirection direction,
   double max_current);
 
 struct EngineParam
@@ -93,14 +93,14 @@ struct EngineParam
 struct IceRotorParam
 {
   std::string link_name;
-  tobas::TurningDirection direction;
+  TurningDirection direction;
   double gear_ratio;
   size_t num_blades;
   st::Range<double> pitch_angle_limit;  // [rad]
   double max_pitch_angle_rate;          // [rad/s]
-  tobas::VppMotorConstant motor_const;
-  tobas::VppMomentConstant moment_const;
-  tobas::VppDragConstant drag_const;
+  VppMotorConstant motor_const;
+  VppMomentConstant moment_const;
+  VppDragConstant drag_const;
 };
 
 void addIcePropulsionSystemPlugin(
@@ -113,7 +113,7 @@ void addFixedWingPlugin(
   tinyxml2::XMLElement* robot,
   const std::string& ns,
   const std::string& base_link_name,
-  const tobas::FixedWingConfig& fixed_wing);
+  const FixedWingConfig& fixed_wing);
 
 void addJointStateBroadcasterPlugin(
   tinyxml2::XMLElement* robot,

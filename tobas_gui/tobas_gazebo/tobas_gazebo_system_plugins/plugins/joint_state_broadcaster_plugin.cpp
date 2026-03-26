@@ -131,5 +131,5 @@ void GazeboJointStateBroadcasterPlugin::registerRosInterfaces()
 GZ_ADD_PLUGIN(
   tobas::gazebo::GazeboJointStateBroadcasterPlugin,
   gz::sim::System,
-  tobas::gazebo::GazeboJointStateBroadcasterPlugin::ISystemConfigure,
-  tobas::gazebo::GazeboJointStateBroadcasterPlugin::ISystemPostUpdate)
+  gz::sim::ISystemConfigure,
+  gz::sim::ISystemPostUpdate)

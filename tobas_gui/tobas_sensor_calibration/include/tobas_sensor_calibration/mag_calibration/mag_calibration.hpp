@@ -35,7 +35,7 @@ public:
 
 private:
   QButtonGroup* btn_group_;
-  tobas::qt::StackedWidget* stack_;
+  qt::StackedWidget* stack_;
 
   void addMagCalibWidget(BaseMagCalibWidget* widget, const QString& label, int id);
 

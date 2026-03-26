@@ -13,7 +13,7 @@ namespace log
 {
 JointVelocityPlotWidget::JointVelocityPlotWidget()
 {
-  grid_ = new tobas::qt::GridLayout();
+  grid_ = new qt::GridLayout();
   setLayout(grid_);
 }
 

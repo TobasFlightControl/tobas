@@ -25,10 +25,10 @@ namespace bm
 {
 LoginPasswordWidget::LoginPasswordWidget()
 {
-  pswd1_ = new tobas::qt::PasswordEdit();
-  pswd2_ = new tobas::qt::PasswordEdit();
+  pswd1_ = new qt::PasswordEdit();
+  pswd2_ = new qt::PasswordEdit();
 
-  warn_text_ = new tobas::qt::Label();
+  warn_text_ = new qt::Label();
   warn_text_->setTextColor(Qt::red);
 
   write_button_ = new QPushButton("Write");
@@ -43,7 +43,7 @@ LoginPasswordWidget::LoginPasswordWidget()
   rows_->addLayout(form);
   rows_->addWidget(warn_text_);
   rows_->addSpacing(30);
-  tobas::qt::addWidgetCenter(write_button_, rows_);
+  qt::addWidgetCenter(write_button_, rows_);
   rows_->addStretch();
 
   // Connection
@@ -77,12 +77,12 @@ void LoginPasswordWidget::onWriteButtonClicked()
   const auto shadow_path = fs::path(kRootPath) / "etc/shadow";
   const auto pswd = pswd1_->text().toStdString();
 
-  if (!crypt::setShadowPassword(shadow_path, tobas::gui::cmn::kUserNameFC, pswd, crypt::Yescrypt())) {
-    tobas::qt::qErrorBox(this, "Failed to update login password.");
+  if (!crypt::setShadowPassword(shadow_path, gui::cmn::kUserNameFC, pswd, crypt::Yescrypt())) {
+    qt::qErrorBox(this, "Failed to update login password.");
     return;
   }
 
-  tobas::qt::qInfoBox(this, "Login password was updated successfully.");
+  qt::qInfoBox(this, "Login password was updated successfully.");
 }
 
 void LoginPasswordWidget::onTextChanged()
@@ -98,7 +98,7 @@ void LoginPasswordWidget::onTextChanged()
   }
 
   // 制御文字はダメ
-  if (tobas::qt::containsControlChars(pswd1)) {
+  if (qt::containsControlChars(pswd1)) {
     warn_text_->setText("Password must not contain control characters.");
     write_button_->setEnabled(false);
     return;

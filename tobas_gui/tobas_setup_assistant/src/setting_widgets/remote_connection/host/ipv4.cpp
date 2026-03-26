@@ -17,7 +17,7 @@ IPv4Widget::IPv4Widget()
   const auto cols = new QHBoxLayout();
   setLayout(cols);
 
-  ipv4_ = new tobas::qt::IPv4Edit();
+  ipv4_ = new qt::IPv4Edit();
   cols->addWidget(ipv4_);
 }
 
@@ -29,7 +29,7 @@ const char* IPv4Widget::label() const
 bool IPv4Widget::isValid()
 {
   if (!ipv4_->isFilled()) {
-    tobas::qt::qWarnBox(this, "Please enter the flight controller’s IP address.");
+    qt::qWarnBox(this, "Please enter the flight controller’s IP address.");
     return false;
   }
 

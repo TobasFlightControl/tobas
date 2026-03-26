@@ -17,12 +17,12 @@ namespace sa
 {
 namespace hw
 {
-class DShotWidget : public tobas::qt::TableWidget
+class DShotWidget : public qt::TableWidget
 {
   Q_OBJECT
 
   using self = DShotWidget;
-  using super = tobas::qt::TableWidget;
+  using super = qt::TableWidget;
 
   static constexpr int kTargetNameCol = 0;
   static constexpr int kBidirectionalCol = kTargetNameCol + 1;
@@ -51,12 +51,12 @@ public:
 private:
   const uadf::Model& uadf_;
 
-  tobas::PropulsionSystem prop_type_ = tobas::PropulsionSystem::kElectric;
+  PropulsionSystem prop_type_ = PropulsionSystem::kElectric;
 
-  tobas::qt::ComboBox* targetNameWidget(int row);
+  qt::ComboBox* targetNameWidget(int row);
   QPushButton* bidirectionalWidget(int row);
 
-  const tobas::qt::ComboBox* targetNameWidget(int row) const;
+  const qt::ComboBox* targetNameWidget(int row) const;
   const QPushButton* bidirectionalWidget(int row) const;
 
   void addLastChannel();
@@ -66,7 +66,7 @@ private:
   void setBidirectionalButtonText(QPushButton* button, bool checked);
 
 private Q_SLOTS:
-  void onPropulsionTypeChanged(const tobas::PropulsionSystem& new_prop_type);
+  void onPropulsionTypeChanged(const PropulsionSystem& new_prop_type);
   void onBidirectionalButtonToggled(QPushButton* button, bool checked);
 };
 }  // namespace hw

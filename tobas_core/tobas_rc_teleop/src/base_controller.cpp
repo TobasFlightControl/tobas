@@ -11,9 +11,9 @@ BaseController::BaseController()
   // 不要なrosparamの参照やPubSubの登録を防ぐため，コンストラクタではそれらに関する操作は行わない
 }
 
-std::string BaseController::addMode(const std::string& text, tobas::FlightMode mode)
+std::string BaseController::addMode(const std::string& text, FlightMode mode)
 {
-  return path::join(tobas::textFromEnum(mode), text);
+  return path::join(textFromEnum(mode), text);
 }
 }  // namespace rc
 }  // namespace tobas

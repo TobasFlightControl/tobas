@@ -12,7 +12,7 @@ ActuatorTestWidget::ActuatorTestWidget(
   rclcpp::Node::SharedPtr node,
   const RosQtBridge& bridge,
   const kdl::Tree& tree,
-  const tobas::Drone& drone)
+  const Drone& drone)
   : drone_(drone)
 {
   setTabSize(kTabWidth, kTabHeight);
@@ -54,12 +54,12 @@ void ActuatorTestWidget::updateInternalDataStructures()
 
 BaseWidget* ActuatorTestWidget::getWidget(int index)
 {
-  return tobas::qt::qPointerCast<BaseWidget>(widget(index));
+  return qt::qPointerCast<BaseWidget>(widget(index));
 }
 
 const BaseWidget* ActuatorTestWidget::getWidget(int index) const
 {
-  return tobas::qt::qConstPointerCast<BaseWidget>(widget(index));
+  return qt::qConstPointerCast<BaseWidget>(widget(index));
 }
 
 void ActuatorTestWidget::setTabsEnabled(bool enabled)

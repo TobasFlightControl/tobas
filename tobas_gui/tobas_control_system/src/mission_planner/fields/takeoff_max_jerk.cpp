@@ -13,7 +13,7 @@ namespace field
 TakeoffMaxJerkWidget::TakeoffMaxJerkWidget()
 {
   // https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_JERK_AUTO
-  spin_box_ = new tobas::qt::DoubleSpinBox();
+  spin_box_ = new qt::DoubleSpinBox();
   spin_box_->setDecimals(1);
   spin_box_->setMinimum(1.);
   spin_box_->setMaximum(80.);

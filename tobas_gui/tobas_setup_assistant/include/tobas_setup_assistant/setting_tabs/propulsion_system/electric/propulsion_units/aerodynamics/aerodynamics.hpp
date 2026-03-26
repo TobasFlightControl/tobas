@@ -47,8 +47,8 @@ public:
 private:
   const PropellerWidget* const propeller_;
 
-  tobas::qt::ComboBox* method_name_;
-  tobas::qt::StackedWidget* methods_;
+  qt::ComboBox* method_name_;
+  qt::StackedWidget* methods_;
 
   AerodynamicsWidget_Base* selected();
   const AerodynamicsWidget_Base* selected() const;

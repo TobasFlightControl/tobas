@@ -30,7 +30,7 @@ LoopTypeWidget::LoopTypeWidget()
 
   // Layout
   const auto rows = new QVBoxLayout();
-  rows->addWidget(new tobas::qt::Label("Simulation Type", cmn::kLabelPSize, QFont::Bold));
+  rows->addWidget(new qt::Label("Simulation Type", cmn::kLabelPSize, QFont::Bold));
   rows->addWidget(sitl_btn_);
   rows->addWidget(hitl_btn_);
 

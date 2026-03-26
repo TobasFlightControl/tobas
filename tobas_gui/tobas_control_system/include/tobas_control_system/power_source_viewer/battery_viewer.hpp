@@ -22,17 +22,17 @@ class BatteryViewerWidget : public QWidget
   static constexpr int kBarHeight = 30;
 
 public:
-  explicit BatteryViewerWidget(const RosQtBridge& bridge, const tobas::Drone& drone);
+  explicit BatteryViewerWidget(const RosQtBridge& bridge, const Drone& drone);
 
   void reset();
   void updateInternalDataStructures();
 
 private:
-  const tobas::Drone& drone_;
-  tobas::ElectricPropulsionSystemConfig::ConstSharedPtr eprop_;
+  const Drone& drone_;
+  ElectricPropulsionSystemConfig::ConstSharedPtr eprop_;
 
-  tobas::qt::HPositionBarWidget* voltage_;
-  tobas::qt::HPositionBarWidget* current_;
+  qt::HPositionBarWidget* voltage_;
+  qt::HPositionBarWidget* current_;
 
   void updateVoltage(const double& voltage);
   void updateCurrent(const double& current);

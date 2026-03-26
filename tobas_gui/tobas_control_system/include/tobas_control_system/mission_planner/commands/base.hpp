@@ -49,8 +49,8 @@ protected:
 private:
   QLabel* label_;
   QPushButton* delete_button_;
-  tobas::qt::FormLayout* form_;
-  QMap<field::BaseFieldWidget*, tobas::qt::CheckBox*> checkboxes_;
+  qt::FormLayout* form_;
+  QMap<field::BaseFieldWidget*, qt::CheckBox*> checkboxes_;
 
   int row_ = 0;
 

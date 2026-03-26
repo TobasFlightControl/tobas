@@ -97,7 +97,7 @@ private:
   ros2::PublisherPtr<tobas_msgs::Imu> imu_raw_pub_;
   ros2::PublisherPtr<tobas_msgs::Imu> imu_filt_pub_;
   ros2::PublisherPtr<tobas_gazebo_msgs::msg::ImuDebug> debug_pub_;
-  tobas::ImuSamplingTimePublisher sampling_time_pub_;
+  ImuSamplingTimePublisher sampling_time_pub_;
 
   ros2::SubscriberPtr<tobas_gazebo_msgs::msg::EngineState> engine_state_sub_;
   std::vector<ros2::SubscriberPtr<tobas_gazebo_msgs::msg::RotorState>> rotor_state_subs_;
@@ -209,7 +209,7 @@ void GazeboImuPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim:
 
   // 姿勢推定の発散を防ぐために機体の位置姿勢が安定するまでは発行しない
   if (!static_state_detected_) {
-    static_state_detected_ = (acc_B.Length() < tobas::kStaticAccThresh) && (gyro_B.Length() < tobas::kStaticGyroThresh);
+    static_state_detected_ = (acc_B.Length() < kStaticAccThresh) && (gyro_B.Length() < kStaticGyroThresh);
     if (static_state_detected_) {
       TOBAS_INFO("Stationary state detected. Start to publish IMU messages.");
       acc_lpf_.setValue(acc_meas);
@@ -360,8 +360,4 @@ void GazeboImuPlugin::configureImuFilterCb(
 }  // namespace gazebo
 }  // namespace tobas
 
-GZ_ADD_PLUGIN(
-  tobas::gazebo::GazeboImuPlugin,
-  gz::sim::System,
-  tobas::gazebo::GazeboImuPlugin::ISystemConfigure,
-  tobas::gazebo::GazeboImuPlugin::ISystemPostUpdate)
+GZ_ADD_PLUGIN(tobas::gazebo::GazeboImuPlugin, gz::sim::System, gz::sim::ISystemConfigure, gz::sim::ISystemPostUpdate)

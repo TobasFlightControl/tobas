@@ -28,7 +28,7 @@ protected:
 private:
   QPushButton* save_button_;
   QLineEdit* proj_name_;
-  tobas::qt::Label* warn_text_;
+  qt::Label* warn_text_;
 
 private Q_SLOTS:
   void onProjectPathChanged();

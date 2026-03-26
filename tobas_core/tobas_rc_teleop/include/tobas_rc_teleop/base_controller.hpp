@@ -21,7 +21,7 @@ public:
   virtual bool requireAttitude() = 0;
   virtual bool requireHeading() = 0;
 
-  virtual void initialize(BaseNode* node, tobas::FlightMode mode) = 0;
+  virtual void initialize(BaseNode* node, FlightMode mode) = 0;
   virtual void reset(const builtin_interfaces::msg::Time& stamp, const tobas_msgs::Odometry& setpoint, bool landed) = 0;
   virtual void update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom, bool landed) = 0;
 
@@ -48,7 +48,7 @@ protected:
   static inline double expo(double x, double exp);
 
   /* テキストにフライトモードのプリフィックスを与える． */
-  static std::string addMode(const std::string& text, tobas::FlightMode mode);
+  static std::string addMode(const std::string& text, FlightMode mode);
 };
 
 inline double BaseController::deadband(double x) const
@@ -58,7 +58,7 @@ inline double BaseController::deadband(double x) const
 
 inline double BaseController::remap(double x, double lb, double ub) const
 {
-  return math::remap(x, tobas::kRcInputMin, tobas::kRcInputMax, lb, ub);
+  return math::remap(x, kRcInputMin, kRcInputMax, lb, ub);
 }
 
 inline double BaseController::expoRemap(double x, double exp, double lb, double ub) const

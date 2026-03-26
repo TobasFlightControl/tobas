@@ -225,5 +225,5 @@ void GazeboTetherStationPlugin::setParamsCb(
 GZ_ADD_PLUGIN(
   tobas::gazebo::GazeboTetherStationPlugin,
   gz::sim::System,
-  tobas::gazebo::GazeboTetherStationPlugin::ISystemConfigure,
-  tobas::gazebo::GazeboTetherStationPlugin::ISystemPreUpdate)
+  gz::sim::ISystemConfigure,
+  gz::sim::ISystemPreUpdate)

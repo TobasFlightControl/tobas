@@ -11,7 +11,7 @@ namespace sc
 SensorCalibrationWidget::SensorCalibrationWidget(
   rclcpp::Node::SharedPtr node,
   const RosQtBridge& bridge,
-  const tobas::Drone& drone)
+  const Drone& drone)
   : drone_(drone)
 {
   setTabSize(kTabWidth, kTabHeight);
@@ -59,12 +59,12 @@ void SensorCalibrationWidget::updateInternalDataStructures()
 
 BaseWidget* SensorCalibrationWidget::getWidget(int index)
 {
-  return tobas::qt::qPointerCast<BaseWidget>(widget(index));
+  return qt::qPointerCast<BaseWidget>(widget(index));
 }
 
 const BaseWidget* SensorCalibrationWidget::getWidget(int index) const
 {
-  return tobas::qt::qConstPointerCast<BaseWidget>(widget(index));
+  return qt::qConstPointerCast<BaseWidget>(widget(index));
 }
 
 void SensorCalibrationWidget::setTabsEnabled(bool enabled)

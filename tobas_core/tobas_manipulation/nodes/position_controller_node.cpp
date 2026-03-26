@@ -26,7 +26,7 @@ private:
   // Parameters
   std::unordered_set<std::string> jnt_names_;
 
-  tobas::Drone::ConstSharedPtr drone_;
+  Drone::ConstSharedPtr drone_;
 
   tobas_msgs::msg::JointStateArray home_js_;
 
@@ -37,7 +37,7 @@ private:
   ros2::PublisherPtr<tobas_msgs::msg::JointCommandArray> positions_pub_;
 
   // Subscribers
-  ros2::SubscriberPtr<tobas::Drone> drone_sub_;
+  ros2::SubscriberPtr<Drone> drone_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::JointStateArray> cur_js_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::JointStateArray> tar_js_sub_;
   ros2::SubscriberPtr<tobas_msgs::LinkStateArray> tar_ls_sub_;
@@ -48,7 +48,7 @@ private:
   bool jointSpaceControl(tobas_msgs::msg::JointCommandArray& positions_msg);
   bool taskSpaceControl(tobas_msgs::msg::JointCommandArray& positions_msg);
 
-  void droneCb(const tobas::Drone::ConstSharedPtr& drone);
+  void droneCb(const Drone::ConstSharedPtr& drone);
   void currentJointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& cur_js);
   void targetJointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& tar_js);
   void targetLinkStateCb(const tobas_msgs::LinkStateArray::ConstSharedPtr& tar_ls);
@@ -100,7 +100,7 @@ bool PositionControllerNode::taskSpaceControl(tobas_msgs::msg::JointCommandArray
   return true;
 }
 
-void PositionControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
+void PositionControllerNode::droneCb(const Drone::ConstSharedPtr& drone)
 {
   drone_ = drone;
 
@@ -114,7 +114,7 @@ void PositionControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
       continue;
     }
     const auto& joint = joint_it->second;
-    if (joint.cmd_iface != tobas::JointCommandInterface::kPosition) {
+    if (joint.cmd_iface != JointCommandInterface::kPosition) {
       TOBAS_WARN("The command interface of joint \"", jnt_name, "\" is not position.");
       continue;
     }

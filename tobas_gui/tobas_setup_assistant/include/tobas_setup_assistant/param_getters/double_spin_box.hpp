@@ -36,7 +36,7 @@ private Q_SLOTS:
   void onValueChanged(double value);
 
 private:
-  tobas::qt::DoubleSpinBox* spin_box_;
+  qt::DoubleSpinBox* spin_box_;
 };
 }  // namespace sa
 }  // namespace gui

@@ -44,7 +44,7 @@ public:
   const AerodynamicsWidget* aerodynamics() const;
 
 private:
-  tobas::qt::TabWidget* tabs_;
+  qt::TabWidget* tabs_;
 
   QPushButton* copy_to_all_btn_;
 

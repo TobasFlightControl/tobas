@@ -91,7 +91,7 @@ void AccelCalibrationThread::run()
 
   // パラメータを更新
   ros2::SyncServiceClient<tobas_real_msgs::srv::SetImuParams> sc(
-    node_, path::join(ns_, tobas::kRemoteIfaceNS, real::handler::imu::kSetParamSrv));
+    node_, path::join(ns_, kRemoteIfaceNS, real::handler::imu::kSetParamSrv));
   if (!sc.call(req, kSetParamTimeout)) {
     Q_EMIT finished(false, "Failed to send calibration results.");
     return;

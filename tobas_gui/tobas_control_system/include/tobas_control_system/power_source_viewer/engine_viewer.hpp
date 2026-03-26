@@ -27,17 +27,17 @@ class EngineViewerWidget : public QWidget
   static constexpr double kMaxOilTemp = 130.;  // [degC]
 
 public:
-  explicit EngineViewerWidget(const RosQtBridge& bridge, const tobas::Drone& drone);
+  explicit EngineViewerWidget(const RosQtBridge& bridge, const Drone& drone);
 
   void reset();
   void updateInternalDataStructures();
 
 private:
-  const tobas::Drone& drone_;
-  tobas::IcePropulsionSystemConfig::ConstSharedPtr iprop_;
+  const Drone& drone_;
+  IcePropulsionSystemConfig::ConstSharedPtr iprop_;
 
-  tobas::qt::HPositionBarWidget* fuel_quantity_;
-  tobas::qt::HPositionBarWidget* oil_temp_;
+  qt::HPositionBarWidget* fuel_quantity_;
+  qt::HPositionBarWidget* oil_temp_;
 
   void updateFuelQuantity(const double& fuel_quantity);
   void updateOilTemperature(const double& oil_temp);

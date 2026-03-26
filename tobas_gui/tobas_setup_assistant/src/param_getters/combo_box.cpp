@@ -9,11 +9,11 @@ namespace sa
 ParamGetterWidget_ComboBox::ParamGetterWidget_ComboBox(const QString& param_name, const QString& description_text)
   : super(param_name, description_text)
 {
-  box_ = new tobas::qt::ComboBox();
+  box_ = new qt::ComboBox();
   rows_->addWidget(box_);
 
-  connect(box_, QOverload<int>::of(&tobas::qt::ComboBox::currentIndexChanged), this, &self::onIndexChanged);
-  connect(box_, &tobas::qt::ComboBox::currentTextChanged, this, &self::onTextChanged);
+  connect(box_, QOverload<int>::of(&qt::ComboBox::currentIndexChanged), this, &self::onIndexChanged);
+  connect(box_, &qt::ComboBox::currentTextChanged, this, &self::onTextChanged);
 }
 
 QString ParamGetterWidget_ComboBox::getValue() const

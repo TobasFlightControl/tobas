@@ -41,22 +41,22 @@ QString NonPlanarMulticopterWidget::controllerPackage() const
 
 QString NonPlanarMulticopterWidget::pluginName() const
 {
-  return "tobas::nonplanar_multicopter::ControllerNode";
+  return "nonplanar_multicopter::ControllerNode";
 }
 
-tobas::RcCommand NonPlanarMulticopterWidget::acrobatModeCommand() const
+RcCommand NonPlanarMulticopterWidget::acrobatModeCommand() const
 {
-  return tobas::RcCommand::kAccelRate;
+  return RcCommand::kAccelRate;
 }
 
-tobas::RcCommand NonPlanarMulticopterWidget::stabilizeModeCommand() const
+RcCommand NonPlanarMulticopterWidget::stabilizeModeCommand() const
 {
-  return tobas::RcCommand::kAccelAngle;
+  return RcCommand::kAccelAngle;
 }
 
-tobas::RcCommand NonPlanarMulticopterWidget::loiterModeCommand() const
+RcCommand NonPlanarMulticopterWidget::loiterModeCommand() const
 {
-  return tobas::RcCommand::kPosVelAccAngle;
+  return RcCommand::kPosVelAccAngle;
 }
 
 YAML::Node NonPlanarMulticopterWidget::staticParams() const

@@ -13,13 +13,13 @@ namespace ctrl
 {
 GnssViewerWidget::GnssViewerWidget(const RosQtBridge& bridge)
 {
-  status_ = new tobas::qt::FramedLabel();
-  nsats_ = new tobas::qt::FramedLabel();
+  status_ = new qt::FramedLabel();
+  nsats_ = new qt::FramedLabel();
 
   // Layout
-  const auto form = new tobas::qt::FormLayout();
-  form->addVAlignedRow(new tobas::qt::Label("GNSS Status", kLabelPSize), status_);
-  form->addVAlignedRow(new tobas::qt::Label("GNSS NSats", kLabelPSize), nsats_);
+  const auto form = new qt::FormLayout();
+  form->addVAlignedRow(new qt::Label("GNSS Status", kLabelPSize), status_);
+  form->addVAlignedRow(new qt::Label("GNSS NSats", kLabelPSize), nsats_);
   setLayout(form);
 
   // Connection

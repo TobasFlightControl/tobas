@@ -12,7 +12,7 @@ namespace field
 {
 LatitudeWidget::LatitudeWidget()
 {
-  spin_box_ = new tobas::qt::DoubleSpinBox();
+  spin_box_ = new qt::DoubleSpinBox();
   spin_box_->setDecimals(9);
   spin_box_->setMinimum(-90.);
   spin_box_->setMaximum(90.);

@@ -33,7 +33,7 @@ private:
   QPushButton* write_button_;
 
   QLineEdit* hostname_;
-  tobas::qt::Label* warn_text_;
+  qt::Label* warn_text_;
 
   QString getHostname() const;
 

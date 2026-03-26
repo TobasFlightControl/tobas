@@ -38,7 +38,7 @@ bool TransmissionWidget::isValid()
 {
   const auto [engine_gear, propeller_gear] = gear_ratio_->getValue();
   if (engine_gear < propeller_gear) {
-    tobas::qt::qWarnBox(
+    qt::qWarnBox(
       this, "The engine's rotational speed must be equal to or greater than the propeller's rotational speed.");
     return false;
   }
@@ -48,7 +48,7 @@ bool TransmissionWidget::isValid()
 
 void TransmissionWidget::copyFrom(const BaseSelectedLinkSettingWidget* src)
 {
-  const auto derived = tobas::qt::qConstPointerCast<TransmissionWidget>(src);
+  const auto derived = qt::qConstPointerCast<TransmissionWidget>(src);
 
   gear_ratio_->setValue(derived->gear_ratio_->getValue());
 }

@@ -56,7 +56,7 @@ bool PwmWidget::isValid()
       continue;
     }
     if (target_name_set.contains(target_name)) {
-      tobas::qt::qWarnBox(this, "PWM target \"" + target_name + "\" is duplicated.");
+      qt::qWarnBox(this, "PWM target \"" + target_name + "\" is duplicated.");
       return false;
     }
     target_name_set.insert(target_name);
@@ -165,34 +165,34 @@ int PwmWidget::channel(const QString& target_name) const
   return -1;
 }
 
-tobas::qt::ComboBox* PwmWidget::targetNameWidget(int row)
+qt::ComboBox* PwmWidget::targetNameWidget(int row)
 {
-  return tobas::qt::qPointerCast<tobas::qt::ComboBox>(cellWidget(row, kTargetNameCol));
+  return qt::qPointerCast<qt::ComboBox>(cellWidget(row, kTargetNameCol));
 }
 
-tobas::qt::DoubleSpinBox* PwmWidget::periodLbWidget(int row)
+qt::DoubleSpinBox* PwmWidget::periodLbWidget(int row)
 {
-  return tobas::qt::qPointerCast<tobas::qt::DoubleSpinBox>(cellWidget(row, kPeriodLbCol));
+  return qt::qPointerCast<qt::DoubleSpinBox>(cellWidget(row, kPeriodLbCol));
 }
 
-tobas::qt::DoubleSpinBox* PwmWidget::periodUbWidget(int row)
+qt::DoubleSpinBox* PwmWidget::periodUbWidget(int row)
 {
-  return tobas::qt::qPointerCast<tobas::qt::DoubleSpinBox>(cellWidget(row, kPeriodUbCol));
+  return qt::qPointerCast<qt::DoubleSpinBox>(cellWidget(row, kPeriodUbCol));
 }
 
-const tobas::qt::ComboBox* PwmWidget::targetNameWidget(int row) const
+const qt::ComboBox* PwmWidget::targetNameWidget(int row) const
 {
-  return tobas::qt::qConstPointerCast<tobas::qt::ComboBox>(cellWidget(row, kTargetNameCol));
+  return qt::qConstPointerCast<qt::ComboBox>(cellWidget(row, kTargetNameCol));
 }
 
-const tobas::qt::DoubleSpinBox* PwmWidget::periodLbWidget(int row) const
+const qt::DoubleSpinBox* PwmWidget::periodLbWidget(int row) const
 {
-  return tobas::qt::qConstPointerCast<tobas::qt::DoubleSpinBox>(cellWidget(row, kPeriodLbCol));
+  return qt::qConstPointerCast<qt::DoubleSpinBox>(cellWidget(row, kPeriodLbCol));
 }
 
-const tobas::qt::DoubleSpinBox* PwmWidget::periodUbWidget(int row) const
+const qt::DoubleSpinBox* PwmWidget::periodUbWidget(int row) const
 {
-  return tobas::qt::qConstPointerCast<tobas::qt::DoubleSpinBox>(cellWidget(row, kPeriodUbCol));
+  return qt::qConstPointerCast<qt::DoubleSpinBox>(cellWidget(row, kPeriodUbCol));
 }
 
 void PwmWidget::addLastChannel()
@@ -200,7 +200,7 @@ void PwmWidget::addLastChannel()
   const auto row = rowCount();
 
   // Target name
-  const auto target_name = new tobas::qt::ComboBox();
+  const auto target_name = new qt::ComboBox();
   target_name->addItem("");  // 未選択
   for (const auto& [joint_name, _] : uadf_.tilts) {
     target_name->addItem(QString::fromStdString(joint_name));
@@ -209,10 +209,10 @@ void PwmWidget::addLastChannel()
     target_name->addItem(QString::fromStdString(joint_name));
   }
   switch (prop_type_) {
-    case tobas::PropulsionSystem::kElectric: {
+    case PropulsionSystem::kElectric: {
       break;
     }
-    case tobas::PropulsionSystem::kIce: {
+    case PropulsionSystem::kIce: {
       for (const auto& [joint_name, _] : uadf_.thrusts) {
         target_name->addItem(QString::fromStdString(joint_name));
       }
@@ -224,7 +224,7 @@ void PwmWidget::addLastChannel()
   }
 
   // PWM period (LB)
-  const auto period_lb = new tobas::qt::DoubleSpinBox();
+  const auto period_lb = new qt::DoubleSpinBox();
   period_lb->setDecimals(kPeriodDecimals);
   period_lb->setMinimum(0);
   period_lb->setMaximum(2500);
@@ -232,7 +232,7 @@ void PwmWidget::addLastChannel()
   period_lb->setSuffix(" us");
 
   // PWM period (UB)
-  const auto period_ub = new tobas::qt::DoubleSpinBox();
+  const auto period_ub = new qt::DoubleSpinBox();
   period_ub->setDecimals(kPeriodDecimals);
   period_ub->setMinimum(0);
   period_ub->setMaximum(2500);
@@ -260,11 +260,11 @@ void PwmWidget::removeLastChannel()
   removeRow(row);
 
   if (!target_name.isEmpty()) {
-    tobas::qt::qWarnBox(this, "PWM configuration for \"" + target_name + "\" has been removed.");
+    qt::qWarnBox(this, "PWM configuration for \"" + target_name + "\" has been removed.");
   }
 }
 
-void PwmWidget::onPropulsionTypeChanged(const tobas::PropulsionSystem& new_prop_type)
+void PwmWidget::onPropulsionTypeChanged(const PropulsionSystem& new_prop_type)
 {
   if (new_prop_type == prop_type_) {
     return;
@@ -272,10 +272,10 @@ void PwmWidget::onPropulsionTypeChanged(const tobas::PropulsionSystem& new_prop_
 
   // 前の推進系の不要な選択肢を外す
   switch (prop_type_) {
-    case tobas::PropulsionSystem::kElectric: {
+    case PropulsionSystem::kElectric: {
       break;
     }
-    case tobas::PropulsionSystem::kIce: {
+    case PropulsionSystem::kIce: {
       for (int channel = 0; channel < rowCount(); ++channel) {
         const auto target_name = targetNameWidget(channel);
 
@@ -300,10 +300,10 @@ void PwmWidget::onPropulsionTypeChanged(const tobas::PropulsionSystem& new_prop_
 
   // 新しい推進系の選択肢を追加
   switch (new_prop_type) {
-    case tobas::PropulsionSystem::kElectric: {
+    case PropulsionSystem::kElectric: {
       break;
     }
-    case tobas::PropulsionSystem::kIce: {
+    case PropulsionSystem::kIce: {
       for (int channel = 0; channel < rowCount(); ++channel) {
         const auto target_name = targetNameWidget(channel);
 

@@ -21,13 +21,13 @@ class ControlSystemWidget : public QWidget
   Q_OBJECT
 
 public:
-  explicit ControlSystemWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge, const tobas::Drone& drone);
+  explicit ControlSystemWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge, const Drone& drone);
 
   void reset();
   void updateInternalDataStructures();
 
 private:
-  const tobas::Drone& drone_;
+  const Drone& drone_;
 
   PoseViewerWidget* pose_viewer_;
   PowerSourceViewerWidget* power_source_viewer_;

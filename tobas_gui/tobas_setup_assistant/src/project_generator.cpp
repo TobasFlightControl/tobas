@@ -57,7 +57,7 @@ bool ProjectGenerator::generateProject(const fs::path& proj_path)
   // Tobasパッケージを作成
   const auto create_proj_path_res = path::createDirectories(proj_path);
   if (!create_proj_path_res) {
-    tobas::qt::qErrorBox(
+    qt::qErrorBox(
       parent_, "Failed to create Tobas project path:\n" + QString::fromStdString(create_proj_path_res.error()));
     return false;
   }
@@ -99,7 +99,7 @@ bool ProjectGenerator::generateProject(const fs::path& proj_path)
   cmn::Version version;
   version.setToCurrent();
   if (!version.save(proj_paths_.versionPath())) {
-    tobas::qt::qErrorBox(parent_, "Failed to save the current version.");
+    qt::qErrorBox(parent_, "Failed to save the current version.");
     return false;
   }
 
@@ -142,19 +142,19 @@ inja::json ProjectGenerator::createTemplateData() const
   return tpl_data;
 }
 
-tobas::Drone ProjectGenerator::createDrone() const
+Drone ProjectGenerator::createDrone() const
 {
-  tobas::Drone drone;
+  Drone drone;
 
   // Drone Name
   drone.name = uadf_.urdf->getName();
 
   // Propulsion System
   switch (settings_->propulsion_system->type()) {
-    case tobas::PropulsionSystem::kElectric: {
-      const auto eprop_widget = tobas::qt::qConstPointerCast<propulsion::electric::PropulsionSystemWidget>(
-        settings_->propulsion_system->selected());
-      const auto eprop = std::make_shared<tobas::ElectricPropulsionSystemConfig>();
+    case PropulsionSystem::kElectric: {
+      const auto eprop_widget =
+        qt::qConstPointerCast<propulsion::electric::PropulsionSystemWidget>(settings_->propulsion_system->selected());
+      const auto eprop = std::make_shared<ElectricPropulsionSystemConfig>();
 
       // Battery
       const auto battery_widget = eprop_widget->battery;
@@ -177,7 +177,7 @@ tobas::Drone ProjectGenerator::createDrone() const
         const auto& par_jnt = par_seg.joint();
 
         // Rotor
-        const auto rotor = std::make_shared<tobas::ElectricRotorConfig>();
+        const auto rotor = std::make_shared<ElectricRotorConfig>();
         rotor->link_name = link_name;
         rotor->direction = turningDirectionUadfToTbsdrn(uadf_.thrusts.at(cur_jnt.name).direction);
         rotor->moment_const = unit_widget->aerodynamics()->momentConst();
@@ -193,21 +193,21 @@ tobas::Drone ProjectGenerator::createDrone() const
 
         // Tilt Joint
         if (uadf_.tilts.contains(par_jnt.name)) {
-          tobas::JointConfig tilt_joint;
+          JointConfig tilt_joint;
           tilt_joint.name = par_jnt.name;
-          tilt_joint.role = tobas::JointRole::kTiltJoint;
-          tilt_joint.cmd_iface = tobas::JointCommandInterface::kPosition;
+          tilt_joint.role = JointRole::kTiltJoint;
+          tilt_joint.cmd_iface = JointCommandInterface::kPosition;
           if (settings_->hardware->pwm()->contains(QString::fromStdString(par_jnt.name))) {
-            tilt_joint.hw_iface = tobas::HardwareInterface::kPwm;
+            tilt_joint.hw_iface = HardwareInterface::kPwm;
           }
           else {
-            tilt_joint.hw_iface = tobas::HardwareInterface::kOther;
+            tilt_joint.hw_iface = HardwareInterface::kOther;
           }
           tilt_joint.home_pos = 0.;
           TOBAS_CHECK(drone.joints.insert({ tilt_joint.name, tilt_joint }).second);
 
-          if (tilt_joint.hw_iface == tobas::HardwareInterface::kPwm) {
-            tobas::PwmConfig tilt_pwm;
+          if (tilt_joint.hw_iface == HardwareInterface::kPwm) {
+            PwmConfig tilt_pwm;
             const auto pwm_channel = settings_->hardware->pwm()->channel(QString::fromStdString(par_jnt.name));
             tilt_pwm.channel = pwm_channel;
             tilt_pwm.name = par_jnt.name;
@@ -220,34 +220,34 @@ tobas::Drone ProjectGenerator::createDrone() const
         }
       }
 
-      drone.prop = std::static_pointer_cast<tobas::PropulsionSystemConfig>(eprop);
+      drone.prop = std::static_pointer_cast<PropulsionSystemConfig>(eprop);
       break;
     }
-    case tobas::PropulsionSystem::kIce: {
+    case PropulsionSystem::kIce: {
       const auto iprop_widget =
-        tobas::qt::qConstPointerCast<propulsion::ice::PropulsionSystemWidget>(settings_->propulsion_system->selected());
-      const auto iprop = std::make_shared<tobas::IcePropulsionSystemConfig>();
+        qt::qConstPointerCast<propulsion::ice::PropulsionSystemWidget>(settings_->propulsion_system->selected());
+      const auto iprop = std::make_shared<IcePropulsionSystemConfig>();
 
       // Engine
       const auto engine_widget = iprop_widget->engine;
       iprop->engine.engine_const = engine_widget->dynamics()->engineConstant();
       if (settings_->hardware->pwm()->contains(hw::PwmWidget::kEngineThrotLabel)) {
-        iprop->engine.hw_iface = tobas::HardwareInterface::kPwm;
+        iprop->engine.hw_iface = HardwareInterface::kPwm;
       }
       else {
-        iprop->engine.hw_iface = tobas::HardwareInterface::kOther;
+        iprop->engine.hw_iface = HardwareInterface::kOther;
       }
 
-      if (iprop->engine.hw_iface == tobas::HardwareInterface::kPwm) {
-        tobas::PwmConfig engine_pwm;
+      if (iprop->engine.hw_iface == HardwareInterface::kPwm) {
+        PwmConfig engine_pwm;
         const auto engine_pwm_channel = settings_->hardware->pwm()->channel(hw::PwmWidget::kEngineThrotLabel);
         engine_pwm.channel = engine_pwm_channel;
-        engine_pwm.name = tobas::pwm_key::kEngineThrottleKey;
+        engine_pwm.name = pwm_key::kEngineThrottleKey;
         engine_pwm.period_range.first = settings_->hardware->pwm()->periodLb(engine_pwm_channel);
         engine_pwm.period_range.second = settings_->hardware->pwm()->periodUb(engine_pwm_channel);
-        engine_pwm.value_range.first = tobas::kMinThrot;
-        engine_pwm.value_range.second = tobas::kMaxThrot;
-        TOBAS_CHECK(drone.pwms.insert({ tobas::pwm_key::kEngineThrottleKey, engine_pwm }).second);
+        engine_pwm.value_range.first = kMinThrot;
+        engine_pwm.value_range.second = kMaxThrot;
+        TOBAS_CHECK(drone.pwms.insert({ pwm_key::kEngineThrottleKey, engine_pwm }).second);
       }
 
       // Rotors
@@ -263,7 +263,7 @@ tobas::Drone ProjectGenerator::createDrone() const
         const auto& par_jnt = par_seg.joint();
 
         // Rotor
-        const auto rotor = std::make_shared<tobas::IceRotorConfig>();
+        const auto rotor = std::make_shared<IceRotorConfig>();
         rotor->link_name = link_name;
         rotor->direction = turningDirectionUadfToTbsdrn(uadf_.thrusts.at(cur_jnt.name).direction);
         rotor->moment_const = unit_widget->aerodynamics()->momentConst();
@@ -272,16 +272,16 @@ tobas::Drone ProjectGenerator::createDrone() const
         rotor->pitch_limit = unit_widget->propeller()->pitchAngleLimit();
         rotor->motor_const = unit_widget->aerodynamics()->motorConst();
         if (settings_->hardware->pwm()->contains(QString::fromStdString(cur_jnt.name))) {
-          rotor->hw_iface = tobas::HardwareInterface::kPwm;
+          rotor->hw_iface = HardwareInterface::kPwm;
         }
         else {
-          rotor->hw_iface = tobas::HardwareInterface::kOther;
+          rotor->hw_iface = HardwareInterface::kOther;
         }
         TOBAS_CHECK(iprop->rotors.insert({ link_name, rotor }).second);
 
         // Variable Pitch Interface
         // TODO: PWM以外のインターフェースに対応
-        tobas::PwmConfig pitch_pwm;
+        PwmConfig pitch_pwm;
         const auto vpp_pwm_channel = settings_->hardware->pwm()->channel(QString::fromStdString(cur_jnt.name));
         pitch_pwm.channel = vpp_pwm_channel;
         pitch_pwm.name = link_name;
@@ -292,16 +292,16 @@ tobas::Drone ProjectGenerator::createDrone() const
 
         // Tilt Joint
         if (uadf_.tilts.contains(par_jnt.name)) {
-          tobas::JointConfig tilt_joint;
+          JointConfig tilt_joint;
           tilt_joint.name = par_jnt.name;
-          tilt_joint.role = tobas::JointRole::kTiltJoint;
-          tilt_joint.cmd_iface = tobas::JointCommandInterface::kPosition;
-          tilt_joint.hw_iface = tobas::HardwareInterface::kPwm;  // TODO: 選択できるようにする
+          tilt_joint.role = JointRole::kTiltJoint;
+          tilt_joint.cmd_iface = JointCommandInterface::kPosition;
+          tilt_joint.hw_iface = HardwareInterface::kPwm;  // TODO: 選択できるようにする
           tilt_joint.home_pos = 0.;
           TOBAS_CHECK(drone.joints.insert({ tilt_joint.name, tilt_joint }).second);
 
-          if (tilt_joint.hw_iface == tobas::HardwareInterface::kPwm) {
-            tobas::PwmConfig tilt_pwm;
+          if (tilt_joint.hw_iface == HardwareInterface::kPwm) {
+            PwmConfig tilt_pwm;
             const auto pwm_channel = settings_->hardware->pwm()->channel(QString::fromStdString(par_jnt.name));
             tilt_pwm.channel = pwm_channel;
             tilt_pwm.name = par_jnt.name;
@@ -314,7 +314,7 @@ tobas::Drone ProjectGenerator::createDrone() const
         }
       }
 
-      drone.prop = std::static_pointer_cast<tobas::PropulsionSystemConfig>(iprop);
+      drone.prop = std::static_pointer_cast<PropulsionSystemConfig>(iprop);
       break;
     }
     default: {
@@ -324,7 +324,7 @@ tobas::Drone ProjectGenerator::createDrone() const
 
   // Fixed Wing
   if (!uadf_.control_surfaces.empty()) {
-    drone.fixed_wing = std::make_shared<tobas::FixedWingConfig>();
+    drone.fixed_wing = std::make_shared<FixedWingConfig>();
 
     // Vehicle
     const auto vehicle = settings_->fixed_wing->vehicle();
@@ -362,7 +362,7 @@ tobas::Drone ProjectGenerator::createDrone() const
       const auto& cur_seg = cur_ele.segment;
       const auto& cur_jnt = cur_seg.joint();
 
-      tobas::ControlSurface cs;
+      ControlSurface cs;
       cs.link_name = link_name;
       cs.c_lift_delta = css->liftCoef(i);
       cs.c_drag_abs_delta = css->dragCoef(i);  // TODO: 正負の確認が必要？
@@ -372,15 +372,15 @@ tobas::Drone ProjectGenerator::createDrone() const
       cs.c_yaw_delta = css->yawCoef(i);
       drone.fixed_wing->control_surfaces[link_name] = cs;
 
-      tobas::JointConfig joint;
+      JointConfig joint;
       joint.name = cur_jnt.name;
-      joint.role = tobas::JointRole::kControlSurface;
-      joint.cmd_iface = tobas::JointCommandInterface::kPosition;
+      joint.role = JointRole::kControlSurface;
+      joint.cmd_iface = JointCommandInterface::kPosition;
       if (settings_->hardware->pwm()->contains(QString::fromStdString(cur_jnt.name))) {
-        joint.hw_iface = tobas::HardwareInterface::kPwm;
+        joint.hw_iface = HardwareInterface::kPwm;
       }
       else {
-        joint.hw_iface = tobas::HardwareInterface::kOther;
+        joint.hw_iface = HardwareInterface::kOther;
       }
       joint.home_pos = 0.;
       TOBAS_CHECK(drone.joints.insert({ joint.name, joint }).second);
@@ -390,11 +390,11 @@ tobas::Drone ProjectGenerator::createDrone() const
   // Extra Joints
   const auto& extra_joints = settings_->extra_joints;
   for (int i = 0; i < extra_joints->numJoints(); ++i) {
-    tobas::JointConfig joint;
+    JointConfig joint;
     joint.name = extra_joints->getJointName(i).toStdString();
     joint.role = extra_joints->getRole(i);
     joint.cmd_iface = extra_joints->getCommandInterface(i);
-    joint.hw_iface = tobas::HardwareInterface::kOther;  // TODO: 選択できるようにする
+    joint.hw_iface = HardwareInterface::kOther;  // TODO: 選択できるようにする
     joint.home_pos = extra_joints->getHomePosition(i);
     TOBAS_CHECK(drone.joints.insert({ joint.name, joint }).second);
   }
@@ -413,7 +413,7 @@ bool ProjectGenerator::hasServoJoint() const
 
   const auto& extra_joints = settings_->extra_joints;
   for (int i = 0; i < extra_joints->numJoints(); ++i) {
-    if (tobas::isServoJoint(extra_joints->getRole(i))) {
+    if (isServoJoint(extra_joints->getRole(i))) {
       return true;
     }
   }
@@ -630,7 +630,7 @@ bool ProjectGenerator::generateDroneConfig()
 
   const auto tbsdrn_path = proj_paths_.tbsdrnPath();
   if (!drone.save(tbsdrn_path)) {
-    tobas::qt::qErrorBox(parent_, "Failed to save drone configuration.");
+    qt::qErrorBox(parent_, "Failed to save drone configuration.");
     return false;
   }
 
@@ -724,7 +724,7 @@ bool ProjectGenerator::generateObserverStaticConfig()
 
   // For standalone
   YAML::Node node_standalone(YAML::NodeType::Map);
-  node_standalone["/**"][tobas::node::kObserver][kRosParamsKey] = params;
+  node_standalone["/**"][node::kObserver][kRosParamsKey] = params;
   if (!saveYamlNode(config_dir / "observer_static_standalone.yaml", node_standalone)) {
     return false;
   }
@@ -747,7 +747,7 @@ bool ProjectGenerator::generateControllerStaticConfig()
 
   // For standalone
   YAML::Node node_standalone(YAML::NodeType::Map);
-  node_standalone["/**"][tobas::node::kController][kRosParamsKey] = params;
+  node_standalone["/**"][node::kController][kRosParamsKey] = params;
   if (!saveYamlNode(config_dir / "controller_static_standalone.yaml", node_standalone)) {
     return false;
   }
@@ -770,7 +770,7 @@ bool ProjectGenerator::generateMissionExecutorStaticConfig()
 
   // For standalone
   YAML::Node node_standalone(YAML::NodeType::Map);
-  node_standalone["/**"][tobas::node::kMissionExecutor][kRosParamsKey] = params;
+  node_standalone["/**"][node::kMissionExecutor][kRosParamsKey] = params;
   if (!saveYamlNode(config_dir / "mission_executor_static_standalone.yaml", node_standalone)) {
     return false;
   }
@@ -795,7 +795,7 @@ bool ProjectGenerator::generateRcTeleopStaticConfig()
 
   // For standalone
   YAML::Node node_standalone(YAML::NodeType::Map);
-  node_standalone["/**"][tobas::node::kRcTeleop][kRosParamsKey] = params;
+  node_standalone["/**"][node::kRcTeleop][kRosParamsKey] = params;
   if (!saveYamlNode(config_dir / "rc_teleop_static_standalone.yaml", node_standalone)) {
     return false;
   }
@@ -810,7 +810,7 @@ bool ProjectGenerator::generateSshConfig()
   config.user = cmn::kUserNameFC;
 
   if (!config.save(proj_paths_.sshConfigPath())) {
-    tobas::qt::qErrorBox(parent_, "Failed to save the SSH configuration.");
+    qt::qErrorBox(parent_, "Failed to save the SSH configuration.");
     return false;
   }
 
@@ -823,7 +823,7 @@ bool ProjectGenerator::generateNetworkConfig()
   config.interface = settings_->remote_connection->networkInterface().toStdString();
 
   if (!config.save(proj_paths_.networkConfigPath())) {
-    tobas::qt::qErrorBox(parent_, "Failed to save the network configuration.");
+    qt::qErrorBox(parent_, "Failed to save the network configuration.");
     return false;
   }
 
@@ -843,7 +843,7 @@ bool ProjectGenerator::generateOriginalUadf()
 
   // Save
   if (doc->SaveFile(proj_paths_.originalUadfPath().c_str()) != tinyxml2::XML_SUCCESS) {
-    tobas::qt::qErrorBox(parent_, "Failed to save the original UADF.");
+    qt::qErrorBox(parent_, "Failed to save the original UADF.");
     return false;
   }
 
@@ -869,7 +869,7 @@ bool ProjectGenerator::generateModifiedUrdf()
 
   // Save
   if (doc->SaveFile(proj_paths_.xacroPath().c_str()) != tinyxml2::XML_SUCCESS) {
-    tobas::qt::qErrorBox(parent_, "Failed to save the modified URDF.");
+    qt::qErrorBox(parent_, "Failed to save the modified URDF.");
     return false;
   }
 
@@ -880,8 +880,7 @@ bool ProjectGenerator::createEmptyFile(const fs::path& file_path)
 {
   const auto res = path::createFilePath(file_path, true);
   if (!res) {
-    tobas::qt::qErrorBox(
-      parent_, "Failed to create \"" + QString::fromStdString(file_path) + "\":\n" + res.error().c_str());
+    qt::qErrorBox(parent_, "Failed to create \"" + QString::fromStdString(file_path) + "\":\n" + res.error().c_str());
     return false;
   }
 
@@ -904,7 +903,7 @@ bool ProjectGenerator::createEmptyYaml(const fs::path& file_path, bool overwrite
 bool ProjectGenerator::saveYamlNode(const fs::path& path, const YAML::Node& node)
 {
   if (!yaml::save(path, node)) {
-    tobas::qt::qErrorBox(parent_, "Failed to save \"" + QString::fromStdString(path) + "\".");
+    qt::qErrorBox(parent_, "Failed to save \"" + QString::fromStdString(path) + "\".");
     return false;
   }
 
@@ -916,13 +915,13 @@ bool ProjectGenerator::resolveModifiedUrdfMeshFilePaths(tinyxml2::XMLElement* el
   if (strcmp(elem->Name(), "mesh") == 0) {
     const auto filename = elem->Attribute("filename");
     if (!filename) {
-      tobas::qt::qErrorBox(parent_, "Mesh element does not have attribute: \"filename\"");
+      qt::qErrorBox(parent_, "Mesh element does not have attribute: \"filename\"");
       return false;
     }
 
     const auto src_path = urdf::resolveURI(filename);
     if (!fs::exists(src_path)) {
-      tobas::qt::qErrorBox(parent_, "Mesh file " + QString::fromStdString(src_path) + " does not exist.");
+      qt::qErrorBox(parent_, "Mesh file " + QString::fromStdString(src_path) + " does not exist.");
       return false;
     }
 
@@ -934,12 +933,12 @@ bool ProjectGenerator::resolveModifiedUrdfMeshFilePaths(tinyxml2::XMLElement* el
       // dst_pathが存在するがsrc_pathと内容が異なる場合は，fs::copy_fileでは上書きされないため一度削除した上でコピーする．
       if (!fs::equivalent(src_path, dst_path)) {
         if (!fs::remove(dst_path)) {
-          tobas::qt::qErrorBox(parent_, "Failed to remove " + QString::fromStdString(dst_path) + ".");
+          qt::qErrorBox(parent_, "Failed to remove " + QString::fromStdString(dst_path) + ".");
           return false;
         }
 
         if (!fs::copy_file(src_path, dst_path)) {
-          tobas::qt::qErrorBox(
+          qt::qErrorBox(
             parent_,
             "Failed to copy " + QString::fromStdString(src_path) + " to " + QString::fromStdString(dst_path) + ".");
           return false;
@@ -949,7 +948,7 @@ bool ProjectGenerator::resolveModifiedUrdfMeshFilePaths(tinyxml2::XMLElement* el
     else {
       // dst_pathが存在しない場合は，ただコピーすればよい．
       if (!fs::copy_file(src_path, dst_path)) {
-        tobas::qt::qErrorBox(
+        qt::qErrorBox(
           parent_,
           "Failed to copy " + QString::fromStdString(src_path) + " to " + QString::fromStdString(dst_path) + ".");
         return false;
@@ -979,7 +978,7 @@ bool ProjectGenerator::replaceOriginalUadfMeshFilePaths(tinyxml2::XMLElement* el
   if (strcmp(elem->Name(), "mesh") == 0) {
     const auto filename = elem->Attribute("filename");
     if (!filename) {
-      tobas::qt::qErrorBox(parent_, "Mesh element does not have attribute: \"filename\"");
+      qt::qErrorBox(parent_, "Mesh element does not have attribute: \"filename\"");
       return false;
     }
 
@@ -1016,7 +1015,7 @@ bool ProjectGenerator::removePropellerJointLimits(tinyxml2::XMLElement* robot)
     if (strcmp(child->Name(), "joint") == 0) {
       const auto jnt_name = child->Attribute("name");
       if (!jnt_name) {
-        tobas::qt::qErrorBox(parent_, "Joint element does not have attribute: \"name\"");
+        qt::qErrorBox(parent_, "Joint element does not have attribute: \"name\"");
         return false;
       }
       if (prop_jnt_names.contains(jnt_name)) {
@@ -1103,8 +1102,8 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
 
   // Propulsion system plugins
   switch (drone.prop->type()) {
-    case tobas::PropulsionSystem::kElectric: {
-      const auto eprop = tobas::qt::qConstPointerCast<propulsion::electric::PropulsionSystemWidget>(prop->selected());
+    case PropulsionSystem::kElectric: {
+      const auto eprop = qt::qConstPointerCast<propulsion::electric::PropulsionSystemWidget>(prop->selected());
       const auto battery = eprop->battery;
       const auto units = eprop->units;
 
@@ -1150,8 +1149,8 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
 
       break;
     }
-    case tobas::PropulsionSystem::kIce: {
-      const auto iprop = tobas::qt::qConstPointerCast<propulsion::ice::PropulsionSystemWidget>(prop->selected());
+    case PropulsionSystem::kIce: {
+      const auto iprop = qt::qConstPointerCast<propulsion::ice::PropulsionSystemWidget>(prop->selected());
       const auto engine = iprop->engine;
       const auto units = iprop->units;
 
@@ -1211,10 +1210,10 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
     }
 
     switch (joint.cmd_iface) {
-      case tobas::JointCommandInterface::kNone: {
+      case JointCommandInterface::kNone: {
         break;
       }
-      case tobas::JointCommandInterface::kPosition: {
+      case JointCommandInterface::kPosition: {
         const auto max_vel = uadf_.urdf->getJoint(joint.name)->limits->velocity;
         if (max_vel <= 0.) {
           qWarning() << "The maximum velocity of" << QString::fromStdString(joint.name) << "is invalid:" << max_vel;
@@ -1227,11 +1226,11 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
         xml::addJointPositionControllerPlugin(robot, ns, joint.name, joint.home_pos, time_const);
         break;
       }
-      case tobas::JointCommandInterface::kVelocity: {
+      case JointCommandInterface::kVelocity: {
         xml::addJointVelocityControllerPlugin(robot, ns, joint.name, joint.home_pos);
         break;
       }
-      case tobas::JointCommandInterface::kEffort: {
+      case JointCommandInterface::kEffort: {
         xml::addJointEffortControllerPlugin(robot, ns, joint.name, joint.home_pos);
         break;
       }
@@ -1259,13 +1258,13 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
   return true;
 }
 
-tobas::TurningDirection ProjectGenerator::turningDirectionUadfToTbsdrn(const uadf::Thrust::Direction& src)
+TurningDirection ProjectGenerator::turningDirectionUadfToTbsdrn(const uadf::Thrust::Direction& src)
 {
   switch (src) {
     case uadf::Thrust::CW:
-      return tobas::TurningDirection::CW;
+      return TurningDirection::CW;
     case uadf::Thrust::CCW:
-      return tobas::TurningDirection::CCW;
+      return TurningDirection::CCW;
     default:
       throw;
   }

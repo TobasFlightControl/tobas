@@ -16,7 +16,7 @@ BootmediaConfigWidget::BootmediaConfigWidget()
 {
   media_manager_ = new MediaManagerWidget();
 
-  tabs_ = new tobas::qt::VerticalTabWidget();
+  tabs_ = new qt::VerticalTabWidget();
   tabs_->enableWheelEvent(false);
   tabs_->setTabSize(kTabWidth, kTabHeight);
 
@@ -54,7 +54,7 @@ BootmediaConfigWidget::BootmediaConfigWidget()
 void BootmediaConfigWidget::reset()
 {
   for (int i = 0; i < tabs_->count(); ++i) {
-    const auto widget = tobas::qt::qPointerCast<BaseConfigWidget>(tabs_->widget(i));
+    const auto widget = qt::qPointerCast<BaseConfigWidget>(tabs_->widget(i));
     widget->reset();
   }
 }
@@ -62,11 +62,11 @@ void BootmediaConfigWidget::reset()
 void BootmediaConfigWidget::closeEvent(QCloseEvent* event)
 {
   if (media_manager_->isConnected()) {
-    if (!tobas::qt::yesOrNo(
+    if (!qt::yesOrNo(
           this,
           "You’re attempting to close the application while the boot device is still connected. "
           "Are you sure you want to exit?",
-          tobas::qt::WARN)) {
+          qt::WARN)) {
       event->ignore();
       return;
     }
@@ -78,7 +78,7 @@ void BootmediaConfigWidget::closeEvent(QCloseEvent* event)
 void BootmediaConfigWidget::setTabsEnabled(bool enabled)
 {
   for (int i = 0; i < tabs_->count(); ++i) {
-    const auto widget = tobas::qt::qPointerCast<BaseConfigWidget>(tabs_->widget(i));
+    const auto widget = qt::qPointerCast<BaseConfigWidget>(tabs_->widget(i));
     widget->setEnabled(enabled);
   }
 }

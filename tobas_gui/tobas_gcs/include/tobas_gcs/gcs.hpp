@@ -63,7 +63,7 @@ private:
 
   uadf::Model uadf_;
   kdl::Tree tree_;
-  tobas::Drone drone_;
+  Drone drone_;
 
   ptree::PropertyClient property_client_;
   uadf::Parser uadf_parser_;
@@ -85,7 +85,7 @@ private:
   RestartButton* restart_btn_;
   ShutdownButton* shutdown_btn_;
 
-  tobas::qt::WaitSpinnerWidget spinner_;
+  qt::WaitSpinnerWidget spinner_;
 
   sc::SensorCalibrationWidget* sensor_calib_;
   at::ActuatorTestWidget* actuator_test_;

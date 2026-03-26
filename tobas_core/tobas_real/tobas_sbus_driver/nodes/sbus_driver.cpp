@@ -19,7 +19,7 @@ public:
 
 private:
   std::string device_;
-  tobas::SBUS sbus_;
+  SBUS sbus_;
   std::mutex mutex_;
 
   ros2::PublisherPtr<tobas_msgs::msg::Sbus> sbus_pub_;
@@ -30,7 +30,7 @@ private:
 
   void publishExclusively(tobas_msgs::msg::Sbus::UniquePtr msg);
 
-  void onPacket(const tobas::SBUS::Packet& packet);
+  void onPacket(const SBUS::Packet& packet);
 
   void onPacketTimeout();
 };
@@ -71,7 +71,7 @@ void SbusDriverNode::publishExclusively(tobas_msgs::msg::Sbus::UniquePtr msg)
   sbus_pub_->publish(std::move(msg));
 }
 
-void SbusDriverNode::onPacket(const tobas::SBUS::Packet& packet)
+void SbusDriverNode::onPacket(const SBUS::Packet& packet)
 {
   // Reset the timeout timer
   timeout_timer_.reset();

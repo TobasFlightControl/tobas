@@ -70,7 +70,7 @@ public:
 private:
   std::array<QCheckBox*, kItemSize> items_;
 
-  tobas::qt::SpinBox* esc_no_comm_timeout_;
+  qt::SpinBox* esc_no_comm_timeout_;
 };
 }  // namespace sa
 }  // namespace gui

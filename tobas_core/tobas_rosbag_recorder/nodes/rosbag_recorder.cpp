@@ -138,7 +138,7 @@ private:
 RosbagRecorderNode::RosbagRecorderNode(const rclcpp::NodeOptions& options)
   : super("rosbag_recorder", nodeOptions_Default(options))
   , ns_(std::string(get_namespace()) + "/")
-  , rosbag_dir_(linux::isSuperUser() ? tobas::kRosbagDirRoot : ros2::expandUser(tobas::kRosbagDirHome))
+  , rosbag_dir_(linux::isSuperUser() ? kRosbagDirRoot : ros2::expandUser(kRosbagDirHome))
 {
   // Register publishers
   rosbag_state_pub_ = createPublisher<tobas_msgs::msg::RosbagState>(topic::kRosbagState);
@@ -146,7 +146,7 @@ RosbagRecorderNode::RosbagRecorderNode(const rclcpp::NodeOptions& options)
   // Resister subscribers
   // トピック通信の接続はローカルであっても遅延の原因になりうるため，レコード開始時ではなく先に接続を確立しておく．
   addStandardMsgSub<tobas_msgs::msg::Message>(topic::kMessage);
-  addTypeAdaptedMsgSub<tobas::Drone>(drone_, topic::kDrone, true, true);
+  addTypeAdaptedMsgSub<Drone>(drone_, topic::kDrone, true, true);
   addTypeAdaptedMsgSub<kdl::Tree>(tree_, topic::kKdlTree, true, true);
   addStandardMsgSub<std_msgs::msg::String>(topic::kRobotDescription, true, true);
   addStandardMsgSub<tobas_msgs::msg::Battery>(topic::kBattery);
@@ -204,7 +204,7 @@ void RosbagRecorderNode::publishRosbagState()
     rosbag_state->file_size = file_size;
     rosbag_state->message_count = msg_cnt_;
 
-    if (file_size > tobas::kMaxRosbagSize) {
+    if (file_size > kMaxRosbagSize) {
       try {
         writer_.close();
       }
@@ -219,7 +219,7 @@ void RosbagRecorderNode::publishRosbagState()
         "The recording is terminated because the size of rosbag ",
         file_path_,
         " exceeded ",
-        tobas::kMaxRosbagSize / BILLION,
+        kMaxRosbagSize / BILLION,
         "GB.");
     }
   }

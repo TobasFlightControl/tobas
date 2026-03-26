@@ -63,7 +63,7 @@ bool MotorWidget::isValid()
 
 void MotorWidget::copyFrom(const BaseSelectedLinkSettingWidget* src)
 {
-  const auto derived = tobas::qt::qConstPointerCast<MotorWidget>(src);
+  const auto derived = qt::qConstPointerCast<MotorWidget>(src);
 
   num_poles_->setValue(derived->num_poles_->getValue());
   kv_->setValue(derived->kv_->getValue());

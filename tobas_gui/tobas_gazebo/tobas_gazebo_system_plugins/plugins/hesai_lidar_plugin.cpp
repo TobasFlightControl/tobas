@@ -248,4 +248,4 @@ void HesaiLidarPlugin::setupPointCloudMsg(const gz::msgs::PointCloudPacked& msg)
 }  // namespace gazebo
 }  // namespace tobas
 
-GZ_ADD_PLUGIN(tobas::gazebo::HesaiLidarPlugin, gz::sim::System, tobas::gazebo::HesaiLidarPlugin::ISystemConfigure)
+GZ_ADD_PLUGIN(tobas::gazebo::HesaiLidarPlugin, gz::sim::System, gz::sim::ISystemConfigure)

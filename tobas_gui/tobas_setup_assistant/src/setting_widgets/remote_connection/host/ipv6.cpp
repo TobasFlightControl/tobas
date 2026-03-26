@@ -18,7 +18,7 @@ IPv6Widget::IPv6Widget()
   const auto cols = new QHBoxLayout();
   setLayout(cols);
 
-  ipv6_ = new tobas::qt::IPv6Edit();
+  ipv6_ = new qt::IPv6Edit();
   cols->addWidget(ipv6_);
 }
 
@@ -30,7 +30,7 @@ const char* IPv6Widget::label() const
 bool IPv6Widget::isValid()
 {
   if (!ipv6_->isFilled()) {
-    tobas::qt::qWarnBox(this, "Please enter the flight controller’s IP address.");
+    qt::qWarnBox(this, "Please enter the flight controller’s IP address.");
     return false;
   }
 

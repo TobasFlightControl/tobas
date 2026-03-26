@@ -15,7 +15,7 @@ AddCommandDialog::AddCommandDialog(QWidget* parent) : super(parent)
 {
   setWindowTitle("Add Command");
 
-  command_list_ = new tobas::qt::ListWidget();
+  command_list_ = new qt::ListWidget();
   command_list_->setSelectionMode(QListWidget::SingleSelection);
   for (const auto cmd : magic_enum::enum_values<Command>()) {
     command_list_->addItem(commandToText(cmd));

@@ -121,8 +121,4 @@ void GazeboBarometerPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 }  // namespace gazebo
 }  // namespace tobas
 
-GZ_ADD_PLUGIN(
-  tobas::gazebo::GazeboBarometerPlugin,
-  gz::sim::System,
-  tobas::gazebo::GazeboBarometerPlugin::ISystemConfigure,
-  tobas::gazebo::GazeboBarometerPlugin::ISystemPostUpdate)
+GZ_ADD_PLUGIN(tobas::gazebo::GazeboBarometerPlugin, gz::sim::System, gz::sim::ISystemConfigure, gz::sim::ISystemPostUpdate)

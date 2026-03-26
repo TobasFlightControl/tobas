@@ -246,8 +246,4 @@ void GazeboGnssPlugin::updateVelocity(
 }  // namespace gazebo
 }  // namespace tobas
 
-GZ_ADD_PLUGIN(
-  tobas::gazebo::GazeboGnssPlugin,
-  gz::sim::System,
-  tobas::gazebo::GazeboGnssPlugin::ISystemConfigure,
-  tobas::gazebo::GazeboGnssPlugin::ISystemPostUpdate)
+GZ_ADD_PLUGIN(tobas::gazebo::GazeboGnssPlugin, gz::sim::System, gz::sim::ISystemConfigure, gz::sim::ISystemPostUpdate)

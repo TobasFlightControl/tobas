@@ -31,7 +31,7 @@ class JointCommanderWidget : public QWidget
   static constexpr int kPublishCommandPeriod = 100;  // [ms]
 
 public:
-  explicit JointCommanderWidget(rclcpp::Node::SharedPtr node, const kdl::Tree& tree, const tobas::Drone& drone);
+  explicit JointCommanderWidget(rclcpp::Node::SharedPtr node, const kdl::Tree& tree, const Drone& drone);
 
   void updateInternalDataStructures();
 
@@ -41,16 +41,16 @@ public:
 private:
   const rclcpp::Node::SharedPtr node_;
   const kdl::Tree& tree_;
-  const tobas::Drone& drone_;
+  const Drone& drone_;
 
   std::random_device rnd_dev_;
   std::mt19937 rnd_gen_;
 
   kdl::TreeJointParser joint_parser_;
 
-  tobas::qt::ToggleButton* start_stop_button_;
+  qt::ToggleButton* start_stop_button_;
 
-  std::map<std::string, tobas::qt::DoubleSliderDisplay*> commanders_;
+  std::map<std::string, qt::DoubleSliderDisplay*> commanders_;
   QVBoxLayout* cmd_rows_;
 
   QPushButton* home_button_;

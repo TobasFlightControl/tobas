@@ -40,7 +40,7 @@ public:
   Eigen::MatrixXd getValue() const override;
   bool setValue(const Eigen::MatrixXd& src) override;
 
-  tobas::qt::TableWidget* table();
+  qt::TableWidget* table();
 
   void setDecimals(const QVector<int>& decimals);
   void setMinimum(const QVector<double>& minimum);
@@ -67,7 +67,7 @@ private:
   QVector<double> default_;
   QVector<int> decimals_;
 
-  tobas::qt::TableWidget* table_;
+  qt::TableWidget* table_;
 
   ptree::PropertyClient property_client_;
 

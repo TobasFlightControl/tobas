@@ -435,10 +435,10 @@ void GazeboElectricPropulsionSystemPlugin::throttleCmdCb(const tobas_gazebo_msgs
   last_cmd_time_ = prev_sim_time_;
 
   // 範囲を制限してスロットルを更新
-  if (throttle->data < tobas::kMinThrot - kThrotLimitMargin || tobas::kMaxThrot + kThrotLimitMargin < throttle->data) {
+  if (throttle->data < kMinThrot - kThrotLimitMargin || kMaxThrot + kThrotLimitMargin < throttle->data) {
     TOBAS_ERROR("The commanded throttle ", throttle->data, " is out of range.");
   }
-  throt_ = std::clamp(throttle->data, tobas::kMinThrot, tobas::kMaxThrot);
+  throt_ = std::clamp(throttle->data, kMinThrot, kMaxThrot);
 }
 
 void GazeboElectricPropulsionSystemPlugin::batteryGtCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery_gt)
@@ -472,5 +472,5 @@ void GazeboElectricPropulsionSystemPlugin::breakCb(
 GZ_ADD_PLUGIN(
   tobas::gazebo::GazeboElectricPropulsionSystemPlugin,
   gz::sim::System,
-  tobas::gazebo::GazeboElectricPropulsionSystemPlugin::ISystemConfigure,
-  tobas::gazebo::GazeboElectricPropulsionSystemPlugin::ISystemPreUpdate)
+  gz::sim::ISystemConfigure,
+  gz::sim::ISystemPreUpdate)

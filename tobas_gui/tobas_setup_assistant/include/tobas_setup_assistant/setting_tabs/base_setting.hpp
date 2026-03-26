@@ -15,12 +15,12 @@ namespace gui
 {
 namespace sa
 {
-class BaseSettingWidget : public tobas::qt::ScrollArea
+class BaseSettingWidget : public qt::ScrollArea
 {
   Q_OBJECT
 
   using self = BaseSettingWidget;
-  using super = tobas::qt::ScrollArea;
+  using super = qt::ScrollArea;
 
 public:
   explicit BaseSettingWidget();
@@ -50,7 +50,7 @@ protected:
 
 private:
   QLabel* title_;
-  tobas::qt::DescriptionWidget* description_;
+  qt::DescriptionWidget* description_;
 
   QVBoxLayout* header_rows_;
   QVBoxLayout* content_rows_;

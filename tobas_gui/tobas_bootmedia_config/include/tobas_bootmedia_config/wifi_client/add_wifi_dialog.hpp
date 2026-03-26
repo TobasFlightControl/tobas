@@ -35,8 +35,8 @@ public:
 private:
   QComboBox* key_mgmt_;
   QLineEdit* ssid_;
-  tobas::qt::PasswordEdit* psk_;
-  tobas::qt::SpinBox* priority_;
+  qt::PasswordEdit* psk_;
+  qt::SpinBox* priority_;
   QCheckBox* hidden_;
 
   QDialogButtonBox* btn_box_;

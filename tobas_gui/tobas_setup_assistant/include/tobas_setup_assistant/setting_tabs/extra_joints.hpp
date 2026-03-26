@@ -67,13 +67,13 @@ public:
   // Getters
   QString getLinkName(int row) const;
   QString getJointName(int row) const;
-  tobas::JointRole getRole(int row) const;
-  tobas::JointCommandInterface getCommandInterface(int row) const;
+  JointRole getRole(int row) const;
+  JointCommandInterface getCommandInterface(int row) const;
   double getHomePosition(int row) const;  // [rad]
 
   // Setters
-  void setRole(int row, tobas::JointRole value);
-  void setCommandInterface(int row, tobas::JointCommandInterface value);
+  void setRole(int row, JointRole value);
+  void setCommandInterface(int row, JointCommandInterface value);
   void setHomePosition(int row, double value);  // [rad]
 
   /* 登録されているジョイント数． */
@@ -89,19 +89,19 @@ private:
   const uadf::Model& uadf_;
   const kdl::Tree& tree_;
 
-  tobas::qt::TableWidget* table_;
+  qt::TableWidget* table_;
 
   QLabel* linkNameWidget(int row);
   QLabel* jointNameWidget(int row);
-  tobas::qt::ComboBox* roleWidget(int row);
-  tobas::qt::ComboBox* commandIfaceWidget(int row);
-  tobas::qt::SpinBox* homePositionWidget(int row);
+  qt::ComboBox* roleWidget(int row);
+  qt::ComboBox* commandIfaceWidget(int row);
+  qt::SpinBox* homePositionWidget(int row);
 
   const QLabel* linkNameWidget(int row) const;
   const QLabel* jointNameWidget(int row) const;
-  const tobas::qt::ComboBox* roleWidget(int row) const;
-  const tobas::qt::ComboBox* commandIfaceWidget(int row) const;
-  const tobas::qt::SpinBox* homePositionWidget(int row) const;
+  const qt::ComboBox* roleWidget(int row) const;
+  const qt::ComboBox* commandIfaceWidget(int row) const;
+  const qt::SpinBox* homePositionWidget(int row) const;
 
   void clear();
   void reset(int row);

@@ -59,7 +59,7 @@ double WaypointWidget::altitude() const
   return getValue(altitude_);
 }
 
-tobas::mission::AltitudeFrame WaypointWidget::altitudeFrame() const
+mission::AltitudeFrame WaypointWidget::altitudeFrame() const
 {
   return getValue(altitude_frame_);
 }
@@ -129,7 +129,7 @@ void WaypointWidget::altitude(double value)
   altitude_->setValue(value);
 }
 
-void WaypointWidget::altitudeFrame(tobas::mission::AltitudeFrame value)
+void WaypointWidget::altitudeFrame(mission::AltitudeFrame value)
 {
   altitude_frame_->setValue(value);
 }

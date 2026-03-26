@@ -8,12 +8,12 @@ namespace gui
 {
 namespace sc
 {
-class FaceCircleWidget : public tobas::qt::Widget
+class FaceCircleWidget : public qt::Widget
 {
   Q_OBJECT
 
   using self = FaceCircleWidget;
-  using super = tobas::qt::Widget;
+  using super = qt::Widget;
 
   static constexpr int kLineWidth = 10;
   static constexpr auto kFillColorComplete = Qt::green;

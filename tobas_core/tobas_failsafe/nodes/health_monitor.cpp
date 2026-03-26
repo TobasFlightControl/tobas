@@ -71,7 +71,7 @@ private:
     bool vibration_level;
   } do_check_;
 
-  tobas::Drone::ConstSharedPtr drone_;
+  Drone::ConstSharedPtr drone_;
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
 
   tobas_msgs::msg::Battery::ConstSharedPtr battery_;
@@ -92,7 +92,7 @@ private:
 
   ros2::PublisherPtr<tobas_msgs::msg::VehicleHealth> health_pub_;
 
-  ros2::SubscriberPtr<tobas::Drone> drone_sub_;
+  ros2::SubscriberPtr<Drone> drone_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Battery> batt_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Cpu> cpu_sub_;
@@ -108,7 +108,7 @@ private:
 
   void getStaticRosParams();
 
-  void droneCb(const tobas::Drone::ConstSharedPtr& drone);
+  void droneCb(const Drone::ConstSharedPtr& drone);
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
   void battCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery);
   void cpuCb(const tobas_msgs::msg::Cpu::ConstSharedPtr& cpu);
@@ -139,12 +139,12 @@ HealthMonitorNode::HealthMonitorNode(const rclcpp::NodeOptions& options)
 
   drone_sub_ = createSubscriber(topic::kDrone, &self::droneCb, this, true, true);
   arming_sub_ = createSubscriber(topic::kArming, &self::armingCb, this);
-  batt_sub_ = createSubscriber(tobas::addThrotNS(topic::kBattery), &self::battCb, this);
+  batt_sub_ = createSubscriber(addThrotNS(topic::kBattery), &self::battCb, this);
   cpu_sub_ = createSubscriber(topic::kCpu, &self::cpuCb, this);
   rcin_sub_ = createSubscriber(topic::kRcInput, &self::rcInputCb, this);
   rotor_liv_sub_ = createSubscriber(topic::kRotorLiv, &self::rotorLivCb, this);
   sampling_time_sub_ = createSubscriber(topic::kImuSamplingTime, &self::samplingTimeCb, this);
-  odom_sub_ = createSubscriber(tobas::addThrotNS(topic::kOdometry), &self::odomCb, this);
+  odom_sub_ = createSubscriber(addThrotNS(topic::kOdometry), &self::odomCb, this);
   mag_sub_ = createSubscriber(topic::kMagneticField, &self::magCb, this);
   mag_ref_sub_ = createSubscriber(topic::kMagRef, &self::magRefCb, this);
   vibe_sub_ = createSubscriber(topic::kVibrationLevel, &self::vibrationLevelCb, this);
@@ -170,7 +170,7 @@ void HealthMonitorNode::getStaticRosParams()
   do_check_.vibration_level = getBoolParam("check_vibration_level");
 }
 
-void HealthMonitorNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
+void HealthMonitorNode::droneCb(const Drone::ConstSharedPtr& drone)
 {
   drone_ = drone;
 }
@@ -193,7 +193,7 @@ void HealthMonitorNode::battCb(const tobas_msgs::msg::Battery::ConstSharedPtr& b
     return;
   }
 
-  const auto eprop = boost::polymorphic_pointer_downcast<tobas::ElectricPropulsionSystemConfig>(drone_->prop);
+  const auto eprop = boost::polymorphic_pointer_downcast<ElectricPropulsionSystemConfig>(drone_->prop);
   if (!eprop) {
     return;
   }
@@ -355,8 +355,8 @@ void HealthMonitorNode::mainTimerCb()
 
   // 推進系のタイプよる場合分け
   switch (drone_->prop->type()) {
-    case tobas::PropulsionSystem::kElectric: {
-      const auto eprop = boost::polymorphic_pointer_downcast<tobas::ElectricPropulsionSystemConfig>(drone_->prop);
+    case PropulsionSystem::kElectric: {
+      const auto eprop = boost::polymorphic_pointer_downcast<ElectricPropulsionSystemConfig>(drone_->prop);
 
       // バッテリー電圧が閾値以上
       if (do_check_.battery_voltage) {
@@ -377,11 +377,11 @@ void HealthMonitorNode::mainTimerCb()
 
       break;
     }
-    case tobas::PropulsionSystem::kIce: {
+    case PropulsionSystem::kIce: {
       // 未使用項目を無視
       health->battery_voltage = tobas_msgs::msg::VehicleHealth::IGNORED;
 
-      const auto iprop = boost::polymorphic_pointer_downcast<tobas::IcePropulsionSystemConfig>(drone_->prop);
+      const auto iprop = boost::polymorphic_pointer_downcast<IcePropulsionSystemConfig>(drone_->prop);
       (void)iprop;  // TODO
 
       break;

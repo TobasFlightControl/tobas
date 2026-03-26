@@ -32,7 +32,7 @@ bool PosVelAccYawController::requireHeading()
   return false;
 }
 
-void PosVelAccYawController::initialize(BaseNode* node, tobas::FlightMode mode)
+void PosVelAccYawController::initialize(BaseNode* node, FlightMode mode)
 {
   node->addDynamicDoubleParam(
     addMode("max_horizontal_velocity", mode), &self::maxHorizontalVelocityCb, this, 0.5, 12, 0, 20, " m/s");

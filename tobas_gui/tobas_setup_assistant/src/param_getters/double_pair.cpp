@@ -12,14 +12,14 @@ ParamGetterWidget_DoublePair::ParamGetterWidget_DoublePair(const QString& param_
   const auto cols = new QHBoxLayout();
   rows_->addLayout(cols);
 
-  first_ = new tobas::qt::DoubleSpinBox();
+  first_ = new qt::DoubleSpinBox();
   cols->addWidget(first_);
 
-  second_ = new tobas::qt::DoubleSpinBox();
+  second_ = new qt::DoubleSpinBox();
   cols->addWidget(second_);
 
-  connect(first_, QOverload<double>::of(&tobas::qt::DoubleSpinBox::valueChanged), this, &self::onValueChanged);
-  connect(second_, QOverload<double>::of(&tobas::qt::DoubleSpinBox::valueChanged), this, &self::onValueChanged);
+  connect(first_, QOverload<double>::of(&qt::DoubleSpinBox::valueChanged), this, &self::onValueChanged);
+  connect(second_, QOverload<double>::of(&qt::DoubleSpinBox::valueChanged), this, &self::onValueChanged);
 }
 
 std::pair<double, double> ParamGetterWidget_DoublePair::getValue() const

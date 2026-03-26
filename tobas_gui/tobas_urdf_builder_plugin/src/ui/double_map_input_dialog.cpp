@@ -60,7 +60,7 @@ const double& DoubleMapInputDialog::getValue(const QString& field) const
 
 void DoubleMapInputDialog::onSpinBoxValueChanged(double value)
 {
-  const auto obj = tobas::qt::qPointerCast<QDoubleSpinBox>(sender());
+  const auto obj = qt::qPointerCast<QDoubleSpinBox>(sender());
   const auto field_name = spinbox2field_.at(obj);
   field2value_[field_name] = value;
 }

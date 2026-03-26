@@ -60,11 +60,11 @@ private:
   CommandButton* cancel_button_;
   CommandButton* focus_button_;
 
-  tobas::qt::ListWidget* command_list_;
-  tobas::qt::StackedWidget* commands_;
+  qt::ListWidget* command_list_;
+  qt::StackedWidget* commands_;
   std::set<std::pair<QListWidgetItem*, BaseCommandWidget*>> pairs_;
 
-  tobas::qt::WaitSpinnerWidget spinner_;
+  qt::WaitSpinnerWidget spinner_;
 
   bool mission_executing_;
   Client::SharedPtr mission_ac_;

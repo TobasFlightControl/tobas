@@ -17,10 +17,10 @@ DynamicConfigWidget::DynamicConfigWidget(rclcpp::Node::SharedPtr node)
   const auto rows = new QVBoxLayout();
   setLayout(rows);
 
-  const auto title = new tobas::qt::Label("Dynamic Configurations", cmn::kTitlePSize, QFont::Bold);
-  tobas::qt::addWidgetCenter(title, rows);
+  const auto title = new qt::Label("Dynamic Configurations", cmn::kTitlePSize, QFont::Bold);
+  qt::addWidgetCenter(title, rows);
 
-  const auto scroll_rows = tobas::qt::createScrollableQVBoxLayout(rows);
+  const auto scroll_rows = qt::createScrollableQVBoxLayout(rows);
 
   wind_params_ = new WindParamsWidget(node);
   scroll_rows->addWidget(wind_params_);

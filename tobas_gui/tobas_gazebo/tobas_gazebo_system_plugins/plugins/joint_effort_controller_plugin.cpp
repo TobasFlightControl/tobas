@@ -118,5 +118,5 @@ void GazeboJointEffortControllerPlugin::commandCb(const tobas_gazebo_msgs::msg::
 GZ_ADD_PLUGIN(
   tobas::gazebo::GazeboJointEffortControllerPlugin,
   gz::sim::System,
-  tobas::gazebo::GazeboJointEffortControllerPlugin::ISystemConfigure,
-  tobas::gazebo::GazeboJointEffortControllerPlugin::ISystemPreUpdate)
+  gz::sim::ISystemConfigure,
+  gz::sim::ISystemPreUpdate)

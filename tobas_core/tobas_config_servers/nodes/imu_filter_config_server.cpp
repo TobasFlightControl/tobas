@@ -33,7 +33,7 @@ private:
 };
 
 ImuFilterConfigServer::ImuFilterConfigServer(const rclcpp::NodeOptions& options)
-  : super(tobas::node::kImuFilterConfigServer, nodeOptions_DParam(options))
+  : super(node::kImuFilterConfigServer, nodeOptions_DParam(options))
 {
   imu_raw_sub_ = createSubscriber(topic::kImuRaw, &self::imuRawCb, this);
 }

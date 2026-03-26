@@ -202,12 +202,12 @@ private:
 };
 
 ErrorStateKalmanFilterNode::ErrorStateKalmanFilterNode(const rclcpp::NodeOptions& options)
-  : super(tobas::node::kObserver, nodeOptions_DParam(options)), tf_br_(this)
+  : super(node::kObserver, nodeOptions_DParam(options)), tf_br_(this)
 {
   getStaticRosParams();
 
   // Fill the static part of the transform message
-  tf_.header.frame_id = tobas::frame::kWorld;
+  tf_.header.frame_id = frame::kWorld;
   tf_.child_frame_id = frame_id_;
 
   // Register dynamic parameters
@@ -381,7 +381,7 @@ void ErrorStateKalmanFilterNode::fillOdometryMsg(OdomMsg& odom) const
 
   // Header
   odom.header.stamp = imu_raw_->header.stamp;
-  odom.header.frame_id = tobas::frame::kWorld;
+  odom.header.frame_id = frame::kWorld;
 
   // Position (Global): IMU frame -> Base frame
   odom.odom.odom.frame.p.data = W_Pos_WI - W_Rot_B * imu_offset_;
@@ -729,20 +729,20 @@ void ErrorStateKalmanFilterNode::magCb(const MagMsg::ConstSharedPtr& mag)
     const auto atti_var = (rot_cov(0, 0) + rot_cov(1, 1)) / 2;
     const auto atti_stddev = sqrt(atti_var);  // [rad]
     if (atti_stddev > kAccurateAttitudeStddevThresh) {
-      TOBAS_INFO_THROTTLE(tobas::kTypicalInfoPeriod, "Waiting for attitude estimation to converge.");
+      TOBAS_INFO_THROTTLE(kTypicalInfoPeriod, "Waiting for attitude estimation to converge.");
       return;
     }
 
     // フィルタリング後のIMUが取得できるまで待機
     if (!imu_filt_) {
-      TOBAS_INFO_THROTTLE(tobas::kTypicalInfoPeriod, "Waiting for the filtered IMU messages.");
+      TOBAS_INFO_THROTTLE(kTypicalInfoPeriod, "Waiting for the filtered IMU messages.");
       return;
     }
 
     // 動作を検知したら始めからやり直し
-    if (imu_filt_->gyro.norm() > tobas::kStaticGyroThresh) {
+    if (imu_filt_->gyro.norm() > kStaticGyroThresh) {
       TOBAS_WARN_THROTTLE(
-        tobas::kTypicalWarnPeriod, "Motion was detected while measuring the reference magnetic field. Retrying...");
+        kTypicalWarnPeriod, "Motion was detected while measuring the reference magnetic field. Retrying...");
       init_mag_cnt_ = 0;
       for (auto& sum : init_mag_sum_) {
         sum.reset();

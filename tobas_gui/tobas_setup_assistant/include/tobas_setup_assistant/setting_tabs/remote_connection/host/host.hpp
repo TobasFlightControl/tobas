@@ -39,7 +39,7 @@ private:
   QVector<QRadioButton*> buttons_;
   QVector<BaseHostWidget*> widgets_;
 
-  void addRow(tobas::qt::FormLayout* form, QButtonGroup* btn_group, BaseHostWidget* widget);
+  void addRow(qt::FormLayout* form, QButtonGroup* btn_group, BaseHostWidget* widget);
 
   void updateEnabled();
 

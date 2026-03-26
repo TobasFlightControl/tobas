@@ -31,7 +31,7 @@ Q_SIGNALS:
 public:
   void run() override
   {
-    Q_EMIT finished(tobas::gazebo::waitForMessage(msg_, tobas::gazebo::kGzStatsTopic));
+    Q_EMIT finished(gazebo::waitForMessage(msg_, gazebo::kGzStatsTopic));
   }
 
 private:
@@ -48,7 +48,7 @@ Q_SIGNALS:
 public:
   void run() override
   {
-    Q_EMIT finished(tobas::gazebo::waitForMessage(msg_, tobas::gazebo::kGzRenderFpsTopic));
+    Q_EMIT finished(gazebo::waitForMessage(msg_, gazebo::kGzRenderFpsTopic));
   }
 
 private:
@@ -113,19 +113,19 @@ private:
 bool waitUntilGazeboServerReady()
 {
   WaitUntilGazeboServerReadyThread thread;
-  return std::get<0>(tobas::qt::startThreadAndWait(thread, &WaitUntilGazeboServerReadyThread::finished));
+  return std::get<0>(qt::startThreadAndWait(thread, &WaitUntilGazeboServerReadyThread::finished));
 }
 
 bool waitUntilGazeboRenderingReady()
 {
   WaitUntilGazeboRenderingReadyThread thread;
-  return std::get<0>(tobas::qt::startThreadAndWait(thread, &WaitUntilGazeboRenderingReadyThread::finished));
+  return std::get<0>(qt::startThreadAndWait(thread, &WaitUntilGazeboRenderingReadyThread::finished));
 }
 
 std::expected<void, QString> killGazebo(rclcpp::Node::SharedPtr node, pid_t pid)
 {
   KillGazeboThread thread(node, pid);
-  const auto [success, message] = tobas::qt::startThreadAndWait(thread, &KillGazeboThread::finished);
+  const auto [success, message] = qt::startThreadAndWait(thread, &KillGazeboThread::finished);
   if (success) {
     return {};
   }

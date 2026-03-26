@@ -35,7 +35,7 @@ public:
     node_ = node;
     rate_manager_.reset();
 
-    pub_ = ros2::createPublisher<MsgType>(node, tobas::addThrotNS(topic));
+    pub_ = ros2::createPublisher<MsgType>(node, addThrotNS(topic));
     sub_ = ros2::createSubscriber(node, topic, &TopicThrottle::callback, this);
   }
 

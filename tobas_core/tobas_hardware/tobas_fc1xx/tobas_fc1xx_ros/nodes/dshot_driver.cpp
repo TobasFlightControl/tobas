@@ -44,12 +44,12 @@ private:
   ptree::PropertyTree pt_;
   std::array<uint8_t, DShot::kChannelSize> gains_ = {};
   bool is_commanded_ = false;
-  tobas::ElectricPropulsionSystemConfig::ConstSharedPtr eprop_;
+  ElectricPropulsionSystemConfig::ConstSharedPtr eprop_;
 
   ros2::PublisherPtr<tobas_msgs::msg::RotorStateArray> rotor_states_pub_;
-  tobas::ControlLatencyPublisher latency_pub_;
+  ControlLatencyPublisher latency_pub_;
 
-  ros2::SubscriberPtr<tobas::Drone> drone_sub_;
+  ros2::SubscriberPtr<Drone> drone_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::RotorSpeedArray> tar_speeds_sub_;
 
   ros2::ServiceServerPtr<GetGains> get_gains_ss_;
@@ -63,7 +63,7 @@ private:
   void publishCurrentRotorStates();
   void publishErrorRotorStates();
 
-  void droneCb(const tobas::Drone::ConstSharedPtr& drone);
+  void droneCb(const Drone::ConstSharedPtr& drone);
   void targetSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::ConstSharedPtr& tar_speeds);
 
   void getGainsCb(const GetGains::Request::ConstSharedPtr& req, const GetGains::Response::SharedPtr& res);
@@ -76,7 +76,7 @@ private:
 DShotDriverNode::DShotDriverNode(const rclcpp::NodeOptions& options)
   : super("fc1xx_dshot_driver", nodeOptions_Default(options))
 {
-  if (!pt_.initialize((fs::path(tobas::kConfigDirRoot) / "dshot.json"))) {
+  if (!pt_.initialize((fs::path(kConfigDirRoot) / "dshot.json"))) {
     TOBAS_ERROR("Failed to initialize property tree. This node will not work.");
     return;
   }
@@ -87,7 +87,7 @@ DShotDriverNode::DShotDriverNode(const rclcpp::NodeOptions& options)
 bool DShotDriverNode::transfer()
 {
   if (!dshot_.transfer()) {
-    TOBAS_ERROR_THROTTLE(tobas::kTypicalErrorPeriod, "Failed to communicate with the rotor controller.");
+    TOBAS_ERROR_THROTTLE(kTypicalErrorPeriod, "Failed to communicate with the rotor controller.");
     return false;
   }
   return true;
@@ -106,7 +106,7 @@ void DShotDriverNode::publishCurrentRotorStates()
   rotor_states->header.stamp = now();
 
   for (const auto& [_, rotor] : eprop_->rotors) {
-    const auto erotor = boost::polymorphic_pointer_downcast<tobas::ElectricRotorConfig>(rotor);
+    const auto erotor = boost::polymorphic_pointer_downcast<ElectricRotorConfig>(rotor);
     rotor_states->states.emplace_back();
     rotor_states->states.back().link_name = rotor->link_name;
     if (dshot_.getValidity(erotor->channel)) {
@@ -131,7 +131,7 @@ void DShotDriverNode::publishErrorRotorStates()
   rotor_states->header.stamp = now();
 
   for (const auto& [_, rotor] : eprop_->rotors) {
-    const auto erotor = boost::polymorphic_pointer_downcast<tobas::ElectricRotorConfig>(rotor);
+    const auto erotor = boost::polymorphic_pointer_downcast<ElectricRotorConfig>(rotor);
     rotor_states->states.emplace_back();
     rotor_states->states.back().link_name = rotor->link_name;
     rotor_states->states.back().speed = NAN;
@@ -142,7 +142,7 @@ void DShotDriverNode::publishErrorRotorStates()
   rotor_states_pub_->publish(std::move(rotor_states));
 }
 
-void DShotDriverNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
+void DShotDriverNode::droneCb(const Drone::ConstSharedPtr& drone)
 {
   if (eprop_) {
     TOBAS_WARN("DShot driver cannot be re-initialized.");
@@ -152,11 +152,11 @@ void DShotDriverNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
   if (!drone->prop) {
     return;
   }
-  if (drone->prop->type() != tobas::PropulsionSystem::kElectric) {
+  if (drone->prop->type() != PropulsionSystem::kElectric) {
     return;
   }
 
-  const auto eprop = boost::polymorphic_pointer_downcast<tobas::ElectricPropulsionSystemConfig>(drone->prop);
+  const auto eprop = boost::polymorphic_pointer_downcast<ElectricPropulsionSystemConfig>(drone->prop);
 
   // Initialize DShot driver
   if (!dshot_.initialize()) {
@@ -258,7 +258,7 @@ void DShotDriverNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
   save_gains_ss_ = createService<SaveGains>(service::kSaveRotorControlGains, &self::saveGainsCb, this);
 
   // Create timers
-  auto_stop_timer_ = createWallTimer(tobas::kCommandAutoResetTimeout, &self::autoStopTimerCb, this);
+  auto_stop_timer_ = createWallTimer(kCommandAutoResetTimeout, &self::autoStopTimerCb, this);
 
   eprop_ = eprop;
   TOBAS_INFO("Rotor speed controller is initialized.");
@@ -363,7 +363,7 @@ void DShotDriverNode::autoStopTimerCb()
     is_commanded_ = false;
     TOBAS_INFO(
       "All rotors are automatically stopped because ",
-      tobas::kCommandAutoResetTimeout,
+      kCommandAutoResetTimeout,
       " have elapsed since the last command.");
   }
 }

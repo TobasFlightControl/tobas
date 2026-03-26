@@ -30,8 +30,8 @@ RemoteConnectionWidget::RemoteConnectionWidget(const RosQtBridge& bridge) : brid
 
   // Layout
   const auto rows = new QVBoxLayout();
-  tobas::qt::addWidgetCenter(icon_, rows);
-  tobas::qt::addWidgetCenter(label_, rows);
+  qt::addWidgetCenter(icon_, rows);
+  qt::addWidgetCenter(label_, rows);
   setLayout(rows);
 
   // Connection
@@ -74,7 +74,7 @@ void RemoteConnectionWidget::restart()
   }
 
   stop();
-  tobas::qt::processAllQueuedEvents();
+  qt::processAllQueuedEvents();
   start();
 }
 

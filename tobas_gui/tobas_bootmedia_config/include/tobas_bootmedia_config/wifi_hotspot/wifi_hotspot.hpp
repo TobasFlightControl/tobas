@@ -31,9 +31,9 @@ public:
 
 private:
   QLineEdit* ssid_;
-  tobas::qt::PasswordEdit* psk_;
+  qt::PasswordEdit* psk_;
 
-  tobas::qt::Label* warn_text_;
+  qt::Label* warn_text_;
 
   QPushButton* write_button_;
 

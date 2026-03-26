@@ -89,8 +89,8 @@ public:
   int numDShotChannels() const;
 
 private:
-  tobas::qt::ComboBox* type_;
-  tobas::qt::StackedWidget* hardwares_;
+  qt::ComboBox* type_;
+  qt::StackedWidget* hardwares_;
   PwmWidget* pwm_;
   DShotWidget* dshot_;
 

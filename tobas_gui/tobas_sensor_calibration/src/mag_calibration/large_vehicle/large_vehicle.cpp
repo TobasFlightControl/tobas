@@ -16,7 +16,7 @@ namespace sc
 LargeVehicleMagCalibWidget::LargeVehicleMagCalibWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge)
   : spinner_(Qt::WindowModal, this), thread_(node, bridge)
 {
-  const auto instruction = new tobas::qt::DescriptionWidget(
+  const auto instruction = new qt::DescriptionWidget(
     "1. Make sure the GNSS is fixed. This is required to obtain the reference geomagnetic field.\n\n"
     "2. Place the vehicle on a level surface.\n\n"
     "3. Point the front of the flight controller as precisely as possible toward true north.\n\n"
@@ -56,23 +56,23 @@ void LargeVehicleMagCalibWidget::onStartButtonClicked()
 {
   // アームされていないことを確認
   if (!arming_) {
-    tobas::qt::qWarnBox(this, "This operation cannot be performed because the arming status has not been received yet.");
+    qt::qWarnBox(this, "This operation cannot be performed because the arming status has not been received yet.");
     return;
   }
   if (arming_->data) {
-    tobas::qt::qWarnBox(this, "This operation cannot be performed while the vehicle is armed.");
+    qt::qWarnBox(this, "This operation cannot be performed while the vehicle is armed.");
     return;
   }
 
   spinner_.start();
-  const auto [success, message] = tobas::qt::startThreadAndWait(thread_, &LargeVehicleMagCalibThread::finished);
+  const auto [success, message] = qt::startThreadAndWait(thread_, &LargeVehicleMagCalibThread::finished);
   spinner_.stop();
 
   if (success) {
-    tobas::qt::qInfoBox(this, "Magnetometer calibration finished successfully. Please restart the flight controller.");
+    qt::qInfoBox(this, "Magnetometer calibration finished successfully. Please restart the flight controller.");
   }
   else {
-    tobas::qt::qErrorBox(this, message);
+    qt::qErrorBox(this, message);
   }
 }
 

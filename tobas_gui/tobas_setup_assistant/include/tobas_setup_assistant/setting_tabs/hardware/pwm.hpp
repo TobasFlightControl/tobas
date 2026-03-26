@@ -17,12 +17,12 @@ namespace sa
 {
 namespace hw
 {
-class PwmWidget : public tobas::qt::TableWidget
+class PwmWidget : public qt::TableWidget
 {
   Q_OBJECT
 
   using self = PwmWidget;
-  using super = tobas::qt::TableWidget;
+  using super = qt::TableWidget;
 
   static constexpr int kTargetNameCol = 0;
   static constexpr int kPeriodLbCol = kTargetNameCol + 1;
@@ -69,21 +69,21 @@ public:
 private:
   const uadf::Model& uadf_;
 
-  tobas::PropulsionSystem prop_type_ = tobas::PropulsionSystem::kElectric;
+  PropulsionSystem prop_type_ = PropulsionSystem::kElectric;
 
-  tobas::qt::ComboBox* targetNameWidget(int row);
-  tobas::qt::DoubleSpinBox* periodLbWidget(int row);
-  tobas::qt::DoubleSpinBox* periodUbWidget(int row);
+  qt::ComboBox* targetNameWidget(int row);
+  qt::DoubleSpinBox* periodLbWidget(int row);
+  qt::DoubleSpinBox* periodUbWidget(int row);
 
-  const tobas::qt::ComboBox* targetNameWidget(int row) const;
-  const tobas::qt::DoubleSpinBox* periodLbWidget(int row) const;
-  const tobas::qt::DoubleSpinBox* periodUbWidget(int row) const;
+  const qt::ComboBox* targetNameWidget(int row) const;
+  const qt::DoubleSpinBox* periodLbWidget(int row) const;
+  const qt::DoubleSpinBox* periodUbWidget(int row) const;
 
   void addLastChannel();
   void removeLastChannel();
 
 private Q_SLOTS:
-  void onPropulsionTypeChanged(const tobas::PropulsionSystem& new_prop_type);
+  void onPropulsionTypeChanged(const PropulsionSystem& new_prop_type);
 };
 }  // namespace hw
 }  // namespace sa

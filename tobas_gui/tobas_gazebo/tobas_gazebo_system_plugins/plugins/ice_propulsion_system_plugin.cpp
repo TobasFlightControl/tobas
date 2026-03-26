@@ -222,7 +222,7 @@ void GazeboIcePropulsionSystemPlugin::registerPubSub()
   }
 
   ice_cmd_sub_ = createSubscriber(topic::kIcePropulsionSystemCmd, &self::iceCommandCb, this);
-  wind_gt_sub_ = createSubscriber(tobas::gazebo::kWindGtTopic, &self::windSpeedGtCb, this);
+  wind_gt_sub_ = createSubscriber(gazebo::kWindGtTopic, &self::windSpeedGtCb, this);
 }
 
 void GazeboIcePropulsionSystemPlugin::iceCommandCb(
@@ -238,7 +238,7 @@ void GazeboIcePropulsionSystemPlugin::iceCommandCb(
     engine_.setThrottle(engine_throt);
     return;
   }
-  if (engine_throt < tobas::kMinThrot - kThrotLimitMargin || tobas::kMaxThrot + kThrotLimitMargin < engine_throt) {
+  if (engine_throt < kMinThrot - kThrotLimitMargin || kMaxThrot + kThrotLimitMargin < engine_throt) {
     TOBAS_WARN("The commanded engine throttle is out of range: ", engine_throt);
   }
   engine_.setThrottle(engine_throt);
@@ -274,6 +274,6 @@ void GazeboIcePropulsionSystemPlugin::windSpeedGtCb(const tobas_msgs::Wind::Cons
 GZ_ADD_PLUGIN(
   tobas::gazebo::GazeboIcePropulsionSystemPlugin,
   gz::sim::System,
-  tobas::gazebo::GazeboIcePropulsionSystemPlugin::ISystemConfigure,
-  tobas::gazebo::GazeboIcePropulsionSystemPlugin::ISystemPreUpdate,
-  tobas::gazebo::GazeboIcePropulsionSystemPlugin::ISystemPostUpdate)
+  gz::sim::ISystemConfigure,
+  gz::sim::ISystemPreUpdate,
+  gz::sim::ISystemPostUpdate)

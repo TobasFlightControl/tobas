@@ -14,9 +14,9 @@ public:
   explicit DroneServerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  tobas::Drone drone_;
+  Drone drone_;
 
-  ros2::PublisherPtr<tobas::Drone> drone_pub_;
+  ros2::PublisherPtr<Drone> drone_pub_;
 
   void publishDrone();
 
@@ -28,12 +28,12 @@ DroneServerNode::DroneServerNode(const rclcpp::NodeOptions& options)
 {
   addDynamicStringParam("tbsdrn_path", &self::fileParamCb, this);
 
-  drone_pub_ = createPublisher<tobas::Drone>(topic::kDrone, true, true);
+  drone_pub_ = createPublisher<Drone>(topic::kDrone, true, true);
 }
 
 void DroneServerNode::publishDrone()
 {
-  auto drone_msg = std::make_unique<tobas::Drone>(drone_);
+  auto drone_msg = std::make_unique<Drone>(drone_);
   drone_pub_->publish(std::move(drone_msg));
 }
 

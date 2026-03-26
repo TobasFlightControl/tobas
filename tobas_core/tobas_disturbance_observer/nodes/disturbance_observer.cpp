@@ -26,11 +26,11 @@ public:
 
 private:
   kdl::Tree tree_;
-  tobas::Drone::ConstSharedPtr drone_;
+  Drone::ConstSharedPtr drone_;
 
   kdl::TreeFkSolverPosAll fk_solver_;
   kdl::TreeInertiaSolver inertia_solver_;
-  tobas::TreeJointStateConverter js_converter_;
+  TreeJointStateConverter js_converter_;
 
   std::map<std::string, double> rotor_thrusts_;
   bool js_received_ = false;
@@ -38,14 +38,14 @@ private:
   ros2::PublisherPtr<tobas_kdl_msgs::WrenchStamped> dist_force_pub_;
 
   ros2::SubscriberPtr<kdl::Tree> tree_sub_;
-  ros2::SubscriberPtr<tobas::Drone> drone_sub_;
+  ros2::SubscriberPtr<Drone> drone_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::RotorStateArray> rotor_states_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::RotorLivelinessArray> rotor_liveliness_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::JointStateArray> joint_states_sub_;
   ros2::SubscriberPtr<tobas_msgs::OdometryWithCovarianceStamped> odom_sub_;
 
   void treeCb(const kdl::Tree::ConstSharedPtr& tree);
-  void droneCb(const tobas::Drone::ConstSharedPtr& drone);
+  void droneCb(const Drone::ConstSharedPtr& drone);
   void rotorStatesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& rotor_states);
   void rotorLivelinessCb(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& rotor_liveliness);
   void jointStatesCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& joint_states);
@@ -76,7 +76,7 @@ void DisturbanceObserverNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
   js_converter_.updateInternalDataStructures();
 }
 
-void DisturbanceObserverNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
+void DisturbanceObserverNode::droneCb(const Drone::ConstSharedPtr& drone)
 {
   drone_ = drone;
 

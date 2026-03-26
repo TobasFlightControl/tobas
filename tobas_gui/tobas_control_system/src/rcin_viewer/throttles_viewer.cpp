@@ -17,10 +17,10 @@ namespace rcin
 {
 ThrottlesViewer::ThrottlesViewer(const RosQtBridge& bridge)
 {
-  roll_range_ = new tobas::qt::HPositionBarWidget(tobas::kRcInputMin, tobas::kRcInputMax);
-  pitch_range_ = new tobas::qt::VPositionBarWidget(tobas::kRcInputMax, tobas::kRcInputMin);
-  yaw_range_ = new tobas::qt::HPositionBarWidget(tobas::kRcInputMax, tobas::kRcInputMin);
-  throt_range_ = new tobas::qt::VPositionBarWidget(tobas::kRcInputMax, tobas::kRcInputMin);
+  roll_range_ = new qt::HPositionBarWidget(kRcInputMin, kRcInputMax);
+  pitch_range_ = new qt::VPositionBarWidget(kRcInputMax, kRcInputMin);
+  yaw_range_ = new qt::HPositionBarWidget(kRcInputMax, kRcInputMin);
+  throt_range_ = new qt::VPositionBarWidget(kRcInputMax, kRcInputMin);
 
   roll_range_->setFixedHeight(kRangeSideShort);
   pitch_range_->setFixedWidth(kRangeSideShort);
@@ -34,16 +34,16 @@ ThrottlesViewer::ThrottlesViewer(const RosQtBridge& bridge)
 
   // Layout
   const auto cols2 = new QHBoxLayout();
-  cols2->addWidget(new tobas::qt::Label("Pitch", kLabelPSize), 0, Qt::AlignLeft);
-  cols2->addWidget(new tobas::qt::Label("Throttle", kLabelPSize), 0, Qt::AlignRight);
+  cols2->addWidget(new qt::Label("Pitch", kLabelPSize), 0, Qt::AlignLeft);
+  cols2->addWidget(new qt::Label("Throttle", kLabelPSize), 0, Qt::AlignRight);
 
   const auto rows1 = new QVBoxLayout();
   rows1->addWidget(roll_range_);
-  tobas::qt::addWidgetCenter(new tobas::qt::Label("Roll", kLabelPSize), rows1);
+  qt::addWidgetCenter(new qt::Label("Roll", kLabelPSize), rows1);
   rows1->addStretch();
   rows1->addLayout(cols2);
   rows1->addStretch();
-  tobas::qt::addWidgetCenter(new tobas::qt::Label("Yaw", kLabelPSize), rows1);
+  qt::addWidgetCenter(new qt::Label("Yaw", kLabelPSize), rows1);
   rows1->addWidget(yaw_range_);
 
   const auto cols1 = new QHBoxLayout();

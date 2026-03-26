@@ -34,9 +34,9 @@ RotorWidget::RotorWidget()
   gain_slider_->setTrough(false);
   gain_slider_->setGroove(true);
 
-  cur_rpm_box_ = new tobas::qt::FramedLabel();
-  tar_rpm_box_ = new tobas::qt::FramedLabel();
-  gain_box_ = new tobas::qt::FramedLabel();
+  cur_rpm_box_ = new qt::FramedLabel();
+  tar_rpm_box_ = new qt::FramedLabel();
+  gain_box_ = new qt::FramedLabel();
 
   // Layout
   const auto rpm_cols = new QHBoxLayout();
@@ -54,7 +54,7 @@ RotorWidget::RotorWidget()
   rows->addWidget(text_, 0);
   rows->addLayout(rpm_cols, 1);
   rows->addLayout(rpm_form, 0);
-  tobas::qt::addWidgetCenter(gain_slider_, rows, 1);
+  qt::addWidgetCenter(gain_slider_, rows, 1);
   rows->addLayout(gain_form, 0);
 
   setLayout(rows);

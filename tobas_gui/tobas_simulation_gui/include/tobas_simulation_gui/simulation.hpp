@@ -61,12 +61,12 @@ private:
 
   uadf::Model uadf_;
   kdl::Tree tree_;
-  tobas::Drone drone_;
+  Drone drone_;
   pid_t launch_pid_ = -1;
 
-  tobas::qt::WaitSpinnerWidget spinner_;
+  qt::WaitSpinnerWidget spinner_;
 
-  tobas::qt::ToggleButton* start_stop_button_;
+  qt::ToggleButton* start_stop_button_;
 
   SimulationSettingsWidget* sim_settings_;
   DynamicConfigWidget* dynamic_config_;

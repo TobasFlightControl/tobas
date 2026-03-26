@@ -46,22 +46,22 @@ const char* AerodynamicsWidget::name() const
 bool AerodynamicsWidget::isValid()
 {
   if (data_->count() == 0) {
-    tobas::qt::qWarnBox(this, "Propeller test data is blank.");
+    qt::qWarnBox(this, "Propeller test data is blank.");
     return false;
   }
 
   if (!motorConst().isValid()) {
-    tobas::qt::qWarnBox(this, "Failed to estimate the motor constant of the variable pitch propeller.");
+    qt::qWarnBox(this, "Failed to estimate the motor constant of the variable pitch propeller.");
     return false;
   }
 
   if (!momentConst().isValid()) {
-    tobas::qt::qWarnBox(this, "Failed to estimate the moment constant of the variable pitch propeller.");
+    qt::qWarnBox(this, "Failed to estimate the moment constant of the variable pitch propeller.");
     return false;
   }
 
   if (!dragConst().isValid()) {
-    tobas::qt::qWarnBox(this, "Failed to estimate the drag constant of the variable pitch propeller.");
+    qt::qWarnBox(this, "Failed to estimate the drag constant of the variable pitch propeller.");
     return false;
   }
 
@@ -70,7 +70,7 @@ bool AerodynamicsWidget::isValid()
 
 void AerodynamicsWidget::copyFrom(const BaseSelectedLinkSettingWidget* src)
 {
-  const auto derived = tobas::qt::qConstPointerCast<AerodynamicsWidget>(src);
+  const auto derived = qt::qConstPointerCast<AerodynamicsWidget>(src);
   data_->setValue(derived->data_->getValue());
 }
 
@@ -88,7 +88,7 @@ void AerodynamicsWidget::load(const YAML::Node& node)
   data_->setValue(node[data_->name()].as<Eigen::MatrixXd>());
 }
 
-tobas::VppMotorConstant AerodynamicsWidget::motorConst() const
+VppMotorConstant AerodynamicsWidget::motorConst() const
 {
   const auto [speed, pitch, thrust, _] = getData();
   const auto num_data = speed.size();
@@ -102,10 +102,10 @@ tobas::VppMotorConstant AerodynamicsWidget::motorConst() const
   const auto c0 = sol(0);
   const auto c1 = sol(1);
 
-  return tobas::VppMotorConstant(c0, c1);
+  return VppMotorConstant(c0, c1);
 }
 
-tobas::VppMomentConstant AerodynamicsWidget::momentConst() const
+VppMomentConstant AerodynamicsWidget::momentConst() const
 {
   const auto [c0, c1] = motorConst();
   const auto phi0 = -c0 / c1;
@@ -126,10 +126,10 @@ tobas::VppMomentConstant AerodynamicsWidget::momentConst() const
   const auto b = sol(1);
   const auto c = sol(2);
 
-  return tobas::VppMomentConstant(a, b, c, phi0);
+  return VppMomentConstant(a, b, c, phi0);
 }
 
-tobas::VppDragConstant AerodynamicsWidget::dragConst() const
+VppDragConstant AerodynamicsWidget::dragConst() const
 {
   const BladeTheory blade(
     propeller_->numBlades(), propeller_->radius(), propeller_->meanChord(), propeller_->pitchAngleNeutoral());

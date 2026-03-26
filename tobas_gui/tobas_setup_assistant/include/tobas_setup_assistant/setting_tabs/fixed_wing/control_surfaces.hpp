@@ -13,12 +13,12 @@ namespace sa
 {
 namespace fw
 {
-class ControlSurfacesWidget : public tobas::qt::TableWidget
+class ControlSurfacesWidget : public qt::TableWidget
 {
   Q_OBJECT
 
   using self = ControlSurfacesWidget;
-  using super = tobas::qt::TableWidget;
+  using super = qt::TableWidget;
 
   static constexpr int kColWidth = 120;
   static constexpr double kAngleLimit = M_PI_4;

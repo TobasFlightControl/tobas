@@ -11,9 +11,9 @@ namespace sa
 RcInputWidget::RcInputWidget()
 {
   num_sbus_channels_ = new ParamGetterWidget_SpinBox("The number of S.BUS channels", "");
-  num_sbus_channels_->setMinimum(tobas::kMinSbusChannels);
-  num_sbus_channels_->setMaximum(tobas::kMaxSbusChannels);
-  num_sbus_channels_->setValue(tobas::kMinSbusChannels);
+  num_sbus_channels_->setMinimum(kMinSbusChannels);
+  num_sbus_channels_->setMaximum(kMaxSbusChannels);
+  num_sbus_channels_->setValue(kMinSbusChannels);
   addWidget(num_sbus_channels_);
 
   addStretch();

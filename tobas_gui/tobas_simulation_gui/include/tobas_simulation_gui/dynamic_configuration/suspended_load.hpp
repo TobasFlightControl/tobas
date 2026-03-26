@@ -45,14 +45,14 @@ private:
   ros2::SyncServiceClient<AttachSrv>::SharedPtr attach_sc_;
   ros2::SyncServiceClient<DetachSrv>::SharedPtr detach_sc_;
 
-  tobas::qt::ToggleButton* attach_detach_btn_;
+  qt::ToggleButton* attach_detach_btn_;
 
-  tobas::qt::Vector3dEditVertical* attach_point_;
-  tobas::qt::Vector3dEditVertical* load_size_;
-  tobas::qt::DoubleSpinBox* load_mass_;
-  tobas::qt::DoubleSpinBox* cable_length_;
-  tobas::qt::SpinBox* cable_young_;
-  tobas::qt::SpinBox* cable_csa_;
+  qt::Vector3dEditVertical* attach_point_;
+  qt::Vector3dEditVertical* load_size_;
+  qt::DoubleSpinBox* load_mass_;
+  qt::DoubleSpinBox* cable_length_;
+  qt::SpinBox* cable_young_;
+  qt::SpinBox* cable_csa_;
 
   void setParamsToDefault();
 

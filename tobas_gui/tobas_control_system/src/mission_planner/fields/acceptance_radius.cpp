@@ -13,7 +13,7 @@ namespace field
 AcceptanceRadiusWidget::AcceptanceRadiusWidget()
 {
   // https://docs.px4.io/main/en/advanced_config/parameter_reference#NAV_ACC_RAD
-  spin_box_ = new tobas::qt::DoubleSpinBox();
+  spin_box_ = new qt::DoubleSpinBox();
   spin_box_->setDecimals(2);
   spin_box_->setMinimum(0.05);
   spin_box_->setMaximum(200.);

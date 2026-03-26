@@ -6,12 +6,12 @@ namespace tobas
 {
 namespace qt
 {
-class CircleWidget : public tobas::qt::Widget
+class CircleWidget : public qt::Widget
 {
   Q_OBJECT
 
   using self = CircleWidget;
-  using super = tobas::qt::Widget;
+  using super = qt::Widget;
 
 public:
   explicit CircleWidget(QWidget* parent = nullptr);

@@ -38,7 +38,7 @@ public:
   void setStatus(bool ok);
 
 private:
-  tobas::qt::CircleWidget* led_;
+  qt::CircleWidget* led_;
 };
 }  // namespace ctrl
 }  // namespace gui

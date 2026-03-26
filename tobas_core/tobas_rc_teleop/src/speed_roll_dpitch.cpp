@@ -33,7 +33,7 @@ bool SpeedRollDeltaPitchController::requireHeading()
   return false;
 }
 
-void SpeedRollDeltaPitchController::initialize(BaseNode* node, tobas::FlightMode mode)
+void SpeedRollDeltaPitchController::initialize(BaseNode* node, FlightMode mode)
 {
   node->addDynamicDoubleParam(addMode("min_speed", mode), &self::minSpeedCb, this, 0.5, 10, 1, 20, " m/s");
   node->addDynamicDoubleParam(addMode("max_speed", mode), &self::maxSpeedCb, this, 0.5, 40, 1, 80, " m/s");
@@ -57,8 +57,8 @@ void SpeedRollDeltaPitchController::update(const tobas_msgs::RCInput& rcin, cons
   cmd->header = rcin.header;
 
   // TODO: 機体の制限速度を考慮
-  const auto throttle = expo(remap(rcin.throttle, tobas::kMinThrot, tobas::kMaxThrot), speed_expo_);
-  cmd->speed = math::remap(throttle, tobas::kMinThrot, tobas::kMaxThrot, min_speed_, max_speed_);
+  const auto throttle = expo(remap(rcin.throttle, kMinThrot, kMaxThrot), speed_expo_);
+  cmd->speed = math::remap(throttle, kMinThrot, kMaxThrot, min_speed_, max_speed_);
 
   cmd->roll = remapDead(rcin.roll, -max_roll_, max_roll_);
   cmd->delta_pitch = remapDead(rcin.pitch, -max_dpitch_, max_dpitch_);

@@ -21,7 +21,7 @@ public:
     rclcpp::Node::SharedPtr node,
     const RosQtBridge& bridge,
     const kdl::Tree& tree,
-    const tobas::Drone& drone);
+    const Drone& drone);
 
   void updateInternalDataStructures();
 

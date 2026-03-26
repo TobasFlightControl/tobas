@@ -37,7 +37,7 @@ private Q_SLOTS:
   void onTextChanged(const QString& text);
 
 private:
-  tobas::qt::ComboBox* box_;
+  qt::ComboBox* box_;
 };
 }  // namespace sa
 }  // namespace gui

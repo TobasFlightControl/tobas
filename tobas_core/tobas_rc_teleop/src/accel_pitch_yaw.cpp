@@ -32,7 +32,7 @@ bool AccelPitchYawController::requireHeading()
   return true;
 }
 
-void AccelPitchYawController::initialize(BaseNode* node, tobas::FlightMode mode)
+void AccelPitchYawController::initialize(BaseNode* node, FlightMode mode)
 {
   node->addDynamicDoubleParam(
     addMode("max_horizontal_accel", mode), &self::maxHorizontalAccelCb, this, 0.5, 10, 1, 20, " m/s^2");
