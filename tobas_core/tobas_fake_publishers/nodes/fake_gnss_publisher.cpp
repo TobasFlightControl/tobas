@@ -5,6 +5,8 @@
 
 using namespace std::chrono_literals;
 
+namespace tobas
+{
 class FakeGnssPublisherNode : public tobas::BaseNode
 {
   static constexpr auto kSamplingPeriod = 200ms;
@@ -52,5 +54,6 @@ void FakeGnssPublisherNode::timerCb()
 
   gnss_pub_->publish(std::move(gnss_msg));
 }
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(FakeGnssPublisherNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::FakeGnssPublisherNode)

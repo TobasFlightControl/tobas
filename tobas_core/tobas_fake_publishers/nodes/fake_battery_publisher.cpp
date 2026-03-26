@@ -5,6 +5,8 @@
 
 using namespace std::chrono_literals;
 
+namespace tobas
+{
 class FakeBattPublisherNode : public tobas::BaseNode
 {
   static constexpr auto kSamplingPeriod = 10ms;
@@ -47,5 +49,6 @@ void FakeBattPublisherNode::timerCb()
 
   batt_pub_->publish(std::move(batt_msg));
 }
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(FakeBattPublisherNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::FakeBattPublisherNode)

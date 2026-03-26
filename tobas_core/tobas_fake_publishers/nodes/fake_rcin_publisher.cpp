@@ -5,6 +5,8 @@
 
 using namespace std::chrono_literals;
 
+namespace tobas
+{
 class FakeRcInputPublisherNode : public tobas::BaseNode
 {
   static constexpr auto kSamplingPeriod = 10ms;
@@ -46,5 +48,6 @@ void FakeRcInputPublisherNode::timerCb()
 
   pub_->publish(std::move(msg));
 }
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(FakeRcInputPublisherNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::FakeRcInputPublisherNode)
