@@ -56,6 +56,8 @@
 #include <tobas_real_msgs/srv/set_magnetometer_params.hpp>
 #include <tobas_real_msgs/srv/set_rc_input_params.hpp>
 
+namespace tobas
+{
 struct TopicBase
 {
   using SharedPtr = std::shared_ptr<TopicBase>;
@@ -480,6 +482,7 @@ void RosInterfaceNode::actionHandleAccepted(
   action->server_gh.reset();
   action->client_gh.reset();
 }
+}  // namespace tobas
 
 int main(int argc, char* argv[])
 {
@@ -488,7 +491,7 @@ int main(int argc, char* argv[])
 
   rclcpp::init(argc, argv);
 
-  const auto node = std::make_shared<RosInterfaceNode>();
+  const auto node = std::make_shared<tobas::RosInterfaceNode>();
 
   long num_threads = kDefaultNumThreads;
   if (node->has_parameter("num_threads")) {
