@@ -29,9 +29,15 @@ file(GLOB_RECURSE NODE_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} 
 add_library(${PROJECT_NAME}_node SHARED ${NODE_TARGETS})
 target_link_libraries(${PROJECT_NAME}_node ${PROJECT_NAME})
 target_link_options(${PROJECT_NAME}_node PRIVATE -Wl,--no-undefined)
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "PositionControllerNode" EXECUTABLE position_controller)
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "VelocityControllerNode" EXECUTABLE velocity_controller)
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "EffortControllerNode" EXECUTABLE effort_controller)
+rclcpp_components_register_node(
+  ${PROJECT_NAME}_node PLUGIN "tobas::manipulation::PositionControllerNode" EXECUTABLE position_controller
+)
+rclcpp_components_register_node(
+  ${PROJECT_NAME}_node PLUGIN "tobas::manipulation::VelocityControllerNode" EXECUTABLE velocity_controller
+)
+rclcpp_components_register_node(
+  ${PROJECT_NAME}_node PLUGIN "tobas::manipulation::EffortControllerNode" EXECUTABLE effort_controller
+)
 
 install(
   TARGETS ${PROJECT_NAME}_node

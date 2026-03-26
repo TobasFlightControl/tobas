@@ -17,6 +17,10 @@
 
 using namespace std::chrono_literals;
 
+namespace tobas
+{
+namespace manipulation
+{
 class VelocityControllerNode : public tobas::BaseNode
 {
   using self = VelocityControllerNode;
@@ -360,5 +364,7 @@ void VelocityControllerNode::autoResetTimerCb()
 
   auto_reset_timer_->cancel();
 }
+}  // namespace manipulation
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(VelocityControllerNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::manipulation::VelocityControllerNode)

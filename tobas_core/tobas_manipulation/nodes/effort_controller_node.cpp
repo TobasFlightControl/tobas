@@ -18,6 +18,10 @@
 
 using namespace std::chrono_literals;
 
+namespace tobas
+{
+namespace manipulation
+{
 class EffortControllerNode : public tobas::BaseNode
 {
   using self = EffortControllerNode;
@@ -420,5 +424,7 @@ void EffortControllerNode::autoResetTimerCb()
 
   auto_reset_timer_->cancel();
 }
+}  // namespace manipulation
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(EffortControllerNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::manipulation::EffortControllerNode)

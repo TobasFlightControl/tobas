@@ -10,6 +10,10 @@
 
 #include "tobas_manipulation/constants.hpp"
 
+namespace tobas
+{
+namespace manipulation
+{
 class PositionControllerNode : public tobas::BaseNode
 {
   using self = PositionControllerNode;
@@ -186,5 +190,7 @@ void PositionControllerNode::autoResetTimerCb()
 
   auto_reset_timer_->cancel();
 }
+}  // namespace manipulation
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(PositionControllerNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::manipulation::PositionControllerNode)
