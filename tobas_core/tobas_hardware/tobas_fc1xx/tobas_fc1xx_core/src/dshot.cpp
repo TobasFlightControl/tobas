@@ -7,6 +7,8 @@
 
 using namespace std;
 
+namespace tobas
+{
 namespace fc1xx
 {
 DShot::DShot() noexcept : crc_(algo::CRC32Left::CRC_32)
@@ -307,3 +309,4 @@ bool DShot::checkChannelSize(size_t ch) noexcept
   return true;
 }
 }  // namespace fc1xx
+}  // namespace tobas

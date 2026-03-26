@@ -4,6 +4,8 @@
 
 using namespace std;
 
+namespace tobas
+{
 namespace fc1xx
 {
 PWM::PWM() : crc_(algo::CRC32Left::CRC_32)
@@ -49,3 +51,4 @@ bool PWM::transfer()
   return true;
 }
 }  // namespace fc1xx
+}  // namespace tobas

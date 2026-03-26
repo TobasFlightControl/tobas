@@ -12,6 +12,10 @@
 
 using namespace std::chrono_literals;
 
+namespace tobas
+{
+namespace fc1xx
+{
 class ImuDriverNode : public hardware::BaseSensorNode
 {
   static constexpr char kSpiDevice[] = "/dev/spidev0.0";
@@ -59,7 +63,7 @@ ImuDriverNode::ImuDriverNode(const rclcpp::NodeOptions& options)
   gyro_lpf_.setValue(kdl::Vector::Zero());
   dgyro_lpf_.setValue(kdl::Vector::Zero());
 
-  initialize_timer_ = createWallTimer(fc1xx::kRetryInitializationInterval, &self::initializeTimerCb, this);
+  initialize_timer_ = createWallTimer(kRetryInitializationInterval, &self::initializeTimerCb, this);
 }
 
 bool ImuDriverNode::initializeImuDriver()
@@ -193,5 +197,7 @@ void ImuDriverNode::mainTimerCb()
   // Publish sampling time
   sampling_time_pub_.publish(cur_time);
 }
+}  // namespace fc1xx
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(ImuDriverNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::fc1xx::ImuDriverNode)

@@ -20,6 +20,10 @@ using namespace std::chrono_literals;
 
 namespace fs = std::filesystem;
 
+namespace tobas
+{
+namespace fc1xx
+{
 class DShotDriverNode : public tobas::BaseNode
 {
   using self = DShotDriverNode;
@@ -35,10 +39,10 @@ public:
   explicit DShotDriverNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  fc1xx::DShot dshot_;
+  DShot dshot_;
 
   ptree::PropertyTree pt_;
-  std::array<uint8_t, fc1xx::DShot::kChannelSize> gains_ = {};
+  std::array<uint8_t, DShot::kChannelSize> gains_ = {};
   bool is_commanded_ = false;
   tobas::ElectricPropulsionSystemConfig::ConstSharedPtr eprop_;
 
@@ -224,7 +228,7 @@ void DShotDriverNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
   // Load and set the speed control gains
   for (const auto& [link_name, _] : eprop->rotors) {
     const auto erotor = eprop->getRotor(link_name);
-    if (erotor->channel >= fc1xx::DShot::kChannelSize) {
+    if (erotor->channel >= DShot::kChannelSize) {
       TOBAS_ERROR("Rotor channel ", erotor->channel, " is out of range.");
       continue;
     }
@@ -324,7 +328,7 @@ void DShotDriverNode::setGainsCb(const SetGains::Request::ConstSharedPtr& req, c
 
 void DShotDriverNode::saveGainsCb(const SaveGains::Request::ConstSharedPtr&, const SaveGains::Response::SharedPtr& res)
 {
-  for (size_t ch = 0; ch < fc1xx::DShot::kChannelSize; ++ch) {
+  for (size_t ch = 0; ch < DShot::kChannelSize; ++ch) {
     const auto key = kGainKeyPrefix + std::to_string(ch);
     pt_.set(ns(), key, gains_.at(ch));
   }
@@ -341,8 +345,8 @@ void DShotDriverNode::saveGainsCb(const SaveGains::Request::ConstSharedPtr&, con
 
 void DShotDriverNode::autoStopTimerCb()
 {
-  for (size_t ch = 0; ch < fc1xx::DShot::kChannelSize; ++ch) {
-    if (!dshot_.setThrottle(ch, fc1xx::DShot::DSHOT_CMD_MOTOR_STOP)) {
+  for (size_t ch = 0; ch < DShot::kChannelSize; ++ch) {
+    if (!dshot_.setThrottle(ch, DShot::DSHOT_CMD_MOTOR_STOP)) {
       TOBAS_ERROR("Failed to set disarm throttle on channel ", ch, ".");
       return;
     }
@@ -363,5 +367,7 @@ void DShotDriverNode::autoStopTimerCb()
       " have elapsed since the last command.");
   }
 }
+}  // namespace fc1xx
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(DShotDriverNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::fc1xx::DShotDriverNode)

@@ -9,6 +9,10 @@
 
 using namespace std::chrono_literals;
 
+namespace tobas
+{
+namespace fc1xx
+{
 class GnssDriverNode : public hardware::BaseSensorNode
 {
   static constexpr char kSpiDevice[] = "/dev/spidev1.2";
@@ -47,7 +51,7 @@ private:
 GnssDriverNode::GnssDriverNode(const rclcpp::NodeOptions& options)
   : super("fc1xx_gnss_driver", nodeOptions_Default(options))
 {
-  initialize_timer_ = createWallTimer(fc1xx::kRetryInitializationInterval, &self::initialize, this);
+  initialize_timer_ = createWallTimer(kRetryInitializationInterval, &self::initialize, this);
 }
 
 void GnssDriverNode::initialize()
@@ -257,5 +261,7 @@ void GnssDriverNode::mainTimerCb()
   // Publish GNSS message
   gnss_pub_->publish(std::move(gnss_msg));
 }
+}  // namespace fc1xx
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(GnssDriverNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::fc1xx::GnssDriverNode)

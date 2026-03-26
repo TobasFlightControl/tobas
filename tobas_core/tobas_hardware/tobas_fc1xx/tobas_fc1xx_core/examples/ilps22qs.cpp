@@ -7,7 +7,7 @@ using namespace std;
 
 int main()
 {
-  fc1xx::ILPS22QS baro;
+  tobas::fc1xx::ILPS22QS baro;
   double pres, temp;
 
   if (!baro.initialize()) {

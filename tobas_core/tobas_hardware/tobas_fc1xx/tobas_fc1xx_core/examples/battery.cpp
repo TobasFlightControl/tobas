@@ -7,7 +7,7 @@ using namespace std;
 
 int main()
 {
-  fc1xx::Battery battery;
+  tobas::fc1xx::Battery battery;
   float voltage, current;
 
   if (!battery.initialize()) {

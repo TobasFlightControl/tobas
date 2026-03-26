@@ -65,7 +65,7 @@ bool testImu()
 
 bool testMagnetometer()
 {
-  fc1xx::IIS2MDC mag;
+  tobas::fc1xx::IIS2MDC mag;
 
   if (!mag.initialize()) {
     cerr << "Failed to initialize magnetometer." << endl;
@@ -98,7 +98,7 @@ bool testMagnetometer()
 
 bool testBarometer()
 {
-  fc1xx::ILPS22QS baro;
+  tobas::fc1xx::ILPS22QS baro;
 
   if (!baro.initialize()) {
     cerr << "Failed to initialize barometer." << endl;
@@ -142,7 +142,7 @@ bool testBarometer()
 
 bool testPowerSensor()
 {
-  fc1xx::Battery batt;
+  tobas::fc1xx::Battery batt;
 
   if (!batt.initialize()) {
     cerr << "Failed to initialize ADC." << endl;

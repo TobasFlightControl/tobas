@@ -2,6 +2,8 @@
 
 #include <tobas_linux/i2c_dev.hpp>
 
+namespace tobas
+{
 namespace fc1xx
 {
 /**
@@ -92,3 +94,4 @@ private:
   bool configure();
 };
 }  // namespace fc1xx
+}  // namespace tobas

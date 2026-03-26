@@ -4,6 +4,8 @@
 
 #include <std_srvs/srv/empty.hpp>
 
+namespace tobas
+{
 namespace hardware
 {
 class BaseSensorNode : public tobas::BaseNode
@@ -29,3 +31,4 @@ private:
   void stopMainTimerSrvCb(const Empty::Request::ConstSharedPtr& req, const Empty::Response::SharedPtr& res);
 };
 }  // namespace hardware
+}  // namespace tobas

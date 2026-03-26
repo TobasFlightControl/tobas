@@ -8,7 +8,7 @@ using namespace std::chrono_literals;
 
 int main()
 {
-  fc1xx::IIS2MDC mag;
+  tobas::fc1xx::IIS2MDC mag;
   double mx, my, mz;
 
   if (!mag.initialize()) {

@@ -2,6 +2,8 @@
 
 #include <tobas_linux/i2c_dev.hpp>
 
+namespace tobas
+{
 namespace fc1xx
 {
 /**
@@ -109,3 +111,4 @@ private:
   void setPressureScale(const uint8_t& fs_mode);
 };
 }  // namespace fc1xx
+}  // namespace tobas

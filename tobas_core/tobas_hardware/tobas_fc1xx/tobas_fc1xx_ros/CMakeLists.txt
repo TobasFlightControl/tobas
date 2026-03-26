@@ -35,13 +35,13 @@ file(GLOB_RECURSE NODE_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} 
 add_library(${PROJECT_NAME}_node SHARED ${NODE_TARGETS})
 ament_target_dependencies(${PROJECT_NAME}_node ${AMENT_DEPENDENCIES})
 target_link_options(${PROJECT_NAME}_node PRIVATE -Wl,--no-undefined)
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "ImuDriverNode" EXECUTABLE imu_driver)
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "MagDriverNode" EXECUTABLE mag_driver)
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "BaroDriverNode" EXECUTABLE baro_driver)
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "GnssDriverNode" EXECUTABLE gnss_driver)
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "BatteryDriverNode" EXECUTABLE battery_driver)
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "DShotDriverNode" EXECUTABLE dshot_driver)
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "PwmDriverNode" EXECUTABLE pwm_driver)
+rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "tobas::fc1xx::ImuDriverNode" EXECUTABLE imu_driver)
+rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "tobas::fc1xx::MagDriverNode" EXECUTABLE mag_driver)
+rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "tobas::fc1xx::BaroDriverNode" EXECUTABLE baro_driver)
+rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "tobas::fc1xx::GnssDriverNode" EXECUTABLE gnss_driver)
+rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "tobas::fc1xx::BatteryDriverNode" EXECUTABLE battery_driver)
+rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "tobas::fc1xx::DShotDriverNode" EXECUTABLE dshot_driver)
+rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "tobas::fc1xx::PwmDriverNode" EXECUTABLE pwm_driver)
 
 install(
   TARGETS ${PROJECT_NAME}_node

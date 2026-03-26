@@ -21,7 +21,7 @@ int main(int argc, char** argv)
   const auto gain = stoi(argv[5]);
   const auto tar_rpm = stoi(argv[6]);
 
-  fc1xx::DShot dshot;
+  tobas::fc1xx::DShot dshot;
 
   if (!dshot.initialize()) {
     cerr << "Failed to initialize DShot driver." << endl;
