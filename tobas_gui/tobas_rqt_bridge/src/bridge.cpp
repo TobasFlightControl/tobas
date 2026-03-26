@@ -5,8 +5,6 @@
 #include <tobas_real_common/ros_interface.hpp>
 #include <tobas_ros2_tools/qos.hpp>
 
-using namespace tobas;
-
 namespace tobas
 {
 namespace gui

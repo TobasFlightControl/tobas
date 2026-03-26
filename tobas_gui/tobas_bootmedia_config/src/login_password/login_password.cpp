@@ -77,7 +77,7 @@ void LoginPasswordWidget::onWriteButtonClicked()
   const auto shadow_path = fs::path(kRootPath) / "etc/shadow";
   const auto pswd = pswd1_->text().toStdString();
 
-  if (!crypt::setShadowPassword(shadow_path, ::tobas::gui::cmn::kUserNameFC, pswd, crypt::Yescrypt())) {
+  if (!crypt::setShadowPassword(shadow_path, tobas::gui::cmn::kUserNameFC, pswd, crypt::Yescrypt())) {
     tobas::qt::qErrorBox(this, "Failed to update login password.");
     return;
   }
