@@ -11,6 +11,8 @@
 
 using namespace std::chrono_literals;
 
+namespace tobas
+{
 class LandingDetectorNode : public tobas::BaseNode
 {
   using self = LandingDetectorNode;
@@ -146,5 +148,6 @@ void LandingDetectorNode::publishTimerCb()
 {
   publishCurrentLandedState(now());
 }
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(LandingDetectorNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::LandingDetectorNode)

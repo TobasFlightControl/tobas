@@ -5,6 +5,8 @@
 
 #include <tobas_msgs/msg/joint_state_array.hpp>
 
+namespace tobas
+{
 /* tobas_msgs/JointStateArray -> sensor_msgs/JointState */
 class JointStatesBridgeNode : public tobas::BaseNode
 {
@@ -42,5 +44,6 @@ void JointStatesBridgeNode::jointStatesCb(const tobas_msgs::msg::JointStateArray
 
   js_pub_->publish(std::move(js_out));
 }
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(JointStatesBridgeNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::JointStatesBridgeNode)
