@@ -14,6 +14,8 @@
 #include <tobas_msgs/msg/rotor_state_array.hpp>
 #include <tobas_msgs_adapter/odometry_with_covariance_stamped.hpp>
 
+namespace tobas
+{
 class DisturbanceObserverNode : public tobas::BaseNode
 {
   using self = DisturbanceObserverNode;
@@ -213,5 +215,6 @@ void DisturbanceObserverNode::odomCb(const tobas_msgs::OdometryWithCovarianceSta
   // 外力メッセージを発行
   dist_force_pub_->publish(std::move(dist_force_msg));
 }
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(DisturbanceObserverNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::DisturbanceObserverNode)
