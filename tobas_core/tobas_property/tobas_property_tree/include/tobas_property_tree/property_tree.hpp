@@ -6,6 +6,8 @@
 
 #include <boost/property_tree/ptree.hpp>
 
+namespace tobas
+{
 namespace ptree
 {
 class PropertyTree
@@ -160,3 +162,4 @@ inline const std::filesystem::path& PropertyTree::filePath() const
   return file_path_;
 }
 }  // namespace ptree
+}  // namespace tobas

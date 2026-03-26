@@ -5,6 +5,8 @@
 #include <tobas_property_common/constants.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
 
+namespace tobas
+{
 namespace ptree
 {
 /**
@@ -114,3 +116,4 @@ PropertyClient::Error PropertyClient::setProperty(const std::string& key, T& val
   return error_code_ = kNoError;
 }
 }  // namespace ptree
+}  // namespace tobas

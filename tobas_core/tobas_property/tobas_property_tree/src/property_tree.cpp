@@ -7,6 +7,8 @@
 using namespace std;
 namespace fs = std::filesystem;
 
+namespace tobas
+{
 namespace ptree
 {
 PropertyTree::PropertyTree()
@@ -102,3 +104,4 @@ string PropertyTree::sectionedKey(const string& section, const string& key)
   }
 }
 }  // namespace ptree
+}  // namespace tobas

@@ -1,5 +1,7 @@
 #pragma once
 
+namespace tobas
+{
 namespace ptree
 {
 static constexpr char kGetBoolSrv[] = "property/get_bool";
@@ -12,3 +14,4 @@ static constexpr char kSetDoubleSrv[] = "property/set_double";
 static constexpr char kSetStringSrv[] = "property/set_string";
 static constexpr char kSaveFileSrv[] = "property/save_file";
 }  // namespace ptree
+}  // namespace tobas

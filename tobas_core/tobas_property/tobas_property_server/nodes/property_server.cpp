@@ -17,6 +17,8 @@
 using namespace std_srvs::srv;
 using namespace tobas_property_msgs::srv;
 
+namespace tobas
+{
 namespace ptree
 {
 class PropertyServer : public tobas::BaseNode
@@ -104,5 +106,6 @@ void PropertyServer::saveFileCb(const Trigger::Request::ConstSharedPtr&, const T
   res->message.clear();
 }
 }  // namespace ptree
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(ptree::PropertyServer)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::ptree::PropertyServer)

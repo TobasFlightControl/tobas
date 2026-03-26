@@ -32,7 +32,7 @@ int main()
   static constexpr char kDoubleListKey[] = "ns.double_list";
   static constexpr char kStringListKey[] = "ns.string_list";
 
-  ptree::PropertyTree pt;
+  tobas::ptree::PropertyTree pt;
 
   if (!pt.initialize("/tmp/example.json")) {
     return EXIT_FAILURE;
