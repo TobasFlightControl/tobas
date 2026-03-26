@@ -10,7 +10,7 @@
 
 using namespace std::chrono_literals;
 
-namespace ros2
+namespace tobas
 {
 namespace
 {
@@ -102,4 +102,4 @@ void MultiComponentManagers::spin()
     manager.thread.join();
   }
 }
-}  // namespace ros2
+}  // namespace tobas

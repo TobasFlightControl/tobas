@@ -4,7 +4,7 @@
 
 #include <tobas_linux/types.hpp>
 
-namespace ros2
+namespace tobas
 {
 /* MultiThreadedExecutorのスレッドプールにリアルタイム優先度を付与． */
 class MultiThreadedExecutorRT : public rclcpp::executors::MultiThreadedExecutor
@@ -24,4 +24,4 @@ private:
   const size_t priority_;
   const uint32_t cpu_affinity_;
 };
-}  // namespace ros2
+}  // namespace tobas
