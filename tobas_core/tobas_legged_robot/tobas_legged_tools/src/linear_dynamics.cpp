@@ -5,6 +5,8 @@
 using namespace std;
 using namespace Eigen;
 
+namespace tobas
+{
 namespace lr_tools
 {
 LinearDynamics::LinearDynamics(const kdl::Tree& tree, const vector<string>& foot_names)
@@ -82,3 +84,4 @@ void LinearDynamics::updateB(const double& roll, const double& pitch, const kdl:
   }
 }
 }  // namespace lr_tools
+}  // namespace tobas

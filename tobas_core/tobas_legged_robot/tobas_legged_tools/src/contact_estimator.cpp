@@ -6,6 +6,8 @@
 using namespace std;
 using namespace Eigen;
 
+namespace tobas
+{
 namespace lr_tools
 {
 ContactEstimator::ContactEstimator(const kdl::Tree& tree, const vector<string>& foot_names)
@@ -191,3 +193,4 @@ VectorXd ContactEstimator::calcProbs_pred(const vector<bool>& cpg_states, const 
   return res;
 }
 }  // namespace lr_tools
+}  // namespace tobas

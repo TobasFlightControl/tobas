@@ -10,6 +10,8 @@
 #include <tobas_quadprog/dual_active_set.hpp>
 #include <tobas_std_tools/range.hpp>
 
+namespace tobas
+{
 namespace lr_tools
 {
 struct JointSpaceDynamicsConfig
@@ -136,3 +138,4 @@ inline const std::string& JointSpaceDynamics::errorMessage() const
   return error_msg_;
 }
 }  // namespace lr_tools
+}  // namespace tobas

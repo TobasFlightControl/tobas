@@ -8,6 +8,8 @@
 using namespace std;
 using namespace Eigen;
 
+namespace tobas
+{
 namespace lr_tools
 {
 JointSpaceDynamics::JointSpaceDynamics(
@@ -237,3 +239,4 @@ double JointSpaceDynamics::calcSizeScale()
   return bb_solver_.diagonalLength();
 }
 }  // namespace lr_tools
+}  // namespace tobas

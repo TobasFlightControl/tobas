@@ -4,6 +4,8 @@
 #include <tobas_kdl/tree_fk_solver_pos.hpp>
 #include <tobas_kdl/tree_inertia_solver.hpp>
 
+namespace tobas
+{
 namespace lr_tools
 {
 /**
@@ -58,3 +60,4 @@ inline size_t LinearDynamics::torqueIndex(const size_t& leg) const
   return kInputSizePerLeg * leg + kForceSizePerLeg;
 }
 }  // namespace lr_tools
+}  // namespace tobas

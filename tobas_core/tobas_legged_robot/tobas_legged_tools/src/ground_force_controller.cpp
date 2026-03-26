@@ -8,6 +8,8 @@
 using namespace std;
 using namespace Eigen;
 
+namespace tobas
+{
 namespace lr_tools
 {
 GroundForceController::GroundForceController(const kdl::Tree& tree, const vector<string>& foot_names)
@@ -191,3 +193,4 @@ ctrl::LinearEquation GroundForceController::makeInputConstraint()
   return ctrl::LinearEquation(F, f);
 }
 }  // namespace lr_tools
+}  // namespace tobas

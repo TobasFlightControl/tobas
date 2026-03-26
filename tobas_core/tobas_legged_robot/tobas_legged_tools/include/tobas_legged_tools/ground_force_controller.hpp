@@ -10,6 +10,8 @@
 
 #include "./linear_dynamics.hpp"
 
+namespace tobas
+{
 namespace lr_tools
 {
 struct GroundForceControllerConfig
@@ -158,3 +160,4 @@ inline const std::string& GroundForceController::errorMessage() const
   return mpc_.errorMessage();
 }
 }  // namespace lr_tools
+}  // namespace tobas

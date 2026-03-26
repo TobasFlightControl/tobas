@@ -7,6 +7,8 @@
 
 using namespace std;
 
+namespace tobas
+{
 namespace lr_tools
 {
 SwingLegController::SwingLegController(
@@ -182,3 +184,4 @@ void SwingLegController::setThighOrigins()
   }
 }
 }  // namespace lr_tools
+}  // namespace tobas

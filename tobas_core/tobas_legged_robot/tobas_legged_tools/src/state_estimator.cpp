@@ -7,6 +7,8 @@
 using namespace std;
 using namespace Eigen;
 
+namespace tobas
+{
 namespace lr_tools
 {
 StateEstimator::StateEstimator(const kdl::Tree& tree, const vector<string>& foot_names)
@@ -185,3 +187,4 @@ MatrixXd StateEstimator::makeCy()
   return Cy;
 }
 }  // namespace lr_tools
+}  // namespace tobas
