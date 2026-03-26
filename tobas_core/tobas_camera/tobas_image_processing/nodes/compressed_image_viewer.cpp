@@ -8,6 +8,10 @@
 
 #include <sensor_msgs/msg/compressed_image.hpp>
 
+namespace tobas
+{
+namespace camera
+{
 class CompressedImageViewer : public tobas::BaseNode
 {
 public:
@@ -45,5 +49,7 @@ void CompressedImageViewer::msgCb(const sensor_msgs::msg::CompressedImage::Const
     TOBAS_WARN("Could not convert to image!");
   }
 }
+}  // namespace camera
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(CompressedImageViewer)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::camera::CompressedImageViewer)

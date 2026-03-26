@@ -1,11 +1,9 @@
-extern "C" {
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
 #include <libavutil/imgutils.h>
 #include <libavutil/opt.h>
 #include <libavutil/time.h>
 #include <libswscale/swscale.h>
-}
 
 #include <rclcpp_components/register_node_macro.hpp>
 
@@ -14,6 +12,10 @@ extern "C" {
 #include <sensor_msgs/image_encodings.hpp>
 #include <sensor_msgs/msg/image.hpp>
 
+namespace tobas
+{
+namespace camera
+{
 class FFmpegToROSMsgConverter : public tobas::BaseNode
 {
 public:
@@ -260,5 +262,7 @@ bool FFmpegToROSMsgConverter::convertFrameToMessage(const AVFrame* frame, const 
 
   return true;
 }
+}  // namespace camera
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(FFmpegToROSMsgConverter)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::camera::FFmpegToROSMsgConverter)

@@ -34,6 +34,10 @@
 using namespace std::chrono_literals;
 using namespace std::placeholders;
 
+namespace tobas
+{
+namespace camera
+{
 class CxGb400PublisherNode : public tobas::BaseNode
 {
 public:
@@ -118,26 +122,25 @@ CxGb400PublisherNode::CxGb400PublisherNode(const rclcpp::NodeOptions& options)
     ffmpeg_packet_pub_ = createPublisher<ffmpeg_image_transport_msgs::msg::FFMPEGPacket>(h264_topic);
     setFfmpegParameters();
   }
-  camera_status_pub_ = createPublisher<tobas_camera_msgs::msg::Status>(camera::topic::kCameraStatus);
+  camera_status_pub_ = createPublisher<tobas_camera_msgs::msg::Status>(topic::kCameraStatus);
 
   copter_att_sub_ = createSubscriber(tobas::topic::kOdometry, &CxGb400PublisherNode::copterAttMsgCb, this);
-  gimbal_att_cmd_sub_ =
-    createSubscriber(camera::topic::kGimbalAttitudeCmd, &CxGb400PublisherNode::gimbalAttitudeCmdCb, this);
+  gimbal_att_cmd_sub_ = createSubscriber(topic::kGimbalAttitudeCmd, &CxGb400PublisherNode::gimbalAttitudeCmdCb, this);
 
   format_sd_card_ss_ = createService<tobas_camera_msgs::srv::FormatSdCard>(
-    camera::service::kFormatSdCard, &CxGb400PublisherNode::formatSdCardCb, this);
+    service::kFormatSdCard, &CxGb400PublisherNode::formatSdCardCb, this);
   set_photo_quality_ss_ = createService<tobas_camera_msgs::srv::SetPhotoQuality>(
-    camera::service::kSetPhotoQuality, &CxGb400PublisherNode::setPhotoQualityCb, this);
+    service::kSetPhotoQuality, &CxGb400PublisherNode::setPhotoQualityCb, this);
   set_video_frame_rate_ss_ = createService<tobas_camera_msgs::srv::SetVideoFrameRate>(
-    camera::service::kSetVideoFrameRate, &CxGb400PublisherNode::setVideoFrameRateCb, this);
+    service::kSetVideoFrameRate, &CxGb400PublisherNode::setVideoFrameRateCb, this);
   set_video_quality_ss_ = createService<tobas_camera_msgs::srv::SetVideoQuality>(
-    camera::service::kSetVideoQuality, &CxGb400PublisherNode::setVideoQualityCb, this);
+    service::kSetVideoQuality, &CxGb400PublisherNode::setVideoQualityCb, this);
   start_recording_ss_ = createService<tobas_camera_msgs::srv::StartRecording>(
-    camera::service::kStartRecording, &CxGb400PublisherNode::startRecordingCb, this);
+    service::kStartRecording, &CxGb400PublisherNode::startRecordingCb, this);
   stop_recording_ss_ = createService<tobas_camera_msgs::srv::StopRecording>(
-    camera::service::kStopRecording, &CxGb400PublisherNode::stopRecordingCb, this);
+    service::kStopRecording, &CxGb400PublisherNode::stopRecordingCb, this);
   take_picture_to_sd_ss_ = createService<tobas_camera_msgs::srv::TakePictureToSd>(
-    camera::service::kTakePictureToSd, &CxGb400PublisherNode::takePictureToSdCb, this);
+    service::kTakePictureToSd, &CxGb400PublisherNode::takePictureToSdCb, this);
 
   timer_ = createTimer(std::chrono::milliseconds(1000 / fps), &CxGb400PublisherNode::timerCallback, this);
   last_attitude_send_ = this->now();
@@ -419,5 +422,7 @@ void CxGb400PublisherNode::takePictureToSdCb(
     res->message = "The camera rejected the request to take a picture and save it to the SD card.";
   }
 }
+}  // namespace camera
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(CxGb400PublisherNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::camera::CxGb400PublisherNode)

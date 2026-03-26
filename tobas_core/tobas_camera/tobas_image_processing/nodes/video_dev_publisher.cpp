@@ -21,6 +21,10 @@
 
 using namespace std::chrono_literals;
 
+namespace tobas
+{
+namespace camera
+{
 /**
  * @brief tobas_linux packageのVideoDev classを使ってuvcカメラを制御し，画像を取得してpublishする．
  */
@@ -135,5 +139,7 @@ void VideoDevPublisherNode::timerCallback()
     img_publisher_->publish(std::move(message));
   }
 }
+}  // namespace camera
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(VideoDevPublisherNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::camera::VideoDevPublisherNode)

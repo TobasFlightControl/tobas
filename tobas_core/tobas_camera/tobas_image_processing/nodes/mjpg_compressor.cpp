@@ -25,6 +25,10 @@
 
 using namespace std::placeholders;
 
+namespace tobas
+{
+namespace camera
+{
 /**
  * @brief sensor_msgs/msg/CompressedImage型の画像をsubscribeして，データサイズを落としたあとpublishする．
  */
@@ -145,5 +149,7 @@ void MjpgCompressor::callback(const sensor_msgs::msg::CompressedImage::ConstShar
     encoder_.encodeImage(*message);
   }
 }
+}  // namespace camera
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(MjpgCompressor)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::camera::MjpgCompressor)

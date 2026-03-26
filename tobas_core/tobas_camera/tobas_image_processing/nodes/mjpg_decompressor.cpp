@@ -9,6 +9,10 @@
 #include <sensor_msgs/msg/compressed_image.hpp>
 #include <sensor_msgs/msg/image.hpp>
 
+namespace tobas
+{
+namespace camera
+{
 /**
  * @brief sensor_msgs::msg::CompressedImage型の画像をsubscribeし，解凍して，sensor_msgs::msg::Image型としてpublishする．
  */
@@ -56,5 +60,7 @@ void MjpgDecompressor::msgCb(const sensor_msgs::msg::CompressedImage::ConstShare
     TOBAS_WARN("Could not convert to image!");
   }
 }
+}  // namespace camera
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(MjpgDecompressor)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::camera::MjpgDecompressor)
