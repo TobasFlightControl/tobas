@@ -1,6 +1,8 @@
 #pragma once
 
-namespace tobas_dynamixel
+namespace tobas
+{
+namespace dxl
 {
 namespace topic
 {
@@ -14,4 +16,5 @@ namespace service
 {
 static constexpr char kEnableTorques[] = "dynamixel/enable_torques";
 }  // namespace service
-}  // namespace tobas_dynamixel
+}  // namespace dxl
+}  // namespace tobas

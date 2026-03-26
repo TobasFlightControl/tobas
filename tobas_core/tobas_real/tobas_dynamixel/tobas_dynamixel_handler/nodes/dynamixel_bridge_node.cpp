@@ -7,7 +7,9 @@
 #include <tobas_msgs/msg/joint_command_array.hpp>
 #include <tobas_msgs/msg/joint_state_array.hpp>
 
-namespace tobas_dynamixel
+namespace tobas
+{
+namespace dxl
 {
 /* tobas_msgsとtobas_dynamixel_msgsのブリッジ． */
 class DynamixelBridgeNode : public tobas::BaseNode
@@ -124,6 +126,7 @@ void DynamixelBridgeNode::jointEffCommandsCb(const tobas_msgs::msg::JointCommand
     motor_eff_pub_->publish(std::move(commands_out));
   }
 }
-}  // namespace tobas_dynamixel
+}  // namespace dxl
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(tobas_dynamixel::DynamixelBridgeNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::dxl::DynamixelBridgeNode)
