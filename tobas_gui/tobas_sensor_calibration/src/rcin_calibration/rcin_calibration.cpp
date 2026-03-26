@@ -354,7 +354,7 @@ void RCInputCalibrationWidget::onStartButtonClicked()
   cancel_button_->setEnabled(true);
 
   running_ = true;
-  qt::qInfoBox(this, "Radio calibration is started.");
+  qt::qInfoBox(this, "Radio calibration started.");
 }
 
 void RCInputCalibrationWidget::onCancelButtonClicked()

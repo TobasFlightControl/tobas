@@ -92,7 +92,7 @@ int main(int argc, char** argv)
     return EXIT_FAILURE;
   }
 
-  cout << "Initial configuration is finished successfully." << endl;
+  cout << "Initial configuration finished successfully." << endl;
 
   while (true) {
     if (!gnss.update(false)) {

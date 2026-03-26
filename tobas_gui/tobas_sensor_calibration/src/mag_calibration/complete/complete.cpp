@@ -589,7 +589,7 @@ void CompleteMagCalibWidget::onStartButtonClicked()
   cancel_button_->setEnabled(true);
 
   running_ = true;
-  qt::qInfoBox(this, "Magnetometer calibration is started.");
+  qt::qInfoBox(this, "Magnetometer calibration started.");
 }
 
 void CompleteMagCalibWidget::onCancelButtonClicked()

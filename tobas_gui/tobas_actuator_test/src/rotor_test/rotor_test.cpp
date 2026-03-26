@@ -246,7 +246,7 @@ void RotorTestWidget::onStartButtonClicked()
 
   running_ = true;
 
-  qt::qInfoBox(this, "Rotor test is started.");
+  qt::qInfoBox(this, "Rotor test started.");
 }
 
 void RotorTestWidget::onStopButtonClicked()
@@ -255,7 +255,7 @@ void RotorTestWidget::onStopButtonClicked()
 
   reset();
 
-  qt::qInfoBox(this, "Rotor test is finished.");
+  qt::qInfoBox(this, "Rotor test stopped.");
 }
 
 void RotorTestWidget::onSaveButtonClicked()
