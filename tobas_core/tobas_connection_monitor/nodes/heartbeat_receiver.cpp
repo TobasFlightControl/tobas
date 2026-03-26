@@ -6,6 +6,8 @@
 
 using namespace std::chrono_literals;
 
+namespace tobas
+{
 class HeartbeatReceiverNode : public tobas::BaseNode
 {
   static constexpr auto kConnectionTimeout = 5s;
@@ -53,5 +55,6 @@ void HeartbeatReceiverNode::onConnectionTimeout()
 {
   publishConnectionState(false);
 }
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(HeartbeatReceiverNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::HeartbeatReceiverNode)

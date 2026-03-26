@@ -5,6 +5,8 @@
 
 using namespace std::chrono_literals;
 
+namespace tobas
+{
 class HeartbeatSenderNode : public tobas::BaseNode
 {
   static constexpr auto kPublishPeriod = 1s;
@@ -34,5 +36,6 @@ void HeartbeatSenderNode::mainTimerCb()
   auto heartbeat = std::make_unique<tobas_msgs::msg::Heartbeat>();
   heartbeat_pub_->publish(std::move(heartbeat));
 }
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(HeartbeatSenderNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::HeartbeatSenderNode)
