@@ -36,10 +36,10 @@ using namespace Eigen;
 
 namespace tobas
 {
-class ErrorStateKalmanFilterNode : public tobas::BaseNode
+class ErrorStateKalmanFilterNode : public BaseNode
 {
   using self = ErrorStateKalmanFilterNode;
-  using super = tobas::BaseNode;
+  using super = BaseNode;
 
   using ImuMsg = tobas_msgs::Imu;
   using MagMsg = tobas_msgs::MagneticField;
@@ -266,28 +266,28 @@ ErrorStateKalmanFilterNode::ErrorStateKalmanFilterNode(const rclcpp::NodeOptions
   }
 
   // Register publishers
-  odom_pub_ = createPublisher<OdomMsg>(tobas::topic::kOdometry);
-  mag_ref_pub_ = createPublisher<MagRefMsg>(tobas::topic::kMagRef, true, true);
-  gnss_origin_pub_ = createPublisher<GnssOriginMsg>(tobas::topic::kGnssOrigin, true, true);
-  feedback_pub_ = createPublisher<FeedbackMsg>(tobas::topic::kObsvFeedback);
+  odom_pub_ = createPublisher<OdomMsg>(topic::kOdometry);
+  mag_ref_pub_ = createPublisher<MagRefMsg>(topic::kMagRef, true, true);
+  gnss_origin_pub_ = createPublisher<GnssOriginMsg>(topic::kGnssOrigin, true, true);
+  feedback_pub_ = createPublisher<FeedbackMsg>(topic::kObsvFeedback);
 
   // Register subscribers
-  imu_raw_sub_ = createSubscriber(tobas::topic::kImuRaw, &self::imuRawCb, this);
-  imu_filt_sub_ = createSubscriber(tobas::topic::kImuFilt, &self::imuFiltCb, this);
+  imu_raw_sub_ = createSubscriber(topic::kImuRaw, &self::imuRawCb, this);
+  imu_filt_sub_ = createSubscriber(topic::kImuFilt, &self::imuFiltCb, this);
   if (use_mag_) {
-    mag_sub_ = createSubscriber(tobas::topic::kMagneticField, &self::magCb, this);
+    mag_sub_ = createSubscriber(topic::kMagneticField, &self::magCb, this);
   }
   if (use_baro_) {
-    baro_sub_ = createSubscriber(tobas::topic::kAirPressure, &self::baroCb, this);
+    baro_sub_ = createSubscriber(topic::kAirPressure, &self::baroCb, this);
   }
   if (use_gnss_) {
-    gnss_sub_ = createSubscriber(tobas::topic::kGnss, &self::gnssCb, this);
+    gnss_sub_ = createSubscriber(topic::kGnss, &self::gnssCb, this);
   }
-  pose_sub_ = createSubscriber(tobas::topic::kExternalPose, &self::poseCb, this);
+  pose_sub_ = createSubscriber(topic::kExternalPose, &self::poseCb, this);
 
   // Register service servers
-  get_gnss_origin_ss_ = createService<GetOrigin>(tobas::service::kGetGnssOrigin, &self::getGnssOriginCb, this);
-  set_gnss_origin_ss_ = createService<SetOrigin>(tobas::service::kSetGnssOrigin, &self::setGnssOriginCb, this);
+  get_gnss_origin_ss_ = createService<GetOrigin>(service::kGetGnssOrigin, &self::getGnssOriginCb, this);
+  set_gnss_origin_ss_ = createService<SetOrigin>(service::kSetGnssOrigin, &self::setGnssOriginCb, this);
 }
 
 void ErrorStateKalmanFilterNode::getStaticRosParams()

@@ -7,7 +7,7 @@ using namespace std::chrono_literals;
 
 namespace tobas
 {
-class FakeGnssPublisherNode : public tobas::BaseNode
+class FakeGnssPublisherNode : public BaseNode
 {
   static constexpr auto kSamplingPeriod = 200ms;
 
@@ -15,7 +15,7 @@ class FakeGnssPublisherNode : public tobas::BaseNode
   static constexpr double kDefaultVelStddev = 0.3;  // [m/s]
 
   using self = FakeGnssPublisherNode;
-  using super = tobas::BaseNode;
+  using super = BaseNode;
 
 public:
   explicit FakeGnssPublisherNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -36,7 +36,7 @@ FakeGnssPublisherNode::FakeGnssPublisherNode(const rclcpp::NodeOptions& options)
   pos_stddev_ = getDoubleParam("position_stddev", kDefaultPosStddev);
   vel_stddev_ = getDoubleParam("velocity_stddev", kDefaultVelStddev);
 
-  gnss_pub_ = createPublisher<tobas_msgs::Gnss>(tobas::topic::kGnss);
+  gnss_pub_ = createPublisher<tobas_msgs::Gnss>(topic::kGnss);
   timer_ = createTimer(kSamplingPeriod, &self::timerCb, this);
 }
 

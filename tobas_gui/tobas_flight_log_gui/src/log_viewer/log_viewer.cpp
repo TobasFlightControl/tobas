@@ -205,70 +205,70 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
 
     // デコード
     try {
-      if (topic.ends_with(path::join("/", tobas::topic::kOdometry))) {
+      if (topic.ends_with(path::join("/", topic::kOdometry))) {
         odom_data_.push_back(odom_cov_decoder_.decode(cur_time, ser_data));
       }
-      else if (topic.ends_with(path::join("/", tobas::topic::kTrajSetpoint))) {
+      else if (topic.ends_with(path::join("/", topic::kTrajSetpoint))) {
         setpoint_data_.push_back(odom_decoder_.decode(cur_time, ser_data));
       }
-      else if (topic.ends_with(path::join("/", tobas::topic::kImuRaw))) {
+      else if (topic.ends_with(path::join("/", topic::kImuRaw))) {
         raw_imu_data_.push_back(imu_decoder_.decode(cur_time, ser_data));
       }
-      else if (topic.ends_with(path::join("/", tobas::topic::kImuFilt))) {
+      else if (topic.ends_with(path::join("/", topic::kImuFilt))) {
         filt_imu_data_.push_back(imu_decoder_.decode(cur_time, ser_data));
       }
-      else if (topic.ends_with(path::join("/", tobas::topic::kMagneticField))) {
+      else if (topic.ends_with(path::join("/", topic::kMagneticField))) {
         mag_data_.push_back(mag_decoder_.decode(cur_time, ser_data));
       }
-      else if (topic.ends_with(path::join("/", tobas::topic::kGnss))) {
+      else if (topic.ends_with(path::join("/", topic::kGnss))) {
         gnss_data_.push_back(gnss_decoder_.decode(cur_time, ser_data));
       }
-      else if (topic.ends_with(path::join("/", tobas::topic::kRcInput))) {
+      else if (topic.ends_with(path::join("/", topic::kRcInput))) {
         rcin_data_.push_back(rcin_decoder_.decode(cur_time, ser_data));
       }
-      else if (topic.ends_with(path::join("/", tobas::topic::kBattery))) {
+      else if (topic.ends_with(path::join("/", topic::kBattery))) {
         battery_data_.push_back(battery_decoder_.decode(cur_time, ser_data));
       }
-      else if (topic.ends_with(path::join("/", tobas::topic::kCpu))) {
+      else if (topic.ends_with(path::join("/", topic::kCpu))) {
         cpu_data_.push_back(cpu_decoder_.decode(cur_time, ser_data));
       }
-      else if (topic.ends_with(path::join("/", tobas::topic::kRotorStates))) {
+      else if (topic.ends_with(path::join("/", topic::kRotorStates))) {
         cur_rotor_states_data_.push_back(rotor_states_decoder_.decode(cur_time, ser_data));
       }
-      else if (topic.ends_with(path::join("/", tobas::topic::kRotorSpeedsCmd))) {
+      else if (topic.ends_with(path::join("/", topic::kRotorSpeedsCmd))) {
         tar_rotor_speeds_data_.push_back(rotor_speeds_decoder_.decode(cur_time, ser_data));
       }
-      else if (topic.ends_with(path::join("/", tobas::topic::kJointStates))) {
+      else if (topic.ends_with(path::join("/", topic::kJointStates))) {
         cur_joint_states_data_.push_back(joint_states_decoder_.decode(cur_time, ser_data));
       }
-      else if (topic.ends_with(path::join("/", tobas::topic::kJointPosCmd))) {
+      else if (topic.ends_with(path::join("/", topic::kJointPosCmd))) {
         tar_joint_positions_data_.push_back(joint_commands_decoder_.decode(cur_time, ser_data));
       }
-      else if (topic.ends_with(path::join("/", tobas::topic::kJointVelCmd))) {
+      else if (topic.ends_with(path::join("/", topic::kJointVelCmd))) {
         tar_joint_velocities_data_.push_back(joint_commands_decoder_.decode(cur_time, ser_data));
       }
-      else if (topic.ends_with(path::join("/", tobas::topic::kJointEffCmd))) {
+      else if (topic.ends_with(path::join("/", topic::kJointEffCmd))) {
         tar_joint_efforts_data_.push_back(joint_commands_decoder_.decode(cur_time, ser_data));
       }
-      else if (topic.ends_with(path::join("/", tobas::topic::kIcePropulsionSystemCmd))) {
+      else if (topic.ends_with(path::join("/", topic::kIcePropulsionSystemCmd))) {
         ice_cmd_data_.push_back(ice_cmd_decoder_.decode(cur_time, ser_data));
       }
-      else if (topic.ends_with(path::join("/", tobas::topic::kImuSamplingTime))) {
+      else if (topic.ends_with(path::join("/", topic::kImuSamplingTime))) {
         sampling_time_data_.push_back(latency_decoder_.decode(cur_time, ser_data));
       }
-      else if (topic.ends_with(path::join("/", tobas::topic::kControlLatency))) {
+      else if (topic.ends_with(path::join("/", topic::kControlLatency))) {
         ctrl_latency_data_.push_back(latency_decoder_.decode(cur_time, ser_data));
       }
-      else if (topic.ends_with(path::join("/", tobas::topic::kVibrationLevel))) {
+      else if (topic.ends_with(path::join("/", topic::kVibrationLevel))) {
         vibe_data_.push_back(vibe_decoder_.decode(cur_time, ser_data));
       }
-      else if (topic.ends_with(path::join("/", tobas::topic::kDisturbanceForce))) {
+      else if (topic.ends_with(path::join("/", topic::kDisturbanceForce))) {
         dist_force_data_.push_back(wrench_decoder_.decode(cur_time, ser_data));
       }
-      else if (topic.ends_with(path::join("/", tobas::topic::kObsvFeedback))) {
+      else if (topic.ends_with(path::join("/", topic::kObsvFeedback))) {
         obsv_fb_data_.push_back(obsv_fb_decoder_.decode(cur_time, ser_data));
       }
-      else if (topic.ends_with(path::join("/", tobas::topic::kMRCtrlFeedback))) {
+      else if (topic.ends_with(path::join("/", topic::kMRCtrlFeedback))) {
         mr_ctrl_fb_data_.push_back(mr_ctrl_fb_decoder_.decode(cur_time, ser_data));
       }
     }

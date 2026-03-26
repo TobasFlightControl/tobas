@@ -10,10 +10,10 @@ using namespace std::chrono_literals;
 
 namespace tobas
 {
-class TreeServerNode : public tobas::BaseNode
+class TreeServerNode : public BaseNode
 {
   using self = TreeServerNode;
-  using super = tobas::BaseNode;
+  using super = BaseNode;
 
 public:
   explicit TreeServerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -46,8 +46,8 @@ void TreeServerNode::publishTree()
 
 void TreeServerNode::initializeTimerCb()
 {
-  tree_pub_ = createPublisher<kdl::Tree>(tobas::topic::kKdlTree, true, true);
-  description_sub_ = createSubscriber(tobas::topic::kRobotDescription, &self::descriptionCb, this, true, true);
+  tree_pub_ = createPublisher<kdl::Tree>(topic::kKdlTree, true, true);
+  description_sub_ = createSubscriber(topic::kRobotDescription, &self::descriptionCb, this, true, true);
 
   initialize_timer_->cancel();
 }

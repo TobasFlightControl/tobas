@@ -191,13 +191,13 @@ void JointCommanderWidget::updateInternalDataStructures()
   // Register command publishers
   const auto& ns = drone_.name;
   if (!tar_js_pos_.commands.empty()) {
-    tar_js_pos_pub_ = ros2::createPublisher<CmdMsg>(node_, path::join(ns, tobas::topic::kJointPosCmd));
+    tar_js_pos_pub_ = ros2::createPublisher<CmdMsg>(node_, path::join(ns, topic::kJointPosCmd));
   }
   if (!tar_js_vel_.commands.empty()) {
-    tar_js_vel_pub_ = ros2::createPublisher<CmdMsg>(node_, path::join(ns, tobas::topic::kJointVelCmd));
+    tar_js_vel_pub_ = ros2::createPublisher<CmdMsg>(node_, path::join(ns, topic::kJointVelCmd));
   }
   if (!tar_js_eff_.commands.empty()) {
-    tar_js_eff_pub_ = ros2::createPublisher<CmdMsg>(node_, path::join(ns, tobas::topic::kJointEffCmd));
+    tar_js_eff_pub_ = ros2::createPublisher<CmdMsg>(node_, path::join(ns, topic::kJointEffCmd));
   }
 }
 

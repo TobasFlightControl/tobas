@@ -71,7 +71,7 @@ void GnssDriverNode::initialize()
   is_received_[ublox::ZEDF9P::NAV_VELNED] = false;
   is_received_[ublox::ZEDF9P::NAV_COV] = false;
 
-  gnss_pub_ = createPublisher<tobas_msgs::Gnss>(tobas::topic::kGnss);
+  gnss_pub_ = createPublisher<tobas_msgs::Gnss>(topic::kGnss);
 
   initialize_timer_->cancel();
   main_timer_ = createWallTimer(kMainTimerPeriod, &self::mainTimerCb, this);

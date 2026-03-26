@@ -13,10 +13,10 @@ using namespace std::chrono_literals;
 
 namespace tobas
 {
-class LandingDetectorNode : public tobas::BaseNode
+class LandingDetectorNode : public BaseNode
 {
   using self = LandingDetectorNode;
-  using super = tobas::BaseNode;
+  using super = BaseNode;
 
   static constexpr auto kPublishPeriod = 1s;
   static constexpr double kDistForceLpfCutoff = 1.;        // [Hz]
@@ -60,10 +60,10 @@ LandingDetectorNode::LandingDetectorNode(const rclcpp::NodeOptions& options)
 
   force_z_lpf_.setCutoffFrequency(kDistForceLpfCutoff);
 
-  landed_pub_ = createPublisher<tobas_msgs::msg::LandedState>(tobas::topic::kLanded);
+  landed_pub_ = createPublisher<tobas_msgs::msg::LandedState>(topic::kLanded);
 
-  tree_sub_ = createSubscriber(tobas::topic::kKdlTree, &self::treeCb, this, true, true);
-  dist_force_sub_ = createSubscriber(tobas::topic::kDisturbanceForce, &self::disturbanceForceCb, this);
+  tree_sub_ = createSubscriber(topic::kKdlTree, &self::treeCb, this, true, true);
+  dist_force_sub_ = createSubscriber(topic::kDisturbanceForce, &self::disturbanceForceCb, this);
 }
 
 void LandingDetectorNode::publishCurrentLandedState(const builtin_interfaces::msg::Time& stamp)

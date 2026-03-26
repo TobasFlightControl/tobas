@@ -15,10 +15,10 @@ namespace tobas
 {
 namespace gazebo
 {
-class ElectricRotorCommandHandlerNode : public tobas::BaseNode
+class ElectricRotorCommandHandlerNode : public BaseNode
 {
   using self = ElectricRotorCommandHandlerNode;
-  using super = tobas::BaseNode;
+  using super = BaseNode;
 
 public:
   explicit ElectricRotorCommandHandlerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -42,7 +42,7 @@ private:
 ElectricRotorCommandHandlerNode::ElectricRotorCommandHandlerNode(const rclcpp::NodeOptions& options)
   : super("gazebo_electric_rotor_command_handler", nodeOptions_Default(options))
 {
-  drone_sub_ = createSubscriber(tobas::topic::kDrone, &self::droneCb, this, true, true);
+  drone_sub_ = createSubscriber(topic::kDrone, &self::droneCb, this, true, true);
 }
 
 void ElectricRotorCommandHandlerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
@@ -66,8 +66,8 @@ void ElectricRotorCommandHandlerNode::droneCb(const tobas::Drone::ConstSharedPtr
   latency_pub_.initialize(shared_from_this());
 
   // Register subscribers
-  battery_sub_ = createSubscriber(tobas::topic::kBattery, &self::batteryCb, this);
-  tar_speeds_sub_ = createSubscriber(tobas::topic::kRotorSpeedsCmd, &self::targetSpeedsCb, this);
+  battery_sub_ = createSubscriber(topic::kBattery, &self::batteryCb, this);
+  tar_speeds_sub_ = createSubscriber(topic::kRotorSpeedsCmd, &self::targetSpeedsCb, this);
 }
 
 void ElectricRotorCommandHandlerNode::batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery)

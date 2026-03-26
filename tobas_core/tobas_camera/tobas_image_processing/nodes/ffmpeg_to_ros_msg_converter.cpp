@@ -16,7 +16,7 @@ namespace tobas
 {
 namespace camera
 {
-class FFmpegToROSMsgConverter : public tobas::BaseNode
+class FFmpegToROSMsgConverter : public BaseNode
 {
 public:
   explicit FFmpegToROSMsgConverter(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -45,7 +45,7 @@ private:
 };
 
 FFmpegToROSMsgConverter::FFmpegToROSMsgConverter(const rclcpp::NodeOptions& options)
-  : tobas::BaseNode("ffmpeg_to_ros_msg_converter", nodeOptions_Default(options))
+  : BaseNode("ffmpeg_to_ros_msg_converter", nodeOptions_Default(options))
 {
   const auto ros_image_topic_name = getStringParam("ros_image_topic", "image");
   // ffmpegが送信してくるデータのプロトコルの名称．udp, srtなど．

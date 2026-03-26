@@ -32,7 +32,7 @@ bool PosVelAccAngleController::requireHeading()
   return true;
 }
 
-void PosVelAccAngleController::initialize(tobas::BaseNode* node, tobas::FlightMode mode)
+void PosVelAccAngleController::initialize(BaseNode* node, tobas::FlightMode mode)
 {
   node->addDynamicDoubleParam(
     addMode("max_horizontal_velocity", mode), &self::maxHorizontalVelocityCb, this, 0.5, 12, 0, 20, " m/s");
@@ -54,8 +54,8 @@ void PosVelAccAngleController::initialize(tobas::BaseNode* node, tobas::FlightMo
   node->addDynamicDoubleParam(addMode("attitude_expo", mode), &self::attitudeExpoCb, this, 5., 0, -20, 20);
   node->addDynamicDoubleParam(addMode("heading_expo", mode), &self::headingExpoCb, this, 5., -3, -20, 20);
 
-  pos_vel_acc_pub_ = node->createPublisher<tobas_command_msgs::PosVelAcc>(tobas::topic::kPosVelAccCmd);
-  angle_pub_ = node->createPublisher<tobas_command_msgs::Angle>(tobas::topic::kAngleCmd);
+  pos_vel_acc_pub_ = node->createPublisher<tobas_command_msgs::PosVelAcc>(topic::kPosVelAccCmd);
+  angle_pub_ = node->createPublisher<tobas_command_msgs::Angle>(topic::kAngleCmd);
 }
 
 void PosVelAccAngleController::reset(

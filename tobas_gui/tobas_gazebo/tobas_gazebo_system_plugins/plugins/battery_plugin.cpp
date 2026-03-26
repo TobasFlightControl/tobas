@@ -103,7 +103,7 @@ void GazeboBatteryPlugin::Configure(
   voltage_noise_ = NormalDistribution(0., voltage_noise_stddev_);
   current_noise_ = NormalDistribution(0., current_noise_stddev_);
 
-  battery_pub_ = createPublisher<tobas_msgs::msg::Battery>(tobas::topic::kBattery);
+  battery_pub_ = createPublisher<tobas_msgs::msg::Battery>(topic::kBattery);
   battery_gt_pub_ = createPublisher<tobas_msgs::msg::Battery>(kBatteryGtTopic);
 
   // モータ状態のコールバックとサブスクライバを設定

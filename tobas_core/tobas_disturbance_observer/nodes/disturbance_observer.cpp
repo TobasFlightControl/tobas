@@ -16,10 +16,10 @@
 
 namespace tobas
 {
-class DisturbanceObserverNode : public tobas::BaseNode
+class DisturbanceObserverNode : public BaseNode
 {
   using self = DisturbanceObserverNode;
-  using super = tobas::BaseNode;
+  using super = BaseNode;
 
 public:
   explicit DisturbanceObserverNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -58,13 +58,13 @@ DisturbanceObserverNode::DisturbanceObserverNode(const rclcpp::NodeOptions& opti
   , inertia_solver_(tree_)
   , js_converter_(tree_)
 {
-  dist_force_pub_ = createPublisher<tobas_kdl_msgs::WrenchStamped>(tobas::topic::kDisturbanceForce);
+  dist_force_pub_ = createPublisher<tobas_kdl_msgs::WrenchStamped>(topic::kDisturbanceForce);
 
-  tree_sub_ = createSubscriber(tobas::topic::kKdlTree, &self::treeCb, this, true, true);
-  drone_sub_ = createSubscriber(tobas::topic::kDrone, &self::droneCb, this, true, true);
-  rotor_states_sub_ = createSubscriber(tobas::topic::kRotorStates, &self::rotorStatesCb, this);
-  rotor_liveliness_sub_ = createSubscriber(tobas::topic::kRotorLiv, &self::rotorLivelinessCb, this);
-  odom_sub_ = createSubscriber(tobas::topic::kOdometry, &self::odomCb, this);
+  tree_sub_ = createSubscriber(topic::kKdlTree, &self::treeCb, this, true, true);
+  drone_sub_ = createSubscriber(topic::kDrone, &self::droneCb, this, true, true);
+  rotor_states_sub_ = createSubscriber(topic::kRotorStates, &self::rotorStatesCb, this);
+  rotor_liveliness_sub_ = createSubscriber(topic::kRotorLiv, &self::rotorLivelinessCb, this);
+  odom_sub_ = createSubscriber(topic::kOdometry, &self::odomCb, this);
 }
 
 void DisturbanceObserverNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
@@ -84,7 +84,7 @@ void DisturbanceObserverNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
   js_received_ = false;
 
   if (drone->hasServoJoint()) {
-    joint_states_sub_ = createSubscriber(tobas::topic::kJointStates, &self::jointStatesCb, this);
+    joint_states_sub_ = createSubscriber(topic::kJointStates, &self::jointStatesCb, this);
   }
   else {
     joint_states_sub_.reset();

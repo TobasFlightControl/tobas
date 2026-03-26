@@ -5,10 +5,10 @@
 
 namespace tobas
 {
-class DroneServerNode : public tobas::BaseNode
+class DroneServerNode : public BaseNode
 {
   using self = DroneServerNode;
-  using super = tobas::BaseNode;
+  using super = BaseNode;
 
 public:
   explicit DroneServerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -28,7 +28,7 @@ DroneServerNode::DroneServerNode(const rclcpp::NodeOptions& options)
 {
   addDynamicStringParam("tbsdrn_path", &self::fileParamCb, this);
 
-  drone_pub_ = createPublisher<tobas::Drone>(tobas::topic::kDrone, true, true);
+  drone_pub_ = createPublisher<tobas::Drone>(topic::kDrone, true, true);
 }
 
 void DroneServerNode::publishDrone()

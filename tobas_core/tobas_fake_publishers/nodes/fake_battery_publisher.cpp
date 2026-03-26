@@ -7,7 +7,7 @@ using namespace std::chrono_literals;
 
 namespace tobas
 {
-class FakeBattPublisherNode : public tobas::BaseNode
+class FakeBattPublisherNode : public BaseNode
 {
   static constexpr auto kSamplingPeriod = 10ms;
 
@@ -15,7 +15,7 @@ class FakeBattPublisherNode : public tobas::BaseNode
   static constexpr double kDefaultCurrent = 20.;   // [A]
 
   using self = FakeBattPublisherNode;
-  using super = tobas::BaseNode;
+  using super = BaseNode;
 
 public:
   explicit FakeBattPublisherNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -36,7 +36,7 @@ FakeBattPublisherNode::FakeBattPublisherNode(const rclcpp::NodeOptions& options)
   voltage_ = getDoubleParam("voltage", kDefaultVoltage);
   current_ = getDoubleParam("current", kDefaultCurrent);
 
-  batt_pub_ = createPublisher<tobas_msgs::msg::Battery>(tobas::topic::kBattery);
+  batt_pub_ = createPublisher<tobas_msgs::msg::Battery>(topic::kBattery);
   timer_ = createTimer(kSamplingPeriod, &self::timerCb, this);
 }
 

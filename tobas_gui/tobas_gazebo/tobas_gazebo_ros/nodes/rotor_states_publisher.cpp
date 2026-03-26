@@ -10,10 +10,10 @@ namespace tobas
 {
 namespace gazebo
 {
-class RotorStatesPublisherNode : public tobas::BaseNode
+class RotorStatesPublisherNode : public BaseNode
 {
   using self = RotorStatesPublisherNode;
-  using super = tobas::BaseNode;
+  using super = BaseNode;
 
 public:
   explicit RotorStatesPublisherNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -33,8 +33,8 @@ private:
 RotorStatesPublisherNode::RotorStatesPublisherNode(const rclcpp::NodeOptions& options)
   : super("gazebo_rotor_states_publisher", nodeOptions_Default(options))
 {
-  rotor_states_pub_ = createPublisher<tobas_msgs::msg::RotorStateArray>(tobas::topic::kRotorStates);
-  drone_sub_ = createSubscriber(tobas::topic::kDrone, &self::droneCb, this, true, true);
+  rotor_states_pub_ = createPublisher<tobas_msgs::msg::RotorStateArray>(topic::kRotorStates);
+  drone_sub_ = createSubscriber(topic::kDrone, &self::droneCb, this, true, true);
 }
 
 void RotorStatesPublisherNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)

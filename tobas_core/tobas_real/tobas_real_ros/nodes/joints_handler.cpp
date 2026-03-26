@@ -17,10 +17,10 @@ namespace real
  * @brief ジョイントの位置，速度，力のコマンドを受け取り，適切なハードウェアインターフェースに指令する．
  * また，そのジョイントの状態を発行する．
  */
-class JointsHandlerNode : public tobas::BaseNode
+class JointsHandlerNode : public BaseNode
 {
   using self = JointsHandlerNode;
-  using super = tobas::BaseNode;
+  using super = BaseNode;
 
 public:
   explicit JointsHandlerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -59,13 +59,13 @@ private:
 JointsHandlerNode::JointsHandlerNode(const rclcpp::NodeOptions& options)
   : super("real_joints_handler", nodeOptions_Default(options))
 {
-  pwms_pub_ = createPublisher<tobas_msgs::msg::PwmArray>(tobas::topic::kPwmCmd);
-  joint_states_pub_ = createPublisher<tobas_msgs::msg::JointStateArray>(tobas::topic::kJointStates);
+  pwms_pub_ = createPublisher<tobas_msgs::msg::PwmArray>(topic::kPwmCmd);
+  joint_states_pub_ = createPublisher<tobas_msgs::msg::JointStateArray>(topic::kJointStates);
 
-  drone_sub_ = createSubscriber(tobas::topic::kDrone, &self::droneCb, this, true, true);
-  positions_sub_ = createSubscriber(tobas::topic::kJointPosCmd, &self::jointPositionsCmdCb, this);
-  velocities_sub_ = createSubscriber(tobas::topic::kJointVelCmd, &self::jointVelocitiesCmdCb, this);
-  efforts_sub_ = createSubscriber(tobas::topic::kJointEffCmd, &self::jointEffortsCmdCb, this);
+  drone_sub_ = createSubscriber(topic::kDrone, &self::droneCb, this, true, true);
+  positions_sub_ = createSubscriber(topic::kJointPosCmd, &self::jointPositionsCmdCb, this);
+  velocities_sub_ = createSubscriber(topic::kJointVelCmd, &self::jointVelocitiesCmdCb, this);
+  efforts_sub_ = createSubscriber(topic::kJointEffCmd, &self::jointEffortsCmdCb, this);
 
   pos_reset_timer_ = createWallTimer(tobas::kCommandAutoResetTimeout, &self::positionResetTimerCb, this, false);
   vel_reset_timer_ = createWallTimer(tobas::kCommandAutoResetTimeout, &self::velocityResetTimerCb, this, false);

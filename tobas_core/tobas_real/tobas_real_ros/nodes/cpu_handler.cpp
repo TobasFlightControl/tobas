@@ -13,14 +13,14 @@ namespace tobas
 {
 namespace real
 {
-class CpuHandlerNode : public tobas::BaseNode
+class CpuHandlerNode : public BaseNode
 {
   static constexpr auto kSamplingPeriod = 100ms;
   static constexpr char kTemperatureFilePath[] = "/sys/class/thermal/thermal_zone0/temp";
   static constexpr char kStatisticsFilePath[] = "/proc/stat";
 
   using self = CpuHandlerNode;
-  using super = tobas::BaseNode;
+  using super = BaseNode;
 
 public:
   explicit CpuHandlerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -47,7 +47,7 @@ private:
 CpuHandlerNode::CpuHandlerNode(const rclcpp::NodeOptions& options)
   : super("real_cpu_handler", nodeOptions_Default(options))
 {
-  cpu_pub_ = createPublisher<tobas_msgs::msg::Cpu>(tobas::topic::kCpu);
+  cpu_pub_ = createPublisher<tobas_msgs::msg::Cpu>(topic::kCpu);
   main_timer_ = createWallTimer(kSamplingPeriod, &self::mainTimerCb, this);
 }
 

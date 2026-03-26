@@ -21,10 +21,10 @@ namespace tobas
 {
 namespace real
 {
-class RCInputHandlerNode : public tobas::BaseNode
+class RCInputHandlerNode : public BaseNode
 {
   using self = RCInputHandlerNode;
-  using super = tobas::BaseNode;
+  using super = BaseNode;
   using SetParams = tobas_real_msgs::srv::SetRcInputParams;
 
 public:
@@ -176,8 +176,8 @@ bool RCInputHandlerNode::getConfig()
 
 void RCInputHandlerNode::registerPubSub()
 {
-  rcin_pub_ = createPublisher<tobas_msgs::RCInput>(tobas::topic::kRcInput);
-  sbus_sub_ = createSubscriber(tobas::topic::kSbus, &self::sbusCb, this);
+  rcin_pub_ = createPublisher<tobas_msgs::RCInput>(topic::kRcInput);
+  sbus_sub_ = createSubscriber(topic::kSbus, &self::sbusCb, this);
 }
 
 tobas::FlightMode RCInputHandlerNode::getClosestFlightMode(uint16_t period)

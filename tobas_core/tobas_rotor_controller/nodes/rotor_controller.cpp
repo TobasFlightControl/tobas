@@ -19,10 +19,10 @@ using namespace std::chrono_literals;
 namespace tobas
 {
 /* 推進系の目標推力を実現する． */
-class RotorControllerNode : public tobas::BaseNode
+class RotorControllerNode : public BaseNode
 {
   using self = RotorControllerNode;
-  using super = tobas::BaseNode;
+  using super = BaseNode;
 
   using SetArm = tobas_msgs::srv::SetArm;
 
@@ -70,15 +70,15 @@ private:
 RotorControllerNode::RotorControllerNode(const rclcpp::NodeOptions& options)
   : super("rotor_controller", nodeOptions_Default(options))
 {
-  rotor_speeds_pub_ = createPublisher<tobas_msgs::msg::RotorSpeedArray>(tobas::topic::kRotorSpeedsCmd);
-  ice_cmd_pub_ = createPublisher<tobas_msgs::msg::IcePropulsionSystemCommand>(tobas::topic::kIcePropulsionSystemCmd);
-  arming_pub_ = createPublisher<tobas_msgs::msg::Arming>(tobas::topic::kArming);
+  rotor_speeds_pub_ = createPublisher<tobas_msgs::msg::RotorSpeedArray>(topic::kRotorSpeedsCmd);
+  ice_cmd_pub_ = createPublisher<tobas_msgs::msg::IcePropulsionSystemCommand>(topic::kIcePropulsionSystemCmd);
+  arming_pub_ = createPublisher<tobas_msgs::msg::Arming>(topic::kArming);
 
-  drone_sub_ = createSubscriber(tobas::topic::kDrone, &self::droneCb, this, true, true);
-  tar_thrusts_sub_ = createSubscriber(tobas::topic::kRotorThrustsCmd, &self::thrustsCmdCb, this);
-  health_sub_ = createSubscriber(tobas::topic::kVehicleHealth, &self::healthCb, this);
+  drone_sub_ = createSubscriber(topic::kDrone, &self::droneCb, this, true, true);
+  tar_thrusts_sub_ = createSubscriber(topic::kRotorThrustsCmd, &self::thrustsCmdCb, this);
+  health_sub_ = createSubscriber(topic::kVehicleHealth, &self::healthCb, this);
 
-  set_arm_ss_ = createService<SetArm>(tobas::service::kSetArm, &self::setArmCb, this);
+  set_arm_ss_ = createService<SetArm>(service::kSetArm, &self::setArmCb, this);
 
   publish_arming_timer_ = createTimer(kPublishArmingPeriod, &self::publishCurrentArmingState, this);
 }

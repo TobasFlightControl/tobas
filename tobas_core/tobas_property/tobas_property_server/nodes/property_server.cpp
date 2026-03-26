@@ -21,10 +21,10 @@ namespace tobas
 {
 namespace ptree
 {
-class PropertyServer : public tobas::BaseNode
+class PropertyServer : public BaseNode
 {
   using self = PropertyServer;
-  using super = tobas::BaseNode;
+  using super = BaseNode;
 
 public:
   explicit PropertyServer(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());

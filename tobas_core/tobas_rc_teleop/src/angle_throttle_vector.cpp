@@ -33,7 +33,7 @@ bool AngleThrottleVectorController::requireHeading()
   return true;
 }
 
-void AngleThrottleVectorController::initialize(tobas::BaseNode* node, tobas::FlightMode mode)
+void AngleThrottleVectorController::initialize(BaseNode* node, tobas::FlightMode mode)
 {
   node->addDynamicDoubleParam(addMode("max_roll", mode), &self::maxRollCb, this, 5., 9, 1, 16, " deg");
   node->addDynamicDoubleParam(addMode("max_roll_rate", mode), &self::maxRollRateCb, this, 45., 8, 1, 16, " dps");
@@ -48,7 +48,7 @@ void AngleThrottleVectorController::initialize(tobas::BaseNode* node, tobas::Fli
   node->addDynamicDoubleParam(addMode("throttle_expo", mode), &self::throttleExpoCb, this, 5., 0, 0, 20);
   node->addDynamicDoubleParam(addMode("thrust_angle_expo", mode), &self::thrustAngleExpoCb, this, 5., 0, -20, 20);
 
-  cmd_pub_ = node->createPublisher<tobas_command_msgs::AngleThrottleVector>(tobas::topic::kAngleThrotVectorCmd);
+  cmd_pub_ = node->createPublisher<tobas_command_msgs::AngleThrottleVector>(topic::kAngleThrotVectorCmd);
 }
 
 void AngleThrottleVectorController::reset(

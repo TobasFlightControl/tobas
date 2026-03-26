@@ -9,10 +9,10 @@ using namespace std::chrono_literals;
 
 namespace tobas
 {
-class SbusDriverNode : public tobas::BaseNode
+class SbusDriverNode : public BaseNode
 {
   using self = SbusDriverNode;
-  using super = tobas::BaseNode;
+  using super = BaseNode;
 
 public:
   explicit SbusDriverNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -44,7 +44,7 @@ SbusDriverNode::SbusDriverNode(const rclcpp::NodeOptions& options)
     return;
   }
 
-  sbus_pub_ = createPublisher<tobas_msgs::msg::Sbus>(tobas::topic::kSbus);
+  sbus_pub_ = createPublisher<tobas_msgs::msg::Sbus>(topic::kSbus);
 
   initialize_timer_ = createWallTimer(3s, &self::initialize, this);
 }

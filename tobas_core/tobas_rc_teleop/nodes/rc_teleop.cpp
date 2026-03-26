@@ -36,7 +36,7 @@ namespace tobas
 {
 namespace rc
 {
-class RCTeleopNode : public tobas::BaseNode
+class RCTeleopNode : public BaseNode
 {
   static constexpr double kArmThrotThresh = 0.04;  // 帯域 [-1, 1] の 2%
   static constexpr auto kArmDuration = 1s;
@@ -46,7 +46,7 @@ class RCTeleopNode : public tobas::BaseNode
   static constexpr double kWarnPeriod = 1.;            // [s]
 
   using self = RCTeleopNode;
-  using super = tobas::BaseNode;
+  using super = BaseNode;
 
 public:
   explicit RCTeleopNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -118,14 +118,14 @@ RCTeleopNode::RCTeleopNode(const rclcpp::NodeOptions& options)
   getStaticRosParams();
   initializeControllers();
 
-  odom_sub_ = createSubscriber(tobas::topic::kOdometry, &self::odomCb, this);
-  setpoint_sub_ = createSubscriber(tobas::topic::kTrajSetpoint, &self::setpointCb, this);
-  arming_sub_ = createSubscriber(tobas::topic::kArming, &self::armingCb, this);
-  health_sub_ = createSubscriber(tobas::topic::kVehicleHealth, &self::healthCb, this);
-  rcin_sub_ = createSubscriber(tobas::topic::kRcInput, &self::rcInputCb, this);
-  landed_sub_ = createSubscriber(tobas::topic::kLanded, &self::landedCb, this);
+  odom_sub_ = createSubscriber(topic::kOdometry, &self::odomCb, this);
+  setpoint_sub_ = createSubscriber(topic::kTrajSetpoint, &self::setpointCb, this);
+  arming_sub_ = createSubscriber(topic::kArming, &self::armingCb, this);
+  health_sub_ = createSubscriber(topic::kVehicleHealth, &self::healthCb, this);
+  rcin_sub_ = createSubscriber(topic::kRcInput, &self::rcInputCb, this);
+  landed_sub_ = createSubscriber(topic::kLanded, &self::landedCb, this);
 
-  set_arm_sc_ = create_client<tobas_msgs::srv::SetArm>(tobas::service::kSetArm);
+  set_arm_sc_ = create_client<tobas_msgs::srv::SetArm>(service::kSetArm);
 }
 
 void RCTeleopNode::getStaticRosParams()
@@ -191,7 +191,7 @@ void RCTeleopNode::initializeControllers()
 void RCTeleopNode::requestArmingRotors(bool arming)
 {
   if (!set_arm_sc_->service_is_ready()) {
-    TOBAS_ERROR("\"", tobas::service::kSetArm, "\" is not ready.");
+    TOBAS_ERROR("\"", service::kSetArm, "\" is not ready.");
     return;
   }
 

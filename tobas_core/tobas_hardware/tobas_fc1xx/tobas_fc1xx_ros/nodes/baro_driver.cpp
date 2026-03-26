@@ -44,7 +44,7 @@ void BaroDriverNode::initialize()
     return;
   }
 
-  baro_pub_ = createPublisher<tobas_msgs::msg::FluidPressure>(tobas::topic::kAirPressure);
+  baro_pub_ = createPublisher<tobas_msgs::msg::FluidPressure>(topic::kAirPressure);
 
   initialize_timer_->cancel();
   main_timer_ = createWallTimer(kSamplingPeriod, &self::mainTimerCb, this);

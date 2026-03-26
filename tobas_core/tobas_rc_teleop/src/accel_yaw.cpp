@@ -32,7 +32,7 @@ bool AccelYawController::requireHeading()
   return true;
 }
 
-void AccelYawController::initialize(tobas::BaseNode* node, tobas::FlightMode mode)
+void AccelYawController::initialize(BaseNode* node, tobas::FlightMode mode)
 {
   node->addDynamicDoubleParam(
     addMode("max_horizontal_accel", mode), &self::maxHorizontalAccelCb, this, 0.5, 10, 1, 20, " m/s^2");
@@ -46,7 +46,7 @@ void AccelYawController::initialize(tobas::BaseNode* node, tobas::FlightMode mod
   node->addDynamicDoubleParam(addMode("vertical_accel_expo", mode), &self::verticalAccelExpoCb, this, 5., 0, -20, 20);
   node->addDynamicDoubleParam(addMode("heading_expo", mode), &self::headingExpoCb, this, 5., -3, -20, 20);
 
-  cmd_pub_ = node->createPublisher<tobas_command_msgs::AccelYaw>(tobas::topic::kAccelYawCmd);
+  cmd_pub_ = node->createPublisher<tobas_command_msgs::AccelYaw>(topic::kAccelYawCmd);
 }
 
 void AccelYawController::reset(const builtin_interfaces::msg::Time& stamp, const tobas_msgs::Odometry& setpoint, bool)

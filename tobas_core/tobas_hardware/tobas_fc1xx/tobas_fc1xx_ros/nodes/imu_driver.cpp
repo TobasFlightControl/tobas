@@ -136,8 +136,8 @@ void ImuDriverNode::initializeTimerCb()
   imu_filt_pub_ = createPublisher<tobas_msgs::Imu>(topic::kImuFilt);
   sampling_time_pub_.initialize(shared_from_this(), now());
 
-  config_ss_ = createService<tobas_msgs::srv::ConfigureImuFilter>(
-    tobas::service::kConfigureImuFilter, &self::configureImuFilterCb, this);
+  config_ss_ =
+    createService<tobas_msgs::srv::ConfigureImuFilter>(service::kConfigureImuFilter, &self::configureImuFilterCb, this);
 
   initialize_timer_->cancel();
   main_timer_ = createWallTimer(kSamplingPeriod, &self::mainTimerCb, this);

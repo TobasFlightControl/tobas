@@ -13,10 +13,10 @@
 
 namespace tobas
 {
-class FailsafeExecutorNode : public tobas::BaseNode
+class FailsafeExecutorNode : public BaseNode
 {
   using self = FailsafeExecutorNode;
-  using super = tobas::BaseNode;
+  using super = BaseNode;
 
   using Action = tobas_mission_msgs::action::ExecuteMission;
   using Client = rclcpp_action::Client<Action>;
@@ -56,12 +56,12 @@ private:
 FailsafeExecutorNode::FailsafeExecutorNode(const rclcpp::NodeOptions& options)
   : super("failsafe_executor", nodeOptions_Default(options))
 {
-  health_sub_ = createSubscriber(tobas::topic::kVehicleHealth, &self::vehicleHealthCb, this);
-  arming_sub_ = createSubscriber(tobas::topic::kArming, &self::armingCb, this);
-  rcin_sub_ = createSubscriber(tobas::topic::kRcInput, &self::rcInputCb, this);
+  health_sub_ = createSubscriber(topic::kVehicleHealth, &self::vehicleHealthCb, this);
+  arming_sub_ = createSubscriber(topic::kArming, &self::armingCb, this);
+  rcin_sub_ = createSubscriber(topic::kRcInput, &self::rcInputCb, this);
 
-  set_arm_sc_ = create_client<tobas_msgs::srv::SetArm>(tobas::service::kSetArm);
-  mission_ac_ = rclcpp_action::create_client<Action>(this, tobas::action::kExecuteMission);
+  set_arm_sc_ = create_client<tobas_msgs::srv::SetArm>(service::kSetArm);
+  mission_ac_ = rclcpp_action::create_client<Action>(this, action::kExecuteMission);
 }
 
 void FailsafeExecutorNode::disarm()

@@ -40,10 +40,10 @@ struct ControllerParameters
   long deflection_rate_weight_log10;
 };
 
-class ControllerNode : public tobas::BaseNode
+class ControllerNode : public BaseNode
 {
   using self = ControllerNode;
-  using super = tobas::BaseNode;
+  using super = BaseNode;
 
 public:
   explicit ControllerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -140,16 +140,16 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   addDynamicIntParam("deflection_rate_weight_log10", &self::deflectionRateWeightLog10Cb, this, -1, -3, 3);
 
   // Register publishers
-  tar_thrusts_pub_ = createPublisher<tobas_msgs::msg::RotorThrustArray>(tobas::topic::kRotorThrustsCmd);
-  tar_angles_pub_ = createPublisher<tobas_msgs::msg::JointCommandArray>(tobas::topic::kJointPosCmd);
+  tar_thrusts_pub_ = createPublisher<tobas_msgs::msg::RotorThrustArray>(topic::kRotorThrustsCmd);
+  tar_angles_pub_ = createPublisher<tobas_msgs::msg::JointCommandArray>(topic::kJointPosCmd);
 
   // Register subscribers
-  drone_sub_ = createSubscriber(tobas::topic::kDrone, &self::droneCb, this, true, true);
-  tree_sub_ = createSubscriber(tobas::topic::kKdlTree, &self::treeCb, this, true, true);
-  arming_sub_ = createSubscriber(tobas::topic::kArming, &self::armingCb, this);
-  air_pressure_sub_ = createSubscriber(tobas::topic::kAirPressure, &self::airPressureCb, this);
-  odom_sub_ = createSubscriber(tobas::topic::kOdometry, &self::odomCb, this);
-  cmd_sub_ = createSubscriber(tobas::topic::kSpeedRollDpitchCmd, &self::commandCb, this);
+  drone_sub_ = createSubscriber(topic::kDrone, &self::droneCb, this, true, true);
+  tree_sub_ = createSubscriber(topic::kKdlTree, &self::treeCb, this, true, true);
+  arming_sub_ = createSubscriber(topic::kArming, &self::armingCb, this);
+  air_pressure_sub_ = createSubscriber(topic::kAirPressure, &self::airPressureCb, this);
+  odom_sub_ = createSubscriber(topic::kOdometry, &self::odomCb, this);
+  cmd_sub_ = createSubscriber(topic::kSpeedRollDpitchCmd, &self::commandCb, this);
 
   // Register timers
   check_topics_timer_ = createTimer(tobas::kCheckTopicsPeriod, &self::checkTopicsTimerCb, this);
@@ -542,22 +542,22 @@ void ControllerNode::commandCb(const tobas_command_msgs::msg::SpeedRollDeltaPitc
 void ControllerNode::checkTopicsTimerCb()
 {
   if (!drone_received_) {
-    TOBAS_WARN("Waiting for \"", tobas::topic::kDrone, "\".");
+    TOBAS_WARN("Waiting for \"", topic::kDrone, "\".");
     return;
   }
 
   if (!tree_received_) {
-    TOBAS_WARN("Waiting for \"", tobas::topic::kKdlTree, "\".");
+    TOBAS_WARN("Waiting for \"", topic::kKdlTree, "\".");
     return;
   }
 
   if (!air_pressure_) {
-    TOBAS_WARN("Waiting for \"", tobas::topic::kAirPressure, "\".");
+    TOBAS_WARN("Waiting for \"", topic::kAirPressure, "\".");
     return;
   }
 
   if (!odom_flu_) {
-    TOBAS_WARN("Waiting for \"", tobas::topic::kOdometry, "\".");
+    TOBAS_WARN("Waiting for \"", topic::kOdometry, "\".");
     return;
   }
 

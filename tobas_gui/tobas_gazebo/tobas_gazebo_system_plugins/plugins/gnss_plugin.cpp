@@ -117,7 +117,7 @@ void GazeboGnssPlugin::Configure(
   vel_W_ = getComponent<cmp::WorldLinearVelocity>(link, ecm);
   gyro_B_ = getComponent<cmp::AngularVelocity>(link, ecm);
 
-  gnss_pub_ = createPublisher<tobas_msgs::Gnss>(tobas::topic::kGnss);
+  gnss_pub_ = createPublisher<tobas_msgs::Gnss>(topic::kGnss);
 }
 
 void GazeboGnssPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)

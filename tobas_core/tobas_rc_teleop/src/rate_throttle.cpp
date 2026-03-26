@@ -32,7 +32,7 @@ bool RateThrottleController::requireHeading()
   return false;
 }
 
-void RateThrottleController::initialize(tobas::BaseNode* node, tobas::FlightMode mode)
+void RateThrottleController::initialize(BaseNode* node, tobas::FlightMode mode)
 {
   node->addDynamicDoubleParam(addMode("max_attitude_rate", mode), &self::maxAttitudeRateCb, this, 45., 8, 1, 16, " dps");
   node->addDynamicDoubleParam(addMode("max_heading_rate", mode), &self::maxHeadingRateCb, this, 45., 8, 1, 16, " dps");
@@ -40,7 +40,7 @@ void RateThrottleController::initialize(tobas::BaseNode* node, tobas::FlightMode
   node->addDynamicDoubleParam(addMode("heading_expo", mode), &self::headingExpoCb, this, 5., -3, -20, 20);
   node->addDynamicDoubleParam(addMode("throttle_expo", mode), &self::throttleExpoCb, this, 5., 0, 0, 20);
 
-  cmd_pub_ = node->createPublisher<tobas_command_msgs::RateThrottle>(tobas::topic::kRateThrotCmd);
+  cmd_pub_ = node->createPublisher<tobas_command_msgs::RateThrottle>(topic::kRateThrotCmd);
 }
 
 void RateThrottleController::reset(const builtin_interfaces::msg::Time&, const tobas_msgs::Odometry&, bool)

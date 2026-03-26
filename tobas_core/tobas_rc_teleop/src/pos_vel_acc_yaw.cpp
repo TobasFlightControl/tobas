@@ -32,7 +32,7 @@ bool PosVelAccYawController::requireHeading()
   return false;
 }
 
-void PosVelAccYawController::initialize(tobas::BaseNode* node, tobas::FlightMode mode)
+void PosVelAccYawController::initialize(BaseNode* node, tobas::FlightMode mode)
 {
   node->addDynamicDoubleParam(
     addMode("max_horizontal_velocity", mode), &self::maxHorizontalVelocityCb, this, 0.5, 12, 0, 20, " m/s");
@@ -51,7 +51,7 @@ void PosVelAccYawController::initialize(tobas::BaseNode* node, tobas::FlightMode
     addMode("vertical_velocity_expo", mode), &self::verticalVelocityExpoCb, this, 5., 0, -20, 20);
   node->addDynamicDoubleParam(addMode("heading_expo", mode), &self::headingExpoCb, this, 5., -3, -20, 20);
 
-  cmd_pub_ = node->createPublisher<tobas_command_msgs::PosVelAccYaw>(tobas::topic::kPosVelAccYawCmd);
+  cmd_pub_ = node->createPublisher<tobas_command_msgs::PosVelAccYaw>(topic::kPosVelAccYawCmd);
 }
 
 void PosVelAccYawController::reset(

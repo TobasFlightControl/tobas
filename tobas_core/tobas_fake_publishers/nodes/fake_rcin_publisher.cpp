@@ -7,12 +7,12 @@ using namespace std::chrono_literals;
 
 namespace tobas
 {
-class FakeRcInputPublisherNode : public tobas::BaseNode
+class FakeRcInputPublisherNode : public BaseNode
 {
   static constexpr auto kSamplingPeriod = 10ms;
 
   using self = FakeRcInputPublisherNode;
-  using super = tobas::BaseNode;
+  using super = BaseNode;
 
 public:
   explicit FakeRcInputPublisherNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -27,7 +27,7 @@ private:
 FakeRcInputPublisherNode::FakeRcInputPublisherNode(const rclcpp::NodeOptions& options)
   : super("fake_rcin_publisher", nodeOptions_Default(options))
 {
-  pub_ = createPublisher<tobas_msgs::RCInput>(tobas::topic::kRcInput);
+  pub_ = createPublisher<tobas_msgs::RCInput>(topic::kRcInput);
   timer_ = createTimer(kSamplingPeriod, &self::timerCb, this);
 }
 

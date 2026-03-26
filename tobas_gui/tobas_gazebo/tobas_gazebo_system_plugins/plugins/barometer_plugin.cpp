@@ -79,7 +79,7 @@ void GazeboBarometerPlugin::Configure(
   rate_manager_ = std::make_shared<RateManager>(update_rate_);
   pressure_noise_ = NormalDistribution(0., noise_stddev_);
 
-  pressure_pub_ = createPublisher<tobas_msgs::msg::FluidPressure>(tobas::topic::kAirPressure);
+  pressure_pub_ = createPublisher<tobas_msgs::msg::FluidPressure>(topic::kAirPressure);
 }
 
 void GazeboBarometerPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)

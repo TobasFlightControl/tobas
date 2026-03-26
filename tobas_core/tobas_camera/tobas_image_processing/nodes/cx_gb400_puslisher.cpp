@@ -38,7 +38,7 @@ namespace tobas
 {
 namespace camera
 {
-class CxGb400PublisherNode : public tobas::BaseNode
+class CxGb400PublisherNode : public BaseNode
 {
 public:
   static constexpr std::chrono::duration kStatusSendInterval = 1s;
@@ -111,7 +111,7 @@ private:
 };
 
 CxGb400PublisherNode::CxGb400PublisherNode(const rclcpp::NodeOptions& options)
-  : tobas::BaseNode("cx_gb400_publisher", nodeOptions_Default(options))
+  : BaseNode("cx_gb400_publisher", nodeOptions_Default(options))
 {
   device_name_ = getStringParam("device_name", "/dev/video0");
   disable_video_streaming_ = getBoolParam("disable_video_streaming", false);

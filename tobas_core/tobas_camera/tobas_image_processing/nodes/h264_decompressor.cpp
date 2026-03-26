@@ -30,7 +30,7 @@ namespace camera
 /**
  * @brief ffmpeg_image_transport_msgs/msg/FFMPEGPacket型のh.264で圧縮された画像をsubscribeして，解凍してpublishする．
  */
-class H264Decompressor : public tobas::BaseNode
+class H264Decompressor : public BaseNode
 {
 public:
   explicit H264Decompressor(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -47,7 +47,7 @@ private:
 };
 
 H264Decompressor::H264Decompressor(const rclcpp::NodeOptions& options)
-  : tobas::BaseNode("h264_decompressor", nodeOptions_Default(options))
+  : BaseNode("h264_decompressor", nodeOptions_Default(options))
 {
   const auto image_raw_topic = getStringParam("decoded_topic", "image_h264_decoded");
   const auto h264_topic = getStringParam("h264_topic", "image_h264");

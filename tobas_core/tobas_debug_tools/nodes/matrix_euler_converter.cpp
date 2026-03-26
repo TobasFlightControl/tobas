@@ -9,10 +9,10 @@ namespace tobas
 /**
  * @brief オドメトリから得られた姿勢をオイラー角に変換して発行する．
  */
-class MatrixEulerConverterNode : public tobas::BaseNode
+class MatrixEulerConverterNode : public BaseNode
 {
   using self = MatrixEulerConverterNode;
-  using super = tobas::BaseNode;
+  using super = BaseNode;
 
 public:
   explicit MatrixEulerConverterNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -28,7 +28,7 @@ MatrixEulerConverterNode::MatrixEulerConverterNode(const rclcpp::NodeOptions& op
   : super("matrix_euler_converter", nodeOptions_Default(options))
 {
   euler_pub_ = createPublisher<tobas_kdl_msgs::EulerStamped>("euler");
-  odom_sub_ = createSubscriber(tobas::topic::kOdometry, &self::odomCb, this);
+  odom_sub_ = createSubscriber(topic::kOdometry, &self::odomCb, this);
 }
 
 void MatrixEulerConverterNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom)

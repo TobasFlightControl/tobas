@@ -16,7 +16,7 @@ namespace camera
 /**
  * @brief sensor_msgs::msg::CompressedImage型の画像をsubscribeし，解凍して，sensor_msgs::msg::Image型としてpublishする．
  */
-class MjpgDecompressor : public tobas::BaseNode
+class MjpgDecompressor : public BaseNode
 {
 public:
   explicit MjpgDecompressor(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
@@ -28,7 +28,7 @@ private:
   rclcpp::Subscription<sensor_msgs::msg::CompressedImage>::SharedPtr sub_;
 };
 
-MjpgDecompressor::MjpgDecompressor(const rclcpp::NodeOptions& _options) : tobas::BaseNode("mjpg_decompressor", _options)
+MjpgDecompressor::MjpgDecompressor(const rclcpp::NodeOptions& _options) : BaseNode("mjpg_decompressor", _options)
 {
   const auto decoded_topic = getStringParam("decoded_topic", "image_decompressed");
   const auto mjpg_topic = getStringParam("mjpg_topic", "image_compressed");

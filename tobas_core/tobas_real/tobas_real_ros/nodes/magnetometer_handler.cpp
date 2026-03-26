@@ -18,10 +18,10 @@ namespace tobas
 {
 namespace real
 {
-class MagnetometerHandlerNode : public tobas::BaseNode
+class MagnetometerHandlerNode : public BaseNode
 {
   using self = MagnetometerHandlerNode;
-  using super = tobas::BaseNode;
+  using super = BaseNode;
   using SetParams = tobas_real_msgs::srv::SetMagnetometerParams;
 
 public:
@@ -85,7 +85,7 @@ bool MagnetometerHandlerNode::getConfig()
 
 void MagnetometerHandlerNode::registerPubSub()
 {
-  mag_pub_ = createPublisher<tobas_msgs::MagneticField>(tobas::topic::kMagneticField);
+  mag_pub_ = createPublisher<tobas_msgs::MagneticField>(topic::kMagneticField);
   mag_sub_ = createSubscriber(topic::kMagneticField, &self::magCb, this);
 }
 

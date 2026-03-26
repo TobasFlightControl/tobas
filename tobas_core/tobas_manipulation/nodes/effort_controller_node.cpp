@@ -22,10 +22,10 @@ namespace tobas
 {
 namespace manipulation
 {
-class EffortControllerNode : public tobas::BaseNode
+class EffortControllerNode : public BaseNode
 {
   using self = EffortControllerNode;
-  using super = tobas::BaseNode;
+  using super = BaseNode;
 
 public:
   explicit EffortControllerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -122,13 +122,13 @@ void EffortControllerNode::initialize()
   addDynamicIntParam("linear_damping", &self::linearDampingCb, this, 10, 1, 20);
   addDynamicIntParam("angular_damping", &self::angularDampingCb, this, 10, 1, 20);
 
-  efforts_pub_ = createPublisher<tobas_msgs::msg::JointCommandArray>(tobas::topic::kJointEffCmd);
+  efforts_pub_ = createPublisher<tobas_msgs::msg::JointCommandArray>(topic::kJointEffCmd);
 
-  drone_sub_ = createSubscriber(tobas::topic::kDrone, &self::droneCb, this, true, true);
-  tree_sub_ = createSubscriber(tobas::topic::kKdlTree, &self::treeCb, this, true, true);
-  cur_js_sub_ = createSubscriber(tobas::topic::kJointStates, &self::currentJointStateCb, this);
-  tar_js_sub_ = createSubscriber(tobas::topic::kEffCtrlJS, &self::targetJointStateCb, this);
-  tar_ls_sub_ = createSubscriber(tobas::topic::kEffCtrlLS, &self::targetLinkStateCb, this);
+  drone_sub_ = createSubscriber(topic::kDrone, &self::droneCb, this, true, true);
+  tree_sub_ = createSubscriber(topic::kKdlTree, &self::treeCb, this, true, true);
+  cur_js_sub_ = createSubscriber(topic::kJointStates, &self::currentJointStateCb, this);
+  tar_js_sub_ = createSubscriber(topic::kEffCtrlJS, &self::targetJointStateCb, this);
+  tar_ls_sub_ = createSubscriber(topic::kEffCtrlLS, &self::targetLinkStateCb, this);
 
   auto_reset_timer_ = createTimer(manipulation::kAutoResetTimeThresh, &self::autoResetTimerCb, this, false);
 

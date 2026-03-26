@@ -24,10 +24,10 @@ namespace tobas
 {
 namespace fc1xx
 {
-class DShotDriverNode : public tobas::BaseNode
+class DShotDriverNode : public BaseNode
 {
   using self = DShotDriverNode;
-  using super = tobas::BaseNode;
+  using super = BaseNode;
 
   using GetGains = tobas_msgs::srv::GetRotorControlGains;
   using SetGains = tobas_msgs::srv::SetRotorControlGains;
@@ -81,7 +81,7 @@ DShotDriverNode::DShotDriverNode(const rclcpp::NodeOptions& options)
     return;
   }
 
-  drone_sub_ = createSubscriber(tobas::topic::kDrone, &self::droneCb, this, true, true);
+  drone_sub_ = createSubscriber(topic::kDrone, &self::droneCb, this, true, true);
 }
 
 bool DShotDriverNode::transfer()
@@ -246,16 +246,16 @@ void DShotDriverNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
   }
 
   // Resister publishers
-  rotor_states_pub_ = createPublisher<tobas_msgs::msg::RotorStateArray>(tobas::topic::kRotorStates);
+  rotor_states_pub_ = createPublisher<tobas_msgs::msg::RotorStateArray>(topic::kRotorStates);
   latency_pub_.initialize(shared_from_this());
 
   // Resister subscribers
-  tar_speeds_sub_ = createSubscriber(tobas::topic::kRotorSpeedsCmd, &self::targetSpeedsCb, this);
+  tar_speeds_sub_ = createSubscriber(topic::kRotorSpeedsCmd, &self::targetSpeedsCb, this);
 
   // Resister service servers
-  get_gains_ss_ = createService<GetGains>(tobas::service::kGetRotorControlGains, &self::getGainsCb, this);
-  set_gains_ss_ = createService<SetGains>(tobas::service::kSetRotorControlGains, &self::setGainsCb, this);
-  save_gains_ss_ = createService<SaveGains>(tobas::service::kSaveRotorControlGains, &self::saveGainsCb, this);
+  get_gains_ss_ = createService<GetGains>(service::kGetRotorControlGains, &self::getGainsCb, this);
+  set_gains_ss_ = createService<SetGains>(service::kSetRotorControlGains, &self::setGainsCb, this);
+  save_gains_ss_ = createService<SaveGains>(service::kSaveRotorControlGains, &self::saveGainsCb, this);
 
   // Create timers
   auto_stop_timer_ = createWallTimer(tobas::kCommandAutoResetTimeout, &self::autoStopTimerCb, this);

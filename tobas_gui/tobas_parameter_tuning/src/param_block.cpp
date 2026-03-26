@@ -45,7 +45,7 @@ bool ParamBlockWidget::load(const std::string& ns)
   clear();
 
   // Get dynamic parameters
-  const auto service_name = path::join(ns, tobas::kRemoteIfaceNS, node_name_, tobas::service::kGetDynamicParams);
+  const auto service_name = path::join(ns, tobas::kRemoteIfaceNS, node_name_, service::kGetDynamicParams);
   ros2::SyncServiceClient<tobas_dparam_msgs::srv::GetParams> sc(node_, service_name);
   const auto req = std::make_shared<tobas_dparam_msgs::srv::GetParams::Request>();
   if (!sc.call(req, kLoadParamTimeout)) {

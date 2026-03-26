@@ -106,9 +106,9 @@ void JointCommandsPublisherWidget::updateInternalDataStructures()
   }
 
   // トピックを更新
-  const auto pos_topic = path::join(drone_.name, tobas::kRemoteIfaceNS, tobas::topic::kJointPosCmd);
-  const auto vel_topic = path::join(drone_.name, tobas::kRemoteIfaceNS, tobas::topic::kJointVelCmd);
-  const auto eff_topic = path::join(drone_.name, tobas::kRemoteIfaceNS, tobas::topic::kJointEffCmd);
+  const auto pos_topic = path::join(drone_.name, tobas::kRemoteIfaceNS, topic::kJointPosCmd);
+  const auto vel_topic = path::join(drone_.name, tobas::kRemoteIfaceNS, topic::kJointVelCmd);
+  const auto eff_topic = path::join(drone_.name, tobas::kRemoteIfaceNS, topic::kJointEffCmd);
   pos_pub_ = ros2::createPublisher<tobas_msgs::msg::JointCommandArray>(node_, pos_topic);
   vel_pub_ = ros2::createPublisher<tobas_msgs::msg::JointCommandArray>(node_, vel_topic);
   eff_pub_ = ros2::createPublisher<tobas_msgs::msg::JointCommandArray>(node_, eff_topic);

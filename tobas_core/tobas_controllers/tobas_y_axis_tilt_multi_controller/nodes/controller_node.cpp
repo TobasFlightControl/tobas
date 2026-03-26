@@ -187,7 +187,7 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
 
   // Register publishers
   tar_thrusts_pub_ = createPublisher<tobas_msgs::msg::RotorThrustArray>(topic::kRotorThrustsCmd);
-  tar_angles_pub_ = createPublisher<tobas_msgs::msg::JointCommandArray>(tobas::topic::kJointPosCmd);
+  tar_angles_pub_ = createPublisher<tobas_msgs::msg::JointCommandArray>(topic::kJointPosCmd);
   setpoint_pub_ = createPublisher<tobas_msgs::OdometryStamped>(topic::kTrajSetpoint);
   feedback_pub_ = createPublisher<tobas_debug_msgs::MulticopterControllerFeedback>(topic::kMRCtrlFeedback);
 

@@ -14,10 +14,10 @@ namespace tobas
 {
 namespace dparam
 {
-class DynamicParamServer : public tobas::BaseNode
+class DynamicParamServer : public BaseNode
 {
   using self = DynamicParamServer;
-  using super = tobas::BaseNode;
+  using super = BaseNode;
 
 public:
   explicit DynamicParamServer(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());

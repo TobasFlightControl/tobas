@@ -22,7 +22,7 @@ using namespace std::chrono_literals;
 
 namespace tobas
 {
-class HealthMonitorNode : public tobas::BaseNode
+class HealthMonitorNode : public BaseNode
 {
   static constexpr auto kMainTimerPeriod = 100ms;
 
@@ -46,7 +46,7 @@ class HealthMonitorNode : public tobas::BaseNode
   static constexpr double kVibrationLevelThresh = 10.;       // [m/s^2]
 
   using self = HealthMonitorNode;
-  using super = tobas::BaseNode;
+  using super = BaseNode;
 
 public:
   explicit HealthMonitorNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -135,19 +135,19 @@ HealthMonitorNode::HealthMonitorNode(const rclcpp::NodeOptions& options)
   mag_B_lpf_.setCutoffFrequency(kMagLpfCutoff);
   mag_W_lpf_.setCutoffFrequency(kMagLpfCutoff);
 
-  health_pub_ = createPublisher<tobas_msgs::msg::VehicleHealth>(tobas::topic::kVehicleHealth);
+  health_pub_ = createPublisher<tobas_msgs::msg::VehicleHealth>(topic::kVehicleHealth);
 
-  drone_sub_ = createSubscriber(tobas::topic::kDrone, &self::droneCb, this, true, true);
-  arming_sub_ = createSubscriber(tobas::topic::kArming, &self::armingCb, this);
-  batt_sub_ = createSubscriber(tobas::addThrotNS(tobas::topic::kBattery), &self::battCb, this);
-  cpu_sub_ = createSubscriber(tobas::topic::kCpu, &self::cpuCb, this);
-  rcin_sub_ = createSubscriber(tobas::topic::kRcInput, &self::rcInputCb, this);
-  rotor_liv_sub_ = createSubscriber(tobas::topic::kRotorLiv, &self::rotorLivCb, this);
-  sampling_time_sub_ = createSubscriber(tobas::topic::kImuSamplingTime, &self::samplingTimeCb, this);
-  odom_sub_ = createSubscriber(tobas::addThrotNS(tobas::topic::kOdometry), &self::odomCb, this);
-  mag_sub_ = createSubscriber(tobas::topic::kMagneticField, &self::magCb, this);
-  mag_ref_sub_ = createSubscriber(tobas::topic::kMagRef, &self::magRefCb, this);
-  vibe_sub_ = createSubscriber(tobas::topic::kVibrationLevel, &self::vibrationLevelCb, this);
+  drone_sub_ = createSubscriber(topic::kDrone, &self::droneCb, this, true, true);
+  arming_sub_ = createSubscriber(topic::kArming, &self::armingCb, this);
+  batt_sub_ = createSubscriber(tobas::addThrotNS(topic::kBattery), &self::battCb, this);
+  cpu_sub_ = createSubscriber(topic::kCpu, &self::cpuCb, this);
+  rcin_sub_ = createSubscriber(topic::kRcInput, &self::rcInputCb, this);
+  rotor_liv_sub_ = createSubscriber(topic::kRotorLiv, &self::rotorLivCb, this);
+  sampling_time_sub_ = createSubscriber(topic::kImuSamplingTime, &self::samplingTimeCb, this);
+  odom_sub_ = createSubscriber(tobas::addThrotNS(topic::kOdometry), &self::odomCb, this);
+  mag_sub_ = createSubscriber(topic::kMagneticField, &self::magCb, this);
+  mag_ref_sub_ = createSubscriber(topic::kMagRef, &self::magRefCb, this);
+  vibe_sub_ = createSubscriber(topic::kVibrationLevel, &self::vibrationLevelCb, this);
 
   main_timer_ = createTimer(kMainTimerPeriod, &self::mainTimerCb, this);
 }

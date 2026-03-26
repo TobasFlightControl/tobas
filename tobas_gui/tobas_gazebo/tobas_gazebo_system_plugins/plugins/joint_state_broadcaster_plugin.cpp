@@ -123,7 +123,7 @@ void GazeboJointStateBroadcasterPlugin::getSdfParams(const sdf::ElementConstPtr&
 
 void GazeboJointStateBroadcasterPlugin::registerRosInterfaces()
 {
-  js_pub_ = createPublisher<tobas_msgs::msg::JointStateArray>(tobas::topic::kJointStates);
+  js_pub_ = createPublisher<tobas_msgs::msg::JointStateArray>(topic::kJointStates);
 }
 }  // namespace gazebo
 }  // namespace tobas

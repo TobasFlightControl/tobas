@@ -24,7 +24,7 @@ public:
   bool requireAttitude() override;
   bool requireHeading() override;
 
-  void initialize(tobas::BaseNode* node, tobas::FlightMode mode) override;
+  void initialize(BaseNode* node, tobas::FlightMode mode) override;
   void reset(const builtin_interfaces::msg::Time& stamp, const tobas_msgs::Odometry& setpoint, bool landed) override;
   void update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom, bool landed) override;
 

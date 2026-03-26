@@ -12,10 +12,10 @@ using namespace std::chrono_literals;
 
 namespace tobas
 {
-class RotorAnomalyDetectorNode : public tobas::BaseNode
+class RotorAnomalyDetectorNode : public BaseNode
 {
   using self = RotorAnomalyDetectorNode;
-  using super = tobas::BaseNode;
+  using super = BaseNode;
 
 public:
   explicit RotorAnomalyDetectorNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -52,10 +52,10 @@ RotorAnomalyDetectorNode::RotorAnomalyDetectorNode(const rclcpp::NodeOptions& op
 {
   no_comm_timeout_ = getDoubleParam("no_communication_timeout", 0.2);
 
-  rotor_liveliness_pub_ = createPublisher<tobas_msgs::msg::RotorLivelinessArray>(tobas::topic::kRotorLiv);
+  rotor_liveliness_pub_ = createPublisher<tobas_msgs::msg::RotorLivelinessArray>(topic::kRotorLiv);
 
-  drone_sub_ = createSubscriber(tobas::topic::kDrone, &self::droneCb, this, true, true);
-  rotor_states_sub_ = createSubscriber(tobas::addThrotNS(tobas::topic::kRotorStates), &self::statesCb, this);
+  drone_sub_ = createSubscriber(topic::kDrone, &self::droneCb, this, true, true);
+  rotor_states_sub_ = createSubscriber(tobas::addThrotNS(topic::kRotorStates), &self::statesCb, this);
 
   publish_rotor_liveliness_timer_ = createTimer(1s, &self::publishRotorLiveliness, this);
 }

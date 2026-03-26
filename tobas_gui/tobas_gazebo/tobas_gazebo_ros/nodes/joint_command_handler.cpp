@@ -14,10 +14,10 @@ namespace gazebo
 /**
  * @brief ジョイントの位置，速度，力のコマンドを受け取り，Gazeboに指令する．
  */
-class JointCommandHandlerNode : public tobas::BaseNode
+class JointCommandHandlerNode : public BaseNode
 {
   using self = JointCommandHandlerNode;
-  using super = tobas::BaseNode;
+  using super = BaseNode;
 
 public:
   explicit JointCommandHandlerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -47,7 +47,7 @@ private:
 JointCommandHandlerNode::JointCommandHandlerNode(const rclcpp::NodeOptions& options)
   : super("gazebo_joint_command_handler", nodeOptions_Default(options))
 {
-  drone_sub_ = createSubscriber(tobas::topic::kDrone, &self::droneCb, this);
+  drone_sub_ = createSubscriber(topic::kDrone, &self::droneCb, this);
 }
 
 void JointCommandHandlerNode::publishJointCommand(const std::string& jnt_name, double command)
@@ -77,9 +77,9 @@ void JointCommandHandlerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
   }
 
   // Resister subscribers
-  positions_sub_ = createSubscriber(tobas::topic::kJointPosCmd, &self::jointPositionsCmdCb, this);
-  velocities_sub_ = createSubscriber(tobas::topic::kJointVelCmd, &self::jointVelocitiesCmdCb, this);
-  efforts_sub_ = createSubscriber(tobas::topic::kJointEffCmd, &self::jointEffortsCmdCb, this);
+  positions_sub_ = createSubscriber(topic::kJointPosCmd, &self::jointPositionsCmdCb, this);
+  velocities_sub_ = createSubscriber(topic::kJointVelCmd, &self::jointVelocitiesCmdCb, this);
+  efforts_sub_ = createSubscriber(topic::kJointEffCmd, &self::jointEffortsCmdCb, this);
 }
 
 void JointCommandHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& positions)

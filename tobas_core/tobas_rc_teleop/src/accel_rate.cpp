@@ -31,7 +31,7 @@ bool AccelRateController::requireHeading()
   return false;
 }
 
-void AccelRateController::initialize(tobas::BaseNode* node, tobas::FlightMode mode)
+void AccelRateController::initialize(BaseNode* node, tobas::FlightMode mode)
 {
   node->addDynamicDoubleParam(
     addMode("max_horizontal_accel", mode), &self::maxHorizontalAccelCb, this, 0.5, 10, 1, 20, " m/s^2");
@@ -45,8 +45,8 @@ void AccelRateController::initialize(tobas::BaseNode* node, tobas::FlightMode mo
   node->addDynamicDoubleParam(addMode("attitude_expo", mode), &self::attitudeExpoCb, this, 5., 0, -20, 20);
   node->addDynamicDoubleParam(addMode("heading_expo", mode), &self::headingExpoCb, this, 5., -3, -20, 20);
 
-  accel_pub_ = node->createPublisher<tobas_command_msgs::Accel>(tobas::topic::kAccelCmd);
-  rate_pub_ = node->createPublisher<tobas_command_msgs::Rate>(tobas::topic::kRateCmd);
+  accel_pub_ = node->createPublisher<tobas_command_msgs::Accel>(topic::kAccelCmd);
+  rate_pub_ = node->createPublisher<tobas_command_msgs::Rate>(topic::kRateCmd);
 }
 
 void AccelRateController::reset(const builtin_interfaces::msg::Time&, const tobas_msgs::Odometry&, bool)

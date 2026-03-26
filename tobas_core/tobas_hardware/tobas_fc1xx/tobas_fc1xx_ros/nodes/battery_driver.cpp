@@ -47,7 +47,7 @@ void BatteryDriverNode::initialize()
     return;
   }
 
-  battery_pub_ = createPublisher<tobas_msgs::msg::Battery>(tobas::topic::kBattery);
+  battery_pub_ = createPublisher<tobas_msgs::msg::Battery>(topic::kBattery);
 
   initialize_timer_->cancel();
   main_timer_ = createWallTimer(kSamplingPeriod, &self::mainTimerCb, this);

@@ -12,7 +12,7 @@ namespace tobas
 {
 namespace camera
 {
-class CompressedImageViewer : public tobas::BaseNode
+class CompressedImageViewer : public BaseNode
 {
 public:
   explicit CompressedImageViewer(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
@@ -25,7 +25,7 @@ private:
 };
 
 CompressedImageViewer::CompressedImageViewer(const rclcpp::NodeOptions& _options)
-  : tobas::BaseNode("compressed_image_viewer", _options)
+  : BaseNode("compressed_image_viewer", _options)
 {
   const auto compressed_image_topic = getStringParam("compressed_image_topic", "image_compressed");
   sub_ = createSubscriber(compressed_image_topic, &CompressedImageViewer::msgCb, this);

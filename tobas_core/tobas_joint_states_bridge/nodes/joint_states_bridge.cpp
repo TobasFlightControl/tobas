@@ -8,10 +8,10 @@
 namespace tobas
 {
 /* tobas_msgs/JointStateArray -> sensor_msgs/JointState */
-class JointStatesBridgeNode : public tobas::BaseNode
+class JointStatesBridgeNode : public BaseNode
 {
   using self = JointStatesBridgeNode;
-  using super = tobas::BaseNode;
+  using super = BaseNode;
 
 public:
   explicit JointStatesBridgeNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -27,7 +27,7 @@ JointStatesBridgeNode::JointStatesBridgeNode(const rclcpp::NodeOptions& options)
   : super("joint_states_bridge", nodeOptions_Default(options))
 {
   js_pub_ = createPublisher<sensor_msgs::msg::JointState>("joint_states");
-  js_sub_ = createSubscriber<tobas_msgs::msg::JointStateArray>(tobas::topic::kJointStates, &self::jointStatesCb, this);
+  js_sub_ = createSubscriber<tobas_msgs::msg::JointStateArray>(topic::kJointStates, &self::jointStatesCb, this);
 }
 
 void JointStatesBridgeNode::jointStatesCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& js_in)

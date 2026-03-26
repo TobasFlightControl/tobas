@@ -13,10 +13,10 @@ namespace tobas
 {
 namespace real
 {
-class IcePropulsionSystemHandlerNode : public tobas::BaseNode
+class IcePropulsionSystemHandlerNode : public BaseNode
 {
   using self = IcePropulsionSystemHandlerNode;
-  using super = tobas::BaseNode;
+  using super = BaseNode;
 
 public:
   explicit IcePropulsionSystemHandlerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -50,7 +50,7 @@ private:
 IcePropulsionSystemHandlerNode::IcePropulsionSystemHandlerNode(const rclcpp::NodeOptions& options)
   : super("real_ice_propulsion_system_handler", nodeOptions_Default(options))
 {
-  drone_sub_ = createSubscriber(tobas::topic::kDrone, &self::droneCb, this, true, true);
+  drone_sub_ = createSubscriber(topic::kDrone, &self::droneCb, this, true, true);
 }
 
 void IcePropulsionSystemHandlerNode::stopActuator()
@@ -134,13 +134,13 @@ void IcePropulsionSystemHandlerNode::droneCb(const tobas::Drone::ConstSharedPtr&
   }
 
   // Register publishers
-  pwms_pub_ = createPublisher<tobas_msgs::msg::PwmArray>(tobas::topic::kPwmCmd);
-  rotor_states_pub_ = createPublisher<tobas_msgs::msg::RotorStateArray>(tobas::topic::kRotorStates);
+  pwms_pub_ = createPublisher<tobas_msgs::msg::PwmArray>(topic::kPwmCmd);
+  rotor_states_pub_ = createPublisher<tobas_msgs::msg::RotorStateArray>(topic::kRotorStates);
   latency_pub_.initialize(shared_from_this());
 
   // Register subscribers
-  engine_state_sub_ = createSubscriber(tobas::topic::kEngineState, &self::engineStateCb, this);
-  ice_cmd_sub_ = createSubscriber(tobas::topic::kIcePropulsionSystemCmd, &self::iceCommandCb, this);
+  engine_state_sub_ = createSubscriber(topic::kEngineState, &self::engineStateCb, this);
+  ice_cmd_sub_ = createSubscriber(topic::kIcePropulsionSystemCmd, &self::iceCommandCb, this);
 
   // Create timers
   auto_stop_timer_ = createWallTimer(tobas::kCommandAutoResetTimeout, &self::autoStopTimerCb, this);

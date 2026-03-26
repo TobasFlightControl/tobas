@@ -138,14 +138,14 @@ void RotorTestWidget::updateInternalDataStructures()
     }
 
     tar_speeds_pub_ = ros2::createPublisher<tobas_msgs::msg::RotorSpeedArray>(
-      node_, path::join(drone_.name, tobas::kRemoteIfaceNS, tobas::topic::kRotorSpeedsCmd));
+      node_, path::join(drone_.name, tobas::kRemoteIfaceNS, topic::kRotorSpeedsCmd));
 
     get_gains_sc_ = std::make_shared<ros2::SyncServiceClient<tobas_msgs::srv::GetRotorControlGains>>(
-      node_, path::join(drone_.name, tobas::kRemoteIfaceNS, tobas::service::kGetRotorControlGains));
+      node_, path::join(drone_.name, tobas::kRemoteIfaceNS, service::kGetRotorControlGains));
     set_gains_sc_ = std::make_shared<ros2::SyncServiceClient<tobas_msgs::srv::SetRotorControlGains>>(
-      node_, path::join(drone_.name, tobas::kRemoteIfaceNS, tobas::service::kSetRotorControlGains));
+      node_, path::join(drone_.name, tobas::kRemoteIfaceNS, service::kSetRotorControlGains));
     save_gains_sc_ = std::make_shared<ros2::SyncServiceClient<std_srvs::srv::Trigger>>(
-      node_, path::join(drone_.name, tobas::kRemoteIfaceNS, tobas::service::kSaveRotorControlGains));
+      node_, path::join(drone_.name, tobas::kRemoteIfaceNS, service::kSaveRotorControlGains));
   }
   else {
     eprop_.reset();

@@ -12,10 +12,10 @@ namespace tobas
 namespace dxl
 {
 /* tobas_msgsとtobas_dynamixel_msgsのブリッジ． */
-class DynamixelBridgeNode : public tobas::BaseNode
+class DynamixelBridgeNode : public BaseNode
 {
   using self = DynamixelBridgeNode;
-  using super = tobas::BaseNode;
+  using super = BaseNode;
 
 public:
   explicit DynamixelBridgeNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());

@@ -84,15 +84,14 @@ void BasePoseCommanderWidget::updateInternalDataStructures()
 {
   const auto& ns = drone_.name;
 
-  angle_pub_ = ros2::createPublisher<tobas_command_msgs::Angle>(node_, path::join(ns, tobas::topic::kAngleCmd));
-  pva_pub_ = ros2::createPublisher<tobas_command_msgs::PosVelAcc>(node_, path::join(ns, tobas::topic::kPosVelAccCmd));
-  pvay_pub_ =
-    ros2::createPublisher<tobas_command_msgs::PosVelAccYaw>(node_, path::join(ns, tobas::topic::kPosVelAccYawCmd));
-  pvapy_pub_ = ros2::createPublisher<tobas_command_msgs::PosVelAccPitchYaw>(
-    node_, path::join(ns, tobas::topic::kPosVelAccPitchYawCmd));
+  angle_pub_ = ros2::createPublisher<tobas_command_msgs::Angle>(node_, path::join(ns, topic::kAngleCmd));
+  pva_pub_ = ros2::createPublisher<tobas_command_msgs::PosVelAcc>(node_, path::join(ns, topic::kPosVelAccCmd));
+  pvay_pub_ = ros2::createPublisher<tobas_command_msgs::PosVelAccYaw>(node_, path::join(ns, topic::kPosVelAccYawCmd));
+  pvapy_pub_ =
+    ros2::createPublisher<tobas_command_msgs::PosVelAccPitchYaw>(node_, path::join(ns, topic::kPosVelAccPitchYawCmd));
 
   set_arm_sc_ =
-    std::make_shared<ros2::SyncServiceClient<tobas_msgs::srv::SetArm>>(node_, path::join(ns, tobas::service::kSetArm));
+    std::make_shared<ros2::SyncServiceClient<tobas_msgs::srv::SetArm>>(node_, path::join(ns, service::kSetArm));
 }
 
 bool BasePoseCommanderWidget::start()
@@ -105,7 +104,7 @@ bool BasePoseCommanderWidget::start()
     {
       if (!set_arm_sc_->waitForService()) {
         success = false;
-        message = "Failed to connect to \"" + QString(tobas::service::kSetArm) + "\" service server.";
+        message = "Failed to connect to \"" + QString(service::kSetArm) + "\" service server.";
         return;
       }
     });

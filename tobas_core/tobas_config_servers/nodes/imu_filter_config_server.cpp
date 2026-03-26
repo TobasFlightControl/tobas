@@ -6,10 +6,10 @@
 
 namespace tobas
 {
-class ImuFilterConfigServer : public tobas::BaseNode
+class ImuFilterConfigServer : public BaseNode
 {
   using self = ImuFilterConfigServer;
-  using super = tobas::BaseNode;
+  using super = BaseNode;
 
 public:
   explicit ImuFilterConfigServer(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -35,7 +35,7 @@ private:
 ImuFilterConfigServer::ImuFilterConfigServer(const rclcpp::NodeOptions& options)
   : super(tobas::node::kImuFilterConfigServer, nodeOptions_DParam(options))
 {
-  imu_raw_sub_ = createSubscriber(tobas::topic::kImuRaw, &self::imuRawCb, this);
+  imu_raw_sub_ = createSubscriber(topic::kImuRaw, &self::imuRawCb, this);
 }
 
 bool ImuFilterConfigServer::imuConfigReady() const
@@ -46,7 +46,7 @@ bool ImuFilterConfigServer::imuConfigReady() const
 bool ImuFilterConfigServer::sendImuConfigRequest()
 {
   if (!config_sc_->service_is_ready()) {
-    TOBAS_ERROR("\"", tobas::service::kConfigureImuFilter, "\" is not ready.");
+    TOBAS_ERROR("\"", service::kConfigureImuFilter, "\" is not ready.");
     return false;
   }
 
@@ -69,7 +69,7 @@ void ImuFilterConfigServer::imuRawCb(const tobas_msgs::Imu::ConstSharedPtr&)
   // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#IMU_DGYRO_CUTOFF
   addDynamicIntParam("dgyro_lowpass_cutoff", &self::dGyroLowPassCutoffCb, this, 20, 1, 100, " Hz");
 
-  config_sc_ = create_client<tobas_msgs::srv::ConfigureImuFilter>(tobas::service::kConfigureImuFilter);
+  config_sc_ = create_client<tobas_msgs::srv::ConfigureImuFilter>(service::kConfigureImuFilter);
 
   // Cancel subscription
   imu_raw_sub_.reset();

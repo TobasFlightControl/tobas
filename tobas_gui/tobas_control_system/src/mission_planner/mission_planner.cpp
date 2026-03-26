@@ -109,7 +109,7 @@ void MissionPlannerWidget::updateNamespace(const std::string& ns)
 {
   reset();
 
-  const auto action_name = path::join(ns, tobas::kRemoteIfaceNS, tobas::action::kExecuteMission);
+  const auto action_name = path::join(ns, tobas::kRemoteIfaceNS, action::kExecuteMission);
   mission_ac_ = rclcpp_action::create_client<Action>(node_, action_name);
 }
 

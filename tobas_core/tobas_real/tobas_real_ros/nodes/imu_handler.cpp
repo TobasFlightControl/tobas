@@ -22,10 +22,10 @@ namespace tobas
 {
 namespace real
 {
-class ImuHandlerNode : public tobas::BaseNode
+class ImuHandlerNode : public BaseNode
 {
   using self = ImuHandlerNode;
-  using super = tobas::BaseNode;
+  using super = BaseNode;
   using SetParams = tobas_real_msgs::srv::SetImuParams;
 
   static constexpr int kMeasureGyroBiasCount = 1000;  // [-]
@@ -113,8 +113,8 @@ bool ImuHandlerNode::getConfig()
 
 void ImuHandlerNode::registerPubSub()
 {
-  imu_raw_pub_ = createPublisher<tobas_msgs::Imu>(tobas::topic::kImuRaw);
-  imu_filt_pub_ = createPublisher<tobas_msgs::Imu>(tobas::topic::kImuFilt);
+  imu_raw_pub_ = createPublisher<tobas_msgs::Imu>(topic::kImuRaw);
+  imu_filt_pub_ = createPublisher<tobas_msgs::Imu>(topic::kImuFilt);
   imu_raw_sub_ = createSubscriber(topic::kImuRaw, &self::imuRawCb, this);
   imu_filt_sub_ = createSubscriber(topic::kImuFilt, &self::imuFiltCb, this);
 }

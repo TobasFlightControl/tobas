@@ -40,10 +40,10 @@ struct DynamixelConfig
   st::Range<double> pos_limit;      // [rad]
 };
 
-class DynamixelHandlerNode : public tobas::BaseNode
+class DynamixelHandlerNode : public BaseNode
 {
   using self = DynamixelHandlerNode;
-  using super = tobas::BaseNode;
+  using super = BaseNode;
 
 public:
   explicit DynamixelHandlerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());

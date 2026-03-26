@@ -11,10 +11,10 @@ namespace tobas
 {
 namespace fc1xx
 {
-class PwmDriverNode : public tobas::BaseNode
+class PwmDriverNode : public BaseNode
 {
   using self = PwmDriverNode;
-  using super = tobas::BaseNode;
+  using super = BaseNode;
 
 public:
   explicit PwmDriverNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -41,7 +41,7 @@ void PwmDriverNode::initialize()
     return;
   }
 
-  pwms_sub_ = createSubscriber(tobas::topic::kPwmCmd, &self::pwmsCb, this);
+  pwms_sub_ = createSubscriber(topic::kPwmCmd, &self::pwmsCb, this);
 
   initialize_timer_->cancel();
 }

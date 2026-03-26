@@ -9,12 +9,12 @@ namespace tobas
 {
 namespace gazebo
 {
-class CpuHandlerNode : public tobas::BaseNode
+class CpuHandlerNode : public BaseNode
 {
   static constexpr auto kSamplingPeriod = 1s;
 
   using self = CpuHandlerNode;
-  using super = tobas::BaseNode;
+  using super = BaseNode;
 
 public:
   explicit CpuHandlerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -31,7 +31,7 @@ private:
 
 CpuHandlerNode::CpuHandlerNode(const rclcpp::NodeOptions& options) : super("cpu_handler", nodeOptions_Default(options))
 {
-  cpu_pub_ = createPublisher<tobas_msgs::msg::Cpu>(tobas::topic::kCpu);
+  cpu_pub_ = createPublisher<tobas_msgs::msg::Cpu>(topic::kCpu);
   main_timer_ = createTimer(kSamplingPeriod, &self::mainTimerCb, this);
 }
 
