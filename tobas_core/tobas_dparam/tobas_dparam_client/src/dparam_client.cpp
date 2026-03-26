@@ -7,32 +7,33 @@
 #include <tobas_dparam_msgs/srv/set_int.hpp>
 #include <tobas_dparam_msgs/srv/set_string.hpp>
 
-using namespace std;
 using namespace tobas_dparam_msgs::srv;
 
+namespace tobas
+{
 namespace dparam
 {
-DynamicParamClient::DynamicParamClient(rclcpp::Node::SharedPtr node, const string& node_name, const std::string& ns)
+DynamicParamClient::DynamicParamClient(rclcpp::Node::SharedPtr node, const std::string& node_name, const std::string& ns)
   : node_(node), node_name_(node_name), ns_(ns)
 {
 }
 
-DynamicParamClient::Error DynamicParamClient::setBool(const string& param_name, const bool& value)
+DynamicParamClient::Error DynamicParamClient::setBool(const std::string& param_name, const bool& value)
 {
   return setParam<SetBool, kSetBoolSrv>(param_name, value);
 }
 
-DynamicParamClient::Error DynamicParamClient::setInt(const string& param_name, const long& value)
+DynamicParamClient::Error DynamicParamClient::setInt(const std::string& param_name, const long& value)
 {
   return setParam<SetInt, kSetIntSrv>(param_name, value);
 }
 
-DynamicParamClient::Error DynamicParamClient::setDouble(const string& param_name, const long& value)
+DynamicParamClient::Error DynamicParamClient::setDouble(const std::string& param_name, const long& value)
 {
   return setParam<SetDouble, kSetDoubleSrv>(param_name, value);
 }
 
-DynamicParamClient::Error DynamicParamClient::setString(const string& param_name, const string& value)
+DynamicParamClient::Error DynamicParamClient::setString(const std::string& param_name, const std::string& value)
 {
   return setParam<SetString, kSetStringSrv>(param_name, value);
 }
@@ -56,3 +57,4 @@ const char* DynamicParamClient::errorMessage() const
   }
 }
 }  // namespace dparam
+}  // namespace tobas

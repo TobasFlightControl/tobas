@@ -10,6 +10,8 @@
 
 using namespace tobas_dparam_msgs::srv;
 
+namespace tobas
+{
 namespace dparam
 {
 class DynamicParamServer : public tobas::BaseNode
@@ -53,11 +55,12 @@ void DynamicParamServer::callback(
   res->success = true;
 }
 }  // namespace dparam
+}  // namespace tobas
 
 int main(int argc, char* argv[])
 {
   rclcpp::init(argc, argv);
-  const auto node = std::make_shared<dparam::DynamicParamServer>();
+  const auto node = std::make_shared<tobas::dparam::DynamicParamServer>();
   rclcpp::executors::MultiThreadedExecutor exec(rclcpp::ExecutorOptions(), 2);
   exec.add_node(node);
   exec.spin();
