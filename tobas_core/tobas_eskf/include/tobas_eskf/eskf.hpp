@@ -9,6 +9,8 @@
 #include <tobas_eigen_tools/typedef.hpp>
 #include <tobas_std_tools/timestamped_buffer.hpp>
 
+namespace tobas
+{
 namespace eskf
 {
 /**
@@ -548,3 +550,4 @@ double ErrorStateKalmanFilter::correct(
   return anomaly_score;
 }
 }  // namespace eskf
+}  // namespace tobas

@@ -2,6 +2,8 @@
 
 #include <tobas_math/core.hpp>
 
+namespace tobas
+{
 namespace eskf
 {
 double headingVarianceFromMag(const Eigen::Vector3d& mag, const Eigen::Matrix3d& cov)
@@ -14,3 +16,4 @@ double headingVarianceFromMag(const Eigen::Vector3d& mag, const Eigen::Matrix3d&
   return math::sqr(head_std);
 }
 }  // namespace eskf
+}  // namespace tobas

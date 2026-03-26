@@ -10,6 +10,8 @@
 
 namespace ch = std::chrono;
 
+namespace tobas
+{
 namespace eskf
 {
 ErrorStateKalmanFilter::ErrorStateKalmanFilter() : x_history_(kStateHistoryTimeWindow)
@@ -774,3 +776,4 @@ double ErrorStateKalmanFilter::measureGravity(
   return correct(delta_acc, grav_cov, H_grav_);
 }
 }  // namespace eskf
+}  // namespace tobas

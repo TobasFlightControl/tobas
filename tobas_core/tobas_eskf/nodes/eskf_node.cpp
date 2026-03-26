@@ -34,6 +34,8 @@
 
 using namespace Eigen;
 
+namespace tobas
+{
 class ErrorStateKalmanFilterNode : public tobas::BaseNode
 {
   using self = ErrorStateKalmanFilterNode;
@@ -924,5 +926,6 @@ void ErrorStateKalmanFilterNode::setGnssOriginCb(
   res->success = true;
   res->message.clear();
 }
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(ErrorStateKalmanFilterNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::ErrorStateKalmanFilterNode)
