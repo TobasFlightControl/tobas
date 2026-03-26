@@ -15,9 +15,13 @@
 #include <tobas_real_msgs/srv/set_imu_params.hpp>
 
 using namespace std::chrono_literals;
-using namespace real::handler::imu;
+using namespace tobas::real::handler::imu;
 namespace fs = std::filesystem;
 
+namespace tobas
+{
+namespace real
+{
 class ImuHandlerNode : public tobas::BaseNode
 {
   using self = ImuHandlerNode;
@@ -111,8 +115,8 @@ void ImuHandlerNode::registerPubSub()
 {
   imu_raw_pub_ = createPublisher<tobas_msgs::Imu>(tobas::topic::kImuRaw);
   imu_filt_pub_ = createPublisher<tobas_msgs::Imu>(tobas::topic::kImuFilt);
-  imu_raw_sub_ = createSubscriber(real::topic::kImuRaw, &self::imuRawCb, this);
-  imu_filt_sub_ = createSubscriber(real::topic::kImuFilt, &self::imuFiltCb, this);
+  imu_raw_sub_ = createSubscriber(topic::kImuRaw, &self::imuRawCb, this);
+  imu_filt_sub_ = createSubscriber(topic::kImuFilt, &self::imuFiltCb, this);
 }
 
 void ImuHandlerNode::imuRawCb(const tobas_msgs::Imu::ConstSharedPtr& imu_raw_in)
@@ -223,5 +227,7 @@ void ImuHandlerNode::setParamsCb(const SetParams::Request::ConstSharedPtr& req, 
   res->success = true;
   res->message.clear();
 }
+}  // namespace real
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(ImuHandlerNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::real::ImuHandlerNode)

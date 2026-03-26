@@ -9,6 +9,10 @@
 #include <tobas_msgs/msg/joint_state_array.hpp>
 #include <tobas_msgs/msg/pwm_array.hpp>
 
+namespace tobas
+{
+namespace real
+{
 /**
  * @brief ジョイントの位置，速度，力のコマンドを受け取り，適切なハードウェアインターフェースに指令する．
  * また，そのジョイントの状態を発行する．
@@ -285,5 +289,7 @@ void JointsHandlerNode::effortResetTimerCb()
 {
   // TODO
 }
+}  // namespace real
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(JointsHandlerNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::real::JointsHandlerNode)

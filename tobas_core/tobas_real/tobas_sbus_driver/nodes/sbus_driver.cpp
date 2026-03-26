@@ -7,6 +7,8 @@
 
 using namespace std::chrono_literals;
 
+namespace tobas
+{
 class SbusDriverNode : public tobas::BaseNode
 {
   using self = SbusDriverNode;
@@ -96,5 +98,6 @@ void SbusDriverNode::onPacketTimeout()
   sbus_msg->frame_lost = true;
   publishExclusively(std::move(sbus_msg));
 }
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(SbusDriverNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::SbusDriverNode)

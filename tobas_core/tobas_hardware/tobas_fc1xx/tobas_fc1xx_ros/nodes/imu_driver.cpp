@@ -132,8 +132,8 @@ void ImuDriverNode::initializeTimerCb()
     return;
   }
 
-  imu_raw_pub_ = createPublisher<tobas_msgs::Imu>(real::topic::kImuRaw);
-  imu_filt_pub_ = createPublisher<tobas_msgs::Imu>(real::topic::kImuFilt);
+  imu_raw_pub_ = createPublisher<tobas_msgs::Imu>(topic::kImuRaw);
+  imu_filt_pub_ = createPublisher<tobas_msgs::Imu>(topic::kImuFilt);
   sampling_time_pub_.initialize(shared_from_this(), now());
 
   config_ss_ = createService<tobas_msgs::srv::ConfigureImuFilter>(

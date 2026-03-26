@@ -11,9 +11,13 @@
 #include <tobas_real_common/ros_interface.hpp>
 #include <tobas_real_msgs/srv/set_magnetometer_params.hpp>
 
-using namespace real::handler::mag;
+using namespace tobas::real::handler::mag;
 namespace fs = std::filesystem;
 
+namespace tobas
+{
+namespace real
+{
 class MagnetometerHandlerNode : public tobas::BaseNode
 {
   using self = MagnetometerHandlerNode;
@@ -82,7 +86,7 @@ bool MagnetometerHandlerNode::getConfig()
 void MagnetometerHandlerNode::registerPubSub()
 {
   mag_pub_ = createPublisher<tobas_msgs::MagneticField>(tobas::topic::kMagneticField);
-  mag_sub_ = createSubscriber(real::topic::kMagneticField, &self::magCb, this);
+  mag_sub_ = createSubscriber(topic::kMagneticField, &self::magCb, this);
 }
 
 void MagnetometerHandlerNode::magCb(const tobas_msgs::MagneticField::ConstSharedPtr& mag_in)
@@ -116,5 +120,7 @@ void MagnetometerHandlerNode::setParamsCb(
   res->success = true;
   res->message.clear();
 }
+}  // namespace real
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(MagnetometerHandlerNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::real::MagnetometerHandlerNode)

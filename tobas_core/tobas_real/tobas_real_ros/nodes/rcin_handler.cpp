@@ -14,9 +14,13 @@
 #include <tobas_msgs_adapter/rc_input.hpp>
 #include <tobas_real_msgs/srv/set_rc_input_params.hpp>
 
-using namespace real::handler::rcin;
+using namespace tobas::real::handler::rcin;
 namespace fs = std::filesystem;
 
+namespace tobas
+{
+namespace real
+{
 class RCInputHandlerNode : public tobas::BaseNode
 {
   using self = RCInputHandlerNode;
@@ -289,5 +293,7 @@ void RCInputHandlerNode::setParamsCb(
   res->success = true;
   res->message.clear();
 }
+}  // namespace real
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(RCInputHandlerNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::real::RCInputHandlerNode)
