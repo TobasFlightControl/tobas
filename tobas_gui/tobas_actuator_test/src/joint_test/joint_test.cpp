@@ -32,6 +32,14 @@ JointTestWidget::JointTestWidget(
   stop_button_->setFixedSize(kButtonWidth, kButtonHeight);
   stop_button_->setEnabled(false);
 
+  zero_button_ = new QPushButton("Zero");
+  zero_button_->setFixedSize(kButtonWidth, kButtonHeight);
+  zero_button_->setEnabled(false);
+
+  home_button_ = new QPushButton("Home");
+  home_button_->setFixedSize(kButtonWidth, kButtonHeight);
+  home_button_->setEnabled(false);
+
   commands_publisher_ = new JointCommandsPublisherWidget(node, tree, drone);
 
   // Layout
@@ -39,6 +47,8 @@ JointTestWidget::JointTestWidget(
   cols->addWidget(start_button_);
   cols->addWidget(stop_button_);
   cols->addStretch();
+  cols->addWidget(zero_button_);
+  cols->addWidget(home_button_);
 
   rows_->addWidget(instruction);
   rows_->addLayout(cols);
@@ -48,12 +58,14 @@ JointTestWidget::JointTestWidget(
   // Connection
   connect(start_button_, &QPushButton::clicked, this, &self::onStartButtonClicked);
   connect(stop_button_, &QPushButton::clicked, this, &self::onStopButtonClicked);
+  connect(zero_button_, &QPushButton::clicked, this, &self::onZeroButtonClicked);
+  connect(home_button_, &QPushButton::clicked, this, &self::onHomeButtonClicked);
   connect(&bridge, &RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
 }
 
 const char* JointTestWidget::title() const
 {
-  return "Test Joints with PWM Interface";
+  return "Test Servo Joints";
 }
 
 void JointTestWidget::reset()
@@ -62,6 +74,8 @@ void JointTestWidget::reset()
 
   start_button_->setEnabled(true);
   stop_button_->setEnabled(false);
+  zero_button_->setEnabled(false);
+  home_button_->setEnabled(false);
 
   arming_.reset();
 }
@@ -94,15 +108,29 @@ void JointTestWidget::onStartButtonClicked()
 
   start_button_->setEnabled(false);
   stop_button_->setEnabled(true);
+  zero_button_->setEnabled(true);
+  home_button_->setEnabled(true);
 
-  qt::qInfoBox(this, "Joint test is started.");
+  qt::qInfoBox(this, "Joint test started.");
 }
 
 void JointTestWidget::onStopButtonClicked()
 {
+  commands_publisher_->setHome();
+
   reset();
 
-  qt::qInfoBox(this, "Joint test is finished.");
+  qt::qInfoBox(this, "Joint test stopped.");
+}
+
+void JointTestWidget::onZeroButtonClicked()
+{
+  commands_publisher_->setZero();
+}
+
+void JointTestWidget::onHomeButtonClicked()
+{
+  commands_publisher_->setHome();
 }
 
 void JointTestWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)

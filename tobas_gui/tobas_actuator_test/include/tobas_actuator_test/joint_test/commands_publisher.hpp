@@ -37,6 +37,9 @@ public:
   void start();
   void stop();
 
+  void setZero();
+  void setHome();
+
   size_t numRegisteredChannels() const;
 
 private:

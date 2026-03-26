@@ -126,7 +126,6 @@ void JointCommandsPublisherWidget::start()
         commander->setValue(0., true);
         break;
       case tobas::JointCommandInterface::kNone:
-        continue;
       default:
         throw;
     }
@@ -148,6 +147,34 @@ void JointCommandsPublisherWidget::stop()
 
   // タイマーを停止
   publish_timer_.stop();
+}
+
+void JointCommandsPublisherWidget::setZero()
+{
+  for (const auto& [_, commander] : commanders_) {
+    commander->setValue(0.);
+  }
+}
+
+void JointCommandsPublisherWidget::setHome()
+{
+  for (const auto& [jnt_name, commander] : commanders_) {
+    const auto& joint = drone_.joints.at(jnt_name);
+    switch (joint.cmd_iface) {
+      case tobas::JointCommandInterface::kPosition:
+        commander->setValue(joint.home_pos);
+        break;
+      case tobas::JointCommandInterface::kVelocity:
+        commander->setValue(0.);
+        break;
+      case tobas::JointCommandInterface::kEffort:
+        commander->setValue(0.);
+        break;
+      case tobas::JointCommandInterface::kNone:
+      default:
+        throw;
+    }
+  }
 }
 
 size_t JointCommandsPublisherWidget::numRegisteredChannels() const
@@ -182,7 +209,6 @@ void JointCommandsPublisherWidget::publishCurrentValues()
         tar_eff->commands.back().data = commander->getValue();
         break;
       case tobas::JointCommandInterface::kNone:
-        continue;
       default:
         throw;
     }

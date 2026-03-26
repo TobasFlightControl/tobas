@@ -42,6 +42,9 @@ private:
 
   QPushButton* start_button_;
   QPushButton* stop_button_;
+  QPushButton* zero_button_;
+  QPushButton* home_button_;
+
   JointCommandsPublisherWidget* commands_publisher_;
 
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
@@ -49,6 +52,8 @@ private:
 private Q_SLOTS:
   void onStartButtonClicked();
   void onStopButtonClicked();
+  void onZeroButtonClicked();
+  void onHomeButtonClicked();
 
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
 };
