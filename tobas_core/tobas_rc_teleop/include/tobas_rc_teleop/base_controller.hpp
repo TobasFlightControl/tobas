@@ -7,7 +7,9 @@
 #include <tobas_msgs_adapter/odometry_with_covariance_stamped.hpp>
 #include <tobas_msgs_adapter/rc_input.hpp>
 
-namespace tobas_rc_teleop
+namespace tobas
+{
+namespace rc
 {
 class BaseController
 {
@@ -80,4 +82,5 @@ inline double BaseController::expo(double x, double exp)
   assert(std::abs(exp) < 1.);
   return (1. + exp) * x - exp * math::sign(x) * math::sqr(x);
 }
-}  // namespace tobas_rc_teleop
+}  // namespace rc
+}  // namespace tobas

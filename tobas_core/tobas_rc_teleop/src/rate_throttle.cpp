@@ -4,7 +4,9 @@
 #include <tobas_constants/throttle.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 
-namespace tobas_rc_teleop
+namespace tobas
+{
+namespace rc
 {
 RateThrottleController::RateThrottleController()
 {
@@ -89,4 +91,5 @@ bool RateThrottleController::throttleExpoCb(const double& p)
   throt_expo_ = p / kExpoScale;
   return true;
 }
-}  // namespace tobas_rc_teleop
+}  // namespace rc
+}  // namespace tobas

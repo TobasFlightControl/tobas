@@ -6,7 +6,9 @@
 
 #include "./base_controller.hpp"
 
-namespace tobas_rc_teleop
+namespace tobas
+{
+namespace rc
 {
 class PosVelAccPitchYawController : public BaseController
 {
@@ -58,4 +60,5 @@ private:
   bool pitchExpoCb(const double& p);
   bool yawExpoCb(const double& p);
 };
-}  // namespace tobas_rc_teleop
+}  // namespace rc
+}  // namespace tobas

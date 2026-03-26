@@ -4,7 +4,9 @@
 
 #include "./base_controller.hpp"
 
-namespace tobas_rc_teleop
+namespace tobas
+{
+namespace rc
 {
 class SpeedRollDeltaPitchController : public BaseController
 {
@@ -44,4 +46,5 @@ private:
   bool rollExpoCb(const double& p);
   bool pitchExpoCb(const double& p);
 };
-}  // namespace tobas_rc_teleop
+}  // namespace rc
+}  // namespace tobas

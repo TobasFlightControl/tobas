@@ -5,7 +5,9 @@
 #include <tobas_std_tools/check.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 
-namespace tobas_rc_teleop
+namespace tobas
+{
+namespace rc
 {
 SpeedRollDeltaPitchController::SpeedRollDeltaPitchController()
 {
@@ -116,4 +118,5 @@ bool SpeedRollDeltaPitchController::pitchExpoCb(const double& p)
   pitch_expo_ = p / kExpoScale;
   return true;
 }
-}  // namespace tobas_rc_teleop
+}  // namespace rc
+}  // namespace tobas

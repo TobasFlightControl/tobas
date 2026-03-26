@@ -3,7 +3,9 @@
 #include <tobas_constants/ros_interface.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 
-namespace tobas_rc_teleop
+namespace tobas
+{
+namespace rc
 {
 AccelRateController::AccelRateController()
 {
@@ -151,4 +153,5 @@ bool AccelRateController::headingExpoCb(const double& p)
   head_expo_ = p / kExpoScale;
   return true;
 }
-}  // namespace tobas_rc_teleop
+}  // namespace rc
+}  // namespace tobas

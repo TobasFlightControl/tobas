@@ -4,7 +4,9 @@
 
 #include "./base_controller.hpp"
 
-namespace tobas_rc_teleop
+namespace tobas
+{
+namespace rc
 {
 class RateThrottleController : public BaseController
 {
@@ -40,4 +42,5 @@ private:
   bool headingExpoCb(const double& p);
   bool throttleExpoCb(const double& p);
 };
-}  // namespace tobas_rc_teleop
+}  // namespace rc
+}  // namespace tobas

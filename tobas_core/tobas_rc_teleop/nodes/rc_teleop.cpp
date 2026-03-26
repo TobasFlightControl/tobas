@@ -32,7 +32,9 @@
 
 using namespace std::chrono_literals;
 
-namespace tobas_rc_teleop
+namespace tobas
+{
+namespace rc
 {
 class RCTeleopNode : public tobas::BaseNode
 {
@@ -545,6 +547,7 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
     }
   }
 }
-}  // namespace tobas_rc_teleop
+}  // namespace rc
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(tobas_rc_teleop::RCTeleopNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::rc::RCTeleopNode)

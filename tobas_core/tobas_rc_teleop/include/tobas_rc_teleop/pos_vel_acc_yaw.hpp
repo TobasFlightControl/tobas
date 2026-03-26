@@ -6,7 +6,9 @@
 
 #include "./base_controller.hpp"
 
-namespace tobas_rc_teleop
+namespace tobas
+{
+namespace rc
 {
 class PosVelAccYawController : public BaseController
 {
@@ -53,4 +55,5 @@ private:
   bool verticalVelocityExpoCb(const double& p);
   bool headingExpoCb(const double& p);
 };
-}  // namespace tobas_rc_teleop
+}  // namespace rc
+}  // namespace tobas
