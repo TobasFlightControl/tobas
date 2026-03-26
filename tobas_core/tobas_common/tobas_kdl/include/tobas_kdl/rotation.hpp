@@ -60,8 +60,11 @@ public:
   /* Check validity. */
   bool isValid(std::string& error_msg) const;
 
+  inline bool isFinite() const;
+
   inline void setIdentity();
   inline void setInverse();
+  inline void setNaN();
 
   /* Access to elements 0..2,0..2, bounds are checked when NDEBUG is not set. */
   inline double& operator()(int i, int j);
@@ -153,6 +156,11 @@ inline Rotation Rotation::Identity()
   return Rotation(Eigen::Matrix3d::Identity());
 }
 
+bool Rotation::isFinite() const
+{
+  return eigen::isFinite(data);
+}
+
 inline void Rotation::setIdentity()
 {
   data.setIdentity();
@@ -161,6 +169,11 @@ inline void Rotation::setIdentity()
 inline void Rotation::setInverse()
 {
   data.transposeInPlace();
+}
+
+inline void Rotation::setNaN()
+{
+  data.setConstant(NAN);
 }
 
 inline double& Rotation::operator()(int i, int j)

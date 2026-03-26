@@ -18,13 +18,19 @@ public:
   double roll, pitch, yaw;
 
   inline explicit Euler();
-  inline explicit Euler(double _roll, double _pitch, double _yaw);
+  inline explicit Euler(double roll, double pitch, double yaw);
   inline explicit Euler(const Vector& rpy);
   inline explicit Euler(const Rotation& rot);
 
   static inline Euler Zero();
 
+  inline Euler clone() const;
+
   inline void setZero();
+  inline void setNaN();
+
+  inline void set(double roll, double pitch, double yaw);
+
   inline void fill(double value);
 
   inline Rotation toRotation() const;
@@ -67,16 +73,31 @@ inline Euler Euler::Zero()
   return Euler(0., 0., 0.);
 }
 
+inline Euler Euler::clone() const
+{
+  return *this;
+}
+
 inline void Euler::setZero()
 {
   this->fill(0.);
 }
 
+inline void Euler::setNaN()
+{
+  this->fill(NAN);
+}
+
+inline void Euler::set(double _roll, double _pitch, double _yaw)
+{
+  roll = _roll;
+  pitch = _pitch;
+  yaw = _yaw;
+}
+
 inline void Euler::fill(double value)
 {
-  roll = value;
-  pitch = value;
-  yaw = value;
+  set(value, value, value);
 }
 
 inline Rotation Euler::toRotation() const
@@ -91,9 +112,8 @@ inline Vector Euler::toAngleAxis() const
 
 inline Quaternion Euler::toQuaternion() const
 {
-  Quaternion res;
-  tbs::quaternionFromEuler(roll, pitch, yaw, res.x, res.y, res.z, res.w);
-  return res;
+  const auto [x, y, z, w] = tbs::quaternionFromEuler(roll, pitch, yaw);
+  return Quaternion(x, y, z, w);
 }
 
 inline AngleAxis Euler::operator-(const Euler& rhs) const

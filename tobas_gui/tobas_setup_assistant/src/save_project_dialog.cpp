@@ -5,9 +5,10 @@
 #include <QGridLayout>
 #include <QKeyEvent>
 
-#include <tobas_constants/constants.hpp>
+#include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/path.hpp>
+#include <tobas_ros2_tools/package.hpp>
 #include <tobas_ros2_tools/util.hpp>
 
 namespace gui
@@ -17,52 +18,56 @@ namespace sa
 SaveProjectDialog::SaveProjectDialog(QWidget* parent, const QString& dir, const QString& dflt_name)
   : super(parent, "Save Tobas Project", dir)
 {
-  setAcceptMode(QFileDialog::AcceptSave);  // setFileMode(Directory) をやるとSaveボタンが消えることに注意
-  setOptions(ShowDirsOnly | DontUseNativeDialog);
+  setOptions(ShowDirsOnly | DontUseNativeDialog);  // カスタム設定のためにQtのダイアログを使用
+  setAcceptMode(AcceptSave);  // setFileMode(Directory)を実行するとSaveボタンが消えることに注意
   setFilter(QDir::AllDirs | QDir::Hidden | QDir::NoDotAndDotDot);
+  setLabelText(FileName, "Project name:");
   setDefaultSuffix("TBS");
   selectFile(dflt_name);
 
+  // 保存ボタンを取得
   const auto button_box = findChild<QDialogButtonBox*>("buttonBox");
   save_button_ = button_box->button(QDialogButtonBox::Save);
 
-  file_name_ = findChild<QLineEdit*>("fileNameEdit");
-  file_name_->installEventFilter(this);
+  // ファイル名を取得
+  proj_name_ = findChild<QLineEdit*>("fileNameEdit");
+  proj_name_->installEventFilter(this);
 
+  // 警告文をレイアウトの一番下に挿入
   warn_text_ = new qt::Label();
   warn_text_->setTextColor(Qt::red);
-
-  // Insert the warning label at the bottom of the grid layout
   const auto grid = qt::qPointerCast<QGridLayout>(layout());
   grid->addWidget(warn_text_, grid->rowCount(), 0, 1, grid->columnCount());
 
-  // Connection
-  connect(this, &super::directoryEntered, this, &self::onFilePathChanged);
-  connect(file_name_, &QLineEdit::textChanged, this, &self::onFilePathChanged);
+  // パスが変わったらその都度保存可能性をチェック
+  connect(proj_name_, &QLineEdit::textChanged, this, &self::onProjectPathChanged);
+  connect(this, &super::directoryEntered, this, &self::onProjectPathChanged);
+
+  // 最初のチェック
+  onProjectPathChanged();
 }
 
 bool SaveProjectDialog::eventFilter(QObject* obj, QEvent* event)
 {
-  if (obj == file_name_ && event->type() == QEvent::KeyPress) {
-    const auto key_event = static_cast<QKeyEvent*>(event);
-    if (key_event->key() == Qt::Key_Return || key_event->key() == Qt::Key_Enter) {
-      // Only accept if the save button is enabled
-      if (save_button_->isEnabled()) {
-        accept();
+  if (obj == proj_name_) {
+    // 保存ボタンが有効化されている場合のみ認める
+    if (event->type() == QEvent::KeyPress) {
+      const auto key_event = static_cast<QKeyEvent*>(event);
+      if (key_event->key() == Qt::Key_Return || key_event->key() == Qt::Key_Enter) {
+        if (save_button_->isEnabled()) {
+          accept();
+        }
       }
-
-      // Consume the event
-      return true;
     }
   }
 
   return super::eventFilter(obj, event);
 }
 
-void SaveProjectDialog::onFilePathChanged()
+void SaveProjectDialog::onProjectPathChanged()
 {
   const auto dir = directory().absolutePath();
-  const auto file_name = file_name_->text();
+  const auto proj_name = proj_name_->text();
 
   // ホームディレクトリ以下でなければならない
   if (!dir.startsWith(ros2::getHomeDir())) {
@@ -78,23 +83,38 @@ void SaveProjectDialog::onFilePathChanged()
     return;
   }
 
+  // プロジェクト内にプロジェクトを作ることはできない
+  if (dir.contains(cmn::kProjectExtension + QString("/")) || dir.endsWith(cmn::kProjectExtension)) {
+    warn_text_->setText("A project cannot be created inside another project.");
+    save_button_->setEnabled(false);
+    return;
+  }
+
   // ファイル名が設定されていなければならない
-  if (file_name.isEmpty()) {
-    warn_text_->setText("Please specify a file name.");
+  if (proj_name.isEmpty()) {
+    warn_text_->setText("Please specify a project name.");
+    save_button_->setEnabled(false);
+    return;
+  }
+
+  // 拡張子を除いたパッケージ名がROSの慣習に沿っていなければならない
+  const auto pkg_name = QFileInfo(proj_name).completeBaseName();
+  if (!ros2::isValidPackageName(pkg_name.toStdString())) {
+    warn_text_->setText("Project name is invalid. It must match: ^[a-z][a-z0-9_]*$");
     save_button_->setEnabled(false);
     return;
   }
 
   // 拡張子が設定されている場合は決められた拡張子でなければならない
-  if (file_name.contains('.')) {
-    if (!file_name.endsWith(tobas::kProjectExtension)) {
-      warn_text_->setText("Invalid file extension.");
+  if (proj_name.contains('.')) {
+    if (!proj_name.endsWith(cmn::kProjectExtension)) {
+      warn_text_->setText("Invalid project extension.");
       save_button_->setEnabled(false);
       return;
     }
 
-    if (qt::getBaseName(file_name).isEmpty()) {
-      warn_text_->setText("The base name of the file is empty.");
+    if (qt::getBaseName(proj_name).isEmpty()) {
+      warn_text_->setText("The base name of the project is empty.");
       save_button_->setEnabled(false);
       return;
     }

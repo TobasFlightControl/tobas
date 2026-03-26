@@ -25,10 +25,6 @@ PlanarMulticopterWidget::PlanarMulticopterWidget()
   do_dist_comp_rot_->setChecked(false);
   rows->addWidget(do_dist_comp_rot_);
 
-  standard_second_order_form_tuning_ = new QCheckBox("Standard Second-Order Form Tuning");
-  standard_second_order_form_tuning_->setChecked(true);
-  rows->addWidget(standard_second_order_form_tuning_);
-
   rows->addStretch();
 }
 
@@ -59,7 +55,7 @@ tobas::RcCommand PlanarMulticopterWidget::stabilizeModeCommand() const
 
 tobas::RcCommand PlanarMulticopterWidget::loiterModeCommand() const
 {
-  return tobas::RcCommand::kPosVelYaw;
+  return tobas::RcCommand::kPosVelAccYaw;
 }
 
 YAML::Node PlanarMulticopterWidget::staticParams() const
@@ -68,7 +64,6 @@ YAML::Node PlanarMulticopterWidget::staticParams() const
 
   node["do_disturbance_compensation_translation"] = do_dist_comp_trans_->isChecked();
   node["do_disturbance_compensation_rotation"] = do_dist_comp_rot_->isChecked();
-  node["standard_second_order_form_tuning"] = standard_second_order_form_tuning_->isChecked();
 
   return node;
 }
@@ -79,7 +74,6 @@ YAML::Node PlanarMulticopterWidget::dump() const
 
   node[do_dist_comp_trans_->text()] = do_dist_comp_trans_->isChecked();
   node[do_dist_comp_rot_->text()] = do_dist_comp_rot_->isChecked();
-  node[standard_second_order_form_tuning_->text()] = standard_second_order_form_tuning_->isChecked();
 
   return node;
 }
@@ -88,7 +82,6 @@ void PlanarMulticopterWidget::load(const YAML::Node& node)
 {
   do_dist_comp_trans_->setChecked(node[do_dist_comp_trans_->text()].as<bool>());
   do_dist_comp_rot_->setChecked(node[do_dist_comp_rot_->text()].as<bool>());
-  standard_second_order_form_tuning_->setChecked(node[standard_second_order_form_tuning_->text()].as<bool>());
 }
 
 bool PlanarMulticopterWidget::isValid()

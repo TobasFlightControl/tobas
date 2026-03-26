@@ -22,7 +22,7 @@ public:
 
   inline Vector();
   inline Vector(double x, double y, double z);
-  inline Vector(const Eigen::Vector3d& _data);
+  inline Vector(const Eigen::Vector3d& data);
 
   static inline Vector Zero();
   static inline Vector Constant(const double& value);
@@ -46,6 +46,8 @@ public:
   inline void z(double z);
 
   inline Vector clone() const;
+
+  inline void set(double x, double y, double z);
 
   inline void fill(double value);
 
@@ -83,6 +85,7 @@ public:
   inline Vector clamp(const Vector& lb, const Vector& ub) const;
 
   inline void setZero();
+  inline void setNaN();
 
   inline double norm() const;
   inline double squaredNorm() const;
@@ -198,24 +201,29 @@ inline double& Vector::z()
   return data.z();
 }
 
-inline void Vector::x(double x)
+inline void Vector::x(double _x)
 {
-  data.x() = x;
+  data.x() = _x;
 }
 
-inline void Vector::y(double y)
+inline void Vector::y(double _y)
 {
-  data.y() = y;
+  data.y() = _y;
 }
 
-inline void Vector::z(double z)
+inline void Vector::z(double _z)
 {
-  data.z() = z;
+  data.z() = _z;
 }
 
 inline Vector Vector::clone() const
 {
-  return Vector(data);
+  return *this;
+}
+
+inline void Vector::set(double _x, double _y, double _z)
+{
+  data << _x, _y, _z;
 }
 
 inline void Vector::fill(double value)
@@ -276,6 +284,11 @@ inline Vector Vector::clamp(const Vector& lb, const Vector& ub) const
 inline void Vector::setZero()
 {
   data.setZero();
+}
+
+inline void Vector::setNaN()
+{
+  data.setConstant(NAN);
 }
 
 inline double Vector::norm() const

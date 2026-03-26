@@ -8,11 +8,11 @@
 #define ANGLE_THROTTLE_VECTOR_TEXT "angle_throttle_vector"
 #define ACCEL_YAW_TEXT "accel_yaw"
 #define ACCEL_PITCH_YAW_TEXT "accel_pitch_yaw"
-#define POS_VEL_YAW_TEXT "pos_vel_yaw"
-#define POS_VEL_PITCH_YAW_TEXT "pos_vel_pitch_yaw"
+#define POS_VEL_ACC_YAW_TEXT "pos_vel_acc_yaw"
+#define POS_VEL_ACC_PITCH_YAW_TEXT "pos_vel_acc_pitch_yaw"
 #define ACCEL_RATE_TEXT "accel_rate"
 #define ACCEL_ANGLE_TEXT "accel_angle"
-#define POS_VEL_ANGLE_TEXT "pos_vel_angle"
+#define POS_VEL_ACC_ANGLE_TEXT "pos_vel_acc_angle"
 #define SPEED_ROLL_DPITCH_TEXT "speed_roll_dpitch"
 
 using namespace std;
@@ -34,16 +34,16 @@ string textFromEnum(RcCommand cmd)
       return ACCEL_YAW_TEXT;
     case RcCommand::kAccelPitchYaw:
       return ACCEL_PITCH_YAW_TEXT;
-    case RcCommand::kPosVelYaw:
-      return POS_VEL_YAW_TEXT;
-    case RcCommand::kPosVelPitchYaw:
-      return POS_VEL_PITCH_YAW_TEXT;
+    case RcCommand::kPosVelAccYaw:
+      return POS_VEL_ACC_YAW_TEXT;
+    case RcCommand::kPosVelAccPitchYaw:
+      return POS_VEL_ACC_PITCH_YAW_TEXT;
     case RcCommand::kAccelRate:
       return ACCEL_RATE_TEXT;
     case RcCommand::kAccelAngle:
       return ACCEL_ANGLE_TEXT;
-    case RcCommand::kPosVelAngle:
-      return POS_VEL_ANGLE_TEXT;
+    case RcCommand::kPosVelAccAngle:
+      return POS_VEL_ACC_ANGLE_TEXT;
     case RcCommand::kSpeedRollDPitch:
       return SPEED_ROLL_DPITCH_TEXT;
     default:
@@ -77,12 +77,12 @@ bool enumFromText(const string& text, RcCommand& dst)
     dst = RcCommand::kAccelPitchYaw;
     return true;
   }
-  else if (text == POS_VEL_YAW_TEXT) {
-    dst = RcCommand::kPosVelYaw;
+  else if (text == POS_VEL_ACC_YAW_TEXT) {
+    dst = RcCommand::kPosVelAccYaw;
     return true;
   }
-  else if (text == POS_VEL_PITCH_YAW_TEXT) {
-    dst = RcCommand::kPosVelPitchYaw;
+  else if (text == POS_VEL_ACC_PITCH_YAW_TEXT) {
+    dst = RcCommand::kPosVelAccPitchYaw;
     return true;
   }
   else if (text == ACCEL_RATE_TEXT) {
@@ -93,8 +93,8 @@ bool enumFromText(const string& text, RcCommand& dst)
     dst = RcCommand::kAccelAngle;
     return true;
   }
-  else if (text == POS_VEL_ANGLE_TEXT) {
-    dst = RcCommand::kPosVelAngle;
+  else if (text == POS_VEL_ACC_ANGLE_TEXT) {
+    dst = RcCommand::kPosVelAccAngle;
     return true;
   }
   else if (text == SPEED_ROLL_DPITCH_TEXT) {

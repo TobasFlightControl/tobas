@@ -21,14 +21,12 @@ public:
   bool setNaturalFreq(int idx, double value);
   bool setInertiaRatio(int idx, double value);
   bool setDampingRatio(int idx, double value);
-  bool setMaximumJerk(int idx, double value);
 
 private:
   // Config
-  kdl::Vector wn_ = { 1., 1., 1. };                          // [rad/s]
-  kdl::Vector zeta_ = { 1., 1., 1. };                        // [-]
-  kdl::Vector xi_ = { 1., 1., 1. };                          // [-]
-  kdl::Vector max_jerk_ = { INFINITY, INFINITY, INFINITY };  // [m/s^3]
+  kdl::Vector wn_ = { 1., 1., 1. };    // [rad/s]
+  kdl::Vector zeta_ = { 1., 1., 1. };  // [-]
+  kdl::Vector xi_ = { 1., 1., 1. };    // [-]
 
   // Gain
   kdl::Vector kp_;

@@ -1,7 +1,11 @@
 #include <tf2_ros/transform_broadcaster.h>
 
 #include <tobas_algorithm/core.hpp>
-#include <tobas_constants/constants.hpp>
+#include <tobas_algorithm/kahan.hpp>
+#include <tobas_constants/frame.hpp>
+#include <tobas_constants/imu.hpp>
+#include <tobas_constants/node.hpp>
+#include <tobas_constants/time.hpp>
 #include <tobas_geomag/core.hpp>
 #include <tobas_kdl_conversions/kdl_msg.hpp>
 #include <tobas_math/core.hpp>
@@ -23,7 +27,7 @@
 #include <tobas_msgs_adapter/gnss.hpp>
 #include <tobas_msgs_adapter/imu.hpp>
 #include <tobas_msgs_adapter/magnetic_field.hpp>
-#include <tobas_msgs_adapter/odometry.hpp>
+#include <tobas_msgs_adapter/odometry_with_covariance_stamped.hpp>
 
 #include "tobas_eskf/eskf.hpp"
 #include "tobas_eskf/util.hpp"
@@ -40,7 +44,7 @@ class ErrorStateKalmanFilterNode : public tobas::BaseNode
   using BaroMsg = tobas_msgs::msg::FluidPressure;
   using GnssMsg = tobas_msgs::Gnss;
   using PoseMsg = tobas_kdl_msgs::FrameWithCovarianceStamped;
-  using OdomMsg = tobas_msgs::Odometry;
+  using OdomMsg = tobas_msgs::OdometryWithCovarianceStamped;
   using MagRefMsg = tobas_msgs::MagneticField;
   using GnssOriginMsg = tobas_msgs::msg::GeodeticCoordinates;
   using FeedbackMsg = tobas_debug_msgs::ObserverFeedback;
@@ -68,6 +72,10 @@ class ErrorStateKalmanFilterNode : public tobas::BaseNode
   static constexpr double kInitRotStddev = M_PI_4;  // [rad]
   static constexpr double kInitMagStddev = 0.5;     // [-]
 
+  // Other constants
+  static constexpr double kAccurateAttitudeStddevThresh = 0.05;  // [rad]
+  static constexpr size_t kInitMagCount = 100;
+
 public:
   explicit ErrorStateKalmanFilterNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
@@ -93,6 +101,9 @@ private:
   double gnss_anomaly_score_ = 0.;
 
   eskf::ErrorStateKalmanFilter eskf_;
+
+  size_t init_mag_cnt_ = 0;
+  std::array<algo::Kahan<double>, 3> init_mag_sum_;
 
   // Static parameters
   std::string frame_id_;
@@ -189,12 +200,12 @@ private:
 };
 
 ErrorStateKalmanFilterNode::ErrorStateKalmanFilterNode(const rclcpp::NodeOptions& options)
-  : super(tobas::node::kObserver, options), tf_br_(this)
+  : super(tobas::node::kObserver, nodeOptions_DParam(options)), tf_br_(this)
 {
   getStaticRosParams();
 
   // Fill the static part of the transform message
-  tf_.header.frame_id = tobas::kWorldFrame;
+  tf_.header.frame_id = tobas::frame::kWorld;
   tf_.child_frame_id = frame_id_;
 
   // Register dynamic parameters
@@ -253,28 +264,28 @@ ErrorStateKalmanFilterNode::ErrorStateKalmanFilterNode(const rclcpp::NodeOptions
   }
 
   // Register publishers
-  odom_pub_ = createPublisher<OdomMsg>(tobas::kOdometryTopic);
-  mag_ref_pub_ = createPublisher<MagRefMsg>(tobas::kMagRefTopic, true, true);
-  gnss_origin_pub_ = createPublisher<GnssOriginMsg>(tobas::kGnssOriginTopic, true, true);
-  feedback_pub_ = createPublisher<FeedbackMsg>(tobas::kObsvFeedbackTopic);
+  odom_pub_ = createPublisher<OdomMsg>(tobas::topic::kOdometry);
+  mag_ref_pub_ = createPublisher<MagRefMsg>(tobas::topic::kMagRef, true, true);
+  gnss_origin_pub_ = createPublisher<GnssOriginMsg>(tobas::topic::kGnssOrigin, true, true);
+  feedback_pub_ = createPublisher<FeedbackMsg>(tobas::topic::kObsvFeedback);
 
   // Register subscribers
-  imu_raw_sub_ = createSubscriber(tobas::kImuRawTopic, &self::imuRawCb, this);
-  imu_filt_sub_ = createSubscriber(tobas::kImuFiltTopic, &self::imuFiltCb, this);
+  imu_raw_sub_ = createSubscriber(tobas::topic::kImuRaw, &self::imuRawCb, this);
+  imu_filt_sub_ = createSubscriber(tobas::topic::kImuFilt, &self::imuFiltCb, this);
   if (use_mag_) {
-    mag_sub_ = createSubscriber(tobas::kMagTopic, &self::magCb, this);
+    mag_sub_ = createSubscriber(tobas::topic::kMagneticField, &self::magCb, this);
   }
   if (use_baro_) {
-    baro_sub_ = createSubscriber(tobas::kAirPressureTopic, &self::baroCb, this);
+    baro_sub_ = createSubscriber(tobas::topic::kAirPressure, &self::baroCb, this);
   }
   if (use_gnss_) {
-    gnss_sub_ = createSubscriber(tobas::kGnssTopic, &self::gnssCb, this);
+    gnss_sub_ = createSubscriber(tobas::topic::kGnss, &self::gnssCb, this);
   }
-  pose_sub_ = createSubscriber(tobas::kExternalPoseTopic, &self::poseCb, this);
+  pose_sub_ = createSubscriber(tobas::topic::kExternalPose, &self::poseCb, this);
 
   // Register service servers
-  get_gnss_origin_ss_ = createService<GetOrigin>(tobas::kGetGnssOriginSrv, &self::getGnssOriginCb, this);
-  set_gnss_origin_ss_ = createService<SetOrigin>(tobas::kSetGnssOriginSrv, &self::setGnssOriginCb, this);
+  get_gnss_origin_ss_ = createService<GetOrigin>(tobas::service::kGetGnssOrigin, &self::getGnssOriginCb, this);
+  set_gnss_origin_ss_ = createService<SetOrigin>(tobas::service::kSetGnssOrigin, &self::setGnssOriginCb, this);
 }
 
 void ErrorStateKalmanFilterNode::getStaticRosParams()
@@ -318,13 +329,12 @@ bool ErrorStateKalmanFilterNode::setMagneticFieldRef(const Vector3d& mag_W)
   // でないとヨーの誤差が大きすぎる場合にロールピッチまでフィードバックの影響を受けてしまう
   if (mag_) {
     // 現在のRPYを取得
-    double old_roll, old_pitch, old_yaw;
     const auto R_W_B = eskf_.getQuaternion();
-    tbs::eulerFromQuaternion(R_W_B.x(), R_W_B.y(), R_W_B.z(), R_W_B.w(), old_roll, old_pitch, old_yaw);
+    const auto [old_roll, old_pitch, old_yaw] = tbs::eulerFromQuaternion(R_W_B.x(), R_W_B.y(), R_W_B.z(), R_W_B.w());
 
     // 地磁気をヨー角のみ機体と一致し，XY軸が地面と平行な地上座標系Gに移す．
-    const AngleAxisd R_W_G(old_yaw, Vector3d::UnitZ());
-    const auto mag_G = R_W_G.inverse() * (R_W_B * mag_->mag.data);  // 後ろから計算することで計算量を削減
+    const AngleAxisd R_G_B(old_yaw, Vector3d::UnitZ());
+    const auto mag_G = R_G_B.inverse() * (R_W_B * mag_->mag.data);  // 後ろから計算することで計算量を削減
     const auto& mx = mag_G.x();
     const auto& my = mag_G.y();
 
@@ -369,29 +379,29 @@ void ErrorStateKalmanFilterNode::fillOdometryMsg(OdomMsg& odom) const
 
   // Header
   odom.header.stamp = imu_raw_->header.stamp;
-  odom.header.frame_id = tobas::kWorldFrame;
+  odom.header.frame_id = tobas::frame::kWorld;
 
   // Position (Global): IMU frame -> Base frame
-  odom.frame.p.data = W_Pos_WI - W_Rot_B * imu_offset_;
-  odom.position_covariance = eskf_.getPositionCovariance();
+  odom.odom.odom.frame.p.data = W_Pos_WI - W_Rot_B * imu_offset_;
+  odom.odom.position_covariance = eskf_.getPositionCovariance();
 
   // Linear velocity (Local): IMU frame -> Base frame
-  odom.twist.vel.data = B_Rot_W * W_Vel_WI - B_Gyro.cross(imu_offset_);
-  odom.velocity_covariance = B_Rot_W * eskf_.getVelocityCovariance() * W_Rot_B;
+  odom.odom.odom.twist.vel.data = B_Rot_W * W_Vel_WI - B_Gyro.cross(imu_offset_);
+  odom.odom.velocity_covariance = B_Rot_W * eskf_.getVelocityCovariance() * W_Rot_B;
 
   // Orientation (Global)
-  odom.frame.M.data = W_Rot_B.toRotationMatrix();
-  odom.orientation_covariance = eskf_.getRotationCovariance();
+  odom.odom.odom.frame.M.data = W_Rot_B.toRotationMatrix();
+  odom.odom.orientation_covariance = eskf_.getRotationCovariance();
 
   // Angular velocity (Local)
-  odom.twist.rot.data = B_Gyro;
-  odom.gyro_covariance = fixed_gyro_cov_ + eskf_.getGyroBiasCovariance();
+  odom.odom.odom.twist.rot.data = B_Gyro;
+  odom.odom.gyro_covariance = fixed_gyro_cov_ + eskf_.getGyroBiasCovariance();
 
   // Linear acceleration (Local)
-  odom.accel.linear.data = B_Acc;
+  odom.odom.odom.accel.linear.data = B_Acc;
 
   // Angular acceleration (Local)
-  odom.accel.angular = imu_filt_->dgyro;
+  odom.odom.odom.accel.angular = imu_filt_->dgyro;
 }
 
 void ErrorStateKalmanFilterNode::publishMagRef(const Vector3d& mag_W) const
@@ -687,7 +697,7 @@ void ErrorStateKalmanFilterNode::imuRawCb(const ImuMsg::ConstSharedPtr& imu_raw)
 
   // Create TF message
   tf_.header.stamp = odom->header.stamp;
-  kdl::transformKDLToMsg(odom->frame, tf_.transform);
+  kdl::transformKDLToMsg(odom->odom.odom.frame, tf_.transform);
 
   // Publish odometry and TF
   odom_pub_->publish(std::move(odom));
@@ -712,7 +722,52 @@ void ErrorStateKalmanFilterNode::magCb(const MagMsg::ConstSharedPtr& mag)
 
   // 最初の地磁気を受け取った時にGPSが受け取れていなければ，ひとまず最初の地磁気ベクトルを参照とする．
   if (!mag_ref_set_) {
-    setMagneticFieldRef(mag_->mag.data);
+    // 姿勢が安定するまで待機
+    const auto rot_cov = eskf_.getRotationCovariance();
+    const auto atti_var = (rot_cov(0, 0) + rot_cov(1, 1)) / 2;
+    const auto atti_stddev = sqrt(atti_var);  // [rad]
+    if (atti_stddev > kAccurateAttitudeStddevThresh) {
+      TOBAS_INFO_THROTTLE(tobas::kTypicalInfoPeriod, "Waiting for attitude estimation to converge.");
+      return;
+    }
+
+    // フィルタリング後のIMUが取得できるまで待機
+    if (!imu_filt_) {
+      TOBAS_INFO_THROTTLE(tobas::kTypicalInfoPeriod, "Waiting for the filtered IMU messages.");
+      return;
+    }
+
+    // 動作を検知したら始めからやり直し
+    if (imu_filt_->gyro.norm() > tobas::kStaticGyroThresh) {
+      TOBAS_WARN_THROTTLE(
+        tobas::kTypicalWarnPeriod, "Motion was detected while measuring the reference magnetic field. Retrying...");
+      init_mag_cnt_ = 0;
+      for (auto& sum : init_mag_sum_) {
+        sum.reset();
+      }
+      return;
+    }
+
+    // 姿勢を補正し地上座標系から見た地磁気ベクトルを求める
+    const auto R_W_B = eskf_.getQuaternion();
+    const auto [roll, pitch, _] = tbs::eulerFromQuaternion(R_W_B.x(), R_W_B.y(), R_W_B.z(), R_W_B.w());
+    const auto R_G_B = kdl::Rotation::RPY(roll, pitch, 0.);
+    const auto mag_G = R_G_B * mag->mag;
+
+    // 地磁気ベクトルを加算
+    for (size_t i = 0; i < 3; ++i) {
+      init_mag_sum_[i].add(mag_G(i));
+    }
+
+    // 十分に地磁気データが溜まったら平均値を参照ベクトルに設定
+    if (++init_mag_cnt_ >= kInitMagCount) {
+      Eigen::Vector3d init_mag_mean;
+      for (size_t i = 0; i < 3; ++i) {
+        init_mag_mean(i) = init_mag_sum_[i].get() / init_mag_cnt_;
+      }
+      setMagneticFieldRef(init_mag_mean);
+    }
+
     return;
   }
 

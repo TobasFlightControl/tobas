@@ -1,6 +1,6 @@
 #include <boost/polymorphic_pointer_cast.hpp>
 
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/time.hpp>
 #include <tobas_gazebo_common/constants.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_path_tools/join.hpp>
@@ -36,9 +36,9 @@ private:
 };
 
 ElectricRotorCommandHandlerNode::ElectricRotorCommandHandlerNode(const rclcpp::NodeOptions& options)
-  : super("gazebo_electric_rotor_command_handler", options)
+  : super("gazebo_electric_rotor_command_handler", nodeOptions_Default(options))
 {
-  drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
+  drone_sub_ = createSubscriber(tobas::topic::kDrone, &self::droneCb, this, true, true);
 }
 
 void ElectricRotorCommandHandlerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
@@ -62,8 +62,8 @@ void ElectricRotorCommandHandlerNode::droneCb(const tobas::Drone::ConstSharedPtr
   latency_pub_.initialize(shared_from_this());
 
   // Register subscribers
-  battery_sub_ = createSubscriber(tobas::kBatteryTopic, &self::batteryCb, this);
-  tar_speeds_sub_ = createSubscriber(tobas::kRotorSpeedsCmdTopic, &self::targetSpeedsCb, this);
+  battery_sub_ = createSubscriber(tobas::topic::kBattery, &self::batteryCb, this);
+  tar_speeds_sub_ = createSubscriber(tobas::topic::kRotorSpeedsCmd, &self::targetSpeedsCb, this);
 }
 
 void ElectricRotorCommandHandlerNode::batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery)
@@ -74,11 +74,11 @@ void ElectricRotorCommandHandlerNode::batteryCb(const tobas_msgs::msg::Battery::
 void ElectricRotorCommandHandlerNode::targetSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::ConstSharedPtr& tar_speeds)
 {
   if (!eprop_) {
-    TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Drone message is not received yet.");
+    TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Drone message has not been received yet.");
     return;
   }
   if (!battery_) {
-    TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Battery message is not received yet.");
+    TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Battery message has not been received yet.");
     return;
   }
 

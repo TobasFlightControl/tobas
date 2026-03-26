@@ -1,4 +1,4 @@
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_dsp/noise_variance_filter.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_ros2_tools/time.hpp>
@@ -33,11 +33,12 @@ private:
   void imuCb(const tobas_msgs::Imu::ConstSharedPtr& imu);
 };
 
-ImuNoiseFilter::ImuNoiseFilter(const rclcpp::NodeOptions& options) : super("imu_noise_filter", options)
+ImuNoiseFilter::ImuNoiseFilter(const rclcpp::NodeOptions& options)
+  : super("imu_noise_filter", nodeOptions_Default(options))
 {
   acc_noise_pub_ = createPublisher<Eigen::Matrix3d>("accel_covariance");
   gyro_noise_pub_ = createPublisher<Eigen::Matrix3d>("gyro_covariance");
-  imu_sub_ = createSubscriber(tobas::kImuRawTopic, &self::imuCb, this);
+  imu_sub_ = createSubscriber(tobas::topic::kImuRaw, &self::imuCb, this);
 }
 
 void ImuNoiseFilter::imuCb(const tobas_msgs::Imu::ConstSharedPtr& imu)

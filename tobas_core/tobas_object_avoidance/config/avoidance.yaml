@@ -2,4 +2,4 @@
   ros__parameters:
     min_safety_distance: 30.0
     repulsive_gain: 1.0
-    force_to_acc_gain: 1500.0
+    force_to_acc_gain: 1.0

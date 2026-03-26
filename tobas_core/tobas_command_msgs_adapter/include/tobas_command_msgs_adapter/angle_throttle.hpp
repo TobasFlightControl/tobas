@@ -17,6 +17,8 @@ struct AngleThrottle
 
   using SharedPtr = std::shared_ptr<AngleThrottle>;
   using ConstSharedPtr = std::shared_ptr<const AngleThrottle>;
+  using UniquePtr = std::unique_ptr<AngleThrottle>;
+  using ConstUniquePtr = std::unique_ptr<const AngleThrottle>;
 };
 }  // namespace tobas_command_msgs
 

@@ -17,6 +17,9 @@ public:
 
   static inline TwistAcc Zero();
 
+  inline void setZero();
+  inline void setNaN();
+
   // Changes the reference point of the TwistAcc.
   // The RVector v_base_AB is expressed in the same base as the TwistAcc
   // The RVector v_base_AB is a RVector from the old point to
@@ -57,6 +60,18 @@ inline TwistAcc::TwistAcc(const VectorAcc& _vel, const VectorAcc& _rot) : vel(_v
 inline TwistAcc TwistAcc::Zero()
 {
   return TwistAcc(VectorAcc::Zero(), VectorAcc::Zero());
+}
+
+inline void TwistAcc::setZero()
+{
+  vel.setZero();
+  rot.setZero();
+}
+
+inline void TwistAcc::setNaN()
+{
+  vel.setNaN();
+  rot.setNaN();
 }
 
 inline TwistAcc TwistAcc::refPoint(const VectorAcc& v_base_AB)

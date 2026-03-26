@@ -6,6 +6,19 @@ namespace fs = std::filesystem;
 
 namespace ros2
 {
+namespace
+{
+inline bool isLower(char c)
+{
+  return c >= 'a' && c <= 'z';
+}
+
+inline bool isDigit(char c)
+{
+  return c >= '0' && c <= '9';
+}
+}  // namespace
+
 std::expected<fs::path, std::string> getPackagePathOf(const fs::path& path)
 {
   if (!fs::exists(path)) {
@@ -90,6 +103,27 @@ bool isAlreadyBuiltAndInstalled(const fs::path& pkg_path)
   const auto setup_py_path = pkg_path / "setup.py";
   if (fs::is_regular_file(setup_py_path)) {
     return false;
+  }
+
+  return true;
+}
+
+bool isValidPackageName(const std::string& pkg_name)
+{
+  if (pkg_name.empty()) {
+    return false;
+  }
+
+  const auto& c0 = pkg_name[0];
+  if (!isLower(c0)) {
+    return false;
+  }
+
+  for (size_t i = 1; i < pkg_name.size(); ++i) {
+    const auto& c = pkg_name[i];
+    if (!isLower(c) && !isDigit(c) && c != '_') {
+      return false;
+    }
   }
 
   return true;

@@ -24,11 +24,11 @@ class CustomFrameWidget : public BaseControllerWidget
   static constexpr char kAngleThrottleVectorLabel[] = "Euler Angle + Throttle + Thrust Direction";
   static constexpr char kAccelYawLabel[] = "Accel + Yaw";
   static constexpr char kAccelPitchYawLabel[] = "Accel + Pitch + Yaw";
-  static constexpr char kPosVelYawLabel[] = "Position + Velocity + Yaw";
-  static constexpr char kPosVelPitchYawLabel[] = "Position + Velocity + Pitch + Yaw";
+  static constexpr char kPosVelAccYawLabel[] = "Position + Velocity + Yaw";
+  static constexpr char kPosVelAccPitchYawLabel[] = "Position + Velocity + Pitch + Yaw";
   static constexpr char kAccelRateLabel[] = "Accel + Angle Rate";
   static constexpr char kAccelAngleLabel[] = "Accel + Euler Angle";
-  static constexpr char kPosVelAngleLabel[] = "Position + Velocity + Angle";
+  static constexpr char kPosVelAccAngleLabel[] = "Position + Velocity + Angle";
   static constexpr char kSpeedRollDeltaPitchLabel[] = "Speed + Roll + Pitch";
 
 public:
@@ -57,11 +57,11 @@ private:
     { kAngleThrottleVectorLabel, tobas::RcCommand::kAngleThrottleVector },
     { kAccelYawLabel, tobas::RcCommand::kAccelYaw },
     { kAccelPitchYawLabel, tobas::RcCommand::kAccelPitchYaw },
-    { kPosVelYawLabel, tobas::RcCommand::kPosVelYaw },
-    { kPosVelPitchYawLabel, tobas::RcCommand::kPosVelPitchYaw },
+    { kPosVelAccYawLabel, tobas::RcCommand::kPosVelAccYaw },
+    { kPosVelAccPitchYawLabel, tobas::RcCommand::kPosVelAccPitchYaw },
     { kAccelRateLabel, tobas::RcCommand::kAccelRate },
     { kAccelAngleLabel, tobas::RcCommand::kAccelAngle },
-    { kPosVelAngleLabel, tobas::RcCommand::kPosVelAngle },
+    { kPosVelAccAngleLabel, tobas::RcCommand::kPosVelAccAngle },
     { kSpeedRollDeltaPitchLabel, tobas::RcCommand::kSpeedRollDPitch },
   };
 

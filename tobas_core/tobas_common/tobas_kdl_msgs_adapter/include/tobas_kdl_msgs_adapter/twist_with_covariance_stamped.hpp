@@ -15,6 +15,8 @@ struct TwistWithCovarianceStamped
 
   using SharedPtr = std::shared_ptr<TwistWithCovarianceStamped>;
   using ConstSharedPtr = std::shared_ptr<const TwistWithCovarianceStamped>;
+  using UniquePtr = std::unique_ptr<TwistWithCovarianceStamped>;
+  using ConstUniquePtr = std::unique_ptr<const TwistWithCovarianceStamped>;
 };
 }  // namespace tobas_kdl_msgs
 

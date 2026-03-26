@@ -5,7 +5,7 @@
 #include <QStyle>
 #include <QVBoxLayout>
 
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/font.hpp>
 #include <tobas_qt_tools/message.hpp>
@@ -43,7 +43,7 @@ bool ParamBlockWidget::load(const std::string& ns)
   clear();
 
   // Get dynamic parameters
-  const auto service_name = path::join(ns, tobas::kRemoteIfaceTopicNS, node_name_, tobas::kGetDynamicParamsSrv);
+  const auto service_name = path::join(ns, tobas::kRemoteIfaceNS, node_name_, tobas::service::kGetDynamicParams);
   ros2::SyncServiceClient<tobas_dparam_msgs::srv::GetParams> sc(node_, service_name);
   const auto req = std::make_shared<tobas_dparam_msgs::srv::GetParams::Request>();
   if (!sc.call(req, kLoadParamTimeout)) {

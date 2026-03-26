@@ -3,7 +3,7 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_mission_items/mission_items.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/cast.hpp>
@@ -107,7 +107,7 @@ void MissionPlannerWidget::updateNamespace(const std::string& ns)
 {
   reset();
 
-  const auto action_name = path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kExecuteMissionAction);
+  const auto action_name = path::join(ns, tobas::kRemoteIfaceNS, tobas::action::kExecuteMission);
   mission_ac_ = rclcpp_action::create_client<Action>(node_, action_name);
 }
 
@@ -604,9 +604,9 @@ void MissionPlannerWidget::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss)
   map_->setArrowPosition(gnss->latitude, gnss->longitude);
 }
 
-void MissionPlannerWidget::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
+void MissionPlannerWidget::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom)
 {
-  const auto yaw = odom->frame.M.getYaw();
+  const auto yaw = odom->odom.odom.frame.M.getYaw();
   map_->setArrowRotation(-tbs::rad2deg(yaw - M_PI_2));  // 東向きが方位の基準なので90degのオフセットを考慮
 }
 

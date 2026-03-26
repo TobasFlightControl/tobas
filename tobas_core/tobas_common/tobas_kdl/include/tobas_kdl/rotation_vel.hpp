@@ -24,6 +24,7 @@ public:
   static inline RotationVel Rot(const Vector& axis, const doubleVel& angle);
 
   inline void setIdentity();
+  inline void setNaN();
 
   inline RotationVel inverse() const;
   inline VectorVel inverse(const VectorVel& arg) const;
@@ -78,6 +79,12 @@ inline void RotationVel::setIdentity()
 {
   R.setIdentity();
   w.setZero();
+}
+
+inline void RotationVel::setNaN()
+{
+  R.setNaN();
+  w.setNaN();
 }
 
 inline RotationVel RotationVel::inverse() const

@@ -18,6 +18,9 @@ class RemoteConnectionWidget : public QWidget
   using self = RemoteConnectionWidget;
   using super = QWidget;
 
+Q_SIGNALS:
+  void disconnected();
+
 public:
   explicit RemoteConnectionWidget(const RosQtBridge& bridge);
 
@@ -26,6 +29,13 @@ public:
   void restart();
 
 private:
+  enum State
+  {
+    kConnected,
+    kDisonnected,
+    kUnknown,
+  } state_ = kUnknown;
+
   const RosQtBridge& bridge_;
 
   QPixmap connected_;

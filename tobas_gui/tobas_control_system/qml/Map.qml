@@ -21,6 +21,9 @@ Rectangle {
   function clamp(v, lb, ub) {
     return Math.min(ub, Math.max(lb, v));
   }
+  function mapObjectScale() {
+    return Math.min(map.scale, Constants.maxMapObjectScale);
+  }
   function onSetArrowPosition(latitude, longitude) {
     arrow.coordinate = QtPositioning.coordinate(latitude, longitude);
   }
@@ -80,10 +83,10 @@ Rectangle {
     center: QtPositioning.coordinate(Constants.defaultLatitude, Constants.defaultLongitude)
     copyrightsVisible: false
     maximumZoomLevel: 22 // タイルサーバに合わせて調整する (大きすぎるのは問題ない)
-    minimumZoomLevel: 0 // 最小
+    minimumZoomLevel: 3 // 地図全体が見える最大値に設定
     objectName: "map" // Qt側からアクセスするためのオブジェクト名
     plugin: mapPlugin
-    zoomLevel: 0
+    zoomLevel: 3
 
     Component.onCompleted: {
       requested_zoom = zoomLevel;
@@ -109,14 +112,16 @@ Rectangle {
     // Arrow
     MapQuickItem {
       id: arrow
+      anchorPoint.x: arrowImage.width / 2
+      anchorPoint.y: arrowImage.height / 2
       coordinate: QtPositioning.coordinate(0, 0)
       objectName: "arrow"
 
       sourceItem: Image {
         id: arrowImage
-        height: 30
+        height: 32 / mapObjectScale()
         source: "./arrow.png" // アイコン画像の相対パス
-        width: 30
+        width: 32 / mapObjectScale()
 
         transform: Rotation {
           id: arrowRotation
@@ -137,6 +142,7 @@ Rectangle {
     // WaypointModel
     MapItemView {
       model: WaypointModel
+      z: 3 // 他のオブジェクトと重なった際の優先度
 
       // Rectangleはdelegateに設定できないため，MapQuickItemを使う
       delegate: MapQuickItem {
@@ -148,28 +154,31 @@ Rectangle {
         sourceItem: Rectangle {
           id: circle
           border.color: "black"
-          border.width: 2
+          border.pixelAligned: false // 小数値の枠線幅を許容
+          border.width: 2 / mapObjectScale()
           color: model.marker_color
-          height: 30
-          radius: 15 // 半径を正方形の辺長の半分に設定することで，正方形から円を作ることができる
-          width: 30
-
-          // 親オブジェクトに対する相対座標
+          height: 32 / mapObjectScale()
+          radius: 16 / mapObjectScale() // 半径を正方形の辺長の半分に設定することで，正方形から円を作ることができる
+          width: 32 / mapObjectScale()
           x: 0
           y: 0
 
           // 円の中心に番号を表示
           Text {
-            anchors.centerIn: parent
             color: "black"
-            font.pixelSize: 16
+            font.pixelSize: 16 / mapObjectScale() // 2以上じゃないとオーバーズームした際にアラインメントが崩れる
             text: model.index
+            x: (circle.width - width) / 2
+            y: (circle.height - height) / 2
           }
 
           // 円をドラッグ・アンド・ドロップできるようにするための設定
           MouseArea {
             anchors.fill: parent
+            cursorShape: pressed ? Qt.ClosedHandCursor : Qt.OpenHandCursor
+            drag.smoothed: false // ターゲットがカーソル位置に直ちに移動
             drag.target: parent
+            drag.threshold: 0 // ドラッグしたらすぐに移動開始
 
             onReleased: {
               // ドラッグ・アンド・ドロップによって発生した，親オブジェクトに対する子オブジェクトの移動量
@@ -187,6 +196,8 @@ Rectangle {
               // 子オブジェクトのオフセットをリセット
               circle.x = 0;
               circle.y = 0;
+
+              // ウェイポイントの座標が変化したことを通知
               waypointMoved(model.index, new_coord.latitude, new_coord.longitude);
             }
           }
@@ -195,10 +206,11 @@ Rectangle {
     }
     MapItemView {
       model: WaypointModel // 1つのモデルに対して複数のMapItemViewを定義できる
+      z: 2
 
       delegate: MapCircle {
         border.color: "yellow"
-        border.width: 2
+        border.width: 2 / mapObjectScale()
         center: model.coordinate
         color: "transparent"
         radius: model.acceptance_radius // [m]
@@ -208,10 +220,11 @@ Rectangle {
     // LineModel
     MapItemView {
       model: LineModel
+      z: 1
 
       delegate: MapPolyline {
         line.color: "green"
-        line.width: 3
+        line.width: 3 / mapObjectScale()
         path: [{
             "latitude": model.latitude_1,
             "longitude": model.longitude_1

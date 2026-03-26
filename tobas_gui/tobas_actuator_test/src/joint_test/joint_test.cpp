@@ -1,6 +1,5 @@
 #include "tobas_actuator_test/joint_test/joint_test.hpp"
 
-#include <tobas_constants/constants.hpp>
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/message.hpp>
@@ -83,7 +82,7 @@ void JointTestWidget::onStartButtonClicked()
 {
   // アームされていないことを確認
   if (!arming_) {
-    qt::qWarnBox(this, "This operation cannot be performed because the arming status is not received yet.");
+    qt::qWarnBox(this, "This operation cannot be performed because the arming status has not been received yet.");
     return;
   }
   if (arming_->data) {

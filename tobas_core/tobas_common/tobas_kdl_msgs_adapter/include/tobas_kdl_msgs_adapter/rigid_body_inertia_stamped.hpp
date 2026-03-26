@@ -17,6 +17,8 @@ struct RigidBodyInertiaStamped
 
   using SharedPtr = std::shared_ptr<RigidBodyInertiaStamped>;
   using ConstSharedPtr = std::shared_ptr<const RigidBodyInertiaStamped>;
+  using UniquePtr = std::unique_ptr<RigidBodyInertiaStamped>;
+  using ConstUniquePtr = std::unique_ptr<const RigidBodyInertiaStamped>;
 };
 }  // namespace tobas_kdl_msgs
 

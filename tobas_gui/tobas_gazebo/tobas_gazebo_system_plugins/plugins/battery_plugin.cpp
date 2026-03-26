@@ -1,4 +1,4 @@
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_gazebo_common/constants.hpp>
 #include <tobas_gazebo_conversions/gazebo_ros.hpp>
 #include <tobas_path_tools/join.hpp>
@@ -101,13 +101,13 @@ void GazeboBatteryPlugin::Configure(
   voltage_noise_ = NormalDistribution(0., voltage_noise_stddev_);
   current_noise_ = NormalDistribution(0., current_noise_stddev_);
 
-  battery_pub_ = createPublisher<tobas_msgs::msg::Battery>(tobas::kBatteryTopic);
+  battery_pub_ = createPublisher<tobas_msgs::msg::Battery>(tobas::topic::kBattery);
   battery_gt_pub_ = createPublisher<tobas_msgs::msg::Battery>(kBatteryGtTopic);
 
   // モータ状態のコールバックとサブスクライバを設定
   for (const auto& link_name : rotor_link_names_) {
     const auto topic = path::join(kRotorStateGtTopicNS, link_name);
-    const auto qos = ros2::makeQoS(false, false, 1);
+    const ros2::qos::QoS qos(false, false, 1);
     const auto cb = [this, link_name](const tobas_gazebo_msgs::msg::RotorState::ConstSharedPtr& msg)
     {
       if (msg->current < 0.) {

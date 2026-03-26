@@ -34,7 +34,6 @@ def generate_launch_description():
     config_pkg_share = FindPackageShare(CONFIG_PKG_NAME)
     user_cpp_pkg_share = FindPackageShare(USER_CPP_PKG_NAME)
     hw_pkg_share = FindPackageShare(HARDWARE_PKG)
-    extra_args = [{"use_intra_process_comms": True}]
 
     # Parse URDF
     xacro_path = PathJoinSubstitution([FindPackageShare(CONFIG_PKG_NAME), "urdf", "drone.xacro"])
@@ -76,13 +75,11 @@ def generate_launch_description():
                     package="tobas_real_ros",
                     plugin="ImuHandlerNode",
                     namespace=DRONE_NAME,
-                    extra_arguments=extra_args,
                 ),
                 ComposableNode(
                     package="tobas_real_ros",
                     plugin="IcePropulsionSystemHandlerNode",
                     namespace=DRONE_NAME,
-                    extra_arguments=extra_args,
                 ),
             ],
         )
@@ -99,32 +96,27 @@ def generate_launch_description():
                     namespace=DRONE_NAME,
                     parameters=[{"robot_description": urdf_text}],
                     remappings=[("/tf", "tf"), ("/tf_static", "tf_static")],
-                    extra_arguments=extra_args,
                 ),
                 ComposableNode(
                     package="tobas_sbus_driver",
                     plugin="SbusDriverNode",
                     namespace=DRONE_NAME,
                     parameters=[{"device": "/dev/ttyAMA0"}],  # TODO: FMUに応じてデバイスを変更
-                    extra_arguments=extra_args,
                 ),
                 ComposableNode(
                     package="tobas_real_ros",
                     plugin="RCInputHandlerNode",
                     namespace=DRONE_NAME,
-                    extra_arguments=extra_args,
                 ),
                 ComposableNode(
                     package="tobas_real_ros",
                     plugin="MagnetometerHandlerNode",
                     namespace=DRONE_NAME,
-                    extra_arguments=extra_args,
                 ),
                 ComposableNode(
                     package="tobas_real_ros",
                     plugin="JointsHandlerNode",
                     namespace=DRONE_NAME,
-                    extra_arguments=extra_args,
                 ),
             ],
         )
@@ -139,7 +131,6 @@ def generate_launch_description():
                     package="tobas_real_ros",
                     plugin="CpuHandlerNode",
                     namespace=DRONE_NAME,
-                    extra_arguments=extra_args,
                 ),
             ],
         )

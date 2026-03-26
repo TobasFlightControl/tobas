@@ -6,9 +6,9 @@
 #include <QFormLayout>
 #include <QVBoxLayout>
 
-#include <tobas_constants/constants.hpp>
 #include <tobas_crypt/crypt.hpp>
 #include <tobas_crypt/yescrypt.hpp>
+#include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/string.hpp>
 #include <tobas_qt_tools/util.hpp>
@@ -77,7 +77,7 @@ void LoginPasswordWidget::onWriteButtonClicked()
   const auto shadow_path = fs::path(kRootPath) / "etc/shadow";
   const auto pswd = pswd1_->text().toStdString();
 
-  if (!crypt::setShadowPassword(shadow_path, tobas::kFmuUserName, pswd, crypt::Yescrypt())) {
+  if (!crypt::setShadowPassword(shadow_path, ::gui::cmn::kUserNameFC, pswd, crypt::Yescrypt())) {
     qt::qErrorBox(this, "Failed to update login password.");
     return;
   }

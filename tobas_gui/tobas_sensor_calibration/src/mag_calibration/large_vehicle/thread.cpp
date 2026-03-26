@@ -1,9 +1,9 @@
 #include "tobas_sensor_calibration/mag_calibration/large_vehicle/thread.hpp"
 
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_geomag/core.hpp>
 #include <tobas_path_tools/join.hpp>
-#include <tobas_real_common/constants.hpp>
+#include <tobas_real_common/handler.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_time_tools/util.hpp>
 
@@ -20,17 +20,22 @@ LargeVehicleMagCalibThread::LargeVehicleMagCalibThread(rclcpp::Node::SharedPtr n
 {
   connect(&bridge, &RosQtBridge::rawMagReceived, this, &self::magCb, Qt::QueuedConnection);
   connect(&bridge, &RosQtBridge::gnssReceived, this, &self::gnssCb, Qt::QueuedConnection);
+  connect(&bridge, &RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
 }
 
 void LargeVehicleMagCalibThread::run()
 {
   // 必要なトピックが受け取れていることを確認
   if (!mag_raw_) {
-    Q_EMIT finished(false, "Magnetic field is not received yet.");
+    Q_EMIT finished(false, "Magnetic field has not been received yet.");
     return;
   }
   if (!gnss_) {
-    Q_EMIT finished(false, "GNSS is not received yet.");
+    Q_EMIT finished(false, "GNSS has not been received yet.");
+    return;
+  }
+  if (!arming_) {
+    Q_EMIT finished(false, "Arming status has not been received yet.");
     return;
   }
 
@@ -61,6 +66,11 @@ void LargeVehicleMagCalibThread::run()
   while (rclcpp::ok()) {
     if (cnt_ >= kDataCount) {
       break;
+    }
+    if (arming_->data) {  // データ収集中にアームされたら強制終了
+      Q_EMIT finished(false, "Accelerometer calibration was canceled because an arming command was issued.");
+      get_data_ = false;
+      return;
     }
     if (clock->now() - start_time > kCollectDataTimeout) {
       Q_EMIT finished(false, "Timeout before Magnetic field collection is completed.");
@@ -97,7 +107,7 @@ void LargeVehicleMagCalibThread::run()
 
   // パラメータを更新
   ros2::SyncServiceClient<tobas_real_msgs::srv::SetMagnetometerParams> sc(
-    node_, path::join(ns_, tobas::kRemoteIfaceTopicNS, real::handler::mag::kSetParamSrv));
+    node_, path::join(ns_, tobas::kRemoteIfaceNS, real::handler::mag::kSetParamSrv));
   if (!sc.call(req, kSetParamTimeout)) {
     Q_EMIT finished(false, "Failed to send calibration results.");
     return;
@@ -110,7 +120,7 @@ void LargeVehicleMagCalibThread::run()
     return;
   }
 
-  Q_EMIT finished(true, "Magnetometer calibration finished successfully.");
+  Q_EMIT finished(true, "");
 }
 
 void LargeVehicleMagCalibThread::reset()
@@ -148,6 +158,11 @@ void LargeVehicleMagCalibThread::magCb(const tobas_msgs::MagneticField::ConstSha
 void LargeVehicleMagCalibThread::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss)
 {
   gnss_ = gnss;
+}
+
+void LargeVehicleMagCalibThread::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
+{
+  arming_ = arming;
 }
 }  // namespace sc
 }  // namespace gui

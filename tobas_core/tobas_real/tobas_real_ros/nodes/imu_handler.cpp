@@ -1,9 +1,12 @@
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/imu.hpp>
+#include <tobas_constants/path.hpp>
+#include <tobas_constants/time.hpp>
 #include <tobas_dsp/low_pass_filter_p1.hpp>
 #include <tobas_linux/core.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_property_tree/property_tree.hpp>
-#include <tobas_real_common/constants.hpp>
+#include <tobas_real_common/handler.hpp>
+#include <tobas_real_common/ros_interface.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_ros2_tools/util.hpp>
 #include <tobas_std_tools/check.hpp>
@@ -11,6 +14,7 @@
 #include <tobas_msgs_adapter/imu.hpp>
 #include <tobas_real_msgs/srv/set_imu_params.hpp>
 
+using namespace std::chrono_literals;
 using namespace real::handler::imu;
 namespace fs = std::filesystem;
 
@@ -20,9 +24,9 @@ class ImuHandlerNode : public tobas::BaseNode
   using super = tobas::BaseNode;
   using SetParams = tobas_real_msgs::srv::SetImuParams;
 
-  static constexpr int kMeasureGyroBiasCount = 1000;   // [-]
-  static constexpr double kStaticGyroThreshold = 0.1;  // [rad/s]
-  static constexpr double kGyroLpfCutoff = 30.;        // [Hz]
+  static constexpr int kMeasureGyroBiasCount = 1000;  // [-]
+  static constexpr double kGyroLpfCutoff = 30.;       // [Hz]
+  static constexpr auto kMotionDetectedDeadTime = 3s;
 
 public:
   explicit ImuHandlerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -43,6 +47,7 @@ private:
   std::array<algo::Kahan<double>, 3> gyro_sum_;
   dsp::LowPassFilterP1<kdl::Vector> gyro_lpf_;
   tobas_msgs::Imu::ConstSharedPtr imu_raw_in_;
+  builtin_interfaces::msg::Time t_last_motion_detected_;
 
   ptree::PropertyTree pt_;
 
@@ -61,7 +66,8 @@ private:
   void setParamsCb(const SetParams::Request::ConstSharedPtr& req, const SetParams::Response::SharedPtr& res);
 };
 
-ImuHandlerNode::ImuHandlerNode(const rclcpp::NodeOptions& options) : super("real_imu_handler", options)
+ImuHandlerNode::ImuHandlerNode(const rclcpp::NodeOptions& options)
+  : super("real_imu_handler", nodeOptions_Default(options))
 {
   TOBAS_CHECK(gyro_lpf_.setCutoffFrequency(kGyroLpfCutoff));
 
@@ -103,16 +109,17 @@ bool ImuHandlerNode::getConfig()
 
 void ImuHandlerNode::registerPubSub()
 {
-  imu_raw_pub_ = createPublisher<tobas_msgs::Imu>(tobas::kImuRawTopic);
-  imu_filt_pub_ = createPublisher<tobas_msgs::Imu>(tobas::kImuFiltTopic);
-  imu_raw_sub_ = createSubscriber(real::kImuRawTopic, &self::imuRawCb, this);
-  imu_filt_sub_ = createSubscriber(real::kImuFiltTopic, &self::imuFiltCb, this);
+  imu_raw_pub_ = createPublisher<tobas_msgs::Imu>(tobas::topic::kImuRaw);
+  imu_filt_pub_ = createPublisher<tobas_msgs::Imu>(tobas::topic::kImuFilt);
+  imu_raw_sub_ = createSubscriber(real::topic::kImuRaw, &self::imuRawCb, this);
+  imu_filt_sub_ = createSubscriber(real::topic::kImuFilt, &self::imuFiltCb, this);
 }
 
 void ImuHandlerNode::imuRawCb(const tobas_msgs::Imu::ConstSharedPtr& imu_raw_in)
 {
   switch (stage_) {
     case kMeasureGyroBias: {
+      const auto& cur_time = imu_raw_in->header.stamp;
       const auto& gyro_raw = imu_raw_in->gyro;
 
       if (!imu_raw_in_) {
@@ -122,19 +129,24 @@ void ImuHandlerNode::imuRawCb(const tobas_msgs::Imu::ConstSharedPtr& imu_raw_in)
       }
 
       // 外れ値やノイズの影響を減らすためジャイロをLPFに通す
-      const auto dt = (imu_raw_in->header.stamp - imu_raw_in_->header.stamp).seconds();
+      const auto dt = (cur_time - imu_raw_in_->header.stamp).seconds();
       imu_raw_in_ = imu_raw_in;
       gyro_lpf_.update(gyro_raw, dt);
       const auto& gyro_filt = gyro_lpf_.getValue();
 
-      // 角速度が大きすぎる場合はやり直し
-      if (gyro_filt.norm() > kStaticGyroThreshold) {
-        TOBAS_WARN_THROTTLE(
-          1., "Perturbation is detected while measuring gyro bias: ", gyro_filt, " [rad/s]. Retrying...");
+      // 角速度が大きすぎる場合は機体が運動しているとみなしてやり直し
+      if (gyro_filt.norm() > tobas::kStaticGyroThresh) {
+        TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Motion was detected while measuring the gyro bias. Retrying...");
         gyro_bias_cnt_ = 0;
-        for (size_t i = 0; i < 3; ++i) {
-          gyro_sum_[i].reset();
+        for (auto& sum : gyro_sum_) {
+          sum.reset();
         }
+        t_last_motion_detected_ = cur_time;
+        break;
+      }
+
+      // 最後に機体の運動を検知してから一定時間は計測しない
+      if (cur_time - t_last_motion_detected_ < kMotionDetectedDeadTime) {
         break;
       }
 

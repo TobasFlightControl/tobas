@@ -1,6 +1,6 @@
 #include "tobas_tools/control_latency_publisher.hpp"
 
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_ros2_tools/time.hpp>
 
 namespace tobas
@@ -12,7 +12,7 @@ ControlLatencyPublisher::ControlLatencyPublisher()
 void ControlLatencyPublisher::initialize(rclcpp::Node::SharedPtr node)
 {
   node_ = node;
-  pub_ = ros2::createPublisher<tobas_msgs::msg::Latency>(node, tobas::kControlLatencyTopic);
+  pub_ = ros2::createPublisher<tobas_msgs::msg::Latency>(node, topic::kControlLatency);
 }
 
 void ControlLatencyPublisher::publish(const builtin_interfaces::msg::Time& start_time)

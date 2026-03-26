@@ -57,7 +57,7 @@ private:
   static double yawToWidth(double yaw);
 
 private Q_SLOTS:
-  void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
+  void odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom);
 };
 }  // namespace ctrl
 }  // namespace gui

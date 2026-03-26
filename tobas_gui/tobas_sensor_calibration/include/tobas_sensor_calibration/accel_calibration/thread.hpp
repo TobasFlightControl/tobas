@@ -17,7 +17,7 @@ class AccelCalibrationThread : public QThread
   using super = QThread;
 
   static constexpr size_t kDataCount = 200;
-  static constexpr auto kCollectDataTimeout = std::chrono::seconds(10);
+  static constexpr auto kCollectDataTimeout = std::chrono::seconds(30);
   static constexpr double kAccelBiasNormThresh = 1.;  // [m/s^2] ISM330DLCで最大 85mg (= 0.83m/s^2) のオフセット
 
 Q_SIGNALS:
@@ -37,6 +37,7 @@ private:
   std::string ns_;
 
   tobas_msgs::Imu::ConstSharedPtr imu_raw_;
+  tobas_msgs::msg::Arming::ConstSharedPtr arming_;
 
   bool get_data_ = false;
   size_t cnt_;
@@ -44,6 +45,7 @@ private:
 
 private Q_SLOTS:
   void imuCb(const tobas_msgs::Imu::ConstSharedPtr& imu_raw);
+  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
 };
 }  // namespace sc
 }  // namespace gui

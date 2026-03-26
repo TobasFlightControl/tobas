@@ -3,7 +3,7 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/message.hpp>
@@ -82,15 +82,15 @@ void BasePoseCommanderWidget::updateInternalDataStructures()
 {
   const auto& ns = drone_.name;
 
-  angle_pub_ = ros2::createPublisher<tobas_command_msgs::Angle>(node_, path::join(ns, tobas::kAngleCmdTopic));
-  pos_vel_pub_ = ros2::createPublisher<tobas_command_msgs::PosVel>(node_, path::join(ns, tobas::kPosVelCmdTopic));
-  pos_vel_yaw_pub_ =
-    ros2::createPublisher<tobas_command_msgs::PosVelYaw>(node_, path::join(ns, tobas::kPosVelYawCmdTopic));
-  pos_vel_pitch_yaw_pub_ =
-    ros2::createPublisher<tobas_command_msgs::PosVelPitchYaw>(node_, path::join(ns, tobas::kPosVelPitchYawCmdTopic));
+  angle_pub_ = ros2::createPublisher<tobas_command_msgs::Angle>(node_, path::join(ns, tobas::topic::kAngleCmd));
+  pva_pub_ = ros2::createPublisher<tobas_command_msgs::PosVelAcc>(node_, path::join(ns, tobas::topic::kPosVelAccCmd));
+  pvay_pub_ =
+    ros2::createPublisher<tobas_command_msgs::PosVelAccYaw>(node_, path::join(ns, tobas::topic::kPosVelAccYawCmd));
+  pvapy_pub_ = ros2::createPublisher<tobas_command_msgs::PosVelAccPitchYaw>(
+    node_, path::join(ns, tobas::topic::kPosVelAccPitchYawCmd));
 
   set_arm_sc_ =
-    std::make_shared<ros2::SyncServiceClient<tobas_msgs::srv::SetArm>>(node_, path::join(ns, tobas::kSetArmSrv));
+    std::make_shared<ros2::SyncServiceClient<tobas_msgs::srv::SetArm>>(node_, path::join(ns, tobas::service::kSetArm));
 }
 
 bool BasePoseCommanderWidget::start()
@@ -103,7 +103,7 @@ bool BasePoseCommanderWidget::start()
     {
       if (!set_arm_sc_->waitForService()) {
         success = false;
-        message = "Failed to connect to \"" + QString(tobas::kSetArmSrv) + "\" service server.";
+        message = "Failed to connect to \"" + QString(tobas::service::kSetArm) + "\" service server.";
         return;
       }
     });
@@ -158,35 +158,40 @@ void BasePoseCommanderWidget::publishCurrentCommand()
     angle_pub_->publish(std::move(msg));
   }
 
-  if (pos_vel_pub_) {
-    auto msg = std::make_unique<tobas_command_msgs::PosVel>();
+  if (pva_pub_) {
+    auto msg = std::make_unique<tobas_command_msgs::PosVelAcc>();
     msg->priority.data = tobas_command_msgs::msg::Priority::NORMAL;
     msg->pos.x() = tar_x;
     msg->pos.y() = tar_y;
     msg->pos.z() = tar_z;
     msg->vel.setZero();
-    pos_vel_pub_->publish(std::move(msg));
+    msg->acc.setZero();
+    pva_pub_->publish(std::move(msg));
   }
 
-  if (pos_vel_yaw_pub_) {
-    auto msg = std::make_unique<tobas_command_msgs::PosVelYaw>();
+  if (pvay_pub_) {
+    auto msg = std::make_unique<tobas_command_msgs::PosVelAccYaw>();
     msg->priority.data = tobas_command_msgs::msg::Priority::NORMAL;
     msg->pos.x() = tar_x;
     msg->pos.y() = tar_y;
     msg->pos.z() = tar_z;
+    msg->vel.setZero();
+    msg->acc.setZero();
     msg->yaw = tar_yaw;
-    pos_vel_yaw_pub_->publish(std::move(msg));
+    pvay_pub_->publish(std::move(msg));
   }
 
-  if (pos_vel_pitch_yaw_pub_) {
-    auto msg = std::make_unique<tobas_command_msgs::PosVelPitchYaw>();
+  if (pvapy_pub_) {
+    auto msg = std::make_unique<tobas_command_msgs::PosVelAccPitchYaw>();
     msg->priority.data = tobas_command_msgs::msg::Priority::NORMAL;
     msg->pos.x() = tar_x;
     msg->pos.y() = tar_y;
     msg->pos.z() = tar_z;
+    msg->vel.setZero();
+    msg->acc.setZero();
     msg->pitch = tar_pitch;
     msg->yaw = tar_yaw;
-    pos_vel_pitch_yaw_pub_->publish(std::move(msg));
+    pvapy_pub_->publish(std::move(msg));
   }
 }
 
@@ -211,15 +216,15 @@ bool BasePoseCommanderWidget::armRotors(bool arming)
 void BasePoseCommanderWidget::onArmRequested()
 {
   if (!arming_) {
-    qt::qWarnBox(this, "Arming status is not received yet.");
+    qt::qWarnBox(this, "Arming status has not been received yet.");
     return;
   }
   if (!odom_) {
-    qt::qWarnBox(this, "Odometry is not received yet.");
+    qt::qWarnBox(this, "Odometry has not been received yet.");
     return;
   }
   if (!rcin_) {
-    qt::qWarnBox(this, "RC input is not received yet.");
+    qt::qWarnBox(this, "RC input has not been received yet.");
     return;
   }
 
@@ -236,8 +241,8 @@ void BasePoseCommanderWidget::onArmRequested()
   }
 
   // 現在の位置姿勢を取得
-  const auto& cur_pos = odom_->frame.p;
-  const kdl::Euler cur_rpy(odom_->frame.M);
+  const auto& cur_pos = odom_->odom.odom.frame.p;
+  const kdl::Euler cur_rpy(odom_->odom.odom.frame.M);
 
   // 初期コマンドを現在の位置姿勢に設定
   cmd_xyz_[0]->setValue(cur_pos.x());
@@ -262,7 +267,7 @@ void BasePoseCommanderWidget::onArmRequested()
 void BasePoseCommanderWidget::onDisarmRequested()
 {
   if (!arming_) {
-    qt::qWarnBox(this, "Arming status is not received yet.");
+    qt::qWarnBox(this, "Arming status has not been received yet.");
     return;
   }
 
@@ -302,7 +307,7 @@ void BasePoseCommanderWidget::armingCb(const tobas_msgs::msg::Arming::ConstShare
   arming_ = arming;
 }
 
-void BasePoseCommanderWidget::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
+void BasePoseCommanderWidget::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom)
 {
   odom_ = odom;
 }

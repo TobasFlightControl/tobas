@@ -1,6 +1,6 @@
 #include "tobas_object_avoidance/tobas_object_avoidance.hpp"
 
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/ros_interface.hpp>
 
 namespace tobas
 {
@@ -15,9 +15,9 @@ TobasObjectAvoidance::TobasObjectAvoidance(const rclcpp::NodeOptions& options)
   octomap_sub_ = this->create_subscription<octomap_msgs::msg::Octomap>(
     "/object_octomap", 10, std::bind(&TobasObjectAvoidance::octomapCallback, this, std::placeholders::_1));
 
-  odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCallback, this);
+  // odom_sub_ = createSubscriber(topic::kOdometry, &self::odomCallback, this);
 
-  repulsive_acc_pub = this->create_publisher<tobas_msgs::msg::RepulsiveAcceleration>("/rep_acc", 10);
+  repulsive_acc_pub_ = createPublisher<tobas_msgs::RepulsiveAcceleration>(topic::kRepulsiveAccelerationTopic);
 }
 
 void TobasObjectAvoidance::octomapCallback(const octomap_msgs::msg::Octomap::SharedPtr msg)
@@ -37,10 +37,10 @@ void TobasObjectAvoidance::octomapCallback(const octomap_msgs::msg::Octomap::Sha
   calculateRepulsiveForce();
 }
 
-void TobasObjectAvoidance::odomCallback(const tobas_msgs::Odometry::ConstSharedPtr& msg)
-{
-  current_odom_ = msg;
-}
+// void TobasObjectAvoidance::odomCallback(const tobas_msgs::Odometry::ConstSharedPtr& msg)
+// {
+//   current_odom_ = msg;
+// }
 
 void TobasObjectAvoidance::calculateRepulsiveForce()
 {
@@ -85,7 +85,7 @@ void TobasObjectAvoidance::calculateRepulsiveForce()
   repulsive_acc_msg.accel.y = repulsive_acc_y;
   repulsive_acc_msg.accel.z = repulsive_acc_z;
 
-  repulsive_acc_pub->publish(repulsive_acc_msg);
+  repulsive_acc_pub_->publish(repulsive_acc_msg);
 }
 
 }  // namespace tobas

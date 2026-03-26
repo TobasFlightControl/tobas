@@ -17,6 +17,8 @@ struct JntArrayVelStamped
 
   using SharedPtr = std::shared_ptr<JntArrayVelStamped>;
   using ConstSharedPtr = std::shared_ptr<const JntArrayVelStamped>;
+  using UniquePtr = std::unique_ptr<JntArrayVelStamped>;
+  using ConstUniquePtr = std::unique_ptr<const JntArrayVelStamped>;
 };
 }  // namespace tobas_kdl_msgs
 

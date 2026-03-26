@@ -17,6 +17,8 @@ struct RotationalInertiaStamped
 
   using SharedPtr = std::shared_ptr<RotationalInertiaStamped>;
   using ConstSharedPtr = std::shared_ptr<const RotationalInertiaStamped>;
+  using UniquePtr = std::unique_ptr<RotationalInertiaStamped>;
+  using ConstUniquePtr = std::unique_ptr<const RotationalInertiaStamped>;
 };
 }  // namespace tobas_kdl_msgs
 

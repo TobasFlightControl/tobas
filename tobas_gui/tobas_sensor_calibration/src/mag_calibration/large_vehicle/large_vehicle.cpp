@@ -54,7 +54,7 @@ void LargeVehicleMagCalibWidget::onStartButtonClicked()
 {
   // アームされていないことを確認
   if (!arming_) {
-    qt::qWarnBox(this, "This operation cannot be performed because the arming status is not received yet.");
+    qt::qWarnBox(this, "This operation cannot be performed because the arming status has not been received yet.");
     return;
   }
   if (arming_->data) {
@@ -67,7 +67,7 @@ void LargeVehicleMagCalibWidget::onStartButtonClicked()
   spinner_.stop();
 
   if (success) {
-    qt::qInfoBox(this, message);
+    qt::qInfoBox(this, "Magnetometer calibration finished successfully. Please restart the flight controller.");
   }
   else {
     qt::qErrorBox(this, message);

@@ -86,7 +86,7 @@ private:
   // ROS messages
   tobas_msgs::MagneticField::ConstSharedPtr mag_raw_;
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
-  tobas_msgs::Odometry::ConstSharedPtr odom_;
+  tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr odom_;
 
   // ROS Pub/Sub
   ros2::PublisherPtr<geometry_msgs::msg::PointStamped> samples_pub_;
@@ -139,7 +139,7 @@ private Q_SLOTS:
 
   void magCb(const tobas_msgs::MagneticField::ConstSharedPtr& msg);
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& msg);
-  void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& msg);
+  void odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& msg);
 };
 }  // namespace sc
 }  // namespace gui

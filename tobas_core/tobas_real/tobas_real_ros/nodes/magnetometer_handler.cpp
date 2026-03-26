@@ -1,13 +1,14 @@
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/path.hpp>
 #include <tobas_eigen_tools/core.hpp>
 #include <tobas_eigen_tools/ellipsoid.hpp>
 #include <tobas_linux/core.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_property_tree/property_tree.hpp>
+#include <tobas_real_common/handler.hpp>
 #include <tobas_ros2_tools/util.hpp>
 
 #include <tobas_msgs_adapter/magnetic_field.hpp>
-#include <tobas_real_common/constants.hpp>
+#include <tobas_real_common/ros_interface.hpp>
 #include <tobas_real_msgs/srv/set_magnetometer_params.hpp>
 
 using namespace real::handler::mag;
@@ -40,7 +41,7 @@ private:
 };
 
 MagnetometerHandlerNode::MagnetometerHandlerNode(const rclcpp::NodeOptions& options)
-  : super("real_magnetometer_handler", options)
+  : super("real_magnetometer_handler", nodeOptions_Default(options))
 {
   const auto cfg_dir = linux::isSuperUser() ? fs::path(tobas::kConfigDirRoot) : ros2::expandUser(tobas::kConfigDirHome);
   if (!pt_.initialize((cfg_dir / kConfigFileName))) {
@@ -80,8 +81,8 @@ bool MagnetometerHandlerNode::getConfig()
 
 void MagnetometerHandlerNode::registerPubSub()
 {
-  mag_pub_ = createPublisher<tobas_msgs::MagneticField>(tobas::kMagTopic);
-  mag_sub_ = createSubscriber(real::kMagTopic, &self::magCb, this);
+  mag_pub_ = createPublisher<tobas_msgs::MagneticField>(tobas::topic::kMagneticField);
+  mag_sub_ = createSubscriber(real::topic::kMagneticField, &self::magCb, this);
 }
 
 void MagnetometerHandlerNode::magCb(const tobas_msgs::MagneticField::ConstSharedPtr& mag_in)

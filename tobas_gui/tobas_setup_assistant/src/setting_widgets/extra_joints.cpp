@@ -180,6 +180,8 @@ void ExtraJointsWidget::setRole(int row, tobas::JointRole value)
     case tobas::JointRole::kUserPassive:
       text = kRoleLabel_UserPassive;
       break;
+    case tobas::JointRole::kTiltJoint:
+    case tobas::JointRole::kControlSurface:
     default:
       throw;
   }
@@ -317,6 +319,8 @@ void ExtraJointsWidget::setDefaultValues(int row)
     case tobas::JointRole::kUserPassive:
       commandIfaceWidget(row)->setCurrentText(kCmdIfaceLabel_None);
       break;
+    case tobas::JointRole::kTiltJoint:
+    case tobas::JointRole::kControlSurface:
     default:
       throw;
   }
@@ -339,6 +343,8 @@ void ExtraJointsWidget::updateEnability(int row)
       commandIfaceWidget(row)->setEnabled(false);
       homePositionWidget(row)->setEnabled(false);
       break;
+    case tobas::JointRole::kTiltJoint:
+    case tobas::JointRole::kControlSurface:
     default:
       throw;
   }

@@ -20,8 +20,8 @@ public:
   bool requireHeading() override;
 
   void initialize(tobas::BaseNode* node, tobas::FlightMode mode) override;
-  void reset(const tobas_msgs::Odometry& odom) override;
-  void update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom) override;
+  void reset(const builtin_interfaces::msg::Time& stamp, const tobas_msgs::Odometry& setpoint, bool landed) override;
+  void update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom, bool landed) override;
 
 private:
   // rosparams
@@ -38,10 +38,10 @@ private:
 
   bool minSpeedCb(const double& p);
   bool maxSpeedCb(const double& p);
-  bool maxRollCb(const long& p);
-  bool maxDeltaPitchCb(const long& p);
-  bool speedExpoCb(const long& p);
-  bool rollExpoCb(const long& p);
-  bool pitchExpoCb(const long& p);
+  bool maxRollCb(const double& p);
+  bool maxDeltaPitchCb(const double& p);
+  bool speedExpoCb(const double& p);
+  bool rollExpoCb(const double& p);
+  bool pitchExpoCb(const double& p);
 };
 }  // namespace tobas_rc_teleop

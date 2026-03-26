@@ -17,6 +17,8 @@ struct RateThrottle
 
   using SharedPtr = std::shared_ptr<RateThrottle>;
   using ConstSharedPtr = std::shared_ptr<const RateThrottle>;
+  using UniquePtr = std::unique_ptr<RateThrottle>;
+  using ConstUniquePtr = std::unique_ptr<const RateThrottle>;
 };
 }  // namespace tobas_command_msgs
 

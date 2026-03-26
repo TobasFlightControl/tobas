@@ -1,4 +1,5 @@
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/pwm_key.hpp>
+#include <tobas_constants/time.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_tools/control_latency_publisher.hpp>
 
@@ -43,9 +44,9 @@ private:
 };
 
 IcePropulsionSystemHandlerNode::IcePropulsionSystemHandlerNode(const rclcpp::NodeOptions& options)
-  : super("real_ice_propulsion_system_handler", options)
+  : super("real_ice_propulsion_system_handler", nodeOptions_Default(options))
 {
-  drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
+  drone_sub_ = createSubscriber(tobas::topic::kDrone, &self::droneCb, this, true, true);
 }
 
 void IcePropulsionSystemHandlerNode::stopActuator()
@@ -56,7 +57,7 @@ void IcePropulsionSystemHandlerNode::stopActuator()
   // Engine
   switch (iprop_->engine.hw_iface) {
     case tobas::HardwareInterface::kPwm: {
-      const auto& pwm_cfg = drone_->pwms.at(tobas::pwm::kEngineThrottleKey);
+      const auto& pwm_cfg = drone_->pwms.at(tobas::pwm_key::kEngineThrottleKey);
       pwms->pwms.emplace_back();
       pwms->pwms.back().channel = pwm_cfg.channel;
       pwms->pwms.back().period = pwm_cfg.periodFromValue(0.);
@@ -129,13 +130,13 @@ void IcePropulsionSystemHandlerNode::droneCb(const tobas::Drone::ConstSharedPtr&
   }
 
   // Register publishers
-  pwms_pub_ = createPublisher<tobas_msgs::msg::PwmArray>(tobas::kPwmCmdTopic);
-  rotor_states_pub_ = createPublisher<tobas_msgs::msg::RotorStateArray>(tobas::kRotorStatesTopic);
+  pwms_pub_ = createPublisher<tobas_msgs::msg::PwmArray>(tobas::topic::kPwmCmd);
+  rotor_states_pub_ = createPublisher<tobas_msgs::msg::RotorStateArray>(tobas::topic::kRotorStates);
   latency_pub_.initialize(shared_from_this());
 
   // Register subscribers
-  engine_state_sub_ = createSubscriber(tobas::kEngineStateTopic, &self::engineStateCb, this);
-  ice_cmd_sub_ = createSubscriber(tobas::kIcePropulsionSystemCmdTopic, &self::iceCommandCb, this);
+  engine_state_sub_ = createSubscriber(tobas::topic::kEngineState, &self::engineStateCb, this);
+  ice_cmd_sub_ = createSubscriber(tobas::topic::kIcePropulsionSystemCmd, &self::iceCommandCb, this);
 
   // Create timers
   auto_stop_timer_ = createWallTimer(tobas::kCommandAutoResetTimeout, &self::autoStopTimerCb, this);
@@ -168,7 +169,7 @@ void IcePropulsionSystemHandlerNode::iceCommandCb(
   // Engine
   switch (iprop_->engine.hw_iface) {
     case tobas::HardwareInterface::kPwm: {
-      const auto& pwm_cfg = drone_->pwms.at(tobas::pwm::kEngineThrottleKey);
+      const auto& pwm_cfg = drone_->pwms.at(tobas::pwm_key::kEngineThrottleKey);
       pwms->pwms.emplace_back();
       pwms->pwms.back().channel = pwm_cfg.channel;
       pwms->pwms.back().period = pwm_cfg.periodFromValue(ice_cmd->engine_throttle);

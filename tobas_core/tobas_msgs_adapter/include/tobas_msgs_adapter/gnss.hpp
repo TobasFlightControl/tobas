@@ -21,6 +21,8 @@ struct Gnss
 
   using SharedPtr = std::shared_ptr<Gnss>;
   using ConstSharedPtr = std::shared_ptr<const Gnss>;
+  using UniquePtr = std::unique_ptr<Gnss>;
+  using ConstUniquePtr = std::unique_ptr<const Gnss>;
 };
 }  // namespace tobas_msgs
 

@@ -32,12 +32,19 @@ public:
 
   bool generateProject(const std::filesystem::path& proj_path);
 
+  void setClearDynamicParams(bool flag);
+
 private:
   const rclcpp::Node::SharedPtr node_;
   const uadf::Model& uadf_;
   const kdl::Tree& tree_;
   const SettingsWidget* const settings_;
   QWidget* const parent_;
+
+  struct Config
+  {
+    bool clear_dynamic_params = false;
+  } config_;
 
   cmn::ProjectPaths proj_paths_;
 
@@ -74,7 +81,7 @@ private:
   bool createEmptyFile(const std::filesystem::path& file_path);
 
   /* Map型で要素を持たないyamlファイルを作成する． */
-  bool createEmptyYaml(const std::filesystem::path& file_path, bool overwrite = false);
+  bool createEmptyYaml(const std::filesystem::path& file_path, bool overwrite);
 
   /* YAML::Nodeを保存する． */
   bool saveYamlNode(const std::filesystem::path& path, const YAML::Node& node);

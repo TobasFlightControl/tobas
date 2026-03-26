@@ -18,6 +18,8 @@ struct Imu
 
   using SharedPtr = std::shared_ptr<Imu>;
   using ConstSharedPtr = std::shared_ptr<const Imu>;
+  using UniquePtr = std::unique_ptr<Imu>;
+  using ConstUniquePtr = std::unique_ptr<const Imu>;
 };
 }  // namespace tobas_msgs
 

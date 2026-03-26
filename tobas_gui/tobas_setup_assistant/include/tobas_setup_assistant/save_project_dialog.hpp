@@ -25,11 +25,11 @@ protected:
 
 private:
   QPushButton* save_button_;
-  QLineEdit* file_name_;
+  QLineEdit* proj_name_;
   qt::Label* warn_text_;
 
 private Q_SLOTS:
-  void onFilePathChanged();
+  void onProjectPathChanged();
 };
 }  // namespace sa
 }  // namespace gui

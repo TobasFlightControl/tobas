@@ -17,6 +17,8 @@ struct AccelStamped
 
   using SharedPtr = std::shared_ptr<AccelStamped>;
   using ConstSharedPtr = std::shared_ptr<const AccelStamped>;
+  using UniquePtr = std::unique_ptr<AccelStamped>;
+  using ConstUniquePtr = std::unique_ptr<const AccelStamped>;
 };
 }  // namespace tobas_kdl_msgs
 

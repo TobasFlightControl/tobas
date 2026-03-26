@@ -3,6 +3,7 @@
 
 #include <tobas_gui_common/argument.hpp>
 #include <tobas_gui_common/version.hpp>
+#include <tobas_qt_tools/debug.hpp>
 #include <tobas_qt_tools/widgets/main_widget.hpp>
 
 #include <tobas_urdf_builder/urdf_builder.hpp>
@@ -16,6 +17,9 @@ int main(int argc, char** argv)
     std::cerr << "Failed to set display platform." << std::endl;
     return EXIT_FAILURE;
   }
+
+  // コンソール出力に着色
+  qInstallMessageHandler(qt::colorMessageHandler);
 
   // GUIを表示
   QApplication qapp(arg_parser.argc(), arg_parser.argv());

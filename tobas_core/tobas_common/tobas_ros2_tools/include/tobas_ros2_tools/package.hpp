@@ -16,4 +16,7 @@ std::expected<std::filesystem::path, std::string> estimateWorkspaceOf(const std:
 
 /* パッケージがビルド・インストール済みかどうかを判定する． */
 bool isAlreadyBuiltAndInstalled(const std::filesystem::path& pkg_path);
+
+/* 有効なパッケージ名かどうかを判定する． */
+bool isValidPackageName(const std::string& pkg_name);
 }  // namespace ros2

@@ -12,9 +12,9 @@
 #include <tobas_rqt_bridge/bridge.hpp>
 
 #include <tobas_command_msgs_adapter/angle.hpp>
-#include <tobas_command_msgs_adapter/pos_vel.hpp>
-#include <tobas_command_msgs_adapter/pos_vel_pitch_yaw.hpp>
-#include <tobas_command_msgs_adapter/pos_vel_yaw.hpp>
+#include <tobas_command_msgs_adapter/pos_vel_acc.hpp>
+#include <tobas_command_msgs_adapter/pos_vel_acc_pitch_yaw.hpp>
+#include <tobas_command_msgs_adapter/pos_vel_acc_yaw.hpp>
 #include <tobas_msgs/srv/set_arm.hpp>
 
 namespace gui
@@ -50,13 +50,13 @@ private:
   QPushButton* home_button_;
 
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
-  tobas_msgs::Odometry::ConstSharedPtr odom_;
+  tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr odom_;
   tobas_msgs::RCInput::ConstSharedPtr rcin_;
 
   ros2::PublisherPtr<tobas_command_msgs::Angle> angle_pub_;
-  ros2::PublisherPtr<tobas_command_msgs::PosVel> pos_vel_pub_;
-  ros2::PublisherPtr<tobas_command_msgs::PosVelYaw> pos_vel_yaw_pub_;
-  ros2::PublisherPtr<tobas_command_msgs::PosVelPitchYaw> pos_vel_pitch_yaw_pub_;
+  ros2::PublisherPtr<tobas_command_msgs::PosVelAcc> pva_pub_;
+  ros2::PublisherPtr<tobas_command_msgs::PosVelAccYaw> pvay_pub_;
+  ros2::PublisherPtr<tobas_command_msgs::PosVelAccPitchYaw> pvapy_pub_;
 
   ros2::SyncServiceClient<tobas_msgs::srv::SetArm>::SharedPtr set_arm_sc_;
 
@@ -74,7 +74,7 @@ private Q_SLOTS:
   void onHomeButtonClicked();
 
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
-  void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
+  void odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom);
   void rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin);
 };
 }  // namespace sim

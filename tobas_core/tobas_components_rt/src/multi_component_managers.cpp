@@ -59,7 +59,12 @@ void MultiComponentManagers::spin()
   std::vector<ComponentManager> managers(num_managers_);
 
   rclcpp::NodeOptions node_options;
+  node_options.use_global_arguments(true);  // falseだとコンポーネントをロードできない
+  node_options.enable_rosout(false);
   node_options.use_intra_process_comms(true);
+  node_options.start_parameter_services(false);
+  node_options.start_parameter_event_publisher(false);
+  node_options.append_parameter_override("start_type_description_service", false);
 
   for (auto&& [i, manager, cfg] : std::views::zip(std::views::iota(0), managers, configs_)) {
     if (cfg.num_threads == 1) {

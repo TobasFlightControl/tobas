@@ -1,4 +1,4 @@
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_hardware_common/base_sensor_node.hpp>
 #include <tobas_ic_drivers/ublox/zed_f9p.hpp>
 #include <tobas_std_tools/gnss.hpp>
@@ -44,7 +44,8 @@ private:
   void mainTimerCb();
 };
 
-GnssDriverNode::GnssDriverNode(const rclcpp::NodeOptions& options) : super("fc1xx_gnss_driver", options)
+GnssDriverNode::GnssDriverNode(const rclcpp::NodeOptions& options)
+  : super("fc1xx_gnss_driver", nodeOptions_Default(options))
 {
   initialize_timer_ = createWallTimer(fc1xx::kRetryInitializationInterval, &self::initialize, this);
 }
@@ -66,7 +67,7 @@ void GnssDriverNode::initialize()
   is_received_[ublox::ZEDF9P::NAV_VELNED] = false;
   is_received_[ublox::ZEDF9P::NAV_COV] = false;
 
-  gnss_pub_ = createPublisher<tobas_msgs::Gnss>(tobas::kGnssTopic);
+  gnss_pub_ = createPublisher<tobas_msgs::Gnss>(tobas::topic::kGnss);
 
   initialize_timer_->cancel();
   main_timer_ = createWallTimer(kMainTimerPeriod, &self::mainTimerCb, this);

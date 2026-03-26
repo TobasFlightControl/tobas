@@ -1,10 +1,10 @@
 #pragma once
 
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/rc_input.hpp>
 #include <tobas_math/core.hpp>
 #include <tobas_node/node.hpp>
 
-#include <tobas_msgs_adapter/odometry.hpp>
+#include <tobas_msgs_adapter/odometry_with_covariance_stamped.hpp>
 #include <tobas_msgs_adapter/rc_input.hpp>
 
 namespace tobas_rc_teleop
@@ -20,12 +20,12 @@ public:
   virtual bool requireHeading() = 0;
 
   virtual void initialize(tobas::BaseNode* node, tobas::FlightMode mode) = 0;
-  virtual void reset(const tobas_msgs::Odometry& odom) = 0;
-  virtual void update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom) = 0;
+  virtual void reset(const builtin_interfaces::msg::Time& stamp, const tobas_msgs::Odometry& setpoint, bool landed) = 0;
+  virtual void update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom, bool landed) = 0;
 
 protected:
   static constexpr int kExpoScale = 100;
-  static constexpr double kDeadband = 0.01;  // S.BUSのジッタは ±2us 程度だから，全帯域の 1% もあれば十分．
+  static constexpr double kDeadband = 0.02;  // デッドゾーンでRCInputがゼロに張り付くように調整
 
   /* デッドバンドに入っていたら 0 にする． */
   inline double deadband(double x) const;

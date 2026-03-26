@@ -1,6 +1,6 @@
 #include "tobas_flight_log_gui/recorder/stop_thread.hpp"
 
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
 
@@ -19,7 +19,7 @@ RecordStopThread::RecordStopThread(rclcpp::Node::SharedPtr node) : node_(node)
 void RecordStopThread::run()
 {
   ros2::SyncServiceClient<tobas_msgs::srv::BagRecordStop> sc(
-    node_, path::join(ns_, tobas::kRemoteIfaceTopicNS, tobas::kRosbagRecordStopSrv));
+    node_, path::join(ns_, tobas::kRemoteIfaceNS, tobas::service::kRosbagRecordStop));
 
   const auto req = std::make_shared<tobas_msgs::srv::BagRecordStop::Request>();
 

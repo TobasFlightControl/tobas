@@ -8,6 +8,7 @@
 #include <tobas_msgs/msg/odometry.hpp>
 #include <tobas_msgs/msg/repulsive_acceleration.hpp>
 #include <tobas_msgs_adapter/odometry.hpp>
+#include <tobas_msgs_adapter/repulsive_acceleration.hpp>
 #include <tobas_node/node.hpp>
 
 namespace tobas
@@ -23,17 +24,17 @@ public:
 
 private:
   void octomapCallback(const octomap_msgs::msg::Octomap::SharedPtr msg);
-  void odomCallback(const tobas_msgs::Odometry::ConstSharedPtr& msg);
+  // void odomCallback(const tobas_msgs::Odometry::ConstSharedPtr& msg);
   void calculateRepulsiveForce();
 
   void configureParameters();
 
-  rclcpp::Subscription<octomap_msgs::msg::Octomap>::SharedPtr octomap_sub_;
-  rclcpp::Subscription<tobas_msgs::Odometry>::SharedPtr odom_sub_;
-  rclcpp::Publisher<tobas_msgs::msg::RepulsiveAcceleration>::SharedPtr repulsive_acc_pub;
+  ros2::SubscriberPtr<octomap_msgs::msg::Octomap> octomap_sub_;
+  // ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
+  ros2::PublisherPtr<tobas_msgs::RepulsiveAcceleration> repulsive_acc_pub_;
 
   std::shared_ptr<octomap::OcTree> octree_;
-  tobas_msgs::Odometry::ConstSharedPtr current_odom_;
+  // tobas_msgs::Odometry::ConstSharedPtr current_odom_;
 
   double min_safety_distance_;
   double repulsive_gain_;

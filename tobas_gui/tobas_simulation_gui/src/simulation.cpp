@@ -6,7 +6,7 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/path.hpp>
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_gui_common/local_project_builder.hpp>
 #include <tobas_gui_common/ros2_cli.hpp>
@@ -239,8 +239,7 @@ bool SimulationWidget::startHITL()
 {
   // アームされていないことを確認
   if (!arming_) {
-    qt::qWarnBox(
-      this, "This operation cannot be performed because the arming status is not received from the flight controller.");
+    qt::qWarnBox(this, "This operation cannot be performed because the arming status has not been received yet.");
     return false;
   }
   else {

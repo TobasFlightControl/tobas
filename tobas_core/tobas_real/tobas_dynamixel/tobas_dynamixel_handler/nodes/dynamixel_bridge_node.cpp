@@ -1,4 +1,4 @@
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_dynamixel_ros_interface/ros_interface.hpp>
 #include <tobas_node/node.hpp>
 
@@ -41,7 +41,8 @@ private:
   void jointEffCommandsCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& commands_in);
 };
 
-DynamixelBridgeNode::DynamixelBridgeNode(const rclcpp::NodeOptions& options) : super("dynamixel_bridge", options)
+DynamixelBridgeNode::DynamixelBridgeNode(const rclcpp::NodeOptions& options)
+  : super("dynamixel_bridge", nodeOptions_Default(options))
 {
   const auto jnt_names = getStringArrayParam("joint_names", {});
   if (jnt_names.empty()) {
@@ -50,15 +51,15 @@ DynamixelBridgeNode::DynamixelBridgeNode(const rclcpp::NodeOptions& options) : s
   }
   jnt_names_.insert(jnt_names.begin(), jnt_names.end());
 
-  joint_states_pub_ = createPublisher<tobas_msgs::msg::JointStateArray>(tobas::kJointStatesTopic);
+  joint_states_pub_ = createPublisher<tobas_msgs::msg::JointStateArray>(tobas::topic::kJointStates);
   motor_states_sub_ = createSubscriber(topic::kMotorStates, &self::motorStatesCb, this);
 
   motor_pos_pub_ = createPublisher<tobas_dynamixel_msgs::msg::MotorCommandArray>(topic::kPositionCommand);
   motor_vel_pub_ = createPublisher<tobas_dynamixel_msgs::msg::MotorCommandArray>(topic::kVelocityCommand);
   motor_eff_pub_ = createPublisher<tobas_dynamixel_msgs::msg::MotorCommandArray>(topic::kEffortCommand);
-  joint_pos_sub_ = createSubscriber(tobas::kJointPosCmdTopic, &self::jointPosCommandsCb, this);
-  joint_vel_sub_ = createSubscriber(tobas::kJointVelCmdTopic, &self::jointVelCommandsCb, this);
-  joint_eff_sub_ = createSubscriber(tobas::kJointEffCmdTopic, &self::jointEffCommandsCb, this);
+  joint_pos_sub_ = createSubscriber(tobas::topic::kJointPosCmd, &self::jointPosCommandsCb, this);
+  joint_vel_sub_ = createSubscriber(tobas::topic::kJointVelCmd, &self::jointVelCommandsCb, this);
+  joint_eff_sub_ = createSubscriber(tobas::topic::kJointEffCmd, &self::jointEffCommandsCb, this);
 }
 
 tobas_dynamixel_msgs::msg::MotorCommandArray::UniquePtr

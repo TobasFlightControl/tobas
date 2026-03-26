@@ -2,7 +2,6 @@
 
 #include <ranges>
 
-#include <tobas_constants/constants.hpp>
 #include <tobas_eigen_tools/core.hpp>
 #include <tobas_eigen_tools/geometry.hpp>
 #include <tobas_eigen_tools/operators.hpp>

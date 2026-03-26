@@ -1,4 +1,5 @@
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/ros_interface.hpp>
+#include <tobas_constants/time.hpp>
 #include <tobas_kdl/tree_joint_parser.hpp>
 #include <tobas_math/core.hpp>
 #include <tobas_node/node.hpp>
@@ -51,15 +52,16 @@ private:
   void effortResetTimerCb();
 };
 
-JointsHandlerNode::JointsHandlerNode(const rclcpp::NodeOptions& options) : super("real_joints_handler", options)
+JointsHandlerNode::JointsHandlerNode(const rclcpp::NodeOptions& options)
+  : super("real_joints_handler", nodeOptions_Default(options))
 {
-  pwms_pub_ = createPublisher<tobas_msgs::msg::PwmArray>(tobas::kPwmCmdTopic);
-  joint_states_pub_ = createPublisher<tobas_msgs::msg::JointStateArray>(tobas::kJointStatesTopic);
+  pwms_pub_ = createPublisher<tobas_msgs::msg::PwmArray>(tobas::topic::kPwmCmd);
+  joint_states_pub_ = createPublisher<tobas_msgs::msg::JointStateArray>(tobas::topic::kJointStates);
 
-  drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
-  positions_sub_ = createSubscriber(tobas::kJointPosCmdTopic, &self::jointPositionsCmdCb, this);
-  velocities_sub_ = createSubscriber(tobas::kJointVelCmdTopic, &self::jointVelocitiesCmdCb, this);
-  efforts_sub_ = createSubscriber(tobas::kJointEffCmdTopic, &self::jointEffortsCmdCb, this);
+  drone_sub_ = createSubscriber(tobas::topic::kDrone, &self::droneCb, this, true, true);
+  positions_sub_ = createSubscriber(tobas::topic::kJointPosCmd, &self::jointPositionsCmdCb, this);
+  velocities_sub_ = createSubscriber(tobas::topic::kJointVelCmd, &self::jointVelocitiesCmdCb, this);
+  efforts_sub_ = createSubscriber(tobas::topic::kJointEffCmd, &self::jointEffortsCmdCb, this);
 
   pos_reset_timer_ = createWallTimer(tobas::kCommandAutoResetTimeout, &self::positionResetTimerCb, this, false);
   vel_reset_timer_ = createWallTimer(tobas::kCommandAutoResetTimeout, &self::velocityResetTimerCb, this, false);

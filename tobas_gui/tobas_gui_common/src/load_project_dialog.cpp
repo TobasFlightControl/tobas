@@ -3,7 +3,7 @@
 #include <QAbstractItemView>
 #include <QFileSystemModel>
 
-#include <tobas_constants/constants.hpp>
+#include "tobas_gui_common/constants.hpp"
 
 namespace gui
 {
@@ -12,8 +12,8 @@ namespace cmn
 LoadProjectDialog::LoadProjectDialog(QWidget* parent, const QString& dir)
   : QFileDialog(parent, "Select Tobas Project (*.TBS)", dir, "Tobas Project (*.TBS)")
 {
-  setFileMode(Directory);  // ディレクトリのダブルクリックでシグナルを発行させるために必須
-  setOptions(ShowDirsOnly | DontUseNativeDialog);
+  setOptions(ShowDirsOnly | DontUseNativeDialog);  // カスタム設定のためにQtのダイアログを使用
+  setFileMode(Directory);                          // 既存のディレクトリを選択するモード
   setFilter(QDir::AllDirs | QDir::Hidden | QDir::NoDotAndDotDot);
 
   proxy_ = new QSortFilterProxyModel(this);
@@ -34,7 +34,7 @@ LoadProjectDialog::LoadProjectDialog(QWidget* parent, const QString& dir)
 void LoadProjectDialog::onItemActivated(const QModelIndex& index)
 {
   const auto path = proxy_->data(index, QFileSystemModel::FilePathRole).toString();
-  if (path.endsWith(tobas::kProjectExtension)) {
+  if (path.endsWith(kProjectExtension)) {
     accept();
   }
 }

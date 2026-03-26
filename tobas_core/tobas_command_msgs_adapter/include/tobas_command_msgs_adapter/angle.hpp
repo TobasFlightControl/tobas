@@ -16,6 +16,8 @@ struct Angle
 
   using SharedPtr = std::shared_ptr<Angle>;
   using ConstSharedPtr = std::shared_ptr<const Angle>;
+  using UniquePtr = std::unique_ptr<Angle>;
+  using ConstUniquePtr = std::unique_ptr<const Angle>;
 };
 }  // namespace tobas_command_msgs
 

@@ -1,7 +1,7 @@
 #include <gz/sim/Joint.hh>
 #include <gz/sim/Model.hh>
 
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_gazebo_tools/utils.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_std_tools/check.hpp>
@@ -121,7 +121,7 @@ void GazeboJointStateBroadcasterPlugin::getSdfParams(const sdf::ElementConstPtr&
 
 void GazeboJointStateBroadcasterPlugin::registerRosInterfaces()
 {
-  js_pub_ = createPublisher<tobas_msgs::msg::JointStateArray>(tobas::kJointStatesTopic);
+  js_pub_ = createPublisher<tobas_msgs::msg::JointStateArray>(tobas::topic::kJointStates);
 }
 }  // namespace gazebo
 

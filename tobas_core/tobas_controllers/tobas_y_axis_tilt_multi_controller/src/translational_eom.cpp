@@ -2,7 +2,6 @@
 
 #include <iostream>
 
-#include <tobas_constants/constants.hpp>
 #include <tobas_math/float.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 

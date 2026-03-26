@@ -1,4 +1,4 @@
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_kdl_parser/kdl_parser.hpp>
 #include <tobas_node/node.hpp>
 
@@ -30,7 +30,7 @@ private:
   void descriptionCb(const std_msgs::msg::String::ConstSharedPtr& msg);
 };
 
-TreeServerNode::TreeServerNode(const rclcpp::NodeOptions& options) : super("tree_server", options)
+TreeServerNode::TreeServerNode(const rclcpp::NodeOptions& options) : super("tree_server", nodeOptions_Default(options))
 {
   // 起動時に既に発行済のURDFを確実に取得するために，Pubscriberの登録を遅延させる．
   initialize_timer_ = createTimer(0s, &self::initializeTimerCb, this);
@@ -44,8 +44,8 @@ void TreeServerNode::publishTree()
 
 void TreeServerNode::initializeTimerCb()
 {
-  tree_pub_ = createPublisher<kdl::Tree>(tobas::kKdlTreeTopic, true, true);
-  description_sub_ = createSubscriber(tobas::kRobotDescriptionTopic, &self::descriptionCb, this, true, true);
+  tree_pub_ = createPublisher<kdl::Tree>(tobas::topic::kKdlTree, true, true);
+  description_sub_ = createSubscriber(tobas::topic::kRobotDescription, &self::descriptionCb, this, true, true);
 
   initialize_timer_->cancel();
 }

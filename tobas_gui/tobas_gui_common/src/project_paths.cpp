@@ -1,7 +1,8 @@
 #include "tobas_gui_common/project_paths.hpp"
 
-#include <tobas_constants/constants.hpp>
 #include <tobas_std_tools/check.hpp>
+
+#include "tobas_gui_common/constants.hpp"
 
 namespace fs = std::filesystem;
 
@@ -30,7 +31,7 @@ fs::path ProjectPaths::remoteProjPath() const
 
 std::string ProjectPaths::projName() const
 {
-  TOBAS_CHECK(proj_path_.extension() == tobas::kProjectExtension);
+  TOBAS_CHECK(proj_path_.extension() == kProjectExtension);
   return proj_path_.stem();
 }
 

@@ -1,8 +1,8 @@
 #include "tobas_sensor_calibration/accel_calibration/thread.hpp"
 
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_path_tools/join.hpp>
-#include <tobas_real_common/constants.hpp>
+#include <tobas_real_common/handler.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 
@@ -17,13 +17,18 @@ namespace sc
 AccelCalibrationThread::AccelCalibrationThread(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge) : node_(node)
 {
   connect(&bridge, &RosQtBridge::rawImuReceived, this, &self::imuCb, Qt::QueuedConnection);
+  connect(&bridge, &RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
 }
 
 void AccelCalibrationThread::run()
 {
   // 必要なトピックが受け取れていることを確認
   if (!imu_raw_) {
-    Q_EMIT finished(false, "IMU data is not received yet.");
+    Q_EMIT finished(false, "IMU data has not been received yet.");
+    return;
+  }
+  if (!arming_) {
+    Q_EMIT finished(false, "Arming status has not been received yet.");
     return;
   }
 
@@ -43,6 +48,11 @@ void AccelCalibrationThread::run()
   while (rclcpp::ok()) {
     if (cnt_ >= kDataCount) {
       break;
+    }
+    if (arming_->data) {  // データ収集中にアームされたら強制終了
+      Q_EMIT finished(false, "Accelerometer calibration was canceled because an arming command was issued.");
+      get_data_ = false;
+      return;
     }
     if (clock->now() - start_time > kCollectDataTimeout) {
       Q_EMIT finished(false, "Timeout before IMU data collection is completed.");
@@ -79,7 +89,7 @@ void AccelCalibrationThread::run()
 
   // パラメータを更新
   ros2::SyncServiceClient<tobas_real_msgs::srv::SetImuParams> sc(
-    node_, path::join(ns_, tobas::kRemoteIfaceTopicNS, real::handler::imu::kSetParamSrv));
+    node_, path::join(ns_, tobas::kRemoteIfaceNS, real::handler::imu::kSetParamSrv));
   if (!sc.call(req, kSetParamTimeout)) {
     Q_EMIT finished(false, "Failed to send calibration results.");
     return;
@@ -124,6 +134,11 @@ void AccelCalibrationThread::imuCb(const tobas_msgs::Imu::ConstSharedPtr& imu_ra
   for (size_t i = 0; i < 3; ++i) {
     acc_sum_.at(i).add(imu_raw->accel(i));
   }
+}
+
+void AccelCalibrationThread::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
+{
+  arming_ = arming;
 }
 }  // namespace sc
 }  // namespace gui

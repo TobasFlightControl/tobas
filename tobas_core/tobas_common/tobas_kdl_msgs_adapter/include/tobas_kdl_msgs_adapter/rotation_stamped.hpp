@@ -17,6 +17,8 @@ struct RotationStamped
 
   using SharedPtr = std::shared_ptr<RotationStamped>;
   using ConstSharedPtr = std::shared_ptr<const RotationStamped>;
+  using UniquePtr = std::unique_ptr<RotationStamped>;
+  using ConstUniquePtr = std::unique_ptr<const RotationStamped>;
 };
 }  // namespace tobas_kdl_msgs
 

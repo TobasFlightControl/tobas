@@ -114,13 +114,13 @@ string deleteNl(const string& s)
 
 string toLower(string arg)
 {
-  transform(arg.begin(), arg.end(), arg.begin(), [](uint8_t c) { return tolower(c); });
+  transform(arg.begin(), arg.end(), arg.begin(), [](char c) { return tolower(c); });
   return arg;
 }
 
 string toUpper(string arg)
 {
-  transform(arg.begin(), arg.end(), arg.begin(), [](uint8_t c) { return toupper(c); });
+  transform(arg.begin(), arg.end(), arg.begin(), [](char c) { return toupper(c); });
   return arg;
 }
 
@@ -158,18 +158,18 @@ string sanitize(const char* s)
   }
 
   // 他の制御文字 (0x00-0x1F, 0x7F) を削除
-  out.erase(remove_if(out.begin(), out.end(), [](uint8_t ch) { return (ch < 0x20 || ch == 0x7F); }), out.end());
+  out.erase(remove_if(out.begin(), out.end(), [](char ch) { return (ch < 0x20 || ch == 0x7F); }), out.end());
 
   // 連続スペースを1つに
   out.erase(unique(out.begin(), out.end(), [](char a, char b) { return a == ' ' && b == ' '; }), out.end());
 
   // 前後のスペースをトリム
-  auto notspace = [](uint8_t c) { return c != ' '; };
-  auto first = find_if(out.begin(), out.end(), notspace);
+  const auto notspace = [](char c) { return c != ' '; };
+  const auto first = find_if(out.begin(), out.end(), notspace);
   if (first == out.end()) {
     return {};  // 全部スペース
   }
-  auto last = find_if(out.rbegin(), out.rend(), notspace).base();
+  const auto last = find_if(out.rbegin(), out.rend(), notspace).base();
   return string(first, last);
 }
 
@@ -213,8 +213,9 @@ string convertToSuperscript(const string& input)
   while (pos < input.size()) {
     if (input[pos] == '^' && pos + 1 < input.size() && isdigit(input[pos + 1])) {
       const auto key = input.substr(pos, 2);  // "^N" を取得
-      if (superscripts.find(key) != superscripts.end()) {
-        output += superscripts.at(key);  // 上付き文字に変換
+      const auto it = superscripts.find(key);
+      if (it != superscripts.end()) {
+        output += it->second;  // 上付き文字に変換
         pos += 2;
         continue;
       }
@@ -252,7 +253,7 @@ string titleFromSnake(const string& snake_case)
   while (getline(ss, item, '_')) {
     item[0] = toupper(item[0]);
     if (!first) {
-      result << " ";
+      result << ' ';
     }
     result << item;
     first = false;
@@ -265,7 +266,7 @@ string snakeFromPascal(const string& pascal_case)
   stringstream result;
   for (size_t i = 0; i < pascal_case.size(); ++i) {
     if (isupper(pascal_case[i]) && i > 0) {
-      result << "_";
+      result << '_';
     }
     result << static_cast<char>(tolower(pascal_case[i]));
   }

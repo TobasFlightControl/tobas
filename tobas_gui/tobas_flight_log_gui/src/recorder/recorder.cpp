@@ -5,7 +5,7 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/rosbag.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_qt_tools/message.hpp>
@@ -113,7 +113,7 @@ void FlightLogRecorderWidget::onStartRequested()
 
   // ロガーの状態が取得できているかをチェック
   if (!rosbag_state_) {
-    qt::qWarnBox(this, "Unable to start recording because the logger state is not received yet.");
+    qt::qWarnBox(this, "Unable to start recording because the logger state has not been received yet.");
     start_stop_button_->setChecked(false);
     return;
   }

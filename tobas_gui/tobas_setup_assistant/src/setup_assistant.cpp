@@ -5,6 +5,8 @@
 #include <QDebug>
 #include <ament_index_cpp/get_package_share_directory.hpp>
 
+#include <tobas_constants/path.hpp>
+#include <tobas_gui_common/constants.hpp>
 #include <tobas_gui_common/load_project_dialog.hpp>
 #include <tobas_gui_common/project_paths.hpp>
 #include <tobas_gui_common/version.hpp>
@@ -444,7 +446,7 @@ void SetupAssistantWidget::onNewButtonClicked()
   // 保存ボタンを有効化
   enableSaveButtons(true);
 
-  qt::qInfoBox(this, "UADF is loaded successfully. Configure the settings for each tab.");
+  qt::qInfoBox(this, "UADF has been loaded successfully. Configure the settings for each tab.");
 }
 
 void SetupAssistantWidget::onLoadButtonClicked()
@@ -467,27 +469,29 @@ void SetupAssistantWidget::onLoadButtonClicked()
   const fs::path proj_path = dialog.selectedFiles().first().toStdString();
   const cmn::ProjectPaths proj_paths(proj_path);
 
-  // バージョンチェック
+  // プロジェクトのバージョンを取得
   cmn::Version version;
-  if (version.load(proj_paths.versionPath())) {
-    if (!version.isCompatible()) {
-      if (!qt::yesOrNo(
-            this,
-            "The current Tobas version (" + cmn::Version::Current().toString() +
-              ") is incompatible with the version used to create this project (" + version.toString() +
-              "). Errors may occur during loading. Would you like to proceed?",
-            qt::QMessageLevel::WARN)) {
-        return;
-      }
-    }
+  if (!version.load(proj_paths.versionPath())) {
+    qt::qErrorBox(this, "Failed to read the project version. Please create a new project.");
+    return;
+  }
+
+  // バージョンに互換性がない場合はプロジェクト生成時に動的パラメータを初期化するように設定
+  if (version.isCompatible()) {
+    prj_gen_->setClearDynamicParams(false);
   }
   else {
     if (!qt::yesOrNo(
           this,
-          "Failed to read the project version. Errors may occur during loading. Would you like to proceed?",
+          "The current Tobas version (" + cmn::Version::Current().toString() +
+            ") is incompatible with the version used to create this project (" + version.toString() +
+            "). Errors may occur during loading, "
+            "and if you save the project again, the dynamic parameters will be reset to their default values. "
+            "Would you like to proceed?",
           qt::QMessageLevel::WARN)) {
       return;
     }
+    prj_gen_->setClearDynamicParams(true);
   }
 
   // パスをテキストに設定
@@ -559,7 +563,7 @@ void SetupAssistantWidget::onLoadButtonClicked()
   // ユーザ設定を書くウィジェットに反映
   // 失敗してもリセットはしない
   if (settings_->load(node.value())) {
-    qt::qInfoBox(this, "Tobas project is loaded successfully.");
+    qt::qInfoBox(this, "Tobas project has been loaded successfully.");
   }
 
   // 保存ボタンを有効化
@@ -587,7 +591,7 @@ void SetupAssistantWidget::onSaveButtonClicked()
     return;
   }
 
-  qt::qInfoBox(this, "Tobas project is updated.");
+  qt::qInfoBox(this, "Tobas project has been updated.");
 }
 
 void SetupAssistantWidget::onSaveAsButtonClicked()
@@ -607,7 +611,7 @@ void SetupAssistantWidget::onSaveAsButtonClicked()
     return;
   }
   const auto proj_path = dialog.selectedFiles().first();
-  TOBAS_CHECK(proj_path.endsWith(tobas::kProjectExtension));
+  TOBAS_CHECK(proj_path.endsWith(cmn::kProjectExtension));
 
   // ユーザが開いたディレクトリを保存
   const auto par_dir = fs::path(proj_path.toStdString()).parent_path();
@@ -637,7 +641,7 @@ void SetupAssistantWidget::onSaveAsButtonClicked()
   // プロジェクトのパスを設定
   proj_path_->setText(proj_path);
 
-  qt::qInfoBox(this, "New Tobas project is generated.");
+  qt::qInfoBox(this, "New Tobas project has been generated.");
 }
 }  // namespace sa
 }  // namespace gui

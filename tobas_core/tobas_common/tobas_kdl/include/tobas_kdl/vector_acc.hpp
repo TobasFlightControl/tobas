@@ -21,6 +21,7 @@ public:
   static inline VectorAcc Zero();
 
   inline void setZero();
+  inline void setNaN();
 
   inline doubleAcc norm() const;
 
@@ -78,6 +79,13 @@ inline void VectorAcc::setZero()
   p.setZero();
   v.setZero();
   dv.setZero();
+}
+
+inline void VectorAcc::setNaN()
+{
+  p.setNaN();
+  v.setNaN();
+  dv.setNaN();
 }
 
 inline doubleAcc VectorAcc::norm() const
