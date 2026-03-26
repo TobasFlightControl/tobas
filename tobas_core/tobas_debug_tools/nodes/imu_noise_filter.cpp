@@ -6,6 +6,8 @@
 #include <tobas_eigen_msgs_adapter/core.hpp>
 #include <tobas_msgs_adapter/imu.hpp>
 
+namespace tobas
+{
 /**
  * @brief IMUの共分散をオンラインで計算する．
  */
@@ -61,5 +63,6 @@ void ImuNoiseFilter::imuCb(const tobas_msgs::Imu::ConstSharedPtr& imu)
   auto gyro_cov = std::make_unique<Eigen::Matrix3d>(gyro_noise_filter_.noiseVariance());
   gyro_noise_pub_->publish(std::move(gyro_cov));
 }
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(ImuNoiseFilter)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::ImuNoiseFilter)

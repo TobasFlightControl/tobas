@@ -4,6 +4,8 @@
 #include <tobas_kdl_msgs_adapter/euler_stamped.hpp>
 #include <tobas_msgs_adapter/odometry_with_covariance_stamped.hpp>
 
+namespace tobas
+{
 /**
  * @brief オドメトリから得られた姿勢をオイラー角に変換して発行する．
  */
@@ -36,5 +38,6 @@ void MatrixEulerConverterNode::odomCb(const tobas_msgs::OdometryWithCovarianceSt
   odom->odom.odom.frame.M.getRPY(euler->euler.roll, euler->euler.pitch, euler->euler.yaw);
   euler_pub_->publish(std::move(euler));
 }
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(MatrixEulerConverterNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::MatrixEulerConverterNode)
