@@ -6,6 +6,7 @@
 
 namespace fs = std::filesystem;
 
+// シグナルの引数で名前空間から全く同じ指定が必要
 Q_DECLARE_METATYPE(tobas::ssh::SshClient::Error);
 
 namespace tobas
@@ -21,7 +22,7 @@ class SshConnectThread : public QThread
   Q_OBJECT
 
 Q_SIGNALS:
-  void finished(ssh::SshClient::Error error);
+  void finished(tobas::ssh::SshClient::Error error);
 
 public:
   explicit SshConnectThread(ssh::SshClient& impl) : impl_(impl)
@@ -43,7 +44,7 @@ class SshExecuteThread : public QThread
   Q_OBJECT
 
 Q_SIGNALS:
-  void finished(ssh::SshClient::Error error);
+  void finished(tobas::ssh::SshClient::Error error);
 
 public:
   explicit SshExecuteThread(
@@ -76,7 +77,7 @@ class ScpGetThread : public QThread
   Q_OBJECT
 
 Q_SIGNALS:
-  void finished(ssh::SshClient::Error error);
+  void finished(tobas::ssh::SshClient::Error error);
 
 public:
   explicit ScpGetThread(ssh::SshClient& impl, const std::string& remote_path, const std::string& local_path)
@@ -102,7 +103,7 @@ class ScpPutThread : public QThread
   Q_OBJECT
 
 Q_SIGNALS:
-  void finished(ssh::SshClient::Error error);
+  void finished(tobas::ssh::SshClient::Error error);
 
 public:
   explicit ScpPutThread(
@@ -142,7 +143,7 @@ class SftpReadThread : public QThread
   Q_OBJECT
 
 Q_SIGNALS:
-  void finished(ssh::SshClient::Error error);
+  void finished(tobas::ssh::SshClient::Error error);
 
 public:
   explicit SftpReadThread(ssh::SshClient& impl, const std::string& remote_path, std::string& text, bool superuser)
@@ -169,7 +170,7 @@ class SftpWriteThread : public QThread
   Q_OBJECT
 
 Q_SIGNALS:
-  void finished(ssh::SshClient::Error error);
+  void finished(tobas::ssh::SshClient::Error error);
 
 public:
   explicit SftpWriteThread(ssh::SshClient& impl, const std::string& remote_path, const std::string& text, bool superuser)
@@ -196,7 +197,7 @@ class SshListThread : public QThread
   Q_OBJECT
 
 Q_SIGNALS:
-  void finished(ssh::SshClient::Error error);
+  void finished(tobas::ssh::SshClient::Error error);
 
 public:
   explicit SshListThread(ssh::SshClient& impl, const std::string& pardir, std::vector<std::string>& dst)
