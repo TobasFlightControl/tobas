@@ -4,9 +4,6 @@
 
 #include <tobas_qt_tools/thread.hpp>
 
-namespace fs = std::filesystem;
-
-// シグナルの引数で名前空間から全く同じ指定が必要
 Q_DECLARE_METATYPE(tobas::ssh::SshClient::Error);
 
 namespace tobas
