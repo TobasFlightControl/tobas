@@ -129,7 +129,7 @@ def generate_launch_description():
             composable_node_descriptions=[
                 ComposableNode(
                     package="tobas_real_ros",
-                    plugin="CpuHandlerNode",
+                    plugin="tobas::real::CpuHandlerNode",
                     namespace=DRONE_NAME,
                 ),
             ],

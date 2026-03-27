@@ -42,7 +42,7 @@ QString PlanarMulticopterWidget::controllerPackage() const
 
 QString PlanarMulticopterWidget::pluginName() const
 {
-  return "planar_multicopter::ControllerNode";
+  return "tobas::planar_multicopter::ControllerNode";
 }
 
 RcCommand PlanarMulticopterWidget::acrobatModeCommand() const

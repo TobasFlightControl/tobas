@@ -41,7 +41,7 @@ QString NonPlanarMulticopterWidget::controllerPackage() const
 
 QString NonPlanarMulticopterWidget::pluginName() const
 {
-  return "nonplanar_multicopter::ControllerNode";
+  return "tobas::nonplanar_multicopter::ControllerNode";
 }
 
 RcCommand NonPlanarMulticopterWidget::acrobatModeCommand() const

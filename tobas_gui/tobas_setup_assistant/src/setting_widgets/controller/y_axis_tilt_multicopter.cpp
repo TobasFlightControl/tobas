@@ -41,7 +41,7 @@ QString YAxisTiltMulticopterWidget::controllerPackage() const
 
 QString YAxisTiltMulticopterWidget::pluginName() const
 {
-  return "y_axis_tilt_multicopter::ControllerNode";
+  return "tobas::y_axis_tilt_multicopter::ControllerNode";
 }
 
 RcCommand YAxisTiltMulticopterWidget::acrobatModeCommand() const

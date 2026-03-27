@@ -64,7 +64,7 @@ QString CustomFrameWidget::controllerPackage() const
 
 QString CustomFrameWidget::pluginName() const
 {
-  return "DummyNode";
+  return "tobas::DummyNode";
 }
 
 RcCommand CustomFrameWidget::acrobatModeCommand() const

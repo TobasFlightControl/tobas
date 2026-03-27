@@ -30,7 +30,7 @@ QString FixedWingWidget::controllerPackage() const
 
 QString FixedWingWidget::pluginName() const
 {
-  return "fixed_wing::ControllerNode";
+  return "tobas::fixed_wing::ControllerNode";
 }
 
 RcCommand FixedWingWidget::acrobatModeCommand() const
