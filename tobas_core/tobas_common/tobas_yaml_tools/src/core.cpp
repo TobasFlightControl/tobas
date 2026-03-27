@@ -5,6 +5,8 @@
 
 namespace fs = std::filesystem;
 
+namespace tobas
+{
 namespace yaml
 {
 std::string dump(const YAML::Node& node)
@@ -44,3 +46,4 @@ bool save(const fs::path& path, const YAML::Node& node)
   return true;
 }
 }  // namespace yaml
+}  // namespace tobas

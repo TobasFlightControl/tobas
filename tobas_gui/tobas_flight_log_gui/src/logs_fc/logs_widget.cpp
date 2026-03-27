@@ -15,6 +15,8 @@
 
 namespace fs = std::filesystem;
 
+namespace tobas
+{
 namespace gui
 {
 namespace log
@@ -106,7 +108,7 @@ void FlightLogsWidgetFC::onReadButtonClicked()
   std::vector<std::string> log_names;
 
   spinner_.start();
-  const auto res = ssh_client_.list(tobas::kRosbagDirRoot, log_names);
+  const auto res = ssh_client_.list(kRosbagDirRoot, log_names);
   spinner_.stop();
 
   if (res != ssh::SshClient::kNoError) {
@@ -137,7 +139,7 @@ void FlightLogsWidgetFC::onCleanButtonClicked()
   }
 
   spinner_.start();
-  const auto res = ssh_client_.execute("rm -rf " + std::string(tobas::kRosbagDirRoot) + "/*", true);
+  const auto res = ssh_client_.execute("rm -rf " + std::string(kRosbagDirRoot) + "/*", true);
   spinner_.stop();
 
   if (res != ssh::SshClient::kNoError) {
@@ -150,7 +152,7 @@ void FlightLogsWidgetFC::onCleanButtonClicked()
 
 void FlightLogsWidgetFC::onDownloadButtonClicked(const QString& log_name)
 {
-  const auto rosbag_path = ros2::expandUser(tobas::kRosbagDirHome) / log_name.toStdString();
+  const auto rosbag_path = ros2::expandUser(kRosbagDirHome) / log_name.toStdString();
 
   if (fs::exists(rosbag_path)) {
     if (qt::yesOrNo(this, QString(rosbag_path.c_str()) + " already exists. Do you want to overwrite it?", qt::WARN)) {
@@ -161,8 +163,8 @@ void FlightLogsWidgetFC::onDownloadButtonClicked(const QString& log_name)
     }
   }
 
-  const auto remote_rosbag_path = fs::path(tobas::kRosbagDirRoot) / log_name.toStdString();
-  const auto local_pardir = ros2::expandUser(tobas::kRosbagDirHome);
+  const auto remote_rosbag_path = fs::path(kRosbagDirRoot) / log_name.toStdString();
+  const auto local_pardir = ros2::expandUser(kRosbagDirHome);
 
   if (!fs::is_directory(local_pardir)) {
     fs::create_directories(local_pardir);
@@ -182,13 +184,13 @@ void FlightLogsWidgetFC::onDownloadButtonClicked(const QString& log_name)
 
 void FlightLogsWidgetFC::onDeleteButtonClicked(const QString& log_name)
 {
-  const auto log_path = ros2::expandUser(tobas::kRosbagDirHome) / log_name.toStdString();
+  const auto log_path = ros2::expandUser(kRosbagDirHome) / log_name.toStdString();
 
   if (!qt::yesOrNo(this, "Do you want to delete flight log \"" + log_name + "\"?", qt::WARN)) {
     return;
   }
 
-  const auto rosbag_path = fs::path(tobas::kRosbagDirRoot) / log_name.toStdString();
+  const auto rosbag_path = fs::path(kRosbagDirRoot) / log_name.toStdString();
 
   spinner_.start();
   const auto res = ssh_client_.execute("rm -rf " + rosbag_path.string(), true);
@@ -203,3 +205,4 @@ void FlightLogsWidgetFC::onDeleteButtonClicked(const QString& log_name)
 }
 }  // namespace log
 }  // namespace gui
+}  // namespace tobas

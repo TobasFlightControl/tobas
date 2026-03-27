@@ -1,5 +1,7 @@
 #include "tobas_qt_tools/widgets/check_box.hpp"
 
+namespace tobas
+{
 namespace qt
 {
 void CheckBox::setDisabledTextNormal()
@@ -11,3 +13,4 @@ void CheckBox::setDisabledTextNormal()
   this->setPalette(pal);
 }
 }  // namespace qt
+}  // namespace tobas

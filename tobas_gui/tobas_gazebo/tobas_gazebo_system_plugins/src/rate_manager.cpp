@@ -3,6 +3,8 @@
 using namespace std::chrono_literals;
 namespace ch = std::chrono;
 
+namespace tobas
+{
 namespace gazebo
 {
 RateManager::RateManager(int update_rate) : update_rate_(update_rate), next_time_(0ns)
@@ -30,3 +32,4 @@ bool RateManager::update(const ch::steady_clock::duration& cur_time)
   }
 }
 }  // namespace gazebo
+}  // namespace tobas

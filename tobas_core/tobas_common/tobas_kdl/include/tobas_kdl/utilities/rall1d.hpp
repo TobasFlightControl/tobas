@@ -2,6 +2,8 @@
 
 #include "./utility.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 /**
@@ -376,3 +378,4 @@ inline void setToIdentity(Rall1d<T, V, S>& value)
   setToZero(value.grad);
 }
 }  // namespace kdl
+}  // namespace tobas

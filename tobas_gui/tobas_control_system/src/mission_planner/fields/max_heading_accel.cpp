@@ -4,6 +4,8 @@
 
 #include <tobas_std_tools/unit_conversions.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -33,13 +35,14 @@ const char* MaxHeadingAccelWidget::label() const
 
 double MaxHeadingAccelWidget::getValue() const
 {
-  return tbs::deg2rad(spin_box_->value());
+  return st::deg2rad(spin_box_->value());
 }
 
 void MaxHeadingAccelWidget::setValue(double value)
 {
-  spin_box_->setValue(tbs::rad2deg(value));
+  spin_box_->setValue(st::rad2deg(value));
 }
 }  // namespace field
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

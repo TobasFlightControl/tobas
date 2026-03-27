@@ -2,6 +2,8 @@
 
 #include <QListWidget>
 
+namespace tobas
+{
 namespace qt
 {
 /**
@@ -50,3 +52,4 @@ public:
   virtual bool operator<(const QListWidgetItem& rhs) const override;
 };
 }  // namespace qt
+}  // namespace tobas

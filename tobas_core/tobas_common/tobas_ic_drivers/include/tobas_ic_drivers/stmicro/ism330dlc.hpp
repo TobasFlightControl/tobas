@@ -4,6 +4,8 @@
 
 #include <tobas_linux/spi_dev.hpp>
 
+namespace tobas
+{
 namespace stm
 {
 /**
@@ -245,3 +247,4 @@ private:
   bool checkWhoAmI();
 };
 }  // namespace stm
+}  // namespace tobas

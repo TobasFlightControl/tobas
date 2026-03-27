@@ -4,6 +4,8 @@
 
 using namespace std;
 
+namespace tobas
+{
 namespace fc1xx
 {
 IIS2MDC::IIS2MDC()
@@ -80,3 +82,4 @@ bool IIS2MDC::configure()
   return true;
 }
 }  // namespace fc1xx
+}  // namespace tobas

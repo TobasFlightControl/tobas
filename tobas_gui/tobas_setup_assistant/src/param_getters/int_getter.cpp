@@ -7,6 +7,8 @@
 #include <tobas_qt_tools/font.hpp>
 #include <tobas_string_tools/core.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -68,3 +70,4 @@ void IntGetter::onValueChanged(int value)
 }
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

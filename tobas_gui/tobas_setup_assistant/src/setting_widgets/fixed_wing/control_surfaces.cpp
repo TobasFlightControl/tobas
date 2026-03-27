@@ -14,6 +14,8 @@
 
 #include "tobas_setup_assistant/setting_tabs/fixed_wing/constants.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -279,3 +281,4 @@ void ControlSurfacesWidget::yawCoef(int row, double value)
 }  // namespace fw
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

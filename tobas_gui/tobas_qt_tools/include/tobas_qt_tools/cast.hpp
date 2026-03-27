@@ -6,6 +6,8 @@
 
 #include <tobas_std_tools/typeinfo.hpp>
 
+namespace tobas
+{
 namespace qt
 {
 template <typename T>
@@ -13,7 +15,7 @@ T* qPointerCast(QObject* obj)
 {
   T* casted = qobject_cast<T*>(obj);
   if (!casted) {
-    qCritical() << "Failed to cast " << obj->objectName() << " to " << tbs::getClassName<T>();
+    qCritical() << "Failed to cast " << obj->objectName() << " to " << st::getClassName<T>();
     throw std::bad_cast();
   }
   return casted;
@@ -24,9 +26,10 @@ const T* qConstPointerCast(const QObject* obj)
 {
   const T* casted = qobject_cast<const T*>(obj);
   if (!casted) {
-    qCritical() << "Failed to cast " << obj->objectName() << " to " << tbs::getClassName<T>();
+    qCritical() << "Failed to cast " << obj->objectName() << " to " << st::getClassName<T>();
     throw std::bad_cast();
   }
   return casted;
 }
 }  // namespace qt
+}  // namespace tobas

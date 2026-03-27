@@ -9,6 +9,8 @@
 #include "./motor.hpp"
 #include "./propeller.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -57,3 +59,4 @@ private:
 }  // namespace propulsion
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

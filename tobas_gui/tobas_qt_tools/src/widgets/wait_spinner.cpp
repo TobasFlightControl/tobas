@@ -4,6 +4,8 @@
 
 #include <QPainter>
 
+namespace tobas
+{
 namespace qt
 {
 WaitSpinnerWidget::WaitSpinnerWidget(QWidget* parent, bool center_on_parent, bool disable_parent_when_spinning)
@@ -264,3 +266,4 @@ QColor WaitSpinnerWidget::currentLineColor(
   return color;
 }
 }  // namespace qt
+}  // namespace tobas

@@ -2,6 +2,8 @@
 
 #include <cmath>
 
+namespace tobas
+{
 namespace traj
 {
 class VelocityLimitedOnlineTrajectoryGenerator
@@ -49,3 +51,4 @@ inline void VelocityLimitedOnlineTrajectoryGenerator::setTargetPosition(double t
   tar_pos_ = tar_pos;
 }
 }  // namespace traj
+}  // namespace tobas

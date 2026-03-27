@@ -5,6 +5,8 @@
 
 using namespace std;
 
+namespace tobas
+{
 namespace linux
 {
 CommandExecutor::CommandExecutor()
@@ -46,3 +48,4 @@ bool CommandExecutor::execute(string command)
   return status == EXIT_SUCCESS;
 }
 }  // namespace linux
+}  // namespace tobas

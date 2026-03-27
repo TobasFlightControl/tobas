@@ -2,6 +2,8 @@
 
 using namespace std;
 
+namespace tobas
+{
 namespace kdl
 {
 ChainJacobianSolver::ChainJacobianSolver(const Chain& chain) : super(chain)
@@ -79,3 +81,4 @@ void ChainJacobianSolver::resize()
   J_out_.resize(nj_);
 }
 }  // namespace kdl
+}  // namespace tobas

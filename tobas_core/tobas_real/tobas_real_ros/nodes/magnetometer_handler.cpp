@@ -11,13 +11,17 @@
 #include <tobas_real_common/ros_interface.hpp>
 #include <tobas_real_msgs/srv/set_magnetometer_params.hpp>
 
-using namespace real::handler::mag;
+using namespace tobas::real::handler::mag;
 namespace fs = std::filesystem;
 
-class MagnetometerHandlerNode : public tobas::BaseNode
+namespace tobas
+{
+namespace real
+{
+class MagnetometerHandlerNode : public BaseNode
 {
   using self = MagnetometerHandlerNode;
-  using super = tobas::BaseNode;
+  using super = BaseNode;
   using SetParams = tobas_real_msgs::srv::SetMagnetometerParams;
 
 public:
@@ -43,7 +47,7 @@ private:
 MagnetometerHandlerNode::MagnetometerHandlerNode(const rclcpp::NodeOptions& options)
   : super("real_magnetometer_handler", nodeOptions_Default(options))
 {
-  const auto cfg_dir = linux::isSuperUser() ? fs::path(tobas::kConfigDirRoot) : ros2::expandUser(tobas::kConfigDirHome);
+  const auto cfg_dir = linux::isSuperUser() ? fs::path(kConfigDirRoot) : ros2::expandUser(kConfigDirHome);
   if (!pt_.initialize((cfg_dir / kConfigFileName))) {
     TOBAS_ERROR("Failed to initialize property tree. This node will not work.");
     return;
@@ -81,8 +85,8 @@ bool MagnetometerHandlerNode::getConfig()
 
 void MagnetometerHandlerNode::registerPubSub()
 {
-  mag_pub_ = createPublisher<tobas_msgs::MagneticField>(tobas::topic::kMagneticField);
-  mag_sub_ = createSubscriber(real::topic::kMagneticField, &self::magCb, this);
+  mag_pub_ = createPublisher<tobas_msgs::MagneticField>(topic::kMagneticField);
+  mag_sub_ = createSubscriber(topic::kMagneticField, &self::magCb, this);
 }
 
 void MagnetometerHandlerNode::magCb(const tobas_msgs::MagneticField::ConstSharedPtr& mag_in)
@@ -116,5 +120,7 @@ void MagnetometerHandlerNode::setParamsCb(
   res->success = true;
   res->message.clear();
 }
+}  // namespace real
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(MagnetometerHandlerNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::real::MagnetometerHandlerNode)

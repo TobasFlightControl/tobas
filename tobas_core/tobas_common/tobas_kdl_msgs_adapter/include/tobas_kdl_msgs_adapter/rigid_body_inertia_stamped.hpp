@@ -13,7 +13,7 @@ namespace tobas_kdl_msgs
 struct RigidBodyInertiaStamped
 {
   std_msgs::msg::Header header;
-  kdl::RigidBodyInertia inertia;
+  tobas::kdl::RigidBodyInertia inertia;
 
   using SharedPtr = std::shared_ptr<RigidBodyInertiaStamped>;
   using ConstSharedPtr = std::shared_ptr<const RigidBodyInertiaStamped>;

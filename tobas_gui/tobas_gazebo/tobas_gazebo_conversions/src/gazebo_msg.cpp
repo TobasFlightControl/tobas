@@ -1,5 +1,7 @@
 #include "tobas_gazebo_conversions/gazebo_msg.hpp"
 
+namespace tobas
+{
 namespace gazebo
 {
 void vector3dGzToMsg(const gz::math::Vector3d& g, gz::msgs::Vector3d& m)
@@ -16,3 +18,4 @@ void vector3dMsgToGz(const gz::msgs::Vector3d& m, gz::math::Vector3d& g)
   g.Z(m.z());
 }
 }  // namespace gazebo
+}  // namespace tobas

@@ -2,7 +2,7 @@
 
 #include <tobas_linux/realtime.hpp>
 
-namespace ros2
+namespace tobas
 {
 MultiThreadedExecutorRT::MultiThreadedExecutorRT(
   linux::sched_t policy,
@@ -60,4 +60,4 @@ size_t MultiThreadedExecutorRT::priority() const
 {
   return priority_;
 }
-}  // namespace ros2
+}  // namespace tobas

@@ -10,7 +10,7 @@ namespace tobas_msgs
 struct VibrationLevel
 {
   std_msgs::msg::Header header;
-  kdl::Vector data;
+  tobas::kdl::Vector data;
 
   using SharedPtr = std::shared_ptr<VibrationLevel>;
   using ConstSharedPtr = std::shared_ptr<const VibrationLevel>;

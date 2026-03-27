@@ -6,6 +6,8 @@
 
 namespace fs = std::filesystem;
 
+namespace tobas
+{
 namespace gui
 {
 namespace cmn
@@ -19,15 +21,15 @@ bool RemoteProjectBuilder::build(const fs::path& remote_proj_path)
   const auto meta_pkg_name = cmn::ProjectPaths(remote_proj_path).metaPkgName();
 
   // Paramikoは非対話型セッションを開始するため，コマンドごとに必要な環境変数を設定する必要がある．
-  const auto ros2_setup_bash = (fs::path(tobas::kRos2JazzyInstallPath) / "setup.bash").string();
-  const auto tobas_setup_bash = (fs::path(tobas::kTobasInstallPath) / "local_setup.bash").string();
+  const auto ros2_setup_bash = (fs::path(kRos2JazzyInstallPath) / "setup.bash").string();
+  const auto tobas_setup_bash = (fs::path(kTobasInstallPath) / "local_setup.bash").string();
   const auto pre_cmd = std::format(
     "source {} && "
     "source {} && "
     "cd {}",
     ros2_setup_bash,
     tobas_setup_bash,
-    tobas::kColconWSPathRoot);
+    kColconWSPathRoot);
 
   // ルート権限だと--symlink-installが機能しない
   const auto build_cmd = std::format(
@@ -58,3 +60,4 @@ const char* RemoteProjectBuilder::getErrorMessage() const
 }
 }  // namespace cmn
 }  // namespace gui
+}  // namespace tobas

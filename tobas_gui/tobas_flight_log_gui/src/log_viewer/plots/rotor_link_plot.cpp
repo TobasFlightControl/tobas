@@ -5,6 +5,8 @@
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_ros2_tools/time.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace log
@@ -119,3 +121,4 @@ bool RotorLinkPlotWidget::updateInternalDataStructures(const tobas_msgs::msg::Ro
 }
 }  // namespace log
 }  // namespace gui
+}  // namespace tobas

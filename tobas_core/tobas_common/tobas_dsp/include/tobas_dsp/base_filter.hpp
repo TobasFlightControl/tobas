@@ -1,5 +1,7 @@
 #pragma once
 
+namespace tobas
+{
 namespace dsp
 {
 template <typename T>
@@ -12,3 +14,4 @@ public:
   virtual void setValue(const T& x) = 0;
 };
 }  // namespace dsp
+}  // namespace tobas

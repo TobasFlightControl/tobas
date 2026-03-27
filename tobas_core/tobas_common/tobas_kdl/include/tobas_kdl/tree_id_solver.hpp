@@ -4,6 +4,8 @@
 #include "./jntarray.hpp"
 #include "./tree_solver_i.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 /**
@@ -42,3 +44,4 @@ inline const JntArray& TreeIdSolver::getEfforts() const
   return effort_out_;
 }
 }  // namespace kdl
+}  // namespace tobas

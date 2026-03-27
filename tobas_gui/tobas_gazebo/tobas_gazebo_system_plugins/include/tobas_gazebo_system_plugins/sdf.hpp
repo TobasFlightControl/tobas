@@ -4,6 +4,8 @@
 #include <gz/math/Vector4.hh>
 #include <sdf/sdf.hh>
 
+namespace tobas
+{
 namespace gazebo
 {
 template <typename T>
@@ -67,3 +69,4 @@ bool getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, gz::m
 
 bool getTurningDirection(const sdf::ElementConstPtr& sdf, int& dst);
 }  // namespace gazebo
+}  // namespace tobas

@@ -3,6 +3,8 @@
 #include "./suspended_load.hpp"
 #include "./wind_parameters.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sim
@@ -28,3 +30,4 @@ private:
 };
 }  // namespace sim
 }  // namespace gui
+}  // namespace tobas

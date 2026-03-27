@@ -6,6 +6,8 @@
 #include "tobas_setup_assistant/setting_tabs/remote_connection/host/ipv4.hpp"
 #include "tobas_setup_assistant/setting_tabs/remote_connection/host/ipv6.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -111,3 +113,4 @@ void HostWidget::onButtonGroupIdClicked()
 }  // namespace rc
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

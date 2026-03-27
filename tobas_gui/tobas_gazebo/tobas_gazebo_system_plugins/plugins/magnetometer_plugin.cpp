@@ -17,6 +17,8 @@
 
 namespace cmp = gz::sim::components;
 
+namespace tobas
+{
 namespace gazebo
 {
 /**
@@ -100,7 +102,7 @@ void GazeboMagnetometerPlugin::Configure(
 
   noise_ = std::make_shared<NormalDistribution3d>(rnd_dev_, 0., noise_stddev_);
 
-  mag_pub_ = createPublisher<tobas_msgs::MagneticField>(tobas::topic::kMagneticField);
+  mag_pub_ = createPublisher<tobas_msgs::MagneticField>(topic::kMagneticField);
 }
 
 void GazeboMagnetometerPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)
@@ -116,7 +118,7 @@ void GazeboMagnetometerPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const
   const auto W_Pos_WS = W_Pos_WB + W_Rot_B.RotateVector(offset_);
 
   // デカルト座標から経緯度と高度を計算
-  std::tie(lat_, lon_) = tbs::cartToGnssRelative(W_Pos_WS.X(), W_Pos_WS.Y(), lat_0_, lon_0_);
+  std::tie(lat_, lon_) = st::cartToGnssRelative(W_Pos_WS.X(), W_Pos_WS.Y(), lat_0_, lon_0_);
   const auto alt = alt_0_ + W_Pos_WS.Z();
 
   // 経緯度と高度から地磁気の参照値を計算
@@ -150,9 +152,10 @@ void GazeboMagnetometerPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
   getSdfParam(sdf, "hardBiasNorm", hard_bias_norm_, kNonNegative);
 }
 }  // namespace gazebo
+}  // namespace tobas
 
 GZ_ADD_PLUGIN(
-  gazebo::GazeboMagnetometerPlugin,
+  tobas::gazebo::GazeboMagnetometerPlugin,
   gz::sim::System,
-  gazebo::GazeboMagnetometerPlugin::ISystemConfigure,
-  gazebo::GazeboMagnetometerPlugin::ISystemPostUpdate)
+  gz::sim::ISystemConfigure,
+  gz::sim::ISystemPostUpdate)

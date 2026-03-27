@@ -7,6 +7,8 @@
 #include "./frames.hpp"
 #include "./segment_jacobian.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 /**
@@ -160,4 +162,5 @@ inline Eigen::Matrix3d Joint::rotGrad2(double q) const
     return Eigen::Matrix3d::Zero();
   }
 }
-}  // end of namespace kdl
+}  // namespace kdl
+}  // namespace tobas

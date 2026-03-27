@@ -5,6 +5,8 @@
 
 #include <tobas_qt_tools/widgets/description_widget.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -48,3 +50,4 @@ private Q_SLOTS:
 }  // namespace propulsion
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

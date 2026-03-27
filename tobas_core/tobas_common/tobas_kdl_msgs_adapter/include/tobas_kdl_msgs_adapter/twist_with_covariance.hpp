@@ -14,7 +14,7 @@ namespace tobas_kdl_msgs
 {
 struct TwistWithCovariance
 {
-  kdl::Twist twist;
+  tobas::kdl::Twist twist;
   Eigen::Matrix6d covariance;
 
   using SharedPtr = std::shared_ptr<TwistWithCovariance>;

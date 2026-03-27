@@ -5,6 +5,8 @@
 #include <tobas_qt_tools/widgets/double_spin_box.hpp>
 #include <tobas_qt_tools/widgets/spin_box.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sim
@@ -37,3 +39,4 @@ private:
 };
 }  // namespace sim
 }  // namespace gui
+}  // namespace tobas

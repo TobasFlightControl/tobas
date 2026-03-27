@@ -8,6 +8,8 @@
 #include "./vector.hpp"
 #include "./wrench.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 class Rotation;
@@ -289,3 +291,4 @@ inline std::ostream& operator<<(std::ostream& os, const Rotation& arg)
   return os;
 }
 }  // namespace kdl
+}  // namespace tobas

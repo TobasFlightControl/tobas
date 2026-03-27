@@ -2,6 +2,8 @@
 
 #include <tobas_qt_tools/cast.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sc
@@ -9,7 +11,7 @@ namespace sc
 SensorCalibrationWidget::SensorCalibrationWidget(
   rclcpp::Node::SharedPtr node,
   const RosQtBridge& bridge,
-  const tobas::Drone& drone)
+  const Drone& drone)
   : drone_(drone)
 {
   setTabSize(kTabWidth, kTabHeight);
@@ -110,3 +112,4 @@ void SensorCalibrationWidget::rcInputCb(const tobas_msgs::RCInput::ConstSharedPt
 }
 }  // namespace sc
 }  // namespace gui
+}  // namespace tobas

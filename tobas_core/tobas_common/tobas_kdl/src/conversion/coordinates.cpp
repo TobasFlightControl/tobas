@@ -2,6 +2,8 @@
 
 #include "tobas_kdl/rotational_inertia.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 void vectorFrdToFlu(const Vector& src, Vector& dst)
@@ -167,3 +169,4 @@ void frameFluToFrd(kdl::Frame& arg)
   frameFluToFrd(arg, arg);
 }
 }  // namespace kdl
+}  // namespace tobas

@@ -7,10 +7,12 @@
 #include <tobas_msgs_adapter/imu.hpp>
 #include <tobas_msgs_adapter/vibration_level.hpp>
 
-class VibrationFilterNode : public tobas::BaseNode
+namespace tobas
+{
+class VibrationFilterNode : public BaseNode
 {
   using self = VibrationFilterNode;
-  using super = tobas::BaseNode;
+  using super = BaseNode;
 
   // ArduPilot: fc_hpf = 5Hz, fc_lpf = 2Hz
   // https://firmware.ardupilot.org/coverage/AP_InertialSensor/AP_InertialSensor.h.gcov.html
@@ -38,8 +40,8 @@ VibrationFilterNode::VibrationFilterNode(const rclcpp::NodeOptions& options)
   TOBAS_ASSERT(hpf_.setCutoffFrequency(kHpfCutoff));
   TOBAS_ASSERT(lpf_.setCutoffFrequency(kLpfCutoff));
 
-  vibe_pub_ = createPublisher<tobas_msgs::VibrationLevel>(tobas::topic::kVibrationLevel);
-  imu_sub_ = createSubscriber(tobas::topic::kImuRaw, &self::imuCb, this);
+  vibe_pub_ = createPublisher<tobas_msgs::VibrationLevel>(topic::kVibrationLevel);
+  imu_sub_ = createSubscriber(topic::kImuRaw, &self::imuCb, this);
 }
 
 void VibrationFilterNode::imuCb(const tobas_msgs::Imu::ConstSharedPtr& imu)
@@ -67,5 +69,6 @@ void VibrationFilterNode::imuCb(const tobas_msgs::Imu::ConstSharedPtr& imu)
   vibe->data = acc_vibe_rms;
   vibe_pub_->publish(std::move(vibe));
 }
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(VibrationFilterNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::VibrationFilterNode)

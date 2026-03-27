@@ -4,7 +4,9 @@
 #include <chrono>
 #include <map>
 
-namespace tbs
+namespace tobas
+{
+namespace st
 {
 /* 指定した期間内のデータのみを保持するバッファ． */
 template <typename T>
@@ -118,4 +120,5 @@ public:
   double variance() const;
   double stddev() const;
 };
-}  // namespace tbs
+}  // namespace st
+}  // namespace tobas

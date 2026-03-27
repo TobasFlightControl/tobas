@@ -8,6 +8,8 @@
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -104,7 +106,7 @@ void PropulsionSystemWidget::load(const YAML::Node& node)
   }
 }
 
-tobas::PropulsionSystem PropulsionSystemWidget::type() const
+PropulsionSystem PropulsionSystemWidget::type() const
 {
   return selected()->type();
 }
@@ -198,3 +200,4 @@ void PropulsionSystemWidget::onPropulsionTypeClicked(int new_idx)
 }  // namespace propulsion
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

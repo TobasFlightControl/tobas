@@ -11,10 +11,12 @@
 
 using namespace std::chrono_literals;
 
-class LandingDetectorNode : public tobas::BaseNode
+namespace tobas
+{
+class LandingDetectorNode : public BaseNode
 {
   using self = LandingDetectorNode;
-  using super = tobas::BaseNode;
+  using super = BaseNode;
 
   static constexpr auto kPublishPeriod = 1s;
   static constexpr double kDistForceLpfCutoff = 1.;        // [Hz]
@@ -58,10 +60,10 @@ LandingDetectorNode::LandingDetectorNode(const rclcpp::NodeOptions& options)
 
   force_z_lpf_.setCutoffFrequency(kDistForceLpfCutoff);
 
-  landed_pub_ = createPublisher<tobas_msgs::msg::LandedState>(tobas::topic::kLanded);
+  landed_pub_ = createPublisher<tobas_msgs::msg::LandedState>(topic::kLanded);
 
-  tree_sub_ = createSubscriber(tobas::topic::kKdlTree, &self::treeCb, this, true, true);
-  dist_force_sub_ = createSubscriber(tobas::topic::kDisturbanceForce, &self::disturbanceForceCb, this);
+  tree_sub_ = createSubscriber(topic::kKdlTree, &self::treeCb, this, true, true);
+  dist_force_sub_ = createSubscriber(topic::kDisturbanceForce, &self::disturbanceForceCb, this);
 }
 
 void LandingDetectorNode::publishCurrentLandedState(const builtin_interfaces::msg::Time& stamp)
@@ -115,7 +117,7 @@ void LandingDetectorNode::disturbanceForceCb(const tobas_kdl_msgs::WrenchStamped
   // 鉛直上方向の外力（地面反力）が離陸重量の比が閾値を超えた状態が一定時間続いたら離着陸状態を変更
   const auto& cur_time = dist_force->header.stamp;
   const auto& force_z_filt = force_z_lpf_.getValue();
-  const auto weight = mass_holder_.getMass() * tbs::kGravity;
+  const auto weight = mass_holder_.getMass() * st::kGravity;
   if (landed_) {
     const auto force_z_thresh = weight * kTakeoffWeightRateThresh;
     if (force_z_filt < force_z_thresh) {
@@ -146,5 +148,6 @@ void LandingDetectorNode::publishTimerCb()
 {
   publishCurrentLandedState(now());
 }
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(LandingDetectorNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::LandingDetectorNode)

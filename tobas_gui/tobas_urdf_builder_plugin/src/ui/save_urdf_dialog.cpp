@@ -6,6 +6,8 @@
 
 #include <tobas_qt_tools/path.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ub
@@ -59,3 +61,4 @@ void SaveUrdfDialog::onLineEditTextChanged()
 }  // namespace ui
 }  // namespace ub
 }  // namespace gui
+}  // namespace tobas

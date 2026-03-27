@@ -6,6 +6,8 @@
 #include <tobas_qt_tools/widgets/list_widget.hpp>
 #include <tobas_qt_tools/widgets/wait_spinner.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace log
@@ -54,3 +56,4 @@ private Q_SLOTS:
 };
 }  // namespace log
 }  // namespace gui
+}  // namespace tobas

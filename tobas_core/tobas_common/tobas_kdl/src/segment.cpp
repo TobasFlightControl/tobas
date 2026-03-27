@@ -2,6 +2,8 @@
 
 using namespace std;
 
+namespace tobas
+{
 namespace kdl
 {
 bool Segment::isValid(string& error_msg) const
@@ -38,3 +40,4 @@ ostream& operator<<(ostream& os, const Segment& arg)
   return os;
 }
 }  // namespace kdl
+}  // namespace tobas

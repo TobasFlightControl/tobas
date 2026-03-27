@@ -5,6 +5,8 @@
 using namespace std;
 using namespace Eigen;
 
+namespace tobas
+{
 namespace quadprog
 {
 QuadProgProblem::QuadProgProblem(const Index& var_size, const Index& eq_size, const Index& ineq_size)
@@ -132,3 +134,4 @@ void QuadProgSolver::checkProblemValidity() const
   assert((x_scale.array() > 0).all());
 }
 }  // namespace quadprog
+}  // namespace tobas

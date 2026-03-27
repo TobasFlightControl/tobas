@@ -8,6 +8,8 @@
 #include <tobas_qt_tools/font.hpp>
 #include <tobas_qt_tools/widgets/scroll_area.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -98,3 +100,4 @@ void BaseCommandWidget::onDeleteButtonClicked()
 }
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

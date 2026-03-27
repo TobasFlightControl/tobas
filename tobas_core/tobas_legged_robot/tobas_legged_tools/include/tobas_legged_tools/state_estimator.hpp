@@ -7,6 +7,8 @@
 
 #include "./linear_dynamics.hpp"
 
+namespace tobas
+{
 namespace lr_tools
 {
 struct StateEstimatorConfig
@@ -113,3 +115,4 @@ inline size_t StateEstimator::velIdx(size_t leg) const
   return kGravIdx + 1 + nc_ + 3 * leg;
 }
 }  // namespace lr_tools
+}  // namespace tobas

@@ -47,15 +47,25 @@ add_library(${PROJECT_NAME}_node SHARED ${NODE_CPP_FILES})
 ament_target_dependencies(${PROJECT_NAME}_node ${AMENT_DEPENDENCIES})
 ament_target_dependencies(${PROJECT_NAME}_node LIBAV)
 
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "CompressedImageViewer" EXECUTABLE compressed_image_viewer)
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "CxGb400PublisherNode" EXECUTABLE cx_gb400_publisher)
 rclcpp_components_register_node(
-  ${PROJECT_NAME}_node PLUGIN "FFmpegToROSMsgConverter" EXECUTABLE ffmpeg_to_ros_msg_converter
+  ${PROJECT_NAME}_node PLUGIN "tobas::camera::CompressedImageViewer" EXECUTABLE compressed_image_viewer
 )
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "H264Decompressor" EXECUTABLE h264_decompressor)
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "MjpgCompressor" EXECUTABLE mjpg_compressor)
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "MjpgDecompressor" EXECUTABLE mjpg_decompressor)
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "VideoDevPublisherNode" EXECUTABLE video_dev_publisher)
+rclcpp_components_register_node(
+  ${PROJECT_NAME}_node PLUGIN "tobas::camera::CxGb400PublisherNode" EXECUTABLE cx_gb400_publisher
+)
+rclcpp_components_register_node(
+  ${PROJECT_NAME}_node PLUGIN "tobas::camera::FFmpegToROSMsgConverter" EXECUTABLE ffmpeg_to_ros_msg_converter
+)
+rclcpp_components_register_node(
+  ${PROJECT_NAME}_node PLUGIN "tobas::camera::H264Decompressor" EXECUTABLE h264_decompressor
+)
+rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "tobas::camera::MjpgCompressor" EXECUTABLE mjpg_compressor)
+rclcpp_components_register_node(
+  ${PROJECT_NAME}_node PLUGIN "tobas::camera::MjpgDecompressor" EXECUTABLE mjpg_decompressor
+)
+rclcpp_components_register_node(
+  ${PROJECT_NAME}_node PLUGIN "tobas::camera::VideoDevPublisherNode" EXECUTABLE video_dev_publisher
+)
 
 install(
   TARGETS ${PROJECT_NAME}_node

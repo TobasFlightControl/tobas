@@ -4,6 +4,8 @@
 
 using namespace std;
 
+namespace tobas
+{
 namespace ublox
 {
 UBXScanner::UBXScanner()
@@ -93,3 +95,4 @@ bool UBXScanner::update(const uint8_t& data)
   return true;
 }
 }  // namespace ublox
+}  // namespace tobas

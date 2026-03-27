@@ -3,6 +3,8 @@
 #include <cstddef>
 #include <cstdint>
 
+namespace tobas
+{
 namespace ublox
 {
 static constexpr size_t kUbxSyncLength = 2;
@@ -109,3 +111,4 @@ inline const uint8_t* UBXScanner::getChecksumB() const
   return getChecksumA() + 1;
 }
 }  // namespace ublox
+}  // namespace tobas

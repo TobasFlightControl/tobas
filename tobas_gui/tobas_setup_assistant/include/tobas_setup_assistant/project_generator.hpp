@@ -11,6 +11,8 @@
 #include "./settings.hpp"
 #include "./template_generator.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -55,7 +57,7 @@ private:
   std::shared_ptr<TemplateGenerator> user_py_env_;
 
   inja::json createTemplateData() const;
-  tobas::Drone createDrone() const;
+  Drone createDrone() const;
   bool hasServoJoint() const;
 
   bool generateMetaPackage(const inja::json& data);
@@ -98,7 +100,8 @@ private:
   /* Gazeboプラグイン等をXMLに追加する． */
   bool addXmlElements(tinyxml2::XMLElement* robot);
 
-  static tobas::TurningDirection turningDirectionUadfToTbsdrn(const uadf::Thrust::Direction& src);
+  static TurningDirection turningDirectionUadfToTbsdrn(const uadf::Thrust::Direction& src);
 };
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

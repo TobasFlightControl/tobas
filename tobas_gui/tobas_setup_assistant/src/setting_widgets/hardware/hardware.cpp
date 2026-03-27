@@ -11,6 +11,8 @@
 
 #include "tobas_setup_assistant/setting_tabs/hardware/fc1xx.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -259,3 +261,4 @@ const BaseHardwareWidget* HardwareWidget::selected() const
 }  // namespace hw
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

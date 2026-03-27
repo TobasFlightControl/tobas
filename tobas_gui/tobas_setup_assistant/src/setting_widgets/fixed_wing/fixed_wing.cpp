@@ -5,6 +5,8 @@
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -107,3 +109,4 @@ const ControlSurfacesWidget* FixedWingWidget::controlSurfaces() const
 }  // namespace fw
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

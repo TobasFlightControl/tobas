@@ -7,6 +7,8 @@
 
 #include "tobas_qt_tools/cast.hpp"
 
+namespace tobas
+{
 namespace qt
 {
 TabBar::TabBar()
@@ -127,3 +129,4 @@ void TabWidget::removeAllTabs()
   }
 }
 }  // namespace qt
+}  // namespace tobas

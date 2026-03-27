@@ -5,7 +5,9 @@
 
 using namespace std::chrono_literals;
 
-class FakeGnssPublisherNode : public tobas::BaseNode
+namespace tobas
+{
+class FakeGnssPublisherNode : public BaseNode
 {
   static constexpr auto kSamplingPeriod = 200ms;
 
@@ -13,7 +15,7 @@ class FakeGnssPublisherNode : public tobas::BaseNode
   static constexpr double kDefaultVelStddev = 0.3;  // [m/s]
 
   using self = FakeGnssPublisherNode;
-  using super = tobas::BaseNode;
+  using super = BaseNode;
 
 public:
   explicit FakeGnssPublisherNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -34,7 +36,7 @@ FakeGnssPublisherNode::FakeGnssPublisherNode(const rclcpp::NodeOptions& options)
   pos_stddev_ = getDoubleParam("position_stddev", kDefaultPosStddev);
   vel_stddev_ = getDoubleParam("velocity_stddev", kDefaultVelStddev);
 
-  gnss_pub_ = createPublisher<tobas_msgs::Gnss>(tobas::topic::kGnss);
+  gnss_pub_ = createPublisher<tobas_msgs::Gnss>(topic::kGnss);
   timer_ = createTimer(kSamplingPeriod, &self::timerCb, this);
 }
 
@@ -52,5 +54,6 @@ void FakeGnssPublisherNode::timerCb()
 
   gnss_pub_->publish(std::move(gnss_msg));
 }
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(FakeGnssPublisherNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::FakeGnssPublisherNode)

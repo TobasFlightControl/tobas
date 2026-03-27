@@ -1,5 +1,7 @@
 #include "tobas_qt_tools/thread.hpp"
 
+namespace tobas
+{
 namespace qt
 {
 void startThreadAndWait(std::function<void()> func)
@@ -18,3 +20,4 @@ void startThreadAndWait(std::function<void()> func)
   QObject::disconnect(conn);
 }
 }  // namespace qt
+}  // namespace tobas

@@ -13,6 +13,8 @@
 
 using namespace std::chrono_literals;
 
+namespace tobas
+{
 namespace gui
 {
 namespace sim
@@ -133,5 +135,6 @@ std::expected<void, QString> killGazebo(rclcpp::Node::SharedPtr node, pid_t pid)
 }
 }  // namespace sim
 }  // namespace gui
+}  // namespace tobas
 
 #include "gazebo.moc"

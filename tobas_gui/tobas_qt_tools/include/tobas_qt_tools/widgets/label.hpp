@@ -2,6 +2,8 @@
 
 #include <QLabel>
 
+namespace tobas
+{
 namespace qt
 {
 /**
@@ -25,3 +27,4 @@ public:
   void setTextColor(const Qt::GlobalColor color);
 };
 }  // namespace qt
+}  // namespace tobas

@@ -2,6 +2,8 @@
 
 #include <termios.h>
 
+namespace tobas
+{
 namespace keyboard
 {
 enum KeyCode : char
@@ -26,3 +28,4 @@ private:
   termios tempcopy_, changed_;
 };
 }  // namespace keyboard
+}  // namespace tobas

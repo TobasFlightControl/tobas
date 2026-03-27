@@ -5,7 +5,9 @@
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 
-namespace tobas_rc_teleop
+namespace tobas
+{
+namespace rc
 {
 AngleThrottleVectorController::AngleThrottleVectorController()
 {
@@ -31,7 +33,7 @@ bool AngleThrottleVectorController::requireHeading()
   return true;
 }
 
-void AngleThrottleVectorController::initialize(tobas::BaseNode* node, tobas::FlightMode mode)
+void AngleThrottleVectorController::initialize(BaseNode* node, FlightMode mode)
 {
   node->addDynamicDoubleParam(addMode("max_roll", mode), &self::maxRollCb, this, 5., 9, 1, 16, " deg");
   node->addDynamicDoubleParam(addMode("max_roll_rate", mode), &self::maxRollRateCb, this, 45., 8, 1, 16, " dps");
@@ -46,7 +48,7 @@ void AngleThrottleVectorController::initialize(tobas::BaseNode* node, tobas::Fli
   node->addDynamicDoubleParam(addMode("throttle_expo", mode), &self::throttleExpoCb, this, 5., 0, 0, 20);
   node->addDynamicDoubleParam(addMode("thrust_angle_expo", mode), &self::thrustAngleExpoCb, this, 5., 0, -20, 20);
 
-  cmd_pub_ = node->createPublisher<tobas_command_msgs::AngleThrottleVector>(tobas::topic::kAngleThrotVectorCmd);
+  cmd_pub_ = node->createPublisher<tobas_command_msgs::AngleThrottleVector>(topic::kAngleThrotVectorCmd);
 }
 
 void AngleThrottleVectorController::reset(
@@ -84,7 +86,7 @@ void AngleThrottleVectorController::update(const tobas_msgs::RCInput& rcin, cons
   cmd->angle.yaw = tar_yaw_;
 
   // Throttle
-  cmd->throttle = expo(remap(rcin.throttle, tobas::kMinThrot, tobas::kMaxThrot), throt_expo_);
+  cmd->throttle = expo(remap(rcin.throttle, kMinThrot, kMaxThrot), throt_expo_);
 
   // Pitch & Thrust Angle
   if (rcin.sub_mode)  // Translation mode
@@ -108,43 +110,43 @@ void AngleThrottleVectorController::update(const tobas_msgs::RCInput& rcin, cons
 
 bool AngleThrottleVectorController::maxRollCb(const double& p)
 {
-  max_roll_ = tbs::deg2rad(p);
+  max_roll_ = st::deg2rad(p);
   return true;
 }
 
 bool AngleThrottleVectorController::maxRollRateCb(const double& p)
 {
-  roll_filt_.setMaxVelocity(tbs::deg2rad(p));
+  roll_filt_.setMaxVelocity(st::deg2rad(p));
   return true;
 }
 
 bool AngleThrottleVectorController::maxPitchCb(const double& p)
 {
-  max_pitch_ = tbs::deg2rad(p);
+  max_pitch_ = st::deg2rad(p);
   return true;
 }
 
 bool AngleThrottleVectorController::maxPitchRateCb(const double& p)
 {
-  pitch_filt_.setMaxVelocity(tbs::deg2rad(p));
+  pitch_filt_.setMaxVelocity(st::deg2rad(p));
   return true;
 }
 
 bool AngleThrottleVectorController::maxYawRateCb(const double& p)
 {
-  max_yaw_rate_ = tbs::deg2rad(p);
+  max_yaw_rate_ = st::deg2rad(p);
   return true;
 }
 
 bool AngleThrottleVectorController::maxThrustAngleCb(const double& p)
 {
-  max_thrust_angle_ = tbs::deg2rad(p);
+  max_thrust_angle_ = st::deg2rad(p);
   return true;
 }
 
 bool AngleThrottleVectorController::maxThrustAngleRateCb(const double& p)
 {
-  thrust_angle_filt_.setMaxVelocity(tbs::deg2rad(p));
+  thrust_angle_filt_.setMaxVelocity(st::deg2rad(p));
   return true;
 }
 
@@ -171,4 +173,5 @@ bool AngleThrottleVectorController::thrustAngleExpoCb(const double& p)
   thrust_angle_expo_ = p / kExpoScale;
   return true;
 }
-}  // namespace tobas_rc_teleop
+}  // namespace rc
+}  // namespace tobas

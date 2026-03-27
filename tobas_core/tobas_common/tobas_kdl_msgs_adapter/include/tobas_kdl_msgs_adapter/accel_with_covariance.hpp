@@ -14,7 +14,7 @@ namespace tobas_kdl_msgs
 {
 struct AccelWithCovariance
 {
-  kdl::Accel accel;
+  tobas::kdl::Accel accel;
   Eigen::Matrix6d covariance;
 
   using SharedPtr = std::shared_ptr<AccelWithCovariance>;

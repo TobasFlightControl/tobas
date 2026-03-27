@@ -2,6 +2,8 @@
 
 #include "./qpsolver.hpp"
 
+namespace tobas
+{
 namespace quadprog
 {
 /**
@@ -43,3 +45,4 @@ private:
   double findAlpha(const Eigen::VectorXd& dlam, const Eigen::VectorXd& ds) const;
 };
 }  // namespace quadprog
+}  // namespace tobas

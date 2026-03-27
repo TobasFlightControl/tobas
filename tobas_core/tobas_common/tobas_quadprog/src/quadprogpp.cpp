@@ -58,6 +58,8 @@ void vectorQpToEigen(const Vector<double>& q, VectorXd& e)
 }
 }  // namespace quadprogpp
 
+namespace tobas
+{
 namespace quadprog
 {
 QuadProgppSolver::QuadProgppSolver() : super()
@@ -95,3 +97,4 @@ bool QuadProgppSolver::solve()
   return true;
 }
 }  // namespace quadprog
+}  // namespace tobas

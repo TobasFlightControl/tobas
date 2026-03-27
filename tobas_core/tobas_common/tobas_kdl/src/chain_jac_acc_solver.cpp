@@ -1,5 +1,7 @@
 #include "tobas_kdl/chain_jac_acc_solver.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 ChainJacAccSolver::ChainJacAccSolver(const Chain& chain) : super(chain)
@@ -70,3 +72,4 @@ void ChainJacAccSolver::resize()
   a_.resize(ns_);
 }
 }  // namespace kdl
+}  // namespace tobas

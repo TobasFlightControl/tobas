@@ -2,6 +2,8 @@
 
 #include <eigen3/Eigen/Core>
 
+namespace tobas
+{
 namespace ctrl
 {
 /**
@@ -22,3 +24,4 @@ Eigen::MatrixXd care_ArimotoPotter(
 Eigen::MatrixXd
 care_Schur(const Eigen::MatrixXd& A, const Eigen::MatrixXd& B, const Eigen::MatrixXd& Q, const Eigen::MatrixXd& R);
 }  // namespace ctrl
+}  // namespace tobas

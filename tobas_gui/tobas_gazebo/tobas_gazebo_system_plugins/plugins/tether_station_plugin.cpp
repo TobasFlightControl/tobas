@@ -17,6 +17,8 @@
 
 namespace cmp = gz::sim::components;
 
+namespace tobas
+{
 namespace gazebo
 {
 class GazeboTetherStationPlugin : public BaseNode,
@@ -218,9 +220,10 @@ void GazeboTetherStationPlugin::setParamsCb(
   res->success = true;
 }
 }  // namespace gazebo
+}  // namespace tobas
 
 GZ_ADD_PLUGIN(
-  gazebo::GazeboTetherStationPlugin,
+  tobas::gazebo::GazeboTetherStationPlugin,
   gz::sim::System,
-  gazebo::GazeboTetherStationPlugin::ISystemConfigure,
-  gazebo::GazeboTetherStationPlugin::ISystemPreUpdate)
+  gz::sim::ISystemConfigure,
+  gz::sim::ISystemPreUpdate)

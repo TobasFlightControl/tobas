@@ -10,6 +10,8 @@
 
 namespace fs = std::filesystem;
 
+namespace tobas
+{
 namespace colcon
 {
 Colcon::Colcon()
@@ -139,3 +141,4 @@ fs::path Colcon::logBase(const fs::path& ws_path)
   return ws_path / "log";
 }
 }  // namespace colcon
+}  // namespace tobas

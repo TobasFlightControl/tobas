@@ -9,6 +9,8 @@
 #define RANDOM_AXIS_TILT_MULTICOPTER "Random Axis Tilt Multicopter"
 #define FIXED_WING "Fixed Wing"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -66,22 +68,23 @@ bool enumFromText(const std::string& text, FrameType& dst)
 }
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas
 
 namespace YAML
 {
-Node convert<gui::sa::FrameType>::encode(const gui::sa::FrameType& rhs)
+Node convert<tobas::gui::sa::FrameType>::encode(const tobas::gui::sa::FrameType& rhs)
 {
   Node node;
-  node = gui::sa::textFromEnum(rhs);
-  return Node(gui::sa::textFromEnum(rhs));
+  node = tobas::gui::sa::textFromEnum(rhs);
+  return Node(tobas::gui::sa::textFromEnum(rhs));
 }
 
-bool convert<gui::sa::FrameType>::decode(const Node& node, gui::sa::FrameType& rhs)
+bool convert<tobas::gui::sa::FrameType>::decode(const Node& node, tobas::gui::sa::FrameType& rhs)
 {
   if (!node.IsScalar()) {
     return false;
   }
 
-  return gui::sa::enumFromText(node.as<std::string>(), rhs);
+  return tobas::gui::sa::enumFromText(node.as<std::string>(), rhs);
 }
 }  // namespace YAML

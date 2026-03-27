@@ -64,7 +64,7 @@ bool IcePropulsionSystemConfig::load(const YAML::Node& root_node)
   }
 
   // Maximum engine speed
-  max_engine_speed_ = computeEngineSpeed(tobas::kMaxThrot);
+  max_engine_speed_ = computeEngineSpeed(kMaxThrot);
 
   return true;
 }
@@ -124,7 +124,7 @@ double IcePropulsionSystemConfig::maxEngineSpeed()
 {
   // フルスロット時のエンジン回転数を1度だけ計算
   if (!max_engine_speed_.has_value()) {
-    max_engine_speed_ = computeEngineSpeed(tobas::kMaxThrot);
+    max_engine_speed_ = computeEngineSpeed(kMaxThrot);
   }
 
   return max_engine_speed_.value();
@@ -183,7 +183,7 @@ double IcePropulsionSystemConfig::calc_k() const
 {
   double res = 0.;
   for (const auto& [_, rotor] : rotors) {
-    const auto irotor = boost::polymorphic_pointer_downcast<tobas::IceRotorConfig>(rotor);
+    const auto irotor = boost::polymorphic_pointer_downcast<IceRotorConfig>(rotor);
     const auto phi_r = irotor->optimalPitch();
     const auto& n = irotor->gear_ratio;
     res += irotor->motorConst(phi_r) * irotor->momentConst(phi_r) / math::cube(n);

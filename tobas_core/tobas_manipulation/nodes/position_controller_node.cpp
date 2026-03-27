@@ -10,10 +10,14 @@
 
 #include "tobas_manipulation/constants.hpp"
 
-class PositionControllerNode : public tobas::BaseNode
+namespace tobas
+{
+namespace manipulation
+{
+class PositionControllerNode : public BaseNode
 {
   using self = PositionControllerNode;
-  using super = tobas::BaseNode;
+  using super = BaseNode;
 
 public:
   explicit PositionControllerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -22,7 +26,7 @@ private:
   // Parameters
   std::unordered_set<std::string> jnt_names_;
 
-  tobas::Drone::ConstSharedPtr drone_;
+  Drone::ConstSharedPtr drone_;
 
   tobas_msgs::msg::JointStateArray home_js_;
 
@@ -33,7 +37,7 @@ private:
   ros2::PublisherPtr<tobas_msgs::msg::JointCommandArray> positions_pub_;
 
   // Subscribers
-  ros2::SubscriberPtr<tobas::Drone> drone_sub_;
+  ros2::SubscriberPtr<Drone> drone_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::JointStateArray> cur_js_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::JointStateArray> tar_js_sub_;
   ros2::SubscriberPtr<tobas_msgs::LinkStateArray> tar_ls_sub_;
@@ -44,7 +48,7 @@ private:
   bool jointSpaceControl(tobas_msgs::msg::JointCommandArray& positions_msg);
   bool taskSpaceControl(tobas_msgs::msg::JointCommandArray& positions_msg);
 
-  void droneCb(const tobas::Drone::ConstSharedPtr& drone);
+  void droneCb(const Drone::ConstSharedPtr& drone);
   void currentJointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& cur_js);
   void targetJointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& tar_js);
   void targetLinkStateCb(const tobas_msgs::LinkStateArray::ConstSharedPtr& tar_ls);
@@ -62,12 +66,12 @@ PositionControllerNode::PositionControllerNode(const rclcpp::NodeOptions& option
   }
   jnt_names_.insert(jnt_names.begin(), jnt_names.end());
 
-  positions_pub_ = createPublisher<tobas_msgs::msg::JointCommandArray>(tobas::topic::kJointPosCmd);
+  positions_pub_ = createPublisher<tobas_msgs::msg::JointCommandArray>(topic::kJointPosCmd);
 
-  drone_sub_ = createSubscriber(tobas::topic::kDrone, &self::droneCb, this, true, true);
-  cur_js_sub_ = createSubscriber(tobas::topic::kJointStates, &self::currentJointStateCb, this);
-  tar_js_sub_ = createSubscriber(tobas::topic::kPosCtrlJS, &self::targetJointStateCb, this);
-  tar_ls_sub_ = createSubscriber(tobas::topic::kPosCtrlLS, &self::targetLinkStateCb, this);
+  drone_sub_ = createSubscriber(topic::kDrone, &self::droneCb, this, true, true);
+  cur_js_sub_ = createSubscriber(topic::kJointStates, &self::currentJointStateCb, this);
+  tar_js_sub_ = createSubscriber(topic::kPosCtrlJS, &self::targetJointStateCb, this);
+  tar_ls_sub_ = createSubscriber(topic::kPosCtrlLS, &self::targetLinkStateCb, this);
 
   auto_reset_timer_ = createTimer(manipulation::kAutoResetTimeThresh, &self::autoResetTimerCb, this, false);
 }
@@ -96,7 +100,7 @@ bool PositionControllerNode::taskSpaceControl(tobas_msgs::msg::JointCommandArray
   return true;
 }
 
-void PositionControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
+void PositionControllerNode::droneCb(const Drone::ConstSharedPtr& drone)
 {
   drone_ = drone;
 
@@ -110,7 +114,7 @@ void PositionControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
       continue;
     }
     const auto& joint = joint_it->second;
-    if (joint.cmd_iface != tobas::JointCommandInterface::kPosition) {
+    if (joint.cmd_iface != JointCommandInterface::kPosition) {
       TOBAS_WARN("The command interface of joint \"", jnt_name, "\" is not position.");
       continue;
     }
@@ -186,5 +190,7 @@ void PositionControllerNode::autoResetTimerCb()
 
   auto_reset_timer_->cancel();
 }
+}  // namespace manipulation
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(PositionControllerNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::manipulation::PositionControllerNode)

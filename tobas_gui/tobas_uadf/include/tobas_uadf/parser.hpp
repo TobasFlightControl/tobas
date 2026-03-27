@@ -6,6 +6,8 @@
 
 #include "./model.hpp"
 
+namespace tobas
+{
 namespace uadf
 {
 class Parser
@@ -25,3 +27,4 @@ private:
   urdf::Parser urdf_parser_;
 };
 }  // namespace uadf
+}  // namespace tobas

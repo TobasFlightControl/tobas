@@ -8,6 +8,10 @@
 
 using namespace std::chrono_literals;
 
+namespace tobas
+{
+namespace fc1xx
+{
 class BaroDriverNode : public hardware::BaseSensorNode
 {
   static constexpr auto kSamplingPeriod = 20ms;
@@ -19,7 +23,7 @@ public:
   explicit BaroDriverNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  fc1xx::ILPS22QS baro_;
+  ILPS22QS baro_;
   ros2::PublisherPtr<tobas_msgs::msg::FluidPressure> baro_pub_;
   ros2::TimerPtr initialize_timer_;
 
@@ -30,7 +34,7 @@ private:
 BaroDriverNode::BaroDriverNode(const rclcpp::NodeOptions& options)
   : super("fc1xx_baro_driver", nodeOptions_Default(options))
 {
-  initialize_timer_ = createWallTimer(fc1xx::kRetryInitializationInterval, &self::initialize, this);
+  initialize_timer_ = createWallTimer(kRetryInitializationInterval, &self::initialize, this);
 }
 
 void BaroDriverNode::initialize()
@@ -40,7 +44,7 @@ void BaroDriverNode::initialize()
     return;
   }
 
-  baro_pub_ = createPublisher<tobas_msgs::msg::FluidPressure>(tobas::topic::kAirPressure);
+  baro_pub_ = createPublisher<tobas_msgs::msg::FluidPressure>(topic::kAirPressure);
 
   initialize_timer_->cancel();
   main_timer_ = createWallTimer(kSamplingPeriod, &self::mainTimerCb, this);
@@ -63,5 +67,7 @@ void BaroDriverNode::mainTimerCb()
   // Publish message
   baro_pub_->publish(std::move(msg));
 }
+}  // namespace fc1xx
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(BaroDriverNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::fc1xx::BaroDriverNode)

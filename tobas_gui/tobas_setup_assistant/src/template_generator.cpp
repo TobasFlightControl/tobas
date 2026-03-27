@@ -2,6 +2,8 @@
 
 namespace fs = std::filesystem;
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -24,3 +26,4 @@ void TemplateGenerator::generate(const inja::json& data, const fs::path& rel_pat
 }
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

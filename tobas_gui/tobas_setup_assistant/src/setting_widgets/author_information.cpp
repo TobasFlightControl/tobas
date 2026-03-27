@@ -6,6 +6,8 @@
 #include <tobas_string_tools/core.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -118,3 +120,4 @@ QString AuthorInformationWidget::getDefaultEmail()
 }
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

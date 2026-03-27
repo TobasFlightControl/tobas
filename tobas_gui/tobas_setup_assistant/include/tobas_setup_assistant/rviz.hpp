@@ -8,6 +8,8 @@
 #include <tobas_rviz_wrapper/rviz.hpp>
 #include <tobas_uadf/model.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -61,3 +63,4 @@ private:
 };
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

@@ -13,7 +13,7 @@ namespace tobas_kdl_msgs
 struct EulerStamped
 {
   std_msgs::msg::Header header;
-  kdl::Euler euler;
+  tobas::kdl::Euler euler;
 
   using SharedPtr = std::shared_ptr<EulerStamped>;
   using ConstSharedPtr = std::shared_ptr<const EulerStamped>;

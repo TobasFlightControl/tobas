@@ -20,6 +20,8 @@
 #include "../base.hpp"
 #include "./rotor_widget.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace at
@@ -38,7 +40,7 @@ class RotorTestWidget : public BaseWidget
   static constexpr auto kWaitForService = std::chrono::seconds(3);
 
 public:
-  explicit RotorTestWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge, const tobas::Drone& drone);
+  explicit RotorTestWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge, const Drone& drone);
 
   const char* title() const override;
 
@@ -51,8 +53,8 @@ public:
 private:
   const rclcpp::Node::SharedPtr node_;
   const RosQtBridge& bridge_;
-  const tobas::Drone& drone_;
-  tobas::ElectricPropulsionSystemConfig::ConstSharedPtr eprop_;
+  const Drone& drone_;
+  ElectricPropulsionSystemConfig::ConstSharedPtr eprop_;
 
   QPushButton* start_button_;
   QPushButton* stop_button_;
@@ -92,3 +94,4 @@ private Q_SLOTS:
 };
 }  // namespace at
 }  // namespace gui
+}  // namespace tobas

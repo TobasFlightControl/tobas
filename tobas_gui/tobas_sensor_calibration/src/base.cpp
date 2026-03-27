@@ -5,6 +5,8 @@
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/font.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sc
@@ -31,3 +33,4 @@ void BaseWidget::initialize()
 }
 }  // namespace sc
 }  // namespace gui
+}  // namespace tobas

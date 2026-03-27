@@ -12,6 +12,8 @@
 
 namespace fs = std::filesystem;
 
+namespace tobas
+{
 namespace gui
 {
 namespace param
@@ -21,10 +23,10 @@ ParameterTuningWidget::ParameterTuningWidget(rclcpp::Node::SharedPtr node)
                  cmn::ProjectPaths::kObserverDynamicParamFileName,
                  cmn::ProjectPaths::kControllerDynamicParamFileName,
                  cmn::ProjectPaths::kRcTeleopDynamicParamFileName }
-  , blocks_{ new ParamBlockWidget(node, tobas::node::kImuFilterConfigServer, "IMU Filter"),
-             new ParamBlockWidget(node, tobas::node::kObserver, "State Estimator"),
-             new ParamBlockWidget(node, tobas::node::kController, "Flight Controller"),
-             new ParamBlockWidget(node, tobas::node::kRcTeleop, "Radio Control") }
+  , blocks_{ new ParamBlockWidget(node, node::kImuFilterConfigServer, "IMU Filter"),
+             new ParamBlockWidget(node, node::kObserver, "State Estimator"),
+             new ParamBlockWidget(node, node::kController, "Flight Controller"),
+             new ParamBlockWidget(node, node::kRcTeleop, "Radio Control") }
 {
   load_button_ = new QPushButton("Load");
   save_button_ = new QPushButton("Save");
@@ -142,3 +144,4 @@ void ParameterTuningWidget::onResetButtonClicked()
 }
 }  // namespace param
 }  // namespace gui
+}  // namespace tobas

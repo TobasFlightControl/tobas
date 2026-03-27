@@ -5,6 +5,8 @@
 #include <tobas_qt_tools/thread.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sc
@@ -81,3 +83,4 @@ void AccelCalibrationWidget::armingCb(const tobas_msgs::msg::Arming::ConstShared
 }
 }  // namespace sc
 }  // namespace gui
+}  // namespace tobas

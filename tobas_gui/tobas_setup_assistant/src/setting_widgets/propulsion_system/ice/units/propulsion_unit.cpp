@@ -3,6 +3,8 @@
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/util.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -101,3 +103,4 @@ const AerodynamicsWidget* PropulsionUnitWidget::aerodynamics() const
 }  // namespace propulsion
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

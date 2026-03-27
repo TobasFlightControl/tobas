@@ -7,6 +7,8 @@
 
 #define TEXT_PSIZE 9
 
+namespace tobas
+{
 namespace qt
 {
 IntSliderDisplay::IntSliderDisplay(QWidget* parent) : super(parent)
@@ -230,3 +232,4 @@ void DoubleSliderDisplay::onSliderValueChanged(double value)
   Q_EMIT valueChanged(value);
 }
 }  // namespace qt
+}  // namespace tobas

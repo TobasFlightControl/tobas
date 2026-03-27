@@ -2,6 +2,8 @@
 
 #include <tobas_string_tools/core.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -55,3 +57,4 @@ void ParamGetterWidget_SpinBox::onValueChanged(int value)
 }
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

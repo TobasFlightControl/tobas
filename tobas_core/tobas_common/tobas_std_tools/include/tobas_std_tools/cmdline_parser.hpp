@@ -1,7 +1,10 @@
 #pragma once
 
-namespace tbs
+namespace tobas
+{
+namespace st
 {
 bool commandLineOptionExists(char** begin, char** end, const char* option);
 char* getCommandLineOption(char** begin, char** end, const char* option);
-}  // namespace tbs
+}  // namespace st
+}  // namespace tobas

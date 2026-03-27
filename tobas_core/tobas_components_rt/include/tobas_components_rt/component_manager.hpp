@@ -2,7 +2,7 @@
 
 #include <rclcpp_components/component_manager.hpp>
 
-namespace ros2
+namespace tobas
 {
 class ThreadSafeComponentManager : public rclcpp_components::ComponentManager
 {
@@ -12,4 +12,4 @@ public:
   virtual std::shared_ptr<rclcpp_components::NodeFactory>
   create_component_factory(const ComponentResource& resource) override;
 };
-}  // namespace ros2
+}  // namespace tobas

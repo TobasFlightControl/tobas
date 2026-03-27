@@ -23,10 +23,14 @@
 
 using namespace std::placeholders;
 
+namespace tobas
+{
+namespace camera
+{
 /**
  * @brief ffmpeg_image_transport_msgs/msg/FFMPEGPacket型のh.264で圧縮された画像をsubscribeして，解凍してpublishする．
  */
-class H264Decompressor : public tobas::BaseNode
+class H264Decompressor : public BaseNode
 {
 public:
   explicit H264Decompressor(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -43,7 +47,7 @@ private:
 };
 
 H264Decompressor::H264Decompressor(const rclcpp::NodeOptions& options)
-  : tobas::BaseNode("h264_decompressor", nodeOptions_Default(options))
+  : BaseNode("h264_decompressor", nodeOptions_Default(options))
 {
   const auto image_raw_topic = getStringParam("decoded_topic", "image_h264_decoded");
   const auto h264_topic = getStringParam("h264_topic", "image_h264");
@@ -84,5 +88,7 @@ void H264Decompressor::callback(const ffmpeg_image_transport_msgs::msg::FFMPEGPa
   decoder_.decodePacket(
     msg->encoding, &msg->data[0], msg->data.size(), msg->pts, msg->header.frame_id, msg->header.stamp);
 }
+}  // namespace camera
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(H264Decompressor)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::camera::H264Decompressor)

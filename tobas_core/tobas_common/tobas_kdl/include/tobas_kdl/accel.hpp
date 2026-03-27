@@ -4,6 +4,8 @@
 
 #include "./vector.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 class Accel;
@@ -121,3 +123,4 @@ inline std::ostream& operator<<(std::ostream& os, const Accel& arg)
   return os;
 }
 }  // namespace kdl
+}  // namespace tobas

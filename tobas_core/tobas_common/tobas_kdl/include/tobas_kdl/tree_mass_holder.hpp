@@ -2,6 +2,8 @@
 
 #include "./tree_solver_i.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 /* Tree全体の質量のみを保持する． */
@@ -30,3 +32,4 @@ inline const double& TreeMassHolder::getMass() const
   return mass_;
 }
 }  // namespace kdl
+}  // namespace tobas

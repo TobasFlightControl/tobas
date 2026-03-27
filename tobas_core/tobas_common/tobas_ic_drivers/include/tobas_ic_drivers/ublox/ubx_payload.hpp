@@ -3,6 +3,8 @@
 #include <cstdint>
 #include <iostream>
 
+namespace tobas
+{
 namespace ublox
 {
 namespace payload
@@ -461,3 +463,4 @@ struct NAV_VELNED : public Payload
 };
 }  // namespace payload
 }  // namespace ublox
+}  // namespace tobas

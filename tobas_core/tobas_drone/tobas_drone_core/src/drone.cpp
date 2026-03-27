@@ -55,7 +55,7 @@ bool Drone::isValid() const
     return false;
   }
 
-  if (num_sbus_channels < tobas::kMinSbusChannels || tobas::kMaxSbusChannels < num_sbus_channels) {
+  if (num_sbus_channels < kMinSbusChannels || kMaxSbusChannels < num_sbus_channels) {
     cerr << "The number of sbus channels is invalid." << endl;
     return false;
   }

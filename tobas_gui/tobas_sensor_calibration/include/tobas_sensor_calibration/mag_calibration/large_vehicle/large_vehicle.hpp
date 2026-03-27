@@ -8,6 +8,8 @@
 #include "../base.hpp"
 #include "./thread.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sc
@@ -43,3 +45,4 @@ private Q_SLOTS:
 };
 }  // namespace sc
 }  // namespace gui
+}  // namespace tobas

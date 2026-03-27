@@ -5,6 +5,8 @@
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_ros2_tools/time.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace log
@@ -133,3 +135,4 @@ void JointPositionPlotWidget::updateTargetSamples(const QVector<tobas_msgs::msg:
 }
 }  // namespace log
 }  // namespace gui
+}  // namespace tobas

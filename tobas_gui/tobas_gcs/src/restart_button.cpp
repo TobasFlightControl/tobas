@@ -2,6 +2,8 @@
 
 #include <QGraphicsDropShadowEffect>
 
+namespace tobas
+{
 namespace gui
 {
 namespace gcs
@@ -49,3 +51,4 @@ RestartButton::RestartButton(int radius) : super("↻")
 }
 }  // namespace gcs
 }  // namespace gui
+}  // namespace tobas

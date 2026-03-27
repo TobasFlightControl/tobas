@@ -13,6 +13,8 @@
 #include <tobas_ros2_tools/util.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace log
@@ -25,7 +27,7 @@ CsvExportThread::CsvExportThread(const QString& log_name, const QString& save_pa
 void CsvExportThread::run()
 {
   // Open rosbag
-  const auto log_path = ros2::expandUser(tobas::kRosbagDirHome) / log_name_.toStdString();
+  const auto log_path = ros2::expandUser(kRosbagDirHome) / log_name_.toStdString();
   if (!openRosBag(log_path.string())) {
     if (!ros2::reindexRosBag(log_path.string())) {
       Q_EMIT finished(false, "The log file is broken and failed to fix it.");
@@ -42,7 +44,7 @@ void CsvExportThread::run()
   reader_.seek(0);
   while (reader_.has_next()) {
     const auto bag_msg = reader_.read_next();
-    if (bag_msg->topic_name.ends_with(path::join("/", tobas::topic::kRotorStates))) {
+    if (bag_msg->topic_name.ends_with(path::join("/", topic::kRotorStates))) {
       try {
         const auto rotor_states = rotor_states_decoder_.decode(bag_msg->serialized_data);
         for (const auto& elem : rotor_states.states) {
@@ -79,79 +81,79 @@ void CsvExportThread::run()
 
     // メッセージをヒストマップに保存
     try {
-      if (topic.ends_with(path::join("/", tobas::topic::kImuRaw))) {
+      if (topic.ends_with(path::join("/", topic::kImuRaw))) {
         const auto& msg = imu_decoder_.decode(ser_data);
         const auto cur_time = ros2::nanoseconds(msg.header.stamp);
-        histmap_[cur_time][tobas::topic::kImuRaw] = ser_data;
+        histmap_[cur_time][topic::kImuRaw] = ser_data;
 
         // ヒストマップのサイズが大きくなりすぎるのを防ぐため，一定時間以前のデータを逐次書き出す．
         exportOldestImuLine(csv_file, cur_time - kExpirationTime);
       }
-      else if (topic.ends_with(path::join("/", tobas::topic::kOdometry))) {
+      else if (topic.ends_with(path::join("/", topic::kOdometry))) {
         const auto& msg = odom_cov_decoder_.decode(ser_data);
-        histmap_[ros2::nanoseconds(msg.header.stamp)][tobas::topic::kOdometry] = ser_data;
+        histmap_[ros2::nanoseconds(msg.header.stamp)][topic::kOdometry] = ser_data;
       }
-      else if (topic.ends_with(path::join("/", tobas::topic::kMagneticField))) {
+      else if (topic.ends_with(path::join("/", topic::kMagneticField))) {
         const auto& msg = mag_decoder_.decode(ser_data);
-        histmap_[ros2::nanoseconds(msg.header.stamp)][tobas::topic::kMagneticField] = ser_data;
+        histmap_[ros2::nanoseconds(msg.header.stamp)][topic::kMagneticField] = ser_data;
       }
-      else if (topic.ends_with(path::join("/", tobas::topic::kGnss))) {
+      else if (topic.ends_with(path::join("/", topic::kGnss))) {
         const auto& msg = gnss_decoder_.decode(ser_data);
-        histmap_[ros2::nanoseconds(msg.header.stamp)][tobas::topic::kGnss] = ser_data;
+        histmap_[ros2::nanoseconds(msg.header.stamp)][topic::kGnss] = ser_data;
       }
-      else if (topic.ends_with(path::join("/", tobas::topic::kRcInput))) {
+      else if (topic.ends_with(path::join("/", topic::kRcInput))) {
         const auto& msg = rcin_decoder_.decode(ser_data);
-        histmap_[ros2::nanoseconds(msg.header.stamp)][tobas::topic::kRcInput] = ser_data;
+        histmap_[ros2::nanoseconds(msg.header.stamp)][topic::kRcInput] = ser_data;
       }
-      else if (topic.ends_with(path::join("/", tobas::topic::kBattery))) {
+      else if (topic.ends_with(path::join("/", topic::kBattery))) {
         const auto& msg = battery_decoder_.decode(ser_data);
-        histmap_[ros2::nanoseconds(msg.header.stamp)][tobas::topic::kBattery] = ser_data;
+        histmap_[ros2::nanoseconds(msg.header.stamp)][topic::kBattery] = ser_data;
       }
-      else if (topic.ends_with(path::join("/", tobas::topic::kCpu))) {
+      else if (topic.ends_with(path::join("/", topic::kCpu))) {
         const auto& msg = cpu_decoder_.decode(ser_data);
-        histmap_[ros2::nanoseconds(msg.header.stamp)][tobas::topic::kCpu] = ser_data;
+        histmap_[ros2::nanoseconds(msg.header.stamp)][topic::kCpu] = ser_data;
       }
-      else if (topic.ends_with(path::join("/", tobas::topic::kRotorStates))) {
+      else if (topic.ends_with(path::join("/", topic::kRotorStates))) {
         const auto& msg = rotor_states_decoder_.decode(ser_data);
         if (!rotorLinkNamesValid(msg)) {
           csv_file.close();
           Q_EMIT finished(false, "Rotor link names mismatch.");
           return;
         }
-        histmap_[ros2::nanoseconds(msg.header.stamp)][tobas::topic::kRotorStates] = ser_data;
+        histmap_[ros2::nanoseconds(msg.header.stamp)][topic::kRotorStates] = ser_data;
       }
-      else if (topic.ends_with(path::join("/", tobas::topic::kRotorSpeedsCmd))) {
+      else if (topic.ends_with(path::join("/", topic::kRotorSpeedsCmd))) {
         const auto& msg = rotor_speeds_decoder_.decode(ser_data);
         if (!rotorLinkNamesValid(msg)) {
           csv_file.close();
           Q_EMIT finished(false, "Rotor link names mismatch.");
           return;
         }
-        histmap_[ros2::nanoseconds(msg.header.stamp)][tobas::topic::kRotorSpeedsCmd] = ser_data;
+        histmap_[ros2::nanoseconds(msg.header.stamp)][topic::kRotorSpeedsCmd] = ser_data;
       }
-      else if (topic.ends_with(path::join("/", tobas::topic::kIcePropulsionSystemCmd))) {
+      else if (topic.ends_with(path::join("/", topic::kIcePropulsionSystemCmd))) {
         const auto& msg = ice_cmd_decoder_.decode(ser_data);
-        histmap_[ros2::nanoseconds(msg.header.stamp)][tobas::topic::kIcePropulsionSystemCmd] = ser_data;
+        histmap_[ros2::nanoseconds(msg.header.stamp)][topic::kIcePropulsionSystemCmd] = ser_data;
       }
-      else if (topic.ends_with(path::join("/", tobas::topic::kControlLatency))) {
+      else if (topic.ends_with(path::join("/", topic::kControlLatency))) {
         const auto& msg = latency_decoder_.decode(ser_data);
-        histmap_[ros2::nanoseconds(msg.header.stamp)][tobas::topic::kControlLatency] = ser_data;
+        histmap_[ros2::nanoseconds(msg.header.stamp)][topic::kControlLatency] = ser_data;
       }
-      else if (topic.ends_with(path::join("/", tobas::topic::kVibrationLevel))) {
+      else if (topic.ends_with(path::join("/", topic::kVibrationLevel))) {
         const auto& msg = vibe_decoder_.decode(ser_data);
-        histmap_[ros2::nanoseconds(msg.header.stamp)][tobas::topic::kVibrationLevel] = ser_data;
+        histmap_[ros2::nanoseconds(msg.header.stamp)][topic::kVibrationLevel] = ser_data;
       }
-      else if (topic.ends_with(path::join("/", tobas::topic::kDisturbanceForce))) {
+      else if (topic.ends_with(path::join("/", topic::kDisturbanceForce))) {
         const auto& msg = wrench_decoder_.decode(ser_data);
-        histmap_[ros2::nanoseconds(msg.header.stamp)][tobas::topic::kDisturbanceForce] = ser_data;
+        histmap_[ros2::nanoseconds(msg.header.stamp)][topic::kDisturbanceForce] = ser_data;
       }
-      else if (topic.ends_with(path::join("/", tobas::topic::kObsvFeedback))) {
+      else if (topic.ends_with(path::join("/", topic::kObsvFeedback))) {
         const auto& msg = obsv_fb_decoder_.decode(ser_data);
-        histmap_[ros2::nanoseconds(msg.header.stamp)][tobas::topic::kObsvFeedback] = ser_data;
+        histmap_[ros2::nanoseconds(msg.header.stamp)][topic::kObsvFeedback] = ser_data;
       }
-      else if (topic.ends_with(path::join("/", tobas::topic::kMRCtrlFeedback))) {
+      else if (topic.ends_with(path::join("/", topic::kMRCtrlFeedback))) {
         const auto& msg = mr_ctrl_fb_decoder_.decode(ser_data);
-        histmap_[ros2::nanoseconds(msg.header.stamp)][tobas::topic::kMRCtrlFeedback] = ser_data;
+        histmap_[ros2::nanoseconds(msg.header.stamp)][topic::kMRCtrlFeedback] = ser_data;
       }
     }
     catch (const std::exception& e) {
@@ -271,7 +273,7 @@ std::string CsvExportThread::makeCsvDataRow(Time time, const SerializedDataMap& 
   res += std::to_string(time * 1e-9) + ',';
 
   // Pose, Twist, Accel
-  const auto odom_it = data.find(tobas::topic::kOdometry);
+  const auto odom_it = data.find(topic::kOdometry);
   if (odom_it != data.end()) {
     const auto& msg = odom_cov_decoder_.decode(odom_it->second);
 
@@ -279,8 +281,8 @@ std::string CsvExportThread::makeCsvDataRow(Time time, const SerializedDataMap& 
     const kdl::Rotation rot(msg.odom.odom.frame.rot.data);
     const auto [roll, pitch, yaw] = rot.getRPY();
     res += std::to_string(pos.x) + ',' + std::to_string(pos.y) + ',' + std::to_string(pos.z) + ',' +
-           std::to_string(tbs::rad2deg(roll)) + ',' + std::to_string(tbs::rad2deg(pitch)) + ',' +
-           std::to_string(tbs::rad2deg(yaw)) + ',';
+           std::to_string(st::rad2deg(roll)) + ',' + std::to_string(st::rad2deg(pitch)) + ',' +
+           std::to_string(st::rad2deg(yaw)) + ',';
 
     const auto& lin_vel = msg.odom.odom.twist.linear;
     const auto& ang_vel = msg.odom.odom.twist.angular;
@@ -297,7 +299,7 @@ std::string CsvExportThread::makeCsvDataRow(Time time, const SerializedDataMap& 
   }
 
   // IMU
-  const auto imu_raw_it = data.find(tobas::topic::kImuRaw);
+  const auto imu_raw_it = data.find(topic::kImuRaw);
   if (imu_raw_it != data.end()) {
     const auto& msg = imu_decoder_.decode(imu_raw_it->second);
     const auto& accel = msg.accel;
@@ -312,7 +314,7 @@ std::string CsvExportThread::makeCsvDataRow(Time time, const SerializedDataMap& 
   }
 
   // Magnetic Field
-  const auto mag_it = data.find(tobas::topic::kMagneticField);
+  const auto mag_it = data.find(topic::kMagneticField);
   if (mag_it != data.end()) {
     const auto& msg = mag_decoder_.decode(mag_it->second);
     const auto& mag = msg.mag;
@@ -323,7 +325,7 @@ std::string CsvExportThread::makeCsvDataRow(Time time, const SerializedDataMap& 
   }
 
   // GNSS
-  const auto gnss_it = data.find(tobas::topic::kGnss);
+  const auto gnss_it = data.find(topic::kGnss);
   if (gnss_it != data.end()) {
     const auto& msg = gnss_decoder_.decode(gnss_it->second);
     if (msg.fix_type == tobas_msgs::msg::Gnss::FIX_3D) {
@@ -340,7 +342,7 @@ std::string CsvExportThread::makeCsvDataRow(Time time, const SerializedDataMap& 
   }
 
   // RC Input
-  const auto rcin_it = data.find(tobas::topic::kRcInput);
+  const auto rcin_it = data.find(topic::kRcInput);
   if (rcin_it != data.end()) {
     const auto& msg = rcin_decoder_.decode(rcin_it->second);
     if (msg.ok) {
@@ -357,7 +359,7 @@ std::string CsvExportThread::makeCsvDataRow(Time time, const SerializedDataMap& 
   }
 
   // Battery
-  const auto batt_it = data.find(tobas::topic::kBattery);
+  const auto batt_it = data.find(topic::kBattery);
   if (batt_it != data.end()) {
     const auto& msg = battery_decoder_.decode(batt_it->second);
     res += std::to_string(msg.voltage) + ',' + std::to_string(msg.current) + ',';
@@ -367,7 +369,7 @@ std::string CsvExportThread::makeCsvDataRow(Time time, const SerializedDataMap& 
   }
 
   // Engine
-  const auto ice_cmd_it = data.find(tobas::topic::kIcePropulsionSystemCmd);
+  const auto ice_cmd_it = data.find(topic::kIcePropulsionSystemCmd);
   if (ice_cmd_it != data.end()) {
     const auto& msg = ice_cmd_decoder_.decode(ice_cmd_it->second);
     res += std::to_string(msg.engine_throttle * 100) + ',';
@@ -377,7 +379,7 @@ std::string CsvExportThread::makeCsvDataRow(Time time, const SerializedDataMap& 
   }
 
   // CPU
-  const auto cpu_it = data.find(tobas::topic::kCpu);
+  const auto cpu_it = data.find(topic::kCpu);
   if (cpu_it != data.end()) {
     const auto& msg = cpu_decoder_.decode(cpu_it->second);
     res += std::to_string(msg.frequency) + ',' + std::to_string(msg.temperature) + ',' +
@@ -388,11 +390,11 @@ std::string CsvExportThread::makeCsvDataRow(Time time, const SerializedDataMap& 
   }
 
   // Target Rotor Speeds
-  const auto rotor_speeds_cmd_it = data.find(tobas::topic::kRotorSpeedsCmd);
+  const auto rotor_speeds_cmd_it = data.find(topic::kRotorSpeedsCmd);
   if (rotor_speeds_cmd_it != data.end()) {
     const auto& msg = rotor_speeds_decoder_.decode(rotor_speeds_cmd_it->second);
     for (const auto& elem : msg.speeds) {
-      res += std::to_string(tbs::rps2rpm(elem.speed)) + ',';
+      res += std::to_string(st::rps2rpm(elem.speed)) + ',';
     }
   }
   else {
@@ -400,11 +402,11 @@ std::string CsvExportThread::makeCsvDataRow(Time time, const SerializedDataMap& 
   }
 
   // Rotor States
-  const auto rotor_states_it = data.find(tobas::topic::kRotorStates);
+  const auto rotor_states_it = data.find(topic::kRotorStates);
   if (rotor_states_it != data.end()) {
     const auto& msg = rotor_states_decoder_.decode(rotor_states_it->second);
     for (const auto& elem : msg.states) {
-      res += std::to_string(tbs::rps2rpm(elem.speed)) + ',';
+      res += std::to_string(st::rps2rpm(elem.speed)) + ',';
     }
     for (const auto& elem : msg.states) {
       const auto comm_ok = (elem.status != tobas_msgs::msg::RotorState::COMMUNICATION_FAILURE);
@@ -416,7 +418,7 @@ std::string CsvExportThread::makeCsvDataRow(Time time, const SerializedDataMap& 
   }
 
   // Control Latency
-  const auto ctrl_latency_it = data.find(tobas::topic::kControlLatency);
+  const auto ctrl_latency_it = data.find(topic::kControlLatency);
   if (ctrl_latency_it != data.end()) {
     const auto& msg = latency_decoder_.decode(ctrl_latency_it->second);
     res += std::to_string(ros2::microseconds(msg.data)) + ',';
@@ -426,7 +428,7 @@ std::string CsvExportThread::makeCsvDataRow(Time time, const SerializedDataMap& 
   }
 
   // Vibration Level
-  const auto vibe_it = data.find(tobas::topic::kVibrationLevel);
+  const auto vibe_it = data.find(topic::kVibrationLevel);
   if (vibe_it != data.end()) {
     const auto& msg = vibe_decoder_.decode(vibe_it->second);
     const auto& vibe = msg.data;
@@ -437,7 +439,7 @@ std::string CsvExportThread::makeCsvDataRow(Time time, const SerializedDataMap& 
   }
 
   // Disturbance Force
-  const auto dist_force_it = data.find(tobas::topic::kDisturbanceForce);
+  const auto dist_force_it = data.find(topic::kDisturbanceForce);
   if (dist_force_it != data.end()) {
     const auto& msg = wrench_decoder_.decode(dist_force_it->second);
     const auto& force = msg.wrench.force;
@@ -450,7 +452,7 @@ std::string CsvExportThread::makeCsvDataRow(Time time, const SerializedDataMap& 
   }
 
   // Observer Feedback
-  const auto obsv_fb_it = data.find(tobas::topic::kObsvFeedback);
+  const auto obsv_fb_it = data.find(topic::kObsvFeedback);
   if (obsv_fb_it != data.end()) {
     const auto& msg = obsv_fb_decoder_.decode(obsv_fb_it->second);
     const auto& ab = msg.accel_bias;
@@ -469,7 +471,7 @@ std::string CsvExportThread::makeCsvDataRow(Time time, const SerializedDataMap& 
   }
 
   // Multirotor Controller Feedback
-  const auto mr_ctrl_fb_it = data.find(tobas::topic::kMRCtrlFeedback);
+  const auto mr_ctrl_fb_it = data.find(topic::kMRCtrlFeedback);
   if (mr_ctrl_fb_it != data.end()) {
     const auto& msg = mr_ctrl_fb_decoder_.decode(mr_ctrl_fb_it->second);
     const auto& pos_ie = msg.position_integral_error;
@@ -489,7 +491,7 @@ bool CsvExportThread::exportOldestImuLine(std::ofstream& file, Time before_this_
   // 一定時間以前に取得されたIMUが存在するかどうかを確認
   Time imu_time = -1;
   for (auto it = histmap_.begin(); it != histmap_.end() && it->first < before_this_time; ++it) {
-    if (it->second.contains(tobas::topic::kImuRaw)) {
+    if (it->second.contains(topic::kImuRaw)) {
       imu_time = it->first;
       break;
     }
@@ -515,3 +517,4 @@ bool CsvExportThread::exportOldestImuLine(std::ofstream& file, Time before_this_
 }
 }  // namespace log
 }  // namespace gui
+}  // namespace tobas

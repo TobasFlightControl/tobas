@@ -2,6 +2,8 @@
 
 #include "./frames.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 class JntArray
@@ -198,3 +200,4 @@ inline std::ostream& operator<<(std::ostream& os, const JntArray& arg)
   return os;
 }
 }  // namespace kdl
+}  // namespace tobas

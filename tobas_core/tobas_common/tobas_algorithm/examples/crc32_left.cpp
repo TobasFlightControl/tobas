@@ -6,7 +6,7 @@ using namespace std;
 
 int main()
 {
-  algo::CRC32Left crc(algo::CRC32Left::CRC_32, 0x00000000, 0x00000000);
+  tobas::algo::CRC32Left crc(tobas::algo::CRC32Left::CRC_32, 0x00000000, 0x00000000);
   crc.initialize();
 
   const uint8_t data[] = "Example data for CRC calculation";

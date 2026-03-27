@@ -5,6 +5,8 @@
 #include <tobas_yaml_tools/convert/range.hpp>
 #include <tobas_yaml_tools/format.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -83,7 +85,7 @@ void VehicleParametersWidget::load(const YAML::Node& node)
   wing_span_->setValue(node[wing_span_->name()].as<double>());
   mac_->setValue(node[mac_->name()].as<double>());
   aerodynamic_center_->setValue(node[aerodynamic_center_->name()].as<Eigen::Vector3d>());
-  alpha_limit_->setValue(node[alpha_limit_->name()].as<tbs::Range<double>>());
+  alpha_limit_->setValue(node[alpha_limit_->name()].as<st::Range<double>>());
 }
 
 double VehicleParametersWidget::wingSurface() const
@@ -106,10 +108,11 @@ Eigen::Vector3d VehicleParametersWidget::aerodynamicCenter() const
   return aerodynamic_center_->getValue();
 }
 
-tbs::Range<double> VehicleParametersWidget::alphaLimit() const
+st::Range<double> VehicleParametersWidget::alphaLimit() const
 {
   return alpha_limit_->getValue();
 }
 }  // namespace fw
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

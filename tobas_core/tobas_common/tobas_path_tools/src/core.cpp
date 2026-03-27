@@ -6,6 +6,8 @@
 using namespace std;
 namespace fs = filesystem;
 
+namespace tobas
+{
 namespace path
 {
 bool isReadable(const fs::path& file_path)
@@ -101,3 +103,4 @@ std::expected<void, std::string> clearDirectory(const fs::path& dir_path)
   return {};
 }
 }  // namespace path
+}  // namespace tobas

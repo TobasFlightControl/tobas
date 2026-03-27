@@ -3,6 +3,8 @@
 #include <chrono>
 #include <memory>
 
+namespace tobas
+{
 namespace gazebo
 {
 class RateManager
@@ -20,3 +22,4 @@ private:
   std::chrono::steady_clock::duration next_time_;
 };
 }  // namespace gazebo
+}  // namespace tobas

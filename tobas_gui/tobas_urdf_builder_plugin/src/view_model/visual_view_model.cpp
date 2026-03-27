@@ -2,14 +2,16 @@
 
 #include "tobas_urdf_builder_plugin/utils/time.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace ub
 {
 namespace view_model
 {
-VisualViewModel::VisualViewModel(const urdf::VisualSharedPtr& model)
-  : BaseViewModel<urdf::Visual, VisualViewModel>(model)
+VisualViewModel::VisualViewModel(const ::urdf::VisualSharedPtr& model)
+  : BaseViewModel<::urdf::Visual, VisualViewModel>(model)
   , geometry_vm_(std::make_shared<GeometryViewModel>(model_->geometry))
   , material_vm_(std::make_shared<MaterialViewModel>(model_->material))
 {
@@ -35,12 +37,12 @@ void VisualViewModel::name(const QString& name)
   model_->name = name.toStdString();
 }
 
-const urdf::Pose& VisualViewModel::origin() const
+const ::urdf::Pose& VisualViewModel::origin() const
 {
   return model_->origin;
 }
 
-void VisualViewModel::origin(const urdf::Pose& origin)
+void VisualViewModel::origin(const ::urdf::Pose& origin)
 {
   model_->origin = origin;
 }
@@ -57,3 +59,4 @@ const MaterialViewModelPtr& VisualViewModel::material()
 }  // namespace view_model
 }  // namespace ub
 }  // namespace gui
+}  // namespace tobas

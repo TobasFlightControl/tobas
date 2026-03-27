@@ -2,6 +2,8 @@
 
 using namespace std;
 
+namespace tobas
+{
 namespace kdl
 {
 TreeActiveJointsExtractor::TreeActiveJointsExtractor(const Tree& tree) : super(tree)
@@ -39,3 +41,4 @@ int TreeActiveJointsExtractor::solve(const std::vector<std::string>& endpoints)
   return setDefaultError(kNoError);
 }
 }  // namespace kdl
+}  // namespace tobas

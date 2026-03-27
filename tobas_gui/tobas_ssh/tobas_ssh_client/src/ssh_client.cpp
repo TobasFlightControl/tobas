@@ -5,6 +5,8 @@
 using namespace tobas_ssh_msgs::srv;
 namespace fs = std::filesystem;
 
+namespace tobas
+{
 namespace ssh
 {
 SshClient::SshClient(rclcpp::Node::SharedPtr node)
@@ -201,3 +203,4 @@ SshClient::Error SshClient::list(const std::string& pardir, std::vector<std::str
   return error_code_ = kNoError;
 }
 }  // namespace ssh
+}  // namespace tobas

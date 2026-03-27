@@ -7,6 +7,8 @@
 
 #include "tobas_gcs/util.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace gcs
@@ -117,3 +119,4 @@ void RemoteConnectionWidget::onTimeout()
 }
 }  // namespace gcs
 }  // namespace gui
+}  // namespace tobas

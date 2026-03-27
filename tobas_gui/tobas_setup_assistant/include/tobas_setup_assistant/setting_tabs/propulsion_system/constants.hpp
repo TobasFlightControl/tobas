@@ -1,5 +1,7 @@
 #pragma once
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -10,3 +12,4 @@ static constexpr int kDataTableColWidth = 180;
 }  // namespace propulsion
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

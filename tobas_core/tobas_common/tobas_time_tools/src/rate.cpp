@@ -4,6 +4,8 @@
 
 namespace ch = std::chrono;
 
+namespace tobas
+{
 namespace tim
 {
 Rate::Rate(const ch::microseconds& period) : period_(period)
@@ -38,3 +40,4 @@ void Rate::sleep()
   last_time_ = cur_time + wait_time;
 }
 }  // namespace tim
+}  // namespace tobas

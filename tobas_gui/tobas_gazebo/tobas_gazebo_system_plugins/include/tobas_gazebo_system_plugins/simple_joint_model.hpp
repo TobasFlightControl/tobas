@@ -2,13 +2,15 @@
 
 #include <tobas_std_tools/range.hpp>
 
+namespace tobas
+{
 namespace gazebo
 {
 /* 位置と最大速度の制約を含む単純な関節モデル． */
 class SimpleJointModel
 {
 public:
-  tbs::Range<double> pos_limit;
+  st::Range<double> pos_limit;
   double max_vel;
 
   explicit SimpleJointModel(double _min_pos, double _max_pos, double _max_vel);
@@ -23,3 +25,4 @@ private:
   double tar_pos_ = 0.;
 };
 }  // namespace gazebo
+}  // namespace tobas

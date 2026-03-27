@@ -2,6 +2,8 @@
 
 #include "./qpsolver.hpp"
 
+namespace tobas
+{
 namespace quadprog
 {
 /**
@@ -60,3 +62,4 @@ private:
   static double distance(const double& a, const double& b);
 };
 }  // namespace quadprog
+}  // namespace tobas

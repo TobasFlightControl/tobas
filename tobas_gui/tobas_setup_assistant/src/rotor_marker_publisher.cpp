@@ -7,6 +7,8 @@
 #include <tobas_kdl_conversions/kdl_msg.hpp>
 #include <tobas_kdl_conversions/kdl_urdf.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -106,3 +108,4 @@ void RotorMarkerPublisher::publishTimerCb()
 }
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

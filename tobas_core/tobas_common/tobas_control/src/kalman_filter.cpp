@@ -11,6 +11,8 @@
 using namespace std;
 using namespace Eigen;
 
+namespace tobas
+{
 namespace ctrl
 {
 KalmanFilter::KalmanFilter()
@@ -127,3 +129,4 @@ void IdentityKalmanFilter::update()
   kf_.update();
 }
 }  // namespace ctrl
+}  // namespace tobas

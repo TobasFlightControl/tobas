@@ -8,6 +8,8 @@
 #include <tobas_qt_tools/widgets/label.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -187,3 +189,4 @@ double FailsafeWidget::escNoCommunicationTimeout() const
 }
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

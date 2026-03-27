@@ -1,5 +1,7 @@
 #pragma once
 
+namespace tobas
+{
 namespace camera
 {
 namespace topic
@@ -19,3 +21,4 @@ static constexpr char kStopRecording[] = "stop_recording";
 static constexpr char kTakePictureToSd[] = "take_picture_to_sd";
 }  // namespace service
 }  // namespace camera
+}  // namespace tobas

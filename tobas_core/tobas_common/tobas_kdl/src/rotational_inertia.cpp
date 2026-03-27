@@ -5,6 +5,8 @@
 using namespace std;
 using namespace Eigen;
 
+namespace tobas
+{
 namespace kdl
 {
 bool RotationalInertia::isValid(string& error_msg) const
@@ -41,3 +43,4 @@ bool RotationalInertia::isValid(string& error_msg) const
   return true;
 }
 }  // namespace kdl
+}  // namespace tobas

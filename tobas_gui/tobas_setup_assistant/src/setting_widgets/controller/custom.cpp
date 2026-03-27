@@ -10,6 +10,8 @@
 #include <tobas_std_tools/check.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -18,7 +20,7 @@ namespace ctrl
 {
 CustomFrameWidget::CustomFrameWidget()
 {
-  TOBAS_CHECK(command_map_.size() == magic_enum::enum_count<tobas::RcCommand>());
+  TOBAS_CHECK(command_map_.size() == magic_enum::enum_count<RcCommand>());
 
   acrobat_mode_ = new qt::ComboBox();
   stabilize_mode_ = new qt::ComboBox();
@@ -65,17 +67,17 @@ QString CustomFrameWidget::pluginName() const
   return "tobas::DummyNode";
 }
 
-tobas::RcCommand CustomFrameWidget::acrobatModeCommand() const
+RcCommand CustomFrameWidget::acrobatModeCommand() const
 {
   return command_map_.at(acrobat_mode_->currentText());
 }
 
-tobas::RcCommand CustomFrameWidget::stabilizeModeCommand() const
+RcCommand CustomFrameWidget::stabilizeModeCommand() const
 {
   return command_map_.at(stabilize_mode_->currentText());
 }
 
-tobas::RcCommand CustomFrameWidget::loiterModeCommand() const
+RcCommand CustomFrameWidget::loiterModeCommand() const
 {
   return command_map_.at(loiter_mode_->currentText());
 }
@@ -110,3 +112,4 @@ bool CustomFrameWidget::isValid()
 }  // namespace ctrl
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

@@ -4,6 +4,8 @@
 
 #include "./common.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace log
@@ -28,3 +30,4 @@ private:
 };
 }  // namespace log
 }  // namespace gui
+}  // namespace tobas

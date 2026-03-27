@@ -11,10 +11,12 @@
 #include <tobas_msgs/srv/set_arm.hpp>
 #include <tobas_msgs_adapter/rc_input.hpp>
 
-class FailsafeExecutorNode : public tobas::BaseNode
+namespace tobas
+{
+class FailsafeExecutorNode : public BaseNode
 {
   using self = FailsafeExecutorNode;
-  using super = tobas::BaseNode;
+  using super = BaseNode;
 
   using Action = tobas_mission_msgs::action::ExecuteMission;
   using Client = rclcpp_action::Client<Action>;
@@ -54,12 +56,12 @@ private:
 FailsafeExecutorNode::FailsafeExecutorNode(const rclcpp::NodeOptions& options)
   : super("failsafe_executor", nodeOptions_Default(options))
 {
-  health_sub_ = createSubscriber(tobas::topic::kVehicleHealth, &self::vehicleHealthCb, this);
-  arming_sub_ = createSubscriber(tobas::topic::kArming, &self::armingCb, this);
-  rcin_sub_ = createSubscriber(tobas::topic::kRcInput, &self::rcInputCb, this);
+  health_sub_ = createSubscriber(topic::kVehicleHealth, &self::vehicleHealthCb, this);
+  arming_sub_ = createSubscriber(topic::kArming, &self::armingCb, this);
+  rcin_sub_ = createSubscriber(topic::kRcInput, &self::rcInputCb, this);
 
-  set_arm_sc_ = create_client<tobas_msgs::srv::SetArm>(tobas::service::kSetArm);
-  mission_ac_ = rclcpp_action::create_client<Action>(this, tobas::action::kExecuteMission);
+  set_arm_sc_ = create_client<tobas_msgs::srv::SetArm>(service::kSetArm);
+  mission_ac_ = rclcpp_action::create_client<Action>(this, action::kExecuteMission);
 }
 
 void FailsafeExecutorNode::disarm()
@@ -71,10 +73,10 @@ void FailsafeExecutorNode::disarm()
 
 void FailsafeExecutorNode::startRTL()
 {
-  tobas::mission::ReturnToLaunch rtl;
+  mission::ReturnToLaunch rtl;
   tobas_mission_msgs::msg::MissionItem mission_item;
-  mission_item.type = tobas::mission::kReturnToLaunch;
-  mission_item.data = tbs::toBytes(rtl);
+  mission_item.type = mission::kReturnToLaunch;
+  mission_item.data = st::toBytes(rtl);
 
   Action::Goal goal;
   goal.items.push_back(mission_item);
@@ -121,10 +123,10 @@ void FailsafeExecutorNode::startRTL()
 
 void FailsafeExecutorNode::startLand()
 {
-  tobas::mission::Land land;
+  mission::Land land;
   tobas_mission_msgs::msg::MissionItem mission_item;
-  mission_item.type = tobas::mission::kLand;
-  mission_item.data = tbs::toBytes(land);
+  mission_item.type = mission::kLand;
+  mission_item.data = st::toBytes(land);
 
   Action::Goal goal;
   goal.items.push_back(mission_item);
@@ -260,5 +262,6 @@ void FailsafeExecutorNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& 
 {
   is_manual_ctrl_enabled_ = (rcin->ok && rcin->enable);
 }
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(FailsafeExecutorNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::FailsafeExecutorNode)

@@ -7,6 +7,8 @@
 
 using namespace std;
 
+namespace tobas
+{
 namespace driver
 {
 BMM150::BMM150()
@@ -322,3 +324,4 @@ int16_t BMM150::compensateZ(const int16_t& mag_data_z, const uint16_t& data_r_ha
   }
 }
 }  // namespace driver
+}  // namespace tobas

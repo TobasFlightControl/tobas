@@ -5,6 +5,8 @@
 
 namespace cmp = gz::sim::components;
 
+namespace tobas
+{
 namespace gazebo
 {
 std::expected<gz::sim::World, const char*> getWorld(const gz::sim::EntityComponentManager& ecm)
@@ -53,3 +55,4 @@ getWorldSphericalCoordinates(const gz::sim::EntityComponentManager& ecm)
   return sc_opt.value();
 }
 }  // namespace gazebo
+}  // namespace tobas

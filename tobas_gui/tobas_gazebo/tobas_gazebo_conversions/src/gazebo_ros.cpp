@@ -1,5 +1,7 @@
 #include "tobas_gazebo_conversions/gazebo_ros.hpp"
 
+namespace tobas
+{
 namespace gazebo
 {
 void vectorGazeboToRos(const gz::math::Vector3d& g, geometry_msgs::msg::Vector3& m)
@@ -51,3 +53,4 @@ void poseRosToGazebo(const geometry_msgs::msg::Pose& m, gz::math::Pose3d& g)
   quaternionRosToGazebo(m.orientation, g.Rot());
 }
 }  // namespace gazebo
+}  // namespace tobas

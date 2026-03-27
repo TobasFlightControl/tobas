@@ -11,6 +11,8 @@
 #include <tobas_yaml_tools/convert/qstring.hpp>
 #include <tobas_yaml_tools/format.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -179,8 +181,8 @@ YAML::Node MulticopterWidget::staticParams() const
   node[kWaypointMaxVerticalVelocityParam] = yaml::format(wp_max_ver_vel_->value());
   node[kWaypointMaxVerticalAccelParam] = yaml::format(wp_max_ver_acc_->value());
   node[kWaypointMaxVerticalJerkParam] = yaml::format(wp_max_ver_jerk_->value());
-  node[kWaypointMaxHeadingRateParam] = yaml::format(tbs::deg2rad(wp_max_head_rate_->value()));
-  node[kWaypointMaxHeadingAccelParam] = yaml::format(tbs::deg2rad(wp_max_head_acc_->value()));
+  node[kWaypointMaxHeadingRateParam] = yaml::format(st::deg2rad(wp_max_head_rate_->value()));
+  node[kWaypointMaxHeadingAccelParam] = yaml::format(st::deg2rad(wp_max_head_acc_->value()));
 
   node[kTakeoffMaxSpeedParam] = yaml::format(takeoff_max_speed_->value());
   node[kTakeoffMaxAccelParam] = yaml::format(takeoff_max_accel_->value());
@@ -244,3 +246,4 @@ bool MulticopterWidget::isValid()
 }  // namespace mission
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

@@ -4,6 +4,8 @@
 
 #include <QString>
 
+namespace tobas
+{
 namespace qt
 {
 /* Get the absolute path to the resource directory of this package. */
@@ -33,3 +35,4 @@ std::expected<QString, QString> writeTimestampedFile(
   const QString& suffix = "",
   const QString& ext = "txt");
 }  // namespace qt
+}  // namespace tobas

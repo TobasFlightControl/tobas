@@ -4,6 +4,8 @@
 #include "./battery/battery.hpp"
 #include "./propulsion_units/propulsion_units.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -36,7 +38,7 @@ public:
   YAML::Node dump() const override;
   void load(const YAML::Node& node) override;
 
-  tobas::PropulsionSystem type() const override;
+  PropulsionSystem type() const override;
   int numUnits() const override;
 
   QString linkName(int index) const override;
@@ -45,3 +47,4 @@ public:
 }  // namespace propulsion
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

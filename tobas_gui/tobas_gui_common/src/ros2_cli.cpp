@@ -4,6 +4,8 @@
 
 namespace fs = std::filesystem;
 
+namespace tobas
+{
 namespace gui
 {
 namespace cmn
@@ -29,3 +31,4 @@ pid_t roslaunch(const std::string& pkg, const std::string& name, const std::map<
 }
 }  // namespace cmn
 }  // namespace gui
+}  // namespace tobas

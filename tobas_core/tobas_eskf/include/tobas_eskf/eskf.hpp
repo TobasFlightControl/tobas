@@ -9,6 +9,8 @@
 #include <tobas_eigen_tools/typedef.hpp>
 #include <tobas_std_tools/timestamped_buffer.hpp>
 
+namespace tobas
+{
 namespace eskf
 {
 /**
@@ -256,7 +258,7 @@ private:
   Eigen::Matrix<double, 3, kDeltaStateSize> H_grav_;
 
   std::chrono::steady_clock::time_point t_last_imu_;
-  tbs::TimestampedBuffer<StateVector> x_history_;
+  st::TimestampedBuffer<StateVector> x_history_;
   Eigen::Vector3d mag_W_ = Eigen::Vector3d::Zero();
 
   // Direct value getters
@@ -548,3 +550,4 @@ double ErrorStateKalmanFilter::correct(
   return anomaly_score;
 }
 }  // namespace eskf
+}  // namespace tobas

@@ -7,6 +7,8 @@
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -15,10 +17,10 @@ namespace rcin
 {
 ThrottlesViewer::ThrottlesViewer(const RosQtBridge& bridge)
 {
-  roll_range_ = new qt::HPositionBarWidget(tobas::kRcInputMin, tobas::kRcInputMax);
-  pitch_range_ = new qt::VPositionBarWidget(tobas::kRcInputMax, tobas::kRcInputMin);
-  yaw_range_ = new qt::HPositionBarWidget(tobas::kRcInputMax, tobas::kRcInputMin);
-  throt_range_ = new qt::VPositionBarWidget(tobas::kRcInputMax, tobas::kRcInputMin);
+  roll_range_ = new qt::HPositionBarWidget(kRcInputMin, kRcInputMax);
+  pitch_range_ = new qt::VPositionBarWidget(kRcInputMax, kRcInputMin);
+  yaw_range_ = new qt::HPositionBarWidget(kRcInputMax, kRcInputMin);
+  throt_range_ = new qt::VPositionBarWidget(kRcInputMax, kRcInputMin);
 
   roll_range_->setFixedHeight(kRangeSideShort);
   pitch_range_->setFixedWidth(kRangeSideShort);
@@ -90,3 +92,4 @@ void ThrottlesViewer::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
 }  // namespace rcin
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

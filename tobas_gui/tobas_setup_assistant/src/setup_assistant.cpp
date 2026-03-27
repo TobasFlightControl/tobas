@@ -26,6 +26,8 @@
 
 namespace fs = std::filesystem;
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -387,7 +389,7 @@ void SetupAssistantWidget::onNewButtonClicked()
       return;
     }
 
-    const auto ws_path = ros2::expandUser(tobas::kColconWSPathHome);
+    const auto ws_path = ros2::expandUser(kColconWSPathHome);
 
     qInfo().nospace() << "UADF is in ROS package " << QString::fromStdString(pkg_name.value()) << ". Building it.";
     if (!colcon_.build(pkg_path.value(), ws_path)) {
@@ -455,7 +457,7 @@ void SetupAssistantWidget::onLoadButtonClicked()
   std::string last_opened_dir;
   if (property_client_.get(kLastOpenedDirKey_Load, last_opened_dir) < 0) {
     qWarning() << property_client_.errorMessage();
-    last_opened_dir = ros2::expandUser(tobas::kColconWSPathHome) / "src";
+    last_opened_dir = ros2::expandUser(kColconWSPathHome) / "src";
     if (!fs::is_directory(last_opened_dir)) {
       last_opened_dir = ros2::getHomeDir();
     }
@@ -600,7 +602,7 @@ void SetupAssistantWidget::onSaveAsButtonClicked()
   std::string last_opened_dir;
   if (property_client_.get(kLastOpenedDirKey_Save, last_opened_dir) < 0) {
     qWarning() << property_client_.errorMessage();
-    last_opened_dir = ros2::expandUser(tobas::kColconWSPathHome) / "src";
+    last_opened_dir = ros2::expandUser(kColconWSPathHome) / "src";
     TOBAS_CHECK(path::createDirectories(last_opened_dir, true));
   }
 
@@ -645,3 +647,4 @@ void SetupAssistantWidget::onSaveAsButtonClicked()
 }
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

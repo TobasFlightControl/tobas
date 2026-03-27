@@ -9,6 +9,8 @@
 using namespace std;
 namespace ch = std::chrono;
 
+namespace tobas
+{
 namespace ublox
 {
 ZEDF9P::ZEDF9P() : rate_(kReqInterval)
@@ -858,3 +860,4 @@ uint32_t ZEDF9P::configKeyID(CfgSize size, CfgGroup group, uint8_t id)
   return (size << 28) | (group << 16) | id;
 }
 }  // namespace ublox
+}  // namespace tobas

@@ -10,6 +10,8 @@
 #include <tobas_quadprog/dual_active_set.hpp>
 #include <tobas_std_tools/range.hpp>
 
+namespace tobas
+{
 namespace lr_tools
 {
 struct JointSpaceDynamicsConfig
@@ -78,7 +80,7 @@ private:
 
   // Config
   double friction_coef_;
-  tbs::Range<double> normal_force_range_;
+  st::Range<double> normal_force_range_;
 
   Eigen::VectorXd w_out_;    // size = 3 * nc_
   Eigen::VectorXd eff_out_;  // size = kBaseDoF + nj_raw_
@@ -136,3 +138,4 @@ inline const std::string& JointSpaceDynamics::errorMessage() const
   return error_msg_;
 }
 }  // namespace lr_tools
+}  // namespace tobas

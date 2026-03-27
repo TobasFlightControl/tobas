@@ -5,6 +5,8 @@
 #include <tobas_math/core.hpp>
 #include <tobas_math/float.hpp>
 
+namespace tobas
+{
 namespace yaml
 {
 /**
@@ -23,3 +25,4 @@ std::string format(double value, int prec)
   }
 }
 }  // namespace yaml
+}  // namespace tobas

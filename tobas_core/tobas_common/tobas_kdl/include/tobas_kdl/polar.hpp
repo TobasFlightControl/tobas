@@ -4,6 +4,8 @@
 
 #include "./vector.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 /**
@@ -50,3 +52,4 @@ inline std::ostream& operator<<(std::ostream& os, const SphericalCoordinate& arg
   os << "rho: " << arg.rho << ", phi: " << arg.phi << ", theta: " << arg.theta;
 }
 }  // namespace kdl
+}  // namespace tobas

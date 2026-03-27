@@ -5,6 +5,8 @@
 
 #include "./core.hpp"
 
+namespace tobas
+{
 namespace math
 {
 /**
@@ -22,3 +24,4 @@ double norm(T... args)
   return sqrt(squared_sum);
 }
 }  // namespace math
+}  // namespace tobas

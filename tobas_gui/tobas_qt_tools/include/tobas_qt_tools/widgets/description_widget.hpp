@@ -2,6 +2,8 @@
 
 #include <QLabel>
 
+namespace tobas
+{
 namespace qt
 {
 /* 長めの文章を配置するのに適した設定のQLabel． */
@@ -15,3 +17,4 @@ public:
   explicit DescriptionWidget(const QString& text, int point_size, QWidget* parent = nullptr);
 };
 }  // namespace qt
+}  // namespace tobas

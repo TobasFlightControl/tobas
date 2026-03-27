@@ -9,6 +9,8 @@
 using namespace std;
 using namespace Eigen;
 
+namespace tobas
+{
 namespace ctrl
 {
 MatrixXd care_ArimotoPotter(const MatrixXd& A, const MatrixXd& B, const MatrixXd& Q, const MatrixXd& R)
@@ -105,3 +107,4 @@ MatrixXd care_Schur(const MatrixXd& A, const MatrixXd& B, const MatrixXd& Q, con
   return X * M.inverse();
 }
 }  // namespace ctrl
+}  // namespace tobas

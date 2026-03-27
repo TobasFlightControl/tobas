@@ -8,6 +8,8 @@
 #include "./base.hpp"
 #include "tobas_setup_assistant/frame_type.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -41,9 +43,9 @@ public:
   QString controllerPackage() const;
   QString pluginName() const;
 
-  tobas::RcCommand acrobatModeCommand() const;
-  tobas::RcCommand stabilizeModeCommand() const;
-  tobas::RcCommand loiterModeCommand() const;
+  RcCommand acrobatModeCommand() const;
+  RcCommand stabilizeModeCommand() const;
+  RcCommand loiterModeCommand() const;
 
   YAML::Node staticParams() const;
 
@@ -65,5 +67,6 @@ private Q_SLOTS:
   void onDontUseBuiltinCtrlCheckBoxToggled(bool checked);
 };
 }  // namespace ctrl
-};  // namespace sa
+}  // namespace sa
 }  // namespace gui
+}  // namespace tobas

@@ -17,6 +17,8 @@
 #include "./setting_tabs/rc_input.hpp"
 #include "./setting_tabs/remote_connection/remote_connection.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -73,3 +75,4 @@ private Q_SLOTS:
 };
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

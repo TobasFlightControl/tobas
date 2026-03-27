@@ -4,6 +4,8 @@
 
 using namespace std;
 
+namespace tobas
+{
 namespace kdl
 {
 TreeParser::TreeParser()
@@ -32,7 +34,7 @@ bool TreeParser::parseFromText(const string& xml, Tree& tree)
   return parseFromUrdf(*model, tree);
 }
 
-bool TreeParser::parseFromUrdf(const urdf::ModelInterface& model, Tree& tree)
+bool TreeParser::parseFromUrdf(const ::urdf::ModelInterface& model, Tree& tree)
 {
   const auto root_link = model.getRoot();
   if (!root_link) {
@@ -64,7 +66,7 @@ const string& TreeParser::errorMessage() const
   return error_msg_;
 }
 
-void TreeParser::addChildrenToTree(const urdf::LinkConstSharedPtr& root, Tree& tree)
+void TreeParser::addChildrenToTree(const ::urdf::LinkConstSharedPtr& root, Tree& tree)
 {
   // Construct the KDL joint
   const auto joint = jointUrdfToKdl(*root->parent_joint);
@@ -90,3 +92,4 @@ void TreeParser::addChildrenToTree(const urdf::LinkConstSharedPtr& root, Tree& t
   }
 }
 }  // namespace kdl
+}  // namespace tobas

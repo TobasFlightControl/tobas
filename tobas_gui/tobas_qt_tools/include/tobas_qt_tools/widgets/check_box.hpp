@@ -2,6 +2,8 @@
 
 #include <QCheckBox>
 
+namespace tobas
+{
 namespace qt
 {
 /**
@@ -21,3 +23,4 @@ public:
   void setDisabledTextNormal();
 };
 }  // namespace qt
+}  // namespace tobas

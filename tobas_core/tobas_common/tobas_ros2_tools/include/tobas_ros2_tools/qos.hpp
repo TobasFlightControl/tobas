@@ -2,6 +2,8 @@
 
 #include <rclcpp/rclcpp.hpp>
 
+namespace tobas
+{
 namespace ros2
 {
 namespace qos
@@ -24,3 +26,4 @@ public:
 };
 }  // namespace qos
 }  // namespace ros2
+}  // namespace tobas

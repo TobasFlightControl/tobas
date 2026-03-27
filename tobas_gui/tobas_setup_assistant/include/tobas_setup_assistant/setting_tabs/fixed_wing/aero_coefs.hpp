@@ -7,6 +7,8 @@
 
 #include "tobas_setup_assistant/param_getters/double_spin_box.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -79,3 +81,4 @@ private:
 }  // namespace fw
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

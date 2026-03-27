@@ -24,11 +24,11 @@ string textFromEnum(PropulsionSystem cmd_iface)
 bool enumFromText(const string& text, PropulsionSystem& dst)
 {
   if (text == ELECTRIC_TEXT) {
-    dst = tobas::PropulsionSystem::kElectric;
+    dst = PropulsionSystem::kElectric;
     return true;
   }
   else if (text == ICE_TEXT) {
-    dst = tobas::PropulsionSystem::kIce;
+    dst = PropulsionSystem::kIce;
     return true;
   }
   else {

@@ -6,6 +6,8 @@
 #include "./tree_jacobian_solver.hpp"
 #include "./tree_joint_parser.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 class TreeIkSolverVel_pinv : public TreeIkSolverVel
@@ -39,3 +41,4 @@ private:
   void resize();
 };
 }  // namespace kdl
+}  // namespace tobas

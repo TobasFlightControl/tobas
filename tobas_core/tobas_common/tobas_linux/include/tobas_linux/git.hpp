@@ -2,6 +2,8 @@
 
 #include "./command_executor.hpp"
 
+namespace tobas
+{
 namespace linux
 {
 class GitHandler
@@ -19,3 +21,4 @@ private:
   CommandExecutor command_executor_;
 };
 }  // namespace linux
+}  // namespace tobas

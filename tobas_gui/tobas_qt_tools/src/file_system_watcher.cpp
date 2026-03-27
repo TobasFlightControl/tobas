@@ -1,5 +1,7 @@
 #include "tobas_qt_tools/file_system_watcher.hpp"
 
+namespace tobas
+{
 namespace qt
 {
 void FileSystemWatcher::clear()
@@ -13,3 +15,4 @@ void FileSystemWatcher::clear()
   }
 }
 }  // namespace qt
+}  // namespace tobas

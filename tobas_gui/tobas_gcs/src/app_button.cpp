@@ -1,5 +1,7 @@
 #include "tobas_gcs/app_button.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace gcs
@@ -15,3 +17,4 @@ AppButton::AppButton(const QString& text, const QString& icon_path)
 }
 }  // namespace gcs
 }  // namespace gui
+}  // namespace tobas

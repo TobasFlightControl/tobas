@@ -1,5 +1,7 @@
 #include "tobas_setup_assistant/param_getters/line_edit.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -30,3 +32,4 @@ void ParamGetterWidget_LineEdit::onTextChanged(const QString& text)
 }
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

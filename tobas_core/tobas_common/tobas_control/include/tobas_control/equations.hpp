@@ -2,6 +2,8 @@
 
 #include <tobas_eigen_tools/core.hpp>
 
+namespace tobas
+{
 namespace ctrl
 {
 class LinearEquation
@@ -84,3 +86,4 @@ inline Eigen::Index LinearEquation::equationSize() const
   return A.rows();
 }
 }  // namespace ctrl
+}  // namespace tobas

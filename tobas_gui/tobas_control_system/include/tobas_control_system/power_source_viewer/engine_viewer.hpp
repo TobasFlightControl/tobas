@@ -7,6 +7,8 @@
 
 #include <tobas_msgs/msg/engine_state.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -25,14 +27,14 @@ class EngineViewerWidget : public QWidget
   static constexpr double kMaxOilTemp = 130.;  // [degC]
 
 public:
-  explicit EngineViewerWidget(const RosQtBridge& bridge, const tobas::Drone& drone);
+  explicit EngineViewerWidget(const RosQtBridge& bridge, const Drone& drone);
 
   void reset();
   void updateInternalDataStructures();
 
 private:
-  const tobas::Drone& drone_;
-  tobas::IcePropulsionSystemConfig::ConstSharedPtr iprop_;
+  const Drone& drone_;
+  IcePropulsionSystemConfig::ConstSharedPtr iprop_;
 
   qt::HPositionBarWidget* fuel_quantity_;
   qt::HPositionBarWidget* oil_temp_;
@@ -45,3 +47,4 @@ private Q_SLOTS:
 };
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

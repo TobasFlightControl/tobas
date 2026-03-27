@@ -3,6 +3,8 @@
 #include <QThread>
 #include <rclcpp/node.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace log
@@ -28,3 +30,4 @@ private:
 };
 }  // namespace log
 }  // namespace gui
+}  // namespace tobas

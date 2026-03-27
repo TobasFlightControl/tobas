@@ -12,6 +12,8 @@
 
 // #define TRACE_SOLVER
 
+namespace tobas
+{
 namespace quadprog
 {
 DualActiveSetSolver::DualActiveSetSolver() : super()
@@ -544,3 +546,4 @@ double DualActiveSetSolver::distance(const double& a, const double& b)
   }
 }
 }  // namespace quadprog
+}  // namespace tobas

@@ -3,6 +3,8 @@
 #include "./accel.hpp"
 #include "./frame.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 /**
@@ -49,3 +51,4 @@ inline Accel TaskSpaceStiffness::operator*(const Frame& rhs)
   return Accel(linear.hadamard(rhs.p), angular.hadamard(rhs.M.getRot()));
 }
 }  // namespace kdl
+}  // namespace tobas

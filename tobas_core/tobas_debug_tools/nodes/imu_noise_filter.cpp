@@ -6,13 +6,15 @@
 #include <tobas_eigen_msgs_adapter/core.hpp>
 #include <tobas_msgs_adapter/imu.hpp>
 
+namespace tobas
+{
 /**
  * @brief IMUの共分散をオンラインで計算する．
  */
-class ImuNoiseFilter : public tobas::BaseNode
+class ImuNoiseFilter : public BaseNode
 {
   using self = ImuNoiseFilter;
-  using super = tobas::BaseNode;
+  using super = BaseNode;
 
   static constexpr size_t kWindowSize = 400;    // 400Hzで1秒
   static constexpr double kHpfCutoffFreq = 1.;  // [Hz]
@@ -38,7 +40,7 @@ ImuNoiseFilter::ImuNoiseFilter(const rclcpp::NodeOptions& options)
 {
   acc_noise_pub_ = createPublisher<Eigen::Matrix3d>("accel_covariance");
   gyro_noise_pub_ = createPublisher<Eigen::Matrix3d>("gyro_covariance");
-  imu_sub_ = createSubscriber(tobas::topic::kImuRaw, &self::imuCb, this);
+  imu_sub_ = createSubscriber(topic::kImuRaw, &self::imuCb, this);
 }
 
 void ImuNoiseFilter::imuCb(const tobas_msgs::Imu::ConstSharedPtr& imu)
@@ -61,5 +63,6 @@ void ImuNoiseFilter::imuCb(const tobas_msgs::Imu::ConstSharedPtr& imu)
   auto gyro_cov = std::make_unique<Eigen::Matrix3d>(gyro_noise_filter_.noiseVariance());
   gyro_noise_pub_->publish(std::move(gyro_cov));
 }
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(ImuNoiseFilter)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::ImuNoiseFilter)

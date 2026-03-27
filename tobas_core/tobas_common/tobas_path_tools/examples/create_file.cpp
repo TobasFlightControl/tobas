@@ -8,7 +8,7 @@ int main()
 {
   static constexpr char path[] = "/tmp/this/is/the/file/created/by/create_file";
 
-  const auto res = path::createFilePath(path);
+  const auto res = tobas::path::createFilePath(path);
   if (!res) {
     cerr << res.error() << endl;
     return EXIT_FAILURE;

@@ -11,7 +11,7 @@ int main()
   constexpr auto bits = bit_cast<uint16_t>(src);
 
   const auto res1 = bit_cast<float16_t>(bits);
-  const auto res2 = algo::decodeR16(bits);
+  const auto res2 = tobas::algo::decodeR16(bits);
 
   if (res1 != res2) {
     cerr << "Failed to cast U16 to F16: " << res1 << " != " << res2 << endl;

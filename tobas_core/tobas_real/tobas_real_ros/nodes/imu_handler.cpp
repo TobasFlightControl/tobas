@@ -15,13 +15,17 @@
 #include <tobas_real_msgs/srv/set_imu_params.hpp>
 
 using namespace std::chrono_literals;
-using namespace real::handler::imu;
+using namespace tobas::real::handler::imu;
 namespace fs = std::filesystem;
 
-class ImuHandlerNode : public tobas::BaseNode
+namespace tobas
+{
+namespace real
+{
+class ImuHandlerNode : public BaseNode
 {
   using self = ImuHandlerNode;
-  using super = tobas::BaseNode;
+  using super = BaseNode;
   using SetParams = tobas_real_msgs::srv::SetImuParams;
 
   static constexpr int kMeasureGyroBiasCount = 1000;  // [-]
@@ -71,7 +75,7 @@ ImuHandlerNode::ImuHandlerNode(const rclcpp::NodeOptions& options)
 {
   TOBAS_CHECK(gyro_lpf_.setCutoffFrequency(kGyroLpfCutoff));
 
-  const auto cfg_dir = linux::isSuperUser() ? fs::path(tobas::kConfigDirRoot) : ros2::expandUser(tobas::kConfigDirHome);
+  const auto cfg_dir = linux::isSuperUser() ? fs::path(kConfigDirRoot) : ros2::expandUser(kConfigDirHome);
   if (!pt_.initialize((cfg_dir / kConfigFileName))) {
     TOBAS_ERROR("Failed to initialize property tree. This node will not work.");
     return;
@@ -109,10 +113,10 @@ bool ImuHandlerNode::getConfig()
 
 void ImuHandlerNode::registerPubSub()
 {
-  imu_raw_pub_ = createPublisher<tobas_msgs::Imu>(tobas::topic::kImuRaw);
-  imu_filt_pub_ = createPublisher<tobas_msgs::Imu>(tobas::topic::kImuFilt);
-  imu_raw_sub_ = createSubscriber(real::topic::kImuRaw, &self::imuRawCb, this);
-  imu_filt_sub_ = createSubscriber(real::topic::kImuFilt, &self::imuFiltCb, this);
+  imu_raw_pub_ = createPublisher<tobas_msgs::Imu>(topic::kImuRaw);
+  imu_filt_pub_ = createPublisher<tobas_msgs::Imu>(topic::kImuFilt);
+  imu_raw_sub_ = createSubscriber(topic::kImuRaw, &self::imuRawCb, this);
+  imu_filt_sub_ = createSubscriber(topic::kImuFilt, &self::imuFiltCb, this);
 }
 
 void ImuHandlerNode::imuRawCb(const tobas_msgs::Imu::ConstSharedPtr& imu_raw_in)
@@ -135,8 +139,8 @@ void ImuHandlerNode::imuRawCb(const tobas_msgs::Imu::ConstSharedPtr& imu_raw_in)
       const auto& gyro_filt = gyro_lpf_.getValue();
 
       // 角速度が大きすぎる場合は機体が運動しているとみなしてやり直し
-      if (gyro_filt.norm() > tobas::kStaticGyroThresh) {
-        TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Motion was detected while measuring the gyro bias. Retrying...");
+      if (gyro_filt.norm() > kStaticGyroThresh) {
+        TOBAS_WARN_THROTTLE(kTypicalWarnPeriod, "Motion was detected while measuring the gyro bias. Retrying...");
         gyro_bias_cnt_ = 0;
         for (auto& sum : gyro_sum_) {
           sum.reset();
@@ -223,5 +227,7 @@ void ImuHandlerNode::setParamsCb(const SetParams::Request::ConstSharedPtr& req, 
   res->success = true;
   res->message.clear();
 }
+}  // namespace real
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(ImuHandlerNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::real::ImuHandlerNode)

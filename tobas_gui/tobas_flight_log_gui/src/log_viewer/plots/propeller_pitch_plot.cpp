@@ -6,6 +6,8 @@
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace log
@@ -65,7 +67,7 @@ void PropellerPitchPlotWidget::setData(const QVector<tobas_msgs::msg::IcePropuls
       const auto& idx = name2idx_.at(elem.link_name);
 
       t_data[idx].push_back(ros2::seconds(msg.header.stamp));
-      pitch_data[idx].push_back(tbs::rad2deg(elem.angle));
+      pitch_data[idx].push_back(st::rad2deg(elem.angle));
     }
   }
 
@@ -117,3 +119,4 @@ bool PropellerPitchPlotWidget::updateInternalDataStructures(const tobas_msgs::ms
 }
 }  // namespace log
 }  // namespace gui
+}  // namespace tobas

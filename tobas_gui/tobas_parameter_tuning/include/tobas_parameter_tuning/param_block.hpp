@@ -12,6 +12,8 @@
 #include <tobas_qt_tools/widgets/slider.hpp>
 #include <tobas_ros2_tools/register.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace param
@@ -86,3 +88,4 @@ private Q_SLOTS:
 };
 }  // namespace param
 }  // namespace gui
+}  // namespace tobas

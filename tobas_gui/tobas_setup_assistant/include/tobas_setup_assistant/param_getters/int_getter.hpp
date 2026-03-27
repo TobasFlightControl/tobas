@@ -2,6 +2,8 @@
 
 #include <tobas_qt_tools/widgets/spin_box.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -35,3 +37,4 @@ private:
 };
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

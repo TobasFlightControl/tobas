@@ -8,6 +8,8 @@
 
 namespace fs = std::filesystem;
 
+namespace tobas
+{
 namespace gui
 {
 namespace cmn
@@ -57,7 +59,7 @@ LocalProjectBuilder::LocalProjectBuilder()
 bool LocalProjectBuilder::build(const fs::path& proj_path)
 {
   const auto meta_pkg_path = ProjectPaths(proj_path).metaPkgPath();
-  const auto ws_path = ros2::expandUser(tobas::kColconWSPathHome);
+  const auto ws_path = ros2::expandUser(kColconWSPathHome);
 
   return colcon_.build(meta_pkg_path, ws_path);
 }
@@ -81,5 +83,6 @@ std::expected<void, QString> buildLocalProject(const fs::path& proj_path)
 }
 }  // namespace cmn
 }  // namespace gui
+}  // namespace tobas
 
 #include "local_project_builder.moc"

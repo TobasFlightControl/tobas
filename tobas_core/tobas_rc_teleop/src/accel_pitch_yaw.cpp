@@ -4,7 +4,9 @@
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 
-namespace tobas_rc_teleop
+namespace tobas
+{
+namespace rc
 {
 AccelPitchYawController::AccelPitchYawController()
 {
@@ -30,7 +32,7 @@ bool AccelPitchYawController::requireHeading()
   return true;
 }
 
-void AccelPitchYawController::initialize(tobas::BaseNode* node, tobas::FlightMode mode)
+void AccelPitchYawController::initialize(BaseNode* node, FlightMode mode)
 {
   node->addDynamicDoubleParam(
     addMode("max_horizontal_accel", mode), &self::maxHorizontalAccelCb, this, 0.5, 10, 1, 20, " m/s^2");
@@ -47,7 +49,7 @@ void AccelPitchYawController::initialize(tobas::BaseNode* node, tobas::FlightMod
   node->addDynamicDoubleParam(addMode("pitch_expo", mode), &self::pitchExpoCb, this, 5., 0, -20, 20);
   node->addDynamicDoubleParam(addMode("yaw_expo", mode), &self::yawExpoCb, this, 5., -3, -20, 20);
 
-  cmd_pub_ = node->createPublisher<tobas_command_msgs::AccelPitchYaw>(tobas::topic::kAccelPitchYawCmd);
+  cmd_pub_ = node->createPublisher<tobas_command_msgs::AccelPitchYaw>(topic::kAccelPitchYawCmd);
 }
 
 void AccelPitchYawController::reset(const builtin_interfaces::msg::Time& stamp, const tobas_msgs::Odometry& setpoint, bool)
@@ -126,19 +128,19 @@ bool AccelPitchYawController::maxVerticalAccelCb(const double& p)
 
 bool AccelPitchYawController::maxPitchCb(const double& p)
 {
-  max_pitch_ = tbs::deg2rad(p);
+  max_pitch_ = st::deg2rad(p);
   return true;
 }
 
 bool AccelPitchYawController::maxPitchRateCb(const double& p)
 {
-  pitch_filt_.setMaxVelocity(tbs::deg2rad(p));
+  pitch_filt_.setMaxVelocity(st::deg2rad(p));
   return true;
 }
 
 bool AccelPitchYawController::maxYawRateCb(const double& p)
 {
-  max_yaw_rate_ = tbs::deg2rad(p);
+  max_yaw_rate_ = st::deg2rad(p);
   return true;
 }
 
@@ -165,4 +167,5 @@ bool AccelPitchYawController::yawExpoCb(const double& p)
   yaw_expo_ = p / kExpoScale;
   return true;
 }
-}  // namespace tobas_rc_teleop
+}  // namespace rc
+}  // namespace tobas

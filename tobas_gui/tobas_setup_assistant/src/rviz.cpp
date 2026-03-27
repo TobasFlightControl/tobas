@@ -12,6 +12,8 @@
 #include "tobas_setup_assistant/constants.hpp"
 #include "tobas_setup_assistant/util.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -125,3 +127,4 @@ void RvizWidget::onInertiaBoxToggled(bool checked)
 }
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

@@ -6,6 +6,8 @@
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sim
@@ -14,7 +16,7 @@ CommandersWidget::CommandersWidget(
   rclcpp::Node::SharedPtr node,
   const RosQtBridge& bridge,
   const kdl::Tree& tree,
-  const tobas::Drone& drone)
+  const Drone& drone)
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);
@@ -59,3 +61,4 @@ void CommandersWidget::reset()
 }
 }  // namespace sim
 }  // namespace gui
+}  // namespace tobas

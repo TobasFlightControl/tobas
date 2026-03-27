@@ -2,6 +2,8 @@
 
 #include <cctype>
 
+namespace tobas
+{
 namespace gazebo
 {
 std::string sanitizeNodeName(std::string str)
@@ -18,3 +20,4 @@ std::string sanitizeNodeName(std::string str)
   return str;
 }
 }  // namespace gazebo
+}  // namespace tobas

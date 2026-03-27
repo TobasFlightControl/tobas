@@ -6,6 +6,8 @@
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/battery/lipo.hpp"
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/battery/other.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -122,3 +124,4 @@ const BatteryWidget_Base* BatteryWidget::selected() const
 }  // namespace propulsion
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

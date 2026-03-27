@@ -5,6 +5,8 @@
 
 #include <tobas_std_tools/ansi_text_styles.hpp>
 
+namespace tobas
+{
 namespace qt
 {
 void colorMessageHandler(QtMsgType type, const QMessageLogContext& context, const QString& msg)
@@ -47,3 +49,4 @@ void colorMessageHandler(QtMsgType type, const QMessageLogContext& context, cons
   ts.flush();
 }
 }  // namespace qt
+}  // namespace tobas

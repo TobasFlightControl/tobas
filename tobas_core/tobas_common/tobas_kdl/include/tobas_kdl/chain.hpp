@@ -2,6 +2,8 @@
 
 #include "./segment.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 /**
@@ -106,3 +108,4 @@ inline Segment& Chain::getSegment(size_t nr)
   return segments[nr];
 }
 }  // namespace kdl
+}  // namespace tobas

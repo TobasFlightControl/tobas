@@ -2,6 +2,8 @@
 
 #include <QCheckBox>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sim
@@ -23,3 +25,4 @@ private:
 };
 }  // namespace sim
 }  // namespace gui
+}  // namespace tobas

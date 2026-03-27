@@ -2,6 +2,8 @@
 
 #include <QWheelEvent>
 
+namespace tobas
+{
 namespace qt
 {
 void Slider::wheelEvent(QWheelEvent* event)
@@ -9,3 +11,4 @@ void Slider::wheelEvent(QWheelEvent* event)
   event->ignore();
 }
 }  // namespace qt
+}  // namespace tobas

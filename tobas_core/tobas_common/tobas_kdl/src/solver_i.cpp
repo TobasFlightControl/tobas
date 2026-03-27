@@ -2,6 +2,8 @@
 
 using namespace std;
 
+namespace tobas
+{
 namespace kdl
 {
 int SolverI::copyError(const SolverI& arg)
@@ -48,3 +50,4 @@ string SolverI::defaultErrorMessage(const int& error_code) const
   }
 }
 }  // namespace kdl
+}  // namespace tobas

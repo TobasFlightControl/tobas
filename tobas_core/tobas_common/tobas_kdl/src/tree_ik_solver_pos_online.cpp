@@ -2,6 +2,8 @@
 
 using namespace std;
 
+namespace tobas
+{
 namespace kdl
 {
 TreeIkSolverPos_Online::TreeIkSolverPos_Online(const Tree& tree)
@@ -140,3 +142,4 @@ void TreeIkSolverPos_Online::enforceCartVelLimits(Twist& delta_t, const double& 
   }
 }
 }  // namespace kdl
+}  // namespace tobas

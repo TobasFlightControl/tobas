@@ -11,6 +11,8 @@
 #include <tobas_gazebo_msgs/srv/attach_suspended_load.hpp>
 #include <tobas_gazebo_msgs/srv/detach_suspended_load.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sim
@@ -60,3 +62,4 @@ private Q_SLOTS:
 };
 }  // namespace sim
 }  // namespace gui
+}  // namespace tobas

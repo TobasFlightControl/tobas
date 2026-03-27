@@ -25,6 +25,8 @@
 
 namespace fs = std::filesystem;
 
+namespace tobas
+{
 namespace gui
 {
 namespace ub
@@ -558,8 +560,8 @@ bool UrdfBuilderPanel::isJointsValid()
     const auto& axis = joint->axis;
 
     if (
-      type == urdf::Joint::REVOLUTE || type == urdf::Joint::CONTINUOUS || type == urdf::Joint::PRISMATIC ||
-      type == urdf::Joint::PLANAR) {
+      type == ::urdf::Joint::REVOLUTE || type == ::urdf::Joint::CONTINUOUS || type == ::urdf::Joint::PRISMATIC ||
+      type == ::urdf::Joint::PLANAR) {
       if (axis.x == 0 && axis.y == 0 && axis.z == 0) {
         QMessageBox::warning(this, kError, "Please set the axis of the joint '" + QString::fromStdString(name) + "'.");
         return false;
@@ -585,6 +587,7 @@ void UrdfBuilderPanel::collectUncheckedLinks(QTreeWidgetItem* item, QSet<QString
 }  // namespace ui
 }  // namespace ub
 }  // namespace gui
+}  // namespace tobas
 
 // rviz_common::Panelの派生クラスならばRvizのメインウィジェットにプラグインできる
-PLUGINLIB_EXPORT_CLASS(gui::ub::ui::UrdfBuilderPanel, rviz_common::Panel)
+PLUGINLIB_EXPORT_CLASS(tobas::gui::ub::ui::UrdfBuilderPanel, rviz_common::Panel)

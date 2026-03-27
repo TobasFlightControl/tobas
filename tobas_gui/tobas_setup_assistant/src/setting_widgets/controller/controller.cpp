@@ -15,6 +15,8 @@
 #include "tobas_setup_assistant/setting_tabs/controller/random_axis_tilt_multicopter.hpp"
 #include "tobas_setup_assistant/setting_tabs/controller/y_axis_tilt_multicopter.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -130,17 +132,17 @@ QString ControllerWidget::pluginName() const
   return selected()->pluginName();
 }
 
-tobas::RcCommand ControllerWidget::acrobatModeCommand() const
+RcCommand ControllerWidget::acrobatModeCommand() const
 {
   return selected()->acrobatModeCommand();
 }
 
-tobas::RcCommand ControllerWidget::stabilizeModeCommand() const
+RcCommand ControllerWidget::stabilizeModeCommand() const
 {
   return selected()->stabilizeModeCommand();
 }
 
-tobas::RcCommand ControllerWidget::loiterModeCommand() const
+RcCommand ControllerWidget::loiterModeCommand() const
 {
   return selected()->loiterModeCommand();
 }
@@ -194,3 +196,4 @@ void ControllerWidget::onDontUseBuiltinCtrlCheckBoxToggled(bool checked)
 }  // namespace ctrl
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

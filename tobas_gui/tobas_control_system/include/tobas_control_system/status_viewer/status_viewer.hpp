@@ -5,6 +5,8 @@
 
 #include "./status.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -48,3 +50,4 @@ private Q_SLOTS:
 };
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

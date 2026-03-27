@@ -4,6 +4,8 @@
 
 #include <tobas_ros2_tools/time.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace log
@@ -170,3 +172,4 @@ void ObserverFeedbackPlotWidget::setData(const QVector<tobas_debug_msgs::msg::Ob
 }
 }  // namespace log
 }  // namespace gui
+}  // namespace tobas

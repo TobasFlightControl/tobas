@@ -5,6 +5,8 @@
 #include <QScrollBar>
 #include <QVBoxLayout>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -112,3 +114,4 @@ void ConsoleWidget::messageCb(const tobas_msgs::msg::Message::ConstSharedPtr& ms
 }
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

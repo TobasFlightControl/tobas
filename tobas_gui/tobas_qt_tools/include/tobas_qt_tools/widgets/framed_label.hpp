@@ -2,6 +2,8 @@
 
 #include <QLabel>
 
+namespace tobas
+{
 namespace qt
 {
 /**
@@ -16,3 +18,4 @@ public:
   explicit FramedLabel(const QString& text = "", QWidget* parent = nullptr);
 };
 }  // namespace qt
+}  // namespace tobas

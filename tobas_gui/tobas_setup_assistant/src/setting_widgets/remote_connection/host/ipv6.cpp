@@ -5,6 +5,8 @@
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_yaml_tools/convert/uint128.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -57,3 +59,4 @@ QString IPv6Widget::host() const
 }  // namespace rc
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

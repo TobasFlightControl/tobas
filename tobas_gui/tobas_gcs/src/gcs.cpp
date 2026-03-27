@@ -25,6 +25,8 @@
 using namespace std::chrono_literals;
 namespace fs = std::filesystem;
 
+namespace tobas
+{
 namespace gui
 {
 namespace gcs
@@ -234,7 +236,7 @@ void GroundControlStationWidget::onLoadButtonClicked()
   std::string last_opened_dir;
   if (property_client_.get(kLastOpenedDirKey, last_opened_dir) < 0) {
     RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
-    last_opened_dir = ros2::expandUser(tobas::kColconWSPathHome) / "src";
+    last_opened_dir = ros2::expandUser(kColconWSPathHome) / "src";
     if (!fs::is_directory(last_opened_dir)) {
       last_opened_dir = ros2::getHomeDir();
     }
@@ -402,7 +404,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
   // 環境変数を読み込む (読み込めなくても続行)
   progress.setLabelText("Getting environment variables.");
   std::string project_env_text;
-  if (ssh_client_.sftpRead(tobas::kProjectEnvPath, project_env_text, true) == ssh::SshClient::kNoError) {
+  if (ssh_client_.sftpRead(kProjectEnvPath, project_env_text, true) == ssh::SshClient::kNoError) {
     if (!project_env_parser_.parseFromText(project_env_text)) {
       progress.close();
       qt::qErrorBox(this, "Failed to parse configuration file.");
@@ -418,12 +420,12 @@ void GroundControlStationWidget::onWriteButtonClicked()
   if (config_pkg_name != project_env_parser_.config_pkg) {
     // ワークスペースを初期化
     progress.setLabelText("Initializing colcon workspace.");
-    if (ssh_client_.execute(std::format("rm -rf {}", tobas::kColconWSPathRoot), true)) {
+    if (ssh_client_.execute(std::format("rm -rf {}", kColconWSPathRoot), true)) {
       progress.close();
       qt::qErrorBox(this, "Failed to remove the old colcon workspace:\n\n" + QString(ssh_client_.errorMessage()));
       return;
     }
-    if (ssh_client_.execute(std::format("mkdir -p {}/src", tobas::kColconWSPathRoot), true)) {
+    if (ssh_client_.execute(std::format("mkdir -p {}/src", kColconWSPathRoot), true)) {
       progress.close();
       qt::qErrorBox(this, "Failed to create a new colcon workspace:\n\n" + QString(ssh_client_.errorMessage()));
       return;
@@ -438,7 +440,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
   progress.setLabelText("Setting environment variables.");
   project_env_parser_.config_pkg = config_pkg_name;
   project_env_parser_.nif = network_config_.interface;
-  if (ssh_client_.sftpWrite(tobas::kProjectEnvPath, project_env_parser_.exportText(), true) != ssh::SshClient::kNoError) {
+  if (ssh_client_.sftpWrite(kProjectEnvPath, project_env_parser_.exportText(), true) != ssh::SshClient::kNoError) {
     progress.close();
     qt::qErrorBox(this, "Failed to set environment variables:\n\n" + QString(ssh_client_.errorMessage()));
     return;
@@ -447,7 +449,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
 
   // プロジェクトを送信
   progress.setLabelText("Sending the Tobas project to the flight controller.");
-  const auto remote_dir = fs::path(tobas::kColconWSPathRoot) / "src/";
+  const auto remote_dir = fs::path(kColconWSPathRoot) / "src/";
   const auto mesh_path = proj_paths_.cfgMeshDirPath();
   const auto git_path = proj_paths_.getProjPath() / ".git";
   if (ssh_client_.scpPut(proj_path, remote_dir, true, { mesh_path, git_path }, true) != ssh::SshClient::kNoError) {
@@ -466,7 +468,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
     }
     else {
       const auto log_path =
-        qt::writeTimestampedFile(error_msg + '\n', qt::expandUser(tobas::kGuiLogDir), "", "builderr_remote");
+        qt::writeTimestampedFile(error_msg + '\n', qt::expandUser(kGuiLogDir), "", "builderr_remote");
       if (log_path) {
         qt::qErrorBox(this, "Failed to build the Tobas project. The output has been saved to:\n" + log_path.value());
       }
@@ -482,10 +484,10 @@ void GroundControlStationWidget::onWriteButtonClicked()
 
   // DDSの設定を更新
   progress.setLabelText("Writing DDS configuration.");
-  tobas::cyclonedds::Data dds_data;
+  cyclonedds::Data dds_data;
   dds_data.interfaces.emplace_back(network_config_.interface);
-  const auto dds_config_text = tobas::cyclonedds::exportText(dds_data);
-  if (ssh_client_.sftpWrite(tobas::kCycloneddsConfigPath, dds_config_text, true) != ssh::SshClient::kNoError) {
+  const auto dds_config_text = cyclonedds::exportText(dds_data);
+  if (ssh_client_.sftpWrite(kCycloneddsConfigPath, dds_config_text, true) != ssh::SshClient::kNoError) {
     progress.close();
     qt::qErrorBox(this, "Failed to write DDS configuration:\n\n" + QString(ssh_client_.errorMessage()));
     return;
@@ -616,3 +618,4 @@ void GroundControlStationWidget::armingCb(const tobas_msgs::msg::Arming::ConstSh
 }
 }  // namespace gcs
 }  // namespace gui
+}  // namespace tobas

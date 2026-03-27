@@ -2,6 +2,8 @@
 
 #include <tobas_qt_tools/cast.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace log
@@ -205,3 +207,4 @@ void PlotTabWidget::onCurrentWidgetChanged(int index)
 }
 }  // namespace log
 }  // namespace gui
+}  // namespace tobas

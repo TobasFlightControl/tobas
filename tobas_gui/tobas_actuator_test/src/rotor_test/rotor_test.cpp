@@ -10,11 +10,13 @@
 #include <tobas_qt_tools/widgets/description_widget.hpp>
 #include <tobas_std_tools/array.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace at
 {
-RotorTestWidget::RotorTestWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge, const tobas::Drone& drone)
+RotorTestWidget::RotorTestWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge, const Drone& drone)
   : node_(node), bridge_(bridge), drone_(drone)
 {
   const auto warning =
@@ -114,8 +116,8 @@ void RotorTestWidget::updateInternalDataStructures()
     rotor_widgets_.at(ch)->setText(text);
   }
 
-  if (drone_.prop->type() == tobas::PropulsionSystem::kElectric) {
-    eprop_ = boost::polymorphic_pointer_downcast<tobas::ElectricPropulsionSystemConfig>(drone_.prop);
+  if (drone_.prop->type() == PropulsionSystem::kElectric) {
+    eprop_ = boost::polymorphic_pointer_downcast<ElectricPropulsionSystemConfig>(drone_.prop);
 
     // モータを登録
     for (const auto& [link_name, _] : eprop_->rotors) {
@@ -131,19 +133,19 @@ void RotorTestWidget::updateInternalDataStructures()
       const auto text = "CH" + QString::number(erotor->channel) + ": " + QString::fromStdString(link_name);
       rotor_widgets_.at(erotor->channel)->setText(text);
 
-      const auto max_rpm = tbs::rps2rpm(drone_.prop->maxSpeed(link_name));
+      const auto max_rpm = st::rps2rpm(drone_.prop->maxSpeed(link_name));
       rotor_widgets_.at(erotor->channel)->setMaximumRPM(max_rpm);
     }
 
     tar_speeds_pub_ = ros2::createPublisher<tobas_msgs::msg::RotorSpeedArray>(
-      node_, path::join(drone_.name, tobas::kRemoteIfaceNS, tobas::topic::kRotorSpeedsCmd));
+      node_, path::join(drone_.name, kRemoteIfaceNS, topic::kRotorSpeedsCmd));
 
     get_gains_sc_ = std::make_shared<ros2::SyncServiceClient<tobas_msgs::srv::GetRotorControlGains>>(
-      node_, path::join(drone_.name, tobas::kRemoteIfaceNS, tobas::service::kGetRotorControlGains));
+      node_, path::join(drone_.name, kRemoteIfaceNS, service::kGetRotorControlGains));
     set_gains_sc_ = std::make_shared<ros2::SyncServiceClient<tobas_msgs::srv::SetRotorControlGains>>(
-      node_, path::join(drone_.name, tobas::kRemoteIfaceNS, tobas::service::kSetRotorControlGains));
+      node_, path::join(drone_.name, kRemoteIfaceNS, service::kSetRotorControlGains));
     save_gains_sc_ = std::make_shared<ros2::SyncServiceClient<std_srvs::srv::Trigger>>(
-      node_, path::join(drone_.name, tobas::kRemoteIfaceNS, tobas::service::kSaveRotorControlGains));
+      node_, path::join(drone_.name, kRemoteIfaceNS, service::kSaveRotorControlGains));
   }
   else {
     eprop_.reset();
@@ -158,7 +160,7 @@ void RotorTestWidget::updateInternalDataStructures()
 
 int RotorTestWidget::numRegisteredChannels() const
 {
-  return tbs::count(registered_, true);
+  return st::count(registered_, true);
 }
 
 void RotorTestWidget::publishTargetSppeds()
@@ -175,7 +177,7 @@ void RotorTestWidget::publishTargetSppeds()
 
     tar_speeds->speeds.emplace_back();
     tar_speeds->speeds.back().link_name = link_name;
-    tar_speeds->speeds.back().speed = tbs::rpm2rps(rotor_widgets_.at(erotor->channel)->getTargetRPM());
+    tar_speeds->speeds.back().speed = st::rpm2rps(rotor_widgets_.at(erotor->channel)->getTargetRPM());
   }
 
   tar_speeds_pub_->publish(std::move(tar_speeds));
@@ -319,7 +321,7 @@ void RotorTestWidget::rotorStatesCb(const tobas_msgs::msg::RotorStateArray::Cons
     }
 
     const auto erotor = eprop_->getRotor(elem.link_name);
-    rotor_widgets_.at(erotor->channel)->setCurrentRPM(tbs::rps2rpm(elem.speed));
+    rotor_widgets_.at(erotor->channel)->setCurrentRPM(st::rps2rpm(elem.speed));
   }
 }
 
@@ -335,3 +337,4 @@ void RotorTestWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& ar
 }
 }  // namespace at
 }  // namespace gui
+}  // namespace tobas

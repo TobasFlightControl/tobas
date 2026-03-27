@@ -8,6 +8,8 @@
 
 #include "tobas_flight_log_gui/recorder/constants.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace log
@@ -19,7 +21,7 @@ RecordStopThread::RecordStopThread(rclcpp::Node::SharedPtr node) : node_(node)
 void RecordStopThread::run()
 {
   ros2::SyncServiceClient<tobas_msgs::srv::BagRecordStop> sc(
-    node_, path::join(ns_, tobas::kRemoteIfaceNS, tobas::service::kRosbagRecordStop));
+    node_, path::join(ns_, kRemoteIfaceNS, service::kRosbagRecordStop));
 
   const auto req = std::make_shared<tobas_msgs::srv::BagRecordStop::Request>();
 
@@ -43,3 +45,4 @@ void RecordStopThread::setNamespace(const std::string& ns)
 }
 }  // namespace log
 }  // namespace gui
+}  // namespace tobas

@@ -10,7 +10,7 @@ using namespace std;
 
 int main()
 {
-  keyboard::KeyboardReader keyboard;
+  tobas::keyboard::KeyboardReader keyboard;
 
   while (true) {
     const auto c = keyboard.readKey();

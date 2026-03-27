@@ -8,12 +8,14 @@
 #include "./thrust.hpp"
 #include "./tilt_rotor.hpp"
 
+namespace tobas
+{
 namespace uadf
 {
 class Model
 {
 public:
-  urdf::ModelInterfaceSharedPtr urdf;
+  ::urdf::ModelInterfaceSharedPtr urdf;
 
   std::map<std::string, Thrust> thrusts;
   std::map<std::string, ControlSurface> control_surfaces;
@@ -26,3 +28,4 @@ public:
   bool valid() const;
 };
 }  // namespace uadf
+}  // namespace tobas

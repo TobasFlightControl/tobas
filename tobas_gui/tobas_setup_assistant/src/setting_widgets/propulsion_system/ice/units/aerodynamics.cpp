@@ -11,6 +11,8 @@
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/constants.hpp"
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/ice/propulsion_units/blade_theory.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -86,7 +88,7 @@ void AerodynamicsWidget::load(const YAML::Node& node)
   data_->setValue(node[data_->name()].as<Eigen::MatrixXd>());
 }
 
-tobas::VppMotorConstant AerodynamicsWidget::motorConst() const
+VppMotorConstant AerodynamicsWidget::motorConst() const
 {
   const auto [speed, pitch, thrust, _] = getData();
   const auto num_data = speed.size();
@@ -100,10 +102,10 @@ tobas::VppMotorConstant AerodynamicsWidget::motorConst() const
   const auto c0 = sol(0);
   const auto c1 = sol(1);
 
-  return tobas::VppMotorConstant(c0, c1);
+  return VppMotorConstant(c0, c1);
 }
 
-tobas::VppMomentConstant AerodynamicsWidget::momentConst() const
+VppMomentConstant AerodynamicsWidget::momentConst() const
 {
   const auto [c0, c1] = motorConst();
   const auto phi0 = -c0 / c1;
@@ -124,10 +126,10 @@ tobas::VppMomentConstant AerodynamicsWidget::momentConst() const
   const auto b = sol(1);
   const auto c = sol(2);
 
-  return tobas::VppMomentConstant(a, b, c, phi0);
+  return VppMomentConstant(a, b, c, phi0);
 }
 
-tobas::VppDragConstant AerodynamicsWidget::dragConst() const
+VppDragConstant AerodynamicsWidget::dragConst() const
 {
   const BladeTheory blade(
     propeller_->numBlades(), propeller_->radius(), propeller_->meanChord(), propeller_->pitchAngleNeutoral());
@@ -144,10 +146,10 @@ std::tuple<Eigen::VectorXd, Eigen::VectorXd, Eigen::VectorXd, Eigen::VectorXd> A
   const auto pitch_limit = propeller_->pitchAngleLimit();
 
   for (int i = 0; i < num_data; ++i) {
-    const auto speed = tbs::rpm2rps(data_mat(i, 0));  // [rad/s]
-    const auto pitch = tbs::deg2rad(data_mat(i, 1));  // [rad]
-    const auto thrust = data_mat(i, 2);               // [N]
-    const auto torque = data_mat(i, 3);               // [Nm]
+    const auto speed = st::rpm2rps(data_mat(i, 0));  // [rad/s]
+    const auto pitch = st::deg2rad(data_mat(i, 1));  // [rad]
+    const auto thrust = data_mat(i, 2);              // [N]
+    const auto torque = data_mat(i, 3);              // [Nm]
 
     if (pitch_limit.inRange(pitch, 1e-3)) {
       speeds.push_back(speed);
@@ -166,3 +168,4 @@ std::tuple<Eigen::VectorXd, Eigen::VectorXd, Eigen::VectorXd, Eigen::VectorXd> A
 }  // namespace propulsion
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

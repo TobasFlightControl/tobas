@@ -11,7 +11,7 @@ using namespace std;
 
 double f(double x)
 {
-  return math::sqr(x) + 2 * x - 1;
+  return tobas::math::sqr(x) + 2 * x - 1;
 }
 
 double dfdx(double x)
@@ -21,7 +21,7 @@ double dfdx(double x)
 
 int main()
 {
-  nlp::NewtonSolver1d newton;
+  tobas::nlp::NewtonSolver1d newton;
 
   newton.initialize(f, dfdx);
 

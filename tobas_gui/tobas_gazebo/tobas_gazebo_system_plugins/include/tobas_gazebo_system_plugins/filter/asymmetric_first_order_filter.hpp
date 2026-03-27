@@ -2,6 +2,8 @@
 
 #include <iostream>
 
+namespace tobas
+{
 namespace gazebo
 {
 /* 立ち上がりと立ち下がりで時定数が異なる一次遅れフィルタ． */
@@ -81,3 +83,4 @@ inline const T& AsymmetricFirstOrderFilter<T>::getValue() const
   return value_;
 }
 }  // namespace gazebo
+}  // namespace tobas

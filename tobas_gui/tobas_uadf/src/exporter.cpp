@@ -2,6 +2,8 @@
 
 #include <tobas_urdf/exporter.hpp>
 
+namespace tobas
+{
 namespace uadf
 {
 tinyxml2::XMLDocument* exportUADF(const Model& model)
@@ -46,3 +48,4 @@ tinyxml2::XMLDocument* exportUADF(const Model& model)
   return doc;
 }
 }  // namespace uadf
+}  // namespace tobas

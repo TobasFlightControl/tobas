@@ -4,6 +4,8 @@
 
 #include <tobas_linux/spi_dev.hpp>
 
+namespace tobas
+{
 namespace fc1xx
 {
 class Battery
@@ -24,3 +26,4 @@ private:
   uint32_t rx_buf_[kChannelSize];
 };
 }  // namespace fc1xx
+}  // namespace tobas

@@ -3,6 +3,8 @@
 #include "./chain.hpp"
 #include "./solver_i.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 class ChainSolverI : public SolverI
@@ -38,3 +40,4 @@ inline bool ChainSolverI::isUpToDate() const
   return chain_.getNrOfJoints() == nj_ && chain_.getNrOfSegments() == ns_;
 }
 }  // namespace kdl
+}  // namespace tobas

@@ -8,6 +8,8 @@
 #include "./playback_control.hpp"
 #include "./plot_tab.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace log
@@ -87,3 +89,4 @@ private Q_SLOTS:
 };
 }  // namespace log
 }  // namespace gui
+}  // namespace tobas

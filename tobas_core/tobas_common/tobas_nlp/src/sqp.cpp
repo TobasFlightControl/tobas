@@ -10,6 +10,8 @@
 using namespace std;
 using namespace Eigen;
 
+namespace tobas
+{
 namespace nlp
 {
 SQP::SQP()
@@ -167,3 +169,4 @@ bool SQP::setVariableScales(const Eigen::VectorXd& x_scale)
   return true;
 }
 }  // namespace nlp
+}  // namespace tobas

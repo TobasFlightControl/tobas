@@ -38,7 +38,7 @@ bool TrimConditions::updateInternalDataStructures()
     std::cerr << "Inertia solver failed: " << inertia_solver_.errorMessage() << std::endl;
     return false;
   }
-  W_ = inertia_solver_.getInertia().getMass() * tbs::kGravity;
+  W_ = inertia_solver_.getInertia().getMass() * st::kGravity;
 
   // Set elevator index
   auto max_c_pitch_delta = -INFINITY;
@@ -147,7 +147,7 @@ int TrimConditions::update(double V, const double& rho, const kdl::JntArray& q)
   return error_code_;
 }
 
-tbs::Range<double> TrimConditions::speedLimit(const double& rho) const
+st::Range<double> TrimConditions::speedLimit(const double& rho) const
 {
   assert(rho > 0);
 
@@ -163,7 +163,7 @@ tbs::Range<double> TrimConditions::speedLimit(const double& rho) const
   const auto min_den = a_ * drone_.fixed_wing->vehicle.alpha_limit.lower + b_;
   const auto V_max = min_den > 0. ? sqrt(c / min_den) : INFINITY;
 
-  return tbs::Range<double>(V_min, V_max);
+  return st::Range<double>(V_min, V_max);
 }
 
 double TrimConditions::takeOffSpeed(const double& rho) const

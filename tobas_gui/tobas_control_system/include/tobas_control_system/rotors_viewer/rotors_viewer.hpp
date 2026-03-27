@@ -8,6 +8,8 @@
 
 #include "./speedmeter.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -23,13 +25,13 @@ class RotorsViewerWiddget : public qt::ScrollArea
   static constexpr char kDeadBackgroundColor[] = "red";
 
 public:
-  explicit RotorsViewerWiddget(const RosQtBridge& bridge, const tobas::Drone& drone);
+  explicit RotorsViewerWiddget(const RosQtBridge& bridge, const Drone& drone);
 
   void reset();
   void updateInternalDataStructures();
 
 private:
-  const tobas::Drone& drone_;
+  const Drone& drone_;
 
   std::map<std::string, SpeedmeterWidget*> meters_;
   QHBoxLayout* cols_;
@@ -44,3 +46,4 @@ private Q_SLOTS:
 };
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

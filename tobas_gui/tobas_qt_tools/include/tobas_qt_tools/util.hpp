@@ -5,6 +5,8 @@
 #include <QVBoxLayout>
 #include <QWidget>
 
+namespace tobas
+{
 namespace qt
 {
 /* 子ウィジェットを再帰的に走査し，全てのシグナルをブロックする． */
@@ -34,3 +36,4 @@ void clearLayout(QLayout* layout);
 /* ScrollWidgetを挟んでQVBoxLayoutを作成する． */
 QVBoxLayout* createScrollableQVBoxLayout(QBoxLayout* parent);
 }  // namespace qt
+}  // namespace tobas

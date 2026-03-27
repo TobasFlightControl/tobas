@@ -1,5 +1,7 @@
 #include "tobas_control_system/mission_planner/commands/takeoff.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -31,7 +33,7 @@ double TakeoffWidget::altitude() const
   return getValue(altitude_);
 }
 
-tobas::mission::AltitudeFrame TakeoffWidget::altitudeFrame() const
+mission::AltitudeFrame TakeoffWidget::altitudeFrame() const
 {
   return getValue(altitude_frame_);
 }
@@ -61,7 +63,7 @@ void TakeoffWidget::altitude(double value)
   altitude_->setValue(value);
 }
 
-void TakeoffWidget::altitudeFrame(tobas::mission::AltitudeFrame value)
+void TakeoffWidget::altitudeFrame(mission::AltitudeFrame value)
 {
   altitude_frame_->setValue(value);
 }
@@ -87,3 +89,4 @@ void TakeoffWidget::altitudeTolerance(double value)
 }
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

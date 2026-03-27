@@ -20,6 +20,8 @@ namespace fs = std::filesystem;
 
 Q_DECLARE_METATYPE(rclcpp_action::ResultCode);
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -107,7 +109,7 @@ void MissionPlannerWidget::updateNamespace(const std::string& ns)
 {
   reset();
 
-  const auto action_name = path::join(ns, tobas::kRemoteIfaceNS, tobas::action::kExecuteMission);
+  const auto action_name = path::join(ns, kRemoteIfaceNS, action::kExecuteMission);
   mission_ac_ = rclcpp_action::create_client<Action>(node_, action_name);
 }
 
@@ -245,7 +247,7 @@ MissionPlannerWidget::Action::Goal MissionPlannerWidget::createMissionGoal() con
       case Command::kWaypoint: {
         const auto widget = qt::qConstPointerCast<WaypointWidget>(base_widget);
 
-        tobas::mission::Waypoint waypoint;
+        mission::Waypoint waypoint;
         waypoint.latitude = widget->latitude();
         waypoint.longitude = widget->longitude();
         waypoint.altitude = widget->altitude();
@@ -263,15 +265,15 @@ MissionPlannerWidget::Action::Goal MissionPlannerWidget::createMissionGoal() con
         waypoint.altitude_tolerance = widget->altitudeTolerance();
         waypoint.timeout = 0.;  // TODO
 
-        mission_item.type = tobas::mission::kWaypoint;
-        mission_item.data = tbs::toBytes(waypoint);
+        mission_item.type = mission::kWaypoint;
+        mission_item.data = st::toBytes(waypoint);
 
         break;
       }
       case Command::kTakeoff: {
         const auto widget = qt::qConstPointerCast<TakeoffWidget>(base_widget);
 
-        tobas::mission::Takeoff takeoff;
+        mission::Takeoff takeoff;
         takeoff.altitude = widget->altitude();
         takeoff.altitude_frame = widget->altitudeFrame();
         takeoff.max_speed = widget->maxSpeed();
@@ -280,27 +282,27 @@ MissionPlannerWidget::Action::Goal MissionPlannerWidget::createMissionGoal() con
         takeoff.altitude_tolerance = widget->altitudeTolerance();
         takeoff.timeout = 0.;  // TODO
 
-        mission_item.type = tobas::mission::kTakeoff;
-        mission_item.data = tbs::toBytes(takeoff);
+        mission_item.type = mission::kTakeoff;
+        mission_item.data = st::toBytes(takeoff);
 
         break;
       }
       case Command::kLand: {
         const auto widget = qt::qConstPointerCast<LandWidget>(base_widget);
 
-        tobas::mission::Land land;
+        mission::Land land;
         land.speed = widget->speed();
         land.timeout = 0.;  // TODO
 
-        mission_item.type = tobas::mission::kLand;
-        mission_item.data = tbs::toBytes(land);
+        mission_item.type = mission::kLand;
+        mission_item.data = st::toBytes(land);
 
         break;
       }
       case Command::kReturnToLaunch: {
         const auto widget = qt::qConstPointerCast<ReturnToLaunchWidget>(base_widget);
 
-        tobas::mission::ReturnToLaunch rtl;
+        mission::ReturnToLaunch rtl;
         rtl.min_altitude = widget->minAltitude();
         rtl.max_horizontal_velocity = widget->maxHorizontalVelocity();
         rtl.max_horizontal_accel = widget->maxHorizontalAccel();
@@ -314,8 +316,8 @@ MissionPlannerWidget::Action::Goal MissionPlannerWidget::createMissionGoal() con
         rtl.altitude_tolerance = widget->altitudeTolerance();
         rtl.timeout = 0.;  // TODO
 
-        mission_item.type = tobas::mission::kReturnToLaunch;
-        mission_item.data = tbs::toBytes(rtl);
+        mission_item.type = mission::kReturnToLaunch;
+        mission_item.data = st::toBytes(rtl);
 
         break;
       }
@@ -607,7 +609,7 @@ void MissionPlannerWidget::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss)
 void MissionPlannerWidget::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom)
 {
   const auto yaw = odom->odom.odom.frame.M.getYaw();
-  map_->setArrowRotation(-tbs::rad2deg(yaw - M_PI_2));  // 東向きが方位の基準なので90degのオフセットを考慮
+  map_->setArrowRotation(-st::rad2deg(yaw - M_PI_2));  // 東向きが方位の基準なので90degのオフセットを考慮
 }
 
 void MissionPlannerWidget::actionGoalResponseCb(bool ok)
@@ -654,3 +656,4 @@ void MissionPlannerWidget::actionResultCb(rclcpp_action::ResultCode code, const 
 }
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

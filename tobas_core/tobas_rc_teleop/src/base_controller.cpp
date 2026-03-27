@@ -2,15 +2,18 @@
 
 #include <tobas_path_tools/join.hpp>
 
-namespace tobas_rc_teleop
+namespace tobas
+{
+namespace rc
 {
 BaseController::BaseController()
 {
   // 不要なrosparamの参照やPubSubの登録を防ぐため，コンストラクタではそれらに関する操作は行わない
 }
 
-std::string BaseController::addMode(const std::string& text, tobas::FlightMode mode)
+std::string BaseController::addMode(const std::string& text, FlightMode mode)
 {
-  return path::join(tobas::textFromEnum(mode), text);
+  return path::join(textFromEnum(mode), text);
 }
-}  // namespace tobas_rc_teleop
+}  // namespace rc
+}  // namespace tobas

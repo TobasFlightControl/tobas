@@ -7,17 +7,19 @@
 
 using namespace std::chrono_literals;
 
-class SbusDriverNode : public tobas::BaseNode
+namespace tobas
+{
+class SbusDriverNode : public BaseNode
 {
   using self = SbusDriverNode;
-  using super = tobas::BaseNode;
+  using super = BaseNode;
 
 public:
   explicit SbusDriverNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
   std::string device_;
-  tobas::SBUS sbus_;
+  SBUS sbus_;
   std::mutex mutex_;
 
   ros2::PublisherPtr<tobas_msgs::msg::Sbus> sbus_pub_;
@@ -28,7 +30,7 @@ private:
 
   void publishExclusively(tobas_msgs::msg::Sbus::UniquePtr msg);
 
-  void onPacket(const tobas::SBUS::Packet& packet);
+  void onPacket(const SBUS::Packet& packet);
 
   void onPacketTimeout();
 };
@@ -42,7 +44,7 @@ SbusDriverNode::SbusDriverNode(const rclcpp::NodeOptions& options)
     return;
   }
 
-  sbus_pub_ = createPublisher<tobas_msgs::msg::Sbus>(tobas::topic::kSbus);
+  sbus_pub_ = createPublisher<tobas_msgs::msg::Sbus>(topic::kSbus);
 
   initialize_timer_ = createWallTimer(3s, &self::initialize, this);
 }
@@ -69,7 +71,7 @@ void SbusDriverNode::publishExclusively(tobas_msgs::msg::Sbus::UniquePtr msg)
   sbus_pub_->publish(std::move(msg));
 }
 
-void SbusDriverNode::onPacket(const tobas::SBUS::Packet& packet)
+void SbusDriverNode::onPacket(const SBUS::Packet& packet)
 {
   // Reset the timeout timer
   timeout_timer_.reset();
@@ -96,5 +98,6 @@ void SbusDriverNode::onPacketTimeout()
   sbus_msg->frame_lost = true;
   publishExclusively(std::move(sbus_msg));
 }
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(SbusDriverNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::SbusDriverNode)

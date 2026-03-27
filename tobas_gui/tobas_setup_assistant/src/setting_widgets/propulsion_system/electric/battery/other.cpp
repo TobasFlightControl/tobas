@@ -3,6 +3,8 @@
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_yaml_tools/format.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -132,3 +134,4 @@ double BatteryWidget_Other::internalRegistance()
 }  // namespace propulsion
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

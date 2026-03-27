@@ -12,11 +12,13 @@
 
 #include "tobas_simulation_gui/commanders/constants.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sim
 {
-JointCommanderWidget::JointCommanderWidget(rclcpp::Node::SharedPtr node, const kdl::Tree& tree, const tobas::Drone& drone)
+JointCommanderWidget::JointCommanderWidget(rclcpp::Node::SharedPtr node, const kdl::Tree& tree, const Drone& drone)
   : node_(node), tree_(tree), drone_(drone), rnd_gen_(rnd_dev_()), joint_parser_(tree)
 {
   const auto title = new qt::Label("User Joint", cmn::kLabelPSize, QFont::Bold);
@@ -80,7 +82,7 @@ void JointCommanderWidget::updateInternalDataStructures()
   // Add joints of current robot
   for (const auto& [jnt_name, joint] : drone_.joints) {
     // User active joint only
-    if (joint.role != tobas::JointRole::kUserActive) {
+    if (joint.role != JointRole::kUserActive) {
       continue;
     }
 
@@ -95,7 +97,7 @@ void JointCommanderWidget::updateInternalDataStructures()
     commander->setText(QString::fromStdString(jnt_name));
 
     switch (joint.cmd_iface) {
-      case tobas::JointCommandInterface::kPosition: {
+      case JointCommandInterface::kPosition: {
         commander->setMinimum(joint_parser_.lowerLimit(jnt_name));
         commander->setMaximum(joint_parser_.upperLimit(jnt_name));
         switch (jnt_type) {
@@ -117,7 +119,7 @@ void JointCommanderWidget::updateInternalDataStructures()
 
         break;
       }
-      case tobas::JointCommandInterface::kVelocity: {
+      case JointCommandInterface::kVelocity: {
         const auto max_vel = joint_parser_.maxVelocity(jnt_name);
         commander->setMinimum(-max_vel);
         commander->setMaximum(+max_vel);
@@ -140,7 +142,7 @@ void JointCommanderWidget::updateInternalDataStructures()
 
         break;
       }
-      case tobas::JointCommandInterface::kEffort: {
+      case JointCommandInterface::kEffort: {
         const auto max_eff = joint_parser_.maxEffort(jnt_name);
         commander->setMinimum(-max_eff);
         commander->setMaximum(+max_eff);
@@ -163,7 +165,7 @@ void JointCommanderWidget::updateInternalDataStructures()
 
         break;
       }
-      case tobas::JointCommandInterface::kNone: {
+      case JointCommandInterface::kNone: {
         break;
       }
       default: {
@@ -188,13 +190,13 @@ void JointCommanderWidget::updateInternalDataStructures()
   // Register command publishers
   const auto& ns = drone_.name;
   if (!tar_js_pos_.commands.empty()) {
-    tar_js_pos_pub_ = ros2::createPublisher<CmdMsg>(node_, path::join(ns, tobas::topic::kJointPosCmd));
+    tar_js_pos_pub_ = ros2::createPublisher<CmdMsg>(node_, path::join(ns, topic::kJointPosCmd));
   }
   if (!tar_js_vel_.commands.empty()) {
-    tar_js_vel_pub_ = ros2::createPublisher<CmdMsg>(node_, path::join(ns, tobas::topic::kJointVelCmd));
+    tar_js_vel_pub_ = ros2::createPublisher<CmdMsg>(node_, path::join(ns, topic::kJointVelCmd));
   }
   if (!tar_js_eff_.commands.empty()) {
-    tar_js_eff_pub_ = ros2::createPublisher<CmdMsg>(node_, path::join(ns, tobas::topic::kJointEffCmd));
+    tar_js_eff_pub_ = ros2::createPublisher<CmdMsg>(node_, path::join(ns, topic::kJointEffCmd));
   }
 }
 
@@ -284,7 +286,7 @@ void JointCommanderWidget::onValueChanged(double value, const std::string& jnt_n
   bool jnt_found = false;
 
   switch (joint.cmd_iface) {
-    case tobas::JointCommandInterface::kPosition: {
+    case JointCommandInterface::kPosition: {
       for (auto& cmd : tar_js_pos_.commands) {
         if (cmd.name == jnt_name) {
           cmd.data = value;
@@ -300,7 +302,7 @@ void JointCommanderWidget::onValueChanged(double value, const std::string& jnt_n
 
       break;
     }
-    case tobas::JointCommandInterface::kVelocity: {
+    case JointCommandInterface::kVelocity: {
       for (auto& cmd : tar_js_vel_.commands) {
         if (cmd.name == jnt_name) {
           cmd.data = value;
@@ -316,7 +318,7 @@ void JointCommanderWidget::onValueChanged(double value, const std::string& jnt_n
 
       break;
     }
-    case tobas::JointCommandInterface::kEffort: {
+    case JointCommandInterface::kEffort: {
       for (auto& cmd : tar_js_eff_.commands) {
         if (cmd.name == jnt_name) {
           cmd.data = value;
@@ -332,7 +334,7 @@ void JointCommanderWidget::onValueChanged(double value, const std::string& jnt_n
 
       break;
     }
-    case tobas::JointCommandInterface::kNone: {
+    case JointCommandInterface::kNone: {
       break;
     }
     default: {
@@ -377,3 +379,4 @@ void JointCommanderWidget::onPublishCommandTimerTimeout()
 }
 }  // namespace sim
 }  // namespace gui
+}  // namespace tobas

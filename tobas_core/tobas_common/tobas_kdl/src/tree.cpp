@@ -4,6 +4,8 @@
 
 using namespace std;
 
+namespace tobas
+{
 namespace kdl
 {
 Tree::Tree(const string& root_name) : root_name_(root_name)
@@ -384,3 +386,4 @@ ostream& operator<<(ostream& os, const Tree& arg)
   return os;
 }
 }  // namespace kdl
+}  // namespace tobas

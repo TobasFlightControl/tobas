@@ -4,6 +4,8 @@
 
 #include <tobas_rviz_wrapper/rviz.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ub
@@ -20,3 +22,4 @@ private:
 };
 }  // namespace ub
 }  // namespace gui
+}  // namespace tobas

@@ -7,6 +7,8 @@
 
 #include "tobas_control_system/util.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -121,3 +123,4 @@ QObject* SpeedmeterWidget::getBottomTextObject() const
 }
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

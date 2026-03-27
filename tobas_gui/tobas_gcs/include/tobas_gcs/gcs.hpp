@@ -29,6 +29,8 @@
 #include "./restart_button.hpp"
 #include "./shutdown_button.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace gcs
@@ -61,7 +63,7 @@ private:
 
   uadf::Model uadf_;
   kdl::Tree tree_;
-  tobas::Drone drone_;
+  Drone drone_;
 
   ptree::PropertyClient property_client_;
   uadf::Parser uadf_parser_;
@@ -113,3 +115,4 @@ private Q_SLOTS:
 };
 }  // namespace gcs
 }  // namespace gui
+}  // namespace tobas

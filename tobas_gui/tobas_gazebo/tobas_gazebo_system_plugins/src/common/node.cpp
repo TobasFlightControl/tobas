@@ -7,6 +7,8 @@
 #define tbswarn gzwarn << "[" << name_ << "] "
 #define tbserr gzerr << "[" << name_ << "] "
 
+namespace tobas
+{
 namespace gazebo
 {
 BaseNode::BaseNode()
@@ -49,7 +51,7 @@ void BaseNode::initialize(const std::string& name, const sdf::ElementConstPtr& s
   const auto spin = [this]() { executor_->spin(); };
   spin_thread_ = std::thread(spin);
 
-  message_pub_ = createPublisher<tobas_msgs::msg::Message>(tobas::topic::kMessage);
+  message_pub_ = createPublisher<tobas_msgs::msg::Message>(topic::kMessage);
 }
 
 const std::string& BaseNode::name() const
@@ -91,3 +93,4 @@ std::string BaseNode::createID(const char* file, int line)
   return std::string(file) + ":" + std::to_string(line);
 }
 }  // namespace gazebo
+}  // namespace tobas

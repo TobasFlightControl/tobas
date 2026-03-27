@@ -2,6 +2,8 @@
 
 #include <tobas_linux/i2c_dev.hpp>
 
+namespace tobas
+{
 namespace driver
 {
 /**
@@ -185,3 +187,4 @@ private:
   int16_t compensateZ(const int16_t& mag_data_z, const uint16_t& data_r_hall);
 };
 }  // namespace driver
+}  // namespace tobas

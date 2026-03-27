@@ -5,6 +5,8 @@
 
 #include <tobas_std_tools/check.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace log
@@ -154,3 +156,4 @@ void PlaybackControlWidget::onTimerTimeout()
 }
 }  // namespace log
 }  // namespace gui
+}  // namespace tobas

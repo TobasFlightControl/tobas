@@ -15,6 +15,8 @@
 
 #include "tobas_simulation_gui/dynamic_configuration/constants.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sim
@@ -178,3 +180,4 @@ void SuspendedLoadWidget::onDetachRequested()
 }
 }  // namespace sim
 }  // namespace gui
+}  // namespace tobas

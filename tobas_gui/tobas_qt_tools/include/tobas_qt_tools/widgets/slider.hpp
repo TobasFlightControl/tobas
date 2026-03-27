@@ -2,6 +2,8 @@
 
 #include <QSlider>
 
+namespace tobas
+{
 namespace qt
 {
 /**
@@ -22,3 +24,4 @@ protected:
   void wheelEvent(QWheelEvent* event) override;
 };
 }  // namespace qt
+}  // namespace tobas

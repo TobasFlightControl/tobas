@@ -1,5 +1,7 @@
 #include "tobas_linux/error.hpp"
 
+namespace tobas
+{
 namespace linux
 {
 std::string strError(int error_number)
@@ -7,3 +9,4 @@ std::string strError(int error_number)
   return "[Errno " + std::to_string(error_number) + "] " + strerror(error_number);
 }
 }  // namespace linux
+}  // namespace tobas

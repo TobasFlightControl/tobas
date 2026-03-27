@@ -6,6 +6,8 @@
 
 #include "tobas_qt_tools/path.hpp"
 
+namespace tobas
+{
 namespace qt
 {
 PasswordEdit::PasswordEdit(QWidget* parent) : super(parent)
@@ -52,3 +54,4 @@ void PasswordEdit::onIconToggled(bool on)
   setCursorPosition(cursor_pos);
 }
 }  // namespace qt
+}  // namespace tobas

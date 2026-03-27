@@ -12,9 +12,9 @@ struct PosVelAccYaw
 {
   std_msgs::msg::Header header;
   tobas_command_msgs::msg::Priority priority;
-  kdl::Vector pos;
-  kdl::Vector vel;
-  kdl::Vector acc;
+  tobas::kdl::Vector pos;
+  tobas::kdl::Vector vel;
+  tobas::kdl::Vector acc;
   double yaw;
 
   using SharedPtr = std::shared_ptr<PosVelAccYaw>;

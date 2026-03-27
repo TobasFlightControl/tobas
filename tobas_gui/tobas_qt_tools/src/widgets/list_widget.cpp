@@ -4,6 +4,8 @@
 #include <QDropEvent>
 #include <QVariant>
 
+namespace tobas
+{
 namespace qt
 {
 bool ListWidget::contains(const QString& text) const
@@ -60,3 +62,4 @@ bool ListWidgetItem::operator<(const QListWidgetItem& rhs) const
   return ldata.toString() < rdata.toString();
 }
 }  // namespace qt
+}  // namespace tobas

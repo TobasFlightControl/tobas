@@ -4,6 +4,8 @@
 
 namespace fs = std::filesystem;
 
+namespace tobas
+{
 namespace gui
 {
 namespace gcs
@@ -19,3 +21,4 @@ fs::path getResourceDir()
 }
 }  // namespace gcs
 }  // namespace gui
+}  // namespace tobas

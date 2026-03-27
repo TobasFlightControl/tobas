@@ -4,6 +4,8 @@
 
 #include <tobas_qt_tools/widgets/label.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -110,3 +112,4 @@ void StatusViewerWidget::healthCb(const tobas_msgs::msg::VehicleHealth::ConstSha
 }
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

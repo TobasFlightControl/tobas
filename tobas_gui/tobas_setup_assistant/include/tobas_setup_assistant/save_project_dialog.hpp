@@ -6,6 +6,8 @@
 
 #include <tobas_qt_tools/widgets/label.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -33,3 +35,4 @@ private Q_SLOTS:
 };
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

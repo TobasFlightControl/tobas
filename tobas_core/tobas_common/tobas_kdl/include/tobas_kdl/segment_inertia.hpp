@@ -3,6 +3,8 @@
 #include "./accel.hpp"
 #include "./wrench.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 /**
@@ -34,3 +36,4 @@ inline SegmentInertia SegmentInertia::Zero()
   return SegmentInertia(Vector::Zero(), Vector::Zero());
 }
 }  // namespace kdl
+}  // namespace tobas

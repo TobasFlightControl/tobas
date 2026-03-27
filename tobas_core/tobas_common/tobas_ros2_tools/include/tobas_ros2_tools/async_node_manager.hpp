@@ -2,6 +2,8 @@
 
 #include <rclcpp/rclcpp.hpp>
 
+namespace tobas
+{
 namespace ros2
 {
 /**
@@ -22,3 +24,4 @@ private:
   std::unique_ptr<std::thread> executor_thread_;
 };
 }  // namespace ros2
+}  // namespace tobas

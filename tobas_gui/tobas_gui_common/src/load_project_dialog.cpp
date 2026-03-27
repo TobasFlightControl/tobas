@@ -5,6 +5,8 @@
 
 #include "tobas_gui_common/constants.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace cmn
@@ -40,3 +42,4 @@ void LoadProjectDialog::onItemActivated(const QModelIndex& index)
 }
 }  // namespace cmn
 }  // namespace gui
+}  // namespace tobas

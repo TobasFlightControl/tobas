@@ -5,6 +5,8 @@
 #include "./jacobian.hpp"
 #include "./jntarray.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 /**
@@ -53,3 +55,4 @@ inline const Jacobian& ChainJacobianSolver::getJacobian() const
   return J_out_;
 }
 }  // namespace kdl
+}  // namespace tobas

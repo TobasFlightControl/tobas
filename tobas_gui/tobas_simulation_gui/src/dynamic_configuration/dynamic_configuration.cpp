@@ -6,6 +6,8 @@
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sim
@@ -55,3 +57,4 @@ void DynamicConfigWidget::reset()
 }
 }  // namespace sim
 }  // namespace gui
+}  // namespace tobas

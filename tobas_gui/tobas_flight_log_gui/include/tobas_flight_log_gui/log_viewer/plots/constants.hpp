@@ -2,6 +2,8 @@
 
 #include <qnamespace.h>
 
+namespace tobas
+{
 namespace gui
 {
 namespace log
@@ -15,3 +17,4 @@ static constexpr Qt::GlobalColor kFilteredValueColor = Qt::cyan;
 static constexpr Qt::GlobalColor kColorXYZ[] = { Qt::red, Qt::green, Qt::blue };
 }  // namespace log
 }  // namespace gui
+}  // namespace tobas

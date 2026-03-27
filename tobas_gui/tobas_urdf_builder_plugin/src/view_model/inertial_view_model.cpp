@@ -4,6 +4,8 @@
 
 #include <tobas_math/core.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ub
@@ -14,12 +16,12 @@ void InertialViewModel::sync()
 {
 }
 
-const urdf::Pose& InertialViewModel::origin() const
+const ::urdf::Pose& InertialViewModel::origin() const
 {
   return model_->origin;
 }
 
-void InertialViewModel::origin(const urdf::Pose& origin)
+void InertialViewModel::origin(const ::urdf::Pose& origin)
 {
   model_->origin = origin;
 }
@@ -97,3 +99,4 @@ void InertialViewModel::buildInertiaSphere(double radius)
 }  // namespace view_model
 }  // namespace ub
 }  // namespace gui
+}  // namespace tobas

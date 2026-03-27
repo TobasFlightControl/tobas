@@ -10,7 +10,7 @@ namespace tobas_msgs
 struct MagneticField
 {
   std_msgs::msg::Header header;
-  kdl::Vector mag;
+  tobas::kdl::Vector mag;
 
   using SharedPtr = std::shared_ptr<MagneticField>;
   using ConstSharedPtr = std::shared_ptr<const MagneticField>;

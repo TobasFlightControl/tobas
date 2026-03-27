@@ -5,6 +5,8 @@
 
 #include "./declare.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 class RosQtBridge : public QObject
@@ -58,3 +60,4 @@ private:
   void addScoped(const std::string& ns, const std::string& topic);
 };
 }  // namespace gui
+}  // namespace tobas

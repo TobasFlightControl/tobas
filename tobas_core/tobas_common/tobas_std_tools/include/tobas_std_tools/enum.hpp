@@ -3,7 +3,9 @@
 #include <cstring>
 #include <typeinfo>
 
-namespace tbs
+namespace tobas
+{
+namespace st
 {
 /* Pythonのenum.Enumを模したクラス．列挙型の番号と名前を対応付けることができる． */
 struct NamedEnum
@@ -25,10 +27,11 @@ struct NamedEnum
     return typeid(*this) == typeid(other) && std::strcmp(name, other.name) == 0 && value == other.value;
   }
 };
-}  // namespace tbs
+}  // namespace st
+}  // namespace tobas
 
 #define DEFINE_NAMED_ENUM(Derived)                                                                                     \
-  struct Derived : public tbs::NamedEnum                                                                               \
+  struct Derived : public st::NamedEnum                                                                                \
   {                                                                                                                    \
-    using tbs::NamedEnum::NamedEnum;                                                                                   \
+    using st::NamedEnum::NamedEnum;                                                                                    \
   };

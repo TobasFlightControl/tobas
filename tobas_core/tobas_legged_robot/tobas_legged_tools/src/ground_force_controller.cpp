@@ -8,6 +8,8 @@
 using namespace std;
 using namespace Eigen;
 
+namespace tobas
+{
 namespace lr_tools
 {
 GroundForceController::GroundForceController(const kdl::Tree& tree, const vector<string>& foot_names)
@@ -95,7 +97,7 @@ bool GroundForceController::solve(
   const vector<vector<bool>>& is_stand_pred)
 {
   assert(q_pred.size() == static_cast<size_t>(mpc_.prediction_steps));
-  assert(tbs::allOf(q_pred, [this](const kdl::JntArray& q) { return q.size() == tree_.getNrOfJoints(); }));
+  assert(st::allOf(q_pred, [this](const kdl::JntArray& q) { return q.size() == tree_.getNrOfJoints(); }));
   assert(roll_pred.size() == static_cast<size_t>(mpc_.prediction_steps));
   assert(pitch_pred.size() == static_cast<size_t>(mpc_.prediction_steps));
   assert(is_stand_pred.size() == static_cast<size_t>(mpc_.prediction_steps));
@@ -109,7 +111,7 @@ bool GroundForceController::solve(
 
   // Update current state
   mpc_.current_state << roll_pred.front(), pitch_pred.front(), cur_z, cur_gyro.x(), cur_gyro.y(), cur_gyro.z(),
-    cur_vel.x(), cur_vel.y(), cur_vel.z(), tbs::kGravity;
+    cur_vel.x(), cur_vel.y(), cur_vel.z(), st::kGravity;
 
   // Update set state
   mpc_.set_state << 0, 0, tar_z, 0, 0, tar_yawrate, tar_vx, tar_vy, 0;
@@ -138,12 +140,12 @@ void GroundForceController::initializeMPC()
   const double rpy_sc = M_PI;
   const double size_sc = calcSizeScale();
   const double gyro_sc = M_PI;
-  const double vel_sc = sqrt(tbs::kGravity * size_sc);  // フルード数の定義を元に決定
+  const double vel_sc = sqrt(st::kGravity * size_sc);  // フルード数の定義を元に決定
   mpc_.state_scale.resize(cont_.stateSize());
   mpc_.input_scale.resize(cont_.inputSize());
   mpc_.control_scale.resize(kCtrlSize);
-  mpc_.state_scale << rpy_sc, rpy_sc, size_sc, gyro_sc, gyro_sc, gyro_sc, vel_sc, vel_sc, vel_sc, tbs::kGravity;
-  mpc_.input_scale.fill(calcMass() * tbs::kGravity / nc_);  // TODO: 力とトルクでスケールを分ける
+  mpc_.state_scale << rpy_sc, rpy_sc, size_sc, gyro_sc, gyro_sc, gyro_sc, vel_sc, vel_sc, vel_sc, st::kGravity;
+  mpc_.input_scale.fill(calcMass() * st::kGravity / nc_);  // TODO: 力とトルクでスケールを分ける
   mpc_.control_scale << rpy_sc, rpy_sc, size_sc, gyro_sc, gyro_sc, gyro_sc, vel_sc, vel_sc, vel_sc;
 
   mpc_.current_state.resize(cont_.stateSize());
@@ -191,3 +193,4 @@ ctrl::LinearEquation GroundForceController::makeInputConstraint()
   return ctrl::LinearEquation(F, f);
 }
 }  // namespace lr_tools
+}  // namespace tobas

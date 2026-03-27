@@ -1,5 +1,7 @@
 #include "tobas_urdf_builder_plugin/view_model/joint_limits_view_model.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace ub
@@ -52,3 +54,4 @@ void JointLimitsViewModel::velocity(double velocity)
 }  // namespace view_model
 }  // namespace ub
 }  // namespace gui
+}  // namespace tobas

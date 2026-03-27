@@ -2,6 +2,8 @@
 
 #include "./slider.hpp"
 
+namespace tobas
+{
 namespace qt
 {
 class DoubleSlider : public Slider
@@ -42,3 +44,4 @@ private:
   double valueFromSlider(int slider_value) const;
 };
 }  // namespace qt
+}  // namespace tobas

@@ -3,6 +3,8 @@
 #include <tobas_string_tools/stream.hpp>
 #include <tobas_xml_tools/core.hpp>
 
+namespace tobas
+{
 namespace uadf
 {
 Parser::Parser()
@@ -119,3 +121,4 @@ const std::string& Parser::errorMessage() const
   return error_msg_;
 }
 }  // namespace uadf
+}  // namespace tobas

@@ -2,6 +2,8 @@
 
 #include "./base.hpp"
 
+namespace tobas
+{
 namespace traj
 {
 /* 直線軌道生成 */
@@ -18,3 +20,4 @@ private:
   double v_;
 };
 }  // namespace traj
+}  // namespace tobas

@@ -3,6 +3,8 @@
 #include <tobas_path_tools/join.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
 
+namespace tobas
+{
 namespace dparam
 {
 class DynamicParamClient
@@ -60,3 +62,4 @@ DynamicParamClient::Error DynamicParamClient::setParam(const std::string& param_
   return error_code_ = kNoError;
 }
 }  // namespace dparam
+}  // namespace tobas

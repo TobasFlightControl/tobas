@@ -2,6 +2,8 @@
 
 using namespace std;
 
+namespace tobas
+{
 namespace kdl
 {
 ChainFkSolverPos::ChainFkSolverPos(const Chain& chain) : super(chain)
@@ -34,3 +36,4 @@ int ChainFkSolverPos::jntToCart(const JntArray& q_in, int _seg_nr)
   return setDefaultError(kNoError);
 }
 }  // namespace kdl
+}  // namespace tobas

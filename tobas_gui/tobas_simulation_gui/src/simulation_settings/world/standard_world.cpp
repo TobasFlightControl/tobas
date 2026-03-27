@@ -5,6 +5,8 @@
 
 namespace fs = std::filesystem;
 
+namespace tobas
+{
 namespace gui
 {
 namespace sim
@@ -43,3 +45,4 @@ fs::path WorldWidget_Standard::worldDirectoryPath()
 }
 }  // namespace sim
 }  // namespace gui
+}  // namespace tobas

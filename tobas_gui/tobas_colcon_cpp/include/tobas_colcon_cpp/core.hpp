@@ -6,6 +6,8 @@
 
 #include <tobas_linux/command_executor.hpp>
 
+namespace tobas
+{
 namespace colcon
 {
 class Colcon
@@ -42,3 +44,4 @@ private:
   static std::filesystem::path logBase(const std::filesystem::path& ws_path);
 };
 }  // namespace colcon
+}  // namespace tobas

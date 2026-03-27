@@ -6,6 +6,8 @@
 #include <tobas_qt_tools/font.hpp>
 #include <tobas_qt_tools/util.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -67,3 +69,4 @@ void BaseSettingWidget::initialize()
 }
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

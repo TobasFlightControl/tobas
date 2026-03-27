@@ -8,6 +8,8 @@
 
 using namespace std;
 
+namespace tobas
+{
 namespace math
 {
 double solveLinearEquation(double a, double b)
@@ -55,3 +57,4 @@ tuple<complex<double>, complex<double>, complex<double>> solveCubicEquation(doub
   return { x1, x2, x3 };
 }
 }  // namespace math
+}  // namespace tobas

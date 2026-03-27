@@ -35,6 +35,8 @@
 namespace ch = std::chrono;
 namespace cmp = gz::sim::components;
 
+namespace tobas
+{
 namespace gazebo
 {
 /* Simulates ESC, rotor and propeller. */
@@ -385,8 +387,8 @@ void GazeboElectricPropulsionSystemPlugin::updateJointState(gz::sim::EntityCompo
   const auto b = param_.resistance * param_.kv * param_.moment_const * param_.motor_const;
   const auto c = 1. / param_.kv;
 
-  const auto Ea = battery_gt_->voltage * throt_;                                            // 印加電圧
-  const auto eq_speed = Ea == 0. ? 0. : (sqrt(::math::sqr(c) + 4 * b * Ea) - c) / (2 * b);  // 平衡点での回転数
+  const auto Ea = battery_gt_->voltage * throt_;                                          // 印加電圧
+  const auto eq_speed = Ea == 0. ? 0. : (sqrt(math::sqr(c) + 4 * b * Ea) - c) / (2 * b);  // 平衡点での回転数
 
   const auto cur_speed = std::max(param_.direction * vel_, 0.);
 
@@ -433,10 +435,10 @@ void GazeboElectricPropulsionSystemPlugin::throttleCmdCb(const tobas_gazebo_msgs
   last_cmd_time_ = prev_sim_time_;
 
   // 範囲を制限してスロットルを更新
-  if (throttle->data < tobas::kMinThrot - kThrotLimitMargin || tobas::kMaxThrot + kThrotLimitMargin < throttle->data) {
+  if (throttle->data < kMinThrot - kThrotLimitMargin || kMaxThrot + kThrotLimitMargin < throttle->data) {
     TOBAS_ERROR("The commanded throttle ", throttle->data, " is out of range.");
   }
-  throt_ = std::clamp(throttle->data, tobas::kMinThrot, tobas::kMaxThrot);
+  throt_ = std::clamp(throttle->data, kMinThrot, kMaxThrot);
 }
 
 void GazeboElectricPropulsionSystemPlugin::batteryGtCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery_gt)
@@ -465,9 +467,10 @@ void GazeboElectricPropulsionSystemPlugin::breakCb(
   res->success = true;
 }
 }  // namespace gazebo
+}  // namespace tobas
 
 GZ_ADD_PLUGIN(
-  gazebo::GazeboElectricPropulsionSystemPlugin,
+  tobas::gazebo::GazeboElectricPropulsionSystemPlugin,
   gz::sim::System,
-  gazebo::GazeboElectricPropulsionSystemPlugin::ISystemConfigure,
-  gazebo::GazeboElectricPropulsionSystemPlugin::ISystemPreUpdate)
+  gz::sim::ISystemConfigure,
+  gz::sim::ISystemPreUpdate)

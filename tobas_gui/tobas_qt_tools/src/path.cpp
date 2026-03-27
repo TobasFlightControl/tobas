@@ -10,6 +10,8 @@
 
 namespace fs = std::filesystem;
 
+namespace tobas
+{
 namespace qt
 {
 QString getResourcePath()
@@ -81,3 +83,4 @@ std::expected<QString, QString> writeTimestampedFile(
   return path;
 }
 }  // namespace qt
+}  // namespace tobas

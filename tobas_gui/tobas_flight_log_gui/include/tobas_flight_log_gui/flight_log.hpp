@@ -5,6 +5,8 @@
 #include "./logs_gcs/logs_widget.hpp"
 #include "./recorder/recorder.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace log
@@ -35,3 +37,4 @@ private Q_SLOTS:
 };
 }  // namespace log
 }  // namespace gui
+}  // namespace tobas

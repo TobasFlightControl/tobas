@@ -7,6 +7,8 @@
 using namespace std;
 using namespace Eigen;
 
+namespace tobas
+{
 namespace lr_tools
 {
 StateEstimator::StateEstimator(const kdl::Tree& tree, const vector<string>& foot_names)
@@ -107,7 +109,7 @@ void StateEstimator::update(
   kf_.y.segment<3>(kGyroIdx) = gyro_FP.data;
 
   // 重力
-  kf_.y(kGravIdx) = tbs::kGravity;
+  kf_.y(kGravIdx) = st::kGravity;
 
   for (size_t l = 0; l < nc_; ++l) {
     if (is_stand[l]) {
@@ -154,7 +156,7 @@ void StateEstimator::initializeKalmanFilter()
   kf_.Q.diagonal().fill(EPS);
 
   VectorXd init_x(cont_.stateSize());
-  init_x << 0, 0, kInitTrunkHeight, 0, 0, 0, 0, 0, 0, tbs::kGravity;  // FIXME: 胴体高さの初期値を推定
+  init_x << 0, 0, kInitTrunkHeight, 0, 0, 0, 0, 0, 0, st::kGravity;  // FIXME: 胴体高さの初期値を推定
   kf_.initialize(init_x, MatrixXd::Identity(cont_.stateSize(), cont_.stateSize()));
 }
 
@@ -185,3 +187,4 @@ MatrixXd StateEstimator::makeCy()
   return Cy;
 }
 }  // namespace lr_tools
+}  // namespace tobas

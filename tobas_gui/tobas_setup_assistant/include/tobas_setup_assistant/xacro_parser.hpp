@@ -4,6 +4,8 @@
 
 #include <tobas_linux/command_executor.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -23,3 +25,4 @@ private:
 };
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

@@ -20,6 +20,8 @@
 
 namespace fs = std::filesystem;
 
+namespace tobas
+{
 namespace gui
 {
 namespace sim
@@ -147,7 +149,7 @@ bool SimulationWidget::startSITL()
     }
     else {
       const auto log_path =
-        qt::writeTimestampedFile(error_msg + '\n', qt::expandUser(tobas::kGuiLogDir), "", "builderr_local");
+        qt::writeTimestampedFile(error_msg + '\n', qt::expandUser(kGuiLogDir), "", "builderr_local");
       if (log_path) {
         qt::qErrorBox(this, "Failed to build the Tobas project. The output has been saved to:\n" + log_path.value());
       }
@@ -286,7 +288,7 @@ bool SimulationWidget::startHITL()
   progress.setLabelText("Sending the Tobas project to the flight controller.");
   const auto& proj_path = proj_paths_.getProjPath();
   const auto mesh_path = proj_paths_.cfgMeshDirPath();
-  const auto remote_dir = fs::path(tobas::kColconWSPathRoot) / "src/";
+  const auto remote_dir = fs::path(kColconWSPathRoot) / "src/";
   if (ssh_client_.scpPut(proj_path, remote_dir, true, { mesh_path }, true) != ssh::SshClient::kNoError) {
     qt::qErrorBox(this, "Failed to send Tobas project:\n\n" + QString(ssh_client_.errorMessage()));
     progress.close();
@@ -507,3 +509,4 @@ void SimulationWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& a
 }
 }  // namespace sim
 }  // namespace gui
+}  // namespace tobas

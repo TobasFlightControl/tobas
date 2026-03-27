@@ -3,6 +3,8 @@
 #include "./tree_fk_solver_pos.hpp"
 #include "./tree_solver_i.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 class TreeJointAxisSolver : public TreeSolverI
@@ -30,3 +32,4 @@ inline const Vector& TreeJointAxisSolver::getAxis() const
   return axis_out_;
 }
 }  // namespace kdl
+}  // namespace tobas

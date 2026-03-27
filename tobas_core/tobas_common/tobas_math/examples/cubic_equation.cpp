@@ -16,7 +16,7 @@ int main(int argc, char** argv)
   const auto c = stod(argv[3]);
   const auto d = stod(argv[4]);
 
-  const auto [x1, x2, x3] = math::solveCubicEquation(a, b, c, d);
+  const auto [x1, x2, x3] = tobas::math::solveCubicEquation(a, b, c, d);
   cout << a << " x^3 + " << b << " x^2 + " << c << " x + " << d << " = 0 <=> x = " << x1 << ", " << x2 << ", " << x3
        << endl;
 }

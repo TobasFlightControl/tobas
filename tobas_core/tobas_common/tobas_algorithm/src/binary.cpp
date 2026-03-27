@@ -2,6 +2,8 @@
 
 #include <cmath>
 
+namespace tobas
+{
 namespace algo
 {
 std::float16_t decodeR16(uint16_t bin)
@@ -20,3 +22,4 @@ std::float32_t decodeR32(uint32_t bin)
   return std::ldexp(static_cast<std::float32_t>(sign * mantissa), exponent - 150);
 }
 }  // namespace algo
+}  // namespace tobas

@@ -5,6 +5,8 @@
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -42,19 +44,19 @@ QString YAxisTiltMulticopterWidget::pluginName() const
   return "tobas::y_axis_tilt_multicopter::ControllerNode";
 }
 
-tobas::RcCommand YAxisTiltMulticopterWidget::acrobatModeCommand() const
+RcCommand YAxisTiltMulticopterWidget::acrobatModeCommand() const
 {
-  return tobas::RcCommand::kRateThrottleVector;
+  return RcCommand::kRateThrottleVector;
 }
 
-tobas::RcCommand YAxisTiltMulticopterWidget::stabilizeModeCommand() const
+RcCommand YAxisTiltMulticopterWidget::stabilizeModeCommand() const
 {
-  return tobas::RcCommand::kAccelPitchYaw;
+  return RcCommand::kAccelPitchYaw;
 }
 
-tobas::RcCommand YAxisTiltMulticopterWidget::loiterModeCommand() const
+RcCommand YAxisTiltMulticopterWidget::loiterModeCommand() const
 {
-  return tobas::RcCommand::kPosVelAccPitchYaw;
+  return RcCommand::kPosVelAccPitchYaw;
 }
 
 YAML::Node YAxisTiltMulticopterWidget::staticParams() const
@@ -90,3 +92,4 @@ bool YAxisTiltMulticopterWidget::isValid()
 }  // namespace ctrl
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

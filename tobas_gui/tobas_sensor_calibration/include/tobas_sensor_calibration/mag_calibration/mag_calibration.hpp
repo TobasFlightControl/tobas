@@ -9,6 +9,8 @@
 #include "../base.hpp"
 #include "./base.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sc
@@ -43,3 +45,4 @@ private:
 };
 }  // namespace sc
 }  // namespace gui
+}  // namespace tobas

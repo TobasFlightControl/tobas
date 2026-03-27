@@ -2,6 +2,8 @@
 
 using namespace gz::sim;
 
+namespace tobas
+{
 namespace gazebo
 {
 ModelMassHolder::ModelMassHolder()
@@ -29,3 +31,4 @@ bool ModelMassHolder::initialize(const gz::sim::Entity& model, const gz::sim::En
   return true;
 }
 }  // namespace gazebo
+}  // namespace tobas

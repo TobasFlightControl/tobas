@@ -5,11 +5,13 @@
 
 #include "./base.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
 {
-class ParamGetterWidget_DoubleRange : public ParamGetterWidget<tbs::Range<double>>
+class ParamGetterWidget_DoubleRange : public ParamGetterWidget<st::Range<double>>
 {
   Q_OBJECT
 
@@ -45,3 +47,4 @@ private:
 };
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

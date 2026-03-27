@@ -7,6 +7,8 @@
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/constants.hpp"
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/aerodynamics/util.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -92,3 +94,4 @@ double AerodynamicsWidget_ThrustStand::momentConst() const
 }  // namespace propulsion
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

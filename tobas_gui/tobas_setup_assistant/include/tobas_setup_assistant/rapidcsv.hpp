@@ -4,6 +4,8 @@
 
 #include <rapidcsv.h>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -28,3 +30,4 @@ bool getColumn(const rapidcsv::Document& doc, const std::string& name, std::vect
 }  // namespace csv
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

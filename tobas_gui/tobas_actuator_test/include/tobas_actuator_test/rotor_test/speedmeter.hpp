@@ -2,6 +2,8 @@
 
 #include <QtQuickWidgets/QQuickWidget>
 
+namespace tobas
+{
 namespace gui
 {
 namespace at
@@ -31,3 +33,4 @@ private:
 };
 }  // namespace at
 }  // namespace gui
+}  // namespace tobas

@@ -24,6 +24,8 @@
 
 #include "./message_decoder.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace log
@@ -83,3 +85,4 @@ private:
 };
 }  // namespace log
 }  // namespace gui
+}  // namespace tobas

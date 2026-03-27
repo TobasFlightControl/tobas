@@ -4,6 +4,8 @@
 #include <tobas_std_tools/unit_conversions.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -96,7 +98,7 @@ int MotorWidget::numPoles() const
 
 double MotorWidget::kv() const
 {
-  return tbs::rpm2rps(kv_->getValue());
+  return st::rpm2rps(kv_->getValue());
 }
 
 double MotorWidget::internalResistance() const
@@ -106,9 +108,10 @@ double MotorWidget::internalResistance() const
 
 double MotorWidget::minimumSpeed() const
 {
-  return tbs::rpm2rps(min_speed_->getValue());
+  return st::rpm2rps(min_speed_->getValue());
 }
 }  // namespace electric
 }  // namespace propulsion
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

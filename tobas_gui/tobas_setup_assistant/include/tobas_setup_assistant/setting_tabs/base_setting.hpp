@@ -9,6 +9,8 @@
 
 #include "../param_getters/base.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -58,3 +60,4 @@ private Q_SLOTS:
 };
 };  // namespace sa
 }  // namespace gui
+}  // namespace tobas

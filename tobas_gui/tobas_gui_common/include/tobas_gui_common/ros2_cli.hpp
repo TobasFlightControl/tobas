@@ -6,6 +6,8 @@
 #include <map>
 #include <string>
 
+namespace tobas
+{
 namespace gui
 {
 namespace cmn
@@ -17,3 +19,4 @@ pid_t rosrun(const std::string& pkg, const std::string& exec, const std::string&
 pid_t roslaunch(const std::string& pkg, const std::string& name, const std::map<std::string, std::string>& args = {});
 }  // namespace cmn
 }  // namespace gui
+}  // namespace tobas

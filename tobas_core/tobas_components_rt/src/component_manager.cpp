@@ -3,7 +3,7 @@
 #include <class_loader/class_loader.hpp>
 #include <rclcpp_components/component_manager.hpp>
 
-namespace ros2
+namespace tobas
 {
 namespace
 {
@@ -56,4 +56,4 @@ ThreadSafeComponentManager::create_component_factory(const ComponentResource& re
 
   return {};
 }
-}  // namespace ros2
+}  // namespace tobas

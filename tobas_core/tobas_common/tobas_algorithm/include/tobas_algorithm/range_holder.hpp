@@ -2,6 +2,8 @@
 
 #include <limits>
 
+namespace tobas
+{
 namespace algo
 {
 /* Stores the minimum value. */
@@ -110,3 +112,4 @@ private:
   MaximumHolder<T> max_;
 };
 }  // namespace algo
+}  // namespace tobas

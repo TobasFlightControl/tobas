@@ -1,5 +1,7 @@
 #pragma once
 
+namespace tobas
+{
 namespace gui
 {
 namespace ub
@@ -11,3 +13,4 @@ static constexpr bool kDefaultCollisionVisible = true;
 static constexpr bool kDefaultInertiaVisible = false;
 }  // namespace ub
 }  // namespace gui
+}  // namespace tobas

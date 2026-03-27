@@ -5,6 +5,8 @@
 
 #include <tobas_qt_tools/widgets/label.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -61,3 +63,4 @@ void StatusWidget::setStatus(bool ok)
 }
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

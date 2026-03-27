@@ -5,6 +5,8 @@
 #include <QEventLoop>
 #include <QTimer>
 
+namespace tobas
+{
 namespace qt
 {
 void processAllQueuedEvents()
@@ -21,3 +23,4 @@ void processAllQueuedEvents()
   QCoreApplication::processEvents();
 }
 }  // namespace qt
+}  // namespace tobas

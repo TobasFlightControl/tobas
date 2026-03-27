@@ -6,7 +6,7 @@
 
 #include <tobas_linux/types.hpp>
 
-namespace ros2
+namespace tobas
 {
 class MultiComponentManagers
 {
@@ -32,4 +32,4 @@ private:
   const size_t num_managers_;
   std::vector<ManagerConfig> configs_;
 };
-}  // namespace ros2
+}  // namespace tobas

@@ -12,6 +12,10 @@
 
 using namespace std::chrono_literals;
 
+namespace tobas
+{
+namespace fc1xx
+{
 class ImuDriverNode : public hardware::BaseSensorNode
 {
   static constexpr char kSpiDevice[] = "/dev/spidev0.0";
@@ -34,7 +38,7 @@ private:
 
   ros2::PublisherPtr<tobas_msgs::Imu> imu_raw_pub_;
   ros2::PublisherPtr<tobas_msgs::Imu> imu_filt_pub_;
-  tobas::ImuSamplingTimePublisher sampling_time_pub_;
+  ImuSamplingTimePublisher sampling_time_pub_;
 
   ros2::ServiceServerPtr<tobas_msgs::srv::ConfigureImuFilter> config_ss_;
 
@@ -59,7 +63,7 @@ ImuDriverNode::ImuDriverNode(const rclcpp::NodeOptions& options)
   gyro_lpf_.setValue(kdl::Vector::Zero());
   dgyro_lpf_.setValue(kdl::Vector::Zero());
 
-  initialize_timer_ = createWallTimer(fc1xx::kRetryInitializationInterval, &self::initializeTimerCb, this);
+  initialize_timer_ = createWallTimer(kRetryInitializationInterval, &self::initializeTimerCb, this);
 }
 
 bool ImuDriverNode::initializeImuDriver()
@@ -128,12 +132,12 @@ void ImuDriverNode::initializeTimerCb()
     return;
   }
 
-  imu_raw_pub_ = createPublisher<tobas_msgs::Imu>(real::topic::kImuRaw);
-  imu_filt_pub_ = createPublisher<tobas_msgs::Imu>(real::topic::kImuFilt);
+  imu_raw_pub_ = createPublisher<tobas_msgs::Imu>(topic::kImuRaw);
+  imu_filt_pub_ = createPublisher<tobas_msgs::Imu>(topic::kImuFilt);
   sampling_time_pub_.initialize(shared_from_this(), now());
 
-  config_ss_ = createService<tobas_msgs::srv::ConfigureImuFilter>(
-    tobas::service::kConfigureImuFilter, &self::configureImuFilterCb, this);
+  config_ss_ =
+    createService<tobas_msgs::srv::ConfigureImuFilter>(service::kConfigureImuFilter, &self::configureImuFilterCb, this);
 
   initialize_timer_->cancel();
   main_timer_ = createWallTimer(kSamplingPeriod, &self::mainTimerCb, this);
@@ -193,5 +197,7 @@ void ImuDriverNode::mainTimerCb()
   // Publish sampling time
   sampling_time_pub_.publish(cur_time);
 }
+}  // namespace fc1xx
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(ImuDriverNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::fc1xx::ImuDriverNode)

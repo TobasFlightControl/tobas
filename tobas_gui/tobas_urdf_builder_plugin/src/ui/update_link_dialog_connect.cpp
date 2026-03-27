@@ -2,6 +2,8 @@
 
 #include "ui_update_link_dialog.h"
 
+namespace tobas
+{
 namespace gui
 {
 namespace ub
@@ -356,3 +358,4 @@ void UpdateLinkDialog::defineConnections()
 }  // namespace ui
 }  // namespace ub
 }  // namespace gui
+}  // namespace tobas

@@ -4,6 +4,8 @@
 
 using namespace gz::math;
 
+namespace tobas
+{
 namespace gazebo
 {
 void vectorGazeboToKDL(const gz::math::Vector3d& g, kdl::Vector& k)
@@ -55,3 +57,4 @@ void poseKDLToGazebo(const kdl::Frame& k, gz::math::Pose3d& g)
   rotationKDLToGazebo(k.M, g.Rot());
 }
 }  // namespace gazebo
+}  // namespace tobas

@@ -4,6 +4,8 @@
 #include "./jntarray.hpp"
 #include "./tree_solver_i.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 /* 全てのフレームの位置を一度に計算する． */
@@ -37,3 +39,4 @@ inline const FrameMap& TreeFkSolverPosAll::getFrames() const
   return frames_;
 }
 }  // namespace kdl
+}  // namespace tobas

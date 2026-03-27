@@ -5,6 +5,8 @@
 #include "tobas_setup_assistant/param_getters/int_range.hpp"
 #include "tobas_setup_assistant/param_getters/spin_box.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -43,7 +45,7 @@ public:
   double pitchAngleNeutoral() const;
 
   /* Variable pitch angle limit around the neutoral position [rad] */
-  tbs::Range<double> pitchAngleLimit() const;
+  st::Range<double> pitchAngleLimit() const;
 
   /* Maximum pitch angle rate [rad/s] */
   double maxPitchAngleRate() const;
@@ -70,3 +72,4 @@ private:
 }  // namespace propulsion
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

@@ -14,6 +14,8 @@
 namespace ch = std::chrono;
 namespace cmp = gz::sim::components;
 
+namespace tobas
+{
 namespace gazebo
 {
 class GazeboJointEffortControllerPlugin : public BaseNode,
@@ -111,9 +113,10 @@ void GazeboJointEffortControllerPlugin::commandCb(const tobas_gazebo_msgs::msg::
   tar_eff_ = cmd->data;
 }
 }  // namespace gazebo
+}  // namespace tobas
 
 GZ_ADD_PLUGIN(
-  gazebo::GazeboJointEffortControllerPlugin,
+  tobas::gazebo::GazeboJointEffortControllerPlugin,
   gz::sim::System,
-  gazebo::GazeboJointEffortControllerPlugin::ISystemConfigure,
-  gazebo::GazeboJointEffortControllerPlugin::ISystemPreUpdate)
+  gz::sim::ISystemConfigure,
+  gz::sim::ISystemPreUpdate)

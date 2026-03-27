@@ -4,6 +4,8 @@
 #include <tobas_qt_tools/widgets/description_widget.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -88,3 +90,4 @@ QString RemoteConnectionWidget::host() const
 }  // namespace rc
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

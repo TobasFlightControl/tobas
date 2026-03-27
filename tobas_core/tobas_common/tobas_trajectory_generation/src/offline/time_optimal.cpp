@@ -9,6 +9,8 @@
 
 #define EPS 1e-6  // 小さすぎると永久に収束しない恐れがある
 
+namespace tobas
+{
 namespace traj
 {
 TimeOptimalTrajectory::TimeOptimalTrajectory(double p0, double pf, double max_jerk, double max_acc, double max_vel)
@@ -142,3 +144,4 @@ double TimeOptimalTrajectory::a(double t) const noexcept
   }
 }
 }  // namespace traj
+}  // namespace tobas

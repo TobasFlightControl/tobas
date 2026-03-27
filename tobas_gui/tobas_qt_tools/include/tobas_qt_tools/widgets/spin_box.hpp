@@ -2,6 +2,8 @@
 
 #include <QSpinBox>
 
+namespace tobas
+{
 namespace qt
 {
 /**
@@ -24,3 +26,4 @@ protected:
   void focusInEvent(QFocusEvent* event) override;
 };
 }  // namespace qt
+}  // namespace tobas

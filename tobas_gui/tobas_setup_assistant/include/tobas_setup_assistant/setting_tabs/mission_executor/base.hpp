@@ -3,6 +3,8 @@
 #include <yaml-cpp/yaml.h>
 #include <QWidget>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -29,3 +31,4 @@ public:
 }  // namespace mission
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

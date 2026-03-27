@@ -3,6 +3,8 @@
 #include "./base_pose_commander.hpp"
 #include "./joint_commander.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sim
@@ -19,7 +21,7 @@ public:
     rclcpp::Node::SharedPtr node,
     const RosQtBridge& bridge,
     const kdl::Tree& tree,
-    const tobas::Drone& drone);
+    const Drone& drone);
 
   void updateInternalDataStructures();
 
@@ -32,3 +34,4 @@ private:
 };
 }  // namespace sim
 }  // namespace gui
+}  // namespace tobas

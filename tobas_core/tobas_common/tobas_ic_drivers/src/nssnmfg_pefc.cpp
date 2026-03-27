@@ -4,6 +4,8 @@
 
 using namespace std;
 
+namespace tobas
+{
 namespace driver
 {
 NssnmfgPEFC::NssnmfgPEFC(function<void(const Packet&)> packet_cb) : packet_cb_(packet_cb)
@@ -125,3 +127,4 @@ void NssnmfgPEFC::decode()
   packet_.tank.pressure = read2Bytes(kTankPressureIdx);
 }
 }  // namespace driver
+}  // namespace tobas

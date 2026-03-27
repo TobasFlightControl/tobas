@@ -12,6 +12,8 @@
 
 using namespace std::chrono_literals;
 
+namespace tobas
+{
 class Bmm150PublisherNode : public rclcpp::Node
 {
 public:
@@ -62,5 +64,6 @@ void Bmm150PublisherNode::timerCallback()
   RCLCPP_INFO(this->get_logger(), "Publishing: '%lf, %lf, %lf' [μT]", mx_, my_, mz_);
   publisher_->publish(std::move(message));
 }
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(Bmm150PublisherNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::Bmm150PublisherNode)

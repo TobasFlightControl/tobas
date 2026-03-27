@@ -2,6 +2,8 @@
 
 using namespace std;
 
+namespace tobas
+{
 namespace kdl
 {
 TreeDynParam::TreeDynParam(const Tree& tree, const Vector& grav)
@@ -45,3 +47,4 @@ void TreeDynParam::resize()
   jntarray_null_ = JntArray::Zero(nj_);
 }
 }  // namespace kdl
+}  // namespace tobas

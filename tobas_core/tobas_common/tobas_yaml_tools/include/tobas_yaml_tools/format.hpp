@@ -2,6 +2,8 @@
 
 #include <string>
 
+namespace tobas
+{
 namespace yaml
 {
 /**
@@ -11,3 +13,4 @@ namespace yaml
  */
 std::string format(double value, int prec = 9);
 }  // namespace yaml
+}  // namespace tobas

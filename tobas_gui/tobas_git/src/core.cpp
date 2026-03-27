@@ -4,6 +4,8 @@
 
 #include <git2.h>
 
+namespace tobas
+{
 namespace git
 {
 std::string getGitConfigValue(const char* key)
@@ -34,3 +36,4 @@ std::string getGitConfigValue(const char* key)
   return value;
 }
 }  // namespace git
+}  // namespace tobas

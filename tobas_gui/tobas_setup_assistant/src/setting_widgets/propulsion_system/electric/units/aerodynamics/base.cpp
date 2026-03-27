@@ -5,6 +5,8 @@
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -32,3 +34,4 @@ void AerodynamicsWidget_Base::initialize()
 }  // namespace propulsion
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

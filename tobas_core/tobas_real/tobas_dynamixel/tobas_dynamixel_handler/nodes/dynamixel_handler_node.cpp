@@ -19,7 +19,9 @@ using namespace std::chrono_literals;
 namespace ch = std::chrono;
 namespace fs = std::filesystem;
 
-namespace tobas_dynamixel
+namespace tobas
+{
+namespace dxl
 {
 struct DynamixelConfig
 {
@@ -29,19 +31,19 @@ struct DynamixelConfig
   bool current_available;
   double current_scaling_factor;  // code -> A
 
-  double temp_limit;                 // [degC]
-  tbs::Range<double> voltage_limit;  // [V]
-  double pwm_limit;                  // [%]
-  double current_limit;              // [A]
-  double acc_limit;                  // [rad/s^2]
-  double vel_limit;                  // [rad/s]
-  tbs::Range<double> pos_limit;      // [rad]
+  double temp_limit;                // [degC]
+  st::Range<double> voltage_limit;  // [V]
+  double pwm_limit;                 // [%]
+  double current_limit;             // [A]
+  double acc_limit;                 // [rad/s^2]
+  double vel_limit;                 // [rad/s]
+  st::Range<double> pos_limit;      // [rad]
 };
 
-class DynamixelHandlerNode : public tobas::BaseNode
+class DynamixelHandlerNode : public BaseNode
 {
   using self = DynamixelHandlerNode;
-  using super = tobas::BaseNode;
+  using super = BaseNode;
 
 public:
   explicit DynamixelHandlerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -707,6 +709,7 @@ void DynamixelHandlerNode::publishCurrentStatesTimerCb()
   // Publish motor states message
   motor_states_pub_->publish(std::move(motor_states));
 }
-}  // namespace tobas_dynamixel
+}  // namespace dxl
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(tobas_dynamixel::DynamixelHandlerNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::dxl::DynamixelHandlerNode)

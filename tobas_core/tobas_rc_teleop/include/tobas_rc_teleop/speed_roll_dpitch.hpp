@@ -4,7 +4,9 @@
 
 #include "./base_controller.hpp"
 
-namespace tobas_rc_teleop
+namespace tobas
+{
+namespace rc
 {
 class SpeedRollDeltaPitchController : public BaseController
 {
@@ -19,7 +21,7 @@ public:
   bool requireAttitude() override;
   bool requireHeading() override;
 
-  void initialize(tobas::BaseNode* node, tobas::FlightMode mode) override;
+  void initialize(BaseNode* node, FlightMode mode) override;
   void reset(const builtin_interfaces::msg::Time& stamp, const tobas_msgs::Odometry& setpoint, bool landed) override;
   void update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom, bool landed) override;
 
@@ -44,4 +46,5 @@ private:
   bool rollExpoCb(const double& p);
   bool pitchExpoCb(const double& p);
 };
-}  // namespace tobas_rc_teleop
+}  // namespace rc
+}  // namespace tobas

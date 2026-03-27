@@ -17,6 +17,8 @@
 
 namespace fs = std::filesystem;
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -267,3 +269,4 @@ void ParamGetterWidget_DoubleTable::saveLastOpenedDir(const std::string& dir)
 }
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

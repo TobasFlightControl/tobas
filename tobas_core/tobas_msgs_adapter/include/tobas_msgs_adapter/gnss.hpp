@@ -16,7 +16,7 @@ struct Gnss
   double longitude;
   double altitude;
   Eigen::Matrix3d position_covariance;
-  kdl::Vector ground_speed;
+  tobas::kdl::Vector ground_speed;
   Eigen::Matrix3d velocity_covariance;
 
   using SharedPtr = std::shared_ptr<Gnss>;

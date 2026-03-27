@@ -11,11 +11,13 @@
 
 #define MAX_FUEL_QUANTITY 100.  // TODO: 燃料容量をEngineConfigに含める
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
 {
-EngineViewerWidget::EngineViewerWidget(const RosQtBridge& bridge, const tobas::Drone& drone) : drone_(drone)
+EngineViewerWidget::EngineViewerWidget(const RosQtBridge& bridge, const Drone& drone) : drone_(drone)
 {
   fuel_quantity_ = new qt::HPositionBarWidget();
   oil_temp_ = new qt::HPositionBarWidget();
@@ -46,8 +48,8 @@ void EngineViewerWidget::updateInternalDataStructures()
 {
   reset();
 
-  if (drone_.prop->type() == tobas::PropulsionSystem::kIce) {
-    iprop_ = boost::polymorphic_pointer_downcast<tobas::IcePropulsionSystemConfig>(drone_.prop);
+  if (drone_.prop->type() == PropulsionSystem::kIce) {
+    iprop_ = boost::polymorphic_pointer_downcast<IcePropulsionSystemConfig>(drone_.prop);
 
     fuel_quantity_->setLower(0.);
     fuel_quantity_->setMinimum(0.);
@@ -110,3 +112,4 @@ void EngineViewerWidget::engineStateCb(const tobas_msgs::msg::EngineState::Const
 }
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

@@ -5,6 +5,8 @@
 #include "./jntarray_vel.hpp"
 #include "./utilities/utility.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 class JntArrayAcc
@@ -63,3 +65,4 @@ inline void JntArrayAcc::setZero()
   qdotdot.setZero();
 }
 }  // namespace kdl
+}  // namespace tobas

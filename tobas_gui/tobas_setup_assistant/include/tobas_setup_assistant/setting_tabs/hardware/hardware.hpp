@@ -8,6 +8,8 @@
 #include "./dshot.hpp"
 #include "./pwm.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -101,3 +103,4 @@ private Q_SLOTS:
 };  // namespace hw
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

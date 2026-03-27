@@ -4,6 +4,8 @@
 #include "./tree_id_solver_rne.hpp"
 #include "./tree_solver_i.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 /**
@@ -42,3 +44,4 @@ inline const JntSpaceInertiaMatrix& TreeJntSpaceInertiaSolver::getMass() const
   return H_out_;
 }
 }  // namespace kdl
+}  // namespace tobas

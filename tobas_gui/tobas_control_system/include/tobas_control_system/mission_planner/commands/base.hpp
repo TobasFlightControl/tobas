@@ -11,6 +11,8 @@
 
 #include "../fields/base.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -65,3 +67,4 @@ T BaseCommandWidget::getValue(field::FieldWidget<T>* widget) const
 }
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

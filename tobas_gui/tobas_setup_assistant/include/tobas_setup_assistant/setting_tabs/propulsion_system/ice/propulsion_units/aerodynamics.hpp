@@ -9,6 +9,8 @@
 #include "./base.hpp"
 #include "./propeller.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -31,9 +33,9 @@ public:
   YAML::Node dump() const override;
   void load(const YAML::Node& node) override;
 
-  tobas::VppMotorConstant motorConst() const;
-  tobas::VppMomentConstant momentConst() const;
-  tobas::VppDragConstant dragConst() const;
+  VppMotorConstant motorConst() const;
+  VppMomentConstant momentConst() const;
+  VppDragConstant dragConst() const;
 
 private:
   const PropellerWidget* const propeller_;
@@ -46,3 +48,4 @@ private:
 }  // namespace propulsion
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

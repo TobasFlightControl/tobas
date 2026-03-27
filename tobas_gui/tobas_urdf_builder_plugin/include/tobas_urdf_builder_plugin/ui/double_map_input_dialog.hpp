@@ -5,6 +5,8 @@
 #include <QDialog>
 #include <QDoubleSpinBox>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ub
@@ -39,3 +41,4 @@ private:
 }  // namespace ui
 }  // namespace ub
 }  // namespace gui
+}  // namespace tobas

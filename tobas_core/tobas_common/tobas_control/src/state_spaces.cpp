@@ -3,6 +3,8 @@
 using namespace std;
 using namespace Eigen;
 
+namespace tobas
+{
 namespace ctrl
 {
 LinearDynamics LinearDynamics::scale(const VectorXd& x_scale, const VectorXd& u_scale) const
@@ -55,3 +57,4 @@ ostream& operator<<(ostream& os, const LinearStateSpace& arg)
   return os;
 }
 }  // namespace ctrl
+}  // namespace tobas

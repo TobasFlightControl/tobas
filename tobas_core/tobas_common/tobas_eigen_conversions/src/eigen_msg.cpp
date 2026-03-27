@@ -1,5 +1,7 @@
 #include "tobas_eigen_conversions/eigen_msg.hpp"
 
+namespace tobas
+{
 namespace tf
 {
 void vectorEigenToMsg(const Eigen::Vector3d& e, geometry_msgs::msg::Vector3& m)
@@ -70,3 +72,4 @@ void matrix3MsgToEigen(const std::array<double, 9>& m, Eigen::Matrix3d& e)
   std::memcpy(e.data(), m.data(), sizeof(double) * 9);
 }
 }  // namespace tf
+}  // namespace tobas

@@ -8,6 +8,8 @@
 
 #define PACKED __attribute__((__packed__))  // 構造体のメンバ変数がメモリ上で連続する
 
+namespace tobas
+{
 namespace ublox
 {
 /**
@@ -329,3 +331,4 @@ inline const uint8_t* ZEDF9P::payload() const
   return scanner_.getPayload();
 }
 }  // namespace ublox
+}  // namespace tobas

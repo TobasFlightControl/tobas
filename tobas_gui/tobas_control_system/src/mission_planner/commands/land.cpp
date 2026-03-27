@@ -1,5 +1,7 @@
 #include "tobas_control_system/mission_planner/commands/land.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -27,3 +29,4 @@ void LandWidget::speed(double value)
 }
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

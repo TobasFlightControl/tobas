@@ -47,10 +47,12 @@
 using namespace std::chrono_literals;
 namespace fs = std::filesystem;
 
-class RosbagRecorderNode : public tobas::BaseNode
+namespace tobas
+{
+class RosbagRecorderNode : public BaseNode
 {
   using self = RosbagRecorderNode;
-  using super = tobas::BaseNode;
+  using super = BaseNode;
 
   using StartSrv = tobas_msgs::srv::BagRecordStart;
   using StopSrv = tobas_msgs::srv::BagRecordStop;
@@ -136,51 +138,51 @@ private:
 RosbagRecorderNode::RosbagRecorderNode(const rclcpp::NodeOptions& options)
   : super("rosbag_recorder", nodeOptions_Default(options))
   , ns_(std::string(get_namespace()) + "/")
-  , rosbag_dir_(linux::isSuperUser() ? tobas::kRosbagDirRoot : ros2::expandUser(tobas::kRosbagDirHome))
+  , rosbag_dir_(linux::isSuperUser() ? kRosbagDirRoot : ros2::expandUser(kRosbagDirHome))
 {
   // Register publishers
-  rosbag_state_pub_ = createPublisher<tobas_msgs::msg::RosbagState>(tobas::topic::kRosbagState);
+  rosbag_state_pub_ = createPublisher<tobas_msgs::msg::RosbagState>(topic::kRosbagState);
 
   // Resister subscribers
   // トピック通信の接続はローカルであっても遅延の原因になりうるため，レコード開始時ではなく先に接続を確立しておく．
-  addStandardMsgSub<tobas_msgs::msg::Message>(tobas::topic::kMessage);
-  addTypeAdaptedMsgSub<tobas::Drone>(drone_, tobas::topic::kDrone, true, true);
-  addTypeAdaptedMsgSub<kdl::Tree>(tree_, tobas::topic::kKdlTree, true, true);
-  addStandardMsgSub<std_msgs::msg::String>(tobas::topic::kRobotDescription, true, true);
-  addStandardMsgSub<tobas_msgs::msg::Battery>(tobas::topic::kBattery);
-  addStandardMsgSub<tobas_msgs::msg::Cpu>(tobas::topic::kCpu);
-  addTypeAdaptedMsgSub<tobas_msgs::RCInput>(rcin_, tobas::topic::kRcInput);
-  addTypeAdaptedMsgSub<tobas_msgs::Imu>(imu_, tobas::topic::kImuRaw);
-  addTypeAdaptedMsgSub<tobas_msgs::Imu>(imu_, tobas::topic::kImuFilt);
-  addTypeAdaptedMsgSub<tobas_msgs::MagneticField>(mag_, tobas::topic::kMagneticField);
-  addStandardMsgSub<tobas_msgs::msg::FluidPressure>(tobas::topic::kAirPressure);
-  addTypeAdaptedMsgSub<tobas_msgs::Gnss>(gnss_, tobas::topic::kGnss);
-  addStandardMsgSub<tobas_msgs::msg::RotorStateArray>(tobas::topic::kRotorStates);
-  addStandardMsgSub<tobas_msgs::msg::RotorLivelinessArray>(tobas::topic::kRotorLiv);
-  addStandardMsgSub<tobas_msgs::msg::JointStateArray>(tobas::topic::kJointStates);
-  addTypeAdaptedMsgSub<tobas_msgs::OdometryWithCovarianceStamped>(odom_cov_, tobas::topic::kOdometry);
-  addTypeAdaptedMsgSub<tobas_msgs::OdometryStamped>(odom_, tobas::topic::kTrajSetpoint);
-  addStandardMsgSub<tobas_msgs::msg::Latency>(tobas::topic::kImuSamplingTime);
-  addStandardMsgSub<tobas_msgs::msg::Latency>(tobas::topic::kControlLatency);
-  addStandardMsgSub<tobas_msgs::msg::Arming>(tobas::topic::kArming);
-  addStandardMsgSub<tobas_msgs::msg::VehicleHealth>(tobas::topic::kVehicleHealth);
-  addTypeAdaptedMsgSub<tobas_msgs::VibrationLevel>(vibe_, tobas::topic::kVibrationLevel);
-  addTypeAdaptedMsgSub<tobas_kdl_msgs::WrenchStamped>(dist_force_, tobas::topic::kDisturbanceForce);
-  addStandardMsgSub<tobas_msgs::msg::RotorThrustArray>(tobas::topic::kRotorThrustsCmd);
-  addStandardMsgSub<tobas_msgs::msg::RotorSpeedArray>(tobas::topic::kRotorSpeedsCmd);
-  addStandardMsgSub<tobas_msgs::msg::IcePropulsionSystemCommand>(tobas::topic::kIcePropulsionSystemCmd);
-  addStandardMsgSub<tobas_msgs::msg::PwmArray>(tobas::topic::kPwmCmd);
-  addStandardMsgSub<tobas_msgs::msg::JointCommandArray>(tobas::topic::kJointPosCmd);
-  addStandardMsgSub<tobas_msgs::msg::JointCommandArray>(tobas::topic::kJointVelCmd);
-  addStandardMsgSub<tobas_msgs::msg::JointCommandArray>(tobas::topic::kJointEffCmd);
-  addTypeAdaptedMsgSub<tobas_debug_msgs::ObserverFeedback>(obsv_fb_, tobas::topic::kObsvFeedback);
-  addStandardMsgSub<tobas_debug_msgs::msg::FixedWingControllerFeedback>(tobas::topic::kFWCtrlFeedback);
-  addTypeAdaptedMsgSub<tobas_debug_msgs::MulticopterControllerFeedback>(mr_ctrl_fb_, tobas::topic::kMRCtrlFeedback);
+  addStandardMsgSub<tobas_msgs::msg::Message>(topic::kMessage);
+  addTypeAdaptedMsgSub<Drone>(drone_, topic::kDrone, true, true);
+  addTypeAdaptedMsgSub<kdl::Tree>(tree_, topic::kKdlTree, true, true);
+  addStandardMsgSub<std_msgs::msg::String>(topic::kRobotDescription, true, true);
+  addStandardMsgSub<tobas_msgs::msg::Battery>(topic::kBattery);
+  addStandardMsgSub<tobas_msgs::msg::Cpu>(topic::kCpu);
+  addTypeAdaptedMsgSub<tobas_msgs::RCInput>(rcin_, topic::kRcInput);
+  addTypeAdaptedMsgSub<tobas_msgs::Imu>(imu_, topic::kImuRaw);
+  addTypeAdaptedMsgSub<tobas_msgs::Imu>(imu_, topic::kImuFilt);
+  addTypeAdaptedMsgSub<tobas_msgs::MagneticField>(mag_, topic::kMagneticField);
+  addStandardMsgSub<tobas_msgs::msg::FluidPressure>(topic::kAirPressure);
+  addTypeAdaptedMsgSub<tobas_msgs::Gnss>(gnss_, topic::kGnss);
+  addStandardMsgSub<tobas_msgs::msg::RotorStateArray>(topic::kRotorStates);
+  addStandardMsgSub<tobas_msgs::msg::RotorLivelinessArray>(topic::kRotorLiv);
+  addStandardMsgSub<tobas_msgs::msg::JointStateArray>(topic::kJointStates);
+  addTypeAdaptedMsgSub<tobas_msgs::OdometryWithCovarianceStamped>(odom_cov_, topic::kOdometry);
+  addTypeAdaptedMsgSub<tobas_msgs::OdometryStamped>(odom_, topic::kTrajSetpoint);
+  addStandardMsgSub<tobas_msgs::msg::Latency>(topic::kImuSamplingTime);
+  addStandardMsgSub<tobas_msgs::msg::Latency>(topic::kControlLatency);
+  addStandardMsgSub<tobas_msgs::msg::Arming>(topic::kArming);
+  addStandardMsgSub<tobas_msgs::msg::VehicleHealth>(topic::kVehicleHealth);
+  addTypeAdaptedMsgSub<tobas_msgs::VibrationLevel>(vibe_, topic::kVibrationLevel);
+  addTypeAdaptedMsgSub<tobas_kdl_msgs::WrenchStamped>(dist_force_, topic::kDisturbanceForce);
+  addStandardMsgSub<tobas_msgs::msg::RotorThrustArray>(topic::kRotorThrustsCmd);
+  addStandardMsgSub<tobas_msgs::msg::RotorSpeedArray>(topic::kRotorSpeedsCmd);
+  addStandardMsgSub<tobas_msgs::msg::IcePropulsionSystemCommand>(topic::kIcePropulsionSystemCmd);
+  addStandardMsgSub<tobas_msgs::msg::PwmArray>(topic::kPwmCmd);
+  addStandardMsgSub<tobas_msgs::msg::JointCommandArray>(topic::kJointPosCmd);
+  addStandardMsgSub<tobas_msgs::msg::JointCommandArray>(topic::kJointVelCmd);
+  addStandardMsgSub<tobas_msgs::msg::JointCommandArray>(topic::kJointEffCmd);
+  addTypeAdaptedMsgSub<tobas_debug_msgs::ObserverFeedback>(obsv_fb_, topic::kObsvFeedback);
+  addStandardMsgSub<tobas_debug_msgs::msg::FixedWingControllerFeedback>(topic::kFWCtrlFeedback);
+  addTypeAdaptedMsgSub<tobas_debug_msgs::MulticopterControllerFeedback>(mr_ctrl_fb_, topic::kMRCtrlFeedback);
 
   // Register services
-  start_srv_ = createService<StartSrv>(tobas::service::kRosbagRecordStart, &self::startCb, this);
-  stop_srv_ = createService<StopSrv>(tobas::service::kRosbagRecordStop, &self::stopCb, this);
-  clean_srv_ = createService<CleanSrv>(tobas::service::kRosbagClean, &self::cleanCb, this);
+  start_srv_ = createService<StartSrv>(service::kRosbagRecordStart, &self::startCb, this);
+  stop_srv_ = createService<StopSrv>(service::kRosbagRecordStop, &self::stopCb, this);
+  clean_srv_ = createService<CleanSrv>(service::kRosbagClean, &self::cleanCb, this);
 
   // Start main timer
   main_timer_ = createTimer(kMainTimerPeriod, &self::mainTimerCb, this);
@@ -202,7 +204,7 @@ void RosbagRecorderNode::publishRosbagState()
     rosbag_state->file_size = file_size;
     rosbag_state->message_count = msg_cnt_;
 
-    if (file_size > tobas::kMaxRosbagSize) {
+    if (file_size > kMaxRosbagSize) {
       try {
         writer_.close();
       }
@@ -217,7 +219,7 @@ void RosbagRecorderNode::publishRosbagState()
         "The recording is terminated because the size of rosbag ",
         file_path_,
         " exceeded ",
-        tobas::kMaxRosbagSize / BILLION,
+        kMaxRosbagSize / BILLION,
         "GB.");
     }
   }
@@ -394,5 +396,6 @@ void RosbagRecorderNode::mainTimerCb()
 {
   publishRosbagState();
 }
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(RosbagRecorderNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::RosbagRecorderNode)

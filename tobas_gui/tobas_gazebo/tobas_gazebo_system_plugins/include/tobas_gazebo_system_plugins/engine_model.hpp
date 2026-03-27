@@ -6,6 +6,8 @@
 #include "./filter/asymmetric_first_order_filter.hpp"
 #include "./ice_rotor_model.hpp"
 
+namespace tobas
+{
 namespace gazebo
 {
 class EngineModel
@@ -74,3 +76,4 @@ private:
   double calc_k() const;
 };
 }  // namespace gazebo
+}  // namespace tobas

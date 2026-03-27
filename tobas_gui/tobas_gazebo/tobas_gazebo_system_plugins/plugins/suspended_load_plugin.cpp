@@ -21,6 +21,8 @@
 
 namespace cmp = gz::sim::components;
 
+namespace tobas
+{
 namespace gazebo
 {
 class GazeboSuspendedLoadPlugin : public BaseNode,
@@ -372,9 +374,10 @@ void GazeboSuspendedLoadPlugin::detachLoadCb(
   res->message.clear();
 }
 }  // namespace gazebo
+}  // namespace tobas
 
 GZ_ADD_PLUGIN(
-  gazebo::GazeboSuspendedLoadPlugin,
+  tobas::gazebo::GazeboSuspendedLoadPlugin,
   gz::sim::System,
-  gazebo::GazeboSuspendedLoadPlugin::ISystemConfigure,
-  gazebo::GazeboSuspendedLoadPlugin::ISystemPreUpdate)
+  gz::sim::ISystemConfigure,
+  gz::sim::ISystemPreUpdate)

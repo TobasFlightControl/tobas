@@ -6,6 +6,8 @@
 #include "../base.hpp"
 #include "./commands_publisher.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace at
@@ -25,7 +27,7 @@ public:
     rclcpp::Node::SharedPtr node,
     const RosQtBridge& bridge,
     const kdl::Tree& tree,
-    const tobas::Drone& drone);
+    const Drone& drone);
 
   const char* title() const override;
 
@@ -38,7 +40,7 @@ public:
 private:
   const rclcpp::Node::SharedPtr node_;
   const kdl::Tree& tree_;
-  const tobas::Drone& drone_;
+  const Drone& drone_;
 
   QPushButton* start_button_;
   QPushButton* stop_button_;
@@ -59,3 +61,4 @@ private Q_SLOTS:
 };
 }  // namespace at
 }  // namespace gui
+}  // namespace tobas

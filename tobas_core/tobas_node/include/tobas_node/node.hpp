@@ -500,7 +500,7 @@ void BaseNode::log(uint8_t level, const Args&... args) const
   message->header.stamp = now();
   message->level = level;
   message->name = get_name();
-  message->message = tbs::buildString(args...);
+  message->message = st::buildString(args...);
 
   // Output message to the console
   rclcppLog(level, message->message);

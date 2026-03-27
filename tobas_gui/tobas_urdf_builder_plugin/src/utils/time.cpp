@@ -4,6 +4,8 @@
 
 namespace ch = std::chrono;
 
+namespace tobas
+{
 namespace gui
 {
 namespace ub
@@ -19,3 +21,4 @@ int timeNowMilliseconds()
 }  // namespace utils
 }  // namespace ub
 }  // namespace gui
+}  // namespace tobas

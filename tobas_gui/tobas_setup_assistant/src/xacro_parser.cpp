@@ -5,6 +5,8 @@
 
 #include <tobas_ros2_tools/path.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -83,3 +85,4 @@ const std::string& XacroParser::getOutput() const
 }
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

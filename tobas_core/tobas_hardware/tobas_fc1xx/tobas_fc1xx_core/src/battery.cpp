@@ -5,6 +5,8 @@
 
 using namespace std::chrono_literals;
 
+namespace tobas
+{
 namespace fc1xx
 {
 Battery::Battery()
@@ -40,3 +42,4 @@ bool Battery::read(float& voltage, float& current)
   return true;
 }
 }  // namespace fc1xx
+}  // namespace tobas

@@ -2,6 +2,8 @@
 
 #include "../state_spaces.hpp"
 
+namespace tobas
+{
 namespace ctrl
 {
 /**
@@ -13,3 +15,4 @@ public:
   virtual LinearDynamics convert(const LinearDynamics& cont, const double& dt) = 0;
 };
 }  // namespace ctrl
+}  // namespace tobas

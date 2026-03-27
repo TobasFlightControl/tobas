@@ -13,6 +13,8 @@
 
 namespace fs = std::filesystem;
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -199,3 +201,4 @@ fs::path AerodynamicsWidget_Preset::uiucDataDir()
 }  // namespace propulsion
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

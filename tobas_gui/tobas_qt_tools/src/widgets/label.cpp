@@ -3,6 +3,8 @@
 #include "tobas_qt_tools/color.hpp"
 #include "tobas_qt_tools/font.hpp"
 
+namespace tobas
+{
 namespace qt
 {
 Label::Label(const QString& text, int point_size, int weight, bool italic, QWidget* parent) : super(text, parent)
@@ -20,3 +22,4 @@ void Label::setTextColor(const Qt::GlobalColor color)
   setTextColor(toCssColor(color));
 }
 }  // namespace qt
+}  // namespace tobas

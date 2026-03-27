@@ -4,6 +4,8 @@
 
 using namespace std;
 
+namespace tobas
+{
 namespace fc1xx
 {
 ILPS22QS::ILPS22QS()
@@ -104,3 +106,4 @@ void ILPS22QS::setPressureScale(const uint8_t& fs_mode)
   }
 }
 }  // namespace fc1xx
+}  // namespace tobas

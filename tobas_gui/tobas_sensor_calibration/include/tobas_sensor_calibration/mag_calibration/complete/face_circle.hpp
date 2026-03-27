@@ -2,6 +2,8 @@
 
 #include <tobas_qt_tools/widgets/widget.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sc
@@ -51,3 +53,4 @@ private:
 };
 }  // namespace sc
 }  // namespace gui
+}  // namespace tobas

@@ -9,6 +9,8 @@
 
 namespace cmp = gz::sim::components;
 
+namespace tobas
+{
 namespace gazebo
 {
 /**
@@ -244,5 +246,6 @@ void HesaiLidarPlugin::setupPointCloudMsg(const gz::msgs::PointCloudPacked& msg)
   point_cloud_msg_->data.resize(params_.vertical_samples * params_.horizontal_samples * point_step_);
 }
 }  // namespace gazebo
+}  // namespace tobas
 
-GZ_ADD_PLUGIN(gazebo::HesaiLidarPlugin, gz::sim::System, gazebo::HesaiLidarPlugin::ISystemConfigure)
+GZ_ADD_PLUGIN(tobas::gazebo::HesaiLidarPlugin, gz::sim::System, gz::sim::ISystemConfigure)

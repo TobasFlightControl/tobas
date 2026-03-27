@@ -2,6 +2,8 @@
 
 #include "./widget.hpp"
 
+namespace tobas
+{
 namespace qt
 {
 class CircleWidget : public qt::Widget
@@ -40,3 +42,4 @@ private:
   void drawText(QPainter& painter);
 };
 }  // namespace qt
+}  // namespace tobas

@@ -2,6 +2,8 @@
 
 using namespace std;
 
+namespace tobas
+{
 namespace kdl
 {
 TreeIdSolver_RNE::TreeIdSolver_RNE(const Tree& tree, const Vector& grav) : super(tree), ag_(-grav, Vector::Zero())
@@ -112,3 +114,4 @@ void TreeIdSolver_RNE::rneStep(
   }
 }
 }  // namespace kdl
+}  // namespace tobas

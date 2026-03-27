@@ -2,6 +2,8 @@
 
 #include <rclcpp/time.hpp>
 
+namespace tobas
+{
 namespace ros2
 {
 class RateManager
@@ -22,3 +24,4 @@ private:
   bool is_first_update_ = true;
 };
 }  // namespace ros2
+}  // namespace tobas

@@ -6,6 +6,8 @@
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace log
@@ -75,9 +77,9 @@ void PosePlotWidget::updateCurrentSamples(const QVector<tobas_msgs::msg::Odometr
 
     const kdl::Rotation rot(odom.odom.odom.frame.rot.data);
     const auto [roll, pitch, yaw] = rot.getRPY();
-    val_data[3].push_back(tbs::rad2deg(roll));
-    val_data[4].push_back(tbs::rad2deg(pitch));
-    val_data[5].push_back(tbs::rad2deg(yaw));
+    val_data[3].push_back(st::rad2deg(roll));
+    val_data[4].push_back(st::rad2deg(pitch));
+    val_data[5].push_back(st::rad2deg(yaw));
   }
 
   for (size_t i = 0; i < kNumAxes; ++i) {
@@ -101,9 +103,9 @@ void PosePlotWidget::updateTargetSamples(const QVector<tobas_msgs::msg::Odometry
 
     const kdl::Rotation rot(setpoint.odom.frame.rot.data);
     rot.getRPY(roll, pitch, yaw);
-    val_data[3].push_back(tbs::rad2deg(roll));
-    val_data[4].push_back(tbs::rad2deg(pitch));
-    val_data[5].push_back(tbs::rad2deg(yaw));
+    val_data[3].push_back(st::rad2deg(roll));
+    val_data[4].push_back(st::rad2deg(pitch));
+    val_data[5].push_back(st::rad2deg(yaw));
   }
 
   for (size_t i = 0; i < kNumAxes; ++i) {
@@ -112,3 +114,4 @@ void PosePlotWidget::updateTargetSamples(const QVector<tobas_msgs::msg::Odometry
 }
 }  // namespace log
 }  // namespace gui
+}  // namespace tobas

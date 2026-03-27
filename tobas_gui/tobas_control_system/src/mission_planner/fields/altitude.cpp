@@ -2,6 +2,8 @@
 
 #include <QHBoxLayout>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -39,3 +41,4 @@ void AltitudeWidget::setValue(double value)
 }  // namespace field
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

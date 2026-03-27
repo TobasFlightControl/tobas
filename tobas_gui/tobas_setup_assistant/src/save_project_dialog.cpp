@@ -11,6 +11,8 @@
 #include <tobas_ros2_tools/package.hpp>
 #include <tobas_ros2_tools/util.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -125,3 +127,4 @@ void SaveProjectDialog::onProjectPathChanged()
 }
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

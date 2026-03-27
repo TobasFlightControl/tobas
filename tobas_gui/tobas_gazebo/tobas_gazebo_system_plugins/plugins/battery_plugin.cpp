@@ -15,6 +15,8 @@
 namespace ch = std::chrono;
 namespace cmp = gz::sim::components;
 
+namespace tobas
+{
 namespace gazebo
 {
 class GazeboBatteryPlugin : public BaseNode,
@@ -101,7 +103,7 @@ void GazeboBatteryPlugin::Configure(
   voltage_noise_ = NormalDistribution(0., voltage_noise_stddev_);
   current_noise_ = NormalDistribution(0., current_noise_stddev_);
 
-  battery_pub_ = createPublisher<tobas_msgs::msg::Battery>(tobas::topic::kBattery);
+  battery_pub_ = createPublisher<tobas_msgs::msg::Battery>(topic::kBattery);
   battery_gt_pub_ = createPublisher<tobas_msgs::msg::Battery>(kBatteryGtTopic);
 
   // モータ状態のコールバックとサブスクライバを設定
@@ -202,9 +204,6 @@ void GazeboBatteryPlugin::chargeCb(
   TOBAS_INFO("Battery is charged.");
 }
 }  // namespace gazebo
+}  // namespace tobas
 
-GZ_ADD_PLUGIN(
-  gazebo::GazeboBatteryPlugin,
-  gz::sim::System,
-  gazebo::GazeboBatteryPlugin::ISystemConfigure,
-  gazebo::GazeboBatteryPlugin::ISystemPostUpdate)
+GZ_ADD_PLUGIN(tobas::gazebo::GazeboBatteryPlugin, gz::sim::System, gz::sim::ISystemConfigure, gz::sim::ISystemPostUpdate)

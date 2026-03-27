@@ -4,6 +4,8 @@
 
 #include <tobas_ros2_tools/time.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace log
@@ -132,3 +134,4 @@ void GnssPlotWidget::setData(const QVector<tobas_msgs::msg::Gnss>& gnss_msgs)
 }
 }  // namespace log
 }  // namespace gui
+}  // namespace tobas

@@ -6,6 +6,8 @@
 
 #include "./common/definitions.hpp"
 
+namespace tobas
+{
 namespace gazebo
 {
 class NormalDistribution3d
@@ -48,3 +50,4 @@ private:
 /* 単位球上の一点をランダムに生成する． */
 gz::math::Vector3d createUnitSpherePoint(std::random_device& rnd_dev);
 }  // namespace gazebo
+}  // namespace tobas

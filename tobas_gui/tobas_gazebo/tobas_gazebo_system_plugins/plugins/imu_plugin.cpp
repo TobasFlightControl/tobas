@@ -26,6 +26,8 @@
 namespace ch = std::chrono;
 namespace cmp = gz::sim::components;
 
+namespace tobas
+{
 namespace gazebo
 {
 /**
@@ -95,7 +97,7 @@ private:
   ros2::PublisherPtr<tobas_msgs::Imu> imu_raw_pub_;
   ros2::PublisherPtr<tobas_msgs::Imu> imu_filt_pub_;
   ros2::PublisherPtr<tobas_gazebo_msgs::msg::ImuDebug> debug_pub_;
-  tobas::ImuSamplingTimePublisher sampling_time_pub_;
+  ImuSamplingTimePublisher sampling_time_pub_;
 
   ros2::SubscriberPtr<tobas_gazebo_msgs::msg::EngineState> engine_state_sub_;
   std::vector<ros2::SubscriberPtr<tobas_gazebo_msgs::msg::RotorState>> rotor_state_subs_;
@@ -150,8 +152,8 @@ void GazeboImuPlugin::Configure(
     TOBAS_EXIT("Failed to initialize model mass holder.");
   }
 
-  imu_raw_pub_ = createPublisher<tobas_msgs::Imu>(tobas::topic::kImuRaw);
-  imu_filt_pub_ = createPublisher<tobas_msgs::Imu>(tobas::topic::kImuFilt);
+  imu_raw_pub_ = createPublisher<tobas_msgs::Imu>(topic::kImuRaw);
+  imu_filt_pub_ = createPublisher<tobas_msgs::Imu>(topic::kImuFilt);
   debug_pub_ = createPublisher<tobas_gazebo_msgs::msg::ImuDebug>(kDebugTopic);
   sampling_time_pub_.initialize(node_, node_->now());
 
@@ -167,8 +169,8 @@ void GazeboImuPlugin::Configure(
     rotor_state_subs_.push_back(sub);
   }
 
-  config_ss_ = createService<tobas_msgs::srv::ConfigureImuFilter>(
-    tobas::service::kConfigureImuFilter, &self::configureImuFilterCb, this);
+  config_ss_ =
+    createService<tobas_msgs::srv::ConfigureImuFilter>(service::kConfigureImuFilter, &self::configureImuFilterCb, this);
 }
 
 void GazeboImuPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)
@@ -207,7 +209,7 @@ void GazeboImuPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim:
 
   // 姿勢推定の発散を防ぐために機体の位置姿勢が安定するまでは発行しない
   if (!static_state_detected_) {
-    static_state_detected_ = (acc_B.Length() < tobas::kStaticAccThresh) && (gyro_B.Length() < tobas::kStaticGyroThresh);
+    static_state_detected_ = (acc_B.Length() < kStaticAccThresh) && (gyro_B.Length() < kStaticGyroThresh);
     if (static_state_detected_) {
       TOBAS_INFO("Stationary state detected. Start to publish IMU messages.");
       acc_lpf_.setValue(acc_meas);
@@ -356,9 +358,6 @@ void GazeboImuPlugin::configureImuFilterCb(
   res->message.clear();
 }
 }  // namespace gazebo
+}  // namespace tobas
 
-GZ_ADD_PLUGIN(
-  gazebo::GazeboImuPlugin,
-  gz::sim::System,
-  gazebo::GazeboImuPlugin::ISystemConfigure,
-  gazebo::GazeboImuPlugin::ISystemPostUpdate)
+GZ_ADD_PLUGIN(tobas::gazebo::GazeboImuPlugin, gz::sim::System, gz::sim::ISystemConfigure, gz::sim::ISystemPostUpdate)

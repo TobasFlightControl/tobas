@@ -5,6 +5,8 @@
 #include <map>
 #include <sstream>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -161,3 +163,4 @@ double VSPAEROParser::c_yaw_r() const
 }  // namespace fw
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

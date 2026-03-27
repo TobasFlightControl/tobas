@@ -4,6 +4,8 @@
 
 #include <tobas_math/core.hpp>
 
+namespace tobas
+{
 namespace gazebo
 {
 std::tuple<double, double, double> boxInertia(double sx, double sy, double sz, double mass)
@@ -24,3 +26,4 @@ std::tuple<double, double, double> boxInertia(double sx, double sy, double sz, d
   return { ixx, iyy, izz };
 }
 }  // namespace gazebo
+}  // namespace tobas

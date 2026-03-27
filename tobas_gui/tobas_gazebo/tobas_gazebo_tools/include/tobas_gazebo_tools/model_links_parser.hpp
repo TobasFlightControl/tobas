@@ -3,6 +3,8 @@
 #include <gz/sim/System.hh>
 #include <gz/sim/components.hh>
 
+namespace tobas
+{
 namespace gazebo
 {
 /* モデルに属する全てのリンクを保持する． */
@@ -27,3 +29,4 @@ private:
   std::map<std::string, gz::sim::Entity> links_;
 };
 }  // namespace gazebo
+}  // namespace tobas

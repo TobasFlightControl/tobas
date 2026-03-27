@@ -4,6 +4,8 @@
 #include <QPainter>
 #include <QResizeEvent>
 
+namespace tobas
+{
 namespace qt
 {
 ToggleSwitch::ToggleSwitch(QWidget* parent) : super(parent)
@@ -161,3 +163,4 @@ void ToggleSwitch::drawText(QPainter& painter)
   }
 }
 }  // namespace qt
+}  // namespace tobas

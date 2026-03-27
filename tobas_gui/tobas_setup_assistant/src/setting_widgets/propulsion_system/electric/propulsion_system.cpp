@@ -7,6 +7,8 @@
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -75,9 +77,9 @@ void PropulsionSystemWidget::load(const YAML::Node& node)
   units->load(node[kPropulsionUnitTitle]);
 }
 
-tobas::PropulsionSystem PropulsionSystemWidget::type() const
+PropulsionSystem PropulsionSystemWidget::type() const
 {
-  return tobas::PropulsionSystem::kElectric;
+  return PropulsionSystem::kElectric;
 }
 
 int PropulsionSystemWidget::numUnits() const
@@ -93,3 +95,4 @@ QString PropulsionSystemWidget::linkName(int index) const
 }  // namespace propulsion
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

@@ -3,6 +3,8 @@
 using namespace std;
 using namespace Eigen;
 
+namespace tobas
+{
 namespace ctrl
 {
 C2D_Euler::C2D_Euler(const Index& x_size, const Index& u_size)
@@ -19,3 +21,4 @@ LinearDynamics C2D_Euler::convert(const LinearDynamics& cont, const double& dt)
   return LinearDynamics(I_ + cont.A * dt, cont.B * dt);
 }
 }  // namespace ctrl
+}  // namespace tobas

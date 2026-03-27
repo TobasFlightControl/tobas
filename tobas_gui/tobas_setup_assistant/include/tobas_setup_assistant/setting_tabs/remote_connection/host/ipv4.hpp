@@ -4,6 +4,8 @@
 
 #include "./base.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -34,3 +36,4 @@ private:
 }  // namespace rc
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

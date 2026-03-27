@@ -5,6 +5,8 @@
 
 #include <tobas_colcon_cpp/core.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace cmn
@@ -26,3 +28,4 @@ private:
 std::expected<void, QString> buildLocalProject(const std::filesystem::path& proj_path);
 }  // namespace cmn
 }  // namespace gui
+}  // namespace tobas

@@ -5,6 +5,8 @@
 
 #include "./labeled_double_spin_box.hpp"
 
+namespace tobas
+{
 namespace qt
 {
 class Vector3dEditHorizontal : public QWidget
@@ -42,3 +44,4 @@ private Q_SLOTS:
   void onValueChanged(double value);
 };
 }  // namespace qt
+}  // namespace tobas

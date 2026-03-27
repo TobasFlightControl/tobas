@@ -7,6 +7,8 @@
 
 class QwtPlotCurve;
 
+namespace tobas
+{
 namespace qwt
 {
 class QwtPlotCurveWrapper
@@ -33,3 +35,4 @@ private:
   std::shared_ptr<QwtPlotCurve> impl_;
 };
 }  // namespace qwt
+}  // namespace tobas

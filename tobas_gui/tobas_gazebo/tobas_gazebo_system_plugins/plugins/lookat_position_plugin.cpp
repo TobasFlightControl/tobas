@@ -10,6 +10,8 @@
 
 namespace cmp = gz::sim::components;
 
+namespace tobas
+{
 namespace gazebo
 {
 class GazeboLookAtPositionPlugin : public BaseNode,
@@ -77,9 +79,10 @@ void GazeboLookAtPositionPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
   getSdfParam(sdf, "linkName", link_name_);
 }
 }  // namespace gazebo
+}  // namespace tobas
 
 GZ_ADD_PLUGIN(
-  gazebo::GazeboLookAtPositionPlugin,
+  tobas::gazebo::GazeboLookAtPositionPlugin,
   gz::sim::System,
-  gazebo::GazeboLookAtPositionPlugin::ISystemConfigure,
-  gazebo::GazeboLookAtPositionPlugin::ISystemPostUpdate)
+  gz::sim::ISystemConfigure,
+  gz::sim::ISystemPostUpdate)

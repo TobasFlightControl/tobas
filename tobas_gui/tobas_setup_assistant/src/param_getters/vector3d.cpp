@@ -2,6 +2,8 @@
 
 #include <tobas_string_tools/core.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -56,3 +58,4 @@ void ParamGetterWidget_Vector3d::onValueChanged(const Eigen::Vector3d& value)
 }
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

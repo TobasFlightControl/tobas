@@ -13,7 +13,7 @@ namespace tobas_kdl_msgs
 struct RotationalInertiaStamped
 {
   std_msgs::msg::Header header;
-  kdl::RotationalInertia inertia;
+  tobas::kdl::RotationalInertia inertia;
 
   using SharedPtr = std::shared_ptr<RotationalInertiaStamped>;
   using ConstSharedPtr = std::shared_ptr<const RotationalInertiaStamped>;

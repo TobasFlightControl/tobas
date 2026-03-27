@@ -27,7 +27,7 @@ file(GLOB_RECURSE NODE_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} 
 add_library(${PROJECT_NAME}_node SHARED ${NODE_TARGETS})
 ament_target_dependencies(${PROJECT_NAME}_node ${AMENT_DEPENDENCIES})
 target_link_options(${PROJECT_NAME}_node PRIVATE -Wl,--no-undefined)
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "ptree::PropertyServer" EXECUTABLE property_server)
+rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "tobas::ptree::PropertyServer" EXECUTABLE property_server)
 
 install(
   TARGETS ${PROJECT_NAME}_node

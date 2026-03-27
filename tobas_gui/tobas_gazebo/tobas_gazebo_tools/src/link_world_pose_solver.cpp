@@ -2,6 +2,8 @@
 
 using namespace gz;
 
+namespace tobas
+{
 namespace gazebo
 {
 LinkWorldPoseSolver::LinkWorldPoseSolver()
@@ -48,3 +50,4 @@ bool LinkWorldPoseSolver::solve(const sim::Entity& link, const sim::EntityCompon
   return true;
 }
 }  // namespace gazebo
+}  // namespace tobas

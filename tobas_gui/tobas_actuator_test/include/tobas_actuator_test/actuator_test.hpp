@@ -5,6 +5,8 @@
 #include "./joint_test/joint_test.hpp"
 #include "./rotor_test/rotor_test.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace at
@@ -24,13 +26,13 @@ public:
     rclcpp::Node::SharedPtr node,
     const RosQtBridge& bridge,
     const kdl::Tree& tree,
-    const tobas::Drone& drone);
+    const Drone& drone);
 
   void reset();
   void updateInternalDataStructures();
 
 private:
-  const tobas::Drone& drone_;
+  const Drone& drone_;
 
   RotorTestWidget* rotor_test_;
   JointTestWidget* joint_test_;
@@ -42,3 +44,4 @@ private:
 };
 }  // namespace at
 }  // namespace gui
+}  // namespace tobas

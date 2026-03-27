@@ -8,6 +8,10 @@
 
 using namespace std::chrono_literals;
 
+namespace tobas
+{
+namespace fc1xx
+{
 class MagDriverNode : public hardware::BaseSensorNode
 {
   static constexpr auto kSamplingPeriod = 10ms;
@@ -19,7 +23,7 @@ public:
   explicit MagDriverNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  fc1xx::IIS2MDC mag_;
+  IIS2MDC mag_;
   ros2::PublisherPtr<tobas_msgs::MagneticField> mag_pub_;
   ros2::TimerPtr initialize_timer_;
 
@@ -30,7 +34,7 @@ private:
 MagDriverNode::MagDriverNode(const rclcpp::NodeOptions& options)
   : super("fc1xx_mag_driver", nodeOptions_Default(options))
 {
-  initialize_timer_ = createWallTimer(fc1xx::kRetryInitializationInterval, &self::initialize, this);
+  initialize_timer_ = createWallTimer(kRetryInitializationInterval, &self::initialize, this);
 }
 
 void MagDriverNode::initialize()
@@ -40,7 +44,7 @@ void MagDriverNode::initialize()
     return;
   }
 
-  mag_pub_ = createPublisher<tobas_msgs::MagneticField>(real::topic::kMagneticField);
+  mag_pub_ = createPublisher<tobas_msgs::MagneticField>(topic::kMagneticField);
 
   initialize_timer_->cancel();
   main_timer_ = createWallTimer(kSamplingPeriod, &self::mainTimerCb, this);
@@ -63,5 +67,7 @@ void MagDriverNode::mainTimerCb()
   // Publish message
   mag_pub_->publish(std::move(msg));
 }
+}  // namespace fc1xx
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(MagDriverNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::fc1xx::MagDriverNode)

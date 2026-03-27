@@ -14,6 +14,8 @@
 #include "./commands/base.hpp"
 #include "./map/map.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -109,3 +111,4 @@ private Q_SLOTS:
 };
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

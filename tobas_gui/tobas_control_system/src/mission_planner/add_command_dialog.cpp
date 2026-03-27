@@ -5,6 +5,8 @@
 #include <QVBoxLayout>
 #include <magic_enum/magic_enum.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -56,3 +58,4 @@ void AddCommandDialog::onOkClicked()
 }
 };  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

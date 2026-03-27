@@ -8,6 +8,8 @@
 
 using namespace std;
 
+namespace tobas
+{
 namespace geomag
 {
 Elements elementsFromMagField(const Vector& mag_field_itrs, double lat, double lon)
@@ -15,8 +17,8 @@ Elements elementsFromMagField(const Vector& mag_field_itrs, double lat, double l
   const auto& x = mag_field_itrs.x;                                // [G]
   const auto& y = mag_field_itrs.y;                                // [G]
   const auto& z = mag_field_itrs.z;                                // [G]
-  const auto phi = tbs::deg2rad(lat);                              // [rad]
-  const auto lam = tbs::deg2rad(lon);                              // [rad]
+  const auto phi = st::deg2rad(lat);                               // [rad]
+  const auto lam = st::deg2rad(lon);                               // [rad]
   const auto sphi = sin(phi);                                      // [-]
   const auto cphi = cos(phi);                                      // [-]
   const auto slam = sin(lam);                                      // [-]
@@ -27,16 +29,16 @@ Elements elementsFromMagField(const Vector& mag_field_itrs, double lat, double l
   const auto down = -cphi * x1 + -sphi * z;                        // [G]
   const auto horizontal = sqrt(north * north + east * east);       // [G]
   const auto total = sqrt(horizontal * horizontal + down * down);  // [G]
-  const auto inclination = tbs::rad2deg(atan2(down, horizontal));  // [deg]
-  const auto declination = tbs::rad2deg(atan2(east, north));       // [deg]
+  const auto inclination = st::rad2deg(atan2(down, horizontal));   // [deg]
+  const auto declination = st::rad2deg(atan2(east, north));        // [deg]
   return { north, east, down, horizontal, total, inclination, declination };
 }
 
 Vector ecefFromGeodetic(double lat, double lon, double h)
 {
   // Convert to radians
-  const auto phi = tbs::deg2rad(lat);
-  const auto lam = tbs::deg2rad(lon);
+  const auto phi = st::deg2rad(lat);
+  const auto lam = st::deg2rad(lon);
 
   // WGS 84 constants
   constexpr double a = 6378137.;  // [m]
@@ -144,3 +146,4 @@ Elements elementsFromGeodetic(double lat, double lon, double h, double dyear, co
   return geomag::elementsFromMagField(mag_field, lat, lon);
 }
 }  // namespace geomag
+}  // namespace tobas

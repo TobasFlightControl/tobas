@@ -1,5 +1,7 @@
 #include "tobas_qt_tools/rgb_color.hpp"
 
+namespace tobas
+{
 namespace qt
 {
 RGBColor RGBColor::mean(const RGBColor& other) const
@@ -16,3 +18,4 @@ bool RGBColor::operator==(const RGBColor& rhs) const
   return r == rhs.r && g == rhs.g && b == rhs.b;
 }
 }  // namespace qt
+}  // namespace tobas

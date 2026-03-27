@@ -6,6 +6,8 @@
 #include "./jntarray.hpp"
 #include "./jntarray_vel.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 /**
@@ -132,4 +134,5 @@ public:
 protected:
   JntArray qdd_out_;
 };
-}  // end of namespace kdl
+}  // namespace kdl
+}  // namespace tobas

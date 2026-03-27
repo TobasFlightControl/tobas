@@ -7,6 +7,8 @@
 #include <tobas_std_tools/array.hpp>
 #include <tobas_std_tools/check.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace at
@@ -14,7 +16,7 @@ namespace at
 JointCommandsPublisherWidget::JointCommandsPublisherWidget(
   rclcpp::Node::SharedPtr node,
   const kdl::Tree& tree,
-  const tobas::Drone& drone)
+  const Drone& drone)
   : node_(node), tree_(tree), drone_(drone), joint_parser_(tree)
 {
   rows_ = new QVBoxLayout();
@@ -46,7 +48,7 @@ void JointCommandsPublisherWidget::updateInternalDataStructures()
     commander->setEnabled(false);
 
     switch (joint.cmd_iface) {
-      case tobas::JointCommandInterface::kPosition: {
+      case JointCommandInterface::kPosition: {
         const auto min_pos = joint_parser_.lowerLimit(jnt_name);
         const auto max_pos = joint_parser_.upperLimit(jnt_name);
         if (std::isinf(min_pos) || std::isinf(max_pos)) {
@@ -61,7 +63,7 @@ void JointCommandsPublisherWidget::updateInternalDataStructures()
 
         break;
       }
-      case tobas::JointCommandInterface::kVelocity: {
+      case JointCommandInterface::kVelocity: {
         auto max_vel = joint_parser_.maxVelocity(jnt_name);
         if (std::isinf(max_vel)) {
           max_vel = kDefaultMaxVel;
@@ -74,7 +76,7 @@ void JointCommandsPublisherWidget::updateInternalDataStructures()
 
         break;
       }
-      case tobas::JointCommandInterface::kEffort: {
+      case JointCommandInterface::kEffort: {
         auto max_eff = joint_parser_.maxEffort(jnt_name);
         if (std::isinf(max_eff)) {
           max_eff = kDefaultMaxEff;
@@ -87,7 +89,7 @@ void JointCommandsPublisherWidget::updateInternalDataStructures()
 
         break;
       }
-      case tobas::JointCommandInterface::kNone: {
+      case JointCommandInterface::kNone: {
         qt::qErrorBox(this, "The command interface of joint \"" + QString::fromStdString(jnt_name) + "\" is not set.");
         continue;
       }
@@ -102,9 +104,9 @@ void JointCommandsPublisherWidget::updateInternalDataStructures()
   }
 
   // トピックを更新
-  const auto pos_topic = path::join(drone_.name, tobas::kRemoteIfaceNS, tobas::topic::kJointPosCmd);
-  const auto vel_topic = path::join(drone_.name, tobas::kRemoteIfaceNS, tobas::topic::kJointVelCmd);
-  const auto eff_topic = path::join(drone_.name, tobas::kRemoteIfaceNS, tobas::topic::kJointEffCmd);
+  const auto pos_topic = path::join(drone_.name, kRemoteIfaceNS, topic::kJointPosCmd);
+  const auto vel_topic = path::join(drone_.name, kRemoteIfaceNS, topic::kJointVelCmd);
+  const auto eff_topic = path::join(drone_.name, kRemoteIfaceNS, topic::kJointEffCmd);
   pos_pub_ = ros2::createPublisher<tobas_msgs::msg::JointCommandArray>(node_, pos_topic);
   vel_pub_ = ros2::createPublisher<tobas_msgs::msg::JointCommandArray>(node_, vel_topic);
   eff_pub_ = ros2::createPublisher<tobas_msgs::msg::JointCommandArray>(node_, eff_topic);
@@ -116,16 +118,16 @@ void JointCommandsPublisherWidget::start()
   for (const auto& [jnt_name, commander] : commanders_) {
     const auto& joint = drone_.joints.at(jnt_name);
     switch (joint.cmd_iface) {
-      case tobas::JointCommandInterface::kPosition:
+      case JointCommandInterface::kPosition:
         commander->setValue(joint.home_pos, true);
         break;
-      case tobas::JointCommandInterface::kVelocity:
+      case JointCommandInterface::kVelocity:
         commander->setValue(0., true);
         break;
-      case tobas::JointCommandInterface::kEffort:
+      case JointCommandInterface::kEffort:
         commander->setValue(0., true);
         break;
-      case tobas::JointCommandInterface::kNone:
+      case JointCommandInterface::kNone:
       default:
         throw;
     }
@@ -161,16 +163,16 @@ void JointCommandsPublisherWidget::setHome()
   for (const auto& [jnt_name, commander] : commanders_) {
     const auto& joint = drone_.joints.at(jnt_name);
     switch (joint.cmd_iface) {
-      case tobas::JointCommandInterface::kPosition:
+      case JointCommandInterface::kPosition:
         commander->setValue(joint.home_pos);
         break;
-      case tobas::JointCommandInterface::kVelocity:
+      case JointCommandInterface::kVelocity:
         commander->setValue(0.);
         break;
-      case tobas::JointCommandInterface::kEffort:
+      case JointCommandInterface::kEffort:
         commander->setValue(0.);
         break;
-      case tobas::JointCommandInterface::kNone:
+      case JointCommandInterface::kNone:
       default:
         throw;
     }
@@ -193,22 +195,22 @@ void JointCommandsPublisherWidget::publishCurrentValues()
   for (const auto& [jnt_name, commander] : commanders_) {
     const auto& joint = drone_.joints.at(jnt_name);
     switch (joint.cmd_iface) {
-      case tobas::JointCommandInterface::kPosition:
+      case JointCommandInterface::kPosition:
         tar_pos->commands.emplace_back();
         tar_pos->commands.back().name = jnt_name;
         tar_pos->commands.back().data = commander->getValue();
         break;
-      case tobas::JointCommandInterface::kVelocity:
+      case JointCommandInterface::kVelocity:
         tar_vel->commands.emplace_back();
         tar_vel->commands.back().name = jnt_name;
         tar_vel->commands.back().data = commander->getValue();
         break;
-      case tobas::JointCommandInterface::kEffort:
+      case JointCommandInterface::kEffort:
         tar_eff->commands.emplace_back();
         tar_eff->commands.back().name = jnt_name;
         tar_eff->commands.back().data = commander->getValue();
         break;
-      case tobas::JointCommandInterface::kNone:
+      case JointCommandInterface::kNone:
       default:
         throw;
     }
@@ -240,3 +242,4 @@ void JointCommandsPublisherWidget::onValueChanged()
 }
 }  // namespace at
 }  // namespace gui
+}  // namespace tobas

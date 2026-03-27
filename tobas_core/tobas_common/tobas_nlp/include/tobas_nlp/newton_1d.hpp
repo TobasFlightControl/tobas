@@ -2,6 +2,8 @@
 
 #include <functional>
 
+namespace tobas
+{
 namespace nlp
 {
 /**
@@ -42,3 +44,4 @@ private:
   double abs_tol_ = 1e-10;
 };
 }  // namespace nlp
+}  // namespace tobas

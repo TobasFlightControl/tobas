@@ -7,6 +7,8 @@
 
 #include "./base.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -50,3 +52,4 @@ private Q_SLOTS:
 }  // namespace rc
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

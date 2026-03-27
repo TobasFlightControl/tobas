@@ -2,6 +2,8 @@
 
 #include <QStandardPaths>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -22,3 +24,4 @@ QString SystemInfo::homeDirectory() const
 }
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

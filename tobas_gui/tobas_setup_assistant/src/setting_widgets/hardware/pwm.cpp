@@ -12,6 +12,8 @@
 
 #include "tobas_setup_assistant/setting_tabs/hardware/constants.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -207,10 +209,10 @@ void PwmWidget::addLastChannel()
     target_name->addItem(QString::fromStdString(joint_name));
   }
   switch (prop_type_) {
-    case tobas::PropulsionSystem::kElectric: {
+    case PropulsionSystem::kElectric: {
       break;
     }
-    case tobas::PropulsionSystem::kIce: {
+    case PropulsionSystem::kIce: {
       for (const auto& [joint_name, _] : uadf_.thrusts) {
         target_name->addItem(QString::fromStdString(joint_name));
       }
@@ -262,7 +264,7 @@ void PwmWidget::removeLastChannel()
   }
 }
 
-void PwmWidget::onPropulsionTypeChanged(const tobas::PropulsionSystem& new_prop_type)
+void PwmWidget::onPropulsionTypeChanged(const PropulsionSystem& new_prop_type)
 {
   if (new_prop_type == prop_type_) {
     return;
@@ -270,10 +272,10 @@ void PwmWidget::onPropulsionTypeChanged(const tobas::PropulsionSystem& new_prop_
 
   // 前の推進系の不要な選択肢を外す
   switch (prop_type_) {
-    case tobas::PropulsionSystem::kElectric: {
+    case PropulsionSystem::kElectric: {
       break;
     }
-    case tobas::PropulsionSystem::kIce: {
+    case PropulsionSystem::kIce: {
       for (int channel = 0; channel < rowCount(); ++channel) {
         const auto target_name = targetNameWidget(channel);
 
@@ -298,10 +300,10 @@ void PwmWidget::onPropulsionTypeChanged(const tobas::PropulsionSystem& new_prop_
 
   // 新しい推進系の選択肢を追加
   switch (new_prop_type) {
-    case tobas::PropulsionSystem::kElectric: {
+    case PropulsionSystem::kElectric: {
       break;
     }
-    case tobas::PropulsionSystem::kIce: {
+    case PropulsionSystem::kIce: {
       for (int channel = 0; channel < rowCount(); ++channel) {
         const auto target_name = targetNameWidget(channel);
 
@@ -323,3 +325,4 @@ void PwmWidget::onPropulsionTypeChanged(const tobas::PropulsionSystem& new_prop_
 }  // namespace hw
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

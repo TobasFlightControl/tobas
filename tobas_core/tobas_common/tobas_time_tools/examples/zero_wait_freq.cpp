@@ -2,7 +2,7 @@
 
 int main()
 {
-  tim::FrequencyMeasure freq_measure;
+  tobas::tim::FrequencyMeasure freq_measure;
 
   while (true) {
     freq_measure.count();

@@ -5,6 +5,8 @@
 
 #include "./qpsolver.hpp"
 
+namespace tobas
+{
 namespace quadprog
 {
 /**
@@ -29,3 +31,4 @@ private:
   quadprogpp::Vector<double> x_;
 };
 }  // namespace quadprog
+}  // namespace tobas

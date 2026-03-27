@@ -2,6 +2,8 @@
 
 using namespace std;
 
+namespace tobas
+{
 namespace kdl
 {
 TreeInertiaSolver::TreeInertiaSolver(const Tree& tree) : super(tree)
@@ -69,3 +71,4 @@ void TreeInertiaSolver::step(const SegmentMap::const_iterator& cur_it, const Jnt
   }
 }
 }  // namespace kdl
+}  // namespace tobas

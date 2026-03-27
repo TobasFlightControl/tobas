@@ -13,7 +13,7 @@ namespace tobas_kdl_msgs
 struct QuaternionStamped
 {
   std_msgs::msg::Header header;
-  kdl::Quaternion quaternion;
+  tobas::kdl::Quaternion quaternion;
 
   using SharedPtr = std::shared_ptr<QuaternionStamped>;
   using ConstSharedPtr = std::shared_ptr<const QuaternionStamped>;

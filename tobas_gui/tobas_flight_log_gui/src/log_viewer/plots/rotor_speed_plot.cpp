@@ -6,6 +6,8 @@
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace log
@@ -125,7 +127,7 @@ void RotorSpeedPlotWidget::updateCurrentSpeedSamples(const QVector<tobas_msgs::m
       const auto& idx = name2idx_.at(elem.link_name);
 
       t_data[idx].push_back(ros2::seconds(msg.header.stamp));
-      speed_data[idx].push_back(tbs::rps2rpm(elem.speed));
+      speed_data[idx].push_back(st::rps2rpm(elem.speed));
     }
   }
 
@@ -154,7 +156,7 @@ void RotorSpeedPlotWidget::updateTargetSpeedSamples(const QVector<tobas_msgs::ms
       const auto& idx = name2idx_[speed.link_name];
 
       t_data[idx].push_back(ros2::seconds(msg.header.stamp));
-      speed_data[idx].push_back(tbs::rps2rpm(speed.speed));
+      speed_data[idx].push_back(st::rps2rpm(speed.speed));
     }
   }
 
@@ -164,3 +166,4 @@ void RotorSpeedPlotWidget::updateTargetSpeedSamples(const QVector<tobas_msgs::ms
 }
 }  // namespace log
 }  // namespace gui
+}  // namespace tobas

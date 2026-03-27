@@ -4,6 +4,8 @@
 
 #include <tobas_qt_tools/message.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -56,3 +58,4 @@ QString IPv4Widget::host() const
 }  // namespace rc
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

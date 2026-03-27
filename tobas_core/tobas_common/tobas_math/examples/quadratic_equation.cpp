@@ -15,6 +15,6 @@ int main(int argc, char** argv)
   const auto b = stod(argv[2]);
   const auto c = stod(argv[3]);
 
-  const auto [x1, x2] = math::solveQuadraticEquation(a, b, c);
+  const auto [x1, x2] = tobas::math::solveQuadraticEquation(a, b, c);
   cout << a << " x^2 + " << b << " x + " << c << " = 0 <=> x = " << x1 << ", " << x2 << endl;
 }

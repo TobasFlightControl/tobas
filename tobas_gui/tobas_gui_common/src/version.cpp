@@ -7,6 +7,8 @@
 
 namespace fs = std::filesystem;
 
+namespace tobas
+{
 namespace gui
 {
 namespace cmn
@@ -21,14 +23,14 @@ Version::Version(int _major, int _minor, int _patch) : major(_major), minor(_min
 
 Version Version::Current()
 {
-  return Version(tobas::version::kMajor, tobas::version::kMinor, tobas::version::kPatch);
+  return Version(version::kMajor, version::kMinor, version::kPatch);
 }
 
 void Version::setToCurrent()
 {
-  major = tobas::version::kMajor;
-  minor = tobas::version::kMinor;
-  patch = tobas::version::kPatch;
+  major = version::kMajor;
+  minor = version::kMinor;
+  patch = version::kPatch;
 }
 
 bool Version::isValid() const
@@ -124,3 +126,4 @@ bool Version::save(const fs::path& path) const
 }
 }  // namespace cmn
 }  // namespace gui
+}  // namespace tobas

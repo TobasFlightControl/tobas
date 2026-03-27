@@ -14,7 +14,7 @@ namespace tobas_kdl_msgs
 {
 struct FrameWithCovariance
 {
-  kdl::Frame frame;
+  tobas::kdl::Frame frame;
   Eigen::Matrix6d covariance;
 
   using SharedPtr = std::shared_ptr<FrameWithCovariance>;

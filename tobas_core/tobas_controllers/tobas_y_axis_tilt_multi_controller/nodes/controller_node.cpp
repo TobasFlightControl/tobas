@@ -187,7 +187,7 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
 
   // Register publishers
   tar_thrusts_pub_ = createPublisher<tobas_msgs::msg::RotorThrustArray>(topic::kRotorThrustsCmd);
-  tar_angles_pub_ = createPublisher<tobas_msgs::msg::JointCommandArray>(tobas::topic::kJointPosCmd);
+  tar_angles_pub_ = createPublisher<tobas_msgs::msg::JointCommandArray>(topic::kJointPosCmd);
   setpoint_pub_ = createPublisher<tobas_msgs::OdometryStamped>(topic::kTrajSetpoint);
   feedback_pub_ = createPublisher<tobas_debug_msgs::MulticopterControllerFeedback>(topic::kMRCtrlFeedback);
 
@@ -409,7 +409,7 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
 
   // 目標推力が重量の割合で定められた閾値未満のときは，推力が小さいほど制御器の自然周波数が小さくなるように調整する．
   const auto tar_thrust = math::norm(ux_, uz_);
-  const auto thrust_thresh = mass_holder_.getMass() * tbs::kGravity * throttle_gain_thresh_;
+  const auto thrust_thresh = mass_holder_.getMass() * st::kGravity * throttle_gain_thresh_;
   const auto land_suspect = (tar_thrust < thrust_thresh);
   const auto gain_throt = land_suspect ? tar_thrust / thrust_thresh : 1.;
 

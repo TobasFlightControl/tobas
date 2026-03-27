@@ -7,7 +7,7 @@ using namespace std;
 int main()
 {
   const string input = "example/directory/file.txt";
-  const auto output = str::rsplit(input, '/');
+  const auto output = tobas::str::rsplit(input, '/');
 
   cout << "Input : " << input << endl;
   cout << "Output: " << output.first << ", " << output.second << endl;

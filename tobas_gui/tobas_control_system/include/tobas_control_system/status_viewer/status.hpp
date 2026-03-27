@@ -2,6 +2,8 @@
 
 #include <tobas_qt_tools/widgets/circle_widget.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -40,3 +42,4 @@ private:
 };
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

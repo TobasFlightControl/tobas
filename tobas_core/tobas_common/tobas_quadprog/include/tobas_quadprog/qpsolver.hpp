@@ -2,6 +2,8 @@
 
 #include <eigen3/Eigen/Core>
 
+namespace tobas
+{
 namespace quadprog
 {
 /**
@@ -89,3 +91,4 @@ inline const std::string& QuadProgSolver::errorMessage() const
   return error_msg_;
 }
 }  // namespace quadprog
+}  // namespace tobas

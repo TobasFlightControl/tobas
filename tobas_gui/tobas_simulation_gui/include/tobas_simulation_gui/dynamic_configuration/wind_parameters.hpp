@@ -8,6 +8,8 @@
 #include <tobas_gazebo_msgs/srv/get_wind_params.hpp>
 #include <tobas_gazebo_msgs/srv/set_wind_params.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sim
@@ -69,3 +71,4 @@ private Q_SLOTS:
 };
 }  // namespace sim
 }  // namespace gui
+}  // namespace tobas

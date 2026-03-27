@@ -5,8 +5,8 @@
 #include <tobas_real_common/ros_interface.hpp>
 #include <tobas_ros2_tools/qos.hpp>
 
-using namespace tobas;
-
+namespace tobas
+{
 namespace gui
 {
 RosQtBridge::RosQtBridge(rclcpp::Node::SharedPtr node) : node_(node)
@@ -62,3 +62,4 @@ void RosQtBridge::addScoped(const std::string& ns, const std::string& topic)
   add<MsgType, SignalType>(path::join(ns, topic), scoped_subs_);
 }
 }  // namespace gui
+}  // namespace tobas

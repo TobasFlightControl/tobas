@@ -4,6 +4,8 @@
 
 #include <inja/inja.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -26,3 +28,4 @@ private:
 };
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

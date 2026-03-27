@@ -11,7 +11,7 @@ namespace tobas_msgs
 struct Wind
 {
   std_msgs::msg::Header header;
-  kdl::Vector vel;
+  tobas::kdl::Vector vel;
 
   using SharedPtr = std::shared_ptr<Wind>;
   using ConstSharedPtr = std::shared_ptr<const Wind>;

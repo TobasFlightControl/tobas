@@ -6,6 +6,8 @@
 #include <tobas_qt_tools/widgets/description_widget.hpp>
 #include <tobas_ros2_tools/register.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace at
@@ -14,7 +16,7 @@ JointTestWidget::JointTestWidget(
   rclcpp::Node::SharedPtr node,
   const RosQtBridge& bridge,
   const kdl::Tree& tree,
-  const tobas::Drone& drone)
+  const Drone& drone)
   : node_(node), tree_(tree), drone_(drone)
 {
   const auto instruction = new qt::DescriptionWidget(
@@ -139,3 +141,4 @@ void JointTestWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& ar
 }
 }  // namespace at
 }  // namespace gui
+}  // namespace tobas

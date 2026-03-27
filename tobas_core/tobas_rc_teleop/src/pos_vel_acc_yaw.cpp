@@ -4,7 +4,9 @@
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 
-namespace tobas_rc_teleop
+namespace tobas
+{
+namespace rc
 {
 PosVelAccYawController::PosVelAccYawController()
 {
@@ -30,7 +32,7 @@ bool PosVelAccYawController::requireHeading()
   return false;
 }
 
-void PosVelAccYawController::initialize(tobas::BaseNode* node, tobas::FlightMode mode)
+void PosVelAccYawController::initialize(BaseNode* node, FlightMode mode)
 {
   node->addDynamicDoubleParam(
     addMode("max_horizontal_velocity", mode), &self::maxHorizontalVelocityCb, this, 0.5, 12, 0, 20, " m/s");
@@ -49,7 +51,7 @@ void PosVelAccYawController::initialize(tobas::BaseNode* node, tobas::FlightMode
     addMode("vertical_velocity_expo", mode), &self::verticalVelocityExpoCb, this, 5., 0, -20, 20);
   node->addDynamicDoubleParam(addMode("heading_expo", mode), &self::headingExpoCb, this, 5., -3, -20, 20);
 
-  cmd_pub_ = node->createPublisher<tobas_command_msgs::PosVelAccYaw>(tobas::topic::kPosVelAccYawCmd);
+  cmd_pub_ = node->createPublisher<tobas_command_msgs::PosVelAccYaw>(topic::kPosVelAccYawCmd);
 }
 
 void PosVelAccYawController::reset(
@@ -151,7 +153,7 @@ bool PosVelAccYawController::maxVerticalAccelCb(const double& p)
 
 bool PosVelAccYawController::maxHeadingRateCb(const double& p)
 {
-  max_head_rate_ = tbs::deg2rad(p);
+  max_head_rate_ = st::deg2rad(p);
   return true;
 }
 
@@ -178,4 +180,5 @@ bool PosVelAccYawController::headingExpoCb(const double& p)
   head_expo_ = p / kExpoScale;
   return true;
 }
-}  // namespace tobas_rc_teleop
+}  // namespace rc
+}  // namespace tobas

@@ -153,7 +153,7 @@ bool PinvMixer::solve(
   }
 
   // 並進EoMの右辺
-  const kdl::Vector grav_W(0, 0, -tbs::kGravity);
+  const kdl::Vector grav_W(0, 0, -st::kGravity);
   auto eom_trans_right_W = mass * (tar_acc_W - grav_W) - ext_force_W;  // [N]
   // 着陸時など加速度の絶対値が小さいとチルト角の解の変化率が相対的に大きくなる．
   // ミキサーはチルト角の追従の遅延を無視しているため，チルト角の変位が大きくなるのは避けたい．

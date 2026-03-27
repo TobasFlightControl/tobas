@@ -14,6 +14,8 @@
 
 #include <tobas_msgs/msg/joint_command_array.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sim
@@ -29,7 +31,7 @@ class JointCommanderWidget : public QWidget
   static constexpr int kPublishCommandPeriod = 100;  // [ms]
 
 public:
-  explicit JointCommanderWidget(rclcpp::Node::SharedPtr node, const kdl::Tree& tree, const tobas::Drone& drone);
+  explicit JointCommanderWidget(rclcpp::Node::SharedPtr node, const kdl::Tree& tree, const Drone& drone);
 
   void updateInternalDataStructures();
 
@@ -39,7 +41,7 @@ public:
 private:
   const rclcpp::Node::SharedPtr node_;
   const kdl::Tree& tree_;
-  const tobas::Drone& drone_;
+  const Drone& drone_;
 
   std::random_device rnd_dev_;
   std::mt19937 rnd_gen_;
@@ -81,3 +83,4 @@ private Q_SLOTS:
 };
 }  // namespace sim
 }  // namespace gui
+}  // namespace tobas

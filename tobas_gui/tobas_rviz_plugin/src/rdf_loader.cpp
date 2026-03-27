@@ -64,7 +64,7 @@ RDFLoader::RDFLoader(const std::string& urdf_string, const std::string& srdf_str
 
 bool RDFLoader::loadFromStrings()
 {
-  auto urdf = std::make_unique<urdf::Model>();
+  auto urdf = std::make_unique<::urdf::Model>();
   if (!urdf->initString(urdf_string_)) {
     RCLCPP_INFO(getLogger(), "Unable to parse URDF");
     return false;

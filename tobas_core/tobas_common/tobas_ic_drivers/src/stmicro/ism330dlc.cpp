@@ -7,6 +7,8 @@
 
 using namespace std;
 
+namespace tobas
+{
 namespace stm
 {
 ISM330DLC::ISM330DLC()
@@ -174,7 +176,7 @@ bool ISM330DLC::setAccelFullScale(fs_xl_t fs)
 
   // LSB -> mg -> g -> m/s^2 (Linear acceleration sensitivity | 4.1 Mechanical characteristics)
   acc_scale_ *= 1e-3;
-  acc_scale_ *= tbs::kGravity;
+  acc_scale_ *= st::kGravity;
 
   return true;
 }
@@ -220,7 +222,7 @@ bool ISM330DLC::setGyroFullScale(fs_g_t fs)
 
   // mdps -> dps -> rad/s (Angular rate sensitivity | 4.1 Mechanical characteristics)
   gyro_scale_ *= 1e-3;
-  gyro_scale_ *= tbs::kDeg2Rad;
+  gyro_scale_ *= st::kDeg2Rad;
 
   return true;
 }
@@ -276,3 +278,4 @@ bool ISM330DLC::checkWhoAmI()
   return true;
 }
 }  // namespace stm
+}  // namespace tobas

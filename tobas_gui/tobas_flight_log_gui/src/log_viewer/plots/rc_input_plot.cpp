@@ -5,6 +5,8 @@
 #include <tobas_constants/rc_input.hpp>
 #include <tobas_ros2_tools/time.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace log
@@ -24,28 +26,28 @@ RcInputPlotWidget::RcInputPlotWidget()
 
   roll_plot_ = new QwtPlot2();
   roll_plot_->setAxisNoLabel(QwtPlot::xBottom);
-  roll_plot_->setAxisScale(QwtPlot::yLeft, tobas::kRcInputMin, tobas::kRcInputMax);
+  roll_plot_->setAxisScale(QwtPlot::yLeft, kRcInputMin, kRcInputMax);
   roll_curve_.setPen(Qt::black, kLineWidth);
   roll_curve_.attach(roll_plot_);
   grid->addWidget(roll_plot_, 0, 0, 1, 1);
 
   pitch_plot_ = new QwtPlot2();
   pitch_plot_->setAxisNoLabel(QwtPlot::xBottom);
-  pitch_plot_->setAxisScale(QwtPlot::yLeft, tobas::kRcInputMin, tobas::kRcInputMax);
+  pitch_plot_->setAxisScale(QwtPlot::yLeft, kRcInputMin, kRcInputMax);
   pitch_curve_.setPen(Qt::black, kLineWidth);
   pitch_curve_.attach(pitch_plot_);
   grid->addWidget(pitch_plot_, 1, 0, 1, 1);
 
   throt_plot_ = new QwtPlot2();
   throt_plot_->setAxisNoLabel(QwtPlot::xBottom);
-  throt_plot_->setAxisScale(QwtPlot::yLeft, tobas::kRcInputMin, tobas::kRcInputMax);
+  throt_plot_->setAxisScale(QwtPlot::yLeft, kRcInputMin, kRcInputMax);
   throt_curve_.setPen(Qt::black, kLineWidth);
   throt_curve_.attach(throt_plot_);
   grid->addWidget(throt_plot_, 2, 0, 1, 1);
 
   yaw_plot_ = new QwtPlot2();
   yaw_plot_->setAxisNoLabel(QwtPlot::xBottom);
-  yaw_plot_->setAxisScale(QwtPlot::yLeft, tobas::kRcInputMin, tobas::kRcInputMax);
+  yaw_plot_->setAxisScale(QwtPlot::yLeft, kRcInputMin, kRcInputMax);
   yaw_curve_.setPen(Qt::black, kLineWidth);
   yaw_curve_.attach(yaw_plot_);
   grid->addWidget(yaw_plot_, 3, 0, 1, 1);
@@ -174,3 +176,4 @@ void RcInputPlotWidget::setData(const QVector<tobas_msgs::msg::RCInput>& msgs)
 }
 }  // namespace log
 }  // namespace gui
+}  // namespace tobas

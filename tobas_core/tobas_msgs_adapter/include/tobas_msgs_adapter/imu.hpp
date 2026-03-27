@@ -12,9 +12,9 @@ namespace tobas_msgs
 struct Imu
 {
   std_msgs::msg::Header header;
-  kdl::Vector accel;
-  kdl::Vector gyro;
-  kdl::Vector dgyro;
+  tobas::kdl::Vector accel;
+  tobas::kdl::Vector gyro;
+  tobas::kdl::Vector dgyro;
 
   using SharedPtr = std::shared_ptr<Imu>;
   using ConstSharedPtr = std::shared_ptr<const Imu>;

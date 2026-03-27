@@ -18,6 +18,8 @@
 
 using namespace std::chrono_literals;
 
+namespace tobas
+{
 template <typename MsgType>
 class TopicThrottle
 {
@@ -33,7 +35,7 @@ public:
     node_ = node;
     rate_manager_.reset();
 
-    pub_ = ros2::createPublisher<MsgType>(node, tobas::addThrotNS(topic));
+    pub_ = ros2::createPublisher<MsgType>(node, addThrotNS(topic));
     sub_ = ros2::createSubscriber(node, topic, &TopicThrottle::callback, this);
   }
 
@@ -57,10 +59,10 @@ private:
   }
 };
 
-class TopicThrottleNode : public tobas::BaseNode
+class TopicThrottleNode : public BaseNode
 {
   using self = TopicThrottleNode;
-  using super = tobas::BaseNode;
+  using super = BaseNode;
 
 public:
   explicit TopicThrottleNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -94,20 +96,21 @@ void TopicThrottleNode::initialize()
 {
   const auto node = shared_from_this();
 
-  battery_throttle_.initialize(node, tobas::topic::kBattery);
-  engine_state_throttle_.initialize(node, tobas::topic::kEngineState);
-  sbus_throttle_.initialize(node, tobas::topic::kSbus);
-  rcin_throttle_.initialize(node, tobas::topic::kRcInput);
-  imu_throttle_.initialize(node, tobas::topic::kImuFilt);
-  mag_throttle_.initialize(node, tobas::topic::kMagneticField);
-  pres_throttle_.initialize(node, tobas::topic::kAirPressure);
-  rotor_states_throttle_.initialize(node, tobas::topic::kRotorStates);
-  joint_states_throttle_.initialize(node, tobas::topic::kJointStates);
-  odom_throttle_.initialize(node, tobas::topic::kOdometry);
+  battery_throttle_.initialize(node, topic::kBattery);
+  engine_state_throttle_.initialize(node, topic::kEngineState);
+  sbus_throttle_.initialize(node, topic::kSbus);
+  rcin_throttle_.initialize(node, topic::kRcInput);
+  imu_throttle_.initialize(node, topic::kImuFilt);
+  mag_throttle_.initialize(node, topic::kMagneticField);
+  pres_throttle_.initialize(node, topic::kAirPressure);
+  rotor_states_throttle_.initialize(node, topic::kRotorStates);
+  joint_states_throttle_.initialize(node, topic::kJointStates);
+  odom_throttle_.initialize(node, topic::kOdometry);
   real_imu_throttle_.initialize(node, real::topic::kImuRaw);
   real_mag_throttle_.initialize(node, real::topic::kMagneticField);
 
   initialize_timer_->cancel();
 }
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(TopicThrottleNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::TopicThrottleNode)

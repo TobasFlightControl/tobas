@@ -2,6 +2,8 @@
 
 #include <filesystem>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -9,3 +11,4 @@ namespace sa
 std::filesystem::path getPkgShareDir();
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

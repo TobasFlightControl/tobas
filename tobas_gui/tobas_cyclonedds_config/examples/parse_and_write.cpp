@@ -24,7 +24,7 @@ int main()
   }
 
   const auto text = tobas::cyclonedds::exportText(data);
-  if (!str::writeText(output_path, text)) {
+  if (!tobas::str::writeText(output_path, text)) {
     return EXIT_FAILURE;
   }
 

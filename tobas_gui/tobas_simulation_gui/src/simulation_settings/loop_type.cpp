@@ -5,6 +5,8 @@
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sim
@@ -51,3 +53,4 @@ LoopType LoopTypeWidget::loopType() const
 }
 }  // namespace sim
 }  // namespace gui
+}  // namespace tobas

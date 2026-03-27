@@ -5,6 +5,8 @@
 
 #include <tobas_linux/uart_dev.hpp>
 
+namespace tobas
+{
 namespace driver
 {
 class NssnmfgPEFC
@@ -93,3 +95,4 @@ uint16_t NssnmfgPEFC::read2Bytes(size_t idx) const
   return (buf_[idx + 1] << 8) | buf_[idx];
 }
 }  // namespace driver
+}  // namespace tobas

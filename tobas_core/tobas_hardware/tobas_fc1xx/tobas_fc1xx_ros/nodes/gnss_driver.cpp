@@ -9,6 +9,10 @@
 
 using namespace std::chrono_literals;
 
+namespace tobas
+{
+namespace fc1xx
+{
 class GnssDriverNode : public hardware::BaseSensorNode
 {
   static constexpr char kSpiDevice[] = "/dev/spidev1.2";
@@ -47,7 +51,7 @@ private:
 GnssDriverNode::GnssDriverNode(const rclcpp::NodeOptions& options)
   : super("fc1xx_gnss_driver", nodeOptions_Default(options))
 {
-  initialize_timer_ = createWallTimer(fc1xx::kRetryInitializationInterval, &self::initialize, this);
+  initialize_timer_ = createWallTimer(kRetryInitializationInterval, &self::initialize, this);
 }
 
 void GnssDriverNode::initialize()
@@ -67,7 +71,7 @@ void GnssDriverNode::initialize()
   is_received_[ublox::ZEDF9P::NAV_VELNED] = false;
   is_received_[ublox::ZEDF9P::NAV_COV] = false;
 
-  gnss_pub_ = createPublisher<tobas_msgs::Gnss>(tobas::topic::kGnss);
+  gnss_pub_ = createPublisher<tobas_msgs::Gnss>(topic::kGnss);
 
   initialize_timer_->cancel();
   main_timer_ = createWallTimer(kMainTimerPeriod, &self::mainTimerCb, this);
@@ -210,7 +214,7 @@ void GnssDriverNode::mainTimerCb()
 
   // GNSSメッセージの遅延を表示 (デバッグモードのみ)
   if (get_logger().get_effective_level() <= rclcpp::Logger::Level::Debug) {
-    const auto delay_ms = tbs::computeGpsDelayFromToW(hpposllh_.iTOW);
+    const auto delay_ms = st::computeGpsDelayFromToW(hpposllh_.iTOW);
     TOBAS_DEBUG("GNSS delay: ", delay_ms, "[ms]");
   }
 
@@ -257,5 +261,7 @@ void GnssDriverNode::mainTimerCb()
   // Publish GNSS message
   gnss_pub_->publish(std::move(gnss_msg));
 }
+}  // namespace fc1xx
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(GnssDriverNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::fc1xx::GnssDriverNode)

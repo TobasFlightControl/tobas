@@ -4,6 +4,8 @@
 
 #include "./base.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -19,3 +21,4 @@ public:
 }  // namespace map
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

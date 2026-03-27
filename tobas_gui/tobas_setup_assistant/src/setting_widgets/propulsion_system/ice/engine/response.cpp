@@ -2,6 +2,8 @@
 
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -64,3 +66,4 @@ double EngineResponseWidget::timeConstDown() const
 }  // namespace propulsion
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

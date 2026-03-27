@@ -3,6 +3,8 @@
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_std_tools/check.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -32,3 +34,4 @@ void RobotPropertiesWidget::setFrameType(const FrameType& type)
 }
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

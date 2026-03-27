@@ -4,6 +4,8 @@
 
 #include "./frames.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 class AngleAxis
@@ -60,3 +62,4 @@ inline std::ostream& operator<<(std::ostream& os, const AngleAxis& arg)
   return os;
 }
 }  // namespace kdl
+}  // namespace tobas

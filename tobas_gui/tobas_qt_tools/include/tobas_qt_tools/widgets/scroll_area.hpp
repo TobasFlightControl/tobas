@@ -2,6 +2,8 @@
 
 #include <QScrollArea>
 
+namespace tobas
+{
 namespace qt
 {
 /**
@@ -25,3 +27,4 @@ public:
   void setBackgroundTransparent();
 };
 }  // namespace qt
+}  // namespace tobas

@@ -5,6 +5,8 @@
 using namespace std;
 using namespace Eigen;
 
+namespace tobas
+{
 namespace ctrl
 {
 C2D_Tustin::C2D_Tustin(const Index& x_size, const Index& u_size)
@@ -41,3 +43,4 @@ void C2D_Tustin::resize(const Index& x_size, const Index& u_size)
   I_ = MatrixXd::Identity(x_size, x_size);
 }
 }  // namespace ctrl
+}  // namespace tobas

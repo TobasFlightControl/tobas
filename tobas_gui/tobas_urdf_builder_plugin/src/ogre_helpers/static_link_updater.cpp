@@ -1,22 +1,24 @@
 #include "tobas_urdf_builder_plugin/ogre_helpers/static_link_updater.hpp"
 
-static inline Ogre::Vector3 URDFVector3ToOgre(const urdf::Vector3& v)
+static inline Ogre::Vector3 URDFVector3ToOgre(const ::urdf::Vector3& v)
 {
   return Ogre::Vector3(v.x, v.y, v.z);
 }
 
-static inline Ogre::Quaternion URDFRotationToOgre(const urdf::Rotation& r)
+static inline Ogre::Quaternion URDFRotationToOgre(const ::urdf::Rotation& r)
 {
   return Ogre::Quaternion(r.w, r.x, r.y, r.z);
 }
 
+namespace tobas
+{
 namespace gui
 {
 namespace ub
 {
 namespace ogre
 {
-StaticLinkUpdater::StaticLinkUpdater(urdf::ModelSharedPtr urdf) : urdf_(std::move(urdf))
+StaticLinkUpdater::StaticLinkUpdater(::urdf::ModelSharedPtr urdf) : urdf_(std::move(urdf))
 {
   for (const auto& link : urdf_->links_) {
     transforms_[link.first] = findTransform(link.second);
@@ -50,7 +52,7 @@ void StaticLinkUpdater::setLinkStatus(rviz_common::properties::StatusLevel, cons
 {
 }
 
-Ogre::Matrix4 StaticLinkUpdater::findTransform(const urdf::LinkConstSharedPtr& link)
+Ogre::Matrix4 StaticLinkUpdater::findTransform(const ::urdf::LinkConstSharedPtr& link)
 {
   std::vector<Ogre::Matrix4> matrices;
 
@@ -79,3 +81,4 @@ Ogre::Matrix4 StaticLinkUpdater::findTransform(const urdf::LinkConstSharedPtr& l
 }  // namespace ogre
 }  // namespace ub
 }  // namespace gui
+}  // namespace tobas

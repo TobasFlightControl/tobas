@@ -17,7 +17,7 @@ struct convert<std::array<T, N>>
 
     for (auto& value : rhs) {
       if constexpr (std::is_floating_point_v<T>) {
-        node.push_back(yaml::format(value));
+        node.push_back(tobas::yaml::format(value));
       }
       else {
         node.push_back(value);

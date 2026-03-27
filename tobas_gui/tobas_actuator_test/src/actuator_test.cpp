@@ -2,6 +2,8 @@
 
 #include <tobas_qt_tools/cast.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace at
@@ -10,7 +12,7 @@ ActuatorTestWidget::ActuatorTestWidget(
   rclcpp::Node::SharedPtr node,
   const RosQtBridge& bridge,
   const kdl::Tree& tree,
-  const tobas::Drone& drone)
+  const Drone& drone)
   : drone_(drone)
 {
   setTabSize(kTabWidth, kTabHeight);
@@ -68,3 +70,4 @@ void ActuatorTestWidget::setTabsEnabled(bool enabled)
 }
 }  // namespace at
 }  // namespace gui
+}  // namespace tobas

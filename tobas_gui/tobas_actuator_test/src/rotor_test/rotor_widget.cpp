@@ -6,6 +6,8 @@
 
 #include <tobas_qt_tools/util.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace at
@@ -167,3 +169,4 @@ void RotorWidget::onGainChanged(int gain)
 }
 }  // namespace at
 }  // namespace gui
+}  // namespace tobas

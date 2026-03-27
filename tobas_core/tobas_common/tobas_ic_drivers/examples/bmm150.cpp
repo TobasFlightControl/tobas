@@ -7,7 +7,7 @@ using namespace std;
 
 int main()
 {
-  driver::BMM150 mag;
+  tobas::driver::BMM150 mag;
   double mx, my, mz;
 
   if (!mag.initialize()) {

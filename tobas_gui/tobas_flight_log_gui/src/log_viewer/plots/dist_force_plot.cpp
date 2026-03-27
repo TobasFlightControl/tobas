@@ -4,6 +4,8 @@
 
 #include <tobas_ros2_tools/time.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace log
@@ -65,3 +67,4 @@ void DisturbanceForcePlotWidget::setData(const QVector<tobas_kdl_msgs::msg::Wren
 }
 }  // namespace log
 }  // namespace gui
+}  // namespace tobas

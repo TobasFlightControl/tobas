@@ -2,6 +2,8 @@
 
 using namespace std;
 
+namespace tobas
+{
 namespace kdl
 {
 TreeTaskSpaceVelCtrl::TreeTaskSpaceVelCtrl(const Tree& tree) : super(tree), fk_(tree), ik_(tree)
@@ -88,3 +90,4 @@ bool TreeTaskSpaceVelCtrl::setAngularTimeConst(const double& t)
   return true;
 }
 }  // namespace kdl
+}  // namespace tobas

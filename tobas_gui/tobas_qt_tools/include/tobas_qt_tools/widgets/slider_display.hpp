@@ -6,6 +6,8 @@
 #include "./double_slider.hpp"
 #include "./slider.hpp"
 
+namespace tobas
+{
 namespace qt
 {
 class IntSliderDisplay : public QWidget
@@ -89,3 +91,4 @@ private Q_SLOTS:
   void onSliderValueChanged(double value);
 };
 }  // namespace qt
+}  // namespace tobas

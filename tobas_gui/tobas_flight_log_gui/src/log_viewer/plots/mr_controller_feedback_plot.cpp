@@ -6,6 +6,8 @@
 #include <tobas_kdl/rotation.hpp>
 #include <tobas_ros2_tools/time.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace log
@@ -68,3 +70,4 @@ void MRControllerFeedbackPlotWidget::setData(const QVector<tobas_debug_msgs::msg
 }
 }  // namespace log
 }  // namespace gui
+}  // namespace tobas

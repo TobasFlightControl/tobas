@@ -4,6 +4,8 @@
 
 #include <tobas_qt_tools/message.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace gcs
@@ -29,3 +31,4 @@ void NetworkChecker::onTimeout()
 }
 }  // namespace gcs
 }  // namespace gui
+}  // namespace tobas

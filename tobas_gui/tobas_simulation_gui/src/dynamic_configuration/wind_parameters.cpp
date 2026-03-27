@@ -14,6 +14,8 @@
 
 #include "tobas_simulation_gui/dynamic_configuration/constants.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sim
@@ -124,7 +126,7 @@ double WindParamsWidget::getMeanSpeed() const
 
 double WindParamsWidget::getDirection() const
 {
-  return tbs::deg2rad(direction_->get());
+  return st::deg2rad(direction_->get());
 }
 
 double WindParamsWidget::getGustSpeedFactor() const
@@ -151,7 +153,7 @@ void WindParamsWidget::setMeanSpeed(double value)
 void WindParamsWidget::setDirection(double value_rad)
 {
   QSignalBlocker speed(direction_);
-  direction_->set(tbs::rad2deg(value_rad));
+  direction_->set(st::rad2deg(value_rad));
 }
 
 void WindParamsWidget::setGustSpeedFactor(double value)
@@ -233,3 +235,4 @@ void WindParamsWidget::onValueChanged()
 }
 }  // namespace sim
 }  // namespace gui
+}  // namespace tobas

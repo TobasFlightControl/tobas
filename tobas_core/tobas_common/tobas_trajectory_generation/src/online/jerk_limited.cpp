@@ -5,6 +5,8 @@
 
 #include <tobas_math/core.hpp>
 
+namespace tobas
+{
 namespace traj
 {
 namespace
@@ -139,3 +141,4 @@ void JerkLimitedOnlineTrajectoryGenerator::resetCurrentTrajectoryPoint(double po
   traj_acc_ = acc;
 }
 }  // namespace traj
+}  // namespace tobas

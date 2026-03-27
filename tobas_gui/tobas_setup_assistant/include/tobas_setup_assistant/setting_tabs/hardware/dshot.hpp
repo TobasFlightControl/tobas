@@ -9,6 +9,8 @@
 
 #include "tobas_setup_assistant/signals.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -49,7 +51,7 @@ public:
 private:
   const uadf::Model& uadf_;
 
-  tobas::PropulsionSystem prop_type_ = tobas::PropulsionSystem::kElectric;
+  PropulsionSystem prop_type_ = PropulsionSystem::kElectric;
 
   qt::ComboBox* targetNameWidget(int row);
   QPushButton* bidirectionalWidget(int row);
@@ -64,9 +66,10 @@ private:
   void setBidirectionalButtonText(QPushButton* button, bool checked);
 
 private Q_SLOTS:
-  void onPropulsionTypeChanged(const tobas::PropulsionSystem& new_prop_type);
+  void onPropulsionTypeChanged(const PropulsionSystem& new_prop_type);
   void onBidirectionalButtonToggled(QPushButton* button, bool checked);
 };
 }  // namespace hw
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

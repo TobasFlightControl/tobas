@@ -2,6 +2,8 @@
 
 #include <cmath>
 
+namespace tobas
+{
 namespace traj
 {
 /* memo: 3-50 */
@@ -57,3 +59,4 @@ inline void AccelLimitedOnlineTrajectoryGenerator::setTargetVelocity(double tar_
   vf_ = tar_vel;
 }
 }  // namespace traj
+}  // namespace tobas

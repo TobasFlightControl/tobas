@@ -2,6 +2,8 @@
 
 #include <string>
 
+namespace tobas
+{
 namespace path
 {
 /* Same as os.path.join() from Python. */
@@ -38,3 +40,4 @@ std::string join(const T& x, const U& y, const Args&... args)
   return join(join(x, y), args...);
 }
 }  // namespace path
+}  // namespace tobas

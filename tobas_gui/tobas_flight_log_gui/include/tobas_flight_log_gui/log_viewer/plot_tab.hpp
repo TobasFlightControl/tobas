@@ -25,6 +25,8 @@
 #include "./plots/twist_plot.hpp"
 #include "./plots/vibration_level_plot.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace log
@@ -122,3 +124,4 @@ private Q_SLOTS:
 };
 }  // namespace log
 }  // namespace gui
+}  // namespace tobas

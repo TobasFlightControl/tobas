@@ -16,6 +16,8 @@
 
 namespace fs = std::filesystem;
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -311,3 +313,4 @@ void AerodynamicsCoefficientsWidget::onLoadButtonClicked()
 }  // namespace fw
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

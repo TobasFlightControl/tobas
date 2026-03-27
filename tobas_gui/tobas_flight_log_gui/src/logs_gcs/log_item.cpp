@@ -6,6 +6,8 @@
 
 #include "tobas_flight_log_gui/constants.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace log
@@ -49,3 +51,4 @@ void FlightLogItemWidgetGCS::onDeleteButtonClicked()
 }
 }  // namespace log
 }  // namespace gui
+}  // namespace tobas

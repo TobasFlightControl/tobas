@@ -2,6 +2,8 @@
 
 #include <QHBoxLayout>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -44,3 +46,4 @@ void MaxVerticalVelocityWidget::setValue(double value)
 }  // namespace field
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

@@ -10,6 +10,8 @@
 
 #include "./linear_dynamics.hpp"
 
+namespace tobas
+{
 namespace lr_tools
 {
 struct GroundForceControllerConfig
@@ -84,7 +86,7 @@ private:
   // Config
   double friction_coef_;
   double foot_diameter_;
-  tbs::Range<double> normal_force_range_;
+  st::Range<double> normal_force_range_;
 
   kdl::TreeInertiaSolver inertia_solver_;
   kdl::TreeBoundingBoxSolver bb_solver_;
@@ -158,3 +160,4 @@ inline const std::string& GroundForceController::errorMessage() const
   return mpc_.errorMessage();
 }
 }  // namespace lr_tools
+}  // namespace tobas

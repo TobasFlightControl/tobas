@@ -7,6 +7,8 @@
 
 #include "tobas_actuator_test/util.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace at
@@ -70,3 +72,4 @@ QObject* SpeedmeterWidget::getGaugeObject() const
 }
 }  // namespace at
 }  // namespace gui
+}  // namespace tobas

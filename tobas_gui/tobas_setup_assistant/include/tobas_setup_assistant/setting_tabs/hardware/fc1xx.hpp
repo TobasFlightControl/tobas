@@ -2,6 +2,8 @@
 
 #include "./base.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -51,3 +53,4 @@ public:
 }  // namespace hw
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

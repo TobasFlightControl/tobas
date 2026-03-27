@@ -22,17 +22,17 @@ def generate_launch_description():
             composable_node_descriptions=[
                 ComposableNode(
                     package=pkg_name,
-                    plugin="ImuDriverNode",
+                    plugin="tobas::fc1xx::ImuDriverNode",
                     namespace=ns,
                 ),
                 ComposableNode(
                     package=pkg_name,
-                    plugin="DShotDriverNode",
+                    plugin="tobas::fc1xx::DShotDriverNode",
                     namespace=ns,
                 ),
                 ComposableNode(
                     package=pkg_name,
-                    plugin="PwmDriverNode",
+                    plugin="tobas::fc1xx::PwmDriverNode",
                     namespace=ns,
                 ),
             ],
@@ -46,22 +46,22 @@ def generate_launch_description():
             composable_node_descriptions=[
                 ComposableNode(
                     package=pkg_name,
-                    plugin="MagDriverNode",
+                    plugin="tobas::fc1xx::MagDriverNode",
                     namespace=ns,
                 ),
                 ComposableNode(
                     package=pkg_name,
-                    plugin="BaroDriverNode",
+                    plugin="tobas::fc1xx::BaroDriverNode",
                     namespace=ns,
                 ),
                 ComposableNode(
                     package=pkg_name,
-                    plugin="GnssDriverNode",
+                    plugin="tobas::fc1xx::GnssDriverNode",
                     namespace=ns,
                 ),
                 ComposableNode(
                     package=pkg_name,
-                    plugin="BatteryDriverNode",
+                    plugin="tobas::fc1xx::BatteryDriverNode",
                     namespace=ns,
                 ),
             ],

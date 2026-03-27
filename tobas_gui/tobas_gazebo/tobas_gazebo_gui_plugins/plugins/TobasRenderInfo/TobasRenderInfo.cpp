@@ -11,6 +11,8 @@
 
 namespace ch = std::chrono;
 
+namespace tobas
+{
 namespace gazebo
 {
 TobasRenderInfo::TobasRenderInfo()
@@ -75,5 +77,6 @@ void TobasRenderInfo::onRender()
   }
 }
 }  // namespace gazebo
+}  // namespace tobas
 
-GZ_ADD_PLUGIN(gazebo::TobasRenderInfo, gz::gui::Plugin)
+GZ_ADD_PLUGIN(tobas::gazebo::TobasRenderInfo, gz::gui::Plugin)

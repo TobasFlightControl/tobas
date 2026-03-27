@@ -13,6 +13,8 @@
 
 #include <tobas_visualization_msgs/msg/display_robot_state.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -59,3 +61,4 @@ private Q_SLOTS:
 };
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

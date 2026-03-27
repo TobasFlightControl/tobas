@@ -13,7 +13,7 @@ void process(int n, int iter)
   const auto A = Matrix<T, Dynamic, Dynamic>::Random(n, n);
   const auto B = Matrix<T, Dynamic, Dynamic>::Random(n, n);
 
-  tim::Stopwatch stopwatch(iter);
+  tobas::tim::Stopwatch stopwatch(iter);
 
   for (int i = 0; i < iter; ++i) {
     cout << "Iter " << i << endl;

@@ -17,6 +17,8 @@
 
 namespace fs = std::filesystem;
 
+namespace tobas
+{
 namespace gui
 {
 namespace log
@@ -35,7 +37,7 @@ FlightLogRecorderWidget::FlightLogRecorderWidget(rclcpp::Node::SharedPtr node, c
   file_size_ = new qt::HPositionBarWidget();
   file_size_->setLower(0);
   file_size_->setMinimum(0);
-  file_size_->setMaximum(tobas::kMaxRosbagSize);
+  file_size_->setMaximum(kMaxRosbagSize);
 
   message_count_ = new qt::FramedLabel();
 
@@ -188,3 +190,4 @@ void FlightLogRecorderWidget::rosbagStateCb(const tobas_msgs::msg::RosbagState::
 }
 }  // namespace log
 }  // namespace gui
+}  // namespace tobas

@@ -10,6 +10,8 @@
 #include "./ice/propulsion_system.hpp"
 #include "tobas_setup_assistant/signals.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -38,7 +40,7 @@ public:
   YAML::Node dump() const override;
   void load(const YAML::Node& node) override;
 
-  tobas::PropulsionSystem type() const;
+  PropulsionSystem type() const;
   int numUnits() const;
 
   QString linkName(int index) const;
@@ -69,3 +71,4 @@ private Q_SLOTS:
 };  // namespace propulsion
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

@@ -9,6 +9,8 @@
 
 #include <tobas_qt_tools/widgets/combo_box.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sim
@@ -39,3 +41,4 @@ private Q_SLOTS:
 };
 }  // namespace sim
 }  // namespace gui
+}  // namespace tobas

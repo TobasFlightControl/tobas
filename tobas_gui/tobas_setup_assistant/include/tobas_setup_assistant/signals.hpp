@@ -4,6 +4,8 @@
 
 #include <tobas_drone_core/propulsion_system/type.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -18,7 +20,8 @@ class Signals : public QObject
   Q_OBJECT
 
 Q_SIGNALS:
-  void propulsionTypeChanged(const tobas::PropulsionSystem& type);
+  void propulsionTypeChanged(const PropulsionSystem& type);
 };
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

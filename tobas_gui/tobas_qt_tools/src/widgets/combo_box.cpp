@@ -5,6 +5,8 @@
 
 #include "tobas_qt_tools/cast.hpp"
 
+namespace tobas
+{
 namespace qt
 {
 void ComboBox::wheelEvent(QWheelEvent* event)
@@ -62,3 +64,4 @@ void ComboBox::setItemEnabled(const QString& text, bool enabled)
   setItemEnabled(findText(text), enabled);
 }
 }  // namespace qt
+}  // namespace tobas

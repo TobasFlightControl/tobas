@@ -1,11 +1,9 @@
-extern "C" {
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
 #include <libavutil/imgutils.h>
 #include <libavutil/opt.h>
 #include <libavutil/time.h>
 #include <libswscale/swscale.h>
-}
 
 #include <rclcpp_components/register_node_macro.hpp>
 
@@ -14,7 +12,11 @@ extern "C" {
 #include <sensor_msgs/image_encodings.hpp>
 #include <sensor_msgs/msg/image.hpp>
 
-class FFmpegToROSMsgConverter : public tobas::BaseNode
+namespace tobas
+{
+namespace camera
+{
+class FFmpegToROSMsgConverter : public BaseNode
 {
 public:
   explicit FFmpegToROSMsgConverter(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -43,7 +45,7 @@ private:
 };
 
 FFmpegToROSMsgConverter::FFmpegToROSMsgConverter(const rclcpp::NodeOptions& options)
-  : tobas::BaseNode("ffmpeg_to_ros_msg_converter", nodeOptions_Default(options))
+  : BaseNode("ffmpeg_to_ros_msg_converter", nodeOptions_Default(options))
 {
   const auto ros_image_topic_name = getStringParam("ros_image_topic", "image");
   // ffmpegが送信してくるデータのプロトコルの名称．udp, srtなど．
@@ -260,5 +262,7 @@ bool FFmpegToROSMsgConverter::convertFrameToMessage(const AVFrame* frame, const 
 
   return true;
 }
+}  // namespace camera
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(FFmpegToROSMsgConverter)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::camera::FFmpegToROSMsgConverter)

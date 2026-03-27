@@ -3,6 +3,8 @@
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/check.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -65,3 +67,4 @@ double BladeTheory::C_H() const
 }  // namespace propulsion
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

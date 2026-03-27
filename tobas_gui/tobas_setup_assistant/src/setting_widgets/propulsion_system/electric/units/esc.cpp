@@ -2,6 +2,8 @@
 
 #include <tobas_qt_tools/cast.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -66,3 +68,4 @@ double ESCWidget::maxCurrent() const
 }  // namespace propulsion
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

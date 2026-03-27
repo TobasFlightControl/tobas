@@ -8,6 +8,8 @@
 
 namespace fs = std::filesystem;
 
+namespace tobas
+{
 namespace gui
 {
 namespace cmn
@@ -37,3 +39,4 @@ bool sourceTobasProject(const fs::path& proj_path)
 }
 }  // namespace cmn
 }  // namespace gui
+}  // namespace tobas

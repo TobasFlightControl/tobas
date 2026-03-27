@@ -6,15 +6,17 @@
 
 #include "./base_view_model.hpp"
 
-using GeometryType = decltype(urdf::Geometry::type);
+using GeometryType = decltype(::urdf::Geometry::type);
 
+namespace tobas
+{
 namespace gui
 {
 namespace ub
 {
 namespace view_model
 {
-class GeometryViewModel : public BaseViewModel<urdf::Geometry, GeometryViewModel>
+class GeometryViewModel : public BaseViewModel<::urdf::Geometry, GeometryViewModel>
 {
   static constexpr double kDefaultRadius = 0.;
   static constexpr double kDefaultLength = 0.;
@@ -23,7 +25,7 @@ class GeometryViewModel : public BaseViewModel<urdf::Geometry, GeometryViewModel
   static constexpr double kDefaultScale = 1.;
 
 public:
-  explicit GeometryViewModel(const urdf::GeometrySharedPtr& model);
+  explicit GeometryViewModel(const ::urdf::GeometrySharedPtr& model);
 
   void sync() override;
 
@@ -48,8 +50,8 @@ public:
   QString filePath() const;
   void filePath(const QString& filepath);
 
-  const urdf::Vector3& scale() const;
-  void scale(const urdf::Vector3& scale);
+  const ::urdf::Vector3& scale() const;
+  void scale(const ::urdf::Vector3& scale);
 
 private:
   GeometryType type_;
@@ -58,7 +60,7 @@ private:
   double width_;
   double height_;
   std::string filepath_;
-  urdf::Vector3 scale_;
+  ::urdf::Vector3 scale_;
 
   void load();
 };
@@ -67,3 +69,4 @@ using GeometryViewModelPtr = std::shared_ptr<GeometryViewModel>;
 }  // namespace view_model
 }  // namespace ub
 }  // namespace gui
+}  // namespace tobas

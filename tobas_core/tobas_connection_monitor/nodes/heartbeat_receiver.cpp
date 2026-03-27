@@ -6,12 +6,14 @@
 
 using namespace std::chrono_literals;
 
-class HeartbeatReceiverNode : public tobas::BaseNode
+namespace tobas
+{
+class HeartbeatReceiverNode : public BaseNode
 {
   static constexpr auto kConnectionTimeout = 5s;
 
   using self = HeartbeatReceiverNode;
-  using super = tobas::BaseNode;
+  using super = BaseNode;
 
 public:
   explicit HeartbeatReceiverNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -30,8 +32,8 @@ private:
 HeartbeatReceiverNode::HeartbeatReceiverNode(const rclcpp::NodeOptions& options)
   : super("heartbeat_receiver", nodeOptions_Default(options))
 {
-  connection_pub_ = createPublisher<tobas_msgs::msg::RemoteConnection>(tobas::topic::kRemoteConnection);
-  heartbeat_sub_ = createSubscriber(tobas::topic::kHeartbeat, &self::heartbeatCb, this);
+  connection_pub_ = createPublisher<tobas_msgs::msg::RemoteConnection>(topic::kRemoteConnection);
+  heartbeat_sub_ = createSubscriber(topic::kHeartbeat, &self::heartbeatCb, this);
   timeout_timer_ = createTimer(kConnectionTimeout, &self::onConnectionTimeout, this);
 }
 
@@ -53,5 +55,6 @@ void HeartbeatReceiverNode::onConnectionTimeout()
 {
   publishConnectionState(false);
 }
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(HeartbeatReceiverNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::HeartbeatReceiverNode)

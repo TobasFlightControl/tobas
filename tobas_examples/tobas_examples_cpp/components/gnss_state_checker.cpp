@@ -12,7 +12,7 @@ public:
   explicit GnssStateCheckerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  ros2::SubscriberPtr<tobas_msgs::Gnss> gnss_sub_;
+  tobas::ros2::SubscriberPtr<tobas_msgs::Gnss> gnss_sub_;
 
   void gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss);
 };

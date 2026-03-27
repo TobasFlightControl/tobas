@@ -14,21 +14,23 @@
 #include <tobas_msgs/msg/rotor_state_array.hpp>
 #include <tobas_msgs_adapter/odometry_with_covariance_stamped.hpp>
 
-class DisturbanceObserverNode : public tobas::BaseNode
+namespace tobas
+{
+class DisturbanceObserverNode : public BaseNode
 {
   using self = DisturbanceObserverNode;
-  using super = tobas::BaseNode;
+  using super = BaseNode;
 
 public:
   explicit DisturbanceObserverNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
   kdl::Tree tree_;
-  tobas::Drone::ConstSharedPtr drone_;
+  Drone::ConstSharedPtr drone_;
 
   kdl::TreeFkSolverPosAll fk_solver_;
   kdl::TreeInertiaSolver inertia_solver_;
-  tobas::TreeJointStateConverter js_converter_;
+  TreeJointStateConverter js_converter_;
 
   std::map<std::string, double> rotor_thrusts_;
   bool js_received_ = false;
@@ -36,14 +38,14 @@ private:
   ros2::PublisherPtr<tobas_kdl_msgs::WrenchStamped> dist_force_pub_;
 
   ros2::SubscriberPtr<kdl::Tree> tree_sub_;
-  ros2::SubscriberPtr<tobas::Drone> drone_sub_;
+  ros2::SubscriberPtr<Drone> drone_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::RotorStateArray> rotor_states_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::RotorLivelinessArray> rotor_liveliness_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::JointStateArray> joint_states_sub_;
   ros2::SubscriberPtr<tobas_msgs::OdometryWithCovarianceStamped> odom_sub_;
 
   void treeCb(const kdl::Tree::ConstSharedPtr& tree);
-  void droneCb(const tobas::Drone::ConstSharedPtr& drone);
+  void droneCb(const Drone::ConstSharedPtr& drone);
   void rotorStatesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& rotor_states);
   void rotorLivelinessCb(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& rotor_liveliness);
   void jointStatesCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& joint_states);
@@ -56,13 +58,13 @@ DisturbanceObserverNode::DisturbanceObserverNode(const rclcpp::NodeOptions& opti
   , inertia_solver_(tree_)
   , js_converter_(tree_)
 {
-  dist_force_pub_ = createPublisher<tobas_kdl_msgs::WrenchStamped>(tobas::topic::kDisturbanceForce);
+  dist_force_pub_ = createPublisher<tobas_kdl_msgs::WrenchStamped>(topic::kDisturbanceForce);
 
-  tree_sub_ = createSubscriber(tobas::topic::kKdlTree, &self::treeCb, this, true, true);
-  drone_sub_ = createSubscriber(tobas::topic::kDrone, &self::droneCb, this, true, true);
-  rotor_states_sub_ = createSubscriber(tobas::topic::kRotorStates, &self::rotorStatesCb, this);
-  rotor_liveliness_sub_ = createSubscriber(tobas::topic::kRotorLiv, &self::rotorLivelinessCb, this);
-  odom_sub_ = createSubscriber(tobas::topic::kOdometry, &self::odomCb, this);
+  tree_sub_ = createSubscriber(topic::kKdlTree, &self::treeCb, this, true, true);
+  drone_sub_ = createSubscriber(topic::kDrone, &self::droneCb, this, true, true);
+  rotor_states_sub_ = createSubscriber(topic::kRotorStates, &self::rotorStatesCb, this);
+  rotor_liveliness_sub_ = createSubscriber(topic::kRotorLiv, &self::rotorLivelinessCb, this);
+  odom_sub_ = createSubscriber(topic::kOdometry, &self::odomCb, this);
 }
 
 void DisturbanceObserverNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
@@ -74,7 +76,7 @@ void DisturbanceObserverNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
   js_converter_.updateInternalDataStructures();
 }
 
-void DisturbanceObserverNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
+void DisturbanceObserverNode::droneCb(const Drone::ConstSharedPtr& drone)
 {
   drone_ = drone;
 
@@ -82,7 +84,7 @@ void DisturbanceObserverNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
   js_received_ = false;
 
   if (drone->hasServoJoint()) {
-    joint_states_sub_ = createSubscriber(tobas::topic::kJointStates, &self::jointStatesCb, this);
+    joint_states_sub_ = createSubscriber(topic::kJointStates, &self::jointStatesCb, this);
   }
   else {
     joint_states_sub_.reset();
@@ -174,7 +176,7 @@ void DisturbanceObserverNode::odomCb(const tobas_msgs::OdometryWithCovarianceSta
   const auto B_Pos_B2G = inertia.getCOG();
   const auto I_B = inertia.getRotationalInertiaCoG();
   const auto& mass = inertia.getMass();
-  const auto weight = mass * tbs::kGravity;
+  const auto weight = mass * st::kGravity;
 
   // 推力がかかる項を計算
   kdl::Vector trans_sum = kdl::Vector::Zero();
@@ -213,5 +215,6 @@ void DisturbanceObserverNode::odomCb(const tobas_msgs::OdometryWithCovarianceSta
   // 外力メッセージを発行
   dist_force_pub_->publish(std::move(dist_force_msg));
 }
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(DisturbanceObserverNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::DisturbanceObserverNode)

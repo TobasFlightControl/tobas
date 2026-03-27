@@ -4,6 +4,8 @@
 #include "./moving_stat.hpp"
 #include "./welford.hpp"
 
+namespace tobas
+{
 namespace dsp
 {
 /**
@@ -91,3 +93,4 @@ NoiseVarianceFilter<Scalar, Size, Length>::noiseVariance() const
   }
 }
 }  // namespace dsp
+}  // namespace tobas

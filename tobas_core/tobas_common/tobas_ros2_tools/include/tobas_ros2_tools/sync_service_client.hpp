@@ -8,6 +8,8 @@
 
 #include "./future.hpp"
 
+namespace tobas
+{
 namespace ros2
 {
 /**
@@ -78,3 +80,4 @@ private:
   typename SrvType::Response::SharedPtr res_;
 };
 }  // namespace ros2
+}  // namespace tobas

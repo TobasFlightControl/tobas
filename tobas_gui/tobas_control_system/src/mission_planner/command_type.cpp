@@ -10,6 +10,8 @@
 #define LAND_LABEL "Land"
 #define RTL_LABEL "Return to Launch"
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -50,3 +52,4 @@ Command textToCommand(const char* text)
 }
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

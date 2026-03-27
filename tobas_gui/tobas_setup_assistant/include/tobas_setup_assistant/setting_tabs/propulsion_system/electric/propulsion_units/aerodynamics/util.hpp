@@ -2,6 +2,8 @@
 
 #include <eigen3/Eigen/Core>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -25,3 +27,4 @@ double momentConstFromUiuc(const Eigen::VectorXd& cts, const Eigen::VectorXd& cp
 }  // namespace propulsion
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

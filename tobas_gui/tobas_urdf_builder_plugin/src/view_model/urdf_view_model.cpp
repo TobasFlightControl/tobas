@@ -6,32 +6,34 @@
 #include <tobas_std_tools/vector.hpp>
 #include <tobas_urdf/exporter.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ub
 {
 namespace view_model
 {
-URDFViewModel::URDFViewModel() : urdf_(new urdf::Model())
+URDFViewModel::URDFViewModel() : urdf_(new ::urdf::Model())
 {
 }
 
-const urdf::ModelSharedPtr& URDFViewModel::urdf() const
+const ::urdf::ModelSharedPtr& URDFViewModel::urdf() const
 {
   return urdf_;
 };
 
-const std::map<std::string, urdf::LinkSharedPtr>& URDFViewModel::links() const
+const std::map<std::string, ::urdf::LinkSharedPtr>& URDFViewModel::links() const
 {
   return urdf_->links_;
 }
 
-const std::map<std::string, urdf::JointSharedPtr>& URDFViewModel::joints() const
+const std::map<std::string, ::urdf::JointSharedPtr>& URDFViewModel::joints() const
 {
   return urdf_->joints_;
 }
 
-const std::map<std::string, urdf::MaterialSharedPtr>& URDFViewModel::materials() const
+const std::map<std::string, ::urdf::MaterialSharedPtr>& URDFViewModel::materials() const
 {
   return urdf_->materials_;
 }
@@ -46,7 +48,7 @@ void URDFViewModel::name(const std::string& name)
   urdf_->name_ = name;
 }
 
-const urdf::LinkSharedPtr& URDFViewModel::rootLink() const
+const ::urdf::LinkSharedPtr& URDFViewModel::rootLink() const
 {
   return urdf_->root_link_;
 }
@@ -63,7 +65,7 @@ QStringList URDFViewModel::linkNames() const
     urdf_->links_.begin(),
     urdf_->links_.end(),
     std::back_inserter(result),
-    [](const std::pair<std::string, urdf::LinkSharedPtr>& pair) { return QString::fromStdString(pair.first); });
+    [](const std::pair<std::string, ::urdf::LinkSharedPtr>& pair) { return QString::fromStdString(pair.first); });
   return result;
 }
 
@@ -74,13 +76,13 @@ QStringList URDFViewModel::jointNames() const
     urdf_->joints_.begin(),
     urdf_->joints_.end(),
     std::back_inserter(result),
-    [](const std::pair<std::string, urdf::JointSharedPtr>& pair) { return QString::fromStdString(pair.first); });
+    [](const std::pair<std::string, ::urdf::JointSharedPtr>& pair) { return QString::fromStdString(pair.first); });
   return result;
 }
 
 void URDFViewModel::newRobot()
 {
-  urdf_.reset(new urdf::Model());
+  urdf_.reset(new ::urdf::Model());
   root_link_.reset();
   clone_count_ = 0;
 }
@@ -163,10 +165,10 @@ void URDFViewModel::addLink(const LinkViewModelPtr& link_vm)
     const auto& parent_link = urdf_->links_.at(parent_link_name);
     auto& child_links = parent_link->child_links;
     auto& child_joints = parent_link->child_joints;
-    if (!tbs::contains(child_links, link_vm->model())) {
+    if (!st::contains(child_links, link_vm->model())) {
       child_links.push_back(link_vm->model());
     }
-    if (!tbs::contains(child_joints, joint_vm->model())) {
+    if (!st::contains(child_joints, joint_vm->model())) {
       child_joints.push_back(joint_vm->model());
     }
   }
@@ -203,7 +205,7 @@ void URDFViewModel::removeLink(const LinkViewModelPtr& link_vm)
   child_links.erase(remove(child_links.begin(), child_links.end(), link), child_links.end());
   child_joints.erase(remove(child_joints.begin(), child_joints.end(), link->parent_joint), child_joints.end());
 
-  std::queue<urdf::LinkSharedPtr> que;
+  std::queue<::urdf::LinkSharedPtr> que;
   que.push(link);
 
   while (!que.empty()) {
@@ -244,14 +246,14 @@ void URDFViewModel::updateLink(const LinkViewModelPtr& old_link_vm, const LinkVi
     const auto& it1 = remove_if(
       child_links.begin(),
       child_links.end(),
-      [&](const urdf::LinkSharedPtr& link) { return link->name == old_link_vm->name().toStdString(); });
+      [&](const ::urdf::LinkSharedPtr& link) { return link->name == old_link_vm->name().toStdString(); });
     child_links.erase(it1, child_links.end());
 
     auto& child_joints = old_parent_link->child_joints;
     const auto& it2 = remove_if(
       child_joints.begin(),
       child_joints.end(),
-      [&](const urdf::JointSharedPtr& joint) { return joint->name == old_joint->name().toStdString(); });
+      [&](const ::urdf::JointSharedPtr& joint) { return joint->name == old_joint->name().toStdString(); });
     child_joints.erase(it2, child_joints.end());
   }
 
@@ -312,3 +314,4 @@ void URDFViewModel::removeTextureTagsWithoutFilename(tinyxml2::XMLElement* eleme
 }  // namespace view_model
 }  // namespace ub
 }  // namespace gui
+}  // namespace tobas

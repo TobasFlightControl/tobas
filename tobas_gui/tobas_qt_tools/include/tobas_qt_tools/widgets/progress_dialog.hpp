@@ -3,6 +3,8 @@
 #include <QProgressDialog>
 #include <QTimer>
 
+namespace tobas
+{
 namespace qt
 {
 /**
@@ -46,3 +48,4 @@ private Q_SLOTS:
   void onTimerTimeout();
 };
 }  // namespace qt
+}  // namespace tobas

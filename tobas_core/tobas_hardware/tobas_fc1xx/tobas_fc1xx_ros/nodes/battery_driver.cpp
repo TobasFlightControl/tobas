@@ -9,6 +9,10 @@
 
 using namespace std::chrono_literals;
 
+namespace tobas
+{
+namespace fc1xx
+{
 class BatteryDriverNode : public hardware::BaseSensorNode
 {
   static constexpr auto kSamplingPeriod = 100ms;  // TODO: SPIデバイスをうまく分離してもっと上げる
@@ -20,7 +24,7 @@ public:
   explicit BatteryDriverNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  fc1xx::Battery battery_;
+  Battery battery_;
   float voltage_, current_;
 
   ros2::PublisherPtr<tobas_msgs::msg::Battery> battery_pub_;
@@ -33,7 +37,7 @@ private:
 BatteryDriverNode::BatteryDriverNode(const rclcpp::NodeOptions& options)
   : super("fc1xx_battery_driver", nodeOptions_Default(options))
 {
-  initialize_timer_ = createWallTimer(fc1xx::kRetryInitializationInterval, &self::initialize, this);
+  initialize_timer_ = createWallTimer(kRetryInitializationInterval, &self::initialize, this);
 }
 
 void BatteryDriverNode::initialize()
@@ -43,7 +47,7 @@ void BatteryDriverNode::initialize()
     return;
   }
 
-  battery_pub_ = createPublisher<tobas_msgs::msg::Battery>(tobas::topic::kBattery);
+  battery_pub_ = createPublisher<tobas_msgs::msg::Battery>(topic::kBattery);
 
   initialize_timer_->cancel();
   main_timer_ = createWallTimer(kSamplingPeriod, &self::mainTimerCb, this);
@@ -59,7 +63,7 @@ void BatteryDriverNode::mainTimerCb()
 
   // Check data
   if (voltage_ < 0 || current_ < 0) {
-    TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Battery state is unavailable.");
+    TOBAS_WARN_THROTTLE(kTypicalWarnPeriod, "Battery state is unavailable.");
     return;
   }
 
@@ -70,5 +74,7 @@ void BatteryDriverNode::mainTimerCb()
   msg->current = static_cast<double>(current_);
   battery_pub_->publish(std::move(msg));
 }
+}  // namespace fc1xx
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(BatteryDriverNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::fc1xx::BatteryDriverNode)

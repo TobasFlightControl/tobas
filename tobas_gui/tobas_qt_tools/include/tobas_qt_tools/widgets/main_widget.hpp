@@ -2,6 +2,8 @@
 
 #include <QWidget>
 
+namespace tobas
+{
 namespace qt
 {
 class MainWidget : public QWidget
@@ -20,3 +22,4 @@ private:
   QWidget* widget_;
 };
 }  // namespace qt
+}  // namespace tobas

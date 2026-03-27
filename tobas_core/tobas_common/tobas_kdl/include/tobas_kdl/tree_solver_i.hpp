@@ -3,6 +3,8 @@
 #include "./solver_i.hpp"
 #include "./tree.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 class TreeSolverI : public SolverI
@@ -37,3 +39,4 @@ inline bool TreeSolverI::isUpToDate() const
   return tree_.getNrOfJoints() == nj_ && tree_.getNrOfSegments() == ns_;
 }
 }  // namespace kdl
+}  // namespace tobas

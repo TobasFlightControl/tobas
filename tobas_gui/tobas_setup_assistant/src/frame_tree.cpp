@@ -2,6 +2,8 @@
 
 #include <tobas_std_tools/check.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -64,3 +66,4 @@ void FrameTreeWidget::addTreeItemsRec(QTreeWidgetItem* parent_item)
 }
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

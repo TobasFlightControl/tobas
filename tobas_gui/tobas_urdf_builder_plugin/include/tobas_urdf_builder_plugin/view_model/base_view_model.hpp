@@ -4,6 +4,8 @@
 
 #include "../utils/urdf_clone.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace ub
@@ -49,3 +51,4 @@ protected:
 }  // namespace view_model
 }  // namespace ub
 }  // namespace gui
+}  // namespace tobas

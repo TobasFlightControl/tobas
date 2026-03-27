@@ -13,6 +13,8 @@
 #include "../fields/rtl_min_altitude.hpp"
 #include "./base.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -68,3 +70,4 @@ private:
 };
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

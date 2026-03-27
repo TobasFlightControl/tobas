@@ -17,10 +17,14 @@
 
 using namespace std::chrono_literals;
 
-class VelocityControllerNode : public tobas::BaseNode
+namespace tobas
+{
+namespace manipulation
+{
+class VelocityControllerNode : public BaseNode
 {
   using self = VelocityControllerNode;
-  using super = tobas::BaseNode;
+  using super = BaseNode;
 
 public:
   explicit VelocityControllerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -29,14 +33,14 @@ private:
   // Parameters
   std::unordered_set<std::string> jnt_names_;
 
-  tobas::Drone::ConstSharedPtr drone_;
+  Drone::ConstSharedPtr drone_;
   kdl::Tree tree_;
 
   kdl::TreeJointParser jnt_parser_;
   kdl::TreeActiveJointsExtractor active_jnts_extractor_;
   kdl::TreeTaskSpaceVelCtrl vel_ctrl_;
-  tobas::TreeJointStateConverter cur_js_conv_;
-  tobas::TreeJointStateConverter tar_js_conv_;
+  TreeJointStateConverter cur_js_conv_;
+  TreeJointStateConverter tar_js_conv_;
 
   ros2::TransformListener::SharedPtr tf_listener_;
   double jnt_time_const_;
@@ -49,7 +53,7 @@ private:
   ros2::PublisherPtr<tobas_msgs::msg::JointCommandArray> velocities_pub_;
 
   // Subscribers
-  ros2::SubscriberPtr<tobas::Drone> drone_sub_;
+  ros2::SubscriberPtr<Drone> drone_sub_;
   ros2::SubscriberPtr<kdl::Tree> tree_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::JointStateArray> cur_js_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::JointStateArray> tar_js_sub_;
@@ -74,7 +78,7 @@ private:
   bool linearTimeConstCb(const double& p);
   bool angularTimeConstCb(const double& p);
 
-  void droneCb(const tobas::Drone::ConstSharedPtr& drone);
+  void droneCb(const Drone::ConstSharedPtr& drone);
   void treeCb(const kdl::Tree::ConstSharedPtr& tree);
   void currentJointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& cur_js);
   void targetJointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& tar_js);
@@ -110,13 +114,13 @@ void VelocityControllerNode::initialize()
   addDynamicDoubleParam("linear_time_constant", &self::linearTimeConstCb, this, 0.1, 5, 1, 10, " s");
   addDynamicDoubleParam("angular_time_constant", &self::angularTimeConstCb, this, 0.1, 5, 1, 10, " s");
 
-  velocities_pub_ = createPublisher<tobas_msgs::msg::JointCommandArray>(tobas::topic::kJointVelCmd);
+  velocities_pub_ = createPublisher<tobas_msgs::msg::JointCommandArray>(topic::kJointVelCmd);
 
-  drone_sub_ = createSubscriber(tobas::topic::kDrone, &self::droneCb, this, true, true);
-  tree_sub_ = createSubscriber(tobas::topic::kKdlTree, &self::treeCb, this, true, true);
-  cur_js_sub_ = createSubscriber(tobas::topic::kJointStates, &self::currentJointStateCb, this);
-  tar_js_sub_ = createSubscriber(tobas::topic::kVelCtrlJS, &self::targetJointStateCb, this);
-  tar_ls_sub_ = createSubscriber(tobas::topic::kVelCtrlLS, &self::targetLinkStateCb, this);
+  drone_sub_ = createSubscriber(topic::kDrone, &self::droneCb, this, true, true);
+  tree_sub_ = createSubscriber(topic::kKdlTree, &self::treeCb, this, true, true);
+  cur_js_sub_ = createSubscriber(topic::kJointStates, &self::currentJointStateCb, this);
+  tar_js_sub_ = createSubscriber(topic::kVelCtrlJS, &self::targetJointStateCb, this);
+  tar_ls_sub_ = createSubscriber(topic::kVelCtrlLS, &self::targetLinkStateCb, this);
 
   auto_reset_timer_ = createTimer(manipulation::kAutoResetTimeThresh, &self::autoResetTimerCb, this, false);
 
@@ -236,7 +240,7 @@ bool VelocityControllerNode::angularTimeConstCb(const double& p)
   return true;
 }
 
-void VelocityControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
+void VelocityControllerNode::droneCb(const Drone::ConstSharedPtr& drone)
 {
   drone_ = drone;
 
@@ -250,7 +254,7 @@ void VelocityControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
       continue;
     }
     const auto& joint = joint_it->second;
-    if (joint.cmd_iface != tobas::JointCommandInterface::kVelocity) {
+    if (joint.cmd_iface != JointCommandInterface::kVelocity) {
       TOBAS_WARN("The command interface of joint \"", jnt_name, "\" is not velocity.");
       continue;
     }
@@ -360,5 +364,7 @@ void VelocityControllerNode::autoResetTimerCb()
 
   auto_reset_timer_->cancel();
 }
+}  // namespace manipulation
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(VelocityControllerNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::manipulation::VelocityControllerNode)

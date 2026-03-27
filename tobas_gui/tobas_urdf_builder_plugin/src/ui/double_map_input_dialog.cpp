@@ -7,6 +7,8 @@
 
 #include <tobas_qt_tools/cast.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ub
@@ -65,3 +67,4 @@ void DoubleMapInputDialog::onSpinBoxValueChanged(double value)
 }  // namespace ui
 }  // namespace ub
 }  // namespace gui
+}  // namespace tobas

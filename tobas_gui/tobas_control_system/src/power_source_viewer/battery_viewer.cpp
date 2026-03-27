@@ -9,11 +9,13 @@
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
 {
-BatteryViewerWidget::BatteryViewerWidget(const RosQtBridge& bridge, const tobas::Drone& drone) : drone_(drone)
+BatteryViewerWidget::BatteryViewerWidget(const RosQtBridge& bridge, const Drone& drone) : drone_(drone)
 {
   voltage_ = new qt::HPositionBarWidget();
   current_ = new qt::HPositionBarWidget();
@@ -44,8 +46,8 @@ void BatteryViewerWidget::updateInternalDataStructures()
 {
   reset();
 
-  if (drone_.prop->type() == tobas::PropulsionSystem::kElectric) {
-    eprop_ = boost::polymorphic_pointer_downcast<tobas::ElectricPropulsionSystemConfig>(drone_.prop);
+  if (drone_.prop->type() == PropulsionSystem::kElectric) {
+    eprop_ = boost::polymorphic_pointer_downcast<ElectricPropulsionSystemConfig>(drone_.prop);
 
     voltage_->setLower(eprop_->battery.sag_voltage);
     voltage_->setMinimum(eprop_->battery.sag_voltage);
@@ -104,3 +106,4 @@ void BatteryViewerWidget::batteryCb(const tobas_msgs::msg::Battery::ConstSharedP
 }
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

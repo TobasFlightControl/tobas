@@ -9,6 +9,8 @@
 
 #include "./param_block.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace param
@@ -32,7 +34,7 @@ public:
 
 private:
   cmn::ProjectPaths proj_paths_;
-  tobas::Drone drone_;
+  Drone drone_;
 
   const std::array<std::string, kNumBlocks> file_names_;
   const std::array<ParamBlockWidget*, kNumBlocks> blocks_;
@@ -48,3 +50,4 @@ private Q_SLOTS:
 };
 }  // namespace param
 }  // namespace gui
+}  // namespace tobas

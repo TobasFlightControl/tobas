@@ -2,6 +2,8 @@
 
 #include <QStackedWidget>
 
+namespace tobas
+{
 namespace qt
 {
 /**
@@ -25,3 +27,4 @@ public Q_SLOTS:
   void setCurrentIndex(int index);
 };
 }  // namespace qt
+}  // namespace tobas

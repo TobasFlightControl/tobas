@@ -2,6 +2,8 @@
 
 #include <cmath>
 
+namespace tobas
+{
 namespace kdl
 {
 /**
@@ -38,3 +40,4 @@ inline constexpr double sqr(double arg)
   return arg * arg;
 }
 }  // namespace kdl
+}  // namespace tobas

@@ -4,6 +4,8 @@
 
 #include <tobas_linux/spi_dev.hpp>
 
+namespace tobas
+{
 namespace driver
 {
 /**
@@ -102,3 +104,4 @@ private:
   bool configure(const uint8_t& rr, const uint8_t& tar_cfg);
 };
 }  // namespace driver
+}  // namespace tobas

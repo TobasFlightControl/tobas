@@ -3,6 +3,8 @@
 #include <tobas_qt_tools/widgets/table_widget.hpp>
 #include <tobas_rqt_bridge/bridge.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -43,3 +45,4 @@ private Q_SLOTS:
 };
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

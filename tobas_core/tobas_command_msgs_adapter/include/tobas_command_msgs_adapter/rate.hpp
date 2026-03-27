@@ -12,7 +12,7 @@ struct Rate
 {
   std_msgs::msg::Header header;
   tobas_command_msgs::msg::Priority priority;
-  kdl::Vector rate;
+  tobas::kdl::Vector rate;
 
   using SharedPtr = std::shared_ptr<Rate>;
   using ConstSharedPtr = std::shared_ptr<const Rate>;

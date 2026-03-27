@@ -10,6 +10,8 @@
 
 #include "../base.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sc
@@ -35,7 +37,7 @@ class RCInputCalibrationWidget : public BaseWidget
   static constexpr int kButtonHeight = 40;
 
 public:
-  explicit RCInputCalibrationWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge, const tobas::Drone& drone);
+  explicit RCInputCalibrationWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge, const Drone& drone);
 
   const char* title() const override;
 
@@ -45,7 +47,7 @@ public:
 
 private:
   const rclcpp::Node::SharedPtr node_;
-  const tobas::Drone& drone_;
+  const Drone& drone_;
 
   bool running_;
   tobas_msgs::msg::Sbus::ConstSharedPtr sbus_;
@@ -64,8 +66,8 @@ private:
   qt::HPositionBarWidget* enable_range_;
   qt::HPositionBarWidget* kill_range_;
 
-  std::array<QLabel*, tobas::kMaxNumOfGpsw> gpsw_labels_;
-  std::array<qt::HPositionBarWidget*, tobas::kMaxNumOfGpsw> gpsw_ranges_;
+  std::array<QLabel*, kMaxNumOfGpsw> gpsw_labels_;
+  std::array<qt::HPositionBarWidget*, kMaxNumOfGpsw> gpsw_ranges_;
 
   size_t numOfGpswChannels() const;
 
@@ -82,3 +84,4 @@ private Q_SLOTS:
 };
 }  // namespace sc
 }  // namespace gui
+}  // namespace tobas

@@ -3,9 +3,12 @@
 using namespace std;
 using namespace Eigen;
 
+namespace tobas
+{
 namespace ctrl
 {
 P3::P3()
 {
 }
 }  // namespace ctrl
+}  // namespace tobas

@@ -2,6 +2,8 @@
 
 #include <QPushButton>
 
+namespace tobas
+{
 namespace qt
 {
 /* 押すたびにテキストが切り替わる単純なトグルボタン． */
@@ -32,3 +34,4 @@ private Q_SLOTS:
   void onClicked();
 };
 }  // namespace qt
+}  // namespace tobas

@@ -1,5 +1,7 @@
 #pragma once
 
+namespace tobas
+{
 namespace gui
 {
 namespace cmn
@@ -14,3 +16,4 @@ static constexpr char kUserNameFC[] = "pi";
 static constexpr char kProjectExtension[] = ".TBS";
 }  // namespace cmn
 }  // namespace gui
+}  // namespace tobas

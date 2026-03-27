@@ -4,6 +4,8 @@
 
 #include "tobas_setup_assistant/param_getters/double_table.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -33,3 +35,4 @@ private:
 }  // namespace propulsion
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas
