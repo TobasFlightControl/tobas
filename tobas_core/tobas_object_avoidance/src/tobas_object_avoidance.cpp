@@ -8,6 +8,7 @@ namespace tobas
 TobasObjectAvoidance::TobasObjectAvoidance(const rclcpp::NodeOptions& options)
   : super("tobas_object_avoidance", options)
 {
+  avoidance_enable_ = this->declare_parameter("avoidance_enable", true);
   min_safety_distance_ = this->declare_parameter("min_safety_distance", 30.0);
   repulsive_gain_ = this->declare_parameter("repulsive_gain", 1.0);
   force_to_acc_gain_ = this->declare_parameter("force_to_acc_gain_", 1.0);
@@ -15,13 +16,14 @@ TobasObjectAvoidance::TobasObjectAvoidance(const rclcpp::NodeOptions& options)
   octomap_sub_ = this->create_subscription<octomap_msgs::msg::Octomap>(
     "/object_octomap", 10, std::bind(&TobasObjectAvoidance::octomapCallback, this, std::placeholders::_1));
 
-  // odom_sub_ = createSubscriber(topic::kOdometry, &self::odomCallback, this);
-
   repulsive_acc_pub_ = createPublisher<tobas_msgs::RepulsiveAcceleration>(topic::kRepulsiveAccelerationTopic);
 }
 
 void TobasObjectAvoidance::octomapCallback(const octomap_msgs::msg::Octomap::SharedPtr msg)
 {
+  if (!avoidance_enable_) {
+    return;
+  }
   octomap::AbstractOcTree* tree = octomap_msgs::msgToMap(*msg);
   if (tree) {
     octree_ = std::shared_ptr<octomap::OcTree>(dynamic_cast<octomap::OcTree*>(tree));
@@ -36,11 +38,6 @@ void TobasObjectAvoidance::octomapCallback(const octomap_msgs::msg::Octomap::Sha
 
   calculateRepulsiveForce();
 }
-
-// void TobasObjectAvoidance::odomCallback(const tobas_msgs::Odometry::ConstSharedPtr& msg)
-// {
-//   current_odom_ = msg;
-// }
 
 void TobasObjectAvoidance::calculateRepulsiveForce()
 {

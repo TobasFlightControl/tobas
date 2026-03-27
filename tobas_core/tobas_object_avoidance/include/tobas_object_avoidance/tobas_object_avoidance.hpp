@@ -5,7 +5,6 @@
 #include <octomap_msgs/conversions.h>
 #include <geometry_msgs/msg/vector3_stamped.hpp>
 #include <octomap_msgs/msg/octomap.hpp>
-#include <tobas_msgs/msg/odometry.hpp>
 #include <tobas_msgs/msg/repulsive_acceleration.hpp>
 #include <tobas_msgs_adapter/odometry.hpp>
 #include <tobas_msgs_adapter/repulsive_acceleration.hpp>
@@ -24,18 +23,16 @@ public:
 
 private:
   void octomapCallback(const octomap_msgs::msg::Octomap::SharedPtr msg);
-  // void odomCallback(const tobas_msgs::Odometry::ConstSharedPtr& msg);
   void calculateRepulsiveForce();
 
   void configureParameters();
 
   ros2::SubscriberPtr<octomap_msgs::msg::Octomap> octomap_sub_;
-  // ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
   ros2::PublisherPtr<tobas_msgs::RepulsiveAcceleration> repulsive_acc_pub_;
 
   std::shared_ptr<octomap::OcTree> octree_;
-  // tobas_msgs::Odometry::ConstSharedPtr current_odom_;
 
+  bool avoidance_enable_;
   double min_safety_distance_;
   double repulsive_gain_;
   double force_to_acc_gain_;
