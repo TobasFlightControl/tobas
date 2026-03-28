@@ -91,6 +91,12 @@ $ colcon build --symlink-install --parallel-workers $(nproc) --cmake-args -DCMAK
 $ sudo usermod -aG dialout $USER
 ```
 
+8. Restart the PC to finish the installation
+
+```bash
+$ sudo reboot
+```
+
 ## Command-Line Interfaces
 
 ### Launch Tobas GCS
