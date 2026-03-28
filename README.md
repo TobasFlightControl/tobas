@@ -82,7 +82,7 @@ $ sudo apt install -y libgit2-dev
 
 ```bash
 $ cd ~/colcon_ws
-$ colcon build --packages-up-to tobas
+$ colcon build --symlink-install --parallel-workers $(nproc) --cmake-args -DCMAKE_BUILD_TYPE=Release --packages-up-to tobas
 ```
 
 7. Add the user to the `dialout` group (required to read S.BUS over USB during SITL)
