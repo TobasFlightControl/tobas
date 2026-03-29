@@ -552,7 +552,7 @@ bool ZEDF9P::waitForAcknowledge(UbxClass cls, uint8_t id)
         nak.decode(payload());
 
         if (nak.clsID == cls && nak.msgID == id) {
-          cerr << "Configuration is rejected: (class, id) = (" << cls_str << ", " << id_str << ")" << endl;
+          cerr << "Configuration was rejected: (class, id) = (" << cls_str << ", " << id_str << ")" << endl;
           return false;
         }
         else {

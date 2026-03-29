@@ -310,7 +310,7 @@ void DShotDriverNode::setGainsCb(const SetGains::Request::ConstSharedPtr& req, c
   for (const auto& gain : req->gains) {
     if (!dshot_.setSpeedControlGain(gain.channel, gain.gain)) {
       res->success = false;
-      res->message = "Rotor control gain of channel " + std::to_string((int)gain.channel) + " is rejected.";
+      res->message = "Rotor control gain of channel " + std::to_string((int)gain.channel) + " was rejected.";
       return;
     }
     gains_.at(gain.channel) = gain.gain;
