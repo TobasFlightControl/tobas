@@ -63,31 +63,31 @@ int main(int argc, char** argv)
 
   // Enable messages
   cout << "Enabling messages." << endl;
-  if (!gnss.enableMsg(tobas::ublox::ZEDF9P::CLASS_NAV, tobas::ublox::ZEDF9P::NAV_COV, true)) {
+  if (!gnss.enableSpiMessage(tobas::ublox::ZEDF9P::CLASS_NAV, tobas::ublox::ZEDF9P::NAV_COV, true)) {
     cerr << "Failed to enable NAV_COV message." << endl;
     return EXIT_FAILURE;
   }
-  if (!gnss.enableMsg(tobas::ublox::ZEDF9P::CLASS_NAV, tobas::ublox::ZEDF9P::NAV_HPPOSLLH, true)) {
+  if (!gnss.enableSpiMessage(tobas::ublox::ZEDF9P::CLASS_NAV, tobas::ublox::ZEDF9P::NAV_HPPOSLLH, true)) {
     cerr << "Failed to enable NAV_HPPOSLLH message." << endl;
     return EXIT_FAILURE;
   }
-  if (!gnss.enableMsg(tobas::ublox::ZEDF9P::CLASS_NAV, tobas::ublox::ZEDF9P::NAV_POSLLH, true)) {
+  if (!gnss.enableSpiMessage(tobas::ublox::ZEDF9P::CLASS_NAV, tobas::ublox::ZEDF9P::NAV_POSLLH, true)) {
     cerr << "Failed to enable NAV_POSLLH message." << endl;
     return EXIT_FAILURE;
   }
-  if (!gnss.enableMsg(tobas::ublox::ZEDF9P::CLASS_NAV, tobas::ublox::ZEDF9P::NAV_PVT, true)) {
+  if (!gnss.enableSpiMessage(tobas::ublox::ZEDF9P::CLASS_NAV, tobas::ublox::ZEDF9P::NAV_PVT, true)) {
     cerr << "Failed to enable NAV_PVT message." << endl;
     return EXIT_FAILURE;
   }
-  if (!gnss.enableMsg(tobas::ublox::ZEDF9P::CLASS_NAV, tobas::ublox::ZEDF9P::NAV_STATUS, true)) {
+  if (!gnss.enableSpiMessage(tobas::ublox::ZEDF9P::CLASS_NAV, tobas::ublox::ZEDF9P::NAV_STATUS, true)) {
     cerr << "Failed to enable NAV_STATUS message." << endl;
     return EXIT_FAILURE;
   }
-  if (!gnss.enableMsg(tobas::ublox::ZEDF9P::CLASS_NAV, tobas::ublox::ZEDF9P::NAV_TIMEGPS, true)) {
+  if (!gnss.enableSpiMessage(tobas::ublox::ZEDF9P::CLASS_NAV, tobas::ublox::ZEDF9P::NAV_TIMEGPS, true)) {
     cerr << "Failed to enable NAV_TIMEGPS message." << endl;
     return EXIT_FAILURE;
   }
-  if (!gnss.enableMsg(tobas::ublox::ZEDF9P::CLASS_NAV, tobas::ublox::ZEDF9P::NAV_VELNED, true)) {
+  if (!gnss.enableSpiMessage(tobas::ublox::ZEDF9P::CLASS_NAV, tobas::ublox::ZEDF9P::NAV_VELNED, true)) {
     cerr << "Failed to enable NAV_VELNED message." << endl;
     return EXIT_FAILURE;
   }

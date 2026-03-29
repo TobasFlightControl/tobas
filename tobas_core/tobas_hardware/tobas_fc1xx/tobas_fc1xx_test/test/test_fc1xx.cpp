@@ -207,7 +207,7 @@ bool testGnssReceiver()
   }
 
   // Enable messages
-  if (!gnss.enableMsg(tobas::ublox::ZEDF9P::CLASS_NAV, tobas::ublox::ZEDF9P::NAV_PVT, true)) {
+  if (!gnss.enableSpiMessage(tobas::ublox::ZEDF9P::CLASS_NAV, tobas::ublox::ZEDF9P::NAV_PVT, true)) {
     cerr << "Failed to enable NAV_PVT message." << endl;
     return false;
   }
