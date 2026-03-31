@@ -19,8 +19,6 @@
 
 #include "tobas_sensor_calibration/constants.hpp"
 
-using namespace tobas::real::handler::rcin;
-
 namespace tobas
 {
 namespace gui
@@ -238,31 +236,31 @@ size_t RCInputCalibrationWidget::numOfGpswChannels() const
 bool RCInputCalibrationWidget::saveParamsToGcs()
 {
   ptree::PropertyTree pt;
-  if (!pt.initialize((ros2::expandUser(kConfigDirHome) / kConfigFileName))) {
+  if (!pt.initialize((ros2::expandUser(kConfigDirHome) / real::handler::rcin::kConfigFileName))) {
     qt::qErrorBox(this, "Failed to initialize property tree.");
     return false;
   }
 
   const auto ns = '/' + drone_.name;
 
-  pt.set(ns, kRollLeftKey, roll_range_->getLower());
-  pt.set(ns, kRollRightKey, roll_range_->getUpper());
-  pt.set(ns, kPitchUpKey, pitch_range_->getLower());
-  pt.set(ns, kPitchDownKey, pitch_range_->getUpper());
-  pt.set(ns, kYawLeftKey, yaw_range_->getLower());
-  pt.set(ns, kYawRightKey, yaw_range_->getUpper());
-  pt.set(ns, kThrotUpKey, throt_range_->getLower());
-  pt.set(ns, kThrotDownKey, throt_range_->getUpper());
+  pt.set(ns, real::handler::rcin::kRollLeftKey, roll_range_->getLower());
+  pt.set(ns, real::handler::rcin::kRollRightKey, roll_range_->getUpper());
+  pt.set(ns, real::handler::rcin::kPitchUpKey, pitch_range_->getLower());
+  pt.set(ns, real::handler::rcin::kPitchDownKey, pitch_range_->getUpper());
+  pt.set(ns, real::handler::rcin::kYawLeftKey, yaw_range_->getLower());
+  pt.set(ns, real::handler::rcin::kYawRightKey, yaw_range_->getUpper());
+  pt.set(ns, real::handler::rcin::kThrotUpKey, throt_range_->getLower());
+  pt.set(ns, real::handler::rcin::kThrotDownKey, throt_range_->getUpper());
 
-  pt.set(ns, kModeAcrobatKey, mode_range_->getUpper());
-  pt.set(ns, kModeStabilizeKey, mode_range_->getMiddle());
-  pt.set(ns, kModeLoiterKey, mode_range_->getLower());
-  pt.set(ns, kSubModeOnKey, sub_mode_range_->getLower());
-  pt.set(ns, kSubModeOffKey, sub_mode_range_->getUpper());
-  pt.set(ns, kEnableOnKey, enable_range_->getLower());
-  pt.set(ns, kEnableOffKey, enable_range_->getUpper());
-  pt.set(ns, kKillOnKey, kill_range_->getLower());
-  pt.set(ns, kKillOffKey, kill_range_->getUpper());
+  pt.set(ns, real::handler::rcin::kModeAcrobatKey, mode_range_->getUpper());
+  pt.set(ns, real::handler::rcin::kModeStabilizeKey, mode_range_->getMiddle());
+  pt.set(ns, real::handler::rcin::kModeLoiterKey, mode_range_->getLower());
+  pt.set(ns, real::handler::rcin::kSubModeOnKey, sub_mode_range_->getLower());
+  pt.set(ns, real::handler::rcin::kSubModeOffKey, sub_mode_range_->getUpper());
+  pt.set(ns, real::handler::rcin::kEnableOnKey, enable_range_->getLower());
+  pt.set(ns, real::handler::rcin::kEnableOffKey, enable_range_->getUpper());
+  pt.set(ns, real::handler::rcin::kKillOnKey, kill_range_->getLower());
+  pt.set(ns, real::handler::rcin::kKillOffKey, kill_range_->getUpper());
 
   std::array<int, kMaxNumOfGpsw> gpsw_on, gpsw_off;
   for (size_t i = 0; i < numOfGpswChannels(); ++i) {
@@ -273,8 +271,8 @@ bool RCInputCalibrationWidget::saveParamsToGcs()
     gpsw_on[i] = std::numeric_limits<uint16_t>::max();
     gpsw_off[i] = 0;
   }
-  pt.set(ns, kGpswOnKey, gpsw_on);
-  pt.set(ns, kGpswOffKey, gpsw_off);
+  pt.set(ns, real::handler::rcin::kGpswOnKey, gpsw_on);
+  pt.set(ns, real::handler::rcin::kGpswOffKey, gpsw_off);
 
   if (!pt.save()) {
     qt::qErrorBox(this, "Failed to save calibration results on GCS.");
@@ -317,7 +315,7 @@ bool RCInputCalibrationWidget::saveParamsToFc()
   }
 
   ros2::SyncServiceClient<tobas_real_msgs::srv::SetRcInputParams> sc(
-    node_, path::join('/', drone_.name, kRemoteIfaceNS, kSetParamSrv));
+    node_, path::join('/', drone_.name, kRemoteIfaceNS, real::handler::rcin::kSetParamSrv));
   if (!sc.call(req, kSetParamTimeout)) {
     qt::qErrorBox(this, "Failed to send calibration results to FC.");
     return false;
