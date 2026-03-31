@@ -82,7 +82,7 @@ BasePoseCommanderWidget::BasePoseCommanderWidget(
 
 void BasePoseCommanderWidget::updateInternalDataStructures()
 {
-  const auto& ns = drone_.name;
+  const auto ns = '/' + drone_.name;
 
   angle_pub_ = ros2::createPublisher<tobas_command_msgs::Angle>(node_, path::join(ns, topic::kAngleCmd));
   pva_pub_ = ros2::createPublisher<tobas_command_msgs::PosVelAcc>(node_, path::join(ns, topic::kPosVelAccCmd));

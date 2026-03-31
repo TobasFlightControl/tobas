@@ -103,7 +103,7 @@ bool SimulationWidget::updateProject(const fs::path& proj_path)
     return false;
   }
 
-  dynamic_config_->updateNamespace(drone_.name);
+  dynamic_config_->updateNamespace('/' + drone_.name);
   commanders_->updateInternalDataStructures();
 
   setEnabled(true);

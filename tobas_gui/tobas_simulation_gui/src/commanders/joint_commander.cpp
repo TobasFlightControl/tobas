@@ -188,7 +188,7 @@ void JointCommanderWidget::updateInternalDataStructures()
   start_stop_button_->setEnabled(!commanders_.empty());
 
   // Register command publishers
-  const auto& ns = drone_.name;
+  const auto ns = '/' + drone_.name;
   if (!tar_js_pos_.commands.empty()) {
     tar_js_pos_pub_ = ros2::createPublisher<CmdMsg>(node_, path::join(ns, topic::kJointPosCmd));
   }

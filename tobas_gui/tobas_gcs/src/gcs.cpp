@@ -158,8 +158,10 @@ void GroundControlStationWidget::reset(bool include_simulation)
 
 void GroundControlStationWidget::updateInternalDataStructures()
 {
+  const auto ns = '/' + drone_.name;
+
   // まずトピックを貼り替えて以前の機体でのコールバックを全て吐ききる
-  bridge_.initializeScopedTopics(drone_.name);
+  bridge_.initializeScopedTopics(ns);
   qt::processAllQueuedEvents();
 
   // SSHの窓口に接続先の情報を伝える
@@ -174,7 +176,7 @@ void GroundControlStationWidget::updateInternalDataStructures()
   actuator_test_->updateInternalDataStructures();
   control_system_->updateInternalDataStructures();
   param_tuning_->updateProject(projectPath());
-  flight_log_->updateNamespace(drone_.name);
+  flight_log_->updateNamespace(ns);
   simulation_->updateProject(projectPath());
 }
 

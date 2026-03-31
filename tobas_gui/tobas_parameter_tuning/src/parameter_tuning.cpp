@@ -93,8 +93,9 @@ bool ParameterTuningWidget::updateProject(const fs::path& proj_path)
 
 void ParameterTuningWidget::onLoadButtonClicked()
 {
+  const auto ns = '/' + drone_.name;
   for (const auto& block : blocks_) {
-    if (!block->load(drone_.name)) {
+    if (!block->load(ns)) {
       return;
     }
   }

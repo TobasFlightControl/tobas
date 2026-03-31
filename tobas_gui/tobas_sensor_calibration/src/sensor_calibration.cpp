@@ -46,8 +46,10 @@ void SensorCalibrationWidget::updateInternalDataStructures()
 {
   reset();
 
-  accel_calib_->setNamespace(drone_.name);
-  mag_calib_->setNamespace(drone_.name);
+  const auto ns = '/' + drone_.name;
+
+  accel_calib_->setNamespace(ns);
+  mag_calib_->setNamespace(ns);
   rcin_calib_->updateInternalDataStructures();
 
   // 各タブを有効化

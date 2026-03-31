@@ -67,9 +67,11 @@ void ControlSystemWidget::updateInternalDataStructures()
 {
   reset();
 
+  const auto ns = '/' + drone_.name;
+
   power_source_viewer_->updateInternalDataStructures();
   rotors_viewer_->updateInternalDataStructures();
-  mission_planner_->updateNamespace(drone_.name);
+  mission_planner_->updateNamespace(ns);
 }
 }  // namespace ctrl
 }  // namespace gui

@@ -317,7 +317,7 @@ bool RCInputCalibrationWidget::saveParamsToFc()
   }
 
   ros2::SyncServiceClient<tobas_real_msgs::srv::SetRcInputParams> sc(
-    node_, path::join(drone_.name, kRemoteIfaceNS, kSetParamSrv));
+    node_, path::join('/', drone_.name, kRemoteIfaceNS, kSetParamSrv));
   if (!sc.call(req, kSetParamTimeout)) {
     qt::qErrorBox(this, "Failed to send calibration results to FC.");
     return false;

@@ -137,15 +137,17 @@ void RotorTestWidget::updateInternalDataStructures()
       rotor_widgets_.at(erotor->channel)->setMaximumRPM(max_rpm);
     }
 
+    const auto ns = '/' + drone_.name;
+
     tar_speeds_pub_ = ros2::createPublisher<tobas_msgs::msg::RotorSpeedArray>(
-      node_, path::join(drone_.name, kRemoteIfaceNS, topic::kRotorSpeedsCmd));
+      node_, path::join(ns, kRemoteIfaceNS, topic::kRotorSpeedsCmd));
 
     get_gains_sc_ = std::make_shared<ros2::SyncServiceClient<tobas_msgs::srv::GetRotorControlGains>>(
-      node_, path::join(drone_.name, kRemoteIfaceNS, service::kGetRotorControlGains));
+      node_, path::join(ns, kRemoteIfaceNS, service::kGetRotorControlGains));
     set_gains_sc_ = std::make_shared<ros2::SyncServiceClient<tobas_msgs::srv::SetRotorControlGains>>(
-      node_, path::join(drone_.name, kRemoteIfaceNS, service::kSetRotorControlGains));
+      node_, path::join(ns, kRemoteIfaceNS, service::kSetRotorControlGains));
     save_gains_sc_ = std::make_shared<ros2::SyncServiceClient<std_srvs::srv::Trigger>>(
-      node_, path::join(drone_.name, kRemoteIfaceNS, service::kSaveRotorControlGains));
+      node_, path::join(ns, kRemoteIfaceNS, service::kSaveRotorControlGains));
   }
   else {
     eprop_.reset();
