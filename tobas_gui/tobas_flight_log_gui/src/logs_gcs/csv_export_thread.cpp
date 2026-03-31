@@ -44,7 +44,7 @@ void CsvExportThread::run()
   reader_.seek(0);
   while (reader_.has_next()) {
     const auto bag_msg = reader_.read_next();
-    if (bag_msg->topic_name.ends_with(path::join("/", topic::kRotorStates))) {
+    if (bag_msg->topic_name.ends_with(path::join('/', topic::kRotorStates))) {
       try {
         const auto rotor_states = rotor_states_decoder_.decode(bag_msg->serialized_data);
         for (const auto& elem : rotor_states.states) {
@@ -81,7 +81,7 @@ void CsvExportThread::run()
 
     // メッセージをヒストマップに保存
     try {
-      if (topic.ends_with(path::join("/", topic::kImuRaw))) {
+      if (topic.ends_with(path::join('/', topic::kImuRaw))) {
         const auto& msg = imu_decoder_.decode(ser_data);
         const auto cur_time = ros2::nanoseconds(msg.header.stamp);
         histmap_[cur_time][topic::kImuRaw] = ser_data;
@@ -89,31 +89,31 @@ void CsvExportThread::run()
         // ヒストマップのサイズが大きくなりすぎるのを防ぐため，一定時間以前のデータを逐次書き出す．
         exportOldestImuLine(csv_file, cur_time - kExpirationTime);
       }
-      else if (topic.ends_with(path::join("/", topic::kOdometry))) {
+      else if (topic.ends_with(path::join('/', topic::kOdometry))) {
         const auto& msg = odom_cov_decoder_.decode(ser_data);
         histmap_[ros2::nanoseconds(msg.header.stamp)][topic::kOdometry] = ser_data;
       }
-      else if (topic.ends_with(path::join("/", topic::kMagneticField))) {
+      else if (topic.ends_with(path::join('/', topic::kMagneticField))) {
         const auto& msg = mag_decoder_.decode(ser_data);
         histmap_[ros2::nanoseconds(msg.header.stamp)][topic::kMagneticField] = ser_data;
       }
-      else if (topic.ends_with(path::join("/", topic::kGnss))) {
+      else if (topic.ends_with(path::join('/', topic::kGnss))) {
         const auto& msg = gnss_decoder_.decode(ser_data);
         histmap_[ros2::nanoseconds(msg.header.stamp)][topic::kGnss] = ser_data;
       }
-      else if (topic.ends_with(path::join("/", topic::kRcInput))) {
+      else if (topic.ends_with(path::join('/', topic::kRcInput))) {
         const auto& msg = rcin_decoder_.decode(ser_data);
         histmap_[ros2::nanoseconds(msg.header.stamp)][topic::kRcInput] = ser_data;
       }
-      else if (topic.ends_with(path::join("/", topic::kBattery))) {
+      else if (topic.ends_with(path::join('/', topic::kBattery))) {
         const auto& msg = battery_decoder_.decode(ser_data);
         histmap_[ros2::nanoseconds(msg.header.stamp)][topic::kBattery] = ser_data;
       }
-      else if (topic.ends_with(path::join("/", topic::kCpu))) {
+      else if (topic.ends_with(path::join('/', topic::kCpu))) {
         const auto& msg = cpu_decoder_.decode(ser_data);
         histmap_[ros2::nanoseconds(msg.header.stamp)][topic::kCpu] = ser_data;
       }
-      else if (topic.ends_with(path::join("/", topic::kRotorStates))) {
+      else if (topic.ends_with(path::join('/', topic::kRotorStates))) {
         const auto& msg = rotor_states_decoder_.decode(ser_data);
         if (!rotorLinkNamesValid(msg)) {
           csv_file.close();
@@ -122,7 +122,7 @@ void CsvExportThread::run()
         }
         histmap_[ros2::nanoseconds(msg.header.stamp)][topic::kRotorStates] = ser_data;
       }
-      else if (topic.ends_with(path::join("/", topic::kRotorSpeedsCmd))) {
+      else if (topic.ends_with(path::join('/', topic::kRotorSpeedsCmd))) {
         const auto& msg = rotor_speeds_decoder_.decode(ser_data);
         if (!rotorLinkNamesValid(msg)) {
           csv_file.close();
@@ -131,27 +131,27 @@ void CsvExportThread::run()
         }
         histmap_[ros2::nanoseconds(msg.header.stamp)][topic::kRotorSpeedsCmd] = ser_data;
       }
-      else if (topic.ends_with(path::join("/", topic::kIcePropulsionSystemCmd))) {
+      else if (topic.ends_with(path::join('/', topic::kIcePropulsionSystemCmd))) {
         const auto& msg = ice_cmd_decoder_.decode(ser_data);
         histmap_[ros2::nanoseconds(msg.header.stamp)][topic::kIcePropulsionSystemCmd] = ser_data;
       }
-      else if (topic.ends_with(path::join("/", topic::kControlLatency))) {
+      else if (topic.ends_with(path::join('/', topic::kControlLatency))) {
         const auto& msg = latency_decoder_.decode(ser_data);
         histmap_[ros2::nanoseconds(msg.header.stamp)][topic::kControlLatency] = ser_data;
       }
-      else if (topic.ends_with(path::join("/", topic::kVibrationLevel))) {
+      else if (topic.ends_with(path::join('/', topic::kVibrationLevel))) {
         const auto& msg = vibe_decoder_.decode(ser_data);
         histmap_[ros2::nanoseconds(msg.header.stamp)][topic::kVibrationLevel] = ser_data;
       }
-      else if (topic.ends_with(path::join("/", topic::kDisturbanceForce))) {
+      else if (topic.ends_with(path::join('/', topic::kDisturbanceForce))) {
         const auto& msg = wrench_decoder_.decode(ser_data);
         histmap_[ros2::nanoseconds(msg.header.stamp)][topic::kDisturbanceForce] = ser_data;
       }
-      else if (topic.ends_with(path::join("/", topic::kObsvFeedback))) {
+      else if (topic.ends_with(path::join('/', topic::kObsvFeedback))) {
         const auto& msg = obsv_fb_decoder_.decode(ser_data);
         histmap_[ros2::nanoseconds(msg.header.stamp)][topic::kObsvFeedback] = ser_data;
       }
-      else if (topic.ends_with(path::join("/", topic::kMRCtrlFeedback))) {
+      else if (topic.ends_with(path::join('/', topic::kMRCtrlFeedback))) {
         const auto& msg = mr_ctrl_fb_decoder_.decode(ser_data);
         histmap_[ros2::nanoseconds(msg.header.stamp)][topic::kMRCtrlFeedback] = ser_data;
       }

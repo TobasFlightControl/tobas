@@ -6,6 +6,21 @@ namespace tobas
 {
 namespace path
 {
+namespace detail
+{
+template <typename T>
+inline std::string toString(T x)
+{
+  return x;
+}
+
+template <>
+inline std::string toString(char c)
+{
+  return std::string(1, c);
+}
+}  // namespace detail
+
 /* Same as os.path.join() from Python. */
 template <typename T>
 std::string join(const T& x)
@@ -19,8 +34,8 @@ std::string join(const T& _x, const U& _y)
 {
   constexpr char sep[] = "/";
 
-  const std::string x = _x;
-  const std::string y = _y;
+  const auto x = detail::toString(_x);
+  const auto y = detail::toString(_y);
 
   if (y.starts_with(sep)) {
     return y;
