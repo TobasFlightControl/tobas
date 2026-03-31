@@ -205,7 +205,7 @@ void FailsafeExecutorNode::vehicleHealthCb(const tobas_msgs::msg::VehicleHealth:
     case kReturnToLaunch: {
       // 手動操縦が有効になったらフェイルセーフをキャンセル
       if (is_manual_ctrl_enabled_) {
-        TOBAS_INFO("Fail-safe is canceled because the manual control is enabled.");
+        TOBAS_INFO("Fail-safe was canceled because the manual control was enabled.");
         mission_ac_->async_cancel_all_goals();
         state_ = kNoFailSafe;
         break;
@@ -223,7 +223,7 @@ void FailsafeExecutorNode::vehicleHealthCb(const tobas_msgs::msg::VehicleHealth:
     case kLand: {
       // 手動操縦が有効になったらフェイルセーフをキャンセル
       if (is_manual_ctrl_enabled_) {
-        TOBAS_INFO("Fail-safe is canceled because the manual control is enabled.");
+        TOBAS_INFO("Fail-safe was canceled because the manual control was enabled.");
         mission_ac_->async_cancel_all_goals();
         state_ = kNoFailSafe;
         break;

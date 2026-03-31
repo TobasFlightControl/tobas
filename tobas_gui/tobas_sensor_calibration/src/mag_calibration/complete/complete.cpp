@@ -599,7 +599,7 @@ void CompleteMagCalibWidget::onCancelButtonClicked()
   resetToPreStart();
   clearDisplayPoints();
 
-  qt::qInfoBox(this, "Magnetometer calibration is cancelled.");
+  qt::qInfoBox(this, "Magnetometer calibration was canceled.");
 }
 
 void CompleteMagCalibWidget::onFinishButtonClicked()

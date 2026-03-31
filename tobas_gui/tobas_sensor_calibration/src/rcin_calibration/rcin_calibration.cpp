@@ -360,7 +360,7 @@ void RCInputCalibrationWidget::onStartButtonClicked()
 
 void RCInputCalibrationWidget::onCancelButtonClicked()
 {
-  qt::qInfoBox(this, "Radio calibration is cancelled.");
+  qt::qInfoBox(this, "Radio calibration was canceled.");
   reset();
 }
 
