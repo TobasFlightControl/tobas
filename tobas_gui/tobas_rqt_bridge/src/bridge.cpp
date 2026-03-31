@@ -16,30 +16,30 @@ RosQtBridge::RosQtBridge(rclcpp::Node::SharedPtr node) : node_(node)
 
 void RosQtBridge::initializeScopedTopics(const std::string& ns)
 {
-  static constexpr auto rm = kRemoteIfaceNS;
+  static constexpr auto ri = kRemoteIfaceNS;
 
   scoped_subs_.clear();
 
-  addScoped<tobas_msgs::msg::Message, &self::messageReceived>(ns, path::join(rm, topic::kMessage));
-  addScoped<tobas_msgs::msg::Battery, &self::batteryReceived>(ns, path::join(rm, topic::kBattery));
-  addScoped<tobas_msgs::msg::EngineState, &self::engineStateReceived>(ns, path::join(rm, topic::kEngineState));
-  addScoped<tobas_msgs::msg::Cpu, &self::cpuReceived>(ns, path::join(rm, topic::kCpu));
-  addScoped<tobas_msgs::msg::Sbus, &self::sbusReceived>(ns, path::join(rm, topic::kSbus));
-  addScoped<tobas_msgs::RCInput, &self::rcInputReceived>(ns, path::join(rm, topic::kRcInput));
-  addScoped<tobas_msgs::Imu, &self::imuReceived>(ns, path::join(rm, topic::kImuFilt));
-  addScoped<tobas_msgs::MagneticField, &self::magReceived>(ns, path::join(rm, topic::kMagneticField));
-  addScoped<tobas_msgs::msg::FluidPressure, &self::airPressureReceived>(ns, path::join(rm, topic::kAirPressure));
-  addScoped<tobas_msgs::Gnss, &self::gnssReceived>(ns, path::join(rm, topic::kGnss));
-  addScoped<tobas_msgs::msg::RotorStateArray, &self::rotorStatesReceived>(ns, path::join(rm, topic::kRotorStates));
-  addScoped<tobas_msgs::msg::RotorLivelinessArray, &self::rotorLivelinessReceived>(ns, path::join(rm, topic::kRotorLiv));
-  addScoped<tobas_msgs::msg::JointStateArray, &self::jointStatesReceived>(ns, path::join(rm, topic::kJointStates));
-  addScoped<tobas_msgs::OdometryWithCovarianceStamped, &self::odomReceived>(ns, path::join(rm, topic::kOdometry));
-  addScoped<tobas_msgs::msg::Arming, &self::armingReceived>(ns, path::join(rm, topic::kArming));
-  addScoped<tobas_msgs::msg::VehicleHealth, &self::vehicleHealthReceived>(ns, path::join(rm, topic::kVehicleHealth));
-  addScoped<tobas_msgs::msg::RosbagState, &self::rosbagStateReceived>(ns, path::join(rm, topic::kRosbagState));
+  addScoped<tobas_msgs::msg::Message, &self::messageReceived>(ns, path::join(ri, topic::kMessage));
+  addScoped<tobas_msgs::msg::Battery, &self::batteryReceived>(ns, path::join(ri, topic::kBattery));
+  addScoped<tobas_msgs::msg::EngineState, &self::engineStateReceived>(ns, path::join(ri, topic::kEngineState));
+  addScoped<tobas_msgs::msg::Cpu, &self::cpuReceived>(ns, path::join(ri, topic::kCpu));
+  addScoped<tobas_msgs::msg::Sbus, &self::sbusReceived>(ns, path::join(ri, topic::kSbus));
+  addScoped<tobas_msgs::RCInput, &self::rcInputReceived>(ns, path::join(ri, topic::kRcInput));
+  addScoped<tobas_msgs::Imu, &self::imuReceived>(ns, path::join(ri, topic::kImuFilt));
+  addScoped<tobas_msgs::MagneticField, &self::magReceived>(ns, path::join(ri, topic::kMagneticField));
+  addScoped<tobas_msgs::msg::FluidPressure, &self::airPressureReceived>(ns, path::join(ri, topic::kAirPressure));
+  addScoped<tobas_msgs::Gnss, &self::gnssReceived>(ns, path::join(ri, topic::kGnss));
+  addScoped<tobas_msgs::msg::RotorStateArray, &self::rotorStatesReceived>(ns, path::join(ri, topic::kRotorStates));
+  addScoped<tobas_msgs::msg::RotorLivelinessArray, &self::rotorLivelinessReceived>(ns, path::join(ri, topic::kRotorLiv));
+  addScoped<tobas_msgs::msg::JointStateArray, &self::jointStatesReceived>(ns, path::join(ri, topic::kJointStates));
+  addScoped<tobas_msgs::OdometryWithCovarianceStamped, &self::odomReceived>(ns, path::join(ri, topic::kOdometry));
+  addScoped<tobas_msgs::msg::Arming, &self::armingReceived>(ns, path::join(ri, topic::kArming));
+  addScoped<tobas_msgs::msg::VehicleHealth, &self::vehicleHealthReceived>(ns, path::join(ri, topic::kVehicleHealth));
+  addScoped<tobas_msgs::msg::RosbagState, &self::rosbagStateReceived>(ns, path::join(ri, topic::kRosbagState));
   addScoped<tobas_msgs::msg::Heartbeat, &self::remoteHeartbeatReceived>(ns, topic::kHeartbeat);
-  addScoped<tobas_msgs::Imu, &self::rawImuReceived>(ns, path::join(rm, real::topic::kImuRaw));
-  addScoped<tobas_msgs::MagneticField, &self::rawMagReceived>(ns, path::join(rm, real::topic::kMagneticField));
+  addScoped<tobas_msgs::Imu, &self::rawImuReceived>(ns, path::join(ri, real::topic::kImuRaw));
+  addScoped<tobas_msgs::MagneticField, &self::rawMagReceived>(ns, path::join(ri, real::topic::kMagneticField));
 }
 
 template <typename MsgType, auto SignalType>
