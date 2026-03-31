@@ -114,7 +114,12 @@ void UrdfBuilderPanel::onLoadButtonClicked()
   // URDFまたはXACROのパスを取得
   const auto last_opened_dir = getLastOpenedDir();
   const auto file_path = QFileDialog::getOpenFileName(
-    this, "Load URDF", last_opened_dir, "Robot Description (*.urdf *.xacro);;All Files (*)");
+    this,
+    "Load URDF",
+    last_opened_dir,
+    "Robot Description (*.urdf *.xacro);;All Files (*)",
+    nullptr,
+    QFileDialog::DontUseNativeDialog);
 
   if (file_path.isEmpty()) {
     return;
