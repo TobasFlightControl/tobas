@@ -27,14 +27,16 @@ class RCInputCalibrationWidget : public BaseWidget
   static constexpr int kMinPeriod = 0;
   static constexpr int kMaxPeriod = 2000;
 
-  static constexpr int kMinSignalRange = 300;
-  static constexpr int kRangeSideShort = 50;
+  // S.BUSの各チャネルの値の範囲は最低でも1000us，最大で2000us以下であるため，
+  // 1000usを閾値にしておけば3段階スイッチの2段階までしか動かさないヒューマンエラーを防げる．
+  static constexpr int kMinSignalRange = 1000;  // [us]
 
   static constexpr char kOnText[] = "ON";
   static constexpr char kOffText[] = "OFF";
 
   static constexpr int kButtonWidth = 100;
   static constexpr int kButtonHeight = 40;
+  static constexpr int kRangeSideShort = 50;
 
 public:
   explicit RCInputCalibrationWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge, const Drone& drone);
