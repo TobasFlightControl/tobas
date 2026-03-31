@@ -86,7 +86,7 @@ bool MagnetometerHandlerNode::getConfig()
 void MagnetometerHandlerNode::registerPubSub()
 {
   mag_pub_ = createPublisher<tobas_msgs::MagneticField>(topic::kMagneticField);
-  mag_sub_ = createSubscriber(topic::kMagneticField, &self::magCb, this);
+  mag_sub_ = createSubscriber(real::topic::kMagneticField, &self::magCb, this);
 }
 
 void MagnetometerHandlerNode::magCb(const tobas_msgs::MagneticField::ConstSharedPtr& mag_in)

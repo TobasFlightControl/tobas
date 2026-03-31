@@ -115,8 +115,8 @@ void ImuHandlerNode::registerPubSub()
 {
   imu_raw_pub_ = createPublisher<tobas_msgs::Imu>(topic::kImuRaw);
   imu_filt_pub_ = createPublisher<tobas_msgs::Imu>(topic::kImuFilt);
-  imu_raw_sub_ = createSubscriber(topic::kImuRaw, &self::imuRawCb, this);
-  imu_filt_sub_ = createSubscriber(topic::kImuFilt, &self::imuFiltCb, this);
+  imu_raw_sub_ = createSubscriber(real::topic::kImuRaw, &self::imuRawCb, this);
+  imu_filt_sub_ = createSubscriber(real::topic::kImuFilt, &self::imuFiltCb, this);
 }
 
 void ImuHandlerNode::imuRawCb(const tobas_msgs::Imu::ConstSharedPtr& imu_raw_in)

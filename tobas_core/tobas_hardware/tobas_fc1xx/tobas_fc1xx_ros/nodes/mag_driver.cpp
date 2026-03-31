@@ -44,7 +44,7 @@ void MagDriverNode::initialize()
     return;
   }
 
-  mag_pub_ = createPublisher<tobas_msgs::MagneticField>(topic::kMagneticField);
+  mag_pub_ = createPublisher<tobas_msgs::MagneticField>(real::topic::kMagneticField);
 
   initialize_timer_->cancel();
   main_timer_ = createWallTimer(kSamplingPeriod, &self::mainTimerCb, this);
