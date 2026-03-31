@@ -17,6 +17,7 @@ namespace rviz
 class RvizFrameManager
 {
 public:
+  explicit RvizFrameManager(int argc, char** argv, const std::string& node_name);
   explicit RvizFrameManager(const std::string& node_name);
 
   void initialize(const QString& config_path, QWidget* parent = nullptr);

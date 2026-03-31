@@ -10,15 +10,19 @@ namespace tobas
 {
 namespace rviz
 {
-RvizFrameManager::RvizFrameManager(const std::string& node_name)
+RvizFrameManager::RvizFrameManager(int argc, char** argv, const std::string& node_name)
 {
   // Initialize ROS node
   if (!rclcpp::ok()) {
-    rclcpp::init(0, nullptr);
+    rclcpp::init(argc, argv);
   }
 
   // Create Rviz ROS interface
   node_ = std::make_shared<rviz_common::ros_integration::RosNodeAbstraction>(node_name);
+}
+
+RvizFrameManager::RvizFrameManager(const std::string& node_name) : RvizFrameManager(0, nullptr, node_name)
+{
 }
 
 void RvizFrameManager::initialize(const QString& config_path, QWidget* parent)
