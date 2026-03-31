@@ -21,6 +21,9 @@ int main(int argc, char** argv)
   // コンソール出力に着色
   qInstallMessageHandler(tobas::qt::colorMessageHandler);
 
+  // ノードを起動（Rviz系のノードに名前空間などの引数を反映するため）
+  rclcpp::init(argc, argv);
+
   // GUIを表示
   QApplication qapp(arg_parser.argc(), arg_parser.argv());
   const auto title = "Tobas URDF Builder (" + tobas::gui::cmn::Version::Current().toString() + ")";
