@@ -27,9 +27,9 @@ class RCInputCalibrationWidget : public BaseWidget
   static constexpr int kMinPeriod = 0;
   static constexpr int kMaxPeriod = 2000;
 
-  // S.BUSの各チャネルの値の範囲は最低でも1000us，最大で2000us以下であるため，
-  // 1000usを閾値にしておけば3段階スイッチの2段階までしか動かさないヒューマンエラーを防げる．
-  static constexpr int kMinSignalRange = 1000;  // [us]
+  // S.BUSの各チャネルの値の範囲は最低でも1000，最大で2000以下であるため，
+  // 1000を閾値にしておけば3段階スイッチの2段階までしか動かさないヒューマンエラーを防げる．
+  static constexpr int kMinSignalRange = 1000;
 
   static constexpr char kOnText[] = "ON";
   static constexpr char kOffText[] = "OFF";
