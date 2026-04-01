@@ -1,4 +1,4 @@
-# Tobas
+# Tobas - Flight Controller for All Drones
 
 Tobas is a next-generation, model-based flight controller created to meet the demands of the rapidly expanding drone market,
 where aircraft are becoming larger and increasingly specialized.
@@ -126,3 +126,17 @@ enabling precise flight performance even for unconventional frames not supported
 ## For Contributors
 
 See [Contributing to Tobas](./CONTRIBUTING.md).
+
+## License
+
+This repository is available under the GNU General Public License,
+version 3 or any later version (GPL-3.0-or-later).
+
+If you want to distribute Tobas as part of a proprietary product,
+or if you do not wish to comply with the GPL for distribution,
+alternative commercial licensing is available from Tobas.
+
+See [LICENSE](./LICENSE) for the open source license and
+[COMMERCIAL-LICENSE.md](./COMMERCIAL-LICENSE.md) for commercial licensing information.
+
+For commercial licensing inquiries, please contact: m.dohi@tobas.jp
