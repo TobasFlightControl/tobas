@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_flight_log_gui/log_viewer/plot_tab.hpp"
 
 #include <tobas_qt_tools/cast.hpp>

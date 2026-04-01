@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_tools/imu_sampling_time_publisher.hpp"
 
 #include <tobas_constants/ros_interface.hpp>

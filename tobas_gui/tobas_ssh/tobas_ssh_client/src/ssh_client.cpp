@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_ssh_client/ssh_client.hpp"
 
 #include <tobas_ros2_tools/register.hpp>

@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Tobas, Inc.
+
 from copy import deepcopy
 from heapq import heappop, heappush
 

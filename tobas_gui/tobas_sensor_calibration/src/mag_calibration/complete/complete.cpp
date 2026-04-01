@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_sensor_calibration/mag_calibration/complete/complete.hpp"
 
 #include <iostream>

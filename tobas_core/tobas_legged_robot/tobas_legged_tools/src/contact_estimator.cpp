@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_legged_tools/contact_estimator.hpp"
 
 #include <tobas_std_tools/universal_constants.hpp>

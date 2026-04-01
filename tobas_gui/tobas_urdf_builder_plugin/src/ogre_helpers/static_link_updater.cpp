@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_urdf_builder_plugin/ogre_helpers/static_link_updater.hpp"
 
 static inline Ogre::Vector3 URDFVector3ToOgre(const ::urdf::Vector3& v)

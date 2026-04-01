@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_urdf_builder_plugin/view_model/visual_view_model.hpp"
 
 #include "tobas_urdf_builder_plugin/utils/time.hpp"

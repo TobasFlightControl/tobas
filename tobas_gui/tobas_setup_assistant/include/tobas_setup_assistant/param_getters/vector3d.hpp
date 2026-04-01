@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <tobas_qt_tools/widgets/vector3d_edit_horizontal.hpp>

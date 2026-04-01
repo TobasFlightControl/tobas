@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_tools/tree_joint_state_converter.hpp"
 
 #include <tobas_std_tools/vector.hpp>

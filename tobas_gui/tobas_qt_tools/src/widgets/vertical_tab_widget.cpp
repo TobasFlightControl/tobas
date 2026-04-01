@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_qt_tools/widgets/vertical_tab_widget.hpp"
 
 #include <QStyleOptionTab>

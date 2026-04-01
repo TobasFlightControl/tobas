@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Tobas, Inc.
+
 from typing import Sequence, TypeVar
 
 T = TypeVar("T", int, float)

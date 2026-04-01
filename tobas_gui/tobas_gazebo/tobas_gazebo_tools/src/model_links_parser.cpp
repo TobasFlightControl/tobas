@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_gazebo_tools/model_links_parser.hpp"
 
 #include "tobas_gazebo_tools/utils.hpp"

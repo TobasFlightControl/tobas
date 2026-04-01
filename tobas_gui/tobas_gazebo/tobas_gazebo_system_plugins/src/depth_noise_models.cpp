@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_gazebo_system_plugins/depth_noise_models.hpp"
 
 #include <algorithm>

@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Tobas, Inc.
+
 import numpy as np
 from sklearn.metrics import mean_squared_error
 

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_gui_common/remote_project_builder.hpp"
 
 #include <tobas_constants/path.hpp>

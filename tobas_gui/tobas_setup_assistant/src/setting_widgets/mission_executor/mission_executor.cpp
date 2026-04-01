@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_setup_assistant/setting_tabs/mission_executor/mission_executor.hpp"
 
 #include <tobas_gui_common/constants.hpp>

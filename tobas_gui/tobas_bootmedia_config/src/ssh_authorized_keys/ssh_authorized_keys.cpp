@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_bootmedia_config/ssh_authorized_keys/ssh_authorized_keys.hpp"
 
 #include <tobas_path_tools/core.hpp>

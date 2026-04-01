@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 // OGREは"/usr/include/OGRE"ではなく"/opt/ros/jazzy/opt/rviz_ogre_vendor/include/OGRE"からインクルードする．

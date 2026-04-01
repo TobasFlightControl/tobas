@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include <opencv2/highgui/highgui.hpp>
 
 #include <cv_bridge/cv_bridge.hpp>

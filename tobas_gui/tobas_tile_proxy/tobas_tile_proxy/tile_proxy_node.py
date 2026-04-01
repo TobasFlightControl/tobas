@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Tobas, Inc.
+
 """
 外部のタイルサーバを QML の OSM プラグインの形式 (.../{z}/{x}/{y}.png) で提供するウェブサーバ．
 """

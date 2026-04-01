@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Tobas, Inc.
+
 import numpy as np
 from rich import print as rprint
 from qpsolvers import solve_qp

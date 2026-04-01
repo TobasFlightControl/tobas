@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_rviz_plugin/synchronized_string_parameter.hpp"
 
 namespace ch = std::chrono;

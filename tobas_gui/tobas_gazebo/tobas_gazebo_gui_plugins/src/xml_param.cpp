@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_gazebo_gui_plugins/xml_param.hpp"
 
 #include <gz/common/Console.hh>

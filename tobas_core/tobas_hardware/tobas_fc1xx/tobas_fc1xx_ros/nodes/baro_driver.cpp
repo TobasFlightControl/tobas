@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include <tobas_constants/ros_interface.hpp>
 #include <tobas_fc1xx_core/ilps22qs.hpp>
 #include <tobas_hardware_common/base_sensor_node.hpp>

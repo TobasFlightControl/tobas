@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_gui_common/network_config.hpp"
 
 #include <tobas_yaml_tools/core.hpp>

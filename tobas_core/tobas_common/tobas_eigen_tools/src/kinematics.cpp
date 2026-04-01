@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_eigen_tools/kinematics.hpp"
 
 #include <tobas_math/core.hpp>

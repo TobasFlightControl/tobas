@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include <tf2_ros/transform_broadcaster.h>
 
 #include <tobas_algorithm/core.hpp>

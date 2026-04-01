@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_control_system/mission_planner/commands/takeoff.hpp"
 
 namespace tobas

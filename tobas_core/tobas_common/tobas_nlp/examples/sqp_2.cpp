@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 /**
  * min  x0 * x1 * (x0 + x1 + x2) + x2
  * s.t. x0^2 + x1^2 + x2^2 + x3^2 = 04

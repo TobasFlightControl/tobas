@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include <gz/msgs/vector3d.pb.h>
 #include <gz/transport/Node.hh>
 

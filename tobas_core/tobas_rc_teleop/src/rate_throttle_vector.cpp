@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_rc_teleop/rate_throttle_vector.hpp"
 
 #include <tobas_constants/ros_interface.hpp>

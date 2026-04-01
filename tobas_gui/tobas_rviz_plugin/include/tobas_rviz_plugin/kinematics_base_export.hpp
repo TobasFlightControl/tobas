@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #ifdef TOBAS_KINEMATICS_BASE_STATIC_DEFINE

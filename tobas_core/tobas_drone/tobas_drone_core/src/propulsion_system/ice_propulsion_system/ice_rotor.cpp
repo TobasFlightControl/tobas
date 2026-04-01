@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_drone_core/propulsion_system/ice_propulsion_system/ice_rotor.hpp"
 
 #include <tobas_yaml_tools/convert/range.hpp>

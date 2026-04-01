@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_actuator_test/rotor_test/rotor_test.hpp"
 
 #include <boost/polymorphic_pointer_cast.hpp>

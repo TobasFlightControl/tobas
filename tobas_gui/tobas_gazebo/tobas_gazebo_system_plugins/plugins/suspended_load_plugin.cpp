@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include <gz/msgs/entity_factory.pb.h>
 #include <gz/msgs/marker.pb.h>
 #include <gz/sim/Link.hh>

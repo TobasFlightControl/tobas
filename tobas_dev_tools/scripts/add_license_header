@@ -1,0 +1,46 @@
+#!/bin/python
+
+from pathlib import Path
+
+LICENSE_IDENTIFIER = "SPDX-License-Identifier:"
+IFACE_HEADER = "# " + LICENSE_IDENTIFIER + " Apache-2.0\n# Copyright (C) 2026 Tobas, Inc.\n\n"
+PY_HEADER = "# " + LICENSE_IDENTIFIER + " GPL-3.0-or-later\n# Copyright (C) 2026 Tobas, Inc.\n\n"
+C_HEADER = "// " + LICENSE_IDENTIFIER + " GPL-3.0-or-later\n// Copyright (C) 2026 Tobas, Inc.\n\n"
+
+IFACE_EXTS = {".msg", ".srv", ".action"}
+PY_EXTS = {".py"}
+C_EXTS = {".h", ".c", ".hh", ".cc", ".hpp", ".cpp"}
+
+EXCLUDED_DIR_NAMES = {".git", "tobas_external"}
+
+if __name__ == "__main__":
+    base_dir = Path(__file__).resolve().parents[2]
+    print(f"Searching in {base_dir}")
+
+    num_updated = 0
+
+    for path in Path(base_dir).rglob("*"):
+        if not path.is_file():
+            continue
+        if any(part in EXCLUDED_DIR_NAMES for part in path.parts):
+            continue
+
+        if path.suffix in IFACE_EXTS | PY_EXTS | C_EXTS:
+            text = path.read_text(encoding="utf-8")
+
+            if LICENSE_IDENTIFIER in text:
+                continue
+
+            if path.suffix in IFACE_EXTS:
+                path.write_text(IFACE_HEADER + text, encoding="utf-8")
+            elif path.suffix in PY_EXTS:
+                if path.name == "setup.py" or path.name.endswith(".launch.py"):
+                    continue
+                path.write_text(PY_HEADER + text, encoding="utf-8")
+            elif path.suffix in C_EXTS:
+                path.write_text(C_HEADER + text, encoding="utf-8")
+
+            num_updated += 1
+            print(f"Updated: {path}")
+
+    print(f"{num_updated} files have been updated.")

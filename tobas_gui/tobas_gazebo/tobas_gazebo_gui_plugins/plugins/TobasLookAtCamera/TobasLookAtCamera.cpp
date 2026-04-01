@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "./TobasLookAtCamera.hpp"
 
 #include <boost/polymorphic_pointer_cast.hpp>

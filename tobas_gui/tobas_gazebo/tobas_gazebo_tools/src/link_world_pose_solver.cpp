@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_gazebo_tools/link_world_pose_solver.hpp"
 
 using namespace gz;

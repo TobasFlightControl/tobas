@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_legged_tools/ground_force_controller.hpp"
 
 #include <tobas_control/util.hpp>

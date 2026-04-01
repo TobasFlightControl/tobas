@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_components_rt/multi_threaded_executor.hpp"
 
 #include <tobas_linux/realtime.hpp>

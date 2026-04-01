@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_rviz_plugin/robot_state_visualization.hpp"
 
 #include <rviz_common/properties/parse_color.hpp>
