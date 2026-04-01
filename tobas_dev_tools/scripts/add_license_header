@@ -3,9 +3,10 @@
 from pathlib import Path
 
 LICENSE_IDENTIFIER = "SPDX-License-Identifier:"
-IFACE_HEADER = "# " + LICENSE_IDENTIFIER + " Apache-2.0\n# Copyright (C) 2026 Tobas, Inc.\n\n"
-PY_HEADER = "# " + LICENSE_IDENTIFIER + " GPL-3.0-or-later\n# Copyright (C) 2026 Tobas, Inc.\n\n"
-C_HEADER = "// " + LICENSE_IDENTIFIER + " GPL-3.0-or-later\n// Copyright (C) 2026 Tobas, Inc.\n\n"
+COPYRIGHT = "Copyright (C) 2026 Tobas, Inc."
+IFACE_HEADER = "# " + LICENSE_IDENTIFIER + " Apache-2.0\n# " + COPYRIGHT
+PY_HEADER = "# " + LICENSE_IDENTIFIER + " GPL-3.0-or-later\n# " + COPYRIGHT
+C_HEADER = "// " + LICENSE_IDENTIFIER + " GPL-3.0-or-later\n// " + COPYRIGHT
 
 IFACE_EXTS = {".msg", ".srv", ".action"}
 PY_EXTS = {".py"}
@@ -32,13 +33,13 @@ if __name__ == "__main__":
                 continue
 
             if path.suffix in IFACE_EXTS:
-                path.write_text(IFACE_HEADER + text, encoding="utf-8")
+                path.write_text(IFACE_HEADER + "\n\n" + text, encoding="utf-8")
             elif path.suffix in PY_EXTS:
                 if path.name == "setup.py" or path.name.endswith(".launch.py"):
                     continue
-                path.write_text(PY_HEADER + text, encoding="utf-8")
+                path.write_text(PY_HEADER + "\n\n" + text, encoding="utf-8")
             elif path.suffix in C_EXTS:
-                path.write_text(C_HEADER + text, encoding="utf-8")
+                path.write_text(C_HEADER + "\n\n" + text, encoding="utf-8")
 
             num_updated += 1
             print(f"Updated: {path}")
