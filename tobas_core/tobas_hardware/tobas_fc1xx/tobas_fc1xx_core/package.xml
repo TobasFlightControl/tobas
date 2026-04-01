@@ -4,7 +4,7 @@
 	<version>0.0.0</version>
 	<description>Collection of drivers and examples for Navio 2 - autopilot shield for Raspberry Pi.</description>
 	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
-	<license>TODO</license>
+	<license>GPL-3.0-or-later</license>
 
 	<buildtool_depend>ament_cmake</buildtool_depend>
 
