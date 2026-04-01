@@ -31,7 +31,7 @@ setup(
     maintainer="{{ author_name }}",
     maintainer_email="{{ author_email }}",
     description="Tobas user Python package for {{ drone_name }}",
-    license="BSD",
+    license="BSD-3-Clause",
     tests_require=["pytest"],
     entry_points={"console_scripts": console_scripts},
 )
