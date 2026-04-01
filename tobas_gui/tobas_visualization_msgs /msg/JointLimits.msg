@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (C) 2026 Tobas, Inc.
+
 # This message contains information about limits of a particular joint (or control dimension)
 string joint_name
 

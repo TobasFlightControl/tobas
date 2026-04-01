@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (C) 2026 Tobas, Inc.
+
 # Lift force
 float64 c_lift_0
 float64 c_lift_alpha

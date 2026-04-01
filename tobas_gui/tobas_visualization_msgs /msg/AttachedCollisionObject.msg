@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (C) 2026 Tobas, Inc.
+
 # The CollisionObject will be attached with a fixed joint to this link
 string link_name
 

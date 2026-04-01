@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (C) 2026 Tobas, Inc.
+
 std_msgs/Header header
 float64 rotation_speed   # Rotation speed [rad/s]
 float64 current          # Current [A]

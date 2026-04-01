@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (C) 2026 Tobas, Inc.
+
 geometry_msgs/Vector3 attachment_point  # [m] Attachment point on the aircraft wrt. the local frame
 float64 load_sx                         # [m]
 float64 load_sy                         # [m]

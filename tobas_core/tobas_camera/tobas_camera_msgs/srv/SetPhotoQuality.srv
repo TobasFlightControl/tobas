@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (C) 2026 Tobas, Inc.
+
 uint8 photo_quality
 uint8 SUPER_FINE = 0
 uint8 FINE = 1
