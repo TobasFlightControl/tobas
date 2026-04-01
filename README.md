@@ -129,14 +129,19 @@ See [Contributing to Tobas](./CONTRIBUTING.md).
 
 ## License
 
-This repository is available under the GNU General Public License,
+Unless otherwise noted, this repository is licensed under the GNU General Public License,
 version 3 or any later version (GPL-3.0-or-later).
+
+The `*_msgs` packages, including their `.msg`, `.srv`, and `.action` files,
+are licensed under Apache-2.0.
+
+See [LICENSE](./LICENSE) for the default open source license,
+and [LICENSES/Apache-2.0.txt](./LICENSES/Apache-2.0.txt) for the Apache-2.0 license text.
 
 If you want to distribute Tobas as part of a proprietary product,
 or if you do not wish to comply with the GPL for distribution,
 alternative commercial licensing is available from Tobas.
 
-See [LICENSE](./LICENSE) for the open source license and
-[COMMERCIAL-LICENSE.md](./COMMERCIAL-LICENSE.md) for commercial licensing information.
+See [COMMERCIAL-LICENSE.md](./COMMERCIAL-LICENSE.md) for commercial licensing information.
 
 For commercial licensing inquiries, please contact: m.dohi@tobas.jp
