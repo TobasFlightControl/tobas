@@ -207,5 +207,15 @@ def generate_launch_description():
             output=output,
         )
     )
+    ld.add_action(
+        Node(
+            package="tobas_object_avoidance",
+            executable="tobas_object_avoidance",
+            namespace=DRONE_NAME,
+            parameters=[PathJoinSubstitution([config_pkg_share, "config", "avoidance.yaml"])],
+            ros_arguments=ros_args,
+            output=output,
+        )
+    )
 
     return ld
