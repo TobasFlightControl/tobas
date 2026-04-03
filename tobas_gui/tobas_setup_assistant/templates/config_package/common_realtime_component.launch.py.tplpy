@@ -127,9 +127,8 @@ def generate_launch_description():
                 ),
                 ComposableNode(
                     package="tobas_object_avoidance",
-                    plugin="tobas_object_avoidance::TobasObjectAvoidance",
+                    plugin="tobas_object_avoidance::ObjectAvoidance",
                     namespace=DRONE_NAME,
-                    parameters=[PathJoinSubstitution([config_pkg_share, "config", "avoidance.yaml"])],
                 ),
             ],
         )

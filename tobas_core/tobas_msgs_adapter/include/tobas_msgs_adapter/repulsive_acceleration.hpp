@@ -14,6 +14,8 @@ struct RepulsiveAcceleration
 
   using SharedPtr = std::shared_ptr<RepulsiveAcceleration>;
   using ConstSharedPtr = std::shared_ptr<const RepulsiveAcceleration>;
+  using UniquePtr = std::unique_ptr<RepulsiveAcceleration>;
+  using ConstUniquePtr = std::unique_ptr<const RepulsiveAcceleration>;
 };
 }  // namespace tobas_msgs
 

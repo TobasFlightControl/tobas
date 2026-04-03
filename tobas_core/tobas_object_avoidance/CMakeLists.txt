@@ -27,15 +27,15 @@ find_package(tobas_debug_msgs_adapter REQUIRED)
 include_directories(include)
 include_directories(${OCTOMAP_INCLUDE_DIRS})
 
-add_executable(tobas_object_avoidance src/tobas_object_avoidance.cpp)
+add_executable(object_avoidance nodes/tobas_object_avoidance.cpp)
 target_include_directories(
-  tobas_object_avoidance PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> $<INSTALL_INTERFACE:include>
+  object_avoidance PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> $<INSTALL_INTERFACE:include>
 )
 
-target_link_libraries(tobas_object_avoidance ${OCTOMAP_LIBRARIES})
+target_link_libraries(object_avoidance ${OCTOMAP_LIBRARIES})
 
 ament_target_dependencies(
-  tobas_object_avoidance
+  object_avoidance
   rclcpp
   geometry_msgs
   octomap_msgs
@@ -48,7 +48,7 @@ ament_target_dependencies(
   tobas_debug_msgs_adapter
 )
 
-install(TARGETS tobas_object_avoidance DESTINATION lib/${PROJECT_NAME})
+install(TARGETS object_avoidance DESTINATION lib/${PROJECT_NAME})
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

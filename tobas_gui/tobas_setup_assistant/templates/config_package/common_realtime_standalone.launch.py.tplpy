@@ -103,6 +103,15 @@ def generate_launch_description():
             output=output,
         )
     )
+    ld.add_action(
+        Node(
+            package="tobas_object_avoidance",
+            executable="object_avoidance",
+            namespace=DRONE_NAME,
+            ros_arguments=ros_args,
+            output=output,
+        )
+    )
 
     # Launch 3th priority nodes (Others)
     ld.add_action(
@@ -203,16 +212,6 @@ def generate_launch_description():
             package="tobas_topic_throttle",
             executable="topic_throttle",
             namespace=DRONE_NAME,
-            ros_arguments=ros_args,
-            output=output,
-        )
-    )
-    ld.add_action(
-        Node(
-            package="tobas_object_avoidance",
-            executable="tobas_object_avoidance",
-            namespace=DRONE_NAME,
-            parameters=[PathJoinSubstitution([config_pkg_share, "config", "avoidance.yaml"])],
             ros_arguments=ros_args,
             output=output,
         )
