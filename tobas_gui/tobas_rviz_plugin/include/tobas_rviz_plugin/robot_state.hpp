@@ -538,101 +538,6 @@ public:
     return dirtyCollisionBodyTransforms();
   }
 
-  /* Return the sum of joint distances to "other" state. An L1 norm. Only considers active joints. */
-  double distance(const RobotState& other) const
-  {
-    return robot_model_->distance(position_.data(), other.getVariablePositions());
-  }
-
-  /* Return the sum of joint distances to "other" state. An L1 norm. Only considers active joints. */
-  double distance(const RobotState& other, const JointModel* joint) const;
-
-  /* Get the transformation matrix from the model frame (root of model) to the frame identified by \e frame_id
-   *
-   * If frame_id was not found, \e frame_found is set to false and an identity transform is returned.
-   *
-   * The returned transformation is always a valid isometry. */
-  const Eigen::Isometry3d& getFrameTransform(const std::string& frame_id, bool* frame_found = nullptr);
-
-  /* Get the transformation matrix from the model frame (root of model) to the frame identified by \e frame_id
-   *
-   * If frame_id was not found, \e frame_found is set to false and an identity transform is returned.
-   *
-   * The returned transformation is always a valid isometry. */
-  const Eigen::Isometry3d& getFrameTransform(const std::string& frame_id, bool* frame_found = nullptr) const;
-
-  /* Get the transformation matrix from the model frame (root of model) to the frame identified by \e frame_id
-   *
-   * If this frame is attached to a robot link, the link pointer is returned in \e robot_link.
-   * If frame_id was not found, \e frame_found is set to false and an identity transform is returned.
-   *
-   * The returned transformation is always a valid isometry. */
-  const Eigen::Isometry3d&
-  getFrameInfo(const std::string& frame_id, const LinkModel*& robot_link, bool& frame_found) const;
-
-  /* Check if a transformation matrix from the model frame (root of model) to frame \e frame_id is known */
-  bool knowsFrameTransform(const std::string& frame_id) const;
-
-  /* Get a MarkerArray that fully describes the robot markers for a given robot.
-   * @param arr The returned marker array
-   * @param link_names The list of link names for which the markers should be created.
-   * @param color The color for the marker
-   * @param ns The namespace for the markers
-   * @param dur The rclcpp::Duration for which the markers should stay visible
-   */
-  void getRobotMarkers(
-    visualization_msgs::msg::MarkerArray& arr,
-    const std::vector<std::string>& link_names,
-    const std_msgs::msg::ColorRGBA& color,
-    const std::string& ns,
-    const rclcpp::Duration& dur) const;
-
-  /* Get a MarkerArray that fully describes the robot markers for a given robot. Update the state first.
-   * @param arr The returned marker array
-   * @param link_names The list of link names for which the markers should be created.
-   * @param color The color for the marker
-   * @param ns The namespace for the markers
-   * @param dur The rclcpp::Duration for which the markers should stay visible
-   */
-  void getRobotMarkers(
-    visualization_msgs::msg::MarkerArray& arr,
-    const std::vector<std::string>& link_names,
-    const std_msgs::msg::ColorRGBA& color,
-    const std::string& ns,
-    const rclcpp::Duration& dur)
-  {
-    updateCollisionBodyTransforms();
-    static_cast<const RobotState*>(this)->getRobotMarkers(arr, link_names, color, ns, dur);
-  }
-
-  /* Get a MarkerArray that fully describes the robot markers for a given robot.
-   * @param arr The returned marker array
-   * @param link_names The list of link names for which the markers should be created.
-   */
-  void getRobotMarkers(visualization_msgs::msg::MarkerArray& arr, const std::vector<std::string>& link_names) const;
-
-  /* Get a MarkerArray that fully describes the robot markers for a given robot. Update the state first.
-   * @param arr The returned marker array
-   * @param link_names The list of link names for which the markers should be created.
-   */
-  void getRobotMarkers(visualization_msgs::msg::MarkerArray& arr, const std::vector<std::string>& link_names)
-  {
-    updateCollisionBodyTransforms();
-    static_cast<const RobotState*>(this)->getRobotMarkers(arr, link_names);
-  }
-
-  void printStatePositions(std::ostream& out = std::cout) const;
-
-  void printStateInfo(std::ostream& out = std::cout) const;
-
-  void printTransforms(std::ostream& out = std::cout) const;
-
-  void printTransform(const Eigen::Isometry3d& transform, std::ostream& out = std::cout) const;
-
-  void printDirtyInfo(std::ostream& out = std::cout) const;
-
-  std::string getStateTreeString() const;
-
 private:
   void init();
 
@@ -653,7 +558,6 @@ private:
 
   void
   getMissingKeys(const std::map<std::string, double>& variable_map, std::vector<std::string>& missing_variables) const;
-  void getStateTreeJointString(std::ostream& ss, const JointModel* jm, const std::string& pfx0, bool last) const;
 
   /* This function is only called in debug mode */
   bool checkJointTransforms(const JointModel* joint) const;
@@ -685,7 +589,4 @@ private:
                                                                      ///< bodies
   std::vector<uint8_t> dirty_joint_transforms_;
 };
-
-/* Operator overload for printing variable bounds to a stream */
-std::ostream& operator<<(std::ostream& out, const RobotState& s);
 }  // namespace tobas
