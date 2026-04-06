@@ -12,7 +12,6 @@
 #include <std_msgs/msg/color_rgba.hpp>
 #include <visualization_msgs/msg/marker_array.hpp>
 
-#include "./attached_body.hpp"
 #include "./robot_model.hpp"
 #include "./transforms.hpp"
 
@@ -43,7 +42,6 @@ public:
    * Call setToDefaultValues() if a state needs to provide valid information.
    */
   RobotState(const RobotModel::ConstSharedPtr& robot_model);
-  ~RobotState();
 
   /* Copy constructor. */
   RobotState(const RobotState& other);
@@ -711,100 +709,6 @@ public:
   std::pair<double, const JointModel*>
   getMinDistanceToPositionBounds(const std::vector<const JointModel*>& joints) const;
 
-  /* Add an attached body to this state.
-   *
-   * This only adds the given body to this RobotState
-   * instance. It does not change anything about other
-   * representations of the object elsewhere in the system. So if the
-   * body represents an object in a collision_detection::World (like
-   * from a planning_scene::PlanningScene), you will likely need to remove the
-   * corresponding object from that world to avoid having collisions
-   * detected against it.
-   **/
-  void attachBody(std::unique_ptr<AttachedBody> attached_body);
-
-  /* Add an attached body to a link
-   * @param id The string id associated with the attached body
-   * @param pose The pose associated with the attached body
-   * @param shapes The shapes that make up the attached body
-   * @param shape_poses The transforms between the object pose and the attached body's shapes
-   * @param touch_links The set of links that the attached body is allowed to touch
-   * @param link_name The link to attach to
-   * @param detach_posture The posture of the gripper when placing the object
-   * @param subframe_poses Transforms to points of interest on the object (can be used as end effector link)
-   *
-   * This only adds the given body to this RobotState
-   * instance. It does not change anything about other
-   * representations of the object elsewhere in the system. So if the
-   * body represents an object in a collision_detection::World (like
-   * from a planning_scene::PlanningScene), you will likely need to remove the
-   * corresponding object from that world to avoid having collisions
-   * detected against it. */
-  void attachBody(
-    const std::string& id,
-    const Eigen::Isometry3d& pose,
-    const std::vector<shapes::ShapeConstPtr>& shapes,
-    const EigenSTL::vector_Isometry3d& shape_poses,
-    const std::set<std::string>& touch_links,
-    const std::string& link_name,
-    const trajectory_msgs::msg::JointTrajectory& detach_posture = trajectory_msgs::msg::JointTrajectory(),
-    const FixedTransformsMap& subframe_poses = FixedTransformsMap());
-
-  /* Add an attached body to a link
-   * @param id The string id associated with the attached body
-   * @param pose The pose associated with the attached body
-   * @param shapes The shapes that make up the attached body
-   * @param shape_poses The transforms between the object pose and the attached body's shapes
-   * @param touch_links The set of links that the attached body is allowed to touch
-   * @param link_name The link to attach to
-   * @param detach_posture The posture of the gripper when placing the object
-   * @param subframe_poses Transforms to points of interest on the object (can be used as end effector link)
-   *
-   * This only adds the given body to this RobotState
-   * instance. It does not change anything about other
-   * representations of the object elsewhere in the system. So if the
-   * body represents an object in a collision_detection::World (like
-   * from a planning_scene::PlanningScene), you will likely need to remove the
-   * corresponding object from that world to avoid having collisions
-   * detected against it. */
-  void attachBody(
-    const std::string& id,
-    const Eigen::Isometry3d& pose,
-    const std::vector<shapes::ShapeConstPtr>& shapes,
-    const EigenSTL::vector_Isometry3d& shape_poses,
-    const std::vector<std::string>& touch_links,
-    const std::string& link_name,
-    const trajectory_msgs::msg::JointTrajectory& detach_posture = trajectory_msgs::msg::JointTrajectory(),
-    const FixedTransformsMap& subframe_poses = FixedTransformsMap())
-  {
-    std::set<std::string> touch_links_set(touch_links.begin(), touch_links.end());
-    attachBody(id, pose, shapes, shape_poses, touch_links_set, link_name, detach_posture, subframe_poses);
-  }
-
-  /* Get all bodies attached to the model corresponding to this state */
-  void getAttachedBodies(std::vector<const AttachedBody*>& attached_bodies) const;
-
-  /* Get all bodies attached to a particular link in the model corresponding to this state */
-  void getAttachedBodies(std::vector<const AttachedBody*>& attached_bodies, const LinkModel* link_model) const;
-
-  /* Remove the attached body named \e id. Return false if the object was not found (and thus not removed).
-   * Return true on success. */
-  bool clearAttachedBody(const std::string& id);
-
-  /* Clear the bodies attached to a specific link */
-  void clearAttachedBodies(const LinkModel* link);
-
-  /* Clear all attached bodies. This calls delete on the AttachedBody instances, if needed. */
-  void clearAttachedBodies();
-
-  /* Get the attached body named \e name. Return nullptr if not found. */
-  const AttachedBody* getAttachedBody(const std::string& name) const;
-
-  /* Check if an attached body named \e id exists in this state */
-  bool hasAttachedBody(const std::string& id) const;
-
-  void setAttachedBodyUpdateCallback(const AttachedBodyCallback& callback);
-
   /* Compute an axis-aligned bounding box that contains the current state.
       The format for \e aabb is (minx, maxx, miny, maxy, minz, maxz) */
   void computeAABB(std::vector<double>& aabb) const;
@@ -864,8 +768,7 @@ public:
     const std::vector<std::string>& link_names,
     const std_msgs::msg::ColorRGBA& color,
     const std::string& ns,
-    const rclcpp::Duration& dur,
-    bool include_attached = false) const;
+    const rclcpp::Duration& dur) const;
 
   /* Get a MarkerArray that fully describes the robot markers for a given robot. Update the state first.
    * @param arr The returned marker array
@@ -879,33 +782,26 @@ public:
     const std::vector<std::string>& link_names,
     const std_msgs::msg::ColorRGBA& color,
     const std::string& ns,
-    const rclcpp::Duration& dur,
-    bool include_attached = false)
+    const rclcpp::Duration& dur)
   {
     updateCollisionBodyTransforms();
-    static_cast<const RobotState*>(this)->getRobotMarkers(arr, link_names, color, ns, dur, include_attached);
+    static_cast<const RobotState*>(this)->getRobotMarkers(arr, link_names, color, ns, dur);
   }
 
   /* Get a MarkerArray that fully describes the robot markers for a given robot.
    * @param arr The returned marker array
    * @param link_names The list of link names for which the markers should be created.
    */
-  void getRobotMarkers(
-    visualization_msgs::msg::MarkerArray& arr,
-    const std::vector<std::string>& link_names,
-    bool include_attached = false) const;
+  void getRobotMarkers(visualization_msgs::msg::MarkerArray& arr, const std::vector<std::string>& link_names) const;
 
   /* Get a MarkerArray that fully describes the robot markers for a given robot. Update the state first.
    * @param arr The returned marker array
    * @param link_names The list of link names for which the markers should be created.
    */
-  void getRobotMarkers(
-    visualization_msgs::msg::MarkerArray& arr,
-    const std::vector<std::string>& link_names,
-    bool include_attached = false)
+  void getRobotMarkers(visualization_msgs::msg::MarkerArray& arr, const std::vector<std::string>& link_names)
   {
     updateCollisionBodyTransforms();
-    static_cast<const RobotState*>(this)->getRobotMarkers(arr, link_names, include_attached);
+    static_cast<const RobotState*>(this)->getRobotMarkers(arr, link_names);
   }
 
   void printStatePositions(std::ostream& out = std::cout) const;
@@ -920,16 +816,7 @@ public:
 
   std::string getStateTreeString() const;
 
-  /**
-   * @brief Transform pose from the robot model's base frame to the reference frame of the IK solver
-   * @param pose - the input to change
-   * @param ik_frame - the name of frame of reference of base of ik solver
-   * @return true if no error
-   */
-  bool setToIKSolverFrame(Eigen::Isometry3d& pose, const std::string& ik_frame);
-
 private:
-  void allocMemory();
   void init();
   void copyFrom(const RobotState& other);
 
@@ -961,13 +848,6 @@ private:
   /* This function is only called in debug mode */
   bool checkCollisionTransforms() const;
 
-  /* Get the closest link in the kinematic tree to `frame`.
-   *
-   * Helper function for getRigidlyConnectedParentLinkModel,
-   * which resolves attached objects / subframes.
-   */
-  const LinkModel* getLinkModelIncludingAttachedBodies(const std::string& frame) const;
-
   RobotModel::ConstSharedPtr robot_model_;
 
   std::vector<double> position_;
@@ -988,13 +868,6 @@ private:
   std::vector<Eigen::Isometry3d> global_collision_body_transforms_;  ///< Transforms from model frame to collision
                                                                      ///< bodies
   std::vector<uint8_t> dirty_joint_transforms_;
-
-  /* All attached bodies that are part of this state, indexed by their name */
-  std::map<std::string, std::unique_ptr<AttachedBody>> attached_body_map_;
-
-  /* This event is called when there is a change in the attached bodies for this state;
-   * The event specifies the body that changed and whether it was just attached or about to be detached. */
-  AttachedBodyCallback attached_body_update_callback_;
 
   /* For certain operations a state needs a random number generator. However, it may be slightly expensive
    * to allocate the random number generator if many state instances are generated. For this reason, the generator

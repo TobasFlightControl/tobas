@@ -44,11 +44,6 @@ RobotState::RobotState(const RobotState& other) : rng_(nullptr)
   copyFrom(other);
 }
 
-RobotState::~RobotState()
-{
-  clearAttachedBodies();
-}
-
 void RobotState::init()
 {
   variable_joint_transforms_.resize(robot_model_->getJointModelCount(), Eigen::Isometry3d::Identity());
@@ -84,12 +79,6 @@ void RobotState::copyFrom(const RobotState& other)
   position_ = other.position_;
   velocity_ = other.velocity_;
   effort_or_acceleration_ = other.effort_or_acceleration_;
-
-  // copy attached bodies
-  clearAttachedBodies();
-  for (const auto& attached_body : other.attached_body_map_) {
-    attachBody(std::make_unique<AttachedBody>(*attached_body.second));
-  }
 }
 
 bool RobotState::checkJointTransforms(const JointModel* joint) const
@@ -528,12 +517,6 @@ void RobotState::updateLinkTransformsInternal(const JointModel* start)
       }
     }
   }
-
-  // update attached bodies tf; these are usually very few, so we update them all
-  for (const auto& attached_body : attached_body_map_) {
-    attached_body.second->computeTransform(
-      global_link_transforms_[attached_body.second->getAttachedLink()->getLinkIndex()]);
-  }
 }
 
 void RobotState::updateStateWithLinkAt(const LinkModel* link, const Eigen::Isometry3d& transform, bool backward)
@@ -582,37 +565,6 @@ void RobotState::updateStateWithLinkAt(const LinkModel* link, const Eigen::Isome
     // all collision body transforms are invalid now
     dirty_collision_body_transforms_ = parent_link->getParentJointModel();
   }
-
-  // update attached bodies tf; these are usually very few, so we update them all
-  for (const auto& attached_body : attached_body_map_) {
-    attached_body.second->computeTransform(
-      global_link_transforms_[attached_body.second->getAttachedLink()->getLinkIndex()]);
-  }
-}
-
-const LinkModel* RobotState::getLinkModelIncludingAttachedBodies(const std::string& frame) const
-{
-  // If the frame is a link, return that link.
-  if (getRobotModel()->hasLinkModel(frame)) {
-    return getLinkModel(frame);
-  }
-
-  // If the frame is an attached body, return the link the body is attached to.
-  if (const auto it = attached_body_map_.find(frame); it != attached_body_map_.end()) {
-    const auto& body{ it->second };
-    return body->getAttachedLink();
-  }
-
-  // If the frame is a subframe of an attached body, return the link the body is attached to.
-  for (const auto& it : attached_body_map_) {
-    const auto& body{ it.second };
-    if (body->hasSubframeTransform(frame)) {
-      return body->getAttachedLink();
-    }
-  }
-
-  // If the frame is none of the above, return nullptr.
-  return nullptr;
 }
 
 const Eigen::Isometry3d& RobotState::getJointTransform(const JointModel* joint)
@@ -757,112 +709,6 @@ void RobotState::interpolate(const RobotState& to, double t, RobotState& state, 
   state.updateMimicJoint(joint);
 }
 
-void RobotState::setAttachedBodyUpdateCallback(const AttachedBodyCallback& callback)
-{
-  attached_body_update_callback_ = callback;
-}
-
-bool RobotState::hasAttachedBody(const std::string& id) const
-{
-  return attached_body_map_.find(id) != attached_body_map_.end();
-}
-
-const AttachedBody* RobotState::getAttachedBody(const std::string& id) const
-{
-  const auto it = attached_body_map_.find(id);
-  if (it == attached_body_map_.end()) {
-    RCLCPP_ERROR(getLogger(), "Attached body '%s' not found", id.c_str());
-    return nullptr;
-  }
-  else {
-    return it->second.get();
-  }
-}
-
-void RobotState::attachBody(std::unique_ptr<AttachedBody> attached_body)
-{
-  // If an attached body with the same id exists, remove it
-  clearAttachedBody(attached_body->getName());
-
-  attached_body->computeTransform(getGlobalLinkTransform(attached_body->getAttachedLink()));
-  if (attached_body_update_callback_) {
-    attached_body_update_callback_(attached_body.get(), true);
-  }
-  attached_body_map_[attached_body->getName()] = std::move(attached_body);
-}
-
-void RobotState::attachBody(
-  const std::string& id,
-  const Eigen::Isometry3d& pose,
-  const std::vector<shapes::ShapeConstPtr>& shapes,
-  const EigenSTL::vector_Isometry3d& shape_poses,
-  const std::set<std::string>& touch_links,
-  const std::string& link,
-  const trajectory_msgs::msg::JointTrajectory& detach_posture,
-  const FixedTransformsMap& subframe_poses)
-{
-  attachBody(std::make_unique<AttachedBody>(
-    robot_model_->getLinkModel(link), id, pose, shapes, shape_poses, touch_links, detach_posture, subframe_poses));
-}
-
-void RobotState::getAttachedBodies(std::vector<const AttachedBody*>& attached_bodies) const
-{
-  attached_bodies.clear();
-  attached_bodies.reserve(attached_body_map_.size());
-  for (const auto& it : attached_body_map_) {
-    attached_bodies.push_back(it.second.get());
-  }
-}
-
-void RobotState::getAttachedBodies(std::vector<const AttachedBody*>& attached_bodies, const LinkModel* link_model) const
-{
-  attached_bodies.clear();
-  for (const auto& it : attached_body_map_) {
-    if (it.second->getAttachedLink() == link_model) {
-      attached_bodies.push_back(it.second.get());
-    }
-  }
-}
-
-void RobotState::clearAttachedBodies()
-{
-  for (const auto& it : attached_body_map_) {
-    if (attached_body_update_callback_) {
-      attached_body_update_callback_(it.second.get(), false);
-    }
-  }
-  attached_body_map_.clear();
-}
-
-void RobotState::clearAttachedBodies(const LinkModel* link)
-{
-  for (auto it = attached_body_map_.cbegin(); it != attached_body_map_.cend(); ++it) {
-    if (it->second->getAttachedLink() != link) {
-      continue;
-    }
-    if (attached_body_update_callback_) {
-      attached_body_update_callback_(it->second.get(), false);
-    }
-    const auto del = it++;
-    attached_body_map_.erase(del);
-  }
-}
-
-bool RobotState::clearAttachedBody(const std::string& id)
-{
-  const auto it = attached_body_map_.find(id);
-  if (it != attached_body_map_.end()) {
-    if (attached_body_update_callback_) {
-      attached_body_update_callback_(it->second.get(), false);
-    }
-    attached_body_map_.erase(it);
-    return true;
-  }
-  else {
-    return false;
-  }
-}
-
 const Eigen::Isometry3d& RobotState::getFrameTransform(const std::string& frame_id, bool* frame_found)
 {
   updateLinkTransforms();
@@ -904,26 +750,6 @@ RobotState::getFrameInfo(const std::string& frame_id, const LinkModel*& robot_li
   }
   robot_link = nullptr;
 
-  // Check names of the attached bodies
-  const auto jt = attached_body_map_.find(frame_id);
-  if (jt != attached_body_map_.end()) {
-    const Eigen::Isometry3d& transform = jt->second->getGlobalPose();
-    robot_link = jt->second->getAttachedLink();
-    frame_found = true;
-    assert(checkLinkTransforms());
-    return transform;
-  }
-
-  // Check if an AttachedBody has a subframe with name frame_id
-  for (const auto& body : attached_body_map_) {
-    const Eigen::Isometry3d& transform = body.second->getGlobalSubframeTransform(frame_id, &frame_found);
-    if (frame_found) {
-      robot_link = body.second->getAttachedLink();
-      assert(checkLinkTransforms());
-      return transform;
-    }
-  }
-
   robot_link = nullptr;
   frame_found = false;
   return IDENTITY_TRANSFORM;
@@ -938,18 +764,6 @@ bool RobotState::knowsFrameTransform(const std::string& frame_id) const
     return true;
   }
 
-  // Check if an AttachedBody with name frame_id exists
-  const auto it = attached_body_map_.find(frame_id);
-  if (it != attached_body_map_.end()) {
-    return !it->second->getGlobalCollisionBodyTransforms().empty();
-  }
-
-  // Check if an AttachedBody has a subframe with name frame_id
-  for (const auto& body : attached_body_map_) {
-    if (body.second->hasSubframeTransform(frame_id)) {
-      return true;
-    }
-  }
   return false;
 }
 
@@ -958,11 +772,10 @@ void RobotState::getRobotMarkers(
   const std::vector<std::string>& link_names,
   const std_msgs::msg::ColorRGBA& color,
   const std::string& ns,
-  const rclcpp::Duration& dur,
-  bool include_attached) const
+  const rclcpp::Duration& dur) const
 {
   size_t cur_num = arr.markers.size();
-  getRobotMarkers(arr, link_names, include_attached);
+  getRobotMarkers(arr, link_names);
   uint32_t id = cur_num;
   for (size_t i = cur_num; i < arr.markers.size(); ++i, ++id) {
     arr.markers[i].ns = ns;
@@ -972,10 +785,8 @@ void RobotState::getRobotMarkers(
   }
 }
 
-void RobotState::getRobotMarkers(
-  visualization_msgs::msg::MarkerArray& arr,
-  const std::vector<std::string>& link_names,
-  bool include_attached) const
+void RobotState::getRobotMarkers(visualization_msgs::msg::MarkerArray& arr, const std::vector<std::string>& link_names)
+  const
 {
   rclcpp::Clock clock;
   for (const std::string& link_name : link_names) {
@@ -983,25 +794,6 @@ void RobotState::getRobotMarkers(
     const LinkModel* link_model = robot_model_->getLinkModel(link_name);
     if (!link_model) {
       continue;
-    }
-    if (include_attached) {
-      for (const auto& it : attached_body_map_) {
-        if (it.second->getAttachedLink() == link_model) {
-          for (size_t j = 0; j < it.second->getShapes().size(); ++j) {
-            visualization_msgs::msg::Marker att_mark;
-            att_mark.header.frame_id = robot_model_->getModelFrame();
-            att_mark.header.stamp = clock.now();
-            if (shapes::constructMarkerFromShape(it.second->getShapes()[j].get(), att_mark)) {
-              // if the object is invisible (0 volume) we skip it
-              if (std::abs(att_mark.scale.x * att_mark.scale.y * att_mark.scale.z) < std::numeric_limits<double>::epsilon()) {
-                continue;
-              }
-              att_mark.pose = tf2::toMsg(it.second->getGlobalCollisionBodyTransforms()[j]);
-              arr.markers.push_back(att_mark);
-            }
-          }
-        }
-      }
     }
 
     if (link_model->getShapes().empty()) {
@@ -1054,14 +846,6 @@ void RobotState::computeAABB(std::vector<double>& aabb) const
     const Eigen::Vector3d& extents = link->getShapeExtentsAtOrigin();
     transform.translate(link->getCenteredBoundingBoxOffset());
     bounding_box.extendWithTransformedBox(transform, extents);
-  }
-  for (const auto& it : attached_body_map_) {
-    const EigenSTL::vector_Isometry3d& transforms = it.second->getGlobalCollisionBodyTransforms();
-    const std::vector<shapes::ShapeConstPtr>& shapes = it.second->getShapes();
-    for (size_t i = 0; i < transforms.size(); ++i) {
-      Eigen::Vector3d extents = shapes::computeShapeExtents(shapes[i].get());
-      bounding_box.extendWithTransformedBox(transforms[i], extents);
-    }
   }
 
   aabb.clear();

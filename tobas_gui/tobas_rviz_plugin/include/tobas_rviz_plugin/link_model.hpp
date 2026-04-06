@@ -164,13 +164,6 @@ public:
     return centered_bounding_box_offset_;
   }
 
-  /* Get the set of links that are attached to this one via fixed transforms. The returned transforms are
-   * guaranteed to be valid isometries. */
-  const LinkTransformMap& getAssociatedFixedTransforms() const
-  {
-    return associated_fixed_transforms_;
-  }
-
   /* Remember that \e link_model is attached to this link using a fixed transform */
   void addAssociatedFixedTransform(const LinkModel* link_model, const Eigen::Isometry3d& transform)
   {

@@ -23,46 +23,28 @@ bool jointStateToRobotState(const sensor_msgs::msg::JointState& joint_state, Rob
  * @param tf An instance of a transforms object
  * @param robot_state The input robot state msg
  * @param state The resultant Tobas robot state
- * @param copy_attached_bodies Flag to include attached objects in robot state copy
  * @return True if successful, false if failed for any reason
  */
 bool robotStateMsgToRobotState(
   const Transforms& tf,
   const tobas_visualization_msgs::msg::RobotState& robot_state,
-  RobotState& state,
-  bool copy_attached_bodies = true);
+  RobotState& state);
 
 /**
  * @brief Convert a robot state msg (with accompanying extra transforms) to a Tobas robot state
  * @param robot_state The input robot state msg
  * @param state The resultant Tobas robot state
- * @param copy_attached_bodies Flag to include attached objects in robot state copy
  * @return True if successful, false if failed for any reason
  */
-bool robotStateMsgToRobotState(
-  const tobas_visualization_msgs::msg::RobotState& robot_state,
-  RobotState& state,
-  bool copy_attached_bodies = true);
+bool robotStateMsgToRobotState(const tobas_visualization_msgs::msg::RobotState& robot_state, RobotState& state);
 
 /**
  * @brief Convert a Tobas robot state to a robot state message
  * @param state The input Tobas robot state object
  * @param robot_state The resultant RobotState *message
- * @param copy_attached_bodies Flag to include attached objects in robot state copy
  */
-void robotStateToRobotStateMsg(
-  const RobotState& state,
-  tobas_visualization_msgs::msg::RobotState& robot_state,
-  bool copy_attached_bodies = true);
+void robotStateToRobotStateMsg(const RobotState& state, tobas_visualization_msgs::msg::RobotState& robot_state);
 
-/**
- * @brief Convert AttachedBodies to AttachedCollisionObjects
- * @param attached_bodies The input Tobas attached body objects
- * @param attached_collision_objs The resultant AttachedCollisionObject messages
- */
-void attachedBodiesToAttachedCollisionObjectMsgs(
-  const std::vector<const AttachedBody*>& attached_bodies,
-  std::vector<tobas_visualization_msgs::msg::AttachedCollisionObject>& attached_collision_objs);
 /**
  * @brief Convert a Tobas robot state to a joint state message
  * @param state The input Tobas robot state object
