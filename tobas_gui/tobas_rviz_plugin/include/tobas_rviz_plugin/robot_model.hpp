@@ -9,19 +9,17 @@
 #include <eigen3/Eigen/Geometry>
 #include <rclcpp/logging.hpp>
 
-#include "tobas_rviz_plugin/class_forward.hpp"
-#include "tobas_rviz_plugin/exceptions.hpp"
-#include "tobas_rviz_plugin/fixed_joint_model.hpp"
-#include "tobas_rviz_plugin/floating_joint_model.hpp"
-#include "tobas_rviz_plugin/joint_model_group.hpp"
-#include "tobas_rviz_plugin/planar_joint_model.hpp"
-#include "tobas_rviz_plugin/prismatic_joint_model.hpp"
-#include "tobas_rviz_plugin/revolute_joint_model.hpp"
+#include "./class_forward.hpp"
+#include "./exceptions.hpp"
+#include "./fixed_joint_model.hpp"
+#include "./floating_joint_model.hpp"
+#include "./link_model.hpp"
+#include "./planar_joint_model.hpp"
+#include "./prismatic_joint_model.hpp"
+#include "./revolute_joint_model.hpp"
 
 namespace tobas
 {
-TOBAS_CLASS_FORWARD(RobotModel);  // Defines RobotModelPtr, ConstPtr, WeakPtr... etc
-
 static inline void checkInterpolationParamBounds(const rclcpp::Logger& logger, double t)
 {
   if (std::isnan(t) || std::isinf(t)) {
@@ -35,8 +33,11 @@ static inline void checkInterpolationParamBounds(const rclcpp::Logger& logger, d
 class RobotModel
 {
 public:
+  using SharedPtr = std::shared_ptr<RobotModel>;
+  using ConstSharedPtr = std::shared_ptr<const RobotModel>;
+
   /* Construct a kinematic model from a parsed description and a list of planning groups */
-  RobotModel(const urdf::ModelInterfaceSharedPtr& urdf_model, const srdf::ModelConstSharedPtr& srdf_model);
+  explicit RobotModel(const urdf::ModelInterfaceSharedPtr& urdf_model, const srdf::ModelConstSharedPtr& srdf_model);
 
   /* Destructor. Clear all memory. */
   ~RobotModel();
@@ -74,9 +75,6 @@ public:
   {
     return srdf_;
   }
-
-  /* Print information about the constructed model */
-  void printModelInfo(std::ostream& out) const;
 
   /**
    * @brief Get the root joint.
@@ -207,24 +205,6 @@ public:
   /* Get a link by its name. Output error and return nullptr when the link is missing. */
   LinkModel* getLinkModel(const std::string& link, bool* has_link = nullptr);
 
-  /**
-   * @brief Get the latest link upwards the kinematic tree, which is only connected via fixed joints
-   *
-   * If jmg is given, all links that are not active in this JMG are considered fixed.
-   * Otherwise only fixed joints are considered fixed.
-   *
-   * This is useful, if the link should be warped to a specific pose using updateStateWithLinkAt().
-   * As updateStateWithLinkAt() warps only the specified link and its descendants, you might not
-   * achieve what you expect, if link is an abstract frame name. Considering the following example:
-   * root -> arm0 -> ... -> armN -> wrist -- grasp_frame
-   *                                      -- palm -> end effector ...
-   * Calling updateStateWithLinkAt(grasp_frame), will not warp the end effector, which is probably
-   * what you went for. Instead, updateStateWithLinkAt(getRigidlyConnectedParentLinkModel(grasp_frame), ...)
-   * will actually warp wrist (and all its descendants).
-   */
-  static const LinkModel*
-  getRigidlyConnectedParentLinkModel(const LinkModel* link, const JointModelGroup* jmg = nullptr);
-
   /* Get the array of links */
   const std::vector<const LinkModel*>& getLinkModels() const
   {
@@ -292,23 +272,6 @@ public:
   /* Compute the default values for a RobotState */
   void getVariableDefaultPositions(std::map<std::string, double>& values) const;
 
-  bool enforcePositionBounds(double* state) const
-  {
-    return enforcePositionBounds(state, active_joint_models_bounds_);
-  }
-  bool enforcePositionBounds(double* state, const JointBoundsVector& active_joint_bounds) const;
-  bool satisfiesPositionBounds(const double* state, double margin = 0.) const
-  {
-    return satisfiesPositionBounds(state, active_joint_models_bounds_, margin);
-  }
-  bool
-  satisfiesPositionBounds(const double* state, const JointBoundsVector& active_joint_bounds, double margin = 0.) const;
-  double getMaximumExtent() const
-  {
-    return getMaximumExtent(active_joint_models_bounds_);
-  }
-  double getMaximumExtent(const JointBoundsVector& active_joint_bounds) const;
-
   /* Return the sum of joint distances between two states. An L1 norm. Only considers active joints. */
   double distance(const double* state1, const double* state2) const;
 
@@ -322,31 +285,6 @@ public:
    */
   void interpolate(const double* from, const double* to, double t, double* state) const;
 
-  /** \name Access to joint groups
-   *  @{
-   */
-
-  /* Check if the JointModelGroup \e group exists */
-  bool hasJointModelGroup(const std::string& group) const;
-
-  /* Get a joint group from this model (by name) */
-  const JointModelGroup* getJointModelGroup(const std::string& name) const;
-
-  /* Get a joint group from this model (by name) */
-  JointModelGroup* getJointModelGroup(const std::string& name);
-
-  /* Get the available joint groups */
-  const std::vector<const JointModelGroup*>& getJointModelGroups() const
-  {
-    return joint_model_groups_const_;
-  }
-
-  /* Get the available joint groups */
-  const std::vector<JointModelGroup*>& getJointModelGroups()
-  {
-    return joint_model_groups_;
-  }
-
   /* Get the names of all groups that are defined for this model */
   const std::vector<std::string>& getJointModelGroupNames() const
   {
@@ -355,18 +293,6 @@ public:
 
   /* Check if an end effector exists */
   bool hasEndEffector(const std::string& eef) const;
-
-  /* Get the joint group that corresponds to a given end-effector name */
-  const JointModelGroup* getEndEffector(const std::string& name) const;
-
-  /* Get the joint group that corresponds to a given end-effector name */
-  JointModelGroup* getEndEffector(const std::string& name);
-
-  /* Get the map between end effector names and the groups they correspond to */
-  const std::vector<const JointModelGroup*>& getEndEffectors() const
-  {
-    return end_effectors_;
-  }
 
   /* Get the number of variables that describe this model */
   size_t getVariableCount() const
@@ -390,12 +316,6 @@ public:
     return getJointOfVariable(variable)->getVariableBounds(variable);
   }
 
-  /* Get the bounds for all the active joints */
-  const JointBoundsVector& getActiveJointModelsBounds() const
-  {
-    return active_joint_models_bounds_;
-  }
-
   void
   getMissingVariableNames(const std::vector<std::string>& variables, std::vector<std::string>& missing_variables) const;
 
@@ -414,18 +334,12 @@ public:
     return joint_model_vector_[common_joint_roots_[a->getJointIndex() * joint_model_vector_.size() + b->getJointIndex()]];
   }
 
-  /* A map of known kinematics solvers (associated to their group name) */
-  void setKinematicsAllocators(const std::map<std::string, SolverAllocatorFn>& allocators);
-
 protected:
   /* Get the transforms between link and all its rigidly attached descendants */
   void computeFixedTransforms(
     const LinkModel* link,
     const Eigen::Isometry3d& transform,
     LinkTransformMap& associated_transforms);
-
-  /* Given two joints, find their common root */
-  const JointModel* computeCommonRoot(const JointModel* a, const JointModel* b) const;
 
   /* Update the variable values for the state of a group with respect to the mimic joints. */
   void updateMimicJoints(double* values) const;
@@ -530,49 +444,19 @@ protected:
   std::vector<int> active_joint_model_start_index_;
 
   /* The bounds for all the active joint models */
-  JointBoundsVector active_joint_models_bounds_;
 
   /* The joints that correspond to each variable index */
   std::vector<const JointModel*> joints_of_variable_;
 
-  // GROUPS
-
-  /* A map from group names to joint groups */
-  JointModelGroupMap joint_model_group_map_;
-
-  /* The known end effectors */
-  JointModelGroupMap end_effectors_map_;
-
-  /* The array of joint model groups, in alphabetical order */
-  std::vector<JointModelGroup*> joint_model_groups_;
-
-  /* The array of joint model groups, in alphabetical order */
-  std::vector<const JointModelGroup*> joint_model_groups_const_;
-
   /* A vector of all group names, in alphabetical order */
   std::vector<std::string> joint_model_group_names_;
-
-  /* The array of end-effectors, in alphabetical order */
-  std::vector<const JointModelGroup*> end_effectors_;
 
 private:
   /* Given an URDF model and a SRDF model, build a full kinematic model */
   void buildModel(const urdf::ModelInterface& urdf_model, const srdf::Model& srdf_model);
 
-  /* Given a SRDF model describing the groups, build up the groups in this kinematic model */
-  void buildGroups(const srdf::Model& srdf_model);
-
-  /* Compute helpful information about groups (that can be queried later) */
-  void buildGroupsInfoSubgroups();
-
-  /* Compute helpful information about groups (that can be queried later) */
-  void buildGroupsInfoEndEffectors(const srdf::Model& srdf_model);
-
   /* Given the URDF model, build up the mimic joints (mutually constrained joints) */
   void buildMimic(const urdf::ModelInterface& urdf_model);
-
-  /* Given a SRDF model describing the groups, build the default states defined in the SRDF */
-  void buildGroupStates(const srdf::Model& srdf_model);
 
   /* Compute helpful information about joints */
   void buildJointInfo();
@@ -586,9 +470,6 @@ private:
   /* (This function is mostly intended for internal use). Given a parent link, build up (recursively),
    * the kinematic model by walking  down the tree*/
   JointModel* buildRecursive(LinkModel* parent, const urdf::Link* link, const srdf::Model& srdf_model);
-
-  /* Construct a JointModelGroup given a SRDF description \e group */
-  bool addJointModelGroup(const srdf::Model::Group& group);
 
   /* Given a child link and a srdf model, build up the corresponding JointModel object */
   JointModel* constructJointModel(const urdf::Link* child_link, const srdf::Model& srdf_model);

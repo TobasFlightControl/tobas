@@ -65,8 +65,8 @@ protected:
 
   std::shared_ptr<rviz_default_plugins::robot::Robot> robot_;
   std::shared_ptr<RDFLoader> rdf_loader_;
-  RobotModelConstPtr robot_model_;
-  RobotStatePtr robot_state_;
+  RobotModel::ConstSharedPtr robot_model_;
+  RobotState::SharedPtr robot_state_;
   std::map<std::string, std_msgs::msg::ColorRGBA> highlights_;
   bool update_state_ = false;
 

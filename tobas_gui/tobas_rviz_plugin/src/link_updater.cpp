@@ -5,7 +5,7 @@
 
 namespace tobas
 {
-LinkUpdater::LinkUpdater(const RobotStateConstPtr& state) : robot_state_(state)
+LinkUpdater::LinkUpdater(const RobotState::ConstSharedPtr& state) : robot_state_(state)
 {
 }
 

@@ -7,6 +7,7 @@
 #include <cmath>
 #include <limits>
 #include <memory>
+#include <set>
 
 #include <geometric_shapes/shape_operations.h>
 #include <rclcpp/logger.hpp>
@@ -34,9 +35,6 @@ RobotModel::RobotModel(const urdf::ModelInterfaceSharedPtr& urdf_model, const sr
 
 RobotModel::~RobotModel()
 {
-  for (std::pair<const std::string, JointModelGroup*>& it : joint_model_group_map_) {
-    delete it.second;
-  }
   for (JointModel* joint_model : joint_model_vector_) {
     delete joint_model;
   }
@@ -82,17 +80,6 @@ void RobotModel::buildModel(const urdf::ModelInterface& urdf_model, const srdf::
     if (link_models_with_collision_geometry_vector_.empty()) {
       RCLCPP_WARN(getLogger(), "No geometry is associated to any robot links");
     }
-
-    // build groups
-
-    RCLCPP_DEBUG(getLogger(), "... constructing joint groups");
-    buildGroups(srdf_model);
-
-    RCLCPP_DEBUG(getLogger(), "... constructing joint group states");
-    buildGroupStates(srdf_model);
-
-    // For debugging entire model
-    // printModelInfo(std::cout);
   }
   else {
     RCLCPP_WARN(getLogger(), "No root link found");
@@ -256,7 +243,6 @@ void RobotModel::buildJointInfo()
         active_joint_model_vector_.push_back(joint);
         active_joint_model_names_vector_.push_back(joint->getName());
         active_joint_model_vector_const_.push_back(joint);
-        active_joint_models_bounds_.push_back(&joint->getVariableBounds());
       }
 
       if (joint->getType() == JointModel::REVOLUTE && static_cast<const RevoluteJointModel*>(joint)->isContinuous()) {
@@ -298,79 +284,6 @@ void RobotModel::buildJointInfo()
 
   computeDescendants();
   computeCommonRoots();  // must be called _after_ list of descendants was computed
-}
-
-void RobotModel::buildGroupStates(const srdf::Model& srdf_model)
-{
-  // copy the default states to the groups
-  const std::vector<srdf::Model::GroupState>& ds = srdf_model.getGroupStates();
-  for (const srdf::Model::GroupState& group_state : ds) {
-    if (hasJointModelGroup(group_state.group_)) {
-      JointModelGroup* jmg = getJointModelGroup(group_state.group_);
-      std::vector<const JointModel*> remaining_joints = jmg->getActiveJointModels();
-      std::map<std::string, double> state;
-      for (std::map<std::string, std::vector<double>>::const_iterator jt = group_state.joint_values_.begin();
-           jt != group_state.joint_values_.end();
-           ++jt) {
-        if (jmg->hasJointModel(jt->first)) {
-          const JointModel* jm = jmg->getJointModel(jt->first);
-          const std::vector<std::string>& vn = jm->getVariableNames();
-          // Remove current joint name from remaining list.
-          auto it_found = std::find(remaining_joints.begin(), remaining_joints.end(), jm);
-          if (it_found != remaining_joints.end()) {
-            remaining_joints.erase(it_found);
-          }
-          if (vn.size() == jt->second.size()) {
-            for (size_t j = 0; j < vn.size(); ++j) {
-              state[vn[j]] = jt->second[j];
-            }
-          }
-          else {
-            RCLCPP_ERROR(
-              getLogger(),
-              "The model for joint '%s' requires %d variable values, "
-              "but only %d variable values were supplied in default state '%s' for group '%s'",
-              jt->first.c_str(),
-              static_cast<int>(vn.size()),
-              static_cast<int>(jt->second.size()),
-              group_state.name_.c_str(),
-              jmg->getName().c_str());
-          }
-        }
-        else {
-          RCLCPP_ERROR(
-            getLogger(),
-            "Group state '%s' specifies value for joint '%s', "
-            "but that joint is not part of group '%s'",
-            group_state.name_.c_str(),
-            jt->first.c_str(),
-            jmg->getName().c_str());
-        }
-      }
-      if (!remaining_joints.empty()) {
-        std::stringstream missing;
-        missing << (*remaining_joints.begin())->getName();
-        for (auto j = ++remaining_joints.begin(); j != remaining_joints.end(); ++j) {
-          missing << ", " << (*j)->getName();
-        }
-        RCLCPP_WARN_STREAM(
-          getLogger(),
-          "Group state '" << group_state.name_ << "' doesn't specify all group joints in group '" << group_state.group_
-                          << "'. " << missing.str() << ' ' << (remaining_joints.size() > 1 ? "are" : "is")
-                          << " missing.");
-      }
-      if (!state.empty()) {
-        jmg->addDefaultState(group_state.name_, state);
-      }
-    }
-    else {
-      RCLCPP_ERROR(
-        getLogger(),
-        "Group state '%s' specified for group '%s', but that group does not exist",
-        group_state.name_.c_str(),
-        group_state.group_.c_str());
-    }
-  }
 }
 
 void RobotModel::buildMimic(const urdf::ModelInterface& urdf_model)
@@ -435,353 +348,6 @@ void RobotModel::buildMimic(const urdf::ModelInterface& urdf_model)
       mimic_joints_.push_back(joint_model);
     }
   }
-}
-
-bool RobotModel::hasEndEffector(const std::string& eef) const
-{
-  return end_effectors_map_.find(eef) != end_effectors_map_.end();
-}
-
-const JointModelGroup* RobotModel::getEndEffector(const std::string& name) const
-{
-  JointModelGroupMap::const_iterator it = end_effectors_map_.find(name);
-  if (it == end_effectors_map_.end()) {
-    it = joint_model_group_map_.find(name);
-    if (it != joint_model_group_map_.end() && it->second->isEndEffector()) {
-      return it->second;
-    }
-    RCLCPP_ERROR(getLogger(), "End-effector '%s' not found in model '%s'", name.c_str(), model_name_.c_str());
-    return nullptr;
-  }
-  return it->second;
-}
-
-JointModelGroup* RobotModel::getEndEffector(const std::string& name)
-{
-  JointModelGroupMap::const_iterator it = end_effectors_map_.find(name);
-  if (it == end_effectors_map_.end()) {
-    it = joint_model_group_map_.find(name);
-    if (it != joint_model_group_map_.end() && it->second->isEndEffector()) {
-      return it->second;
-    }
-    RCLCPP_ERROR(getLogger(), "End-effector '%s' not found in model '%s'", name.c_str(), model_name_.c_str());
-    return nullptr;
-  }
-  return it->second;
-}
-
-bool RobotModel::hasJointModelGroup(const std::string& name) const
-{
-  return joint_model_group_map_.find(name) != joint_model_group_map_.end();
-}
-
-const JointModelGroup* RobotModel::getJointModelGroup(const std::string& name) const
-{
-  JointModelGroupMap::const_iterator it = joint_model_group_map_.find(name);
-  if (it == joint_model_group_map_.end()) {
-    RCLCPP_ERROR(getLogger(), "Group '%s' not found in model '%s'", name.c_str(), model_name_.c_str());
-    return nullptr;
-  }
-  return it->second;
-}
-
-JointModelGroup* RobotModel::getJointModelGroup(const std::string& name)
-{
-  JointModelGroupMap::const_iterator it = joint_model_group_map_.find(name);
-  if (it == joint_model_group_map_.end()) {
-    RCLCPP_ERROR(getLogger(), "Group '%s' not found in model '%s'", name.c_str(), model_name_.c_str());
-    return nullptr;
-  }
-  return it->second;
-}
-
-void RobotModel::buildGroups(const srdf::Model& srdf_model)
-{
-  const std::vector<srdf::Model::Group>& group_configs = srdf_model.getGroups();
-
-  // the only thing tricky is dealing with subgroups
-  std::vector<bool> processed(group_configs.size(), false);
-
-  bool added = true;
-  while (added) {
-    added = false;
-
-    // going to make passes until we can't do anything else
-    for (size_t i = 0; i < group_configs.size(); ++i) {
-      if (!processed[i]) {
-        // if we haven't processed, check and see if the dependencies are met yet
-        bool all_subgroups_added = true;
-        for (const std::string& subgroup : group_configs[i].subgroups_) {
-          if (joint_model_group_map_.find(subgroup) == joint_model_group_map_.end()) {
-            all_subgroups_added = false;
-            break;
-          }
-        }
-        if (all_subgroups_added) {
-          added = true;
-          processed[i] = true;
-          if (!addJointModelGroup(group_configs[i])) {
-            RCLCPP_WARN(getLogger(), "Failed to add group '%s'", group_configs[i].name_.c_str());
-          }
-        }
-      }
-    }
-  }
-
-  for (size_t i = 0; i < processed.size(); ++i) {
-    if (!processed[i]) {
-      RCLCPP_WARN(
-        getLogger(), "Could not process group '%s' due to unmet subgroup dependencies", group_configs[i].name_.c_str());
-    }
-  }
-
-  for (JointModelGroupMap::const_iterator it = joint_model_group_map_.begin(); it != joint_model_group_map_.end();
-       ++it) {
-    joint_model_groups_.push_back(it->second);
-  }
-  std::sort(joint_model_groups_.begin(), joint_model_groups_.end(), OrderGroupsByName());
-  for (JointModelGroup* joint_model_group : joint_model_groups_) {
-    joint_model_groups_const_.push_back(joint_model_group);
-    joint_model_group_names_.push_back(joint_model_group->getName());
-  }
-
-  buildGroupsInfoSubgroups();
-  buildGroupsInfoEndEffectors(srdf_model);
-}
-
-void RobotModel::buildGroupsInfoSubgroups()
-{
-  // compute subgroups
-  for (JointModelGroupMap::const_iterator it = joint_model_group_map_.begin(); it != joint_model_group_map_.end();
-       ++it) {
-    JointModelGroup* jmg = it->second;
-    std::vector<std::string> subgroup_names;
-    std::set<const JointModel*> joints(jmg->getJointModels().begin(), jmg->getJointModels().end());
-    for (JointModelGroupMap::const_iterator jt = joint_model_group_map_.begin(); jt != joint_model_group_map_.end();
-         ++jt) {
-      if (jt->first != it->first) {
-        bool ok = true;
-        JointModelGroup* sub_jmg = jt->second;
-        const std::vector<const JointModel*>& sub_joints = sub_jmg->getJointModels();
-        for (const JointModel* sub_joint : sub_joints) {
-          if (joints.find(sub_joint) == joints.end()) {
-            ok = false;
-            break;
-          }
-        }
-        if (ok) {
-          subgroup_names.push_back(sub_jmg->getName());
-        }
-      }
-    }
-    if (!subgroup_names.empty()) {
-      jmg->setSubgroupNames(subgroup_names);
-    }
-  }
-}
-
-void RobotModel::buildGroupsInfoEndEffectors(const srdf::Model& srdf_model)
-{
-  // set the end-effector flags
-  const std::vector<srdf::Model::EndEffector>& eefs = srdf_model.getEndEffectors();
-  for (JointModelGroupMap::const_iterator it = joint_model_group_map_.begin(); it != joint_model_group_map_.end();
-       ++it) {
-    // check if this group is a known end effector
-    for (const srdf::Model::EndEffector& eef : eefs) {
-      if (eef.component_group_ == it->first) {
-        // if it is, mark it as such
-        it->second->setEndEffectorName(eef.name_);
-        end_effectors_map_[eef.name_] = it->second;
-        end_effectors_.push_back(it->second);
-
-        // check to see if there are groups that contain the parent link of this end effector.
-        // record this information if found;
-        std::vector<JointModelGroup*> possible_parent_groups;
-        for (JointModelGroupMap::const_iterator jt = joint_model_group_map_.begin(); jt != joint_model_group_map_.end();
-             ++jt) {
-          if (jt->first != it->first) {
-            if (jt->second->hasLinkModel(eef.parent_link_)) {
-              jt->second->attachEndEffector(eef.name_);
-              possible_parent_groups.push_back(jt->second);
-            }
-          }
-        }
-
-        JointModelGroup* eef_parent_group = nullptr;
-        // if a parent group is specified in SRDF, try to use it
-        if (!eef.parent_group_.empty()) {
-          JointModelGroupMap::const_iterator jt = joint_model_group_map_.find(eef.parent_group_);
-          if (jt != joint_model_group_map_.end()) {
-            if (jt->second->hasLinkModel(eef.parent_link_)) {
-              if (jt->second != it->second) {
-                eef_parent_group = jt->second;
-              }
-              else {
-                RCLCPP_ERROR(
-                  getLogger(),
-                  "Group '%s' for end-effector '%s' cannot be its own parent",
-                  eef.parent_group_.c_str(),
-                  eef.name_.c_str());
-              }
-            }
-            else {
-              RCLCPP_ERROR(
-                getLogger(),
-                "Group '%s' was specified as parent group for end-effector '%s' "
-                "but it does not include the parent link '%s'",
-                eef.parent_group_.c_str(),
-                eef.name_.c_str(),
-                eef.parent_link_.c_str());
-            }
-          }
-          else {
-            RCLCPP_ERROR(
-              getLogger(),
-              "Group name '%s' not found (specified as parent group for end-effector '%s')",
-              eef.parent_group_.c_str(),
-              eef.name_.c_str());
-          }
-        }
-
-        // if no parent group was specified, use a default one
-        if (!eef_parent_group) {
-          if (!possible_parent_groups.empty()) {
-            // if there are multiple options for the group that contains this end-effector,
-            // we pick the group with fewest joints.
-            size_t best = 0;
-            for (size_t g = 1; g < possible_parent_groups.size(); ++g) {
-              if (possible_parent_groups[g]->getJointModels().size() < possible_parent_groups[best]->getJointModels().size()) {
-                best = g;
-              }
-            }
-            eef_parent_group = possible_parent_groups[best];
-          }
-        }
-
-        if (eef_parent_group) {
-          it->second->setEndEffectorParent(eef_parent_group->getName(), eef.parent_link_);
-        }
-        else {
-          RCLCPP_WARN(getLogger(), "Could not identify parent group for end-effector '%s'", eef.name_.c_str());
-          it->second->setEndEffectorParent("", eef.parent_link_);
-        }
-      }
-    }
-  }
-  std::sort(end_effectors_.begin(), end_effectors_.end(), OrderGroupsByName());
-}
-
-bool RobotModel::addJointModelGroup(const srdf::Model::Group& gc)
-{
-  if (joint_model_group_map_.find(gc.name_) != joint_model_group_map_.end()) {
-    RCLCPP_WARN(getLogger(), "A group named '%s' already exists. Not adding.", gc.name_.c_str());
-    return false;
-  }
-
-  std::set<const JointModel*> jset;
-
-  // add joints from chains
-  for (const std::pair<std::string, std::string>& chain : gc.chains_) {
-    const LinkModel* base_link = getLinkModel(chain.first);
-    const LinkModel* tip_link = getLinkModel(chain.second);
-    if (base_link && tip_link) {
-      // go from tip, up the chain, until we hit the root or we find the base_link
-      const LinkModel* lm = tip_link;
-      std::vector<const JointModel*> cj;
-      while (lm) {
-        if (lm == base_link) {
-          break;
-        }
-        cj.push_back(lm->getParentJointModel());
-        lm = lm->getParentJointModel()->getParentLinkModel();
-      }
-      // if we did not find the base_link, we could have a chain like e.g.,
-      // from one end-effector to another end-effector, so the root is in between
-      if (lm != base_link) {
-        // we go up the chain from the base this time, and see where we intersect the other chain
-        lm = base_link;
-        size_t index = 0;
-        std::vector<const JointModel*> cj2;
-        while (lm) {
-          for (size_t j = 0; j < cj.size(); ++j) {
-            if (cj[j] == lm->getParentJointModel()) {
-              index = j + 1;
-              break;
-            }
-          }
-          if (index > 0) {
-            break;
-          }
-          cj2.push_back(lm->getParentJointModel());
-          lm = lm->getParentJointModel()->getParentLinkModel();
-        }
-        if (index > 0) {
-          jset.insert(cj.begin(), cj.begin() + index);
-          jset.insert(cj2.begin(), cj2.end());
-        }
-      }
-      else {
-        // if we have a simple chain, just add the joints
-        jset.insert(cj.begin(), cj.end());
-      }
-    }
-  }
-
-  // add joints
-  for (const std::string& joint : gc.joints_) {
-    const JointModel* j = getJointModel(joint);
-    if (j) {
-      jset.insert(j);
-    }
-  }
-
-  // add joints that are parents of included links
-  for (const std::string& link : gc.links_) {
-    const LinkModel* l = getLinkModel(link);
-    if (l) {
-      jset.insert(l->getParentJointModel());
-    }
-  }
-
-  // add joints from subgroups
-  for (const std::string& subgroup : gc.subgroups_) {
-    const JointModelGroup* sg = getJointModelGroup(subgroup);
-    if (sg) {
-      // active joints
-      const std::vector<const JointModel*>& js = sg->getJointModels();
-      for (const JointModel* j : js) {
-        jset.insert(j);
-      }
-
-      // fixed joints
-      const std::vector<const JointModel*>& fs = sg->getFixedJointModels();
-      for (const JointModel* f : fs) {
-        jset.insert(f);
-      }
-
-      // mimic joints
-      const std::vector<const JointModel*>& ms = sg->getMimicJointModels();
-      for (const JointModel* m : ms) {
-        jset.insert(m);
-      }
-    }
-  }
-
-  if (jset.empty()) {
-    RCLCPP_WARN(getLogger(), "Group '%s' must have at least one valid joint", gc.name_.c_str());
-    return false;
-  }
-
-  std::vector<const JointModel*> joints;
-  joints.reserve(jset.size());
-  for (const JointModel* it : jset) {
-    joints.push_back(it);
-  }
-
-  JointModelGroup* jmg = new JointModelGroup(gc.name_, gc, joints, this);
-  joint_model_group_map_[gc.name_] = jmg;
-
-  return true;
 }
 
 JointModel* RobotModel::buildRecursive(LinkModel* parent, const urdf::Link* urdf_link, const srdf::Model& srdf_model)
@@ -1261,42 +827,20 @@ LinkModel* RobotModel::getLinkModel(const std::string& name, bool* has_link)
   return nullptr;
 }
 
-const LinkModel* RobotModel::getRigidlyConnectedParentLinkModel(const LinkModel* link, const JointModelGroup* jmg)
+void RobotModel::computeFixedTransforms(
+  const LinkModel* link,
+  const Eigen::Isometry3d& transform,
+  LinkTransformMap& associated_transforms)
 {
-  if (!link) {
-    return link;
-  }
-
-  const LinkModel* parent_link = link->getParentLinkModel();
-  const JointModel* joint = link->getParentJointModel();
-  decltype(jmg->getJointModels().cbegin()) begin{}, end{};
-  if (jmg) {
-    begin = jmg->getJointModels().cbegin();
-    end = jmg->getJointModels().cend();
-  }
-
-  // Returns whether `joint` is part of the rigidly connected chain.
-  // This is only false if the joint is both in `jmg` and not fixed.
-  auto is_fixed_or_not_in_jmg = [begin, end](const JointModel* _joint)
-  {
-    if (_joint->getType() == JointModel::FIXED) {
-      return true;
+  associated_transforms[link] = transform * link->getJointOriginTransform();
+  for (size_t i = 0; i < link->getChildJointModels().size(); ++i) {
+    if (link->getChildJointModels()[i]->getType() == JointModel::FIXED) {
+      computeFixedTransforms(
+        link->getChildJointModels()[i]->getChildLinkModel(),
+        transform * link->getJointOriginTransform(),
+        associated_transforms);
     }
-    if (
-      begin != end &&                        // we do have a non-empty jmg
-      std::find(begin, end, _joint) == end)  // joint does not belong to jmg
-    {
-      return true;
-    }
-    return false;
-  };
-
-  while (parent_link && is_fixed_or_not_in_jmg(joint)) {
-    link = parent_link;
-    joint = link->getParentJointModel();
-    parent_link = joint->getParentLinkModel();
   }
-  return link;
 }
 
 void RobotModel::updateMimicJoints(double* values) const
@@ -1370,47 +914,6 @@ size_t RobotModel::getVariableIndex(const std::string& variable) const
   return it->second;
 }
 
-double RobotModel::getMaximumExtent(const JointBoundsVector& active_joint_bounds) const
-{
-  double max_distance = 0.;
-  for (size_t j = 0; j < active_joint_model_vector_.size(); ++j) {
-    max_distance += active_joint_model_vector_[j]->getMaximumExtent(*active_joint_bounds[j]) *
-                    active_joint_model_vector_[j]->getDistanceFactor();
-  }
-  return max_distance;
-}
-
-bool RobotModel::satisfiesPositionBounds(
-  const double* state,
-  const JointBoundsVector& active_joint_bounds,
-  double margin) const
-{
-  assert(active_joint_bounds.size() == active_joint_model_vector_.size());
-  for (size_t i = 0; i < active_joint_model_vector_.size(); ++i) {
-    if (!active_joint_model_vector_[i]->satisfiesPositionBounds(
-          state + active_joint_model_start_index_[i], *active_joint_bounds[i], margin)) {
-      return false;
-    }
-  }
-  return true;
-}
-
-bool RobotModel::enforcePositionBounds(double* state, const JointBoundsVector& active_joint_bounds) const
-{
-  assert(active_joint_bounds.size() == active_joint_model_vector_.size());
-  bool change = false;
-  for (size_t i = 0; i < active_joint_model_vector_.size(); ++i) {
-    if (active_joint_model_vector_[i]->enforcePositionBounds(
-          state + active_joint_model_start_index_[i], *active_joint_bounds[i])) {
-      change = true;
-    }
-  }
-  if (change) {
-    updateMimicJoints(state);
-  }
-  return change;
-}
-
 double RobotModel::distance(const double* state1, const double* state2) const
 {
   double d = 0.;
@@ -1435,140 +938,5 @@ void RobotModel::interpolate(const double* from, const double* to, double t, dou
   }
   // now we update mimic as needed
   updateMimicJoints(state);
-}
-
-void RobotModel::setKinematicsAllocators(const std::map<std::string, SolverAllocatorFn>& allocators)
-{
-  // we first set all the "simple" allocators -- where a group has one IK solver
-  for (JointModelGroup* jmg : joint_model_groups_) {
-    std::map<std::string, SolverAllocatorFn>::const_iterator jt = allocators.find(jmg->getName());
-    if (jt != allocators.end()) {
-      std::pair<SolverAllocatorFn, SolverAllocatorMapFn> solver_allocator_pair;
-      solver_allocator_pair.first = jt->second;
-      jmg->setSolverAllocators(solver_allocator_pair);
-    }
-  }
-
-  // now we set compound IK solvers; we do this later because we need the index maps computed by the previous calls to
-  // setSolverAllocators()
-  for (JointModelGroup* jmg : joint_model_groups_) {
-    std::pair<SolverAllocatorFn, SolverAllocatorMapFn> solver_allocator_pair;
-    std::map<std::string, SolverAllocatorFn>::const_iterator jt = allocators.find(jmg->getName());
-    if (jt == allocators.end()) {
-      // if an kinematics allocator is NOT available for this group, we try to see if we can use subgroups for IK
-      std::set<const JointModel*> joints;
-      joints.insert(jmg->getJointModels().begin(), jmg->getJointModels().end());
-
-      std::vector<const JointModelGroup*> subs;
-
-      // go through the groups that have IK allocators and see if they are part of jmg; collect them in subs
-      for (const std::pair<const std::string, SolverAllocatorFn>& allocator : allocators) {
-        const JointModelGroup* sub = getJointModelGroup(allocator.first);
-        if (!sub)  // this should actually not happen, all groups should be well defined
-        {
-          subs.clear();
-          break;
-        }
-        std::set<const JointModel*> sub_joints;
-        sub_joints.insert(sub->getJointModels().begin(), sub->getJointModels().end());
-
-        if (std::includes(
-              joints.begin(),
-              joints.end(),
-              sub_joints.begin(),
-              sub_joints.end())) {  // sub_joints included in joints: add sub, remove sub_joints from joints set
-          std::set<const JointModel*> joint_model_set;
-          std::set_difference(
-            joints.begin(),
-            joints.end(),
-            sub_joints.begin(),
-            sub_joints.end(),
-            std::inserter(joint_model_set, joint_model_set.end()));
-          // TODO: instead of maintaining disjoint joint sets here,
-          // should we leave that work to JMG's setSolverAllocators() / computeJointVariableIndices()?
-          // There, a disjoint bijection from joints to solvers is computed anyway.
-          // Underlying question: How do we resolve overlaps? Now the first considered sub group "wins"
-          // But, if the overlap only involves fixed joints, we could consider all sub groups
-          subs.push_back(sub);
-          joints.swap(joint_model_set);
-        }
-      }
-
-      // if we found subgroups, pass that information to the planning group
-      if (!subs.empty()) {
-        std::stringstream ss;
-        for (const JointModelGroup* sub : subs) {
-          ss << sub->getName() << ' ';
-          solver_allocator_pair.second[sub] = allocators.find(sub->getName())->second;
-        }
-        RCLCPP_DEBUG(
-          getLogger(), "Added sub-group IK allocators for group '%s': [ %s]", jmg->getName().c_str(), ss.str().c_str());
-      }
-      jmg->setSolverAllocators(solver_allocator_pair);
-    }
-  }
-}
-
-void RobotModel::printModelInfo(std::ostream& out) const
-{
-  out << "Model " << model_name_ << " in frame " << model_frame_ << ", using " << getVariableCount() << " variables\n";
-
-  std::ios_base::fmtflags old_flags = out.flags();
-  out.setf(std::ios::fixed, std::ios::floatfield);
-  std::streamsize old_prec = out.precision();
-  out.precision(5);
-  out << "Joints: \n";
-  for (JointModel* joint_model : joint_model_vector_) {
-    out << " '" << joint_model->getName() << "' (" << joint_model->getTypeName() << ")\n";
-    out << "  * Joint Index: " << joint_model->getJointIndex() << '\n';
-    const std::vector<std::string>& vn = joint_model->getVariableNames();
-    out << "  * " << vn.size() << (vn.size() > 1 ? " variables:" : (vn.empty() ? " variables" : " variable:\n"));
-    int idx = joint_model->getFirstVariableIndex();
-    for (const std::string& it : vn) {
-      out << "     * '" << it << "', index " << idx++ << " in full state";
-      if (joint_model->getMimic()) {
-        out << ", mimic '" << joint_model->getMimic()->getName() << '\'';
-      }
-      if (joint_model->isPassive()) {
-        out << ", passive";
-      }
-      out << '\n';
-      out << "        " << joint_model->getVariableBounds(it) << '\n';
-    }
-  }
-  out << '\n';
-  out.precision(old_prec);
-  out.flags(old_flags);
-  out << "Links: \n";
-  for (LinkModel* link_model : link_model_vector_) {
-    out << " '" << link_model->getName() << "' with " << link_model->getShapes().size() << " geoms\n";
-    if (link_model->parentJointIsFixed()) {
-      out << "   * " << "parent joint is fixed" << '\n';
-    }
-    if (link_model->jointOriginTransformIsIdentity()) {
-      out << "   * " << "joint origin transform is identity\n";
-    }
-  }
-
-  out << "Available groups: \n";
-  for (JointModelGroup* joint_model_group : joint_model_groups_) {
-    joint_model_group->printGroupInfo(out);
-  }
-}
-
-void RobotModel::computeFixedTransforms(
-  const LinkModel* link,
-  const Eigen::Isometry3d& transform,
-  LinkTransformMap& associated_transforms)
-{
-  associated_transforms[link] = transform * link->getJointOriginTransform();
-  for (size_t i = 0; i < link->getChildJointModels().size(); ++i) {
-    if (link->getChildJointModels()[i]->getType() == JointModel::FIXED) {
-      computeFixedTransforms(
-        link->getChildJointModels()[i]->getChildLinkModel(),
-        transform * link->getJointOriginTransform(),
-        associated_transforms);
-    }
-  }
 }
 }  // namespace tobas
