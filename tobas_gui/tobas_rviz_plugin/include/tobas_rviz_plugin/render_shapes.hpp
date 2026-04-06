@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include <memory>
-
 #include <OgreColourValue.h>
 #include <geometric_shapes/shapes.h>
 #include <eigen3/Eigen/Geometry>
@@ -12,14 +10,10 @@
 #include <rviz_common/properties/color_property.hpp>
 #include <rviz_rendering/objects/shape.hpp>
 
-#include "./class_forward.hpp"
 #include "./octomap_render.hpp"
 
 namespace tobas
 {
-TOBAS_CLASS_FORWARD(OcTreeRender);  // Defines OcTreeRenderPtr, ConstPtr, WeakPtr... etc
-TOBAS_CLASS_FORWARD(RenderShapes);  // Defines RenderShapesPtr, ConstPtr, WeakPtr... etc
-
 class RenderShapes
 {
 public:
@@ -41,6 +35,6 @@ private:
   rviz_common::DisplayContext* context_;
 
   std::vector<std::unique_ptr<rviz_rendering::Shape>> scene_shapes_;
-  std::vector<OcTreeRenderPtr> octree_voxel_grids_;
+  std::vector<std::shared_ptr<OcTreeRender>> octree_voxel_grids_;
 };
 }  // namespace tobas

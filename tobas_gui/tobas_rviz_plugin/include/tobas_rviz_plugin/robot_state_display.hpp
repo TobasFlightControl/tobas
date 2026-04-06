@@ -66,12 +66,12 @@ protected:
   rclcpp::Node::SharedPtr node_;
   rclcpp::Subscription<tobas_visualization_msgs::msg::DisplayRobotState>::SharedPtr robot_state_sub_;
 
-  RobotStateVisualizationPtr robot_;
+  std::shared_ptr<RobotStateVisualization> robot_;
   std::shared_ptr<RDFLoader> rdf_loader_;
   RobotModelConstPtr robot_model_;
   RobotStatePtr robot_state_;
   std::map<std::string, std_msgs::msg::ColorRGBA> highlights_;
-  bool update_state_;
+  bool update_state_ = false;
 
   rviz_common::properties::StringProperty* robot_description_property_;
   rviz_common::properties::StringProperty* root_link_name_property_;

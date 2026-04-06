@@ -9,7 +9,7 @@
 
 namespace tobas
 {
-RobotStateDisplay::RobotStateDisplay() : Display(), update_state_(false)
+RobotStateDisplay::RobotStateDisplay()
 {
   robot_description_property_ = new rviz_common::properties::StringProperty(
     "Robot Description",
@@ -96,14 +96,14 @@ RobotStateDisplay::RobotStateDisplay() : Display(), update_state_(false)
 void RobotStateDisplay::load(const rviz_common::Config& config)
 {
   // This property needs to be loaded in onEnable() below, which is triggered
-  // in the beginning of Display::load() before the other property would be available
+  // in the beginning of super::load() before the other property would be available
   robot_description_property_->load(config.mapGetChild("Robot Description"));
-  Display::load(config);
+  super::load(config);
 }
 
 void RobotStateDisplay::update(float wall_dt, float ros_dt)
 {
-  Display::update(wall_dt, ros_dt);
+  super::update(wall_dt, ros_dt);
   calculateOffsetPosition();
   if (robot_ && update_state_ && robot_state_) {
     update_state_ = false;
@@ -116,7 +116,7 @@ void RobotStateDisplay::reset()
 {
   robot_->clear();
   rdf_loader_.reset();
-  Display::reset();
+  super::reset();
   if (isEnabled()) {
     onEnable();
   }
@@ -139,7 +139,7 @@ void RobotStateDisplay::setVisible(bool visible)
 
 void RobotStateDisplay::onInitialize()
 {
-  Display::onInitialize();
+  super::onInitialize();
   auto ros_node_abstraction = context_->getRosNodeAbstraction().lock();
   if (!ros_node_abstraction) {
     RVIZ_COMMON_LOG_WARNING("Unable to lock weak_ptr from DisplayContext in RobotStateDisplay constructor");
@@ -155,7 +155,7 @@ void RobotStateDisplay::onInitialize()
 
 void RobotStateDisplay::onEnable()
 {
-  Display::onEnable();
+  super::onEnable();
   if (!rdf_loader_) {
     initializeLoader();
   }
@@ -169,12 +169,12 @@ void RobotStateDisplay::onDisable()
   if (robot_) {
     robot_->setVisible(false);
   }
-  Display::onDisable();
+  super::onDisable();
 }
 
 void RobotStateDisplay::fixedFrameChanged()
 {
-  Display::fixedFrameChanged();
+  super::fixedFrameChanged();
   calculateOffsetPosition();
 }
 
@@ -241,7 +241,7 @@ void RobotStateDisplay::setLinkColor(
   const std::string& link_name,
   const QColor& color)
 {
-  rviz_default_plugins::robot::RobotLink* link = robot->getLink(link_name);
+  auto link = robot->getLink(link_name);
 
   // Check if link exists
   if (link) {
@@ -251,7 +251,7 @@ void RobotStateDisplay::setLinkColor(
 
 void RobotStateDisplay::unsetLinkColor(rviz_default_plugins::robot::Robot* robot, const std::string& link_name)
 {
-  rviz_default_plugins::robot::RobotLink* link = robot->getLink(link_name);
+  auto link = robot->getLink(link_name);
 
   // Check if link exists
   if (link) {
@@ -302,13 +302,13 @@ void RobotStateDisplay::setRobotHighlights(
   }
 
   std::map<std::string, std_msgs::msg::ColorRGBA> highlights;
-  for (const tobas_visualization_msgs::msg::ObjectColor& highlight_link : highlight_links) {
+  for (const auto& highlight_link : highlight_links) {
     highlights[highlight_link.id] = highlight_link.color;
   }
 
   if (enable_link_highlight_->getBool()) {
-    std::map<std::string, std_msgs::msg::ColorRGBA>::iterator ho = highlights_.begin();
-    std::map<std::string, std_msgs::msg::ColorRGBA>::iterator hn = highlights.begin();
+    auto ho = highlights_.begin();
+    auto hn = highlights.begin();
     while (ho != highlights_.end() || hn != highlights.end()) {
       if (ho == highlights_.end()) {
         setHighlight(hn->first, hn->second);
@@ -343,7 +343,7 @@ void RobotStateDisplay::setRobotHighlights(
 
 void RobotStateDisplay::setHighlight(const std::string& link_name, const std_msgs::msg::ColorRGBA& color)
 {
-  rviz_default_plugins::robot::RobotLink* link = robot_->getRobot().getLink(link_name);
+  auto link = robot_->getRobot().getLink(link_name);
   if (link) {
     link->setColor(color.r, color.g, color.b);
     link->setRobotAlpha(color.a * robot_alpha_property_->getFloat());
@@ -352,7 +352,7 @@ void RobotStateDisplay::setHighlight(const std::string& link_name, const std_msg
 
 void RobotStateDisplay::unsetHighlight(const std::string& link_name)
 {
-  rviz_default_plugins::robot::RobotLink* link = robot_->getRobot().getLink(link_name);
+  auto link = robot_->getRobot().getLink(link_name);
   if (link) {
     link->unsetColor();
     link->setRobotAlpha(robot_alpha_property_->getFloat());
@@ -374,7 +374,7 @@ void RobotStateDisplay::changedRobotSceneAlpha()
 {
   if (robot_) {
     robot_->setAlpha(robot_alpha_property_->getFloat());
-    QColor color = attached_body_color_property_->getColor();
+    const auto color = attached_body_color_property_->getColor();
     std_msgs::msg::ColorRGBA color_msg;
     color_msg.r = color.redF();
     color_msg.g = color.greenF();
@@ -388,7 +388,7 @@ void RobotStateDisplay::changedRobotSceneAlpha()
 void RobotStateDisplay::changedAttachedBodyColor()
 {
   if (robot_) {
-    QColor color = attached_body_color_property_->getColor();
+    const auto color = attached_body_color_property_->getColor();
     std_msgs::msg::ColorRGBA color_msg;
     color_msg.r = color.redF();
     color_msg.g = color.greenF();
@@ -401,8 +401,7 @@ void RobotStateDisplay::changedAttachedBodyColor()
 
 void RobotStateDisplay::changedRobotStateTopic()
 {
-  using namespace std::placeholders;
-  // reset model to default state, we don't want to show previous messages
+  // Reset model to default state, we don't want to show previous messages
   if (static_cast<bool>(robot_state_)) {
     robot_state_->setToDefaultValues();
   }
@@ -443,16 +442,16 @@ void RobotStateDisplay::changedEnableCollisionVisible()
 
 void RobotStateDisplay::changedEnableInertiaVisible()
 {
-  robot_->getRobot().setInertiaVisible(enable_inertia_visible_->getBool());
+  robot_->setInertiaVisible(enable_inertia_visible_->getBool());
 }
 
 void RobotStateDisplay::changedAllLinks()
 {
-  Property* links_prop = subProp("Links");
-  QVariant value(show_all_links_->getBool());
+  auto links_prop = subProp("Links");
+  const QVariant value(show_all_links_->getBool());
 
   for (int i = 0; i < links_prop->numChildren(); ++i) {
-    Property* link_prop = links_prop->childAt(i);
+    auto link_prop = links_prop->childAt(i);
     link_prop->setValue(value);
   }
 }
