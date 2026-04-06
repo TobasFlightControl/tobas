@@ -6,8 +6,8 @@
 #include <rviz_common/properties/parse_color.hpp>
 #include <rviz_default_plugins/robot/robot_link.hpp>
 
+#include "tobas_rviz_plugin/link_updater.hpp"
 #include "tobas_rviz_plugin/logger.hpp"
-#include "tobas_rviz_plugin/planning_link_updater.hpp"
 
 namespace tobas
 {
@@ -59,7 +59,7 @@ void RobotStateVisualization::clear()
 
 void RobotStateVisualization::update(const RobotStateConstPtr& robot_state)
 {
-  robot_.update(PlanningLinkUpdater(robot_state));
+  robot_.update(LinkUpdater(robot_state));
   render_shapes_->clear();
 
   std::vector<const AttachedBody*> attached_bodies;
@@ -92,6 +92,7 @@ void RobotStateVisualization::update(const RobotStateConstPtr& robot_state)
         alpha);
     }
   }
+
   robot_.setVisualVisible(visual_visible_);
   robot_.setCollisionVisible(collision_visible_);
   robot_.setInertiaVisible(inertia_visible_);
@@ -100,7 +101,7 @@ void RobotStateVisualization::update(const RobotStateConstPtr& robot_state)
 
 void RobotStateVisualization::updateKinematicState(const RobotStateConstPtr& robot_state)
 {
-  robot_.update(PlanningLinkUpdater(robot_state));
+  robot_.update(LinkUpdater(robot_state));
 }
 
 void RobotStateVisualization::updateAttachedObjectColors(const std_msgs::msg::ColorRGBA& color)

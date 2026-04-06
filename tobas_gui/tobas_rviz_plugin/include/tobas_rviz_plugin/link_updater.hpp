@@ -10,12 +10,10 @@
 namespace tobas
 {
 /* Update the links of an rviz::Robot using a RobotState */
-class PlanningLinkUpdater : public rviz_default_plugins::robot::LinkUpdater
+class LinkUpdater : public rviz_default_plugins::robot::LinkUpdater
 {
 public:
-  PlanningLinkUpdater(const RobotStateConstPtr& state) : robot_state_(state)
-  {
-  }
+  explicit LinkUpdater(const RobotStateConstPtr& state);
 
   bool getLinkTransforms(
     const std::string& link_name,
