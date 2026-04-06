@@ -8,8 +8,10 @@
 
 namespace tobas
 {
+namespace
+{
 /**
- * @brief This is the function that stores the global logger used by Tobas.
+ * @brief Stores the global logger used by Tobas.
  * As it returns a reference to the static logger it can be changed through the `setNodeLoggerName` function.
  */
 rclcpp::Logger& getGlobalRootLogger()
@@ -26,7 +28,7 @@ rclcpp::Logger& getGlobalRootLogger()
     }
     catch (const std::exception& ex) {
       // rclcpp::init was not called so rcl context is null, return non-node logger
-      auto logger2 = rclcpp::get_logger(name);
+      const auto logger2 = rclcpp::get_logger(name);
       RCLCPP_WARN_STREAM(logger2, "exception thrown while creating node for logging: " << ex.what());
       RCLCPP_WARN(logger2, "if rclcpp::init was not called, messages from this logger may be missing from /rosout");
       return logger2;
@@ -34,12 +36,7 @@ rclcpp::Logger& getGlobalRootLogger()
   }();
   return logger;
 }
-
-void setNodeLoggerName(const std::string& name)
-{
-  static auto node = std::make_shared<rclcpp::Node>("tobas", name);
-  getGlobalRootLogger() = node->get_logger();
-}
+}  // namespace
 
 rclcpp::Logger getLogger(const std::string& name)
 {
