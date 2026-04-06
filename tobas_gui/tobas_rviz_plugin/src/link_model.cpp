@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include "tobas_rviz_plugin/joint_model.hpp"
+#include "tobas_rviz_plugin/joint_model/joint_model.hpp"
 
 #include <geometric_shapes/check_isometry.h>
 #include <geometric_shapes/shape_operations.h>

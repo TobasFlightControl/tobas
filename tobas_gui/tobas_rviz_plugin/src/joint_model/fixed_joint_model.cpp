@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include "tobas_rviz_plugin/fixed_joint_model.hpp"
+#include "tobas_rviz_plugin/joint_model/fixed_joint_model.hpp"
 
 namespace tobas
 {

@@ -11,12 +11,12 @@
 
 #include "./class_forward.hpp"
 #include "./exceptions.hpp"
-#include "./fixed_joint_model.hpp"
-#include "./floating_joint_model.hpp"
+#include "./joint_model/fixed_joint_model.hpp"
+#include "./joint_model/floating_joint_model.hpp"
+#include "./joint_model/planar_joint_model.hpp"
+#include "./joint_model/prismatic_joint_model.hpp"
+#include "./joint_model/revolute_joint_model.hpp"
 #include "./link_model.hpp"
-#include "./planar_joint_model.hpp"
-#include "./prismatic_joint_model.hpp"
-#include "./revolute_joint_model.hpp"
 
 namespace tobas
 {
