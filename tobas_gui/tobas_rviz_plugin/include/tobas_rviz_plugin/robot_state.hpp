@@ -41,42 +41,12 @@ public:
    * @brief A state can be constructed from a specified robot model. No values are initialized.
    * Call setToDefaultValues() if a state needs to provide valid information.
    */
-  RobotState(const RobotModel::ConstSharedPtr& robot_model);
-
-  /* Copy constructor. */
-  RobotState(const RobotState& other);
-
-  /* Copy operator */
-  RobotState& operator=(const RobotState& other);
+  explicit RobotState(const RobotModel::ConstSharedPtr& robot_model);
 
   /* Get the robot model this state is constructed for. */
   const RobotModel::ConstSharedPtr& getRobotModel() const
   {
     return robot_model_;
-  }
-
-  /* Get the number of variables that make up this state. */
-  size_t getVariableCount() const
-  {
-    return robot_model_->getVariableCount();
-  }
-
-  /* Get the names of the variables that make up this state, in the order they are stored in memory. */
-  const std::vector<std::string>& getVariableNames() const
-  {
-    return robot_model_->getVariableNames();
-  }
-
-  /* Get the model of a particular link */
-  const LinkModel* getLinkModel(const std::string& link) const
-  {
-    return robot_model_->getLinkModel(link);
-  }
-
-  /* Get the model of a particular joint */
-  const JointModel* getJointModel(const std::string& joint) const
-  {
-    return robot_model_->getJointModel(joint);
   }
 
   /* Get a raw pointer to the positions of the variables
@@ -178,9 +148,6 @@ public:
     return velocity_.data();
   }
 
-  /* Set all velocities to 0. */
-  void zeroVelocities();
-
   /* Given an array with velocity values for all variables, set those values as the velocities in this state */
   void setVariableVelocities(const double* velocity)
   {
@@ -238,9 +205,6 @@ public:
     return velocity_[index];
   }
 
-  /* Remove velocities from this state (this differs from setting them to zero) */
-  void dropVelocities();
-
   /* By default, if accelerations are never set or initialized, the state remembers that there are no
    * accelerations set. This is
    * useful to know when serializing or copying the state. If hasAccelerations() reports true, hasEffort() will
@@ -265,9 +229,6 @@ public:
   {
     return effort_or_acceleration_.data();
   }
-
-  /* Set all accelerations to 0. */
-  void zeroAccelerations();
 
   /* Given an array with acceleration values for all variables, set those values as the accelerations in this
    * state */
@@ -332,9 +293,6 @@ public:
     return effort_or_acceleration_[index];
   }
 
-  /* Remove accelerations from this state (this differs from setting them to zero) */
-  void dropAccelerations();
-
   /* By default, if effort is never set or initialized, the state remembers that there is no effort set. This is
    * useful to know when serializing or copying the state. If hasEffort() reports true, hasAccelerations() will
    * certainly report false. */
@@ -358,9 +316,6 @@ public:
   {
     return effort_or_acceleration_.data();
   }
-
-  /* Set all effort values to 0. */
-  void zeroEffort();
 
   /* Given an array with effort values for all variables, set those values as the effort in this state */
   void setVariableEffort(const double* effort)
@@ -415,15 +370,6 @@ public:
   {
     return effort_or_acceleration_[index];
   }
-
-  /* Remove effort values from this state (this differs from setting them to zero) */
-  void dropEffort();
-
-  /* Reduce RobotState to kinematic information (remove velocity, acceleration and effort, if present) */
-  void dropDynamics();
-
-  /* Invert velocity if present. */
-  void invertVelocity();
 
   /** \name Getting and setting joint positions, velocities, accelerations and effort for a single joint
    * The joint might be multi-DOF, i.e. require more than one variable to set.
@@ -515,22 +461,6 @@ public:
   /* Update all transforms. */
   void update(bool force = false);
 
-  /* Update the state after setting a particular link to the input global transform pose.
-   *
-   * This "warps" the given link to the given pose, neglecting the joint values of its parent joint.
-   * The link transforms of link and all its descendants are updated, but not marked as dirty,
-   * although they do not match the joint values anymore!
-   * Collision body transforms are not yet updated, but marked dirty only.
-   * Use update(false) or updateCollisionBodyTransforms() to update them as well.
-   */
-  void updateStateWithLinkAt(const std::string& link_name, const Eigen::Isometry3d& transform, bool backward = false)
-  {
-    updateStateWithLinkAt(robot_model_->getLinkModel(link_name), transform, backward);
-  }
-
-  /* Update the state after setting a particular link to the input global transform pose.*/
-  void updateStateWithLinkAt(const LinkModel* link, const Eigen::Isometry3d& transform, bool backward = false);
-
   /* Get the link transform w.r.t. the root link (model frame) of the RobotModel.
    * This is typically the root link of the URDF unless a virtual joint is present.
    * Checks the cache and if there are any dirty (non-updated) transforms, first updates them as needed.
@@ -567,38 +497,6 @@ public:
     }
     assert(checkLinkTransforms());
     return global_link_transforms_[link->getLinkIndex()];
-  }
-
-  /* Get the link transform w.r.t. the root link (model frame) of the RobotModel.
-   * This is typically the root link of the URDF unless a virtual joint is present.
-   * Checks the cache and if there are any dirty (non-updated) transforms, first updates them as needed.
-   *
-   * As opposed to the visual links in |getGlobalLinkTransform|, this function returns
-   * the collision link transform used for collision checking.
-   *
-   * @param link_name: name of link to lookup
-   * @param index: specify which collision body to lookup, if more than one exists
-   */
-  const Eigen::Isometry3d& getCollisionBodyTransform(const std::string& link_name, size_t index)
-  {
-    return getCollisionBodyTransform(robot_model_->getLinkModel(link_name), index);
-  }
-
-  const Eigen::Isometry3d& getCollisionBodyTransform(const LinkModel* link, size_t index)
-  {
-    updateCollisionBodyTransforms();
-    return global_collision_body_transforms_[link->getFirstCollisionBodyTransformIndex() + index];
-  }
-
-  const Eigen::Isometry3d& getCollisionBodyTransform(const std::string& link_name, size_t index) const
-  {
-    return getCollisionBodyTransform(robot_model_->getLinkModel(link_name), index);
-  }
-
-  const Eigen::Isometry3d& getCollisionBodyTransform(const LinkModel* link, size_t index) const
-  {
-    assert(checkCollisionTransforms());
-    return global_collision_body_transforms_[link->getFirstCollisionBodyTransformIndex() + index];
   }
 
   const Eigen::Isometry3d& getJointTransform(const std::string& joint_name)
@@ -648,87 +546,6 @@ public:
 
   /* Return the sum of joint distances to "other" state. An L1 norm. Only considers active joints. */
   double distance(const RobotState& other, const JointModel* joint) const;
-
-  /**
-   * Interpolate towards "to" state. Mimic joints are correctly updated and flags are set so that FK is recomputed
-   * when needed.
-   *
-   * @param to interpolate to this state
-   * @param t a fraction in the range [0 1]. If 1, the result matches "to" state exactly.
-   * @param state holds the result
-   */
-  void interpolate(const RobotState& to, double t, RobotState& state) const;
-
-  /**
-   * Interpolate towards "to" state, but only for a single joint. Mimic joints are correctly updated
-   * and flags are set so that FK is recomputed when needed.
-   *
-   * @param to interpolate to this state
-   * @param t a fraction in the range [0 1]. If 1, the result matches "to" state exactly.
-   * @param state holds the result
-   * @param joint interpolate only for this joint
-   */
-  void interpolate(const RobotState& to, double t, RobotState& state, const JointModel* joint) const;
-
-  void enforceBounds();
-  void enforceBounds(const JointModel* joint)
-  {
-    enforcePositionBounds(joint);
-    if (has_velocity_) {
-      enforceVelocityBounds(joint);
-    }
-  }
-  void enforcePositionBounds(const JointModel* joint);
-
-  // Call harmonizePosition() for all joints / all joints in group / given joint
-  void harmonizePositions();
-  void harmonizePosition(const JointModel* joint);
-
-  void enforceVelocityBounds(const JointModel* joint);
-
-  bool satisfiesBounds(double margin = 0.) const;
-  bool satisfiesBounds(const JointModel* joint, double margin = 0.) const
-  {
-    return satisfiesPositionBounds(joint, margin) && (!has_velocity_ || satisfiesVelocityBounds(joint, margin));
-  }
-  bool satisfiesPositionBounds(const JointModel* joint, double margin = 0.) const
-  {
-    return joint->satisfiesPositionBounds(getJointPositions(joint), margin);
-  }
-  bool satisfiesVelocityBounds(const JointModel* joint, double margin = 0.) const
-  {
-    return joint->satisfiesVelocityBounds(getJointVelocities(joint), margin);
-  }
-
-  /* Get the minimm distance from this state to the bounds.
-      The minimum distance and the joint for which this minimum is achieved are returned. */
-  std::pair<double, const JointModel*> getMinDistanceToPositionBounds() const;
-
-  /* Get the minimm distance from a set of joints in the state to the bounds.
-      The minimum distance and the joint for which this minimum is achieved are returned. */
-  std::pair<double, const JointModel*>
-  getMinDistanceToPositionBounds(const std::vector<const JointModel*>& joints) const;
-
-  /* Compute an axis-aligned bounding box that contains the current state.
-      The format for \e aabb is (minx, maxx, miny, maxy, minz, maxz) */
-  void computeAABB(std::vector<double>& aabb) const;
-
-  /* Compute an axis-aligned bounding box that contains the current state.
-      The format for \e aabb is (minx, maxx, miny, maxy, minz, maxz) */
-  void computeAABB(std::vector<double>& aabb)
-  {
-    updateLinkTransforms();
-    static_cast<const RobotState*>(this)->computeAABB(aabb);
-  }
-
-  /* Return the instance of a random number generator */
-  random_numbers::RandomNumberGenerator& getRandomNumberGenerator()
-  {
-    if (!rng_) {
-      rng_ = std::make_unique<random_numbers::RandomNumberGenerator>();
-    }
-    return *rng_;
-  }
 
   /* Get the transformation matrix from the model frame (root of model) to the frame identified by \e frame_id
    *
@@ -818,7 +635,6 @@ public:
 
 private:
   void init();
-  void copyFrom(const RobotState& other);
 
   void markDirtyJointTransforms(const JointModel* joint)
   {
@@ -868,12 +684,6 @@ private:
   std::vector<Eigen::Isometry3d> global_collision_body_transforms_;  ///< Transforms from model frame to collision
                                                                      ///< bodies
   std::vector<uint8_t> dirty_joint_transforms_;
-
-  /* For certain operations a state needs a random number generator. However, it may be slightly expensive
-   * to allocate the random number generator if many state instances are generated. For this reason, the generator
-   * is allocated on a need basis, by the getRandomNumberGenerator() function. Never use the rng_ member directly, but
-   * call getRandomNumberGenerator() instead. */
-  std::unique_ptr<random_numbers::RandomNumberGenerator> rng_;
 };
 
 /* Operator overload for printing variable bounds to a stream */

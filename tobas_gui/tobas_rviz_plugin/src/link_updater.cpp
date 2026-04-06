@@ -16,7 +16,7 @@ bool LinkUpdater::getLinkTransforms(
   Ogre::Vector3& collision_position,
   Ogre::Quaternion& collision_orientation) const
 {
-  const auto link_model = robot_state_->getLinkModel(link_name);
+  const auto link_model = robot_state_->getRobotModel()->getLinkModel(link_name);
   if (!link_model) {
     return false;
   }

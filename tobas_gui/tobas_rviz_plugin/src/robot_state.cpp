@@ -10,7 +10,6 @@
 #include <rclcpp/rclcpp.hpp>
 #include <tf2_eigen/tf2_eigen.hpp>
 
-#include "tobas_rviz_plugin/aabb.hpp"
 #include "tobas_rviz_plugin/logger.hpp"
 
 namespace ch = std::chrono;
@@ -32,16 +31,9 @@ RobotState::RobotState(const RobotModel::ConstSharedPtr& robot_model)
   , has_effort_(false)
   , dirty_link_transforms_(nullptr)
   , dirty_collision_body_transforms_(nullptr)
-  , rng_(nullptr)
 {
   dirty_link_transforms_ = robot_model_->getRootJoint();
   init();
-}
-
-RobotState::RobotState(const RobotState& other) : rng_(nullptr)
-{
-  robot_model_ = other.robot_model_;
-  copyFrom(other);
 }
 
 void RobotState::init()
@@ -53,32 +45,6 @@ void RobotState::init()
   position_.resize(robot_model_->getVariableCount());
   velocity_.resize(robot_model_->getVariableCount());
   effort_or_acceleration_.resize(robot_model_->getVariableCount());
-}
-
-RobotState& RobotState::operator=(const RobotState& other)
-{
-  if (this != &other) {
-    copyFrom(other);
-  }
-  return *this;
-}
-
-void RobotState::copyFrom(const RobotState& other)
-{
-  has_velocity_ = other.has_velocity_;
-  has_acceleration_ = other.has_acceleration_;
-  has_effort_ = other.has_effort_;
-
-  dirty_collision_body_transforms_ = other.dirty_collision_body_transforms_;
-  dirty_link_transforms_ = other.dirty_link_transforms_;
-
-  variable_joint_transforms_ = other.variable_joint_transforms_;
-  global_link_transforms_ = other.global_link_transforms_;
-  global_collision_body_transforms_ = other.global_collision_body_transforms_;
-  dirty_joint_transforms_ = other.dirty_joint_transforms_;
-  position_ = other.position_;
-  velocity_ = other.velocity_;
-  effort_or_acceleration_ = other.effort_or_acceleration_;
 }
 
 bool RobotState::checkJointTransforms(const JointModel* joint) const
@@ -144,46 +110,6 @@ void RobotState::updateMimicJoint(const JointModel* joint)
     position_[jm->getFirstVariableIndex()] = jm->getMimicFactor() * v + jm->getMimicOffset();
     markDirtyJointTransforms(jm);
   }
-}
-
-void RobotState::zeroVelocities()
-{
-  has_velocity_ = false;
-  markVelocity();
-}
-
-void RobotState::zeroAccelerations()
-{
-  has_acceleration_ = false;
-  markAcceleration();
-}
-
-void RobotState::zeroEffort()
-{
-  has_effort_ = false;
-  markEffort();
-}
-
-void RobotState::dropVelocities()
-{
-  has_velocity_ = false;
-}
-
-void RobotState::dropAccelerations()
-{
-  has_acceleration_ = false;
-}
-
-void RobotState::dropEffort()
-{
-  has_effort_ = false;
-}
-
-void RobotState::dropDynamics()
-{
-  dropVelocities();
-  dropAccelerations();
-  dropEffort();
 }
 
 void RobotState::setVariablePositions(const double* position)
@@ -323,15 +249,6 @@ void RobotState::setVariableEffort(
   assert(variable_names.size() == variable_effort.size());
   for (size_t i = 0; i < variable_names.size(); ++i) {
     effort_or_acceleration_[robot_model_->getVariableIndex(variable_names[i])] = variable_effort[i];
-  }
-}
-
-void RobotState::invertVelocity()
-{
-  if (has_velocity_) {
-    for (size_t i = 0; i < robot_model_->getVariableCount(); ++i) {
-      velocity_[i] *= -1;
-    }
   }
 }
 
@@ -519,54 +436,6 @@ void RobotState::updateLinkTransformsInternal(const JointModel* start)
   }
 }
 
-void RobotState::updateStateWithLinkAt(const LinkModel* link, const Eigen::Isometry3d& transform, bool backward)
-{
-  updateLinkTransforms();  // no link transforms must be dirty, otherwise the transform we set will be overwritten
-
-  // update the fact that collision body transforms are out of date
-  if (dirty_collision_body_transforms_) {
-    dirty_collision_body_transforms_ =
-      robot_model_->getCommonRoot(dirty_collision_body_transforms_, link->getParentJointModel());
-  }
-  else {
-    dirty_collision_body_transforms_ = link->getParentJointModel();
-  }
-
-  global_link_transforms_[link->getLinkIndex()] = transform;
-
-  // update link transforms for descendant links only (leaving the transform for the current link untouched)
-  for (const JointModel* joint : link->getChildJointModels()) {
-    updateLinkTransformsInternal(joint);
-  }
-
-  // if we also need to go backward
-  if (backward) {
-    const LinkModel* parent_link = link;
-    const LinkModel* child_link;
-    while (parent_link->getParentJointModel()->getParentLinkModel()) {
-      child_link = parent_link;
-      parent_link = parent_link->getParentJointModel()->getParentLinkModel();
-
-      // update the transform of the parent
-      global_link_transforms_[parent_link->getLinkIndex()] =
-        global_link_transforms_[child_link->getLinkIndex()] *
-        (child_link->getJointOriginTransform() *
-         variable_joint_transforms_[child_link->getParentJointModel()->getJointIndex()])
-          .inverse();
-
-      // update link transforms for descendant links only (leaving the transform for the current link untouched)
-      // with the exception of the child link we are coming backwards from
-      for (const JointModel* joint : parent_link->getChildJointModels()) {
-        if (joint != child_link->getParentJointModel()) {
-          updateLinkTransformsInternal(joint);
-        }
-      }
-    }
-    // all collision body transforms are invalid now
-    dirty_collision_body_transforms_ = parent_link->getParentJointModel();
-  }
-}
-
 const Eigen::Isometry3d& RobotState::getJointTransform(const JointModel* joint)
 {
   const int idx = joint->getJointIndex();
@@ -582,103 +451,6 @@ const Eigen::Isometry3d& RobotState::getJointTransform(const JointModel* joint)
   return variable_joint_transforms_[idx];
 }
 
-bool RobotState::satisfiesBounds(double margin) const
-{
-  const std::vector<const JointModel*>& jm = robot_model_->getActiveJointModels();
-  for (const JointModel* joint : jm) {
-    if (!satisfiesBounds(joint, margin)) {
-      return false;
-    }
-  }
-  return true;
-}
-
-void RobotState::enforceBounds()
-{
-  const std::vector<const JointModel*>& jm = robot_model_->getActiveJointModels();
-  for (const JointModel* joint : jm) {
-    enforceBounds(joint);
-  }
-}
-
-void RobotState::enforcePositionBounds(const JointModel* joint)
-{
-  if (joint->getVariableCount() == 0) {
-    return;
-  }
-  if (joint->enforcePositionBounds(&position_.at(joint->getFirstVariableIndex()))) {
-    markDirtyJointTransforms(joint);
-    updateMimicJoint(joint);
-  }
-}
-
-void RobotState::harmonizePositions()
-{
-  for (const JointModel* jm : robot_model_->getActiveJointModels()) {
-    harmonizePosition(jm);
-  }
-}
-
-void RobotState::harmonizePosition(const JointModel* joint)
-{
-  if (joint->getVariableCount() == 0) {
-    return;
-  }
-  if (joint->harmonizePosition(&position_.at(joint->getFirstVariableIndex()))) {
-    // no need to mark transforms dirty, as the transform hasn't changed
-    updateMimicJoint(joint);
-  }
-}
-
-void RobotState::enforceVelocityBounds(const JointModel* joint)
-{
-  if (joint->getVariableCount() == 0) {
-    return;
-  }
-  joint->enforceVelocityBounds(&velocity_.at(joint->getFirstVariableIndex()));
-}
-
-std::pair<double, const JointModel*> RobotState::getMinDistanceToPositionBounds() const
-{
-  return getMinDistanceToPositionBounds(robot_model_->getActiveJointModels());
-}
-
-std::pair<double, const JointModel*>
-RobotState::getMinDistanceToPositionBounds(const std::vector<const JointModel*>& joints) const
-{
-  double distance = std::numeric_limits<double>::max();
-  const JointModel* index = nullptr;
-  for (const JointModel* joint : joints) {
-    if (joint->getType() == JointModel::PLANAR || joint->getType() == JointModel::FLOATING) {
-      continue;
-    }
-    if (joint->getType() == JointModel::REVOLUTE) {
-      if (static_cast<const RevoluteJointModel*>(joint)->isContinuous()) {
-        continue;
-      }
-    }
-
-    const double* joint_values = getJointPositions(joint);
-    const JointModel::Bounds& bounds = joint->getVariableBounds();
-    std::vector<double> lower_bounds(bounds.size()), upper_bounds(bounds.size());
-    for (size_t j = 0; j < bounds.size(); ++j) {
-      lower_bounds[j] = bounds[j].min_position_;
-      upper_bounds[j] = bounds[j].max_position_;
-    }
-    double new_distance = joint->distance(joint_values, &lower_bounds[0]);
-    if (new_distance < distance) {
-      index = joint;
-      distance = new_distance;
-    }
-    new_distance = joint->distance(joint_values, &upper_bounds[0]);
-    if (new_distance < distance) {
-      index = joint;
-      distance = new_distance;
-    }
-  }
-  return std::make_pair(distance, index);
-}
-
 double RobotState::distance(const RobotState& other, const JointModel* joint) const
 {
   if (joint->getVariableCount() == 0) {
@@ -686,27 +458,6 @@ double RobotState::distance(const RobotState& other, const JointModel* joint) co
   }
   const int idx = joint->getFirstVariableIndex();
   return joint->distance(&position_.at(idx), &other.position_.at(idx));
-}
-
-void RobotState::interpolate(const RobotState& to, double t, RobotState& state) const
-{
-  checkInterpolationParamBounds(getLogger(), t);
-  robot_model_->interpolate(getVariablePositions(), to.getVariablePositions(), t, state.getVariablePositions());
-
-  std::fill(state.dirty_joint_transforms_.begin(), state.dirty_joint_transforms_.end(), 1);
-  state.dirty_link_transforms_ = state.robot_model_->getRootJoint();
-}
-
-void RobotState::interpolate(const RobotState& to, double t, RobotState& state, const JointModel* joint) const
-{
-  if (joint->getVariableCount() == 0) {
-    return;
-  }
-
-  const int idx = joint->getFirstVariableIndex();
-  joint->interpolate(&position_.at(idx), &to.position_.at(idx), t, &state.position_.at(idx));
-  state.markDirtyJointTransforms(joint);
-  state.updateMimicJoint(joint);
 }
 
 const Eigen::Isometry3d& RobotState::getFrameTransform(const std::string& frame_id, bool* frame_found)
@@ -832,29 +583,6 @@ void RobotState::getRobotMarkers(visualization_msgs::msg::MarkerArray& arr, cons
 
       arr.markers.push_back(mark);
     }
-  }
-}
-
-void RobotState::computeAABB(std::vector<double>& aabb) const
-{
-  assert(checkLinkTransforms());
-
-  AABB bounding_box;
-  std::vector<const LinkModel*> links = robot_model_->getLinkModelsWithCollisionGeometry();
-  for (const LinkModel* link : links) {
-    Eigen::Isometry3d transform = getGlobalLinkTransform(link);  // intentional copy, we will translate
-    const Eigen::Vector3d& extents = link->getShapeExtentsAtOrigin();
-    transform.translate(link->getCenteredBoundingBoxOffset());
-    bounding_box.extendWithTransformedBox(transform, extents);
-  }
-
-  aabb.clear();
-  aabb.resize(6, 0.);
-  if (!bounding_box.isEmpty()) {
-    // The following is a shorthand for something like:
-    // aabb[0, 2, 4] = bounding_box.min(); aabb[1, 3, 5] = bounding_box.max();
-    Eigen::Map<Eigen::VectorXd, Eigen::Unaligned, Eigen::InnerStride<2>>(aabb.data(), 3) = bounding_box.min();
-    Eigen::Map<Eigen::VectorXd, Eigen::Unaligned, Eigen::InnerStride<2>>(aabb.data() + 1, 3) = bounding_box.max();
   }
 }
 
