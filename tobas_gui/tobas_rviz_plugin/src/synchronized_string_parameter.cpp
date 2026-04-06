@@ -8,7 +8,7 @@ namespace ch = std::chrono;
 namespace tobas
 {
 std::string SynchronizedStringParameter::loadInitialValue(
-  const std::shared_ptr<rclcpp::Node>& node,
+  const rclcpp::Node::SharedPtr& node,
   const std::string& name,
   const StringCallback& parent_callback,
   bool default_continuous_value,

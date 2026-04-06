@@ -19,7 +19,7 @@ rclcpp::Logger& getGlobalRootLogger()
     // A random number is appended to the name used for the node to make it unique.
     // This unique node and logger name is only used if a user does not set a logger
     // through the `setNodeLoggerName` method to their node's logger.
-    auto name = std::format("tobas_{}", rsl::rng()());
+    const auto name = std::format("tobas_{}", rsl::rng()());
     try {
       static auto* tobas_node = new rclcpp::Node(name);
       return tobas_node->get_logger();

@@ -85,7 +85,7 @@ protected:
   rclcpp::Subscription<tobas_visualization_msgs::msg::DisplayRobotState>::SharedPtr robot_state_subscriber_;
 
   RobotStateVisualizationPtr robot_;
-  RDFLoaderPtr rdf_loader_;
+  std::shared_ptr<RDFLoader> rdf_loader_;
   RobotModelConstPtr robot_model_;
   RobotStatePtr robot_state_;
   std::map<std::string, std_msgs::msg::ColorRGBA> highlights_;
