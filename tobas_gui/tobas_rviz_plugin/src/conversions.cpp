@@ -19,7 +19,6 @@ rclcpp::Logger getLogger()
 {
   return tobas::getLogger("tobas.conversions");
 }
-}  // namespace
 
 bool jointStateToRobotStateImpl(const sensor_msgs::msg::JointState& joint_state, RobotState& state)
 {
@@ -119,43 +118,6 @@ void robotStateToMultiDofJointState(const RobotState& state, sensor_msgs::msg::M
   mjs.header.frame_id = state.getRobotModel()->getModelFrame();
 }
 
-class ShapeVisitorAddToCollisionObject : public boost::static_visitor<void>
-{
-public:
-  ShapeVisitorAddToCollisionObject(tobas_visualization_msgs::msg::CollisionObject* obj)
-    : boost::static_visitor<void>(), obj_(obj)
-  {
-  }
-
-  void addToObject(const shapes::ShapeMsg& sm, const geometry_msgs::msg::Pose& pose)
-  {
-    pose_ = &pose;
-    boost::apply_visitor(*this, sm);
-  }
-
-  void operator()(const shape_msgs::msg::Plane& shape_msg) const
-  {
-    obj_->planes.push_back(shape_msg);
-    obj_->plane_poses.push_back(*pose_);
-  }
-
-  void operator()(const shape_msgs::msg::Mesh& shape_msg) const
-  {
-    obj_->meshes.push_back(shape_msg);
-    obj_->mesh_poses.push_back(*pose_);
-  }
-
-  void operator()(const shape_msgs::msg::SolidPrimitive& shape_msg) const
-  {
-    obj_->primitives.push_back(shape_msg);
-    obj_->primitive_poses.push_back(*pose_);
-  }
-
-private:
-  tobas_visualization_msgs::msg::CollisionObject* obj_;
-  const geometry_msgs::msg::Pose* pose_;
-};
-
 bool robotStateMsgToRobotStateHelper(
   const Transforms* tf,
   const tobas_visualization_msgs::msg::RobotState& robot_state,
@@ -172,6 +134,7 @@ bool robotStateMsgToRobotStateHelper(
   bool result2 = multiDofJointsToRobotState(robot_state.multi_dof_joint_state, state, tf);
   return result1 || result2;
 }
+}  // namespace
 
 bool jointStateToRobotState(const sensor_msgs::msg::JointState& joint_state, RobotState& state)
 {
