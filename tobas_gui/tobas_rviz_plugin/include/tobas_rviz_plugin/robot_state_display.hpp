@@ -29,11 +29,6 @@ class RobotStateDisplay : public rviz_common::Display
   using self = RobotStateDisplay;
   using super = rviz_common::Display;
 
-  static constexpr float kHighlightR = 0;
-  static constexpr float kHighlightG = 255;
-  static constexpr float kHighlightB = 0;
-  static constexpr float kHighlightA = 0.7;
-
 public:
   explicit RobotStateDisplay();
 
