@@ -38,7 +38,7 @@ RDFLoader::RDFLoader(
   RCLCPP_INFO_STREAM(getLogger(), "Loaded robot model in " << (node->now() - start).seconds() << " seconds.");
 }
 
-const ::urdf::ModelInterfaceSharedPtr& RDFLoader::getURDF() const
+const urdf::ModelInterfaceSharedPtr& RDFLoader::getURDF() const
 {
   return urdf_;
 }
@@ -50,7 +50,7 @@ void RDFLoader::setNewModelCallback(const NewModelCallback& cb)
 
 bool RDFLoader::loadFromStrings()
 {
-  auto urdf = std::make_unique<::urdf::Model>();
+  auto urdf = std::make_unique<urdf::Model>();
   if (!urdf->initString(urdf_string_)) {
     RCLCPP_ERROR(getLogger(), "Failed to parse URDF.");
     return false;

@@ -24,7 +24,7 @@ rclcpp::Logger getLogger()
 }
 }  // namespace
 
-RobotModel::RobotModel(const ::urdf::ModelInterfaceSharedPtr& urdf_model, const srdf::ModelConstSharedPtr& srdf_model)
+RobotModel::RobotModel(const urdf::ModelInterfaceSharedPtr& urdf_model, const srdf::ModelConstSharedPtr& srdf_model)
 {
   root_joint_ = nullptr;
   urdf_ = urdf_model;
@@ -55,7 +55,7 @@ const LinkModel* RobotModel::getRootLink() const
   return root_link_;
 }
 
-void RobotModel::buildModel(const ::urdf::ModelInterface& urdf_model, const srdf::Model& srdf_model)
+void RobotModel::buildModel(const urdf::ModelInterface& urdf_model, const srdf::Model& srdf_model)
 {
   root_joint_ = nullptr;
   root_link_ = nullptr;
@@ -65,7 +65,7 @@ void RobotModel::buildModel(const ::urdf::ModelInterface& urdf_model, const srdf
   RCLCPP_INFO(getLogger(), "Loading robot model '%s'...", model_name_.c_str());
 
   if (urdf_model.getRoot()) {
-    const ::urdf::Link* root_link_ptr = urdf_model.getRoot().get();
+    const urdf::Link* root_link_ptr = urdf_model.getRoot().get();
     model_frame_ = root_link_ptr->name;
 
     RCLCPP_DEBUG(getLogger(), "... building kinematic chain");
@@ -373,11 +373,11 @@ void RobotModel::buildGroupStates(const srdf::Model& srdf_model)
   }
 }
 
-void RobotModel::buildMimic(const ::urdf::ModelInterface& urdf_model)
+void RobotModel::buildMimic(const urdf::ModelInterface& urdf_model)
 {
   // compute mimic joints
   for (JointModel* joint_model : joint_model_vector_) {
-    const ::urdf::Joint* jm = urdf_model.getJoint(joint_model->getName()).get();
+    const urdf::Joint* jm = urdf_model.getJoint(joint_model->getName()).get();
     if (jm) {
       if (jm->mimic) {
         JointModelMap::const_iterator jit = joint_model_map_.find(jm->mimic->joint_name);
@@ -784,7 +784,7 @@ bool RobotModel::addJointModelGroup(const srdf::Model::Group& gc)
   return true;
 }
 
-JointModel* RobotModel::buildRecursive(LinkModel* parent, const ::urdf::Link* urdf_link, const srdf::Model& srdf_model)
+JointModel* RobotModel::buildRecursive(LinkModel* parent, const urdf::Link* urdf_link, const srdf::Model& srdf_model)
 {
   // construct the joint
   JointModel* joint = constructJointModel(urdf_link, srdf_model);
@@ -819,7 +819,7 @@ JointModel* RobotModel::buildRecursive(LinkModel* parent, const ::urdf::Link* ur
   link->setParentJointModel(joint);
 
   // recursively build child links (and joints)
-  for (const ::urdf::LinkSharedPtr& child_link : urdf_link->child_links) {
+  for (const urdf::LinkSharedPtr& child_link : urdf_link->child_links) {
     JointModel* jm = buildRecursive(link, child_link.get(), srdf_model);
     if (jm) {
       link->addChildJointModel(jm);
@@ -831,7 +831,7 @@ JointModel* RobotModel::buildRecursive(LinkModel* parent, const ::urdf::Link* ur
 namespace
 {
 // construct bounds for 1DOF joint
-inline VariableBounds jointBoundsFromURDF(const ::urdf::Joint* urdf_joint)
+inline VariableBounds jointBoundsFromURDF(const urdf::Joint* urdf_joint)
 {
   VariableBounds b;
   if (urdf_joint->safety) {
@@ -863,7 +863,7 @@ inline VariableBounds jointBoundsFromURDF(const ::urdf::Joint* urdf_joint)
 }
 }  // namespace
 
-JointModel* RobotModel::constructJointModel(const ::urdf::Link* child_link, const srdf::Model& srdf_model)
+JointModel* RobotModel::constructJointModel(const urdf::Link* child_link, const srdf::Model& srdf_model)
 {
   JointModel* new_joint_model = nullptr;
   auto parent_joint = child_link->parent_joint ? child_link->parent_joint.get() : nullptr;
@@ -875,33 +875,33 @@ JointModel* RobotModel::constructJointModel(const ::urdf::Link* child_link, cons
   // if parent_joint exists, must be the root link transform
   if (parent_joint) {
     switch (parent_joint->type) {
-      case ::urdf::Joint::REVOLUTE: {
+      case urdf::Joint::REVOLUTE: {
         RevoluteJointModel* j = new RevoluteJointModel(parent_joint->name, joint_index, first_variable_index);
         j->setVariableBounds(j->getName(), jointBoundsFromURDF(parent_joint));
         j->setContinuous(false);
         j->setAxis(Eigen::Vector3d(parent_joint->axis.x, parent_joint->axis.y, parent_joint->axis.z));
         new_joint_model = j;
       } break;
-      case ::urdf::Joint::CONTINUOUS: {
+      case urdf::Joint::CONTINUOUS: {
         RevoluteJointModel* j = new RevoluteJointModel(parent_joint->name, joint_index, first_variable_index);
         j->setVariableBounds(j->getName(), jointBoundsFromURDF(parent_joint));
         j->setContinuous(true);
         j->setAxis(Eigen::Vector3d(parent_joint->axis.x, parent_joint->axis.y, parent_joint->axis.z));
         new_joint_model = j;
       } break;
-      case ::urdf::Joint::PRISMATIC: {
+      case urdf::Joint::PRISMATIC: {
         PrismaticJointModel* j = new PrismaticJointModel(parent_joint->name, joint_index, first_variable_index);
         j->setVariableBounds(j->getName(), jointBoundsFromURDF(parent_joint));
         j->setAxis(Eigen::Vector3d(parent_joint->axis.x, parent_joint->axis.y, parent_joint->axis.z));
         new_joint_model = j;
       } break;
-      case ::urdf::Joint::FLOATING:
+      case urdf::Joint::FLOATING:
         new_joint_model = new FloatingJointModel(parent_joint->name, joint_index, first_variable_index);
         break;
-      case ::urdf::Joint::PLANAR:
+      case urdf::Joint::PLANAR:
         new_joint_model = new PlanarJointModel(parent_joint->name, joint_index, first_variable_index);
         break;
-      case ::urdf::Joint::FIXED:
+      case urdf::Joint::FIXED:
         new_joint_model = new FixedJointModel(parent_joint->name, joint_index, first_variable_index);
         break;
       default:
@@ -1072,7 +1072,7 @@ JointModel* RobotModel::constructJointModel(const ::urdf::Link* child_link, cons
 
 namespace
 {
-inline Eigen::Isometry3d urdfPose2Isometry3d(const ::urdf::Pose& pose)
+inline Eigen::Isometry3d urdfPose2Isometry3d(const urdf::Pose& pose)
 {
   Eigen::Quaterniond q(pose.rotation.w, pose.rotation.x, pose.rotation.y, pose.rotation.z);
   Eigen::Isometry3d af(Eigen::Translation3d(pose.position.x, pose.position.y, pose.position.z) * q);
@@ -1080,19 +1080,19 @@ inline Eigen::Isometry3d urdfPose2Isometry3d(const ::urdf::Pose& pose)
 }
 }  // namespace
 
-LinkModel* RobotModel::constructLinkModel(const ::urdf::Link* urdf_link)
+LinkModel* RobotModel::constructLinkModel(const urdf::Link* urdf_link)
 {
   auto link_index = link_model_vector_.size();
   LinkModel* new_link_model = new LinkModel(urdf_link->name, link_index);
 
-  const std::vector<::urdf::CollisionSharedPtr>& col_array =
-    urdf_link->collision_array.empty() ? std::vector<::urdf::CollisionSharedPtr>(1, urdf_link->collision) :
+  const std::vector<urdf::CollisionSharedPtr>& col_array =
+    urdf_link->collision_array.empty() ? std::vector<urdf::CollisionSharedPtr>(1, urdf_link->collision) :
                                          urdf_link->collision_array;
 
   std::vector<shapes::ShapeConstPtr> shapes;
   EigenSTL::vector_Isometry3d poses;
 
-  for (const ::urdf::CollisionSharedPtr& col : col_array) {
+  for (const urdf::CollisionSharedPtr& col : col_array) {
     if (col && col->geometry) {
       shapes::ShapeConstPtr s = constructShape(col->geometry.get());
       if (s) {
@@ -1105,10 +1105,9 @@ LinkModel* RobotModel::constructLinkModel(const ::urdf::Link* urdf_link)
   // Should we warn that old (melodic) behaviour has changed, not copying visual to collision geometries anymore?
   bool warn_about_missing_collision = false;
   if (shapes.empty()) {
-    const auto& vis_array = urdf_link->visual_array.empty() ?
-                              std::vector<::urdf::VisualSharedPtr>{ urdf_link->visual } :
-                              urdf_link->visual_array;
-    for (const ::urdf::VisualSharedPtr& vis : vis_array) {
+    const auto& vis_array = urdf_link->visual_array.empty() ? std::vector<urdf::VisualSharedPtr>{ urdf_link->visual } :
+                                                              urdf_link->visual_array;
+    for (const urdf::VisualSharedPtr& vis : vis_array) {
       if (vis && vis->geometry) {
         warn_about_missing_collision = true;
       }
@@ -1127,8 +1126,8 @@ LinkModel* RobotModel::constructLinkModel(const ::urdf::Link* urdf_link)
 
   // figure out visual mesh (try visual urdf tag first, collision tag otherwise
   if (urdf_link->visual && urdf_link->visual->geometry) {
-    if (urdf_link->visual->geometry->type == ::urdf::Geometry::MESH) {
-      const ::urdf::Mesh* mesh = static_cast<const ::urdf::Mesh*>(urdf_link->visual->geometry.get());
+    if (urdf_link->visual->geometry->type == urdf::Geometry::MESH) {
+      const urdf::Mesh* mesh = static_cast<const urdf::Mesh*>(urdf_link->visual->geometry.get());
       if (!mesh->filename.empty()) {
         new_link_model->setVisualMesh(
           mesh->filename,
@@ -1138,8 +1137,8 @@ LinkModel* RobotModel::constructLinkModel(const ::urdf::Link* urdf_link)
     }
   }
   else if (urdf_link->collision && urdf_link->collision->geometry) {
-    if (urdf_link->collision->geometry->type == ::urdf::Geometry::MESH) {
-      const ::urdf::Mesh* mesh = static_cast<const ::urdf::Mesh*>(urdf_link->collision->geometry.get());
+    if (urdf_link->collision->geometry->type == urdf::Geometry::MESH) {
+      const urdf::Mesh* mesh = static_cast<const urdf::Mesh*>(urdf_link->collision->geometry.get());
       if (!mesh->filename.empty()) {
         new_link_model->setVisualMesh(
           mesh->filename,
@@ -1157,23 +1156,23 @@ LinkModel* RobotModel::constructLinkModel(const ::urdf::Link* urdf_link)
   return new_link_model;
 }
 
-shapes::ShapePtr RobotModel::constructShape(const ::urdf::Geometry* geom)
+shapes::ShapePtr RobotModel::constructShape(const urdf::Geometry* geom)
 {
   shapes::Shape* new_shape = nullptr;
   switch (geom->type) {
-    case ::urdf::Geometry::SPHERE:
-      new_shape = new shapes::Sphere(static_cast<const ::urdf::Sphere*>(geom)->radius);
+    case urdf::Geometry::SPHERE:
+      new_shape = new shapes::Sphere(static_cast<const urdf::Sphere*>(geom)->radius);
       break;
-    case ::urdf::Geometry::BOX: {
-      ::urdf::Vector3 dim = static_cast<const ::urdf::Box*>(geom)->dim;
+    case urdf::Geometry::BOX: {
+      urdf::Vector3 dim = static_cast<const urdf::Box*>(geom)->dim;
       new_shape = new shapes::Box(dim.x, dim.y, dim.z);
     } break;
-    case ::urdf::Geometry::CYLINDER:
+    case urdf::Geometry::CYLINDER:
       new_shape = new shapes::Cylinder(
-        static_cast<const ::urdf::Cylinder*>(geom)->radius, static_cast<const ::urdf::Cylinder*>(geom)->length);
+        static_cast<const urdf::Cylinder*>(geom)->radius, static_cast<const urdf::Cylinder*>(geom)->length);
       break;
-    case ::urdf::Geometry::MESH: {
-      const ::urdf::Mesh* mesh = static_cast<const ::urdf::Mesh*>(geom);
+    case urdf::Geometry::MESH: {
+      const urdf::Mesh* mesh = static_cast<const urdf::Mesh*>(geom);
       if (!mesh->filename.empty()) {
         Eigen::Vector3d scale(mesh->scale.x, mesh->scale.y, mesh->scale.z);
         shapes::Mesh* m = shapes::createMeshFromResource(mesh->filename, scale);
