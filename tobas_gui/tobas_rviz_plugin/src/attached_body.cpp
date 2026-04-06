@@ -73,7 +73,7 @@ void AttachedBody::computeTransform(const Eigen::Isometry3d& parent_link_global_
   global_pose_ = parent_link_global_transform * pose_;
 
   // update collision body transforms
-  for (std::size_t i = 0; i < global_collision_body_transforms_.size(); ++i) {
+  for (size_t i = 0; i < global_collision_body_transforms_.size(); ++i) {
     global_collision_body_transforms_[i] = global_pose_ * shape_poses_[i];  // valid isometry
   }
 

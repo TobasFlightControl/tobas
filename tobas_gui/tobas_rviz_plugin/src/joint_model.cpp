@@ -64,7 +64,7 @@ bool JointModel::harmonizePosition(double* /*values*/, const Bounds& /*other_bou
 bool JointModel::enforceVelocityBounds(double* values, const Bounds& other_bounds) const
 {
   bool change = false;
-  for (std::size_t i = 0; i < other_bounds.size(); ++i) {
+  for (size_t i = 0; i < other_bounds.size(); ++i) {
     if (other_bounds[i].max_velocity_ < values[i]) {
       values[i] = other_bounds[i].max_velocity_;
       change = true;
@@ -79,7 +79,7 @@ bool JointModel::enforceVelocityBounds(double* values, const Bounds& other_bound
 
 bool JointModel::satisfiesVelocityBounds(const double* values, const Bounds& other_bounds, double margin) const
 {
-  for (std::size_t i = 0; i < other_bounds.size(); ++i) {
+  for (size_t i = 0; i < other_bounds.size(); ++i) {
     if (!other_bounds[i].velocity_bounded_) {
       continue;
     }
@@ -95,7 +95,7 @@ bool JointModel::satisfiesVelocityBounds(const double* values, const Bounds& oth
 
 bool JointModel::satisfiesAccelerationBounds(const double* values, const Bounds& other_bounds, double margin) const
 {
-  for (std::size_t i = 0; i < other_bounds.size(); ++i) {
+  for (size_t i = 0; i < other_bounds.size(); ++i) {
     if (!other_bounds[i].acceleration_bounded_) {
       continue;
     }
@@ -111,7 +111,7 @@ bool JointModel::satisfiesAccelerationBounds(const double* values, const Bounds&
 
 bool JointModel::satisfiesJerkBounds(const double* values, const Bounds& other_bounds, double margin) const
 {
-  for (std::size_t i = 0; i < other_bounds.size(); ++i) {
+  for (size_t i = 0; i < other_bounds.size(); ++i) {
     if (!other_bounds[i].jerk_bounded_) {
       continue;
     }
@@ -138,7 +138,7 @@ void JointModel::setVariableBounds(const std::string& variable, const VariableBo
 
 void JointModel::setVariableBounds(const std::vector<tobas_visualization_msgs::msg::JointLimits>& jlim)
 {
-  for (std::size_t j = 0; j < variable_names_.size(); ++j) {
+  for (size_t j = 0; j < variable_names_.size(); ++j) {
     for (const tobas_visualization_msgs::msg::JointLimits& joint_limit : jlim) {
       if (joint_limit.joint_name == variable_names_[j]) {
         variable_bounds_[j].position_bounded_ = joint_limit.has_position_limits;
@@ -171,7 +171,7 @@ void JointModel::setVariableBounds(const std::vector<tobas_visualization_msgs::m
 void JointModel::computeVariableBoundsMsg()
 {
   variable_bounds_msg_.clear();
-  for (std::size_t i = 0; i < variable_bounds_.size(); ++i) {
+  for (size_t i = 0; i < variable_bounds_.size(); ++i) {
     tobas_visualization_msgs::msg::JointLimits lim;
     lim.joint_name = variable_names_[i];
     lim.has_position_limits = variable_bounds_[i].position_bounded_;

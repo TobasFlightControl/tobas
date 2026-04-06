@@ -258,7 +258,7 @@ void RobotState::setToRandomPositionsNearBy(
 {
   const std::vector<const JointModel*>& joints = group->getActiveJointModels();
   assert(distances.size() == joints.size());
-  for (std::size_t i = 0; i < joints.size(); ++i) {
+  for (size_t i = 0; i < joints.size(); ++i) {
     const int idx = joints[i]->getFirstVariableIndex();
     joints[i]->getVariableRandomPositionsNearBy(
       rng, &position_.at(joints[i]->getFirstVariableIndex()), &seed.position_.at(idx), distances[i]);
@@ -357,7 +357,7 @@ void RobotState::setVariablePositions(
   const std::vector<std::string>& variable_names,
   const std::vector<double>& variable_position)
 {
-  for (std::size_t i = 0; i < variable_names.size(); ++i) {
+  for (size_t i = 0; i < variable_names.size(); ++i) {
     const int index = robot_model_->getVariableIndex(variable_names[i]);
     position_[index] = variable_position[i];
     const JointModel* jm = robot_model_->getJointOfVariable(index);
@@ -388,7 +388,7 @@ void RobotState::setVariableVelocities(
 {
   markVelocity();
   assert(variable_names.size() == variable_velocity.size());
-  for (std::size_t i = 0; i < variable_names.size(); ++i) {
+  for (size_t i = 0; i < variable_names.size(); ++i) {
     velocity_[robot_model_->getVariableIndex(variable_names[i])] = variable_velocity[i];
   }
 }
@@ -415,7 +415,7 @@ void RobotState::setVariableAccelerations(
 {
   markAcceleration();
   assert(variable_names.size() == variable_acceleration.size());
-  for (std::size_t i = 0; i < variable_names.size(); ++i) {
+  for (size_t i = 0; i < variable_names.size(); ++i) {
     effort_or_acceleration_[robot_model_->getVariableIndex(variable_names[i])] = variable_acceleration[i];
   }
 }
@@ -442,7 +442,7 @@ void RobotState::setVariableEffort(
 {
   markEffort();
   assert(variable_names.size() == variable_effort.size());
-  for (std::size_t i = 0; i < variable_names.size(); ++i) {
+  for (size_t i = 0; i < variable_names.size(); ++i) {
     effort_or_acceleration_[robot_model_->getVariableIndex(variable_names[i])] = variable_effort[i];
   }
 }
@@ -539,7 +539,7 @@ void RobotState::setJointGroupPositions(const JointModelGroup* group, const doub
     memcpy(&position_.at(il[0]), gstate, group->getVariableCount() * sizeof(double));
   }
   else {
-    for (std::size_t i = 0; i < il.size(); ++i) {
+    for (size_t i = 0; i < il.size(); ++i) {
       position_[il[i]] = gstate[i];
     }
   }
@@ -549,7 +549,7 @@ void RobotState::setJointGroupPositions(const JointModelGroup* group, const doub
 void RobotState::setJointGroupPositions(const JointModelGroup* group, const Eigen::VectorXd& values)
 {
   const std::vector<int>& il = group->getVariableIndexList();
-  for (std::size_t i = 0; i < il.size(); ++i) {
+  for (size_t i = 0; i < il.size(); ++i) {
     position_[il[i]] = values(i);
   }
   updateMimicJoints(group);
@@ -558,7 +558,7 @@ void RobotState::setJointGroupPositions(const JointModelGroup* group, const Eige
 void RobotState::setJointGroupActivePositions(const JointModelGroup* group, const std::vector<double>& gstate)
 {
   assert(gstate.size() == group->getActiveVariableCount());
-  std::size_t i = 0;
+  size_t i = 0;
   for (const JointModel* jm : group->getActiveJointModels()) {
     setJointPositions(jm, &gstate[i]);
     i += jm->getVariableCount();
@@ -569,7 +569,7 @@ void RobotState::setJointGroupActivePositions(const JointModelGroup* group, cons
 void RobotState::setJointGroupActivePositions(const JointModelGroup* group, const Eigen::VectorXd& values)
 {
   assert(values.size() == group->getActiveVariableCount());
-  std::size_t i = 0;
+  size_t i = 0;
   for (const JointModel* jm : group->getActiveJointModels()) {
     setJointPositions(jm, &values(i));
     i += jm->getVariableCount();
@@ -584,7 +584,7 @@ void RobotState::copyJointGroupPositions(const JointModelGroup* group, double* g
     memcpy(gstate, &position_.at(il[0]), group->getVariableCount() * sizeof(double));
   }
   else {
-    for (std::size_t i = 0; i < il.size(); ++i) {
+    for (size_t i = 0; i < il.size(); ++i) {
       gstate[i] = position_[il[i]];
     }
   }
@@ -594,7 +594,7 @@ void RobotState::copyJointGroupPositions(const JointModelGroup* group, Eigen::Ve
 {
   const std::vector<int>& il = group->getVariableIndexList();
   values.resize(il.size());
-  for (std::size_t i = 0; i < il.size(); ++i) {
+  for (size_t i = 0; i < il.size(); ++i) {
     values(i) = position_[il[i]];
   }
 }
@@ -607,7 +607,7 @@ void RobotState::setJointGroupVelocities(const JointModelGroup* group, const dou
     memcpy(&velocity_.at(il[0]), gstate, group->getVariableCount() * sizeof(double));
   }
   else {
-    for (std::size_t i = 0; i < il.size(); ++i) {
+    for (size_t i = 0; i < il.size(); ++i) {
       velocity_[il[i]] = gstate[i];
     }
   }
@@ -617,7 +617,7 @@ void RobotState::setJointGroupVelocities(const JointModelGroup* group, const Eig
 {
   markVelocity();
   const std::vector<int>& il = group->getVariableIndexList();
-  for (std::size_t i = 0; i < il.size(); ++i) {
+  for (size_t i = 0; i < il.size(); ++i) {
     velocity_[il[i]] = values(i);
   }
 }
@@ -629,7 +629,7 @@ void RobotState::copyJointGroupVelocities(const JointModelGroup* group, double* 
     memcpy(gstate, &velocity_.at(il[0]), group->getVariableCount() * sizeof(double));
   }
   else {
-    for (std::size_t i = 0; i < il.size(); ++i) {
+    for (size_t i = 0; i < il.size(); ++i) {
       gstate[i] = velocity_[il[i]];
     }
   }
@@ -639,7 +639,7 @@ void RobotState::copyJointGroupVelocities(const JointModelGroup* group, Eigen::V
 {
   const std::vector<int>& il = group->getVariableIndexList();
   values.resize(il.size());
-  for (std::size_t i = 0; i < il.size(); ++i) {
+  for (size_t i = 0; i < il.size(); ++i) {
     values(i) = velocity_[il[i]];
   }
 }
@@ -652,7 +652,7 @@ void RobotState::setJointGroupAccelerations(const JointModelGroup* group, const 
     memcpy(&effort_or_acceleration_.at(il[0]), gstate, group->getVariableCount() * sizeof(double));
   }
   else {
-    for (std::size_t i = 0; i < il.size(); ++i) {
+    for (size_t i = 0; i < il.size(); ++i) {
       effort_or_acceleration_[il[i]] = gstate[i];
     }
   }
@@ -662,7 +662,7 @@ void RobotState::setJointGroupAccelerations(const JointModelGroup* group, const 
 {
   markAcceleration();
   const std::vector<int>& il = group->getVariableIndexList();
-  for (std::size_t i = 0; i < il.size(); ++i) {
+  for (size_t i = 0; i < il.size(); ++i) {
     effort_or_acceleration_[il[i]] = values(i);
   }
 }
@@ -674,7 +674,7 @@ void RobotState::copyJointGroupAccelerations(const JointModelGroup* group, doubl
     memcpy(gstate, &effort_or_acceleration_.at(il[0]), group->getVariableCount() * sizeof(double));
   }
   else {
-    for (std::size_t i = 0; i < il.size(); ++i) {
+    for (size_t i = 0; i < il.size(); ++i) {
       gstate[i] = effort_or_acceleration_[il[i]];
     }
   }
@@ -684,7 +684,7 @@ void RobotState::copyJointGroupAccelerations(const JointModelGroup* group, Eigen
 {
   const std::vector<int>& il = group->getVariableIndexList();
   values.resize(il.size());
-  for (std::size_t i = 0; i < il.size(); ++i) {
+  for (size_t i = 0; i < il.size(); ++i) {
     values(i) = effort_or_acceleration_[il[i]];
   }
 }
@@ -716,7 +716,7 @@ void RobotState::updateCollisionBodyTransforms()
       const std::vector<int>& origin_transforms_id = link->areCollisionOriginTransformsIdentity();
       const int index_co = link->getFirstCollisionBodyTransformIndex();
       const int index_l = link->getLinkIndex();
-      for (std::size_t j = 0, end = origin_transforms.size(); j != end; ++j) {
+      for (size_t j = 0, end = origin_transforms.size(); j != end; ++j) {
         if (origin_transforms_id[j]) {
           global_collision_body_transforms_[index_co + j] = global_link_transforms_[index_l];
         }
@@ -1005,7 +1005,7 @@ RobotState::getMinDistanceToPositionBounds(const std::vector<const JointModel*>&
     const double* joint_values = getJointPositions(joint);
     const JointModel::Bounds& bounds = joint->getVariableBounds();
     std::vector<double> lower_bounds(bounds.size()), upper_bounds(bounds.size());
-    for (std::size_t j = 0; j < bounds.size(); ++j) {
+    for (size_t j = 0; j < bounds.size(); ++j) {
       lower_bounds[j] = bounds[j].min_position_;
       upper_bounds[j] = bounds[j].max_position_;
     }
@@ -1031,7 +1031,7 @@ bool RobotState::isValidVelocityMove(const RobotState& other, const JointModelGr
     const std::vector<VariableBounds>& bounds = joint_id->getVariableBounds();
 
     // Check velocity for each joint variable
-    for (std::size_t var_id = 0; var_id < joint_id->getVariableCount(); ++var_id) {
+    for (size_t var_id = 0; var_id < joint_id->getVariableCount(); ++var_id) {
       const double dtheta = std::abs(position_.at(idx + var_id) - *(other.getVariablePositions() + idx + var_id));
 
       if (dtheta > dt * bounds[var_id].max_velocity_) {
@@ -1322,10 +1322,10 @@ void RobotState::getRobotMarkers(
   const rclcpp::Duration& dur,
   bool include_attached) const
 {
-  std::size_t cur_num = arr.markers.size();
+  size_t cur_num = arr.markers.size();
   getRobotMarkers(arr, link_names, include_attached);
   uint32_t id = cur_num;
-  for (std::size_t i = cur_num; i < arr.markers.size(); ++i, ++id) {
+  for (size_t i = cur_num; i < arr.markers.size(); ++i, ++id) {
     arr.markers[i].ns = ns;
     arr.markers[i].id = id;
     arr.markers[i].lifetime = dur;
@@ -1348,7 +1348,7 @@ void RobotState::getRobotMarkers(
     if (include_attached) {
       for (const auto& it : attached_body_map_) {
         if (it.second->getAttachedLink() == link_model) {
-          for (std::size_t j = 0; j < it.second->getShapes().size(); ++j) {
+          for (size_t j = 0; j < it.second->getShapes().size(); ++j) {
             visualization_msgs::msg::Marker att_mark;
             att_mark.header.frame_id = robot_model_->getModelFrame();
             att_mark.header.stamp = clock.now();
@@ -1369,7 +1369,7 @@ void RobotState::getRobotMarkers(
       continue;
     }
 
-    for (std::size_t j = 0; j < link_model->getShapes().size(); ++j) {
+    for (size_t j = 0; j < link_model->getShapes().size(); ++j) {
       visualization_msgs::msg::Marker mark;
       mark.header.frame_id = robot_model_->getModelFrame();
       mark.header.stamp = clock.now();
@@ -1572,12 +1572,12 @@ void RobotState::computeVariableVelocity(
   Eigen::VectorXd sinv = s;
   static const double PINVTOLER = std::numeric_limits<double>::epsilon();
   double maxsv = 0.;
-  for (std::size_t i = 0; i < static_cast<std::size_t>(s.rows()); ++i) {
+  for (size_t i = 0; i < static_cast<size_t>(s.rows()); ++i) {
     if (std::abs(s(i)) > maxsv) {
       maxsv = std::abs(s(i));
     }
   }
-  for (std::size_t i = 0; i < static_cast<std::size_t>(s.rows()); ++i) {
+  for (size_t i = 0; i < static_cast<size_t>(s.rows()); ++i) {
     // Those singular values smaller than a percentage of the maximum singular value are removed
     if (std::abs(s(i)) > maxsv * PINVTOLER) {
       sinv(i) = 1. / s(i);
@@ -1687,7 +1687,7 @@ bool ikCallbackFnAdapter(
 {
   const std::vector<size_t>& bij = group->getKinematicsSolverJointBijection();
   std::vector<double> solution(bij.size());
-  for (std::size_t i = 0; i < bij.size(); ++i) {
+  for (size_t i = 0; i < bij.size(); ++i) {
     solution[bij[i]] = ik_sol[i];
   }
   if (constraint(state, group, &solution[0])) {
@@ -1830,7 +1830,7 @@ bool RobotState::setFromIK(
   std::vector<geometry_msgs::msg::Pose> ik_queries(solver_tip_frames.size());
 
   // Bring each pose to the frame of the IK solver
-  for (std::size_t i = 0; i < poses_in.size(); ++i) {
+  for (size_t i = 0; i < poses_in.size(); ++i) {
     // Make non-const
     Eigen::Isometry3d pose = poses_in[i];
     std::string pose_frame = tips_in[i];
@@ -1848,7 +1848,7 @@ bool RobotState::setFromIK(
     // try all of the solver's possible tip frames to see if they uniquely align with any of our passed in pose tip
     // frames
     bool found_valid_frame = false;
-    std::size_t solver_tip_id;  // our current index
+    size_t solver_tip_id;  // our current index
     for (solver_tip_id = 0; solver_tip_id < solver_tip_frames.size(); ++solver_tip_id) {
       // Check if this tip frame is already accounted for
       if (tip_frames_used[solver_tip_id]) {
@@ -1914,7 +1914,7 @@ bool RobotState::setFromIK(
   }  // end for poses_in
 
   // Create poses for all remaining tips a solver expects, even if not passed into this function
-  for (std::size_t solver_tip_id = 0; solver_tip_id < solver_tip_frames.size(); ++solver_tip_id) {
+  for (size_t solver_tip_id = 0; solver_tip_id < solver_tip_frames.size(); ++solver_tip_id) {
     // Check if this tip frame is already accounted for
     if (tip_frames_used[solver_tip_id]) {
       continue;  // already has a pose
@@ -1969,7 +1969,7 @@ bool RobotState::setFromIK(
   std::vector<double> initial_values;
   copyJointGroupPositions(jmg, initial_values);
   std::vector<double> seed(bij.size());
-  for (std::size_t i = 0; i < bij.size(); ++i) {
+  for (size_t i = 0; i < bij.size(); ++i) {
     seed[i] = initial_values[bij[i]];
   }
 
@@ -1980,7 +1980,7 @@ bool RobotState::setFromIK(
   if (solver->searchPositionIK(
         ik_queries, seed, timeout, consistency_limits, ik_sol, ik_callback_fn, cost_function, error, options, this)) {
     std::vector<double> solution(bij.size());
-    for (std::size_t i = 0; i < bij.size(); ++i) {
+    for (size_t i = 0; i < bij.size(); ++i) {
       solution[bij[i]] = ik_sol[i];
     }
     setJointGroupPositions(jmg, solution);
@@ -2028,7 +2028,7 @@ bool RobotState::setFromIKSubgroups(
     return false;
   }
 
-  for (std::size_t i = 0; i < consistency_limits.size(); ++i) {
+  for (size_t i = 0; i < consistency_limits.size(); ++i) {
     if (consistency_limits[i].size() != sub_groups[i]->getVariableCount()) {
       RCLCPP_ERROR(
         getLogger(),
@@ -2042,7 +2042,7 @@ bool RobotState::setFromIKSubgroups(
 
   // Populate list of kin solvers for the various subgroups
   std::vector<KinematicsBaseConstPtr> solvers;
-  for (std::size_t i = 0; i < poses_in.size(); ++i) {
+  for (size_t i = 0; i < poses_in.size(); ++i) {
     KinematicsBaseConstPtr solver = sub_groups[i]->getSolverInstance();
     if (!solver) {
       RCLCPP_ERROR(getLogger(), "Could not find solver for group '%s'", sub_groups[i]->getName().c_str());
@@ -2056,7 +2056,7 @@ bool RobotState::setFromIKSubgroups(
   std::vector<std::string> pose_frames = tips_in;
 
   // Each each pose's tip frame naming
-  for (std::size_t i = 0; i < poses_in.size(); ++i) {
+  for (size_t i = 0; i < poses_in.size(); ++i) {
     ASSERT_ISOMETRY(transformed_poses[i])  // unsanitized input, could contain a non-isometry
     Eigen::Isometry3d& pose = transformed_poses[i];
     std::string& pose_frame = pose_frames[i];
@@ -2119,7 +2119,7 @@ bool RobotState::setFromIKSubgroups(
     { ikCallbackFnAdapter(this, jmg, constraint, pose, joints, error_code); };
   }
 
-  for (std::size_t i = 0; i < transformed_poses.size(); ++i) {
+  for (size_t i = 0; i < transformed_poses.size(); ++i) {
     Eigen::Quaterniond quat(transformed_poses[i].linear());
     Eigen::Vector3d point(transformed_poses[i].translation());
     ik_queries[i].position.x = point.x();
@@ -2145,14 +2145,14 @@ bool RobotState::setFromIKSubgroups(
     ++attempts;
     RCLCPP_DEBUG(getLogger(), "IK attempt: %d", attempts);
     bool found_solution = true;
-    for (std::size_t sg = 0; sg < sub_groups.size(); ++sg) {
+    for (size_t sg = 0; sg < sub_groups.size(); ++sg) {
       const std::vector<size_t>& bij = sub_groups[sg]->getKinematicsSolverJointBijection();
       std::vector<double> seed(bij.size());
       // the first seed is the initial state
       if (first_seed) {
         std::vector<double> initial_values;
         copyJointGroupPositions(sub_groups[sg], initial_values);
-        for (std::size_t i = 0; i < bij.size(); ++i) {
+        for (size_t i = 0; i < bij.size(); ++i) {
           seed[i] = initial_values[bij[i]];
         }
       }
@@ -2161,7 +2161,7 @@ bool RobotState::setFromIKSubgroups(
         random_numbers::RandomNumberGenerator& rng = getRandomNumberGenerator();
         std::vector<double> random_values;
         sub_groups[sg]->getVariableRandomPositions(rng, random_values);
-        for (std::size_t i = 0; i < bij.size(); ++i) {
+        for (size_t i = 0; i < bij.size(); ++i) {
           seed[i] = random_values[bij[i]];
         }
       }
@@ -2173,7 +2173,7 @@ bool RobotState::setFromIKSubgroups(
       if (solvers[sg]->searchPositionIK(
             ik_queries[sg], seed, (timeout - elapsed) / sub_groups.size(), climits, ik_sol, error)) {
         std::vector<double> solution(bij.size());
-        for (std::size_t i = 0; i < bij.size(); ++i) {
+        for (size_t i = 0; i < bij.size(); ++i) {
           solution[bij[i]] = ik_sol[i];
         }
         setJointGroupPositions(sub_groups[sg], solution);
@@ -2212,7 +2212,7 @@ void RobotState::computeAABB(std::vector<double>& aabb) const
   for (const auto& it : attached_body_map_) {
     const EigenSTL::vector_Isometry3d& transforms = it.second->getGlobalCollisionBodyTransforms();
     const std::vector<shapes::ShapeConstPtr>& shapes = it.second->getShapes();
-    for (std::size_t i = 0; i < transforms.size(); ++i) {
+    for (size_t i = 0; i < transforms.size(); ++i) {
       Eigen::Vector3d extents = shapes::computeShapeExtents(shapes[i].get());
       bounding_box.extendWithTransformedBox(transforms[i], extents);
     }
@@ -2231,7 +2231,7 @@ void RobotState::computeAABB(std::vector<double>& aabb) const
 void RobotState::printStatePositions(std::ostream& out) const
 {
   const std::vector<std::string>& nm = robot_model_->getVariableNames();
-  for (std::size_t i = 0; i < nm.size(); ++i) {
+  for (size_t i = 0; i < nm.size(); ++i) {
     out << nm[i] << '=' << position_[i] << '\n';
   }
 }
@@ -2308,10 +2308,10 @@ void RobotState::printStateInfo(std::ostream& out) const
 {
   out << "Robot State @" << this << '\n';
 
-  std::size_t n = robot_model_->getVariableCount();
+  size_t n = robot_model_->getVariableCount();
   if (!position_.empty()) {
     out << "  * Position: ";
-    for (std::size_t i = 0; i < n; ++i) {
+    for (size_t i = 0; i < n; ++i) {
       out << position_[i] << ' ';
     }
     out << '\n';
@@ -2322,7 +2322,7 @@ void RobotState::printStateInfo(std::ostream& out) const
 
   if (!velocity_.empty()) {
     out << "  * Velocity: ";
-    for (std::size_t i = 0; i < n; ++i) {
+    for (size_t i = 0; i < n; ++i) {
       out << velocity_[i] << ' ';
     }
     out << '\n';
@@ -2333,7 +2333,7 @@ void RobotState::printStateInfo(std::ostream& out) const
 
   if (has_acceleration_) {
     out << "  * Acceleration: ";
-    for (std::size_t i = 0; i < n; ++i) {
+    for (size_t i = 0; i < n; ++i) {
       out << effort_or_acceleration_[i] << ' ';
     }
     out << '\n';
@@ -2423,7 +2423,7 @@ void RobotState::getStateTreeJointString(std::ostream& ss, const JointModel* jm,
 
   pfx = pfx0 + (last ? "   " : "|  ");
 
-  for (std::size_t i = 0; i < jm->getVariableCount(); ++i) {
+  for (size_t i = 0; i < jm->getVariableCount(); ++i) {
     ss.precision(3);
     ss << pfx << jm->getVariableNames()[i] << std::setw(12) << position_[jm->getFirstVariableIndex() + i] << '\n';
   }

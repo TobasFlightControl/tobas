@@ -67,7 +67,7 @@ public:
   }
 
   /* Get the number of variables that make up this state. */
-  std::size_t getVariableCount() const
+  size_t getVariableCount() const
   {
     return robot_model_->getVariableCount();
   }
@@ -1291,23 +1291,23 @@ public:
    * @param link_name: name of link to lookup
    * @param index: specify which collision body to lookup, if more than one exists
    */
-  const Eigen::Isometry3d& getCollisionBodyTransform(const std::string& link_name, std::size_t index)
+  const Eigen::Isometry3d& getCollisionBodyTransform(const std::string& link_name, size_t index)
   {
     return getCollisionBodyTransform(robot_model_->getLinkModel(link_name), index);
   }
 
-  const Eigen::Isometry3d& getCollisionBodyTransform(const LinkModel* link, std::size_t index)
+  const Eigen::Isometry3d& getCollisionBodyTransform(const LinkModel* link, size_t index)
   {
     updateCollisionBodyTransforms();
     return global_collision_body_transforms_[link->getFirstCollisionBodyTransformIndex() + index];
   }
 
-  const Eigen::Isometry3d& getCollisionBodyTransform(const std::string& link_name, std::size_t index) const
+  const Eigen::Isometry3d& getCollisionBodyTransform(const std::string& link_name, size_t index) const
   {
     return getCollisionBodyTransform(robot_model_->getLinkModel(link_name), index);
   }
 
-  const Eigen::Isometry3d& getCollisionBodyTransform(const LinkModel* link, std::size_t index) const
+  const Eigen::Isometry3d& getCollisionBodyTransform(const LinkModel* link, size_t index) const
   {
     assert(checkCollisionTransforms());
     return global_collision_body_transforms_[link->getFirstCollisionBodyTransformIndex() + index];

@@ -17,7 +17,7 @@ OcTreeRender::OcTreeRender(
   const std::shared_ptr<const octomap::OcTree>& octree,
   OctreeVoxelRenderMode octree_voxel_rendering,
   OctreeVoxelColorMode octree_color_mode,
-  std::size_t max_octree_depth,
+  size_t max_octree_depth,
   Ogre::SceneNode* parent_node)
   : octree_(octree), colorFactor_(0.8)
 {
@@ -25,14 +25,14 @@ OcTreeRender::OcTreeRender(
     octree_depth_ = octree->getTreeDepth();
   }
   else {
-    octree_depth_ = std::min(max_octree_depth, static_cast<std::size_t>(octree->getTreeDepth()));
+    octree_depth_ = std::min(max_octree_depth, static_cast<size_t>(octree->getTreeDepth()));
   }
 
   scene_node_ = parent_node->createChildSceneNode();
 
   cloud_.resize(octree_depth_);
 
-  for (std::size_t i = 0; i < octree_depth_; ++i) {
+  for (size_t i = 0; i < octree_depth_; ++i) {
     std::stringstream sname;
     sname << "PointCloud Nr." << i;
     cloud_[i] = new rviz_rendering::PointCloud();
@@ -48,7 +48,7 @@ OcTreeRender::~OcTreeRender()
 {
   scene_node_->detachAllObjects();
 
-  for (std::size_t i = 0; i < octree_depth_; ++i) {
+  for (size_t i = 0; i < octree_depth_; ++i) {
     delete cloud_[i];
   }
 }
@@ -189,10 +189,10 @@ void OcTreeRender::octreeDecoding(
         double cell_probability;
 
         switch (octree_color_mode) {
-          case OCTOMAP_Z_AXIS_COLOR:
+          case kZAxis:
             setColor(new_point.position.z, min_z, max_z, colorFactor_, &new_point);
             break;
-          case OCTOMAP_PROBABLILTY_COLOR:
+          case kProbability:
             cell_probability = it->getOccupancy();
             new_point.setColor((1.0f - cell_probability), cell_probability, 0.);
             break;

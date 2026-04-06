@@ -177,7 +177,7 @@ public:
     return joints_of_variable_[getVariableIndex(variable)];
   }
 
-  std::size_t getJointModelCount() const
+  size_t getJointModelCount() const
   {
     return joint_model_vector_.size();
   }
@@ -255,12 +255,12 @@ public:
     return link_model_names_with_collision_geometry_vector_;
   }
 
-  std::size_t getLinkModelCount() const
+  size_t getLinkModelCount() const
   {
     return link_model_vector_.size();
   }
 
-  std::size_t getLinkGeometryCount() const
+  size_t getLinkGeometryCount() const
   {
     return link_geometry_count_;
   }
@@ -369,7 +369,7 @@ public:
   }
 
   /* Get the number of variables that describe this model */
-  std::size_t getVariableCount() const
+  size_t getVariableCount() const
   {
     return variable_count_;
   }
@@ -467,7 +467,7 @@ protected:
   std::vector<std::string> link_model_names_with_collision_geometry_vector_;
 
   /* Total number of geometric shapes in this model */
-  std::size_t link_geometry_count_;
+  size_t link_geometry_count_;
 
   // JOINTS
 
@@ -520,7 +520,7 @@ protected:
   std::vector<std::string> variable_names_;
 
   /* Get the number of variables necessary to describe this model */
-  std::size_t variable_count_;
+  size_t variable_count_;
 
   /* The state includes all the joint variables that make up the joints the state consists of.
    * This map gives the position in the state vector of the group for each of these variables.

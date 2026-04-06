@@ -73,7 +73,7 @@ void RobotStateVisualization::update(const RobotStateConstPtr& robot_state)
     }
     const auto& ab_t = attached_body->getShapePosesInLinkFrame();
     const auto& ab_shapes = attached_body->getShapes();
-    for (std::size_t j = 0; j < ab_shapes.size(); ++j) {
+    for (size_t j = 0; j < ab_shapes.size(); ++j) {
       render_shapes_->renderShape(
         link->getVisualNode(),
         ab_shapes[j].get(),

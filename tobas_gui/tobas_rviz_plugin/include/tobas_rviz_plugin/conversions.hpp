@@ -79,7 +79,7 @@ void robotStateToJointStateMsg(const RobotState& state, sensor_msgs::msg::JointS
  */
 bool jointTrajPointToRobotState(
   const trajectory_msgs::msg::JointTrajectory& trajectory,
-  std::size_t point_id,
+  size_t point_id,
   RobotState& state);
 
 /**

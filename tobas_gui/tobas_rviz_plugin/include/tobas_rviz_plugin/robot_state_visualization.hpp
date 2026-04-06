@@ -46,8 +46,8 @@ private:
   std::shared_ptr<RenderShapes> render_shapes_;
   Ogre::ColourValue color_;
 
-  OctreeVoxelRenderMode octree_voxel_render_mode_ = OCTOMAP_OCCUPIED_VOXELS;
-  OctreeVoxelColorMode octree_voxel_color_mode_ = OCTOMAP_Z_AXIS_COLOR;
+  OctreeVoxelRenderMode octree_voxel_render_mode_ = kOccupied;
+  OctreeVoxelColorMode octree_voxel_color_mode_ = kZAxis;
 
   bool visible_ = true;
   bool visual_visible_ = true;

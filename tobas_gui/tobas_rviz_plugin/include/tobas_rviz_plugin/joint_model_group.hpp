@@ -589,8 +589,8 @@ public:
     double dt) const;
 
   /* Check that the time to move between two waypoints is sufficient given velocity limits */
-  bool isValidVelocityMove(const double* from_joint_pose, const double* to_joint_pose, std::size_t array_size, double dt)
-    const;
+  bool
+  isValidVelocityMove(const double* from_joint_pose, const double* to_joint_pose, size_t array_size, double dt) const;
 
   /* Computes the indices of joint variables given a vector of joint names to look up */
   bool

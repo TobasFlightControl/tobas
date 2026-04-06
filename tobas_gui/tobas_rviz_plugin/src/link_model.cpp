@@ -48,7 +48,7 @@ void LinkModel::setGeometry(const std::vector<shapes::ShapeConstPtr>& shapes, co
 
   AABB aabb;
 
-  for (std::size_t i = 0; i < shapes_.size(); ++i) {
+  for (size_t i = 0; i < shapes_.size(); ++i) {
     ASSERT_ISOMETRY(collision_origin_transform_[i])  // unsanitized input, could contain a non-isometry
     collision_origin_transform_is_identity_[i] =
       (collision_origin_transform_[i].linear().isIdentity() &&

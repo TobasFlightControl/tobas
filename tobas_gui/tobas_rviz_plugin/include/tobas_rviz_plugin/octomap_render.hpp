@@ -20,15 +20,15 @@ namespace tobas
 {
 enum OctreeVoxelRenderMode
 {
-  OCTOMAP_FREE_VOXELS = 1,
-  OCTOMAP_OCCUPIED_VOXELS = 2,
-  OCTOMAP_DISABLED = 3
+  kFree = 1,
+  kOccupied = 2,
+  kDisabled = 3
 };
 
 enum OctreeVoxelColorMode
 {
-  OCTOMAP_Z_AXIS_COLOR,
-  OCTOMAP_PROBABLILTY_COLOR,
+  kZAxis,
+  kProbability,
 };
 
 class OcTreeRender
@@ -38,7 +38,7 @@ public:
     const std::shared_ptr<const octomap::OcTree>& octree,
     OctreeVoxelRenderMode octree_voxel_rendering,
     OctreeVoxelColorMode octree_color_mode,
-    std::size_t max_octree_depth,
+    size_t max_octree_depth,
     Ogre::SceneNode* parent_node);
   virtual ~OcTreeRender();
 
@@ -61,6 +61,6 @@ private:
   Ogre::SceneNode* scene_node_;
 
   double colorFactor_;
-  std::size_t octree_depth_;
+  size_t octree_depth_;
 };
 }  // namespace tobas

@@ -17,7 +17,7 @@ namespace tobas
 // Minimum amount of path waypoints recommended to reliably compute a joint-space increment average.
 // If relative jump detection is selected and the path is shorter than `MIN_STEPS_FOR_JUMP_THRESH`, a warning message
 // will be printed out.
-static const std::size_t MIN_STEPS_FOR_JUMP_THRESH = 10;
+static const size_t MIN_STEPS_FOR_JUMP_THRESH = 10;
 
 namespace
 {
@@ -127,7 +127,7 @@ std::optional<int> hasRelativeJointSpaceJump(
   std::vector<double> dist_vector;
   dist_vector.reserve(waypoints.size() - 1);
   double total_dist = 0.;
-  for (std::size_t i = 1; i < waypoints.size(); ++i) {
+  for (size_t i = 1; i < waypoints.size(); ++i) {
     const double dist_prev_point = waypoints[i]->distance(*waypoints[i - 1], &group);
     dist_vector.push_back(dist_prev_point);
     total_dist += dist_prev_point;
@@ -135,7 +135,7 @@ std::optional<int> hasRelativeJointSpaceJump(
 
   // compute the average distance between the states we looked at.
   double thres = jump_threshold_factor * (total_dist / static_cast<double>(dist_vector.size()));
-  for (std::size_t i = 0; i < dist_vector.size(); ++i) {
+  for (size_t i = 0; i < dist_vector.size(); ++i) {
     if (dist_vector[i] > thres) {
       return i + 1;
     }
@@ -154,7 +154,7 @@ std::optional<int> hasAbsoluteJointSpaceJump(
   const bool check_prismatic = prismatic_threshold > 0.;
 
   const std::vector<const JointModel*>& joints = group.getActiveJointModels();
-  for (std::size_t i = 1; i < waypoints.size(); ++i) {
+  for (size_t i = 1; i < waypoints.size(); ++i) {
     for (const auto& joint : joints) {
       const double distance = waypoints[i]->distance(*waypoints[i - 1], joint);
       switch (joint->getType()) {
@@ -250,16 +250,16 @@ CartesianInterpolator::Percentage CartesianInterpolator::computeCartesianPath(
   double translation_distance = (rotated_target.translation() - start_pose.translation()).norm();
 
   // decide how many steps we will need for this trajectory
-  std::size_t translation_steps = 0;
+  size_t translation_steps = 0;
   if (max_step.translation > 0.) {
     translation_steps = floor(translation_distance / max_step.translation);
   }
 
-  std::size_t rotation_steps = 0;
+  size_t rotation_steps = 0;
   if (max_step.rotation > 0.) {
     rotation_steps = floor(rotation_distance / max_step.rotation);
   }
-  std::size_t steps = std::max(translation_steps, rotation_steps) + 1;
+  size_t steps = std::max(translation_steps, rotation_steps) + 1;
 
   traj.clear();
   traj.push_back(std::make_shared<RobotState>(*start_state));
@@ -267,7 +267,7 @@ CartesianInterpolator::Percentage CartesianInterpolator::computeCartesianPath(
   double last_valid_percentage = 0.;
   Eigen::Isometry3d prev_pose = start_pose;
   RobotState prev_state(state);
-  for (std::size_t i = 1; i <= steps; ++i) {
+  for (size_t i = 1; i <= steps; ++i) {
     double percentage = static_cast<double>(i) / static_cast<double>(steps);
 
     Eigen::Isometry3d pose(start_quaternion.slerp(percentage, target_quaternion));
@@ -316,7 +316,7 @@ CartesianInterpolator::Percentage CartesianInterpolator::computeCartesianPath(
   const Eigen::Isometry3d& link_offset)
 {
   double percentage_solved = 0.;
-  for (std::size_t i = 0; i < waypoints.size(); ++i) {
+  for (size_t i = 0; i < waypoints.size(); ++i) {
     std::vector<RobotStatePtr> waypoint_traj;
     double wp_percentage_solved = computeCartesianPath(
       start_state,
@@ -459,18 +459,18 @@ CartesianInterpolator::Percentage CartesianInterpolator::computeCartesianPath(
   double translation_distance = (rotated_target.translation() - start_pose.translation()).norm();
 
   // decide how many steps we will need for this path
-  std::size_t translation_steps = 0;
+  size_t translation_steps = 0;
   if (max_step.translation > 0.) {
     translation_steps = floor(translation_distance / max_step.translation);
   }
 
-  std::size_t rotation_steps = 0;
+  size_t rotation_steps = 0;
   if (max_step.rotation > 0.) {
     rotation_steps = floor(rotation_distance / max_step.rotation);
   }
 
   // If we are testing for relative jumps, we always want at least MIN_STEPS_FOR_JUMP_THRESH steps
-  std::size_t steps = std::max(translation_steps, rotation_steps) + 1;
+  size_t steps = std::max(translation_steps, rotation_steps) + 1;
   if (jump_threshold.relative_factor > 0 && steps < MIN_STEPS_FOR_JUMP_THRESH) {
     steps = MIN_STEPS_FOR_JUMP_THRESH;
   }
@@ -501,7 +501,7 @@ CartesianInterpolator::Percentage CartesianInterpolator::computeCartesianPath(
   path.push_back(std::make_shared<RobotState>(*start_state));
 
   double last_valid_percentage = 0.;
-  for (std::size_t i = 1; i <= steps; ++i) {
+  for (size_t i = 1; i <= steps; ++i) {
     double percentage = static_cast<double>(i) / static_cast<double>(steps);
 
     Eigen::Isometry3d pose(start_quaternion.slerp(percentage, target_quaternion));
@@ -541,7 +541,7 @@ CartesianInterpolator::Percentage CartesianInterpolator::computeCartesianPath(
   const Eigen::Isometry3d& link_offset)
 {
   double percentage_solved = 0.;
-  for (std::size_t i = 0; i < waypoints.size(); ++i) {
+  for (size_t i = 0; i < waypoints.size(); ++i) {
     // Don't test joint space jumps for every waypoint, test them later on the whole path.
     static const JumpThreshold NO_JOINT_SPACE_JUMP_TEST = JumpThreshold::disabled();
     std::vector<RobotStatePtr> waypoint_path;

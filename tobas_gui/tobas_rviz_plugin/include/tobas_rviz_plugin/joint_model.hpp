@@ -174,7 +174,7 @@ public:
   }
 
   /* Get the number of variables that describe this joint */
-  std::size_t getVariableCount() const
+  size_t getVariableCount() const
   {
     return variable_names_.size();
   }

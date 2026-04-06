@@ -110,7 +110,7 @@ void RenderShapes::renderShape(
       break;
     }
     case shapes::OCTREE: {
-      if (octree_voxel_rendering != OCTOMAP_DISABLED) {
+      if (octree_voxel_rendering != kDisabled) {
         const auto octree = std::make_shared<OcTreeRender>(
           static_cast<const shapes::OcTree*>(s)->octree, octree_voxel_rendering, octree_color_mode, 0u, node);
         octree->setPosition(position);

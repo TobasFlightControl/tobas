@@ -144,7 +144,7 @@ void Transforms::setTransforms(const std::vector<geometry_msgs::msg::TransformSt
 void Transforms::copyTransforms(std::vector<geometry_msgs::msg::TransformStamped>& transforms) const
 {
   transforms.resize(transforms_map_.size());
-  std::size_t i = 0;
+  size_t i = 0;
   for (FixedTransformsMap::const_iterator it = transforms_map_.begin(); it != transforms_map_.end(); ++it, ++i) {
     transforms[i] = tf2::eigenToTransform(it->second);
     transforms[i].child_frame_id = target_frame_;

@@ -157,9 +157,9 @@ void computeCommonRootsHelper(const JointModel* joint, std::vector<int>& common_
   }
 
   const std::vector<const JointModel*>& ch = lm->getChildJointModels();
-  for (std::size_t i = 0; i < ch.size(); ++i) {
+  for (size_t i = 0; i < ch.size(); ++i) {
     const std::vector<const JointModel*>& a = ch[i]->getDescendantJointModels();
-    for (std::size_t j = i + 1; j < ch.size(); ++j) {
+    for (size_t j = i + 1; j < ch.size(); ++j) {
       const std::vector<const JointModel*>& b = ch[j]->getDescendantJointModels();
       for (const JointModel* m : b) {
         common_roots[ch[i]->getJointIndex() * size + m->getJointIndex()] =
@@ -246,7 +246,7 @@ void RobotModel::buildJointInfo()
 
     // compute index map
     if (!name_order.empty()) {
-      for (std::size_t j = 0; j < name_order.size(); ++j) {
+      for (size_t j = 0; j < name_order.size(); ++j) {
         joint_variables_index_map_[name_order[j]] = variable_count_ + j;
         variable_names_.push_back(name_order[j]);
         joints_of_variable_.push_back(joint);
@@ -266,7 +266,7 @@ void RobotModel::buildJointInfo()
       joint_variables_index_map_[joint->getName()] = variable_count_;
 
       // compute variable count
-      std::size_t vc = joint->getVariableCount();
+      size_t vc = joint->getVariableCount();
       variable_count_ += vc;
       if (vc == 1) {
         single_dof_joints_.push_back(joint);
@@ -321,7 +321,7 @@ void RobotModel::buildGroupStates(const srdf::Model& srdf_model)
             remaining_joints.erase(it_found);
           }
           if (vn.size() == jt->second.size()) {
-            for (std::size_t j = 0; j < vn.size(); ++j) {
+            for (size_t j = 0; j < vn.size(); ++j) {
               state[vn[j]] = jt->second[j];
             }
           }
@@ -507,7 +507,7 @@ void RobotModel::buildGroups(const srdf::Model& srdf_model)
     added = false;
 
     // going to make passes until we can't do anything else
-    for (std::size_t i = 0; i < group_configs.size(); ++i) {
+    for (size_t i = 0; i < group_configs.size(); ++i) {
       if (!processed[i]) {
         // if we haven't processed, check and see if the dependencies are met yet
         bool all_subgroups_added = true;
@@ -528,7 +528,7 @@ void RobotModel::buildGroups(const srdf::Model& srdf_model)
     }
   }
 
-  for (std::size_t i = 0; i < processed.size(); ++i) {
+  for (size_t i = 0; i < processed.size(); ++i) {
     if (!processed[i]) {
       RCLCPP_WARN(
         getLogger(), "Could not process group '%s' due to unmet subgroup dependencies", group_configs[i].name_.c_str());
@@ -648,8 +648,8 @@ void RobotModel::buildGroupsInfoEndEffectors(const srdf::Model& srdf_model)
           if (!possible_parent_groups.empty()) {
             // if there are multiple options for the group that contains this end-effector,
             // we pick the group with fewest joints.
-            std::size_t best = 0;
-            for (std::size_t g = 1; g < possible_parent_groups.size(); ++g) {
+            size_t best = 0;
+            for (size_t g = 1; g < possible_parent_groups.size(); ++g) {
               if (possible_parent_groups[g]->getJointModels().size() < possible_parent_groups[best]->getJointModels().size()) {
                 best = g;
               }
@@ -700,10 +700,10 @@ bool RobotModel::addJointModelGroup(const srdf::Model::Group& gc)
       if (lm != base_link) {
         // we go up the chain from the base this time, and see where we intersect the other chain
         lm = base_link;
-        std::size_t index = 0;
+        size_t index = 0;
         std::vector<const JointModel*> cj2;
         while (lm) {
-          for (std::size_t j = 0; j < cj.size(); ++j) {
+          for (size_t j = 0; j < cj.size(); ++j) {
             if (cj[j] == lm->getParentJointModel()) {
               index = j + 1;
               break;
@@ -1310,7 +1310,7 @@ void RobotModel::updateMimicJoints(double* values) const
 
 void RobotModel::getVariableRandomPositions(random_numbers::RandomNumberGenerator& rng, double* values) const
 {
-  for (std::size_t i = 0; i < active_joint_model_vector_.size(); ++i) {
+  for (size_t i = 0; i < active_joint_model_vector_.size(); ++i) {
     active_joint_model_vector_[i]->getVariableRandomPositions(rng, values + active_joint_model_start_index_[i]);
   }
   updateMimicJoints(values);
@@ -1323,14 +1323,14 @@ void RobotModel::getVariableRandomPositions(
   std::vector<double> tmp(variable_count_);
   getVariableRandomPositions(rng, &tmp.front());
   values.clear();
-  for (std::size_t i = 0; i < variable_names_.size(); ++i) {
+  for (size_t i = 0; i < variable_names_.size(); ++i) {
     values[variable_names_[i]] = tmp[i];
   }
 }
 
 void RobotModel::getVariableDefaultPositions(double* values) const
 {
-  for (std::size_t i = 0; i < active_joint_model_vector_.size(); ++i) {
+  for (size_t i = 0; i < active_joint_model_vector_.size(); ++i) {
     active_joint_model_vector_[i]->getVariableDefaultPositions(values + active_joint_model_start_index_[i]);
   }
   updateMimicJoints(values);
@@ -1341,7 +1341,7 @@ void RobotModel::getVariableDefaultPositions(std::map<std::string, double>& valu
   std::vector<double> tmp(variable_count_);
   getVariableDefaultPositions(&tmp.front());
   values.clear();
-  for (std::size_t i = 0; i < variable_names_.size(); ++i) {
+  for (size_t i = 0; i < variable_names_.size(); ++i) {
     values[variable_names_[i]] = tmp[i];
   }
 }
@@ -1373,7 +1373,7 @@ size_t RobotModel::getVariableIndex(const std::string& variable) const
 double RobotModel::getMaximumExtent(const JointBoundsVector& active_joint_bounds) const
 {
   double max_distance = 0.;
-  for (std::size_t j = 0; j < active_joint_model_vector_.size(); ++j) {
+  for (size_t j = 0; j < active_joint_model_vector_.size(); ++j) {
     max_distance += active_joint_model_vector_[j]->getMaximumExtent(*active_joint_bounds[j]) *
                     active_joint_model_vector_[j]->getDistanceFactor();
   }
@@ -1386,7 +1386,7 @@ bool RobotModel::satisfiesPositionBounds(
   double margin) const
 {
   assert(active_joint_bounds.size() == active_joint_model_vector_.size());
-  for (std::size_t i = 0; i < active_joint_model_vector_.size(); ++i) {
+  for (size_t i = 0; i < active_joint_model_vector_.size(); ++i) {
     if (!active_joint_model_vector_[i]->satisfiesPositionBounds(
           state + active_joint_model_start_index_[i], *active_joint_bounds[i], margin)) {
       return false;
@@ -1399,7 +1399,7 @@ bool RobotModel::enforcePositionBounds(double* state, const JointBoundsVector& a
 {
   assert(active_joint_bounds.size() == active_joint_model_vector_.size());
   bool change = false;
-  for (std::size_t i = 0; i < active_joint_model_vector_.size(); ++i) {
+  for (size_t i = 0; i < active_joint_model_vector_.size(); ++i) {
     if (active_joint_model_vector_[i]->enforcePositionBounds(
           state + active_joint_model_start_index_[i], *active_joint_bounds[i])) {
       change = true;
@@ -1414,7 +1414,7 @@ bool RobotModel::enforcePositionBounds(double* state, const JointBoundsVector& a
 double RobotModel::distance(const double* state1, const double* state2) const
 {
   double d = 0.;
-  for (std::size_t i = 0; i < active_joint_model_vector_.size(); ++i) {
+  for (size_t i = 0; i < active_joint_model_vector_.size(); ++i) {
     d += active_joint_model_vector_[i]->getDistanceFactor() *
          active_joint_model_vector_[i]->distance(
            state1 + active_joint_model_start_index_[i], state2 + active_joint_model_start_index_[i]);
@@ -1426,7 +1426,7 @@ void RobotModel::interpolate(const double* from, const double* to, double t, dou
 {
   checkInterpolationParamBounds(getLogger(), t);
   // we interpolate values only for active joint models (non-mimic)
-  for (std::size_t i = 0; i < active_joint_model_vector_.size(); ++i) {
+  for (size_t i = 0; i < active_joint_model_vector_.size(); ++i) {
     active_joint_model_vector_[i]->interpolate(
       from + active_joint_model_start_index_[i],
       to + active_joint_model_start_index_[i],
@@ -1562,7 +1562,7 @@ void RobotModel::computeFixedTransforms(
   LinkTransformMap& associated_transforms)
 {
   associated_transforms[link] = transform * link->getJointOriginTransform();
-  for (std::size_t i = 0; i < link->getChildJointModels().size(); ++i) {
+  for (size_t i = 0; i < link->getChildJointModels().size(); ++i) {
     if (link->getChildJointModels()[i]->getType() == JointModel::FIXED) {
       computeFixedTransforms(
         link->getChildJointModels()[i]->getChildLinkModel(),

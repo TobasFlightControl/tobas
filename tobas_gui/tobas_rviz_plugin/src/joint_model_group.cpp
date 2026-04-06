@@ -121,7 +121,7 @@ JointModelGroup::JointModelGroup(
       }
 
       int first_index = joint_model->getFirstVariableIndex();
-      for (std::size_t j = 0; j < name_order.size(); ++j) {
+      for (size_t j = 0; j < name_order.size(); ++j) {
         variable_index_list_.push_back(first_index + j);
         joint_variables_index_map_[name_order[j]] = variable_count_ + j;
       }
@@ -155,7 +155,7 @@ JointModelGroup::JointModelGroup(
     is_contiguous_index_list_ = false;
   }
   else {
-    for (std::size_t i = 1; i < variable_index_list_.size(); ++i) {
+    for (size_t i = 1; i < variable_index_list_.size(); ++i) {
       if (variable_index_list_[i] != variable_index_list_[i - 1] + 1) {
         is_contiguous_index_list_ = false;
         break;
@@ -205,7 +205,7 @@ JointModelGroup::JointModelGroup(
   // compute the common root of this group
   if (!joint_roots_.empty()) {
     common_root_ = joint_roots_[0];
-    for (std::size_t i = 1; i < joint_roots_.size(); ++i) {
+    for (size_t i = 1; i < joint_roots_.size(); ++i) {
       common_root_ = parent_model->getCommonRoot(joint_roots_[i], common_root_);
     }
   }
@@ -241,7 +241,7 @@ JointModelGroup::JointModelGroup(
     bool chain = true;
     // due to our sorting, the joints are sorted in a DF fashion, so looking at them in reverse,
     // we should always get to the parent.
-    for (std::size_t k = joint_model_vector_.size() - 1; k > 0; --k) {
+    for (size_t k = joint_model_vector_.size() - 1; k > 0; --k) {
       if (!jointPrecedes(joint_model_vector_[k], joint_model_vector_[k - 1])) {
         chain = false;
         break;
@@ -267,7 +267,7 @@ void JointModelGroup::setSubgroupNames(const std::vector<std::string>& subgroups
 void JointModelGroup::getSubgroups(std::vector<const JointModelGroup*>& sub_groups) const
 {
   sub_groups.resize(subgroup_names_.size());
-  for (std::size_t i = 0; i < subgroup_names_.size(); ++i) {
+  for (size_t i = 0; i < subgroup_names_.size(); ++i) {
     sub_groups[i] = parent_model_->getJointModelGroup(subgroup_names_[i]);
   }
 }
@@ -308,7 +308,7 @@ void JointModelGroup::getVariableRandomPositions(
   const JointBoundsVector& active_joint_bounds) const
 {
   assert(active_joint_bounds.size() == active_joint_model_vector_.size());
-  for (std::size_t i = 0; i < active_joint_model_vector_.size(); ++i) {
+  for (size_t i = 0; i < active_joint_model_vector_.size(); ++i) {
     active_joint_model_vector_[i]->getVariableRandomPositions(
       rng, values + active_joint_model_start_index_[i], *active_joint_bounds[i]);
   }
@@ -324,7 +324,7 @@ void JointModelGroup::getVariableRandomPositionsNearBy(
   double distance) const
 {
   assert(active_joint_bounds.size() == active_joint_model_vector_.size());
-  for (std::size_t i = 0; i < active_joint_model_vector_.size(); ++i) {
+  for (size_t i = 0; i < active_joint_model_vector_.size(); ++i) {
     active_joint_model_vector_[i]->getVariableRandomPositionsNearBy(
       rng,
       values + active_joint_model_start_index_[i],
@@ -343,7 +343,7 @@ void JointModelGroup::getVariableRandomPositionsNearBy(
   const std::map<JointModel::JointType, double>& distance_map) const
 {
   assert(active_joint_bounds.size() == active_joint_model_vector_.size());
-  for (std::size_t i = 0; i < active_joint_model_vector_.size(); ++i) {
+  for (size_t i = 0; i < active_joint_model_vector_.size(); ++i) {
     double distance = 0.;
     std::map<JointModel::JointType, double>::const_iterator iter =
       distance_map.find(active_joint_model_vector_[i]->getType());
@@ -376,7 +376,7 @@ void JointModelGroup::getVariableRandomPositionsNearBy(
       "When sampling random values nearby for group '" + name_ + "', distances vector should be of size " +
       std::to_string(active_joint_model_vector_.size()) + ", but it is of size " + std::to_string(distances.size()));
   }
-  for (std::size_t i = 0; i < active_joint_model_vector_.size(); ++i) {
+  for (size_t i = 0; i < active_joint_model_vector_.size(); ++i) {
     active_joint_model_vector_[i]->getVariableRandomPositionsNearBy(
       rng,
       values + active_joint_model_start_index_[i],
@@ -393,7 +393,7 @@ bool JointModelGroup::satisfiesPositionBounds(
   double margin) const
 {
   assert(active_joint_bounds.size() == active_joint_model_vector_.size());
-  for (std::size_t i = 0; i < active_joint_model_vector_.size(); ++i) {
+  for (size_t i = 0; i < active_joint_model_vector_.size(); ++i) {
     if (!active_joint_model_vector_[i]->satisfiesPositionBounds(
           state + active_joint_model_start_index_[i], *active_joint_bounds[i], margin)) {
       return false;
@@ -406,7 +406,7 @@ bool JointModelGroup::enforcePositionBounds(double* state, const JointBoundsVect
 {
   assert(active_joint_bounds.size() == active_joint_model_vector_.size());
   bool change = false;
-  for (std::size_t i = 0; i < active_joint_model_vector_.size(); ++i) {
+  for (size_t i = 0; i < active_joint_model_vector_.size(); ++i) {
     if (active_joint_model_vector_[i]->enforcePositionBounds(
           state + active_joint_model_start_index_[i], *active_joint_bounds[i])) {
       change = true;
@@ -421,7 +421,7 @@ bool JointModelGroup::enforcePositionBounds(double* state, const JointBoundsVect
 double JointModelGroup::getMaximumExtent(const JointBoundsVector& active_joint_bounds) const
 {
   double max_distance = 0.;
-  for (std::size_t j = 0; j < active_joint_model_vector_.size(); ++j) {
+  for (size_t j = 0; j < active_joint_model_vector_.size(); ++j) {
     max_distance += active_joint_model_vector_[j]->getMaximumExtent(*active_joint_bounds[j]) *
                     active_joint_model_vector_[j]->getDistanceFactor();
   }
@@ -431,7 +431,7 @@ double JointModelGroup::getMaximumExtent(const JointBoundsVector& active_joint_b
 double JointModelGroup::distance(const double* state1, const double* state2) const
 {
   double d = 0.;
-  for (std::size_t i = 0; i < active_joint_model_vector_.size(); ++i) {
+  for (size_t i = 0; i < active_joint_model_vector_.size(); ++i) {
     d += active_joint_model_vector_[i]->getDistanceFactor() *
          active_joint_model_vector_[i]->distance(
            state1 + active_joint_model_start_index_[i], state2 + active_joint_model_start_index_[i]);
@@ -442,7 +442,7 @@ double JointModelGroup::distance(const double* state1, const double* state2) con
 void JointModelGroup::interpolate(const double* from, const double* to, double t, double* state) const
 {
   // we interpolate values only for active joint models (non-mimic)
-  for (std::size_t i = 0; i < active_joint_model_vector_.size(); ++i) {
+  for (size_t i = 0; i < active_joint_model_vector_.size(); ++i) {
     active_joint_model_vector_[i]->interpolate(
       from + active_joint_model_start_index_[i],
       to + active_joint_model_start_index_[i],
@@ -480,7 +480,7 @@ bool JointModelGroup::getVariableDefaultPositions(const std::string& name, std::
 
 void JointModelGroup::getVariableDefaultPositions(double* values) const
 {
-  for (std::size_t i = 0; i < active_joint_model_vector_.size(); ++i) {
+  for (size_t i = 0; i < active_joint_model_vector_.size(); ++i) {
     active_joint_model_vector_[i]->getVariableDefaultPositions(values + active_joint_model_start_index_[i]);
   }
   updateMimicJoints(values);
@@ -490,7 +490,7 @@ void JointModelGroup::getVariableDefaultPositions(std::map<std::string, double>&
 {
   std::vector<double> tmp(variable_count_);
   getVariableDefaultPositions(&tmp[0]);
-  for (std::size_t i = 0; i < variable_names_.size(); ++i) {
+  for (size_t i = 0; i < variable_names_.size(); ++i) {
     values[variable_names_[i]] = tmp[i];
   }
 }
@@ -770,13 +770,13 @@ bool JointModelGroup::isValidVelocityMove(
 bool JointModelGroup::isValidVelocityMove(
   const double* from_joint_pose,
   const double* to_joint_pose,
-  std::size_t array_size,
+  size_t array_size,
   double dt) const
 {
   const std::vector<const JointModel::Bounds*>& bounds = getActiveJointModelsBounds();
   const std::vector<size_t>& bij = getKinematicsSolverJointBijection();
 
-  for (std::size_t i = 0; i < array_size; ++i) {
+  for (size_t i = 0; i < array_size; ++i) {
     double dtheta = std::abs(from_joint_pose[i] - to_joint_pose[i]);
     const std::vector<VariableBounds>* var_bounds = bounds[bij[i]];
 
@@ -842,7 +842,7 @@ std::pair<Eigen::VectorXd, Eigen::VectorXd> JointModelGroup::getMaxVelocitiesAnd
     }
   }
   // Populate max_joint_velocity and acceleration vectors
-  for (std::size_t i = 0; i < active_joint_models_bounds_.size(); ++i) {
+  for (size_t i = 0; i < active_joint_models_bounds_.size(); ++i) {
     max_joint_velocities[i] = std::min(
       -active_joint_models_bounds_[i]->at(0).min_velocity_, active_joint_models_bounds_[i]->at(0).max_velocity_);
     max_joint_accelerations[i] = std::min(

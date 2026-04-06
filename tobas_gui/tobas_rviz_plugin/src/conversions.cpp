@@ -39,7 +39,7 @@ bool jointStateToRobotStateImpl(const sensor_msgs::msg::JointState& joint_state,
 
 bool multiDofJointsToRobotState(const sensor_msgs::msg::MultiDOFJointState& mjs, RobotState& state, const Transforms* tf)
 {
-  std::size_t nj = mjs.joint_names.size();
+  size_t nj = mjs.joint_names.size();
   if (nj != mjs.transforms.size()) {
     RCLCPP_ERROR(getLogger(), "Different number of names, values or frames in MultiDOFJointState message.");
     return false;
@@ -78,7 +78,7 @@ bool multiDofJointsToRobotState(const sensor_msgs::msg::MultiDOFJointState& mjs,
     }
   }
 
-  for (std::size_t i = 0; i < nj; ++i) {
+  for (size_t i = 0; i < nj; ++i) {
     const std::string& joint_name = mjs.joint_names[i];
     if (!state.getRobotModel()->hasJointModel(joint_name)) {
       RCLCPP_WARN(getLogger(), "No joint matching multi-dof joint '%s'", joint_name.c_str());
@@ -179,7 +179,7 @@ void attachedBodyToMsg(const AttachedBody& attached_body, tobas_visualization_ms
   aco.object.primitive_poses.clear();
   aco.object.mesh_poses.clear();
   aco.object.plane_poses.clear();
-  for (std::size_t j = 0; j < ab_shapes.size(); ++j) {
+  for (size_t j = 0; j < ab_shapes.size(); ++j) {
     shapes::ShapeMsg sm;
     if (shapes::constructMsgFromShape(ab_shapes[j].get(), sm)) {
       geometry_msgs::msg::Pose p;
@@ -249,18 +249,18 @@ void msgToAttachedBody(
           shape_poses.emplace_back(std::move(pose));
         };
 
-        for (std::size_t i = 0; i < aco.object.primitives.size(); ++i) {
+        for (size_t i = 0; i < aco.object.primitives.size(); ++i) {
           append(shapes::constructShapeFromMsg(aco.object.primitives[i]), aco.object.primitive_poses[i]);
         }
-        for (std::size_t i = 0; i < aco.object.meshes.size(); ++i) {
+        for (size_t i = 0; i < aco.object.meshes.size(); ++i) {
           append(shapes::constructShapeFromMsg(aco.object.meshes[i]), aco.object.mesh_poses[i]);
         }
-        for (std::size_t i = 0; i < aco.object.planes.size(); ++i) {
+        for (size_t i = 0; i < aco.object.planes.size(); ++i) {
           append(shapes::constructShapeFromMsg(aco.object.planes[i]), aco.object.plane_poses[i]);
         }
 
         FixedTransformsMap subframe_poses;
-        for (std::size_t i = 0; i < aco.object.subframe_poses.size(); ++i) {
+        for (size_t i = 0; i < aco.object.subframe_poses.size(); ++i) {
           Eigen::Isometry3d p;
           tf2::fromMsg(aco.object.subframe_poses[i], p);
           std::string name = aco.object.subframe_names[i];
@@ -412,7 +412,7 @@ void attachedBodiesToAttachedCollisionObjectMsgs(
   std::vector<tobas_visualization_msgs::msg::AttachedCollisionObject>& attached_collision_objs)
 {
   attached_collision_objs.resize(attached_bodies.size());
-  for (std::size_t i = 0; i < attached_bodies.size(); ++i) {
+  for (size_t i = 0; i < attached_bodies.size(); ++i) {
     attachedBodyToMsg(*attached_bodies[i], attached_collision_objs[i]);
   }
 }
@@ -440,7 +440,7 @@ void robotStateToJointStateMsg(const RobotState& state, sensor_msgs::msg::JointS
 
 bool jointTrajPointToRobotState(
   const trajectory_msgs::msg::JointTrajectory& trajectory,
-  std::size_t point_id,
+  size_t point_id,
   RobotState& state)
 {
   if (trajectory.points.empty() || point_id > trajectory.points.size() - 1) {
@@ -470,7 +470,7 @@ void robotStateToStream(const RobotState& state, std::ostream& out, bool include
 {
   // Output name of variables
   if (include_header) {
-    for (std::size_t i = 0; i < state.getVariableCount(); ++i) {
+    for (size_t i = 0; i < state.getVariableCount(); ++i) {
       out << state.getVariableNames()[i];
 
       // Output comma except at end
@@ -482,7 +482,7 @@ void robotStateToStream(const RobotState& state, std::ostream& out, bool include
   }
 
   // Output values of joints
-  for (std::size_t i = 0; i < state.getVariableCount(); ++i) {
+  for (size_t i = 0; i < state.getVariableCount(); ++i) {
     out << state.getVariablePositions()[i];
 
     // Output comma except at end
@@ -508,7 +508,7 @@ void robotStateToStream(
 
     // Output name of variables
     if (include_header) {
-      for (std::size_t i = 0; i < jmg->getVariableCount(); ++i) {
+      for (size_t i = 0; i < jmg->getVariableCount(); ++i) {
         headers << jmg->getVariableNames()[i] << separator;
       }
     }
@@ -518,7 +518,7 @@ void robotStateToStream(
     state.copyJointGroupPositions(jmg, group_variable_positions);
 
     // Output values of joints
-    for (std::size_t i = 0; i < jmg->getVariableCount(); ++i) {
+    for (size_t i = 0; i < jmg->getVariableCount(); ++i) {
       joints << group_variable_positions[i] << separator;
     }
   }
@@ -536,7 +536,7 @@ void streamToRobotState(RobotState& state, const std::string& line, const std::s
   std::string cell;
 
   // For each item/column
-  for (std::size_t i = 0; i < state.getVariableCount(); ++i) {
+  for (size_t i = 0; i < state.getVariableCount(); ++i) {
     // Get a variable
     if (!std::getline(line_stream, cell, separator.front())) {
       RCLCPP_ERROR(getLogger(), "Missing variable %s", state.getVariableNames()[i].c_str());
