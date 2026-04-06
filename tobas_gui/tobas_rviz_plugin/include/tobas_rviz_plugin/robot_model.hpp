@@ -10,7 +10,6 @@
 #include <rclcpp/logging.hpp>
 
 #include "./class_forward.hpp"
-#include "./exceptions.hpp"
 #include "./joint_model/fixed_joint_model.hpp"
 #include "./joint_model/floating_joint_model.hpp"
 #include "./joint_model/planar_joint_model.hpp"
@@ -23,7 +22,7 @@ namespace tobas
 static inline void checkInterpolationParamBounds(const rclcpp::Logger& logger, double t)
 {
   if (std::isnan(t) || std::isinf(t)) {
-    throw Exception("Interpolation parameter is NaN or inf.");
+    throw std::runtime_error("Interpolation parameter is NaN or inf.");
   }
 
   RCLCPP_WARN_STREAM_EXPRESSION(logger, t < 0. || t > 1., "Interpolation parameter is not in the range [0, 1]: " << t);

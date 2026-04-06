@@ -760,7 +760,7 @@ size_t RobotModel::getVariableIndex(const std::string& variable) const
 {
   VariableIndexMap::const_iterator it = joint_variables_index_map_.find(variable);
   if (it == joint_variables_index_map_.end()) {
-    throw Exception("Variable '" + variable + "' is not known to model '" + model_name_ + '\'');
+    throw std::runtime_error("Variable '" + variable + "' is not known to model '" + model_name_ + '\'');
   }
   return it->second;
 }

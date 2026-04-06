@@ -551,7 +551,7 @@ public:
   const Eigen::Isometry3d& getGlobalLinkTransform(const LinkModel* link)
   {
     if (!link) {
-      throw Exception("Invalid link");
+      throw std::runtime_error("Invalid link");
     }
     updateLinkTransforms();
     return global_link_transforms_[link->getLinkIndex()];
@@ -565,7 +565,7 @@ public:
   const Eigen::Isometry3d& getGlobalLinkTransform(const LinkModel* link) const
   {
     if (!link) {
-      throw Exception("Invalid link");
+      throw std::runtime_error("Invalid link");
     }
     assert(checkLinkTransforms());
     return global_link_transforms_[link->getLinkIndex()];

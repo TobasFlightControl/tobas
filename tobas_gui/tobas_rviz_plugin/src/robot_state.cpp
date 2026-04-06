@@ -34,10 +34,6 @@ RobotState::RobotState(const RobotModel::ConstSharedPtr& robot_model)
   , dirty_collision_body_transforms_(nullptr)
   , rng_(nullptr)
 {
-  if (!robot_model) {
-    throw std::invalid_argument("RobotState cannot be constructed with nullptr RobotModel::ConstSharedPtr");
-  }
-
   dirty_link_transforms_ = robot_model_->getRootJoint();
   init();
 }

@@ -257,7 +257,7 @@ void RobotStateDisplay::newRobotStateCallback(
     robotStateMsgToRobotState(state_msg->state, *robot_state_);
     setRobotHighlights(state_msg->highlight_links);
   }
-  catch (const Exception& e) {
+  catch (const std::exception& e) {
     robot_state_->setToDefaultValues();
     setRobotHighlights(tobas_visualization_msgs::msg::DisplayRobotState::_highlight_links_type());
     setStatus(rviz_common::properties::StatusProperty::Error, "RobotState", e.what());
