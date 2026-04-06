@@ -18,7 +18,8 @@
 #include <tobas_visualization_msgs/msg/display_robot_state.hpp>
 
 #include "./rdf_loader.hpp"
-#include "./robot_state_visualization.hpp"
+#include "./robot_model.hpp"
+#include "./robot_state.hpp"
 
 namespace tobas
 {
@@ -53,9 +54,6 @@ protected:
 
   void calculateOffsetPosition();
 
-  void setLinkColor(rviz_default_plugins::robot::Robot* robot, const std::string& link_name, const QColor& color);
-  void unsetLinkColor(rviz_default_plugins::robot::Robot* robot, const std::string& link_name);
-
   void newRobotStateCallback(const tobas_visualization_msgs::msg::DisplayRobotState::ConstSharedPtr& state);
 
   void
@@ -66,7 +64,7 @@ protected:
   rclcpp::Node::SharedPtr node_;
   rclcpp::Subscription<tobas_visualization_msgs::msg::DisplayRobotState>::SharedPtr robot_state_sub_;
 
-  std::shared_ptr<RobotStateVisualization> robot_;
+  std::shared_ptr<rviz_default_plugins::robot::Robot> robot_;
   std::shared_ptr<RDFLoader> rdf_loader_;
   RobotModelConstPtr robot_model_;
   RobotStatePtr robot_state_;
@@ -77,7 +75,6 @@ protected:
   rviz_common::properties::StringProperty* root_link_name_property_;
   rviz_common::properties::RosTopicProperty* robot_state_topic_property_;
   rviz_common::properties::FloatProperty* robot_alpha_property_;
-  rviz_common::properties::ColorProperty* attached_body_color_property_;
   rviz_common::properties::BoolProperty* enable_link_highlight_;
   rviz_common::properties::BoolProperty* enable_visual_visible_;
   rviz_common::properties::BoolProperty* enable_collision_visible_;
@@ -91,7 +88,6 @@ private Q_SLOTS:
   void changedRobotDescription();
   void changedRootLinkName();
   void changedRobotSceneAlpha();
-  void changedAttachedBodyColor();
   void changedRobotStateTopic();
   void changedEnableLinkHighlight();
   void changedEnableVisualVisible();
