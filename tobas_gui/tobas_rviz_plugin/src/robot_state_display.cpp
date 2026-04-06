@@ -371,8 +371,7 @@ void RobotStateDisplay::loadRobotModel()
 {
   if (rdf_loader_->getURDF()) {
     try {
-      const srdf::ModelSharedPtr& srdf =
-        rdf_loader_->getSRDF() ? rdf_loader_->getSRDF() : std::make_shared<srdf::Model>();
+      const auto srdf = std::make_shared<srdf::Model>();
       robot_model_ = std::make_shared<RobotModel>(rdf_loader_->getURDF(), srdf);
       robot_->load(*robot_model_->getURDF());
       robot_state_ = std::make_shared<RobotState>(robot_model_);

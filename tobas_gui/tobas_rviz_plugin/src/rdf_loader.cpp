@@ -3,18 +3,7 @@
 
 #include "tobas_rviz_plugin/rbf_loader.hpp"
 
-#include <algorithm>
-#include <filesystem>
-#include <fstream>
-#include <streambuf>
-
-#include <ament_index_cpp/get_package_prefix.hpp>
-#include <ament_index_cpp/get_package_share_directory.hpp>
-#include <rclcpp/rclcpp.hpp>
-
 #include "tobas_rviz_plugin/logger.hpp"
-
-namespace fs = std::filesystem;
 
 namespace tobas
 {
@@ -27,7 +16,7 @@ rclcpp::Logger getLogger()
 }  // namespace
 
 RDFLoader::RDFLoader(
-  const std::shared_ptr<rclcpp::Node>& node,
+  const rclcpp::Node::SharedPtr& node,
   const std::string& ros_name,
   bool default_continuous_value,
   double default_timeout)
@@ -42,170 +31,28 @@ RDFLoader::RDFLoader(
     default_continuous_value,
     default_timeout);
 
-  const std::string srdf_name = ros_name + "_semantic";
-  srdf_string_ = srdf_ssp_.loadInitialValue(
-    node,
-    srdf_name,
-    [this](const std::string& new_srdf_string) { return srdfUpdateCallback(new_srdf_string); },
-    default_continuous_value,
-    default_timeout);
-
   if (!loadFromStrings()) {
     return;
   }
 
-  RCLCPP_INFO_STREAM(getLogger(), "Loaded robot model in " << (node->now() - start).seconds() << " seconds");
-}
-
-RDFLoader::RDFLoader(const std::string& urdf_string, const std::string& srdf_string)
-  : urdf_string_(urdf_string), srdf_string_(srdf_string)
-{
-  if (!loadFromStrings()) {
-    return;
-  }
+  RCLCPP_INFO_STREAM(getLogger(), "Loaded robot model in " << (node->now() - start).seconds() << " seconds.");
 }
 
 bool RDFLoader::loadFromStrings()
 {
   auto urdf = std::make_unique<::urdf::Model>();
   if (!urdf->initString(urdf_string_)) {
-    RCLCPP_INFO(getLogger(), "Unable to parse URDF");
-    return false;
-  }
-
-  auto srdf = std::make_shared<srdf::Model>();
-  if (!srdf->initString(*urdf, srdf_string_)) {
-    RCLCPP_ERROR(getLogger(), "Unable to parse SRDF");
+    RCLCPP_ERROR(getLogger(), "Failed to parse URDF.");
     return false;
   }
 
   urdf_ = std::move(urdf);
-  srdf_ = std::move(srdf);
   return true;
-}
-
-bool RDFLoader::isXacroFile(const std::string& path)
-{
-  auto lower_path = path;
-  std::transform(lower_path.begin(), lower_path.end(), lower_path.begin(), ::tolower);
-
-  return lower_path.find(".xacro") != std::string::npos;
-}
-
-bool RDFLoader::loadFileToString(std::string& buffer, const std::string& path)
-{
-  if (path.empty()) {
-    RCLCPP_ERROR(getLogger(), "Path is empty");
-    return false;
-  }
-
-  if (!fs::exists(path)) {
-    RCLCPP_ERROR(getLogger(), "File does not exist");
-    return false;
-  }
-
-  std::ifstream stream(path.c_str());
-  if (!stream.good()) {
-    RCLCPP_ERROR(getLogger(), "Unable to load path");
-    return false;
-  }
-
-  // Load the file to a string using an efficient memory allocation technique
-  stream.seekg(0, std::ios::end);
-  buffer.reserve(stream.tellg());
-  stream.seekg(0, std::ios::beg);
-  buffer.assign((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
-  stream.close();
-
-  return true;
-}
-
-bool RDFLoader::loadXacroFileToString(
-  std::string& buffer,
-  const std::string& path,
-  const std::vector<std::string>& xacro_args)
-{
-  buffer.clear();
-  if (path.empty()) {
-    RCLCPP_ERROR(getLogger(), "Path is empty");
-    return false;
-  }
-
-  if (!fs::exists(path)) {
-    RCLCPP_ERROR(getLogger(), "File does not exist");
-    return false;
-  }
-
-  std::string cmd = "ros2 run xacro xacro ";
-  for (const auto& xacro_arg : xacro_args) {
-    cmd += xacro_arg + " ";
-  }
-  cmd += path;
-
-  auto pipe = popen(cmd.c_str(), "r");
-  if (!pipe) {
-    RCLCPP_ERROR(getLogger(), "Unable to load path");
-    return false;
-  }
-
-  char pipe_buffer[128];
-  while (!feof(pipe)) {
-    if (fgets(pipe_buffer, 128, pipe) != nullptr) {
-      buffer += pipe_buffer;
-    }
-  }
-  pclose(pipe);
-
-  return true;
-}
-
-bool RDFLoader::loadXmlFileToString(
-  std::string& buffer,
-  const std::string& path,
-  const std::vector<std::string>& xacro_args)
-{
-  if (isXacroFile(path)) {
-    return loadXacroFileToString(buffer, path, xacro_args);
-  }
-
-  return loadFileToString(buffer, path);
-}
-
-bool RDFLoader::loadPkgFileToString(
-  std::string& buffer,
-  const std::string& package_name,
-  const std::string& relative_path,
-  const std::vector<std::string>& xacro_args)
-{
-  std::string package_path;
-  try {
-    package_path = ament_index_cpp::get_package_share_directory(package_name);
-  }
-  catch (const ament_index_cpp::PackageNotFoundError& e) {
-    RCLCPP_ERROR(getLogger(), "ament_index_cpp: %s", e.what());
-    return false;
-  }
-
-  fs::path path(package_path);
-  path = path / relative_path;
-
-  return loadXmlFileToString(buffer, path.string(), xacro_args);
 }
 
 void RDFLoader::urdfUpdateCallback(const std::string& new_urdf_string)
 {
   urdf_string_ = new_urdf_string;
-  if (!loadFromStrings()) {
-    return;
-  }
-  if (new_model_cb_) {
-    new_model_cb_();
-  }
-}
-
-void RDFLoader::srdfUpdateCallback(const std::string& new_srdf_string)
-{
-  srdf_string_ = new_srdf_string;
   if (!loadFromStrings()) {
     return;
   }
