@@ -21,7 +21,6 @@ set(AMENT_DEPENDENCIES
     rviz_common
     rviz_default_plugins
     rviz_rendering
-    srdfdom
     tobas_math
     tobas_visualization_msgs
 )

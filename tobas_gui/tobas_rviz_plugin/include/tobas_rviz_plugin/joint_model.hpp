@@ -422,17 +422,6 @@ public:
     return non_fixed_descendant_joint_models_;
   }
 
-  /* Check if this joint is passive */
-  bool isPassive() const
-  {
-    return passive_;
-  }
-
-  void setPassive(bool flag)
-  {
-    passive_ = flag;
-  }
-
   /**
    * @brief Computes the state that lies at time t in [0, 1] on the segment that connects from state to to state.
    * The memory location of state is not required to be different from the memory of either from or to.
@@ -517,9 +506,6 @@ protected:
   /* Pointers to all the joints that follow this one in the kinematic tree,
    * including mimic joints, but excluding fixed joints */
   std::vector<const JointModel*> non_fixed_descendant_joint_models_;
-
-  /* Specify whether this joint is marked as passive in the SRDF */
-  bool passive_;
 
   /* The factor applied to the distance between two joint states */
   double distance_factor_;

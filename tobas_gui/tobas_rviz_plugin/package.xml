@@ -17,7 +17,6 @@
   <depend>rviz_common</depend>
   <depend>rviz_default_plugins</depend>
   <depend>rviz_rendering</depend>
-  <depend>srdfdom</depend>
   <depend>tobas_math</depend>
   <depend>tobas_visualization_msgs</depend>
 

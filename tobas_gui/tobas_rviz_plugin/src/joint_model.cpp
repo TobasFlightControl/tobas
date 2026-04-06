@@ -20,7 +20,6 @@ JointModel::JointModel(const std::string& name, size_t joint_index, size_t first
   , mimic_(nullptr)
   , mimic_factor_(1.)
   , mimic_offset_(0.)
-  , passive_(false)
   , distance_factor_(1.)
 {
 }

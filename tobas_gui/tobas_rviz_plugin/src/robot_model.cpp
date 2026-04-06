@@ -25,20 +25,19 @@ rclcpp::Logger getLogger()
 }
 }  // namespace
 
-RobotModel::RobotModel(const urdf::ModelInterfaceSharedPtr& urdf_model, const srdf::ModelConstSharedPtr& srdf_model)
+RobotModel::RobotModel(const urdf::ModelInterfaceSharedPtr& urdf_model)
 {
   root_joint_ = nullptr;
   urdf_ = urdf_model;
-  srdf_ = srdf_model;
-  buildModel(*urdf_model, *srdf_model);
+  buildModel(*urdf_model);
 }
 
 RobotModel::~RobotModel()
 {
-  for (JointModel* joint_model : joint_model_vector_) {
+  for (auto joint_model : joint_model_vector_) {
     delete joint_model;
   }
-  for (LinkModel* link_model : link_model_vector_) {
+  for (auto link_model : link_model_vector_) {
     delete link_model;
   }
 }
@@ -53,7 +52,7 @@ const LinkModel* RobotModel::getRootLink() const
   return root_link_;
 }
 
-void RobotModel::buildModel(const urdf::ModelInterface& urdf_model, const srdf::Model& srdf_model)
+void RobotModel::buildModel(const urdf::ModelInterface& urdf_model)
 {
   root_joint_ = nullptr;
   root_link_ = nullptr;
@@ -67,7 +66,7 @@ void RobotModel::buildModel(const urdf::ModelInterface& urdf_model, const srdf::
     model_frame_ = root_link_ptr->name;
 
     RCLCPP_DEBUG(getLogger(), "... building kinematic chain");
-    root_joint_ = buildRecursive(nullptr, root_link_ptr, srdf_model);
+    root_joint_ = buildRecursive(nullptr, root_link_ptr);
     if (root_joint_) {
       root_link_ = root_joint_->getChildLinkModel();
     }
@@ -350,10 +349,10 @@ void RobotModel::buildMimic(const urdf::ModelInterface& urdf_model)
   }
 }
 
-JointModel* RobotModel::buildRecursive(LinkModel* parent, const urdf::Link* urdf_link, const srdf::Model& srdf_model)
+JointModel* RobotModel::buildRecursive(LinkModel* parent, const urdf::Link* urdf_link)
 {
   // construct the joint
-  JointModel* joint = constructJointModel(urdf_link, srdf_model);
+  JointModel* joint = constructJointModel(urdf_link);
 
   if (!joint) {
     return nullptr;
@@ -386,7 +385,7 @@ JointModel* RobotModel::buildRecursive(LinkModel* parent, const urdf::Link* urdf
 
   // recursively build child links (and joints)
   for (const urdf::LinkSharedPtr& child_link : urdf_link->child_links) {
-    JointModel* jm = buildRecursive(link, child_link.get(), srdf_model);
+    JointModel* jm = buildRecursive(link, child_link.get());
     if (jm) {
       link->addChildJointModel(jm);
     }
@@ -429,14 +428,14 @@ inline VariableBounds jointBoundsFromURDF(const urdf::Joint* urdf_joint)
 }
 }  // namespace
 
-JointModel* RobotModel::constructJointModel(const urdf::Link* child_link, const srdf::Model& srdf_model)
+JointModel* RobotModel::constructJointModel(const urdf::Link* child_link)
 {
   JointModel* new_joint_model = nullptr;
-  auto parent_joint = child_link->parent_joint ? child_link->parent_joint.get() : nullptr;
-  auto joint_index = joint_model_vector_.size();
-  auto first_variable_index = joint_model_vector_.empty() ? 0 :
-                                                            joint_model_vector_.back()->getFirstVariableIndex() +
-                                                              joint_model_vector_.back()->getVariableCount();
+  const auto parent_joint = child_link->parent_joint ? child_link->parent_joint.get() : nullptr;
+  const auto joint_index = joint_model_vector_.size();
+  const auto first_variable_index = joint_model_vector_.empty() ? 0 :
+                                                                  joint_model_vector_.back()->getFirstVariableIndex() +
+                                                                    joint_model_vector_.back()->getVariableCount();
 
   // if parent_joint exists, must be the root link transform
   if (parent_joint) {
@@ -477,160 +476,12 @@ JointModel* RobotModel::constructJointModel(const urdf::Link* child_link, const 
   }
   else  // if parent_joint passed in as null, then we're at root of URDF model
   {
-    const std::vector<srdf::Model::VirtualJoint>& virtual_joints = srdf_model.getVirtualJoints();
-    for (const srdf::Model::VirtualJoint& virtual_joint : virtual_joints) {
-      if (virtual_joint.child_link_ != child_link->name) {
-        if (
-          child_link->name == "world" && virtual_joint.type_ == "fixed" && child_link->collision_array.empty() &&
-          !child_link->collision && child_link->visual_array.empty() && !child_link->visual) {
-          // Gazebo requires a fixed link from a dummy world link to the first robot's link
-          // Skip warning in this case and create a fixed joint with given name
-          new_joint_model = new FixedJointModel(virtual_joint.name_, joint_index, first_variable_index);
-        }
-        else {
-          RCLCPP_WARN(
-            getLogger(),
-            "Skipping virtual joint '%s' because its child frame '%s' "
-            "does not match the URDF frame '%s'",
-            virtual_joint.name_.c_str(),
-            virtual_joint.child_link_.c_str(),
-            child_link->name.c_str());
-        }
-      }
-      else if (virtual_joint.parent_frame_.empty()) {
-        RCLCPP_WARN(
-          getLogger(), "Skipping virtual joint '%s' because its parent frame is empty", virtual_joint.name_.c_str());
-      }
-      else {
-        if (virtual_joint.type_ == "fixed") {
-          new_joint_model = new FixedJointModel(virtual_joint.name_, joint_index, first_variable_index);
-        }
-        else if (virtual_joint.type_ == "planar") {
-          new_joint_model = new PlanarJointModel(virtual_joint.name_, joint_index, first_variable_index);
-        }
-        else if (virtual_joint.type_ == "floating") {
-          new_joint_model = new FloatingJointModel(virtual_joint.name_, joint_index, first_variable_index);
-        }
-        if (new_joint_model) {
-          // for fixed frames we still use the robot root link
-          if (virtual_joint.type_ != "fixed") {
-            model_frame_ = virtual_joint.parent_frame_;
-          }
-          break;
-        }
-      }
-    }
-    if (!new_joint_model) {
-      RCLCPP_INFO(getLogger(), "No root/virtual joint specified in SRDF. Assuming fixed joint");
-      new_joint_model = new FixedJointModel("ASSUMED_FIXED_ROOT_JOINT", joint_index, first_variable_index);
-    }
+    RCLCPP_INFO(getLogger(), "No root/virtual joint specified in URDF. Assuming fixed joint.");
+    new_joint_model = new FixedJointModel("ASSUMED_FIXED_ROOT_JOINT", joint_index, first_variable_index);
   }
 
   if (new_joint_model) {
     new_joint_model->setDistanceFactor(new_joint_model->getStateSpaceDimension());
-    const std::vector<srdf::Model::PassiveJoint>& pjoints = srdf_model.getPassiveJoints();
-    for (const srdf::Model::PassiveJoint& pjoint : pjoints) {
-      if (new_joint_model->getName() == pjoint.name_) {
-        new_joint_model->setPassive(true);
-        break;
-      }
-    }
-
-    for (const srdf::Model::JointProperty& property : srdf_model.getJointProperties(new_joint_model->getName())) {
-      if (property.property_name_ == "angular_distance_weight") {
-        double angular_distance_weight;
-        try {
-          std::string::size_type sz;
-          angular_distance_weight = std::stod(property.value_, &sz);
-          if (sz != property.value_.size()) {
-            RCLCPP_WARN_STREAM(
-              getLogger(),
-              "Extra characters after property " << property.property_name_ << " for joint " << property.joint_name_
-                                                 << " as double: '" << property.value_.substr(sz) << '\'');
-          }
-        }
-        catch (const std::invalid_argument& e) {
-          RCLCPP_ERROR_STREAM(
-            getLogger(),
-            "Unable to parse property " << property.property_name_ << " for joint " << property.joint_name_
-                                        << " as double: '" << property.value_ << '\'');
-          continue;
-        }
-
-        if (new_joint_model->getType() == JointModel::JointType::PLANAR) {
-          static_cast<PlanarJointModel*>(new_joint_model)->setAngularDistanceWeight(angular_distance_weight);
-        }
-        else if (new_joint_model->getType() == JointModel::JointType::FLOATING) {
-          static_cast<FloatingJointModel*>(new_joint_model)->setAngularDistanceWeight(angular_distance_weight);
-        }
-        else {
-          RCLCPP_ERROR_STREAM(
-            getLogger(),
-            "Cannot apply property " << property.property_name_ << " to joint type: " << new_joint_model->getTypeName());
-        }
-      }
-      else if (property.property_name_ == "motion_model") {
-        if (new_joint_model->getType() != JointModel::JointType::PLANAR) {
-          RCLCPP_ERROR(
-            getLogger(),
-            "Cannot apply property %s to joint type: %s",
-            property.property_name_.c_str(),
-            new_joint_model->getTypeName().c_str());
-          continue;
-        }
-
-        PlanarJointModel::MotionModel motion_model;
-        if (property.value_ == "holonomic") {
-          motion_model = PlanarJointModel::MotionModel::HOLONOMIC;
-        }
-        else if (property.value_ == "diff_drive") {
-          motion_model = PlanarJointModel::MotionModel::DIFF_DRIVE;
-        }
-        else {
-          RCLCPP_ERROR_STREAM(
-            getLogger(),
-            "Unknown value for property " << property.property_name_ << " (" << property.joint_name_ << "): '"
-                                          << property.value_ << '\'');
-          RCLCPP_ERROR(getLogger(), "Valid values are 'holonomic' and 'diff_drive'");
-          continue;
-        }
-
-        static_cast<PlanarJointModel*>(new_joint_model)->setMotionModel(motion_model);
-      }
-      else if (property.property_name_ == "min_translational_distance") {
-        if (new_joint_model->getType() != JointModel::JointType::PLANAR) {
-          RCLCPP_ERROR(
-            getLogger(),
-            "Cannot apply property %s to joint type: %s",
-            property.property_name_.c_str(),
-            new_joint_model->getTypeName().c_str());
-          continue;
-        }
-        double min_translational_distance;
-        try {
-          std::string::size_type sz;
-          min_translational_distance = std::stod(property.value_, &sz);
-          if (sz != property.value_.size()) {
-            RCLCPP_WARN_STREAM(
-              getLogger(),
-              "Extra characters after property " << property.property_name_ << " for joint " << property.joint_name_
-                                                 << " as double: '" << property.value_.substr(sz) << '\'');
-          }
-        }
-        catch (const std::invalid_argument& e) {
-          RCLCPP_ERROR_STREAM(
-            getLogger(),
-            "Unable to parse property " << property.property_name_ << " for joint " << property.joint_name_
-                                        << " as double: '" << property.value_ << '\'');
-          continue;
-        }
-
-        static_cast<PlanarJointModel*>(new_joint_model)->setMinTranslationalDistance(min_translational_distance);
-      }
-      else {
-        RCLCPP_ERROR(getLogger(), "Unknown joint property: %s", property.property_name_.c_str());
-      }
-    }
   }
 
   return new_joint_model;

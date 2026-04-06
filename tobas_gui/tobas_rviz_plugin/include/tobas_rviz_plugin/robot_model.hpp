@@ -5,7 +5,7 @@
 
 #include <iostream>
 
-#include <srdfdom/model.h>
+#include <urdf/model.h>
 #include <eigen3/Eigen/Geometry>
 #include <rclcpp/logging.hpp>
 
@@ -37,7 +37,7 @@ public:
   using ConstSharedPtr = std::shared_ptr<const RobotModel>;
 
   /* Construct a kinematic model from a parsed description and a list of planning groups */
-  explicit RobotModel(const urdf::ModelInterfaceSharedPtr& urdf_model, const srdf::ModelConstSharedPtr& srdf_model);
+  explicit RobotModel(const urdf::ModelInterfaceSharedPtr& urdf_model);
 
   /* Destructor. Clear all memory. */
   ~RobotModel();
@@ -48,11 +48,7 @@ public:
     return model_name_;
   }
 
-  /**
-   * @brief Get the frame in which the transforms for this model are computed (when using a RobotState).
-   * This frame depends on the root joint.
-   * As such, the frame is either extracted from SRDF, or it is assumed to be the name of the root link.
-   */
+  /* Get the frame in which the transforms for this model are computed (when using a RobotState). */
   const std::string& getModelFrame() const
   {
     return model_frame_;
@@ -70,17 +66,7 @@ public:
     return urdf_;
   }
 
-  /* Get the parsed SRDF model */
-  const srdf::ModelConstSharedPtr& getSRDF() const
-  {
-    return srdf_;
-  }
-
-  /**
-   * @brief Get the root joint.
-   * There will be one root joint unless the model is empty.
-   * This is either extracted from the SRDF, or a fixed joint is assumed, if no specification is given.
-   */
+  /* Get the root joint. */
   const JointModel* getRootJoint() const;
 
   /* Return the name of the root joint. Throws an exception if there is no root joint. */
@@ -349,11 +335,8 @@ protected:
   /* The name of the robot */
   std::string model_name_;
 
-  /* The reference (base) frame for this model. The frame is either extracted from the SRDF as a virtual joint,
-   * or it is assumed to be the name of the root link in the URDF */
+  /* The reference (base) frame for this model. */
   std::string model_frame_;
-
-  srdf::ModelConstSharedPtr srdf_;
 
   urdf::ModelInterfaceSharedPtr urdf_;
 
@@ -452,8 +435,8 @@ protected:
   std::vector<std::string> joint_model_group_names_;
 
 private:
-  /* Given an URDF model and a SRDF model, build a full kinematic model */
-  void buildModel(const urdf::ModelInterface& urdf_model, const srdf::Model& srdf_model);
+  /* Given an URDF model, build a full kinematic model */
+  void buildModel(const urdf::ModelInterface& urdf_model);
 
   /* Given the URDF model, build up the mimic joints (mutually constrained joints) */
   void buildMimic(const urdf::ModelInterface& urdf_model);
@@ -469,10 +452,10 @@ private:
 
   /* (This function is mostly intended for internal use). Given a parent link, build up (recursively),
    * the kinematic model by walking  down the tree*/
-  JointModel* buildRecursive(LinkModel* parent, const urdf::Link* link, const srdf::Model& srdf_model);
+  JointModel* buildRecursive(LinkModel* parent, const urdf::Link* link);
 
-  /* Given a child link and a srdf model, build up the corresponding JointModel object */
-  JointModel* constructJointModel(const urdf::Link* child_link, const srdf::Model& srdf_model);
+  /* Given a child link, build up the corresponding JointModel object */
+  JointModel* constructJointModel(const urdf::Link* child_link);
 
   /* Given a urdf link, build the corresponding LinkModel object */
   LinkModel* constructLinkModel(const urdf::Link* urdf_link);

@@ -197,8 +197,7 @@ void RobotStateDisplay::loadRobotModel()
 {
   if (rdf_loader_->getURDF()) {
     try {
-      const auto srdf = std::make_shared<srdf::Model>();
-      robot_model_ = std::make_shared<RobotModel>(rdf_loader_->getURDF(), srdf);
+      robot_model_ = std::make_shared<RobotModel>(rdf_loader_->getURDF());
 
       robot_->load(*robot_model_->getURDF());
       robot_->setVisualVisible(enable_visual_visible_->getBool());
