@@ -42,26 +42,15 @@ public:
 public Q_SLOTS:
   void setVisible(bool visible);
 
-private Q_SLOTS:
-  void changedRobotDescription();
-  void changedRootLinkName();
-  void changedRobotSceneAlpha();
-  void changedAttachedBodyColor();
-  void changedRobotStateTopic();
-  void changedEnableLinkHighlight();
-  void changedEnableVisualVisible();
-  void changedEnableCollisionVisible();
-  void changedEnableInertiaVisible();
-  void changedAllLinks();
-  void changedHighlightColor();
-  void changedUnhighlightColor();
-  void changedReload();
-
 protected:
+  void onInitialize() override;
+  void onEnable() override;
+  void onDisable() override;
+  void fixedFrameChanged() override;
+
   void initializeLoader();
   void loadRobotModel();
 
-  /* Set the scene node's position, given the target frame and the planning frame. */
   void calculateOffsetPosition();
 
   void setLinkColor(rviz_default_plugins::robot::Robot* robot, const std::string& link_name, const QColor& color);
@@ -74,15 +63,8 @@ protected:
   void setHighlight(const std::string& link_name, const std_msgs::msg::ColorRGBA& color);
   void unsetHighlight(const std::string& link_name);
 
-  // overrides from Display
-  void onInitialize() override;
-  void onEnable() override;
-  void onDisable() override;
-  void fixedFrameChanged() override;
-
-  // render the robot
   rclcpp::Node::SharedPtr node_;
-  rclcpp::Subscription<tobas_visualization_msgs::msg::DisplayRobotState>::SharedPtr robot_state_subscriber_;
+  rclcpp::Subscription<tobas_visualization_msgs::msg::DisplayRobotState>::SharedPtr robot_state_sub_;
 
   RobotStateVisualizationPtr robot_;
   std::shared_ptr<RDFLoader> rdf_loader_;
@@ -104,5 +86,20 @@ protected:
   rviz_common::properties::StringProperty* highlight_link_;
   rviz_common::properties::StringProperty* unhighlight_link_;
   rviz_common::properties::BoolProperty* reload_;
+
+private Q_SLOTS:
+  void changedRobotDescription();
+  void changedRootLinkName();
+  void changedRobotSceneAlpha();
+  void changedAttachedBodyColor();
+  void changedRobotStateTopic();
+  void changedEnableLinkHighlight();
+  void changedEnableVisualVisible();
+  void changedEnableCollisionVisible();
+  void changedEnableInertiaVisible();
+  void changedAllLinks();
+  void changedHighlightColor();
+  void changedUnhighlightColor();
+  void changedReload();
 };
 }  // namespace tobas
