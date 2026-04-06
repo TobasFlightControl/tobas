@@ -21,28 +21,17 @@ public:
     bool default_continuous_value = false,
     double default_timeout = 10.);
 
-  const ::urdf::ModelInterfaceSharedPtr& getURDF() const
-  {
-    return urdf_;
-  }
-
-  void setNewModelCallback(const NewModelCallback& cb)
-  {
-    new_model_cb_ = cb;
-  }
+  const ::urdf::ModelInterfaceSharedPtr& getURDF() const;
+  void setNewModelCallback(const NewModelCallback& cb);
 
 private:
   bool loadFromStrings();
-
   void urdfUpdateCallback(const std::string& new_urdf_string);
-
-  NewModelCallback new_model_cb_;
 
   std::string ros_name_;
   std::string urdf_string_;
-
   SynchronizedStringParameter urdf_ssp_;
-
   ::urdf::ModelInterfaceSharedPtr urdf_;
+  NewModelCallback new_model_cb_;
 };
 }  // namespace tobas

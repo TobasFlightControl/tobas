@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include "tobas_rviz_plugin/rbf_loader.hpp"
+#include "tobas_rviz_plugin/rdf_loader.hpp"
 
 #include "tobas_rviz_plugin/logger.hpp"
 
@@ -36,6 +36,16 @@ RDFLoader::RDFLoader(
   }
 
   RCLCPP_INFO_STREAM(getLogger(), "Loaded robot model in " << (node->now() - start).seconds() << " seconds.");
+}
+
+const ::urdf::ModelInterfaceSharedPtr& RDFLoader::getURDF() const
+{
+  return urdf_;
+}
+
+void RDFLoader::setNewModelCallback(const NewModelCallback& cb)
+{
+  new_model_cb_ = cb;
 }
 
 bool RDFLoader::loadFromStrings()

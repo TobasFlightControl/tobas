@@ -17,7 +17,7 @@
 
 #include <tobas_visualization_msgs/msg/display_robot_state.hpp>
 
-#include "./rbf_loader.hpp"
+#include "./rdf_loader.hpp"
 #include "./robot_state_visualization.hpp"
 
 namespace tobas
