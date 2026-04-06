@@ -56,8 +56,7 @@ protected:
 
   void newRobotStateCallback(const tobas_visualization_msgs::msg::DisplayRobotState::ConstSharedPtr& state);
 
-  void
-  setRobotHighlights(const tobas_visualization_msgs::msg::DisplayRobotState::_highlight_links_type& highlight_links);
+  void setRobotHighlights(const tobas_visualization_msgs::msg::DisplayRobotState::_highlight_links_type& links);
   void setHighlight(const std::string& link_name, const std_msgs::msg::ColorRGBA& color);
   void unsetHighlight(const std::string& link_name);
 

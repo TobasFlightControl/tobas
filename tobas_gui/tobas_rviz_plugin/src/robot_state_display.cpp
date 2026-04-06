@@ -280,15 +280,15 @@ void RobotStateDisplay::newRobotStateCallback(
 }
 
 void RobotStateDisplay::setRobotHighlights(
-  const tobas_visualization_msgs::msg::DisplayRobotState::_highlight_links_type& highlight_links)
+  const tobas_visualization_msgs::msg::DisplayRobotState::_highlight_links_type& links)
 {
-  if (highlight_links.empty() && highlights_.empty()) {
+  if (links.empty() && highlights_.empty()) {
     return;
   }
 
   std::map<std::string, std_msgs::msg::ColorRGBA> highlights;
-  for (const auto& highlight_link : highlight_links) {
-    highlights[highlight_link.id] = highlight_link.color;
+  for (const auto& link : links) {
+    highlights[link.id] = link.color;
   }
 
   if (enable_link_highlight_->getBool()) {
