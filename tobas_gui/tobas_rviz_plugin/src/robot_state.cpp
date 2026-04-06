@@ -11,7 +11,6 @@
 #include <tf2_eigen/tf2_eigen.hpp>
 
 #include "tobas_rviz_plugin/aabb.hpp"
-#include "tobas_rviz_plugin/cartesian_interpolator.hpp"
 #include "tobas_rviz_plugin/console_colers.hpp"
 #include "tobas_rviz_plugin/logger.hpp"
 
