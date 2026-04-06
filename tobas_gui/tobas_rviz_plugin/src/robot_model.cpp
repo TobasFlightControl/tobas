@@ -664,7 +664,7 @@ LinkModel* RobotModel::getLinkModel(const std::string& name, bool* has_link)
   if (has_link) {
     *has_link = true;  // Start out optimistic
   }
-  LinkModelMap::const_iterator it = link_model_map_.find(name);
+  const auto it = link_model_map_.find(name);
   if (it != link_model_map_.end()) {
     return it->second;
   }

@@ -12,25 +12,14 @@
 #include <geometric_shapes/check_isometry.h>
 #include <eigen3/Eigen/Geometry>
 
-#include "./class_forward.hpp"
-
-namespace shapes
-{
-TOBAS_CLASS_FORWARD(Shape);  // Defines ShapePtr, ConstPtr, WeakPtr... etc
-}  // namespace shapes
+#include "./shape.hpp"
 
 namespace tobas
 {
 class JointModel;
 class LinkModel;
 
-/* Map of names to instances for LinkModel */
-typedef std::map<std::string, LinkModel*> LinkModelMap;
-
-/* Map of names to const instances for LinkModel */
-using LinkModelMapConst = std::map<std::string, const LinkModel*>;
-
-/* Map from link model instances to Eigen transforms */
+/* Map from link model instances to Eigen transforms. */
 using LinkTransformMap = std::map<
   const LinkModel*,
   Eigen::Isometry3d,

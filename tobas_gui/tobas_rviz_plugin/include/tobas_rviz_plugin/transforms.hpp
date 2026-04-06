@@ -9,12 +9,8 @@
 
 #include <geometry_msgs/msg/transform_stamped.hpp>
 
-#include "./class_forward.hpp"
-
 namespace tobas
 {
-TOBAS_CLASS_FORWARD(Transforms);  // Defines TransformsPtr, ConstPtr, WeakPtr... etc
-
 /* Map frame names to the transformation matrix that can transform objects from the frame name to the planning */
 using FixedTransformsMap = std::map<
   std::string,

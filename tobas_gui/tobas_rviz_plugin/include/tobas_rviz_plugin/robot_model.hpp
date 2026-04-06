@@ -9,7 +9,6 @@
 #include <eigen3/Eigen/Geometry>
 #include <rclcpp/logging.hpp>
 
-#include "./class_forward.hpp"
 #include "./joint_model/fixed_joint_model.hpp"
 #include "./joint_model/floating_joint_model.hpp"
 #include "./joint_model/planar_joint_model.hpp"
@@ -345,7 +344,7 @@ protected:
   const LinkModel* root_link_;
 
   /* A map from link names to their instances */
-  LinkModelMap link_model_map_;
+  std::map<std::string, LinkModel*> link_model_map_;
 
   /* The vector of links that are updated when computeTransforms() is called, in the order they are updated */
   std::vector<LinkModel*> link_model_vector_;
