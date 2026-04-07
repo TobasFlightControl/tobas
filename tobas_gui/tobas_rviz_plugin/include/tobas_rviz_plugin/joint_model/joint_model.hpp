@@ -9,8 +9,6 @@
 
 #include <eigen3/Eigen/Geometry>
 
-#include <tobas_visualization_msgs/msg/joint_limits.hpp>
-
 namespace tobas
 {
 class LinkModel;
