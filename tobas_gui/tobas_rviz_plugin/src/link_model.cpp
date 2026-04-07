@@ -36,7 +36,7 @@ void LinkModel::setJointOriginTransform(const Eigen::Isometry3d& transform)
 void LinkModel::setParentJointModel(const JointModel* joint)
 {
   parent_joint_model_ = joint;
-  is_parent_joint_fixed_ = joint->getType() == JointModel::FIXED;
+  is_parent_joint_fixed_ = joint->getType() == JointModel::kFixed;
 }
 
 void LinkModel::setGeometry(const std::vector<shapes::ShapeConstPtr>& shapes, const EigenSTL::vector_Isometry3d& origins)

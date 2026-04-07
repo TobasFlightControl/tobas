@@ -8,7 +8,7 @@ namespace tobas
 FixedJointModel::FixedJointModel(const std::string& name, size_t joint_index, size_t first_variable_index)
   : JointModel(name, joint_index, first_variable_index)
 {
-  type_ = FIXED;
+  type_ = kFixed;
 }
 
 void FixedJointModel::getVariableDefaultPositions(double*) const
@@ -20,7 +20,7 @@ void FixedJointModel::computeTransform(const double*, Eigen::Isometry3d& transfo
   transform.setIdentity();
 }
 
-void FixedJointModel::computeVariablePositions(const Eigen::Isometry3d& /* transform */, double*) const
+void FixedJointModel::computeVariablePositions(const Eigen::Isometry3d&, double*) const
 {
 }
 }  // namespace tobas

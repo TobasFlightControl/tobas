@@ -7,7 +7,6 @@
 
 namespace tobas
 {
-/* A fixed joint */
 class FixedJointModel : public JointModel
 {
 public:

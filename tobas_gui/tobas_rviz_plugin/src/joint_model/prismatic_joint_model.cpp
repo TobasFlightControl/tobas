@@ -8,9 +8,9 @@
 namespace tobas
 {
 PrismaticJointModel::PrismaticJointModel(const std::string& name, size_t joint_index, size_t first_variable_index)
-  : JointModel(name, joint_index, first_variable_index), axis_(0., 0., 0.)
+  : JointModel(name, joint_index, first_variable_index)
 {
-  type_ = PRISMATIC;
+  type_ = kPrismatic;
   variable_names_.push_back(getName());
   variable_index_map_[getName()] = 0;
 }
@@ -22,7 +22,8 @@ void PrismaticJointModel::getVariableDefaultPositions(double* values) const
 
 void PrismaticJointModel::computeTransform(const double* joint_values, Eigen::Isometry3d& transform) const
 {
-  double* d = transform.data();
+  auto d = transform.data();
+
   d[0] = 1.;
   d[1] = 0.;
   d[2] = 0.;
@@ -42,13 +43,22 @@ void PrismaticJointModel::computeTransform(const double* joint_values, Eigen::Is
   d[13] = axis_.y() * joint_values[0];
   d[14] = axis_.z() * joint_values[0];
   d[15] = 1.;
-
-  //  transform.setIdentity();
-  //  transform.translation() = Eigen::Vector3d(axis_ * joint_values[0]);
 }
 
 void PrismaticJointModel::computeVariablePositions(const Eigen::Isometry3d& transform, double* joint_values) const
 {
   joint_values[0] = transform.translation().dot(axis_);
+}
+
+/* Get the axis of translation. */
+const Eigen::Vector3d& PrismaticJointModel::getAxis() const
+{
+  return axis_;
+}
+
+/* Set the axis of translation. */
+void PrismaticJointModel::setAxis(const Eigen::Vector3d& axis)
+{
+  axis_ = axis;
 }
 }  // namespace tobas

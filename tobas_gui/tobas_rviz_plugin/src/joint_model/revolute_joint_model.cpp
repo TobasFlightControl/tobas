@@ -14,34 +14,10 @@ namespace tobas
 {
 RevoluteJointModel::RevoluteJointModel(const std::string& name, size_t joint_index, size_t first_variable_index)
   : JointModel(name, joint_index, first_variable_index)
-  , axis_(0., 0., 0.)
-  , continuous_(false)
-  , x2_(0.)
-  , y2_(0.)
-  , z2_(0.)
-  , xy_(0.)
-  , xz_(0.)
-  , yz_(0.)
 {
-  type_ = REVOLUTE;
+  type_ = kRevolute;
   variable_names_.push_back(getName());
   variable_index_map_[getName()] = 0;
-}
-
-void RevoluteJointModel::setAxis(const Eigen::Vector3d& axis)
-{
-  axis_ = axis.normalized();
-  x2_ = axis_.x() * axis_.x();
-  y2_ = axis_.y() * axis_.y();
-  z2_ = axis_.z() * axis_.z();
-  xy_ = axis_.x() * axis_.y();
-  xz_ = axis_.x() * axis_.z();
-  yz_ = axis_.y() * axis_.z();
-}
-
-void RevoluteJointModel::setContinuous(bool flag)
-{
-  continuous_ = flag;
 }
 
 void RevoluteJointModel::getVariableDefaultPositions(double* values) const
@@ -51,19 +27,19 @@ void RevoluteJointModel::getVariableDefaultPositions(double* values) const
 
 void RevoluteJointModel::computeTransform(const double* joint_values, Eigen::Isometry3d& transform) const
 {
-  const double c = cos(joint_values[0]);
-  const double s = sin(joint_values[0]);
-  const double t = 1. - c;
-  const double txy = t * xy_;
-  const double txz = t * xz_;
-  const double tyz = t * yz_;
+  const auto c = cos(joint_values[0]);
+  const auto s = sin(joint_values[0]);
+  const auto t = 1. - c;
+  const auto txy = t * xy_;
+  const auto txz = t * xz_;
+  const auto tyz = t * yz_;
 
-  const double zs = axis_.z() * s;
-  const double ys = axis_.y() * s;
-  const double xs = axis_.x() * s;
+  const auto zs = axis_.z() * s;
+  const auto ys = axis_.y() * s;
+  const auto xs = axis_.x() * s;
 
   // column major
-  double* d = transform.data();
+  auto d = transform.data();
 
   d[0] = t * x2_ + c;
   d[1] = txy + zs;
@@ -84,8 +60,6 @@ void RevoluteJointModel::computeTransform(const double* joint_values, Eigen::Iso
   d[13] = 0.;
   d[14] = 0.;
   d[15] = 1.;
-
-  //  transform = Eigen::Isometry3d(Eigen::AngleAxisd(joint_values[0], axis_));
 }
 
 void RevoluteJointModel::computeVariablePositions(const Eigen::Isometry3d& transform, double* joint_values) const
@@ -96,5 +70,31 @@ void RevoluteJointModel::computeVariablePositions(const Eigen::Isometry3d& trans
   size_t max_idx;
   axis_.array().abs().maxCoeff(&max_idx);
   joint_values[0] = 2. * atan2(q.vec()[max_idx] / axis_[max_idx], q.w());
+}
+
+bool RevoluteJointModel::isContinuous() const
+{
+  return continuous_;
+}
+
+void RevoluteJointModel::setContinuous(bool flag)
+{
+  continuous_ = flag;
+}
+
+const Eigen::Vector3d& RevoluteJointModel::getAxis() const
+{
+  return axis_;
+}
+
+void RevoluteJointModel::setAxis(const Eigen::Vector3d& axis)
+{
+  axis_ = axis.normalized();
+  x2_ = axis_.x() * axis_.x();
+  y2_ = axis_.y() * axis_.y();
+  z2_ = axis_.z() * axis_.z();
+  xy_ = axis_.x() * axis_.y();
+  xz_ = axis_.x() * axis_.z();
+  yz_ = axis_.y() * axis_.z();
 }
 }  // namespace tobas

@@ -241,7 +241,7 @@ void RobotModel::buildJointInfo()
         active_joint_model_vector_const_.push_back(joint);
       }
 
-      if (joint->getType() == JointModel::REVOLUTE && static_cast<const RevoluteJointModel*>(joint)->isContinuous()) {
+      if (joint->getType() == JointModel::kRevolute && static_cast<const RevoluteJointModel*>(joint)->isContinuous()) {
         continuous_joint_model_vector_.push_back(joint);
       }
 
@@ -636,7 +636,7 @@ void RobotModel::computeFixedTransforms(
 {
   associated_transforms[link] = transform * link->getJointOriginTransform();
   for (size_t i = 0; i < link->getChildJointModels().size(); ++i) {
-    if (link->getChildJointModels()[i]->getType() == JointModel::FIXED) {
+    if (link->getChildJointModels()[i]->getType() == JointModel::kFixed) {
       computeFixedTransforms(
         link->getChildJointModels()[i]->getChildLinkModel(),
         transform * link->getJointOriginTransform(),
