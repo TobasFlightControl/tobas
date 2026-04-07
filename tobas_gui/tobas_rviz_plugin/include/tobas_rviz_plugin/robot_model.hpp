@@ -3,11 +3,8 @@
 
 #pragma once
 
-#include <iostream>
-
 #include <urdf/model.h>
 #include <eigen3/Eigen/Geometry>
-#include <rclcpp/logging.hpp>
 
 #include "./joint_model/fixed_joint_model.hpp"
 #include "./joint_model/floating_joint_model.hpp"
@@ -18,39 +15,21 @@
 
 namespace tobas
 {
-static inline void checkInterpolationParamBounds(const rclcpp::Logger& logger, double t)
-{
-  if (std::isnan(t) || std::isinf(t)) {
-    throw std::runtime_error("Interpolation parameter is NaN or inf.");
-  }
-
-  RCLCPP_WARN_STREAM_EXPRESSION(logger, t < 0. || t > 1., "Interpolation parameter is not in the range [0, 1]: " << t);
-}
-
-/* Definition of a kinematic model. This class is not thread safe, however multiple instances can be created */
+/* Definition of a kinematic model. This class is not thread safe, however multiple instances can be created. */
 class RobotModel
 {
 public:
   using SharedPtr = std::shared_ptr<RobotModel>;
   using ConstSharedPtr = std::shared_ptr<const RobotModel>;
 
-  /* Construct a kinematic model from a parsed description and a list of planning groups */
   explicit RobotModel(const urdf::ModelInterfaceSharedPtr& urdf_model);
-
-  /* Destructor. Clear all memory. */
   ~RobotModel();
 
   /* Get the frame in which the transforms for this model are computed (when using a RobotState). */
-  const std::string& getModelFrame() const
-  {
-    return model_frame_;
-  }
+  const std::string& getModelFrame() const;
 
-  /* Get the parsed URDF model */
-  const urdf::ModelInterfaceSharedPtr& getURDF() const
-  {
-    return urdf_;
-  }
+  /* Get the parsed URDF model. */
+  const urdf::ModelInterfaceSharedPtr& getURDF() const;
 
   /* Get the root joint. */
   const JointModel* getRootJoint() const;
@@ -67,32 +46,16 @@ public:
   /* Get a joint by its name. Output error and return nullptr when the joint is missing. */
   JointModel* getJointModel(const std::string& joint);
 
-  /* This is a list of all single-dof joints (including mimic joints) */
-  const std::vector<const JointModel*>& getSingleDOFJointModels() const
-  {
-    return single_dof_joints_;
-  }
+  /* This is a list of all single-dof joints (including mimic joints). */
+  const std::vector<const JointModel*>& getSingleDOFJointModels() const;
 
-  /* This is a list of all multi-dof joints */
-  const std::vector<const JointModel*>& getMultiDOFJointModels() const
-  {
-    return multi_dof_joints_;
-  }
+  /* This is a list of all multi-dof joints. */
+  const std::vector<const JointModel*>& getMultiDOFJointModels() const;
 
-  const JointModel* getJointOfVariable(int variable_index) const
-  {
-    return joints_of_variable_[variable_index];
-  }
+  const JointModel* getJointOfVariable(int variable_index) const;
+  const JointModel* getJointOfVariable(const std::string& variable) const;
 
-  const JointModel* getJointOfVariable(const std::string& variable) const
-  {
-    return joints_of_variable_[getVariableIndex(variable)];
-  }
-
-  size_t getJointModelCount() const
-  {
-    return joint_model_vector_.size();
-  }
+  size_t getJointModelCount() const;
 
   /* Get the physical root link of the robot. */
   const LinkModel* getRootLink() const;
@@ -106,62 +69,29 @@ public:
   /* Get a link by its name. Output error and return nullptr when the link is missing. */
   LinkModel* getLinkModel(const std::string& link, bool* has_link = nullptr);
 
-  size_t getLinkModelCount() const
-  {
-    return link_model_vector_.size();
-  }
+  size_t getLinkModelCount() const;
 
-  size_t getLinkGeometryCount() const
-  {
-    return link_geometry_count_;
-  }
+  size_t getLinkGeometryCount() const;
 
-  /* Compute the default values for a RobotState */
+  /* Compute the default values for a \e RobotState. */
   void getVariableDefaultPositions(double* values) const;
-
-  /* Compute the default values for a RobotState */
-  void getVariableDefaultPositions(std::vector<double>& values) const
-  {
-    values.resize(variable_count_);
-    getVariableDefaultPositions(&values.front());
-  }
-
-  /* Compute the default values for a RobotState */
+  void getVariableDefaultPositions(std::vector<double>& values) const;
   void getVariableDefaultPositions(std::map<std::string, double>& values) const;
 
-  /* Get the number of variables that describe this model */
-  size_t getVariableCount() const
-  {
-    return variable_count_;
-  }
+  /* Get the number of variables that describe this model. */
+  size_t getVariableCount() const;
 
-  /**
-   * @brief Get the names of the variables that make up the joints that form this state.
-   * Fixed joints have no DOF, so they are not here, but the variables for mimic joints are included.
-   * The number of returned elements is always equal to getVariableCount().
-   */
-  const std::vector<std::string>& getVariableNames() const
-  {
-    return variable_names_;
-  }
+  /* Get the names of the variables that make up the joints that form this state. */
+  const std::vector<std::string>& getVariableNames() const;
 
   /* Get the index of a variable in the robot state */
   size_t getVariableIndex(const std::string& variable) const;
 
-  /* Get the deepest joint in the kinematic tree that is a common parent of both joints passed as argument */
-  const JointModel* getCommonRoot(const JointModel* a, const JointModel* b) const
-  {
-    if (!a) {
-      return b;
-    }
-    if (!b) {
-      return a;
-    }
-    return joint_model_vector_[common_joint_roots_[a->getJointIndex() * joint_model_vector_.size() + b->getJointIndex()]];
-  }
+  /* Get the deepest joint in the kinematic tree that is a common parent of both joints passed as argument. */
+  const JointModel* getCommonRoot(const JointModel* a, const JointModel* b) const;
 
 protected:
-  /* Get the transforms between link and all its rigidly attached descendants */
+  /* Get the transforms between link and all its rigidly attached descendants. */
   void computeFixedTransforms(
     const LinkModel* link,
     const Eigen::Isometry3d& transform,
@@ -188,10 +118,10 @@ protected:
   /* A map from link names to their instances */
   std::map<std::string, LinkModel*> link_model_map_;
 
-  /* The vector of links that are updated when computeTransforms() is called, in the order they are updated */
+  /* The vector of links that are updated when \e computeTransforms() is called, in the order they are updated */
   std::vector<LinkModel*> link_model_vector_;
 
-  /* The vector of links that are updated when computeTransforms() is called, in the order they are updated */
+  /* The vector of links that are updated when \e computeTransforms() is called, in the order they are updated */
   std::vector<const LinkModel*> link_model_vector_const_;
 
   /* The vector of link names that corresponds to link_model_vector_ */
@@ -200,7 +130,7 @@ protected:
   /* Only links that have collision geometry specified */
   std::vector<const LinkModel*> link_models_with_collision_geometry_vector_;
 
-  /* The vector of link names that corresponds to link_models_with_collision_geometry_vector_ */
+  /* The vector of link names that corresponds to \e link_models_with_collision_geometry_vector_ */
   std::vector<std::string> link_model_names_with_collision_geometry_vector_;
 
   /* Total number of geometric shapes in this model */
@@ -243,17 +173,15 @@ protected:
   std::vector<const JointModel*> multi_dof_joints_;
 
   /* For every two joints, the index of the common root for the joints is stored.
-   *
-   * for jointA, jointB the index of the common root is located in the array at location
+   * For jointA, jointB the index of the common root is located in the array at location
    * jointA->getJointIndex() * nr.joints + jointB->getJointIndex().
-   * The size of this array is nr.joints * nr.joints
-   */
+   * The size of this array is nr.joints * nr.joints. */
   std::vector<int> common_joint_roots_;
 
   // INDEXING
 
-  /* The names of the DOF that make up this state (this is just a sequence of joint variable names; not
-   * necessarily joint names!) */
+  /* The names of the DOF that make up this state
+   * (This is just a sequence of joint variable names; not necessarily joint names!) */
   std::vector<std::string> variable_names_;
 
   /* Get the number of variables necessary to describe this model */
@@ -266,8 +194,6 @@ protected:
 
   std::vector<int> active_joint_model_start_index_;
 
-  /* The bounds for all the active joint models */
-
   /* The joints that correspond to each variable index */
   std::vector<const JointModel*> joints_of_variable_;
 
@@ -275,32 +201,31 @@ protected:
   std::vector<std::string> joint_model_group_names_;
 
 private:
-  /* Given an URDF model, build a full kinematic model */
+  /* Given an URDF model, build a full kinematic model. */
   void buildModel(const urdf::ModelInterface& urdf_model);
 
-  /* Given the URDF model, build up the mimic joints (mutually constrained joints) */
+  /* Given the URDF model, build up the mimic joints (mutually constrained joints). */
   void buildMimic(const urdf::ModelInterface& urdf_model);
 
-  /* Compute helpful information about joints */
+  /* Compute helpful information about joints. */
   void buildJointInfo();
 
-  /* For every joint, pre-compute the list of descendant joints & links */
+  /* For every joint, pre-compute the list of descendant joints & links. */
   void computeDescendants();
 
-  /* For every pair of joints, pre-compute the common roots of the joints */
+  /* For every pair of joints, pre-compute the common roots of the joints. */
   void computeCommonRoots();
 
-  /* (This function is mostly intended for internal use). Given a parent link, build up (recursively),
-   * the kinematic model by walking  down the tree*/
+  /* Given a parent link, build up (recursively), the kinematic model by walking  down the tree. */
   JointModel* buildRecursive(LinkModel* parent, const urdf::Link* link);
 
-  /* Given a child link, build up the corresponding JointModel object */
+  /* Given a child link, build up the corresponding JointModel object. */
   JointModel* constructJointModel(const urdf::Link* child_link);
 
-  /* Given a urdf link, build the corresponding LinkModel object */
+  /* Given a urdf link, build the corresponding LinkModel object. */
   LinkModel* constructLinkModel(const urdf::Link* urdf_link);
 
-  /* Given a geometry spec from the URDF and a filename (for a mesh), construct the corresponding shape object */
+  /* Given a geometry spec from the URDF and a filename (for a mesh), construct the corresponding shape object. */
   shapes::ShapePtr constructShape(const urdf::Geometry* geom);
 };
 }  // namespace tobas
