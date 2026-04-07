@@ -34,7 +34,7 @@ public:
     bool default_continuous_value = false,
     double default_timeout = 10.);
 
-protected:
+private:
   bool getMainParameter();
   bool shouldPublish();
   bool waitForMessage(const rclcpp::Duration& timeout);
