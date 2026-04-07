@@ -10,16 +10,17 @@
 namespace tobas
 {
 JointModel::JointModel(const std::string& name, size_t joint_index, size_t first_variable_index)
-  : name_(name)
-  , joint_index_(joint_index)
-  , first_variable_index_(first_variable_index)
-  , type_(UNKNOWN)
+  : type_(UNKNOWN)
   , parent_link_model_(nullptr)
   , child_link_model_(nullptr)
   , mimic_(nullptr)
   , mimic_factor_(1.)
   , mimic_offset_(0.)
   , distance_factor_(1.)
+  , name_(name)
+  , joint_index_(joint_index)
+  , first_variable_index_(first_variable_index)
+
 {
 }
 
@@ -53,75 +54,6 @@ size_t JointModel::getLocalVariableIndex(const std::string& variable) const
       "Could not find variable '" + variable + "' to get bounds for within joint '" + name_ + "'");
   }
   return it->second;
-}
-
-bool JointModel::harmonizePosition(double* /*values*/, const Bounds& /*other_bounds*/) const
-{
-  return false;
-}
-
-bool JointModel::enforceVelocityBounds(double* values, const Bounds& other_bounds) const
-{
-  bool change = false;
-  for (size_t i = 0; i < other_bounds.size(); ++i) {
-    if (other_bounds[i].max_velocity_ < values[i]) {
-      values[i] = other_bounds[i].max_velocity_;
-      change = true;
-    }
-    else if (other_bounds[i].min_velocity_ > values[i]) {
-      values[i] = other_bounds[i].min_velocity_;
-      change = true;
-    }
-  }
-  return change;
-}
-
-bool JointModel::satisfiesVelocityBounds(const double* values, const Bounds& other_bounds, double margin) const
-{
-  for (size_t i = 0; i < other_bounds.size(); ++i) {
-    if (!other_bounds[i].velocity_bounded_) {
-      continue;
-    }
-    if (other_bounds[i].max_velocity_ + margin < values[i]) {
-      return false;
-    }
-    else if (other_bounds[i].min_velocity_ - margin > values[i]) {
-      return false;
-    }
-  }
-  return true;
-}
-
-bool JointModel::satisfiesAccelerationBounds(const double* values, const Bounds& other_bounds, double margin) const
-{
-  for (size_t i = 0; i < other_bounds.size(); ++i) {
-    if (!other_bounds[i].acceleration_bounded_) {
-      continue;
-    }
-    if (other_bounds[i].max_acceleration_ + margin < values[i]) {
-      return false;
-    }
-    else if (other_bounds[i].min_acceleration_ - margin > values[i]) {
-      return false;
-    }
-  }
-  return true;
-}
-
-bool JointModel::satisfiesJerkBounds(const double* values, const Bounds& other_bounds, double margin) const
-{
-  for (size_t i = 0; i < other_bounds.size(); ++i) {
-    if (!other_bounds[i].jerk_bounded_) {
-      continue;
-    }
-    if (other_bounds[i].max_jerk_ + margin < values[i]) {
-      return false;
-    }
-    else if (other_bounds[i].min_jerk_ - margin > values[i]) {
-      return false;
-    }
-  }
-  return true;
 }
 
 const VariableBounds& JointModel::getVariableBounds(const std::string& variable) const

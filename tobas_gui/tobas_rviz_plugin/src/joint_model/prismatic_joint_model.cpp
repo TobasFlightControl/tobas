@@ -25,11 +25,6 @@ uint32_t PrismaticJointModel::getStateSpaceDimension() const
   return 1;
 }
 
-double PrismaticJointModel::getMaximumExtent(const Bounds& other_bounds) const
-{
-  return variable_bounds_[0].max_position_ - other_bounds[0].min_position_;
-}
-
 void PrismaticJointModel::getVariableDefaultPositions(double* values, const Bounds& bounds) const
 {
   // if zero is a valid value
@@ -39,53 +34,6 @@ void PrismaticJointModel::getVariableDefaultPositions(double* values, const Boun
   else {
     values[0] = (bounds[0].min_position_ + bounds[0].max_position_) / 2.;
   }
-}
-
-bool PrismaticJointModel::satisfiesPositionBounds(const double* values, const Bounds& bounds, double margin) const
-{
-  return values[0] >= bounds[0].min_position_ - margin && values[0] <= bounds[0].max_position_ + margin;
-}
-
-void PrismaticJointModel::getVariableRandomPositions(
-  random_numbers::RandomNumberGenerator& rng,
-  double* values,
-  const Bounds& bounds) const
-{
-  values[0] = rng.uniformReal(bounds[0].min_position_, bounds[0].max_position_);
-}
-
-void PrismaticJointModel::getVariableRandomPositionsNearBy(
-  random_numbers::RandomNumberGenerator& rng,
-  double* values,
-  const Bounds& bounds,
-  const double* near,
-  const double distance) const
-{
-  values[0] = rng.uniformReal(
-    std::max(bounds[0].min_position_, near[0] - distance), std::min(bounds[0].max_position_, near[0] + distance));
-}
-
-bool PrismaticJointModel::enforcePositionBounds(double* values, const Bounds& bounds) const
-{
-  if (values[0] < bounds[0].min_position_) {
-    values[0] = bounds[0].min_position_;
-    return true;
-  }
-  else if (values[0] > bounds[0].max_position_) {
-    values[0] = bounds[0].max_position_;
-    return true;
-  }
-  return false;
-}
-
-double PrismaticJointModel::distance(const double* values1, const double* values2) const
-{
-  return std::abs(values1[0] - values2[0]);
-}
-
-void PrismaticJointModel::interpolate(const double* from, const double* to, const double t, double* state) const
-{
-  state[0] = from[0] + (to[0] - from[0]) * t;
 }
 
 void PrismaticJointModel::computeTransform(const double* joint_values, Eigen::Isometry3d& transform) const

@@ -116,18 +116,8 @@ public:
     return link_geometry_count_;
   }
 
-  /* Compute the random values for a RobotState */
-  void getVariableRandomPositions(random_numbers::RandomNumberGenerator& rng, double* values) const;
-
   /* Compute the default values for a RobotState */
   void getVariableDefaultPositions(double* values) const;
-
-  /* Compute the random values for a RobotState */
-  void getVariableRandomPositions(random_numbers::RandomNumberGenerator& rng, std::vector<double>& values) const
-  {
-    values.resize(variable_count_);
-    getVariableRandomPositions(rng, &values.front());
-  }
 
   /* Compute the default values for a RobotState */
   void getVariableDefaultPositions(std::vector<double>& values) const
@@ -135,10 +125,6 @@ public:
     values.resize(variable_count_);
     getVariableDefaultPositions(&values.front());
   }
-
-  /* Compute the random values for a RobotState */
-  void
-  getVariableRandomPositions(random_numbers::RandomNumberGenerator& rng, std::map<std::string, double>& values) const;
 
   /* Compute the default values for a RobotState */
   void getVariableDefaultPositions(std::map<std::string, double>& values) const;
