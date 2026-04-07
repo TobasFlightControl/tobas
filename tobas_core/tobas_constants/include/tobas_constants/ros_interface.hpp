@@ -42,6 +42,7 @@ static constexpr char kLanded[] = "landed";
 static constexpr char kRosbagState[] = "rosbag_state";
 static constexpr char kHeartbeat[] = "heartbeat";
 static constexpr char kRemoteConnection[] = "remote_connection";
+static constexpr char kRepulsiveAccel[] = "repulsive_acceleration";
 
 // Low Command
 static constexpr char kRotorThrustsCmd[] = "command/rotor_thrusts";

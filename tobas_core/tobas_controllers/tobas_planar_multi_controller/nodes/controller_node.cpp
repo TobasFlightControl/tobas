@@ -31,6 +31,7 @@
 #include <tobas_msgs/msg/rotor_thrust_array.hpp>
 #include <tobas_msgs_adapter/odometry_stamped.hpp>
 #include <tobas_msgs_adapter/odometry_with_covariance_stamped.hpp>
+#include <tobas_msgs_adapter/repulsive_acceleration.hpp>
 
 #include "tobas_planar_multi_controller/mixer_qp.hpp"
 #include "tobas_planar_multi_controller/translational_eom.hpp"
@@ -106,6 +107,9 @@ private:
   traj::VelocityLimitedOnlineTrajectoryGenerator roll_filt_, pitch_filt_;
   bool smooth_tar_roll_ = false, smooth_tar_pitch_ = false;  // 飛行モード遷移時に目標姿勢の平滑化を行っている状態
 
+  // object
+  tobas_msgs::RepulsiveAcceleration::ConstSharedPtr repulsive_acceleration_;  // 障害物反力加速度
+
   // Publishers
   ros2::PublisherPtr<tobas_msgs::msg::RotorThrustArray> tar_thrusts_pub_;
   ros2::PublisherPtr<tobas_msgs::OdometryStamped> setpoint_pub_;
@@ -124,6 +128,7 @@ private:
   ros2::SubscriberPtr<tobas_command_msgs::AccelYaw> acc_cmd_sub_;
   ros2::SubscriberPtr<tobas_command_msgs::AngleThrottle> angle_cmd_sub_;
   ros2::SubscriberPtr<tobas_command_msgs::RateThrottle> rate_cmd_sub_;
+  ros2::SubscriberPtr<tobas_msgs::RepulsiveAcceleration> repulsive_acceleration_sub_;
 
   // Timers
   ros2::TimerPtr check_topics_timer_;
@@ -154,6 +159,7 @@ private:
   void droneCb(const Drone::ConstSharedPtr& drone);
   void treeCb(const kdl::Tree::ConstSharedPtr& tree);
   void odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom);
+  void repulsiveAccelCb(const tobas_msgs::RepulsiveAcceleration::ConstSharedPtr& repulsive_acceleration);
   void disturbanceForceCb(const tobas_kdl_msgs::WrenchStamped::ConstSharedPtr& dist_force);
   void jointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& js);
   void landedCb(const tobas_msgs::msg::LandedState::ConstSharedPtr& landed);
@@ -218,6 +224,7 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   acc_cmd_sub_ = createSubscriber(topic::kAccelYawCmd, &self::accelCommandCb, this);
   angle_cmd_sub_ = createSubscriber(topic::kAngleThrotCmd, &self::angleCommandCb, this);
   rate_cmd_sub_ = createSubscriber(topic::kRateThrotCmd, &self::rateCommandCb, this);
+  repulsive_acceleration_sub_ = createSubscriber(topic::kRepulsiveAccel, &self::repulsiveAccelCb, this);
 
   // Register timers
   check_topics_timer_ = createTimer(kCheckTopicsPeriod, &self::checkTopicsTimerCb, this);
@@ -481,6 +488,11 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
 
     // 目標加速度を計算
     acc_cmd_->accel = pos_cmd_->acc + kp.hadamard(ep) + ki.hadamard(trans_ctrl_.ei) + kd.hadamard(ed);
+
+    // 障害物反力加速度を足す
+    if (repulsive_acceleration_) {
+      acc_cmd_->accel += repulsive_acceleration_->accel;
+    }
 
     // ヨー角はそのまま流す
     acc_cmd_->yaw = pos_cmd_->yaw;
@@ -755,6 +767,11 @@ void ControllerNode::rateCommandCb(const tobas_command_msgs::RateThrottle::Const
   // コマンドを更新
   *tar_gyro_ = rate_cmd->rate;
   tar_thrust_ = max_thrust_sum_ * std::clamp(rate_cmd->throttle, kMinThrot, kMaxThrot);
+}
+
+void ControllerNode::repulsiveAccelCb(const tobas_msgs::RepulsiveAcceleration::ConstSharedPtr& repulsive_acceleration)
+{
+  repulsive_acceleration_ = repulsive_acceleration;
 }
 
 void ControllerNode::checkTopicsTimerCb()

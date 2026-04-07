@@ -102,6 +102,15 @@ def generate_launch_description():
             output=output,
         )
     )
+    ld.add_action(
+        Node(
+            package="tobas_object_avoidance",
+            executable="object_avoidance",
+            namespace=DRONE_NAME,
+            ros_arguments=ros_args,
+            output=output,
+        )
+    )
 
     # Launch 3th priority nodes (Others)
     ld.add_action(
