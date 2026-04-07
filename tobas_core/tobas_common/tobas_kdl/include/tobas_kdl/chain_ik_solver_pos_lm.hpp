@@ -28,7 +28,7 @@ namespace kdl
  *   - by providing a way to specify the weights in task space, you can weigh rotations wrt
  translations.
  *     This is important e.g. to specify that rotations do not matter for the problem at hand, or to
- *     specify how important you judge rotations w.r.t. translations, typically in S.I.-units,
+ *     specify how important you judge rotations wrt. translations, typically in S.I.-units,
  ([m],[rad]),
  *     the rotations are over-specified, this can be avoided using the weight matrix. <B>Weights
  also

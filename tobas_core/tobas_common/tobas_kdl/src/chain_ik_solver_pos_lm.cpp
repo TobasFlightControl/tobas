@@ -170,7 +170,7 @@ void ChainIkSolverPos_LM::initialize()
 
 void ChainIkSolverPos_LM::computeFwdPos(const VectorXd& q)
 {
-  T_base_head_ = Frame::Identity();  // frame w.r.t. base of head
+  T_base_head_ = Frame::Identity();  // frame wrt. base of head
   size_t j = 0;                      // joint index
   for (size_t i = 0; i < ns_; ++i) {
     const auto& seg = chain_.getSegment(i);
