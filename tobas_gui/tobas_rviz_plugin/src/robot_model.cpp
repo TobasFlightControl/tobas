@@ -3,10 +3,6 @@
 
 #include "tobas_rviz_plugin/robot_model.hpp"
 
-#include <algorithm>
-#include <cmath>
-#include <limits>
-#include <memory>
 #include <set>
 
 #include <geometric_shapes/shape_operations.h>

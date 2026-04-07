@@ -3,9 +3,6 @@
 
 #include "tobas_rviz_plugin/joint_model/revolute_joint_model.hpp"
 
-#include <algorithm>
-#include <cmath>
-
 #include <geometric_shapes/check_isometry.h>
 
 #include <tobas_math/definitions.hpp>

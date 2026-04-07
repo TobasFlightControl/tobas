@@ -3,17 +3,9 @@
 
 #pragma once
 
-#include <cassert>
-
-#include <rclcpp/duration.hpp>
-
-#include <geometry_msgs/msg/twist.hpp>
 #include <sensor_msgs/msg/joint_state.hpp>
-#include <std_msgs/msg/color_rgba.hpp>
-#include <visualization_msgs/msg/marker_array.hpp>
 
 #include "./robot_model.hpp"
-#include "./transforms.hpp"
 
 namespace tobas
 {

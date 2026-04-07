@@ -4,7 +4,7 @@
 #include "tobas_rviz_plugin/transforms.hpp"
 
 #include <boost/algorithm/string/trim.hpp>
-#include <rclcpp/rclcpp.hpp>
+#include <rclcpp/logging.hpp>
 
 #include "tobas_rviz_plugin/logger.hpp"
 

@@ -3,8 +3,6 @@
 
 #include "tobas_rviz_plugin/joint_model/prismatic_joint_model.hpp"
 
-#include <limits>
-
 namespace tobas
 {
 PrismaticJointModel::PrismaticJointModel(const std::string& name, size_t joint_index, size_t first_variable_index)

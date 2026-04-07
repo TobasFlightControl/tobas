@@ -3,16 +3,12 @@
 
 #include "tobas_rviz_plugin/robot_state.hpp"
 
-#include <functional>
-
 #include <geometric_shapes/check_isometry.h>
 #include <geometric_shapes/shape_operations.h>
 #include <rclcpp/rclcpp.hpp>
 #include <tf2_eigen/tf2_eigen.hpp>
 
 #include "tobas_rviz_plugin/logger.hpp"
-
-namespace ch = std::chrono;
 
 namespace tobas
 {
