@@ -23,13 +23,6 @@ using JointModelMap = std::map<std::string, JointModel*>;
 /**
  * @brief A joint from the robot.
  * Models the transform that this joint applies in the kinematic chain.
- * A joint consists of multiple variables.
- * In the simplest case, when the joint is a single DOF,
- * there is only one variable and its name is the same as the joint's name.
- * For multi-DOF joints, each variable has a local name (e.g., \e x, \e y)
- * but the full variable name as seen from the outside of this class is a concatenation of the "joint name"/"local name"
- * (e.g., a joint named 'base' with local variables 'x' and 'y' will store its full variable names as 'base/x' and
- * 'base/y'). Local names are never used to reference variables directly.
  */
 class JointModel
 {
