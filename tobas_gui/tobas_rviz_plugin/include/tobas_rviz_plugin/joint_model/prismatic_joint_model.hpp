@@ -21,7 +21,7 @@ public:
   const Eigen::Vector3d& getAxis() const;
   void setAxis(const Eigen::Vector3d& axis);
 
-protected:
+private:
   Eigen::Vector3d axis_ = Eigen::Vector3d::Zero();  // The axis of the joint
 };
 }  // namespace tobas

@@ -24,11 +24,9 @@ public:
   const Eigen::Vector3d& getAxis() const;
   void setAxis(const Eigen::Vector3d& axis);
 
-protected:
+private:
   Eigen::Vector3d axis_ = Eigen::Vector3d::Zero();  // The axis of the joint
   bool continuous_ = false;                         // Flag indicating whether this joint wraps around
-
-private:
   double x2_ = 0., y2_ = 0., z2_ = 0., xy_ = 0., xz_ = 0., yz_ = 0.;
 };
 }  // namespace tobas
