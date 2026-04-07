@@ -22,6 +22,10 @@ PlanarMulticopterWidget::PlanarMulticopterWidget()
   const auto rows = new QVBoxLayout();
   setLayout(rows);
 
+  do_object_avoidance_ = new QCheckBox("Do Object Avoidance");
+  do_object_avoidance_->setChecked(false);
+  rows->addWidget(do_object_avoidance_);
+
   do_dist_comp_trans_ = new QCheckBox("Do Disturbance Compensation (Translation)");
   do_dist_comp_trans_->setChecked(false);
   rows->addWidget(do_dist_comp_trans_);
@@ -67,6 +71,7 @@ YAML::Node PlanarMulticopterWidget::staticParams() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
+  node["do_object_avoidance"] = do_object_avoidance_->isChecked();
   node["do_disturbance_compensation_translation"] = do_dist_comp_trans_->isChecked();
   node["do_disturbance_compensation_rotation"] = do_dist_comp_rot_->isChecked();
 
@@ -77,6 +82,7 @@ YAML::Node PlanarMulticopterWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
+  node[do_object_avoidance_->text()] = do_object_avoidance_->isChecked();
   node[do_dist_comp_trans_->text()] = do_dist_comp_trans_->isChecked();
   node[do_dist_comp_rot_->text()] = do_dist_comp_rot_->isChecked();
 
@@ -85,6 +91,7 @@ YAML::Node PlanarMulticopterWidget::dump() const
 
 void PlanarMulticopterWidget::load(const YAML::Node& node)
 {
+  do_object_avoidance_->setChecked(node[do_object_avoidance_->text()].as<bool>());
   do_dist_comp_trans_->setChecked(node[do_dist_comp_trans_->text()].as<bool>());
   do_dist_comp_rot_->setChecked(node[do_dist_comp_rot_->text()].as<bool>());
 }

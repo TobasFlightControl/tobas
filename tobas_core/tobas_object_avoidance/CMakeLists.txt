@@ -8,51 +8,34 @@ endif()
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werror")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Wswitch-enum -Werror")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
+set(AMENT_DEPENDENCIES octomap octomap_msgs tobas_node tobas_constants tobas_msgs_adapter)
+
 find_package(ament_cmake REQUIRED)
-find_package(rclcpp REQUIRED)
-find_package(geometry_msgs REQUIRED)
-find_package(octomap_msgs REQUIRED)
-find_package(tobas_msgs REQUIRED)
-find_package(octomap REQUIRED)
-find_package(tobas_constants REQUIRED)
-find_package(tobas_node REQUIRED)
-find_package(tobas_tools REQUIRED)
-find_package(tobas_drone_tools REQUIRED)
-find_package(tobas_drone_msgs_adapter REQUIRED)
-find_package(tobas_debug_msgs_adapter REQUIRED)
+
+foreach(dependency IN ITEMS ${AMENT_DEPENDENCIES})
+  find_package(${dependency} REQUIRED)
+endforeach()
 
 include_directories(include)
-include_directories(${OCTOMAP_INCLUDE_DIRS})
 
-add_executable(object_avoidance nodes/tobas_object_avoidance.cpp)
-target_include_directories(
-  object_avoidance PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> $<INSTALL_INTERFACE:include>
+file(GLOB_RECURSE NODE_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} nodes/*.cpp)
+add_library(${PROJECT_NAME}_node SHARED ${NODE_TARGETS})
+ament_target_dependencies(${PROJECT_NAME}_node ${AMENT_DEPENDENCIES})
+target_link_libraries(${PROJECT_NAME}_node ${OCTOMAP_LIBRARIES})
+target_link_options(${PROJECT_NAME}_node PRIVATE -Wl,--no-undefined)
+rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "tobas::ObjectAvoidance" EXECUTABLE object_avoidance)
+
+install(
+  TARGETS ${PROJECT_NAME}_node
+  EXPORT ${PROJECT_NAME}
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+  RUNTIME DESTINATION bin
+  INCLUDES
+  DESTINATION include
 )
-
-target_link_libraries(object_avoidance ${OCTOMAP_LIBRARIES})
-
-ament_target_dependencies(
-  object_avoidance
-  rclcpp
-  geometry_msgs
-  octomap_msgs
-  tobas_msgs
-  tobas_constants
-  tobas_node
-  tobas_tools
-  tobas_drone_tools
-  tobas_drone_msgs_adapter
-  tobas_debug_msgs_adapter
-)
-
-install(TARGETS object_avoidance DESTINATION lib/${PROJECT_NAME})
-
-if(BUILD_TESTING)
-  find_package(ament_lint_auto REQUIRED)
-  ament_lint_auto_find_test_dependencies()
-endif()
 
 ament_package()

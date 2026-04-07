@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <rclcpp/type_adapter.hpp>
@@ -10,7 +13,7 @@ namespace tobas_msgs
 struct RepulsiveAcceleration
 {
   std_msgs::msg::Header header;
-  kdl::Vector accel;
+  tobas::kdl::Vector accel;
 
   using SharedPtr = std::shared_ptr<RepulsiveAcceleration>;
   using ConstSharedPtr = std::shared_ptr<const RepulsiveAcceleration>;

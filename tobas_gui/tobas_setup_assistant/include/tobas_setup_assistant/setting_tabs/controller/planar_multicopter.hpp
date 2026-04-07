@@ -38,6 +38,7 @@ public:
   bool isValid() override;
 
 private:
+  QCheckBox* do_object_avoidance_;
   QCheckBox* do_dist_comp_trans_;
   QCheckBox* do_dist_comp_rot_;
 };

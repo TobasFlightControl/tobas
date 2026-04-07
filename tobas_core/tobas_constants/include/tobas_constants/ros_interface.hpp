@@ -37,12 +37,13 @@ static constexpr char kControlLatency[] = "control_latency";
 static constexpr char kArming[] = "arming";
 static constexpr char kVehicleHealth[] = "vehicle_health";
 static constexpr char kVibrationLevel[] = "vibration_level";
+static constexpr char kObjectOctomap[] = "object_octomap";
+static constexpr char kRepulsiveAccel[] = "repulsive_acceleration";
 static constexpr char kDisturbanceForce[] = "disturbance_force";
 static constexpr char kLanded[] = "landed";
 static constexpr char kRosbagState[] = "rosbag_state";
 static constexpr char kHeartbeat[] = "heartbeat";
 static constexpr char kRemoteConnection[] = "remote_connection";
-static constexpr char kRepulsiveAccel[] = "repulsive_acceleration";
 
 // Low Command
 static constexpr char kRotorThrustsCmd[] = "command/rotor_thrusts";
