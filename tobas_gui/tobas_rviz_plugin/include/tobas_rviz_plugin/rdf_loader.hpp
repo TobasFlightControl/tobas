@@ -15,7 +15,7 @@ class RDFLoader
   using NewModelCallback = std::function<void()>;
 
 public:
-  RDFLoader(
+  explicit RDFLoader(
     const rclcpp::Node::SharedPtr& node,
     const std::string& ros_name = "robot_description",
     bool default_continuous_value = false,

@@ -38,7 +38,7 @@ public:
    * @param name        The name of the link
    * @param link_index  The link index in the RobotModel
    */
-  LinkModel(const std::string& name, size_t link_index);
+  explicit LinkModel(const std::string& name, size_t link_index);
   ~LinkModel();
 
   /* The name of this link */

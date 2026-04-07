@@ -9,8 +9,6 @@
 
 namespace tobas
 {
-using StringCallback = std::function<void(const std::string&)>;
-
 /**
  * @brief SynchronizedStringParameter is a way to load a string from the ROS environment.
  *
@@ -26,6 +24,8 @@ using StringCallback = std::function<void(const std::string&)>;
  */
 class SynchronizedStringParameter
 {
+  using StringCallback = std::function<void(const std::string&)>;
+
 public:
   std::string loadInitialValue(
     const rclcpp::Node::SharedPtr& node,
@@ -36,11 +36,8 @@ public:
 
 protected:
   bool getMainParameter();
-
   bool shouldPublish();
-
   bool waitForMessage(const rclcpp::Duration& timeout);
-
   void stringCallback(const std_msgs::msg::String::ConstSharedPtr& msg);
 
   rclcpp::Node::SharedPtr node_;
