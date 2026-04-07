@@ -17,7 +17,6 @@ set(AMENT_DEPENDENCIES
     geometric_shapes
     tf2_eigen
     rsl
-    octomap_msgs
     rviz_common
     rviz_default_plugins
     rviz_rendering
