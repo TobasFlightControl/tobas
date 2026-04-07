@@ -40,33 +40,6 @@ FloatingJointModel::FloatingJointModel(const std::string& name, size_t joint_ind
     variable_names_.push_back(getName() + "/" + local_variable_names_[i]);
     variable_index_map_[variable_names_.back()] = i;
   }
-
-  variable_bounds_.resize(7);
-
-  variable_bounds_[0].position_bounded_ = true;
-  variable_bounds_[1].position_bounded_ = true;
-  variable_bounds_[2].position_bounded_ = true;
-  variable_bounds_[3].position_bounded_ = true;
-  variable_bounds_[4].position_bounded_ = true;
-  variable_bounds_[5].position_bounded_ = true;
-  variable_bounds_[6].position_bounded_ = true;
-
-  variable_bounds_[0].min_position_ = -std::numeric_limits<double>::infinity();
-  variable_bounds_[0].max_position_ = std::numeric_limits<double>::infinity();
-  variable_bounds_[1].min_position_ = -std::numeric_limits<double>::infinity();
-  variable_bounds_[1].max_position_ = std::numeric_limits<double>::infinity();
-  variable_bounds_[2].min_position_ = -std::numeric_limits<double>::infinity();
-  variable_bounds_[2].max_position_ = std::numeric_limits<double>::infinity();
-  variable_bounds_[3].min_position_ = -1.;
-  variable_bounds_[3].max_position_ = 1.;
-  variable_bounds_[4].min_position_ = -1.;
-  variable_bounds_[4].max_position_ = 1.;
-  variable_bounds_[5].min_position_ = -1.;
-  variable_bounds_[5].max_position_ = 1.;
-  variable_bounds_[6].min_position_ = -1.;
-  variable_bounds_[6].max_position_ = 1.;
-
-  computeVariableBoundsMsg();
 }
 
 double FloatingJointModel::distanceTranslation(const double* values1, const double* values2) const
@@ -111,11 +84,6 @@ bool FloatingJointModel::normalizeRotation(double* values) const
   }
 }
 
-uint32_t FloatingJointModel::getStateSpaceDimension() const
-{
-  return STATE_SPACE_DIMENSION;
-}
-
 void FloatingJointModel::computeTransform(const double* joint_values, Eigen::Isometry3d& transform) const
 {
   transform = Eigen::Isometry3d(
@@ -136,16 +104,10 @@ void FloatingJointModel::computeVariablePositions(const Eigen::Isometry3d& trans
   joint_values[6] = q.w();
 }
 
-void FloatingJointModel::getVariableDefaultPositions(double* values, const Bounds& bounds) const
+void FloatingJointModel::getVariableDefaultPositions(double* values) const
 {
   for (uint32_t i = 0; i < 3; ++i) {
-    // if zero is a valid value
-    if (bounds[i].min_position_ <= 0. && bounds[i].max_position_ >= 0.) {
-      values[i] = 0.;
-    }
-    else {
-      values[i] = (bounds[i].min_position_ + bounds[i].max_position_) / 2.;
-    }
+    values[i] = 0.;
   }
 
   values[3] = 0.;

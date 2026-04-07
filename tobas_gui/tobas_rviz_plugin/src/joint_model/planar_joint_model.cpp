@@ -28,37 +28,12 @@ PlanarJointModel::PlanarJointModel(const std::string& name, size_t joint_index, 
     variable_names_.push_back(getName() + "/" + local_variable_names_[i]);
     variable_index_map_[variable_names_.back()] = i;
   }
-
-  variable_bounds_.resize(3);
-  variable_bounds_[0].position_bounded_ = true;
-  variable_bounds_[1].position_bounded_ = true;
-  variable_bounds_[2].position_bounded_ = false;
-
-  variable_bounds_[0].min_position_ = -std::numeric_limits<double>::infinity();
-  variable_bounds_[0].max_position_ = std::numeric_limits<double>::infinity();
-  variable_bounds_[1].min_position_ = -std::numeric_limits<double>::infinity();
-  variable_bounds_[1].max_position_ = std::numeric_limits<double>::infinity();
-  variable_bounds_[2].min_position_ = -M_PI;
-  variable_bounds_[2].max_position_ = M_PI;
-
-  computeVariableBoundsMsg();
 }
 
-uint32_t PlanarJointModel::getStateSpaceDimension() const
-{
-  return 3;
-}
-
-void PlanarJointModel::getVariableDefaultPositions(double* values, const Bounds& bounds) const
+void PlanarJointModel::getVariableDefaultPositions(double* values) const
 {
   for (uint32_t i = 0; i < 2; ++i) {
-    // if zero is a valid value
-    if (bounds[i].min_position_ <= 0. && bounds[i].max_position_ >= 0.) {
-      values[i] = 0.;
-    }
-    else {
-      values[i] = (bounds[i].min_position_ + bounds[i].max_position_) / 2.;
-    }
+    values[i] = 0.;
   }
   values[2] = 0.;
 }

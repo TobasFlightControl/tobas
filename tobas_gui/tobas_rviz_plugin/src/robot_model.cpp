@@ -390,41 +390,6 @@ JointModel* RobotModel::buildRecursive(LinkModel* parent, const urdf::Link* urdf
   return joint;
 }
 
-namespace
-{
-// construct bounds for 1DOF joint
-inline VariableBounds jointBoundsFromURDF(const urdf::Joint* urdf_joint)
-{
-  VariableBounds b;
-  if (urdf_joint->safety) {
-    b.position_bounded_ = true;
-    b.min_position_ = urdf_joint->safety->soft_lower_limit;
-    b.max_position_ = urdf_joint->safety->soft_upper_limit;
-    if (urdf_joint->limits) {
-      if (urdf_joint->limits->lower > b.min_position_) {
-        b.min_position_ = urdf_joint->limits->lower;
-      }
-      if (urdf_joint->limits->upper < b.max_position_) {
-        b.max_position_ = urdf_joint->limits->upper;
-      }
-    }
-  }
-  else {
-    if (urdf_joint->limits) {
-      b.position_bounded_ = true;
-      b.min_position_ = urdf_joint->limits->lower;
-      b.max_position_ = urdf_joint->limits->upper;
-    }
-  }
-  if (urdf_joint->limits) {
-    b.max_velocity_ = std::abs(urdf_joint->limits->velocity);
-    b.min_velocity_ = -b.max_velocity_;
-    b.velocity_bounded_ = b.max_velocity_ > std::numeric_limits<double>::epsilon();
-  }
-  return b;
-}
-}  // namespace
-
 JointModel* RobotModel::constructJointModel(const urdf::Link* child_link)
 {
   JointModel* new_joint_model = nullptr;
@@ -439,21 +404,18 @@ JointModel* RobotModel::constructJointModel(const urdf::Link* child_link)
     switch (parent_joint->type) {
       case urdf::Joint::REVOLUTE: {
         RevoluteJointModel* j = new RevoluteJointModel(parent_joint->name, joint_index, first_variable_index);
-        j->setVariableBounds(j->getName(), jointBoundsFromURDF(parent_joint));
         j->setContinuous(false);
         j->setAxis(Eigen::Vector3d(parent_joint->axis.x, parent_joint->axis.y, parent_joint->axis.z));
         new_joint_model = j;
       } break;
       case urdf::Joint::CONTINUOUS: {
         RevoluteJointModel* j = new RevoluteJointModel(parent_joint->name, joint_index, first_variable_index);
-        j->setVariableBounds(j->getName(), jointBoundsFromURDF(parent_joint));
         j->setContinuous(true);
         j->setAxis(Eigen::Vector3d(parent_joint->axis.x, parent_joint->axis.y, parent_joint->axis.z));
         new_joint_model = j;
       } break;
       case urdf::Joint::PRISMATIC: {
         PrismaticJointModel* j = new PrismaticJointModel(parent_joint->name, joint_index, first_variable_index);
-        j->setVariableBounds(j->getName(), jointBoundsFromURDF(parent_joint));
         j->setAxis(Eigen::Vector3d(parent_joint->axis.x, parent_joint->axis.y, parent_joint->axis.z));
         new_joint_model = j;
       } break;
@@ -476,10 +438,6 @@ JointModel* RobotModel::constructJointModel(const urdf::Link* child_link)
   {
     RCLCPP_INFO(getLogger(), "No root/virtual joint specified in URDF. Assuming fixed joint.");
     new_joint_model = new FixedJointModel("ASSUMED_FIXED_ROOT_JOINT", joint_index, first_variable_index);
-  }
-
-  if (new_joint_model) {
-    new_joint_model->setDistanceFactor(new_joint_model->getStateSpaceDimension());
   }
 
   return new_joint_model;

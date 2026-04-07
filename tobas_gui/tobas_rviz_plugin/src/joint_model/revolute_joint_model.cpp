@@ -25,17 +25,7 @@ RevoluteJointModel::RevoluteJointModel(const std::string& name, size_t joint_ind
 {
   type_ = REVOLUTE;
   variable_names_.push_back(getName());
-  variable_bounds_.resize(1);
-  variable_bounds_[0].position_bounded_ = true;
-  variable_bounds_[0].min_position_ = -M_PI;
-  variable_bounds_[0].max_position_ = M_PI;
   variable_index_map_[getName()] = 0;
-  computeVariableBoundsMsg();
-}
-
-uint32_t RevoluteJointModel::getStateSpaceDimension() const
-{
-  return 1;
 }
 
 void RevoluteJointModel::setAxis(const Eigen::Vector3d& axis)
@@ -52,26 +42,11 @@ void RevoluteJointModel::setAxis(const Eigen::Vector3d& axis)
 void RevoluteJointModel::setContinuous(bool flag)
 {
   continuous_ = flag;
-  if (flag) {
-    variable_bounds_[0].position_bounded_ = false;
-    variable_bounds_[0].min_position_ = -M_PI;
-    variable_bounds_[0].max_position_ = M_PI;
-  }
-  else {
-    variable_bounds_[0].position_bounded_ = true;
-  }
-  computeVariableBoundsMsg();
 }
 
-void RevoluteJointModel::getVariableDefaultPositions(double* values, const Bounds& bounds) const
+void RevoluteJointModel::getVariableDefaultPositions(double* values) const
 {
-  // if zero is a valid value
-  if (bounds[0].min_position_ <= 0. && bounds[0].max_position_ >= 0.) {
-    values[0] = 0.;
-  }
-  else {
-    values[0] = (bounds[0].min_position_ + bounds[0].max_position_) / 2.;
-  }
+  values[0] = 0.;
 }
 
 void RevoluteJointModel::computeTransform(const double* joint_values, Eigen::Isometry3d& transform) const

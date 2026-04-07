@@ -16,7 +16,6 @@ JointModel::JointModel(const std::string& name, size_t joint_index, size_t first
   , mimic_(nullptr)
   , mimic_factor_(1.)
   , mimic_offset_(0.)
-  , distance_factor_(1.)
   , name_(name)
   , joint_index_(joint_index)
   , first_variable_index_(first_variable_index)
@@ -26,26 +25,6 @@ JointModel::JointModel(const std::string& name, size_t joint_index, size_t first
 
 JointModel::~JointModel() = default;
 
-std::string JointModel::getTypeName() const
-{
-  switch (type_) {
-    case UNKNOWN:
-      return "Unknown";
-    case REVOLUTE:
-      return "Revolute";
-    case PRISMATIC:
-      return "Prismatic";
-    case PLANAR:
-      return "Planar";
-    case FLOATING:
-      return "Floating";
-    case FIXED:
-      return "Fixed";
-    default:
-      return "[Unknown]";
-  }
-}
-
 size_t JointModel::getLocalVariableIndex(const std::string& variable) const
 {
   VariableIndexMap::const_iterator it = variable_index_map_.find(variable);
@@ -54,70 +33,6 @@ size_t JointModel::getLocalVariableIndex(const std::string& variable) const
       "Could not find variable '" + variable + "' to get bounds for within joint '" + name_ + "'");
   }
   return it->second;
-}
-
-const VariableBounds& JointModel::getVariableBounds(const std::string& variable) const
-{
-  return variable_bounds_[getLocalVariableIndex(variable)];
-}
-
-void JointModel::setVariableBounds(const std::string& variable, const VariableBounds& bounds)
-{
-  variable_bounds_[getLocalVariableIndex(variable)] = bounds;
-  computeVariableBoundsMsg();
-}
-
-void JointModel::setVariableBounds(const std::vector<tobas_visualization_msgs::msg::JointLimits>& jlim)
-{
-  for (size_t j = 0; j < variable_names_.size(); ++j) {
-    for (const tobas_visualization_msgs::msg::JointLimits& joint_limit : jlim) {
-      if (joint_limit.joint_name == variable_names_[j]) {
-        variable_bounds_[j].position_bounded_ = joint_limit.has_position_limits;
-        if (joint_limit.has_position_limits) {
-          variable_bounds_[j].min_position_ = joint_limit.min_position;
-          variable_bounds_[j].max_position_ = joint_limit.max_position;
-        }
-        variable_bounds_[j].velocity_bounded_ = joint_limit.has_velocity_limits;
-        if (joint_limit.has_velocity_limits) {
-          variable_bounds_[j].min_velocity_ = -joint_limit.max_velocity;
-          variable_bounds_[j].max_velocity_ = joint_limit.max_velocity;
-        }
-        variable_bounds_[j].acceleration_bounded_ = joint_limit.has_acceleration_limits;
-        if (joint_limit.has_acceleration_limits) {
-          variable_bounds_[j].min_acceleration_ = -joint_limit.max_acceleration;
-          variable_bounds_[j].max_acceleration_ = joint_limit.max_acceleration;
-        }
-        variable_bounds_[j].jerk_bounded_ = joint_limit.has_jerk_limits;
-        if (joint_limit.has_jerk_limits) {
-          variable_bounds_[j].min_jerk_ = -joint_limit.max_jerk;
-          variable_bounds_[j].max_jerk_ = joint_limit.max_jerk;
-        }
-        break;
-      }
-    }
-  }
-  computeVariableBoundsMsg();
-}
-
-void JointModel::computeVariableBoundsMsg()
-{
-  variable_bounds_msg_.clear();
-  for (size_t i = 0; i < variable_bounds_.size(); ++i) {
-    tobas_visualization_msgs::msg::JointLimits lim;
-    lim.joint_name = variable_names_[i];
-    lim.has_position_limits = variable_bounds_[i].position_bounded_;
-    lim.min_position = variable_bounds_[i].min_position_;
-    lim.max_position = variable_bounds_[i].max_position_;
-    lim.has_velocity_limits = variable_bounds_[i].velocity_bounded_;
-    lim.max_velocity =
-      std::min(std::abs(variable_bounds_[i].min_velocity_), std::abs(variable_bounds_[i].max_velocity_));
-    lim.has_acceleration_limits = variable_bounds_[i].acceleration_bounded_;
-    lim.max_acceleration =
-      std::min(std::abs(variable_bounds_[i].min_acceleration_), std::abs(variable_bounds_[i].max_acceleration_));
-    lim.has_jerk_limits = variable_bounds_[i].jerk_bounded_;
-    lim.max_jerk = std::min(std::abs(variable_bounds_[i].min_jerk_), std::abs(variable_bounds_[i].max_jerk_));
-    variable_bounds_msg_.push_back(lim);
-  }
 }
 
 void JointModel::setMimic(const JointModel* mimic, double factor, double offset)
@@ -143,43 +58,5 @@ void JointModel::addDescendantJointModel(const JointModel* joint)
 void JointModel::addDescendantLinkModel(const LinkModel* link)
 {
   descendant_link_models_.push_back(link);
-}
-
-namespace
-{
-inline void printBoundHelper(std::ostream& out, double v)
-{
-  if (v <= -std::numeric_limits<double>::infinity()) {
-    out << "-inf";
-  }
-  else if (v >= std::numeric_limits<double>::infinity()) {
-    out << "inf";
-  }
-  else {
-    out << v;
-  }
-}
-}  // namespace
-
-std::ostream& operator<<(std::ostream& out, const VariableBounds& b)
-{
-  out << "P." << (b.position_bounded_ ? "bounded" : "unbounded") << " [";
-  printBoundHelper(out, b.min_position_);
-  out << ", ";
-  printBoundHelper(out, b.max_position_);
-  out << "]; " << "V." << (b.velocity_bounded_ ? "bounded" : "unbounded") << " [";
-  printBoundHelper(out, b.min_velocity_);
-  out << ", ";
-  printBoundHelper(out, b.max_velocity_);
-  out << "]; " << "A." << (b.acceleration_bounded_ ? "bounded" : "unbounded") << " [";
-  printBoundHelper(out, b.min_acceleration_);
-  out << ", ";
-  printBoundHelper(out, b.max_acceleration_);
-  out << "]; " << "J." << (b.jerk_bounded_ ? "bounded" : "unbounded") << " [";
-  printBoundHelper(out, b.min_jerk_);
-  out << ", ";
-  printBoundHelper(out, b.max_jerk_);
-  out << "];";
-  return out;
 }
 }  // namespace tobas

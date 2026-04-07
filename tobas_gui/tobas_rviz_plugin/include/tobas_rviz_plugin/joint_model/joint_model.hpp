@@ -11,29 +11,8 @@
 
 #include <tobas_visualization_msgs/msg/joint_limits.hpp>
 
-#undef near
-
 namespace tobas
 {
-struct VariableBounds
-{
-  double min_position_ = 0.;
-  double max_position_ = 0.;
-  bool position_bounded_ = false;
-
-  double min_velocity_ = 0.;
-  double max_velocity_ = 0.;
-  bool velocity_bounded_ = false;
-
-  double min_acceleration_ = 0.;
-  double max_acceleration_ = 0.;
-  bool acceleration_bounded_ = false;
-
-  double min_jerk_ = 0.;
-  double max_jerk_ = 0.;
-  bool jerk_bounded_ = false;
-};
-
 class LinkModel;
 class JointModel;
 
@@ -68,9 +47,6 @@ public:
     FIXED,
   };
 
-  /* The datatype for the joint bounds */
-  using Bounds = std::vector<VariableBounds>;
-
   /**
    * @brief Constructs a joint named \e name
    *
@@ -92,9 +68,6 @@ public:
   {
     return type_;
   }
-
-  /* Get the type of joint as a string */
-  std::string getTypeName() const;
 
   /**
    * @brief Get the link that this joint connects to.
@@ -132,22 +105,6 @@ public:
     return variable_names_;
   }
 
-  /**
-   * @brief Get the local names of the variable that make up the joint
-   * (suffixes that are attached to joint names to construct the variable names).
-   * For single DOF joints, this will be empty.
-   */
-  const std::vector<std::string>& getLocalVariableNames() const
-  {
-    return local_variable_names_;
-  }
-
-  /* Check if a particular variable is known to this joint */
-  bool hasVariable(const std::string& variable) const
-  {
-    return variable_index_map_.find(variable) != variable_index_map_.end();
-  }
-
   /* Get the number of variables that describe this joint */
   size_t getVariableCount() const
   {
@@ -170,65 +127,12 @@ public:
   size_t getLocalVariableIndex(const std::string& variable) const;
 
   /**
-   * @brief Provide a default value for the joint given the default joint variable bounds (maintained internally).
-   * Most joints will use the default implementation provided in this base class,
-   * but the quaternion for example needs a different implementation.
-   * Enough memory is assumed to be allocated.
-   */
-  void getVariableDefaultPositions(double* values) const
-  {
-    getVariableDefaultPositions(values, variable_bounds_);
-  }
-
-  /**
    * @brief Provide a default value for the joint given the joint variable bounds.
    * Most joints will use the default implementation provided in this base class,
    * but the quaternion for example needs a different implementation.
    * Enough memory is assumed to be allocated.
    */
-  virtual void getVariableDefaultPositions(double* values, const Bounds& other_bounds) const = 0;
-
-  /* Get the bounds for a variable. Throw an exception if the variable was not found */
-  const VariableBounds& getVariableBounds(const std::string& variable) const;
-
-  /* Get the variable bounds for this joint, in the same order as the names returned by getVariableNames() */
-  const Bounds& getVariableBounds() const
-  {
-    return variable_bounds_;
-  }
-
-  /* Set the lower and upper bounds for a variable. Throw an exception if the variable was not found. */
-  void setVariableBounds(const std::string& variable, const VariableBounds& bounds);
-
-  /* Override joint limits loaded from URDF. Unknown variables are ignored. */
-  void setVariableBounds(const std::vector<tobas_visualization_msgs::msg::JointLimits>& jlim);
-
-  /* Get the joint limits known to this model, as a message. */
-  const std::vector<tobas_visualization_msgs::msg::JointLimits>& getVariableBoundsMsg() const
-  {
-    return variable_bounds_msg_;
-  }
-
-  /**
-   * @brief Get the factor that should be applied to the value returned by distance()
-   * when that value is used in compound distances
-   */
-  double getDistanceFactor() const
-  {
-    return distance_factor_;
-  }
-
-  /**
-   * @brief Set the factor that should be applied to the value returned by distance()
-   * when that value is used in compound distances
-   */
-  void setDistanceFactor(double factor)
-  {
-    distance_factor_ = factor;
-  }
-
-  /* Get the dimension of the state space that corresponds to this joint */
-  virtual uint32_t getStateSpaceDimension() const = 0;
+  virtual void getVariableDefaultPositions(double* values) const = 0;
 
   /* Get the joint this one is mimicking */
   const JointModel* getMimic() const
@@ -293,8 +197,6 @@ public:
   virtual void computeVariablePositions(const Eigen::Isometry3d& transform, double* joint_values) const = 0;
 
 protected:
-  void computeVariableBoundsMsg();
-
   /* The type of joint */
   JointType type_;
 
@@ -303,11 +205,6 @@ protected:
 
   /* The full names to use for the variables that make up this joint */
   std::vector<std::string> variable_names_;
-
-  /* The bounds for each variable (low, high) in the same order as variable_names_ */
-  Bounds variable_bounds_;
-
-  std::vector<tobas_visualization_msgs::msg::JointLimits> variable_bounds_msg_;
 
   /* Map from variable names to the corresponding index in variable_names_
    * (indexing makes sense within the JointModel only) */
@@ -340,9 +237,6 @@ protected:
   /* Pointers to all the joints that follow this one in the kinematic tree,
    * including mimic joints, but excluding fixed joints */
   std::vector<const JointModel*> non_fixed_descendant_joint_models_;
-
-  /* The factor applied to the distance between two joint states */
-  double distance_factor_;
 
 private:
   /* Name of the joint */

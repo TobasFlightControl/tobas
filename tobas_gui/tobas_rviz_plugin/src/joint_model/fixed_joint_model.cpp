@@ -11,21 +11,16 @@ FixedJointModel::FixedJointModel(const std::string& name, size_t joint_index, si
   type_ = FIXED;
 }
 
-uint32_t FixedJointModel::getStateSpaceDimension() const
-{
-  return 0;
-}
-
-void FixedJointModel::getVariableDefaultPositions(double* /*values*/, const Bounds& /*bounds*/) const
+void FixedJointModel::getVariableDefaultPositions(double*) const
 {
 }
 
-void FixedJointModel::computeTransform(const double* /* joint_values */, Eigen::Isometry3d& transform) const
+void FixedJointModel::computeTransform(const double*, Eigen::Isometry3d& transform) const
 {
   transform.setIdentity();
 }
 
-void FixedJointModel::computeVariablePositions(const Eigen::Isometry3d& /* transform */, double* /* joint_values */) const
+void FixedJointModel::computeVariablePositions(const Eigen::Isometry3d& /* transform */, double*) const
 {
 }
 }  // namespace tobas
