@@ -61,6 +61,7 @@ public:
   const LinkModel* getChildLinkModel() const;
 
   void setParentLinkModel(const LinkModel* link);
+
   void setChildLinkModel(const LinkModel* link);
 
   /* Get the names of the variables that make up this joint, in the order they appear in corresponding states. */
