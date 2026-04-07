@@ -88,9 +88,9 @@ void PrismaticJointModel::interpolate(const double* from, const double* to, cons
   state[0] = from[0] + (to[0] - from[0]) * t;
 }
 
-void PrismaticJointModel::computeTransform(const double* joint_values, Eigen::Isometry3d& transf) const
+void PrismaticJointModel::computeTransform(const double* joint_values, Eigen::Isometry3d& transform) const
 {
-  double* d = transf.data();
+  double* d = transform.data();
   d[0] = 1.;
   d[1] = 0.;
   d[2] = 0.;
@@ -111,12 +111,12 @@ void PrismaticJointModel::computeTransform(const double* joint_values, Eigen::Is
   d[14] = axis_.z() * joint_values[0];
   d[15] = 1.;
 
-  //  transf.setIdentity();
-  //  transf.translation() = Eigen::Vector3d(axis_ * joint_values[0]);
+  //  transform.setIdentity();
+  //  transform.translation() = Eigen::Vector3d(axis_ * joint_values[0]);
 }
 
-void PrismaticJointModel::computeVariablePositions(const Eigen::Isometry3d& transf, double* joint_values) const
+void PrismaticJointModel::computeVariablePositions(const Eigen::Isometry3d& transform, double* joint_values) const
 {
-  joint_values[0] = transf.translation().dot(axis_);
+  joint_values[0] = transform.translation().dot(axis_);
 }
 }  // namespace tobas

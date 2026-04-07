@@ -84,13 +84,13 @@ bool multiDofJointsToRobotState(const sensor_msgs::msg::MultiDOFJointState& mjs,
       error = true;
       continue;
     }
-    Eigen::Isometry3d transf = tf2::transformToEigen(mjs.transforms[i]);
+    Eigen::Isometry3d transform = tf2::transformToEigen(mjs.transforms[i]);
     // if frames do not mach, attempt to transform
     if (use_inv_t) {
-      transf = transf * inv_t;
+      transform = transform * inv_t;
     }
 
-    state.setJointPositions(joint_name, transf);
+    state.setJointPositions(joint_name, transform);
   }
 
   return !error;

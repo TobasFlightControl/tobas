@@ -61,9 +61,9 @@ void FixedJointModel::interpolate(const double* /*from*/, const double* /*to*/, 
 {
 }
 
-void FixedJointModel::computeTransform(const double* /* joint_values */, Eigen::Isometry3d& transf) const
+void FixedJointModel::computeTransform(const double* /* joint_values */, Eigen::Isometry3d& transform) const
 {
-  transf.setIdentity();
+  transform.setIdentity();
 }
 
 void FixedJointModel::computeVariablePositions(const Eigen::Isometry3d& /* transform */, double* /* joint_values */) const

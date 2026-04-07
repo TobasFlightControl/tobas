@@ -197,7 +197,7 @@ bool RevoluteJointModel::enforcePositionBounds(double* values, const Bounds& bou
   return true;
 }
 
-void RevoluteJointModel::computeTransform(const double* joint_values, Eigen::Isometry3d& transf) const
+void RevoluteJointModel::computeTransform(const double* joint_values, Eigen::Isometry3d& transform) const
 {
   const double c = cos(joint_values[0]);
   const double s = sin(joint_values[0]);
@@ -211,7 +211,7 @@ void RevoluteJointModel::computeTransform(const double* joint_values, Eigen::Iso
   const double xs = axis_.x() * s;
 
   // column major
-  double* d = transf.data();
+  double* d = transform.data();
 
   d[0] = t * x2_ + c;
   d[1] = txy + zs;
@@ -233,13 +233,13 @@ void RevoluteJointModel::computeTransform(const double* joint_values, Eigen::Iso
   d[14] = 0.;
   d[15] = 1.;
 
-  //  transf = Eigen::Isometry3d(Eigen::AngleAxisd(joint_values[0], axis_));
+  //  transform = Eigen::Isometry3d(Eigen::AngleAxisd(joint_values[0], axis_));
 }
 
-void RevoluteJointModel::computeVariablePositions(const Eigen::Isometry3d& transf, double* joint_values) const
+void RevoluteJointModel::computeVariablePositions(const Eigen::Isometry3d& transform, double* joint_values) const
 {
-  ASSERT_ISOMETRY(transf)  // unsanitized input, could contain a non-isometry
-  Eigen::Quaterniond q(transf.linear());
+  ASSERT_ISOMETRY(transform)  // unsanitized input, could contain a non-isometry
+  Eigen::Quaterniond q(transform.linear());
   q.normalize();
   size_t max_idx;
   axis_.array().abs().maxCoeff(&max_idx);
