@@ -7,8 +7,6 @@
 
 #include <eigen3/Eigen/Geometry>
 
-#include <geometry_msgs/msg/transform_stamped.hpp>
-
 namespace tobas
 {
 /**
@@ -27,24 +25,24 @@ class Transforms
     Eigen::aligned_allocator<std::pair<const std::string, Eigen::Isometry3d>>>;
 
 public:
-  /* Transforms cannot be copy-constructed */
+  /* Transforms cannot be copy-constructed. */
   Transforms(const Transforms&) = delete;
   Transforms& operator=(const Transforms&) = delete;
 
   explicit Transforms(const std::string& target_frame);
   virtual ~Transforms();
 
-  /* Check if two frames end up being the same once the missing / are added as prefix (if they are missing) */
-  static bool sameFrame(const std::string& frame1, const std::string& frame2);
-
   /**
-   * @brief Get transform for from_frame (w.r.t target frame)
+   * @brief Get transform for from_frame (w.r.t target frame).
    * @param from_frame The string id of the frame for which the transform is being computed
    * @return The required transform. It is guaranteed to be a valid isometry.
    */
-  virtual const Eigen::Isometry3d& getTransform(const std::string& from_frame) const;
+  const Eigen::Isometry3d& getTransform(const std::string& from_frame) const;
 
-protected:
+  /* Check if two frames end up being the same once the missing / are added as prefix (if they are missing). */
+  static bool sameFrame(const std::string& frame1, const std::string& frame2);
+
+private:
   std::string target_frame_;
   FixedTransformsMap transforms_map_;
 };

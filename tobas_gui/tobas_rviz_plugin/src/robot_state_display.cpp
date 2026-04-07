@@ -88,8 +88,8 @@ RobotStateDisplay::RobotStateDisplay()
 
 void RobotStateDisplay::load(const rviz_common::Config& config)
 {
-  // This property needs to be loaded in onEnable() below, which is triggered
-  // in the beginning of super::load() before the other property would be available
+  // This property needs to be loaded in onEnable() below,
+  // which is triggered in the beginning of super::load() before the other property would be available.
   robot_description_property_->load(config.mapGetChild("Robot Description"));
   super::load(config);
 }
@@ -252,7 +252,8 @@ void RobotStateDisplay::newRobotStateCallback(
   if (!robot_state_) {
     robot_state_ = std::make_shared<RobotState>(robot_model_);
   }
-  // possibly use TF to construct a Transforms object to pass in to the conversion function?
+
+  // Possibly use TF to construct a Transforms object to pass in to the conversion function?
   try {
     robotStateMsgToRobotState(state_msg->state, *robot_state_);
     setRobotHighlights(state_msg->highlight_links);

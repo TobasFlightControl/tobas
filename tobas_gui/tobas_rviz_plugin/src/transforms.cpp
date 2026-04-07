@@ -29,24 +29,15 @@ Transforms::Transforms(const std::string& target_frame) : target_frame_(target_f
   }
 }
 
-bool Transforms::sameFrame(const std::string& frame1, const std::string& frame2)
-{
-  if (frame1.empty() || frame2.empty()) {
-    return false;
-  }
-  return frame1 == frame2;
-}
-
 Transforms::~Transforms() = default;
 
 const Eigen::Isometry3d& Transforms::getTransform(const std::string& from_frame) const
 {
   if (!from_frame.empty()) {
-    FixedTransformsMap::const_iterator it = transforms_map_.find(from_frame);
+    const auto it = transforms_map_.find(from_frame);
     if (it != transforms_map_.end()) {
       return it->second;
     }
-    // If no transform found in map, return identity
   }
 
   RCLCPP_ERROR(
@@ -55,8 +46,16 @@ const Eigen::Isometry3d& Transforms::getTransform(const std::string& from_frame)
     from_frame.c_str(),
     target_frame_.c_str());
 
-  // return identity
-  static const Eigen::Isometry3d IDENTITY = Eigen::Isometry3d::Identity();
-  return IDENTITY;
+  // If no transform found in map, return identity.
+  static const auto identity = Eigen::Isometry3d::Identity();
+  return identity;
+}
+
+bool Transforms::sameFrame(const std::string& frame1, const std::string& frame2)
+{
+  if (frame1.empty() || frame2.empty()) {
+    return false;
+  }
+  return frame1 == frame2;
 }
 }  // namespace tobas
