@@ -23,70 +23,7 @@ rclcpp::Logger getLogger()
 {
   return tobas::getLogger("tobas.robot_model");
 }
-}  // namespace
 
-RobotModel::RobotModel(const urdf::ModelInterfaceSharedPtr& urdf_model)
-{
-  root_joint_ = nullptr;
-  urdf_ = urdf_model;
-  buildModel(*urdf_model);
-}
-
-RobotModel::~RobotModel()
-{
-  for (auto joint_model : joint_model_vector_) {
-    delete joint_model;
-  }
-  for (auto link_model : link_model_vector_) {
-    delete link_model;
-  }
-}
-
-const JointModel* RobotModel::getRootJoint() const
-{
-  return root_joint_;
-}
-
-const LinkModel* RobotModel::getRootLink() const
-{
-  return root_link_;
-}
-
-void RobotModel::buildModel(const urdf::ModelInterface& urdf_model)
-{
-  root_joint_ = nullptr;
-  root_link_ = nullptr;
-  link_geometry_count_ = 0;
-  variable_count_ = 0;
-  model_name_ = urdf_model.getName();
-  RCLCPP_INFO(getLogger(), "Loading robot model '%s'...", model_name_.c_str());
-
-  if (urdf_model.getRoot()) {
-    const urdf::Link* root_link_ptr = urdf_model.getRoot().get();
-    model_frame_ = root_link_ptr->name;
-
-    RCLCPP_DEBUG(getLogger(), "... building kinematic chain");
-    root_joint_ = buildRecursive(nullptr, root_link_ptr);
-    if (root_joint_) {
-      root_link_ = root_joint_->getChildLinkModel();
-    }
-    RCLCPP_DEBUG(getLogger(), "... building mimic joints");
-    buildMimic(urdf_model);
-
-    RCLCPP_DEBUG(getLogger(), "... computing joint indexing");
-    buildJointInfo();
-
-    if (link_models_with_collision_geometry_vector_.empty()) {
-      RCLCPP_WARN(getLogger(), "No geometry is associated to any robot links");
-    }
-  }
-  else {
-    RCLCPP_WARN(getLogger(), "No root link found");
-  }
-}
-
-namespace
-{
 typedef std::map<
   const JointModel*,
   std::pair<std::set<const LinkModel*, OrderLinksByIndex>, std::set<const JointModel*, OrderJointsByIndex>>>
@@ -164,6 +101,66 @@ void computeCommonRootsHelper(const JointModel* joint, std::vector<int>& common_
   }
 }
 }  // namespace
+
+RobotModel::RobotModel(const urdf::ModelInterfaceSharedPtr& urdf_model)
+{
+  root_joint_ = nullptr;
+  urdf_ = urdf_model;
+  buildModel(*urdf_model);
+}
+
+RobotModel::~RobotModel()
+{
+  for (auto joint_model : joint_model_vector_) {
+    delete joint_model;
+  }
+  for (auto link_model : link_model_vector_) {
+    delete link_model;
+  }
+}
+
+const JointModel* RobotModel::getRootJoint() const
+{
+  return root_joint_;
+}
+
+const LinkModel* RobotModel::getRootLink() const
+{
+  return root_link_;
+}
+
+void RobotModel::buildModel(const urdf::ModelInterface& urdf_model)
+{
+  root_joint_ = nullptr;
+  root_link_ = nullptr;
+  link_geometry_count_ = 0;
+  variable_count_ = 0;
+  model_name_ = urdf_model.getName();
+  RCLCPP_INFO(getLogger(), "Loading robot model '%s'...", model_name_.c_str());
+
+  if (urdf_model.getRoot()) {
+    const urdf::Link* root_link_ptr = urdf_model.getRoot().get();
+    model_frame_ = root_link_ptr->name;
+
+    RCLCPP_DEBUG(getLogger(), "... building kinematic chain");
+    root_joint_ = buildRecursive(nullptr, root_link_ptr);
+    if (root_joint_) {
+      root_link_ = root_joint_->getChildLinkModel();
+    }
+    RCLCPP_DEBUG(getLogger(), "... building mimic joints");
+    buildMimic(urdf_model);
+
+    RCLCPP_DEBUG(getLogger(), "... computing joint indexing");
+    buildJointInfo();
+
+    if (link_models_with_collision_geometry_vector_.empty()) {
+      RCLCPP_WARN(getLogger(), "No geometry is associated to any robot links");
+    }
+  }
+  else {
+    RCLCPP_WARN(getLogger(), "No root link found");
+  }
+}
 
 void RobotModel::computeCommonRoots()
 {
@@ -469,6 +466,7 @@ JointModel* RobotModel::constructJointModel(const urdf::Link* child_link)
       case urdf::Joint::FIXED:
         new_joint_model = new FixedJointModel(parent_joint->name, joint_index, first_variable_index);
         break;
+      case urdf::Joint::UNKNOWN:
       default:
         RCLCPP_ERROR(getLogger(), "Unknown joint type: %d", static_cast<int>(parent_joint->type));
         break;
@@ -609,11 +607,6 @@ bool RobotModel::hasJointModel(const std::string& name) const
   return joint_model_map_.find(name) != joint_model_map_.end();
 }
 
-bool RobotModel::hasLinkModel(const std::string& name) const
-{
-  return link_model_map_.find(name) != link_model_map_.end();
-}
-
 const JointModel* RobotModel::getJointModel(const std::string& name) const
 {
   JointModelMap::const_iterator it = joint_model_map_.find(name);
@@ -741,21 +734,6 @@ void RobotModel::getVariableDefaultPositions(std::map<std::string, double>& valu
   }
 }
 
-void RobotModel::getMissingVariableNames(
-  const std::vector<std::string>& variables,
-  std::vector<std::string>& missing_variables) const
-{
-  missing_variables.clear();
-  std::set<std::string> keys(variables.begin(), variables.end());
-  for (const std::string& variable_name : variable_names_) {
-    if (keys.find(variable_name) == keys.end()) {
-      if (!getJointOfVariable(variable_name)->getMimic()) {
-        missing_variables.push_back(variable_name);
-      }
-    }
-  }
-}
-
 size_t RobotModel::getVariableIndex(const std::string& variable) const
 {
   VariableIndexMap::const_iterator it = joint_variables_index_map_.find(variable);
@@ -763,31 +741,5 @@ size_t RobotModel::getVariableIndex(const std::string& variable) const
     throw std::runtime_error("Variable '" + variable + "' is not known to model '" + model_name_ + '\'');
   }
   return it->second;
-}
-
-double RobotModel::distance(const double* state1, const double* state2) const
-{
-  double d = 0.;
-  for (size_t i = 0; i < active_joint_model_vector_.size(); ++i) {
-    d += active_joint_model_vector_[i]->getDistanceFactor() *
-         active_joint_model_vector_[i]->distance(
-           state1 + active_joint_model_start_index_[i], state2 + active_joint_model_start_index_[i]);
-  }
-  return d;
-}
-
-void RobotModel::interpolate(const double* from, const double* to, double t, double* state) const
-{
-  checkInterpolationParamBounds(getLogger(), t);
-  // we interpolate values only for active joint models (non-mimic)
-  for (size_t i = 0; i < active_joint_model_vector_.size(); ++i) {
-    active_joint_model_vector_[i]->interpolate(
-      from + active_joint_model_start_index_[i],
-      to + active_joint_model_start_index_[i],
-      t,
-      state + active_joint_model_start_index_[i]);
-  }
-  // now we update mimic as needed
-  updateMimicJoints(state);
 }
 }  // namespace tobas

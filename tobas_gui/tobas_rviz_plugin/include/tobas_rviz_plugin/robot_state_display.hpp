@@ -63,8 +63,8 @@ protected:
   rclcpp::Node::SharedPtr node_;
   rclcpp::Subscription<tobas_visualization_msgs::msg::DisplayRobotState>::SharedPtr robot_state_sub_;
 
-  std::shared_ptr<rviz_default_plugins::robot::Robot> robot_;
   std::shared_ptr<RDFLoader> rdf_loader_;
+  std::shared_ptr<rviz_default_plugins::robot::Robot> robot_;
   RobotModel::ConstSharedPtr robot_model_;
   RobotState::SharedPtr robot_state_;
   std::map<std::string, std_msgs::msg::ColorRGBA> highlights_;

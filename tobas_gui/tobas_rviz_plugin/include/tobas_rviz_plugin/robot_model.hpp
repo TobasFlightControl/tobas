@@ -40,22 +40,10 @@ public:
   /* Destructor. Clear all memory. */
   ~RobotModel();
 
-  /* Get the model name. */
-  const std::string& getName() const
-  {
-    return model_name_;
-  }
-
   /* Get the frame in which the transforms for this model are computed (when using a RobotState). */
   const std::string& getModelFrame() const
   {
     return model_frame_;
-  }
-
-  /* Return true if the model is empty (has no root link, no joints) */
-  bool isEmpty() const
-  {
-    return root_link_ == nullptr;
   }
 
   /* Get the parsed URDF model */
@@ -66,12 +54,6 @@ public:
 
   /* Get the root joint. */
   const JointModel* getRootJoint() const;
-
-  /* Return the name of the root joint. Throws an exception if there is no root joint. */
-  const std::string& getRootJointName() const
-  {
-    return getRootJoint()->getName();
-  }
 
   /* Check if a joint exists. Return true if it does. */
   bool hasJointModel(const std::string& name) const;
@@ -85,46 +67,6 @@ public:
   /* Get a joint by its name. Output error and return nullptr when the joint is missing. */
   JointModel* getJointModel(const std::string& joint);
 
-  /* Get the array of joints, in the order they appear
-      in the robot state. */
-  const std::vector<const JointModel*>& getJointModels() const
-  {
-    return joint_model_vector_const_;
-  }
-
-  /**
-   * @brief Get the array of joints, in the order they appear in the robot state.
-   * This includes all types of joints (including mimic & fixed), as opposed to JointModelGroup::getJointModels().
-   */
-  const std::vector<JointModel*>& getJointModels()
-  {
-    return joint_model_vector_;
-  }
-
-  /* Get the array of joint names, in the order they appear in the robot state. */
-  const std::vector<std::string>& getJointModelNames() const
-  {
-    return joint_model_names_vector_;
-  }
-
-  /* Get the array of joints that are active (not fixed, not mimic) in this model. */
-  const std::vector<const JointModel*>& getActiveJointModels() const
-  {
-    return active_joint_model_vector_const_;
-  }
-
-  /* Get the array of active joint names, in the order they appear in the robot state. */
-  const std::vector<std::string>& getActiveJointModelNames() const
-  {
-    return active_joint_model_names_vector_;
-  }
-
-  /* Get the array of joints that are active (not fixed, not mimic) in this model */
-  const std::vector<JointModel*>& getActiveJointModels()
-  {
-    return active_joint_model_vector_;
-  }
-
   /* This is a list of all single-dof joints (including mimic joints) */
   const std::vector<const JointModel*>& getSingleDOFJointModels() const
   {
@@ -135,18 +77,6 @@ public:
   const std::vector<const JointModel*>& getMultiDOFJointModels() const
   {
     return multi_dof_joints_;
-  }
-
-  /* Get the array of continuous joints, in the order they appear in the robot state. */
-  const std::vector<const JointModel*>& getContinuousJointModels() const
-  {
-    return continuous_joint_model_vector_;
-  }
-
-  /* Get the array of mimic joints, in the order they appear in the robot state. */
-  const std::vector<const JointModel*>& getMimicJointModels() const
-  {
-    return mimic_joints_;
   }
 
   const JointModel* getJointOfVariable(int variable_index) const
@@ -167,19 +97,6 @@ public:
   /* Get the physical root link of the robot. */
   const LinkModel* getRootLink() const;
 
-  /* Get the name of the root link of the robot. */
-  const std::string& getRootLinkName() const
-  {
-    return getRootLink()->getName();
-  }
-
-  /**
-   * @brief Check if a link exists. Return true if it does.
-   *
-   * If this is followed by a call to getLinkModel(), better use the latter with the has_link argument.
-   */
-  bool hasLinkModel(const std::string& name) const;
-
   /* Get a link by its name. Output error and return nullptr when the link is missing. */
   const LinkModel* getLinkModel(const std::string& link, bool* has_link = nullptr) const;
 
@@ -188,36 +105,6 @@ public:
 
   /* Get a link by its name. Output error and return nullptr when the link is missing. */
   LinkModel* getLinkModel(const std::string& link, bool* has_link = nullptr);
-
-  /* Get the array of links */
-  const std::vector<const LinkModel*>& getLinkModels() const
-  {
-    return link_model_vector_const_;
-  }
-
-  /* Get the array of links */
-  const std::vector<LinkModel*>& getLinkModels()
-  {
-    return link_model_vector_;
-  }
-
-  /* Get the link names (of all links) */
-  const std::vector<std::string>& getLinkModelNames() const
-  {
-    return link_model_names_vector_;
-  }
-
-  /* Get the link models that have some collision geometry associated to themselves */
-  const std::vector<const LinkModel*>& getLinkModelsWithCollisionGeometry() const
-  {
-    return link_models_with_collision_geometry_vector_;
-  }
-
-  /* Get the names of the link models that have some collision geometry associated to themselves */
-  const std::vector<std::string>& getLinkModelNamesWithCollisionGeometry() const
-  {
-    return link_model_names_with_collision_geometry_vector_;
-  }
 
   size_t getLinkModelCount() const
   {
@@ -256,28 +143,6 @@ public:
   /* Compute the default values for a RobotState */
   void getVariableDefaultPositions(std::map<std::string, double>& values) const;
 
-  /* Return the sum of joint distances between two states. An L1 norm. Only considers active joints. */
-  double distance(const double* state1, const double* state2) const;
-
-  /**
-   * @brief Interpolate between "from" state, to "to" state. Mimic joints are correctly updated.
-   *
-   * @param from interpolate from this state
-   * @param to to this state
-   * @param t a fraction in the range [0 1]. If 1, the result matches "to" state exactly.
-   * @param state holds the result
-   */
-  void interpolate(const double* from, const double* to, double t, double* state) const;
-
-  /* Get the names of all groups that are defined for this model */
-  const std::vector<std::string>& getJointModelGroupNames() const
-  {
-    return joint_model_group_names_;
-  }
-
-  /* Check if an end effector exists */
-  bool hasEndEffector(const std::string& eef) const;
-
   /* Get the number of variables that describe this model */
   size_t getVariableCount() const
   {
@@ -293,15 +158,6 @@ public:
   {
     return variable_names_;
   }
-
-  /* Get the bounds for a specific variable. Throw an exception of variable is not found. */
-  const VariableBounds& getVariableBounds(const std::string& variable) const
-  {
-    return getJointOfVariable(variable)->getVariableBounds(variable);
-  }
-
-  void
-  getMissingVariableNames(const std::vector<std::string>& variables, std::vector<std::string>& missing_variables) const;
 
   /* Get the index of a variable in the robot state */
   size_t getVariableIndex(const std::string& variable) const;

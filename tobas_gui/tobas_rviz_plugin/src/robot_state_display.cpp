@@ -209,7 +209,7 @@ void RobotStateDisplay::loadRobotModel()
       robot_state_->setToDefaultValues();
 
       const bool old_state = root_link_name_property_->blockSignals(true);
-      root_link_name_property_->setStdString(robot_model_->getRootLinkName());
+      root_link_name_property_->setStdString(robot_model_->getRootLink()->getName());
       root_link_name_property_->blockSignals(old_state);
       update_state_ = true;
 
