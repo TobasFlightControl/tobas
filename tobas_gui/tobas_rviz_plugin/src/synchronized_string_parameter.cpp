@@ -8,7 +8,7 @@ namespace ch = std::chrono;
 namespace tobas
 {
 std::string SynchronizedStringParameter::loadInitialValue(
-  const std::shared_ptr<rclcpp::Node>& node,
+  const rclcpp::Node::SharedPtr& node,
   const std::string& name,
   const StringCallback& parent_callback,
   bool default_continuous_value,
@@ -20,7 +20,7 @@ std::string SynchronizedStringParameter::loadInitialValue(
 
   if (getMainParameter()) {
     if (shouldPublish()) {
-      // Transient local is similar to latching in ROS 1.
+      // Transient local is similar to latching in ROS 1
       string_publisher_ = node_->create_publisher<std_msgs::msg::String>(name_, rclcpp::QoS(1).transient_local());
 
       std_msgs::msg::String msg;
@@ -31,20 +31,20 @@ std::string SynchronizedStringParameter::loadInitialValue(
   }
 
   // Load topic parameters
-  std::string keep_open_param = name_ + "_continuous";
+  const auto keep_open_param = name_ + "_continuous";
   if (!node_->has_parameter(keep_open_param)) {
     node_->declare_parameter(keep_open_param, rclcpp::ParameterType::PARAMETER_BOOL);
   }
   bool keep_open;
   node_->get_parameter_or(keep_open_param, keep_open, default_continuous_value);
 
-  std::string timeout_param = name_ + "_timeout";
+  const auto timeout_param = name_ + "_timeout";
   if (!node_->has_parameter(timeout_param)) {
     node_->declare_parameter(timeout_param, rclcpp::ParameterType::PARAMETER_DOUBLE);
   }
   double d_timeout;
   node_->get_parameter_or(timeout_param, d_timeout, default_timeout);  // ten second default
-  rclcpp::Duration timeout = rclcpp::Duration::from_seconds(d_timeout);
+  const auto timeout = rclcpp::Duration::from_seconds(d_timeout);
 
   if (!waitForMessage(timeout)) {
     RCLCPP_ERROR_ONCE(
@@ -63,7 +63,7 @@ std::string SynchronizedStringParameter::loadInitialValue(
 
 bool SynchronizedStringParameter::getMainParameter()
 {
-  // Check if the parameter is declared, declare it if it's not declared yet
+  // Check if the parameter is declared, declare it if it's not declared yet.
   if (!node_->has_parameter(name_)) {
     node_->declare_parameter(name_, rclcpp::ParameterType::PARAMETER_STRING);
   }
@@ -75,7 +75,7 @@ bool SynchronizedStringParameter::getMainParameter()
 
 bool SynchronizedStringParameter::shouldPublish()
 {
-  std::string publish_param = "publish_" + name_;
+  const auto publish_param = "publish_" + name_;
   bool publish_string;
   if (!node_->has_parameter(publish_param)) {
     node_->declare_parameter(publish_param, rclcpp::ParameterType::PARAMETER_BOOL);
@@ -96,7 +96,7 @@ bool SynchronizedStringParameter::waitForMessage(const rclcpp::Duration& timeout
   rclcpp::WaitSet wait_set;
   wait_set.add_subscription(string_subscriber_);
 
-  auto ret = wait_set.wait(timeout.to_chrono<ch::duration<double>>());
+  const auto ret = wait_set.wait(timeout.to_chrono<ch::duration<double>>());
   if (ret.kind() == rclcpp::WaitResultKind::Ready) {
     std_msgs::msg::String msg;
     rclcpp::MessageInfo info;

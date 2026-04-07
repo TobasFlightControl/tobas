@@ -8,10 +8,10 @@ Visualization Manager:
   Class: ""
   Displays:
     - Class: tobas/RobotState
-      Attached Body Color: 150; 50; 150
       Collision Enabled: false
       Enabled: true
       Highlight Link: ""
+      Inertial Enabled: false
       Links:
         All Links Enabled: true
         Expand Joint Details: false

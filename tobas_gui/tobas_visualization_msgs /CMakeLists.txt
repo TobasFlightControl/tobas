@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.25)
 project(tobas_visualization_msgs)
 
-set(AMENT_DEPENDENCIES std_msgs sensor_msgs trajectory_msgs shape_msgs object_recognition_msgs)
+set(AMENT_DEPENDENCIES std_msgs sensor_msgs)
 
 find_package(ament_cmake REQUIRED)
 find_package(rosidl_default_generators REQUIRED)

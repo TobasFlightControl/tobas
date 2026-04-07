@@ -112,7 +112,7 @@ int TrimConditions::update(double V, const double& rho, const kdl::JntArray& q)
   const auto& c_pitch_alpha_cg = asd_cog_.cPitchAlpha();
   const auto& c_pitch_elev_cg = asd_cog_.cPitchDelta(elev_link_name_);
   if (c_pitch_elev_cg == 0) {
-    error_msg_ = "The stability derivative of the elevator w.r.t. the pitch angle is zero.";
+    error_msg_ = "The stability derivative of the elevator wrt. the pitch angle is zero.";
     return error_code_ = kError;
   }
 
