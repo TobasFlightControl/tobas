@@ -38,7 +38,7 @@ bool jointStateToRobotStateImpl(const sensor_msgs::msg::JointState& joint_state,
 
 bool multiDofJointsToRobotState(const sensor_msgs::msg::MultiDOFJointState& mjs, RobotState& state, const Transforms* tf)
 {
-  size_t nj = mjs.joint_names.size();
+  const auto nj = mjs.joint_names.size();
   if (nj != mjs.transforms.size()) {
     RCLCPP_ERROR(getLogger(), "Different number of names, values or frames in MultiDOFJointState message.");
     return false;
@@ -51,15 +51,15 @@ bool multiDofJointsToRobotState(const sensor_msgs::msg::MultiDOFJointState& mjs,
   if (nj > 0 && !Transforms::sameFrame(mjs.header.frame_id, state.getRobotModel()->getModelFrame())) {
     if (tf) {
       try {
-        // find the transform that takes the given frame_id to the desired fixed frame
+        // Find the transform that takes the given frame_id to the desired fixed frame.
         const Eigen::Isometry3d& t2fixed_frame = tf->getTransform(mjs.header.frame_id);
-        // we update the value of the transform so that it transforms from the known fixed frame to the desired child
-        // link
+        // We update the value of the transform
+        // so that it transforms from the known fixed frame to the desired child link.
         inv_t = t2fixed_frame.inverse();
         use_inv_t = true;
       }
-      catch (std::exception& ex) {
-        RCLCPP_ERROR(getLogger(), "Caught %s", ex.what());
+      catch (const std::exception& e) {
+        RCLCPP_ERROR(getLogger(), "Caught %s", e.what());
         error = true;
       }
     }
@@ -71,21 +71,23 @@ bool multiDofJointsToRobotState(const sensor_msgs::msg::MultiDOFJointState& mjs,
       RCLCPP_WARN(
         getLogger(),
         "The transform for multi-dof joints was specified in frame '%s' "
-        "but it was not possible to transform that to frame '%s'",
+        "but it was not possible to transform that to frame '%s'.",
         mjs.header.frame_id.c_str(),
         state.getRobotModel()->getModelFrame().c_str());
     }
   }
 
   for (size_t i = 0; i < nj; ++i) {
-    const std::string& joint_name = mjs.joint_names[i];
+    const auto& joint_name = mjs.joint_names[i];
     if (!state.getRobotModel()->hasJointModel(joint_name)) {
-      RCLCPP_WARN(getLogger(), "No joint matching multi-dof joint '%s'", joint_name.c_str());
+      RCLCPP_WARN(getLogger(), "No joint matching multi-dof joint '%s'.", joint_name.c_str());
       error = true;
       continue;
     }
-    Eigen::Isometry3d transform = tf2::transformToEigen(mjs.transforms[i]);
-    // if frames do not mach, attempt to transform
+
+    auto transform = tf2::transformToEigen(mjs.transforms[i]);
+
+    // If frames do not mach, attempt to transform.
     if (use_inv_t) {
       transform = transform * inv_t;
     }
@@ -98,10 +100,10 @@ bool multiDofJointsToRobotState(const sensor_msgs::msg::MultiDOFJointState& mjs,
 
 void robotStateToMultiDofJointState(const RobotState& state, sensor_msgs::msg::MultiDOFJointState& mjs)
 {
-  const std::vector<const JointModel*>& js = state.getRobotModel()->getMultiDOFJointModels();
+  const auto& js = state.getRobotModel()->getMultiDOFJointModels();
   mjs.joint_names.clear();
   mjs.transforms.clear();
-  for (const JointModel* joint_model : js) {
+  for (const auto joint_model : js) {
     geometry_msgs::msg::TransformStamped p;
     if (state.dirtyJointTransform(joint_model)) {
       Eigen::Isometry3d t;
@@ -123,29 +125,29 @@ bool robotStateMsgToRobotStateHelper(
   const tobas_visualization_msgs::msg::RobotState& robot_state,
   RobotState& state)
 {
-  const tobas_visualization_msgs::msg::RobotState& rs = robot_state;
+  const auto& rs = robot_state;
 
   if (!rs.is_diff && rs.joint_state.name.empty() && rs.multi_dof_joint_state.joint_names.empty()) {
-    RCLCPP_ERROR(getLogger(), "Found empty JointState message");
+    RCLCPP_ERROR(getLogger(), "Found empty JointState message.");
     return false;
   }
 
-  bool result1 = jointStateToRobotStateImpl(robot_state.joint_state, state);
-  bool result2 = multiDofJointsToRobotState(robot_state.multi_dof_joint_state, state, tf);
+  const auto result1 = jointStateToRobotStateImpl(robot_state.joint_state, state);
+  const auto result2 = multiDofJointsToRobotState(robot_state.multi_dof_joint_state, state, tf);
   return result1 || result2;
 }
 }  // namespace
 
 bool jointStateToRobotState(const sensor_msgs::msg::JointState& joint_state, RobotState& state)
 {
-  bool result = jointStateToRobotStateImpl(joint_state, state);
+  const auto result = jointStateToRobotStateImpl(joint_state, state);
   state.update();
   return result;
 }
 
 bool robotStateMsgToRobotState(const tobas_visualization_msgs::msg::RobotState& robot_state, RobotState& state)
 {
-  bool result = robotStateMsgToRobotStateHelper(nullptr, robot_state, state);
+  const auto result = robotStateMsgToRobotStateHelper(nullptr, robot_state, state);
   state.update();
   return result;
 }
@@ -155,7 +157,7 @@ bool robotStateMsgToRobotState(
   const tobas_visualization_msgs::msg::RobotState& robot_state,
   RobotState& state)
 {
-  bool result = robotStateMsgToRobotStateHelper(&tf, robot_state, state);
+  const auto result = robotStateMsgToRobotStateHelper(&tf, robot_state, state);
   state.update();
   return result;
 }
@@ -169,10 +171,10 @@ void robotStateToRobotStateMsg(const RobotState& state, tobas_visualization_msgs
 
 void robotStateToJointStateMsg(const RobotState& state, sensor_msgs::msg::JointState& joint_state)
 {
-  const std::vector<const JointModel*>& js = state.getRobotModel()->getSingleDOFJointModels();
+  const auto& js = state.getRobotModel()->getSingleDOFJointModels();
   joint_state = sensor_msgs::msg::JointState();
 
-  for (const JointModel* joint_model : js) {
+  for (const auto joint_model : js) {
     joint_state.name.push_back(joint_model->getName());
     joint_state.position.push_back(state.getVariablePosition(joint_model->getFirstVariableIndex()));
     if (state.hasVelocities()) {
@@ -180,7 +182,7 @@ void robotStateToJointStateMsg(const RobotState& state, sensor_msgs::msg::JointS
     }
   }
 
-  // if inconsistent number of velocities are specified, discard them
+  // If inconsistent number of velocities are specified, discard them.
   if (joint_state.velocity.size() != joint_state.position.size()) {
     joint_state.velocity.clear();
   }
@@ -194,11 +196,11 @@ bool jointTrajPointToRobotState(
   RobotState& state)
 {
   if (trajectory.points.empty() || point_id > trajectory.points.size() - 1) {
-    RCLCPP_ERROR(getLogger(), "Invalid point_id");
+    RCLCPP_ERROR(getLogger(), "Invalid point_id.");
     return false;
   }
   if (trajectory.joint_names.empty()) {
-    RCLCPP_ERROR(getLogger(), "No joint names specified");
+    RCLCPP_ERROR(getLogger(), "No joint names specified.");
     return false;
   }
 

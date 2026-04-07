@@ -35,8 +35,8 @@ ThreadSafeComponentManager::create_component_factory(const ComponentResource& re
       try {
         loader = std::make_shared<class_loader::ClassLoader>(library_path);
       }
-      catch (const std::exception& ex) {
-        throw rclcpp_components::ComponentManagerException("Failed to load library: " + std::string(ex.what()));
+      catch (const std::exception& e) {
+        throw rclcpp_components::ComponentManagerException("Failed to load library: " + std::string(e.what()));
       }
       catch (...) {
         throw rclcpp_components::ComponentManagerException("Failed to load library");

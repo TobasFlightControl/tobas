@@ -26,10 +26,10 @@ rclcpp::Logger& getGlobalRootLogger()
       static auto* tobas_node = new rclcpp::Node(name);
       return tobas_node->get_logger();
     }
-    catch (const std::exception& ex) {
+    catch (const std::exception& e) {
       // rclcpp::init was not called so rcl context is null, return non-node logger
       const auto logger2 = rclcpp::get_logger(name);
-      RCLCPP_WARN_STREAM(logger2, "exception thrown while creating node for logging: " << ex.what());
+      RCLCPP_WARN_STREAM(logger2, "exception thrown while creating node for logging: " << e.what());
       RCLCPP_WARN(logger2, "if rclcpp::init was not called, messages from this logger may be missing from /rosout");
       return logger2;
     }
