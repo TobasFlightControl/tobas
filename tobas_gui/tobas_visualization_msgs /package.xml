@@ -14,9 +14,6 @@
 
 	<depend>std_msgs</depend>
 	<depend>sensor_msgs</depend>
-	<depend>trajectory_msgs</depend>
-	<depend>shape_msgs</depend>
-	<depend>object_recognition_msgs</depend>
 
 	<export>
 		<build_type>ament_cmake</build_type>

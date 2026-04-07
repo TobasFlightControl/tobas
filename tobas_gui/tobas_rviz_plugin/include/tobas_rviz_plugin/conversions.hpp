@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <trajectory_msgs/msg/joint_trajectory.hpp>
+
 #include <tobas_visualization_msgs/msg/robot_state.hpp>
 
 #include "./robot_state.hpp"
