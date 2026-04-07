@@ -9,7 +9,7 @@
 
 namespace tobas
 {
-/* Update the links of an rviz::Robot using a RobotState */
+/* Update the links of an \e rviz::Robot using a \e RobotState. */
 class LinkUpdater : public rviz_default_plugins::robot::LinkUpdater
 {
 public:
