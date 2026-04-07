@@ -6,7 +6,6 @@
 #include <geometric_shapes/check_isometry.h>
 #include <geometric_shapes/shape_operations.h>
 
-#include "tobas_rviz_plugin/aabb.hpp"
 #include "tobas_rviz_plugin/link_model.hpp"
 
 namespace tobas
@@ -46,8 +45,6 @@ void LinkModel::setGeometry(const std::vector<shapes::ShapeConstPtr>& shapes, co
   collision_origin_transform_ = origins;
   collision_origin_transform_is_identity_.resize(collision_origin_transform_.size());
 
-  AABB aabb;
-
   for (size_t i = 0; i < shapes_.size(); ++i) {
     ASSERT_ISOMETRY(collision_origin_transform_[i])  // unsanitized input, could contain a non-isometry
     collision_origin_transform_is_identity_[i] =
@@ -55,28 +52,6 @@ void LinkModel::setGeometry(const std::vector<shapes::ShapeConstPtr>& shapes, co
        collision_origin_transform_[i].translation().norm() < std::numeric_limits<double>::epsilon()) ?
         1 :
         0;
-    Eigen::Isometry3d transform = collision_origin_transform_[i];
-
-    if (shapes_[i]->type != shapes::MESH) {
-      Eigen::Vector3d extents = shapes::computeShapeExtents(shapes_[i].get());
-      aabb.extendWithTransformedBox(transform, extents);
-    }
-    else {
-      // we cannot use shapes::computeShapeExtents() for meshes, since that method does not provide information about
-      // the offset of the mesh origin
-      const shapes::Mesh* mesh = dynamic_cast<const shapes::Mesh*>(shapes_[i].get());
-      for (uint32_t j = 0; j < mesh->vertex_count; ++j) {
-        aabb.extend(transform * Eigen::Map<Eigen::Vector3d>(&mesh->vertices[3 * j]));
-      }
-    }
-  }
-
-  centered_bounding_box_offset_ = aabb.center();
-  if (shapes_.empty()) {
-    shape_extents_.setZero();
-  }
-  else {
-    shape_extents_ = aabb.sizes();
   }
 }
 

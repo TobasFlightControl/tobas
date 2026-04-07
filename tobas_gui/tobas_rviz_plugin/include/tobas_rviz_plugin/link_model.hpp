@@ -139,43 +139,11 @@ public:
 
   void setGeometry(const std::vector<shapes::ShapeConstPtr>& shapes, const EigenSTL::vector_Isometry3d& origins);
 
-  /* Get the extents of the link's geometry (dimensions of axis-aligned bounding box around all shapes that make
-     up the
-      link, when the link is positioned at origin -- only collision origin transforms are considered) */
-  const Eigen::Vector3d& getShapeExtentsAtOrigin() const
-  {
-    return shape_extents_;
-  }
-
-  /* Get the offset of the center of the bounding box of this link when the link is positioned at origin. */
-  const Eigen::Vector3d& getCenteredBoundingBoxOffset() const
-  {
-    return centered_bounding_box_offset_;
-  }
-
   /* Remember that \e link_model is attached to this link using a fixed transform */
   void addAssociatedFixedTransform(const LinkModel* link_model, const Eigen::Isometry3d& transform)
   {
     ASSERT_ISOMETRY(transform);  // unsanitized input, could contain a non-isometry
     associated_fixed_transforms_[link_model] = transform;
-  }
-
-  /* Get the filename of the mesh resource used for visual display of this link */
-  const std::string& getVisualMeshFilename() const
-  {
-    return visual_mesh_filename_;
-  }
-
-  /* Get the scale of the mesh resource for this link */
-  const Eigen::Vector3d& getVisualMeshScale() const
-  {
-    return visual_mesh_scale_;
-  }
-
-  /* Get the transform for the visual mesh origin */
-  const Eigen::Isometry3d& getVisualMeshOrigin() const
-  {
-    return visual_mesh_origin_;
   }
 
   void setVisualMesh(const std::string& visual_mesh, const Eigen::Isometry3d& origin, const Eigen::Vector3d& scale);
@@ -217,12 +185,6 @@ private:
 
   /* The collision geometry of the link */
   std::vector<shapes::ShapeConstPtr> shapes_;
-
-  /* The extents of shape (dimensions of axis aligned bounding box when shape is at origin). */
-  Eigen::Vector3d shape_extents_;
-
-  /* Center of the axis aligned bounding box with size shape_extents_ (zero if symmetric along all axes). */
-  Eigen::Vector3d centered_bounding_box_offset_;
 
   /* Filename associated with the visual geometry mesh of this link. If empty, no mesh was used. */
   std::string visual_mesh_filename_;
