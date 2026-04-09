@@ -13,7 +13,7 @@ namespace gui
 {
 namespace log
 {
-RepulsiveAccelPlotWidget::RepulsiveAccelPlotWidget() : curves_{ "Accel X [-]", "Accel Y [-]", "Accel Z [-]" }
+RepulsiveAccelPlotWidget::RepulsiveAccelPlotWidget() : curves_{ "Accel X [m/s²]", "Accel Y [m/s²]", "Accel Z [m/s²]" }
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);
