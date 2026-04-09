@@ -79,7 +79,10 @@ void FlightLogViewerWidget::reset()
   reader_.close();
   decode_fail_topics_.clear();
 
+  // キャッシュクリアを忘れるとログを切り替えても以前のものが表示されてしまうことに注意
   odom_cov_decoder_.clearCache();
+  odom_decoder_.clearCache();
+  imu_decoder_.clearCache();
   mag_decoder_.clearCache();
   gnss_decoder_.clearCache();
   rcin_decoder_.clearCache();
