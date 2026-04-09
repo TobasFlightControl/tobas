@@ -31,6 +31,7 @@ PlotTabWidget::PlotTabWidget(
   const QVector<tobas_msgs::msg::Latency>& sampling_time_data,
   const QVector<tobas_msgs::msg::Latency>& ctrl_latency_data,
   const QVector<tobas_msgs::msg::VibrationLevel>& vibe_data,
+  const QVector<tobas_msgs::msg::RepulsiveAcceleration>& repulsive_accel_data,
   const QVector<tobas_kdl_msgs::msg::WrenchStamped>& dist_force_data,
   const QVector<tobas_debug_msgs::msg::ObserverFeedback>& obsv_fb_data,
   const QVector<tobas_debug_msgs::msg::MulticopterControllerFeedback>& mr_ctrl_fb_data)
@@ -53,6 +54,7 @@ PlotTabWidget::PlotTabWidget(
   , sampling_time_data_(sampling_time_data)
   , ctrl_latency_data_(ctrl_latency_data)
   , vibe_data_(vibe_data)
+  , repulsive_accel_data_(repulsive_accel_data)
   , dist_force_data_(dist_force_data)
   , obsv_fb_data_(obsv_fb_data)
   , mr_ctrl_fb_data_(mr_ctrl_fb_data)
@@ -76,6 +78,7 @@ PlotTabWidget::PlotTabWidget(
   joint_eff_plot_ = new JointEffortPlotWidget();
   latency_plot_ = new LatencyPlotWidget();
   vibe_plot_ = new VibrationLevelPlotWidget();
+  repulsive_accel_plot_ = new RepulsiveAccelPlotWidget();
   dist_force_plot_ = new DisturbanceForcePlotWidget();
   obsv_fb_plot_ = new ObserverFeedbackPlotWidget();
   mr_ctrl_fb_plot_ = new MRControllerFeedbackPlotWidget();
@@ -99,6 +102,7 @@ PlotTabWidget::PlotTabWidget(
   addTab(joint_eff_plot_, "Joint\nEffort");
   addTab(latency_plot_, "Latency");
   addTab(vibe_plot_, "Vibration\nLevel");
+  addTab(repulsive_accel_plot_, "Repulsive\nAccel");
   addTab(dist_force_plot_, "Disturbance\nForce");
   addTab(obsv_fb_plot_, "Observer");
   addTab(mr_ctrl_fb_plot_, "Multirotor\nController");
@@ -189,6 +193,9 @@ void PlotTabWidget::plot(int index)
   }
   else if (cur_widget == vibe_plot_) {
     vibe_plot_->setData(vibe_data_);
+  }
+  else if (cur_widget == repulsive_accel_plot_) {
+    repulsive_accel_plot_->setData(repulsive_accel_data_);
   }
   else if (cur_widget == dist_force_plot_) {
     dist_force_plot_->setData(dist_force_data_);

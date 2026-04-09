@@ -53,6 +53,7 @@ FlightLogViewerWidget::FlightLogViewerWidget()
       sampling_time_data_,
       ctrl_latency_data_,
       vibe_data_,
+      repulsive_accel_data_,
       dist_force_data_,
       obsv_fb_data_,
       mr_ctrl_fb_data_);
@@ -95,11 +96,12 @@ void FlightLogViewerWidget::reset()
   ice_cmd_decoder_.clearCache();
   latency_decoder_.clearCache();
   vibe_decoder_.clearCache();
+  repulsive_accel_decoder_.clearCache();
   wrench_decoder_.clearCache();
   obsv_fb_decoder_.clearCache();
   mr_ctrl_fb_decoder_.clearCache();
 
-  for (auto& plot_tab : plot_tabs_) {
+  for (const auto& plot_tab : plot_tabs_) {
     plot_tab->clear();
     plot_tab->setTimeScale(0., kWindowDuration);
   }
@@ -188,6 +190,7 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
   sampling_time_data_.clear();
   ctrl_latency_data_.clear();
   vibe_data_.clear();
+  repulsive_accel_data_.clear();
   dist_force_data_.clear();
   obsv_fb_data_.clear();
   mr_ctrl_fb_data_.clear();
@@ -268,6 +271,9 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
       else if (topic.ends_with(path::join('/', topic::kVibrationLevel))) {
         vibe_data_.push_back(vibe_decoder_.decode(cur_time, ser_data));
       }
+      else if (topic.ends_with(path::join('/', topic::kRepulsiveAccel))) {
+        repulsive_accel_data_.push_back(repulsive_accel_decoder_.decode(cur_time, ser_data));
+      }
       else if (topic.ends_with(path::join('/', topic::kDisturbanceForce))) {
         dist_force_data_.push_back(wrench_decoder_.decode(cur_time, ser_data));
       }
@@ -285,7 +291,7 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
   }
 
   // データをプロット
-  for (auto& plot_tab : plot_tabs_) {
+  for (const auto& plot_tab : plot_tabs_) {
     // データの設定の前に範囲を指定しないと若干プロットが崩れる
     plot_tab->setTimeScale(window_start_time * 1e-9, window_stop_time * 1e-9);
     plot_tab->plot();

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include "tobas_flight_log_gui/log_viewer/plots/mag_plot.hpp"
+#include "tobas_flight_log_gui/log_viewer/plots/repulsive_accel_plot.hpp"
 
 #include <QVBoxLayout>
 
@@ -13,7 +13,7 @@ namespace gui
 {
 namespace log
 {
-MagPlotWidget::MagPlotWidget() : curves_{ "Mag X [-]", "Mag Y [-]", "Mag Z [-]" }
+RepulsiveAccelPlotWidget::RepulsiveAccelPlotWidget() : curves_{ "Accel X [-]", "Accel Y [-]", "Accel Z [-]" }
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);
@@ -27,7 +27,7 @@ MagPlotWidget::MagPlotWidget() : curves_{ "Mag X [-]", "Mag Y [-]", "Mag Z [-]" 
   }
 }
 
-void MagPlotWidget::clear()
+void RepulsiveAccelPlotWidget::clear()
 {
   for (size_t i = 0; i < kNumAxes; ++i) {
     curves_[i].clear();
@@ -35,28 +35,28 @@ void MagPlotWidget::clear()
   }
 }
 
-void MagPlotWidget::setTimeScale(double t_start, double t_stop)
+void RepulsiveAccelPlotWidget::setTimeScale(double t_start, double t_stop)
 {
   for (size_t i = 0; i < kNumAxes; ++i) {
     plots_[i]->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
   }
 }
 
-void MagPlotWidget::setData(const QVector<tobas_msgs::msg::MagneticField>& msgs)
+void RepulsiveAccelPlotWidget::setData(const QVector<tobas_msgs::msg::RepulsiveAcceleration>& msgs)
 {
   QVector<double> t_data;
-  std::array<QVector<double>, kNumAxes> mag_data;
+  std::array<QVector<double>, kNumAxes> acc_data;
 
   for (const auto& msg : msgs) {
     t_data.push_back(ros2::seconds(msg.header.stamp));
 
-    mag_data[0].push_back(msg.mag.x);
-    mag_data[1].push_back(msg.mag.y);
-    mag_data[2].push_back(msg.mag.z);
+    acc_data[0].push_back(msg.accel.x);
+    acc_data[1].push_back(msg.accel.y);
+    acc_data[2].push_back(msg.accel.z);
   }
 
   for (size_t i = 0; i < kNumAxes; ++i) {
-    curves_[i].setSamples(t_data, mag_data[i]);
+    curves_[i].setSamples(t_data, acc_data[i]);
     plots_[i]->replot();
   }
 }

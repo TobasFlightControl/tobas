@@ -25,7 +25,7 @@ public:
   void clear() override;
   void setTimeScale(double t_start, double t_stop) override;
 
-  void setData(const QVector<tobas_kdl_msgs::msg::WrenchStamped>& dist_force_msgs);
+  void setData(const QVector<tobas_kdl_msgs::msg::WrenchStamped>& msgs);
 
 private:
   std::array<QwtPlot2*, kNumAxes> plots_;

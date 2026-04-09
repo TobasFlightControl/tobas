@@ -25,11 +25,11 @@ public:
   void clear() override;
   void setTimeScale(double t_start, double t_stop) override;
 
-  void setData(const QVector<tobas_msgs::msg::MagneticField>& mag_msgs);
+  void setData(const QVector<tobas_msgs::msg::MagneticField>& msgs);
 
 private:
-  std::array<QwtPlot2*, 3> mag_plots_;
-  std::array<qwt::QwtPlotCurveWrapper, 3> mag_curves_;
+  std::array<QwtPlot2*, kNumAxes> plots_;
+  std::array<qwt::QwtPlotCurveWrapper, kNumAxes> curves_;
 };
 }  // namespace log
 }  // namespace gui

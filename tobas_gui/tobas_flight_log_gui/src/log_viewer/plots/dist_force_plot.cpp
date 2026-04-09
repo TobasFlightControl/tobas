@@ -44,20 +44,20 @@ void DisturbanceForcePlotWidget::setTimeScale(double t_start, double t_stop)
   }
 }
 
-void DisturbanceForcePlotWidget::setData(const QVector<tobas_kdl_msgs::msg::WrenchStamped>& dist_force_msg)
+void DisturbanceForcePlotWidget::setData(const QVector<tobas_kdl_msgs::msg::WrenchStamped>& msgs)
 {
   QVector<double> t_data;
   std::array<QVector<double>, kNumAxes> val_data;
 
-  for (const auto& dist_force : dist_force_msg) {
-    t_data.push_back(ros2::seconds(dist_force.header.stamp));
+  for (const auto& msg : msgs) {
+    t_data.push_back(ros2::seconds(msg.header.stamp));
 
-    const auto& force = dist_force.wrench.force;
+    const auto& force = msg.wrench.force;
     val_data[0].push_back(force.x);
     val_data[1].push_back(force.y);
     val_data[2].push_back(force.z);
 
-    const auto& torque = dist_force.wrench.torque;
+    const auto& torque = msg.wrench.torque;
     val_data[3].push_back(torque.x);
     val_data[4].push_back(torque.y);
     val_data[5].push_back(torque.z);

@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <tobas_msgs/msg/vibration_level.hpp>
+#include <tobas_msgs/msg/repulsive_acceleration.hpp>
 
 #include "./common.hpp"
 
@@ -13,19 +13,19 @@ namespace gui
 {
 namespace log
 {
-class VibrationLevelPlotWidget : public BasePlotWidget
+class RepulsiveAccelPlotWidget : public BasePlotWidget
 {
   Q_OBJECT
 
   static constexpr size_t kNumAxes = 3;
 
 public:
-  explicit VibrationLevelPlotWidget();
+  explicit RepulsiveAccelPlotWidget();
 
   void clear() override;
   void setTimeScale(double t_start, double t_stop) override;
 
-  void setData(const QVector<tobas_msgs::msg::VibrationLevel>& msgs);
+  void setData(const QVector<tobas_msgs::msg::RepulsiveAcceleration>& msgs);
 
 private:
   std::array<QwtPlot2*, kNumAxes> plots_;
