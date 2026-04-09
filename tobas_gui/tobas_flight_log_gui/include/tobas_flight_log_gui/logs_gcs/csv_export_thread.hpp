@@ -21,6 +21,7 @@
 #include <tobas_msgs/msg/odometry_stamped.hpp>
 #include <tobas_msgs/msg/odometry_with_covariance_stamped.hpp>
 #include <tobas_msgs/msg/rc_input.hpp>
+#include <tobas_msgs/msg/repulsive_acceleration.hpp>
 #include <tobas_msgs/msg/rotor_speed_array.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
 #include <tobas_msgs/msg/vibration_level.hpp>
@@ -72,6 +73,7 @@ private:
   MessageDecoder<tobas_msgs::msg::IcePropulsionSystemCommand> ice_cmd_decoder_;
   MessageDecoder<tobas_msgs::msg::Latency> latency_decoder_;
   MessageDecoder<tobas_msgs::msg::VibrationLevel> vibe_decoder_;
+  MessageDecoder<tobas_msgs::msg::RepulsiveAcceleration> repulsive_accel_decoder_;
   MessageDecoder<tobas_kdl_msgs::msg::WrenchStamped> wrench_decoder_;
   MessageDecoder<tobas_debug_msgs::msg::ObserverFeedback> obsv_fb_decoder_;
   MessageDecoder<tobas_debug_msgs::msg::MulticopterControllerFeedback> mr_ctrl_fb_decoder_;

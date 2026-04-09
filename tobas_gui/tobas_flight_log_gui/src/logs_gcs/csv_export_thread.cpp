@@ -146,6 +146,10 @@ void CsvExportThread::run()
         const auto& msg = vibe_decoder_.decode(ser_data);
         histmap_[ros2::nanoseconds(msg.header.stamp)][topic::kVibrationLevel] = ser_data;
       }
+      else if (topic.ends_with(path::join('/', topic::kRepulsiveAccel))) {
+        const auto& msg = repulsive_accel_decoder_.decode(ser_data);
+        histmap_[ros2::nanoseconds(msg.header.stamp)][topic::kRepulsiveAccel] = ser_data;
+      }
       else if (topic.ends_with(path::join('/', topic::kDisturbanceForce))) {
         const auto& msg = wrench_decoder_.decode(ser_data);
         histmap_[ros2::nanoseconds(msg.header.stamp)][topic::kDisturbanceForce] = ser_data;
@@ -250,6 +254,7 @@ std::string CsvExportThread::makeCsvHeader() const
 
   csv_header += "Latency/ControlLatency[us],"
                 "VibrationLevel/X[m/s^2],VibrationLevel/Y[m/s^2],VibrationLevel/Z[m/s^2],"
+                "RepulsiveAccel/X[m/s^2],RepulsiveAccel/Y[m/s^2],RepulsiveAccel/Z[m/s^2],"
                 "DisturbanceForce/Force/X[N],DisturbanceForce/Force/Y[N],DisturbanceForce/Force/Z[N],"
                 "DisturbanceForce/Torque/X[Nm],DisturbanceForce/Torque/Y[Nm],DisturbanceForce/Torque/Z[Nm],"
                 "Observer/AccelBias/X[m/s^2],Observer/AccelBias/Y[m/s^2],Observer/AccelBias/Z[m/s^2],"
@@ -436,6 +441,17 @@ std::string CsvExportThread::makeCsvDataRow(Time time, const SerializedDataMap& 
     const auto& msg = vibe_decoder_.decode(vibe_it->second);
     const auto& vibe = msg.data;
     res += std::to_string(vibe.x) + ',' + std::to_string(vibe.y) + ',' + std::to_string(vibe.z) + ',';
+  }
+  else {
+    res += ",,,";
+  }
+
+  // Repulsive Acceleration
+  const auto repulsive_accel_it = data.find(topic::kRepulsiveAccel);
+  if (repulsive_accel_it != data.end()) {
+    const auto& msg = repulsive_accel_decoder_.decode(repulsive_accel_it->second);
+    const auto& accel = msg.accel;
+    res += std::to_string(accel.x) + ',' + std::to_string(accel.y) + ',' + std::to_string(accel.z) + ',';
   }
   else {
     res += ",,,";
