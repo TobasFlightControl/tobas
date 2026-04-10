@@ -42,6 +42,8 @@ git clone https://github.com/ROBOTIS-GIT/DynamixelSDK.git -b ros2
 git clone https://github.com/ros-misc-utilities/ffmpeg_encoder_decoder.git -b 3.0.1
 git clone https://github.com/ros-misc-utilities/ffmpeg_image_transport_msgs.git -b 1.0.2
 git clone https://github.com/ros-perception/vision_opencv.git -b 4.1.0
+git clone https://github.com/OctoMap/octomap.git -b v1.10.0
+git clone https://github.com/OctoMap/octomap_msgs.git -b ros2
 git clone https://github.com/ros-geographic-info/geographic_info.git -b ros2  # Required by MAVROS
 git clone https://github.com/ros/diagnostics.git -b ros2-jazzy  # Required by MAVROS
 
