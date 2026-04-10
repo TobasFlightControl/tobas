@@ -65,6 +65,11 @@ JRE30::JRE30(function<void(shared_ptr<const JRE30Packet>)> packet_cb)
   packet_c_ = make_shared<JRE30Packet_C>();
 }
 
+JRE30::~JRE30()
+{
+  stop();
+}
+
 bool JRE30::initialize(const char* uart_device)
 {
   if (!uart_.initialize(uart_device, true)) {

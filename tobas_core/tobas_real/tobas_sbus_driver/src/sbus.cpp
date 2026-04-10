@@ -20,6 +20,11 @@ SBUS::SBUS(function<void(const Packet&)> packet_cb) : packet_cb_(packet_cb)
 {
 }
 
+SBUS::~SBUS()
+{
+  stop();
+}
+
 bool SBUS::initialize(const char* device)
 {
   if (!uart_.initialize(device, true)) {

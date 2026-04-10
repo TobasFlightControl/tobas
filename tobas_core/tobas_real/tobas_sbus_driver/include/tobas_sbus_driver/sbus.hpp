@@ -43,6 +43,7 @@ private:
 
 public:
   explicit SBUS(std::function<void(const Packet&)> packet_cb);
+  ~SBUS();
 
   bool initialize(const char* device);
 
