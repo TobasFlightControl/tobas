@@ -127,7 +127,7 @@ def generate_launch_description():
                 ),
                 ComposableNode(
                     package="tobas_object_avoidance",
-                    plugin="tobas_object_avoidance::ObjectAvoidance",
+                    plugin="tobas::ObjectAvoidance",
                     namespace=DRONE_NAME,
                 ),
             ],
