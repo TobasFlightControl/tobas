@@ -15,6 +15,7 @@
 #include <tobas_msgs/msg/cpu.hpp>
 #include <tobas_msgs/msg/latency.hpp>
 #include <tobas_msgs/msg/rotor_liveliness_array.hpp>
+#include <tobas_msgs/msg/user_defined_health_status.hpp>
 #include <tobas_msgs/msg/vehicle_health.hpp>
 #include <tobas_msgs_adapter/magnetic_field.hpp>
 #include <tobas_msgs_adapter/odometry_with_covariance_stamped.hpp>
@@ -72,6 +73,7 @@ private:
     bool mag_offset;
     bool mag_alignment;
     bool vibration_level;
+    bool user_defined_condition;
   } do_check_;
 
   Drone::ConstSharedPtr drone_;
@@ -85,6 +87,7 @@ private:
   tobas_msgs::MagneticField::ConstSharedPtr mag_;
   tobas_msgs::MagneticField::ConstSharedPtr mag_ref_;
   tobas_msgs::VibrationLevel::ConstSharedPtr vibe_;
+  tobas_msgs::msg::UserDefinedHealthStatus::ConstSharedPtr user_health_;
 
   rclcpp::Time t_last_rt_violation_;
   bool batt_voltage_ok_ = true;
@@ -106,6 +109,7 @@ private:
   ros2::SubscriberPtr<tobas_msgs::MagneticField> mag_sub_;
   ros2::SubscriberPtr<tobas_msgs::MagneticField> mag_ref_sub_;
   ros2::SubscriberPtr<tobas_msgs::VibrationLevel> vibe_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::UserDefinedHealthStatus> user_health_sub_;
 
   ros2::TimerPtr main_timer_;
 
@@ -122,6 +126,7 @@ private:
   void magCb(const tobas_msgs::MagneticField::ConstSharedPtr& mag);
   void magRefCb(const tobas_msgs::MagneticField::ConstSharedPtr& mag_ref);
   void vibrationLevelCb(const tobas_msgs::VibrationLevel::ConstSharedPtr& vibe);
+  void userDefinedHealthStatusCb(const tobas_msgs::msg::UserDefinedHealthStatus::ConstSharedPtr& user_health);
 
   void mainTimerCb();
 };
@@ -152,6 +157,10 @@ HealthMonitorNode::HealthMonitorNode(const rclcpp::NodeOptions& options)
   mag_ref_sub_ = createSubscriber(topic::kMagRef, &self::magRefCb, this);
   vibe_sub_ = createSubscriber(topic::kVibrationLevel, &self::vibrationLevelCb, this);
 
+  if (do_check_.user_defined_condition) {
+    user_health_sub_ = createSubscriber(topic::kUserDefinedHealthStatus, &self::userDefinedHealthStatusCb, this);
+  }
+
   main_timer_ = createTimer(kMainTimerPeriod, &self::mainTimerCb, this);
 }
 
@@ -171,6 +180,7 @@ void HealthMonitorNode::getStaticRosParams()
   do_check_.mag_offset = getBoolParam("check_mag_offset");
   do_check_.mag_alignment = getBoolParam("check_mag_alignment");
   do_check_.vibration_level = getBoolParam("check_vibration_level");
+  do_check_.user_defined_condition = getBoolParam("check_user_defined_condition");
 }
 
 void HealthMonitorNode::droneCb(const Drone::ConstSharedPtr& drone)
@@ -318,6 +328,12 @@ void HealthMonitorNode::magRefCb(const tobas_msgs::MagneticField::ConstSharedPtr
 void HealthMonitorNode::vibrationLevelCb(const tobas_msgs::VibrationLevel::ConstSharedPtr& vibe)
 {
   vibe_ = vibe;
+}
+
+void HealthMonitorNode::userDefinedHealthStatusCb(
+  const tobas_msgs::msg::UserDefinedHealthStatus::ConstSharedPtr& user_health)
+{
+  user_health_ = user_health;
 }
 
 void HealthMonitorNode::mainTimerCb()
@@ -607,6 +623,19 @@ void HealthMonitorNode::mainTimerCb()
   }
   else {
     health->vibration_level = tobas_msgs::msg::VehicleHealth::IGNORED;
+  }
+
+  // カスタムチェック項目
+  if (do_check_.user_defined_condition) {
+    if (user_health_) {
+      health->user_defined_condition = user_health_->data;
+    }
+    else {
+      health->user_defined_condition = tobas_msgs::msg::VehicleHealth::UNKNOWN;
+    }
+  }
+  else {
+    health->user_defined_condition = tobas_msgs::msg::VehicleHealth::IGNORED;
   }
 
   health_pub_->publish(std::move(health));

@@ -11,6 +11,7 @@ namespace qt
 {
 /**
  * ===== QCheckBox との違い =====
+ * - 初期状態を引数にもつコンストラクタ
  * - 追加メソッド
  */
 class CheckBox : public QCheckBox
@@ -21,6 +22,8 @@ class CheckBox : public QCheckBox
 
 public:
   using super::QCheckBox;
+
+  explicit CheckBox(const QString& text, bool checked, QWidget* parent = nullptr);
 
   /* 無効化したときでもテキストだけは通常表示する． */
   void setDisabledTextNormal();
