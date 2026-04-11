@@ -7,6 +7,11 @@ namespace tobas
 {
 namespace qt
 {
+CheckBox::CheckBox(const QString& text, bool checked, QWidget* parent) : super(text, parent)
+{
+  setChecked(checked);
+}
+
 void CheckBox::setDisabledTextNormal()
 {
   auto pal = this->palette();

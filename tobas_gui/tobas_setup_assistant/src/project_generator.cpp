@@ -657,6 +657,7 @@ bool ProjectGenerator::generateHealthMonitorConfig()
   params["check_mag_offset"] = settings_->failsafe->checkMagOffset();
   params["check_mag_alignment"] = settings_->failsafe->checkMagAlignment();
   params["check_vibration_level"] = settings_->failsafe->checkVibrationLevel();
+  params["check_user_defined_condition"] = settings_->failsafe->checkUserDefinedCondition();
 
   const auto config_dir = proj_paths_.cfgConfigDirPath();
 

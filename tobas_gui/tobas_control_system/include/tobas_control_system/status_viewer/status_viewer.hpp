@@ -43,6 +43,7 @@ private:
   StatusWidget* mag_offset_status_;
   StatusWidget* mag_alignment_status_;
   StatusWidget* vibration_level_status_;
+  StatusWidget* user_defined_status_;
 
   StatusWidget* ready_arm_status_;
   StatusWidget* armed_status_;
