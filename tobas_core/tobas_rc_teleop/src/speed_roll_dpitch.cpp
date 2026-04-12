@@ -40,7 +40,7 @@ void SpeedRollDeltaPitchController::initialize(BaseNode* node, FlightMode mode)
 {
   node->addDynamicDoubleParam(addMode("min_speed", mode), &self::minSpeedCb, this, 0.5, 10, 1, 20, " m/s");
   node->addDynamicDoubleParam(addMode("max_speed", mode), &self::maxSpeedCb, this, 0.5, 40, 1, 80, " m/s");
-  node->addDynamicDoubleParam(addMode("max_roll", mode), &self::maxRollCb, this, 10., 9, 1, 18, " deg");
+  node->addDynamicDoubleParam(addMode("max_roll", mode), &self::maxRollCb, this, 15., 6, 1, 12, " deg");
   node->addDynamicDoubleParam(addMode("max_delta_pitch", mode), &self::maxDeltaPitchCb, this, 5., 9, 1, 18, " deg");
   node->addDynamicDoubleParam(addMode("speed_expo", mode), &self::speedExpoCb, this, 5., 0, 0, 20);
   node->addDynamicDoubleParam(addMode("roll_expo", mode), &self::rollExpoCb, this, 5., 0, -20, 20);

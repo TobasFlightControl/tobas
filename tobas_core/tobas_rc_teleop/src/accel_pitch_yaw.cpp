@@ -43,9 +43,9 @@ void AccelPitchYawController::initialize(BaseNode* node, FlightMode mode)
     addMode("max_horizontal_jerk", mode), &self::maxHorizontalJerkCb, this, 5., 8, 1, 20, " m/s^3");
   node->addDynamicDoubleParam(
     addMode("max_vertical_accel", mode), &self::maxVerticalAccelCb, this, 0.5, 16, 1, 20, " m/s^2");
-  node->addDynamicDoubleParam(addMode("max_pitch", mode), &self::maxPitchCb, this, 10., 9, 1, 18, " deg");
-  node->addDynamicDoubleParam(addMode("max_pitch_rate", mode), &self::maxPitchRateCb, this, 20., 9, 1, 18, " dps");
-  node->addDynamicDoubleParam(addMode("max_yaw_rate", mode), &self::maxYawRateCb, this, 20., 9, 1, 18, " dps");
+  node->addDynamicDoubleParam(addMode("max_pitch", mode), &self::maxPitchCb, this, 15., 6, 1, 12, " deg");
+  node->addDynamicDoubleParam(addMode("max_pitch_rate", mode), &self::maxPitchRateCb, this, 15., 6, 1, 12, " dps");
+  node->addDynamicDoubleParam(addMode("max_yaw_rate", mode), &self::maxYawRateCb, this, 15., 6, 1, 12, " dps");
   node->addDynamicDoubleParam(
     addMode("horizontal_accel_expo", mode), &self::horizontalAccelExpoCb, this, 5., -6, -20, 20);
   node->addDynamicDoubleParam(addMode("vertical_accel_expo", mode), &self::verticalAccelExpoCb, this, 5., 0, -20, 20);

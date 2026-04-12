@@ -45,9 +45,9 @@ void PosVelAccPitchYawController::initialize(BaseNode* node, FlightMode mode)
     addMode("max_vertical_velocity", mode), &self::maxVerticalVelocityCb, this, 0.5, 8, 0, 20, " m/s");
   node->addDynamicDoubleParam(
     addMode("max_vertical_accel", mode), &self::maxVerticalAccelCb, this, 1., 10, 1, 20, " m/s^2");
-  node->addDynamicDoubleParam(addMode("max_pitch", mode), &self::maxPitchCb, this, 10., 9, 1, 18, " deg");
-  node->addDynamicDoubleParam(addMode("max_pitch_rate", mode), &self::maxPitchRateCb, this, 20., 9, 1, 18, " dps");
-  node->addDynamicDoubleParam(addMode("max_yaw_rate", mode), &self::maxYawRateCb, this, 20., 9, 1, 18, " dps");
+  node->addDynamicDoubleParam(addMode("max_pitch", mode), &self::maxPitchCb, this, 15., 6, 1, 12, " deg");
+  node->addDynamicDoubleParam(addMode("max_pitch_rate", mode), &self::maxPitchRateCb, this, 15., 6, 1, 12, " dps");
+  node->addDynamicDoubleParam(addMode("max_yaw_rate", mode), &self::maxYawRateCb, this, 15., 6, 1, 12, " dps");
   node->addDynamicDoubleParam(
     addMode("max_position_error_down", mode), &self::maxPositionErrorDown, this, 0.5, 4, 0, 20, " m");
   node->addDynamicDoubleParam(

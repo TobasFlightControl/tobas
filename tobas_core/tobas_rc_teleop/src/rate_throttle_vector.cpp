@@ -39,7 +39,7 @@ void RateThrottleVectorController::initialize(BaseNode* node, FlightMode mode)
 {
   node->addDynamicDoubleParam(addMode("max_attitude_rate", mode), &self::maxAttitudeRateCb, this, 45., 8, 1, 16, " dps");
   node->addDynamicDoubleParam(addMode("max_heading_rate", mode), &self::maxHeadingRateCb, this, 45., 8, 1, 16, " dps");
-  node->addDynamicDoubleParam(addMode("max_thrust_angle", mode), &self::maxThrustAngleCb, this, 10., 9, 1, 18, " deg");
+  node->addDynamicDoubleParam(addMode("max_thrust_angle", mode), &self::maxThrustAngleCb, this, 15., 6, 1, 12, " deg");
   node->addDynamicDoubleParam(addMode("attitude_expo", mode), &self::attitudeExpoCb, this, 5., -6, -20, 20);
   node->addDynamicDoubleParam(addMode("heading_expo", mode), &self::headingExpoCb, this, 5., -3, -20, 20);
   node->addDynamicDoubleParam(addMode("throttle_expo", mode), &self::throttleExpoCb, this, 5., 0, 0, 20);
