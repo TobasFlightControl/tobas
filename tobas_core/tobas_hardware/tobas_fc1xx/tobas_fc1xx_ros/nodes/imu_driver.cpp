@@ -37,7 +37,6 @@ private:
   kdl::Vector acc_raw_, gyro_raw_, prev_gyro_raw_;
   dsp::LowPassFilterP1<kdl::Vector> acc_lpf_, gyro_lpf_, dgyro_lpf_;
   bool lpf_initialized_ = false;
-  bool pub_switch_ = false;
 
   ros2::PublisherPtr<tobas_msgs::Imu> imu_raw_pub_;
   ros2::PublisherPtr<tobas_msgs::Imu> imu_filt_pub_;
@@ -167,35 +166,28 @@ void ImuDriverNode::mainTimerCb()
   const auto dgyro_raw = (gyro_raw_ - prev_gyro_raw_) / dt;
   prev_gyro_raw_ = gyro_raw_;
 
-  // Filter IMU data
+  // Publish raw IMU message
+  auto imu_raw = std::make_unique<tobas_msgs::Imu>();
+  imu_raw->header.stamp = cur_time;
+  imu_raw->accel = acc_raw_;
+  imu_raw->gyro = gyro_raw_;
+  imu_raw->dgyro = dgyro_raw;
+  imu_raw_pub_->publish(std::move(imu_raw));
+
   if (lpf_initialized_) {
+    // Filter IMU data
     acc_lpf_.update(acc_raw_, dt);
     gyro_lpf_.update(gyro_raw_, dt);
     dgyro_lpf_.update(dgyro_raw, dt);
-  }
 
-  // 生データとフィルタ済みデータを交互に発行
-  if (pub_switch_) {
-    // Publish raw IMU message
-    auto imu_raw = std::make_unique<tobas_msgs::Imu>();
-    imu_raw->header.stamp = cur_time;
-    imu_raw->accel = acc_raw_;
-    imu_raw->gyro = gyro_raw_;
-    imu_raw->dgyro = dgyro_raw;
-    imu_raw_pub_->publish(std::move(imu_raw));
+    // Publish filtered IMU message
+    auto imu_filt = std::make_unique<tobas_msgs::Imu>();
+    imu_filt->header.stamp = cur_time;
+    imu_filt->accel = acc_lpf_.getValue();
+    imu_filt->gyro = gyro_lpf_.getValue();
+    imu_filt->dgyro = dgyro_lpf_.getValue();
+    imu_filt_pub_->publish(std::move(imu_filt));
   }
-  else {
-    if (lpf_initialized_) {
-      // Publish filtered IMU message
-      auto imu_filt = std::make_unique<tobas_msgs::Imu>();
-      imu_filt->header.stamp = cur_time;
-      imu_filt->accel = acc_lpf_.getValue();
-      imu_filt->gyro = gyro_lpf_.getValue();
-      imu_filt->dgyro = dgyro_lpf_.getValue();
-      imu_filt_pub_->publish(std::move(imu_filt));
-    }
-  }
-  pub_switch_ = !pub_switch_;
 
   // Publish sampling time
   sampling_time_pub_.publish(cur_time);
