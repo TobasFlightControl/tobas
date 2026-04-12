@@ -9,10 +9,6 @@ enabling precise flight performance even for unconventional frames not supported
 
 [Tobas User Guide](https://tobas-wiki-ja.readthedocs.io/ja/stable/)
 
-## Supported Motor Controller Firmware
-
-- v1.1
-
 ## Setup from source
 
 ### PC (Ubuntu 24.04 LTS)
