@@ -88,7 +88,7 @@ bool ImuDriverNode::initializeImuDriver()
 
   // 加速度がサチるのを防ぐためにスケールを大きめに設定．
   // 量子化誤差よりもセンサの固有ノイズの方が大きいため，分解能は問題にならない．
-  if (!imu_.setAccelFullScale(stm::ISM330DLC::fs_xl_t::FS_XL_8G)) {
+  if (!imu_.setAccelFullScale(stm::ISM330DLC::fs_xl_t::FS_XL_16G)) {
     TOBAS_ERROR("Failed to set accelerometer full scale.");
     return false;
   }
