@@ -86,7 +86,7 @@ bool ISM330DLC::setAccelOutputDataRate(odr_xl_t odr)
       return false;
   }
 
-  if (!writeReg(REG_CTRL1_XL, ctrl1_xl)) {
+  if (!writeReg(REG_CTRL1_XL, ctrl1_xl | LPF1_BW_SEL_4)) {  // Anti-aliasing
     return false;
   }
 
