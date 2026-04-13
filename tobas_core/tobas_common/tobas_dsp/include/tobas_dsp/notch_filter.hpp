@@ -112,7 +112,7 @@ bool NotchFilter<T>::setCenterFrequency(const double& fn_hz)
     return false;
   }
 
-  wn_ = *fn_hz;
+  wn_ = M_2PI * fn_hz;
   return true;
 }
 
