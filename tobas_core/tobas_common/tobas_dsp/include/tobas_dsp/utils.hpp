@@ -7,7 +7,10 @@ namespace tobas
 {
 namespace dsp
 {
-/* 双一次変換のプリわーピング． */
+/* 双一次変換のプリワーピング． */
 double prewarp(double wc, double dt);
+
+/* Convert the filter time constant [s] to the cutoff frequency [Hz]. */
+double cutoffFromTimeConst(double tau);
 }  // namespace dsp
 }  // namespace tobas

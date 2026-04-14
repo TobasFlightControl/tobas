@@ -6,7 +6,7 @@
 #include <cassert>
 #include <cmath>
 
-using namespace std;
+#include <tobas_math/definitions.hpp>
 
 namespace tobas
 {
@@ -19,6 +19,11 @@ double prewarp(double wc, double dt)
 
   const auto dt_2 = dt / 2.;
   return tan(wc * dt_2) / dt_2;
+}
+
+double cutoffFromTimeConst(double tau)
+{
+  return 1. / (M_2PI * tau);
 }
 }  // namespace dsp
 }  // namespace tobas
