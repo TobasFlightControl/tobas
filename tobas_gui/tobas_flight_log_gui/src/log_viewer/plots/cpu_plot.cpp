@@ -21,12 +21,14 @@ CpuPlotWidget::CpuPlotWidget()
 
   freq_plot_ = new QwtPlot2();
   freq_plot_->setAxisNoLabel(QwtPlot::xBottom);
+  freq_plot_->setAxisScale(QwtPlot::yLeft, 0., 3.);
   freq_curve_.setPen(Qt::black, kLineWidth);
   freq_curve_.attach(freq_plot_);
   rows->addWidget(freq_plot_, 1);
 
   temp_plot_ = new QwtPlot2();
   temp_plot_->setAxisNoLabel(QwtPlot::xBottom);
+  temp_plot_->setAxisScale(QwtPlot2::yLeft, 0., 100.);
   temp_curve_.setPen(Qt::black, kLineWidth);
   temp_curve_.attach(temp_plot_);
   rows->addWidget(temp_plot_, 1);
