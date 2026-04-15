@@ -12,6 +12,11 @@ namespace tobas
 {
 namespace yaml
 {
+std::string format(int value)
+{
+  return std::to_string(value);
+}
+
 /**
  * @brief 小数をyaml対応の文字列に変換する．
  *
