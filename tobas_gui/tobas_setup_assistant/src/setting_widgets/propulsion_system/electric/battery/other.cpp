@@ -87,7 +87,7 @@ YAML::Node BatteryWidget_Other::dump() const
   node[nominal_voltage_->name()] = yaml::format(nominal_voltage_->getValue());
   node[max_voltage_->name()] = yaml::format(max_voltage_->getValue());
   node[sag_voltage_->name()] = yaml::format(sag_voltage_->getValue());
-  node[max_current_->name()] = yaml::format(max_current_->getValue());
+  node[max_current_->name()] = max_current_->getValue();
   node[capacity_->name()] = capacity_->getValue();
   node[registance_->name()] = registance_->getValue();
 
