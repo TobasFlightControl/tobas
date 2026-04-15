@@ -28,7 +28,7 @@ bool IceRotorConfig::isValid() const
   }
 
   if (!pitch_limit.inRange(center_pitch)) {
-    cerr << "Center pitch is out of limit." << endl;
+    cerr << "Center pitch is out of its limit." << endl;
     return false;
   }
 
