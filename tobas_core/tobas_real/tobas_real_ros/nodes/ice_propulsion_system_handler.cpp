@@ -83,19 +83,16 @@ void IcePropulsionSystemHandlerNode::stopActuator()
   for (const auto& [_, rotor] : iprop_->rotors) {
     const auto irotor = boost::polymorphic_pointer_downcast<IceRotorConfig>(rotor);
 
-    const auto& link_name = irotor->link_name;
-    const auto cmd_angle = irotor->optimalPitch();
-
     // Set current pitch angle
-    pitch_angles_.at(link_name) = cmd_angle;
+    pitch_angles_.at(irotor->link_name) = irotor->center_pitch;
 
     // Set command
     switch (irotor->hw_iface) {
       case HardwareInterface::kPwm: {
-        const auto& pwm_cfg = drone_->pwms.at(link_name);
+        const auto& pwm_cfg = drone_->pwms.at(irotor->link_name);
         pwms->pwms.emplace_back();
         pwms->pwms.back().channel = pwm_cfg.channel;
-        pwms->pwms.back().period = pwm_cfg.periodFromValue(cmd_angle);
+        pwms->pwms.back().period = pwm_cfg.periodFromValue(irotor->center_pitch);
         break;
       }
       case HardwareInterface::kOther: {
@@ -103,7 +100,10 @@ void IcePropulsionSystemHandlerNode::stopActuator()
       }
       default: {
         TOBAS_ERROR(
-          "The hardware interface of variable pitch propeller \"", link_name, "\" is invalid: ", (int)irotor->hw_iface);
+          "The hardware interface of variable pitch propeller \"",
+          irotor->link_name,
+          "\" is invalid: ",
+          (int)irotor->hw_iface);
         break;
       }
     }
@@ -133,7 +133,7 @@ void IcePropulsionSystemHandlerNode::droneCb(const Drone::ConstSharedPtr& drone)
   pitch_angles_.clear();
   for (const auto& [_, rotor] : iprop_->rotors) {
     const auto irotor = boost::polymorphic_pointer_downcast<IceRotorConfig>(rotor);
-    pitch_angles_[irotor->link_name] = irotor->optimalPitch();
+    pitch_angles_[irotor->link_name] = irotor->center_pitch;
   }
 
   // Register publishers

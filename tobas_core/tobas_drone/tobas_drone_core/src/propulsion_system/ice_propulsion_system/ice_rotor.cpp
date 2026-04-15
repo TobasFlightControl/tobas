@@ -27,6 +27,11 @@ bool IceRotorConfig::isValid() const
     return false;
   }
 
+  if (!pitch_limit.inRange(center_pitch)) {
+    cerr << "Center pitch is out of limit." << endl;
+    return false;
+  }
+
   if (!motor_const.isValid()) {
     return false;
   }
@@ -52,6 +57,10 @@ bool IceRotorConfig::load(const YAML::Node& node)
     return false;
   }
 
+  if (!yaml::load(kCenterPitchKey, node, center_pitch)) {
+    return false;
+  }
+
   if (!motor_const.load(node[kMotorConstKey])) {
     return false;
   }
@@ -73,6 +82,7 @@ YAML::Node IceRotorConfig::dump() const
 
   node[kGearRatioKey] = yaml::format(gear_ratio);
   node[kPitchLimitKey] = pitch_limit;
+  node[kCenterPitchKey] = yaml::format(center_pitch);
   node[kMotorConstKey] = motor_const.dump();
   node[kMomentConstKey] = moment_const.dump();
   node[kHardwareIfaceKey] = hw_iface;

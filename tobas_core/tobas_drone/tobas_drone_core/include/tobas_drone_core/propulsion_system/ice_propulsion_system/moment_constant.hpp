@@ -37,11 +37,5 @@ public:
   YAML::Node dump() const;
 
   double compute(double phi) const;
-
-  /* 最も効率の良いピッチ角 [rad] */
-  inline double optimalPitch() const
-  {
-    return phi0 + sqrt(c / a);
-  }
 };
 }  // namespace tobas

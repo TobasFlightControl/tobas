@@ -123,7 +123,7 @@ void RotorControllerNode::publishZeroThrottle()
         const auto irotor = boost::polymorphic_pointer_downcast<IceRotorConfig>(rotor);
         ice_cmd_msg->pitch_angles.emplace_back();
         ice_cmd_msg->pitch_angles.back().link_name = link_name;
-        ice_cmd_msg->pitch_angles.back().angle = irotor->optimalPitch();
+        ice_cmd_msg->pitch_angles.back().angle = irotor->center_pitch;
       }
 
       ice_cmd_pub_->publish(std::move(ice_cmd_msg));
@@ -207,9 +207,8 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
           TOBAS_ERROR("ICE Rotor \"" + elem.link_name + "\" does not exist.");
           continue;
         }
-        const auto pitch_opt = irotor->optimalPitch();
-        const auto motor_const = irotor->motorConst(pitch_opt);
-        const auto moment_const = irotor->momentConst(pitch_opt);
+        const auto motor_const = irotor->motorConst(irotor->center_pitch);
+        const auto moment_const = irotor->momentConst(irotor->center_pitch);
         const auto tar_thrust = std::max(elem.thrust, 0.);
         thrust_sum += tar_thrust;
         torque_sum += moment_const * tar_thrust / irotor->gear_ratio;  // 減速比を考慮
@@ -227,7 +226,7 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
           const auto irotor = iprop->getRotor(elem.link_name);
           ice_cmd_msg->pitch_angles.emplace_back();
           ice_cmd_msg->pitch_angles.back().link_name = elem.link_name;
-          ice_cmd_msg->pitch_angles.back().angle = irotor->optimalPitch();
+          ice_cmd_msg->pitch_angles.back().angle = irotor->center_pitch;
         }
       }
       else {

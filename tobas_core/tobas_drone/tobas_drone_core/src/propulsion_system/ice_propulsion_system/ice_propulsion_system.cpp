@@ -120,7 +120,7 @@ double IcePropulsionSystemConfig::thrustFromThrottle(const std::string& link_nam
 {
   const auto irotor = getRotor(link_name);
   const auto engine_speed = computeEngineSpeed(throttle);
-  return irotor->thrustFromPitch(engine_speed, irotor->optimalPitch());  // 最適ピッチ角のときの推力を返す
+  return irotor->thrustFromPitch(engine_speed, irotor->center_pitch);  // 中心ピッチ角のときの推力を返す
 }
 
 double IcePropulsionSystemConfig::maxEngineSpeed()
@@ -187,7 +187,7 @@ double IcePropulsionSystemConfig::calc_k() const
   double res = 0.;
   for (const auto& [_, rotor] : rotors) {
     const auto irotor = boost::polymorphic_pointer_downcast<IceRotorConfig>(rotor);
-    const auto phi_r = irotor->optimalPitch();
+    const auto& phi_r = irotor->center_pitch;
     const auto& n = irotor->gear_ratio;
     res += irotor->motorConst(phi_r) * irotor->momentConst(phi_r) / math::cube(n);
   }
