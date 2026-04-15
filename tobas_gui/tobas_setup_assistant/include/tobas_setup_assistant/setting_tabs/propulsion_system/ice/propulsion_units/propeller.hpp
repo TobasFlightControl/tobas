@@ -4,8 +4,8 @@
 #pragma once
 
 #include "./base.hpp"
+#include "tobas_setup_assistant/param_getters/double_range.hpp"
 #include "tobas_setup_assistant/param_getters/double_spin_box.hpp"
-#include "tobas_setup_assistant/param_getters/int_range.hpp"
 #include "tobas_setup_assistant/param_getters/spin_box.hpp"
 
 namespace tobas
@@ -50,6 +50,9 @@ public:
   /* Variable pitch angle limit around the neutoral position [rad] */
   st::Range<double> pitchAngleLimit() const;
 
+  /* Center pitch angle for control [rad] */
+  double centerPitchAngle() const;
+
   /* Maximum pitch angle rate [rad/s] */
   double maxPitchAngleRate() const;
 
@@ -66,7 +69,8 @@ private:
   ParamGetterWidget_SpinBox* num_blades_;
   ParamGetterWidget_SpinBox* diameter_;
   ParamGetterWidget_DoubleSpinBox* pitch_length_neutoral_;
-  ParamGetterWidget_IntRange* pitch_angle_limit_;
+  ParamGetterWidget_DoubleRange* pitch_angle_limit_;
+  ParamGetterWidget_DoubleSpinBox* center_pitch_angle_;
   ParamGetterWidget_SpinBox* max_pitch_angle_rate_;
   ParamGetterWidget_SpinBox* min_chord_;
   ParamGetterWidget_SpinBox* max_chord_;

@@ -9,6 +9,7 @@
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 #include <tobas_yaml_tools/convert/range.hpp>
+#include <tobas_yaml_tools/format.hpp>
 
 namespace tobas
 {
@@ -45,13 +46,22 @@ PropellerWidget::PropellerWidget()
   pitch_length_neutoral_->setSuffix(" inch");
   rows->addWidget(pitch_length_neutoral_);
 
-  pitch_angle_limit_ = new ParamGetterWidget_IntRange(
+  pitch_angle_limit_ = new ParamGetterWidget_DoubleRange(
     "Pitch Angle Limit", "Specify the range over which thrust varies linearly with propeller pitch angle.");
+  pitch_angle_limit_->setDecimals(1);
   pitch_angle_limit_->setMinimum(-90);
   pitch_angle_limit_->setMaximum(+90);
-  pitch_angle_limit_->setValue({ -6, 6 });
+  pitch_angle_limit_->setValue({ -10, 10 });
   pitch_angle_limit_->setSuffix(" deg");
   rows->addWidget(pitch_angle_limit_);
+
+  center_pitch_angle_ = new ParamGetterWidget_DoubleSpinBox("Center Pitch Angle");
+  center_pitch_angle_->setDecimals(1);
+  center_pitch_angle_->setMinimum(-90);
+  center_pitch_angle_->setMaximum(+90);
+  center_pitch_angle_->setValue(0);
+  center_pitch_angle_->setSuffix(" deg");
+  rows->addWidget(center_pitch_angle_);
 
   max_pitch_angle_rate_ = new ParamGetterWidget_SpinBox("Max Pitch Angle Rate");
   max_pitch_angle_rate_->setMinimum(0);
@@ -87,6 +97,12 @@ bool PropellerWidget::isValid()
     return false;
   }
 
+  const auto center_pitch = centerPitchAngle();
+  if (center_pitch < min_pitch || max_pitch < center_pitch) {
+    qt::qWarnBox(this, "Center pitch angle is out of its limit.");
+    return false;
+  }
+
   if (min_chord_->getValue() > max_chord_->getValue()) {
     qt::qWarnBox(this, "Blade chord range is invalid.");
     return false;
@@ -103,6 +119,7 @@ void PropellerWidget::copyFrom(const BaseSelectedLinkSettingWidget* src)
   diameter_->setValue(derived->diameter_->getValue());
   pitch_length_neutoral_->setValue(derived->pitch_length_neutoral_->getValue());
   pitch_angle_limit_->setValue(derived->pitch_angle_limit_->getValue());
+  center_pitch_angle_->setValue(derived->center_pitch_angle_->getValue());
   max_pitch_angle_rate_->setValue(derived->max_pitch_angle_rate_->getValue());
   min_chord_->setValue(derived->min_chord_->getValue());
   max_chord_->setValue(derived->max_chord_->getValue());
@@ -114,8 +131,9 @@ YAML::Node PropellerWidget::dump() const
 
   node[num_blades_->name()] = num_blades_->getValue();
   node[diameter_->name()] = diameter_->getValue();
-  node[pitch_length_neutoral_->name()] = pitch_length_neutoral_->getValue();
+  node[pitch_length_neutoral_->name()] = yaml::format(pitch_length_neutoral_->getValue());
   node[pitch_angle_limit_->name()] = pitch_angle_limit_->getValue();
+  node[center_pitch_angle_->name()] = yaml::format(center_pitch_angle_->getValue());
   node[max_pitch_angle_rate_->name()] = max_pitch_angle_rate_->getValue();
   node[min_chord_->name()] = min_chord_->getValue();
   node[max_chord_->name()] = max_chord_->getValue();
@@ -127,8 +145,9 @@ void PropellerWidget::load(const YAML::Node& node)
 {
   num_blades_->setValue(node[num_blades_->name()].as<int>());
   diameter_->setValue(node[diameter_->name()].as<int>());
-  pitch_length_neutoral_->setValue(node[pitch_length_neutoral_->name()].as<int>());
-  pitch_angle_limit_->setValue(node[pitch_angle_limit_->name()].as<st::Range<int>>());
+  pitch_length_neutoral_->setValue(node[pitch_length_neutoral_->name()].as<double>());
+  pitch_angle_limit_->setValue(node[pitch_angle_limit_->name()].as<st::Range<double>>());
+  center_pitch_angle_->setValue(node[center_pitch_angle_->name()].as<double>());
   max_pitch_angle_rate_->setValue(node[max_pitch_angle_rate_->name()].as<int>());
   min_chord_->setValue(node[min_chord_->name()].as<int>());
   max_chord_->setValue(node[max_chord_->name()].as<int>());
@@ -164,6 +183,11 @@ st::Range<double> PropellerWidget::pitchAngleLimit() const
   const auto lower = st::deg2rad(pitch_angle_limit_->min());
   const auto upper = st::deg2rad(pitch_angle_limit_->max());
   return { lower, upper };
+}
+
+double PropellerWidget::centerPitchAngle() const
+{
+  return st::deg2rad(center_pitch_angle_->getValue());
 }
 
 double PropellerWidget::maxPitchAngleRate() const

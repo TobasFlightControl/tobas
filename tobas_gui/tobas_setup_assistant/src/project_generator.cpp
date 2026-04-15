@@ -273,6 +273,7 @@ Drone ProjectGenerator::createDrone() const
         rotor->tilt_joint_name = uadf_.tilts.contains(par_jnt.name) ? par_jnt.name : "";
         rotor->gear_ratio = unit_widget->transmission()->gearRatio();
         rotor->pitch_limit = unit_widget->propeller()->pitchAngleLimit();
+        rotor->center_pitch = unit_widget->propeller()->centerPitchAngle();
         rotor->motor_const = unit_widget->aerodynamics()->motorConst();
         if (settings_->hardware->pwm()->contains(QString::fromStdString(cur_jnt.name))) {
           rotor->hw_iface = HardwareInterface::kPwm;
