@@ -32,8 +32,8 @@ private:
   std::array<qwt::QwtPlotCurveWrapper, kNumAxes> raw_curves_;
   std::array<qwt::QwtPlotCurveWrapper, kNumAxes> filt_curves_;
 
-  void updateRawSamples(const QVector<tobas_msgs::msg::Imu>& raw_msgs);
-  void updateFilteredSamples(const QVector<tobas_msgs::msg::Imu>& filt_msgs);
+  static void
+  updateSamples(const QVector<tobas_msgs::msg::Imu>& msgs, std::array<qwt::QwtPlotCurveWrapper, kNumAxes>& curves);
 };
 }  // namespace log
 }  // namespace gui
