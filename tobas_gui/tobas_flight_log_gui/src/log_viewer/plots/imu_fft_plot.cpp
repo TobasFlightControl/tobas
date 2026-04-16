@@ -3,6 +3,8 @@
 
 #include "tobas_flight_log_gui/log_viewer/plots/imu_fft_plot.hpp"
 
+#include <future>
+
 #include <QGridLayout>
 
 #include <tobas_ros2_tools/time.hpp>
@@ -61,8 +63,11 @@ void ImuFftPlotWidget::setData(
   const QVector<tobas_msgs::msg::Imu>& raw_msgs,
   const QVector<tobas_msgs::msg::Imu>& filt_msgs)
 {
-  updateSamples(raw_msgs, raw_ffts_, raw_curves_);
-  updateSamples(filt_msgs, filt_ffts_, filt_curves_);
+  // 並列実行
+  auto f1 = std::async(std::launch::async, [this, raw_msgs] { updateSamples(raw_msgs, raw_ffts_, raw_curves_); });
+  auto f2 = std::async(std::launch::async, [this, filt_msgs] { updateSamples(filt_msgs, filt_ffts_, filt_curves_); });
+  f1.wait();
+  f2.wait();
 
   for (auto& plot : plots_) {
     plot->replot();
@@ -100,8 +105,8 @@ void ImuFftPlotWidget::updateSamples(
   const auto duration = (last_time - first_time).seconds();  // [s]
   const auto fs = n / duration;                              // [Hz]
 
-// 周波数変換して表示
-#pragma omp parallel for
+  // 周波数変換して表示
+#pragma omp parallel for num_threads(kNumAxes)
   for (size_t i = 0; i < kNumAxes; ++i) {
     // フーリエ変換
     std::vector<std::complex<double>> spec;
