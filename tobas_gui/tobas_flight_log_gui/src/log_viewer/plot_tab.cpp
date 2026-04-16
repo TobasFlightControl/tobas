@@ -150,7 +150,7 @@ void PlotTabWidget::plot(int index)
     imu_plot_->setData(raw_imu_data_, filt_imu_data_);
   }
   else if (cur_widget == imu_fft_plot_) {
-    imu_fft_plot_->setData(raw_imu_data_);
+    imu_fft_plot_->setData(raw_imu_data_, filt_imu_data_);
   }
   else if (cur_widget == mag_plot_) {
     mag_plot_->setData(mag_data_);

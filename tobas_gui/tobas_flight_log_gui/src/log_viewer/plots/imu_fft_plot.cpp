@@ -14,7 +14,10 @@ namespace gui
 namespace log
 {
 ImuFftPlotWidget::ImuFftPlotWidget()
-  : curves_{ "Accel X [m/s²]", "Accel Y [m/s²]", "Accel Z [m/s²]", "Gyro X [rad/s]", "Gyro Y [rad/s]", "Gyro Z [rad/s]" }
+  : raw_curves_{ "Raw Accel X [m/s²]", "Raw Accel Y [m/s²]", "Raw Accel Z [m/s²]",
+                 "Raw Gyro X [rad/s]", "Raw Gyro Y [rad/s]", "Raw Gyro Z [rad/s]" }
+  , filt_curves_{ "Filtered Accel X [m/s²]", "Filtered Accel Y [m/s²]", "Filtered Accel Z [m/s²]",
+                  "Filtered Gyro X [rad/s]", "Filtered Gyro Y [rad/s]", "Filtered Gyro Z [rad/s]" }
 {
   // 1次元なので虚数部分は不要
   fft_.SetFlag(Eigen::FFT<double>::HalfSpectrum);
@@ -32,15 +35,19 @@ ImuFftPlotWidget::ImuFftPlotWidget()
     }
     grid->addWidget(plots_[i], i % 3, i / 3, 1, 1);
 
-    curves_[i].setPen(Qt::black, kLineWidth);
-    curves_[i].attach(plots_[i]);
+    raw_curves_[i].setPen(kRawValueColor, kLineWidth);
+    raw_curves_[i].attach(plots_[i]);
+
+    filt_curves_[i].setPen(kFilteredValueColor, kLineWidth);
+    filt_curves_[i].attach(plots_[i]);
   }
 }
 
 void ImuFftPlotWidget::clear()
 {
   for (size_t i = 0; i < kNumAxes; ++i) {
-    curves_[i].setSamples(QVector<double>{}, QVector<double>{});
+    raw_curves_[i].clear();
+    filt_curves_[i].clear();
     plots_[i]->replot();
   }
 }
@@ -49,18 +56,31 @@ void ImuFftPlotWidget::setTimeScale(double, double)
 {
 }
 
-void ImuFftPlotWidget::setData(const QVector<tobas_msgs::msg::Imu>& imu_msgs)
+void ImuFftPlotWidget::setData(
+  const QVector<tobas_msgs::msg::Imu>& raw_msgs,
+  const QVector<tobas_msgs::msg::Imu>& filt_msgs)
 {
-  const auto n = static_cast<size_t>(imu_msgs.size());
+  updateSamples(raw_msgs, raw_curves_);
+  updateSamples(filt_msgs, filt_curves_);
+
+  for (auto& plot : plots_) {
+    plot->replot();
+  }
+}
+
+void ImuFftPlotWidget::updateSamples(
+  const QVector<tobas_msgs::msg::Imu>& msgs,
+  std::array<qwt::QwtPlotCurveWrapper, kNumAxes>& curves)
+{
+  const auto n = static_cast<size_t>(msgs.size());
 
   if (n < 2) {
-    clear();
     return;
   }
 
   // データ収集
   std::array<std::vector<double>, kNumAxes> imu_data;
-  for (const auto& imu : imu_msgs) {
+  for (const auto& imu : msgs) {
     const auto& accel = imu.accel;
     imu_data[0].push_back(accel.x);
     imu_data[1].push_back(accel.y);
@@ -73,8 +93,8 @@ void ImuFftPlotWidget::setData(const QVector<tobas_msgs::msg::Imu>& imu_msgs)
   }
 
   // サンプリング周波数を計算
-  const auto& first_time = imu_msgs.first().header.stamp;
-  const auto& last_time = imu_msgs.back().header.stamp;
+  const auto& first_time = msgs.first().header.stamp;
+  const auto& last_time = msgs.back().header.stamp;
   const auto duration = (last_time - first_time).seconds();  // [s]
   const auto fs = n / duration;                              // [Hz]
 
@@ -98,8 +118,7 @@ void ImuFftPlotWidget::setData(const QVector<tobas_msgs::msg::Imu>& imu_msgs)
       amps.push_back(amp);
     }
 
-    curves_[i].setSamples(freqs, amps);
-    plots_[i]->replot();
+    curves[i].setSamples(freqs, amps);
   }
 }
 }  // namespace log
