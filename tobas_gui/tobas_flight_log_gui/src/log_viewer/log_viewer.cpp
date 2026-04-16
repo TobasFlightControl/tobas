@@ -11,10 +11,10 @@
 
 #include <tobas_constants/path.hpp>
 #include <tobas_constants/ros_interface.hpp>
-#include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_ros2_tools/rosbag.hpp>
 #include <tobas_ros2_tools/util.hpp>
+#include <tobas_string_tools/chars.hpp>
 
 namespace fs = std::filesystem;
 
@@ -214,73 +214,73 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
 
     // デコード
     try {
-      if (topic.ends_with(path::join('/', topic::kOdometry))) {
+      if (topic.ends_with(str::concat('/', topic::kOdometry).data())) {
         odom_data_.push_back(odom_cov_decoder_.decode(cur_time, ser_data));
       }
-      else if (topic.ends_with(path::join('/', topic::kTrajSetpoint))) {
+      else if (topic.ends_with(str::concat('/', topic::kTrajSetpoint).data())) {
         setpoint_data_.push_back(odom_decoder_.decode(cur_time, ser_data));
       }
-      else if (topic.ends_with(path::join('/', topic::kImuRaw))) {
+      else if (topic.ends_with(str::concat('/', topic::kImuRaw).data())) {
         raw_imu_data_.push_back(imu_decoder_.decode(cur_time, ser_data));
       }
-      else if (topic.ends_with(path::join('/', topic::kImuFilt))) {
+      else if (topic.ends_with(str::concat('/', topic::kImuFilt).data())) {
         filt_imu_data_.push_back(imu_decoder_.decode(cur_time, ser_data));
       }
-      else if (topic.ends_with(path::join('/', topic::kMagneticField))) {
+      else if (topic.ends_with(str::concat('/', topic::kMagneticField).data())) {
         mag_data_.push_back(mag_decoder_.decode(cur_time, ser_data));
       }
-      else if (topic.ends_with(path::join('/', topic::kGnss))) {
+      else if (topic.ends_with(str::concat('/', topic::kGnss).data())) {
         gnss_data_.push_back(gnss_decoder_.decode(cur_time, ser_data));
       }
-      else if (topic.ends_with(path::join('/', topic::kRcInput))) {
+      else if (topic.ends_with(str::concat('/', topic::kRcInput).data())) {
         rcin_data_.push_back(rcin_decoder_.decode(cur_time, ser_data));
       }
-      else if (topic.ends_with(path::join('/', topic::kBattery))) {
+      else if (topic.ends_with(str::concat('/', topic::kBattery).data())) {
         battery_data_.push_back(battery_decoder_.decode(cur_time, ser_data));
       }
-      else if (topic.ends_with(path::join('/', topic::kCpu))) {
+      else if (topic.ends_with(str::concat('/', topic::kCpu).data())) {
         cpu_data_.push_back(cpu_decoder_.decode(cur_time, ser_data));
       }
-      else if (topic.ends_with(path::join('/', topic::kRotorStates))) {
+      else if (topic.ends_with(str::concat('/', topic::kRotorStates).data())) {
         cur_rotor_states_data_.push_back(rotor_states_decoder_.decode(cur_time, ser_data));
       }
-      else if (topic.ends_with(path::join('/', topic::kRotorSpeedsCmd))) {
+      else if (topic.ends_with(str::concat('/', topic::kRotorSpeedsCmd).data())) {
         tar_rotor_speeds_data_.push_back(rotor_speeds_decoder_.decode(cur_time, ser_data));
       }
-      else if (topic.ends_with(path::join('/', topic::kJointStates))) {
+      else if (topic.ends_with(str::concat('/', topic::kJointStates).data())) {
         cur_joint_states_data_.push_back(joint_states_decoder_.decode(cur_time, ser_data));
       }
-      else if (topic.ends_with(path::join('/', topic::kJointPosCmd))) {
+      else if (topic.ends_with(str::concat('/', topic::kJointPosCmd).data())) {
         tar_joint_positions_data_.push_back(joint_commands_decoder_.decode(cur_time, ser_data));
       }
-      else if (topic.ends_with(path::join('/', topic::kJointVelCmd))) {
+      else if (topic.ends_with(str::concat('/', topic::kJointVelCmd).data())) {
         tar_joint_velocities_data_.push_back(joint_commands_decoder_.decode(cur_time, ser_data));
       }
-      else if (topic.ends_with(path::join('/', topic::kJointEffCmd))) {
+      else if (topic.ends_with(str::concat('/', topic::kJointEffCmd).data())) {
         tar_joint_efforts_data_.push_back(joint_commands_decoder_.decode(cur_time, ser_data));
       }
-      else if (topic.ends_with(path::join('/', topic::kIcePropulsionSystemCmd))) {
+      else if (topic.ends_with(str::concat('/', topic::kIcePropulsionSystemCmd).data())) {
         ice_cmd_data_.push_back(ice_cmd_decoder_.decode(cur_time, ser_data));
       }
-      else if (topic.ends_with(path::join('/', topic::kImuSamplingTime))) {
+      else if (topic.ends_with(str::concat('/', topic::kImuSamplingTime).data())) {
         sampling_time_data_.push_back(latency_decoder_.decode(cur_time, ser_data));
       }
-      else if (topic.ends_with(path::join('/', topic::kControlLatency))) {
+      else if (topic.ends_with(str::concat('/', topic::kControlLatency).data())) {
         ctrl_latency_data_.push_back(latency_decoder_.decode(cur_time, ser_data));
       }
-      else if (topic.ends_with(path::join('/', topic::kVibrationLevel))) {
+      else if (topic.ends_with(str::concat('/', topic::kVibrationLevel).data())) {
         vibe_data_.push_back(vibe_decoder_.decode(cur_time, ser_data));
       }
-      else if (topic.ends_with(path::join('/', topic::kRepulsiveAccel))) {
+      else if (topic.ends_with(str::concat('/', topic::kRepulsiveAccel).data())) {
         repulsive_accel_data_.push_back(repulsive_accel_decoder_.decode(cur_time, ser_data));
       }
-      else if (topic.ends_with(path::join('/', topic::kDisturbanceForce))) {
+      else if (topic.ends_with(str::concat('/', topic::kDisturbanceForce).data())) {
         dist_force_data_.push_back(wrench_decoder_.decode(cur_time, ser_data));
       }
-      else if (topic.ends_with(path::join('/', topic::kObsvFeedback))) {
+      else if (topic.ends_with(str::concat('/', topic::kObsvFeedback).data())) {
         obsv_fb_data_.push_back(obsv_fb_decoder_.decode(cur_time, ser_data));
       }
-      else if (topic.ends_with(path::join('/', topic::kMRCtrlFeedback))) {
+      else if (topic.ends_with(str::concat('/', topic::kMRCtrlFeedback).data())) {
         mr_ctrl_fb_data_.push_back(mr_ctrl_fb_decoder_.decode(cur_time, ser_data));
       }
     }
