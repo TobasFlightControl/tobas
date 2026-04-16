@@ -106,6 +106,7 @@ void ImuFftPlotWidget::updateSamples(
   const auto fs = n / duration;                              // [Hz]
 
   // 周波数変換して表示
+  // FFTが重い (N log(N)) ため各軸に対して並列実行
 #pragma omp parallel for num_threads(kNumAxes)
   for (size_t i = 0; i < kNumAxes; ++i) {
     // フーリエ変換
