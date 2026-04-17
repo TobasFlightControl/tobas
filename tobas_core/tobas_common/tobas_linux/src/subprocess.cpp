@@ -40,9 +40,16 @@ pid_t createSubprocess(const vector<char*>& _argv)
     }
     cout << endl;
 
+    // 引数リストに終端を加える
     auto argv = _argv;
-    argv.push_back(nullptr);                   // 引数リストの終端
-    return execvp(argv.front(), argv.data());  // ここでブロッキング
+    argv.push_back(nullptr);
+
+    // 子プロセスを実行（ブロッキング）
+    execvp(argv.front(), argv.data());
+
+    // execvpは失敗したときだけ返る
+    cerr << "Subprocess failed." << endl;
+    _exit(127);  // exec呼び出し失敗時によく使われるエラーコード
   }
 }
 
