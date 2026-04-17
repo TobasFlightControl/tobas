@@ -5,6 +5,7 @@
 
 #include <expected>
 
+#include <QProcess>
 #include <QPushButton>
 #include <QWidget>
 
@@ -65,8 +66,8 @@ private:
   uadf::Model uadf_;
   kdl::Tree tree_;
   Drone drone_;
-  pid_t launch_pid_ = -1;
 
+  QProcess* launch_proc_ = nullptr;
   qt::WaitSpinnerWidget spinner_;
 
   qt::ToggleButton* start_stop_button_;
@@ -83,12 +84,11 @@ private:
   bool startHITL();
   void terminateHITL();
 
-  std::map<std::string, std::string> makeGazeboLaunchArguments(bool launch_core) const;
-  bool launchGazebo(bool launch_core);
+  std::map<QString, QString> makeGazeboLaunchArguments(bool launch_core) const;
+  void launchGazebo(bool launch_core);
 
+  std::expected<void, QString> killGazebo();
   std::expected<void, QString> killGazeboWithSpinner();
-
-  static std::string boolToText(bool arg);
 
 private Q_SLOTS:
   void onStartRequested();

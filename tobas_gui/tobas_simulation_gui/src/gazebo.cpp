@@ -66,29 +66,12 @@ Q_SIGNALS:
   void finished(bool success, const QString& message);
 
 public:
-  explicit KillGazeboThread(rclcpp::Node::SharedPtr node, pid_t pid) : node_(node), pid_(pid)
+  explicit KillGazeboThread(rclcpp::Node::SharedPtr node) : node_(node)
   {
   }
 
   void run() override
   {
-    if (pid_ < 0) {
-      Q_EMIT finished(false, "Invalid PID: " + QString::number(pid_));
-      return;
-    }
-
-    // Kill ROS process
-    if (kill(pid_, SIGINT) != 0) {
-      if (errno == ESRCH) {
-        Q_EMIT finished(false, "PID " + QString::number(pid_) + " is not found.");
-        return;
-      }
-      else {
-        Q_EMIT finished(false, "Failed to kill PID " + QString::number(pid_) + ": " + linux::strError().c_str());
-        return;
-      }
-    }
-
     // Kill Gazebo process
     // FIXME: killコマンドだけだとGazeboサーバが落ちないため無理やり落としているが，このやり方だと他のプロセスにも影響が及ぶ恐れがある．
     if (!cmd_exec_.execute("ps aux | grep \"gz sim\" | grep -v grep | awk '{ print \"kill -9\", $2 }' | sh")) {
@@ -107,7 +90,6 @@ public:
 
 private:
   const rclcpp::Node::SharedPtr node_;
-  const pid_t pid_;
 
   linux::CommandExecutor cmd_exec_;
 };
@@ -125,9 +107,9 @@ bool waitUntilGazeboRenderingReady()
   return std::get<0>(qt::startThreadAndWait(thread, &WaitUntilGazeboRenderingReadyThread::finished));
 }
 
-std::expected<void, QString> killGazebo(rclcpp::Node::SharedPtr node, pid_t pid)
+std::expected<void, QString> killGazebo(rclcpp::Node::SharedPtr node)
 {
-  KillGazeboThread thread(node, pid);
+  KillGazeboThread thread(node);
   const auto [success, message] = qt::startThreadAndWait(thread, &KillGazeboThread::finished);
   if (success) {
     return {};

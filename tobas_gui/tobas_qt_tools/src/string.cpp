@@ -9,6 +9,16 @@ namespace tobas
 {
 namespace qt
 {
+QString boolToText(bool arg)
+{
+  if (arg) {
+    return "true";
+  }
+  else {
+    return "false";
+  }
+}
+
 QStringList stringListFromStdToQt(const std::vector<std::string>& src)
 {
   QStringList res;
