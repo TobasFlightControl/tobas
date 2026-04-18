@@ -217,7 +217,7 @@ bool RotorTestWidget::loadCurrentGains()
 
 void RotorTestWidget::onStartButtonClicked()
 {
-  RCLCPP_DEBUG(node_->get_logger(), "RotorTestWidget::onStartButtonClicked");
+  qDebug() << "RotorTestWidget::onStartButtonClicked";
 
   // アームされていないことを確認
   if (!arming_) {
@@ -258,7 +258,7 @@ void RotorTestWidget::onStartButtonClicked()
 
 void RotorTestWidget::onStopButtonClicked()
 {
-  RCLCPP_DEBUG(node_->get_logger(), "RotorTestWidget::onStopButtonClicked");
+  qDebug() << "RotorTestWidget::onStopButtonClicked";
 
   reset();
 
@@ -267,7 +267,7 @@ void RotorTestWidget::onStopButtonClicked()
 
 void RotorTestWidget::onSaveButtonClicked()
 {
-  RCLCPP_DEBUG(node_->get_logger(), "RotorTestWidget::onSaveButtonClicked");
+  qDebug() << "RotorTestWidget::onSaveButtonClicked";
 
   const auto req = std::make_shared<std_srvs::srv::Trigger::Request>();
 
@@ -287,14 +287,14 @@ void RotorTestWidget::onSaveButtonClicked()
 
 void RotorTestWidget::onTargetRPMChanged(int rpm, size_t ch)
 {
-  RCLCPP_DEBUG_STREAM(node_->get_logger(), "RotorTestWidget::onTargetRPMChanged(" << rpm << ", " << ch << ")");
+  qDebug().nospace() << "RotorTestWidget::onTargetRPMChanged(" << rpm << ", " << ch << ")";
 
   publishTargetSppeds();
 }
 
 void RotorTestWidget::onGainChanged(int gain, size_t ch)
 {
-  RCLCPP_DEBUG_STREAM(node_->get_logger(), "RotorTestWidget::onGainChanged(" << gain << ", " << ch << ")");
+  qDebug().nospace() << "RotorTestWidget::onGainChanged(" << gain << ", " << ch << ")";
 
   const auto req = std::make_shared<tobas_msgs::srv::SetRotorControlGains::Request>();
   req->gains.emplace_back();

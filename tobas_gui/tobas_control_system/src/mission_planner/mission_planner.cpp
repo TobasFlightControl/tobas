@@ -337,21 +337,21 @@ MissionPlannerWidget::Action::Goal MissionPlannerWidget::createMissionGoal() con
 
 void MissionPlannerWidget::onLoadButtonClicked()
 {
-  RCLCPP_DEBUG(node_->get_logger(), "MissionPlannerWidget::onLoadButtonClicked");
+  qDebug() << "MissionPlannerWidget::onLoadButtonClicked";
 
   qt::qWarnBox(this, "Not implemented yet.");  // TODO
 }
 
 void MissionPlannerWidget::onSaveButtonClicked()
 {
-  RCLCPP_DEBUG(node_->get_logger(), "MissionPlannerWidget::onSaveButtonClicked");
+  qDebug() << "MissionPlannerWidget::onSaveButtonClicked";
 
   qt::qWarnBox(this, "Not implemented yet.");  // TODO
 }
 
 void MissionPlannerWidget::onAddButtonClicked()
 {
-  RCLCPP_DEBUG(node_->get_logger(), "MissionPlannerWidget::onAddButtonClicked");
+  qDebug() << "MissionPlannerWidget::onAddButtonClicked";
 
   AddCommandDialog dialog(this);
 
@@ -406,7 +406,7 @@ void MissionPlannerWidget::onAddButtonClicked()
 
 void MissionPlannerWidget::onClearButtonClicked()
 {
-  RCLCPP_DEBUG(node_->get_logger(), "MissionPlannerWidget::onClearButtonClicked");
+  qDebug() << "MissionPlannerWidget::onClearButtonClicked";
 
   if (!qt::yesOrNo(this, "Do you want to clear all the commands?", qt::WARN)) {
     return;
@@ -420,7 +420,7 @@ void MissionPlannerWidget::onClearButtonClicked()
 
 void MissionPlannerWidget::onCacheButtonClicked()
 {
-  RCLCPP_DEBUG(node_->get_logger(), "MissionPlannerWidget::onCacheButtonClicked");
+  qDebug() << "MissionPlannerWidget::onCacheButtonClicked";
 
   if (!qt::yesOrNo(this, "Do you want to cache map tiles to offline storage?", qt::WARN)) {
     return;
@@ -482,7 +482,7 @@ void MissionPlannerWidget::onCacheButtonClicked()
 
 void MissionPlannerWidget::onExecuteButtonClicked()
 {
-  RCLCPP_DEBUG(node_->get_logger(), "MissionPlannerWidget::onExecuteButtonClicked");
+  qDebug() << "MissionPlannerWidget::onExecuteButtonClicked";
 
   if (!qt::yesOrNo(this, "Do you want to execute the mission?", qt::WARN)) {
     return;
@@ -515,7 +515,7 @@ void MissionPlannerWidget::onExecuteButtonClicked()
 
 void MissionPlannerWidget::onCancelButtonClicked()
 {
-  RCLCPP_DEBUG(node_->get_logger(), "MissionPlannerWidget::onCancelButtonClicked");
+  qDebug() << "MissionPlannerWidget::onCancelButtonClicked";
 
   if (!qt::yesOrNo(this, "Do you want to cancel the mission?", qt::WARN)) {
     return;
@@ -526,7 +526,7 @@ void MissionPlannerWidget::onCancelButtonClicked()
 
 void MissionPlannerWidget::onFocusButtonClicked()
 {
-  RCLCPP_DEBUG(node_->get_logger(), "MissionPlannerWidget::onFocusButtonClicked");
+  qDebug() << "MissionPlannerWidget::onFocusButtonClicked";
 
   const auto arrow_pos = map_->getArrowPosition();
   map_->setMapCenter(arrow_pos.latitude(), arrow_pos.longitude());
@@ -534,7 +534,7 @@ void MissionPlannerWidget::onFocusButtonClicked()
 
 void MissionPlannerWidget::onDeleteButtonClicked(QListWidgetItem* target_item, BaseCommandWidget* target_widget)
 {
-  RCLCPP_DEBUG(node_->get_logger(), "MissionPlannerWidget::onDeleteButtonClicked");
+  qDebug() << "MissionPlannerWidget::onDeleteButtonClicked";
 
   command_list_->remove(target_item);
   commands_->removeWidget(target_widget);
@@ -557,7 +557,7 @@ void MissionPlannerWidget::onDeleteButtonClicked(QListWidgetItem* target_item, B
 
 void MissionPlannerWidget::onListItemChanged()
 {
-  RCLCPP_DEBUG(node_->get_logger(), "MissionPlannerWidget::onListItemChanged");
+  qDebug() << "MissionPlannerWidget::onListItemChanged";
 
   listToCommands();
   commandsToMap();
@@ -565,14 +565,14 @@ void MissionPlannerWidget::onListItemChanged()
 
 void MissionPlannerWidget::onMissionUpdated()
 {
-  RCLCPP_DEBUG(node_->get_logger(), "MissionPlannerWidget::onMissionUpdated");
+  qDebug() << "MissionPlannerWidget::onMissionUpdated";
 
   commandsToMap();
 }
 
 void MissionPlannerWidget::onWaypointMoved(int index, double latitude, double longitude)
 {
-  RCLCPP_DEBUG(node_->get_logger(), "MissionPlannerWidget::onWaypointMoved");
+  qDebug() << "MissionPlannerWidget::onWaypointMoved";
 
   if (mission_executing_) {
     qt::qWarnBox(this, "You cannot edit the mission while executing it.");

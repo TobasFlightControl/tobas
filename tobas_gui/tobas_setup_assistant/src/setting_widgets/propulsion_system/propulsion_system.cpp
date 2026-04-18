@@ -20,7 +20,7 @@ namespace sa
 namespace propulsion
 {
 PropulsionSystemWidget::PropulsionSystemWidget(rclcpp::Node::SharedPtr node, const uadf::Model& uadf, Signals& sig)
-  : node_(node), sig_(sig)
+  : sig_(sig)
 {
   type_btn_group_ = new QButtonGroup(this);
   type_btn_group_->setExclusive(true);
@@ -181,7 +181,7 @@ void PropulsionSystemWidget::setCurrentIndex(int index)
 
 void PropulsionSystemWidget::onPropulsionTypeClicked(int new_idx)
 {
-  RCLCPP_DEBUG_STREAM(node_->get_logger(), "PropulsionSystemWidget::onPropulsionTypeChanged(" << new_idx << ")");
+  qDebug().nospace() << "PropulsionSystemWidget::onPropulsionTypeChanged(" << new_idx << ")";
 
   if (new_idx == cur_idx_) {
     return;

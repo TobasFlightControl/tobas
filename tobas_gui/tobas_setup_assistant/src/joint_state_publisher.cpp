@@ -3,6 +3,7 @@
 
 #include "tobas_setup_assistant/joint_state_publisher.hpp"
 
+#include <QDebug>
 #include <QHBoxLayout>
 #include <QPushButton>
 
@@ -98,7 +99,7 @@ void JointStatePublisherWidget::updateInternalDataStructures()
     sliders_.push_back(slider);
     slider_rows_->addWidget(slider);
 
-    RCLCPP_DEBUG_STREAM(node_->get_logger(), "\"" << joint.name << "\" is added to the JSP slider.");
+    qInfo().nospace() << QString::fromStdString(joint.name) << "was added to the JSP slider.";
   }
 
   slider_rows_->addStretch();
@@ -123,7 +124,7 @@ void JointStatePublisherWidget::onValueChanged(double value, const std::string& 
 {
   const auto idx = st::index(js_.name, jnt_name);
   if (idx < 0) {
-    RCLCPP_ERROR_STREAM(node_->get_logger(), "Joint \"" << jnt_name << "\" does not exist.");
+    qWarning() << "Joint" << QString::fromStdString(jnt_name) << "does not exist.";
     return;
   }
 
