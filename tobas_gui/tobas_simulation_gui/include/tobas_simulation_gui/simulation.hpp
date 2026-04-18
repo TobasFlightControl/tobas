@@ -39,7 +39,7 @@ class SimulationWidget : public QWidget
   static constexpr int kButtonWidth = 100;
   static constexpr int kButtonHeight = 40;
 
-  static constexpr auto kWaitForServerTimeout = std::chrono::seconds(5);
+  static constexpr auto kWaitForServerTimeout = std::chrono::seconds(3);
 
 Q_SIGNALS:
   void started();
@@ -87,10 +87,11 @@ private:
   void terminateHITL();
 
   std::map<QString, QString> makeGazeboLaunchArguments(bool launch_core) const;
-  void launchGazebo(bool launch_core);
+  void launchSimulation(bool launch_core);
 
-  void killGazebo();
-  void killGazeboWithSpinner();
+  void terminateLaunchProcess();
+  void terminateSimulation();
+  void terminateSimulationAndWait();
 
 private Q_SLOTS:
   void onStartRequested();

@@ -3,6 +3,7 @@
 
 #include "tobas_simulation_gui/dynamic_configuration/suspended_load.hpp"
 
+#include <QDebug>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
@@ -118,7 +119,7 @@ bool SuspendedLoadWidget::start(ch::milliseconds timeout)
     });
 
   if (!success) {
-    qt::qErrorBox(this, message);
+    qWarning() << message;
     return false;
   }
 

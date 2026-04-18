@@ -73,10 +73,9 @@ public:
 
   void run() override
   {
-    // Kill Gazebo process
-    // FIXME: killコマンドだけだとGazeboサーバが落ちないため無理やり落としているが，このやり方だと他のプロセスにも影響が及ぶ恐れがある．
-    if (!cmd_exec_.execute("ps aux | grep \"gz sim\" | grep -v grep | awk '{ print \"kill -9\", $2 }' | sh")) {
-      Q_EMIT finished(false, "Failed to kill Gazebo process: " + QString::fromStdString(cmd_exec_.getOutput()));
+    // Kill Gazebo server
+    if (!killGazeboServer()) {
+      Q_EMIT finished(false, "Failed to send kill signal to the Gazebo server.");
       return;
     }
 
@@ -91,8 +90,6 @@ public:
 
 private:
   const rclcpp::Node::SharedPtr node_;
-
-  linux::CommandExecutor cmd_exec_;
 };
 }  // namespace
 
@@ -108,17 +105,22 @@ bool waitUntilGazeboRenderingReady()
   return std::get<0>(qt::startThreadAndWait(thread, &WaitUntilGazeboRenderingReadyThread::finished));
 }
 
-std::expected<void, QString> killGazebo(rclcpp::Node::SharedPtr node)
+bool killGazeboServer()
+{
+  // FIXME: killコマンドだけだとGazeboサーバが落ちないため無理やり落としているが，このやり方だと他のプロセスにも影響が及ぶ恐れがある．
+  return linux::CommandExecutor().execute(
+    "ps aux | grep \"gz sim\" | grep -v grep | awk '{ print \"kill -9\", $2 }' | sh");
+}
+
+bool killGazeboServerAndWait(rclcpp::Node::SharedPtr node)
 {
   KillGazeboThread thread(node);
   const auto [success, message] = qt::startThreadAndWait(thread, &KillGazeboThread::finished);
   qDebug().nospace() << "KillGazeboThread::finished(" << success << ", " << message << ")";
-  if (success) {
-    return {};
+  if (!success) {
+    qWarning() << message;
   }
-  else {
-    return std::unexpected(message);
-  }
+  return success;
 }
 }  // namespace sim
 }  // namespace gui

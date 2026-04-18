@@ -17,7 +17,8 @@ namespace sim
 bool waitUntilGazeboServerReady();
 bool waitUntilGazeboRenderingReady();
 
-std::expected<void, QString> killGazebo(rclcpp::Node::SharedPtr node);
+bool killGazeboServer();
+bool killGazeboServerAndWait(rclcpp::Node::SharedPtr node);
 }  // namespace sim
 }  // namespace gui
 }  // namespace tobas

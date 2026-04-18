@@ -3,6 +3,7 @@
 
 #include "tobas_simulation_gui/commanders/base_pose_commander.hpp"
 
+#include <QDebug>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
@@ -115,7 +116,7 @@ bool BasePoseCommanderWidget::start(ch::milliseconds timeout)
     });
 
   if (!success) {
-    qt::qErrorBox(this, message);
+    qWarning() << message;
     return false;
   }
 

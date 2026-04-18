@@ -3,6 +3,7 @@
 
 #include "tobas_simulation_gui/dynamic_configuration/wind_parameters.hpp"
 
+#include <QDebug>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
@@ -96,7 +97,7 @@ bool WindParamsWidget::start(ch::milliseconds timeout)
     });
 
   if (!success) {
-    qt::qErrorBox(this, message);
+    qWarning() << message;
     return false;
   }
 

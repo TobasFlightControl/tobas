@@ -65,8 +65,8 @@ void SimulationWidget::reset()
   dynamic_config_->reset();
   commanders_->reset();
 
-  if (isRunning()) {
-    killGazeboWithSpinner();
+  if (launch_proc_) {
+    terminateSimulation();
     qWarning() << "Gazebo was forcibly shut down.";
   }
 
@@ -115,8 +115,7 @@ bool SimulationWidget::updateProject(const fs::path& proj_path)
 
 bool SimulationWidget::isRunning() const
 {
-  // プロセスが異常終了する可能性があるため，QProcess::state()は見ず意図的なフラグのみ確認する．
-  return launch_proc_;
+  return launch_proc_ && launch_proc_->state() == QProcess::Running;
 }
 
 void SimulationWidget::closeEvent(QCloseEvent* event)
@@ -124,8 +123,8 @@ void SimulationWidget::closeEvent(QCloseEvent* event)
   qDebug() << "SimulationWidget::closeEvent";
 
   // 親ウィジェットを閉じるときに子プロセスを破棄
-  if (isRunning()) {
-    killGazeboWithSpinner();
+  if (launch_proc_) {
+    terminateSimulation();
   }
 
   event->accept();
@@ -148,6 +147,7 @@ bool SimulationWidget::startSITL()
   progress.setLabelText("Building the Tobas project packages.");
   const auto build_res = cmn::buildLocalProject(proj_paths_.getProjPath());
   if (!build_res) {
+    progress.close();
     const auto& error_msg = build_res.error();
     if (error_msg.size() < cmn::kSaveLogTextSizeThresh) {
       qt::qErrorBox(this, "Failed to build the Tobas project:\n\n" + error_msg);
@@ -163,18 +163,19 @@ bool SimulationWidget::startSITL()
         qt::qErrorBox(this, "Failed to build the Tobas project:\n\n" + error_msg);
       }
     }
-    progress.close();
     return false;
   }
   progress.progressStep();
 
   // Gazeboを起動しサーバの起動を待つ
   progress.setLabelText("Launching the simulation.");
-  launchGazebo(true);
+  launchSimulation(true);
   if (!waitUntilGazeboServerReady()) {
-    qt::qErrorBox(this, "Failed to start the Gazebo server.");
     progress.close();
-    reset();
+    if (launch_proc_) {
+      qt::qErrorBox(this, "Failed to start the Gazebo server.");
+      reset();
+    }
     return false;
   }
   progress.progressStep();
@@ -182,9 +183,11 @@ bool SimulationWidget::startSITL()
   // Gazeboレンダリングの開始を待つ
   progress.setLabelText("Waiting for Gazebo rendering to start.");
   if (!waitUntilGazeboRenderingReady()) {
-    qt::qErrorBox(this, "Failed to get the Gazebo rendering information.");
     progress.close();
-    reset();
+    if (launch_proc_) {
+      qt::qErrorBox(this, "Failed to get the Gazebo rendering information.");
+      reset();
+    }
     return false;
   }
   progress.progressStep();
@@ -193,7 +196,10 @@ bool SimulationWidget::startSITL()
   progress.setLabelText("Starting dynamic configuration.");
   if (!dynamic_config_->start(kWaitForServerTimeout)) {
     progress.close();
-    reset();
+    if (launch_proc_) {
+      qt::qErrorBox(this, "Failed to start the dynamic configuration manager.");
+      reset();
+    }
     return false;
   }
   progress.progressStep();
@@ -202,7 +208,10 @@ bool SimulationWidget::startSITL()
   progress.setLabelText("Starting commanders.");
   if (!commanders_->start(kWaitForServerTimeout)) {
     progress.close();
-    reset();
+    if (launch_proc_) {
+      qt::qErrorBox(this, "Failed to start the commanders.");
+      reset();
+    }
     return false;
   }
   progress.progressStep();
@@ -223,7 +232,9 @@ void SimulationWidget::terminateSITL()
 
   // 別スレッドでGazeboプロセスを終了
   qInfo() << "Terminating Gazebo";
-  killGazeboWithSpinner();
+  spinner_.start();
+  terminateSimulationAndWait();
+  spinner_.stop();
 
   qInfo() << "Restoring to the state before the simulation started.";
   reset();
@@ -302,7 +313,7 @@ bool SimulationWidget::startHITL()
 
   // Gazeboサーバの起動を待つ
   progress.setLabelText("Launching the simulation.");
-  launchGazebo(true);  // FIXME: 通信負荷を改善してcoreをRPi側で立ち上げる
+  launchSimulation(true);  // FIXME: 通信負荷を改善してcoreをRPi側で立ち上げる
   if (!waitUntilGazeboServerReady()) {
     qt::qErrorBox(this, "Failed to start the Gazebo server.");
     progress.close();
@@ -357,7 +368,7 @@ void SimulationWidget::terminateHITL()
 
   // launchを終了
   progress.setLabelText("Terminating the simulation.");
-  killGazebo();
+  terminateSimulationAndWait();
   progress.progressStep();
 
   // HITLサービスを停止
@@ -413,7 +424,7 @@ std::map<QString, QString> SimulationWidget::makeGazeboLaunchArguments(bool laun
   return args;
 }
 
-void SimulationWidget::launchGazebo(bool launch_core)
+void SimulationWidget::launchSimulation(bool launch_core)
 {
   const auto args = makeGazeboLaunchArguments(launch_core);
 
@@ -427,10 +438,16 @@ void SimulationWidget::launchGazebo(bool launch_core)
   launch_proc_->start("ros2", command);
 }
 
-void SimulationWidget::killGazebo()
+void SimulationWidget::terminateLaunchProcess()
 {
   if (!launch_proc_) {
-    qInfo() << "The Gazebo process is not running.";
+    qInfo() << "The roslaunch process is null.";
+    return;
+  }
+
+  if (launch_proc_->state() != QProcess::Running) {
+    qInfo() << "The roslaunch process is not running.";
+    launch_proc_ = nullptr;
     return;
   }
 
@@ -449,22 +466,27 @@ void SimulationWidget::killGazebo()
     }
   }
 
-  // Gazeboサーバが落ちるまで別スレッドで待機
-  qInfo() << "Waiting for Gazebo to shut down.";
-  const auto res = sim::killGazebo(node_);
-  if (!res) {
-    throw std::runtime_error(res.error().toStdString());
-  }
-
   // QProcessをリセット
   launch_proc_ = nullptr;
 }
 
-void SimulationWidget::killGazeboWithSpinner()
+void SimulationWidget::terminateSimulation()
 {
-  spinner_.start();
-  killGazebo();
-  spinner_.stop();
+  terminateLaunchProcess();
+
+  if (!sim::killGazeboServer()) {
+    throw std::runtime_error("Failed to kill Gazebo server.");
+  }
+}
+
+void SimulationWidget::terminateSimulationAndWait()
+{
+  terminateLaunchProcess();
+
+  qInfo() << "Waiting for Gazebo to shut down.";
+  if (!sim::killGazeboServerAndWait(node_)) {
+    throw std::runtime_error("Failed to kill Gazebo server.");
+  }
 }
 
 void SimulationWidget::onStartRequested()
@@ -521,10 +543,25 @@ void SimulationWidget::onLaunchProcessFinished(int code, QProcess::ExitStatus st
     throw std::runtime_error("The simulation process crashed: " + launch_proc_->errorString().toStdString());
   }
   else if (code != 0) {
-    qInfo().noquote() << QString::fromLocal8Bit(launch_proc_->readAllStandardOutput());
-    qWarning().noquote() << QString::fromLocal8Bit(launch_proc_->readAllStandardError());
+    // 出力を取得
+    const auto std_out = QString::fromLocal8Bit(launch_proc_->readAllStandardOutput());
+    const auto std_err = QString::fromLocal8Bit(launch_proc_->readAllStandardError());
 
+    // 既に死んでいるプロセスを破棄
+    // さもないと死んでいるプロセスにSIGINTを送るとSIGTERMに格上げされてGCSが死ぬ
+    launch_proc_->terminate();
+    launch_proc_ = nullptr;
+
+    // 残っているかもしれないGazeboサーバをキル
+    if (!sim::killGazeboServer()) {
+      throw std::runtime_error("Failed to kill Gazebo server.");
+    }
+
+    qInfo().noquote() << std_out;
+    qWarning().noquote() << std_err;
     qt::qErrorBox(this, "Simulation process was terminated unexpectedly.");
+
+    reset();
   }
 }
 
