@@ -557,10 +557,21 @@ void SimulationWidget::onLaunchProcessFinished(int code, QProcess::ExitStatus st
       throw std::runtime_error("Failed to kill Gazebo server.");
     }
 
-    qInfo().noquote() << std_out;
-    qWarning().noquote() << std_err;
-    qt::qErrorBox(this, "Simulation process was terminated unexpectedly.");
+    // 出力を保存
+    const auto out_msg = std_out + "\n\n" + std_err;
+    const auto log_path = qt::writeTimestampedFile(out_msg + '\n', qt::expandUser(kGuiLogDir), "", "simulation_crash");
 
+    // エラーメッセージを出す
+    if (log_path) {
+      qt::qErrorBox(
+        this, "Simulation process was terminated unexpectedly. The output has been saved to:\n" + log_path.value());
+    }
+    else {
+      qWarning() << "Failed to save the simulation crash output.";
+      qt::qErrorBox(this, "Simulation process was terminated unexpectedly:\n\n" + out_msg);
+    }
+
+    // ウィジェット全体を初期化
     reset();
   }
 }
