@@ -548,7 +548,7 @@ void SimulationWidget::onLaunchProcessFinished(int code, QProcess::ExitStatus st
     const auto std_err = QString::fromLocal8Bit(launch_proc_->readAllStandardError());
 
     // 既に死んでいるプロセスを破棄
-    // さもないと死んでいるプロセスにSIGINTを送るとSIGTERMに格上げされてGCSが死ぬ
+    // さもないと死んでいるプロセスに別の所からSIGINTが送信されると数秒でSIGTERMに格上げされてGCS全体が落ちる
     launch_proc_->terminate();
     launch_proc_ = nullptr;
 
