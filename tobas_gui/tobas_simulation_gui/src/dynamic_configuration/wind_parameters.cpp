@@ -17,6 +17,8 @@
 
 #include "tobas_simulation_gui/dynamic_configuration/constants.hpp"
 
+namespace ch = std::chrono;
+
 namespace tobas
 {
 namespace gui
@@ -72,7 +74,7 @@ void WindParamsWidget::updateNamespace(const std::string& ns)
   set_sc_ = std::make_shared<ros2::SyncServiceClient<SetSrv>>(node_, path::join(ns, gazebo::kSetWindParamsSrv));
 }
 
-bool WindParamsWidget::start()
+bool WindParamsWidget::start(ch::milliseconds timeout)
 {
   // サービスクライアントの準備
   bool success = true;
@@ -81,12 +83,12 @@ bool WindParamsWidget::start()
   qt::startThreadAndWait(
     [&]()
     {
-      if (!get_sc_->waitForService()) {
+      if (!get_sc_->waitForService(timeout)) {
         success = false;
         message = "Failed to connect to \"" + QString(gazebo::kGetWindParamsSrv) + "\" service server.";
         return;
       }
-      if (!set_sc_->waitForService()) {
+      if (!set_sc_->waitForService(timeout)) {
         success = false;
         message = "Failed to connect to \"" + QString(gazebo::kSetWindParamsSrv) + "\" service server.";
         return;

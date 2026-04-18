@@ -9,6 +9,8 @@
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 
+namespace ch = std::chrono;
+
 namespace tobas
 {
 namespace gui
@@ -40,13 +42,13 @@ void DynamicConfigWidget::updateNamespace(const std::string& ns)
   suspended_load_->updateNamespace(ns);
 }
 
-bool DynamicConfigWidget::start()
+bool DynamicConfigWidget::start(ch::milliseconds timeout)
 {
-  if (!wind_params_->start()) {
+  if (!wind_params_->start(timeout)) {
     return false;
   }
 
-  if (!suspended_load_->start()) {
+  if (!suspended_load_->start(timeout)) {
     return false;
   }
 

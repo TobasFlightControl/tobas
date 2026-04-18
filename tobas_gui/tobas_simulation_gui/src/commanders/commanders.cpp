@@ -9,6 +9,8 @@
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 
+namespace ch = std::chrono;
+
 namespace tobas
 {
 namespace gui
@@ -44,13 +46,13 @@ void CommandersWidget::updateInternalDataStructures()
   joint_commander_->updateInternalDataStructures();
 }
 
-bool CommandersWidget::start()
+bool CommandersWidget::start(ch::milliseconds timeout)
 {
-  if (!base_pose_commander_->start()) {
+  if (!base_pose_commander_->start(timeout)) {
     return false;
   }
 
-  if (!joint_commander_->start()) {
+  if (!joint_commander_->start(timeout)) {
     return false;
   }
 

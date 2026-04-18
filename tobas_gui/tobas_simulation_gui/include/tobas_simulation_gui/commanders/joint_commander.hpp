@@ -38,7 +38,7 @@ public:
 
   void updateInternalDataStructures();
 
-  bool start();
+  bool start(std::chrono::milliseconds timeout);
   void reset();
 
 private:

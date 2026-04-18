@@ -17,6 +17,8 @@
 
 #include "tobas_simulation_gui/commanders/constants.hpp"
 
+namespace ch = std::chrono;
+
 namespace tobas
 {
 namespace gui
@@ -97,7 +99,7 @@ void BasePoseCommanderWidget::updateInternalDataStructures()
     std::make_shared<ros2::SyncServiceClient<tobas_msgs::srv::SetArm>>(node_, path::join(ns, service::kSetArm));
 }
 
-bool BasePoseCommanderWidget::start()
+bool BasePoseCommanderWidget::start(ch::milliseconds timeout)
 {
   bool success = true;
   QString message;
@@ -105,7 +107,7 @@ bool BasePoseCommanderWidget::start()
   qt::startThreadAndWait(
     [&]()
     {
-      if (!set_arm_sc_->waitForService()) {
+      if (!set_arm_sc_->waitForService(timeout)) {
         success = false;
         message = "Failed to connect to \"" + QString(service::kSetArm) + "\" service server.";
         return;

@@ -18,6 +18,8 @@
 
 #include "tobas_simulation_gui/dynamic_configuration/constants.hpp"
 
+namespace ch = std::chrono;
+
 namespace tobas
 {
 namespace gui
@@ -95,7 +97,7 @@ void SuspendedLoadWidget::updateNamespace(const std::string& ns)
   setParamsToDefault();
 }
 
-bool SuspendedLoadWidget::start()
+bool SuspendedLoadWidget::start(ch::milliseconds timeout)
 {
   bool success = true;
   QString message;
@@ -103,12 +105,12 @@ bool SuspendedLoadWidget::start()
   qt::startThreadAndWait(
     [&]()
     {
-      if (!attach_sc_->waitForService()) {
+      if (!attach_sc_->waitForService(timeout)) {
         success = false;
         message = "Failed to connect to \"" + QString(gazebo::kAttachSuspenedLoadSrv) + "\" service server.";
         return;
       }
-      if (!detach_sc_->waitForService()) {
+      if (!detach_sc_->waitForService(timeout)) {
         success = false;
         message = "Failed to connect to \"" + QString(gazebo::kDetachSuspenedLoadSrv) + "\" service server.";
         return;

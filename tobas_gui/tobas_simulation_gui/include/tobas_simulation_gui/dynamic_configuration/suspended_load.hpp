@@ -40,7 +40,7 @@ public:
 
   void updateNamespace(const std::string& ns);
 
-  bool start();
+  bool start(std::chrono::milliseconds timeout);
   void reset();
 
 private:
