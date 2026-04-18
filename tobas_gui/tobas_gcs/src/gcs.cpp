@@ -35,8 +35,7 @@ namespace gui
 namespace gcs
 {
 GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr node)
-  : node_(node)
-  , bridge_(node)
+  : bridge_(node)
   , network_checker_(this, bridge_)
   , property_client_(node, "tobas_gcs/gcs")
   , ssh_client_(node)
@@ -185,7 +184,7 @@ void GroundControlStationWidget::updateInternalDataStructures()
 
 void GroundControlStationWidget::closeEvent(QCloseEvent* event)
 {
-  RCLCPP_DEBUG(node_->get_logger(), "GroundControlStationWidget::closeEvent");
+  qDebug() << "GroundControlStationWidget::closeEvent";
 
   sensor_calib_->close();
   actuator_test_->close();
@@ -229,7 +228,7 @@ std::expected<void, QString> GroundControlStationWidget::shutdownInBackground()
 
 void GroundControlStationWidget::onLoadButtonClicked()
 {
-  RCLCPP_DEBUG(node_->get_logger(), "GroundControlStationWidget::onLoadButtonClicked");
+  qDebug() << "GroundControlStationWidget::onLoadButtonClicked";
 
   // シミュレーションの起動中でないことを確認
   if (simulation_->isRunning()) {
@@ -240,7 +239,7 @@ void GroundControlStationWidget::onLoadButtonClicked()
   // 前回開いたパスを取得
   std::string last_opened_dir;
   if (property_client_.get(kLastOpenedDirKey, last_opened_dir) < 0) {
-    RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
+    qWarning() << property_client_.errorMessage();
     last_opened_dir = ros2::expandUser(kColconWSPathHome) / "src";
     if (!fs::is_directory(last_opened_dir)) {
       last_opened_dir = ros2::getHomeDir();
@@ -277,10 +276,10 @@ void GroundControlStationWidget::onLoadButtonClicked()
   // ユーザが開いたディレクトリを保存
   const auto par_dir = fs::path(proj_path).parent_path();
   if (property_client_.set(kLastOpenedDirKey, par_dir) < 0) {
-    RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
+    qWarning() << property_client_.errorMessage();
   }
   if (property_client_.save() < 0) {
-    RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
+    qWarning() << property_client_.errorMessage();
   }
 
   // 機体設定ファイルの存在を確認
@@ -335,7 +334,7 @@ void GroundControlStationWidget::onLoadButtonClicked()
 
 void GroundControlStationWidget::onWriteButtonClicked()
 {
-  RCLCPP_DEBUG(node_->get_logger(), "GroundControlStationWidget::onWriteButtonClicked");
+  qDebug() << "GroundControlStationWidget::onWriteButtonClicked";
 
   // アームされていないことを確認
   if (!arming_) {
@@ -528,7 +527,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
 
 void GroundControlStationWidget::onRestartButtonClicked(bool checked)
 {
-  RCLCPP_DEBUG(node_->get_logger(), "GroundControlStationWidget::onRestartButtonClicked");
+  qDebug() << "GroundControlStationWidget::onRestartButtonClicked";
 
   if (!checked) {
     return;
@@ -566,7 +565,7 @@ void GroundControlStationWidget::onRestartButtonClicked(bool checked)
 
 void GroundControlStationWidget::onShutdownButtonClicked(bool checked)
 {
-  RCLCPP_DEBUG(node_->get_logger(), "GroundControlStationWidget::onShutdownButtonClicked");
+  qDebug() << "GroundControlStationWidget::onShutdownButtonClicked";
 
   if (!checked) {
     return;
@@ -604,7 +603,7 @@ void GroundControlStationWidget::onShutdownButtonClicked(bool checked)
 
 void GroundControlStationWidget::onSimRealStateChanged()
 {
-  RCLCPP_DEBUG(node_->get_logger(), "GroundControlStationWidget::onSimRealStateChanged");
+  qDebug() << "GroundControlStationWidget::onSimRealStateChanged";
 
   // シミュレーションウィジェット以外リセット
   reset(false);
@@ -612,9 +611,12 @@ void GroundControlStationWidget::onSimRealStateChanged()
 
 void GroundControlStationWidget::onRemoteConnectionDisconnected()
 {
-  RCLCPP_DEBUG(node_->get_logger(), "GroundControlStationWidget::onRemoteConnectionDisconnected");
+  qDebug() << "GroundControlStationWidget::onRemoteConnectionDisconnected";
 
-  reset();
+  // 実機との通信が切断された場合に限り全てのウィジェットをリセットする
+  if (!simulation_->isRunning()) {
+    reset();
+  }
 }
 
 void GroundControlStationWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)

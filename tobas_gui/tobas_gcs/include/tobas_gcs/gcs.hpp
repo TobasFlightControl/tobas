@@ -60,7 +60,6 @@ protected:
   void closeEvent(QCloseEvent* event) override;
 
 private:
-  const rclcpp::Node::SharedPtr node_;
   RosQtBridge bridge_;
   const NetworkChecker network_checker_;
 
