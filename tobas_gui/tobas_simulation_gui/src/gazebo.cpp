@@ -5,6 +5,7 @@
 
 #include <gz/msgs/double.pb.h>
 #include <gz/msgs/world_stats.pb.h>
+#include <QDebug>
 #include <QThread>
 
 #include <tobas_gazebo_common/constants.hpp>
@@ -111,6 +112,7 @@ std::expected<void, QString> killGazebo(rclcpp::Node::SharedPtr node)
 {
   KillGazeboThread thread(node);
   const auto [success, message] = qt::startThreadAndWait(thread, &KillGazeboThread::finished);
+  qDebug().nospace() << "KillGazeboThread::finished(" << success << ", " << message << ")";
   if (success) {
     return {};
   }
