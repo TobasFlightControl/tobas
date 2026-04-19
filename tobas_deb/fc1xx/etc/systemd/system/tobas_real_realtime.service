@@ -9,7 +9,7 @@ EnvironmentFile=/etc/tobas/common.env
 EnvironmentFile=/etc/tobas/config/project.env
 Environment="ROS_AUTOMATIC_DISCOVERY_RANGE=LOCALHOST"
 ExecStart=/bin/bash -c 'source /opt/ros/jazzy/setup.bash && source /opt/tobas/local_setup.bash && source /etc/tobas/colcon_ws/install/local_setup.bash && /opt/ros/jazzy/bin/ros2 launch ${TOBAS_CONFIG_PKG} real_realtime.launch.py'
-Restart=none
+Restart=no
 CPUSchedulingPolicy=fifo
 CPUSchedulingPriority=3
 CPUAffinity=1 2 3
