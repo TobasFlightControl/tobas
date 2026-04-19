@@ -15,7 +15,7 @@
 
 namespace std
 {
-/* std::vectorのコンソール出力 */
+/* `std::vector`のコンソール出力 */
 template <typename T>
 std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec)
 {
@@ -171,7 +171,7 @@ inline T average(const std::vector<T>& vec)
   return average(vec, std::vector<double>(vec.size(), 1.));
 }
 
-/* \a std::vector から要素のインデックスを取得する． */
+/* `std::vector`から要素のインデックスを取得する． */
 template <typename T>
 ssize_t findIndex(const std::vector<T>& vec, const T& item)
 {
@@ -295,7 +295,7 @@ inline bool allOf(const std::vector<T>& vec, const Lambda& lambda)
   return all_of(vec.begin(), vec.end(), lambda);
 }
 
-/* 2つのstd::vectorをマージする． */
+/* 2つの`std::vector`をマージする． */
 template <typename T>
 std::vector<T> merge(const std::vector<T>& vec1, const std::vector<T>& vec2)
 {
