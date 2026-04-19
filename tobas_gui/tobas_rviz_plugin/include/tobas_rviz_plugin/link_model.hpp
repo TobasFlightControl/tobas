@@ -76,7 +76,7 @@ public:
 
   void setGeometry(const std::vector<shapes::ShapeConstPtr>& shapes, const EigenSTL::vector_Isometry3d& origins);
 
-  /* Remember that \e link_model is attached to this link using a fixed transform. */
+  /* Remember that `link_model` is attached to this link using a fixed transform. */
   void addAssociatedFixedTransform(const LinkModel* link_model, const Eigen::Isometry3d& transform);
 
   void setVisualMesh(const std::string& visual_mesh, const Eigen::Isometry3d& origin, const Eigen::Vector3d& scale);

@@ -84,13 +84,13 @@ public:
   /* If mimicking a joint, this is the multiplicative factor for that joint's value. */
   double getMimicFactor() const;
 
-  /* Mark this joint as mimicking \e mimic using \e factor and \e offset */
+  /* Mark this joint as mimicking `mimic` using `factor` and `offset`. */
   void setMimic(const JointModel* mimic, double factor, double offset);
 
   /* The joint models whose values would be modified if the value of this joint changed. */
   const std::vector<const JointModel*>& getMimicRequests() const;
 
-  /* Notify this joint that there is another joint that mimics it */
+  /* Notify this joint that there is another joint that mimics it. */
   void addMimicRequest(const JointModel* joint);
   void addDescendantJointModel(const JointModel* joint);
   void addDescendantLinkModel(const LinkModel* link);
@@ -120,7 +120,7 @@ protected:
   /* The full names to use for the variables that make up this joint */
   std::vector<std::string> variable_names_;
 
-  /* Map from variable names to the corresponding index in \e variable_names_ */
+  /* Map from variable names to the corresponding index in `variable_names_` */
   VariableIndexMap variable_index_map_;
 
   /* The link before this joint */

@@ -73,7 +73,7 @@ public:
 
   size_t getLinkGeometryCount() const;
 
-  /* Compute the default values for a \e RobotState. */
+  /* Compute the default values for a `RobotState`. */
   void getVariableDefaultPositions(double* values) const;
   void getVariableDefaultPositions(std::vector<double>& values) const;
   void getVariableDefaultPositions(std::map<std::string, double>& values) const;
@@ -118,10 +118,10 @@ protected:
   /* A map from link names to their instances */
   std::map<std::string, LinkModel*> link_model_map_;
 
-  /* The vector of links that are updated when \e computeTransforms() is called, in the order they are updated */
+  /* The vector of links that are updated when `computeTransforms()` is called, in the order they are updated */
   std::vector<LinkModel*> link_model_vector_;
 
-  /* The vector of links that are updated when \e computeTransforms() is called, in the order they are updated */
+  /* The vector of links that are updated when `computeTransforms()` is called, in the order they are updated */
   std::vector<const LinkModel*> link_model_vector_const_;
 
   /* The vector of link names that corresponds to link_model_vector_ */
@@ -130,7 +130,7 @@ protected:
   /* Only links that have collision geometry specified */
   std::vector<const LinkModel*> link_models_with_collision_geometry_vector_;
 
-  /* The vector of link names that corresponds to \e link_models_with_collision_geometry_vector_ */
+  /* The vector of link names that corresponds to `link_models_with_collision_geometry_vector_` */
   std::vector<std::string> link_model_names_with_collision_geometry_vector_;
 
   /* Total number of geometric shapes in this model */

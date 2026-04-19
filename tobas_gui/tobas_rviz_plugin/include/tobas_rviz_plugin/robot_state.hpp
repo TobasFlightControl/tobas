@@ -26,7 +26,7 @@ public:
   /* Get a raw pointer to the positions of the variables stored in this state. */
   const double* getVariablePositions() const;
 
-  /* It is assumed \e positions is an array containing the new positions for all variables in this state.
+  /* It is assumed `positions` is an array containing the new positions for all variables in this state.
    * Those values are copied into the state. */
   void setVariablePositions(const double* position);
   void setVariablePositions(const std::vector<double>& position);
@@ -35,12 +35,12 @@ public:
   void setVariablePositions(const std::map<std::string, double>& variable_map);
 
   /* Set the positions of a set of variables. If unknown variable names are specified, an exception is thrown.
-   * Additionally, \e missing_variables is filled with the names of the variables that are not set. */
+   * Additionally, `missing_variables` is filled with the names of the variables that are not set. */
   void
   setVariablePositions(const std::map<std::string, double>& variable_map, std::vector<std::string>& missing_variables);
 
   /* Set the positions of a set of variables. If unknown variable names are specified, an exception is thrown.
-   * Additionally, \e missing_variables is filled with the names of the variables that are not set. */
+   * Additionally, `missing_variables` is filled with the names of the variables that are not set. */
   void
   setVariablePositions(const std::vector<std::string>& variable_names, const std::vector<double>& variable_position);
 
@@ -82,7 +82,7 @@ public:
   void setVariableVelocities(const std::map<std::string, double>& variable_map);
 
   /* Set the velocities of a set of variables. If unknown variable names are specified, an exception is thrown.
-   * Additionally, \e missing_variables is filled with the names of the variables that are not set. */
+   * Additionally, `missing_variables` is filled with the names of the variables that are not set. */
   void
   setVariableVelocities(const std::map<std::string, double>& variable_map, std::vector<std::string>& missing_variables);
 
@@ -129,7 +129,7 @@ public:
   void setVariableAccelerations(const std::map<std::string, double>& variable_map);
 
   /* Set the accelerations of a set of variables. If unknown variable names are specified, an exception is thrown.
-   * Additionally, \e missing_variables is filled with the names of the variables that are not set. */
+   * Additionally, `missing_variables` is filled with the names of the variables that are not set. */
   void setVariableAccelerations(
     const std::map<std::string, double>& variable_map,
     std::vector<std::string>& missing_variables);
@@ -178,7 +178,7 @@ public:
   void setVariableEffort(const std::map<std::string, double>& variable_map);
 
   /* Set the effort of a set of variables. If unknown variable names are specified, an exception is thrown.
-   * Additionally, \e missing_variables is filled with the names of the variables that are not set. */
+   * Additionally, `missing_variables` is filled with the names of the variables that are not set. */
   void setVariableEffort(const std::map<std::string, double>& variable_map, std::vector<std::string>& missing_variables);
 
   /* Set the effort of a set of variables. If unknown variable names are specified, an exception is thrown. */
