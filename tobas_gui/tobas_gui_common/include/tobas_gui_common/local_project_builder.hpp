@@ -3,8 +3,9 @@
 
 #pragma once
 
-#include <QThread>
 #include <expected>
+
+#include <QString>
 
 #include <tobas_colcon_cpp/core.hpp>
 
@@ -27,7 +28,7 @@ private:
   colcon::Colcon colcon_;
 };
 
-/* Qtスレッドを止めずにローカルプロジェクトをビルドする． */
+/* Build a local project without blocking Qt’s main thread. */
 std::expected<void, QString> buildLocalProject(const std::filesystem::path& proj_path);
 }  // namespace cmn
 }  // namespace gui
