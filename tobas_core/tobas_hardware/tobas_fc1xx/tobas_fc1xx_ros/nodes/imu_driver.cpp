@@ -22,6 +22,8 @@ namespace fc1xx
 class ImuDriverNode : public hardware::BaseSensorNode
 {
   static constexpr char kSpiDevice[] = "/dev/spidev0.0";
+
+  // エイリアシングを防ぐためにサンプリング周波数はなるべく高めにするとよい
   static constexpr auto kSamplingPeriod = 1250us;  // 800Hz
 
   using self = ImuDriverNode;
