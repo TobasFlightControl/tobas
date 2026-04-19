@@ -45,7 +45,7 @@ const char* T1Widget::hardwarePackage() const
 
 int T1Widget::imuUpdateRate() const
 {
-  return 400;
+  return 800;
 }
 
 double T1Widget::gyroNoiseDensity() const
