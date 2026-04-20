@@ -9,6 +9,7 @@
 #include <tobas_kdl/tree_joint_parser.hpp>
 #include <tobas_kdl_parser/kdl_parser.hpp>
 #include <tobas_property_client/property_client.hpp>
+#include <tobas_qt_tools/widgets/wait_spinner.hpp>
 #include <tobas_ros2_tools/sync_param_client.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 #include <tobas_uadf/model.hpp>
@@ -65,6 +66,7 @@ private:
 
   colcon::Colcon colcon_;
 
+  qt::WaitSpinnerWidget spinner_;
   Signals sig_;
   RotorMarkerPublisher rotor_marker_publisher_;
 

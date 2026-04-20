@@ -17,8 +17,7 @@ namespace gui
 namespace cmn
 {
 /* Run `colcon build` without blocking Qt’s main thread. */
-std::expected<void, QString>
-colconBuild(colcon::Colcon& colcon, const std::filesystem::path& pkg_path, const std::filesystem::path& ws_path);
+bool colconBuild(colcon::Colcon& colcon, const std::filesystem::path& pkg_path, const std::filesystem::path& ws_path);
 }  // namespace cmn
 }  // namespace gui
 }  // namespace tobas

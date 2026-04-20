@@ -39,6 +39,7 @@ SetupAssistantWidget::SetupAssistantWidget(rclcpp::Node::SharedPtr node)
   , axis_solver_(tree_)
   , property_client_(node, "tobas_setup_assistant/setup_assistant")
   , rsp_client_(node, "robot_state_publisher")
+  , spinner_(Qt::WindowModal, this)
   , rotor_marker_publisher_(node, uadf_)
 {
   // ワークスペースの install ディレクトリをそのままパスに追加するために --merge-install が必要
@@ -391,10 +392,11 @@ void SetupAssistantWidget::onNewButtonClicked()
       return;
     }
 
-    const auto ws_path = ros2::expandUser(kColconWSPathHome);
-
     qInfo().nospace() << "UADF is in ROS package " << QString::fromStdString(pkg_name.value()) << ". Building it.";
-    if (!colcon_.build(pkg_path.value(), ws_path)) {
+    spinner_.start();
+    const auto build_success = cmn::colconBuild(colcon_, pkg_path.value(), ros2::expandUser(kColconWSPathHome));
+    spinner_.stop();
+    if (!build_success) {
       qt::qErrorBox(
         this,
         "Failed to build \"" + QString::fromStdString(pkg_name.value()) + "\":\n\n" +

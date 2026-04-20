@@ -22,7 +22,7 @@ class ColconBuildThread : public QThread
   Q_OBJECT
 
 Q_SIGNALS:
-  void finished(bool success, const QString& message);
+  void finished(bool success);
 
 public:
   explicit ColconBuildThread(colcon::Colcon& colcon, const fs::path& pkg_path, const fs::path& ws_path)
@@ -32,12 +32,8 @@ public:
 
   void run() override
   {
-    if (!colcon_.build(pkg_path_, ws_path_)) {
-      Q_EMIT finished(false, QString::fromStdString(colcon_.errorMessage()));
-      return;
-    }
-
-    Q_EMIT finished(true, "");
+    const auto res = colcon_.build(pkg_path_, ws_path_);
+    Q_EMIT finished(res);
   }
 
 private:
@@ -47,17 +43,10 @@ private:
 };
 }  // namespace
 
-std::expected<void, QString> colconBuild(colcon::Colcon& colcon, const fs::path& pkg_path, const fs::path& ws_path)
+bool colconBuild(colcon::Colcon& colcon, const fs::path& pkg_path, const fs::path& ws_path)
 {
   ColconBuildThread thread(colcon, pkg_path, ws_path);
-  const auto [success, message] = qt::startThreadAndWait(thread, &ColconBuildThread::finished);
-
-  if (success) {
-    return {};
-  }
-  else {
-    return std::unexpected(message);
-  }
+  return std::get<0>(qt::startThreadAndWait(thread, &ColconBuildThread::finished));
 }
 }  // namespace cmn
 }  // namespace gui
