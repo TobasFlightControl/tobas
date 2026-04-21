@@ -62,7 +62,7 @@ int main(int argc, char** argv)
 
   tobas::linux::UARTdev uart;
 
-  if (!uart.initialize(device.c_str())) {
+  if (!uart.initialize(device.c_str(), true)) {
     return EXIT_FAILURE;
   }
 
