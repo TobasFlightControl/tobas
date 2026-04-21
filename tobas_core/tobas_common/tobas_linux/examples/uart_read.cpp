@@ -124,12 +124,10 @@ int main(int argc, char** argv)
   }
 
   uint8_t data;
-  cout << hex;
-
   while (true) {
     if (!uart.receive(&data, 1)) {
       continue;
     }
-    cout << data << " ";
+    cout << setw(2) << setfill('0') << hex << uppercase << (int)data << " ";
   }
 }
