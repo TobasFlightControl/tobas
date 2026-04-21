@@ -10,7 +10,7 @@
 #define DEVICE "device"
 #define BAUDRATE "baudrate"
 #define DATA_BITS "data_bits"
-#define STOP_BITS "Stop_bits"
+#define STOP_BITS "stop_bits"
 #define PARITY "parity"
 #define HUNGUP "hungup"
 #define HELP "help"
