@@ -41,7 +41,8 @@ namespace rc
 {
 class RCTeleopNode : public BaseNode
 {
-  static constexpr double kArmThrotThresh = 0.04;  // 帯域 [-1, 1] の 2%
+  static constexpr double kArmThrotThresh = 0.02;  // 帯域 [-1, 1] の 1%
+  static constexpr double kArmThrotHist = 0.02;    // チャタリングを防ぐためのヒステリシス
   static constexpr auto kArmDuration = 1s;
   static constexpr auto kDisarmDuration = 1s;
 
@@ -77,6 +78,7 @@ private:
 
   // Mutables
   FlightMode cur_mode_;
+  bool is_zero_throt_ = true;
   builtin_interfaces::msg::Time t_arm_start_, t_disarm_start_;
   tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr odom_;
   tobas_msgs::OdometryStamped::ConstSharedPtr setpoint_;
@@ -517,7 +519,10 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
         TOBAS_INFO("Flight mode changed to \"", mode2str_.at(rcin->mode), "\".");
       }
 
-      if (landed_->landed && rcin->throttle < kRcInputMin + kArmThrotThresh) {  // 地上でゼロスロットルの場合
+      const auto zero_throt_thresh = kRcInputMin + kArmThrotThresh + static_cast<int>(is_zero_throt_) * kArmThrotHist;
+      if (landed_->landed && rcin->throttle < zero_throt_thresh) {  // 地上でゼロスロットルの場合
+        is_zero_throt_ = true;
+
         // 安全のためアイドルコマンドを送信
         updateWithIdleCommand(*rcin);
 
@@ -535,6 +540,7 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
         }
       }
       else {  // それ以外は普通にコマンド送信
+        is_zero_throt_ = false;
         controllers_.at(cur_mode_)->update(*rcin, odom_->odom.odom, landed_->landed);
       }
 
