@@ -43,28 +43,24 @@ private:
   ros2::SubscriberPtr<Drone> drone_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::RotorStateArray> rotor_states_sub_;
 
-  ros2::TimerPtr timeout_timer_;
   ros2::TimerPtr publish_rotor_liveliness_timer_;
 
   void publishRotorLiveliness();
 
   void droneCb(const Drone::ConstSharedPtr& drone);
   void statesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& states);
-
-  void onTimeout();
 };
 
 RotorAnomalyDetectorNode::RotorAnomalyDetectorNode(const rclcpp::NodeOptions& options)
   : super("rotor_anomaly_detector", nodeOptions_Default(options))
 {
-  no_comm_timeout_ = getDoubleParam("no_communication_timeout", 0.2);
+  no_comm_timeout_ = getDoubleParam("no_communication_timeout");
 
   rotor_liveliness_pub_ = createPublisher<tobas_msgs::msg::RotorLivelinessArray>(topic::kRotorLiv);
 
   drone_sub_ = createSubscriber(topic::kDrone, &self::droneCb, this, true, true);
   rotor_states_sub_ = createSubscriber(addThrotNS(topic::kRotorStates), &self::statesCb, this);
 
-  timeout_timer_ = createTimer(ch::duration<double>(no_comm_timeout_), &self::onTimeout, this);
   publish_rotor_liveliness_timer_ = createTimer(1s, &self::publishRotorLiveliness, this);
 }
 
@@ -98,8 +94,6 @@ void RotorAnomalyDetectorNode::droneCb(const Drone::ConstSharedPtr& drone)
 
 void RotorAnomalyDetectorNode::statesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& states)
 {
-  timeout_timer_->reset();
-
   if (!drone_) {
     TOBAS_WARN_THROTTLE(kTypicalWarnPeriod, "Drone configuration has not been received yet.");
     return;
@@ -152,25 +146,6 @@ void RotorAnomalyDetectorNode::statesCb(const tobas_msgs::msg::RotorStateArray::
   }
 
   // 状態が切り替わっていれば発行
-  if (state_changed) {
-    publishRotorLiveliness();
-    publish_rotor_liveliness_timer_->reset();
-  }
-}
-
-void RotorAnomalyDetectorNode::onTimeout()
-{
-  const auto cur_time = now();
-  bool state_changed = false;
-
-  for (auto& [_, data] : data_) {
-    if (data.is_alive) {
-      state_changed = true;
-      data.is_alive = false;
-      data.last_dead_time = cur_time;
-    }
-  }
-
   if (state_changed) {
     publishRotorLiveliness();
     publish_rotor_liveliness_timer_->reset();
