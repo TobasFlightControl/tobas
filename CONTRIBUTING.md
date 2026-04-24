@@ -5,7 +5,7 @@
 Install dependencies:
 
 ```bash
-$ sudo apt install -y pre-commit black clang-format cmake-format
+$ sudo apt install -y pre-commit black clang-format cmake-format qt6-declarative-dev-tools
 ```
 
 To check all:
