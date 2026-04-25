@@ -70,15 +70,15 @@ void NotchFilter<T>::update(const T& u, const double& dt)
   const auto c2 = math::sqr(c);
   const auto c2_plus_1 = c2 + 1;
   const auto c2_minus_1 = c2 - 1;
-  const auto c1_qinv = c / q_;
-  const auto cd_qinv = c1_qinv * d_;
+  const auto c_qinv = c / q_;
+  const auto cd_qinv = c_qinv * d_;
 
   const auto n0 = c2_plus_1 + cd_qinv;
   const auto n1 = 2 * c2_minus_1;
   const auto n2 = c2_plus_1 - cd_qinv;
-  const auto d0 = c2_plus_1 + c1_qinv;
+  const auto d0 = c2_plus_1 + c_qinv;
   const auto d1 = 2 * c2_minus_1;
-  const auto d2 = c2_plus_1 - c1_qinv;
+  const auto d2 = c2_plus_1 - c_qinv;
 
   u_[0] = u;
   y_[0] = (n0 * u_[0] + n1 * u_[1] + n2 * u_[2] - d1 * y_[1] - d2 * y_[2]) / d0;
