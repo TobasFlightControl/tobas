@@ -2,8 +2,10 @@
 // Copyright (C) 2026 Tobas, Inc.
 
 #include <chrono>
+#include <expected>
 #include <functional>
 #include <memory>
+#include <stdexcept>
 #include <string>
 
 #include <rclcpp/rclcpp.hpp>
@@ -25,19 +27,19 @@ public:
   bool initialize();
 
 private:
-  static bool toOdr(int _odr_hz, uint8_t& _odr);
-  static bool toAveraging(int _averaging, uint8_t& _odr);
+  std::expected<driver::BMM350::ODR, const char*> toOdr(int odr_hz);
+  std::expected<driver::BMM350::Averaging, const char*> toAveraging(int averaging);
   void timerCallback();
 
   rclcpp::TimerBase::SharedPtr timer_;
   rclcpp::Publisher<geometry_msgs::msg::PointStamped>::SharedPtr publisher_;
   driver::BMM350 mag_;
-  double mx_, my_, mz_;  // micro tesla
+  float mx_, my_, mz_;  // micro tesla
   bool initialized_ = false;
 };
 
-/**
- * @note 起動例
+/*
+ * 起動例
  * ros2 run tobas_ic_drivers bmm350_publisher --ros-args -p odr_hz=:100 -p averaging:4
  * odr_hz: 25 or 100, averaging: 2 or 4 それぞれ電流が３倍になる．
  */
@@ -47,60 +49,33 @@ Bmm350PublisherNode::Bmm350PublisherNode(const rclcpp::NodeOptions& options) : N
   this->declare_parameter<int>("averaging", 4);
 
   int odr_hz = this->get_parameter("odr_hz").as_int();
-  uint8_t odr;
-  if (!toOdr(odr_hz, odr) || (odr_hz <= 0) || ((1000 % odr_hz) != 0)) {
-    RCLCPP_WARN(this->get_logger(), "Invald odr_hz parameter. Falling back to 100Hz publish timer.");
-    odr_hz = 100;
+  const auto odr = toOdr(odr_hz);
+
+  if (!odr) {
+    RCLCPP_WARN(this->get_logger(), "%s", odr.error());
+    throw std::runtime_error("Invalid odr_hz parameter");
   }
   const std::chrono::milliseconds publish_period(1000 / odr_hz);  // ms
   publisher_ = this->create_publisher<geometry_msgs::msg::PointStamped>("magnetic_field", 1);
   timer_ = this->create_wall_timer(publish_period, std::bind(&Bmm350PublisherNode::timerCallback, this));
 }
 
-bool Bmm350PublisherNode::toOdr(int odr_hz, uint8_t& odr)
-{
-  if (odr_hz == 100) {
-    odr = driver::BMM350::ODR_100Hz;
-    return true;
-  }
-
-  if (odr_hz == 25) {
-    odr = driver::BMM350::ODR_25Hz;
-    return true;
-  }
-
-  return false;
-}
-
-bool Bmm350PublisherNode::toAveraging(int averaging, uint8_t& avg)
-{
-  if (averaging == 2) {
-    avg = driver::BMM350::AVG_2;
-    return true;
-  }
-
-  if (averaging == 4) {
-    avg = driver::BMM350::AVG_4;
-    return true;
-  }
-
-  return false;
-}
-
 bool Bmm350PublisherNode::initialize()
 {
   const int odr_hz = this->get_parameter("odr_hz").as_int();
   const int averaging = this->get_parameter("averaging").as_int();
+  const auto avg = toAveraging(averaging);
+  const auto odr = toOdr(odr_hz);
 
-  uint8_t odr = 0;
-  uint8_t avg = 0;
-
-  if (!toOdr(odr_hz, odr) || !toAveraging(averaging, avg)) {
-    RCLCPP_WARN(this->get_logger(), "Invalid parameters. odr_hz is must be 25 or 100, averaging must be 2 or 4.");
+  if (!avg) {
+    RCLCPP_WARN(this->get_logger(), "%s", avg.error());
     return false;
   }
-
-  if (!mag_.configure(odr, avg)) {
+  if (!odr) {
+    RCLCPP_WARN(this->get_logger(), "%s", odr.error());
+    return false;
+  }
+  if (!mag_.configure(odr.value(), avg.value())) {
     RCLCPP_WARN(this->get_logger(), "Failed to stage BMM350 configuration.");
     return false;
   }
@@ -109,6 +84,30 @@ bool Bmm350PublisherNode::initialize()
     return false;
   }
   return true;
+}
+
+std::expected<driver::BMM350::ODR, const char*> Bmm350PublisherNode::toOdr(int odr_hz)
+{
+  if (odr_hz == 100) {
+    return driver::BMM350::ODR_100Hz;
+  }
+
+  if (odr_hz == 25) {
+    return driver::BMM350::ODR_25Hz;
+  }
+  return std::unexpected("invalid ODR");
+}
+
+std::expected<driver::BMM350::Averaging, const char*> Bmm350PublisherNode::toAveraging(int averaging)
+{
+  if (averaging == 2) {
+    return driver::BMM350::AVG_2;
+  }
+
+  if (averaging == 4) {
+    return driver::BMM350::AVG_4;
+  }
+  return std::unexpected("invalid averaging");
 }
 
 void Bmm350PublisherNode::timerCallback()

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include <cmath>
 #include <cstdlib>
 #include <iostream>
@@ -10,7 +13,7 @@ using namespace std;
 int main()
 {
   tobas::driver::BMM350 mag;
-  double mx, my, mz;
+  float mx, my, mz;
   if (!mag.initialize()) {
     std::cerr << "BMM350 initialize failed." << std::endl;
     return EXIT_FAILURE;

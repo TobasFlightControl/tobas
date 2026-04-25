@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_ic_drivers/bmm350.hpp"
 
 #include <bitset>
@@ -15,9 +18,9 @@ BMM350::BMM350()
 {
 }
 
-bool BMM350::initialize()
+bool BMM350::initialize(const char* i2c_device)
 {
-  if (!i2c_.initialize(kI2cDevice, kI2cAddress)) {
+  if (!i2c_.initialize(i2c_device, kI2cAddress)) {
     std::cerr << "Failed to initialize I2C device." << std::endl;
     return false;
   }
@@ -39,10 +42,6 @@ bool BMM350::initialize()
   if (!magneticResetAndWait()) {
     return false;
   }
-
-  // if (!execSelfTest()) {
-  //   return false;
-  // }
 
   if (!applyConfiguration()) {
     return false;
@@ -184,13 +183,12 @@ void BMM350::updateCompensationFromOtp()
   mag_comp_.cross_z_y = static_cast<float>(fixSign(cross_z_y, SIGNED_8_BIT)) / 800.0f;
 }
 
-bool BMM350::configure(uint8_t odr, uint8_t averaging)
+bool BMM350::configure(ODR odr, Averaging averaging)
 {
   if (!isValidOdr(odr) || !isValidAveraging(averaging)) {
     std::cerr << "invalid ODR or averaging setting." << std::endl;
     return false;
   }
-
   odr_ = odr;
   averaging_ = averaging;
   return true;
@@ -310,45 +308,6 @@ bool BMM350::checkWhoAmI()
   return true;
 }
 
-// bool BMM350::execSelfTest()
-// {
-//   if (!selfTestEntryConfig()) {
-//     std::cerr << "Self test failed: entry configuration." << std::endl;
-//     return false;
-//   }
-
-//   float xh = 0.0f;
-//   float xl = 0.0f;
-//   float yh = 0.0f;
-//   float yl = 0.0f;
-//   if (
-//     !selfTestConfig(SELF_TEST_POS_X, xh, yh) || !selfTestConfig(SELF_TEST_NEG_X, xl, yh) ||
-//     !selfTestConfig(SELF_TEST_POS_Y, xh, yh) || !selfTestConfig(SELF_TEST_NEG_Y, xh, yl)) {
-//     std::cerr << "Self test failed: stimulus sequence." << std::endl;
-//     return false;
-//   }
-
-//   if (!i2c_.writeByte(TMR_SELFTEST_USER_REG, SELF_TEST_DISABLE, false)) {
-//     std::cerr << "Self test failed: cleanup." << std::endl;
-//     return false;
-//   }
-//   delayUs(SELF_TEST_CFG_DELAY_US);
-
-//   const float dx = xh - xl;
-//   const float dy = yh - yl;
-//   if (dx == 0.0f && dy == 0.0f) {
-//     std::cerr << "Self test failed: no response." << std::endl;
-//     return false;
-//   }
-
-//   if (!setPowerMode(PMU_NORMAL)) {
-//     std::cerr << "Self test failed: restore normal mode." << std::endl;
-//     return false;
-//   }
-
-//   return true;
-// }
-
 bool BMM350::getPmuCmdStatus0(PmuCmdStatus0& status)
 {
   uint8_t reg = 0;
@@ -416,107 +375,20 @@ bool BMM350::magneticResetAndWait()
   return true;
 }
 
-// bool BMM350::selfTestEntryConfig()
-// {
-//   if (!i2c_.writeByte(PMU_CMD_REG, PMU_SUSPEND, false)) {
-//     return false;
-//   }
-//   delayUs(SELF_TEST_SUSPEND_DELAY_US);
-
-//   if (!setOdrPerformance(ODR_100HZ, AVG_2)) {
-//     return false;
-//   }
-
-//   if (!i2c_.writeByte(PMU_CMD_AXIS_EN_REG, ENABLE_XYZ, false)) {
-//     return false;
-//   }
-
-//   if (!i2c_.writeByte(PMU_CMD_REG, PMU_FGR, false)) {
-//     return false;
-//   }
-//   delayUs(SELF_TEST_FGR_DELAY_US);
-
-//   PmuCmdStatus0 status{};
-//   if (!getPmuCmdStatus0(status) || status.pmu_cmd_value != PMU_FGR) {
-//     return false;
-//   }
-
-//   if (!i2c_.writeByte(PMU_CMD_REG, PMU_BR_FAST, false)) {
-//     return false;
-//   }
-//   delayUs(SELF_TEST_BR_FAST_DELAY_US);
-
-//   if (!getPmuCmdStatus0(status) || status.pmu_cmd_value != PMU_BR) {
-//     return false;
-//   }
-
-//   if (!i2c_.writeByte(PMU_CMD_REG, PMU_FM_FAST, false)) {
-//     return false;
-//   }
-//   delayUs(SELF_TEST_FM_FAST_DELAY_US);
-
-//   if (!getPmuCmdStatus0(status) || status.pmu_cmd_value != PMU_FM_FAST) {
-//     return false;
-//   }
-
-//   delayUs(10);
-//   return true;
-// }
-
-// bool BMM350::selfTestConfig(uint8_t st_cmd, float& x_ut, float& y_ut)
-// {
-//   if (!i2c_.writeByte(TMR_SELFTEST_USER_REG, st_cmd, false)) {
-//     return false;
-//   }
-//   delayUs(SELF_TEST_CFG_DELAY_US);
-
-//   if (!i2c_.writeByte(PMU_CMD_REG, PMU_FM_FAST, false)) {
-//     return false;
-//   }
-//   delayUs(SELF_TEST_READ_DELAY_US);
-
-//   PmuCmdStatus0 status{};
-//   if (!getPmuCmdStatus0(status) || status.pmu_cmd_value != PMU_FM_FAST) {
-//     return false;
-//   }
-
-//   RawMagData raw{};
-//   if (!readRawMagData(raw)) {
-//     return false;
-//   }
-
-//   constexpr float bxy_sens = 14.55f;
-//   constexpr float temp_sens = 0.00204f;
-//   constexpr float ina_xy_gain_trgt = 19.46f;
-//   constexpr float adc_gain = 1.0f / 1.5f;
-//   constexpr float lut_gain = 0.714607238769531f;
-//   constexpr float power = 1000000.0f / 1048576.0f;
-//   const float lsb_to_ut_xy = power / (bxy_sens * ina_xy_gain_trgt * adc_gain * lut_gain);
-//   const float lsb_to_degc_t = 1.0f / (temp_sens * adc_gain * lut_gain * 1048576.0f);
-//   const float temperature = static_cast<float>(raw.t) * lsb_to_degc_t - 25.49f;
-
-//   x_ut =
-//     compensateX(static_cast<float>(raw.x) * lsb_to_ut_xy, static_cast<float>(raw.y) * lsb_to_ut_xy, 0.0f, temperature);
-//   y_ut =
-//     compensateY(static_cast<float>(raw.x) * lsb_to_ut_xy, static_cast<float>(raw.y) * lsb_to_ut_xy, 0.0f, temperature);
-//   return true;
-// }
-
 bool BMM350::readRawMagData(RawMagData& raw)
 {
-  uint8_t data[MAG_TEMP_DATA_LEN] = {};
-  if (!readBytesWithDummy(OUT_X_XLSB_REG, MAG_TEMP_DATA_LEN, data)) {
+  if (!readBytesWithDummy(OUT_X_XLSB_REG, MAG_TEMP_DATA_LEN, raw_data_)) {
     return false;
   }
 
-  const uint32_t raw_x =
-    static_cast<uint32_t>(data[0]) | (static_cast<uint32_t>(data[1]) << 8) | (static_cast<uint32_t>(data[2]) << 16);
-  const uint32_t raw_y =
-    static_cast<uint32_t>(data[3]) | (static_cast<uint32_t>(data[4]) << 8) | (static_cast<uint32_t>(data[5]) << 16);
-  const uint32_t raw_z =
-    static_cast<uint32_t>(data[6]) | (static_cast<uint32_t>(data[7]) << 8) | (static_cast<uint32_t>(data[8]) << 16);
-  const uint32_t raw_t =
-    static_cast<uint32_t>(data[9]) | (static_cast<uint32_t>(data[10]) << 8) | (static_cast<uint32_t>(data[11]) << 16);
+  const uint32_t raw_x = static_cast<uint32_t>(raw_data_[0]) | (static_cast<uint32_t>(raw_data_[1]) << 8) |
+                         (static_cast<uint32_t>(raw_data_[2]) << 16);
+  const uint32_t raw_y = static_cast<uint32_t>(raw_data_[3]) | (static_cast<uint32_t>(raw_data_[4]) << 8) |
+                         (static_cast<uint32_t>(raw_data_[5]) << 16);
+  const uint32_t raw_z = static_cast<uint32_t>(raw_data_[6]) | (static_cast<uint32_t>(raw_data_[7]) << 8) |
+                         (static_cast<uint32_t>(raw_data_[8]) << 16);
+  const uint32_t raw_t = static_cast<uint32_t>(raw_data_[9]) | (static_cast<uint32_t>(raw_data_[10]) << 8) |
+                         (static_cast<uint32_t>(raw_data_[11]) << 16);
 
   raw.x = ((axis_en_ & 0x01) == 0) ? 0 : fixSign(raw_x, SIGNED_24_BIT);
   raw.y = ((axis_en_ & 0x02) == 0) ? 0 : fixSign(raw_y, SIGNED_24_BIT);
@@ -545,10 +417,9 @@ float BMM350::compensateZ(float x, float y, float z, float) const
                denom;
 }
 
-bool BMM350::readMag(double& mx, double& my, double& mz)
+bool BMM350::readMag(float& mx, float& my, float& mz)
 {
-  RawMagData raw{};
-  if (!readRawMagData(raw)) {
+  if (!readRawMagData(raw_)) {
     std::cerr << "Failed to read magnetic field." << std::endl;
     return false;
   }
@@ -562,15 +433,15 @@ bool BMM350::readMag(double& mx, double& my, double& mz)
   constexpr float lut_gain = 0.714607238769531f;
   constexpr float power = 1000000.0f / 1048576.0f;
 
-  const float lsb_to_ut_x = power / (bxy_sens * ina_xy_gain_trgt * adc_gain * lut_gain);
-  const float lsb_to_ut_y = lsb_to_ut_x;
-  const float lsb_to_ut_z = power / (bz_sens * ina_z_gain_trgt * adc_gain * lut_gain);
-  const float lsb_to_degc_t = 1.0f / (temp_sens * adc_gain * lut_gain * 1048576.0f);
+  constexpr float lsb_to_ut_x = power / (bxy_sens * ina_xy_gain_trgt * adc_gain * lut_gain);
+  constexpr float lsb_to_ut_y = lsb_to_ut_x;
+  constexpr float lsb_to_ut_z = power / (bz_sens * ina_z_gain_trgt * adc_gain * lut_gain);
+  constexpr float lsb_to_degc_t = 1.0f / (temp_sens * adc_gain * lut_gain * 1048576.0f);
 
-  float out_x = static_cast<float>(raw.x) * lsb_to_ut_x;
-  float out_y = static_cast<float>(raw.y) * lsb_to_ut_y;
-  float out_z = static_cast<float>(raw.z) * lsb_to_ut_z;
-  float out_t = static_cast<float>(raw.t) * lsb_to_degc_t - 25.49f;
+  float out_x = static_cast<float>(raw_.x) * lsb_to_ut_x;
+  float out_y = static_cast<float>(raw_.y) * lsb_to_ut_y;
+  float out_z = static_cast<float>(raw_.z) * lsb_to_ut_z;
+  float out_t = static_cast<float>(raw_.t) * lsb_to_degc_t - 25.49f;
 
   out_t = (1.0f + mag_comp_.t_sens) * out_t + mag_comp_.t_offs;
 
@@ -594,26 +465,11 @@ bool BMM350::readMag(double& mx, double& my, double& mz)
   const float x_ut = ((axis_en_ & 0x01) == 0) ? 0.0f : cr_x;
   const float y_ut = ((axis_en_ & 0x02) == 0) ? 0.0f : cr_y;
   const float z_ut = ((axis_en_ & 0x04) == 0) ? 0.0f : cr_z;
-  mx = static_cast<double>(x_ut);
-  my = static_cast<double>(y_ut);
-  mz = static_cast<double>(z_ut);
-  //   if (!checkForHighfieldAndReset(mx, my, mz)) {
-  //     return false;
-  //   }
+  mx = x_ut;
+  my = y_ut;
+  mz = z_ut;
   return true;
 }
-
-// bool BMM350::checkForHighfieldAndReset(double mx, double my, double mz)
-// {
-//   const double magnitude_sq = (mx * mx) + (my * my) + (mz * mz);
-//   const double threshold_sq = kHighFieldThresholdUt * kHighFieldThresholdUt;
-//   if (magnitude_sq <= threshold_sq) {
-//     return true;
-//   }
-
-//   std::cerr << "High magnetic field detected. Triggering magnetic reset." << std::endl;
-//   return magneticResetAndWait();
-// }
 
 int32_t BMM350::fixSign(uint32_t raw, int bits)
 {

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <cstdint>
@@ -15,14 +18,12 @@ namespace driver
  */
 class BMM350
 {
-  static constexpr char kI2cDevice[] = "/dev/i2c-1";
   static constexpr uint8_t kI2cAddress = 0x14;
-  // static constexpr double kHighFieldThresholdUt = 2000.0;
 
 public:
   explicit BMM350();
 
-  enum Odr : uint8_t
+  enum ODR : uint8_t
   {
     ODR_100Hz = 0x04,
     ODR_25Hz = 0x06,
@@ -34,30 +35,24 @@ public:
     AVG_4 = 0x04,
   };
 
-  /** @brief センサ初期化を実行する. */
-  bool initialize();
+  /*　センサ初期化を実行する. */
+  bool initialize(const char* i2c_device = "/dev/i2c-1");
 
   /**
    * @brief 初期化時に適用するODRとaveragingを設定する．
    *
    * @param _odr ODR設定値
    * @param _averaging averaging設定値
-   * @note 実機反映はinitialize()内のapplyConfiguration()内で行います．
+   * @note 実機反映はinitialize()内のapplyConfiguration()内で行う．
    */
-  bool configure(uint8_t _odr = ODR_100Hz, uint8_t _averaging = AVG_4);
-  uint8_t odr_;
-  uint8_t averaging_;
+  bool configure(ODR odr = ODR_100Hz, Averaging averaging = AVG_4);
 
-  /** @brief 現在の磁気データ [uT] を読み出す. */
-  bool readMag(double& _mx, double& _my, double& _mz);
-
-  /** @brief 高磁界を判定し、必要なら磁気リセットを行う. */
-  // bool checkForHighfieldAndReset(double _mx, double _my, double _mz);
+  /* 現在の磁気データ [uT] を読み出す. */
+  bool readMag(float& _mx, float& _my, float& _mz);
 
 private:
   enum Register : uint8_t
   {
-
     WHO_AM_I_REG = 0x00,
     PAD_CTRL_REG = 0x03,
     PMU_CMD_AGGR_SET_REG = 0x04,
@@ -69,7 +64,6 @@ private:
     OTP_DATA_MSB_REG = 0x52,
     OTP_DATA_LSB_REG = 0x53,
     OTP_STATUS_REG = 0x55,
-    TMR_SELFTEST_USER_REG = 0x60,
     CMD_REG = 0x7E,
   };
 
@@ -131,7 +125,7 @@ private:
     SIGNED_24_BIT = 24,
   };
 
-  // Bosch BMM350 SensorAPIのbmm350_defs.hの待ち時間に合わせています.
+  /* Bosch BMM350 SensorAPIのbmm350_defs.hの待ち時間に合わせている. */
   enum TimingUs : uint32_t
   {
     STARTUP_DELAY_US = 3000,             // POR startup time
@@ -142,12 +136,6 @@ private:
     OTP_POLL_DELAY_US = 300,             // OTP status polling interval
     BR_DELAY_US = 14000,                 // wait after PMU BR command
     FGR_DELAY_US = 18000,                // wait after PMU FGR command
-    SELF_TEST_SUSPEND_DELAY_US = 30000,  // self-test entry suspend wait
-    SELF_TEST_FGR_DELAY_US = 30000,      // self-test FGR settle
-    SELF_TEST_BR_FAST_DELAY_US = 4000,   // self-test BR_FAST settle
-    SELF_TEST_FM_FAST_DELAY_US = 16000,  // self-test FM_FAST settle
-    SELF_TEST_CFG_DELAY_US = 1000,       // wait after self-test config write
-    SELF_TEST_READ_DELAY_US = 6000,      // wait before self-test data read
   };
 
   enum DataLength : uint8_t
@@ -178,21 +166,12 @@ private:
     OTP_CROSS_Z_Y = 0x16,
   };
 
-  enum SelfTestCmd : uint8_t
-  {
-    SELF_TEST_DISABLE = 0x00,
-    SELF_TEST_POS_X = 0x0D,
-    SELF_TEST_NEG_X = 0x0B,
-    SELF_TEST_POS_Y = 0x15,
-    SELF_TEST_NEG_Y = 0x13,
-  };
-
   struct RawMagData
   {
-    int32_t x = {};
-    int32_t y = {};
-    int32_t z = {};
-    int32_t t = {};
+    int32_t x;
+    int32_t y;
+    int32_t z;
+    int32_t t;
   };
 
   struct MagCompensation
@@ -237,20 +216,17 @@ private:
   bool suspendToNormalMode();
   bool setPowerMode(uint8_t _mode);
   bool checkWhoAmI();
-  bool execSelfTest();
   bool applyConfiguration();
   static bool isValidOdr(uint8_t _odr);
   static bool isValidAveraging(uint8_t _averaging);
   bool configure();
   bool magneticResetAndWait();
   bool getPmuCmdStatus0(PmuCmdStatus0& _status);
-  // bool selfTestEntryConfig();
-  // bool selfTestConfig(uint8_t _st_cmd, float& _x_ut, float& _y_ut);
-  /** @brief OTPレジスタを全件読み出して内部補償係数に反映する. */
+  /* OTPレジスタを全件読み出して内部補償係数に反映する. */
   bool readOtpRegisters();
-  /** @brief 指定したOTPワードを1件読み出す. */
+  /* 指定したOTPワードを1件読み出す. */
   bool readOtpWord(uint8_t _addr, uint16_t& _word);
-  /** @brief OTP生データから補償パラメータを更新する. */
+  /* OTP生データから補償パラメータを更新する. */
   void updateCompensationFromOtp();
   bool setOdrPerformance(uint8_t _odr = ODR_100Hz, uint8_t _avg = AVG_4);
   bool readRawMagData(RawMagData& _raw);
@@ -294,15 +270,19 @@ private:
    */
   float compensateZ(float _x, float _y, float _z, float _temperature) const;
 
-  /** @brief nビット符号付き値として符号拡張する. */
+  /* nビット符号付き値として符号拡張する. */
   static int32_t fixSign(uint32_t _raw, int _bits);
-  /** @brief マイクロ秒単位で待機する. */
+  /* マイクロ秒単位で待機する. */
   static void delayUs(uint32_t _period_us);
 
   linux::I2Cdev i2c_;
   uint16_t otp_data_[32]{};
   MagCompensation mag_comp_{};
+  uint8_t raw_data_[MAG_TEMP_DATA_LEN];
+  RawMagData raw_;
   uint8_t axis_en_ = {};
+  ODR odr_ = ODR_100Hz;
+  Averaging averaging_ = AVG_4;
 };
 }  // namespace driver
 }  // namespace tobas
