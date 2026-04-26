@@ -18,7 +18,7 @@ int main(int argc, char** argv)
   const uint16_t throttle = stoi(argv[2]);
 
   tobas::fc2xx::DShot dshot;
-  
+
   if (!dshot.initialize()) {
     cerr << "Failed to initialize DShot driver." << endl;
     return EXIT_FAILURE;

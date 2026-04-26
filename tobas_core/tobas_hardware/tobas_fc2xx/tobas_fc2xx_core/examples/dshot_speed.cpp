@@ -25,7 +25,7 @@ int main(int argc, char** argv)
   const auto tar_rpm = stoi(argv[6]);
 
   tobas::fc2xx::DShot dshot;
-  
+
   if (!dshot.initialize()) {
     cerr << "Failed to initialize DShot driver." << endl;
     return EXIT_FAILURE;
