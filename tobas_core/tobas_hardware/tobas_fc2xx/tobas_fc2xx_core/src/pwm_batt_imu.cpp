@@ -28,6 +28,11 @@ bool PwmBattImu::initialize()
     return false;
   }
 
+  // Discard the first data
+  if (!spi_.transfer(sizeof(tx_buf_))) {
+    return false;
+  }
+
   return true;
 }
 
