@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include <tobas_hardware_common/base_sensor_node.hpp>
 #include <tobas_ic_drivers/stmicro/iis2mdc.hpp>
+#include <tobas_node/node.hpp>
 #include <tobas_real_common/ros_interface.hpp>
 
 #include <tobas_msgs_adapter/magnetic_field.hpp>
@@ -15,12 +15,12 @@ namespace tobas
 {
 namespace fc2xx
 {
-class MagDriverNode : public hardware::BaseSensorNode
+class MagDriverNode : public BaseNode
 {
   static constexpr auto kSamplingPeriod = 10ms;
 
   using self = MagDriverNode;
-  using super = hardware::BaseSensorNode;
+  using super = BaseNode;
 
 public:
   explicit MagDriverNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -28,7 +28,7 @@ public:
 private:
   stm::IIS2MDC mag_;
   ros2::PublisherPtr<tobas_msgs::MagneticField> mag_pub_;
-  ros2::TimerPtr initialize_timer_;
+  ros2::TimerPtr initialize_timer_, main_timer_;
 
   void initialize();
   void mainTimerCb();

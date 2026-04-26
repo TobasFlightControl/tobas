@@ -2,8 +2,8 @@
 // Copyright (C) 2026 Tobas, Inc.
 
 #include <tobas_constants/ros_interface.hpp>
-#include <tobas_hardware_common/base_sensor_node.hpp>
 #include <tobas_ic_drivers/ublox/zed_f9p.hpp>
+#include <tobas_node/node.hpp>
 #include <tobas_std_tools/gnss.hpp>
 
 #include <tobas_msgs_adapter/gnss.hpp>
@@ -16,7 +16,7 @@ namespace tobas
 {
 namespace fc2xx
 {
-class GnssDriverNode : public hardware::BaseSensorNode
+class GnssDriverNode : public BaseNode
 {
   static constexpr char kSpiDevice[] = "/dev/spidev1.2";
   static constexpr auto kMainTimerPeriod = 1ms;
@@ -26,7 +26,7 @@ class GnssDriverNode : public hardware::BaseSensorNode
   static constexpr size_t kMeasPeriod = 1000 / 20;
 
   using self = GnssDriverNode;
-  using super = hardware::BaseSensorNode;
+  using super = BaseNode;
 
 public:
   explicit GnssDriverNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -42,7 +42,7 @@ private:
   std::map<ublox::ZEDF9P::UbxNavId, bool> is_received_;
 
   ros2::PublisherPtr<tobas_msgs::Gnss> gnss_pub_;
-  ros2::TimerPtr initialize_timer_;
+  ros2::TimerPtr initialize_timer_, main_timer_;
 
   void initialize();
   bool configure();

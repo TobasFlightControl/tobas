@@ -2,8 +2,8 @@
 // Copyright (C) 2026 Tobas, Inc.
 
 #include <tobas_constants/ros_interface.hpp>
-#include <tobas_hardware_common/base_sensor_node.hpp>
 #include <tobas_ic_drivers/stmicro/ilps22qs.hpp>
+#include <tobas_node/node.hpp>
 
 #include <tobas_msgs/msg/fluid_pressure.hpp>
 
@@ -15,12 +15,12 @@ namespace tobas
 {
 namespace fc2xx
 {
-class BaroDriverNode : public hardware::BaseSensorNode
+class BaroDriverNode : public BaseNode
 {
   static constexpr auto kSamplingPeriod = 20ms;
 
   using self = BaroDriverNode;
-  using super = hardware::BaseSensorNode;
+  using super = BaseNode;
 
 public:
   explicit BaroDriverNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -28,7 +28,7 @@ public:
 private:
   stm::ILPS22QS baro_;
   ros2::PublisherPtr<tobas_msgs::msg::FluidPressure> baro_pub_;
-  ros2::TimerPtr initialize_timer_;
+  ros2::TimerPtr initialize_timer_, main_timer_;
 
   void initialize();
   void mainTimerCb();
