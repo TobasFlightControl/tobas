@@ -247,6 +247,8 @@ int HardwareWidget::numDShotChannels() const
 
 void HardwareWidget::setCurrentHardware(int index)
 {
+  qDebug().nospace() << "HardwareWidget::setCurrentHardware(" << index << ")";
+
   hardwares_->setCurrentIndex(index);
 
   const auto hardware = qt::qConstPointerCast<BaseHardwareWidget>(hardwares_->widget(index));
