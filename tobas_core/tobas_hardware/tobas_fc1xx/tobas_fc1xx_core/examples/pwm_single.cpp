@@ -18,6 +18,7 @@ int main(int argc, char** argv)
   const uint16_t period = stoi(argv[2]);
 
   tobas::fc1xx::PWM pwm;
+  
   if (!pwm.initialize()) {
     cerr << "Failed to initialize PWM driver." << endl;
     return EXIT_FAILURE;
