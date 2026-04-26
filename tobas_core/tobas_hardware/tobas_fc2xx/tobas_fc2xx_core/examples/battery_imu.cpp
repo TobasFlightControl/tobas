@@ -17,7 +17,7 @@ int main()
     return EXIT_FAILURE;
   }
 
-  double voltage, current;
+  double volt, curr;
   double ax, ay, az;
   double gx, gy, gz;
   double dgx, dgy, dgz;
@@ -28,17 +28,17 @@ int main()
       continue;
     }
 
-    driver.getBattVoltage(voltage);
-    driver.getBattCurrent(current);
+    driver.getBattVoltage(volt);
+    driver.getBattCurrent(curr);
     driver.getRawAccel(ax, ay, az);
     driver.getRawGyro(gx, gy, gz);
     driver.getRawDGyro(dgx, dgy, dgz);
 
     cout << "-----" << endl;
-    cout << "Voltage [V]   : " << voltage << endl;
-    cout << "Current [A]   : " << current << endl;
-    cout << "Accel [m/s^2] : " << ax << ", " << ay << ", " << az << endl;
-    cout << "Gyro [rad/s]  : " << gx << ", " << gy << ", " << gz << endl;
+    cout << "Voltage [V]     : " << volt << endl;
+    cout << "Current [A]     : " << curr << endl;
+    cout << "Accel [m/s^2]   : " << ax << ", " << ay << ", " << az << endl;
+    cout << "Gyro [rad/s]    : " << gx << ", " << gy << ", " << gz << endl;
     cout << "D-Gyro [rad/s^2]: " << dgx << ", " << dgy << ", " << dgz << endl;
 
     this_thread::sleep_for(10ms);

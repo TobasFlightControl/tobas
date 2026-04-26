@@ -42,7 +42,7 @@ bool testImu()
   double ax, ay, az, gx, gy, gz;
   tobas::tim::Rate rate(5ms);
 
-  for (int i = 0; i < 200; ++i) {
+  for (int _ = 0; _ < 200; ++_) {
     if (!imu.readImu(ax, ay, az, gx, gy, gz)) {
       cerr << "Failed to read IMU." << endl;
       return false;
@@ -80,7 +80,7 @@ bool testMagnetometer()
   double mx, my, mz;
   tobas::tim::Rate rate(20ms);
 
-  for (int i = 0; i < 50; ++i) {
+  for (int _ = 0; _ < 50; ++_) {
     if (!mag.readMag(mx, my, mz)) {
       cerr << "Failed to read magnetic field." << endl;
       return false;
@@ -113,7 +113,7 @@ bool testBarometer()
   double pres, temp;
   tobas::tim::Rate rate(20ms);
 
-  for (int i = 0; i < 50; ++i) {
+  for (int _ = 0; _ < 50; ++_) {
     if (!baro.readPressure(pres)) {
       cerr << "Failed to read pressure." << endl;
       return false;
@@ -125,7 +125,7 @@ bool testBarometer()
 
     const auto pres_hpa = pres / 100.;
 
-    cout << "Pressure [hPa]     : " << pres_hpa << endl;
+    cout << "Pressure [hPa]    : " << pres_hpa << endl;
     cout << "Temperature [degC]: " << temp << endl;
 
     if (pres_hpa < 900. || 1100. < pres_hpa) {
@@ -157,7 +157,7 @@ bool testPowerSensor()
   float volt, curr;
   tobas::tim::Rate rate(10ms);
 
-  for (int i = 0; i < 100; ++i) {
+  for (int _ = 0; _ < 100; ++_) {
     if (!batt.read(volt, curr)) {
       cerr << "Failed to read battery status." << endl;
       return EXIT_FAILURE;
