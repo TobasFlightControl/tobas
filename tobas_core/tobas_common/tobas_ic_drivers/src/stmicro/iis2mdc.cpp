@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include "tobas_fc1xx_core/iis2mdc.hpp"
+#include "tobas_ic_drivers/stmicro/iis2mdc.hpp"
 
 #include <iostream>
 
@@ -9,15 +9,15 @@ using namespace std;
 
 namespace tobas
 {
-namespace fc1xx
+namespace stm
 {
 IIS2MDC::IIS2MDC()
 {
 }
 
-bool IIS2MDC::initialize()
+bool IIS2MDC::initialize(const char* i2c_device)
 {
-  if (!i2c_.initialize(kI2cDevice, kI2cAddress)) {
+  if (!i2c_.initialize(i2c_device, kI2cAddress)) {
     cerr << "Failed to initialize I2C device." << endl;
     return false;
   }
@@ -84,5 +84,5 @@ bool IIS2MDC::configure()
 
   return true;
 }
-}  // namespace fc1xx
+}  // namespace stm
 }  // namespace tobas

@@ -4,17 +4,23 @@
 #include <iostream>
 #include <thread>
 
-#include "tobas_fc1xx_core/iis2mdc.hpp"
+#include "tobas_ic_drivers/stmicro/iis2mdc.hpp"
 
 using namespace std;
 using namespace std::chrono_literals;
 
-int main()
+int main(int argc, char** argv)
 {
-  tobas::fc1xx::IIS2MDC mag;
+  if (argc != 2) {
+    cerr << "Usage: " << argv[0] << " <I2C Device>" << endl;
+    return EXIT_FAILURE;
+  }
+  const auto device = argv[1];
+
+  tobas::stm::IIS2MDC mag;
   double mx, my, mz;
 
-  if (!mag.initialize()) {
+  if (!mag.initialize(device)) {
     cerr << "Failed to initialize magnetometer." << endl;
     return EXIT_FAILURE;
   }

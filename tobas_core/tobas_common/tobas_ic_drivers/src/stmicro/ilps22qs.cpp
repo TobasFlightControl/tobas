@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include "tobas_fc1xx_core/ilps22qs.hpp"
+#include "tobas_ic_drivers/stmicro/ilps22qs.hpp"
 
 #include <iostream>
 
@@ -9,15 +9,15 @@ using namespace std;
 
 namespace tobas
 {
-namespace fc1xx
+namespace stm
 {
 ILPS22QS::ILPS22QS()
 {
 }
 
-bool ILPS22QS::initialize()
+bool ILPS22QS::initialize(const char* i2c_device)
 {
-  if (!i2c_.initialize(kI2cDevice, kI2cAddress)) {
+  if (!i2c_.initialize(i2c_device, kI2cAddress)) {
     return false;
   }
 
@@ -108,5 +108,5 @@ void ILPS22QS::setPressureScale(const uint8_t& fs_mode)
       throw;
   }
 }
-}  // namespace fc1xx
+}  // namespace stm
 }  // namespace tobas

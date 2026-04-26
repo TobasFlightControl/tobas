@@ -18,9 +18,9 @@ BMM150::BMM150()
 {
 }
 
-bool BMM150::initialize()
+bool BMM150::initialize(const char* i2c_device)
 {
-  if (!i2c_.initialize(kI2cDevice, kI2cAddress)) {
+  if (!i2c_.initialize(i2c_device, kI2cAddress)) {
     cerr << "Failed to initialize I2C device." << endl;
     return false;
   }

@@ -7,7 +7,7 @@
 
 namespace tobas
 {
-namespace fc1xx
+namespace stm
 {
 /**
  * @brief A linux driver of full-scale barometer.
@@ -16,14 +16,13 @@ namespace fc1xx
  */
 class ILPS22QS
 {
-  static constexpr char kI2cDevice[] = "/dev/i2c-1";
   static constexpr uint8_t kI2cAddress = 0b1011100;
   static constexpr double kTempScale = 100;  // [LSB/degC]
 
 public:
   explicit ILPS22QS();
 
-  bool initialize();
+  bool initialize(const char* i2c_device);
 
   /* Read the current pressure [Pa]. */
   bool readPressure(double& pressure);
@@ -113,5 +112,5 @@ private:
 
   void setPressureScale(const uint8_t& fs_mode);
 };
-}  // namespace fc1xx
+}  // namespace stm
 }  // namespace tobas

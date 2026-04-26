@@ -7,7 +7,7 @@
 
 namespace tobas
 {
-namespace fc1xx
+namespace stm
 {
 /**
  * @brief A linux driver of 3-axis magnetometer.
@@ -16,7 +16,6 @@ namespace fc1xx
  */
 class IIS2MDC
 {
-  static constexpr char kI2cDevice[] = "/dev/i2c-1";
   static constexpr uint8_t kI2cAddress = 0b0011110;
   static constexpr uint8_t kMultiReadFlag = 0x80;  // cf. 6.1.1: I2C operation (p.23)
   static constexpr double kSensitivity = 1.5e-3;   // [gauss/LSB]
@@ -24,7 +23,7 @@ class IIS2MDC
 public:
   explicit IIS2MDC();
 
-  bool initialize();
+  bool initialize(const char* i2c_device);
 
   /* Read the current magnetic field [gauss]. */
   bool readMag(double& mx, double& my, double& mz);
@@ -96,5 +95,5 @@ private:
   bool checkWhoAmI();
   bool configure();
 };
-}  // namespace fc1xx
+}  // namespace stm
 }  // namespace tobas

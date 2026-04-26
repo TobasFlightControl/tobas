@@ -16,7 +16,6 @@ namespace driver
  */
 class BMM150
 {
-  static constexpr char kI2cDevice[] = "/dev/i2c-1";
   static constexpr uint8_t kI2cAddress = 0x10;  // ref: p.36
   static constexpr uint8_t kSelfTestRef = 0x01;
   // Overflow handlings numbers, written in https://github.com/boschsensortec/BMM150_SensorAPI/blob/master/bmm150.c
@@ -30,7 +29,7 @@ class BMM150
 public:
   explicit BMM150();
 
-  bool initialize();
+  bool initialize(const char* i2c_device);
 
   /* Read the current magnetic field [μT]. axis orientation ref: p.46*/
   bool readMag(double& mx, double& my, double& mz);

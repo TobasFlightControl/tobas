@@ -4,16 +4,22 @@
 #include <iostream>
 #include <thread>
 
-#include "tobas_fc1xx_core/ilps22qs.hpp"
+#include "tobas_ic_drivers/stmicro/ilps22qs.hpp"
 
 using namespace std;
 
-int main()
+int main(int argc, char** argv)
 {
-  tobas::fc1xx::ILPS22QS baro;
+  if (argc != 2) {
+    cerr << "Usage: " << argv[0] << " <I2C Device>" << endl;
+    return EXIT_FAILURE;
+  }
+  const auto device = argv[1];
+
+  tobas::stm::ILPS22QS baro;
   double pres, temp;
 
-  if (!baro.initialize()) {
+  if (!baro.initialize(device)) {
     cerr << "Failed to initialize barometer." << endl;
     return EXIT_FAILURE;
   }

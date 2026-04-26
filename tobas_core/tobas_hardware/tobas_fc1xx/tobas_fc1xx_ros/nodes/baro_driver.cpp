@@ -2,8 +2,8 @@
 // Copyright (C) 2026 Tobas, Inc.
 
 #include <tobas_constants/ros_interface.hpp>
-#include <tobas_fc1xx_core/ilps22qs.hpp>
 #include <tobas_hardware_common/base_sensor_node.hpp>
+#include <tobas_ic_drivers/stmicro/ilps22qs.hpp>
 
 #include <tobas_msgs/msg/fluid_pressure.hpp>
 
@@ -26,7 +26,7 @@ public:
   explicit BaroDriverNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  ILPS22QS baro_;
+  stm::ILPS22QS baro_;
   ros2::PublisherPtr<tobas_msgs::msg::FluidPressure> baro_pub_;
   ros2::TimerPtr initialize_timer_;
 
@@ -42,7 +42,7 @@ BaroDriverNode::BaroDriverNode(const rclcpp::NodeOptions& options)
 
 void BaroDriverNode::initialize()
 {
-  if (!baro_.initialize()) {
+  if (!baro_.initialize("/dev/i2c-1")) {
     TOBAS_ERROR("Failed to initialize Barometer. Retrying...");
     return;
   }

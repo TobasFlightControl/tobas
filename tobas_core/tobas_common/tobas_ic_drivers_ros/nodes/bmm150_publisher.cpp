@@ -21,6 +21,8 @@ private:
   bool initialize();
   void timerCallback();
 
+  std::string device_;
+
   rclcpp::TimerBase::SharedPtr timer_;
   rclcpp::Publisher<geometry_msgs::msg::PointStamped>::SharedPtr publisher_;
   driver::BMM150 mag_;
@@ -30,13 +32,15 @@ private:
 
 Bmm150PublisherNode::Bmm150PublisherNode(const rclcpp::NodeOptions& options) : Node("bmm150_publisher", options)
 {
+  device_ = get_parameter_or<std::string>("device", "/dev/i2c-1");
+
   publisher_ = create_publisher<geometry_msgs::msg::PointStamped>("magnetic_field", 1);
   timer_ = create_wall_timer(100ms, std::bind(&Bmm150PublisherNode::timerCallback, this));
 }
 
 bool Bmm150PublisherNode::initialize()
 {
-  if (!mag_.initialize()) {
+  if (!mag_.initialize(device_.c_str())) {
     RCLCPP_WARN(get_logger(), "Failed to initialize magnetometer.");
     return false;
   }

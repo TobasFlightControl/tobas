@@ -5,8 +5,8 @@
 #include <iostream>
 
 #include <tobas_fc1xx_core/battery.hpp>
-#include <tobas_fc1xx_core/iis2mdc.hpp>
-#include <tobas_fc1xx_core/ilps22qs.hpp>
+#include <tobas_ic_drivers/stmicro/iis2mdc.hpp>
+#include <tobas_ic_drivers/stmicro/ilps22qs.hpp>
 #include <tobas_ic_drivers/stmicro/ism330dlc.hpp>
 #include <tobas_ic_drivers/ublox/zed_f9p.hpp>
 #include <tobas_math/linalg.hpp>
@@ -68,9 +68,9 @@ bool testImu()
 
 bool testMagnetometer()
 {
-  tobas::fc1xx::IIS2MDC mag;
+  tobas::stm::IIS2MDC mag;
 
-  if (!mag.initialize()) {
+  if (!mag.initialize("/dev/i2c-1")) {
     cerr << "Failed to initialize magnetometer." << endl;
     return false;
   }
@@ -101,9 +101,9 @@ bool testMagnetometer()
 
 bool testBarometer()
 {
-  tobas::fc1xx::ILPS22QS baro;
+  tobas::stm::ILPS22QS baro;
 
-  if (!baro.initialize()) {
+  if (!baro.initialize("/dev/i2c-1")) {
     cerr << "Failed to initialize barometer." << endl;
     return false;
   }

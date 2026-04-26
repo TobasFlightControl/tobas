@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include <tobas_fc1xx_core/iis2mdc.hpp>
 #include <tobas_hardware_common/base_sensor_node.hpp>
+#include <tobas_ic_drivers/stmicro/iis2mdc.hpp>
 #include <tobas_real_common/ros_interface.hpp>
 
 #include <tobas_msgs_adapter/magnetic_field.hpp>
@@ -26,7 +26,7 @@ public:
   explicit MagDriverNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  IIS2MDC mag_;
+  stm::IIS2MDC mag_;
   ros2::PublisherPtr<tobas_msgs::MagneticField> mag_pub_;
   ros2::TimerPtr initialize_timer_;
 
@@ -42,7 +42,7 @@ MagDriverNode::MagDriverNode(const rclcpp::NodeOptions& options)
 
 void MagDriverNode::initialize()
 {
-  if (!mag_.initialize()) {
+  if (!mag_.initialize("/dev/i2c-1")) {
     TOBAS_ERROR("Failed to initialize Magnetometer. Retrying...");
     return;
   }
