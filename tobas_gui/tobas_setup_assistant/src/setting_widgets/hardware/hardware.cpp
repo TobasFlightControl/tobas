@@ -13,6 +13,7 @@
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
 #include "tobas_setup_assistant/setting_tabs/hardware/fc1xx.hpp"
+#include "tobas_setup_assistant/setting_tabs/hardware/fc2xx.hpp"
 
 namespace tobas
 {
@@ -29,7 +30,8 @@ HardwareWidget::HardwareWidget(const uadf::Model& uadf, const Signals& sig)
   pwm_ = new PwmWidget(uadf, sig);
   dshot_ = new DShotWidget(uadf, sig);
 
-  hardwares_->addWidget(new T1Widget());
+  hardwares_->addWidget(new FC1xxWidget());
+  hardwares_->addWidget(new FC2xxWidget());
 
   for (int i = 0; i < hardwares_->count(); ++i) {
     const auto hardware = qt::qConstPointerCast<BaseHardwareWidget>(hardwares_->widget(i));
