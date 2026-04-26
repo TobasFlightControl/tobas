@@ -81,8 +81,6 @@ void PwmBattImuDriverNode::initialize()
 
   initialize_timer_->cancel();
   main_timer_ = createWallTimer(kSamplingPeriod, &self::mainTimerCb, this);
-
-  initialize_timer_->cancel();
 }
 
 void PwmBattImuDriverNode::pwmsCb(const tobas_msgs::msg::PwmArray::ConstSharedPtr& pwms)
