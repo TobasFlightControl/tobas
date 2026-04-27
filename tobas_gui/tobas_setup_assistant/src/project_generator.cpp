@@ -506,6 +506,9 @@ bool ProjectGenerator::generateConfigPackage(const inja::json& tpl_data)
   if (!generateRcTeleopStaticConfig()) {
     return false;
   }
+  if (!generateImuFilterConfig()) {
+    return false;
+  }
   if (!generateRotorAnomalyDetectorConfig()) {
     return false;
   }
@@ -802,6 +805,31 @@ bool ProjectGenerator::generateRcTeleopStaticConfig()
   YAML::Node node_standalone(YAML::NodeType::Map);
   node_standalone["/**"][node::kRcTeleop][kRosParamsKey] = params;
   if (!saveYamlNode(config_dir / "rc_teleop_static_standalone.yaml", node_standalone)) {
+    return false;
+  }
+
+  return true;
+}
+
+bool ProjectGenerator::generateImuFilterConfig()
+{
+  YAML::Node params(YAML::NodeType::Map);
+  params["default_accel_lpf_cutoff"] = settings_->hardware->defaultAccelLpfCutoff();
+  params["default_gyro_lpf_cutoff"] = settings_->hardware->defaultGyroLpfCutoff();
+  params["default_dgyro_lpf_cutoff"] = settings_->hardware->defaultDGyroLpfCutoff();
+
+  const auto config_dir = proj_paths_.cfgConfigDirPath();
+
+  // For component
+  const auto node_component = params;
+  if (!saveYamlNode(config_dir / "imu_filter_static.yaml", node_component)) {
+    return false;
+  }
+
+  // For standalone
+  YAML::Node node_standalone(YAML::NodeType::Map);
+  node_standalone["/**"][node::kRcTeleop][kRosParamsKey] = params;
+  if (!saveYamlNode(config_dir / "imu_filter_static_standalone.yaml", node_standalone)) {
     return false;
   }
 

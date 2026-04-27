@@ -245,6 +245,21 @@ int HardwareWidget::numDShotChannels() const
   return selected()->numDShotChannels();
 }
 
+int HardwareWidget::defaultAccelLpfCutoff() const
+{
+  return selected()->defaultAccelLpfCutoff();
+}
+
+int HardwareWidget::defaultGyroLpfCutoff() const
+{
+  return selected()->defaultGyroLpfCutoff();
+}
+
+int HardwareWidget::defaultDGyroLpfCutoff() const
+{
+  return selected()->defaultDGyroLpfCutoff();
+}
+
 void HardwareWidget::setCurrentHardware(int index)
 {
   qDebug().nospace() << "HardwareWidget::setCurrentHardware(" << index << ")";

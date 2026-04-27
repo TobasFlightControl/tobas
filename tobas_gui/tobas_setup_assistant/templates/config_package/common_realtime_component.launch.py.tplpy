@@ -163,7 +163,10 @@ def generate_launch_description():
                     package="tobas_config_servers",
                     plugin="tobas::ImuFilterConfigServer",
                     namespace=DRONE_NAME,
-                    parameters=[PathJoinSubstitution([config_pkg_share, "config", "imu_filter_dynamic.yaml"])],
+                    parameters=[
+                        PathJoinSubstitution([config_pkg_share, "config", "imu_filter_static.yaml"]),
+                        PathJoinSubstitution([config_pkg_share, "config", "imu_filter_dynamic.yaml"]),
+                    ],
                 ),
                 ComposableNode(
                     package="tobas_failsafe",

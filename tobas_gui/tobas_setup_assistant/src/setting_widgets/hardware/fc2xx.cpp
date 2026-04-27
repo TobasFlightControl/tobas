@@ -135,6 +135,21 @@ int FC2xxWidget::numDShotChannels() const
 {
   return 8;
 }
+
+int FC2xxWidget::defaultAccelLpfCutoff() const
+{
+  return 200;  // Disabled
+}
+
+int FC2xxWidget::defaultGyroLpfCutoff() const
+{
+  return 200;  // Disabled
+}
+
+int FC2xxWidget::defaultDGyroLpfCutoff() const
+{
+  return 200;  // Disabled
+}
 }  // namespace hw
 }  // namespace sa
 }  // namespace gui
