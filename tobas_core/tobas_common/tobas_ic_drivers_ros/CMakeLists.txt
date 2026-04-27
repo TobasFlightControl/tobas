@@ -26,6 +26,7 @@ add_library(${PROJECT_NAME}_node SHARED ${NODE_TARGETS})
 ament_target_dependencies(${PROJECT_NAME}_node ${AMENT_DEPENDENCIES})
 target_link_options(${PROJECT_NAME}_node PRIVATE -Wl,--no-undefined)
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "tobas::Bmm150PublisherNode" EXECUTABLE bmm150_publisher)
+rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "tobas::Bmm350PublisherNode" EXECUTABLE bmm350_publisher)
 
 install(
   TARGETS ${PROJECT_NAME}_node
