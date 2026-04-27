@@ -4,7 +4,7 @@
 #include <iostream>
 #include <thread>
 
-#include "tobas_fc1xx_core/dshot.hpp"
+#include "tobas_fc2xx_core/dshot.hpp"
 
 using namespace std;
 
@@ -17,7 +17,7 @@ int main(int argc, char** argv)
   const size_t channel = stoul(argv[1]);
   const uint16_t throttle = stoi(argv[2]);
 
-  tobas::fc1xx::DShot dshot;
+  tobas::fc2xx::DShot dshot;
 
   if (!dshot.initialize()) {
     cerr << "Failed to initialize DShot driver." << endl;

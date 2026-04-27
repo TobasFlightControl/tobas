@@ -13,12 +13,12 @@ namespace sa
 {
 namespace hw
 {
-class FC1xxWidget : public BaseHardwareWidget
+class FC2xxWidget : public BaseHardwareWidget
 {
   Q_OBJECT
 
 public:
-  explicit FC1xxWidget();
+  explicit FC2xxWidget();
 
   const char* name() const override;
 

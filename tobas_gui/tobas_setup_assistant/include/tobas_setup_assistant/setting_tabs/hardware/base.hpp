@@ -68,6 +68,13 @@ public:
 
   virtual int numPwmChannels() const = 0;
   virtual int numDShotChannels() const = 0;
+
+  /* [Hz] */
+  virtual int defaultAccelLpfCutoff() const = 0;
+  /* [Hz] */
+  virtual int defaultGyroLpfCutoff() const = 0;
+  /* [Hz] */
+  virtual int defaultDGyroLpfCutoff() const = 0;
 };
 }  // namespace hw
 }  // namespace sa

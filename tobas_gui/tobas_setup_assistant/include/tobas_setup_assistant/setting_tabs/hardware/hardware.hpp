@@ -91,6 +91,13 @@ public:
   int numPwmChannels() const;
   int numDShotChannels() const;
 
+  /* [Hz] */
+  int defaultAccelLpfCutoff() const;
+  /* [Hz] */
+  int defaultGyroLpfCutoff() const;
+  /* [Hz] */
+  int defaultDGyroLpfCutoff() const;
+
 private:
   qt::ComboBox* type_;
   qt::StackedWidget* hardwares_;

@@ -1,0 +1,279 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
+#include <tobas_constants/ros_interface.hpp>
+#include <tobas_ic_drivers/ublox/zed_f9p.hpp>
+#include <tobas_node/node.hpp>
+#include <tobas_std_tools/gnss.hpp>
+
+#include <tobas_msgs_adapter/gnss.hpp>
+
+#include "./common.hpp"
+
+using namespace std::chrono_literals;
+
+namespace tobas
+{
+namespace fc2xx
+{
+class GnssDriverNode : public BaseNode
+{
+  static constexpr char kSpiDevice[] = "/dev/spidev1.2";
+  static constexpr auto kMainTimerPeriod = 1ms;
+
+  // GNSSレシーバの更新周期 [ms]
+  // 周波数が高すぎるとFIFOにデータが溜まってタイムシフトが生じるため，そんなに大きくできない
+  static constexpr size_t kMeasPeriod = 1000 / 20;
+
+  using self = GnssDriverNode;
+  using super = BaseNode;
+
+public:
+  explicit GnssDriverNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+
+private:
+  ublox::ZEDF9P gnss_;
+
+  ublox::payload::NAV_STATUS status_;
+  ublox::payload::NAV_HPPOSLLH hpposllh_;
+  ublox::payload::NAV_VELNED velned_;
+  ublox::payload::NAV_COV cov_;
+
+  std::map<ublox::ZEDF9P::UbxNavId, bool> is_received_;
+
+  ros2::PublisherPtr<tobas_msgs::Gnss> gnss_pub_;
+  ros2::TimerPtr initialize_timer_, main_timer_;
+
+  void initialize();
+  bool configure();
+  void warnUnnecessaryUBXMessage();
+
+  void mainTimerCb();
+};
+
+GnssDriverNode::GnssDriverNode(const rclcpp::NodeOptions& options)
+  : super("fc2xx_gnss_driver", nodeOptions_Default(options))
+{
+  initialize_timer_ = createWallTimer(kRetryInitializationInterval, &self::initialize, this);
+}
+
+void GnssDriverNode::initialize()
+{
+  if (!gnss_.initialize(kSpiDevice)) {
+    TOBAS_ERROR("Failed to initialize GNSS driver. Retrying...");
+    return;
+  }
+
+  if (!configure()) {
+    TOBAS_ERROR("Failed to configure GNSS receiver. Retrying...");
+    return;
+  }
+
+  is_received_[ublox::ZEDF9P::NAV_STATUS] = false;
+  is_received_[ublox::ZEDF9P::NAV_HPPOSLLH] = false;
+  is_received_[ublox::ZEDF9P::NAV_VELNED] = false;
+  is_received_[ublox::ZEDF9P::NAV_COV] = false;
+
+  gnss_pub_ = createPublisher<tobas_msgs::Gnss>(topic::kGnss);
+
+  initialize_timer_->cancel();
+  main_timer_ = createWallTimer(kMainTimerPeriod, &self::mainTimerCb, this);
+}
+
+bool GnssDriverNode::configure()
+{
+  if (!gnss_.configureDynamicsModel(ublox::ZEDF9P::AIRBORNE_2G)) {
+    TOBAS_ERROR("Failed to configure dynamics model.");
+    return false;
+  }
+
+  if (!gnss_.configureMeasurementRate(kMeasPeriod)) {
+    TOBAS_ERROR("Failed to configure measurement rate.");
+    return false;
+  }
+
+  // GPS + SBAS + QZSS を有効化
+  // データシートを見るに，複数のメインGNSSを組み合わせると精度はあまり変化しない割に出力周波数が落ちる
+  if (!gnss_.enableGps()) {
+    TOBAS_ERROR("Failed to enable GPS.");
+    return false;
+  }
+  if (!gnss_.enableSbas()) {
+    TOBAS_ERROR("Failed to enable SBAS.");
+    return false;
+  }
+  if (!gnss_.disableGalileo()) {
+    TOBAS_ERROR("Failed to disable Galileo.");
+    return false;
+  }
+  if (!gnss_.disableBeiDou()) {
+    TOBAS_ERROR("Failed to disable BeiDou.");
+    return false;
+  }
+  if (!gnss_.enableQzss()) {
+    TOBAS_ERROR("Failed to enable QZSS.");
+    return false;
+  }
+  if (!gnss_.disableGlonass()) {
+    TOBAS_ERROR("Failed to disable GLONASS.");
+    return false;
+  }
+
+  // Enable messages
+  if (!gnss_.enableSpiMessage(ublox::ZEDF9P::CLASS_NAV, ublox::ZEDF9P::NAV_STATUS, true)) {
+    TOBAS_ERROR("Failed to enable NAV_STATUS message.");
+    return false;
+  }
+  if (!gnss_.enableSpiMessage(ublox::ZEDF9P::CLASS_NAV, ublox::ZEDF9P::NAV_HPPOSLLH, true)) {
+    TOBAS_ERROR("Failed to enable NAV_HPPOSLLH message.");
+    return false;
+  }
+  if (!gnss_.enableSpiMessage(ublox::ZEDF9P::CLASS_NAV, ublox::ZEDF9P::NAV_VELNED, true)) {
+    TOBAS_ERROR("Failed to enable NAV_VELNED message.");
+    return false;
+  }
+  if (!gnss_.enableSpiMessage(ublox::ZEDF9P::CLASS_NAV, ublox::ZEDF9P::NAV_COV, true)) {
+    TOBAS_ERROR("Failed to enable NAV_COV message.");
+    return false;
+  }
+
+  // 同軸ケーブルの長さを設定
+  // TODO: GUIから設定できるようにする
+  if (!gnss_.setAntennaLength(1)) {
+    TOBAS_ERROR("Failed to set the antenna length.");
+    return false;
+  }
+
+  // Enable/Disable protocols
+  if (!gnss_.enableSpiProtocol_UBX(true, true)) {
+    TOBAS_ERROR("Failed to enable UBX protocol.");
+    return false;
+  }
+  if (!gnss_.enableSpiProtocol_NMEA(false, false)) {
+    TOBAS_ERROR("Failed to disable NMEA protocol.");
+    return false;
+  }
+  if (!gnss_.enableSpiProtocol_RTCM3X(true, false)) {  // RTK用に入力のみ必要
+    TOBAS_ERROR("Failed to disable RTCM3X protocol.");
+    return false;
+  }
+  if (!gnss_.enableSpiProtocol_SPARTN(false)) {
+    TOBAS_ERROR("Failed to disable SPARTN protocol.");
+    return false;
+  }
+
+  // 不要なインターフェースを無効化
+  // D_SELをオフにしているため，I2CとUARTは始めから無効化されているはず．
+  if (!gnss_.enableUsb(false)) {
+    TOBAS_ERROR("Failed to disable USB interface.");
+    return false;
+  }
+
+  return true;
+}
+
+void GnssDriverNode::warnUnnecessaryUBXMessage()
+{
+  const auto cls = gnss_.latestClass();
+  const auto id = gnss_.latestId();
+  TOBAS_WARN("Unnecessary UBX message is received: (Class, ID) = (", (int)cls, ", ", (int)id, ")");
+}
+
+void GnssDriverNode::mainTimerCb()
+{
+  if (!gnss_.update()) {
+    return;
+  }
+
+  if (gnss_.latestClass() != ublox::ZEDF9P::CLASS_NAV) {
+    warnUnnecessaryUBXMessage();
+    return;
+  }
+
+  switch (gnss_.latestId()) {
+    case ublox::ZEDF9P::NAV_STATUS:
+      status_.decode(gnss_.payload());
+      is_received_.at(ublox::ZEDF9P::NAV_STATUS) = true;
+      break;
+    case ublox::ZEDF9P::NAV_HPPOSLLH:
+      hpposllh_.decode(gnss_.payload());
+      is_received_.at(ublox::ZEDF9P::NAV_HPPOSLLH) = true;
+      break;
+    case ublox::ZEDF9P::NAV_VELNED:
+      velned_.decode(gnss_.payload());
+      is_received_.at(ublox::ZEDF9P::NAV_VELNED) = true;
+      break;
+    case ublox::ZEDF9P::NAV_COV:
+      cov_.decode(gnss_.payload());
+      is_received_.at(ublox::ZEDF9P::NAV_COV) = true;
+      break;
+    default:
+      warnUnnecessaryUBXMessage();
+      return;
+  }
+
+  // 全てのメッセージが更新されたら発行
+  for (const auto& [_, received] : is_received_) {
+    if (!received) {
+      return;
+    }
+  }
+
+  // Reset UBX message checker flags
+  for (auto& [_, received] : is_received_) {
+    received = false;
+  }
+
+  // GNSSメッセージの遅延を表示 (デバッグモードのみ)
+  if (get_logger().get_effective_level() <= rclcpp::Logger::Level::Debug) {
+    const auto delay_ms = st::computeGpsDelayFromToW(hpposllh_.iTOW);
+    TOBAS_DEBUG("GNSS delay: ", delay_ms, "[ms]");
+  }
+
+  // Create GNSS message
+  auto gnss_msg = std::make_unique<tobas_msgs::Gnss>();
+
+  // Fill time stamp
+  // TODO: GNSS信号の遅延を測定
+  gnss_msg->header.stamp = now() - rclcpp::Duration::from_nanoseconds(80'000'000);
+
+  // Fill fix type
+  gnss_msg->fix_type = status_.gpsFix;
+
+  // Fill position
+  gnss_msg->latitude = hpposllh_.lat + hpposllh_.latHp;                 // Latitude [deg]
+  gnss_msg->longitude = hpposllh_.lon + hpposllh_.lonHp;                // Longitude [deg]
+  gnss_msg->altitude = (hpposllh_.height + hpposllh_.heightHp) * 1e-3;  // Height above ellipsoid [m]
+
+  // Fill velocity
+  gnss_msg->ground_speed.x(velned_.velE * 1e-2);   // East velocity [m/s]
+  gnss_msg->ground_speed.y(velned_.velN * 1e-2);   // North velocity [m/s]
+  gnss_msg->ground_speed.z(-velned_.velD * 1e-2);  // Up velocity [m/s]
+
+  // Fill covariances
+  gnss_msg->position_covariance(0, 0) = cov_.posCovNN;
+  gnss_msg->position_covariance(0, 1) = cov_.posCovNE;
+  gnss_msg->position_covariance(0, 2) = cov_.posCovND;
+  gnss_msg->position_covariance(1, 0) = cov_.posCovNE;
+  gnss_msg->position_covariance(1, 1) = cov_.posCovEE;
+  gnss_msg->position_covariance(1, 2) = cov_.posCovED;
+  gnss_msg->position_covariance(2, 0) = cov_.posCovND;
+  gnss_msg->position_covariance(2, 1) = cov_.posCovED;
+  gnss_msg->position_covariance(2, 2) = cov_.posCovDD;
+  gnss_msg->velocity_covariance(0, 0) = cov_.velCovNN;
+  gnss_msg->velocity_covariance(0, 1) = cov_.velCovNE;
+  gnss_msg->velocity_covariance(0, 2) = cov_.velCovND;
+  gnss_msg->velocity_covariance(1, 0) = cov_.velCovNE;
+  gnss_msg->velocity_covariance(1, 1) = cov_.velCovEE;
+  gnss_msg->velocity_covariance(1, 2) = cov_.velCovED;
+  gnss_msg->velocity_covariance(2, 0) = cov_.velCovND;
+  gnss_msg->velocity_covariance(2, 1) = cov_.velCovED;
+  gnss_msg->velocity_covariance(2, 2) = cov_.velCovDD;
+
+  // Publish GNSS message
+  gnss_pub_->publish(std::move(gnss_msg));
+}
+}  // namespace fc2xx
+}  // namespace tobas
+
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::fc2xx::GnssDriverNode)

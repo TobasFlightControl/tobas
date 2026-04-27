@@ -4,7 +4,7 @@
 #include <iostream>
 #include <thread>
 
-#include "tobas_fc1xx_core/pwm.hpp"
+#include "tobas_fc2xx_core/pwm_batt_imu.hpp"
 
 using namespace std;
 
@@ -17,25 +17,25 @@ int main(int argc, char** argv)
   const size_t channel = stoul(argv[1]);
   const uint16_t period = stoi(argv[2]);
 
-  tobas::fc1xx::PWM pwm;
+  tobas::fc2xx::PwmBattImu driver;
 
-  if (!pwm.initialize()) {
+  if (!driver.initialize()) {
     cerr << "Failed to initialize PWM driver." << endl;
     return EXIT_FAILURE;
   }
 
+  uint16_t periods[tobas::fc2xx::PwmBattImu::kPwmChannels] = {};
+  periods[channel] = period;
+
   while (true) {
-    if (!pwm.setPeriod(channel, period)) {
-      cerr << "Failed to set PWM period of channel " << channel << "." << endl;
+    driver.setPwmPeriod(periods);
+
+    if (!driver.transfer()) {
+      cerr << "Failed to communicate with the micro controller." << endl;
       continue;
     }
 
-    if (!pwm.transfer()) {
-      cerr << "Failed to command PWM periods." << endl;
-      continue;
-    }
-
-    this_thread::sleep_for(100ms);
+    this_thread::sleep_for(10ms);
   }
 
   return EXIT_SUCCESS;

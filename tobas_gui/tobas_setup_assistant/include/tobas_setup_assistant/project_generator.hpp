@@ -77,6 +77,7 @@ private:
   bool generateControllerStaticConfig();
   bool generateMissionExecutorStaticConfig();
   bool generateRcTeleopStaticConfig();
+  bool generateImuFilterConfig();
   bool generateSshConfig();
   bool generateNetworkConfig();
   bool generateOriginalUadf();

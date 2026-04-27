@@ -4,10 +4,9 @@
 #include <cmath>
 #include <iostream>
 
-#include <tobas_fc1xx_core/battery.hpp>
+#include <tobas_fc2xx_core/pwm_batt_imu.hpp>
 #include <tobas_ic_drivers/stmicro/iis2mdc.hpp>
 #include <tobas_ic_drivers/stmicro/ilps22qs.hpp>
-#include <tobas_ic_drivers/stmicro/ism330dlc.hpp>
 #include <tobas_ic_drivers/ublox/zed_f9p.hpp>
 #include <tobas_math/linalg.hpp>
 #include <tobas_sbus_driver/sbus.hpp>
@@ -19,38 +18,50 @@ using namespace std;
 using namespace std::chrono_literals;
 namespace ch = std::chrono;
 
-bool testImu()
+bool testBattImu()
 {
-  tobas::stm::ISM330DLC imu;
+  tobas::fc2xx::PwmBattImu driver;
 
-  if (!imu.initialize("/dev/spidev0.0")) {
-    cerr << "Failed to initialize IMU." << endl;
-    return false;
-  }
-
-  if (!imu.setAccelOutputDataRate(tobas::stm::ISM330DLC::odr_xl_t::ODR_XL_6664HZ)) {
-    cerr << "Failed to set accelerometer output data rate." << endl;
-    return false;
-  }
-  if (!imu.setGyroOutputDataRate(tobas::stm::ISM330DLC::odr_g_t::ODR_G_6664HZ)) {
-    cerr << "Failed to set gyroscope output data rate." << endl;
-    return false;
+  if (!driver.initialize()) {
+    cerr << "Failed to initialize ADC." << endl;
+    return EXIT_FAILURE;
   }
 
   this_thread::sleep_for(200ms);
 
-  double ax, ay, az, gx, gy, gz;
+  double volt, curr;
+  double ax, ay, az;
+  double gx, gy, gz;
+  double dgx, dgy, dgz;
   tobas::tim::Rate rate(5ms);
 
   for (int _ = 0; _ < 200; ++_) {
-    if (!imu.readImu(ax, ay, az, gx, gy, gz)) {
-      cerr << "Failed to read IMU." << endl;
-      return false;
+    if (!driver.transfer()) {
+      cerr << "Failed to communicate with the micro controller." << endl;
+      continue;
     }
 
-    cout << "Accel [m/s^2]: " << ax << ", " << ay << ", " << az << endl;
-    cout << "Gyro [rad/s] : " << gx << ", " << gy << ", " << gz << endl;
+    driver.getBattVoltage(volt);
+    driver.getBattCurrent(curr);
+    driver.getRawAccel(ax, ay, az);
+    driver.getRawGyro(gx, gy, gz);
+    driver.getRawDGyro(dgx, dgy, dgz);
 
+    cout << "-----" << endl;
+    cout << "Voltage [V]     : " << volt << endl;
+    cout << "Current [A]     : " << curr << endl;
+    cout << "Accel [m/s^2]   : " << ax << ", " << ay << ", " << az << endl;
+    cout << "Gyro [rad/s]    : " << gx << ", " << gy << ", " << gz << endl;
+    cout << "D-Gyro [rad/s^2]: " << dgx << ", " << dgy << ", " << dgz << endl;
+
+    if (volt < 5. || 50. < volt) {
+      cerr << "Abnormal voltage detected." << endl;
+      return false;
+    }
+    if (curr <= 0. || 10. < curr) {
+      cerr << "Abnormal current detected." << endl;
+      return false;
+    }
     if (tobas::math::norm(ax, ay, az - tobas::st::kGravity) > 1.) {
       cerr << "Abnormal accel detected." << endl;
       return false;
@@ -134,44 +145,6 @@ bool testBarometer()
     }
     if (temp < 0. || 80. < temp) {
       cerr << "Abnormal temperature detected." << endl;
-      return false;
-    }
-
-    rate.sleep();
-  }
-
-  return true;
-}
-
-bool testPowerSensor()
-{
-  tobas::fc1xx::Battery batt;
-
-  if (!batt.initialize()) {
-    cerr << "Failed to initialize ADC." << endl;
-    return EXIT_FAILURE;
-  }
-
-  this_thread::sleep_for(200ms);
-
-  float volt, curr;
-  tobas::tim::Rate rate(10ms);
-
-  for (int _ = 0; _ < 100; ++_) {
-    if (!batt.read(volt, curr)) {
-      cerr << "Failed to read battery status." << endl;
-      return EXIT_FAILURE;
-    }
-
-    cout << "Voltage [V]: " << volt << endl;
-    cout << "Current [A]: " << curr << endl;
-
-    if (volt < 5. || 50. < volt) {
-      cerr << "Abnormal voltage detected." << endl;
-      return false;
-    }
-    if (curr <= 0. || 10. < curr) {
-      cerr << "Abnormal current detected." << endl;
       return false;
     }
 
@@ -266,13 +239,13 @@ bool testSbus()
 
 int main()
 {
-  // IMU
-  cout << "Testing IMU..." << endl;
-  if (!testImu()) {
-    cerr << "IMU test failed." << endl;
+  // PM & IMU
+  cout << "Testing PM & IMU..." << endl;
+  if (!testBattImu()) {
+    cerr << "PM & IMU test failed." << endl;
     return EXIT_FAILURE;
   }
-  cout << "IMU test passed." << endl;
+  cout << "PM & IMU test passed." << endl;
 
   // Magnetometer
   cout << "Testing magnetometer..." << endl;
@@ -289,14 +262,6 @@ int main()
     return EXIT_FAILURE;
   }
   cout << "Barometer test passed." << endl;
-
-  // Power sensor
-  cout << "Testing power sensor..." << endl;
-  if (!testPowerSensor()) {
-    cerr << "Power sensor test failed." << endl;
-    return EXIT_FAILURE;
-  }
-  cout << "Power sensor test passed." << endl;
 
   // GNSS Receiver
   cout << "Testing GNSS receiver..." << endl;
