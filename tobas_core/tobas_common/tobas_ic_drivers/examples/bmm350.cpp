@@ -14,6 +14,7 @@ int main()
 {
   tobas::driver::BMM350 mag;
   float mx, my, mz;
+
   if (!mag.initialize()) {
     std::cerr << "BMM350 initialize failed." << std::endl;
     return EXIT_FAILURE;

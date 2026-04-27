@@ -16,6 +16,7 @@
 #include <geometry_msgs/msg/point_stamped.hpp>
 
 using namespace std::chrono_literals;
+namespace ch = std::chrono;
 
 namespace tobas
 {
@@ -50,12 +51,12 @@ Bmm350PublisherNode::Bmm350PublisherNode(const rclcpp::NodeOptions& options) : N
 
   int odr_hz = this->get_parameter("odr_hz").as_int();
   const auto odr = toOdr(odr_hz);
-
   if (!odr) {
     RCLCPP_WARN(this->get_logger(), "%s", odr.error());
     throw std::runtime_error("Invalid odr_hz parameter");
   }
-  const std::chrono::milliseconds publish_period(1000 / odr_hz);  // ms
+  const ch::milliseconds publish_period(1000 / odr_hz);  // ms
+
   publisher_ = this->create_publisher<geometry_msgs::msg::PointStamped>("magnetic_field", 1);
   timer_ = this->create_wall_timer(publish_period, std::bind(&Bmm350PublisherNode::timerCallback, this));
 }
@@ -83,6 +84,7 @@ bool Bmm350PublisherNode::initialize()
     RCLCPP_WARN(this->get_logger(), "Failed to initialize magnetometer.");
     return false;
   }
+
   return true;
 }
 
@@ -91,7 +93,6 @@ std::expected<driver::BMM350::ODR, const char*> Bmm350PublisherNode::toOdr(int o
   if (odr_hz == 100) {
     return driver::BMM350::ODR_100Hz;
   }
-
   if (odr_hz == 25) {
     return driver::BMM350::ODR_25Hz;
   }
@@ -103,7 +104,6 @@ std::expected<driver::BMM350::Averaging, const char*> Bmm350PublisherNode::toAve
   if (averaging == 2) {
     return driver::BMM350::AVG_2;
   }
-
   if (averaging == 4) {
     return driver::BMM350::AVG_4;
   }
