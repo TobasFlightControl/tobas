@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+// Usage: ros2 run tobas_ic_drivers bmm350_publisher --ros-args -p odr_hz=:100 -p averaging:4
+// Param: odr_hz: 25 or 100, averaging: 2 or 4
+
 #include <chrono>
 #include <expected>
 #include <functional>
@@ -39,11 +42,6 @@ private:
   bool initialized_ = false;
 };
 
-/*
- * 起動例
- * ros2 run tobas_ic_drivers bmm350_publisher --ros-args -p odr_hz=:100 -p averaging:4
- * odr_hz: 25 or 100, averaging: 2 or 4 それぞれ電流が３倍になる．
- */
 Bmm350PublisherNode::Bmm350PublisherNode(const rclcpp::NodeOptions& options) : Node("bmm350_publisher", options)
 {
   this->declare_parameter<int>("odr_hz", 100);
