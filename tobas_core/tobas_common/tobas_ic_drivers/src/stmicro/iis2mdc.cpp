@@ -42,7 +42,7 @@ bool IIS2MDC::readMag(double& mx, double& my, double& mz)
   }
 
   mx = static_cast<double>(mag_buf_[0]) * kSensitivity;
-  my = -static_cast<double>(mag_buf_[1]) * kSensitivity;
+  my = static_cast<double>(mag_buf_[1]) * kSensitivity;
   mz = static_cast<double>(mag_buf_[2]) * kSensitivity;
 
   return true;
