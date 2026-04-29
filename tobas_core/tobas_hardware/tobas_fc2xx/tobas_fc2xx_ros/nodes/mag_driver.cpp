@@ -27,6 +27,8 @@ public:
 
 private:
   stm::IIS2MDC mag_;
+  double mx_, my_, mz_;
+
   ros2::PublisherPtr<tobas_msgs::MagneticField> mag_pub_;
   ros2::TimerPtr initialize_timer_, main_timer_;
 
@@ -55,19 +57,20 @@ void MagDriverNode::initialize()
 
 void MagDriverNode::mainTimerCb()
 {
-  // Create messages
-  auto msg = std::make_unique<tobas_msgs::MagneticField>();
-
-  // Fill headers
-  msg->header.stamp = now();
-
   // Read sensor
-  if (!mag_.readMag(msg->mag.x(), msg->mag.y(), msg->mag.z())) {
+  if (!mag_.readMag(mx_, my_, mz_)) {
     TOBAS_FATAL("Failed to read magnetometer.");
     return;
   }
 
-  // Publish message
+  // Create a message
+  auto msg = std::make_unique<tobas_msgs::MagneticField>();
+  msg->header.stamp = now();
+  msg->mag.x(my_);
+  msg->mag.y(-mx_);
+  msg->mag.z(-mz_);
+
+  // Publish the message
   mag_pub_->publish(std::move(msg));
 }
 }  // namespace fc2xx

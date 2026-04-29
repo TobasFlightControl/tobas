@@ -71,44 +71,44 @@ inline void PwmBattImu::getBattCurrent(double& current) const
 
 inline void PwmBattImu::getRawAccel(double& x, double& y, double& z) const
 {
-  x = static_cast<int16_t>(rx_buf_[2]) * kAccelScale;
-  y = static_cast<int16_t>(rx_buf_[3]) * kAccelScale;
-  z = static_cast<int16_t>(rx_buf_[4]) * kAccelScale;
+  x = -static_cast<int16_t>(rx_buf_[3]) * kAccelScale;
+  y = -static_cast<int16_t>(rx_buf_[2]) * kAccelScale;
+  z = -static_cast<int16_t>(rx_buf_[4]) * kAccelScale;
 }
 
 inline void PwmBattImu::getRawGyro(double& x, double& y, double& z) const
 {
-  x = static_cast<int16_t>(rx_buf_[5]) * kGyroScale;
-  y = static_cast<int16_t>(rx_buf_[6]) * kGyroScale;
-  z = static_cast<int16_t>(rx_buf_[7]) * kGyroScale;
+  x = -static_cast<int16_t>(rx_buf_[6]) * kGyroScale;
+  y = -static_cast<int16_t>(rx_buf_[5]) * kGyroScale;
+  z = -static_cast<int16_t>(rx_buf_[7]) * kGyroScale;
 }
 
 inline void PwmBattImu::getRawDGyro(double& x, double& y, double& z) const
 {
-  x = static_cast<int16_t>(rx_buf_[8]) * kDGyroScale;
-  y = static_cast<int16_t>(rx_buf_[9]) * kDGyroScale;
-  z = static_cast<int16_t>(rx_buf_[10]) * kDGyroScale;
+  x = -static_cast<int16_t>(rx_buf_[9]) * kDGyroScale;
+  y = -static_cast<int16_t>(rx_buf_[8]) * kDGyroScale;
+  z = -static_cast<int16_t>(rx_buf_[10]) * kDGyroScale;
 }
 
 inline void PwmBattImu::getFilteredAccel(double& x, double& y, double& z) const
 {
-  x = static_cast<int16_t>(rx_buf_[11]) * kAccelScale;
-  y = static_cast<int16_t>(rx_buf_[12]) * kAccelScale;
-  z = static_cast<int16_t>(rx_buf_[13]) * kAccelScale;
+  x = -static_cast<int16_t>(rx_buf_[12]) * kAccelScale;
+  y = -static_cast<int16_t>(rx_buf_[11]) * kAccelScale;
+  z = -static_cast<int16_t>(rx_buf_[13]) * kAccelScale;
 }
 
 inline void PwmBattImu::getFilteredGyro(double& x, double& y, double& z) const
 {
-  x = static_cast<int16_t>(rx_buf_[14]) * kGyroScale;
-  y = static_cast<int16_t>(rx_buf_[15]) * kGyroScale;
-  z = static_cast<int16_t>(rx_buf_[16]) * kGyroScale;
+  x = -static_cast<int16_t>(rx_buf_[15]) * kGyroScale;
+  y = -static_cast<int16_t>(rx_buf_[14]) * kGyroScale;
+  z = -static_cast<int16_t>(rx_buf_[16]) * kGyroScale;
 }
 
 inline void PwmBattImu::getFilteredDGyro(double& x, double& y, double& z) const
 {
-  x = static_cast<int16_t>(rx_buf_[17]) * kDGyroScale;
-  y = static_cast<int16_t>(rx_buf_[18]) * kDGyroScale;
-  z = static_cast<int16_t>(rx_buf_[19]) * kDGyroScale;
+  x = -static_cast<int16_t>(rx_buf_[18]) * kDGyroScale;
+  y = -static_cast<int16_t>(rx_buf_[17]) * kDGyroScale;
+  z = -static_cast<int16_t>(rx_buf_[19]) * kDGyroScale;
 }
 }  // namespace fc2xx
 }  // namespace tobas
