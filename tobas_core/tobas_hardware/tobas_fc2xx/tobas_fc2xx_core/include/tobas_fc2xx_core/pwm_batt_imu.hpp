@@ -24,7 +24,7 @@ private:
   static constexpr size_t kCmdTypeIdx = 0;
   static constexpr size_t kCrcIdx = kPacketLength - 2;  // uint16
 
-  static constexpr double kAccelScale = 0.448 * 1e-3 * st::kGravity;
+  static constexpr double kAccelScale = 0.488 * 1e-3 * st::kGravity;
   static constexpr double kGyroScale = 35. * 1e-3 * st::kDeg2Rad;
   static constexpr double kDGyroScale = st::kDeg2Rad / 3.2767;
 
