@@ -17,7 +17,7 @@ public:
   static constexpr size_t kPwmChannels = 8;
 
 private:
-  static constexpr char kSpiDevice[] = "/dev/spidev1.1";
+  static constexpr char kSpiDevice[] = "/dev/spidev0.1";
   static constexpr uint32_t kSpiClockFreq = 30'000'000;  // [Hz]
 
   static constexpr size_t kPacketLength = 22;  // uint16

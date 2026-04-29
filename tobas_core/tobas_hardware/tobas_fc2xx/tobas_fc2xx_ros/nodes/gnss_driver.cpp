@@ -18,7 +18,7 @@ namespace fc2xx
 {
 class GnssDriverNode : public BaseNode
 {
-  static constexpr char kSpiDevice[] = "/dev/spidev1.2";
+  static constexpr char kSpiDevice[] = "/dev/spidev1.0";
   static constexpr auto kMainTimerPeriod = 1ms;
 
   // GNSSレシーバの更新周期 [ms]
