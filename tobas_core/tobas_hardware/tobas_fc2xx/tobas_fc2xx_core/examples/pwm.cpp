@@ -27,6 +27,7 @@ int main(int argc, char** argv)
   uint16_t periods[tobas::fc2xx::PwmBattImu::kPwmChannels] = {};
   periods[channel] = period;
 
+  cout << "Commanding the PWM period..." << endl;
   while (true) {
     driver.setPwmPeriod(periods);
 
