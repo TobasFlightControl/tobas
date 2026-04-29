@@ -50,7 +50,7 @@ bool DShot::transfer() noexcept
   const auto cs = rx_buf_[kChannelSize];
   const auto cr = crc_.compute((uint8_t*)rx_buf_, sizeof(uint32_t) * kChannelSize);
   if (cs != cr) {
-    cerr << "CRC failed: " << cs << " != " << cr << endl;
+    cerr << "CRC failed: " << hex << uppercase << cs << " != " << cr << dec << endl;
     return false;
   }
 

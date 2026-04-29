@@ -162,7 +162,7 @@ bool JRE30::checkCRC() const
   const uint16_t cr = (buf_[packet_size - 1] << 8) | buf_[packet_size - 2];
 
   if (cs != cr) {
-    cerr << "CRC failed: " << cs << " != " << cr << endl;
+    cerr << "CRC failed: " << hex << uppercase << cs << " != " << cr << dec << endl;
     return false;
   }
 

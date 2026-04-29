@@ -47,7 +47,7 @@ bool PwmBattImu::transfer()
   const uint32_t cs = (rx_buf_[kCrcIdx + 1] << 16) | rx_buf_[kCrcIdx];
   const auto cr = crc_.compute((uint8_t*)rx_buf_, sizeof(uint16_t) * kCrcIdx);
   if (cs != cr) {
-    cerr << "CRC failed: " << cs << " != " << cr << endl;
+    cerr << "CRC failed: " << hex << uppercase << cs << " != " << cr << dec << endl;
     return false;
   }
 
