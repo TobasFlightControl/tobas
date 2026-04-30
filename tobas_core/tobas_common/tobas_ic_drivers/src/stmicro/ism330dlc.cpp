@@ -36,6 +36,11 @@ bool ISM330DLC::initialize(const char* spi_device)
     return false;
   }
 
+  // Enable BDU
+  if (!writeReg(REG_CTRL3_C, BDU | IF_INC)) {
+    return false;
+  }
+
   // Disable I2C
   if (!writeReg(REG_CTRL4_C, I2C_DISABLE)) {
     return false;
