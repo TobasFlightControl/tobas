@@ -36,7 +36,8 @@ bool ISM330DLC::initialize(const char* spi_device)
     return false;
   }
 
-  // Enable BDU
+  // Enable BDU (Block Data Update)
+  // さもないと複数バイトを読んでいる最中にデータが更新されてしまう恐れがある
   if (!writeReg(REG_CTRL3_C, BDU | IF_INC)) {
     return false;
   }
