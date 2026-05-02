@@ -54,6 +54,7 @@ private:
   QVector<tobas_msgs::msg::JointCommandArray> tar_joint_velocities_data_;
   QVector<tobas_msgs::msg::JointCommandArray> tar_joint_efforts_data_;
   QVector<tobas_msgs::msg::IcePropulsionSystemCommand> ice_cmd_data_;
+  QVector<tobas_msgs::msg::PwmArray> pwm_data_;
   QVector<tobas_msgs::msg::Latency> sampling_time_data_;
   QVector<tobas_msgs::msg::Latency> ctrl_latency_data_;
   QVector<tobas_msgs::msg::VibrationLevel> vibe_data_;
@@ -75,6 +76,7 @@ private:
   MessageDecoderCache<tobas_msgs::msg::JointStateArray> joint_states_decoder_;
   MessageDecoderCache<tobas_msgs::msg::JointCommandArray> joint_commands_decoder_;
   MessageDecoderCache<tobas_msgs::msg::IcePropulsionSystemCommand> ice_cmd_decoder_;
+  MessageDecoderCache<tobas_msgs::msg::PwmArray> pwm_decoder_;
   MessageDecoderCache<tobas_msgs::msg::Latency> latency_decoder_;
   MessageDecoderCache<tobas_msgs::msg::VibrationLevel> vibe_decoder_;
   MessageDecoderCache<tobas_msgs::msg::RepulsiveAcceleration> repulsive_accel_decoder_;

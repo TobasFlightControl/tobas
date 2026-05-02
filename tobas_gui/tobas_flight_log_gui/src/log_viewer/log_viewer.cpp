@@ -50,6 +50,7 @@ FlightLogViewerWidget::FlightLogViewerWidget()
       tar_joint_velocities_data_,
       tar_joint_efforts_data_,
       ice_cmd_data_,
+      pwm_data_,
       sampling_time_data_,
       ctrl_latency_data_,
       vibe_data_,
@@ -94,6 +95,7 @@ void FlightLogViewerWidget::reset()
   joint_states_decoder_.clearCache();
   joint_commands_decoder_.clearCache();
   ice_cmd_decoder_.clearCache();
+  pwm_decoder_.clearCache();
   latency_decoder_.clearCache();
   vibe_decoder_.clearCache();
   repulsive_accel_decoder_.clearCache();
@@ -187,6 +189,7 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
   tar_joint_velocities_data_.clear();
   tar_joint_efforts_data_.clear();
   ice_cmd_data_.clear();
+  pwm_data_.clear();
   sampling_time_data_.clear();
   ctrl_latency_data_.clear();
   vibe_data_.clear();
@@ -261,6 +264,9 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
       }
       else if (topic.ends_with(str::concat('/', topic::kIcePropulsionSystemCmd).data())) {
         ice_cmd_data_.append(ice_cmd_decoder_.decode(cur_time, ser_data));
+      }
+      else if (topic.ends_with(str::concat('/', topic::kPwmCmd).data())) {
+        pwm_data_.append(pwm_decoder_.decode(cur_time, ser_data));
       }
       else if (topic.ends_with(str::concat('/', topic::kImuSamplingTime).data())) {
         sampling_time_data_.append(latency_decoder_.decode(cur_time, ser_data));

@@ -22,6 +22,7 @@
 #include "./plots/observer_feedback_plot.hpp"
 #include "./plots/pose_plot.hpp"
 #include "./plots/propeller_pitch_plot.hpp"
+#include "./plots/pwm_plot.hpp"
 #include "./plots/rc_input_plot.hpp"
 #include "./plots/repulsive_accel_plot.hpp"
 #include "./plots/rotor_link_plot.hpp"
@@ -63,6 +64,7 @@ public:
     const QVector<tobas_msgs::msg::JointCommandArray>& tar_joint_velocities_data,
     const QVector<tobas_msgs::msg::JointCommandArray>& tar_joint_efforts_data,
     const QVector<tobas_msgs::msg::IcePropulsionSystemCommand>& ice_cmd_data,
+    const QVector<tobas_msgs::msg::PwmArray>& pwm_data,
     const QVector<tobas_msgs::msg::Latency>& sampling_time_data,
     const QVector<tobas_msgs::msg::Latency>& ctrl_latency_data,
     const QVector<tobas_msgs::msg::VibrationLevel>& vibe_data,
@@ -92,6 +94,7 @@ private:
   const QVector<tobas_msgs::msg::JointCommandArray>& tar_joint_velocities_data_;
   const QVector<tobas_msgs::msg::JointCommandArray>& tar_joint_efforts_data_;
   const QVector<tobas_msgs::msg::IcePropulsionSystemCommand>& ice_cmd_data_;
+  const QVector<tobas_msgs::msg::PwmArray>& pwm_data_;
   const QVector<tobas_msgs::msg::Latency>& sampling_time_data_;
   const QVector<tobas_msgs::msg::Latency>& ctrl_latency_data_;
   const QVector<tobas_msgs::msg::VibrationLevel>& vibe_data_;
@@ -117,6 +120,7 @@ private:
   JointPositionPlotWidget* joint_pos_plot_;
   JointVelocityPlotWidget* joint_vel_plot_;
   JointEffortPlotWidget* joint_eff_plot_;
+  PwmPlotWidget* pwm_plot_;
   LatencyPlotWidget* latency_plot_;
   VibrationLevelPlotWidget* vibe_plot_;
   RepulsiveAccelPlotWidget* repulsive_accel_plot_;

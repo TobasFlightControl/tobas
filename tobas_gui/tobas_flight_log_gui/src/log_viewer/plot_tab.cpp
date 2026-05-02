@@ -28,6 +28,7 @@ PlotTabWidget::PlotTabWidget(
   const QVector<tobas_msgs::msg::JointCommandArray>& tar_joint_velocities_data,
   const QVector<tobas_msgs::msg::JointCommandArray>& tar_joint_efforts_data,
   const QVector<tobas_msgs::msg::IcePropulsionSystemCommand>& ice_cmd_data,
+  const QVector<tobas_msgs::msg::PwmArray>& pwm_data,
   const QVector<tobas_msgs::msg::Latency>& sampling_time_data,
   const QVector<tobas_msgs::msg::Latency>& ctrl_latency_data,
   const QVector<tobas_msgs::msg::VibrationLevel>& vibe_data,
@@ -51,6 +52,7 @@ PlotTabWidget::PlotTabWidget(
   , tar_joint_velocities_data_(tar_joint_velocities_data)
   , tar_joint_efforts_data_(tar_joint_efforts_data)
   , ice_cmd_data_(ice_cmd_data)
+  , pwm_data_(pwm_data)
   , sampling_time_data_(sampling_time_data)
   , ctrl_latency_data_(ctrl_latency_data)
   , vibe_data_(vibe_data)
@@ -76,6 +78,7 @@ PlotTabWidget::PlotTabWidget(
   joint_pos_plot_ = new JointPositionPlotWidget();
   joint_vel_plot_ = new JointVelocityPlotWidget();
   joint_eff_plot_ = new JointEffortPlotWidget();
+  pwm_plot_ = new PwmPlotWidget();
   latency_plot_ = new LatencyPlotWidget();
   vibe_plot_ = new VibrationLevelPlotWidget();
   repulsive_accel_plot_ = new RepulsiveAccelPlotWidget();
@@ -100,6 +103,7 @@ PlotTabWidget::PlotTabWidget(
   addTab(joint_pos_plot_, "Joint\nPosition");
   addTab(joint_vel_plot_, "Joint\nVelocity");
   addTab(joint_eff_plot_, "Joint\nEffort");
+  addTab(pwm_plot_, "PWM");
   addTab(latency_plot_, "Latency");
   addTab(vibe_plot_, "Vibration\nLevel");
   addTab(repulsive_accel_plot_, "Repulsive\nAccel");
@@ -187,6 +191,9 @@ void PlotTabWidget::plot(int index)
   }
   else if (cur_widget == joint_eff_plot_) {
     joint_eff_plot_->setData(cur_joint_states_data_, tar_joint_efforts_data_);
+  }
+  else if (cur_widget == pwm_plot_) {
+    pwm_plot_->setData(pwm_data_);
   }
   else if (cur_widget == latency_plot_) {
     latency_plot_->setData(sampling_time_data_, ctrl_latency_data_);
