@@ -337,7 +337,7 @@ void RosbagRecorderNode::startCb(const StartSrv::Request::ConstSharedPtr& req, c
   try {
     writer_.open(options);
   }
-  catch (const std::exception& e) {
+  catch (const std::exception& e) {  // ストレージ容量オーバーなど
     res->success = false;
     res->message = "Failed to open " + options.uri + ": " + e.what();
     return;
