@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include <tobas_constants/ros_interface.hpp>
 #include <tobas_dparam_common/constants.hpp>
 #include <tobas_node/node.hpp>
@@ -10,12 +13,14 @@
 
 using namespace tobas_dparam_msgs::srv;
 
+namespace tobas
+{
 namespace dparam
 {
-class DynamicParamServer : public tobas::BaseNode
+class DynamicParamServer : public BaseNode
 {
   using self = DynamicParamServer;
-  using super = tobas::BaseNode;
+  using super = BaseNode;
 
 public:
   explicit DynamicParamServer(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -53,11 +58,12 @@ void DynamicParamServer::callback(
   res->success = true;
 }
 }  // namespace dparam
+}  // namespace tobas
 
 int main(int argc, char* argv[])
 {
   rclcpp::init(argc, argv);
-  const auto node = std::make_shared<dparam::DynamicParamServer>();
+  const auto node = std::make_shared<tobas::dparam::DynamicParamServer>();
   rclcpp::executors::MultiThreadedExecutor exec(rclcpp::ExecutorOptions(), 2);
   exec.add_node(node);
   exec.spin();

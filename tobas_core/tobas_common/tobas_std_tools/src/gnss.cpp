@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_std_tools/gnss.hpp"
 
 #include <chrono>
@@ -9,7 +12,9 @@
 
 namespace ch = std::chrono;
 
-namespace tbs
+namespace tobas
+{
+namespace st
 {
 long computeGpsDelayFromToW(uint32_t gps_tow_ms)
 {
@@ -193,4 +198,5 @@ cartToGnssRelative(const double& east, const double& north, const double& latitu
 
   return { latitude, longitude };
 }
-}  // namespace tbs
+}  // namespace st
+}  // namespace tobas

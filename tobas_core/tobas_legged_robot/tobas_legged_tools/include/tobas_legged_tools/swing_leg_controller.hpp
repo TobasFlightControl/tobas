@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <chrono>
@@ -6,6 +9,8 @@
 #include <tobas_kdl/trajectory.hpp>
 #include <tobas_kdl/tree_fk_solver_pos.hpp>
 
+namespace tobas
+{
 namespace lr_tools
 {
 /* デカルト座標系における遊脚の足先の状態を計算する． */
@@ -77,3 +82,4 @@ inline const kdl::VectorAcc& SwingLegController::getFootState(size_t leg) const
   return B_Tdd_BF_[leg];
 }
 }  // namespace lr_tools
+}  // namespace tobas

@@ -1,8 +1,13 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_kdl/rigid_body_inertia.hpp"
 
 using namespace std;
 using namespace Eigen;
 
+namespace tobas
+{
 namespace kdl
 {
 RigidBodyInertia::RigidBodyInertia(double m, const Vector& oc, const RotationalInertia& Ic) : m_(m), h_(m * oc)
@@ -35,3 +40,4 @@ ostream& operator<<(ostream& os, const RigidBodyInertia& arg)
   return os;
 }
 }  // namespace kdl
+}  // namespace tobas

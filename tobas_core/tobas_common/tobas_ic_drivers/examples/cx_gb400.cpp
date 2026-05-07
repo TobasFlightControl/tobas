@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include <fcntl.h>
 #include <unistd.h>
 
@@ -24,7 +27,7 @@ int main(int argc, char** argv)
     }
   }
 
-  driver::CxGb400 camera;
+  tobas::driver::CxGb400 camera;
   // reset uavcan
   if (reset_uavcan) {
     if (!camera.initialize(device, camera.kLower)) {

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <yaml-cpp/yaml.h>
@@ -5,6 +8,8 @@
 #include <QLineEdit>
 #include <QRadioButton>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -48,3 +53,4 @@ private Q_SLOTS:
 };  // namespace rc
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

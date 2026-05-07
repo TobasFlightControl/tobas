@@ -1,8 +1,13 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_control/pid/pid3.hpp"
 
 using namespace std;
 using namespace Eigen;
 
+namespace tobas
+{
 namespace ctrl
 {
 PID3::PID3()
@@ -31,3 +36,4 @@ Vector3d PID3::update(
   return kp.cwiseProduct(ep) + ki.cwiseProduct(ei_) + kd.cwiseProduct(ed);
 }
 }  // namespace ctrl
+}  // namespace tobas

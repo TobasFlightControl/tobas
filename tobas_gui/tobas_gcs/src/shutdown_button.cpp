@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_gcs/shutdown_button.hpp"
 
 #include <QGraphicsDropShadowEffect>
 
+namespace tobas
+{
 namespace gui
 {
 namespace gcs
@@ -49,3 +54,4 @@ ShutdownButton::ShutdownButton(int radius) : super("⏻")
 }
 }  // namespace gcs
 }  // namespace gui
+}  // namespace tobas

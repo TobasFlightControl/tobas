@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_ic_drivers/ublox/ubx_payload.hpp"
 
 #include <bit>
 
 #include <tobas_algorithm/binary.hpp>
 
+namespace tobas
+{
 namespace ublox
 {
 namespace payload
@@ -596,3 +601,4 @@ void NAV_VELNED::print(std::ostream& os) const
 }
 }  // namespace payload
 }  // namespace ublox
+}  // namespace tobas

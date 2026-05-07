@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_kdl/chain_fk_solver_vel.hpp"
 
 using namespace std;
 
+namespace tobas
+{
 namespace kdl
 {
 ChainFkSolverVel_recursive::ChainFkSolverVel_recursive(const Chain& chain) : super(chain)
@@ -42,3 +47,4 @@ int ChainFkSolverVel_recursive::jntToCart(const JntArray& q_in, const JntArray& 
   return setDefaultError(kNoError);
 }
 }  // namespace kdl
+}  // namespace tobas

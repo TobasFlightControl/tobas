@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_trajectory_generation/online/jerk_limited.hpp"
 
 #include <algorithm>
@@ -5,6 +8,8 @@
 
 #include <tobas_math/core.hpp>
 
+namespace tobas
+{
 namespace traj
 {
 namespace
@@ -139,3 +144,4 @@ void JerkLimitedOnlineTrajectoryGenerator::resetCurrentTrajectoryPoint(double po
   traj_acc_ = acc;
 }
 }  // namespace traj
+}  // namespace tobas

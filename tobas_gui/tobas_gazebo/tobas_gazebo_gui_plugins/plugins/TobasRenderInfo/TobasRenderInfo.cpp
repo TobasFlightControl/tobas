@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "./TobasRenderInfo.hpp"
 
 #include <gz/common/Console.hh>
@@ -11,6 +14,8 @@
 
 namespace ch = std::chrono;
 
+namespace tobas
+{
 namespace gazebo
 {
 TobasRenderInfo::TobasRenderInfo()
@@ -75,5 +80,6 @@ void TobasRenderInfo::onRender()
   }
 }
 }  // namespace gazebo
+}  // namespace tobas
 
-GZ_ADD_PLUGIN(gazebo::TobasRenderInfo, gz::gui::Plugin)
+GZ_ADD_PLUGIN(tobas::gazebo::TobasRenderInfo, gz::gui::Plugin)

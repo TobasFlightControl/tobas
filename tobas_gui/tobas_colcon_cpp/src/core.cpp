@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_colcon_cpp/core.hpp"
 
 #include <unistd.h>
@@ -10,6 +13,8 @@
 
 namespace fs = std::filesystem;
 
+namespace tobas
+{
 namespace colcon
 {
 Colcon::Colcon()
@@ -68,6 +73,9 @@ bool Colcon::build(const fs::path& pkg_path, const fs::path& ws_path)
   if (build_opts_.symlink_install) {
     build_cmd += "--symlink-install ";
   }
+  if (build_opts_.cmake_clean_cache) {
+    build_cmd += "--cmake-clean-cache ";
+  }
 
   // Build the Tobas project packages
   std::cout << "Executing \"" << build_cmd << "\" on " << exec_path.value() << "." << std::endl;
@@ -116,6 +124,11 @@ void Colcon::setSymlinkInstall(bool enabled)
   build_opts_.symlink_install = enabled;
 }
 
+void Colcon::setCmakeCleanCache(bool enabled)
+{
+  build_opts_.cmake_clean_cache = enabled;
+}
+
 fs::path Colcon::buildBase(const fs::path& ws_path)
 {
   return ws_path / "build";
@@ -131,3 +144,4 @@ fs::path Colcon::logBase(const fs::path& ws_path)
   return ws_path / "log";
 }
 }  // namespace colcon
+}  // namespace tobas

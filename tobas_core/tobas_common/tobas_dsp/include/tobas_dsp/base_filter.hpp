@@ -1,5 +1,10 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
+namespace tobas
+{
 namespace dsp
 {
 template <typename T>
@@ -12,3 +17,4 @@ public:
   virtual void setValue(const T& x) = 0;
 };
 }  // namespace dsp
+}  // namespace tobas

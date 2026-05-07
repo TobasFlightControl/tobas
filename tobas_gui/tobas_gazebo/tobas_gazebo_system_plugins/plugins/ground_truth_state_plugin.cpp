@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include <tobas_constants/ros_interface.hpp>
 #include <tobas_gazebo_common/constants.hpp>
 #include <tobas_gazebo_conversions/gazebo_kdl.hpp>
@@ -11,6 +14,8 @@
 
 namespace cmp = gz::sim::components;
 
+namespace tobas
+{
 namespace gazebo
 {
 class GazeboGroundTruthStatePlugin : public BaseNode,
@@ -124,9 +129,10 @@ void GazeboGroundTruthStatePlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
   getSdfParam(sdf, "updateRate", update_rate_, kDefaultUpdateRate, kNonNegative);
 }
 }  // namespace gazebo
+}  // namespace tobas
 
 GZ_ADD_PLUGIN(
-  gazebo::GazeboGroundTruthStatePlugin,
+  tobas::gazebo::GazeboGroundTruthStatePlugin,
   gz::sim::System,
-  gazebo::GazeboGroundTruthStatePlugin::ISystemConfigure,
-  gazebo::GazeboGroundTruthStatePlugin::ISystemPostUpdate)
+  gz::sim::ISystemConfigure,
+  gz::sim::ISystemPostUpdate)

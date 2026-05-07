@@ -1,3 +1,7 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (C) 2026 Tobas, Inc.
+
+# tobas::kdl::Joint
 string name
 uint8 type
 tobas_kdl_msgs/Vector origin

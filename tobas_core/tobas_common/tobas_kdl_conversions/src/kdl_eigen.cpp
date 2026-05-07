@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_kdl_conversions/kdl_eigen.hpp"
 
 using namespace Eigen;
 
+namespace tobas
+{
 namespace kdl
 {
 void quaternionKDLToEigen(const Quaternion& k, Quaterniond& e)
@@ -20,3 +25,4 @@ void quaternionEigenToKDL(const Quaterniond& e, Quaternion& k)
   k.w = e.w();
 }
 }  // namespace kdl
+}  // namespace tobas

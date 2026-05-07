@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_control_system/pose_viewer.hpp"
 
 #include <QDebug>
@@ -5,6 +8,8 @@
 
 #include <tobas_math/core.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -180,7 +185,7 @@ void PoseViewerWidget::drawRoll(QPainter& painter)
 
   // 機体から見た円の中心に移動
   painter.translate(width() / 2, height() / 2);
-  painter.rotate(-tbs::rad2deg(roll_));
+  painter.rotate(-st::rad2deg(roll_));
 
   // ウィジェットの大きさに合わせてスケーリング
   scale(painter, true);
@@ -220,24 +225,24 @@ void PoseViewerWidget::drawPitch(QPainter& painter)
 
   // 機体から見た中心位置に移動
   painter.translate(width() / 2, height() / 2);
-  painter.rotate(-tbs::rad2deg(roll_));
+  painter.rotate(-st::rad2deg(roll_));
 
   // ウィジェットの大きさに合わせてスケーリング
   scale(painter, true);
 
   // 描画する値の範囲を決める
-  const auto pitch_deg = tbs::rad2deg(pitch_);
+  const auto pitch_deg = st::rad2deg(pitch_);
   const auto pitch_min = math::floor(pitch_deg - kPitchVisualRange, kScaleInterval);
   const auto pitch_max = math::ceil(pitch_deg + kPitchVisualRange, kScaleInterval);
 
   // 初期位置に移動
-  painter.translate(0, pitchToHeight(tbs::deg2rad(pitch_min - pitch_deg)));
+  painter.translate(0, pitchToHeight(st::deg2rad(pitch_min - pitch_deg)));
 
   // 各値を描画
   const auto line_half = kPitchLineLength / 2;
   const auto text_x = -line_half - 30;
   const auto text_y = 5;
-  const auto y_interval = pitchToHeight(tbs::deg2rad(kScaleInterval));
+  const auto y_interval = pitchToHeight(st::deg2rad(kScaleInterval));
   painter.setPen(QPen(Qt::white, kLineWidth));
   for (int deg = pitch_min; deg <= pitch_max; deg += kScaleInterval) {
     // 目盛りを描画
@@ -255,7 +260,7 @@ void PoseViewerWidget::drawPitch(QPainter& painter)
   // 現在の位置に目印を描く
   painter.save();
   painter.translate(width() / 2, height() / 2);
-  painter.rotate(-tbs::rad2deg(roll_));
+  painter.rotate(-st::rad2deg(roll_));
   scale(painter, true);
   painter.setPen(QPen(Qt::red, kLineWidth));
   painter.drawLine(-line_half, 0, line_half, 0);
@@ -278,17 +283,17 @@ void PoseViewerWidget::drawYaw(QPainter& painter)
   painter.drawLine(-kOriginalSize / 2, 0, kOriginalSize / 2, 0);
 
   // 描画する値の範囲を決める
-  const auto yaw_deg = tbs::rad2deg(yaw_);
-  const auto yaw_min = math::floor(tbs::rad2deg(yaw_ - beta), kScaleInterval);
-  const auto yaw_max = math::ceil(tbs::rad2deg(yaw_ + beta), kScaleInterval);
+  const auto yaw_deg = st::rad2deg(yaw_);
+  const auto yaw_min = math::floor(st::rad2deg(yaw_ - beta), kScaleInterval);
+  const auto yaw_max = math::ceil(st::rad2deg(yaw_ + beta), kScaleInterval);
 
   // 初期位置に移動
-  painter.translate(yawToWidth(tbs::deg2rad(yaw_deg - yaw_min)), 0);
+  painter.translate(yawToWidth(st::deg2rad(yaw_deg - yaw_min)), 0);
 
   // 各値を描画
   const auto text_x = -10;
   const auto text_y = -kYawTickLength - 20;
-  const auto x_interval = yawToWidth(tbs::deg2rad(kScaleInterval));
+  const auto x_interval = yawToWidth(st::deg2rad(kScaleInterval));
   for (int deg = yaw_min; deg <= yaw_max; deg += kScaleInterval) {
     // 目盛りを描画
     painter.drawLine(0, 0, 0, -kYawTickLength);
@@ -365,3 +370,4 @@ void PoseViewerWidget::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::C
 }
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

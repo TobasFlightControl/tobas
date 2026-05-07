@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <array>
@@ -5,6 +8,8 @@
 #include <tobas_algorithm/crc.hpp>
 #include <tobas_linux/spi_dev.hpp>
 
+namespace tobas
+{
 namespace fc1xx
 {
 /* cf. https://betaflight.com/docs/development/api/dshot */
@@ -115,3 +120,4 @@ private:
   bool checkChannelSize(size_t ch) noexcept;
 };
 }  // namespace fc1xx
+}  // namespace tobas

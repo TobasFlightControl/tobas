@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_rc_teleop/accel_rate.hpp"
 
 #include <tobas_constants/ros_interface.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 
-namespace tobas_rc_teleop
+namespace tobas
+{
+namespace rc
 {
 AccelRateController::AccelRateController()
 {
@@ -29,22 +34,22 @@ bool AccelRateController::requireHeading()
   return false;
 }
 
-void AccelRateController::initialize(tobas::BaseNode* node, tobas::FlightMode mode)
+void AccelRateController::initialize(BaseNode* node, FlightMode mode)
 {
   node->addDynamicDoubleParam(
     addMode("max_horizontal_accel", mode), &self::maxHorizontalAccelCb, this, 0.5, 10, 1, 20, " m/s^2");
   node->addDynamicDoubleParam(
     addMode("max_vertical_accel", mode), &self::maxVerticalAccelCb, this, 0.5, 16, 1, 20, " m/s^2");
-  node->addDynamicDoubleParam(addMode("max_attitude_rate", mode), &self::maxAttitudeRateCb, this, 20., 9, 1, 18, " dps");
-  node->addDynamicDoubleParam(addMode("max_heading_rate", mode), &self::maxHeadingRateCb, this, 20., 9, 1, 18, " dps");
+  node->addDynamicDoubleParam(addMode("max_attitude_rate", mode), &self::maxAttitudeRateCb, this, 45., 8, 1, 16, " dps");
+  node->addDynamicDoubleParam(addMode("max_heading_rate", mode), &self::maxHeadingRateCb, this, 45., 8, 1, 16, " dps");
   node->addDynamicDoubleParam(
     addMode("horizontal_accel_expo", mode), &self::horizontalAccelExpoCb, this, 5., -6, -20, 20);
   node->addDynamicDoubleParam(addMode("vertical_accel_expo", mode), &self::verticalAccelExpoCb, this, 5., 0, -20, 20);
   node->addDynamicDoubleParam(addMode("attitude_expo", mode), &self::attitudeExpoCb, this, 5., 0, -20, 20);
   node->addDynamicDoubleParam(addMode("heading_expo", mode), &self::headingExpoCb, this, 5., -3, -20, 20);
 
-  accel_pub_ = node->createPublisher<tobas_command_msgs::Accel>(tobas::topic::kAccelCmd);
-  rate_pub_ = node->createPublisher<tobas_command_msgs::Rate>(tobas::topic::kRateCmd);
+  accel_pub_ = node->createPublisher<tobas_command_msgs::Accel>(topic::kAccelCmd);
+  rate_pub_ = node->createPublisher<tobas_command_msgs::Rate>(topic::kRateCmd);
 }
 
 void AccelRateController::reset(const builtin_interfaces::msg::Time&, const tobas_msgs::Odometry&, bool)
@@ -118,13 +123,13 @@ bool AccelRateController::maxVerticalAccelCb(const double& p)
 
 bool AccelRateController::maxAttitudeRateCb(const double& p)
 {
-  max_atti_rate_ = tbs::deg2rad(p);
+  max_atti_rate_ = st::deg2rad(p);
   return true;
 }
 
 bool AccelRateController::maxHeadingRateCb(const double& p)
 {
-  max_head_rate_ = tbs::deg2rad(p);
+  max_head_rate_ = st::deg2rad(p);
   return true;
 }
 
@@ -151,4 +156,5 @@ bool AccelRateController::headingExpoCb(const double& p)
   head_expo_ = p / kExpoScale;
   return true;
 }
-}  // namespace tobas_rc_teleop
+}  // namespace rc
+}  // namespace tobas

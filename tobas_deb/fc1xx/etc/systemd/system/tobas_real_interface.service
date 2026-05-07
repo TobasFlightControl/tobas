@@ -9,8 +9,7 @@ EnvironmentFile=/etc/tobas/common.env
 EnvironmentFile=/etc/tobas/config/project.env
 Environment="CYCLONEDDS_URI=/etc/tobas/config/cyclonedds.xml"
 ExecStart=/bin/bash -c 'source /opt/ros/jazzy/setup.bash && source /opt/tobas/local_setup.bash && source /etc/tobas/colcon_ws/install/local_setup.bash && /opt/ros/jazzy/bin/ros2 launch ${TOBAS_CONFIG_PKG} real_interface.launch.py'
-Restart=always
-RestartSec=5
+Restart=no
 CPUSchedulingPolicy=fifo
 CPUSchedulingPriority=2
 CPUAffinity=3

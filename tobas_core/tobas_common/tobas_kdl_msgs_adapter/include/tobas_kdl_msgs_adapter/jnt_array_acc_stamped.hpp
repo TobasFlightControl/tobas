@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <rclcpp/type_adapter.hpp>
@@ -13,7 +16,7 @@ namespace tobas_kdl_msgs
 struct JntArrayAccStamped
 {
   std_msgs::msg::Header header;
-  kdl::JntArrayAcc q;
+  tobas::kdl::JntArrayAcc q;
 
   using SharedPtr = std::shared_ptr<JntArrayAccStamped>;
   using ConstSharedPtr = std::shared_ptr<const JntArrayAccStamped>;

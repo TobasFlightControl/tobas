@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include <iostream>
 #include <thread>
 
@@ -5,12 +8,18 @@
 
 using namespace std;
 
-int main()
+int main(int argc, char** argv)
 {
-  driver::BMM150 mag;
+  if (argc != 2) {
+    cerr << "Usage: " << argv[0] << " <I2C Device>" << endl;
+    return EXIT_FAILURE;
+  }
+  const auto device = argv[1];
+
+  tobas::driver::BMM150 mag;
   double mx, my, mz;
 
-  if (!mag.initialize()) {
+  if (!mag.initialize(device)) {
     cerr << "Failed to initialize magnetometer." << endl;
     return EXIT_FAILURE;
   }

@@ -1,18 +1,30 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include <tobas_constants/node.hpp>
 #include <tobas_node/node.hpp>
 
 #include <tobas_msgs/srv/configure_imu_filter.hpp>
 #include <tobas_msgs_adapter/imu.hpp>
 
-class ImuFilterConfigServer : public tobas::BaseNode
+namespace tobas
+{
+class ImuFilterConfigServer : public BaseNode
 {
   using self = ImuFilterConfigServer;
-  using super = tobas::BaseNode;
+  using super = BaseNode;
+
+  static constexpr int kMinCutoff = 1;    // [Hz]
+  static constexpr int kMaxCutoff = 200;  // [Hz]
 
 public:
   explicit ImuFilterConfigServer(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
+  // Static parameters
+  int dflt_accel_cutoff_, dflt_gyro_cutoff_, dflt_dgyro_cutoff_;
+
+  // Dynamic parameters
   int accel_cutoff_ = -1;
   int gyro_cutoff_ = -1;
   int dgyro_cutoff_ = -1;
@@ -25,15 +37,20 @@ private:
 
   void imuRawCb(const tobas_msgs::Imu::ConstSharedPtr& msg);
 
-  bool accelLowPassCutoffCb(const long& p);
-  bool gyroLowPassCutoffCb(const long& p);
-  bool dGyroLowPassCutoffCb(const long& p);
+  bool accelCutoffCb(const long& p);
+  bool gyroCutoffCb(const long& p);
+  bool dGyroCutoffCb(const long& p);
 };
 
 ImuFilterConfigServer::ImuFilterConfigServer(const rclcpp::NodeOptions& options)
-  : super(tobas::node::kImuFilterConfigServer, nodeOptions_DParam(options))
+  : super(node::kImuFilterConfigServer, nodeOptions_DParam(options))
 {
-  imu_raw_sub_ = createSubscriber(tobas::topic::kImuRaw, &self::imuRawCb, this);
+  dflt_accel_cutoff_ = getIntParam("default_accel_lpf_cutoff");
+  dflt_gyro_cutoff_ = getIntParam("default_gyro_lpf_cutoff");
+  dflt_dgyro_cutoff_ = getIntParam("default_dgyro_lpf_cutoff");
+
+  imu_raw_sub_ = createSubscriber(topic::kImuRaw, &self::imuRawCb, this);
+  config_sc_ = create_client<tobas_msgs::srv::ConfigureImuFilter>(service::kConfigureImuFilter);
 }
 
 bool ImuFilterConfigServer::imuConfigReady() const
@@ -44,7 +61,7 @@ bool ImuFilterConfigServer::imuConfigReady() const
 bool ImuFilterConfigServer::sendImuConfigRequest()
 {
   if (!config_sc_->service_is_ready()) {
-    TOBAS_ERROR("\"", tobas::service::kConfigureImuFilter, "\" is not ready.");
+    TOBAS_ERROR("\"", service::kConfigureImuFilter, "\" is not ready.");
     return false;
   }
 
@@ -60,20 +77,21 @@ bool ImuFilterConfigServer::sendImuConfigRequest()
 
 void ImuFilterConfigServer::imuRawCb(const tobas_msgs::Imu::ConstSharedPtr&)
 {
-  // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#IMU_ACCEL_CUTOFF
-  addDynamicIntParam("accel_lowpass_cutoff", &self::accelLowPassCutoffCb, this, 30, 1, 100, " Hz");
-  // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#IMU_GYRO_CUTOFF
-  addDynamicIntParam("gyro_lowpass_cutoff", &self::gyroLowPassCutoffCb, this, 40, 1, 100, " Hz");
-  // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#IMU_DGYRO_CUTOFF
-  addDynamicIntParam("dgyro_lowpass_cutoff", &self::dGyroLowPassCutoffCb, this, 20, 1, 100, " Hz");
+  // IMUの生データが受信可能即ちIMUフィルタを管理しているノードが立ち上がっているのを確認してから動的パラメータを登録．
+  // そうすることでLPFカットオフの初期値が確実に反映される．
 
-  config_sc_ = create_client<tobas_msgs::srv::ConfigureImuFilter>(tobas::service::kConfigureImuFilter);
+  // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#IMU_ACCEL_CUTOFF
+  addDynamicIntParam("accel_lpf_cutoff", &self::accelCutoffCb, this, dflt_accel_cutoff_, kMinCutoff, kMaxCutoff, " Hz");
+  // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#IMU_GYRO_CUTOFF
+  addDynamicIntParam("gyro_lpf_cutoff", &self::gyroCutoffCb, this, dflt_gyro_cutoff_, kMinCutoff, kMaxCutoff, " Hz");
+  // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#IMU_DGYRO_CUTOFF
+  addDynamicIntParam("dgyro_lpf_cutoff", &self::dGyroCutoffCb, this, dflt_dgyro_cutoff_, kMinCutoff, kMaxCutoff, " Hz");
 
   // Cancel subscription
   imu_raw_sub_.reset();
 }
 
-bool ImuFilterConfigServer::accelLowPassCutoffCb(const long& p)
+bool ImuFilterConfigServer::accelCutoffCb(const long& p)
 {
   accel_cutoff_ = p;
 
@@ -86,7 +104,7 @@ bool ImuFilterConfigServer::accelLowPassCutoffCb(const long& p)
   return true;
 }
 
-bool ImuFilterConfigServer::gyroLowPassCutoffCb(const long& p)
+bool ImuFilterConfigServer::gyroCutoffCb(const long& p)
 {
   gyro_cutoff_ = p;
 
@@ -99,7 +117,7 @@ bool ImuFilterConfigServer::gyroLowPassCutoffCb(const long& p)
   return true;
 }
 
-bool ImuFilterConfigServer::dGyroLowPassCutoffCb(const long& p)
+bool ImuFilterConfigServer::dGyroCutoffCb(const long& p)
 {
   dgyro_cutoff_ = p;
 
@@ -111,5 +129,6 @@ bool ImuFilterConfigServer::dGyroLowPassCutoffCb(const long& p)
 
   return true;
 }
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(ImuFilterConfigServer)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::ImuFilterConfigServer)

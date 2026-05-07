@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <functional>
@@ -40,6 +43,7 @@ private:
 
 public:
   explicit SBUS(std::function<void(const Packet&)> packet_cb);
+  ~SBUS();
 
   bool initialize(const char* device);
 

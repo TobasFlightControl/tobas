@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_trajectory_generation/online/accel_limited.hpp"
 
 #include <algorithm>
@@ -6,6 +9,8 @@
 
 #include <tobas_math/core.hpp>
 
+namespace tobas
+{
 namespace traj
 {
 namespace
@@ -91,3 +96,4 @@ void AccelLimitedOnlineTrajectoryGenerator::resetCurrentTrajectoryPoint(double p
   v_ = vel;
 }
 }  // namespace traj
+}  // namespace tobas

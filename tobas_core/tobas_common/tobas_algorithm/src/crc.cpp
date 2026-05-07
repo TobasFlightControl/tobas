@@ -1,5 +1,10 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_algorithm/crc.hpp"
 
+namespace tobas
+{
 namespace algo
 {
 void CRC::initialize() noexcept
@@ -97,3 +102,4 @@ void CRC32Left::createTable() noexcept
   }
 }
 }  // namespace algo
+}  // namespace tobas

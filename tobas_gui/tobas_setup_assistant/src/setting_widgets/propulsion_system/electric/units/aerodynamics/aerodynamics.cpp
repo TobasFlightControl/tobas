@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/aerodynamics/aerodynamics.hpp"
 
 #include <tobas_qt_tools/cast.hpp>
@@ -8,6 +11,8 @@
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/aerodynamics/thrust_stand.hpp"
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/aerodynamics/uiuc.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -128,3 +133,4 @@ const AerodynamicsWidget_Base* AerodynamicsWidget::selected() const
 }  // namespace propulsion
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

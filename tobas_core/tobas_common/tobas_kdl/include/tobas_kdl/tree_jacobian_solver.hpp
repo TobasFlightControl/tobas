@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include "./jacobian.hpp"
 #include "./jntarray.hpp"
 #include "./tree_solver_i.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 class TreeJacobianSolver : public TreeSolverI
@@ -31,3 +36,4 @@ inline const Jacobian& TreeJacobianSolver::getJacobian() const
   return J_out_;
 }
 }  // namespace kdl
+}  // namespace tobas

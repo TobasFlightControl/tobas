@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <memory>
 
 #include "./base_view_model.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace ub
@@ -17,15 +22,15 @@ struct Inertia
   double izz;
 };
 
-class InertialViewModel : public BaseViewModel<urdf::Inertial, InertialViewModel>
+class InertialViewModel : public BaseViewModel<::urdf::Inertial, InertialViewModel>
 {
 public:
-  using BaseViewModel<urdf::Inertial, InertialViewModel>::BaseViewModel;
+  using BaseViewModel<::urdf::Inertial, InertialViewModel>::BaseViewModel;
 
   void sync() override;
 
-  const urdf::Pose& origin() const;
-  void origin(const urdf::Pose& origin);
+  const ::urdf::Pose& origin() const;
+  void origin(const ::urdf::Pose& origin);
 
   double mass() const;
   void mass(double mass);
@@ -47,3 +52,4 @@ using InertialViewModelPtr = std::shared_ptr<InertialViewModel>;
 }  // namespace view_model
 }  // namespace ub
 }  // namespace gui
+}  // namespace tobas

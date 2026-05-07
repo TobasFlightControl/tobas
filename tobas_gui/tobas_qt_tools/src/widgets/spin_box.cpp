@@ -1,8 +1,13 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_qt_tools/widgets/spin_box.hpp"
 
 #include <QTimer>
 #include <QWheelEvent>
 
+namespace tobas
+{
 namespace qt
 {
 SpinBox::SpinBox(QWidget* parent) : super(parent)
@@ -22,3 +27,4 @@ void SpinBox::focusInEvent(QFocusEvent* event)
   QTimer::singleShot(0, this, &SpinBox::selectAll);
 }
 }  // namespace qt
+}  // namespace tobas

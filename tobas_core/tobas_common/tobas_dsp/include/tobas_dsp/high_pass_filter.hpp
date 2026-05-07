@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <cassert>
@@ -9,6 +12,8 @@
 #include "./base_filter.hpp"
 #include "./utils.hpp"
 
+namespace tobas
+{
 namespace dsp
 {
 template <typename T>
@@ -70,3 +75,4 @@ bool HighPassFilter<T>::setCutoffFrequency(const double& fc_hz)
   return true;
 }
 }  // namespace dsp
+}  // namespace tobas

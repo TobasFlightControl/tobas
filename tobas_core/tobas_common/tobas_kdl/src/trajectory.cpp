@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_kdl/trajectory.hpp"
 
 #include <iostream>
@@ -7,6 +10,8 @@
 
 using namespace std;
 
+namespace tobas
+{
 namespace kdl
 {
 CycloidGenerator3d::CycloidGenerator3d()
@@ -125,3 +130,4 @@ double CycloidGenerator3d::computeTheta(const double& t) const
   return M_2PI * t / T_;
 }
 }  // namespace kdl
+}  // namespace tobas

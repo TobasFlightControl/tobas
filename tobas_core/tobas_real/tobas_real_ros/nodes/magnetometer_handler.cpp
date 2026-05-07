@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include <tobas_constants/path.hpp>
 #include <tobas_eigen_tools/core.hpp>
 #include <tobas_eigen_tools/ellipsoid.hpp>
@@ -11,13 +14,16 @@
 #include <tobas_real_common/ros_interface.hpp>
 #include <tobas_real_msgs/srv/set_magnetometer_params.hpp>
 
-using namespace real::handler::mag;
 namespace fs = std::filesystem;
 
-class MagnetometerHandlerNode : public tobas::BaseNode
+namespace tobas
+{
+namespace real
+{
+class MagnetometerHandlerNode : public BaseNode
 {
   using self = MagnetometerHandlerNode;
-  using super = tobas::BaseNode;
+  using super = BaseNode;
   using SetParams = tobas_real_msgs::srv::SetMagnetometerParams;
 
 public:
@@ -43,13 +49,13 @@ private:
 MagnetometerHandlerNode::MagnetometerHandlerNode(const rclcpp::NodeOptions& options)
   : super("real_magnetometer_handler", nodeOptions_Default(options))
 {
-  const auto cfg_dir = linux::isSuperUser() ? fs::path(tobas::kConfigDirRoot) : ros2::expandUser(tobas::kConfigDirHome);
-  if (!pt_.initialize((cfg_dir / kConfigFileName))) {
+  const auto cfg_dir = linux::isSuperUser() ? fs::path(kConfigDirRoot) : ros2::expandUser(kConfigDirHome);
+  if (!pt_.initialize((cfg_dir / handler::mag::kConfigFileName))) {
     TOBAS_ERROR("Failed to initialize property tree. This node will not work.");
     return;
   }
 
-  set_params_ss_ = createService<SetParams>(kSetParamSrv, &self::setParamsCb, this);
+  set_params_ss_ = createService<SetParams>(handler::mag::kSetParamSrv, &self::setParamsCb, this);
 
   if (!getConfig()) {
     TOBAS_ERROR("Failed to get configuration. This node will not work until they are set.");
@@ -64,12 +70,12 @@ bool MagnetometerHandlerNode::getConfig()
   std::array<double, 3> hard_bias;
   std::array<double, 6> soft_bias;
 
-  if (!pt_.get(ns(), kHardBiasKey, hard_bias)) {
-    TOBAS_ERROR("Failed to get \"", kHardBiasKey, "\" from configuration file.");
+  if (!pt_.get(ns(), handler::mag::kHardBiasKey, hard_bias)) {
+    TOBAS_ERROR("Failed to get \"", handler::mag::kHardBiasKey, "\" from configuration file.");
     return false;
   }
-  if (!pt_.get(ns(), kSoftBiasKey, soft_bias)) {
-    TOBAS_ERROR("Failed to get \"", kSoftBiasKey, "\" from configuration file.");
+  if (!pt_.get(ns(), handler::mag::kSoftBiasKey, soft_bias)) {
+    TOBAS_ERROR("Failed to get \"", handler::mag::kSoftBiasKey, "\" from configuration file.");
     return false;
   }
 
@@ -81,7 +87,7 @@ bool MagnetometerHandlerNode::getConfig()
 
 void MagnetometerHandlerNode::registerPubSub()
 {
-  mag_pub_ = createPublisher<tobas_msgs::MagneticField>(tobas::topic::kMagneticField);
+  mag_pub_ = createPublisher<tobas_msgs::MagneticField>(::tobas::topic::kMagneticField);
   mag_sub_ = createSubscriber(real::topic::kMagneticField, &self::magCb, this);
 }
 
@@ -101,8 +107,8 @@ void MagnetometerHandlerNode::setParamsCb(
   ellipsoid_.setSoftBias(eigen::fromStdArray(req->soft_bias));
 
   // Save parameters
-  pt_.set(ns(), kHardBiasKey, req->hard_bias);
-  pt_.set(ns(), kSoftBiasKey, req->soft_bias);
+  pt_.set(ns(), handler::mag::kHardBiasKey, req->hard_bias);
+  pt_.set(ns(), handler::mag::kSoftBiasKey, req->soft_bias);
   if (!pt_.save()) {
     res->success = false;
     res->message = "Failed to save parameters.";
@@ -116,5 +122,7 @@ void MagnetometerHandlerNode::setParamsCb(
   res->success = true;
   res->message.clear();
 }
+}  // namespace real
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(MagnetometerHandlerNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::real::MagnetometerHandlerNode)

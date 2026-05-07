@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <tobas_qt_tools/layouts/grid_layout.hpp>
@@ -6,6 +9,8 @@
 
 #include "./common.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace log
@@ -34,3 +39,4 @@ private:
 };
 }  // namespace log
 }  // namespace gui
+}  // namespace tobas

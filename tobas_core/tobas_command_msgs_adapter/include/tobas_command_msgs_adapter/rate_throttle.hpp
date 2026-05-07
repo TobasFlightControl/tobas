@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <rclcpp/type_adapter.hpp>
@@ -12,7 +15,7 @@ struct RateThrottle
 {
   std_msgs::msg::Header header;
   tobas_command_msgs::msg::Priority priority;
-  kdl::Vector rate;
+  tobas::kdl::Vector rate;
   double throttle;
 
   using SharedPtr = std::shared_ptr<RateThrottle>;

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <QPushButton>
@@ -9,6 +12,8 @@
 #include "./motor.hpp"
 #include "./propeller.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -57,3 +62,4 @@ private:
 }  // namespace propulsion
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

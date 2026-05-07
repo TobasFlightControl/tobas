@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <unordered_map>
 
 #include <rclcpp/serialization.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace log
@@ -37,3 +42,4 @@ const MsgType& MessageDecoder<MsgType>::decode(const SerializedDataPtr& ser_data
 }
 }  // namespace log
 }  // namespace gui
+}  // namespace tobas

@@ -1,8 +1,13 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include "./accel.hpp"
 #include "./wrench.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 /**
@@ -34,3 +39,4 @@ inline SegmentInertia SegmentInertia::Zero()
   return SegmentInertia(Vector::Zero(), Vector::Zero());
 }
 }  // namespace kdl
+}  // namespace tobas

@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <eigen3/Eigen/Core>
 
+namespace tobas
+{
 namespace ctrl
 {
 /**
@@ -15,3 +20,4 @@ Eigen::MatrixXd dare(
   const double& tol = 1e-3,
   size_t max_iter = 10000);
 }  // namespace ctrl
+}  // namespace tobas

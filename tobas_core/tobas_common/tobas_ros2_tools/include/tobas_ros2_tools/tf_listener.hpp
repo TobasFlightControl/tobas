@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <tf2_ros/buffer.h>
 #include <tf2_ros/transform_listener.h>
 #include <rclcpp/rclcpp.hpp>
 
+namespace tobas
+{
 namespace ros2
 {
 class TransformListener
@@ -36,3 +41,4 @@ inline const char* TransformListener::getErrorMessage()
   return error_msg_;
 }
 }  // namespace ros2
+}  // namespace tobas

@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_time_tools/frequency_measure.hpp"
 
 #include <iostream>
 
 namespace ch = std::chrono;
 
+namespace tobas
+{
 namespace tim
 {
 FrequencyMeasure::FrequencyMeasure(const ch::nanoseconds& period) : period_(period)
@@ -32,3 +37,4 @@ void FrequencyMeasure::count()
   }
 }
 }  // namespace tim
+}  // namespace tobas

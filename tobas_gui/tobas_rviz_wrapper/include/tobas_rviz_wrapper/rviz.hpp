@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <rviz_common/display.hpp>
@@ -10,11 +13,14 @@ class VisualizationManager;
 class DisplayGroup;
 }  // namespace rviz_common
 
+namespace tobas
+{
 namespace rviz
 {
 class RvizFrameManager
 {
 public:
+  explicit RvizFrameManager(int argc, char** argv, const std::string& node_name);
   explicit RvizFrameManager(const std::string& node_name);
 
   void initialize(const QString& config_path, QWidget* parent = nullptr);
@@ -40,3 +46,4 @@ private:
   void removeDefaultColorMaterials();
 };
 }  // namespace rviz
+}  // namespace tobas

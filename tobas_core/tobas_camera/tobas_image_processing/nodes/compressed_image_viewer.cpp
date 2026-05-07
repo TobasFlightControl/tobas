@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include <cv_bridge/cv_bridge.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
@@ -8,7 +11,11 @@
 
 #include <sensor_msgs/msg/compressed_image.hpp>
 
-class CompressedImageViewer : public tobas::BaseNode
+namespace tobas
+{
+namespace camera
+{
+class CompressedImageViewer : public BaseNode
 {
 public:
   explicit CompressedImageViewer(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
@@ -21,7 +28,7 @@ private:
 };
 
 CompressedImageViewer::CompressedImageViewer(const rclcpp::NodeOptions& _options)
-  : tobas::BaseNode("compressed_image_viewer", _options)
+  : BaseNode("compressed_image_viewer", _options)
 {
   const auto compressed_image_topic = getStringParam("compressed_image_topic", "image_compressed");
   sub_ = createSubscriber(compressed_image_topic, &CompressedImageViewer::msgCb, this);
@@ -45,5 +52,7 @@ void CompressedImageViewer::msgCb(const sensor_msgs::msg::CompressedImage::Const
     TOBAS_WARN("Could not convert to image!");
   }
 }
+}  // namespace camera
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(CompressedImageViewer)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::camera::CompressedImageViewer)

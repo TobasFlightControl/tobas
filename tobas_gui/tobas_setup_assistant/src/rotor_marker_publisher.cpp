@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_setup_assistant/rotor_marker_publisher.hpp"
 
 #include <ranges>
@@ -7,6 +10,8 @@
 #include <tobas_kdl_conversions/kdl_msg.hpp>
 #include <tobas_kdl_conversions/kdl_urdf.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -106,3 +111,4 @@ void RotorMarkerPublisher::publishTimerCb()
 }
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

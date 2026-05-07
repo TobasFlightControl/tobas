@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <memory>
@@ -7,6 +10,8 @@
 
 class QwtPlotCurve;
 
+namespace tobas
+{
 namespace qwt
 {
 class QwtPlotCurveWrapper
@@ -33,3 +38,4 @@ private:
   std::shared_ptr<QwtPlotCurve> impl_;
 };
 }  // namespace qwt
+}  // namespace tobas

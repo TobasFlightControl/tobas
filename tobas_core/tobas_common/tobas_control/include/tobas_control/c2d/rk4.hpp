@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <array>
 
 #include "./base.hpp"
 
+namespace tobas
+{
 namespace ctrl
 {
 class C2D_RK4 : BaseC2D
@@ -22,3 +27,4 @@ private:
   std::array<double, 5> factorials_;           // 階乗を保持する配列
 };
 }  // namespace ctrl
+}  // namespace tobas

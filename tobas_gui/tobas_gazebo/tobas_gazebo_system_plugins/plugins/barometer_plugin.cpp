@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include <tobas_constants/ros_interface.hpp>
 #include <tobas_gazebo_tools/utils.hpp>
 #include <tobas_ros2_tools/time.hpp>
@@ -11,6 +14,8 @@
 
 namespace cmp = gz::sim::components;
 
+namespace tobas
+{
 namespace gazebo
 {
 class GazeboBarometerPlugin : public BaseNode,
@@ -77,7 +82,7 @@ void GazeboBarometerPlugin::Configure(
   rate_manager_ = std::make_shared<RateManager>(update_rate_);
   pressure_noise_ = NormalDistribution(0., noise_stddev_);
 
-  pressure_pub_ = createPublisher<tobas_msgs::msg::FluidPressure>(tobas::topic::kAirPressure);
+  pressure_pub_ = createPublisher<tobas_msgs::msg::FluidPressure>(topic::kAirPressure);
 }
 
 void GazeboBarometerPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)
@@ -94,7 +99,7 @@ void GazeboBarometerPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz
   const auto altitude = alt_0_ + W_Pos_WS.Z();
 
   // Compute the air pressure at the current altitude
-  auto pressure = tbs::altitudeToPressure(altitude);
+  auto pressure = st::altitudeToPressure(altitude);
 
   // Add noise to pressure measurement
   pressure += pressure_noise_(rnd_gen_);
@@ -117,9 +122,6 @@ void GazeboBarometerPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
   getSdfParam(sdf, "noiseStddev", noise_stddev_, kNonNegative);
 }
 }  // namespace gazebo
+}  // namespace tobas
 
-GZ_ADD_PLUGIN(
-  gazebo::GazeboBarometerPlugin,
-  gz::sim::System,
-  gazebo::GazeboBarometerPlugin::ISystemConfigure,
-  gazebo::GazeboBarometerPlugin::ISystemPostUpdate)
+GZ_ADD_PLUGIN(tobas::gazebo::GazeboBarometerPlugin, gz::sim::System, gz::sim::ISystemConfigure, gz::sim::ISystemPostUpdate)

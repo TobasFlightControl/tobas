@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 namespace tobas
@@ -33,7 +36,10 @@ static constexpr char kImuSamplingTime[] = "imu_sampling_time";
 static constexpr char kControlLatency[] = "control_latency";
 static constexpr char kArming[] = "arming";
 static constexpr char kVehicleHealth[] = "vehicle_health";
+static constexpr char kUserDefinedHealthStatus[] = "user_defined_health_status";
 static constexpr char kVibrationLevel[] = "vibration_level";
+static constexpr char kObjectOctomap[] = "object_octomap";
+static constexpr char kRepulsiveAccel[] = "repulsive_acceleration";
 static constexpr char kDisturbanceForce[] = "disturbance_force";
 static constexpr char kLanded[] = "landed";
 static constexpr char kRosbagState[] = "rosbag_state";

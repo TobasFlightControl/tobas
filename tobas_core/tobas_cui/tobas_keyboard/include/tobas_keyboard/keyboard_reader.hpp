@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <termios.h>
 
+namespace tobas
+{
 namespace keyboard
 {
 enum KeyCode : char
@@ -26,3 +31,4 @@ private:
   termios tempcopy_, changed_;
 };
 }  // namespace keyboard
+}  // namespace tobas

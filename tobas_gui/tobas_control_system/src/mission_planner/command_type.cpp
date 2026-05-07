@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_control_system/mission_planner/command_type.hpp"
 
 #include <string.h>
@@ -10,6 +13,8 @@
 #define LAND_LABEL "Land"
 #define RTL_LABEL "Return to Launch"
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -50,3 +55,4 @@ Command textToCommand(const char* text)
 }
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

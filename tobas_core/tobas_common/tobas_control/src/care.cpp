@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_control/care.hpp"
 
 #include <eigen3/Eigen/LU>
@@ -9,6 +12,8 @@
 using namespace std;
 using namespace Eigen;
 
+namespace tobas
+{
 namespace ctrl
 {
 MatrixXd care_ArimotoPotter(const MatrixXd& A, const MatrixXd& B, const MatrixXd& Q, const MatrixXd& R)
@@ -105,3 +110,4 @@ MatrixXd care_Schur(const MatrixXd& A, const MatrixXd& B, const MatrixXd& Q, con
   return X * M.inverse();
 }
 }  // namespace ctrl
+}  // namespace tobas

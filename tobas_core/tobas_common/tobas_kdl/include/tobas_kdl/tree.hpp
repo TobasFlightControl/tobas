@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <memory>
@@ -5,6 +8,8 @@
 
 #include "./chain.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 class TreeElement;
@@ -185,3 +190,4 @@ inline bool Tree::hasSegment(const std::string& seg_name) const
   return segments_.find(seg_name) != segments_.end();
 }
 }  // namespace kdl
+}  // namespace tobas

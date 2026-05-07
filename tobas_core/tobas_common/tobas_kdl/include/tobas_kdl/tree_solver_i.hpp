@@ -1,8 +1,13 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include "./solver_i.hpp"
 #include "./tree.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 class TreeSolverI : public SolverI
@@ -37,3 +42,4 @@ inline bool TreeSolverI::isUpToDate() const
   return tree_.getNrOfJoints() == nj_ && tree_.getNrOfSegments() == ns_;
 }
 }  // namespace kdl
+}  // namespace tobas

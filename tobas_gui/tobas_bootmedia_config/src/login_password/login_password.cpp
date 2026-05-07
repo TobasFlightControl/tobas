@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_bootmedia_config/login_password/login_password.hpp"
 
 #include <filesystem>
@@ -77,7 +80,7 @@ void LoginPasswordWidget::onWriteButtonClicked()
   const auto shadow_path = fs::path(kRootPath) / "etc/shadow";
   const auto pswd = pswd1_->text().toStdString();
 
-  if (!crypt::setShadowPassword(shadow_path, ::gui::cmn::kUserNameFC, pswd, crypt::Yescrypt())) {
+  if (!crypt::setShadowPassword(shadow_path, gui::cmn::kUserNameFC, pswd, crypt::Yescrypt())) {
     qt::qErrorBox(this, "Failed to update login password.");
     return;
   }

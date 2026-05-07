@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <yaml-cpp/yaml.h>
 
 #include "tobas_setup_assistant/param_getters/spin_box.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -41,3 +46,4 @@ private:
 }  // namespace propulsion
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

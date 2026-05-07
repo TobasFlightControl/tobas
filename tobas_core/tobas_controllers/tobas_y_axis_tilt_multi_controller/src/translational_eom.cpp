@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_y_axis_tilt_multi_controller/translational_eom.hpp"
 
 #include <iostream>
@@ -11,7 +14,7 @@ namespace tobas
 {
 namespace y_axis_tilt_multicopter
 {
-TranslationalEoM::TranslationalEoM(const kdl::Tree& tree) : mass_holder_(tree), grav_W_(0, 0, -tbs::kGravity)
+TranslationalEoM::TranslationalEoM(const kdl::Tree& tree) : mass_holder_(tree), grav_W_(0, 0, -st::kGravity)
 {
 }
 

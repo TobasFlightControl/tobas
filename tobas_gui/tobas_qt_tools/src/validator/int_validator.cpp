@@ -1,5 +1,10 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_qt_tools/validator/int_validator.hpp"
 
+namespace tobas
+{
 namespace qt
 {
 QValidator::State IntValidator::validate(QString& input, int& pos) const
@@ -21,3 +26,4 @@ QValidator::State IntValidator::validate(QString& input, int& pos) const
   return original_res;
 }
 }  // namespace qt
+}  // namespace tobas

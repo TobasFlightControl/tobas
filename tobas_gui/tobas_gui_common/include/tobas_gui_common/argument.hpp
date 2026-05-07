@@ -1,8 +1,13 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <string>
 #include <vector>
 
+namespace tobas
+{
 namespace gui
 {
 namespace cmn
@@ -33,3 +38,4 @@ private:
 };
 }  // namespace cmn
 }  // namespace gui
+}  // namespace tobas

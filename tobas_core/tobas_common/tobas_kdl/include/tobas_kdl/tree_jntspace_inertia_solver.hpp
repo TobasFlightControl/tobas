@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include "./jntspace_inertia_matrix.hpp"
 #include "./tree_id_solver_rne.hpp"
 #include "./tree_solver_i.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 /**
@@ -42,3 +47,4 @@ inline const JntSpaceInertiaMatrix& TreeJntSpaceInertiaSolver::getMass() const
   return H_out_;
 }
 }  // namespace kdl
+}  // namespace tobas

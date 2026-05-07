@@ -1,8 +1,13 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <yaml-cpp/yaml.h>
 #include <QWidget>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -63,7 +68,15 @@ public:
 
   virtual int numPwmChannels() const = 0;
   virtual int numDShotChannels() const = 0;
+
+  /* [Hz] */
+  virtual int defaultAccelLpfCutoff() const = 0;
+  /* [Hz] */
+  virtual int defaultGyroLpfCutoff() const = 0;
+  /* [Hz] */
+  virtual int defaultDGyroLpfCutoff() const = 0;
 };
 }  // namespace hw
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

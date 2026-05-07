@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_drone_core/propulsion_system/ice_propulsion_system/ice_propulsion_system.hpp"
 
 #include <iostream>
@@ -64,7 +67,7 @@ bool IcePropulsionSystemConfig::load(const YAML::Node& root_node)
   }
 
   // Maximum engine speed
-  max_engine_speed_ = computeEngineSpeed(tobas::kMaxThrot);
+  max_engine_speed_ = computeEngineSpeed(kMaxThrot);
 
   return true;
 }
@@ -117,14 +120,14 @@ double IcePropulsionSystemConfig::thrustFromThrottle(const std::string& link_nam
 {
   const auto irotor = getRotor(link_name);
   const auto engine_speed = computeEngineSpeed(throttle);
-  return irotor->thrustFromPitch(engine_speed, irotor->optimalPitch());  // 最適ピッチ角のときの推力を返す
+  return irotor->thrustFromPitch(engine_speed, irotor->center_pitch);  // 中心ピッチ角のときの推力を返す
 }
 
 double IcePropulsionSystemConfig::maxEngineSpeed()
 {
   // フルスロット時のエンジン回転数を1度だけ計算
   if (!max_engine_speed_.has_value()) {
-    max_engine_speed_ = computeEngineSpeed(tobas::kMaxThrot);
+    max_engine_speed_ = computeEngineSpeed(kMaxThrot);
   }
 
   return max_engine_speed_.value();
@@ -183,8 +186,8 @@ double IcePropulsionSystemConfig::calc_k() const
 {
   double res = 0.;
   for (const auto& [_, rotor] : rotors) {
-    const auto irotor = boost::polymorphic_pointer_downcast<tobas::IceRotorConfig>(rotor);
-    const auto phi_r = irotor->optimalPitch();
+    const auto irotor = boost::polymorphic_pointer_downcast<IceRotorConfig>(rotor);
+    const auto& phi_r = irotor->center_pitch;
     const auto& n = irotor->gear_ratio;
     res += irotor->motorConst(phi_r) * irotor->momentConst(phi_r) / math::cube(n);
   }

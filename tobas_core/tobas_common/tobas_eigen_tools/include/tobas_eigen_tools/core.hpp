@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <array>
@@ -7,6 +10,8 @@
 
 #include <tobas_math/float.hpp>
 
+namespace tobas
+{
 namespace eigen
 {
 /**
@@ -246,3 +251,4 @@ inline Scalar variance(const Eigen::Vector<Scalar, Size>& v)
   return varianceCol(v)(0);
 }
 }  // namespace eigen
+}  // namespace tobas

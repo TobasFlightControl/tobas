@@ -1,9 +1,24 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_qt_tools/string.hpp"
 
 #include <QRegularExpression>
 
+namespace tobas
+{
 namespace qt
 {
+QString boolToText(bool arg)
+{
+  if (arg) {
+    return "true";
+  }
+  else {
+    return "false";
+  }
+}
+
 QStringList stringListFromStdToQt(const std::vector<std::string>& src)
 {
   QStringList res;
@@ -38,3 +53,4 @@ bool containsControlChars(const QStringView& s)
   return false;
 }
 }  // namespace qt
+}  // namespace tobas

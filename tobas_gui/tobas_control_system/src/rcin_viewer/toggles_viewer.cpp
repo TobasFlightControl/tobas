@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_control_system/rcin_viewer/toggles_viewer.hpp"
 
 #include <QGridLayout>
@@ -8,6 +11,8 @@
 #include <tobas_algorithm/core.hpp>
 #include <tobas_qt_tools/util.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -100,21 +105,21 @@ void TogglesViewer::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
   sub_mode_->setChecked(rcin->sub_mode);
 
   if (rcin->enable) {
-    if (rcin->mode == tobas::FlightMode::kStabilize) {
+    if (rcin->mode == FlightMode::kStabilize) {
       stabilize_mode_->setFillColor(kOnColorEnable);
     }
     else {
       stabilize_mode_->setFillColor(kOffColor);
     }
 
-    if (rcin->mode == tobas::FlightMode::kAcrobat) {
+    if (rcin->mode == FlightMode::kAcrobat) {
       acrobat_mode_->setFillColor(kOnColorEnable);
     }
     else {
       acrobat_mode_->setFillColor(kOffColor);
     }
 
-    if (rcin->mode == tobas::FlightMode::kLoiter) {
+    if (rcin->mode == FlightMode::kLoiter) {
       loiter_mode_->setFillColor(kOnColorEnable);
     }
     else {
@@ -125,21 +130,21 @@ void TogglesViewer::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
     sub_mode_->setOnColor(kOnColorEnable);
   }
   else {
-    if (rcin->mode == tobas::FlightMode::kStabilize) {
+    if (rcin->mode == FlightMode::kStabilize) {
       stabilize_mode_->setFillColor(kOnColorDisable);
     }
     else {
       stabilize_mode_->setFillColor(kOffColor);
     }
 
-    if (rcin->mode == tobas::FlightMode::kAcrobat) {
+    if (rcin->mode == FlightMode::kAcrobat) {
       acrobat_mode_->setFillColor(kOnColorDisable);
     }
     else {
       acrobat_mode_->setFillColor(kOffColor);
     }
 
-    if (rcin->mode == tobas::FlightMode::kLoiter) {
+    if (rcin->mode == FlightMode::kLoiter) {
       loiter_mode_->setFillColor(kOnColorDisable);
     }
     else {
@@ -153,3 +158,4 @@ void TogglesViewer::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
 }  // namespace rcin
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

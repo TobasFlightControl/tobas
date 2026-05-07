@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_kdl/chain.hpp"
 
 #include <ranges>
@@ -5,6 +8,8 @@
 
 using namespace std;
 
+namespace tobas
+{
 namespace kdl
 {
 Chain::Chain()
@@ -86,3 +91,4 @@ ostream& operator<<(ostream& os, const Chain& arg)
   return os;
 }
 }  // namespace kdl
+}  // namespace tobas

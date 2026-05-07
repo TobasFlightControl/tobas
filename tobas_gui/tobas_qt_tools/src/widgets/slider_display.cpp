@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_qt_tools/widgets/slider_display.hpp"
 
 #include <QHBoxLayout>
@@ -7,6 +10,8 @@
 
 #define TEXT_PSIZE 9
 
+namespace tobas
+{
 namespace qt
 {
 IntSliderDisplay::IntSliderDisplay(QWidget* parent) : super(parent)
@@ -230,3 +235,4 @@ void DoubleSliderDisplay::onSliderValueChanged(double value)
   Q_EMIT valueChanged(value);
 }
 }  // namespace qt
+}  // namespace tobas

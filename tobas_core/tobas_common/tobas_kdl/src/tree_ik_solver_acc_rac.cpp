@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_kdl/tree_ik_solver_acc_rac.hpp"
 
 #include <tobas_eigen_tools/linalg.hpp>
@@ -6,6 +9,8 @@
 using namespace std;
 using namespace Eigen;
 
+namespace tobas
+{
 namespace kdl
 {
 TreeIkSolverAcc_RAC::TreeIkSolverAcc_RAC(const Tree& tree)
@@ -143,3 +148,4 @@ void TreeIkSolverAcc_RAC::resize()
   qp_solver_.problem.h.conservativeResize(0);
 }
 }  // namespace kdl
+}  // namespace tobas

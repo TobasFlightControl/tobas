@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <cassert>
@@ -18,6 +21,7 @@ class IceRotorConfig : public RotorConfig
 
   static constexpr char kGearRatioKey[] = "gear_ratio";
   static constexpr char kPitchLimitKey[] = "pitch_limit";
+  static constexpr char kCenterPitchKey[] = "center_pitch";
   static constexpr char kMotorConstKey[] = "motor_constant";
   static constexpr char kMomentConstKey[] = "moment_constant";
   static constexpr char kHardwareIfaceKey[] = "hw_iface";
@@ -26,8 +30,9 @@ public:
   using SharedPtr = std::shared_ptr<IceRotorConfig>;
   using ConstSharedPtr = std::shared_ptr<const IceRotorConfig>;
 
-  double gear_ratio = 0.;                       // 減速比 [-]
-  tbs::Range<double> pitch_limit = { 0., 0. };  // プロペラピッチ角の範囲 [rad]
+  double gear_ratio = 0.;                      // 減速比 [-]
+  st::Range<double> pitch_limit = { 0., 0. };  // プロペラピッチ角の範囲 [rad]
+  double center_pitch = 0.;                    // プロペラピッチ角の中心 [rad]
   VppMotorConstant motor_const;
   VppMomentConstant moment_const;
   HardwareInterface hw_iface = HardwareInterface::kOther;
@@ -39,9 +44,6 @@ public:
 
   /* 最も効率の良いピッチ角における反トルク係数 [m] を求める． */
   inline double momentConst() const override;
-
-  /* 最も効率の良いピッチ角 [rad] を求める． */
-  inline double optimalPitch() const;
 
   /* ピッチ角 [rad] から推力定数 [kg*m/rad^2] を求める． */
   inline double motorConst(double pitch_angle) const;
@@ -64,12 +66,7 @@ public:
 
 inline double IceRotorConfig::momentConst() const
 {
-  return moment_const.compute(moment_const.optimalPitch());
-}
-
-inline double IceRotorConfig::optimalPitch() const
-{
-  return moment_const.optimalPitch();
+  return moment_const.compute(center_pitch);
 }
 
 inline double IceRotorConfig::motorConst(double pitch_angle) const

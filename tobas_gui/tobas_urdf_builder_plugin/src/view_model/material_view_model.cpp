@@ -1,13 +1,18 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_urdf_builder_plugin/view_model/material_view_model.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace ub
 {
 namespace view_model
 {
-MaterialViewModel::MaterialViewModel(const urdf::MaterialSharedPtr& model)
-  : BaseViewModel<urdf::Material, MaterialViewModel>(model)
+MaterialViewModel::MaterialViewModel(const ::urdf::MaterialSharedPtr& model)
+  : BaseViewModel<::urdf::Material, MaterialViewModel>(model)
 {
   if (model_->name.empty()) {
     // Set default name
@@ -35,7 +40,7 @@ void MaterialViewModel::name(const QString& name)
   model_->name = name.toStdString();
 }
 
-const urdf::Color& MaterialViewModel::color() const
+const ::urdf::Color& MaterialViewModel::color() const
 {
   return model_->color;
 }
@@ -65,3 +70,4 @@ void MaterialViewModel::textureFileName(const QString& filename)
 }  // namespace view_model
 }  // namespace ub
 }  // namespace gui
+}  // namespace tobas

@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include "./command_executor.hpp"
 
+namespace tobas
+{
 namespace linux
 {
 class GitHandler
@@ -19,3 +24,4 @@ private:
   CommandExecutor command_executor_;
 };
 }  // namespace linux
+}  // namespace tobas

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <algorithm>
@@ -5,7 +8,9 @@
 #include <iostream>
 #include <string>
 
-namespace tbs
+namespace tobas
+{
+namespace st
 {
 template <typename T>
 class Range
@@ -149,4 +154,5 @@ std::ostream& operator<<(std::ostream& os, const Range<U>& arg)
   os << "[" << arg.lower << ", " << arg.upper << "]";
   return os;
 }
-}  // namespace tbs
+}  // namespace st
+}  // namespace tobas

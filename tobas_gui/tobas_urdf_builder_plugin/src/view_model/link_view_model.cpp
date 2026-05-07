@@ -1,15 +1,20 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_urdf_builder_plugin/view_model/link_view_model.hpp"
 
 #include "tobas_urdf_builder_plugin/utils/urdf_clone.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace ub
 {
 namespace view_model
 {
-LinkViewModel::LinkViewModel(const urdf::LinkSharedPtr& model)
-  : BaseViewModel<urdf::Link, LinkViewModel>(model)
+LinkViewModel::LinkViewModel(const ::urdf::LinkSharedPtr& model)
+  : BaseViewModel<::urdf::Link, LinkViewModel>(model)
   , inertial_(make_shared<InertialViewModel>(model_->inertial))
   , joint_(make_shared<JointViewModel>(model_->parent_joint))
 {
@@ -149,3 +154,4 @@ void LinkViewModel::remove(const CollisionViewModelPtr& collision)
 }  // namespace view_model
 }  // namespace ub
 }  // namespace gui
+}  // namespace tobas

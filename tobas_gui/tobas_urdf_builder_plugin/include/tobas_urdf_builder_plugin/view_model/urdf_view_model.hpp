@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <memory>
@@ -8,6 +11,8 @@
 #include "./joint_view_model.hpp"
 #include "./link_view_model.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace ub
@@ -20,16 +25,16 @@ public:
   explicit URDFViewModel();
 
   /* Get URDF model. */
-  const urdf::ModelSharedPtr& urdf() const;
+  const ::urdf::ModelSharedPtr& urdf() const;
 
   /* Get complete list of Links. */
-  const std::map<std::string, urdf::LinkSharedPtr>& links() const;
+  const std::map<std::string, ::urdf::LinkSharedPtr>& links() const;
 
   /* Get complete list of Joints. */
-  const std::map<std::string, urdf::JointSharedPtr>& joints() const;
+  const std::map<std::string, ::urdf::JointSharedPtr>& joints() const;
 
   /* Get complete list of Materials. */
-  const std::map<std::string, urdf::MaterialSharedPtr>& materials() const;
+  const std::map<std::string, ::urdf::MaterialSharedPtr>& materials() const;
 
   /* Get the name of the robot model. */
   const std::string& name() const;
@@ -37,7 +42,7 @@ public:
   void name(const std::string& name);
 
   /* Get the root is always a link (the parent of the tree describing the robot). */
-  const urdf::LinkSharedPtr& rootLink() const;
+  const ::urdf::LinkSharedPtr& rootLink() const;
 
   const LinkViewModelPtr& rootLinkViewModel() const;
 
@@ -54,7 +59,7 @@ public:
   void updateLink(const LinkViewModelPtr& old_link_vm, const LinkViewModelPtr& new_link_vm);
 
 private:
-  urdf::ModelSharedPtr urdf_;
+  ::urdf::ModelSharedPtr urdf_;
   LinkViewModelPtr root_link_;
   size_t clone_count_ = 0;
 
@@ -66,3 +71,4 @@ private:
 }  // namespace view_model
 }  // namespace ub
 }  // namespace gui
+}  // namespace tobas

@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <tobas_debug_msgs/msg/observer_feedback.hpp>
 
 #include "./common.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace log
@@ -46,3 +51,4 @@ private:
 };
 }  // namespace log
 }  // namespace gui
+}  // namespace tobas

@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_kdl/tree_active_joints_extractor.hpp"
 
 using namespace std;
 
+namespace tobas
+{
 namespace kdl
 {
 TreeActiveJointsExtractor::TreeActiveJointsExtractor(const Tree& tree) : super(tree)
@@ -39,3 +44,4 @@ int TreeActiveJointsExtractor::solve(const std::vector<std::string>& endpoints)
   return setDefaultError(kNoError);
 }
 }  // namespace kdl
+}  // namespace tobas

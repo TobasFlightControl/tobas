@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include "./frames.hpp"
 #include "./rotational_inertia.hpp"
 #include "./segment_jacobian.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 /**
@@ -181,3 +186,4 @@ inline RigidBodyInertia::RigidBodyInertia(double m, const Vector& h, const Rotat
 {
 }
 }  // namespace kdl
+}  // namespace tobas

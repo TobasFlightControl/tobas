@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <rclcpp/time.hpp>
@@ -5,6 +8,8 @@
 #include <builtin_interfaces/msg/duration.hpp>
 #include <builtin_interfaces/msg/time.hpp>
 
+namespace tobas
+{
 namespace ros2
 {
 inline int64_t nanoseconds(const builtin_interfaces::msg::Time& stamp)
@@ -60,6 +65,7 @@ inline std::chrono::steady_clock::time_point chronoFromRosTime(const builtin_int
 
 void timeChronoToMsg(const std::chrono::steady_clock::duration& c, builtin_interfaces::msg::Time& m);
 }  // namespace ros2
+}  // namespace tobas
 
 inline rclcpp::Duration operator-(const builtin_interfaces::msg::Time& lhs, const builtin_interfaces::msg::Time& rhs)
 {
@@ -71,5 +77,5 @@ inline rclcpp::Duration operator-(const builtin_interfaces::msg::Time& lhs, cons
 
 inline bool operator>(const builtin_interfaces::msg::Duration& lhs, const std::chrono::nanoseconds& rhs)
 {
-  return ros2::nanoseconds(lhs) > rhs.count();
+  return tobas::ros2::nanoseconds(lhs) > rhs.count();
 }

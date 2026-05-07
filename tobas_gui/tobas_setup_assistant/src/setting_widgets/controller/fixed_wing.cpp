@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_setup_assistant/setting_tabs/controller/fixed_wing.hpp"
 
 #include <QVBoxLayout>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -31,19 +36,19 @@ QString FixedWingWidget::pluginName() const
   return "tobas::fixed_wing::ControllerNode";
 }
 
-tobas::RcCommand FixedWingWidget::acrobatModeCommand() const
+RcCommand FixedWingWidget::acrobatModeCommand() const
 {
-  return tobas::RcCommand::kSpeedRollDPitch;  // TODO
+  return RcCommand::kSpeedRollDPitch;  // TODO
 }
 
-tobas::RcCommand FixedWingWidget::stabilizeModeCommand() const
+RcCommand FixedWingWidget::stabilizeModeCommand() const
 {
-  return tobas::RcCommand::kSpeedRollDPitch;  // TODO
+  return RcCommand::kSpeedRollDPitch;  // TODO
 }
 
-tobas::RcCommand FixedWingWidget::loiterModeCommand() const
+RcCommand FixedWingWidget::loiterModeCommand() const
 {
-  return tobas::RcCommand::kSpeedRollDPitch;  // TODO
+  return RcCommand::kSpeedRollDPitch;  // TODO
 }
 
 YAML::Node FixedWingWidget::staticParams() const
@@ -68,3 +73,4 @@ bool FixedWingWidget::isValid()
 }  // namespace ctrl
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

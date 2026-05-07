@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <QListWidget>
 
+namespace tobas
+{
 namespace qt
 {
 /**
@@ -50,3 +55,4 @@ public:
   virtual bool operator<(const QListWidgetItem& rhs) const override;
 };
 }  // namespace qt
+}  // namespace tobas

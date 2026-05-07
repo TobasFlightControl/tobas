@@ -1,5 +1,10 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_setup_assistant/param_getters/ratio.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -67,3 +72,4 @@ void ParamGetterWidget_Ratio::onValueChanged()
 }
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

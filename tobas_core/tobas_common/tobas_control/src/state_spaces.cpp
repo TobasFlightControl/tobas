@@ -1,8 +1,13 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_control/state_spaces.hpp"
 
 using namespace std;
 using namespace Eigen;
 
+namespace tobas
+{
 namespace ctrl
 {
 LinearDynamics LinearDynamics::scale(const VectorXd& x_scale, const VectorXd& u_scale) const
@@ -55,3 +60,4 @@ ostream& operator<<(ostream& os, const LinearStateSpace& arg)
   return os;
 }
 }  // namespace ctrl
+}  // namespace tobas

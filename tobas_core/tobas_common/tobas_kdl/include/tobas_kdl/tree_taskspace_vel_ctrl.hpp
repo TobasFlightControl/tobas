@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include "./taskspace_damping.hpp"
 #include "./tree_fk_solver_pos.hpp"
 #include "./tree_ik_solver_vel_pinv.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 class TreeTaskSpaceVelCtrl : public TreeSolverI
@@ -38,3 +43,4 @@ inline const JntArray& TreeTaskSpaceVelCtrl::getVelocities() const
   return ik_.getVelocities();
 }
 }  // namespace kdl
+}  // namespace tobas

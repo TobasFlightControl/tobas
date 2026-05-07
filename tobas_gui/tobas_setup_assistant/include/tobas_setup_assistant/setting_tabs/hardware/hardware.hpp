@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <tobas_qt_tools/widgets/combo_box.hpp>
@@ -8,6 +11,8 @@
 #include "./dshot.hpp"
 #include "./pwm.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -86,6 +91,13 @@ public:
   int numPwmChannels() const;
   int numDShotChannels() const;
 
+  /* [Hz] */
+  int defaultAccelLpfCutoff() const;
+  /* [Hz] */
+  int defaultGyroLpfCutoff() const;
+  /* [Hz] */
+  int defaultDGyroLpfCutoff() const;
+
 private:
   qt::ComboBox* type_;
   qt::StackedWidget* hardwares_;
@@ -101,3 +113,4 @@ private Q_SLOTS:
 };  // namespace hw
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

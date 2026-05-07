@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_setup_assistant/setting_tabs/controller/random_axis_tilt_multicopter.hpp"
 
 #include <QVBoxLayout>
@@ -5,6 +8,8 @@
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -42,19 +47,19 @@ QString RandomAxisTiltMulticopterWidget::pluginName() const
   return "tobas::random_axis_tilt_multicopter::ControllerNode";
 }
 
-tobas::RcCommand RandomAxisTiltMulticopterWidget::acrobatModeCommand() const
+RcCommand RandomAxisTiltMulticopterWidget::acrobatModeCommand() const
 {
-  return tobas::RcCommand::kAccelRate;
+  return RcCommand::kAccelRate;
 }
 
-tobas::RcCommand RandomAxisTiltMulticopterWidget::stabilizeModeCommand() const
+RcCommand RandomAxisTiltMulticopterWidget::stabilizeModeCommand() const
 {
-  return tobas::RcCommand::kAccelAngle;
+  return RcCommand::kAccelAngle;
 }
 
-tobas::RcCommand RandomAxisTiltMulticopterWidget::loiterModeCommand() const
+RcCommand RandomAxisTiltMulticopterWidget::loiterModeCommand() const
 {
-  return tobas::RcCommand::kPosVelAccAngle;
+  return RcCommand::kPosVelAccAngle;
 }
 
 YAML::Node RandomAxisTiltMulticopterWidget::staticParams() const
@@ -90,3 +95,4 @@ bool RandomAxisTiltMulticopterWidget::isValid()
 }  // namespace ctrl
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_control_system/gnss_viewer.hpp"
 
 #include <QDebug>
@@ -5,6 +8,8 @@
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -70,3 +75,4 @@ void GnssViewerWidget::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss)
 }
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

@@ -8,7 +8,7 @@ endif()
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werror") # TODO: -Wswitch-enum
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Wswitch-enum -Werror")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 set(AMENT_DEPENDENCIES
@@ -17,11 +17,10 @@ set(AMENT_DEPENDENCIES
     geometric_shapes
     tf2_eigen
     rsl
-    octomap_msgs
+    trajectory_msgs
     rviz_common
     rviz_default_plugins
     rviz_rendering
-    srdfdom
     tobas_math
     tobas_visualization_msgs
 )

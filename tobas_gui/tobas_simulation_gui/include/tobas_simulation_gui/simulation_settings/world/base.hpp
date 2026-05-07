@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <filesystem>
 
 #include <QWidget>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sim
@@ -17,3 +22,4 @@ public:
 };
 }  // namespace sim
 }  // namespace gui
+}  // namespace tobas

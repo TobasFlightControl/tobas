@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_linux/schedule.hpp"
 
 #include <pthread.h>
@@ -9,6 +12,8 @@
 
 using namespace std;
 
+namespace tobas
+{
 namespace linux
 {
 bool checkRealtimePriority(const pthread_t& thread, const int& tar_policy, const int& tar_priority)
@@ -73,3 +78,4 @@ bool setRealtimePriorityRR(const int& priority)
   return setRealtimePriority(SCHED_RR, priority);
 }
 }  // namespace linux
+}  // namespace tobas

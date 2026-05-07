@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <algorithm>
 
+namespace tobas
+{
 namespace algo
 {
 /* 可変長引数の最大値を計算する． (ベースケース) */
@@ -38,3 +43,4 @@ double wrapPi(double angle);
 /* 2次元ベクトルの方向を変えないようにL2ノルムを制限する． */
 void clamp2d(double& x, double& y, const double& max_length);
 }  // namespace algo
+}  // namespace tobas

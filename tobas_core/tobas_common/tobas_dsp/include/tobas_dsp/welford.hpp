@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <tobas_eigen_tools/core.hpp>
 
+namespace tobas
+{
 namespace dsp
 {
 /**
@@ -90,3 +95,4 @@ inline size_t Welford<Scalar, Size>::count() const
   return n_;
 }
 }  // namespace dsp
+}  // namespace tobas

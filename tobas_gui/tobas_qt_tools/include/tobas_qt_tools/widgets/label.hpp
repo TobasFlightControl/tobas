@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <QLabel>
 
+namespace tobas
+{
 namespace qt
 {
 /**
@@ -25,3 +30,4 @@ public:
   void setTextColor(const Qt::GlobalColor color);
 };
 }  // namespace qt
+}  // namespace tobas

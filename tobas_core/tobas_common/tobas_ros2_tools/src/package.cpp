@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_ros2_tools/package.hpp"
 
 #include <tinyxml2.h>
 
 namespace fs = std::filesystem;
 
+namespace tobas
+{
 namespace ros2
 {
 namespace
@@ -129,3 +134,4 @@ bool isValidPackageName(const std::string& pkg_name)
   return true;
 }
 }  // namespace ros2
+}  // namespace tobas

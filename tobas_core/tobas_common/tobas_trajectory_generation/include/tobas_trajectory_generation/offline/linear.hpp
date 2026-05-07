@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include "./base.hpp"
 
+namespace tobas
+{
 namespace traj
 {
 /* 直線軌道生成 */
@@ -18,3 +23,4 @@ private:
   double v_;
 };
 }  // namespace traj
+}  // namespace tobas

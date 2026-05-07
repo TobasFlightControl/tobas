@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_linux/git.hpp"
 
 #include <iostream>
 
 using namespace std;
 
+namespace tobas
+{
 namespace linux
 {
 GitHandler::GitHandler()
@@ -30,3 +35,4 @@ string GitHandler::getUserEmail()
   return command_executor_.getOutput();
 }
 }  // namespace linux
+}  // namespace tobas

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_gui_common/project_paths.hpp"
 
 #include <tobas_std_tools/check.hpp>
@@ -6,6 +9,8 @@
 
 namespace fs = std::filesystem;
 
+namespace tobas
+{
 namespace gui
 {
 namespace cmn
@@ -166,3 +171,4 @@ fs::path ProjectPaths::versionPath() const
 }
 }  // namespace cmn
 }  // namespace gui
+}  // namespace tobas

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_sensor_calibration/accel_calibration/thread.hpp"
 
 #include <tobas_constants/ros_interface.hpp>
@@ -10,6 +13,8 @@
 
 #include "tobas_sensor_calibration/constants.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sc
@@ -72,7 +77,7 @@ void AccelCalibrationThread::run()
   }
 
   // バイアスを計算
-  const kdl::Vector acc_ref(0, 0, tbs::kGravity);
+  const kdl::Vector acc_ref(0, 0, st::kGravity);
   const auto acc_bias = acc_mean - acc_ref;
 
   // バイアスが異常に大きい場合は失敗
@@ -89,7 +94,7 @@ void AccelCalibrationThread::run()
 
   // パラメータを更新
   ros2::SyncServiceClient<tobas_real_msgs::srv::SetImuParams> sc(
-    node_, path::join(ns_, tobas::kRemoteIfaceNS, real::handler::imu::kSetParamSrv));
+    node_, path::join(ns_, kRemoteIfaceNS, real::handler::imu::kSetParamSrv));
   if (!sc.call(req, kSetParamTimeout)) {
     Q_EMIT finished(false, "Failed to send calibration results.");
     return;
@@ -142,3 +147,4 @@ void AccelCalibrationThread::armingCb(const tobas_msgs::msg::Arming::ConstShared
 }
 }  // namespace sc
 }  // namespace gui
+}  // namespace tobas

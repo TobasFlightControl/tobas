@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_property_client/property_client.hpp"
 
 #include <std_srvs/srv/trigger.hpp>
@@ -15,6 +18,8 @@ using namespace std;
 using namespace std_srvs::srv;
 using namespace tobas_property_msgs::srv;
 
+namespace tobas
+{
 namespace ptree
 {
 PropertyClient::PropertyClient(rclcpp::Node::SharedPtr node, const string& section) : node_(node), section_(section)
@@ -153,3 +158,4 @@ const char* PropertyClient::errorMessage() const
   }
 }
 }  // namespace ptree
+}  // namespace tobas

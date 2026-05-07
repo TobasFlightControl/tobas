@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <rclcpp/type_adapter.hpp>
@@ -9,10 +12,10 @@
 #include "./util/util.hpp"
 
 template <>
-struct rclcpp::TypeAdapter<kdl::RotationalInertia, tobas_kdl_msgs::msg::RotationalInertia>
+struct rclcpp::TypeAdapter<tobas::kdl::RotationalInertia, tobas_kdl_msgs::msg::RotationalInertia>
 {
   using is_specialized = std::true_type;
-  using custom_type = kdl::RotationalInertia;
+  using custom_type = tobas::kdl::RotationalInertia;
   using ros_message_type = tobas_kdl_msgs::msg::RotationalInertia;
 
   static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
@@ -28,7 +31,8 @@ struct rclcpp::TypeAdapter<kdl::RotationalInertia, tobas_kdl_msgs::msg::Rotation
 
 namespace tobas_kdl_msgs
 {
-using RotationalInertiaAdapter = rclcpp::TypeAdapter<kdl::RotationalInertia, tobas_kdl_msgs::msg::RotationalInertia>;
+using RotationalInertiaAdapter =
+  rclcpp::TypeAdapter<tobas::kdl::RotationalInertia, tobas_kdl_msgs::msg::RotationalInertia>;
 }  // namespace tobas_kdl_msgs
 
-RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(kdl::RotationalInertia, tobas_kdl_msgs::msg::RotationalInertia);
+RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(tobas::kdl::RotationalInertia, tobas_kdl_msgs::msg::RotationalInertia);

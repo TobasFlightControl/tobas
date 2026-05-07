@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_sensor_calibration/mag_calibration/mag_calibration.hpp"
 
 #include <QRadioButton>
@@ -7,6 +10,8 @@
 #include "tobas_sensor_calibration/mag_calibration/complete/complete.hpp"
 #include "tobas_sensor_calibration/mag_calibration/large_vehicle/large_vehicle.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sc
@@ -74,3 +79,4 @@ void MagCalibrationWidget::setCurrentIndex(int index)
 }
 }  // namespace sc
 }  // namespace gui
+}  // namespace tobas

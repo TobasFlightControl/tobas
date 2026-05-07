@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_qt_tools/path.hpp"
 
 #include <filesystem>
@@ -10,6 +13,8 @@
 
 namespace fs = std::filesystem;
 
+namespace tobas
+{
 namespace qt
 {
 QString getResourcePath()
@@ -81,3 +86,4 @@ std::expected<QString, QString> writeTimestampedFile(
   return path;
 }
 }  // namespace qt
+}  // namespace tobas

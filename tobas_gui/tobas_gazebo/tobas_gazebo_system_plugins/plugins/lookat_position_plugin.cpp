@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include <gz/msgs/vector3d.pb.h>
 #include <gz/transport/Node.hh>
 
@@ -10,6 +13,8 @@
 
 namespace cmp = gz::sim::components;
 
+namespace tobas
+{
 namespace gazebo
 {
 class GazeboLookAtPositionPlugin : public BaseNode,
@@ -77,9 +82,10 @@ void GazeboLookAtPositionPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
   getSdfParam(sdf, "linkName", link_name_);
 }
 }  // namespace gazebo
+}  // namespace tobas
 
 GZ_ADD_PLUGIN(
-  gazebo::GazeboLookAtPositionPlugin,
+  tobas::gazebo::GazeboLookAtPositionPlugin,
   gz::sim::System,
-  gazebo::GazeboLookAtPositionPlugin::ISystemConfigure,
-  gazebo::GazeboLookAtPositionPlugin::ISystemPostUpdate)
+  gz::sim::ISystemConfigure,
+  gz::sim::ISystemPostUpdate)

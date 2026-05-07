@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include <iostream>
 
 #include <tobas_std_tools/geometry.hpp>
@@ -12,11 +15,11 @@ int main(int argc, char** argv)
     return EXIT_FAILURE;
   }
 
-  const auto roll = tbs::deg2rad(atof(argv[1]));
-  const auto pitch = tbs::deg2rad(atof(argv[2]));
-  const auto yaw = tbs::deg2rad(atof(argv[3]));
+  const auto roll = tobas::st::deg2rad(atof(argv[1]));
+  const auto pitch = tobas::st::deg2rad(atof(argv[2]));
+  const auto yaw = tobas::st::deg2rad(atof(argv[3]));
 
-  const auto [qx, qy, qz, qw] = tbs::quaternionFromEuler(roll, pitch, yaw);
+  const auto [qx, qy, qz, qw] = tobas::st::quaternionFromEuler(roll, pitch, yaw);
   cout << "Hamilton: " << qw << ", " << qx << ", " << qy << ", " << qz << endl;
 
   return EXIT_SUCCESS;

@@ -1,6 +1,10 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include <fstream>
 #include <sstream>
 
+#include <tobas_dsp/low_pass_filter_p1.hpp>
 #include <tobas_linux/command_executor.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_string_tools/core.hpp>
@@ -8,15 +12,20 @@
 #include <tobas_msgs/msg/cpu.hpp>
 
 using namespace std::chrono_literals;
+namespace ch = std::chrono;
 
-class CpuHandlerNode : public tobas::BaseNode
+namespace tobas
+{
+namespace real
+{
+class CpuHandlerNode : public BaseNode
 {
   static constexpr auto kSamplingPeriod = 100ms;
   static constexpr char kTemperatureFilePath[] = "/sys/class/thermal/thermal_zone0/temp";
   static constexpr char kStatisticsFilePath[] = "/proc/stat";
 
   using self = CpuHandlerNode;
-  using super = tobas::BaseNode;
+  using super = BaseNode;
 
 public:
   explicit CpuHandlerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -25,6 +34,9 @@ private:
   int temp_millidegrees_;
   std::string cpu_line_, token_;
   uint64_t prev_user_time_ = 0, prev_nice_time_ = 0, prev_system_time_ = 0, prev_idle_time_ = 0;
+  uint64_t freq_;
+  double temp_, load_;
+  dsp::LowPassFilterP1<double> temp_lpf_, load_lpf_;
   linux::CommandExecutor command_executor_;
 
   // Publisher
@@ -33,9 +45,11 @@ private:
   // Timer
   ros2::TimerPtr main_timer_;
 
-  bool getTemperature(double& temp);
-  bool getFrequency(uint64_t& freq);
-  bool getLoad(double& load);
+  bool getFrequency();
+  bool getTemperature();
+  bool getLoad();
+
+  bool getStatus();
 
   void mainTimerCb();
 };
@@ -43,23 +57,24 @@ private:
 CpuHandlerNode::CpuHandlerNode(const rclcpp::NodeOptions& options)
   : super("real_cpu_handler", nodeOptions_Default(options))
 {
-  cpu_pub_ = createPublisher<tobas_msgs::msg::Cpu>(tobas::topic::kCpu);
+  // Configure the LPFs
+  temp_lpf_.setCutoffFrequency(dsp::cutoffFromTimeConst(5.));
+  load_lpf_.setCutoffFrequency(dsp::cutoffFromTimeConst(1.));
+
+  // Set the initial status
+  if (!getStatus()) {
+    TOBAS_ERROR("This node will not work.");
+    return;
+  }
+  temp_lpf_.setValue(temp_);
+  load_lpf_.setValue(load_);
+
+  // Resister the ROS interfaces
+  cpu_pub_ = createPublisher<tobas_msgs::msg::Cpu>(topic::kCpu);
   main_timer_ = createWallTimer(kSamplingPeriod, &self::mainTimerCb, this);
 }
 
-bool CpuHandlerNode::getTemperature(double& temp)
-{
-  std::ifstream temp_file(kTemperatureFilePath);
-  if (!temp_file) {
-    TOBAS_ERROR("Failed to open ", kTemperatureFilePath, ".");
-    return false;
-  }
-  temp_file >> temp_millidegrees_;
-  temp = static_cast<double>(temp_millidegrees_) * 1e-3;
-  return true;
-}
-
-bool CpuHandlerNode::getFrequency(uint64_t& freq)
+bool CpuHandlerNode::getFrequency()
 {
   if (!command_executor_.execute("vcgencmd measure_clock arm")) {
     TOBAS_ERROR("Failed to get CPU clock frequency.");
@@ -67,11 +82,23 @@ bool CpuHandlerNode::getFrequency(uint64_t& freq)
   }
 
   const auto freq_str = str::split(command_executor_.getOutput(), '=').back();  // 数値部分のみ抜き出す
-  freq = stoul(freq_str);                                                       // str -> uint64
+  freq_ = stoul(freq_str);                                                      // str -> uint64
   return true;
 }
 
-bool CpuHandlerNode::getLoad(double& load)
+bool CpuHandlerNode::getTemperature()
+{
+  std::ifstream temp_file(kTemperatureFilePath);
+  if (!temp_file) {
+    TOBAS_ERROR("Failed to open ", kTemperatureFilePath, ".");
+    return false;
+  }
+  temp_file >> temp_millidegrees_;
+  temp_ = static_cast<double>(temp_millidegrees_) * 1e-3;
+  return true;
+}
+
+bool CpuHandlerNode::getLoad()
 {
   // ファイルを読み込む
   std::ifstream stat_file(kStatisticsFilePath);
@@ -130,7 +157,7 @@ bool CpuHandlerNode::getLoad(double& load)
   // 負荷を計算
   const auto busy_time = user_time + nice_time + system_time;
   const auto all_time = busy_time + idle_time;
-  load = static_cast<double>(busy_time) / static_cast<double>(all_time);
+  load_ = static_cast<double>(busy_time) / static_cast<double>(all_time);
 
   // CPU使用時間を更新
   prev_user_time_ = new_user_time;
@@ -141,29 +168,44 @@ bool CpuHandlerNode::getLoad(double& load)
   return true;
 }
 
-void CpuHandlerNode::mainTimerCb()
+bool CpuHandlerNode::getStatus()
 {
-  // Create ROS message
-  auto cpu_msg = std::make_unique<tobas_msgs::msg::Cpu>();
-  cpu_msg->header.stamp = now();
-
-  // Get CPU temperature
-  if (!getTemperature(cpu_msg->temperature)) {
-    return;
+  if (!getFrequency()) {
+    return false;
   }
 
-  // Get CPU frequency
-  if (!getFrequency(cpu_msg->frequency)) {
-    return;
+  if (!getTemperature()) {
+    return false;
   }
 
-  // Get CPU load
-  if (!getLoad(cpu_msg->load)) {
-    return;
+  if (!getLoad()) {
+    return false;
   }
 
-  // Publish ROS message
-  cpu_pub_->publish(std::move(cpu_msg));
+  return true;
 }
 
-RCLCPP_COMPONENTS_REGISTER_NODE(CpuHandlerNode)
+void CpuHandlerNode::mainTimerCb()
+{
+  // Get CPU status
+  if (!getStatus()) {
+    return;
+  }
+
+  // Smooth CPU load
+  constexpr auto dt = ch::duration<double>(kSamplingPeriod).count();
+  temp_lpf_.update(temp_, dt);
+  load_lpf_.update(load_, dt);
+
+  // Publish CPU status
+  auto cpu_msg = std::make_unique<tobas_msgs::msg::Cpu>();
+  cpu_msg->header.stamp = now();
+  cpu_msg->frequency = freq_;
+  cpu_msg->temperature = temp_lpf_.getValue();
+  cpu_msg->load = load_lpf_.getValue();
+  cpu_pub_->publish(std::move(cpu_msg));
+}
+}  // namespace real
+}  // namespace tobas
+
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::real::CpuHandlerNode)

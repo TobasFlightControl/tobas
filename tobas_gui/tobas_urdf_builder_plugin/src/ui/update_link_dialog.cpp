@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_urdf_builder_plugin/ui/update_link_dialog.hpp"
 
 #include <filesystem>
@@ -21,6 +24,8 @@
 
 namespace fs = std::filesystem;
 
+namespace tobas
+{
 namespace gui
 {
 namespace ub
@@ -478,7 +483,12 @@ void UpdateLinkDialog::onCollisionGeometryMeshBrowseButtonClicked()
 
   // メッシュファイルのパスを取得
   const auto file_path = QFileDialog::getOpenFileName(
-    this, "Select Mesh File", QString::fromStdString(last_dir), "Mesh Files (*.stl *.dae);;All Files (*)");
+    this,
+    "Select Mesh File",
+    QString::fromStdString(last_dir),
+    "Mesh Files (*.stl *.dae);;All Files (*)",
+    nullptr,
+    QFileDialog::DontUseNativeDialog);
   if (file_path.isEmpty()) {
     return;
   }
@@ -755,7 +765,7 @@ void UpdateLinkDialog::readFromUI(const view_model::VisualViewModelPtr& visual) 
 {
   assert(visual);
 
-  urdf::Pose pose;
+  ::urdf::Pose pose;
   pose.position.x = ui_->VisualOriginXSpinBox->value();
   pose.position.y = ui_->VisualOriginYSpinBox->value();
   pose.position.z = ui_->VisualOriginZSpinBox->value();
@@ -780,7 +790,7 @@ void UpdateLinkDialog::readFromUI(const view_model::VisualViewModelPtr& visual) 
     case GeometryType::MESH:
       geometry_vm->filePath(ui_->VisualGeometryMeshPathLineEdit->text());
       const auto scale = ui_->VisualGeometryMeshScaleSpinBox->value();
-      geometry_vm->scale(urdf::Vector3(scale, scale, scale));
+      geometry_vm->scale(::urdf::Vector3(scale, scale, scale));
       break;
   }
 
@@ -798,7 +808,7 @@ void UpdateLinkDialog::readFromUI(const view_model::CollisionViewModelPtr& colli
 {
   assert(collision);
 
-  urdf::Pose pose;
+  ::urdf::Pose pose;
   pose.position.x = ui_->CollisionOriginXSpinBox->value();
   pose.position.y = ui_->CollisionOriginYSpinBox->value();
   pose.position.z = ui_->CollisionOriginZSpinBox->value();
@@ -825,7 +835,7 @@ void UpdateLinkDialog::readFromUI(const view_model::CollisionViewModelPtr& colli
     case GeometryType::MESH:
       geometry_vm->filePath(ui_->CollisionGeometryMeshPathLineEdit->text());
       const auto scale = ui_->CollisionGeometryMeshScaleSpinBox->value();
-      geometry_vm->scale(urdf::Vector3(scale, scale, scale));
+      geometry_vm->scale(::urdf::Vector3(scale, scale, scale));
       break;
   }
   link_vm_->sync();
@@ -845,7 +855,7 @@ void UpdateLinkDialog::readFromUI(const view_model::JointViewModelPtr& joint) co
     joint->limits()->velocity(ui_->JointLimitVelocitySpinBox->value());
   }
 
-  urdf::Pose pose;
+  ::urdf::Pose pose;
   pose.position.x = ui_->JointOriginXSpinBox->value();
   pose.position.y = ui_->JointOriginYSpinBox->value();
   pose.position.z = ui_->JointOriginZSpinBox->value();
@@ -853,7 +863,7 @@ void UpdateLinkDialog::readFromUI(const view_model::JointViewModelPtr& joint) co
     ui_->JointOriginRollSpinBox->value(), ui_->JointOriginPitchSpinBox->value(), ui_->JointOriginYawSpinBox->value());
   joint->origin(pose);
 
-  urdf::Vector3 axis;
+  ::urdf::Vector3 axis;
   axis.x = ui_->JointAxisXSpinBox->value();
   axis.y = ui_->JointAxisYSpinBox->value();
   axis.z = ui_->JointAxisZSpinBox->value();
@@ -864,7 +874,7 @@ void UpdateLinkDialog::readFromUI(const view_model::JointViewModelPtr& joint) co
 
 void UpdateLinkDialog::readFromUI(const view_model::InertialViewModelPtr& inertial) const
 {
-  urdf::Pose pose;
+  ::urdf::Pose pose;
   pose.position.x = ui_->InertialOriginXSpinBox->value();
   pose.position.y = ui_->InertialOriginYSpinBox->value();
   pose.position.z = ui_->InertialOriginZSpinBox->value();
@@ -915,3 +925,4 @@ void UpdateLinkDialog::arrangeVisualGeometryTypeFrames(const std::map<QString, Q
 }  // namespace ui
 }  // namespace ub
 }  // namespace gui
+}  // namespace tobas

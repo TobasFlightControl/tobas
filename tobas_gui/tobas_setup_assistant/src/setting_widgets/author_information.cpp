@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_setup_assistant/setting_tabs/author_information.hpp"
 
 #include <tobas_git/core.hpp>
@@ -6,6 +9,8 @@
 #include <tobas_string_tools/core.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -118,3 +123,4 @@ QString AuthorInformationWidget::getDefaultEmail()
 }
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

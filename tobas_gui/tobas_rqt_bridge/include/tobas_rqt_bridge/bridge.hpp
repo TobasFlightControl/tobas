@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <QObject>
@@ -5,6 +8,8 @@
 
 #include "./declare.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 class RosQtBridge : public QObject
@@ -58,3 +63,4 @@ private:
   void addScoped(const std::string& ns, const std::string& topic);
 };
 }  // namespace gui
+}  // namespace tobas

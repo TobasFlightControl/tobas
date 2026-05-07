@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include "./frames.hpp"
 #include "./jntarray.hpp"
 #include "./tree_solver_i.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 /* 全てのフレームの位置を一度に計算する． */
@@ -37,3 +42,4 @@ inline const FrameMap& TreeFkSolverPosAll::getFrames() const
   return frames_;
 }
 }  // namespace kdl
+}  // namespace tobas

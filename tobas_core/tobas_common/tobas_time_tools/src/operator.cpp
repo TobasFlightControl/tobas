@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_time_tools/operator.hpp"
 
 std::ostream& operator<<(std::ostream& os, const tm& arg)

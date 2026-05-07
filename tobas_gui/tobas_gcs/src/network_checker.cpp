@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_gcs/network_checker.hpp"
 
 #include <QApplication>
 
 #include <tobas_qt_tools/message.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace gcs
@@ -29,3 +34,4 @@ void NetworkChecker::onTimeout()
 }
 }  // namespace gcs
 }  // namespace gui
+}  // namespace tobas

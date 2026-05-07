@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_flight_log_gui/log_viewer/log_viewer.hpp"
 
 #include <ranges>
@@ -8,13 +11,15 @@
 
 #include <tobas_constants/path.hpp>
 #include <tobas_constants/ros_interface.hpp>
-#include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_ros2_tools/rosbag.hpp>
 #include <tobas_ros2_tools/util.hpp>
+#include <tobas_string_tools/chars.hpp>
 
 namespace fs = std::filesystem;
 
+namespace tobas
+{
 namespace gui
 {
 namespace log
@@ -45,9 +50,11 @@ FlightLogViewerWidget::FlightLogViewerWidget()
       tar_joint_velocities_data_,
       tar_joint_efforts_data_,
       ice_cmd_data_,
+      pwm_data_,
       sampling_time_data_,
       ctrl_latency_data_,
       vibe_data_,
+      repulsive_accel_data_,
       dist_force_data_,
       obsv_fb_data_,
       mr_ctrl_fb_data_);
@@ -74,7 +81,10 @@ void FlightLogViewerWidget::reset()
   reader_.close();
   decode_fail_topics_.clear();
 
+  // キャッシュクリアを忘れるとログを切り替えても以前のものが表示されてしまうことに注意
   odom_cov_decoder_.clearCache();
+  odom_decoder_.clearCache();
+  imu_decoder_.clearCache();
   mag_decoder_.clearCache();
   gnss_decoder_.clearCache();
   rcin_decoder_.clearCache();
@@ -85,13 +95,15 @@ void FlightLogViewerWidget::reset()
   joint_states_decoder_.clearCache();
   joint_commands_decoder_.clearCache();
   ice_cmd_decoder_.clearCache();
+  pwm_decoder_.clearCache();
   latency_decoder_.clearCache();
   vibe_decoder_.clearCache();
+  repulsive_accel_decoder_.clearCache();
   wrench_decoder_.clearCache();
   obsv_fb_decoder_.clearCache();
   mr_ctrl_fb_decoder_.clearCache();
 
-  for (auto& plot_tab : plot_tabs_) {
+  for (const auto& plot_tab : plot_tabs_) {
     plot_tab->clear();
     plot_tab->setTimeScale(0., kWindowDuration);
   }
@@ -104,7 +116,7 @@ void FlightLogViewerWidget::setLogName(const QString& log_name)
   reset();
 
   // rosbagの絶対パスを更新
-  log_path_ = ros2::expandUser(tobas::kRosbagDirHome) / log_name.toStdString();
+  log_path_ = ros2::expandUser(kRosbagDirHome) / log_name.toStdString();
 
   // rosbagを開く
   if (!open(log_path_)) {
@@ -177,9 +189,11 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
   tar_joint_velocities_data_.clear();
   tar_joint_efforts_data_.clear();
   ice_cmd_data_.clear();
+  pwm_data_.clear();
   sampling_time_data_.clear();
   ctrl_latency_data_.clear();
   vibe_data_.clear();
+  repulsive_accel_data_.clear();
   dist_force_data_.clear();
   obsv_fb_data_.clear();
   mr_ctrl_fb_data_.clear();
@@ -203,71 +217,77 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
 
     // デコード
     try {
-      if (topic.ends_with(path::join("/", tobas::topic::kOdometry))) {
-        odom_data_.push_back(odom_cov_decoder_.decode(cur_time, ser_data));
+      if (topic.ends_with(str::concat('/', topic::kOdometry).data())) {
+        odom_data_.append(odom_cov_decoder_.decode(cur_time, ser_data));
       }
-      else if (topic.ends_with(path::join("/", tobas::topic::kTrajSetpoint))) {
-        setpoint_data_.push_back(odom_decoder_.decode(cur_time, ser_data));
+      else if (topic.ends_with(str::concat('/', topic::kTrajSetpoint).data())) {
+        setpoint_data_.append(odom_decoder_.decode(cur_time, ser_data));
       }
-      else if (topic.ends_with(path::join("/", tobas::topic::kImuRaw))) {
-        raw_imu_data_.push_back(imu_decoder_.decode(cur_time, ser_data));
+      else if (topic.ends_with(str::concat('/', topic::kImuRaw).data())) {
+        raw_imu_data_.append(imu_decoder_.decode(cur_time, ser_data));
       }
-      else if (topic.ends_with(path::join("/", tobas::topic::kImuFilt))) {
-        filt_imu_data_.push_back(imu_decoder_.decode(cur_time, ser_data));
+      else if (topic.ends_with(str::concat('/', topic::kImuFilt).data())) {
+        filt_imu_data_.append(imu_decoder_.decode(cur_time, ser_data));
       }
-      else if (topic.ends_with(path::join("/", tobas::topic::kMagneticField))) {
-        mag_data_.push_back(mag_decoder_.decode(cur_time, ser_data));
+      else if (topic.ends_with(str::concat('/', topic::kMagneticField).data())) {
+        mag_data_.append(mag_decoder_.decode(cur_time, ser_data));
       }
-      else if (topic.ends_with(path::join("/", tobas::topic::kGnss))) {
-        gnss_data_.push_back(gnss_decoder_.decode(cur_time, ser_data));
+      else if (topic.ends_with(str::concat('/', topic::kGnss).data())) {
+        gnss_data_.append(gnss_decoder_.decode(cur_time, ser_data));
       }
-      else if (topic.ends_with(path::join("/", tobas::topic::kRcInput))) {
-        rcin_data_.push_back(rcin_decoder_.decode(cur_time, ser_data));
+      else if (topic.ends_with(str::concat('/', topic::kRcInput).data())) {
+        rcin_data_.append(rcin_decoder_.decode(cur_time, ser_data));
       }
-      else if (topic.ends_with(path::join("/", tobas::topic::kBattery))) {
-        battery_data_.push_back(battery_decoder_.decode(cur_time, ser_data));
+      else if (topic.ends_with(str::concat('/', topic::kBattery).data())) {
+        battery_data_.append(battery_decoder_.decode(cur_time, ser_data));
       }
-      else if (topic.ends_with(path::join("/", tobas::topic::kCpu))) {
-        cpu_data_.push_back(cpu_decoder_.decode(cur_time, ser_data));
+      else if (topic.ends_with(str::concat('/', topic::kCpu).data())) {
+        cpu_data_.append(cpu_decoder_.decode(cur_time, ser_data));
       }
-      else if (topic.ends_with(path::join("/", tobas::topic::kRotorStates))) {
-        cur_rotor_states_data_.push_back(rotor_states_decoder_.decode(cur_time, ser_data));
+      else if (topic.ends_with(str::concat('/', topic::kRotorStates).data())) {
+        cur_rotor_states_data_.append(rotor_states_decoder_.decode(cur_time, ser_data));
       }
-      else if (topic.ends_with(path::join("/", tobas::topic::kRotorSpeedsCmd))) {
-        tar_rotor_speeds_data_.push_back(rotor_speeds_decoder_.decode(cur_time, ser_data));
+      else if (topic.ends_with(str::concat('/', topic::kRotorSpeedsCmd).data())) {
+        tar_rotor_speeds_data_.append(rotor_speeds_decoder_.decode(cur_time, ser_data));
       }
-      else if (topic.ends_with(path::join("/", tobas::topic::kJointStates))) {
-        cur_joint_states_data_.push_back(joint_states_decoder_.decode(cur_time, ser_data));
+      else if (topic.ends_with(str::concat('/', topic::kJointStates).data())) {
+        cur_joint_states_data_.append(joint_states_decoder_.decode(cur_time, ser_data));
       }
-      else if (topic.ends_with(path::join("/", tobas::topic::kJointPosCmd))) {
-        tar_joint_positions_data_.push_back(joint_commands_decoder_.decode(cur_time, ser_data));
+      else if (topic.ends_with(str::concat('/', topic::kJointPosCmd).data())) {
+        tar_joint_positions_data_.append(joint_commands_decoder_.decode(cur_time, ser_data));
       }
-      else if (topic.ends_with(path::join("/", tobas::topic::kJointVelCmd))) {
-        tar_joint_velocities_data_.push_back(joint_commands_decoder_.decode(cur_time, ser_data));
+      else if (topic.ends_with(str::concat('/', topic::kJointVelCmd).data())) {
+        tar_joint_velocities_data_.append(joint_commands_decoder_.decode(cur_time, ser_data));
       }
-      else if (topic.ends_with(path::join("/", tobas::topic::kJointEffCmd))) {
-        tar_joint_efforts_data_.push_back(joint_commands_decoder_.decode(cur_time, ser_data));
+      else if (topic.ends_with(str::concat('/', topic::kJointEffCmd).data())) {
+        tar_joint_efforts_data_.append(joint_commands_decoder_.decode(cur_time, ser_data));
       }
-      else if (topic.ends_with(path::join("/", tobas::topic::kIcePropulsionSystemCmd))) {
-        ice_cmd_data_.push_back(ice_cmd_decoder_.decode(cur_time, ser_data));
+      else if (topic.ends_with(str::concat('/', topic::kIcePropulsionSystemCmd).data())) {
+        ice_cmd_data_.append(ice_cmd_decoder_.decode(cur_time, ser_data));
       }
-      else if (topic.ends_with(path::join("/", tobas::topic::kImuSamplingTime))) {
-        sampling_time_data_.push_back(latency_decoder_.decode(cur_time, ser_data));
+      else if (topic.ends_with(str::concat('/', topic::kPwmCmd).data())) {
+        pwm_data_.append(pwm_decoder_.decode(cur_time, ser_data));
       }
-      else if (topic.ends_with(path::join("/", tobas::topic::kControlLatency))) {
-        ctrl_latency_data_.push_back(latency_decoder_.decode(cur_time, ser_data));
+      else if (topic.ends_with(str::concat('/', topic::kImuSamplingTime).data())) {
+        sampling_time_data_.append(latency_decoder_.decode(cur_time, ser_data));
       }
-      else if (topic.ends_with(path::join("/", tobas::topic::kVibrationLevel))) {
-        vibe_data_.push_back(vibe_decoder_.decode(cur_time, ser_data));
+      else if (topic.ends_with(str::concat('/', topic::kControlLatency).data())) {
+        ctrl_latency_data_.append(latency_decoder_.decode(cur_time, ser_data));
       }
-      else if (topic.ends_with(path::join("/", tobas::topic::kDisturbanceForce))) {
-        dist_force_data_.push_back(wrench_decoder_.decode(cur_time, ser_data));
+      else if (topic.ends_with(str::concat('/', topic::kVibrationLevel).data())) {
+        vibe_data_.append(vibe_decoder_.decode(cur_time, ser_data));
       }
-      else if (topic.ends_with(path::join("/", tobas::topic::kObsvFeedback))) {
-        obsv_fb_data_.push_back(obsv_fb_decoder_.decode(cur_time, ser_data));
+      else if (topic.ends_with(str::concat('/', topic::kRepulsiveAccel).data())) {
+        repulsive_accel_data_.append(repulsive_accel_decoder_.decode(cur_time, ser_data));
       }
-      else if (topic.ends_with(path::join("/", tobas::topic::kMRCtrlFeedback))) {
-        mr_ctrl_fb_data_.push_back(mr_ctrl_fb_decoder_.decode(cur_time, ser_data));
+      else if (topic.ends_with(str::concat('/', topic::kDisturbanceForce).data())) {
+        dist_force_data_.append(wrench_decoder_.decode(cur_time, ser_data));
+      }
+      else if (topic.ends_with(str::concat('/', topic::kObsvFeedback).data())) {
+        obsv_fb_data_.append(obsv_fb_decoder_.decode(cur_time, ser_data));
+      }
+      else if (topic.ends_with(str::concat('/', topic::kMRCtrlFeedback).data())) {
+        mr_ctrl_fb_data_.append(mr_ctrl_fb_decoder_.decode(cur_time, ser_data));
       }
     }
     catch (const std::exception& e) {
@@ -277,7 +297,7 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
   }
 
   // データをプロット
-  for (auto& plot_tab : plot_tabs_) {
+  for (const auto& plot_tab : plot_tabs_) {
     // データの設定の前に範囲を指定しないと若干プロットが崩れる
     plot_tab->setTimeScale(window_start_time * 1e-9, window_stop_time * 1e-9);
     plot_tab->plot();
@@ -290,3 +310,4 @@ void FlightLogViewerWidget::onPlaybackTimeChanged(double time_from_start)
 }
 }  // namespace log
 }  // namespace gui
+}  // namespace tobas

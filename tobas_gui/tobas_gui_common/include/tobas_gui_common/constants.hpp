@@ -1,5 +1,10 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
+namespace tobas
+{
 namespace gui
 {
 namespace cmn
@@ -14,3 +19,4 @@ static constexpr char kUserNameFC[] = "pi";
 static constexpr char kProjectExtension[] = ".TBS";
 }  // namespace cmn
 }  // namespace gui
+}  // namespace tobas

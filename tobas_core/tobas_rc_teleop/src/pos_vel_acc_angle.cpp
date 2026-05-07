@@ -1,10 +1,15 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_rc_teleop/pos_vel_acc_angle.hpp"
 
 #include <tobas_constants/ros_interface.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 
-namespace tobas_rc_teleop
+namespace tobas
+{
+namespace rc
 {
 PosVelAccAngleController::PosVelAccAngleController()
 {
@@ -30,7 +35,7 @@ bool PosVelAccAngleController::requireHeading()
   return true;
 }
 
-void PosVelAccAngleController::initialize(tobas::BaseNode* node, tobas::FlightMode mode)
+void PosVelAccAngleController::initialize(BaseNode* node, FlightMode mode)
 {
   node->addDynamicDoubleParam(
     addMode("max_horizontal_velocity", mode), &self::maxHorizontalVelocityCb, this, 0.5, 12, 0, 20, " m/s");
@@ -40,9 +45,9 @@ void PosVelAccAngleController::initialize(tobas::BaseNode* node, tobas::FlightMo
     addMode("max_vertical_velocity", mode), &self::maxVerticalVelocityCb, this, 0.5, 8, 0, 20, " m/s");
   node->addDynamicDoubleParam(
     addMode("max_vertical_accel", mode), &self::maxVerticalAccelCb, this, 1., 10, 1, 20, " m/s^2");
-  node->addDynamicDoubleParam(addMode("max_attitude", mode), &self::maxAttitudeCb, this, 10., 9, 1, 18, " deg");
-  node->addDynamicDoubleParam(addMode("max_attitude_rate", mode), &self::maxAttitudeRateCb, this, 20., 9, 1, 18, " dps");
-  node->addDynamicDoubleParam(addMode("max_heading_rate", mode), &self::maxHeadingRateCb, this, 20., 9, 1, 18, " dps");
+  node->addDynamicDoubleParam(addMode("max_attitude", mode), &self::maxAttitudeCb, this, 15., 6, 1, 12, " deg");
+  node->addDynamicDoubleParam(addMode("max_attitude_rate", mode), &self::maxAttitudeRateCb, this, 15., 6, 1, 12, " dps");
+  node->addDynamicDoubleParam(addMode("max_heading_rate", mode), &self::maxHeadingRateCb, this, 15., 6, 1, 12, " dps");
   node->addDynamicDoubleParam(
     addMode("max_position_error_down", mode), &self::maxPositionErrorDown, this, 0.5, 4, 0, 20, " m");
   node->addDynamicDoubleParam(
@@ -52,8 +57,8 @@ void PosVelAccAngleController::initialize(tobas::BaseNode* node, tobas::FlightMo
   node->addDynamicDoubleParam(addMode("attitude_expo", mode), &self::attitudeExpoCb, this, 5., 0, -20, 20);
   node->addDynamicDoubleParam(addMode("heading_expo", mode), &self::headingExpoCb, this, 5., -3, -20, 20);
 
-  pos_vel_acc_pub_ = node->createPublisher<tobas_command_msgs::PosVelAcc>(tobas::topic::kPosVelAccCmd);
-  angle_pub_ = node->createPublisher<tobas_command_msgs::Angle>(tobas::topic::kAngleCmd);
+  pos_vel_acc_pub_ = node->createPublisher<tobas_command_msgs::PosVelAcc>(topic::kPosVelAccCmd);
+  angle_pub_ = node->createPublisher<tobas_command_msgs::Angle>(topic::kAngleCmd);
 }
 
 void PosVelAccAngleController::reset(
@@ -193,13 +198,13 @@ bool PosVelAccAngleController::maxVerticalAccelCb(const double& p)
 
 bool PosVelAccAngleController::maxAttitudeCb(const double& p)
 {
-  max_attitude_ = tbs::deg2rad(p);
+  max_attitude_ = st::deg2rad(p);
   return true;
 }
 
 bool PosVelAccAngleController::maxAttitudeRateCb(const double& p)
 {
-  const auto max_atti_rate = tbs::deg2rad(p);  // [rad/s]
+  const auto max_atti_rate = st::deg2rad(p);  // [rad/s]
   roll_filt_.setMaxVelocity(max_atti_rate);
   pitch_filt_.setMaxVelocity(max_atti_rate);
   return true;
@@ -207,7 +212,7 @@ bool PosVelAccAngleController::maxAttitudeRateCb(const double& p)
 
 bool PosVelAccAngleController::maxHeadingRateCb(const double& p)
 {
-  max_head_rate_ = tbs::deg2rad(p);
+  max_head_rate_ = st::deg2rad(p);
   return true;
 }
 
@@ -240,4 +245,5 @@ bool PosVelAccAngleController::headingExpoCb(const double& p)
   head_expo_ = p / kExpoScale;
   return true;
 }
-}  // namespace tobas_rc_teleop
+}  // namespace rc
+}  // namespace tobas

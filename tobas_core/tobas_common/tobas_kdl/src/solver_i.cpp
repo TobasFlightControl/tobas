@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_kdl/solver_i.hpp"
 
 using namespace std;
 
+namespace tobas
+{
 namespace kdl
 {
 int SolverI::copyError(const SolverI& arg)
@@ -48,3 +53,4 @@ string SolverI::defaultErrorMessage(const int& error_code) const
   }
 }
 }  // namespace kdl
+}  // namespace tobas

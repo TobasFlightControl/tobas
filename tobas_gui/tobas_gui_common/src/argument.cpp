@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_gui_common/argument.hpp"
 
 #include <QProcessEnvironment>
@@ -7,6 +10,8 @@
 
 #define QT_QPA_PLATFORM "QT_QPA_PLATFORM"
 
+namespace tobas
+{
 namespace gui
 {
 namespace cmn
@@ -45,7 +50,7 @@ bool NonRosArgumentParser::setPlatformXcb()
     return false;
   }
 
-  if (tbs::contains<std::string>(args_, "-platform")) {
+  if (st::contains<std::string>(args_, "-platform")) {
     std::cerr << "The display platform has already been specified via the arguments." << std::endl;
     return false;
   }
@@ -57,3 +62,4 @@ bool NonRosArgumentParser::setPlatformXcb()
 }
 }  // namespace cmn
 }  // namespace gui
+}  // namespace tobas

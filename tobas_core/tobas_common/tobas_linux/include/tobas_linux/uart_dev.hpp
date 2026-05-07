@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <termios.h>  // <asm/termios.h>ではダメ
@@ -6,6 +9,8 @@
 #include <cstdint>
 #include <map>
 
+namespace tobas
+{
 namespace linux
 {
 /**
@@ -60,3 +65,4 @@ private:
   bool setNonStandardBaudRate(uint32_t baud_rate);
 };
 }  // namespace linux
+}  // namespace tobas

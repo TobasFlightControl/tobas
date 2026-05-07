@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_kdl/chain_ik_solver_vel_pinv.hpp"
 
 #include <iostream>
@@ -7,6 +10,8 @@
 using namespace std;
 using namespace Eigen;
 
+namespace tobas
+{
 namespace kdl
 {
 ChainIkSolverVel_pinv::ChainIkSolverVel_pinv(const Chain& chain) : super(chain), jnt2jac_(chain_)
@@ -68,3 +73,4 @@ int ChainIkSolverVel_pinv::cartToJnt(const JntArray& q, const Twist& v)
   return setDefaultError(kNoError);
 }
 }  // namespace kdl
+}  // namespace tobas

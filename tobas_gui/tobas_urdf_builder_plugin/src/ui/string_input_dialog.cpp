@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_urdf_builder_plugin/ui/string_input_dialog.hpp"
 
 #include <QHBoxLayout>
 #include <QPushButton>
 #include <QVBoxLayout>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ub
@@ -76,3 +81,4 @@ void StringInputDialog::enableOkButton(bool enable)
 }  // namespace ui
 }  // namespace ub
 }  // namespace gui
+}  // namespace tobas

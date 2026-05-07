@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <string>
 
 #include <tinyxml2.h>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -23,3 +28,4 @@ tinyxml2::XMLElement* addNodeParam(tinyxml2::XMLElement* node, const std::string
 }  // namespace xml
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <QLineEdit>
@@ -29,6 +32,8 @@
 #include "./restart_button.hpp"
 #include "./shutdown_button.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace gcs
@@ -55,13 +60,12 @@ protected:
   void closeEvent(QCloseEvent* event) override;
 
 private:
-  const rclcpp::Node::SharedPtr node_;
   RosQtBridge bridge_;
   const NetworkChecker network_checker_;
 
   uadf::Model uadf_;
   kdl::Tree tree_;
-  tobas::Drone drone_;
+  Drone drone_;
 
   ptree::PropertyClient property_client_;
   uadf::Parser uadf_parser_;
@@ -113,3 +117,4 @@ private Q_SLOTS:
 };
 }  // namespace gcs
 }  // namespace gui
+}  // namespace tobas

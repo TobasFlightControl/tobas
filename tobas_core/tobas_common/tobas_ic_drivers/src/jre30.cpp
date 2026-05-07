@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_ic_drivers/jre30.hpp"
 
 #include <iostream>
 
 using namespace std;
 
+namespace tobas
+{
 namespace driver
 {
 size_t JRE30Packet_A::packetSize() const
@@ -58,6 +63,11 @@ JRE30::JRE30(function<void(shared_ptr<const JRE30Packet>)> packet_cb)
   packet_a_ = make_shared<JRE30Packet_A>();
   packet_b_ = make_shared<JRE30Packet_B>();
   packet_c_ = make_shared<JRE30Packet_C>();
+}
+
+JRE30::~JRE30()
+{
+  stop();
 }
 
 bool JRE30::initialize(const char* uart_device)
@@ -152,10 +162,11 @@ bool JRE30::checkCRC() const
   const uint16_t cr = (buf_[packet_size - 1] << 8) | buf_[packet_size - 2];
 
   if (cs != cr) {
-    cerr << "CRC failed: " << cs << " != " << cr << endl;
+    cerr << "CRC failed: " << hex << uppercase << cs << " != " << cr << dec << endl;
     return false;
   }
 
   return true;
 }
 }  // namespace driver
+}  // namespace tobas

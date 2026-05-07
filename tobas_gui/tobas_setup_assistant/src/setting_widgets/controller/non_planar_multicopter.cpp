@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_setup_assistant/setting_tabs/controller/non_planar_multicopter.hpp"
 
 #include <QVBoxLayout>
@@ -5,6 +8,8 @@
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -42,19 +47,19 @@ QString NonPlanarMulticopterWidget::pluginName() const
   return "tobas::nonplanar_multicopter::ControllerNode";
 }
 
-tobas::RcCommand NonPlanarMulticopterWidget::acrobatModeCommand() const
+RcCommand NonPlanarMulticopterWidget::acrobatModeCommand() const
 {
-  return tobas::RcCommand::kAccelRate;
+  return RcCommand::kAccelRate;
 }
 
-tobas::RcCommand NonPlanarMulticopterWidget::stabilizeModeCommand() const
+RcCommand NonPlanarMulticopterWidget::stabilizeModeCommand() const
 {
-  return tobas::RcCommand::kAccelAngle;
+  return RcCommand::kAccelAngle;
 }
 
-tobas::RcCommand NonPlanarMulticopterWidget::loiterModeCommand() const
+RcCommand NonPlanarMulticopterWidget::loiterModeCommand() const
 {
-  return tobas::RcCommand::kPosVelAccAngle;
+  return RcCommand::kPosVelAccAngle;
 }
 
 YAML::Node NonPlanarMulticopterWidget::staticParams() const
@@ -90,3 +95,4 @@ bool NonPlanarMulticopterWidget::isValid()
 }  // namespace ctrl
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

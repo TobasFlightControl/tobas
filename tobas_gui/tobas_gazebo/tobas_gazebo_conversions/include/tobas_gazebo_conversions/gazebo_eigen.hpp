@@ -1,8 +1,13 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <eigen3/Eigen/Core>
 #include <gz/math/Vector3.hh>
 
+namespace tobas
+{
 namespace gazebo
 {
 template <typename T>
@@ -41,3 +46,4 @@ void matrix3EigenToGazebo(const gz::math::Matrix3<T>& g, Eigen::Matrix<T, 3, 3>&
   }
 }
 }  // namespace gazebo
+}  // namespace tobas

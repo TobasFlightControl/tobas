@@ -1,16 +1,18 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_control_system/control_system.hpp"
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
 {
-ControlSystemWidget::ControlSystemWidget(
-  rclcpp::Node::SharedPtr node,
-  const RosQtBridge& bridge,
-  const tobas::Drone& drone)
+ControlSystemWidget::ControlSystemWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge, const Drone& drone)
   : drone_(drone)
 {
   // Components
@@ -68,9 +70,12 @@ void ControlSystemWidget::updateInternalDataStructures()
 {
   reset();
 
+  const auto ns = '/' + drone_.name;
+
   power_source_viewer_->updateInternalDataStructures();
   rotors_viewer_->updateInternalDataStructures();
-  mission_planner_->updateNamespace(drone_.name);
+  mission_planner_->updateNamespace(ns);
 }
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

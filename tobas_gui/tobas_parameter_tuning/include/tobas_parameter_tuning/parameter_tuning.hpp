@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <filesystem>
@@ -9,6 +12,8 @@
 
 #include "./param_block.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace param
@@ -32,7 +37,7 @@ public:
 
 private:
   cmn::ProjectPaths proj_paths_;
-  tobas::Drone drone_;
+  Drone drone_;
 
   const std::array<std::string, kNumBlocks> file_names_;
   const std::array<ParamBlockWidget*, kNumBlocks> blocks_;
@@ -48,3 +53,4 @@ private Q_SLOTS:
 };
 }  // namespace param
 }  // namespace gui
+}  // namespace tobas

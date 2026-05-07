@@ -1,8 +1,13 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_qt_tools/widgets/vertical_tab_widget.hpp"
 
 #include <QStyleOptionTab>
 #include <QStylePainter>
 
+namespace tobas
+{
 namespace qt
 {
 QSize VerticalTabBar::tabSizeHint(int index) const
@@ -64,3 +69,4 @@ void VerticalTabWidget::clearTabBackgroundColor(int index)
   tab_bar_->clearTabBackgroundColor(index);
 }
 }  // namespace qt
+}  // namespace tobas

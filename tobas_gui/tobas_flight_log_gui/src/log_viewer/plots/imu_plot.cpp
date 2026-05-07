@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_flight_log_gui/log_viewer/plots/imu_plot.hpp"
 
 #include <QGridLayout>
 
 #include <tobas_ros2_tools/time.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace log
@@ -48,60 +53,39 @@ void ImuPlotWidget::setTimeScale(double t_start, double t_stop)
 
 void ImuPlotWidget::setData(const QVector<tobas_msgs::msg::Imu>& raw_msgs, const QVector<tobas_msgs::msg::Imu>& filt_msgs)
 {
-  updateRawSamples(raw_msgs);
-  updateFilteredSamples(filt_msgs);
+  updateSamples(raw_msgs, raw_curves_);
+  updateSamples(filt_msgs, filt_curves_);
 
   for (auto& plot : plots_) {
     plot->replot();
   }
 }
 
-void ImuPlotWidget::updateRawSamples(const QVector<tobas_msgs::msg::Imu>& raw_msgs)
+void ImuPlotWidget::updateSamples(
+  const QVector<tobas_msgs::msg::Imu>& msgs,
+  std::array<qwt::QwtPlotCurveWrapper, kNumAxes>& curves)
 {
   QVector<double> t_data;
   std::array<QVector<double>, kNumAxes> val_data;
 
-  for (const auto& imu : raw_msgs) {
-    t_data.push_back(ros2::seconds(imu.header.stamp));
+  for (const auto& msg : msgs) {
+    t_data.push_back(ros2::seconds(msg.header.stamp));
 
-    const auto& accel = imu.accel;
+    const auto& accel = msg.accel;
     val_data[0].push_back(accel.x);
     val_data[1].push_back(accel.y);
     val_data[2].push_back(accel.z);
 
-    const auto& gyro = imu.gyro;
+    const auto& gyro = msg.gyro;
     val_data[3].push_back(gyro.x);
     val_data[4].push_back(gyro.y);
     val_data[5].push_back(gyro.z);
   }
 
   for (size_t i = 0; i < kNumAxes; ++i) {
-    raw_curves_[i].setSamples(t_data, val_data[i]);
-  }
-}
-
-void ImuPlotWidget::updateFilteredSamples(const QVector<tobas_msgs::msg::Imu>& filt_msgs)
-{
-  QVector<double> t_data;
-  std::array<QVector<double>, kNumAxes> val_data;
-
-  for (const auto& imu : filt_msgs) {
-    t_data.push_back(ros2::seconds(imu.header.stamp));
-
-    const auto& accel = imu.accel;
-    val_data[0].push_back(accel.x);
-    val_data[1].push_back(accel.y);
-    val_data[2].push_back(accel.z);
-
-    const auto& gyro = imu.gyro;
-    val_data[3].push_back(gyro.x);
-    val_data[4].push_back(gyro.y);
-    val_data[5].push_back(gyro.z);
-  }
-
-  for (size_t i = 0; i < kNumAxes; ++i) {
-    filt_curves_[i].setSamples(t_data, val_data[i]);
+    curves[i].setSamples(t_data, val_data[i]);
   }
 }
 }  // namespace log
 }  // namespace gui
+}  // namespace tobas

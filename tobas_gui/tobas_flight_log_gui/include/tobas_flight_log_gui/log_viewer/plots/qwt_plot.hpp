@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <qwt/qwt_plot.h>
 
+namespace tobas
+{
 namespace gui
 {
 namespace log
@@ -23,3 +28,4 @@ public:
 };
 }  // namespace log
 }  // namespace gui
+}  // namespace tobas

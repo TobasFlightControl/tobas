@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_ros2_tools/rosbag.hpp"
 
 #include <iostream>
 
 #include <rosbag2_cpp/reindexer.hpp>
 
+namespace tobas
+{
 namespace ros2
 {
 bool reindexRosBag(const std::string& uri, const std::string& storage_id) noexcept
@@ -25,3 +30,4 @@ bool reindexRosBag(const std::string& uri, const std::string& storage_id) noexce
   return true;
 }
 }  // namespace ros2
+}  // namespace tobas

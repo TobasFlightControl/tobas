@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include <expected>
 
 #include <rclcpp/wait_for_message.hpp>
@@ -21,7 +24,7 @@ using namespace std::chrono_literals;
 bool takeoff(rclcpp::Node::SharedPtr node)
 {
   // アクションクライアントを作成
-  ros2::SyncActionClient<tobas_mission_msgs::action::ExecuteMission> client(node, tobas::action::kExecuteMission);
+  tobas::ros2::SyncActionClient<tobas_mission_msgs::action::ExecuteMission> client(node, tobas::action::kExecuteMission);
 
   // ゴールを作成
   tobas::mission::Takeoff takeoff;
@@ -33,7 +36,7 @@ bool takeoff(rclcpp::Node::SharedPtr node)
 
   tobas_mission_msgs::msg::MissionItem mission_item;
   mission_item.type = tobas::mission::kTakeoff;
-  mission_item.data = tbs::toBytes(takeoff);
+  mission_item.data = tobas::st::toBytes(takeoff);
 
   tobas_mission_msgs::action::ExecuteMission::Goal goal;
   goal.items.push_back(mission_item);
@@ -54,10 +57,10 @@ bool takeoff(rclcpp::Node::SharedPtr node)
   return true;
 }
 
-std::expected<kdl::Frame, const char*> waitForCurrentPose(rclcpp::Node::SharedPtr node)
+std::expected<tobas::kdl::Frame, const char*> waitForCurrentPose(rclcpp::Node::SharedPtr node)
 {
   tobas_msgs::OdometryWithCovarianceStamped odom;
-  if (!rclcpp::wait_for_message(odom, node, tobas::topic::kOdometry, 1s, ros2::qos::DefaultQoS())) {
+  if (!rclcpp::wait_for_message(odom, node, tobas::topic::kOdometry, 1s, tobas::ros2::qos::DefaultQoS())) {
     return std::unexpected("Failed to get the current odometry.");
   }
 
@@ -66,7 +69,7 @@ std::expected<kdl::Frame, const char*> waitForCurrentPose(rclcpp::Node::SharedPt
 
 int main(int argc, char** argv)
 {
-  ros2::AsyncNodeManager node_manager(argc, argv, "keyboard_teleop");
+  tobas::ros2::AsyncNodeManager node_manager(argc, argv, "keyboard_teleop");
   const auto node = node_manager.node();
 
   // 離陸
@@ -84,7 +87,7 @@ int main(int argc, char** argv)
   auto cmd_yaw = init_pose.value().M.getYaw();
 
   // 1度のキーボード入力での目標値の変化量を計算
-  const auto repeat_interval_ms = keyboard::getKeyboardRepeatInterval();
+  const auto repeat_interval_ms = tobas::keyboard::getKeyboardRepeatInterval();
   if (!repeat_interval_ms) {
     RCLCPP_ERROR(node->get_logger(), repeat_interval_ms.error());
     return EXIT_FAILURE;
@@ -94,16 +97,17 @@ int main(int argc, char** argv)
   const auto delta_rot = M_PI_2 * repeat_interval;                                      // rad/s x s = rad
 
   // 目標値の制限
-  const tbs::Range<double> x_limit(-10., 10.);
-  const tbs::Range<double> y_limit(-10., 10.);
-  const tbs::Range<double> z_limit(-10., 10.);
-  const tbs::Range<double> yaw_limit(-M_PI, M_PI);
+  const tobas::st::Range<double> x_limit(-10., 10.);
+  const tobas::st::Range<double> y_limit(-10., 10.);
+  const tobas::st::Range<double> z_limit(-10., 10.);
+  const tobas::st::Range<double> yaw_limit(-M_PI, M_PI);
 
   // キーボードリーダを作成
-  keyboard::KeyboardReader key_reader;
+  tobas::keyboard::KeyboardReader key_reader;
 
   // コマンドパブリッシャーを登録
-  const auto cmd_pub = ros2::createPublisher<tobas_command_msgs::PosVelAccYaw>(node, tobas::topic::kPosVelAccYawCmd);
+  const auto cmd_pub =
+    tobas::ros2::createPublisher<tobas_command_msgs::PosVelAccYaw>(node, tobas::topic::kPosVelAccYawCmd);
 
   // 説明文の表示を開始
   constexpr char kInstructionText[] = "Control your drone!\n"
@@ -149,25 +153,25 @@ int main(int argc, char** argv)
         RCLCPP_INFO_STREAM(node->get_logger(), "[Moving right] pos[m]: " << cmd_pos << ", yaw[rad]: " << cmd_yaw);
         break;
       }
-      case keyboard::UP:  // Z+
+      case tobas::keyboard::UP:  // Z+
       {
         cmd_pos.z(z_limit.clamp(cmd_pos.z() + delta_pos));
         RCLCPP_INFO_STREAM(node->get_logger(), "[Moving up] pos[m]: " << cmd_pos << ", yaw[rad]: " << cmd_yaw);
         break;
       }
-      case keyboard::DOWN:  // Z-
+      case tobas::keyboard::DOWN:  // Z-
       {
         cmd_pos.z(z_limit.clamp(cmd_pos.z() - delta_pos));
         RCLCPP_INFO_STREAM(node->get_logger(), "[Moving down] pos[m]: " << cmd_pos << ", yaw[rad]: " << cmd_yaw);
         break;
       }
-      case keyboard::LEFT:  // Yaw+
+      case tobas::keyboard::LEFT:  // Yaw+
       {
         cmd_yaw = yaw_limit.clamp(cmd_yaw + delta_rot);
         RCLCPP_INFO_STREAM(node->get_logger(), "[Rotating left] pos[m]: " << cmd_pos << ", yaw[rad]: " << cmd_yaw);
         break;
       }
-      case keyboard::RIGHT:  // Yaw-
+      case tobas::keyboard::RIGHT:  // Yaw-
       {
         cmd_yaw = yaw_limit.clamp(cmd_yaw - delta_rot);
         RCLCPP_INFO_STREAM(node->get_logger(), "[Rotating right] pos[m]: " << cmd_pos << ", yaw[rad]: " << cmd_yaw);

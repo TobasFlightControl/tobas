@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <array>
@@ -11,6 +14,8 @@
 #include "./base_filter.hpp"
 #include "./utils.hpp"
 
+namespace tobas
+{
 namespace dsp
 {
 /**
@@ -103,3 +108,4 @@ void LowPassFilterP2<T>::shiftHistory()
   u_[1] = u_[0];
 }
 }  // namespace dsp
+}  // namespace tobas

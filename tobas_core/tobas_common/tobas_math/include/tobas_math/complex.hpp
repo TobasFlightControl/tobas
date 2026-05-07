@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <complex>
@@ -15,8 +18,11 @@ std::ostream& operator<<(std::ostream& os, const std::complex<T>& z)
   return os;
 }
 
+namespace tobas
+{
 namespace math
 {
 /* 複素数の3乗根を求める． */
 std::complex<double> cbrt(const std::complex<double>& z);
 }  // namespace math
+}  // namespace tobas

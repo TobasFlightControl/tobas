@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <QFormLayout>
 
+namespace tobas
+{
 namespace qt
 {
 /**
@@ -43,3 +48,4 @@ public:
   void setVisible(int row, bool visible);
 };
 }  // namespace qt
+}  // namespace tobas

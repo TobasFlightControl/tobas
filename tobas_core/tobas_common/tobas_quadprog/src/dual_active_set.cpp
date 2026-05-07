@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_quadprog/dual_active_set.hpp"
 
 #include <iostream>
@@ -12,6 +15,8 @@
 
 // #define TRACE_SOLVER
 
+namespace tobas
+{
 namespace quadprog
 {
 DualActiveSetSolver::DualActiveSetSolver() : super()
@@ -544,3 +549,4 @@ double DualActiveSetSolver::distance(const double& a, const double& b)
   }
 }
 }  // namespace quadprog
+}  // namespace tobas

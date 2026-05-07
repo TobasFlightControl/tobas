@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include <tobas_constants/ros_interface.hpp>
 #include <tobas_gazebo_common/constants.hpp>
 #include <tobas_node/node.hpp>
@@ -6,34 +9,38 @@
 #include <tobas_drone_msgs_adapter/drone.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
 
-class RotorStatesPublisherNode : public tobas::BaseNode
+namespace tobas
+{
+namespace gazebo
+{
+class RotorStatesPublisherNode : public BaseNode
 {
   using self = RotorStatesPublisherNode;
-  using super = tobas::BaseNode;
+  using super = BaseNode;
 
 public:
   explicit RotorStatesPublisherNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  tobas::Drone::ConstSharedPtr drone_;
+  Drone::ConstSharedPtr drone_;
   std::map<std::string, tobas_msgs::msg::RotorState> rotor_states_;
 
   ros2::PublisherPtr<tobas_msgs::msg::RotorStateArray> rotor_states_pub_;
-  ros2::SubscriberPtr<tobas::Drone> drone_sub_;
+  ros2::SubscriberPtr<Drone> drone_sub_;
   std::map<std::string, ros2::SubscriberPtr<tobas_msgs::msg::RotorState>> rotor_state_subs_;
 
-  void droneCb(const tobas::Drone::ConstSharedPtr& drone);
+  void droneCb(const Drone::ConstSharedPtr& drone);
   void rotorStateCb(const tobas_msgs::msg::RotorState::ConstSharedPtr& rotor_state);
 };
 
 RotorStatesPublisherNode::RotorStatesPublisherNode(const rclcpp::NodeOptions& options)
   : super("gazebo_rotor_states_publisher", nodeOptions_Default(options))
 {
-  rotor_states_pub_ = createPublisher<tobas_msgs::msg::RotorStateArray>(tobas::topic::kRotorStates);
-  drone_sub_ = createSubscriber(tobas::topic::kDrone, &self::droneCb, this, true, true);
+  rotor_states_pub_ = createPublisher<tobas_msgs::msg::RotorStateArray>(topic::kRotorStates);
+  drone_sub_ = createSubscriber(topic::kDrone, &self::droneCb, this, true, true);
 }
 
-void RotorStatesPublisherNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
+void RotorStatesPublisherNode::droneCb(const Drone::ConstSharedPtr& drone)
 {
   if (!drone->prop) {
     return;
@@ -75,5 +82,7 @@ void RotorStatesPublisherNode::rotorStateCb(const tobas_msgs::msg::RotorState::C
     rotor_states_.clear();
   }
 }
+}  // namespace gazebo
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(RotorStatesPublisherNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::gazebo::RotorStatesPublisherNode)

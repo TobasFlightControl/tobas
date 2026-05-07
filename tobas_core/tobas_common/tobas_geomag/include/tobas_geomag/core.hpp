@@ -1,8 +1,13 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include "./model_params.hpp"
 #include "./structs.hpp"
 
+namespace tobas
+{
 namespace geomag
 {
 /**
@@ -52,3 +57,4 @@ Vector magFieldFromECEF(double dyear, const Vector& position_itrs, const ConstMo
  */
 Elements elementsFromGeodetic(double lat, double lon, double h, double dyear, const ConstModel& WMM = WMM2025);
 }  // namespace geomag
+}  // namespace tobas

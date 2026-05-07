@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <tobas_std_tools/universal_constants.hpp>
 
 #include "./tree_id_solver.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 /**
@@ -29,7 +34,7 @@ public:
    * @param tree The kinematic tree to calculate the inverse dynamics for, an internal reference
    * will be stored. @param grav The gravity vector to use during the calculation.
    */
-  explicit TreeIdSolver_RNE(const Tree& tree, const Vector& grav = Vector(0, 0, -tbs::kGravity));
+  explicit TreeIdSolver_RNE(const Tree& tree, const Vector& grav = Vector(0, 0, -st::kGravity));
 
   bool updateInternalDataStructures() override;
 
@@ -62,3 +67,4 @@ private:
     const WrenchMap& f_ext);
 };
 }  // namespace kdl
+}  // namespace tobas

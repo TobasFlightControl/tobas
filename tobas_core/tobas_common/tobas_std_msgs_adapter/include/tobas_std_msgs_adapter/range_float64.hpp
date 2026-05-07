@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <rclcpp/type_adapter.hpp>
@@ -8,7 +11,7 @@
 
 namespace tobas_std_msgs
 {
-using RangeFloat64 = tbs::Range<double>;
+using RangeFloat64 = tobas::st::Range<double>;
 using RangeFloat64Adapter = rclcpp::TypeAdapter<tobas_std_msgs::RangeFloat64, tobas_std_msgs::msg::RangeFloat64>;
 }  // namespace tobas_std_msgs
 

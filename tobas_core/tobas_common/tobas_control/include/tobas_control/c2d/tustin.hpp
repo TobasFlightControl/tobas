@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include "./base.hpp"
 
+namespace tobas
+{
 namespace ctrl
 {
 /**
@@ -23,3 +28,4 @@ private:
   Eigen::MatrixXd I_;  // 単位行列
 };
 }  // namespace ctrl
+}  // namespace tobas

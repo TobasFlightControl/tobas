@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include <tobas_constants/ros_interface.hpp>
 #include <tobas_math/core.hpp>
 #include <tobas_mission_items/mission_items.hpp>
@@ -16,7 +19,7 @@ using namespace std::chrono_literals;
 bool takeoff(rclcpp::Node::SharedPtr node)
 {
   // アクションクライアントを作成
-  ros2::SyncActionClient<tobas_mission_msgs::action::ExecuteMission> client(node, tobas::action::kExecuteMission);
+  tobas::ros2::SyncActionClient<tobas_mission_msgs::action::ExecuteMission> client(node, tobas::action::kExecuteMission);
 
   // ゴールを作成
   tobas::mission::Takeoff takeoff;
@@ -28,7 +31,7 @@ bool takeoff(rclcpp::Node::SharedPtr node)
 
   tobas_mission_msgs::msg::MissionItem mission_item;
   mission_item.type = tobas::mission::kTakeoff;
-  mission_item.data = tbs::toBytes(takeoff);
+  mission_item.data = tobas::st::toBytes(takeoff);
 
   tobas_mission_msgs::action::ExecuteMission::Goal goal;
   goal.items.push_back(mission_item);
@@ -52,7 +55,7 @@ bool takeoff(rclcpp::Node::SharedPtr node)
 bool land(rclcpp::Node::SharedPtr node)
 {
   // アクションクライアントを作成
-  ros2::SyncActionClient<tobas_mission_msgs::action::ExecuteMission> client(node, tobas::action::kExecuteMission);
+  tobas::ros2::SyncActionClient<tobas_mission_msgs::action::ExecuteMission> client(node, tobas::action::kExecuteMission);
 
   // ゴールを作成
   tobas::mission::Land land;
@@ -60,7 +63,7 @@ bool land(rclcpp::Node::SharedPtr node)
 
   tobas_mission_msgs::msg::MissionItem mission_item;
   mission_item.type = tobas::mission::kLand;
-  mission_item.data = tbs::toBytes(land);
+  mission_item.data = tobas::st::toBytes(land);
 
   tobas_mission_msgs::action::ExecuteMission::Goal goal;
   goal.items.push_back(mission_item);
@@ -83,14 +86,15 @@ bool land(rclcpp::Node::SharedPtr node)
 
 bool followCirclePath(rclcpp::Node::SharedPtr node)
 {
-  constexpr double kRadius = 5.;                          // [m]
-  constexpr double kPeriod = 10.;                         // [s]
-  constexpr double kOmega = 2 * M_PI / kPeriod;           // [rad/s]
-  constexpr double kSpeed = kRadius * kOmega;             // [m/s]
-  constexpr double kAccel = kRadius * math::sqr(kOmega);  // [m/s^2]
+  constexpr double kRadius = 5.;                                 // [m]
+  constexpr double kPeriod = 10.;                                // [s]
+  constexpr double kOmega = 2 * M_PI / kPeriod;                  // [rad/s]
+  constexpr double kSpeed = kRadius * kOmega;                    // [m/s]
+  constexpr double kAccel = kRadius * tobas::math::sqr(kOmega);  // [m/s^2]
 
   // コマンドのパブリッシャーを作成
-  const auto pub = ros2::createPublisher<tobas_command_msgs::msg::PosVelAccYaw>(node, tobas::topic::kPosVelAccYawCmd);
+  const auto pub =
+    tobas::ros2::createPublisher<tobas_command_msgs::msg::PosVelAccYaw>(node, tobas::topic::kPosVelAccYawCmd);
 
   const auto start_time = node->now();
 
@@ -130,7 +134,7 @@ bool followCirclePath(rclcpp::Node::SharedPtr node)
 
 int main(int argc, char** argv)
 {
-  ros2::AsyncNodeManager node_manager(argc, argv, "command_circle_trajectory");
+  tobas::ros2::AsyncNodeManager node_manager(argc, argv, "command_circle_trajectory");
   const auto node = node_manager.node();
 
   // 離陸

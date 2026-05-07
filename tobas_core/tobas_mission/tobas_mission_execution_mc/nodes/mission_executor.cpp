@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include <ranges>
 
 #include <tobas_algorithm/core.hpp>
@@ -33,7 +36,6 @@ namespace tobas
 {
 namespace mission
 {
-
 class MulticopterMissionExecutorNode : public BaseNode
 {
   using self = MulticopterMissionExecutorNode;
@@ -160,7 +162,7 @@ private:
 };
 
 MulticopterMissionExecutorNode::MulticopterMissionExecutorNode(const rclcpp::NodeOptions& options)
-  : super(tobas::node::kMissionExecutor, nodeOptions_Default(options))
+  : super(node::kMissionExecutor, nodeOptions_Default(options))
 {
   getStaticRosParams();
 
@@ -170,7 +172,7 @@ MulticopterMissionExecutorNode::MulticopterMissionExecutorNode(const rclcpp::Nod
   pvapy_pub_ = createPublisher<tobas_command_msgs::PosVelAccPitchYaw>(topic::kPosVelAccPitchYawCmd);
 
   odom_sub_ = createSubscriber(topic::kOdometry, &self::odomCb, this);
-  setpoint_sub_ = createSubscriber(tobas::topic::kTrajSetpoint, &self::setpointCb, this);
+  setpoint_sub_ = createSubscriber(topic::kTrajSetpoint, &self::setpointCb, this);
   arming_sub_ = createSubscriber(topic::kArming, &self::armingCb, this);
   gnss_origin_sub_ = createSubscriber(topic::kGnssOrigin, &self::gnssOriginCb, this, true, true);
   landed_sub_ = createSubscriber(topic::kLanded, &self::landedCb, this);
@@ -427,7 +429,7 @@ bool MulticopterMissionExecutorNode::executeWaypoint(const Waypoint& goal, const
   // 目標位置を計算
   kdl::Vector goal_pos;  // wrt. the odometry frame
   std::tie(goal_pos.x(), goal_pos.y()) =
-    tbs::gnssToCartRelative(goal.latitude, goal.longitude, gnss_origin_->latitude, gnss_origin_->longitude);
+    st::gnssToCartRelative(goal.latitude, goal.longitude, gnss_origin_->latitude, gnss_origin_->longitude);
   switch (goal.altitude_frame) {
     case kRelativeToLaunch:
       if (!launch_point_) {
@@ -774,7 +776,7 @@ bool MulticopterMissionExecutorNode::executeRTL(const ReturnToLaunch& goal, cons
   // 現在の高度がRTLの最低高度よりも低い場合はそこまで上昇
   if (cur_alt < min_alt) {
     const auto [tar_lat, tar_lon] =
-      tbs::cartToGnssRelative(cur_pos.x(), cur_pos.y(), gnss_origin_->latitude, gnss_origin_->longitude);
+      st::cartToGnssRelative(cur_pos.x(), cur_pos.y(), gnss_origin_->latitude, gnss_origin_->longitude);
     wp.latitude = tar_lat;
     wp.longitude = tar_lon;
     wp.auto_heading = false;
@@ -785,7 +787,7 @@ bool MulticopterMissionExecutorNode::executeRTL(const ReturnToLaunch& goal, cons
 
   // アームした地点まで移動
   const auto [tar_lat, tar_lon] =
-    tbs::cartToGnssRelative(launch_point_->x(), launch_point_->y(), gnss_origin_->latitude, gnss_origin_->longitude);
+    st::cartToGnssRelative(launch_point_->x(), launch_point_->y(), gnss_origin_->latitude, gnss_origin_->longitude);
   wp.latitude = tar_lat;
   wp.longitude = tar_lon;
   wp.auto_heading = true;
@@ -902,7 +904,7 @@ MulticopterMissionExecutorNode::handleGoal(const rclcpp_action::GoalUUID&, const
     switch (item.type) {
       case kWaypoint: {
         Waypoint waypoint;
-        if (!tbs::fromBytes(item.data, waypoint)) {
+        if (!st::fromBytes(item.data, waypoint)) {
           TOBAS_ERROR("Mission No. ", idx, ": Size mismatch.");
           return rclcpp_action::GoalResponse::REJECT;
         }
@@ -920,7 +922,7 @@ MulticopterMissionExecutorNode::handleGoal(const rclcpp_action::GoalUUID&, const
       }
       case kTakeoff: {
         Takeoff takeoff;
-        if (!tbs::fromBytes(item.data, takeoff)) {
+        if (!st::fromBytes(item.data, takeoff)) {
           TOBAS_ERROR("Mission No. ", idx, ": Size mismatch.");
           return rclcpp_action::GoalResponse::REJECT;
         }
@@ -934,7 +936,7 @@ MulticopterMissionExecutorNode::handleGoal(const rclcpp_action::GoalUUID&, const
       }
       case kLand: {
         Land land;
-        if (!tbs::fromBytes(item.data, land)) {
+        if (!st::fromBytes(item.data, land)) {
           TOBAS_ERROR("Mission No. ", idx, ": Size mismatch.");
           return rclcpp_action::GoalResponse::REJECT;
         }
@@ -943,7 +945,7 @@ MulticopterMissionExecutorNode::handleGoal(const rclcpp_action::GoalUUID&, const
       }
       case kReturnToLaunch: {
         ReturnToLaunch rtl;
-        if (!tbs::fromBytes(item.data, rtl)) {
+        if (!st::fromBytes(item.data, rtl)) {
           TOBAS_ERROR("Mission No. ", idx, ": Size mismatch.");
           return rclcpp_action::GoalResponse::REJECT;
         }
@@ -1013,7 +1015,7 @@ void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& gh)
     switch (item.type) {
       case kWaypoint: {
         Waypoint waypoint;
-        tbs::fromBytes(item.data, waypoint);
+        st::fromBytes(item.data, waypoint);
         if (!executeWaypoint(waypoint, gh, res)) {
           is_executing_ = false;
           return;
@@ -1022,7 +1024,7 @@ void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& gh)
       }
       case kTakeoff: {
         Takeoff takeoff;
-        tbs::fromBytes(item.data, takeoff);
+        st::fromBytes(item.data, takeoff);
         if (!executeTakeoff(takeoff, gh, res)) {
           is_executing_ = false;
           return;
@@ -1031,7 +1033,7 @@ void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& gh)
       }
       case kLand: {
         Land land;
-        tbs::fromBytes(item.data, land);
+        st::fromBytes(item.data, land);
         if (!executeLand(land, gh, res)) {
           is_executing_ = false;
           return;
@@ -1040,7 +1042,7 @@ void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& gh)
       }
       case kReturnToLaunch: {
         ReturnToLaunch rtl;
-        tbs::fromBytes(item.data, rtl);
+        st::fromBytes(item.data, rtl);
         if (!executeRTL(rtl, gh, res)) {
           is_executing_ = false;
           return;

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_setup_assistant/setting_tabs/remote_connection/network_iface.hpp"
 
 #include <ranges>
@@ -10,6 +13,8 @@
 #include <tobas_qt_tools/widgets/label.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -123,3 +128,4 @@ void NetworkIfaceWidget::onOtherButtonToggled(bool checked)
 }  // namespace rc
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

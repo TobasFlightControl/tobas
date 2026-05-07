@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include "./frames.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 /* 3次元サイクロイドを生成 */
@@ -68,3 +73,4 @@ private:
   double computeTheta(const double& t) const;
 };
 }  // namespace kdl
+}  // namespace tobas

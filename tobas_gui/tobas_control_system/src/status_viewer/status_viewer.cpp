@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_control_system/status_viewer/status_viewer.hpp"
 
 #include <QVBoxLayout>
 
 #include <tobas_qt_tools/widgets/label.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -24,6 +29,7 @@ StatusViewerWidget::StatusViewerWidget(const RosQtBridge& bridge)
   mag_offset_status_ = new StatusWidget("Mag Offset");
   mag_alignment_status_ = new StatusWidget("Mag Alignment");
   vibration_level_status_ = new StatusWidget("Vibration Level");
+  user_defined_status_ = new StatusWidget("User-Defined Condition");
   ready_arm_status_ = new StatusWidget("Ready to Arm");
   armed_status_ = new StatusWidget("Armed");
 
@@ -43,6 +49,7 @@ StatusViewerWidget::StatusViewerWidget(const RosQtBridge& bridge)
   rows->addWidget(mag_offset_status_);
   rows->addWidget(mag_alignment_status_);
   rows->addWidget(vibration_level_status_);
+  rows->addWidget(user_defined_status_);
   rows->addWidget(ready_arm_status_);
   rows->addWidget(armed_status_);
   rows->addStretch();
@@ -69,6 +76,7 @@ void StatusViewerWidget::reset()
   mag_offset_status_->reset();
   mag_alignment_status_->reset();
   vibration_level_status_->reset();
+  user_defined_status_->reset();
   ready_arm_status_->reset();
   armed_status_->reset();
 }
@@ -100,6 +108,7 @@ void StatusViewerWidget::healthCb(const tobas_msgs::msg::VehicleHealth::ConstSha
   mag_offset_status_->setStatus(health->mag_offset);
   mag_alignment_status_->setStatus(health->mag_alignment);
   vibration_level_status_->setStatus(health->vibration_level);
+  user_defined_status_->setStatus(health->user_defined_condition);
 
   if (arming_->data) {
     ready_arm_status_->setStatus(StatusWidget::IGNORED);
@@ -110,3 +119,4 @@ void StatusViewerWidget::healthCb(const tobas_msgs::msg::VehicleHealth::ConstSha
 }
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

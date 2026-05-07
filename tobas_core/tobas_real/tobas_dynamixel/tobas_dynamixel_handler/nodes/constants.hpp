@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <cmath>
@@ -7,7 +10,9 @@
 #include <tobas_math/core.hpp>
 #include <tobas_math/definitions.hpp>
 
-namespace tobas_dynamixel
+namespace tobas
+{
+namespace dxl
 {
 // Decoding Scale Factors
 namespace scale_factor
@@ -118,4 +123,5 @@ static constexpr uint8_t kMotorEncoder = 1 << 3;
 static constexpr uint8_t kElectricalShock = 1 << 4;
 static constexpr uint8_t kOverload = 1 << 5;
 };  // namespace hardware_error
-}  // namespace tobas_dynamixel
+}  // namespace dxl
+}  // namespace tobas

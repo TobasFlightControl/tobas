@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_control/linear_mpc.hpp"
 
 #include <iostream>
@@ -7,6 +10,8 @@
 using namespace std;
 using namespace Eigen;
 
+namespace tobas
+{
 namespace ctrl
 {
 LinearMPC::LinearMPC()
@@ -382,3 +387,4 @@ MatrixXd LinearMPC::makeConstraintMatrix(const vector<LinearEquation>& consts, c
   return res;
 }
 }  // namespace ctrl
+}  // namespace tobas

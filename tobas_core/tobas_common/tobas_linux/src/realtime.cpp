@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_linux/realtime.hpp"
 
 #include <pthread.h>
@@ -10,6 +13,8 @@
 
 using namespace std;
 
+namespace tobas
+{
 namespace linux
 {
 bool setThreadPriority(pthread_t thread, size_t priority, sched_t policy)
@@ -92,3 +97,4 @@ bool setThisProcessCpuAffinity(uint32_t cpu_bit_mask)
   return setProcessCPUAffinity(getpid(), cpu_bit_mask);
 }
 }  // namespace linux
+}  // namespace tobas

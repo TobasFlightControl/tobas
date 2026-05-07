@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_kdl/tree_joint_axis_solver.hpp"
 
 using namespace std;
 
+namespace tobas
+{
 namespace kdl
 {
 TreeJointAxisSolver::TreeJointAxisSolver(const Tree& tree) : super(tree), fk_solver_(tree)
@@ -40,3 +45,4 @@ int TreeJointAxisSolver::jntToCart(const JntArray& q_in, const string& seg_name)
   return setDefaultError(kNoError);
 }
 }  // namespace kdl
+}  // namespace tobas

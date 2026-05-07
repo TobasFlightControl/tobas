@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_control/dare.hpp"
 
 #include <iostream>
@@ -9,6 +12,8 @@
 using namespace std;
 using namespace Eigen;
 
+namespace tobas
+{
 namespace ctrl
 {
 MatrixXd
@@ -52,3 +57,4 @@ dare(const MatrixXd& A, const MatrixXd& B, const MatrixXd& Q, const MatrixXd& R,
   return X_next;
 }
 }  // namespace ctrl
+}  // namespace tobas

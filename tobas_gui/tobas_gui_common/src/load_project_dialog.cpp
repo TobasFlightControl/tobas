@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_gui_common/load_project_dialog.hpp"
 
 #include <QAbstractItemView>
@@ -5,6 +8,8 @@
 
 #include "tobas_gui_common/constants.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace cmn
@@ -12,8 +17,8 @@ namespace cmn
 LoadProjectDialog::LoadProjectDialog(QWidget* parent, const QString& dir)
   : QFileDialog(parent, "Select Tobas Project (*.TBS)", dir, "Tobas Project (*.TBS)")
 {
-  setFileMode(Directory);  // ディレクトリのダブルクリックでシグナルを発行させるために必須
-  setOptions(ShowDirsOnly | DontUseNativeDialog);
+  setOptions(ShowDirsOnly | DontUseNativeDialog);  // カスタム設定のためにQtのダイアログを使用
+  setFileMode(Directory);                          // 既存のディレクトリを選択するモード
   setFilter(QDir::AllDirs | QDir::Hidden | QDir::NoDotAndDotDot);
 
   proxy_ = new QSortFilterProxyModel(this);
@@ -40,3 +45,4 @@ void LoadProjectDialog::onItemActivated(const QModelIndex& index)
 }
 }  // namespace cmn
 }  // namespace gui
+}  // namespace tobas

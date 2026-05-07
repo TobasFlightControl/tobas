@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include "./qpsolver.hpp"
 
+namespace tobas
+{
 namespace quadprog
 {
 /**
@@ -60,3 +65,4 @@ private:
   static double distance(const double& a, const double& b);
 };
 }  // namespace quadprog
+}  // namespace tobas

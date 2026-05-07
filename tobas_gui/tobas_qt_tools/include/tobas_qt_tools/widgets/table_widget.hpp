@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <QTableWidget>
 
+namespace tobas
+{
 namespace qt
 {
 /**
@@ -30,3 +35,4 @@ public:
   void setHeaderSectionsClickable(bool clickable);
 };
 }  // namespace qt
+}  // namespace tobas

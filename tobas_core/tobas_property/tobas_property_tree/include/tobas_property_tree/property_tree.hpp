@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <filesystem>
@@ -6,6 +9,8 @@
 
 #include <boost/property_tree/ptree.hpp>
 
+namespace tobas
+{
 namespace ptree
 {
 class PropertyTree
@@ -160,3 +165,4 @@ inline const std::filesystem::path& PropertyTree::filePath() const
   return file_path_;
 }
 }  // namespace ptree
+}  // namespace tobas

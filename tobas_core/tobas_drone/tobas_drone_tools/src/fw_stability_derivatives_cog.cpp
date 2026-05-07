@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_drone_tools/fw_stability_derivatives_cog.hpp"
 
 using namespace std;

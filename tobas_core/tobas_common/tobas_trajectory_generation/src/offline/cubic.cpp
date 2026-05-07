@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_trajectory_generation/offline/cubic.hpp"
 
 #include <algorithm>
@@ -5,6 +8,8 @@
 
 #include <tobas_math/core.hpp>
 
+namespace tobas
+{
 namespace traj
 {
 CubicSpline::CubicSpline(double p0, double pf, double T) : T_(T)
@@ -39,3 +44,4 @@ double CubicSpline::duration() const noexcept
   return T_;
 }
 }  // namespace traj
+}  // namespace tobas

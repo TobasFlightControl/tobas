@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <cstddef>
 
 #include <tobas_linux/spi_dev.hpp>
 
+namespace tobas
+{
 namespace driver
 {
 /**
@@ -102,3 +107,4 @@ private:
   bool configure(const uint8_t& rr, const uint8_t& tar_cfg);
 };
 }  // namespace driver
+}  // namespace tobas

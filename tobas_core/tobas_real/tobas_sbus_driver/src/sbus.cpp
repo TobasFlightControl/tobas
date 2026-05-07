@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_sbus_driver/sbus.hpp"
 
 #include <iostream>
@@ -8,6 +11,8 @@
 
 #include <tobas_std_tools/console.hpp>
 
+#define HEX_STREAM(c) "0x" << setw(2) << setfill('0') << hex << uppercase << (int)c
+
 using namespace std;
 using namespace boost::multiprecision;
 
@@ -15,6 +20,11 @@ namespace tobas
 {
 SBUS::SBUS(function<void(const Packet&)> packet_cb) : packet_cb_(packet_cb)
 {
+}
+
+SBUS::~SBUS()
+{
+  stop();
 }
 
 bool SBUS::initialize(const char* device)
@@ -72,7 +82,7 @@ void SBUS::readThreadFunc(stop_token st)
     if (!uart_.receive(&start_byte, 1)) {
       continue;
     }
-    PRINT_DEBUG("Start byte: " << hex << uppercase << (int)start_byte);
+    PRINT_DEBUG("Start byte: " << HEX_STREAM(start_byte));
     if (start_byte != 0x0F) {
       continue;
     }
@@ -82,22 +92,22 @@ void SBUS::readThreadFunc(stop_token st)
       if (!uart_.receive(&data[i], 1)) {
         continue;
       }
-      PRINT_DEBUG("Data byte " << i + 1 << ": " << hex << uppercase << (int)data[i]);
+      PRINT_DEBUG("Data byte " << i + 1 << ": " << HEX_STREAM(data[i]));
     }
 
     // Flags
     if (!uart_.receive(&flags, 1)) {
       continue;
     }
-    PRINT_DEBUG("Flags byte: " << hex << uppercase << (int)flags);
+    PRINT_DEBUG("Flags byte: " << HEX_STREAM(flags));
 
     // End byte
     if (!uart_.receive(&end_byte, 1)) {
       continue;
     }
-    PRINT_DEBUG("End byte: " << hex << uppercase << (int)end_byte);
+    PRINT_DEBUG("End byte: " << HEX_STREAM(end_byte));
     if (!end_bytes.contains(end_byte)) {
-      cerr << "Invalid end byte: " << hex << uppercase << (int)end_byte << endl;
+      cerr << "Invalid end byte: " << HEX_STREAM(end_byte) << endl;
       continue;
     }
 

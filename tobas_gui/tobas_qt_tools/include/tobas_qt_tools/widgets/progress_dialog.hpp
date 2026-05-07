@@ -1,8 +1,13 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <QProgressDialog>
 #include <QTimer>
 
+namespace tobas
+{
 namespace qt
 {
 /**
@@ -46,3 +51,4 @@ private Q_SLOTS:
   void onTimerTimeout();
 };
 }  // namespace qt
+}  // namespace tobas

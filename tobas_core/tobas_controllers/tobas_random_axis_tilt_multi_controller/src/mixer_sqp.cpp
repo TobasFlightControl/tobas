@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_random_axis_tilt_multi_controller/mixer_sqp.hpp"
 
 #include <ranges>
@@ -104,7 +107,7 @@ bool SqpMixer::solve(
   }
 
   // 並進EoMの右辺
-  const kdl::Vector grav_W(0, 0, -tbs::kGravity);
+  const kdl::Vector grav_W(0, 0, -st::kGravity);
   const auto eom_trans_right_W = mass * (tar_acc_W - grav_W) - ext_force_W;  // [N]
   d_.head<3>() = cur_rot.inverse(eom_trans_right_W).data;
 
@@ -117,9 +120,9 @@ bool SqpMixer::solve(
   // TODO: プロペラ位置とイナーシャの，チルト角による変化を考慮
 
   // Update weights
-  const auto linear_scale = mass * kAccelScale;                               // [N]
-  const auto angular_scale = (I_B.trace() / 3) * kDGyroScale;                 // [Nm]
-  const auto thrust_scale = mass * tbs::kGravity / drone_.prop->numRotors();  // [N]
+  const auto linear_scale = mass * kAccelScale;                              // [N]
+  const auto angular_scale = (I_B.trace() / 3) * kDGyroScale;                // [Nm]
+  const auto thrust_scale = mass * st::kGravity / drone_.prop->numRotors();  // [N]
   Q_.diagonal().head<3>().fill(cfg_.linear_weight / math::sqr(linear_scale));
   Q_.diagonal().tail<3>().fill(cfg_.angular_weight / math::sqr(angular_scale));
   R_.diagonal().fill(cfg_.thrust_weight / math::sqr(thrust_scale));

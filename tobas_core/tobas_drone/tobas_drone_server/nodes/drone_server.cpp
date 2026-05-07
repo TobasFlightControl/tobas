@@ -1,20 +1,25 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include <tobas_constants/ros_interface.hpp>
 #include <tobas_node/node.hpp>
 
 #include <tobas_drone_msgs_adapter/drone.hpp>
 
-class DroneServerNode : public tobas::BaseNode
+namespace tobas
+{
+class DroneServerNode : public BaseNode
 {
   using self = DroneServerNode;
-  using super = tobas::BaseNode;
+  using super = BaseNode;
 
 public:
   explicit DroneServerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  tobas::Drone drone_;
+  Drone drone_;
 
-  ros2::PublisherPtr<tobas::Drone> drone_pub_;
+  ros2::PublisherPtr<Drone> drone_pub_;
 
   void publishDrone();
 
@@ -26,12 +31,12 @@ DroneServerNode::DroneServerNode(const rclcpp::NodeOptions& options)
 {
   addDynamicStringParam("tbsdrn_path", &self::fileParamCb, this);
 
-  drone_pub_ = createPublisher<tobas::Drone>(tobas::topic::kDrone, true, true);
+  drone_pub_ = createPublisher<Drone>(topic::kDrone, true, true);
 }
 
 void DroneServerNode::publishDrone()
 {
-  auto drone_msg = std::make_unique<tobas::Drone>(drone_);
+  auto drone_msg = std::make_unique<Drone>(drone_);
   drone_pub_->publish(std::move(drone_msg));
 }
 
@@ -55,5 +60,6 @@ bool DroneServerNode::fileParamCb(const std::string& p)
   TOBAS_INFO("New drone configuration message is published.");
   return true;
 }
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(DroneServerNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::DroneServerNode)

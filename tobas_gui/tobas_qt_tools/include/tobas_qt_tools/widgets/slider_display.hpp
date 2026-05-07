@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <QLabel>
@@ -6,6 +9,8 @@
 #include "./double_slider.hpp"
 #include "./slider.hpp"
 
+namespace tobas
+{
 namespace qt
 {
 class IntSliderDisplay : public QWidget
@@ -89,3 +94,4 @@ private Q_SLOTS:
   void onSliderValueChanged(double value);
 };
 }  // namespace qt
+}  // namespace tobas

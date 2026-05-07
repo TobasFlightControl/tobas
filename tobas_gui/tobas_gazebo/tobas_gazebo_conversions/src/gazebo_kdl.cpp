@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_gazebo_conversions/gazebo_kdl.hpp"
 
 #include "tobas_gazebo_conversions/gazebo_eigen.hpp"
 
 using namespace gz::math;
 
+namespace tobas
+{
 namespace gazebo
 {
 void vectorGazeboToKDL(const gz::math::Vector3d& g, kdl::Vector& k)
@@ -55,3 +60,4 @@ void poseKDLToGazebo(const kdl::Frame& k, gz::math::Pose3d& g)
   rotationKDLToGazebo(k.M, g.Rot());
 }
 }  // namespace gazebo
+}  // namespace tobas

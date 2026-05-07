@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_kdl/tree_dyn_param.hpp"
 
 using namespace std;
 
+namespace tobas
+{
 namespace kdl
 {
 TreeDynParam::TreeDynParam(const Tree& tree, const Vector& grav)
@@ -45,3 +50,4 @@ void TreeDynParam::resize()
   jntarray_null_ = JntArray::Zero(nj_);
 }
 }  // namespace kdl
+}  // namespace tobas

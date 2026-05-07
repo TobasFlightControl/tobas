@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_qt_tools/widgets/lamp_widget.hpp"
 
 #include <format>
 
+namespace tobas
+{
 namespace qt
 {
 LampWidget::LampWidget(QWidget* parent) : super(parent)
@@ -36,3 +41,4 @@ void LampWidget::draw()
   setStyleSheet(QString::fromStdString(qss));
 }
 }  // namespace qt
+}  // namespace tobas

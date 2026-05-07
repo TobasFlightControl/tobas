@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_quadprog/utils.hpp"
 
 #include <tobas_eigen_tools/core.hpp>
@@ -5,6 +8,8 @@
 using namespace std;
 using namespace Eigen;
 
+namespace tobas
+{
 namespace quadprog
 {
 void matIneqFromRange(const VectorXd& lb, const VectorXd& ub, MatrixXd& A, VectorXd& b, const double inf)
@@ -34,3 +39,4 @@ void matIneqFromRange(const VectorXd& lb, const VectorXd& ub, MatrixXd& A, Vecto
   }
 }
 }  // namespace quadprog
+}  // namespace tobas

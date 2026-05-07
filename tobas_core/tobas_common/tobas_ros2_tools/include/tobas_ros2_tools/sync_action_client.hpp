@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <rclcpp/rclcpp.hpp>
@@ -9,6 +12,8 @@
 // #include <tobas_std_msgs/action/empty.hpp>
 // using ActType = tobas_std_msgs::action::Empty;
 
+namespace tobas
+{
 namespace ros2
 {
 /**
@@ -124,3 +129,4 @@ private:
   typename GoalHandle::WrappedResult result_;
 };
 }  // namespace ros2
+}  // namespace tobas

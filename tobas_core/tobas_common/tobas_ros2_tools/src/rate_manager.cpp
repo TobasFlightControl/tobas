@@ -1,5 +1,10 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_ros2_tools/rate_manager.hpp"
 
+namespace tobas
+{
 namespace ros2
 {
 RateManager::RateManager(double update_rate)
@@ -30,3 +35,4 @@ bool RateManager::update(const rclcpp::Time& time)
   }
 }
 }  // namespace ros2
+}  // namespace tobas

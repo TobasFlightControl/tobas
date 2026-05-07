@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include "./log_viewer/log_viewer.hpp"
@@ -5,6 +8,8 @@
 #include "./logs_gcs/logs_widget.hpp"
 #include "./recorder/recorder.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace log
@@ -35,3 +40,4 @@ private Q_SLOTS:
 };
 }  // namespace log
 }  // namespace gui
+}  // namespace tobas

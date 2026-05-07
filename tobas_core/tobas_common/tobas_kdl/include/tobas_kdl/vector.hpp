@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <map>
@@ -7,6 +10,8 @@
 #include <tobas_eigen_tools/core.hpp>
 #include <tobas_math/float.hpp>
 
+namespace tobas
+{
 namespace kdl
 {
 class Vector;
@@ -429,3 +434,4 @@ inline std::ostream& operator<<(std::ostream& os, const Vector& arg)
   return os;
 }
 }  // namespace kdl
+}  // namespace tobas

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <QProgressBar>
@@ -16,6 +19,8 @@
 #include "../base.hpp"
 #include "./face_circle.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sc
@@ -143,3 +148,4 @@ private Q_SLOTS:
 };
 }  // namespace sc
 }  // namespace gui
+}  // namespace tobas

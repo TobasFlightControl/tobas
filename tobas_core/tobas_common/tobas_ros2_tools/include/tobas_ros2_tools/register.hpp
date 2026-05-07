@@ -1,8 +1,13 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include "./definitions.hpp"
 #include "./qos.hpp"
 
+namespace tobas
+{
 namespace ros2
 {
 template <typename MsgType>
@@ -49,3 +54,4 @@ createTimer(rclcpp::Node::SharedPtr node, std::chrono::duration<RepType, DurType
   return node->create_timer(period, std::bind(fp, obj));
 }
 }  // namespace ros2
+}  // namespace tobas

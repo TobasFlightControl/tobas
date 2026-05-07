@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <QTabBar>
 #include <QTabWidget>
 #include <QWheelEvent>
 
+namespace tobas
+{
 namespace qt
 {
 class TabBar : public QTabBar
@@ -67,3 +72,4 @@ private:
   TabBar* tab_bar_;
 };
 }  // namespace qt
+}  // namespace tobas

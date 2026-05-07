@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_setup_assistant/param_getters/int_getter.hpp"
 
 #include <QHBoxLayout>
@@ -7,6 +10,8 @@
 #include <tobas_qt_tools/font.hpp>
 #include <tobas_string_tools/core.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -68,3 +73,4 @@ void IntGetter::onValueChanged(int value)
 }
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

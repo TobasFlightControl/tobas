@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_urdf_builder_plugin/ui/update_link_dialog.hpp"
 
 #include "ui_update_link_dialog.h"
 
+namespace tobas
+{
 namespace gui
 {
 namespace ub
@@ -356,3 +361,4 @@ void UpdateLinkDialog::defineConnections()
 }  // namespace ui
 }  // namespace ub
 }  // namespace gui
+}  // namespace tobas

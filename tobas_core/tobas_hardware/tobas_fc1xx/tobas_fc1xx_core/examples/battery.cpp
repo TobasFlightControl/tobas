@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include <iostream>
 #include <thread>
 
@@ -7,7 +10,7 @@ using namespace std;
 
 int main()
 {
-  fc1xx::Battery battery;
+  tobas::fc1xx::Battery battery;
   float voltage, current;
 
   if (!battery.initialize()) {

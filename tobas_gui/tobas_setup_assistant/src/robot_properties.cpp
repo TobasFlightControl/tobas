@@ -1,8 +1,13 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_setup_assistant/robot_properties.hpp"
 
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_std_tools/check.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -32,3 +37,4 @@ void RobotPropertiesWidget::setFrameType(const FrameType& type)
 }
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

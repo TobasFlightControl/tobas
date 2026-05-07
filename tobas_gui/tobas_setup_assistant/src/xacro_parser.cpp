@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_setup_assistant/xacro_parser.hpp"
 
 #include <fstream>
@@ -5,6 +8,8 @@
 
 #include <tobas_ros2_tools/path.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -83,3 +88,4 @@ const std::string& XacroParser::getOutput() const
 }
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

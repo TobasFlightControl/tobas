@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include <tobas_constants/imu.hpp>
 #include <tobas_constants/path.hpp>
 #include <tobas_constants/time.hpp>
@@ -15,13 +18,16 @@
 #include <tobas_real_msgs/srv/set_imu_params.hpp>
 
 using namespace std::chrono_literals;
-using namespace real::handler::imu;
 namespace fs = std::filesystem;
 
-class ImuHandlerNode : public tobas::BaseNode
+namespace tobas
+{
+namespace real
+{
+class ImuHandlerNode : public BaseNode
 {
   using self = ImuHandlerNode;
-  using super = tobas::BaseNode;
+  using super = BaseNode;
   using SetParams = tobas_real_msgs::srv::SetImuParams;
 
   static constexpr int kMeasureGyroBiasCount = 1000;  // [-]
@@ -71,13 +77,13 @@ ImuHandlerNode::ImuHandlerNode(const rclcpp::NodeOptions& options)
 {
   TOBAS_CHECK(gyro_lpf_.setCutoffFrequency(kGyroLpfCutoff));
 
-  const auto cfg_dir = linux::isSuperUser() ? fs::path(tobas::kConfigDirRoot) : ros2::expandUser(tobas::kConfigDirHome);
-  if (!pt_.initialize((cfg_dir / kConfigFileName))) {
+  const auto cfg_dir = linux::isSuperUser() ? fs::path(kConfigDirRoot) : ros2::expandUser(kConfigDirHome);
+  if (!pt_.initialize((cfg_dir / handler::imu::kConfigFileName))) {
     TOBAS_ERROR("Failed to initialize property tree. This node will not work.");
     return;
   }
 
-  set_params_ss_ = createService<SetParams>(kSetParamSrv, &self::setParamsCb, this);
+  set_params_ss_ = createService<SetParams>(handler::imu::kSetParamSrv, &self::setParamsCb, this);
 
   if (!getConfig()) {
     TOBAS_ERROR("Failed to get configuration. This node will not work until they are set.");
@@ -89,18 +95,18 @@ ImuHandlerNode::ImuHandlerNode(const rclcpp::NodeOptions& options)
 
 bool ImuHandlerNode::getConfig()
 {
-  if (!pt_.get(ns(), kOffsetXKey, acc_bias_.x())) {
-    TOBAS_ERROR("Failed to get \"", kOffsetXKey, "\".");
+  if (!pt_.get(ns(), handler::imu::kOffsetXKey, acc_bias_.x())) {
+    TOBAS_ERROR("Failed to get \"", handler::imu::kOffsetXKey, "\".");
     return false;
   }
 
-  if (!pt_.get(ns(), kOffsetYKey, acc_bias_.y())) {
-    TOBAS_ERROR("Failed to get \"", kOffsetXKey, "\".");
+  if (!pt_.get(ns(), handler::imu::kOffsetYKey, acc_bias_.y())) {
+    TOBAS_ERROR("Failed to get \"", handler::imu::kOffsetXKey, "\".");
     return false;
   }
 
-  if (!pt_.get(ns(), kOffsetZKey, acc_bias_.z())) {
-    TOBAS_ERROR("Failed to get \"", kOffsetXKey, "\".");
+  if (!pt_.get(ns(), handler::imu::kOffsetZKey, acc_bias_.z())) {
+    TOBAS_ERROR("Failed to get \"", handler::imu::kOffsetXKey, "\".");
     return false;
   }
 
@@ -109,8 +115,8 @@ bool ImuHandlerNode::getConfig()
 
 void ImuHandlerNode::registerPubSub()
 {
-  imu_raw_pub_ = createPublisher<tobas_msgs::Imu>(tobas::topic::kImuRaw);
-  imu_filt_pub_ = createPublisher<tobas_msgs::Imu>(tobas::topic::kImuFilt);
+  imu_raw_pub_ = createPublisher<tobas_msgs::Imu>(::tobas::topic::kImuRaw);
+  imu_filt_pub_ = createPublisher<tobas_msgs::Imu>(::tobas::topic::kImuFilt);
   imu_raw_sub_ = createSubscriber(real::topic::kImuRaw, &self::imuRawCb, this);
   imu_filt_sub_ = createSubscriber(real::topic::kImuFilt, &self::imuFiltCb, this);
 }
@@ -135,8 +141,8 @@ void ImuHandlerNode::imuRawCb(const tobas_msgs::Imu::ConstSharedPtr& imu_raw_in)
       const auto& gyro_filt = gyro_lpf_.getValue();
 
       // 角速度が大きすぎる場合は機体が運動しているとみなしてやり直し
-      if (gyro_filt.norm() > tobas::kStaticGyroThresh) {
-        TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Motion was detected while measuring the gyro bias. Retrying...");
+      if (gyro_filt.norm() > kStaticGyroThresh) {
+        TOBAS_WARN_THROTTLE(kTypicalWarnPeriod, "Motion was detected while measuring the gyro bias. Retrying...");
         gyro_bias_cnt_ = 0;
         for (auto& sum : gyro_sum_) {
           sum.reset();
@@ -207,9 +213,9 @@ void ImuHandlerNode::setParamsCb(const SetParams::Request::ConstSharedPtr& req, 
   acc_bias_.z(req->offset_z);
 
   // Save parameters
-  pt_.set(ns(), kOffsetXKey, req->offset_x);
-  pt_.set(ns(), kOffsetYKey, req->offset_y);
-  pt_.set(ns(), kOffsetZKey, req->offset_z);
+  pt_.set(ns(), handler::imu::kOffsetXKey, req->offset_x);
+  pt_.set(ns(), handler::imu::kOffsetYKey, req->offset_y);
+  pt_.set(ns(), handler::imu::kOffsetZKey, req->offset_z);
   if (!pt_.save()) {
     res->success = false;
     res->message = "Failed to save parameters.";
@@ -223,5 +229,7 @@ void ImuHandlerNode::setParamsCb(const SetParams::Request::ConstSharedPtr& req, 
   res->success = true;
   res->message.clear();
 }
+}  // namespace real
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(ImuHandlerNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::real::ImuHandlerNode)

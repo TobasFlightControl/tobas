@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <tobas_std_tools/geometry.hpp>
@@ -7,6 +10,8 @@
 #include "./rotation.hpp"
 #include "./vector.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 /**
@@ -112,7 +117,7 @@ inline Vector Euler::toAngleAxis() const
 
 inline Quaternion Euler::toQuaternion() const
 {
-  const auto [x, y, z, w] = tbs::quaternionFromEuler(roll, pitch, yaw);
+  const auto [x, y, z, w] = st::quaternionFromEuler(roll, pitch, yaw);
   return Quaternion(x, y, z, w);
 }
 
@@ -142,3 +147,4 @@ inline std::ostream& operator<<(std::ostream& os, const Euler& arg)
   return os;
 }
 }  // namespace kdl
+}  // namespace tobas

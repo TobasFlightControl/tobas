@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_setup_assistant/frame_tree.hpp"
 
 #include <tobas_std_tools/check.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -64,3 +69,4 @@ void FrameTreeWidget::addTreeItemsRec(QTreeWidgetItem* parent_item)
 }
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

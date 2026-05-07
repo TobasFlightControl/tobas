@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_sensor_calibration/rcin_calibration/rcin_calibration.hpp"
 
 #include <QDebug>
@@ -19,8 +22,8 @@
 
 #include "tobas_sensor_calibration/constants.hpp"
 
-using namespace real::handler::rcin;
-
+namespace tobas
+{
 namespace gui
 {
 namespace sc
@@ -28,7 +31,7 @@ namespace sc
 RCInputCalibrationWidget::RCInputCalibrationWidget(
   rclcpp::Node::SharedPtr node,
   const RosQtBridge& bridge,
-  const tobas::Drone& drone)
+  const Drone& drone)
   : node_(node), drone_(drone)
 {
   const auto instruction = new qt::DescriptionWidget(
@@ -72,24 +75,24 @@ RCInputCalibrationWidget::RCInputCalibrationWidget(
   roll_range_ = new qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
   roll_range_->setFixedHeight(kRangeSideShort);
   roll_yaw_rows->addWidget(roll_range_);
-  qt::addWidgetCenter(new QLabel(std::format("Roll (CH{})", tobas::kRcChannelRoll + 1).c_str()), roll_yaw_rows);
+  qt::addWidgetCenter(new QLabel(std::format("Roll (CH{})", kRcChannelRoll + 1).c_str()), roll_yaw_rows);
 
   roll_yaw_rows->addStretch();
 
   const auto pitch_throt_label_cols = new QHBoxLayout();
   roll_yaw_rows->addLayout(pitch_throt_label_cols);
 
-  const auto pitch_label = new QLabel(std::format("Pitch (CH{})", tobas::kRcChannelPitch + 1).c_str());
+  const auto pitch_label = new QLabel(std::format("Pitch (CH{})", kRcChannelPitch + 1).c_str());
   pitch_label->setAlignment(Qt::AlignLeft);
   pitch_throt_label_cols->addWidget(pitch_label);
 
-  const auto throt_label = new QLabel(std::format("Throttle (CH{})", tobas::kRcChannelThrot + 1).c_str());
+  const auto throt_label = new QLabel(std::format("Throttle (CH{})", kRcChannelThrot + 1).c_str());
   throt_label->setAlignment(Qt::AlignRight);
   pitch_throt_label_cols->addWidget(throt_label);
 
   roll_yaw_rows->addStretch();
 
-  qt::addWidgetCenter(new QLabel(std::format("Yaw (CH{})", tobas::kRcChannelYaw + 1).c_str()), roll_yaw_rows);
+  qt::addWidgetCenter(new QLabel(std::format("Yaw (CH{})", kRcChannelYaw + 1).c_str()), roll_yaw_rows);
   yaw_range_ = new qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
   yaw_range_->setFixedHeight(kRangeSideShort);
   roll_yaw_rows->addWidget(yaw_range_);
@@ -103,36 +106,35 @@ RCInputCalibrationWidget::RCInputCalibrationWidget(
 
   mode_range_ = new qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
   mode_range_->setFixedHeight(kRangeSideShort);
-  ctrl_switch_form->addVAlignedRow(std::format("Mode (CH{})", tobas::kRcChannelMode + 1).c_str(), mode_range_);
+  ctrl_switch_form->addVAlignedRow(std::format("Mode (CH{})", kRcChannelMode + 1).c_str(), mode_range_);
 
   ctrl_switch_form->addStretch();
 
   sub_mode_range_ = new qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
   sub_mode_range_->setFixedHeight(kRangeSideShort);
-  ctrl_switch_form->addVAlignedRow(
-    std::format("Sub Mode (CH{})", tobas::kRcChannelSubMode + 1).c_str(), sub_mode_range_);
+  ctrl_switch_form->addVAlignedRow(std::format("Sub Mode (CH{})", kRcChannelSubMode + 1).c_str(), sub_mode_range_);
 
   ctrl_switch_form->addStretch();
 
   enable_range_ = new qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
   enable_range_->setFixedHeight(kRangeSideShort);
-  ctrl_switch_form->addVAlignedRow(std::format("Enable (CH{})", tobas::kRcChannelEnable + 1).c_str(), enable_range_);
+  ctrl_switch_form->addVAlignedRow(std::format("Enable (CH{})", kRcChannelEnable + 1).c_str(), enable_range_);
 
   ctrl_switch_form->addStretch();
 
   kill_range_ = new qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
   kill_range_->setFixedHeight(kRangeSideShort);
-  ctrl_switch_form->addVAlignedRow(std::format("Kill (CH{})", tobas::kRcChannelKill + 1).c_str(), kill_range_);
+  ctrl_switch_form->addVAlignedRow(std::format("Kill (CH{})", kRcChannelKill + 1).c_str(), kill_range_);
 
   // General Purpose Switches
   const auto gpsw_form = new qt::FormLayout();
 
-  for (size_t i = 0; i < tobas::kMaxNumOfGpsw; ++i) {
+  for (size_t i = 0; i < kMaxNumOfGpsw; ++i) {
     gpsw_labels_[i] = new QLabel();
     gpsw_ranges_[i] = new qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
     gpsw_ranges_[i]->setFixedHeight(kRangeSideShort);
     gpsw_form->addVAlignedRow(gpsw_labels_[i], gpsw_ranges_[i]);
-    if (i < tobas::kMaxNumOfGpsw - 1) {
+    if (i < kMaxNumOfGpsw - 1) {
       gpsw_form->addStretch();
     }
   }
@@ -211,10 +213,10 @@ void RCInputCalibrationWidget::updateInternalDataStructures()
   reset();
 
   for (size_t i = 0; i < numOfGpswChannels(); ++i) {
-    gpsw_labels_.at(i)->setText(std::format("GPSw{} (CH{})", i + 1, tobas::kRcChannelGpsw + i + 1).c_str());
+    gpsw_labels_.at(i)->setText(std::format("GPSw{} (CH{})", i + 1, kRcChannelGpsw + i + 1).c_str());
     gpsw_ranges_.at(i)->setEnabled(true);
   }
-  for (size_t i = numOfGpswChannels(); i < tobas::kMaxNumOfGpsw; ++i) {
+  for (size_t i = numOfGpswChannels(); i < kMaxNumOfGpsw; ++i) {
     gpsw_labels_.at(i)->setText("Not Registered");
     gpsw_ranges_.at(i)->setEnabled(false);
   }
@@ -222,58 +224,58 @@ void RCInputCalibrationWidget::updateInternalDataStructures()
 
 size_t RCInputCalibrationWidget::numOfGpswChannels() const
 {
-  if (drone_.num_sbus_channels < tobas::kMinSbusChannels) {
-    qWarning().nospace() << "The number of S.BUS channels cannot be lower than " << tobas::kMinSbusChannels << ".";
+  if (drone_.num_sbus_channels < kMinSbusChannels) {
+    qWarning().nospace() << "The number of S.BUS channels cannot be lower than " << kMinSbusChannels << ".";
     return 0;
   }
-  else if (drone_.num_sbus_channels > tobas::kMaxSbusChannels) {
-    qWarning().nospace() << "The number of S.BUS channels cannot be greater than " << tobas::kMinSbusChannels << ".";
-    return tobas::kMaxNumOfGpsw;
+  else if (drone_.num_sbus_channels > kMaxSbusChannels) {
+    qWarning().nospace() << "The number of S.BUS channels cannot be greater than " << kMinSbusChannels << ".";
+    return kMaxNumOfGpsw;
   }
 
-  return drone_.num_sbus_channels - tobas::kMinSbusChannels;
+  return drone_.num_sbus_channels - kMinSbusChannels;
 }
 
 bool RCInputCalibrationWidget::saveParamsToGcs()
 {
   ptree::PropertyTree pt;
-  if (!pt.initialize((ros2::expandUser(tobas::kConfigDirHome) / kConfigFileName))) {
+  if (!pt.initialize((ros2::expandUser(kConfigDirHome) / real::handler::rcin::kConfigFileName))) {
     qt::qErrorBox(this, "Failed to initialize property tree.");
     return false;
   }
 
   const auto ns = '/' + drone_.name;
 
-  pt.set(ns, kRollLeftKey, roll_range_->getLower());
-  pt.set(ns, kRollRightKey, roll_range_->getUpper());
-  pt.set(ns, kPitchUpKey, pitch_range_->getLower());
-  pt.set(ns, kPitchDownKey, pitch_range_->getUpper());
-  pt.set(ns, kYawLeftKey, yaw_range_->getLower());
-  pt.set(ns, kYawRightKey, yaw_range_->getUpper());
-  pt.set(ns, kThrotUpKey, throt_range_->getLower());
-  pt.set(ns, kThrotDownKey, throt_range_->getUpper());
+  pt.set(ns, real::handler::rcin::kRollLeftKey, roll_range_->getLower());
+  pt.set(ns, real::handler::rcin::kRollRightKey, roll_range_->getUpper());
+  pt.set(ns, real::handler::rcin::kPitchUpKey, pitch_range_->getLower());
+  pt.set(ns, real::handler::rcin::kPitchDownKey, pitch_range_->getUpper());
+  pt.set(ns, real::handler::rcin::kYawLeftKey, yaw_range_->getLower());
+  pt.set(ns, real::handler::rcin::kYawRightKey, yaw_range_->getUpper());
+  pt.set(ns, real::handler::rcin::kThrotUpKey, throt_range_->getLower());
+  pt.set(ns, real::handler::rcin::kThrotDownKey, throt_range_->getUpper());
 
-  pt.set(ns, kModeAcrobatKey, mode_range_->getUpper());
-  pt.set(ns, kModeStabilizeKey, mode_range_->getMiddle());
-  pt.set(ns, kModeLoiterKey, mode_range_->getLower());
-  pt.set(ns, kSubModeOnKey, sub_mode_range_->getLower());
-  pt.set(ns, kSubModeOffKey, sub_mode_range_->getUpper());
-  pt.set(ns, kEnableOnKey, enable_range_->getLower());
-  pt.set(ns, kEnableOffKey, enable_range_->getUpper());
-  pt.set(ns, kKillOnKey, kill_range_->getLower());
-  pt.set(ns, kKillOffKey, kill_range_->getUpper());
+  pt.set(ns, real::handler::rcin::kModeAcrobatKey, mode_range_->getUpper());
+  pt.set(ns, real::handler::rcin::kModeStabilizeKey, mode_range_->getMiddle());
+  pt.set(ns, real::handler::rcin::kModeLoiterKey, mode_range_->getLower());
+  pt.set(ns, real::handler::rcin::kSubModeOnKey, sub_mode_range_->getLower());
+  pt.set(ns, real::handler::rcin::kSubModeOffKey, sub_mode_range_->getUpper());
+  pt.set(ns, real::handler::rcin::kEnableOnKey, enable_range_->getLower());
+  pt.set(ns, real::handler::rcin::kEnableOffKey, enable_range_->getUpper());
+  pt.set(ns, real::handler::rcin::kKillOnKey, kill_range_->getLower());
+  pt.set(ns, real::handler::rcin::kKillOffKey, kill_range_->getUpper());
 
-  std::array<int, tobas::kMaxNumOfGpsw> gpsw_on, gpsw_off;
+  std::array<int, kMaxNumOfGpsw> gpsw_on, gpsw_off;
   for (size_t i = 0; i < numOfGpswChannels(); ++i) {
     gpsw_on[i] = gpsw_ranges_[i]->getLower();
     gpsw_off[i] = gpsw_ranges_[i]->getUpper();
   }
-  for (size_t i = numOfGpswChannels(); i < tobas::kMaxNumOfGpsw; ++i) {
+  for (size_t i = numOfGpswChannels(); i < kMaxNumOfGpsw; ++i) {
     gpsw_on[i] = std::numeric_limits<uint16_t>::max();
     gpsw_off[i] = 0;
   }
-  pt.set(ns, kGpswOnKey, gpsw_on);
-  pt.set(ns, kGpswOffKey, gpsw_off);
+  pt.set(ns, real::handler::rcin::kGpswOnKey, gpsw_on);
+  pt.set(ns, real::handler::rcin::kGpswOffKey, gpsw_off);
 
   if (!pt.save()) {
     qt::qErrorBox(this, "Failed to save calibration results on GCS.");
@@ -310,13 +312,13 @@ bool RCInputCalibrationWidget::saveParamsToFc()
     req->gpsw_on[i] = gpsw_ranges_[i]->getLower();
     req->gpsw_off[i] = gpsw_ranges_[i]->getUpper();
   }
-  for (size_t i = numOfGpswChannels(); i < tobas::kMaxNumOfGpsw; ++i) {
+  for (size_t i = numOfGpswChannels(); i < kMaxNumOfGpsw; ++i) {
     req->gpsw_on[i] = std::numeric_limits<uint16_t>::max();
     req->gpsw_off[i] = 0;
   }
 
   ros2::SyncServiceClient<tobas_real_msgs::srv::SetRcInputParams> sc(
-    node_, path::join(drone_.name, tobas::kRemoteIfaceNS, kSetParamSrv));
+    node_, path::join('/', drone_.name, kRemoteIfaceNS, real::handler::rcin::kSetParamSrv));
   if (!sc.call(req, kSetParamTimeout)) {
     qt::qErrorBox(this, "Failed to send calibration results to FC.");
     return false;
@@ -354,12 +356,12 @@ void RCInputCalibrationWidget::onStartButtonClicked()
   cancel_button_->setEnabled(true);
 
   running_ = true;
-  qt::qInfoBox(this, "Radio calibration is started.");
+  qt::qInfoBox(this, "Radio calibration started.");
 }
 
 void RCInputCalibrationWidget::onCancelButtonClicked()
 {
-  qt::qInfoBox(this, "Radio calibration is cancelled.");
+  qt::qInfoBox(this, "Radio calibration was canceled.");
   reset();
 }
 
@@ -435,18 +437,18 @@ void RCInputCalibrationWidget::sbusCb(const tobas_msgs::msg::Sbus::ConstSharedPt
     return;
   }
 
-  roll_range_->setValue(sbus->periods.at(tobas::kRcChannelRoll));
-  pitch_range_->setValue(sbus->periods.at(tobas::kRcChannelPitch));
-  yaw_range_->setValue(sbus->periods.at(tobas::kRcChannelYaw));
-  throt_range_->setValue(sbus->periods.at(tobas::kRcChannelThrot));
+  roll_range_->setValue(sbus->periods.at(kRcChannelRoll));
+  pitch_range_->setValue(sbus->periods.at(kRcChannelPitch));
+  yaw_range_->setValue(sbus->periods.at(kRcChannelYaw));
+  throt_range_->setValue(sbus->periods.at(kRcChannelThrot));
 
-  mode_range_->setValue(sbus->periods.at(tobas::kRcChannelMode));
-  sub_mode_range_->setValue(sbus->periods.at(tobas::kRcChannelSubMode));
-  enable_range_->setValue(sbus->periods.at(tobas::kRcChannelEnable));
-  kill_range_->setValue(sbus->periods.at(tobas::kRcChannelKill));
+  mode_range_->setValue(sbus->periods.at(kRcChannelMode));
+  sub_mode_range_->setValue(sbus->periods.at(kRcChannelSubMode));
+  enable_range_->setValue(sbus->periods.at(kRcChannelEnable));
+  kill_range_->setValue(sbus->periods.at(kRcChannelKill));
 
   for (size_t i = 0; i < numOfGpswChannels(); ++i) {
-    gpsw_ranges_[i]->setValue(sbus->periods.at(tobas::kRcChannelGpsw + i));
+    gpsw_ranges_[i]->setValue(sbus->periods.at(kRcChannelGpsw + i));
   }
 }
 
@@ -461,3 +463,4 @@ void RCInputCalibrationWidget::armingCb(const tobas_msgs::msg::Arming::ConstShar
 }
 }  // namespace sc
 }  // namespace gui
+}  // namespace tobas

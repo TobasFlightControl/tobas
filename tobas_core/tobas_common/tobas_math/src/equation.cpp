@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_math/equation.hpp"
 
 #include <cassert>
@@ -8,6 +11,8 @@
 
 using namespace std;
 
+namespace tobas
+{
 namespace math
 {
 double solveLinearEquation(double a, double b)
@@ -55,3 +60,4 @@ tuple<complex<double>, complex<double>, complex<double>> solveCubicEquation(doub
   return { x1, x2, x3 };
 }
 }  // namespace math
+}  // namespace tobas

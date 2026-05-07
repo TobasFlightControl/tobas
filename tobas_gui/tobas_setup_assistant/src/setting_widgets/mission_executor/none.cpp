@@ -1,5 +1,10 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_setup_assistant/setting_tabs/mission_executor/none.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -41,3 +46,4 @@ bool NoneWidget::isValid()
 }  // namespace mission
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <array>
@@ -5,6 +8,8 @@
 #include <QLineEdit>
 #include <QWidget>
 
+namespace tobas
+{
 namespace qt
 {
 class IPv6Edit : public QWidget
@@ -36,3 +41,4 @@ private:
   void setFieldValue(size_t idx, uint16_t value);
 };
 }  // namespace qt
+}  // namespace tobas

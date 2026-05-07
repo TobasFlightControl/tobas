@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <array>
@@ -17,7 +20,7 @@ struct convert<std::array<T, N>>
 
     for (auto& value : rhs) {
       if constexpr (std::is_floating_point_v<T>) {
-        node.push_back(yaml::format(value));
+        node.push_back(tobas::yaml::format(value));
       }
       else {
         node.push_back(value);

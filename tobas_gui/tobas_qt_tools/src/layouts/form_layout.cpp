@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_qt_tools/layouts/form_layout.hpp"
 
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QWidget>
 
+namespace tobas
+{
 namespace qt
 {
 void FormLayout::addVAlignedRow(QWidget* label, QWidget* field)
@@ -58,3 +63,4 @@ void FormLayout::setVisible(int row, bool visible)
   getWidget(row)->setVisible(visible);
 }
 }  // namespace qt
+}  // namespace tobas

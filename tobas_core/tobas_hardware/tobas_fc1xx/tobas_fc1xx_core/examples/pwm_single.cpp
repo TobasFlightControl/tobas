@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include <iostream>
 #include <thread>
 
@@ -14,7 +17,8 @@ int main(int argc, char** argv)
   const size_t channel = stoul(argv[1]);
   const uint16_t period = stoi(argv[2]);
 
-  fc1xx::PWM pwm;
+  tobas::fc1xx::PWM pwm;
+
   if (!pwm.initialize()) {
     cerr << "Failed to initialize PWM driver." << endl;
     return EXIT_FAILURE;

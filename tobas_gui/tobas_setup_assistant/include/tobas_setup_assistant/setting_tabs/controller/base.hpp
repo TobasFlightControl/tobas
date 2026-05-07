@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <yaml-cpp/yaml.h>
@@ -7,6 +10,8 @@
 
 #include "tobas_setup_assistant/frame_type.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -22,9 +27,9 @@ public:
   virtual QString controllerPackage() const = 0;
   virtual QString pluginName() const = 0;
 
-  virtual tobas::RcCommand acrobatModeCommand() const = 0;
-  virtual tobas::RcCommand stabilizeModeCommand() const = 0;
-  virtual tobas::RcCommand loiterModeCommand() const = 0;
+  virtual RcCommand acrobatModeCommand() const = 0;
+  virtual RcCommand stabilizeModeCommand() const = 0;
+  virtual RcCommand loiterModeCommand() const = 0;
 
   /* 静的プライベートROSパラメータ． */
   virtual YAML::Node staticParams() const = 0;
@@ -38,3 +43,4 @@ public:
 }  // namespace ctrl
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

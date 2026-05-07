@@ -1,5 +1,10 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_setup_assistant/param_getters/double_range.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -83,3 +88,4 @@ void ParamGetterWidget_DoubleRange::onValueChanged(double)
 }
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

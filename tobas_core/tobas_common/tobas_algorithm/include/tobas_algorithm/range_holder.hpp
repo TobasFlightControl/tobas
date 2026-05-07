@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <limits>
 
+namespace tobas
+{
 namespace algo
 {
 /* Stores the minimum value. */
@@ -110,3 +115,4 @@ private:
   MaximumHolder<T> max_;
 };
 }  // namespace algo
+}  // namespace tobas

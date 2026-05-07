@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <QLabel>
@@ -8,6 +11,8 @@
 #include <tobas_qt_tools/font.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -55,3 +60,4 @@ std::string ParamGetterWidget<T>::name() const
 }
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

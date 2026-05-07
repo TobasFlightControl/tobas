@@ -1,7 +1,8 @@
+import uuid
+
 from launch import LaunchDescription
 from launch.actions import SetEnvironmentVariable, DeclareLaunchArgument, Shutdown
 from launch.substitutions import EnvironmentVariable, PathJoinSubstitution, TextSubstitution, LaunchConfiguration
-
 from launch_ros.actions import Node
 
 # Arguments
@@ -36,6 +37,10 @@ def generate_launch_description():
     log_level = LaunchConfiguration(LOG_LEVEL)
     output = LaunchConfiguration(OUTPUT)
 
+    # Create a namespace for this session
+    session_ns = f"session_{uuid.uuid4().hex[:8]}"
+
+    # Set log level
     ros_args = ["--log-level", log_level]
 
     # Launch robot state publisher with minimul URDF
@@ -43,6 +48,7 @@ def generate_launch_description():
     run_rsp = Node(
         package="robot_state_publisher",
         executable="robot_state_publisher",
+        namespace=session_ns,
         parameters=[{"robot_description": minimul_urdf}],
         ros_arguments=ros_args,
         output=output,
@@ -53,6 +59,7 @@ def generate_launch_description():
     run_property_server = Node(
         package="tobas_property_server",
         executable="property_server",
+        namespace=session_ns,
         ros_arguments=ros_args,
         output=output,
     )
@@ -62,6 +69,7 @@ def generate_launch_description():
     run_setup_assistant = Node(
         package="tobas_setup_assistant",
         executable="TobasSetupAssistant",
+        namespace=session_ns,
         ros_arguments=ros_args,
         output=output,
         on_exit=Shutdown(),

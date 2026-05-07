@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <tobas_control/kalman_filter.hpp>
 #include <tobas_kdl/tree_fk_solver_pos.hpp>
 #include <tobas_kdl/tree_mass_holder.hpp>
 
+namespace tobas
+{
 namespace lr_tools
 {
 /**
@@ -74,3 +79,4 @@ private:
   Eigen::VectorXd calcProbs_pred(const std::vector<bool>& cpg_states, const std::vector<double>& cpg_subphases);
 };
 }  // namespace lr_tools
+}  // namespace tobas

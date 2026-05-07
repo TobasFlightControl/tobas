@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_gazebo_system_plugins/ice_rotor_model.hpp"
 
 #include <tobas_gazebo_tools/utils.hpp>
@@ -10,6 +13,8 @@
 
 namespace cmp = gz::sim::components;
 
+namespace tobas
+{
 namespace gazebo
 {
 bool IceRotorModel::initialize(
@@ -270,3 +275,4 @@ bool IceRotorModel::initializeGazeboObjects(gz::sim::EntityComponentManager& ecm
 }
 
 }  // namespace gazebo
+}  // namespace tobas

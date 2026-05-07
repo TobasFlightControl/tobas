@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_qt_tools/widgets/vector3d_edit_horizontal.hpp"
 
 #include <QHBoxLayout>
 
+namespace tobas
+{
 namespace qt
 {
 Vector3dEditHorizontal::Vector3dEditHorizontal(QWidget* parent) : super(parent)
@@ -90,3 +95,4 @@ void Vector3dEditHorizontal::onValueChanged(double)
   Q_EMIT valueChanged({ x(), y(), z() });
 }
 }  // namespace qt
+}  // namespace tobas

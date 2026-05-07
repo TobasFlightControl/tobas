@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_rviz_wrapper/rviz.hpp"
 
 #include <OgreMaterialManager.h>
@@ -6,17 +9,23 @@
 #include <rviz_common/visualization_manager.hpp>
 #include <rviz_common/yaml_config_reader.hpp>
 
+namespace tobas
+{
 namespace rviz
 {
-RvizFrameManager::RvizFrameManager(const std::string& node_name)
+RvizFrameManager::RvizFrameManager(int argc, char** argv, const std::string& node_name)
 {
   // Initialize ROS node
   if (!rclcpp::ok()) {
-    rclcpp::init(0, nullptr);
+    rclcpp::init(argc, argv);
   }
 
   // Create Rviz ROS interface
   node_ = std::make_shared<rviz_common::ros_integration::RosNodeAbstraction>(node_name);
+}
+
+RvizFrameManager::RvizFrameManager(const std::string& node_name) : RvizFrameManager(0, nullptr, node_name)
+{
 }
 
 void RvizFrameManager::initialize(const QString& config_path, QWidget* parent)
@@ -115,3 +124,4 @@ void RvizFrameManager::removeDefaultColorMaterials()
   material_manager->remove("RVIZ/ShadedCyan", "rviz_rendering");
 }
 }  // namespace rviz
+}  // namespace tobas

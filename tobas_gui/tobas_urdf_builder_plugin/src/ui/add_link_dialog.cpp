@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_urdf_builder_plugin/ui/add_link_dialog.hpp"
 
 #include <QPushButton>
@@ -6,6 +9,8 @@
 
 #include "tobas_urdf_builder_plugin/ui/urdf_builder_panel.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace ub
@@ -96,3 +101,4 @@ void AddLinkDialog::enableOkButton(bool enable)
 }  // namespace ui
 }  // namespace ub
 }  // namespace gui
+}  // namespace tobas

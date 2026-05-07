@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <rclcpp/type_adapter.hpp>
@@ -9,10 +12,10 @@
 #include "./vector.hpp"
 
 template <>
-struct rclcpp::TypeAdapter<kdl::VectorVel, tobas_kdl_msgs::msg::VectorVel>
+struct rclcpp::TypeAdapter<tobas::kdl::VectorVel, tobas_kdl_msgs::msg::VectorVel>
 {
   using is_specialized = std::true_type;
-  using custom_type = kdl::VectorVel;
+  using custom_type = tobas::kdl::VectorVel;
   using ros_message_type = tobas_kdl_msgs::msg::VectorVel;
 
   static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
@@ -30,7 +33,7 @@ struct rclcpp::TypeAdapter<kdl::VectorVel, tobas_kdl_msgs::msg::VectorVel>
 
 namespace tobas_kdl_msgs
 {
-using VectorVelAdapter = rclcpp::TypeAdapter<kdl::VectorVel, tobas_kdl_msgs::msg::VectorVel>;
+using VectorVelAdapter = rclcpp::TypeAdapter<tobas::kdl::VectorVel, tobas_kdl_msgs::msg::VectorVel>;
 }  // namespace tobas_kdl_msgs
 
-RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(kdl::VectorVel, tobas_kdl_msgs::msg::VectorVel);
+RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(tobas::kdl::VectorVel, tobas_kdl_msgs::msg::VectorVel);

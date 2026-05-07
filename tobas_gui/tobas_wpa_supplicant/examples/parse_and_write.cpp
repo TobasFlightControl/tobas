@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include <iostream>
 
 #include <tobas_string_tools/stream.hpp>
@@ -36,7 +39,7 @@ int main()
 
   tobas::wpa::Exporter exporter;
   const auto text = exporter.exportText(data);
-  if (!str::writeText(output_path, text)) {
+  if (!tobas::str::writeText(output_path, text)) {
     return EXIT_FAILURE;
   }
 

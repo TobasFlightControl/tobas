@@ -1,8 +1,13 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include <tobas_math/core.hpp>
 
 #include "tobas_gazebo_system_plugins/engine_model.hpp"
 #include "tobas_gazebo_system_plugins/sdf.hpp"
 
+namespace tobas
+{
 namespace gazebo
 {
 EngineModel::EngineModel(const IceRotorModelMap& rotors) : rotors_(rotors), rnd_gen_(rnd_dev_())
@@ -161,3 +166,4 @@ double EngineModel::calc_k() const
   return res;
 }
 }  // namespace gazebo
+}  // namespace tobas

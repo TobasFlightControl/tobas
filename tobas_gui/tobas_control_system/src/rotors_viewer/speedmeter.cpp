@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_control_system/rotors_viewer/speedmeter.hpp"
 
 #include <QtQml/QQmlContext>
@@ -7,6 +10,8 @@
 
 #include "tobas_control_system/util.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -121,3 +126,4 @@ QObject* SpeedmeterWidget::getBottomTextObject() const
 }
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

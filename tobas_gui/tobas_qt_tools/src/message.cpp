@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_qt_tools/message.hpp"
 
 #include <QMessageBox>
 
+namespace tobas
+{
 namespace qt
 {
 void qInfoBox(QWidget* parent, const QString& msg)
@@ -56,3 +61,4 @@ bool yesOrNo(QWidget* parent, const QString& text, QMessageLevel level)
   return msg_box.exec() == QMessageBox::StandardButton::Yes;
 }
 }  // namespace qt
+}  // namespace tobas

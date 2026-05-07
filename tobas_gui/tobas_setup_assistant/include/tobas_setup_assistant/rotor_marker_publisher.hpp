@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <QTimer>
@@ -7,6 +10,8 @@
 
 #include <visualization_msgs/msg/marker_array.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -40,3 +45,4 @@ private Q_SLOTS:
 };
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

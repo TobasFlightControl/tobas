@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_qt_tools/layouts/grid_layout.hpp"
 
 #include "tobas_qt_tools/util.hpp"
 
+namespace tobas
+{
 namespace qt
 {
 void GridLayout::clear()
@@ -19,3 +24,4 @@ void GridLayout::clear()
   }
 }
 }  // namespace qt
+}  // namespace tobas

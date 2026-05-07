@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include "./tab_widget.hpp"
 
+namespace tobas
+{
 namespace qt
 {
 class VerticalTabBar : public TabBar
@@ -31,3 +36,4 @@ private:
   VerticalTabBar* tab_bar_;
 };
 }  // namespace qt
+}  // namespace tobas

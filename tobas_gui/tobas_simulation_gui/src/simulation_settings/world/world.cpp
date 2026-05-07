@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_simulation_gui/simulation_settings/world/world.hpp"
 
 #include <QButtonGroup>
@@ -12,6 +15,8 @@
 
 namespace fs = std::filesystem;
 
+namespace tobas
+{
 namespace gui
 {
 namespace sim
@@ -86,3 +91,4 @@ void WorldWidget::onButtonGroupIdClicked()
 }
 }  // namespace sim
 }  // namespace gui
+}  // namespace tobas

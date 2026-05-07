@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include "../euler.hpp"
 #include "../frames.hpp"
 #include "../rotational_inertia.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 void vectorFrdToFlu(const Vector& src, Vector& dst);
@@ -43,3 +48,4 @@ void frameFluToFrd(const kdl::Frame& src, kdl::Frame& dst);
 void frameFrdToFlu(kdl::Frame& arg);
 void frameFluToFrd(kdl::Frame& arg);
 }  // namespace kdl
+}  // namespace tobas

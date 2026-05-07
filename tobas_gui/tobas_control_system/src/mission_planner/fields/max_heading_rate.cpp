@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_control_system/mission_planner/fields/max_heading_rate.hpp"
 
 #include <QHBoxLayout>
 
 #include <tobas_std_tools/unit_conversions.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -33,13 +38,14 @@ const char* MaxHeadingRateWidget::label() const
 
 double MaxHeadingRateWidget::getValue() const
 {
-  return tbs::deg2rad(spin_box_->value());
+  return st::deg2rad(spin_box_->value());
 }
 
 void MaxHeadingRateWidget::setValue(double value)
 {
-  spin_box_->setValue(tbs::rad2deg(value));
+  spin_box_->setValue(st::rad2deg(value));
 }
 }  // namespace field
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

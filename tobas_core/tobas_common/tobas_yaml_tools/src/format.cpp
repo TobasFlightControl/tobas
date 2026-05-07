@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_yaml_tools/format.hpp"
 
 #include <format>
@@ -5,8 +8,15 @@
 #include <tobas_math/core.hpp>
 #include <tobas_math/float.hpp>
 
+namespace tobas
+{
 namespace yaml
 {
+std::string format(int value)
+{
+  return std::to_string(value);
+}
+
 /**
  * @brief 小数をyaml対応の文字列に変換する．
  *
@@ -23,3 +33,4 @@ std::string format(double value, int prec)
   }
 }
 }  // namespace yaml
+}  // namespace tobas

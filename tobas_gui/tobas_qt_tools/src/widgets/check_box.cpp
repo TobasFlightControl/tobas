@@ -1,7 +1,17 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_qt_tools/widgets/check_box.hpp"
 
+namespace tobas
+{
 namespace qt
 {
+CheckBox::CheckBox(const QString& text, bool checked, QWidget* parent) : super(text, parent)
+{
+  setChecked(checked);
+}
+
 void CheckBox::setDisabledTextNormal()
 {
   auto pal = this->palette();
@@ -11,3 +21,4 @@ void CheckBox::setDisabledTextNormal()
   this->setPalette(pal);
 }
 }  // namespace qt
+}  // namespace tobas

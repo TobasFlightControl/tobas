@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <cstddef>
 
 #include <tobas_linux/spi_dev.hpp>
 
+namespace tobas
+{
 namespace stm
 {
 /**
@@ -161,7 +166,14 @@ private:
 
   enum ctrl3_c_t : uint8_t
   {
-    // TODO
+    BOOT = 1 << 7,
+    BDU = 1 << 6,
+    H_LACTIVE = 1 << 5,
+    PP_OD = 1 << 4,
+    SIM = 1 << 3,
+    IF_INC = 1 << 2,
+    BLE = 1 << 1,
+    SW_RESET = 1 << 0,
   };
 
   enum ctrl4_c_t : uint8_t
@@ -245,3 +257,4 @@ private:
   bool checkWhoAmI();
 };
 }  // namespace stm
+}  // namespace tobas

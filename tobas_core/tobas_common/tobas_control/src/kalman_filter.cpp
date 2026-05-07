@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_control/kalman_filter.hpp"
 
 #include <eigen3/Eigen/LU>
@@ -11,6 +14,8 @@
 using namespace std;
 using namespace Eigen;
 
+namespace tobas
+{
 namespace ctrl
 {
 KalmanFilter::KalmanFilter()
@@ -127,3 +132,4 @@ void IdentityKalmanFilter::update()
   kf_.update();
 }
 }  // namespace ctrl
+}  // namespace tobas

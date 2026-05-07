@@ -1,8 +1,13 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <QFileDialog>
 #include <QSortFilterProxyModel>
 
+namespace tobas
+{
 namespace gui
 {
 namespace cmn
@@ -22,3 +27,4 @@ private Q_SLOTS:
 };
 }  // namespace cmn
 }  // namespace gui
+}  // namespace tobas

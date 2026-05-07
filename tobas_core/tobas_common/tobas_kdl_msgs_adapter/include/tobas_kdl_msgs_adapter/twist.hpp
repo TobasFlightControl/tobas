@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <rclcpp/type_adapter.hpp>
@@ -9,10 +12,10 @@
 #include "./vector.hpp"
 
 template <>
-struct rclcpp::TypeAdapter<kdl::Twist, tobas_kdl_msgs::msg::Twist>
+struct rclcpp::TypeAdapter<tobas::kdl::Twist, tobas_kdl_msgs::msg::Twist>
 {
   using is_specialized = std::true_type;
-  using custom_type = kdl::Twist;
+  using custom_type = tobas::kdl::Twist;
   using ros_message_type = tobas_kdl_msgs::msg::Twist;
 
   static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
@@ -30,7 +33,7 @@ struct rclcpp::TypeAdapter<kdl::Twist, tobas_kdl_msgs::msg::Twist>
 
 namespace tobas_kdl_msgs
 {
-using TwistAdapter = rclcpp::TypeAdapter<kdl::Twist, tobas_kdl_msgs::msg::Twist>;
+using TwistAdapter = rclcpp::TypeAdapter<tobas::kdl::Twist, tobas_kdl_msgs::msg::Twist>;
 }  // namespace tobas_kdl_msgs
 
-RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(kdl::Twist, tobas_kdl_msgs::msg::Twist);
+RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(tobas::kdl::Twist, tobas_kdl_msgs::msg::Twist);

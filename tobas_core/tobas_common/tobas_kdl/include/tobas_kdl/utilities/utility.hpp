@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <cmath>
 
+namespace tobas
+{
 namespace kdl
 {
 /**
@@ -38,3 +43,4 @@ inline constexpr double sqr(double arg)
   return arg * arg;
 }
 }  // namespace kdl
+}  // namespace tobas

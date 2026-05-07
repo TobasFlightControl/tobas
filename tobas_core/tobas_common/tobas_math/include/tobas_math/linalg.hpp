@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <cmath>
@@ -5,6 +8,8 @@
 
 #include "./core.hpp"
 
+namespace tobas
+{
 namespace math
 {
 /**
@@ -22,3 +27,4 @@ double norm(T... args)
   return sqrt(squared_sum);
 }
 }  // namespace math
+}  // namespace tobas

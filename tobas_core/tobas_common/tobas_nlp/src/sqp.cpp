@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_nlp/sqp.hpp"
 
 #include <iostream>
@@ -10,6 +13,8 @@
 using namespace std;
 using namespace Eigen;
 
+namespace tobas
+{
 namespace nlp
 {
 SQP::SQP()
@@ -167,3 +172,4 @@ bool SQP::setVariableScales(const Eigen::VectorXd& x_scale)
   return true;
 }
 }  // namespace nlp
+}  // namespace tobas

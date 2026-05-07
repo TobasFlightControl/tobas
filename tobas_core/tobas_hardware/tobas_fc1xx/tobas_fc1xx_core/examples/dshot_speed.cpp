@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include <cmath>
 #include <iostream>
 #include <thread>
@@ -21,14 +24,14 @@ int main(int argc, char** argv)
   const auto gain = stoi(argv[5]);
   const auto tar_rpm = stoi(argv[6]);
 
-  fc1xx::DShot dshot;
+  tobas::fc1xx::DShot dshot;
 
   if (!dshot.initialize()) {
     cerr << "Failed to initialize DShot driver." << endl;
     return EXIT_FAILURE;
   }
 
-  if (!dshot.setKv(channel, tbs::rpm2rps(kv))) {
+  if (!dshot.setKv(channel, tobas::st::rpm2rps(kv))) {
     cerr << "Failed to set Kv." << endl;
     return EXIT_FAILURE;
   }
@@ -48,7 +51,7 @@ int main(int argc, char** argv)
   }
   this_thread::sleep_for(1ms);
 
-  if (!dshot.setPropellerDiameter(channel, tbs::inch2meter(d))) {
+  if (!dshot.setPropellerDiameter(channel, tobas::st::inch2meter(d))) {
     cerr << "Failed to set propeller diameter." << endl;
     return EXIT_FAILURE;
   }
@@ -89,7 +92,7 @@ int main(int argc, char** argv)
   this_thread::sleep_for(1ms);
 
   while (true) {
-    if (!dshot.setTargetSpeed(channel, tbs::rpm2rps(tar_rpm))) {
+    if (!dshot.setTargetSpeed(channel, tobas::st::rpm2rps(tar_rpm))) {
       cerr << "Failed to set target speed." << endl;
       continue;
     }

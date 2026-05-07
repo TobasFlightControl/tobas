@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_sensor_calibration/sensor_calibration.hpp"
 
 #include <tobas_qt_tools/cast.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sc
@@ -9,7 +14,7 @@ namespace sc
 SensorCalibrationWidget::SensorCalibrationWidget(
   rclcpp::Node::SharedPtr node,
   const RosQtBridge& bridge,
-  const tobas::Drone& drone)
+  const Drone& drone)
   : drone_(drone)
 {
   setTabSize(kTabWidth, kTabHeight);
@@ -44,8 +49,10 @@ void SensorCalibrationWidget::updateInternalDataStructures()
 {
   reset();
 
-  accel_calib_->setNamespace(drone_.name);
-  mag_calib_->setNamespace(drone_.name);
+  const auto ns = '/' + drone_.name;
+
+  accel_calib_->setNamespace(ns);
+  mag_calib_->setNamespace(ns);
   rcin_calib_->updateInternalDataStructures();
 
   // 各タブを有効化
@@ -110,3 +117,4 @@ void SensorCalibrationWidget::rcInputCb(const tobas_msgs::RCInput::ConstSharedPt
 }
 }  // namespace sc
 }  // namespace gui
+}  // namespace tobas

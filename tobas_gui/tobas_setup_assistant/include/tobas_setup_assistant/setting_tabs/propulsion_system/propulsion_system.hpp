@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <QButtonGroup>
@@ -10,6 +13,8 @@
 #include "./ice/propulsion_system.hpp"
 #include "tobas_setup_assistant/signals.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -38,7 +43,7 @@ public:
   YAML::Node dump() const override;
   void load(const YAML::Node& node) override;
 
-  tobas::PropulsionSystem type() const;
+  PropulsionSystem type() const;
   int numUnits() const;
 
   QString linkName(int index) const;
@@ -50,7 +55,6 @@ public:
   const BasePropulsionSystemWidget* selected() const;
 
 private:
-  const rclcpp::Node::SharedPtr node_;
   Signals& sig_;
 
   QButtonGroup* type_btn_group_;
@@ -69,3 +73,4 @@ private Q_SLOTS:
 };  // namespace propulsion
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

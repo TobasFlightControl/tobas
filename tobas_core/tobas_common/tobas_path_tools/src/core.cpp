@@ -1,45 +1,49 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_path_tools/core.hpp"
 
 #include <fstream>
 #include <iostream>
 
-using namespace std;
-namespace fs = filesystem;
+namespace fs = std::filesystem;
 
+namespace tobas
+{
 namespace path
 {
 bool isReadable(const fs::path& file_path)
 {
-  const ifstream ifs(file_path);
+  const std::ifstream ifs(file_path);
   return ifs.good();
 }
 
 bool isWritable(const fs::path& file_path)
 {
-  const ofstream ofs(file_path, ios::app);  // 既存ファイルを破壊しないようにappendモードで開く
+  const std::ofstream ofs(file_path, std::ios::app);  // 既存ファイルを破壊しないようにappendモードで開く
   return ofs.good();
 }
 
-expected<void, string> createDirectories(const fs::path& dir_path, bool exist_ok)
+std::expected<void, std::string> createDirectories(const fs::path& dir_path, bool exist_ok)
 {
   if (fs::is_directory(dir_path)) {
     if (exist_ok) {
       return {};
     }
     else {
-      return unexpected("\"" + dir_path.string() + "\" already exists.");
+      return std::unexpected("\"" + dir_path.string() + "\" already exists.");
     }
   }
 
-  error_code ec;
+  std::error_code ec;
   if (!fs::create_directories(dir_path, ec)) {
-    return unexpected(ec.message());
+    return std::unexpected(ec.message());
   }
 
   return {};
 }
 
-expected<void, string> createFilePath(const fs::path& file_path, bool exist_ok)
+std::expected<void, std::string> createFilePath(const fs::path& file_path, bool exist_ok)
 {
   // ファイルの存在を確認
   if (fs::is_regular_file(file_path)) {
@@ -47,7 +51,7 @@ expected<void, string> createFilePath(const fs::path& file_path, bool exist_ok)
       return {};
     }
     else {
-      return unexpected("\"" + file_path.string() + "\" already exists.");
+      return std::unexpected("\"" + file_path.string() + "\" already exists.");
     }
   }
 
@@ -57,13 +61,13 @@ expected<void, string> createFilePath(const fs::path& file_path, bool exist_ok)
   // ファイルの親ディレクトリまでのパスを作成
   const auto create_dir_res = createDirectories(dir_path, true);
   if (!create_dir_res) {
-    return unexpected(create_dir_res.error());
+    return std::unexpected(create_dir_res.error());
   }
 
   // 空のファイルを作成
-  const ofstream file(file_path);
+  const std::ofstream file(file_path);
   if (!file) {
-    return unexpected("Failed to create \"" + file_path.string() + "\".");
+    return std::unexpected("Failed to create \"" + file_path.string() + "\".");
   }
 
   return {};
@@ -72,7 +76,7 @@ expected<void, string> createFilePath(const fs::path& file_path, bool exist_ok)
 size_t computeDirectorySize(const fs::path& dir_path)
 {
   if (!fs::is_directory(dir_path)) {
-    cerr << dir_path << " does not exist." << endl;
+    std::cerr << dir_path << " does not exist." << std::endl;
     return 0;
   }
 
@@ -91,7 +95,7 @@ size_t computeDirectorySize(const fs::path& dir_path)
 std::expected<void, std::string> clearDirectory(const fs::path& dir_path)
 {
   if (!fs::is_directory(dir_path)) {
-    return unexpected("\"" + dir_path.string() + "\" does not exist.");
+    return std::unexpected("\"" + dir_path.string() + "\" does not exist.");
   }
 
   for (const auto& entry : fs::directory_iterator(dir_path)) {
@@ -101,3 +105,4 @@ std::expected<void, std::string> clearDirectory(const fs::path& dir_path)
   return {};
 }
 }  // namespace path
+}  // namespace tobas

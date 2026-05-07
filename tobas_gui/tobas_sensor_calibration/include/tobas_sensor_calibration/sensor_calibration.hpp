@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <tobas_qt_tools/widgets/vertical_tab_widget.hpp>
@@ -6,6 +9,8 @@
 #include "./mag_calibration/mag_calibration.hpp"
 #include "./rcin_calibration/rcin_calibration.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sc
@@ -21,13 +26,13 @@ class SensorCalibrationWidget : public qt::VerticalTabWidget
   static constexpr int kTabWidth = 70;
 
 public:
-  explicit SensorCalibrationWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge, const tobas::Drone& drone);
+  explicit SensorCalibrationWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge, const Drone& drone);
 
   void reset();
   void updateInternalDataStructures();
 
 private:
-  const tobas::Drone& drone_;
+  const Drone& drone_;
 
   AccelCalibrationWidget* accel_calib_;
   MagCalibrationWidget* mag_calib_;
@@ -50,3 +55,4 @@ private Q_SLOTS:
 };
 }  // namespace sc
 }  // namespace gui
+}  // namespace tobas

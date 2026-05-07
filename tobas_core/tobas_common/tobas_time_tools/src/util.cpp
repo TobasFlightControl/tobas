@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_time_tools/util.hpp"
 
 namespace ch = std::chrono;
 
+namespace tobas
+{
 namespace tim
 {
 ch::system_clock::time_point tmToTimePoint(tm tm)
@@ -51,3 +56,4 @@ double yearFraction(const ch::system_clock::time_point& tp)
   return year + static_cast<double>(day_of_year) / days_in_year;
 }
 }  // namespace tim
+}  // namespace tobas

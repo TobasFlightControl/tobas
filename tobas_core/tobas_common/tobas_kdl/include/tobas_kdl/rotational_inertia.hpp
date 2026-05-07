@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include "./frames.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 class RotationalInertia
@@ -125,3 +130,4 @@ inline std::ostream& operator<<(std::ostream& os, const RotationalInertia& arg)
   return os;
 }
 }  // namespace kdl
+}  // namespace tobas

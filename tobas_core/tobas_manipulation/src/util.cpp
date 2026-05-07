@@ -1,15 +1,19 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_manipulation/util.hpp"
 
-using namespace std;
-
+namespace tobas
+{
 namespace manipulation
 {
-vector<string> linkNames(const tobas_msgs::LinkStateArray& msg)
+std::vector<std::string> linkNames(const tobas_msgs::LinkStateArray& msg)
 {
-  vector<string> res;
+  std::vector<std::string> res;
   for (const auto& state : msg.states) {
     res.push_back(state.name);
   }
   return res;
 }
 }  // namespace manipulation
+}  // namespace tobas

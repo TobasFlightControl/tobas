@@ -1,0 +1,21 @@
+<package format="3">
+
+  <name>tobas_object_avoidance</name>
+  <version>0.0.0</version>
+  <description>TODO: Package description</description>
+  <maintainer email="dtetsuka@fundamentum.co.jp">dtetsuka</maintainer>
+  <license>GPL-3.0-or-later</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>octomap</depend>
+  <depend>octomap_msgs</depend>
+  <depend>tobas_node</depend>
+  <depend>tobas_constants</depend>
+  <depend>tobas_msgs_adapter</depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+
+</package>

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include <iostream>
 
 #include <cxxopts.hpp>
@@ -7,7 +10,7 @@
 #define DEVICE "device"
 #define BAUDRATE "baudrate"
 #define DATA_BITS "data_bits"
-#define STOP_BITS "Stop_bits"
+#define STOP_BITS "stop_bits"
 #define PARITY "parity"
 #define HUNGUP "hungup"
 #define HELP "help"
@@ -57,9 +60,9 @@ int main(int argc, char** argv)
   cout << "\tHungup close: " << boolalpha << hungup << noboolalpha << endl;
   cout << "----------------------------------------" << endl;
 
-  linux::UARTdev uart;
+  tobas::linux::UARTdev uart;
 
-  if (!uart.initialize(device.c_str())) {
+  if (!uart.initialize(device.c_str(), true)) {
     return EXIT_FAILURE;
   }
 
@@ -95,12 +98,12 @@ int main(int argc, char** argv)
     }
   }
   else if (parity == "odd") {
-    if (!uart.enableParity(linux::UARTdev::ParityMode::kOdd)) {
+    if (!uart.enableParity(tobas::linux::UARTdev::ParityMode::kOdd)) {
       return EXIT_FAILURE;
     }
   }
   else if (parity == "even") {
-    if (!uart.enableParity(linux::UARTdev::ParityMode::kEven)) {
+    if (!uart.enableParity(tobas::linux::UARTdev::ParityMode::kEven)) {
       return EXIT_FAILURE;
     }
   }
@@ -121,12 +124,10 @@ int main(int argc, char** argv)
   }
 
   uint8_t data;
-  cout << hex;
-
   while (true) {
     if (!uart.receive(&data, 1)) {
       continue;
     }
-    cout << data << " ";
+    cout << setw(2) << setfill('0') << hex << uppercase << (int)data << " ";
   }
 }

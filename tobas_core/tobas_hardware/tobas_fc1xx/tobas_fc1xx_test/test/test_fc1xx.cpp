@@ -1,9 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include <cmath>
 #include <iostream>
 
 #include <tobas_fc1xx_core/battery.hpp>
-#include <tobas_fc1xx_core/iis2mdc.hpp>
-#include <tobas_fc1xx_core/ilps22qs.hpp>
+#include <tobas_ic_drivers/stmicro/iis2mdc.hpp>
+#include <tobas_ic_drivers/stmicro/ilps22qs.hpp>
 #include <tobas_ic_drivers/stmicro/ism330dlc.hpp>
 #include <tobas_ic_drivers/ublox/zed_f9p.hpp>
 #include <tobas_math/linalg.hpp>
@@ -18,18 +21,18 @@ namespace ch = std::chrono;
 
 bool testImu()
 {
-  stm::ISM330DLC imu;
+  tobas::stm::ISM330DLC imu;
 
   if (!imu.initialize("/dev/spidev0.0")) {
     cerr << "Failed to initialize IMU." << endl;
     return false;
   }
 
-  if (!imu.setAccelOutputDataRate(stm::ISM330DLC::odr_xl_t::ODR_XL_6664HZ)) {
+  if (!imu.setAccelOutputDataRate(tobas::stm::ISM330DLC::odr_xl_t::ODR_XL_6664HZ)) {
     cerr << "Failed to set accelerometer output data rate." << endl;
     return false;
   }
-  if (!imu.setGyroOutputDataRate(stm::ISM330DLC::odr_g_t::ODR_G_6664HZ)) {
+  if (!imu.setGyroOutputDataRate(tobas::stm::ISM330DLC::odr_g_t::ODR_G_6664HZ)) {
     cerr << "Failed to set gyroscope output data rate." << endl;
     return false;
   }
@@ -37,9 +40,9 @@ bool testImu()
   this_thread::sleep_for(200ms);
 
   double ax, ay, az, gx, gy, gz;
-  tim::Rate rate(5ms);
+  tobas::tim::Rate rate(5ms);
 
-  for (int i = 0; i < 200; ++i) {
+  for (int _ = 0; _ < 200; ++_) {
     if (!imu.readImu(ax, ay, az, gx, gy, gz)) {
       cerr << "Failed to read IMU." << endl;
       return false;
@@ -48,11 +51,11 @@ bool testImu()
     cout << "Accel [m/s^2]: " << ax << ", " << ay << ", " << az << endl;
     cout << "Gyro [rad/s] : " << gx << ", " << gy << ", " << gz << endl;
 
-    if (math::norm(ax, ay, az - tbs::kGravity) > 1.) {
+    if (tobas::math::norm(ax, ay, az - tobas::st::kGravity) > 1.) {
       cerr << "Abnormal accel detected." << endl;
       return false;
     }
-    if (math::norm(gx, gy, gz) > 0.3) {
+    if (tobas::math::norm(gx, gy, gz) > 0.3) {
       cerr << "Abnormal gyro detected." << endl;
       return false;
     }
@@ -65,9 +68,9 @@ bool testImu()
 
 bool testMagnetometer()
 {
-  fc1xx::IIS2MDC mag;
+  tobas::stm::IIS2MDC mag;
 
-  if (!mag.initialize()) {
+  if (!mag.initialize("/dev/i2c-1")) {
     cerr << "Failed to initialize magnetometer." << endl;
     return false;
   }
@@ -75,9 +78,9 @@ bool testMagnetometer()
   this_thread::sleep_for(200ms);
 
   double mx, my, mz;
-  tim::Rate rate(20ms);
+  tobas::tim::Rate rate(20ms);
 
-  for (int i = 0; i < 50; ++i) {
+  for (int _ = 0; _ < 50; ++_) {
     if (!mag.readMag(mx, my, mz)) {
       cerr << "Failed to read magnetic field." << endl;
       return false;
@@ -85,7 +88,7 @@ bool testMagnetometer()
 
     cout << "Magnetic Field [gauss]: " << mx << ", " << my << ", " << mz << endl;
 
-    if (math::norm(mx, my, mz) > 1.5) {  // 標準の地磁気の大きさ (0.5くらい) の3倍まで許容
+    if (tobas::math::norm(mx, my, mz) > 1.5) {  // 標準の地磁気の大きさ (0.5くらい) の3倍まで許容
       cerr << "Abnormal magnetic field detected." << endl;
       return false;
     }
@@ -98,9 +101,9 @@ bool testMagnetometer()
 
 bool testBarometer()
 {
-  fc1xx::ILPS22QS baro;
+  tobas::stm::ILPS22QS baro;
 
-  if (!baro.initialize()) {
+  if (!baro.initialize("/dev/i2c-1")) {
     cerr << "Failed to initialize barometer." << endl;
     return false;
   }
@@ -108,9 +111,9 @@ bool testBarometer()
   this_thread::sleep_for(200ms);
 
   double pres, temp;
-  tim::Rate rate(20ms);
+  tobas::tim::Rate rate(20ms);
 
-  for (int i = 0; i < 50; ++i) {
+  for (int _ = 0; _ < 50; ++_) {
     if (!baro.readPressure(pres)) {
       cerr << "Failed to read pressure." << endl;
       return false;
@@ -122,7 +125,7 @@ bool testBarometer()
 
     const auto pres_hpa = pres / 100.;
 
-    cout << "Pressure [hPa]     : " << pres_hpa << endl;
+    cout << "Pressure [hPa]    : " << pres_hpa << endl;
     cout << "Temperature [degC]: " << temp << endl;
 
     if (pres_hpa < 900. || 1100. < pres_hpa) {
@@ -142,7 +145,7 @@ bool testBarometer()
 
 bool testPowerSensor()
 {
-  fc1xx::Battery batt;
+  tobas::fc1xx::Battery batt;
 
   if (!batt.initialize()) {
     cerr << "Failed to initialize ADC." << endl;
@@ -152,9 +155,9 @@ bool testPowerSensor()
   this_thread::sleep_for(200ms);
 
   float volt, curr;
-  tim::Rate rate(10ms);
+  tobas::tim::Rate rate(10ms);
 
-  for (int i = 0; i < 100; ++i) {
+  for (int _ = 0; _ < 100; ++_) {
     if (!batt.read(volt, curr)) {
       cerr << "Failed to read battery status." << endl;
       return EXIT_FAILURE;
@@ -180,7 +183,7 @@ bool testPowerSensor()
 
 bool testGnssReceiver()
 {
-  ublox::ZEDF9P gnss;
+  tobas::ublox::ZEDF9P gnss;
 
   if (!gnss.initialize("/dev/spidev1.2")) {
     cerr << "Failed to initialize GNSS driver." << endl;
@@ -207,7 +210,7 @@ bool testGnssReceiver()
   }
 
   // Enable messages
-  if (!gnss.enableMsg(ublox::ZEDF9P::CLASS_NAV, ublox::ZEDF9P::NAV_PVT, true)) {
+  if (!gnss.enableSpiMessage(tobas::ublox::ZEDF9P::CLASS_NAV, tobas::ublox::ZEDF9P::NAV_PVT, true)) {
     cerr << "Failed to enable NAV_PVT message." << endl;
     return false;
   }
@@ -220,12 +223,12 @@ bool testGnssReceiver()
       return false;
     }
 
-    if (gnss.latestClass() != ublox::ZEDF9P::CLASS_NAV) {
+    if (gnss.latestClass() != tobas::ublox::ZEDF9P::CLASS_NAV) {
       continue;
     }
 
     switch (gnss.latestId()) {
-      case ublox::ZEDF9P::NAV_PVT:
+      case tobas::ublox::ZEDF9P::NAV_PVT:
         return true;
       default:
         continue;

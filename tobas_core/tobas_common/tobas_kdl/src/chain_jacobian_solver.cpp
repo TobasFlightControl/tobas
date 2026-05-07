@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_kdl/chain_jacobian_solver.hpp"
 
 using namespace std;
 
+namespace tobas
+{
 namespace kdl
 {
 ChainJacobianSolver::ChainJacobianSolver(const Chain& chain) : super(chain)
@@ -79,3 +84,4 @@ void ChainJacobianSolver::resize()
   J_out_.resize(nj_);
 }
 }  // namespace kdl
+}  // namespace tobas

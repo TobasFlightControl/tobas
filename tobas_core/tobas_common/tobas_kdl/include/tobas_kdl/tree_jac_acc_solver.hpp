@@ -1,8 +1,13 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include "./jntarray.hpp"
 #include "./tree_solver_i.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 /**
@@ -38,3 +43,4 @@ inline const Accel& TreeJacAccSolver::getJdqd(const std::string& seg_name) const
   return Jdqd_out_.at(seg_name);
 }
 }  // namespace kdl
+}  // namespace tobas

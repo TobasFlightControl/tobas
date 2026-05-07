@@ -1,8 +1,13 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <tobas_math/definitions.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -25,7 +30,7 @@ public:
     double radius,
     double blade_chord,
     double pitch_angle,
-    double air_density = tbs::kStandardAirDensity);
+    double air_density = st::kStandardAirDensity);
 
   double motorConst() const;
   double momentConst() const;
@@ -54,3 +59,4 @@ private:
 }  // namespace propulsion
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

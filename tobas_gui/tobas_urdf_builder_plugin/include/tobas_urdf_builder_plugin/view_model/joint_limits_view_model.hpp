@@ -1,17 +1,22 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include "./base_view_model.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace ub
 {
 namespace view_model
 {
-class JointLimitsViewModel : public BaseViewModel<urdf::JointLimits, JointLimitsViewModel>
+class JointLimitsViewModel : public BaseViewModel<::urdf::JointLimits, JointLimitsViewModel>
 {
 public:
-  using BaseViewModel<urdf::JointLimits, JointLimitsViewModel>::BaseViewModel;
+  using BaseViewModel<::urdf::JointLimits, JointLimitsViewModel>::BaseViewModel;
 
   void sync() override;
 
@@ -32,3 +37,4 @@ using JointLimitsViewModelPtr = std::shared_ptr<JointLimitsViewModel>;
 }  // namespace view_model
 }  // namespace ub
 }  // namespace gui
+}  // namespace tobas

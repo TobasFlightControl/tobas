@@ -1,8 +1,13 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include "./chain_ik_solver.hpp"
 #include "./chain_jacobian_solver.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 /* 公式のChainIkSolverVel_pinvを並進速度のみの場合にも対応させたもの */
@@ -22,3 +27,4 @@ private:
   ChainJacobianSolver jnt2jac_;
 };
 }  // namespace kdl
+}  // namespace tobas

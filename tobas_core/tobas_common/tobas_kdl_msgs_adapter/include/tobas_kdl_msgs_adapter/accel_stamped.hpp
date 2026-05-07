@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <rclcpp/type_adapter.hpp>
@@ -13,7 +16,7 @@ namespace tobas_kdl_msgs
 struct AccelStamped
 {
   std_msgs::msg::Header header;
-  kdl::Accel accel;
+  tobas::kdl::Accel accel;
 
   using SharedPtr = std::shared_ptr<AccelStamped>;
   using ConstSharedPtr = std::shared_ptr<const AccelStamped>;

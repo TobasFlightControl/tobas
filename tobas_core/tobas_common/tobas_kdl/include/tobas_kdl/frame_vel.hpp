@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include "./frame.hpp"
 #include "./rotation_vel.hpp"
 #include "./vector_vel.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 class FrameVel
@@ -135,3 +140,4 @@ inline FrameVel operator*(const Frame& lhs, const FrameVel& rhs)
   return FrameVel(lhs.M * rhs.M, lhs.M * rhs.p + lhs.p);
 }
 }  // namespace kdl
+}  // namespace tobas

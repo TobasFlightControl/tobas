@@ -1,10 +1,15 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <sys/types.h>
 
 #include <map>
 
-namespace tbs
+namespace tobas
+{
+namespace st
 {
 /**
  * @brief マップの要素の先頭からの距離を取得する．
@@ -19,4 +24,5 @@ ssize_t getIndex(const std::map<T, U>& mp, const T& key)
 
   return std::distance(mp.begin(), it);
 }
-}  // namespace tbs
+}  // namespace st
+}  // namespace tobas

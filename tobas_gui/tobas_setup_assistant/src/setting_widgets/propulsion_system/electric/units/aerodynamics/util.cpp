@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/aerodynamics/util.hpp"
 
 #include <tobas_math/core.hpp>
 #include <tobas_math/definitions.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -24,7 +29,7 @@ double ratioLeastSquare(const Eigen::VectorXd& num, const Eigen::VectorXd& den)
 
 double motorConstFromThrustStand(const Eigen::VectorXd& rpms, const Eigen::VectorXd& thrusts)
 {
-  const auto omega2 = (rpms * tbs::kRpmToRps).cwiseAbs2();
+  const auto omega2 = (rpms * st::kRpmToRps).cwiseAbs2();
   return ratioLeastSquare(thrusts, omega2);
 }
 
@@ -36,7 +41,7 @@ double momentConstFromThrustStand(const Eigen::VectorXd& thrusts, const Eigen::V
 double motorConstFromUiuc(const Eigen::VectorXd& cts, double d)
 {
   const auto ct = cts.mean();
-  constexpr auto rho = tbs::kStandardAirDensity;  // TODO: ランタイムの気圧変化を考慮
+  constexpr auto rho = st::kStandardAirDensity;  // TODO: ランタイムの気圧変化を考慮
   return (ct * rho * math::quar(d)) / math::sqr(M_2PI);
 }
 
@@ -50,3 +55,4 @@ double momentConstFromUiuc(const Eigen::VectorXd& cts, const Eigen::VectorXd& cp
 }  // namespace propulsion
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

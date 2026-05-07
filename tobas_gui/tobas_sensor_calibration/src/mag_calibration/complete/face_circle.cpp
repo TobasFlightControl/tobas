@@ -1,8 +1,13 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_sensor_calibration/mag_calibration/complete/face_circle.hpp"
 
 #include <QDebug>
 #include <QPainter>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sc
@@ -169,3 +174,4 @@ void FaceCircleWidget::drawText(QPainter& painter)
 }
 }  // namespace sc
 }  // namespace gui
+}  // namespace tobas

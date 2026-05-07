@@ -1,5 +1,9 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_simulation_gui/dynamic_configuration/suspended_load.hpp"
 
+#include <QDebug>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
@@ -15,6 +19,10 @@
 
 #include "tobas_simulation_gui/dynamic_configuration/constants.hpp"
 
+namespace ch = std::chrono;
+
+namespace tobas
+{
 namespace gui
 {
 namespace sim
@@ -90,7 +98,7 @@ void SuspendedLoadWidget::updateNamespace(const std::string& ns)
   setParamsToDefault();
 }
 
-bool SuspendedLoadWidget::start()
+bool SuspendedLoadWidget::start(ch::milliseconds timeout)
 {
   bool success = true;
   QString message;
@@ -98,12 +106,12 @@ bool SuspendedLoadWidget::start()
   qt::startThreadAndWait(
     [&]()
     {
-      if (!attach_sc_->waitForService()) {
+      if (!attach_sc_->waitForService(timeout)) {
         success = false;
         message = "Failed to connect to \"" + QString(gazebo::kAttachSuspenedLoadSrv) + "\" service server.";
         return;
       }
-      if (!detach_sc_->waitForService()) {
+      if (!detach_sc_->waitForService(timeout)) {
         success = false;
         message = "Failed to connect to \"" + QString(gazebo::kDetachSuspenedLoadSrv) + "\" service server.";
         return;
@@ -111,7 +119,7 @@ bool SuspendedLoadWidget::start()
     });
 
   if (!success) {
-    qt::qErrorBox(this, message);
+    qWarning() << message;
     return false;
   }
 
@@ -178,3 +186,4 @@ void SuspendedLoadWidget::onDetachRequested()
 }
 }  // namespace sim
 }  // namespace gui
+}  // namespace tobas

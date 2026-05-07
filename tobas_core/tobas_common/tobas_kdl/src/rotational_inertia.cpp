@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_kdl/rotational_inertia.hpp"
 
 #include <tobas_eigen_tools/linalg.hpp>
@@ -5,6 +8,8 @@
 using namespace std;
 using namespace Eigen;
 
+namespace tobas
+{
 namespace kdl
 {
 bool RotationalInertia::isValid(string& error_msg) const
@@ -41,3 +46,4 @@ bool RotationalInertia::isValid(string& error_msg) const
   return true;
 }
 }  // namespace kdl
+}  // namespace tobas

@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_qt_tools/widgets/double_slider.hpp"
 
 #include <tobas_math/core.hpp>
 
+namespace tobas
+{
 namespace qt
 {
 DoubleSlider::DoubleSlider(Qt::Orientation orientation, QWidget* parent) : super(orientation, parent)
@@ -61,3 +66,4 @@ double DoubleSlider::valueFromSlider(int slider_value) const
   return math::remap<double>(slider_value, 0, kRange, min_, max_);
 }
 }  // namespace qt
+}  // namespace tobas

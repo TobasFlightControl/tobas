@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <eigen3/Eigen/Core>
 
+namespace tobas
+{
 namespace ctrl
 {
 class PID3
@@ -39,3 +44,4 @@ inline const Eigen::Vector3d& PID3::getIntegralError() const
   return ei_;
 }
 }  // namespace ctrl
+}  // namespace tobas

@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_time_tools/stopwatch.hpp"
 
 #include <iostream>
 
 namespace ch = std::chrono;
 
+namespace tobas
+{
 namespace tim
 {
 Stopwatch::Stopwatch(size_t samples) : samples_(samples)
@@ -44,3 +49,4 @@ bool Stopwatch::isRunning() const
   return running_;
 }
 }  // namespace tim
+}  // namespace tobas

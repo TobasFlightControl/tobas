@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include <tobas_constants/ros_interface.hpp>
 #include <tobas_node/node.hpp>
 
@@ -5,7 +8,9 @@
 
 using namespace std::chrono_literals;
 
-class FakeBattPublisherNode : public tobas::BaseNode
+namespace tobas
+{
+class FakeBattPublisherNode : public BaseNode
 {
   static constexpr auto kSamplingPeriod = 10ms;
 
@@ -13,7 +18,7 @@ class FakeBattPublisherNode : public tobas::BaseNode
   static constexpr double kDefaultCurrent = 20.;   // [A]
 
   using self = FakeBattPublisherNode;
-  using super = tobas::BaseNode;
+  using super = BaseNode;
 
 public:
   explicit FakeBattPublisherNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -34,7 +39,7 @@ FakeBattPublisherNode::FakeBattPublisherNode(const rclcpp::NodeOptions& options)
   voltage_ = getDoubleParam("voltage", kDefaultVoltage);
   current_ = getDoubleParam("current", kDefaultCurrent);
 
-  batt_pub_ = createPublisher<tobas_msgs::msg::Battery>(tobas::topic::kBattery);
+  batt_pub_ = createPublisher<tobas_msgs::msg::Battery>(topic::kBattery);
   timer_ = createTimer(kSamplingPeriod, &self::timerCb, this);
 }
 
@@ -47,5 +52,6 @@ void FakeBattPublisherNode::timerCb()
 
   batt_pub_->publish(std::move(batt_msg));
 }
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(FakeBattPublisherNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::FakeBattPublisherNode)

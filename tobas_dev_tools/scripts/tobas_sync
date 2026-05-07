@@ -18,11 +18,13 @@ fi
 cd $(realpath $(dirname "$0"))/../../
 
 # Sync
+DEST_DIR="/home/pi/colcon_ws/src/tobas"
 rsync -av --delete \
+  --rsync-path="mkdir -p ${DEST_DIR} && rsync" \
   tobas tobas_core tobas_dev_tools tobas_external \
   --exclude-from .gitignore \
   --exclude .git/ \
   --exclude tobas_cui/ \
   --exclude tobas_description/ \
   --exclude tobas_legged_robot/ \
-  pi@$1:~/colcon_ws/src/tobas/
+  pi@$1:${DEST_DIR}/

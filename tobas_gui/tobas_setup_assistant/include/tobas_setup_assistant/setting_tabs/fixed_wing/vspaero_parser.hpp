@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <string>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -58,3 +63,4 @@ private:
 }  // namespace fw
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

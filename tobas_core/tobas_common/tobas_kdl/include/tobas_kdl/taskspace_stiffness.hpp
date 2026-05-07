@@ -1,8 +1,13 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include "./accel.hpp"
 #include "./frame.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 /**
@@ -49,3 +54,4 @@ inline Accel TaskSpaceStiffness::operator*(const Frame& rhs)
   return Accel(linear.hadamard(rhs.p), angular.hadamard(rhs.M.getRot()));
 }
 }  // namespace kdl
+}  // namespace tobas

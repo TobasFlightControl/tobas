@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <random>
@@ -13,6 +16,8 @@
 
 #include <tobas_visualization_msgs/msg/display_robot_state.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -59,3 +64,4 @@ private Q_SLOTS:
 };
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

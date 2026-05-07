@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_drone_core/drone.hpp"
 
 #include <tobas_constants/rc_input.hpp>
@@ -55,7 +58,7 @@ bool Drone::isValid() const
     return false;
   }
 
-  if (num_sbus_channels < tobas::kMinSbusChannels || tobas::kMaxSbusChannels < num_sbus_channels) {
+  if (num_sbus_channels < kMinSbusChannels || kMaxSbusChannels < num_sbus_channels) {
     cerr << "The number of sbus channels is invalid." << endl;
     return false;
   }

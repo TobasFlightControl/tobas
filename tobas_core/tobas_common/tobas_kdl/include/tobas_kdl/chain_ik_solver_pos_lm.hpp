@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <eigen3/Eigen/Core>
@@ -7,6 +10,8 @@
 #include "./chain.hpp"
 #include "./chain_ik_solver.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 /**
@@ -23,7 +28,7 @@ namespace kdl
  *   - by providing a way to specify the weights in task space, you can weigh rotations wrt
  translations.
  *     This is important e.g. to specify that rotations do not matter for the problem at hand, or to
- *     specify how important you judge rotations w.r.t. translations, typically in S.I.-units,
+ *     specify how important you judge rotations wrt. translations, typically in S.I.-units,
  ([m],[rad]),
  *     the rotations are over-specified, this can be avoided using the weight matrix. <B>Weights
  also
@@ -139,3 +144,4 @@ private:
   void enforceJointLimits(Eigen::VectorXd& q);
 };
 }  // namespace kdl
+}  // namespace tobas

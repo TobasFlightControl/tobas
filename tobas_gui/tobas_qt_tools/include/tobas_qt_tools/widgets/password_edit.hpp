@@ -1,8 +1,13 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <QIcon>
 #include <QLineEdit>
 
+namespace tobas
+{
 namespace qt
 {
 class PasswordEdit : public QLineEdit
@@ -33,3 +38,4 @@ private Q_SLOTS:
   void onIconToggled(bool on);
 };
 }  // namespace qt
+}  // namespace tobas

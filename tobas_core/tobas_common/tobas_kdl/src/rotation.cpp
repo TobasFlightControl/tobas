@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_kdl/rotation.hpp"
 
 #include <tobas_eigen_tools/linalg.hpp>
@@ -7,6 +10,8 @@
 
 #define EPS 1e-12
 
+namespace tobas
+{
 namespace kdl
 {
 Rotation Rotation::RotX(double angle)
@@ -243,3 +248,4 @@ std::pair<double, Vector> Rotation::getAngleAxis() const
   return { angle, axis.normalized() };
 }
 }  // namespace kdl
+}  // namespace tobas

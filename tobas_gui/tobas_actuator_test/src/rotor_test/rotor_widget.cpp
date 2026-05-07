@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_actuator_test/rotor_test/rotor_widget.hpp"
 
 #include <QFormLayout>
@@ -6,6 +9,8 @@
 
 #include <tobas_qt_tools/util.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace at
@@ -167,3 +172,4 @@ void RotorWidget::onGainChanged(int gain)
 }
 }  // namespace at
 }  // namespace gui
+}  // namespace tobas

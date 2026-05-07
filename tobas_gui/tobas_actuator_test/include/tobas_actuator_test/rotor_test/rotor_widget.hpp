@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <qwt/qwt_slider.h>
@@ -6,6 +9,8 @@
 
 #include <tobas_qt_tools/widgets/framed_label.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace at
@@ -62,3 +67,4 @@ private Q_SLOTS:
 };
 }  // namespace at
 }  // namespace gui
+}  // namespace tobas

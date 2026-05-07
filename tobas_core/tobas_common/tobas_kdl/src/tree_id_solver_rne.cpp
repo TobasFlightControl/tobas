@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_kdl/tree_id_solver_rne.hpp"
 
 using namespace std;
 
+namespace tobas
+{
 namespace kdl
 {
 TreeIdSolver_RNE::TreeIdSolver_RNE(const Tree& tree, const Vector& grav) : super(tree), ag_(-grav, Vector::Zero())
@@ -112,3 +117,4 @@ void TreeIdSolver_RNE::rneStep(
   }
 }
 }  // namespace kdl
+}  // namespace tobas

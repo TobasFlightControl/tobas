@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include "./frame_vel.hpp"
 #include "./jntarray.hpp"
 #include "./utilities/utility.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 class JntArrayVel
@@ -89,3 +94,4 @@ inline JntArrayVel JntArrayVel::operator/(const doubleVel& rhs) const
   return JntArrayVel(q / rhs.t, qdot / rhs.t - q * (rhs.grad / sqr(rhs.t)));
 }
 }  // namespace kdl
+}  // namespace tobas

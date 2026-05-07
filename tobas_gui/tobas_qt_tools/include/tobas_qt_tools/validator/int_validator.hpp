@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <QIntValidator>
 
+namespace tobas
+{
 namespace qt
 {
 /**
@@ -20,3 +25,4 @@ public:
   State validate(QString& input, int& pos) const override;
 };
 }  // namespace qt
+}  // namespace tobas

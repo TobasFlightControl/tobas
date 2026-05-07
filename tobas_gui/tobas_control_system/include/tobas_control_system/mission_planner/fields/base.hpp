@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <QWidget>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -29,3 +34,4 @@ public:
 }  // namespace field
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

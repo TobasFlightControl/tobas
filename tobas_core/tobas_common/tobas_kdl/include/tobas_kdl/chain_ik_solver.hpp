@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include "./chain_solver_i.hpp"
@@ -6,6 +9,8 @@
 #include "./jntarray.hpp"
 #include "./jntarray_vel.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 /**
@@ -132,4 +137,5 @@ public:
 protected:
   JntArray qdd_out_;
 };
-}  // end of namespace kdl
+}  // namespace kdl
+}  // namespace tobas

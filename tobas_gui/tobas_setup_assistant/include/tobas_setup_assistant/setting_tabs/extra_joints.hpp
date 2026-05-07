@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <QLabel>
@@ -13,6 +16,8 @@
 
 #include "./base_setting.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -65,13 +70,13 @@ public:
   // Getters
   QString getLinkName(int row) const;
   QString getJointName(int row) const;
-  tobas::JointRole getRole(int row) const;
-  tobas::JointCommandInterface getCommandInterface(int row) const;
+  JointRole getRole(int row) const;
+  JointCommandInterface getCommandInterface(int row) const;
   double getHomePosition(int row) const;  // [rad]
 
   // Setters
-  void setRole(int row, tobas::JointRole value);
-  void setCommandInterface(int row, tobas::JointCommandInterface value);
+  void setRole(int row, JointRole value);
+  void setCommandInterface(int row, JointCommandInterface value);
   void setHomePosition(int row, double value);  // [rad]
 
   /* 登録されているジョイント数． */
@@ -112,3 +117,4 @@ private Q_SLOTS:
 };
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

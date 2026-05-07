@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_gazebo_system_plugins/simple_joint_model.hpp"
 
 #include <gz/common/Console.hh>
 
 #define POS_MARGIN 1e-2  // [rad]
 
+namespace tobas
+{
 namespace gazebo
 {
 SimpleJointModel::SimpleJointModel(double _min_pos, double _max_pos, double _max_vel)
@@ -47,3 +52,4 @@ void SimpleJointModel::step(double dt)
   cur_pos_ = pos_limit.clamp(cnd_angle);
 }
 }  // namespace gazebo
+}  // namespace tobas

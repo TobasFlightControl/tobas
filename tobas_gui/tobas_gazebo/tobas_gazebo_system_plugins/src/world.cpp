@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_gazebo_system_plugins/world.hpp"
 
 #include <gz/sim/World.hh>
@@ -5,6 +8,8 @@
 
 namespace cmp = gz::sim::components;
 
+namespace tobas
+{
 namespace gazebo
 {
 std::expected<gz::sim::World, const char*> getWorld(const gz::sim::EntityComponentManager& ecm)
@@ -53,3 +58,4 @@ getWorldSphericalCoordinates(const gz::sim::EntityComponentManager& ecm)
   return sc_opt.value();
 }
 }  // namespace gazebo
+}  // namespace tobas

@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_ros2_tools/node.hpp"
 
 namespace ch = std::chrono;
 
+namespace tobas
+{
 namespace ros2
 {
 namespace
@@ -64,3 +69,4 @@ bool waitUntilNodeGone(const rclcpp::Node::SharedPtr& node, const std::string& t
   return false;
 }
 }  // namespace ros2
+}  // namespace tobas

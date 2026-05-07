@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/propeller.hpp"
 
 #include <QVBoxLayout>
@@ -7,6 +10,8 @@
 #include <tobas_std_tools/unit_conversions.hpp>
 #include <tobas_yaml_tools/format.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -109,7 +114,7 @@ int PropellerWidget::numBlades() const
 
 double PropellerWidget::diameter() const
 {
-  return tbs::inch2meter(diameter_->getValue());
+  return st::inch2meter(diameter_->getValue());
 }
 
 double PropellerWidget::radius() const
@@ -119,7 +124,7 @@ double PropellerWidget::radius() const
 
 double PropellerWidget::pitchLength() const
 {
-  return tbs::inch2meter(pitch_->getValue());
+  return st::inch2meter(pitch_->getValue());
 }
 
 double PropellerWidget::pitchAngle() const
@@ -146,3 +151,4 @@ double PropellerWidget::meanChord() const
 }  // namespace propulsion
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

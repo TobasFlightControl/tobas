@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <QFileDialog>
 #include <QLineEdit>
 #include <QPushButton>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ub
@@ -30,3 +35,4 @@ private:
 }  // namespace ui
 }  // namespace ub
 }  // namespace gui
+}  // namespace tobas

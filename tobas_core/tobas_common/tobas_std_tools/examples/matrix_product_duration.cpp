@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include <iostream>
 
 #include <eigen3/Eigen/Core>
@@ -13,7 +16,7 @@ void process(int n, int iter)
   const auto A = Matrix<T, Dynamic, Dynamic>::Random(n, n);
   const auto B = Matrix<T, Dynamic, Dynamic>::Random(n, n);
 
-  tim::Stopwatch stopwatch(iter);
+  tobas::tim::Stopwatch stopwatch(iter);
 
   for (int i = 0; i < iter; ++i) {
     cout << "Iter " << i << endl;

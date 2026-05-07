@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (C) 2026 Tobas, Inc.
+
 int8 data
 
 int8 NO_ERROR = 0

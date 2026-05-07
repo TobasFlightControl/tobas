@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <gz/msgs/double.pb.h>
@@ -5,6 +8,8 @@
 #include <gz/rendering/Scene.hh>
 #include <gz/transport/Node.hh>
 
+namespace tobas
+{
 namespace gazebo
 {
 class TobasRenderInfo : public gz::gui::Plugin
@@ -39,3 +44,4 @@ private:
   gz::msgs::Double fps_msg_;
 };
 }  // namespace gazebo
+}  // namespace tobas

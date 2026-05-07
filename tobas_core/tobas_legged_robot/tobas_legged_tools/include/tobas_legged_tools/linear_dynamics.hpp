@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <tobas_control/state_spaces.hpp>
 #include <tobas_kdl/tree_fk_solver_pos.hpp>
 #include <tobas_kdl/tree_inertia_solver.hpp>
 
+namespace tobas
+{
 namespace lr_tools
 {
 /**
@@ -58,3 +63,4 @@ inline size_t LinearDynamics::torqueIndex(const size_t& leg) const
   return kInputSizePerLeg * leg + kForceSizePerLeg;
 }
 }  // namespace lr_tools
+}  // namespace tobas

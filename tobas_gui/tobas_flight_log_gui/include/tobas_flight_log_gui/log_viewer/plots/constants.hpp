@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <qnamespace.h>
 
+namespace tobas
+{
 namespace gui
 {
 namespace log
@@ -15,3 +20,4 @@ static constexpr Qt::GlobalColor kFilteredValueColor = Qt::cyan;
 static constexpr Qt::GlobalColor kColorXYZ[] = { Qt::red, Qt::green, Qt::blue };
 }  // namespace log
 }  // namespace gui
+}  // namespace tobas

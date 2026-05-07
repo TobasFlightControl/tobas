@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <cmath>
 
+namespace tobas
+{
 namespace math
 {
 /* 2つの数値がほとんど等しいときにtrueを返す．GPT4によるとnumpy.isclose()と同じらしい． */
@@ -20,3 +25,4 @@ inline bool isInteger(T x)
   return modf(x, &ip) == 0.;
 }
 }  // namespace math
+}  // namespace tobas

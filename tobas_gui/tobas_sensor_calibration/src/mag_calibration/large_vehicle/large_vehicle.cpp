@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_sensor_calibration/mag_calibration/large_vehicle/large_vehicle.hpp"
 
 #include <QVBoxLayout>
@@ -7,6 +10,8 @@
 #include <tobas_qt_tools/thread.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sc
@@ -80,3 +85,4 @@ void LargeVehicleMagCalibWidget::armingCb(const tobas_msgs::msg::Arming::ConstSh
 }
 }  // namespace sc
 }  // namespace gui
+}  // namespace tobas

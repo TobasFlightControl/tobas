@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <eigen3/Eigen/Core>
@@ -5,6 +8,8 @@
 
 #include <tobas_math/float.hpp>
 
+namespace tobas
+{
 namespace eigen
 {
 /* 3次元ベクトルを FLU (Front-Left-Up) 座標系から FRD (Front-Right-Down) 座標系に変換する．Rx(π)をかけるのと同じ． */
@@ -131,3 +136,4 @@ projectPointOnToLine(const Eigen::Vector3d& x0, const Eigen::Vector3d& v, const 
   return x0 + v.dot(p - x0) * v;
 }
 }  // namespace eigen
+}  // namespace tobas

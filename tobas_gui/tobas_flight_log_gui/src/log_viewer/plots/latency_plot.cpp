@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_flight_log_gui/log_viewer/plots/latency_plot.hpp"
 
 #include <QVBoxLayout>
 
 #include <tobas_ros2_tools/time.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace log
@@ -16,14 +21,14 @@ LatencyPlotWidget::LatencyPlotWidget()
 
   sampling_time_plot_ = new QwtPlot2();
   sampling_time_plot_->setAxisNoLabel(QwtPlot::xBottom);
-  sampling_time_plot_->setAxisScale(QwtPlot::yLeft, 5, 2500);
+  sampling_time_plot_->setAxisScale(QwtPlot::yLeft, 500, 2000);
   sampling_time_curve_.setPen(Qt::black, kLineWidth);
   sampling_time_curve_.attach(sampling_time_plot_);
   rows->addWidget(sampling_time_plot_, 1);
 
   ctrl_latency_plot_ = new QwtPlot2();
   ctrl_latency_plot_->setAxisNoLabel(QwtPlot::xBottom);
-  ctrl_latency_plot_->setAxisScale(QwtPlot::yLeft, 0, 2000);
+  ctrl_latency_plot_->setAxisScale(QwtPlot::yLeft, 0, 1500);
   ctrl_latency_curve_.setPen(Qt::black, kLineWidth);
   ctrl_latency_curve_.attach(ctrl_latency_plot_);
   rows->addWidget(ctrl_latency_plot_, 1);
@@ -81,3 +86,4 @@ void LatencyPlotWidget::setControlLatencyData(const QVector<tobas_msgs::msg::Lat
 }
 }  // namespace log
 }  // namespace gui
+}  // namespace tobas

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <rclcpp/type_adapter.hpp>
@@ -11,7 +14,7 @@ namespace tobas_msgs
 struct Wind
 {
   std_msgs::msg::Header header;
-  kdl::Vector vel;
+  tobas::kdl::Vector vel;
 
   using SharedPtr = std::shared_ptr<Wind>;
   using ConstSharedPtr = std::shared_ptr<const Wind>;

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_eskf/eskf.hpp"
 
 #include <iostream>
@@ -10,6 +13,8 @@
 
 namespace ch = std::chrono;
 
+namespace tobas
+{
 namespace eskf
 {
 ErrorStateKalmanFilter::ErrorStateKalmanFilter() : x_history_(kStateHistoryTimeWindow)
@@ -590,7 +595,7 @@ double ErrorStateKalmanFilter::measureMagneticFieldHead(
 
   // オイラー角を取得
   const auto R_W_B = getQuaternion(x);
-  const auto [roll_pred, pitch_pred, yaw_pred] = tbs::eulerFromQuaternion(R_W_B.x(), R_W_B.y(), R_W_B.z(), R_W_B.w());
+  const auto [roll_pred, pitch_pred, yaw_pred] = st::eulerFromQuaternion(R_W_B.x(), R_W_B.y(), R_W_B.z(), R_W_B.w());
 
   // 地磁気をヨー角のみ機体と一致し，XY軸が地面と平行な地上座標系Gに移す．
   const Eigen::AngleAxisd R_W_G(yaw_pred, Eigen::Vector3d::UnitZ());
@@ -636,7 +641,7 @@ ErrorStateKalmanFilter::quatRotationDerivative(const StateVector& x, const Eigen
 
 Eigen::RowVector4d ErrorStateKalmanFilter::hamiltonToYawOutputMatrix(const StateVector& x) const
 {
-  // cf. Ekf::fuseYaw321: https://github.com/PX4/PX4-ECL/blob/master/EKF/mag_fusion.cpp#L420
+  // cf. Ekf::fuseYaw321: https://github.com/PX4/PX4-ECL/blob/46dd05a9159817035dab6acebc33f8a3da69d3a7/EKF/mag_fusion.cpp#L420
 
   constexpr double kEpsilon = 1e-6;
 
@@ -774,3 +779,4 @@ double ErrorStateKalmanFilter::measureGravity(
   return correct(delta_acc, grav_cov, H_grav_);
 }
 }  // namespace eskf
+}  // namespace tobas

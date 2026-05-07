@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <tobas_eigen_tools/typedef.hpp>
@@ -6,6 +9,8 @@
 #include "./jntarray.hpp"
 #include "./segment_jacobian.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 class Jacobian;
@@ -116,3 +121,4 @@ inline Twist Jacobian::operator*(const JntArray& rhs) const
   return Twist(Vector(t.head<3>()), Vector(t.tail<3>()));
 }
 }  // namespace kdl
+}  // namespace tobas

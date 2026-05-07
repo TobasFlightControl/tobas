@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <yaml-cpp/yaml.h>
@@ -5,6 +8,8 @@
 #include <tobas_qt_tools/widgets/table_widget.hpp>
 #include <tobas_uadf/model.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -89,3 +94,4 @@ private:
 }  // namespace fw
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

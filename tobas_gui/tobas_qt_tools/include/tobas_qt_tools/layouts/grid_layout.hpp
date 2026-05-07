@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <QGridLayout>
 
+namespace tobas
+{
 namespace qt
 {
 /**
@@ -21,3 +26,4 @@ public:
   void clear();
 };
 }  // namespace qt
+}  // namespace tobas

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <chrono>
@@ -6,6 +9,8 @@
 #include <QEventLoop>
 #include <QThread>
 
+namespace tobas
+{
 namespace qt
 {
 namespace detail
@@ -43,25 +48,30 @@ auto startThreadAndWait(Thread& thread, void (Thread::*signal)(SigArgs...)) -> s
   // QueuedConnection で必要になる型を事前登録
   detail::ensureMetaTypesRegistered<SigArgs...>();
 
-  // 別スレッドの結果をキャッチするためのイベントループを用意
+  // イベントループを用意
   QEventLoop loop;
+
+  // 別スレッドの結果をキャッチ
   std::tuple<std::decay_t<SigArgs>...> result;
-  const auto conn = QObject::connect(
+  const auto result_conn = QObject::connect(
     &thread,
     signal,
     &loop,
-    [&](SigArgs... args)
-    {
-      result = std::make_tuple(std::forward<SigArgs>(args)...);
-      loop.quit();
-    });
+    [&result](SigArgs... args) { result = std::make_tuple(std::forward<SigArgs>(args)...); },
+    Qt::QueuedConnection);
+
+  // 別スレッドの終了に合わせてイベントループを終了
+  const auto finished_conn =
+    QObject::connect(&thread, &QThread::finished, &loop, &QEventLoop::quit, Qt::QueuedConnection);
 
   // イベントループを回しながらスレッドが終了するまで待機
   thread.start();
-  loop.exec();
+  loop.exec(QEventLoop::AllEvents);
   thread.wait();
 
-  QObject::disconnect(conn);
+  QObject::disconnect(result_conn);
+  QObject::disconnect(finished_conn);
+
   return result;
 }
 
@@ -76,3 +86,4 @@ void spinFor(std::chrono::duration<RepType, DurType> time)
   startThreadAndWait([msec]() { QThread::msleep(msec); });
 }
 }  // namespace qt
+}  // namespace tobas

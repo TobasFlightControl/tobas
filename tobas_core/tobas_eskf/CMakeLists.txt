@@ -31,7 +31,7 @@ file(GLOB_RECURSE NODE_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} 
 add_library(${PROJECT_NAME}_node SHARED ${NODE_TARGETS})
 target_link_libraries(${PROJECT_NAME}_node ${PROJECT_NAME})
 target_link_options(${PROJECT_NAME}_node PRIVATE -Wl,--no-undefined)
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "ErrorStateKalmanFilterNode" EXECUTABLE eskf_node)
+rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "tobas::ErrorStateKalmanFilterNode" EXECUTABLE eskf_node)
 
 install(
   TARGETS ${PROJECT_NAME}_node

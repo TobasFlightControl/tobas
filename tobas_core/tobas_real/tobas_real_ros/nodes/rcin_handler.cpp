@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include <magic_enum/magic_enum.hpp>
 
 #include <tobas_constants/path.hpp>
@@ -14,13 +17,16 @@
 #include <tobas_msgs_adapter/rc_input.hpp>
 #include <tobas_real_msgs/srv/set_rc_input_params.hpp>
 
-using namespace real::handler::rcin;
 namespace fs = std::filesystem;
 
-class RCInputHandlerNode : public tobas::BaseNode
+namespace tobas
+{
+namespace real
+{
+class RCInputHandlerNode : public BaseNode
 {
   using self = RCInputHandlerNode;
-  using super = tobas::BaseNode;
+  using super = BaseNode;
   using SetParams = tobas_real_msgs::srv::SetRcInputParams;
 
 public:
@@ -28,15 +34,15 @@ public:
 
 private:
   // Config
-  tbs::Range<uint16_t> roll_;
-  tbs::Range<uint16_t> pitch_;
-  tbs::Range<uint16_t> yaw_;
-  tbs::Range<uint16_t> throt_;
-  std::map<tobas::FlightMode, uint16_t> modes_;
+  st::Range<uint16_t> roll_;
+  st::Range<uint16_t> pitch_;
+  st::Range<uint16_t> yaw_;
+  st::Range<uint16_t> throt_;
+  std::map<FlightMode, uint16_t> modes_;
   uint16_t sub_mode_on_, sub_mode_off_;
   uint16_t enable_on_, enable_off_;
   uint16_t kill_on_, kill_off_;
-  std::array<uint16_t, tobas::kMaxNumOfGpsw> gpsw_on_, gpsw_off_;
+  std::array<uint16_t, kMaxNumOfGpsw> gpsw_on_, gpsw_off_;
 
   ptree::PropertyTree pt_;
 
@@ -46,7 +52,7 @@ private:
 
   bool getConfig();
   void registerPubSub();
-  tobas::FlightMode getClosestFlightMode(uint16_t period);
+  FlightMode getClosestFlightMode(uint16_t period);
 
   void sbusCb(const tobas_msgs::msg::Sbus::ConstSharedPtr& sbus);
   void setParamsCb(const SetParams::Request::ConstSharedPtr& req, const SetParams::Response::SharedPtr& res);
@@ -56,19 +62,19 @@ RCInputHandlerNode::RCInputHandlerNode(const rclcpp::NodeOptions& options)
   : super("real_rcin_handler", nodeOptions_Default(options))
 {
   // Initialize property tree
-  const auto cfg_dir = linux::isSuperUser() ? fs::path(tobas::kConfigDirRoot) : ros2::expandUser(tobas::kConfigDirHome);
-  if (!pt_.initialize((cfg_dir / kConfigFileName))) {
+  const auto cfg_dir = linux::isSuperUser() ? fs::path(kConfigDirRoot) : ros2::expandUser(kConfigDirHome);
+  if (!pt_.initialize((cfg_dir / handler::rcin::kConfigFileName))) {
     TOBAS_ERROR("Failed to initialize property tree. This node will not work.");
     return;
   }
 
   // Initialize mode map
-  for (const auto mode : magic_enum::enum_values<tobas::FlightMode>()) {
+  for (const auto mode : magic_enum::enum_values<FlightMode>()) {
     modes_[mode];
   }
 
   // Register service server
-  set_params_ss_ = createService<SetParams>(kSetParamSrv, &self::setParamsCb, this);
+  set_params_ss_ = createService<SetParams>(handler::rcin::kSetParamSrv, &self::setParamsCb, this);
 
   // Try to get configuration
   if (!getConfig()) {
@@ -82,88 +88,88 @@ RCInputHandlerNode::RCInputHandlerNode(const rclcpp::NodeOptions& options)
 
 bool RCInputHandlerNode::getConfig()
 {
-  if (!pt_.get(ns(), kRollLeftKey, roll_.lower)) {
-    TOBAS_ERROR("Failed to get \"", kRollLeftKey, "\".");
+  if (!pt_.get(ns(), handler::rcin::kRollLeftKey, roll_.lower)) {
+    TOBAS_ERROR("Failed to get \"", handler::rcin::kRollLeftKey, "\".");
     return false;
   }
-  if (!pt_.get(ns(), kRollRightKey, roll_.upper)) {
-    TOBAS_ERROR("Failed to get \"", kRollRightKey, "\".");
-    return false;
-  }
-
-  if (!pt_.get(ns(), kPitchUpKey, pitch_.upper)) {
-    TOBAS_ERROR("Failed to get \"", kPitchUpKey, "\".");
-    return false;
-  }
-  if (!pt_.get(ns(), kPitchDownKey, pitch_.lower)) {
-    TOBAS_ERROR("Failed to get \"", kPitchDownKey, "\".");
+  if (!pt_.get(ns(), handler::rcin::kRollRightKey, roll_.upper)) {
+    TOBAS_ERROR("Failed to get \"", handler::rcin::kRollRightKey, "\".");
     return false;
   }
 
-  if (!pt_.get(ns(), kYawLeftKey, yaw_.upper)) {
-    TOBAS_ERROR("Failed to get \"", kYawLeftKey, "\".");
+  if (!pt_.get(ns(), handler::rcin::kPitchUpKey, pitch_.upper)) {
+    TOBAS_ERROR("Failed to get \"", handler::rcin::kPitchUpKey, "\".");
     return false;
   }
-  if (!pt_.get(ns(), kYawRightKey, yaw_.lower)) {
-    TOBAS_ERROR("Failed to get \"", kYawRightKey, "\".");
-    return false;
-  }
-
-  if (!pt_.get(ns(), kThrotUpKey, throt_.lower)) {
-    TOBAS_ERROR("Failed to get \"", kThrotUpKey, "\".");
-    return false;
-  }
-  if (!pt_.get(ns(), kThrotDownKey, throt_.upper)) {
-    TOBAS_ERROR("Failed to get \"", kThrotDownKey, "\".");
+  if (!pt_.get(ns(), handler::rcin::kPitchDownKey, pitch_.lower)) {
+    TOBAS_ERROR("Failed to get \"", handler::rcin::kPitchDownKey, "\".");
     return false;
   }
 
-  if (!pt_.get(ns(), kModeAcrobatKey, modes_.at(tobas::FlightMode::kAcrobat))) {
-    TOBAS_ERROR("Failed to get \"", kModeAcrobatKey, "\".");
+  if (!pt_.get(ns(), handler::rcin::kYawLeftKey, yaw_.upper)) {
+    TOBAS_ERROR("Failed to get \"", handler::rcin::kYawLeftKey, "\".");
     return false;
   }
-  if (!pt_.get(ns(), kModeStabilizeKey, modes_.at(tobas::FlightMode::kStabilize))) {
-    TOBAS_ERROR("Failed to get \"", kModeStabilizeKey, "\".");
-    return false;
-  }
-  if (!pt_.get(ns(), kModeLoiterKey, modes_.at(tobas::FlightMode::kLoiter))) {
-    TOBAS_ERROR("Failed to get \"", kModeLoiterKey, "\".");
+  if (!pt_.get(ns(), handler::rcin::kYawRightKey, yaw_.lower)) {
+    TOBAS_ERROR("Failed to get \"", handler::rcin::kYawRightKey, "\".");
     return false;
   }
 
-  if (!pt_.get(ns(), kSubModeOnKey, sub_mode_on_)) {
-    TOBAS_ERROR("Failed to get \"", kSubModeOnKey, "\".");
+  if (!pt_.get(ns(), handler::rcin::kThrotUpKey, throt_.lower)) {
+    TOBAS_ERROR("Failed to get \"", handler::rcin::kThrotUpKey, "\".");
     return false;
   }
-  if (!pt_.get(ns(), kSubModeOffKey, sub_mode_off_)) {
-    TOBAS_ERROR("Failed to get \"", kSubModeOffKey, "\".");
-    return false;
-  }
-
-  if (!pt_.get(ns(), kEnableOnKey, enable_on_)) {
-    TOBAS_ERROR("Failed to get \"", kEnableOnKey, "\".");
-    return false;
-  }
-  if (!pt_.get(ns(), kEnableOffKey, enable_off_)) {
-    TOBAS_ERROR("Failed to get \"", kEnableOffKey, "\".");
+  if (!pt_.get(ns(), handler::rcin::kThrotDownKey, throt_.upper)) {
+    TOBAS_ERROR("Failed to get \"", handler::rcin::kThrotDownKey, "\".");
     return false;
   }
 
-  if (!pt_.get(ns(), kKillOnKey, kill_on_)) {
-    TOBAS_ERROR("Failed to get \"", kKillOnKey, "\".");
+  if (!pt_.get(ns(), handler::rcin::kModeAcrobatKey, modes_.at(FlightMode::kAcrobat))) {
+    TOBAS_ERROR("Failed to get \"", handler::rcin::kModeAcrobatKey, "\".");
     return false;
   }
-  if (!pt_.get(ns(), kKillOffKey, kill_off_)) {
-    TOBAS_ERROR("Failed to get \"", kKillOffKey, "\".");
+  if (!pt_.get(ns(), handler::rcin::kModeStabilizeKey, modes_.at(FlightMode::kStabilize))) {
+    TOBAS_ERROR("Failed to get \"", handler::rcin::kModeStabilizeKey, "\".");
+    return false;
+  }
+  if (!pt_.get(ns(), handler::rcin::kModeLoiterKey, modes_.at(FlightMode::kLoiter))) {
+    TOBAS_ERROR("Failed to get \"", handler::rcin::kModeLoiterKey, "\".");
     return false;
   }
 
-  if (!pt_.get(ns(), kGpswOnKey, gpsw_on_)) {
-    TOBAS_ERROR("Failed to get \"", kGpswOnKey, "\".");
+  if (!pt_.get(ns(), handler::rcin::kSubModeOnKey, sub_mode_on_)) {
+    TOBAS_ERROR("Failed to get \"", handler::rcin::kSubModeOnKey, "\".");
     return false;
   }
-  if (!pt_.get(ns(), kGpswOffKey, gpsw_off_)) {
-    TOBAS_ERROR("Failed to get \"", kGpswOffKey, "\".");
+  if (!pt_.get(ns(), handler::rcin::kSubModeOffKey, sub_mode_off_)) {
+    TOBAS_ERROR("Failed to get \"", handler::rcin::kSubModeOffKey, "\".");
+    return false;
+  }
+
+  if (!pt_.get(ns(), handler::rcin::kEnableOnKey, enable_on_)) {
+    TOBAS_ERROR("Failed to get \"", handler::rcin::kEnableOnKey, "\".");
+    return false;
+  }
+  if (!pt_.get(ns(), handler::rcin::kEnableOffKey, enable_off_)) {
+    TOBAS_ERROR("Failed to get \"", handler::rcin::kEnableOffKey, "\".");
+    return false;
+  }
+
+  if (!pt_.get(ns(), handler::rcin::kKillOnKey, kill_on_)) {
+    TOBAS_ERROR("Failed to get \"", handler::rcin::kKillOnKey, "\".");
+    return false;
+  }
+  if (!pt_.get(ns(), handler::rcin::kKillOffKey, kill_off_)) {
+    TOBAS_ERROR("Failed to get \"", handler::rcin::kKillOffKey, "\".");
+    return false;
+  }
+
+  if (!pt_.get(ns(), handler::rcin::kGpswOnKey, gpsw_on_)) {
+    TOBAS_ERROR("Failed to get \"", handler::rcin::kGpswOnKey, "\".");
+    return false;
+  }
+  if (!pt_.get(ns(), handler::rcin::kGpswOffKey, gpsw_off_)) {
+    TOBAS_ERROR("Failed to get \"", handler::rcin::kGpswOffKey, "\".");
     return false;
   }
 
@@ -172,13 +178,13 @@ bool RCInputHandlerNode::getConfig()
 
 void RCInputHandlerNode::registerPubSub()
 {
-  rcin_pub_ = createPublisher<tobas_msgs::RCInput>(tobas::topic::kRcInput);
-  sbus_sub_ = createSubscriber(tobas::topic::kSbus, &self::sbusCb, this);
+  rcin_pub_ = createPublisher<tobas_msgs::RCInput>(topic::kRcInput);
+  sbus_sub_ = createSubscriber(topic::kSbus, &self::sbusCb, this);
 }
 
-tobas::FlightMode RCInputHandlerNode::getClosestFlightMode(uint16_t period)
+FlightMode RCInputHandlerNode::getClosestFlightMode(uint16_t period)
 {
-  tobas::FlightMode res = tobas::FlightMode::kLoiter;  // コンパイラ警告を抑制するために適当に初期化
+  FlightMode res = FlightMode::kLoiter;  // コンパイラ警告を抑制するために適当に初期化
   auto min_dist = std::numeric_limits<uint16_t>::max();
 
   for (const auto& [mode, period_ref] : modes_) {
@@ -203,27 +209,27 @@ void RCInputHandlerNode::sbusCb(const tobas_msgs::msg::Sbus::ConstSharedPtr& sbu
   else {
     rcin_msg->ok = true;
 
-    const auto& roll = sbus->periods[tobas::kRcChannelRoll];
-    const auto& pitch = sbus->periods[tobas::kRcChannelPitch];
-    const auto& throt = sbus->periods[tobas::kRcChannelThrot];
-    const auto& yaw = sbus->periods[tobas::kRcChannelYaw];
-    const auto& mode = sbus->periods[tobas::kRcChannelMode];
-    const auto& sub_mode = sbus->periods[tobas::kRcChannelSubMode];
-    const auto& enable = sbus->periods[tobas::kRcChannelEnable];
-    const auto& kill = sbus->periods[tobas::kRcChannelKill];
+    const auto& roll = sbus->periods[kRcChannelRoll];
+    const auto& pitch = sbus->periods[kRcChannelPitch];
+    const auto& throt = sbus->periods[kRcChannelThrot];
+    const auto& yaw = sbus->periods[kRcChannelYaw];
+    const auto& mode = sbus->periods[kRcChannelMode];
+    const auto& sub_mode = sbus->periods[kRcChannelSubMode];
+    const auto& enable = sbus->periods[kRcChannelEnable];
+    const auto& kill = sbus->periods[kRcChannelKill];
 
-    rcin_msg->roll = math::remap<double>(roll, roll_.lower, roll_.upper, tobas::kRcInputMin, tobas::kRcInputMax);
-    rcin_msg->pitch = math::remap<double>(pitch, pitch_.lower, pitch_.upper, tobas::kRcInputMin, tobas::kRcInputMax);
-    rcin_msg->throttle = math::remap<double>(throt, throt_.lower, throt_.upper, tobas::kRcInputMin, tobas::kRcInputMax);
-    rcin_msg->yaw = math::remap<double>(yaw, yaw_.lower, yaw_.upper, tobas::kRcInputMin, tobas::kRcInputMax);
+    rcin_msg->roll = math::remap<double>(roll, roll_.lower, roll_.upper, kRcInputMin, kRcInputMax);
+    rcin_msg->pitch = math::remap<double>(pitch, pitch_.lower, pitch_.upper, kRcInputMin, kRcInputMax);
+    rcin_msg->throttle = math::remap<double>(throt, throt_.lower, throt_.upper, kRcInputMin, kRcInputMax);
+    rcin_msg->yaw = math::remap<double>(yaw, yaw_.lower, yaw_.upper, kRcInputMin, kRcInputMax);
 
     rcin_msg->mode = getClosestFlightMode(mode);
     rcin_msg->sub_mode = std::abs(sub_mode - sub_mode_on_) < std::abs(sub_mode - sub_mode_off_);
     rcin_msg->enable = std::abs(enable - enable_on_) < std::abs(enable - enable_off_);
     rcin_msg->kill = std::abs(kill - kill_on_) < std::abs(kill - kill_off_);
 
-    for (size_t i = 0; i < tobas::kMaxNumOfGpsw; ++i) {
-      const auto& gpsw = sbus->periods[tobas::kRcChannelGpsw + i];
+    for (size_t i = 0; i < kMaxNumOfGpsw; ++i) {
+      const auto& gpsw = sbus->periods[kRcChannelGpsw + i];
       rcin_msg->gpsw[i] = std::abs(gpsw - gpsw_on_[i]) < std::abs(gpsw - gpsw_off_[i]);
     }
   }
@@ -244,9 +250,9 @@ void RCInputHandlerNode::setParamsCb(
   yaw_.lower = req->yaw_right;
   throt_.lower = req->throttle_up;
   throt_.upper = req->throttle_down;
-  modes_.at(tobas::FlightMode::kAcrobat) = req->mode_acrobat;
-  modes_.at(tobas::FlightMode::kStabilize) = req->mode_stabilize;
-  modes_.at(tobas::FlightMode::kLoiter) = req->mode_loiter;
+  modes_.at(FlightMode::kAcrobat) = req->mode_acrobat;
+  modes_.at(FlightMode::kStabilize) = req->mode_stabilize;
+  modes_.at(FlightMode::kLoiter) = req->mode_loiter;
   sub_mode_on_ = req->sub_mode_on;
   sub_mode_off_ = req->sub_mode_off;
   enable_on_ = req->enable_on;
@@ -257,25 +263,25 @@ void RCInputHandlerNode::setParamsCb(
   gpsw_off_ = req->gpsw_off;
 
   // Save parameters
-  pt_.set(ns(), kRollLeftKey, req->roll_left);
-  pt_.set(ns(), kRollRightKey, req->roll_right);
-  pt_.set(ns(), kPitchUpKey, req->pitch_up);
-  pt_.set(ns(), kPitchDownKey, req->pitch_down);
-  pt_.set(ns(), kYawLeftKey, req->yaw_left);
-  pt_.set(ns(), kYawRightKey, req->yaw_right);
-  pt_.set(ns(), kThrotUpKey, req->throttle_up);
-  pt_.set(ns(), kThrotDownKey, req->throttle_down);
-  pt_.set(ns(), kModeAcrobatKey, req->mode_acrobat);
-  pt_.set(ns(), kModeStabilizeKey, req->mode_stabilize);
-  pt_.set(ns(), kModeLoiterKey, req->mode_loiter);
-  pt_.set(ns(), kSubModeOnKey, req->sub_mode_on);
-  pt_.set(ns(), kSubModeOffKey, req->sub_mode_off);
-  pt_.set(ns(), kEnableOnKey, req->enable_on);
-  pt_.set(ns(), kEnableOffKey, req->enable_off);
-  pt_.set(ns(), kKillOnKey, req->kill_on);
-  pt_.set(ns(), kKillOffKey, req->kill_off);
-  pt_.set(ns(), kGpswOnKey, req->gpsw_on);
-  pt_.set(ns(), kGpswOffKey, req->gpsw_off);
+  pt_.set(ns(), handler::rcin::kRollLeftKey, req->roll_left);
+  pt_.set(ns(), handler::rcin::kRollRightKey, req->roll_right);
+  pt_.set(ns(), handler::rcin::kPitchUpKey, req->pitch_up);
+  pt_.set(ns(), handler::rcin::kPitchDownKey, req->pitch_down);
+  pt_.set(ns(), handler::rcin::kYawLeftKey, req->yaw_left);
+  pt_.set(ns(), handler::rcin::kYawRightKey, req->yaw_right);
+  pt_.set(ns(), handler::rcin::kThrotUpKey, req->throttle_up);
+  pt_.set(ns(), handler::rcin::kThrotDownKey, req->throttle_down);
+  pt_.set(ns(), handler::rcin::kModeAcrobatKey, req->mode_acrobat);
+  pt_.set(ns(), handler::rcin::kModeStabilizeKey, req->mode_stabilize);
+  pt_.set(ns(), handler::rcin::kModeLoiterKey, req->mode_loiter);
+  pt_.set(ns(), handler::rcin::kSubModeOnKey, req->sub_mode_on);
+  pt_.set(ns(), handler::rcin::kSubModeOffKey, req->sub_mode_off);
+  pt_.set(ns(), handler::rcin::kEnableOnKey, req->enable_on);
+  pt_.set(ns(), handler::rcin::kEnableOffKey, req->enable_off);
+  pt_.set(ns(), handler::rcin::kKillOnKey, req->kill_on);
+  pt_.set(ns(), handler::rcin::kKillOffKey, req->kill_off);
+  pt_.set(ns(), handler::rcin::kGpswOnKey, req->gpsw_on);
+  pt_.set(ns(), handler::rcin::kGpswOffKey, req->gpsw_off);
   if (!pt_.save()) {
     res->success = false;
     res->message = "Failed to save parameters.";
@@ -289,5 +295,7 @@ void RCInputHandlerNode::setParamsCb(
   res->success = true;
   res->message.clear();
 }
+}  // namespace real
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(RCInputHandlerNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::real::RCInputHandlerNode)

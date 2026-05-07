@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_quadprog/quadprogpp.hpp"
 
 #include <QuadProg++/QuadProg++.hh>
@@ -58,6 +61,8 @@ void vectorQpToEigen(const Vector<double>& q, VectorXd& e)
 }
 }  // namespace quadprogpp
 
+namespace tobas
+{
 namespace quadprog
 {
 QuadProgppSolver::QuadProgppSolver() : super()
@@ -95,3 +100,4 @@ bool QuadProgppSolver::solve()
   return true;
 }
 }  // namespace quadprog
+}  // namespace tobas

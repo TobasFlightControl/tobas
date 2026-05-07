@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include <opencv2/highgui/highgui.hpp>
 
 #include <cv_bridge/cv_bridge.hpp>
@@ -9,10 +12,14 @@
 #include <sensor_msgs/msg/compressed_image.hpp>
 #include <sensor_msgs/msg/image.hpp>
 
+namespace tobas
+{
+namespace camera
+{
 /**
  * @brief sensor_msgs::msg::CompressedImage型の画像をsubscribeし，解凍して，sensor_msgs::msg::Image型としてpublishする．
  */
-class MjpgDecompressor : public tobas::BaseNode
+class MjpgDecompressor : public BaseNode
 {
 public:
   explicit MjpgDecompressor(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
@@ -24,7 +31,7 @@ private:
   rclcpp::Subscription<sensor_msgs::msg::CompressedImage>::SharedPtr sub_;
 };
 
-MjpgDecompressor::MjpgDecompressor(const rclcpp::NodeOptions& _options) : tobas::BaseNode("mjpg_decompressor", _options)
+MjpgDecompressor::MjpgDecompressor(const rclcpp::NodeOptions& _options) : BaseNode("mjpg_decompressor", _options)
 {
   const auto decoded_topic = getStringParam("decoded_topic", "image_decompressed");
   const auto mjpg_topic = getStringParam("mjpg_topic", "image_compressed");
@@ -56,5 +63,7 @@ void MjpgDecompressor::msgCb(const sensor_msgs::msg::CompressedImage::ConstShare
     TOBAS_WARN("Could not convert to image!");
   }
 }
+}  // namespace camera
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(MjpgDecompressor)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::camera::MjpgDecompressor)

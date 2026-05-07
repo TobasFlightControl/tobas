@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <tobas_kdl_msgs/msg/wrench_stamped.hpp>
 
 #include "./common.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace log
@@ -20,7 +25,7 @@ public:
   void clear() override;
   void setTimeScale(double t_start, double t_stop) override;
 
-  void setData(const QVector<tobas_kdl_msgs::msg::WrenchStamped>& dist_force_msgs);
+  void setData(const QVector<tobas_kdl_msgs::msg::WrenchStamped>& msgs);
 
 private:
   std::array<QwtPlot2*, kNumAxes> plots_;
@@ -28,3 +33,4 @@ private:
 };
 }  // namespace log
 }  // namespace gui
+}  // namespace tobas

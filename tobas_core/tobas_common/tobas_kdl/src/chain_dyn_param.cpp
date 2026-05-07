@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_kdl/chain_dyn_param.hpp"
 
 using namespace std;
 
+namespace tobas
+{
 namespace kdl
 {
 ChainDynParam::ChainDynParam(const Chain& chain) : super(chain), rne_coriolis_(chain_), rne_gravity_(chain_)
@@ -45,3 +50,4 @@ void ChainDynParam::resize()
   zero_wrenches_.resize(ns_, Wrench::Zero());
 }
 }  // namespace kdl
+}  // namespace tobas

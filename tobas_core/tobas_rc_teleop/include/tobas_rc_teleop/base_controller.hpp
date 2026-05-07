@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <tobas_constants/rc_input.hpp>
@@ -7,7 +10,9 @@
 #include <tobas_msgs_adapter/odometry_with_covariance_stamped.hpp>
 #include <tobas_msgs_adapter/rc_input.hpp>
 
-namespace tobas_rc_teleop
+namespace tobas
+{
+namespace rc
 {
 class BaseController
 {
@@ -19,7 +24,7 @@ public:
   virtual bool requireAttitude() = 0;
   virtual bool requireHeading() = 0;
 
-  virtual void initialize(tobas::BaseNode* node, tobas::FlightMode mode) = 0;
+  virtual void initialize(BaseNode* node, FlightMode mode) = 0;
   virtual void reset(const builtin_interfaces::msg::Time& stamp, const tobas_msgs::Odometry& setpoint, bool landed) = 0;
   virtual void update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom, bool landed) = 0;
 
@@ -46,7 +51,7 @@ protected:
   static inline double expo(double x, double exp);
 
   /* テキストにフライトモードのプリフィックスを与える． */
-  static std::string addMode(const std::string& text, tobas::FlightMode mode);
+  static std::string addMode(const std::string& text, FlightMode mode);
 };
 
 inline double BaseController::deadband(double x) const
@@ -56,7 +61,7 @@ inline double BaseController::deadband(double x) const
 
 inline double BaseController::remap(double x, double lb, double ub) const
 {
-  return math::remap(x, tobas::kRcInputMin, tobas::kRcInputMax, lb, ub);
+  return math::remap(x, kRcInputMin, kRcInputMax, lb, ub);
 }
 
 inline double BaseController::expoRemap(double x, double exp, double lb, double ub) const
@@ -80,4 +85,5 @@ inline double BaseController::expo(double x, double exp)
   assert(std::abs(exp) < 1.);
   return (1. + exp) * x - exp * math::sign(x) * math::sqr(x);
 }
-}  // namespace tobas_rc_teleop
+}  // namespace rc
+}  // namespace tobas

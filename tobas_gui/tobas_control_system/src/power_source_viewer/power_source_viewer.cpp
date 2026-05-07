@@ -1,12 +1,17 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_control_system/power_source_viewer/power_source_viewer.hpp"
 
 #include <QVBoxLayout>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
 {
-PowerSourceViewerWidget::PowerSourceViewerWidget(const RosQtBridge& bridge, const tobas::Drone& drone) : drone_(drone)
+PowerSourceViewerWidget::PowerSourceViewerWidget(const RosQtBridge& bridge, const Drone& drone) : drone_(drone)
 {
   battery_viewer_ = new BatteryViewerWidget(bridge, drone);
   engine_viewer_ = new EngineViewerWidget(bridge, drone);
@@ -29,11 +34,11 @@ void PowerSourceViewerWidget::updateInternalDataStructures()
 
   // 推進系によって表示するウィジェットを切り替える
   switch (drone_.prop->type()) {
-    case tobas::PropulsionSystem::kElectric:
+    case PropulsionSystem::kElectric:
       battery_viewer_->updateInternalDataStructures();
       setCurrentWidget(battery_viewer_);
       break;
-    case tobas::PropulsionSystem::kIce:
+    case PropulsionSystem::kIce:
       engine_viewer_->updateInternalDataStructures();
       setCurrentWidget(engine_viewer_);
       break;
@@ -43,3 +48,4 @@ void PowerSourceViewerWidget::updateInternalDataStructures()
 }
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

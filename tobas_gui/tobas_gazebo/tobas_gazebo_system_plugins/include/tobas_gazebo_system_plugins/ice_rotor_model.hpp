@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <gz/sim/Joint.hh>
@@ -10,6 +13,8 @@
 
 #include "./simple_joint_model.hpp"
 
+namespace tobas
+{
 namespace gazebo
 {
 class IceRotorModel;
@@ -51,9 +56,9 @@ private:
   int direction_;          // Turning direction: 1(CCW) or -1(CW)
   double gear_ratio_;      // 減速比 [-]
   size_t num_blades_;      // プロペラのブレード数
-  tobas::VppMotorConstant motor_const_;
-  tobas::VppMomentConstant moment_const_;
-  tobas::VppDragConstant drag_const_;
+  VppMotorConstant motor_const_;
+  VppMomentConstant moment_const_;
+  VppDragConstant drag_const_;
 
   // Gazebo objects
   std::shared_ptr<gz::sim::Joint> joint_;
@@ -73,3 +78,4 @@ private:
   bool initializeGazeboObjects(gz::sim::EntityComponentManager& ecm, const gz::sim::Model& model);
 };
 }  // namespace gazebo
+}  // namespace tobas

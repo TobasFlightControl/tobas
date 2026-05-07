@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_qt_tools/widgets/ipv4_edit.hpp"
 
 #include <QDebug>
@@ -7,6 +10,8 @@
 #include <tobas_qt_tools/validator/int_validator.hpp>
 #include <tobas_std_tools/check.hpp>
 
+namespace tobas
+{
 namespace qt
 {
 IPv4Edit::IPv4Edit(QWidget* parent) : super(parent)
@@ -101,3 +106,4 @@ void IPv4Edit::setFieldValue(size_t idx, uint8_t value)
   fields_.at(idx)->setText(QString::number(value));
 }
 }  // namespace qt
+}  // namespace tobas

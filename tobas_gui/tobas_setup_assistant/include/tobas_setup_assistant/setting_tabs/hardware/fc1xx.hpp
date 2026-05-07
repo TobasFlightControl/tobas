@@ -1,19 +1,24 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include "./base.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
 {
 namespace hw
 {
-class T1Widget : public BaseHardwareWidget
+class FC1xxWidget : public BaseHardwareWidget
 {
   Q_OBJECT
 
 public:
-  explicit T1Widget();
+  explicit FC1xxWidget();
 
   const char* name() const override;
 
@@ -47,7 +52,12 @@ public:
 
   int numPwmChannels() const override;
   int numDShotChannels() const override;
+
+  int defaultAccelLpfCutoff() const override;
+  int defaultGyroLpfCutoff() const override;
+  int defaultDGyroLpfCutoff() const override;
 };
 }  // namespace hw
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

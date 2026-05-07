@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_simulation_gui/simulation_settings/loop_type.hpp"
 
 #include <QVBoxLayout>
@@ -5,6 +8,8 @@
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sim
@@ -51,3 +56,4 @@ LoopType LoopTypeWidget::loopType() const
 }
 }  // namespace sim
 }  // namespace gui
+}  // namespace tobas

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <tobas_qt_tools/widgets/tab_widget.hpp>
@@ -19,12 +22,16 @@
 #include "./plots/observer_feedback_plot.hpp"
 #include "./plots/pose_plot.hpp"
 #include "./plots/propeller_pitch_plot.hpp"
+#include "./plots/pwm_plot.hpp"
 #include "./plots/rc_input_plot.hpp"
+#include "./plots/repulsive_accel_plot.hpp"
 #include "./plots/rotor_link_plot.hpp"
 #include "./plots/rotor_speed_plot.hpp"
 #include "./plots/twist_plot.hpp"
 #include "./plots/vibration_level_plot.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace log
@@ -57,9 +64,11 @@ public:
     const QVector<tobas_msgs::msg::JointCommandArray>& tar_joint_velocities_data,
     const QVector<tobas_msgs::msg::JointCommandArray>& tar_joint_efforts_data,
     const QVector<tobas_msgs::msg::IcePropulsionSystemCommand>& ice_cmd_data,
+    const QVector<tobas_msgs::msg::PwmArray>& pwm_data,
     const QVector<tobas_msgs::msg::Latency>& sampling_time_data,
     const QVector<tobas_msgs::msg::Latency>& ctrl_latency_data,
     const QVector<tobas_msgs::msg::VibrationLevel>& vibe_data,
+    const QVector<tobas_msgs::msg::RepulsiveAcceleration>& repulsive_accel_data,
     const QVector<tobas_kdl_msgs::msg::WrenchStamped>& dist_force_data,
     const QVector<tobas_debug_msgs::msg::ObserverFeedback>& obsv_fb_data,
     const QVector<tobas_debug_msgs::msg::MulticopterControllerFeedback>& mr_ctrl_fb_data);
@@ -85,9 +94,11 @@ private:
   const QVector<tobas_msgs::msg::JointCommandArray>& tar_joint_velocities_data_;
   const QVector<tobas_msgs::msg::JointCommandArray>& tar_joint_efforts_data_;
   const QVector<tobas_msgs::msg::IcePropulsionSystemCommand>& ice_cmd_data_;
+  const QVector<tobas_msgs::msg::PwmArray>& pwm_data_;
   const QVector<tobas_msgs::msg::Latency>& sampling_time_data_;
   const QVector<tobas_msgs::msg::Latency>& ctrl_latency_data_;
   const QVector<tobas_msgs::msg::VibrationLevel>& vibe_data_;
+  const QVector<tobas_msgs::msg::RepulsiveAcceleration>& repulsive_accel_data_;
   const QVector<tobas_kdl_msgs::msg::WrenchStamped>& dist_force_data_;
   const QVector<tobas_debug_msgs::msg::ObserverFeedback>& obsv_fb_data_;
   const QVector<tobas_debug_msgs::msg::MulticopterControllerFeedback>& mr_ctrl_fb_data_;
@@ -109,8 +120,10 @@ private:
   JointPositionPlotWidget* joint_pos_plot_;
   JointVelocityPlotWidget* joint_vel_plot_;
   JointEffortPlotWidget* joint_eff_plot_;
+  PwmPlotWidget* pwm_plot_;
   LatencyPlotWidget* latency_plot_;
   VibrationLevelPlotWidget* vibe_plot_;
+  RepulsiveAccelPlotWidget* repulsive_accel_plot_;
   DisturbanceForcePlotWidget* dist_force_plot_;
   ObserverFeedbackPlotWidget* obsv_fb_plot_;
   MRControllerFeedbackPlotWidget* mr_ctrl_fb_plot_;
@@ -122,3 +135,4 @@ private Q_SLOTS:
 };
 }  // namespace log
 }  // namespace gui
+}  // namespace tobas

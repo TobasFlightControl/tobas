@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_flight_log_gui/log_viewer/plots/joint_velocity_plot.hpp"
 
 #include <ranges>
@@ -5,6 +8,8 @@
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_ros2_tools/time.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace log
@@ -133,3 +138,4 @@ void JointVelocityPlotWidget::updateTargetSamples(const QVector<tobas_msgs::msg:
 }
 }  // namespace log
 }  // namespace gui
+}  // namespace tobas

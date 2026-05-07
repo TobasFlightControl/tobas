@@ -1,10 +1,15 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <cassert>
 #include <chrono>
 #include <map>
 
-namespace tbs
+namespace tobas
+{
+namespace st
 {
 /* 指定した期間内のデータのみを保持するバッファ． */
 template <typename T>
@@ -118,4 +123,5 @@ public:
   double variance() const;
   double stddev() const;
 };
-}  // namespace tbs
+}  // namespace st
+}  // namespace tobas

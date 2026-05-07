@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <tobas_qt_tools/widgets/double_spin_box.hpp>
 
 #include "./base.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -38,3 +43,4 @@ private:
 };
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

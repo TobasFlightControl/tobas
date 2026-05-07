@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_ros2_tools/util.hpp"
 
 #include <string.h>
@@ -9,6 +12,8 @@
 
 namespace fs = std::filesystem;
 
+namespace tobas
+{
 namespace ros2
 {
 const char* getEnv(const char* name)
@@ -44,3 +49,4 @@ fs::path expandUser(const char* path)
   return rcutils_expand_user(path, rcutils_get_default_allocator());
 }
 }  // namespace ros2
+}  // namespace tobas

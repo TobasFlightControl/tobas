@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <string>
 
+namespace tobas
+{
 namespace yaml
 {
 /**
@@ -11,3 +16,4 @@ namespace yaml
  */
 std::string format(double value, int prec = 9);
 }  // namespace yaml
+}  // namespace tobas

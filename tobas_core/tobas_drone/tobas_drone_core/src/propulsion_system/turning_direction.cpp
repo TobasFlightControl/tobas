@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_drone_core/propulsion_system/turning_direction.hpp"
 
 #include <iostream>
@@ -24,11 +27,11 @@ string textFromEnum(TurningDirection cmd_iface)
 bool enumFromText(const string& text, TurningDirection& dst)
 {
   if (text == CCW_TEXT) {
-    dst = tobas::TurningDirection::CCW;
+    dst = TurningDirection::CCW;
     return true;
   }
   else if (text == CW_TEXT) {
-    dst = tobas::TurningDirection::CW;
+    dst = TurningDirection::CW;
     return true;
   }
   else {

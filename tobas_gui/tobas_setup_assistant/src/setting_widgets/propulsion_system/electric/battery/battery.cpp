@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/battery/battery.hpp"
 
 #include <tobas_qt_tools/cast.hpp>
@@ -6,6 +9,8 @@
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/battery/lipo.hpp"
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/battery/other.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -122,3 +127,4 @@ const BatteryWidget_Base* BatteryWidget::selected() const
 }  // namespace propulsion
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

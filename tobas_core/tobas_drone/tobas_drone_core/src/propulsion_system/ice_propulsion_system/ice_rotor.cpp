@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_drone_core/propulsion_system/ice_propulsion_system/ice_rotor.hpp"
 
 #include <tobas_yaml_tools/convert/range.hpp>
@@ -21,6 +24,11 @@ bool IceRotorConfig::isValid() const
 
   if (!pitch_limit.isValid()) {
     cerr << "Pitch angle limit is invalid." << endl;
+    return false;
+  }
+
+  if (!pitch_limit.inRange(center_pitch)) {
+    cerr << "Center pitch is out of its limit." << endl;
     return false;
   }
 
@@ -49,6 +57,10 @@ bool IceRotorConfig::load(const YAML::Node& node)
     return false;
   }
 
+  if (!yaml::load(kCenterPitchKey, node, center_pitch)) {
+    return false;
+  }
+
   if (!motor_const.load(node[kMotorConstKey])) {
     return false;
   }
@@ -70,6 +82,7 @@ YAML::Node IceRotorConfig::dump() const
 
   node[kGearRatioKey] = yaml::format(gear_ratio);
   node[kPitchLimitKey] = pitch_limit;
+  node[kCenterPitchKey] = yaml::format(center_pitch);
   node[kMotorConstKey] = motor_const.dump();
   node[kMomentConstKey] = moment_const.dump();
   node[kHardwareIfaceKey] = hw_iface;

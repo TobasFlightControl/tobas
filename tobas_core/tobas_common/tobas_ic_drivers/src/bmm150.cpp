@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_ic_drivers/bmm150.hpp"
 
 #include <bitset>
@@ -7,15 +10,17 @@
 
 using namespace std;
 
+namespace tobas
+{
 namespace driver
 {
 BMM150::BMM150()
 {
 }
 
-bool BMM150::initialize()
+bool BMM150::initialize(const char* i2c_device)
 {
-  if (!i2c_.initialize(kI2cDevice, kI2cAddress)) {
+  if (!i2c_.initialize(i2c_device, kI2cAddress)) {
     cerr << "Failed to initialize I2C device." << endl;
     return false;
   }
@@ -322,3 +327,4 @@ int16_t BMM150::compensateZ(const int16_t& mag_data_z, const uint16_t& data_r_ha
   }
 }
 }  // namespace driver
+}  // namespace tobas

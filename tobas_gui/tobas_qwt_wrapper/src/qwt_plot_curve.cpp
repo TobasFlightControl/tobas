@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_qwt_wrapper/qwt_plot_curve.hpp"
 
 #include <qwt/qwt_plot_curve.h>  // <= C++17
 
+namespace tobas
+{
 namespace qwt
 {
 QwtPlotCurveWrapper::QwtPlotCurveWrapper(const QString& title)
@@ -54,3 +59,4 @@ void QwtPlotCurveWrapper::clear()
   setSamples(empty, empty);
 }
 }  // namespace qwt
+}  // namespace tobas

@@ -1,6 +1,6 @@
 <library path="tobas_urdf_builder_plugin">
 
-  <class name="URDF Builder Panel" type="gui::ub::ui::UrdfBuilderPanel" base_class_type="rviz_common::Panel">
+  <class name="URDF Builder Panel" type="tobas::gui::ub::ui::UrdfBuilderPanel" base_class_type="rviz_common::Panel">
     <description>URDF Builder Panel</description>
   </class>
 

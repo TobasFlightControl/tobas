@@ -1,8 +1,13 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <expected>
 #include <filesystem>
 
+namespace tobas
+{
 namespace ros2
 {
 /* pathが属するパッケージのパスを返す． */
@@ -20,3 +25,4 @@ bool isAlreadyBuiltAndInstalled(const std::filesystem::path& pkg_path);
 /* 有効なパッケージ名かどうかを判定する． */
 bool isValidPackageName(const std::string& pkg_name);
 }  // namespace ros2
+}  // namespace tobas

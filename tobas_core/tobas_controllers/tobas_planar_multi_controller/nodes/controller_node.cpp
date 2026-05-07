@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include <ranges>
 
 #include <tobas_algorithm/core.hpp>
@@ -28,6 +31,7 @@
 #include <tobas_msgs/msg/rotor_thrust_array.hpp>
 #include <tobas_msgs_adapter/odometry_stamped.hpp>
 #include <tobas_msgs_adapter/odometry_with_covariance_stamped.hpp>
+#include <tobas_msgs_adapter/repulsive_acceleration.hpp>
 
 #include "tobas_planar_multi_controller/mixer_qp.hpp"
 #include "tobas_planar_multi_controller/translational_eom.hpp"
@@ -54,6 +58,7 @@ private:
   TreeJointStateConverter js_converter_;
 
   // Static parameters
+  bool do_object_avoidance_;
   bool do_dist_comp_trans_;
   bool do_dist_comp_rot_;
 
@@ -87,7 +92,8 @@ private:
   bool topics_received_ = false;
   CommandPriorityHandler cmd_priority_handler_;
   tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr odom_;
-  tobas_kdl_msgs::WrenchStamped::ConstSharedPtr dist_force_;
+  tobas_msgs::RepulsiveAcceleration::ConstSharedPtr repulsive_accel_;  // 障害物仮想反加速度
+  tobas_kdl_msgs::WrenchStamped::ConstSharedPtr dist_force_;           // 推定外力
   tobas_msgs::msg::LandedState::ConstSharedPtr landed_;
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
 
@@ -112,6 +118,7 @@ private:
   ros2::SubscriberPtr<Drone> drone_sub_;
   ros2::SubscriberPtr<kdl::Tree> tree_sub_;
   ros2::SubscriberPtr<tobas_msgs::OdometryWithCovarianceStamped> odom_sub_;
+  ros2::SubscriberPtr<tobas_msgs::RepulsiveAcceleration> repulsive_accel_sub_;
   ros2::SubscriberPtr<tobas_kdl_msgs::WrenchStamped> dist_force_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::JointStateArray> js_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::LandedState> landed_sub_;
@@ -151,6 +158,7 @@ private:
   void droneCb(const Drone::ConstSharedPtr& drone);
   void treeCb(const kdl::Tree::ConstSharedPtr& tree);
   void odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom);
+  void repulsiveAccelCb(const tobas_msgs::RepulsiveAcceleration::ConstSharedPtr& repulsive_accel);
   void disturbanceForceCb(const tobas_kdl_msgs::WrenchStamped::ConstSharedPtr& dist_force);
   void jointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& js);
   void landedCb(const tobas_msgs::msg::LandedState::ConstSharedPtr& landed);
@@ -176,18 +184,19 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   pitch_filt_.setMaxVelocity(kModeTransitionMaxAttiRate);
 
   // Get static parameters
+  do_object_avoidance_ = getBoolParam("do_object_avoidance");
   do_dist_comp_trans_ = getBoolParam("do_disturbance_compensation_translation");
   do_dist_comp_rot_ = getBoolParam("do_disturbance_compensation_rotation");
 
   // Register dynamic parameters
   addDynamicDoubleParam("horizontal_natural_frequency", &self::horizontalNaturalFreqCb, this, 0.2, 5, 1, 30, " rad/s");
-  addDynamicDoubleParam("vertical_natural_frequency", &self::verticalNaturalFreqCb, this, 0.2, 5, 1, 30, " rad/s");
+  addDynamicDoubleParam("vertical_natural_frequency", &self::verticalNaturalFreqCb, this, 0.2, 10, 1, 30, " rad/s");
   addDynamicDoubleParam("attitude_natural_frequency", &self::attitudeNaturalFreqCb, this, 1., 10, 1, 30, " rad/s");
   addDynamicDoubleParam("heading_natural_frequency", &self::headingNaturalFreqCb, this, 0.5, 10, 1, 30, " rad/s");
-  addDynamicDoubleParam("horizontal_damping_ratio", &self::horizontalDampingRatioCb, this, 0.1, 10, 1, 30);
-  addDynamicDoubleParam("vertical_damping_ratio", &self::verticalDampingRatioCb, this, 0.1, 10, 1, 30);
-  addDynamicDoubleParam("attitude_damping_ratio", &self::attitudeDampingRatioCb, this, 0.1, 10, 1, 30);
-  addDynamicDoubleParam("heading_damping_ratio", &self::headingDampingRatioCb, this, 0.1, 10, 1, 30);
+  addDynamicDoubleParam("horizontal_damping_ratio", &self::horizontalDampingRatioCb, this, 0.1, 7, 1, 20);
+  addDynamicDoubleParam("vertical_damping_ratio", &self::verticalDampingRatioCb, this, 0.1, 10, 1, 20);
+  addDynamicDoubleParam("attitude_damping_ratio", &self::attitudeDampingRatioCb, this, 0.1, 10, 1, 20);
+  addDynamicDoubleParam("heading_damping_ratio", &self::headingDampingRatioCb, this, 0.1, 10, 1, 20);
   addDynamicDoubleParam("horizontal_i_gain", &self::horizontalIGainCb, this, 0.01, 10, 1, 30);
   addDynamicDoubleParam("vertical_i_gain", &self::verticalIGainCb, this, 0.01, 10, 1, 30);
   addDynamicDoubleParam("attitude_i_gain", &self::attitudeIGainCb, this, 0.1, 10, 1, 30);
@@ -205,6 +214,9 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   drone_sub_ = createSubscriber(topic::kDrone, &self::droneCb, this, true, true);
   tree_sub_ = createSubscriber(topic::kKdlTree, &self::treeCb, this, true, true);
   odom_sub_ = createSubscriber(topic::kOdometry, &self::odomCb, this);
+  if (do_object_avoidance_) {
+    repulsive_accel_sub_ = createSubscriber(topic::kRepulsiveAccel, &self::repulsiveAccelCb, this);
+  }
   if (do_dist_comp_trans_ || do_dist_comp_rot_) {
     dist_force_sub_ = createSubscriber(topic::kDisturbanceForce, &self::disturbanceForceCb, this);
   }
@@ -438,7 +450,7 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
 
   // 目標推力が重量の割合で定められた閾値未満のときは，推力が小さいほど制御器の自然周波数が小さくなるように調整する．
   // 例えば可変ピッチプロペラの姿勢制御の場合，これで低速域でのジャイロに対するピッチ角の感度が一定になる． (memo: 3-33)
-  const auto thrust_thresh = mass_holder_.getMass() * tbs::kGravity * throttle_gain_thresh_;
+  const auto thrust_thresh = mass_holder_.getMass() * st::kGravity * throttle_gain_thresh_;
   const auto land_suspect = (tar_thrust_ < thrust_thresh);
   const auto gain_throt = land_suspect ? tar_thrust_ / thrust_thresh : 1.;
 
@@ -478,6 +490,11 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
 
     // 目標加速度を計算
     acc_cmd_->accel = pos_cmd_->acc + kp.hadamard(ep) + ki.hadamard(trans_ctrl_.ei) + kd.hadamard(ed);
+
+    // 障害物反力加速度を足す
+    if (repulsive_accel_) {
+      acc_cmd_->accel += repulsive_accel_->accel;
+    }
 
     // ヨー角はそのまま流す
     acc_cmd_->yaw = pos_cmd_->yaw;
@@ -609,6 +626,11 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
     setpoint_pub_->publish(std::move(setpoint));
     feedback_pub_->publish(std::move(feedback));
   }
+}
+
+void ControllerNode::repulsiveAccelCb(const tobas_msgs::RepulsiveAcceleration::ConstSharedPtr& repulsive_accel)
+{
+  repulsive_accel_ = repulsive_accel;
 }
 
 void ControllerNode::disturbanceForceCb(const tobas_kdl_msgs::WrenchStamped::ConstSharedPtr& dist_force)

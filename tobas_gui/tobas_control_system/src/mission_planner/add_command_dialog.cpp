@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_control_system/mission_planner/add_command_dialog.hpp"
 
 #include <QHBoxLayout>
@@ -5,6 +8,8 @@
 #include <QVBoxLayout>
 #include <magic_enum/magic_enum.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -56,3 +61,4 @@ void AddCommandDialog::onOkClicked()
 }
 };  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

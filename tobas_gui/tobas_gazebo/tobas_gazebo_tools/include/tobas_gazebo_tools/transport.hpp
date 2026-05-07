@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <mutex>
@@ -5,6 +8,8 @@
 #include <gz/common/Console.hh>
 #include <gz/transport/Node.hh>
 
+namespace tobas
+{
 namespace gazebo
 {
 /* Gazeboメッセージを1通だけ取得する． */
@@ -55,3 +60,4 @@ bool waitForMessage(
   return got;
 }
 }  // namespace gazebo
+}  // namespace tobas

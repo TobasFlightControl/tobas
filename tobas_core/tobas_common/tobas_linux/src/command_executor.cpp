@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_linux/command_executor.hpp"
 
 #include <iostream>
@@ -5,6 +8,8 @@
 
 using namespace std;
 
+namespace tobas
+{
 namespace linux
 {
 CommandExecutor::CommandExecutor()
@@ -46,3 +51,4 @@ bool CommandExecutor::execute(string command)
   return status == EXIT_SUCCESS;
 }
 }  // namespace linux
+}  // namespace tobas

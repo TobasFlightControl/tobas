@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <rclcpp/rclcpp.hpp>
 
+namespace tobas
+{
 namespace ros2
 {
 namespace qos
@@ -24,3 +29,4 @@ public:
 };
 }  // namespace qos
 }  // namespace ros2
+}  // namespace tobas

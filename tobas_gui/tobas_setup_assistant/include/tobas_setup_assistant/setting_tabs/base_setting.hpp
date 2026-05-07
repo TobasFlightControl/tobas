@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <yaml-cpp/yaml.h>
@@ -9,6 +12,8 @@
 
 #include "../param_getters/base.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -58,3 +63,4 @@ private Q_SLOTS:
 };
 };  // namespace sa
 }  // namespace gui
+}  // namespace tobas

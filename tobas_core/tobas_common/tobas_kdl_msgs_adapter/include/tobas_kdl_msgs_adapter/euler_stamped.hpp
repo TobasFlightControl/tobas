@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <rclcpp/type_adapter.hpp>
@@ -13,7 +16,7 @@ namespace tobas_kdl_msgs
 struct EulerStamped
 {
   std_msgs::msg::Header header;
-  kdl::Euler euler;
+  tobas::kdl::Euler euler;
 
   using SharedPtr = std::shared_ptr<EulerStamped>;
   using ConstSharedPtr = std::shared_ptr<const EulerStamped>;

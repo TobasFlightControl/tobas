@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_legged_tools/linear_dynamics.hpp"
 
 #include <tobas_eigen_tools/geometry.hpp>
@@ -5,6 +8,8 @@
 using namespace std;
 using namespace Eigen;
 
+namespace tobas
+{
 namespace lr_tools
 {
 LinearDynamics::LinearDynamics(const kdl::Tree& tree, const vector<string>& foot_names)
@@ -82,3 +87,4 @@ void LinearDynamics::updateB(const double& roll, const double& pitch, const kdl:
   }
 }
 }  // namespace lr_tools
+}  // namespace tobas

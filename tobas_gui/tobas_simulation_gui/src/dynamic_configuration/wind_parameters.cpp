@@ -1,5 +1,9 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_simulation_gui/dynamic_configuration/wind_parameters.hpp"
 
+#include <QDebug>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
@@ -14,6 +18,10 @@
 
 #include "tobas_simulation_gui/dynamic_configuration/constants.hpp"
 
+namespace ch = std::chrono;
+
+namespace tobas
+{
 namespace gui
 {
 namespace sim
@@ -67,7 +75,7 @@ void WindParamsWidget::updateNamespace(const std::string& ns)
   set_sc_ = std::make_shared<ros2::SyncServiceClient<SetSrv>>(node_, path::join(ns, gazebo::kSetWindParamsSrv));
 }
 
-bool WindParamsWidget::start()
+bool WindParamsWidget::start(ch::milliseconds timeout)
 {
   // サービスクライアントの準備
   bool success = true;
@@ -76,12 +84,12 @@ bool WindParamsWidget::start()
   qt::startThreadAndWait(
     [&]()
     {
-      if (!get_sc_->waitForService()) {
+      if (!get_sc_->waitForService(timeout)) {
         success = false;
         message = "Failed to connect to \"" + QString(gazebo::kGetWindParamsSrv) + "\" service server.";
         return;
       }
-      if (!set_sc_->waitForService()) {
+      if (!set_sc_->waitForService(timeout)) {
         success = false;
         message = "Failed to connect to \"" + QString(gazebo::kSetWindParamsSrv) + "\" service server.";
         return;
@@ -89,7 +97,7 @@ bool WindParamsWidget::start()
     });
 
   if (!success) {
-    qt::qErrorBox(this, message);
+    qWarning() << message;
     return false;
   }
 
@@ -124,7 +132,7 @@ double WindParamsWidget::getMeanSpeed() const
 
 double WindParamsWidget::getDirection() const
 {
-  return tbs::deg2rad(direction_->get());
+  return st::deg2rad(direction_->get());
 }
 
 double WindParamsWidget::getGustSpeedFactor() const
@@ -151,7 +159,7 @@ void WindParamsWidget::setMeanSpeed(double value)
 void WindParamsWidget::setDirection(double value_rad)
 {
   QSignalBlocker speed(direction_);
-  direction_->set(tbs::rad2deg(value_rad));
+  direction_->set(st::rad2deg(value_rad));
 }
 
 void WindParamsWidget::setGustSpeedFactor(double value)
@@ -233,3 +241,4 @@ void WindParamsWidget::onValueChanged()
 }
 }  // namespace sim
 }  // namespace gui
+}  // namespace tobas

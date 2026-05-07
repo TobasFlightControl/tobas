@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <linux/usb/video.h>
@@ -7,6 +10,8 @@
 #include <cstdint>
 #include <string>
 
+namespace tobas
+{
 namespace linux
 {
 /**
@@ -104,3 +109,4 @@ private:
   bool requestImgFormat();
 };
 }  // namespace linux
+}  // namespace tobas

@@ -1,8 +1,13 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_eigen_tools/spline.hpp"
 
 using namespace std;
 using namespace Eigen;
 
+namespace tobas
+{
 namespace eigen
 {
 SplineFunction::SplineFunction(const VectorXd& x_vec, const VectorXd& y_vec, const size_t& degree)
@@ -35,3 +40,4 @@ RowVectorXd SplineFunction::scaledValues(const VectorXd& x_vec) const
   return x_vec.unaryExpr([this](const double& x) { return scaledValue(x); }).transpose();
 }
 }  // namespace eigen
+}  // namespace tobas

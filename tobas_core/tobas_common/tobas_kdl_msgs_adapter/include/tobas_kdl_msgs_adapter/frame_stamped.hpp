@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <rclcpp/type_adapter.hpp>
@@ -13,7 +16,7 @@ namespace tobas_kdl_msgs
 struct FrameStamped
 {
   std_msgs::msg::Header header;
-  kdl::Frame frame;
+  tobas::kdl::Frame frame;
 
   using SharedPtr = std::shared_ptr<FrameStamped>;
   using ConstSharedPtr = std::shared_ptr<const FrameStamped>;

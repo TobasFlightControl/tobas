@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_linux/uart_dev.hpp"
 
 #include <fcntl.h>
@@ -13,6 +16,8 @@
 
 using namespace std;
 
+namespace tobas
+{
 namespace linux
 {
 UARTdev::UARTdev()
@@ -336,3 +341,4 @@ bool UARTdev::setNonStandardBaudRate(uint32_t baud_rate)
   return true;
 }
 }  // namespace linux
+}  // namespace tobas

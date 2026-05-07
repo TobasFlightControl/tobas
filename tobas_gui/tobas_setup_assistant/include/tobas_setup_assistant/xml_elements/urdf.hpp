@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <tinyxml2.h>
@@ -7,6 +10,8 @@
 #include <tobas_drone_core/propulsion_system/ice_propulsion_system/aerodynamics.hpp>
 #include <tobas_drone_core/propulsion_system/turning_direction.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -78,7 +83,7 @@ void addElectricPropulsionSystemPlugin(
   double motor_const,
   double moment_const,
   double drag_const,
-  tobas::TurningDirection direction,
+  TurningDirection direction,
   double max_current);
 
 struct EngineParam
@@ -91,14 +96,14 @@ struct EngineParam
 struct IceRotorParam
 {
   std::string link_name;
-  tobas::TurningDirection direction;
+  TurningDirection direction;
   double gear_ratio;
   size_t num_blades;
-  tbs::Range<double> pitch_angle_limit;  // [rad]
-  double max_pitch_angle_rate;           // [rad/s]
-  tobas::VppMotorConstant motor_const;
-  tobas::VppMomentConstant moment_const;
-  tobas::VppDragConstant drag_const;
+  st::Range<double> pitch_angle_limit;  // [rad]
+  double max_pitch_angle_rate;          // [rad/s]
+  VppMotorConstant motor_const;
+  VppMomentConstant moment_const;
+  VppDragConstant drag_const;
 };
 
 void addIcePropulsionSystemPlugin(
@@ -111,7 +116,7 @@ void addFixedWingPlugin(
   tinyxml2::XMLElement* robot,
   const std::string& ns,
   const std::string& base_link_name,
-  const tobas::FixedWingConfig& fixed_wing);
+  const FixedWingConfig& fixed_wing);
 
 void addJointStateBroadcasterPlugin(
   tinyxml2::XMLElement* robot,
@@ -150,3 +155,4 @@ void addBaseStaticJoint(tinyxml2::XMLElement* robot, const std::string& root_lin
 }  // namespace xml
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

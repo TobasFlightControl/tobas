@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <cmath>
 
+namespace tobas
+{
 namespace traj
 {
 /* memo: 3-50 */
@@ -57,3 +62,4 @@ inline void AccelLimitedOnlineTrajectoryGenerator::setTargetVelocity(double tar_
   vf_ = tar_vel;
 }
 }  // namespace traj
+}  // namespace tobas

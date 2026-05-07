@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <chrono>
@@ -6,6 +9,8 @@
 
 #define PACKED __attribute__((__packed__))  // 構造体のメンバ変数がメモリ上で連続する
 
+namespace tobas
+{
 namespace driver
 {
 /**
@@ -166,5 +171,5 @@ private:
 
   bool interpretCameraError(const uint32_t& error_status, const CameraErrorStatusDigit& digit);
 };
-
 }  // namespace driver
+}  // namespace tobas

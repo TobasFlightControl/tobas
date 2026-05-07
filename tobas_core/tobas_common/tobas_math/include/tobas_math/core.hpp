@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <cmath>
 
+namespace tobas
+{
 namespace math
 {
 /* 2乗する． */
@@ -103,3 +108,4 @@ T wrap(T x, T n) noexcept
   return x - n;
 }
 }  // namespace math
+}  // namespace tobas

@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <functional>
 
+namespace tobas
+{
 namespace nlp
 {
 /**
@@ -42,3 +47,4 @@ private:
   double abs_tol_ = 1e-10;
 };
 }  // namespace nlp
+}  // namespace tobas

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_linux/memory_lock.hpp"
 
 #include <malloc.h>
@@ -13,6 +16,8 @@
 
 using namespace std;
 
+namespace tobas
+{
 namespace linux
 {
 bool lockMemory()
@@ -110,3 +115,4 @@ bool lockAndPrefaultDynamic(size_t process_max_dynamic_memory)
   return true;
 }
 }  // namespace linux
+}  // namespace tobas

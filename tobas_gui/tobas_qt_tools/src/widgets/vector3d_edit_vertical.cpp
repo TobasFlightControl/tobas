@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_qt_tools/widgets/vector3d_edit_vertical.hpp"
 
 #include <QFormLayout>
 
+namespace tobas
+{
 namespace qt
 {
 Vector3dEditVertical::Vector3dEditVertical(QWidget* parent) : super(parent)
@@ -90,3 +95,4 @@ void Vector3dEditVertical::onValueChanged(double)
   Q_EMIT valueChanged({ x(), y(), z() });
 }
 }  // namespace qt
+}  // namespace tobas

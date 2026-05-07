@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include "./chain_solver_i.hpp"
@@ -5,6 +8,8 @@
 #include "./jacobian.hpp"
 #include "./jntarray.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 /**
@@ -53,3 +58,4 @@ inline const Jacobian& ChainJacobianSolver::getJacobian() const
   return J_out_;
 }
 }  // namespace kdl
+}  // namespace tobas

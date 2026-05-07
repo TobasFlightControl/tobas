@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include "./frame_acc.hpp"
@@ -5,6 +8,8 @@
 #include "./jntarray_vel.hpp"
 #include "./utilities/utility.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 class JntArrayAcc
@@ -63,3 +68,4 @@ inline void JntArrayAcc::setZero()
   qdotdot.setZero();
 }
 }  // namespace kdl
+}  // namespace tobas

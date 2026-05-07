@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_gcs/remote_connection.hpp"
 
 #include <QVBoxLayout>
@@ -7,6 +10,8 @@
 
 #include "tobas_gcs/util.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace gcs
@@ -117,3 +122,4 @@ void RemoteConnectionWidget::onTimeout()
 }
 }  // namespace gcs
 }  // namespace gui
+}  // namespace tobas

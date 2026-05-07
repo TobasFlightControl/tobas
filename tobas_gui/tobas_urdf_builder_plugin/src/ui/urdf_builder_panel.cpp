@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_urdf_builder_plugin/ui/urdf_builder_panel.hpp"
 
 #include <filesystem>
@@ -25,6 +28,8 @@
 
 namespace fs = std::filesystem;
 
+namespace tobas
+{
 namespace gui
 {
 namespace ub
@@ -112,7 +117,12 @@ void UrdfBuilderPanel::onLoadButtonClicked()
   // URDFまたはXACROのパスを取得
   const auto last_opened_dir = getLastOpenedDir();
   const auto file_path = QFileDialog::getOpenFileName(
-    this, "Load URDF", last_opened_dir, "Robot Description (*.urdf *.xacro);;All Files (*)");
+    this,
+    "Load URDF",
+    last_opened_dir,
+    "Robot Description (*.urdf *.xacro);;All Files (*)",
+    nullptr,
+    QFileDialog::DontUseNativeDialog);
 
   if (file_path.isEmpty()) {
     return;
@@ -558,8 +568,8 @@ bool UrdfBuilderPanel::isJointsValid()
     const auto& axis = joint->axis;
 
     if (
-      type == urdf::Joint::REVOLUTE || type == urdf::Joint::CONTINUOUS || type == urdf::Joint::PRISMATIC ||
-      type == urdf::Joint::PLANAR) {
+      type == ::urdf::Joint::REVOLUTE || type == ::urdf::Joint::CONTINUOUS || type == ::urdf::Joint::PRISMATIC ||
+      type == ::urdf::Joint::PLANAR) {
       if (axis.x == 0 && axis.y == 0 && axis.z == 0) {
         QMessageBox::warning(this, kError, "Please set the axis of the joint '" + QString::fromStdString(name) + "'.");
         return false;
@@ -585,6 +595,7 @@ void UrdfBuilderPanel::collectUncheckedLinks(QTreeWidgetItem* item, QSet<QString
 }  // namespace ui
 }  // namespace ub
 }  // namespace gui
+}  // namespace tobas
 
 // rviz_common::Panelの派生クラスならばRvizのメインウィジェットにプラグインできる
-PLUGINLIB_EXPORT_CLASS(gui::ub::ui::UrdfBuilderPanel, rviz_common::Panel)
+PLUGINLIB_EXPORT_CLASS(tobas::gui::ub::ui::UrdfBuilderPanel, rviz_common::Panel)

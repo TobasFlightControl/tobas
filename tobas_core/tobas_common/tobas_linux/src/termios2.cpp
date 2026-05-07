@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_linux/termios2.hpp"
 
 #include <asm/termbits.h>
@@ -10,6 +13,8 @@
 
 using namespace std;
 
+namespace tobas
+{
 namespace linux
 {
 bool setNonStandardBaudRate(int fd, uint32_t baud_rate)
@@ -35,3 +40,4 @@ bool setNonStandardBaudRate(int fd, uint32_t baud_rate)
   return true;
 }
 }  // namespace linux
+}  // namespace tobas

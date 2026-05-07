@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_kdl/joint.hpp"
 
 using namespace std;
 
+namespace tobas
+{
 namespace kdl
 {
 bool Joint::isValid(string& error_msg) const
@@ -43,3 +48,4 @@ ostream& operator<<(ostream& os, const Joint& arg)
   return os;
 }
 }  // namespace kdl
+}  // namespace tobas

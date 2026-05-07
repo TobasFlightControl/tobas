@@ -1,5 +1,10 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
+namespace tobas
+{
 namespace real
 {
 namespace handler
@@ -50,3 +55,4 @@ static constexpr char kGpswOffKey[] = "gpsw/off";
 }  // namespace rcin
 }  // namespace handler
 }  // namespace real
+}  // namespace tobas

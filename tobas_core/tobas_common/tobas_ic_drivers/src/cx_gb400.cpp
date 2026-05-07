@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_ic_drivers/cx_gb400.hpp"
 
 #include <iostream>
 
+namespace tobas
+{
 namespace driver
 {
 CxGb400::CxGb400() : linux::VideoDev::VideoDev()
@@ -281,3 +286,4 @@ bool CxGb400::interpretCameraError(const uint32_t& error_status, const CameraErr
 }
 
 }  // namespace driver
+}  // namespace tobas

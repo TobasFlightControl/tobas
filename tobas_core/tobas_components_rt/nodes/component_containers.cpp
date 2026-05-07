@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_components_rt/multi_component_managers.hpp"
 
 int main(int argc, char* argv[])
@@ -11,7 +14,7 @@ int main(int argc, char* argv[])
   signal(SIGINT, [](int) { rclcpp::shutdown(); });
 
   // 複数のComponentManagerをシングルプロセスで動作させる．
-  ros2::MultiComponentManagers managers(kNumManagers);
+  tobas::MultiComponentManagers managers(kNumManagers);
 
   for (size_t i = 0; i < kNumManagers; ++i) {
     // 厳密に優先度を守るポリシーに設定．

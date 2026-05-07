@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_simulation_gui/simulation_settings/pose.hpp"
 
 #include <QHBoxLayout>
@@ -9,6 +12,8 @@
 #include <tobas_qt_tools/widgets/label.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sim
@@ -75,17 +80,18 @@ double PoseWidget::z() const
 
 double PoseWidget::roll() const
 {
-  return tbs::deg2rad(rpy_[0]->value());
+  return st::deg2rad(rpy_[0]->value());
 }
 
 double PoseWidget::pitch() const
 {
-  return tbs::deg2rad(rpy_[1]->value());
+  return st::deg2rad(rpy_[1]->value());
 }
 
 double PoseWidget::yaw() const
 {
-  return tbs::deg2rad(rpy_[2]->value());
+  return st::deg2rad(rpy_[2]->value());
 }
 }  // namespace sim
 }  // namespace gui
+}  // namespace tobas

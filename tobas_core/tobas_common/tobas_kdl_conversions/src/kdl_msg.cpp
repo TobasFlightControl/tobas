@@ -1,5 +1,10 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_kdl_conversions/kdl_msg.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 void vectorKDLToMsg(const Vector& k, geometry_msgs::msg::Vector3& m)
@@ -92,3 +97,4 @@ void transformMsgToKDL(const geometry_msgs::msg::Transform& m, Frame& k)
   rotationMsgToKDL(m.rotation, k.M);
 }
 }  // namespace kdl
+}  // namespace tobas

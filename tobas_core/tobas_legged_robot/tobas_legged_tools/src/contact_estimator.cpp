@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_legged_tools/contact_estimator.hpp"
 
 #include <tobas_std_tools/universal_constants.hpp>
@@ -6,6 +9,8 @@
 using namespace std;
 using namespace Eigen;
 
+namespace tobas
+{
 namespace lr_tools
 {
 ContactEstimator::ContactEstimator(const kdl::Tree& tree, const vector<string>& foot_names)
@@ -95,7 +100,7 @@ void ContactEstimator::reset()
   const auto ones = VectorXd::Ones(nc_);
   kf_.initialize(ones, ones.asDiagonal());
 
-  tbs::fill(states_, kContact);
+  st::fill(states_, kContact);
 }
 
 void ContactEstimator::setPredictionVariance(const double& var)
@@ -163,7 +168,7 @@ VectorXd ContactEstimator::calcProbs_height(const kdl::Frame& T, const kdl::JntA
 
 VectorXd ContactEstimator::calcProbs_force(const vector<double>& contact_forces)
 {
-  const auto mean_force = mass_holder_.getMass() * tbs::kGravity / nc_;
+  const auto mean_force = mass_holder_.getMass() * st::kGravity / nc_;
 
   VectorXd res(nc_);
   for (size_t l = 0; l < nc_; ++l) {
@@ -191,3 +196,4 @@ VectorXd ContactEstimator::calcProbs_pred(const vector<bool>& cpg_states, const 
   return res;
 }
 }  // namespace lr_tools
+}  // namespace tobas

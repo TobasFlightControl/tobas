@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <map>
@@ -16,6 +19,8 @@ class UpdateLinkDialogUI;
 using UpdateLinkDialogUIPtr = std::shared_ptr<UpdateLinkDialogUI>;
 }  // namespace Ui
 
+namespace tobas
+{
 namespace gui
 {
 namespace ub
@@ -115,3 +120,4 @@ private:
 }  // namespace ui
 }  // namespace ub
 }  // namespace gui
+}  // namespace tobas

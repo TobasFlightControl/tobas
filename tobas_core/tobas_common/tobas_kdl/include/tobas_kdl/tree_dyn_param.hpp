@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include "./tree_id_solver_rne.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 /**
@@ -12,7 +17,7 @@ class TreeDynParam : public TreeSolverI
   using super = TreeSolverI;
 
 public:
-  explicit TreeDynParam(const Tree& tree, const Vector& grav = Vector(0., 0., -tbs::kGravity));
+  explicit TreeDynParam(const Tree& tree, const Vector& grav = Vector(0., 0., -st::kGravity));
 
   bool updateInternalDataStructures() override;
 
@@ -53,3 +58,4 @@ inline const JntArray& TreeDynParam::getGravityEffort() const
   return rne_gravity_.getEfforts();
 }
 }  // namespace kdl
+}  // namespace tobas

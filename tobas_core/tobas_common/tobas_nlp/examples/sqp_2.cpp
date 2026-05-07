@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 /**
  * min  x0 * x1 * (x0 + x1 + x2) + x2
  * s.t. x0^2 + x1^2 + x2^2 + x3^2 = 04
@@ -36,7 +39,7 @@ VectorXd g(const VectorXd& x)
 VectorXd h(const VectorXd& x)
 {
   VectorXd res(1);
-  res(0) = math::sqr(x(0)) + math::sqr(x(1)) + math::sqr(x(2)) + math::sqr(x(3)) - 40;
+  res(0) = tobas::math::sqr(x(0)) + tobas::math::sqr(x(1)) + tobas::math::sqr(x(2)) + tobas::math::sqr(x(3)) - 40;
   return res;
 }
 
@@ -142,7 +145,7 @@ Tensor3Xd dHdx(const VectorXd&)
 
 int main()
 {
-  nlp::SQP sqp;
+  tobas::nlp::SQP sqp;
 
   VectorXd x0(4);
   x0 << 1, 5, 5, 1;

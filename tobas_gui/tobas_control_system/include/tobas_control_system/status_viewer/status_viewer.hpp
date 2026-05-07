@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <tobas_qt_tools/widgets/scroll_area.hpp>
@@ -5,6 +8,8 @@
 
 #include "./status.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -38,6 +43,7 @@ private:
   StatusWidget* mag_offset_status_;
   StatusWidget* mag_alignment_status_;
   StatusWidget* vibration_level_status_;
+  StatusWidget* user_defined_status_;
 
   StatusWidget* ready_arm_status_;
   StatusWidget* armed_status_;
@@ -48,3 +54,4 @@ private Q_SLOTS:
 };
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

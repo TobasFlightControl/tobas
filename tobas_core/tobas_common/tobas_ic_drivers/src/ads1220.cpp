@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_ic_drivers/ads1220.hpp"
 
 #include <bitset>
@@ -8,6 +11,8 @@
 
 using namespace std;
 
+namespace tobas
+{
 namespace driver
 {
 ADS1220::ADS1220()
@@ -142,3 +147,4 @@ bool ADS1220::configure(const uint8_t& rr, const uint8_t& tar_cfg)
   return true;
 }
 }  // namespace driver
+}  // namespace tobas

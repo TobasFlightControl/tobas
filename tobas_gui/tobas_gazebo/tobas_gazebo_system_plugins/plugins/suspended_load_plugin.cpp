@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include <gz/msgs/entity_factory.pb.h>
 #include <gz/msgs/marker.pb.h>
 #include <gz/sim/Link.hh>
@@ -21,6 +24,8 @@
 
 namespace cmp = gz::sim::components;
 
+namespace tobas
+{
 namespace gazebo
 {
 class GazeboSuspendedLoadPlugin : public BaseNode,
@@ -372,9 +377,10 @@ void GazeboSuspendedLoadPlugin::detachLoadCb(
   res->message.clear();
 }
 }  // namespace gazebo
+}  // namespace tobas
 
 GZ_ADD_PLUGIN(
-  gazebo::GazeboSuspendedLoadPlugin,
+  tobas::gazebo::GazeboSuspendedLoadPlugin,
   gz::sim::System,
-  gazebo::GazeboSuspendedLoadPlugin::ISystemConfigure,
-  gazebo::GazeboSuspendedLoadPlugin::ISystemPreUpdate)
+  gz::sim::ISystemConfigure,
+  gz::sim::ISystemPreUpdate)

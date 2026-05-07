@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <tobas_drone_core/propulsion_system/ice_propulsion_system/aerodynamics.hpp>
 #include <tobas_math/definitions.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -26,11 +31,11 @@ public:
     double radius,
     double blade_chord,
     double pitch_angle,
-    double air_density = tbs::kStandardAirDensity);
+    double air_density = st::kStandardAirDensity);
 
-  tobas::VppMotorConstant motorConst() const;
-  tobas::VppMomentConstant momentConst() const;
-  tobas::VppDragConstant dragConst() const;
+  VppMotorConstant motorConst() const;
+  VppMomentConstant momentConst() const;
+  VppDragConstant dragConst() const;
 
 private:
   const int N_;
@@ -52,3 +57,4 @@ private:
 }  // namespace propulsion
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <tobas_msgs/msg/vibration_level.hpp>
 
 #include "./common.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace log
@@ -23,8 +28,9 @@ public:
   void setData(const QVector<tobas_msgs::msg::VibrationLevel>& msgs);
 
 private:
-  std::array<QwtPlot2*, 3> plots_;
-  std::array<qwt::QwtPlotCurveWrapper, 3> curves_;
+  std::array<QwtPlot2*, kNumAxes> plots_;
+  std::array<qwt::QwtPlotCurveWrapper, kNumAxes> curves_;
 };
 }  // namespace log
 }  // namespace gui
+}  // namespace tobas

@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include "./vector.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 class Wrench;
@@ -136,3 +141,4 @@ inline std::ostream& operator<<(std::ostream& os, const Wrench& arg)
   return os;
 }
 }  // namespace kdl
+}  // namespace tobas

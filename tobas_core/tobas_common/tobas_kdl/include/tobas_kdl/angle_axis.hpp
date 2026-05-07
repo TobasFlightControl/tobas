@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <iostream>
 
 #include "./frames.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 class AngleAxis
@@ -60,3 +65,4 @@ inline std::ostream& operator<<(std::ostream& os, const AngleAxis& arg)
   return os;
 }
 }  // namespace kdl
+}  // namespace tobas

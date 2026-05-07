@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <yaml-cpp/yaml.h>
@@ -19,7 +22,7 @@ struct convert<Eigen::Matrix<double, Rows, Cols>>
 
     for (int r = 0; r < Rows; ++r) {
       for (int c = 0; c < Cols; ++c) {
-        node.push_back(yaml::format(rhs(r, c)));
+        node.push_back(tobas::yaml::format(rhs(r, c)));
       }
     }
 
@@ -68,7 +71,7 @@ struct convert<Eigen::MatrixXd>
     Node data(NodeType::Sequence);
     for (int r = 0; r < rows; ++r) {
       for (int c = 0; c < cols; ++c) {
-        data.push_back(yaml::format(rhs(r, c)));
+        data.push_back(tobas::yaml::format(rhs(r, c)));
       }
     }
     node[kDataKey] = data;

@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include "./model_links_parser.hpp"
 
+namespace tobas
+{
 namespace gazebo
 {
 /* モデルの合計質量を保持する． */
@@ -22,3 +27,4 @@ private:
   ModelLinksParser model_links_parser_;
 };
 }  // namespace gazebo
+}  // namespace tobas

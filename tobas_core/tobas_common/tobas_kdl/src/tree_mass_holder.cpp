@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_kdl/tree_mass_holder.hpp"
 
 #include <iostream>
@@ -6,6 +9,8 @@
 
 using namespace std;
 
+namespace tobas
+{
 namespace kdl
 {
 TreeMassHolder::TreeMassHolder(const Tree& tree) : super(tree)
@@ -47,3 +52,4 @@ double TreeMassHolder::computeMass(const SegmentMap::const_iterator& cur_it)
   return mass_sum.get();
 }
 }  // namespace kdl
+}  // namespace tobas

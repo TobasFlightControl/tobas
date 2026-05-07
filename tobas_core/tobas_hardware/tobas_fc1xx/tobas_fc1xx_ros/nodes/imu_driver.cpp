@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include <tobas_constants/ros_interface.hpp>
 #include <tobas_dsp/low_pass_filter_p1.hpp>
 #include <tobas_hardware_common/base_sensor_node.hpp>
@@ -12,9 +15,15 @@
 
 using namespace std::chrono_literals;
 
+namespace tobas
+{
+namespace fc1xx
+{
 class ImuDriverNode : public hardware::BaseSensorNode
 {
   static constexpr char kSpiDevice[] = "/dev/spidev0.0";
+
+  // エイリアシングを防ぐためにサンプリング周波数はなるべく高めにするとよい
   static constexpr auto kSamplingPeriod = 1250us;  // 800Hz
 
   using self = ImuDriverNode;
@@ -30,11 +39,10 @@ private:
   kdl::Vector acc_raw_, gyro_raw_, prev_gyro_raw_;
   dsp::LowPassFilterP1<kdl::Vector> acc_lpf_, gyro_lpf_, dgyro_lpf_;
   bool lpf_initialized_ = false;
-  bool pub_switch_ = false;
 
   ros2::PublisherPtr<tobas_msgs::Imu> imu_raw_pub_;
   ros2::PublisherPtr<tobas_msgs::Imu> imu_filt_pub_;
-  tobas::ImuSamplingTimePublisher sampling_time_pub_;
+  ImuSamplingTimePublisher sampling_time_pub_;
 
   ros2::ServiceServerPtr<tobas_msgs::srv::ConfigureImuFilter> config_ss_;
 
@@ -59,7 +67,7 @@ ImuDriverNode::ImuDriverNode(const rclcpp::NodeOptions& options)
   gyro_lpf_.setValue(kdl::Vector::Zero());
   dgyro_lpf_.setValue(kdl::Vector::Zero());
 
-  initialize_timer_ = createWallTimer(fc1xx::kRetryInitializationInterval, &self::initializeTimerCb, this);
+  initialize_timer_ = createWallTimer(kRetryInitializationInterval, &self::initializeTimerCb, this);
 }
 
 bool ImuDriverNode::initializeImuDriver()
@@ -81,7 +89,7 @@ bool ImuDriverNode::initializeImuDriver()
 
   // 加速度がサチるのを防ぐためにスケールを大きめに設定．
   // 量子化誤差よりもセンサの固有ノイズの方が大きいため，分解能は問題にならない．
-  if (!imu_.setAccelFullScale(stm::ISM330DLC::fs_xl_t::FS_XL_8G)) {
+  if (!imu_.setAccelFullScale(stm::ISM330DLC::fs_xl_t::FS_XL_16G)) {
     TOBAS_ERROR("Failed to set accelerometer full scale.");
     return false;
   }
@@ -132,8 +140,8 @@ void ImuDriverNode::initializeTimerCb()
   imu_filt_pub_ = createPublisher<tobas_msgs::Imu>(real::topic::kImuFilt);
   sampling_time_pub_.initialize(shared_from_this(), now());
 
-  config_ss_ = createService<tobas_msgs::srv::ConfigureImuFilter>(
-    tobas::service::kConfigureImuFilter, &self::configureImuFilterCb, this);
+  config_ss_ =
+    createService<tobas_msgs::srv::ConfigureImuFilter>(service::kConfigureImuFilter, &self::configureImuFilterCb, this);
 
   initialize_timer_->cancel();
   main_timer_ = createWallTimer(kSamplingPeriod, &self::mainTimerCb, this);
@@ -160,38 +168,33 @@ void ImuDriverNode::mainTimerCb()
   const auto dgyro_raw = (gyro_raw_ - prev_gyro_raw_) / dt;
   prev_gyro_raw_ = gyro_raw_;
 
-  // Filter IMU data
+  // Publish raw IMU message
+  auto imu_raw = std::make_unique<tobas_msgs::Imu>();
+  imu_raw->header.stamp = cur_time;
+  imu_raw->accel = acc_raw_;
+  imu_raw->gyro = gyro_raw_;
+  imu_raw->dgyro = dgyro_raw;
+  imu_raw_pub_->publish(std::move(imu_raw));
+
   if (lpf_initialized_) {
+    // Filter IMU data
     acc_lpf_.update(acc_raw_, dt);
     gyro_lpf_.update(gyro_raw_, dt);
     dgyro_lpf_.update(dgyro_raw, dt);
-  }
 
-  // 生データとフィルタ済みデータを交互に発行
-  if (pub_switch_) {
-    // Publish raw IMU message
-    auto imu_raw = std::make_unique<tobas_msgs::Imu>();
-    imu_raw->header.stamp = cur_time;
-    imu_raw->accel = acc_raw_;
-    imu_raw->gyro = gyro_raw_;
-    imu_raw->dgyro = dgyro_raw;
-    imu_raw_pub_->publish(std::move(imu_raw));
+    // Publish filtered IMU message
+    auto imu_filt = std::make_unique<tobas_msgs::Imu>();
+    imu_filt->header.stamp = cur_time;
+    imu_filt->accel = acc_lpf_.getValue();
+    imu_filt->gyro = gyro_lpf_.getValue();
+    imu_filt->dgyro = dgyro_lpf_.getValue();
+    imu_filt_pub_->publish(std::move(imu_filt));
   }
-  else {
-    if (lpf_initialized_) {
-      // Publish filtered IMU message
-      auto imu_filt = std::make_unique<tobas_msgs::Imu>();
-      imu_filt->header.stamp = cur_time;
-      imu_filt->accel = acc_lpf_.getValue();
-      imu_filt->gyro = gyro_lpf_.getValue();
-      imu_filt->dgyro = dgyro_lpf_.getValue();
-      imu_filt_pub_->publish(std::move(imu_filt));
-    }
-  }
-  pub_switch_ = !pub_switch_;
 
   // Publish sampling time
   sampling_time_pub_.publish(cur_time);
 }
+}  // namespace fc1xx
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(ImuDriverNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::fc1xx::ImuDriverNode)

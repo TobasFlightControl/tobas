@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_setup_assistant/setting_tabs/fixed_wing/vspaero_parser.hpp"
 
 #include <fstream>
@@ -5,6 +8,8 @@
 #include <map>
 #include <sstream>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -161,3 +166,4 @@ double VSPAEROParser::c_yaw_r() const
 }  // namespace fw
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

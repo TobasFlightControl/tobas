@@ -1,29 +1,34 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_urdf_builder_plugin/view_model/geometry_view_model.hpp"
 
 #include <tobas_std_tools/console.hpp>
 
 static const std::map<GeometryType, QString> kGeometryTypeToNameMap = {
-  { urdf::Geometry::BOX, "Box" },
-  { urdf::Geometry::SPHERE, "Sphere" },
-  { urdf::Geometry::CYLINDER, "Cylinder" },
-  { urdf::Geometry::MESH, "Mesh" },
+  { ::urdf::Geometry::BOX, "Box" },
+  { ::urdf::Geometry::SPHERE, "Sphere" },
+  { ::urdf::Geometry::CYLINDER, "Cylinder" },
+  { ::urdf::Geometry::MESH, "Mesh" },
 };
 
 static const std::map<QString, GeometryType> kGeometryNameToTypeMap = {
-  { "Box", urdf::Geometry::BOX },
-  { "Sphere", urdf::Geometry::SPHERE },
-  { "Cylinder", urdf::Geometry::CYLINDER },
-  { "Mesh", urdf::Geometry::MESH },
+  { "Box", ::urdf::Geometry::BOX },
+  { "Sphere", ::urdf::Geometry::SPHERE },
+  { "Cylinder", ::urdf::Geometry::CYLINDER },
+  { "Mesh", ::urdf::Geometry::MESH },
 };
 
+namespace tobas
+{
 namespace gui
 {
 namespace ub
 {
 namespace view_model
 {
-GeometryViewModel::GeometryViewModel(const urdf::GeometrySharedPtr& model)
-  : BaseViewModel<urdf::Geometry, GeometryViewModel>(model)
+GeometryViewModel::GeometryViewModel(const ::urdf::GeometrySharedPtr& model)
+  : BaseViewModel<::urdf::Geometry, GeometryViewModel>(model)
   , type_(model_->type)
   , radius_(kDefaultRadius)
   , length_(kDefaultLength)
@@ -32,7 +37,7 @@ GeometryViewModel::GeometryViewModel(const urdf::GeometrySharedPtr& model)
   , scale_(kDefaultScale, kDefaultScale, kDefaultScale)
 {
   if (!model) {
-    model_.reset(new urdf::Sphere());
+    model_.reset(new ::urdf::Sphere());
   }
   load();
 }
@@ -41,7 +46,7 @@ void GeometryViewModel::sync()
 {
   switch (type_) {
     case GeometryType::BOX: {
-      auto box = new urdf::Box();
+      auto box = new ::urdf::Box();
       box->dim.x = length_;
       box->dim.y = width_;
       box->dim.z = height_;
@@ -49,20 +54,20 @@ void GeometryViewModel::sync()
       break;
     }
     case GeometryType::CYLINDER: {
-      auto cylinder = new urdf::Cylinder();
+      auto cylinder = new ::urdf::Cylinder();
       cylinder->length = length_;
       cylinder->radius = radius_;
       model_.reset(cylinder);
       break;
     }
     case GeometryType::SPHERE: {
-      auto sphere = new urdf::Sphere();
+      auto sphere = new ::urdf::Sphere();
       sphere->radius = radius_;
       model_.reset(sphere);
       break;
     }
     case GeometryType::MESH: {
-      auto mesh = new urdf::Mesh();
+      auto mesh = new ::urdf::Mesh();
       mesh->filename = filepath_;
       mesh->scale = scale_;
       model_.reset(mesh);
@@ -145,12 +150,12 @@ void GeometryViewModel::filePath(const QString& filepath)
   filepath_ = filepath.toStdString();
 }
 
-const urdf::Vector3& GeometryViewModel::scale() const
+const ::urdf::Vector3& GeometryViewModel::scale() const
 {
   return scale_;
 }
 
-void GeometryViewModel::scale(const urdf::Vector3& scale)
+void GeometryViewModel::scale(const ::urdf::Vector3& scale)
 {
   scale_ = scale;
 }
@@ -166,25 +171,25 @@ void GeometryViewModel::load()
 
   switch (type_) {
     case GeometryType::BOX: {
-      auto box = urdf::dynamic_pointer_cast<urdf::Box>(model_);
+      auto box = ::urdf::dynamic_pointer_cast<::urdf::Box>(model_);
       length_ = box->dim.x;
       width_ = box->dim.y;
       height_ = box->dim.z;
       break;
     }
     case GeometryType::CYLINDER: {
-      auto cylinder = urdf::dynamic_pointer_cast<urdf::Cylinder>(model_);
+      auto cylinder = ::urdf::dynamic_pointer_cast<::urdf::Cylinder>(model_);
       length_ = cylinder->length;
       radius_ = cylinder->radius;
       break;
     }
     case GeometryType::SPHERE: {
-      auto sphere = urdf::dynamic_pointer_cast<urdf::Sphere>(model_);
+      auto sphere = ::urdf::dynamic_pointer_cast<::urdf::Sphere>(model_);
       radius_ = sphere->radius;
       break;
     }
     case GeometryType::MESH: {
-      auto mesh = urdf::dynamic_pointer_cast<urdf::Mesh>(model_);
+      auto mesh = ::urdf::dynamic_pointer_cast<::urdf::Mesh>(model_);
       filepath_ = mesh->filename;
       scale_ = mesh->scale;
       break;
@@ -198,3 +203,4 @@ void GeometryViewModel::load()
 }  // namespace view_model
 }  // namespace ub
 }  // namespace gui
+}  // namespace tobas

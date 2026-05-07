@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_flight_log_gui/recorder/start_thread.hpp"
 
 #include <tobas_constants/ros_interface.hpp>
@@ -7,6 +10,8 @@
 
 #include "tobas_flight_log_gui/recorder/constants.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace log
@@ -18,7 +23,7 @@ RecordStartThread::RecordStartThread(rclcpp::Node::SharedPtr node) : node_(node)
 void RecordStartThread::run()
 {
   ros2::SyncServiceClient<tobas_msgs::srv::BagRecordStart> sc(
-    node_, path::join(ns_, tobas::kRemoteIfaceNS, tobas::service::kRosbagRecordStart));
+    node_, path::join(ns_, kRemoteIfaceNS, service::kRosbagRecordStart));
 
   const auto req = std::make_shared<tobas_msgs::srv::BagRecordStart::Request>();
   req->name = log_name_;
@@ -48,3 +53,4 @@ void RecordStartThread::setLogName(const std::string& log_name)
 }
 }  // namespace log
 }  // namespace gui
+}  // namespace tobas

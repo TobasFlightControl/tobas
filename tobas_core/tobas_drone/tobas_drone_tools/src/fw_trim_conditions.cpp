@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_drone_tools/fw_trim_conditions.hpp"
 
 #include <tobas_std_tools/console.hpp>
@@ -38,7 +41,7 @@ bool TrimConditions::updateInternalDataStructures()
     std::cerr << "Inertia solver failed: " << inertia_solver_.errorMessage() << std::endl;
     return false;
   }
-  W_ = inertia_solver_.getInertia().getMass() * tbs::kGravity;
+  W_ = inertia_solver_.getInertia().getMass() * st::kGravity;
 
   // Set elevator index
   auto max_c_pitch_delta = -INFINITY;
@@ -109,7 +112,7 @@ int TrimConditions::update(double V, const double& rho, const kdl::JntArray& q)
   const auto& c_pitch_alpha_cg = asd_cog_.cPitchAlpha();
   const auto& c_pitch_elev_cg = asd_cog_.cPitchDelta(elev_link_name_);
   if (c_pitch_elev_cg == 0) {
-    error_msg_ = "The stability derivative of the elevator w.r.t. the pitch angle is zero.";
+    error_msg_ = "The stability derivative of the elevator wrt. the pitch angle is zero.";
     return error_code_ = kError;
   }
 
@@ -147,7 +150,7 @@ int TrimConditions::update(double V, const double& rho, const kdl::JntArray& q)
   return error_code_;
 }
 
-tbs::Range<double> TrimConditions::speedLimit(const double& rho) const
+st::Range<double> TrimConditions::speedLimit(const double& rho) const
 {
   assert(rho > 0);
 
@@ -163,7 +166,7 @@ tbs::Range<double> TrimConditions::speedLimit(const double& rho) const
   const auto min_den = a_ * drone_.fixed_wing->vehicle.alpha_limit.lower + b_;
   const auto V_max = min_den > 0. ? sqrt(c / min_den) : INFINITY;
 
-  return tbs::Range<double>(V_min, V_max);
+  return st::Range<double>(V_min, V_max);
 }
 
 double TrimConditions::takeOffSpeed(const double& rho) const

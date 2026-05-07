@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <tobas_qt_tools/widgets/tab_widget.hpp>
@@ -5,6 +8,8 @@
 #include "./dynamics.hpp"
 #include "./response.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -45,3 +50,4 @@ private:
 }  // namespace propulsion
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

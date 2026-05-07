@@ -1,3 +1,7 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Tobas, Inc.
+
+
 class BinarySearchNode:
     def __init__(self, value: int):
         self.value = value

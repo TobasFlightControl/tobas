@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_kdl/segment.hpp"
 
 using namespace std;
 
+namespace tobas
+{
 namespace kdl
 {
 bool Segment::isValid(string& error_msg) const
@@ -38,3 +43,4 @@ ostream& operator<<(ostream& os, const Segment& arg)
   return os;
 }
 }  // namespace kdl
+}  // namespace tobas

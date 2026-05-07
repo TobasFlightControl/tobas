@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_eigen_tools/kinematics.hpp"
 
 #include <tobas_math/core.hpp>
@@ -8,6 +11,8 @@
 using namespace std;
 using namespace Eigen;
 
+namespace tobas
+{
 namespace eigen
 {
 Matrix3d angvelFromEulerrateGlobal(double pitch, double yaw)
@@ -172,3 +177,4 @@ Vector3d angaccFromEuleraccLocal(double roll, double pitch, const Vector3d& drpy
   return angaccFromEuleraccLocal(roll, pitch, drpy.x(), drpy.y(), drpy.z(), ddrpy.x(), ddrpy.y(), ddrpy.z());
 }
 }  // namespace eigen
+}  // namespace tobas

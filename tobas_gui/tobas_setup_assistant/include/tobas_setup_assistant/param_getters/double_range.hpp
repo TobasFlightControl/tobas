@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <tobas_qt_tools/widgets/labeled_double_spin_box.hpp>
@@ -5,11 +8,13 @@
 
 #include "./base.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
 {
-class ParamGetterWidget_DoubleRange : public ParamGetterWidget<tbs::Range<double>>
+class ParamGetterWidget_DoubleRange : public ParamGetterWidget<st::Range<double>>
 {
   Q_OBJECT
 
@@ -45,3 +50,4 @@ private:
 };
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

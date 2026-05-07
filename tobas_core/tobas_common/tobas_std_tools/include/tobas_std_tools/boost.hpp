@@ -1,10 +1,15 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <vector>
 
 #include <boost/array.hpp>
 
-namespace tbs
+namespace tobas
+{
+namespace st
 {
 /* 加重平均をとる． */
 template <typename T, typename U, size_t N>
@@ -117,4 +122,5 @@ boost::array<T, N> operator+(const boost::array<T, N>& lhs, const boost::array<T
   }
   return res;
 }
-}  // namespace tbs
+}  // namespace st
+}  // namespace tobas

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include <iostream>
 
 #include <tobas_property_tree/property_tree.hpp>
@@ -32,7 +35,7 @@ int main()
   static constexpr char kDoubleListKey[] = "ns.double_list";
   static constexpr char kStringListKey[] = "ns.string_list";
 
-  ptree::PropertyTree pt;
+  tobas::ptree::PropertyTree pt;
 
   if (!pt.initialize("/tmp/example.json")) {
     return EXIT_FAILURE;

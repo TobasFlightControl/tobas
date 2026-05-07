@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <eigen3/Eigen/Cholesky>
@@ -7,6 +10,8 @@
 
 #include "./core.hpp"
 
+namespace tobas
+{
 namespace eigen
 {
 /* 行列のランクを計算する． */
@@ -132,3 +137,4 @@ Eigen::Matrix<Scalar, M, 1> minimizeWeightedNorm(
   return left.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(right);
 }
 }  // namespace eigen
+}  // namespace tobas

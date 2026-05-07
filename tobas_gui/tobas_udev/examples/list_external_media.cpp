@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include <iostream>
 
 #include <tobas_udev/core.hpp>
@@ -25,17 +28,17 @@ int main()
       continue;
     }
 
-    const auto devnode = udv::getDevNode(disk);  // e.g. /dev/sda
+    const auto devnode = tobas::udv::getDevNode(disk);  // e.g. /dev/sda
     if (devnode.empty()) {
       udev_device_unref(disk);
       continue;
     }
 
     // メディアの情報を取得
-    const auto vendor = udv::getPropertyValue(disk, "ID_VENDOR");
-    const auto model = udv::getPropertyValue(disk, "ID_MODEL");
-    const auto label1 = udv::getBlockLabel(udev_ctx, devnode + '1');
-    const auto label2 = udv::getBlockLabel(udev_ctx, devnode + '2');
+    const auto vendor = tobas::udv::getPropertyValue(disk, "ID_VENDOR");
+    const auto model = tobas::udv::getPropertyValue(disk, "ID_MODEL");
+    const auto label1 = tobas::udv::getBlockLabel(udev_ctx, devnode + '1');
+    const auto label2 = tobas::udv::getBlockLabel(udev_ctx, devnode + '2');
     if (vendor.empty() || model.empty() || label1.empty() || label2.empty()) {
       udev_device_unref(disk);
       continue;

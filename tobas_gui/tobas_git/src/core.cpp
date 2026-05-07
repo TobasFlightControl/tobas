@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_git/core.hpp"
 
 #include <iostream>
 
 #include <git2.h>
 
+namespace tobas
+{
 namespace git
 {
 std::string getGitConfigValue(const char* key)
@@ -34,3 +39,4 @@ std::string getGitConfigValue(const char* key)
   return value;
 }
 }  // namespace git
+}  // namespace tobas

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_sensor_calibration/mag_calibration/complete/complete.hpp"
 
 #include <iostream>
@@ -30,6 +33,8 @@
 #include "tobas_sensor_calibration/constants.hpp"
 #include "tobas_sensor_calibration/util.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sc
@@ -69,7 +74,7 @@ CompleteMagCalibWidget::CompleteMagCalibWidget(rclcpp::Node::SharedPtr node, con
 
   // 固定フレームを設定
   // TFが出ているフレームでなければならない
-  rviz_manager_.setFixedFrame(tobas::frame::kWorld);
+  rviz_manager_.setFixedFrame(frame::kWorld);
 
   const auto point_stamped_displays = rviz_manager_.getDisplays("PointStamped");
   TOBAS_CHECK(point_stamped_displays.size() == 1);
@@ -443,7 +448,7 @@ bool CompleteMagCalibWidget::updateRemoteParameters(const Eigen::Vector3d& hard_
 
   // パラメータを更新
   ros2::SyncServiceClient<tobas_real_msgs::srv::SetMagnetometerParams> sc(
-    node_, path::join(ns_, tobas::kRemoteIfaceNS, real::handler::mag::kSetParamSrv));
+    node_, path::join(ns_, kRemoteIfaceNS, real::handler::mag::kSetParamSrv));
   if (!sc.call(req, kSetParamTimeout)) {
     qt::qErrorBox(this, "Failed to send calibration results.");
     return false;
@@ -470,9 +475,9 @@ void CompleteMagCalibWidget::displayPointClouds(const eigen::Ellipsoid& ellipsoi
   removed_points->header.stamp = cur_time;
   calibrated_points->header.stamp = cur_time;
 
-  used_points->header.frame_id = tobas::frame::kWorld;
-  removed_points->header.frame_id = tobas::frame::kWorld;
-  calibrated_points->header.frame_id = tobas::frame::kWorld;
+  used_points->header.frame_id = frame::kWorld;
+  removed_points->header.frame_id = frame::kWorld;
+  calibrated_points->header.frame_id = frame::kWorld;
 
   for (int pi = 0; pi < cnt_; ++pi) {
     const auto& p_raw = buf_.at(pi).data;
@@ -502,7 +507,7 @@ void CompleteMagCalibWidget::displayEllipsoidWireFrame(const eigen::Ellipsoid& e
 
   visualization_msgs::msg::Marker marker;
   marker.header.stamp = node_->now();
-  marker.header.frame_id = tobas::frame::kWorld;
+  marker.header.frame_id = frame::kWorld;
   marker.id = 0;
   marker.type = visualization_msgs::msg::Marker::LINE_STRIP;
   marker.action = visualization_msgs::msg::Marker::ADD;
@@ -517,9 +522,9 @@ void CompleteMagCalibWidget::displayEllipsoidWireFrame(const eigen::Ellipsoid& e
   for (int theta_deg = -90; theta_deg < 90; theta_deg += kEllipsoidLineStep) {
     marker.points.clear();
 
-    const auto theta = tbs::deg2rad(theta_deg);
+    const auto theta = st::deg2rad(theta_deg);
     for (int phi_deg = 0; phi_deg <= 360; ++phi_deg) {
-      const auto phi = tbs::deg2rad(phi_deg);
+      const auto phi = st::deg2rad(phi_deg);
       addEllipsoidPoint(theta, phi, ellipsoid, marker.points);
     }
 
@@ -531,9 +536,9 @@ void CompleteMagCalibWidget::displayEllipsoidWireFrame(const eigen::Ellipsoid& e
   for (int phi_deg = 0; phi_deg < 360; phi_deg += kEllipsoidLineStep) {
     marker.points.clear();
 
-    const auto phi = tbs::deg2rad(phi_deg);
+    const auto phi = st::deg2rad(phi_deg);
     for (int theta_deg = -90; theta_deg <= 90; ++theta_deg) {
-      const auto theta = tbs::deg2rad(theta_deg);
+      const auto theta = st::deg2rad(theta_deg);
       addEllipsoidPoint(theta, phi, ellipsoid, marker.points);
     }
 
@@ -589,7 +594,7 @@ void CompleteMagCalibWidget::onStartButtonClicked()
   cancel_button_->setEnabled(true);
 
   running_ = true;
-  qt::qInfoBox(this, "Magnetometer calibration is started.");
+  qt::qInfoBox(this, "Magnetometer calibration started.");
 }
 
 void CompleteMagCalibWidget::onCancelButtonClicked()
@@ -597,7 +602,7 @@ void CompleteMagCalibWidget::onCancelButtonClicked()
   resetToPreStart();
   clearDisplayPoints();
 
-  qt::qInfoBox(this, "Magnetometer calibration is cancelled.");
+  qt::qInfoBox(this, "Magnetometer calibration was canceled.");
 }
 
 void CompleteMagCalibWidget::onFinishButtonClicked()
@@ -703,7 +708,7 @@ void CompleteMagCalibWidget::magCb(const tobas_msgs::MagneticField::ConstSharedP
   // 表示用メッセージを発行
   auto point_msg = std::make_unique<geometry_msgs::msg::PointStamped>();
   point_msg->header = msg->header;
-  point_msg->header.frame_id = tobas::frame::kWorld;  // Rvizの設定の"Global Options/Fixed Frame"と一致させる
+  point_msg->header.frame_id = frame::kWorld;  // Rvizの設定の"Global Options/Fixed Frame"と一致させる
   kdl::pointKDLToMsg(msg->mag * kRvizPointScale, point_msg->point);
   samples_pub_->publish(std::move(point_msg));
 
@@ -752,7 +757,7 @@ void CompleteMagCalibWidget::magCb(const tobas_msgs::MagneticField::ConstSharedP
     progress_bar_->setValue(static_cast<int>(total_progress * 100.));
 
     // 全ての面のデータが十分に溜まったらFinishボタンを有効化
-    if (tbs::allEqual(completed_, true)) {
+    if (st::allEqual(completed_, true)) {
       finish_button_->setEnabled(true);
       progress_bar_->setValue(100);
     }
@@ -776,3 +781,4 @@ void CompleteMagCalibWidget::odomCb(const tobas_msgs::OdometryWithCovarianceStam
 }
 }  // namespace sc
 }  // namespace gui
+}  // namespace tobas

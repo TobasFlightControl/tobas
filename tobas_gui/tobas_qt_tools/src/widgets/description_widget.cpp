@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_qt_tools/widgets/description_widget.hpp"
 
 #include "tobas_qt_tools/font.hpp"
 
+namespace tobas
+{
 namespace qt
 {
 DescriptionWidget::DescriptionWidget(const QString& text, int point_size, QWidget* parent) : super(text, parent)
@@ -12,3 +17,4 @@ DescriptionWidget::DescriptionWidget(const QString& text, int point_size, QWidge
   setOpenExternalLinks(true);
 }
 }  // namespace qt
+}  // namespace tobas

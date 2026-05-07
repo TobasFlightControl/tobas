@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <rclcpp/type_adapter.hpp>
@@ -25,6 +28,7 @@ struct rclcpp::TypeAdapter<tobas::IceRotorConfig, tobas_drone_msgs::msg::IceRoto
 
     dst.gear_ratio = src.gear_ratio;
     tobas_std_msgs::RangeFloat64Adapter::convert_to_ros_message(src.pitch_limit, dst.pitch_limit);
+    dst.center_pitch = src.center_pitch;
     tobas_drone_msgs::VppMotorConstantAdapter::convert_to_ros_message(src.motor_const, dst.motor_const);
     tobas_drone_msgs::VppMomentConstantAdapter::convert_to_ros_message(src.moment_const, dst.moment_const);
     dst.hw_iface = static_cast<uint8_t>(src.hw_iface);
@@ -36,6 +40,7 @@ struct rclcpp::TypeAdapter<tobas::IceRotorConfig, tobas_drone_msgs::msg::IceRoto
 
     dst.gear_ratio = src.gear_ratio;
     tobas_std_msgs::RangeFloat64Adapter::convert_to_custom(src.pitch_limit, dst.pitch_limit);
+    dst.center_pitch = src.center_pitch;
     tobas_drone_msgs::VppMotorConstantAdapter::convert_to_custom(src.motor_const, dst.motor_const);
     tobas_drone_msgs::VppMomentConstantAdapter::convert_to_custom(src.moment_const, dst.moment_const);
     dst.hw_iface = static_cast<tobas::HardwareInterface>(src.hw_iface);

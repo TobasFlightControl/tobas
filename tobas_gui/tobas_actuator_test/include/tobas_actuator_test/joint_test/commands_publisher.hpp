@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <QPushButton>
@@ -14,6 +17,8 @@
 
 #include <tobas_msgs/msg/joint_command_array.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace at
@@ -30,19 +35,22 @@ class JointCommandsPublisherWidget : public QWidget
   static constexpr double kDefaultMaxEff = 10.;    // [Nm]
 
 public:
-  explicit JointCommandsPublisherWidget(rclcpp::Node::SharedPtr node, const kdl::Tree& tree, const tobas::Drone& drone);
+  explicit JointCommandsPublisherWidget(rclcpp::Node::SharedPtr node, const kdl::Tree& tree, const Drone& drone);
 
   void updateInternalDataStructures();
 
   void start();
   void stop();
 
+  void setZero();
+  void setHome();
+
   size_t numRegisteredChannels() const;
 
 private:
   const rclcpp::Node::SharedPtr node_;
   const kdl::Tree& tree_;
-  const tobas::Drone& drone_;
+  const Drone& drone_;
 
   kdl::TreeJointParser joint_parser_;
 
@@ -64,3 +72,4 @@ private Q_SLOTS:
 };
 }  // namespace at
 }  // namespace gui
+}  // namespace tobas

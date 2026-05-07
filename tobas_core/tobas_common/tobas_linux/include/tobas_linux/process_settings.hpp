@@ -1,8 +1,13 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <cstddef>
 #include <cstdint>
 
+namespace tobas
+{
 namespace linux
 {
 class ProcessSettings
@@ -26,3 +31,4 @@ private:
   size_t lock_memory_size_mb_ = 0;  // Memory size to lock in Megabytes
 };
 }  // namespace linux
+}  // namespace tobas

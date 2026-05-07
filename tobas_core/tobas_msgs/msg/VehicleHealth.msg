@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (C) 2026 Tobas, Inc.
+
 std_msgs/Header header
 
 bool ok
@@ -16,6 +19,7 @@ uint8 heading_accuracy
 uint8 mag_offset
 uint8 mag_alignment
 uint8 vibration_level
+uint8 user_defined_condition
 
 uint8 PASSED = 0
 uint8 FAILED = 1

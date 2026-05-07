@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <algorithm>
@@ -12,7 +15,7 @@
 
 namespace std
 {
-/* std::vectorのコンソール出力 */
+/* `std::vector`のコンソール出力 */
 template <typename T>
 std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec)
 {
@@ -33,7 +36,9 @@ std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec)
 }
 }  // namespace std
 
-namespace tbs
+namespace tobas
+{
+namespace st
 {
 /* Naive Summation． The worst-case round-off error scales with O(nε). */
 template <typename T>
@@ -166,7 +171,7 @@ inline T average(const std::vector<T>& vec)
   return average(vec, std::vector<double>(vec.size(), 1.));
 }
 
-/* \a std::vector から要素のインデックスを取得する． */
+/* `std::vector`から要素のインデックスを取得する． */
 template <typename T>
 ssize_t findIndex(const std::vector<T>& vec, const T& item)
 {
@@ -290,7 +295,7 @@ inline bool allOf(const std::vector<T>& vec, const Lambda& lambda)
   return all_of(vec.begin(), vec.end(), lambda);
 }
 
-/* 2つのstd::vectorをマージする． */
+/* 2つの`std::vector`をマージする． */
 template <typename T>
 std::vector<T> merge(const std::vector<T>& vec1, const std::vector<T>& vec2)
 {
@@ -319,4 +324,5 @@ void eraseIndex(std::vector<T>& vec, size_t idx)
   assert(idx < vec.size());
   vec.erase(vec.begin() + static_cast<std::ptrdiff_t>(idx));
 }
-}  // namespace tbs
+}  // namespace st
+}  // namespace tobas

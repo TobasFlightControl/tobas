@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <QDialog>
@@ -6,6 +9,8 @@
 
 #include "./command_type.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -31,3 +36,4 @@ private Q_SLOTS:
 };
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

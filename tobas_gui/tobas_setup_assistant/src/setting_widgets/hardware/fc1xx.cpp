@@ -1,137 +1,156 @@
-#include "tobas_setup_assistant/setting_tabs/hardware/fc1xx.hpp"
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
 
-#include <QVBoxLayout>
+#include "tobas_setup_assistant/setting_tabs/hardware/fc1xx.hpp"
 
 #include <tobas_std_tools/universal_constants.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
 {
 namespace hw
 {
-T1Widget::T1Widget()
+FC1xxWidget::FC1xxWidget()
 {
 }
 
-const char* T1Widget::name() const
+const char* FC1xxWidget::name() const
 {
   return "Tobas FC1xx";
 }
 
-YAML::Node T1Widget::dump() const
+YAML::Node FC1xxWidget::dump() const
 {
   return YAML::Node(YAML::NodeType::Map);
 }
 
-void T1Widget::load(const YAML::Node&)
+void FC1xxWidget::load(const YAML::Node&)
 {
 }
 
-bool T1Widget::isValid()
+bool FC1xxWidget::isValid()
 {
   return true;
 }
 
-const char* T1Widget::hardwarePackage() const
+const char* FC1xxWidget::hardwarePackage() const
 {
   return "tobas_fc1xx_ros";
 }
 
-int T1Widget::imuUpdateRate() const
+int FC1xxWidget::imuUpdateRate() const
 {
-  return 400;
+  return 800;
 }
 
-double T1Widget::gyroNoiseDensity() const
+double FC1xxWidget::gyroNoiseDensity() const
 {
-  return 0.011 * tbs::kDeg2Rad;  // ISM330DLC
+  return 0.011 * st::kDeg2Rad;  // ISM330DLC
 }
 
-double T1Widget::gyroRandomWalk() const
+double FC1xxWidget::gyroRandomWalk() const
 {
   return 0.;  // TODO
 }
 
-int T1Widget::gyroBiasCorrTime() const
+int FC1xxWidget::gyroBiasCorrTime() const
 {
   return 1000;  // TODO
 }
 
-double T1Widget::accNoiseDensity() const
+double FC1xxWidget::accNoiseDensity() const
 {
-  return 1.7e-4 * tbs::kGravity;  // ISM330DLC
+  return 1.7e-4 * st::kGravity;  // ISM330DLC
 }
 
-double T1Widget::accRandomWalk() const
+double FC1xxWidget::accRandomWalk() const
 {
   return 0.;  // TODO
 }
 
-int T1Widget::accBiasCorrTime() const
+int FC1xxWidget::accBiasCorrTime() const
 {
   return 300;  // TODO
 }
 
-int T1Widget::magUpdateRate() const
+int FC1xxWidget::magUpdateRate() const
 {
   return 50;
 }
 
-double T1Widget::magNoiseStddev() const
+double FC1xxWidget::magNoiseStddev() const
 {
   return 4.6e-3;  // IIS2MDC
 }
 
-double T1Widget::magHardBiasNorm() const
+double FC1xxWidget::magHardBiasNorm() const
 {
   return 0.03;  // IIS2MDCの最大値は6000nTだが，キャリブレーションを前提としてそれより低めに設定．
 }
 
-int T1Widget::presUpdateRate() const
+int FC1xxWidget::presUpdateRate() const
 {
   return 50;
 }
 
-double T1Widget::presNoiseStddev() const
+double FC1xxWidget::presNoiseStddev() const
 {
   return 1.16;  // ILPS22QS (Table 23: FS = 1260, AVG = 32, ODR/4)
 }
 
-int T1Widget::gnssUpdateRate() const
+int FC1xxWidget::gnssUpdateRate() const
 {
   return 20;
 }
 
-double T1Widget::gnssHorizontalPositionAccuracy() const
+double FC1xxWidget::gnssHorizontalPositionAccuracy() const
 {
   return 5.;  // 一般的な単独測位の精度
 }
 
-double T1Widget::gnssVerticalPositionAccuracy() const
+double FC1xxWidget::gnssVerticalPositionAccuracy() const
 {
   return 10.;  // 一般的な単独測位の精度
 }
 
-double T1Widget::gnssHorizontalVelocityStddev() const
+double FC1xxWidget::gnssHorizontalVelocityStddev() const
 {
   return 0.05;  // FIXME: 精度 (Accuracy) と標準偏差は異なる
 }
 
-double T1Widget::gnssVerticalVelocityStddev() const
+double FC1xxWidget::gnssVerticalVelocityStddev() const
 {
   return 0.05;  // FIXME: 精度 (Accuracy) と標準偏差は異なる
 }
 
-int T1Widget::numPwmChannels() const
+int FC1xxWidget::numPwmChannels() const
 {
   return 8;
 }
 
-int T1Widget::numDShotChannels() const
+int FC1xxWidget::numDShotChannels() const
 {
   return 8;
+}
+
+int FC1xxWidget::defaultAccelLpfCutoff() const
+{
+  return 30;
+}
+
+int FC1xxWidget::defaultGyroLpfCutoff() const
+{
+  return 40;
+}
+
+int FC1xxWidget::defaultDGyroLpfCutoff() const
+{
+  return 20;
 }
 }  // namespace hw
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

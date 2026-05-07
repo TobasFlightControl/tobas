@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_keyboard/utils.hpp"
 
 #include <X11/XKBlib.h>  // ヘッダでインクルードすると#defineが衝突する恐れあり
 
+namespace tobas
+{
 namespace keyboard
 {
 XkbControlsPtr getKeyboardControls()
@@ -36,3 +41,4 @@ std::expected<uint16_t, const char*> getKeyboardRepeatInterval()
   return keyboard->repeat_interval;
 }
 }  // namespace keyboard
+}  // namespace tobas

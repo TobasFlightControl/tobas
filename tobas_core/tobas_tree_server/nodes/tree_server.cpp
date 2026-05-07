@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include <tobas_constants/ros_interface.hpp>
 #include <tobas_kdl_parser/kdl_parser.hpp>
 #include <tobas_node/node.hpp>
@@ -8,10 +11,12 @@
 
 using namespace std::chrono_literals;
 
-class TreeServerNode : public tobas::BaseNode
+namespace tobas
+{
+class TreeServerNode : public BaseNode
 {
   using self = TreeServerNode;
-  using super = tobas::BaseNode;
+  using super = BaseNode;
 
 public:
   explicit TreeServerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -44,8 +49,8 @@ void TreeServerNode::publishTree()
 
 void TreeServerNode::initializeTimerCb()
 {
-  tree_pub_ = createPublisher<kdl::Tree>(tobas::topic::kKdlTree, true, true);
-  description_sub_ = createSubscriber(tobas::topic::kRobotDescription, &self::descriptionCb, this, true, true);
+  tree_pub_ = createPublisher<kdl::Tree>(topic::kKdlTree, true, true);
+  description_sub_ = createSubscriber(topic::kRobotDescription, &self::descriptionCb, this, true, true);
 
   initialize_timer_->cancel();
 }
@@ -67,5 +72,6 @@ void TreeServerNode::descriptionCb(const std_msgs::msg::String::ConstSharedPtr& 
 
   publishTree();
 }
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(TreeServerNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::TreeServerNode)

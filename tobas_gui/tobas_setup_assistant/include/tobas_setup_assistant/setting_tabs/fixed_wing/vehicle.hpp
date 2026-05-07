@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <yaml-cpp/yaml.h>
@@ -8,6 +11,8 @@
 #include "tobas_setup_assistant/param_getters/double_spin_box.hpp"
 #include "tobas_setup_assistant/param_getters/vector3d.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -34,7 +39,7 @@ public:
   double wingSpan() const;
   double mac() const;
   Eigen::Vector3d aerodynamicCenter() const;
-  tbs::Range<double> alphaLimit() const;
+  st::Range<double> alphaLimit() const;
 
 private:
   ParamGetterWidget_DoubleSpinBox* wing_surface_;
@@ -46,3 +51,4 @@ private:
 }  // namespace fw
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

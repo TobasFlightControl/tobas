@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_gui_common/ssh_config.hpp"
 
 #include <tobas_yaml_tools/core.hpp>
 
 namespace fs = std::filesystem;
 
+namespace tobas
+{
 namespace gui
 {
 namespace cmn
@@ -41,3 +46,4 @@ bool SshConfig::save(const fs::path& path) const
 }
 }  // namespace cmn
 }  // namespace gui
+}  // namespace tobas

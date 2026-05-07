@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <vector>
@@ -6,6 +9,8 @@
 
 #include "./equations.hpp"
 
+namespace tobas
+{
 namespace ctrl
 {
 /**
@@ -80,3 +85,4 @@ double firstOrderPos(const double& x0, const double& xd, const double& tau, cons
  */
 double firstOrderVel(const double& x0, const double& v0, const double& vd, const double& tau, const double& t);
 }  // namespace ctrl
+}  // namespace tobas

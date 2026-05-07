@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <tobas_eigen_tools/core.hpp>
 
+namespace tobas
+{
 namespace ctrl
 {
 class LinearEquation
@@ -84,3 +89,4 @@ inline Eigen::Index LinearEquation::equationSize() const
   return A.rows();
 }
 }  // namespace ctrl
+}  // namespace tobas

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include <tobas_constants/ros_interface.hpp>
 #include <tobas_constants/time.hpp>
 #include <tobas_kdl/tree_joint_parser.hpp>
@@ -9,20 +12,24 @@
 #include <tobas_msgs/msg/joint_state_array.hpp>
 #include <tobas_msgs/msg/pwm_array.hpp>
 
+namespace tobas
+{
+namespace real
+{
 /**
  * @brief ジョイントの位置，速度，力のコマンドを受け取り，適切なハードウェアインターフェースに指令する．
  * また，そのジョイントの状態を発行する．
  */
-class JointsHandlerNode : public tobas::BaseNode
+class JointsHandlerNode : public BaseNode
 {
   using self = JointsHandlerNode;
-  using super = tobas::BaseNode;
+  using super = BaseNode;
 
 public:
   explicit JointsHandlerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  tobas::Drone::ConstSharedPtr drone_;
+  Drone::ConstSharedPtr drone_;
 
   bool pos_commanded_ = false;
   bool vel_commanded_ = false;
@@ -31,7 +38,7 @@ private:
   ros2::PublisherPtr<tobas_msgs::msg::PwmArray> pwms_pub_;
   ros2::PublisherPtr<tobas_msgs::msg::JointStateArray> joint_states_pub_;
 
-  ros2::SubscriberPtr<tobas::Drone> drone_sub_;
+  ros2::SubscriberPtr<Drone> drone_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::JointCommandArray> positions_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::JointCommandArray> velocities_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::JointCommandArray> efforts_sub_;
@@ -40,9 +47,9 @@ private:
   ros2::TimerPtr vel_reset_timer_;
   ros2::TimerPtr eff_reset_timer_;
 
-  double pwmPeriodFromJointPos(const tobas::PwmConfig& pwm, double cmd_pos);
+  double pwmPeriodFromJointPos(const PwmConfig& pwm, double cmd_pos);
 
-  void droneCb(const tobas::Drone::ConstSharedPtr& drone);
+  void droneCb(const Drone::ConstSharedPtr& drone);
   void jointPositionsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& positions);
   void jointVelocitiesCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& velocities);
   void jointEffortsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& efforts);
@@ -55,26 +62,26 @@ private:
 JointsHandlerNode::JointsHandlerNode(const rclcpp::NodeOptions& options)
   : super("real_joints_handler", nodeOptions_Default(options))
 {
-  pwms_pub_ = createPublisher<tobas_msgs::msg::PwmArray>(tobas::topic::kPwmCmd);
-  joint_states_pub_ = createPublisher<tobas_msgs::msg::JointStateArray>(tobas::topic::kJointStates);
+  pwms_pub_ = createPublisher<tobas_msgs::msg::PwmArray>(topic::kPwmCmd);
+  joint_states_pub_ = createPublisher<tobas_msgs::msg::JointStateArray>(topic::kJointStates);
 
-  drone_sub_ = createSubscriber(tobas::topic::kDrone, &self::droneCb, this, true, true);
-  positions_sub_ = createSubscriber(tobas::topic::kJointPosCmd, &self::jointPositionsCmdCb, this);
-  velocities_sub_ = createSubscriber(tobas::topic::kJointVelCmd, &self::jointVelocitiesCmdCb, this);
-  efforts_sub_ = createSubscriber(tobas::topic::kJointEffCmd, &self::jointEffortsCmdCb, this);
+  drone_sub_ = createSubscriber(topic::kDrone, &self::droneCb, this, true, true);
+  positions_sub_ = createSubscriber(topic::kJointPosCmd, &self::jointPositionsCmdCb, this);
+  velocities_sub_ = createSubscriber(topic::kJointVelCmd, &self::jointVelocitiesCmdCb, this);
+  efforts_sub_ = createSubscriber(topic::kJointEffCmd, &self::jointEffortsCmdCb, this);
 
-  pos_reset_timer_ = createWallTimer(tobas::kCommandAutoResetTimeout, &self::positionResetTimerCb, this, false);
-  vel_reset_timer_ = createWallTimer(tobas::kCommandAutoResetTimeout, &self::velocityResetTimerCb, this, false);
-  eff_reset_timer_ = createWallTimer(tobas::kCommandAutoResetTimeout, &self::effortResetTimerCb, this, false);
+  pos_reset_timer_ = createWallTimer(kCommandAutoResetTimeout, &self::positionResetTimerCb, this, false);
+  vel_reset_timer_ = createWallTimer(kCommandAutoResetTimeout, &self::velocityResetTimerCb, this, false);
+  eff_reset_timer_ = createWallTimer(kCommandAutoResetTimeout, &self::effortResetTimerCb, this, false);
 }
 
-double JointsHandlerNode::pwmPeriodFromJointPos(const tobas::PwmConfig& pwm, double cmd_pos)
+double JointsHandlerNode::pwmPeriodFromJointPos(const PwmConfig& pwm, double cmd_pos)
 {
   cmd_pos = std::clamp(cmd_pos, pwm.value_range.first, pwm.value_range.second);
   return pwm.periodFromValue(cmd_pos);
 }
 
-void JointsHandlerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
+void JointsHandlerNode::droneCb(const Drone::ConstSharedPtr& drone)
 {
   drone_ = drone;
 
@@ -85,16 +92,16 @@ void JointsHandlerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 
   for (const auto& [_, joint] : drone_->joints) {
     switch (joint.cmd_iface) {
-      case tobas::JointCommandInterface::kPosition:
+      case JointCommandInterface::kPosition:
         has_pos = true;
         break;
-      case tobas::JointCommandInterface::kVelocity:
+      case JointCommandInterface::kVelocity:
         has_vel = true;
         break;
-      case tobas::JointCommandInterface::kEffort:
+      case JointCommandInterface::kEffort:
         has_eff = true;
         break;
-      case tobas::JointCommandInterface::kNone:
+      case JointCommandInterface::kNone:
         break;
       default:
         TOBAS_ERROR("Invalid joint command interface.");
@@ -148,7 +155,7 @@ void JointsHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCommandA
 
     // Fill commands
     switch (joint.hw_iface) {
-      case tobas::HardwareInterface::kPwm: {
+      case HardwareInterface::kPwm: {
         const auto& pwm_cfg = drone_->pwms.at(joint.name);
 
         pwms->pwms.emplace_back();
@@ -163,7 +170,7 @@ void JointsHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCommandA
 
         break;
       }
-      case tobas::HardwareInterface::kOther: {
+      case HardwareInterface::kOther: {
         break;
       }
       default: {
@@ -225,13 +232,13 @@ void JointsHandlerNode::positionResetTimerCb()
       continue;
     }
 
-    if (joint.cmd_iface != tobas::JointCommandInterface::kPosition) {
+    if (joint.cmd_iface != JointCommandInterface::kPosition) {
       continue;
     }
 
     // Fill commands
     switch (joint.hw_iface) {
-      case tobas::HardwareInterface::kPwm: {
+      case HardwareInterface::kPwm: {
         const auto& pwm_cfg = drone_->pwms.at(joint.name);
 
         pwms->pwms.emplace_back();
@@ -246,7 +253,7 @@ void JointsHandlerNode::positionResetTimerCb()
 
         break;
       }
-      case tobas::HardwareInterface::kOther: {
+      case HardwareInterface::kOther: {
         break;
       }
       default: {
@@ -271,7 +278,7 @@ void JointsHandlerNode::positionResetTimerCb()
     pos_commanded_ = false;
     TOBAS_WARN(
       "All joints with position command interface are reset to home position because ",
-      tobas::kCommandAutoResetTimeout,
+      kCommandAutoResetTimeout,
       " have elapsed since the last command.");
   }
 }
@@ -285,5 +292,7 @@ void JointsHandlerNode::effortResetTimerCb()
 {
   // TODO
 }
+}  // namespace real
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(JointsHandlerNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::real::JointsHandlerNode)

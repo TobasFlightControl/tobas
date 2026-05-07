@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_urdf/util.hpp"
 
 #include <ament_index_cpp/get_package_share_directory.hpp>
@@ -6,6 +9,8 @@
 
 namespace fs = std::filesystem;
 
+namespace tobas
+{
 namespace urdf
 {
 fs::path resolveURI(const std::string& uri)
@@ -31,3 +36,4 @@ fs::path resolveURI(const std::string& uri)
   }
 }
 }  // namespace urdf
+}  // namespace tobas

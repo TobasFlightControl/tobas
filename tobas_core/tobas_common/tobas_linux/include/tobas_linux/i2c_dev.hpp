@@ -1,8 +1,13 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <cstddef>
 #include <cstdint>
 
+namespace tobas
+{
 namespace linux
 {
 class I2Cdev
@@ -106,3 +111,4 @@ private:
   bool read(size_t length, void* rx);
 };
 }  // namespace linux
+}  // namespace tobas

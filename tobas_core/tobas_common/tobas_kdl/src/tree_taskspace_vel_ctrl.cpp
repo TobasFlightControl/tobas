@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_kdl/tree_taskspace_vel_ctrl.hpp"
 
 using namespace std;
 
+namespace tobas
+{
 namespace kdl
 {
 TreeTaskSpaceVelCtrl::TreeTaskSpaceVelCtrl(const Tree& tree) : super(tree), fk_(tree), ik_(tree)
@@ -88,3 +93,4 @@ bool TreeTaskSpaceVelCtrl::setAngularTimeConst(const double& t)
   return true;
 }
 }  // namespace kdl
+}  // namespace tobas

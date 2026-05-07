@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_fc1xx_core/battery.hpp"
 
 #include <bit>
@@ -5,6 +8,8 @@
 
 using namespace std::chrono_literals;
 
+namespace tobas
+{
 namespace fc1xx
 {
 Battery::Battery()
@@ -40,3 +45,4 @@ bool Battery::read(float& voltage, float& current)
   return true;
 }
 }  // namespace fc1xx
+}  // namespace tobas

@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <eigen3/Eigen/Core>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -25,3 +30,4 @@ double momentConstFromUiuc(const Eigen::VectorXd& cts, const Eigen::VectorXd& cp
 }  // namespace propulsion
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

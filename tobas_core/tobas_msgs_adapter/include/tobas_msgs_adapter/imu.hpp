@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <rclcpp/type_adapter.hpp>
@@ -12,9 +15,9 @@ namespace tobas_msgs
 struct Imu
 {
   std_msgs::msg::Header header;
-  kdl::Vector accel;
-  kdl::Vector gyro;
-  kdl::Vector dgyro;
+  tobas::kdl::Vector accel;
+  tobas::kdl::Vector gyro;
+  tobas::kdl::Vector dgyro;
 
   using SharedPtr = std::shared_ptr<Imu>;
   using ConstSharedPtr = std::shared_ptr<const Imu>;

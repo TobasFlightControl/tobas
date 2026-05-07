@@ -1,5 +1,10 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
+namespace tobas
+{
 namespace traj
 {
 struct TrajectoryPoint
@@ -17,3 +22,4 @@ public:
   virtual double duration() const noexcept = 0;
 };
 }  // namespace traj
+}  // namespace tobas

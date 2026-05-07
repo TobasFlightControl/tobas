@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <eigen3/Eigen/Core>
 
+namespace tobas
+{
 namespace eigen
 {
 /* ZYXオイラー角の変化率をグローバル座標系で表現された角速度に変換する行列を返す． */
@@ -50,3 +55,4 @@ Eigen::Vector3d angaccFromEuleraccLocal(
 Eigen::Vector3d
 angaccFromEuleraccLocal(double roll, double pitch, const Eigen::Vector3d& drpy, const Eigen::Vector3d& ddrpy);
 }  // namespace eigen
+}  // namespace tobas

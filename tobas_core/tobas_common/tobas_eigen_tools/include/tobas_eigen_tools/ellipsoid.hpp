@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <eigen3/Eigen/Core>
 
 #include "./typedef.hpp"
 
+namespace tobas
+{
 namespace eigen
 {
 /* axx x^2 + ayy y^2 + azz z^2 + 2 axy xy + 2 ayz yz + 2 azx zx + bx x + by y + bz z + c = 0 */
@@ -65,3 +70,4 @@ inline Eigen::Vector3d Ellipsoid::toUnitSphere(const Eigen::Vector3d& x) const
   return T_inv_ * (x - b_);
 }
 }  // namespace eigen
+}  // namespace tobas

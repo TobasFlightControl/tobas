@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_qt_tools/widgets/list_widget.hpp"
 
 #include <QDebug>
 #include <QDropEvent>
 #include <QVariant>
 
+namespace tobas
+{
 namespace qt
 {
 bool ListWidget::contains(const QString& text) const
@@ -60,3 +65,4 @@ bool ListWidgetItem::operator<(const QListWidgetItem& rhs) const
   return ldata.toString() < rdata.toString();
 }
 }  // namespace qt
+}  // namespace tobas

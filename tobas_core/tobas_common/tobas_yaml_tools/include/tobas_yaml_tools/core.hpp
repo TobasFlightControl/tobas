@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <expected>
@@ -6,6 +9,8 @@
 
 #include <yaml-cpp/yaml.h>
 
+namespace tobas
+{
 namespace yaml
 {
 template <typename T>
@@ -33,3 +38,4 @@ std::string dump(const YAML::Node& node);
 std::expected<YAML::Node, std::string> load(const std::filesystem::path& path);
 bool save(const std::filesystem::path& path, const YAML::Node& node);
 }  // namespace yaml
+}  // namespace tobas

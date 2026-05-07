@@ -1,5 +1,10 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_qt_tools/widgets/scroll_area.hpp"
 
+namespace tobas
+{
 namespace qt
 {
 ScrollArea::ScrollArea(QWidget* parent) : QScrollArea(parent)
@@ -40,3 +45,4 @@ void ScrollArea::setBackgroundTransparent()
   _widget->setAutoFillBackground(false);
 }
 }  // namespace qt
+}  // namespace tobas

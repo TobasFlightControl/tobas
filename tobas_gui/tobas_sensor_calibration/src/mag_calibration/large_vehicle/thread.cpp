@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_sensor_calibration/mag_calibration/large_vehicle/thread.hpp"
 
 #include <tobas_constants/ros_interface.hpp>
@@ -11,6 +14,8 @@
 
 #include "tobas_sensor_calibration/constants.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sc
@@ -107,7 +112,7 @@ void LargeVehicleMagCalibThread::run()
 
   // パラメータを更新
   ros2::SyncServiceClient<tobas_real_msgs::srv::SetMagnetometerParams> sc(
-    node_, path::join(ns_, tobas::kRemoteIfaceNS, real::handler::mag::kSetParamSrv));
+    node_, path::join(ns_, kRemoteIfaceNS, real::handler::mag::kSetParamSrv));
   if (!sc.call(req, kSetParamTimeout)) {
     Q_EMIT finished(false, "Failed to send calibration results.");
     return;
@@ -166,3 +171,4 @@ void LargeVehicleMagCalibThread::armingCb(const tobas_msgs::msg::Arming::ConstSh
 }
 }  // namespace sc
 }  // namespace gui
+}  // namespace tobas

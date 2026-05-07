@@ -1,8 +1,13 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_trajectory_generation/offline/linear.hpp"
 
 #include <algorithm>
 #include <stdexcept>
 
+namespace tobas
+{
 namespace traj
 {
 LinearSpline::LinearSpline(double p0, double pf, double T) : p0_(p0), T_(T)
@@ -29,3 +34,4 @@ double LinearSpline::duration() const noexcept
   return T_;
 }
 }  // namespace traj
+}  // namespace tobas

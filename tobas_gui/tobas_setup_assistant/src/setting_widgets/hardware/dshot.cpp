@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_setup_assistant/setting_tabs/hardware/dshot.hpp"
 
 #include <ranges>
@@ -11,6 +14,8 @@
 
 #include "tobas_setup_assistant/setting_tabs/hardware/constants.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -162,13 +167,13 @@ void DShotWidget::addLastChannel()
   const auto target_name = new qt::ComboBox();
   target_name->addItem("");  // 未選択
   switch (prop_type_) {
-    case tobas::PropulsionSystem::kElectric: {
+    case PropulsionSystem::kElectric: {
       for (const auto& [joint_name, _] : uadf_.thrusts) {
         target_name->addItem(QString::fromStdString(joint_name));
       }
       break;
     }
-    case tobas::PropulsionSystem::kIce: {
+    case PropulsionSystem::kIce: {
       break;
     }
     default:
@@ -225,7 +230,7 @@ void DShotWidget::setBidirectionalButtonText(QPushButton* button, bool checked)
   }
 }
 
-void DShotWidget::onPropulsionTypeChanged(const tobas::PropulsionSystem& new_prop_type)
+void DShotWidget::onPropulsionTypeChanged(const PropulsionSystem& new_prop_type)
 {
   if (new_prop_type == prop_type_) {
     return;
@@ -233,7 +238,7 @@ void DShotWidget::onPropulsionTypeChanged(const tobas::PropulsionSystem& new_pro
 
   // 前の推進系の不要な選択肢を外す
   switch (prop_type_) {
-    case tobas::PropulsionSystem::kElectric: {
+    case PropulsionSystem::kElectric: {
       for (int channel = 0; channel < rowCount(); ++channel) {
         const auto target_name = targetNameWidget(channel);
 
@@ -246,7 +251,7 @@ void DShotWidget::onPropulsionTypeChanged(const tobas::PropulsionSystem& new_pro
       }
       break;
     }
-    case tobas::PropulsionSystem::kIce: {
+    case PropulsionSystem::kIce: {
       break;
     }
     default:
@@ -255,7 +260,7 @@ void DShotWidget::onPropulsionTypeChanged(const tobas::PropulsionSystem& new_pro
 
   // 新しい推進系の選択肢を追加
   switch (new_prop_type) {
-    case tobas::PropulsionSystem::kElectric: {
+    case PropulsionSystem::kElectric: {
       for (int channel = 0; channel < rowCount(); ++channel) {
         const auto target_name = targetNameWidget(channel);
 
@@ -265,7 +270,7 @@ void DShotWidget::onPropulsionTypeChanged(const tobas::PropulsionSystem& new_pro
       }
       break;
     }
-    case tobas::PropulsionSystem::kIce: {
+    case PropulsionSystem::kIce: {
       break;
     }
     default:
@@ -282,3 +287,4 @@ void DShotWidget::onBidirectionalButtonToggled(QPushButton* button, bool checked
 }  // namespace hw
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

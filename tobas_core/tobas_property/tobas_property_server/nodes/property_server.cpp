@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include <tobas_node/node.hpp>
 #include <tobas_property_common/constants.hpp>
 #include <tobas_property_tree/property_tree.hpp>
@@ -17,12 +20,14 @@
 using namespace std_srvs::srv;
 using namespace tobas_property_msgs::srv;
 
+namespace tobas
+{
 namespace ptree
 {
-class PropertyServer : public tobas::BaseNode
+class PropertyServer : public BaseNode
 {
   using self = PropertyServer;
-  using super = tobas::BaseNode;
+  using super = BaseNode;
 
 public:
   explicit PropertyServer(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -104,5 +109,6 @@ void PropertyServer::saveFileCb(const Trigger::Request::ConstSharedPtr&, const T
   res->message.clear();
 }
 }  // namespace ptree
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(ptree::PropertyServer)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::ptree::PropertyServer)

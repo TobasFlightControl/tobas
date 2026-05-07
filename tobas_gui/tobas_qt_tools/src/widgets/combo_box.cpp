@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_qt_tools/widgets/combo_box.hpp"
 
 #include <QStandardItemModel>
@@ -5,6 +8,8 @@
 
 #include "tobas_qt_tools/cast.hpp"
 
+namespace tobas
+{
 namespace qt
 {
 void ComboBox::wheelEvent(QWheelEvent* event)
@@ -62,3 +67,4 @@ void ComboBox::setItemEnabled(const QString& text, bool enabled)
   setItemEnabled(findText(text), enabled);
 }
 }  // namespace qt
+}  // namespace tobas

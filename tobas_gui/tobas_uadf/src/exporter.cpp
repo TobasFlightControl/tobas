@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_uadf/exporter.hpp"
 
 #include <tobas_urdf/exporter.hpp>
 
+namespace tobas
+{
 namespace uadf
 {
 tinyxml2::XMLDocument* exportUADF(const Model& model)
@@ -46,3 +51,4 @@ tinyxml2::XMLDocument* exportUADF(const Model& model)
   return doc;
 }
 }  // namespace uadf
+}  // namespace tobas

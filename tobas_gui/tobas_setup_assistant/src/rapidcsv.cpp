@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_setup_assistant/rapidcsv.hpp"
 
 namespace fs = std::filesystem;
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -28,3 +33,4 @@ rapidcsv::Document load(const fs::path& path)
 }  // namespace csv
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

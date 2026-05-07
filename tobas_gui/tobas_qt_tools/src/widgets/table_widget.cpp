@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_qt_tools/widgets/table_widget.hpp"
 
 #include <QHeaderView>
 
+namespace tobas
+{
 namespace qt
 {
 void TableWidget::removeAll()
@@ -33,3 +38,4 @@ void TableWidget::setHeaderSectionsClickable(bool clickable)
   verticalHeader()->setSectionsClickable(clickable);
 }
 }  // namespace qt
+}  // namespace tobas

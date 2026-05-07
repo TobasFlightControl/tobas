@@ -1,12 +1,15 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include <iostream>
 
 #include <tobas_ic_drivers/jre30.hpp>
 
 using namespace std;
 
-void onPacket(shared_ptr<const driver::JRE30Packet> _packet)
+void onPacket(shared_ptr<const tobas::driver::JRE30Packet> _packet)
 {
-  const auto packet = dynamic_pointer_cast<const driver::JRE30Packet_A>(_packet);
+  const auto packet = dynamic_pointer_cast<const tobas::driver::JRE30Packet_A>(_packet);
   if (!packet) {
     cerr << "Failed to cast JRE30 packet to type A." << endl;
     return;
@@ -35,7 +38,7 @@ int main(int argc, char** argv)
   }
   const auto device = argv[1];
 
-  driver::JRE30 jre30(&onPacket);
+  tobas::driver::JRE30 jre30(&onPacket);
 
   if (!jre30.initialize(device)) {
     cerr << "Failed to initialize JRE30 driver." << endl;

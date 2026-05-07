@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include <tobas_constants/ros_interface.hpp>
 #include <tobas_constants/throttle.hpp>
 #include <tobas_gazebo_common/constants.hpp>
@@ -22,6 +25,8 @@
 
 namespace ch = std::chrono;
 
+namespace tobas
+{
 namespace gazebo
 {
 /* Simulates engine and propellers. */
@@ -208,8 +213,8 @@ void GazeboIcePropulsionSystemPlugin::getSdfParams(const sdf::ElementConstPtr& s
 
 void GazeboIcePropulsionSystemPlugin::registerPubSub()
 {
-  latency_pub_ = createPublisher<tobas_msgs::msg::Latency>(tobas::topic::kControlLatency);
-  engine_state_pub_ = createPublisher<tobas_msgs::msg::EngineState>(tobas::topic::kEngineState);
+  latency_pub_ = createPublisher<tobas_msgs::msg::Latency>(topic::kControlLatency);
+  engine_state_pub_ = createPublisher<tobas_msgs::msg::EngineState>(topic::kEngineState);
   engine_state_gt_pub_ = createPublisher<tobas_gazebo_msgs::msg::EngineState>(kEngineStateGtTopic);
 
   for (auto& [link_name, _] : rotors_) {
@@ -219,7 +224,7 @@ void GazeboIcePropulsionSystemPlugin::registerPubSub()
       createPublisher<tobas_gazebo_msgs::msg::RotorState>(path::join(kRotorStateGtTopicNS, link_name));
   }
 
-  ice_cmd_sub_ = createSubscriber(tobas::topic::kIcePropulsionSystemCmd, &self::iceCommandCb, this);
+  ice_cmd_sub_ = createSubscriber(topic::kIcePropulsionSystemCmd, &self::iceCommandCb, this);
   wind_gt_sub_ = createSubscriber(gazebo::kWindGtTopic, &self::windSpeedGtCb, this);
 }
 
@@ -236,7 +241,7 @@ void GazeboIcePropulsionSystemPlugin::iceCommandCb(
     engine_.setThrottle(engine_throt);
     return;
   }
-  if (engine_throt < tobas::kMinThrot - kThrotLimitMargin || tobas::kMaxThrot + kThrotLimitMargin < engine_throt) {
+  if (engine_throt < kMinThrot - kThrotLimitMargin || kMaxThrot + kThrotLimitMargin < engine_throt) {
     TOBAS_WARN("The commanded engine throttle is out of range: ", engine_throt);
   }
   engine_.setThrottle(engine_throt);
@@ -267,10 +272,11 @@ void GazeboIcePropulsionSystemPlugin::windSpeedGtCb(const tobas_msgs::Wind::Cons
   vectorKDLToGazebo(wind_gt->vel, wind_vel_W_);
 }
 }  // namespace gazebo
+}  // namespace tobas
 
 GZ_ADD_PLUGIN(
-  gazebo::GazeboIcePropulsionSystemPlugin,
+  tobas::gazebo::GazeboIcePropulsionSystemPlugin,
   gz::sim::System,
-  gazebo::GazeboIcePropulsionSystemPlugin::ISystemConfigure,
-  gazebo::GazeboIcePropulsionSystemPlugin::ISystemPreUpdate,
-  gazebo::GazeboIcePropulsionSystemPlugin::ISystemPostUpdate)
+  gz::sim::ISystemConfigure,
+  gz::sim::ISystemPreUpdate,
+  gz::sim::ISystemPostUpdate)

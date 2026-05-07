@@ -1,8 +1,13 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/battery/other.hpp"
 
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_yaml_tools/format.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -82,7 +87,7 @@ YAML::Node BatteryWidget_Other::dump() const
   node[nominal_voltage_->name()] = yaml::format(nominal_voltage_->getValue());
   node[max_voltage_->name()] = yaml::format(max_voltage_->getValue());
   node[sag_voltage_->name()] = yaml::format(sag_voltage_->getValue());
-  node[max_current_->name()] = yaml::format(max_current_->getValue());
+  node[max_current_->name()] = max_current_->getValue();
   node[capacity_->name()] = capacity_->getValue();
   node[registance_->name()] = registance_->getValue();
 
@@ -132,3 +137,4 @@ double BatteryWidget_Other::internalRegistance()
 }  // namespace propulsion
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

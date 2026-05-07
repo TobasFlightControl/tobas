@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <tobas_eigen_tools/core.hpp>
 
 #include "./util.hpp"
 
+namespace tobas
+{
 namespace ctrl
 {
 class LinearDynamics
@@ -216,3 +221,4 @@ inline bool LinearStateSpace::isObservable() const
   return ctrl::isObservable(A, C);
 }
 }  // namespace ctrl
+}  // namespace tobas

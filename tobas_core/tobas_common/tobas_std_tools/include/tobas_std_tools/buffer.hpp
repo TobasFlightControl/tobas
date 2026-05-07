@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <cassert>
@@ -6,7 +9,9 @@
 
 #include "./assert.hpp"
 
-namespace tbs
+namespace tobas
+{
+namespace st
 {
 template <typename T>
 class Buffer
@@ -110,4 +115,5 @@ inline const T& Buffer<T>::getOldest() const
   assert(cur_ > 0);
   return isFull() ? get(cur_ % max_size_) : get(0);
 }
-}  // namespace tbs
+}  // namespace st
+}  // namespace tobas

@@ -1,11 +1,13 @@
-#include "tobas_setup_assistant/setup_assistant.hpp"
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
 
-#include <filesystem>
+#include "tobas_setup_assistant/setup_assistant.hpp"
 
 #include <QDebug>
 #include <ament_index_cpp/get_package_share_directory.hpp>
 
 #include <tobas_constants/path.hpp>
+#include <tobas_gui_common/colcon.hpp>
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_gui_common/load_project_dialog.hpp>
 #include <tobas_gui_common/project_paths.hpp>
@@ -26,6 +28,8 @@
 
 namespace fs = std::filesystem;
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -35,6 +39,7 @@ SetupAssistantWidget::SetupAssistantWidget(rclcpp::Node::SharedPtr node)
   , axis_solver_(tree_)
   , property_client_(node, "tobas_setup_assistant/setup_assistant")
   , rsp_client_(node, "robot_state_publisher")
+  , spinner_(Qt::WindowModal, this)
   , rotor_marker_publisher_(node, uadf_)
 {
   // ワークスペースの install ディレクトリをそのままパスに追加するために --merge-install が必要
@@ -387,10 +392,11 @@ void SetupAssistantWidget::onNewButtonClicked()
       return;
     }
 
-    const auto ws_path = ros2::expandUser(tobas::kColconWSPathHome);
-
     qInfo().nospace() << "UADF is in ROS package " << QString::fromStdString(pkg_name.value()) << ". Building it.";
-    if (!colcon_.build(pkg_path.value(), ws_path)) {
+    spinner_.start();
+    const auto build_success = cmn::colconBuild(colcon_, pkg_path.value(), ros2::expandUser(kColconWSPathHome));
+    spinner_.stop();
+    if (!build_success) {
       qt::qErrorBox(
         this,
         "Failed to build \"" + QString::fromStdString(pkg_name.value()) + "\":\n\n" +
@@ -455,7 +461,7 @@ void SetupAssistantWidget::onLoadButtonClicked()
   std::string last_opened_dir;
   if (property_client_.get(kLastOpenedDirKey_Load, last_opened_dir) < 0) {
     qWarning() << property_client_.errorMessage();
-    last_opened_dir = ros2::expandUser(tobas::kColconWSPathHome) / "src";
+    last_opened_dir = ros2::expandUser(kColconWSPathHome) / "src";
     if (!fs::is_directory(last_opened_dir)) {
       last_opened_dir = ros2::getHomeDir();
     }
@@ -600,7 +606,7 @@ void SetupAssistantWidget::onSaveAsButtonClicked()
   std::string last_opened_dir;
   if (property_client_.get(kLastOpenedDirKey_Save, last_opened_dir) < 0) {
     qWarning() << property_client_.errorMessage();
-    last_opened_dir = ros2::expandUser(tobas::kColconWSPathHome) / "src";
+    last_opened_dir = ros2::expandUser(kColconWSPathHome) / "src";
     TOBAS_CHECK(path::createDirectories(last_opened_dir, true));
   }
 
@@ -645,3 +651,4 @@ void SetupAssistantWidget::onSaveAsButtonClicked()
 }
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

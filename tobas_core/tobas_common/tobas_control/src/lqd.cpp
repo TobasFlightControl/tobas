@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_control/lqd.hpp"
 
 #include <iostream>
@@ -11,6 +14,8 @@
 using namespace std;
 using namespace Eigen;
 
+namespace tobas
+{
 namespace ctrl
 {
 LQD::LQD()
@@ -132,3 +137,4 @@ ostream& operator<<(ostream& os, const LQD& arg)
   return os;
 }
 }  // namespace ctrl
+}  // namespace tobas

@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <eigen3/Eigen/Core>
 
+namespace tobas
+{
 namespace quadprog
 {
 /**
@@ -20,3 +25,4 @@ void matIneqFromRange(
   Eigen::VectorXd& b,
   const double inf = 1E+12);
 }  // namespace quadprog
+}  // namespace tobas

@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <cstddef>
 
+namespace tobas
+{
 namespace geomag
 {
 constexpr size_t NMAX = 12;                             // Order of the Model
@@ -54,3 +59,4 @@ struct ConstModel
   }
 };
 }  // namespace geomag
+}  // namespace tobas

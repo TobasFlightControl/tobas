@@ -1,5 +1,10 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_kdl/tree_bounding_box_solver.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 TreeBoundingBoxSolver::TreeBoundingBoxSolver(const Tree& tree) : super(tree), fk_solver_(tree)
@@ -38,3 +43,4 @@ int TreeBoundingBoxSolver::solve(const JntArray& q)
   return setDefaultError(kNoError);
 }
 }  // namespace kdl
+}  // namespace tobas

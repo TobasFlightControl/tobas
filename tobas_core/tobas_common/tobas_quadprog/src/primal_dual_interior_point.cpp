@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_quadprog/primal_dual_interior_point.hpp"
 
 #include <eigen3/Eigen/Cholesky>
@@ -8,6 +11,8 @@
 using namespace std;
 using namespace Eigen;
 
+namespace tobas
+{
 namespace quadprog
 {
 PrimalDualInteriorPointSolver::PrimalDualInteriorPointSolver()
@@ -166,3 +171,4 @@ double PrimalDualInteriorPointSolver::findAlpha(const VectorXd& dlam, const Vect
   return lb;
 }
 }  // namespace quadprog
+}  // namespace tobas

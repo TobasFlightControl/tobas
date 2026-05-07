@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <rclcpp/rclcpp.hpp>
@@ -5,6 +8,8 @@
 #include <tobas_property_common/constants.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
 
+namespace tobas
+{
 namespace ptree
 {
 /**
@@ -114,3 +119,4 @@ PropertyClient::Error PropertyClient::setProperty(const std::string& key, T& val
   return error_code_ = kNoError;
 }
 }  // namespace ptree
+}  // namespace tobas

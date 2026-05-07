@@ -1,8 +1,13 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_qt_tools/widgets/circle_widget.hpp"
 
 #include <QDebug>
 #include <QPainter>
 
+namespace tobas
+{
 namespace qt
 {
 CircleWidget::CircleWidget(QWidget* parent) : super(parent)
@@ -143,3 +148,4 @@ void CircleWidget::drawText(QPainter& painter)
   painter.restore();
 }
 }  // namespace qt
+}  // namespace tobas

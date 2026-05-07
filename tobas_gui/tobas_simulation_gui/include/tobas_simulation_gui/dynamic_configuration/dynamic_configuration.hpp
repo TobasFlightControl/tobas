@@ -1,8 +1,13 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include "./suspended_load.hpp"
 #include "./wind_parameters.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sim
@@ -19,7 +24,7 @@ public:
 
   void updateNamespace(const std::string& ns);
 
-  bool start();
+  bool start(std::chrono::milliseconds timeout);
   void reset();
 
 private:
@@ -28,3 +33,4 @@ private:
 };
 }  // namespace sim
 }  // namespace gui
+}  // namespace tobas

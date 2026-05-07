@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_setup_assistant/setting_tabs/fixed_wing/aero_coefs.hpp"
 
 #include <filesystem>
@@ -16,6 +19,8 @@
 
 namespace fs = std::filesystem;
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -311,3 +316,4 @@ void AerodynamicsCoefficientsWidget::onLoadButtonClicked()
 }  // namespace fw
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

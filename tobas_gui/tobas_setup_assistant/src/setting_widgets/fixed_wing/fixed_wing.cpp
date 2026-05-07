@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_setup_assistant/setting_tabs/fixed_wing/fixed_wing.hpp"
 
 #include <QVBoxLayout>
@@ -5,6 +8,8 @@
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -107,3 +112,4 @@ const ControlSurfacesWidget* FixedWingWidget::controlSurfaces() const
 }  // namespace fw
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

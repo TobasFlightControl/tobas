@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <QLabel>
@@ -11,6 +14,8 @@
 
 #include "../fields/base.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -65,3 +70,4 @@ T BaseCommandWidget::getValue(field::FieldWidget<T>* widget) const
 }
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

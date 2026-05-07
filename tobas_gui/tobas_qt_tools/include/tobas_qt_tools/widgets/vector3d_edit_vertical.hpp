@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <QWidget>
@@ -5,6 +8,8 @@
 
 #include "./double_spin_box.hpp"
 
+namespace tobas
+{
 namespace qt
 {
 class Vector3dEditVertical : public QWidget
@@ -42,3 +47,4 @@ private Q_SLOTS:
   void onValueChanged(double value);
 };
 }  // namespace qt
+}  // namespace tobas

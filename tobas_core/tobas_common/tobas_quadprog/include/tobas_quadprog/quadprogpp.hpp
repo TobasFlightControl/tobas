@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <QuadProg++/Array.hh>
@@ -5,6 +8,8 @@
 
 #include "./qpsolver.hpp"
 
+namespace tobas
+{
 namespace quadprog
 {
 /**
@@ -29,3 +34,4 @@ private:
   quadprogpp::Vector<double> x_;
 };
 }  // namespace quadprog
+}  // namespace tobas

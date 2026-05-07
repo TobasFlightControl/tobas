@@ -1,40 +1,110 @@
-#include "tobas_rviz_plugin/joint_model.hpp"
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
+#include "tobas_rviz_plugin/joint_model/joint_model.hpp"
 
 #include <geometric_shapes/check_isometry.h>
 #include <geometric_shapes/shape_operations.h>
 
-#include "tobas_rviz_plugin/aabb.hpp"
 #include "tobas_rviz_plugin/link_model.hpp"
 
 namespace tobas
 {
-LinkModel::LinkModel(const std::string& name, size_t link_index)
-  : name_(name)
-  , link_index_(link_index)
-  , parent_joint_model_(nullptr)
-  , parent_link_model_(nullptr)
-  , is_parent_joint_fixed_(false)
-  , joint_origin_transform_is_identity_(true)
-  , first_collision_body_transform_index_(-1)
+LinkModel::LinkModel(const std::string& name, size_t link_index) : name_(name), link_index_(link_index)
 {
   joint_origin_transform_.setIdentity();
 }
 
 LinkModel::~LinkModel() = default;
 
+const std::string& LinkModel::getName() const
+{
+  return name_;
+}
+
+size_t LinkModel::getLinkIndex() const
+{
+  return link_index_;
+}
+
+int LinkModel::getFirstCollisionBodyTransformIndex() const
+{
+  return first_collision_body_transform_index_;
+}
+
+void LinkModel::setFirstCollisionBodyTransformIndex(int index)
+{
+  first_collision_body_transform_index_ = index;
+}
+
+const JointModel* LinkModel::getParentJointModel() const
+{
+  return parent_joint_model_;
+}
+
+void LinkModel::setParentJointModel(const JointModel* joint)
+{
+  parent_joint_model_ = joint;
+  is_parent_joint_fixed_ = joint->getType() == JointModel::kFixed;
+}
+
+const LinkModel* LinkModel::getParentLinkModel() const
+{
+  return parent_link_model_;
+}
+
+void LinkModel::setParentLinkModel(const LinkModel* link)
+{
+  parent_link_model_ = link;
+}
+
+const std::vector<const JointModel*>& LinkModel::getChildJointModels() const
+{
+  return child_joint_models_;
+}
+
+void LinkModel::addChildJointModel(const JointModel* joint)
+{
+  child_joint_models_.push_back(joint);
+}
+
+const Eigen::Isometry3d& LinkModel::getJointOriginTransform() const
+{
+  return joint_origin_transform_;
+}
+
+bool LinkModel::jointOriginTransformIsIdentity() const
+{
+  return joint_origin_transform_is_identity_;
+}
+
+bool LinkModel::parentJointIsFixed() const
+{
+  return is_parent_joint_fixed_;
+}
+
 void LinkModel::setJointOriginTransform(const Eigen::Isometry3d& transform)
 {
-  ASSERT_ISOMETRY(transform)  // unsanitized input, could contain a non-isometry
+  ASSERT_ISOMETRY(transform)  // Unsanitized input, could contain a non-isometry
   joint_origin_transform_ = transform;
   joint_origin_transform_is_identity_ =
     joint_origin_transform_.linear().isIdentity() &&
     joint_origin_transform_.translation().norm() < std::numeric_limits<double>::epsilon();
 }
 
-void LinkModel::setParentJointModel(const JointModel* joint)
+const EigenSTL::vector_Isometry3d& LinkModel::getCollisionOriginTransforms() const
 {
-  parent_joint_model_ = joint;
-  is_parent_joint_fixed_ = joint->getType() == JointModel::FIXED;
+  return collision_origin_transform_;
+}
+
+const std::vector<int>& LinkModel::areCollisionOriginTransformsIdentity() const
+{
+  return collision_origin_transform_is_identity_;
+}
+
+const std::vector<shapes::ShapeConstPtr>& LinkModel::getShapes() const
+{
+  return shapes_;
 }
 
 void LinkModel::setGeometry(const std::vector<shapes::ShapeConstPtr>& shapes, const EigenSTL::vector_Isometry3d& origins)
@@ -43,38 +113,20 @@ void LinkModel::setGeometry(const std::vector<shapes::ShapeConstPtr>& shapes, co
   collision_origin_transform_ = origins;
   collision_origin_transform_is_identity_.resize(collision_origin_transform_.size());
 
-  AABB aabb;
-
-  for (std::size_t i = 0; i < shapes_.size(); ++i) {
+  for (size_t i = 0; i < shapes_.size(); ++i) {
     ASSERT_ISOMETRY(collision_origin_transform_[i])  // unsanitized input, could contain a non-isometry
     collision_origin_transform_is_identity_[i] =
       (collision_origin_transform_[i].linear().isIdentity() &&
        collision_origin_transform_[i].translation().norm() < std::numeric_limits<double>::epsilon()) ?
         1 :
         0;
-    Eigen::Isometry3d transform = collision_origin_transform_[i];
+  }
+}
 
-    if (shapes_[i]->type != shapes::MESH) {
-      Eigen::Vector3d extents = shapes::computeShapeExtents(shapes_[i].get());
-      aabb.extendWithTransformedBox(transform, extents);
-    }
-    else {
-      // we cannot use shapes::computeShapeExtents() for meshes, since that method does not provide information about
-      // the offset of the mesh origin
-      const shapes::Mesh* mesh = dynamic_cast<const shapes::Mesh*>(shapes_[i].get());
-      for (uint32_t j = 0; j < mesh->vertex_count; ++j) {
-        aabb.extend(transform * Eigen::Map<Eigen::Vector3d>(&mesh->vertices[3 * j]));
-      }
-    }
-  }
-
-  centered_bounding_box_offset_ = aabb.center();
-  if (shapes_.empty()) {
-    shape_extents_.setZero();
-  }
-  else {
-    shape_extents_ = aabb.sizes();
-  }
+void LinkModel::addAssociatedFixedTransform(const LinkModel* link_model, const Eigen::Isometry3d& transform)
+{
+  ASSERT_ISOMETRY(transform);  // unsanitized input, could contain a non-isometry
+  associated_fixed_transforms_[link_model] = transform;
 }
 
 void LinkModel::setVisualMesh(

@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_gazebo_tools/math.hpp"
 
 using namespace gz::math;
 
+namespace tobas
+{
 namespace gazebo
 {
 Quaterniond quaternionFromAngleAxis(const Vector3d& w)
@@ -31,3 +36,4 @@ Matrix3d skewMatrix(const Vector3d& v)
   return res;
 }
 }  // namespace gazebo
+}  // namespace tobas

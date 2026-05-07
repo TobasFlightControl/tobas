@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include "./state_spaces.hpp"
 
+namespace tobas
+{
 namespace ctrl
 {
 /**
@@ -37,3 +42,4 @@ private:
   void checkProblemValidity();
 };
 }  // namespace ctrl
+}  // namespace tobas

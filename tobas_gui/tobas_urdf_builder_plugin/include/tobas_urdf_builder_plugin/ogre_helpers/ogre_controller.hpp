@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <memory>
@@ -7,6 +10,8 @@
 
 #include "../view_model/urdf_view_model.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace ub
@@ -52,3 +57,4 @@ private:
 }  // namespace ogre
 }  // namespace ub
 }  // namespace gui
+}  // namespace tobas

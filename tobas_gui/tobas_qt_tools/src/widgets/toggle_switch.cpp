@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_qt_tools/widgets/toggle_switch.hpp"
 
 #include <QDebug>
 #include <QPainter>
 #include <QResizeEvent>
 
+namespace tobas
+{
 namespace qt
 {
 ToggleSwitch::ToggleSwitch(QWidget* parent) : super(parent)
@@ -161,3 +166,4 @@ void ToggleSwitch::drawText(QPainter& painter)
   }
 }
 }  // namespace qt
+}  // namespace tobas

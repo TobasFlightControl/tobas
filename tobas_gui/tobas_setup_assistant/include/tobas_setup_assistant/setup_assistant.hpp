@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <tobas_colcon_cpp/core.hpp>
@@ -6,6 +9,7 @@
 #include <tobas_kdl/tree_joint_parser.hpp>
 #include <tobas_kdl_parser/kdl_parser.hpp>
 #include <tobas_property_client/property_client.hpp>
+#include <tobas_qt_tools/widgets/wait_spinner.hpp>
 #include <tobas_ros2_tools/sync_param_client.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 #include <tobas_uadf/model.hpp>
@@ -23,6 +27,8 @@
 #include "./signals.hpp"
 #include "./xacro_parser.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -38,7 +44,7 @@ class SetupAssistantWidget : public QWidget
   static constexpr char kLastOpenedDirKey_Load[] = "last_opened_dir/load";
   static constexpr char kLastOpenedDirKey_Save[] = "last_opened_dir/save";
 
-  static constexpr double kJntAxisParallelTol = tbs::deg2rad(5);  // [rad]
+  static constexpr double kJntAxisParallelTol = st::deg2rad(5);  // [rad]
 
 public:
   explicit SetupAssistantWidget(rclcpp::Node::SharedPtr node);
@@ -60,6 +66,7 @@ private:
 
   colcon::Colcon colcon_;
 
+  qt::WaitSpinnerWidget spinner_;
   Signals sig_;
   RotorMarkerPublisher rotor_marker_publisher_;
 
@@ -110,3 +117,4 @@ private Q_SLOTS:
 };
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

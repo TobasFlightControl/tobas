@@ -1,15 +1,20 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <tobas_node/node.hpp>
 
 #include <std_srvs/srv/empty.hpp>
 
+namespace tobas
+{
 namespace hardware
 {
-class BaseSensorNode : public tobas::BaseNode
+class BaseSensorNode : public BaseNode
 {
   using self = BaseSensorNode;
-  using super = tobas::BaseNode;
+  using super = BaseNode;
   using Empty = std_srvs::srv::Empty;
 
   static constexpr char kStartMainTimerSrvSuffix[] = "/start_main_timer";
@@ -29,3 +34,4 @@ private:
   void stopMainTimerSrvCb(const Empty::Request::ConstSharedPtr& req, const Empty::Response::SharedPtr& res);
 };
 }  // namespace hardware
+}  // namespace tobas

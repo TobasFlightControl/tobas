@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_linux/spi_dev.hpp"
 
 #include <fcntl.h>
@@ -10,6 +13,8 @@
 
 using namespace std;
 
+namespace tobas
+{
 namespace linux
 {
 SPIdev::SPIdev() noexcept
@@ -53,3 +58,4 @@ bool SPIdev::transfer(uint32_t length) noexcept
   return true;
 }
 }  // namespace linux
+}  // namespace tobas

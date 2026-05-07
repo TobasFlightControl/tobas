@@ -1,5 +1,10 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_urdf_builder_plugin/utils/widget_item.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace ub
@@ -38,3 +43,4 @@ const view_model::CollisionViewModelPtr& CollisionListWidgetItem::viewModel() co
 }  // namespace ui
 }  // namespace ub
 }  // namespace gui
+}  // namespace tobas

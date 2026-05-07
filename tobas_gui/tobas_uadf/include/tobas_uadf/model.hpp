@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <map>
@@ -8,12 +11,14 @@
 #include "./thrust.hpp"
 #include "./tilt_rotor.hpp"
 
+namespace tobas
+{
 namespace uadf
 {
 class Model
 {
 public:
-  urdf::ModelInterfaceSharedPtr urdf;
+  ::urdf::ModelInterfaceSharedPtr urdf;
 
   std::map<std::string, Thrust> thrusts;
   std::map<std::string, ControlSurface> control_surfaces;
@@ -26,3 +31,4 @@ public:
   bool valid() const;
 };
 }  // namespace uadf
+}  // namespace tobas

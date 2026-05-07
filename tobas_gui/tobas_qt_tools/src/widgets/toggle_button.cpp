@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_qt_tools/widgets/toggle_button.hpp"
 
 #include <QDebug>
 
+namespace tobas
+{
 namespace qt
 {
 ToggleButton::ToggleButton(const QString& off_text, const QString& on_text, QWidget* parent)
@@ -49,3 +54,4 @@ void ToggleButton::onClicked()
   }
 }
 }  // namespace qt
+}  // namespace tobas

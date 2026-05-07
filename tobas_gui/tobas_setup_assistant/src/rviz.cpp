@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_setup_assistant/rviz.hpp"
 
 #include <QCheckBox>
@@ -12,6 +15,8 @@
 #include "tobas_setup_assistant/constants.hpp"
 #include "tobas_setup_assistant/util.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -22,7 +27,6 @@ RvizWidget::RvizWidget(const uadf::Model& uadf, const kdl::Tree& tree)
   // Declare rosparams
   constexpr char kMinimulUrdf[] = "<robot name=\"empty\"><link name=\"root\"/></robot>";
   ros2::declareParam(rviz_manager_.rawNode(), kRobotDescriptionParam, kMinimulUrdf);
-  ros2::declareParam(rviz_manager_.rawNode(), kRobotDescriptionSemanticParam, kMinimulUrdf);  // MoveItが要求
 
   // Initialize Rviz
   const auto rviz_config_path = getPkgShareDir() / "config/setup_assistant.rviz";
@@ -78,7 +82,6 @@ void RvizWidget::updateInternalDataStructures()
   const auto urdf_doc = urdf::exportUrdf(*uadf_.urdf);
   const auto urdf_text = xml::xmlDocumentToString(urdf_doc);
   rviz_manager_.rawNode()->set_parameter(rclcpp::Parameter(kRobotDescriptionParam, urdf_text));
-  rviz_manager_.rawNode()->set_parameter(rclcpp::Parameter(kRobotDescriptionSemanticParam, urdf_text));
 
   // ロボットモデルをリロード
   reload_->setBool(false);
@@ -125,3 +128,4 @@ void RvizWidget::onInertiaBoxToggled(bool checked)
 }
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

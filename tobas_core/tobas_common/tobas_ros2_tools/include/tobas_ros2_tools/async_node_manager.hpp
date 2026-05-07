@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <rclcpp/rclcpp.hpp>
 
+namespace tobas
+{
 namespace ros2
 {
 /**
@@ -22,3 +27,4 @@ private:
   std::unique_ptr<std::thread> executor_thread_;
 };
 }  // namespace ros2
+}  // namespace tobas

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/propulsion_system.hpp"
 
 #include <ranges>
@@ -8,6 +11,8 @@
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -15,7 +20,7 @@ namespace sa
 namespace propulsion
 {
 PropulsionSystemWidget::PropulsionSystemWidget(rclcpp::Node::SharedPtr node, const uadf::Model& uadf, Signals& sig)
-  : node_(node), sig_(sig)
+  : sig_(sig)
 {
   type_btn_group_ = new QButtonGroup(this);
   type_btn_group_->setExclusive(true);
@@ -104,7 +109,7 @@ void PropulsionSystemWidget::load(const YAML::Node& node)
   }
 }
 
-tobas::PropulsionSystem PropulsionSystemWidget::type() const
+PropulsionSystem PropulsionSystemWidget::type() const
 {
   return selected()->type();
 }
@@ -176,7 +181,7 @@ void PropulsionSystemWidget::setCurrentIndex(int index)
 
 void PropulsionSystemWidget::onPropulsionTypeClicked(int new_idx)
 {
-  RCLCPP_DEBUG_STREAM(node_->get_logger(), "PropulsionSystemWidget::onPropulsionTypeChanged(" << new_idx << ")");
+  qDebug().nospace() << "PropulsionSystemWidget::onPropulsionTypeChanged(" << new_idx << ")";
 
   if (new_idx == cur_idx_) {
     return;
@@ -198,3 +203,4 @@ void PropulsionSystemWidget::onPropulsionTypeClicked(int new_idx)
 }  // namespace propulsion
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

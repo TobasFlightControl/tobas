@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <tobas_drone_core/drone.hpp>
@@ -5,6 +8,8 @@
 #include <tobas_qt_tools/widgets/position_bar_widget.hpp>
 #include <tobas_rqt_bridge/bridge.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -20,14 +25,14 @@ class BatteryViewerWidget : public QWidget
   static constexpr int kBarHeight = 30;
 
 public:
-  explicit BatteryViewerWidget(const RosQtBridge& bridge, const tobas::Drone& drone);
+  explicit BatteryViewerWidget(const RosQtBridge& bridge, const Drone& drone);
 
   void reset();
   void updateInternalDataStructures();
 
 private:
-  const tobas::Drone& drone_;
-  tobas::ElectricPropulsionSystemConfig::ConstSharedPtr eprop_;
+  const Drone& drone_;
+  ElectricPropulsionSystemConfig::ConstSharedPtr eprop_;
 
   qt::HPositionBarWidget* voltage_;
   qt::HPositionBarWidget* current_;
@@ -40,3 +45,4 @@ private Q_SLOTS:
 };
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

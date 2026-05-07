@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include <tobas_constants/ros_interface.hpp>
 #include <tobas_node/node.hpp>
 
@@ -5,12 +8,14 @@
 
 using namespace std::chrono_literals;
 
-class FakeRcInputPublisherNode : public tobas::BaseNode
+namespace tobas
+{
+class FakeRcInputPublisherNode : public BaseNode
 {
   static constexpr auto kSamplingPeriod = 10ms;
 
   using self = FakeRcInputPublisherNode;
-  using super = tobas::BaseNode;
+  using super = BaseNode;
 
 public:
   explicit FakeRcInputPublisherNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -25,7 +30,7 @@ private:
 FakeRcInputPublisherNode::FakeRcInputPublisherNode(const rclcpp::NodeOptions& options)
   : super("fake_rcin_publisher", nodeOptions_Default(options))
 {
-  pub_ = createPublisher<tobas_msgs::RCInput>(tobas::topic::kRcInput);
+  pub_ = createPublisher<tobas_msgs::RCInput>(topic::kRcInput);
   timer_ = createTimer(kSamplingPeriod, &self::timerCb, this);
 }
 
@@ -38,7 +43,7 @@ void FakeRcInputPublisherNode::timerCb()
   msg->pitch = 0.;
   msg->throttle = -1.;
   msg->yaw = 0.;
-  msg->mode = tobas::FlightMode::kAcrobat;
+  msg->mode = FlightMode::kAcrobat;
   msg->sub_mode = false;
   msg->enable = false;
   msg->kill = false;
@@ -46,5 +51,6 @@ void FakeRcInputPublisherNode::timerCb()
 
   pub_->publish(std::move(msg));
 }
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(FakeRcInputPublisherNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::FakeRcInputPublisherNode)

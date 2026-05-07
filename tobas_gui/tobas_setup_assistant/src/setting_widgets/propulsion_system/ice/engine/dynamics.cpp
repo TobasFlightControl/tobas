@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/ice/engine/dynamics.hpp"
 
 #include <eigen3/Eigen/SVD>
@@ -8,6 +11,8 @@
 
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/constants.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -61,9 +66,9 @@ std::pair<double, double> EngineDynamicsWidget::engineConstant() const
   const auto data_mat = data_->getValue();
 
   // データを取り出す
-  const auto throttles = data_mat.col(0) / 100.;         // [-]
-  const auto speeds = data_mat.col(1) * tbs::kRpmToRps;  // [rad/s]
-  const auto torques = data_mat.col(2);                  // [Nm]
+  const auto throttles = data_mat.col(0) / 100.;        // [-]
+  const auto speeds = data_mat.col(1) * st::kRpmToRps;  // [rad/s]
+  const auto torques = data_mat.col(2);                 // [Nm]
 
   // 線型回帰でエンジンダイナミクスの定数を求める (memo: 3-28)
   const auto phi = M_PI_2 * throttles;  // [rad]
@@ -86,3 +91,4 @@ std::pair<double, double> EngineDynamicsWidget::engineConstant() const
 }  // namespace propulsion
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

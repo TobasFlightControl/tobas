@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_kdl/tree_joint_parser.hpp"
 
 using namespace std;
 
+namespace tobas
+{
 namespace kdl
 {
 TreeJointParser::TreeJointParser(const Tree& tree) : super(tree)
@@ -59,3 +64,4 @@ void TreeJointParser::parseJntNamesStep(const SegmentMap::const_iterator& seg_it
   }
 }
 }  // namespace kdl
+}  // namespace tobas

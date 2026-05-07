@@ -1,4 +1,9 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_gui_common/local_project_builder.hpp"
+
+#include <QThread>
 
 #include <tobas_constants/path.hpp>
 #include <tobas_qt_tools/thread.hpp>
@@ -8,6 +13,8 @@
 
 namespace fs = std::filesystem;
 
+namespace tobas
+{
 namespace gui
 {
 namespace cmn
@@ -45,14 +52,19 @@ private:
 
 LocalProjectBuilder::LocalProjectBuilder()
 {
-  // ワークスペースの install ディレクトリをそのままパスに追加するために --merge-install が必要
+  // ワークスペースの install ディレクトリをそのままパスに追加するために --merge-install が必要．
   colcon_.setMergeInstall(true);
+
+  // 対象のパッケージとは別の同名パッケージのキャッシュが /build 以下に残っている場合，
+  // カレントディレクトリに関わらず colcon がそのパッケージを再利用してしまう．
+  // そのため，確実に対象のパッケージのみをビルド対象にするためにキャッシュをクリアしておく．
+  colcon_.setCmakeCleanCache(true);
 }
 
 bool LocalProjectBuilder::build(const fs::path& proj_path)
 {
   const auto meta_pkg_path = ProjectPaths(proj_path).metaPkgPath();
-  const auto ws_path = ros2::expandUser(tobas::kColconWSPathHome);
+  const auto ws_path = ros2::expandUser(kColconWSPathHome);
 
   return colcon_.build(meta_pkg_path, ws_path);
 }
@@ -76,5 +88,6 @@ std::expected<void, QString> buildLocalProject(const fs::path& proj_path)
 }
 }  // namespace cmn
 }  // namespace gui
+}  // namespace tobas
 
 #include "local_project_builder.moc"

@@ -1,9 +1,9 @@
 import sys
+import uuid
 
 from launch import LaunchDescription
 from launch.actions import SetEnvironmentVariable, DeclareLaunchArgument, Shutdown
 from launch.substitutions import EnvironmentVariable, PathJoinSubstitution, TextSubstitution, LaunchConfiguration
-
 from launch_ros.actions import Node
 
 # Arguments
@@ -47,6 +47,9 @@ def generate_launch_description():
     log_level = LaunchConfiguration(LOG_LEVEL)
     output = LaunchConfiguration(OUTPUT)
 
+    # Create a namespace for this session
+    session_ns = f"session_{uuid.uuid4().hex[:8]}"
+
     # Set log level
     ros_args = ["--log-level", log_level]
     for node_name in [
@@ -63,6 +66,7 @@ def generate_launch_description():
     run_property_server = Node(
         package="tobas_property_server",
         executable="property_server",
+        namespace=session_ns,
         ros_arguments=ros_args,
         output=output,
         additional_env={"ROS_AUTOMATIC_DISCOVERY_RANGE": "LOCALHOST"},
@@ -73,6 +77,7 @@ def generate_launch_description():
     run_ssh_server = Node(
         package="tobas_ssh_server",
         executable="ssh_server_node",
+        namespace=session_ns,
         ros_arguments=ros_args,
         output=output,
         additional_env={"ROS_AUTOMATIC_DISCOVERY_RANGE": "LOCALHOST"},
@@ -83,6 +88,7 @@ def generate_launch_description():
     run_tile_server = Node(
         package="tobas_tile_proxy",
         executable="tile_proxy_node",
+        namespace=session_ns,
         ros_arguments=ros_args,
         output=output,
         additional_env={"ROS_AUTOMATIC_DISCOVERY_RANGE": "LOCALHOST"},
@@ -93,6 +99,7 @@ def generate_launch_description():
     run_heartbeat_sender = Node(
         package="tobas_connection_monitor",
         executable="heartbeat_sender",
+        namespace=session_ns,
         ros_arguments=ros_args,
         output=output,
         additional_env={"ROS_AUTOMATIC_DISCOVERY_RANGE": "LOCALHOST"},
@@ -103,6 +110,7 @@ def generate_launch_description():
     run_gcs = Node(
         package="tobas_gcs",
         executable="TobasGCS",
+        namespace=session_ns,
         ros_arguments=ros_args,
         output=output,
         on_exit=Shutdown(),

@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_kdl/tree_jntspace_pid.hpp"
 
 using namespace std;
 
+namespace tobas
+{
 namespace kdl
 {
 TreeJntSpacePID::TreeJntSpacePID(const Tree& tree, const Vector& grav) : super(tree), rne_(tree, grav)
@@ -84,3 +89,4 @@ void TreeJntSpacePID::resize()
   zeros_ = JntArray::Zero(nj_);
 }
 }  // namespace kdl
+}  // namespace tobas

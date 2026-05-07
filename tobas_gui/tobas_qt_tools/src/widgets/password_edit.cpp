@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_qt_tools/widgets/password_edit.hpp"
 
 #include <QAction>
@@ -6,6 +9,8 @@
 
 #include "tobas_qt_tools/path.hpp"
 
+namespace tobas
+{
 namespace qt
 {
 PasswordEdit::PasswordEdit(QWidget* parent) : super(parent)
@@ -52,3 +57,4 @@ void PasswordEdit::onIconToggled(bool on)
   setCursorPosition(cursor_pos);
 }
 }  // namespace qt
+}  // namespace tobas

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <QLabel>
@@ -5,6 +8,8 @@
 #include <QSlider>
 #include <QTimer>
 
+namespace tobas
+{
 namespace gui
 {
 namespace log
@@ -57,3 +62,4 @@ private Q_SLOTS:
 };
 }  // namespace log
 }  // namespace gui
+}  // namespace tobas

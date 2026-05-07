@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <linux/spi/spidev.h>
 
 #include <cstdint>
 
+namespace tobas
+{
 namespace linux
 {
 class SPIdev
@@ -26,3 +31,4 @@ private:
   int spi_fd_ = -1;
 };
 }  // namespace linux
+}  // namespace tobas

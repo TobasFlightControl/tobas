@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <tobas_linux/spi_dev.hpp>
@@ -8,6 +11,8 @@
 
 #define PACKED __attribute__((__packed__))  // 構造体のメンバ変数がメモリ上で連続する
 
+namespace tobas
+{
 namespace ublox
 {
 /**
@@ -112,15 +117,6 @@ public:
     E_SCOOTER = 12,
   };
 
-  /* SPI Protocol Key ID */
-  enum CfgProtocol : uint8_t
-  {
-    UBX = 0x01,
-    NMEA = 0x02,
-    RTCM3X = 0x04,
-    SPARTN = 0x05,
-  };
-
   explicit ZEDF9P();
 
   bool initialize(const char* spi_device);
@@ -128,7 +124,7 @@ public:
 
   /* ===== Configurations =====*/
 
-  bool enableMsg(UbxClass cls, uint8_t id, bool enable);
+  bool enableSpiMessage(UbxClass cls, uint8_t id, bool enable);
   bool configureDynamicsModel(DynamicsModel model);
   bool configureMeasurementRate(uint16_t period_ms);
 
@@ -153,7 +149,10 @@ public:
   bool enableNavIc();
   bool disableNavIc();
 
-  bool enableProtocol(CfgProtocol prot, bool enable);
+  bool enableSpiProtocol_UBX(bool enable_input, bool enable_output);
+  bool enableSpiProtocol_NMEA(bool enable_input, bool enable_output);
+  bool enableSpiProtocol_RTCM3X(bool enable_input, bool enable_output);
+  bool enableSpiProtocol_SPARTN(bool enable_input);
 
   /* RF174ケーブルの長さからアナログ伝達の遅延を設定する． */
   bool setAntennaLength(uint8_t length_m);
@@ -220,6 +219,15 @@ private:
     CFG_USBOUTPROT = 0x78,    // Output Protocol Configuration of the USB Interface
   };
 
+  /* SPI Protocol Key ID */
+  enum CfgProtocol : uint8_t
+  {
+    UBX = 0x01,
+    NMEA = 0x02,
+    RTCM3X = 0x04,
+    SPARTN = 0x05,
+  };
+
   struct PACKED UbxHeader
   {
     uint8_t sync1;
@@ -270,6 +278,9 @@ private:
 
   tim::Rate rate_;
 
+  template <typename T>
+  bool cfgValSetSingle(CfgSize size, CfgGroup group, uint8_t id, T value);
+
   bool sendMessage(UbxClass cls, uint8_t id, const void* msg, uint16_t size);
   bool waitForAcknowledge(UbxClass cls, uint8_t id);
   bool configure(UbxCfgId cfg_id, const void* msg, uint16_t size);
@@ -305,6 +316,9 @@ private:
   bool enableNavIc(bool enable);
   bool enableNavIcL5();
 
+  bool enableSpiInputProtocol(CfgProtocol prot, bool enable);
+  bool enableSpiOutputProtocol(CfgProtocol prot, bool enable);
+
   /* 5.4 UBX Checksum */
   static CheckSum computeChecksum(const uint8_t* message, size_t checksum_pos);
 
@@ -328,4 +342,14 @@ inline const uint8_t* ZEDF9P::payload() const
 {
   return scanner_.getPayload();
 }
+
+template <typename T>
+bool ZEDF9P::cfgValSetSingle(CfgSize size, CfgGroup group, uint8_t id, T value)
+{
+  CfgValSet<T, 1> cfg;
+  cfg.data[0].key = configKeyID(size, group, id);
+  cfg.data[0].value = value;
+  return configure(CFG_VALSET, &cfg, sizeof(cfg));
+}
 }  // namespace ublox
+}  // namespace tobas

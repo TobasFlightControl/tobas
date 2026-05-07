@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 // #include <tobas_quadprog/quadprogpp.hpp>
@@ -8,6 +11,8 @@
 #include "./equations.hpp"
 #include "./state_spaces.hpp"
 
+namespace tobas
+{
 namespace ctrl
 {
 /**
@@ -112,3 +117,4 @@ inline const std::string& LinearMPC::errorMessage() const
   return qpsolver_.errorMessage();
 }
 }  // namespace ctrl
+}  // namespace tobas

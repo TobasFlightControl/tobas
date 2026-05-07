@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include <tobas_constants/ros_interface.hpp>
 #include <tobas_node/node.hpp>
 
@@ -12,7 +15,7 @@ public:
   explicit GnssStateCheckerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  ros2::SubscriberPtr<tobas_msgs::Gnss> gnss_sub_;
+  tobas::ros2::SubscriberPtr<tobas_msgs::Gnss> gnss_sub_;
 
   void gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss);
 };

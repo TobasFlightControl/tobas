@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include <iostream>
 
 #include <tobas_quadprog/dual_active_set.hpp>
@@ -10,14 +13,14 @@ using namespace Eigen;
 
 int main()
 {
-  quadprog::QuadProgProblem problem(2, 0, 2);
+  tobas::quadprog::QuadProgProblem problem(2, 0, 2);
   problem.P << 1., 0., 0., 0.5;
   problem.q << 1.5, 1.;
   problem.A << 1., 1., -1., -1.;
   problem.b << 1., 0.;
   const Vector2d x_scale = Vector2d::Ones();
 
-  quadprog::QuadProgppSolver quadprog;
+  tobas::quadprog::QuadProgppSolver quadprog;
   quadprog.problem = problem;
   quadprog.x_scale = x_scale;
   if (!quadprog.solve()) {
@@ -26,7 +29,7 @@ int main()
   }
   cout << "QuadProg++ solution: " << quadprog.solution().transpose() << endl;
 
-  quadprog::QpOasesSolver qpoases;
+  tobas::quadprog::QpOasesSolver qpoases;
   qpoases.problem = problem;
   qpoases.x_scale = x_scale;
   if (!qpoases.solve()) {
@@ -35,7 +38,7 @@ int main()
   }
   cout << "qpOASES solution: " << qpoases.solution().transpose() << endl;
 
-  quadprog::DualActiveSetSolver das;
+  tobas::quadprog::DualActiveSetSolver das;
   das.problem = problem;
   das.x_scale = x_scale;
   if (!das.solve()) {
@@ -44,7 +47,7 @@ int main()
   }
   cout << "DualActiveSet solution: " << das.solution().transpose() << endl;
 
-  quadprog::PrimalDualInteriorPointSolver ipm;
+  tobas::quadprog::PrimalDualInteriorPointSolver ipm;
   ipm.problem = problem;
   ipm.x_scale = x_scale;
   if (!ipm.solve()) {

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_flight_log_gui/logs_gcs/logs_widget.hpp"
 
 #include <QFileDialog>
@@ -18,6 +21,8 @@
 
 namespace fs = std::filesystem;
 
+namespace tobas
+{
 namespace gui
 {
 namespace log
@@ -131,7 +136,7 @@ void FlightLogsWidgetGCS::onReadButtonClicked()
 
   clearLogs();
 
-  const auto rosbag_dir = ros2::expandUser(tobas::kRosbagDirHome);
+  const auto rosbag_dir = ros2::expandUser(kRosbagDirHome);
   if (!fs::is_directory(rosbag_dir)) {
     fs::create_directories(rosbag_dir);
   }
@@ -168,7 +173,7 @@ void FlightLogsWidgetGCS::onCleanButtonClicked()
     return;
   }
 
-  const auto rosbag_dir = ros2::expandUser(tobas::kRosbagDirHome);
+  const auto rosbag_dir = ros2::expandUser(kRosbagDirHome);
   if (!fs::is_directory(rosbag_dir)) {
     fs::create_directories(rosbag_dir);
   }
@@ -248,7 +253,7 @@ void FlightLogsWidgetGCS::onExportButtonClicked(const QString& log_name)
 
 void FlightLogsWidgetGCS::onDeleteButtonClicked(const QString& log_name)
 {
-  const auto log_path = ros2::expandUser(tobas::kRosbagDirHome) / log_name.toStdString();
+  const auto log_path = ros2::expandUser(kRosbagDirHome) / log_name.toStdString();
 
   if (!qt::yesOrNo(this, "Do you want to delete flight log \"" + log_name + "\"?", qt::WARN)) {
     return;
@@ -274,3 +279,4 @@ void FlightLogsWidgetGCS::onListItemClicked(QListWidgetItem* item)
 }
 }  // namespace log
 }  // namespace gui
+}  // namespace tobas

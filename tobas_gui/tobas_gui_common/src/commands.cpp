@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_gui_common/command.hpp"
 
 #include <unistd.h>
@@ -8,6 +11,8 @@
 
 namespace fs = std::filesystem;
 
+namespace tobas
+{
 namespace gui
 {
 namespace cmn
@@ -37,3 +42,4 @@ bool sourceTobasProject(const fs::path& proj_path)
 }
 }  // namespace cmn
 }  // namespace gui
+}  // namespace tobas

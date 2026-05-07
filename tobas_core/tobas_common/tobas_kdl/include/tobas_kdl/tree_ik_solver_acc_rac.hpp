@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <tobas_quadprog/dual_active_set.hpp>
@@ -7,6 +10,8 @@
 #include "./tree_jacobian_solver.hpp"
 #include "./tree_joint_parser.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 class TreeIkSolverAcc_RAC : public TreeIkSolverAcc
@@ -42,3 +47,4 @@ private:
   void resize();
 };
 }  // namespace kdl
+}  // namespace tobas

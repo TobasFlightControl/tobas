@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include <tobas_constants/ros_interface.hpp>
 #include <tobas_gazebo_conversions/gazebo_kdl.hpp>
 #include <tobas_gazebo_tools/utils.hpp>
@@ -15,6 +18,8 @@
 namespace ch = std::chrono;
 namespace cmp = gz::sim::components;
 
+namespace tobas
+{
 namespace gazebo
 {
 /**
@@ -115,7 +120,7 @@ void GazeboGnssPlugin::Configure(
   vel_W_ = getComponent<cmp::WorldLinearVelocity>(link, ecm);
   gyro_B_ = getComponent<cmp::AngularVelocity>(link, ecm);
 
-  gnss_pub_ = createPublisher<tobas_msgs::Gnss>(tobas::topic::kGnss);
+  gnss_pub_ = createPublisher<tobas_msgs::Gnss>(topic::kGnss);
 }
 
 void GazeboGnssPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)
@@ -222,7 +227,7 @@ void GazeboGnssPlugin::updatePosition(tobas_msgs::Gnss& gnss_msg, const gz::math
   W_Pos_WS += pos_bias_;
 
   // Fill the GNSS message
-  std::tie(gnss_msg.latitude, gnss_msg.longitude) = tbs::cartToGnssRelative(W_Pos_WS.X(), W_Pos_WS.Y(), lat_0_, lon_0_);
+  std::tie(gnss_msg.latitude, gnss_msg.longitude) = st::cartToGnssRelative(W_Pos_WS.X(), W_Pos_WS.Y(), lat_0_, lon_0_);
   gnss_msg.altitude = W_Pos_WS.Z();
 }
 
@@ -242,9 +247,6 @@ void GazeboGnssPlugin::updateVelocity(
   vectorGazeboToKDL(W_Linvel_WS, gnss_msg.ground_speed);
 }
 }  // namespace gazebo
+}  // namespace tobas
 
-GZ_ADD_PLUGIN(
-  gazebo::GazeboGnssPlugin,
-  gz::sim::System,
-  gazebo::GazeboGnssPlugin::ISystemConfigure,
-  gazebo::GazeboGnssPlugin::ISystemPostUpdate)
+GZ_ADD_PLUGIN(tobas::gazebo::GazeboGnssPlugin, gz::sim::System, gz::sim::ISystemConfigure, gz::sim::ISystemPostUpdate)

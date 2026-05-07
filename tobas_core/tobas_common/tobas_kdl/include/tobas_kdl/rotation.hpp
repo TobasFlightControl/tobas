@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <tobas_math/linalg.hpp>
@@ -8,6 +11,8 @@
 #include "./vector.hpp"
 #include "./wrench.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 class Rotation;
@@ -289,3 +294,4 @@ inline std::ostream& operator<<(std::ostream& os, const Rotation& arg)
   return os;
 }
 }  // namespace kdl
+}  // namespace tobas

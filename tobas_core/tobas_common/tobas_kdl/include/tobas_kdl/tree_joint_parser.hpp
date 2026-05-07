@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <map>
@@ -5,6 +8,8 @@
 #include "./jntarray.hpp"
 #include "./tree_solver_i.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 class TreeJointParser : public TreeSolverI
@@ -146,3 +151,4 @@ inline bool TreeJointParser::exist(const std::string& jnt_name) const
   return jnt_indexes_.contains(jnt_name);
 }
 }  // namespace kdl
+}  // namespace tobas

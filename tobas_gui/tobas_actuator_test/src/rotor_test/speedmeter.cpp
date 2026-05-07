@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_actuator_test/rotor_test/speedmeter.hpp"
 
 #include <QtQml/QQmlContext>
@@ -7,6 +10,8 @@
 
 #include "tobas_actuator_test/util.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace at
@@ -70,3 +75,4 @@ QObject* SpeedmeterWidget::getGaugeObject() const
 }
 }  // namespace at
 }  // namespace gui
+}  // namespace tobas

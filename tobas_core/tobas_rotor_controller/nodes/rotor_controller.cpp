@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include <boost/polymorphic_pointer_cast.hpp>
 
 #include <tobas_algorithm/core.hpp>
@@ -16,11 +19,13 @@
 
 using namespace std::chrono_literals;
 
+namespace tobas
+{
 /* 推進系の目標推力を実現する． */
-class RotorControllerNode : public tobas::BaseNode
+class RotorControllerNode : public BaseNode
 {
   using self = RotorControllerNode;
-  using super = tobas::BaseNode;
+  using super = BaseNode;
 
   using SetArm = tobas_msgs::srv::SetArm;
 
@@ -32,7 +37,7 @@ public:
   explicit RotorControllerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  tobas::Drone::ConstSharedPtr drone_;
+  Drone::ConstSharedPtr drone_;
   tobas_msgs::msg::VehicleHealth::ConstSharedPtr health_;
 
   bool is_armed_ = false;
@@ -42,7 +47,7 @@ private:
   ros2::PublisherPtr<tobas_msgs::msg::IcePropulsionSystemCommand> ice_cmd_pub_;
   ros2::PublisherPtr<tobas_msgs::msg::Arming> arming_pub_;
 
-  ros2::SubscriberPtr<tobas::Drone> drone_sub_;
+  ros2::SubscriberPtr<Drone> drone_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::RotorThrustArray> tar_thrusts_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::VehicleHealth> health_sub_;
 
@@ -55,7 +60,7 @@ private:
   void publishZeroThrottle();
   void disarm();
 
-  void droneCb(const tobas::Drone::ConstSharedPtr& drone);
+  void droneCb(const Drone::ConstSharedPtr& drone);
   void thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::ConstSharedPtr& tar_thrusts_msg);
   void healthCb(const tobas_msgs::msg::VehicleHealth::ConstSharedPtr& health);
 
@@ -68,15 +73,15 @@ private:
 RotorControllerNode::RotorControllerNode(const rclcpp::NodeOptions& options)
   : super("rotor_controller", nodeOptions_Default(options))
 {
-  rotor_speeds_pub_ = createPublisher<tobas_msgs::msg::RotorSpeedArray>(tobas::topic::kRotorSpeedsCmd);
-  ice_cmd_pub_ = createPublisher<tobas_msgs::msg::IcePropulsionSystemCommand>(tobas::topic::kIcePropulsionSystemCmd);
-  arming_pub_ = createPublisher<tobas_msgs::msg::Arming>(tobas::topic::kArming);
+  rotor_speeds_pub_ = createPublisher<tobas_msgs::msg::RotorSpeedArray>(topic::kRotorSpeedsCmd);
+  ice_cmd_pub_ = createPublisher<tobas_msgs::msg::IcePropulsionSystemCommand>(topic::kIcePropulsionSystemCmd);
+  arming_pub_ = createPublisher<tobas_msgs::msg::Arming>(topic::kArming);
 
-  drone_sub_ = createSubscriber(tobas::topic::kDrone, &self::droneCb, this, true, true);
-  tar_thrusts_sub_ = createSubscriber(tobas::topic::kRotorThrustsCmd, &self::thrustsCmdCb, this);
-  health_sub_ = createSubscriber(tobas::topic::kVehicleHealth, &self::healthCb, this);
+  drone_sub_ = createSubscriber(topic::kDrone, &self::droneCb, this, true, true);
+  tar_thrusts_sub_ = createSubscriber(topic::kRotorThrustsCmd, &self::thrustsCmdCb, this);
+  health_sub_ = createSubscriber(topic::kVehicleHealth, &self::healthCb, this);
 
-  set_arm_ss_ = createService<SetArm>(tobas::service::kSetArm, &self::setArmCb, this);
+  set_arm_ss_ = createService<SetArm>(service::kSetArm, &self::setArmCb, this);
 
   publish_arming_timer_ = createTimer(kPublishArmingPeriod, &self::publishCurrentArmingState, this);
 }
@@ -92,13 +97,13 @@ void RotorControllerNode::publishCurrentArmingState()
 void RotorControllerNode::publishZeroThrottle()
 {
   switch (drone_->prop->type()) {
-    case tobas::PropulsionSystem::kElectric: {
-      const auto eprop = boost::polymorphic_pointer_downcast<tobas::ElectricPropulsionSystemConfig>(drone_->prop);
+    case PropulsionSystem::kElectric: {
+      const auto eprop = boost::polymorphic_pointer_downcast<ElectricPropulsionSystemConfig>(drone_->prop);
 
       auto tar_speeds_msg = std::make_unique<tobas_msgs::msg::RotorSpeedArray>();
       tar_speeds_msg->header.stamp = now();
       for (const auto& [link_name, rotor] : eprop->rotors) {
-        const auto erotor = boost::polymorphic_pointer_downcast<tobas::ElectricRotorConfig>(rotor);
+        const auto erotor = boost::polymorphic_pointer_downcast<ElectricRotorConfig>(rotor);
         tar_speeds_msg->speeds.emplace_back();
         tar_speeds_msg->speeds.back().link_name = link_name;
         tar_speeds_msg->speeds.back().speed = 0.;
@@ -108,17 +113,17 @@ void RotorControllerNode::publishZeroThrottle()
 
       break;
     }
-    case tobas::PropulsionSystem::kIce: {
-      const auto iprop = boost::polymorphic_pointer_downcast<tobas::IcePropulsionSystemConfig>(drone_->prop);
+    case PropulsionSystem::kIce: {
+      const auto iprop = boost::polymorphic_pointer_downcast<IcePropulsionSystemConfig>(drone_->prop);
 
       auto ice_cmd_msg = std::make_unique<tobas_msgs::msg::IcePropulsionSystemCommand>();
       ice_cmd_msg->header.stamp = now();
       ice_cmd_msg->engine_throttle = 0.;
       for (const auto& [link_name, rotor] : iprop->rotors) {
-        const auto irotor = boost::polymorphic_pointer_downcast<tobas::IceRotorConfig>(rotor);
+        const auto irotor = boost::polymorphic_pointer_downcast<IceRotorConfig>(rotor);
         ice_cmd_msg->pitch_angles.emplace_back();
         ice_cmd_msg->pitch_angles.back().link_name = link_name;
-        ice_cmd_msg->pitch_angles.back().angle = irotor->optimalPitch();
+        ice_cmd_msg->pitch_angles.back().angle = irotor->center_pitch;
       }
 
       ice_cmd_pub_->publish(std::move(ice_cmd_msg));
@@ -145,7 +150,7 @@ void RotorControllerNode::disarm()
   auto_disarm_timer_.reset();
 }
 
-void RotorControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
+void RotorControllerNode::droneCb(const Drone::ConstSharedPtr& drone)
 {
   drone_ = drone;
 }
@@ -157,13 +162,13 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
   }
 
   if (!is_armed_) {
-    TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Command is ignored because the vehicle is disarmed.");
+    TOBAS_WARN_THROTTLE(kTypicalWarnPeriod, "Command is ignored because the vehicle is disarmed.");
     return;
   }
 
   switch (drone_->prop->type()) {
-    case tobas::PropulsionSystem::kElectric: {
-      const auto eprop = boost::polymorphic_pointer_downcast<tobas::ElectricPropulsionSystemConfig>(drone_->prop);
+    case PropulsionSystem::kElectric: {
+      const auto eprop = boost::polymorphic_pointer_downcast<ElectricPropulsionSystemConfig>(drone_->prop);
 
       // Create target speeds message
       auto tar_speeds_msg = std::make_unique<tobas_msgs::msg::RotorSpeedArray>();
@@ -188,9 +193,9 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
 
       break;
     }
-    case tobas::PropulsionSystem::kIce:  // 参照ピッチ角を用いて推力を実現する (memo: 3-27)
+    case PropulsionSystem::kIce:  // 参照ピッチ角を用いて推力を実現する (memo: 3-27)
     {
-      const auto iprop = boost::polymorphic_pointer_downcast<tobas::IcePropulsionSystemConfig>(drone_->prop);
+      const auto iprop = boost::polymorphic_pointer_downcast<IcePropulsionSystemConfig>(drone_->prop);
 
       // エンジン軸にかかる合計トルクとその係数を求める
       double thrust_sum = 0.;
@@ -202,9 +207,8 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
           TOBAS_ERROR("ICE Rotor \"" + elem.link_name + "\" does not exist.");
           continue;
         }
-        const auto pitch_opt = irotor->optimalPitch();
-        const auto motor_const = irotor->motorConst(pitch_opt);
-        const auto moment_const = irotor->momentConst(pitch_opt);
+        const auto motor_const = irotor->motorConst(irotor->center_pitch);
+        const auto moment_const = irotor->momentConst(irotor->center_pitch);
         const auto tar_thrust = std::max(elem.thrust, 0.);
         thrust_sum += tar_thrust;
         torque_sum += moment_const * tar_thrust / irotor->gear_ratio;  // 減速比を考慮
@@ -222,7 +226,7 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
           const auto irotor = iprop->getRotor(elem.link_name);
           ice_cmd_msg->pitch_angles.emplace_back();
           ice_cmd_msg->pitch_angles.back().link_name = elem.link_name;
-          ice_cmd_msg->pitch_angles.back().angle = irotor->optimalPitch();
+          ice_cmd_msg->pitch_angles.back().angle = irotor->center_pitch;
         }
       }
       else {
@@ -309,5 +313,6 @@ void RotorControllerNode::autoDisarmAfterCmdTimerCb()
     kAutoDisarmAfterCmdTimeout,
     " have elapsed since the last command.");
 }
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(RotorControllerNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::RotorControllerNode)

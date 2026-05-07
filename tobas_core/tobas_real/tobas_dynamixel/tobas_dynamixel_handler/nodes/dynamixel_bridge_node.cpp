@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include <tobas_constants/ros_interface.hpp>
 #include <tobas_dynamixel_ros_interface/ros_interface.hpp>
 #include <tobas_node/node.hpp>
@@ -7,13 +10,15 @@
 #include <tobas_msgs/msg/joint_command_array.hpp>
 #include <tobas_msgs/msg/joint_state_array.hpp>
 
-namespace tobas_dynamixel
+namespace tobas
+{
+namespace dxl
 {
 /* tobas_msgsとtobas_dynamixel_msgsのブリッジ． */
-class DynamixelBridgeNode : public tobas::BaseNode
+class DynamixelBridgeNode : public BaseNode
 {
   using self = DynamixelBridgeNode;
-  using super = tobas::BaseNode;
+  using super = BaseNode;
 
 public:
   explicit DynamixelBridgeNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -124,6 +129,7 @@ void DynamixelBridgeNode::jointEffCommandsCb(const tobas_msgs::msg::JointCommand
     motor_eff_pub_->publish(std::move(commands_out));
   }
 }
-}  // namespace tobas_dynamixel
+}  // namespace dxl
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(tobas_dynamixel::DynamixelBridgeNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::dxl::DynamixelBridgeNode)

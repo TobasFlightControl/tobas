@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_gazebo_system_plugins/sdf_string.hpp"
 
 #include <format>
 
 #include "tobas_gazebo_system_plugins/inertia.hpp"
 
+namespace tobas
+{
 namespace gazebo
 {
 std::string makeBoxSdf(
@@ -70,3 +75,4 @@ std::string makeBoxSdf(
     sz);
 }
 }  // namespace gazebo
+}  // namespace tobas

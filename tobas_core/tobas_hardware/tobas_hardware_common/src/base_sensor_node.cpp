@@ -1,5 +1,10 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_hardware_common/base_sensor_node.hpp"
 
+namespace tobas
+{
 namespace hardware
 {
 BaseSensorNode::BaseSensorNode(const std::string& name, const rclcpp::NodeOptions& options)
@@ -19,3 +24,4 @@ void BaseSensorNode::stopMainTimerSrvCb(const Empty::Request::ConstSharedPtr&, c
   main_timer_->cancel();
 }
 }  // namespace hardware
+}  // namespace tobas

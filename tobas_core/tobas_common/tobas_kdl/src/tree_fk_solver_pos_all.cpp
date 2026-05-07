@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_kdl/tree_fk_solver_pos_all.hpp"
 
 using namespace std;
 
+namespace tobas
+{
 namespace kdl
 {
 TreeFkSolverPosAll::TreeFkSolverPosAll(const Tree& tree) : super(tree)
@@ -55,3 +60,4 @@ void TreeFkSolverPosAll::recursiveFk(const JntArray& q, const Frame& par_frame, 
   }
 }
 }  // namespace kdl
+}  // namespace tobas

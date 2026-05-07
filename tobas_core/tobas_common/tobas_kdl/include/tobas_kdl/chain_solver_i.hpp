@@ -1,8 +1,13 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include "./chain.hpp"
 #include "./solver_i.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 class ChainSolverI : public SolverI
@@ -38,3 +43,4 @@ inline bool ChainSolverI::isUpToDate() const
   return chain_.getNrOfJoints() == nj_ && chain_.getNrOfSegments() == ns_;
 }
 }  // namespace kdl
+}  // namespace tobas

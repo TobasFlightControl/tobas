@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <array>
@@ -5,7 +8,9 @@
 #include <iostream>
 #include <vector>
 
-namespace tbs
+namespace tobas
+{
+namespace st
 {
 template <typename T>
 std::vector<uint8_t> toBytes(const T& src)
@@ -34,4 +39,5 @@ void fromBytes(const std::array<uint8_t, N>& src, T& dst)
   static_assert(src.size() == sizeof(T));
   memcpy(&dst, src.data(), sizeof(T));
 }
-}  // namespace tbs
+}  // namespace st
+}  // namespace tobas

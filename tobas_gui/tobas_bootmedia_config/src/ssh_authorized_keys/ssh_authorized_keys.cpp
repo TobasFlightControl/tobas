@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_bootmedia_config/ssh_authorized_keys/ssh_authorized_keys.hpp"
 
 #include <tobas_path_tools/core.hpp>
@@ -188,7 +191,7 @@ void SshAuthorizedKeysWidget::onRemoveButtonClicked()
   }
 
   // 鍵を削除
-  tbs::eraseIndex(keys_, row);
+  st::eraseIndex(keys_, row);
   list_->takeItem(row);
 
   // 現在の設定をメディアに反映

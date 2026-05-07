@@ -1,7 +1,6 @@
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
-
 from launch_ros.actions import Node, SetParameter
 from launch_ros.substitutions import FindPackageShare
 
@@ -103,6 +102,15 @@ def generate_launch_description():
             output=output,
         )
     )
+    ld.add_action(
+        Node(
+            package="tobas_object_avoidance",
+            executable="object_avoidance",
+            namespace=DRONE_NAME,
+            ros_arguments=ros_args,
+            output=output,
+        )
+    )
 
     # Launch 3th priority nodes (Others)
     ld.add_action(
@@ -138,6 +146,7 @@ def generate_launch_description():
             package="tobas_config_servers",
             executable="imu_filter_config_server",
             namespace=DRONE_NAME,
+            parameters=[PathJoinSubstitution([config_pkg_share, "config", "imu_filter_static_standalone.yaml"])],
             ros_arguments=ros_args,
             output=output,
         )

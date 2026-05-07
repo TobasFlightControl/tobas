@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_urdf_builder_plugin/ui/save_urdf_dialog.hpp"
 
 #include <QDialogButtonBox>
@@ -6,6 +9,8 @@
 
 #include <tobas_qt_tools/path.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ub
@@ -59,3 +64,4 @@ void SaveUrdfDialog::onLineEditTextChanged()
 }  // namespace ui
 }  // namespace ub
 }  // namespace gui
+}  // namespace tobas

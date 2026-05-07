@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_linux/core.hpp"
 
 #include <unistd.h>
@@ -7,6 +10,8 @@
 using namespace std;
 namespace fs = filesystem;
 
+namespace tobas
+{
 namespace linux
 {
 string userName()
@@ -52,3 +57,4 @@ bool isSuperUser() noexcept
   return getuid() == 0;
 }
 }  // namespace linux
+}  // namespace tobas

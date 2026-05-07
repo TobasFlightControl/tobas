@@ -1,6 +1,11 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
-namespace tobas_dynamixel
+namespace tobas
+{
+namespace dxl
 {
 namespace topic
 {
@@ -14,4 +19,5 @@ namespace service
 {
 static constexpr char kEnableTorques[] = "dynamixel/enable_torques";
 }  // namespace service
-}  // namespace tobas_dynamixel
+}  // namespace dxl
+}  // namespace tobas

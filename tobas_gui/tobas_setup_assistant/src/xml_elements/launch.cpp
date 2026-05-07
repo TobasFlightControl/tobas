@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_setup_assistant/xml_elements/launch.hpp"
 
 #include <tobas_std_tools/check.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -48,3 +53,4 @@ tinyxml2::XMLElement* addNodeParam(tinyxml2::XMLElement* node, const std::string
 }  // namespace xml
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

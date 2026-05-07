@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include "./chain_solver_i.hpp"
 #include "./frames.hpp"
 #include "./jntarray.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 /* ベースは公式のChainIdSolver_RNEで，重力加速度を呼び出し時に与えるようにしたもの． */
@@ -54,3 +59,4 @@ inline const JntArray& ChainIdSolver_RNE::getEfforts() const
   return effort_out_;
 }
 }  // namespace kdl
+}  // namespace tobas

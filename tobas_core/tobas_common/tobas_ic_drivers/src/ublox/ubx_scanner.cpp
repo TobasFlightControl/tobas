@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_ic_drivers/ublox/ubx_scanner.hpp"
 
 #include <iostream>
 
 using namespace std;
 
+namespace tobas
+{
 namespace ublox
 {
 UBXScanner::UBXScanner()
@@ -93,3 +98,4 @@ bool UBXScanner::update(const uint8_t& data)
   return true;
 }
 }  // namespace ublox
+}  // namespace tobas

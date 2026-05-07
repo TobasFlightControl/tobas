@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_control_system/mission_planner/commands/base.hpp"
 
 #include <QHBoxLayout>
@@ -8,6 +11,8 @@
 #include <tobas_qt_tools/font.hpp>
 #include <tobas_qt_tools/widgets/scroll_area.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -98,3 +103,4 @@ void BaseCommandWidget::onDeleteButtonClicked()
 }
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

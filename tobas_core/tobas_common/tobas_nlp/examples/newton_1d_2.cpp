@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 /**
  * Solve: x^3 + 2 x^2 + 10 x - 20 = 0
  */
@@ -11,17 +14,17 @@ using namespace std;
 
 double f(double x)
 {
-  return math::cube(x) + 2 * math::sqr(x) + 10 * x - 20;
+  return tobas::math::cube(x) + 2 * tobas::math::sqr(x) + 10 * x - 20;
 }
 
 double dfdx(double x)
 {
-  return 3 * math::sqr(x) + 4 * x + 10;
+  return 3 * tobas::math::sqr(x) + 4 * x + 10;
 }
 
 int main()
 {
-  nlp::NewtonSolver1d newton;
+  tobas::nlp::NewtonSolver1d newton;
 
   newton.initialize(f, dfdx);
 

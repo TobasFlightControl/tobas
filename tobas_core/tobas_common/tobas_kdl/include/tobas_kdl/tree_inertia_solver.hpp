@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include "./jntarray.hpp"
 #include "./rigid_body_inertia.hpp"
 #include "./tree_solver_i.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 class TreeInertiaSolver : public TreeSolverI
@@ -33,3 +38,4 @@ inline const RigidBodyInertia& TreeInertiaSolver::getInertia() const
   return I_.at(tree_.getRootSegment()->first);
 }
 }  // namespace kdl
+}  // namespace tobas

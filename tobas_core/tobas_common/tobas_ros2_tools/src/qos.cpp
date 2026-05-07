@@ -1,5 +1,10 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_ros2_tools/qos.hpp"
 
+namespace tobas
+{
 namespace ros2
 {
 namespace qos
@@ -26,3 +31,4 @@ DefaultQoS::DefaultQoS() : QoS(kDefaultLatch, kDefaultReliable, kDefaultQueueSiz
 }
 }  // namespace qos
 }  // namespace ros2
+}  // namespace tobas

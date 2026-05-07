@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <filesystem>
 
 #include <rapidcsv.h>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -28,3 +33,4 @@ bool getColumn(const rapidcsv::Document& doc, const std::string& name, std::vect
 }  // namespace csv
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

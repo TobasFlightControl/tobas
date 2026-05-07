@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_udev/core.hpp"
 
 namespace fs = std::filesystem;
 
+namespace tobas
+{
 namespace udv
 {
 namespace
@@ -60,3 +65,4 @@ std::string getBlockLabel(udev* u, const fs::path& devnode)
   return getPropertyValue(dev, "ID_FS_LABEL");
 }
 }  // namespace udv
+}  // namespace tobas

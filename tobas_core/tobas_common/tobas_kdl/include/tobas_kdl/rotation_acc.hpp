@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include "./twist_acc.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 class RotationAcc
@@ -144,3 +149,4 @@ inline RotationAcc operator*(const Rotation& lhs, const RotationAcc& rhs)
   return RotationAcc(lhs * rhs.R, lhs * rhs.w, lhs * rhs.dw);
 }
 }  // namespace kdl
+}  // namespace tobas

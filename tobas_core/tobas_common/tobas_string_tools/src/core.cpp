@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_string_tools/core.hpp"
 
 #include <algorithm>
@@ -8,6 +11,8 @@
 
 using namespace std;
 
+namespace tobas
+{
 namespace str
 {
 vector<string> split(const string& s, const char& c)
@@ -278,3 +283,4 @@ string snakeFromTitle(const string& title_case)
   return snakeFromPascal(pascalFromTitle(title_case));
 }
 }  // namespace str
+}  // namespace tobas

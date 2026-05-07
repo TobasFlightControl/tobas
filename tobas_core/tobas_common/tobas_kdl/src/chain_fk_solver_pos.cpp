@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_kdl/chain_fk_solver_pos.hpp"
 
 using namespace std;
 
+namespace tobas
+{
 namespace kdl
 {
 ChainFkSolverPos::ChainFkSolverPos(const Chain& chain) : super(chain)
@@ -34,3 +39,4 @@ int ChainFkSolverPos::jntToCart(const JntArray& q_in, int _seg_nr)
   return setDefaultError(kNoError);
 }
 }  // namespace kdl
+}  // namespace tobas

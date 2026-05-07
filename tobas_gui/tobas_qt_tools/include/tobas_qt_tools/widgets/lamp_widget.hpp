@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <QLabel>
 
 #include "tobas_qt_tools/rgb_color.hpp"
 
+namespace tobas
+{
 namespace qt
 {
 class LampWidget : public QLabel
@@ -37,3 +42,4 @@ private:
   void draw();
 };
 }  // namespace qt
+}  // namespace tobas

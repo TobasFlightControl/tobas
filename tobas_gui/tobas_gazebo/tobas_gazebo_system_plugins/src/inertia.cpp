@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_gazebo_system_plugins/inertia.hpp"
 
 #include <cassert>
 
 #include <tobas_math/core.hpp>
 
+namespace tobas
+{
 namespace gazebo
 {
 std::tuple<double, double, double> boxInertia(double sx, double sy, double sz, double mass)
@@ -24,3 +29,4 @@ std::tuple<double, double, double> boxInertia(double sx, double sy, double sz, d
   return { ixx, iyy, izz };
 }
 }  // namespace gazebo
+}  // namespace tobas

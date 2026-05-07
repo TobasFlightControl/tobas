@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_kdl/tree_ik_solver_vel_pinv.hpp"
 
 #include <tobas_eigen_tools/linalg.hpp>
@@ -6,6 +9,8 @@
 using namespace std;
 using namespace Eigen;
 
+namespace tobas
+{
 namespace kdl
 {
 TreeIkSolverVel_pinv::TreeIkSolverVel_pinv(const Tree& tree) : super(tree), jnt2jac_(tree_), jntparser_(tree_)
@@ -129,3 +134,4 @@ void TreeIkSolverVel_pinv::resize()
   qp_solver_.problem.h.conservativeResize(0);
 }
 }  // namespace kdl
+}  // namespace tobas

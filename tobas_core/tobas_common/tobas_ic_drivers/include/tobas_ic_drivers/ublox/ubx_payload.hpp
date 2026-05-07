@@ -1,8 +1,13 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <cstdint>
 #include <iostream>
 
+namespace tobas
+{
 namespace ublox
 {
 namespace payload
@@ -461,3 +466,4 @@ struct NAV_VELNED : public Payload
 };
 }  // namespace payload
 }  // namespace ublox
+}  // namespace tobas

@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <rclcpp/time.hpp>
 
+namespace tobas
+{
 namespace ros2
 {
 class RateManager
@@ -22,3 +27,4 @@ private:
   bool is_first_update_ = true;
 };
 }  // namespace ros2
+}  // namespace tobas

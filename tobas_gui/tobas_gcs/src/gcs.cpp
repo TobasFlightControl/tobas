@@ -1,10 +1,10 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_gcs/gcs.hpp"
 
-#include <QApplication>
 #include <QButtonGroup>
-#include <QFileDialog>
 #include <QHBoxLayout>
-#include <QLabel>
 #include <QVBoxLayout>
 
 #include <tobas_constants/path.hpp>
@@ -28,13 +28,14 @@
 using namespace std::chrono_literals;
 namespace fs = std::filesystem;
 
+namespace tobas
+{
 namespace gui
 {
 namespace gcs
 {
 GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr node)
-  : node_(node)
-  , bridge_(node)
+  : bridge_(node)
   , network_checker_(this, bridge_)
   , property_client_(node, "tobas_gcs/gcs")
   , ssh_client_(node)
@@ -159,8 +160,10 @@ void GroundControlStationWidget::reset(bool include_simulation)
 
 void GroundControlStationWidget::updateInternalDataStructures()
 {
+  const auto ns = '/' + drone_.name;
+
   // まずトピックを貼り替えて以前の機体でのコールバックを全て吐ききる
-  bridge_.initializeScopedTopics(drone_.name);
+  bridge_.initializeScopedTopics(ns);
   qt::processAllQueuedEvents();
 
   // SSHの窓口に接続先の情報を伝える
@@ -175,13 +178,13 @@ void GroundControlStationWidget::updateInternalDataStructures()
   actuator_test_->updateInternalDataStructures();
   control_system_->updateInternalDataStructures();
   param_tuning_->updateProject(projectPath());
-  flight_log_->updateNamespace(drone_.name);
+  flight_log_->updateNamespace(ns);
   simulation_->updateProject(projectPath());
 }
 
 void GroundControlStationWidget::closeEvent(QCloseEvent* event)
 {
-  RCLCPP_DEBUG(node_->get_logger(), "GroundControlStationWidget::closeEvent");
+  qDebug() << "GroundControlStationWidget::closeEvent";
 
   sensor_calib_->close();
   actuator_test_->close();
@@ -225,7 +228,7 @@ std::expected<void, QString> GroundControlStationWidget::shutdownInBackground()
 
 void GroundControlStationWidget::onLoadButtonClicked()
 {
-  RCLCPP_DEBUG(node_->get_logger(), "GroundControlStationWidget::onLoadButtonClicked");
+  qDebug() << "GroundControlStationWidget::onLoadButtonClicked";
 
   // シミュレーションの起動中でないことを確認
   if (simulation_->isRunning()) {
@@ -236,8 +239,8 @@ void GroundControlStationWidget::onLoadButtonClicked()
   // 前回開いたパスを取得
   std::string last_opened_dir;
   if (property_client_.get(kLastOpenedDirKey, last_opened_dir) < 0) {
-    RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
-    last_opened_dir = ros2::expandUser(tobas::kColconWSPathHome) / "src";
+    qWarning() << property_client_.errorMessage();
+    last_opened_dir = ros2::expandUser(kColconWSPathHome) / "src";
     if (!fs::is_directory(last_opened_dir)) {
       last_opened_dir = ros2::getHomeDir();
     }
@@ -273,10 +276,10 @@ void GroundControlStationWidget::onLoadButtonClicked()
   // ユーザが開いたディレクトリを保存
   const auto par_dir = fs::path(proj_path).parent_path();
   if (property_client_.set(kLastOpenedDirKey, par_dir) < 0) {
-    RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
+    qWarning() << property_client_.errorMessage();
   }
   if (property_client_.save() < 0) {
-    RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
+    qWarning() << property_client_.errorMessage();
   }
 
   // 機体設定ファイルの存在を確認
@@ -331,7 +334,7 @@ void GroundControlStationWidget::onLoadButtonClicked()
 
 void GroundControlStationWidget::onWriteButtonClicked()
 {
-  RCLCPP_DEBUG(node_->get_logger(), "GroundControlStationWidget::onWriteButtonClicked");
+  qDebug() << "GroundControlStationWidget::onWriteButtonClicked";
 
   // アームされていないことを確認
   if (!arming_) {
@@ -405,7 +408,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
   // 環境変数を読み込む (読み込めなくても続行)
   progress.setLabelText("Getting environment variables.");
   std::string project_env_text;
-  if (ssh_client_.sftpRead(tobas::kProjectEnvPath, project_env_text, true) == ssh::SshClient::kNoError) {
+  if (ssh_client_.sftpRead(kProjectEnvPath, project_env_text, true) == ssh::SshClient::kNoError) {
     if (!project_env_parser_.parseFromText(project_env_text)) {
       progress.close();
       qt::qErrorBox(this, "Failed to parse configuration file.");
@@ -421,12 +424,12 @@ void GroundControlStationWidget::onWriteButtonClicked()
   if (config_pkg_name != project_env_parser_.config_pkg) {
     // ワークスペースを初期化
     progress.setLabelText("Initializing colcon workspace.");
-    if (ssh_client_.execute(std::format("rm -rf {}", tobas::kColconWSPathRoot), true)) {
+    if (ssh_client_.execute(std::format("rm -rf {}", kColconWSPathRoot), true)) {
       progress.close();
       qt::qErrorBox(this, "Failed to remove the old colcon workspace:\n\n" + QString(ssh_client_.errorMessage()));
       return;
     }
-    if (ssh_client_.execute(std::format("mkdir -p {}/src", tobas::kColconWSPathRoot), true)) {
+    if (ssh_client_.execute(std::format("mkdir -p {}/src", kColconWSPathRoot), true)) {
       progress.close();
       qt::qErrorBox(this, "Failed to create a new colcon workspace:\n\n" + QString(ssh_client_.errorMessage()));
       return;
@@ -441,7 +444,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
   progress.setLabelText("Setting environment variables.");
   project_env_parser_.config_pkg = config_pkg_name;
   project_env_parser_.nif = network_config_.interface;
-  if (ssh_client_.sftpWrite(tobas::kProjectEnvPath, project_env_parser_.exportText(), true) != ssh::SshClient::kNoError) {
+  if (ssh_client_.sftpWrite(kProjectEnvPath, project_env_parser_.exportText(), true) != ssh::SshClient::kNoError) {
     progress.close();
     qt::qErrorBox(this, "Failed to set environment variables:\n\n" + QString(ssh_client_.errorMessage()));
     return;
@@ -450,7 +453,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
 
   // プロジェクトを送信
   progress.setLabelText("Sending the Tobas project to the flight controller.");
-  const auto remote_dir = fs::path(tobas::kColconWSPathRoot) / "src/";
+  const auto remote_dir = fs::path(kColconWSPathRoot) / "src/";
   const auto mesh_path = proj_paths_.cfgMeshDirPath();
   const auto git_path = proj_paths_.getProjPath() / ".git";
   if (ssh_client_.scpPut(proj_path, remote_dir, true, { mesh_path, git_path }, true) != ssh::SshClient::kNoError) {
@@ -469,7 +472,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
     }
     else {
       const auto log_path =
-        qt::writeTimestampedFile(error_msg + '\n', qt::expandUser(tobas::kGuiLogDir), "", "builderr_remote");
+        qt::writeTimestampedFile(error_msg + '\n', qt::expandUser(kGuiLogDir), "", "builderr_remote");
       if (log_path) {
         qt::qErrorBox(this, "Failed to build the Tobas project. The output has been saved to:\n" + log_path.value());
       }
@@ -485,10 +488,10 @@ void GroundControlStationWidget::onWriteButtonClicked()
 
   // DDSの設定を更新
   progress.setLabelText("Writing DDS configuration.");
-  tobas::cyclonedds::Data dds_data;
+  cyclonedds::Data dds_data;
   dds_data.interfaces.emplace_back(network_config_.interface);
-  const auto dds_config_text = tobas::cyclonedds::exportText(dds_data);
-  if (ssh_client_.sftpWrite(tobas::kCycloneddsConfigPath, dds_config_text, true) != ssh::SshClient::kNoError) {
+  const auto dds_config_text = cyclonedds::exportText(dds_data);
+  if (ssh_client_.sftpWrite(kCycloneddsConfigPath, dds_config_text, true) != ssh::SshClient::kNoError) {
     progress.close();
     qt::qErrorBox(this, "Failed to write DDS configuration:\n\n" + QString(ssh_client_.errorMessage()));
     return;
@@ -524,7 +527,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
 
 void GroundControlStationWidget::onRestartButtonClicked(bool checked)
 {
-  RCLCPP_DEBUG(node_->get_logger(), "GroundControlStationWidget::onRestartButtonClicked");
+  qDebug() << "GroundControlStationWidget::onRestartButtonClicked";
 
   if (!checked) {
     return;
@@ -562,7 +565,7 @@ void GroundControlStationWidget::onRestartButtonClicked(bool checked)
 
 void GroundControlStationWidget::onShutdownButtonClicked(bool checked)
 {
-  RCLCPP_DEBUG(node_->get_logger(), "GroundControlStationWidget::onShutdownButtonClicked");
+  qDebug() << "GroundControlStationWidget::onShutdownButtonClicked";
 
   if (!checked) {
     return;
@@ -600,7 +603,7 @@ void GroundControlStationWidget::onShutdownButtonClicked(bool checked)
 
 void GroundControlStationWidget::onSimRealStateChanged()
 {
-  RCLCPP_DEBUG(node_->get_logger(), "GroundControlStationWidget::onSimRealStateChanged");
+  qDebug() << "GroundControlStationWidget::onSimRealStateChanged";
 
   // シミュレーションウィジェット以外リセット
   reset(false);
@@ -608,9 +611,12 @@ void GroundControlStationWidget::onSimRealStateChanged()
 
 void GroundControlStationWidget::onRemoteConnectionDisconnected()
 {
-  RCLCPP_DEBUG(node_->get_logger(), "GroundControlStationWidget::onRemoteConnectionDisconnected");
+  qDebug() << "GroundControlStationWidget::onRemoteConnectionDisconnected";
 
-  reset();
+  // 実機との通信が切断された場合に限り全てのウィジェットをリセットする
+  if (!simulation_->isRunning()) {
+    reset();
+  }
 }
 
 void GroundControlStationWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
@@ -619,3 +625,4 @@ void GroundControlStationWidget::armingCb(const tobas_msgs::msg::Arming::ConstSh
 }
 }  // namespace gcs
 }  // namespace gui
+}  // namespace tobas

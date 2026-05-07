@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <cmath>
@@ -6,6 +9,8 @@
 #include <QTimer>
 #include <QWidget>
 
+namespace tobas
+{
 namespace qt
 {
 class WaitSpinnerWidget : public QWidget
@@ -95,3 +100,4 @@ private:
   void updatePosition();
 };
 }  // namespace qt
+}  // namespace tobas

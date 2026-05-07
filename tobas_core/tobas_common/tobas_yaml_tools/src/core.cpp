@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_yaml_tools/core.hpp"
 
 #include <fstream>
@@ -5,6 +8,8 @@
 
 namespace fs = std::filesystem;
 
+namespace tobas
+{
 namespace yaml
 {
 std::string dump(const YAML::Node& node)
@@ -44,3 +49,4 @@ bool save(const fs::path& path, const YAML::Node& node)
   return true;
 }
 }  // namespace yaml
+}  // namespace tobas

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include "./console.hpp"
@@ -10,6 +13,8 @@
 #include "./rotors_viewer/rotors_viewer.hpp"
 #include "./status_viewer/status_viewer.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -19,13 +24,13 @@ class ControlSystemWidget : public QWidget
   Q_OBJECT
 
 public:
-  explicit ControlSystemWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge, const tobas::Drone& drone);
+  explicit ControlSystemWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge, const Drone& drone);
 
   void reset();
   void updateInternalDataStructures();
 
 private:
-  const tobas::Drone& drone_;
+  const Drone& drone_;
 
   PoseViewerWidget* pose_viewer_;
   PowerSourceViewerWidget* power_source_viewer_;
@@ -39,3 +44,4 @@ private:
 };
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

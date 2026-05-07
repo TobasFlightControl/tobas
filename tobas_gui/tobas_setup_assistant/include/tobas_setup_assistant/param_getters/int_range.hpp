@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <tobas_std_tools/range.hpp>
@@ -5,11 +8,13 @@
 #include "./base.hpp"
 #include "./int_getter.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
 {
-class ParamGetterWidget_IntRange : public ParamGetterWidget<tbs::Range<int>>
+class ParamGetterWidget_IntRange : public ParamGetterWidget<st::Range<int>>
 {
   Q_OBJECT
 
@@ -44,3 +49,4 @@ private:
 };
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

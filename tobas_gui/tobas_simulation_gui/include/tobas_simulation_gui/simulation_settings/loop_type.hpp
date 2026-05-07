@@ -1,8 +1,13 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <QButtonGroup>
 #include <QRadioButton>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sim
@@ -33,3 +38,4 @@ private:
 };
 }  // namespace sim
 }  // namespace gui
+}  // namespace tobas

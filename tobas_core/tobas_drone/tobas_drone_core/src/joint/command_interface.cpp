@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_drone_core/joint/command_interface.hpp"
 
 #include <iostream>
@@ -30,19 +33,19 @@ string textFromEnum(JointCommandInterface value)
 bool enumFromText(const string& text, JointCommandInterface& dst)
 {
   if (text == POSITION) {
-    dst = tobas::JointCommandInterface::kPosition;
+    dst = JointCommandInterface::kPosition;
     return true;
   }
   else if (text == VELOCITY) {
-    dst = tobas::JointCommandInterface::kVelocity;
+    dst = JointCommandInterface::kVelocity;
     return true;
   }
   else if (text == EFFORT) {
-    dst = tobas::JointCommandInterface::kEffort;
+    dst = JointCommandInterface::kEffort;
     return true;
   }
   else if (text == NONE) {
-    dst = tobas::JointCommandInterface::kNone;
+    dst = JointCommandInterface::kNone;
     return true;
   }
   else {

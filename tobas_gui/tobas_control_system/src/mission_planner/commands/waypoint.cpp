@@ -1,5 +1,10 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_control_system/mission_planner/commands/waypoint.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -57,7 +62,7 @@ double WaypointWidget::altitude() const
   return getValue(altitude_);
 }
 
-tobas::mission::AltitudeFrame WaypointWidget::altitudeFrame() const
+mission::AltitudeFrame WaypointWidget::altitudeFrame() const
 {
   return getValue(altitude_frame_);
 }
@@ -127,7 +132,7 @@ void WaypointWidget::altitude(double value)
   altitude_->setValue(value);
 }
 
-void WaypointWidget::altitudeFrame(tobas::mission::AltitudeFrame value)
+void WaypointWidget::altitudeFrame(mission::AltitudeFrame value)
 {
   altitude_frame_->setValue(value);
 }
@@ -183,3 +188,4 @@ void WaypointWidget::altitudeTolerance(double value)
 }
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

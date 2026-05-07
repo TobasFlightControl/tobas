@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <deque>
 
 #include <tobas_eigen_tools/core.hpp>
 
+namespace tobas
+{
 namespace dsp
 {
 /**
@@ -91,3 +96,4 @@ inline const MovingStatistics<Scalar, Size, Length>::CovType& MovingStatistics<S
   return v_;
 }
 }  // namespace dsp
+}  // namespace tobas

@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_kdl/tree_jntspace_inertia_solver.hpp"
 
 using namespace std;
 
+namespace tobas
+{
 namespace kdl
 {
 TreeJntSpaceInertiaSolver::TreeJntSpaceInertiaSolver(const Tree& tree) : super(tree), rne_(tree_, kdl::Vector::Zero())
@@ -60,3 +65,4 @@ void TreeJntSpaceInertiaSolver::resize()
   jntarray_null_ = JntArray::Zero(nj_);
 }
 }  // namespace kdl
+}  // namespace tobas

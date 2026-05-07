@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_gazebo_tools/model_links_parser.hpp"
 
 #include "tobas_gazebo_tools/utils.hpp"
 
 namespace cmp = gz::sim::components;
 
+namespace tobas
+{
 namespace gazebo
 {
 ModelLinksParser::ModelLinksParser()
@@ -31,3 +36,4 @@ bool ModelLinksParser::initialize(const gz::sim::Entity& model, const gz::sim::E
   return true;
 }
 }  // namespace gazebo
+}  // namespace tobas

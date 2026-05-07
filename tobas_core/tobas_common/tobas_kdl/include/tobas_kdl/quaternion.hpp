@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <tobas_math/core.hpp>
@@ -7,6 +10,8 @@
 #include "./rotation.hpp"
 #include "./vector.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 class Quaternion
@@ -101,7 +106,7 @@ inline Quaternion Quaternion::RPY(double roll, double pitch, double yaw)
 
 inline void Quaternion::getRPY(double& roll, double& pitch, double& yaw) const
 {
-  std::tie(roll, pitch, yaw) = tbs::eulerFromQuaternion(x, y, z, w);
+  std::tie(roll, pitch, yaw) = st::eulerFromQuaternion(x, y, z, w);
 }
 
 inline Quaternion Quaternion::complexConjugate() const
@@ -167,3 +172,4 @@ inline std::ostream& operator<<(std::ostream& os, const Quaternion& arg)
   return os;
 }
 }  // namespace kdl
+}  // namespace tobas

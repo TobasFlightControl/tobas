@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_ic_drivers/stmicro/ism330dlc.hpp"
 
 #include <cstring>
@@ -7,6 +10,8 @@
 
 using namespace std;
 
+namespace tobas
+{
 namespace stm
 {
 ISM330DLC::ISM330DLC()
@@ -28,6 +33,12 @@ bool ISM330DLC::initialize(const char* spi_device)
     return false;
   }
   if (!setGyroFullScale(fs_g_t::FS_G_250DPS)) {
+    return false;
+  }
+
+  // Enable BDU (Block Data Update)
+  // さもないと複数バイトを読んでいる最中にデータが更新されてしまう恐れがある
+  if (!writeReg(REG_CTRL3_C, BDU | IF_INC)) {
     return false;
   }
 
@@ -81,7 +92,7 @@ bool ISM330DLC::setAccelOutputDataRate(odr_xl_t odr)
       return false;
   }
 
-  if (!writeReg(REG_CTRL1_XL, ctrl1_xl)) {
+  if (!writeReg(REG_CTRL1_XL, ctrl1_xl | LPF1_BW_SEL_4)) {  // Anti-aliasing
     return false;
   }
 
@@ -174,7 +185,7 @@ bool ISM330DLC::setAccelFullScale(fs_xl_t fs)
 
   // LSB -> mg -> g -> m/s^2 (Linear acceleration sensitivity | 4.1 Mechanical characteristics)
   acc_scale_ *= 1e-3;
-  acc_scale_ *= tbs::kGravity;
+  acc_scale_ *= st::kGravity;
 
   return true;
 }
@@ -220,7 +231,7 @@ bool ISM330DLC::setGyroFullScale(fs_g_t fs)
 
   // mdps -> dps -> rad/s (Angular rate sensitivity | 4.1 Mechanical characteristics)
   gyro_scale_ *= 1e-3;
-  gyro_scale_ *= tbs::kDeg2Rad;
+  gyro_scale_ *= st::kDeg2Rad;
 
   return true;
 }
@@ -276,3 +287,4 @@ bool ISM330DLC::checkWhoAmI()
   return true;
 }
 }  // namespace stm
+}  // namespace tobas

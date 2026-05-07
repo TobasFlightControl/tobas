@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <QPushButton>
 
+namespace tobas
+{
 namespace qt
 {
 /* 押すたびにテキストが切り替わる単純なトグルボタン． */
@@ -32,3 +37,4 @@ private Q_SLOTS:
   void onClicked();
 };
 }  // namespace qt
+}  // namespace tobas

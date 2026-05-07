@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_parameter_tuning/param_block.hpp"
 
 #include <QDebug>
@@ -18,6 +21,8 @@
 
 namespace fs = std::filesystem;
 
+namespace tobas
+{
 namespace gui
 {
 namespace param
@@ -43,7 +48,7 @@ bool ParamBlockWidget::load(const std::string& ns)
   clear();
 
   // Get dynamic parameters
-  const auto service_name = path::join(ns, tobas::kRemoteIfaceNS, node_name_, tobas::service::kGetDynamicParams);
+  const auto service_name = path::join(ns, kRemoteIfaceNS, node_name_, service::kGetDynamicParams);
   ros2::SyncServiceClient<tobas_dparam_msgs::srv::GetParams> sc(node_, service_name);
   const auto req = std::make_shared<tobas_dparam_msgs::srv::GetParams::Request>();
   if (!sc.call(req, kLoadParamTimeout)) {
@@ -261,3 +266,4 @@ void ParamBlockWidget::onDoubleSliderValueChanged(long value, const std::string&
 }
 }  // namespace param
 }  // namespace gui
+}  // namespace tobas

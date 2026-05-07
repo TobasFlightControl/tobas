@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include "./accel.hpp"
@@ -7,6 +10,8 @@
 #include "./vector.hpp"
 #include "./wrench.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 class Frame;
@@ -349,3 +354,4 @@ inline std::ostream& operator<<(std::ostream& os, const Frame& arg)
   return os;
 }
 }  // namespace kdl
+}  // namespace tobas

@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_gazebo_tools/utils.hpp"
 
 namespace cmp = gz::sim::components;
 
+namespace tobas
+{
 namespace gazebo
 {
 bool belongsTo(const gz::sim::Entity& entity, const gz::sim::Entity& target, const gz::sim::EntityComponentManager& ecm)
@@ -36,3 +41,4 @@ findJointWithChildLink(const gz::sim::EntityComponentManager& ecm, const std::st
   return res;
 }
 }  // namespace gazebo
+}  // namespace tobas

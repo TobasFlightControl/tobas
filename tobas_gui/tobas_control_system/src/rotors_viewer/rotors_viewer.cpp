@@ -1,13 +1,18 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_control_system/rotors_viewer/rotors_viewer.hpp"
 
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
 {
-RotorsViewerWiddget::RotorsViewerWiddget(const RosQtBridge& bridge, const tobas::Drone& drone) : drone_(drone)
+RotorsViewerWiddget::RotorsViewerWiddget(const RosQtBridge& bridge, const Drone& drone) : drone_(drone)
 {
   cols_ = new QHBoxLayout();
   setLayout(cols_);
@@ -31,7 +36,7 @@ void RotorsViewerWiddget::updateInternalDataStructures()
 
   for (const auto& [link_name, rotor] : drone_.prop->rotors) {
     const auto meter = new SpeedmeterWidget();
-    meter->setMaximumValue(tbs::rps2rpm(drone_.prop->maxSpeed(link_name)));
+    meter->setMaximumValue(st::rps2rpm(drone_.prop->maxSpeed(link_name)));
     meter->setTopText(QString::fromStdString(link_name));
 
     meters_[link_name] = meter;
@@ -44,7 +49,7 @@ void RotorsViewerWiddget::updateInternalDataStructures()
 void RotorsViewerWiddget::setSpeed(const std::string& link_name, const double& rps)
 {
   const auto& meter = meters_.at(link_name);
-  const auto rpm = static_cast<int>(tbs::rps2rpm(rps));
+  const auto rpm = static_cast<int>(st::rps2rpm(rps));
   meter->setValue(rpm);
   meter->setBottomText(bottomText(rpm));
 }
@@ -88,3 +93,4 @@ QString RotorsViewerWiddget::bottomText(int rpm)
 }
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_fc1xx_core/dshot.hpp"
 
 #include <iostream>
@@ -7,6 +10,8 @@
 
 using namespace std;
 
+namespace tobas
+{
 namespace fc1xx
 {
 DShot::DShot() noexcept : crc_(algo::CRC32Left::CRC_32)
@@ -45,7 +50,7 @@ bool DShot::transfer() noexcept
   const auto cs = rx_buf_[kChannelSize];
   const auto cr = crc_.compute((uint8_t*)rx_buf_, sizeof(uint32_t) * kChannelSize);
   if (cs != cr) {
-    cerr << "CRC failed: " << cs << " != " << cr << endl;
+    cerr << "CRC failed: " << hex << uppercase << cs << " != " << cr << dec << endl;
     return false;
   }
 
@@ -79,7 +84,7 @@ bool DShot::setTargetSpeed(size_t ch, double rps) noexcept
     return false;
   }
 
-  const auto rpm = static_cast<uint32_t>(tbs::rps2rpm(rps));
+  const auto rpm = static_cast<uint32_t>(st::rps2rpm(rps));
   if (rpm >= (1 << 16)) {
     cerr << "Target rotation speed is too large." << endl;
     return false;
@@ -101,7 +106,7 @@ bool DShot::setKv(size_t ch, double kv_si) noexcept
     return false;
   }
 
-  const auto kv = static_cast<uint32_t>(tbs::rps2rpm(kv_si));  // [rpm/V]
+  const auto kv = static_cast<uint32_t>(st::rps2rpm(kv_si));  // [rpm/V]
   if (kv == 0) {
     cerr << "Kv value is too small." << endl;
     return false;
@@ -284,7 +289,7 @@ void DShot::printCurrentState(size_t ch) noexcept
 {
   cout << "Channel " << ch << ":" << endl;
   cout << "\tValid             : " << boolalpha << getValidity(ch) << noboolalpha << endl;
-  cout << "\tSpeed [rpm]       : " << tbs::rps2rpm(getSpeed(ch)) << endl;
+  cout << "\tSpeed [rpm]       : " << st::rps2rpm(getSpeed(ch)) << endl;
   cout << "\tTemperature [degC]: " << getTemperature(ch) << endl;
   cout << "\tVoltage [V]       : " << getVoltage(ch) << endl;
   cout << "\tCurrent [A]       : " << getCurrent(ch) << endl;
@@ -307,3 +312,4 @@ bool DShot::checkChannelSize(size_t ch) noexcept
   return true;
 }
 }  // namespace fc1xx
+}  // namespace tobas

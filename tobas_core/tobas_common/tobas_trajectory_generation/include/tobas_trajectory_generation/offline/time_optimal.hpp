@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include "./base.hpp"
 
+namespace tobas
+{
 namespace traj
 {
 /* ジャーク，加速度，速度の制約を満たした上で最短時間で目的地に到達する軌跡 (memo: 3-44) */
@@ -28,3 +33,4 @@ private:
   double a(double t) const noexcept;
 };
 }  // namespace traj
+}  // namespace tobas

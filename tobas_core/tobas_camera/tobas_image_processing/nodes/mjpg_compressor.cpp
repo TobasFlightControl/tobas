@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include <fcntl.h>
 #include <linux/videodev2.h>
 #include <unistd.h>
@@ -25,10 +28,14 @@
 
 using namespace std::placeholders;
 
+namespace tobas
+{
+namespace camera
+{
 /**
  * @brief sensor_msgs/msg/CompressedImage型の画像をsubscribeして，データサイズを落としたあとpublishする．
  */
-class MjpgCompressor : public tobas::BaseNode
+class MjpgCompressor : public BaseNode
 {
 public:
   explicit MjpgCompressor(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -59,7 +66,7 @@ private:
 };
 
 MjpgCompressor::MjpgCompressor(const rclcpp::NodeOptions& options)
-  : tobas::BaseNode("mjpg_compressor", nodeOptions_Default(options))
+  : BaseNode("mjpg_compressor", nodeOptions_Default(options))
 {
   const auto mjpg_topic = getStringParam("mjpg_topic", "image_compressed");
   const auto resized_topic = getStringParam("resized_topic", "mjpg_resized");
@@ -145,5 +152,7 @@ void MjpgCompressor::callback(const sensor_msgs::msg::CompressedImage::ConstShar
     encoder_.encodeImage(*message);
   }
 }
+}  // namespace camera
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(MjpgCompressor)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::camera::MjpgCompressor)

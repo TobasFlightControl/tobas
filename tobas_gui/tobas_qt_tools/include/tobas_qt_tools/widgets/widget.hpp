@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <QWidget>
 
+namespace tobas
+{
 namespace qt
 {
 /**
@@ -39,3 +44,4 @@ protected:
   void drawMaximumText(QPainter& painter, const QString& text);
 };
 }  // namespace qt
+}  // namespace tobas

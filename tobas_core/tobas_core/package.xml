@@ -4,7 +4,7 @@
 	<version>0.0.0</version>
 	<description>TODO</description>
 	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
-	<license>TODO</license>
+	<license>GPL-3.0-or-later</license>
 
 	<buildtool_depend>ament_cmake</buildtool_depend>
 
@@ -38,6 +38,7 @@
 	<exec_depend>tobas_msgs</exec_depend>
 	<exec_depend>tobas_msgs_adapter</exec_depend>
 	<exec_depend>tobas_node</exec_depend>
+	<exec_depend>tobas_object_avoidance</exec_depend>
 	<exec_depend>tobas_pose_pid</exec_depend>
 	<exec_depend>tobas_property</exec_depend>
 	<exec_depend>tobas_rc_teleop</exec_depend>

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include "../fields/acceptance_radius.hpp"
@@ -16,6 +19,8 @@
 #include "../fields/max_vertical_velocity.hpp"
 #include "./base.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace ctrl
@@ -35,7 +40,7 @@ public:
   double latitude() const;
   double longitude() const;
   double altitude() const;
-  tobas::mission::AltitudeFrame altitudeFrame() const;
+  mission::AltitudeFrame altitudeFrame() const;
   double maxHorizontalVelocity() const;
   double maxHorizontalAccel() const;
   double maxHorizontalJerk() const;
@@ -50,7 +55,7 @@ public:
   void latitude(double value);
   void longitude(double value);
   void altitude(double value);
-  void altitudeFrame(tobas::mission::AltitudeFrame value);
+  void altitudeFrame(mission::AltitudeFrame value);
   void maxHorizontalVelocity(double value);
   void maxHorizontalAccel(double value);
   void maxHorizontalJerk(double value);
@@ -80,3 +85,4 @@ private:
 };
 }  // namespace ctrl
 }  // namespace gui
+}  // namespace tobas

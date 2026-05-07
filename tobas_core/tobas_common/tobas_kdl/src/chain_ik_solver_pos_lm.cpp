@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_kdl/chain_ik_solver_pos_lm.hpp"
 
 #include <iostream>
@@ -9,6 +12,8 @@
 using namespace std;
 using namespace Eigen;
 
+namespace tobas
+{
 namespace kdl
 {
 ChainIkSolverPos_LM::ChainIkSolverPos_LM(const Chain& chain) : super(chain)
@@ -165,7 +170,7 @@ void ChainIkSolverPos_LM::initialize()
 
 void ChainIkSolverPos_LM::computeFwdPos(const VectorXd& q)
 {
-  T_base_head_ = Frame::Identity();  // frame w.r.t. base of head
+  T_base_head_ = Frame::Identity();  // frame wrt. base of head
   size_t j = 0;                      // joint index
   for (size_t i = 0; i < ns_; ++i) {
     const auto& seg = chain_.getSegment(i);
@@ -208,3 +213,4 @@ void ChainIkSolverPos_LM::enforceJointLimits(Eigen::VectorXd& q)
   }
 }
 }  // namespace kdl
+}  // namespace tobas

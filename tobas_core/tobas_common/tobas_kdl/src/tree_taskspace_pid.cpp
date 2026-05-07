@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_kdl/tree_taskspace_pid.hpp"
 
 #include <ranges>
 
 using namespace std;
 
+namespace tobas
+{
 namespace kdl
 {
 TreeTaskSpacePID::TreeTaskSpacePID(const Tree& tree, const Vector& grav)
@@ -169,3 +174,4 @@ bool TreeTaskSpacePID::setAngularDamping(const double& kd)
   return true;
 }
 }  // namespace kdl
+}  // namespace tobas

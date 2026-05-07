@@ -1,10 +1,15 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <cxxabi.h>
 
 #include <typeinfo>
 
-namespace tbs
+namespace tobas
+{
+namespace st
 {
 template <typename T>
 const char* getClassName()
@@ -18,4 +23,5 @@ const char* getClassName()
     return typeid(T).name();
   }
 }
-}  // namespace tbs
+}  // namespace st
+}  // namespace tobas

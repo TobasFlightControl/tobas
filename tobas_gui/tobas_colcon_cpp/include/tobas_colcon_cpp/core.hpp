@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <expected>
@@ -6,6 +9,8 @@
 
 #include <tobas_linux/command_executor.hpp>
 
+namespace tobas
+{
 namespace colcon
 {
 class Colcon
@@ -22,6 +27,7 @@ public:
   void setParallelWorkers(size_t num);
   void setMergeInstall(bool enabled);
   void setSymlinkInstall(bool enabled);
+  void setCmakeCleanCache(bool enabled);
 
 private:
   struct BuildOptions
@@ -29,6 +35,7 @@ private:
     size_t parallel_workers = 0;
     bool merge_install = false;
     bool symlink_install = false;
+    bool cmake_clean_cache = false;
   } build_opts_;
 
   linux::CommandExecutor cmd_exec_;
@@ -40,3 +47,4 @@ private:
   static std::filesystem::path logBase(const std::filesystem::path& ws_path);
 };
 }  // namespace colcon
+}  // namespace tobas

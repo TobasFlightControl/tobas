@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <memory>
@@ -10,6 +13,8 @@
 #include "./material_view_model.hpp"
 #include "./visual_view_model.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace ub
@@ -20,10 +25,10 @@ class LinkViewModel;
 using LinkViewModelPtr = std::shared_ptr<LinkViewModel>;
 using V_LinkViewModelPtr = std::vector<LinkViewModelPtr>;
 
-class LinkViewModel : public BaseViewModel<urdf::Link, LinkViewModel>
+class LinkViewModel : public BaseViewModel<::urdf::Link, LinkViewModel>
 {
 public:
-  explicit LinkViewModel(const urdf::LinkSharedPtr& model = nullptr);
+  explicit LinkViewModel(const ::urdf::LinkSharedPtr& model = nullptr);
 
   void sync() override;
 
@@ -51,3 +56,4 @@ private:
 }  // namespace view_model
 }  // namespace ub
 }  // namespace gui
+}  // namespace tobas

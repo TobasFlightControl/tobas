@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_tools/util.hpp"
 
 #include <tobas_constants/ros_interface.hpp>

@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include "./segment.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 /**
@@ -106,3 +111,4 @@ inline Segment& Chain::getSegment(size_t nr)
   return segments[nr];
 }
 }  // namespace kdl
+}  // namespace tobas

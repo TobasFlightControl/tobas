@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include <fcntl.h>
 #include <unistd.h>
 
@@ -13,7 +16,7 @@ int main(int argc, char** argv)
   }
   const auto device = argv[1];  // e.g. /dev/video0
 
-  linux::VideoDev camera;
+  tobas::linux::VideoDev camera;
   if (!camera.initialize(device, "MJPG")) {  // MJPG, JPEG, YUYV, etc.
     std::cerr << "Failed to initialize." << std::endl;
     return EXIT_FAILURE;

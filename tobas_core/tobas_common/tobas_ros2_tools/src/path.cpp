@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_ros2_tools/path.hpp"
 
 #include <rcpputils/filesystem_helper.hpp>
 
 namespace rfs = rcpputils::fs;
 
+namespace tobas
+{
 namespace ros2
 {
 int createTemporalFile(std::string& path)
@@ -18,3 +23,4 @@ int createTemporalFile(std::string& path)
   return mkstemp(path.data());
 }
 }  // namespace ros2
+}  // namespace tobas

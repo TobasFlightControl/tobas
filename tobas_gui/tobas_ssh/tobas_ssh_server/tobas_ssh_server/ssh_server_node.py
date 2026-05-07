@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Tobas, Inc.
+
 import rclpy
 from rclpy.node import Node
 from rclpy.parameter import Parameter

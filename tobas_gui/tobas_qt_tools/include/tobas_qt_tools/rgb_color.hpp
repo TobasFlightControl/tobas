@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <cstdint>
 
+namespace tobas
+{
 namespace qt
 {
 class RGBColor
@@ -75,3 +80,4 @@ constexpr RGBColor RGBColor::Yellow()
   return RGBColor(255, 255, 0);
 }
 }  // namespace qt
+}  // namespace tobas

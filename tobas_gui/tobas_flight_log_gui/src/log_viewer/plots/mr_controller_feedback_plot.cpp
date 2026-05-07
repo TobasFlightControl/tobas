@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_flight_log_gui/log_viewer/plots/mr_controller_feedback_plot.hpp"
 
 #include <QGridLayout>
@@ -6,6 +9,8 @@
 #include <tobas_kdl/rotation.hpp>
 #include <tobas_ros2_tools/time.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace log
@@ -68,3 +73,4 @@ void MRControllerFeedbackPlotWidget::setData(const QVector<tobas_debug_msgs::msg
 }
 }  // namespace log
 }  // namespace gui
+}  // namespace tobas

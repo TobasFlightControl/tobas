@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include "./frames.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 class JntArray
@@ -198,3 +203,4 @@ inline std::ostream& operator<<(std::ostream& os, const JntArray& arg)
   return os;
 }
 }  // namespace kdl
+}  // namespace tobas

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_keyboard/keyboard_reader.hpp"
 
 #include <unistd.h>
@@ -7,8 +10,8 @@
 
 #define STD_INPUT_FD 0  // 標準入力のファイルディスクリプタ
 
-using namespace std;
-
+namespace tobas
+{
 namespace keyboard
 {
 KeyboardReader::KeyboardReader()
@@ -42,3 +45,4 @@ signed char KeyboardReader::readKey()
   return buf;
 }
 }  // namespace keyboard
+}  // namespace tobas

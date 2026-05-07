@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_setup_assistant/setting_tabs/failsafe.hpp"
 
 #include <QFormLayout>
@@ -8,33 +11,29 @@
 #include <tobas_qt_tools/widgets/label.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
 {
 FailsafeWidget::FailsafeWidget()
 {
-  items_[kRtComplianceIdx] = new QCheckBox("Check realtime compliance");
-  items_[kBatteryVoltageIdx] = new QCheckBox("Check battery voltage");
-  items_[kCpuTempIdx] = new QCheckBox("Check CPU temperature");
-  items_[kRadioLinkIdx] = new QCheckBox("Check radio link");
-  items_[kRotorLinksIdx] = new QCheckBox("Check rotor links");
-  items_[kAttiLevelIdx] = new QCheckBox("Check attitude level");
-  items_[kPosStabilityIdx] = new QCheckBox("Check position stability");
-  items_[kPosAccuracyIdx] = new QCheckBox("Check position accuracy");
-  items_[kVelAccuracyIdx] = new QCheckBox("Check velocity accuracy");
-  items_[kAttiAccuracyIdx] = new QCheckBox("Check attitude accuracy");
-  items_[kHeadAccuracyIdx] = new QCheckBox("Check heading accuracy");
-  items_[kMagOffsetIdx] = new QCheckBox("Check magnetic field offset");
-  items_[kMagAlignmentIdx] = new QCheckBox("Check magnetic field alignment");
-  items_[kVibrationLevelIdx] = new QCheckBox("Check vibration level");
-
-  // TODO: 地磁気のオフセットを小さくできたらデフォルトをtrueにする
-  for (const auto& item : items_) {
-    item->setChecked(true);
-  }
-  items_.at(kMagOffsetIdx)->setChecked(false);
-  items_.at(kMagAlignmentIdx)->setChecked(false);
+  items_[kRtComplianceIdx] = new qt::CheckBox("Check realtime compliance", true);
+  items_[kBatteryVoltageIdx] = new qt::CheckBox("Check battery voltage", true);
+  items_[kCpuTempIdx] = new qt::CheckBox("Check CPU temperature", true);
+  items_[kRadioLinkIdx] = new qt::CheckBox("Check radio link", true);
+  items_[kRotorLinksIdx] = new qt::CheckBox("Check rotor links", true);
+  items_[kAttiLevelIdx] = new qt::CheckBox("Check attitude level", true);
+  items_[kPosStabilityIdx] = new qt::CheckBox("Check position stability", true);
+  items_[kPosAccuracyIdx] = new qt::CheckBox("Check position accuracy", true);
+  items_[kVelAccuracyIdx] = new qt::CheckBox("Check velocity accuracy", true);
+  items_[kAttiAccuracyIdx] = new qt::CheckBox("Check attitude accuracy", true);
+  items_[kHeadAccuracyIdx] = new qt::CheckBox("Check heading accuracy", true);
+  items_[kMagOffsetIdx] = new qt::CheckBox("Check magnetic field offset", false);  // TODO: デフォルトをtrueに
+  items_[kMagAlignmentIdx] = new qt::CheckBox("Check magnetic field alignment", false);  // TODO: デフォルトをtrueに
+  items_[kVibrationLevelIdx] = new qt::CheckBox("Check vibration level", true);
+  items_[kUserDefinedConditionIdx] = new qt::CheckBox("Check user-defined condition", false);
 
   esc_no_comm_timeout_ = new qt::SpinBox();
   esc_no_comm_timeout_->setSuffix(" ms");
@@ -181,9 +180,15 @@ bool FailsafeWidget::checkVibrationLevel() const
   return items_[kVibrationLevelIdx]->isChecked();
 }
 
+bool FailsafeWidget::checkUserDefinedCondition() const
+{
+  return items_[kUserDefinedConditionIdx]->isChecked();
+}
+
 double FailsafeWidget::escNoCommunicationTimeout() const
 {
   return esc_no_comm_timeout_->value() * 1e-3;
 }
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

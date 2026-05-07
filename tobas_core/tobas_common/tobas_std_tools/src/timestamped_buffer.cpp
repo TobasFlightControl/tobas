@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_std_tools/timestamped_buffer.hpp"
 
 #include <cmath>
@@ -8,7 +11,9 @@
 
 using namespace std;
 
-namespace tbs
+namespace tobas
+{
+namespace st
 {
 double TimestampedBufferDouble::max() const
 {
@@ -67,4 +72,5 @@ double TimestampedBufferDouble::stddev() const
 {
   return sqrt(this->variance());
 }
-}  // namespace tbs
+}  // namespace st
+}  // namespace tobas

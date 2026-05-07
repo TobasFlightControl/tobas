@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_setup_assistant/setting_tabs/hardware/hardware.hpp"
 
 #include <QHBoxLayout>
@@ -10,7 +13,10 @@
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
 #include "tobas_setup_assistant/setting_tabs/hardware/fc1xx.hpp"
+#include "tobas_setup_assistant/setting_tabs/hardware/fc2xx.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -24,7 +30,8 @@ HardwareWidget::HardwareWidget(const uadf::Model& uadf, const Signals& sig)
   pwm_ = new PwmWidget(uadf, sig);
   dshot_ = new DShotWidget(uadf, sig);
 
-  hardwares_->addWidget(new T1Widget());
+  hardwares_->addWidget(new FC1xxWidget());
+  hardwares_->addWidget(new FC2xxWidget());
 
   for (int i = 0; i < hardwares_->count(); ++i) {
     const auto hardware = qt::qConstPointerCast<BaseHardwareWidget>(hardwares_->widget(i));
@@ -238,8 +245,25 @@ int HardwareWidget::numDShotChannels() const
   return selected()->numDShotChannels();
 }
 
+int HardwareWidget::defaultAccelLpfCutoff() const
+{
+  return selected()->defaultAccelLpfCutoff();
+}
+
+int HardwareWidget::defaultGyroLpfCutoff() const
+{
+  return selected()->defaultGyroLpfCutoff();
+}
+
+int HardwareWidget::defaultDGyroLpfCutoff() const
+{
+  return selected()->defaultDGyroLpfCutoff();
+}
+
 void HardwareWidget::setCurrentHardware(int index)
 {
+  qDebug().nospace() << "HardwareWidget::setCurrentHardware(" << index << ")";
+
   hardwares_->setCurrentIndex(index);
 
   const auto hardware = qt::qConstPointerCast<BaseHardwareWidget>(hardwares_->widget(index));
@@ -259,3 +283,4 @@ const BaseHardwareWidget* HardwareWidget::selected() const
 }  // namespace hw
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_qt_tools/widgets/main_widget.hpp"
 
 #include <csignal>
@@ -6,6 +9,8 @@
 #include <QIcon>
 #include <QVBoxLayout>
 
+namespace tobas
+{
 namespace qt
 {
 MainWidget::MainWidget(const QString& title, const QString& icon_path, QWidget* widget) : widget_(widget)
@@ -32,3 +37,4 @@ void MainWidget::closeEvent(QCloseEvent* event)
   }
 }
 }  // namespace qt
+}  // namespace tobas

@@ -38,13 +38,15 @@ file(GLOB_RECURSE NODE_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} 
 add_library(${PROJECT_NAME}_node SHARED ${NODE_TARGETS})
 ament_target_dependencies(${PROJECT_NAME}_node ${AMENT_DEPENDENCIES})
 target_link_options(${PROJECT_NAME}_node PRIVATE -Wl,--no-undefined)
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "ImuHandlerNode" EXECUTABLE imu_handler)
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "MagnetometerHandlerNode" EXECUTABLE magnetometer_handler)
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "RCInputHandlerNode" EXECUTABLE rcin_handler)
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "CpuHandlerNode" EXECUTABLE cpu_handler)
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "JointsHandlerNode" EXECUTABLE joints_handler)
+rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "tobas::real::ImuHandlerNode" EXECUTABLE imu_handler)
 rclcpp_components_register_node(
-  ${PROJECT_NAME}_node PLUGIN "IcePropulsionSystemHandlerNode" EXECUTABLE ice_propulsion_system_handler
+  ${PROJECT_NAME}_node PLUGIN "tobas::real::MagnetometerHandlerNode" EXECUTABLE magnetometer_handler
+)
+rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "tobas::real::RCInputHandlerNode" EXECUTABLE rcin_handler)
+rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "tobas::real::CpuHandlerNode" EXECUTABLE cpu_handler)
+rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "tobas::real::JointsHandlerNode" EXECUTABLE joints_handler)
+rclcpp_components_register_node(
+  ${PROJECT_NAME}_node PLUGIN "tobas::real::IcePropulsionSystemHandlerNode" EXECUTABLE ice_propulsion_system_handler
 )
 
 install(

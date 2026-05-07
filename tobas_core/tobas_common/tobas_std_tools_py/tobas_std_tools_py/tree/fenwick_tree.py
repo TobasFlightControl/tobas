@@ -1,3 +1,7 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Tobas, Inc.
+
+
 class FenwickTree:
     def __init__(self, n):
         self._n = n

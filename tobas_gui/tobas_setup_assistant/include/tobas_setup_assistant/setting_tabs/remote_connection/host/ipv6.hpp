@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <tobas_qt_tools/widgets/ipv6_edit.hpp>
 
 #include "./base.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -34,3 +39,4 @@ private:
 }  // namespace rc
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

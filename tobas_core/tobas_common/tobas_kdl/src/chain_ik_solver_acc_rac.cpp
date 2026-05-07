@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_kdl/chain_ik_solver_acc_rac.hpp"
 
 #include <iostream>
@@ -7,6 +10,8 @@
 using namespace std;
 using namespace Eigen;
 
+namespace tobas
+{
 namespace kdl
 {
 ChainIkSolverAcc_RAC::ChainIkSolverAcc_RAC(const Chain& chain) : super(chain), jnt2jac_(chain_), jnt2jdqd_(chain_)
@@ -86,3 +91,4 @@ int ChainIkSolverAcc_RAC::cartToJnt(const JntArray& q, const JntArray& qd, const
   return setDefaultError(kNoError);
 }
 }  // namespace kdl
+}  // namespace tobas

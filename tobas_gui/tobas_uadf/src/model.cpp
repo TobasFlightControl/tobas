@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_uadf/model.hpp"
 
 #include <iostream>
 
+namespace tobas
+{
 namespace uadf
 {
 Model::Model()
@@ -97,3 +102,4 @@ bool Model::valid() const
   return true;
 }
 }  // namespace uadf
+}  // namespace tobas

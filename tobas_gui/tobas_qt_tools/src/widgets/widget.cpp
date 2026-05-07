@@ -1,8 +1,13 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_qt_tools/widgets/widget.hpp"
 
 #include <QDebug>
 #include <QPainter>
 
+namespace tobas
+{
 namespace qt
 {
 QPoint Widget::getCenter() const
@@ -84,3 +89,4 @@ void Widget::drawMaximumText(QPainter& painter, const QString& text)
   drawMaximumText(painter, text, getCenter());
 }
 }  // namespace qt
+}  // namespace tobas

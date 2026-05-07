@@ -1,8 +1,11 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_components_rt/multi_threaded_executor.hpp"
 
 #include <tobas_linux/realtime.hpp>
 
-namespace ros2
+namespace tobas
 {
 MultiThreadedExecutorRT::MultiThreadedExecutorRT(
   linux::sched_t policy,
@@ -60,4 +63,4 @@ size_t MultiThreadedExecutorRT::priority() const
 {
   return priority_;
 }
-}  // namespace ros2
+}  // namespace tobas

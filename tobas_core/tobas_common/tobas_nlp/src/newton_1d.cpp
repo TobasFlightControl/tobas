@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_nlp/newton_1d.hpp"
 
 #include <cassert>
@@ -6,6 +9,8 @@
 
 // #define TRACE_SOLVER
 
+namespace tobas
+{
 namespace nlp
 {
 NewtonSolver1d::NewtonSolver1d()
@@ -95,3 +100,4 @@ bool NewtonSolver1d::setAbsoluteTolerance(double abs_tol)
   return true;
 }
 }  // namespace nlp
+}  // namespace tobas

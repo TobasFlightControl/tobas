@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_kdl/chain_inertia_solver.hpp"
 
 using namespace std;
 
+namespace tobas
+{
 namespace kdl
 {
 ChainInertiaSolver::ChainInertiaSolver(const Chain& chain) : super(chain)
@@ -55,3 +60,4 @@ void ChainInertiaSolver::resize()
   X_.resize(ns_);
 }
 }  // namespace kdl
+}  // namespace tobas

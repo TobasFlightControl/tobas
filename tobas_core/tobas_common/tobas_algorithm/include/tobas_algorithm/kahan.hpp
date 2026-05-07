@@ -1,5 +1,10 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
+namespace tobas
+{
 namespace algo
 {
 /* Kahan Summation. The worst-case round-off error scales with O(nε^2). */
@@ -47,3 +52,4 @@ inline const T& Kahan<T>::get() const
   return sum_;
 }
 }  // namespace algo
+}  // namespace tobas

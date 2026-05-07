@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_setup_assistant/setting_tabs/extra_joints.hpp"
 
 #include <QDebug>
@@ -12,6 +15,8 @@
 
 #include "tobas_setup_assistant/constants.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -129,36 +134,36 @@ QString ExtraJointsWidget::getJointName(int row) const
   return jointNameWidget(row)->text();
 }
 
-tobas::JointRole ExtraJointsWidget::getRole(int row) const
+JointRole ExtraJointsWidget::getRole(int row) const
 {
   const auto text = roleWidget(row)->currentText();
 
   if (text == kRoleLabel_UserActive) {
-    return tobas::JointRole::kUserActive;
+    return JointRole::kUserActive;
   }
   else if (text == kRoleLabel_UserPassive) {
-    return tobas::JointRole::kUserPassive;
+    return JointRole::kUserPassive;
   }
   else {
     throw;
   }
 }
 
-tobas::JointCommandInterface ExtraJointsWidget::getCommandInterface(int row) const
+JointCommandInterface ExtraJointsWidget::getCommandInterface(int row) const
 {
   const auto text = commandIfaceWidget(row)->currentText();
 
   if (text == kCmdIfaceLabel_Position) {
-    return tobas::JointCommandInterface::kPosition;
+    return JointCommandInterface::kPosition;
   }
   else if (text == kCmdIfaceLabel_Velocity) {
-    return tobas::JointCommandInterface::kVelocity;
+    return JointCommandInterface::kVelocity;
   }
   else if (text == kCmdIfaceLabel_Effort) {
-    return tobas::JointCommandInterface::kEffort;
+    return JointCommandInterface::kEffort;
   }
   else if (text == kCmdIfaceLabel_None) {
-    return tobas::JointCommandInterface::kNone;
+    return JointCommandInterface::kNone;
   }
   else {
     throw;
@@ -167,21 +172,21 @@ tobas::JointCommandInterface ExtraJointsWidget::getCommandInterface(int row) con
 
 double ExtraJointsWidget::getHomePosition(int row) const
 {
-  return tbs::deg2rad(homePositionWidget(row)->value());
+  return st::deg2rad(homePositionWidget(row)->value());
 }
 
-void ExtraJointsWidget::setRole(int row, tobas::JointRole value)
+void ExtraJointsWidget::setRole(int row, JointRole value)
 {
   QString text;
   switch (value) {
-    case tobas::JointRole::kUserActive:
+    case JointRole::kUserActive:
       text = kRoleLabel_UserActive;
       break;
-    case tobas::JointRole::kUserPassive:
+    case JointRole::kUserPassive:
       text = kRoleLabel_UserPassive;
       break;
-    case tobas::JointRole::kTiltJoint:
-    case tobas::JointRole::kControlSurface:
+    case JointRole::kTiltJoint:
+    case JointRole::kControlSurface:
     default:
       throw;
   }
@@ -189,20 +194,20 @@ void ExtraJointsWidget::setRole(int row, tobas::JointRole value)
   roleWidget(row)->setCurrentText(text);
 }
 
-void ExtraJointsWidget::setCommandInterface(int row, tobas::JointCommandInterface value)
+void ExtraJointsWidget::setCommandInterface(int row, JointCommandInterface value)
 {
   QString text;
   switch (value) {
-    case tobas::JointCommandInterface::kPosition:
+    case JointCommandInterface::kPosition:
       text = kCmdIfaceLabel_Position;
       break;
-    case tobas::JointCommandInterface::kVelocity:
+    case JointCommandInterface::kVelocity:
       text = kCmdIfaceLabel_Velocity;
       break;
-    case tobas::JointCommandInterface::kEffort:
+    case JointCommandInterface::kEffort:
       text = kCmdIfaceLabel_Effort;
       break;
-    case tobas::JointCommandInterface::kNone:
+    case JointCommandInterface::kNone:
       text = kCmdIfaceLabel_None;
       break;
     default:
@@ -214,7 +219,7 @@ void ExtraJointsWidget::setCommandInterface(int row, tobas::JointCommandInterfac
 
 void ExtraJointsWidget::setHomePosition(int row, double value)
 {
-  homePositionWidget(row)->setValue(std::round(tbs::rad2deg(value)));
+  homePositionWidget(row)->setValue(std::round(st::rad2deg(value)));
 }
 
 int ExtraJointsWidget::numJoints() const
@@ -313,14 +318,14 @@ void ExtraJointsWidget::setDefaultValues(int row)
 {
   // 役割に応じてコマンドインターフェースとハードウェアインターフェースを設定
   switch (getRole(row)) {
-    case tobas::JointRole::kUserActive:
+    case JointRole::kUserActive:
       commandIfaceWidget(row)->setCurrentText(kCmdIfaceLabel_Position);
       break;
-    case tobas::JointRole::kUserPassive:
+    case JointRole::kUserPassive:
       commandIfaceWidget(row)->setCurrentText(kCmdIfaceLabel_None);
       break;
-    case tobas::JointRole::kTiltJoint:
-    case tobas::JointRole::kControlSurface:
+    case JointRole::kTiltJoint:
+    case JointRole::kControlSurface:
     default:
       throw;
   }
@@ -333,18 +338,18 @@ void ExtraJointsWidget::updateEnability(int row)
 {
   // 役割によるフィールド
   switch (getRole(row)) {
-    case tobas::JointRole::kUserActive:
+    case JointRole::kUserActive:
       roleWidget(row)->setEnabled(true);
       commandIfaceWidget(row)->setEnabled(true);
       homePositionWidget(row)->setEnabled(true);
       break;
-    case tobas::JointRole::kUserPassive:
+    case JointRole::kUserPassive:
       roleWidget(row)->setEnabled(true);
       commandIfaceWidget(row)->setEnabled(false);
       homePositionWidget(row)->setEnabled(false);
       break;
-    case tobas::JointRole::kTiltJoint:
-    case tobas::JointRole::kControlSurface:
+    case JointRole::kTiltJoint:
+    case JointRole::kControlSurface:
     default:
       throw;
   }
@@ -379,8 +384,8 @@ void ExtraJointsWidget::addLink(const std::string& link_name)
 
   // Home Position
   const auto home_pos = new qt::SpinBox();
-  home_pos->setMinimum(std::round(tbs::rad2deg(std::isinf(joint.lower_limit) ? -M_PI : joint.lower_limit)));
-  home_pos->setMaximum(std::round(tbs::rad2deg(std::isinf(joint.upper_limit) ? M_PI : joint.upper_limit)));
+  home_pos->setMinimum(std::round(st::rad2deg(std::isinf(joint.lower_limit) ? -M_PI : joint.lower_limit)));
+  home_pos->setMaximum(std::round(st::rad2deg(std::isinf(joint.upper_limit) ? M_PI : joint.upper_limit)));
   home_pos->setSuffix(" deg");
 
   // Insert table row
@@ -405,3 +410,4 @@ void ExtraJointsWidget::onRoleChanged(int row)
 }
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

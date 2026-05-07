@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_legged_tools/swing_leg_controller.hpp"
 
 #include <iostream>
@@ -7,6 +10,8 @@
 
 using namespace std;
 
+namespace tobas
+{
 namespace lr_tools
 {
 SwingLegController::SwingLegController(
@@ -41,8 +46,8 @@ bool SwingLegController::updateInternalDataStructures()
 
 void SwingLegController::reset()
 {
-  tbs::fill(is_stand_prev_, true);
-  tbs::fill(B_Tdd_BF_, kdl::VectorAcc::Zero());  // TODO: ちゃんと初期化
+  st::fill(is_stand_prev_, true);
+  st::fill(B_Tdd_BF_, kdl::VectorAcc::Zero());  // TODO: ちゃんと初期化
 }
 
 bool SwingLegController::update(
@@ -80,7 +85,7 @@ bool SwingLegController::update(
       // Capture Gain
       // cf. MIT Cheetah 3: Design and Control of a Robust, Dynamic Quadruped Robot
       // https://ieeexplore.ieee.org/abstract/document/8593885
-      const auto capture_gain = sqrt(max(z, 0.) / tbs::kGravity);
+      const auto capture_gain = sqrt(max(z, 0.) / st::kGravity);
 
       // (12) ~ (15): xyのみ合っていれば良い
       const kdl::Vector tar_vel(vx_, vy_, 0.);
@@ -182,3 +187,4 @@ void SwingLegController::setThighOrigins()
   }
 }
 }  // namespace lr_tools
+}  // namespace tobas

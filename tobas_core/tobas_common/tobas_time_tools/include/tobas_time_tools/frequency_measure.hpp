@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <chrono>
 
+namespace tobas
+{
 namespace tim
 {
 class FrequencyMeasure
@@ -18,3 +23,4 @@ private:
   std::chrono::steady_clock::time_point start_time_;
 };
 }  // namespace tim
+}  // namespace tobas

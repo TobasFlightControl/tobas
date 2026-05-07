@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <functional>
@@ -7,6 +10,8 @@
 #include <tobas_algorithm/crc.hpp>
 #include <tobas_linux/uart_dev.hpp>
 
+namespace tobas
+{
 namespace driver
 {
 struct JRE30Packet
@@ -56,6 +61,7 @@ class JRE30
 {
 public:
   explicit JRE30(std::function<void(std::shared_ptr<const JRE30Packet>)> packet_cb);
+  ~JRE30();
 
   bool initialize(const char* uart_device);
 
@@ -81,3 +87,4 @@ private:
   bool checkCRC() const;
 };
 }  // namespace driver
+}  // namespace tobas

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_qt_tools/widgets/position_bar_widget.hpp"
 
 #include <QPaintEvent>
@@ -7,6 +10,8 @@
 
 #include "tobas_qt_tools/font.hpp"
 
+namespace tobas
+{
 namespace qt
 {
 PositionBarWidget::PositionBarWidget(QWidget* parent) : super(parent)
@@ -364,3 +369,4 @@ void VPositionBarWidget::drawTextCommon(QPainter& painter)
   painter.rotate(90);
 }
 }  // namespace qt
+}  // namespace tobas

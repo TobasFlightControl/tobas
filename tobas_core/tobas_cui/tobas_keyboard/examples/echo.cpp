@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include <iomanip>
 #include <iostream>
 #include <thread>
@@ -10,7 +13,7 @@ using namespace std;
 
 int main()
 {
-  keyboard::KeyboardReader keyboard;
+  tobas::keyboard::KeyboardReader keyboard;
 
   while (true) {
     const auto c = keyboard.readKey();

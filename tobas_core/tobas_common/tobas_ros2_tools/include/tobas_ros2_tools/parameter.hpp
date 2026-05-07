@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <rclcpp/rclcpp.hpp>
 
+namespace tobas
+{
 namespace ros2
 {
 template <typename T>
@@ -20,3 +25,4 @@ void declareParam(rclcpp::Node::SharedPtr node, const std::string& name, const T
   }
 }
 }  // namespace ros2
+}  // namespace tobas

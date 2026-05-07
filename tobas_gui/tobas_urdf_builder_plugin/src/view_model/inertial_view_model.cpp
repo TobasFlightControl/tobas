@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_urdf_builder_plugin/view_model/inertial_view_model.hpp"
 
 #include <cassert>
 
 #include <tobas_math/core.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ub
@@ -14,12 +19,12 @@ void InertialViewModel::sync()
 {
 }
 
-const urdf::Pose& InertialViewModel::origin() const
+const ::urdf::Pose& InertialViewModel::origin() const
 {
   return model_->origin;
 }
 
-void InertialViewModel::origin(const urdf::Pose& origin)
+void InertialViewModel::origin(const ::urdf::Pose& origin)
 {
   model_->origin = origin;
 }
@@ -97,3 +102,4 @@ void InertialViewModel::buildInertiaSphere(double radius)
 }  // namespace view_model
 }  // namespace ub
 }  // namespace gui
+}  // namespace tobas

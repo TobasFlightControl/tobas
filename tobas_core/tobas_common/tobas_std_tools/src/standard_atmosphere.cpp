@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_std_tools/standard_atmosphere.hpp"
 
 #include <cassert>
@@ -19,7 +22,9 @@
 
 using namespace std;
 
-namespace tbs
+namespace tobas
+{
+namespace st
 {
 double gphToAltitude(const double& gph)
 {
@@ -123,4 +128,5 @@ void pressureToAltitude(const double& pressure, const double& pressure_var, doub
   const auto amp = (c / pressure) * pow(pressure / P0, b);  // 高度ノイズ/気圧ノイズ ~ 1e-2
   altitude_var = math::sqr(amp) * pressure_var;
 }
-}  // namespace tbs
+}  // namespace st
+}  // namespace tobas

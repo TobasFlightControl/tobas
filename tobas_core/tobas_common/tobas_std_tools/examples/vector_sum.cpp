@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include <iostream>
 
 #include <tobas_std_tools/vector.hpp>
@@ -8,8 +11,8 @@ int main()
 {
   for (size_t n : { 1000000, 10000000, 100000000, 1000000000 }) {
     vector<float> values(n, 1.0);
-    const auto naive_sum = tbs::sum(values);
-    const auto kahan_sum = tbs::fsum(values);
+    const auto naive_sum = tobas::st::sum(values);
+    const auto kahan_sum = tobas::st::fsum(values);
     cout << "n = " << n << "\t: Naive Summation = " << naive_sum << ", Kahan Summation = " << kahan_sum << endl;
   }
 }

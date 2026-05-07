@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include "./chain_ik_solver.hpp"
 #include "./chain_jac_acc_solver.hpp"
 #include "./chain_jacobian_solver.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 /* 分解加速度制御 */
@@ -24,3 +29,4 @@ private:
   ChainJacAccSolver jnt2jdqd_;
 };
 }  // namespace kdl
+}  // namespace tobas

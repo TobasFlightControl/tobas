@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_qt_tools/widgets/progress_dialog.hpp"
 
 #include <QApplication>
@@ -10,6 +13,8 @@
 
 using namespace std::chrono_literals;
 
+namespace tobas
+{
 namespace qt
 {
 ProgressDialog::ProgressDialog(const QString& title, int num_steps, QWidget* parent)
@@ -68,3 +73,4 @@ void ProgressDialog::onTimerTimeout()
       .arg(spinner));
 }
 }  // namespace qt
+}  // namespace tobas

@@ -1,11 +1,15 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
-#include <QCheckBox>
-
+#include <tobas_qt_tools/widgets/check_box.hpp>
 #include <tobas_qt_tools/widgets/spin_box.hpp>
 
 #include "./base_setting.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -31,7 +35,8 @@ class FailsafeWidget : public BaseSettingWidget
   static constexpr size_t kMagOffsetIdx = kHeadAccuracyIdx + 1;
   static constexpr size_t kMagAlignmentIdx = kMagOffsetIdx + 1;
   static constexpr size_t kVibrationLevelIdx = kMagAlignmentIdx + 1;
-  static constexpr size_t kItemSize = kVibrationLevelIdx + 1;
+  static constexpr size_t kUserDefinedConditionIdx = kVibrationLevelIdx + 1;
+  static constexpr size_t kItemSize = kUserDefinedConditionIdx + 1;
 
   static constexpr char kEscNoCommTimeoutKey[] = "esc_no_comm_timeout";
 
@@ -62,13 +67,15 @@ public:
   bool checkMagOffset() const;
   bool checkMagAlignment() const;
   bool checkVibrationLevel() const;
+  bool checkUserDefinedCondition() const;
 
   double escNoCommunicationTimeout() const;  // [s]
 
 private:
-  std::array<QCheckBox*, kItemSize> items_;
+  std::array<qt::CheckBox*, kItemSize> items_;
 
   qt::SpinBox* esc_no_comm_timeout_;
 };
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

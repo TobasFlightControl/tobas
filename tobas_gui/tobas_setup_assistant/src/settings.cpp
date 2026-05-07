@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_setup_assistant/settings.hpp"
 
 #include <QHBoxLayout>
@@ -6,6 +9,8 @@
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_std_tools/check.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -105,7 +110,7 @@ bool SettingsWidget::isValid()
   }
 
   switch (propulsion_system->type()) {
-    case tobas::PropulsionSystem::kElectric: {
+    case PropulsionSystem::kElectric: {
       // 電動モータのDShotチャンネルが設定されていることを確認
       for (const auto& elem : uadf_.thrusts) {
         const auto joint_name = QString::fromStdString(elem.first);
@@ -118,7 +123,7 @@ bool SettingsWidget::isValid()
 
       break;
     }
-    case tobas::PropulsionSystem::kIce: {
+    case PropulsionSystem::kIce: {
       break;
     }
     default: {
@@ -245,3 +250,4 @@ void SettingsWidget::onListItemChanged(QListWidgetItem* item)
 }
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

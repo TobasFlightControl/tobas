@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include <iostream>
 
 #include <tobas_cyclonedds_config/cyclonedds_config.hpp>
@@ -24,7 +27,7 @@ int main()
   }
 
   const auto text = tobas::cyclonedds::exportText(data);
-  if (!str::writeText(output_path, text)) {
+  if (!tobas::str::writeText(output_path, text)) {
     return EXIT_FAILURE;
   }
 

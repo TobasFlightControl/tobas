@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <rclcpp/type_adapter.hpp>
@@ -14,7 +17,7 @@ namespace tobas_kdl_msgs
 {
 struct FrameWithCovariance
 {
-  kdl::Frame frame;
+  tobas::kdl::Frame frame;
   Eigen::Matrix6d covariance;
 
   using SharedPtr = std::shared_ptr<FrameWithCovariance>;

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_eigen_tools/ellipsoid.hpp"
 
 #include <iostream>
@@ -7,6 +10,8 @@
 using namespace std;
 using namespace Eigen;
 
+namespace tobas
+{
 namespace eigen
 {
 Ellipsoid::Ellipsoid()
@@ -88,3 +93,4 @@ void Ellipsoid::setSoftBias(const Vector6d& t)
   T_inv_ = T_.inverse();
 }
 }  // namespace eigen
+}  // namespace tobas

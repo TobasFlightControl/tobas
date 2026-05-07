@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <string>
 
+namespace tobas
+{
 namespace kdl
 {
 /**
@@ -64,3 +69,4 @@ inline const std::string& SolverI::errorMessage() const
   return error_msg_;
 }
 }  // namespace kdl
+}  // namespace tobas

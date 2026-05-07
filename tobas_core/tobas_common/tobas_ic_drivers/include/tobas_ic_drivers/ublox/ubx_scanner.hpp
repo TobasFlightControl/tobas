@@ -1,8 +1,13 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <cstddef>
 #include <cstdint>
 
+namespace tobas
+{
 namespace ublox
 {
 static constexpr size_t kUbxSyncLength = 2;
@@ -109,3 +114,4 @@ inline const uint8_t* UBXScanner::getChecksumB() const
   return getChecksumA() + 1;
 }
 }  // namespace ublox
+}  // namespace tobas

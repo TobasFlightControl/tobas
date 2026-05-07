@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <rclcpp/type_adapter.hpp>
@@ -13,10 +16,10 @@ namespace tobas_msgs
 struct LinkState
 {
   std::string name;
-  kdl::Frame frame;
-  kdl::Twist twist;
-  kdl::Accel accel;
-  kdl::Wrench wrench;
+  tobas::kdl::Frame frame;
+  tobas::kdl::Twist twist;
+  tobas::kdl::Accel accel;
+  tobas::kdl::Wrench wrench;
 
   using SharedPtr = std::shared_ptr<LinkState>;
   using ConstSharedPtr = std::shared_ptr<const LinkState>;

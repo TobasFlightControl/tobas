@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <QFileDialog>
@@ -6,6 +9,8 @@
 
 #include <tobas_qt_tools/widgets/label.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -25,11 +30,12 @@ protected:
 
 private:
   QPushButton* save_button_;
-  QLineEdit* file_name_;
+  QLineEdit* proj_name_;
   qt::Label* warn_text_;
 
 private Q_SLOTS:
-  void onFilePathChanged();
+  void onProjectPathChanged();
 };
 }  // namespace sa
 }  // namespace gui
+}  // namespace tobas

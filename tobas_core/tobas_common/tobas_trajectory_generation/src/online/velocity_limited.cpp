@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_trajectory_generation/online/velocity_limited.hpp"
 
 #include <cassert>
 
 #include <tobas_math/core.hpp>
 
+namespace tobas
+{
 namespace traj
 {
 VelocityLimitedOnlineTrajectoryGenerator::VelocityLimitedOnlineTrajectoryGenerator()
@@ -52,3 +57,4 @@ void VelocityLimitedOnlineTrajectoryGenerator::resetCurrentTrajectoryPoint(doubl
   traj_pos_ = pos;
 }
 }  // namespace traj
+}  // namespace tobas

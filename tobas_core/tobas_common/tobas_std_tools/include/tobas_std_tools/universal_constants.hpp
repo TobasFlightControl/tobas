@@ -1,8 +1,13 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <cmath>
 
-namespace tbs
+namespace tobas
+{
+namespace st
 {
 static constexpr double kGravity = 9.80665;           // [m/s^2] 重力加速度
 static constexpr double kStandardAirDensity = 1.225;  // [kg/m^3] 標準大気における大気密度
@@ -16,4 +21,5 @@ static constexpr double kRpsToRpm = 30. / M_PI;  // rad/s -> RPM
 
 static constexpr double kFeetToMeter = 0.3048;
 static constexpr double kMeterToFeet = 1 / kFeetToMeter;
-}  // namespace tbs
+}  // namespace st
+}  // namespace tobas

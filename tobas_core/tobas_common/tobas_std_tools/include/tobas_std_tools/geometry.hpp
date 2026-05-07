@@ -1,8 +1,13 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <tuple>
 
-namespace tbs
+namespace tobas
+{
+namespace st
 {
 /**
  * @brief ZYX オイラー角 (Roll,Pitch,Yaw) からクォータニオン (X,Y,Z,W) を計算．
@@ -17,4 +22,5 @@ quaternionFromEuler(const double& roll, const double& pitch, const double& yaw);
  */
 std::tuple<double, double, double>
 eulerFromQuaternion(const double& x, const double& y, const double& z, const double& w);
-}  // namespace tbs
+}  // namespace st
+}  // namespace tobas

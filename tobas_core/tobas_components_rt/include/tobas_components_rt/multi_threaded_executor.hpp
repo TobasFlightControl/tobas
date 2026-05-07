@@ -1,10 +1,13 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <rclcpp/executors/multi_threaded_executor.hpp>
 
 #include <tobas_linux/types.hpp>
 
-namespace ros2
+namespace tobas
 {
 /* MultiThreadedExecutorのスレッドプールにリアルタイム優先度を付与． */
 class MultiThreadedExecutorRT : public rclcpp::executors::MultiThreadedExecutor
@@ -24,4 +27,4 @@ private:
   const size_t priority_;
   const uint32_t cpu_affinity_;
 };
-}  // namespace ros2
+}  // namespace tobas

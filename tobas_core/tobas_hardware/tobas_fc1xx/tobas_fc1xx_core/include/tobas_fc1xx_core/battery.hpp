@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <cstddef>
 
 #include <tobas_linux/spi_dev.hpp>
 
+namespace tobas
+{
 namespace fc1xx
 {
 class Battery
@@ -24,3 +29,4 @@ private:
   uint32_t rx_buf_[kChannelSize];
 };
 }  // namespace fc1xx
+}  // namespace tobas

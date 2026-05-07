@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_algorithm/core.hpp"
 
 #include <cassert>
@@ -6,6 +9,8 @@
 #include <tobas_math/core.hpp>
 #include <tobas_math/definitions.hpp>
 
+namespace tobas
+{
 namespace algo
 {
 double wrapPi(double angle)
@@ -29,3 +34,4 @@ void clamp2d(double& x, double& y, const double& max_length)
   }
 }
 }  // namespace algo
+}  // namespace tobas

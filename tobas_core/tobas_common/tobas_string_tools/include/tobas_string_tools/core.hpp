@@ -1,8 +1,13 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <string>
 #include <vector>
 
+namespace tobas
+{
 namespace str
 {
 /* 文字列を区切ってvectorにして返す． */
@@ -74,3 +79,4 @@ std::string snakeFromPascal(const std::string& pascal_case);
 /* Title Caseをsnake_caseに変換する． */
 std::string snakeFromTitle(const std::string& title_case);
 }  // namespace str
+}  // namespace tobas

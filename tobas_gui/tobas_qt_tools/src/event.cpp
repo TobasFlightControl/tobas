@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_qt_tools/event.hpp"
 
 #include <QCoreApplication>
@@ -5,6 +8,8 @@
 #include <QEventLoop>
 #include <QTimer>
 
+namespace tobas
+{
 namespace qt
 {
 void processAllQueuedEvents()
@@ -21,3 +26,4 @@ void processAllQueuedEvents()
   QCoreApplication::processEvents();
 }
 }  // namespace qt
+}  // namespace tobas

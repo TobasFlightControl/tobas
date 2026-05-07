@@ -1,8 +1,13 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <tobas_eigen_tools/tensor.hpp>
 #include <tobas_quadprog/dual_active_set.hpp>
 
+namespace tobas
+{
 namespace nlp
 {
 class SQP
@@ -70,3 +75,4 @@ private:
   double rel_tol_ = 1e-3;
 };
 }  // namespace nlp
+}  // namespace tobas

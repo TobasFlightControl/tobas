@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_simulation_gui/commanders/commanders.hpp"
 
 #include <QVBoxLayout>
@@ -6,6 +9,10 @@
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 
+namespace ch = std::chrono;
+
+namespace tobas
+{
 namespace gui
 {
 namespace sim
@@ -14,7 +21,7 @@ CommandersWidget::CommandersWidget(
   rclcpp::Node::SharedPtr node,
   const RosQtBridge& bridge,
   const kdl::Tree& tree,
-  const tobas::Drone& drone)
+  const Drone& drone)
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);
@@ -39,13 +46,13 @@ void CommandersWidget::updateInternalDataStructures()
   joint_commander_->updateInternalDataStructures();
 }
 
-bool CommandersWidget::start()
+bool CommandersWidget::start(ch::milliseconds timeout)
 {
-  if (!base_pose_commander_->start()) {
+  if (!base_pose_commander_->start(timeout)) {
     return false;
   }
 
-  if (!joint_commander_->start()) {
+  if (!joint_commander_->start(timeout)) {
     return false;
   }
 
@@ -59,3 +66,4 @@ void CommandersWidget::reset()
 }
 }  // namespace sim
 }  // namespace gui
+}  // namespace tobas

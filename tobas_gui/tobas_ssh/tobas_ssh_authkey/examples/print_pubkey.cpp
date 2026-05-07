@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include <iostream>
 
 #include <tobas_ssh_authkey/export.hpp>
@@ -16,11 +19,11 @@ int main(int argc, char** argv)
   const auto path = argv[1];
 
   std::string raw_text;
-  if (!str::readText(path, raw_text)) {
+  if (!tobas::str::readText(path, raw_text)) {
     return EXIT_FAILURE;
   }
 
-  const auto original_line = str::trim(raw_text);
+  const auto original_line = tobas::str::trim(raw_text);
 
   const auto data = tobas::ssh::ak::parseLine(original_line);
   if (!data) {

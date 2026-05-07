@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <rclcpp/type_adapter.hpp>
@@ -16,7 +19,7 @@ struct Gnss
   double longitude;
   double altitude;
   Eigen::Matrix3d position_covariance;
-  kdl::Vector ground_speed;
+  tobas::kdl::Vector ground_speed;
   Eigen::Matrix3d velocity_covariance;
 
   using SharedPtr = std::shared_ptr<Gnss>;

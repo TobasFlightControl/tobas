@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <QListWidgetItem>
@@ -7,6 +10,8 @@
 #include "../view_model/link_view_model.hpp"
 #include "../view_model/visual_view_model.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace ub
@@ -48,3 +53,4 @@ private:
 }  // namespace ui
 }  // namespace ub
 }  // namespace gui
+}  // namespace tobas

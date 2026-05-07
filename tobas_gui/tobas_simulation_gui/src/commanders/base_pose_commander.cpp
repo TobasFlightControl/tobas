@@ -1,5 +1,9 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_simulation_gui/commanders/base_pose_commander.hpp"
 
+#include <QDebug>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
@@ -14,6 +18,10 @@
 
 #include "tobas_simulation_gui/commanders/constants.hpp"
 
+namespace ch = std::chrono;
+
+namespace tobas
+{
 namespace gui
 {
 namespace sim
@@ -21,7 +29,7 @@ namespace sim
 BasePoseCommanderWidget::BasePoseCommanderWidget(
   rclcpp::Node::SharedPtr node,
   const RosQtBridge& bridge,
-  const tobas::Drone& drone)
+  const Drone& drone)
   : node_(node), drone_(drone)
 {
   const auto root_rows = new QVBoxLayout();
@@ -80,20 +88,19 @@ BasePoseCommanderWidget::BasePoseCommanderWidget(
 
 void BasePoseCommanderWidget::updateInternalDataStructures()
 {
-  const auto& ns = drone_.name;
+  const auto ns = '/' + drone_.name;
 
-  angle_pub_ = ros2::createPublisher<tobas_command_msgs::Angle>(node_, path::join(ns, tobas::topic::kAngleCmd));
-  pva_pub_ = ros2::createPublisher<tobas_command_msgs::PosVelAcc>(node_, path::join(ns, tobas::topic::kPosVelAccCmd));
-  pvay_pub_ =
-    ros2::createPublisher<tobas_command_msgs::PosVelAccYaw>(node_, path::join(ns, tobas::topic::kPosVelAccYawCmd));
-  pvapy_pub_ = ros2::createPublisher<tobas_command_msgs::PosVelAccPitchYaw>(
-    node_, path::join(ns, tobas::topic::kPosVelAccPitchYawCmd));
+  angle_pub_ = ros2::createPublisher<tobas_command_msgs::Angle>(node_, path::join(ns, topic::kAngleCmd));
+  pva_pub_ = ros2::createPublisher<tobas_command_msgs::PosVelAcc>(node_, path::join(ns, topic::kPosVelAccCmd));
+  pvay_pub_ = ros2::createPublisher<tobas_command_msgs::PosVelAccYaw>(node_, path::join(ns, topic::kPosVelAccYawCmd));
+  pvapy_pub_ =
+    ros2::createPublisher<tobas_command_msgs::PosVelAccPitchYaw>(node_, path::join(ns, topic::kPosVelAccPitchYawCmd));
 
   set_arm_sc_ =
-    std::make_shared<ros2::SyncServiceClient<tobas_msgs::srv::SetArm>>(node_, path::join(ns, tobas::service::kSetArm));
+    std::make_shared<ros2::SyncServiceClient<tobas_msgs::srv::SetArm>>(node_, path::join(ns, service::kSetArm));
 }
 
-bool BasePoseCommanderWidget::start()
+bool BasePoseCommanderWidget::start(ch::milliseconds timeout)
 {
   bool success = true;
   QString message;
@@ -101,15 +108,15 @@ bool BasePoseCommanderWidget::start()
   qt::startThreadAndWait(
     [&]()
     {
-      if (!set_arm_sc_->waitForService()) {
+      if (!set_arm_sc_->waitForService(timeout)) {
         success = false;
-        message = "Failed to connect to \"" + QString(tobas::service::kSetArm) + "\" service server.";
+        message = "Failed to connect to \"" + QString(service::kSetArm) + "\" service server.";
         return;
       }
     });
 
   if (!success) {
-    qt::qErrorBox(this, message);
+    qWarning() << message;
     return false;
   }
 
@@ -145,9 +152,9 @@ void BasePoseCommanderWidget::publishCurrentCommand()
   const auto tar_x = cmd_xyz_[0]->getValue();
   const auto tar_y = cmd_xyz_[1]->getValue();
   const auto tar_z = cmd_xyz_[2]->getValue();
-  const auto tar_roll = tbs::deg2rad(cmd_rpy_[0]->getValue());
-  const auto tar_pitch = tbs::deg2rad(cmd_rpy_[1]->getValue());
-  const auto tar_yaw = tbs::deg2rad(cmd_rpy_[2]->getValue());
+  const auto tar_roll = st::deg2rad(cmd_rpy_[0]->getValue());
+  const auto tar_pitch = st::deg2rad(cmd_rpy_[1]->getValue());
+  const auto tar_yaw = st::deg2rad(cmd_rpy_[2]->getValue());
 
   if (angle_pub_) {
     auto msg = std::make_unique<tobas_command_msgs::Angle>();
@@ -248,9 +255,9 @@ void BasePoseCommanderWidget::onArmRequested()
   cmd_xyz_[0]->setValue(cur_pos.x());
   cmd_xyz_[1]->setValue(cur_pos.y());
   cmd_xyz_[2]->setValue(cur_pos.z());
-  cmd_rpy_[0]->setValue(tbs::rad2deg(cur_rpy.roll));
-  cmd_rpy_[1]->setValue(tbs::rad2deg(cur_rpy.pitch));
-  cmd_rpy_[2]->setValue(tbs::rad2deg(cur_rpy.yaw));
+  cmd_rpy_[0]->setValue(st::rad2deg(cur_rpy.roll));
+  cmd_rpy_[1]->setValue(st::rad2deg(cur_rpy.pitch));
+  cmd_rpy_[2]->setValue(st::rad2deg(cur_rpy.yaw));
 
   // 有効化
   home_button_->setEnabled(true);
@@ -323,3 +330,4 @@ void BasePoseCommanderWidget::rcInputCb(const tobas_msgs::RCInput::ConstSharedPt
 }
 }  // namespace sim
 }  // namespace gui
+}  // namespace tobas

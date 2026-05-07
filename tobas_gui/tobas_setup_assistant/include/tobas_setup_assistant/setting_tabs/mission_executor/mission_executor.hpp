@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <tobas_qt_tools/widgets/stacked_widget.hpp>
@@ -7,6 +10,8 @@
 #include "./none.hpp"
 #include "tobas_setup_assistant/frame_type.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sa
@@ -58,3 +63,4 @@ private:
 }  // namespace mission
 };  // namespace sa
 }  // namespace gui
+}  // namespace tobas

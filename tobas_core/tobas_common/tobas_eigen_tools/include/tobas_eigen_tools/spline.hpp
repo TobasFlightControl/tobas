@@ -1,8 +1,13 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <eigen3/Eigen/Core>
 #include <eigen3/unsupported/Eigen/Splines>
 
+namespace tobas
+{
 namespace eigen
 {
 /**
@@ -28,3 +33,4 @@ private:
   Eigen::RowVectorXd scaledValues(const Eigen::VectorXd& x_vec) const;
 };
 }  // namespace eigen
+}  // namespace tobas

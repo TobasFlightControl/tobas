@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <QStackedWidget>
 
+namespace tobas
+{
 namespace qt
 {
 /**
@@ -25,3 +30,4 @@ public Q_SLOTS:
   void setCurrentIndex(int index);
 };
 }  // namespace qt
+}  // namespace tobas

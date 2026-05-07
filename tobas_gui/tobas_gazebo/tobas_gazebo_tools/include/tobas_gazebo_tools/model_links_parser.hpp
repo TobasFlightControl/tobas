@@ -1,8 +1,13 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <gz/sim/System.hh>
 #include <gz/sim/components.hh>
 
+namespace tobas
+{
 namespace gazebo
 {
 /* モデルに属する全てのリンクを保持する． */
@@ -27,3 +32,4 @@ private:
   std::map<std::string, gz::sim::Entity> links_;
 };
 }  // namespace gazebo
+}  // namespace tobas

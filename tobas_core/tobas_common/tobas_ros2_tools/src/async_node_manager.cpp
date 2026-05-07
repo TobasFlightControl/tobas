@@ -1,5 +1,10 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_ros2_tools/async_node_manager.hpp"
 
+namespace tobas
+{
 namespace ros2
 {
 AsyncNodeManager::AsyncNodeManager(int argc, char** argv, const std::string& node_name)
@@ -30,3 +35,4 @@ rclcpp::Node::ConstSharedPtr AsyncNodeManager::node() const
   return node_;
 }
 }  // namespace ros2
+}  // namespace tobas

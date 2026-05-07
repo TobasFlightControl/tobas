@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include "./frames.hpp"
@@ -5,6 +8,8 @@
 #include "./rigid_body_inertia.hpp"
 #include "./segment_jacobian.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 /**
@@ -129,4 +134,5 @@ inline const RigidBodyInertia& Segment::inertia() const
 {
   return I_;
 }
-}  // end of namespace kdl
+}  // namespace kdl
+}  // namespace tobas

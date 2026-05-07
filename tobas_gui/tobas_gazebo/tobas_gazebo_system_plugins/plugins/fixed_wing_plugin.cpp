@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include <ranges>
 
 #include <gz/sim/Joint.hh>
@@ -27,6 +30,8 @@
 namespace ch = std::chrono;
 namespace cmp = gz::sim::components;
 
+namespace tobas
+{
 namespace gazebo
 {
 /**
@@ -63,9 +68,9 @@ private:
   // SDF parameters
   std::string base_link_name_;
   double alt_0_;  // 基準点の幾何的高度
-  tobas::VehicleParameters vehicle_params_;
-  tobas::AerodynamicCoefficients aero_coefs_;
-  std::map<std::string, tobas::ControlSurface> control_surfaces_;
+  VehicleParameters vehicle_params_;
+  AerodynamicCoefficients aero_coefs_;
+  std::map<std::string, ControlSurface> control_surfaces_;
 
   std::shared_ptr<gz::sim::Link> base_link_;
   std::map<std::string, std::shared_ptr<gz::sim::Joint>> cs_joints_;  // 制御面のジョイントへのポインタ
@@ -209,11 +214,11 @@ void GazeboFixedWingPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::
   const auto& u = vel_B.X();
   const auto& v = vel_B.Y();
   const auto& w = vel_B.Z();
-  const auto V = std::max(vel_B.Length(), tobas::kMinAirSpeedThresh);  // V > 0 を保証する
+  const auto V = std::max(vel_B.Length(), kMinAirSpeedThresh);  // V > 0 を保証する
 
   // 迎角と横滑り角
-  const auto alpha = tobas::angleOfAttack(u, w);      // 迎角 [rad]
-  const auto beta = tobas::angleOfSideSlip(u, v, w);  // 横滑り角 [rad]
+  const auto alpha = angleOfAttack(u, w);      // 迎角 [rad]
+  const auto beta = angleOfSideSlip(u, v, w);  // 横滑り角 [rad]
 
   // 迎角の範囲チェック
   if (!vehicle_params_.alpha_limit.inRange(alpha)) {
@@ -244,9 +249,9 @@ void GazeboFixedWingPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::
 
   // 定数部分を計算しておく
   const auto altitude = alt_0_ + P_W_B.Z();
-  const auto rho = tbs::altitudeToDensity(altitude);
-  const auto q_bar = tobas::dynamicPressure(rho, V);  // 動圧 (p.15) [Pa]
-  const auto& S = vehicle_params_.wing_surface;       // 主翼面積 [m^2]
+  const auto rho = st::altitudeToDensity(altitude);
+  const auto q_bar = dynamicPressure(rho, V);    // 動圧 (p.15) [Pa]
+  const auto& S = vehicle_params_.wing_surface;  // 主翼面積 [m^2]
 
   // 空力中心に働く空気力 (1.8-1)
   auto force_B = q_bar * S * force_coefs;  // [N]
@@ -329,7 +334,7 @@ void GazeboFixedWingPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
     auto cs_elem = sdf->FindElement(kControlSurfaceKey);
 
     while (cs_elem) {
-      tobas::ControlSurface cs;
+      ControlSurface cs;
 
       getSdfParam(cs_elem, "jointName", cs.link_name);
       if (joint_names.contains(cs.link_name)) {
@@ -509,9 +514,6 @@ void GazeboFixedWingPlugin::windSpeedCb(const tobas_msgs::Wind::ConstSharedPtr& 
   vectorKDLToGazebo(wind->vel, wind_vel_W_);
 }
 }  // namespace gazebo
+}  // namespace tobas
 
-GZ_ADD_PLUGIN(
-  gazebo::GazeboFixedWingPlugin,
-  gz::sim::System,
-  gazebo::GazeboFixedWingPlugin::ISystemConfigure,
-  gazebo::GazeboFixedWingPlugin::ISystemPreUpdate)
+GZ_ADD_PLUGIN(tobas::gazebo::GazeboFixedWingPlugin, gz::sim::System, gz::sim::ISystemConfigure, gz::sim::ISystemPreUpdate)

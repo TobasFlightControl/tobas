@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_components_rt/multi_component_managers.hpp"
 
 #include <ranges>
@@ -10,7 +13,7 @@
 
 using namespace std::chrono_literals;
 
-namespace ros2
+namespace tobas
 {
 namespace
 {
@@ -102,4 +105,4 @@ void MultiComponentManagers::spin()
     manager.thread.join();
   }
 }
-}  // namespace ros2
+}  // namespace tobas

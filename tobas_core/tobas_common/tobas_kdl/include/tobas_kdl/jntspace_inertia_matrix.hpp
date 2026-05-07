@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include "./frames.hpp"
 #include "./jacobian.hpp"
 #include "./jntarray.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 /**
@@ -153,3 +158,4 @@ inline void Multiply(const JntSpaceInertiaMatrix& src, const JntArray& vec, JntA
   dest.data = src.data.lazyProduct(vec.data);
 }
 }  // namespace kdl
+}  // namespace tobas

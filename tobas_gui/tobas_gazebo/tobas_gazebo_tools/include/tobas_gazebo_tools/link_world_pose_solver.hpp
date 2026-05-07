@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <gz/math/Pose3.hh>
 #include <gz/sim/System.hh>
 #include <gz/sim/components.hh>
 
+namespace tobas
+{
 namespace gazebo
 {
 class LinkWorldPoseSolver
@@ -25,3 +30,4 @@ private:
   gz::math::Pose3d pose_out_;
 };
 }  // namespace gazebo
+}  // namespace tobas

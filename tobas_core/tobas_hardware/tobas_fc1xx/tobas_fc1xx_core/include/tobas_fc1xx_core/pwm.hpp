@@ -1,8 +1,13 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <tobas_algorithm/crc.hpp>
 #include <tobas_linux/spi_dev.hpp>
 
+namespace tobas
+{
 namespace fc1xx
 {
 class PWM
@@ -31,3 +36,4 @@ private:
   algo::CRC32Left crc_;
 };
 }  // namespace fc1xx
+}  // namespace tobas

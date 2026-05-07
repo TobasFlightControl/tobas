@@ -1,8 +1,13 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <chrono>
 #include <thread>
 
+namespace tobas
+{
 namespace tim
 {
 inline void sleep(double sec)
@@ -36,3 +41,4 @@ timePointFromUTC(int year, int month, int day, int hour, int min, int sec, int n
 /* 西暦を日数まで年に換算する． */
 double yearFraction(const std::chrono::system_clock::time_point& tp = std::chrono::system_clock::now());
 }  // namespace tim
+}  // namespace tobas

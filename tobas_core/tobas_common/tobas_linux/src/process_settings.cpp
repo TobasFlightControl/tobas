@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_linux/process_settings.hpp"
 
 #include <cstring>
@@ -12,33 +15,35 @@
 
 using namespace std;
 
+namespace tobas
+{
 namespace linux
 {
 bool ProcessSettings::init(int argc, char* argv[])
 {
-  if (tbs::commandLineOptionExists(argv, argv + argc, "-h")) {
+  if (st::commandLineOptionExists(argv, argv + argc, "-h")) {
     printUsage();
     return false;
   }
 
-  if (tbs::commandLineOptionExists(argv, argv + argc, kOptionLockMemory)) {
-    const auto option = tbs::getCommandLineOption(argv, argv + argc, kOptionLockMemorySize);
+  if (st::commandLineOptionExists(argv, argv + argc, kOptionLockMemory)) {
+    const auto option = st::getCommandLineOption(argv, argv + argc, kOptionLockMemorySize);
     lock_memory_ = strcmp(option, "true") == 0 ? true : false;
   }
 
-  if (tbs::commandLineOptionExists(argv, argv + argc, kOptionLockMemorySize)) {
-    lock_memory_size_mb_ = stoi(tbs::getCommandLineOption(argv, argv + argc, kOptionLockMemorySize));
+  if (st::commandLineOptionExists(argv, argv + argc, kOptionLockMemorySize)) {
+    lock_memory_size_mb_ = stoi(st::getCommandLineOption(argv, argv + argc, kOptionLockMemorySize));
     if (lock_memory_size_mb_ > 0) {
       lock_memory_ = true;
     }
   }
 
-  if (tbs::commandLineOptionExists(argv, argv + argc, kOptionPriority)) {
-    process_priority_ = stoi(tbs::getCommandLineOption(argv, argv + argc, kOptionPriority));
+  if (st::commandLineOptionExists(argv, argv + argc, kOptionPriority)) {
+    process_priority_ = stoi(st::getCommandLineOption(argv, argv + argc, kOptionPriority));
   }
 
-  if (tbs::commandLineOptionExists(argv, argv + argc, kOptionCPUAffinity)) {
-    cpu_affinity_ = stoi(tbs::getCommandLineOption(argv, argv + argc, kOptionCPUAffinity));
+  if (st::commandLineOptionExists(argv, argv + argc, kOptionCPUAffinity)) {
+    cpu_affinity_ = stoi(st::getCommandLineOption(argv, argv + argc, kOptionCPUAffinity));
   }
 
   return true;
@@ -85,3 +90,4 @@ void ProcessSettings::printUsage()
        << "\t[-h]" << endl;
 }
 }  // namespace linux
+}  // namespace tobas

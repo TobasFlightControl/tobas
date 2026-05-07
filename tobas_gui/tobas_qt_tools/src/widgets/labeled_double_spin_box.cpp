@@ -1,8 +1,13 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_qt_tools/widgets/labeled_double_spin_box.hpp"
 
 #include <QHBoxLayout>
 #include <QLabel>
 
+namespace tobas
+{
 namespace qt
 {
 LabeledDoubleSpinBox::LabeledDoubleSpinBox(const QString& label_text)
@@ -65,3 +70,4 @@ void LabeledDoubleSpinBox::onValueChanged(double value)
   Q_EMIT valueChanged(value);
 }
 }  // namespace qt
+}  // namespace tobas

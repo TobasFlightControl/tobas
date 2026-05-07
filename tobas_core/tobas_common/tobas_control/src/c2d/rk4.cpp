@@ -1,8 +1,13 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_control/c2d/rk4.hpp"
 
 using namespace std;
 using namespace Eigen;
 
+namespace tobas
+{
 namespace ctrl
 {
 C2D_RK4::C2D_RK4(const Index& x_size, const Index& u_size)
@@ -55,3 +60,4 @@ void C2D_RK4::resize(const Index& x_size, const Index& u_size)
   }
 }
 }  // namespace ctrl
+}  // namespace tobas

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <map>
@@ -5,6 +8,8 @@
 #include <QDialog>
 #include <QDoubleSpinBox>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ub
@@ -39,3 +44,4 @@ private:
 }  // namespace ui
 }  // namespace ub
 }  // namespace gui
+}  // namespace tobas

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_linux/video_dev.hpp"
 
 #include <errno.h>
@@ -11,6 +14,8 @@
 
 #include <iostream>
 
+namespace tobas
+{
 namespace linux
 {
 VideoDev::VideoDev()
@@ -334,4 +339,5 @@ bool VideoDev::requestImgFormat()
   fmt_.bytes_per_line = fmt_request.fmt.pix.bytesperline;
   return true;
 }
-}  // end of namespace linux
+}  // namespace linux
+}  // namespace tobas

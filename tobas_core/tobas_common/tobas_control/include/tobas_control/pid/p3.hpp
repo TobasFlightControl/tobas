@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <eigen3/Eigen/Core>
 
+namespace tobas
+{
 namespace ctrl
 {
 class P3
@@ -19,3 +24,4 @@ inline Eigen::Vector3d P3::update(const Eigen::Vector3d& cur_pos, const Eigen::V
   return kp.cwiseProduct(tar_pos - cur_pos);
 }
 }  // namespace ctrl
+}  // namespace tobas

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_control/lqid.hpp"
 
 #include <iostream>
@@ -9,6 +12,8 @@
 using namespace std;
 using namespace Eigen;
 
+namespace tobas
+{
 namespace ctrl
 {
 LQID::LQID(const Index& state_size, const Index& input_size, const Index& integrate_size)
@@ -153,3 +158,4 @@ ostream& operator<<(ostream& os, const LQID& arg)
   return os;
 }
 }  // namespace ctrl
+}  // namespace tobas

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include <unistd.h>
 
 #include <iostream>
@@ -8,7 +11,7 @@ using namespace std;
 
 int main()
 {
-  if (!linux::setRealtimePriorityFIFO(50)) {
+  if (!tobas::linux::setRealtimePriorityFIFO(50)) {
     return EXIT_FAILURE;
   }
 

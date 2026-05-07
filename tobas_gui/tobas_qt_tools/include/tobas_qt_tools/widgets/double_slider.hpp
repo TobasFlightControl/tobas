@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include "./slider.hpp"
 
+namespace tobas
+{
 namespace qt
 {
 class DoubleSlider : public Slider
@@ -42,3 +47,4 @@ private:
   double valueFromSlider(int slider_value) const;
 };
 }  // namespace qt
+}  // namespace tobas

@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include "./utility.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 /**
@@ -376,3 +381,4 @@ inline void setToIdentity(Rall1d<T, V, S>& value)
   setToZero(value.grad);
 }
 }  // namespace kdl
+}  // namespace tobas

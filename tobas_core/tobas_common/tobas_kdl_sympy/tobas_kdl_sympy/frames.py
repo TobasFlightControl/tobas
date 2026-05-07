@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Tobas, Inc.
+
 from __future__ import annotations  # 自クラスを返り値としてアノテートするために必要
 from functools import singledispatchmethod
 import math

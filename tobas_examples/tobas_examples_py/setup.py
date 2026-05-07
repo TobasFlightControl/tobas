@@ -17,14 +17,11 @@ def package_files(directory: str, data_files: List[str]) -> List[str]:
 data_files = []
 data_files.append(("share/ament_index/resource_index/packages", ["resource/" + pkg_name]))
 data_files.append(("share/" + pkg_name, ["package.xml"]))
-# data_files = package_files("launch/", data_files)
-
 
 console_scripts = []
 for node_file in glob(f"{pkg_name}/*_node.py"):
     node_name = osp.basename(osp.splitext(node_file)[0])
     console_scripts.append(f"{node_name} = {pkg_name}.{node_name}:main")
-
 
 setup(
     name=pkg_name,

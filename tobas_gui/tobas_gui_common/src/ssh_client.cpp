@@ -1,13 +1,16 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_gui_common/ssh_client.hpp"
 
 #include <QMetaType>
 
 #include <tobas_qt_tools/thread.hpp>
 
-namespace fs = std::filesystem;
+Q_DECLARE_METATYPE(tobas::ssh::SshClient::Error);
 
-Q_DECLARE_METATYPE(ssh::SshClient::Error);
-
+namespace tobas
+{
 namespace gui
 {
 namespace cmn
@@ -19,7 +22,7 @@ class SshConnectThread : public QThread
   Q_OBJECT
 
 Q_SIGNALS:
-  void finished(ssh::SshClient::Error error);
+  void finished(tobas::ssh::SshClient::Error error);
 
 public:
   explicit SshConnectThread(ssh::SshClient& impl) : impl_(impl)
@@ -41,7 +44,7 @@ class SshExecuteThread : public QThread
   Q_OBJECT
 
 Q_SIGNALS:
-  void finished(ssh::SshClient::Error error);
+  void finished(tobas::ssh::SshClient::Error error);
 
 public:
   explicit SshExecuteThread(
@@ -74,7 +77,7 @@ class ScpGetThread : public QThread
   Q_OBJECT
 
 Q_SIGNALS:
-  void finished(ssh::SshClient::Error error);
+  void finished(tobas::ssh::SshClient::Error error);
 
 public:
   explicit ScpGetThread(ssh::SshClient& impl, const std::string& remote_path, const std::string& local_path)
@@ -100,7 +103,7 @@ class ScpPutThread : public QThread
   Q_OBJECT
 
 Q_SIGNALS:
-  void finished(ssh::SshClient::Error error);
+  void finished(tobas::ssh::SshClient::Error error);
 
 public:
   explicit ScpPutThread(
@@ -140,7 +143,7 @@ class SftpReadThread : public QThread
   Q_OBJECT
 
 Q_SIGNALS:
-  void finished(ssh::SshClient::Error error);
+  void finished(tobas::ssh::SshClient::Error error);
 
 public:
   explicit SftpReadThread(ssh::SshClient& impl, const std::string& remote_path, std::string& text, bool superuser)
@@ -167,7 +170,7 @@ class SftpWriteThread : public QThread
   Q_OBJECT
 
 Q_SIGNALS:
-  void finished(ssh::SshClient::Error error);
+  void finished(tobas::ssh::SshClient::Error error);
 
 public:
   explicit SftpWriteThread(ssh::SshClient& impl, const std::string& remote_path, const std::string& text, bool superuser)
@@ -194,7 +197,7 @@ class SshListThread : public QThread
   Q_OBJECT
 
 Q_SIGNALS:
-  void finished(ssh::SshClient::Error error);
+  void finished(tobas::ssh::SshClient::Error error);
 
 public:
   explicit SshListThread(ssh::SshClient& impl, const std::string& pardir, std::vector<std::string>& dst)
@@ -292,5 +295,6 @@ ssh::SshClient::Error SshClientWrapper::list(const std::string& pardir, std::vec
 }
 }  // namespace cmn
 }  // namespace gui
+}  // namespace tobas
 
 #include "ssh_client.moc"  // cppをMOCに加えるために必要

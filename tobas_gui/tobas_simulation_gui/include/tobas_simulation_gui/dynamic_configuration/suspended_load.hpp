@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <QPushButton>
@@ -11,6 +14,8 @@
 #include <tobas_gazebo_msgs/srv/attach_suspended_load.hpp>
 #include <tobas_gazebo_msgs/srv/detach_suspended_load.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sim
@@ -35,7 +40,7 @@ public:
 
   void updateNamespace(const std::string& ns);
 
-  bool start();
+  bool start(std::chrono::milliseconds timeout);
   void reset();
 
 private:
@@ -60,3 +65,4 @@ private Q_SLOTS:
 };
 }  // namespace sim
 }  // namespace gui
+}  // namespace tobas

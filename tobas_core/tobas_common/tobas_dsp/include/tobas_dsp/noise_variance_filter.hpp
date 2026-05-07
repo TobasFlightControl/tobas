@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include "./high_pass_filter.hpp"
 #include "./moving_stat.hpp"
 #include "./welford.hpp"
 
+namespace tobas
+{
 namespace dsp
 {
 /**
@@ -91,3 +96,4 @@ NoiseVarianceFilter<Scalar, Size, Length>::noiseVariance() const
   }
 }
 }  // namespace dsp
+}  // namespace tobas

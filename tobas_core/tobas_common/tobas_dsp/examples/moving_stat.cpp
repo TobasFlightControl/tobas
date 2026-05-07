@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include <random>
 
 #include <tobas_dsp/moving_stat.hpp>
@@ -38,7 +41,7 @@ int main(int argc, char** argv)
   }
 
   // Initialize MovingStatistics object
-  dsp::MovingStatistics<double, 3, LENGTH> moving_stat;
+  tobas::dsp::MovingStatistics<double, 3, LENGTH> moving_stat;
   moving_stat.initialize(init_data);
 
   for (size_t i = 0; i < steps; ++i) {
@@ -69,7 +72,7 @@ int main(int argc, char** argv)
     cout << "----------" << endl;
 
     // Validate
-    if (!eigen::isClose(mean_1, mean_2) || !eigen::isClose(cov_1, cov_2)) {
+    if (!tobas::eigen::isClose(mean_1, mean_2) || !tobas::eigen::isClose(cov_1, cov_2)) {
       cerr << "Moving statistics is inaccurate." << endl;
       return EXIT_FAILURE;
     }

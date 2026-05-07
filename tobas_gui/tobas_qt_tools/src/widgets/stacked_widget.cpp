@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_qt_tools/widgets/stacked_widget.hpp"
 
 #include <QApplication>
 
+namespace tobas
+{
 namespace qt
 {
 void StackedWidget::clear()
@@ -25,3 +30,4 @@ void StackedWidget::setCurrentIndex(int index)
   update();
 }
 }  // namespace qt
+}  // namespace tobas

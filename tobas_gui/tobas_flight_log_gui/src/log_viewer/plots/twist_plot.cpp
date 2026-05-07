@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_flight_log_gui/log_viewer/plots/twist_plot.hpp"
 
 #include <QGridLayout>
 
 #include <tobas_ros2_tools/time.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace log
@@ -109,3 +114,4 @@ void TwistPlotWidget::updateTargetSamples(const QVector<tobas_msgs::msg::Odometr
 }
 }  // namespace log
 }  // namespace gui
+}  // namespace tobas

@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <QWidget>
 
 #include <tobas_rviz_wrapper/rviz.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace ub
@@ -20,3 +25,4 @@ private:
 };
 }  // namespace ub
 }  // namespace gui
+}  // namespace tobas

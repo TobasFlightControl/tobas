@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <tobas_qt_tools/widgets/double_spin_box.hpp>
 
+namespace tobas
+{
 namespace qt
 {
 class LabeledDoubleSpinBox : public QWidget
@@ -33,3 +38,4 @@ private:
   qt::DoubleSpinBox* data_;
 };
 }  // namespace qt
+}  // namespace tobas

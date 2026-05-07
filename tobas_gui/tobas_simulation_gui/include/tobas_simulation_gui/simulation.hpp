@@ -1,7 +1,11 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <expected>
 
+#include <QProcess>
 #include <QPushButton>
 #include <QWidget>
 
@@ -19,6 +23,8 @@
 #include "./dynamic_configuration/dynamic_configuration.hpp"
 #include "./simulation_settings/simulation_settings.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace sim
@@ -32,6 +38,8 @@ class SimulationWidget : public QWidget
 
   static constexpr int kButtonWidth = 100;
   static constexpr int kButtonHeight = 40;
+
+  static constexpr auto kWaitForServerTimeout = std::chrono::seconds(3);
 
 Q_SIGNALS:
   void started();
@@ -59,9 +67,9 @@ private:
 
   uadf::Model uadf_;
   kdl::Tree tree_;
-  tobas::Drone drone_;
-  pid_t launch_pid_ = -1;
+  Drone drone_;
 
+  QProcess* launch_proc_ = nullptr;
   qt::WaitSpinnerWidget spinner_;
 
   qt::ToggleButton* start_stop_button_;
@@ -78,18 +86,20 @@ private:
   bool startHITL();
   void terminateHITL();
 
-  std::map<std::string, std::string> makeGazeboLaunchArguments(bool launch_core) const;
-  bool launchGazebo(bool launch_core);
+  std::map<QString, QString> makeGazeboLaunchArguments(bool launch_core) const;
+  void launchSimulation(bool launch_core);
 
-  std::expected<void, QString> killGazeboWithSpinner();
-
-  static std::string boolToText(bool arg);
+  void terminateLaunchProcess();
+  void terminateSimulation();
+  void terminateSimulationAndWait();
 
 private Q_SLOTS:
   void onStartRequested();
   void onTerminateRequested();
+  void onLaunchProcessFinished(int code, QProcess::ExitStatus status);
 
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
 };
 }  // namespace sim
 }  // namespace gui
+}  // namespace tobas

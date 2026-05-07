@@ -1,3 +1,7 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Tobas, Inc.
+
+
 class SegTree:
     def __init__(self, init_val, segfunc, ide_ele):
         """

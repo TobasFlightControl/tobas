@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_gazebo_system_plugins/random.hpp"
 
 using namespace gz::math;
 
+namespace tobas
+{
 namespace gazebo
 {
 NormalDistribution3d::NormalDistribution3d(std::random_device& rnd_dev, const Vector3d& mean, const Vector3d& stddev)
@@ -56,3 +61,4 @@ Vector3d createUnitSpherePoint(std::random_device& rnd_dev)
   return Vector3d(sin(phi) * cos(theta), sin(phi) * sin(theta), cos(phi));
 }
 }  // namespace gazebo
+}  // namespace tobas

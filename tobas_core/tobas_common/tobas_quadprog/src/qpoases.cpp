@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_quadprog/qpoases.hpp"
 
 #include <qpOASES.hpp>
@@ -8,6 +11,8 @@
 using namespace std;
 using namespace Eigen;
 
+namespace tobas
+{
 namespace quadprog
 {
 QpOasesSolver::QpOasesSolver() : super()
@@ -83,3 +88,4 @@ bool QpOasesSolver::solve()
   return true;
 }
 }  // namespace quadprog
+}  // namespace tobas

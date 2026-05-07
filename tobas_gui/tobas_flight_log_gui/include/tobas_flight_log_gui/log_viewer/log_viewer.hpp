@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <filesystem>
@@ -8,6 +11,8 @@
 #include "./playback_control.hpp"
 #include "./plot_tab.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace log
@@ -49,9 +54,11 @@ private:
   QVector<tobas_msgs::msg::JointCommandArray> tar_joint_velocities_data_;
   QVector<tobas_msgs::msg::JointCommandArray> tar_joint_efforts_data_;
   QVector<tobas_msgs::msg::IcePropulsionSystemCommand> ice_cmd_data_;
+  QVector<tobas_msgs::msg::PwmArray> pwm_data_;
   QVector<tobas_msgs::msg::Latency> sampling_time_data_;
   QVector<tobas_msgs::msg::Latency> ctrl_latency_data_;
   QVector<tobas_msgs::msg::VibrationLevel> vibe_data_;
+  QVector<tobas_msgs::msg::RepulsiveAcceleration> repulsive_accel_data_;
   QVector<tobas_kdl_msgs::msg::WrenchStamped> dist_force_data_;
   QVector<tobas_debug_msgs::msg::ObserverFeedback> obsv_fb_data_;
   QVector<tobas_debug_msgs::msg::MulticopterControllerFeedback> mr_ctrl_fb_data_;
@@ -69,8 +76,10 @@ private:
   MessageDecoderCache<tobas_msgs::msg::JointStateArray> joint_states_decoder_;
   MessageDecoderCache<tobas_msgs::msg::JointCommandArray> joint_commands_decoder_;
   MessageDecoderCache<tobas_msgs::msg::IcePropulsionSystemCommand> ice_cmd_decoder_;
+  MessageDecoderCache<tobas_msgs::msg::PwmArray> pwm_decoder_;
   MessageDecoderCache<tobas_msgs::msg::Latency> latency_decoder_;
   MessageDecoderCache<tobas_msgs::msg::VibrationLevel> vibe_decoder_;
+  MessageDecoderCache<tobas_msgs::msg::RepulsiveAcceleration> repulsive_accel_decoder_;
   MessageDecoderCache<tobas_kdl_msgs::msg::WrenchStamped> wrench_decoder_;
   MessageDecoderCache<tobas_debug_msgs::msg::ObserverFeedback> obsv_fb_decoder_;
   MessageDecoderCache<tobas_debug_msgs::msg::MulticopterControllerFeedback> mr_ctrl_fb_decoder_;
@@ -87,3 +96,4 @@ private Q_SLOTS:
 };
 }  // namespace log
 }  // namespace gui
+}  // namespace tobas

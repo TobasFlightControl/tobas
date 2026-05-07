@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include <iostream>
 #include <thread>
 
@@ -7,7 +10,7 @@ using namespace std;
 
 int main()
 {
-  fc1xx::DShot dshot;
+  tobas::fc1xx::DShot dshot;
   constexpr uint16_t throttles[] = { 0, 1, 2, 47, 48, 1023, 1024, 2047 };
 
   if (!dshot.initialize()) {
@@ -16,7 +19,7 @@ int main()
   }
 
   while (true) {
-    for (size_t ch = 0; ch < fc1xx::DShot::kChannelSize; ++ch) {
+    for (size_t ch = 0; ch < tobas::fc1xx::DShot::kChannelSize; ++ch) {
       if (!dshot.setThrottle(ch, throttles[ch])) {
         cerr << "Failed to set DShot throttle of channel " << ch << "." << endl;
         continue;

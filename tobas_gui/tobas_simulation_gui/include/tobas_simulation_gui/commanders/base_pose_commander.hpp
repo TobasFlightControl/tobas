@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <array>
@@ -17,6 +20,8 @@
 #include <tobas_command_msgs_adapter/pos_vel_acc_yaw.hpp>
 #include <tobas_msgs/srv/set_arm.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace sim
@@ -31,16 +36,16 @@ class BasePoseCommanderWidget : public QWidget
   static constexpr double kHomeAltitude = 3.;  // [m]
 
 public:
-  explicit BasePoseCommanderWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge, const tobas::Drone& drone);
+  explicit BasePoseCommanderWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge, const Drone& drone);
 
   void updateInternalDataStructures();
 
-  bool start();
+  bool start(std::chrono::milliseconds timeout);
   void reset();
 
 private:
   const rclcpp::Node::SharedPtr node_;
-  const tobas::Drone& drone_;
+  const Drone& drone_;
 
   qt::ToggleButton* arming_button_;
 
@@ -79,3 +84,4 @@ private Q_SLOTS:
 };
 }  // namespace sim
 }  // namespace gui
+}  // namespace tobas

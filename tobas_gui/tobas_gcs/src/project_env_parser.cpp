@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_gcs/project_env_parser.hpp"
 
 #include <sstream>
 
 #include <tobas_string_tools/core.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace gcs
@@ -50,3 +55,4 @@ std::string ProjectEnvParser::exportText() const
 }
 }  // namespace gcs
 }  // namespace gui
+}  // namespace tobas

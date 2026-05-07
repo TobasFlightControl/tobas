@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <array>
@@ -28,7 +31,9 @@ std::ostream& operator<<(std::ostream& os, const std::array<T, N>& arr)
 }
 }  // namespace std
 
-namespace tbs
+namespace tobas
+{
+namespace st
 {
 /* Naive Summation． The worst-case round-off error scales with O(nε). */
 template <typename T, size_t N>
@@ -97,4 +102,5 @@ inline bool allEqual(const std::array<T, N>& arr, const T& target)
 {
   return std::all_of(arr.begin(), arr.end(), [&target](const auto& val) { return val == target; });
 }
-}  // namespace tbs
+}  // namespace st
+}  // namespace tobas

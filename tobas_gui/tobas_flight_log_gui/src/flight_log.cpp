@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_flight_log_gui/flight_log.hpp"
 
 #include <QDebug>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
+namespace tobas
+{
 namespace gui
 {
 namespace log
@@ -70,3 +75,4 @@ void FlightLogWidget::onLogDeselected()
 }
 }  // namespace log
 }  // namespace gui
+}  // namespace tobas

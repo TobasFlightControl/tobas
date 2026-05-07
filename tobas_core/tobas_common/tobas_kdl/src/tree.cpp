@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_kdl/tree.hpp"
 
 #include <iostream>
 
 using namespace std;
 
+namespace tobas
+{
 namespace kdl
 {
 Tree::Tree(const string& root_name) : root_name_(root_name)
@@ -384,3 +389,4 @@ ostream& operator<<(ostream& os, const Tree& arg)
   return os;
 }
 }  // namespace kdl
+}  // namespace tobas
