@@ -61,7 +61,6 @@ class RosbagRecorderNode : public BaseNode
   using StopSrv = tobas_msgs::srv::BagRecordStop;
   using CleanSrv = std_srvs::srv::Trigger;
 
-  static constexpr size_t kMaxParDirSize = 10UL * BILLION;  // [byte]
   static constexpr auto kMainTimerPeriod = 1s;
 
 public:
@@ -310,16 +309,12 @@ void RosbagRecorderNode::startCb(const StartSrv::Request::ConstSharedPtr& req, c
 
   // rosbagディレクトリが存在しなければ作成
   if (!fs::exists(rosbag_dir_)) {
-    fs::create_directories(rosbag_dir_);
-  }
-
-  // rosbagディレクトリ全体のサイズが大きすぎないか確認
-  const auto par_dir_size = path::computeDirectorySize(rosbag_dir_);
-  if (par_dir_size > kMaxParDirSize) {
-    res->success = false;
-    res->message = "The size of rosbag directory (" + rosbag_dir_.string() + ") is over " +
-                   std::to_string(kMaxParDirSize / BILLION) + " GB. Please clean it first.";
-    return;
+    std::error_code ec;
+    if (!fs::create_directories(rosbag_dir_, ec)) {
+      res->success = false;
+      res->message = "Failed to create " + rosbag_dir_.string() + ": " + ec.message();
+      return;
+    }
   }
 
   file_path_ = rosbag_dir_ / req->name;
