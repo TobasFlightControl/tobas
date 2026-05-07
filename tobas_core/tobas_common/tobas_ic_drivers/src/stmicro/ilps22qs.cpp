@@ -80,7 +80,7 @@ bool ILPS22QS::configure()
     return false;
   }
 
-  if (!i2c_.writeByte(CTRL_REG2, fs_mode | LPF_CFG_4 | ENABLE_LPF, true)) {
+  if (!i2c_.writeByte(CTRL_REG2, fs_mode | LPF_CFG_4 | ENABLE_LPF | BLOCK_DATA_UPDATE, true)) {
     cerr << "Failed to write to CTRL_REG2." << endl;
     return false;
   }

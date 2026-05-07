@@ -77,7 +77,7 @@ bool IIS2MDC::configure()
     return false;
   }
 
-  if (!i2c_.writeByte(CFG_REG_C, 0x00, true)) {
+  if (!i2c_.writeByte(CFG_REG_C, BDU, true)) {
     cerr << "Failed to write to CFG_REG_C." << endl;
     return false;
   }
