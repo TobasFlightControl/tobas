@@ -29,7 +29,7 @@ namespace log
 FlightLogRecorderWidget::FlightLogRecorderWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge)
   : start_thread_(node), stop_thread_(node), spinner_(Qt::WindowModal, this)
 {
-  log_name_ = new QLineEdit();
+  log_name_ = new qt::HistoryLineEdit();
 
   start_stop_button_ = new qt::ToggleButton("▶ Start Recording", "■ Stop Recording");
   start_stop_button_->setFixedSize(kButtonWidth, kButtonHeight);
@@ -155,7 +155,10 @@ void FlightLogRecorderWidget::onStopRequested()
 
   Q_EMIT recordFinished(log_name_->text());
 
+  // ログ名を履歴に追加してクリア
+  log_name_->addHistory(log_name_->text());
   log_name_->clear();
+
   clearRosbagStateViewerWidgets();
 
   qt::qInfoBox(this, "Flight log recording has stopped.");
