@@ -13,16 +13,19 @@ void HistoryLineEdit::addHistory(const QString& text)
 {
   const auto trimmed = text.trimmed();
 
+  // 空文字は追加しない
   if (trimmed.isEmpty()) {
     qWarning() << "Cannot add an empty text to the history.";
     return;
   }
 
-  // 直前と同じ履歴は追加しない
+  // 直前と同じものは追加しない
   if (!history_.isEmpty() && history_.last() == trimmed) {
+    qInfo() << "The text is the same as the last one.";
     return;
   }
 
+  // 履歴に追加
   history_.append(trimmed);
 
   // 上キーを押す前の状態に戻す
