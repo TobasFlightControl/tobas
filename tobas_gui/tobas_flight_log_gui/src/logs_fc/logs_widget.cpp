@@ -170,7 +170,7 @@ void FlightLogsWidgetFC::onDownloadButtonClicked(const QString& log_name)
   const auto local_pardir = ros2::expandUser(kRosbagDirHome);
 
   if (!fs::is_directory(local_pardir)) {
-    fs::create_directories(local_pardir);
+    TOBAS_CHECK(fs::create_directories(local_pardir));
   }
 
   spinner_.start();

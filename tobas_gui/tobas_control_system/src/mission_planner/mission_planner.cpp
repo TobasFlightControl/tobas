@@ -430,7 +430,7 @@ void MissionPlannerWidget::onCacheButtonClicked()
   const auto dir_to = ros2::expandUser(kCacheDirOffline);
 
   if (!fs::is_directory(dir_to)) {
-    fs::create_directories(dir_to);
+    TOBAS_CHECK(fs::create_directories(dir_to));
   }
 
   // 全てのPNGファイルをコピー

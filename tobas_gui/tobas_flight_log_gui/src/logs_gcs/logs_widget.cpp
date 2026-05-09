@@ -138,7 +138,7 @@ void FlightLogsWidgetGCS::onReadButtonClicked()
 
   const auto rosbag_dir = ros2::expandUser(kRosbagDirHome);
   if (!fs::is_directory(rosbag_dir)) {
-    fs::create_directories(rosbag_dir);
+    TOBAS_CHECK(fs::create_directories(rosbag_dir));
   }
 
   try {
@@ -175,7 +175,7 @@ void FlightLogsWidgetGCS::onCleanButtonClicked()
 
   const auto rosbag_dir = ros2::expandUser(kRosbagDirHome);
   if (!fs::is_directory(rosbag_dir)) {
-    fs::create_directories(rosbag_dir);
+    TOBAS_CHECK(fs::create_directories(rosbag_dir));
   }
 
   try {
