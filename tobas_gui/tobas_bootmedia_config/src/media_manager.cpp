@@ -211,10 +211,16 @@ void MediaManagerWidget::onConnectRequested()
     return;
   }
 
-  // 外部ストレージをマウント
+  // デバイスのパスを取得
   const auto& media = currentBootMedia();
   const auto sdx1 = media.devnode + '1';
   const auto sdx2 = media.devnode + '2';
+
+  // 自動マウントされていれば先に外しておく
+  cmd_exec_.execute("udisksctl unmount -b " + sdx1.toStdString() + " || true");
+  cmd_exec_.execute("udisksctl unmount -b " + sdx2.toStdString() + " || true");
+
+  // 外部ストレージをマウント
   if (mount(sdx1.toUtf8().constData(), kBootPath, "vfat", MS_NOATIME, nullptr) < 0) {
     qt::qErrorBox(this, "Failed to mount " + sdx1 + " on " + kBootPath + ": " + linux::strError().c_str());
     connect_btn_->setChecked(false);
@@ -233,7 +239,7 @@ void MediaManagerWidget::onConnectRequested()
 
   Q_EMIT connected(media);
 
-  qt::qInfoBox(this, "The boot device was mounted successfully.");
+  qt::qInfoBox(this, "The boot device was connected successfully.");
 }
 
 void MediaManagerWidget::onDisconnectRequested()
@@ -253,12 +259,18 @@ void MediaManagerWidget::onDisconnectRequested()
     return;
   }
 
+  // デバイス全体を安全に取り外す
+  const auto& media = currentBootMedia();
+  if (!cmd_exec_.execute("udisksctl power-off -b " + media.devnode.toStdString())) {
+    qWarning().noquote().nospace() << "Failed to eject " << media.devnode << ": " << cmd_exec_.getOutput().c_str();
+  }
+
   // 再びメディア名を選択可能にする
   media_name_->setEnabled(true);
 
   Q_EMIT disconnected();
 
-  qt::qInfoBox(this, "The boot device was unmounted successfully.");
+  qt::qInfoBox(this, "The boot device was disconnected successfully.");
 }
 }  // namespace bm
 }  // namespace gui

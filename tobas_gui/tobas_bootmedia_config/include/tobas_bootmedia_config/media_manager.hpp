@@ -5,6 +5,7 @@
 
 #include <QTimer>
 
+#include <tobas_linux/command_executor.hpp>
 #include <tobas_qt_tools/widgets/combo_box.hpp>
 #include <tobas_qt_tools/widgets/toggle_button.hpp>
 #include <tobas_udev/core.hpp>
@@ -40,6 +41,7 @@ public:
 
 private:
   std::unordered_map<QString, BootMedia> medias_;
+  linux::CommandExecutor cmd_exec_;
 
   qt::ComboBox* media_name_;
   qt::ToggleButton* connect_btn_;
