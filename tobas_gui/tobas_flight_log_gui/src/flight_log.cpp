@@ -37,6 +37,7 @@ FlightLogWidget::FlightLogWidget(rclcpp::Node::SharedPtr node, const RosQtBridge
   setLayout(root_cols);
 
   // Connection
+  connect(recorder_, &FlightLogRecorderWidget::recordFinished, this, &self::onRecordFinished);
   connect(logs_fc_, &FlightLogsWidgetFC::logDownloaded, this, &self::onLogDownloaded);
   connect(logs_gcs_, &FlightLogsWidgetGCS::logSelected, this, &self::onLogSelected);
   connect(logs_gcs_, &FlightLogsWidgetGCS::logDeselected, this, &self::onLogDeselected);
@@ -51,6 +52,17 @@ void FlightLogWidget::updateNamespace(const std::string& ns)
 {
   recorder_->updateNamespace(ns);
   logs_fc_->onProjectLoaded();
+}
+
+void FlightLogWidget::onRecordFinished(const QString& log_name)
+{
+  if (logs_gcs_->findLog(log_name)) {
+    qWarning() << log_name << "already exists in the FC log list.";
+    return;
+  }
+
+  logs_fc_->addLog(log_name);
+  logs_fc_->sortLogs();
 }
 
 void FlightLogWidget::onLogDownloaded(const QString& log_name)

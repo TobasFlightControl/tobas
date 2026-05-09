@@ -153,6 +153,8 @@ void FlightLogRecorderWidget::onStopRequested()
     return;
   }
 
+  Q_EMIT recordFinished(log_name_->text());
+
   log_name_->clear();
   clearRosbagStateViewerWidgets();
 
