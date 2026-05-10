@@ -5,11 +5,10 @@
 
 #include <QDebug>
 #include <QFormLayout>
-#include <QHBoxLayout>
-#include <QVBoxLayout>
 #include <inja/inja.hpp>
 
 #include <tobas_qt_tools/message.hpp>
+#include <tobas_qt_tools/util.hpp>
 #include <tobas_string_tools/stream.hpp>
 
 #include "tobas_bootmedia_config/constants.hpp"
@@ -25,42 +24,29 @@ namespace bm
 {
 HostnameWidget::HostnameWidget()
 {
-  read_button_ = new QPushButton("Read");
-  write_button_ = new QPushButton("Write");
-
-  read_button_->setFixedSize(kCtrlButtonWidth, kCtrlButtonHeight);
-  write_button_->setFixedSize(kCtrlButtonWidth, kCtrlButtonHeight);
-
   hostname_ = new QLineEdit();
   hostname_->setMaxLength(HOST_NAME_MAX);
 
   warn_text_ = new qt::Label();
   warn_text_->setTextColor(Qt::red);
 
-  // Layout
-  const auto cols = new QHBoxLayout();
-  cols->addWidget(read_button_);
-  cols->addWidget(write_button_);
-  cols->addStretch();
+  write_button_ = new QPushButton("Write");
+  write_button_->setFixedSize(kCtrlButtonWidth, kCtrlButtonHeight);
 
+  // Layout
   const auto form = new QFormLayout();
   form->setHorizontalSpacing(kFormSpacing);
   form->addRow("Hostname", hostname_);
 
-  rows_->addLayout(cols);
   rows_->addLayout(form);
   rows_->addWidget(warn_text_);
+  rows_->addSpacing(30);
+  qt::addWidgetCenter(write_button_, rows_);
   rows_->addStretch();
 
   // Connection
   connect(hostname_, &QLineEdit::textChanged, this, &self::onHostnameChanged);
-  connect(read_button_, &QPushButton::clicked, this, &self::onReadButtonClicked);
   connect(write_button_, &QPushButton::clicked, this, &self::onWriteButtonClicked);
-}
-
-const char* HostnameWidget::name() const
-{
-  return "Hostname";
 }
 
 const char* HostnameWidget::title() const
@@ -70,11 +56,24 @@ const char* HostnameWidget::title() const
 
 void HostnameWidget::reset()
 {
-  read_button_->setEnabled(true);
-  write_button_->setEnabled(false);
-
   hostname_->clear();
   warn_text_->clear();
+
+  write_button_->setEnabled(false);
+}
+
+bool HostnameWidget::onConnected()
+{
+  std::string file_content;
+  if (!str::readText(hostnameFilePath(), file_content)) {
+    qt::qErrorBox(this, "Failed to read the current hostname.");
+    return false;
+  }
+
+  const auto hostname = QString::fromStdString(file_content).trimmed();  // 末尾の改行コードを削除
+  hostname_->setText(hostname);
+
+  return true;
 }
 
 QString HostnameWidget::getHostname() const
@@ -175,20 +174,6 @@ void HostnameWidget::onHostnameChanged(const QString& hostname)
 
   warn_text_->clear();
   write_button_->setEnabled(true);
-}
-
-void HostnameWidget::onReadButtonClicked()
-{
-  std::string file_content;
-  if (!str::readText(hostnameFilePath(), file_content)) {
-    qt::qErrorBox(this, "Failed to read the current hostname.");
-    return;
-  }
-
-  const auto hostname = QString::fromStdString(file_content).trimmed();  // 末尾の改行コードを削除
-  hostname_->setText(hostname);
-
-  qt::qInfoBox(this, "Hostname was read successfully.");
 }
 
 void HostnameWidget::onWriteButtonClicked()

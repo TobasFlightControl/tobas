@@ -19,14 +19,14 @@ class BaseConfigWidget : public QWidget
 public:
   explicit BaseConfigWidget();
 
-  /* タブに表示される名前． */
-  virtual const char* name() const = 0;
-
   /* ページ上部に表示されるタイトル． */
   virtual const char* title() const = 0;
 
   /* 設定内容を初期化する． */
   virtual void reset() = 0;
+
+  /* ブートデバイス接続時に実行されるメソッド． */
+  virtual bool onConnected() = 0;
 
 protected:
   QVBoxLayout* rows_;

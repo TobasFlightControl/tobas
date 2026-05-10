@@ -6,7 +6,6 @@
 #include <QDebug>
 #include <QFormLayout>
 #include <QRegularExpression>
-#include <QVBoxLayout>
 #include <inja/inja.hpp>
 
 #include <tobas_qt_tools/message.hpp>
@@ -53,11 +52,6 @@ WifiHotspotWidget::WifiHotspotWidget()
   connect(write_button_, &QPushButton::clicked, this, &self::onWriteButtonClicked);
 }
 
-const char* WifiHotspotWidget::name() const
-{
-  return "Wi-Fi Hotspot";
-}
-
 const char* WifiHotspotWidget::title() const
 {
   return "Configure Wi-Fi Hotspot";
@@ -71,6 +65,11 @@ void WifiHotspotWidget::reset()
   warn_text_->clear();
 
   write_button_->setEnabled(false);
+}
+
+bool WifiHotspotWidget::onConnected()
+{
+  return true;
 }
 
 QString WifiHotspotWidget::getSsid() const

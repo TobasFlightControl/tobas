@@ -9,6 +9,12 @@
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
 
+#include "tobas_bootmedia_config/hostname/hostname.hpp"
+#include "tobas_bootmedia_config/login_password/login_password.hpp"
+#include "tobas_bootmedia_config/ssh_authorized_keys/ssh_authorized_keys.hpp"
+#include "tobas_bootmedia_config/wifi_client/wifi_client.hpp"
+#include "tobas_bootmedia_config/wifi_hotspot/wifi_hotspot.hpp"
+
 namespace tobas
 {
 namespace gui
@@ -23,17 +29,11 @@ BootmediaConfigWidget::BootmediaConfigWidget()
   tabs_->enableWheelEvent(false);
   tabs_->setTabSize(kTabWidth, kTabHeight);
 
-  hostname_ = new HostnameWidget();
-  login_password_ = new LoginPasswordWidget();
-  ssh_keys_ = new SshAuthorizedKeysWidget();
-  wifi_client_ = new WifiClientWidget();
-  wifi_hotspot_ = new WifiHotspotWidget();
-
-  tabs_->addTab(hostname_, hostname_->name());
-  tabs_->addTab(login_password_, login_password_->name());
-  tabs_->addTab(ssh_keys_, ssh_keys_->name());
-  tabs_->addTab(wifi_client_, wifi_client_->name());
-  tabs_->addTab(wifi_hotspot_, wifi_hotspot_->name());
+  tabs_->addTab(new HostnameWidget(), "Hostname");
+  tabs_->addTab(new LoginPasswordWidget(), "Login Password");
+  tabs_->addTab(new SshAuthorizedKeysWidget(), "SSH Keys");
+  tabs_->addTab(new WifiClientWidget(), "Wi-Fi Client");
+  tabs_->addTab(new WifiHotspotWidget(), "Wi-Fi Hotspot");
 
   reset();
   setTabsEnabled(false);
@@ -78,16 +78,24 @@ void BootmediaConfigWidget::closeEvent(QCloseEvent* event)
   event->accept();
 }
 
+BaseConfigWidget* BootmediaConfigWidget::getWidget(int index)
+{
+  return qt::qPointerCast<BaseConfigWidget>(tabs_->widget(index));
+}
+
 void BootmediaConfigWidget::setTabsEnabled(bool enabled)
 {
   for (int i = 0; i < tabs_->count(); ++i) {
-    const auto widget = qt::qPointerCast<BaseConfigWidget>(tabs_->widget(i));
-    widget->setEnabled(enabled);
+    getWidget(i)->setEnabled(enabled);
   }
 }
 
 void BootmediaConfigWidget::onMediaConnected()
 {
+  for (int i = 0; i < tabs_->count(); ++i) {
+    getWidget(i)->onConnected();
+  }
+
   setTabsEnabled(true);
 }
 

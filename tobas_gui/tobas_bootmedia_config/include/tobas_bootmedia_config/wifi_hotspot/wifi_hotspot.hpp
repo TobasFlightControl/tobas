@@ -27,10 +27,11 @@ class WifiHotspotWidget : public BaseConfigWidget
 public:
   explicit WifiHotspotWidget();
 
-  const char* name() const override;
   const char* title() const override;
 
   void reset() override;
+
+  bool onConnected() override;
 
 private:
   QLineEdit* ssid_;

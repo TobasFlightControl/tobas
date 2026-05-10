@@ -26,10 +26,11 @@ class LoginPasswordWidget : public BaseConfigWidget
 public:
   explicit LoginPasswordWidget();
 
-  const char* name() const override;
   const char* title() const override;
 
   void reset() override;
+
+  bool onConnected() override;
 
 private:
   qt::PasswordEdit* pswd1_;
