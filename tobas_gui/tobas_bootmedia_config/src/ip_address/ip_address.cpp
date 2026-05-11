@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_bootmedia_config/ip_address/ip_address.hpp"
 
 #include <tobas_qt_tools/cast.hpp>
