@@ -90,7 +90,6 @@ uint8_t IPv4Edit::getFieldValue(size_t idx) const
   const auto text = fields_.at(idx)->text();
 
   if (text.isEmpty()) {
-    qWarning() << "Field" << idx << "is empty.";
     return 0;
   }
 
