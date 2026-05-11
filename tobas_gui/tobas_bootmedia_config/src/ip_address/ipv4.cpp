@@ -47,6 +47,7 @@ QString IPv4Widget::name() const
 {
   return name_;
 }
+
 void IPv4Widget::reset()
 {
   method_->setCurrentIndex(Method::kAutomatic);
