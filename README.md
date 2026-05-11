@@ -73,7 +73,7 @@ enabling precise flight performance even for unconventional frames not supported
 
    ```bash
    $ rosdep install --from-paths ~/colcon_ws/src/tobas -yi
-   $ sudo apt install -y libgit2-dev
+   $ sudo apt install -y libgit2-dev libsimpleini-dev
    ```
 
 6. Build

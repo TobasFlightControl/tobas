@@ -21,8 +21,8 @@ class BootmediaConfigWidget : public QWidget
   using self = BootmediaConfigWidget;
   using super = QWidget;
 
-  static constexpr int kTabHeight = 35;
   static constexpr int kTabWidth = 70;
+  static constexpr int kTabHeight = 35;
 
 public:
   explicit BootmediaConfigWidget();

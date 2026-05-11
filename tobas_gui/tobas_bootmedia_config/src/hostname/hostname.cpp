@@ -83,11 +83,11 @@ QString HostnameWidget::getHostname() const
 
 bool HostnameWidget::writeHostnameFile(const QString& hostname)
 {
-  const auto hostname_file_path = hostnameFilePath();
-  const auto hostname_file_content = (hostname + '\n').toStdString();
+  const auto path = hostnameFilePath();
+  const auto content = (hostname + '\n').toStdString();
 
-  if (!str::writeText(hostname_file_path, hostname_file_content)) {
-    qt::qErrorBox(this, "Failed to write hostname to " + QString::fromStdString(hostname_file_path) + ".");
+  if (!str::writeText(path, content)) {
+    qt::qErrorBox(this, "Failed to write hostname to " + QString::fromStdString(path) + ".");
     return false;
   }
 

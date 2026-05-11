@@ -19,6 +19,7 @@ class IPv6Edit : public QWidget
   using super = QWidget;
 
   static constexpr size_t kNumFields = 8;
+  static constexpr char kNormalizeIpv6HextetOnFocusOutProperty[] = "normalizeIpv6HextetOnFocusOut";
 
 public:
   explicit IPv6Edit(QWidget* parent = nullptr);
@@ -33,6 +34,9 @@ public:
   QString toString() const;
 
   void setFromInt(__uint128_t address);
+
+protected:
+  bool eventFilter(QObject* watched, QEvent* event) override;
 
 private:
   std::array<QLineEdit*, kNumFields> fields_;

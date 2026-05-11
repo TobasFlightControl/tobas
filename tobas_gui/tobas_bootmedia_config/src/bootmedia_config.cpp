@@ -10,6 +10,7 @@
 #include <tobas_qt_tools/message.hpp>
 
 #include "tobas_bootmedia_config/hostname/hostname.hpp"
+#include "tobas_bootmedia_config/ip_address/ip_address.hpp"
 #include "tobas_bootmedia_config/login_password/login_password.hpp"
 #include "tobas_bootmedia_config/ssh_authorized_keys/ssh_authorized_keys.hpp"
 #include "tobas_bootmedia_config/wifi_client/wifi_client.hpp"
@@ -34,6 +35,7 @@ BootmediaConfigWidget::BootmediaConfigWidget()
   tabs_->addTab(new SshAuthorizedKeysWidget(), "SSH Keys");
   tabs_->addTab(new WifiClientWidget(), "Wi-Fi Client");
   tabs_->addTab(new WifiHotspotWidget(), "Wi-Fi Hotspot");
+  tabs_->addTab(new IpAddressWidget(), "IP Address");
 
   reset();
   setTabsEnabled(false);

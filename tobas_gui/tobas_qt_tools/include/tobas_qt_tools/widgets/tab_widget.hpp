@@ -37,7 +37,6 @@ private:
 
 /**
  * ===== QtabWidget との違い =====
- * - イテレータを定義
  * - 追加メソッド
  */
 class TabWidget : public QTabWidget

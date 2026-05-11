@@ -4,6 +4,7 @@
 #include "tobas_qt_tools/widgets/ipv4_edit.hpp"
 
 #include <QDebug>
+#include <QEvent>
 #include <QHBoxLayout>
 #include <QLabel>
 
@@ -20,20 +21,27 @@ IPv4Edit::IPv4Edit(QWidget* parent) : super(parent)
   setLayout(cols);
 
   for (int i = kNumFields - 1; i >= 0; --i) {
-    fields_[i] = new QLineEdit();
-    fields_[i]->setValidator(new qt::IntValidator(0, UINT8_MAX));
+    const auto field = new QLineEdit();
+    field->setValidator(new qt::IntValidator(0, UINT8_MAX));
 
-    cols->addWidget(fields_[i]);
+    field->setProperty(kEmptyMeansZeroProperty, true);
+    field->installEventFilter(this);
+
+    cols->addWidget(field);
     if (i != 0) {
       cols->addWidget(new QLabel("."));
     }
+
+    fields_[i] = field;
   }
+
+  clear();
 }
 
 void IPv4Edit::clear()
 {
   for (auto& field : fields_) {
-    field->clear();
+    field->setText("0");
   }
 }
 
@@ -85,12 +93,23 @@ void IPv4Edit::setFromInt(uint32_t address)
   }
 }
 
+bool IPv4Edit::eventFilter(QObject* watched, QEvent* event)
+{
+  if (event->type() == QEvent::FocusOut) {
+    const auto field = qobject_cast<QLineEdit*>(watched);
+    if (field && field->property(kEmptyMeansZeroProperty).toBool() && field->text().trimmed().isEmpty()) {
+      field->setText("0");
+    }
+  }
+
+  return super::eventFilter(watched, event);
+}
+
 uint8_t IPv4Edit::getFieldValue(size_t idx) const
 {
   const auto text = fields_.at(idx)->text();
 
   if (text.isEmpty()) {
-    qWarning() << "Field" << idx << "is empty.";
     return 0;
   }
 

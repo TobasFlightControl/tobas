@@ -4,6 +4,7 @@
 #include "tobas_qt_tools/widgets/ipv6_edit.hpp"
 
 #include <QDebug>
+#include <QEvent>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QRegularExpression>
@@ -22,20 +23,27 @@ IPv6Edit::IPv6Edit(QWidget* parent) : super(parent)
 
   const QRegularExpression hex4(R"(^[0-9A-Fa-f]{0,4}$)");
   for (int i = kNumFields - 1; i >= 0; --i) {
-    fields_[i] = new QLineEdit();
-    fields_[i]->setValidator(new QRegularExpressionValidator(hex4));
+    const auto field = new QLineEdit();
+    field->setValidator(new QRegularExpressionValidator(hex4));
 
-    cols->addWidget(fields_[i]);
+    field->setProperty(kNormalizeIpv6HextetOnFocusOutProperty, true);
+    field->installEventFilter(this);
+
+    cols->addWidget(field);
     if (i != 0) {
       cols->addWidget(new QLabel(":"));
     }
+
+    fields_[i] = field;
   }
+
+  clear();
 }
 
 void IPv6Edit::clear()
 {
   for (auto& field : fields_) {
-    field->clear();
+    field->setText("0000");
   }
 }
 
@@ -85,6 +93,35 @@ void IPv6Edit::setFromInt(__uint128_t address)
     const auto value = static_cast<uint16_t>((address >> shift) & 0xFFFF);
     setFieldValue(i, value);
   }
+}
+
+bool IPv6Edit::eventFilter(QObject* watched, QEvent* event)
+{
+  if (event->type() == QEvent::FocusOut) {
+    const auto field = qobject_cast<QLineEdit*>(watched);
+
+    if (field && field->property(kNormalizeIpv6HextetOnFocusOutProperty).toBool()) {
+      const auto text = field->text().trimmed();
+
+      if (text.isEmpty()) {
+        field->setText("0000");
+        return super::eventFilter(watched, event);
+      }
+
+      bool ok = false;
+      const auto value = text.toUInt(&ok, 16);
+
+      if (ok && value <= 0xFFFF) {
+        field->setText(QString("%1").arg(value, 4, 16, QChar('0')).toUpper());
+      }
+      else {
+        qWarning() << "Failed to interpret as hex:" << text;
+        field->setText("0000");
+      }
+    }
+  }
+
+  return QWidget::eventFilter(watched, event);
 }
 
 uint16_t IPv6Edit::getFieldValue(size_t idx) const
