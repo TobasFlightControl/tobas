@@ -43,7 +43,7 @@ DoubleMapInputDialog::DoubleMapInputDialog(QWidget* parent, const QString& title
 
     field2value_[field_name] = kDefaultValue;
     spinbox2field_[spin_box] = field_name;
-    connect(spin_box, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &self::onSpinBoxValueChanged);
+    connect(spin_box, qOverload<double>(&QDoubleSpinBox::valueChanged), this, &self::onSpinBoxValueChanged);
   }
 
   const auto button_box = new QDialogButtonBox();

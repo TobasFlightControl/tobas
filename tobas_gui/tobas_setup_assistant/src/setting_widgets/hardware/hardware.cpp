@@ -59,7 +59,7 @@ HardwareWidget::HardwareWidget(const uadf::Model& uadf, const Signals& sig)
   addLayout(rcout_cols, 1);
 
   // Connection
-  connect(type_, QOverload<int>::of(&qt::ComboBox::currentIndexChanged), this, &self::setCurrentHardware);
+  connect(type_, qOverload<int>(&qt::ComboBox::currentIndexChanged), this, &self::setCurrentHardware);
 }
 
 const char* HardwareWidget::name() const

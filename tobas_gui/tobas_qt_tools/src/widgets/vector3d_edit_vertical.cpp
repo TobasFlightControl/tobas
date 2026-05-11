@@ -23,9 +23,9 @@ Vector3dEditVertical::Vector3dEditVertical(QWidget* parent) : super(parent)
   z_ = new DoubleSpinBox();
   form->addRow("Z", z_);
 
-  connect(x_, QOverload<double>::of(&DoubleSpinBox::valueChanged), this, &self::onValueChanged);
-  connect(y_, QOverload<double>::of(&DoubleSpinBox::valueChanged), this, &self::onValueChanged);
-  connect(z_, QOverload<double>::of(&DoubleSpinBox::valueChanged), this, &self::onValueChanged);
+  connect(x_, qOverload<double>(&DoubleSpinBox::valueChanged), this, &self::onValueChanged);
+  connect(y_, qOverload<double>(&DoubleSpinBox::valueChanged), this, &self::onValueChanged);
+  connect(z_, qOverload<double>(&DoubleSpinBox::valueChanged), this, &self::onValueChanged);
 }
 
 Eigen::Vector3d Vector3dEditVertical::vector() const

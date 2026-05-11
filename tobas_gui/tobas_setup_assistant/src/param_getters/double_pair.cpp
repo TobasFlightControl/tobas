@@ -21,8 +21,8 @@ ParamGetterWidget_DoublePair::ParamGetterWidget_DoublePair(const QString& param_
   second_ = new qt::DoubleSpinBox();
   cols->addWidget(second_);
 
-  connect(first_, QOverload<double>::of(&qt::DoubleSpinBox::valueChanged), this, &self::onValueChanged);
-  connect(second_, QOverload<double>::of(&qt::DoubleSpinBox::valueChanged), this, &self::onValueChanged);
+  connect(first_, qOverload<double>(&qt::DoubleSpinBox::valueChanged), this, &self::onValueChanged);
+  connect(second_, qOverload<double>(&qt::DoubleSpinBox::valueChanged), this, &self::onValueChanged);
 }
 
 std::pair<double, double> ParamGetterWidget_DoublePair::getValue() const

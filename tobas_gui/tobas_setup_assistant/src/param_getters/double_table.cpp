@@ -160,7 +160,7 @@ void ParamGetterWidget_DoubleTable::addRow()
     cell->setMaximum(maximum_[col]);
     cell->setValue(default_[col]);
     cell->setDecimals(decimals_[col]);
-    connect(cell, QOverload<double>::of(&qt::DoubleSpinBox::valueChanged), this, &self::onCellValueChanged);
+    connect(cell, qOverload<double>(&qt::DoubleSpinBox::valueChanged), this, &self::onCellValueChanged);
     table_->setCellWidget(rows, col, cell);
   }
 }

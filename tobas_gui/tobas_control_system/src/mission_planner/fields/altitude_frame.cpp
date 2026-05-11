@@ -61,7 +61,7 @@ AltitudeFrameWidget::AltitudeFrameWidget()
   setLayout(cols);
   cols->addWidget(combobox_);
 
-  connect(combobox_, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &BaseFieldWidget::updated);
+  connect(combobox_, qOverload<int>(&QComboBox::currentIndexChanged), this, &BaseFieldWidget::updated);
 }
 
 const char* AltitudeFrameWidget::label() const

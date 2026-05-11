@@ -21,7 +21,7 @@ IPv4Widget::IPv4Widget(const QString& name) : name_(name)
   method_->addItem("Automatic");
   method_->addItem("Manual");
   form->addVAlignedRow("Method", method_);
-  connect(method_, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &self::onMethodChanged);
+  connect(method_, qOverload<int>(&QComboBox::currentIndexChanged), this, &self::onMethodChanged);
 
   prefix_ = new qt::ComboBox();
   prefix_->addItem("8 - 255.0.0.0");
