@@ -25,14 +25,14 @@ bool ipv4StringToInt(const std::string& text, uint32_t& out)
   if (inet_pton(AF_INET, text.c_str(), &addr) != 1) {
     std::cerr << "Failed to parse the IP address." << std::endl;
   }
-  out = addr.s_addr;
+  out = ntohl(addr.s_addr);  // little endian -> big endian
   return true;
 }
 
 std::string ipv4IntToString(uint32_t _addr)
 {
   in_addr addr{};
-  addr.s_addr = _addr;
+  addr.s_addr = htonl(_addr);  // little endian -> big endian
 
   char buffer[INET_ADDRSTRLEN]{};
   inet_ntop(AF_INET, &addr, buffer, sizeof(buffer));
