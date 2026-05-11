@@ -16,6 +16,7 @@ namespace bm
 IpAddressWidget::IpAddressWidget()
 {
   tabs_ = new qt::TabWidget();
+  tabs_->setTabSize(kTabWidth, kTabHeight);
   tabs_->addTab(new IPv4Widget("eth0"), "Wired");
   tabs_->addTab(new IPv4Widget("wlan0"), "Wireless");
 
