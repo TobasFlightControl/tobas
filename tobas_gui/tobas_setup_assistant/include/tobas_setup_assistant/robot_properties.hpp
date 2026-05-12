@@ -6,6 +6,7 @@
 #include <tobas_kdl/tree_mass_holder.hpp>
 #include <tobas_qt_tools/widgets/framed_label.hpp>
 #include <tobas_qt_tools/widgets/scroll_area.hpp>
+#include <tobas_uadf/model.hpp>
 
 #include "./frame_type.hpp"
 
@@ -23,15 +24,19 @@ class RobotPropertiesWidget : public qt::ScrollArea
   using super = qt::ScrollArea;
 
 public:
-  explicit RobotPropertiesWidget(const kdl::Tree& tree);
+  explicit RobotPropertiesWidget(const uadf::Model& uadf, const kdl::Tree& tree);
 
   void updateInternalDataStructures();
 
   void setFrameType(const FrameType& type);
 
 private:
+  const uadf::Model& uadf_;
+  const kdl::Tree& tree_;
+
   kdl::TreeMassHolder mass_holder_;
 
+  qt::FramedLabel* robot_name_;
   qt::FramedLabel* frame_type_;
   qt::FramedLabel* mass_;
 };
