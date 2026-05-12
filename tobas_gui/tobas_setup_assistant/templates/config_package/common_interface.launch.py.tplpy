@@ -1,8 +1,8 @@
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, GroupAction
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch_ros.actions import Node, SetParameter
+from launch_ros.actions import Node, SetParameter, PushRosNamespace
 from launch_ros.substitutions import FindPackageShare
 
 # Template parameters
@@ -73,15 +73,18 @@ def generate_launch_description():
 
     # Launch user nodes
     ld.add_action(
-        IncludeLaunchDescription(
-            PythonLaunchDescriptionSource(
-                PathJoinSubstitution([user_cpp_pkg_share, "launch", "common_interface.launch.py"])
-            )
-        )
-    )
-    ld.add_action(
-        IncludeLaunchDescription(
-            PythonLaunchDescriptionSource(PathJoinSubstitution([user_py_pkg_share, "launch", "common.launch.py"]))
+        GroupAction(
+            [
+                PushRosNamespace(DRONE_NAME),
+                IncludeLaunchDescription(
+                    PythonLaunchDescriptionSource(
+                        PathJoinSubstitution([user_cpp_pkg_share, "launch", "common_interface.launch.py"])
+                    )
+                ),
+                IncludeLaunchDescription(
+                    PythonLaunchDescriptionSource(PathJoinSubstitution([user_py_pkg_share, "launch", "real.launch.py"]))
+                ),
+            ]
         )
     )
 
