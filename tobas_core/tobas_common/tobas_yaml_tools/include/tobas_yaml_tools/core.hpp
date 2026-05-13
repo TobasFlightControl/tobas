@@ -33,7 +33,7 @@ bool load(const std::string& key, const YAML::Node& parent, T& value) noexcept
 {
   const auto res = load<T>(key, parent);
   if (!res) {
-    std::cerr << res.error();
+    std::cerr << res.error() << std::endl;
     return false;
   }
 
