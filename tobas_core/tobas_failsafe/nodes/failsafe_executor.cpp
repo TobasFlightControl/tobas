@@ -3,7 +3,7 @@
 
 #include <rclcpp_action/rclcpp_action.hpp>
 
-#include <tobas_mission_items/mission_items.hpp>
+#include <tobas_mission_items/mission.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_std_tools/byte.hpp>
 #include <tobas_tools/util.hpp>
@@ -82,7 +82,7 @@ void FailsafeExecutorNode::startRTL()
   mission_item.data = st::toBytes(rtl);
 
   Action::Goal goal;
-  goal.items.push_back(mission_item);
+  goal.mission.items.push_back(mission_item);
   goal.priority.data = tobas_mission_msgs::msg::Priority::DEFENSIVE;
 
   Client::SendGoalOptions opts;
@@ -132,7 +132,7 @@ void FailsafeExecutorNode::startLand()
   mission_item.data = st::toBytes(land);
 
   Action::Goal goal;
-  goal.items.push_back(mission_item);
+  goal.mission.items.push_back(mission_item);
   goal.priority.data = tobas_mission_msgs::msg::Priority::DEFENSIVE;
 
   Client::SendGoalOptions opts;

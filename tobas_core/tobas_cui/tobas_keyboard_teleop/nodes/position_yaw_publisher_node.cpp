@@ -8,7 +8,7 @@
 #include <tobas_constants/ros_interface.hpp>
 #include <tobas_keyboard/keyboard_reader.hpp>
 #include <tobas_keyboard/utils.hpp>
-#include <tobas_mission_items/mission_items.hpp>
+#include <tobas_mission_items/mission.hpp>
 #include <tobas_ros2_tools/async_node_manager.hpp>
 #include <tobas_ros2_tools/register.hpp>
 #include <tobas_ros2_tools/sync_action_client.hpp>
@@ -39,7 +39,7 @@ bool takeoff(rclcpp::Node::SharedPtr node)
   mission_item.data = tobas::st::toBytes(takeoff);
 
   tobas_mission_msgs::action::ExecuteMission::Goal goal;
-  goal.items.push_back(mission_item);
+  goal.mission.items.push_back(mission_item);
 
   // アクションを実行
   if (!client.sendGoalAndWait(goal)) {

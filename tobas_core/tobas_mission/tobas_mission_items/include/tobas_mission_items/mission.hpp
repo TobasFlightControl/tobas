@@ -5,6 +5,8 @@
 
 #include <yaml-cpp/yaml.h>
 
+#include "./mission_items.hpp"
+
 namespace tobas
 {
 namespace mission
@@ -19,7 +21,7 @@ enum Type : uint8_t
 
 struct MissionItem
 {
-  uint8_t type;
+  Type type;
   std::vector<uint8_t> data;
 };
 

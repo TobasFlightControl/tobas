@@ -7,7 +7,7 @@
 #include <QVBoxLayout>
 
 #include <tobas_constants/ros_interface.hpp>
-#include <tobas_mission_items/mission_items.hpp>
+#include <tobas_mission_items/mission.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
@@ -329,7 +329,7 @@ MissionPlannerWidget::Action::Goal MissionPlannerWidget::createMissionGoal() con
       }
     }
 
-    goal.items.push_back(mission_item);
+    goal.mission.items.push_back(mission_item);
   }
 
   return goal;

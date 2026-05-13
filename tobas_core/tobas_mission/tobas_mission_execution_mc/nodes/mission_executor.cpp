@@ -6,7 +6,7 @@
 #include <tobas_algorithm/core.hpp>
 #include <tobas_constants/node.hpp>
 #include <tobas_math/linalg.hpp>
-#include <tobas_mission_items/mission_items.hpp>
+#include <tobas_mission_items/mission.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_ros2_tools/time.hpp>
@@ -900,7 +900,7 @@ MulticopterMissionExecutorNode::handleGoal(const rclcpp_action::GoalUUID&, const
   }
 
   // Check the mission items
-  for (const auto& [idx, item] : std::views::enumerate(goal->items)) {
+  for (const auto& [idx, item] : std::views::enumerate(goal->mission.items)) {
     switch (item.type) {
       case kWaypoint: {
         Waypoint waypoint;
@@ -1004,7 +1004,7 @@ void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& gh)
   const auto goal = gh->get_goal();
 
   // Execute mission
-  for (const auto& [idx, item] : std::views::enumerate(goal->items)) {
+  for (const auto& [idx, item] : std::views::enumerate(goal->mission.items)) {
     TOBAS_INFO("Start mission No. ", idx);
 
     // Publish the current mission number
