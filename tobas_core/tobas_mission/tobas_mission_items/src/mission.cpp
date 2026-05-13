@@ -87,6 +87,8 @@ namespace mission
 {
 YAML::Node Mission::dump() const
 {
+  constexpr int kGnssPrecision = 12;
+
   YAML::Node mission_node(YAML::NodeType::Sequence);
 
   for (const auto& item : items) {
@@ -101,8 +103,8 @@ YAML::Node Mission::dump() const
           continue;
         }
         item_node[TYPE_KEY] = TYPE_WAYPOINT;
-        data_node[WAYPOINT_LATITUDE] = tobas::yaml::format(waypoint.latitude);
-        data_node[WAYPOINT_LONGITUDE] = tobas::yaml::format(waypoint.longitude);
+        data_node[WAYPOINT_LATITUDE] = tobas::yaml::format(waypoint.latitude, kGnssPrecision);
+        data_node[WAYPOINT_LONGITUDE] = tobas::yaml::format(waypoint.longitude, kGnssPrecision);
         data_node[WAYPOINT_ALTITUDE] = tobas::yaml::format(waypoint.altitude);
         data_node[WAYPOINT_ALTITUDE_FRAME] = waypoint.altitude_frame;
         data_node[WAYPOINT_AUTO_HEADING] = waypoint.auto_heading;
@@ -202,9 +204,6 @@ bool Mission::load(const YAML::Node& mission_node)
 
     if (type.value() == TYPE_WAYPOINT) {
       tobas::mission::Waypoint waypoint;
-      if (!LOAD_PACKED_FIELD(WAYPOINT_LATITUDE, data_node, waypoint.latitude)) {
-        return false;
-      }
       if (!LOAD_PACKED_FIELD(WAYPOINT_LATITUDE, data_node, waypoint.latitude)) {
         return false;
       }

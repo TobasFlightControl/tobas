@@ -17,12 +17,14 @@ set(AMENT_DEPENDENCIES
     magic_enum_ament
     tobas_path_tools
     tobas_ros2_tools
+    tobas_property_client
     tobas_constants
     tobas_drone_core
     tobas_msgs_adapter
     tobas_mission_msgs_adapter
     tobas_qt_tools
     tobas_rqt_bridge
+    tobas_gui_common
 )
 
 find_package(ament_cmake REQUIRED)

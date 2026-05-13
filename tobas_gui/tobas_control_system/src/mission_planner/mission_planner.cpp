@@ -6,8 +6,11 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
+#include <tobas_constants/path.hpp>
 #include <tobas_constants/ros_interface.hpp>
+#include <tobas_gui_common/constants.hpp>
 #include <tobas_mission_msgs_adapter/mission.hpp>
+#include <tobas_path_tools/core.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
@@ -15,9 +18,11 @@
 #include <tobas_std_tools/byte.hpp>
 #include <tobas_std_tools/check.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
+#include <tobas_yaml_tools/core.hpp>
 
 #include "tobas_control_system/mission_planner/command_type.hpp"
 #include "tobas_control_system/mission_planner/commands/commands.hpp"
+#include "tobas_control_system/mission_planner/save_mission_dialog.hpp"
 
 namespace fs = std::filesystem;
 
@@ -30,7 +35,7 @@ namespace gui
 namespace ctrl
 {
 MissionPlannerWidget::MissionPlannerWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge)
-  : node_(node), spinner_(Qt::WindowModal, this)
+  : node_(node), property_client_(node, "tobas_control_system/mission_planner"), spinner_(Qt::WindowModal, this)
 {
   map_ = new MapWidget();
 
@@ -342,7 +347,46 @@ void MissionPlannerWidget::onSaveButtonClicked()
 {
   qDebug() << "MissionPlannerWidget::onSaveButtonClicked";
 
-  qt::qWarnBox(this, "Not implemented yet.");  // TODO
+  // ミッションが存在するか確認
+  if (command_list_->count() == 0) {
+    qt::qWarnBox(this, "Cannot save an empty mission.");
+    return;
+  }
+
+  // 前回開いたパスを取得
+  std::string last_opened_dir;
+  if (property_client_.get(kLastOpenedDirKey, last_opened_dir) < 0) {
+    qWarning() << property_client_.errorMessage();
+    last_opened_dir = ros2::expandUser(kMissionDir);
+    TOBAS_CHECK(path::createDirectories(last_opened_dir, true));
+  }
+
+  // プロジェクトのパスを取得
+  SaveMissionDialog dialog(this, QString::fromStdString(last_opened_dir));
+  if (dialog.exec() != QDialog::Accepted) {
+    return;
+  }
+  const auto file_path = dialog.selectedFiles().first();
+  TOBAS_CHECK(file_path.endsWith(cmn::kMissionExtension));
+
+  // ユーザが開いたディレクトリを保存
+  const auto par_dir = fs::path(file_path.toStdString()).parent_path();
+  if (property_client_.set(kLastOpenedDirKey, par_dir) < 0) {
+    qWarning() << property_client_.errorMessage();
+  }
+  if (property_client_.save() < 0) {
+    qWarning() << property_client_.errorMessage();
+  }
+
+  // ミッションを保存
+  const auto mission = createMission();
+  const auto node = mission.dump();
+  if (!yaml::save(file_path.toStdString(), node)) {
+    qt::qErrorBox(this, "Failed to save the current mission: " + file_path);
+    return;
+  }
+
+  qt::qInfoBox(this, "The mission was saved successfully.");
 }
 
 void MissionPlannerWidget::onAddButtonClicked()

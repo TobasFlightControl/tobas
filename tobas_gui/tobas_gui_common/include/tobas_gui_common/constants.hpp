@@ -17,6 +17,7 @@ static constexpr int kSaveLogTextSizeThresh = 1000;
 
 static constexpr char kUserNameFC[] = "pi";
 static constexpr char kProjectExtension[] = ".TBS";
+static constexpr char kMissionExtension[] = ".mission";
 }  // namespace cmn
 }  // namespace gui
 }  // namespace tobas
