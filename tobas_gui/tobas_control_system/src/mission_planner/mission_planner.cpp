@@ -7,7 +7,7 @@
 #include <QVBoxLayout>
 
 #include <tobas_constants/ros_interface.hpp>
-#include <tobas_mission_items/mission.hpp>
+#include <tobas_mission_msgs_adapter/mission.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
@@ -205,15 +205,12 @@ void MissionPlannerWidget::commandsToMap()
         break;
       }
       case Command::kTakeoff: {
-        // TODO
         break;
       }
       case Command::kLand: {
-        // TODO
         break;
       }
       case Command::kReturnToLaunch: {
-        // TODO
         break;
       }
       default: {
@@ -234,17 +231,16 @@ BaseCommandWidget* MissionPlannerWidget::getCommandWidget(QListWidgetItem* tar_i
   throw std::runtime_error("Command widget corresponding to the list item is not found.");
 }
 
-MissionPlannerWidget::Action::Goal MissionPlannerWidget::createMissionGoal() const
+tobas::mission::Mission MissionPlannerWidget::createMission() const
 {
-  Action::Goal goal;
-  goal.priority.data = tobas_mission_msgs::msg::Priority::NORMAL;
+  tobas::mission::Mission mission;
 
   for (int i = 0; i < command_list_->count(); ++i) {
     const auto list_item = command_list_->item(i);
     const auto cmd_type = textToCommand(list_item->text().toUtf8());
     const auto base_widget = getCommandWidget(list_item);
 
-    tobas_mission_msgs::msg::MissionItem mission_item;
+    tobas::mission::MissionItem mission_item;
 
     switch (cmd_type) {
       case Command::kWaypoint: {
@@ -329,10 +325,10 @@ MissionPlannerWidget::Action::Goal MissionPlannerWidget::createMissionGoal() con
       }
     }
 
-    goal.mission.items.push_back(mission_item);
+    mission.items.push_back(mission_item);
   }
 
-  return goal;
+  return mission;
 }
 
 void MissionPlannerWidget::onLoadButtonClicked()
@@ -500,8 +496,12 @@ void MissionPlannerWidget::onExecuteButtonClicked()
     return;
   }
 
+  // ミッションを作成
+  Action::Goal goal;
+  tobas_mission_msgs::MissionAdapter::convert_to_ros_message(createMission(), goal.mission);
+  goal.priority.data = tobas_mission_msgs::msg::Priority::NORMAL;
+
   // ミッションを実行
-  const auto goal = createMissionGoal();
   Client::SendGoalOptions opts;
   opts.goal_response_callback = [this](const GoalHandle::SharedPtr& gh) { Q_EMIT goalResponseReceived(gh != nullptr); };
   opts.feedback_callback = [this](const GoalHandle::SharedPtr&, const Action::Feedback::ConstSharedPtr& fb)

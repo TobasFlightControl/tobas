@@ -5,6 +5,7 @@
 
 #include <rclcpp_action/rclcpp_action.hpp>
 
+#include <tobas_mission_items/mission.hpp>
 #include <tobas_qt_tools/widgets/list_widget.hpp>
 #include <tobas_qt_tools/widgets/stacked_widget.hpp>
 #include <tobas_qt_tools/widgets/wait_spinner.hpp>
@@ -87,8 +88,8 @@ private:
   /* リストの要素に対応するコマンドウィジェットを取得する． */
   BaseCommandWidget* getCommandWidget(QListWidgetItem* tar_item) const;
 
-  /* ミッション実行アクションのゴールを作成する． */
-  Action::Goal createMissionGoal() const;
+  /* 現在の設定からミッションを作成する． */
+  tobas::mission::Mission createMission() const;
 
 private Q_SLOTS:
   void onLoadButtonClicked();

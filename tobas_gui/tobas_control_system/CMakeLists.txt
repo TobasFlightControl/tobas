@@ -20,8 +20,7 @@ set(AMENT_DEPENDENCIES
     tobas_constants
     tobas_drone_core
     tobas_msgs_adapter
-    tobas_mission_items
-    tobas_mission_msgs
+    tobas_mission_msgs_adapter
     tobas_qt_tools
     tobas_rqt_bridge
 )
