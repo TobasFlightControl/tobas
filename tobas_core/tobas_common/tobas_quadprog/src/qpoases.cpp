@@ -8,14 +8,13 @@
 #include <tobas_eigen_tools/core.hpp>
 #include <tobas_math/core.hpp>
 
-using namespace std;
 using namespace Eigen;
 
 namespace tobas
 {
 namespace quadprog
 {
-QpOasesSolver::QpOasesSolver() : super()
+QpOasesSolver::QpOasesSolver()
 {
 }
 
@@ -38,8 +37,8 @@ bool QpOasesSolver::solve()
   double lbA[con_size];
   double ubA[con_size];
 
-  memcpy(H, scaled.P.data(), sizeof(H));  // Hは対称行列だから列優先でも行優先でもコピーできる
-  memcpy(g, scaled.q.data(), sizeof(g));
+  std::memcpy(H, scaled.P.data(), sizeof(H));  // Hは対称行列だから列優先でも行優先でもコピーできる
+  std::memcpy(g, scaled.q.data(), sizeof(g));
 
   // 列優先の場合を考慮し，要素を1つずつコピー
   const MatrixXd A_eigen = eigen::concat(scaled.G, scaled.A, 0);
@@ -56,10 +55,10 @@ bool QpOasesSolver::solve()
 
   const VectorXd inf = VectorXd::Constant(scaled.ineqSize(), -qpOASES::INFTY);
   const VectorXd lbA_eigen = eigen::concat(scaled.h, inf, 0);
-  memcpy(lbA, lbA_eigen.data(), sizeof(lbA));
+  std::memcpy(lbA, lbA_eigen.data(), sizeof(lbA));
 
   const VectorXd ubA_eigen = eigen::concat(scaled.h, scaled.b, 0);
-  memcpy(ubA, ubA_eigen.data(), sizeof(ubA));
+  std::memcpy(ubA, ubA_eigen.data(), sizeof(ubA));
 
   // QPソルバを作成
   qpOASES::QProblem solver(var_size, con_size);
@@ -77,7 +76,7 @@ bool QpOasesSolver::solve()
   double x_opt[var_size];
   const auto ret = solver.getPrimalSolution(x_opt);
   if (ret != qpOASES::SUCCESSFUL_RETURN) {
-    error_msg_ = "qpOASES finished with error code " + to_string(ret);
+    error_msg_ = "qpOASES finished with error code " + std::to_string(ret);
     return false;
   }
 
