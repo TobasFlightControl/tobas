@@ -81,15 +81,17 @@
       return true;                                                                                                     \
     }())
 
-namespace YAML
+namespace tobas
 {
-Node convert<tobas::mission::Mission>::encode(const tobas::mission::Mission& rhs)
+namespace mission
 {
-  Node mission_node(NodeType::Sequence);
+YAML::Node Mission::dump() const
+{
+  YAML::Node mission_node(YAML::NodeType::Sequence);
 
-  for (const auto& item : rhs.items) {
-    Node item_node(NodeType::Map);
-    Node data_node(NodeType::Map);
+  for (const auto& item : items) {
+    YAML::Node item_node(YAML::NodeType::Map);
+    YAML::Node data_node(YAML::NodeType::Map);
 
     switch (item.type) {
       case tobas::mission::Type::kWaypoint: {
@@ -176,7 +178,7 @@ Node convert<tobas::mission::Mission>::encode(const tobas::mission::Mission& rhs
   return mission_node;
 }
 
-bool convert<tobas::mission::Mission>::decode(const Node& mission_node, tobas::mission::Mission& rhs)
+bool Mission::load(const YAML::Node& mission_node)
 {
   if (!mission_node.IsSequence()) {
     std::cerr << "Yaml node type mismatch." << std::endl;
@@ -337,9 +339,10 @@ bool convert<tobas::mission::Mission>::decode(const Node& mission_node, tobas::m
       return false;
     }
 
-    rhs.items.push_back(item);
+    items.push_back(item);
   }
 
   return true;
 }
-}  // namespace YAML
+}  // namespace mission
+}  // namespace tobas

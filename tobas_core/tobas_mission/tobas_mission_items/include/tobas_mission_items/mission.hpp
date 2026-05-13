@@ -28,20 +28,13 @@ struct MissionItem
   std::vector<uint8_t> data;
 };
 
-struct Mission
+class Mission
 {
 public:
   std::vector<MissionItem> items;
+
+  YAML::Node dump() const;
+  bool load(const YAML::Node& node);
 };
 }  // namespace mission
 }  // namespace tobas
-
-namespace YAML
-{
-template <>
-struct convert<tobas::mission::Mission>
-{
-  static Node encode(const tobas::mission::Mission& rhs);
-  static bool decode(const Node& node, tobas::mission::Mission& rhs);
-};
-}  // namespace YAML
