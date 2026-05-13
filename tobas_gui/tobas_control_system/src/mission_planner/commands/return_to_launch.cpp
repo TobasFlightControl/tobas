@@ -43,7 +43,7 @@ const char* ReturnToLaunchWidget::name() const
 
 double ReturnToLaunchWidget::minAltitude() const
 {
-  return min_alt_->getValue();
+  return getValue(min_alt_);
 }
 
 double ReturnToLaunchWidget::maxHorizontalVelocity() const
