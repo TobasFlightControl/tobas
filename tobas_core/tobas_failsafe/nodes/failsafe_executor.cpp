@@ -90,7 +90,7 @@ void FailsafeExecutorNode::startRTL()
   {
     if (!gh) {
       TOBAS_ERROR("RTL mission was rejected by server.");
-      startLand();
+      disarm();
     }
   };
   opts.result_callback = [this](const GoalHandle::WrappedResult& res)
@@ -108,14 +108,14 @@ void FailsafeExecutorNode::startRTL()
             break;
           default:
             TOBAS_ERROR("RTL mission was aborted: ", res.result->error_message);
-            startLand();
+            disarm();
             break;
         }
         break;
       case rclcpp_action::ResultCode::UNKNOWN:
       default:
         TOBAS_ERROR("Unknown result code: ", (int)res.code);
-        startLand();
+        disarm();
         break;
     }
   };
