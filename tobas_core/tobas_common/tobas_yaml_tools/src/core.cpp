@@ -12,7 +12,7 @@ namespace tobas
 {
 namespace yaml
 {
-std::string dump(const YAML::Node& node)
+std::string dump(const YAML::Node& node) noexcept
 {
   std::ostringstream res;
   YAML::Emitter emitter(res);
@@ -21,7 +21,7 @@ std::string dump(const YAML::Node& node)
   return res.str();
 }
 
-std::expected<YAML::Node, std::string> load(const fs::path& path)
+std::expected<YAML::Node, std::string> load(const fs::path& path) noexcept
 {
   if (!fs::exists(path)) {
     return std::unexpected(path.string() + " does not exist.");
@@ -35,7 +35,7 @@ std::expected<YAML::Node, std::string> load(const fs::path& path)
   }
 }
 
-bool save(const fs::path& path, const YAML::Node& node)
+bool save(const fs::path& path, const YAML::Node& node) noexcept
 {
   std::ofstream fout(path);
   if (!fout.is_open()) {

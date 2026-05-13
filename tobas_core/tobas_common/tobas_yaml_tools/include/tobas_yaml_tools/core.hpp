@@ -14,28 +14,37 @@ namespace tobas
 namespace yaml
 {
 template <typename T>
-bool load(const std::string& key, const YAML::Node& parent, T& value)
+std::expected<T, std::string> load(const std::string& key, const YAML::Node& parent) noexcept
 {
   if (!parent.IsMap()) {
-    std::cerr << "The type of the parent node of key \"" << key << "\" is not map." << std::endl;
-    return false;
+    return std::unexpected("The type of the parent node of key \"" + key + "\" is not map.");
   }
 
   try {
-    value = parent[key].as<T>();
+    return parent[key].as<T>();
   }
   catch (...) {
-    std::cerr << "Key \"" << key << "\" type mismatch." << std::endl;
+    return std::unexpected("Key \"" + key + "\" type mismatch.");
+  }
+}
+
+template <typename T>
+bool load(const std::string& key, const YAML::Node& parent, T& value) noexcept
+{
+  const auto res = load<T>(key, parent);
+  if (!res) {
+    std::cerr << res.error();
     return false;
   }
 
+  value = res.value();
   return true;
 }
 
 /* YAML::Nodeをテキストに変換する． */
-std::string dump(const YAML::Node& node);
+std::string dump(const YAML::Node& node) noexcept;
 
-std::expected<YAML::Node, std::string> load(const std::filesystem::path& path);
-bool save(const std::filesystem::path& path, const YAML::Node& node);
+std::expected<YAML::Node, std::string> load(const std::filesystem::path& path) noexcept;
+bool save(const std::filesystem::path& path, const YAML::Node& node) noexcept;
 }  // namespace yaml
 }  // namespace tobas
