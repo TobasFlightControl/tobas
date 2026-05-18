@@ -45,9 +45,8 @@ protected:
 
   bool isChecked(field::BaseFieldWidget* widget) const;
 
-  /* チェックされていたら設定された値，されていなければゼロを返す． */
-  template <typename T>
-  T getValue(field::FieldWidget<T>* widget) const;
+  /* チェックされていたら設定された値，されていなければNaNを返す． */
+  double getValueOrNan(field::FieldWidget<double>* widget) const;
 
 private:
   QLabel* label_;
@@ -62,12 +61,6 @@ private Q_SLOTS:
   void onFieldUpdated();
   void onDeleteButtonClicked();
 };
-
-template <typename T>
-T BaseCommandWidget::getValue(field::FieldWidget<T>* widget) const
-{
-  return isChecked(widget) ? widget->getValue() : static_cast<T>(0);
-}
 }  // namespace ctrl
 }  // namespace gui
 }  // namespace tobas

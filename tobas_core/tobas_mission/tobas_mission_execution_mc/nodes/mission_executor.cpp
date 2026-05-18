@@ -36,6 +36,15 @@ namespace tobas
 {
 namespace mission
 {
+namespace
+{
+/* NaNではなく且つ正の値の場合にTrueを返す． */
+inline bool isPositive(double value)
+{
+  return std::isfinite(value) && value > 0.;
+}
+}  // namespace
+
 class MulticopterMissionExecutorNode : public BaseNode
 {
   using self = MulticopterMissionExecutorNode;
@@ -454,14 +463,15 @@ bool MulticopterMissionExecutorNode::executeWaypoint(const Waypoint& goal, const
   TOBAS_INFO("Goal position: ", goal_pos);
 
   // 制約を決定
-  const auto max_hor_vel = goal.max_horizontal_velocity > 0. ? goal.max_horizontal_velocity : wp_cfg_.max_hor_vel;
-  const auto max_hor_acc = goal.max_horizontal_accel > 0. ? goal.max_horizontal_accel : wp_cfg_.max_hor_acc;
-  const auto max_hor_jerk = goal.max_horizontal_jerk > 0. ? goal.max_horizontal_jerk : wp_cfg_.max_hor_jerk;
-  const auto max_ver_vel = goal.max_vertical_velocity > 0. ? goal.max_vertical_velocity : wp_cfg_.max_ver_vel;
-  const auto max_ver_acc = goal.max_vertical_accel > 0. ? goal.max_vertical_accel : wp_cfg_.max_ver_acc;
-  const auto max_ver_jerk = goal.max_vertical_jerk > 0. ? goal.max_vertical_jerk : wp_cfg_.max_ver_jerk;
-  const auto max_head_rate = goal.max_heading_rate > 0. ? goal.max_heading_rate : wp_cfg_.max_head_rate;
-  const auto max_head_acc = goal.max_heading_accel > 0. ? goal.max_heading_accel : wp_cfg_.max_head_acc;
+  const auto max_hor_vel =
+    isPositive(goal.max_horizontal_velocity) ? goal.max_horizontal_velocity : wp_cfg_.max_hor_vel;
+  const auto max_hor_acc = isPositive(goal.max_horizontal_accel) ? goal.max_horizontal_accel : wp_cfg_.max_hor_acc;
+  const auto max_hor_jerk = isPositive(goal.max_horizontal_jerk) ? goal.max_horizontal_jerk : wp_cfg_.max_hor_jerk;
+  const auto max_ver_vel = isPositive(goal.max_vertical_velocity) ? goal.max_vertical_velocity : wp_cfg_.max_ver_vel;
+  const auto max_ver_acc = isPositive(goal.max_vertical_accel) ? goal.max_vertical_accel : wp_cfg_.max_ver_acc;
+  const auto max_ver_jerk = isPositive(goal.max_vertical_jerk) ? goal.max_vertical_jerk : wp_cfg_.max_ver_jerk;
+  const auto max_head_rate = isPositive(goal.max_heading_rate) ? goal.max_heading_rate : wp_cfg_.max_head_rate;
+  const auto max_head_acc = isPositive(goal.max_heading_accel) ? goal.max_heading_accel : wp_cfg_.max_head_acc;
 
   // 軌道を生成
   const Eigen::Vector2d start_xy(start_pos.x(), start_pos.y());
@@ -591,9 +601,9 @@ bool MulticopterMissionExecutorNode::executeTakeoff(const Takeoff& goal, const G
   }
 
   // 制約を決定
-  const auto max_speed = goal.max_speed > 0. ? goal.max_speed : takeoff_cfg_.max_speed;
-  const auto max_accel = goal.max_accel > 0. ? goal.max_accel : takeoff_cfg_.max_accel;
-  const auto max_jerk = goal.max_jerk > 0. ? goal.max_jerk : takeoff_cfg_.max_jerk;
+  const auto max_speed = isPositive(goal.max_speed) ? goal.max_speed : takeoff_cfg_.max_speed;
+  const auto max_accel = isPositive(goal.max_accel) ? goal.max_accel : takeoff_cfg_.max_accel;
+  const auto max_jerk = isPositive(goal.max_jerk) ? goal.max_jerk : takeoff_cfg_.max_jerk;
 
   // 軌道を生成
   const traj::TimeOptimalTrajectory traj_z(start_pos.z(), tar_z, max_jerk, max_accel, max_speed);
@@ -666,7 +676,7 @@ bool MulticopterMissionExecutorNode::executeLand(const Land& goal, const GoalHan
   const auto start_rot = command_.rot.clone();
 
   // 下降速度を決定
-  const auto speed = goal.speed > 0. ? goal.speed : land_cfg_.speed;
+  const auto speed = isPositive(goal.speed) ? goal.speed : land_cfg_.speed;
 
   // 姿勢の起動を生成
   const auto roll_duration = std::abs(start_rot.roll) / kAttitudeRate;

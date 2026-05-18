@@ -33,32 +33,32 @@ const char* TakeoffWidget::name() const
 
 double TakeoffWidget::altitude() const
 {
-  return getValue(altitude_);
+  return altitude_->getValue();
 }
 
 mission::AltitudeFrame TakeoffWidget::altitudeFrame() const
 {
-  return getValue(altitude_frame_);
+  return altitude_frame_->getValue();
 }
 
 double TakeoffWidget::maxSpeed() const
 {
-  return getValue(max_speed_);
+  return getValueOrNan(max_speed_);
 }
 
 double TakeoffWidget::maxAccel() const
 {
-  return getValue(max_accel_);
+  return getValueOrNan(max_accel_);
 }
 
 double TakeoffWidget::maxJerk() const
 {
-  return getValue(max_jerk_);
+  return getValueOrNan(max_jerk_);
 }
 
 double TakeoffWidget::altitudeTolerance() const
 {
-  return getValue(altitude_tolerance_);
+  return getValueOrNan(altitude_tolerance_);
 }
 
 void TakeoffWidget::altitude(double value)

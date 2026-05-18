@@ -43,57 +43,57 @@ const char* ReturnToLaunchWidget::name() const
 
 double ReturnToLaunchWidget::minAltitude() const
 {
-  return getValue(min_alt_);
+  return getValueOrNan(min_alt_);
 }
 
 double ReturnToLaunchWidget::maxHorizontalVelocity() const
 {
-  return getValue(max_hor_vel_);
+  return getValueOrNan(max_hor_vel_);
 }
 
 double ReturnToLaunchWidget::maxHorizontalAccel() const
 {
-  return getValue(max_hor_acc_);
+  return getValueOrNan(max_hor_acc_);
 }
 
 double ReturnToLaunchWidget::maxVerticalVelocity() const
 {
-  return getValue(max_ver_vel_);
+  return getValueOrNan(max_ver_vel_);
 }
 
 double ReturnToLaunchWidget::maxHorizontalJerk() const
 {
-  return getValue(max_hor_jerk_);
+  return getValueOrNan(max_hor_jerk_);
 }
 
 double ReturnToLaunchWidget::maxVerticalAccel() const
 {
-  return getValue(max_ver_acc_);
+  return getValueOrNan(max_ver_acc_);
 }
 
 double ReturnToLaunchWidget::maxVerticalJerk() const
 {
-  return getValue(max_ver_jerk_);
+  return getValueOrNan(max_ver_jerk_);
 }
 
 double ReturnToLaunchWidget::maxHeadingRate() const
 {
-  return getValue(max_head_rate_);
+  return getValueOrNan(max_head_rate_);
 }
 
 double ReturnToLaunchWidget::maxHeadingAccel() const
 {
-  return getValue(max_head_acc_);
+  return getValueOrNan(max_head_acc_);
 }
 
 double ReturnToLaunchWidget::acceptanceRadius() const
 {
-  return getValue(acceptance_radius_);
+  return getValueOrNan(acceptance_radius_);
 }
 
 double ReturnToLaunchWidget::altitudeTolerance() const
 {
-  return getValue(altitude_tolerance_);
+  return getValueOrNan(altitude_tolerance_);
 }
 
 void ReturnToLaunchWidget::minAltitude(double value)

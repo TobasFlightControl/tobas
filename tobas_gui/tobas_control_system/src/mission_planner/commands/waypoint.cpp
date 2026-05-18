@@ -49,72 +49,72 @@ const char* WaypointWidget::name() const
 
 double WaypointWidget::latitude() const
 {
-  return getValue(latitude_);
+  return latitude_->getValue();
 }
 
 double WaypointWidget::longitude() const
 {
-  return getValue(longitude_);
+  return longitude_->getValue();
 }
 
 double WaypointWidget::altitude() const
 {
-  return getValue(altitude_);
+  return altitude_->getValue();
 }
 
 mission::AltitudeFrame WaypointWidget::altitudeFrame() const
 {
-  return getValue(altitude_frame_);
+  return altitude_frame_->getValue();
 }
 
 double WaypointWidget::maxHorizontalVelocity() const
 {
-  return getValue(max_hor_vel_);
+  return getValueOrNan(max_hor_vel_);
 }
 
 double WaypointWidget::maxHorizontalAccel() const
 {
-  return getValue(max_hor_acc_);
+  return getValueOrNan(max_hor_acc_);
 }
 
 double WaypointWidget::maxVerticalVelocity() const
 {
-  return getValue(max_ver_vel_);
+  return getValueOrNan(max_ver_vel_);
 }
 
 double WaypointWidget::maxHorizontalJerk() const
 {
-  return getValue(max_hor_jerk_);
+  return getValueOrNan(max_hor_jerk_);
 }
 
 double WaypointWidget::maxVerticalAccel() const
 {
-  return getValue(max_ver_acc_);
+  return getValueOrNan(max_ver_acc_);
 }
 
 double WaypointWidget::maxVerticalJerk() const
 {
-  return getValue(max_ver_jerk_);
+  return getValueOrNan(max_ver_jerk_);
 }
 
 double WaypointWidget::maxHeadingRate() const
 {
-  return getValue(max_head_rate_);
+  return getValueOrNan(max_head_rate_);
 }
 
 double WaypointWidget::maxHeadingAccel() const
 {
-  return getValue(max_head_acc_);
+  return getValueOrNan(max_head_acc_);
 }
 
 double WaypointWidget::acceptanceRadius() const
 {
-  return getValue(acceptance_radius_);
+  return getValueOrNan(acceptance_radius_);
 }
 
 double WaypointWidget::altitudeTolerance() const
 {
-  return getValue(altitude_tolerance_);
+  return getValueOrNan(altitude_tolerance_);
 }
 
 void WaypointWidget::latitude(double value)

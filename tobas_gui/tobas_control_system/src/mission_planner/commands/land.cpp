@@ -23,7 +23,7 @@ const char* LandWidget::name() const
 
 double LandWidget::speed() const
 {
-  return getValue(speed_);
+  return getValueOrNan(speed_);
 }
 
 void LandWidget::speed(double value)
