@@ -20,10 +20,14 @@ std::string format(int value)
 /**
  * @brief 小数をyaml対応の文字列に変換する．
  *
- * e.g. 100 -> 100.0, 0.000012345 -> 1.2345e-05
+ * e.g. 100 -> 100.0, 0.000012345 -> 1.2345e-05, NaN -> .nan
  */
 std::string format(double value, int prec)
 {
+  if (std::isnan(value)) {
+    return ".nan";
+  }
+
   if (math::isInteger(value) && std::abs(static_cast<long>(value)) < math::ipow(10L, prec)) {
     // 小数部分を持たず有効数字ほどの桁数ではない場合は，整数表記に丸められてしまうため，小数部分を1桁追加する．
     return std::format("{:.1f}", value);
