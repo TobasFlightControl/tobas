@@ -23,6 +23,7 @@
 #include <tobas_msgs/msg/arming.hpp>
 #include <tobas_msgs/msg/geodetic_coordinates.hpp>
 #include <tobas_msgs/msg/landed_state.hpp>
+#include <tobas_msgs/msg/vehicle_health.hpp>
 #include <tobas_msgs/srv/set_arm.hpp>
 #include <tobas_msgs_adapter/odometry_stamped.hpp>
 #include <tobas_msgs_adapter/odometry_with_covariance_stamped.hpp>
@@ -117,6 +118,7 @@ private:
   tobas_msgs::OdometryStamped::ConstSharedPtr setpoint_;
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
   tobas_msgs::msg::LandedState::ConstSharedPtr landed_;
+  tobas_msgs::msg::VehicleHealth::ConstSharedPtr health_;
   tobas_msgs::msg::GeodeticCoordinates::ConstSharedPtr gnss_origin_;
 
   ros2::PublisherPtr<tobas_command_msgs::Angle> angle_pub_;
@@ -128,6 +130,7 @@ private:
   ros2::SubscriberPtr<tobas_msgs::OdometryStamped> setpoint_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::LandedState> landed_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::VehicleHealth> health_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::GeodeticCoordinates> gnss_origin_sub_;
   ros2::SubscriberPtr<tobas_msgs::RCInput> rcin_sub_;
 
@@ -162,6 +165,7 @@ private:
   void setpointCb(const tobas_msgs::OdometryStamped::ConstSharedPtr& setpoint);
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
   void landedCb(const tobas_msgs::msg::LandedState::ConstSharedPtr& landed);
+  void healthCb(const tobas_msgs::msg::VehicleHealth::ConstSharedPtr& health);
   void gnssOriginCb(const tobas_msgs::msg::GeodeticCoordinates::ConstSharedPtr& gnss_origin);
   void rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin);
 
@@ -184,6 +188,7 @@ MulticopterMissionExecutorNode::MulticopterMissionExecutorNode(const rclcpp::Nod
   setpoint_sub_ = createSubscriber(topic::kTrajSetpoint, &self::setpointCb, this);
   arming_sub_ = createSubscriber(topic::kArming, &self::armingCb, this);
   landed_sub_ = createSubscriber(topic::kLanded, &self::landedCb, this);
+  health_sub_ = createSubscriber(topic::kVehicleHealth, &self::healthCb, this);
   gnss_origin_sub_ = createSubscriber(topic::kGnssOrigin, &self::gnssOriginCb, this, true, true);
   rcin_sub_ = createSubscriber(topic::kRcInput, &self::rcInputCb, this);
 
@@ -853,6 +858,11 @@ void MulticopterMissionExecutorNode::landedCb(const tobas_msgs::msg::LandedState
   landed_ = landed;
 }
 
+void MulticopterMissionExecutorNode::healthCb(const tobas_msgs::msg::VehicleHealth::ConstSharedPtr& health)
+{
+  health_ = health;
+}
+
 void MulticopterMissionExecutorNode::gnssOriginCb(const tobas_msgs::msg::GeodeticCoordinates::ConstSharedPtr& gnss_origin)
 {
   gnss_origin_ = gnss_origin;
@@ -898,6 +908,10 @@ MulticopterMissionExecutorNode::handleGoal(const rclcpp_action::GoalUUID&, const
     TOBAS_WARN("Landed state has not been received yet.");
     return rclcpp_action::GoalResponse::REJECT;
   }
+  if (!health_) {
+    TOBAS_WARN("Vehicle health has not been received yet.");
+    return rclcpp_action::GoalResponse::REJECT;
+  }
 
   // Reject the mission if manual control is enabled
   if (is_manual_ctrl_enabled_) {
@@ -910,11 +924,6 @@ MulticopterMissionExecutorNode::handleGoal(const rclcpp_action::GoalUUID&, const
   for (const auto& [idx, item] : std::views::enumerate(goal->mission.items)) {
     switch (item.type) {
       case kWaypoint: {
-        if (!gnss_origin_) {
-          TOBAS_WARN("GNSS origin has not been received yet.");
-          return rclcpp_action::GoalResponse::REJECT;
-        }
-
         Waypoint waypoint;
         if (!st::fromBytes(item.data, waypoint)) {
           TOBAS_ERROR("Mission No. ", idx + 1, ": Size mismatch.");
@@ -935,6 +944,11 @@ MulticopterMissionExecutorNode::handleGoal(const rclcpp_action::GoalUUID&, const
           return rclcpp_action::GoalResponse::REJECT;
         }
 
+        if (!gnss_origin_) {
+          TOBAS_WARN("GNSS origin has not been received yet.");
+          return rclcpp_action::GoalResponse::REJECT;
+        }
+
         break;
       }
       case kTakeoff: {
@@ -951,6 +965,11 @@ MulticopterMissionExecutorNode::handleGoal(const rclcpp_action::GoalUUID&, const
 
         if (armed) {
           TOBAS_ERROR("Mission No. ", idx + 1, ": The vehicle must be disarmed before a \"Takeoff\" command.");
+          return rclcpp_action::GoalResponse::REJECT;
+        }
+
+        if (!health_->ok) {
+          TOBAS_ERROR("Mission No. ", idx + 1, ": The vehicle cannot takeoff because the pre-arm check failed.");
           return rclcpp_action::GoalResponse::REJECT;
         }
 
@@ -975,11 +994,6 @@ MulticopterMissionExecutorNode::handleGoal(const rclcpp_action::GoalUUID&, const
         break;
       }
       case kReturnToLaunch: {
-        if (!gnss_origin_) {
-          TOBAS_WARN("GNSS origin has not been received yet.");
-          return rclcpp_action::GoalResponse::REJECT;
-        }
-
         ReturnToLaunch rtl;
         if (!st::fromBytes(item.data, rtl)) {
           TOBAS_ERROR("Mission No. ", idx + 1, ": Size mismatch.");
@@ -988,6 +1002,11 @@ MulticopterMissionExecutorNode::handleGoal(const rclcpp_action::GoalUUID&, const
 
         if (!armed) {
           TOBAS_ERROR("Mission No. ", idx + 1, ": The vehicle must be armed before a \"RTL\" command.");
+          return rclcpp_action::GoalResponse::REJECT;
+        }
+
+        if (!gnss_origin_) {
+          TOBAS_WARN("GNSS origin has not been received yet.");
           return rclcpp_action::GoalResponse::REJECT;
         }
 
