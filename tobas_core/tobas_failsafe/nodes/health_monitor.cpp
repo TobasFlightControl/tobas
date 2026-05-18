@@ -629,9 +629,13 @@ void HealthMonitorNode::mainTimerCb()
   if (do_check_.user_defined_condition) {
     if (user_health_) {
       health->user_defined_condition = user_health_->data;
+      if (user_health_->data != tobas_msgs::msg::VehicleHealth::PASSED) {
+        health->ok = false;
+      }
     }
     else {
       health->user_defined_condition = tobas_msgs::msg::VehicleHealth::UNKNOWN;
+      health->ok = false;
     }
   }
   else {
