@@ -73,8 +73,8 @@ MissionPlannerWidget::MissionPlannerWidget(rclcpp::Node::SharedPtr node, const R
   button_cols->addWidget(focus_button_, 1);
 
   const auto mission_cols = new QHBoxLayout();
-  mission_cols->addWidget(command_list_);
-  mission_cols->addWidget(commands_);
+  mission_cols->addWidget(command_list_, 1);
+  mission_cols->addWidget(commands_, 3);
 
   const auto rows = new QVBoxLayout();
   rows->addWidget(map_, 2);
