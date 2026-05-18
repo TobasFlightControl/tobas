@@ -870,7 +870,7 @@ void MulticopterMissionExecutorNode::rcInputCb(const tobas_msgs::RCInput::ConstS
 rclcpp_action::GoalResponse
 MulticopterMissionExecutorNode::handleGoal(const rclcpp_action::GoalUUID&, const GoalPtr& goal)
 {
-  TOBAS_INFO("New mission is uploaded.");
+  TOBAS_INFO("A new mission has been uploaded.");
 
   // Check mission priority
   const auto& new_priority = goal->priority.data;
@@ -894,10 +894,6 @@ MulticopterMissionExecutorNode::handleGoal(const rclcpp_action::GoalUUID&, const
     TOBAS_WARN("Arming status has not been received yet.");
     return rclcpp_action::GoalResponse::REJECT;
   }
-  if (!gnss_origin_) {
-    TOBAS_WARN("GNSS origin has not been received yet.");
-    return rclcpp_action::GoalResponse::REJECT;
-  }
   if (!landed_) {
     TOBAS_WARN("Landed state has not been received yet.");
     return rclcpp_action::GoalResponse::REJECT;
@@ -910,21 +906,32 @@ MulticopterMissionExecutorNode::handleGoal(const rclcpp_action::GoalUUID&, const
   }
 
   // Check the mission items
+  auto armed = arming_->data;
   for (const auto& [idx, item] : std::views::enumerate(goal->mission.items)) {
     switch (item.type) {
       case kWaypoint: {
+        if (!gnss_origin_) {
+          TOBAS_WARN("GNSS origin has not been received yet.");
+          return rclcpp_action::GoalResponse::REJECT;
+        }
+
         Waypoint waypoint;
         if (!st::fromBytes(item.data, waypoint)) {
-          TOBAS_ERROR("Mission No. ", idx, ": Size mismatch.");
+          TOBAS_ERROR("Mission No. ", idx + 1, ": Size mismatch.");
           return rclcpp_action::GoalResponse::REJECT;
         }
 
         if (waypoint.latitude < -90 || 90 < waypoint.latitude) {
-          TOBAS_ERROR("Mission No. ", idx, ": Invalid target latitude.");
+          TOBAS_ERROR("Mission No. ", idx + 1, ": Invalid target latitude.");
           return rclcpp_action::GoalResponse::REJECT;
         }
         if (waypoint.longitude < -180 || 180 < waypoint.longitude) {
-          TOBAS_ERROR("Mission No. ", idx, ": Invalid target longitude.");
+          TOBAS_ERROR("Mission No. ", idx + 1, ": Invalid target longitude.");
+          return rclcpp_action::GoalResponse::REJECT;
+        }
+
+        if (!armed) {
+          TOBAS_ERROR("Mission No. ", idx + 1, ": The vehicle must be armed before a \"Waypoint\" command.");
           return rclcpp_action::GoalResponse::REJECT;
         }
 
@@ -933,32 +940,58 @@ MulticopterMissionExecutorNode::handleGoal(const rclcpp_action::GoalUUID&, const
       case kTakeoff: {
         Takeoff takeoff;
         if (!st::fromBytes(item.data, takeoff)) {
-          TOBAS_ERROR("Mission No. ", idx, ": Size mismatch.");
+          TOBAS_ERROR("Mission No. ", idx + 1, ": Size mismatch.");
           return rclcpp_action::GoalResponse::REJECT;
         }
 
         if (takeoff.altitude <= 0.) {
-          TOBAS_ERROR("Mission No. ", idx, ": Target altitude must be positive.");
+          TOBAS_ERROR("Mission No. ", idx + 1, ": Target altitude must be positive.");
           return rclcpp_action::GoalResponse::REJECT;
         }
+
+        if (armed) {
+          TOBAS_ERROR("Mission No. ", idx + 1, ": The vehicle must be disarmed before a \"Takeoff\" command.");
+          return rclcpp_action::GoalResponse::REJECT;
+        }
+
+        armed = true;
 
         break;
       }
       case kLand: {
         Land land;
         if (!st::fromBytes(item.data, land)) {
-          TOBAS_ERROR("Mission No. ", idx, ": Size mismatch.");
+          TOBAS_ERROR("Mission No. ", idx + 1, ": Size mismatch.");
           return rclcpp_action::GoalResponse::REJECT;
         }
+
+        if (!armed) {
+          TOBAS_ERROR("Mission No. ", idx + 1, ": The vehicle must be armed before a \"Land\" command.");
+          return rclcpp_action::GoalResponse::REJECT;
+        }
+
+        armed = false;
 
         break;
       }
       case kReturnToLaunch: {
-        ReturnToLaunch rtl;
-        if (!st::fromBytes(item.data, rtl)) {
-          TOBAS_ERROR("Mission No. ", idx, ": Size mismatch.");
+        if (!gnss_origin_) {
+          TOBAS_WARN("GNSS origin has not been received yet.");
           return rclcpp_action::GoalResponse::REJECT;
         }
+
+        ReturnToLaunch rtl;
+        if (!st::fromBytes(item.data, rtl)) {
+          TOBAS_ERROR("Mission No. ", idx + 1, ": Size mismatch.");
+          return rclcpp_action::GoalResponse::REJECT;
+        }
+
+        if (!armed) {
+          TOBAS_ERROR("Mission No. ", idx + 1, ": The vehicle must be armed before a \"RTL\" command.");
+          return rclcpp_action::GoalResponse::REJECT;
+        }
+
+        armed = false;
 
         break;
       }
