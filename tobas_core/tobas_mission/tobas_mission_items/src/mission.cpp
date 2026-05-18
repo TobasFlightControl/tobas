@@ -183,7 +183,7 @@ YAML::Node Mission::dump() const
 bool Mission::load(const YAML::Node& mission_node)
 {
   if (!mission_node.IsSequence()) {
-    std::cerr << "Yaml node type mismatch." << std::endl;
+    std::cerr << "YAML node type mismatch." << std::endl;
     return false;
   }
 
@@ -194,7 +194,7 @@ bool Mission::load(const YAML::Node& mission_node)
       return false;
     }
 
-    const auto data_node = mission_node[DATA_KEY];
+    const auto data_node = item_node[DATA_KEY];
     if (!data_node.IsDefined()) {
       std::cerr << "\"" << DATA_KEY << "\" is not defined." << std::endl;
       return false;
