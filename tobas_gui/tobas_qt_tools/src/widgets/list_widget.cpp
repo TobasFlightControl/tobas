@@ -53,7 +53,7 @@ public:
     }
 
     const auto no_rect = opt.rect.adjusted(6, 0, -(opt.rect.width() - no_width), 0);
-    const auto no_text = QString::number(index.row());
+    const auto no_text = QString::number(index.row() + 1);
     painter->drawText(no_rect, Qt::AlignVCenter | Qt::AlignLeft, no_text);
 
     const auto text_rect = opt.rect.adjusted(no_width + 6, 0, -6, 0);

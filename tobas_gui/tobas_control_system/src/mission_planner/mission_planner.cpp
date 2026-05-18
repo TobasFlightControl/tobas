@@ -361,11 +361,13 @@ void MissionPlannerWidget::onLoadButtonClicked()
 
   // ミッションをプランナーウィジェットに反映
   for (const auto& [idx, item] : std::views::enumerate(mission.items)) {
+    const auto cmd_number = idx + 1;
+
     switch (item.type) {
       case mission::Type::kWaypoint: {
         mission::Waypoint waypoint;
         if (!st::fromBytes(item.data, waypoint)) {
-          qt::qErrorBox(this, "Failed to load mission No. " + QString::number(idx) + ": Waypoint");
+          qt::qErrorBox(this, "Failed to load mission No. " + QString::number(cmd_number) + ": Waypoint");
           clearMission();
           return;
         }
@@ -377,7 +379,7 @@ void MissionPlannerWidget::onLoadButtonClicked()
       case mission::Type::kTakeoff: {
         mission::Takeoff takeoff;
         if (!st::fromBytes(item.data, takeoff)) {
-          qt::qErrorBox(this, "Failed to load mission No. " + QString::number(idx) + ": Takeoff");
+          qt::qErrorBox(this, "Failed to load mission No. " + QString::number(cmd_number) + ": Takeoff");
           clearMission();
           return;
         }
@@ -389,7 +391,7 @@ void MissionPlannerWidget::onLoadButtonClicked()
       case mission::Type::kLand: {
         mission::Land land;
         if (!st::fromBytes(item.data, land)) {
-          qt::qErrorBox(this, "Failed to load mission No. " + QString::number(idx) + ": Land");
+          qt::qErrorBox(this, "Failed to load mission No. " + QString::number(cmd_number) + ": Land");
           clearMission();
           return;
         }
@@ -401,7 +403,7 @@ void MissionPlannerWidget::onLoadButtonClicked()
       case mission::Type::kReturnToLaunch: {
         mission::ReturnToLaunch rtl;
         if (!st::fromBytes(item.data, rtl)) {
-          qt::qErrorBox(this, "Failed to load mission No. " + QString::number(idx) + ": ReturnToLaunch");
+          qt::qErrorBox(this, "Failed to load mission No. " + QString::number(cmd_number) + ": ReturnToLaunch");
           clearMission();
           return;
         }
