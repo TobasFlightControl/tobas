@@ -51,6 +51,7 @@ MissionPlannerWidget::MissionPlannerWidget(rclcpp::Node::SharedPtr node, const R
   focus_button_ = new CommandButton("Focus");
 
   command_list_ = new qt::ListWidget();
+  command_list_->showRowNumber();
   command_list_->setSelectionMode(QListWidget::SingleSelection);
   command_list_->setDragDropMode(QListWidget::InternalMove);
 
