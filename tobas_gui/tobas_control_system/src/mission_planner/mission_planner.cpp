@@ -3,6 +3,8 @@
 
 #include "tobas_control_system/mission_planner/mission_planner.hpp"
 
+#include <ranges>
+
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
@@ -14,7 +16,7 @@
 #include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
-#include <tobas_ros2_tools/util.hpp>
+#include <tobas_qt_tools/path.hpp>
 #include <tobas_std_tools/byte.hpp>
 #include <tobas_std_tools/check.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
@@ -104,13 +106,10 @@ void MissionPlannerWidget::reset()
   map_->setArrowPosition(0., 0.);
   map_->setArrowRotation(0.);
 
-  command_list_->clear();
-  commands_->clear();
-  pairs_.clear();
+  clearMission();
+  setEditMode();
 
   mission_executing_ = false;
-
-  setEditMode();
 }
 
 void MissionPlannerWidget::updateNamespace(const std::string& ns)
@@ -124,11 +123,13 @@ void MissionPlannerWidget::updateNamespace(const std::string& ns)
 QString MissionPlannerWidget::getMissionDir()
 {
   std::string last_opened_dir;
-  if (property_client_.get(kLastOpenedDirKey, last_opened_dir) < 0) {
-    qWarning() << property_client_.errorMessage();
-    last_opened_dir = ros2::expandUser(kMissionDir);
+  if (property_client_.get(kLastOpenedDirKey, last_opened_dir) == ptree::PropertyClient::kNoError) {
+    return QString::fromStdString(last_opened_dir);
   }
-  return QString::fromStdString(last_opened_dir);
+  else {
+    qWarning() << property_client_.errorMessage();
+    return qt::expandUser(kMissionDir);
+  }
 }
 
 void MissionPlannerWidget::setMissionDir(const QString& file_path)
@@ -144,6 +145,25 @@ void MissionPlannerWidget::setMissionDir(const QString& file_path)
     qWarning() << property_client_.errorMessage();
     return;
   }
+}
+
+void MissionPlannerWidget::clearMission()
+{
+  command_list_->clear();
+  commands_->clear();
+  pairs_.clear();
+}
+
+void MissionPlannerWidget::addCommand(mission::Type type, BaseCommandWidget* widget)
+{
+  const auto item = new QListWidgetItem(commandToText(type));
+  command_list_->addItem(item);
+
+  commands_->addWidget(widget);
+  connect(widget, &BaseCommandWidget::updated, this, &self::onMissionUpdated);
+  connect(widget, &BaseCommandWidget::deleteButtonClicked, std::bind(&self::onDeleteButtonClicked, this, item, widget));
+
+  pairs_.insert({ item, widget });
 }
 
 void MissionPlannerWidget::setExecuteMode()
@@ -212,7 +232,7 @@ void MissionPlannerWidget::commandsToMap()
     const auto cmd_widget = getCommandWidget(item);
 
     switch (cmd_type) {
-      case Command::kWaypoint: {
+      case mission::Type::kWaypoint: {
         const auto waypoint = qt::qConstPointerCast<WaypointWidget>(cmd_widget);
         const auto latitude = waypoint->latitude();
         const auto longitude = waypoint->longitude();
@@ -234,13 +254,13 @@ void MissionPlannerWidget::commandsToMap()
 
         break;
       }
-      case Command::kTakeoff: {
+      case mission::Type::kTakeoff: {
         break;
       }
-      case Command::kLand: {
+      case mission::Type::kLand: {
         break;
       }
-      case Command::kReturnToLaunch: {
+      case mission::Type::kReturnToLaunch: {
         break;
       }
       default: {
@@ -273,81 +293,28 @@ tobas::mission::Mission MissionPlannerWidget::createMission() const
     tobas::mission::MissionItem mission_item;
 
     switch (cmd_type) {
-      case Command::kWaypoint: {
+      case mission::Type::kWaypoint: {
         const auto widget = qt::qConstPointerCast<WaypointWidget>(base_widget);
-
-        mission::Waypoint waypoint;
-        waypoint.latitude = widget->latitude();
-        waypoint.longitude = widget->longitude();
-        waypoint.altitude = widget->altitude();
-        waypoint.altitude_frame = widget->altitudeFrame();
-        waypoint.auto_heading = true;  // TODO
-        waypoint.max_horizontal_velocity = widget->maxHorizontalVelocity();
-        waypoint.max_horizontal_accel = widget->maxHorizontalAccel();
-        waypoint.max_horizontal_jerk = widget->maxHorizontalJerk();
-        waypoint.max_vertical_velocity = widget->maxVerticalVelocity();
-        waypoint.max_vertical_accel = widget->maxVerticalAccel();
-        waypoint.max_vertical_jerk = widget->maxVerticalJerk();
-        waypoint.max_heading_rate = widget->maxHeadingRate();
-        waypoint.max_heading_accel = widget->maxHeadingAccel();
-        waypoint.acceptance_radius = widget->acceptanceRadius();
-        waypoint.altitude_tolerance = widget->altitudeTolerance();
-        waypoint.timeout = 0.;  // TODO
-
         mission_item.type = mission::kWaypoint;
-        mission_item.data = st::toBytes(waypoint);
-
+        mission_item.data = st::toBytes(widget->dump());
         break;
       }
-      case Command::kTakeoff: {
+      case mission::Type::kTakeoff: {
         const auto widget = qt::qConstPointerCast<TakeoffWidget>(base_widget);
-
-        mission::Takeoff takeoff;
-        takeoff.altitude = widget->altitude();
-        takeoff.altitude_frame = widget->altitudeFrame();
-        takeoff.max_speed = widget->maxSpeed();
-        takeoff.max_accel = widget->maxAccel();
-        takeoff.max_jerk = widget->maxJerk();
-        takeoff.altitude_tolerance = widget->altitudeTolerance();
-        takeoff.timeout = 0.;  // TODO
-
         mission_item.type = mission::kTakeoff;
-        mission_item.data = st::toBytes(takeoff);
-
+        mission_item.data = st::toBytes(widget->dump());
         break;
       }
-      case Command::kLand: {
+      case mission::Type::kLand: {
         const auto widget = qt::qConstPointerCast<LandWidget>(base_widget);
-
-        mission::Land land;
-        land.speed = widget->speed();
-        land.timeout = 0.;  // TODO
-
         mission_item.type = mission::kLand;
-        mission_item.data = st::toBytes(land);
-
+        mission_item.data = st::toBytes(widget->dump());
         break;
       }
-      case Command::kReturnToLaunch: {
+      case mission::Type::kReturnToLaunch: {
         const auto widget = qt::qConstPointerCast<ReturnToLaunchWidget>(base_widget);
-
-        mission::ReturnToLaunch rtl;
-        rtl.min_altitude = widget->minAltitude();
-        rtl.max_horizontal_velocity = widget->maxHorizontalVelocity();
-        rtl.max_horizontal_accel = widget->maxHorizontalAccel();
-        rtl.max_horizontal_jerk = widget->maxHorizontalJerk();
-        rtl.max_vertical_velocity = widget->maxVerticalVelocity();
-        rtl.max_vertical_accel = widget->maxVerticalAccel();
-        rtl.max_vertical_jerk = widget->maxVerticalJerk();
-        rtl.max_heading_rate = widget->maxHeadingRate();
-        rtl.max_heading_accel = widget->maxHeadingAccel();
-        rtl.acceptance_radius = widget->acceptanceRadius();
-        rtl.altitude_tolerance = widget->altitudeTolerance();
-        rtl.timeout = 0.;  // TODO
-
         mission_item.type = mission::kReturnToLaunch;
-        mission_item.data = st::toBytes(rtl);
-
+        mission_item.data = st::toBytes(widget->dump());
         break;
       }
       default: {
@@ -365,7 +332,94 @@ void MissionPlannerWidget::onLoadButtonClicked()
 {
   qDebug() << "MissionPlannerWidget::onLoadButtonClicked";
 
-  qt::qWarnBox(this, "Not implemented yet.");  // TODO
+  // ミッションのパスを取得
+  const auto dir = getMissionDir();
+  const auto file_path = QFileDialog::getOpenFileName(
+    this, "Load Mission", dir, "Mission (*.mission);;All Files (*)", nullptr, QFileDialog::DontUseNativeDialog);
+  if (file_path.isEmpty()) {
+    return;
+  }
+  setMissionDir(file_path);
+
+  // YAMLを読み込む
+  const auto node = yaml::load(file_path.toStdString());
+  if (!node) {
+    qt::qErrorBox(this, "Failed to load the mission file: " + QString::fromStdString(node.error()));
+    return;
+  }
+
+  // ミッションを解析
+  mission::Mission mission;
+  if (!mission.load(node.value())) {
+    qt::qErrorBox(this, "Failed to load the mission file.");
+    return;
+  }
+
+  // 現在のミッションを消去
+  clearMission();
+
+  // ミッションをプランナーウィジェットに反映
+  for (const auto& [idx, item] : std::views::enumerate(mission.items)) {
+    switch (item.type) {
+      case mission::Type::kWaypoint: {
+        mission::Waypoint waypoint;
+        if (!st::fromBytes(item.data, waypoint)) {
+          qt::qErrorBox(this, "Failed to load mission No." + QString::number(idx + 1) + ": Waypoint");
+          clearMission();
+          return;
+        }
+        const auto widget = new WaypointWidget();
+        widget->load(waypoint);
+        addCommand(item.type, widget);
+        break;
+      }
+      case mission::Type::kTakeoff: {
+        mission::Takeoff takeoff;
+        if (!st::fromBytes(item.data, takeoff)) {
+          qt::qErrorBox(this, "Failed to load mission No." + QString::number(idx + 1) + ": Takeoff");
+          clearMission();
+          return;
+        }
+        const auto widget = new TakeoffWidget();
+        widget->load(takeoff);
+        addCommand(item.type, widget);
+        break;
+      }
+      case mission::Type::kLand: {
+        mission::Land land;
+        if (!st::fromBytes(item.data, land)) {
+          qt::qErrorBox(this, "Failed to load mission No." + QString::number(idx + 1) + ": Land");
+          clearMission();
+          return;
+        }
+        const auto widget = new LandWidget();
+        widget->load(land);
+        addCommand(item.type, widget);
+        break;
+      }
+      case mission::Type::kReturnToLaunch: {
+        mission::ReturnToLaunch rtl;
+        if (!st::fromBytes(item.data, rtl)) {
+          qt::qErrorBox(this, "Failed to load mission No." + QString::number(idx + 1) + ": ReturnToLaunch");
+          clearMission();
+          return;
+        }
+        const auto widget = new ReturnToLaunchWidget();
+        widget->load(rtl);
+        addCommand(item.type, widget);
+        break;
+      }
+      default: {
+        throw;
+      }
+    }
+  }
+
+  // プランナーの状態をマップに反映
+  listToCommands();
+  commandsToMap();
+
+  qt::qInfoBox(this, "The mission has been loaded successfully.");
 }
 
 void MissionPlannerWidget::onSaveButtonClicked()
@@ -390,7 +444,7 @@ void MissionPlannerWidget::onSaveButtonClicked()
     }
   }
 
-  // プロジェクトのパスを取得
+  // ミッションのパスを取得
   SaveMissionDialog dialog(this, dir);
   if (dialog.exec() != QDialog::Accepted) {
     return;
@@ -409,7 +463,7 @@ void MissionPlannerWidget::onSaveButtonClicked()
     return;
   }
 
-  qt::qInfoBox(this, "The mission was saved successfully.");
+  qt::qInfoBox(this, "The current mission has been saved successfully.");
 }
 
 void MissionPlannerWidget::onAddButtonClicked()
@@ -426,7 +480,7 @@ void MissionPlannerWidget::onAddButtonClicked()
   const auto cmd_type = dialog.selectedCommand();
   BaseCommandWidget* cmd_widget;
   switch (cmd_type) {
-    case Command::kWaypoint: {
+    case mission::Type::kWaypoint: {
       const auto center = map_->getCenter();
       const auto waypoint = new WaypointWidget();
       waypoint->latitude(center.latitude());
@@ -434,15 +488,15 @@ void MissionPlannerWidget::onAddButtonClicked()
       cmd_widget = waypoint;
       break;
     }
-    case Command::kTakeoff: {
+    case mission::Type::kTakeoff: {
       cmd_widget = new TakeoffWidget();
       break;
     }
-    case Command::kLand: {
+    case mission::Type::kLand: {
       cmd_widget = new LandWidget();
       break;
     }
-    case Command::kReturnToLaunch: {
+    case mission::Type::kReturnToLaunch: {
       cmd_widget = new ReturnToLaunchWidget();
       break;
     }
@@ -451,18 +505,7 @@ void MissionPlannerWidget::onAddButtonClicked()
     }
   }
 
-  const auto item = new QListWidgetItem(commandToText(cmd_type));
-  command_list_->addItem(item);
-
-  commands_->addWidget(cmd_widget);
-  connect(cmd_widget, &BaseCommandWidget::updated, this, &self::onMissionUpdated);
-  connect(
-    cmd_widget,
-    &BaseCommandWidget::deleteButtonClicked,
-    std::bind(&self::onDeleteButtonClicked, this, item, cmd_widget));
-
-  pairs_.insert({ item, cmd_widget });
-
+  addCommand(cmd_type, cmd_widget);
   listToCommands();
   commandsToMap();
 }
@@ -489,8 +532,8 @@ void MissionPlannerWidget::onCacheButtonClicked()
     return;
   }
 
-  const auto dir_from = ros2::expandUser(kCacheDirOnline);
-  const auto dir_to = ros2::expandUser(kCacheDirOffline);
+  const auto dir_from = qt::expandUser(kCacheDirOnline).toStdString();
+  const auto dir_to = qt::expandUser(kCacheDirOffline).toStdString();
 
   if (!fs::is_directory(dir_to)) {
     TOBAS_CHECK(fs::create_directories(dir_to));
@@ -651,7 +694,7 @@ void MissionPlannerWidget::onWaypointMoved(int index, double latitude, double lo
   for (int i = 0; i < command_list_->count(); ++i) {
     const auto item = command_list_->item(i);
     const auto cmd_type = textToCommand(item->text().toUtf8());
-    if (cmd_type == Command::kWaypoint) {
+    if (cmd_type == mission::Type::kWaypoint) {
       ++cur_idx;
     }
     if (cur_idx == index) {

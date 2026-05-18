@@ -80,13 +80,18 @@ private:
   QString getMissionDir();
   void setMissionDir(const QString& file_path);
 
+  void clearMission();
+
+  /* プランナーにミッションコマンドを追加する． */
+  void addCommand(mission::Type type, BaseCommandWidget* widget);
+
   /* 各ウィジェットを実行モードに切り替える． */
   void setExecuteMode();
 
   /* 各ウィジェットを編集モードに切り替える． */
   void setEditMode();
 
-  /* 選択されているリストアイテムに基づいてコマンドウィジェットの表示を更新． */
+  /* 選択されているリストアイテムに基づいてコマンドウィジェットの表示を更新する． */
   void listToCommands();
 
   /* 現在のコマンドに基づいてマップ上のオブジェクトを描き直す． */

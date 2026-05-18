@@ -21,14 +21,29 @@ const char* LandWidget::name() const
   return "Land";
 }
 
+mission::Land LandWidget::dump() const
+{
+  mission::Land res;
+
+  res.speed = speed();
+  res.timeout = 0.;  // TODO
+
+  return res;
+}
+
+void LandWidget::load(const mission::Land& src)
+{
+  speed(src.speed);
+}
+
 double LandWidget::speed() const
 {
-  return getValueOrNan(speed_);
+  return getValueOrDefault(speed_);
 }
 
 void LandWidget::speed(double value)
 {
-  speed_->setValue(value);
+  setValueOrDefault(speed_, value);
 }
 }  // namespace ctrl
 }  // namespace gui

@@ -19,35 +19,35 @@ namespace gui
 {
 namespace ctrl
 {
-const char* commandToText(Command cmd)
+const char* commandToText(mission::Type cmd)
 {
   switch (cmd) {
-    case Command::kWaypoint:
+    case mission::Type::kWaypoint:
       return WAYPOINT_LABEL;
-    case Command::kTakeoff:
+    case mission::Type::kTakeoff:
       return TAKEOFF_LABEL;
-    case Command::kLand:
+    case mission::Type::kLand:
       return LAND_LABEL;
-    case Command::kReturnToLaunch:
+    case mission::Type::kReturnToLaunch:
       return RTL_LABEL;
     default:
       throw std::runtime_error(std::format("Invalid command type: {}", (int)cmd));
   }
 }
 
-Command textToCommand(const char* text)
+mission::Type textToCommand(const char* text)
 {
   if (strcmp(text, WAYPOINT_LABEL) == 0) {
-    return Command::kWaypoint;
+    return mission::Type::kWaypoint;
   }
   else if (strcmp(text, TAKEOFF_LABEL) == 0) {
-    return Command::kTakeoff;
+    return mission::Type::kTakeoff;
   }
   else if (strcmp(text, LAND_LABEL) == 0) {
-    return Command::kLand;
+    return mission::Type::kLand;
   }
   else if (strcmp(text, RTL_LABEL) == 0) {
-    return Command::kReturnToLaunch;
+    return mission::Type::kReturnToLaunch;
   }
   else {
     throw std::runtime_error(std::format("Invalid command text: {}", text));

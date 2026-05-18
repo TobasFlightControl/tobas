@@ -47,6 +47,48 @@ const char* WaypointWidget::name() const
   return "Waypoint";
 }
 
+mission::Waypoint WaypointWidget::dump() const
+{
+  mission::Waypoint res;
+
+  res.latitude = latitude();
+  res.longitude = longitude();
+  res.altitude = altitude();
+  res.altitude_frame = altitudeFrame();
+  res.auto_heading = true;  // TODO
+  res.max_horizontal_velocity = maxHorizontalVelocity();
+  res.max_horizontal_accel = maxHorizontalAccel();
+  res.max_horizontal_jerk = maxHorizontalJerk();
+  res.max_vertical_velocity = maxVerticalVelocity();
+  res.max_vertical_accel = maxVerticalAccel();
+  res.max_vertical_jerk = maxVerticalJerk();
+  res.max_heading_rate = maxHeadingRate();
+  res.max_heading_accel = maxHeadingAccel();
+  res.acceptance_radius = acceptanceRadius();
+  res.altitude_tolerance = altitudeTolerance();
+  res.timeout = 0.;  // TODO
+
+  return res;
+}
+
+void WaypointWidget::load(const mission::Waypoint& src)
+{
+  latitude(src.latitude);
+  longitude(src.longitude);
+  altitude(src.altitude);
+  altitudeFrame(src.altitude_frame);
+  maxHorizontalVelocity(src.max_horizontal_velocity);
+  maxHorizontalAccel(src.max_horizontal_accel);
+  maxHorizontalJerk(src.max_horizontal_jerk);
+  maxVerticalVelocity(src.max_vertical_velocity);
+  maxVerticalAccel(src.max_vertical_accel);
+  maxVerticalJerk(src.max_vertical_jerk);
+  maxHeadingRate(src.max_heading_rate);
+  maxHeadingAccel(src.max_heading_accel);
+  acceptanceRadius(src.acceptance_radius);
+  altitudeTolerance(src.altitude_tolerance);
+}
+
 double WaypointWidget::latitude() const
 {
   return latitude_->getValue();
@@ -69,52 +111,52 @@ mission::AltitudeFrame WaypointWidget::altitudeFrame() const
 
 double WaypointWidget::maxHorizontalVelocity() const
 {
-  return getValueOrNan(max_hor_vel_);
+  return getValueOrDefault(max_hor_vel_);
 }
 
 double WaypointWidget::maxHorizontalAccel() const
 {
-  return getValueOrNan(max_hor_acc_);
+  return getValueOrDefault(max_hor_acc_);
 }
 
 double WaypointWidget::maxVerticalVelocity() const
 {
-  return getValueOrNan(max_ver_vel_);
+  return getValueOrDefault(max_ver_vel_);
 }
 
 double WaypointWidget::maxHorizontalJerk() const
 {
-  return getValueOrNan(max_hor_jerk_);
+  return getValueOrDefault(max_hor_jerk_);
 }
 
 double WaypointWidget::maxVerticalAccel() const
 {
-  return getValueOrNan(max_ver_acc_);
+  return getValueOrDefault(max_ver_acc_);
 }
 
 double WaypointWidget::maxVerticalJerk() const
 {
-  return getValueOrNan(max_ver_jerk_);
+  return getValueOrDefault(max_ver_jerk_);
 }
 
 double WaypointWidget::maxHeadingRate() const
 {
-  return getValueOrNan(max_head_rate_);
+  return getValueOrDefault(max_head_rate_);
 }
 
 double WaypointWidget::maxHeadingAccel() const
 {
-  return getValueOrNan(max_head_acc_);
+  return getValueOrDefault(max_head_acc_);
 }
 
 double WaypointWidget::acceptanceRadius() const
 {
-  return getValueOrNan(acceptance_radius_);
+  return getValueOrDefault(acceptance_radius_);
 }
 
 double WaypointWidget::altitudeTolerance() const
 {
-  return getValueOrNan(altitude_tolerance_);
+  return getValueOrDefault(altitude_tolerance_);
 }
 
 void WaypointWidget::latitude(double value)
@@ -139,52 +181,52 @@ void WaypointWidget::altitudeFrame(mission::AltitudeFrame value)
 
 void WaypointWidget::maxHorizontalVelocity(double value)
 {
-  max_hor_vel_->setValue(value);
+  setValueOrDefault(max_hor_vel_, value);
 }
 
 void WaypointWidget::maxHorizontalAccel(double value)
 {
-  max_hor_acc_->setValue(value);
+  setValueOrDefault(max_hor_acc_, value);
 }
 
 void WaypointWidget::maxHorizontalJerk(double value)
 {
-  max_hor_jerk_->setValue(value);
+  setValueOrDefault(max_hor_jerk_, value);
 }
 
 void WaypointWidget::maxVerticalVelocity(double value)
 {
-  max_ver_vel_->setValue(value);
+  setValueOrDefault(max_ver_vel_, value);
 }
 
 void WaypointWidget::maxVerticalAccel(double value)
 {
-  max_ver_acc_->setValue(value);
+  setValueOrDefault(max_ver_acc_, value);
 }
 
 void WaypointWidget::maxVerticalJerk(double value)
 {
-  max_ver_jerk_->setValue(value);
+  setValueOrDefault(max_ver_jerk_, value);
 }
 
 void WaypointWidget::maxHeadingRate(double value)
 {
-  max_head_rate_->setValue(value);
+  setValueOrDefault(max_head_rate_, value);
 }
 
 void WaypointWidget::maxHeadingAccel(double value)
 {
-  max_head_acc_->setValue(value);
+  setValueOrDefault(max_head_acc_, value);
 }
 
 void WaypointWidget::acceptanceRadius(double value)
 {
-  acceptance_radius_->setValue(value);
+  setValueOrDefault(acceptance_radius_, value);
 }
 
 void WaypointWidget::altitudeTolerance(double value)
 {
-  altitude_tolerance_->setValue(value);
+  setValueOrDefault(altitude_tolerance_, value);
 }
 }  // namespace ctrl
 }  // namespace gui
