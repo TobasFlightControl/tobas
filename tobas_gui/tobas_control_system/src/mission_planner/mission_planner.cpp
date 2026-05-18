@@ -364,7 +364,7 @@ void MissionPlannerWidget::onLoadButtonClicked()
       case mission::Type::kWaypoint: {
         mission::Waypoint waypoint;
         if (!st::fromBytes(item.data, waypoint)) {
-          qt::qErrorBox(this, "Failed to load mission No." + QString::number(idx + 1) + ": Waypoint");
+          qt::qErrorBox(this, "Failed to load mission No. " + QString::number(idx) + ": Waypoint");
           clearMission();
           return;
         }
@@ -376,7 +376,7 @@ void MissionPlannerWidget::onLoadButtonClicked()
       case mission::Type::kTakeoff: {
         mission::Takeoff takeoff;
         if (!st::fromBytes(item.data, takeoff)) {
-          qt::qErrorBox(this, "Failed to load mission No." + QString::number(idx + 1) + ": Takeoff");
+          qt::qErrorBox(this, "Failed to load mission No. " + QString::number(idx) + ": Takeoff");
           clearMission();
           return;
         }
@@ -388,7 +388,7 @@ void MissionPlannerWidget::onLoadButtonClicked()
       case mission::Type::kLand: {
         mission::Land land;
         if (!st::fromBytes(item.data, land)) {
-          qt::qErrorBox(this, "Failed to load mission No." + QString::number(idx + 1) + ": Land");
+          qt::qErrorBox(this, "Failed to load mission No. " + QString::number(idx) + ": Land");
           clearMission();
           return;
         }
@@ -400,7 +400,7 @@ void MissionPlannerWidget::onLoadButtonClicked()
       case mission::Type::kReturnToLaunch: {
         mission::ReturnToLaunch rtl;
         if (!st::fromBytes(item.data, rtl)) {
-          qt::qErrorBox(this, "Failed to load mission No." + QString::number(idx + 1) + ": ReturnToLaunch");
+          qt::qErrorBox(this, "Failed to load mission No. " + QString::number(idx) + ": ReturnToLaunch");
           clearMission();
           return;
         }
@@ -615,9 +615,9 @@ void MissionPlannerWidget::onExecuteButtonClicked()
   Client::SendGoalOptions opts;
   opts.goal_response_callback = [this](const GoalHandle::SharedPtr& gh) { Q_EMIT goalResponseReceived(gh != nullptr); };
   opts.feedback_callback = [this](const GoalHandle::SharedPtr&, const Action::Feedback::ConstSharedPtr& fb)
-  { Q_EMIT feedbackReceived(fb->current_index); };
+  { Q_EMIT feedbackReceived(fb->current_command_index); };
   opts.result_callback = [this](const GoalHandle::WrappedResult& res)
-  { Q_EMIT resultReceived(res.code, QString::fromStdString(res.result->error_message)); };
+  { Q_EMIT resultReceived(res.code, res.result->error_message.c_str(), res.result->last_command_index); };
   mission_ac_->async_send_goal(goal, opts);
 
   spinner_.start();
@@ -738,13 +738,13 @@ void MissionPlannerWidget::actionGoalResponseCb(bool ok)
   setExecuteMode();
 }
 
-void MissionPlannerWidget::actionFeedbackCb(uint32_t current_index)
+void MissionPlannerWidget::actionFeedbackCb(uint32_t cur_cmd_idx)
 {
-  (void)current_index;
+  (void)cur_cmd_idx;
   // TODO
 }
 
-void MissionPlannerWidget::actionResultCb(rclcpp_action::ResultCode code, const QString& message)
+void MissionPlannerWidget::actionResultCb(rclcpp_action::ResultCode code, const QString& message, uint32_t last_cmd_idx)
 {
   switch (code) {
     case rclcpp_action::ResultCode::UNKNOWN:
@@ -757,7 +757,9 @@ void MissionPlannerWidget::actionResultCb(rclcpp_action::ResultCode code, const 
       qt::qWarnBox(this, "The mission was canceled.");
       break;
     case rclcpp_action::ResultCode::ABORTED:
-      qt::qErrorBox(this, "The mission was aborted:\n\n" + message);
+      qt::qErrorBox(
+        this,
+        "The mission was aborted while executing command No. " + QString::number(last_cmd_idx) + ":\n\n" + message);
       break;
     default:
       qt::qErrorBox(this, "Invalid action result code: " + QString::number((int)code));

@@ -44,8 +44,8 @@ class MissionPlannerWidget : public QWidget
 
 Q_SIGNALS:
   void goalResponseReceived(bool ok);
-  void feedbackReceived(uint32_t current_index);
-  void resultReceived(rclcpp_action::ResultCode code, const QString& message);
+  void feedbackReceived(uint32_t current_command_index);
+  void resultReceived(rclcpp_action::ResultCode code, const QString& message, uint32_t last_cmd_idx);
 
 public:
   explicit MissionPlannerWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge);
@@ -122,8 +122,8 @@ private Q_SLOTS:
   void odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom);
 
   void actionGoalResponseCb(bool ok);
-  void actionFeedbackCb(uint32_t current_index);
-  void actionResultCb(rclcpp_action::ResultCode code, const QString& message);
+  void actionFeedbackCb(uint32_t cur_cmd_idx);
+  void actionResultCb(rclcpp_action::ResultCode code, const QString& message, uint32_t last_cmd_idx);
 };
 }  // namespace ctrl
 }  // namespace gui
