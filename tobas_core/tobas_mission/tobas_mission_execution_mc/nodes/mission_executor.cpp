@@ -116,8 +116,8 @@ private:
   tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr odom_;
   tobas_msgs::OdometryStamped::ConstSharedPtr setpoint_;
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
-  tobas_msgs::msg::GeodeticCoordinates::ConstSharedPtr gnss_origin_;
   tobas_msgs::msg::LandedState::ConstSharedPtr landed_;
+  tobas_msgs::msg::GeodeticCoordinates::ConstSharedPtr gnss_origin_;
 
   ros2::PublisherPtr<tobas_command_msgs::Angle> angle_pub_;
   ros2::PublisherPtr<tobas_command_msgs::PosVelAcc> pva_pub_;
@@ -127,8 +127,8 @@ private:
   ros2::SubscriberPtr<tobas_msgs::OdometryWithCovarianceStamped> odom_sub_;
   ros2::SubscriberPtr<tobas_msgs::OdometryStamped> setpoint_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
-  ros2::SubscriberPtr<tobas_msgs::msg::GeodeticCoordinates> gnss_origin_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::LandedState> landed_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::GeodeticCoordinates> gnss_origin_sub_;
   ros2::SubscriberPtr<tobas_msgs::RCInput> rcin_sub_;
 
   ros2::ActionServerPtr<Action> as_;
@@ -161,8 +161,8 @@ private:
   void odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom);
   void setpointCb(const tobas_msgs::OdometryStamped::ConstSharedPtr& setpoint);
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
-  void gnssOriginCb(const tobas_msgs::msg::GeodeticCoordinates::ConstSharedPtr& gnss_origin);
   void landedCb(const tobas_msgs::msg::LandedState::ConstSharedPtr& landed);
+  void gnssOriginCb(const tobas_msgs::msg::GeodeticCoordinates::ConstSharedPtr& gnss_origin);
   void rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin);
 
   rclcpp_action::GoalResponse handleGoal(const rclcpp_action::GoalUUID& uuid, const GoalPtr& goal);
@@ -183,8 +183,8 @@ MulticopterMissionExecutorNode::MulticopterMissionExecutorNode(const rclcpp::Nod
   odom_sub_ = createSubscriber(topic::kOdometry, &self::odomCb, this);
   setpoint_sub_ = createSubscriber(topic::kTrajSetpoint, &self::setpointCb, this);
   arming_sub_ = createSubscriber(topic::kArming, &self::armingCb, this);
-  gnss_origin_sub_ = createSubscriber(topic::kGnssOrigin, &self::gnssOriginCb, this, true, true);
   landed_sub_ = createSubscriber(topic::kLanded, &self::landedCb, this);
+  gnss_origin_sub_ = createSubscriber(topic::kGnssOrigin, &self::gnssOriginCb, this, true, true);
   rcin_sub_ = createSubscriber(topic::kRcInput, &self::rcInputCb, this);
 
   as_ = createAction(action::kExecuteMission, &self::handleGoal, &self::handleCancel, &self::execute, this);
@@ -848,14 +848,14 @@ void MulticopterMissionExecutorNode::armingCb(const tobas_msgs::msg::Arming::Con
   arming_ = arming;
 }
 
-void MulticopterMissionExecutorNode::gnssOriginCb(const tobas_msgs::msg::GeodeticCoordinates::ConstSharedPtr& gnss_origin)
-{
-  gnss_origin_ = gnss_origin;
-}
-
 void MulticopterMissionExecutorNode::landedCb(const tobas_msgs::msg::LandedState::ConstSharedPtr& landed)
 {
   landed_ = landed;
+}
+
+void MulticopterMissionExecutorNode::gnssOriginCb(const tobas_msgs::msg::GeodeticCoordinates::ConstSharedPtr& gnss_origin)
+{
+  gnss_origin_ = gnss_origin;
 }
 
 void MulticopterMissionExecutorNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
