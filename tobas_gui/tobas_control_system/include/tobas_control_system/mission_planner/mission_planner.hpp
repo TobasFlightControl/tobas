@@ -77,6 +77,9 @@ private:
   bool mission_executing_;
   Client::SharedPtr mission_ac_;
 
+  QString getMissionDir();
+  void setMissionDir(const QString& file_path);
+
   /* 各ウィジェットを実行モードに切り替える． */
   void setExecuteMode();
 

@@ -121,6 +121,31 @@ void MissionPlannerWidget::updateNamespace(const std::string& ns)
   mission_ac_ = rclcpp_action::create_client<Action>(node_, action_name);
 }
 
+QString MissionPlannerWidget::getMissionDir()
+{
+  std::string last_opened_dir;
+  if (property_client_.get(kLastOpenedDirKey, last_opened_dir) < 0) {
+    qWarning() << property_client_.errorMessage();
+    last_opened_dir = ros2::expandUser(kMissionDir);
+  }
+  return QString::fromStdString(last_opened_dir);
+}
+
+void MissionPlannerWidget::setMissionDir(const QString& file_path)
+{
+  fs::path p(file_path.toStdString());
+  const auto dir = p.parent_path().string();
+
+  if (property_client_.set(kLastOpenedDirKey, dir) < 0) {
+    qWarning() << property_client_.errorMessage();
+    return;
+  }
+  if (property_client_.save() < 0) {
+    qWarning() << property_client_.errorMessage();
+    return;
+  }
+}
+
 void MissionPlannerWidget::setExecuteMode()
 {
   load_button_->setEnabled(false);
@@ -353,16 +378,20 @@ void MissionPlannerWidget::onSaveButtonClicked()
     return;
   }
 
-  // 前回開いたパスを取得
-  std::string last_opened_dir;
-  if (property_client_.get(kLastOpenedDirKey, last_opened_dir) < 0) {
-    qWarning() << property_client_.errorMessage();
-    last_opened_dir = ros2::expandUser(kMissionDir);
-    TOBAS_CHECK(path::createDirectories(last_opened_dir, true));
+  // デフォルトのディレクトリを取得
+  const auto dir = getMissionDir();
+
+  // ディレクトリが存在しなければ作成
+  if (!fs::is_directory(dir.toStdString())) {
+    std::error_code ec;
+    if (!fs::create_directories(dir.toStdString(), ec)) {
+      qt::qErrorBox(this, "Failed to create " + dir + ": " + QString::fromStdString(ec.message()));
+      return;
+    }
   }
 
   // プロジェクトのパスを取得
-  SaveMissionDialog dialog(this, QString::fromStdString(last_opened_dir));
+  SaveMissionDialog dialog(this, dir);
   if (dialog.exec() != QDialog::Accepted) {
     return;
   }
@@ -370,13 +399,7 @@ void MissionPlannerWidget::onSaveButtonClicked()
   TOBAS_CHECK(file_path.endsWith(cmn::kMissionExtension));
 
   // ユーザが開いたディレクトリを保存
-  const auto par_dir = fs::path(file_path.toStdString()).parent_path();
-  if (property_client_.set(kLastOpenedDirKey, par_dir) < 0) {
-    qWarning() << property_client_.errorMessage();
-  }
-  if (property_client_.save() < 0) {
-    qWarning() << property_client_.errorMessage();
-  }
+  setMissionDir(file_path);
 
   // ミッションを保存
   const auto mission = createMission();
