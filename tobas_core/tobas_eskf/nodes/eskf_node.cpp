@@ -23,6 +23,7 @@
 
 #include <tobas_debug_msgs_adapter/observer_feedback.hpp>
 #include <tobas_kdl_msgs_adapter/frame_with_covariance_stamped.hpp>
+#include <tobas_msgs/msg/arming.hpp>
 #include <tobas_msgs/msg/fluid_pressure.hpp>
 #include <tobas_msgs/msg/geodetic_coordinates.hpp>
 #include <tobas_msgs/srv/get_gnss_origin.hpp>
@@ -90,6 +91,7 @@ private:
   tobas_msgs::MagneticField::ConstSharedPtr mag_;
   tobas_msgs::msg::FluidPressure::ConstSharedPtr baro_;
   tobas_msgs::Gnss::ConstSharedPtr gnss_;
+  tobas_msgs::msg::Arming::ConstSharedPtr arming_;
   bool mag_ref_set_ = false;  // 地磁気の参照値が設定されているかどうか
   bool gnss_fix_ = false;
   double gnss_anomaly_score_ = 0.;
@@ -141,6 +143,7 @@ private:
   ros2::SubscriberPtr<tobas_msgs::msg::FluidPressure> baro_sub_;
   ros2::SubscriberPtr<tobas_msgs::Gnss> gnss_sub_;
   ros2::SubscriberPtr<tobas_kdl_msgs::FrameWithCovarianceStamped> pose_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
 
   // Services
   ros2::ServiceServerPtr<GetOriginSrv> get_gnss_origin_ss_;
@@ -151,7 +154,7 @@ private:
   tf2_ros::TransformBroadcaster tf_br_;
 
   void getStaticRosParams();
-  bool setMagneticFieldRef(const Vector3d& mag_W);
+  void setMagneticFieldRef(const Vector3d& mag_W);
   void fillOdometryMsg(tobas_msgs::OdometryWithCovarianceStamped& odom) const;
   void publishMagRef(const Vector3d& mag_W) const;
   void publishGnssOrigin(double lat, double lon, double alt) const;
@@ -182,12 +185,13 @@ private:
   bool magSoftBiasProcNoiseDensityCb(const double& p);
   bool gravProcNoiseDensityCb(const double& ud_ug);
 
-  void imuRawCb(const tobas_msgs::Imu::ConstSharedPtr& imu_raw);
-  void imuFiltCb(const tobas_msgs::Imu::ConstSharedPtr& imu_filt);
-  void magCb(const tobas_msgs::MagneticField::ConstSharedPtr& mag);
-  void baroCb(const tobas_msgs::msg::FluidPressure::ConstSharedPtr& baro);
-  void gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss);
+  void imuRawCb(const tobas_msgs::Imu::ConstSharedPtr& msg);
+  void imuFiltCb(const tobas_msgs::Imu::ConstSharedPtr& msg);
+  void magCb(const tobas_msgs::MagneticField::ConstSharedPtr& msg);
+  void baroCb(const tobas_msgs::msg::FluidPressure::ConstSharedPtr& msg);
+  void gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& msg);
   void poseCb(const tobas_kdl_msgs::FrameWithCovarianceStamped::ConstSharedPtr& msg);
+  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& msg);
 
   void getGnssOriginCb(const GetOriginSrv::Request::ConstSharedPtr& req, const GetOriginSrv::Response::SharedPtr& res);
   void setGnssOriginCb(const SetOriginSrv::Request::ConstSharedPtr& req, const SetOriginSrv::Response::SharedPtr& res);
@@ -276,6 +280,7 @@ ErrorStateKalmanFilterNode::ErrorStateKalmanFilterNode(const rclcpp::NodeOptions
     gnss_sub_ = createSubscriber(topic::kGnss, &self::gnssCb, this);
   }
   pose_sub_ = createSubscriber(topic::kExternalPose, &self::poseCb, this);
+  arming_sub_ = createSubscriber(topic::kArming, &self::armingCb, this);
 
   // Register service servers
   get_gnss_origin_ss_ = createService<GetOriginSrv>(service::kGetGnssOrigin, &self::getGnssOriginCb, this);
@@ -307,13 +312,10 @@ void ErrorStateKalmanFilterNode::getStaticRosParams()
   gnss_offset_ = Map<const Vector3d>(gnss_offset.data());
 }
 
-bool ErrorStateKalmanFilterNode::setMagneticFieldRef(const Vector3d& mag_W)
+void ErrorStateKalmanFilterNode::setMagneticFieldRef(const Vector3d& mag_W)
 {
   // 地磁気の参照値を設定
-  if (!eskf_.setMagneticFieldRef(mag_W)) {
-    TOBAS_ERROR("Failed to set reference magnetic field.");
-    return false;
-  }
+  eskf_.setMagneticFieldRef(mag_W);
 
   // 地磁気のバイアスを初期化
   eskf_.initializeMagHardBias(Vector3d::Zero(), Vector3d::Constant(math::sqr(initMagHardBiasStddev())).asDiagonal());
@@ -346,10 +348,7 @@ bool ErrorStateKalmanFilterNode::setMagneticFieldRef(const Vector3d& mag_W)
     rot_cov(2, 2) = math::sqr(kInitRotStddev);
 
     // 姿勢を初期化
-    if (!eskf_.initializeQuaternion(new_q, rot_cov)) {
-      TOBAS_ERROR("Failed to initialize orientation.");
-      return false;
-    }
+    eskf_.initializeQuaternion(new_q, rot_cov);
   }
 
   // 地磁気の参照値を発行
@@ -357,8 +356,6 @@ bool ErrorStateKalmanFilterNode::setMagneticFieldRef(const Vector3d& mag_W)
 
   TOBAS_INFO("Reference magnetic field is set to be: ", mag_W.transpose());
   mag_ref_set_ = true;
-
-  return true;
 }
 
 void ErrorStateKalmanFilterNode::fillOdometryMsg(tobas_msgs::OdometryWithCovarianceStamped& odom) const
@@ -638,45 +635,41 @@ bool ErrorStateKalmanFilterNode::gravProcNoiseDensityCb(const double& p)
   return eskf_.setGravProcNoiseDensity(nd);
 }
 
-void ErrorStateKalmanFilterNode::imuRawCb(const tobas_msgs::Imu::ConstSharedPtr& imu_raw)
+void ErrorStateKalmanFilterNode::imuRawCb(const tobas_msgs::Imu::ConstSharedPtr& msg)
 {
   // Compute IMU time
-  const auto cur_time = ros2::chronoFromRosTime(imu_raw->header.stamp);
+  const auto cur_time = ros2::chronoFromRosTime(msg->header.stamp);
 
   // Initialization
   if (!imu_raw_) {
-    if (!eskf_.initialize(
-          Vector3d::Zero(),                                                     // Init position
-          Vector3d::Constant(math::sqr(kInitPosStddev)).asDiagonal(),           // Init position cov
-          Vector3d::Zero(),                                                     // Init velocity
-          Vector3d::Constant(math::sqr(kInitVelStddev)).asDiagonal(),           // Init velocity cov
-          Quaterniond::Identity(),                                              // Init quaternion
-          Vector3d::Constant(math::sqr(kInitRotStddev)).asDiagonal(),           // Init rotation cov
-          Vector3d::Zero(),                                                     // Init accel bias
-          Vector3d::Constant(math::sqr(initAccelBiasStddev())).asDiagonal(),    // Init accel bias cov
-          Vector3d::Zero(),                                                     // Init gyro bias
-          Vector3d::Constant(math::sqr(initGyroBiasStddev())).asDiagonal(),     // Init gyro bias cov
-          Vector3d::Zero(),                                                     // Init mag hard bias
-          Vector3d::Constant(math::sqr(initMagHardBiasStddev())).asDiagonal(),  // Init mag hard bias cov
-          Matrix3d::Identity(),                                                 // Init mag soft bias
-          Vector6d::Constant(math::sqr(initMagSoftBiasStddev())).asDiagonal(),  // Init mag soft bias cov
-          st::kGravity,                                                         // Init gravity
-          math::sqr(initGravBiasStddev()),                                      // Init gravity var
-          cur_time)) {
-      TOBAS_ERROR("Failed to initialize ESKF.");
-      return;
-    }
-
-    imu_raw_ = imu_raw;
+    eskf_.initialize(
+      Vector3d::Zero(),                                                     // Init position
+      Vector3d::Constant(math::sqr(kInitPosStddev)).asDiagonal(),           // Init position cov
+      Vector3d::Zero(),                                                     // Init velocity
+      Vector3d::Constant(math::sqr(kInitVelStddev)).asDiagonal(),           // Init velocity cov
+      Quaterniond::Identity(),                                              // Init quaternion
+      Vector3d::Constant(math::sqr(kInitRotStddev)).asDiagonal(),           // Init rotation cov
+      Vector3d::Zero(),                                                     // Init accel bias
+      Vector3d::Constant(math::sqr(initAccelBiasStddev())).asDiagonal(),    // Init accel bias cov
+      Vector3d::Zero(),                                                     // Init gyro bias
+      Vector3d::Constant(math::sqr(initGyroBiasStddev())).asDiagonal(),     // Init gyro bias cov
+      Vector3d::Zero(),                                                     // Init mag hard bias
+      Vector3d::Constant(math::sqr(initMagHardBiasStddev())).asDiagonal(),  // Init mag hard bias cov
+      Matrix3d::Identity(),                                                 // Init mag soft bias
+      Vector6d::Constant(math::sqr(initMagSoftBiasStddev())).asDiagonal(),  // Init mag soft bias cov
+      st::kGravity,                                                         // Init gravity
+      math::sqr(initGravBiasStddev()),                                      // Init gravity var
+      cur_time);
+    imu_raw_ = msg;
     return;
   }
 
   // Update IMU message
-  imu_raw_ = imu_raw;
+  imu_raw_ = msg;
 
   // Measure IMU
-  const auto& acc_meas = imu_raw->accel.data;
-  const auto& gyro_meas = imu_raw->gyro.data;
+  const auto& acc_meas = msg->accel.data;
+  const auto& gyro_meas = msg->gyro.data;
   const auto grav_cov = adaptive_grav_noise_ ? calcGravMeasNoiseCov(acc_meas) : fixed_grav_cov_;
   eskf_.measureIMU(acc_meas, gyro_meas, fixed_acc_cov_, fixed_gyro_cov_, grav_cov, cur_time);
 
@@ -698,21 +691,21 @@ void ErrorStateKalmanFilterNode::imuRawCb(const tobas_msgs::Imu::ConstSharedPtr&
   tf_br_.sendTransform(tf_);
 
   // Publish feedback
-  publishFeedback(imu_raw->header);
+  publishFeedback(msg->header);
 }
 
-void ErrorStateKalmanFilterNode::imuFiltCb(const tobas_msgs::Imu::ConstSharedPtr& imu_filt)
+void ErrorStateKalmanFilterNode::imuFiltCb(const tobas_msgs::Imu::ConstSharedPtr& msg)
 {
-  imu_filt_ = imu_filt;
+  imu_filt_ = msg;
 }
 
-void ErrorStateKalmanFilterNode::magCb(const tobas_msgs::MagneticField::ConstSharedPtr& mag)
+void ErrorStateKalmanFilterNode::magCb(const tobas_msgs::MagneticField::ConstSharedPtr& msg)
 {
   if (!imu_raw_) {
     return;
   }
 
-  mag_ = mag;
+  mag_ = msg;
 
   // 最初の地磁気を受け取った時にGPSが受け取れていなければ，ひとまず最初の地磁気ベクトルを参照とする．
   if (!mag_ref_set_) {
@@ -746,7 +739,7 @@ void ErrorStateKalmanFilterNode::magCb(const tobas_msgs::MagneticField::ConstSha
     const auto R_W_B = eskf_.getQuaternion();
     const auto [roll, pitch, _] = st::eulerFromQuaternion(R_W_B.x(), R_W_B.y(), R_W_B.z(), R_W_B.w());
     const auto R_G_B = kdl::Rotation::RPY(roll, pitch, 0.);
-    const auto mag_G = R_G_B * mag->mag;
+    const auto mag_G = R_G_B * msg->mag;
 
     // 地磁気ベクトルを加算
     for (size_t i = 0; i < 3; ++i) {
@@ -765,8 +758,8 @@ void ErrorStateKalmanFilterNode::magCb(const tobas_msgs::MagneticField::ConstSha
     return;
   }
 
-  const auto& mag_meas = mag->mag.data;
-  const auto stamp = ros2::chronoFromRosTime(mag->header.stamp);
+  const auto& mag_meas = msg->mag.data;
+  const auto stamp = ros2::chronoFromRosTime(msg->header.stamp);
 
   // バイアス推定を行う場合は3軸，行わない場合はヨーのみ更新
   if (do_mag_hard_bias_estimation_ || do_mag_soft_bias_estimation_) {
@@ -777,7 +770,7 @@ void ErrorStateKalmanFilterNode::magCb(const tobas_msgs::MagneticField::ConstSha
   }
 }
 
-void ErrorStateKalmanFilterNode::baroCb(const tobas_msgs::msg::FluidPressure::ConstSharedPtr& baro)
+void ErrorStateKalmanFilterNode::baroCb(const tobas_msgs::msg::FluidPressure::ConstSharedPtr& msg)
 {
   if (!imu_raw_) {
     return;
@@ -786,44 +779,53 @@ void ErrorStateKalmanFilterNode::baroCb(const tobas_msgs::msg::FluidPressure::Co
   // 気圧高度の初期値
   // TODO: IMUフレームに変換
   if (!baro_) {
-    alt_0_baro_ = st::pressureToAltitude(baro->pressure);
+    alt_0_baro_ = st::pressureToAltitude(msg->pressure);
   }
 
-  baro_ = baro;
+  baro_ = msg;
 
   // FIXME: ESKFに気圧高度のバイアスを追加し，気圧高度とGPS高度のフュージョンを行う．
   if (gnss_) {
     return;
   }
 
-  const auto z_abs = st::pressureToAltitude(baro->pressure);
+  const auto z_abs = st::pressureToAltitude(msg->pressure);
   const auto z_var = fixed_baro_alt_var_;
   const auto z_m = z_abs - alt_0_baro_;
-  const auto stamp = ros2::chronoFromRosTime(baro->header.stamp);
+  const auto stamp = ros2::chronoFromRosTime(msg->header.stamp);
   eskf_.measureAltitude(z_m, z_var, stamp);
 }
 
-void ErrorStateKalmanFilterNode::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss)
+void ErrorStateKalmanFilterNode::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& msg)
 {
   if (!imu_raw_ || !imu_filt_) {
     return;
   }
 
-  gnss_fix_ = (gnss->fix_type == tobas_msgs::msg::Gnss::FIX_3D);
+  gnss_fix_ = (msg->fix_type == tobas_msgs::msg::Gnss::FIX_3D);
   if (!gnss_fix_) {
     return;
   }
 
-  const auto& vel_meas = gnss->ground_speed.data;
-  const auto& pos_cov = adaptive_gnss_noise_ ? gnss->position_covariance : fixed_gnss_pos_cov_;
-  const auto& vel_cov = adaptive_gnss_noise_ ? gnss->velocity_covariance : fixed_gnss_vel_cov_;
+  const auto& vel_meas = msg->ground_speed.data;
+  const auto& pos_cov = adaptive_gnss_noise_ ? msg->position_covariance : fixed_gnss_pos_cov_;
+  const auto& vel_cov = adaptive_gnss_noise_ ? msg->velocity_covariance : fixed_gnss_vel_cov_;
 
   if (!gnss_) {
+    // 飛行中にGNSS位置の初期化処理が入ると危険なためスキップ
+    if (arming_ && arming_->data) {
+      TOBAS_WARN_THROTTLE(
+        kTypicalWarnPeriod,
+        "The first GNSS coordinates have been obtained, "
+        "but the position and heading cannot be initialized because the vehicle is armed.");
+      return;
+    }
+
     // GNSSの初期位置
     // TODO: IMUフレームに変換
-    gnss_origin_.latitude = gnss->latitude;
-    gnss_origin_.longitude = gnss->longitude;
-    gnss_origin_.altitude = gnss->altitude;
+    gnss_origin_.latitude = msg->latitude;
+    gnss_origin_.longitude = msg->longitude;
+    gnss_origin_.altitude = msg->altitude;
 
     // GNSSの初期位置を発行
     publishGnssOrigin(gnss_origin_.latitude, gnss_origin_.longitude, gnss_origin_.altitude);
@@ -833,28 +835,20 @@ void ErrorStateKalmanFilterNode::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& 
     const auto mag = geomag::elementsFromGeodetic(
       gnss_origin_.latitude, gnss_origin_.longitude, gnss_origin_.altitude, tim::yearFraction());
     const Vector3d mag_W(mag.east, mag.north, -mag.down);  // ENU coordinates
-    if (!setMagneticFieldRef(mag_W)) {
-      return;
-    }
+    setMagneticFieldRef(mag_W);
 
     // 初めてGNSSを受け取った位置速度で初期化 (でないと姿勢に過大なフィードバックが入ってしまう)
     // FIXME: 既に他の位置情報が入っている場合は初期化すべきでない
-    if (!eskf_.initializePosition(Vector3d::Zero(), pos_cov)) {
-      TOBAS_ERROR("Failed to initialize position.");
-      return;
-    }
-    if (!eskf_.initializeVelocity(vel_meas, vel_cov)) {
-      TOBAS_ERROR("Failed to initialize velocity.");
-      return;
-    }
+    eskf_.initializePosition(Vector3d::Zero(), pos_cov);
+    eskf_.initializeVelocity(vel_meas, vel_cov);
   }
 
-  gnss_ = gnss;
+  gnss_ = msg;
 
   // 位置の観測値
   std::tie(pos_meas_.x(), pos_meas_.y()) =
-    st::gnssToCartRelative(gnss->latitude, gnss->longitude, gnss_origin_.latitude, gnss_origin_.longitude);
-  pos_meas_.z() = gnss->altitude - gnss_origin_.altitude;  // FIXME: BaroとGNSSが両方有効のときに高度情報が競合する
+    st::gnssToCartRelative(msg->latitude, msg->longitude, gnss_origin_.latitude, gnss_origin_.longitude);
+  pos_meas_.z() = msg->altitude - gnss_origin_.altitude;  // FIXME: BaroとGNSSが両方有効のときに高度情報が競合する
 
   // 共分散
   gnss_cov_.topLeftCorner<3, 3>() = pos_cov;
@@ -863,7 +857,7 @@ void ErrorStateKalmanFilterNode::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& 
   // ESKFを更新
   const Vector3d imu2gnss = gnss_offset_ - imu_offset_;
   const auto& gyro_meas = imu_filt_->gyro.data;
-  const auto stamp = ros2::chronoFromRosTime(gnss->header.stamp);
+  const auto stamp = ros2::chronoFromRosTime(msg->header.stamp);
   gnss_anomaly_score_ = eskf_.measurePosVel(pos_meas_, vel_meas, gnss_cov_, imu2gnss, gyro_meas, stamp);
 }
 
@@ -880,6 +874,11 @@ void ErrorStateKalmanFilterNode::poseCb(const tobas_kdl_msgs::FrameWithCovarianc
 
   const auto stamp = ros2::chronoFromRosTime(msg->header.stamp);
   eskf_.measurePose(pose.p.data, quat, msg->frame.covariance, Vector3d::Zero(), stamp);  // TODO: オフセット指定
+}
+
+void ErrorStateKalmanFilterNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& msg)
+{
+  arming_ = msg;
 }
 
 void ErrorStateKalmanFilterNode::getGnssOriginCb(
