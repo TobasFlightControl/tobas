@@ -40,6 +40,7 @@ AddCommandDialog::AddCommandDialog(QWidget* parent) : super(parent)
   setLayout(rows);
 
   // Connection
+  connect(command_list_, &QListWidget::itemDoubleClicked, this, &self::onItemDoubleClicked);
   connect(cancel_button, &QPushButton::clicked, this, &self::reject);
   connect(ok_button, &QPushButton::clicked, this, &self::onOkClicked);
 }
@@ -49,6 +50,17 @@ mission::Type AddCommandDialog::selectedCommand() const
   return selected_command_;
 }
 
+void AddCommandDialog::acceptWithItem(QListWidgetItem* item)
+{
+  selected_command_ = textToCommand(item->text());
+  accept();
+}
+
+void AddCommandDialog::onItemDoubleClicked(QListWidgetItem* item)
+{
+  acceptWithItem(item);
+}
+
 void AddCommandDialog::onOkClicked()
 {
   const auto cur_item = command_list_->currentItem();
@@ -56,9 +68,8 @@ void AddCommandDialog::onOkClicked()
     return;
   }
 
-  selected_command_ = textToCommand(cur_item->text().toUtf8());
-  accept();
+  acceptWithItem(cur_item);
 }
-};  // namespace ctrl
+}  // namespace ctrl
 }  // namespace gui
 }  // namespace tobas

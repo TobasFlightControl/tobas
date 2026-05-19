@@ -31,7 +31,10 @@ private:
   qt::ListWidget* command_list_;
   mission::Type selected_command_;
 
+  void acceptWithItem(QListWidgetItem* item);
+
 private Q_SLOTS:
+  void onItemDoubleClicked(QListWidgetItem* item);
   void onOkClicked();
 };
 }  // namespace ctrl
