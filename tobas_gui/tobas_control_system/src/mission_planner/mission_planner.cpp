@@ -19,11 +19,11 @@
 #include <tobas_qt_tools/path.hpp>
 #include <tobas_std_tools/byte.hpp>
 #include <tobas_std_tools/check.hpp>
+#include <tobas_std_tools/gnss.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 #include <tobas_yaml_tools/core.hpp>
 
 #include "tobas_control_system/mission_planner/command_type.hpp"
-#include "tobas_control_system/mission_planner/commands/commands.hpp"
 #include "tobas_control_system/mission_planner/save_mission_dialog.hpp"
 
 namespace fs = std::filesystem;
@@ -230,7 +230,7 @@ void MissionPlannerWidget::commandsToMap()
   for (int i = 0; i < command_list_->count(); ++i) {
     const auto item = command_list_->item(i);
     const auto cmd_type = textToCommand(item->text());
-    const auto cmd_widget = getCommandWidget(item);
+    const auto cmd_widget = findCommandWidget(item);
 
     switch (cmd_type) {
       case mission::Type::kWaypoint: {
@@ -271,15 +271,37 @@ void MissionPlannerWidget::commandsToMap()
   }
 }
 
-BaseCommandWidget* MissionPlannerWidget::getCommandWidget(QListWidgetItem* tar_item) const
+BaseCommandWidget* MissionPlannerWidget::findCommandWidget(const QListWidgetItem* _item)
 {
   for (const auto& [item, command] : pairs_) {
-    if (item == tar_item) {
+    if (item == _item) {
       return command;
     }
   }
+  return nullptr;
+}
 
-  throw std::runtime_error("Command widget corresponding to the list item is not found.");
+const BaseCommandWidget* MissionPlannerWidget::findCommandWidget(const QListWidgetItem* _item) const
+{
+  for (const auto& [item, command] : pairs_) {
+    if (item == _item) {
+      return command;
+    }
+  }
+  return nullptr;
+}
+
+const WaypointWidget* MissionPlannerWidget::findLastWaypoint() const
+{
+  for (int i = command_list_->count() - 1; i >= 0; --i) {
+    const auto list_item = command_list_->item(i);
+    const auto cmd_type = textToCommand(list_item->text());
+    if (cmd_type == mission::Type::kWaypoint) {
+      const auto widget = findCommandWidget(list_item);
+      return qt::qConstPointerCast<WaypointWidget>(widget);
+    }
+  }
+  return nullptr;
 }
 
 tobas::mission::Mission MissionPlannerWidget::createMission() const
@@ -289,7 +311,7 @@ tobas::mission::Mission MissionPlannerWidget::createMission() const
   for (int i = 0; i < command_list_->count(); ++i) {
     const auto list_item = command_list_->item(i);
     const auto cmd_type = textToCommand(list_item->text());
-    const auto base_widget = getCommandWidget(list_item);
+    const auto base_widget = findCommandWidget(list_item);
 
     tobas::mission::MissionItem mission_item;
 
@@ -484,11 +506,21 @@ void MissionPlannerWidget::onAddButtonClicked()
   BaseCommandWidget* cmd_widget;
   switch (cmd_type) {
     case mission::Type::kWaypoint: {
-      const auto center = map_->getCenter();
-      const auto waypoint = new WaypointWidget();
-      waypoint->latitude(center.latitude());
-      waypoint->longitude(center.longitude());
-      cmd_widget = waypoint;
+      const auto new_wp = new WaypointWidget();
+      const auto last_wp = findLastWaypoint();
+      if (last_wp) {
+        // 2つ目以降のウェイポイントは最後のポイントの少し東に配置
+        const auto [lat, lon] = st::cartToGnssRelative(10., 0., last_wp->latitude(), last_wp->longitude());
+        new_wp->latitude(lat);
+        new_wp->longitude(lon);
+      }
+      else {
+        // 最初のウェイポイントはマップの中央に配置
+        const auto center = map_->getCenter();
+        new_wp->latitude(center.latitude());
+        new_wp->longitude(center.longitude());
+      }
+      cmd_widget = new_wp;
       break;
     }
     case mission::Type::kTakeoff: {
@@ -701,7 +733,7 @@ void MissionPlannerWidget::onWaypointMoved(int index, double latitude, double lo
       ++cur_idx;
     }
     if (cur_idx == index) {
-      const auto waypoint = qt::qPointerCast<WaypointWidget>(getCommandWidget(item));
+      const auto waypoint = qt::qPointerCast<WaypointWidget>(findCommandWidget(item));
       waypoint->latitude(latitude);
       waypoint->longitude(longitude);
       break;

@@ -16,7 +16,7 @@
 
 #include "./add_command_dialog.hpp"
 #include "./command_button.hpp"
-#include "./commands/base.hpp"
+#include "./commands/commands.hpp"
 #include "./map/map.hpp"
 
 namespace tobas
@@ -98,7 +98,11 @@ private:
   void commandsToMap();
 
   /* リストの要素に対応するコマンドウィジェットを取得する． */
-  BaseCommandWidget* getCommandWidget(QListWidgetItem* tar_item) const;
+  BaseCommandWidget* findCommandWidget(const QListWidgetItem* _item);
+  const BaseCommandWidget* findCommandWidget(const QListWidgetItem* _item) const;
+
+  /* 最後のウェイポイントウィジェットを取得する． */
+  const WaypointWidget* findLastWaypoint() const;
 
   /* 現在の設定からミッションを作成する． */
   tobas::mission::Mission createMission() const;
