@@ -48,19 +48,6 @@ class ErrorStateKalmanFilterNode : public BaseNode
   using GetOriginSrv = tobas_msgs::srv::GetGnssOrigin;
   using SetOriginSrv = tobas_msgs::srv::SetGnssOrigin;
 
-  // Default parameters
-  static constexpr char kDefaultFrameId[] = "unknown";  // 空文字だとTFが警告文を出すため適当なデフォルト値を設定
-  static constexpr bool kDefaultUseMagnetometer = true;
-  static constexpr bool kDefaultUseBarometer = false;
-  static constexpr bool kDefaultUseGnss = true;
-  static constexpr bool kDefaultAdaptiveGnssNoise = true;
-  static constexpr bool kDefaultAdaptiveGravNoise = false;
-  static constexpr bool kDefaultDoAccBiasEstimation = false;
-  static constexpr bool kDefaultDoGyroBiasEstimation = true;
-  static constexpr bool kDefaultDoMagHardBiasEstimation = false;
-  static constexpr bool kDefaultDoMagSoftBiasEstimation = false;
-  static constexpr bool kDefaultDoGravEstimation = true;
-
   // 標準偏差の初期値
   // 共分散行列は成長は遅いが収束は割と速いから，大きすぎるくらいで適当に決めてよい
   static constexpr double kInitPosStddev = 5.;      // [m]
@@ -289,24 +276,24 @@ ErrorStateKalmanFilterNode::ErrorStateKalmanFilterNode(const rclcpp::NodeOptions
 
 void ErrorStateKalmanFilterNode::getStaticRosParams()
 {
-  frame_id_ = getStringParam("frame_id", kDefaultFrameId);
+  frame_id_ = getStringParam("frame_id");
 
-  use_mag_ = getBoolParam("use_magnetometer", kDefaultUseMagnetometer);
-  use_baro_ = getBoolParam("use_barometer", kDefaultUseBarometer);
-  use_gnss_ = getBoolParam("use_gnss", kDefaultUseGnss);
+  use_mag_ = getBoolParam("use_magnetometer");
+  use_baro_ = getBoolParam("use_barometer");
+  use_gnss_ = getBoolParam("use_gnss");
 
-  adaptive_gnss_noise_ = getBoolParam("adaptive_gnss_noise", kDefaultAdaptiveGnssNoise);
-  adaptive_grav_noise_ = getBoolParam("adaptive_grav_noise", kDefaultAdaptiveGravNoise);
+  adaptive_gnss_noise_ = getBoolParam("adaptive_gnss_noise");
+  adaptive_grav_noise_ = getBoolParam("adaptive_grav_noise");
 
-  do_acc_bias_estimation_ = getBoolParam("do_acc_bias_estimation", kDefaultDoAccBiasEstimation);
-  do_gyro_bias_estimation_ = getBoolParam("do_gyro_bias_estimation", kDefaultDoGyroBiasEstimation);
-  do_mag_hard_bias_estimation_ = getBoolParam("do_mag_hard_bias_estimation", kDefaultDoMagHardBiasEstimation);
-  do_mag_soft_bias_estimation_ = getBoolParam("do_mag_soft_bias_estimation", kDefaultDoMagSoftBiasEstimation);
-  do_grav_estimation_ = getBoolParam("do_gravity_estimation", kDefaultDoGravEstimation);
+  do_acc_bias_estimation_ = getBoolParam("do_acc_bias_estimation");
+  do_gyro_bias_estimation_ = getBoolParam("do_gyro_bias_estimation");
+  do_mag_hard_bias_estimation_ = getBoolParam("do_mag_hard_bias_estimation");
+  do_mag_soft_bias_estimation_ = getBoolParam("do_mag_soft_bias_estimation");
+  do_grav_estimation_ = getBoolParam("do_gravity_estimation");
 
-  const auto imu_offset = getDoubleArrayParam("imu_offset", std::vector<double>(3, 0.));
-  const auto baro_offset = getDoubleArrayParam("barometer_offset", std::vector<double>(3, 0.));
-  const auto gnss_offset = getDoubleArrayParam("gnss_offset", std::vector<double>(3, 0.));
+  const auto imu_offset = getDoubleArrayParam("imu_offset");
+  const auto baro_offset = getDoubleArrayParam("barometer_offset");
+  const auto gnss_offset = getDoubleArrayParam("gnss_offset");
   imu_offset_ = Map<const Vector3d>(imu_offset.data());
   baro_offset_ = Map<const Vector3d>(baro_offset.data());
   gnss_offset_ = Map<const Vector3d>(gnss_offset.data());
