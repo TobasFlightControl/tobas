@@ -711,6 +711,7 @@ bool ProjectGenerator::generateObserverStaticConfig()
   params["use_magnetometer"] = settings_->observer->useMagnetometer();
   params["use_barometer"] = settings_->observer->useBarometer();
   params["use_gnss"] = settings_->observer->useGnss();
+  params["use_external_pose"] = settings_->observer->useExternalPose();
   params["adaptive_gnss_noise"] = settings_->observer->adaptiveGnssNoise();
   params["adaptive_grav_noise"] = settings_->observer->adaptiveGravityNoise();
   params["do_acc_bias_estimation"] = settings_->observer->doAccelBiasEstimation();

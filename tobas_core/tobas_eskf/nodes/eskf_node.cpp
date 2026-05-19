@@ -93,6 +93,7 @@ private:
   bool use_mag_;
   bool use_baro_;
   bool use_gnss_;
+  bool use_ext_pose_;
   bool adaptive_gnss_noise_;
   bool adaptive_grav_noise_;
   bool do_acc_bias_estimation_;
@@ -129,7 +130,7 @@ private:
   ros2::SubscriberPtr<tobas_msgs::MagneticField> mag_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::FluidPressure> baro_sub_;
   ros2::SubscriberPtr<tobas_msgs::Gnss> gnss_sub_;
-  ros2::SubscriberPtr<tobas_kdl_msgs::FrameWithCovarianceStamped> pose_sub_;
+  ros2::SubscriberPtr<tobas_kdl_msgs::FrameWithCovarianceStamped> ext_pose_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
 
   // Services
@@ -177,7 +178,7 @@ private:
   void magCb(const tobas_msgs::MagneticField::ConstSharedPtr& msg);
   void baroCb(const tobas_msgs::msg::FluidPressure::ConstSharedPtr& msg);
   void gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& msg);
-  void poseCb(const tobas_kdl_msgs::FrameWithCovarianceStamped::ConstSharedPtr& msg);
+  void externalPoseCb(const tobas_kdl_msgs::FrameWithCovarianceStamped::ConstSharedPtr& msg);
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& msg);
 
   void getGnssOriginCb(const GetOriginSrv::Request::ConstSharedPtr& req, const GetOriginSrv::Response::SharedPtr& res);
@@ -266,7 +267,9 @@ ErrorStateKalmanFilterNode::ErrorStateKalmanFilterNode(const rclcpp::NodeOptions
   if (use_gnss_) {
     gnss_sub_ = createSubscriber(topic::kGnss, &self::gnssCb, this);
   }
-  pose_sub_ = createSubscriber(topic::kExternalPose, &self::poseCb, this);
+  if (use_ext_pose_) {
+    ext_pose_sub_ = createSubscriber(topic::kExternalPose, &self::externalPoseCb, this);
+  }
   arming_sub_ = createSubscriber(topic::kArming, &self::armingCb, this);
 
   // Register service servers
@@ -281,6 +284,7 @@ void ErrorStateKalmanFilterNode::getStaticRosParams()
   use_mag_ = getBoolParam("use_magnetometer");
   use_baro_ = getBoolParam("use_barometer");
   use_gnss_ = getBoolParam("use_gnss");
+  use_ext_pose_ = getBoolParam("use_external_pose");
 
   adaptive_gnss_noise_ = getBoolParam("adaptive_gnss_noise");
   adaptive_grav_noise_ = getBoolParam("adaptive_grav_noise");
@@ -848,7 +852,7 @@ void ErrorStateKalmanFilterNode::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& 
   gnss_anomaly_score_ = eskf_.measurePosVel(pos_meas_, vel_meas, gnss_cov_, imu2gnss, gyro_meas, stamp);
 }
 
-void ErrorStateKalmanFilterNode::poseCb(const tobas_kdl_msgs::FrameWithCovarianceStamped::ConstSharedPtr& msg)
+void ErrorStateKalmanFilterNode::externalPoseCb(const tobas_kdl_msgs::FrameWithCovarianceStamped::ConstSharedPtr& msg)
 {
   if (!imu_raw_ || !imu_filt_) {
     return;
