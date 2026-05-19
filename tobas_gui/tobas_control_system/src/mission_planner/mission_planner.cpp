@@ -229,7 +229,7 @@ void MissionPlannerWidget::commandsToMap()
 
   for (int i = 0; i < command_list_->count(); ++i) {
     const auto item = command_list_->item(i);
-    const auto cmd_type = textToCommand(item->text().toUtf8());
+    const auto cmd_type = textToCommand(item->text());
     const auto cmd_widget = getCommandWidget(item);
 
     switch (cmd_type) {
@@ -288,7 +288,7 @@ tobas::mission::Mission MissionPlannerWidget::createMission() const
 
   for (int i = 0; i < command_list_->count(); ++i) {
     const auto list_item = command_list_->item(i);
-    const auto cmd_type = textToCommand(list_item->text().toUtf8());
+    const auto cmd_type = textToCommand(list_item->text());
     const auto base_widget = getCommandWidget(list_item);
 
     tobas::mission::MissionItem mission_item;
@@ -696,7 +696,7 @@ void MissionPlannerWidget::onWaypointMoved(int index, double latitude, double lo
   int cur_idx = 0;
   for (int i = 0; i < command_list_->count(); ++i) {
     const auto item = command_list_->item(i);
-    const auto cmd_type = textToCommand(item->text().toUtf8());
+    const auto cmd_type = textToCommand(item->text());
     if (cmd_type == mission::Type::kWaypoint) {
       ++cur_idx;
     }

@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <QString>
+
 #include <tobas_mission_items/mission.hpp>
 
 namespace tobas
@@ -11,8 +13,8 @@ namespace gui
 {
 namespace ctrl
 {
-const char* commandToText(mission::Type cmd);
-mission::Type textToCommand(const char* text);
+QString commandToText(mission::Type cmd);
+mission::Type textToCommand(const QString& text);
 }  // namespace ctrl
 }  // namespace gui
 }  // namespace tobas
