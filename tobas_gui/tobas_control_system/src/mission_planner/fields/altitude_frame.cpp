@@ -11,8 +11,8 @@
 #include <QHBoxLayout>
 #include <magic_enum/magic_enum.hpp>
 
-#define MEAN_SEA_LEVEL_LABEL "Mean Sea Level"
 #define RELATIVE_TO_LAUNCH_LABEL "Relative to Launch"
+#define MEAN_SEA_LEVEL_LABEL "Mean Sea Level"
 
 namespace tobas
 {
@@ -27,10 +27,10 @@ namespace
 const char* altFrameToText(mission::AltitudeFrame frame)
 {
   switch (frame) {
-    case mission::kMeanSeaLevel:
-      return MEAN_SEA_LEVEL_LABEL;
     case mission::kRelativeToLaunch:
       return RELATIVE_TO_LAUNCH_LABEL;
+    case mission::kMeanSeaLevel:
+      return MEAN_SEA_LEVEL_LABEL;
     default:
       throw std::runtime_error(std::format("Invalid altitude frame: {}", (int)frame));
   }
@@ -38,11 +38,11 @@ const char* altFrameToText(mission::AltitudeFrame frame)
 
 mission::AltitudeFrame textToAltFrame(const char* text)
 {
-  if (strcmp(text, MEAN_SEA_LEVEL_LABEL) == 0) {
-    return mission::kMeanSeaLevel;
-  }
-  else if (strcmp(text, RELATIVE_TO_LAUNCH_LABEL) == 0) {
+  if (strcmp(text, RELATIVE_TO_LAUNCH_LABEL) == 0) {
     return mission::kRelativeToLaunch;
+  }
+  else if (strcmp(text, MEAN_SEA_LEVEL_LABEL) == 0) {
+    return mission::kMeanSeaLevel;
   }
   else {
     throw std::runtime_error(std::format("Invalid altitude frame text: {}", text));
@@ -53,9 +53,9 @@ mission::AltitudeFrame textToAltFrame(const char* text)
 AltitudeFrameWidget::AltitudeFrameWidget()
 {
   combobox_ = new qt::ComboBox();
-  combobox_->addItem(altFrameToText(mission::kRelativeToLaunch));  // TODO: 他の選択肢も選べるようにする
-  // for (const auto alt_frame : magic_enum::enum_values<mission::AltitudeFrame>())
-  //   combobox_->addItem(altFrameToText(alt_frame));
+  for (const auto alt_frame : magic_enum::enum_values<mission::AltitudeFrame>()) {
+    combobox_->addItem(altFrameToText(alt_frame));
+  }
 
   const auto cols = new QHBoxLayout();
   setLayout(cols);
