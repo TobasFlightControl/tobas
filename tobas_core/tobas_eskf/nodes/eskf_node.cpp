@@ -44,18 +44,8 @@ class ErrorStateKalmanFilterNode : public BaseNode
   using self = ErrorStateKalmanFilterNode;
   using super = BaseNode;
 
-  using ImuMsg = tobas_msgs::Imu;
-  using MagMsg = tobas_msgs::MagneticField;
-  using BaroMsg = tobas_msgs::msg::FluidPressure;
-  using GnssMsg = tobas_msgs::Gnss;
-  using PoseMsg = tobas_kdl_msgs::FrameWithCovarianceStamped;
-  using OdomMsg = tobas_msgs::OdometryWithCovarianceStamped;
-  using MagRefMsg = tobas_msgs::MagneticField;
-  using GnssOriginMsg = tobas_msgs::msg::GeodeticCoordinates;
-  using FeedbackMsg = tobas_debug_msgs::ObserverFeedback;
-
-  using GetOrigin = tobas_msgs::srv::GetGnssOrigin;
-  using SetOrigin = tobas_msgs::srv::SetGnssOrigin;
+  using GetOriginSrv = tobas_msgs::srv::GetGnssOrigin;
+  using SetOriginSrv = tobas_msgs::srv::SetGnssOrigin;
 
   // Default parameters
   static constexpr char kDefaultFrameId[] = "unknown";  // 空文字だとTFが警告文を出すため適当なデフォルト値を設定
@@ -96,11 +86,10 @@ private:
 
   Vector3d pos_meas_;
   Matrix6d gnss_cov_ = Matrix6d::Zero();
-  ImuMsg::ConstSharedPtr imu_raw_, imu_filt_;
-  MagMsg::ConstSharedPtr mag_;
-  BaroMsg::ConstSharedPtr baro_;
-  GnssMsg::ConstSharedPtr gnss_;
-  PoseMsg::ConstSharedPtr pose_;
+  tobas_msgs::Imu::ConstSharedPtr imu_raw_, imu_filt_;
+  tobas_msgs::MagneticField::ConstSharedPtr mag_;
+  tobas_msgs::msg::FluidPressure::ConstSharedPtr baro_;
+  tobas_msgs::Gnss::ConstSharedPtr gnss_;
   bool mag_ref_set_ = false;  // 地磁気の参照値が設定されているかどうか
   bool gnss_fix_ = false;
   double gnss_anomaly_score_ = 0.;
@@ -140,22 +129,22 @@ private:
   double grav_stddev_rate_ = 0.;                        // [-]
 
   // Publishers
-  ros2::PublisherPtr<OdomMsg> odom_pub_;
-  ros2::PublisherPtr<MagRefMsg> mag_ref_pub_;
-  ros2::PublisherPtr<GnssOriginMsg> gnss_origin_pub_;
-  ros2::PublisherPtr<FeedbackMsg> feedback_pub_;
+  ros2::PublisherPtr<tobas_msgs::OdometryWithCovarianceStamped> odom_pub_;
+  ros2::PublisherPtr<tobas_msgs::MagneticField> mag_ref_pub_;
+  ros2::PublisherPtr<tobas_msgs::msg::GeodeticCoordinates> gnss_origin_pub_;
+  ros2::PublisherPtr<tobas_debug_msgs::ObserverFeedback> feedback_pub_;
 
   // Subscribers
-  ros2::SubscriberPtr<ImuMsg> imu_raw_sub_;
-  ros2::SubscriberPtr<ImuMsg> imu_filt_sub_;
-  ros2::SubscriberPtr<MagMsg> mag_sub_;
-  ros2::SubscriberPtr<BaroMsg> baro_sub_;
-  ros2::SubscriberPtr<GnssMsg> gnss_sub_;
-  ros2::SubscriberPtr<PoseMsg> pose_sub_;
+  ros2::SubscriberPtr<tobas_msgs::Imu> imu_raw_sub_;
+  ros2::SubscriberPtr<tobas_msgs::Imu> imu_filt_sub_;
+  ros2::SubscriberPtr<tobas_msgs::MagneticField> mag_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::FluidPressure> baro_sub_;
+  ros2::SubscriberPtr<tobas_msgs::Gnss> gnss_sub_;
+  ros2::SubscriberPtr<tobas_kdl_msgs::FrameWithCovarianceStamped> pose_sub_;
 
   // Services
-  ros2::ServiceServerPtr<GetOrigin> get_gnss_origin_ss_;
-  ros2::ServiceServerPtr<SetOrigin> set_gnss_origin_ss_;
+  ros2::ServiceServerPtr<GetOriginSrv> get_gnss_origin_ss_;
+  ros2::ServiceServerPtr<SetOriginSrv> set_gnss_origin_ss_;
 
   // TF
   geometry_msgs::msg::TransformStamped tf_;
@@ -163,7 +152,7 @@ private:
 
   void getStaticRosParams();
   bool setMagneticFieldRef(const Vector3d& mag_W);
-  void fillOdometryMsg(OdomMsg& odom) const;
+  void fillOdometryMsg(tobas_msgs::OdometryWithCovarianceStamped& odom) const;
   void publishMagRef(const Vector3d& mag_W) const;
   void publishGnssOrigin(double lat, double lon, double alt) const;
   void publishFeedback(const std_msgs::msg::Header& header) const;
@@ -193,15 +182,15 @@ private:
   bool magSoftBiasProcNoiseDensityCb(const double& p);
   bool gravProcNoiseDensityCb(const double& ud_ug);
 
-  void imuRawCb(const ImuMsg::ConstSharedPtr& imu_raw);
-  void imuFiltCb(const ImuMsg::ConstSharedPtr& imu_filt);
-  void magCb(const MagMsg::ConstSharedPtr& mag);
-  void baroCb(const BaroMsg::ConstSharedPtr& baro);
-  void gnssCb(const GnssMsg::ConstSharedPtr& gnss);
-  void poseCb(const PoseMsg::ConstSharedPtr& msg);
+  void imuRawCb(const tobas_msgs::Imu::ConstSharedPtr& imu_raw);
+  void imuFiltCb(const tobas_msgs::Imu::ConstSharedPtr& imu_filt);
+  void magCb(const tobas_msgs::MagneticField::ConstSharedPtr& mag);
+  void baroCb(const tobas_msgs::msg::FluidPressure::ConstSharedPtr& baro);
+  void gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss);
+  void poseCb(const tobas_kdl_msgs::FrameWithCovarianceStamped::ConstSharedPtr& msg);
 
-  void getGnssOriginCb(const GetOrigin::Request::ConstSharedPtr& req, const GetOrigin::Response::SharedPtr& res);
-  void setGnssOriginCb(const SetOrigin::Request::ConstSharedPtr& req, const SetOrigin::Response::SharedPtr& res);
+  void getGnssOriginCb(const GetOriginSrv::Request::ConstSharedPtr& req, const GetOriginSrv::Response::SharedPtr& res);
+  void setGnssOriginCb(const SetOriginSrv::Request::ConstSharedPtr& req, const SetOriginSrv::Response::SharedPtr& res);
 };
 
 ErrorStateKalmanFilterNode::ErrorStateKalmanFilterNode(const rclcpp::NodeOptions& options)
@@ -269,10 +258,10 @@ ErrorStateKalmanFilterNode::ErrorStateKalmanFilterNode(const rclcpp::NodeOptions
   }
 
   // Register publishers
-  odom_pub_ = createPublisher<OdomMsg>(topic::kOdometry);
-  mag_ref_pub_ = createPublisher<MagRefMsg>(topic::kMagRef, true, true);
-  gnss_origin_pub_ = createPublisher<GnssOriginMsg>(topic::kGnssOrigin, true, true);
-  feedback_pub_ = createPublisher<FeedbackMsg>(topic::kObsvFeedback);
+  odom_pub_ = createPublisher<tobas_msgs::OdometryWithCovarianceStamped>(topic::kOdometry);
+  mag_ref_pub_ = createPublisher<tobas_msgs::MagneticField>(topic::kMagRef, true, true);
+  gnss_origin_pub_ = createPublisher<tobas_msgs::msg::GeodeticCoordinates>(topic::kGnssOrigin, true, true);
+  feedback_pub_ = createPublisher<tobas_debug_msgs::ObserverFeedback>(topic::kObsvFeedback);
 
   // Register subscribers
   imu_raw_sub_ = createSubscriber(topic::kImuRaw, &self::imuRawCb, this);
@@ -289,8 +278,8 @@ ErrorStateKalmanFilterNode::ErrorStateKalmanFilterNode(const rclcpp::NodeOptions
   pose_sub_ = createSubscriber(topic::kExternalPose, &self::poseCb, this);
 
   // Register service servers
-  get_gnss_origin_ss_ = createService<GetOrigin>(service::kGetGnssOrigin, &self::getGnssOriginCb, this);
-  set_gnss_origin_ss_ = createService<SetOrigin>(service::kSetGnssOrigin, &self::setGnssOriginCb, this);
+  get_gnss_origin_ss_ = createService<GetOriginSrv>(service::kGetGnssOrigin, &self::getGnssOriginCb, this);
+  set_gnss_origin_ss_ = createService<SetOriginSrv>(service::kSetGnssOrigin, &self::setGnssOriginCb, this);
 }
 
 void ErrorStateKalmanFilterNode::getStaticRosParams()
@@ -372,7 +361,7 @@ bool ErrorStateKalmanFilterNode::setMagneticFieldRef(const Vector3d& mag_W)
   return true;
 }
 
-void ErrorStateKalmanFilterNode::fillOdometryMsg(OdomMsg& odom) const
+void ErrorStateKalmanFilterNode::fillOdometryMsg(tobas_msgs::OdometryWithCovarianceStamped& odom) const
 {
   const Vector3d W_Pos_WI = eskf_.getPosition();
   const Vector3d W_Vel_WI = eskf_.getVelocity();
@@ -411,7 +400,7 @@ void ErrorStateKalmanFilterNode::fillOdometryMsg(OdomMsg& odom) const
 
 void ErrorStateKalmanFilterNode::publishMagRef(const Vector3d& mag_W) const
 {
-  auto msg = std::make_unique<MagRefMsg>();
+  auto msg = std::make_unique<tobas_msgs::MagneticField>();
 
   msg->header.stamp = now();
   msg->mag = mag_W;
@@ -421,7 +410,7 @@ void ErrorStateKalmanFilterNode::publishMagRef(const Vector3d& mag_W) const
 
 void ErrorStateKalmanFilterNode::publishGnssOrigin(double lat, double lon, double alt) const
 {
-  auto msg = std::make_unique<GnssOriginMsg>();
+  auto msg = std::make_unique<tobas_msgs::msg::GeodeticCoordinates>();
 
   msg->header.stamp = now();
   msg->latitude = lat;
@@ -434,7 +423,7 @@ void ErrorStateKalmanFilterNode::publishGnssOrigin(double lat, double lon, doubl
 void ErrorStateKalmanFilterNode::publishFeedback(const std_msgs::msg::Header& header) const
 {
   // Create
-  auto feedback = std::make_unique<FeedbackMsg>();
+  auto feedback = std::make_unique<tobas_debug_msgs::ObserverFeedback>();
 
   // Header
   feedback->header = header;
@@ -649,7 +638,7 @@ bool ErrorStateKalmanFilterNode::gravProcNoiseDensityCb(const double& p)
   return eskf_.setGravProcNoiseDensity(nd);
 }
 
-void ErrorStateKalmanFilterNode::imuRawCb(const ImuMsg::ConstSharedPtr& imu_raw)
+void ErrorStateKalmanFilterNode::imuRawCb(const tobas_msgs::Imu::ConstSharedPtr& imu_raw)
 {
   // Compute IMU time
   const auto cur_time = ros2::chronoFromRosTime(imu_raw->header.stamp);
@@ -697,7 +686,7 @@ void ErrorStateKalmanFilterNode::imuRawCb(const ImuMsg::ConstSharedPtr& imu_raw)
   }
 
   // Create odometry message
-  auto odom = std::make_unique<OdomMsg>();
+  auto odom = std::make_unique<tobas_msgs::OdometryWithCovarianceStamped>();
   fillOdometryMsg(*odom);
 
   // Create TF message
@@ -712,12 +701,12 @@ void ErrorStateKalmanFilterNode::imuRawCb(const ImuMsg::ConstSharedPtr& imu_raw)
   publishFeedback(imu_raw->header);
 }
 
-void ErrorStateKalmanFilterNode::imuFiltCb(const ImuMsg::ConstSharedPtr& imu_filt)
+void ErrorStateKalmanFilterNode::imuFiltCb(const tobas_msgs::Imu::ConstSharedPtr& imu_filt)
 {
   imu_filt_ = imu_filt;
 }
 
-void ErrorStateKalmanFilterNode::magCb(const MagMsg::ConstSharedPtr& mag)
+void ErrorStateKalmanFilterNode::magCb(const tobas_msgs::MagneticField::ConstSharedPtr& mag)
 {
   if (!imu_raw_) {
     return;
@@ -788,7 +777,7 @@ void ErrorStateKalmanFilterNode::magCb(const MagMsg::ConstSharedPtr& mag)
   }
 }
 
-void ErrorStateKalmanFilterNode::baroCb(const BaroMsg::ConstSharedPtr& baro)
+void ErrorStateKalmanFilterNode::baroCb(const tobas_msgs::msg::FluidPressure::ConstSharedPtr& baro)
 {
   if (!imu_raw_) {
     return;
@@ -814,7 +803,7 @@ void ErrorStateKalmanFilterNode::baroCb(const BaroMsg::ConstSharedPtr& baro)
   eskf_.measureAltitude(z_m, z_var, stamp);
 }
 
-void ErrorStateKalmanFilterNode::gnssCb(const GnssMsg::ConstSharedPtr& gnss)
+void ErrorStateKalmanFilterNode::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss)
 {
   if (!imu_raw_ || !imu_filt_) {
     return;
@@ -878,7 +867,7 @@ void ErrorStateKalmanFilterNode::gnssCb(const GnssMsg::ConstSharedPtr& gnss)
   gnss_anomaly_score_ = eskf_.measurePosVel(pos_meas_, vel_meas, gnss_cov_, imu2gnss, gyro_meas, stamp);
 }
 
-void ErrorStateKalmanFilterNode::poseCb(const PoseMsg::ConstSharedPtr& msg)
+void ErrorStateKalmanFilterNode::poseCb(const tobas_kdl_msgs::FrameWithCovarianceStamped::ConstSharedPtr& msg)
 {
   if (!imu_raw_ || !imu_filt_) {
     return;
@@ -894,8 +883,8 @@ void ErrorStateKalmanFilterNode::poseCb(const PoseMsg::ConstSharedPtr& msg)
 }
 
 void ErrorStateKalmanFilterNode::getGnssOriginCb(
-  const GetOrigin::Request::ConstSharedPtr&,
-  const GetOrigin::Response::SharedPtr& res)
+  const GetOriginSrv::Request::ConstSharedPtr&,
+  const GetOriginSrv::Response::SharedPtr& res)
 {
   if (!gnss_fix_) {
     res->success = false;
@@ -912,8 +901,8 @@ void ErrorStateKalmanFilterNode::getGnssOriginCb(
 }
 
 void ErrorStateKalmanFilterNode::setGnssOriginCb(
-  const SetOrigin::Request::ConstSharedPtr& req,
-  const SetOrigin::Response::SharedPtr& res)
+  const SetOriginSrv::Request::ConstSharedPtr& req,
+  const SetOriginSrv::Response::SharedPtr& res)
 {
   if (!gnss_fix_) {
     res->success = false;
