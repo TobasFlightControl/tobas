@@ -46,7 +46,7 @@ private:
   EngineDynamicsWidget* dynamics_;
   EngineResponseWidget* response_;
 };
-};  // namespace ice
+}  // namespace ice
 }  // namespace propulsion
 }  // namespace sa
 }  // namespace gui

@@ -353,3 +353,5 @@ bool ZEDF9P::cfgValSetSingle(CfgSize size, CfgGroup group, uint8_t id, T value)
 }
 }  // namespace ublox
 }  // namespace tobas
+
+#undef PACKED

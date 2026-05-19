@@ -51,7 +51,7 @@ private:
   AerodynamicsCoefficientsWidget* aero_coefs_;
   ControlSurfacesWidget* control_surfaces_;
 };
-};  // namespace fw
+}  // namespace fw
 }  // namespace sa
 }  // namespace gui
 }  // namespace tobas

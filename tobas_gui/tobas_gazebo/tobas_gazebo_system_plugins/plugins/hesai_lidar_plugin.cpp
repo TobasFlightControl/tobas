@@ -153,17 +153,17 @@ void HesaiLidarPlugin::gpuRayCb(const gz::msgs::PointCloudPacked& msg)
       }
       const auto sampling_memory = i * msg.row_step() + sampling_idx * msg.point_step();
       // x, y, z
-      memcpy(&point_cloud_msg_->data[embedding_index], &msg.data().c_str()[sampling_memory], sizeof(float) * 3);
+      std::memcpy(&point_cloud_msg_->data[embedding_index], &msg.data().c_str()[sampling_memory], sizeof(float) * 3);
       // Intensity
       uint16_t intensity_i;
-      memcpy(&intensity_i, &msg.data().c_str()[sampling_memory + sizeof(float) * 3], sizeof(uint16_t));
+      std::memcpy(&intensity_i, &msg.data().c_str()[sampling_memory + sizeof(float) * 3], sizeof(uint16_t));
       const float intensity_f = static_cast<float>(intensity_i) / 255.0f;
-      memcpy(&point_cloud_msg_->data[embedding_index + intensity_offset_], &intensity_f, sizeof(float));
+      std::memcpy(&point_cloud_msg_->data[embedding_index + intensity_offset_], &intensity_f, sizeof(float));
       // Ring
       const uint16_t ring = static_cast<uint16_t>(i);
-      memcpy(&point_cloud_msg_->data[embedding_index + ring_offset_], &ring, sizeof(uint16_t));
+      std::memcpy(&point_cloud_msg_->data[embedding_index + ring_offset_], &ring, sizeof(uint16_t));
       // Timestamp
-      memcpy(&point_cloud_msg_->data[embedding_index + timestamp_offset_], &timestamp, sizeof(double));
+      std::memcpy(&point_cloud_msg_->data[embedding_index + timestamp_offset_], &timestamp, sizeof(double));
 
       // Update
       ++lidar_data_index_;

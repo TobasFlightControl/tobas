@@ -42,7 +42,7 @@ private:
   ParamGetterWidget_SpinBox* time_const_up_;
   ParamGetterWidget_SpinBox* time_const_down_;
 };
-};  // namespace ice
+}  // namespace ice
 }  // namespace propulsion
 }  // namespace sa
 }  // namespace gui

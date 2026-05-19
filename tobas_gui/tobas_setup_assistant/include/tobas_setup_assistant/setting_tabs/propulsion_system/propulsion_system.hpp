@@ -70,7 +70,7 @@ private:
 private Q_SLOTS:
   void onPropulsionTypeClicked(int new_idx);
 };
-};  // namespace propulsion
+}  // namespace propulsion
 }  // namespace sa
 }  // namespace gui
 }  // namespace tobas

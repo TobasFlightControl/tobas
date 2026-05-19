@@ -50,7 +50,7 @@ private:
 private Q_SLOTS:
   void onOtherButtonToggled(bool checked);
 };
-};  // namespace rc
+}  // namespace rc
 }  // namespace sa
 }  // namespace gui
 }  // namespace tobas

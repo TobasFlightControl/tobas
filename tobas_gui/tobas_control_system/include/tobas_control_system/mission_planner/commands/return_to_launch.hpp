@@ -34,6 +34,9 @@ public:
 
   const char* name() const override;
 
+  mission::ReturnToLaunch dump() const;
+  void load(const mission::ReturnToLaunch& src);
+
   double minAltitude() const;
   double maxHorizontalVelocity() const;
   double maxHorizontalAccel() const;

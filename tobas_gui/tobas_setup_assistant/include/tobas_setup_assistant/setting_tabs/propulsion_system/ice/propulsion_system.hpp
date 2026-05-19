@@ -46,7 +46,7 @@ public:
 
   QString linkName(int index) const override;
 };
-};  // namespace ice
+}  // namespace ice
 }  // namespace propulsion
 }  // namespace sa
 }  // namespace gui

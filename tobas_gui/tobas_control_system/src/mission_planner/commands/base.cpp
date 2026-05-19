@@ -3,6 +3,8 @@
 
 #include "tobas_control_system/mission_planner/commands/base.hpp"
 
+#include <cmath>
+
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QStackedWidget>
@@ -85,6 +87,27 @@ void BaseCommandWidget::addField(field::BaseFieldWidget* widget, bool overridabl
 bool BaseCommandWidget::isChecked(field::BaseFieldWidget* widget) const
 {
   return checkboxes_[widget]->isChecked();
+}
+
+void BaseCommandWidget::setChecked(field::BaseFieldWidget* widget, bool checked)
+{
+  checkboxes_[widget]->setChecked(checked);
+}
+
+double BaseCommandWidget::getValueOrDefault(field::FieldWidget<double>* widget) const
+{
+  return isChecked(widget) ? widget->getValue() : NAN;
+}
+
+void BaseCommandWidget::setValueOrDefault(field::FieldWidget<double>* widget, double value)
+{
+  if (std::isfinite(value)) {
+    setChecked(widget, true);
+    widget->setValue(value);
+  }
+  else {
+    setChecked(widget, false);
+  }
 }
 
 void BaseCommandWidget::initialize()

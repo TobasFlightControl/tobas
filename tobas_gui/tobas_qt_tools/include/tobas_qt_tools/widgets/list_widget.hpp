@@ -41,6 +41,9 @@ public:
   /* リストの高さを行数ぶんだけにする． */
   void shrinkToContents();
 
+  /* 行番号を表示する． */
+  void showRowNumber();
+
 protected:
   void dropEvent(QDropEvent* event) override;
 };

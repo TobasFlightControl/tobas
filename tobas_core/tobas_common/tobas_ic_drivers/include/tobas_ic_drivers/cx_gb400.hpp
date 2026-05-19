@@ -173,3 +173,5 @@ private:
 };
 }  // namespace driver
 }  // namespace tobas
+
+#undef PACKED

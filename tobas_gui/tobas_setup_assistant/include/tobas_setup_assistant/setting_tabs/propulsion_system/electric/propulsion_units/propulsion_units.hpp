@@ -56,7 +56,7 @@ private:
 private Q_SLOTS:
   void onCopyToAllButtonClicked(const QString& link_name);
 };
-};  // namespace electric
+}  // namespace electric
 }  // namespace propulsion
 }  // namespace sa
 }  // namespace gui

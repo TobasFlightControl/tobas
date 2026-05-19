@@ -37,6 +37,9 @@ public:
 
   const char* name() const override;
 
+  mission::Waypoint dump() const;
+  void load(const mission::Waypoint& src);
+
   double latitude() const;
   double longitude() const;
   double altitude() const;

@@ -49,7 +49,7 @@ public:
   /* 内部抵抗値 [Ω] */
   virtual double internalRegistance() = 0;
 };
-};  // namespace electric
+}  // namespace electric
 }  // namespace propulsion
 }  // namespace sa
 }  // namespace gui
