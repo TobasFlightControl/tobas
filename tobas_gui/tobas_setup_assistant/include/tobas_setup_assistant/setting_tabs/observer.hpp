@@ -56,6 +56,6 @@ private:
   QCheckBox* do_mag_soft_bias_estimation_;
   QCheckBox* do_grav_estimation_;
 };
-};  // namespace sa
+}  // namespace sa
 }  // namespace gui
 }  // namespace tobas

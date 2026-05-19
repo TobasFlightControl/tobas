@@ -45,7 +45,7 @@ private:
   NetworkIfaceWidget* nif_;
   HostWidget* host_;
 };
-};  // namespace rc
+}  // namespace rc
 }  // namespace sa
 }  // namespace gui
 }  // namespace tobas

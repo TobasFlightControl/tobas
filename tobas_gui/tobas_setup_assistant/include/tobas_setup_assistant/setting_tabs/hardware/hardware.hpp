@@ -110,7 +110,7 @@ private:
 private Q_SLOTS:
   void setCurrentHardware(int index);
 };
-};  // namespace hw
+}  // namespace hw
 }  // namespace sa
 }  // namespace gui
 }  // namespace tobas

@@ -61,6 +61,6 @@ private:
   const BaseExecutorWidget* selected() const;
 };
 }  // namespace mission
-};  // namespace sa
+}  // namespace sa
 }  // namespace gui
 }  // namespace tobas

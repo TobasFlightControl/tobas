@@ -53,7 +53,7 @@ private:
   BatteryWidget_Base* selected();
   const BatteryWidget_Base* selected() const;
 };
-};  // namespace electric
+}  // namespace electric
 }  // namespace propulsion
 }  // namespace sa
 }  // namespace gui
