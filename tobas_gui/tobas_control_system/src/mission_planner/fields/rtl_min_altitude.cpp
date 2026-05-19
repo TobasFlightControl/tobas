@@ -31,7 +31,7 @@ RtlMinAltitudeWidget::RtlMinAltitudeWidget()
 
 const char* RtlMinAltitudeWidget::label() const
 {
-  return "Minimum Altitude (wrt. Home)";
+  return "Minimum Altitude (wrt. Launch Point)";
 }
 
 double RtlMinAltitudeWidget::getValue() const
