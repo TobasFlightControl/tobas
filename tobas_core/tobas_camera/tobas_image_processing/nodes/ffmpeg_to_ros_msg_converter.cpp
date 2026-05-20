@@ -122,7 +122,7 @@ bool FFmpegToROSMsgConverter::initialize()
   }
 
   // find video stream
-  for (uint32_t i = 0; i < format_context_->nb_streams; i++) {
+  for (uint32_t i = 0; i < format_context_->nb_streams; ++i) {
     if (format_context_->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
       video_stream_ = format_context_->streams[i];
       break;
