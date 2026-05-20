@@ -65,7 +65,7 @@ void BatteryDriverNode::mainTimerCb()
   }
 
   // Check data
-  if (voltage_ < 0 || current_ < 0) {
+  if (voltage_ <= 0.) {
     TOBAS_WARN_THROTTLE(kTypicalWarnPeriod, "Battery state is unavailable.");
     return;
   }

@@ -129,7 +129,7 @@ void PwmBattImuDriverNode::mainTimerCb()
   batt_msg->header.stamp = cur_time;
   driver_.getBattVoltage(batt_msg->voltage);
   driver_.getBattCurrent(batt_msg->current);
-  if (batt_msg->voltage > 0. && batt_msg->current > 0.) {
+  if (batt_msg->voltage > 0.) {
     batt_pub_->publish(std::move(batt_msg));
   }
   else {
