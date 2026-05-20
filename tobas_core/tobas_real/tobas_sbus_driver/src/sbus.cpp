@@ -11,7 +11,7 @@
 
 #include <tobas_std_tools/console.hpp>
 
-#define HEX_STREAM(c) "0x" << setw(2) << setfill('0') << hex << uppercase << (int)c
+#define HEX_STREAM(c) "0x" << setw(2) << setfill('0') << hex << uppercase << (int)c << dec
 
 using namespace std;
 using namespace boost::multiprecision;
