@@ -8,7 +8,6 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
-#include <tobas_constants/rosbag.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_qt_tools/message.hpp>
@@ -40,7 +39,6 @@ FlightLogRecorderWidget::FlightLogRecorderWidget(rclcpp::Node::SharedPtr node, c
   file_size_ = new qt::HPositionBarWidget();
   file_size_->setLower(0);
   file_size_->setMinimum(0);
-  file_size_->setMaximum(kMaxRosbagSize);
 
   message_count_ = new qt::FramedLabel();
 
@@ -185,6 +183,7 @@ void FlightLogRecorderWidget::rosbagStateCb(const tobas_msgs::msg::RosbagState::
     duration_->display(hhmmss);
 
     file_size_->setUpper(rosbag_state->file_size);
+    file_size_->setMaximum(rosbag_state->file_size + rosbag_state->available_size);
     file_size_->setCenterText(QString::number(rosbag_state->file_size / 1'000'000) + " MB");
 
     message_count_->setText(QString::number(rosbag_state->message_count));

@@ -4,7 +4,6 @@
 #include <rosbag2_cpp/writer.hpp>
 
 #include <tobas_constants/path.hpp>
-#include <tobas_constants/rosbag.hpp>
 #include <tobas_linux/core.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_path_tools/core.hpp>
@@ -45,7 +44,7 @@
 #include <tobas_msgs_adapter/rc_input.hpp>
 #include <tobas_msgs_adapter/vibration_level.hpp>
 
-#define BILLION 1'000'000'000UL
+#define MILLION 1'000'000
 
 using namespace std::chrono_literals;
 namespace fs = std::filesystem;
@@ -62,6 +61,7 @@ class RosbagRecorderNode : public BaseNode
   using CleanSrv = std_srvs::srv::Trigger;
 
   static constexpr auto kMainTimerPeriod = 1s;
+  static constexpr auto kMinAvailableSize = 500'000'000;  // [byte]
 
 public:
   explicit RosbagRecorderNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -103,6 +103,9 @@ private:
 
   // Timers
   ros2::TimerPtr main_timer_;
+
+  /* Get the available disk space in bytes. */
+  size_t getDiskAvailableSize() const noexcept;
 
   void publishRosbagState();
 
@@ -190,6 +193,18 @@ RosbagRecorderNode::RosbagRecorderNode(const rclcpp::NodeOptions& options)
   main_timer_ = createTimer(kMainTimerPeriod, &self::mainTimerCb, this);
 }
 
+size_t RosbagRecorderNode::getDiskAvailableSize() const noexcept
+{
+  try {
+    const auto info = fs::space(rosbag_dir_);
+    return info.available;
+  }
+  catch (...) {
+    TOBAS_ERROR("Failed to get the space information: ", rosbag_dir_);
+    return 0;
+  }
+}
+
 void RosbagRecorderNode::publishRosbagState()
 {
   const auto cur_time = now();
@@ -200,29 +215,27 @@ void RosbagRecorderNode::publishRosbagState()
 
   if (recording_) {
     const auto file_size = path::computeDirectorySize(file_path_);
+    const auto available_size = getDiskAvailableSize();
 
     rosbag_state->file_path = file_path_;
     rosbag_state->duration = cur_time - start_time_;
     rosbag_state->file_size = file_size;
+    rosbag_state->available_size = available_size;
     rosbag_state->message_count = msg_cnt_;
 
-    if (file_size > kMaxRosbagSize) {
+    if (available_size < kMinAvailableSize) {
+      recording_ = false;
+      TOBAS_WARN(
+        "The recording was stopped because the available disk space dropped below ",
+        kMinAvailableSize / MILLION,
+        " MB.");
+
       try {
         writer_.close();
       }
       catch (const std::exception& e) {
         TOBAS_ERROR("Failed to close rosbag file: ", e.what());
-        return;
       }
-
-      recording_ = false;
-
-      TOBAS_WARN(
-        "The recording is terminated because the size of rosbag ",
-        file_path_,
-        " exceeded ",
-        kMaxRosbagSize / BILLION,
-        "GB.");
     }
   }
 
@@ -317,6 +330,7 @@ void RosbagRecorderNode::startCb(const StartSrv::Request::ConstSharedPtr& req, c
     }
   }
 
+  // 同名のログが存在しないことを確認
   file_path_ = rosbag_dir_ / req->name;
   if (fs::exists(file_path_)) {
     if (req->overwrite) {
@@ -327,6 +341,14 @@ void RosbagRecorderNode::startCb(const StartSrv::Request::ConstSharedPtr& req, c
       res->message = file_path_.string() + " already exists.";
       return;
     }
+  }
+
+  // ストレージに十分な空き容量があることを確認
+  const auto available_size = getDiskAvailableSize();
+  if (available_size < kMinAvailableSize) {
+    res->success = false;
+    res->message = "Recording cannot be started because there is not enough available disk space.";
+    return;
   }
 
   rosbag2_storage::StorageOptions options;
