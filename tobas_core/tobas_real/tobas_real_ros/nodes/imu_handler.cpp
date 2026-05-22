@@ -12,7 +12,6 @@
 #include <tobas_real_common/ros_interface.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_ros2_tools/util.hpp>
-#include <tobas_std_tools/check.hpp>
 
 #include <tobas_msgs_adapter/imu.hpp>
 #include <tobas_real_msgs/srv/set_imu_params.hpp>
@@ -75,7 +74,7 @@ private:
 ImuHandlerNode::ImuHandlerNode(const rclcpp::NodeOptions& options)
   : super("real_imu_handler", nodeOptions_Default(options))
 {
-  TOBAS_CHECK(gyro_lpf_.setCutoffFrequency(kGyroLpfCutoff));
+  TOBAS_ASSERT(gyro_lpf_.setCutoffFrequency(kGyroLpfCutoff));
 
   const auto cfg_dir = linux::isSuperUser() ? fs::path(kConfigDirRoot) : ros2::expandUser(kConfigDirHome);
   if (!pt_.initialize((cfg_dir / handler::imu::kConfigFileName))) {
