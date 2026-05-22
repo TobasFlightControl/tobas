@@ -119,7 +119,7 @@ bool SuspendedLoadWidget::start(ch::milliseconds timeout)
     });
 
   if (!success) {
-    qWarning() << message;
+    qWarning().noquote() << message;
     return false;
   }
 
