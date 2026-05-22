@@ -90,7 +90,7 @@ DShotDriverNode::DShotDriverNode(const rclcpp::NodeOptions& options)
 bool DShotDriverNode::transfer()
 {
   if (!dshot_.transfer()) {
-    TOBAS_ERROR_THROTTLE(kTypicalErrorPeriod, "Failed to communicate with the rotor controller.");
+    TOBAS_ERROR_THROTTLE(kTypicalErrorPeriod, "Failed to communicate with the MCU.");
     return false;
   }
   return true;
@@ -321,7 +321,7 @@ void DShotDriverNode::setGainsCb(const SetGains::Request::ConstSharedPtr& req, c
 
   if (!transfer()) {
     res->success = false;
-    res->message = "Failed to communicate with the rotor controller.";
+    res->message = "Failed to communicate with the MCU.";
     return;
   }
 

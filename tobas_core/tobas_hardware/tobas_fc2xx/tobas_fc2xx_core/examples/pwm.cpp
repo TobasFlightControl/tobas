@@ -32,7 +32,7 @@ int main(int argc, char** argv)
     driver.setPwmPeriod(periods);
 
     if (!driver.transfer()) {
-      cerr << "Failed to communicate with the micro controller." << endl;
+      cerr << "Failed to communicate with the MCU." << endl;
       continue;
     }
 
