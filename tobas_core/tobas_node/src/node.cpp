@@ -269,9 +269,4 @@ void BaseNode::getDParamCb(
 {
   res->params = dparams_;
 }
-
-string BaseNode::createID(const char* file, int line)
-{
-  return string(file) + ":" + to_string(line);
-}
 }  // namespace tobas

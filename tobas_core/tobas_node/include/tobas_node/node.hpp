@@ -242,7 +242,7 @@ private:
     const tobas_dparam_msgs::srv::GetParams::Request::ConstSharedPtr& req,
     const tobas_dparam_msgs::srv::GetParams::Response::SharedPtr& res);
 
-  static std::string createID(const char* file, int line);
+  static inline std::string createID(const char* file, int line);
 };
 
 inline std::string BaseNode::ns() const
@@ -678,5 +678,10 @@ void BaseNode::declareDynamicParam(const std::string& _name, const T& _dflt)
     get_dparam_ss_ = createService<tobas_dparam_msgs::srv::GetParams>(
       name() + "/" + service::kGetDynamicParams, &self::getDParamCb, this);
   }
+}
+
+inline std::string BaseNode::createID(const char* file, int line)
+{
+  return std::string(file) + ":" + std::to_string(line);
 }
 }  // namespace tobas
