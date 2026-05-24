@@ -264,7 +264,7 @@ void DShotDriverNode::droneCb(const Drone::ConstSharedPtr& drone)
   auto_stop_timer_ = createWallTimer(kCommandAutoResetTimeout, &self::autoStopTimerCb, this);
 
   eprop_ = eprop;
-  TOBAS_INFO("Rotor speed controller is initialized.");
+  TOBAS_INFO("Rotor speed controller has been initialized.");
 }
 
 void DShotDriverNode::targetSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::ConstSharedPtr& tar_speeds)

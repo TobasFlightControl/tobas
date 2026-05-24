@@ -44,7 +44,7 @@ int main(int argc, char** argv)
     cerr << "Failed to initialize JRE30 driver." << endl;
     return EXIT_FAILURE;
   }
-  cout << "JRE30 driver is initialized." << endl;
+  cout << "JRE30 driver has been initialized." << endl;
 
   jre30.start();
   jre30.spin();

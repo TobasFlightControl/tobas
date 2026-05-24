@@ -38,7 +38,7 @@ int main(int argc, char** argv)
     cerr << "Failed to initialize S.BUS driver." << endl;
     return EXIT_FAILURE;
   }
-  cout << "S.BUS driver is initialized." << endl;
+  cout << "S.BUS driver has been initialized." << endl;
 
   sbus.start();
   sbus.spin();

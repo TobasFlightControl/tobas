@@ -185,7 +185,7 @@ DynamixelHandlerNode::DynamixelHandlerNode(const rclcpp::NodeOptions& options)
       return;
     }
 
-    TOBAS_INFO("\"", name, "\" is initialized.");
+    TOBAS_INFO("\"", name, "\" has been initialized.");
   }
 
   // Reduce latency
