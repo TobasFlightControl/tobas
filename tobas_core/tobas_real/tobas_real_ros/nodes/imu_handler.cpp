@@ -4,7 +4,7 @@
 #include <tobas_constants/imu.hpp>
 #include <tobas_constants/path.hpp>
 #include <tobas_constants/time.hpp>
-#include <tobas_dsp/low_pass_filter_p1.hpp>
+#include <tobas_dsp/low_pass_filter.hpp>
 #include <tobas_linux/core.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_property_tree/property_tree.hpp>
@@ -50,7 +50,7 @@ private:
   kdl::Vector gyro_bias_;
   size_t gyro_bias_cnt_ = 0;
   std::array<algo::Kahan<double>, 3> gyro_sum_;
-  dsp::LowPassFilterP1<kdl::Vector> gyro_lpf_;
+  dsp::LowPassFilter<kdl::Vector> gyro_lpf_;
   tobas_msgs::Imu::ConstSharedPtr imu_raw_in_;
   builtin_interfaces::msg::Time t_last_motion_detected_;
 

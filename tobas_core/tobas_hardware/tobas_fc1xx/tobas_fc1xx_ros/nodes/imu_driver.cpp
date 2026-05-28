@@ -2,7 +2,7 @@
 // Copyright (C) 2026 Tobas, Inc.
 
 #include <tobas_constants/ros_interface.hpp>
-#include <tobas_dsp/low_pass_filter_p1.hpp>
+#include <tobas_dsp/low_pass_filter.hpp>
 #include <tobas_hardware_common/base_sensor_node.hpp>
 #include <tobas_ic_drivers/stmicro/ism330dlc.hpp>
 #include <tobas_real_common/ros_interface.hpp>
@@ -37,7 +37,7 @@ private:
 
   rclcpp::Time t_prev_;
   kdl::Vector acc_raw_, gyro_raw_, prev_gyro_raw_;
-  dsp::LowPassFilterP1<kdl::Vector> acc_lpf_, gyro_lpf_, dgyro_lpf_;
+  dsp::LowPassFilter<kdl::Vector> acc_lpf_, gyro_lpf_, dgyro_lpf_;
   bool lpf_initialized_ = false;
 
   ros2::PublisherPtr<tobas_msgs::Imu> imu_raw_pub_;

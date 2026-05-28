@@ -22,10 +22,10 @@ namespace dsp
  * @note The sampling frequency should be at least 10 times the cutoff frequency.
  */
 template <typename T>
-class LowPassFilterP1 : public BaseFilter<T>
+class LowPassFilter : public BaseFilter<T>
 {
 public:
-  explicit LowPassFilterP1();
+  explicit LowPassFilter();
 
   void update(const T& u, const double& dt) override;
 
@@ -35,17 +35,18 @@ public:
   bool setCutoffFrequency(const double& fc_hz);
 
 private:
-  double wc_ = std::numeric_limits<double>::max();  // [rad/s]
-  T y_, prev_u_;
+  double wc_ = NAN;  // [rad/s]
+  T y_{};
+  T prev_u_{};
 };
 
 template <typename T>
-LowPassFilterP1<T>::LowPassFilterP1()
+LowPassFilter<T>::LowPassFilter()
 {
 }
 
 template <typename T>
-void LowPassFilterP1<T>::update(const T& u, const double& dt)
+void LowPassFilter<T>::update(const T& u, const double& dt)
 {
   assert(dt >= 0.);
 
@@ -57,19 +58,19 @@ void LowPassFilterP1<T>::update(const T& u, const double& dt)
 }
 
 template <typename T>
-inline const T& LowPassFilterP1<T>::getValue() const
+inline const T& LowPassFilter<T>::getValue() const
 {
   return y_;
 }
 
 template <typename T>
-inline void LowPassFilterP1<T>::setValue(const T& x)
+inline void LowPassFilter<T>::setValue(const T& x)
 {
   y_ = prev_u_ = x;
 }
 
 template <typename T>
-bool LowPassFilterP1<T>::setCutoffFrequency(const double& fc_hz)
+bool LowPassFilter<T>::setCutoffFrequency(const double& fc_hz)
 {
   if (fc_hz <= 0.) {
     std::cerr << "The cutoff frequency of P1 low-pass filter must be positive." << std::endl;

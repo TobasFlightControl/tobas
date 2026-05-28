@@ -4,7 +4,7 @@
 #include <fstream>
 #include <sstream>
 
-#include <tobas_dsp/low_pass_filter_p1.hpp>
+#include <tobas_dsp/low_pass_filter.hpp>
 #include <tobas_linux/command_executor.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_string_tools/core.hpp>
@@ -36,7 +36,7 @@ private:
   uint64_t prev_user_time_ = 0, prev_nice_time_ = 0, prev_system_time_ = 0, prev_idle_time_ = 0;
   uint64_t freq_;
   double temp_, load_;
-  dsp::LowPassFilterP1<double> temp_lpf_, load_lpf_;
+  dsp::LowPassFilter<double> temp_lpf_, load_lpf_;
   linux::CommandExecutor command_executor_;
 
   // Publisher

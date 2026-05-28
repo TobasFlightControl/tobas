@@ -3,7 +3,7 @@
 
 #include <tobas_constants/imu.hpp>
 #include <tobas_constants/ros_interface.hpp>
-#include <tobas_dsp/low_pass_filter_p1.hpp>
+#include <tobas_dsp/low_pass_filter.hpp>
 #include <tobas_gazebo_common/constants.hpp>
 #include <tobas_gazebo_conversions/gazebo_kdl.hpp>
 #include <tobas_gazebo_conversions/gazebo_ros.hpp>
@@ -85,7 +85,7 @@ private:
 
   RateManager::SharedPtr rate_manager_;
   ModelMassHolder mass_holder_;
-  dsp::LowPassFilterP1<gz::math::Vector3d> acc_lpf_, gyro_lpf_, dgyro_lpf_;
+  dsp::LowPassFilter<gz::math::Vector3d> acc_lpf_, gyro_lpf_, dgyro_lpf_;
   bool lpf_initialized_ = false;
   bool static_state_detected_ = false;
   gz::math::Vector3d acc_bias_ = gz::math::Vector3d::Zero;
