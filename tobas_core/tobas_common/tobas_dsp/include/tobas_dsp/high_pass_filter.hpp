@@ -30,8 +30,9 @@ public:
   bool setCutoffFrequency(const double& fc_hz);
 
 private:
-  double wc_ = std::numeric_limits<double>::max();  // [rad/s]
-  T y_, prev_u_;
+  double wc_ = NAN;  // [rad/s]
+  T y_{};
+  T prev_u_{};
 };
 
 template <typename T>
