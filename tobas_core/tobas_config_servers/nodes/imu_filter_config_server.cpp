@@ -202,7 +202,7 @@ void ImuFilterConfigServer::imuRawCb(const tobas_msgs::Imu::ConstSharedPtr&)
 
   // cf. https://betaflight.com/docs/wiki/guides/current/DSHOT-RPM-Filtering
   if (has_rpm_filter_) {
-    addDynamicIntParam("rpm_filter/quality_factor", &self::qualityFactorCb, this, 0, 0, 10);
+    addDynamicIntParam("rpm_filter/quality_factor", &self::qualityFactorCb, this, 0, 0, 10);  // Disabled by default
     addDynamicIntParam("rpm_filter/min_center_frequency", &self::minCenterFreqCb, this, 100, 0, 200, " Hz");
     addDynamicIntParam("rpm_filter/fade_range", &self::fadeRangeCb, this, 50, 0, 100, " Hz");
   }
