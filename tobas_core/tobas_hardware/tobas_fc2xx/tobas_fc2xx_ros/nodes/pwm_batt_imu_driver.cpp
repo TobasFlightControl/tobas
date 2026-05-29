@@ -10,7 +10,7 @@
 
 #include <tobas_msgs/msg/battery.hpp>
 #include <tobas_msgs/msg/pwm_array.hpp>
-#include <tobas_msgs/srv/configure_imu_filter.hpp>
+#include <tobas_msgs/srv/configure_imu_low_pass_filter.hpp>
 #include <tobas_msgs_adapter/imu.hpp>
 
 #include "./common.hpp"
@@ -42,7 +42,7 @@ private:
 
   ros2::SubscriberPtr<tobas_msgs::msg::PwmArray> pwms_sub_;
 
-  ros2::ServiceServerPtr<tobas_msgs::srv::ConfigureImuFilter> config_ss_;
+  ros2::ServiceServerPtr<tobas_msgs::srv::ConfigureImuLowPassFilter> config_ss_;
 
   ros2::TimerPtr initialize_timer_, main_timer_;
 
@@ -50,9 +50,9 @@ private:
 
   void pwmsCb(const tobas_msgs::msg::PwmArray::ConstSharedPtr& pwms);
 
-  void configureImuFilterCb(
-    const tobas_msgs::srv::ConfigureImuFilter::Request::ConstSharedPtr& req,
-    const tobas_msgs::srv::ConfigureImuFilter::Response::SharedPtr& res);
+  void configureImuLowPassFilterCb(
+    const tobas_msgs::srv::ConfigureImuLowPassFilter::Request::ConstSharedPtr& req,
+    const tobas_msgs::srv::ConfigureImuLowPassFilter::Response::SharedPtr& res);
 
   void mainTimerCb();
 };
@@ -77,8 +77,8 @@ void PwmBattImuDriverNode::initialize()
 
   pwms_sub_ = createSubscriber(topic::kPwmCmd, &self::pwmsCb, this);
 
-  config_ss_ =
-    createService<tobas_msgs::srv::ConfigureImuFilter>(service::kConfigureImuFilter, &self::configureImuFilterCb, this);
+  config_ss_ = createService<tobas_msgs::srv::ConfigureImuLowPassFilter>(
+    service::kConfigureImuLowPassFilter, &self::configureImuLowPassFilterCb, this);
 
   initialize_timer_->cancel();
   main_timer_ = createWallTimer(kSamplingPeriod, &self::mainTimerCb, this);
@@ -97,9 +97,9 @@ void PwmBattImuDriverNode::pwmsCb(const tobas_msgs::msg::PwmArray::ConstSharedPt
   driver_.setPwmPeriod(pwm_periods_);
 }
 
-void PwmBattImuDriverNode::configureImuFilterCb(
-  const tobas_msgs::srv::ConfigureImuFilter::Request::ConstSharedPtr& req,
-  const tobas_msgs::srv::ConfigureImuFilter::Response::SharedPtr& res)
+void PwmBattImuDriverNode::configureImuLowPassFilterCb(
+  const tobas_msgs::srv::ConfigureImuLowPassFilter::Request::ConstSharedPtr& req,
+  const tobas_msgs::srv::ConfigureImuLowPassFilter::Response::SharedPtr& res)
 {
   driver_.setImuLpfCutoff(req->accel_cutoff, req->gyro_cutoff, req->dgyro_cutoff);
 

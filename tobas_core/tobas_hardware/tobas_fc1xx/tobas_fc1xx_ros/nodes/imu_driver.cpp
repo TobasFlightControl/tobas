@@ -8,7 +8,7 @@
 #include <tobas_real_common/ros_interface.hpp>
 #include <tobas_tools/imu_sampling_time_publisher.hpp>
 
-#include <tobas_msgs/srv/configure_imu_filter.hpp>
+#include <tobas_msgs/srv/configure_imu_low_pass_filter.hpp>
 #include <tobas_msgs_adapter/imu.hpp>
 
 #include "./common.hpp"
@@ -44,15 +44,15 @@ private:
   ros2::PublisherPtr<tobas_msgs::Imu> imu_filt_pub_;
   ImuSamplingTimePublisher sampling_time_pub_;
 
-  ros2::ServiceServerPtr<tobas_msgs::srv::ConfigureImuFilter> config_ss_;
+  ros2::ServiceServerPtr<tobas_msgs::srv::ConfigureImuLowPassFilter> config_ss_;
 
   ros2::TimerPtr initialize_timer_;
 
   bool initializeImuDriver();
 
-  void configureImuFilterCb(
-    const tobas_msgs::srv::ConfigureImuFilter::Request::ConstSharedPtr& req,
-    const tobas_msgs::srv::ConfigureImuFilter::Response::SharedPtr& res);
+  void configureImuLowPassFilterCb(
+    const tobas_msgs::srv::ConfigureImuLowPassFilter::Request::ConstSharedPtr& req,
+    const tobas_msgs::srv::ConfigureImuLowPassFilter::Response::SharedPtr& res);
 
   void initializeTimerCb();
   void mainTimerCb();
@@ -102,9 +102,9 @@ bool ImuDriverNode::initializeImuDriver()
   return true;
 }
 
-void ImuDriverNode::configureImuFilterCb(
-  const tobas_msgs::srv::ConfigureImuFilter::Request::ConstSharedPtr& req,
-  const tobas_msgs::srv::ConfigureImuFilter::Response::SharedPtr& res)
+void ImuDriverNode::configureImuLowPassFilterCb(
+  const tobas_msgs::srv::ConfigureImuLowPassFilter::Request::ConstSharedPtr& req,
+  const tobas_msgs::srv::ConfigureImuLowPassFilter::Response::SharedPtr& res)
 {
   if (!acc_lpf_.setCutoffFrequency(req->accel_cutoff)) {
     res->success = false;
@@ -140,8 +140,8 @@ void ImuDriverNode::initializeTimerCb()
   imu_filt_pub_ = createPublisher<tobas_msgs::Imu>(real::topic::kImuFilt);
   sampling_time_pub_.initialize(shared_from_this(), now());
 
-  config_ss_ =
-    createService<tobas_msgs::srv::ConfigureImuFilter>(service::kConfigureImuFilter, &self::configureImuFilterCb, this);
+  config_ss_ = createService<tobas_msgs::srv::ConfigureImuLowPassFilter>(
+    service::kConfigureImuLowPassFilter, &self::configureImuLowPassFilterCb, this);
 
   initialize_timer_->cancel();
   main_timer_ = createWallTimer(kSamplingPeriod, &self::mainTimerCb, this);
