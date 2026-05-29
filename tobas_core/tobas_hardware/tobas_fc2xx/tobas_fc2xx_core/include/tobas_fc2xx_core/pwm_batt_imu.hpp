@@ -36,7 +36,7 @@ public:
   bool transfer();
 
   void setPwmPeriod(uint16_t* period_us);
-  void setImuLpfCutoff(double acc_cutoff, double gyro_cutoff, double dgyro_cutoff);
+  void setImuLpfCutoff(uint16_t acc_cutoff, uint16_t gyro_cutoff, uint16_t dgyro_cutoff);
 
   inline void getBattVoltage(double& voltage) const;
   inline void getBattCurrent(double& current) const;

@@ -3,7 +3,6 @@
 
 #include "tobas_fc2xx_core/pwm_batt_imu.hpp"
 
-#include <cassert>
 #include <cstring>
 #include <iostream>
 
@@ -63,17 +62,13 @@ void PwmBattImu::setPwmPeriod(uint16_t* period_us)
   setTxCrc();
 }
 
-void PwmBattImu::setImuLpfCutoff(double acc_cutoff, double gyro_cutoff, double dgyro_cutoff)
+void PwmBattImu::setImuLpfCutoff(uint16_t acc_cutoff, uint16_t gyro_cutoff, uint16_t dgyro_cutoff)
 {
-  assert(0 < acc_cutoff && acc_cutoff < UINT16_MAX);
-  assert(0 < gyro_cutoff && gyro_cutoff < UINT16_MAX);
-  assert(0 < dgyro_cutoff && dgyro_cutoff < UINT16_MAX);
-
   tx_buf_[kCmdTypeIdx] = 0x0001;
 
-  tx_buf_[1] = static_cast<uint16_t>(acc_cutoff);
-  tx_buf_[2] = static_cast<uint16_t>(gyro_cutoff);
-  tx_buf_[3] = static_cast<uint16_t>(dgyro_cutoff);
+  tx_buf_[1] = acc_cutoff;
+  tx_buf_[2] = gyro_cutoff;
+  tx_buf_[3] = dgyro_cutoff;
 
   setTxCrc();
 }
