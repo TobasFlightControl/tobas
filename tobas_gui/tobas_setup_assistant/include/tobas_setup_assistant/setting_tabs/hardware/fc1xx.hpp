@@ -53,9 +53,7 @@ public:
   int numPwmChannels() const override;
   int numDShotChannels() const override;
 
-  int defaultAccelLpfCutoff() const override;
-  int defaultGyroLpfCutoff() const override;
-  int defaultDGyroLpfCutoff() const override;
+  bool hasRpmFilter() const override;
 };
 }  // namespace hw
 }  // namespace sa

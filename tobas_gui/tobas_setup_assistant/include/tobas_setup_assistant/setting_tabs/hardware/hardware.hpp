@@ -91,12 +91,7 @@ public:
   int numPwmChannels() const;
   int numDShotChannels() const;
 
-  /* [Hz] */
-  int defaultAccelLpfCutoff() const;
-  /* [Hz] */
-  int defaultGyroLpfCutoff() const;
-  /* [Hz] */
-  int defaultDGyroLpfCutoff() const;
+  bool hasRpmFilter() const;
 
 private:
   qt::ComboBox* type_;

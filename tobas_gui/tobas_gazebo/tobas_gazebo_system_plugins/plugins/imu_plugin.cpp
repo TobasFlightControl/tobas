@@ -20,6 +20,7 @@
 #include <tobas_gazebo_msgs/msg/imu_debug.hpp>
 #include <tobas_gazebo_msgs/msg/rotor_state.hpp>
 #include <tobas_msgs/srv/configure_imu_low_pass_filter.hpp>
+#include <tobas_msgs/srv/configure_imu_notch_filter.hpp>
 #include <tobas_msgs_adapter/imu.hpp>
 
 #include "tobas_gazebo_system_plugins/common/common.hpp"
@@ -105,7 +106,8 @@ private:
   ros2::SubscriberPtr<tobas_gazebo_msgs::msg::EngineState> engine_state_sub_;
   std::vector<ros2::SubscriberPtr<tobas_gazebo_msgs::msg::RotorState>> rotor_state_subs_;
 
-  ros2::ServiceServerPtr<tobas_msgs::srv::ConfigureImuLowPassFilter> config_ss_;
+  ros2::ServiceServerPtr<tobas_msgs::srv::ConfigureImuLowPassFilter> config_lowpass_filter_ss_;
+  ros2::ServiceServerPtr<tobas_msgs::srv::ConfigureImuNotchFilter> config_rpm_filter_ss_;
 
   void getSdfParams(const sdf::ElementConstPtr& sdf);
   void addNoise(gz::math::Vector3d& acc, gz::math::Vector3d& gyro, const double& dt);
@@ -115,6 +117,9 @@ private:
   void configureImuLowPassFilterCb(
     const tobas_msgs::srv::ConfigureImuLowPassFilter::Request::ConstSharedPtr& req,
     const tobas_msgs::srv::ConfigureImuLowPassFilter::Response::SharedPtr& res);
+  void configureImuRpmFilter(
+    const tobas_msgs::srv::ConfigureImuNotchFilter::Request::ConstSharedPtr& req,
+    const tobas_msgs::srv::ConfigureImuNotchFilter::Response::SharedPtr& res);
 };
 
 GazeboImuPlugin::GazeboImuPlugin() : normal_(rnd_dev_, 0., 1.)
@@ -172,8 +177,10 @@ void GazeboImuPlugin::Configure(
     rotor_state_subs_.push_back(sub);
   }
 
-  config_ss_ = createService<tobas_msgs::srv::ConfigureImuLowPassFilter>(
+  config_lowpass_filter_ss_ = createService<tobas_msgs::srv::ConfigureImuLowPassFilter>(
     service::kConfigureImuLowPassFilter, &self::configureImuLowPassFilterCb, this);
+  config_rpm_filter_ss_ = createService<tobas_msgs::srv::ConfigureImuNotchFilter>(
+    service::kConfigureImuRpmFilter, &self::configureImuRpmFilter, this);
 }
 
 void GazeboImuPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)
@@ -359,6 +366,15 @@ void GazeboImuPlugin::configureImuLowPassFilterCb(
 
   res->success = true;
   res->message.clear();
+}
+
+void GazeboImuPlugin::configureImuRpmFilter(
+  const tobas_msgs::srv::ConfigureImuNotchFilter::Request::ConstSharedPtr&,
+  const tobas_msgs::srv::ConfigureImuNotchFilter::Response::SharedPtr& res)
+{
+  // TODO: RPMフィルタを実装．離散時間だと更新周波数が足りないため，連続時間で作った伝達関数を作ってから信号生成するとよさそう．
+  res->success = false;
+  res->message = "The RPM filter is not implemented in the simulation.";
 }
 }  // namespace gazebo
 }  // namespace tobas

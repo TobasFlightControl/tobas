@@ -136,19 +136,9 @@ int FC1xxWidget::numDShotChannels() const
   return 8;
 }
 
-int FC1xxWidget::defaultAccelLpfCutoff() const
+bool FC1xxWidget::hasRpmFilter() const
 {
-  return 30;
-}
-
-int FC1xxWidget::defaultGyroLpfCutoff() const
-{
-  return 40;
-}
-
-int FC1xxWidget::defaultDGyroLpfCutoff() const
-{
-  return 20;
+  return false;
 }
 }  // namespace hw
 }  // namespace sa

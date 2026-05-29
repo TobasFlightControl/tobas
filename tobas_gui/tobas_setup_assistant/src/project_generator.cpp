@@ -815,9 +815,7 @@ bool ProjectGenerator::generateRcTeleopStaticConfig()
 bool ProjectGenerator::generateImuFilterConfig()
 {
   YAML::Node params(YAML::NodeType::Map);
-  params["default_accel_lpf_cutoff"] = settings_->hardware->defaultAccelLpfCutoff();
-  params["default_gyro_lpf_cutoff"] = settings_->hardware->defaultGyroLpfCutoff();
-  params["default_dgyro_lpf_cutoff"] = settings_->hardware->defaultDGyroLpfCutoff();
+  params["has_rpm_filter"] = settings_->hardware->hasRpmFilter();
 
   const auto config_dir = proj_paths_.cfgConfigDirPath();
 

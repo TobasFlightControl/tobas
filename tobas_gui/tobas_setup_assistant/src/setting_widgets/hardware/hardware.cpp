@@ -245,19 +245,9 @@ int HardwareWidget::numDShotChannels() const
   return selected()->numDShotChannels();
 }
 
-int HardwareWidget::defaultAccelLpfCutoff() const
+bool HardwareWidget::hasRpmFilter() const
 {
-  return selected()->defaultAccelLpfCutoff();
-}
-
-int HardwareWidget::defaultGyroLpfCutoff() const
-{
-  return selected()->defaultGyroLpfCutoff();
-}
-
-int HardwareWidget::defaultDGyroLpfCutoff() const
-{
-  return selected()->defaultDGyroLpfCutoff();
+  return selected()->hasRpmFilter();
 }
 
 void HardwareWidget::setCurrentHardware(int index)

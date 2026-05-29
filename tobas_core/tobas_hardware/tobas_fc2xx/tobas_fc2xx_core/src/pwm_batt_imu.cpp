@@ -62,13 +62,24 @@ void PwmBattImu::setPwmPeriod(uint16_t* period_us)
   setTxCrc();
 }
 
-void PwmBattImu::setImuLpfCutoff(uint16_t acc_cutoff, uint16_t gyro_cutoff, uint16_t dgyro_cutoff)
+void PwmBattImu::configureLowPassFilter(uint16_t acc_cutoff, uint16_t gyro_cutoff, uint16_t dgyro_cutoff)
 {
   tx_buf_[kCmdTypeIdx] = 0x0001;
 
   tx_buf_[1] = acc_cutoff;
   tx_buf_[2] = gyro_cutoff;
   tx_buf_[3] = dgyro_cutoff;
+
+  setTxCrc();
+}
+
+void PwmBattImu::configureRpmFilter(uint16_t quality_factor, uint16_t min_center_freq, uint16_t fade_range)
+{
+  tx_buf_[kCmdTypeIdx] = 0x0002;
+
+  tx_buf_[1] = quality_factor;
+  tx_buf_[2] = min_center_freq;
+  tx_buf_[3] = fade_range;
 
   setTxCrc();
 }

@@ -36,7 +36,8 @@ public:
   bool transfer();
 
   void setPwmPeriod(uint16_t* period_us);
-  void setImuLpfCutoff(uint16_t acc_cutoff, uint16_t gyro_cutoff, uint16_t dgyro_cutoff);
+  void configureLowPassFilter(uint16_t acc_cutoff, uint16_t gyro_cutoff, uint16_t dgyro_cutoff);
+  void configureRpmFilter(uint16_t quality_factor, uint16_t min_center_freq, uint16_t fade_range);
 
   inline void getBattVoltage(double& voltage) const;
   inline void getBattCurrent(double& current) const;

@@ -11,6 +11,7 @@
 #include <tobas_msgs/msg/battery.hpp>
 #include <tobas_msgs/msg/pwm_array.hpp>
 #include <tobas_msgs/srv/configure_imu_low_pass_filter.hpp>
+#include <tobas_msgs/srv/configure_imu_notch_filter.hpp>
 #include <tobas_msgs_adapter/imu.hpp>
 
 #include "./common.hpp"
@@ -42,7 +43,8 @@ private:
 
   ros2::SubscriberPtr<tobas_msgs::msg::PwmArray> pwms_sub_;
 
-  ros2::ServiceServerPtr<tobas_msgs::srv::ConfigureImuLowPassFilter> config_ss_;
+  ros2::ServiceServerPtr<tobas_msgs::srv::ConfigureImuLowPassFilter> config_lowpass_filter_ss_;
+  ros2::ServiceServerPtr<tobas_msgs::srv::ConfigureImuNotchFilter> config_rpm_filter_ss_;
 
   ros2::TimerPtr initialize_timer_, main_timer_;
 
@@ -53,6 +55,9 @@ private:
   void configureImuLowPassFilterCb(
     const tobas_msgs::srv::ConfigureImuLowPassFilter::Request::ConstSharedPtr& req,
     const tobas_msgs::srv::ConfigureImuLowPassFilter::Response::SharedPtr& res);
+  void configureImuRpmFilter(
+    const tobas_msgs::srv::ConfigureImuNotchFilter::Request::ConstSharedPtr& req,
+    const tobas_msgs::srv::ConfigureImuNotchFilter::Response::SharedPtr& res);
 
   void mainTimerCb();
 };
@@ -77,8 +82,10 @@ void PwmBattImuDriverNode::initialize()
 
   pwms_sub_ = createSubscriber(topic::kPwmCmd, &self::pwmsCb, this);
 
-  config_ss_ = createService<tobas_msgs::srv::ConfigureImuLowPassFilter>(
+  config_lowpass_filter_ss_ = createService<tobas_msgs::srv::ConfigureImuLowPassFilter>(
     service::kConfigureImuLowPassFilter, &self::configureImuLowPassFilterCb, this);
+  config_rpm_filter_ss_ = createService<tobas_msgs::srv::ConfigureImuNotchFilter>(
+    service::kConfigureImuRpmFilter, &self::configureImuRpmFilter, this);
 
   initialize_timer_->cancel();
   main_timer_ = createWallTimer(kSamplingPeriod, &self::mainTimerCb, this);
@@ -101,7 +108,23 @@ void PwmBattImuDriverNode::configureImuLowPassFilterCb(
   const tobas_msgs::srv::ConfigureImuLowPassFilter::Request::ConstSharedPtr& req,
   const tobas_msgs::srv::ConfigureImuLowPassFilter::Response::SharedPtr& res)
 {
-  driver_.setImuLpfCutoff(req->accel_cutoff, req->gyro_cutoff, req->dgyro_cutoff);
+  driver_.configureLowPassFilter(req->accel_cutoff, req->gyro_cutoff, req->dgyro_cutoff);
+
+  if (!driver_.transfer()) {
+    res->success = false;
+    res->message = "Failed to communicate with the MCU.";
+    return;
+  }
+
+  res->success = true;
+  res->message.clear();
+}
+
+void PwmBattImuDriverNode::configureImuRpmFilter(
+  const tobas_msgs::srv::ConfigureImuNotchFilter::Request::ConstSharedPtr& req,
+  const tobas_msgs::srv::ConfigureImuNotchFilter::Response::SharedPtr& res)
+{
+  driver_.configureRpmFilter(req->quality_factor, req->min_center_freq, req->fade_range);
 
   if (!driver_.transfer()) {
     res->success = false;
