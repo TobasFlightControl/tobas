@@ -4,6 +4,7 @@
 uint16 quality_factor   # [-]
 uint16 min_center_freq  # [Hz]
 uint16 fade_range       # [Hz]
+uint16 lpf_cutoff       # [Hz]
 ---
 bool success
 string message

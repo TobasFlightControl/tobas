@@ -37,7 +37,7 @@ public:
 
   void setPwmPeriod(uint16_t* period_us);
   void configureLowPassFilter(uint16_t acc_cutoff, uint16_t gyro_cutoff, uint16_t dgyro_cutoff);
-  void configureRpmFilter(uint16_t quality_factor, uint16_t min_center_freq, uint16_t fade_range);
+  void configureRpmFilter(uint16_t quality_factor, uint16_t min_center_freq, uint16_t fade_range, uint16_t lpf_cutoff);
 
   inline void getBattVoltage(double& voltage) const;
   inline void getBattCurrent(double& current) const;
