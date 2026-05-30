@@ -103,7 +103,6 @@ void ImuFftPlotWidget::updateSamples(
   const auto& first_time = msgs.first().header.stamp;
   const auto& last_time = msgs.back().header.stamp;
   const auto duration = (last_time - first_time).seconds();  // [s]
-  const auto fs = n / duration;                              // [Hz]
 
   // 周波数変換して表示
   // FFTが重い (N log(N)) ため各軸に対して並列実行
@@ -118,7 +117,7 @@ void ImuFftPlotWidget::updateSamples(
     // 平均値 (k = 0) は含めない
     QVector<double> freqs, amps;
     for (size_t k = 1; k < spec.size(); ++k) {
-      const auto freq = k * fs / n;  // [Hz]
+      const auto freq = k / duration;  // [Hz]
       freqs.push_back(freq);
 
       const auto is_edge = (n % 2 == 0 && k == n / 2);
