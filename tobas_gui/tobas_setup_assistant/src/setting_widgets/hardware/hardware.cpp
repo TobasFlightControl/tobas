@@ -150,11 +150,6 @@ const char* HardwareWidget::hardwarePackage() const
   return selected()->hardwarePackage();
 }
 
-int HardwareWidget::imuUpdateRate() const
-{
-  return selected()->imuUpdateRate();
-}
-
 double HardwareWidget::gyroNoiseDensity() const
 {
   return selected()->gyroNoiseDensity();

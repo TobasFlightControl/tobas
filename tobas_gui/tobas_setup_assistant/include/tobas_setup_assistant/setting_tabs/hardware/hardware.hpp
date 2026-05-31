@@ -50,8 +50,6 @@ public:
   const char* fmuName() const;
   const char* hardwarePackage() const;
 
-  /* [Hz] */
-  int imuUpdateRate() const;
   /* [rad/s/√Hz] */
   double gyroNoiseDensity() const;
   /* [rad/s^2/√Hz] */

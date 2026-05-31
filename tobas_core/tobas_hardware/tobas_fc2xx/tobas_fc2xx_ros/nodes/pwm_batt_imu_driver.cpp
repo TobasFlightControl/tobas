@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <tobas_constants/imu.hpp>
 #include <tobas_constants/ros_interface.hpp>
 #include <tobas_constants/time.hpp>
 #include <tobas_fc2xx_core/pwm_batt_imu.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_real_common/ros_interface.hpp>
+#include <tobas_time_tools/util.hpp>
 #include <tobas_tools/imu_sampling_time_publisher.hpp>
 
 #include <tobas_msgs/msg/battery.hpp>
@@ -26,8 +28,6 @@ class PwmBattImuDriverNode : public BaseNode
 {
   using self = PwmBattImuDriverNode;
   using super = BaseNode;
-
-  static constexpr auto kSamplingPeriod = 1250us;  // 800Hz
 
 public:
   explicit PwmBattImuDriverNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -88,7 +88,7 @@ void PwmBattImuDriverNode::initialize()
     service::kConfigureImuRpmFilter, &self::configureImuRpmFilter, this);
 
   initialize_timer_->cancel();
-  main_timer_ = createWallTimer(kSamplingPeriod, &self::mainTimerCb, this);
+  main_timer_ = createWallTimer(tim::periodFromFrequency<kImuSamplingRate>(), &self::mainTimerCb, this);
 }
 
 void PwmBattImuDriverNode::pwmsCb(const tobas_msgs::msg::PwmArray::ConstSharedPtr& pwms)

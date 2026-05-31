@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <tobas_constants/imu.hpp>
 #include <tobas_constants/ros_interface.hpp>
 #include <tobas_dsp/low_pass_filter.hpp>
 #include <tobas_hardware_common/base_sensor_node.hpp>
 #include <tobas_ic_drivers/stmicro/ism330dlc.hpp>
 #include <tobas_real_common/ros_interface.hpp>
+#include <tobas_time_tools/util.hpp>
 #include <tobas_tools/imu_sampling_time_publisher.hpp>
 
 #include <tobas_msgs/srv/configure_imu_low_pass_filter.hpp>
@@ -22,9 +24,6 @@ namespace fc1xx
 class ImuDriverNode : public hardware::BaseSensorNode
 {
   static constexpr char kSpiDevice[] = "/dev/spidev0.0";
-
-  // エイリアシングを防ぐためにサンプリング周波数はなるべく高めにするとよい
-  static constexpr auto kSamplingPeriod = 1250us;  // 800Hz
 
   using self = ImuDriverNode;
   using super = hardware::BaseSensorNode;
@@ -144,7 +143,7 @@ void ImuDriverNode::initializeTimerCb()
     service::kConfigureImuLowPassFilter, &self::configureImuLowPassFilterCb, this);
 
   initialize_timer_->cancel();
-  main_timer_ = createWallTimer(kSamplingPeriod, &self::mainTimerCb, this);
+  main_timer_ = createWallTimer(tim::periodFromFrequency<kImuSamplingRate>(), &self::mainTimerCb, this);
 
   t_prev_ = now();
 }

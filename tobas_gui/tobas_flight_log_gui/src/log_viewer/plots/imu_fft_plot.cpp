@@ -7,6 +7,7 @@
 
 #include <QGridLayout>
 
+#include <tobas_constants/imu.hpp>
 #include <tobas_ros2_tools/time.hpp>
 
 namespace tobas
@@ -99,13 +100,6 @@ void ImuFftPlotWidget::updateSamples(
     imu_data[5].push_back(gyro.z);
   }
 
-  // サンプリング周波数を計算
-  // FIXME: このやり方だと全てのサンプルを記録できていない場合に周波数が低く見積もられてしまう
-  const auto& first_time = msgs.first().header.stamp;
-  const auto& last_time = msgs.back().header.stamp;
-  const auto duration = (last_time - first_time).seconds();  // [s]
-  const auto fs = (n - 1) / duration;                        // [Hz]
-
   // 周波数変換して表示
   // FFTが重い (N log(N)) ため各軸に対して並列実行
 #pragma omp parallel for num_threads(kNumAxes)
@@ -119,7 +113,7 @@ void ImuFftPlotWidget::updateSamples(
     // 平均値 (k = 0) は含めない
     QVector<double> freqs, amps;
     for (size_t k = 1; k < spec.size(); ++k) {
-      const auto freq = k * fs / n;  // [Hz]
+      const auto freq = static_cast<double>(kImuSamplingRate) * k / n;  // [Hz]
       freqs.push_back(freq);
 
       const auto is_edge = (n % 2 == 0 && k == n / 2);

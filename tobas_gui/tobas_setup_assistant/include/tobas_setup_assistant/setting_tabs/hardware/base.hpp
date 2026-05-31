@@ -28,8 +28,6 @@ public:
 
   virtual const char* hardwarePackage() const = 0;
 
-  /* [Hz] */
-  virtual int imuUpdateRate() const = 0;
   /* [rad/s/√Hz] */
   virtual double gyroNoiseDensity() const = 0;
   /* [rad/s^2/√Hz] */

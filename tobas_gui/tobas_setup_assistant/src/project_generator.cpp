@@ -3,6 +3,7 @@
 
 #include "tobas_setup_assistant/project_generator.hpp"
 
+#include <tobas_constants/imu.hpp>
 #include <tobas_constants/node.hpp>
 #include <tobas_constants/pwm_key.hpp>
 #include <tobas_constants/throttle.hpp>
@@ -1089,7 +1090,7 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
     robot,
     ns,
     root_name,
-    fmu->imuUpdateRate(),
+    kImuSamplingRate,
     Eigen::Vector3d::Zero(),  // TODO
     fmu->gyroNoiseDensity(),
     fmu->gyroRandomWalk(),

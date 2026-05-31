@@ -41,11 +41,6 @@ const char* FC2xxWidget::hardwarePackage() const
   return "tobas_fc2xx_ros";
 }
 
-int FC2xxWidget::imuUpdateRate() const
-{
-  return 800;
-}
-
 double FC2xxWidget::gyroNoiseDensity() const
 {
   return 0.011 * st::kDeg2Rad;  // ISM330DLC

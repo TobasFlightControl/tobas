@@ -29,7 +29,6 @@ public:
 
   const char* hardwarePackage() const override;
 
-  int imuUpdateRate() const override;
   double gyroNoiseDensity() const override;
   double gyroRandomWalk() const override;
   int gyroBiasCorrTime() const override;
