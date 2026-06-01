@@ -9,16 +9,6 @@ $ pip install --upgrade pip
 $ pip install -r requirements.txt
 ```
 
-## Test locally
-
-1. Start the MkDocs server.
-
-```bash
-$ mkdocs serve --livereload
-```
-
-2. Then open http://127.0.0.1:8000/ in your browser.
-
 ## Translate Japanese to English
 
 1. Install openai
@@ -42,11 +32,21 @@ $ python translate_docs.py  # Try -h to see the available options.
 > [!NOTE]
 > The paths of local HTML links differ between the Japanese and English versions.
 
-## Deploy Test
+## Test locally
 
-[Publishing your site](https://squidfunk.github.io/mkdocs-material/publishing-your-site/)
+1. Start the MkDocs server.
 
 ```bash
-$ mkdocs build --clean
-$ mkdocs gh-deploy --force --config-file mkdocs.yaml
+$ mkdocs serve --livereload
+```
+
+2. Then open http://127.0.0.1:8000/ in your browser.
+
+## Deploy
+
+[Material for MkDocs/Setting up versioning/Usage](https://squidfunk.github.io/mkdocs-material/setup/setting-up-versioning/#usage)
+
+```bash
+$ mike deploy --push --update-aliases vx.x latest
+$ mike set-default --push latest
 ```

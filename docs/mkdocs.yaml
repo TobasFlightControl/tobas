@@ -59,6 +59,10 @@ repo_url: https://github.com/TobasFlightControl/tobas
 repo_name: TobasFlightControl/tobas
 
 plugins:
+  - mike:
+      alias_type: redirect
+      canonical_version: latest
+      version_selector: true
   - search
   - i18n:
       docs_structure: folder
@@ -129,15 +133,9 @@ extra:
     - icon: fontawesome/brands/x-twitter
       link: https://x.com/dronewotobas
       name: Tobas on X
-  alternate: # https://squidfunk.github.io/mkdocs-material/setup/changing-the-language/#site-language-selector
-    - name: 日本語
-      link: /
-      lang: ja
-    - name: English
-      link: /tobas/en/
-      lang: en
   version: # https://squidfunk.github.io/mkdocs-material/setup/setting-up-versioning/
     provider: mike
+    alias: true
 
 # https://squidfunk.github.io/mkdocs-material/customization/?h=css#additional-css
 extra_css:
