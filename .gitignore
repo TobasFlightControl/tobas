@@ -5,4 +5,5 @@
 build/
 log/
 __pycache__/
+.venv/
 tobas_deb/ubuntu/opt/
