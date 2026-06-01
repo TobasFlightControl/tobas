@@ -40,8 +40,8 @@ private:
 VibrationFilterNode::VibrationFilterNode(const rclcpp::NodeOptions& options)
   : super("vibration_filter", nodeOptions_Default(options))
 {
-  TOBAS_ASSERT(hpf_.setCutoffFrequency(kHpfCutoff));
-  TOBAS_ASSERT(lpf_.setCutoffFrequency(kLpfCutoff));
+  hpf_.setCutoffFrequency(kHpfCutoff);
+  lpf_.setCutoffFrequency(kLpfCutoff);
 
   vibe_pub_ = createPublisher<tobas_msgs::VibrationLevel>(topic::kVibrationLevel);
   imu_sub_ = createSubscriber(topic::kImuRaw, &self::imuCb, this);

@@ -74,7 +74,7 @@ private:
 ImuHandlerNode::ImuHandlerNode(const rclcpp::NodeOptions& options)
   : super("real_imu_handler", nodeOptions_Default(options))
 {
-  TOBAS_ASSERT(gyro_lpf_.setCutoffFrequency(kGyroLpfCutoff));
+  gyro_lpf_.setCutoffFrequency(kGyroLpfCutoff);
 
   const auto cfg_dir = linux::isSuperUser() ? fs::path(kConfigDirRoot) : ros2::expandUser(kConfigDirHome);
   if (!pt_.initialize((cfg_dir / handler::imu::kConfigFileName))) {

@@ -105,23 +105,9 @@ void ImuDriverNode::configureImuLowPassFilterCb(
   const tobas_msgs::srv::ConfigureImuLowPassFilter::Request::ConstSharedPtr& req,
   const tobas_msgs::srv::ConfigureImuLowPassFilter::Response::SharedPtr& res)
 {
-  if (!acc_lpf_.setCutoffFrequency(req->accel_cutoff)) {
-    res->success = false;
-    res->message = "Failed to set accel LPF cutoff frequency.";
-    return;
-  }
-
-  if (!gyro_lpf_.setCutoffFrequency(req->gyro_cutoff)) {
-    res->success = false;
-    res->message = "Failed to set gyro LPF cutoff frequency.";
-    return;
-  }
-
-  if (!dgyro_lpf_.setCutoffFrequency(req->dgyro_cutoff)) {
-    res->success = false;
-    res->message = "Failed to set D-gyro LPF cutoff frequency.";
-    return;
-  }
+  acc_lpf_.setCutoffFrequency(req->accel_cutoff);
+  gyro_lpf_.setCutoffFrequency(req->gyro_cutoff);
+  dgyro_lpf_.setCutoffFrequency(req->dgyro_cutoff);
 
   lpf_initialized_ = true;
 
