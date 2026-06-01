@@ -36,9 +36,6 @@ theme:
   icon: # https://squidfunk.github.io/mkdocs-material/setup/changing-the-logo-and-icons/#site-icons
     repo: fontawesome/brands/github # https://squidfunk.github.io/mkdocs-material/setup/adding-a-git-repository/#repository-icon
   features:
-    - navigation.instant # https://squidfunk.github.io/mkdocs-material/setup/setting-up-navigation/#instant-loading
-    - navigation.instant.prefetch # https://squidfunk.github.io/mkdocs-material/setup/setting-up-navigation/#instant-prefetching
-    - navigation.instant.progress # https://squidfunk.github.io/mkdocs-material/setup/setting-up-navigation/#progress-indicator
     - navigation.tracking # https://squidfunk.github.io/mkdocs-material/setup/setting-up-navigation/#anchor-tracking
     - navigation.tabs # https://squidfunk.github.io/mkdocs-material/setup/setting-up-navigation/#navigation-tabs
     - navigation.tabs.sticky # https://squidfunk.github.io/mkdocs-material/setup/setting-up-navigation/#sticky-navigation-tabs
@@ -54,6 +51,8 @@ theme:
     - content.tabs.link # https://squidfunk.github.io/mkdocs-material/reference/content-tabs/?h=content#linked-content-tabs
     - content.footnote.tooltips # https://squidfunk.github.io/mkdocs-material/reference/footnotes/#footnote-tooltips
     - content.tooltips # https://squidfunk.github.io/mkdocs-material/reference/tooltips/#improved-tooltips
+    # The navigation.instant feature is NOT compatible with the multi-language switcher.
+    # https://ultrabug.github.io/mkdocs-static-i18n/setup/setting-up-material/
 
 # https://squidfunk.github.io/mkdocs-material/setup/adding-a-git-repository/#repository
 repo_url: https://github.com/TobasFlightControl/tobas
@@ -135,7 +134,7 @@ extra:
       link: /
       lang: ja
     - name: English
-      link: /en/
+      link: /tobas/en/
       lang: en
   version: # https://squidfunk.github.io/mkdocs-material/setup/setting-up-versioning/
     provider: mike
@@ -143,8 +142,3 @@ extra:
 # https://squidfunk.github.io/mkdocs-material/customization/?h=css#additional-css
 extra_css:
   - stylesheets/extra.css
-
-# https://squidfunk.github.io/mkdocs-material/customization/?h=css#additional-javascript
-extra_javascript:
-  - https://polyfill.io/v3/polyfill.min.js?features=es6
-  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js

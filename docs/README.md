@@ -42,12 +42,11 @@ $ python translate_docs.py  # Try -h to see the available options.
 > [!NOTE]
 > The paths of local HTML links differ between the Japanese and English versions.
 
-## Deploy
+## Deploy Test
 
-TODO
+[Publishing your site](https://squidfunk.github.io/mkdocs-material/publishing-your-site/)
 
 ```bash
-$ mike deploy --push --update-aliases x.x latest
-$ mike set-default --push latest
-$ mike serve
+$ mkdocs build --clean
+$ mkdocs gh-deploy --force --config-file mkdocs.yaml
 ```
