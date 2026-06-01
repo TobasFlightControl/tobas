@@ -1,0 +1,18 @@
+<!-- https://squidfunk.github.io/mkdocs-material/setup/setting-up-the-header/#announcement-bar -->
+<!-- cf. https://github.com/fastapi/fastapi/blob/master/docs/en/overrides/main.html -->
+
+{% extends "base.html" %}
+
+{% block announce %}
+<div class="announce-wrapper">
+  <div id="announce-left">
+    <div class="item">
+      <a class="announce-link" href="https://x.com/dronewotobas" target="_blank">
+        <span class="twemoji">
+          {% include ".icons/fontawesome/brands/x-twitter.svg" %}
+        </span> Follow <strong>@dronewotobas</strong> on <strong>X (Twitter)</strong> to stay updated
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}
