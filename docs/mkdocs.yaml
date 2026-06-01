@@ -1,6 +1,6 @@
 site_name: Tobas
 site_description: Tobasは，モデルベース設計とLinuxを基盤とした，ドローン・ロボット航空機向けフライトコントローラです．
-site_url: https://tobas.github.io/
+site_url: https://TobasFlightControl.github.io/tobas/
 
 # https://github.com/mkdocs/mkdocs/wiki/MkDocs-Themes
 theme:
