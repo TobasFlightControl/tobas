@@ -1,0 +1,23 @@
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<!-- Copyright (C) 2026 Tobas, Inc. -->
+<package format="3">
+  <name>d_roc_gamepad_ros</name>
+  <version>0.0.0</version>
+  <description>ROS nodes for d_roc_gamepad</description>
+  <maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
+  <license>GPL-3.0-or-later</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>d_roc_gamepad</depend>
+  <depend>rclcpp</depend>
+  <depend>rclcpp_components</depend>
+  <depend>tobas_constants</depend>
+  <depend>tobas_msgs</depend>
+  <depend>tobas_msgs_adapter</depend>
+  <depend>tobas_node</depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>
