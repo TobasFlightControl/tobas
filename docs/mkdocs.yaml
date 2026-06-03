@@ -75,6 +75,22 @@ plugins:
         - locale: en
           name: English
           build: true
+          theme:
+            palette:
+              - media: "(prefers-color-scheme: light)"
+                scheme: default
+                primary: teal
+                accent: amber
+                toggle:
+                  icon: material/weather-night
+                  name: Switch to dark mode
+              - media: "(prefers-color-scheme: dark)"
+                scheme: slate
+                primary: teal
+                accent: amber
+                toggle:
+                  icon: material/weather-sunny
+                  name: Switch to light mode
           nav_translations:
             スタートガイド: Getting Started
             インストール: Installation
