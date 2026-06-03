@@ -17,7 +17,6 @@ def generate_launch_description():
     #             ComposableNode(
     #                 package="{{ user_cpp_pkg_name }}",
     #                 plugin="UserNode",
-    #                 namespace="{{ drone_name }}",
     #                 extra_arguments=[{"use_intra_process_comms": True}],
     #             ),
     #         ],

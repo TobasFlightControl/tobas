@@ -61,7 +61,7 @@ SetupAssistantWidget::SetupAssistantWidget(rclcpp::Node::SharedPtr node)
   // さもないと確保時にメモリ配置が変わってセグフォになる
   rviz_ = new RvizWidget(uadf_, tree_);
   frame_tree_ = new FrameTreeWidget(tree_, rviz_);
-  properties_ = new RobotPropertiesWidget(tree_);
+  properties_ = new RobotPropertiesWidget(uadf_, tree_);
   jsp_ = new JointStatePublisherWidget(node, tree_);
   settings_ = new SettingsWidget(node, uadf_, tree_, sig_);
 

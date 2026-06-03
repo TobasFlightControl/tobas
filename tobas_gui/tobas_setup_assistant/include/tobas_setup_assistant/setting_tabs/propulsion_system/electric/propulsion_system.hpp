@@ -46,7 +46,7 @@ public:
 
   QString linkName(int index) const override;
 };
-};  // namespace electric
+}  // namespace electric
 }  // namespace propulsion
 }  // namespace sa
 }  // namespace gui

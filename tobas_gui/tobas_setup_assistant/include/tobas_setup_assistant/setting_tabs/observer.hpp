@@ -36,6 +36,7 @@ public:
   bool useMagnetometer() const;
   bool useBarometer() const;
   bool useGnss() const;
+  bool useExternalPose() const;
   bool adaptiveGnssNoise() const;
   bool adaptiveGravityNoise() const;
   bool doAccelBiasEstimation() const;
@@ -48,6 +49,7 @@ private:
   QCheckBox* use_magnetometer_;
   QCheckBox* use_barometer_;
   QCheckBox* use_gnss_;
+  QCheckBox* use_ext_pose_;
   QCheckBox* adaptive_gnss_noise_;
   QCheckBox* adaptive_grav_noise_;
   QCheckBox* do_acc_bias_estimation_;
@@ -56,6 +58,6 @@ private:
   QCheckBox* do_mag_soft_bias_estimation_;
   QCheckBox* do_grav_estimation_;
 };
-};  // namespace sa
+}  // namespace sa
 }  // namespace gui
 }  // namespace tobas

@@ -10,7 +10,6 @@
 #include <tobas_math/core.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_ros2_tools/time.hpp>
-#include <tobas_std_tools/check.hpp>
 
 #include <tobas_msgs/msg/arming.hpp>
 #include <tobas_msgs/msg/landed_state.hpp>
@@ -117,7 +116,7 @@ private:
 
 RCTeleopNode::RCTeleopNode(const rclcpp::NodeOptions& options) : super(node::kRcTeleop, nodeOptions_DParam(options))
 {
-  TOBAS_CHECK(mode2str_.size() == magic_enum::enum_count<FlightMode>());
+  TOBAS_ASSERT(mode2str_.size() == magic_enum::enum_count<FlightMode>());
 
   getStaticRosParams();
   initializeControllers();
@@ -138,9 +137,9 @@ void RCTeleopNode::getStaticRosParams()
     modes_[mode];
   }
 
-  TOBAS_CHECK(enumFromText(getStringParam("acrobat_mode"), modes_.at(FlightMode::kAcrobat)));
-  TOBAS_CHECK(enumFromText(getStringParam("stabilize_mode"), modes_.at(FlightMode::kStabilize)));
-  TOBAS_CHECK(enumFromText(getStringParam("loiter_mode"), modes_.at(FlightMode::kLoiter)));
+  TOBAS_ASSERT(enumFromText(getStringParam("acrobat_mode"), modes_.at(FlightMode::kAcrobat)));
+  TOBAS_ASSERT(enumFromText(getStringParam("stabilize_mode"), modes_.at(FlightMode::kStabilize)));
+  TOBAS_ASSERT(enumFromText(getStringParam("loiter_mode"), modes_.at(FlightMode::kLoiter)));
 }
 
 void RCTeleopNode::initializeControllers()

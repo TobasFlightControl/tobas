@@ -59,7 +59,7 @@ HardwareWidget::HardwareWidget(const uadf::Model& uadf, const Signals& sig)
   addLayout(rcout_cols, 1);
 
   // Connection
-  connect(type_, QOverload<int>::of(&qt::ComboBox::currentIndexChanged), this, &self::setCurrentHardware);
+  connect(type_, qOverload<int>(&qt::ComboBox::currentIndexChanged), this, &self::setCurrentHardware);
 }
 
 const char* HardwareWidget::name() const
@@ -148,11 +148,6 @@ const char* HardwareWidget::fmuName() const
 const char* HardwareWidget::hardwarePackage() const
 {
   return selected()->hardwarePackage();
-}
-
-int HardwareWidget::imuUpdateRate() const
-{
-  return selected()->imuUpdateRate();
 }
 
 double HardwareWidget::gyroNoiseDensity() const
@@ -245,19 +240,9 @@ int HardwareWidget::numDShotChannels() const
   return selected()->numDShotChannels();
 }
 
-int HardwareWidget::defaultAccelLpfCutoff() const
+bool HardwareWidget::hasRpmFilter() const
 {
-  return selected()->defaultAccelLpfCutoff();
-}
-
-int HardwareWidget::defaultGyroLpfCutoff() const
-{
-  return selected()->defaultGyroLpfCutoff();
-}
-
-int HardwareWidget::defaultDGyroLpfCutoff() const
-{
-  return selected()->defaultDGyroLpfCutoff();
+  return selected()->hasRpmFilter();
 }
 
 void HardwareWidget::setCurrentHardware(int index)

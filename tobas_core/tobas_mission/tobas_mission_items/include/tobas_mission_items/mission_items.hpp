@@ -6,26 +6,14 @@
 #include <cinttypes>
 #include <stdfloat>
 
+#include "./altitude_frame.hpp"
+
 #define PACKED __attribute__((__packed__))  // 構造体のメンバ変数がメモリ上で連続する
 
 namespace tobas
 {
 namespace mission
 {
-enum Type : uint8_t
-{
-  kWaypoint,
-  kTakeoff,
-  kLand,
-  kReturnToLaunch,
-};
-
-enum AltitudeFrame : uint8_t
-{
-  kRelativeToLaunch,
-  kMeanSeaLevel,
-};
-
 struct PACKED Waypoint
 {
   std::float64_t latitude = 0.;   // [deg]
@@ -92,3 +80,5 @@ struct PACKED ReturnToLaunch
 };
 }  // namespace mission
 }  // namespace tobas
+
+#undef PACKED

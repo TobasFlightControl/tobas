@@ -37,6 +37,6 @@ public:
 private:
   ParamGetterWidget_SpinBox* num_sbus_channels_;
 };
-};  // namespace sa
+}  // namespace sa
 }  // namespace gui
 }  // namespace tobas

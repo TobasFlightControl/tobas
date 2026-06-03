@@ -42,6 +42,6 @@ private:
   static QString getDefaultName();
   static QString getDefaultEmail();
 };
-};  // namespace sa
+}  // namespace sa
 }  // namespace gui
 }  // namespace tobas

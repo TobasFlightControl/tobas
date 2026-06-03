@@ -2,7 +2,7 @@
 // Copyright (C) 2026 Tobas, Inc.
 
 #include <tobas_constants/ros_interface.hpp>
-#include <tobas_dsp/low_pass_filter_p1.hpp>
+#include <tobas_dsp/low_pass_filter.hpp>
 #include <tobas_math/core.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_ros2_tools/time.hpp>
@@ -94,7 +94,7 @@ private:
   builtin_interfaces::msg::Time t_last_voltage_ok_, t_last_voltage_ng_;
   rclcpp::Time t_last_rcin_;
   std::array<st::TimestampedBufferDouble, 3> pos_bufs_;
-  dsp::LowPassFilterP1<kdl::Vector> mag_B_lpf_, mag_W_lpf_;
+  dsp::LowPassFilter<kdl::Vector> mag_B_lpf_, mag_W_lpf_;
 
   ros2::PublisherPtr<tobas_msgs::msg::VehicleHealth> health_pub_;
 
@@ -629,9 +629,13 @@ void HealthMonitorNode::mainTimerCb()
   if (do_check_.user_defined_condition) {
     if (user_health_) {
       health->user_defined_condition = user_health_->data;
+      if (user_health_->data != tobas_msgs::msg::VehicleHealth::PASSED) {
+        health->ok = false;
+      }
     }
     else {
       health->user_defined_condition = tobas_msgs::msg::VehicleHealth::UNKNOWN;
+      health->ok = false;
     }
   }
   else {

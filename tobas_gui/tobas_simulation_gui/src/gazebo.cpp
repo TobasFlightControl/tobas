@@ -118,7 +118,7 @@ bool killGazeboServerAndWait(rclcpp::Node::SharedPtr node)
   const auto [success, message] = qt::startThreadAndWait(thread, &KillGazeboThread::finished);
   qDebug().nospace() << "KillGazeboThread::finished(" << success << ", " << message << ")";
   if (!success) {
-    qWarning() << message;
+    qWarning().noquote() << message;
   }
   return success;
 }

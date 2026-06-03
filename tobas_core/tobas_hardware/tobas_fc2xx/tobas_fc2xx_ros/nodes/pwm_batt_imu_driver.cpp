@@ -1,16 +1,19 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <tobas_constants/imu.hpp>
 #include <tobas_constants/ros_interface.hpp>
 #include <tobas_constants/time.hpp>
 #include <tobas_fc2xx_core/pwm_batt_imu.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_real_common/ros_interface.hpp>
+#include <tobas_time_tools/util.hpp>
 #include <tobas_tools/imu_sampling_time_publisher.hpp>
 
 #include <tobas_msgs/msg/battery.hpp>
 #include <tobas_msgs/msg/pwm_array.hpp>
-#include <tobas_msgs/srv/configure_imu_filter.hpp>
+#include <tobas_msgs/srv/configure_imu_low_pass_filter.hpp>
+#include <tobas_msgs/srv/configure_imu_rpm_filter.hpp>
 #include <tobas_msgs_adapter/imu.hpp>
 
 #include "./common.hpp"
@@ -26,8 +29,6 @@ class PwmBattImuDriverNode : public BaseNode
   using self = PwmBattImuDriverNode;
   using super = BaseNode;
 
-  static constexpr auto kSamplingPeriod = 1250us;  // 800Hz
-
 public:
   explicit PwmBattImuDriverNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
@@ -42,7 +43,8 @@ private:
 
   ros2::SubscriberPtr<tobas_msgs::msg::PwmArray> pwms_sub_;
 
-  ros2::ServiceServerPtr<tobas_msgs::srv::ConfigureImuFilter> config_ss_;
+  ros2::ServiceServerPtr<tobas_msgs::srv::ConfigureImuLowPassFilter> config_lowpass_filter_ss_;
+  ros2::ServiceServerPtr<tobas_msgs::srv::ConfigureImuRpmFilter> config_rpm_filter_ss_;
 
   ros2::TimerPtr initialize_timer_, main_timer_;
 
@@ -50,9 +52,12 @@ private:
 
   void pwmsCb(const tobas_msgs::msg::PwmArray::ConstSharedPtr& pwms);
 
-  void configureImuFilterCb(
-    const tobas_msgs::srv::ConfigureImuFilter::Request::ConstSharedPtr& req,
-    const tobas_msgs::srv::ConfigureImuFilter::Response::SharedPtr& res);
+  void configureImuLowPassFilterCb(
+    const tobas_msgs::srv::ConfigureImuLowPassFilter::Request::ConstSharedPtr& req,
+    const tobas_msgs::srv::ConfigureImuLowPassFilter::Response::SharedPtr& res);
+  void configureImuRpmFilter(
+    const tobas_msgs::srv::ConfigureImuRpmFilter::Request::ConstSharedPtr& req,
+    const tobas_msgs::srv::ConfigureImuRpmFilter::Response::SharedPtr& res);
 
   void mainTimerCb();
 };
@@ -77,11 +82,13 @@ void PwmBattImuDriverNode::initialize()
 
   pwms_sub_ = createSubscriber(topic::kPwmCmd, &self::pwmsCb, this);
 
-  config_ss_ =
-    createService<tobas_msgs::srv::ConfigureImuFilter>(service::kConfigureImuFilter, &self::configureImuFilterCb, this);
+  config_lowpass_filter_ss_ = createService<tobas_msgs::srv::ConfigureImuLowPassFilter>(
+    service::kConfigureImuLowPassFilter, &self::configureImuLowPassFilterCb, this);
+  config_rpm_filter_ss_ = createService<tobas_msgs::srv::ConfigureImuRpmFilter>(
+    service::kConfigureImuRpmFilter, &self::configureImuRpmFilter, this);
 
   initialize_timer_->cancel();
-  main_timer_ = createWallTimer(kSamplingPeriod, &self::mainTimerCb, this);
+  main_timer_ = createWallTimer(tim::periodFromFrequency<kImuSamplingRate>(), &self::mainTimerCb, this);
 }
 
 void PwmBattImuDriverNode::pwmsCb(const tobas_msgs::msg::PwmArray::ConstSharedPtr& pwms)
@@ -97,11 +104,27 @@ void PwmBattImuDriverNode::pwmsCb(const tobas_msgs::msg::PwmArray::ConstSharedPt
   driver_.setPwmPeriod(pwm_periods_);
 }
 
-void PwmBattImuDriverNode::configureImuFilterCb(
-  const tobas_msgs::srv::ConfigureImuFilter::Request::ConstSharedPtr& req,
-  const tobas_msgs::srv::ConfigureImuFilter::Response::SharedPtr& res)
+void PwmBattImuDriverNode::configureImuLowPassFilterCb(
+  const tobas_msgs::srv::ConfigureImuLowPassFilter::Request::ConstSharedPtr& req,
+  const tobas_msgs::srv::ConfigureImuLowPassFilter::Response::SharedPtr& res)
 {
-  driver_.setImuLpfCutoff(req->accel_cutoff, req->gyro_cutoff, req->dgyro_cutoff);
+  driver_.configureLowPassFilter(req->accel_cutoff, req->gyro_cutoff, req->dgyro_cutoff);
+
+  if (!driver_.transfer()) {
+    res->success = false;
+    res->message = "Failed to communicate with the MCU.";
+    return;
+  }
+
+  res->success = true;
+  res->message.clear();
+}
+
+void PwmBattImuDriverNode::configureImuRpmFilter(
+  const tobas_msgs::srv::ConfigureImuRpmFilter::Request::ConstSharedPtr& req,
+  const tobas_msgs::srv::ConfigureImuRpmFilter::Response::SharedPtr& res)
+{
+  driver_.configureRpmFilter(req->quality_factor, req->min_center_freq, req->fade_range, req->lpf_cutoff);
 
   if (!driver_.transfer()) {
     res->success = false;
@@ -129,7 +152,7 @@ void PwmBattImuDriverNode::mainTimerCb()
   batt_msg->header.stamp = cur_time;
   driver_.getBattVoltage(batt_msg->voltage);
   driver_.getBattCurrent(batt_msg->current);
-  if (batt_msg->voltage > 0. && batt_msg->current > 0.) {
+  if (batt_msg->voltage > 0.) {
     batt_pub_->publish(std::move(batt_msg));
   }
   else {

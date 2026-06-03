@@ -60,7 +60,7 @@ Rectangle {
       function computeTickmarkStepSize() {
         var step = gauge.maximumValue / 10;
         var units = [1000, 500, 200, 100, 50, 20, 10, 5, 2, 1];
-        for (var i = 0; i < units.length; i++) {
+        for (var i = 0; i < units.length; ++i) {
           if (step >= units[i]) {
             return Math.ceil(step / units[i]) * units[i];
           }

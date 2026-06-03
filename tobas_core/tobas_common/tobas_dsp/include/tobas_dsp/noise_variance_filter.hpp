@@ -23,7 +23,7 @@ class NoiseVarianceFilter
 public:
   explicit NoiseVarianceFilter();
 
-  bool initialize(double hpf_cutoff_freq, const DataType& init_data);
+  void initialize(double hpf_cutoff_freq, const DataType& init_data);
   void update(const DataType& data, double dt);
 
   inline CovType noiseVariance() const;
@@ -42,12 +42,9 @@ NoiseVarianceFilter<Scalar, Size, Length>::NoiseVarianceFilter()
 }
 
 template <typename Scalar, int Size, size_t Length>
-bool NoiseVarianceFilter<Scalar, Size, Length>::initialize(double hpf_cutoff_freq, const DataType& init_data)
+void NoiseVarianceFilter<Scalar, Size, Length>::initialize(double hpf_cutoff_freq, const DataType& init_data)
 {
-  if (!hpf_.setCutoffFrequency(hpf_cutoff_freq)) {
-    return false;
-  }
-
+  hpf_.setCutoffFrequency(hpf_cutoff_freq);
   hpf_.setValue(init_data);
 
   num_data_ = 1;
@@ -55,8 +52,6 @@ bool NoiseVarianceFilter<Scalar, Size, Length>::initialize(double hpf_cutoff_fre
 
   welford_.reset();
   welford_.add(init_data);
-
-  return true;
 }
 
 template <typename Scalar, int Size, size_t Length>

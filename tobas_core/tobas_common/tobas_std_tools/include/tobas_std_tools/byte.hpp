@@ -5,6 +5,7 @@
 
 #include <array>
 #include <cinttypes>
+#include <cstring>
 #include <iostream>
 #include <vector>
 
@@ -17,7 +18,7 @@ std::vector<uint8_t> toBytes(const T& src)
 {
   std::vector<uint8_t> res;
   res.resize(sizeof(T));
-  memcpy(res.data(), &src, sizeof(T));
+  std::memcpy(res.data(), &src, sizeof(T));
   return res;
 }
 
@@ -29,7 +30,7 @@ bool fromBytes(const std::vector<uint8_t>& src, T& dst)
     return false;
   }
 
-  memcpy(&dst, src.data(), sizeof(T));
+  std::memcpy(&dst, src.data(), sizeof(T));
   return true;
 }
 
@@ -37,7 +38,7 @@ template <typename T, size_t N>
 void fromBytes(const std::array<uint8_t, N>& src, T& dst)
 {
   static_assert(src.size() == sizeof(T));
-  memcpy(&dst, src.data(), sizeof(T));
+  std::memcpy(&dst, src.data(), sizeof(T));
 }
 }  // namespace st
 }  // namespace tobas

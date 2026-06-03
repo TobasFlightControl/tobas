@@ -3,7 +3,7 @@
 
 #include <tobas_constants/imu.hpp>
 #include <tobas_constants/ros_interface.hpp>
-#include <tobas_dsp/low_pass_filter_p1.hpp>
+#include <tobas_dsp/low_pass_filter.hpp>
 #include <tobas_gazebo_common/constants.hpp>
 #include <tobas_gazebo_conversions/gazebo_kdl.hpp>
 #include <tobas_gazebo_conversions/gazebo_ros.hpp>
@@ -19,7 +19,8 @@
 #include <tobas_gazebo_msgs/msg/engine_state.hpp>
 #include <tobas_gazebo_msgs/msg/imu_debug.hpp>
 #include <tobas_gazebo_msgs/msg/rotor_state.hpp>
-#include <tobas_msgs/srv/configure_imu_filter.hpp>
+#include <tobas_msgs/srv/configure_imu_low_pass_filter.hpp>
+#include <tobas_msgs/srv/configure_imu_rpm_filter.hpp>
 #include <tobas_msgs_adapter/imu.hpp>
 
 #include "tobas_gazebo_system_plugins/common/common.hpp"
@@ -85,7 +86,7 @@ private:
 
   RateManager::SharedPtr rate_manager_;
   ModelMassHolder mass_holder_;
-  dsp::LowPassFilterP1<gz::math::Vector3d> acc_lpf_, gyro_lpf_, dgyro_lpf_;
+  dsp::LowPassFilter<gz::math::Vector3d> acc_lpf_, gyro_lpf_, dgyro_lpf_;
   bool lpf_initialized_ = false;
   bool static_state_detected_ = false;
   gz::math::Vector3d acc_bias_ = gz::math::Vector3d::Zero;
@@ -105,16 +106,20 @@ private:
   ros2::SubscriberPtr<tobas_gazebo_msgs::msg::EngineState> engine_state_sub_;
   std::vector<ros2::SubscriberPtr<tobas_gazebo_msgs::msg::RotorState>> rotor_state_subs_;
 
-  ros2::ServiceServerPtr<tobas_msgs::srv::ConfigureImuFilter> config_ss_;
+  ros2::ServiceServerPtr<tobas_msgs::srv::ConfigureImuLowPassFilter> config_lowpass_filter_ss_;
+  ros2::ServiceServerPtr<tobas_msgs::srv::ConfigureImuRpmFilter> config_rpm_filter_ss_;
 
   void getSdfParams(const sdf::ElementConstPtr& sdf);
   void addNoise(gz::math::Vector3d& acc, gz::math::Vector3d& gyro, const double& dt);
 
   void engineStateCb(const tobas_gazebo_msgs::msg::EngineState::ConstSharedPtr& msg);
 
-  void configureImuFilterCb(
-    const tobas_msgs::srv::ConfigureImuFilter::Request::ConstSharedPtr& req,
-    const tobas_msgs::srv::ConfigureImuFilter::Response::SharedPtr& res);
+  void configureImuLowPassFilterCb(
+    const tobas_msgs::srv::ConfigureImuLowPassFilter::Request::ConstSharedPtr& req,
+    const tobas_msgs::srv::ConfigureImuLowPassFilter::Response::SharedPtr& res);
+  void configureImuRpmFilter(
+    const tobas_msgs::srv::ConfigureImuRpmFilter::Request::ConstSharedPtr& req,
+    const tobas_msgs::srv::ConfigureImuRpmFilter::Response::SharedPtr& res);
 };
 
 GazeboImuPlugin::GazeboImuPlugin() : normal_(rnd_dev_, 0., 1.)
@@ -172,8 +177,10 @@ void GazeboImuPlugin::Configure(
     rotor_state_subs_.push_back(sub);
   }
 
-  config_ss_ =
-    createService<tobas_msgs::srv::ConfigureImuFilter>(service::kConfigureImuFilter, &self::configureImuFilterCb, this);
+  config_lowpass_filter_ss_ = createService<tobas_msgs::srv::ConfigureImuLowPassFilter>(
+    service::kConfigureImuLowPassFilter, &self::configureImuLowPassFilterCb, this);
+  config_rpm_filter_ss_ = createService<tobas_msgs::srv::ConfigureImuRpmFilter>(
+    service::kConfigureImuRpmFilter, &self::configureImuRpmFilter, this);
 }
 
 void GazeboImuPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)
@@ -333,32 +340,27 @@ void GazeboImuPlugin::engineStateCb(const tobas_gazebo_msgs::msg::EngineState::C
   engine_vibration_force_ = msg->vibration_force;
 }
 
-void GazeboImuPlugin::configureImuFilterCb(
-  const tobas_msgs::srv::ConfigureImuFilter::Request::ConstSharedPtr& req,
-  const tobas_msgs::srv::ConfigureImuFilter::Response::SharedPtr& res)
+void GazeboImuPlugin::configureImuLowPassFilterCb(
+  const tobas_msgs::srv::ConfigureImuLowPassFilter::Request::ConstSharedPtr& req,
+  const tobas_msgs::srv::ConfigureImuLowPassFilter::Response::SharedPtr& res)
 {
-  if (!acc_lpf_.setCutoffFrequency(req->accel_cutoff)) {
-    res->success = false;
-    res->message = "Failed to set accel LPF cutoff frequency.";
-    return;
-  }
-
-  if (!gyro_lpf_.setCutoffFrequency(req->gyro_cutoff)) {
-    res->success = false;
-    res->message = "Failed to set gyro LPF cutoff frequency.";
-    return;
-  }
-
-  if (!dgyro_lpf_.setCutoffFrequency(req->dgyro_cutoff)) {
-    res->success = false;
-    res->message = "Failed to set D-gyro LPF cutoff frequency.";
-    return;
-  }
+  acc_lpf_.setCutoffFrequency(req->accel_cutoff);
+  gyro_lpf_.setCutoffFrequency(req->gyro_cutoff);
+  dgyro_lpf_.setCutoffFrequency(req->dgyro_cutoff);
 
   lpf_initialized_ = true;
 
   res->success = true;
   res->message.clear();
+}
+
+void GazeboImuPlugin::configureImuRpmFilter(
+  const tobas_msgs::srv::ConfigureImuRpmFilter::Request::ConstSharedPtr&,
+  const tobas_msgs::srv::ConfigureImuRpmFilter::Response::SharedPtr& res)
+{
+  // TODO: RPMフィルタを実装．離散時間だと更新周波数が足りないため，連続時間で作った伝達関数を作ってから信号生成するとよさそう．
+  res->success = false;
+  res->message = "The RPM filter is not implemented in the simulation.";
 }
 }  // namespace gazebo
 }  // namespace tobas

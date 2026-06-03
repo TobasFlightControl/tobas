@@ -19,6 +19,7 @@ class IPv4Edit : public QWidget
   using super = QWidget;
 
   static constexpr size_t kNumFields = 4;
+  static constexpr char kEmptyMeansZeroProperty[] = "emptyMeansZero";
 
 public:
   explicit IPv4Edit(QWidget* parent = nullptr);
@@ -33,6 +34,9 @@ public:
   QString toString() const;
 
   void setFromInt(uint32_t address);
+
+protected:
+  bool eventFilter(QObject* watched, QEvent* event) override;
 
 private:
   std::array<QLineEdit*, kNumFields> fields_;

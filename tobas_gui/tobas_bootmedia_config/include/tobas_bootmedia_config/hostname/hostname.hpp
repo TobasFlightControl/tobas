@@ -26,17 +26,17 @@ class HostnameWidget : public BaseConfigWidget
 public:
   explicit HostnameWidget();
 
-  const char* name() const override;
   const char* title() const override;
 
   void reset() override;
 
-private:
-  QPushButton* read_button_;
-  QPushButton* write_button_;
+  bool onConnected() override;
 
+private:
   QLineEdit* hostname_;
   qt::Label* warn_text_;
+
+  QPushButton* write_button_;
 
   QString getHostname() const;
 
@@ -48,7 +48,6 @@ private:
 
 private Q_SLOTS:
   void onHostnameChanged(const QString& hostname);
-  void onReadButtonClicked();
   void onWriteButtonClicked();
 };
 }  // namespace bm

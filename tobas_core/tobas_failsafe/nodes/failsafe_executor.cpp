@@ -3,7 +3,7 @@
 
 #include <rclcpp_action/rclcpp_action.hpp>
 
-#include <tobas_mission_items/mission_items.hpp>
+#include <tobas_mission_items/mission.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_std_tools/byte.hpp>
 #include <tobas_tools/util.hpp>
@@ -82,7 +82,7 @@ void FailsafeExecutorNode::startRTL()
   mission_item.data = st::toBytes(rtl);
 
   Action::Goal goal;
-  goal.items.push_back(mission_item);
+  goal.mission.items.push_back(mission_item);
   goal.priority.data = tobas_mission_msgs::msg::Priority::DEFENSIVE;
 
   Client::SendGoalOptions opts;
@@ -90,7 +90,7 @@ void FailsafeExecutorNode::startRTL()
   {
     if (!gh) {
       TOBAS_ERROR("RTL mission was rejected by server.");
-      startLand();
+      disarm();
     }
   };
   opts.result_callback = [this](const GoalHandle::WrappedResult& res)
@@ -108,14 +108,14 @@ void FailsafeExecutorNode::startRTL()
             break;
           default:
             TOBAS_ERROR("RTL mission was aborted: ", res.result->error_message);
-            startLand();
+            disarm();
             break;
         }
         break;
       case rclcpp_action::ResultCode::UNKNOWN:
       default:
         TOBAS_ERROR("Unknown result code: ", (int)res.code);
-        startLand();
+        disarm();
         break;
     }
   };
@@ -132,7 +132,7 @@ void FailsafeExecutorNode::startLand()
   mission_item.data = st::toBytes(land);
 
   Action::Goal goal;
-  goal.items.push_back(mission_item);
+  goal.mission.items.push_back(mission_item);
   goal.priority.data = tobas_mission_msgs::msg::Priority::DEFENSIVE;
 
   Client::SendGoalOptions opts;

@@ -3,7 +3,7 @@
 
 #include <tobas_constants/ros_interface.hpp>
 #include <tobas_dsp/high_pass_filter.hpp>
-#include <tobas_dsp/low_pass_filter_p1.hpp>
+#include <tobas_dsp/low_pass_filter.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_ros2_tools/time.hpp>
 
@@ -29,7 +29,7 @@ private:
   tobas_msgs::Imu::ConstSharedPtr imu_;
 
   dsp::HighPassFilter<kdl::Vector> hpf_;
-  dsp::LowPassFilterP1<kdl::Vector> lpf_;
+  dsp::LowPassFilter<kdl::Vector> lpf_;
 
   ros2::PublisherPtr<tobas_msgs::VibrationLevel> vibe_pub_;
   ros2::SubscriberPtr<tobas_msgs::Imu> imu_sub_;
@@ -40,8 +40,8 @@ private:
 VibrationFilterNode::VibrationFilterNode(const rclcpp::NodeOptions& options)
   : super("vibration_filter", nodeOptions_Default(options))
 {
-  TOBAS_ASSERT(hpf_.setCutoffFrequency(kHpfCutoff));
-  TOBAS_ASSERT(lpf_.setCutoffFrequency(kLpfCutoff));
+  hpf_.setCutoffFrequency(kHpfCutoff);
+  lpf_.setCutoffFrequency(kLpfCutoff);
 
   vibe_pub_ = createPublisher<tobas_msgs::VibrationLevel>(topic::kVibrationLevel);
   imu_sub_ = createSubscriber(topic::kImuRaw, &self::imuCb, this);

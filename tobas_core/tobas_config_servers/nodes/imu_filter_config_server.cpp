@@ -4,7 +4,8 @@
 #include <tobas_constants/node.hpp>
 #include <tobas_node/node.hpp>
 
-#include <tobas_msgs/srv/configure_imu_filter.hpp>
+#include <tobas_msgs/srv/configure_imu_low_pass_filter.hpp>
+#include <tobas_msgs/srv/configure_imu_rpm_filter.hpp>
 #include <tobas_msgs_adapter/imu.hpp>
 
 namespace tobas
@@ -14,120 +15,219 @@ class ImuFilterConfigServer : public BaseNode
   using self = ImuFilterConfigServer;
   using super = BaseNode;
 
-  static constexpr int kMinCutoff = 1;    // [Hz]
-  static constexpr int kMaxCutoff = 200;  // [Hz]
-
 public:
   explicit ImuFilterConfigServer(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  // Static parameters
-  int dflt_accel_cutoff_, dflt_gyro_cutoff_, dflt_dgyro_cutoff_;
-
   // Dynamic parameters
-  int accel_cutoff_ = -1;
-  int gyro_cutoff_ = -1;
-  int dgyro_cutoff_ = -1;
+  struct LowPassFilterConfig
+  {
+    int accel_cutoff = -1;
+    int gyro_cutoff = -1;
+    int dgyro_cutoff = -1;
+  } lowpass_cfg_;
+  struct NotchFilterConfig
+  {
+    int quality_factor = -1;
+    int min_center_freq = -1;
+    int fade_range = -1;
+    int lpf_cutoff = -1;
+  } notch_cfg_;
 
   ros2::SubscriberPtr<tobas_msgs::Imu> imu_raw_sub_;
-  ros2::ServiceClientPtr<tobas_msgs::srv::ConfigureImuFilter> config_sc_;
+  ros2::ServiceClientPtr<tobas_msgs::srv::ConfigureImuLowPassFilter> config_lowpass_filter_sc_;
+  ros2::ServiceClientPtr<tobas_msgs::srv::ConfigureImuRpmFilter> config_rpm_filter_sc_;
 
-  bool imuConfigReady() const;
-  bool sendImuConfigRequest();
+  bool lowPassFilterConfigReady() const;
+  bool notchFilterConfigReady() const;
+  bool sendLowPassFilterConfigRequest();
+  bool sendRpmFilterConfigRequest();
+
+  bool lowPassFilterAccelCutoffCb(const long& p);
+  bool lowPassFilterGyroCutoffCb(const long& p);
+  bool lowPassFilterDGyroCutoffCb(const long& p);
+  bool rpmFilterQualityFactorCb(const long& p);
+  bool rpmFilterMinCenterFreqCb(const long& p);
+  bool rpmFilterFadeRangeCb(const long& p);
+  bool rpmFilterLpfCutoffCb(const long& p);
 
   void imuRawCb(const tobas_msgs::Imu::ConstSharedPtr& msg);
-
-  bool accelCutoffCb(const long& p);
-  bool gyroCutoffCb(const long& p);
-  bool dGyroCutoffCb(const long& p);
 };
 
 ImuFilterConfigServer::ImuFilterConfigServer(const rclcpp::NodeOptions& options)
   : super(node::kImuFilterConfigServer, nodeOptions_DParam(options))
 {
-  dflt_accel_cutoff_ = getIntParam("default_accel_lpf_cutoff");
-  dflt_gyro_cutoff_ = getIntParam("default_gyro_lpf_cutoff");
-  dflt_dgyro_cutoff_ = getIntParam("default_dgyro_lpf_cutoff");
+  const auto has_rpm_filter = getBoolParam("has_rpm_filter");
 
   imu_raw_sub_ = createSubscriber(topic::kImuRaw, &self::imuRawCb, this);
-  config_sc_ = create_client<tobas_msgs::srv::ConfigureImuFilter>(service::kConfigureImuFilter);
+
+  config_lowpass_filter_sc_ =
+    create_client<tobas_msgs::srv::ConfigureImuLowPassFilter>(service::kConfigureImuLowPassFilter);
+
+  if (has_rpm_filter) {
+    config_rpm_filter_sc_ = create_client<tobas_msgs::srv::ConfigureImuRpmFilter>(service::kConfigureImuRpmFilter);
+  }
 }
 
-bool ImuFilterConfigServer::imuConfigReady() const
+bool ImuFilterConfigServer::lowPassFilterConfigReady() const
 {
-  return accel_cutoff_ >= 0 && gyro_cutoff_ >= 0 && dgyro_cutoff_ >= 0;
+  return lowpass_cfg_.accel_cutoff >= 0 && lowpass_cfg_.gyro_cutoff >= 0 && lowpass_cfg_.dgyro_cutoff >= 0;
 }
 
-bool ImuFilterConfigServer::sendImuConfigRequest()
+bool ImuFilterConfigServer::notchFilterConfigReady() const
 {
-  if (!config_sc_->service_is_ready()) {
-    TOBAS_ERROR("\"", service::kConfigureImuFilter, "\" is not ready.");
+  return notch_cfg_.quality_factor >= 0 && notch_cfg_.min_center_freq >= 0 && notch_cfg_.fade_range >= 0 &&
+         notch_cfg_.lpf_cutoff >= 0;
+}
+
+bool ImuFilterConfigServer::sendLowPassFilterConfigRequest()
+{
+  if (!config_lowpass_filter_sc_->service_is_ready()) {
+    TOBAS_ERROR("\"", service::kConfigureImuLowPassFilter, "\" is not ready.");
     return false;
   }
 
-  const auto req = std::make_shared<tobas_msgs::srv::ConfigureImuFilter::Request>();
-  req->accel_cutoff = accel_cutoff_;
-  req->gyro_cutoff = gyro_cutoff_;
-  req->dgyro_cutoff = dgyro_cutoff_;
+  const auto req = std::make_shared<tobas_msgs::srv::ConfigureImuLowPassFilter::Request>();
+  req->accel_cutoff = lowpass_cfg_.accel_cutoff;
+  req->gyro_cutoff = lowpass_cfg_.gyro_cutoff;
+  req->dgyro_cutoff = lowpass_cfg_.dgyro_cutoff;
 
-  config_sc_->async_send_request(req);
+  config_lowpass_filter_sc_->async_send_request(req);
+
+  return true;
+}
+
+bool ImuFilterConfigServer::sendRpmFilterConfigRequest()
+{
+  if (!config_rpm_filter_sc_->service_is_ready()) {
+    TOBAS_ERROR("\"", service::kConfigureImuRpmFilter, "\" is not ready.");
+    return false;
+  }
+
+  const auto req = std::make_shared<tobas_msgs::srv::ConfigureImuRpmFilter::Request>();
+  req->quality_factor = notch_cfg_.quality_factor;
+  req->min_center_freq = notch_cfg_.min_center_freq;
+  req->fade_range = notch_cfg_.fade_range;
+  req->lpf_cutoff = notch_cfg_.lpf_cutoff;
+
+  config_rpm_filter_sc_->async_send_request(req);
+
+  return true;
+}
+
+bool ImuFilterConfigServer::lowPassFilterAccelCutoffCb(const long& p)
+{
+  lowpass_cfg_.accel_cutoff = p;
+
+  if (lowPassFilterConfigReady()) {
+    if (!sendLowPassFilterConfigRequest()) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+bool ImuFilterConfigServer::lowPassFilterGyroCutoffCb(const long& p)
+{
+  lowpass_cfg_.gyro_cutoff = p;
+
+  if (lowPassFilterConfigReady()) {
+    if (!sendLowPassFilterConfigRequest()) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+bool ImuFilterConfigServer::lowPassFilterDGyroCutoffCb(const long& p)
+{
+  lowpass_cfg_.dgyro_cutoff = p;
+
+  if (lowPassFilterConfigReady()) {
+    if (!sendLowPassFilterConfigRequest()) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+bool ImuFilterConfigServer::rpmFilterQualityFactorCb(const long& p)
+{
+  notch_cfg_.quality_factor = p;
+
+  if (notchFilterConfigReady()) {
+    if (!sendRpmFilterConfigRequest()) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+bool ImuFilterConfigServer::rpmFilterMinCenterFreqCb(const long& p)
+{
+  notch_cfg_.min_center_freq = p;
+
+  if (notchFilterConfigReady()) {
+    if (!sendRpmFilterConfigRequest()) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+bool ImuFilterConfigServer::rpmFilterFadeRangeCb(const long& p)
+{
+  notch_cfg_.fade_range = p;
+
+  if (notchFilterConfigReady()) {
+    if (!sendRpmFilterConfigRequest()) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+bool ImuFilterConfigServer::rpmFilterLpfCutoffCb(const long& p)
+{
+  notch_cfg_.lpf_cutoff = p;
+
+  if (notchFilterConfigReady()) {
+    if (!sendRpmFilterConfigRequest()) {
+      return false;
+    }
+  }
 
   return true;
 }
 
 void ImuFilterConfigServer::imuRawCb(const tobas_msgs::Imu::ConstSharedPtr&)
 {
-  // IMUの生データが受信可能即ちIMUフィルタを管理しているノードが立ち上がっているのを確認してから動的パラメータを登録．
-  // そうすることでLPFカットオフの初期値が確実に反映される．
+  // IMUの生データが受信可能即ちIMUフィルタを管理しているノードが立ち上がっているのを確認してから動的パラメータを登録する．
+  // そうすることでフィルタの初期設定が確実に反映される．
 
   // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#IMU_ACCEL_CUTOFF
-  addDynamicIntParam("accel_lpf_cutoff", &self::accelCutoffCb, this, dflt_accel_cutoff_, kMinCutoff, kMaxCutoff, " Hz");
+  addDynamicIntParam("lowpass_filter/accel_cutoff", &self::lowPassFilterAccelCutoffCb, this, 30, 0, 100, " Hz");
   // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#IMU_GYRO_CUTOFF
-  addDynamicIntParam("gyro_lpf_cutoff", &self::gyroCutoffCb, this, dflt_gyro_cutoff_, kMinCutoff, kMaxCutoff, " Hz");
+  addDynamicIntParam("lowpass_filter/gyro_cutoff", &self::lowPassFilterGyroCutoffCb, this, 40, 0, 100, " Hz");
   // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#IMU_DGYRO_CUTOFF
-  addDynamicIntParam("dgyro_lpf_cutoff", &self::dGyroCutoffCb, this, dflt_dgyro_cutoff_, kMinCutoff, kMaxCutoff, " Hz");
+  addDynamicIntParam("lowpass_filter/dgyro_cutoff", &self::lowPassFilterDGyroCutoffCb, this, 20, 0, 100, " Hz");
+
+  // cf. https://betaflight.com/docs/wiki/guides/current/DSHOT-RPM-Filtering
+  if (config_rpm_filter_sc_) {
+    addDynamicIntParam("rpm_filter/quality_factor", &self::rpmFilterQualityFactorCb, this, 0, 0, 10);  // Disabled
+    addDynamicIntParam("rpm_filter/min_center_frequency", &self::rpmFilterMinCenterFreqCb, this, 100, 20, 200, " Hz");
+    addDynamicIntParam("rpm_filter/fade_range", &self::rpmFilterFadeRangeCb, this, 50, 0, 100, " Hz");
+    addDynamicIntParam("rpm_filter/lpf_cutoff", &self::rpmFilterLpfCutoffCb, this, 100, 1, 200, " Hz");
+  }
 
   // Cancel subscription
   imu_raw_sub_.reset();
-}
-
-bool ImuFilterConfigServer::accelCutoffCb(const long& p)
-{
-  accel_cutoff_ = p;
-
-  if (imuConfigReady()) {
-    if (!sendImuConfigRequest()) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
-bool ImuFilterConfigServer::gyroCutoffCb(const long& p)
-{
-  gyro_cutoff_ = p;
-
-  if (imuConfigReady()) {
-    if (!sendImuConfigRequest()) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
-bool ImuFilterConfigServer::dGyroCutoffCb(const long& p)
-{
-  dgyro_cutoff_ = p;
-
-  if (imuConfigReady()) {
-    if (!sendImuConfigRequest()) {
-      return false;
-    }
-  }
-
-  return true;
 }
 }  // namespace tobas
 

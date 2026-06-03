@@ -37,7 +37,7 @@ bool testBattImu()
 
   for (int _ = 0; _ < 200; ++_) {
     if (!driver.transfer()) {
-      cerr << "Failed to communicate with the micro controller." << endl;
+      cerr << "Failed to communicate with the MCU." << endl;
       continue;
     }
 

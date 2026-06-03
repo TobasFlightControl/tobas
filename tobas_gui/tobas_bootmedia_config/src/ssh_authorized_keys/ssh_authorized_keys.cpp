@@ -24,12 +24,10 @@ namespace bm
 {
 SshAuthorizedKeysWidget::SshAuthorizedKeysWidget()
 {
-  read_button_ = new QPushButton("Read");
   add_button_ = new QPushButton("Add");
   remove_button_ = new QPushButton("Remove");
   clear_button_ = new QPushButton("Clear");
 
-  read_button_->setFixedSize(kCtrlButtonWidth, kCtrlButtonHeight);
   add_button_->setFixedSize(kCtrlButtonWidth, kCtrlButtonHeight);
   remove_button_->setFixedSize(kCtrlButtonWidth, kCtrlButtonHeight);
   clear_button_->setFixedSize(kCtrlButtonWidth, kCtrlButtonHeight);
@@ -39,7 +37,6 @@ SshAuthorizedKeysWidget::SshAuthorizedKeysWidget()
 
   // Layout
   const auto cols = new QHBoxLayout();
-  cols->addWidget(read_button_);
   cols->addWidget(add_button_);
   cols->addWidget(remove_button_);
   cols->addWidget(clear_button_);
@@ -49,15 +46,9 @@ SshAuthorizedKeysWidget::SshAuthorizedKeysWidget()
   rows_->addWidget(list_);
 
   // Connection
-  connect(read_button_, &QPushButton::clicked, this, &self::onReadButtonClicked);
   connect(add_button_, &QPushButton::clicked, this, &self::onAddButtonClicked);
   connect(remove_button_, &QPushButton::clicked, this, &self::onRemoveButtonClicked);
   connect(clear_button_, &QPushButton::clicked, this, &self::onClearButtonClicked);
-}
-
-const char* SshAuthorizedKeysWidget::name() const
-{
-  return "SSH Keys";
 }
 
 const char* SshAuthorizedKeysWidget::title() const
@@ -67,13 +58,48 @@ const char* SshAuthorizedKeysWidget::title() const
 
 void SshAuthorizedKeysWidget::reset()
 {
-  read_button_->setEnabled(true);
   add_button_->setEnabled(false);
   remove_button_->setEnabled(false);
   clear_button_->setEnabled(false);
 
   keys_.clear();
   list_->clear();
+}
+
+bool SshAuthorizedKeysWidget::onConnected()
+{
+  const auto file_path = authorizedKeysPath();
+
+  if (fs::exists(file_path)) {
+    // ファイルを解析して鍵を取得
+    const auto keys = ssh::ak::parseFile(authorizedKeysPath());
+    if (!keys) {
+      qt::qErrorBox(this, QString::fromStdString(keys.error()));
+      return false;
+    }
+
+    // 現在の鍵をリストに反映
+    keys_.clear();
+    list_->clear();
+    for (const auto& key : keys.value()) {
+      addKey(key);
+    }
+  }
+  else {
+    // ファイルが存在しなければ作る
+    const auto res = path::createFilePath(file_path);
+    if (!res) {
+      qt::qErrorBox(this, "Failed to create the authorized keys file:\n" + QString::fromStdString(res.error()));
+      return false;
+    }
+  }
+
+  // 編集用ボタンを有効化
+  add_button_->setEnabled(true);
+  remove_button_->setEnabled(true);
+  clear_button_->setEnabled(true);
+
+  return true;
 }
 
 void SshAuthorizedKeysWidget::addKey(const ssh::ak::Data& key)
@@ -111,42 +137,6 @@ bool SshAuthorizedKeysWidget::writeCurrentConfig()
 std::string SshAuthorizedKeysWidget::authorizedKeysPath()
 {
   return std::string(kHomePath) + "/.ssh/authorized_keys";
-}
-
-void SshAuthorizedKeysWidget::onReadButtonClicked()
-{
-  const auto file_path = authorizedKeysPath();
-
-  if (fs::exists(file_path)) {
-    // ファイルを解析して鍵を取得
-    const auto keys = ssh::ak::parseFile(authorizedKeysPath());
-    if (!keys) {
-      qt::qErrorBox(this, QString::fromStdString(keys.error()));
-      return;
-    }
-
-    // 現在の鍵をリストに反映
-    keys_.clear();
-    list_->clear();
-    for (const auto& key : keys.value()) {
-      addKey(key);
-    }
-  }
-  else {
-    // ファイルが存在しなければ作る
-    const auto res = path::createFilePath(file_path);
-    if (!res) {
-      qt::qErrorBox(this, "Failed to create the authorized keys file:\n" + QString::fromStdString(res.error()));
-      return;
-    }
-  }
-
-  // 編集用ボタンを有効化
-  add_button_->setEnabled(true);
-  remove_button_->setEnabled(true);
-  clear_button_->setEnabled(true);
-
-  qt::qInfoBox(this, "SSH authorized keys are read successfully.");
 }
 
 void SshAuthorizedKeysWidget::onAddButtonClicked()

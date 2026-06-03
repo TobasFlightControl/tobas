@@ -29,7 +29,7 @@ IntGetter::IntGetter(const QString& name)
   data_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
   cols->addWidget(data_);
 
-  connect(data_, QOverload<int>::of(&qt::SpinBox::valueChanged), this, &self::onValueChanged);
+  connect(data_, qOverload<int>(&qt::SpinBox::valueChanged), this, &self::onValueChanged);
 }
 
 int IntGetter::getValue() const

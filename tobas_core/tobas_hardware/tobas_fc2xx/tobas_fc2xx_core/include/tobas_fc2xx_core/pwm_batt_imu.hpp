@@ -18,7 +18,7 @@ public:
 
 private:
   static constexpr char kSpiDevice[] = "/dev/spidev0.1";
-  static constexpr uint32_t kSpiClockFreq = 30'000'000;  // [Hz]
+  static constexpr uint32_t kSpiClockFreq = 12'000'000;  // [Hz]
 
   static constexpr size_t kPacketLength = 22;  // uint16
   static constexpr size_t kCmdTypeIdx = 0;
@@ -36,7 +36,8 @@ public:
   bool transfer();
 
   void setPwmPeriod(uint16_t* period_us);
-  void setImuLpfCutoff(double acc_cutoff, double gyro_cutoff, double dgyro_cutoff);
+  void configureLowPassFilter(uint16_t acc_cutoff, uint16_t gyro_cutoff, uint16_t dgyro_cutoff);
+  void configureRpmFilter(uint16_t quality_factor, uint16_t min_center_freq, uint16_t fade_range, uint16_t lpf_cutoff);
 
   inline void getBattVoltage(double& voltage) const;
   inline void getBattCurrent(double& current) const;

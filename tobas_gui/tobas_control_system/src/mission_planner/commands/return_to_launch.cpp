@@ -41,114 +41,149 @@ const char* ReturnToLaunchWidget::name() const
   return "Return to Launch";
 }
 
+mission::ReturnToLaunch ReturnToLaunchWidget::dump() const
+{
+  mission::ReturnToLaunch res;
+
+  res.min_altitude = minAltitude();
+  res.max_horizontal_velocity = maxHorizontalVelocity();
+  res.max_horizontal_accel = maxHorizontalAccel();
+  res.max_horizontal_jerk = maxHorizontalJerk();
+  res.max_vertical_velocity = maxVerticalVelocity();
+  res.max_vertical_accel = maxVerticalAccel();
+  res.max_vertical_jerk = maxVerticalJerk();
+  res.max_heading_rate = maxHeadingRate();
+  res.max_heading_accel = maxHeadingAccel();
+  res.acceptance_radius = acceptanceRadius();
+  res.altitude_tolerance = altitudeTolerance();
+  res.timeout = 0.;  // TODO
+
+  return res;
+}
+
+void ReturnToLaunchWidget::load(const mission::ReturnToLaunch& src)
+{
+  minAltitude(src.min_altitude);
+  maxHorizontalVelocity(src.max_horizontal_velocity);
+  maxHorizontalAccel(src.max_horizontal_accel);
+  maxHorizontalJerk(src.max_horizontal_jerk);
+  maxVerticalVelocity(src.max_vertical_velocity);
+  maxVerticalAccel(src.max_vertical_accel);
+  maxVerticalJerk(src.max_vertical_jerk);
+  maxHeadingRate(src.max_heading_rate);
+  maxHeadingAccel(src.max_heading_accel);
+  acceptanceRadius(src.acceptance_radius);
+  altitudeTolerance(src.altitude_tolerance);
+}
+
 double ReturnToLaunchWidget::minAltitude() const
 {
-  return min_alt_->getValue();
+  return getValueOrDefault(min_alt_);
 }
 
 double ReturnToLaunchWidget::maxHorizontalVelocity() const
 {
-  return getValue(max_hor_vel_);
+  return getValueOrDefault(max_hor_vel_);
 }
 
 double ReturnToLaunchWidget::maxHorizontalAccel() const
 {
-  return getValue(max_hor_acc_);
+  return getValueOrDefault(max_hor_acc_);
 }
 
 double ReturnToLaunchWidget::maxVerticalVelocity() const
 {
-  return getValue(max_ver_vel_);
+  return getValueOrDefault(max_ver_vel_);
 }
 
 double ReturnToLaunchWidget::maxHorizontalJerk() const
 {
-  return getValue(max_hor_jerk_);
+  return getValueOrDefault(max_hor_jerk_);
 }
 
 double ReturnToLaunchWidget::maxVerticalAccel() const
 {
-  return getValue(max_ver_acc_);
+  return getValueOrDefault(max_ver_acc_);
 }
 
 double ReturnToLaunchWidget::maxVerticalJerk() const
 {
-  return getValue(max_ver_jerk_);
+  return getValueOrDefault(max_ver_jerk_);
 }
 
 double ReturnToLaunchWidget::maxHeadingRate() const
 {
-  return getValue(max_head_rate_);
+  return getValueOrDefault(max_head_rate_);
 }
 
 double ReturnToLaunchWidget::maxHeadingAccel() const
 {
-  return getValue(max_head_acc_);
+  return getValueOrDefault(max_head_acc_);
 }
 
 double ReturnToLaunchWidget::acceptanceRadius() const
 {
-  return getValue(acceptance_radius_);
+  return getValueOrDefault(acceptance_radius_);
 }
 
 double ReturnToLaunchWidget::altitudeTolerance() const
 {
-  return getValue(altitude_tolerance_);
+  return getValueOrDefault(altitude_tolerance_);
 }
 
 void ReturnToLaunchWidget::minAltitude(double value)
 {
-  min_alt_->setValue(value);
+  setValueOrDefault(min_alt_, value);
 }
 
 void ReturnToLaunchWidget::maxHorizontalVelocity(double value)
 {
-  max_hor_vel_->setValue(value);
+  setValueOrDefault(max_hor_vel_, value);
 }
 
 void ReturnToLaunchWidget::maxHorizontalAccel(double value)
 {
-  max_hor_acc_->setValue(value);
+  setValueOrDefault(max_hor_acc_, value);
 }
 
 void ReturnToLaunchWidget::maxHorizontalJerk(double value)
 {
-  max_hor_jerk_->setValue(value);
+  setValueOrDefault(max_hor_jerk_, value);
 }
 
 void ReturnToLaunchWidget::maxVerticalVelocity(double value)
 {
-  max_ver_vel_->setValue(value);
+  setValueOrDefault(max_ver_vel_, value);
 }
 
 void ReturnToLaunchWidget::maxVerticalAccel(double value)
 {
-  max_ver_acc_->setValue(value);
+  setValueOrDefault(max_ver_acc_, value);
 }
 
 void ReturnToLaunchWidget::maxVerticalJerk(double value)
 {
-  max_ver_jerk_->setValue(value);
+  setValueOrDefault(max_ver_jerk_, value);
 }
 
 void ReturnToLaunchWidget::maxHeadingRate(double value)
 {
-  max_head_rate_->setValue(value);
+  setValueOrDefault(max_head_rate_, value);
 }
 
 void ReturnToLaunchWidget::maxHeadingAccel(double value)
 {
-  max_head_acc_->setValue(value);
+  setValueOrDefault(max_head_acc_, value);
 }
 
 void ReturnToLaunchWidget::acceptanceRadius(double value)
 {
-  acceptance_radius_->setValue(value);
+  setValueOrDefault(acceptance_radius_, value);
 }
 
 void ReturnToLaunchWidget::altitudeTolerance(double value)
 {
-  altitude_tolerance_->setValue(value);
+  setValueOrDefault(altitude_tolerance_, value);
 }
 }  // namespace ctrl
 }  // namespace gui

@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright (C) 2026 Tobas, Inc.
 
-uint8 accel_cutoff  # [Hz]
-uint8 gyro_cutoff   # [Hz]
-uint8 dgyro_cutoff  # [Hz]
+uint16 accel_cutoff  # [Hz]
+uint16 gyro_cutoff   # [Hz]
+uint16 dgyro_cutoff  # [Hz]
 ---
 bool success
 string message

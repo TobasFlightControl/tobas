@@ -44,7 +44,7 @@ ErrorStateKalmanFilter::ErrorStateKalmanFilter() : x_history_(kStateHistoryTimeW
   H_grav_.block<3, 3>(0, kDeltaAccBiasIdx).diagonal().setOnes();
 }
 
-bool ErrorStateKalmanFilter::initialize(
+void ErrorStateKalmanFilter::initialize(
   const Eigen::Vector3d& init_pos,
   const Eigen::Matrix3d& init_pos_cov,
   const Eigen::Vector3d& init_vel,
@@ -72,40 +72,19 @@ bool ErrorStateKalmanFilter::initialize(
   G_.setIdentity();
 
   // Initialize states and covariances
-  if (!initializePosition(init_pos, init_pos_cov)) {
-    return false;
-  }
-  if (!initializeVelocity(init_vel, init_vel_cov)) {
-    return false;
-  }
-  if (!initializeQuaternion(init_quat, init_dtheta_cov)) {
-    return false;
-  }
-  if (!initializeAccelBias(init_acc_bias, init_acc_bias_cov)) {
-    return false;
-  }
-  if (!initializeGyroBias(init_gyro_bias, init_gyro_bias_cov)) {
-    return false;
-  }
-  if (!initializeMagHardBias(init_mag_hard_bias, init_mag_hard_bias_cov)) {
-    return false;
-  }
-  if (!initializeMagSoftBias(init_mag_soft_bias, init_mag_soft_bias_cov)) {
-    return false;
-  }
-  if (!initializeGravity(init_grav, init_grav_var)) {
-    return false;
-  }
-
-  return true;
+  initializePosition(init_pos, init_pos_cov);
+  initializeVelocity(init_vel, init_vel_cov);
+  initializeQuaternion(init_quat, init_dtheta_cov);
+  initializeAccelBias(init_acc_bias, init_acc_bias_cov);
+  initializeGyroBias(init_gyro_bias, init_gyro_bias_cov);
+  initializeMagHardBias(init_mag_hard_bias, init_mag_hard_bias_cov);
+  initializeMagSoftBias(init_mag_soft_bias, init_mag_soft_bias_cov);
+  initializeGravity(init_grav, init_grav_var);
 }
 
-bool ErrorStateKalmanFilter::initializePosition(const Eigen::Vector3d& value, const Eigen::Matrix3d& cov)
+void ErrorStateKalmanFilter::initializePosition(const Eigen::Vector3d& value, const Eigen::Matrix3d& cov)
 {
-  if (!eigen::isSymmetricSemiPositiveDefinite(cov)) {
-    std::cerr << "Initial position covariance must be symmetric semi-positive definite." << std::endl;
-    return false;
-  }
+  assert(eigen::isSymmetricSemiPositiveDefinite(cov));
 
   x_.segment<3>(kPosIdx) = value;
 
@@ -114,16 +93,11 @@ bool ErrorStateKalmanFilter::initializePosition(const Eigen::Vector3d& value, co
   P_.block<3, 3>(kDeltaPosIdx, kDeltaPosIdx) = cov;
 
   resetStateHistory();
-
-  return true;
 }
 
-bool ErrorStateKalmanFilter::initializeVelocity(const Eigen::Vector3d& value, const Eigen::Matrix3d& cov)
+void ErrorStateKalmanFilter::initializeVelocity(const Eigen::Vector3d& value, const Eigen::Matrix3d& cov)
 {
-  if (!eigen::isSymmetricSemiPositiveDefinite(cov)) {
-    std::cerr << "Initial velocity covariance must be symmetric semi-positive definite." << std::endl;
-    return false;
-  }
+  assert(eigen::isSymmetricSemiPositiveDefinite(cov));
 
   x_.segment<3>(kVelIdx) = value;
 
@@ -132,16 +106,11 @@ bool ErrorStateKalmanFilter::initializeVelocity(const Eigen::Vector3d& value, co
   P_.block<3, 3>(kDeltaVelIdx, kDeltaVelIdx) = cov;
 
   resetStateHistory();
-
-  return true;
 }
 
-bool ErrorStateKalmanFilter::initializeQuaternion(const Eigen::Quaterniond& value, const Eigen::Matrix3d& cov)
+void ErrorStateKalmanFilter::initializeQuaternion(const Eigen::Quaterniond& value, const Eigen::Matrix3d& cov)
 {
-  if (!eigen::isSymmetricSemiPositiveDefinite(cov)) {
-    std::cerr << "Initial rotation covariance must be symmetric semi-positive definite." << std::endl;
-    return false;
-  }
+  assert(eigen::isSymmetricSemiPositiveDefinite(cov));
 
   x_.segment<4>(kQuatIdx) = eigen::hamiltonFromQuaternion(value).normalized();
 
@@ -150,16 +119,11 @@ bool ErrorStateKalmanFilter::initializeQuaternion(const Eigen::Quaterniond& valu
   P_.block<3, 3>(kDeltaThetaIdx, kDeltaThetaIdx) = cov;
 
   resetStateHistory();
-
-  return true;
 }
 
-bool ErrorStateKalmanFilter::initializeAccelBias(const Eigen::Vector3d& value, const Eigen::Matrix3d& cov)
+void ErrorStateKalmanFilter::initializeAccelBias(const Eigen::Vector3d& value, const Eigen::Matrix3d& cov)
 {
-  if (!eigen::isSymmetricSemiPositiveDefinite(cov)) {
-    std::cerr << "Initial accelerometer bias covariance must be symmetric semi-positive definite." << std::endl;
-    return false;
-  }
+  assert(eigen::isSymmetricSemiPositiveDefinite(cov));
 
   x_.segment<3>(kAccBiasIdx) = value;
 
@@ -168,16 +132,11 @@ bool ErrorStateKalmanFilter::initializeAccelBias(const Eigen::Vector3d& value, c
   P_.block<3, 3>(kDeltaAccBiasIdx, kDeltaAccBiasIdx) = cov;
 
   resetStateHistory();
-
-  return true;
 }
 
-bool ErrorStateKalmanFilter::initializeGyroBias(const Eigen::Vector3d& value, const Eigen::Matrix3d& cov)
+void ErrorStateKalmanFilter::initializeGyroBias(const Eigen::Vector3d& value, const Eigen::Matrix3d& cov)
 {
-  if (!eigen::isSymmetricSemiPositiveDefinite(cov)) {
-    std::cerr << "Initial gyroscope bias covariance must be symmetric semi-positive definite." << std::endl;
-    return false;
-  }
+  assert(eigen::isSymmetricSemiPositiveDefinite(cov));
 
   x_.segment<3>(kGyroBiasIdx) = value;
 
@@ -186,16 +145,11 @@ bool ErrorStateKalmanFilter::initializeGyroBias(const Eigen::Vector3d& value, co
   P_.block<3, 3>(kDeltaGyroBiasIdx, kDeltaGyroBiasIdx) = cov;
 
   resetStateHistory();
-
-  return true;
 }
 
-bool ErrorStateKalmanFilter::initializeMagHardBias(const Eigen::Vector3d& value, const Eigen::Matrix3d& cov)
+void ErrorStateKalmanFilter::initializeMagHardBias(const Eigen::Vector3d& value, const Eigen::Matrix3d& cov)
 {
-  if (!eigen::isSymmetricSemiPositiveDefinite(cov)) {
-    std::cerr << "Initial magnetometer hard bias covariance must be symmetric semi-positive definite." << std::endl;
-    return false;
-  }
+  assert(eigen::isSymmetricSemiPositiveDefinite(cov));
 
   x_.segment<3>(kMagHardBiasIdx) = value;
 
@@ -204,21 +158,12 @@ bool ErrorStateKalmanFilter::initializeMagHardBias(const Eigen::Vector3d& value,
   P_.block<3, 3>(kDeltaMagHardBiasIdx, kDeltaMagHardBiasIdx) = cov;
 
   resetStateHistory();
-
-  return true;
 }
 
-bool ErrorStateKalmanFilter::initializeMagSoftBias(const Eigen::Matrix3d& value, const Eigen::Matrix6d& cov)
+void ErrorStateKalmanFilter::initializeMagSoftBias(const Eigen::Matrix3d& value, const Eigen::Matrix6d& cov)
 {
-  if (!eigen::isSymmetricPositiveDefinite(value)) {
-    std::cerr << "Initial magnetometer soft bias matrix must be symmetric positive definite." << std::endl;
-    return false;
-  }
-
-  if (!eigen::isSymmetricSemiPositiveDefinite(cov)) {
-    std::cerr << "Initial magnetometer soft bias covariance must be symmetric semi-positive definite." << std::endl;
-    return false;
-  }
+  assert(eigen::isSymmetricPositiveDefinite(value));
+  assert(eigen::isSymmetricSemiPositiveDefinite(cov));
 
   setMagSoftBiasFromMatrix(value);
 
@@ -227,16 +172,11 @@ bool ErrorStateKalmanFilter::initializeMagSoftBias(const Eigen::Matrix3d& value,
   P_.block<6, 6>(kDeltaMagSoftBiasIdx, kDeltaMagSoftBiasIdx) = cov;
 
   resetStateHistory();
-
-  return true;
 }
 
-bool ErrorStateKalmanFilter::initializeGravity(const double& value, const double& var)
+void ErrorStateKalmanFilter::initializeGravity(const double& value, const double& var)
 {
-  if (var < 0.) {
-    std::cerr << "Initial gravity variance must be non-negative." << std::endl;
-    return false;
-  }
+  assert(var >= 0.);
 
   x_(kGravIdx) = value;
 
@@ -245,8 +185,6 @@ bool ErrorStateKalmanFilter::initializeGravity(const double& value, const double
   P_(kDeltaGravIdx, kDeltaGravIdx) = var;
 
   resetStateHistory();
-
-  return true;
 }
 
 void ErrorStateKalmanFilter::enableSecondIntegral(bool enable)
@@ -324,15 +262,10 @@ bool ErrorStateKalmanFilter::setGravProcNoiseDensity(double value)
   return true;
 }
 
-bool ErrorStateKalmanFilter::setMagneticFieldRef(const Eigen::Vector3d& mag_W)
+void ErrorStateKalmanFilter::setMagneticFieldRef(const Eigen::Vector3d& mag_W)
 {
-  if (mag_W.norm() <= 0.) {
-    std::cerr << "The norm of reference magnetic field must be positive." << std::endl;
-    return false;
-  }
-
+  assert(mag_W.norm() > 0.);
   mag_W_ = mag_W.normalized();
-  return true;
 }
 
 double ErrorStateKalmanFilter::measureIMU(
@@ -353,7 +286,7 @@ double ErrorStateKalmanFilter::measureIMU(
   t_last_imu_ = time;
 
   // クオータニオンの正規化のためにdt = 0を許容できない
-  if (dt <= 0) {
+  if (dt <= 0.) {
     std::cerr << "IMU time gap must be positive: " << dt << " <= 0 [sec]" << std::endl;
     return INFINITY;
   }

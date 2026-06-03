@@ -9,6 +9,7 @@
 #include <QVBoxLayout>
 #include <QWidget>
 
+#include <tobas_mission_items/mission_items.hpp>
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_qt_tools/widgets/check_box.hpp>
 
@@ -44,10 +45,12 @@ protected:
   void addField(field::BaseFieldWidget* widget, bool overridable = false);
 
   bool isChecked(field::BaseFieldWidget* widget) const;
+  void setChecked(field::BaseFieldWidget* widget, bool checked);
 
-  /* チェックされていたら設定された値，されていなければゼロを返す． */
-  template <typename T>
-  T getValue(field::FieldWidget<T>* widget) const;
+  /* チェックされていたら設定された値，されていなければNaNを返す． */
+  double getValueOrDefault(field::FieldWidget<double>* widget) const;
+  /* 有効な値ならばそのままセットし，NaNならばデフォルト値を使う． */
+  void setValueOrDefault(field::FieldWidget<double>* widget, double value);
 
 private:
   QLabel* label_;
@@ -62,12 +65,6 @@ private Q_SLOTS:
   void onFieldUpdated();
   void onDeleteButtonClicked();
 };
-
-template <typename T>
-T BaseCommandWidget::getValue(field::FieldWidget<T>* widget) const
-{
-  return isChecked(widget) ? widget->getValue() : static_cast<T>(0);
-}
 }  // namespace ctrl
 }  // namespace gui
 }  // namespace tobas

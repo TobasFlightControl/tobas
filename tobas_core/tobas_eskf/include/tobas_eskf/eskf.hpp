@@ -81,7 +81,7 @@ class ErrorStateKalmanFilter
 public:
   explicit ErrorStateKalmanFilter();
 
-  bool initialize(
+  void initialize(
     const Eigen::Vector3d& init_pos,
     const Eigen::Matrix3d& init_pos_cov,
     const Eigen::Vector3d& init_vel,
@@ -100,14 +100,14 @@ public:
     const double& init_grav_var,
     const std::chrono::steady_clock::time_point& time);
 
-  bool initializePosition(const Eigen::Vector3d& value, const Eigen::Matrix3d& cov);
-  bool initializeVelocity(const Eigen::Vector3d& value, const Eigen::Matrix3d& cov);
-  bool initializeQuaternion(const Eigen::Quaterniond& value, const Eigen::Matrix3d& cov);
-  bool initializeAccelBias(const Eigen::Vector3d& value, const Eigen::Matrix3d& cov);
-  bool initializeGyroBias(const Eigen::Vector3d& value, const Eigen::Matrix3d& cov);
-  bool initializeMagHardBias(const Eigen::Vector3d& value, const Eigen::Matrix3d& cov);
-  bool initializeMagSoftBias(const Eigen::Matrix3d& value, const Eigen::Matrix6d& cov);
-  bool initializeGravity(const double& value, const double& var);
+  void initializePosition(const Eigen::Vector3d& value, const Eigen::Matrix3d& cov);
+  void initializeVelocity(const Eigen::Vector3d& value, const Eigen::Matrix3d& cov);
+  void initializeQuaternion(const Eigen::Quaterniond& value, const Eigen::Matrix3d& cov);
+  void initializeAccelBias(const Eigen::Vector3d& value, const Eigen::Matrix3d& cov);
+  void initializeGyroBias(const Eigen::Vector3d& value, const Eigen::Matrix3d& cov);
+  void initializeMagHardBias(const Eigen::Vector3d& value, const Eigen::Matrix3d& cov);
+  void initializeMagSoftBias(const Eigen::Matrix3d& value, const Eigen::Matrix6d& cov);
+  void initializeGravity(const double& value, const double& var);
 
   void enableSecondIntegral(bool enable);
   void enableCovSymmetrisation(bool enable);
@@ -120,7 +120,7 @@ public:
   bool setMagSoftBiasProcNoiseDensity(double value);
   bool setGravProcNoiseDensity(double value);
 
-  bool setMagneticFieldRef(const Eigen::Vector3d& mag_W);
+  void setMagneticFieldRef(const Eigen::Vector3d& mag_W);
 
   // Direct value getters
   inline Eigen::Vector3d getPosition() const;

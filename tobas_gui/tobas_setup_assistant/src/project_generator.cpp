@@ -3,6 +3,7 @@
 
 #include "tobas_setup_assistant/project_generator.hpp"
 
+#include <tobas_constants/imu.hpp>
 #include <tobas_constants/node.hpp>
 #include <tobas_constants/pwm_key.hpp>
 #include <tobas_constants/throttle.hpp>
@@ -711,6 +712,7 @@ bool ProjectGenerator::generateObserverStaticConfig()
   params["use_magnetometer"] = settings_->observer->useMagnetometer();
   params["use_barometer"] = settings_->observer->useBarometer();
   params["use_gnss"] = settings_->observer->useGnss();
+  params["use_external_pose"] = settings_->observer->useExternalPose();
   params["adaptive_gnss_noise"] = settings_->observer->adaptiveGnssNoise();
   params["adaptive_grav_noise"] = settings_->observer->adaptiveGravityNoise();
   params["do_acc_bias_estimation"] = settings_->observer->doAccelBiasEstimation();
@@ -814,9 +816,7 @@ bool ProjectGenerator::generateRcTeleopStaticConfig()
 bool ProjectGenerator::generateImuFilterConfig()
 {
   YAML::Node params(YAML::NodeType::Map);
-  params["default_accel_lpf_cutoff"] = settings_->hardware->defaultAccelLpfCutoff();
-  params["default_gyro_lpf_cutoff"] = settings_->hardware->defaultGyroLpfCutoff();
-  params["default_dgyro_lpf_cutoff"] = settings_->hardware->defaultDGyroLpfCutoff();
+  params["has_rpm_filter"] = settings_->hardware->hasRpmFilter();
 
   const auto config_dir = proj_paths_.cfgConfigDirPath();
 
@@ -1090,7 +1090,7 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
     robot,
     ns,
     root_name,
-    fmu->imuUpdateRate(),
+    kImuSamplingRate,
     Eigen::Vector3d::Zero(),  // TODO
     fmu->gyroNoiseDensity(),
     fmu->gyroRandomWalk(),

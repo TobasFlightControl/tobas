@@ -61,6 +61,6 @@ private:
 private Q_SLOTS:
   void initialize();
 };
-};  // namespace sa
+}  // namespace sa
 }  // namespace gui
 }  // namespace tobas

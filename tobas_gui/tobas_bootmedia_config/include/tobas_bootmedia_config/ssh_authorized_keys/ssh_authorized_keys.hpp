@@ -33,13 +33,13 @@ class SshAuthorizedKeysWidget : public BaseConfigWidget
 public:
   explicit SshAuthorizedKeysWidget();
 
-  const char* name() const override;
   const char* title() const override;
 
   void reset() override;
 
+  bool onConnected() override;
+
 private:
-  QPushButton* read_button_;
   QPushButton* add_button_;
   QPushButton* remove_button_;
   QPushButton* clear_button_;
@@ -53,7 +53,6 @@ private:
   static std::string authorizedKeysPath();
 
 private Q_SLOTS:
-  void onReadButtonClicked();
   void onAddButtonClicked();
   void onRemoveButtonClicked();
   void onClearButtonClicked();

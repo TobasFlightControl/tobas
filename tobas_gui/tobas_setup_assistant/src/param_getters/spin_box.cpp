@@ -16,7 +16,7 @@ ParamGetterWidget_SpinBox::ParamGetterWidget_SpinBox(const QString& param_name, 
 {
   spin_box_ = new qt::SpinBox();
   rows_->addWidget(spin_box_);
-  connect(spin_box_, QOverload<int>::of(&qt::SpinBox::valueChanged), this, &self::onValueChanged);
+  connect(spin_box_, qOverload<int>(&qt::SpinBox::valueChanged), this, &self::onValueChanged);
 }
 
 int ParamGetterWidget_SpinBox::getValue() const

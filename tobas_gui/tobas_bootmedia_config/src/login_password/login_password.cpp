@@ -7,7 +7,6 @@
 
 #include <QDebug>
 #include <QFormLayout>
-#include <QVBoxLayout>
 
 #include <tobas_crypt/crypt.hpp>
 #include <tobas_crypt/yescrypt.hpp>
@@ -55,14 +54,14 @@ LoginPasswordWidget::LoginPasswordWidget()
   connect(write_button_, &QPushButton::clicked, this, &self::onWriteButtonClicked);
 }
 
-const char* LoginPasswordWidget::name() const
-{
-  return "Login Password";
-}
-
 const char* LoginPasswordWidget::title() const
 {
   return "Set Login Password";
+}
+
+bool LoginPasswordWidget::onConnected()
+{
+  return true;
 }
 
 void LoginPasswordWidget::reset()

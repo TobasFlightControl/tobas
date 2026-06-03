@@ -51,7 +51,7 @@ private:
   ParamGetterWidget_SpinBox* C_cont_;
   ParamGetterWidget_SpinBox* registance_;
 };
-};  // namespace electric
+}  // namespace electric
 }  // namespace propulsion
 }  // namespace sa
 }  // namespace gui

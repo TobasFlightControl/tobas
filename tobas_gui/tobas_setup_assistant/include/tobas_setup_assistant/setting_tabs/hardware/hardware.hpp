@@ -50,8 +50,6 @@ public:
   const char* fmuName() const;
   const char* hardwarePackage() const;
 
-  /* [Hz] */
-  int imuUpdateRate() const;
   /* [rad/s/√Hz] */
   double gyroNoiseDensity() const;
   /* [rad/s^2/√Hz] */
@@ -91,12 +89,7 @@ public:
   int numPwmChannels() const;
   int numDShotChannels() const;
 
-  /* [Hz] */
-  int defaultAccelLpfCutoff() const;
-  /* [Hz] */
-  int defaultGyroLpfCutoff() const;
-  /* [Hz] */
-  int defaultDGyroLpfCutoff() const;
+  bool hasRpmFilter() const;
 
 private:
   qt::ComboBox* type_;
@@ -110,7 +103,7 @@ private:
 private Q_SLOTS:
   void setCurrentHardware(int index);
 };
-};  // namespace hw
+}  // namespace hw
 }  // namespace sa
 }  // namespace gui
 }  // namespace tobas

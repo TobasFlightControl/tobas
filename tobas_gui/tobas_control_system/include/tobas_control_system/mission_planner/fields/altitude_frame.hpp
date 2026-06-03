@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <tobas_mission_items/mission_items.hpp>
+#include <tobas_mission_items/mission.hpp>
 #include <tobas_qt_tools/widgets/combo_box.hpp>
 
 #include "./base.hpp"

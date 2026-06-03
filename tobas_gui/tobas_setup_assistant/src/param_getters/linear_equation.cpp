@@ -32,8 +32,8 @@ ParamGetterWidget_LinearEquation::ParamGetterWidget_LinearEquation(
   cols->addWidget(suffix_);
   cols->addStretch();
 
-  connect(c0_, QOverload<double>::of(&qt::DoubleSpinBox::valueChanged), this, &self::onValueChanged);
-  connect(c1_, QOverload<double>::of(&qt::DoubleSpinBox::valueChanged), this, &self::onValueChanged);
+  connect(c0_, qOverload<double>(&qt::DoubleSpinBox::valueChanged), this, &self::onValueChanged);
+  connect(c1_, qOverload<double>(&qt::DoubleSpinBox::valueChanged), this, &self::onValueChanged);
 }
 
 ParamGetterWidget_LinearEquation::ValueType ParamGetterWidget_LinearEquation::getValue() const

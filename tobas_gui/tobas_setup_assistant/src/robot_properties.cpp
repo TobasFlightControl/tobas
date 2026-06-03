@@ -12,20 +12,25 @@ namespace gui
 {
 namespace sa
 {
-RobotPropertiesWidget::RobotPropertiesWidget(const kdl::Tree& tree) : mass_holder_(tree)
+RobotPropertiesWidget::RobotPropertiesWidget(const uadf::Model& uadf, const kdl::Tree& tree)
+  : uadf_(uadf), tree_(tree), mass_holder_(tree)
 {
+  robot_name_ = new qt::FramedLabel();
   frame_type_ = new qt::FramedLabel();
   mass_ = new qt::FramedLabel();
 
   const auto form = new qt::FormLayout();
   form->setHorizontalSpacing(30);
   setLayout(form);
+  form->addRow("Robot Name", robot_name_);
   form->addRow("Frame Type", frame_type_);
   form->addRow("Total Mass", mass_);
 }
 
 void RobotPropertiesWidget::updateInternalDataStructures()
 {
+  robot_name_->setText(QString::fromStdString(uadf_.urdf->getName()));
+
   TOBAS_CHECK(mass_holder_.updateInternalDataStructures());
   mass_->setText(QString::number(mass_holder_.getMass()) + " kg");
 }

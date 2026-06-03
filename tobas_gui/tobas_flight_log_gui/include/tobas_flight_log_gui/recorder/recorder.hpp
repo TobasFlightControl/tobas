@@ -8,6 +8,7 @@
 #include <QPushButton>
 
 #include <tobas_qt_tools/widgets/framed_label.hpp>
+#include <tobas_qt_tools/widgets/history_line_edit.hpp>
 #include <tobas_qt_tools/widgets/position_bar_widget.hpp>
 #include <tobas_qt_tools/widgets/toggle_button.hpp>
 #include <tobas_qt_tools/widgets/wait_spinner.hpp>
@@ -32,6 +33,9 @@ class FlightLogRecorderWidget : public QWidget
   static constexpr int kButtonWidth = 150;
   static constexpr int kButtonHeight = 60;
 
+Q_SIGNALS:
+  void recordFinished(const QString& log_name);
+
 public:
   explicit FlightLogRecorderWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge);
 
@@ -39,7 +43,7 @@ public:
   void updateNamespace(const std::string& ns);
 
 private:
-  QLineEdit* log_name_;
+  qt::HistoryLineEdit* log_name_;
   qt::ToggleButton* start_stop_button_;
   QLCDNumber* duration_;
   qt::HPositionBarWidget* file_size_;

@@ -149,7 +149,7 @@ MulticopterWidget::MulticopterWidget()
   land_form->addVAlignedRow("Speed", land_speed_);
 
   const auto rtl_form = new qt::FormLayout();
-  rtl_form->addVAlignedRow("Minimum Altitude (wrt. Home)", rtl_min_alt_);
+  rtl_form->addVAlignedRow("Minimum Altitude (wrt. Launch Point)", rtl_min_alt_);
 
   const auto rows = new QVBoxLayout();
   rows->addWidget(new qt::Label("Waypoint", cmn::kLabelPSize, QFont::Bold));
@@ -158,7 +158,7 @@ MulticopterWidget::MulticopterWidget()
   rows->addLayout(takeoff_form);
   rows->addWidget(new qt::Label("Land", cmn::kLabelPSize, QFont::Bold));
   rows->addLayout(land_form);
-  rows->addWidget(new qt::Label("Return-to-Home", cmn::kLabelPSize, QFont::Bold));
+  rows->addWidget(new qt::Label("Return-to-Launch", cmn::kLabelPSize, QFont::Bold));
   rows->addLayout(rtl_form);
 
   setLayout(rows);

@@ -3,9 +3,6 @@
 
 #include "tobas_control_system/mission_planner/command_type.hpp"
 
-#include <string.h>
-
-#include <format>
 #include <stdexcept>
 
 #define WAYPOINT_LABEL "Waypoint"
@@ -19,38 +16,38 @@ namespace gui
 {
 namespace ctrl
 {
-const char* commandToText(Command cmd)
+QString commandToText(mission::Type cmd)
 {
   switch (cmd) {
-    case Command::kWaypoint:
+    case mission::Type::kWaypoint:
       return WAYPOINT_LABEL;
-    case Command::kTakeoff:
+    case mission::Type::kTakeoff:
       return TAKEOFF_LABEL;
-    case Command::kLand:
+    case mission::Type::kLand:
       return LAND_LABEL;
-    case Command::kReturnToLaunch:
+    case mission::Type::kReturnToLaunch:
       return RTL_LABEL;
     default:
-      throw std::runtime_error(std::format("Invalid command type: {}", (int)cmd));
+      throw std::runtime_error("Invalid command type: " + std::to_string(cmd));
   }
 }
 
-Command textToCommand(const char* text)
+mission::Type textToCommand(const QString& text)
 {
-  if (strcmp(text, WAYPOINT_LABEL) == 0) {
-    return Command::kWaypoint;
+  if (text == WAYPOINT_LABEL) {
+    return mission::Type::kWaypoint;
   }
-  else if (strcmp(text, TAKEOFF_LABEL) == 0) {
-    return Command::kTakeoff;
+  else if (text == TAKEOFF_LABEL) {
+    return mission::Type::kTakeoff;
   }
-  else if (strcmp(text, LAND_LABEL) == 0) {
-    return Command::kLand;
+  else if (text == LAND_LABEL) {
+    return mission::Type::kLand;
   }
-  else if (strcmp(text, RTL_LABEL) == 0) {
-    return Command::kReturnToLaunch;
+  else if (text == RTL_LABEL) {
+    return mission::Type::kReturnToLaunch;
   }
   else {
-    throw std::runtime_error(std::format("Invalid command text: {}", text));
+    throw std::runtime_error("Invalid command text: " + text.toStdString());
   }
 }
 }  // namespace ctrl

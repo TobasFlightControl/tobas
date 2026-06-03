@@ -35,17 +35,17 @@ class WifiClientWidget : public BaseConfigWidget
 public:
   explicit WifiClientWidget();
 
-  const char* name() const override;
   const char* title() const override;
 
   void reset() override;
+
+  bool onConnected() override;
 
 private:
   wpa::Data wpa_data_;
   wpa::Parser wpa_parser_;
   wpa::Exporter wpa_exporter_;
 
-  QPushButton* read_button_;
   QPushButton* add_button_;
   QPushButton* remove_button_;
   QPushButton* clear_button_;
@@ -64,7 +64,6 @@ private:
   static std::string configPath();
 
 private Q_SLOTS:
-  void onReadButtonClicked();
   void onAddButtonClicked();
   void onRemoveButtonClicked();
   void onClearButtonClicked();

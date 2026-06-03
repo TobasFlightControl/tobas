@@ -2,7 +2,7 @@
 # Copyright (C) 2026 Tobas, Inc.
 
 # Goal
-tobas_mission_msgs/MissionItem[] items
+tobas_mission_msgs/Mission mission
 tobas_mission_msgs/Priority priority
 
 ---
@@ -10,8 +10,9 @@ tobas_mission_msgs/Priority priority
 # Result
 tobas_mission_msgs/ErrorCode error_code
 string error_message
+uint32 last_command_index
 
 ---
 
 # Feedback
-uint32 current_index
+uint32 current_command_index

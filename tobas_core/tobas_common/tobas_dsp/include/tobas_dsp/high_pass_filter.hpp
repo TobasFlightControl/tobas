@@ -27,11 +27,12 @@ public:
   inline const T& getValue() const override;
   inline void setValue(const T& x) override;
 
-  bool setCutoffFrequency(const double& fc_hz);
+  void setCutoffFrequency(const double& fc_hz);
 
 private:
-  double wc_ = std::numeric_limits<double>::max();  // [rad/s]
-  T y_, prev_u_;
+  double wc_ = INFINITY;  // [rad/s]
+  T y_{};
+  T prev_u_{};
 };
 
 template <typename T>
@@ -64,15 +65,14 @@ inline void HighPassFilter<T>::setValue(const T& x)
 }
 
 template <typename T>
-bool HighPassFilter<T>::setCutoffFrequency(const double& fc_hz)
+void HighPassFilter<T>::setCutoffFrequency(const double& fc_hz)
 {
   if (fc_hz <= 0.) {
-    std::cerr << "The cutoff frequency of high-pass filter must be positive." << std::endl;
-    return false;
+    wc_ = INFINITY;
   }
-
-  wc_ = M_2PI * fc_hz;  // Hz -> rad/s
-  return true;
+  else {
+    wc_ = M_2PI * fc_hz;  // Hz -> rad/s
+  }
 }
 }  // namespace dsp
 }  // namespace tobas

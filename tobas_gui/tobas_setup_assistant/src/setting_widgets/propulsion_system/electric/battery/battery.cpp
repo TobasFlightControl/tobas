@@ -37,8 +37,7 @@ BatteryWidget::BatteryWidget()
   rows->addWidget(batteries_);
   setLayout(rows);
 
-  connect(
-    type_, QOverload<int>::of(&qt::ComboBox::currentIndexChanged), batteries_, &qt::StackedWidget::setCurrentIndex);
+  connect(type_, qOverload<int>(&qt::ComboBox::currentIndexChanged), batteries_, &qt::StackedWidget::setCurrentIndex);
 }
 
 bool BatteryWidget::isValid()

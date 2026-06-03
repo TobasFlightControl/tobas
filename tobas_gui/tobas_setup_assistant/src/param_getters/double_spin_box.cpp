@@ -18,7 +18,7 @@ ParamGetterWidget_DoubleSpinBox::ParamGetterWidget_DoubleSpinBox(
 {
   spin_box_ = new qt::DoubleSpinBox();
   rows_->addWidget(spin_box_);
-  connect(spin_box_, QOverload<double>::of(&qt::DoubleSpinBox::valueChanged), this, &self::onValueChanged);
+  connect(spin_box_, qOverload<double>(&qt::DoubleSpinBox::valueChanged), this, &self::onValueChanged);
 }
 
 double ParamGetterWidget_DoubleSpinBox::getValue() const

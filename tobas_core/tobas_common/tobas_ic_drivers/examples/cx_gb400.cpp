@@ -92,8 +92,7 @@ int main(int argc, char** argv)
     }
     std::this_thread::sleep_for(50ms);  // 30Hzまであげられる？
     now = ch::system_clock::now();
-    cnt++;
-    if (cnt > 20) {
+    if (++cnt > 20) {
       break;
     }
   }

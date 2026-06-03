@@ -28,7 +28,7 @@ MaxHeadingAccelWidget::MaxHeadingAccelWidget()
   setLayout(cols);
   cols->addWidget(spin_box_);
 
-  connect(spin_box_, QOverload<int>::of(&QSpinBox::valueChanged), this, &BaseFieldWidget::updated);
+  connect(spin_box_, qOverload<int>(&QSpinBox::valueChanged), this, &BaseFieldWidget::updated);
 }
 
 const char* MaxHeadingAccelWidget::label() const

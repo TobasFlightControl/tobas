@@ -17,7 +17,7 @@ namespace keyboard
 KeyboardReader::KeyboardReader()
 {
   tcgetattr(STD_INPUT_FD, &tempcopy_);
-  memcpy(&changed_, &tempcopy_, sizeof(termios));
+  std::memcpy(&changed_, &tempcopy_, sizeof(termios));
 
   changed_.c_lflag &= ~(ICANON | ECHO);
   changed_.c_cc[VEOL] = 1;

@@ -29,7 +29,6 @@ public:
 
   const char* hardwarePackage() const override;
 
-  int imuUpdateRate() const override;
   double gyroNoiseDensity() const override;
   double gyroRandomWalk() const override;
   int gyroBiasCorrTime() const override;
@@ -53,9 +52,7 @@ public:
   int numPwmChannels() const override;
   int numDShotChannels() const override;
 
-  int defaultAccelLpfCutoff() const override;
-  int defaultGyroLpfCutoff() const override;
-  int defaultDGyroLpfCutoff() const override;
+  bool hasRpmFilter() const override;
 };
 }  // namespace hw
 }  // namespace sa

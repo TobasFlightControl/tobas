@@ -3,22 +3,18 @@
 
 #pragma once
 
+#include <QString>
+
+#include <tobas_mission_items/mission.hpp>
+
 namespace tobas
 {
 namespace gui
 {
 namespace ctrl
 {
-enum struct Command
-{
-  kWaypoint,
-  kTakeoff,
-  kLand,
-  kReturnToLaunch,
-};
-
-const char* commandToText(Command cmd);
-Command textToCommand(const char* text);
+QString commandToText(mission::Type cmd);
+mission::Type textToCommand(const QString& text);
 }  // namespace ctrl
 }  // namespace gui
 }  // namespace tobas

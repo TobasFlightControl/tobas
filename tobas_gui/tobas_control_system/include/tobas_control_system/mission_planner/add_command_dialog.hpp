@@ -25,13 +25,16 @@ class AddCommandDialog : public QDialog
 public:
   explicit AddCommandDialog(QWidget* parent);
 
-  Command selectedCommand() const;
+  mission::Type selectedCommand() const;
 
 private:
   qt::ListWidget* command_list_;
-  Command selected_command_;
+  mission::Type selected_command_;
+
+  void acceptWithItem(QListWidgetItem* item);
 
 private Q_SLOTS:
+  void onItemDoubleClicked(QListWidgetItem* item);
   void onOkClicked();
 };
 }  // namespace ctrl

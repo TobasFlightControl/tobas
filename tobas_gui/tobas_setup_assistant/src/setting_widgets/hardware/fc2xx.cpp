@@ -41,11 +41,6 @@ const char* FC2xxWidget::hardwarePackage() const
   return "tobas_fc2xx_ros";
 }
 
-int FC2xxWidget::imuUpdateRate() const
-{
-  return 800;
-}
-
 double FC2xxWidget::gyroNoiseDensity() const
 {
   return 0.011 * st::kDeg2Rad;  // ISM330DLC
@@ -136,19 +131,9 @@ int FC2xxWidget::numDShotChannels() const
   return 8;
 }
 
-int FC2xxWidget::defaultAccelLpfCutoff() const
+bool FC2xxWidget::hasRpmFilter() const
 {
-  return 200;  // Disabled
-}
-
-int FC2xxWidget::defaultGyroLpfCutoff() const
-{
-  return 200;  // Disabled
-}
-
-int FC2xxWidget::defaultDGyroLpfCutoff() const
-{
-  return 200;  // Disabled
+  return true;
 }
 }  // namespace hw
 }  // namespace sa

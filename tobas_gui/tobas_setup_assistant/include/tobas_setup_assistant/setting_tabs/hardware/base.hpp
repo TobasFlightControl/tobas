@@ -28,8 +28,6 @@ public:
 
   virtual const char* hardwarePackage() const = 0;
 
-  /* [Hz] */
-  virtual int imuUpdateRate() const = 0;
   /* [rad/s/√Hz] */
   virtual double gyroNoiseDensity() const = 0;
   /* [rad/s^2/√Hz] */
@@ -69,12 +67,7 @@ public:
   virtual int numPwmChannels() const = 0;
   virtual int numDShotChannels() const = 0;
 
-  /* [Hz] */
-  virtual int defaultAccelLpfCutoff() const = 0;
-  /* [Hz] */
-  virtual int defaultGyroLpfCutoff() const = 0;
-  /* [Hz] */
-  virtual int defaultDGyroLpfCutoff() const = 0;
+  virtual bool hasRpmFilter() const = 0;
 };
 }  // namespace hw
 }  // namespace sa

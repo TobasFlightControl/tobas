@@ -1,12 +1,14 @@
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, GroupAction
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
-from launch_ros.actions import Node, SetParameter
+from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch_ros.actions import Node, SetParameter, PushRosNamespace
 from launch_ros.substitutions import FindPackageShare
 
 # Template parameters
 DRONE_NAME = "{{ drone_name }}"
 CONFIG_PKG_NAME = "{{ config_pkg_name }}"
+USER_CPP_PKG_NAME = "{{ user_cpp_pkg_name }}"
 CONTROLLER_PKG = "{{ controller_pkg }}"
 MISSION_EXECUTOR_PKG = "{{ mission_executor_pkg }}"
 
@@ -34,6 +36,7 @@ def generate_launch_description():
     ld.add_action(SetParameter(USE_SIM_TIME, value=use_sim_time))
 
     config_pkg_share = FindPackageShare(CONFIG_PKG_NAME)
+    user_cpp_pkg_share = FindPackageShare(USER_CPP_PKG_NAME)
 
     tf_remap = [("/tf", "tf"), ("/tf_static", "tf_static")]
     ros_args = ["--log-level", log_level, "--disable-rosout-logs", "--disable-external-lib-logs"]
@@ -214,6 +217,20 @@ def generate_launch_description():
             namespace=DRONE_NAME,
             ros_arguments=ros_args,
             output=output,
+        )
+    )
+
+    # Launch user nodes
+    ld.add_action(
+        GroupAction(
+            [
+                PushRosNamespace(DRONE_NAME),
+                IncludeLaunchDescription(
+                    PythonLaunchDescriptionSource(
+                        PathJoinSubstitution([user_cpp_pkg_share, "launch", "common_realtime.launch.py"])
+                    )
+                ),
+            ]
         )
     )
 

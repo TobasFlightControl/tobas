@@ -27,8 +27,8 @@ ParamGetterWidget_Ratio::ParamGetterWidget_Ratio(const QString& param_name, cons
   cols->addWidget(right_text_);
   cols->addStretch();
 
-  connect(left_value_, QOverload<int>::of(&qt::SpinBox::valueChanged), this, &self::onValueChanged);
-  connect(right_value_, QOverload<int>::of(&qt::SpinBox::valueChanged), this, &self::onValueChanged);
+  connect(left_value_, qOverload<int>(&qt::SpinBox::valueChanged), this, &self::onValueChanged);
+  connect(right_value_, qOverload<int>(&qt::SpinBox::valueChanged), this, &self::onValueChanged);
 }
 
 ParamGetterWidget_Ratio::ValueType ParamGetterWidget_Ratio::getValue() const

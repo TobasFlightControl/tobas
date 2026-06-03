@@ -26,6 +26,10 @@ ObserverWidget::ObserverWidget()
   use_gnss_->setChecked(true);
   addWidget(use_gnss_);
 
+  use_ext_pose_ = new QCheckBox("Use External Pose");
+  use_ext_pose_->setChecked(false);
+  addWidget(use_ext_pose_);
+
   adaptive_gnss_noise_ = new QCheckBox("Adaptive GNSS Measurement Noise");
   adaptive_gnss_noise_->setChecked(true);
   addWidget(adaptive_gnss_noise_);
@@ -100,6 +104,7 @@ YAML::Node ObserverWidget::dump() const
   node[use_magnetometer_->text()] = use_magnetometer_->isChecked();
   node[use_barometer_->text()] = use_barometer_->isChecked();
   node[use_gnss_->text()] = use_gnss_->isChecked();
+  node[use_ext_pose_->text()] = use_ext_pose_->isChecked();
   node[adaptive_gnss_noise_->text()] = adaptive_gnss_noise_->isChecked();
   node[adaptive_grav_noise_->text()] = adaptive_grav_noise_->isChecked();
   node[do_acc_bias_estimation_->text()] = do_acc_bias_estimation_->isChecked();
@@ -116,6 +121,7 @@ void ObserverWidget::load(const YAML::Node& node)
   use_magnetometer_->setChecked(node[use_magnetometer_->text()].as<bool>());
   use_barometer_->setChecked(node[use_barometer_->text()].as<bool>());
   use_gnss_->setChecked(node[use_gnss_->text()].as<bool>());
+  use_ext_pose_->setChecked(node[use_ext_pose_->text()].as<bool>());
   adaptive_gnss_noise_->setChecked(node[adaptive_gnss_noise_->text()].as<bool>());
   adaptive_grav_noise_->setChecked(node[adaptive_grav_noise_->text()].as<bool>());
   do_acc_bias_estimation_->setChecked(node[do_acc_bias_estimation_->text()].as<bool>());
@@ -138,6 +144,11 @@ bool ObserverWidget::useBarometer() const
 bool ObserverWidget::useGnss() const
 {
   return use_gnss_->isChecked();
+}
+
+bool ObserverWidget::useExternalPose() const
+{
+  return use_ext_pose_->isChecked();
 }
 
 bool ObserverWidget::adaptiveGnssNoise() const

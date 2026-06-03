@@ -90,7 +90,7 @@ DShotDriverNode::DShotDriverNode(const rclcpp::NodeOptions& options)
 bool DShotDriverNode::transfer()
 {
   if (!dshot_.transfer()) {
-    TOBAS_ERROR_THROTTLE(kTypicalErrorPeriod, "Failed to communicate with the rotor controller.");
+    TOBAS_ERROR_THROTTLE(kTypicalErrorPeriod, "Failed to communicate with the MCU.");
     return false;
   }
   return true;
@@ -264,7 +264,7 @@ void DShotDriverNode::droneCb(const Drone::ConstSharedPtr& drone)
   auto_stop_timer_ = createWallTimer(kCommandAutoResetTimeout, &self::autoStopTimerCb, this);
 
   eprop_ = eprop;
-  TOBAS_INFO("Rotor speed controller is initialized.");
+  TOBAS_INFO("Rotor speed controller has been initialized.");
 }
 
 void DShotDriverNode::targetSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::ConstSharedPtr& tar_speeds)
@@ -321,7 +321,7 @@ void DShotDriverNode::setGainsCb(const SetGains::Request::ConstSharedPtr& req, c
 
   if (!transfer()) {
     res->success = false;
-    res->message = "Failed to communicate with the rotor controller.";
+    res->message = "Failed to communicate with the MCU.";
     return;
   }
 

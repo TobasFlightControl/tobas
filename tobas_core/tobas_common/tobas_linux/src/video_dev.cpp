@@ -216,7 +216,7 @@ bool VideoDev::mapBuffer()
     std::cerr << "Calloc failed." << std::endl;
     return false;
   }
-  for (uint32_t i = 0; i < kBufferSize; i++) {
+  for (uint32_t i = 0; i < kBufferSize; ++i) {
     v4l2_buffer buf = {};
     buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
     buf.memory = V4L2_MEMORY_MMAP;

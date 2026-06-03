@@ -29,6 +29,9 @@ public:
 
   const char* name() const override;
 
+  mission::Takeoff dump() const;
+  void load(const mission::Takeoff& src);
+
   double altitude() const;
   mission::AltitudeFrame altitudeFrame() const;
   double maxSpeed() const;

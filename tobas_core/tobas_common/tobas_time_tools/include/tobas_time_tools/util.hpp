@@ -30,6 +30,12 @@ inline void nsleep(size_t nsec)
   std::this_thread::sleep_for(std::chrono::nanoseconds(nsec));
 }
 
+template <int Hz>
+inline constexpr std::chrono::duration<int, std::ratio<1, Hz>> periodFromFrequency()
+{
+  return std::chrono::duration<int, std::ratio<1, Hz>>{ 1 };
+}
+
 std::chrono::system_clock::time_point tmToTimePoint(tm tm);
 tm timePointToTm(const std::chrono::system_clock::time_point& tp);
 

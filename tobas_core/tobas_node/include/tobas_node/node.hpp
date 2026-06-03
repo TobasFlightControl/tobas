@@ -242,7 +242,7 @@ private:
     const tobas_dparam_msgs::srv::GetParams::Request::ConstSharedPtr& req,
     const tobas_dparam_msgs::srv::GetParams::Response::SharedPtr& res);
 
-  static std::string createID(const char* file, int line);
+  static inline std::string createID(const char* file, int line);
 };
 
 inline std::string BaseNode::ns() const
@@ -355,7 +355,7 @@ void BaseNode::addDynamicBoolParam(const std::string& name, bool (Obj::*fp)(cons
           break;
         }
       }
-      TOBAS_INFO("Boolean parameter \"", name, "\" is updated successfully.");
+      TOBAS_INFO("Boolean parameter \"", name, "\" has been updated to ", value, ".");
     }
   };
   const auto cb_handle = dparam_sub_.add_parameter_callback(name, cb);
@@ -387,7 +387,7 @@ void BaseNode::addDynamicIntParam(
 
   declareDynamicParam(name, dflt);
 
-  const auto cb = [this, name, fp, obj, _min, _max](const rclcpp::Parameter& param)
+  const auto cb = [this, name, fp, obj, _min, _max, prefix](const rclcpp::Parameter& param)
   {
     const auto value = std::clamp(param.as_int(), _min, _max);
     if ((obj->*fp)(value)) {
@@ -397,7 +397,7 @@ void BaseNode::addDynamicIntParam(
           break;
         }
       }
-      TOBAS_INFO("Integer parameter \"", name, "\" is updated successfully.");
+      TOBAS_INFO("Integer parameter \"", name, "\" has been updated to ", value, prefix, ".");
     }
   };
   const auto cb_handle = dparam_sub_.add_parameter_callback(name, cb);
@@ -433,17 +433,18 @@ void BaseNode::addDynamicDoubleParam(
 
   declareDynamicParam(name, dflt);
 
-  const auto cb = [this, name, fp, obj, step, _min, _max](const rclcpp::Parameter& param)
+  const auto cb = [this, name, fp, obj, step, _min, _max, prefix](const rclcpp::Parameter& param)
   {
-    const auto value = std::clamp(param.as_int(), _min, _max);
-    if ((obj->*fp)(step * value)) {
+    const auto value_int = std::clamp(param.as_int(), _min, _max);
+    const auto value_double = step * value_int;
+    if ((obj->*fp)(value_double)) {
       for (auto& double_param : dparams_.doubles) {
         if (double_param.name == name) {
-          double_param.value = value;
+          double_param.value = value_int;
           break;
         }
       }
-      TOBAS_INFO("Double parameter \"", name, "\" is updated successfully.");
+      TOBAS_INFO("Double parameter \"", name, "\" has been updated to ", value_double, prefix, ".");
     }
   };
   const auto cb_handle = dparam_sub_.add_parameter_callback(name, cb);
@@ -483,7 +484,7 @@ void BaseNode::addDynamicStringParam(
           break;
         }
       }
-      TOBAS_INFO("String parameter \"", name, "\" is updated successfully.");
+      TOBAS_INFO("String parameter \"", name, "\" has been updated to \"", value, "\".");
     }
   };
   const auto cb_handle = dparam_sub_.add_parameter_callback(name, cb);
@@ -677,5 +678,10 @@ void BaseNode::declareDynamicParam(const std::string& _name, const T& _dflt)
     get_dparam_ss_ = createService<tobas_dparam_msgs::srv::GetParams>(
       name() + "/" + service::kGetDynamicParams, &self::getDParamCb, this);
   }
+}
+
+inline std::string BaseNode::createID(const char* file, int line)
+{
+  return std::string(file) + ":" + std::to_string(line);
 }
 }  // namespace tobas

@@ -34,7 +34,7 @@ AddLinkDialog::AddLinkDialog(UrdfBuilderPanel* main, const QStringList& link_nam
   connect(ui_->JointNameLineEdit, &QLineEdit::textChanged, this, &self::onJointNameLineEditTextChanged);
   connect(
     ui_->JointParentLinkComboBox,
-    QOverload<int>::of(&QComboBox::currentIndexChanged),
+    qOverload<int>(&QComboBox::currentIndexChanged),
     this,
     &self::onJointParentComboBoxIndexChanged);
 }

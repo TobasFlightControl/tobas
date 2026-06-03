@@ -69,7 +69,7 @@ private:
   static constexpr uint8_t kSetGainCmd = 7;
 
   static constexpr char kSpiDevice[] = "/dev/spidev0.0";
-  static constexpr uint32_t kSpiClockFreq = 30'000'000;  // [Hz]
+  static constexpr uint32_t kSpiClockFreq = 12'000'000;  // [Hz]
 
 public:
   explicit DShot() noexcept;

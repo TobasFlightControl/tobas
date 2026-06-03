@@ -15,7 +15,7 @@ ParamGetterWidget_ComboBox::ParamGetterWidget_ComboBox(const QString& param_name
   box_ = new qt::ComboBox();
   rows_->addWidget(box_);
 
-  connect(box_, QOverload<int>::of(&qt::ComboBox::currentIndexChanged), this, &self::onIndexChanged);
+  connect(box_, qOverload<int>(&qt::ComboBox::currentIndexChanged), this, &self::onIndexChanged);
   connect(box_, &qt::ComboBox::currentTextChanged, this, &self::onTextChanged);
 }
 

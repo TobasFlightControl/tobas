@@ -49,7 +49,7 @@ AerodynamicsWidget::AerodynamicsWidget(rclcpp::Node::SharedPtr node, const Prope
 
   // Connection
   connect(
-    method_name_, QOverload<int>::of(&qt::ComboBox::currentIndexChanged), methods_, &qt::StackedWidget::setCurrentIndex);
+    method_name_, qOverload<int>(&qt::ComboBox::currentIndexChanged), methods_, &qt::StackedWidget::setCurrentIndex);
 }
 
 const char* AerodynamicsWidget::name() const

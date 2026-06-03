@@ -4,7 +4,7 @@
 #include <tobas_constants/imu.hpp>
 #include <tobas_constants/path.hpp>
 #include <tobas_constants/time.hpp>
-#include <tobas_dsp/low_pass_filter_p1.hpp>
+#include <tobas_dsp/low_pass_filter.hpp>
 #include <tobas_linux/core.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_property_tree/property_tree.hpp>
@@ -12,7 +12,6 @@
 #include <tobas_real_common/ros_interface.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_ros2_tools/util.hpp>
-#include <tobas_std_tools/check.hpp>
 
 #include <tobas_msgs_adapter/imu.hpp>
 #include <tobas_real_msgs/srv/set_imu_params.hpp>
@@ -51,7 +50,7 @@ private:
   kdl::Vector gyro_bias_;
   size_t gyro_bias_cnt_ = 0;
   std::array<algo::Kahan<double>, 3> gyro_sum_;
-  dsp::LowPassFilterP1<kdl::Vector> gyro_lpf_;
+  dsp::LowPassFilter<kdl::Vector> gyro_lpf_;
   tobas_msgs::Imu::ConstSharedPtr imu_raw_in_;
   builtin_interfaces::msg::Time t_last_motion_detected_;
 
@@ -75,7 +74,7 @@ private:
 ImuHandlerNode::ImuHandlerNode(const rclcpp::NodeOptions& options)
   : super("real_imu_handler", nodeOptions_Default(options))
 {
-  TOBAS_CHECK(gyro_lpf_.setCutoffFrequency(kGyroLpfCutoff));
+  gyro_lpf_.setCutoffFrequency(kGyroLpfCutoff);
 
   const auto cfg_dir = linux::isSuperUser() ? fs::path(kConfigDirRoot) : ros2::expandUser(kConfigDirHome);
   if (!pt_.initialize((cfg_dir / handler::imu::kConfigFileName))) {

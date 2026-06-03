@@ -44,7 +44,7 @@ const double* RobotState::getVariablePositions() const
 void RobotState::setVariablePositions(const double* position)
 {
   // Assume everything is in order in terms of array lengths (for efficiency reasons)
-  memcpy(position_.data(), position, robot_model_->getVariableCount() * sizeof(double));
+  std::memcpy(position_.data(), position, robot_model_->getVariableCount() * sizeof(double));
 
   // Since all joint values have potentially changed, we will need to recompute all transforms.
   std::fill(dirty_joint_transforms_.begin(), dirty_joint_transforms_.end(), 1);
@@ -135,7 +135,7 @@ void RobotState::setVariableVelocities(const double* velocity)
   has_velocity_ = true;
 
   // Assume everything is in order in terms of array lengths (for efficiency reasons)
-  memcpy(velocity_.data(), velocity, robot_model_->getVariableCount() * sizeof(double));
+  std::memcpy(velocity_.data(), velocity, robot_model_->getVariableCount() * sizeof(double));
 }
 
 void RobotState::setVariableVelocities(const std::vector<double>& velocity)
@@ -214,7 +214,7 @@ void RobotState::setVariableAccelerations(const double* acceleration)
   has_effort_ = false;
 
   // Assume everything is in order in terms of array lengths (for efficiency reasons)
-  memcpy(effort_or_acceleration_.data(), acceleration, robot_model_->getVariableCount() * sizeof(double));
+  std::memcpy(effort_or_acceleration_.data(), acceleration, robot_model_->getVariableCount() * sizeof(double));
 }
 
 void RobotState::setVariableAccelerations(const std::vector<double>& acceleration)
@@ -293,7 +293,7 @@ void RobotState::setVariableEffort(const double* effort)
   has_acceleration_ = false;
 
   // Assume everything is in order in terms of array lengths (for efficiency reasons)
-  memcpy(effort_or_acceleration_.data(), effort, robot_model_->getVariableCount() * sizeof(double));
+  std::memcpy(effort_or_acceleration_.data(), effort, robot_model_->getVariableCount() * sizeof(double));
 }
 
 void RobotState::setVariableEffort(const std::vector<double>& effort)
@@ -370,7 +370,7 @@ void RobotState::setJointPositions(const JointModel* joint, const double* positi
   if (joint->getVariableCount() == 0) {
     return;
   }
-  memcpy(&position_.at(joint->getFirstVariableIndex()), position, joint->getVariableCount() * sizeof(double));
+  std::memcpy(&position_.at(joint->getFirstVariableIndex()), position, joint->getVariableCount() * sizeof(double));
   markDirtyJointTransforms(joint);
   updateMimicJoint(joint);
 }
@@ -396,7 +396,7 @@ void RobotState::setJointVelocities(const JointModel* joint, const double* veloc
     return;
   }
   has_velocity_ = true;
-  memcpy(&velocity_.at(joint->getFirstVariableIndex()), velocity, joint->getVariableCount() * sizeof(double));
+  std::memcpy(&velocity_.at(joint->getFirstVariableIndex()), velocity, joint->getVariableCount() * sizeof(double));
 }
 
 void RobotState::setJointEfforts(const JointModel* joint, const double* effort)
@@ -410,7 +410,7 @@ void RobotState::setJointEfforts(const JointModel* joint, const double* effort)
   }
   has_effort_ = true;
 
-  memcpy(
+  std::memcpy(
     &effort_or_acceleration_.at(joint->getFirstVariableIndex()), effort, joint->getVariableCount() * sizeof(double));
 }
 

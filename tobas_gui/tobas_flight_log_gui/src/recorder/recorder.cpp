@@ -8,7 +8,6 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
-#include <tobas_constants/rosbag.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_qt_tools/message.hpp>
@@ -29,7 +28,7 @@ namespace log
 FlightLogRecorderWidget::FlightLogRecorderWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge)
   : start_thread_(node), stop_thread_(node), spinner_(Qt::WindowModal, this)
 {
-  log_name_ = new QLineEdit();
+  log_name_ = new qt::HistoryLineEdit();
 
   start_stop_button_ = new qt::ToggleButton("▶ Start Recording", "■ Stop Recording");
   start_stop_button_->setFixedSize(kButtonWidth, kButtonHeight);
@@ -40,7 +39,6 @@ FlightLogRecorderWidget::FlightLogRecorderWidget(rclcpp::Node::SharedPtr node, c
   file_size_ = new qt::HPositionBarWidget();
   file_size_->setLower(0);
   file_size_->setMinimum(0);
-  file_size_->setMaximum(kMaxRosbagSize);
 
   message_count_ = new qt::FramedLabel();
 
@@ -153,7 +151,12 @@ void FlightLogRecorderWidget::onStopRequested()
     return;
   }
 
+  Q_EMIT recordFinished(log_name_->text());
+
+  // ログ名を履歴に追加してクリア
+  log_name_->addHistory(log_name_->text());
   log_name_->clear();
+
   clearRosbagStateViewerWidgets();
 
   qt::qInfoBox(this, "Flight log recording has stopped.");
@@ -180,6 +183,7 @@ void FlightLogRecorderWidget::rosbagStateCb(const tobas_msgs::msg::RosbagState::
     duration_->display(hhmmss);
 
     file_size_->setUpper(rosbag_state->file_size);
+    file_size_->setMaximum(rosbag_state->file_size + rosbag_state->available_size);
     file_size_->setCenterText(QString::number(rosbag_state->file_size / 1'000'000) + " MB");
 
     message_count_->setText(QString::number(rosbag_state->message_count));
