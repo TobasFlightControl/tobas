@@ -68,12 +68,9 @@ plugins:
       docs_structure: folder
       reconfigure_material: true
       languages:
-        - locale: ja
-          name: 日本語
-          default: true
-          build: true
         - locale: en
           name: English
+          default: true
           build: true
           theme:
             palette:
@@ -111,6 +108,9 @@ plugins:
             リリース: Release
             リリース一覧: Releases
             プロセス: Process
+        - locale: ja
+          name: 日本語
+          build: true
 
 nav:
   - Tobas: index.md # Required
