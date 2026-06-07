@@ -123,8 +123,8 @@ private:
   bool headingNaturalFreqCb(const double& p);
   bool headingDampingRatioCb(const double& p);
   bool headingIGainCb(const double& p);
-  bool tiltAsixSingularDeclinationLBCb(const long& lb_deg);
-  bool tiltAsixSingularDeclinationUBCb(const long& ub_deg);
+  bool tiltAsixSingularDeclinationLBCb(const double& lb_deg);
+  bool tiltAsixSingularDeclinationUBCb(const double& ub_deg);
 
   void droneCb(const Drone::ConstSharedPtr& drone);
   void treeCb(const kdl::Tree::ConstSharedPtr& tree);
@@ -164,10 +164,10 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   addDynamicDoubleParam("heading_i_gain", &self::headingIGainCb, this, 0.01, 10, 1, 30);
   addDynamicDoubleParam("horizontal_i_max_accel", &self::horizontalIMaxAccelCb, this, 0.5, 4, 0, 20, " m/s^2");
   addDynamicDoubleParam("vertical_i_max_accel", &self::verticalIMaxAccelCb, this, 0.5, 4, 0, 20, " m/s^2");
-  addDynamicIntParam(
-    "tilt_axis_singular_declination_lb", &self::tiltAsixSingularDeclinationLBCb, this, 10, 0, 45, " deg");
-  addDynamicIntParam(
-    "tilt_axis_singular_declination_ub", &self::tiltAsixSingularDeclinationUBCb, this, 20, 0, 45, " deg");
+  addDynamicDoubleParam(
+    "tilt_axis_singular_declination_lb", &self::tiltAsixSingularDeclinationLBCb, this, 1., 10, 0, 45, " deg");
+  addDynamicDoubleParam(
+    "tilt_axis_singular_declination_ub", &self::tiltAsixSingularDeclinationUBCb, this, 1., 20, 0, 45, " deg");
 
   // Register publishers
   tar_thrusts_pub_ = createPublisher<tobas_msgs::msg::RotorThrustArray>(topic::kRotorThrustsCmd);
@@ -321,12 +321,12 @@ bool ControllerNode::headingIGainCb(const double& p)
   return rot_pi_.setIntegralGain(2, p);
 }
 
-bool ControllerNode::tiltAsixSingularDeclinationLBCb(const long& lb_deg)
+bool ControllerNode::tiltAsixSingularDeclinationLBCb(const double& lb_deg)
 {
   return mixer_.setTiltAxisSingularDeclinationLB(st::deg2rad(lb_deg));
 }
 
-bool ControllerNode::tiltAsixSingularDeclinationUBCb(const long& ub_deg)
+bool ControllerNode::tiltAsixSingularDeclinationUBCb(const double& ub_deg)
 {
   return mixer_.setTiltAxisSingularDeclinationUB(st::deg2rad(ub_deg));
 }
