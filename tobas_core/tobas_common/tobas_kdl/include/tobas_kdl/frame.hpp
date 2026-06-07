@@ -156,19 +156,19 @@ inline Frame Frame::Identity()
 
 inline Frame Frame::DH_Craig1989(double a, double alpha, double d, double theta)
 {
-  const auto ct = ::cos(theta);
-  const auto st = ::sin(theta);
-  const auto sa = ::sin(alpha);
-  const auto ca = ::cos(alpha);
+  const auto ct = std::cos(theta);
+  const auto st = std::sin(theta);
+  const auto sa = std::sin(alpha);
+  const auto ca = std::cos(alpha);
   return Frame(Rotation(ct, -st, 0, st * ca, ct * ca, -sa, st * sa, ct * sa, ca), Vector(a, -sa * d, ca * d));
 }
 
 inline Frame Frame::DH(double a, double alpha, double d, double theta)
 {
-  const auto ct = ::cos(theta);
-  const auto st = ::sin(theta);
-  const auto sa = ::sin(alpha);
-  const auto ca = ::cos(alpha);
+  const auto ct = std::cos(theta);
+  const auto st = std::sin(theta);
+  const auto sa = std::sin(alpha);
+  const auto ca = std::cos(alpha);
   return Frame(Rotation(ct, -st * ca, st * sa, st, ct * ca, -ct * sa, 0, sa, ca), Vector(a * ct, a * st, d));
 }
 
