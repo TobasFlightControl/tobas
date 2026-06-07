@@ -166,10 +166,10 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   addDynamicDoubleParam("heading_i_gain", &self::headingIGainCb, this, 0.01, 10, 1, 30);
   addDynamicDoubleParam("horizontal_i_max_accel", &self::horizontalIMaxAccelCb, this, 0.5, 4, 0, 20, " m/s^2");
   addDynamicDoubleParam("vertical_i_max_accel", &self::verticalIMaxAccelCb, this, 0.5, 4, 0, 20, " m/s^2");
-  addDynamicIntParam("mixer_linear_weight", &self::mixerLinearWeightCb, this, kMaxWeight / 2, 1, kMaxWeight);
-  addDynamicIntParam("mixer_angular_weight", &self::mixerAngularWeightCb, this, kMaxWeight / 2, 1, kMaxWeight);
-  addDynamicIntParam("mixer_thrust_weight_log2", &self::mixerThrustWeightLog2Cb, this, -20, -30, 0);
-  addDynamicIntParam("mixer_delta_thrust_weight_log2", &self::mixerDeltaThrustWeightLog2Cb, this, -20, -30, 0);
+  addDynamicIntParam("mixer_linear_weight", &self::mixerLinearWeightCb, this, 1, kMaxWeight / 2, 1, kMaxWeight);
+  addDynamicIntParam("mixer_angular_weight", &self::mixerAngularWeightCb, this, 1, kMaxWeight / 2, 1, kMaxWeight);
+  addDynamicIntParam("mixer_thrust_weight_log2", &self::mixerThrustWeightLog2Cb, this, 1, -20, -30, 0);
+  addDynamicIntParam("mixer_delta_thrust_weight_log2", &self::mixerDeltaThrustWeightLog2Cb, this, 1, -20, -30, 0);
 
   // Register publishers
   tar_thrusts_pub_ = createPublisher<tobas_msgs::msg::RotorThrustArray>(topic::kRotorThrustsCmd);

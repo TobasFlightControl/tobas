@@ -165,6 +165,7 @@ public:
     const std::string& name,
     bool (Obj::*fp)(const long&),
     Obj* obj,
+    const long& step,
     const long& dflt,
     const long& _min,
     const long& _max,
@@ -372,6 +373,7 @@ void BaseNode::addDynamicIntParam(
   const std::string& name,
   bool (Obj::*fp)(const long&),
   Obj* obj,
+  const long& step,
   const long& dflt,
   const long& _min,
   const long& _max,
@@ -387,13 +389,14 @@ void BaseNode::addDynamicIntParam(
 
   declareDynamicParam(name, dflt);
 
-  const auto cb = [this, name, fp, obj, _min, _max, prefix](const rclcpp::Parameter& param)
+  const auto cb = [this, name, fp, obj, step, _min, _max, prefix](const rclcpp::Parameter& param)
   {
-    const auto value = std::clamp(param.as_int(), _min, _max);
+    const auto lsb = std::clamp(param.as_int(), _min, _max);
+    const auto value = step * lsb;
     if ((obj->*fp)(value)) {
       for (auto& int_param : dparams_.ints) {
         if (int_param.name == name) {
-          int_param.value = value;
+          int_param.value = lsb;
           break;
         }
       }
@@ -435,16 +438,16 @@ void BaseNode::addDynamicDoubleParam(
 
   const auto cb = [this, name, fp, obj, step, _min, _max, prefix](const rclcpp::Parameter& param)
   {
-    const auto value_int = std::clamp(param.as_int(), _min, _max);
-    const auto value_double = step * value_int;
-    if ((obj->*fp)(value_double)) {
+    const auto lsb = std::clamp(param.as_int(), _min, _max);
+    const auto value = step * lsb;
+    if ((obj->*fp)(value)) {
       for (auto& double_param : dparams_.doubles) {
         if (double_param.name == name) {
-          double_param.value = value_int;
+          double_param.value = lsb;
           break;
         }
       }
-      TOBAS_INFO("Double parameter \"", name, "\" has been updated to ", value_double, prefix, ".");
+      TOBAS_INFO("Double parameter \"", name, "\" has been updated to ", value, prefix, ".");
     }
   };
   const auto cb_handle = dparam_sub_.add_parameter_callback(name, cb);
