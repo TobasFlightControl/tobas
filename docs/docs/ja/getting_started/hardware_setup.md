@@ -10,8 +10,8 @@ Setup Assistant で設定したとおりに実機を作成します．
 <!-- cf. https://docs.emlid.com/navio2/hardware-setup/ -->
 <!-- cf. https://docs.emlid.com/navio2/ardupilot/typical-setup-schemes/ -->
 
-<img src="../../assets/hardware_setup/f450_1.png" alt="f450_1" width="49%"/>
-<img src="../../assets/hardware_setup/f450_2.png" alt="f450_2" width="49%"/>
+<img src="../../../assets/hardware_setup/f450_1.png" alt="f450_1" width="49%"/>
+<img src="../../../assets/hardware_setup/f450_2.png" alt="f450_2" width="49%"/>
 
 <!-- prettier-ignore-start -->
 !!! note
@@ -132,8 +132,8 @@ $ ros2 launch tobas_gcs gcs.launch.py
 1. 完了したら`Finish`をクリックしてください．推定された楕円体が青色，歪み補正後の点群が緑色で表示されます．
    青色の楕円体が白色の点群に重なっており，緑色の点群が原点周りに球を描いていれば成功です．
 
-<img src="../../assets/hardware_setup/mag_calibration_1.png" alt="mag_calibration_1" width="49%"/>
-<img src="../../assets/hardware_setup/mag_calibration_2.png" alt="mag_calibration_2" width="49%"/>
+<img src="../../../assets/hardware_setup/mag_calibration_1.png" alt="mag_calibration_1" width="49%"/>
+<img src="../../../assets/hardware_setup/mag_calibration_2.png" alt="mag_calibration_2" width="49%"/>
 
 ### Radio Calibration
 

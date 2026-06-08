@@ -73,8 +73,8 @@ Tobas では地上局からフライトコントローラ (FC) を操作する�
 その後`OpenSSH keys`をクリックすると作成された鍵が表示されていることが確認できます．
 鍵をダブルクリックし，出てきたダイアログで`Public key`をメモしたら`Password and Keys`を閉じてください．
 
-<img src="../../assets/bootmedia_config/ssh_key_1.png" alt="ssh_key_1" width="49%"/>
-<img src="../../assets/bootmedia_config/ssh_key_2.png" alt="ssh_key_2" width="49%"/>
+<img src="../../../assets/bootmedia_config/ssh_key_1.png" alt="ssh_key_1" width="49%"/>
+<img src="../../../assets/bootmedia_config/ssh_key_2.png" alt="ssh_key_2" width="49%"/>
 
 `Tobas Bootmedia Config`に戻り`Read`をクリックすると，現在登録されている公開鍵がリストされ，他のボタンが有効になります．
 最初は公開鍵が 1 つも登録されていないため，リストは空のままです．
