@@ -10,6 +10,8 @@ namespace camera
 namespace topic
 {
 static constexpr char kCameraStatus[] = "camera_status";
+static constexpr char kExposureCmd[] = "exposure_command";
+static constexpr char kExposureStatus[] = "exposure_status";
 static constexpr char kGimbalAttitudeCmd[] = "gimbal_attitude_command";
 };  // namespace topic
 
