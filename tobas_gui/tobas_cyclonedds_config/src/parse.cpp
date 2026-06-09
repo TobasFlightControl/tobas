@@ -26,7 +26,7 @@ bool parseFromText(const std::string& text, Data& dst)
   }
 
   const auto root = doc.RootElement();
-  if (strcmp(root->Name(), elem::kCycloneDDS) != 0) {
+  if (std::strcmp(root->Name(), elem::kCycloneDDS) != 0) {
     std::cerr << "The root element must be \"" << elem::kCycloneDDS << "\"." << std::endl;
     return false;
   }

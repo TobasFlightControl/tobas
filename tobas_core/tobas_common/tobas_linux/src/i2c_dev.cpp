@@ -14,7 +14,7 @@
 
 #include "tobas_linux/error.hpp"
 
-using namespace std;
+using namespace std::chrono_literals;
 
 namespace tobas
 {
@@ -34,20 +34,20 @@ I2Cdev::~I2Cdev()
 bool I2Cdev::initialize(const char* i2c_dev, uint8_t dev_addr)
 {
   if (dev_addr >= 0x80) {
-    cerr << "Invalid slave address. It must be 7-bit." << endl;
+    std::cerr << "Invalid slave address. It must be 7-bit." << std::endl;
     return false;
   }
 
   i2c_fd_ = open(i2c_dev, O_RDWR);
   if (i2c_fd_ < 0) {
-    cerr << "Failed to open I2C device: " << i2c_dev << endl;
+    std::cerr << "Failed to open I2C device: " << i2c_dev << std::endl;
     return false;
   }
 
   dev_addr_ = dev_addr;
 
   // Wait here to avoid 121 remote I/O error
-  this_thread::sleep_for(10ms);
+  std::this_thread::sleep_for(10ms);
 
   return true;
 }
@@ -55,7 +55,7 @@ bool I2Cdev::initialize(const char* i2c_dev, uint8_t dev_addr)
 bool I2Cdev::readBit(uint8_t reg_addr, uint8_t bit_pos, bool& value)
 {
   if (bit_pos >= 8) {
-    cerr << "Bit position must be 0-7." << endl;
+    std::cerr << "Bit position must be 0-7." << std::endl;
     return false;
   }
 
@@ -114,7 +114,7 @@ bool I2Cdev::readBytesNoRegAddress(size_t length, void* rx)
 bool I2Cdev::writeBit(uint8_t reg_addr, uint8_t bit_pos, bool value, bool verify)
 {
   if (bit_pos >= 8) {
-    cerr << "Bit position must be 0-7." << endl;
+    std::cerr << "Bit position must be 0-7." << std::endl;
     return false;
   }
 
@@ -157,8 +157,9 @@ bool I2Cdev::writeBytes(uint8_t reg_addr, size_t length, const void* tx, bool ve
       return false;
     }
 
-    if (memcmp(tx, rx_, length) != 0) {
-      cerr << "The " << length << " bytes written over I2C are not taking effect in the slave’s registers." << endl;
+    if (std::memcmp(tx, rx_, length) != 0) {
+      std::cerr << "The " << length << " bytes written over I2C are not taking effect in the slave’s registers."
+                << std::endl;
       return false;
     }
   }
@@ -169,7 +170,7 @@ bool I2Cdev::writeBytes(uint8_t reg_addr, size_t length, const void* tx, bool ve
 bool I2Cdev::checkDataLength(size_t length) const
 {
   if (length > kBufSize) {
-    cerr << "Data length cannot be greater than buffer size." << endl;
+    std::cerr << "Data length cannot be greater than buffer size." << std::endl;
     return false;
   }
 
@@ -181,7 +182,7 @@ bool I2Cdev::selectDevice() const
   // スレーブアドレスを登録
   // I2Cの規格ではスレーブアドレスに続いてコマンドを送ることもできるが，LinuxのI2Cドライバはまず応答確認のみ行う．
   if (ioctl(i2c_fd_, I2C_SLAVE, dev_addr_) < 0) {
-    cerr << "Failed to select I2C device." << endl;
+    std::cerr << "Failed to select I2C device." << std::endl;
     return false;
   }
 
@@ -191,7 +192,7 @@ bool I2Cdev::selectDevice() const
 bool I2Cdev::write(uint8_t reg_addr, size_t length, const void* tx)
 {
   tx_[0] = reg_addr;
-  memcpy(tx_ + 1, tx, length);
+  std::memcpy(tx_ + 1, tx, length);
 
   // 1. Start Condition (Master -> Slave)
   // 2. Slave Address (Master -> Slave)
@@ -203,17 +204,17 @@ bool I2Cdev::write(uint8_t reg_addr, size_t length, const void* tx)
   const auto req_length = length + 1;
   const auto res = ::write(i2c_fd_, tx_, req_length);
   if (res < 0) {
-    cerr << "I2C write failed: " << strError() << endl;
+    std::cerr << "I2C write failed: " << strError() << std::endl;
     switch (errno) {
       case EREMOTEIO:
-        cerr << "Please ensure that the correct 7-bit slave address is set." << endl;
+        std::cerr << "Please ensure that the correct 7-bit slave address is set." << std::endl;
         break;
     }
     return false;
   }
   if (res != static_cast<ssize_t>(req_length)) {
-    cerr << "Tried to write " << req_length << " bytes on " << reg_addr << ", but " << res << " bytes were written."
-         << endl;
+    std::cerr << "Tried to write " << req_length << " bytes on " << reg_addr << ", but " << res
+              << " bytes were written." << std::endl;
     return false;
   }
 
@@ -234,11 +235,11 @@ bool I2Cdev::read(size_t length, void* rx)
   // 8. Stop Condition (Master -> Slave)
   const auto res = ::read(i2c_fd_, rx, length);
   if (res < 0) {
-    cerr << "I2C read failed: " << strError() << endl;
+    std::cerr << "I2C read failed: " << strError() << std::endl;
     return false;
   }
   if (res != static_cast<ssize_t>(length)) {
-    cerr << "Tried to read " << length << " bytes, but " << res << " bytes were read." << endl;
+    std::cerr << "Tried to read " << length << " bytes, but " << res << " bytes were read." << std::endl;
     return false;
   }
 

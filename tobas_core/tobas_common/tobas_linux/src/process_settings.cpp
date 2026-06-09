@@ -13,8 +13,6 @@
 #include "tobas_linux/memory_lock.hpp"
 #include "tobas_linux/realtime.hpp"
 
-using namespace std;
-
 namespace tobas
 {
 namespace linux
@@ -28,22 +26,22 @@ bool ProcessSettings::init(int argc, char* argv[])
 
   if (st::commandLineOptionExists(argv, argv + argc, kOptionLockMemory)) {
     const auto option = st::getCommandLineOption(argv, argv + argc, kOptionLockMemorySize);
-    lock_memory_ = strcmp(option, "true") == 0 ? true : false;
+    lock_memory_ = std::strcmp(option, "true") == 0 ? true : false;
   }
 
   if (st::commandLineOptionExists(argv, argv + argc, kOptionLockMemorySize)) {
-    lock_memory_size_mb_ = stoi(st::getCommandLineOption(argv, argv + argc, kOptionLockMemorySize));
+    lock_memory_size_mb_ = std::stoi(st::getCommandLineOption(argv, argv + argc, kOptionLockMemorySize));
     if (lock_memory_size_mb_ > 0) {
       lock_memory_ = true;
     }
   }
 
   if (st::commandLineOptionExists(argv, argv + argc, kOptionPriority)) {
-    process_priority_ = stoi(st::getCommandLineOption(argv, argv + argc, kOptionPriority));
+    process_priority_ = std::stoi(st::getCommandLineOption(argv, argv + argc, kOptionPriority));
   }
 
   if (st::commandLineOptionExists(argv, argv + argc, kOptionCPUAffinity)) {
-    cpu_affinity_ = stoi(st::getCommandLineOption(argv, argv + argc, kOptionCPUAffinity));
+    cpu_affinity_ = std::stoi(st::getCommandLineOption(argv, argv + argc, kOptionCPUAffinity));
   }
 
   return true;
@@ -83,11 +81,11 @@ bool ProcessSettings::configureProcess()
 
 void ProcessSettings::printUsage()
 {
-  cout << "\t[" << kOptionLockMemory << " lock memory]" << endl
-       << "\t[" << kOptionLockMemorySize << " lock a fixed memory size in MB]" << endl
-       << "\t[" << kOptionPriority << " set process real-time priority]" << endl
-       << "\t[" << kOptionCPUAffinity << " set process cpu affinity]" << endl
-       << "\t[-h]" << endl;
+  std::cout << "\t[" << kOptionLockMemory << " lock memory]" << std::endl
+            << "\t[" << kOptionLockMemorySize << " lock a fixed memory size in MB]" << std::endl
+            << "\t[" << kOptionPriority << " set process real-time priority]" << std::endl
+            << "\t[" << kOptionCPUAffinity << " set process cpu affinity]" << std::endl
+            << "\t[-h]" << std::endl;
 }
 }  // namespace linux
 }  // namespace tobas

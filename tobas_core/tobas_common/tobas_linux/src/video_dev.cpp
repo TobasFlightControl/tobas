@@ -34,7 +34,7 @@ VideoDev::~VideoDev()
         std::cerr << "Failed to munmap memory" << std::endl;
       }
     }
-    free(buffers_);
+    std::free(buffers_);
   }
 
   if (fd_ >= 0) {
@@ -211,7 +211,7 @@ bool VideoDev::requestDeviceBuffer()
 
 bool VideoDev::mapBuffer()
 {
-  buffers_ = static_cast<Buffer*>(calloc(kBufferSize, sizeof(*buffers_)));
+  buffers_ = static_cast<Buffer*>(std::calloc(kBufferSize, sizeof(*buffers_)));
   if (!buffers_) {
     std::cerr << "Calloc failed." << std::endl;
     return false;

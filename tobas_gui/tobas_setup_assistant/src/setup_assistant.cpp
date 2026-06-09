@@ -114,7 +114,7 @@ void SetupAssistantWidget::enableSaveButtons(bool enable)
 
 bool SetupAssistantWidget::resolveMeshPaths(const fs::path& config_pkg_path, tinyxml2::XMLElement* elem)
 {
-  if (strcmp(elem->Name(), "mesh") == 0) {
+  if (std::strcmp(elem->Name(), "mesh") == 0) {
     const auto filename = elem->Attribute("filename");
     if (!filename) {
       qt::qErrorBox(settings_, "Mesh element does not have attribute: \"filename\"");

@@ -14,7 +14,7 @@ namespace st
 bool commandLineOptionExists(char** begin, char** end, const char* option)
 {
   for (size_t i = 0; i < (size_t)(end - begin); ++i) {
-    if (strcmp(begin[i], option) == 0) {
+    if (std::strcmp(begin[i], option) == 0) {
       return true;
     }
   }

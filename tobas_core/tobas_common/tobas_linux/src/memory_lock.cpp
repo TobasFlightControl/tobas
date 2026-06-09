@@ -14,8 +14,6 @@
 
 #include "tobas_linux/error.hpp"
 
-using namespace std;
-
 namespace tobas
 {
 namespace linux
@@ -23,20 +21,20 @@ namespace linux
 bool lockMemory()
 {
   if (mlockall(MCL_CURRENT | MCL_FUTURE) != 0) {
-    cerr << "mlockall failed: " << strError() << endl;
+    std::cerr << "mlockall failed: " << strError() << std::endl;
     return false;
   }
 
   // Turn off malloc trimming
   if (mallopt(M_TRIM_THRESHOLD, -1) == 0) {
-    cerr << "mallopt for trim threshold failed: " << strError() << endl;
+    std::cerr << "mallopt for trim threshold failed: " << strError() << std::endl;
     munlockall();
     return false;
   }
 
   // Turn off mmap usage
   if (mallopt(M_MMAP_MAX, 0) == 0) {
-    cerr << "mallopt for mmap failed: " << strError() << endl;
+    std::cerr << "mallopt for mmap failed: " << strError() << std::endl;
     mallopt(M_TRIM_THRESHOLD, 1 << 17);
     munlockall();
     return false;
@@ -54,7 +52,7 @@ bool lockAndPrefaultDynamic()
   struct rusage usage;
   size_t page_size = sysconf(_SC_PAGESIZE);
   getrusage(RUSAGE_SELF, &usage);
-  vector<char*> prefaulters;
+  std::vector<char*> prefaulters;
   size_t prev_minflts = usage.ru_minflt;
   size_t prev_majflts = usage.ru_majflt;
   size_t encountered_minflts = 1;
@@ -65,11 +63,11 @@ bool lockAndPrefaultDynamic()
     char* ptr;
     try {
       ptr = new char[64 * page_size];
-      memset(ptr, 0, 64 * page_size);
+      std::memset(ptr, 0, 64 * page_size);
     }
-    catch (const bad_alloc& e) {
-      cerr << "Caught exception: " << e.what() << endl;
-      cerr << "Unlocking memory and continuing." << endl;
+    catch (const std::bad_alloc& e) {
+      std::cerr << "Caught exception: " << e.what() << std::endl;
+      std::cerr << "Unlocking memory and continuing." << std::endl;
       for (auto& prefaulter : prefaulters) {
         delete[] prefaulter;
       }
@@ -105,12 +103,12 @@ bool lockAndPrefaultDynamic(size_t process_max_dynamic_memory)
   void* buf = nullptr;
   const auto pg_sz = sysconf(_SC_PAGESIZE);
   if (posix_memalign(&buf, pg_sz, process_max_dynamic_memory) != 0) {
-    cerr << "proc rt init mem aligning failed: " << strError() << endl;
+    std::cerr << "proc rt init mem aligning failed: " << strError() << std::endl;
     return false;
   }
 
-  memset(buf, 0, process_max_dynamic_memory);
-  free(buf);
+  std::memset(buf, 0, process_max_dynamic_memory);
+  std::free(buf);
 
   return true;
 }

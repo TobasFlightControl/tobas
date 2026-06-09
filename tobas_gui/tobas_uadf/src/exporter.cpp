@@ -19,7 +19,7 @@ tinyxml2::XMLDocument* exportUADF(const Model& model)
 
   // XMLに特殊なジョイント型を埋め込む
   for (auto child = robot->FirstChildElement(); child; child = child->NextSiblingElement()) {
-    if (strcmp(child->Name(), "joint") == 0) {
+    if (std::strcmp(child->Name(), "joint") == 0) {
       const auto joint_name = child->Attribute("name");
 
       if (model.thrusts.contains(joint_name)) {

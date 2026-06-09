@@ -3,8 +3,7 @@
 
 #include "tobas_control_system/mission_planner/fields/altitude_frame.hpp"
 
-#include <string.h>
-
+#include <cstring>
 #include <format>
 #include <stdexcept>
 
@@ -38,10 +37,10 @@ const char* altFrameToText(mission::AltitudeFrame frame)
 
 mission::AltitudeFrame textToAltFrame(const char* text)
 {
-  if (strcmp(text, RELATIVE_TO_LAUNCH_LABEL) == 0) {
+  if (std::strcmp(text, RELATIVE_TO_LAUNCH_LABEL) == 0) {
     return mission::kRelativeToLaunch;
   }
-  else if (strcmp(text, MEAN_SEA_LEVEL_LABEL) == 0) {
+  else if (std::strcmp(text, MEAN_SEA_LEVEL_LABEL) == 0) {
     return mission::kMeanSeaLevel;
   }
   else {

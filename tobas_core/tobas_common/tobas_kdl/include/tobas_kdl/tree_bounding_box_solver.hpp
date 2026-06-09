@@ -91,7 +91,7 @@ inline double TreeBoundingBoxSolver::zWidth() const
 
 inline double TreeBoundingBoxSolver::diagonalLength() const
 {
-  return ::std::sqrt(math::sqr(xWidth()) + math::sqr(yWidth()) + math::sqr(zWidth()));
+  return std::sqrt(math::sqr(xWidth()) + math::sqr(yWidth()) + math::sqr(zWidth()));
 }
 }  // namespace kdl
 }  // namespace tobas

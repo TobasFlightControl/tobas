@@ -945,7 +945,7 @@ bool ProjectGenerator::saveYamlNode(const fs::path& path, const YAML::Node& node
 
 bool ProjectGenerator::resolveModifiedUrdfMeshFilePaths(tinyxml2::XMLElement* elem)
 {
-  if (strcmp(elem->Name(), "mesh") == 0) {
+  if (std::strcmp(elem->Name(), "mesh") == 0) {
     const auto filename = elem->Attribute("filename");
     if (!filename) {
       qt::qErrorBox(parent_, "Mesh element does not have attribute: \"filename\"");
@@ -1008,7 +1008,7 @@ bool ProjectGenerator::resolveModifiedUrdfMeshFilePaths(tinyxml2::XMLElement* el
 
 bool ProjectGenerator::replaceOriginalUadfMeshFilePaths(tinyxml2::XMLElement* elem)
 {
-  if (strcmp(elem->Name(), "mesh") == 0) {
+  if (std::strcmp(elem->Name(), "mesh") == 0) {
     const auto filename = elem->Attribute("filename");
     if (!filename) {
       qt::qErrorBox(parent_, "Mesh element does not have attribute: \"filename\"");
@@ -1045,7 +1045,7 @@ bool ProjectGenerator::removePropellerJointLimits(tinyxml2::XMLElement* robot)
   }
 
   for (auto child = robot->FirstChildElement(); child; child = child->NextSiblingElement()) {
-    if (strcmp(child->Name(), "joint") == 0) {
+    if (std::strcmp(child->Name(), "joint") == 0) {
       const auto jnt_name = child->Attribute("name");
       if (!jnt_name) {
         qt::qErrorBox(parent_, "Joint element does not have attribute: \"name\"");
@@ -1053,7 +1053,7 @@ bool ProjectGenerator::removePropellerJointLimits(tinyxml2::XMLElement* robot)
       }
       if (prop_jnt_names.contains(jnt_name)) {
         for (auto gchild = child->FirstChildElement(); gchild; gchild = gchild->NextSiblingElement()) {
-          if (strcmp(gchild->Name(), "limit") == 0) {
+          if (std::strcmp(gchild->Name(), "limit") == 0) {
             child->DeleteChild(gchild);
             break;
           }
