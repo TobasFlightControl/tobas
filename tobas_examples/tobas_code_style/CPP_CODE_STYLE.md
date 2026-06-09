@@ -64,7 +64,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 <!-- Custom -->
 
-- C由来のヘッダはなるべく使わず，変わりにC++の標準ライブラリを使用する．
+- なるべくC由来のヘッダの変わりにC++の標準ライブラリを使用する．
   - e.g. `<string.h>` -> `<cstring>`, `<stdlib.h>` -> `<cstdlib>`
 
 ## 名前空間
