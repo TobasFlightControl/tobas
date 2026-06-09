@@ -28,7 +28,7 @@ public:
   /* Types and type aliases */
   using Ptr = MyClass*;
 
-  enum struct ErrorCode
+  enum class ErrorCode
   {
     kNoError,
     kError,

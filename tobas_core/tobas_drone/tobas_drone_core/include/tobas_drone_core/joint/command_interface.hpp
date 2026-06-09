@@ -7,7 +7,7 @@
 
 namespace tobas
 {
-enum struct JointCommandInterface
+enum class JointCommandInterface
 {
   kPosition,
   kVelocity,

@@ -42,7 +42,7 @@ public:
   // Special target labels
   static constexpr char kEngineThrotLabel[] = "Engine Throttle";
 
-  enum struct TargetType
+  enum class TargetType
   {
     kThrust,
     kControlSurface,

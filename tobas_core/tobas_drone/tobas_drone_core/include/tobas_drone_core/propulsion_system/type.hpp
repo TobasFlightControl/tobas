@@ -7,7 +7,7 @@
 
 namespace tobas
 {
-enum struct PropulsionSystem
+enum class PropulsionSystem
 {
   kElectric,
   kIce,

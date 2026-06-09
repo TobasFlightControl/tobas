@@ -7,7 +7,7 @@
 
 namespace tobas
 {
-enum struct FlightMode
+enum class FlightMode
 {
   kAcrobat,
   kStabilize,
