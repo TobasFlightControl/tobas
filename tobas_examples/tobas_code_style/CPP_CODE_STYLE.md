@@ -62,6 +62,11 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 - 関連ヘッダのインクルードに UNIX ディレクトリエイリアスは使用しない: `../include/my_library/my_class.hpp` -> `my_library/my_class.hpp`
 - 同じライブラリのヘッダのパスのみダブルクオーテーションで囲む．
 
+<!-- Custom -->
+
+- C由来のヘッダはなるべく使わず，変わりにC++の標準ライブラリを使用する．
+  - e.g. `<string.h>` -> `<cstring>`, `<stdlib.h>` -> `<cstdlib>`
+
 ## 名前空間
 
 - 全てのシンボルを`tobas`名前空間に含める．
