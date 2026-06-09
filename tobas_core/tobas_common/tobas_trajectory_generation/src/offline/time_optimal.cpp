@@ -38,7 +38,7 @@ TimeOptimalTrajectory::TimeOptimalTrajectory(double p0, double pf, double max_je
 
     // 最大加速度に到達するための条件
     if (math::sqr(am_) > vm_ * jm_) {
-      am_ = sqrt(vm_ * jm_) - EPS;
+      am_ = std::sqrt(vm_ * jm_) - EPS;
       ok = false;
     }
 
@@ -47,7 +47,7 @@ TimeOptimalTrajectory::TimeOptimalTrajectory(double p0, double pf, double max_je
     const auto b = am_ / jm_;
     const auto c = -pd_;
     if (a * math::sqr(vm_) + b * vm_ + c > 0) {
-      vm_ = (sqrt(math::sqr(b) - 4 * a * c) - b) / (2 * a) - EPS;
+      vm_ = (std::sqrt(math::sqr(b) - 4 * a * c) - b) / (2 * a) - EPS;
       ok = false;
     }
 

@@ -189,8 +189,8 @@ void GazeboGnssPlugin::setRandomDistribuitons()
 {
   // 位置の乱数生成器
   // バイアスの絶対値の期待値が正確度に一致するように位置のSDEの標準偏差を定める (memo: 2-57)
-  const auto hor_dpos_stddev = hor_pos_accuracy_ * sqrt(M_PI / pos_corr_time_);
-  const auto ver_dpos_stddev = ver_pos_accuracy_ * sqrt(M_PI / pos_corr_time_);
+  const auto hor_dpos_stddev = hor_pos_accuracy_ * std::sqrt(M_PI / pos_corr_time_);
+  const auto ver_dpos_stddev = ver_pos_accuracy_ * std::sqrt(M_PI / pos_corr_time_);
   const gz::math::Vector3d dpos_stddev(hor_dpos_stddev, hor_dpos_stddev, ver_dpos_stddev);
   dpos_noise_.reset(new NormalDistribution3d(rnd_dev_, gz::math::Vector3d::Zero, dpos_stddev));
 

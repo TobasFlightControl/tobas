@@ -223,7 +223,7 @@ void ControllerNode::updateSetStateVector()
   // 失速しないように速度制限をした上で目標推力を計算
   const auto rho = st::pressureToDensity(air_pressure_->pressure);
   const auto tar_speed = trim.speedLimit(rho).clamp(cmd_frd_.speed);
-  const auto tar_u = tar_speed * cos(eom_.trimCondition().alpha());
+  const auto tar_u = tar_speed * std::cos(eom_.trimCondition().alpha());
 
   lqd_.target_state(eom_.kStateIdx_u) = tar_u - trim.u();
   lqd_.target_state(eom_.kStateIdx_alpha) = 0.;

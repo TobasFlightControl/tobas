@@ -51,7 +51,7 @@ public:
   /**
    * @brief Along an arbitrary axes. Axis must be normalized.
    * Returns identity rotation matrix in the case that the norm of axis is to small to be used.
-   * R = exp(ω)
+   * R = std::exp(ω)
    */
   static Rotation Rot(const Vector& axis, double angle);
   static Rotation Rot(const Vector& vec);
@@ -275,12 +275,12 @@ inline Vector Rotation::axisZ() const
 
 inline double Rotation::getPitch() const
 {
-  return ::atan2(-data(2, 0), math::norm(data(0, 0), data(1, 0)));
+  return std::atan2(-data(2, 0), math::norm(data(0, 0), data(1, 0)));
 }
 
 inline double Rotation::getYaw() const
 {
-  return ::atan2(data(1, 0), data(0, 0));
+  return std::atan2(data(1, 0), data(0, 0));
 }
 
 inline double Rotation::trace() const

@@ -48,7 +48,7 @@ double EngineModel::getVibrationForce()
   // 振幅の変動率を正規分布Nを用いて (1 + n) で表すと負になる恐れがあるため，1を中心とするライス分布を使用．
   // TODO: 実機のIMUの周波数解析結果を分析してより正確な振動モデルを構築
   const auto amp = vibration_force_coef_ * math::sqr(getSpeed());
-  return amp * (sin(position_) + vibration_double_freq_coef_ * sin(position_ * 2)) * rice_(rnd_gen_);
+  return amp * (std::sin(position_) + vibration_double_freq_coef_ * std::sin(position_ * 2)) * rice_(rnd_gen_);
 }
 
 void EngineModel::setThrottle(const double& throttle)
@@ -154,7 +154,7 @@ double EngineModel::calc_f() const
 {
   const auto& A = engine_const_.first;
   const auto phi = calc_phi();
-  return math::sqr(A / (1 - cos(phi)));
+  return math::sqr(A / (1 - std::cos(phi)));
 }
 
 double EngineModel::calc_k() const

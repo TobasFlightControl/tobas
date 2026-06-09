@@ -8,8 +8,6 @@
 
 #include <tobas_std_tools/universal_constants.hpp>
 
-using namespace std;
-
 namespace tobas
 {
 namespace stm
@@ -88,7 +86,7 @@ bool ISM330DLC::setAccelOutputDataRate(odr_xl_t odr)
       ctrl1_xl |= ODR_XL_6664HZ;
       break;
     default:
-      cerr << "Invalid accelerometer output data rate type: " << (int)odr << endl;
+      std::cerr << "Invalid accelerometer output data rate type: " << (int)odr << std::endl;
       return false;
   }
 
@@ -137,7 +135,7 @@ bool ISM330DLC::setGyroOutputDataRate(odr_g_t odr)
       ctrl2_g |= ODR_G_6664HZ;
       break;
     default:
-      cerr << "Invalid gyroscope output data rate type: " << (int)odr << endl;
+      std::cerr << "Invalid gyroscope output data rate type: " << (int)odr << std::endl;
       return false;
   }
 
@@ -175,7 +173,7 @@ bool ISM330DLC::setAccelFullScale(fs_xl_t fs)
       acc_scale_ = 0.488;
       break;
     default:
-      cerr << "Invalid accelerometer full scale type: " << (int)fs << endl;
+      std::cerr << "Invalid accelerometer full scale type: " << (int)fs << std::endl;
       return false;
   }
 
@@ -221,7 +219,7 @@ bool ISM330DLC::setGyroFullScale(fs_g_t fs)
       gyro_scale_ = 70.;
       break;
     default:
-      cerr << "Invalid gyroscope full scale type: " << (int)fs << endl;
+      std::cerr << "Invalid gyroscope full scale type: " << (int)fs << std::endl;
       return false;
   }
 
@@ -261,7 +259,7 @@ bool ISM330DLC::readRegs(const uint8_t& addr, const size_t& bytes)
     return false;
   }
 
-  memcpy(res_, rx_buf_ + 1, bytes);
+  std::memcpy(res_, rx_buf_ + 1, bytes);
 
   return true;
 }
@@ -280,7 +278,7 @@ bool ISM330DLC::checkWhoAmI()
   }
 
   if (res_[0] != WHO_AM_I) {
-    cerr << "IMU is not recognized." << endl;
+    std::cerr << "IMU is not recognized." << std::endl;
     return false;
   }
 

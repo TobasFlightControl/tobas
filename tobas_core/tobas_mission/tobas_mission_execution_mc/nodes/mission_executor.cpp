@@ -495,7 +495,7 @@ bool MulticopterMissionExecutorNode::executeWaypoint(const Waypoint& goal, const
   const auto pitch_duration = std::abs(start_rot.pitch) / kAttitudeRate;
   const traj::LinearSpline traj_pitch(start_rot.pitch, 0., pitch_duration);
 
-  const auto goal_yaw = goal.auto_heading ? atan2(xy_dir.y(), xy_dir.x()) : start_rot.yaw;
+  const auto goal_yaw = goal.auto_heading ? std::atan2(xy_dir.y(), xy_dir.x()) : start_rot.yaw;
   const auto yaw_diff = algo::wrapPi(goal_yaw - start_rot.yaw);  // 最短経路をとるよう[-π, π)の範囲に変換
   const traj::TimeOptimalTrajectory traj_yaw(0., yaw_diff, INFINITY, max_head_acc, max_head_rate);
 

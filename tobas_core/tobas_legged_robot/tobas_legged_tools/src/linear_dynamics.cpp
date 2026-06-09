@@ -5,14 +5,11 @@
 
 #include <tobas_eigen_tools/geometry.hpp>
 
-using namespace std;
-using namespace Eigen;
-
 namespace tobas
 {
 namespace lr_tools
 {
-LinearDynamics::LinearDynamics(const kdl::Tree& tree, const vector<string>& foot_names)
+LinearDynamics::LinearDynamics(const kdl::Tree& tree, const std::vector<std::string>& foot_names)
   : foot_names_(foot_names), nc_(foot_names.size()), fk_solver_(tree), inertia_solver_(tree)
 {
   resize(kStateSize, nc_ * kInputSizePerLeg);
@@ -36,7 +33,11 @@ bool LinearDynamics::updateInternalDataStructures()
   return true;
 }
 
-void LinearDynamics::update(const double& roll, const double& pitch, const kdl::JntArray& q, const vector<bool>& is_stand)
+void LinearDynamics::update(
+  const double& roll,
+  const double& pitch,
+  const kdl::JntArray& q,
+  const std::vector<bool>& is_stand)
 {
   assert(is_stand.size() == nc_);
 
@@ -46,15 +47,19 @@ void LinearDynamics::update(const double& roll, const double& pitch, const kdl::
 
 void LinearDynamics::updateA(const double& pitch)
 {
-  A(kRollIdx, kGyroXIdx) = 1 / cos(pitch);
+  A(kRollIdx, kGyroXIdx) = 1 / std::cos(pitch);
 }
 
-void LinearDynamics::updateB(const double& roll, const double& pitch, const kdl::JntArray& q, const vector<bool>& is_stand)
+void LinearDynamics::updateB(
+  const double& roll,
+  const double& pitch,
+  const kdl::JntArray& q,
+  const std::vector<bool>& is_stand)
 {
   // B: Base, G: CoG, F: Footprint, C: Contact
 
   if (inertia_solver_.jntToCart(q) < 0) {
-    throw runtime_error("Inertia solver failed: " + inertia_solver_.errorMessage());
+    throw std::runtime_error("Inertia solver failed: " + inertia_solver_.errorMessage());
   }
 
   const auto& inertia = inertia_solver_.getInertia();
@@ -66,13 +71,13 @@ void LinearDynamics::updateB(const double& roll, const double& pitch, const kdl:
   const auto B_Rot_F = F_Rot_B.inverse();
 
   const auto F_Ins = F_Rot_B * B_Ins;
-  const Vector3d F_Ins_inv_z = F_Ins.data.inverse().col(2);
-  const Matrix3d R_I_inv = F_Rot_B.data * B_Ins.data.inverse();
+  const Eigen::Vector3d F_Ins_inv_z = F_Ins.data.inverse().col(2);
+  const Eigen::Matrix3d R_I_inv = F_Rot_B.data * B_Ins.data.inverse();
 
   for (size_t l = 0; l < nc_; ++l) {
     if (is_stand[l]) {
       if (fk_solver_.jntToCart(q, foot_names_[l]) < 0) {
-        throw runtime_error("FK solver failed: " + fk_solver_.errorMessage());
+        throw std::runtime_error("FK solver failed: " + fk_solver_.errorMessage());
       }
 
       const auto& B_Pos_BC = fk_solver_.getFrame().p;

@@ -7,7 +7,6 @@
 
 #include <eigen3/Eigen/Eigen>
 
-using namespace std;
 using namespace Eigen;
 
 namespace tobas
@@ -46,7 +45,7 @@ bool Ellipsoid::initialize(const EllipsoidCoefficients& coefs)
   // 主軸方向の半径を計算
   const Vector3d r2 = W * Lam_inv;
   if (!(r2.array() > 0.).all()) {
-    cerr << "The given equation does not define an ellipsoid." << endl;
+    std::cerr << "The given equation does not define an ellipsoid." << std::endl;
     return false;
   }
   const Vector3d r = r2.cwiseSqrt();

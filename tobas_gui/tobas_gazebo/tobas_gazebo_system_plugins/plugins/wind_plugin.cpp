@@ -133,7 +133,7 @@ void GazeboWindPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim
       }
 
       const auto max_gust_speed = params_.mean_speed * params_.gust_speed_factor;
-      gust_speed_ = 0.5 * max_gust_speed * (1 - cos(M_2PI * t_gust / params_.gust_duration));
+      gust_speed_ = 0.5 * max_gust_speed * (1 - std::cos(M_2PI * t_gust / params_.gust_duration));
       break;
     }
     case kOff: {
@@ -153,7 +153,8 @@ void GazeboWindPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim
 
   // 定常風 (平均風速 + 突風)
   const auto v_steady_wind = params_.mean_speed + gust_speed_;
-  const gz::math::Vector3d steady_W(v_steady_wind * cos(params_.direction), v_steady_wind * sin(params_.direction), 0.);
+  const gz::math::Vector3d steady_W(
+    v_steady_wind * std::cos(params_.direction), v_steady_wind * std::sin(params_.direction), 0.);
 
   // 乱流成分を更新
   const auto rel_wind_speed = (steady_W - vel_W_->Data()).Length();  // 定常風の相対速度

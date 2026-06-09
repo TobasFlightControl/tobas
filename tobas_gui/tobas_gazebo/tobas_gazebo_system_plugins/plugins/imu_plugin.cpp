@@ -311,12 +311,12 @@ void GazeboImuPlugin::addNoise(gz::math::Vector3d& acc, gz::math::Vector3d& gyro
   // Accel
   const auto tau_a = acc_bias_corr_time_;
   // Discrete-time std. dev equivalent to an "integrating" sampler with integration time dt
-  const auto sigma_a_d = acc_noise_density_ / sqrt(dt);  // [m/s^2]
+  const auto sigma_a_d = acc_noise_density_ / std::sqrt(dt);  // [m/s^2]
   const auto sigma_b_a = acc_random_walk_;
   // Compute exact covariance of the process after dt [Maybeck 4-114] (memo: 2-32)
-  const auto sigma_b_a_d = sigma_b_a * sqrt(tau_a / 2 * (1 - exp(-2 * dt / tau_a)));  // [m/s^2]
+  const auto sigma_b_a_d = sigma_b_a * std::sqrt(tau_a / 2 * (1 - std::exp(-2 * dt / tau_a)));  // [m/s^2]
   // Compute state-transition
-  const auto phi_a_d = exp(-dt / tau_a);
+  const auto phi_a_d = std::exp(-dt / tau_a);
   // Simulate accelerometer noise processes and add them to the true linear acceleration
   acc_bias_ = phi_a_d * acc_bias_ + sigma_b_a_d * normal_.get();
   acc += sigma_a_d * normal_.get() + acc_bias_ + vibration_acc;
@@ -324,12 +324,12 @@ void GazeboImuPlugin::addNoise(gz::math::Vector3d& acc, gz::math::Vector3d& gyro
   // Gyro
   const auto tau_g = gyro_bias_corr_time_;
   // Discrete-time std. dev equivalent to an "integrating" sampler with integration time dt
-  const auto sigma_g_d = gyro_noise_density_ / sqrt(dt);  // [rad/s]
+  const auto sigma_g_d = gyro_noise_density_ / std::sqrt(dt);  // [rad/s]
   const auto sigma_b_g = gyro_random_walk_;
   // Compute exact covariance of the process after dt [Maybeck 4-114] (memo: 2-32)
-  const auto sigma_b_g_d = sigma_b_g * sqrt(tau_g / 2 * (1 - exp(-2 * dt / tau_g)));  // [rad/s]
+  const auto sigma_b_g_d = sigma_b_g * std::sqrt(tau_g / 2 * (1 - std::exp(-2 * dt / tau_g)));  // [rad/s]
   // Compute state-transition
-  const auto phi_g_d = exp(-dt / tau_g);
+  const auto phi_g_d = std::exp(-dt / tau_g);
   // Simulate gyroscope noise processes and add them to the true angular rate
   gyro_bias_ = phi_g_d * gyro_bias_ + sigma_b_g_d * normal_.get();
   gyro += sigma_g_d * normal_.get() + gyro_bias_ + vibration_gyro;

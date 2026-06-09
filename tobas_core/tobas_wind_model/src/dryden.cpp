@@ -29,9 +29,9 @@ void DrydenComponents::update(const double& relative_wind_speed, const double& a
 
   const auto tmp = 0.177 + 0.000823 * h_ft;  // [-]
   L_w_ = h;
-  L_uv_ = h / pow(tmp, 1.2);
+  L_uv_ = h / std::pow(tmp, 1.2);
   sigma_w_ = 0.1 * mean_speed_;
-  sigma_uv_ = sigma_w_ / pow(tmp, 0.4);
+  sigma_uv_ = sigma_w_ / std::pow(tmp, 0.4);
   r_w_ = relative_wind_speed / L_w_ * dt;
   r_uv_ = relative_wind_speed / L_uv_ * dt;
 }

@@ -42,12 +42,12 @@ inline SphericalCoordinate::SphericalCoordinate(double _rho, double _phi, double
 inline SphericalCoordinate SphericalCoordinate::Cartesian(const Vector& cart)
 {
   const auto r = math::norm(cart.x(), cart.y());
-  return SphericalCoordinate(cart.norm(), atan2(r, cart.z()), atan2(cart.y(), cart.x()));
+  return SphericalCoordinate(cart.norm(), std::atan2(r, cart.z()), std::atan2(cart.y(), cart.x()));
 }
 
 inline Vector SphericalCoordinate::toCartesian() const
 {
-  return rho * Vector(sin(phi) * cos(theta), sin(phi) * sin(theta), cos(phi));
+  return rho * Vector(std::sin(phi) * std::cos(theta), std::sin(phi) * std::sin(theta), std::cos(phi));
 }
 
 inline std::ostream& operator<<(std::ostream& os, const SphericalCoordinate& arg)

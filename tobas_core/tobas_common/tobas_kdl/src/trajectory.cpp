@@ -8,8 +8,6 @@
 #include <tobas_math/core.hpp>
 #include <tobas_math/definitions.hpp>
 
-using namespace std;
-
 namespace tobas
 {
 namespace kdl
@@ -26,15 +24,15 @@ bool CycloidGenerator3d::generate(
   const double& k)
 {
   if (T <= 0) {
-    cerr << "The period T must be positive." << endl;
+    std::cerr << "The period T must be positive." << std::endl;
     return false;
   }
   if (h <= 0) {
-    cerr << " The height h must be positive." << endl;
+    std::cerr << " The height h must be positive." << std::endl;
     return false;
   }
   if (k < 0) {
-    cerr << "The order k must be non-negative." << endl;
+    std::cerr << "The order k must be non-negative." << std::endl;
     return false;
   }
 
@@ -53,7 +51,7 @@ bool CycloidGenerator3d::generate(
 bool CycloidGenerator3d::get(const double& t, const Rotation& r, Vector& p, Vector& v, Vector& a) const
 {
   if (t < 0) {
-    cerr << "The time t must be non-negative." << endl;
+    std::cerr << "The time t must be non-negative." << std::endl;
     return false;
   }
 
@@ -91,11 +89,11 @@ bool CycloidGenerator3d::get(const double& t, Vector& p) const
 void CycloidGenerator3d::getPos(const double& t, const kdl::Rotation& r, Vector& p) const
 {
   const auto theta = computeTheta(t);
-  const auto tmp = (theta - sin(theta)) / M_2PI;
+  const auto tmp = (theta - std::sin(theta)) / M_2PI;
 
   p.x(p0_.x() + p_diff_.x() * tmp);
   p.y(p0_.y() + p_diff_.y() * tmp);
-  p.z(pf_.z() + h_ / 2 * (1 - cos(theta)) - p_diff_.z() * exp(-k_ * t / T_));
+  p.z(pf_.z() + h_ / 2 * (1 - std::cos(theta)) - p_diff_.z() * std::exp(-k_ * t / T_));
 
   p = r * p;
 }
@@ -103,11 +101,11 @@ void CycloidGenerator3d::getPos(const double& t, const kdl::Rotation& r, Vector&
 void CycloidGenerator3d::getVel(const double& t, const kdl::Rotation& r, Vector& v) const
 {
   const auto theta = computeTheta(t);
-  const auto tmp = (1 - cos(theta)) / T_;
+  const auto tmp = (1 - std::cos(theta)) / T_;
 
   v.x(p_diff_.x() * tmp);
   v.y(p_diff_.y() * tmp);
-  v.z(M_PI * h_ * sin(theta) / T_ + p_diff_.z() * k_ * exp(-k_ * t / T_) / T_);
+  v.z(M_PI * h_ * std::sin(theta) / T_ + p_diff_.z() * k_ * std::exp(-k_ * t / T_) / T_);
 
   v = r * v;
 }
@@ -115,11 +113,11 @@ void CycloidGenerator3d::getVel(const double& t, const kdl::Rotation& r, Vector&
 void CycloidGenerator3d::getAcc(const double& t, const kdl::Rotation& r, Vector& a) const
 {
   const auto theta = computeTheta(t);
-  const auto tmp = M_2PI / TT_ * sin(theta);
+  const auto tmp = M_2PI / TT_ * std::sin(theta);
 
   a.x(p_diff_.x() * tmp);
   a.y(p_diff_.y() * tmp);
-  a.z(2 * math::sqr(M_PI) * h_ / TT_ * cos(theta) - p_diff_.z() * kk_ / TT_ * exp(-k_ * t / T_));
+  a.z(2 * math::sqr(M_PI) * h_ / TT_ * std::cos(theta) - p_diff_.z() * kk_ / TT_ * std::exp(-k_ * t / T_));
 
   a = r * a;
 }

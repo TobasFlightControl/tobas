@@ -5,11 +5,9 @@
 
 #include <tobas_eigen_tools/core.hpp>
 #include <tobas_eigen_tools/kinematics.hpp>
+#include <tobas_math/core.hpp>
 #include <tobas_std_tools/console.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
-
-using namespace std;
-using namespace Eigen;
 
 namespace tobas
 {
@@ -17,8 +15,8 @@ namespace lr_tools
 {
 JointSpaceDynamics::JointSpaceDynamics(
   const kdl::Tree& tree,
-  const vector<string>& foot_names,
-  const string& floating_base_name)
+  const std::vector<std::string>& foot_names,
+  const std::string& floating_base_name)
   : tree_raw_(tree)
   , foot_names_(foot_names)
   , floating_base_name_(floating_base_name)
@@ -65,14 +63,14 @@ bool JointSpaceDynamics::updateInternalDataStructures()
   // ベースリンク以下を抽出
   kdl::Tree base_sub_tree;
   if (!tree_raw_.getSubTree(floating_base_name, base_sub_tree)) {
-    cerr << "Failed to get sub tree." << endl;
+    std::cerr << "Failed to get sub tree." << std::endl;
     return false;
   }
 
   // ツリーに浮遊リンクを接続
   tree_ = kdl::Tree::FloatingBase("world", floating_base_name);
   if (!tree_.addTree(base_sub_tree, floating_base_name)) {
-    cerr << "Failed to add a floating base link to the tree." << endl;
+    std::cerr << "Failed to add a floating base link to the tree." << std::endl;
     return false;
   }
 
@@ -101,7 +99,7 @@ bool JointSpaceDynamics::updateInternalDataStructures()
   tar_qdd_.resize(nj_);
 
   qp_.x_scale.head(wrench_size_).fill(calcMass() * st::kGravity / nc_);  // TODO: 力とトルクでスケールを分ける
-  qp_.x_scale.segment<3>(wrench_size_).fill(sqrt(st::kGravity * calcSizeScale()));  // フルード数に基づく
+  qp_.x_scale.segment<3>(wrench_size_).fill(std::sqrt(st::kGravity * calcSizeScale()));  // フルード数に基づく
   qp_.x_scale.segment<3>(wrench_size_ + 3).fill(M_PI);
 
   return true;
@@ -113,8 +111,8 @@ bool JointSpaceDynamics::configure(const JointSpaceDynamicsConfig& cfg)
 
   A1_.block<4, 1>(2, 2).fill(-cfg.friction_coef);
   A1_.block<2, 1>(6, 2).fill(-cfg.friction_coef * cfg.foot_diameter);
-  const MatrixXd CI_left = eigen::blockDiag(A1_, nc_);
-  const MatrixXd CI_right = MatrixXd::Zero(kIneqSize * nc_, kBaseDoF);
+  const Eigen::MatrixXd CI_left = eigen::blockDiag(A1_, nc_);
+  const Eigen::MatrixXd CI_right = Eigen::MatrixXd::Zero(kIneqSize * nc_, kBaseDoF);
   qp_.problem.A = eigen::concat(CI_left, CI_right, 1);
 
   b1_st_(0) = -cfg.min_normal_force;
@@ -136,8 +134,8 @@ bool JointSpaceDynamics::solve(
   const kdl::Vector& tar_acc,
   const kdl::Euler& tar_rpydd,
   const kdl::JntArray& tar_qdd,
-  const vector<kdl::Vector>& tar_force,
-  const vector<double>& tar_torque)
+  const std::vector<kdl::Vector>& tar_force,
+  const std::vector<double>& tar_torque)
 {
   assert(cur_q.size() == nj_raw_);
   assert(cur_qd.size() == nj_raw_);
@@ -192,8 +190,8 @@ bool JointSpaceDynamics::solve(
   }
 
   // QPPを作成
-  const Matrix<double, kBaseDoF, Dynamic> Jt_base = J_.leftCols<kBaseDoF>().transpose();
-  const Matrix<double, kBaseDoF, kBaseDoF> Mb = mass_solver_.getMass().data.topLeftCorner<kBaseDoF, kBaseDoF>();
+  const Eigen::Matrix<double, kBaseDoF, Eigen::Dynamic> Jt_base = J_.leftCols<kBaseDoF>().transpose();
+  const Eigen::Matrix<double, kBaseDoF, kBaseDoF> Mb = mass_solver_.getMass().data.topLeftCorner<kBaseDoF, kBaseDoF>();
 
   qp_.problem.G.leftCols(wrench_size_) = Jt_base;
   qp_.problem.G.rightCols<kBaseDoF>() = -Mb;
@@ -218,14 +216,14 @@ bool JointSpaceDynamics::solve(
   }
 
   // 地面反力と浮遊リンクの加速度の残渣を取得
-  const VectorXd w_res = qp_.solution().head(wrench_size_);
-  const VectorXd qdd_res = qp_.solution().tail<kBaseDoF>();
+  const auto w_res = qp_.solution().head(wrench_size_).eval();
+  const auto qdd_res = qp_.solution().tail<kBaseDoF>().eval();
 
   // 修正された地面反力と関節トルクを計算
   w_out_ = w_ref_ + w_res;
   eff_out_ = rne_.getEfforts().data - J_.transpose() * w_out_;
-  eff_out_.head<kBaseDoF>() += Mb * qdd_res;                                          // ベースの修正分
-  assert(eigen::isClose(eff_out_.head<kBaseDoF>().eval(), Vector6d::Zero().eval()));  // ベースのレンチは0になるはず
+  eff_out_.head<kBaseDoF>() += Mb * qdd_res;                    // ベースの修正分
+  assert(math::isClose(eff_out_.head<kBaseDoF>().norm(), 0.));  // ベースのレンチは0になるはず
 
   return true;
 }

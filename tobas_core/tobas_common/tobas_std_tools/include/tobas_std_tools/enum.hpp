@@ -27,7 +27,7 @@ struct NamedEnum
   bool operator==(const NamedEnum& other) const
   {
     // ポインタ (ここではchar*) 同士を==などで比較すると，値ではなくアドレスの比較になってしまうことに注意．
-    return typeid(*this) == typeid(other) && std::strcmp(name, other.name) == 0 && value == other.value;
+    return typeid(*this) == typeid(other) && strcmp(name, other.name) == 0 && value == other.value;
   }
 };
 }  // namespace st

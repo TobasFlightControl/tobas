@@ -6,14 +6,11 @@
 #include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_std_tools/vector.hpp>
 
-using namespace std;
-using namespace Eigen;
-
 namespace tobas
 {
 namespace lr_tools
 {
-ContactEstimator::ContactEstimator(const kdl::Tree& tree, const vector<string>& foot_names)
+ContactEstimator::ContactEstimator(const kdl::Tree& tree, const std::vector<std::string>& foot_names)
   : tree_(tree), foot_names_(foot_names), nc_(foot_names.size()), fk_solver_(tree), mass_holder_(tree), states_(nc_)
 {
   setPredictionVariance(kDefaultPredictionErfVariance);
@@ -39,9 +36,9 @@ bool ContactEstimator::updateInternalDataStructures()
 void ContactEstimator::update(
   const kdl::Frame& T,
   const kdl::JntArray& q,
-  const vector<double>& contact_forces,
-  const vector<bool>& cpg_states,
-  const vector<double>& cpg_subphases)
+  const std::vector<double>& contact_forces,
+  const std::vector<bool>& cpg_states,
+  const std::vector<double>& cpg_subphases)
 {
   assert(contact_forces.size() == nc_);
   assert(cpg_states.size() == nc_);
@@ -89,7 +86,7 @@ void ContactEstimator::update(
         break;
       }
       default: {
-        throw runtime_error("Invalid contact state");
+        throw std::runtime_error("Invalid contact state");
       }
     }
   }
@@ -97,7 +94,7 @@ void ContactEstimator::update(
 
 void ContactEstimator::reset()
 {
-  const auto ones = VectorXd::Ones(nc_);
+  const auto ones = Eigen::VectorXd::Ones(nc_);
   kf_.initialize(ones, ones.asDiagonal());
 
   st::fill(states_, kContact);
@@ -106,19 +103,19 @@ void ContactEstimator::reset()
 void ContactEstimator::setPredictionVariance(const double& var)
 {
   assert(var > 0);
-  erfden_pred_ = sqrt(2 * var);
+  erfden_pred_ = std::sqrt(2 * var);
 }
 
 void ContactEstimator::setFootHeightVariance(const double& var)
 {
   assert(var > 0);
-  erfden_height_ = sqrt(2 * var);
+  erfden_height_ = std::sqrt(2 * var);
 }
 
 void ContactEstimator::setContactForceVariance(const double& var)
 {
   assert(var > 0);
-  erfden_force_ = sqrt(2 * var);
+  erfden_force_ = std::sqrt(2 * var);
 }
 
 bool ContactEstimator::isContact(const size_t& idx) const
@@ -154,9 +151,9 @@ void ContactEstimator::setupKalmanFilter()
   kf_.R.diagonal().segment(nc_, nc_).fill(kContactForceNoiseVariance);
 }
 
-VectorXd ContactEstimator::calcProbs_height(const kdl::Frame& T, const kdl::JntArray& q)
+Eigen::VectorXd ContactEstimator::calcProbs_height(const kdl::Frame& T, const kdl::JntArray& q)
 {
-  VectorXd res(nc_);
+  Eigen::VectorXd res(nc_);
   for (size_t l = 0; l < nc_; ++l) {
     fk_solver_.jntToCart(q, foot_names_[l]);
     const auto F_Pos_FC = T.M * fk_solver_.getFrame().p;
@@ -166,11 +163,11 @@ VectorXd ContactEstimator::calcProbs_height(const kdl::Frame& T, const kdl::JntA
   return res;
 }
 
-VectorXd ContactEstimator::calcProbs_force(const vector<double>& contact_forces)
+Eigen::VectorXd ContactEstimator::calcProbs_force(const std::vector<double>& contact_forces)
 {
   const auto mean_force = mass_holder_.getMass() * st::kGravity / nc_;
 
-  VectorXd res(nc_);
+  Eigen::VectorXd res(nc_);
   for (size_t l = 0; l < nc_; ++l) {
     res(l) = 0.5 * (1 + erf((contact_forces[l] - mean_force) / erfden_force_));
   }
@@ -178,9 +175,10 @@ VectorXd ContactEstimator::calcProbs_force(const vector<double>& contact_forces)
   return res;
 }
 
-VectorXd ContactEstimator::calcProbs_pred(const vector<bool>& cpg_states, const vector<double>& cpg_subphases)
+Eigen::VectorXd
+ContactEstimator::calcProbs_pred(const std::vector<bool>& cpg_states, const std::vector<double>& cpg_subphases)
 {
-  VectorXd res(nc_);
+  Eigen::VectorXd res(nc_);
   for (size_t l = 0; l < nc_; ++l) {
     if (cpg_states[l]) {
       const auto erf1 = erf((cpg_subphases[l] - 0) / erfden_pred_);

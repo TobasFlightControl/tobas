@@ -9,8 +9,6 @@
 #include <tobas_algorithm/kahan.hpp>
 #include <tobas_math/core.hpp>
 
-using namespace std;
-
 namespace tobas
 {
 namespace st
@@ -19,7 +17,7 @@ double TimestampedBufferDouble::max() const
 {
   double res = -INFINITY;
   for (const auto& [_, x] : map_) {
-    res = ::max(res, x);
+    res = std::max(res, x);
   }
   return res;
 }
@@ -28,7 +26,7 @@ double TimestampedBufferDouble::min() const
 {
   double res = INFINITY;
   for (const auto& [_, x] : map_) {
-    res = ::min(res, x);
+    res = std::min(res, x);
   }
   return res;
 }
@@ -70,7 +68,7 @@ double TimestampedBufferDouble::variance() const
 
 double TimestampedBufferDouble::stddev() const
 {
-  return sqrt(this->variance());
+  return std::sqrt(this->variance());
 }
 }  // namespace st
 }  // namespace tobas

@@ -76,13 +76,13 @@ double BladeTheory::sigma() const
 double BladeTheory::lambda() const
 {
   const auto a_B_sigma = a * B * sigma();
-  return a_B_sigma * B / 16 * (sqrt(1 + (64 * theta_) / (3 * a_B_sigma)) - 1);
+  return a_B_sigma * B / 16 * (std::sqrt(1 + (64 * theta_) / (3 * a_B_sigma)) - 1);
 }
 
 double BladeTheory::lambdaDeriv() const
 {
   const auto a_B_sigma = a * B * sigma();
-  return (2 * B / 3) / sqrt(1 + (64 * theta_) / (3 * a_B_sigma));
+  return (2 * B / 3) / std::sqrt(1 + (64 * theta_) / (3 * a_B_sigma));
 }
 }  // namespace ice
 }  // namespace propulsion

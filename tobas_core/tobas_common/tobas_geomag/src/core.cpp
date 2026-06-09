@@ -6,10 +6,9 @@
 #include <cmath>
 #include <iostream>
 
+#include <tobas_math/core.hpp>
 #include <tobas_std_tools/console.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
-
-using namespace std;
 
 namespace tobas
 {
@@ -17,23 +16,23 @@ namespace geomag
 {
 Elements elementsFromMagField(const Vector& mag_field_itrs, double lat, double lon)
 {
-  const auto& x = mag_field_itrs.x;                                // [G]
-  const auto& y = mag_field_itrs.y;                                // [G]
-  const auto& z = mag_field_itrs.z;                                // [G]
-  const auto phi = st::deg2rad(lat);                               // [rad]
-  const auto lam = st::deg2rad(lon);                               // [rad]
-  const auto sphi = sin(phi);                                      // [-]
-  const auto cphi = cos(phi);                                      // [-]
-  const auto slam = sin(lam);                                      // [-]
-  const auto clam = cos(lam);                                      // [-]
-  const auto x1 = clam * x + slam * y;                             // [G]
-  const auto north = -sphi * x1 + cphi * z;                        // [G]
-  const auto east = -slam * x + clam * y;                          // [G]
-  const auto down = -cphi * x1 + -sphi * z;                        // [G]
-  const auto horizontal = sqrt(north * north + east * east);       // [G]
-  const auto total = sqrt(horizontal * horizontal + down * down);  // [G]
-  const auto inclination = st::rad2deg(atan2(down, horizontal));   // [deg]
-  const auto declination = st::rad2deg(atan2(east, north));        // [deg]
+  const auto& x = mag_field_itrs.x;                                     // [G]
+  const auto& y = mag_field_itrs.y;                                     // [G]
+  const auto& z = mag_field_itrs.z;                                     // [G]
+  const auto phi = st::deg2rad(lat);                                    // [rad]
+  const auto lam = st::deg2rad(lon);                                    // [rad]
+  const auto sphi = std::sin(phi);                                      // [-]
+  const auto cphi = std::cos(phi);                                      // [-]
+  const auto slam = std::sin(lam);                                      // [-]
+  const auto clam = std::cos(lam);                                      // [-]
+  const auto x1 = clam * x + slam * y;                                  // [G]
+  const auto north = -sphi * x1 + cphi * z;                             // [G]
+  const auto east = -slam * x + clam * y;                               // [G]
+  const auto down = -cphi * x1 + -sphi * z;                             // [G]
+  const auto horizontal = std::sqrt(north * north + east * east);       // [G]
+  const auto total = std::sqrt(horizontal * horizontal + down * down);  // [G]
+  const auto inclination = st::rad2deg(std::atan2(down, horizontal));   // [deg]
+  const auto declination = st::rad2deg(std::atan2(east, north));        // [deg]
   return { north, east, down, horizontal, total, inclination, declination };
 }
 
@@ -49,11 +48,11 @@ Vector ecefFromGeodetic(double lat, double lon, double h)
   constexpr double e2 = f * (2 - f);
   constexpr double e2m = (1 - f) * (1 - f);
 
-  const auto sphi = sinf(phi);
-  const auto cphi = cosf(phi);
-  const auto slam = sinf(lam);
-  const auto clam = cosf(lam);
-  const auto n = a / sqrt(1. - e2 * (sphi * sphi));
+  const auto sphi = std::sin(phi);
+  const auto cphi = std::cos(phi);
+  const auto slam = std::sin(lam);
+  const auto clam = std::cos(lam);
+  const auto n = a / std::sqrt(1. - e2 * (sphi * sphi));
   const auto z = (e2m * n + h) * sphi;
   const auto r = (n + h) * cphi;
   return { r * clam, r * slam, z };
@@ -64,28 +63,28 @@ Vector magFieldFromECEF(double dyear, const Vector& position_itrs, const ConstMo
   // Mean radius of  ellipsoid in meters from section 1.2 of the WMM2015 Technical report
   constexpr double EARTH_R = 6371200.;
 
-  const double& x = position_itrs.x;
-  const double& y = position_itrs.y;
-  const double& z = position_itrs.z;
-  const double rsqrd = x * x + y * y + z * z;
+  const auto& x = position_itrs.x;
+  const auto& y = position_itrs.y;
+  const auto& z = position_itrs.z;
+  const auto rsqrd = math::sqr(x) + math::sqr(y) + math::sqr(z);
 
   double px = 0.;
   double py = 0.;
   double pz = 0.;
 
-  double temp = EARTH_R / rsqrd;
-  const double a = x * temp;
-  const double b = y * temp;
-  const double f = z * temp;
-  const double g = EARTH_R * temp;
+  auto temp = EARTH_R / rsqrd;
+  const auto a = x * temp;
+  const auto b = y * temp;
+  const auto f = z * temp;
+  const auto g = EARTH_R * temp;
 
   // First m==0 row, just solve for the Vs
-  double Vtop = EARTH_R / sqrt(rsqrd);  // V0,0
-  double Wtop = 0.;                     // W0,0
+  auto Vtop = EARTH_R / std::sqrt(rsqrd);  // V0,0
+  double Wtop = 0.;                        // W0,0
   double Vprev = 0.;
   double Wprev = 0.;
-  double Vnm = Vtop;
-  double Wnm = Wtop;
+  auto Vnm = Vtop;
+  auto Wnm = Wtop;
 
   // Iterate through all ms
   for (size_t m = 0; m <= NMAX + 1; ++m) {
@@ -104,7 +103,7 @@ Vector magFieldFromECEF(double dyear, const Vector& position_itrs, const ConstMo
       }
       else {
         temp = Vnm;
-        const double invs_temp = 1. / ((n - m));
+        const auto invs_temp = 1. / ((n - m));
         Vnm = ((2 * n - 1) * f * Vnm - (n + m - 1) * g * Vprev) * invs_temp;
         Vprev = temp;
         temp = Wnm;

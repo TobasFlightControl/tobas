@@ -20,8 +20,6 @@
 #define L -0.0065    // 気温減率 [K/m]
 #define M 0.0289664  // 海面大気のモル質量 [kg/mol]
 
-using namespace std;
-
 namespace tobas
 {
 namespace st
@@ -68,7 +66,7 @@ double pressureToTemperature(const double& p)
   assert(p > 0.);
 
   constexpr auto exp = (L * R) / (G * M);
-  return T0 * pow(P0 / p, exp);
+  return T0 * std::pow(P0 / p, exp);
 }
 
 double altitudeToPressure(const double& altitude)
@@ -82,7 +80,7 @@ double temperatureToPressure(const double& T)
   assert(T > 0.);
 
   constexpr auto exp = (G * M) / (L * R);
-  return P0 * pow(T0 / T, exp);
+  return P0 * std::pow(T0 / T, exp);
 }
 
 double gphToDensity(const double& gph)
@@ -111,7 +109,7 @@ double pressureToAltitude(const double& pressure)
   constexpr auto a = T0 / L;
   constexpr auto b = -(L * R) / (G * M);
 
-  const auto gph = a * (pow(pressure / P0, b) - 1.);
+  const auto gph = a * (std::pow(pressure / P0, b) - 1.);
   assert(gph < TROPOPAUSE_ALTITUDE);  // 高度11km以上では誤差が大きい
 
   return gphToAltitude(gph);
@@ -125,7 +123,7 @@ void pressureToAltitude(const double& pressure, const double& pressure_var, doub
 
   altitude = pressureToAltitude(pressure);
 
-  const auto amp = (c / pressure) * pow(pressure / P0, b);  // 高度ノイズ/気圧ノイズ ~ 1e-2
+  const auto amp = (c / pressure) * std::pow(pressure / P0, b);  // 高度ノイズ/気圧ノイズ ~ 1e-2
   altitude_var = math::sqr(amp) * pressure_var;
 }
 }  // namespace st

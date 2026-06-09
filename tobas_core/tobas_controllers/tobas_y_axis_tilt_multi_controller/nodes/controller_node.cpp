@@ -696,8 +696,8 @@ void ControllerNode::angleCommandCb(const tobas_command_msgs::AngleThrottleVecto
   // コマンドを更新
   *tar_rot_ = angle_cmd->angle.toRotation();
   const auto tar_thrust = max_thrust_sum_ * std::clamp(angle_cmd->throttle, kMinThrot, kMaxThrot);
-  ux_ = tar_thrust * sin(angle_cmd->thrust_angle);
-  uz_ = tar_thrust * cos(angle_cmd->thrust_angle);
+  ux_ = tar_thrust * std::sin(angle_cmd->thrust_angle);
+  uz_ = tar_thrust * std::cos(angle_cmd->thrust_angle);
 }
 
 void ControllerNode::rateCommandCb(const tobas_command_msgs::RateThrottleVector::ConstSharedPtr& rate_cmd)
@@ -719,8 +719,8 @@ void ControllerNode::rateCommandCb(const tobas_command_msgs::RateThrottleVector:
   // コマンドを更新
   *tar_gyro_ = rate_cmd->rate;
   const auto tar_thrust = max_thrust_sum_ * std::clamp(rate_cmd->throttle, kMinThrot, kMaxThrot);
-  ux_ = tar_thrust * sin(rate_cmd->thrust_angle);
-  uz_ = tar_thrust * cos(rate_cmd->thrust_angle);
+  ux_ = tar_thrust * std::sin(rate_cmd->thrust_angle);
+  uz_ = tar_thrust * std::cos(rate_cmd->thrust_angle);
 }
 
 void ControllerNode::checkTopicsTimerCb()

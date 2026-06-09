@@ -129,7 +129,7 @@ double PropellerWidget::pitchLength() const
 
 double PropellerWidget::pitchAngle() const
 {
-  return atan(pitchLength() / (M_PI * diameter()));
+  return std::atan(pitchLength() / (M_PI * diameter()));
 }
 
 double PropellerWidget::minChord() const

@@ -326,8 +326,8 @@ void ErrorStateKalmanFilterNode::setMagneticFieldRef(const Vector3d& mag_W)
     const auto& my = mag_G.y();
 
     // 新しい参照に基づくヨーを計算
-    const auto yaw_ref = atan2(mag_W.y(), mag_W.x());
-    const auto new_yaw = algo::wrapPi(yaw_ref - atan2(my, mx));
+    const auto yaw_ref = std::atan2(mag_W.y(), mag_W.x());
+    const auto new_yaw = algo::wrapPi(yaw_ref - std::atan2(my, mx));
 
     // ヨーのみ修正したクオータニオンを計算
     const auto new_q = eigen::quaternionFromRPY(old_roll, old_pitch, new_yaw);
@@ -703,7 +703,7 @@ void ErrorStateKalmanFilterNode::magCb(const tobas_msgs::MagneticField::ConstSha
     // 姿勢が安定するまで待機
     const auto rot_cov = eskf_.getRotationCovariance();
     const auto atti_var = (rot_cov(0, 0) + rot_cov(1, 1)) / 2;
-    const auto atti_stddev = sqrt(atti_var);  // [rad]
+    const auto atti_stddev = std::sqrt(atti_var);  // [rad]
     if (atti_stddev > kAccurateAttitudeStddevThresh) {
       TOBAS_INFO_THROTTLE(kTypicalInfoPeriod, "Waiting for attitude estimation to converge.");
       return;

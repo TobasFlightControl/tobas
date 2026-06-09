@@ -108,8 +108,8 @@ bool followCirclePath(rclcpp::Node::SharedPtr node)
     }
 
     const auto theta = kOmega * t;
-    const auto sin_theta = sin(theta);
-    const auto cos_theta = cos(theta);
+    const auto sin_theta = std::sin(theta);
+    const auto cos_theta = std::cos(theta);
 
     auto cmd = std::make_unique<tobas_command_msgs::msg::PosVelAccYaw>();
     cmd->header.stamp = cur_time;

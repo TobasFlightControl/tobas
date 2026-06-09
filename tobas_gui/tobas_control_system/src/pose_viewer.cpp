@@ -91,9 +91,9 @@ void PoseViewerWidget::drawSky(QPainter& painter)
   }
   else {
     // 直線の方程式: y = ax + b
-    const auto sin_phi = sin(roll_);
-    const auto cos_phi = cos(roll_);
-    const auto tan_phi = tan(roll_);
+    const auto sin_phi = std::sin(roll_);
+    const auto cos_phi = std::cos(roll_);
+    const auto tan_phi = std::tan(roll_);
     const auto a = -tan_phi;
     const auto b = (tan_phi / 2) * (w - h * r * sin_phi) + (h / 2) * (1 - r * cos_phi);
 

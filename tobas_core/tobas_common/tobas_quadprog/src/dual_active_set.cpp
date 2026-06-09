@@ -538,11 +538,11 @@ double DualActiveSetSolver::distance(const double& a, const double& b)
   const auto b1 = std::abs(b);
   if (a1 > b1) {
     const auto t = b1 / a1;
-    return a1 * sqrt(1. + math::sqr(t));
+    return a1 * std::sqrt(1. + math::sqr(t));
   }
   else if (b1 > a1) {
     const auto t = a1 / b1;
-    return b1 * sqrt(1. + math::sqr(t));
+    return b1 * std::sqrt(1. + math::sqr(t));
   }
   else {
     return a1 * M_SQRT2;

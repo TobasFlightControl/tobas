@@ -106,8 +106,8 @@ void JerkLimitedOnlineTrajectoryGenerator::update(double dt)
   }
   else {
     const auto tmp = math::sqr(eddk) + 2 * edk * sgnd;
-    sigma =
-      ek + edk * eddk * sgnd - math::cube(eddk) / 6 * (1 - 3 * std::abs(sgnd)) + sgnd / 4 * sqrt(2 * math::cube(tmp));
+    sigma = ek + edk * eddk * sgnd - math::cube(eddk) / 6 * (1 - 3 * std::abs(sgnd)) +
+            sgnd / 4 * std::sqrt(2 * math::cube(tmp));
   }
 
   const auto uc = -u_ * sign(sigma + (1 - std::abs(sign(sigma))) * (delta + (1 - std::abs(sgnd) * eddk)));

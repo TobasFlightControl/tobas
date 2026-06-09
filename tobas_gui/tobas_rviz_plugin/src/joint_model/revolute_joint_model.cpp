@@ -24,8 +24,8 @@ void RevoluteJointModel::getVariableDefaultPositions(double* values) const
 
 void RevoluteJointModel::computeTransform(const double* joint_values, Eigen::Isometry3d& transform) const
 {
-  const auto c = cos(joint_values[0]);
-  const auto s = sin(joint_values[0]);
+  const auto c = std::cos(joint_values[0]);
+  const auto s = std::sin(joint_values[0]);
   const auto t = 1. - c;
   const auto txy = t * xy_;
   const auto txz = t * xz_;
@@ -66,7 +66,7 @@ void RevoluteJointModel::computeVariablePositions(const Eigen::Isometry3d& trans
   q.normalize();
   size_t max_idx;
   axis_.array().abs().maxCoeff(&max_idx);
-  joint_values[0] = 2. * atan2(q.vec()[max_idx] / axis_[max_idx], q.w());
+  joint_values[0] = 2. * std::atan2(q.vec()[max_idx] / axis_[max_idx], q.w());
 }
 
 bool RevoluteJointModel::isContinuous() const

@@ -88,7 +88,7 @@ inline double ElectricRotorConfig::speedFromVoltage(double voltage) const
 
   const auto b = internal_resistance * kv * moment_const * motor_const;
   const auto c = 1. / kv;
-  return b > 0 ? (sqrt(math::sqr(c) + 4 * b * voltage) - c) / (2 * b) : voltage * kv;
+  return b > 0 ? (std::sqrt(math::sqr(c) + 4 * b * voltage) - c) / (2 * b) : voltage * kv;
 }
 
 inline double ElectricRotorConfig::thrustFromSpeed(double tar_speed) const
@@ -99,7 +99,7 @@ inline double ElectricRotorConfig::thrustFromSpeed(double tar_speed) const
 inline double ElectricRotorConfig::speedFromThrust(double thrust) const
 {
   assert(thrust >= 0.);
-  return sqrt(thrust / motor_const);
+  return std::sqrt(thrust / motor_const);
 }
 
 inline double ElectricRotorConfig::thrustFromVoltage(double voltage) const

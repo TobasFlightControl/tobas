@@ -81,7 +81,7 @@ inline Eigen::Matrix3d dcmFromRPY(double roll, double pitch, double yaw)
 
 inline double yawFromDCM(const Eigen::Matrix3d& R)
 {
-  return atan2(R(1, 0), R(0, 0));
+  return std::atan2(R(1, 0), R(0, 0));
 }
 
 /* ハミルトン(w,x,y,z)をQuaterniondに変換． */

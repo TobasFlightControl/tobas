@@ -193,7 +193,7 @@ double PinvMixer::getTiltAngle(size_t idx) const
 {
   const auto tx = thrustDeadband(x_(2 * idx));
   const auto ty = thrustDeadband(x_(2 * idx + 1));
-  return atan2(ty, tx);
+  return std::atan2(ty, tx);
 }
 
 bool PinvMixer::setTiltAxisSingularDeclinationLB(double lb_rad)

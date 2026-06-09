@@ -334,12 +334,12 @@ bool ControllerNode::mixerAngularWeightCb(const long& p)
 
 bool ControllerNode::mixerThrustWeightLog2Cb(const long& p)
 {
-  return mixer_.setThrustWeight(exp2(p));
+  return mixer_.setThrustWeight(std::exp2(p));
 }
 
 bool ControllerNode::mixerDeltaThrustWeightLog2Cb(const long& p)
 {
-  return mixer_.setDeltaThrustWeight(exp2(p));
+  return mixer_.setDeltaThrustWeight(std::exp2(p));
 }
 
 void ControllerNode::droneCb(const Drone::ConstSharedPtr& drone)

@@ -68,12 +68,12 @@ bool AsymmetricFirstOrderFilter<T>::update(const T& input_value, const double& s
 
   if (input_value > value_) {
     // Acceleration
-    const double alpha_up = time_const_up_ > 0 ? exp(-sampling_time / time_const_up_) : 0;
+    const double alpha_up = time_const_up_ > 0 ? std::exp(-sampling_time / time_const_up_) : 0;
     value_ = alpha_up * value_ + (1 - alpha_up) * input_value;
   }
   else {
     // Deceleration
-    const double alpha_down = time_const_down_ > 0 ? exp(-sampling_time / time_const_down_) : 0;
+    const double alpha_down = time_const_down_ > 0 ? std::exp(-sampling_time / time_const_down_) : 0;
     value_ = alpha_down * value_ + (1 - alpha_down) * input_value;
   }
 

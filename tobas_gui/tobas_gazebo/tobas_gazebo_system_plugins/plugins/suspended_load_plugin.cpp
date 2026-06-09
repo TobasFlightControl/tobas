@@ -231,7 +231,7 @@ void GazeboSuspendedLoadPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::s
     const auto& m2 = load_mass_;
     const auto m = m1 * m2 / (m1 + m2);                        // [kg] 相対運動の等価質量 (memo: 3-47)
     const auto k = cable_young_ * cable_csa_ * cable_length_;  // [N/m]
-    const auto d = 2 * sqrt(m * k);                            // [Ns/m] 臨海減衰する粘性係数
+    const auto d = 2 * std::sqrt(m * k);                       // [Ns/m] 臨海減衰する粘性係数
 
     // ケーブルにかかる力を計算
     const auto T = k * x + d * xd;  // [N]

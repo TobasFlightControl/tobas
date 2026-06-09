@@ -9,14 +9,12 @@
 #include <tobas_yaml_tools/core.hpp>
 #include <tobas_yaml_tools/format.hpp>
 
-using namespace std;
-
 namespace tobas
 {
 bool VppMomentConstant::isValid() const
 {
   if (a <= 0. || c <= 0.) {
-    cerr << "The first and third term of the moment constant must be positive." << endl;
+    std::cerr << "The first and third term of the moment constant must be positive." << std::endl;
     return false;
   }
 
@@ -59,9 +57,9 @@ YAML::Node VppMomentConstant::dump() const
 double VppMomentConstant::compute(double phi) const
 {
   if (phi <= phi0) {
-    cerr << "The moment constant cannot be computed because the pitch angle of " << phi
-         << "[rad] is smaller than the negative stall angle of " << phi0 << "[rad]." << endl;
-    return numeric_limits<double>::max();
+    std::cerr << "The moment constant cannot be computed because the pitch angle of " << phi
+              << "[rad] is smaller than the negative stall angle of " << phi0 << "[rad]." << std::endl;
+    return std::numeric_limits<double>::max();
   }
 
   const auto x = phi - phi0;

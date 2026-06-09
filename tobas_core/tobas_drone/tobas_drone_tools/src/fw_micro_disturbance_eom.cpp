@@ -13,10 +13,7 @@
 
 #include "tobas_drone_tools/utils/fixed_wing_tools.hpp"
 
-#define X_AXIS Vector3d(1, 0, 0)
-
-using namespace std;
-using namespace Eigen;
+#define X_AXIS Eigen::Vector3d(1, 0, 0)
 
 namespace tobas
 {
@@ -28,7 +25,7 @@ MicroDisturbanceEoM::MicroDisturbanceEoM(const Drone& drone, const kdl::Tree& tr
 bool MicroDisturbanceEoM::updateInternalDataStructures()
 {
   if (!drone_.fixed_wing) {
-    cerr << "The drone is not equipped with fixed wing." << endl;
+    std::cerr << "The drone is not equipped with fixed wing." << std::endl;
     return false;
   }
 
@@ -106,7 +103,7 @@ int MicroDisturbanceEoM::update(const double& V, const double& rho, const kdl::J
 
   // (2.2-46)
   const auto Z_u_bar = -rho * vehicle.wing_surface / I_base.getMass() * trim_.c_L();
-  const auto Z_alpha_bar = -q_S / P * (aero.c_lift_alpha + 2 * trim_.c_L() * tan(trim_.alpha()));
+  const auto Z_alpha_bar = -q_S / P * (aero.c_lift_alpha + 2 * trim_.c_L() * std::tan(trim_.alpha()));
 
   // (3.2-21)
   const auto L_beta_dash = q_S_b / I_x_tilde * (aero.c_roll_beta + I_xz / I_z * asd_cog.cYawBeta());
@@ -123,7 +120,7 @@ int MicroDisturbanceEoM::update(const double& V, const double& rho, const kdl::J
   const auto M_u_dash = M_u + M_alpha_rate * Z_u_bar;
   const auto M_alpha_dash = M_alpha + M_alpha_rate * Z_alpha_bar;
   const auto M_q_dash = M_q + M_alpha_rate;
-  const auto M_theta_dash = -st::kGravity * sin(trim_.theta()) / V * M_alpha_rate;
+  const auto M_theta_dash = -st::kGravity * std::sin(trim_.theta()) / V * M_alpha_rate;
 
   // (3.2-22)
   const auto N_beta_dash = q_S_b / I_z_tilde * (asd_cog.cYawBeta() + I_xz / I_x * aero.c_roll_beta);
@@ -133,20 +130,20 @@ int MicroDisturbanceEoM::update(const double& V, const double& rho, const kdl::J
   // Aを更新
   A_(kStateIdx_u, kStateIdx_u) = X_u;
   A_(kStateIdx_u, kStateIdx_alpha) = X_alpha;
-  A_(kStateIdx_u, kStateIdx_theta) = -st::kGravity * cos(trim_.theta());
+  A_(kStateIdx_u, kStateIdx_theta) = -st::kGravity * std::cos(trim_.theta());
 
   A_(kStateIdx_alpha, kStateIdx_u) = Z_u_bar;
   A_(kStateIdx_alpha, kStateIdx_alpha) = Z_alpha_bar;
-  A_(kStateIdx_alpha, kStateIdx_theta) = -st::kGravity * sin(trim_.theta()) / V;
+  A_(kStateIdx_alpha, kStateIdx_theta) = -st::kGravity * std::sin(trim_.theta()) / V;
   A_(kStateIdx_alpha, kStateIdx_q) = 1;
 
   A_(kStateIdx_beta, kStateIdx_beta) = Y_beta_bar;
-  A_(kStateIdx_beta, kStateIdx_phi) = st::kGravity * cos(trim_.theta()) / V;
+  A_(kStateIdx_beta, kStateIdx_phi) = st::kGravity * std::cos(trim_.theta()) / V;
   A_(kStateIdx_beta, kStateIdx_p) = trim_.alpha();
   A_(kStateIdx_beta, kStateIdx_r) = -1;
 
   A_(kStateIdx_phi, kStateIdx_p) = 1;
-  A_(kStateIdx_phi, kStateIdx_r) = tan(trim_.theta());
+  A_(kStateIdx_phi, kStateIdx_r) = std::tan(trim_.theta());
 
   A_(kStateIdx_theta, kStateIdx_q) = 1;
 
@@ -171,7 +168,7 @@ int MicroDisturbanceEoM::update(const double& V, const double& rho, const kdl::J
 
   // thrust -> p,q,r
   const auto I_cog_inv = I_cog.data.inverse();
-  for (const auto& [idx, elem] : views::enumerate(drone_.prop->rotors)) {
+  for (const auto& [idx, elem] : std::views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = elem.second;
     if (fk_solver_.jntToCart(q, rotor->link_name) < 0) {
       error_msg_ = fk_solver_.errorMessage();
@@ -180,13 +177,13 @@ int MicroDisturbanceEoM::update(const double& V, const double& rho, const kdl::J
     const auto P_cog_rotor = fk_solver_.getFrame().p - P_base_cog;
     const auto d = rotor->sign();
     const auto cm = rotor->momentConst();
-    Vector3d v = I_cog_inv * (P_cog_rotor.data.cross(X_AXIS) - (d * cm) * X_AXIS);  // FLU
-    eigen::vectorFluToFrd(v);                                                       // FLU -> FRD
+    Eigen::Vector3d v = I_cog_inv * (P_cog_rotor.data.cross(X_AXIS) - (d * cm) * X_AXIS);  // FLU
+    eigen::vectorFluToFrd(v);                                                              // FLU -> FRD
     B_.block(kStateIdx_p, idx, 3, 1) = v;
   }
 
   // deflection
-  for (const auto& [cs_idx, cs_item] : views::enumerate(drone_.fixed_wing->control_surfaces)) {
+  for (const auto& [cs_idx, cs_item] : std::views::enumerate(drone_.fixed_wing->control_surfaces)) {
     const auto& link_name = cs_item.first;
     const auto& cs = cs_item.second;
 
@@ -220,7 +217,7 @@ int MicroDisturbanceEoM::update(const double& V, const double& rho, const kdl::J
 
   // トリム時の制御入力を更新
   const auto thrust_sum = q_S * trim_.c_T();  // (2.2-2b)
-  for (const auto& [idx, elem] : views::enumerate(drone_.prop->rotors)) {
+  for (const auto& [idx, elem] : std::views::enumerate(drone_.prop->rotors)) {
     const auto& link_name = elem.first;
     auto thrust = thrust_sum / nr;  // TODO: 横の釣り合いも考慮して分配
     const auto max_thrust = drone_.prop->maxThrust(link_name);
@@ -244,10 +241,10 @@ void MicroDisturbanceEoM::resize()
 {
   u_size_ = drone_.prop->numRotors() + drone_.fixed_wing->numControlSurfaces();
 
-  x_0_ = Matrix<double, kStateSize, 1>::Zero();
-  u_0_ = VectorXd::Zero(u_size_);
-  A_ = Matrix<double, kStateSize, kStateSize>::Zero();
-  B_ = MatrixXd::Zero(kStateSize, u_size_);
+  x_0_ = Eigen::Matrix<double, kStateSize, 1>::Zero();
+  u_0_ = Eigen::VectorXd::Zero(u_size_);
+  A_ = Eigen::Matrix<double, kStateSize, kStateSize>::Zero();
+  B_ = Eigen::MatrixXd::Zero(kStateSize, u_size_);
 }
 
 void MicroDisturbanceEoM::setInputLimits()
@@ -255,7 +252,7 @@ void MicroDisturbanceEoM::setInputLimits()
   min_u_.conservativeResize(u_size_);
   max_u_.conservativeResize(u_size_);
 
-  for (const auto& [idx, elem] : views::enumerate(drone_.prop->rotors)) {
+  for (const auto& [idx, elem] : std::views::enumerate(drone_.prop->rotors)) {
     const auto& link_name = elem.first;
     min_u_(idx) = drone_.prop->minThrust(link_name);
     max_u_(idx) = drone_.prop->maxThrust(link_name);

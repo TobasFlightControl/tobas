@@ -8,8 +8,6 @@
 #include <tobas_math/float.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 
-using namespace std;
-
 namespace tobas
 {
 namespace y_axis_tilt_multicopter
@@ -39,7 +37,7 @@ bool TranslationalEoM::solve(
   // 着陸時など加速度の絶対値が小さいとチルト角の解の変化率が相対的に大きくなる．
   // ミキサーはチルト角の追従の遅延を無視しているため，チルト角の変位が大きくなるのは避けたい．
   // そのため，最低限鉛直上方向に推力を出すことを保証しておく．
-  f_W.z(max(f_W.z(), mass * kMinVerticalForcePerMass));
+  f_W.z(std::max(f_W.z(), mass * kMinVerticalForcePerMass));
 
   // 目標力をローカル座標系 (ロールする前) に変換
   const auto f_L = kdl::Rotation::RPY(0., tar_pitch, tar_yaw).inverse(f_W);
@@ -48,15 +46,15 @@ bool TranslationalEoM::solve(
   const auto& fz = f_L.z();
 
   // 3つ目の回転軸回りの回転角を計算
-  const auto cos_pitch = cos(tar_pitch);
-  const auto sin_pitch = sin(tar_pitch);
+  const auto cos_pitch = std::cos(tar_pitch);
+  const auto sin_pitch = std::sin(tar_pitch);
   const auto den = fx * sin_pitch - fz * cos_pitch;
   if (den == 0.) {
-    cerr << "Free fall is commanded." << endl;
+    std::cerr << "Free fall is commanded." << std::endl;
     return false;
   }
-  const auto sin_phi = clamp(fy / den, -1., 1.);
-  const auto phi = asin(sin_phi);
+  const auto sin_phi = std::clamp(fy / den, -1., 1.);
+  const auto phi = std::asin(sin_phi);
 
   // 3つ目の回転行列を計算
   const kdl::Vector n(cos_pitch, 0., sin_pitch);

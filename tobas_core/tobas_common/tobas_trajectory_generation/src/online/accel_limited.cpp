@@ -20,7 +20,7 @@ double solveQuadraticEquationPositive(double a, double b, double c)
   assert(a > 0);
   const auto d = math::sqr(b) - 4 * a * c;
   assert(d > 0);
-  return (-b + sqrt(d)) / (2 * a);
+  return (-b + std::sqrt(d)) / (2 * a);
 }
 }  // namespace
 

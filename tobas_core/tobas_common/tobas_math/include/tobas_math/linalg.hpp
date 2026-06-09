@@ -24,7 +24,7 @@ double norm(T... args)
   for (const auto& x : std::initializer_list<double>{ args... }) {
     squared_sum += math::sqr(x);
   }
-  return sqrt(squared_sum);
+  return std::sqrt(squared_sum);
 }
 }  // namespace math
 }  // namespace tobas

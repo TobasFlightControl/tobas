@@ -8,16 +8,14 @@
 #include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_std_tools/vector.hpp>
 
-using namespace std;
-
 namespace tobas
 {
 namespace lr_tools
 {
 SwingLegController::SwingLegController(
   const kdl::Tree& tree,
-  const vector<string>& thigh_names,
-  const vector<string>& foot_names)
+  const std::vector<std::string>& thigh_names,
+  const std::vector<std::string>& foot_names)
   : tree_(tree)
   , thigh_names_(thigh_names)
   , foot_names_(foot_names)
@@ -56,11 +54,11 @@ bool SwingLegController::update(
   const kdl::Rotation& W_Rot_B,
   const kdl::Vector& G_Gyro_GB,
   const kdl::JntArray& q,
-  const vector<bool>& is_stand,
+  const std::vector<bool>& is_stand,
   const TimeType& cur_time)
 {
   if (is_stand.size() != nc_) {
-    cerr << "The size of is_stand mismatch." << endl;
+    std::cerr << "The size of is_stand mismatch." << std::endl;
     return false;
   }
 
@@ -74,7 +72,7 @@ bool SwingLegController::update(
 
       // {gnd}から見た{gnd}に対する{foot}の初期位置を計算
       if (fk_solver_.jntToCart(q, foot_names_[l]) < 0) {
-        cerr << "FK failed: " << fk_solver_.errorMessage() << endl;
+        std::cerr << "FK failed: " << fk_solver_.errorMessage() << std::endl;
         return false;
       }
       const auto& B_Pos_BF = fk_solver_.getFrame().p;
@@ -85,7 +83,7 @@ bool SwingLegController::update(
       // Capture Gain
       // cf. MIT Cheetah 3: Design and Control of a Robust, Dynamic Quadruped Robot
       // https://ieeexplore.ieee.org/abstract/document/8593885
-      const auto capture_gain = sqrt(max(z, 0.) / st::kGravity);
+      const auto capture_gain = sqrt(std::max(z, 0.) / st::kGravity);
 
       // (12) ~ (15): xyのみ合っていれば良い
       const kdl::Vector tar_vel(vx_, vy_, 0.);
@@ -111,7 +109,7 @@ bool SwingLegController::update(
     }
 
     // {gnd}から見た各足先の目標状態を得る
-    const auto t = max(DurationType(cur_time - t_switch_[l]).count(), 0.);
+    const auto t = std::max(DurationType(cur_time - t_switch_[l]).count(), 0.);
     if (!ref_traj_[l].get(t, G_Tdd_GF_.p, G_Tdd_GF_.v, G_Tdd_GF_.dv)) {
       return false;
     }
@@ -131,8 +129,8 @@ bool SwingLegController::update(
 
 bool SwingLegController::setRaibertGain(double raibert_gain)
 {
-  if (raibert_gain <= 0) {
-    cerr << "Raibert gain must be positive." << endl;
+  if (raibert_gain <= 0.) {
+    std::cerr << "Raibert gain must be positive." << std::endl;
     return false;
   }
 
@@ -142,8 +140,8 @@ bool SwingLegController::setRaibertGain(double raibert_gain)
 
 bool SwingLegController::setClearance(double clearance)
 {
-  if (clearance <= 0) {
-    cerr << "Foot clearance must be positive." << endl;
+  if (clearance <= 0.) {
+    std::cerr << "Foot clearance must be positive." << std::endl;
     return false;
   }
 
@@ -153,12 +151,12 @@ bool SwingLegController::setClearance(double clearance)
 
 bool SwingLegController::setGaitParams(double stand_period, double swing_period)
 {
-  if (stand_period <= 0) {
-    cerr << "Stand period must be positive." << endl;
+  if (stand_period <= 0.) {
+    std::cerr << "Stand period must be positive." << std::endl;
     return false;
   }
-  if (swing_period <= 0) {
-    cerr << "Swing period must be positive." << endl;
+  if (swing_period <= 0.) {
+    std::cerr << "Swing period must be positive." << std::endl;
     return false;
   }
 
@@ -181,7 +179,7 @@ void SwingLegController::setThighOrigins()
 
   for (size_t l = 0; l < nc_; ++l) {
     if (fk_solver_.jntToCart(q0, thigh_names_[l]) < 0) {
-      throw runtime_error("FK failed: " + fk_solver_.errorMessage());
+      throw std::runtime_error("FK failed: " + fk_solver_.errorMessage());
     }
     thigh_0_[l] = fk_solver_.getFrame().p;
   }

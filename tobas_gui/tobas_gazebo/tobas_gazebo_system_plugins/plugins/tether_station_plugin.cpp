@@ -158,7 +158,7 @@ void GazeboTetherStationPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::s
     // マスバネダンパ系の係数
     const auto m = mass_holder_.getMass();                  // [kg]
     const auto k = young_ * csa_ * params_.maximum_length;  // [N/m]
-    const auto d = 2 * sqrt(m * k);                         // [Ns/m] 臨海減衰する粘性係数
+    const auto d = 2 * std::sqrt(m * k);                    // [Ns/m] 臨海減衰する粘性係数
 
     // ケーブルにかかる力を計算
     T = k * x + d * xd;

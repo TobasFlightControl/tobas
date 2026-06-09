@@ -7,14 +7,11 @@
 
 #define EPS 1e-9
 
-using namespace std;
-using namespace Eigen;
-
 namespace tobas
 {
 namespace lr_tools
 {
-StateEstimator::StateEstimator(const kdl::Tree& tree, const vector<string>& foot_names)
+StateEstimator::StateEstimator(const kdl::Tree& tree, const std::vector<std::string>& foot_names)
   : foot_names_(foot_names)
   , nc_(foot_names.size())
   , fk_solver_(tree)
@@ -53,10 +50,10 @@ void StateEstimator::update(
   const kdl::Vector& gyro_B,
   const kdl::JntArray& q,
   const kdl::JntArray& qd,
-  const vector<bool>& is_stand,
-  const vector<double>& contact_probs,
-  const vector<kdl::Vector>& foot_forces,
-  const vector<double>& foot_torques,
+  const std::vector<bool>& is_stand,
+  const std::vector<double>& contact_probs,
+  const std::vector<kdl::Vector>& foot_forces,
+  const std::vector<double>& foot_torques,
   const double& dt)
 {
   assert(is_stand.size() == nc_);
@@ -90,10 +87,10 @@ void StateEstimator::update(
     // 分散を計算
     double var;
     if (is_stand[l]) {
-      var = max(cfg_.variance_coef * pow(1 - contact_probs[l], cfg_.variance_exp), EPS);
+      var = std::max(cfg_.variance_coef * std::pow(1 - contact_probs[l], cfg_.variance_exp), EPS);
     }
     else {
-      var = numeric_limits<double>::max();
+      var = std::numeric_limits<double>::max();
     }
 
     // 地面からの高さ
@@ -118,7 +115,7 @@ void StateEstimator::update(
     if (is_stand[l]) {
       // 順運動学
       if (fk_solver_.jntToCart(q, qd, foot_names_[l]) < 0) {
-        throw runtime_error("FK failed: " + fk_solver_.errorMessage());
+        throw std::runtime_error("FK failed: " + fk_solver_.errorMessage());
       }
       const auto& foot_pos = fk_solver_.getFrameVel().p.p;
       const auto& foot_vel = fk_solver_.getFrameVel().p.v;
@@ -158,14 +155,14 @@ void StateEstimator::initializeKalmanFilter()
   kf_.Bv.diagonal().setOnes();  // システム雑音は直接加わるとする
   kf_.Q.diagonal().fill(EPS);
 
-  VectorXd init_x(cont_.stateSize());
+  Eigen::VectorXd init_x(cont_.stateSize());
   init_x << 0, 0, kInitTrunkHeight, 0, 0, 0, 0, 0, 0, st::kGravity;  // FIXME: 胴体高さの初期値を推定
-  kf_.initialize(init_x, MatrixXd::Identity(cont_.stateSize(), cont_.stateSize()));
+  kf_.initialize(init_x, Eigen::MatrixXd::Identity(cont_.stateSize(), cont_.stateSize()));
 }
 
-MatrixXd StateEstimator::makeCy()
+Eigen::MatrixXd StateEstimator::makeCy()
 {
-  MatrixXd Cy = MatrixXd::Zero(kf_.outputSize(), cont_.stateSize());
+  Eigen::MatrixXd Cy = Eigen::MatrixXd::Zero(kf_.outputSize(), cont_.stateSize());
 
   // オイラー角
   Cy(kRollIdx, LinearDynamics::kRollIdx) = 1;

@@ -31,7 +31,7 @@ StopTrajectory::StopTrajectory(double p0, double v0, double a0, double am, doubl
     jm_ = std::max(jm_, math::sqr(a0_) / (2 * v0_) + EPS);
     am_ = std::max(am_, -a0_);
   }
-  am_ = std::min(am_, sqrt(math::sqr(a0_) / 2 + v0_ * jm_) - EPS);
+  am_ = std::min(am_, std::sqrt(math::sqr(a0_) / 2 + v0_ * jm_) - EPS);
 
   t1_ = (a0_ + am_) / jm_;
   t2_ = math::sqr(a0_) / (2 * am_ * jm_) + v0_ / am_ + a0_ / jm_;

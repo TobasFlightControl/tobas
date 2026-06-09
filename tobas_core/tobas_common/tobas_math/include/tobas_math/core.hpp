@@ -35,8 +35,8 @@ inline constexpr T quar(const T& x) noexcept
 template <typename T>
 inline constexpr T quart(const T& x) noexcept
 {
-  const auto sqrt_x = sqrt(x);
-  return sqrt(sqrt_x);
+  const auto sqrt_x = std::sqrt(x);
+  return std::sqrt(sqrt_x);
 }
 
 /* 符号を返す．正なら+1，負なら-1，ゼロなら0． */
@@ -92,7 +92,7 @@ T wrap(T x, T n) noexcept
 
   // x を [-2n, 2n) の範囲に変換
   if constexpr (std::is_floating_point<T>::value) {
-    x = fmod(x, n2);
+    x = std::fmod(x, n2);
   }
   else {
     x = x % n2;

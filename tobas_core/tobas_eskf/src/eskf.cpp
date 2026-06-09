@@ -537,8 +537,8 @@ double ErrorStateKalmanFilter::measureMagneticFieldHead(
   const auto my = mag_G.y();
 
   // ヨーの誤差を計算
-  const auto yaw_ref = atan2(mag_W_.y(), mag_W_.x());
-  const auto yaw_meas = yaw_ref - atan2(my, mx);
+  const auto yaw_ref = std::atan2(mag_W_.y(), mag_W_.x());
+  const auto yaw_meas = yaw_ref - std::atan2(my, mx);
   const auto delta_yaw = algo::wrapPi(yaw_meas - yaw_pred);
 
   // 出力方程式を更新
