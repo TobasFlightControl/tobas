@@ -5,7 +5,6 @@
 
 #include <linux/usb/video.h>
 #include <linux/uvcvideo.h>
-#include <stdlib.h>
 
 #include <cstdint>
 #include <string>

@@ -5,8 +5,6 @@
 
 #include <sys/mount.h>
 #include <sys/stat.h>
-#include <sys/types.h>
-#include <unistd.h>
 
 #include <QDebug>
 #include <QHBoxLayout>

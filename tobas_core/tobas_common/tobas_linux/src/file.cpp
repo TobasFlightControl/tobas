@@ -3,10 +3,10 @@
 
 #include "tobas_linux/file.hpp"
 
-#include <errno.h>
 #include <fcntl.h>
 #include <unistd.h>
 
+#include <cerrno>
 #include <cstdarg>
 #include <cstdio>
 

@@ -3,6 +3,8 @@
 
 #include "tobas_linux/error.hpp"
 
+#include <cstring>
+
 namespace tobas
 {
 namespace linux
