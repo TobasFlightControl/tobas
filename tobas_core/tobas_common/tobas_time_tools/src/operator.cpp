@@ -18,5 +18,5 @@ double operator-(tm lhs, tm rhs)
 {
   const auto time_l = mktime(&lhs);
   const auto time_r = mktime(&rhs);
-  return difftime(time_l, time_r);  // sec
+  return std::difftime(time_l, time_r);  // sec
 }

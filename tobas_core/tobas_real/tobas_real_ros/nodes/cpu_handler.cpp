@@ -108,7 +108,7 @@ bool CpuHandlerNode::getLoad()
   }
 
   // ファイルの最初の行を読む
-  if (!getline(stat_file, cpu_line_)) {
+  if (!std::getline(stat_file, cpu_line_)) {
     TOBAS_ERROR("Failed to read the first line of ", kStatisticsFilePath, ".");
     return false;
   }

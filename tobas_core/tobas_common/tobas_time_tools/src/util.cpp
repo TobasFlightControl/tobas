@@ -25,7 +25,7 @@ ch::system_clock::time_point tmToTimePoint(tm tm)
 tm timePointToTm(const ch::system_clock::time_point& tp)
 {
   const auto tt = ch::system_clock::to_time_t(tp);
-  return *gmtime(&tt);
+  return *std::gmtime(&tt);
 }
 
 tm tmFromUTC(int year, int month, int day, int hour, int min, int sec)

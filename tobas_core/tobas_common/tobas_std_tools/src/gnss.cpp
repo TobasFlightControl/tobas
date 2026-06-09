@@ -21,7 +21,7 @@ long computeGpsDelayFromToW(uint32_t gps_tow_ms)
   // 現在のUTC時刻を取得
   const auto now = ch::system_clock::now();
   const auto now_c = ch::system_clock::to_time_t(now);
-  const auto utc_time = gmtime(&now_c);
+  const auto utc_time = std::gmtime(&now_c);
 
   // その週の日曜日0時0分0秒を計算
   utc_time->tm_sec = 0;

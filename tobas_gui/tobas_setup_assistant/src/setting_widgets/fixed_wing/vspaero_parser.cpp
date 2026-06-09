@@ -30,7 +30,7 @@ bool VSPAEROParser::parse(const std::string& stab_path)
   };
 
   std::string line;
-  while (getline(file, line)) {
+  while (std::getline(file, line)) {
     std::istringstream iss(line);
     std::string name, base, alpha, beta, p, q, r, mach, u;
 
