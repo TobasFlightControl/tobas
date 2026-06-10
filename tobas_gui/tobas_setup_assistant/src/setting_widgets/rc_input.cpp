@@ -31,7 +31,8 @@ RcInputWidget::RcInputWidget()
   addWidget(arm_duration_);
 
   disarm_duration_ = new ParamGetterWidget_DoubleSpinBox(
-    "Arm Duration", "Specifies the amount of time the stick must be held to disarm the vehicle from the transmitter.");
+    "Disarm Duration",
+    "Specifies the amount of time the stick must be held to disarm the vehicle from the transmitter.");
   disarm_duration_->setDecimals(1);
   disarm_duration_->setMinimum(0.);
   disarm_duration_->setMaximum(10.);
