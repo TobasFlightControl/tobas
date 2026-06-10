@@ -32,8 +32,6 @@
 #include "tobas_rc_teleop/rate_throttle_vector.hpp"
 #include "tobas_rc_teleop/speed_roll_dpitch.hpp"
 
-using namespace std::chrono_literals;
-
 namespace tobas
 {
 namespace rc
@@ -42,8 +40,6 @@ class RCTeleopNode : public BaseNode
 {
   static constexpr double kArmThrotThresh = 0.02;  // 帯域 [-1, 1] の 1%
   static constexpr double kArmThrotHist = 0.02;    // チャタリングを防ぐためのヒステリシス
-  static constexpr auto kArmDuration = 1s;
-  static constexpr auto kDisarmDuration = 1s;
 
   static constexpr double kArmCommandInfoPeriod = 2.;  // [s]
   static constexpr double kWarnPeriod = 1.;            // [s]
@@ -74,6 +70,7 @@ private:
 
   // rosparams
   std::map<FlightMode, RcCommand> modes_;
+  double arm_duration_, disarm_duration_;  // [s]
 
   // Mutables
   FlightMode cur_mode_;
@@ -100,6 +97,7 @@ private:
   ros2::ServiceClientPtr<tobas_msgs::srv::SetArm> set_arm_sc_;
 
   void getStaticRosParams();
+  void defineDynamicRosParams();
   void initializeControllers();
   void requestArmingRotors(bool arming);
   void updateWithIdleCommand(const tobas_msgs::RCInput& rcin);
@@ -119,6 +117,7 @@ RCTeleopNode::RCTeleopNode(const rclcpp::NodeOptions& options) : super(node::kRc
   TOBAS_ASSERT(mode2str_.size() == magic_enum::enum_count<FlightMode>());
 
   getStaticRosParams();
+  defineDynamicRosParams();
   initializeControllers();
 
   odom_sub_ = createSubscriber(topic::kOdometry, &self::odomCb, this);
@@ -140,6 +139,14 @@ void RCTeleopNode::getStaticRosParams()
   TOBAS_ASSERT(enumFromText(getStringParam("acrobat_mode"), modes_.at(FlightMode::kAcrobat)));
   TOBAS_ASSERT(enumFromText(getStringParam("stabilize_mode"), modes_.at(FlightMode::kStabilize)));
   TOBAS_ASSERT(enumFromText(getStringParam("loiter_mode"), modes_.at(FlightMode::kLoiter)));
+
+  arm_duration_ = getDoubleParam("arm_duration");
+  disarm_duration_ = getDoubleParam("disarm_duration");
+}
+
+void RCTeleopNode::defineDynamicRosParams()
+{
+  // TODO
 }
 
 void RCTeleopNode::initializeControllers()
@@ -416,7 +423,7 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
         std::max(std::abs(rcin->roll), std::abs(rcin->pitch)) < kArmThrotThresh &&
         rcin->yaw < kRcInputMin + kArmThrotThresh && rcin->throttle < kRcInputMin + kArmThrotThresh) {
         // アームコマンドが一定時間維持されていれば一度アームをリクエスト
-        if (rcin->header.stamp - t_arm_start_ > kArmDuration) {
+        if ((rcin->header.stamp - t_arm_start_).seconds() > arm_duration_) {
           TOBAS_INFO("Arming rotors...");
           requestArmingRotors(true);
           t_arm_start_ = rcin->header.stamp;
@@ -530,7 +537,7 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
           std::max(std::abs(rcin->roll), std::abs(rcin->pitch)) < kArmThrotThresh &&
           rcin->yaw > kRcInputMax - kArmThrotThresh) {
           TOBAS_INFO_THROTTLE(kArmCommandInfoPeriod, "Disarm stick position detected. Hold to disarm.");
-          if (rcin->header.stamp - t_disarm_start_ > kDisarmDuration) {  // 一定時間維持されていればリクエスト
+          if ((rcin->header.stamp - t_disarm_start_).seconds() > disarm_duration_) {  // 一定時間維持されていればリクエスト
             TOBAS_INFO("Disarming rotors...");
             requestArmingRotors(false);
             t_disarm_start_ = rcin->header.stamp;

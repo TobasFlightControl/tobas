@@ -794,6 +794,8 @@ bool ProjectGenerator::generateRcTeleopStaticConfig()
   params["acrobat_mode"] = settings_->controller->acrobatModeCommand();
   params["stabilize_mode"] = settings_->controller->stabilizeModeCommand();
   params["loiter_mode"] = settings_->controller->loiterModeCommand();
+  params["arm_duration"] = settings_->rc_input->armDuration();
+  params["disarm_duration"] = settings_->rc_input->disarmDuration();
 
   const auto config_dir = proj_paths_.cfgConfigDirPath();
 

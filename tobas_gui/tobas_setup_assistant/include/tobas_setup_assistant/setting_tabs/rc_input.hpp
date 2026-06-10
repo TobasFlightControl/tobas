@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "../param_getters/double_spin_box.hpp"
 #include "../param_getters/spin_box.hpp"
 #include "./base_setting.hpp"
 
@@ -33,9 +34,13 @@ public:
   void load(const YAML::Node& node) override;
 
   int numOfSbusChannels() const;
+  double armDuration() const;
+  double disarmDuration() const;
 
 private:
   ParamGetterWidget_SpinBox* num_sbus_channels_;
+  ParamGetterWidget_DoubleSpinBox* arm_duration_;
+  ParamGetterWidget_DoubleSpinBox* disarm_duration_;
 };
 }  // namespace sa
 }  // namespace gui
