@@ -143,7 +143,7 @@ public:
     k_1p0 = 0x03, // -1.0
     k_0p7 = 0x04, // -0.7
     k_0p3 = 0x05, // -0.3
-    k0p0  = 0x06, // 0.0
+    k0p0  = 0x06, // 0.0 (default)
     k0p3  = 0x07, // +0.3
     k0p7  = 0x08, // +0.7
     k1p0  = 0x09, // +1.0
@@ -167,7 +167,7 @@ public:
   };
   enum class Aperture : uint8_t
   {
-    kF2p8  = 0x00, // F2.8 (2 point 8)
+    kF2p8  = 0x00, // F2.8 (2 point 8) (default)
     kF3p2  = 0x01, // F3.2
     kF3p5  = 0x02, // F3.5
     kF4p0  = 0x03, // F4.0
