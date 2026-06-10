@@ -38,9 +38,6 @@ namespace rc
 {
 class RCTeleopNode : public BaseNode
 {
-  static constexpr double kArmThrotThresh = 0.02;  // 帯域 [-1, 1] の 1%
-  static constexpr double kArmThrotHist = 0.02;    // チャタリングを防ぐためのヒステリシス
-
   static constexpr double kArmCommandInfoPeriod = 2.;  // [s]
   static constexpr double kWarnPeriod = 1.;            // [s]
 
@@ -68,9 +65,13 @@ private:
     { FlightMode::kLoiter, "Loiter" },
   };
 
-  // rosparams
+  // Static parameters
   std::map<FlightMode, RcCommand> modes_;
   double arm_duration_, disarm_duration_;  // [s]
+
+  // Dynamic parameters
+  double arm_throt_thresh_;
+  double arm_throt_hyst_;  // チャタリングを防ぐためのヒステリシス
 
   // Mutables
   FlightMode cur_mode_;
@@ -103,6 +104,9 @@ private:
   void updateWithIdleCommand(const tobas_msgs::RCInput& rcin);
   void resetCurrentController(const tobas_msgs::RCInput& rcin);
   bool isFlightModeApplicable(FlightMode mode);
+
+  bool armThrottleThresholdCb(const double& p);
+  bool armThrottleHysteresisCb(const double& p);
 
   void odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom);
   void setpointCb(const tobas_msgs::OdometryStamped::ConstSharedPtr& setpoint);
@@ -146,7 +150,9 @@ void RCTeleopNode::getStaticRosParams()
 
 void RCTeleopNode::defineDynamicRosParams()
 {
-  // TODO
+  // プロポによっては閾値が小さすぎるとアーム位置が認識できないことがあるため変更可能にする
+  addDynamicDoubleParam("common/arm_throttle_threshold", &self::armThrottleThresholdCb, this, 0.5, 2, 1, 6, " %");
+  addDynamicDoubleParam("common/arm_throttle_hysteresis", &self::armThrottleHysteresisCb, this, 0.5, 2, 1, 6, " %");
 }
 
 void RCTeleopNode::initializeControllers()
@@ -343,6 +349,18 @@ bool RCTeleopNode::isFlightModeApplicable(FlightMode mode)
   return true;
 }
 
+bool RCTeleopNode::armThrottleThresholdCb(const double& p)
+{
+  arm_throt_thresh_ = kRcInputRange * (p / 100.);
+  return true;
+}
+
+bool RCTeleopNode::armThrottleHysteresisCb(const double& p)
+{
+  arm_throt_hyst_ = kRcInputRange * (p / 100.);
+  return true;
+}
+
 void RCTeleopNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom)
 {
   odom_ = odom;
@@ -420,8 +438,8 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
 
       // アームコマンドが入力されている場合
       if (
-        std::max(std::abs(rcin->roll), std::abs(rcin->pitch)) < kArmThrotThresh &&
-        rcin->yaw < kRcInputMin + kArmThrotThresh && rcin->throttle < kRcInputMin + kArmThrotThresh) {
+        std::max(std::abs(rcin->roll), std::abs(rcin->pitch)) < arm_throt_thresh_ &&
+        rcin->yaw < kRcInputMin + arm_throt_thresh_ && rcin->throttle < kRcInputMin + arm_throt_thresh_) {
         // アームコマンドが一定時間維持されていれば一度アームをリクエスト
         if ((rcin->header.stamp - t_arm_start_).seconds() > arm_duration_) {
           TOBAS_INFO("Arming rotors...");
@@ -525,7 +543,8 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
         TOBAS_INFO("Flight mode changed to \"", mode2str_.at(rcin->mode), "\".");
       }
 
-      const auto zero_throt_thresh = kRcInputMin + kArmThrotThresh + static_cast<int>(is_zero_throt_) * kArmThrotHist;
+      const auto zero_throt_thresh =
+        kRcInputMin + arm_throt_thresh_ + static_cast<int>(is_zero_throt_) * arm_throt_hyst_;
       if (landed_->landed && rcin->throttle < zero_throt_thresh) {  // 地上でゼロスロットルの場合
         is_zero_throt_ = true;
 
@@ -534,8 +553,8 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
 
         // さらにディスアームコマンドの場合
         if (
-          std::max(std::abs(rcin->roll), std::abs(rcin->pitch)) < kArmThrotThresh &&
-          rcin->yaw > kRcInputMax - kArmThrotThresh) {
+          std::max(std::abs(rcin->roll), std::abs(rcin->pitch)) < arm_throt_thresh_ &&
+          rcin->yaw > kRcInputMax - arm_throt_thresh_) {
           TOBAS_INFO_THROTTLE(kArmCommandInfoPeriod, "Disarm stick position detected. Hold to disarm.");
           if ((rcin->header.stamp - t_disarm_start_).seconds() > disarm_duration_) {  // 一定時間維持されていればリクエスト
             TOBAS_INFO("Disarming rotors...");
