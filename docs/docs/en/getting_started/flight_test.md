@@ -65,14 +65,16 @@ The left side of the screen is the status monitoring area, where the following i
 The right side of the screen is the mission planning area, where you can plan and execute flight missions.
 
 1. Click `Add` to add commands.
-   In the figure below, a mission is planned that performs `Takeoff`, passes through 9 `Waypoint`, then `Return to Home` and `Land`.
+   In the figure below, a mission is planned that performs `Takeoff`,
+   passes through 9 `Waypoint`, then `Return to Home` and `Land`.
 1. Set the parameters for each command using the dialog at the bottom right of the screen.
    Waypoint coordinates can also be adjusted by dragging and dropping the icons on the map.
 1. Press the `Execute` button to execute the mission.
 
 <!-- prettier-ignore-start -->
 !!! note
-    If the `Enable` switch on the transmitter is on, transmitter commands take priority, so be sure to execute with it turned off.
+    If the `Enable` switch on the transmitter is on, transmitter commands take priority,
+    so be sure to execute with it turned off.
 <!-- prettier-ignore-end -->
 
 ![mission_planner](../../assets/flight_test/mission_planner.png)
@@ -122,7 +124,7 @@ A larger value makes the response to the target altitude faster, but if it is to
 Increase the value gradually while confirming that no oscillation occurs.
 This time, we left it at the default value.
 
-#### gyro_lowpass_cutoff
+#### lowpass_filter/gyro_cutoff
 
 This is the cutoff frequency of the gyroscope sensor’s low-pass filter.
 A lower value suppresses gyroscope noise more strongly,
@@ -131,6 +133,14 @@ Check the flight log, described later.
 If **the motor RPM target oscillates with an amplitude of 10% or more of the hovering RPM**,
 consider the post-filter angular rate oscillation to be too large and reduce this value.
 This time, we left it at the default value.
+
+<!-- prettier-ignore-start -->
+!!! tip
+    Depending on the FMU, an [RPM filter](../additional_information/rpm_filter.md)
+    that efficiently attenuates propeller vibrations may be available,
+    and it can be configured here in the same way as the parameters above.
+    Since this is a powerful feature, we recommend enabling it.
+<!-- prettier-ignore-end -->
 
 ## Flight Log
 
