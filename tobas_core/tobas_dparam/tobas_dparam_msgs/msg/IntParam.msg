@@ -2,6 +2,7 @@
 # Copyright (C) 2026 Tobas, Inc.
 
 string name
+int64 step
 int64 dflt
 int64 min
 int64 max

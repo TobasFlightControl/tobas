@@ -23,6 +23,7 @@ namespace param
 {
 struct IntConfig
 {
+  long step;
   long dflt;
   QString prefix;
 

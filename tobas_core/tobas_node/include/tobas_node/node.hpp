@@ -408,6 +408,7 @@ void BaseNode::addDynamicIntParam(
 
   tobas_dparam_msgs::msg::IntParam dparam;
   dparam.name = name;
+  dparam.step = step;
   dparam.dflt = dflt;
   dparam.min = _min;
   dparam.max = _max;

@@ -64,6 +64,7 @@ bool ParamBlockWidget::load(const std::string& ns)
     param_name_label->setFixedWidth(kParamNameWidth);
 
     IntConfig config;
+    config.step = param.step;
     config.dflt = param.dflt;
     config.prefix = QString::fromStdString(str::convertToSuperscript(param.prefix));
 
@@ -81,7 +82,7 @@ bool ParamBlockWidget::load(const std::string& ns)
     config.line_edit->setFixedWidth(kLineEditWidth);
     config.line_edit->setAlignment(Qt::AlignRight);
     config.line_edit->setReadOnly(true);
-    config.line_edit->setText(QString::number(param.value) + config.prefix);
+    config.line_edit->setText(QString::number(param.step * param.value) + config.prefix);
 
     int_configs_[param.name] = config;
 
@@ -185,7 +186,7 @@ bool ParamBlockWidget::setToDefaults()
 
     const QSignalBlocker block(config.slider);
     config.slider->setValue(config.dflt);
-    config.line_edit->setText(QString::number(config.dflt) + config.prefix);
+    config.line_edit->setText(QString::number(config.step * config.dflt) + config.prefix);
   }
 
   for (const auto& [name, config] : double_configs_) {
@@ -236,7 +237,7 @@ void ParamBlockWidget::onIntUpButtonClicked(const std::string& name)
 void ParamBlockWidget::onIntSliderValueChanged(long value, const std::string& name)
 {
   auto& config = int_configs_.at(name);
-  config.line_edit->setText(QString::number(value) + config.prefix);
+  config.line_edit->setText(QString::number(config.step * value) + config.prefix);
 
   if (dparam_client_->setInt(name, value) != dparam::DynamicParamClient::kNoError) {
     qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter \"" + name.c_str() + "\".");
