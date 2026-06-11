@@ -64,15 +64,16 @@ RPMフィルタではモータ，プロペラ由来の振動以外は落とせ�
 ### `rpm_filter/min_center_frequency`, `rpm_filter/fade_range`
 
 RPMフィルタを適用する中心周波数の範囲に関するパラメータです．
-前者を$f_\rm{m}$，後者を$f_\rm{f}$とすると，中心周波数$f_\rm{c}$に対してノッチフィルタは以下のように適用されます．
+前者を$f_\mathrm{m}$，後者を$f_\mathrm{f}$とすると，中心周波数$f_\mathrm{c}$に対してノッチフィルタは以下のように適用されます．
 
-- $f_\rm{c} \lt f_\rm{m}$: フィルタ無効
-- $f_\rm{m} \le f_\rm{c} \lt f_\rm{m} + f_\rm{f}$: 遷移領域（$f_\rm{c}$が大きいほどフィルタが強くなる）
-- $f_\rm{m} + f_\rm{f} \le f_\rm{c}$: フィルタ有効
+- $f_\mathrm{c} \lt f_\mathrm{m}$: フィルタ無効
+- $f_\mathrm{m} \le f_\mathrm{c} \lt f_\mathrm{m} + f_\mathrm{f}$: 遷移領域（$f_\mathrm{c}$が大きいほどフィルタが強くなる）
+- $f_\mathrm{m} + f_\mathrm{f} \le f_\mathrm{c}$: フィルタ有効
 
 フィルタを無効化する領域を設けているのは，制御帯域に近い低周波側をフィルタリングすると応答性や安定性に悪影響が出る可能性があるためです．
 遷移領域を設けているのは，RPMフィルタを有効・無効が切り替わった際に全体のフィルタ特性が急激に変化するのを避けるためです．
-ホバリング回転周波数$f_\rm{h}$に対し，最初は$f_\rm{m}=\frac{f_\rm{h}}{2}$，$f_\rm{f}=\frac{f_\rm{h}}{4}$程度に設定してください．
+ホバリング回転周波数$f_\mathrm{h}$に対し，
+最初は$f_\mathrm{m}=\frac{f_\mathrm{h}}{2}$，$f_\mathrm{f}=\frac{f_\mathrm{h}}{4}$程度に設定してください．
 
 ### `rpm_filter/lpf_cutoff`
 
