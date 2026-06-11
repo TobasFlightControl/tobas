@@ -4,7 +4,7 @@ Translate all Markdown files under docs/ja/ into English and write them under do
 
 Examples:
   python translate_docs.py
-  python translate_docs.py --src docs/ja --dst docs/en --model gpt-5.4
+  python translate_docs.py --src docs/ja --dst docs/en --model gpt-5.5
 """
 
 from __future__ import annotations
@@ -45,7 +45,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--src", type=Path, default=Path("docs/ja"))
     parser.add_argument("--dst", type=Path, default=Path("docs/en"))
-    parser.add_argument("--model", default="gpt-5.4")
+    parser.add_argument("--model", default="gpt-5.5")
     parser.add_argument("--chunk-chars", type=int, default=6000)
     parser.add_argument("--retries", type=int, default=3)
     parser.add_argument("--sleep", type=float, default=1.5)
