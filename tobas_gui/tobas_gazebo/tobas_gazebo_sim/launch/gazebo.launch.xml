@@ -18,6 +18,6 @@
 
   <!-- Bridge communication between ROS and Gazebo Transport: https://index.ros.org/p/ros_gz_bridge/ -->
   <!-- cf. https://github.com/gazebosim/ros_gz/issues/341 -->
-  <node pkg="ros_gz_bridge" exec="parameter_bridge" name="tobas_ros_gz_bridge" args="/clock@rosgraph_msgs/msg/Clock[ignition.msgs.Clock"/>
+  <node pkg="ros_gz_bridge" exec="parameter_bridge" name="tobas_ros_gz_bridge" args="/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock"/>
 
 </launch>
