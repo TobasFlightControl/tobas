@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include "tobas_trajectory_generation/offline/time_optimal.hpp"
+#include "tobas_trajectory_generation/offline/jerk_limited.hpp"
 
 #include <algorithm>
 #include <cassert>
@@ -16,7 +16,7 @@ namespace tobas
 {
 namespace traj
 {
-TimeOptimalTrajectory::TimeOptimalTrajectory(double p0, double pf, double max_jerk, double max_acc, double max_vel)
+JerkLimitedTrajectory::JerkLimitedTrajectory(double p0, double pf, double max_jerk, double max_acc, double max_vel)
   : p0_(p0), pd_(std::abs(pf - p0)), sign_(math::sign(pf - p0)), jm_(max_jerk), am_(max_acc), vm_(max_vel)
 {
   assert(jm_ > 0.);
@@ -66,7 +66,7 @@ TimeOptimalTrajectory::TimeOptimalTrajectory(double p0, double pf, double max_je
   assert(t3_ < t4_);
 }
 
-TrajectoryPoint TimeOptimalTrajectory::get(double t) const noexcept
+TrajectoryPoint JerkLimitedTrajectory::get(double t) const noexcept
 {
   if (pd_ < EPS) {
     return { p0_, 0., 0. };
@@ -76,12 +76,12 @@ TrajectoryPoint TimeOptimalTrajectory::get(double t) const noexcept
   return { p0_ + sign_ * p(t), sign_ * v(t), sign_ * a(t) };
 }
 
-double TimeOptimalTrajectory::duration() const noexcept
+double JerkLimitedTrajectory::duration() const noexcept
 {
   return 2 * t4_;
 }
 
-double TimeOptimalTrajectory::p(double t) const noexcept
+double JerkLimitedTrajectory::p(double t) const noexcept
 {
   if (t <= 0) {
     return 0;
@@ -103,7 +103,7 @@ double TimeOptimalTrajectory::p(double t) const noexcept
   }
 }
 
-double TimeOptimalTrajectory::v(double t) const noexcept
+double JerkLimitedTrajectory::v(double t) const noexcept
 {
   if (t <= 0) {
     return 0;
@@ -125,7 +125,7 @@ double TimeOptimalTrajectory::v(double t) const noexcept
   }
 }
 
-double TimeOptimalTrajectory::a(double t) const noexcept
+double JerkLimitedTrajectory::a(double t) const noexcept
 {
   if (t <= 0) {
     return 0;
