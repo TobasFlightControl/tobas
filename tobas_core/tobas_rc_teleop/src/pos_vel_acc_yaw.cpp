@@ -97,7 +97,7 @@ void PosVelAccYawController::update(const tobas_msgs::RCInput& rcin, const tobas
   const auto yawrate = expoRemapDead(rcin.yaw, head_expo_, -max_head_rate_, max_head_rate_);
   tar_yaw_ += yawrate * dt;
 
-  // Compute the velocity and acceleration wrt. the world frame
+  // Compute the velocity wrt. the world frame
   const kdl::Vector tar_vel_G(
     vx_filt_.getTrajectoryPosition(), vy_filt_.getTrajectoryPosition(), vz_filt_.getTrajectoryPosition());
   const auto tar_vel_W = kdl::Rotation::RotZ(tar_yaw_) * tar_vel_G;
