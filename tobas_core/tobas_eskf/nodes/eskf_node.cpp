@@ -142,6 +142,10 @@ private:
   tf2_ros::TransformBroadcaster tf_br_;
 
   void getStaticRosParams();
+  void setupTransformMessage();
+  void registerDynamicRosParams();
+  void registerRosInterfaces();
+
   void setMagneticFieldRef(const Vector3d& mag_W);
   void fillOdometryMsg(tobas_msgs::OdometryWithCovarianceStamped& odom) const;
   void publishMagRef(const Vector3d& mag_W) const;
@@ -189,35 +193,78 @@ ErrorStateKalmanFilterNode::ErrorStateKalmanFilterNode(const rclcpp::NodeOptions
   : super(node::kObserver, nodeOptions_DParam(options)), tf_br_(this)
 {
   getStaticRosParams();
+  setupTransformMessage();
+  registerDynamicRosParams();
+  registerRosInterfaces();
+}
 
+void ErrorStateKalmanFilterNode::getStaticRosParams()
+{
+  frame_id_ = getStringParam("frame_id");
+
+  use_mag_ = getBoolParam("use_magnetometer");
+  use_baro_ = getBoolParam("use_barometer");
+  use_gnss_ = getBoolParam("use_gnss");
+  use_ext_pose_ = getBoolParam("use_external_pose");
+
+  adaptive_gnss_noise_ = getBoolParam("adaptive_gnss_noise");
+  adaptive_grav_noise_ = getBoolParam("adaptive_grav_noise");
+
+  do_acc_bias_estimation_ = getBoolParam("do_acc_bias_estimation");
+  do_gyro_bias_estimation_ = getBoolParam("do_gyro_bias_estimation");
+  do_mag_hard_bias_estimation_ = getBoolParam("do_mag_hard_bias_estimation");
+  do_mag_soft_bias_estimation_ = getBoolParam("do_mag_soft_bias_estimation");
+  do_grav_estimation_ = getBoolParam("do_gravity_estimation");
+
+  const auto imu_offset = getDoubleArrayParam("imu_offset");
+  const auto baro_offset = getDoubleArrayParam("barometer_offset");
+  const auto gnss_offset = getDoubleArrayParam("gnss_offset");
+  imu_offset_ = Map<const Vector3d>(imu_offset.data());
+  baro_offset_ = Map<const Vector3d>(baro_offset.data());
+  gnss_offset_ = Map<const Vector3d>(gnss_offset.data());
+}
+
+void ErrorStateKalmanFilterNode::setupTransformMessage()
+{
   // Fill the static part of the transform message
   tf_.header.frame_id = frame::kWorld;
   tf_.child_frame_id = frame_id_;
+}
 
-  // Register dynamic parameters
+void ErrorStateKalmanFilterNode::registerDynamicRosParams()
+{
   // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_ACC_NOISE
   addDynamicDoubleParam("acc_meas_noise_stddev", &self::fixedAccMeasNoiseStddevCb, this, 0.05, 20, 1, 20, " m/s^2");
+
   // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_GYR_NOISE
   addDynamicDoubleParam("gyro_meas_noise_stddev", &self::fixedGyroMeasNoiseStddevCb, this, 0.005, 20, 1, 20, " rad/s");
+
   // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_MAG_NOISE
   addDynamicDoubleParam("mag_meas_noise_stddev", &self::fixedMagMeasNoiseStddevCb, this, 5., 1, 1, 20, " uT");
+
   // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_HEAD_NOISE
   addDynamicDoubleParam("head_meas_noise_stddev", &self::fixedHeadMeasNoiseStddevCb, this, 0.05, 6, 1, 20, " rad");
+
   // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_BARO_NOISE
   addDynamicDoubleParam("baro_alt_meas_noise_stddev", &self::fixedBaroAltMeasNoiseStddevCb, this, 0.5, 7, 1, 30, " m");
+
   if (!adaptive_gnss_noise_) {
     // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_GPS_P_NOISE
     addDynamicDoubleParam(
       "gnss_pos_meas_noise_stddev", &self::fixedGnssPosMeasNoiseStddevCb, this, 0.1, 5, 1, 100, " m");
+
     // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_GPS_V_NOISE
     addDynamicDoubleParam(
       "gnss_vel_meas_noise_stddev", &self::fixedGnssVelMeasNoiseStddevCb, this, 0.1, 3, 1, 50, " m/s");
   }
+
   if (adaptive_grav_noise_) {
     addDynamicDoubleParam(
       "grav_meas_noise_stddev_min", &self::adaptiveGravMeasNoiseStddevMinCb, this, 0.01, 1, 0, 100, " m/s^2");
+
     addDynamicDoubleParam(
       "grav_meas_noise_stddev_max", &self::adaptiveGravMeasNoiseStddevMaxCb, this, 1., 20, 10, 100, " m/s^2");
+
     addDynamicDoubleParam("grav_meas_noise_stddev_rate", &self::adaptiveGravMeasNoiseStddevRateCb, this, 5., 20, 0, 100);
   }
   else {
@@ -248,7 +295,10 @@ ErrorStateKalmanFilterNode::ErrorStateKalmanFilterNode(const rclcpp::NodeOptions
     addDynamicDoubleParam(
       "grav_noise_proc_noise_density", &self::gravProcNoiseDensityCb, this, 1., 15, 0, 50, " ug/s/√Hz");
   }
+}
 
+void ErrorStateKalmanFilterNode::registerRosInterfaces()
+{
   // Register publishers
   odom_pub_ = createPublisher<tobas_msgs::OdometryWithCovarianceStamped>(topic::kOdometry);
   mag_ref_pub_ = createPublisher<tobas_msgs::MagneticField>(topic::kMagRef, true, true);
@@ -275,32 +325,6 @@ ErrorStateKalmanFilterNode::ErrorStateKalmanFilterNode(const rclcpp::NodeOptions
   // Register service servers
   get_gnss_origin_ss_ = createService<GetOriginSrv>(service::kGetGnssOrigin, &self::getGnssOriginCb, this);
   set_gnss_origin_ss_ = createService<SetOriginSrv>(service::kSetGnssOrigin, &self::setGnssOriginCb, this);
-}
-
-void ErrorStateKalmanFilterNode::getStaticRosParams()
-{
-  frame_id_ = getStringParam("frame_id");
-
-  use_mag_ = getBoolParam("use_magnetometer");
-  use_baro_ = getBoolParam("use_barometer");
-  use_gnss_ = getBoolParam("use_gnss");
-  use_ext_pose_ = getBoolParam("use_external_pose");
-
-  adaptive_gnss_noise_ = getBoolParam("adaptive_gnss_noise");
-  adaptive_grav_noise_ = getBoolParam("adaptive_grav_noise");
-
-  do_acc_bias_estimation_ = getBoolParam("do_acc_bias_estimation");
-  do_gyro_bias_estimation_ = getBoolParam("do_gyro_bias_estimation");
-  do_mag_hard_bias_estimation_ = getBoolParam("do_mag_hard_bias_estimation");
-  do_mag_soft_bias_estimation_ = getBoolParam("do_mag_soft_bias_estimation");
-  do_grav_estimation_ = getBoolParam("do_gravity_estimation");
-
-  const auto imu_offset = getDoubleArrayParam("imu_offset");
-  const auto baro_offset = getDoubleArrayParam("barometer_offset");
-  const auto gnss_offset = getDoubleArrayParam("gnss_offset");
-  imu_offset_ = Map<const Vector3d>(imu_offset.data());
-  baro_offset_ = Map<const Vector3d>(baro_offset.data());
-  gnss_offset_ = Map<const Vector3d>(gnss_offset.data());
 }
 
 void ErrorStateKalmanFilterNode::setMagneticFieldRef(const Vector3d& mag_W)
