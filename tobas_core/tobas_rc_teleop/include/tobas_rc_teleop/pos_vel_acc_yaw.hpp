@@ -3,11 +3,10 @@
 
 #pragma once
 
-#include <tobas_trajectory_generation/online/accel_limited.hpp>
-
 #include <tobas_command_msgs_adapter/pos_vel_acc_yaw.hpp>
 
 #include "./base_controller.hpp"
+#include "./filter/second_order_velocity_filter.hpp"
 
 namespace tobas
 {
@@ -32,7 +31,7 @@ public:
 
 private:
   builtin_interfaces::msg::Time t_last_rcin_;
-  traj::AccelLimitedOnlineTrajectoryGenerator vx_filt_, vy_filt_, vz_filt_;
+  SecondOrderVelocityFilter vx_filt_, vy_filt_, vz_filt_;
   kdl::Vector tar_pos_W_;
   double tar_yaw_;
 

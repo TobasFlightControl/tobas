@@ -40,11 +40,11 @@ void PosVelAccYawController::initialize(BaseNode* node, FlightMode mode)
   node->addDynamicDoubleParam(
     addMode("max_horizontal_velocity", mode), &self::maxHorizontalVelocityCb, this, 0.5, 12, 0, 20, " m/s");
   node->addDynamicDoubleParam(
-    addMode("max_horizontal_jerk", mode), &self::maxHorizontalJerkCb, this, 1., 10, 1, 40, " m/s^3");
+    addMode("max_horizontal_jerk", mode), &self::maxHorizontalJerkCb, this, 5., 8, 1, 20, " m/s^3");
   node->addDynamicDoubleParam(
     addMode("max_vertical_velocity", mode), &self::maxVerticalVelocityCb, this, 0.5, 8, 0, 20, " m/s");
   node->addDynamicDoubleParam(
-    addMode("max_vertical_jerk", mode), &self::maxVerticalJerkCb, this, 1., 20, 1, 40, " m/s^3");
+    addMode("max_vertical_jerk", mode), &self::maxVerticalJerkCb, this, 5., 8, 1, 20, " m/s^3");
   node->addDynamicDoubleParam(addMode("max_heading_rate", mode), &self::maxHeadingRateCb, this, 15., 6, 1, 12, " dps");
   node->addDynamicDoubleParam(
     addMode("max_position_error_down", mode), &self::maxPositionErrorDown, this, 0.5, 4, 0, 20, " m");
@@ -89,9 +89,9 @@ void PosVelAccYawController::update(const tobas_msgs::RCInput& rcin, const tobas
   t_last_rcin_ = rcin.header.stamp;
 
   // Velocity
-  vx_filt_.setTargetPointAndUpdate(expoRemapDead(rcin.pitch, hor_vel_expo_, -max_hor_vel_, max_hor_vel_), 0., dt);
-  vy_filt_.setTargetPointAndUpdate(-expoRemapDead(rcin.roll, hor_vel_expo_, -max_hor_vel_, max_hor_vel_), 0., dt);
-  vz_filt_.setTargetPointAndUpdate(expoRemapDead(rcin.throttle, ver_vel_expo_, -max_ver_vel_, max_ver_vel_), 0., dt);
+  vx_filt_.update(expoRemapDead(rcin.pitch, hor_vel_expo_, -max_hor_vel_, max_hor_vel_), dt);
+  vy_filt_.update(-expoRemapDead(rcin.roll, hor_vel_expo_, -max_hor_vel_, max_hor_vel_), dt);
+  vz_filt_.update(expoRemapDead(rcin.throttle, ver_vel_expo_, -max_ver_vel_, max_ver_vel_), dt);
 
   // Yaw
   const auto yawrate = expoRemapDead(rcin.yaw, head_expo_, -max_head_rate_, max_head_rate_);
@@ -99,9 +99,9 @@ void PosVelAccYawController::update(const tobas_msgs::RCInput& rcin, const tobas
 
   // Compute the velocity wrt. the world frame
   const kdl::Vector tar_vel_G(
-    vx_filt_.getTrajectoryPosition(), vy_filt_.getTrajectoryPosition(), vz_filt_.getTrajectoryPosition());
-  const kdl::Vector tar_acc_G(
     vx_filt_.getTrajectoryVelocity(), vy_filt_.getTrajectoryVelocity(), vz_filt_.getTrajectoryVelocity());
+  const kdl::Vector tar_acc_G(
+    vx_filt_.getTrajectoryAccel(), vy_filt_.getTrajectoryAccel(), vz_filt_.getTrajectoryAccel());
   const auto R_W_G = kdl::Rotation::RotZ(tar_yaw_);
   const auto tar_vel_W = R_W_G * tar_vel_G;
   const auto tar_acc_W = R_W_G * tar_acc_G;
@@ -136,25 +136,28 @@ void PosVelAccYawController::update(const tobas_msgs::RCInput& rcin, const tobas
 bool PosVelAccYawController::maxHorizontalVelocityCb(const double& p)
 {
   max_hor_vel_ = p;
+  vx_filt_.setMaxVelocity(p);
+  vy_filt_.setMaxVelocity(p);
   return true;
 }
 
 bool PosVelAccYawController::maxHorizontalJerkCb(const double& p)
 {
-  vx_filt_.setMaxAccel(p);
-  vy_filt_.setMaxAccel(p);
+  vx_filt_.setMaxJerk(p);
+  vy_filt_.setMaxJerk(p);
   return true;
 }
 
 bool PosVelAccYawController::maxVerticalVelocityCb(const double& p)
 {
   max_ver_vel_ = p;
+  vz_filt_.setMaxVelocity(p);
   return true;
 }
 
 bool PosVelAccYawController::maxVerticalJerkCb(const double& p)
 {
-  vz_filt_.setMaxAccel(p);
+  vz_filt_.setMaxJerk(p);
   return true;
 }
 
