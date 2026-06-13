@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <tobas_trajectory_generation/online/velocity_limited.hpp>
+#include <tobas_trajectory_generation/online/accel_limited.hpp>
 
 #include <tobas_command_msgs_adapter/pos_vel_acc_yaw.hpp>
 
@@ -32,7 +32,7 @@ public:
 
 private:
   builtin_interfaces::msg::Time t_last_rcin_;
-  traj::VelocityLimitedOnlineTrajectoryGenerator vx_filt_, vy_filt_, vz_filt_;
+  traj::AccelLimitedOnlineTrajectoryGenerator vx_filt_, vy_filt_, vz_filt_;
   kdl::Vector tar_pos_W_;
   double tar_yaw_;
 
@@ -49,9 +49,9 @@ private:
   ros2::PublisherPtr<tobas_command_msgs::PosVelAccYaw> cmd_pub_;
 
   bool maxHorizontalVelocityCb(const double& p);
-  bool maxHorizontalAccelCb(const double& p);
+  bool maxHorizontalJerkCb(const double& p);
   bool maxVerticalVelocityCb(const double& p);
-  bool maxVerticalAccelCb(const double& p);
+  bool maxVerticalJerkCb(const double& p);
   bool maxHeadingRateCb(const double& p);
   bool maxPositionErrorDown(const double& p);
   bool horizontalVelocityExpoCb(const double& p);
