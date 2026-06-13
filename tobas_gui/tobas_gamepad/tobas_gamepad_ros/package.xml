@@ -1,0 +1,21 @@
+<package format="3">
+  <name>tobas_gamepad_ros</name>
+  <version>0.0.0</version>
+  <description>ROS nodes for tobas_gamepad</description>
+  <maintainer email="r.onitsuka@tobas.jp">Ryo Onitsuka</maintainer>
+  <license>GPL-3.0-or-later</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>rclcpp</depend>
+  <depend>rclcpp_components</depend>
+  <depend>tobas_constants</depend>
+  <depend>tobas_gamepad</depend>
+  <depend>tobas_msgs</depend>
+  <depend>tobas_msgs_adapter</depend>
+  <depend>tobas_node</depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>
