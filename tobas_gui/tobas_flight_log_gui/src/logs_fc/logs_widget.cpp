@@ -73,6 +73,8 @@ void FlightLogsWidgetFC::addLog(const QString& log_name)
   connect(widget, &FlightLogItemWidgetFC::downloadButtonClicked, this, &self::onDownloadButtonClicked);
   connect(widget, &FlightLogItemWidgetFC::deleteButtonClicked, this, &self::onDeleteButtonClicked);
   log_list_->setItemWidget(list_item, widget);
+
+  sortLogs();
 }
 
 void FlightLogsWidgetFC::removeLog(const QString& log_name)

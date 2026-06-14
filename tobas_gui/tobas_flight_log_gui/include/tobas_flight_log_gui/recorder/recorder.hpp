@@ -34,7 +34,7 @@ class FlightLogRecorderWidget : public QWidget
   static constexpr int kButtonHeight = 60;
 
 Q_SIGNALS:
-  void recordFinished(const QString& log_name);
+  void recordFinished(const QString& log_name, bool is_real);
 
 public:
   explicit FlightLogRecorderWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge);

@@ -35,7 +35,7 @@ void RecordStartThread::run()
 
   const auto res = sc.getResponse();
   if (!res->success) {
-    Q_EMIT finished(false, "Failed to start recording flight log: " + QString(res->message.c_str()));
+    Q_EMIT finished(false, "Failed to start recording flight log: " + QString::fromStdString(res->message));
     return;
   }
 

@@ -72,6 +72,8 @@ void FlightLogsWidgetGCS::addLog(const QString& log_name)
   connect(widget, &FlightLogItemWidgetGCS::exportButtonClicked, this, &self::onExportButtonClicked);
   connect(widget, &FlightLogItemWidgetGCS::deleteButtonClicked, this, &self::onDeleteButtonClicked);
   log_list_->setItemWidget(list_item, widget);
+
+  sortLogs();
 }
 
 void FlightLogsWidgetGCS::removeLog(const QString& log_name)
@@ -100,11 +102,6 @@ void FlightLogsWidgetGCS::clearLogs()
   log_list_->clear();
 }
 
-void FlightLogsWidgetGCS::sortLogs()
-{
-  log_list_->sortItems();
-}
-
 QString FlightLogsWidgetGCS::currentLogName() const
 {
   const auto cur_item = log_list_->currentItem();
@@ -127,6 +124,11 @@ void FlightLogsWidgetGCS::setCurrentLogName(const QString& log_name)
   }
 
   qWarning() << log_name << "not found.";
+}
+
+void FlightLogsWidgetGCS::sortLogs()
+{
+  log_list_->sortItems();
 }
 
 void FlightLogsWidgetGCS::onReadButtonClicked()

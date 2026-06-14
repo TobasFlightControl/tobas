@@ -39,7 +39,6 @@ public:
   QListWidgetItem* findLog(const QString& log_name);
 
   void clearLogs();
-  void sortLogs();
 
 private:
   cmn::SshClientWrapper ssh_client_;
@@ -50,6 +49,8 @@ private:
   qt::WaitSpinnerWidget spinner_;
 
   qt::ListWidget* log_list_;
+
+  void sortLogs();
 
 private Q_SLOTS:
   void onReadButtonClicked();

@@ -400,6 +400,7 @@ void RosbagRecorderNode::stopCb(const StopSrv::Request::ConstSharedPtr&, const S
 
   res->success = true;
   res->message.clear();
+  res->path = file_path_.string();
 
   publishRosbagState();
 }

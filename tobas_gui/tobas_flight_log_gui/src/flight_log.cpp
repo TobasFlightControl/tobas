@@ -54,15 +54,19 @@ void FlightLogWidget::updateNamespace(const std::string& ns)
   logs_fc_->onProjectLoaded();
 }
 
-void FlightLogWidget::onRecordFinished(const QString& log_name)
+void FlightLogWidget::onRecordFinished(const QString& log_name, bool is_real)
 {
-  if (logs_gcs_->findLog(log_name)) {
+  if (logs_fc_->findLog(log_name)) {
     qWarning() << log_name << "already exists in the FC log list.";
     return;
   }
 
-  logs_fc_->addLog(log_name);
-  logs_fc_->sortLogs();
+  if (is_real) {
+    logs_fc_->addLog(log_name);
+  }
+  else {
+    logs_gcs_->addLog(log_name);
+  }
 }
 
 void FlightLogWidget::onLogDownloaded(const QString& log_name)
@@ -73,7 +77,6 @@ void FlightLogWidget::onLogDownloaded(const QString& log_name)
   }
 
   logs_gcs_->addLog(log_name);
-  logs_gcs_->sortLogs();
 }
 
 void FlightLogWidget::onLogSelected(const QString& log_name)
