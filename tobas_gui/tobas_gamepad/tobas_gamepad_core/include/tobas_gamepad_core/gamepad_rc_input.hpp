@@ -57,8 +57,7 @@ struct GamepadRcInputConfig
 /**
  * @brief libevdevでゲームパッド入力を読み，RC入力状態に変換するドライバ．
  *
- * Linux input event deviceを読み取り，ボタン入力をスイッチに，絶対軸入力を正規化した
- * RC指令値に変換する．
+ * Linux input event deviceを読み取り，ボタン入力をスイッチに，絶対軸入力を正規化したRC指令値に変換する．
  */
 class GamepadRcInput
 {
@@ -69,16 +68,20 @@ public:
   };
 
   explicit GamepadRcInput(GamepadRcInputConfig _config = {});
+
   GamepadRcInput(const GamepadRcInput& _other) = delete;
   GamepadRcInput(GamepadRcInput&& _other) = delete;
   GamepadRcInput& operator=(const GamepadRcInput& _other) = delete;
   GamepadRcInput& operator=(GamepadRcInput&& _other) = delete;
+
   ~GamepadRcInput();
 
   /* 入力デバイスを開いて読み取り可能な状態にする */
   bool initialize(const std::string& _device_path);
+
   /* 入力デバイスを閉じる．*/
   void close();
+
   /* 入力デバイスが開かれているかを返す．*/
   bool isOpen() const;
 
