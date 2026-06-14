@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include <tobas_gamepad/gamepad_rc_input.hpp>
+#include <tobas_gamepad_core/gamepad_rc_input.hpp>
 
 #include <rclcpp_components/register_node_macro.hpp>
 
@@ -13,7 +13,7 @@ using namespace std::chrono_literals;
 
 namespace tobas
 {
-namespace tobas_gamepad
+namespace gamepad
 {
 /**
  * @brief ゲームパッド入力を読み取り，RC入力メッセージとして発行する．
@@ -29,11 +29,11 @@ public:
   void initialize();
 
 private:
-  void publishFromState(const driver::GamepadRcInputState& _state);
+  void publishFromState(const GamepadRcInputState& _state);
   void timerCallback();
 
   std::string device_path_;
-  driver::GamepadRcInput gamepad_;
+  GamepadRcInput gamepad_;
   ros2::PublisherPtr<tobas_msgs::RCInput> publisher_;
   ros2::TimerPtr initialize_timer_;
   ros2::TimerPtr timer_;
@@ -68,7 +68,7 @@ void RcInputPublisher::initialize()
 
 void RcInputPublisher::timerCallback()
 {
-  driver::GamepadRcInputState state;
+  GamepadRcInputState state;
   if (!this->gamepad_.read(state)) {
     RCLCPP_WARN(this->get_logger(), "Failed to read gamepad RC input.");
     return;
@@ -77,7 +77,7 @@ void RcInputPublisher::timerCallback()
   this->publishFromState(state);
 }
 
-void RcInputPublisher::publishFromState(const driver::GamepadRcInputState& _state)
+void RcInputPublisher::publishFromState(const GamepadRcInputState& _state)
 {
   auto msg = std::make_unique<tobas_msgs::RCInput>();
   msg->header.stamp = now();
@@ -94,7 +94,7 @@ void RcInputPublisher::publishFromState(const driver::GamepadRcInputState& _stat
   publisher_->publish(std::move(msg));
 }
 
-}  // namespace tobas_gamepad
+}  // namespace gamepad
 }  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(tobas::tobas_gamepad::RcInputPublisher)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::gamepad::RcInputPublisher)

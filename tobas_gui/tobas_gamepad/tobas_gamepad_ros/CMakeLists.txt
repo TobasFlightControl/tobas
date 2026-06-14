@@ -16,15 +16,7 @@ find_package(PkgConfig REQUIRED)
 
 pkg_check_modules(LIBEVDEV REQUIRED libevdev)
 
-set(AMENT_DEPENDENCIES
-    rclcpp
-    rclcpp_components
-    tobas_constants
-    tobas_msgs
-    tobas_msgs_adapter
-    tobas_node
-    tobas_gamepad
-)
+set(AMENT_DEPENDENCIES tobas_node tobas_constants tobas_gamepad_core tobas_msgs_adapter)
 
 foreach(dependency IN ITEMS ${AMENT_DEPENDENCIES})
   find_package(${dependency} REQUIRED)
@@ -38,7 +30,7 @@ ament_target_dependencies(${PROJECT_NAME}_node ${AMENT_DEPENDENCIES})
 target_link_options(${PROJECT_NAME}_node PRIVATE -Wl,--no-undefined)
 
 rclcpp_components_register_node(
-  ${PROJECT_NAME}_node PLUGIN "tobas::tobas_gamepad::RcInputPublisher" EXECUTABLE rc_input_publisher
+  ${PROJECT_NAME}_node PLUGIN "tobas::gamepad::RcInputPublisher" EXECUTABLE rc_input_publisher
 )
 
 install(

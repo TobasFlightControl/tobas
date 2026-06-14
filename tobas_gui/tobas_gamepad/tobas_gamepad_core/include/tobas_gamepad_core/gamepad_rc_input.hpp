@@ -14,7 +14,7 @@
 
 namespace tobas
 {
-namespace driver
+namespace gamepad
 {
 /* ゲームパッド入力から生成したRC入力状態．*/
 struct GamepadRcInputState
@@ -98,5 +98,5 @@ private:
   int fd_ = -1;
   std::unique_ptr<libevdev, LibevdevDeleter> dev_ = {};
 };
-}  // namespace driver
+}  // namespace gamepad
 }  // namespace tobas

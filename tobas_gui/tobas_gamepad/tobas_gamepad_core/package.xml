@@ -1,0 +1,23 @@
+<package format="3">
+
+	<name>tobas_gamepad_core</name>
+	<version>0.0.0</version>
+	<description>tobas gamepad input package</description>
+	<maintainer email="r.onitsuka@tobas.jp">Ryo Onitsuka</maintainer>
+	<license>GPL-3.0-or-later</license>
+
+	<buildtool_depend>ament_cmake</buildtool_depend>
+	<buildtool_depend>pkg-config</buildtool_depend>
+
+	<build_depend>libevdev-dev</build_depend>
+	<exec_depend>libevdev2</exec_depend>
+
+	<depend>magic_enum_ament</depend>
+	<depend>tobas_math</depend>
+	<depend>tobas_constants</depend>
+
+	<export>
+		<build_type>ament_cmake</build_type>
+	</export>
+
+</package>

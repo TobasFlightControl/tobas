@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include "tobas_gamepad/gamepad_rc_input.hpp"
+#include "tobas_gamepad_core/gamepad_rc_input.hpp"
 
 #include <fcntl.h>
 #include <unistd.h>
@@ -19,7 +19,7 @@
 
 namespace tobas
 {
-namespace driver
+namespace gamepad
 {
 void GamepadRcInput::LibevdevDeleter::operator()(libevdev* _dev) const
 {
@@ -261,5 +261,5 @@ void GamepadRcInput::applyAbs(int _code, int _value)
       break;
   }
 }
-}  // namespace driver
+}  // namespace gamepad
 }  // namespace tobas
