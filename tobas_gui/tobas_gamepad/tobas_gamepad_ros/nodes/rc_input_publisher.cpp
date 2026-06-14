@@ -3,8 +3,6 @@
 
 #include <tobas_gamepad_core/gamepad_rc_input.hpp>
 
-#include <rclcpp_components/register_node_macro.hpp>
-
 #include <tobas_constants/ros_interface.hpp>
 #include <tobas_msgs_adapter/rc_input.hpp>
 #include <tobas_node/node.hpp>
@@ -44,7 +42,7 @@ RcInputPublisher::RcInputPublisher(const rclcpp::NodeOptions& _options)
 {
   device_path_ = getStringParam("device_path", "");
   if (device_path_.empty()) {
-    RCLCPP_WARN(this->get_logger(), "No device path specified. This node will not work.");
+    TOBAS_WARN("No device path specified. This node will not work.");
     return;
   }
 
@@ -54,27 +52,26 @@ RcInputPublisher::RcInputPublisher(const rclcpp::NodeOptions& _options)
 
 void RcInputPublisher::initialize()
 {
-  if (!this->gamepad_.initialize(this->device_path_)) {
-    RCLCPP_WARN(
-      this->get_logger(), "Failed to initialize gamepad RC input with device \"%s\". Retrying...", device_path_.c_str());
+  if (!gamepad_.initialize(device_path_)) {
+    TOBAS_WARN("Failed to initialize gamepad RC input with device \"", device_path_, "\". Retrying...");
     return;
   }
 
   initialize_timer_->cancel();
   timer_ = createWallTimer(10ms, &self::timerCallback, this);
 
-  RCLCPP_INFO(this->get_logger(), "Initialized gamepad RC input with device \"%s\".", device_path_.c_str());
+  TOBAS_INFO("Initialized gamepad RC input with device \"", device_path_, "\".");
 }
 
 void RcInputPublisher::timerCallback()
 {
   GamepadRcInputState state;
-  if (!this->gamepad_.read(state)) {
-    RCLCPP_WARN(this->get_logger(), "Failed to read gamepad RC input.");
+  if (!gamepad_.read(state)) {
+    TOBAS_WARN("Failed to read gamepad RC input.");
     return;
   }
 
-  this->publishFromState(state);
+  publishFromState(state);
 }
 
 void RcInputPublisher::publishFromState(const GamepadRcInputState& _state)
