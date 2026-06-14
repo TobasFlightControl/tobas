@@ -12,8 +12,6 @@
 #include <string>
 
 #include <opencv2/opencv.hpp>
-#include <rclcpp/rclcpp.hpp>
-#include <rclcpp_components/register_node_macro.hpp>
 
 #include <tobas_linux/video_dev.hpp>
 #include <tobas_node/node.hpp>
@@ -47,10 +45,10 @@ private:
   bool use_compressed_img_;
   std::string device_name_;
 
-  rclcpp::Publisher<sensor_msgs::msg::CompressedImage>::SharedPtr compressed_img_publisher_;
-  rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr img_publisher_;
+  ros2::PublisherPtr<sensor_msgs::msg::CompressedImage> compressed_img_publisher_;
+  ros2::PublisherPtr<sensor_msgs::msg::Image> img_publisher_;
 
-  rclcpp::TimerBase::SharedPtr timer_;
+  ros2::TimerPtr timer_;
 };
 
 VideoDevPublisherNode::VideoDevPublisherNode(const rclcpp::NodeOptions& options)

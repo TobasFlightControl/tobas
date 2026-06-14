@@ -8,8 +8,6 @@
 #include <libavutil/time.h>
 #include <libswscale/swscale.h>
 
-#include <rclcpp_components/register_node_macro.hpp>
-
 #include <tobas_node/node.hpp>
 
 #include <sensor_msgs/image_encodings.hpp>
@@ -37,8 +35,8 @@ private:
   std::string input_url_;
   AVPixelFormat av_pix_fmt_;
 
-  rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr img_pub_;
-  rclcpp::TimerBase::SharedPtr timer_;
+  ros2::PublisherPtr<sensor_msgs::msg::Image> img_pub_;
+  ros2::TimerPtr timer_;
 
   AVFormatContext* format_context_ = nullptr;
   AVStream* video_stream_ = nullptr;

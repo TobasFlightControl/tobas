@@ -13,8 +13,6 @@
 #include <eigen3/Eigen/Geometry>
 #include <ffmpeg_encoder_decoder/encoder.hpp>
 #include <opencv2/opencv.hpp>
-#include <rclcpp/rclcpp.hpp>
-#include <rclcpp_components/register_node_macro.hpp>
 
 #include <tobas_camera_ros_interface/ros_interface.hpp>
 #include <tobas_ic_drivers/cx_gb400.hpp>
@@ -91,7 +89,7 @@ private:
   std::string device_name_;
   bool disable_video_streaming_;
 
-  rclcpp::TimerBase::SharedPtr timer_;
+  ros2::TimerPtr timer_;
 
   ros2::PublisherPtr<ffmpeg_image_transport_msgs::msg::FFMPEGPacket> ffmpeg_packet_pub_;
   ros2::PublisherPtr<tobas_camera_msgs::msg::Status> camera_status_pub_;

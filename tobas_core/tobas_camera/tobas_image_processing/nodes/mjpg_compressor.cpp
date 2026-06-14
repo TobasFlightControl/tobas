@@ -12,12 +12,9 @@
 #include <string>
 
 #include <cv_bridge/cv_bridge.hpp>
-#include <opencv2/opencv.hpp>
-
 #include <ffmpeg_encoder_decoder/encoder.hpp>
 #include <ffmpeg_image_transport_msgs/msg/ffmpeg_packet.hpp>
-#include <rclcpp/rclcpp.hpp>
-#include <rclcpp_components/register_node_macro.hpp>
+#include <opencv2/opencv.hpp>
 #include <sensor_msgs/image_encodings.hpp>
 
 #include <tobas_linux/video_dev.hpp>
@@ -60,9 +57,9 @@ private:
   bool initialized_ = false;
   ffmpeg_encoder_decoder::Encoder encoder_;  // H.264用encoder
 
-  rclcpp::Publisher<sensor_msgs::msg::CompressedImage>::SharedPtr mjpg_resized_pub_;
-  rclcpp::Publisher<ffmpeg_image_transport_msgs::msg::FFMPEGPacket>::SharedPtr ffmpeg_packet_pub_;
-  rclcpp::Subscription<sensor_msgs::msg::CompressedImage>::SharedPtr mjpg_sub_;
+  ros2::PublisherPtr<sensor_msgs::msg::CompressedImage> mjpg_resized_pub_;
+  ros2::PublisherPtr<ffmpeg_image_transport_msgs::msg::FFMPEGPacket> ffmpeg_packet_pub_;
+  ros2::SubscriberPtr<sensor_msgs::msg::CompressedImage> mjpg_sub_;
 };
 
 MjpgCompressor::MjpgCompressor(const rclcpp::NodeOptions& options)

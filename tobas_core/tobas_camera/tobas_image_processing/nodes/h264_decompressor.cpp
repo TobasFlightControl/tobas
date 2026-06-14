@@ -15,8 +15,6 @@
 #include <ffmpeg_encoder_decoder/utils.hpp>
 #include <ffmpeg_image_transport_msgs/msg/ffmpeg_packet.hpp>
 #include <opencv2/opencv.hpp>
-#include <rclcpp/rclcpp.hpp>
-#include <rclcpp_components/register_node_macro.hpp>
 
 #include <tobas_linux/video_dev.hpp>
 #include <tobas_node/node.hpp>
@@ -42,8 +40,8 @@ private:
   void publishRawImg(const sensor_msgs::msg::Image::ConstSharedPtr& msg);
   void callback(const ffmpeg_image_transport_msgs::msg::FFMPEGPacket::ConstSharedPtr& msg);
 
-  rclcpp::Subscription<ffmpeg_image_transport_msgs::msg::FFMPEGPacket>::SharedPtr h264_sub_;
-  rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr raw_img_pub_;
+  ros2::SubscriberPtr<ffmpeg_image_transport_msgs::msg::FFMPEGPacket> h264_sub_;
+  ros2::PublisherPtr<sensor_msgs::msg::Image> raw_img_pub_;
 
   bool initialized_ = false;
   ffmpeg_encoder_decoder::Decoder decoder_;
