@@ -3,8 +3,6 @@
 
 #include "tobas_setup_assistant/frame_tree.hpp"
 
-#include <tobas_std_tools/check.hpp>
-
 namespace tobas
 {
 namespace gui
@@ -19,7 +17,7 @@ FrameTreeWidget::FrameTreeWidget(const kdl::Tree& tree, RvizWidget* rviz) : tree
   setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
   setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 
-  connect(this, &self::itemClicked, this, &self::onItemClicked);
+  connect(this, &self::currentItemChanged, this, &self::onItemChanged);
   connect(this, &self::itemExpanded, this, &self::resizeColumns);
   connect(this, &self::itemCollapsed, this, &self::resizeColumns);
 }
@@ -39,10 +37,9 @@ void FrameTreeWidget::updateInternalDataStructures()
   resizeColumns();
 }
 
-void FrameTreeWidget::onItemClicked(QTreeWidgetItem* item, int col)
+void FrameTreeWidget::onItemChanged(QTreeWidgetItem* item)
 {
-  TOBAS_CHECK(col == 0);
-  const auto link_name = item->text(col);
+  const auto link_name = item->text(0);
   rviz_->heightLink(link_name);
 }
 
