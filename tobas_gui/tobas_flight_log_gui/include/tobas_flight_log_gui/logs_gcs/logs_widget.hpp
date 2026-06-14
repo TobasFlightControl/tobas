@@ -61,7 +61,7 @@ private Q_SLOTS:
   void onCleanButtonClicked();
   void onExportButtonClicked(const QString& log_name);
   void onDeleteButtonClicked(const QString& log_name);
-  void onListItemClicked(QListWidgetItem* item);
+  void onListItemChanged(QListWidgetItem* item);
 };
 }  // namespace log
 }  // namespace gui

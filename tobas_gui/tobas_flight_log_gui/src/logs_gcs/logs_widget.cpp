@@ -58,7 +58,7 @@ FlightLogsWidgetGCS::FlightLogsWidgetGCS(rclcpp::Node::SharedPtr node)
   // Connection
   connect(read_button_, &QPushButton::clicked, this, &self::onReadButtonClicked);
   connect(clean_button_, &QPushButton::clicked, this, &self::onCleanButtonClicked);
-  connect(log_list_, &QListWidget::itemClicked, this, &self::onListItemClicked);
+  connect(log_list_, &QListWidget::currentItemChanged, this, &self::onListItemChanged);
 }
 
 void FlightLogsWidgetGCS::addLog(const QString& log_name)
@@ -274,7 +274,7 @@ void FlightLogsWidgetGCS::onDeleteButtonClicked(const QString& log_name)
   removeLog(log_name);
 }
 
-void FlightLogsWidgetGCS::onListItemClicked(QListWidgetItem* item)
+void FlightLogsWidgetGCS::onListItemChanged(QListWidgetItem* item)
 {
   const auto log_widget = qt::qConstPointerCast<FlightLogItemWidgetGCS>(log_list_->itemWidget(item));
   Q_EMIT logSelected(log_widget->logName());
