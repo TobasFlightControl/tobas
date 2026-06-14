@@ -193,7 +193,7 @@ void GamepadRcInput::applyButton(int _code, int _value)
         rc_input_.gpsw[1] = !rc_input_.gpsw[1];
       }
       break;
-    
+
     // Xボタン: gpsw[0]を切り替える．
     case BTN_WEST:
       if (pressed) {

@@ -16,7 +16,6 @@ namespace tobas
 {
 namespace driver
 {
-
 /* ゲームパッド入力から生成したRC入力状態．*/
 struct GamepadRcInputState
 {
@@ -87,7 +86,6 @@ public:
   bool read(GamepadRcInputState& _rc_input);
 
 private:
-
   bool openDevice();
   bool poll();
   double normalizeAbs(int _code, int _value, bool _invert) const;

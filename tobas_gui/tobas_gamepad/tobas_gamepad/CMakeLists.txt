@@ -13,15 +13,10 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(ament_cmake REQUIRED)
 find_package(PkgConfig REQUIRED)
-set(AMENT_DEPENDENCIES
-  magic_enum_ament
-  tobas_constants
-  tobas_math
-)
+set(AMENT_DEPENDENCIES magic_enum_ament tobas_constants tobas_math)
 foreach(dependency IN ITEMS ${AMENT_DEPENDENCIES})
   find_package(${dependency} REQUIRED)
 endforeach()
-
 
 pkg_check_modules(LIBEVDEV REQUIRED libevdev)
 
