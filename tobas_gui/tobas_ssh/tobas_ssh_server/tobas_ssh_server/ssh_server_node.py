@@ -214,7 +214,7 @@ class SSHServerNode(Node):
             goal_handle.publish_feedback(feedback)
 
         try:
-            self._cli.scp_get(goal.remote_path, goal.local_path, progress=RecursiveScpProgress(callback))
+            self._cli.scp_get(goal.remote_path, goal.local_path, progress=RecursiveScpProgress(callback, 0.1))
         except Exception as e:
             result.error_message = f"SCP-Get failed: {e}"
             goal_handle.abort()
