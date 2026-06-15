@@ -78,14 +78,14 @@ class ScpGetThread : public QThread
 
 Q_SIGNALS:
   void finished(tobas::ssh::SshClient::Error error);
-  void feedbackReceived(uint32_t total_size, uint32_t transferred);
+  void feedbackReceived(uint64_t total_size, uint64_t transferred);
 
 public:
   explicit ScpGetThread(
     ssh::SshClient& impl,
     const std::string& remote_path,
     const std::string& local_path,
-    std::function<void(uint32_t, uint32_t)> callback)
+    std::function<void(uint64_t, uint64_t)> callback)
     : impl_(impl), remote_path_(remote_path), local_path_(local_path)
   {
     if (callback) {
@@ -95,7 +95,7 @@ public:
 
   void run() override
   {
-    const auto ros_cb = [this](uint32_t total_size, uint32_t transferred)
+    const auto ros_cb = [this](uint64_t total_size, uint64_t transferred)
     { Q_EMIT feedbackReceived(total_size, transferred); };
 
     const auto res = impl_.scpGet(remote_path_, local_path_, ros_cb);
@@ -115,7 +115,7 @@ class ScpPutThread : public QThread
 
 Q_SIGNALS:
   void finished(tobas::ssh::SshClient::Error error);
-  void feedbackReceived(uint32_t total_size, uint32_t transferred);
+  void feedbackReceived(uint64_t total_size, uint64_t transferred);
 
 public:
   explicit ScpPutThread(
@@ -125,7 +125,7 @@ public:
     bool parents,
     const std::vector<std::string>& exclude_dirs,
     bool superuser,
-    std::function<void(uint32_t, uint32_t)> callback)
+    std::function<void(uint64_t, uint64_t)> callback)
     : impl_(impl)
     , local_dir_(local_dir)
     , remote_dir_(remote_dir)
@@ -140,7 +140,7 @@ public:
 
   void run() override
   {
-    const auto ros_cb = [this](uint32_t total_size, uint32_t transferred)
+    const auto ros_cb = [this](uint64_t total_size, uint64_t transferred)
     { Q_EMIT feedbackReceived(total_size, transferred); };
 
     const auto res = impl_.scpPut(local_dir_, remote_dir_, parents_, exclude_dirs_, superuser_, ros_cb);
@@ -280,7 +280,7 @@ ssh::SshClient::Error SshClientWrapper::execute(const std::string& command, bool
 ssh::SshClient::Error SshClientWrapper::scpGet(
   const std::string& remote_path,
   const std::string& local_path,
-  std::function<void(uint32_t, uint32_t)> callback)
+  std::function<void(uint64_t, uint64_t)> callback)
 {
   ScpGetThread thread(impl_, remote_path, local_path, callback);
   return std::get<0>(qt::startThreadAndWait(thread, &ScpGetThread::finished));
@@ -292,7 +292,7 @@ ssh::SshClient::Error SshClientWrapper::scpPut(
   bool parents,
   const std::vector<std::string>& exclude_dirs,
   bool superuser,
-  std::function<void(uint32_t, uint32_t)> callback)
+  std::function<void(uint64_t, uint64_t)> callback)
 {
   ScpPutThread thread(impl_, local_dir, remote_dir, parents, exclude_dirs, superuser, callback);
   return std::get<0>(qt::startThreadAndWait(thread, &ScpPutThread::finished));

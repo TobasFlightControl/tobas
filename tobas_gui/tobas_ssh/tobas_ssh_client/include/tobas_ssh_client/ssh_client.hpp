@@ -69,7 +69,7 @@ public:
   Error scpGet(
     const std::string& remote_path,
     const std::string& local_path,
-    std::function<void(uint32_t, uint32_t)> callback = nullptr);
+    std::function<void(uint64_t, uint64_t)> callback = nullptr);
 
   Error scpPut(
     const std::string& local_dir,
@@ -77,7 +77,7 @@ public:
     bool parents,
     const std::vector<std::string>& exclude_dirs,
     bool superuser = false,
-    std::function<void(uint32_t, uint32_t)> callback = nullptr);
+    std::function<void(uint64_t, uint64_t)> callback = nullptr);
 
   Error sftpRead(const std::string& remote_path, std::string& text, bool superuser = false);
 

@@ -180,10 +180,14 @@ void FlightLogsWidgetFC::onDownloadButtonClicked(const QString& log_name)
   progress.setLabelText("Downloading flight log from the vehicle...");
   progress.setCancelButton(nullptr);
 
-  const auto callback = [&progress](uint32_t total_size, uint32_t transferred)
+  const auto callback = [&progress, &log_name](uint64_t total_size, uint64_t transferred)
   {
-    const auto rate = static_cast<double>(transferred) / static_cast<double>(total_size);
-    progress.setStep(static_cast<int>(rate * 100.));
+    if (total_size <= 0) {
+      qWarning() << "The total size of" << log_name << "is 0 bytes.";
+      return;
+    }
+    const auto rate = 100 * transferred / total_size;
+    progress.setStep(rate);
   };
 
   progress.show();

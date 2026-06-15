@@ -16,5 +16,5 @@ string error_message
 ---
 
 # Feedback
-uint32 total_size
-uint32 transferred
+uint64 total_size
+uint64 transferred

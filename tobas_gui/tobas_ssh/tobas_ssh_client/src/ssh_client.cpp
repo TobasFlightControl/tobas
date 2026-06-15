@@ -105,7 +105,7 @@ SshClient::Error SshClient::execute(const std::string& command, bool superuser, 
 SshClient::Error SshClient::scpGet(
   const std::string& remote_path,
   const std::string& local_path,
-  std::function<void(uint32_t, uint32_t)> callback)
+  std::function<void(uint64_t, uint64_t)> callback)
 {
   ScpGet::Goal goal;
   goal.remote_path = remote_path;
@@ -140,7 +140,7 @@ SshClient::Error SshClient::scpPut(
   bool parents,
   const std::vector<std::string>& exclude_dirs,
   bool superuser,
-  std::function<void(uint32_t, uint32_t)> callback)
+  std::function<void(uint64_t, uint64_t)> callback)
 {
   ScpPut::Goal goal;
   goal.local_dir = local_dir;
