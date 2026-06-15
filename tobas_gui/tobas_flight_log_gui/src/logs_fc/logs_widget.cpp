@@ -10,6 +10,7 @@
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
+#include <tobas_qt_tools/widgets/progress_dialog.hpp>
 #include <tobas_ros2_tools/util.hpp>
 #include <tobas_std_tools/check.hpp>
 
@@ -175,9 +176,19 @@ void FlightLogsWidgetFC::onDownloadButtonClicked(const QString& log_name)
     TOBAS_CHECK(fs::create_directories(local_pardir));
   }
 
-  spinner_.start();
-  const auto res = ssh_client_.scpGet(remote_rosbag_path, local_pardir);
-  spinner_.stop();
+  qt::ProgressDialog progress("Downloading Flight Log", 100, this);
+  progress.setLabelText("Downloading flight log from the vehicle...");
+  progress.setCancelButton(nullptr);
+
+  const auto callback = [&progress](uint32_t total_size, uint32_t transferred)
+  {
+    const auto rate = static_cast<double>(transferred) / static_cast<double>(total_size);
+    progress.setStep(static_cast<int>(rate * 100.));
+  };
+
+  progress.show();
+  const auto res = ssh_client_.scpGet(remote_rosbag_path, local_pardir, callback);
+  progress.close();
 
   if (res != ssh::SshClient::kNoError) {
     qt::qErrorBox(this, ssh_client_.errorMessage());
