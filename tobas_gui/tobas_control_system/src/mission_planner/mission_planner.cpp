@@ -98,6 +98,7 @@ MissionPlannerWidget::MissionPlannerWidget(rclcpp::Node::SharedPtr node, const R
   connect(&bridge, &RosQtBridge::gnssReceived, this, &self::gnssCb, Qt::QueuedConnection);
   connect(&bridge, &RosQtBridge::odomReceived, this, &self::odomCb, Qt::QueuedConnection);
   connect(this, &self::goalResponseReceived, this, &self::actionGoalResponseCb, Qt::QueuedConnection);
+  connect(this, &self::feedbackReceived, this, &self::actionFeedbackCb, Qt::QueuedConnection);
   connect(this, &self::resultReceived, this, &self::actionResultCb, Qt::QueuedConnection);
 }
 

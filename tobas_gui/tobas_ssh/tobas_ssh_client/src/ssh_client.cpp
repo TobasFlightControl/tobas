@@ -6,6 +6,7 @@
 #include <tobas_ros2_tools/register.hpp>
 
 using namespace tobas_ssh_msgs::srv;
+using namespace tobas_ssh_msgs::action;
 namespace fs = std::filesystem;
 
 namespace tobas
@@ -17,11 +18,11 @@ SshClient::SshClient(rclcpp::Node::SharedPtr node)
   , set_endpoint_sc_(node, kSetEndpointSrv)
   , connect_sc_(node, kConnectSrv)
   , execute_sc_(node, kExecuteSrv)
-  , scp_get_sc_(node, kSCPGetSrv)
-  , scp_put_sc_(node, kSCPPutSrv)
-  , sftp_read_sc_(node, kSFTPReadSrv)
-  , sftp_write_sc_(node, kSFTPWriteSrv)
+  , sftp_read_sc_(node, kSftpReadSrv)
+  , sftp_write_sc_(node, kSftpWriteSrv)
   , list_sc_(node, kListSrv)
+  , scp_get_ac_(node, kScpGetAction)
+  , scp_put_ac_(node, kScpPutAction)
 {
 }
 
@@ -101,19 +102,32 @@ SshClient::Error SshClient::execute(const std::string& command, bool superuser, 
   return execute(command, output, superuser, background);
 }
 
-SshClient::Error SshClient::scpGet(const std::string& remote_path, const std::string& local_path)
+SshClient::Error SshClient::scpGet(
+  const std::string& remote_path,
+  const std::string& local_path,
+  std::function<void(uint32_t, uint32_t)> callback)
 {
-  const auto req = std::make_shared<ScpGet::Request>();
-  req->remote_path = remote_path;
-  req->local_path = local_path;
+  ScpGet::Goal goal;
+  goal.remote_path = remote_path;
+  goal.local_path = local_path;
 
-  if (!scp_get_sc_.call(req)) {
+  bool service_executed;
+  if (callback) {
+    const auto feedback_cb =
+      [callback](const rclcpp_action::ClientGoalHandle<ScpGet>::SharedPtr&, const ScpGet::Feedback::ConstSharedPtr& fb)
+    { callback(fb->total_size, fb->transferred); };
+    service_executed = scp_get_ac_.sendGoalAndWait(goal, feedback_cb);
+  }
+  else {
+    service_executed = scp_get_ac_.sendGoalAndWait(goal);
+  }
+  if (!service_executed) {
     return error_code_ = kServiceNotReady;
   }
 
-  const auto res = scp_get_sc_.getResponse();
-  if (!res->success) {
-    server_error_msg_ = res->message;
+  const auto res = scp_get_ac_.getResult();
+  if (res.code != rclcpp_action::ResultCode::SUCCEEDED) {
+    server_error_msg_ = res.result->error_message;
     return error_code_ = kServerError;
   }
 
@@ -125,22 +139,33 @@ SshClient::Error SshClient::scpPut(
   const std::string& remote_dir,
   bool parents,
   const std::vector<std::string>& exclude_dirs,
-  bool superuser)
+  bool superuser,
+  std::function<void(uint32_t, uint32_t)> callback)
 {
-  const auto req = std::make_shared<ScpPut::Request>();
-  req->local_dir = local_dir;
-  req->remote_dir = remote_dir;
-  req->parents = parents;
-  req->exclude_dirs = exclude_dirs;
-  req->superuser = superuser;
+  ScpPut::Goal goal;
+  goal.local_dir = local_dir;
+  goal.remote_dir = remote_dir;
+  goal.parents = parents;
+  goal.exclude_dirs = exclude_dirs;
+  goal.superuser = superuser;
 
-  if (!scp_put_sc_.call(req)) {
+  bool service_executed;
+  if (callback) {
+    const auto feedback_cb =
+      [callback](const rclcpp_action::ClientGoalHandle<ScpPut>::SharedPtr&, const ScpPut::Feedback::ConstSharedPtr& fb)
+    { callback(fb->total_size, fb->transferred); };
+    service_executed = scp_put_ac_.sendGoalAndWait(goal, feedback_cb);
+  }
+  else {
+    service_executed = scp_put_ac_.sendGoalAndWait(goal);
+  }
+  if (!service_executed) {
     return error_code_ = kServiceNotReady;
   }
 
-  const auto res = scp_put_sc_.getResponse();
-  if (!res->success) {
-    server_error_msg_ = res->message;
+  const auto res = scp_put_ac_.getResult();
+  if (res.code != rclcpp_action::ResultCode::SUCCEEDED) {
+    server_error_msg_ = res.result->error_message;
     return error_code_ = kServerError;
   }
 

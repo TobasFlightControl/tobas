@@ -4,10 +4,12 @@
 import os
 import os.path as osp
 import socket
+import stat
+import posixpath
 import paramiko
 from paramiko.config import SSH_PORT
 from scp import SCPClient
-from typing import Tuple, List
+from typing import Tuple, List, Callable
 
 from .util import is_under_any
 
@@ -109,9 +111,11 @@ class SSHClientWrapper:
         """バックグラウンドでsudoコマンドを実行．"""
         self.exec_command_bg(self._sudo_command(command))
 
-    def scp_get(self, remote_path: str, local_path: str) -> None:
+    def scp_get(
+        self, remote_path: str, local_path: str, progress: Callable[[str, int, int], None] | None = None
+    ) -> None:
         """
-        SCPでリモートディレクトリ以下にローカルディレクトリをコピーする．
+        SCPでローカルディレクトリ以下にリモートディレクトリをコピーする．
 
         Parameters
         ----------
@@ -119,11 +123,19 @@ class SSHClientWrapper:
             リモートディレクトリの絶対パス．
         local_path : str
             ローカルディレクトリの絶対パス．
+        progress : Callable[[str, int, int], None]
+            進捗コールバック．
         """
-        with SCPClient(self._cli.get_transport()) as scp:
+        with SCPClient(self._cli.get_transport(), progress=progress) as scp:
             scp.get(remote_path=remote_path, local_path=local_path, recursive=True)
 
-    def scp_put_dir(self, _local_dir: str, _remote_dir: str, _exclude_dirs: List[str] = []) -> None:
+    def scp_put_dir(
+        self,
+        _local_dir: str,
+        _remote_dir: str,
+        _exclude_dirs: List[str] = [],
+        _progress: Callable[[str, int, int], None] | None = None,
+    ) -> None:
         """
         SCPでリモートディレクトリ以下にローカルディレクトリをコピーする．
 
@@ -135,13 +147,15 @@ class SSHClientWrapper:
             リモートディレクトリの絶対パス．
         _exclude_dirs : str
             ローカルの除外するディレクトリの絶対パス．
+        _progress : Callable[[str, int, int], None]
+            進捗コールバック．
         """
         if not osp.isdir(_local_dir):
             raise RuntimeError(f"Local directory {_local_dir} does not exist.")
 
         local_dir_base = osp.basename(_local_dir.rstrip("/"))
 
-        with SCPClient(self._cli.get_transport()) as scp:
+        with SCPClient(self._cli.get_transport(), progress=_progress) as scp:
             for root, _, files in os.walk(_local_dir):
                 # 除外ディレクトリは送信しない
                 if is_under_any(root, _exclude_dirs):
@@ -163,7 +177,13 @@ class SSHClientWrapper:
 
                     scp.put(local_file, remote_pardir)
 
-    def scp_put_dir_super(self, local_dir: str, remote_dir: str, exclude_dirs: List[str] = []) -> None:
+    def scp_put_dir_super(
+        self,
+        local_dir: str,
+        remote_dir: str,
+        exclude_dirs: List[str] = [],
+        progress: Callable[[str, int, int], None] | None = None,
+    ) -> None:
         """SCPでroot権限が必要なリモートディレクトリ以下にローカルディレクトリをコピーする．"""
         # 一時オブジェクトのパス
         tmp_path = osp.join("/tmp", osp.basename(local_dir.rstrip("/")))
@@ -176,7 +196,7 @@ class SSHClientWrapper:
 
         # 一時オブジェクトに書き込む
         # 事前に削除しているので確実に同期される
-        self.scp_put_dir(local_dir, "/tmp/", exclude_dirs)
+        self.scp_put_dir(local_dir, "/tmp/", exclude_dirs, progress)
 
         # 一時オブジェクトをリモートディレクトリ直下に同期
         # リモートディレクトリが存在しない場合は自動で作成される
@@ -231,6 +251,28 @@ class SSHClientWrapper:
 
     def dir_exists(self, dir_path: str) -> bool:
         return self.exec_command(f"[ -d {dir_path} ]")[0]
+
+    def get_remote_tree_size(self, remote_path: str) -> int:
+        """リモート側の通常ファイルの合計サイズ[byte]を取得する。"""
+        with self._cli.open_sftp() as sftp:
+            attr = sftp.stat(remote_path)
+
+            if stat.S_ISREG(attr.st_mode):
+                return int(attr.st_size)
+
+            if not stat.S_ISDIR(attr.st_mode):
+                return 0
+
+            total = 0
+
+            for child in sftp.listdir_attr(remote_path):
+                child_path = posixpath.join(remote_path, child.filename)
+                if stat.S_ISDIR(child.st_mode):
+                    total += self.get_remote_tree_size(sftp, child_path)
+                elif stat.S_ISREG(child.st_mode):
+                    total += int(child.st_size)
+
+        return total
 
     def _sudo_command(self, command: str) -> str:
         return f"echo {self._passwd} | sudo -S bash -c '{command}'"
