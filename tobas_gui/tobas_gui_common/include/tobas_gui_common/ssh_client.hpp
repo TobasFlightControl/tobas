@@ -39,7 +39,8 @@ public:
     const std::string& remote_dir,
     bool parents,
     const std::vector<std::string>& exclude_dirs,
-    bool superuser = false);
+    bool superuser = false,
+    std::function<void(uint32_t, uint32_t)> callback = nullptr);
 
   Impl::Error sftpRead(const std::string& remote_path, std::string& text, bool superuser = false);
 

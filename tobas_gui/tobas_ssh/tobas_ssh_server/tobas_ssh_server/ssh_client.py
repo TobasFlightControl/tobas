@@ -129,7 +129,13 @@ class SSHClientWrapper:
         with SCPClient(self._cli.get_transport(), progress=progress) as scp:
             scp.get(remote_path=remote_path, local_path=local_path, recursive=True)
 
-    def scp_put_dir(self, _local_dir: str, _remote_dir: str, _exclude_dirs: List[str] = []) -> None:
+    def scp_put_dir(
+        self,
+        _local_dir: str,
+        _remote_dir: str,
+        _exclude_dirs: List[str] = [],
+        _progress: Callable[[str, int, int], None] | None = None,
+    ) -> None:
         """
         SCPでリモートディレクトリ以下にローカルディレクトリをコピーする．
 
@@ -141,13 +147,15 @@ class SSHClientWrapper:
             リモートディレクトリの絶対パス．
         _exclude_dirs : str
             ローカルの除外するディレクトリの絶対パス．
+        _progress : Callable[[str, int, int], None]
+            進捗コールバック．
         """
         if not osp.isdir(_local_dir):
             raise RuntimeError(f"Local directory {_local_dir} does not exist.")
 
         local_dir_base = osp.basename(_local_dir.rstrip("/"))
 
-        with SCPClient(self._cli.get_transport()) as scp:
+        with SCPClient(self._cli.get_transport(), progress=_progress) as scp:
             for root, _, files in os.walk(_local_dir):
                 # 除外ディレクトリは送信しない
                 if is_under_any(root, _exclude_dirs):
@@ -169,7 +177,13 @@ class SSHClientWrapper:
 
                     scp.put(local_file, remote_pardir)
 
-    def scp_put_dir_super(self, local_dir: str, remote_dir: str, exclude_dirs: List[str] = []) -> None:
+    def scp_put_dir_super(
+        self,
+        local_dir: str,
+        remote_dir: str,
+        exclude_dirs: List[str] = [],
+        progress: Callable[[str, int, int], None] | None = None,
+    ) -> None:
         """SCPでroot権限が必要なリモートディレクトリ以下にローカルディレクトリをコピーする．"""
         # 一時オブジェクトのパス
         tmp_path = osp.join("/tmp", osp.basename(local_dir.rstrip("/")))
@@ -182,7 +196,7 @@ class SSHClientWrapper:
 
         # 一時オブジェクトに書き込む
         # 事前に削除しているので確実に同期される
-        self.scp_put_dir(local_dir, "/tmp/", exclude_dirs)
+        self.scp_put_dir(local_dir, "/tmp/", exclude_dirs, progress)
 
         # 一時オブジェクトをリモートディレクトリ直下に同期
         # リモートディレクトリが存在しない場合は自動で作成される

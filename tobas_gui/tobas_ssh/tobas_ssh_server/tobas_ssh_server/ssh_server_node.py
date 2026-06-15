@@ -12,6 +12,7 @@ from tobas_ssh_msgs.action import *
 
 from .ssh_client import SSHClientWrapper
 from .scp_progress import RecursiveScpProgress
+from .util import get_local_tree_size
 
 
 class SSHServerNode(Node):
@@ -34,12 +35,12 @@ class SSHServerNode(Node):
     def _create_ssh_services_and_actions(self) -> None:
         self._connect_ss = self.create_service(Connect, "ssh/connect", self._connect_cb)
         self._execute_ss = self.create_service(Execute, "ssh/execute", self._execute_cb)
-        self._scp_put_ss = self.create_service(ScpPut, "ssh/scp_put", self._scp_put_cb)
         self._sftp_read_ss = self.create_service(SftpRead, "ssh/sftp_read", self._sftp_read_cb)
         self._sftp_write_ss = self.create_service(SftpWrite, "ssh/sftp_write", self._sftp_write_cb)
         self._list_ss = self.create_service(List, "ssh/list", self._list_cb)
 
         self._scp_get_as = ActionServer(self, ScpGet, "ssh/scp_get", self._scp_get_cb)
+        self._scp_put_ss = ActionServer(self, ScpPut, "ssh/scp_put", self._scp_put_cb)
 
     def _client_ready_info(self, host: str, user: str) -> None:
         self.get_logger().info(f"SSH client initialized for {user}@{host}.")
@@ -97,41 +98,6 @@ class SSHServerNode(Node):
                 res.error_output = ""
             else:
                 res.success, res.output, res.error_output = self._cli.exec_command(req.command)
-
-        return res
-
-    def _scp_put_cb(self, req: ScpPut.Request, res: ScpPut.Response) -> ScpPut.Response:
-        if not self._connect():
-            res.success = False
-            res.message = self.NO_CONNECTION_ERROR
-            return res
-
-        # Create parent directories
-        if req.parents:
-            mkdir_command = f"mkdir -p {req.remote_dir}"
-            if req.superuser:
-                success, _, error_output = self._cli.exec_command_super(mkdir_command)
-            else:
-                success, _, error_output = self._cli.exec_command(mkdir_command)
-            if not success:
-                res.success = False
-                res.message = f"Failed to create remote directory {req.remote_dir}: {error_output}"
-                return res
-
-        if req.superuser:
-            try:
-                self._cli.scp_put_dir_super(req.local_dir, req.remote_dir, req.exclude_dirs)
-                res.success = True
-            except Exception as e:
-                res.success = False
-                res.message = f"SCP-Put with superuser privilege failed: {e}"
-        else:
-            try:
-                self._cli.scp_put_dir(req.local_dir, req.remote_dir, req.exclude_dirs)
-                res.success = True
-            except Exception as e:
-                res.success = False
-                res.message = f"SCP-Put failed: {e}"
 
         return res
 
@@ -214,11 +180,60 @@ class SSHServerNode(Node):
             goal_handle.publish_feedback(feedback)
 
         try:
-            self._cli.scp_get(goal.remote_path, goal.local_path, progress=RecursiveScpProgress(callback, 0.1))
+            self._cli.scp_get(goal.remote_path, goal.local_path, RecursiveScpProgress(callback))
         except Exception as e:
             result.error_message = f"SCP-Get failed: {e}"
             goal_handle.abort()
             return result
+
+        goal_handle.succeed()
+        return result
+
+    def _scp_put_cb(self, goal_handle: ServerGoalHandle) -> ScpPut.Result:
+        goal: ScpPut.Goal = goal_handle.request
+        result = ScpPut.Result()
+
+        if not self._connect():
+            result.error_message = self.NO_CONNECTION_ERROR
+            goal_handle.abort()
+            return result
+
+        # Create parent directories
+        if goal.parents:
+            mkdir_command = f"mkdir -p {goal.remote_dir}"
+            if goal.superuser:
+                success, _, error_output = self._cli.exec_command_super(mkdir_command)
+            else:
+                success, _, error_output = self._cli.exec_command(mkdir_command)
+            if not success:
+                result.error_message = f"Failed to create remote directory {goal.remote_dir}: {error_output}"
+                goal_handle.abort()
+                return result
+
+        total_size = get_local_tree_size(goal.local_dir)
+
+        def callback(transferred: int) -> None:
+            feedback = ScpPut.Feedback()
+            feedback.total_size = total_size
+            feedback.transferred = min(total_size, transferred)
+            goal_handle.publish_feedback(feedback)
+
+        progress = RecursiveScpProgress(callback)
+
+        if goal.superuser:
+            try:
+                self._cli.scp_put_dir_super(goal.local_dir, goal.remote_dir, goal.exclude_dirs, progress)
+            except Exception as e:
+                result.error_message = f"SCP-Put with superuser privilege failed: {e}"
+                goal_handle.abort()
+                return
+        else:
+            try:
+                self._cli.scp_put_dir(goal.local_dir, goal.remote_dir, goal.exclude_dirs, progress)
+            except Exception as e:
+                result.error_message = f"SCP-Put failed: {e}"
+                goal_handle.abort()
+                return
 
         goal_handle.succeed()
         return result

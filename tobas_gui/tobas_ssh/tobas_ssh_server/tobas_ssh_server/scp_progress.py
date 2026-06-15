@@ -6,7 +6,7 @@ from typing import Callable
 
 
 class RecursiveScpProgress:
-    def __init__(self, callback: Callable[[int], None], update_interval: float = 0.0) -> None:
+    def __init__(self, callback: Callable[[int], None], update_interval: float = 0.1) -> None:
         self._callback = callback
         self._update_interval = update_interval
 

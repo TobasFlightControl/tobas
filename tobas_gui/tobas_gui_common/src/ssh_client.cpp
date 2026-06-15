@@ -88,7 +88,6 @@ public:
     std::function<void(uint32_t, uint32_t)> callback)
     : impl_(impl), remote_path_(remote_path), local_path_(local_path)
   {
-    // ROSスレッドでQtオブジェクトに触れるのを防ぐため，シグナルスロットでバッファリングする．
     if (callback) {
       connect(this, &ScpGetThread::feedbackReceived, this, callback, Qt::QueuedConnection);
     }
@@ -116,6 +115,7 @@ class ScpPutThread : public QThread
 
 Q_SIGNALS:
   void finished(tobas::ssh::SshClient::Error error);
+  void feedbackReceived(uint32_t total_size, uint32_t transferred);
 
 public:
   explicit ScpPutThread(
@@ -124,7 +124,8 @@ public:
     const std::string& remote_dir,
     bool parents,
     const std::vector<std::string>& exclude_dirs,
-    bool superuser)
+    bool superuser,
+    std::function<void(uint32_t, uint32_t)> callback)
     : impl_(impl)
     , local_dir_(local_dir)
     , remote_dir_(remote_dir)
@@ -132,11 +133,17 @@ public:
     , exclude_dirs_(exclude_dirs)
     , superuser_(superuser)
   {
+    if (callback) {
+      connect(this, &ScpPutThread::feedbackReceived, this, callback, Qt::QueuedConnection);
+    }
   }
 
   void run() override
   {
-    const auto res = impl_.scpPut(local_dir_, remote_dir_, parents_, exclude_dirs_, superuser_);
+    const auto ros_cb = [this](uint32_t total_size, uint32_t transferred)
+    { Q_EMIT feedbackReceived(total_size, transferred); };
+
+    const auto res = impl_.scpPut(local_dir_, remote_dir_, parents_, exclude_dirs_, superuser_, ros_cb);
     Q_EMIT finished(res);
   }
 
@@ -284,9 +291,10 @@ ssh::SshClient::Error SshClientWrapper::scpPut(
   const std::string& remote_dir,
   bool parents,
   const std::vector<std::string>& exclude_dirs,
-  bool superuser)
+  bool superuser,
+  std::function<void(uint32_t, uint32_t)> callback)
 {
-  ScpPutThread thread(impl_, local_dir, remote_dir, parents, exclude_dirs, superuser);
+  ScpPutThread thread(impl_, local_dir, remote_dir, parents, exclude_dirs, superuser, callback);
   return std::get<0>(qt::startThreadAndWait(thread, &ScpPutThread::finished));
 }
 

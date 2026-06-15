@@ -18,11 +18,11 @@ SshClient::SshClient(rclcpp::Node::SharedPtr node)
   , set_endpoint_sc_(node, kSetEndpointSrv)
   , connect_sc_(node, kConnectSrv)
   , execute_sc_(node, kExecuteSrv)
-  , scp_put_sc_(node, kScpPutSrv)
   , sftp_read_sc_(node, kSftpReadSrv)
   , sftp_write_sc_(node, kSftpWriteSrv)
   , list_sc_(node, kListSrv)
   , scp_get_ac_(node, kScpGetAction)
+  , scp_put_ac_(node, kScpPutAction)
 {
 }
 
@@ -139,22 +139,33 @@ SshClient::Error SshClient::scpPut(
   const std::string& remote_dir,
   bool parents,
   const std::vector<std::string>& exclude_dirs,
-  bool superuser)
+  bool superuser,
+  std::function<void(uint32_t, uint32_t)> callback)
 {
-  const auto req = std::make_shared<ScpPut::Request>();
-  req->local_dir = local_dir;
-  req->remote_dir = remote_dir;
-  req->parents = parents;
-  req->exclude_dirs = exclude_dirs;
-  req->superuser = superuser;
+  ScpPut::Goal goal;
+  goal.local_dir = local_dir;
+  goal.remote_dir = remote_dir;
+  goal.parents = parents;
+  goal.exclude_dirs = exclude_dirs;
+  goal.superuser = superuser;
 
-  if (!scp_put_sc_.call(req)) {
+  bool service_executed;
+  if (callback) {
+    const auto feedback_cb =
+      [callback](const rclcpp_action::ClientGoalHandle<ScpPut>::SharedPtr&, const ScpPut::Feedback::ConstSharedPtr& fb)
+    { callback(fb->total_size, fb->transferred); };
+    service_executed = scp_put_ac_.sendGoalAndWait(goal, feedback_cb);
+  }
+  else {
+    service_executed = scp_put_ac_.sendGoalAndWait(goal);
+  }
+  if (!service_executed) {
     return error_code_ = kServiceNotReady;
   }
 
-  const auto res = scp_put_sc_.getResponse();
-  if (!res->success) {
-    server_error_msg_ = res->message;
+  const auto res = scp_put_ac_.getResult();
+  if (res.code != rclcpp_action::ResultCode::SUCCEEDED) {
+    server_error_msg_ = res.result->error_message;
     return error_code_ = kServerError;
   }
 

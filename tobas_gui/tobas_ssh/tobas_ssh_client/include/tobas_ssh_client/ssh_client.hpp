@@ -10,10 +10,10 @@
 #include <tobas_ros2_tools/sync_service_client.hpp>
 
 #include <tobas_ssh_msgs/action/scp_get.hpp>
+#include <tobas_ssh_msgs/action/scp_put.hpp>
 #include <tobas_ssh_msgs/srv/connect.hpp>
 #include <tobas_ssh_msgs/srv/execute.hpp>
 #include <tobas_ssh_msgs/srv/list.hpp>
-#include <tobas_ssh_msgs/srv/scp_put.hpp>
 #include <tobas_ssh_msgs/srv/set_endpoint.hpp>
 #include <tobas_ssh_msgs/srv/sftp_read.hpp>
 #include <tobas_ssh_msgs/srv/sftp_write.hpp>
@@ -31,12 +31,12 @@ class SshClient
   static constexpr char kSetEndpointSrv[] = "ssh/set_endpoint";
   static constexpr char kConnectSrv[] = "ssh/connect";
   static constexpr char kExecuteSrv[] = "ssh/execute";
-  static constexpr char kScpPutSrv[] = "ssh/scp_put";
   static constexpr char kSftpReadSrv[] = "ssh/sftp_read";
   static constexpr char kSftpWriteSrv[] = "ssh/sftp_write";
   static constexpr char kListSrv[] = "ssh/list";
 
   static constexpr char kScpGetAction[] = "ssh/scp_get";
+  static constexpr char kScpPutAction[] = "ssh/scp_put";
 
 public:
   using SharedPtr = std::shared_ptr<SshClient>;
@@ -76,7 +76,8 @@ public:
     const std::string& remote_dir,
     bool parents,
     const std::vector<std::string>& exclude_dirs,
-    bool superuser = false);
+    bool superuser = false,
+    std::function<void(uint32_t, uint32_t)> callback = nullptr);
 
   Error sftpRead(const std::string& remote_path, std::string& text, bool superuser = false);
 
@@ -90,12 +91,12 @@ private:
   ros2::SyncServiceClient<tobas_ssh_msgs::srv::SetEndpoint> set_endpoint_sc_;
   ros2::SyncServiceClient<tobas_ssh_msgs::srv::Connect> connect_sc_;
   ros2::SyncServiceClient<tobas_ssh_msgs::srv::Execute> execute_sc_;
-  ros2::SyncServiceClient<tobas_ssh_msgs::srv::ScpPut> scp_put_sc_;
   ros2::SyncServiceClient<tobas_ssh_msgs::srv::SftpRead> sftp_read_sc_;
   ros2::SyncServiceClient<tobas_ssh_msgs::srv::SftpWrite> sftp_write_sc_;
   ros2::SyncServiceClient<tobas_ssh_msgs::srv::List> list_sc_;
 
   ros2::SyncActionClient<tobas_ssh_msgs::action::ScpGet> scp_get_ac_;
+  ros2::SyncActionClient<tobas_ssh_msgs::action::ScpPut> scp_put_ac_;
 
   Error error_code_ = kNoError;
   std::string server_error_msg_;
