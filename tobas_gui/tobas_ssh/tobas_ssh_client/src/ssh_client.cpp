@@ -102,13 +102,26 @@ SshClient::Error SshClient::execute(const std::string& command, bool superuser, 
   return execute(command, output, superuser, background);
 }
 
-SshClient::Error SshClient::scpGet(const std::string& remote_path, const std::string& local_path)
+SshClient::Error SshClient::scpGet(
+  const std::string& remote_path,
+  const std::string& local_path,
+  std::function<void(uint32_t, uint32_t)> callback)
 {
   ScpGet::Goal goal;
   goal.remote_path = remote_path;
   goal.local_path = local_path;
 
-  if (!scp_get_ac_.sendGoalAndWait(goal)) {
+  bool service_executed;
+  if (callback) {
+    const auto feedback_cb =
+      [callback](const rclcpp_action::ClientGoalHandle<ScpGet>::SharedPtr&, const ScpGet::Feedback::ConstSharedPtr& fb)
+    { callback(fb->total_size, fb->transferred); };
+    service_executed = scp_get_ac_.sendGoalAndWait(goal, feedback_cb);
+  }
+  else {
+    service_executed = scp_get_ac_.sendGoalAndWait(goal);
+  }
+  if (!service_executed) {
     return error_code_ = kServiceNotReady;
   }
 

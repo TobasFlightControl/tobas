@@ -78,16 +78,28 @@ class ScpGetThread : public QThread
 
 Q_SIGNALS:
   void finished(tobas::ssh::SshClient::Error error);
+  void feedbackReceived(uint32_t total_size, uint32_t transferred);
 
 public:
-  explicit ScpGetThread(ssh::SshClient& impl, const std::string& remote_path, const std::string& local_path)
+  explicit ScpGetThread(
+    ssh::SshClient& impl,
+    const std::string& remote_path,
+    const std::string& local_path,
+    std::function<void(uint32_t, uint32_t)> callback)
     : impl_(impl), remote_path_(remote_path), local_path_(local_path)
   {
+    // ROSスレッドでQtオブジェクトに触れるのを防ぐため，シグナルスロットでバッファリングする．
+    if (callback) {
+      connect(this, &ScpGetThread::feedbackReceived, this, callback, Qt::QueuedConnection);
+    }
   }
 
   void run() override
   {
-    const auto res = impl_.scpGet(remote_path_, local_path_);
+    const auto ros_cb = [this](uint32_t total_size, uint32_t transferred)
+    { Q_EMIT feedbackReceived(total_size, transferred); };
+
+    const auto res = impl_.scpGet(remote_path_, local_path_, ros_cb);
     Q_EMIT finished(res);
   }
 
@@ -258,9 +270,12 @@ ssh::SshClient::Error SshClientWrapper::execute(const std::string& command, bool
   return std::get<0>(qt::startThreadAndWait(thread, &SshExecuteThread::finished));
 }
 
-ssh::SshClient::Error SshClientWrapper::scpGet(const std::string& remote_path, const std::string& local_path)
+ssh::SshClient::Error SshClientWrapper::scpGet(
+  const std::string& remote_path,
+  const std::string& local_path,
+  std::function<void(uint32_t, uint32_t)> callback)
 {
-  ScpGetThread thread(impl_, remote_path, local_path);
+  ScpGetThread thread(impl_, remote_path, local_path, callback);
   return std::get<0>(qt::startThreadAndWait(thread, &ScpGetThread::finished));
 }
 

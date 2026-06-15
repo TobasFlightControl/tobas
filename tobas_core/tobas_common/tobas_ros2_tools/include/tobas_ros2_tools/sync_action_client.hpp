@@ -27,7 +27,8 @@ class SyncActionClient
 
   using Client = rclcpp_action::Client<ActType>;
   using GoalHandle = rclcpp_action::ClientGoalHandle<ActType>;
-  using GoalHandlePtr = std::shared_ptr<GoalHandle>;
+  using GoalHandlePtr = typename GoalHandle::SharedPtr;
+  using FeedbackCb = std::function<void(const GoalHandlePtr&, const typename ActType::Feedback::ConstSharedPtr&)>;
 
 public:
   using SharedPtr = std::shared_ptr<SyncActionClient>;
@@ -49,14 +50,17 @@ public:
    * @note ROSノードと同じスレッドで動作するコールバックの中で呼ぶとデッドロックする．
    */
   std::pair<GoalHandlePtr, std::shared_future<typename GoalHandle::WrappedResult>>
-  sendGoal(const typename ActType::Goal& goal)
+  sendGoal(const typename ActType::Goal& goal, FeedbackCb feedback_cb = nullptr)
   {
     if (!client_->wait_for_action_server(kWaitForServer)) {
       RCLCPP_ERROR_STREAM(node_->get_logger(), "\"" << action_name_ << "\" action server is not ready.");
       return {};
     }
 
-    const auto send_goal_future = client_->async_send_goal(goal);
+    typename Client::SendGoalOptions opts;
+    opts.feedback_callback = feedback_cb;
+
+    const auto send_goal_future = client_->async_send_goal(goal, opts);
     send_goal_future.wait();
 
     const auto goal_handle = send_goal_future.get();
@@ -78,10 +82,11 @@ public:
    */
   bool sendGoalAndWait(
     const typename ActType::Goal& goal,
+    FeedbackCb feedback_cb = nullptr,
     std::chrono::milliseconds get_result_timeout = std::chrono::milliseconds(-1),
     std::chrono::milliseconds cancel_goal_timeout = std::chrono::milliseconds(-1))
   {
-    const auto [goal_handle, get_result_future] = sendGoal(goal);
+    const auto [goal_handle, get_result_future] = sendGoal(goal, feedback_cb);
     if (!get_result_future.valid()) {
       return false;
     }

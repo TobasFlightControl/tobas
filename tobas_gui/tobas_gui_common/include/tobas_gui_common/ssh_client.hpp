@@ -29,7 +29,10 @@ public:
   Impl::Error execute(const std::string& command, std::string& output, bool superuser = false, bool background = false);
   Impl::Error execute(const std::string& command, bool superuser = false, bool background = false);
 
-  Impl::Error scpGet(const std::string& remote_path, const std::string& local_path);
+  Impl::Error scpGet(
+    const std::string& remote_path,
+    const std::string& local_path,
+    std::function<void(uint32_t, uint32_t)> callback = nullptr);
 
   Impl::Error scpPut(
     const std::string& local_dir,
