@@ -4,10 +4,14 @@
 import rclpy
 from rclpy.node import Node
 from rclpy.parameter import Parameter
+from rclpy.action import ActionServer
+from rclpy.action.server import ServerGoalHandle
 
 from tobas_ssh_msgs.srv import *
+from tobas_ssh_msgs.action import *
 
 from .ssh_client import SSHClientWrapper
+from .scp_progress import RecursiveScpProgress
 
 
 class SSHServerNode(Node):
@@ -20,21 +24,22 @@ class SSHServerNode(Node):
         user = self.get_parameter_or("user")
 
         self._cli = None
-        if host.type_ != Parameter.Type.NOT_SET and user.type_ != Parameter.Type.NOT_SET:
+        if host.type_ == Parameter.Type.STRING and user.type_ == Parameter.Type.STRING:
             self._cli = SSHClientWrapper(host.value, user=user.value)
-            self._create_ssh_services()
+            self._create_ssh_services_and_actions()
             self._client_ready_info(host.value, user.value)
 
         self._set_endpoint_ss = self.create_service(SetEndpoint, "ssh/set_endpoint", self._set_endpoint_cb)
 
-    def _create_ssh_services(self) -> None:
+    def _create_ssh_services_and_actions(self) -> None:
         self._connect_ss = self.create_service(Connect, "ssh/connect", self._connect_cb)
         self._execute_ss = self.create_service(Execute, "ssh/execute", self._execute_cb)
-        self._scp_get_ss = self.create_service(ScpGet, "ssh/scp_get", self._scp_get_cb)
         self._scp_put_ss = self.create_service(ScpPut, "ssh/scp_put", self._scp_put_cb)
         self._sftp_read_ss = self.create_service(SftpRead, "ssh/sftp_read", self._sftp_read_cb)
         self._sftp_write_ss = self.create_service(SftpWrite, "ssh/sftp_write", self._sftp_write_cb)
         self._list_ss = self.create_service(List, "ssh/list", self._list_cb)
+
+        self._scp_get_as = ActionServer(self, ScpGet, "ssh/scp_get", self._scp_get_cb)
 
     def _client_ready_info(self, host: str, user: str) -> None:
         self.get_logger().info(f"SSH client initialized for {user}@{host}.")
@@ -51,7 +56,7 @@ class SSHServerNode(Node):
     def _set_endpoint_cb(self, req: SetEndpoint.Request, res: SetEndpoint.Response) -> SetEndpoint.Response:
         if self._cli is None:
             self._cli = SSHClientWrapper(req.host, user=req.user)
-            self._create_ssh_services()
+            self._create_ssh_services_and_actions()
         else:
             self._cli.close()
             self._cli = SSHClientWrapper(req.host, user=req.user)
@@ -92,21 +97,6 @@ class SSHServerNode(Node):
                 res.error_output = ""
             else:
                 res.success, res.output, res.error_output = self._cli.exec_command(req.command)
-
-        return res
-
-    def _scp_get_cb(self, req: ScpGet.Request, res: ScpGet.Response) -> ScpGet.Response:
-        if not self._connect():
-            res.success = False
-            res.message = self.NO_CONNECTION_ERROR
-            return res
-
-        try:
-            self._cli.scp_get(req.remote_path, req.local_path)
-            res.success = True
-        except Exception as e:
-            res.success = False
-            res.message = f"SCP-Get failed: {e}"
 
         return res
 
@@ -205,6 +195,33 @@ class SSHServerNode(Node):
             res.message = f"Failed to list the entries in {req.pardir}: {e}"
 
         return res
+
+    def _scp_get_cb(self, goal_handle: ServerGoalHandle) -> ScpGet.Result:
+        goal: ScpGet.Goal = goal_handle.request
+        result = ScpGet.Result()
+
+        if not self._connect():
+            result.error_message = self.NO_CONNECTION_ERROR
+            goal_handle.abort()
+            return result
+
+        total_size = self._cli.get_remote_tree_size()
+
+        def callback(transferred: int) -> None:
+            feedback = ScpGet.Feedback()
+            feedback.total_size = total_size
+            feedback.transferred = min(total_size, transferred)
+            goal_handle.publish_feedback(feedback)
+
+        try:
+            self._cli.scp_get(goal.remote_path, goal.local_path, progress=RecursiveScpProgress(callback))
+        except Exception as e:
+            result.error_message = f"SCP-Get failed: {e}"
+            goal_handle.abort()
+            return result
+
+        goal_handle.succeed()
+        return result
 
 
 def main(args=None) -> None:
