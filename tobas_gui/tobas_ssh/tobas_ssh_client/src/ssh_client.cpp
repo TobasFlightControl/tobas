@@ -6,6 +6,7 @@
 #include <tobas_ros2_tools/register.hpp>
 
 using namespace tobas_ssh_msgs::srv;
+using namespace tobas_ssh_msgs::action;
 namespace fs = std::filesystem;
 
 namespace tobas
@@ -17,11 +18,11 @@ SshClient::SshClient(rclcpp::Node::SharedPtr node)
   , set_endpoint_sc_(node, kSetEndpointSrv)
   , connect_sc_(node, kConnectSrv)
   , execute_sc_(node, kExecuteSrv)
-  , scp_get_sc_(node, kSCPGetSrv)
-  , scp_put_sc_(node, kSCPPutSrv)
-  , sftp_read_sc_(node, kSFTPReadSrv)
-  , sftp_write_sc_(node, kSFTPWriteSrv)
+  , scp_put_sc_(node, kScpPutSrv)
+  , sftp_read_sc_(node, kSftpReadSrv)
+  , sftp_write_sc_(node, kSftpWriteSrv)
   , list_sc_(node, kListSrv)
+  , scp_get_ac_(node, kScpGetAction)
 {
 }
 
@@ -103,17 +104,17 @@ SshClient::Error SshClient::execute(const std::string& command, bool superuser, 
 
 SshClient::Error SshClient::scpGet(const std::string& remote_path, const std::string& local_path)
 {
-  const auto req = std::make_shared<ScpGet::Request>();
-  req->remote_path = remote_path;
-  req->local_path = local_path;
+  ScpGet::Goal goal;
+  goal.remote_path = remote_path;
+  goal.local_path = local_path;
 
-  if (!scp_get_sc_.call(req)) {
+  if (!scp_get_ac_.sendGoalAndWait(goal)) {
     return error_code_ = kServiceNotReady;
   }
 
-  const auto res = scp_get_sc_.getResponse();
-  if (!res->success) {
-    server_error_msg_ = res->message;
+  const auto res = scp_get_ac_.getResult();
+  if (res.code != rclcpp_action::ResultCode::SUCCEEDED) {
+    server_error_msg_ = res.result->error_message;
     return error_code_ = kServerError;
   }
 

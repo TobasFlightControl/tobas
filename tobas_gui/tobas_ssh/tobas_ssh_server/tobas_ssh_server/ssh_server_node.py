@@ -205,7 +205,7 @@ class SSHServerNode(Node):
             goal_handle.abort()
             return result
 
-        total_size = self._cli.get_remote_tree_size()
+        total_size = self._cli.get_remote_tree_size(goal.remote_path)
 
         def callback(transferred: int) -> None:
             feedback = ScpGet.Feedback()
