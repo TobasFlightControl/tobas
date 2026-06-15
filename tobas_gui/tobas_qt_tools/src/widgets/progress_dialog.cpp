@@ -62,6 +62,10 @@ void ProgressDialog::progressStep()
 
 void ProgressDialog::onTimerTimeout()
 {
+  if (text_.isEmpty()) {
+    return;
+  }
+
   // スピナーの文字を決定
   spinner_step_ = (spinner_step_ + 1) % kSpinnerFrameSize;
   const auto spinner = kSpinnerFrames[spinner_step_];
