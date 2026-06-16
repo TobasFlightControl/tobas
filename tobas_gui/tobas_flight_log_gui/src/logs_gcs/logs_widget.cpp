@@ -133,6 +133,8 @@ void FlightLogsWidgetGCS::sortLogs()
 
 void FlightLogsWidgetGCS::onReadButtonClicked()
 {
+  qDebug() << "FlightLogsWidgetGCS::onReadButtonClicked";
+
   // 現在選択されているアイテムを取得
   const auto cur_text = currentLogName();
 
@@ -171,6 +173,8 @@ void FlightLogsWidgetGCS::onReadButtonClicked()
 
 void FlightLogsWidgetGCS::onCleanButtonClicked()
 {
+  qDebug() << "FlightLogsWidgetGCS::onCleanButtonClicked";
+
   if (!qt::yesOrNo(this, "Do you want to clean all the flight logs saved in the GCS?", qt::WARN)) {
     return;
   }
@@ -204,6 +208,8 @@ void FlightLogsWidgetGCS::onCleanButtonClicked()
 
 void FlightLogsWidgetGCS::onExportButtonClicked(const QString& log_name)
 {
+  qDebug().nospace() << "FlightLogsWidgetGCS::onExportButtonClicked(" << log_name << ")";
+
   // Get the last opened directory path
   std::string last_opened_dir;
   if (property_client_.get(kLastOpenedDirKey, last_opened_dir) < 0) {
@@ -255,6 +261,8 @@ void FlightLogsWidgetGCS::onExportButtonClicked(const QString& log_name)
 
 void FlightLogsWidgetGCS::onDeleteButtonClicked(const QString& log_name)
 {
+  qDebug().nospace() << "FlightLogsWidgetGCS::onDeleteButtonClicked(" << log_name << ")";
+
   const auto log_path = ros2::expandUser(kRosbagDirHome) / log_name.toStdString();
 
   if (!qt::yesOrNo(this, "Do you want to delete flight log \"" + log_name + "\"?", qt::WARN)) {
@@ -276,6 +284,12 @@ void FlightLogsWidgetGCS::onDeleteButtonClicked(const QString& log_name)
 
 void FlightLogsWidgetGCS::onListItemChanged(QListWidgetItem* item)
 {
+  qDebug() << "FlightLogsWidgetGCS::onListItemChanged";
+
+  if (!item) {
+    return;
+  }
+
   const auto log_widget = qt::qConstPointerCast<FlightLogItemWidgetGCS>(log_list_->itemWidget(item));
   Q_EMIT logSelected(log_widget->logName());
 }
