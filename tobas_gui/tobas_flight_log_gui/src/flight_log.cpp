@@ -56,6 +56,8 @@ void FlightLogWidget::updateNamespace(const std::string& ns)
 
 void FlightLogWidget::onRecordFinished(const QString& log_name, bool is_real)
 {
+  qDebug().nospace() << "FlightLogWidget::onRecordFinished(" << log_name << ", " << is_real << ")";
+
   if (logs_fc_->findLog(log_name)) {
     qWarning() << log_name << "already exists in the FC log list.";
     return;
@@ -71,6 +73,8 @@ void FlightLogWidget::onRecordFinished(const QString& log_name, bool is_real)
 
 void FlightLogWidget::onLogDownloaded(const QString& log_name)
 {
+  qDebug().nospace() << "FlightLogWidget::onLogDownloaded(" << log_name << ")";
+
   if (logs_gcs_->findLog(log_name)) {
     qInfo() << log_name << "already exists in the GCS log list.";
     return;
@@ -81,11 +85,15 @@ void FlightLogWidget::onLogDownloaded(const QString& log_name)
 
 void FlightLogWidget::onLogSelected(const QString& log_name)
 {
+  qDebug().nospace() << "FlightLogWidget::onLogSelected(" << log_name << ")";
+
   log_viewer_->setLogName(log_name);
 }
 
 void FlightLogWidget::onLogDeselected()
 {
+  qDebug() << "FlightLogWidget::onLogDeselected";
+
   log_viewer_->reset();
 }
 }  // namespace log
