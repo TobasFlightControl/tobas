@@ -285,17 +285,13 @@ void RotorTestWidget::onSaveButtonClicked()
   qt::qInfoBox(this, "Control gains are saved successfully.");
 }
 
-void RotorTestWidget::onTargetRPMChanged(int rpm, size_t ch)
+void RotorTestWidget::onTargetRPMChanged(int, size_t)
 {
-  qDebug().nospace() << "RotorTestWidget::onTargetRPMChanged(" << rpm << ", " << ch << ")";
-
   publishTargetSppeds();
 }
 
 void RotorTestWidget::onGainChanged(int gain, size_t ch)
 {
-  qDebug().nospace() << "RotorTestWidget::onGainChanged(" << gain << ", " << ch << ")";
-
   const auto req = std::make_shared<tobas_msgs::srv::SetRotorControlGains::Request>();
   req->gains.emplace_back();
   req->gains.back().channel = ch;
