@@ -176,8 +176,11 @@ void FailsafeExecutorNode::startLand()
 
 void FailsafeExecutorNode::vehicleHealthCb(const tobas_msgs::msg::VehicleHealth::ConstSharedPtr& health)
 {
-  const auto batt_voltage_too_low = (health->battery_voltage == tobas_msgs::msg::VehicleHealth::FAILED);
-  const auto radio_link_lost = (health->radio_link == tobas_msgs::msg::VehicleHealth::FAILED);
+  using VH = tobas_msgs::msg::VehicleHealth;
+
+  const auto voltage_too_low = (health->battery_voltage == VH::FAILED);
+  const auto radio_link_lost = (health->radio_link == VH::FAILED);
+  const auto posvel_accurate = (health->position_accuracy == VH::PASSED) && (health->velocity_accuracy == VH::PASSED);
 
   // アームしていなければフェイルセーフは発動しない
   if (!arming_ || !arming_->data) {
@@ -193,20 +196,20 @@ void FailsafeExecutorNode::vehicleHealthCb(const tobas_msgs::msg::VehicleHealth:
         break;
       }
 
+      // 位置と速度の推定ができてないならフェイルセーフを発動しない
+      if (!posvel_accurate) {
+        break;
+      }
+
       // フェイルセーフを更新
-      if (batt_voltage_too_low) {
+      if (voltage_too_low) {
         TOBAS_WARN("Battery fail-safe is activated.");
         startLand();
         break;
       }
       if (radio_link_lost) {
         TOBAS_WARN("Radio fail-safe is activated.");
-        if (health->position_accuracy == tobas_msgs::msg::VehicleHealth::PASSED) {
-          startRTL();
-        }
-        else {
-          startLand();
-        }
+        startRTL();
         break;
       }
 
@@ -221,8 +224,13 @@ void FailsafeExecutorNode::vehicleHealthCb(const tobas_msgs::msg::VehicleHealth:
         break;
       }
 
+      // 位置と速度の推定ができてないならフェイルセーフを発動しない
+      if (!posvel_accurate) {
+        break;
+      }
+
       // フェイルセーフを更新
-      if (batt_voltage_too_low) {
+      if (voltage_too_low) {
         TOBAS_WARN("Battery fail-safe is activated.");
         startLand();
         break;
