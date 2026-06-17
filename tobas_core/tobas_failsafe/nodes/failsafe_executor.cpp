@@ -36,8 +36,8 @@ private:
     kLand,
   } state_ = kNoFailSafe;
 
-  bool is_armed_ = false;
-  bool is_manual_ctrl_enabled_ = false;
+  tobas_msgs::msg::Arming::ConstSharedPtr arming_;
+  tobas_msgs::RCInput::ConstSharedPtr rcin_;
 
   ros2::SubscriberPtr<tobas_msgs::msg::VehicleHealth> health_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
@@ -89,8 +89,8 @@ void FailsafeExecutorNode::startRTL()
   opts.goal_response_callback = [this](const GoalHandle::SharedPtr& gh)
   {
     if (!gh) {
-      TOBAS_ERROR("RTL mission was rejected by server.");
-      disarm();
+      TOBAS_ERROR("RTL mission was rejected by the executor.");
+      startLand();  // FIXME: 立て続けにアクションゴールを送るとインターフェースノードが詰まる
     }
   };
   opts.result_callback = [this](const GoalHandle::WrappedResult& res)
@@ -108,14 +108,14 @@ void FailsafeExecutorNode::startRTL()
             break;
           default:
             TOBAS_ERROR("RTL mission was aborted: ", res.result->error_message);
-            disarm();
+            startLand();
             break;
         }
         break;
       case rclcpp_action::ResultCode::UNKNOWN:
       default:
         TOBAS_ERROR("Unknown result code: ", (int)res.code);
-        disarm();
+        startLand();
         break;
     }
   };
@@ -139,7 +139,7 @@ void FailsafeExecutorNode::startLand()
   opts.goal_response_callback = [this](const GoalHandle::SharedPtr& gh)
   {
     if (!gh) {
-      TOBAS_ERROR("Land mission was rejected by server.");
+      TOBAS_ERROR("Land mission was rejected by the executor.");
       disarm();
     }
   };
@@ -147,7 +147,7 @@ void FailsafeExecutorNode::startLand()
   {
     switch (res.code) {
       case rclcpp_action::ResultCode::SUCCEEDED:
-        break;  // フェイルセーフは必ず着陸で終わる
+        break;
       case rclcpp_action::ResultCode::CANCELED:
         break;
       case rclcpp_action::ResultCode::ABORTED:
@@ -176,18 +176,20 @@ void FailsafeExecutorNode::startLand()
 
 void FailsafeExecutorNode::vehicleHealthCb(const tobas_msgs::msg::VehicleHealth::ConstSharedPtr& health)
 {
-  const auto batt_voltage_too_low = health->battery_voltage == tobas_msgs::msg::VehicleHealth::FAILED;
-  const auto radio_link_lost = health->radio_link == tobas_msgs::msg::VehicleHealth::FAILED;
+  const auto batt_voltage_too_low = (health->battery_voltage == tobas_msgs::msg::VehicleHealth::FAILED);
+  const auto radio_link_lost = (health->radio_link == tobas_msgs::msg::VehicleHealth::FAILED);
 
   // アームしていなければフェイルセーフは発動しない
-  if (!is_armed_) {
+  if (!arming_ || !arming_->data) {
     return;
   }
 
+  const auto is_manual_ctrl_enabled = (!radio_link_lost && rcin_ && rcin_->ok && rcin_->enable);
+
   switch (state_) {
     case kNoFailSafe: {
-      // 手動操縦中はフェイルセーフは発動しない
-      if (is_manual_ctrl_enabled_) {
+      // 手動操縦中はフェイルセーフを発動しない
+      if (is_manual_ctrl_enabled) {
         break;
       }
 
@@ -199,7 +201,12 @@ void FailsafeExecutorNode::vehicleHealthCb(const tobas_msgs::msg::VehicleHealth:
       }
       if (radio_link_lost) {
         TOBAS_WARN("Radio fail-safe is activated.");
-        startRTL();
+        if (health->position_accuracy == tobas_msgs::msg::VehicleHealth::PASSED) {
+          startRTL();
+        }
+        else {
+          startLand();
+        }
         break;
       }
 
@@ -207,7 +214,7 @@ void FailsafeExecutorNode::vehicleHealthCb(const tobas_msgs::msg::VehicleHealth:
     }
     case kReturnToLaunch: {
       // 手動操縦が有効になったらフェイルセーフをキャンセル
-      if (is_manual_ctrl_enabled_) {
+      if (is_manual_ctrl_enabled) {
         TOBAS_INFO("Fail-safe was canceled because the manual control was enabled.");
         mission_ac_->async_cancel_all_goals();
         state_ = kNoFailSafe;
@@ -225,7 +232,7 @@ void FailsafeExecutorNode::vehicleHealthCb(const tobas_msgs::msg::VehicleHealth:
     }
     case kLand: {
       // 手動操縦が有効になったらフェイルセーフをキャンセル
-      if (is_manual_ctrl_enabled_) {
+      if (is_manual_ctrl_enabled) {
         TOBAS_INFO("Fail-safe was canceled because the manual control was enabled.");
         mission_ac_->async_cancel_all_goals();
         state_ = kNoFailSafe;
@@ -242,7 +249,12 @@ void FailsafeExecutorNode::vehicleHealthCb(const tobas_msgs::msg::VehicleHealth:
 
 void FailsafeExecutorNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
 {
-  if (is_armed_ && !arming->data) {
+  if (!arming_) {
+    arming_ = arming;
+    return;
+  }
+
+  if (arming_->data && !arming->data) {
     // フェイルセーフは全てディスアームに収束するため，ディスアームされたらフェイルセーフが終了したと判定できる．
     switch (state_) {
       case kNoFailSafe:
@@ -258,12 +270,12 @@ void FailsafeExecutorNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPt
     }
   }
 
-  is_armed_ = arming->data;
+  arming_ = arming;
 }
 
 void FailsafeExecutorNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
 {
-  is_manual_ctrl_enabled_ = (rcin->ok && rcin->enable);
+  rcin_ = rcin;
 }
 }  // namespace tobas
 
