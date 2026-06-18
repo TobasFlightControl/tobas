@@ -17,7 +17,7 @@ sudo rm -rf /var/log/*
 sudo rm -rf /var/tmp/*
 sudo rm -rf /var/lib/apt/lists/*
 
-# Clean tobas directory
+# Clean the Tobas directory
 sudo rm /etc/tobas/config/*
 sudo rm -rf /etc/tobas/rosbag/*
 
@@ -36,7 +36,12 @@ fi
 # Clear Wi-Fi hotspot settings
 sudo rm /etc/hostapd/hostapd.conf*
 
-# Disable Tobas service
+# Disable the Tobas services
 sudo systemctl disable tobas_real.target
+
+# Reset to the first boot
+echo uninitialized | sudo tee /etc/machine-id > /dev/null
+sudo rm -f /var/lib/dbus/machine-id
+sudo systemctl enable rpi-resize.service
 
 echo -e "\033[32mCleaning finished successfully.\033[0m"
