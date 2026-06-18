@@ -98,6 +98,7 @@ void TogglesViewer::setFlightModePointSizes()
 void TogglesViewer::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
 {
   if (!rcin->ok) {
+    reset();
     return;
   }
 
