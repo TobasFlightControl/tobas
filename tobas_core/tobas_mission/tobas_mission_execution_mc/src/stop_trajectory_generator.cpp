@@ -3,6 +3,7 @@
 
 #include "tobas_mission_execution_mc/stop_trajectory_generator.hpp"
 
+#include <algorithm>
 #include <cassert>
 
 #include <tobas_math/core.hpp>
@@ -27,18 +28,16 @@ StopTrajectory::StopTrajectory(double p0, double v0, double a0, double am, doubl
   }
 
   // 時刻の大小関係の制約を満たすようにジャークと加速度の最大値を調整
-  if (a0_ < 0) {
-    jm_ = std::max(jm_, math::sqr(a0_) / (2 * v0_) + EPS);
-    am_ = std::max(am_, -a0_);
-  }
-  am_ = std::min(am_, std::sqrt(math::sqr(a0_) / 2 + v0_ * jm_) - EPS);
+  jm_ = std::max(jm_, math::sqr(a0_) / (2 * v0_));
+  am_ = std::clamp(am_, -a0_, std::sqrt(math::sqr(a0_) / 2 + v0_ * jm_));
 
   t1_ = (a0_ + am_) / jm_;
   t2_ = math::sqr(a0_) / (2 * am_ * jm_) + v0_ / am_ + a0_ / jm_;
   t3_ = t2_ + am_ / jm_;
 
-  assert(t1_ < t2_);
-  assert(t2_ < t3_);
+  assert(0. <= t1_);
+  assert(t1_ <= t2_);
+  assert(t2_ <= t3_);
 }
 
 traj::TrajectoryPoint StopTrajectory::get(double t) const noexcept

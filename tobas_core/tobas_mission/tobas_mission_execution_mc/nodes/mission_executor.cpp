@@ -219,6 +219,8 @@ void MulticopterMissionExecutorNode::initializeCommand()
 {
   const auto& odom = odom_->odom.odom;
 
+  // 設定値もしくは現在値から初期コマンドを決定
+  // 加速度の推定値は振動成分がほとんどである可能性があるため使用しない
   if (setpoint_) {
     const auto& sp = setpoint_->odom;
     if (sp.frame.p.isFinite()) {
@@ -243,14 +245,14 @@ void MulticopterMissionExecutorNode::initializeCommand()
       command_.acc = odom.frame.M * sp.accel.linear;
     }
     else {
-      command_.acc = odom.frame.M * odom.accel.linear;
+      command_.acc.setZero();
     }
   }
   else {
     command_.pos = odom.frame.p;
     odom.frame.M.getRPY(command_.rot.roll, command_.rot.pitch, command_.rot.yaw);
     command_.vel = odom.twist.vel;
-    command_.acc = odom.accel.linear;
+    command_.acc.setZero();
   }
 }
 
