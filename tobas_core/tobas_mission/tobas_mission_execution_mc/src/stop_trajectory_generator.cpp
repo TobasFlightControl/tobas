@@ -29,7 +29,7 @@ StopTrajectory::StopTrajectory(double p0, double v0, double a0, double am, doubl
 
   // 時刻の大小関係の制約を満たすようにジャークと加速度の最大値を調整
   jm_ = std::max(jm_, math::sqr(a0_) / (2 * v0_));
-  am_ = std::clamp(am_, -a0_, std::sqrt(math::sqr(a0_) / 2 + v0_ * jm_));
+  am_ = std::clamp(am_, -a0_, std::sqrt(math::sqr(a0_) / 2 + v0_ * jm_));  // lb>ubの場合はubになる
 
   t1_ = (a0_ + am_) / jm_;
   t2_ = math::sqr(a0_) / (2 * am_ * jm_) + v0_ / am_ + a0_ / jm_;
