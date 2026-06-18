@@ -28,6 +28,7 @@ StopTrajectory::StopTrajectory(double p0, double v0, double a0, double am, doubl
   }
 
   // 時刻の大小関係の制約を満たすようにジャークと加速度の最大値を調整
+  // 初期状態は変えられないため制約を緩めざるを得ない
   jm_ = std::max(jm_, math::sqr(a0_) / (2 * v0_));
   am_ = std::clamp(am_, -a0_, std::sqrt(math::sqr(a0_) / 2 + v0_ * jm_));  // lb>ubの場合はubになる
 
