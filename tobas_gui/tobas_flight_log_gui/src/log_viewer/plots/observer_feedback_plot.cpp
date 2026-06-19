@@ -19,8 +19,8 @@ ObserverFeedbackPlotWidget::ObserverFeedbackPlotWidget()
   , mag_hard_bias_curves_{ "Mag Hard-Iron Bias X", "Mag Hard-Iron Bias Y", "Mag Hard-Iron Bias Z" }
   , mag_soft_bias_curves_{ "Mag Soft-Iron Bias XX", "Mag Soft-Iron Bias YY", "Mag Soft-Iron Bias ZZ",
                            "Mag Soft-Iron Bias XY", "Mag Soft-Iron Bias YZ", "Mag Soft-Iron Bias ZX" }
-  , gravity_curve_("Gravity")
-  , gnss_anomaly_score_curve_("GNSS Anomaly Score")
+  , baro_alt_bias_curve_("Barometer Altitude Bias [m]")
+  , gravity_curve_("Gravity [m/s²]")
 
 {
   acc_bias_plot_ = new QwtPlot2();
@@ -51,25 +51,25 @@ ObserverFeedbackPlotWidget::ObserverFeedbackPlotWidget()
     mag_soft_bias_curves_[i].attach(mag_soft_bias_plot_);
   }
 
+  baro_alt_bias_plot_ = new QwtPlot2();
+  baro_alt_bias_plot_->setAxisNoLabel(QwtPlot::xBottom);
+  baro_alt_bias_curve_.setPen(Qt::black, kLineWidth);
+  baro_alt_bias_curve_.attach(baro_alt_bias_plot_);
+
   gravity_plot_ = new QwtPlot2();
   gravity_plot_->setAxisNoLabel(QwtPlot::xBottom);
   gravity_curve_.setPen(Qt::black, kLineWidth);
   gravity_curve_.attach(gravity_plot_);
 
-  gnss_anomaly_score_plot_ = new QwtPlot2();
-  gnss_anomaly_score_plot_->setAxisNoLabel(QwtPlot::xBottom);
-  gnss_anomaly_score_curve_.setPen(Qt::black, kLineWidth);
-  gnss_anomaly_score_curve_.attach(gnss_anomaly_score_plot_);
-
   // Layout
   const auto grid = new QGridLayout();
   setLayout(grid);
   grid->addWidget(acc_bias_plot_, 0, 0, 1, 1);
-  grid->addWidget(gyro_bias_plot_, 1, 0, 1, 1);
-  grid->addWidget(mag_hard_bias_plot_, 0, 1, 1, 1);
+  grid->addWidget(gyro_bias_plot_, 0, 1, 1, 1);
+  grid->addWidget(mag_hard_bias_plot_, 1, 0, 1, 1);
   grid->addWidget(mag_soft_bias_plot_, 1, 1, 1, 1);
-  grid->addWidget(gravity_plot_, 2, 0, 1, 1);
-  grid->addWidget(gnss_anomaly_score_plot_, 2, 1, 1, 1);
+  grid->addWidget(baro_alt_bias_plot_, 2, 0, 1, 1);
+  grid->addWidget(gravity_plot_, 2, 1, 1, 1);
 }
 
 void ObserverFeedbackPlotWidget::clear()
@@ -94,11 +94,11 @@ void ObserverFeedbackPlotWidget::clear()
   }
   mag_soft_bias_plot_->replot();
 
+  baro_alt_bias_curve_.clear();
+  baro_alt_bias_plot_->replot();
+
   gravity_curve_.clear();
   gravity_plot_->replot();
-
-  gnss_anomaly_score_curve_.clear();
-  gnss_anomaly_score_plot_->replot();
 }
 
 void ObserverFeedbackPlotWidget::setTimeScale(double t_start, double t_stop)
@@ -107,8 +107,8 @@ void ObserverFeedbackPlotWidget::setTimeScale(double t_start, double t_stop)
   gyro_bias_plot_->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
   mag_hard_bias_plot_->setAxisScale(QwtPlot2::xBottom, t_start, t_stop);
   mag_soft_bias_plot_->setAxisScale(QwtPlot2::xBottom, t_start, t_stop);
+  baro_alt_bias_plot_->setAxisScale(QwtPlot2::xBottom, t_start, t_stop);
   gravity_plot_->setAxisScale(QwtPlot2::xBottom, t_start, t_stop);
-  gnss_anomaly_score_plot_->setAxisScale(QwtPlot2::xBottom, t_start, t_stop);
 }
 
 void ObserverFeedbackPlotWidget::setData(const QVector<tobas_debug_msgs::msg::ObserverFeedback>& msgs)
@@ -118,8 +118,8 @@ void ObserverFeedbackPlotWidget::setData(const QVector<tobas_debug_msgs::msg::Ob
   std::array<QVector<double>, kGyroBiasSize> gyro_bias_data;
   std::array<QVector<double>, kMagHardBiasSize> mag_hard_bias_data;
   std::array<QVector<double>, kMagSoftBiasSize> mag_soft_bias_data;
+  QVector<double> baro_alt_bias_data;
   QVector<double> gravity_data;
-  QVector<double> gnss_anomaly_score_data;
 
   for (const auto& msg : msgs) {
     t_data.push_back(ros2::seconds(msg.header.stamp));
@@ -143,8 +143,8 @@ void ObserverFeedbackPlotWidget::setData(const QVector<tobas_debug_msgs::msg::Ob
     mag_soft_bias_data[4].push_back(msg.mag_soft_bias.data[5]);
     mag_soft_bias_data[5].push_back(msg.mag_soft_bias.data[2]);
 
+    baro_alt_bias_data.push_back(msg.baro_alt_bias);
     gravity_data.push_back(msg.gravity);
-    gnss_anomaly_score_data.push_back(msg.gnss_anomaly_score);
   }
 
   for (size_t i = 0; i < kAccelBiasSize; ++i) {
@@ -167,11 +167,11 @@ void ObserverFeedbackPlotWidget::setData(const QVector<tobas_debug_msgs::msg::Ob
   }
   mag_soft_bias_plot_->replot();
 
+  baro_alt_bias_curve_.setSamples(t_data, baro_alt_bias_data);
+  baro_alt_bias_plot_->replot();
+
   gravity_curve_.setSamples(t_data, gravity_data);
   gravity_plot_->replot();
-
-  gnss_anomaly_score_curve_.setSamples(t_data, gnss_anomaly_score_data);
-  gnss_anomaly_score_plot_->replot();
 }
 }  // namespace log
 }  // namespace gui
