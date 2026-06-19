@@ -497,7 +497,7 @@ int main(int argc, char* argv[])
     num_threads = kMinNumThreads;
   }
 
-  RCLCPP_INFO_STREAM(node->get_logger(), "The number of threads is set to " << num_threads << ".");
+  RCLCPP_INFO_STREAM(node->get_logger(), "The number of threads has been set to " << num_threads << ".");
 
   rclcpp::executors::MultiThreadedExecutor exec(rclcpp::ExecutorOptions(), num_threads);
   exec.add_node(node);

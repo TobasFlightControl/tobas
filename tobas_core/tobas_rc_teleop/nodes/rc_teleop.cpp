@@ -504,7 +504,7 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
 
         resetCurrentController(*rcin);
         cur_mode_ = rcin->mode;
-        TOBAS_INFO("First flight mode is set to \"", mode2str_.at(rcin->mode), "\".");
+        TOBAS_INFO("First flight mode has been set to \"", mode2str_.at(rcin->mode), "\".");
 
         t_disarm_start_ = rcin->header.stamp;
         stage_ = kRunning;
