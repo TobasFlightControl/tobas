@@ -719,6 +719,7 @@ bool ProjectGenerator::generateObserverStaticConfig()
   params["do_gyro_bias_estimation"] = settings_->observer->doGyroBiasEstimation();
   params["do_mag_hard_bias_estimation"] = settings_->observer->doMagHardBiasEstimation();
   params["do_mag_soft_bias_estimation"] = settings_->observer->doMagSoftBiasEstimation();
+  params["do_baro_alt_bias_estimation"] = settings_->observer->doBaroAltBiasEstimation();
   params["do_gravity_estimation"] = settings_->observer->doGravityEstimation();
   params["imu_offset"] = Eigen::Vector3d::Zero().eval();   // TODO
   params["gnss_offset"] = Eigen::Vector3d::Zero().eval();  // TODO

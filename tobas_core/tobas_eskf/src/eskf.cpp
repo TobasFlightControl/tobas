@@ -22,19 +22,16 @@ ErrorStateKalmanFilter::ErrorStateKalmanFilter() : x_history_(kStateHistoryTimeW
 {
   // 観測方程式の固定部分を埋める
   H_pos_.setZero();
-  H_xy_.setZero();
-  H_z_.setZero();
   H_vel_.setZero();
   H_pv_.setZero();
   H_theta_.setZero();
   H_pose_.setZero();
   H_mag_.setZero();
   H_yaw_.setZero();
+  H_baro_alt_.setZero();
   H_grav_.setZero();
 
   H_pos_.block<3, 3>(0, kDeltaPosIdx).diagonal().setOnes();
-  H_xy_.block<2, 2>(0, kDeltaPosIdx).diagonal().setOnes();
-  H_z_(0, kDeltaAltIdx) = 1;
   H_vel_.block<3, 3>(0, kDeltaVelIdx).diagonal().setOnes();
   H_pv_.block<3, 3>(0, kDeltaPosIdx).diagonal().setOnes();
   H_pv_.block<3, 3>(3, kDeltaVelIdx).diagonal().setOnes();
@@ -42,6 +39,8 @@ ErrorStateKalmanFilter::ErrorStateKalmanFilter() : x_history_(kStateHistoryTimeW
   H_pose_.block<3, 3>(0, kDeltaPosIdx).diagonal().setOnes();
   H_pose_.block<3, 3>(3, kDeltaThetaIdx).diagonal().setOnes();
   H_mag_.block<3, 3>(0, kDeltaMagHardBiasIdx).diagonal().setOnes();
+  H_baro_alt_(0, kDeltaAltIdx) = 1;
+  H_baro_alt_(0, kDeltaBaroAltBiasIdx) = 1;
   H_grav_.block<3, 3>(0, kDeltaAccBiasIdx).diagonal().setOnes();
 }
 
@@ -60,6 +59,8 @@ void ErrorStateKalmanFilter::initialize(
   const Eigen::Matrix3d& init_mag_hard_bias_cov,
   const Eigen::Matrix3d& init_mag_soft_bias,
   const Eigen::Matrix6d& init_mag_soft_bias_cov,
+  const double& init_baro_alt_bias,
+  const double& init_baro_alt_bias_var,
   const double& init_grav,
   const double& init_grav_var,
   const ch::steady_clock::time_point& time)
@@ -80,6 +81,7 @@ void ErrorStateKalmanFilter::initialize(
   initializeGyroBias(init_gyro_bias, init_gyro_bias_cov);
   initializeMagHardBias(init_mag_hard_bias, init_mag_hard_bias_cov);
   initializeMagSoftBias(init_mag_soft_bias, init_mag_soft_bias_cov);
+  initializeBaroAltBias(init_baro_alt_bias, init_baro_alt_bias_var);
   initializeGravity(init_grav, init_grav_var);
 }
 
@@ -175,6 +177,19 @@ void ErrorStateKalmanFilter::initializeMagSoftBias(const Eigen::Matrix3d& value,
   resetStateHistory();
 }
 
+void ErrorStateKalmanFilter::initializeBaroAltBias(const double& value, const double& var)
+{
+  assert(var >= 0.);
+
+  x_(kBaroAltBiasIdx) = value;
+
+  P_.row(kDeltaBaroAltBiasIdx).setZero();
+  P_.col(kDeltaBaroAltBiasIdx).setZero();
+  P_(kDeltaBaroAltBiasIdx, kDeltaBaroAltBiasIdx) = var;
+
+  resetStateHistory();
+}
+
 void ErrorStateKalmanFilter::initializeGravity(const double& value, const double& var)
 {
   assert(var >= 0.);
@@ -249,6 +264,17 @@ bool ErrorStateKalmanFilter::setMagSoftBiasProcNoiseDensity(double value)
   }
 
   mag_soft_bias_proc_noise_density_ = value;
+  return true;
+}
+
+bool ErrorStateKalmanFilter::setBaroAltBiasProcNoiseDensity(double value)
+{
+  if (value < 0.) {
+    std::cerr << "The noise density of barometer altitude bias process must be non-negative." << std::endl;
+    return false;
+  }
+
+  baro_alt_bias_proc_noise_density_ = value;
   return true;
 }
 
@@ -338,6 +364,7 @@ double ErrorStateKalmanFilter::measureIMU(
   P_.diagonal().segment<3>(kDeltaGyroBiasIdx).array() += math::sqr(gyro_bias_proc_noise_density_) * dt;
   P_.diagonal().segment<3>(kDeltaMagHardBiasIdx).array() += math::sqr(mag_hard_bias_proc_noise_density_) * dt;
   P_.diagonal().segment<6>(kDeltaMagSoftBiasIdx).array() += math::sqr(mag_soft_bias_proc_noise_density_) * dt;
+  P_(kDeltaBaroAltBiasIdx, kDeltaBaroAltBiasIdx) += math::sqr(baro_alt_bias_proc_noise_density_) * dt;
   P_(kDeltaGravIdx, kDeltaGravIdx) += math::sqr(grav_proc_noise_density_) * dt;
 
   // Apply constraints to avoid numerical errors
@@ -366,25 +393,14 @@ double ErrorStateKalmanFilter::measurePosition(
 {
   const auto& x = x_history_.closestAfterValue(time);
 
-  const Eigen::Vector3d delta_pos = pos_meas - getPosition(x, offset);
+  const Eigen::Vector3d delta = pos_meas - getPosition(x, offset);
 
   // 姿勢による偏微分
   const auto dqvq_dq = quatRotationDerivative(x, offset);
   const auto Q_dtheta = getQ_dtheta(x);
   H_pos_.block<3, 3>(0, kDeltaThetaIdx) = dqvq_dq * Q_dtheta;
 
-  return correct(delta_pos, pos_cov, H_pos_);
-}
-
-double ErrorStateKalmanFilter::measureXY(
-  const Eigen::Vector2d& xy_meas,
-  const Eigen::Matrix2d& xy_cov,
-  const ch::steady_clock::time_point& time)
-{
-  const auto& x = x_history_.closestAfterValue(time);
-
-  const Eigen::Vector2d delta_xy = xy_meas - getXY(x);
-  return correct(delta_xy, xy_cov, H_xy_);
+  return correct(delta, pos_cov, H_pos_);
 }
 
 double ErrorStateKalmanFilter::measureVelocity(
@@ -399,7 +415,7 @@ double ErrorStateKalmanFilter::measureVelocity(
   const Eigen::Vector3d gyro_nominal = gyro_meas - getGyroBias(x);
   const Eigen::Vector3d gyro_offset = gyro_nominal.cross(offset);
   const Eigen::Vector3d vel_nominal = getVelocity(x) + getQuaternion(x) * gyro_offset;
-  const Eigen::Vector3d delta_vel = vel_meas - vel_nominal;
+  const Eigen::Vector3d delta = vel_meas - vel_nominal;
 
   // 姿勢による偏微分
   const auto dqvq_dq = quatRotationDerivative(x, gyro_offset);
@@ -409,7 +425,7 @@ double ErrorStateKalmanFilter::measureVelocity(
   // ジャイロバイアスによる偏微分
   H_vel_.block<3, 3>(0, kDeltaGyroBiasIdx) = getDCM(x) * eigen::skew(offset);
 
-  return correct(delta_vel, vel_cov, H_vel_);
+  return correct(delta, vel_cov, H_vel_);
 }
 
 double ErrorStateKalmanFilter::measurePosVel(
@@ -450,9 +466,9 @@ double ErrorStateKalmanFilter::measureQuaternion(
   const auto& x = x_history_.closestAfterValue(time);
 
   const auto q_error = getQuaternion(x).conjugate() * q_meas;
-  const auto delta_theta = eigen::angleAxisFromQuaternion(q_error);
+  const auto delta = eigen::angleAxisFromQuaternion(q_error);
 
-  return correct(delta_theta, theta_cov, H_theta_);
+  return correct(delta, theta_cov, H_theta_);
 }
 
 double ErrorStateKalmanFilter::measurePose(
@@ -499,14 +515,14 @@ double ErrorStateKalmanFilter::measureMagneticField3d(
 
   // 観測誤差
   const auto mag_pred = T * mag_B + m_b;
-  const Eigen::Vector3d delta_mag = mag_meas - mag_pred;
+  const Eigen::Vector3d delta = mag_meas - mag_pred;
 
   // 観測方程式 (memo: 3-20)
   H_mag_.block<3, 3>(0, kDeltaThetaIdx) = T * eigen::skew(2 * mag_B);
   H_mag_.block<3, 6>(0, kDeltaMagSoftBiasIdx) << mx, my, mz, 0, 0, 0, 0, mx, 0, my, mz, 0, 0, 0, mx, 0, my, mz;
 
   // 事後推定を更新
-  return correct(delta_mag, mag_cov, H_mag_);
+  return correct(delta, mag_cov, H_mag_);
 }
 
 double ErrorStateKalmanFilter::measureMagneticFieldHead(
@@ -534,13 +550,13 @@ double ErrorStateKalmanFilter::measureMagneticFieldHead(
   // ヨーの誤差を計算
   const auto yaw_ref = std::atan2(mag_W_.y(), mag_W_.x());
   const auto yaw_meas = yaw_ref - std::atan2(my, mx);
-  const auto delta_yaw = algo::wrapPi(yaw_meas - yaw_pred);
+  const auto delta = algo::wrapPi(yaw_meas - yaw_pred);
 
   // 出力方程式を更新
   H_yaw_.block<1, 3>(0, kDeltaThetaIdx) = hamiltonToYawOutputMatrix(x) * getQ_dtheta(x);
 
   // 事後推定を更新
-  return correct(Eigen::Scalard(delta_yaw), Eigen::Scalard(yaw_var), H_yaw_);
+  return correct(Eigen::Scalard(delta), Eigen::Scalard(yaw_var), H_yaw_);
 }
 
 double ErrorStateKalmanFilter::measureAirPressure(
@@ -550,11 +566,11 @@ double ErrorStateKalmanFilter::measureAirPressure(
 {
   const auto& x = x_history_.closestAfterValue(time);
 
-  const auto z_abs = st::pressureToAltitude(pres);
-  const auto z_meas = z_abs - baro_alt_origin_;
-  const auto delta_z = z_meas - getAltitude(x);
+  const auto baro_alt_pred = getAltitude(x) + getBaroAltBias(x);
+  const auto baro_alt_meas = st::pressureToAltitude(pres) - baro_alt_origin_;
+  const auto delta = baro_alt_meas - baro_alt_pred;
 
-  return correct(Eigen::Scalard(delta_z), Eigen::Scalard(alt_var), H_z_);
+  return correct(Eigen::Scalard(delta), Eigen::Scalard(alt_var), H_baro_alt_);
 }
 
 Eigen::Matrix<double, 4, 3> ErrorStateKalmanFilter::getQ_dtheta(const StateVector& x) const
@@ -714,11 +730,11 @@ double ErrorStateKalmanFilter::measureGravity(
   const Eigen::Matrix3d R_B_W = getDCM(x).transpose();
   const Eigen::Vector3d grav_B = R_B_W * getGravVector(x);
   const Eigen::Vector3d acc_ref = getAccelBias(x) - grav_B;  // 動的な加速度なしで観測されるべき加速度
-  const Eigen::Vector3d delta_acc = acc_meas - acc_ref;  // TODO: モデルから推定した動的加速度を引いた値を観測値とする
+  const Eigen::Vector3d delta = acc_meas - acc_ref;  // TODO: モデルから推定した動的加速度を引いた値を観測値とする
 
   H_grav_.block<3, 3>(0, kDeltaThetaIdx) = -eigen::skew(2 * grav_B);
   H_grav_.col(kDeltaGravIdx) = R_B_W.col(2);
-  return correct(delta_acc, grav_cov, H_grav_);
+  return correct(delta, grav_cov, H_grav_);
 }
 }  // namespace eskf
 }  // namespace tobas

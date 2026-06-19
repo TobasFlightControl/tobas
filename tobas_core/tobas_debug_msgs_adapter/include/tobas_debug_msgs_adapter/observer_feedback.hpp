@@ -22,6 +22,7 @@ struct ObserverFeedback
   Eigen::Vector3d gyro_bias;
   Eigen::Vector3d mag_hard_bias;
   Eigen::Matrix3d mag_soft_bias;
+  double baro_alt_bias;
   double gravity;
 
   Eigen::Matrix3d position_cov;
@@ -31,6 +32,7 @@ struct ObserverFeedback
   Eigen::Matrix3d gyro_bias_cov;
   Eigen::Matrix3d mag_hard_bias_cov;
   Eigen::Matrix<double, 6, 6> mag_soft_bias_cov;
+  double baro_alt_bias_var;
   double gravity_var;
 
   double gnss_anomaly_score;
@@ -60,6 +62,7 @@ struct rclcpp::TypeAdapter<tobas_debug_msgs::ObserverFeedback, tobas_debug_msgs:
     tobas_eigen_msgs::Vector3dAdapter::convert_to_ros_message(src.gyro_bias, dst.gyro_bias);
     tobas_eigen_msgs::Vector3dAdapter::convert_to_ros_message(src.mag_hard_bias, dst.mag_hard_bias);
     tobas_eigen_msgs::Matrix3dAdapter::convert_to_ros_message(src.mag_soft_bias, dst.mag_soft_bias);
+    dst.baro_alt_bias = src.baro_alt_bias;
     dst.gravity = src.gravity;
 
     tobas_eigen_msgs::Matrix3dAdapter::convert_to_ros_message(src.position_cov, dst.position_cov);
@@ -69,6 +72,7 @@ struct rclcpp::TypeAdapter<tobas_debug_msgs::ObserverFeedback, tobas_debug_msgs:
     tobas_eigen_msgs::Matrix3dAdapter::convert_to_ros_message(src.gyro_bias_cov, dst.gyro_bias_cov);
     tobas_eigen_msgs::Matrix3dAdapter::convert_to_ros_message(src.mag_hard_bias_cov, dst.mag_hard_bias_cov);
     tobas_eigen_msgs::Matrix6dAdapter::convert_to_ros_message(src.mag_soft_bias_cov, dst.mag_soft_bias_cov);
+    dst.baro_alt_bias_var = src.baro_alt_bias_var;
     dst.gravity_var = src.gravity_var;
 
     dst.gnss_anomaly_score = src.gnss_anomaly_score;
@@ -85,6 +89,7 @@ struct rclcpp::TypeAdapter<tobas_debug_msgs::ObserverFeedback, tobas_debug_msgs:
     tobas_eigen_msgs::Vector3dAdapter::convert_to_custom(src.gyro_bias, dst.gyro_bias);
     tobas_eigen_msgs::Vector3dAdapter::convert_to_custom(src.mag_hard_bias, dst.mag_hard_bias);
     tobas_eigen_msgs::Matrix3dAdapter::convert_to_custom(src.mag_soft_bias, dst.mag_soft_bias);
+    dst.baro_alt_bias = src.baro_alt_bias;
     dst.gravity = src.gravity;
 
     tobas_eigen_msgs::Matrix3dAdapter::convert_to_custom(src.position_cov, dst.position_cov);
@@ -94,6 +99,7 @@ struct rclcpp::TypeAdapter<tobas_debug_msgs::ObserverFeedback, tobas_debug_msgs:
     tobas_eigen_msgs::Matrix3dAdapter::convert_to_custom(src.gyro_bias_cov, dst.gyro_bias_cov);
     tobas_eigen_msgs::Matrix3dAdapter::convert_to_custom(src.mag_hard_bias_cov, dst.mag_hard_bias_cov);
     tobas_eigen_msgs::Matrix6dAdapter::convert_to_custom(src.mag_soft_bias_cov, dst.mag_soft_bias_cov);
+    dst.baro_alt_bias_var = src.baro_alt_bias_var;
     dst.gravity_var = src.gravity_var;
 
     dst.gnss_anomaly_score = src.gnss_anomaly_score;
