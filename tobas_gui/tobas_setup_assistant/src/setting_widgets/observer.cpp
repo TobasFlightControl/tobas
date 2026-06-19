@@ -90,11 +90,8 @@ void ObserverWidget::updateInternalDataStructures()
 
 bool ObserverWidget::isValid()
 {
-  if (useMagnetometer() && useBarometer()) {
-    qt::qWarnBox(
-      this,
-      "You cannot enable both the barometer and GNSS at the same time "
-      "because both provide altitude information.");
+  if (useGnss() && useExternalPose()) {
+    qt::qWarnBox(this, "Multiple sources for 3D position cannot be enabled simultaneously.");
     return false;
   }
 
