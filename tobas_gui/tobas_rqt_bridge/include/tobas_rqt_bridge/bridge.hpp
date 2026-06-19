@@ -6,6 +6,8 @@
 #include <QObject>
 #include <rclcpp/rclcpp.hpp>
 
+#include <tobas_ros2_tools/qos.hpp>
+
 #include "./declare.hpp"
 
 namespace tobas
@@ -54,13 +56,27 @@ private:
   std::vector<rclcpp::SubscriptionBase::SharedPtr> scoped_subs_;
 
   template <typename MsgType, auto SignalType>
-  void add(const std::string& topic, std::vector<rclcpp::SubscriptionBase::SharedPtr>& buf);
+  void add(
+    const std::string& topic,
+    std::vector<rclcpp::SubscriptionBase::SharedPtr>& buf,
+    bool latch,
+    bool reliable,
+    size_t queue_size);
 
   template <typename MsgType, auto SignalType>
-  void addGlobal(const std::string& topic);
+  void addGlobal(
+    const std::string& topic,
+    bool latch = ros2::qos::kDefaultLatch,
+    bool reliable = ros2::qos::kDefaultReliable,
+    size_t queue_size = ros2::qos::kDefaultQueueSize);
 
   template <typename MsgType, auto SignalType>
-  void addScoped(const std::string& ns, const std::string& topic);
+  void addScoped(
+    const std::string& ns,
+    const std::string& topic,
+    bool latch = ros2::qos::kDefaultLatch,
+    bool reliable = ros2::qos::kDefaultReliable,
+    size_t queue_size = ros2::qos::kDefaultQueueSize);
 };
 }  // namespace gui
 }  // namespace tobas

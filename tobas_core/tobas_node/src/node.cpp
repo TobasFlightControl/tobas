@@ -12,7 +12,7 @@ BaseNode::BaseNode(const std::string& node_name, const rclcpp::NodeOptions& opti
 {
   RCLCPP_INFO_STREAM(get_logger(), "Initializing \"" << node_name << "\".");
 
-  message_pub_ = createPublisher<tobas_msgs::msg::Message>(topic::kMessage);
+  message_pub_ = createPublisher<tobas_msgs::msg::Message>(topic::kMessage, false, true, 1);
 }
 
 bool BaseNode::getBoolParam(const std::string& name)

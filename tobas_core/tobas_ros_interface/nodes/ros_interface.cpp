@@ -187,7 +187,7 @@ RosInterfaceNode::RosInterfaceNode(const rclcpp::NodeOptions& options)
   group_ = create_callback_group(rclcpp::CallbackGroupType::Reentrant);
 
   // Topics (Logic -> Interface)
-  addTopicLogicToIface<tobas_msgs::msg::Message>(topic::kMessage, topic::kMessage);
+  addTopicLogicToIface<tobas_msgs::msg::Message>(topic::kMessage, topic::kMessage, false, true, 100);
   addTopicLogicToIface<tobas_drone_msgs::msg::Drone>(topic::kDrone, topic::kDrone, true, true);
   addTopicLogicToIface<tobas_kdl_msgs::msg::Tree>(topic::kKdlTree, topic::kKdlTree, true, true);
   addTopicLogicToIface<tobas_msgs::msg::Battery>(addThrotNS(topic::kBattery), topic::kBattery);
