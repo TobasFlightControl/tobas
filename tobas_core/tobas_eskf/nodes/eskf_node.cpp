@@ -111,17 +111,17 @@ private:
   Vector3d gnss_offset_;  // [m] ルートリンクに対するGNSSレシーバの位置 (Local)
 
   // Dynamic parameters
-  Matrix3d fixed_acc_cov_ = Matrix3d::Identity();       // [m^2/s^4]
-  Matrix3d fixed_gyro_cov_ = Matrix3d::Identity();      // [rad^2/s^2]
-  Matrix3d fixed_mag_cov_ = Matrix3d::Identity();       // [-]
-  double fixed_head_var_ = 1.;                          // [rad^2]
-  double fixed_baro_alt_var_ = 1.;                      // [m^2]
-  Matrix3d fixed_gnss_pos_cov_ = Matrix3d::Identity();  // [m^2]
-  Matrix3d fixed_gnss_vel_cov_ = Matrix3d::Identity();  // [m^2/s^2]
-  Matrix3d fixed_grav_cov_ = Matrix3d::Identity();      // [m^2/s^4]
-  double grav_stddev_min_ = 1.;                         // [m/s^2]
-  double grav_stddev_max_ = 1.;                         // [m/s^2]
-  double grav_stddev_rate_ = 0.;                        // [-]
+  Matrix3d fixed_acc_cov_ = Matrix3d::Zero();       // [m^2/s^4]
+  Matrix3d fixed_gyro_cov_ = Matrix3d::Zero();      // [rad^2/s^2]
+  Matrix3d fixed_mag_cov_ = Matrix3d::Zero();       // [-]
+  double fixed_head_var_;                           // [rad^2]
+  double fixed_baro_alt_var_;                       // [m^2]
+  Matrix3d fixed_gnss_pos_cov_ = Matrix3d::Zero();  // [m^2]
+  Matrix3d fixed_gnss_vel_cov_ = Matrix3d::Zero();  // [m^2/s^2]
+  Matrix3d fixed_grav_cov_ = Matrix3d::Zero();      // [m^2/s^4]
+  double grav_stddev_min_;                          // [m/s^2]
+  double grav_stddev_max_;                          // [m/s^2]
+  double grav_stddev_rate_;                         // [-]
 
   // Publishers
   ros2::PublisherPtr<tobas_msgs::OdometryWithCovarianceStamped> odom_pub_;
