@@ -121,6 +121,7 @@ public:
   bool setGravProcNoiseDensity(double value);
 
   void setMagneticFieldRef(const Eigen::Vector3d& mag_W);
+  void setAirPressureOrigin(double pres);
 
   // Direct value getters
   inline Eigen::Vector3d getPosition() const;
@@ -182,8 +183,6 @@ public:
     const Eigen::Matrix2d& xy_cov,
     const std::chrono::steady_clock::time_point& time);
 
-  double measureAltitude(const double& z_meas, const double& z_var, const std::chrono::steady_clock::time_point& time);
-
   /**
    * @brief 速度の観測をノミナル状態に反映させる．
    *
@@ -231,6 +230,9 @@ public:
     const double& yaw_var,
     const std::chrono::steady_clock::time_point& time);
 
+  double
+  measureAirPressure(const double& pres, const double& alt_var, const std::chrono::steady_clock::time_point& time);
+
 private:
   // Configuration
   bool enable_second_integral_ = false;
@@ -263,6 +265,7 @@ private:
   std::chrono::steady_clock::time_point t_last_imu_;
   st::TimestampedBuffer<StateVector> x_history_;
   Eigen::Vector3d mag_W_ = Eigen::Vector3d::Zero();
+  double baro_alt_origin_ = 0.;
 
   // Direct value getters
   inline Eigen::Vector3d getPosition(const StateVector& x) const;

@@ -15,7 +15,6 @@
 #include <tobas_node/node.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_std_tools/gnss.hpp>
-#include <tobas_std_tools/standard_atmosphere.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_time_tools/util.hpp>
 
@@ -799,18 +798,15 @@ void ErrorStateKalmanFilterNode::baroCb(const tobas_msgs::msg::FluidPressure::Co
     init_pres_sum_.add(msg->pressure);
     if (++init_pres_cnt_ >= kInitBaroCount) {
       const auto init_pres_mean = init_pres_sum_.get() / init_pres_cnt_;
-      baro_alt_origin_ = st::pressureToAltitude(init_pres_mean);
+      eskf_.setAirPressureOrigin(init_pres_mean);
       baro_alt_origin_set_ = true;
       TOBAS_INFO("The pressure at zero altitude has been set to ", init_pres_mean * 1e-2, " hPa.");
     }
     return;
   }
 
-  const auto z_abs = st::pressureToAltitude(msg->pressure);
-  const auto z_m = z_abs - baro_alt_origin_;
-  const auto z_var = fixed_baro_alt_var_;
   const auto stamp = ros2::chronoFromRosTime(msg->header.stamp);
-  eskf_.measureAltitude(z_m, z_var, stamp);
+  eskf_.measureAirPressure(msg->pressure, fixed_baro_alt_var_, stamp);
 }
 
 void ErrorStateKalmanFilterNode::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& msg)

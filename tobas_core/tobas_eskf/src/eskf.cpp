@@ -8,6 +8,7 @@
 #include <tobas_algorithm/core.hpp>
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/geometry.hpp>
+#include <tobas_std_tools/standard_atmosphere.hpp>
 
 #define E3 Eigen::Diagonal3d(1, 1, 1)
 
@@ -268,6 +269,11 @@ void ErrorStateKalmanFilter::setMagneticFieldRef(const Eigen::Vector3d& mag_W)
   mag_W_ = mag_W.normalized();
 }
 
+void ErrorStateKalmanFilter::setAirPressureOrigin(double pres)
+{
+  baro_alt_origin_ = st::pressureToAltitude(pres);
+}
+
 double ErrorStateKalmanFilter::measureIMU(
   const Eigen::Vector3d& acc_meas,
   const Eigen::Vector3d& gyro_meas,
@@ -379,17 +385,6 @@ double ErrorStateKalmanFilter::measureXY(
 
   const Eigen::Vector2d delta_xy = xy_meas - getXY(x);
   return correct(delta_xy, xy_cov, H_xy_);
-}
-
-double ErrorStateKalmanFilter::measureAltitude(
-  const double& z_meas,
-  const double& z_var,
-  const ch::steady_clock::time_point& time)
-{
-  const auto& x = x_history_.closestAfterValue(time);
-
-  const double delta_z = z_meas - getAltitude(x);
-  return correct(Eigen::Scalard(delta_z), Eigen::Scalard(z_var), H_z_);
 }
 
 double ErrorStateKalmanFilter::measureVelocity(
@@ -546,6 +541,20 @@ double ErrorStateKalmanFilter::measureMagneticFieldHead(
 
   // 事後推定を更新
   return correct(Eigen::Scalard(delta_yaw), Eigen::Scalard(yaw_var), H_yaw_);
+}
+
+double ErrorStateKalmanFilter::measureAirPressure(
+  const double& pres,
+  const double& alt_var,
+  const ch::steady_clock::time_point& time)
+{
+  const auto& x = x_history_.closestAfterValue(time);
+
+  const auto z_abs = st::pressureToAltitude(pres);
+  const auto z_meas = z_abs - baro_alt_origin_;
+  const auto delta_z = z_meas - getAltitude(x);
+
+  return correct(Eigen::Scalard(delta_z), Eigen::Scalard(alt_var), H_z_);
 }
 
 Eigen::Matrix<double, 4, 3> ErrorStateKalmanFilter::getQ_dtheta(const StateVector& x) const
