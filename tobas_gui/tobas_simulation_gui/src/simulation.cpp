@@ -433,7 +433,8 @@ void SimulationWidget::launchSimulation(bool launch_core)
     command.append(arg_name + ":=" + arg_value);
   }
 
-  launch_proc_ = new QProcess();
+  launch_proc_ = new QProcess(this);
+  launch_proc_->setProcessChannelMode(QProcess::ForwardedChannels);  // 子プロセスの出力を呼び出し元へ転送
   connect(launch_proc_, qOverload<int, QProcess::ExitStatus>(&QProcess::finished), this, &self::onLaunchProcessFinished);
   launch_proc_->start("ros2", command);
 }
