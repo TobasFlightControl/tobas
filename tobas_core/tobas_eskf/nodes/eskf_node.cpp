@@ -523,7 +523,7 @@ double ErrorStateKalmanFilterNode::initMagSoftBiasStddev() const
 
 double ErrorStateKalmanFilterNode::initBaroAltBiasStddev() const
 {
-  return do_baro_alt_bias_estimation_ ? 1. : 0.;
+  return do_baro_alt_bias_estimation_ ? 0.1 : 0.;
 }
 
 double ErrorStateKalmanFilterNode::initGravBiasStddev() const
