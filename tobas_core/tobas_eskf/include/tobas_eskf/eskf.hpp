@@ -559,6 +559,7 @@ double ErrorStateKalmanFilter::correct(
   x_.segment<3>(kGyroBiasIdx) += delta_x.segment<3>(kDeltaGyroBiasIdx);
   x_.segment<3>(kMagHardBiasIdx) += delta_x.segment<3>(kDeltaMagHardBiasIdx);
   x_.segment<6>(kMagSoftBiasIdx) += delta_x.segment<6>(kDeltaMagSoftBiasIdx);
+  x_(kBaroAltBiasIdx) += delta_x(kDeltaBaroAltBiasIdx);
   x_(kGravIdx) += delta_x(kDeltaGravIdx);
 
   // (286) Initialize ESKF (Optional)
