@@ -58,35 +58,41 @@ class ErrorStateKalmanFilterNode : public BaseNode
   // Other constants
   static constexpr double kAccurateAttitudeStddevThresh = 0.05;  // [rad]
   static constexpr size_t kInitMagCount = 100;
+  static constexpr size_t kInitBaroCount = 100;
 
 public:
   explicit ErrorStateKalmanFilterNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  // 固定値
-  struct GeoPoint
-  {
-    double latitude;
-    double longitude;
-    double altitude;
-  } gnss_origin_;
-  double alt_0_baro_;
+  eskf::ErrorStateKalmanFilter eskf_;
 
   Vector3d pos_meas_;
   Matrix6d gnss_cov_ = Matrix6d::Zero();
   tobas_msgs::Imu::ConstSharedPtr imu_raw_, imu_filt_;
   tobas_msgs::MagneticField::ConstSharedPtr mag_;
-  tobas_msgs::msg::FluidPressure::ConstSharedPtr baro_;
   tobas_msgs::Gnss::ConstSharedPtr gnss_;
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
-  bool mag_ref_set_ = false;  // 地磁気の参照値が設定されているかどうか
   bool gnss_fix_ = false;
   double gnss_anomaly_score_ = 0.;
 
-  eskf::ErrorStateKalmanFilter eskf_;
-
+  // 地磁気参照値関連
+  bool mag_ref_set_ = false;
   size_t init_mag_cnt_ = 0;
   std::array<algo::Kahan<double>, 3> init_mag_sum_;
+
+  // 気圧高度原点関連
+  double baro_alt_origin_;  // 気圧高度原点
+  bool baro_alt_origin_set_ = false;
+  size_t init_pres_cnt_ = 0;
+  algo::Kahan<double> init_pres_sum_;
+
+  // GNSS座標原点関連
+  struct GeoPoint
+  {
+    double latitude;
+    double longitude;
+    double altitude;
+  } gnss_origin_;  // GNSS座標原点
 
   // Static parameters
   std::string frame_id_;
@@ -102,7 +108,6 @@ private:
   bool do_mag_soft_bias_estimation_;
   bool do_grav_estimation_;
   Vector3d imu_offset_;   // [m] ルートリンクに対するIMUの位置 (Local)
-  Vector3d baro_offset_;  // [m] ルートリンクに対する気圧センサの位置 (Local)
   Vector3d gnss_offset_;  // [m] ルートリンクに対するGNSSレシーバの位置 (Local)
 
   // Dynamic parameters
@@ -217,10 +222,8 @@ void ErrorStateKalmanFilterNode::getStaticRosParams()
   do_grav_estimation_ = getBoolParam("do_gravity_estimation");
 
   const auto imu_offset = getDoubleArrayParam("imu_offset");
-  const auto baro_offset = getDoubleArrayParam("barometer_offset");
   const auto gnss_offset = getDoubleArrayParam("gnss_offset");
   imu_offset_ = Map<const Vector3d>(imu_offset.data());
-  baro_offset_ = Map<const Vector3d>(baro_offset.data());
   gnss_offset_ = Map<const Vector3d>(gnss_offset.data());
 }
 
@@ -369,7 +372,7 @@ void ErrorStateKalmanFilterNode::setMagneticFieldRef(const Vector3d& mag_W)
   // 地磁気の参照値を発行
   publishMagRef(mag_W);
 
-  TOBAS_INFO("Reference magnetic field is set to be: ", mag_W.transpose());
+  TOBAS_INFO("The reference magnetic field has been set to ", mag_W.transpose(), ".");
   mag_ref_set_ = true;
 }
 
@@ -791,22 +794,21 @@ void ErrorStateKalmanFilterNode::baroCb(const tobas_msgs::msg::FluidPressure::Co
     return;
   }
 
-  // 気圧高度の初期値
-  // TODO: IMUフレームに変換
-  if (!baro_) {
-    alt_0_baro_ = st::pressureToAltitude(msg->pressure);
-  }
-
-  baro_ = msg;
-
-  // FIXME: ESKFに気圧高度のバイアスを追加し，気圧高度とGPS高度のフュージョンを行う．
-  if (gnss_) {
+  // 気圧高度の初期値を設定
+  if (!baro_alt_origin_set_) {
+    init_pres_sum_.add(msg->pressure);
+    if (++init_pres_cnt_ >= kInitBaroCount) {
+      const auto init_pres_mean = init_pres_sum_.get() / init_pres_cnt_;
+      baro_alt_origin_ = st::pressureToAltitude(init_pres_mean);
+      baro_alt_origin_set_ = true;
+      TOBAS_INFO("The pressure at zero altitude has been set to ", init_pres_mean * 1e-2, " hPa.");
+    }
     return;
   }
 
   const auto z_abs = st::pressureToAltitude(msg->pressure);
+  const auto z_m = z_abs - baro_alt_origin_;
   const auto z_var = fixed_baro_alt_var_;
-  const auto z_m = z_abs - alt_0_baro_;
   const auto stamp = ros2::chronoFromRosTime(msg->header.stamp);
   eskf_.measureAltitude(z_m, z_var, stamp);
 }
