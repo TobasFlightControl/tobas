@@ -17,6 +17,7 @@ PlotTabWidget::PlotTabWidget(
   const QVector<tobas_msgs::msg::Imu>& raw_imu_data,
   const QVector<tobas_msgs::msg::Imu>& filt_imu_data,
   const QVector<tobas_msgs::msg::MagneticField>& mag_data,
+  const QVector<tobas_msgs::msg::FluidPressure>& pressure_data,
   const QVector<tobas_msgs::msg::Gnss>& gnss_data,
   const QVector<tobas_msgs::msg::RCInput>& rcin_data,
   const QVector<tobas_msgs::msg::Battery>& battery_data,
@@ -41,6 +42,7 @@ PlotTabWidget::PlotTabWidget(
   , raw_imu_data_(raw_imu_data)
   , filt_imu_data_(filt_imu_data)
   , mag_data_(mag_data)
+  , pressure_data_(pressure_data)
   , gnss_data_(gnss_data)
   , rcin_data_(rcin_data)
   , battery_data_(battery_data)
@@ -67,6 +69,7 @@ PlotTabWidget::PlotTabWidget(
   imu_plot_ = new ImuPlotWidget();
   imu_fft_plot_ = new ImuFftPlotWidget();
   mag_plot_ = new MagPlotWidget();
+  pressure_plot_ = new AirPressurePlotWidget();
   gnss_plot_ = new GnssPlotWidget();
   rcin_plot_ = new RcInputPlotWidget();
   battery_plot_ = new BatteryPlotWidget();
@@ -92,6 +95,7 @@ PlotTabWidget::PlotTabWidget(
   addTab(imu_plot_, "IMU");
   addTab(imu_fft_plot_, "IMU FFT");
   addTab(mag_plot_, "Magnetic\nField");
+  addTab(pressure_plot_, "Air\nPressure");
   addTab(gnss_plot_, "GNSS");
   addTab(rcin_plot_, "RC Input");
   addTab(battery_plot_, "Battery");
@@ -158,6 +162,9 @@ void PlotTabWidget::plot(int index)
   }
   else if (cur_widget == mag_plot_) {
     mag_plot_->setData(mag_data_);
+  }
+  else if (cur_widget == pressure_plot_) {
+    pressure_plot_->setData(pressure_data_);
   }
   else if (cur_widget == gnss_plot_) {
     gnss_plot_->setData(gnss_data_);

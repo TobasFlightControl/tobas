@@ -6,6 +6,7 @@
 #include <tobas_qt_tools/widgets/tab_widget.hpp>
 
 #include "./plots/accel_plot.hpp"
+#include "./plots/air_pressure_plot.hpp"
 #include "./plots/battery_plot.hpp"
 #include "./plots/cpu_plot.hpp"
 #include "./plots/dist_force_plot.hpp"
@@ -53,6 +54,7 @@ public:
     const QVector<tobas_msgs::msg::Imu>& raw_imu_data,
     const QVector<tobas_msgs::msg::Imu>& filt_imu_data,
     const QVector<tobas_msgs::msg::MagneticField>& mag_data,
+    const QVector<tobas_msgs::msg::FluidPressure>& pressure_data,
     const QVector<tobas_msgs::msg::Gnss>& gnss_data,
     const QVector<tobas_msgs::msg::RCInput>& rcin_data,
     const QVector<tobas_msgs::msg::Battery>& battery_data,
@@ -83,6 +85,7 @@ private:
   const QVector<tobas_msgs::msg::Imu>& raw_imu_data_;
   const QVector<tobas_msgs::msg::Imu>& filt_imu_data_;
   const QVector<tobas_msgs::msg::MagneticField>& mag_data_;
+  const QVector<tobas_msgs::msg::FluidPressure>& pressure_data_;
   const QVector<tobas_msgs::msg::Gnss>& gnss_data_;
   const QVector<tobas_msgs::msg::RCInput>& rcin_data_;
   const QVector<tobas_msgs::msg::Battery>& battery_data_;
@@ -109,6 +112,7 @@ private:
   ImuPlotWidget* imu_plot_;
   ImuFftPlotWidget* imu_fft_plot_;
   MagPlotWidget* mag_plot_;
+  AirPressurePlotWidget* pressure_plot_;
   GnssPlotWidget* gnss_plot_;
   RcInputPlotWidget* rcin_plot_;
   BatteryPlotWidget* battery_plot_;

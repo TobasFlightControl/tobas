@@ -43,6 +43,7 @@ private:
   QVector<tobas_msgs::msg::Imu> raw_imu_data_;
   QVector<tobas_msgs::msg::Imu> filt_imu_data_;
   QVector<tobas_msgs::msg::MagneticField> mag_data_;
+  QVector<tobas_msgs::msg::FluidPressure> pressure_data_;
   QVector<tobas_msgs::msg::Gnss> gnss_data_;
   QVector<tobas_msgs::msg::RCInput> rcin_data_;
   QVector<tobas_msgs::msg::Battery> battery_data_;
@@ -67,6 +68,7 @@ private:
   MessageDecoderCache<tobas_msgs::msg::OdometryStamped> odom_decoder_;
   MessageDecoderCache<tobas_msgs::msg::Imu> imu_decoder_;
   MessageDecoderCache<tobas_msgs::msg::MagneticField> mag_decoder_;
+  MessageDecoderCache<tobas_msgs::msg::FluidPressure> pressure_decoder_;
   MessageDecoderCache<tobas_msgs::msg::Gnss> gnss_decoder_;
   MessageDecoderCache<tobas_msgs::msg::RCInput> rcin_decoder_;
   MessageDecoderCache<tobas_msgs::msg::Battery> battery_decoder_;

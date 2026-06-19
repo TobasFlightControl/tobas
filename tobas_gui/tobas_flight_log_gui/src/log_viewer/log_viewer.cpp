@@ -39,6 +39,7 @@ FlightLogViewerWidget::FlightLogViewerWidget()
       raw_imu_data_,
       filt_imu_data_,
       mag_data_,
+      pressure_data_,
       gnss_data_,
       rcin_data_,
       battery_data_,
@@ -178,6 +179,7 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
   raw_imu_data_.clear();
   filt_imu_data_.clear();
   mag_data_.clear();
+  pressure_data_.clear();
   gnss_data_.clear();
   rcin_data_.clear();
   battery_data_.clear();
@@ -231,6 +233,9 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
       }
       else if (topic.ends_with(str::concat('/', topic::kMagneticField).data())) {
         mag_data_.append(mag_decoder_.decode(cur_time, ser_data));
+      }
+      else if (topic.ends_with(str::concat('/', topic::kAirPressure).data())) {
+        pressure_data_.append(pressure_decoder_.decode(cur_time, ser_data));
       }
       else if (topic.ends_with(str::concat('/', topic::kGnss).data())) {
         gnss_data_.append(gnss_decoder_.decode(cur_time, ser_data));
