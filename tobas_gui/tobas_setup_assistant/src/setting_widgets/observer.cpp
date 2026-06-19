@@ -19,7 +19,7 @@ ObserverWidget::ObserverWidget()
   addWidget(use_magnetometer_);
 
   use_barometer_ = new QCheckBox("Use Barometer");
-  use_barometer_->setChecked(false);
+  use_barometer_->setChecked(true);
   addWidget(use_barometer_);
 
   use_gnss_ = new QCheckBox("Use GNSS");
