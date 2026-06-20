@@ -537,7 +537,8 @@ double ErrorStateKalmanFilter::correct(
   const DeltaStateVector delta_x = K * delta_meas;
 
   // (276) Update covariance matrix
-  const DeltaStateMatrix I_KH = DeltaStateMatrix::Identity() - K * H;
+  const auto I = DeltaStateVector::Ones().asDiagonal();
+  const DeltaStateMatrix I_KH = I - K * H;
   if (enable_joseph_form_) {
     // 対称正定が保持されやすい
     const auto P1 = I_KH * P_.selfadjointView<Eigen::Lower>() * I_KH.transpose();
