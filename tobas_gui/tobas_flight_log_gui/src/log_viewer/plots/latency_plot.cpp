@@ -3,7 +3,7 @@
 
 #include "tobas_flight_log_gui/log_viewer/plots/latency_plot.hpp"
 
-#include <QVBoxLayout>
+#include <QGridLayout>
 
 #include <tobas_ros2_tools/time.hpp>
 
@@ -14,24 +14,44 @@ namespace gui
 namespace log
 {
 LatencyPlotWidget::LatencyPlotWidget()
-  : sampling_time_curve_("IMU Sampling Time [us]"), ctrl_latency_curve_("Control Latency [us]")
+  : sampling_time_curve_("IMU Sampling Interval [us]")
+  , ctrl_latency_curve_("Control Latency [us]")
+  , sampling_time_hist_data_("IMU Sampling Interval Histogram")
+  , ctrl_latency_hist_data_("Control Latency Histogram")
 {
-  const auto rows = new QVBoxLayout();
-  setLayout(rows);
-
   sampling_time_plot_ = new QwtPlot2();
   sampling_time_plot_->setAxisNoLabel(QwtPlot::xBottom);
-  sampling_time_plot_->setAxisScale(QwtPlot::yLeft, 500, 2000);
+  sampling_time_plot_->setAxisScale(QwtPlot::yLeft, kSamplingTimeMin, kSamplingTimeMax);
   sampling_time_curve_.setPen(Qt::black, kLineWidth);
   sampling_time_curve_.attach(sampling_time_plot_);
-  rows->addWidget(sampling_time_plot_, 1);
 
   ctrl_latency_plot_ = new QwtPlot2();
   ctrl_latency_plot_->setAxisNoLabel(QwtPlot::xBottom);
-  ctrl_latency_plot_->setAxisScale(QwtPlot::yLeft, 0, 1500);
+  ctrl_latency_plot_->setAxisScale(QwtPlot::yLeft, kControlLatencyMin, kControlLatencyMax);
   ctrl_latency_curve_.setPen(Qt::black, kLineWidth);
   ctrl_latency_curve_.attach(ctrl_latency_plot_);
-  rows->addWidget(ctrl_latency_plot_, 1);
+
+  sampling_time_hist_plot_ = new QwtPlot2();
+  sampling_time_hist_plot_->setAxisScale(QwtPlot::xBottom, kSamplingTimeMin, kSamplingTimeMax);
+  sampling_time_hist_plot_->setAxisLabelUnit(QwtPlot::xBottom, "us");
+  sampling_time_hist_data_.setPen(Qt::black, kLineWidth);
+  sampling_time_hist_data_.setBrush(Qt::gray);
+  sampling_time_hist_data_.attach(sampling_time_hist_plot_);
+
+  ctrl_latency_hist_plot_ = new QwtPlot2();
+  ctrl_latency_hist_plot_->setAxisScale(QwtPlot::xBottom, kControlLatencyMin, kControlLatencyMax);
+  ctrl_latency_hist_plot_->setAxisLabelUnit(QwtPlot::xBottom, "us");
+  ctrl_latency_hist_data_.setPen(Qt::black, kLineWidth);
+  ctrl_latency_hist_data_.setBrush(Qt::gray);
+  ctrl_latency_hist_data_.attach(ctrl_latency_hist_plot_);
+
+  // Layout
+  const auto grid = new QGridLayout();
+  setLayout(grid);
+  grid->addWidget(sampling_time_plot_, 0, 0, 1, 1);
+  grid->addWidget(ctrl_latency_plot_, 1, 0, 1, 1);
+  grid->addWidget(sampling_time_hist_plot_, 0, 1, 1, 1);
+  grid->addWidget(ctrl_latency_hist_plot_, 1, 1, 1, 1);
 }
 
 void LatencyPlotWidget::clear()
@@ -41,6 +61,12 @@ void LatencyPlotWidget::clear()
 
   ctrl_latency_curve_.clear();
   ctrl_latency_plot_->replot();
+
+  sampling_time_hist_data_.clear();
+  sampling_time_hist_plot_->replot();
+
+  ctrl_latency_hist_data_.clear();
+  ctrl_latency_hist_plot_->replot();
 }
 
 void LatencyPlotWidget::setTimeScale(double t_start, double t_stop)
@@ -69,6 +95,9 @@ void LatencyPlotWidget::setSamplingTimeData(const QVector<tobas_msgs::msg::Laten
 
   sampling_time_curve_.setSamples(t_data, val_data);
   sampling_time_plot_->replot();
+
+  sampling_time_hist_data_.setSamples(val_data, kSamplingTimeMin, kSamplingTimeMax, kBinWidth);
+  sampling_time_hist_plot_->replot();
 }
 
 void LatencyPlotWidget::setControlLatencyData(const QVector<tobas_msgs::msg::Latency>& msgs)
@@ -83,6 +112,9 @@ void LatencyPlotWidget::setControlLatencyData(const QVector<tobas_msgs::msg::Lat
 
   ctrl_latency_curve_.setSamples(t_data, val_data);
   ctrl_latency_plot_->replot();
+
+  ctrl_latency_hist_data_.setSamples(val_data, kControlLatencyMin, kControlLatencyMax, kBinWidth);
+  ctrl_latency_hist_plot_->replot();
 }
 }  // namespace log
 }  // namespace gui
