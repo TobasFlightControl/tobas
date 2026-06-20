@@ -95,13 +95,19 @@ bool QpMixer::solve(
   const auto eom_rot_right_B = I_B * tar_dgyro_B + cur_gyro_B * (I_B * cur_gyro_B) - ext_torque_B;  // [Nm]
   h_.tail<3>() = eom_rot_right_B.data;
 
-  // 重み
-  const auto linear_scale = mass * kAccelScale;                              // [N]
-  const auto angular_scale = (I_B.trace() / 3) * kDGyroScale;                // [Nm]
-  const auto thrust_scale = mass * st::kGravity / drone_.prop->numRotors();  // [N]
+  // EoMに対する重み
+  const auto linear_scale = mass * kAccelScale;                // [N]
+  const auto angular_scale = (I_B.trace() / 3) * kDGyroScale;  // [Nm]
   Q_.diagonal().head<3>().fill(cfg_.linear_weight / math::sqr(linear_scale));
   Q_.diagonal().tail<3>().fill(cfg_.angular_weight / math::sqr(angular_scale));
-  R_.diagonal().fill(cfg_.thrust_weight / math::sqr(thrust_scale));
+
+  // 推力に対する重み
+  const auto thrust_scale = mass * st::kGravity / drone_.prop->numRotors();  // [N]
+  const auto thrust_weight_base = cfg_.thrust_weight / math::sqr(thrust_scale);
+  for (const auto& [idx, pair] : std::views::enumerate(drone_.prop->rotors)) {
+    const auto& rotor = pair.second;
+    R_.diagonal()(idx) = thrust_weight_base * rotor->effortWeight();
+  }
 
   // 目的関数
   qp_.problem.P = G_.transpose() * Q_ * G_ + R_;

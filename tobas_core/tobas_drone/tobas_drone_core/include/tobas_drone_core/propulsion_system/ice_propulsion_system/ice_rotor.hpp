@@ -42,8 +42,8 @@ public:
   bool load(const YAML::Node& node) override;
   YAML::Node dump() const override;
 
-  /* 最も効率の良いピッチ角における反トルク係数 [m] を求める． */
   inline double momentConst() const override;
+  inline double effortWeight() const override;
 
   /* ピッチ角 [rad] から推力定数 [kg*m/rad^2] を求める． */
   inline double motorConst(double pitch_angle) const;
@@ -67,6 +67,11 @@ public:
 inline double IceRotorConfig::momentConst() const
 {
   return moment_const.compute(center_pitch);
+}
+
+inline double IceRotorConfig::effortWeight() const
+{
+  return momentConst();  // プロペラ効率そのまま
 }
 
 inline double IceRotorConfig::motorConst(double pitch_angle) const

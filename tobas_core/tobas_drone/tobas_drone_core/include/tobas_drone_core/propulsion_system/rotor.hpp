@@ -31,6 +31,9 @@ public:
   /* 推力と反トルクの比率 [m] */
   virtual double momentConst() const = 0;
 
+  /* このアクチュエータで推力を出すコスト（ミキシングで使用） */
+  virtual double effortWeight() const = 0;
+
   /* CCW = 1, CW = -1 */
   inline int sign() const;
 };

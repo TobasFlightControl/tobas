@@ -6,6 +6,7 @@
 #include <ranges>
 
 #include <tobas_constants/scale.hpp>
+#include <tobas_eigen_tools/operators.hpp>
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 
@@ -83,15 +84,20 @@ bool QpMixer::solve(
   // EoM行列等式の右辺
   h_ = (I_B * tar_dgyro_B + cur_gyro_B * (I_B * cur_gyro_B) - ext_torque_B).data;  // [Nm]
 
-  // 重み
-  const auto angular_scale = (I_B.trace() / 3) * kDGyroScale;                // [Nm]
-  const auto thrust_scale = mass * st::kGravity / drone_.prop->numRotors();  // [N]
+  // EoMに対する重み
+  const auto angular_scale = (I_B.trace() / 3) * kDGyroScale;  // [Nm]
   Q_.diagonal().fill(cfg_.base_weight / math::sqr(angular_scale));
-  R_.diagonal().fill(cfg_.thrust_weight / math::sqr(thrust_scale));
 
-  // コスト関数
-  qp_.problem.P = G_.transpose() * Q_ * G_;
-  qp_.problem.P.diagonal() += R_.diagonal();
+  // 推力に対する重み
+  const auto thrust_scale = mass * st::kGravity / drone_.prop->numRotors();  // [N]
+  const auto thrust_weight_base = cfg_.thrust_weight / math::sqr(thrust_scale);
+  for (const auto& [idx, pair] : std::views::enumerate(drone_.prop->rotors)) {
+    const auto& rotor = pair.second;
+    R_.diagonal()(idx) = thrust_weight_base * rotor->effortWeight();
+  }
+
+  // 目的関数
+  qp_.problem.P = G_.transpose() * Q_ * G_ + R_;
   qp_.problem.q = -G_.transpose() * Q_ * h_;
 
   // 不等式制約
@@ -129,7 +135,6 @@ bool QpMixer::solve(
   qp_.problem.h(0) = std::clamp(tar_thrusts_sum, min_thrust_sum + kThrustMargin, max_thrust_sum - kThrustMargin);
 
   // QPPを解く
-  // TODO: 正則化項を入れると必ず解のシフトが発生するため，階層QPを使うか，Gのランクによって分岐
   // stopwatch_.start();
   if (!qp_.solve()) {
     std::cerr << "QP failed: " << qp_.errorMessage() << std::endl;
@@ -169,21 +174,19 @@ bool QpMixer::setThrustWeight(double p)
 
 void QpMixer::resizeAndFill()
 {
-  const auto nr = drone_.prop->numRotors();
+  const auto var_size = drone_.prop->numRotors();
 
-  qp_.resize(nr, 1, nr * 2);
+  qp_.resize(var_size, 1, var_size * 2);
   qp_.setZero();
 
-  // QPの決定変数のスケール．推力のみなので統一してよい．
   qp_.x_scale.setOnes();
 
-  // QPPの定数部分
   qp_.problem.G.fill(1);
-  qp_.problem.A.topRows(nr).diagonal().fill(1);
-  qp_.problem.A.bottomRows(nr).diagonal().fill(-1);
+  qp_.problem.A.topRows(var_size).diagonal().fill(1);
+  qp_.problem.A.bottomRows(var_size).diagonal().fill(-1);
 
-  R_.resize(nr);
-  G_.resize(Eigen::NoChange, nr);
+  R_.resize(var_size);
+  G_.resize(Eigen::NoChange, var_size);
 }
 }  // namespace planar_multicopter
 }  // namespace tobas

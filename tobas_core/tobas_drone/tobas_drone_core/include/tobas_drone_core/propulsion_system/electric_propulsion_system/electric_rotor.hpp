@@ -45,6 +45,7 @@ public:
   YAML::Node dump() const override;
 
   inline double momentConst() const override;
+  inline double effortWeight() const override;
 
   /* 回転数 [rad/s] から印加電圧 [V] を求める． */
   inline double voltageFromSpeed(double tar_speed) const;
@@ -71,6 +72,11 @@ public:
 inline double ElectricRotorConfig::momentConst() const
 {
   return moment_const;
+}
+
+inline double ElectricRotorConfig::effortWeight() const
+{
+  return kv * moment_const;  // 推力に対する電流の比率 (I = N / kt = kv cm T)
 }
 
 inline double ElectricRotorConfig::voltageFromSpeed(double tar_speed) const
