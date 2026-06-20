@@ -262,7 +262,7 @@ std::string CsvExportThread::makeCsvHeader() const
                 "Observer/MagHardIronBias/X[-],Observer/MagHardIronBias/Y[-],Observer/MagHardIronBias/Z[-],"
                 "Observer/MagSoftIronBias/XX[-],Observer/MagSoftIronBias/YY[-],Observer/MagSoftIronBias/ZZ[-],"
                 "Observer/MagSoftIronBias/XY[-],Observer/MagSoftIronBias/YZ[-],Observer/MagSoftIronBias/ZX[-],"
-                "Observer/Gravity[m/s^2],Observer/GNSSAnomalyScore,"
+                "Observer/BarometerAltitudeBias[m],Observer/Gravity[m/s^2],Observer/GNSSAnomalyScore,"
                 "MultirotorController/IntegralError/X[m*s],"
                 "MultirotorController/IntegralError/Y[m*s],"
                 "MultirotorController/IntegralError/Z[m*s],"
@@ -483,10 +483,11 @@ std::string CsvExportThread::makeCsvDataRow(Time time, const SerializedDataMap& 
            std::to_string(mhb.data[0]) + ',' + std::to_string(mhb.data[1]) + ',' + std::to_string(mhb.data[2]) + ',' +
            std::to_string(msb.data[0]) + ',' + std::to_string(msb.data[4]) + ',' + std::to_string(msb.data[8]) + ',' +
            std::to_string(msb.data[1]) + ',' + std::to_string(msb.data[5]) + ',' + std::to_string(msb.data[2]) + ',' +
-           std::to_string(msg.gravity) + ',' + std::to_string(msg.gnss_anomaly_score) + ',';
+           std::to_string(msg.baro_alt_bias) + ',' + std::to_string(msg.gravity) + ',' +
+           std::to_string(msg.gnss_anomaly_score) + ',';
   }
   else {
-    res += std::string(17, ',');
+    res += std::string(18, ',');
   }
 
   // Multirotor Controller Feedback

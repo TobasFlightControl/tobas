@@ -105,7 +105,6 @@ double pressureToDensity(const double& p);
 
 /**
  * @brief 対流圏の標準大気を仮定し，大気圧[Pa]から幾何高度[m]を求める．
- * cf. file:///home/dohi/Downloads/IPSJ-DICOMO2013164.pdf
  *
  * @param pressure 気圧 [Pa]
  * @return double 幾何高度 [m]
@@ -114,7 +113,6 @@ double pressureToAltitude(const double& pressure);
 
 /**
  * @brief 対流圏の標準大気を仮定し，大気圧[Pa]から幾何高度[m]を求める．加えて分散も変換する．
- * cf. file:///home/dohi/Downloads/IPSJ-DICOMO2013164.pdf
  *
  * @param pressure 気圧 [Pa]
  * @param pressure_var 気圧の分散 [Pa^2]
