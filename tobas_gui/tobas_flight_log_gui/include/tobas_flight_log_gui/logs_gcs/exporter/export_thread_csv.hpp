@@ -26,7 +26,8 @@
 #include <tobas_msgs/msg/rotor_state_array.hpp>
 #include <tobas_msgs/msg/vibration_level.hpp>
 
-#include "./message_decoder.hpp"
+#include "../message_decoder.hpp"
+#include "./export_thread.hpp"
 
 namespace tobas
 {
@@ -34,7 +35,7 @@ namespace gui
 {
 namespace log
 {
-class CsvExportThread : public QThread
+class ExportThreadCsv : public ExportThread
 {
   Q_OBJECT
 
@@ -44,11 +45,8 @@ class CsvExportThread : public QThread
 
   static constexpr Time kExpirationTime = 1'000'000'000;  // [ns]
 
-Q_SIGNALS:
-  void finished(bool success, const QString& message);
-
 public:
-  explicit CsvExportThread(const QString& log_name, const QString& save_path);
+  explicit ExportThreadCsv(const QString& log_name, const QString& save_path);
 
   void run() override;
 
