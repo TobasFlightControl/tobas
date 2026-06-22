@@ -200,7 +200,7 @@ class SSHClientWrapper:
 
         # 一時オブジェクトをリモートディレクトリ直下に同期
         # リモートディレクトリが存在しない場合は自動で作成される
-        success, _, error_output = self.exec_command_super(f"rsync -rc --delete {tmp_path} {remote_dir}")
+        success, _, error_output = self.exec_command_super(f"rsync -rcm --delete {tmp_path} {remote_dir}")
         if not success:
             raise RuntimeError(f"Failed to move {tmp_path} to {remote_dir}: {error_output}")
 
