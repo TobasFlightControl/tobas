@@ -5,7 +5,6 @@
 
 #include <fstream>
 
-#include <QThread>
 #include <rosbag2_cpp/reader.hpp>
 
 #include <tobas_debug_msgs/msg/multicopter_controller_feedback.hpp>
