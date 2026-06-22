@@ -17,6 +17,7 @@
 
 #include "tobas_flight_log_gui/constants.hpp"
 #include "tobas_flight_log_gui/logs_gcs/exporter/export_thread_csv.hpp"
+#include "tobas_flight_log_gui/logs_gcs/exporter/export_thread_rosbag.hpp"
 #include "tobas_flight_log_gui/logs_gcs/log_item.hpp"
 
 namespace fs = std::filesystem;
@@ -254,7 +255,7 @@ void FlightLogsWidgetGCS::onExportButtonClicked(const QString& log_name)
     thread = new ExportThreadCsv(log_name, save_path);
   }
   else if (selected_filter == kFilterTextRosbag) {
-    // TODO
+    thread = new ExportThreadRosbag(log_name, save_path);
   }
   else {
     throw std::runtime_error("Unexpected filter: " + selected_filter.toStdString());
