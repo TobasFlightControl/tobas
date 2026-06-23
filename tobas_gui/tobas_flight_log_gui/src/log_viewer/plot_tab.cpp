@@ -14,8 +14,8 @@ namespace log
 PlotTabWidget::PlotTabWidget(
   const QVector<tobas_msgs::msg::OdometryWithCovarianceStamped>& odom_data,
   const QVector<tobas_msgs::msg::OdometryStamped>& setpoint_data,
-  const QVector<tobas_msgs::msg::Imu>& raw_imu_data,
-  const QVector<tobas_msgs::msg::Imu>& filt_imu_data,
+  const QVector<tobas_msgs::msg::Imu>& imu_raw_data,
+  const QVector<tobas_msgs::msg::Imu>& imu_filt_data,
   const QVector<tobas_msgs::msg::MagneticField>& mag_data,
   const QVector<tobas_msgs::msg::FluidPressure>& pressure_data,
   const QVector<tobas_msgs::msg::Gnss>& gnss_data,
@@ -39,8 +39,8 @@ PlotTabWidget::PlotTabWidget(
   const QVector<tobas_debug_msgs::msg::MulticopterControllerFeedback>& mr_ctrl_fb_data)
   : odom_data_(odom_data)
   , setpoint_data_(setpoint_data)
-  , raw_imu_data_(raw_imu_data)
-  , filt_imu_data_(filt_imu_data)
+  , imu_raw_data_(imu_raw_data)
+  , imu_filt_data_(imu_filt_data)
   , mag_data_(mag_data)
   , pressure_data_(pressure_data)
   , gnss_data_(gnss_data)
@@ -155,10 +155,10 @@ void PlotTabWidget::plot(int index)
     accel_plot_->setData(odom_data_, setpoint_data_);
   }
   else if (cur_widget == imu_plot_) {
-    imu_plot_->setData(raw_imu_data_, filt_imu_data_);
+    imu_plot_->setData(imu_raw_data_, imu_filt_data_);
   }
   else if (cur_widget == imu_fft_plot_) {
-    imu_fft_plot_->setData(raw_imu_data_, filt_imu_data_);
+    imu_fft_plot_->setData(imu_raw_data_, imu_filt_data_);
   }
   else if (cur_widget == mag_plot_) {
     mag_plot_->setData(mag_data_);

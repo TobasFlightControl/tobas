@@ -34,31 +34,31 @@ FlightLogViewerWidget::FlightLogViewerWidget()
 
   for (const auto& [idx, plot_tab] : std::views::enumerate(plot_tabs_)) {
     plot_tab = new PlotTabWidget(
-      odom_data_,
-      setpoint_data_,
-      raw_imu_data_,
-      filt_imu_data_,
-      mag_data_,
-      pressure_data_,
-      gnss_data_,
-      rcin_data_,
-      battery_data_,
-      cpu_data_,
-      cur_rotor_states_data_,
-      tar_rotor_speeds_data_,
-      cur_joint_states_data_,
-      tar_joint_positions_data_,
-      tar_joint_velocities_data_,
-      tar_joint_efforts_data_,
-      ice_cmd_data_,
-      pwm_data_,
-      sampling_time_data_,
-      ctrl_latency_data_,
-      vibe_data_,
-      repulsive_accel_data_,
-      dist_force_data_,
-      obsv_fb_data_,
-      mr_ctrl_fb_data_);
+      odom_.data,
+      setpoint_.data,
+      imu_raw_.data,
+      imu_filt_.data,
+      mag_.data,
+      pressure_.data,
+      gnss_.data,
+      rcin_.data,
+      battery_.data,
+      cpu_.data,
+      cur_rotor_states_.data,
+      tar_rotor_speeds_.data,
+      cur_joint_states_.data,
+      tar_joint_positions_.data,
+      tar_joint_velocities_.data,
+      tar_joint_efforts_.data,
+      ice_cmd_.data,
+      pwm_.data,
+      sampling_time_.data,
+      ctrl_latency_.data,
+      vibe_.data,
+      repulsive_accel_.data,
+      dist_force_.data,
+      obsv_fb_.data,
+      mr_ctrl_fb_.data);
 
     plot_tab->setCurrentIndex(idx);
 
@@ -83,26 +83,31 @@ void FlightLogViewerWidget::reset()
   decode_fail_topics_.clear();
 
   // キャッシュクリアを忘れるとログを切り替えても以前のものが表示されてしまうことに注意
-  odom_cov_decoder_.clearCache();
-  odom_decoder_.clearCache();
-  imu_decoder_.clearCache();
-  mag_decoder_.clearCache();
-  gnss_decoder_.clearCache();
-  rcin_decoder_.clearCache();
-  battery_decoder_.clearCache();
-  cpu_decoder_.clearCache();
-  rotor_states_decoder_.clearCache();
-  rotor_speeds_decoder_.clearCache();
-  joint_states_decoder_.clearCache();
-  joint_commands_decoder_.clearCache();
-  ice_cmd_decoder_.clearCache();
-  pwm_decoder_.clearCache();
-  latency_decoder_.clearCache();
-  vibe_decoder_.clearCache();
-  repulsive_accel_decoder_.clearCache();
-  wrench_decoder_.clearCache();
-  obsv_fb_decoder_.clearCache();
-  mr_ctrl_fb_decoder_.clearCache();
+  odom_.decoder.clearCache();
+  setpoint_.decoder.clearCache();
+  imu_raw_.decoder.clearCache();
+  imu_filt_.decoder.clearCache();
+  mag_.decoder.clearCache();
+  pressure_.decoder.clearCache();
+  gnss_.decoder.clearCache();
+  rcin_.decoder.clearCache();
+  battery_.decoder.clearCache();
+  cpu_.decoder.clearCache();
+  cur_rotor_states_.decoder.clearCache();
+  tar_rotor_speeds_.decoder.clearCache();
+  cur_joint_states_.decoder.clearCache();
+  tar_joint_positions_.decoder.clearCache();
+  tar_joint_velocities_.decoder.clearCache();
+  tar_joint_efforts_.decoder.clearCache();
+  ice_cmd_.decoder.clearCache();
+  pwm_.decoder.clearCache();
+  sampling_time_.decoder.clearCache();
+  ctrl_latency_.decoder.clearCache();
+  vibe_.decoder.clearCache();
+  repulsive_accel_.decoder.clearCache();
+  dist_force_.decoder.clearCache();
+  obsv_fb_.decoder.clearCache();
+  mr_ctrl_fb_.decoder.clearCache();
 
   for (const auto& plot_tab : plot_tabs_) {
     plot_tab->clear();
@@ -174,31 +179,31 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
   reader_.seek(window_start_time);
 
   // データを初期化
-  odom_data_.clear();
-  setpoint_data_.clear();
-  raw_imu_data_.clear();
-  filt_imu_data_.clear();
-  mag_data_.clear();
-  pressure_data_.clear();
-  gnss_data_.clear();
-  rcin_data_.clear();
-  battery_data_.clear();
-  cpu_data_.clear();
-  cur_rotor_states_data_.clear();
-  tar_rotor_speeds_data_.clear();
-  cur_joint_states_data_.clear();
-  tar_joint_positions_data_.clear();
-  tar_joint_velocities_data_.clear();
-  tar_joint_efforts_data_.clear();
-  ice_cmd_data_.clear();
-  pwm_data_.clear();
-  sampling_time_data_.clear();
-  ctrl_latency_data_.clear();
-  vibe_data_.clear();
-  repulsive_accel_data_.clear();
-  dist_force_data_.clear();
-  obsv_fb_data_.clear();
-  mr_ctrl_fb_data_.clear();
+  odom_.data.clear();
+  setpoint_.data.clear();
+  imu_raw_.data.clear();
+  imu_filt_.data.clear();
+  mag_.data.clear();
+  pressure_.data.clear();
+  gnss_.data.clear();
+  rcin_.data.clear();
+  battery_.data.clear();
+  cpu_.data.clear();
+  cur_rotor_states_.data.clear();
+  tar_rotor_speeds_.data.clear();
+  cur_joint_states_.data.clear();
+  tar_joint_positions_.data.clear();
+  tar_joint_velocities_.data.clear();
+  tar_joint_efforts_.data.clear();
+  ice_cmd_.data.clear();
+  pwm_.data.clear();
+  sampling_time_.data.clear();
+  ctrl_latency_.data.clear();
+  vibe_.data.clear();
+  repulsive_accel_.data.clear();
+  dist_force_.data.clear();
+  obsv_fb_.data.clear();
+  mr_ctrl_fb_.data.clear();
 
   // データを仕分ける
   while (reader_.has_next()) {
@@ -220,79 +225,79 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
     // デコード
     try {
       if (topic.ends_with(str::concat('/', topic::kOdometry).data())) {
-        odom_data_.append(odom_cov_decoder_.decode(cur_time, ser_data));
+        odom_.data.append(odom_.decoder.decode(cur_time, ser_data));
       }
       else if (topic.ends_with(str::concat('/', topic::kTrajSetpoint).data())) {
-        setpoint_data_.append(odom_decoder_.decode(cur_time, ser_data));
+        setpoint_.data.append(setpoint_.decoder.decode(cur_time, ser_data));
       }
       else if (topic.ends_with(str::concat('/', topic::kImuRaw).data())) {
-        raw_imu_data_.append(imu_decoder_.decode(cur_time, ser_data));
+        imu_raw_.data.append(imu_raw_.decoder.decode(cur_time, ser_data));
       }
       else if (topic.ends_with(str::concat('/', topic::kImuFilt).data())) {
-        filt_imu_data_.append(imu_decoder_.decode(cur_time, ser_data));
+        imu_filt_.data.append(imu_filt_.decoder.decode(cur_time, ser_data));
       }
       else if (topic.ends_with(str::concat('/', topic::kMagneticField).data())) {
-        mag_data_.append(mag_decoder_.decode(cur_time, ser_data));
+        mag_.data.append(mag_.decoder.decode(cur_time, ser_data));
       }
       else if (topic.ends_with(str::concat('/', topic::kAirPressure).data())) {
-        pressure_data_.append(pressure_decoder_.decode(cur_time, ser_data));
+        pressure_.data.append(pressure_.decoder.decode(cur_time, ser_data));
       }
       else if (topic.ends_with(str::concat('/', topic::kGnss).data())) {
-        gnss_data_.append(gnss_decoder_.decode(cur_time, ser_data));
+        gnss_.data.append(gnss_.decoder.decode(cur_time, ser_data));
       }
       else if (topic.ends_with(str::concat('/', topic::kRcInput).data())) {
-        rcin_data_.append(rcin_decoder_.decode(cur_time, ser_data));
+        rcin_.data.append(rcin_.decoder.decode(cur_time, ser_data));
       }
       else if (topic.ends_with(str::concat('/', topic::kBattery).data())) {
-        battery_data_.append(battery_decoder_.decode(cur_time, ser_data));
+        battery_.data.append(battery_.decoder.decode(cur_time, ser_data));
       }
       else if (topic.ends_with(str::concat('/', topic::kCpu).data())) {
-        cpu_data_.append(cpu_decoder_.decode(cur_time, ser_data));
+        cpu_.data.append(cpu_.decoder.decode(cur_time, ser_data));
       }
       else if (topic.ends_with(str::concat('/', topic::kRotorStates).data())) {
-        cur_rotor_states_data_.append(rotor_states_decoder_.decode(cur_time, ser_data));
+        cur_rotor_states_.data.append(cur_rotor_states_.decoder.decode(cur_time, ser_data));
       }
       else if (topic.ends_with(str::concat('/', topic::kRotorSpeedsCmd).data())) {
-        tar_rotor_speeds_data_.append(rotor_speeds_decoder_.decode(cur_time, ser_data));
+        tar_rotor_speeds_.data.append(tar_rotor_speeds_.decoder.decode(cur_time, ser_data));
       }
       else if (topic.ends_with(str::concat('/', topic::kJointStates).data())) {
-        cur_joint_states_data_.append(joint_states_decoder_.decode(cur_time, ser_data));
+        cur_joint_states_.data.append(cur_joint_states_.decoder.decode(cur_time, ser_data));
       }
       else if (topic.ends_with(str::concat('/', topic::kJointPosCmd).data())) {
-        tar_joint_positions_data_.append(joint_commands_decoder_.decode(cur_time, ser_data));
+        tar_joint_positions_.data.append(tar_joint_positions_.decoder.decode(cur_time, ser_data));
       }
       else if (topic.ends_with(str::concat('/', topic::kJointVelCmd).data())) {
-        tar_joint_velocities_data_.append(joint_commands_decoder_.decode(cur_time, ser_data));
+        tar_joint_velocities_.data.append(tar_joint_velocities_.decoder.decode(cur_time, ser_data));
       }
       else if (topic.ends_with(str::concat('/', topic::kJointEffCmd).data())) {
-        tar_joint_efforts_data_.append(joint_commands_decoder_.decode(cur_time, ser_data));
+        tar_joint_efforts_.data.append(tar_joint_efforts_.decoder.decode(cur_time, ser_data));
       }
       else if (topic.ends_with(str::concat('/', topic::kIcePropulsionSystemCmd).data())) {
-        ice_cmd_data_.append(ice_cmd_decoder_.decode(cur_time, ser_data));
+        ice_cmd_.data.append(ice_cmd_.decoder.decode(cur_time, ser_data));
       }
       else if (topic.ends_with(str::concat('/', topic::kPwmCmd).data())) {
-        pwm_data_.append(pwm_decoder_.decode(cur_time, ser_data));
+        pwm_.data.append(pwm_.decoder.decode(cur_time, ser_data));
       }
       else if (topic.ends_with(str::concat('/', topic::kImuSamplingTime).data())) {
-        sampling_time_data_.append(latency_decoder_.decode(cur_time, ser_data));
+        sampling_time_.data.append(sampling_time_.decoder.decode(cur_time, ser_data));
       }
       else if (topic.ends_with(str::concat('/', topic::kControlLatency).data())) {
-        ctrl_latency_data_.append(latency_decoder_.decode(cur_time, ser_data));
+        ctrl_latency_.data.append(ctrl_latency_.decoder.decode(cur_time, ser_data));
       }
       else if (topic.ends_with(str::concat('/', topic::kVibrationLevel).data())) {
-        vibe_data_.append(vibe_decoder_.decode(cur_time, ser_data));
+        vibe_.data.append(vibe_.decoder.decode(cur_time, ser_data));
       }
       else if (topic.ends_with(str::concat('/', topic::kRepulsiveAccel).data())) {
-        repulsive_accel_data_.append(repulsive_accel_decoder_.decode(cur_time, ser_data));
+        repulsive_accel_.data.append(repulsive_accel_.decoder.decode(cur_time, ser_data));
       }
       else if (topic.ends_with(str::concat('/', topic::kDisturbanceForce).data())) {
-        dist_force_data_.append(wrench_decoder_.decode(cur_time, ser_data));
+        dist_force_.data.append(dist_force_.decoder.decode(cur_time, ser_data));
       }
       else if (topic.ends_with(str::concat('/', topic::kObsvFeedback).data())) {
-        obsv_fb_data_.append(obsv_fb_decoder_.decode(cur_time, ser_data));
+        obsv_fb_.data.append(obsv_fb_.decoder.decode(cur_time, ser_data));
       }
       else if (topic.ends_with(str::concat('/', topic::kMRCtrlFeedback).data())) {
-        mr_ctrl_fb_data_.append(mr_ctrl_fb_decoder_.decode(cur_time, ser_data));
+        mr_ctrl_fb_.data.append(mr_ctrl_fb_.decoder.decode(cur_time, ser_data));
       }
     }
     catch (const std::exception& e) {

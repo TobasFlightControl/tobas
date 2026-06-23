@@ -51,8 +51,8 @@ public:
   explicit PlotTabWidget(
     const QVector<tobas_msgs::msg::OdometryWithCovarianceStamped>& odom_data,
     const QVector<tobas_msgs::msg::OdometryStamped>& setpoint_data,
-    const QVector<tobas_msgs::msg::Imu>& raw_imu_data,
-    const QVector<tobas_msgs::msg::Imu>& filt_imu_data,
+    const QVector<tobas_msgs::msg::Imu>& imu_raw_data,
+    const QVector<tobas_msgs::msg::Imu>& imu_filt_data,
     const QVector<tobas_msgs::msg::MagneticField>& mag_data,
     const QVector<tobas_msgs::msg::FluidPressure>& pressure_data,
     const QVector<tobas_msgs::msg::Gnss>& gnss_data,
@@ -82,8 +82,8 @@ public:
 private:
   const QVector<tobas_msgs::msg::OdometryWithCovarianceStamped>& odom_data_;
   const QVector<tobas_msgs::msg::OdometryStamped>& setpoint_data_;
-  const QVector<tobas_msgs::msg::Imu>& raw_imu_data_;
-  const QVector<tobas_msgs::msg::Imu>& filt_imu_data_;
+  const QVector<tobas_msgs::msg::Imu>& imu_raw_data_;
+  const QVector<tobas_msgs::msg::Imu>& imu_filt_data_;
   const QVector<tobas_msgs::msg::MagneticField>& mag_data_;
   const QVector<tobas_msgs::msg::FluidPressure>& pressure_data_;
   const QVector<tobas_msgs::msg::Gnss>& gnss_data_;
