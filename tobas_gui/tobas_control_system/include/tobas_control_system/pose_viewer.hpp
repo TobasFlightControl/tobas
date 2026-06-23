@@ -33,8 +33,10 @@ class PoseViewerWidget : public qt::Widget
   static constexpr int kYawTickLength = 10;
   static constexpr int kAltitudeVisualRange = 25;   // [m]
   static constexpr int kAltitudeScaleInterval = 5;  // [m]
-  static constexpr int kAltitudeTapeX = 40;
   static constexpr int kAltitudeTickLength = 12;
+  static constexpr int kAltitudeTickX = 40;
+  static constexpr int kAltitudeTextY = kYawLineY + 40;
+  static constexpr int kAltitudeTickMaxY = kAltitudeTextY + 10;
 
 public:
   explicit PoseViewerWidget(const RosQtBridge& bridge);

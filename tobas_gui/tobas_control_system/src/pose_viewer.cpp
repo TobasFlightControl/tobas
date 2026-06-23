@@ -330,12 +330,14 @@ void PoseViewerWidget::drawRelativeAltitude(QPainter& painter)
   const auto center_y = kOriginalSize / 2;
   const auto alt_min = math::floor(alt_rel_ - kAltitudeVisualRange, kAltitudeScaleInterval);
   const auto alt_max = math::ceil(alt_rel_ + kAltitudeVisualRange, kAltitudeScaleInterval);
-  const auto x = kAltitudeTapeX;
+  const auto x = kAltitudeTickX;
 
   painter.setPen(QPen(Qt::white, kLineWidth));
+  painter.drawText(x - 2, kAltitudeTextY, "REL ALT");
+
   for (int alt = alt_min; alt <= alt_max; alt += kAltitudeScaleInterval) {
     const auto y = center_y - altitudeToHeight(alt - alt_rel_);
-    if (y <= kYawLineY) {
+    if (y <= kAltitudeTickMaxY) {
       continue;
     }
 
@@ -358,12 +360,14 @@ void PoseViewerWidget::drawMslAltitude(QPainter& painter)
   const auto center_y = kOriginalSize / 2;
   const auto alt_min = math::floor(alt_msl_ - kAltitudeVisualRange, kAltitudeScaleInterval);
   const auto alt_max = math::ceil(alt_msl_ + kAltitudeVisualRange, kAltitudeScaleInterval);
-  const auto x = kOriginalSize - kAltitudeTapeX;
+  const auto x = kOriginalSize - kAltitudeTickX;
 
   painter.setPen(QPen(Qt::white, kLineWidth));
+  painter.drawText(x - 55, kAltitudeTextY, "MSL ALT");
+
   for (int alt = alt_min; alt <= alt_max; alt += kAltitudeScaleInterval) {
     const auto y = center_y - altitudeToHeight(alt - alt_msl_);
-    if (y <= kYawLineY) {
+    if (y <= kAltitudeTickMaxY) {
       continue;
     }
 
@@ -436,11 +440,14 @@ void PoseViewerWidget::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::C
 
 void PoseViewerWidget::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss)
 {
-  if (gnss->fix_type != tobas_msgs::msg::Gnss::FIX_3D) {
-    return;
+  if (gnss->fix_type == tobas_msgs::msg::Gnss::FIX_3D) {
+    alt_msl_ = gnss->altitude;
+  }
+  else {
+    alt_msl_ = 0.;
   }
 
-  alt_msl_ = gnss->altitude;
+  update();
 }
 }  // namespace ctrl
 }  // namespace gui
