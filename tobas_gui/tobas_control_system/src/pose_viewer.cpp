@@ -26,6 +26,7 @@ void PoseViewerWidget::reset()
   roll_ = 0.;
   pitch_ = 0.;
   yaw_ = 0.;
+  altitude_ = 0.;
 
   update();
 }
@@ -40,6 +41,7 @@ void PoseViewerWidget::paintEvent(QPaintEvent*)
   drawRoll(painter);
   drawPitch(painter);
   drawYaw(painter);
+  drawAltitude(painter);
 
   addGradation(painter);
 }
@@ -316,6 +318,39 @@ void PoseViewerWidget::drawYaw(QPainter& painter)
   painter.restore();
 }
 
+void PoseViewerWidget::drawAltitude(QPainter& painter)
+{
+  painter.save();
+
+  scale(painter, false);
+
+  const auto center_y = kOriginalSize / 2;
+  const auto altitude_min = math::floor(altitude_ - kAltitudeVisualRange, kAltitudeScaleInterval);
+  const auto altitude_max = math::ceil(altitude_ + kAltitudeVisualRange, kAltitudeScaleInterval);
+  const auto left_x = kAltitudeTapeX;
+  const auto right_x = kOriginalSize - kAltitudeTapeX;
+
+  painter.setPen(QPen(Qt::white, kLineWidth));
+  for (int altitude = altitude_min; altitude <= altitude_max; altitude += kAltitudeScaleInterval) {
+    const auto y = center_y - altitudeToHeight(altitude - altitude_);
+    if (y <= kYawLineY) {
+      continue;
+    }
+
+    painter.drawLine(left_x, y, left_x + kAltitudeTickLength, y);
+    painter.drawText(left_x + kAltitudeTickLength + 10, y + 5, std::format("{}m", altitude).c_str());
+
+    painter.drawLine(right_x, y, right_x - kAltitudeTickLength, y);
+    painter.drawText(right_x - kAltitudeTickLength - 45, y + 5, std::format("{}m", altitude).c_str());
+  }
+
+  painter.setPen(QPen(Qt::red, kLineWidth));
+  painter.drawLine(left_x - kAltitudeTickLength, center_y, left_x + kAltitudeTickLength * 2, center_y);
+  painter.drawLine(right_x + kAltitudeTickLength, center_y, right_x - kAltitudeTickLength * 2, center_y);
+
+  painter.restore();
+}
+
 void PoseViewerWidget::addGradation(QPainter& painter)
 {
   painter.save();
@@ -360,12 +395,16 @@ double PoseViewerWidget::yawToWidth(double yaw)
   return kOriginalSize * yaw / kYawAngleOfView;
 }
 
+double PoseViewerWidget::altitudeToHeight(double altitude)
+{
+  return (kOriginalSize / 2) * altitude / kAltitudeVisualRange;
+}
+
 void PoseViewerWidget::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom)
 {
-  // 現在のオイラー角を更新
   odom->odom.odom.frame.M.getRPY(roll_, pitch_, yaw_);
+  altitude_ = odom->odom.odom.frame.p.z();
 
-  // 再描画
   update();
 }
 }  // namespace ctrl

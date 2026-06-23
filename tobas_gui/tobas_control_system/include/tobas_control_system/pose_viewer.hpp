@@ -31,6 +31,10 @@ class PoseViewerWidget : public qt::Widget
   static constexpr double kYawAngleOfView = st::deg2rad(120);  // [rad]
   static constexpr int kYawLineY = 60;
   static constexpr int kYawTickLength = 10;
+  static constexpr int kAltitudeVisualRange = 25;   // [m]
+  static constexpr int kAltitudeScaleInterval = 5;  // [m]
+  static constexpr int kAltitudeTapeX = 40;
+  static constexpr int kAltitudeTickLength = 12;
 
 public:
   explicit PoseViewerWidget(const RosQtBridge& bridge);
@@ -39,6 +43,7 @@ public:
 
 private:
   double roll_, pitch_, yaw_;  // 現在のオイラー角
+  double altitude_;            // 現在の高度 [m]
 
   void paintEvent(QPaintEvent* event) override;
 
@@ -49,6 +54,7 @@ private:
   void drawRoll(QPainter& painter);
   void drawPitch(QPainter& painter);
   void drawYaw(QPainter& painter);
+  void drawAltitude(QPainter& painter);
 
   void addGradation(QPainter& painter);
 
@@ -60,6 +66,9 @@ private:
 
   /* ヨー角 [rad] をウィンドウ幅に変換する． */
   static double yawToWidth(double yaw);
+
+  /* 高度差 [m] をウィンドウ高さに変換する． */
+  static double altitudeToHeight(double altitude);
 
 private Q_SLOTS:
   void odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom);
