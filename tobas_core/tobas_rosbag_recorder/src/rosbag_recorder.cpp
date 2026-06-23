@@ -17,6 +17,8 @@ RosbagRecorderNode::RosbagRecorderNode(const rclcpp::NodeOptions& options)
   // トピック通信の接続はローカルであっても遅延の原因になりうるため，レコード開始時ではなく先に接続を確立しておく．
   // ビルド時のメモリ削減のために分割コンパイルするためにテンプレートを多用するメソッドを複数に分けている．
   registerStateSubscribers();
+  registerSensorSubscribers();
+  registerStateSubscribers();
   registerCommandSubscribers();
   registerDebugSubscribers();
 

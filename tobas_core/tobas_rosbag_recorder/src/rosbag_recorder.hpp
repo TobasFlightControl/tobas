@@ -86,6 +86,8 @@ private:
   // Timers
   ros2::TimerPtr main_timer_;
 
+  void registerModelSubscribers();
+  void registerSensorSubscribers();
   void registerStateSubscribers();
   void registerCommandSubscribers();
   void registerDebugSubscribers();
