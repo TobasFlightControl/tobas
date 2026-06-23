@@ -43,7 +43,8 @@ public:
 
 private:
   double roll_, pitch_, yaw_;  // 現在のオイラー角
-  double altitude_;            // 現在の高度 [m]
+  double alt_rel_;             // 現在の起動地点からの相対高度 [m]
+  double alt_msl_;             // 現在の海抜高度 [m]
 
   void paintEvent(QPaintEvent* event) override;
 
@@ -54,7 +55,8 @@ private:
   void drawRoll(QPainter& painter);
   void drawPitch(QPainter& painter);
   void drawYaw(QPainter& painter);
-  void drawAltitude(QPainter& painter);
+  void drawRelativeAltitude(QPainter& painter);
+  void drawMslAltitude(QPainter& painter);
 
   void addGradation(QPainter& painter);
 
@@ -72,6 +74,7 @@ private:
 
 private Q_SLOTS:
   void odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom);
+  void gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss);
 };
 }  // namespace ctrl
 }  // namespace gui

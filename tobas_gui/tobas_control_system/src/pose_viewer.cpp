@@ -19,6 +19,7 @@ PoseViewerWidget::PoseViewerWidget(const RosQtBridge& bridge)
   reset();
 
   connect(&bridge, &RosQtBridge::odomReceived, this, &self::odomCb, Qt::QueuedConnection);
+  connect(&bridge, &RosQtBridge::gnssReceived, this, &self::gnssCb, Qt::QueuedConnection);
 }
 
 void PoseViewerWidget::reset()
@@ -26,7 +27,8 @@ void PoseViewerWidget::reset()
   roll_ = 0.;
   pitch_ = 0.;
   yaw_ = 0.;
-  altitude_ = 0.;
+  alt_rel_ = 0.;
+  alt_msl_ = 0.;
 
   update();
 }
@@ -41,7 +43,8 @@ void PoseViewerWidget::paintEvent(QPaintEvent*)
   drawRoll(painter);
   drawPitch(painter);
   drawYaw(painter);
-  drawAltitude(painter);
+  drawRelativeAltitude(painter);
+  drawMslAltitude(painter);
 
   addGradation(painter);
 }
@@ -318,35 +321,58 @@ void PoseViewerWidget::drawYaw(QPainter& painter)
   painter.restore();
 }
 
-void PoseViewerWidget::drawAltitude(QPainter& painter)
+void PoseViewerWidget::drawRelativeAltitude(QPainter& painter)
 {
   painter.save();
 
   scale(painter, false);
 
   const auto center_y = kOriginalSize / 2;
-  const auto altitude_min = math::floor(altitude_ - kAltitudeVisualRange, kAltitudeScaleInterval);
-  const auto altitude_max = math::ceil(altitude_ + kAltitudeVisualRange, kAltitudeScaleInterval);
-  const auto left_x = kAltitudeTapeX;
-  const auto right_x = kOriginalSize - kAltitudeTapeX;
+  const auto alt_min = math::floor(alt_rel_ - kAltitudeVisualRange, kAltitudeScaleInterval);
+  const auto alt_max = math::ceil(alt_rel_ + kAltitudeVisualRange, kAltitudeScaleInterval);
+  const auto x = kAltitudeTapeX;
 
   painter.setPen(QPen(Qt::white, kLineWidth));
-  for (int altitude = altitude_min; altitude <= altitude_max; altitude += kAltitudeScaleInterval) {
-    const auto y = center_y - altitudeToHeight(altitude - altitude_);
+  for (int alt = alt_min; alt <= alt_max; alt += kAltitudeScaleInterval) {
+    const auto y = center_y - altitudeToHeight(alt - alt_rel_);
     if (y <= kYawLineY) {
       continue;
     }
 
-    painter.drawLine(left_x, y, left_x + kAltitudeTickLength, y);
-    painter.drawText(left_x + kAltitudeTickLength + 10, y + 5, std::format("{}m", altitude).c_str());
-
-    painter.drawLine(right_x, y, right_x - kAltitudeTickLength, y);
-    painter.drawText(right_x - kAltitudeTickLength - 45, y + 5, std::format("{}m", altitude).c_str());
+    painter.drawLine(x, y, x + kAltitudeTickLength, y);
+    painter.drawText(x + kAltitudeTickLength + 10, y + 5, std::format("{}m", alt).c_str());
   }
 
   painter.setPen(QPen(Qt::red, kLineWidth));
-  painter.drawLine(left_x - kAltitudeTickLength, center_y, left_x + kAltitudeTickLength * 2, center_y);
-  painter.drawLine(right_x + kAltitudeTickLength, center_y, right_x - kAltitudeTickLength * 2, center_y);
+  painter.drawLine(x - kAltitudeTickLength, center_y, x + kAltitudeTickLength * 2, center_y);
+
+  painter.restore();
+}
+
+void PoseViewerWidget::drawMslAltitude(QPainter& painter)
+{
+  painter.save();
+
+  scale(painter, false);
+
+  const auto center_y = kOriginalSize / 2;
+  const auto alt_min = math::floor(alt_msl_ - kAltitudeVisualRange, kAltitudeScaleInterval);
+  const auto alt_max = math::ceil(alt_msl_ + kAltitudeVisualRange, kAltitudeScaleInterval);
+  const auto x = kOriginalSize - kAltitudeTapeX;
+
+  painter.setPen(QPen(Qt::white, kLineWidth));
+  for (int alt = alt_min; alt <= alt_max; alt += kAltitudeScaleInterval) {
+    const auto y = center_y - altitudeToHeight(alt - alt_msl_);
+    if (y <= kYawLineY) {
+      continue;
+    }
+
+    painter.drawLine(x, y, x - kAltitudeTickLength, y);
+    painter.drawText(x - kAltitudeTickLength - 45, y + 5, std::format("{}m", alt).c_str());
+  }
+
+  painter.setPen(QPen(Qt::red, kLineWidth));
+  painter.drawLine(x + kAltitudeTickLength, center_y, x - kAltitudeTickLength * 2, center_y);
 
   painter.restore();
 }
@@ -403,9 +429,18 @@ double PoseViewerWidget::altitudeToHeight(double altitude)
 void PoseViewerWidget::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom)
 {
   odom->odom.odom.frame.M.getRPY(roll_, pitch_, yaw_);
-  altitude_ = odom->odom.odom.frame.p.z();
+  alt_rel_ = odom->odom.odom.frame.p.z();
 
   update();
+}
+
+void PoseViewerWidget::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss)
+{
+  if (gnss->fix_type != tobas_msgs::msg::Gnss::FIX_3D) {
+    return;
+  }
+
+  alt_msl_ = gnss->altitude;
 }
 }  // namespace ctrl
 }  // namespace gui
