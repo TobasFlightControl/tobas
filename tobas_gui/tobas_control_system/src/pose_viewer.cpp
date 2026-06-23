@@ -29,6 +29,7 @@ void PoseViewerWidget::reset()
   yaw_ = 0.;
   alt_rel_ = 0.;
   alt_msl_ = 0.;
+  alt_msl_valid_ = false;
 
   update();
 }
@@ -347,6 +348,7 @@ void PoseViewerWidget::drawRelativeAltitude(QPainter& painter)
 
   painter.setPen(QPen(Qt::red, kLineWidth));
   painter.drawLine(x - kAltitudeTickLength, center_y, x + kAltitudeTickLength * 2, center_y);
+  painter.drawText(x + kAltitudeTickLength + 10, center_y - 12, std::format("{:.1f}m", alt_rel_).c_str());
 
   painter.restore();
 }
@@ -365,18 +367,23 @@ void PoseViewerWidget::drawMslAltitude(QPainter& painter)
   painter.setPen(QPen(Qt::white, kLineWidth));
   painter.drawText(x - 55, kAltitudeTextY, "MSL ALT");
 
-  for (int alt = alt_min; alt <= alt_max; alt += kAltitudeScaleInterval) {
-    const auto y = center_y - altitudeToHeight(alt - alt_msl_);
-    if (y <= kAltitudeTickMaxY) {
-      continue;
-    }
+  if (alt_msl_valid_) {
+    for (int alt = alt_min; alt <= alt_max; alt += kAltitudeScaleInterval) {
+      const auto y = center_y - altitudeToHeight(alt - alt_msl_);
+      if (y <= kAltitudeTickMaxY) {
+        continue;
+      }
 
-    painter.drawLine(x, y, x - kAltitudeTickLength, y);
-    painter.drawText(x - kAltitudeTickLength - 45, y + 5, std::format("{}m", alt).c_str());
+      painter.drawLine(x, y, x - kAltitudeTickLength, y);
+      painter.drawText(x - kAltitudeTickLength - 45, y + 5, std::format("{}m", alt).c_str());
+    }
   }
 
   painter.setPen(QPen(Qt::red, kLineWidth));
   painter.drawLine(x + kAltitudeTickLength, center_y, x - kAltitudeTickLength * 2, center_y);
+
+  const QString text = alt_msl_valid_ ? std::format("{:.1f}m", alt_msl_).c_str() : "---m";
+  painter.drawText(x - kAltitudeTickLength - 45, center_y - 12, text);
 
   painter.restore();
 }
@@ -440,12 +447,8 @@ void PoseViewerWidget::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::C
 
 void PoseViewerWidget::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss)
 {
-  if (gnss->fix_type == tobas_msgs::msg::Gnss::FIX_3D) {
-    alt_msl_ = gnss->altitude;
-  }
-  else {
-    alt_msl_ = 0.;
-  }
+  alt_msl_ = gnss->altitude;
+  alt_msl_valid_ = (gnss->fix_type == tobas_msgs::msg::Gnss::FIX_3D);
 
   update();
 }

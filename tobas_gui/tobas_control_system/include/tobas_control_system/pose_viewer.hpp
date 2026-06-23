@@ -47,6 +47,7 @@ private:
   double roll_, pitch_, yaw_;  // 現在のオイラー角
   double alt_rel_;             // 現在の起動地点からの相対高度 [m]
   double alt_msl_;             // 現在の海抜高度 [m]
+  bool alt_msl_valid_;
 
   void paintEvent(QPaintEvent* event) override;
 
