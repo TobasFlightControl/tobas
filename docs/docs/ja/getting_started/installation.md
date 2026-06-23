@@ -71,9 +71,9 @@ $ tobas_install_prereqs
 
 ### 必要なもの
 
-- <a href=https://www.raspberrypi.com/products/raspberry-pi-5/ target="_blank">Raspberry Pi 5 (4 GB以上)</a>
+- <a href=https://www.raspberrypi.com/products/raspberry-pi-5/ target="_blank">Raspberry Pi 5 (2 GB以上)</a>
 - Tobas HAT <!-- TODO: URL -->
-- 32GB 以上のマイクロ SD カード (例: <a href=https://www.sandisk.com/products/memory-cards/microsd-cards/sandisk-extreme-uhs-i-microsd target="_blank">SanDisk Extreme microSDXC™ UHS-I CARD - 32GB</a>)
+- 16 GB 以上のマイクロ SD カード (例: <a href=https://www.sandisk.com/products/memory-cards/microsd-cards/sandisk-extreme-uhs-i-microsd target="_blank">SanDisk Extreme microSDXC™ UHS-I CARD - 32GB</a>)
 - SD カードリーダー (例: <a href=https://www.sandisk.com/products/accessories/memory-card-readers/sandisk-quickflow-microsd-usb-a-memory-card-reader target="_blank">SanDisk QuickFlow™ microSD™ UHS-I Card USB-A Reader</a>)
 
 ### 手順 (デスクトップから)
