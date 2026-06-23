@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include "./ros_interface.hpp"
-
 #include <tobas_real_common/ros_interface.hpp>
 
 #include <tobas_command_msgs/msg/accel.hpp>
@@ -20,6 +18,8 @@
 #include <tobas_msgs/msg/ice_propulsion_system_command.hpp>
 #include <tobas_msgs/msg/joint_command_array.hpp>
 #include <tobas_msgs/msg/rotor_speed_array.hpp>
+
+#include "./ros_interface.hpp"
 
 namespace tobas
 {

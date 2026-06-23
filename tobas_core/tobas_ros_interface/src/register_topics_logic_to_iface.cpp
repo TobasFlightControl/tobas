@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include "./ros_interface.hpp"
-
 #include <tobas_real_common/ros_interface.hpp>
 
 #include <tobas_drone_msgs/msg/drone.hpp>
@@ -24,6 +22,8 @@
 #include <tobas_msgs/msg/rotor_state_array.hpp>
 #include <tobas_msgs/msg/sbus.hpp>
 #include <tobas_msgs/msg/vehicle_health.hpp>
+
+#include "./ros_interface.hpp"
 
 namespace tobas
 {
