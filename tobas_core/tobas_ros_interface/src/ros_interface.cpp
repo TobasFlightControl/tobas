@@ -12,6 +12,8 @@ RosInterfaceNode::RosInterfaceNode(const rclcpp::NodeOptions& options)
   // cf. https://answers.ros.org/question/343279/ros2-how-to-implement-a-sync-service-client-in-a-node/
   group_ = create_callback_group(rclcpp::CallbackGroupType::Reentrant);
 
+  // ROSインターフェースを登録
+  // メモリ削減のために分割コンパイルするためにメソッドを分割している
   registerTopicsLogicToIface();
   registerTopicsIfaceToLogic();
   registerServices();
