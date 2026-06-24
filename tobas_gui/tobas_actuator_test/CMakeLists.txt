@@ -11,7 +11,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Wswitch-enum -Werror")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-set(AMENT_DEPENDENCIES std_srvs tobas_drone_core tobas_qt_tools tobas_rqt_bridge tobas_gui_common)
+set(AMENT_DEPENDENCIES tobas_drone_core tobas_dparam_client tobas_qt_tools tobas_rqt_bridge tobas_gui_common)
 
 find_package(ament_cmake REQUIRED)
 

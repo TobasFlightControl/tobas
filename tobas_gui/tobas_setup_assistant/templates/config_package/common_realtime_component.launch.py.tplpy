@@ -169,6 +169,12 @@ def generate_launch_description():
                     ],
                 ),
                 ComposableNode(
+                    package="tobas_config_servers",
+                    plugin="tobas::RpmControlConfigServer",
+                    namespace=DRONE_NAME,
+                    parameters=[PathJoinSubstitution([config_pkg_share, "config", "rpm_control_dynamic.yaml"])],
+                ),
+                ComposableNode(
                     package="tobas_failsafe",
                     plugin="tobas::HealthMonitorNode",
                     namespace=DRONE_NAME,

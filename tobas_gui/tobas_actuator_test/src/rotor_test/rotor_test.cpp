@@ -3,15 +3,22 @@
 
 #include "tobas_actuator_test/rotor_test/rotor_test.hpp"
 
+#include <ranges>
+
 #include <boost/polymorphic_pointer_cast.hpp>
 
+#include <tobas_constants/node.hpp>
 #include <tobas_constants/ros_interface.hpp>
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_math/core.hpp>
-#include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
 #include <tobas_std_tools/array.hpp>
+#include <tobas_std_tools/check.hpp>
+#include <tobas_yaml_tools/core.hpp>
+
+using namespace std::chrono_literals;
+namespace fs = std::filesystem;
 
 namespace tobas
 {
@@ -19,6 +26,14 @@ namespace gui
 {
 namespace at
 {
+namespace
+{
+std::string paramName(size_t ch)
+{
+  return param::kRpmControlGainPrefix + std::to_string(ch);
+}
+}  // namespace
+
 RotorTestWidget::RotorTestWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge, const Drone& drone)
   : node_(node), bridge_(bridge), drone_(drone)
 {
@@ -65,7 +80,7 @@ RotorTestWidget::RotorTestWidget(rclcpp::Node::SharedPtr node, const RosQtBridge
   const auto rotor_cols = new QHBoxLayout();
   rows_->addLayout(rotor_cols);
 
-  for (size_t ch = 0; ch < kChannelSize; ++ch) {
+  for (size_t ch = 0; ch < kMaxDshotChannels; ++ch) {
     rotor_widgets_.at(ch) = new RotorWidget();
     rotor_cols->addWidget(rotor_widgets_.at(ch));
     connect(
@@ -92,9 +107,9 @@ void RotorTestWidget::reset()
   disconnect(rotor_states_conn_);
 
   // モータウィジェットを無効化
-  for (auto& rotor_widget : rotor_widgets_) {
-    rotor_widget->reset();
-    rotor_widget->setEnabled(false);
+  for (const auto& widget : rotor_widgets_) {
+    widget->reset();
+    widget->setEnabled(false);
   }
 
   // タイマーを停止
@@ -108,13 +123,16 @@ void RotorTestWidget::reset()
   arming_.reset();
 }
 
-void RotorTestWidget::updateInternalDataStructures()
+void RotorTestWidget::updateProject(const fs::path& proj_path)
 {
   reset();
 
+  // プロジェクtのパスを更新
+  proj_paths_.setProjPath(proj_path);
+
   // 初期化
   registered_.fill(false);
-  for (size_t ch = 0; ch < kChannelSize; ++ch) {
+  for (size_t ch = 0; ch < kMaxDshotChannels; ++ch) {
     const auto text = "CH" + QString::number(ch) + ": unregistered";
     rotor_widgets_.at(ch)->setText(text);
   }
@@ -126,7 +144,7 @@ void RotorTestWidget::updateInternalDataStructures()
     for (const auto& [link_name, _] : eprop_->rotors) {
       const auto erotor = eprop_->getRotor(link_name);
 
-      if (erotor->channel >= kChannelSize) {
+      if (erotor->channel >= kMaxDshotChannels) {
         qt::qWarnBox(this, "Rotor channel " + QString::number(erotor->channel) + " is not supported.");
         continue;
       }
@@ -141,25 +159,17 @@ void RotorTestWidget::updateInternalDataStructures()
     }
 
     const auto ns = '/' + drone_.name;
-
     tar_speeds_pub_ = ros2::createPublisher<tobas_msgs::msg::RotorSpeedArray>(
       node_, path::join(ns, kRemoteIfaceNS, topic::kRotorSpeedsCmd));
-
-    get_gains_sc_ = std::make_shared<ros2::SyncServiceClient<tobas_msgs::srv::GetRpmControlGains>>(
-      node_, path::join(ns, kRemoteIfaceNS, service::kGetRpmControlGains));
-    set_gains_sc_ = std::make_shared<ros2::SyncServiceClient<tobas_msgs::srv::SetRpmControlGains>>(
-      node_, path::join(ns, kRemoteIfaceNS, service::kSetRpmControlGains));
-    save_gains_sc_ = std::make_shared<ros2::SyncServiceClient<std_srvs::srv::Trigger>>(
-      node_, path::join(ns, kRemoteIfaceNS, service::kSaveRpmControlGains));
+    dparam_cli_ = std::make_shared<dparam::DynamicParamClient>(node_, node::kRpmControlConfigServer, ns);
+    get_params_sc_ = std::make_shared<ros2::SyncServiceClient<tobas_dparam_msgs::srv::GetParams>>(
+      node_, path::join(ns, kRemoteIfaceNS, node::kRpmControlConfigServer, service::kGetDynamicParams));
   }
   else {
     eprop_.reset();
-
     tar_speeds_pub_.reset();
-
-    get_gains_sc_.reset();
-    set_gains_sc_.reset();
-    save_gains_sc_.reset();
+    dparam_cli_.reset();
+    get_params_sc_.reset();
   }
 }
 
@@ -190,26 +200,16 @@ void RotorTestWidget::publishTargetSppeds()
 
 bool RotorTestWidget::loadCurrentGains()
 {
-  const auto req = std::make_shared<tobas_msgs::srv::GetRpmControlGains::Request>();
-  if (!get_gains_sc_->call(req, kWaitForService)) {
-    qt::qErrorBox(this, "Failed to connect to the rotor controller.");
+  const auto req = std::make_shared<tobas_dparam_msgs::srv::GetParams::Request>();
+  if (!get_params_sc_->call(req, 3s)) {
+    qt::qErrorBox(this, "Failed to get the current RPM control gains.");
     return false;
   }
+  const auto& params = get_params_sc_->getResponse()->params;
 
-  const auto res = get_gains_sc_->getResponse();
-  if (!res->success) {
-    qt::qErrorBox(this, "Failed to connect to the rotor controller.");
-    return false;
-  }
-
-  const auto& cur_gains = res->gains;
-  for (const auto& [link_name, _] : eprop_->rotors) {
-    const auto erotor = eprop_->getRotor(link_name);
-    if (erotor->channel >= cur_gains.size()) {
-      qt::qErrorBox(this, "Failed to get the rotor control gain of channel " + QString::number(erotor->channel) + ".");
-      return false;
-    }
-    rotor_widgets_.at(erotor->channel)->setGain(cur_gains.at(erotor->channel));
+  for (const auto& [ch, param] : std::views::enumerate(params.ints)) {
+    TOBAS_CHECK(param.name == paramName(ch));
+    rotor_widgets_.at(ch)->setGain(param.value);
   }
 
   return true;
@@ -269,20 +269,21 @@ void RotorTestWidget::onSaveButtonClicked()
 {
   qDebug() << "RotorTestWidget::onSaveButtonClicked";
 
-  const auto req = std::make_shared<std_srvs::srv::Trigger::Request>();
+  YAML::Node node(YAML::NodeType::Map);
+  for (const auto& [link_name, _] : eprop_->rotors) {
+    const auto erotor = eprop_->getRotor(link_name);
+    node[paramName(erotor->channel)] = rotor_widgets_.at(erotor->channel)->getGain();
+  }
 
-  if (!save_gains_sc_->call(req, kWaitForService)) {
-    qt::qErrorBox(this, "Failed to connect to the rotor controller.");
+  if (!yaml::save(proj_paths_.rpmCtrlDynParamsPath(), node)) {
+    qt::qErrorBox(this, "Failed to save the RPM control gains to PC.");
     return;
   }
 
-  const auto res = set_gains_sc_->getResponse();
-  if (!res->success) {
-    qt::qErrorBox(this, "Failed to save control gains: " + QString::fromStdString(res->message));
-    return;
-  }
-
-  qt::qInfoBox(this, "Control gains are saved successfully.");
+  qt::qInfoBox(
+    this,
+    "The RPM control gains have been saved to the local project. "
+    "Please click \"Write\" button again to flash them to the FC.");
 }
 
 void RotorTestWidget::onTargetRPMChanged(int, size_t)
@@ -292,20 +293,9 @@ void RotorTestWidget::onTargetRPMChanged(int, size_t)
 
 void RotorTestWidget::onGainChanged(int gain, size_t ch)
 {
-  const auto req = std::make_shared<tobas_msgs::srv::SetRpmControlGains::Request>();
-  req->gains.emplace_back();
-  req->gains.back().channel = ch;
-  req->gains.back().gain = gain;
-
-  if (!set_gains_sc_->call(req, kWaitForService)) {
-    qt::qErrorBox(this, "Failed to connect to the rotor controller.");
-    return;
-  }
-
-  const auto res = set_gains_sc_->getResponse();
-  if (!res->success) {
-    qt::qErrorBox(this, "Failed to set control gains: " + QString::fromStdString(res->message));
-    return;
+  if (dparam_cli_->setInt(paramName(ch), gain) != dparam::DynamicParamClient::kNoError) {
+    qt::qErrorBox(
+      this, "Failed to set the RPM control gain or channel " + QString::number(ch) + ": " + dparam_cli_->errorMessage());
   }
 }
 

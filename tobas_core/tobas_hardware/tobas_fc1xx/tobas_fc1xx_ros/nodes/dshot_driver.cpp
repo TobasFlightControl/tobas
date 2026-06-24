@@ -8,20 +8,14 @@
 #include <tobas_drone_core/propulsion_system/electric_propulsion_system/electric_propulsion_system.hpp>
 #include <tobas_fc1xx_core/dshot.hpp>
 #include <tobas_node/node.hpp>
-#include <tobas_property_tree/property_tree.hpp>
 #include <tobas_tools/control_latency_publisher.hpp>
-
-#include <std_srvs/srv/trigger.hpp>
 
 #include <tobas_drone_msgs_adapter/drone.hpp>
 #include <tobas_msgs/msg/rotor_speed_array.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
-#include <tobas_msgs/srv/get_rpm_control_gains.hpp>
 #include <tobas_msgs/srv/set_rpm_control_gains.hpp>
 
 using namespace std::chrono_literals;
-
-namespace fs = std::filesystem;
 
 namespace tobas
 {
@@ -32,11 +26,7 @@ class DShotDriverNode : public BaseNode
   using self = DShotDriverNode;
   using super = BaseNode;
 
-  using GetGains = tobas_msgs::srv::GetRpmControlGains;
   using SetGains = tobas_msgs::srv::SetRpmControlGains;
-  using SaveGains = std_srvs::srv::Trigger;
-
-  static constexpr char kGainKeyPrefix[] = "speed_control_gain_";
 
 public:
   explicit DShotDriverNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -44,7 +34,6 @@ public:
 private:
   DShot dshot_;
 
-  ptree::PropertyTree pt_;
   std::array<uint8_t, DShot::kChannelSize> gains_ = {};
   bool is_commanded_ = false;
   ElectricPropulsionSystemConfig::ConstSharedPtr eprop_;
@@ -55,9 +44,7 @@ private:
   ros2::SubscriberPtr<Drone> drone_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::RotorSpeedArray> tar_speeds_sub_;
 
-  ros2::ServiceServerPtr<GetGains> get_gains_ss_;
   ros2::ServiceServerPtr<SetGains> set_gains_ss_;
-  ros2::ServiceServerPtr<SaveGains> save_gains_ss_;
 
   ros2::TimerPtr auto_stop_timer_;
 
@@ -69,9 +56,7 @@ private:
   void droneCb(const Drone::ConstSharedPtr& drone);
   void targetSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::ConstSharedPtr& tar_speeds);
 
-  void getGainsCb(const GetGains::Request::ConstSharedPtr& req, const GetGains::Response::SharedPtr& res);
   void setGainsCb(const SetGains::Request::ConstSharedPtr& req, const SetGains::Response::SharedPtr& res);
-  void saveGainsCb(const SaveGains::Request::ConstSharedPtr& req, const SaveGains::Response::SharedPtr& res);
 
   void autoStopTimerCb();
 };
@@ -79,12 +64,8 @@ private:
 DShotDriverNode::DShotDriverNode(const rclcpp::NodeOptions& options)
   : super("fc1xx_dshot_driver", nodeOptions_Default(options))
 {
-  if (!pt_.initialize((fs::path(kConfigDirRoot) / "dshot.json"))) {
-    TOBAS_ERROR("Failed to initialize property tree. This node will not work.");
-    return;
-  }
-
   drone_sub_ = createSubscriber(topic::kDrone, &self::droneCb, this, true, true);
+  set_gains_ss_ = createService<SetGains>(service::kSetRpmControlGains, &self::setGainsCb, this);
 }
 
 bool DShotDriverNode::transfer()
@@ -228,37 +209,12 @@ void DShotDriverNode::droneCb(const Drone::ConstSharedPtr& drone)
     return;
   }
 
-  // Load and set the speed control gains
-  for (const auto& [link_name, _] : eprop->rotors) {
-    const auto erotor = eprop->getRotor(link_name);
-    if (erotor->channel >= DShot::kChannelSize) {
-      TOBAS_ERROR("Rotor channel ", erotor->channel, " is out of range.");
-      continue;
-    }
-    if (!pt_.get(ns(), kGainKeyPrefix + std::to_string(erotor->channel), gains_.at(erotor->channel))) {
-      TOBAS_ERROR("Failed to load the rotor speed control gain of channel ", erotor->channel, ".");
-      continue;
-    }
-    if (!dshot_.setRpmControlGain(erotor->channel, gains_.at(erotor->channel))) {
-      TOBAS_ERROR("Failed to set the rotor speed control gain of channel ", erotor->channel, ".");
-      continue;
-    }
-  }
-  if (!transferAndSleep()) {
-    return;
-  }
-
   // Resister publishers
   rotor_states_pub_ = createPublisher<tobas_msgs::msg::RotorStateArray>(topic::kRotorStates);
   latency_pub_.initialize(shared_from_this());
 
   // Resister subscribers
   tar_speeds_sub_ = createSubscriber(topic::kRotorSpeedsCmd, &self::targetSpeedsCb, this);
-
-  // Resister service servers
-  get_gains_ss_ = createService<GetGains>(service::kGetRpmControlGains, &self::getGainsCb, this);
-  set_gains_ss_ = createService<SetGains>(service::kSetRpmControlGains, &self::setGainsCb, this);
-  save_gains_ss_ = createService<SaveGains>(service::kSaveRpmControlGains, &self::saveGainsCb, this);
 
   // Create timers
   auto_stop_timer_ = createWallTimer(kCommandAutoResetTimeout, &self::autoStopTimerCb, this);
@@ -302,12 +258,6 @@ void DShotDriverNode::targetSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::Con
   is_commanded_ = true;
 }
 
-void DShotDriverNode::getGainsCb(const GetGains::Request::ConstSharedPtr&, const GetGains::Response::SharedPtr& res)
-{
-  res->gains.assign(gains_.begin(), gains_.end());
-  res->success = true;
-}
-
 void DShotDriverNode::setGainsCb(const SetGains::Request::ConstSharedPtr& req, const SetGains::Response::SharedPtr& res)
 {
   for (const auto& gain : req->gains) {
@@ -322,23 +272,6 @@ void DShotDriverNode::setGainsCb(const SetGains::Request::ConstSharedPtr& req, c
   if (!transfer()) {
     res->success = false;
     res->message = "Failed to communicate with the MCU.";
-    return;
-  }
-
-  res->success = true;
-  res->message.clear();
-}
-
-void DShotDriverNode::saveGainsCb(const SaveGains::Request::ConstSharedPtr&, const SaveGains::Response::SharedPtr& res)
-{
-  for (size_t ch = 0; ch < DShot::kChannelSize; ++ch) {
-    const auto key = kGainKeyPrefix + std::to_string(ch);
-    pt_.set(ns(), key, gains_.at(ch));
-  }
-
-  if (!pt_.save()) {
-    res->success = false;
-    res->message = "Failed to save gains.";
     return;
   }
 

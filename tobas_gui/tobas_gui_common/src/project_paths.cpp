@@ -140,6 +140,11 @@ fs::path ProjectPaths::imuFiltDynParamsPath() const
   return cfgConfigDirPath() / kImuFilterDynamicParamFileName;
 }
 
+fs::path ProjectPaths::rpmCtrlDynParamsPath() const
+{
+  return cfgConfigDirPath() / kRpmControlDynamicParamFileName;
+}
+
 fs::path ProjectPaths::obsvDynParamsPath() const
 {
   return cfgConfigDirPath() / kObserverDynamicParamFileName;

@@ -19,6 +19,7 @@
 
 #include <tobas_dparam_msgs/srv/get_params.hpp>
 
+using namespace std::chrono_literals;
 namespace fs = std::filesystem;
 
 namespace tobas
@@ -43,7 +44,7 @@ ParamBlockWidget::ParamBlockWidget(rclcpp::Node::SharedPtr node, const std::stri
 
 bool ParamBlockWidget::load(const std::string& ns)
 {
-  dparam_client_ = make_shared<dparam::DynamicParamClient>(node_, node_name_, ns);
+  dparam_cli_ = std::make_shared<dparam::DynamicParamClient>(node_, node_name_, ns);
 
   clear();
 
@@ -51,7 +52,7 @@ bool ParamBlockWidget::load(const std::string& ns)
   const auto service_name = path::join(ns, kRemoteIfaceNS, node_name_, service::kGetDynamicParams);
   ros2::SyncServiceClient<tobas_dparam_msgs::srv::GetParams> sc(node_, service_name);
   const auto req = std::make_shared<tobas_dparam_msgs::srv::GetParams::Request>();
-  if (!sc.call(req, kLoadParamTimeout)) {
+  if (!sc.call(req, 3s)) {
     qt::qErrorBox(this, "Failed to get dynamic parameters configuration of \"" + label_->text() + "\".");
     return false;
   }
@@ -179,7 +180,7 @@ bool ParamBlockWidget::setToDefaults()
       continue;
     }
 
-    if (dparam_client_->setInt(name, config.dflt) != dparam::DynamicParamClient::kNoError) {
+    if (dparam_cli_->setInt(name, config.dflt) != dparam::DynamicParamClient::kNoError) {
       qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter \"" + name.c_str() + "\".");
       return false;
     }
@@ -194,7 +195,7 @@ bool ParamBlockWidget::setToDefaults()
       continue;
     }
 
-    if (dparam_client_->setDouble(name, config.dflt) != dparam::DynamicParamClient::kNoError) {
+    if (dparam_cli_->setDouble(name, config.dflt) != dparam::DynamicParamClient::kNoError) {
       qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter \"" + name.c_str() + "\".");
       return false;
     }
@@ -239,7 +240,7 @@ void ParamBlockWidget::onIntSliderValueChanged(long value, const std::string& na
   auto& config = int_configs_.at(name);
   config.line_edit->setText(QString::number(config.step * value) + config.prefix);
 
-  if (dparam_client_->setInt(name, value) != dparam::DynamicParamClient::kNoError) {
+  if (dparam_cli_->setInt(name, value) != dparam::DynamicParamClient::kNoError) {
     qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter \"" + name.c_str() + "\".");
   }
 }
@@ -261,7 +262,7 @@ void ParamBlockWidget::onDoubleSliderValueChanged(long value, const std::string&
   auto& config = double_configs_.at(name);
   config.line_edit->setText(QString::number(config.step * value) + config.prefix);
 
-  if (dparam_client_->setDouble(name, value) != dparam::DynamicParamClient::kNoError) {
+  if (dparam_cli_->setDouble(name, value) != dparam::DynamicParamClient::kNoError) {
     qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter \"" + name.c_str() + "\".");
   }
 }
