@@ -16,8 +16,8 @@
 #include <tobas_drone_msgs_adapter/drone.hpp>
 #include <tobas_msgs/msg/rotor_speed_array.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
-#include <tobas_msgs/srv/get_rotor_control_gains.hpp>
-#include <tobas_msgs/srv/set_rotor_control_gains.hpp>
+#include <tobas_msgs/srv/get_rpm_control_gains.hpp>
+#include <tobas_msgs/srv/set_rpm_control_gains.hpp>
 
 #include "./common.hpp"
 
@@ -34,8 +34,8 @@ class DShotDriverNode : public BaseNode
   using self = DShotDriverNode;
   using super = BaseNode;
 
-  using GetGains = tobas_msgs::srv::GetRotorControlGains;
-  using SetGains = tobas_msgs::srv::SetRotorControlGains;
+  using GetGains = tobas_msgs::srv::GetRpmControlGains;
+  using SetGains = tobas_msgs::srv::SetRpmControlGains;
   using SaveGains = std_srvs::srv::Trigger;
 
   static constexpr char kGainKeyPrefix[] = "speed_control_gain_";
@@ -188,7 +188,7 @@ bool DShotDriverNode::configure()
       TOBAS_ERROR("Failed to load the rotor speed control gain of channel ", erotor->channel, ".");
       continue;
     }
-    if (!dshot_.setSpeedControlGain(erotor->channel, gains_.at(erotor->channel))) {
+    if (!dshot_.setRpmControlGain(erotor->channel, gains_.at(erotor->channel))) {
       TOBAS_ERROR("Failed to set the rotor speed control gain of channel ", erotor->channel, ".");
       continue;
     }
@@ -207,9 +207,9 @@ void DShotDriverNode::registerRosInterfaces()
 
   tar_speeds_sub_ = createSubscriber(topic::kRotorSpeedsCmd, &self::targetSpeedsCb, this);
 
-  get_gains_ss_ = createService<GetGains>(service::kGetRotorControlGains, &self::getGainsCb, this);
-  set_gains_ss_ = createService<SetGains>(service::kSetRotorControlGains, &self::setGainsCb, this);
-  save_gains_ss_ = createService<SaveGains>(service::kSaveRotorControlGains, &self::saveGainsCb, this);
+  get_gains_ss_ = createService<GetGains>(service::kGetRpmControlGains, &self::getGainsCb, this);
+  set_gains_ss_ = createService<SetGains>(service::kSetRpmControlGains, &self::setGainsCb, this);
+  save_gains_ss_ = createService<SaveGains>(service::kSaveRpmControlGains, &self::saveGainsCb, this);
 }
 
 bool DShotDriverNode::transfer()
@@ -333,7 +333,7 @@ void DShotDriverNode::getGainsCb(const GetGains::Request::ConstSharedPtr&, const
 void DShotDriverNode::setGainsCb(const SetGains::Request::ConstSharedPtr& req, const SetGains::Response::SharedPtr& res)
 {
   for (const auto& gain : req->gains) {
-    if (!dshot_.setSpeedControlGain(gain.channel, gain.gain)) {
+    if (!dshot_.setRpmControlGain(gain.channel, gain.gain)) {
       res->success = false;
       res->message = "Rotor control gain of channel " + std::to_string((int)gain.channel) + " was rejected.";
       return;

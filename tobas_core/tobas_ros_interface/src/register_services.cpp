@@ -12,10 +12,10 @@
 #include <tobas_msgs/srv/bag_record_start.hpp>
 #include <tobas_msgs/srv/bag_record_stop.hpp>
 #include <tobas_msgs/srv/get_gnss_origin.hpp>
-#include <tobas_msgs/srv/get_rotor_control_gains.hpp>
+#include <tobas_msgs/srv/get_rpm_control_gains.hpp>
 #include <tobas_msgs/srv/set_arm.hpp>
 #include <tobas_msgs/srv/set_gnss_origin.hpp>
-#include <tobas_msgs/srv/set_rotor_control_gains.hpp>
+#include <tobas_msgs/srv/set_rpm_control_gains.hpp>
 #include <tobas_real_msgs/srv/set_imu_params.hpp>
 #include <tobas_real_msgs/srv/set_magnetometer_params.hpp>
 #include <tobas_real_msgs/srv/set_rc_input_params.hpp>
@@ -32,9 +32,9 @@ void RosInterfaceNode::registerServices()
   addService<tobas_msgs::srv::BagRecordStart>(service::kRosbagRecordStart);
   addService<tobas_msgs::srv::BagRecordStop>(service::kRosbagRecordStop);
   addService<std_srvs::srv::Trigger>(service::kRosbagClean);
-  addService<tobas_msgs::srv::GetRotorControlGains>(service::kGetRotorControlGains);
-  addService<tobas_msgs::srv::SetRotorControlGains>(service::kSetRotorControlGains);
-  addService<std_srvs::srv::Trigger>(service::kSaveRotorControlGains);
+  addService<tobas_msgs::srv::GetRpmControlGains>(service::kGetRpmControlGains);
+  addService<tobas_msgs::srv::SetRpmControlGains>(service::kSetRpmControlGains);
+  addService<std_srvs::srv::Trigger>(service::kSaveRpmControlGains);
   addService<tobas_dparam_msgs::srv::GetParams>(path::join(node::kImuFilterConfigServer, service::kGetDynamicParams));
   addService<tobas_dparam_msgs::srv::GetParams>(path::join(node::kObserver, service::kGetDynamicParams));
   addService<tobas_dparam_msgs::srv::GetParams>(path::join(node::kController, service::kGetDynamicParams));

@@ -17,8 +17,8 @@
 #include <tobas_msgs/msg/arming.hpp>
 #include <tobas_msgs/msg/rotor_speed_array.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
-#include <tobas_msgs/srv/get_rotor_control_gains.hpp>
-#include <tobas_msgs/srv/set_rotor_control_gains.hpp>
+#include <tobas_msgs/srv/get_rpm_control_gains.hpp>
+#include <tobas_msgs/srv/set_rpm_control_gains.hpp>
 
 #include "../base.hpp"
 #include "./rotor_widget.hpp"
@@ -71,8 +71,8 @@ private:
 
   ros2::PublisherPtr<tobas_msgs::msg::RotorSpeedArray> tar_speeds_pub_;
 
-  ros2::SyncServiceClient<tobas_msgs::srv::GetRotorControlGains>::SharedPtr get_gains_sc_;
-  ros2::SyncServiceClient<tobas_msgs::srv::SetRotorControlGains>::SharedPtr set_gains_sc_;
+  ros2::SyncServiceClient<tobas_msgs::srv::GetRpmControlGains>::SharedPtr get_gains_sc_;
+  ros2::SyncServiceClient<tobas_msgs::srv::SetRpmControlGains>::SharedPtr set_gains_sc_;
   ros2::SyncServiceClient<std_srvs::srv::Trigger>::SharedPtr save_gains_sc_;
 
   QMetaObject::Connection rotor_states_conn_;

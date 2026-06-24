@@ -145,12 +145,12 @@ void RotorTestWidget::updateInternalDataStructures()
     tar_speeds_pub_ = ros2::createPublisher<tobas_msgs::msg::RotorSpeedArray>(
       node_, path::join(ns, kRemoteIfaceNS, topic::kRotorSpeedsCmd));
 
-    get_gains_sc_ = std::make_shared<ros2::SyncServiceClient<tobas_msgs::srv::GetRotorControlGains>>(
-      node_, path::join(ns, kRemoteIfaceNS, service::kGetRotorControlGains));
-    set_gains_sc_ = std::make_shared<ros2::SyncServiceClient<tobas_msgs::srv::SetRotorControlGains>>(
-      node_, path::join(ns, kRemoteIfaceNS, service::kSetRotorControlGains));
+    get_gains_sc_ = std::make_shared<ros2::SyncServiceClient<tobas_msgs::srv::GetRpmControlGains>>(
+      node_, path::join(ns, kRemoteIfaceNS, service::kGetRpmControlGains));
+    set_gains_sc_ = std::make_shared<ros2::SyncServiceClient<tobas_msgs::srv::SetRpmControlGains>>(
+      node_, path::join(ns, kRemoteIfaceNS, service::kSetRpmControlGains));
     save_gains_sc_ = std::make_shared<ros2::SyncServiceClient<std_srvs::srv::Trigger>>(
-      node_, path::join(ns, kRemoteIfaceNS, service::kSaveRotorControlGains));
+      node_, path::join(ns, kRemoteIfaceNS, service::kSaveRpmControlGains));
   }
   else {
     eprop_.reset();
@@ -190,7 +190,7 @@ void RotorTestWidget::publishTargetSppeds()
 
 bool RotorTestWidget::loadCurrentGains()
 {
-  const auto req = std::make_shared<tobas_msgs::srv::GetRotorControlGains::Request>();
+  const auto req = std::make_shared<tobas_msgs::srv::GetRpmControlGains::Request>();
   if (!get_gains_sc_->call(req, kWaitForService)) {
     qt::qErrorBox(this, "Failed to connect to the rotor controller.");
     return false;
@@ -292,7 +292,7 @@ void RotorTestWidget::onTargetRPMChanged(int, size_t)
 
 void RotorTestWidget::onGainChanged(int gain, size_t ch)
 {
-  const auto req = std::make_shared<tobas_msgs::srv::SetRotorControlGains::Request>();
+  const auto req = std::make_shared<tobas_msgs::srv::SetRpmControlGains::Request>();
   req->gains.emplace_back();
   req->gains.back().channel = ch;
   req->gains.back().gain = gain;
