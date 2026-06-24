@@ -217,7 +217,7 @@ public:
   /* 動的パラメータをもつノード用のノードオプション． */
   static rclcpp::NodeOptions nodeOptions_DParam(rclcpp::NodeOptions options);
 
-protected:
+private:
   std::unordered_set<std::string> log_once_;
   std::unordered_map<std::string, rclcpp::Time> log_throttle_;
 

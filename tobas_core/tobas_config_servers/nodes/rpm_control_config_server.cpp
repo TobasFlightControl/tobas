@@ -4,6 +4,7 @@
 #include <tobas_constants/hardware.hpp>
 #include <tobas_constants/node.hpp>
 #include <tobas_node/node.hpp>
+#include <tobas_std_tools/static_for.hpp>
 
 #include <tobas_msgs/msg/rotor_state_array.hpp>
 #include <tobas_msgs/srv/set_rpm_control_gains.hpp>
@@ -21,29 +22,32 @@ public:
 private:
   tobas_msgs::msg::RpmControlGain gain_;
 
-  ros2::SubscriberPtr<tobas_msgs::msg::RotorStateArray> rotor_states_pub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::RotorStateArray> rotor_states_sub_;
   ros2::ServiceClientPtr<tobas_msgs::srv::SetRpmControlGains> config_sc_;
 
-  bool gainCb(size_t ch, const rclcpp::Parameter& param);
+  template <size_t Channel>
+  bool gainCb(const long& p);
+
   void rotorStatesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& msg);
 };
 
 RpmControlConfigServer::RpmControlConfigServer(const rclcpp::NodeOptions& options)
   : super(node::kRpmControlConfigServer, nodeOptions_DParam(options))
 {
-  rotor_states_pub_ = createSubscriber(topic::kRotorStates, &self::rotorStatesCb, this);
+  rotor_states_sub_ = createSubscriber(topic::kRotorStates, &self::rotorStatesCb, this);
   config_sc_ = create_client<tobas_msgs::srv::SetRpmControlGains>(service::kSetRpmControlGains);
 }
 
-bool RpmControlConfigServer::gainCb(size_t ch, const rclcpp::Parameter& param)
+template <size_t Channel>
+bool RpmControlConfigServer::gainCb(const long& p)
 {
   if (!config_sc_->service_is_ready()) {
     TOBAS_ERROR("\"", service::kSetRpmControlGains, "\" is not ready.");
     return false;
   }
 
-  gain_.channel = ch;
-  gain_.gain = std::clamp<int64_t>(param.as_int(), 0, UINT8_MAX);
+  gain_.channel = Channel;
+  gain_.gain = p;
 
   const auto req = std::make_shared<tobas_msgs::srv::SetRpmControlGains::Request>();
   req->gains.push_back(gain_);
@@ -59,16 +63,15 @@ void RpmControlConfigServer::rotorStatesCb(const tobas_msgs::msg::RotorStateArra
   // そうすることでフィルタの初期設定が確実に反映される．
 
   // Register dynamic parameters
-  for (size_t ch = 0; ch < kMaxDshotChannels; ++ch) {
-    const auto name = param::kRpmControlGainPrefix + std::to_string(ch);
-    declare_parameter(name, 0);
-    const auto cb_handle =
-      dparam_sub_.add_parameter_callback(name, std::bind(&self::gainCb, this, ch, std::placeholders::_1));
-    dparam_handles_.push_back(cb_handle);
-  }
+  st::staticFor<kMaxDshotChannels>(
+    [&]<size_t I>()
+    {
+      const auto param_name = param::kRpmControlGainPrefix + std::to_string(I);
+      addDynamicIntParam(param_name, &self::gainCb<I>, this, 1, 0, 0, UINT8_MAX);
+    });
 
   // Cancel subscription
-  rotor_states_pub_.reset();
+  rotor_states_sub_.reset();
 }
 }  // namespace tobas
 

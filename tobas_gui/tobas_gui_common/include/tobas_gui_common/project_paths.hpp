@@ -15,6 +15,7 @@ class ProjectPaths
 {
 public:
   static constexpr char kImuFilterDynamicParamFileName[] = "imu_filter_dynamic.yaml";
+  static constexpr char kRpmControlDynamicParamFileName[] = "rpm_control_dynamic.yaml";
   static constexpr char kObserverDynamicParamFileName[] = "observer_dynamic.yaml";
   static constexpr char kControllerDynamicParamFileName[] = "controller_dynamic.yaml";
   static constexpr char kRcTeleopDynamicParamFileName[] = "rc_teleop_dynamic.yaml";
@@ -89,6 +90,9 @@ public:
 
   /* imu_filter_dynamic.yaml の絶対パスを返す． */
   std::filesystem::path imuFiltDynParamsPath() const;
+
+  /* rpm_control_dynamic.yaml の絶対パスを返す． */
+  std::filesystem::path rpmCtrlDynParamsPath() const;
 
   /* observer_dynamic.yaml の絶対パスを返す． */
   std::filesystem::path obsvDynParamsPath() const;

@@ -475,6 +475,9 @@ bool ProjectGenerator::generateConfigPackage(const inja::json& tpl_data)
   if (!createEmptyYaml(proj_paths_.imuFiltDynParamsPath(), config_.clear_dynamic_params)) {
     return false;
   }
+  if (!createEmptyYaml(proj_paths_.rpmCtrlDynParamsPath(), config_.clear_dynamic_params)) {
+    return false;
+  }
   if (!createEmptyYaml(proj_paths_.obsvDynParamsPath(), config_.clear_dynamic_params)) {
     return false;
   }
