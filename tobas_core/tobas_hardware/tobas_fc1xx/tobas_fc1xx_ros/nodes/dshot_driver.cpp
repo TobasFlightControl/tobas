@@ -13,7 +13,6 @@
 #include <tobas_drone_msgs_adapter/drone.hpp>
 #include <tobas_msgs/msg/rotor_speed_array.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
-#include <tobas_msgs/srv/get_rpm_control_gains.hpp>
 #include <tobas_msgs/srv/set_rpm_control_gains.hpp>
 
 using namespace std::chrono_literals;
