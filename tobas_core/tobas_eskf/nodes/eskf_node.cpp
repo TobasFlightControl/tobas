@@ -298,7 +298,7 @@ void ErrorStateKalmanFilterNode::registerDynamicRosParams()
       "mag_soft_bias_proc_noise_density", &self::magSoftBiasProcNoiseDensityCb, this, 0.1, 5, 0, 100, " nT/s/√Hz");
   }
   if (do_baro_alt_bias_estimation_) {
-    // cf. https://github.com/PX4/PX4-Autopilot/blob/main/src/modules/ekf2/EKF/common.h#L346
+    // cf. https://github.com/PX4/PX4-Autopilot/blob/main/src/modules/ekf2/EKF/common.h (baro_bias_nsd)
     addDynamicDoubleParam(
       "baro_alt_bias_proc_noise_density", &self::baroAltBiasProcNoiseDensityCb, this, 0.01, 13, 0, 100, " m/s/√Hz");
   }
