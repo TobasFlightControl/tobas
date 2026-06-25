@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export ROS_AUTOMATIC_DISCOVERY_RANGE=LOCALHOST
+
 source /opt/ros/jazzy/setup.bash
 source /opt/tobas/local_setup.bash
 
