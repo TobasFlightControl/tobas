@@ -32,6 +32,7 @@ FlightLogRecorderWidget::FlightLogRecorderWidget(rclcpp::Node::SharedPtr node, c
   : start_thread_(node), stop_thread_(node), spinner_(Qt::WindowModal, this)
 {
   log_name_ = new qt::HistoryLineEdit();
+  log_name_->setEnabled(false);
 
   start_stop_button_ = new qt::ToggleButton("▶ Start Recording", "■ Stop Recording");
   start_stop_button_->setFixedSize(kButtonWidth, kButtonHeight);
@@ -87,6 +88,8 @@ void FlightLogRecorderWidget::reset()
 void FlightLogRecorderWidget::updateNamespace(const std::string& ns)
 {
   reset();
+
+  log_name_->setEnabled(true);
 
   start_thread_.setNamespace(ns);
   stop_thread_.setNamespace(ns);
