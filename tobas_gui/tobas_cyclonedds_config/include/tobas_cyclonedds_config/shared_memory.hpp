@@ -3,19 +3,24 @@
 
 #pragma once
 
-#include <vector>
-
-#include "./network_interface.hpp"
-#include "./shared_memory.hpp"
-
 namespace tobas
 {
 namespace cyclonedds
 {
-struct Data
+struct SharedMemory
 {
-  std::vector<NetworkInterface> interfaces;
-  SharedMemory shared_memory;
+  bool enable = false;
+
+  enum LogLevel
+  {
+    kVerbose,
+    kDebug,
+    kInfo,
+    kWarn,
+    kError,
+    kFatal,
+    kOff,
+  } log_level = kInfo;
 };
 }  // namespace cyclonedds
 }  // namespace tobas

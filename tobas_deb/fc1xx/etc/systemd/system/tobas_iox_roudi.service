@@ -1,0 +1,13 @@
+[Unit]
+Description=Iceoryx shared memory management daemon
+After=local-fs.target
+PartOf=tobas_real.target
+
+[Service]
+Type=exec
+ExecStart=/bin/bash -c 'source /opt/ros/jazzy/setup.bash && /opt/ros/jazzy/bin/iox-roudi'
+Restart=on-failure
+CPUAffinity=0
+
+[Install]
+WantedBy=multi-user.target

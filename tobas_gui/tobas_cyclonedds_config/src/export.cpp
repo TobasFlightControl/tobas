@@ -19,15 +19,54 @@ std::string exportText(const Data& src)
   doc.InsertEndChild(e_root);
 
   const auto e_domain = e_root->InsertNewChildElement(elem::kDomain);
-  const auto e_general = e_domain->InsertNewChildElement(elem::kGeneral);
-  const auto e_ifaces = e_general->InsertNewChildElement(elem::kInterfaces);
 
-  for (const auto& nif : src.interfaces) {
-    if (nif.name.empty()) {
-      continue;
+  {
+    const auto e_general = e_domain->InsertNewChildElement(elem::kGeneral);
+
+    {
+      const auto e_ifaces = e_general->InsertNewChildElement(elem::kInterfaces);
+      for (const auto& nif : src.interfaces) {
+        if (nif.name.empty()) {
+          continue;
+        }
+        const auto e_nif = e_ifaces->InsertNewChildElement(elem::kNIF);
+        e_nif->SetAttribute(attr::kName, nif.name.c_str());
+      }
     }
-    const auto e_nif = e_ifaces->InsertNewChildElement(elem::kNIF);
-    e_nif->SetAttribute(attr::kName, nif.name.c_str());
+  }
+
+  {
+    const auto e_shared_memory = e_domain->InsertNewChildElement(elem::kSharedMemory);
+
+    const auto e_enable = e_shared_memory->InsertNewChildElement(elem::kEnable);
+    e_enable->SetText(src.shared_memory.enable ? "true" : "false");
+
+    const auto e_log_level = e_shared_memory->InsertNewChildElement(elem::kLogLevel);
+    switch (src.shared_memory.log_level) {
+      case SharedMemory::kVerbose:
+        e_log_level->SetText("verbose");
+        break;
+      case SharedMemory::kDebug:
+        e_log_level->SetText("debug");
+        break;
+      case SharedMemory::kInfo:
+        e_log_level->SetText("info");
+        break;
+      case SharedMemory::kWarn:
+        e_log_level->SetText("warn");
+        break;
+      case SharedMemory::kError:
+        e_log_level->SetText("error");
+        break;
+      case SharedMemory::kFatal:
+        e_log_level->SetText("fatal");
+        break;
+      case SharedMemory::kOff:
+        e_log_level->SetText("off");
+        break;
+      default:
+        throw;
+    }
   }
 
   return xml::xmlDocumentToString(&doc);

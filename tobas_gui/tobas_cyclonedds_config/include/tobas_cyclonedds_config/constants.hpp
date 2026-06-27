@@ -14,6 +14,9 @@ static constexpr char kDomain[] = "Domain";
 static constexpr char kGeneral[] = "General";
 static constexpr char kInterfaces[] = "Interfaces";
 static constexpr char kNIF[] = "NetworkInterface";
+static constexpr char kSharedMemory[] = "SharedMemory";
+static constexpr char kEnable[] = "Enable";
+static constexpr char kLogLevel[] = "LogLevel";
 }  // namespace elem
 
 namespace attr
