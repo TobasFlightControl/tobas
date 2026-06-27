@@ -21,6 +21,7 @@ int main(int argc, char** argv)
   tobas::ublox::payload::NAV_HPPOSLLH hpposllh;
   tobas::ublox::payload::NAV_POSLLH posllh;
   tobas::ublox::payload::NAV_PVT pvt;
+  tobas::ublox::payload::NAV_SAT sat;
   tobas::ublox::payload::NAV_STATUS status;
   tobas::ublox::payload::NAV_TIMEGPS timegps;
   tobas::ublox::payload::NAV_VELNED velned;
@@ -82,6 +83,10 @@ int main(int argc, char** argv)
     cerr << "Failed to enable NAV_PVT message." << endl;
     return EXIT_FAILURE;
   }
+  if (!gnss.enableSpiMessage(tobas::ublox::ZEDF9P::CLASS_NAV, tobas::ublox::ZEDF9P::NAV_SAT, true)) {
+    cerr << "Failed to enable NAV_SAT message." << endl;
+    return EXIT_FAILURE;
+  }
   if (!gnss.enableSpiMessage(tobas::ublox::ZEDF9P::CLASS_NAV, tobas::ublox::ZEDF9P::NAV_STATUS, true)) {
     cerr << "Failed to enable NAV_STATUS message." << endl;
     return EXIT_FAILURE;
@@ -127,6 +132,11 @@ int main(int argc, char** argv)
         pvt.decode(gnss.payload());
         cout << "[NAV_PVT]" << endl;
         cout << pvt << endl;
+        break;
+      case tobas::ublox::ZEDF9P::NAV_SAT:
+        sat.decode(gnss.payload());
+        cout << "[NAV_SAT]" << endl;
+        cout << sat << endl;
         break;
       case tobas::ublox::ZEDF9P::NAV_STATUS:
         status.decode(gnss.payload());
