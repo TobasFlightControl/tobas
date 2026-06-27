@@ -4,7 +4,6 @@
 #include <tobas_constants/ros_interface.hpp>
 #include <tobas_ic_drivers/ublox/zed_f9p.hpp>
 #include <tobas_node/node.hpp>
-#include <tobas_std_tools/gnss.hpp>
 
 #include <tobas_msgs_adapter/gnss.hpp>
 
@@ -34,9 +33,7 @@ public:
 private:
   ublox::ZEDF9P gnss_;
 
-  ublox::payload::NAV_STATUS status_;
-  ublox::payload::NAV_HPPOSLLH hpposllh_;
-  ublox::payload::NAV_VELNED velned_;
+  ublox::payload::NAV_PVT pvt_;
   ublox::payload::NAV_COV cov_;
 
   std::map<ublox::ZEDF9P::UbxNavId, bool> is_received_;
@@ -69,9 +66,7 @@ void GnssDriverNode::initialize()
     return;
   }
 
-  is_received_[ublox::ZEDF9P::NAV_STATUS] = false;
-  is_received_[ublox::ZEDF9P::NAV_HPPOSLLH] = false;
-  is_received_[ublox::ZEDF9P::NAV_VELNED] = false;
+  is_received_[ublox::ZEDF9P::NAV_PVT] = false;
   is_received_[ublox::ZEDF9P::NAV_COV] = false;
 
   gnss_pub_ = createPublisher<tobas_msgs::Gnss>(topic::kGnss);
@@ -120,16 +115,8 @@ bool GnssDriverNode::configure()
   }
 
   // Enable messages
-  if (!gnss_.enableSpiMessage(ublox::ZEDF9P::CLASS_NAV, ublox::ZEDF9P::NAV_STATUS, true)) {
-    TOBAS_ERROR("Failed to enable NAV_STATUS message.");
-    return false;
-  }
-  if (!gnss_.enableSpiMessage(ublox::ZEDF9P::CLASS_NAV, ublox::ZEDF9P::NAV_HPPOSLLH, true)) {
-    TOBAS_ERROR("Failed to enable NAV_HPPOSLLH message.");
-    return false;
-  }
-  if (!gnss_.enableSpiMessage(ublox::ZEDF9P::CLASS_NAV, ublox::ZEDF9P::NAV_VELNED, true)) {
-    TOBAS_ERROR("Failed to enable NAV_VELNED message.");
+  if (!gnss_.enableSpiMessage(ublox::ZEDF9P::CLASS_NAV, ublox::ZEDF9P::NAV_PVT, true)) {
+    TOBAS_ERROR("Failed to enable NAV_PVT message.");
     return false;
   }
   if (!gnss_.enableSpiMessage(ublox::ZEDF9P::CLASS_NAV, ublox::ZEDF9P::NAV_COV, true)) {
@@ -191,17 +178,9 @@ void GnssDriverNode::mainTimerCb()
   }
 
   switch (gnss_.latestId()) {
-    case ublox::ZEDF9P::NAV_STATUS:
-      status_.decode(gnss_.payload());
-      is_received_.at(ublox::ZEDF9P::NAV_STATUS) = true;
-      break;
-    case ublox::ZEDF9P::NAV_HPPOSLLH:
-      hpposllh_.decode(gnss_.payload());
-      is_received_.at(ublox::ZEDF9P::NAV_HPPOSLLH) = true;
-      break;
-    case ublox::ZEDF9P::NAV_VELNED:
-      velned_.decode(gnss_.payload());
-      is_received_.at(ublox::ZEDF9P::NAV_VELNED) = true;
+    case ublox::ZEDF9P::NAV_PVT:
+      pvt_.decode(gnss_.payload());
+      is_received_.at(ublox::ZEDF9P::NAV_PVT) = true;
       break;
     case ublox::ZEDF9P::NAV_COV:
       cov_.decode(gnss_.payload());
@@ -224,12 +203,6 @@ void GnssDriverNode::mainTimerCb()
     received = false;
   }
 
-  // GNSSメッセージの遅延を表示 (デバッグモードのみ)
-  if (get_logger().get_effective_level() <= rclcpp::Logger::Level::Debug) {
-    const auto delay_ms = st::computeGpsDelayFromToW(hpposllh_.iTOW);
-    TOBAS_DEBUG("GNSS delay: ", delay_ms, "[ms]");
-  }
-
   // Create GNSS message
   auto gnss_msg = std::make_unique<tobas_msgs::Gnss>();
 
@@ -237,20 +210,10 @@ void GnssDriverNode::mainTimerCb()
   // TODO: GNSS信号の遅延を測定
   gnss_msg->header.stamp = now() - rclcpp::Duration::from_nanoseconds(80'000'000);
 
-  // Fill fix type
-  gnss_msg->fix_type = status_.gpsFix;
-
   // Fill position
-  gnss_msg->latitude = hpposllh_.lat + hpposllh_.latHp;                 // Latitude [deg]
-  gnss_msg->longitude = hpposllh_.lon + hpposllh_.lonHp;                // Longitude [deg]
-  gnss_msg->altitude = (hpposllh_.height + hpposllh_.heightHp) * 1e-3;  // Height above ellipsoid [m]
-
-  // Fill velocity
-  gnss_msg->ground_speed.x(velned_.velE * 1e-2);   // East velocity [m/s]
-  gnss_msg->ground_speed.y(velned_.velN * 1e-2);   // North velocity [m/s]
-  gnss_msg->ground_speed.z(-velned_.velD * 1e-2);  // Up velocity [m/s]
-
-  // Fill covariances
+  gnss_msg->latitude = pvt_.lat;
+  gnss_msg->longitude = pvt_.lon;
+  gnss_msg->altitude = static_cast<double>(pvt_.hMSL) * 1e-3;
   gnss_msg->position_covariance(0, 0) = cov_.posCovNN;
   gnss_msg->position_covariance(0, 1) = cov_.posCovNE;
   gnss_msg->position_covariance(0, 2) = cov_.posCovND;
@@ -260,6 +223,11 @@ void GnssDriverNode::mainTimerCb()
   gnss_msg->position_covariance(2, 0) = cov_.posCovND;
   gnss_msg->position_covariance(2, 1) = cov_.posCovED;
   gnss_msg->position_covariance(2, 2) = cov_.posCovDD;
+
+  // Fill velocity
+  gnss_msg->ground_speed.x(static_cast<double>(pvt_.velE) * 1e-3);
+  gnss_msg->ground_speed.y(static_cast<double>(pvt_.velN) * 1e-3);
+  gnss_msg->ground_speed.z(-static_cast<double>(pvt_.velD) * 1e-3);
   gnss_msg->velocity_covariance(0, 0) = cov_.velCovNN;
   gnss_msg->velocity_covariance(0, 1) = cov_.velCovNE;
   gnss_msg->velocity_covariance(0, 2) = cov_.velCovND;
@@ -269,6 +237,10 @@ void GnssDriverNode::mainTimerCb()
   gnss_msg->velocity_covariance(2, 0) = cov_.velCovND;
   gnss_msg->velocity_covariance(2, 1) = cov_.velCovED;
   gnss_msg->velocity_covariance(2, 2) = cov_.velCovDD;
+
+  // Fill other status
+  gnss_msg->fix_type = pvt_.fixType;
+  gnss_msg->num_satellites_used = pvt_.numSV;
 
   // Publish GNSS message
   gnss_pub_->publish(std::move(gnss_msg));

@@ -21,3 +21,6 @@ tobas_eigen_msgs/Matrix3d position_covariance   # [m^2]
 # Velocity
 tobas_kdl_msgs/Vector ground_speed                 # [m/s]
 tobas_eigen_msgs/Matrix3d velocity_covariance      # [m^2/s^2]
+
+# Status
+uint8 num_satellites_used  # The number of satellites used in NAV solution
