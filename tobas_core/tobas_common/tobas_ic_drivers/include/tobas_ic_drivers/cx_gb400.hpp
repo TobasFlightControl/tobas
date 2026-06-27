@@ -52,7 +52,7 @@ public:
   };
   // 露出モードの設定, 以下の説明には多くの推測が含まれる
   // manual : 露出時間, ISO感度, 絞りを人間が指定
-  // setExposureTime, setIsoSensitivity, setApertureで露出時間 & ISO感度 & 絞りの生値を設定することで撮影configを設定
+  // setExposureTime, setIsoSensitivityで露出時間 & ISO感度を設定することで撮影configを設定
   // program : 露出時間, ISO露出, 絞りをカメラが決定
   // setExposureCompensation, setPhotometryにより露出補正, 測光モード設定を行うことで間接的に露出時間, ISO感度, 絞りを変更, 撮影configを設定
   // 注 : ホワイトバランスの設定はこれとは関係ない
@@ -165,22 +165,6 @@ public:
     kIncandescent = 0x04,   // Incandescent
     kFluorescent = 0x05,    // Fluorescent
   };
-  enum class Aperture : uint8_t
-  {
-    kF2p8  = 0x00, // F2.8 (2 point 8) (default)
-    kF3p2  = 0x01, // F3.2
-    kF3p5  = 0x02, // F3.5
-    kF4p0  = 0x03, // F4.0
-    kF4p5  = 0x04, // F4.5
-    kF5p0  = 0x05, // F5.0
-    kF5p6  = 0x06, // F5.6
-    kF6p3  = 0x07, // F6.3
-    kF7p1  = 0x08, // F7.1
-    kF8p0  = 0x09, // F8.0
-    kF9p0  = 0x0A, // F9.0
-    kF10p0 = 0x0B, // F10.0
-    kF11p0 = 0x0C, // F11.0
-  };
 
   explicit CxGb400();
   ~CxGb400();
@@ -241,10 +225,6 @@ public:
   bool setPhotometry(const Photometry& photometry);
   /* ホワイトバランスを設定する */
   bool setWhiteBalance(const WhiteBalance& white_balance);
-  /* 絞りを取得する 結果から引数として与えられた変数の値を変更する */
-  bool getAperture(uint8_t& aperture);
-  /* 絞りを設定する */
-  bool setAperture(const Aperture& aperture);
   /* カメラ状態を取得する 結果から引数として与えられた変数の値を変更する */
   bool getCameraStatus(
     bool& sd_full,

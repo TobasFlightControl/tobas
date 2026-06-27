@@ -346,27 +346,6 @@ bool CxGb400::setWhiteBalance(const WhiteBalance& white_balance)
   return true;
 }
 
-bool CxGb400::getAperture(uint8_t& aperture)
-{
-  const uvc_xu_control_query get_aperture_query = { kUnit1, 0x1B, UVC_GET_CUR, 1, &aperture };
-  if (!execUvcControl(get_aperture_query)) {
-    std::cerr << "Failed to get apeture." << std::endl;
-    return false;
-  }
-  return true;
-}
-
-bool CxGb400::setAperture(const Aperture& aperture)
-{
-  uint8_t aperture_data = static_cast<uint8_t>(aperture);
-  const uvc_xu_control_query set_aperture = { kUnit1, 0x1B, UVC_SET_CUR, 1, &aperture_data };
-  if (!execUvcControl(set_aperture)) {
-    std::cerr << "Failed to set apeture." << std::endl;
-    return false;
-  }
-  return true;
-}
-
 bool CxGb400::getCameraStatus(
   bool& sd_full,
   bool& time_not_set,

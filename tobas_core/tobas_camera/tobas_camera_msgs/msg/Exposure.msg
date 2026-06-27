@@ -5,6 +5,5 @@ std_msgs/Header header
 uint8 exposure_mode
 uint8 exposure_time
 uint8 iso_sensitivity
-uint8 aperture
 uint8 exposure_compensation
 uint8 photometry
