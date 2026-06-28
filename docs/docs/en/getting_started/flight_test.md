@@ -153,7 +153,7 @@ This time, we left it at the default value.
 ### Recording Flight Logs
 
 1. Enter a log name in `Log Name` (example: 20260101_f450_hover).
-1. Press the `Start Recording` button to start recording the log. Continuous recording is supported up to 5GB.
+1. Press the `Start Recording` button to start recording the log.
 1. Press the `Stop Recording` button to stop recording.
 
 ### Viewing Flight Logs

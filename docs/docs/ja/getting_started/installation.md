@@ -6,7 +6,7 @@
 
 ### 手順 (デスクトップから)
 
-<a href=https://drive.google.com/file/d/1nH_jZujDL_apP0uTWPIftbURmE6LqPQ8/view target="_blank">tobas_2.14.0_amd64.deb</a>
+<a href=https://drive.google.com/file/d/1R_Efi_-HoPTEq7rY3pQs6Z4MmEuOyvgo/view target="_blank">tobas_2.15.0_amd64.deb</a>
 をダウンロードしてください．
 
 エクスプローラを開き，ダウンロードした deb パッケージをダブルクリックすると，App Center が起動します．
@@ -34,14 +34,14 @@ Enter キーを押してターミナルを閉じてください．
 
 ### 手順 (ターミナルから)
 
-<a href=https://drive.google.com/file/d/1nH_jZujDL_apP0uTWPIftbURmE6LqPQ8/view target="_blank">tobas_2.14.0_amd64.deb</a>
+<a href=https://drive.google.com/file/d/1R_Efi_-HoPTEq7rY3pQs6Z4MmEuOyvgo/view target="_blank">tobas_2.15.0_amd64.deb</a>
 をダウンロードします．
 
 ```bash
 $ sudo apt install -y python3-pip
 $ sudo pip install gdown --break-system-packages
 $ cd ~/Download
-$ gdown --fuzzy 'https://drive.google.com/file/d/1nH_jZujDL_apP0uTWPIftbURmE6LqPQ8/view'
+$ gdown --fuzzy 'https://drive.google.com/file/d/1R_Efi_-HoPTEq7rY3pQs6Z4MmEuOyvgo/view'
 ```
 
 既に Tobas がインストールされていて更新したい場合は，一度古いパッケージをアンインストールします．
@@ -53,7 +53,7 @@ $ sudo dpkg -r tobas
 Tobas をインストールします．
 
 ```bash
-$ sudo dpkg -i tobas_2.14.0_amd64.deb
+$ sudo dpkg -i tobas_2.15.0_amd64.deb
 ```
 
 依存パッケージをインストールします．
@@ -74,11 +74,11 @@ $ tobas_install_prereqs
 - <a href=https://www.raspberrypi.com/products/raspberry-pi-5/ target="_blank">Raspberry Pi 5 (2 GB以上)</a>
 - Tobas HAT <!-- TODO: URL -->
 - 16 GB 以上のマイクロ SD カード (例: <a href=https://www.sandisk.com/products/memory-cards/microsd-cards/sandisk-extreme-uhs-i-microsd target="_blank">SanDisk Extreme microSDXC™ UHS-I CARD - 32GB</a>)
-- SD カードリーダー (例: <a href=https://www.sandisk.com/products/accessories/memory-card-readers/sandisk-quickflow-microsd-usb-a-memory-card-reader target="_blank">SanDisk QuickFlow™ microSD™ UHS-I Card USB-A Reader</a>)
+- SD カードリーダー (例: <a href=https://www.sandisk.com/products/accessories/memory-card-readers/sandisk-quickflow-microsd-memory-card-reader-usb-c target="_blank">SANDISK QuickFlow microSD Card Reader with USB-C</a>)
 
 ### 手順 (デスクトップから)
 
-<a href=https://drive.google.com/file/d/1rY3bRWFkQObM9NEoeVO0XCzzGwWz04am/view target="_blank">tobas_2.14.0_arm64.img.gz</a>
+<a href=https://drive.google.com/file/d/1ECkhHWGlVKN-8F47updfDKAXjJOI3xxc/view target="_blank">tobas_2.15.0_arm64.img.gz</a>
 をダウンロードしてください．
 
 適当なイメージフラッシャーをインストールしてください．例えば以下が使用可能です．
@@ -97,21 +97,21 @@ SD カードを，カードリーダーを介して PC に接続してくださ�
 
 ### 手順 (ターミナルから)
 
-<a href=https://drive.google.com/file/d/1rY3bRWFkQObM9NEoeVO0XCzzGwWz04am/view target="_blank">tobas_2.14.0_arm64.img.gz</a>
+<a href=https://drive.google.com/file/d/1ECkhHWGlVKN-8F47updfDKAXjJOI3xxc/view target="_blank">tobas_2.15.0_arm64.img.gz</a>
 をダウンロードします．
 
 ```bash
 $ sudo apt install -y python3-pip
 $ sudo pip install gdown --break-system-packages
 $ cd ~/Download
-$ gdown --fuzzy 'https://drive.google.com/file/d/1rY3bRWFkQObM9NEoeVO0XCzzGwWz04am/view'
+$ gdown --fuzzy 'https://drive.google.com/file/d/1ECkhHWGlVKN-8F47updfDKAXjJOI3xxc/view'
 ```
 
 ダウンロードしたファイルを解凍します．
 
 ```bash
 $ sudo apt install -y gzip
-$ gunzip tobas_2.14.0_arm64.img.gz
+$ gunzip tobas_2.15.0_arm64.img.gz
 ```
 
 SD カードを，カードリーダーを介して PC に接続してください．
@@ -120,7 +120,7 @@ SD カードを，カードリーダーを介して PC に接続してくださ�
 `/dev/sdx`は実際のパスに置き換えてください．
 
 ```bash
-$ sudo dd if=tobas_2.14.0_arm64.img of=/dev/sdx bs=4M conv=fsync status=progress
+$ sudo dd if=tobas_2.15.0_arm64.img of=/dev/sdx bs=4M conv=fsync status=progress
 ```
 
 正常に終了したら SD カードを PC から取り外してください．

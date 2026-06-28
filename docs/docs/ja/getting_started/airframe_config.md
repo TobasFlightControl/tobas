@@ -16,15 +16,15 @@ UADF の詳細については[What is UADF](../additional_information/what_is_ua
 このチュートリアルでは，典型的なクアッドコプターである DJI F450 を使用します．
 構成部品は以下のとおりです：
 
-- フライトコントローラ: <a href=https://tobas.jp/product target="_blank">Tobas FC101</a>
-- Power Module: <a href=https://tobas.jp/product target="_blank">Tobas PM101</a>
-- フレーム: <a href=https://ja.aliexpress.com/item/1005007683004849.html target="_blank">DJI F450 Frame</a>
-- バッテリー: <a href=https://ja.aliexpress.com/item/4000244479545.html target="_blank">HRB 3S 5000mAh 50C</a>
-- モータ: <a href=https://ja.aliexpress.com/item/1005008178619191.html target="_blank">DJI A2212 920KV</a> (CW x 2, CCW x 2)
-- プロペラ: <a href=https://ja.aliexpress.com/item/1005004372872772.html target="_blank">DJI 9450</a> (CW x 2, CCW x 2)
+- フライトコントローラ: <a href=https://tobas.jp/product target="_blank">Tobas FC201</a>
+- Power Module: <a href=https://holybro.com/products/pm02d-power-module target="_blank">Holybro PM02D</a>
+- フレーム: <a href=https://www.hawks-work.com/products/f450-drone-frame-450mm-wheelbase-quadcopter-frame-kit-with-landing-skid-gear target="_blank">DJI F450 Frame</a>
+- モータ: <a href=https://www.hawks-work.com/products/a2212-brushless-motor-920kv-for-multirotor-drone-and-others target="_blank">A2212 920KV</a> (CW x 2, CCW x 2)
+- プロペラ: <a href=https://www.hawks-work.com/products/9450-propellers-self-tightening-cw-ccw-propeller-for-multirotor-f450 target="_blank">DJI 9450</a> (CW x 2, CCW x 2)
 - ESC: <a href=https://www.fly-color.net/index.php?c=category&id=234 target="\_blank">Flycolor Raptor5 35A</a> x 4
-- GNSS アンテナ: <a href=https://www.topgnss.store/en-jp/products/2pcs-l1-l5-helical-antenna-uav-flight-control-antenna-gps-glonass-galileo-bds-rtk-handheld-receiver-an-103-topgnss-helical target="_blank">TOPGNSS AN-103</a>
-- RC 受信機: <a href=https://www.rc.futaba.co.jp/products/detail/I00000018 target="_blank">Futaba R3001SB</a>
+- バッテリー: <a href=https://hrb-power.com/products/11-1v-5000mah-6000mah-50c-trx target="_blank">HRB 3S 5000mAh 50C</a>
+- GNSS アンテナ: <a href=https://www.topgnss.store/en-jp/products/top901-gnss-l1-l2-l5-unmanned-vehicle-high-precision-drone-measurement-full-frequency-rtk-antenna-new-small-high-gain-helical target="_blank">TOPGNSS TOP901</a>
+- RC 受信機: <a href=https://www.rc.futaba.co.jp/products/detail/I00000021 target="_blank">Futaba R2000SBM</a>
 
 機体の UADF を作る必要がありますが，今回は既に用意してあるものを使用します．
 
@@ -96,7 +96,7 @@ $ ros2 launch tobas_setup_assistant setup_assistant.launch.py
 ---
 
 ハードウェアの接続に関する設定を行います．　
-`Tobas FC1xx`が選択されていることを確認し，
+`Tobas FC2xx`が選択されていることを確認し，
 4 つの推進ユニットそれぞれについて，適切に DShot チャンネルを設定してください．
 
 ![hardware_interface](../../assets/airframe_config/hardware_interface.png)
