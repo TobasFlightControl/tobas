@@ -66,7 +66,7 @@ enabling precise flight performance even for unconventional frames not supported
 
    ```bash
    $ cd ~/colcon_ws/src
-   $ git clone git@github.com:TobasFlightControl/tobas.git --recursive -b jazzy # or "jazzy-dev" if you contribute to Tobas
+   $ git clone git@github.com:TobasFlightControl/tobas.git --recursive -b jazzy
    ```
 
 5. Install dependencies
