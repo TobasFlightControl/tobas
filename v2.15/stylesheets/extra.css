@@ -1,0 +1,29 @@
+.md-banner {
+  background-color: #000000;
+}
+
+.md-banner .announce-wrapper,
+.md-banner #announce-left,
+.md-banner .item {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.md-banner .announce-link,
+.md-banner .announce-link:visited,
+.md-banner .announce-link:hover,
+.md-banner .announce-link:active {
+  color: #FFFFFF;
+  text-decoration: none;
+  text-align: center;
+}
+
+.md-banner .announce-link strong {
+  color: inherit;
+}
+
+.md-banner .twemoji svg {
+  fill: currentColor;
+}
