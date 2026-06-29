@@ -197,7 +197,7 @@ def translate_markdown(
 
 
 def iter_markdown_files(root: Path) -> List[Path]:
-    return sorted(p for p in root.rglob("*.md") if p.is_file())
+    return sorted(p for p in root.rglob("*.md") if p.is_file() and p.name != "README.md")
 
 
 def main() -> int:
