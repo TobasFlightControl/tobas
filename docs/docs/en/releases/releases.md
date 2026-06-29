@@ -9,6 +9,7 @@ Each version page describes the main changes since the previous release as well 
 
 ---
 
+- [v2.15 (2026/6/29)](./v2.15.md)
 - [v2.14 (2026/5/8)](./v2.14.md)
 - [v2.13 (2026/3/21)](./v2.13.md)
 - [v2.12 (2026/2/18)](./v2.12.md)
