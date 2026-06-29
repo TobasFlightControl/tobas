@@ -40,8 +40,9 @@ sudo rm /etc/hostapd/hostapd.conf*
 sudo systemctl disable tobas_real.target
 
 # Reset to the first boot
+sudo systemctl enable rpi-resize.service
+sudo grep -qw 'resize' /boot/firmware/cmdline.txt || sudo sed -i 's/$/ resize/' /boot/firmware/cmdline.txt
 echo uninitialized | sudo tee /etc/machine-id > /dev/null
 sudo rm -f /var/lib/dbus/machine-id
-sudo systemctl enable rpi-resize.service
 
 echo -e "\033[32mCleaning finished successfully.\033[0m"
