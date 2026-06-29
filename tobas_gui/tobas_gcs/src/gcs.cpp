@@ -161,6 +161,7 @@ void GroundControlStationWidget::reset(bool include_simulation)
 void GroundControlStationWidget::updateInternalDataStructures()
 {
   const auto ns = '/' + drone_.name;
+  const auto proj_path = projectPath();
 
   // まずトピックを貼り替えて以前の機体でのコールバックを全て吐ききる
   bridge_.initializeScopedTopics(ns);
@@ -175,11 +176,11 @@ void GroundControlStationWidget::updateInternalDataStructures()
   reset();
 
   sensor_calib_->updateInternalDataStructures();
-  actuator_test_->updateInternalDataStructures();
+  actuator_test_->updateProject(proj_path);
   control_system_->updateInternalDataStructures();
-  param_tuning_->updateProject(projectPath());
+  param_tuning_->updateProject(proj_path);
   flight_log_->updateNamespace(ns);
-  simulation_->updateProject(projectPath());
+  simulation_->updateProject(proj_path);
 }
 
 void GroundControlStationWidget::closeEvent(QCloseEvent* event)
@@ -490,6 +491,8 @@ void GroundControlStationWidget::onWriteButtonClicked()
   progress.setLabelText("Writing DDS configuration.");
   cyclonedds::Data dds_data;
   dds_data.interfaces.emplace_back(network_config_.interface);
+  dds_data.shared_memory.enable = false;  // FIXME: プロセス間通信を共有メモリでやろうとするとなぜかジッターが増える
+  dds_data.shared_memory.log_level = cyclonedds::SharedMemory::kWarn;
   const auto dds_config_text = cyclonedds::exportText(dds_data);
   if (ssh_client_.sftpWrite(kCycloneddsConfigPath, dds_config_text, true) != ssh::SshClient::kNoError) {
     progress.close();

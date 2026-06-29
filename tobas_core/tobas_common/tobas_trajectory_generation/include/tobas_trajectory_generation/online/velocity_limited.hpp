@@ -14,8 +14,9 @@ class VelocityLimitedOnlineTrajectoryGenerator
 public:
   explicit VelocityLimitedOnlineTrajectoryGenerator();
 
-  inline double getTrajectoryPosition() const;
   inline bool isSaturated() const;
+
+  inline double getTrajectoryPosition() const;
 
   inline void setTargetPosition(double tar_pos);
 
@@ -39,14 +40,14 @@ private:
   double max_vel_ = NAN;
 };
 
-inline double VelocityLimitedOnlineTrajectoryGenerator::getTrajectoryPosition() const
-{
-  return traj_pos_;
-}
-
 inline bool VelocityLimitedOnlineTrajectoryGenerator::isSaturated() const
 {
   return is_saturated_;
+}
+
+inline double VelocityLimitedOnlineTrajectoryGenerator::getTrajectoryPosition() const
+{
+  return traj_pos_;
 }
 
 inline void VelocityLimitedOnlineTrajectoryGenerator::setTargetPosition(double tar_pos)

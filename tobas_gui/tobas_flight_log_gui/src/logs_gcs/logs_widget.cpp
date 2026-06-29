@@ -16,7 +16,8 @@
 #include <tobas_std_tools/check.hpp>
 
 #include "tobas_flight_log_gui/constants.hpp"
-#include "tobas_flight_log_gui/logs_gcs/csv_export_thread.hpp"
+#include "tobas_flight_log_gui/logs_gcs/exporter/export_thread_csv.hpp"
+#include "tobas_flight_log_gui/logs_gcs/exporter/export_thread_rosbag.hpp"
 #include "tobas_flight_log_gui/logs_gcs/log_item.hpp"
 
 namespace fs = std::filesystem;
@@ -58,7 +59,7 @@ FlightLogsWidgetGCS::FlightLogsWidgetGCS(rclcpp::Node::SharedPtr node)
   // Connection
   connect(read_button_, &QPushButton::clicked, this, &self::onReadButtonClicked);
   connect(clean_button_, &QPushButton::clicked, this, &self::onCleanButtonClicked);
-  connect(log_list_, &QListWidget::itemClicked, this, &self::onListItemClicked);
+  connect(log_list_, &QListWidget::currentItemChanged, this, &self::onListItemChanged);
 }
 
 void FlightLogsWidgetGCS::addLog(const QString& log_name)
@@ -72,6 +73,8 @@ void FlightLogsWidgetGCS::addLog(const QString& log_name)
   connect(widget, &FlightLogItemWidgetGCS::exportButtonClicked, this, &self::onExportButtonClicked);
   connect(widget, &FlightLogItemWidgetGCS::deleteButtonClicked, this, &self::onDeleteButtonClicked);
   log_list_->setItemWidget(list_item, widget);
+
+  sortLogs();
 }
 
 void FlightLogsWidgetGCS::removeLog(const QString& log_name)
@@ -100,11 +103,6 @@ void FlightLogsWidgetGCS::clearLogs()
   log_list_->clear();
 }
 
-void FlightLogsWidgetGCS::sortLogs()
-{
-  log_list_->sortItems();
-}
-
 QString FlightLogsWidgetGCS::currentLogName() const
 {
   const auto cur_item = log_list_->currentItem();
@@ -129,8 +127,15 @@ void FlightLogsWidgetGCS::setCurrentLogName(const QString& log_name)
   qWarning() << log_name << "not found.";
 }
 
+void FlightLogsWidgetGCS::sortLogs()
+{
+  log_list_->sortItems();
+}
+
 void FlightLogsWidgetGCS::onReadButtonClicked()
 {
+  qDebug() << "FlightLogsWidgetGCS::onReadButtonClicked";
+
   // 現在選択されているアイテムを取得
   const auto cur_text = currentLogName();
 
@@ -169,6 +174,8 @@ void FlightLogsWidgetGCS::onReadButtonClicked()
 
 void FlightLogsWidgetGCS::onCleanButtonClicked()
 {
+  qDebug() << "FlightLogsWidgetGCS::onCleanButtonClicked";
+
   if (!qt::yesOrNo(this, "Do you want to clean all the flight logs saved in the GCS?", qt::WARN)) {
     return;
   }
@@ -202,6 +209,11 @@ void FlightLogsWidgetGCS::onCleanButtonClicked()
 
 void FlightLogsWidgetGCS::onExportButtonClicked(const QString& log_name)
 {
+  qDebug().nospace() << "FlightLogsWidgetGCS::onExportButtonClicked(" << log_name << ")";
+
+  static constexpr char kFilterTextCsv[] = "CSV Files (*.csv)";
+  static constexpr char kFilterTextRosbag[] = "ROS bag Archive (*.zip)";
+
   // Get the last opened directory path
   std::string last_opened_dir;
   if (property_client_.get(kLastOpenedDirKey, last_opened_dir) < 0) {
@@ -214,12 +226,13 @@ void FlightLogsWidgetGCS::onExportButtonClicked(const QString& log_name)
   default_out_path.replace_extension(".csv");
 
   // Get the save file path
+  QString selected_filter;
   const auto save_path = QFileDialog::getSaveFileName(
     this,
-    "Select Output CSV File",
+    "Export Flight Log",
     QString::fromStdString(default_out_path),
-    "CSV Files (*.csv)",
-    nullptr,
+    kFilterTextCsv + QString(";;") + kFilterTextRosbag,
+    &selected_filter,
     QFileDialog::DontUseNativeDialog);
 
   // Return if canceled
@@ -236,10 +249,21 @@ void FlightLogsWidgetGCS::onExportButtonClicked(const QString& log_name)
     qWarning() << property_client_.errorMessage();
   }
 
-  // Export CSV file
-  CsvExportThread thread(log_name, save_path);
+  // Create an export thread
+  ExportThread* thread = nullptr;
+  if (selected_filter == kFilterTextCsv) {
+    thread = new ExportThreadCsv(log_name, save_path);
+  }
+  else if (selected_filter == kFilterTextRosbag) {
+    thread = new ExportThreadRosbag(log_name, save_path);
+  }
+  else {
+    throw std::runtime_error("Unexpected filter: " + selected_filter.toStdString());
+  }
+
+  // Export the flight log
   spinner_.start();
-  const auto [success, message] = qt::startThreadAndWait(thread, &CsvExportThread::finished);
+  const auto [success, message] = qt::startThreadAndWait(*thread, &ExportThread::finished);
   spinner_.stop();
 
   // Show the result
@@ -253,6 +277,8 @@ void FlightLogsWidgetGCS::onExportButtonClicked(const QString& log_name)
 
 void FlightLogsWidgetGCS::onDeleteButtonClicked(const QString& log_name)
 {
+  qDebug().nospace() << "FlightLogsWidgetGCS::onDeleteButtonClicked(" << log_name << ")";
+
   const auto log_path = ros2::expandUser(kRosbagDirHome) / log_name.toStdString();
 
   if (!qt::yesOrNo(this, "Do you want to delete flight log \"" + log_name + "\"?", qt::WARN)) {
@@ -272,8 +298,14 @@ void FlightLogsWidgetGCS::onDeleteButtonClicked(const QString& log_name)
   removeLog(log_name);
 }
 
-void FlightLogsWidgetGCS::onListItemClicked(QListWidgetItem* item)
+void FlightLogsWidgetGCS::onListItemChanged(QListWidgetItem* item)
 {
+  qDebug() << "FlightLogsWidgetGCS::onListItemChanged";
+
+  if (!item) {
+    return;
+  }
+
   const auto log_widget = qt::qConstPointerCast<FlightLogItemWidgetGCS>(log_list_->itemWidget(item));
   Q_EMIT logSelected(log_widget->logName());
 }

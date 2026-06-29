@@ -3,10 +3,7 @@
 
 #include "tobas_eigen_tools/iostream.hpp"
 
-using namespace std;
-using namespace Eigen;
-
-ostream& operator<<(ostream& os, const Quaterniond& arg)
+std::ostream& operator<<(std::ostream& os, const Eigen::Quaterniond& arg)
 {
   os << "x: " << arg.x() << ", y: " << arg.y() << ", z: " << arg.z() << ", w: " << arg.w();
   return os;

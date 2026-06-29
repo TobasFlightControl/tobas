@@ -12,9 +12,6 @@
 #include <tobas_math/float.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 
-using namespace std;
-using namespace Eigen;
-
 namespace tobas
 {
 namespace y_axis_tilt_multicopter
@@ -30,23 +27,23 @@ bool Mixer::updateInternalDataStructures()
   }
 
   if (!fk_solver_.updateInternalDataStructures()) {
-    cerr << fk_solver_.errorMessage() << endl;
+    std::cerr << fk_solver_.errorMessage() << std::endl;
     return false;
   }
   if (!inertia_solver_.updateInternalDataStructures()) {
-    cerr << inertia_solver_.errorMessage() << endl;
+    std::cerr << inertia_solver_.errorMessage() << std::endl;
     return false;
   }
 
   // 順運動学を計算
   if (fk_solver_.jntToCart(kdl::JntArray::Zero(tree_.getNrOfJoints())) < 0) {
-    cerr << fk_solver_.errorMessage() << endl;
+    std::cerr << fk_solver_.errorMessage() << std::endl;
     return false;
   }
 
   const auto nr = drone_.prop->numRotors();
 
-  E_.conservativeResize(NoChange, 2 * nr);
+  E_.conservativeResize(Eigen::NoChange, 2 * nr);
   for (size_t i = 0; i < nr; ++i) {
     E_.block<2, 2>(3, 2 * i).setIdentity();
   }
@@ -56,11 +53,11 @@ bool Mixer::updateInternalDataStructures()
   tilt_axis_signs_.resize(nr);
   tilt_offsets_.resize(nr);
 
-  for (const auto& [idx, rotor_it] : views::enumerate(drone_.prop->rotors)) {
+  for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = rotor_it.second;
 
     if (rotor->tilt_joint_name.empty()) {
-      cerr << "The tilt joint of rotor " << rotor->link_name << " is not specified." << endl;
+      std::cerr << "The tilt joint of rotor " << rotor->link_name << " is not specified." << std::endl;
       return false;
     }
 
@@ -83,7 +80,7 @@ bool Mixer::updateInternalDataStructures()
     const auto tilt_axis = B_T_gpar.M * par_joint.axis();  // ベースリンクから見たチルト軸
     const auto tilt_axis_y = tilt_axis.normalized().y();
     if (!math::isClose(std::abs(tilt_axis_y), 1.)) {
-      cerr << "Tilt axis must be parallel to the Y axis." << endl;
+      std::cerr << "Tilt axis must be parallel to the Y axis." << std::endl;
       return false;
     }
     tilt_axis_signs_.at(idx) = math::sign(tilt_axis_y);
@@ -93,10 +90,10 @@ bool Mixer::updateInternalDataStructures()
     const auto& B_T_par = fk_solver_.getFrame(par_elem.segment.name());
     const auto n = B_T_par.M * cur_elem.segment.joint().axis();  // ベースリンクから見た回転軸
     if (!math::isClose(n.y(), 0.)) {
-      cerr << "The Y component of the propeller’s axis of rotation must be zero." << endl;
+      std::cerr << "The Y component of the propeller’s axis of rotation must be zero." << std::endl;
       return false;
     }
-    tilt_offsets_.at(idx) = atan2(n.x(), n.z());
+    tilt_offsets_.at(idx) = std::atan2(n.x(), n.z());
   }
 
   return true;
@@ -112,20 +109,20 @@ bool Mixer::solve(
 {
   // 順運動学を計算
   if (fk_solver_.jntToCart(cur_q) < 0) {
-    cerr << "Forward kinematics failed: " << fk_solver_.errorMessage() << endl;
+    std::cerr << "Forward kinematics failed: " << fk_solver_.errorMessage() << std::endl;
     return false;
   }
 
   // 質量特性を計算
   if (inertia_solver_.jntToCart(cur_q) < 0) {
-    cerr << "Inertia solver failed: " << inertia_solver_.errorMessage() << endl;
+    std::cerr << "Inertia solver failed: " << inertia_solver_.errorMessage() << std::endl;
     return false;
   }
   const auto& inertia = inertia_solver_.getInertia();
   const auto B_Pos_B2G = inertia.getCOG();
   const auto I_B = inertia.getRotationalInertiaCoG();
 
-  for (const auto& [idx, rotor_it] : views::enumerate(drone_.prop->rotors)) {
+  for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = rotor_it.second;
 
     const auto& cur_elem = tree_.getSegment(rotor->link_name)->second;
@@ -163,7 +160,7 @@ bool Mixer::solve(
 
   // Ex = f の最小二乗解 (冗長自由度がある場合はxのL2ノルム最小化)
   // TODO: 推力の絶対値の制約を考慮．凸最適化問題にすれば良さそう．
-  x_ = E_.jacobiSvd(ComputeThinU | ComputeThinV).solve(f_);
+  x_ = E_.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(f_);
 
   return true;
 }
@@ -177,7 +174,7 @@ double Mixer::getTiltAngle(size_t idx) const
 {
   const auto tx = thrustDeadband(x_(2 * idx));
   const auto tz = thrustDeadband(x_(2 * idx + 1));
-  return tilt_axis_signs_.at(idx) * algo::wrapPi(atan2(tx, tz) - tilt_offsets_.at(idx));
+  return tilt_axis_signs_.at(idx) * algo::wrapPi(std::atan2(tx, tz) - tilt_offsets_.at(idx));
 }
 }  // namespace y_axis_tilt_multicopter
 }  // namespace tobas

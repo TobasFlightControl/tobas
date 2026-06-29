@@ -10,6 +10,7 @@
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
+#include <tobas_qt_tools/widgets/progress_dialog.hpp>
 #include <tobas_ros2_tools/util.hpp>
 #include <tobas_std_tools/check.hpp>
 
@@ -73,6 +74,8 @@ void FlightLogsWidgetFC::addLog(const QString& log_name)
   connect(widget, &FlightLogItemWidgetFC::downloadButtonClicked, this, &self::onDownloadButtonClicked);
   connect(widget, &FlightLogItemWidgetFC::deleteButtonClicked, this, &self::onDeleteButtonClicked);
   log_list_->setItemWidget(list_item, widget);
+
+  sortLogs();
 }
 
 void FlightLogsWidgetFC::removeLog(const QString& log_name)
@@ -173,9 +176,23 @@ void FlightLogsWidgetFC::onDownloadButtonClicked(const QString& log_name)
     TOBAS_CHECK(fs::create_directories(local_pardir));
   }
 
-  spinner_.start();
-  const auto res = ssh_client_.scpGet(remote_rosbag_path, local_pardir);
-  spinner_.stop();
+  qt::ProgressDialog progress("Downloading Flight Log", 100, this);
+  progress.setLabelText("Downloading flight log from the vehicle...");
+  progress.setCancelButton(nullptr);
+
+  const auto callback = [&progress, &log_name](uint64_t total_size, uint64_t transferred)
+  {
+    if (total_size <= 0) {
+      qWarning() << "The total size of" << log_name << "is 0 bytes.";
+      return;
+    }
+    const auto rate = 100 * transferred / total_size;
+    progress.setStep(rate);
+  };
+
+  progress.show();
+  const auto res = ssh_client_.scpGet(remote_rosbag_path, local_pardir, callback);
+  progress.close();
 
   if (res != ssh::SshClient::kNoError) {
     qt::qErrorBox(this, ssh_client_.errorMessage());

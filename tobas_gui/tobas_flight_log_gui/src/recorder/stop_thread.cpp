@@ -29,17 +29,17 @@ void RecordStopThread::run()
   const auto req = std::make_shared<tobas_msgs::srv::BagRecordStop::Request>();
 
   if (!sc.call(req, kRecordServiceTimeout)) {
-    Q_EMIT finished(false, "Flight log recording service is unavailable.");
+    Q_EMIT finished(false, "Flight log recording service is unavailable.", "");
     return;
   }
 
   const auto res = sc.getResponse();
   if (!res->success) {
-    Q_EMIT finished(false, "Failed to stop recording flight log: " + QString(res->message.c_str()));
+    Q_EMIT finished(false, "Failed to stop recording flight log: " + QString::fromStdString(res->message), "");
     return;
   }
 
-  Q_EMIT finished(true, "");
+  Q_EMIT finished(true, "", QString::fromStdString(res->path));
 }
 
 void RecordStopThread::setNamespace(const std::string& ns)

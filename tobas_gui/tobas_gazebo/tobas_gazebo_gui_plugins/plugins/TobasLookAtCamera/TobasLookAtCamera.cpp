@@ -68,8 +68,8 @@ void TobasLookAtCamera::onRender()
   const auto dir = (tar_pos_ - camera_pos).Normalized();
 
   // Compute yaw/pitch from direction vector
-  const auto yaw = atan2(dir.Y(), dir.X());
-  const auto pitch = -asin(dir.Z());
+  const auto yaw = std::atan2(dir.Y(), dir.X());
+  const auto pitch = -std::asin(dir.Z());
 
   // Roll = 0, so construct quaternion(roll, pitch, yaw)
   const gz::math::Quaterniond camera_rot(0., pitch, yaw);

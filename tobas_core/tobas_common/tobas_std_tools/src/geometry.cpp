@@ -15,12 +15,12 @@ namespace st
 std::tuple<double, double, double, double>
 quaternionFromEuler(const double& roll, const double& pitch, const double& yaw)
 {
-  const auto cx = cos(0.5 * roll);
-  const auto sx = sin(0.5 * roll);
-  const auto cy = cos(0.5 * pitch);
-  const auto sy = sin(0.5 * pitch);
-  const auto cz = cos(0.5 * yaw);
-  const auto sz = sin(0.5 * yaw);
+  const auto cx = std::cos(0.5 * roll);
+  const auto sx = std::sin(0.5 * roll);
+  const auto cy = std::cos(0.5 * pitch);
+  const auto sy = std::sin(0.5 * pitch);
+  const auto cz = std::cos(0.5 * yaw);
+  const auto sz = std::sin(0.5 * yaw);
 
   const auto x = sx * cy * cz - cx * sy * sz;
   const auto y = sx * cy * sz + cx * sy * cz;
@@ -37,16 +37,16 @@ eulerFromQuaternion(const double& x, const double& y, const double& z, const dou
 
   const auto sy = -2 * (x * z - y * w);
 
-  const auto pitch = asin(sy);
+  const auto pitch = std::asin(sy);
 
   double roll, yaw;
   if (math::isClose(std::abs(sy), 1.)) {
     roll = 0.;
-    yaw = atan2(-2 * (x * y - z * w), 2 * (math::sqr(w) + math::sqr(y)) - 1);
+    yaw = std::atan2(-2 * (x * y - z * w), 2 * (math::sqr(w) + math::sqr(y)) - 1);
   }
   else {
-    roll = atan2(2 * (y * z + x * w), 2 * (math::sqr(w) + math::sqr(z)) - 1);
-    yaw = atan2(2 * (x * y + z * w), 2 * (math::sqr(w) + math::sqr(x)) - 1);
+    roll = std::atan2(2 * (y * z + x * w), 2 * (math::sqr(w) + math::sqr(z)) - 1);
+    yaw = std::atan2(2 * (x * y + z * w), 2 * (math::sqr(w) + math::sqr(x)) - 1);
   }
 
   return { roll, pitch, yaw };

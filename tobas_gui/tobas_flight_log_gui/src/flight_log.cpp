@@ -54,35 +54,46 @@ void FlightLogWidget::updateNamespace(const std::string& ns)
   logs_fc_->onProjectLoaded();
 }
 
-void FlightLogWidget::onRecordFinished(const QString& log_name)
+void FlightLogWidget::onRecordFinished(const QString& log_name, bool is_real)
 {
-  if (logs_gcs_->findLog(log_name)) {
+  qDebug().nospace() << "FlightLogWidget::onRecordFinished(" << log_name << ", " << is_real << ")";
+
+  if (logs_fc_->findLog(log_name)) {
     qWarning() << log_name << "already exists in the FC log list.";
     return;
   }
 
-  logs_fc_->addLog(log_name);
-  logs_fc_->sortLogs();
+  if (is_real) {
+    logs_fc_->addLog(log_name);
+  }
+  else {
+    logs_gcs_->addLog(log_name);
+  }
 }
 
 void FlightLogWidget::onLogDownloaded(const QString& log_name)
 {
+  qDebug().nospace() << "FlightLogWidget::onLogDownloaded(" << log_name << ")";
+
   if (logs_gcs_->findLog(log_name)) {
     qInfo() << log_name << "already exists in the GCS log list.";
     return;
   }
 
   logs_gcs_->addLog(log_name);
-  logs_gcs_->sortLogs();
 }
 
 void FlightLogWidget::onLogSelected(const QString& log_name)
 {
+  qDebug().nospace() << "FlightLogWidget::onLogSelected(" << log_name << ")";
+
   log_viewer_->setLogName(log_name);
 }
 
 void FlightLogWidget::onLogDeselected()
 {
+  qDebug() << "FlightLogWidget::onLogDeselected";
+
   log_viewer_->reset();
 }
 }  // namespace log

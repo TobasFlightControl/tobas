@@ -45,6 +45,7 @@ public:
   YAML::Node dump() const override;
 
   inline double momentConst() const override;
+  inline double effortWeight() const override;
 
   /* 回転数 [rad/s] から印加電圧 [V] を求める． */
   inline double voltageFromSpeed(double tar_speed) const;
@@ -73,6 +74,11 @@ inline double ElectricRotorConfig::momentConst() const
   return moment_const;
 }
 
+inline double ElectricRotorConfig::effortWeight() const
+{
+  return kv * moment_const;  // 推力に対する電流の比率 (I = N / kt = kv cm T)
+}
+
 inline double ElectricRotorConfig::voltageFromSpeed(double tar_speed) const
 {
   assert(tar_speed >= 0.);
@@ -88,7 +94,7 @@ inline double ElectricRotorConfig::speedFromVoltage(double voltage) const
 
   const auto b = internal_resistance * kv * moment_const * motor_const;
   const auto c = 1. / kv;
-  return b > 0 ? (sqrt(math::sqr(c) + 4 * b * voltage) - c) / (2 * b) : voltage * kv;
+  return b > 0 ? (std::sqrt(math::sqr(c) + 4 * b * voltage) - c) / (2 * b) : voltage * kv;
 }
 
 inline double ElectricRotorConfig::thrustFromSpeed(double tar_speed) const
@@ -99,7 +105,7 @@ inline double ElectricRotorConfig::thrustFromSpeed(double tar_speed) const
 inline double ElectricRotorConfig::speedFromThrust(double thrust) const
 {
   assert(thrust >= 0.);
-  return sqrt(thrust / motor_const);
+  return std::sqrt(thrust / motor_const);
 }
 
 inline double ElectricRotorConfig::thrustFromVoltage(double voltage) const

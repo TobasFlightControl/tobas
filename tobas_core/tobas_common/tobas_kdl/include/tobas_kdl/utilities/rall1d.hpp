@@ -315,7 +315,7 @@ inline Rall1d<T, V, S> asin(const Rall1d<T, V, S>& x)
 {
   T v;
   v = (asin(x.t));
-  return Rall1d<T, V, S>(v, x.grad / sqrt(1.0 - sqr(x.t)));
+  return Rall1d<T, V, S>(v, x.grad / std::sqrt(1.0 - sqr(x.t)));
 }
 
 template <class T, class V, class S>
@@ -323,7 +323,7 @@ inline Rall1d<T, V, S> acos(const Rall1d<T, V, S>& x)
 {
   T v;
   v = (acos(x.t));
-  return Rall1d<T, V, S>(v, -x.grad / sqrt(1.0 - sqr(x.t)));
+  return Rall1d<T, V, S>(v, -x.grad / std::sqrt(1.0 - sqr(x.t)));
 }
 
 template <class T, class V, class S>

@@ -14,7 +14,6 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(AMENT_DEPENDENCIES
     tobas_dsp
     tobas_ic_drivers
-    tobas_property_tree
     tobas_tools
     tobas_msgs_adapter
     tobas_drone_msgs_adapter

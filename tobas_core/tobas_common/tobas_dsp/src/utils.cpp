@@ -18,7 +18,7 @@ double prewarp(double wc, double dt)
   assert(dt > 0.);
 
   const auto dt_2 = dt / 2.;
-  return tan(wc * dt_2) / dt_2;
+  return std::tan(wc * dt_2) / dt_2;
 }
 
 double cutoffFromTimeConst(double tau)

@@ -125,10 +125,10 @@ int TrimConditions::update(double V, const double& rho, const kdl::JntArray& q)
   elevator_ = -(aero.c_pitch_0 + c_pitch_alpha_cg * alpha_) / c_pitch_elev_cg;  // (2.9-46)
   const auto c_D_alpha = aero.c_drag_0 + aero.c_drag_alpha * alpha_;            // TODO: 2次以上も考慮
   c_D_ = c_D_alpha + elev_cs.c_drag_abs_delta * std::abs(elevator_);            // (1.8-3)
-  c_T_ = c_D_ / cos(alpha_);                                                    // (2.2-10b)
+  c_T_ = c_D_ / std::cos(alpha_);                                               // (2.2-10b)
 
   // その他依存変数
-  u_ = V * cos(alpha_);
+  u_ = V * std::cos(alpha_);
 
   if (!drone_.fixed_wing->vehicle.alpha_limit.inRange(alpha_)) {
     if (error_code_ > kWarn) {
@@ -159,12 +159,12 @@ st::Range<double> TrimConditions::speedLimit(const double& rho) const
   // 迎角の最大値から最小速度を求める
   const auto max_den = a_ * drone_.fixed_wing->vehicle.alpha_limit.upper + b_;
   assert(max_den > 0.);
-  const auto V_min = sqrt(c / max_den);
+  const auto V_min = std::sqrt(c / max_den);
 
   // 迎角の最小値から最大速度を求める
   // 分母が+0になる場合は，理論上無限の速度で水平飛行できる
   const auto min_den = a_ * drone_.fixed_wing->vehicle.alpha_limit.lower + b_;
-  const auto V_max = min_den > 0. ? sqrt(c / min_den) : INFINITY;
+  const auto V_max = min_den > 0. ? std::sqrt(c / min_den) : INFINITY;
 
   return st::Range<double>(V_min, V_max);
 }
@@ -175,6 +175,6 @@ double TrimConditions::takeOffSpeed(const double& rho) const
 
   const auto c = 2 * W_ / rho / drone_.fixed_wing->vehicle.wing_surface;
   constexpr double alpha_zero = 0.;
-  return sqrt(c / (a_ * alpha_zero + b_));
+  return std::sqrt(c / (a_ * alpha_zero + b_));
 }
 }  // namespace tobas

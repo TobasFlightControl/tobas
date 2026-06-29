@@ -118,12 +118,12 @@ void EffortControllerNode::initialize()
   // shared_from_thisはコンストラクタでは呼べない
   tf_listener_ = std::make_shared<ros2::TransformListener>(shared_from_this());
 
-  addDynamicIntParam("joint_stiffness", &self::jointStiffnessCb, this, 25, 1, 100);
-  addDynamicIntParam("joint_damping", &self::jointDamping, this, 10, 1, 20);
-  addDynamicIntParam("linear_stiffness", &self::linearStiffnessCb, this, 25, 1, 100);
-  addDynamicIntParam("angular_stiffness", &self::angularStiffnessCb, this, 25, 1, 100);
-  addDynamicIntParam("linear_damping", &self::linearDampingCb, this, 10, 1, 20);
-  addDynamicIntParam("angular_damping", &self::angularDampingCb, this, 10, 1, 20);
+  addDynamicIntParam("joint_stiffness", &self::jointStiffnessCb, this, 5, 5, 1, 20);
+  addDynamicIntParam("joint_damping", &self::jointDamping, this, 1, 10, 1, 20);
+  addDynamicIntParam("linear_stiffness", &self::linearStiffnessCb, this, 5, 5, 1, 20);
+  addDynamicIntParam("angular_stiffness", &self::angularStiffnessCb, this, 5, 5, 1, 20);
+  addDynamicIntParam("linear_damping", &self::linearDampingCb, this, 1, 10, 1, 20);
+  addDynamicIntParam("angular_damping", &self::angularDampingCb, this, 1, 10, 1, 20);
 
   efforts_pub_ = createPublisher<tobas_msgs::msg::JointCommandArray>(topic::kJointEffCmd);
 

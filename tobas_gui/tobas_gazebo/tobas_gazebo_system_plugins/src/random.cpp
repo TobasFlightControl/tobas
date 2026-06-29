@@ -58,7 +58,7 @@ Vector3d createUnitSpherePoint(std::random_device& rnd_dev)
   const auto phi = angle_dist(rnd_dev);
   const auto theta = angle_dist(rnd_dev);
 
-  return Vector3d(sin(phi) * cos(theta), sin(phi) * sin(theta), cos(phi));
+  return Vector3d(std::sin(phi) * std::cos(theta), std::sin(phi) * std::sin(theta), std::cos(phi));
 }
 }  // namespace gazebo
 }  // namespace tobas

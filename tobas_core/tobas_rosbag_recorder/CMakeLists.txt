@@ -29,16 +29,14 @@ foreach(dependency IN ITEMS ${AMENT_DEPENDENCIES})
   find_package(${dependency} REQUIRED)
 endforeach()
 
-include_directories(include)
-
-file(GLOB_RECURSE NODE_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} nodes/*.cpp)
-add_library(${PROJECT_NAME}_node SHARED ${NODE_TARGETS})
-ament_target_dependencies(${PROJECT_NAME}_node ${AMENT_DEPENDENCIES})
-target_link_options(${PROJECT_NAME}_node PRIVATE -Wl,--no-undefined)
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "tobas::RosbagRecorderNode" EXECUTABLE rosbag_recorder)
+file(GLOB_RECURSE LIB_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp)
+add_library(${PROJECT_NAME} SHARED ${LIB_TARGETS})
+ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
+target_link_options(${PROJECT_NAME} PRIVATE -Wl,--no-undefined)
+rclcpp_components_register_node(${PROJECT_NAME} PLUGIN "tobas::RosbagRecorderNode" EXECUTABLE rosbag_recorder)
 
 install(
-  TARGETS ${PROJECT_NAME}_node
+  TARGETS ${PROJECT_NAME}
   EXPORT ${PROJECT_NAME}
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib

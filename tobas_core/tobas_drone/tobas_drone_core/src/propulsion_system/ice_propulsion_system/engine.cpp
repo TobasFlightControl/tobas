@@ -9,14 +9,12 @@
 #include <tobas_yaml_tools/convert/pair.hpp>
 #include <tobas_yaml_tools/core.hpp>
 
-using namespace std;
-
 namespace tobas
 {
 bool EngineConfig::isValid() const
 {
   if (engine_const.first <= 0. || engine_const.second <= 0.) {
-    cerr << "Engine constants must be positive." << endl;
+    std::cerr << "Engine constants must be positive." << std::endl;
     return false;
   }
 
@@ -51,7 +49,7 @@ double EngineConfig::computeTorque(double speed, double throttle)
   assert(speed >= 0.);
   assert(0. <= throttle && throttle <= 1.);
 
-  if (throttle < numeric_limits<double>::epsilon()) {
+  if (throttle < std::numeric_limits<double>::epsilon()) {
     return 0.;
   }
 
@@ -59,7 +57,7 @@ double EngineConfig::computeTorque(double speed, double throttle)
 
   // FIXME: 実際はゼロスロットル (アイドリング) でも出力トルクはゼロではなく，エンジンモデルの改善が必要．
   const auto phi = M_PI_2 * throttle;
-  const auto f = math::sqr(A / (1 - cos(phi)));
+  const auto f = math::sqr(A / (1 - std::cos(phi)));
   return 2 * B * speed / (sqrt(1 + 4 * B * math::sqr(speed) * f) + 1);
 }
 
@@ -68,20 +66,20 @@ double EngineConfig::computeThrottle(double torque, double speed)
   assert(torque >= 0.);
   assert(speed >= 0.);
 
-  if (speed < numeric_limits<double>::epsilon()) {
+  if (speed < std::numeric_limits<double>::epsilon()) {
     return 0.;
   }
 
   const auto& [A, B] = engine_const;
 
-  const auto cos_phi = 1. - A * torque / sqrt(max(B - torque / speed, 0.));
-  const auto phi = acos(clamp(cos_phi, 0., 1.));
+  const auto cos_phi = 1. - A * torque / sqrt(std::max(B - torque / speed, 0.));
+  const auto phi = std::acos(std::clamp(cos_phi, 0., 1.));
   return phi / M_PI_2;
 }
 
-ostream& operator<<(ostream& os, const EngineConfig& arg)
+std::ostream& operator<<(std::ostream& os, const EngineConfig& arg)
 {
-  os << "Engine Constant: " << arg.engine_const.first << ", " << arg.engine_const.second << endl;
+  os << "Engine Constant: " << arg.engine_const.first << ", " << arg.engine_const.second << std::endl;
   return os;
 }
 }  // namespace tobas

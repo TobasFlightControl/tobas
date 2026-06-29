@@ -5,19 +5,17 @@
 
 #include <tobas_ros2_tools/util.hpp>
 
-using namespace std;
-
 namespace tobas
 {
-BaseNode::BaseNode(const string& node_name, const rclcpp::NodeOptions& options)
+BaseNode::BaseNode(const std::string& node_name, const rclcpp::NodeOptions& options)
   : super(node_name, options), dparam_sub_(this)
 {
   RCLCPP_INFO_STREAM(get_logger(), "Initializing \"" << node_name << "\".");
 
-  message_pub_ = createPublisher<tobas_msgs::msg::Message>(topic::kMessage);
+  message_pub_ = createPublisher<tobas_msgs::msg::Message>(topic::kMessage, false, true, 1);
 }
 
-bool BaseNode::getBoolParam(const string& name)
+bool BaseNode::getBoolParam(const std::string& name)
 {
   if (has_parameter(name)) {
     return get_parameter(name).as_bool();
@@ -27,7 +25,7 @@ bool BaseNode::getBoolParam(const string& name)
   }
 }
 
-long BaseNode::getIntParam(const string& name)
+long BaseNode::getIntParam(const std::string& name)
 {
   if (has_parameter(name)) {
     return get_parameter(name).as_int();
@@ -37,7 +35,7 @@ long BaseNode::getIntParam(const string& name)
   }
 }
 
-double BaseNode::getDoubleParam(const string& name)
+double BaseNode::getDoubleParam(const std::string& name)
 {
   if (has_parameter(name)) {
     return get_parameter(name).as_double();
@@ -47,67 +45,67 @@ double BaseNode::getDoubleParam(const string& name)
   }
 }
 
-string BaseNode::getStringParam(const string& name)
+std::string BaseNode::getStringParam(const std::string& name)
 {
   if (has_parameter(name)) {
     return get_parameter(name).as_string();
   }
   else {
-    return declareParam<string>(name);
+    return declareParam<std::string>(name);
   }
 }
 
-vector<bool> BaseNode::getBoolArrayParam(const string& name)
+std::vector<bool> BaseNode::getBoolArrayParam(const std::string& name)
 {
   if (has_parameter(name)) {
     return get_parameter(name).as_bool_array();
   }
   else {
-    return declareParam<vector<bool>>(name);
+    return declareParam<std::vector<bool>>(name);
   }
 }
 
-vector<uint8_t> BaseNode::getByteArrayParam(const string& name)
+std::vector<uint8_t> BaseNode::getByteArrayParam(const std::string& name)
 {
   if (has_parameter(name)) {
     return get_parameter(name).as_byte_array();
   }
   else {
-    return declareParam<vector<uint8_t>>(name);
+    return declareParam<std::vector<uint8_t>>(name);
   }
 }
 
-vector<long> BaseNode::getIntArrayParam(const string& name)
+std::vector<long> BaseNode::getIntArrayParam(const std::string& name)
 {
   if (has_parameter(name)) {
     return get_parameter(name).as_integer_array();
   }
   else {
-    return declareParam<vector<long>>(name);
+    return declareParam<std::vector<long>>(name);
   }
 }
 
-vector<double> BaseNode::getDoubleArrayParam(const string& name)
+std::vector<double> BaseNode::getDoubleArrayParam(const std::string& name)
 {
   if (has_parameter(name)) {
     return get_parameter(name).as_double_array();
   }
   else {
-    return declareParam<vector<double>>(name);
+    return declareParam<std::vector<double>>(name);
   }
 }
 
-vector<string> BaseNode::getStringArrayParam(const string& name)
+std::vector<std::string> BaseNode::getStringArrayParam(const std::string& name)
 {
   if (has_parameter(name)) {
     return get_parameter(name).as_string_array();
   }
   else {
-    return declareParam<vector<string>>(name);
+    return declareParam<std::vector<std::string>>(name);
   }
 }
 
-bool BaseNode::getBoolParam(const string& name, const bool& dflt) noexcept
+bool BaseNode::getBoolParam(const std::string& name, const bool& dflt) noexcept
 {
   if (has_parameter(name)) {
     return get_parameter(name).as_bool();
@@ -117,7 +115,7 @@ bool BaseNode::getBoolParam(const string& name, const bool& dflt) noexcept
   }
 }
 
-long BaseNode::getIntParam(const string& name, const long& dflt) noexcept
+long BaseNode::getIntParam(const std::string& name, const long& dflt) noexcept
 {
   if (has_parameter(name)) {
     return get_parameter(name).as_int();
@@ -127,7 +125,7 @@ long BaseNode::getIntParam(const string& name, const long& dflt) noexcept
   }
 }
 
-double BaseNode::getDoubleParam(const string& name, const double& dflt) noexcept
+double BaseNode::getDoubleParam(const std::string& name, const double& dflt) noexcept
 {
   if (has_parameter(name)) {
     return get_parameter(name).as_double();
@@ -137,7 +135,7 @@ double BaseNode::getDoubleParam(const string& name, const double& dflt) noexcept
   }
 }
 
-string BaseNode::getStringParam(const string& name, const string& dflt) noexcept
+std::string BaseNode::getStringParam(const std::string& name, const std::string& dflt) noexcept
 {
   if (has_parameter(name)) {
     return get_parameter(name).as_string();
@@ -147,7 +145,7 @@ string BaseNode::getStringParam(const string& name, const string& dflt) noexcept
   }
 }
 
-vector<bool> BaseNode::getBoolArrayParam(const string& name, const vector<bool>& dflt) noexcept
+std::vector<bool> BaseNode::getBoolArrayParam(const std::string& name, const std::vector<bool>& dflt) noexcept
 {
   if (has_parameter(name)) {
     return get_parameter(name).as_bool_array();
@@ -157,7 +155,7 @@ vector<bool> BaseNode::getBoolArrayParam(const string& name, const vector<bool>&
   }
 }
 
-vector<uint8_t> BaseNode::getByteArrayParam(const string& name, const vector<uint8_t>& dflt) noexcept
+std::vector<uint8_t> BaseNode::getByteArrayParam(const std::string& name, const std::vector<uint8_t>& dflt) noexcept
 {
   if (has_parameter(name)) {
     return get_parameter(name).as_byte_array();
@@ -167,7 +165,7 @@ vector<uint8_t> BaseNode::getByteArrayParam(const string& name, const vector<uin
   }
 }
 
-vector<long> BaseNode::getIntArrayParam(const string& name, const vector<long>& dflt) noexcept
+std::vector<long> BaseNode::getIntArrayParam(const std::string& name, const std::vector<long>& dflt) noexcept
 {
   if (has_parameter(name)) {
     return get_parameter(name).as_integer_array();
@@ -177,7 +175,7 @@ vector<long> BaseNode::getIntArrayParam(const string& name, const vector<long>& 
   }
 }
 
-vector<double> BaseNode::getDoubleArrayParam(const string& name, const vector<double>& dflt) noexcept
+std::vector<double> BaseNode::getDoubleArrayParam(const std::string& name, const std::vector<double>& dflt) noexcept
 {
   if (has_parameter(name)) {
     return get_parameter(name).as_double_array();
@@ -187,7 +185,8 @@ vector<double> BaseNode::getDoubleArrayParam(const string& name, const vector<do
   }
 }
 
-vector<string> BaseNode::getStringArrayParam(const string& name, const vector<string>& dflt) noexcept
+std::vector<std::string>
+BaseNode::getStringArrayParam(const std::string& name, const std::vector<std::string>& dflt) noexcept
 {
   if (has_parameter(name)) {
     return get_parameter(name).as_string_array();
@@ -205,20 +204,20 @@ void BaseNode::setClockType(rclcpp::NodeOptions& options)
     return;
   }
 
-  if (strcmp(clock_type, "ros_time") == 0) {
+  if (std::strcmp(clock_type, "ros_time") == 0) {
     options.clock_type(RCL_ROS_TIME);  // 参照クロックがなければシステムクロック
     options.use_clock_thread(true);    // /clock を受信する可能性があるため専用スレッドを設ける
   }
-  else if (strcmp(clock_type, "system_time") == 0) {
+  else if (std::strcmp(clock_type, "system_time") == 0) {
     options.clock_type(RCL_SYSTEM_TIME);  // NTPと同期したシステムクロック
     options.use_clock_thread(false);      // /clock を受信しないので専用スレッドは不要
   }
-  else if (strcmp(clock_type, "steady_time") == 0) {
+  else if (std::strcmp(clock_type, "steady_time") == 0) {
     options.clock_type(RCL_STEADY_TIME);  // NTPの影響を受けないモノトニックタイマー
     options.use_clock_thread(false);      // /clock を受信しないので専用スレッドは不要
   }
   else {
-    cerr << "Unknown clock type: " << clock_type << endl;
+    std::cerr << "Unknown clock type: " << clock_type << std::endl;
   }
 }
 
@@ -239,7 +238,7 @@ rclcpp::NodeOptions BaseNode::nodeOptions_DParam(rclcpp::NodeOptions options)
   return nodeOptions_Default(options).start_parameter_services(true).start_parameter_event_publisher(true);
 }
 
-void BaseNode::rclcppLog(uint8_t level, const string& text) const
+void BaseNode::rclcppLog(uint8_t level, const std::string& text) const
 {
   switch (level) {
     case tobas_msgs::msg::Message::LEVEL_DEBUG:

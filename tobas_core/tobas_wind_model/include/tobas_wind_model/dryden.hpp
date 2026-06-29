@@ -119,17 +119,17 @@ inline const double& DrydenComponents::updateRateVer() const
 
 inline double DrydenComponents::noiseStddevLon() const
 {
-  return sqrt(2 * r_uv_) * sigma_uv_;
+  return std::sqrt(2 * r_uv_) * sigma_uv_;
 }
 
 inline double DrydenComponents::noiseStddevLat() const
 {
-  return sqrt(2 * r_uv_) * sigma_uv_;
+  return std::sqrt(2 * r_uv_) * sigma_uv_;
 }
 
 inline double DrydenComponents::noiseStddevVer() const
 {
-  return sqrt(2 * r_w_) * sigma_w_;
+  return std::sqrt(2 * r_w_) * sigma_w_;
 }
 
 inline const double& DrydenSimulator::u() const

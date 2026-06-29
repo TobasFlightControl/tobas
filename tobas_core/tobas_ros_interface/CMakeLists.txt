@@ -28,9 +28,8 @@ foreach(dependency IN ITEMS ${AMENT_DEPENDENCIES})
   find_package(${dependency} REQUIRED)
 endforeach()
 
-include_directories(include)
-
-add_executable(ros_interface nodes/ros_interface.cpp)
+file(GLOB_RECURSE NODE_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp)
+add_executable(ros_interface ${NODE_TARGETS})
 ament_target_dependencies(ros_interface ${AMENT_DEPENDENCIES})
 
 install(TARGETS ros_interface DESTINATION lib/${PROJECT_NAME})

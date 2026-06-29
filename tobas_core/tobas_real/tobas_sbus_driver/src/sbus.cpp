@@ -4,21 +4,35 @@
 #include "tobas_sbus_driver/sbus.hpp"
 
 #include <iostream>
-#include <set>
-#include <thread>
 
 #include <boost/multiprecision/cpp_int.hpp>
 
 #include <tobas_std_tools/console.hpp>
 
-#define HEX_STREAM(c) "0x" << setw(2) << setfill('0') << hex << uppercase << (int)c << dec
+#define HEX_STREAM(c) "0x" << std::setw(2) << std::setfill('0') << std::hex << std::uppercase << (int)c << std::dec
 
-using namespace std;
 using namespace boost::multiprecision;
 
 namespace tobas
 {
-SBUS::SBUS(function<void(const Packet&)> packet_cb) : packet_cb_(packet_cb)
+namespace
+{
+bool isEndByte(uint8_t byte)
+{
+  switch (byte) {
+    case 0x00:
+    case 0x04:
+    case 0x14:
+    case 0x24:
+    case 0x34:
+      return true;
+    default:
+      return false;
+  }
+}
+}  // namespace
+
+SBUS::SBUS(std::function<void(const Packet&)> packet_cb) : packet_cb_(packet_cb)
 {
 }
 
@@ -54,7 +68,7 @@ bool SBUS::initialize(const char* device)
 
 void SBUS::start()
 {
-  read_thread_ = jthread(bind(&SBUS::readThreadFunc, this, placeholders::_1));
+  read_thread_ = std::jthread(std::bind(&SBUS::readThreadFunc, this, std::placeholders::_1));
 }
 
 void SBUS::stop()
@@ -67,17 +81,13 @@ void SBUS::spin()
   read_thread_.join();
 }
 
-void SBUS::readThreadFunc(stop_token st)
+void SBUS::readThreadFunc(std::stop_token st)
 {
-  const set<uint8_t> end_bytes{ 0x00, 0x04, 0x14, 0x24, 0x34 };
-
   uint8_t start_byte, end_byte, flags;
-  array<uint8_t, kDataSize> data;
+  std::array<uint8_t, kDataSize> data;
 
+  // インバータが悪いのかLinuxのUARTデバイスにデータが勝手に分割されるため，一括ではなく1バイトずつ取得する．
   while (!st.stop_requested()) {
-    // インバータが悪いのかLinuxのUARTデバイスにデータが勝手に分割されるため，一括ではなく1バイトずつ取得する．
-    // FIXME: SBUSドライバの起動時に偶然スタートバイトでない0x0Fが先頭にきているとバグるはず
-
     // Start byte
     if (!uart_.receive(&start_byte, 1)) {
       continue;
@@ -106,8 +116,8 @@ void SBUS::readThreadFunc(stop_token st)
       continue;
     }
     PRINT_DEBUG("End byte: " << HEX_STREAM(end_byte));
-    if (!end_bytes.contains(end_byte)) {
-      cerr << "Invalid end byte: " << HEX_STREAM(end_byte) << endl;
+    if (!isEndByte(end_byte)) {
+      std::cerr << "Invalid end byte: " << HEX_STREAM(end_byte) << std::endl;
       continue;
     }
 
@@ -120,7 +130,7 @@ void SBUS::readThreadFunc(stop_token st)
   }
 }
 
-void SBUS::decodeData(const array<uint8_t, kDataSize>& data)
+void SBUS::decodeData(const std::array<uint8_t, kDataSize>& data)
 {
   // 繰り上がりが面倒なので，一旦データを1つのビット列に変換する．
   uint256_t bits = 0;

@@ -29,14 +29,18 @@ public:
   Impl::Error execute(const std::string& command, std::string& output, bool superuser = false, bool background = false);
   Impl::Error execute(const std::string& command, bool superuser = false, bool background = false);
 
-  Impl::Error scpGet(const std::string& remote_path, const std::string& local_path);
+  Impl::Error scpGet(
+    const std::string& remote_path,
+    const std::string& local_path,
+    std::function<void(uint64_t, uint64_t)> callback = nullptr);
 
   Impl::Error scpPut(
     const std::string& local_dir,
     const std::string& remote_dir,
     bool parents,
     const std::vector<std::string>& exclude_dirs,
-    bool superuser = false);
+    bool superuser = false,
+    std::function<void(uint64_t, uint64_t)> callback = nullptr);
 
   Impl::Error sftpRead(const std::string& remote_path, std::string& text, bool superuser = false);
 

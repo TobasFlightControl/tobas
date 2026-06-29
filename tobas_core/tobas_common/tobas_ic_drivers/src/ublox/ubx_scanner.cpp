@@ -5,8 +5,6 @@
 
 #include <iostream>
 
-using namespace std;
-
 namespace tobas
 {
 namespace ublox
@@ -68,7 +66,7 @@ bool UBXScanner::update(const uint8_t& data)
     case kLength2:
       payload_length_ += data << 8;
       if (messageLength() > kUbxBufferLength) {
-        cerr << "The size of payload is larger than that of UBX buffer." << endl;
+        std::cerr << "The size of payload is larger than that of UBX buffer." << std::endl;
         return false;
       }
       state_ = kPayload;

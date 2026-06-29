@@ -7,7 +7,6 @@
 #include <QThread>
 
 #include <tobas_math/core.hpp>
-#include <tobas_std_tools/check.hpp>
 
 #include "tobas_qt_tools/event.hpp"
 
@@ -20,7 +19,7 @@ namespace qt
 ProgressDialog::ProgressDialog(const QString& title, int num_steps, QWidget* parent)
   : super(parent), num_steps_(num_steps), timer_(this)
 {
-  TOBAS_CHECK(num_steps > 0);
+  assert(num_steps > 0);
 
   setWindowModality(Qt::WindowModal);  // ユーザーが他のUI要素と対話できないようにする
   setWindowTitle(title);
@@ -48,10 +47,8 @@ void ProgressDialog::setLabelText(const QString& text)
 
 void ProgressDialog::setStep(int step)
 {
-  TOBAS_CHECK(0 <= step && step <= num_steps_);
-
-  step_ = step;
-  const auto value = math::remap(step, 0, num_steps_, minimum(), maximum());
+  step_ = std::clamp(step, 0, num_steps_);
+  const auto value = math::remap(step_, 0, num_steps_, minimum(), maximum());
   setValue(value);
 }
 
@@ -62,6 +59,10 @@ void ProgressDialog::progressStep()
 
 void ProgressDialog::onTimerTimeout()
 {
+  if (text_.isEmpty()) {
+    return;
+  }
+
   // スピナーの文字を決定
   spinner_step_ = (spinner_step_ + 1) % kSpinnerFrameSize;
   const auto spinner = kSpinnerFrames[spinner_step_];

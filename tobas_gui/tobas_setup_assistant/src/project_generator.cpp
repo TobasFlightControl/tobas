@@ -475,6 +475,9 @@ bool ProjectGenerator::generateConfigPackage(const inja::json& tpl_data)
   if (!createEmptyYaml(proj_paths_.imuFiltDynParamsPath(), config_.clear_dynamic_params)) {
     return false;
   }
+  if (!createEmptyYaml(proj_paths_.rpmCtrlDynParamsPath(), config_.clear_dynamic_params)) {
+    return false;
+  }
   if (!createEmptyYaml(proj_paths_.obsvDynParamsPath(), config_.clear_dynamic_params)) {
     return false;
   }
@@ -719,10 +722,10 @@ bool ProjectGenerator::generateObserverStaticConfig()
   params["do_gyro_bias_estimation"] = settings_->observer->doGyroBiasEstimation();
   params["do_mag_hard_bias_estimation"] = settings_->observer->doMagHardBiasEstimation();
   params["do_mag_soft_bias_estimation"] = settings_->observer->doMagSoftBiasEstimation();
+  params["do_baro_alt_bias_estimation"] = settings_->observer->doBaroAltBiasEstimation();
   params["do_gravity_estimation"] = settings_->observer->doGravityEstimation();
-  params["imu_offset"] = Eigen::Vector3d::Zero().eval();        // TODO
-  params["barometer_offset"] = Eigen::Vector3d::Zero().eval();  // TODO
-  params["gnss_offset"] = Eigen::Vector3d::Zero().eval();       // TODO
+  params["imu_offset"] = Eigen::Vector3d::Zero().eval();   // TODO
+  params["gnss_offset"] = Eigen::Vector3d::Zero().eval();  // TODO
 
   const auto config_dir = proj_paths_.cfgConfigDirPath();
 
@@ -794,6 +797,8 @@ bool ProjectGenerator::generateRcTeleopStaticConfig()
   params["acrobat_mode"] = settings_->controller->acrobatModeCommand();
   params["stabilize_mode"] = settings_->controller->stabilizeModeCommand();
   params["loiter_mode"] = settings_->controller->loiterModeCommand();
+  params["arm_duration"] = yaml::format(settings_->rc_input->armDuration());
+  params["disarm_duration"] = yaml::format(settings_->rc_input->disarmDuration());
 
   const auto config_dir = proj_paths_.cfgConfigDirPath();
 
@@ -945,7 +950,7 @@ bool ProjectGenerator::saveYamlNode(const fs::path& path, const YAML::Node& node
 
 bool ProjectGenerator::resolveModifiedUrdfMeshFilePaths(tinyxml2::XMLElement* elem)
 {
-  if (strcmp(elem->Name(), "mesh") == 0) {
+  if (std::strcmp(elem->Name(), "mesh") == 0) {
     const auto filename = elem->Attribute("filename");
     if (!filename) {
       qt::qErrorBox(parent_, "Mesh element does not have attribute: \"filename\"");
@@ -1008,7 +1013,7 @@ bool ProjectGenerator::resolveModifiedUrdfMeshFilePaths(tinyxml2::XMLElement* el
 
 bool ProjectGenerator::replaceOriginalUadfMeshFilePaths(tinyxml2::XMLElement* elem)
 {
-  if (strcmp(elem->Name(), "mesh") == 0) {
+  if (std::strcmp(elem->Name(), "mesh") == 0) {
     const auto filename = elem->Attribute("filename");
     if (!filename) {
       qt::qErrorBox(parent_, "Mesh element does not have attribute: \"filename\"");
@@ -1045,7 +1050,7 @@ bool ProjectGenerator::removePropellerJointLimits(tinyxml2::XMLElement* robot)
   }
 
   for (auto child = robot->FirstChildElement(); child; child = child->NextSiblingElement()) {
-    if (strcmp(child->Name(), "joint") == 0) {
+    if (std::strcmp(child->Name(), "joint") == 0) {
       const auto jnt_name = child->Attribute("name");
       if (!jnt_name) {
         qt::qErrorBox(parent_, "Joint element does not have attribute: \"name\"");
@@ -1053,7 +1058,7 @@ bool ProjectGenerator::removePropellerJointLimits(tinyxml2::XMLElement* robot)
       }
       if (prop_jnt_names.contains(jnt_name)) {
         for (auto gchild = child->FirstChildElement(); gchild; gchild = gchild->NextSiblingElement()) {
-          if (strcmp(gchild->Name(), "limit") == 0) {
+          if (std::strcmp(gchild->Name(), "limit") == 0) {
             child->DeleteChild(gchild);
             break;
           }

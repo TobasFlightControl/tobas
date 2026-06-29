@@ -6,9 +6,8 @@
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/assert.hpp>
 
-#define EPS numeric_limits<double>::epsilon()
+#define EPS std::numeric_limits<double>::epsilon()
 
-using namespace std;
 using namespace Eigen;
 
 namespace tobas
@@ -17,10 +16,10 @@ namespace eigen
 {
 Matrix3d angvelFromEulerrateGlobal(double pitch, double yaw)
 {
-  const auto cos_pitch = cos(pitch);
-  const auto sin_pitch = sin(pitch);
-  const auto cos_yaw = cos(yaw);
-  const auto sin_yaw = sin(yaw);
+  const auto cos_pitch = std::cos(pitch);
+  const auto sin_pitch = std::sin(pitch);
+  const auto cos_yaw = std::cos(yaw);
+  const auto sin_yaw = std::sin(yaw);
 
   Matrix3d res;
   res(0, 0) = cos_pitch * cos_yaw;
@@ -43,10 +42,10 @@ Vector3d angvelFromEulerrateGlobal(const Vector3d& rpyd, double pitch, double ya
 
 Matrix3d angvelFromEulerrateLocal(double roll, double pitch)
 {
-  const auto cos_roll = cos(roll);
-  const auto sin_roll = sin(roll);
-  const auto cos_pitch = cos(pitch);
-  const auto sin_pitch = sin(pitch);
+  const auto cos_roll = std::cos(roll);
+  const auto sin_roll = std::sin(roll);
+  const auto cos_pitch = std::cos(pitch);
+  const auto sin_pitch = std::sin(pitch);
 
   Matrix3d res;
   res(0, 0) = 1;
@@ -69,10 +68,10 @@ Vector3d angvelFromEulerrateLocal(const Vector3d& rpyd, double roll, double pitc
 
 Matrix3d eulerrateFromAngvelGlobal(double pitch, double yaw)
 {
-  const auto cos_pitch = cos(pitch);
-  const auto tan_pitch = tan(pitch);
-  const auto cos_yaw = cos(yaw);
-  const auto sin_yaw = sin(yaw);
+  const auto cos_pitch = std::cos(pitch);
+  const auto tan_pitch = std::tan(pitch);
+  const auto cos_yaw = std::cos(yaw);
+  const auto sin_yaw = std::sin(yaw);
   assert(cos_pitch > EPS);
 
   Matrix3d res;
@@ -96,10 +95,10 @@ Vector3d eulerrateFromAngvelGlobal(const Vector3d& angvel, double pitch, double 
 
 Matrix3d eulerrateFromAngvelLocal(double roll, double pitch)
 {
-  const auto cos_roll = cos(roll);
-  const auto sin_roll = sin(roll);
-  const auto cos_pitch = cos(pitch);
-  const auto tan_pitch = tan(pitch);
+  const auto cos_roll = std::cos(roll);
+  const auto sin_roll = std::sin(roll);
+  const auto cos_pitch = std::cos(pitch);
+  const auto tan_pitch = std::tan(pitch);
   assertWithMsg(cos_pitch > EPS, "roll: " << roll << ", pitch: " << pitch);
 
   Matrix3d res;
@@ -123,10 +122,10 @@ Vector3d eulerrateFromAngvelLocal(const Vector3d& angvel, double roll, double pi
 
 Vector3d euleraccFromAngaccGlobal(const Vector3d& angvel, const Vector3d& angacc, double pitch, double yaw)
 {
-  const auto cp = cos(pitch);
-  const auto tp = tan(pitch);
-  const auto cy = cos(yaw);
-  const auto sy = sin(yaw);
+  const auto cp = std::cos(pitch);
+  const auto tp = std::tan(pitch);
+  const auto cy = std::cos(yaw);
+  const auto sy = std::sin(yaw);
 
   const auto rpyd = eulerrateFromAngvelGlobal(angvel, pitch, yaw);
 
@@ -150,10 +149,10 @@ Vector3d angaccFromEuleraccLocal(
   double ddpitch,
   double ddyaw)
 {
-  const auto cr = cos(roll);
-  const auto sr = sin(roll);
-  const auto cp = cos(pitch);
-  const auto sp = sin(pitch);
+  const auto cr = std::cos(roll);
+  const auto sr = std::sin(roll);
+  const auto cp = std::cos(pitch);
+  const auto sp = std::sin(pitch);
 
   const auto sr_sp = sr * sp;
   const auto sr_cp = sr * cp;

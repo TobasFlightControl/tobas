@@ -43,6 +43,7 @@ public:
   bool doGyroBiasEstimation() const;
   bool doMagHardBiasEstimation() const;
   bool doMagSoftBiasEstimation() const;
+  bool doBaroAltBiasEstimation() const;
   bool doGravityEstimation() const;
 
 private:
@@ -56,6 +57,7 @@ private:
   QCheckBox* do_gyro_bias_estimation_;
   QCheckBox* do_mag_hard_bias_estimation_;
   QCheckBox* do_mag_soft_bias_estimation_;
+  QCheckBox* do_baro_alt_bias_estimation_;
   QCheckBox* do_grav_estimation_;
 };
 }  // namespace sa

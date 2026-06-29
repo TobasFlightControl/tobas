@@ -18,7 +18,7 @@ namespace tobas
  */
 inline double angleOfAttack(const double& u, const double& w)
 {
-  return u > kMinAirSpeedThresh ? atan(w / u) : 0;
+  return u > kMinAirSpeedThresh ? std::atan(w / u) : 0;
 }
 
 /**
@@ -41,7 +41,7 @@ inline double angleOfAttack(const Eigen::Vector3d& linvel_B)
 inline double angleOfSideSlip(const double& u, const double& v, const double& w)
 {
   const auto V = math::norm(u, v, w);
-  return V > kMinAirSpeedThresh ? asin(v / V) : 0;
+  return V > kMinAirSpeedThresh ? std::asin(v / V) : 0;
 }
 
 /**

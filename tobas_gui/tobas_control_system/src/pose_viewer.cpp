@@ -19,6 +19,7 @@ PoseViewerWidget::PoseViewerWidget(const RosQtBridge& bridge)
   reset();
 
   connect(&bridge, &RosQtBridge::odomReceived, this, &self::odomCb, Qt::QueuedConnection);
+  connect(&bridge, &RosQtBridge::gnssReceived, this, &self::gnssCb, Qt::QueuedConnection);
 }
 
 void PoseViewerWidget::reset()
@@ -26,6 +27,9 @@ void PoseViewerWidget::reset()
   roll_ = 0.;
   pitch_ = 0.;
   yaw_ = 0.;
+  alt_rel_ = 0.;
+  alt_msl_ = 0.;
+  alt_msl_valid_ = false;
 
   update();
 }
@@ -40,6 +44,8 @@ void PoseViewerWidget::paintEvent(QPaintEvent*)
   drawRoll(painter);
   drawPitch(painter);
   drawYaw(painter);
+  drawRelativeAltitude(painter);
+  drawMslAltitude(painter);
 
   addGradation(painter);
 }
@@ -91,9 +97,9 @@ void PoseViewerWidget::drawSky(QPainter& painter)
   }
   else {
     // 直線の方程式: y = ax + b
-    const auto sin_phi = sin(roll_);
-    const auto cos_phi = cos(roll_);
-    const auto tan_phi = tan(roll_);
+    const auto sin_phi = std::sin(roll_);
+    const auto cos_phi = std::cos(roll_);
+    const auto tan_phi = std::tan(roll_);
     const auto a = -tan_phi;
     const auto b = (tan_phi / 2) * (w - h * r * sin_phi) + (h / 2) * (1 - r * cos_phi);
 
@@ -316,6 +322,72 @@ void PoseViewerWidget::drawYaw(QPainter& painter)
   painter.restore();
 }
 
+void PoseViewerWidget::drawRelativeAltitude(QPainter& painter)
+{
+  painter.save();
+
+  scale(painter, false);
+
+  const auto center_y = kOriginalSize / 2;
+  const auto alt_min = math::floor(alt_rel_ - kAltitudeVisualRange, kAltitudeScaleInterval);
+  const auto alt_max = math::ceil(alt_rel_ + kAltitudeVisualRange, kAltitudeScaleInterval);
+  const auto x = kAltitudeTickX;
+
+  painter.setPen(QPen(Qt::white, kLineWidth));
+  painter.drawText(x - 2, kAltitudeTextY, "REL ALT");
+
+  for (int alt = alt_min; alt <= alt_max; alt += kAltitudeScaleInterval) {
+    const auto y = center_y - altitudeToHeight(alt - alt_rel_);
+    if (y <= kAltitudeTickMaxY) {
+      continue;
+    }
+
+    painter.drawLine(x, y, x + kAltitudeTickLength, y);
+    painter.drawText(x + kAltitudeTickLength + 10, y + 5, std::format("{}m", alt).c_str());
+  }
+
+  painter.setPen(QPen(Qt::red, kLineWidth));
+  painter.drawLine(x - kAltitudeTickLength, center_y, x + kAltitudeTickLength * 2, center_y);
+  painter.drawText(x + kAltitudeTickLength + 10, center_y - 12, std::format("{:.1f}m", alt_rel_).c_str());
+
+  painter.restore();
+}
+
+void PoseViewerWidget::drawMslAltitude(QPainter& painter)
+{
+  painter.save();
+
+  scale(painter, false);
+
+  const auto center_y = kOriginalSize / 2;
+  const auto alt_min = math::floor(alt_msl_ - kAltitudeVisualRange, kAltitudeScaleInterval);
+  const auto alt_max = math::ceil(alt_msl_ + kAltitudeVisualRange, kAltitudeScaleInterval);
+  const auto x = kOriginalSize - kAltitudeTickX;
+
+  painter.setPen(QPen(Qt::white, kLineWidth));
+  painter.drawText(x - 55, kAltitudeTextY, "MSL ALT");
+
+  if (alt_msl_valid_) {
+    for (int alt = alt_min; alt <= alt_max; alt += kAltitudeScaleInterval) {
+      const auto y = center_y - altitudeToHeight(alt - alt_msl_);
+      if (y <= kAltitudeTickMaxY) {
+        continue;
+      }
+
+      painter.drawLine(x, y, x - kAltitudeTickLength, y);
+      painter.drawText(x - kAltitudeTickLength - 45, y + 5, std::format("{}m", alt).c_str());
+    }
+  }
+
+  painter.setPen(QPen(Qt::red, kLineWidth));
+  painter.drawLine(x + kAltitudeTickLength, center_y, x - kAltitudeTickLength * 2, center_y);
+
+  const QString text = alt_msl_valid_ ? std::format("{:.1f}m", alt_msl_).c_str() : "---m";
+  painter.drawText(x - kAltitudeTickLength - 45, center_y - 12, text);
+
+  painter.restore();
+}
+
 void PoseViewerWidget::addGradation(QPainter& painter)
 {
   painter.save();
@@ -360,12 +432,24 @@ double PoseViewerWidget::yawToWidth(double yaw)
   return kOriginalSize * yaw / kYawAngleOfView;
 }
 
+double PoseViewerWidget::altitudeToHeight(double altitude)
+{
+  return (kOriginalSize / 2) * altitude / kAltitudeVisualRange;
+}
+
 void PoseViewerWidget::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom)
 {
-  // 現在のオイラー角を更新
   odom->odom.odom.frame.M.getRPY(roll_, pitch_, yaw_);
+  alt_rel_ = odom->odom.odom.frame.p.z();
 
-  // 再描画
+  update();
+}
+
+void PoseViewerWidget::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss)
+{
+  alt_msl_ = gnss->altitude;
+  alt_msl_valid_ = (gnss->fix_type == tobas_msgs::msg::Gnss::FIX_3D);
+
   update();
 }
 }  // namespace ctrl

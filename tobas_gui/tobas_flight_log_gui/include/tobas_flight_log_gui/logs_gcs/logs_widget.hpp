@@ -40,7 +40,6 @@ public:
   QListWidgetItem* findLog(const QString& log_name);
 
   void clearLogs();
-  void sortLogs();
 
 private:
   ptree::PropertyClient property_client_;
@@ -55,12 +54,14 @@ private:
   QString currentLogName() const;
   void setCurrentLogName(const QString& log_name);
 
+  void sortLogs();
+
 private Q_SLOTS:
   void onReadButtonClicked();
   void onCleanButtonClicked();
   void onExportButtonClicked(const QString& log_name);
   void onDeleteButtonClicked(const QString& log_name);
-  void onListItemClicked(QListWidgetItem* item);
+  void onListItemChanged(QListWidgetItem* item);
 };
 }  // namespace log
 }  // namespace gui

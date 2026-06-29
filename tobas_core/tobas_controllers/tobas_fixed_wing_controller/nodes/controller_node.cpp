@@ -132,15 +132,15 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   : super(node::kController, nodeOptions_DParam(options)), mass_holder_(tree_), eom_(drone_, tree_)
 {
   // Register dynamic parameters
-  addDynamicIntParam("forward_speed_weight", &self::forwardSpeedWeightCb, this, 1, 1, 100);
-  addDynamicIntParam("alpha_weight", &self::alphaWeightCb, this, 1, 1, 100);
-  addDynamicIntParam("beta_weight", &self::betaWeightCb, this, 1, 1, 100);
-  addDynamicIntParam("attitude_weight", &self::attitudeWeightCb, this, 1, 1, 100);
-  addDynamicIntParam("angular_velocity_weight", &self::angularVelicityWeightCb, this, 1, 1, 100);
-  addDynamicIntParam("thrust_weight_log10", &self::thrustWeightLog10Cb, this, -3, -3, 3);
-  addDynamicIntParam("thrust_rate_weight_log10", &self::thrustRateWeightLog10Cb, this, -1, -3, 3);
-  addDynamicIntParam("deflection_weight_log10", &self::deflectionWeightLog10Cb, this, -3, -3, 3);
-  addDynamicIntParam("deflection_rate_weight_log10", &self::deflectionRateWeightLog10Cb, this, -1, -3, 3);
+  addDynamicIntParam("forward_speed_weight", &self::forwardSpeedWeightCb, this, 5, 1, 1, 20);
+  addDynamicIntParam("alpha_weight", &self::alphaWeightCb, this, 5, 1, 1, 20);
+  addDynamicIntParam("beta_weight", &self::betaWeightCb, this, 5, 1, 1, 20);
+  addDynamicIntParam("attitude_weight", &self::attitudeWeightCb, this, 5, 1, 1, 20);
+  addDynamicIntParam("angular_velocity_weight", &self::angularVelicityWeightCb, this, 5, 1, 1, 20);
+  addDynamicIntParam("thrust_weight_log10", &self::thrustWeightLog10Cb, this, 1, -3, -3, 3);
+  addDynamicIntParam("thrust_rate_weight_log10", &self::thrustRateWeightLog10Cb, this, 1, -1, -3, 3);
+  addDynamicIntParam("deflection_weight_log10", &self::deflectionWeightLog10Cb, this, 1, -3, -3, 3);
+  addDynamicIntParam("deflection_rate_weight_log10", &self::deflectionRateWeightLog10Cb, this, 1, -1, -3, 3);
 
   // Register publishers
   tar_thrusts_pub_ = createPublisher<tobas_msgs::msg::RotorThrustArray>(topic::kRotorThrustsCmd);
@@ -223,7 +223,7 @@ void ControllerNode::updateSetStateVector()
   // 失速しないように速度制限をした上で目標推力を計算
   const auto rho = st::pressureToDensity(air_pressure_->pressure);
   const auto tar_speed = trim.speedLimit(rho).clamp(cmd_frd_.speed);
-  const auto tar_u = tar_speed * cos(eom_.trimCondition().alpha());
+  const auto tar_u = tar_speed * std::cos(eom_.trimCondition().alpha());
 
   lqd_.target_state(eom_.kStateIdx_u) = tar_u - trim.u();
   lqd_.target_state(eom_.kStateIdx_alpha) = 0.;

@@ -12,7 +12,7 @@ IFACE_EXTS = {".msg", ".srv", ".action"}
 PY_EXTS = {".py"}
 C_EXTS = {".h", ".c", ".hh", ".cc", ".hpp", ".cpp"}
 
-EXCLUDED_DIR_NAMES = {".git", "tobas_external"}
+EXCLUDED_DIR_NAMES = {".git", ".venv", "docs", "tobas_external"}
 
 if __name__ == "__main__":
     base_dir = Path(__file__).resolve().parents[2]

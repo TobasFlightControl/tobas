@@ -93,11 +93,12 @@ MissionPlannerWidget::MissionPlannerWidget(rclcpp::Node::SharedPtr node, const R
   connect(execute_button_, &CommandButton::clicked, this, &self::onExecuteButtonClicked);
   connect(cancel_button_, &CommandButton::clicked, this, &self::onCancelButtonClicked);
   connect(focus_button_, &CommandButton::clicked, this, &self::onFocusButtonClicked);
-  connect(command_list_, &qt::ListWidget::itemClicked, this, &self::onListItemChanged);
+  connect(command_list_, &qt::ListWidget::currentItemChanged, this, &self::onListItemChanged);
   connect(command_list_, &qt::ListWidget::itemMoved, this, &self::onListItemChanged);
   connect(&bridge, &RosQtBridge::gnssReceived, this, &self::gnssCb, Qt::QueuedConnection);
   connect(&bridge, &RosQtBridge::odomReceived, this, &self::odomCb, Qt::QueuedConnection);
   connect(this, &self::goalResponseReceived, this, &self::actionGoalResponseCb, Qt::QueuedConnection);
+  connect(this, &self::feedbackReceived, this, &self::actionFeedbackCb, Qt::QueuedConnection);
   connect(this, &self::resultReceived, this, &self::actionResultCb, Qt::QueuedConnection);
 }
 

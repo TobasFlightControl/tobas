@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 Tobas, Inc.
 
+import os
 from pathlib import Path
 from typing import List
 
@@ -33,3 +34,27 @@ def is_under_any(path: str, bases: List[str], *, follow_symlinks: bool = True) -
         if is_under(path, base, follow_symlinks=follow_symlinks):
             return True
     return False
+
+
+def get_local_tree_size(_path: str, _exclude_dirs: List[str] = []) -> int:
+    path = Path(_path)
+
+    if path.is_file():
+        return path.stat(follow_symlinks=False).st_size
+
+    if not path.is_dir():
+        return 0
+
+    total_size = 0
+
+    for root, _, filenames in os.walk(path):
+        if is_under_any(root, _exclude_dirs):
+            continue
+        for filename in filenames:
+            path = Path(root) / filename
+            try:
+                total_size += path.stat(follow_symlinks=False).st_size
+            except OSError:
+                pass
+
+    return total_size

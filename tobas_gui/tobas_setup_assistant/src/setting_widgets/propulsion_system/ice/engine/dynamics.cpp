@@ -82,7 +82,7 @@ std::pair<double, double> EngineDynamicsWidget::engineConstant() const
   const auto right = (torques.array() / speeds.array()).matrix();
 
   const auto sol = Left.jacobiSvd(Eigen::ComputeFullU | Eigen::ComputeFullV).solve(right).eval();
-  const auto A = sqrt(sol(0));
+  const auto A = std::sqrt(sol(0));
   const auto B = sol(1);
 
   return { A, B };

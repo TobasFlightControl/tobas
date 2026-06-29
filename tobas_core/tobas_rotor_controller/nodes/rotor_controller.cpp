@@ -230,7 +230,7 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
         }
       }
       else {
-        const auto engine_speed = sqrt(torque_sum / K);
+        const auto engine_speed = std::sqrt(torque_sum / K);
         ice_cmd_msg->engine_throttle = iprop->engine.computeThrottle(torque_sum, engine_speed);
         for (const auto& elem : tar_thrusts_msg->thrusts) {
           const auto irotor = iprop->getRotor(elem.link_name);

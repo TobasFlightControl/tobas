@@ -3,15 +3,15 @@
 
 #include "tobas_linux/video_dev.hpp"
 
-#include <errno.h>
 #include <fcntl.h>
 #include <linux/videodev2.h>
-#include <stdio.h>
-#include <string.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 #include <unistd.h>
 
+#include <cerrno>
+#include <cstdio>
+#include <cstring>
 #include <iostream>
 
 namespace tobas
@@ -34,7 +34,7 @@ VideoDev::~VideoDev()
         std::cerr << "Failed to munmap memory" << std::endl;
       }
     }
-    free(buffers_);
+    std::free(buffers_);
   }
 
   if (fd_ >= 0) {
@@ -211,7 +211,7 @@ bool VideoDev::requestDeviceBuffer()
 
 bool VideoDev::mapBuffer()
 {
-  buffers_ = static_cast<Buffer*>(calloc(kBufferSize, sizeof(*buffers_)));
+  buffers_ = static_cast<Buffer*>(std::calloc(kBufferSize, sizeof(*buffers_)));
   if (!buffers_) {
     std::cerr << "Calloc failed." << std::endl;
     return false;

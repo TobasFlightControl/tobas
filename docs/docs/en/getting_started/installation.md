@@ -7,7 +7,7 @@
 ### Procedure (from the desktop)
 
 Please download
-<a href=https://drive.google.com/file/d/1nH_jZujDL_apP0uTWPIftbURmE6LqPQ8/view target="_blank">tobas_2.14.0_amd64.deb</a>.
+<a href=https://drive.google.com/file/d/1R_Efi_-HoPTEq7rY3pQs6Z4MmEuOyvgo/view target="_blank">tobas_2.15.0_amd64.deb</a>.
 
 Open the file explorer and double-click the downloaded deb package to launch App Center.
 Click `Install` to start the installation. This may take a few minutes.
@@ -34,13 +34,13 @@ Press Enter to close the terminal.
 ### Procedure (from the terminal)
 
 Download
-<a href=https://drive.google.com/file/d/1nH_jZujDL_apP0uTWPIftbURmE6LqPQ8/view target="_blank">tobas_2.14.0_amd64.deb</a>.
+<a href=https://drive.google.com/file/d/1R_Efi_-HoPTEq7rY3pQs6Z4MmEuOyvgo/view target="_blank">tobas_2.15.0_amd64.deb</a>.
 
 ```bash
 $ sudo apt install -y python3-pip
 $ sudo pip install gdown --break-system-packages
 $ cd ~/Download
-$ gdown --fuzzy 'https://drive.google.com/file/d/1nH_jZujDL_apP0uTWPIftbURmE6LqPQ8/view'
+$ gdown --fuzzy 'https://drive.google.com/file/d/1R_Efi_-HoPTEq7rY3pQs6Z4MmEuOyvgo/view'
 ```
 
 If Tobas is already installed and you want to update it, first uninstall the old package.
@@ -52,7 +52,7 @@ $ sudo dpkg -r tobas
 Install Tobas.
 
 ```bash
-$ sudo dpkg -i tobas_2.14.0_amd64.deb
+$ sudo dpkg -i tobas_2.15.0_amd64.deb
 ```
 
 Install the dependent packages.
@@ -70,15 +70,15 @@ $ tobas_install_prereqs
 
 ### Required items
 
-- <a href=https://www.raspberrypi.com/products/raspberry-pi-5/ target="_blank">Raspberry Pi 5</a>
+- <a href=https://www.raspberrypi.com/products/raspberry-pi-5/ target="_blank">Raspberry Pi 5 (2 GB or more)</a>
 - Tobas HAT <!-- TODO: URL -->
-- A micro SD card with at least 32GB of capacity (for example, <a href=https://www.sandisk.com/products/memory-cards/microsd-cards/sandisk-extreme-uhs-i-microsd target="_blank">SanDisk Extreme microSDXC™ UHS-I CARD - 32GB</a>)
-- An SD card reader (for example, <a href=https://www.sandisk.com/products/accessories/memory-card-readers/sandisk-quickflow-microsd-usb-a-memory-card-reader target="_blank">SanDisk QuickFlow™ microSD™ UHS-I Card USB-A Reader</a>)
+- A micro SD card with at least 16 GB of capacity (for example, <a href=https://www.sandisk.com/products/memory-cards/microsd-cards/sandisk-extreme-uhs-i-microsd target="_blank">SanDisk Extreme microSDXC™ UHS-I CARD - 32GB</a>)
+- An SD card reader (for example, <a href=https://www.sandisk.com/products/accessories/memory-card-readers/sandisk-quickflow-microsd-memory-card-reader-usb-c target="_blank">SANDISK QuickFlow microSD Card Reader with USB-C</a>)
 
 ### Procedure (from the desktop)
 
 Please download
-<a href=https://drive.google.com/file/d/1rY3bRWFkQObM9NEoeVO0XCzzGwWz04am/view target="_blank">tobas_2.14.0_arm64.img.gz</a>.
+<a href=https://drive.google.com/file/d/1ECkhHWGlVKN-8F47updfDKAXjJOI3xxc/view target="_blank">tobas_2.15.0_arm64.img.gz</a>.
 
 Install any suitable image flasher. For example, the following can be used:
 
@@ -97,20 +97,20 @@ When it finishes successfully, remove the SD card from the PC.
 ### Procedure (from the terminal)
 
 Download
-<a href=https://drive.google.com/file/d/1rY3bRWFkQObM9NEoeVO0XCzzGwWz04am/view target="_blank">tobas_2.14.0_arm64.img.gz</a>.
+<a href=https://drive.google.com/file/d/1ECkhHWGlVKN-8F47updfDKAXjJOI3xxc/view target="_blank">tobas_2.15.0_arm64.img.gz</a>.
 
 ```bash
 $ sudo apt install -y python3-pip
 $ sudo pip install gdown --break-system-packages
 $ cd ~/Download
-$ gdown --fuzzy 'https://drive.google.com/file/d/1rY3bRWFkQObM9NEoeVO0XCzzGwWz04am/view'
+$ gdown --fuzzy 'https://drive.google.com/file/d/1ECkhHWGlVKN-8F47updfDKAXjJOI3xxc/view'
 ```
 
 Extract the downloaded file.
 
 ```bash
 $ sudo apt install -y gzip
-$ gunzip tobas_2.14.0_arm64.img.gz
+$ gunzip tobas_2.15.0_arm64.img.gz
 ```
 
 Connect the SD card to the PC using the card reader.
@@ -119,7 +119,7 @@ Write the image to the SD card.
 Replace `/dev/sdx` with the actual path.
 
 ```bash
-$ sudo dd if=tobas_2.14.0_arm64.img of=/dev/sdx bs=4M conv=fsync status=progress
+$ sudo dd if=tobas_2.15.0_arm64.img of=/dev/sdx bs=4M conv=fsync status=progress
 ```
 
 When it finishes successfully, remove the SD card from the PC.

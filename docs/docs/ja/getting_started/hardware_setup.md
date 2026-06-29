@@ -10,8 +10,8 @@ Setup Assistant で設定したとおりに実機を作成します．
 <!-- cf. https://docs.emlid.com/navio2/hardware-setup/ -->
 <!-- cf. https://docs.emlid.com/navio2/ardupilot/typical-setup-schemes/ -->
 
-<img src="../../assets/hardware_setup/f450_1.png" alt="f450_1" width="49%"/>
-<img src="../../assets/hardware_setup/f450_2.png" alt="f450_2" width="49%"/>
+<img src="../../../assets/hardware_setup/f450_1.png" alt="f450_1" width="49%"/>
+<img src="../../../assets/hardware_setup/f450_2.png" alt="f450_2" width="49%"/>
 
 <!-- prettier-ignore-start -->
 !!! note
@@ -70,22 +70,6 @@ GPSw (General Purpose Switch) はユーザが自由に使えるスイッチで�
 プロポの`+`ボタンを長押しでメニュー画面に入り，`リバース`を選択してください．
 スロットルレバー (`THR`) のみをリバース (`REV`) に設定してください．
 
-## FC への給電
-
----
-
-<span style="color: red;"><strong>FC への給電は，必ずパワーモジュールを介して基板上部の Molex コネクタから行ってください．</strong></span>
-設計上，パワーモジュールからラズパイとその他のシステムに給電するようになっているため，ラズパイの type-C からの給電は行わないようにしてください．
-一部の IC に逆電圧が印加され，破損する恐れがあります．
-
-<!-- prettier-ignore-start -->
-!!! tip
-      電源はもちろん LiPo バッテリーでも構いませんが，設定のみを行う場合など負荷が小さいならば，
-      市販のノート PC 向けの AC アダプタに
-      <a href=https://www.amazon.co.jp/dp/B08VZGR846 target="_blank">XT60 アダプタ</a>
-      などを取り付けて使うとバッテリーの残量を気にする必要がなくて便利です．
-<!-- prettier-ignore-end -->
-
 ## Tobas プロジェクトの読み込みと書き込み
 
 ---
@@ -132,8 +116,8 @@ $ ros2 launch tobas_gcs gcs.launch.py
 1. 完了したら`Finish`をクリックしてください．推定された楕円体が青色，歪み補正後の点群が緑色で表示されます．
    青色の楕円体が白色の点群に重なっており，緑色の点群が原点周りに球を描いていれば成功です．
 
-<img src="../../assets/hardware_setup/mag_calibration_1.png" alt="mag_calibration_1" width="49%"/>
-<img src="../../assets/hardware_setup/mag_calibration_2.png" alt="mag_calibration_2" width="49%"/>
+<img src="../../../assets/hardware_setup/mag_calibration_1.png" alt="mag_calibration_1" width="49%"/>
+<img src="../../../assets/hardware_setup/mag_calibration_2.png" alt="mag_calibration_2" width="49%"/>
 
 ### Radio Calibration
 
@@ -164,8 +148,9 @@ $ ros2 launch tobas_gcs gcs.launch.py
 1. それぞれのモータの制御ゲインを調整します．
    目標回転数を操作して振動が発生しないことを確認しながら，1 つずつゲインを大きくしてください．
    ここでは全て 17 に設定しました．
-1. `Save`をクリックすると，制御ゲインが FC に保存されます．
+1. `Save`をクリックすると，制御ゲインがPC内のプロジェクトに保存されます．
 1. `Stop`をクリックすると，テストが終了します．
+1. `Write Project`をクリックすると，保存された制御ゲインがFCにフラッシュされます．
 
 <!-- prettier-ignore-start -->
 !!! note

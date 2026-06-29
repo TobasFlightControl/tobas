@@ -7,8 +7,6 @@
 #include <tobas_yaml_tools/core.hpp>
 #include <tobas_yaml_tools/format.hpp>
 
-using namespace std;
-
 namespace tobas
 {
 bool IceRotorConfig::isValid() const
@@ -18,17 +16,17 @@ bool IceRotorConfig::isValid() const
   }
 
   if (gear_ratio <= 0.) {
-    cerr << "Gear ratio must be positive." << endl;
+    std::cerr << "Gear ratio must be positive." << std::endl;
     return false;
   }
 
   if (!pitch_limit.isValid()) {
-    cerr << "Pitch angle limit is invalid." << endl;
+    std::cerr << "Pitch angle limit is invalid." << std::endl;
     return false;
   }
 
   if (!pitch_limit.inRange(center_pitch)) {
-    cerr << "Center pitch is out of its limit." << endl;
+    std::cerr << "Center pitch is out of its limit." << std::endl;
     return false;
   }
 

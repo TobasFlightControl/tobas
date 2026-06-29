@@ -32,7 +32,7 @@ public:
     const Drone& drone);
 
   void reset();
-  void updateInternalDataStructures();
+  void updateProject(const std::filesystem::path& proj_path);
 
 private:
   const Drone& drone_;

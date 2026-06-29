@@ -11,7 +11,7 @@ namespace gui
 {
 namespace sa
 {
-enum struct FrameType
+enum class FrameType
 {
   kUndefined,
   kPlanarMulticopter,

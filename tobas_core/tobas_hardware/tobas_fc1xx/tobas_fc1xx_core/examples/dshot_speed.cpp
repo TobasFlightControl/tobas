@@ -81,7 +81,7 @@ int main(int argc, char** argv)
   }
   this_thread::sleep_for(1ms);
 
-  if (!dshot.setSpeedControlGain(channel, gain)) {
+  if (!dshot.setRpmControlGain(channel, gain)) {
     cerr << "Failed to set the speed control gain." << endl;
     return EXIT_FAILURE;
   }

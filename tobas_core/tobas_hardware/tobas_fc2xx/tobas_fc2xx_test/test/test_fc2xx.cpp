@@ -158,7 +158,7 @@ bool testGnssReceiver()
 {
   tobas::ublox::ZEDF9P gnss;
 
-  if (!gnss.initialize("/dev/spidev1.2")) {
+  if (!gnss.initialize("/dev/spidev1.0")) {
     cerr << "Failed to initialize GNSS driver." << endl;
     return false;
   }

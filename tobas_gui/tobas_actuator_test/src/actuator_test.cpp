@@ -5,6 +5,8 @@
 
 #include <tobas_qt_tools/cast.hpp>
 
+namespace fs = std::filesystem;
+
 namespace tobas
 {
 namespace gui
@@ -37,11 +39,11 @@ void ActuatorTestWidget::reset()
   }
 }
 
-void ActuatorTestWidget::updateInternalDataStructures()
+void ActuatorTestWidget::updateProject(const fs::path& proj_path)
 {
   reset();
 
-  rotor_test_->updateInternalDataStructures();
+  rotor_test_->updateProject(proj_path);
   joint_test_->updateInternalDataStructures();
 
   // テスト系は1つ以上のチャンネルが登録されているときのみ有効化

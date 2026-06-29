@@ -233,7 +233,7 @@ bool DShot::setNumPoles(size_t ch, uint16_t num_poles) noexcept
   return true;
 }
 
-bool DShot::setSpeedControlGain(size_t ch, uint8_t gain) noexcept
+bool DShot::setRpmControlGain(size_t ch, uint8_t gain) noexcept
 {
   if (!checkChannelSize(ch)) {
     return false;

@@ -10,8 +10,6 @@
 #include <tobas_constants/throttle.hpp>
 #include <tobas_nlp/newton_1d.hpp>
 
-using namespace std;
-
 namespace tobas
 {
 bool IcePropulsionSystemConfig::isValid() const
@@ -19,7 +17,7 @@ bool IcePropulsionSystemConfig::isValid() const
   // Rotors
   for (const auto& [_, rotor] : rotors) {
     if (!rotor->isValid()) {
-      cerr << "The configuration of rotor \"" << rotor->link_name << "\" is invalid." << endl;
+      std::cerr << "The configuration of rotor \"" << rotor->link_name << "\" is invalid." << std::endl;
       return false;
     }
   }
@@ -39,17 +37,17 @@ bool IcePropulsionSystemConfig::load(const YAML::Node& root_node)
   // Rotors
   const auto rotors_node = root_node[kRotorsKey];
   if (!rotors_node.IsDefined()) {
-    cerr << "\"" << kRotorsKey << "\" is not defined." << endl;
+    std::cerr << "\"" << kRotorsKey << "\" is not defined." << std::endl;
     return false;
   }
   if (!rotors_node.IsSequence()) {
-    cerr << "\"" << kRotorsKey << "\" must be a sequence." << endl;
+    std::cerr << "\"" << kRotorsKey << "\" must be a sequence." << std::endl;
     return false;
   }
   for (const auto& rotor_node : rotors_node) {
-    const auto irotor = make_shared<IceRotorConfig>();
+    const auto irotor = std::make_shared<IceRotorConfig>();
     if (!irotor->load(rotor_node)) {
-      cerr << "Failed to load the configuration of rotors." << endl;
+      std::cerr << "Failed to load the configuration of rotors." << std::endl;
       return false;
     }
     rotors[irotor->link_name] = irotor;
@@ -58,11 +56,11 @@ bool IcePropulsionSystemConfig::load(const YAML::Node& root_node)
   // Engine
   const auto engine_node = root_node[kEngineKey];
   if (!engine_node.IsDefined()) {
-    cerr << "\"" << kEngineKey << "\" is not defined." << endl;
+    std::cerr << "\"" << kEngineKey << "\" is not defined." << std::endl;
     return false;
   }
   if (!engine.load(engine_node)) {
-    cerr << "Failed to load the configuration of engine." << endl;
+    std::cerr << "Failed to load the configuration of engine." << std::endl;
     return false;
   }
 
@@ -93,22 +91,22 @@ PropulsionSystem IcePropulsionSystemConfig::type() const
   return PropulsionSystem::kIce;
 }
 
-double IcePropulsionSystemConfig::minSpeed(const string&)
+double IcePropulsionSystemConfig::minSpeed(const std::string&)
 {
   return 0.;
 }
 
-double IcePropulsionSystemConfig::maxSpeed(const string& link_name)
+double IcePropulsionSystemConfig::maxSpeed(const std::string& link_name)
 {
   return maxEngineSpeed() / getRotor(link_name)->gear_ratio;
 }
 
-double IcePropulsionSystemConfig::minThrust(const string&)
+double IcePropulsionSystemConfig::minThrust(const std::string&)
 {
   return 0.;
 }
 
-double IcePropulsionSystemConfig::maxThrust(const string& link_name)
+double IcePropulsionSystemConfig::maxThrust(const std::string& link_name)
 {
   const auto irotor = getRotor(link_name);
   const auto max_motor_const = irotor->motorConst(irotor->pitch_limit.upper);
@@ -148,7 +146,7 @@ double IcePropulsionSystemConfig::computeEngineSpeed(double throttle) const
 
   double engine_speed = 0.;
   if (newton.solve(engine_speed) < 0) {
-    cerr << "Failed to solve the engine dynamics equation: " << newton.errorMessage() << endl;
+    std::cerr << "Failed to solve the engine dynamics equation: " << newton.errorMessage() << std::endl;
     return 0.;
   }
 
@@ -179,7 +177,7 @@ double IcePropulsionSystemConfig::calc_f(double throttle) const
 {
   const auto& A = engine.engine_const.first;
   const auto phi = calc_phi(throttle);
-  return math::sqr(A / (1 - cos(phi)));
+  return math::sqr(A / (1 - std::cos(phi)));
 }
 
 double IcePropulsionSystemConfig::calc_k() const
@@ -198,7 +196,7 @@ IceRotorConfig::SharedPtr IcePropulsionSystemConfig::getRotor(const std::string&
 {
   const auto it = rotors.find(link_name);
   if (it == rotors.end()) {
-    cerr << "ICE rotor link \"" << link_name << "\" is not found." << endl;
+    std::cerr << "ICE rotor link \"" << link_name << "\" is not found." << std::endl;
     return nullptr;
   }
   return boost::polymorphic_pointer_downcast<IceRotorConfig>(it->second);
@@ -208,7 +206,7 @@ IceRotorConfig::ConstSharedPtr IcePropulsionSystemConfig::getRotor(const std::st
 {
   const auto it = rotors.find(link_name);
   if (it == rotors.end()) {
-    cerr << "ICE rotor link \"" << link_name << "\" is not found." << endl;
+    std::cerr << "ICE rotor link \"" << link_name << "\" is not found." << std::endl;
     return nullptr;
   }
   return boost::polymorphic_pointer_downcast<IceRotorConfig>(it->second);

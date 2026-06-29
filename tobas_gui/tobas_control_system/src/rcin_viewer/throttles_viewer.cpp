@@ -71,6 +71,7 @@ void ThrottlesViewer::reset()
 void ThrottlesViewer::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
 {
   if (!rcin->ok) {
+    reset();
     return;
   }
 

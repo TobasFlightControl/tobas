@@ -55,10 +55,7 @@ inline bool isPositiveDefinite(const Eigen::MatrixBase<Derived>& A)
   return A.llt().info() != Eigen::NumericalIssue;
 }
 
-/**
- * @brief 行列が半正定値行列かどうかを判定する．
- * cf. file:///home/dohi/Downloads/081791add.pdf
- */
+/* 行列が半正定値行列かどうかを判定する． */
 template <typename Derived>
 bool isSemiPositiveDefinite(const Eigen::MatrixBase<Derived>& A)
 {

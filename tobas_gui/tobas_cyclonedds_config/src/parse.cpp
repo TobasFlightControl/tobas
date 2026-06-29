@@ -26,32 +26,62 @@ bool parseFromText(const std::string& text, Data& dst)
   }
 
   const auto root = doc.RootElement();
-  if (strcmp(root->Name(), elem::kCycloneDDS) != 0) {
+  if (std::strcmp(root->Name(), elem::kCycloneDDS) != 0) {
     std::cerr << "The root element must be \"" << elem::kCycloneDDS << "\"." << std::endl;
     return false;
   }
 
   const auto domain = root->FirstChildElement(elem::kDomain);
-  if (!domain) {
-    return true;
-  }
-
-  const auto general = domain->FirstChildElement(elem::kGeneral);
-  if (!general) {
-    return true;
-  }
-
-  const auto interfaces = general->FirstChildElement(elem::kInterfaces);
-  if (!interfaces) {
-    return true;
-  }
-
-  for (auto nif = interfaces->FirstChildElement(elem::kNIF); nif; nif = nif->NextSiblingElement(elem::kNIF)) {
-    const auto name = nif->Attribute(attr::kName);
-    if (!name) {
-      continue;
+  if (domain) {
+    const auto general = domain->FirstChildElement(elem::kGeneral);
+    if (general) {
+      const auto interfaces = general->FirstChildElement(elem::kInterfaces);
+      if (interfaces) {
+        for (auto nif = interfaces->FirstChildElement(elem::kNIF); nif; nif = nif->NextSiblingElement(elem::kNIF)) {
+          const auto name = nif->Attribute(attr::kName);
+          if (!name) {
+            continue;
+          }
+          dst.interfaces.emplace_back(name);
+        }
+      }
     }
-    dst.interfaces.emplace_back(name);
+
+    const auto shared_memory = domain->FirstChildElement(elem::kSharedMemory);
+    if (shared_memory) {
+      const auto enable = shared_memory->FirstChildElement(elem::kEnable);
+      if (enable) {
+        dst.shared_memory.enable = (std::strcmp(enable->GetText(), "true") == 0);
+      }
+      const auto log_level = shared_memory->FirstChildElement(elem::kLogLevel);
+      if (log_level) {
+        const auto log_level_text = log_level->GetText();
+        if (std::strcmp(log_level_text, "verbose") == 0) {
+          dst.shared_memory.log_level = SharedMemory::kVerbose;
+        }
+        else if (std::strcmp(log_level_text, "debug") == 0) {
+          dst.shared_memory.log_level = SharedMemory::kDebug;
+        }
+        else if (std::strcmp(log_level_text, "info") == 0) {
+          dst.shared_memory.log_level = SharedMemory::kInfo;
+        }
+        else if (std::strcmp(log_level_text, "warn") == 0) {
+          dst.shared_memory.log_level = SharedMemory::kWarn;
+        }
+        else if (std::strcmp(log_level_text, "error") == 0) {
+          dst.shared_memory.log_level = SharedMemory::kError;
+        }
+        else if (std::strcmp(log_level_text, "fatal") == 0) {
+          dst.shared_memory.log_level = SharedMemory::kFatal;
+        }
+        else if (std::strcmp(log_level_text, "off") == 0) {
+          dst.shared_memory.log_level = SharedMemory::kOff;
+        }
+        else {
+          std::cerr << "Invalid shared memory log level: " << log_level_text << std::endl;
+        }
+      }
+    }
   }
 
   return true;

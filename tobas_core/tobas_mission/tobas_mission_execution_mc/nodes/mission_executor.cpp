@@ -12,8 +12,8 @@
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_std_tools/byte.hpp>
 #include <tobas_std_tools/gnss.hpp>
+#include <tobas_trajectory_generation/offline/jerk_limited.hpp>
 #include <tobas_trajectory_generation/offline/linear.hpp>
-#include <tobas_trajectory_generation/offline/time_optimal.hpp>
 
 #include <tobas_command_msgs_adapter/angle.hpp>
 #include <tobas_command_msgs_adapter/pos_vel_acc.hpp>
@@ -219,6 +219,8 @@ void MulticopterMissionExecutorNode::initializeCommand()
 {
   const auto& odom = odom_->odom.odom;
 
+  // 設定値もしくは現在値から初期コマンドを決定
+  // 加速度の推定値は振動成分がほとんどである可能性があるため使用しない
   if (setpoint_) {
     const auto& sp = setpoint_->odom;
     if (sp.frame.p.isFinite()) {
@@ -243,14 +245,14 @@ void MulticopterMissionExecutorNode::initializeCommand()
       command_.acc = odom.frame.M * sp.accel.linear;
     }
     else {
-      command_.acc = odom.frame.M * odom.accel.linear;
+      command_.acc.setZero();
     }
   }
   else {
     command_.pos = odom.frame.p;
     odom.frame.M.getRPY(command_.rot.roll, command_.rot.pitch, command_.rot.yaw);
     command_.vel = odom.twist.vel;
-    command_.acc = odom.accel.linear;
+    command_.acc.setZero();
   }
 }
 
@@ -485,9 +487,9 @@ bool MulticopterMissionExecutorNode::executeWaypoint(const Waypoint& goal, const
     return true;
   }
   const Eigen::Vector2d xy_dir = xy_diff / xy_dist;
-  const traj::TimeOptimalTrajectory traj_xy(0., xy_dist, max_hor_jerk, max_hor_acc, max_hor_vel);
+  const traj::JerkLimitedTrajectory traj_xy(0., xy_dist, max_hor_jerk, max_hor_acc, max_hor_vel);
 
-  const traj::TimeOptimalTrajectory traj_z(start_pos.z(), goal_pos.z(), max_ver_jerk, max_ver_acc, max_ver_vel);
+  const traj::JerkLimitedTrajectory traj_z(start_pos.z(), goal_pos.z(), max_ver_jerk, max_ver_acc, max_ver_vel);
 
   const auto roll_duration = std::abs(start_rot.roll) / kAttitudeRate;
   const traj::LinearSpline traj_roll(start_rot.roll, 0., roll_duration);
@@ -495,9 +497,9 @@ bool MulticopterMissionExecutorNode::executeWaypoint(const Waypoint& goal, const
   const auto pitch_duration = std::abs(start_rot.pitch) / kAttitudeRate;
   const traj::LinearSpline traj_pitch(start_rot.pitch, 0., pitch_duration);
 
-  const auto goal_yaw = goal.auto_heading ? atan2(xy_dir.y(), xy_dir.x()) : start_rot.yaw;
+  const auto goal_yaw = goal.auto_heading ? std::atan2(xy_dir.y(), xy_dir.x()) : start_rot.yaw;
   const auto yaw_diff = algo::wrapPi(goal_yaw - start_rot.yaw);  // 最短経路をとるよう[-π, π)の範囲に変換
-  const traj::TimeOptimalTrajectory traj_yaw(0., yaw_diff, INFINITY, max_head_acc, max_head_rate);
+  const traj::JerkLimitedTrajectory traj_yaw(0., yaw_diff, INFINITY, max_head_acc, max_head_rate);
 
   // 所要時間を取得
   const auto pos_duration = std::max(traj_xy.duration(), traj_z.duration());
@@ -605,7 +607,7 @@ bool MulticopterMissionExecutorNode::executeTakeoff(const Takeoff& goal, const G
   const auto max_jerk = isPositive(goal.max_jerk) ? goal.max_jerk : takeoff_cfg_.max_jerk;
 
   // 軌道を生成
-  const traj::TimeOptimalTrajectory traj_z(start_pos.z(), tar_z, max_jerk, max_accel, max_speed);
+  const traj::JerkLimitedTrajectory traj_z(start_pos.z(), tar_z, max_jerk, max_accel, max_speed);
 
   // 所要時間を取得
   const auto duration = traj_z.duration();

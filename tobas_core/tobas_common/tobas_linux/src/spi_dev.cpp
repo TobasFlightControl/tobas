@@ -11,8 +11,6 @@
 #include <cstring>
 #include <iostream>
 
-using namespace std;
-
 namespace tobas
 {
 namespace linux
@@ -32,11 +30,11 @@ bool SPIdev::initialize(const char* spi_dev, void* tx_buf, void* rx_buf, uint32_
 {
   spi_fd_ = open(spi_dev, O_RDWR);
   if (spi_fd_ < 0) {
-    cerr << "Failed to open SPI device: " << spi_dev << endl;
+    std::cerr << "Failed to open SPI device: " << spi_dev << std::endl;
     return false;
   }
 
-  memset(&spi_transfer_, 0, sizeof(spi_ioc_transfer));
+  std::memset(&spi_transfer_, 0, sizeof(spi_ioc_transfer));
   spi_transfer_.tx_buf = (uint64_t)tx_buf;
   spi_transfer_.rx_buf = (uint64_t)rx_buf;
   spi_transfer_.speed_hz = speed_hz;
@@ -51,7 +49,7 @@ bool SPIdev::transfer(uint32_t length) noexcept
   spi_transfer_.len = length;
 
   if (ioctl(spi_fd_, SPI_IOC_MESSAGE(1), &spi_transfer_) < 0) {
-    cerr << "SPI transfer failed." << endl;
+    std::cerr << "SPI transfer failed." << std::endl;
     return false;
   }
 

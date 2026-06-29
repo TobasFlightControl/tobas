@@ -23,6 +23,7 @@ namespace param
 {
 struct IntConfig
 {
+  long step;
   long dflt;
   QString prefix;
 
@@ -54,7 +55,6 @@ class ParamBlockWidget : public QWidget
   static constexpr int kLabelPSize = 12;
   static constexpr int kParamNameWidth = 250;
   static constexpr int kLineEditWidth = 150;
-  static constexpr auto kLoadParamTimeout = std::chrono::seconds(3);
 
 public:
   explicit ParamBlockWidget(rclcpp::Node::SharedPtr node, const std::string& node_name, const QString& label);
@@ -70,7 +70,7 @@ private:
   const rclcpp::Node::SharedPtr node_;
   const std::string node_name_;
 
-  dparam::DynamicParamClient::SharedPtr dparam_client_;
+  dparam::DynamicParamClient::SharedPtr dparam_cli_;
 
   std::map<std::string, IntConfig> int_configs_;
   std::map<std::string, DoubleConfig> double_configs_;

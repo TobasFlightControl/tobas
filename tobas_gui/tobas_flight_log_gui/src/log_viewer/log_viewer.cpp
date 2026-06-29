@@ -26,6 +26,32 @@ namespace log
 {
 FlightLogViewerWidget::FlightLogViewerWidget()
 {
+  const auto odom = addData<tobas_msgs::msg::OdometryWithCovarianceStamped>(topic::kOdometry);
+  const auto setpoint = addData<tobas_msgs::msg::OdometryStamped>(topic::kTrajSetpoint);
+  const auto imu_raw = addData<tobas_msgs::msg::Imu>(topic::kImuRaw);
+  const auto imu_filt = addData<tobas_msgs::msg::Imu>(topic::kImuFilt);
+  const auto mag = addData<tobas_msgs::msg::MagneticField>(topic::kMagneticField);
+  const auto pressure = addData<tobas_msgs::msg::FluidPressure>(topic::kAirPressure);
+  const auto gnss = addData<tobas_msgs::msg::Gnss>(topic::kGnss);
+  const auto rcin = addData<tobas_msgs::msg::RCInput>(topic::kRcInput);
+  const auto battery = addData<tobas_msgs::msg::Battery>(topic::kBattery);
+  const auto cpu = addData<tobas_msgs::msg::Cpu>(topic::kCpu);
+  const auto cur_rotor_states = addData<tobas_msgs::msg::RotorStateArray>(topic::kRotorStates);
+  const auto tar_rotor_speeds = addData<tobas_msgs::msg::RotorSpeedArray>(topic::kRotorSpeedsCmd);
+  const auto cur_joint_states = addData<tobas_msgs::msg::JointStateArray>(topic::kJointStates);
+  const auto tar_joint_positions = addData<tobas_msgs::msg::JointCommandArray>(topic::kJointPosCmd);
+  const auto tar_joint_velocities = addData<tobas_msgs::msg::JointCommandArray>(topic::kJointVelCmd);
+  const auto tar_joint_efforts = addData<tobas_msgs::msg::JointCommandArray>(topic::kJointEffCmd);
+  const auto ice_cmd = addData<tobas_msgs::msg::IcePropulsionSystemCommand>(topic::kIcePropulsionSystemCmd);
+  const auto pwm = addData<tobas_msgs::msg::PwmArray>(topic::kPwmCmd);
+  const auto sampling_time = addData<tobas_msgs::msg::Latency>(topic::kImuSamplingTime);
+  const auto ctrl_latency = addData<tobas_msgs::msg::Latency>(topic::kControlLatency);
+  const auto vibe = addData<tobas_msgs::msg::VibrationLevel>(topic::kVibrationLevel);
+  const auto repulsive_accel = addData<tobas_msgs::msg::RepulsiveAcceleration>(topic::kRepulsiveAccel);
+  const auto dist_force = addData<tobas_kdl_msgs::msg::WrenchStamped>(topic::kDisturbanceForce);
+  const auto obsv_fb = addData<tobas_debug_msgs::msg::ObserverFeedback>(topic::kObsvFeedback);
+  const auto mr_ctrl_fb = addData<tobas_debug_msgs::msg::MulticopterControllerFeedback>(topic::kMRCtrlFeedback);
+
   const auto rows = new QVBoxLayout();
   setLayout(rows);
 
@@ -34,30 +60,31 @@ FlightLogViewerWidget::FlightLogViewerWidget()
 
   for (const auto& [idx, plot_tab] : std::views::enumerate(plot_tabs_)) {
     plot_tab = new PlotTabWidget(
-      odom_data_,
-      setpoint_data_,
-      raw_imu_data_,
-      filt_imu_data_,
-      mag_data_,
-      gnss_data_,
-      rcin_data_,
-      battery_data_,
-      cpu_data_,
-      cur_rotor_states_data_,
-      tar_rotor_speeds_data_,
-      cur_joint_states_data_,
-      tar_joint_positions_data_,
-      tar_joint_velocities_data_,
-      tar_joint_efforts_data_,
-      ice_cmd_data_,
-      pwm_data_,
-      sampling_time_data_,
-      ctrl_latency_data_,
-      vibe_data_,
-      repulsive_accel_data_,
-      dist_force_data_,
-      obsv_fb_data_,
-      mr_ctrl_fb_data_);
+      odom->getValues(),
+      setpoint->getValues(),
+      imu_raw->getValues(),
+      imu_filt->getValues(),
+      mag->getValues(),
+      pressure->getValues(),
+      gnss->getValues(),
+      rcin->getValues(),
+      battery->getValues(),
+      cpu->getValues(),
+      cur_rotor_states->getValues(),
+      tar_rotor_speeds->getValues(),
+      cur_joint_states->getValues(),
+      tar_joint_positions->getValues(),
+      tar_joint_velocities->getValues(),
+      tar_joint_efforts->getValues(),
+      ice_cmd->getValues(),
+      pwm->getValues(),
+      sampling_time->getValues(),
+      ctrl_latency->getValues(),
+      vibe->getValues(),
+      repulsive_accel->getValues(),
+      dist_force->getValues(),
+      obsv_fb->getValues(),
+      mr_ctrl_fb->getValues());
 
     plot_tab->setCurrentIndex(idx);
 
@@ -81,27 +108,9 @@ void FlightLogViewerWidget::reset()
   reader_.close();
   decode_fail_topics_.clear();
 
-  // キャッシュクリアを忘れるとログを切り替えても以前のものが表示されてしまうことに注意
-  odom_cov_decoder_.clearCache();
-  odom_decoder_.clearCache();
-  imu_decoder_.clearCache();
-  mag_decoder_.clearCache();
-  gnss_decoder_.clearCache();
-  rcin_decoder_.clearCache();
-  battery_decoder_.clearCache();
-  cpu_decoder_.clearCache();
-  rotor_states_decoder_.clearCache();
-  rotor_speeds_decoder_.clearCache();
-  joint_states_decoder_.clearCache();
-  joint_commands_decoder_.clearCache();
-  ice_cmd_decoder_.clearCache();
-  pwm_decoder_.clearCache();
-  latency_decoder_.clearCache();
-  vibe_decoder_.clearCache();
-  repulsive_accel_decoder_.clearCache();
-  wrench_decoder_.clearCache();
-  obsv_fb_decoder_.clearCache();
-  mr_ctrl_fb_decoder_.clearCache();
+  for (const auto& elem : data_) {
+    elem->clearCache();
+  }
 
   for (const auto& plot_tab : plot_tabs_) {
     plot_tab->clear();
@@ -173,30 +182,9 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
   reader_.seek(window_start_time);
 
   // データを初期化
-  odom_data_.clear();
-  setpoint_data_.clear();
-  raw_imu_data_.clear();
-  filt_imu_data_.clear();
-  mag_data_.clear();
-  gnss_data_.clear();
-  rcin_data_.clear();
-  battery_data_.clear();
-  cpu_data_.clear();
-  cur_rotor_states_data_.clear();
-  tar_rotor_speeds_data_.clear();
-  cur_joint_states_data_.clear();
-  tar_joint_positions_data_.clear();
-  tar_joint_velocities_data_.clear();
-  tar_joint_efforts_data_.clear();
-  ice_cmd_data_.clear();
-  pwm_data_.clear();
-  sampling_time_data_.clear();
-  ctrl_latency_data_.clear();
-  vibe_data_.clear();
-  repulsive_accel_data_.clear();
-  dist_force_data_.clear();
-  obsv_fb_data_.clear();
-  mr_ctrl_fb_data_.clear();
+  for (const auto& elem : data_) {
+    elem->clearValues();
+  }
 
   // データを仕分ける
   while (reader_.has_next()) {
@@ -216,83 +204,14 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
     }
 
     // デコード
-    try {
-      if (topic.ends_with(str::concat('/', topic::kOdometry).data())) {
-        odom_data_.append(odom_cov_decoder_.decode(cur_time, ser_data));
+    for (const auto& elem : data_) {
+      if (topic.ends_with(elem->getTopic())) {
+        if (!elem->decode(cur_time, ser_data)) {
+          qt::qErrorBox(this, "Failed to deserialize \"" + QString::fromStdString(topic) + "\".");
+          decode_fail_topics_.insert(topic);
+        }
+        break;
       }
-      else if (topic.ends_with(str::concat('/', topic::kTrajSetpoint).data())) {
-        setpoint_data_.append(odom_decoder_.decode(cur_time, ser_data));
-      }
-      else if (topic.ends_with(str::concat('/', topic::kImuRaw).data())) {
-        raw_imu_data_.append(imu_decoder_.decode(cur_time, ser_data));
-      }
-      else if (topic.ends_with(str::concat('/', topic::kImuFilt).data())) {
-        filt_imu_data_.append(imu_decoder_.decode(cur_time, ser_data));
-      }
-      else if (topic.ends_with(str::concat('/', topic::kMagneticField).data())) {
-        mag_data_.append(mag_decoder_.decode(cur_time, ser_data));
-      }
-      else if (topic.ends_with(str::concat('/', topic::kGnss).data())) {
-        gnss_data_.append(gnss_decoder_.decode(cur_time, ser_data));
-      }
-      else if (topic.ends_with(str::concat('/', topic::kRcInput).data())) {
-        rcin_data_.append(rcin_decoder_.decode(cur_time, ser_data));
-      }
-      else if (topic.ends_with(str::concat('/', topic::kBattery).data())) {
-        battery_data_.append(battery_decoder_.decode(cur_time, ser_data));
-      }
-      else if (topic.ends_with(str::concat('/', topic::kCpu).data())) {
-        cpu_data_.append(cpu_decoder_.decode(cur_time, ser_data));
-      }
-      else if (topic.ends_with(str::concat('/', topic::kRotorStates).data())) {
-        cur_rotor_states_data_.append(rotor_states_decoder_.decode(cur_time, ser_data));
-      }
-      else if (topic.ends_with(str::concat('/', topic::kRotorSpeedsCmd).data())) {
-        tar_rotor_speeds_data_.append(rotor_speeds_decoder_.decode(cur_time, ser_data));
-      }
-      else if (topic.ends_with(str::concat('/', topic::kJointStates).data())) {
-        cur_joint_states_data_.append(joint_states_decoder_.decode(cur_time, ser_data));
-      }
-      else if (topic.ends_with(str::concat('/', topic::kJointPosCmd).data())) {
-        tar_joint_positions_data_.append(joint_commands_decoder_.decode(cur_time, ser_data));
-      }
-      else if (topic.ends_with(str::concat('/', topic::kJointVelCmd).data())) {
-        tar_joint_velocities_data_.append(joint_commands_decoder_.decode(cur_time, ser_data));
-      }
-      else if (topic.ends_with(str::concat('/', topic::kJointEffCmd).data())) {
-        tar_joint_efforts_data_.append(joint_commands_decoder_.decode(cur_time, ser_data));
-      }
-      else if (topic.ends_with(str::concat('/', topic::kIcePropulsionSystemCmd).data())) {
-        ice_cmd_data_.append(ice_cmd_decoder_.decode(cur_time, ser_data));
-      }
-      else if (topic.ends_with(str::concat('/', topic::kPwmCmd).data())) {
-        pwm_data_.append(pwm_decoder_.decode(cur_time, ser_data));
-      }
-      else if (topic.ends_with(str::concat('/', topic::kImuSamplingTime).data())) {
-        sampling_time_data_.append(latency_decoder_.decode(cur_time, ser_data));
-      }
-      else if (topic.ends_with(str::concat('/', topic::kControlLatency).data())) {
-        ctrl_latency_data_.append(latency_decoder_.decode(cur_time, ser_data));
-      }
-      else if (topic.ends_with(str::concat('/', topic::kVibrationLevel).data())) {
-        vibe_data_.append(vibe_decoder_.decode(cur_time, ser_data));
-      }
-      else if (topic.ends_with(str::concat('/', topic::kRepulsiveAccel).data())) {
-        repulsive_accel_data_.append(repulsive_accel_decoder_.decode(cur_time, ser_data));
-      }
-      else if (topic.ends_with(str::concat('/', topic::kDisturbanceForce).data())) {
-        dist_force_data_.append(wrench_decoder_.decode(cur_time, ser_data));
-      }
-      else if (topic.ends_with(str::concat('/', topic::kObsvFeedback).data())) {
-        obsv_fb_data_.append(obsv_fb_decoder_.decode(cur_time, ser_data));
-      }
-      else if (topic.ends_with(str::concat('/', topic::kMRCtrlFeedback).data())) {
-        mr_ctrl_fb_data_.append(mr_ctrl_fb_decoder_.decode(cur_time, ser_data));
-      }
-    }
-    catch (const std::exception& e) {
-      qt::qErrorBox(this, "Failed to deserialize \"" + QString::fromStdString(topic) + "\".");
-      decode_fail_topics_.insert(topic);
     }
   }
 

@@ -17,7 +17,7 @@ namespace crypt
 std::string Crypt::crypt(const std::string& password) const
 {
   struct crypt_data data;
-  memset(&data, 0, sizeof(data));
+  std::memset(&data, 0, sizeof(data));
 
   const auto salt = createSalt();
   const auto out = ::crypt_r(password.c_str(), salt.c_str(), &data);

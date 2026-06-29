@@ -29,10 +29,7 @@ $ export OPENAI_API_KEY="your_api_key_here"
 $ python translate_docs.py  # Try -h to see the available options.
 ```
 
-> [!NOTE]
-> The paths of local HTML links differ between the Japanese and English versions.
-
-## Test locally
+## Local Test
 
 1. Start the MkDocs server.
 
@@ -49,4 +46,11 @@ $ mkdocs serve --livereload
 ```bash
 $ mike deploy --push --update-aliases vx.x latest
 $ mike set-default --push latest
+```
+
+If you want to delete a specific version, execute:
+
+```bash
+$ mike list
+$ mike delete vx.x --push
 ```

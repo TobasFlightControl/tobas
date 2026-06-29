@@ -21,6 +21,7 @@ struct Gnss
   Eigen::Matrix3d position_covariance;
   tobas::kdl::Vector ground_speed;
   Eigen::Matrix3d velocity_covariance;
+  uint8_t num_satellites_used;
 
   using SharedPtr = std::shared_ptr<Gnss>;
   using ConstSharedPtr = std::shared_ptr<const Gnss>;
@@ -46,6 +47,7 @@ struct rclcpp::TypeAdapter<tobas_msgs::Gnss, tobas_msgs::msg::Gnss>
     tobas_eigen_msgs::Matrix3dAdapter::convert_to_ros_message(src.position_covariance, dst.position_covariance);
     tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(src.ground_speed, dst.ground_speed);
     tobas_eigen_msgs::Matrix3dAdapter::convert_to_ros_message(src.velocity_covariance, dst.velocity_covariance);
+    dst.num_satellites_used = src.num_satellites_used;
   }
 
   static void convert_to_custom(const ros_message_type& src, custom_type& dst)
@@ -58,6 +60,7 @@ struct rclcpp::TypeAdapter<tobas_msgs::Gnss, tobas_msgs::msg::Gnss>
     tobas_eigen_msgs::Matrix3dAdapter::convert_to_custom(src.position_covariance, dst.position_covariance);
     tobas_kdl_msgs::VectorAdapter::convert_to_custom(src.ground_speed, dst.ground_speed);
     tobas_eigen_msgs::Matrix3dAdapter::convert_to_custom(src.velocity_covariance, dst.velocity_covariance);
+    dst.num_satellites_used = src.num_satellites_used;
   }
 };
 

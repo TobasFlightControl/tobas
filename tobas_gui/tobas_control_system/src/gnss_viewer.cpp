@@ -71,7 +71,7 @@ void GnssViewerWidget::setNSats(int nsats)
 void GnssViewerWidget::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss)
 {
   setStatus(gnss->fix_type);
-  setNSats(-1);  // TODO
+  setNSats(gnss->num_satellites_used);
 }
 }  // namespace ctrl
 }  // namespace gui

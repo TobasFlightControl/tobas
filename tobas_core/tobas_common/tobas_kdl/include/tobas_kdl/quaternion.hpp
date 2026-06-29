@@ -95,8 +95,8 @@ inline Quaternion Quaternion::AngleAxis(const Vector& a)
   }
 
   const auto axis = a / angle;
-  const auto mag = ::sin(angle / 2);
-  return Quaternion(mag * axis.x(), mag * axis.y(), mag * axis.z(), ::cos(angle / 2));
+  const auto mag = std::sin(angle / 2);
+  return Quaternion(mag * axis.x(), mag * axis.y(), mag * axis.z(), std::cos(angle / 2));
 }
 
 inline Quaternion Quaternion::RPY(double roll, double pitch, double yaw)
@@ -126,7 +126,7 @@ inline double Quaternion::squaredNorm() const
 
 inline double Quaternion::norm() const
 {
-  return ::sqrt(this->squaredNorm());
+  return std::sqrt(this->squaredNorm());
 }
 
 inline Quaternion Quaternion::normalize() const

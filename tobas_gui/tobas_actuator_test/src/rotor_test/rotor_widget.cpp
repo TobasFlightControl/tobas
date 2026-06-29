@@ -73,8 +73,6 @@ void RotorWidget::reset()
 {
   const QSignalBlocker block(this);
 
-  text_->clear();
-
   cur_rpm_meter_->setValue(0);
   tar_rpm_slider_->setValue(0);
   gain_slider_->setValue(0);

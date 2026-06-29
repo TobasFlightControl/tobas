@@ -7,7 +7,7 @@
 
 namespace tobas
 {
-enum struct TurningDirection
+enum class TurningDirection
 {
   CCW,
   CW,

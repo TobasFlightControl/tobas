@@ -3,8 +3,10 @@
 
 #pragma once
 
+#include <cstddef>
 #include <cstdint>
 #include <iostream>
+#include <vector>
 
 namespace tobas
 {
@@ -284,7 +286,60 @@ struct NAV_RESETODO : public Payload
 
 struct NAV_SAT : public Payload
 {
-  // TODO
+  struct Satellite
+  {
+    uint8_t gnssId;  // GNSS identifier for assignment
+    uint8_t svId;    // Satellite identifier for assignment
+    uint8_t cno;     // Carrier to noise ratio [dB-Hz]
+    int8_t elev;     // Elevation [deg]
+    int16_t azim;    // Azimuth [deg]
+    double prRes;    // Pseudorange residual [m]
+    enum QualityIndicator : uint8_t
+    {
+      NO_SIGNAL = 0,
+      SEARCHING_SIGNAL = 1,
+      SIGNAL_ACQUIRED = 2,
+      SIGNAL_DETECTED_BUT_UNUSABLE = 3,
+      CODE_LOCKED_AND_TIME_SYNCHRONIZED = 4,
+      CODE_AND_CARRIER_LOCKED_AND_TIME_SYNCHRONIZED = 5,
+    } qualityInd;  // Signal quality indicator
+    bool svUsed;   // Signal in the subset specified in Signal Identifiers is currently being used for navigation
+    enum Health : uint8_t
+    {
+      UNKNOWN = 0,
+      HEALTHY = 1,
+      UNHEALTHY = 2,
+    } health;       // Signal health flag
+    bool diffCorr;  // Differential correction data is available for this SV
+    bool smoothed;  // Carrier smoothed pseudorange used
+    enum OrbitSource : uint8_t
+    {
+      NO_ORBIT_INFORMATION_AVAILABLE = 0,
+      EPHEMERIS_USED = 1,
+      ALMANAC_USED = 2,
+      ASSIST_NOW_OFFLINE_ORBIT_USED = 3,
+      ASSIST_NOW_AUTONOMOUS_ORBIT_USED = 4,
+      OTHER_ORBIT_INFORMATION_USED = 5,
+    } orbitSource;        // Orbit source
+    bool ephAvail;        // Ephemeris is available for this SV
+    bool almAvail;        // almanac is available for this SV
+    bool anoAvail;        // AssistNow Offline data is available for this SV
+    bool aopAvail;        // AssistNow Autonomous data is available for this SV
+    bool sbasCorrUsed;    // SBAS corrections have been used
+    bool rtcmCorrUsed;    // RTCM corrections have been used
+    bool slasCorrUsed;    // QZSS SLAS corrections have been used
+    bool spartnCorrUsed;  // SPARTN corrections have been used
+    bool prCorrUsed;      // Pseudorange corrections have been used
+    bool crCorrUsed;      // Carrier range corrections have been used
+    bool doCorrUsed;      // Range rate (Doppler) corrections have been used
+    bool clasCorrUsed;    // CLAS corrections have been used
+  };
+
+  uint32_t iTOW;    // GPS time of week [ms]
+  uint8_t version;  // Message version
+  uint8_t numSvs;   // Number of satellites
+
+  std::vector<Satellite> satellites;
 
   void decode(const uint8_t* p) override;
   void print(std::ostream& os) const override;

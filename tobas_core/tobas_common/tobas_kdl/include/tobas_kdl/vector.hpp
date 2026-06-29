@@ -268,7 +268,7 @@ inline Vector Vector::hadamard(const Vector& rhs) const
 
 inline double Vector::argument(const Vector& rhs) const
 {
-  return ::acos(this->normalized().dot(rhs.normalized()));
+  return std::acos(this->normalized().dot(rhs.normalized()));
 }
 
 inline bool Vector::isPerpendicular(const Vector& rhs) const

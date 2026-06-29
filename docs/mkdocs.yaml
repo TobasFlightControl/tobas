@@ -68,13 +68,26 @@ plugins:
       docs_structure: folder
       reconfigure_material: true
       languages:
-        - locale: ja
-          name: 日本語
-          default: true
-          build: true
         - locale: en
           name: English
+          default: true
           build: true
+          theme:
+            palette:
+              - media: "(prefers-color-scheme: light)"
+                scheme: default
+                primary: teal
+                accent: amber
+                toggle:
+                  icon: material/weather-night
+                  name: Switch to dark mode
+              - media: "(prefers-color-scheme: dark)"
+                scheme: slate
+                primary: teal
+                accent: amber
+                toggle:
+                  icon: material/weather-sunny
+                  name: Switch to light mode
           nav_translations:
             スタートガイド: Getting Started
             インストール: Installation
@@ -89,12 +102,16 @@ plugins:
             追加情報: Additional Information
             UADFとは: What is UADF
             慣性モーメント: Inertia Moment
+            RPMフィルタ: RPM Filter
             3Dモデル: 3D Models
             システム構成: System Architecture
             トラブルシューティング: Troubleshooting
             リリース: Release
             リリース一覧: Releases
             プロセス: Process
+        - locale: ja
+          name: 日本語
+          build: true
 
 nav:
   - Tobas: index.md # Required
@@ -112,6 +129,7 @@ nav:
   - 追加情報:
       - UADFとは: additional_information/what_is_uadf.md
       - 慣性モーメント: additional_information/inertia_moment.md
+      - RPMフィルタ: additional_information/rpm_filter.md
       - 3Dモデル: additional_information/cad_models.md
       - システム構成: additional_information/system_architecture.md
       - トラブルシューティング: additional_information/troubleshooting.md
@@ -140,3 +158,8 @@ extra:
 # https://squidfunk.github.io/mkdocs-material/customization/?h=css#additional-css
 extra_css:
   - stylesheets/extra.css
+
+# https://squidfunk.github.io/mkdocs-material/customization/?h=css#additional-javascript
+extra_javascript:
+  - javascripts/mathjax.js
+  - https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js

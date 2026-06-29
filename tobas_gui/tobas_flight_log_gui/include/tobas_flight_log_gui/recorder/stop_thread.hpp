@@ -17,7 +17,7 @@ class RecordStopThread : public QThread
   Q_OBJECT
 
 Q_SIGNALS:
-  void finished(bool success, const QString& message);
+  void finished(bool success, const QString& message, const QString& log_path);
 
 public:
   explicit RecordStopThread(rclcpp::Node::SharedPtr node);

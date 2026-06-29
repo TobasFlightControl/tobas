@@ -8,17 +8,19 @@
 
 #include <tobas_drone_core/drone.hpp>
 #include <tobas_drone_core/propulsion_system/electric_propulsion_system/electric_propulsion_system.hpp>
+#include <tobas_gui_common/project_paths.hpp>
+#include <tobas_path_tools/join.hpp>
 #include <tobas_ros2_tools/register.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_rqt_bridge/bridge.hpp>
 
-#include <std_srvs/srv/trigger.hpp>
+#include <tobas_constants/hardware.hpp>
+#include <tobas_dparam_client/dparam_client.hpp>
 
+#include <tobas_dparam_msgs/srv/get_params.hpp>
 #include <tobas_msgs/msg/arming.hpp>
 #include <tobas_msgs/msg/rotor_speed_array.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
-#include <tobas_msgs/srv/get_rotor_control_gains.hpp>
-#include <tobas_msgs/srv/set_rotor_control_gains.hpp>
 
 #include "../base.hpp"
 #include "./rotor_widget.hpp"
@@ -38,7 +40,6 @@ class RotorTestWidget : public BaseWidget
 
   static constexpr int kButtonWidth = 100;
   static constexpr int kButtonHeight = 40;
-  static constexpr int kChannelSize = 8;    // TODO: ハードウェアの最大チャンネル数に合わせる
   static constexpr int kUpdatePeriod = 10;  // [ms]
   static constexpr auto kWaitForService = std::chrono::seconds(3);
 
@@ -49,7 +50,7 @@ public:
 
   void reset() override;
 
-  void updateInternalDataStructures();
+  void updateProject(const std::filesystem::path& proj_path);
 
   int numRegisteredChannels() const;
 
@@ -58,22 +59,21 @@ private:
   const RosQtBridge& bridge_;
   const Drone& drone_;
   ElectricPropulsionSystemConfig::ConstSharedPtr eprop_;
+  cmn::ProjectPaths proj_paths_;
 
   QPushButton* start_button_;
   QPushButton* stop_button_;
   QPushButton* save_button_;
 
-  std::array<bool, kChannelSize> registered_;
-  std::array<RotorWidget*, kChannelSize> rotor_widgets_;
+  std::array<bool, kMaxDshotChannels> registered_;
+  std::array<RotorWidget*, kMaxDshotChannels> rotor_widgets_;
 
   bool running_ = false;
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
 
   ros2::PublisherPtr<tobas_msgs::msg::RotorSpeedArray> tar_speeds_pub_;
-
-  ros2::SyncServiceClient<tobas_msgs::srv::GetRotorControlGains>::SharedPtr get_gains_sc_;
-  ros2::SyncServiceClient<tobas_msgs::srv::SetRotorControlGains>::SharedPtr set_gains_sc_;
-  ros2::SyncServiceClient<std_srvs::srv::Trigger>::SharedPtr save_gains_sc_;
+  dparam::DynamicParamClient::SharedPtr dparam_cli_;
+  ros2::SyncServiceClient<tobas_dparam_msgs::srv::GetParams>::SharedPtr get_params_sc_;
 
   QMetaObject::Connection rotor_states_conn_;
 

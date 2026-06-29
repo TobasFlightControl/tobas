@@ -92,7 +92,7 @@ public:
   /* Set the number of motor poles */
   bool setNumPoles(size_t ch, uint16_t num_poles) noexcept;
   /* Set the motor speed control gain (2 to the x-1 power). No feedback when 0 is specified. */
-  bool setSpeedControlGain(size_t ch, uint8_t gain) noexcept;
+  bool setRpmControlGain(size_t ch, uint8_t gain) noexcept;
 
   /* Get the validity of the telemetry */
   bool getValidity(size_t ch) noexcept;

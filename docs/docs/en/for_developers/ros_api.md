@@ -29,7 +29,7 @@ float64 voltage  # [V]
 float64 current  # [A]
 ```
 
-### engine_state (tobas_msgs/EngineState)
+#### engine_state (tobas_msgs/EngineState)
 
 Engine status.
 
@@ -197,19 +197,22 @@ uint8 GPS_DEAD_RECHONING_COMBINED = 4
 uint8 TIME_ONLY_FIX = 5
 
 # Position
-float64 latitude                                # [deg]
-float64 longitude                               # [deg]
-float64 altitude                                # [m]
-tobas_eigen_msgs/Matrix3d position_covariance   # [m^2]
+float64 latitude                               # [deg]
+float64 longitude                              # [deg]
+float64 altitude                               # [m]
+tobas_eigen_msgs/Matrix3d position_covariance  # [m^2]
 	float64[9] data
 
 # Velocity
-tobas_kdl_msgs/Vector ground_speed                 # [m/s]
+tobas_kdl_msgs/Vector ground_speed             # [m/s]
 	float64 x
 	float64 y
 	float64 z
-tobas_eigen_msgs/Matrix3d velocity_covariance      # [m^2/s^2]
+tobas_eigen_msgs/Matrix3d velocity_covariance  # [m^2/s^2]
 	float64[9] data
+
+# Status
+uint8 num_satellites_used  # The number of satellites used in NAV solution
 ```
 
 #### rotor_states (tobas_msgs/RotorStateArray)

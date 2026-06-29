@@ -85,7 +85,7 @@ void ObjectAvoidance::calculateRepulsiveForce()
       const auto oz = it.getZ();
 
       const auto dist_sq = math::sqr(ox) + math::sqr(oy) + math::sqr(oz);
-      const auto dist = sqrt(dist_sq);
+      const auto dist = std::sqrt(dist_sq);
 
       if (dist < min_safety_distance_ && dist > 1e-3) {
         const auto mag = repulsive_gain_ * (1.0 / dist - 1.0 / min_safety_distance_) * (1.0 / dist_sq);

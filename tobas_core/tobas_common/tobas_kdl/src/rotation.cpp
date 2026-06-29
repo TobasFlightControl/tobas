@@ -16,22 +16,22 @@ namespace kdl
 {
 Rotation Rotation::RotX(double angle)
 {
-  const auto cs = cos(angle);
-  const auto sn = sin(angle);
+  const auto cs = std::cos(angle);
+  const auto sn = std::sin(angle);
   return Rotation(1, 0, 0, 0, cs, -sn, 0, sn, cs);
 }
 
 Rotation Rotation::RotY(double angle)
 {
-  const auto cs = cos(angle);
-  const auto sn = sin(angle);
+  const auto cs = std::cos(angle);
+  const auto sn = std::sin(angle);
   return Rotation(cs, 0, sn, 0, 1, 0, -sn, 0, cs);
 }
 
 Rotation Rotation::RotZ(double angle)
 {
-  const auto cs = cos(angle);
-  const auto sn = sin(angle);
+  const auto cs = std::cos(angle);
+  const auto sn = std::sin(angle);
   return Rotation(cs, -sn, 0, sn, cs, 0, 0, 0, 1);
 }
 
@@ -41,10 +41,10 @@ Rotation Rotation::Rot(const Vector& axis, double angle)
   assert(math::isClose(axis.norm(), 1.));
 
   // The formula
-  // R(n, θ) = n n^T + (E - n n^T)) cos(θ) + skew(n) sin(θ) = E + skew(n) sin(θ) + skew(n)^2 (1 - cos(θ))
+  // R(n, θ) = n n^T + (E - n n^T)) std::cos(θ) + skew(n) sin(θ) = E + skew(n) sin(θ) + skew(n)^2 (1 - std::cos(θ))
   // can be found by multiplying it with an arbitrary vector p and noting that this vector is rotated.
-  const auto ct = cos(angle);
-  const auto st = sin(angle);
+  const auto ct = std::cos(angle);
+  const auto st = std::sin(angle);
   const auto vt = 1 - ct;
   const auto m_vt_0 = vt * axis.x();
   const auto m_vt_1 = vt * axis.y();
@@ -75,12 +75,12 @@ Rotation Rotation::Rot(const Vector& vec)
 
 Rotation Rotation::RPY(double roll, double pitch, double yaw)
 {
-  const auto ca = cos(yaw);
-  const auto sa = sin(yaw);
-  const auto cb = cos(pitch);
-  const auto sb = sin(pitch);
-  const auto cc = cos(roll);
-  const auto sc = sin(roll);
+  const auto ca = std::cos(yaw);
+  const auto sa = std::sin(yaw);
+  const auto cb = std::cos(pitch);
+  const auto sb = std::sin(pitch);
+  const auto cc = std::cos(roll);
+  const auto sc = std::sin(roll);
 
   const auto xx = ca * cb;
   const auto yx = ca * sb * sc - sa * cc;
@@ -130,7 +130,7 @@ void Rotation::getQuaternion(double& x, double& y, double& z, double& w) const
 {
   const auto trace = data.trace();
   if (trace > EPS) {
-    const auto s = 0.5 / sqrt(trace + 1.);
+    const auto s = 0.5 / std::sqrt(trace + 1.);
     w = 0.25 / s;
     x = (data(2, 1) - data(1, 2)) * s;
     y = (data(0, 2) - data(2, 0)) * s;
@@ -138,21 +138,21 @@ void Rotation::getQuaternion(double& x, double& y, double& z, double& w) const
   }
   else {
     if (data(0, 0) > data(1, 1) && data(0, 0) > data(2, 2)) {
-      const auto s = 2. * sqrt(1. + data(0, 0) - data(1, 1) - data(2, 2));
+      const auto s = 2. * std::sqrt(1. + data(0, 0) - data(1, 1) - data(2, 2));
       w = (data(2, 1) - data(1, 2)) / s;
       x = 0.25 * s;
       y = (data(0, 1) + data(1, 0)) / s;
       z = (data(0, 2) + data(2, 0)) / s;
     }
     else if (data(1, 1) > data(2, 2)) {
-      const auto s = 2. * sqrt(1. + data(1, 1) - data(0, 0) - data(2, 2));
+      const auto s = 2. * std::sqrt(1. + data(1, 1) - data(0, 0) - data(2, 2));
       w = (data(0, 2) - data(2, 0)) / s;
       x = (data(0, 1) + data(1, 0)) / s;
       y = 0.25 * s;
       z = (data(1, 2) + data(2, 1)) / s;
     }
     else {
-      const auto s = 2. * sqrt(1. + data(2, 2) - data(0, 0) - data(1, 1));
+      const auto s = 2. * std::sqrt(1. + data(2, 2) - data(0, 0) - data(1, 1));
       w = (data(1, 0) - data(0, 1)) / s;
       x = (data(0, 2) + data(2, 0)) / s;
       y = (data(1, 2) + data(2, 1)) / s;
@@ -165,12 +165,12 @@ void Rotation::getRPY(double& roll, double& pitch, double& yaw) const
 {
   pitch = getPitch();
   if (std::abs(pitch) > (M_PI_2 - EPS)) {
-    yaw = atan2(-data(0, 1), data(1, 1));
+    yaw = std::atan2(-data(0, 1), data(1, 1));
     roll = 0.;
   }
   else {
-    roll = atan2(data(2, 1), data(2, 2));
-    yaw = atan2(data(1, 0), data(0, 0));
+    roll = std::atan2(data(2, 1), data(2, 2));
+    yaw = std::atan2(data(1, 0), data(0, 0));
   }
 }
 
@@ -218,19 +218,19 @@ std::pair<double, Vector> Rotation::getAngleAxis() const
     double x, y, z;
     if (xx > yy && xx > zz) {
       // data(0, 0) is the largest diagonal term
-      x = sqrt(xx);
+      x = std::sqrt(xx);
       y = xy / x;
       z = xz / x;
     }
     else if (yy > zz) {
       // data(1, 1) is the largest diagonal term
-      y = sqrt(yy);
+      y = std::sqrt(yy);
       x = xy / y;
       z = yz / y;
     }
     else {
       // data(2, 2) is the largest diagonal term so base result on this
-      z = sqrt(zz);
+      z = std::sqrt(zz);
       x = xz / z;
       y = yz / z;
     }
@@ -244,7 +244,7 @@ std::pair<double, Vector> Rotation::getAngleAxis() const
   const auto y = data(0, 2) - data(2, 0);
   const auto z = data(1, 0) - data(0, 1);
   const Vector axis(x, y, z);
-  const auto angle = atan2(axis.norm() / 2, f);
+  const auto angle = std::atan2(axis.norm() / 2, f);
   return { angle, axis.normalized() };
 }
 }  // namespace kdl

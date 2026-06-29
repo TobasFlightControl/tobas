@@ -9,7 +9,6 @@
 #define NOT_IMPLEMENTED "Not implemented."
 #define NOT_RECEIVABLE "Not receivable."
 
-using namespace std;
 namespace ch = std::chrono;
 
 namespace tobas
@@ -76,27 +75,27 @@ bool ZEDF9P::enableSpiMessage(UbxClass cls, uint8_t id, bool enable)
 
   switch (cls) {
     case CLASS_ACK: {
-      cerr << NOT_RECEIVABLE << endl;
+      std::cerr << NOT_RECEIVABLE << std::endl;
       return false;
     }
     case CLASS_CFG: {
-      cerr << NOT_RECEIVABLE << endl;
+      std::cerr << NOT_RECEIVABLE << std::endl;
       return false;
     }
     case CLASS_INF: {
-      cerr << NOT_IMPLEMENTED << endl;  // TODO
+      std::cerr << NOT_IMPLEMENTED << std::endl;  // TODO
       return false;
     }
     case CLASS_LOG: {
-      cerr << NOT_IMPLEMENTED << endl;  // TODO
+      std::cerr << NOT_IMPLEMENTED << std::endl;  // TODO
       return false;
     }
     case CLASS_MGA: {
-      cerr << NOT_IMPLEMENTED << endl;  // TODO
+      std::cerr << NOT_IMPLEMENTED << std::endl;  // TODO
       return false;
     }
     case CLASS_MON: {
-      cerr << NOT_IMPLEMENTED << endl;  // TODO
+      std::cerr << NOT_IMPLEMENTED << std::endl;  // TODO
       return false;
     }
     case CLASS_NAV: {
@@ -144,7 +143,7 @@ bool ZEDF9P::enableSpiMessage(UbxClass cls, uint8_t id, bool enable)
           cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x91);  // CFG-MSGOUT-UBX_NAV_RELPOSNED_SPI
           break;
         case NAV_RESETODO:
-          cerr << NOT_RECEIVABLE << endl;
+          std::cerr << NOT_RECEIVABLE << std::endl;
           return false;
         case NAV_SAT:
           cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x19);  // CFG-MSGOUT-UBX_NAV_SAT_SPI
@@ -192,33 +191,33 @@ bool ZEDF9P::enableSpiMessage(UbxClass cls, uint8_t id, bool enable)
           cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x46);  // CFG-MSGOUT-UBX_NAV_VELNED_SPI
           break;
         default:
-          cerr << NOT_IMPLEMENTED << endl;  // TODO
+          std::cerr << NOT_IMPLEMENTED << std::endl;  // TODO
           return false;
       }
       break;
     }
     case CLASS_NAV2: {
-      cerr << NOT_IMPLEMENTED << endl;  // TODO
+      std::cerr << NOT_IMPLEMENTED << std::endl;  // TODO
       return false;
     }
     case CLASS_RXM: {
-      cerr << NOT_IMPLEMENTED << endl;  // TODO
+      std::cerr << NOT_IMPLEMENTED << std::endl;  // TODO
       return false;
     }
     case CLASS_SEC: {
-      cerr << NOT_IMPLEMENTED << endl;  // TODO
+      std::cerr << NOT_IMPLEMENTED << std::endl;  // TODO
       return false;
     }
     case CLASS_TIM: {
-      cerr << NOT_IMPLEMENTED << endl;  // TODO
+      std::cerr << NOT_IMPLEMENTED << std::endl;  // TODO
       return false;
     }
     case CLASS_UPD: {
-      cerr << NOT_IMPLEMENTED << endl;  // TODO
+      std::cerr << NOT_IMPLEMENTED << std::endl;  // TODO
       return false;
     }
     default: {
-      cerr << "Invalid UBX class type: " << hex << cls << endl;
+      std::cerr << "Invalid UBX class type: " << std::hex << cls << std::endl;
       return false;
     }
   }
@@ -242,29 +241,29 @@ bool ZEDF9P::enableGps()
 {
   // Enable GPS
   if (!enableGps(true)) {
-    cerr << "Failed to enable GPS." << endl;
+    std::cerr << "Failed to enable GPS." << std::endl;
     return false;
   }
 
   // Enable L1 band
   if (!enableGpsL1()) {
-    cerr << "Failed to enable GPS L1." << endl;
+    std::cerr << "Failed to enable GPS L1." << std::endl;
     return false;
   }
 
   // Try to enable L2 band
   if (enableGpsL2()) {
-    cout << "GPS L1/L2 is enabled." << endl;
+    std::cout << "GPS L1/L2 is enabled." << std::endl;
     return true;
   }
 
   // Try to enable L5 band
   if (enableGpsL5()) {
-    cout << "GPS L1/L5 is enabled." << endl;
+    std::cout << "GPS L1/L5 is enabled." << std::endl;
     return true;
   }
 
-  cerr << "Failed to enable either GPS L2 or L5 bands." << endl;
+  std::cerr << "Failed to enable either GPS L2 or L5 bands." << std::endl;
   return false;
 }
 
@@ -277,13 +276,13 @@ bool ZEDF9P::enableSbas()
 {
   // Enable SBAS
   if (!enableSbas(true)) {
-    cerr << "Failed to enable SBAS." << endl;
+    std::cerr << "Failed to enable SBAS." << std::endl;
     return false;
   }
 
   // Enable L1 band
   if (!enableSbasL1()) {
-    cerr << "Failed to enable SBAS L1." << endl;
+    std::cerr << "Failed to enable SBAS L1." << std::endl;
     return false;
   }
 
@@ -299,29 +298,29 @@ bool ZEDF9P::enableGalileo()
 {
   // Enable Galileo
   if (!enableGalileo(true)) {
-    cerr << "Failed to enable Galileo." << endl;
+    std::cerr << "Failed to enable Galileo." << std::endl;
     return false;
   }
 
   // Enable L1 band
   if (!enableGalileoL1()) {
-    cerr << "Failed to enable Galileo L1." << endl;
+    std::cerr << "Failed to enable Galileo L1." << std::endl;
     return false;
   }
 
   // Try to enable L2 band
   if (enableGalileoL2()) {
-    cout << "Galileo L1/L2 is enabled." << endl;
+    std::cout << "Galileo L1/L2 is enabled." << std::endl;
     return true;
   }
 
   // Try to enable L5 band
   if (enableGalileoL5()) {
-    cout << "Galileo L1/L5 is enabled." << endl;
+    std::cout << "Galileo L1/L5 is enabled." << std::endl;
     return true;
   }
 
-  cerr << "Failed to enable either Galileo L2 or L5 bands." << endl;
+  std::cerr << "Failed to enable either Galileo L2 or L5 bands." << std::endl;
   return false;
 }
 
@@ -334,29 +333,29 @@ bool ZEDF9P::enableBeiDou()
 {
   // Enable BeiDou
   if (!enableBeiDou(true)) {
-    cerr << "Failed to enable BeiDou." << endl;
+    std::cerr << "Failed to enable BeiDou." << std::endl;
     return false;
   }
 
   // Enable L1 band
   if (!enableBeiDouL1()) {
-    cerr << "Failed to enable BeiDou L1." << endl;
+    std::cerr << "Failed to enable BeiDou L1." << std::endl;
     return false;
   }
 
   // Try to enable L2 band
   if (enableBeiDouL2()) {
-    cout << "BeiDou L1/L2 is enabled." << endl;
+    std::cout << "BeiDou L1/L2 is enabled." << std::endl;
     return true;
   }
 
   // Try to enable L5 band
   if (enableBeiDouL5()) {
-    cout << "BeiDou L1/L5 is enabled." << endl;
+    std::cout << "BeiDou L1/L5 is enabled." << std::endl;
     return true;
   }
 
-  cerr << "Failed to enable either BeiDou L2 or L5 bands." << endl;
+  std::cerr << "Failed to enable either BeiDou L2 or L5 bands." << std::endl;
   return false;
 }
 
@@ -369,29 +368,29 @@ bool ZEDF9P::enableQzss()
 {
   // Enable QZSS
   if (!enableQzss(true)) {
-    cerr << "Failed to enable QZSS." << endl;
+    std::cerr << "Failed to enable QZSS." << std::endl;
     return false;
   }
 
   // Enable L1 band
   if (!enableQzssL1()) {
-    cerr << "Failed to enable QZSS L1." << endl;
+    std::cerr << "Failed to enable QZSS L1." << std::endl;
     return false;
   }
 
   // Try to enable L2 band
   if (enableQzssL2()) {
-    cout << "QZSS L1/L2 is enabled." << endl;
+    std::cout << "QZSS L1/L2 is enabled." << std::endl;
     return true;
   }
 
   // Try to enable L5 band
   if (enableQzssL5()) {
-    cout << "QZSS L1/L5 is enabled." << endl;
+    std::cout << "QZSS L1/L5 is enabled." << std::endl;
     return true;
   }
 
-  cerr << "Failed to enable either QZSS L2 or L5 bands." << endl;
+  std::cerr << "Failed to enable either QZSS L2 or L5 bands." << std::endl;
   return false;
 }
 
@@ -404,23 +403,23 @@ bool ZEDF9P::enableGlonass()
 {
   // Enable GLONASS
   if (!enableGlonass(true)) {
-    cerr << "Failed to enable GLONASS." << endl;
+    std::cerr << "Failed to enable GLONASS." << std::endl;
     return false;
   }
 
   // Enable L1 band
   if (!enableGlonassL1()) {
-    cerr << "Failed to enable GLONASS L1." << endl;
+    std::cerr << "Failed to enable GLONASS L1." << std::endl;
     return false;
   }
 
   // Try to enable L2 band
   if (enableGlonassL2()) {
-    cout << "GLONASS L1/L2 is enabled." << endl;
+    std::cout << "GLONASS L1/L2 is enabled." << std::endl;
     return true;
   }
 
-  cout << "GLONASS L1 is enabled." << endl;
+  std::cout << "GLONASS L1 is enabled." << std::endl;
   return true;
 }
 
@@ -433,17 +432,17 @@ bool ZEDF9P::enableNavIc()
 {
   // Enable NavIC
   if (!enableNavIc(true)) {
-    cerr << "Failed to enable NavIC." << endl;
+    std::cerr << "Failed to enable NavIC." << std::endl;
     return false;
   }
 
   // Enable L5 band
   if (!enableNavIcL5()) {
-    cerr << "Failed to enable NavIC L5." << endl;
+    std::cerr << "Failed to enable NavIC L5." << std::endl;
     return false;
   }
 
-  cout << "NavIC L5 is enabled." << endl;
+  std::cout << "NavIC L5 is enabled." << std::endl;
   return false;
 }
 
@@ -505,8 +504,8 @@ bool ZEDF9P::waitForAcknowledge(UbxClass cls, uint8_t id)
   payload::ACK_ACK ack;
   payload::ACK_NAK nak;
 
-  const auto cls_str = to_string(int(cls));
-  const auto id_str = to_string(int(id));
+  const auto cls_str = std::to_string(int(cls));
+  const auto id_str = std::to_string(int(id));
 
   const auto deadline = ch::steady_clock::now() + kWaitForGnssAck;
 
@@ -527,7 +526,7 @@ bool ZEDF9P::waitForAcknowledge(UbxClass cls, uint8_t id)
           return true;
         }
         else {
-          cerr << "An acknowledment message for an unspecified message is received." << endl;
+          std::cerr << "An acknowledment message for an unspecified message is received." << std::endl;
           return false;
         }
 
@@ -537,23 +536,23 @@ bool ZEDF9P::waitForAcknowledge(UbxClass cls, uint8_t id)
         nak.decode(payload());
 
         if (nak.clsID == cls && nak.msgID == id) {
-          cerr << "Configuration was rejected: (class, id) = (" << cls_str << ", " << id_str << ")" << endl;
+          std::cerr << "Configuration was rejected: (class, id) = (" << cls_str << ", " << id_str << ")" << std::endl;
           return false;
         }
         else {
-          cerr << "A non-acknowledment message for an unspecified message is received." << endl;
+          std::cerr << "A non-acknowledment message for an unspecified message is received." << std::endl;
           return false;
         }
 
         break;
 
       default:
-        cerr << "Unexpected ACK ID: " << (int)latestId() << endl;
+        std::cerr << "Unexpected ACK ID: " << (int)latestId() << std::endl;
         break;
     }
   }
 
-  cerr << "Acknowledment message not received: (class, id) = (" << cls_str << ", " << id_str << ")" << endl;
+  std::cerr << "Acknowledment message not received: (class, id) = (" << cls_str << ", " << id_str << ")" << std::endl;
   return false;
 }
 
@@ -566,7 +565,7 @@ bool ZEDF9P::verifyMessage() const
 {
   // Sync chars
   if (*scanner_.getSync1() != kUbxSync1 || *scanner_.getSync2() != kUbxSync2) {
-    cerr << "The current message is not UBX format." << endl;
+    std::cerr << "The current message is not UBX format." << std::endl;
     return false;
   }
 
@@ -577,7 +576,7 @@ bool ZEDF9P::verifyMessage() const
     CK_B += CK_A;
   }
   if (CK_A != *scanner_.getChecksumA() || CK_B != *scanner_.getChecksumB()) {
-    cerr << "Checksum failed." << endl;
+    std::cerr << "Checksum failed." << std::endl;
     return false;
   }
 
@@ -734,7 +733,7 @@ ZEDF9P::CheckSum ZEDF9P::computeChecksum(const uint8_t* message, size_t checksum
 
 size_t ZEDF9P::spliceMemory(uint8_t* dest, const void* src, size_t size, size_t dest_offset)
 {
-  memmove(dest + dest_offset, src, size);
+  std::memmove(dest + dest_offset, src, size);
   return dest_offset + size;
 }
 

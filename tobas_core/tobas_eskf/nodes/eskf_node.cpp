@@ -15,7 +15,6 @@
 #include <tobas_node/node.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_std_tools/gnss.hpp>
-#include <tobas_std_tools/standard_atmosphere.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_time_tools/util.hpp>
 
@@ -58,35 +57,41 @@ class ErrorStateKalmanFilterNode : public BaseNode
   // Other constants
   static constexpr double kAccurateAttitudeStddevThresh = 0.05;  // [rad]
   static constexpr size_t kInitMagCount = 100;
+  static constexpr size_t kInitBaroCount = 100;
 
 public:
   explicit ErrorStateKalmanFilterNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  // 固定値
-  struct GeoPoint
-  {
-    double latitude;
-    double longitude;
-    double altitude;
-  } gnss_origin_;
-  double alt_0_baro_;
+  eskf::ErrorStateKalmanFilter eskf_;
 
   Vector3d pos_meas_;
   Matrix6d gnss_cov_ = Matrix6d::Zero();
   tobas_msgs::Imu::ConstSharedPtr imu_raw_, imu_filt_;
   tobas_msgs::MagneticField::ConstSharedPtr mag_;
-  tobas_msgs::msg::FluidPressure::ConstSharedPtr baro_;
   tobas_msgs::Gnss::ConstSharedPtr gnss_;
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
-  bool mag_ref_set_ = false;  // 地磁気の参照値が設定されているかどうか
   bool gnss_fix_ = false;
   double gnss_anomaly_score_ = 0.;
 
-  eskf::ErrorStateKalmanFilter eskf_;
-
+  // 地磁気参照値関連
+  bool mag_ref_set_ = false;
   size_t init_mag_cnt_ = 0;
   std::array<algo::Kahan<double>, 3> init_mag_sum_;
+
+  // 気圧高度原点関連
+  double baro_alt_origin_;  // 気圧高度原点
+  bool baro_alt_origin_set_ = false;
+  size_t init_pres_cnt_ = 0;
+  algo::Kahan<double> init_pres_sum_;
+
+  // GNSS座標原点関連
+  struct GeoPoint
+  {
+    double latitude;
+    double longitude;
+    double altitude;
+  } gnss_origin_;  // GNSS座標原点
 
   // Static parameters
   std::string frame_id_;
@@ -100,23 +105,23 @@ private:
   bool do_gyro_bias_estimation_;
   bool do_mag_hard_bias_estimation_;
   bool do_mag_soft_bias_estimation_;
+  bool do_baro_alt_bias_estimation_;
   bool do_grav_estimation_;
   Vector3d imu_offset_;   // [m] ルートリンクに対するIMUの位置 (Local)
-  Vector3d baro_offset_;  // [m] ルートリンクに対する気圧センサの位置 (Local)
   Vector3d gnss_offset_;  // [m] ルートリンクに対するGNSSレシーバの位置 (Local)
 
   // Dynamic parameters
-  Matrix3d fixed_acc_cov_ = Matrix3d::Identity();       // [m^2/s^4]
-  Matrix3d fixed_gyro_cov_ = Matrix3d::Identity();      // [rad^2/s^2]
-  Matrix3d fixed_mag_cov_ = Matrix3d::Identity();       // [-]
-  double fixed_head_var_ = 1.;                          // [rad^2]
-  double fixed_baro_alt_var_ = 1.;                      // [m^2]
-  Matrix3d fixed_gnss_pos_cov_ = Matrix3d::Identity();  // [m^2]
-  Matrix3d fixed_gnss_vel_cov_ = Matrix3d::Identity();  // [m^2/s^2]
-  Matrix3d fixed_grav_cov_ = Matrix3d::Identity();      // [m^2/s^4]
-  double grav_stddev_min_ = 1.;                         // [m/s^2]
-  double grav_stddev_max_ = 1.;                         // [m/s^2]
-  double grav_stddev_rate_ = 0.;                        // [-]
+  Matrix3d fixed_acc_cov_ = Matrix3d::Zero();       // [m^2/s^4]
+  Matrix3d fixed_gyro_cov_ = Matrix3d::Zero();      // [rad^2/s^2]
+  Matrix3d fixed_mag_cov_ = Matrix3d::Zero();       // [-]
+  double fixed_head_var_;                           // [rad^2]
+  double fixed_baro_alt_var_;                       // [m^2]
+  Matrix3d fixed_gnss_pos_cov_ = Matrix3d::Zero();  // [m^2]
+  Matrix3d fixed_gnss_vel_cov_ = Matrix3d::Zero();  // [m^2/s^2]
+  Matrix3d fixed_grav_cov_ = Matrix3d::Zero();      // [m^2/s^4]
+  double grav_stddev_min_;                          // [m/s^2]
+  double grav_stddev_max_;                          // [m/s^2]
+  double grav_stddev_rate_;                         // [-]
 
   // Publishers
   ros2::PublisherPtr<tobas_msgs::OdometryWithCovarianceStamped> odom_pub_;
@@ -142,6 +147,10 @@ private:
   tf2_ros::TransformBroadcaster tf_br_;
 
   void getStaticRosParams();
+  void setupTransformMessage();
+  void registerDynamicRosParams();
+  void registerRosInterfaces();
+
   void setMagneticFieldRef(const Vector3d& mag_W);
   void fillOdometryMsg(tobas_msgs::OdometryWithCovarianceStamped& odom) const;
   void publishMagRef(const Vector3d& mag_W) const;
@@ -154,6 +163,7 @@ private:
   double initGyroBiasStddev() const;
   double initMagHardBiasStddev() const;
   double initMagSoftBiasStddev() const;
+  double initBaroAltBiasStddev() const;
   double initGravBiasStddev() const;
 
   bool fixedAccMeasNoiseStddevCb(const double& p);
@@ -171,6 +181,7 @@ private:
   bool gyroBiasProcNoiseDensityCb(const double& p);
   bool magHardBiasProcNoiseDensityCb(const double& p);
   bool magSoftBiasProcNoiseDensityCb(const double& p);
+  bool baroAltBiasProcNoiseDensityCb(const double& p);
   bool gravProcNoiseDensityCb(const double& ud_ug);
 
   void imuRawCb(const tobas_msgs::Imu::ConstSharedPtr& msg);
@@ -189,35 +200,77 @@ ErrorStateKalmanFilterNode::ErrorStateKalmanFilterNode(const rclcpp::NodeOptions
   : super(node::kObserver, nodeOptions_DParam(options)), tf_br_(this)
 {
   getStaticRosParams();
+  setupTransformMessage();
+  registerDynamicRosParams();
+  registerRosInterfaces();
+}
 
+void ErrorStateKalmanFilterNode::getStaticRosParams()
+{
+  frame_id_ = getStringParam("frame_id");
+
+  use_mag_ = getBoolParam("use_magnetometer");
+  use_baro_ = getBoolParam("use_barometer");
+  use_gnss_ = getBoolParam("use_gnss");
+  use_ext_pose_ = getBoolParam("use_external_pose");
+
+  adaptive_gnss_noise_ = getBoolParam("adaptive_gnss_noise");
+  adaptive_grav_noise_ = getBoolParam("adaptive_grav_noise");
+
+  do_acc_bias_estimation_ = getBoolParam("do_acc_bias_estimation");
+  do_gyro_bias_estimation_ = getBoolParam("do_gyro_bias_estimation");
+  do_mag_hard_bias_estimation_ = getBoolParam("do_mag_hard_bias_estimation");
+  do_mag_soft_bias_estimation_ = getBoolParam("do_mag_soft_bias_estimation");
+  do_baro_alt_bias_estimation_ = getBoolParam("do_baro_alt_bias_estimation");
+  do_grav_estimation_ = getBoolParam("do_gravity_estimation");
+
+  const auto imu_offset = getDoubleArrayParam("imu_offset");
+  const auto gnss_offset = getDoubleArrayParam("gnss_offset");
+  imu_offset_ = Map<const Vector3d>(imu_offset.data());
+  gnss_offset_ = Map<const Vector3d>(gnss_offset.data());
+}
+
+void ErrorStateKalmanFilterNode::setupTransformMessage()
+{
   // Fill the static part of the transform message
   tf_.header.frame_id = frame::kWorld;
   tf_.child_frame_id = frame_id_;
+}
 
-  // Register dynamic parameters
+void ErrorStateKalmanFilterNode::registerDynamicRosParams()
+{
   // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_ACC_NOISE
   addDynamicDoubleParam("acc_meas_noise_stddev", &self::fixedAccMeasNoiseStddevCb, this, 0.05, 20, 1, 20, " m/s^2");
+
   // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_GYR_NOISE
   addDynamicDoubleParam("gyro_meas_noise_stddev", &self::fixedGyroMeasNoiseStddevCb, this, 0.005, 20, 1, 20, " rad/s");
+
   // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_MAG_NOISE
   addDynamicDoubleParam("mag_meas_noise_stddev", &self::fixedMagMeasNoiseStddevCb, this, 5., 1, 1, 20, " uT");
+
   // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_HEAD_NOISE
   addDynamicDoubleParam("head_meas_noise_stddev", &self::fixedHeadMeasNoiseStddevCb, this, 0.05, 6, 1, 20, " rad");
+
   // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_BARO_NOISE
   addDynamicDoubleParam("baro_alt_meas_noise_stddev", &self::fixedBaroAltMeasNoiseStddevCb, this, 0.5, 7, 1, 30, " m");
+
   if (!adaptive_gnss_noise_) {
     // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_GPS_P_NOISE
     addDynamicDoubleParam(
       "gnss_pos_meas_noise_stddev", &self::fixedGnssPosMeasNoiseStddevCb, this, 0.1, 5, 1, 100, " m");
+
     // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_GPS_V_NOISE
     addDynamicDoubleParam(
       "gnss_vel_meas_noise_stddev", &self::fixedGnssVelMeasNoiseStddevCb, this, 0.1, 3, 1, 50, " m/s");
   }
+
   if (adaptive_grav_noise_) {
     addDynamicDoubleParam(
       "grav_meas_noise_stddev_min", &self::adaptiveGravMeasNoiseStddevMinCb, this, 0.01, 1, 0, 100, " m/s^2");
+
     addDynamicDoubleParam(
       "grav_meas_noise_stddev_max", &self::adaptiveGravMeasNoiseStddevMaxCb, this, 1., 20, 10, 100, " m/s^2");
+
     addDynamicDoubleParam("grav_meas_noise_stddev_rate", &self::adaptiveGravMeasNoiseStddevRateCb, this, 5., 20, 0, 100);
   }
   else {
@@ -244,11 +297,19 @@ ErrorStateKalmanFilterNode::ErrorStateKalmanFilterNode(const rclcpp::NodeOptions
     addDynamicDoubleParam(
       "mag_soft_bias_proc_noise_density", &self::magSoftBiasProcNoiseDensityCb, this, 0.1, 5, 0, 100, " nT/s/√Hz");
   }
+  if (do_baro_alt_bias_estimation_) {
+    // cf. https://github.com/PX4/PX4-Autopilot/blob/main/src/modules/ekf2/EKF/common.h (baro_bias_nsd)
+    addDynamicDoubleParam(
+      "baro_alt_bias_proc_noise_density", &self::baroAltBiasProcNoiseDensityCb, this, 0.01, 13, 0, 100, " m/s/√Hz");
+  }
   if (do_grav_estimation_) {
     addDynamicDoubleParam(
       "grav_noise_proc_noise_density", &self::gravProcNoiseDensityCb, this, 1., 15, 0, 50, " ug/s/√Hz");
   }
+}
 
+void ErrorStateKalmanFilterNode::registerRosInterfaces()
+{
   // Register publishers
   odom_pub_ = createPublisher<tobas_msgs::OdometryWithCovarianceStamped>(topic::kOdometry);
   mag_ref_pub_ = createPublisher<tobas_msgs::MagneticField>(topic::kMagRef, true, true);
@@ -277,32 +338,6 @@ ErrorStateKalmanFilterNode::ErrorStateKalmanFilterNode(const rclcpp::NodeOptions
   set_gnss_origin_ss_ = createService<SetOriginSrv>(service::kSetGnssOrigin, &self::setGnssOriginCb, this);
 }
 
-void ErrorStateKalmanFilterNode::getStaticRosParams()
-{
-  frame_id_ = getStringParam("frame_id");
-
-  use_mag_ = getBoolParam("use_magnetometer");
-  use_baro_ = getBoolParam("use_barometer");
-  use_gnss_ = getBoolParam("use_gnss");
-  use_ext_pose_ = getBoolParam("use_external_pose");
-
-  adaptive_gnss_noise_ = getBoolParam("adaptive_gnss_noise");
-  adaptive_grav_noise_ = getBoolParam("adaptive_grav_noise");
-
-  do_acc_bias_estimation_ = getBoolParam("do_acc_bias_estimation");
-  do_gyro_bias_estimation_ = getBoolParam("do_gyro_bias_estimation");
-  do_mag_hard_bias_estimation_ = getBoolParam("do_mag_hard_bias_estimation");
-  do_mag_soft_bias_estimation_ = getBoolParam("do_mag_soft_bias_estimation");
-  do_grav_estimation_ = getBoolParam("do_gravity_estimation");
-
-  const auto imu_offset = getDoubleArrayParam("imu_offset");
-  const auto baro_offset = getDoubleArrayParam("barometer_offset");
-  const auto gnss_offset = getDoubleArrayParam("gnss_offset");
-  imu_offset_ = Map<const Vector3d>(imu_offset.data());
-  baro_offset_ = Map<const Vector3d>(baro_offset.data());
-  gnss_offset_ = Map<const Vector3d>(gnss_offset.data());
-}
-
 void ErrorStateKalmanFilterNode::setMagneticFieldRef(const Vector3d& mag_W)
 {
   // 地磁気の参照値を設定
@@ -326,8 +361,8 @@ void ErrorStateKalmanFilterNode::setMagneticFieldRef(const Vector3d& mag_W)
     const auto& my = mag_G.y();
 
     // 新しい参照に基づくヨーを計算
-    const auto yaw_ref = atan2(mag_W.y(), mag_W.x());
-    const auto new_yaw = algo::wrapPi(yaw_ref - atan2(my, mx));
+    const auto yaw_ref = std::atan2(mag_W.y(), mag_W.x());
+    const auto new_yaw = algo::wrapPi(yaw_ref - std::atan2(my, mx));
 
     // ヨーのみ修正したクオータニオンを計算
     const auto new_q = eigen::quaternionFromRPY(old_roll, old_pitch, new_yaw);
@@ -345,7 +380,7 @@ void ErrorStateKalmanFilterNode::setMagneticFieldRef(const Vector3d& mag_W)
   // 地磁気の参照値を発行
   publishMagRef(mag_W);
 
-  TOBAS_INFO("Reference magnetic field is set to be: ", mag_W.transpose());
+  TOBAS_INFO("The reference magnetic field has been set to ", mag_W.transpose(), ".");
   mag_ref_set_ = true;
 }
 
@@ -424,6 +459,7 @@ void ErrorStateKalmanFilterNode::publishFeedback(const std_msgs::msg::Header& he
   feedback->gyro_bias = eskf_.getGyroBias();
   feedback->mag_hard_bias = eskf_.getMagHardBias();
   feedback->mag_soft_bias = eskf_.getMagSoftBias();
+  feedback->baro_alt_bias = eskf_.getBaroAltBias();
   feedback->gravity = eskf_.getGravity();
 
   // Variance
@@ -434,6 +470,7 @@ void ErrorStateKalmanFilterNode::publishFeedback(const std_msgs::msg::Header& he
   feedback->gyro_bias_cov = eskf_.getGyroBiasCovariance();
   feedback->mag_hard_bias_cov = eskf_.getMagHardBiasCovariance();
   feedback->mag_soft_bias_cov = eskf_.getMagSoftBiasCovariance();
+  feedback->baro_alt_bias_var = eskf_.getBaroAltBiasVariance();
   feedback->gravity_var = eskf_.getGravityVariance();
 
   // Other
@@ -453,7 +490,7 @@ double ErrorStateKalmanFilterNode::calcGravMeasNoiseStddev(const Vector3d& acc) 
   // 動的加速度が陽にモデルに含まれていない以上，その不確かさの決定はヒューリスティックにならざるを得ない．
   // 実用的には動作時の追従遅れと静止時の収束速度のトレードオフを考慮して決定するしかないだろう．
   const auto acc_norm_diff = std::abs(acc.norm() - eskf_.getGravity());  // TODO: モデルから推定した動的加速度を考慮
-  const auto grav_stddev = grav_stddev_min_ + grav_stddev_rate_ * acc_norm_diff;  // TODO: 他のプロファイルを検討
+  const auto grav_stddev = grav_stddev_min_ + grav_stddev_rate_ * acc_norm_diff;  // TODO: 他のプロファイルを検討？
   return std::min(grav_stddev, grav_stddev_max_);
 }
 
@@ -482,6 +519,11 @@ double ErrorStateKalmanFilterNode::initMagHardBiasStddev() const
 double ErrorStateKalmanFilterNode::initMagSoftBiasStddev() const
 {
   return do_mag_soft_bias_estimation_ ? 0.1 : 0.;
+}
+
+double ErrorStateKalmanFilterNode::initBaroAltBiasStddev() const
+{
+  return do_baro_alt_bias_estimation_ ? 0.1 : 0.;
 }
 
 double ErrorStateKalmanFilterNode::initGravBiasStddev() const
@@ -618,6 +660,13 @@ bool ErrorStateKalmanFilterNode::magSoftBiasProcNoiseDensityCb(const double& p)
   return eskf_.setMagSoftBiasProcNoiseDensity(nd);
 }
 
+bool ErrorStateKalmanFilterNode::baroAltBiasProcNoiseDensityCb(const double& p)
+{
+  assert(do_baro_alt_bias_estimation_);
+
+  return eskf_.setBaroAltBiasProcNoiseDensity(p);
+}
+
 bool ErrorStateKalmanFilterNode::gravProcNoiseDensityCb(const double& p)
 {
   assert(do_grav_estimation_);
@@ -635,21 +684,23 @@ void ErrorStateKalmanFilterNode::imuRawCb(const tobas_msgs::Imu::ConstSharedPtr&
   if (!imu_raw_) {
     eskf_.initialize(
       Vector3d::Zero(),                                                     // Init position
-      Vector3d::Constant(math::sqr(kInitPosStddev)).asDiagonal(),           // Init position cov
+      Vector3d::Constant(math::sqr(kInitPosStddev)).asDiagonal(),           // Init position covariance
       Vector3d::Zero(),                                                     // Init velocity
-      Vector3d::Constant(math::sqr(kInitVelStddev)).asDiagonal(),           // Init velocity cov
+      Vector3d::Constant(math::sqr(kInitVelStddev)).asDiagonal(),           // Init velocity covariance
       Quaterniond::Identity(),                                              // Init quaternion
-      Vector3d::Constant(math::sqr(kInitRotStddev)).asDiagonal(),           // Init rotation cov
+      Vector3d::Constant(math::sqr(kInitRotStddev)).asDiagonal(),           // Init rotation covariance
       Vector3d::Zero(),                                                     // Init accel bias
-      Vector3d::Constant(math::sqr(initAccelBiasStddev())).asDiagonal(),    // Init accel bias cov
+      Vector3d::Constant(math::sqr(initAccelBiasStddev())).asDiagonal(),    // Init accel bias covariance
       Vector3d::Zero(),                                                     // Init gyro bias
-      Vector3d::Constant(math::sqr(initGyroBiasStddev())).asDiagonal(),     // Init gyro bias cov
+      Vector3d::Constant(math::sqr(initGyroBiasStddev())).asDiagonal(),     // Init gyro bias covariance
       Vector3d::Zero(),                                                     // Init mag hard bias
-      Vector3d::Constant(math::sqr(initMagHardBiasStddev())).asDiagonal(),  // Init mag hard bias cov
+      Vector3d::Constant(math::sqr(initMagHardBiasStddev())).asDiagonal(),  // Init mag hard bias covariance
       Matrix3d::Identity(),                                                 // Init mag soft bias
-      Vector6d::Constant(math::sqr(initMagSoftBiasStddev())).asDiagonal(),  // Init mag soft bias cov
+      Vector6d::Constant(math::sqr(initMagSoftBiasStddev())).asDiagonal(),  // Init mag soft bias covariance
+      0.,                                                                   // Init barometer altitude bias
+      math::sqr(initBaroAltBiasStddev()),                                   // Init barometer altitude bias variance
       st::kGravity,                                                         // Init gravity
-      math::sqr(initGravBiasStddev()),                                      // Init gravity var
+      math::sqr(initGravBiasStddev()),                                      // Init gravity variance
       cur_time);
     imu_raw_ = msg;
     return;
@@ -703,7 +754,7 @@ void ErrorStateKalmanFilterNode::magCb(const tobas_msgs::MagneticField::ConstSha
     // 姿勢が安定するまで待機
     const auto rot_cov = eskf_.getRotationCovariance();
     const auto atti_var = (rot_cov(0, 0) + rot_cov(1, 1)) / 2;
-    const auto atti_stddev = sqrt(atti_var);  // [rad]
+    const auto atti_stddev = std::sqrt(atti_var);  // [rad]
     if (atti_stddev > kAccurateAttitudeStddevThresh) {
       TOBAS_INFO_THROTTLE(kTypicalInfoPeriod, "Waiting for attitude estimation to converge.");
       return;
@@ -767,24 +818,20 @@ void ErrorStateKalmanFilterNode::baroCb(const tobas_msgs::msg::FluidPressure::Co
     return;
   }
 
-  // 気圧高度の初期値
-  // TODO: IMUフレームに変換
-  if (!baro_) {
-    alt_0_baro_ = st::pressureToAltitude(msg->pressure);
-  }
-
-  baro_ = msg;
-
-  // FIXME: ESKFに気圧高度のバイアスを追加し，気圧高度とGPS高度のフュージョンを行う．
-  if (gnss_) {
+  // 気圧高度の初期値を設定
+  if (!baro_alt_origin_set_) {
+    init_pres_sum_.add(msg->pressure);
+    if (++init_pres_cnt_ >= kInitBaroCount) {
+      const auto init_pres_mean = init_pres_sum_.get() / init_pres_cnt_;
+      eskf_.setAirPressureOrigin(init_pres_mean);
+      baro_alt_origin_set_ = true;
+      TOBAS_INFO("The pressure at zero altitude has been set to ", init_pres_mean * 1e-2, " hPa.");
+    }
     return;
   }
 
-  const auto z_abs = st::pressureToAltitude(msg->pressure);
-  const auto z_var = fixed_baro_alt_var_;
-  const auto z_m = z_abs - alt_0_baro_;
   const auto stamp = ros2::chronoFromRosTime(msg->header.stamp);
-  eskf_.measureAltitude(z_m, z_var, stamp);
+  eskf_.measureAirPressure(msg->pressure, fixed_baro_alt_var_, stamp);
 }
 
 void ErrorStateKalmanFilterNode::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& msg)
@@ -813,7 +860,7 @@ void ErrorStateKalmanFilterNode::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& 
     }
 
     // GNSSの初期位置
-    // TODO: IMUフレームに変換
+    // TODO: 機体フレームに変換
     gnss_origin_.latitude = msg->latitude;
     gnss_origin_.longitude = msg->longitude;
     gnss_origin_.altitude = msg->altitude;
@@ -829,7 +876,6 @@ void ErrorStateKalmanFilterNode::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& 
     setMagneticFieldRef(mag_W);
 
     // 初めてGNSSを受け取った位置速度で初期化 (でないと姿勢に過大なフィードバックが入ってしまう)
-    // FIXME: 既に他の位置情報が入っている場合は初期化すべきでない
     eskf_.initializePosition(Vector3d::Zero(), pos_cov);
     eskf_.initializeVelocity(vel_meas, vel_cov);
   }
@@ -839,7 +885,7 @@ void ErrorStateKalmanFilterNode::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& 
   // 位置の観測値
   std::tie(pos_meas_.x(), pos_meas_.y()) =
     st::gnssToCartRelative(msg->latitude, msg->longitude, gnss_origin_.latitude, gnss_origin_.longitude);
-  pos_meas_.z() = msg->altitude - gnss_origin_.altitude;  // FIXME: BaroとGNSSが両方有効のときに高度情報が競合する
+  pos_meas_.z() = msg->altitude - gnss_origin_.altitude;
 
   // 共分散
   gnss_cov_.topLeftCorner<3, 3>() = pos_cov;

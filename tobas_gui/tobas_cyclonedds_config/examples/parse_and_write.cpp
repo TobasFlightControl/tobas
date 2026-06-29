@@ -16,6 +16,10 @@ int main()
                                 "        <NetworkInterface name=\"eth0\"/>\n"
                                 "      </Interfaces>\n"
                                 "    </General>\n"
+                                "    <SharedMemory>\n"
+                                "      <Enable>true</Enable>\n"
+                                "      <LogLevel>warn</LogLevel>\n"
+                                "    </SharedMemory>\n"
                                 "  </Domain>\n"
                                 "</CycloneDDS>";
 

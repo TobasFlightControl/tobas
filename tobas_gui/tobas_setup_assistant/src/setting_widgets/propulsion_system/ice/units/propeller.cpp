@@ -175,7 +175,7 @@ double PropellerWidget::pitchLengthNeutoral() const
 
 double PropellerWidget::pitchAngleNeutoral() const
 {
-  return atan(pitchLengthNeutoral() / (M_PI * diameter()));
+  return std::atan(pitchLengthNeutoral() / (M_PI * diameter()));
 }
 
 st::Range<double> PropellerWidget::pitchAngleLimit() const

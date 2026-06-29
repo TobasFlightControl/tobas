@@ -42,7 +42,7 @@ tinyxml2::XMLElement* addNode(
 
 tinyxml2::XMLElement* addNodeParam(tinyxml2::XMLElement* node, const std::string& name, const std::string& value)
 {
-  TOBAS_CHECK(strcmp(node->Name(), "node") == 0);
+  TOBAS_CHECK(std::strcmp(node->Name(), "node") == 0);
 
   const auto param = node->InsertNewChildElement("param");
   param->SetAttribute("name", name.c_str());

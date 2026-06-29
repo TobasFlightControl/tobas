@@ -16,15 +16,15 @@ For details on UADF, see [What is UADF](../additional_information/what_is_uadf.m
 In this tutorial, we use the DJI F450, a typical quadcopter.
 The components are as follows:
 
-- Flight controller: <a href=https://tobas.jp/product target="_blank">Tobas FC101</a>
-- Power Module: <a href=https://tobas.jp/product target="_blank">Tobas PM101</a>
-- Frame: <a href=https://ja.aliexpress.com/item/1005007683004849.html target="_blank">DJI F450 Frame</a>
-- Battery: <a href=https://ja.aliexpress.com/item/4000244479545.html target="_blank">HRB 3S 5000mAh 50C</a>
-- Motor: <a href=https://ja.aliexpress.com/item/1005008178619191.html target="_blank">DJI A2212 920KV</a> (CW x 2, CCW x 2)
-- Propeller: <a href=https://ja.aliexpress.com/item/1005004372872772.html target="_blank">DJI 9450</a> (CW x 2, CCW x 2)
+- Flight controller: <a href=https://tobas.jp/product target="_blank">Tobas FC201</a>
+- Power Module: <a href=https://holybro.com/products/pm02d-power-module target="_blank">Holybro PM02D</a>
+- Frame: <a href=https://www.hawks-work.com/products/f450-drone-frame-450mm-wheelbase-quadcopter-frame-kit-with-landing-skid-gear target="_blank">DJI F450 Frame</a>
+- Motor: <a href=https://www.hawks-work.com/products/a2212-brushless-motor-920kv-for-multirotor-drone-and-others target="_blank">A2212 920KV</a> (CW x 2, CCW x 2)
+- Propeller: <a href=https://www.hawks-work.com/products/9450-propellers-self-tightening-cw-ccw-propeller-for-multirotor-f450 target="_blank">DJI 9450</a> (CW x 2, CCW x 2)
 - ESC: <a href=https://www.fly-color.net/index.php?c=category&id=234 target="\_blank">Flycolor Raptor5 35A</a> x 4
-- GNSS antenna: <a href=https://www.topgnss.store/en-jp/products/2pcs-l1-l5-helical-antenna-uav-flight-control-antenna-gps-glonass-galileo-bds-rtk-handheld-receiver-an-103-topgnss-helical target="_blank">TOPGNSS AN-103</a>
-- RC receiver: <a href=https://www.rc.futaba.co.jp/products/detail/I00000018 target="_blank">Futaba R3001SB</a>
+- Battery: <a href=https://hrb-power.com/products/11-1v-5000mah-6000mah-50c-trx target="_blank">HRB 3S 5000mAh 50C</a>
+- GNSS antenna: <a href=https://www.topgnss.store/en-jp/products/top901-gnss-l1-l2-l5-unmanned-vehicle-high-precision-drone-measurement-full-frequency-rtk-antenna-new-small-high-gain-helical target="_blank">TOPGNSS TOP901</a>
+- RC receiver: <a href=https://www.rc.futaba.co.jp/products/detail/I00000021 target="_blank">Futaba R2000SBM</a>
 
 You need to create a UADF for the airframe, but in this tutorial we will use one that has already been prepared.
 
@@ -96,7 +96,7 @@ Make sure the `propeller_0` settings are also reflected in the other tabs.
 ---
 
 Configure the hardware connection settings.　
-Make sure `Tobas FC1xx` is selected,
+Make sure `Tobas FC2xx` is selected,
 then set the DShot channel appropriately for each of the four propulsion units.
 
 ![hardware_interface](../../assets/airframe_config/hardware_interface.png)

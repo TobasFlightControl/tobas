@@ -1,9 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include <unistd.h>
-
 #include <iostream>
+#include <thread>
 
 #include <tobas_ic_drivers/stmicro/ism330dlc.hpp>
 
@@ -43,7 +42,7 @@ int main(int argc, char** argv)
     cout << "Accel [m/s^2]: " << ax << ", " << ay << ", " << az << endl;
     cout << "Gyro [rad/s] : " << gx << ", " << gy << ", " << gz << endl;
 
-    usleep(100000);
+    this_thread::sleep_for(100ms);
   }
 
   return EXIT_SUCCESS;

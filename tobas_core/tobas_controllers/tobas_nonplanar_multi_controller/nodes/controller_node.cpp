@@ -126,7 +126,6 @@ private:
   bool mixerLinearWeightCb(const long& p);
   bool mixerAngularWeightCb(const long& p);
   bool mixerThrustWeightLog2Cb(const long& p);
-  bool mixerDeltaThrustWeightLog2Cb(const long& p);
 
   void droneCb(const Drone::ConstSharedPtr& drone);
   void treeCb(const kdl::Tree::ConstSharedPtr& tree);
@@ -166,10 +165,9 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   addDynamicDoubleParam("heading_i_gain", &self::headingIGainCb, this, 0.01, 10, 1, 30);
   addDynamicDoubleParam("horizontal_i_max_accel", &self::horizontalIMaxAccelCb, this, 0.5, 4, 0, 20, " m/s^2");
   addDynamicDoubleParam("vertical_i_max_accel", &self::verticalIMaxAccelCb, this, 0.5, 4, 0, 20, " m/s^2");
-  addDynamicIntParam("mixer_linear_weight", &self::mixerLinearWeightCb, this, kMaxWeight / 2, 1, kMaxWeight);
-  addDynamicIntParam("mixer_angular_weight", &self::mixerAngularWeightCb, this, kMaxWeight / 2, 1, kMaxWeight);
-  addDynamicIntParam("mixer_thrust_weight_log2", &self::mixerThrustWeightLog2Cb, this, -20, -30, 0);
-  addDynamicIntParam("mixer_delta_thrust_weight_log2", &self::mixerDeltaThrustWeightLog2Cb, this, -20, -30, 0);
+  addDynamicIntParam("mixer_linear_weight", &self::mixerLinearWeightCb, this, 1, kMaxWeight / 2, 1, kMaxWeight);
+  addDynamicIntParam("mixer_angular_weight", &self::mixerAngularWeightCb, this, 1, kMaxWeight / 2, 1, kMaxWeight);
+  addDynamicIntParam("mixer_thrust_weight_log2", &self::mixerThrustWeightLog2Cb, this, 1, -20, -30, 0);
 
   // Register publishers
   tar_thrusts_pub_ = createPublisher<tobas_msgs::msg::RotorThrustArray>(topic::kRotorThrustsCmd);
@@ -334,12 +332,7 @@ bool ControllerNode::mixerAngularWeightCb(const long& p)
 
 bool ControllerNode::mixerThrustWeightLog2Cb(const long& p)
 {
-  return mixer_.setThrustWeight(exp2(p));
-}
-
-bool ControllerNode::mixerDeltaThrustWeightLog2Cb(const long& p)
-{
-  return mixer_.setDeltaThrustWeight(exp2(p));
+  return mixer_.setThrustWeight(std::exp2(p));
 }
 
 void ControllerNode::droneCb(const Drone::ConstSharedPtr& drone)
@@ -461,7 +454,6 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
       TOBAS_FATAL("Failed to solve the mixing equation.");
       return;
     }
-    const auto& thrusts = mixer_.getThrusts();
 
     // 目標推力を発行
     auto tar_thrusts = std::make_unique<tobas_msgs::msg::RotorThrustArray>();
@@ -469,7 +461,7 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
     for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
       tar_thrusts->thrusts.emplace_back();
       tar_thrusts->thrusts.back().link_name = rotor_it.first;
-      tar_thrusts->thrusts.back().thrust = std::max(thrusts(idx), 0.);
+      tar_thrusts->thrusts.back().thrust = mixer_.getThrust(idx);
     }
     tar_thrusts_pub_->publish(std::move(tar_thrusts));
 

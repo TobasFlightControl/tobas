@@ -1,5 +1,6 @@
 [Unit]
 Description=Tobas Interface Process
+After=tobas_iox_roudi.service
 After=tobas_network_wait_online.service
 PartOf=tobas_real.target
 
@@ -12,7 +13,7 @@ ExecStart=/bin/bash -c 'source /opt/ros/jazzy/setup.bash && source /opt/tobas/lo
 Restart=no
 CPUSchedulingPolicy=fifo
 CPUSchedulingPriority=2
-CPUAffinity=3
+CPUAffinity=0
 
 [Install]
 WantedBy=multi-user.target

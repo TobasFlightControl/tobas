@@ -3,8 +3,7 @@
 
 #include "tobas_ros2_tools/util.hpp"
 
-#include <string.h>
-
+#include <cstring>
 #include <iostream>
 
 #include <rcutils/env.h>
@@ -26,7 +25,7 @@ const char* getEnv(const char* name)
     return nullptr;
   }
 
-  if (strlen(value) == 0) {
+  if (std::strlen(value) == 0) {
     std::cerr << "\"" << name << "\" is not set." << std::endl;
     return nullptr;
   }

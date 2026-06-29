@@ -3,7 +3,6 @@
 
 #include "tobas_eigen_tools/spline.hpp"
 
-using namespace std;
 using namespace Eigen;
 
 namespace tobas
@@ -15,7 +14,7 @@ SplineFunction::SplineFunction(const VectorXd& x_vec, const VectorXd& y_vec, con
   , x_max_(x_vec.maxCoeff())
   , spline_(SplineFitting<Spline<double, 1>>::Interpolate(
       y_vec.transpose(),
-      min<int>(x_vec.rows() - 1, degree),
+      std::min<int>(x_vec.rows() - 1, degree),
       scaledValues(x_vec)))
 {
   assert(x_vec.size() >= 2);

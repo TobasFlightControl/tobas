@@ -28,7 +28,7 @@ public:
   void updateInternalDataStructures();
 
 private Q_SLOTS:
-  void onItemClicked(QTreeWidgetItem* item, int col);
+  void onItemChanged(QTreeWidgetItem* ite);
 
   /* 文字列の長さに応じて列の幅を調整する． */
   void resizeColumns();

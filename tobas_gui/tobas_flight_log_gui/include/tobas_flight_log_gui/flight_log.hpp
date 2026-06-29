@@ -34,7 +34,7 @@ private:
   FlightLogViewerWidget* log_viewer_;
 
 private Q_SLOTS:
-  void onRecordFinished(const QString& log_name);
+  void onRecordFinished(const QString& log_name, bool is_real);
   void onLogDownloaded(const QString& log_name);
   void onLogSelected(const QString& log_name);
   void onLogDeselected();

@@ -28,24 +28,24 @@ bool Parser::parseFromXml(const tinyxml2::XMLDocument* uadf_doc, Model& uadf_mod
 
   // 特殊なジョイント型をURDFに変換
   for (auto child = robot->FirstChildElement(); child; child = child->NextSiblingElement()) {
-    if (strcmp(child->Name(), "joint") == 0) {
+    if (std::strcmp(child->Name(), "joint") == 0) {
       const auto joint_name = child->Attribute("name");
       const auto joint_type = child->Attribute("type");
 
-      if (strcmp(joint_type, "thrust") == 0) {
+      if (std::strcmp(joint_type, "thrust") == 0) {
         child->SetAttribute("type", "continuous");
 
         Thrust thrust;
         bool direction_found = false;
 
         for (auto gchild = child->FirstChildElement(); gchild; gchild = gchild->NextSiblingElement()) {
-          if (strcmp(gchild->Name(), "direction") == 0) {
+          if (std::strcmp(gchild->Name(), "direction") == 0) {
             direction_found = true;
             const auto direction = gchild->Attribute("value");
-            if (strcmp(direction, "cw") == 0) {
+            if (std::strcmp(direction, "cw") == 0) {
               thrust.direction = Thrust::CW;
             }
-            else if (strcmp(direction, "ccw") == 0) {
+            else if (std::strcmp(direction, "ccw") == 0) {
               thrust.direction = Thrust::CCW;
             }
             else {
@@ -63,7 +63,7 @@ bool Parser::parseFromXml(const tinyxml2::XMLDocument* uadf_doc, Model& uadf_mod
 
         uadf_model.thrusts[joint_name] = thrust;
       }
-      else if (strcmp(joint_type, "cs") == 0) {
+      else if (std::strcmp(joint_type, "cs") == 0) {
         child->SetAttribute("type", "revolute");
 
         ControlSurface cs;
@@ -72,7 +72,7 @@ bool Parser::parseFromXml(const tinyxml2::XMLDocument* uadf_doc, Model& uadf_mod
 
         uadf_model.control_surfaces[joint_name] = cs;
       }
-      else if (strcmp(joint_type, "tilt") == 0) {
+      else if (std::strcmp(joint_type, "tilt") == 0) {
         child->SetAttribute("type", "revolute");
 
         TiltJoint tilt;

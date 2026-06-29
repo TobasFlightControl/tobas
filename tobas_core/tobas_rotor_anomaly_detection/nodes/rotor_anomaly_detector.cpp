@@ -56,12 +56,7 @@ RotorAnomalyDetectorNode::RotorAnomalyDetectorNode(const rclcpp::NodeOptions& op
 {
   no_comm_timeout_ = getDoubleParam("no_communication_timeout");
 
-  rotor_liveliness_pub_ = createPublisher<tobas_msgs::msg::RotorLivelinessArray>(topic::kRotorLiv);
-
   drone_sub_ = createSubscriber(topic::kDrone, &self::droneCb, this, true, true);
-  rotor_states_sub_ = createSubscriber(addThrotNS(topic::kRotorStates), &self::statesCb, this);
-
-  publish_rotor_liveliness_timer_ = createTimer(1s, &self::publishRotorLiveliness, this);
 }
 
 void RotorAnomalyDetectorNode::publishRotorLiveliness()
@@ -85,18 +80,21 @@ void RotorAnomalyDetectorNode::droneCb(const Drone::ConstSharedPtr& drone)
   }
 
   drone_ = drone;
-  data_.clear();
 
+  data_.clear();
   for (const auto& [link_name, _] : drone->prop->rotors) {
     data_[link_name] = RotorData();
   }
+
+  rotor_liveliness_pub_ = createPublisher<tobas_msgs::msg::RotorLivelinessArray>(topic::kRotorLiv);
+  rotor_states_sub_ = createSubscriber(addThrotNS(topic::kRotorStates), &self::statesCb, this);
 }
 
 void RotorAnomalyDetectorNode::statesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& states)
 {
-  if (!drone_) {
-    TOBAS_WARN_THROTTLE(kTypicalWarnPeriod, "Drone configuration has not been received yet.");
-    return;
+  // モータの状態を受け取ってから生存状況の発行を開始する
+  if (!publish_rotor_liveliness_timer_) {
+    publish_rotor_liveliness_timer_ = createTimer(1s, &self::publishRotorLiveliness, this);
   }
 
   bool state_changed = false;

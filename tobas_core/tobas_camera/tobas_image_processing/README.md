@@ -62,6 +62,7 @@ rviz2を立ち上げ，左下のAddボタンからImageというパネルを追�
 MJPGであればmjpg_decompressorにより，H.264であればh264_decompressorにより解凍することができる．
 
 ## launch files
+
 - cx_gb400_ffmpeg.launch.py
   - cx_gb400から映像を取得してffmpegを用いてsrt通信で送信しながら，ジンバルの制御も行う．ros topicでの映像の配信は行わない．
   - 一例としては，以下のように実行する．

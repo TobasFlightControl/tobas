@@ -5,8 +5,6 @@
 
 #include <iostream>
 
-using namespace std;
-
 namespace tobas
 {
 namespace stm
@@ -59,12 +57,12 @@ bool ILPS22QS::checkWhoAmI()
   uint8_t byte;
 
   if (!i2c_.readByte(WHO_AM_I_REG, byte)) {
-    cerr << "Failed to read WHO_AM_I data." << endl;
+    std::cerr << "Failed to read WHO_AM_I data." << std::endl;
     return false;
   }
 
   if (byte != WHO_AM_I) {
-    cerr << "Barometer is not recognized." << endl;
+    std::cerr << "Barometer is not recognized." << std::endl;
     return false;
   }
 
@@ -76,17 +74,17 @@ bool ILPS22QS::configure()
   constexpr uint8_t fs_mode = FS_MODE_1260HPA;
 
   if (!i2c_.writeByte(CTRL_REG1, ODR_100HZ | AVG_32, true)) {
-    cerr << "Failed to write to CTRL_REG1." << endl;
+    std::cerr << "Failed to write to CTRL_REG1." << std::endl;
     return false;
   }
 
   if (!i2c_.writeByte(CTRL_REG2, fs_mode | LPF_CFG_4 | ENABLE_LPF | BLOCK_DATA_UPDATE, true)) {
-    cerr << "Failed to write to CTRL_REG2." << endl;
+    std::cerr << "Failed to write to CTRL_REG2." << std::endl;
     return false;
   }
 
   if (!i2c_.writeByte(CTRL_REG3, IF_ADD_INC, true)) {
-    cerr << "Failed to write to CTRL_REG3." << endl;
+    std::cerr << "Failed to write to CTRL_REG3." << std::endl;
     return false;
   }
 

@@ -1,6 +1,8 @@
 [Unit]
 Description=Tobas Flight Controller
-Requires=tobas_real_realtime.service tobas_real_interface.service
+Requires=tobas_iox_roudi.service
+Requires=tobas_real_realtime.service
+Requires=tobas_real_interface.service
 
 [Install]
 WantedBy=multi-user.target

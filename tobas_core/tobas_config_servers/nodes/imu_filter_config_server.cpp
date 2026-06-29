@@ -212,18 +212,18 @@ void ImuFilterConfigServer::imuRawCb(const tobas_msgs::Imu::ConstSharedPtr&)
   // そうすることでフィルタの初期設定が確実に反映される．
 
   // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#IMU_ACCEL_CUTOFF
-  addDynamicIntParam("lowpass_filter/accel_cutoff", &self::lowPassFilterAccelCutoffCb, this, 30, 0, 100, " Hz");
+  addDynamicIntParam("lowpass_filter/accel_cutoff", &self::lowPassFilterAccelCutoffCb, this, 5, 6, 0, 20, " Hz");
   // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#IMU_GYRO_CUTOFF
-  addDynamicIntParam("lowpass_filter/gyro_cutoff", &self::lowPassFilterGyroCutoffCb, this, 40, 0, 100, " Hz");
+  addDynamicIntParam("lowpass_filter/gyro_cutoff", &self::lowPassFilterGyroCutoffCb, this, 5, 8, 0, 20, " Hz");
   // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#IMU_DGYRO_CUTOFF
-  addDynamicIntParam("lowpass_filter/dgyro_cutoff", &self::lowPassFilterDGyroCutoffCb, this, 20, 0, 100, " Hz");
+  addDynamicIntParam("lowpass_filter/dgyro_cutoff", &self::lowPassFilterDGyroCutoffCb, this, 5, 4, 0, 20, " Hz");
 
   // cf. https://betaflight.com/docs/wiki/guides/current/DSHOT-RPM-Filtering
   if (config_rpm_filter_sc_) {
-    addDynamicIntParam("rpm_filter/quality_factor", &self::rpmFilterQualityFactorCb, this, 0, 0, 10);  // Disabled
-    addDynamicIntParam("rpm_filter/min_center_frequency", &self::rpmFilterMinCenterFreqCb, this, 100, 20, 200, " Hz");
-    addDynamicIntParam("rpm_filter/fade_range", &self::rpmFilterFadeRangeCb, this, 50, 0, 100, " Hz");
-    addDynamicIntParam("rpm_filter/lpf_cutoff", &self::rpmFilterLpfCutoffCb, this, 100, 1, 200, " Hz");
+    addDynamicIntParam("rpm_filter/quality_factor", &self::rpmFilterQualityFactorCb, this, 1, 0, 0, 10);  // Disabled
+    addDynamicIntParam("rpm_filter/min_center_frequency", &self::rpmFilterMinCenterFreqCb, this, 10, 10, 2, 20, " Hz");
+    addDynamicIntParam("rpm_filter/fade_range", &self::rpmFilterFadeRangeCb, this, 5, 10, 0, 20, " Hz");
+    addDynamicIntParam("rpm_filter/lpf_cutoff", &self::rpmFilterLpfCutoffCb, this, 10, 10, 1, 20, " Hz");
   }
 
   // Cancel subscription

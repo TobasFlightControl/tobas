@@ -7,7 +7,6 @@
 
 #include <tobas_eigen_tools/core.hpp>
 
-using namespace std;
 using namespace Eigen;
 
 namespace tobas
@@ -41,9 +40,9 @@ bool LinearMPC::solve()
   }
 
   // ダイナミクスと制約をスケーリング
-  vector<LinearDynamics> dyns_scaled;
-  vector<LinearEquation> du_eqs_scaled, u_eqs_scaled, z_eqs_scaled;
-  vector<LinearEquation> du_ineqs_scaled, u_ineqs_scaled, z_ineqs_scaled;
+  std::vector<LinearDynamics> dyns_scaled;
+  std::vector<LinearEquation> du_eqs_scaled, u_eqs_scaled, z_eqs_scaled;
+  std::vector<LinearEquation> du_ineqs_scaled, u_ineqs_scaled, z_ineqs_scaled;
   for (Index k = 0; k < prediction_steps; ++k) {
     dyns_scaled.emplace_back(discrete_dynamics[k].scale(state_scale, input_scale));
 
@@ -129,10 +128,10 @@ bool LinearMPC::solve()
   return true;
 }
 
-ostream& operator<<(ostream& os, const LinearMPC& arg)
+std::ostream& operator<<(std::ostream& os, const LinearMPC& arg)
 {
-  os << "QuadProgSolver:" << endl;
-  os << arg.qpsolver_ << endl;
+  os << "QuadProgSolver:" << std::endl;
+  os << arg.qpsolver_ << std::endl;
 
   return os;
 }
@@ -215,9 +214,9 @@ void LinearMPC::updateQpConstraint(
   const VectorXd& Psi_x,
   const VectorXd& Upsilon_u,
   const MatrixXd& Theta,
-  const vector<LinearEquation>& du_consts,
-  const vector<LinearEquation>& u_consts,
-  const vector<LinearEquation>& z_consts,
+  const std::vector<LinearEquation>& du_consts,
+  const std::vector<LinearEquation>& u_consts,
+  const std::vector<LinearEquation>& z_consts,
   MatrixXd& A,
   VectorXd& b)
 {
@@ -249,7 +248,7 @@ MatrixXd LinearMPC::makeSa()
   const MatrixXd S_diag = input_weight.asDiagonal();
 
   // Sの累積和を計算(昔の名残)
-  vector<MatrixXd> S_cumsum(input_steps + 1);
+  std::vector<MatrixXd> S_cumsum(input_steps + 1);
   S_cumsum[0] = MatrixXd::Zero(u_size_, u_size_);
   for (Index i = 0; i < input_steps; ++i) {
     S_cumsum[i + 1] = S_cumsum[i] + S_diag;
@@ -259,7 +258,7 @@ MatrixXd LinearMPC::makeSa()
   MatrixXd Sa(u_size_ * input_steps, u_size_ * input_steps);
   for (Index i = 0; i < input_steps; ++i) {
     for (Index j = 0; j < input_steps; ++j) {
-      Sa.block(u_size_ * i, u_size_ * j, u_size_, u_size_) = S_cumsum[input_steps] - S_cumsum[max(i, j)];
+      Sa.block(u_size_ * i, u_size_ * j, u_size_, u_size_) = S_cumsum[input_steps] - S_cumsum[std::max(i, j)];
     }
   }
 
@@ -285,7 +284,7 @@ MatrixXd LinearMPC::makeFGothic(const MatrixXd& F)
   const auto n_cond_u = F.rows();  // (3.35)の条件数
 
   // Fの要素の累積和を計算
-  vector<MatrixXd> F_cumsum(input_steps + 1);
+  std::vector<MatrixXd> F_cumsum(input_steps + 1);
   F_cumsum[0] = MatrixXd::Zero(n_cond_u, u_size_);
   for (Index i = 0; i < input_steps; ++i) {
     F_cumsum[i + 1] = F_cumsum[i] + F.block(0, u_size_ * i, n_cond_u, u_size_);
@@ -300,7 +299,7 @@ MatrixXd LinearMPC::makeFGothic(const MatrixXd& F)
   return F_gothic;
 }
 
-MatrixXd LinearMPC::makePsi(const vector<LinearDynamics>& dyns_scaled, const MatrixXd& Cz_scaled)
+MatrixXd LinearMPC::makePsi(const std::vector<LinearDynamics>& dyns_scaled, const MatrixXd& Cz_scaled)
 {
   MatrixXd Psi(z_size_ * prediction_steps, x_size_);
   MatrixXd tmp = MatrixXd::Identity(x_size_, x_size_);
@@ -312,7 +311,7 @@ MatrixXd LinearMPC::makePsi(const vector<LinearDynamics>& dyns_scaled, const Mat
   return Psi;
 }
 
-MatrixXd LinearMPC::makeUpsilon(const vector<LinearDynamics>& dyns_scaled, const MatrixXd& Cz_scaled)
+MatrixXd LinearMPC::makeUpsilon(const std::vector<LinearDynamics>& dyns_scaled, const MatrixXd& Cz_scaled)
 {
   MatrixXd Upsilon(z_size_ * prediction_steps, u_size_);
   MatrixXd tmp = MatrixXd::Zero(x_size_, u_size_);
@@ -324,13 +323,13 @@ MatrixXd LinearMPC::makeUpsilon(const vector<LinearDynamics>& dyns_scaled, const
   return Upsilon;
 }
 
-MatrixXd LinearMPC::makeTheta(const vector<LinearDynamics>& dyns_scaled, const MatrixXd& Cz_scaled)
+MatrixXd LinearMPC::makeTheta(const std::vector<LinearDynamics>& dyns_scaled, const MatrixXd& Cz_scaled)
 {
   MatrixXd Theta(z_size_ * prediction_steps, u_size_ * input_steps);
-  vector<MatrixXd> tmp;
+  std::vector<MatrixXd> tmp;
   for (Index i = 0; i < prediction_steps; ++i) {
     tmp.push_back(MatrixXd::Zero(x_size_, u_size_));
-    const auto max_j = min(input_steps, i + 1);
+    const auto max_j = std::min(input_steps, i + 1);
     for (Index j = 0; j < max_j; ++j) {
       tmp[j] = dyns_scaled[i].A * tmp[j] + dyns_scaled[i].B;
       Theta.block(z_size_ * i, u_size_ * j, z_size_, u_size_) = Cz_scaled * tmp[j];
@@ -356,22 +355,22 @@ VectorXd LinearMPC::makeTau(const VectorXd& x_scaled, const VectorXd& s_scaled, 
   return Tau;
 }
 
-vector<VectorXd> LinearMPC::makeDecays()
+std::vector<VectorXd> LinearMPC::makeDecays()
 {
-  vector<VectorXd> decays(prediction_steps, VectorXd(z_size_));
+  std::vector<VectorXd> decays(prediction_steps, VectorXd(z_size_));
 
   for (Index i = 0; i < prediction_steps; ++i) {
     const auto coin_time = time_step * static_cast<double>(i + 1);
     for (Index j = 0; j < z_size_; ++j) {
       const auto& T_ref = decay_time_consts(j);
-      decays[i](j) = T_ref > 0 ? exp(-coin_time / T_ref) : 0;
+      decays[i](j) = T_ref > 0 ? std::exp(-coin_time / T_ref) : 0;
     }
   }
 
   return decays;
 }
 
-MatrixXd LinearMPC::makeConstraintMatrix(const vector<LinearEquation>& consts, const Index& H)
+MatrixXd LinearMPC::makeConstraintMatrix(const std::vector<LinearEquation>& consts, const Index& H)
 {
   const auto const_size = consts[0].equationSize();
   const auto var_size = consts[0].variableSize();

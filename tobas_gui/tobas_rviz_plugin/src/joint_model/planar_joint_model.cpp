@@ -53,8 +53,8 @@ void PlanarJointModel::computeVariablePositions(const Eigen::Isometry3d& transfo
     joint_values[2] = 0.;
   }
   else {
-    const auto s = 1. / sqrt(s_squared);
-    joint_values[2] = (acos(q.w()) * 2.0f) * (q.z() * s);
+    const auto s = 1. / std::sqrt(s_squared);
+    joint_values[2] = (std::acos(q.w()) * 2.0f) * (q.z() * s);
   }
 }
 }  // namespace tobas

@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "./network_interface.hpp"
+#include "./shared_memory.hpp"
 
 namespace tobas
 {
@@ -14,6 +15,7 @@ namespace cyclonedds
 struct Data
 {
   std::vector<NetworkInterface> interfaces;
+  SharedMemory shared_memory;
 };
 }  // namespace cyclonedds
 }  // namespace tobas

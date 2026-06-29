@@ -7,7 +7,7 @@
 
 namespace tobas
 {
-enum struct RcCommand
+enum class RcCommand
 {
   kRateThrottle,
   kRateThrottleVector,

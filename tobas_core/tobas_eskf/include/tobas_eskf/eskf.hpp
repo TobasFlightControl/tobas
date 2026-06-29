@@ -38,7 +38,8 @@ class ErrorStateKalmanFilter
   static constexpr size_t kGyroBiasIdx = kAccBiasIdx + 3;
   static constexpr size_t kMagHardBiasIdx = kGyroBiasIdx + 3;
   static constexpr size_t kMagSoftBiasIdx = kMagHardBiasIdx + 3;
-  static constexpr size_t kGravIdx = kMagSoftBiasIdx + 6;
+  static constexpr size_t kBaroAltBiasIdx = kMagSoftBiasIdx + 6;
+  static constexpr size_t kGravIdx = kBaroAltBiasIdx + 1;
   static constexpr size_t kStateSize = kGravIdx + 1;
 
   // 誤差状態の添字
@@ -50,7 +51,8 @@ class ErrorStateKalmanFilter
   static constexpr size_t kDeltaGyroBiasIdx = kDeltaAccBiasIdx + 3;
   static constexpr size_t kDeltaMagHardBiasIdx = kDeltaGyroBiasIdx + 3;
   static constexpr size_t kDeltaMagSoftBiasIdx = kDeltaMagHardBiasIdx + 3;
-  static constexpr size_t kDeltaGravIdx = kDeltaMagSoftBiasIdx + 6;
+  static constexpr size_t kDeltaBaroAltBiasIdx = kDeltaMagSoftBiasIdx + 6;
+  static constexpr size_t kDeltaGravIdx = kDeltaBaroAltBiasIdx + 1;
   static constexpr size_t kDeltaStateSize = kDeltaGravIdx + 1;
 
   // 変数の範囲
@@ -96,6 +98,8 @@ public:
     const Eigen::Matrix3d& init_mag_hard_bias_cov,
     const Eigen::Matrix3d& init_mag_soft_bias,
     const Eigen::Matrix6d& init_mag_soft_bias_cov,
+    const double& init_baro_alt_bias,
+    const double& init_baro_alt_bias_var,
     const double& init_grav,
     const double& init_grav_var,
     const std::chrono::steady_clock::time_point& time);
@@ -107,6 +111,7 @@ public:
   void initializeGyroBias(const Eigen::Vector3d& value, const Eigen::Matrix3d& cov);
   void initializeMagHardBias(const Eigen::Vector3d& value, const Eigen::Matrix3d& cov);
   void initializeMagSoftBias(const Eigen::Matrix3d& value, const Eigen::Matrix6d& cov);
+  void initializeBaroAltBias(const double& value, const double& var);
   void initializeGravity(const double& value, const double& var);
 
   void enableSecondIntegral(bool enable);
@@ -114,13 +119,15 @@ public:
   void enableCovInitialization(bool enable);
   void enableJosephForm(bool enable);
 
-  bool setAccBiasProcNoiseDensity(double value);
-  bool setGyroBiasProcNoiseDensity(double value);
-  bool setMagHardBiasProcNoiseDensity(double value);
-  bool setMagSoftBiasProcNoiseDensity(double value);
-  bool setGravProcNoiseDensity(double value);
+  bool setAccBiasProcNoiseDensity(double value);      // [m/s^3/√Hz]
+  bool setGyroBiasProcNoiseDensity(double value);     // [rad/s^2/√Hz]
+  bool setMagHardBiasProcNoiseDensity(double value);  // [/s/√Hz]
+  bool setMagSoftBiasProcNoiseDensity(double value);  // [/s/√Hz]
+  bool setBaroAltBiasProcNoiseDensity(double value);  // [m/s/√Hz]
+  bool setGravProcNoiseDensity(double value);         // [m/s^3/√Hz]
 
   void setMagneticFieldRef(const Eigen::Vector3d& mag_W);
+  void setAirPressureOrigin(double pres);
 
   // Direct value getters
   inline Eigen::Vector3d getPosition() const;
@@ -130,6 +137,7 @@ public:
   inline Eigen::Vector3d getGyroBias() const;
   inline Eigen::Vector3d getMagHardBias() const;
   inline Eigen::Matrix3d getMagSoftBias() const;
+  inline double getBaroAltBias() const;
   inline double getGravity() const;
 
   // Extended value getters
@@ -143,6 +151,7 @@ public:
   inline Eigen::Matrix3d getMagHardBiasCovariance() const;
   inline Eigen::Matrix6d getMagSoftBiasCovariance() const;
   inline double getGravityVariance() const;
+  inline double getBaroAltBiasVariance() const;
 
   /**
    * @brief 加速度とジャイロから次の状態を予測し，姿勢を補正する．
@@ -176,13 +185,6 @@ public:
     const Eigen::Matrix3d& pos_cov,
     const Eigen::Vector3d& offset,
     const std::chrono::steady_clock::time_point& time);
-
-  double measureXY(
-    const Eigen::Vector2d& xy_meas,
-    const Eigen::Matrix2d& xy_cov,
-    const std::chrono::steady_clock::time_point& time);
-
-  double measureAltitude(const double& z_meas, const double& z_var, const std::chrono::steady_clock::time_point& time);
 
   /**
    * @brief 速度の観測をノミナル状態に反映させる．
@@ -231,6 +233,9 @@ public:
     const double& yaw_var,
     const std::chrono::steady_clock::time_point& time);
 
+  double
+  measureAirPressure(const double& pres, const double& alt_var, const std::chrono::steady_clock::time_point& time);
+
 private:
   // Configuration
   bool enable_second_integral_ = false;
@@ -240,8 +245,9 @@ private:
   double acc_bias_proc_noise_density_ = 0.;   // [m/s^3/√Hz] 加速度バイアスのプロセスノイズ密度
   double gyro_bias_proc_noise_density_ = 0.;  // [rad/s^2/√Hz] ジャイロバイアスのプロセスノイズ密度
   double mag_hard_bias_proc_noise_density_ = 0.;  // [/s/√Hz] 地磁気ハードアイアンバイアスのプロセスノイズ密度
-  double mag_soft_bias_proc_noise_density_ = 0.;  // [/s/√Hz] 地磁気ソフトアイアンバイアスのプ密度ノイズ密度
-  double grav_proc_noise_density_ = 0.;  // [m/s^3/√Hz] 重力加速度のプロセスノイズ密度
+  double mag_soft_bias_proc_noise_density_ = 0.;  // [/s/√Hz] 地磁気ソフトアイアンバイアスのプロセスノイズ密度
+  double baro_alt_bias_proc_noise_density_ = 0.;  // [m/s/√Hz] 気圧高度バイアスのプロセスノイズ密度
+  double grav_proc_noise_density_ = 0.;           // [m/s^3/√Hz] 重力加速度のプロセスノイズ密度
 
   StateVector x_;         // State vector of the filter
   DeltaStateMatrix P_;    // Covariance of the error state
@@ -250,19 +256,19 @@ private:
 
   // 出力行列
   Eigen::Matrix<double, 3, kDeltaStateSize> H_pos_;
-  Eigen::Matrix<double, 2, kDeltaStateSize> H_xy_;
-  Eigen::Matrix<double, 1, kDeltaStateSize> H_z_;
   Eigen::Matrix<double, 3, kDeltaStateSize> H_vel_;
   Eigen::Matrix<double, 6, kDeltaStateSize> H_pv_;
   Eigen::Matrix<double, 3, kDeltaStateSize> H_theta_;
   Eigen::Matrix<double, 6, kDeltaStateSize> H_pose_;
   Eigen::Matrix<double, 3, kDeltaStateSize> H_mag_;
   Eigen::Matrix<double, 1, kDeltaStateSize> H_yaw_;
+  Eigen::Matrix<double, 1, kDeltaStateSize> H_baro_alt_;
   Eigen::Matrix<double, 3, kDeltaStateSize> H_grav_;
 
   std::chrono::steady_clock::time_point t_last_imu_;
   st::TimestampedBuffer<StateVector> x_history_;
   Eigen::Vector3d mag_W_ = Eigen::Vector3d::Zero();
+  double baro_alt_origin_ = 0.;
 
   // Direct value getters
   inline Eigen::Vector3d getPosition(const StateVector& x) const;
@@ -272,6 +278,7 @@ private:
   inline Eigen::Vector3d getGyroBias(const StateVector& x) const;
   inline Eigen::Vector3d getMagHardBias(const StateVector& x) const;
   inline Eigen::Matrix3d getMagSoftBias(const StateVector& x) const;
+  inline double getBaroAltBias(const StateVector& x) const;
   inline double getGravity(const StateVector& x) const;
 
   // Extended value getters
@@ -363,6 +370,11 @@ inline Eigen::Matrix3d ErrorStateKalmanFilter::getMagSoftBias() const
   return getMagSoftBias(x_);
 }
 
+inline double ErrorStateKalmanFilter::getBaroAltBias() const
+{
+  return getBaroAltBias(x_);
+}
+
 inline double ErrorStateKalmanFilter::getGravity() const
 {
   return getGravity(x_);
@@ -413,6 +425,11 @@ inline double ErrorStateKalmanFilter::getGravityVariance() const
   return P_(kDeltaGravIdx, kDeltaGravIdx);
 }
 
+inline double ErrorStateKalmanFilter::getBaroAltBiasVariance() const
+{
+  return P_(kDeltaBaroAltBiasIdx, kDeltaBaroAltBiasIdx);
+}
+
 inline Eigen::Vector3d ErrorStateKalmanFilter::getPosition(const StateVector& x) const
 {
   return x.segment<3>(kPosIdx);
@@ -453,6 +470,11 @@ inline Eigen::Matrix3d ErrorStateKalmanFilter::getMagSoftBias(const StateVector&
   const auto& e = tp(4);
   const auto& f = tp(5);
   return (Eigen::Matrix3d() << a, b, c, b, d, e, c, e, f).finished();
+}
+
+inline double ErrorStateKalmanFilter::getBaroAltBias(const StateVector& x) const
+{
+  return x(kBaroAltBiasIdx);
 }
 
 inline double ErrorStateKalmanFilter::getGravity(const StateVector& x) const
@@ -515,7 +537,8 @@ double ErrorStateKalmanFilter::correct(
   const DeltaStateVector delta_x = K * delta_meas;
 
   // (276) Update covariance matrix
-  const DeltaStateMatrix I_KH = DeltaStateMatrix::Identity() - K * H;
+  const auto I = DeltaStateVector::Ones().asDiagonal();
+  const DeltaStateMatrix I_KH = I - K * H;
   if (enable_joseph_form_) {
     // 対称正定が保持されやすい
     const auto P1 = I_KH * P_.selfadjointView<Eigen::Lower>() * I_KH.transpose();
@@ -537,6 +560,7 @@ double ErrorStateKalmanFilter::correct(
   x_.segment<3>(kGyroBiasIdx) += delta_x.segment<3>(kDeltaGyroBiasIdx);
   x_.segment<3>(kMagHardBiasIdx) += delta_x.segment<3>(kDeltaMagHardBiasIdx);
   x_.segment<6>(kMagSoftBiasIdx) += delta_x.segment<6>(kDeltaMagSoftBiasIdx);
+  x_(kBaroAltBiasIdx) += delta_x(kDeltaBaroAltBiasIdx);
   x_(kGravIdx) += delta_x(kDeltaGravIdx);
 
   // (286) Initialize ESKF (Optional)

@@ -8,14 +8,11 @@
 #include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_std_tools/vector.hpp>
 
-using namespace std;
-using namespace Eigen;
-
 namespace tobas
 {
 namespace lr_tools
 {
-GroundForceController::GroundForceController(const kdl::Tree& tree, const vector<string>& foot_names)
+GroundForceController::GroundForceController(const kdl::Tree& tree, const std::vector<std::string>& foot_names)
   : tree_(tree)
   , foot_names_(foot_names)
   , nc_(foot_names.size())
@@ -94,10 +91,10 @@ bool GroundForceController::solve(
   const double& tar_yawrate,
   const double& tar_vx,
   const double& tar_vy,
-  const vector<double>& roll_pred,
-  const vector<double>& pitch_pred,
-  const vector<kdl::JntArray>& q_pred,
-  const vector<vector<bool>>& is_stand_pred)
+  const std::vector<double>& roll_pred,
+  const std::vector<double>& pitch_pred,
+  const std::vector<kdl::JntArray>& q_pred,
+  const std::vector<std::vector<bool>>& is_stand_pred)
 {
   assert(q_pred.size() == static_cast<size_t>(mpc_.prediction_steps));
   assert(st::allOf(q_pred, [this](const kdl::JntArray& q) { return q.size() == tree_.getNrOfJoints(); }));
@@ -107,7 +104,7 @@ bool GroundForceController::solve(
 
   // Update dynamics
   // ステップ0の連続時間ダイナミクスを後の予測で使うため，未来から逆順で処理する．
-  for (Index k = mpc_.prediction_steps - 1; k >= 0; --k) {
+  for (Eigen::Index k = mpc_.prediction_steps - 1; k >= 0; --k) {
     cont_.update(roll_pred[k], pitch_pred[k], q_pred[k], is_stand_pred[k]);
     mpc_.discrete_dynamics[k] = c2d_.convert(cont_, mpc_.time_step);
   }
@@ -143,7 +140,7 @@ void GroundForceController::initializeMPC()
   const double rpy_sc = M_PI;
   const double size_sc = calcSizeScale();
   const double gyro_sc = M_PI;
-  const double vel_sc = sqrt(st::kGravity * size_sc);  // フルード数の定義を元に決定
+  const double vel_sc = std::sqrt(st::kGravity * size_sc);  // フルード数の定義を元に決定
   mpc_.state_scale.resize(cont_.stateSize());
   mpc_.input_scale.resize(cont_.inputSize());
   mpc_.control_scale.resize(kCtrlSize);
@@ -167,9 +164,9 @@ double GroundForceController::calcSizeScale()
   return bb_solver_.diagonalLength();
 }
 
-MatrixXd GroundForceController::makeCz()
+Eigen::MatrixXd GroundForceController::makeCz()
 {
-  MatrixXd res = MatrixXd::Zero(kCtrlSize, cont_.stateSize());
+  Eigen::MatrixXd res = Eigen::MatrixXd::Zero(kCtrlSize, cont_.stateSize());
   res.diagonal().head<kCtrlSize>().setOnes();
   return res;
 }
@@ -184,9 +181,9 @@ ctrl::LinearEquation GroundForceController::makeInputConstraint()
   const auto ud = u * d;
 
   // 足1本について
-  MatrixXd F1(kNumConstraintsPerLeg, LinearDynamics::kInputSizePerLeg);
+  Eigen::MatrixXd F1(kNumConstraintsPerLeg, LinearDynamics::kInputSizePerLeg);
   F1 << 0, 0, -1, 0, 0, 0, 1, 0, -1, 0, -u, 0, 1, 0, -u, 0, 0, -1, -u, 0, 0, 1, -u, 0, 0, 0, -ud, -1, 0, 0, -ud, 1;
-  VectorXd f1(kNumConstraintsPerLeg);
+  Eigen::VectorXd f1(kNumConstraintsPerLeg);
   f1 << -f_min, f_max, 0, 0, 0, 0, 0, 0;
 
   // 全ての足について

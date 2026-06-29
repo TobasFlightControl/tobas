@@ -62,10 +62,10 @@ Tobas では機体の構造は[UADF (Universal Aircraft Description Format)](./a
 
 ## Flight Management Unit (FMU)
 
-### Tobas FC101
+### Tobas FC201
 
-<img src="./assets/introduction/fc101_1.png" alt="fc101_1" width="49%">
-<img src="./assets/introduction/fc101_2.png" alt="fc101_2" width="49%">
+<img src="../assets/introduction/fc201_1.jpg" alt="fc201_1" width="49%">
+<img src="../assets/introduction/fc201_2.jpg" alt="fc201_2" width="49%">
 
 #### Sensors & Processors
 
@@ -80,8 +80,8 @@ Tobas では機体の構造は[UADF (Universal Aircraft Description Format)](./a
 #### Interface
 
 - GNSS Antenna: SMA
-- Power Module: Molex 2.0mm 8pin
-- UART, I2C Interface: JST-GH 6pin
+- Power Module: Molex 2.0mm 6pin
+- UART, I2C Interface: JST-GH 4pin
 
 ## 使用例
 

@@ -95,60 +95,54 @@ bool QpMixer::solve(
   const auto eom_rot_right_B = I_B * tar_dgyro_B + cur_gyro_B * (I_B * cur_gyro_B) - ext_torque_B;  // [Nm]
   h_.tail<3>() = eom_rot_right_B.data;
 
-  // 重み
-  const auto linear_scale = mass * kAccelScale;                              // [N]
-  const auto angular_scale = (I_B.trace() / 3) * kDGyroScale;                // [Nm]
-  const auto thrust_scale = mass * st::kGravity / drone_.prop->numRotors();  // [N]
+  // EoMに対する重み
+  const auto linear_scale = mass * kAccelScale;                // [N]
+  const auto angular_scale = (I_B.trace() / 3) * kDGyroScale;  // [Nm]
   Q_.diagonal().head<3>().fill(cfg_.linear_weight / math::sqr(linear_scale));
   Q_.diagonal().tail<3>().fill(cfg_.angular_weight / math::sqr(angular_scale));
-  R_.diagonal().fill(cfg_.thrust_weight / math::sqr(thrust_scale));
-  S_.diagonal().fill(cfg_.delta_thrust_weight / math::sqr(thrust_scale));
 
-  // 推力を決定変数としたときの目的関数
-  const MatrixXd P = G_.transpose() * Q_ * G_ + R_;
-  const VectorXd q = -G_.transpose() * Q_ * h_;
+  // 推力に対する重み
+  const auto thrust_scale = mass * st::kGravity / drone_.prop->numRotors();  // [N]
+  const auto thrust_weight_base = cfg_.thrust_weight / math::sqr(thrust_scale);
+  for (const auto& [idx, pair] : std::views::enumerate(drone_.prop->rotors)) {
+    const auto& rotor = pair.second;
+    R_.diagonal()(idx) = thrust_weight_base * rotor->effortWeight();
+  }
 
-  // 推力を決定変数としたときの不等式制約
+  // 目的関数
+  qp_.problem.P = G_.transpose() * Q_ * G_ + R_;
+  qp_.problem.q = -G_.transpose() * Q_ * h_;
+
+  // 不等式制約
   for (const auto& [idx, rotor_it] : views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = rotor_it.second;
     if (rotor_alive_.at(rotor->link_name)) {
-      b_(idx) = drone_.prop->maxThrust(rotor->link_name);
-      b_(drone_.prop->numRotors() + idx) = -drone_.prop->minThrust(rotor->link_name);
+      qp_.problem.b(idx) = drone_.prop->maxThrust(rotor->link_name);
+      qp_.problem.b(drone_.prop->numRotors() + idx) = -drone_.prop->minThrust(rotor->link_name);
     }
     else {
-      b_(idx) = 0.;
-      b_(drone_.prop->numRotors() + idx) = 0.;
+      qp_.problem.b(idx) = 0.;
+      qp_.problem.b(drone_.prop->numRotors() + idx) = 0.;
     }
   }
 
-  // QPPの決定変数を推力からその変化量に変換 (memo: 3-40)
-  qp_.problem.P = P + S_;
-  qp_.problem.q = q + P * x_prev_;
-  qp_.problem.A = A_;
-  qp_.problem.b = b_ - A_ * x_prev_;
-
   // QPPを解く
-  // TODO: 正則化項を入れると必ず解のシフトが発生するため，階層QPを使うか，Gのランクによって分岐
   if (!qp_.solve()) {
     cerr << "QP failed: " << qp_.errorMessage() << endl;
     return false;
   }
-
-  // 解を保存
-  const auto& x_delta = qp_.solution();
-  x_prev_ += x_delta;
 
   return true;
 }
 
 const Eigen::VectorXd& QpMixer::getThrusts() const
 {
-  return x_prev_;
+  return qp_.solution();
 }
 
 double QpMixer::getThrust(size_t idx) const
 {
-  return thrustDeadband(x_prev_(idx));
+  return thrustDeadband(qp_.solution()(idx));
 }
 
 bool QpMixer::setLinearWeight(double p)
@@ -184,37 +178,21 @@ bool QpMixer::setThrustWeight(double p)
   return true;
 }
 
-bool QpMixer::setDeltaThrustWeight(double p)
-{
-  if (p <= 0.) {
-    cerr << "Delta thrust weight must be positive." << endl;
-    return false;
-  }
-
-  cfg_.delta_thrust_weight = p;
-  return true;
-}
-
 void QpMixer::resizeAndFill()
 {
   const auto var_size = drone_.prop->numRotors();
   const auto ineq_size = var_size * 2;
 
   qp_.resize(var_size, 0, ineq_size);
-  qp_.x_scale.setOnes();  // QPの決定変数は推力のみなのでスケールは統一してよい
+  qp_.setZero();
+
+  qp_.x_scale.setOnes();
+
+  qp_.problem.A.topRows(var_size).diagonal().fill(1);
+  qp_.problem.A.bottomRows(var_size).diagonal().fill(-1);
 
   R_.resize(var_size);
-  S_.resize(var_size);
-
   G_.resize(NoChange, var_size);
-
-  A_ = MatrixXd::Zero(ineq_size, var_size);
-  A_.topRows(var_size).diagonal().fill(1);
-  A_.bottomRows(var_size).diagonal().fill(-1);
-
-  b_.resize(ineq_size);
-
-  x_prev_ = VectorXd::Zero(var_size);
 }
 }  // namespace nonplanar_multicopter
 }  // namespace tobas

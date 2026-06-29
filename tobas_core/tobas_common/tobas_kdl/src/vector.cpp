@@ -7,8 +7,6 @@
 
 #include <tobas_math/core.hpp>
 
-using namespace std;
-
 namespace tobas
 {
 namespace kdl
@@ -23,13 +21,13 @@ bool Vector::isParallel(const Vector& rhs, bool same_direction_only, double angl
 
   // ゼロベクトルは平行が定義できないため負荷
   if (na2 < zero_tol || nb2 < zero_tol) {
-    cerr << "Parallelism is undefined for zero vector." << endl;
+    std::cerr << "Parallelism is undefined for zero vector." << std::endl;
     return false;
   }
 
   const auto dot = this->dot(rhs);
   const auto cos2 = math::sqr(dot) / (na2 * nb2);
-  const auto thresh = math::sqr(cos(angle_tol_rad));
+  const auto thresh = math::sqr(std::cos(angle_tol_rad));
 
   if (same_direction_only) {
     return cos2 > thresh && dot > 0.;

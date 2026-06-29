@@ -241,6 +241,13 @@ void SettingsWidget::setListItemEnabled(QListWidgetItem* item, bool enabled)
 
 void SettingsWidget::onListItemChanged(QListWidgetItem* item)
 {
+  qDebug() << "SettingsWidget::onListItemChanged";
+
+  if (!item) {
+    qWarning() << "The list item is null.";
+    return;
+  }
+
   const auto idx = item->data(Qt::UserRole).toInt();
   if (idx < 0) {
     qWarning() << "Corresponding widget not found.";

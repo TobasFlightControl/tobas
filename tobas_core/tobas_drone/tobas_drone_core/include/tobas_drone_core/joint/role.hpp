@@ -7,7 +7,7 @@
 
 namespace tobas
 {
-enum struct JointRole
+enum class JointRole
 {
   kTiltJoint,
   kControlSurface,

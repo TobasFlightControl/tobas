@@ -97,13 +97,16 @@ static constexpr char kRosbagRecordStop[] = "rosbag_record_stop";
 static constexpr char kRosbagClean[] = "rosbag_clean";
 static constexpr char kConfigureImuLowPassFilter[] = "configure_imu_lowpass_filter";
 static constexpr char kConfigureImuRpmFilter[] = "configure_imu_rpm_filter";
-static constexpr char kGetRotorControlGains[] = "get_rotor_control_gains";
-static constexpr char kSetRotorControlGains[] = "set_rotor_control_gains";
-static constexpr char kSaveRotorControlGains[] = "save_rotor_control_gains";
+static constexpr char kSetRpmControlGains[] = "set_rpm_control_gains";
 }  // namespace service
 
 namespace action
 {
 static constexpr char kExecuteMission[] = "execute_mission";
 }  // namespace action
+
+namespace param
+{
+static constexpr char kRpmControlGainPrefix[] = "rpm_control_gain/";
+}  // namespace param
 }  // namespace tobas

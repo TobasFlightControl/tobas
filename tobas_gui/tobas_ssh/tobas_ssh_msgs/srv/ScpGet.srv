@@ -1,8 +1,0 @@
-# SPDX-License-Identifier: Apache-2.0
-# Copyright (C) 2026 Tobas, Inc.
-
-string remote_path
-string local_path
----
-bool success
-string message

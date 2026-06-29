@@ -44,13 +44,13 @@ bool TranslationalEoM::solve(
   }
 
   // 姿勢追従と方位追従を分離するために現在の方位角で目標姿勢角を計算
-  const auto cos_yaw = cos(yaw_);
-  const auto sin_yaw = sin(yaw_);
-  pitch_out = atan2(x * cos_yaw + y * sin_yaw, z);
-  roll_out = atan2(cos(pitch_out) * (x * sin_yaw - y * cos_yaw), z);
+  const auto cos_yaw = std::cos(yaw_);
+  const auto sin_yaw = std::sin(yaw_);
+  pitch_out = std::atan2(x * cos_yaw + y * sin_yaw, z);
+  roll_out = std::atan2(std::cos(pitch_out) * (x * sin_yaw - y * cos_yaw), z);
 
   // 高度追従と姿勢追従を分離するために現在の姿勢で目標推力を計算
-  thrust_out = z / (cos(roll_) * cos(pitch_));
+  thrust_out = z / (std::cos(roll_) * std::cos(pitch_));
 
   return true;
 }

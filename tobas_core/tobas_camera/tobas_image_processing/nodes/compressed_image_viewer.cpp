@@ -4,8 +4,6 @@
 #include <cv_bridge/cv_bridge.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
-#include <rclcpp/rclcpp.hpp>
-#include <rclcpp_components/register_node_macro.hpp>
 
 #include <tobas_node/node.hpp>
 
@@ -24,7 +22,7 @@ public:
 private:
   void msgCb(const sensor_msgs::msg::CompressedImage::ConstSharedPtr& _msg);
 
-  rclcpp::Subscription<sensor_msgs::msg::CompressedImage>::SharedPtr sub_;
+  ros2::SubscriberPtr<sensor_msgs::msg::CompressedImage> sub_;
 };
 
 CompressedImageViewer::CompressedImageViewer(const rclcpp::NodeOptions& _options)

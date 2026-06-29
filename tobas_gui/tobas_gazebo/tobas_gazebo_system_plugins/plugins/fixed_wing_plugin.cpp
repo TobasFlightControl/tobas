@@ -477,8 +477,8 @@ gz::math::Vector3d GazeboFixedWingPlugin::nonDimentionalAeroCoefs_Force(
   const auto C_D = dragCoefficient(ecm, alpha);  // 抗力係数 (1.8-3)
   const auto C_S = sideCoefficient(ecm, beta);   // 横力係数 (1.8-5)
 
-  const auto cos_alpha = cos(alpha);
-  const auto sin_alpha = sin(alpha);
+  const auto cos_alpha = std::cos(alpha);
+  const auto sin_alpha = std::sin(alpha);
 
   const auto C_x = -C_D * cos_alpha + C_L * sin_alpha;  // (1.8-4)
   const auto C_z = -C_L * cos_alpha - C_D * sin_alpha;  // (1.8-4)

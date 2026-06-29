@@ -7,7 +7,7 @@
 
 namespace tobas
 {
-enum struct HardwareInterface
+enum class HardwareInterface
 {
   kPwm,
   kOther,

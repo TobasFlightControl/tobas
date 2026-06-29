@@ -4,6 +4,7 @@
 #include "tobas_ic_drivers/ublox/ubx_payload.hpp"
 
 #include <bit>
+#include <ranges>
 
 #include <tobas_algorithm/binary.hpp>
 
@@ -198,9 +199,45 @@ void NAV_RESETODO::decode(const uint8_t*)
   // TODO
 }
 
-void NAV_SAT::decode(const uint8_t*)
+void NAV_SAT::decode(const uint8_t* p)
 {
-  // TODO
+  iTOW = algo::decodeU32(p + 0);
+  version = algo::decodeU8(p + 4);
+  numSvs = algo::decodeU8(p + 5);
+
+  satellites.resize(numSvs);
+
+  for (size_t i = 0; i < numSvs; ++i) {
+    const auto sv = p + 8 + i * 12;
+    auto& sat = satellites[i];
+
+    sat.gnssId = algo::decodeU8(sv + 0);
+    sat.svId = algo::decodeU8(sv + 1);
+    sat.cno = algo::decodeU8(sv + 2);
+    sat.elev = algo::decodeI8(sv + 3);
+    sat.azim = algo::decodeI16(sv + 4);
+    sat.prRes = algo::decodeI16(sv + 6) * 0.1;
+
+    const auto flags = algo::decodeU32(sv + 8);
+    sat.qualityInd = static_cast<NAV_SAT::Satellite::QualityIndicator>(flags & 0b111);
+    sat.svUsed = (flags >> 3) & 1;
+    sat.health = static_cast<NAV_SAT::Satellite::Health>((flags >> 4) & 0b11);
+    sat.diffCorr = (flags >> 6) & 1;
+    sat.smoothed = (flags >> 7) & 1;
+    sat.orbitSource = static_cast<NAV_SAT::Satellite::OrbitSource>((flags >> 8) & 0b111);
+    sat.ephAvail = (flags >> 11) & 1;
+    sat.almAvail = (flags >> 12) & 1;
+    sat.anoAvail = (flags >> 13) & 1;
+    sat.aopAvail = (flags >> 14) & 1;
+    sat.sbasCorrUsed = (flags >> 16) & 1;
+    sat.rtcmCorrUsed = (flags >> 17) & 1;
+    sat.slasCorrUsed = (flags >> 18) & 1;
+    sat.spartnCorrUsed = (flags >> 19) & 1;
+    sat.prCorrUsed = (flags >> 20) & 1;
+    sat.crCorrUsed = (flags >> 21) & 1;
+    sat.doCorrUsed = (flags >> 22) & 1;
+    sat.clasCorrUsed = (flags >> 23) & 1;
+  }
 }
 
 void NAV_SBAS::decode(const uint8_t*)
@@ -458,6 +495,8 @@ void NAV_PVT::print(std::ostream& os) const
   os << "UTC Date validity could be confirmed: " << confirmedDate << std::endl;
   os << "UTC Time of Day could be confirmed: " << confirmedTime << std::endl;
 
+  os << "Number of satellites used in Nav Solution: " << (int)numSV << std::endl;
+
   os << "Longitude: " << lon << "[deg]" << std::endl;
   os << "Latitude: " << lat << "[deg]" << std::endl;
   os << "Height above ellipsoid: " << height << "[mm]" << std::endl;
@@ -490,9 +529,25 @@ void NAV_RESETODO::print(std::ostream&) const
   // TODO
 }
 
-void NAV_SAT::print(std::ostream&) const
+void NAV_SAT::print(std::ostream& os) const
 {
-  // TODO
+  os << "GPS time of week: " << iTOW << "[ms]" << std::endl;
+  os << "Message version: " << (int)version << std::endl;
+  os << "Number of satellites: " << (int)numSvs << std::endl;
+
+  for (const auto& [i, sat] : std::views::enumerate(satellites)) {
+    os << "Satellite[" << i << "] " << "gnssId=" << (int)sat.gnssId << ", " << "svId=" << (int)sat.svId << ", "
+       << "cno=" << (int)sat.cno << "[dB-Hz], " << "elev=" << (int)sat.elev << "[deg], " << "azim=" << sat.azim
+       << "[deg], " << "prRes=" << sat.prRes << "[m], " << "qualityInd=" << (int)sat.qualityInd << ", "
+       << "svUsed=" << sat.svUsed << ", " << "health=" << (int)sat.health << ", " << "diffCorr=" << sat.diffCorr << ", "
+       << "smoothed=" << sat.smoothed << ", " << "orbitSource=" << (int)sat.orbitSource << ", "
+       << "ephAvail=" << sat.ephAvail << ", " << "almAvail=" << sat.almAvail << ", " << "anoAvail=" << sat.anoAvail
+       << ", " << "aopAvail=" << sat.aopAvail << ", " << "sbasCorrUsed=" << sat.sbasCorrUsed << ", "
+       << "rtcmCorrUsed=" << sat.rtcmCorrUsed << ", " << "slasCorrUsed=" << sat.slasCorrUsed << ", "
+       << "spartnCorrUsed=" << sat.spartnCorrUsed << ", " << "prCorrUsed=" << sat.prCorrUsed << ", "
+       << "crCorrUsed=" << sat.crCorrUsed << ", " << "doCorrUsed=" << sat.doCorrUsed << ", "
+       << "clasCorrUsed=" << sat.clasCorrUsed << std::endl;
+  }
 }
 
 void NAV_SBAS::print(std::ostream&) const

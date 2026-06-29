@@ -40,7 +40,6 @@ public:
   bool setLinearWeight(double p);
   bool setAngularWeight(double p);
   bool setThrustWeight(double p);
-  bool setDeltaThrustWeight(double p);
 
 private:
   struct Config
@@ -48,7 +47,6 @@ private:
     double linear_weight = 1.;
     double angular_weight = 1.;
     double thrust_weight = 1e-9;
-    double delta_thrust_weight = 1e-9;
   } cfg_;
 
   kdl::TreeFkSolverPosAll fk_solver_;
@@ -57,12 +55,8 @@ private:
   quadprog::DualActiveSetSolver qp_;  // QPソルバー
   Eigen::Diagonal6d Q_;               // EoMの重み
   Eigen::DiagonalXd R_;               // 推力の重み
-  Eigen::DiagonalXd S_;               // 推力の変化量の重み
   Eigen::Matrix6Xd G_;                // EoM行列等式の左辺
   Eigen::Vector6d h_;                 // EoM行列等式の右辺
-  Eigen::MatrixXd A_;                 // 不等式制約の左辺
-  Eigen::VectorXd b_;                 // 不等式制約の右辺
-  Eigen::VectorXd x_prev_;            // 前回の最適解
 
   void resizeAndFill();
 };

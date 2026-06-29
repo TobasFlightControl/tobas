@@ -25,7 +25,7 @@ int main()
       cerr << "Failed to read magnetic field." << endl;
       return EXIT_FAILURE;
     }
-    const double norm = sqrt(mx * mx + my * my + mz * mz);
+    const double norm = std::sqrt(mx * mx + my * my + mz * mz);
     cout << "Magnetic Field [μT]: " << mx << ", " << my << ", " << mz << "| norm=" << norm << endl;
 
     this_thread::sleep_for(1s);

@@ -30,12 +30,12 @@ Build the actual vehicle according to the settings configured in Setup Assistant
 The S.BUS signal is assumed to have 8 or more channels.
 In Tobas, the role of each RC input channel is as follows:
 
-| Channel | Role            | Interface        |
-| :------ | :-------------- | :--------------- |
-| CH1     | Roll            | Lever            |
-| CH2     | Pitch           | Lever            |
-| CH3     | Throttle        | Lever            |
-| CH4     | Yaw             | Lever            |
+| Channel | Role            | Interface         |
+| :------ | :-------------- | :---------------- |
+| CH1     | Roll            | Lever             |
+| CH2     | Pitch           | Lever             |
+| CH3     | Throttle        | Lever             |
+| CH4     | Yaw             | Lever             |
 | CH5     | Flight mode     | 3-position switch |
 | CH6     | Sub flight mode | 2-position switch |
 | CH7     | Enable/disable  | 2-position switch |
@@ -69,23 +69,6 @@ This time, we used the following settings.
 Also, when using a Futaba transmitter, you need to set the throttle lever to reverse.
 Press and hold the `+` button on the transmitter to open the menu screen, then select `リバース`.
 Set only the throttle lever (`THR`) to reverse (`REV`).
-
-## Powering the FC
-
----
-
-<span style="color: red;"><strong>Always power the FC through the power module via the Molex connector on the top of the board.</strong></span>
-By design, the power module supplies power to the Raspberry Pi and the other systems, so do not power it through the Raspberry Pi's type-C port.
-Reverse voltage may be applied to some ICs and cause damage.
-
-<!-- prettier-ignore-start -->
-!!! tip
-      Of course, you can use a LiPo battery as the power source, but if the load is light, such as when you are only doing setup,
-      it is convenient to use a commercially available AC adapter for laptops
-      with an
-      <a href=https://www.amazon.co.jp/dp/B08VZGR846 target="_blank">XT60 adapter</a>
-      so that you do not need to worry about battery charge.
-<!-- prettier-ignore-end -->
 
 ## Loading and Writing a Tobas Project
 
@@ -165,8 +148,9 @@ Click `Actuator Test` among the tool buttons at the top of the screen.
 1. Adjust the control gain for each motor.
    Increase the gain one by one while changing the target rotation speed and confirming that no oscillation occurs.
    Here, all gains were set to 17.
-1. Click `Save` to save the control gains to the FC.
-1. Click `Stop` to finish the test.
+1. Click Save to save the control gains to the project on the PC.
+1. Click Stop to end the test.
+1. Click Write Project to flash the saved control gains to the FC.
 
 <!-- prettier-ignore-start -->
 !!! note

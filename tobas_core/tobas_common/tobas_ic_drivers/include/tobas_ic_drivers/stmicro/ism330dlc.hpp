@@ -19,7 +19,7 @@ namespace stm
 class ISM330DLC
 {
 public:
-  enum struct odr_xl_t : uint8_t
+  enum class odr_xl_t : uint8_t
   {
     ODR_XL_26HZ,
     ODR_XL_52HZ,
@@ -32,7 +32,7 @@ public:
     ODR_XL_6664HZ,
   };
 
-  enum struct fs_xl_t : uint8_t
+  enum class fs_xl_t : uint8_t
   {
     FS_XL_2G,
     FS_XL_4G,
@@ -40,7 +40,7 @@ public:
     FS_XL_16G,
   };
 
-  enum struct odr_g_t : uint8_t
+  enum class odr_g_t : uint8_t
   {
     ODR_G_26HZ,
     ODR_G_52HZ,
@@ -53,7 +53,7 @@ public:
     ODR_G_6664HZ,
   };
 
-  enum struct fs_g_t : uint8_t
+  enum class fs_g_t : uint8_t
   {
     FS_G_125DPS,
     FS_G_250DPS,

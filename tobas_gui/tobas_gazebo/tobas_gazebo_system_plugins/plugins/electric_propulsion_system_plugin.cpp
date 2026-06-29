@@ -366,7 +366,7 @@ void GazeboElectricPropulsionSystemPlugin::applyWrenchAndPublishState(
   ros2::timeChronoToMsg(cur_time, state_msg_gt->header.stamp);
   state_msg_gt->rotation_speed = param_.direction * vel_;
   state_msg_gt->current = current;
-  state_msg_gt->vibration_force = param_.vib_force_coef * thrust * sin(pos_) * rice_(rnd_gen_);
+  state_msg_gt->vibration_force = param_.vib_force_coef * thrust * std::sin(pos_) * rice_(rnd_gen_);
   state_gt_pub_->publish(std::move(state_msg_gt));
 
   // Publish debug information
@@ -390,8 +390,8 @@ void GazeboElectricPropulsionSystemPlugin::updateJointState(gz::sim::EntityCompo
   const auto b = param_.resistance * param_.kv * param_.moment_const * param_.motor_const;
   const auto c = 1. / param_.kv;
 
-  const auto Ea = battery_gt_->voltage * throt_;                                          // 印加電圧
-  const auto eq_speed = Ea == 0. ? 0. : (sqrt(math::sqr(c) + 4 * b * Ea) - c) / (2 * b);  // 平衡点での回転数
+  const auto Ea = battery_gt_->voltage * throt_;                                               // 印加電圧
+  const auto eq_speed = Ea == 0. ? 0. : (std::sqrt(math::sqr(c) + 4 * b * Ea) - c) / (2 * b);  // 平衡点での回転数
 
   const auto cur_speed = std::max(param_.direction * vel_, 0.);
 

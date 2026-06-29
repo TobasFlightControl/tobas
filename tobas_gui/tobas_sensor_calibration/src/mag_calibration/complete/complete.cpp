@@ -320,7 +320,7 @@ void CompleteMagCalibWidget::removeOutliers()
     dist2_sum += dist2;
   }
   const auto dist_var = dist2_sum / size;
-  const auto dist_stddev = sqrt(dist_var);
+  const auto dist_stddev = std::sqrt(dist_var);
 
   // 平均点からの距離が大きく外れているものを弾く
   for (int pi = 0; pi < cnt_; ++pi) {
@@ -556,8 +556,9 @@ void CompleteMagCalibWidget::addEllipsoidPoint(
   const eigen::Ellipsoid& ellipsoid,
   std::vector<geometry_msgs::msg::Point>& points)
 {
-  const Eigen::Vector3d p(cos(theta) * cos(phi), cos(theta) * sin(phi), sin(theta));  // Unit sphere
-  const Eigen::Vector3d q = ellipsoid.fromUnitSphere(p);                              // Ellipsoid
+  const Eigen::Vector3d p(
+    std::cos(theta) * std::cos(phi), std::cos(theta) * std::sin(phi), std::sin(theta));  // Unit sphere
+  const Eigen::Vector3d q = ellipsoid.fromUnitSphere(p);                                 // Ellipsoid
 
   points.emplace_back();
   tf::pointEigenToMsg(kRvizPointScale * q, points.back());
