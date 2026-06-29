@@ -48,3 +48,29 @@ export CCACHE_DIR="$HOME/.cache/ccache/"
 ### ROS 2 をインストール
 
 `tobas/tobas_dev_tools/scripts/install_ros2_raspbian`
+
+## メモ
+
+### cmdline.txtについて
+
+#### 参考
+
+- [リアルタイム性能の測定に向けたRaspberryPi3のセットアップ](https://wazalabo.com/ros2_raspberrypi3_setup.html)
+- [DPDKのパケットロスを抑制する](https://www.miraclelinux.com/tech-blog/0f7a6b)
+
+#### オプション
+
+- `console=tty1`:
+  Disable the serial console
+- `root=PARTUUID=xxxxxxxx-02`:
+  Specify the root filesystem partition (must match the contents of `/etc/fstab`)
+- `rcu_nocbs=1-3`:
+  Avoid RCU (Read-Copy-Update) to be executed on CPU1-3
+- `nohz_full=1-3`:
+  Avoid periodical timer interruption to be executed on CPU1-3
+- `isolcpus=domain,managed_irq,1-3`:
+  Isolate CPU1-3
+- `irqaffinity=0`:
+  Set the default IRQ affinity to CPU0
+- `resize`:
+  Resize (Expand) the rootfs partition (not filesystem)
