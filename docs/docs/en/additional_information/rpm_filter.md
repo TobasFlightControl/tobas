@@ -2,11 +2,15 @@
 
 ## What Is an RPM Filter?
 
+---
+
 An RPM filter is a notch filter whose center frequency tracks the motor rotation frequency and its harmonics.
 On drones, especially multicopters, most vibration in the IMU comes from the propellers,
 so vibration can be effectively removed by making the notch filter center frequency follow the motor RPM.
 
 ## Effect of the RPM Filter
+
+---
 
 The greatest advantage of using an RPM filter is its extremely high filtering effectiveness.
 The gain at the center frequency of a notch filter is zero, so ideally,
@@ -38,11 +42,15 @@ and it also reduces motor heat generation and makes the propeller sound smoother
 
 ## Supported FMUs
 
+---
+
 The RPM filter can be used with the following FMUs.
 
 - FC2xx
 
 ## Parameters
+
+---
 
 ![param_tuning](../../assets/rpm_filter/param_tuning.png)
 
