@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <limits>
 #include <ranges>
 #include <span>
 #include <vector>
@@ -56,6 +57,57 @@ inline double selectConservativeLimit(double current, double candidate)
     return current;
   }
   return isPositive(current) ? std::min(current, candidate) : candidate;
+}
+
+struct PathComponentScale
+{
+  // パス弧長sに対する水平・鉛直方向の最大成分係数．
+  // 例: horizontal=1, vertical=0なら水平だけのパス，horizontal=0, vertical=1なら鉛直だけのパス．
+  // horizontalとverticalは別々のノルムなので，合計が1になるとは限らない．
+  double horizontal = 0.;
+  double vertical = 0.;
+};
+
+size_t selectPathConstraintSampleCount(const CatmullRomPath& path)
+{
+  constexpr double kPathConstraintSampleInterval = 1.;  // [m]
+  constexpr size_t kPathConstraintSamplesPerSegment = 20;
+  constexpr size_t kMaxPathConstraintSamples = 5000;
+
+  // 長いパスでは距離に応じて，短く曲がりの多いパスではセグメント数に応じてサンプル数を増やす．
+  const auto length_based_samples = static_cast<size_t>(std::ceil(path.length() / kPathConstraintSampleInterval));
+  const auto segment_based_samples = path.segmentCount() * kPathConstraintSamplesPerSegment;
+  return std::clamp(std::max(length_based_samples, segment_based_samples), 1UL, kMaxPathConstraintSamples);
+}
+
+PathComponentScale getMaxPathComponentScale(const CatmullRomPath& path)
+{
+  PathComponentScale scale;
+  const auto path_length = path.length();
+  const auto sample_count = selectPathConstraintSampleCount(path);
+
+  // Catmull-Rom曲線では接線方向が区間内で変わるため，パス全体をサンプリングして最も厳しい成分係数を使う．
+  for (size_t sample = 0; sample <= sample_count; ++sample) {
+    const auto s = path_length * static_cast<double>(sample) / static_cast<double>(sample_count);
+    const auto tangent = path.get(s).tangent;
+    scale.horizontal = std::max(scale.horizontal, math::norm(tangent.x(), tangent.y()));
+    scale.vertical = std::max(scale.vertical, std::abs(tangent.z()));
+  }
+  return scale;
+}
+
+double selectPathConstraintLimit(double horizontal_limit, double vertical_limit, const PathComponentScale& scale)
+{
+  // 軸別制約を，パス弧長s方向のスカラー制約へ換算する．
+  // v_xy = horizontal_scale * s_dot, v_z = vertical_scale * s_dot なので，各軸の上限を成分係数で割る．
+  auto path_limit = std::numeric_limits<double>::infinity();
+  if (scale.horizontal > 0.) {
+    path_limit = std::min(path_limit, horizontal_limit / scale.horizontal);
+  }
+  if (scale.vertical > 0.) {
+    path_limit = std::min(path_limit, vertical_limit / scale.vertical);
+  }
+  return std::isfinite(path_limit) ? path_limit : std::min(horizontal_limit, vertical_limit);
 }
 }  // namespace
 
@@ -512,9 +564,12 @@ bool MulticopterMissionExecutorNode::executeWaypoints(
     max_ver_jerk = selectConservativeLimit(max_ver_jerk, goal.max_vertical_jerk);
     max_head_rate = selectConservativeLimit(max_head_rate, goal.max_heading_rate);
   }
-  const auto max_path_vel = std::min(max_hor_vel, max_ver_vel);
-  const auto max_path_acc = std::min(max_hor_acc, max_ver_acc);
-  const auto max_path_jerk = std::min(max_hor_jerk, max_ver_jerk);
+
+  // 3Dパスは1本のスカラー軌道s(t)で進めるため，xy/z制約をs方向の上限へ変換してから最小値を使う．
+  const auto path_component_scale = getMaxPathComponentScale(path);
+  const auto max_path_vel = selectPathConstraintLimit(max_hor_vel, max_ver_vel, path_component_scale);
+  const auto max_path_acc = selectPathConstraintLimit(max_hor_acc, max_ver_acc, path_component_scale);
+  const auto max_path_jerk = selectPathConstraintLimit(max_hor_jerk, max_ver_jerk, path_component_scale);
 
   const traj::JerkLimitedTrajectory traj_path(0., path_length, max_path_jerk, max_path_acc, max_path_vel);
 
@@ -563,6 +618,7 @@ bool MulticopterMissionExecutorNode::executeWaypoints(
       }
     }
 
+    // traj_point.p/v/aはパス弧長s方向の状態．CatmullRomPathで3D位置・接線・曲率へ写像する．
     const auto traj_point = traj_path.get(t);
     const auto path_point = path.get(traj_point.p);
     command_.pos.data = path_point.pos;
