@@ -42,6 +42,8 @@ WaypointWidget::WaypointWidget()
   addField(max_head_acc_, true);
   addField(acceptance_radius_);
   addField(altitude_tolerance_);
+
+  updateToleranceFieldsEnabled();
 }
 
 const char* WaypointWidget::name() const
@@ -241,6 +243,18 @@ void WaypointWidget::acceptanceRadius(double value)
 void WaypointWidget::altitudeTolerance(double value)
 {
   setValueOrDefault(altitude_tolerance_, value);
+}
+
+void WaypointWidget::setSplineEnd(bool value)
+{
+  spline_end_ = value;
+  updateToleranceFieldsEnabled();
+}
+
+void WaypointWidget::updateToleranceFieldsEnabled()
+{
+  acceptance_radius_->setEnabled(spline_end_);
+  altitude_tolerance_->setEnabled(spline_end_);
 }
 }  // namespace ctrl
 }  // namespace gui

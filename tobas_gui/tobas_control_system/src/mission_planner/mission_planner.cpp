@@ -221,6 +221,8 @@ void MissionPlannerWidget::listToCommands()
 
 void MissionPlannerWidget::commandsToMap()
 {
+  updateWaypointSplineEnds();
+
   map_->clear();
 
   int index = 1;
@@ -269,6 +271,23 @@ void MissionPlannerWidget::commandsToMap()
         throw;
       }
     }
+  }
+}
+
+void MissionPlannerWidget::updateWaypointSplineEnds()
+{
+  for (int i = 0; i < command_list_->count(); ++i) {
+    const auto item = command_list_->item(i);
+    const auto cmd_type = textToCommand(item->text());
+    if (cmd_type != mission::Type::kWaypoint) {
+      continue;
+    }
+
+    const auto next_is_waypoint =
+      i + 1 < command_list_->count() && textToCommand(command_list_->item(i + 1)->text()) == mission::Type::kWaypoint;
+
+    const auto waypoint = qt::qPointerCast<WaypointWidget>(findCommandWidget(item));
+    waypoint->setSplineEnd(waypoint->stopAtWaypoint() || !next_is_waypoint);
   }
 }
 

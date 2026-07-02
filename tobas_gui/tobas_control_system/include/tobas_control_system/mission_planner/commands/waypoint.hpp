@@ -73,6 +73,8 @@ public:
   void acceptanceRadius(double value);
   void altitudeTolerance(double value);
 
+  void setSplineEnd(bool value);
+
 private:
   field::LatitudeWidget* latitude_;
   field::LongitudeWidget* longitude_;
@@ -89,6 +91,10 @@ private:
   field::MaxHeadingAccelWidget* max_head_acc_;
   field::AcceptanceRadiusWidget* acceptance_radius_;
   field::AltitudeToleranceWidget* altitude_tolerance_;
+
+  bool spline_end_ = true;
+
+  void updateToleranceFieldsEnabled();
 };
 }  // namespace ctrl
 }  // namespace gui

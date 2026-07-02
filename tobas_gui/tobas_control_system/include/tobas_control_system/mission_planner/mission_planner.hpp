@@ -97,6 +97,9 @@ private:
   /* 現在のコマンドに基づいてマップ上のオブジェクトを描き直す． */
   void commandsToMap();
 
+  /* コマンド列から各Waypointがスプライン終端かどうかを更新する． */
+  void updateWaypointSplineEnds();
+
   /* リストの要素に対応するコマンドウィジェットを取得する． */
   BaseCommandWidget* findCommandWidget(const QListWidgetItem* _item);
   const BaseCommandWidget* findCommandWidget(const QListWidgetItem* _item) const;
