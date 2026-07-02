@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <vector>
+
 #include <rclcpp_action/rclcpp_action.hpp>
 
 #include <tobas_mission_items/mission.hpp>
@@ -99,6 +101,9 @@ private:
 
   /* コマンド列から各Waypointがスプライン終端かどうかを更新する． */
   void updateWaypointSplineEnds();
+
+  /* Waypoint列をスプラインとしてマップに描画する． */
+  void addSplinePathToMap(const std::vector<QGeoCoordinate>& waypoints);
 
   /* リストの要素に対応するコマンドウィジェットを取得する． */
   BaseCommandWidget* findCommandWidget(const QListWidgetItem* _item);

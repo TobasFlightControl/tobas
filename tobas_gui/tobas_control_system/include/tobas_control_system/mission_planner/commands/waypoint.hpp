@@ -73,6 +73,7 @@ public:
   void acceptanceRadius(double value);
   void altitudeTolerance(double value);
 
+  bool isSplineEnd() const;
   void setSplineEnd(bool value);
 
 private:

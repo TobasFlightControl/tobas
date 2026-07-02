@@ -245,6 +245,11 @@ void WaypointWidget::altitudeTolerance(double value)
   setValueOrDefault(altitude_tolerance_, value);
 }
 
+bool WaypointWidget::isSplineEnd() const
+{
+  return spline_end_;
+}
+
 void WaypointWidget::setSplineEnd(bool value)
 {
   spline_end_ = value;

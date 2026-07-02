@@ -5,6 +5,8 @@
 
 #include <ranges>
 
+#include <eigen3/Eigen/Core>
+
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
@@ -36,6 +38,34 @@ namespace gui
 {
 namespace ctrl
 {
+namespace
+{
+Eigen::Vector2d splineTangentAt(const std::vector<Eigen::Vector2d>& points, size_t idx)
+{
+  // 端点は片側差分，内部点は中心差分を使い，実行側のCatmull-Rom接線設定に合わせる．
+  if (idx == 0) {
+    return points[1] - points[0];
+  }
+  if (idx == points.size() - 1) {
+    return points[idx] - points[idx - 1];
+  }
+  return 0.5 * (points[idx + 1] - points[idx - 1]);
+}
+
+Eigen::Vector2d splinePosition(const std::vector<Eigen::Vector2d>& points, size_t segment, double u)
+{
+  // Catmull-Rom接線を持つ3次Hermite曲線として，指定セグメント内のxy位置を評価する．
+  const auto& p0 = points[segment];
+  const auto& p1 = points[segment + 1];
+  const auto m0 = splineTangentAt(points, segment);
+  const auto m1 = splineTangentAt(points, segment + 1);
+  const auto u2 = u * u;
+  const auto u3 = u2 * u;
+
+  return (2 * u3 - 3 * u2 + 1) * p0 + (u3 - 2 * u2 + u) * m0 + (-2 * u3 + 3 * u2) * p1 + (u3 - u2) * m1;
+}
+}  // namespace
+
 MissionPlannerWidget::MissionPlannerWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge)
   : node_(node), property_client_(node, "tobas_control_system/mission_planner"), spinner_(Qt::WindowModal, this)
 {
@@ -225,9 +255,12 @@ void MissionPlannerWidget::commandsToMap()
 
   map_->clear();
 
-  int index = 1;
-  bool is_first_waypoint = true;
-  QGeoCoordinate last_coord;
+  int wp_index = 1;
+
+  // 停止位置で区切られるまでのWaypoint列を，1本のスプラインとしてまとめて描く．
+  std::vector<QGeoCoordinate> spline_waypoints;
+  QGeoCoordinate previous_spline_end;
+  bool has_previous_spline_end = false;
   const auto cur_item = command_list_->currentItem();
 
   for (int i = 0; i < command_list_->count(); ++i) {
@@ -242,29 +275,34 @@ void MissionPlannerWidget::commandsToMap()
         const auto longitude = waypoint->longitude();
         const auto coord = QGeoCoordinate(latitude, longitude);
 
+        const auto acceptance_radius = waypoint->isSplineEnd() ? waypoint->acceptanceRadius() : 0.;
         const auto point_color = item == cur_item ? "orange" : "cyan";
-        map_->addWaypoint(index, coord, waypoint->acceptanceRadius(), point_color);
+        map_->addWaypoint(wp_index, coord, acceptance_radius, point_color);
 
-        if (is_first_waypoint) {
-          is_first_waypoint = false;
+        // Stop後にWaypointが続く場合，次のスプライン区間は停止点から再開する．
+        if (spline_waypoints.empty() && has_previous_spline_end) {
+          spline_waypoints.push_back(previous_spline_end);
         }
-        else {
-          map_->addLine(last_coord.latitude(), last_coord.longitude(), latitude, longitude);
+        spline_waypoints.push_back(coord);
+
+        if (waypoint->isSplineEnd()) {
+          addSplinePathToMap(spline_waypoints);
+          previous_spline_end = coord;
+          has_previous_spline_end = true;
+          spline_waypoints.clear();
         }
 
-        ++index;
-        last_coord.setLatitude(latitude);
-        last_coord.setLongitude(longitude);
+        ++wp_index;
 
         break;
       }
-      case mission::Type::kTakeoff: {
-        break;
-      }
-      case mission::Type::kLand: {
-        break;
-      }
+      case mission::Type::kTakeoff:
+      case mission::Type::kLand:
       case mission::Type::kReturnToLaunch: {
+        // Waypoint以外のコマンドはスプライン列を切る境界として扱う．
+        addSplinePathToMap(spline_waypoints);
+        spline_waypoints.clear();
+        has_previous_spline_end = false;
         break;
       }
       default: {
@@ -272,6 +310,8 @@ void MissionPlannerWidget::commandsToMap()
       }
     }
   }
+
+  addSplinePathToMap(spline_waypoints);
 }
 
 void MissionPlannerWidget::updateWaypointSplineEnds()
@@ -288,6 +328,37 @@ void MissionPlannerWidget::updateWaypointSplineEnds()
 
     const auto waypoint = qt::qPointerCast<WaypointWidget>(findCommandWidget(item));
     waypoint->setSplineEnd(waypoint->stopAtWaypoint() || !next_is_waypoint);
+  }
+}
+
+void MissionPlannerWidget::addSplinePathToMap(const std::vector<QGeoCoordinate>& waypoints)
+{
+  constexpr size_t kSplineMapSamplesPerSegment = 30;
+
+  if (waypoints.size() < 2) {
+    return;
+  }
+
+  const auto& origin = waypoints.front();
+  std::vector<Eigen::Vector2d> points;
+  points.reserve(waypoints.size());
+  for (const auto& waypoint : waypoints) {
+    const auto [x, y] =
+      st::gnssToCartRelative(waypoint.latitude(), waypoint.longitude(), origin.latitude(), origin.longitude());
+    points.emplace_back(x, y);
+  }
+
+  // QML側は短いMapPolylineの集合なので，スプラインを一定間隔で折れ線近似して渡す．
+  auto prev_coord = waypoints.front();
+  for (size_t segment = 0; segment + 1 < points.size(); ++segment) {
+    for (size_t sample = 1; sample <= kSplineMapSamplesPerSegment; ++sample) {
+      const auto u = static_cast<double>(sample) / static_cast<double>(kSplineMapSamplesPerSegment);
+      const auto pos = splinePosition(points, segment, u);
+      const auto [latitude, longitude] =
+        st::cartToGnssRelative(pos.x(), pos.y(), origin.latitude(), origin.longitude());
+      map_->addLine(prev_coord.latitude(), prev_coord.longitude(), latitude, longitude);
+      prev_coord = QGeoCoordinate(latitude, longitude);
+    }
   }
 }
 
