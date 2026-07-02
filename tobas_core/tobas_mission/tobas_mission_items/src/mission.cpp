@@ -26,6 +26,7 @@
 #define WAYPOINT_ALTITUDE "altitude"
 #define WAYPOINT_ALTITUDE_FRAME "altitude_frame"
 #define WAYPOINT_AUTO_HEADING "auto_heading"
+#define WAYPOINT_PAUSE "pause"
 #define WAYPOINT_MAX_HORIZONTAL_VELOCITY "max_horizontal_velocity"
 #define WAYPOINT_MAX_HORIZONTAL_ACCEL "max_horizontal_accel"
 #define WAYPOINT_MAX_HORIZONTAL_JERK "max_horizontal_jerk"
@@ -108,6 +109,7 @@ YAML::Node Mission::dump() const
         data_node[WAYPOINT_ALTITUDE] = tobas::yaml::format(waypoint.altitude);
         data_node[WAYPOINT_ALTITUDE_FRAME] = waypoint.altitude_frame;
         data_node[WAYPOINT_AUTO_HEADING] = waypoint.auto_heading;
+        data_node[WAYPOINT_PAUSE] = waypoint.pause;
         data_node[WAYPOINT_MAX_HORIZONTAL_VELOCITY] = tobas::yaml::format(waypoint.max_horizontal_velocity);
         data_node[WAYPOINT_MAX_HORIZONTAL_ACCEL] = tobas::yaml::format(waypoint.max_horizontal_accel);
         data_node[WAYPOINT_MAX_HORIZONTAL_JERK] = tobas::yaml::format(waypoint.max_horizontal_jerk);
@@ -217,6 +219,9 @@ bool Mission::load(const YAML::Node& mission_node)
         return false;
       }
       if (!LOAD_PACKED_FIELD(WAYPOINT_AUTO_HEADING, data_node, waypoint.auto_heading)) {
+        return false;
+      }
+      if (!LOAD_PACKED_FIELD(WAYPOINT_PAUSE, data_node, waypoint.pause)) {
         return false;
       }
       if (!LOAD_PACKED_FIELD(WAYPOINT_MAX_HORIZONTAL_VELOCITY, data_node, waypoint.max_horizontal_velocity)) {

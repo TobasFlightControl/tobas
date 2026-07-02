@@ -23,6 +23,7 @@ struct PACKED Waypoint
   AltitudeFrame altitude_frame = kRelativeToLaunch;
 
   bool auto_heading = true;
+  bool pause = true;
 
   std::float64_t max_horizontal_velocity = 0.;  // [m/s]
   std::float64_t max_horizontal_accel = 0.;     // [m/s^2]
