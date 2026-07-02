@@ -24,6 +24,7 @@ set(AMENT_DEPENDENCIES
     tobas_mission_msgs_adapter
     tobas_qt_tools
     tobas_rqt_bridge
+    tobas_trajectory_generation
     tobas_gui_common
 )
 

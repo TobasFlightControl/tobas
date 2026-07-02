@@ -5,8 +5,6 @@
 
 #include <ranges>
 
-#include <eigen3/Eigen/Core>
-
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
@@ -23,6 +21,7 @@
 #include <tobas_std_tools/check.hpp>
 #include <tobas_std_tools/gnss.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
+#include <tobas_trajectory_generation/offline/catmull_rom.hpp>
 #include <tobas_yaml_tools/core.hpp>
 
 #include "tobas_control_system/mission_planner/command_type.hpp"
@@ -38,34 +37,6 @@ namespace gui
 {
 namespace ctrl
 {
-namespace
-{
-Eigen::Vector2d splineTangentAt(const std::vector<Eigen::Vector2d>& points, size_t idx)
-{
-  // 端点は片側差分，内部点は中心差分を使い，実行側のCatmull-Rom接線設定に合わせる．
-  if (idx == 0) {
-    return points[1] - points[0];
-  }
-  if (idx == points.size() - 1) {
-    return points[idx] - points[idx - 1];
-  }
-  return 0.5 * (points[idx + 1] - points[idx - 1]);
-}
-
-Eigen::Vector2d splinePosition(const std::vector<Eigen::Vector2d>& points, size_t segment, double u)
-{
-  // Catmull-Rom接線を持つ3次Hermite曲線として，指定セグメント内のxy位置を評価する．
-  const auto& p0 = points[segment];
-  const auto& p1 = points[segment + 1];
-  const auto m0 = splineTangentAt(points, segment);
-  const auto m1 = splineTangentAt(points, segment + 1);
-  const auto u2 = u * u;
-  const auto u3 = u2 * u;
-
-  return (2 * u3 - 3 * u2 + 1) * p0 + (u3 - 2 * u2 + u) * m0 + (-2 * u3 + 3 * u2) * p1 + (u3 - u2) * m1;
-}
-}  // namespace
-
 MissionPlannerWidget::MissionPlannerWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge)
   : node_(node), property_client_(node, "tobas_control_system/mission_planner"), spinner_(Qt::WindowModal, this)
 {
@@ -348,16 +319,17 @@ void MissionPlannerWidget::addSplinePathToMap(const std::vector<QGeoCoordinate>&
     points.emplace_back(x, y);
   }
 
+  const traj::CatmullRomPath<Eigen::Vector2d> path(std::move(points));
+
   // QML側は短いMapPolylineの集合なので，スプラインを一定間隔で折れ線近似して渡す．
   auto prev_coord = waypoints.front();
-  for (size_t segment = 0; segment + 1 < points.size(); ++segment) {
+  for (size_t segment = 0; segment < path.segmentCount(); ++segment) {
     for (size_t sample = 1; sample <= kSplineMapSamplesPerSegment; ++sample) {
       const auto u = static_cast<double>(sample) / static_cast<double>(kSplineMapSamplesPerSegment);
-      const auto pos = splinePosition(points, segment, u);
-      const auto [latitude, longitude] =
-        st::cartToGnssRelative(pos.x(), pos.y(), origin.latitude(), origin.longitude());
-      map_->addLine(prev_coord.latitude(), prev_coord.longitude(), latitude, longitude);
-      prev_coord = QGeoCoordinate(latitude, longitude);
+      const auto pos = path.position(segment, u);
+      const auto [lat, lon] = st::cartToGnssRelative(pos.x(), pos.y(), origin.latitude(), origin.longitude());
+      map_->addLine(prev_coord.latitude(), prev_coord.longitude(), lat, lon);
+      prev_coord = QGeoCoordinate(lat, lon);
     }
   }
 }

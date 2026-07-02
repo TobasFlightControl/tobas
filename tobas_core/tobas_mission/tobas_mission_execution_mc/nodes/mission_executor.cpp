@@ -17,6 +17,7 @@
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_std_tools/byte.hpp>
 #include <tobas_std_tools/gnss.hpp>
+#include <tobas_trajectory_generation/offline/catmull_rom.hpp>
 #include <tobas_trajectory_generation/offline/jerk_limited.hpp>
 #include <tobas_trajectory_generation/offline/linear.hpp>
 
@@ -34,7 +35,6 @@
 #include <tobas_msgs_adapter/odometry_with_covariance_stamped.hpp>
 #include <tobas_msgs_adapter/rc_input.hpp>
 
-#include "tobas_mission_execution_mc/catmull_rom_path.hpp"
 #include "tobas_mission_execution_mc/stop_trajectory_generator.hpp"
 
 using namespace std::chrono_literals;
@@ -45,6 +45,8 @@ namespace mission
 {
 namespace
 {
+using CatmullRomPath = traj::CatmullRomPath<Eigen::Vector3d>;
+
 /* NaNではなく且つ正の値の場合にTrueを返す． */
 inline bool isPositive(double value)
 {
