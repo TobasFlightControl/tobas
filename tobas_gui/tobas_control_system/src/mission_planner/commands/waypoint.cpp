@@ -245,21 +245,21 @@ void WaypointWidget::altitudeTolerance(double value)
   setValueOrDefault(altitude_tolerance_, value);
 }
 
-bool WaypointWidget::isSplineEnd() const
+bool WaypointWidget::isSplineSegmentEnd() const
 {
-  return spline_end_;
+  return spline_segment_end_;
 }
 
-void WaypointWidget::setSplineEnd(bool value)
+void WaypointWidget::setSplineSegmentEnd(bool value)
 {
-  spline_end_ = value;
+  spline_segment_end_ = value;
   updateToleranceFieldsEnabled();
 }
 
 void WaypointWidget::updateToleranceFieldsEnabled()
 {
-  acceptance_radius_->setEnabled(spline_end_);
-  altitude_tolerance_->setEnabled(spline_end_);
+  acceptance_radius_->setEnabled(spline_segment_end_);
+  altitude_tolerance_->setEnabled(spline_segment_end_);
 }
 }  // namespace ctrl
 }  // namespace gui

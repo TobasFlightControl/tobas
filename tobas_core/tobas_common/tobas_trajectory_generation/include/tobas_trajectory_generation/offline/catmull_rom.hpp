@@ -4,11 +4,11 @@
 #pragma once
 
 #include <algorithm>
-#include <cassert>
 #include <cmath>
 #include <cstddef>
 #include <iterator>
 #include <ranges>
+#include <stdexcept>
 #include <utility>
 #include <vector>
 
@@ -49,15 +49,17 @@ class CatmullRomPath
 public:
   explicit CatmullRomPath(std::vector<T> points) : points_(std::move(points))
   {
-    assert(points_.size() >= 2);
+    if (points_.size() < 2) {
+      throw std::invalid_argument("CatmullRomPath requires at least two control points.");
+    }
 
     // get()で距離sから高速に区間を引けるよう，各セグメントを細かく刻んで弧長を近似する．
     lengths_.push_back(0.);
     for (size_t segment = 0; segment < segmentCount(); ++segment) {
-      auto prev = position(segment, 0.);
+      auto prev = positionBySegmentParameter(segment, 0.);
       for (size_t sample = 1; sample <= kSplineSamplesPerSegment; ++sample) {
         const auto u = static_cast<double>(sample) / static_cast<double>(kSplineSamplesPerSegment);
-        const auto cur = position(segment, u);
+        const auto cur = positionBySegmentParameter(segment, u);
         lengths_.push_back(lengths_.back() + (cur - prev).norm());
         prev = cur;
       }
@@ -110,7 +112,13 @@ public:
     return 0.5 * (points_[idx + 1] - points_[idx - 1]);
   }
 
-  T position(size_t segment, double u) const
+  /**
+   * @brief Evaluate position by the segment-local curve parameter.
+   *
+   * `u` is the cubic segment parameter in [0, 1], not arc length.
+   *  Use get() when arc-length parameterization is needed.
+   */
+  T positionBySegmentParameter(size_t segment, double u) const
   {
     // Catmull-Rom接線を持つ3次Hermite曲線として，指定セグメント内の位置を評価する．
     // cf. [Catmull–Rom spline](https://en.wikipedia.org/wiki/Catmull%E2%80%93Rom_spline)
@@ -135,7 +143,7 @@ private:
     const auto m1 = tangentAt(segment + 1);
     const auto u2 = u * u;
 
-    const auto pos = position(segment, u);
+    const auto pos = positionBySegmentParameter(segment, u);
     const auto du = (6 * u2 - 6 * u) * p0 + (3 * u2 - 4 * u + 1) * m0 + (-6 * u2 + 6 * u) * p1 + (3 * u2 - 2 * u) * m1;
     const auto ddu = (12 * u - 6) * p0 + (6 * u - 4) * m0 + (-12 * u + 6) * p1 + (6 * u - 2) * m1;
 

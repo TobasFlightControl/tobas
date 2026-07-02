@@ -3,6 +3,8 @@
 
 #include "tobas_control_system/mission_planner/mission_planner.hpp"
 
+#include <algorithm>
+#include <cmath>
 #include <ranges>
 
 #include <QHBoxLayout>
@@ -37,6 +39,32 @@ namespace gui
 {
 namespace ctrl
 {
+namespace
+{
+using MapSplinePath = traj::CatmullRomPath<Eigen::Vector2d>;
+
+size_t splineMapSampleCount(const MapSplinePath& path, size_t segment)
+{
+  constexpr double kSplineMapSampleInterval = 1.;  // [m]
+  constexpr size_t kMinSplineMapSamplesPerSegment = 4;
+  constexpr size_t kMaxSplineMapSamplesPerSegment = 80;
+  constexpr size_t kSplineMapLengthEstimateSamples = 10;
+
+  // 表示用なので，少数の点で曲線長を近似してからサンプル数を決める．
+  double length = 0.;
+  auto prev = path.positionBySegmentParameter(segment, 0.);
+  for (size_t sample = 1; sample <= kSplineMapLengthEstimateSamples; ++sample) {
+    const auto u = static_cast<double>(sample) / static_cast<double>(kSplineMapLengthEstimateSamples);
+    const auto cur = path.positionBySegmentParameter(segment, u);
+    length += (cur - prev).norm();
+    prev = cur;
+  }
+
+  const auto samples = static_cast<size_t>(std::ceil(length / kSplineMapSampleInterval));
+  return std::clamp(samples, kMinSplineMapSamplesPerSegment, kMaxSplineMapSamplesPerSegment);
+}
+}  // namespace
+
 MissionPlannerWidget::MissionPlannerWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge)
   : node_(node), property_client_(node, "tobas_control_system/mission_planner"), spinner_(Qt::WindowModal, this)
 {
@@ -246,7 +274,7 @@ void MissionPlannerWidget::commandsToMap()
         const auto longitude = waypoint->longitude();
         const auto coord = QGeoCoordinate(latitude, longitude);
 
-        const auto acceptance_radius = waypoint->isSplineEnd() ? waypoint->acceptanceRadius() : 0.;
+        const auto acceptance_radius = waypoint->isSplineSegmentEnd() ? waypoint->acceptanceRadius() : 0.;
         const auto point_color = item == cur_item ? "orange" : "cyan";
         map_->addWaypoint(wp_index, coord, acceptance_radius, point_color);
 
@@ -256,7 +284,7 @@ void MissionPlannerWidget::commandsToMap()
         }
         spline_waypoints.push_back(coord);
 
-        if (waypoint->isSplineEnd()) {
+        if (waypoint->isSplineSegmentEnd()) {
           addSplinePathToMap(spline_waypoints);
           previous_spline_end = coord;
           has_previous_spline_end = true;
@@ -298,14 +326,12 @@ void MissionPlannerWidget::updateWaypointSplineEnds()
       i + 1 < command_list_->count() && textToCommand(command_list_->item(i + 1)->text()) == mission::Type::kWaypoint;
 
     const auto waypoint = qt::qPointerCast<WaypointWidget>(findCommandWidget(item));
-    waypoint->setSplineEnd(waypoint->stopAtWaypoint() || !next_is_waypoint);
+    waypoint->setSplineSegmentEnd(waypoint->stopAtWaypoint() || !next_is_waypoint);
   }
 }
 
 void MissionPlannerWidget::addSplinePathToMap(const std::vector<QGeoCoordinate>& waypoints)
 {
-  constexpr size_t kSplineMapSamplesPerSegment = 30;
-
   if (waypoints.size() < 2) {
     return;
   }
@@ -319,14 +345,15 @@ void MissionPlannerWidget::addSplinePathToMap(const std::vector<QGeoCoordinate>&
     points.emplace_back(x, y);
   }
 
-  const traj::CatmullRomPath<Eigen::Vector2d> path(std::move(points));
+  const MapSplinePath path(std::move(points));
 
   // QML側は短いMapPolylineの集合なので，スプラインを一定間隔で折れ線近似して渡す．
   auto prev_coord = waypoints.front();
   for (size_t segment = 0; segment < path.segmentCount(); ++segment) {
-    for (size_t sample = 1; sample <= kSplineMapSamplesPerSegment; ++sample) {
-      const auto u = static_cast<double>(sample) / static_cast<double>(kSplineMapSamplesPerSegment);
-      const auto pos = path.position(segment, u);
+    const auto sample_count = splineMapSampleCount(path, segment);
+    for (size_t sample = 1; sample <= sample_count; ++sample) {
+      const auto u = static_cast<double>(sample) / static_cast<double>(sample_count);
+      const auto pos = path.positionBySegmentParameter(segment, u);
       const auto [lat, lon] = st::cartToGnssRelative(pos.x(), pos.y(), origin.latitude(), origin.longitude());
       map_->addLine(prev_coord.latitude(), prev_coord.longitude(), lat, lon);
       prev_coord = QGeoCoordinate(lat, lon);

@@ -73,8 +73,8 @@ public:
   void acceptanceRadius(double value);
   void altitudeTolerance(double value);
 
-  bool isSplineEnd() const;
-  void setSplineEnd(bool value);
+  bool isSplineSegmentEnd() const;
+  void setSplineSegmentEnd(bool value);
 
 private:
   field::LatitudeWidget* latitude_;
@@ -93,7 +93,7 @@ private:
   field::AcceptanceRadiusWidget* acceptance_radius_;
   field::AltitudeToleranceWidget* altitude_tolerance_;
 
-  bool spline_end_ = true;
+  bool spline_segment_end_ = true;
 
   void updateToleranceFieldsEnabled();
 };
