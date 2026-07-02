@@ -1,7 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <algorithm>
+#include <cmath>
+#include <limits>
 #include <ranges>
+#include <span>
+#include <vector>
 
 #include <tobas_algorithm/core.hpp>
 #include <tobas_constants/node.hpp>
@@ -12,6 +17,7 @@
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_std_tools/byte.hpp>
 #include <tobas_std_tools/gnss.hpp>
+#include <tobas_trajectory_generation/offline/catmull_rom.hpp>
 #include <tobas_trajectory_generation/offline/jerk_limited.hpp>
 #include <tobas_trajectory_generation/offline/linear.hpp>
 
@@ -39,10 +45,71 @@ namespace mission
 {
 namespace
 {
+using CatmullRomPath = traj::CatmullRomPath<Eigen::Vector3d>;
+
 /* NaNではなく且つ正の値の場合にTrueを返す． */
 inline bool isPositive(double value)
 {
   return std::isfinite(value) && value > 0.;
+}
+
+inline double selectConservativeLimit(double current, double candidate)
+{
+  if (!isPositive(candidate)) {
+    return current;
+  }
+  return isPositive(current) ? std::min(current, candidate) : candidate;
+}
+
+struct PathComponentScale
+{
+  // パス弧長sに対する水平・鉛直方向の最大成分係数．
+  // 例: horizontal=1, vertical=0なら水平だけのパス，horizontal=0, vertical=1なら鉛直だけのパス．
+  // horizontalとverticalは別々のノルムなので，合計が1になるとは限らない．
+  double horizontal = 0.;
+  double vertical = 0.;
+};
+
+size_t selectPathConstraintSampleCount(const CatmullRomPath& path)
+{
+  constexpr double kPathConstraintSampleInterval = 1.;  // [m]
+  constexpr size_t kPathConstraintSamplesPerSegment = 20;
+  constexpr size_t kMaxPathConstraintSamples = 5000;
+
+  // 長いパスでは距離に応じて，短く曲がりの多いパスではセグメント数に応じてサンプル数を増やす．
+  const auto length_based_samples = static_cast<size_t>(std::ceil(path.length() / kPathConstraintSampleInterval));
+  const auto segment_based_samples = path.segmentCount() * kPathConstraintSamplesPerSegment;
+  return std::clamp(std::max(length_based_samples, segment_based_samples), 1UL, kMaxPathConstraintSamples);
+}
+
+PathComponentScale getMaxPathComponentScale(const CatmullRomPath& path)
+{
+  PathComponentScale scale;
+  const auto path_length = path.length();
+  const auto sample_count = selectPathConstraintSampleCount(path);
+
+  // Catmull-Rom曲線では接線方向が区間内で変わるため，パス全体をサンプリングして最も厳しい成分係数を使う．
+  for (size_t sample = 0; sample <= sample_count; ++sample) {
+    const auto s = path_length * static_cast<double>(sample) / static_cast<double>(sample_count);
+    const auto tangent = path.get(s).tangent;
+    scale.horizontal = std::max(scale.horizontal, math::norm(tangent.x(), tangent.y()));
+    scale.vertical = std::max(scale.vertical, std::abs(tangent.z()));
+  }
+  return scale;
+}
+
+double selectPathConstraintLimit(double horizontal_limit, double vertical_limit, const PathComponentScale& scale)
+{
+  // 軸別制約を，パス弧長s方向のスカラー制約へ換算する．
+  // v_xy = horizontal_scale * s_dot, v_z = vertical_scale * s_dot なので，各軸の上限を成分係数で割る．
+  auto path_limit = std::numeric_limits<double>::infinity();
+  if (scale.horizontal > 0.) {
+    path_limit = std::min(path_limit, horizontal_limit / scale.horizontal);
+  }
+  if (scale.vertical > 0.) {
+    path_limit = std::min(path_limit, vertical_limit / scale.vertical);
+  }
+  return std::isfinite(path_limit) ? path_limit : std::min(horizontal_limit, vertical_limit);
 }
 }  // namespace
 
@@ -156,7 +223,7 @@ private:
    */
   bool handleExternalRequest(const GoalHandlePtr& gh, const ResultPtr& res);
 
-  bool executeWaypoint(const Waypoint& goal, const GoalHandlePtr& gh, const ResultPtr& res);
+  bool executeWaypoints(std::span<const Waypoint> goals, const GoalHandlePtr& gh, const ResultPtr& res);
   bool executeTakeoff(const Takeoff& goal, const GoalHandlePtr& gh, const ResultPtr& res);
   bool executeLand(const Land& goal, const GoalHandlePtr& gh, const ResultPtr& res);
   bool executeRTL(const ReturnToLaunch& goal, const GoalHandlePtr& gh, const ResultPtr& res);
@@ -425,9 +492,15 @@ bool MulticopterMissionExecutorNode::handleExternalRequest(const GoalHandlePtr& 
   }
 }
 
-bool MulticopterMissionExecutorNode::executeWaypoint(const Waypoint& goal, const GoalHandlePtr& gh, const ResultPtr& res)
+bool MulticopterMissionExecutorNode::executeWaypoints(
+  std::span<const Waypoint> goals,
+  const GoalHandlePtr& gh,
+  const ResultPtr& res)
 {
-  // Verify that the vehicle is armed
+  if (goals.empty()) {
+    return true;
+  }
+
   if (!arming_->data) {
     res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
     res->error_message = "The waypoint mission cannot be started because the vehicle is disarmed.";
@@ -435,61 +508,72 @@ bool MulticopterMissionExecutorNode::executeWaypoint(const Waypoint& goal, const
     return false;
   }
 
-  // 開始前に一時停止
+  // Waypoints are grouped into one continuous path until stop_at_waypoint requests an arrival check.
   brake();
 
-  // 目標状態の初期値を取得
   const auto start_pos = command_.pos.clone();
   const auto start_rot = command_.rot.clone();
 
-  // 目標位置を計算
-  kdl::Vector goal_pos;  // wrt. the odometry frame
-  std::tie(goal_pos.x(), goal_pos.y()) =
-    st::gnssToCartRelative(goal.latitude, goal.longitude, gnss_origin_->latitude, gnss_origin_->longitude);
-  switch (goal.altitude_frame) {
-    case kRelativeToLaunch:
-      if (!launch_point_) {
+  std::vector<Eigen::Vector3d> path_points;
+  path_points.reserve(goals.size() + 1);
+  path_points.push_back(start_pos.data);
+
+  for (const auto& goal : goals) {
+    kdl::Vector goal_pos;  // wrt. the odometry frame
+    std::tie(goal_pos.x(), goal_pos.y()) =
+      st::gnssToCartRelative(goal.latitude, goal.longitude, gnss_origin_->latitude, gnss_origin_->longitude);
+    switch (goal.altitude_frame) {
+      case kRelativeToLaunch:
+        if (!launch_point_) {
+          res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
+          res->error_message = "Launch point is not set.";
+          gh->abort(res);
+          return false;
+        }
+        goal_pos.z(goal.altitude + launch_point_->z());
+        break;
+      case kMeanSeaLevel:
+        goal_pos.z(goal.altitude - gnss_origin_->altitude);
+        break;
+      default:
         res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
-        res->error_message = "Launch point is not set.";
+        res->error_message = "Invalid altitude frame type: " + std::to_string(goal.altitude_frame);
         gh->abort(res);
         return false;
-      }
-      goal_pos.z(goal.altitude + launch_point_->z());
-      break;
-    case kMeanSeaLevel:
-      goal_pos.z(goal.altitude - gnss_origin_->altitude);
-      break;
-    default:
-      res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
-      res->error_message = "Invalid altitude frame type: " + std::to_string(goal.altitude_frame);
-      gh->abort(res);
-      return false;
+    }
+    path_points.push_back(goal_pos.data);
   }
-  TOBAS_INFO("Goal position: ", goal_pos);
 
-  // 制約を決定
-  const auto max_hor_vel =
-    isPositive(goal.max_horizontal_velocity) ? goal.max_horizontal_velocity : wp_cfg_.max_hor_vel;
-  const auto max_hor_acc = isPositive(goal.max_horizontal_accel) ? goal.max_horizontal_accel : wp_cfg_.max_hor_acc;
-  const auto max_hor_jerk = isPositive(goal.max_horizontal_jerk) ? goal.max_horizontal_jerk : wp_cfg_.max_hor_jerk;
-  const auto max_ver_vel = isPositive(goal.max_vertical_velocity) ? goal.max_vertical_velocity : wp_cfg_.max_ver_vel;
-  const auto max_ver_acc = isPositive(goal.max_vertical_accel) ? goal.max_vertical_accel : wp_cfg_.max_ver_acc;
-  const auto max_ver_jerk = isPositive(goal.max_vertical_jerk) ? goal.max_vertical_jerk : wp_cfg_.max_ver_jerk;
-  const auto max_head_rate = isPositive(goal.max_heading_rate) ? goal.max_heading_rate : wp_cfg_.max_head_rate;
-  const auto max_head_acc = isPositive(goal.max_heading_accel) ? goal.max_heading_accel : wp_cfg_.max_head_acc;
-
-  // 軌道を生成
-  const Eigen::Vector2d start_xy(start_pos.x(), start_pos.y());
-  const Eigen::Vector2d goal_xy(goal_pos.x(), goal_pos.y());
-  const Eigen::Vector2d xy_diff = goal_xy - start_xy;  // XYの軌道を別々に生成すると最短経路を通らないことに注意
-  const auto xy_dist = xy_diff.norm();  // [m]
-  if (xy_dist == 0.) {
+  const CatmullRomPath path(std::move(path_points));
+  const auto path_length = path.length();
+  if (path_length == 0.) {
     return true;
   }
-  const Eigen::Vector2d xy_dir = xy_diff / xy_dist;
-  const traj::JerkLimitedTrajectory traj_xy(0., xy_dist, max_hor_jerk, max_hor_acc, max_hor_vel);
 
-  const traj::JerkLimitedTrajectory traj_z(start_pos.z(), goal_pos.z(), max_ver_jerk, max_ver_acc, max_ver_vel);
+  auto max_hor_vel = wp_cfg_.max_hor_vel;
+  auto max_hor_acc = wp_cfg_.max_hor_acc;
+  auto max_hor_jerk = wp_cfg_.max_hor_jerk;
+  auto max_ver_vel = wp_cfg_.max_ver_vel;
+  auto max_ver_acc = wp_cfg_.max_ver_acc;
+  auto max_ver_jerk = wp_cfg_.max_ver_jerk;
+  auto max_head_rate = wp_cfg_.max_head_rate;
+  for (const auto& goal : goals) {
+    max_hor_vel = selectConservativeLimit(max_hor_vel, goal.max_horizontal_velocity);
+    max_hor_acc = selectConservativeLimit(max_hor_acc, goal.max_horizontal_accel);
+    max_hor_jerk = selectConservativeLimit(max_hor_jerk, goal.max_horizontal_jerk);
+    max_ver_vel = selectConservativeLimit(max_ver_vel, goal.max_vertical_velocity);
+    max_ver_acc = selectConservativeLimit(max_ver_acc, goal.max_vertical_accel);
+    max_ver_jerk = selectConservativeLimit(max_ver_jerk, goal.max_vertical_jerk);
+    max_head_rate = selectConservativeLimit(max_head_rate, goal.max_heading_rate);
+  }
+
+  // 3Dパスは1本のスカラー軌道s(t)で進めるため，xy/z制約をs方向の上限へ変換してから最小値を使う．
+  const auto path_component_scale = getMaxPathComponentScale(path);
+  const auto max_path_vel = selectPathConstraintLimit(max_hor_vel, max_ver_vel, path_component_scale);
+  const auto max_path_acc = selectPathConstraintLimit(max_hor_acc, max_ver_acc, path_component_scale);
+  const auto max_path_jerk = selectPathConstraintLimit(max_hor_jerk, max_ver_jerk, path_component_scale);
+
+  const traj::JerkLimitedTrajectory traj_path(0., path_length, max_path_jerk, max_path_acc, max_path_vel);
 
   const auto roll_duration = std::abs(start_rot.roll) / kAttitudeRate;
   const traj::LinearSpline traj_roll(start_rot.roll, 0., roll_duration);
@@ -497,64 +581,64 @@ bool MulticopterMissionExecutorNode::executeWaypoint(const Waypoint& goal, const
   const auto pitch_duration = std::abs(start_rot.pitch) / kAttitudeRate;
   const traj::LinearSpline traj_pitch(start_rot.pitch, 0., pitch_duration);
 
-  const auto goal_yaw = goal.auto_heading ? std::atan2(xy_dir.y(), xy_dir.x()) : start_rot.yaw;
-  const auto yaw_diff = algo::wrapPi(goal_yaw - start_rot.yaw);  // 最短経路をとるよう[-π, π)の範囲に変換
-  const traj::JerkLimitedTrajectory traj_yaw(0., yaw_diff, INFINITY, max_head_acc, max_head_rate);
+  const auto duration = algo::max(traj_path.duration(), traj_roll.duration(), traj_pitch.duration());
+  TOBAS_INFO("Moving along the waypoint path will take ", duration, " seconds.");
 
-  // 所要時間を取得
-  const auto pos_duration = std::max(traj_xy.duration(), traj_z.duration());
-  const auto rot_duration = algo::max(traj_roll.duration(), traj_pitch.duration(), traj_yaw.duration());
-  const auto duration = std::max(pos_duration, rot_duration);
-  TOBAS_INFO("Moving to the target position will take ", duration, " seconds.");
+  const auto auto_heading = std::ranges::any_of(goals, [](const auto& goal) { return goal.auto_heading; });
+  const auto& final_goal = goals.back();
+  const auto final_goal_pos = path.get(path_length).pos;
 
-  // 軌道を発行
   const auto start_time = now();
+  auto prev_time = start_time;
   rclcpp::Rate rate(kCommandRate, get_clock());
   while (rclcpp::ok()) {
-    // ミッション継続可能かどうかを確認
     if (!handleExternalRequest(gh, res)) {
       return false;
     }
 
-    // 開始からの経過時間を計算
     const auto cur_time = now();
     const auto t = (cur_time - start_time).seconds();
+    const auto dt = (cur_time - prev_time).seconds();
+    prev_time = cur_time;
 
-    // タイムアウトの確認
-    if (goal.timeout > 0. && t > duration + goal.timeout) {
+    if (final_goal.timeout > 0. && t > duration + final_goal.timeout) {
       res->error_code.data = tobas_mission_msgs::msg::ErrorCode::ACCEPTANCE_TIMEOUT;
       res->error_message = "Timed out before reaching the waypoint acceptance radius.";
       gh->abort(res);
       return false;
     }
 
-    // 現在の位置を取得
     const auto& cur_pos = odom_->odom.odom.frame.p;
-
-    // コマンドを発行し終え，且つ許容範囲内に入っていたらアクション成功
     if (t > duration) {
-      const auto pos_err = goal_pos - cur_pos;
+      const auto pos_err = final_goal_pos - cur_pos;
       const auto xy_err_abs = math::norm(pos_err.x(), pos_err.y());
       const auto z_err_abs = std::abs(pos_err.z());
-      const auto hor_ok = goal.acceptance_radius <= 0. || xy_err_abs < goal.acceptance_radius;
-      const auto ver_ok = goal.altitude_tolerance <= 0. || z_err_abs < goal.altitude_tolerance;
+      const auto hor_ok = final_goal.acceptance_radius <= 0. || xy_err_abs < final_goal.acceptance_radius;
+      const auto ver_ok = final_goal.altitude_tolerance <= 0. || z_err_abs < final_goal.altitude_tolerance;
       if (hor_ok && ver_ok) {
         return true;
       }
     }
 
-    // 現在の時刻における目標状態を取得
-    const auto traj_point_xy = traj_xy.get(t);
-    const Eigen::Vector2d pxy = start_xy + traj_point_xy.p * xy_dir;
-    const Eigen::Vector2d vxy = traj_point_xy.v * xy_dir;
-    const Eigen::Vector2d axy = traj_point_xy.a * xy_dir;
-    const auto traj_point_z = traj_z.get(t);
-    command_.pos.set(pxy.x(), pxy.y(), traj_point_z.p);
-    command_.vel.set(vxy.x(), vxy.y(), traj_point_z.v);
-    command_.acc.set(axy.x(), axy.y(), traj_point_z.a);
-    command_.rot.set(traj_roll.get(t).p, traj_pitch.get(t).p, algo::wrapPi(start_rot.yaw + traj_yaw.get(t).p));
+    // traj_point.p/v/aはパス弧長s方向の状態．CatmullRomPathで3D位置・接線・曲率へ写像する．
+    const auto traj_point = traj_path.get(t);
+    const auto path_point = path.get(traj_point.p);
+    command_.pos.data = path_point.pos;
+    command_.vel.data = path_point.tangent * traj_point.v;
+    command_.acc.data = path_point.tangent * traj_point.a + path_point.curvature * math::sqr(traj_point.v);
 
-    // コマンドを発行
+    auto yaw = command_.rot.yaw;
+    if (auto_heading) {
+      const auto tangent_xy_norm = math::norm(path_point.tangent.x(), path_point.tangent.y());
+      if (tangent_xy_norm > 0.) {
+        const auto desired_yaw = std::atan2(path_point.tangent.y(), path_point.tangent.x());
+        const auto yaw_diff = algo::wrapPi(desired_yaw - yaw);
+        const auto max_yaw_step = max_head_rate * dt;
+        yaw = algo::wrapPi(yaw + std::clamp(yaw_diff, -max_yaw_step, max_yaw_step));
+      }
+    }
+    command_.rot.set(traj_roll.get(t).p, traj_pitch.get(t).p, yaw);
+
     publishCommand(cur_time);
 
     rate.sleep();
@@ -791,7 +875,7 @@ bool MulticopterMissionExecutorNode::executeRTL(const ReturnToLaunch& goal, cons
     wp.latitude = tar_lat;
     wp.longitude = tar_lon;
     wp.auto_heading = false;
-    if (!executeWaypoint(wp, gh, res)) {
+    if (!executeWaypoints(std::span<const Waypoint>(&wp, 1), gh, res)) {
       return false;
     }
   }
@@ -802,7 +886,7 @@ bool MulticopterMissionExecutorNode::executeRTL(const ReturnToLaunch& goal, cons
   wp.latitude = tar_lat;
   wp.longitude = tar_lon;
   wp.auto_heading = true;
-  if (!executeWaypoint(wp, gh, res)) {
+  if (!executeWaypoints(std::span<const Waypoint>(&wp, 1), gh, res)) {
     return false;
   }
 
@@ -1069,7 +1153,9 @@ void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& gh)
   const auto goal = gh->get_goal();
 
   // Execute mission
-  for (const auto& [idx, item] : std::views::enumerate(goal->mission.items)) {
+  const auto& items = goal->mission.items;
+  for (size_t idx = 0; idx < items.size();) {
+    const auto& item = items[idx];
     const auto cmd_number = idx + 1;
     TOBAS_INFO("Start mission No. ", cmd_number);
 
@@ -1082,9 +1168,18 @@ void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& gh)
 
     switch (item.type) {
       case kWaypoint: {
-        Waypoint waypoint;
-        st::fromBytes(item.data, waypoint);
-        if (!executeWaypoint(waypoint, gh, res)) {
+        std::vector<Waypoint> waypoints;
+        for (; idx < items.size() && items[idx].type == kWaypoint; ++idx) {
+          Waypoint waypoint;
+          st::fromBytes(items[idx].data, waypoint);
+          waypoints.push_back(waypoint);
+          if (waypoint.stop_at_waypoint) {
+            ++idx;
+            break;
+          }
+        }
+        res->last_command_index = idx - 1;
+        if (!executeWaypoints(std::span<const Waypoint>(waypoints.data(), waypoints.size()), gh, res)) {
           is_executing_ = false;
           return;
         }
@@ -1097,6 +1192,7 @@ void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& gh)
           is_executing_ = false;
           return;
         }
+        ++idx;
         break;
       }
       case kLand: {
@@ -1106,6 +1202,7 @@ void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& gh)
           is_executing_ = false;
           return;
         }
+        ++idx;
         break;
       }
       case kReturnToLaunch: {
@@ -1115,6 +1212,7 @@ void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& gh)
           is_executing_ = false;
           return;
         }
+        ++idx;
         break;
       }
       default: {

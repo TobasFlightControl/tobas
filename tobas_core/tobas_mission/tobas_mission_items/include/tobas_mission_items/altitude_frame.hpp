@@ -9,7 +9,7 @@ namespace tobas
 {
 namespace mission
 {
-enum AltitudeFrame
+enum AltitudeFrame : uint8_t
 {
   kRelativeToLaunch,
   kMeanSeaLevel,

@@ -17,6 +17,7 @@
 #include "../fields/max_vertical_accel.hpp"
 #include "../fields/max_vertical_jerk.hpp"
 #include "../fields/max_vertical_velocity.hpp"
+#include "../fields/stop_at_waypoint.hpp"
 #include "./base.hpp"
 
 namespace tobas
@@ -44,6 +45,7 @@ public:
   double longitude() const;
   double altitude() const;
   mission::AltitudeFrame altitudeFrame() const;
+  bool stopAtWaypoint() const;
   double maxHorizontalVelocity() const;
   double maxHorizontalAccel() const;
   double maxHorizontalJerk() const;
@@ -59,6 +61,7 @@ public:
   void longitude(double value);
   void altitude(double value);
   void altitudeFrame(mission::AltitudeFrame value);
+  void stopAtWaypoint(bool value);
   void maxHorizontalVelocity(double value);
   void maxHorizontalAccel(double value);
   void maxHorizontalJerk(double value);
@@ -70,11 +73,15 @@ public:
   void acceptanceRadius(double value);
   void altitudeTolerance(double value);
 
+  bool isSplineSegmentEnd() const;
+  void setSplineSegmentEnd(bool value);
+
 private:
   field::LatitudeWidget* latitude_;
   field::LongitudeWidget* longitude_;
   field::AltitudeWidget* altitude_;
   field::AltitudeFrameWidget* altitude_frame_;
+  field::StopAtWaypointWidget* stop_at_waypoint_;
   field::MaxHorizontalVelocityWidget* max_hor_vel_;
   field::MaxHorizontalAccelWidget* max_hor_acc_;
   field::MaxHorizontalJerkWidget* max_hor_jerk_;
@@ -85,6 +92,10 @@ private:
   field::MaxHeadingAccelWidget* max_head_acc_;
   field::AcceptanceRadiusWidget* acceptance_radius_;
   field::AltitudeToleranceWidget* altitude_tolerance_;
+
+  bool spline_segment_end_ = true;
+
+  void updateToleranceFieldsEnabled();
 };
 }  // namespace ctrl
 }  // namespace gui
