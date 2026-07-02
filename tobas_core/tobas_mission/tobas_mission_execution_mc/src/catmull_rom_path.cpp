@@ -79,6 +79,7 @@ Eigen::Vector3d CatmullRomPath::tangentAt(size_t idx) const
 Eigen::Vector3d CatmullRomPath::position(size_t segment, double u) const
 {
   // Catmull-Rom接線を持つ3次Hermite曲線として，指定セグメント内の位置を評価する．
+  // cf. [Catmull–Rom spline](https://en.wikipedia.org/wiki/Catmull%E2%80%93Rom_spline)
   const auto& p0 = points_[segment];
   const auto& p1 = points_[segment + 1];
   const auto m0 = tangentAt(segment);
