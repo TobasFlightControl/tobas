@@ -506,7 +506,7 @@ bool MulticopterMissionExecutorNode::executeWaypoints(
     return false;
   }
 
-  // Waypoints between pauses are one continuous path; pause only once before entering the path.
+  // Waypoints are grouped into one continuous path until stop_at_waypoint requests an arrival check.
   brake();
 
   const auto start_pos = command_.pos.clone();
@@ -1171,7 +1171,7 @@ void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& gh)
           Waypoint waypoint;
           st::fromBytes(items[idx].data, waypoint);
           waypoints.push_back(waypoint);
-          if (waypoint.pause) {
+          if (waypoint.stop_at_waypoint) {
             ++idx;
             break;
           }

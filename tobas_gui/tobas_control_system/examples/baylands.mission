@@ -14,6 +14,7 @@
     altitude: 40.0
     altitude_frame: mean_sea_level
     auto_heading: true
+    stop_at_waypoint: false
     max_horizontal_velocity: .nan
     max_horizontal_accel: .nan
     max_horizontal_jerk: .nan
@@ -32,6 +33,7 @@
     altitude: 40.0
     altitude_frame: mean_sea_level
     auto_heading: true
+    stop_at_waypoint: false
     max_horizontal_velocity: .nan
     max_horizontal_accel: .nan
     max_horizontal_jerk: .nan
@@ -50,6 +52,7 @@
     altitude: 40.0
     altitude_frame: mean_sea_level
     auto_heading: true
+    stop_at_waypoint: false
     max_horizontal_velocity: .nan
     max_horizontal_accel: .nan
     max_horizontal_jerk: .nan
@@ -68,6 +71,7 @@
     altitude: 40.0
     altitude_frame: mean_sea_level
     auto_heading: true
+    stop_at_waypoint: false
     max_horizontal_velocity: .nan
     max_horizontal_accel: .nan
     max_horizontal_jerk: .nan
@@ -86,6 +90,7 @@
     altitude: 40.0
     altitude_frame: mean_sea_level
     auto_heading: true
+    stop_at_waypoint: false
     max_horizontal_velocity: .nan
     max_horizontal_accel: .nan
     max_horizontal_jerk: .nan
@@ -104,6 +109,7 @@
     altitude: 40.0
     altitude_frame: mean_sea_level
     auto_heading: true
+    stop_at_waypoint: false
     max_horizontal_velocity: .nan
     max_horizontal_accel: .nan
     max_horizontal_jerk: .nan
@@ -122,6 +128,7 @@
     altitude: 40.0
     altitude_frame: mean_sea_level
     auto_heading: true
+    stop_at_waypoint: false
     max_horizontal_velocity: .nan
     max_horizontal_accel: .nan
     max_horizontal_jerk: .nan
@@ -140,6 +147,7 @@
     altitude: 40.0
     altitude_frame: mean_sea_level
     auto_heading: true
+    stop_at_waypoint: false
     max_horizontal_velocity: .nan
     max_horizontal_accel: .nan
     max_horizontal_jerk: .nan
