@@ -15,6 +15,7 @@ WaypointWidget::WaypointWidget()
   longitude_ = new field::LongitudeWidget();
   altitude_ = new field::AltitudeWidget();
   altitude_frame_ = new field::AltitudeFrameWidget();
+  stop_at_waypoint_ = new field::StopAtWaypointWidget();
   max_hor_vel_ = new field::MaxHorizontalVelocityWidget();
   max_hor_acc_ = new field::MaxHorizontalAccelWidget();
   max_hor_jerk_ = new field::MaxHorizontalJerkWidget();
@@ -30,6 +31,7 @@ WaypointWidget::WaypointWidget()
   addField(longitude_);
   addField(altitude_);
   addField(altitude_frame_);
+  addField(stop_at_waypoint_);
   addField(max_hor_vel_, true);
   addField(max_hor_acc_, true);
   addField(max_hor_jerk_, true);
@@ -56,6 +58,7 @@ mission::Waypoint WaypointWidget::dump() const
   res.altitude = altitude();
   res.altitude_frame = altitudeFrame();
   res.auto_heading = true;  // TODO
+  res.stop_at_waypoint = stopAtWaypoint();
   res.max_horizontal_velocity = maxHorizontalVelocity();
   res.max_horizontal_accel = maxHorizontalAccel();
   res.max_horizontal_jerk = maxHorizontalJerk();
@@ -77,6 +80,7 @@ void WaypointWidget::load(const mission::Waypoint& src)
   longitude(src.longitude);
   altitude(src.altitude);
   altitudeFrame(src.altitude_frame);
+  stopAtWaypoint(src.stop_at_waypoint);
   maxHorizontalVelocity(src.max_horizontal_velocity);
   maxHorizontalAccel(src.max_horizontal_accel);
   maxHorizontalJerk(src.max_horizontal_jerk);
@@ -107,6 +111,11 @@ double WaypointWidget::altitude() const
 mission::AltitudeFrame WaypointWidget::altitudeFrame() const
 {
   return altitude_frame_->getValue();
+}
+
+bool WaypointWidget::stopAtWaypoint() const
+{
+  return stop_at_waypoint_->getValue();
 }
 
 double WaypointWidget::maxHorizontalVelocity() const
@@ -177,6 +186,11 @@ void WaypointWidget::altitude(double value)
 void WaypointWidget::altitudeFrame(mission::AltitudeFrame value)
 {
   altitude_frame_->setValue(value);
+}
+
+void WaypointWidget::stopAtWaypoint(bool value)
+{
+  stop_at_waypoint_->setValue(value);
 }
 
 void WaypointWidget::maxHorizontalVelocity(double value)
