@@ -181,7 +181,8 @@ void CxGb400PublisherNode::packetReady(
 
 bool CxGb400PublisherNode::initialize()
 {
-  if (!camera_.initialize(device_name_.c_str(), camera_.kLower, true, disable_video_streaming_)) {
+  if (!camera_.initialize(
+        device_name_.c_str(), driver::CxGb400::CameraPosition::kLower, true, disable_video_streaming_)) {
     TOBAS_WARN("Failed to initialize camera.");
     return false;
   }
