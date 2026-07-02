@@ -30,7 +30,7 @@ int main(int argc, char** argv)
   tobas::driver::CxGb400 camera;
   // reset uavcan
   if (reset_uavcan) {
-    if (!camera.initialize(device, camera.kLower)) {
+    if (!camera.initialize(device, tobas::driver::CxGb400::CameraPosition::kLower)) {
       std::cerr << "Failed to initialize cx_gb400." << std::endl;
     }
     if (!camera.fullReset()) {
@@ -46,7 +46,7 @@ int main(int argc, char** argv)
   }
 
   // usual operations without resetting uavcan.
-  if (!camera.initialize(device, camera.kLower)) {
+  if (!camera.initialize(device, tobas::driver::CxGb400::CameraPosition::kLower)) {
     std::cerr << "Failed to initialize cx_gb400." << std::endl;
     return EXIT_FAILURE;
   }

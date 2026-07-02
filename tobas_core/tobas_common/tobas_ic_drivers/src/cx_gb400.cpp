@@ -230,6 +230,122 @@ bool CxGb400::setVideoFrameRate(const VideoFrameRate& video_frame_rate)
   return true;
 }
 
+bool CxGb400::getExposureMode(uint8_t& exposure_mode)
+{
+  const uvc_xu_control_query get_exposure_mode_query = { kUnit1, 0x14, UVC_GET_CUR, 1, &exposure_mode };
+  if (!execUvcControl(get_exposure_mode_query)) {
+    std::cerr << "Failed to get exposure mode." << std::endl;
+    return false;
+  }
+  return true;
+}
+
+bool CxGb400::setExposureMode(const ExposureMode& exposure_mode)
+{
+  uint8_t exposure_mode_data = static_cast<uint8_t>(exposure_mode);
+  const uvc_xu_control_query set_exposure_mode = { kUnit1, 0x14, UVC_SET_CUR, 1, &exposure_mode_data };
+  if (!execUvcControl(set_exposure_mode)) {
+    std::cerr << "Failed to set exposure mode." << std::endl;
+    return false;
+  }
+  return true;
+}
+
+bool CxGb400::getExposureTime(uint8_t& exposure_time)
+{
+  const uvc_xu_control_query get_exposure_time_query = { kUnit1, 0x15, UVC_GET_CUR, 1, &exposure_time };
+  if (!execUvcControl(get_exposure_time_query)) {
+    std::cerr << "Failed to get exposure time." << std::endl;
+    return false;
+  }
+  return true;
+}
+
+bool CxGb400::setExposureTime(const ExposureTime& exposure_time)
+{
+  uint8_t exposure_time_data = static_cast<uint8_t>(exposure_time);
+  const uvc_xu_control_query set_exposure_time = { kUnit1, 0x15, UVC_SET_CUR, 1, &exposure_time_data };
+  if (!execUvcControl(set_exposure_time)) {
+    std::cerr << "Failed to set exposure time." << std::endl;
+    return false;
+  }
+  return true;
+}
+
+bool CxGb400::getIsoSensitivity(uint8_t& iso_sensitivity)
+{
+  const uvc_xu_control_query get_iso_sensitivity_query = { kUnit1, 0x16, UVC_GET_CUR, 1, &iso_sensitivity };
+  if (!execUvcControl(get_iso_sensitivity_query)) {
+    std::cerr << "Failed to get iso sensitivity." << std::endl;
+    return false;
+  }
+  return true;
+}
+
+bool CxGb400::setIsoSensitivity(const IsoSensitivity& iso_sensitivity)
+{
+  uint8_t iso_sensitivity_data = static_cast<uint8_t>(iso_sensitivity);
+  const uvc_xu_control_query set_iso_sensivitity = { kUnit1, 0x16, UVC_SET_CUR, 1, &iso_sensitivity_data };
+  if (!execUvcControl(set_iso_sensivitity)) {
+    std::cerr << "Failed to set iso sensitivity." << std::endl;
+    return false;
+  }
+  return true;
+}
+
+bool CxGb400::getExposureCompensation(uint8_t& exposure_compensation)
+{
+  const uvc_xu_control_query get_exposure_compensation_query = { kUnit1, 0x17, UVC_GET_CUR, 1, &exposure_compensation };
+  if (!execUvcControl(get_exposure_compensation_query)) {
+    std::cerr << "Failed to get exposure compensation." << std::endl;
+    return false;
+  }
+  return true;
+}
+
+bool CxGb400::setExposureCompensation(const ExposureCompensation& exposure_compensation)
+{
+  uint8_t exposure_compensation_data = static_cast<uint8_t>(exposure_compensation);
+  const uvc_xu_control_query set_exposure_compensation = { kUnit1, 0x17, UVC_SET_CUR, 1, &exposure_compensation_data };
+  if (!execUvcControl(set_exposure_compensation)) {
+    std::cerr << "Failed to set exposure compensation." << std::endl;
+    return false;
+  }
+  return true;
+}
+
+bool CxGb400::getPhotometry(uint8_t& photometry)
+{
+  const uvc_xu_control_query get_photometry_query = { kUnit1, 0x18, UVC_GET_CUR, 1, &photometry };
+  if (!execUvcControl(get_photometry_query)) {
+    std::cerr << "Failed to get photometry." << std::endl;
+    return false;
+  }
+  return true;
+}
+
+bool CxGb400::setPhotometry(const Photometry& photometry)
+{
+  uint8_t photometry_data = static_cast<uint8_t>(photometry);
+  const uvc_xu_control_query set_photometry = { kUnit1, 0x18, UVC_SET_CUR, 1, &photometry_data };
+  if (!execUvcControl(set_photometry)) {
+    std::cerr << "Failed to set photometry." << std::endl;
+    return false;
+  }
+  return true;
+}
+
+bool CxGb400::setWhiteBalance(const WhiteBalance& white_balance)
+{
+  uint8_t white_balance_data = static_cast<uint8_t>(white_balance);
+  const uvc_xu_control_query set_white_balance = { kUnit1, 0x19, UVC_SET_CUR, 1, &white_balance_data };
+  if (!execUvcControl(set_white_balance)) {
+    std::cerr << "Failed to white balance." << std::endl;
+    return false;
+  }
+  return true;
+}
+
 bool CxGb400::getCameraStatus(
   bool& sd_full,
   bool& time_not_set,
