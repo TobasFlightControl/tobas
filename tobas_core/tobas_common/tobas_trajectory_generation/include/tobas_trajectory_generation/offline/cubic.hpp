@@ -9,7 +9,7 @@ namespace tobas
 {
 namespace traj
 {
-/* Cubic polynomial trajectory generation. (Robotics, p.192) */
+/* Cubic polynomial trajectory generation. (Introduction to ROBOTICS, p.192) */
 class CubicSpline : public TrajectoryGenerator
 {
 public:

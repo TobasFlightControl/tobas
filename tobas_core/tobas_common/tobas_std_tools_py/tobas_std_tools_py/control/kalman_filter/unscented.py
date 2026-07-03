@@ -8,8 +8,8 @@ from typing import Callable
 from ...numpy_tools import is_symmetric, is_positive, is_semipositive
 
 
-class UnscentedKalmanFilter:  # FIXME: Pが発散してうまく機能せず(2022/11/26)
-    """Unscentedカルマンフィルタ(カルマンフィルタ入門, p.172)"""
+class UnscentedKalmanFilter:  # FIXME: `P` diverges and does not work well (2022/11/26).
+    """Unscented Kalman filter (Fundamentals of Kalman Filter, p. 172)."""
 
     def __init__(
         self,
@@ -27,34 +27,35 @@ class UnscentedKalmanFilter:  # FIXME: Pが発散してうまく機能せず(202
         init_P: np.ndarray = None,
     ) -> None:
         """
-        UnscentedKalmanFilterのコンストラクタ．
+        Constructor for `UnscentedKalmanFilter`.
 
         Parameters
         ----------
         x_dim : int
-            状態xの次元
+            Dimension of state `x`.
         u_dim : int
-            入力uの次元
+            Dimension of input `u`.
         y_dim : int
-            出力yの次元
+            Dimension of output `y`.
         fx : Callable[[np.ndarray], np.ndarray]
-            離散時間状態方程式のうち，状態xに依存する部分
+            Part of the discrete-time state equation that depends on state `x`.
         fu : Callable[[np.ndarray], np.ndarray]
-            離散時間状態方程式のうち，入力uに依存する部分
+            Part of the discrete-time state equation that depends on input `u`.
         h : Callable[[np.ndarray], np.ndarray]
-            出力方程式
+            Output equation.
         Bv : np.ndarray
-            離散時間状態方程式のうち，システムノイズの係数行列
+            Coefficient matrix of system noise in the discrete-time state equation.
         Q : np.ndarray
-            システムノイズの共分散行列
+            Covariance matrix of system noise.
         R : np.ndarray
-            観測ノイズの共分散行列
+            Covariance matrix of observation noise.
         kappa : float, optional
-            スケーリングパラメータ(p.164), by default 0.
+            Scaling parameter (p. 164), by default 0.
         init_x : np.ndarray, optional
-            状態xの初期推定値, by default Zero(x_dim)
+            Initial estimate of state `x`, by default `Zero(x_dim)`.
         init_P : np.ndarray, optional
-            事後共分散行列の初期推定値, by default Identity(x_dim)
+            Initial estimate of the posterior covariance matrix,
+            by default `Identity(x_dim)`.
         """
         self._x_dim = x_dim
         self._u_dim = u_dim
@@ -94,32 +95,32 @@ class UnscentedKalmanFilter:  # FIXME: Pが発散してうまく機能せず(202
         assert y.shape == (self._y_dim,), f"y.shape: {y.shape}, y_dim: {self._y_dim}"
         assert u.shape == (self._u_dim,), f"u.shape: {u.shape}, u_dim: {self._u_dim}"
 
-        # 1時刻前の推定値からシグマポイントを計算
+        # Compute sigma points from the estimate at the previous time step.
         X_post = self._calc_X(self._x_post, self._P_post)  # (x_dim, n_sample)
 
-        # それぞれのシグマポイントについて，現在の推定値を計算
+        # Compute the current estimate for each sigma point.
         X_prev = self._dynamics(X_post, u)  # (x_dim, n_sample)
 
-        # シグマポイントの重み付き和として現在のx,Pの事前推定値を計算
+        # Compute prior estimates of current `x` and `P` as weighted sums of sigma points.
         x_prev = self._wsum_vec(X_prev)  # (x_dim,)
         P_prev = self._wsum_cov(X_prev, x_prev, X_prev, x_prev)
         P_prev += self._Bv @ self._Q @ self._Bv.T
 
-        # 事前状態値を用いてシグマポイントを再計算
+        # Recompute sigma points using the prior state value.
         X_prev = self._calc_X(x_prev, P_prev)
 
-        # 出力のシグマポイントの更新
+        # Update output sigma points.
         Y_prev = self._output(X_prev)
 
-        # シグマポイントの重み付き和として現在のy,Pyy,Pxyの事前推定値を計算
+        # Compute prior estimates of current `y`, `Pyy`, and `Pxy` as weighted sums of sigma points.
         y_prev = self._wsum_vec(Y_prev)
         Pyy_prev = self._wsum_cov(Y_prev, y_prev, Y_prev, y_prev)
         Pxy_prev = self._wsum_cov(X_prev, x_prev, Y_prev, y_prev)
 
-        # カルマンゲインの計算
+        # Compute the Kalman gain.
         G = Pxy_prev @ SLA.inv(Pyy_prev + self._R)
 
-        # x,Pの事後推定値を計算
+        # Compute posterior estimates of `x` and `P`.
         self._x_post = x_prev + G @ (y - y_prev)
         self._P_post = P_prev - G @ Pxy_prev.T
 
@@ -152,7 +153,7 @@ class UnscentedKalmanFilter:  # FIXME: Pが発散してうまく機能せず(202
             self._x_dim,
         ), f"{P.shape} != {(self._x_dim, self._x_dim)}"
 
-        sqrt_P = SLA.sqrtm(P)  # Pの平方根行列
+        sqrt_P = SLA.sqrtm(P)  # Square root matrix of `P`.
         c = np.sqrt(self._x_dim + self._kappa)
 
         # print(P)

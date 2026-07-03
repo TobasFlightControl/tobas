@@ -191,9 +191,6 @@ class Rotation:
         """
         Compute a rotation matrix from a rotation axis and rotation angle.
 
-        Using Robotics (2.80) is faster,
-        but this implementation follows Rodrigues' formula directly.
-
         Parameters
         ----------
         axis: Vector
@@ -320,7 +317,6 @@ class Frame:
         cs_theta = sympy.cos(theta)
         sn_theta = sympy.sin(theta)
 
-        # Robotics (3.6)
         p = Matrix([a, -sn_alpha * d, cs_alpha * d])
         M = Matrix(
             [

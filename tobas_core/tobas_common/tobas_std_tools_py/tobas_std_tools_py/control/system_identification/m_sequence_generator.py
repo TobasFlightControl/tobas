@@ -17,7 +17,7 @@ class MSequenceGenerator:
         assert num_registers >= 2
 
         if taps is None:
-            # 原始多項式に基づいて最大周期を得るためのタップ位置を決定
+            # Determine tap positions for the maximum period based on primitive polynomials.
             # cf. http://www.finetune.co.jp/~lyuka/technote/lfsr/lfsr.html
             if num_registers == 2:
                 self._taps = [0, 1]
@@ -62,16 +62,16 @@ class MSequenceGenerator:
         register = deque(self._initial_state)
 
         for _ in range(self._length):
-            # フィードバックビットを計算
+            # Compute the feedback bit.
             feedback = sum([register[i] for i in self._taps]) % 2
 
-            # レジスタを1ビットずつシフト
+            # Shift the register by one bit.
             register.pop()
             register.appendleft(feedback)
 
-            # 範囲を変えて返す
+            # Change the range before yielding.
             yield register[-1] * 2 - 1  # [0, 1] -> [-1, 1]
 
     def length(self) -> int:
-        """1周期の長さ．"""
+        """Length of one period."""
         return self._length

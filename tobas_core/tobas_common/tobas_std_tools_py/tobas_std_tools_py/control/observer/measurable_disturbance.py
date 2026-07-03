@@ -10,7 +10,7 @@ from .basic import BaseObserver
 
 
 class MeasurableDisturbanceObserver(BaseObserver):
-    """状態方程式に測定可能な一定値外乱が含まれる場合のオブザーバ(p.179)"""
+    """Observer for a state equation with measurable constant disturbance (p. 179)."""
 
     def __init__(
         self,
@@ -28,15 +28,15 @@ class MeasurableDisturbanceObserver(BaseObserver):
         Parameters
         ----------
         A, B, Bd, Cy, Cz: np.ndarray
-            連続時間状態方程式の係数行列
+            Coefficient matrices of the continuous-time state equation.
         Ts: float
-            サンプリング時間
+            Sampling time.
         Lx: np.ndarray, default None
-            オブザーバのゲイン行列のxの部分
+            `x` part of the observer gain matrix.
         init_x: np.ndarray, default None
-            初期状態
+            Initial state.
         disc_method: str, default 'euler'
-            離散化手法
+            Discretization method.
 
         Returns
         ----------
@@ -44,7 +44,7 @@ class MeasurableDisturbanceObserver(BaseObserver):
 
         Note
         ----------
-        - Lxは離散時間にそのまま適用されることに注意
+        - Note that `Lx` is applied directly in discrete time.
         """
 
         super().__init__()
@@ -85,7 +85,7 @@ class MeasurableDisturbanceObserver(BaseObserver):
         A_tilda_disc = np.array(disc_sys.A)
         B_tilda_disc = np.array(disc_sys.B)
 
-        # ちゃんと一定値外乱モデルになっていることを確認
+        # Check that this is a proper constant disturbance model.
         A21 = A_tilda_disc[-self._d_dim :, : self._x_dim]
         A22 = A_tilda_disc[-self._d_dim :, -self._d_dim :]
         B2 = B_tilda_disc[-self._d_dim :, :]
@@ -106,7 +106,9 @@ class MeasurableDisturbanceObserver(BaseObserver):
         self._y = self.Cy @ self._x
         self._z = self.Cz @ self._x
 
-        # 収束性の確認: Kの固有値が単位円の外にある場合は収束性が保証されない
+        # Check convergence.
+        # If any eigenvalue of `K` is outside the unit circle,
+        # convergence is not guaranteed.
         disc_eig, _ = LA.eig(self._K)
         max_abs_disc_eig = max(abs(disc_eig))
         if max_abs_disc_eig > 1.0:

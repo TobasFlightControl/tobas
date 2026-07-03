@@ -52,7 +52,7 @@ def lip3d(
     r: float = 10.0,
     grav: float = 9.80665,
 ) -> Tuple[CoMTrajectory, np.ndarray, np.ndarray]:
-    """ヒューマノイドロボット, p.156, 図4.23"""
+    """Humanoid Robots, p. 156, Fig. 4.23."""
 
     assert len(fp0) == 2
     assert len(p0) == 2
@@ -71,16 +71,16 @@ def lip3d(
     fp_des = np.array(fp0)
     p_init = np.array(p0)
     v_init = np.array(v0)
-    fp_des_list = [np.array(fp0)]  # 足場の目標値
-    fp_list = [np.array(fp0)]  # 足場の修正値
+    fp_des_list = [np.array(fp0)]  # Desired footholds.
+    fp_list = [np.array(fp0)]  # Corrected footholds.
     sub_traj_list = []
 
-    # 最初の歩行素片(自由運動)
+    # First walking segment: free motion.
     sub_traj = CoMSubTrajectory(Tc, fp_des, p_init, v_init)
     p_init, v_init = sub_traj(T_sup)
     sub_traj_list.append(sub_traj)
 
-    # ユーザが与えた歩行データに従って歩行素片を作成
+    # Create walking segments from user-provided walking data.
     for i in range(n):
         sign = 1.0 if i % 2 == 0 else -1.0
 

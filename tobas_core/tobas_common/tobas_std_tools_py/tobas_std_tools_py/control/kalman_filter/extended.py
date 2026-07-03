@@ -9,7 +9,7 @@ from ...numpy_tools import is_symmetric, is_positive, is_semipositive
 
 
 class ExtendedKalmanFilter:
-    """拡張カルマンフィルタ(カルマンフィルタ入門, p.157)"""
+    """Extended Kalman filter (Fundamentals of Kalman Filter, p. 157)."""
 
     def __init__(
         self,
@@ -61,12 +61,12 @@ class ExtendedKalmanFilter:
         assert y.shape == (self._y_dim,)
         assert u.shape == (self._u_dim,)
 
-        # 現在の状態を推定
+        # Estimate the current state.
         C = self._dh_dx(self._x_prev)
         x_post = self._x_prev + self._G @ (y - self._h(self._x_prev))  # (7.21)
         P_post = (self._In - self._G @ C) @ self._P_prev  # (7.22)
 
-        # 次の状態の事前推定
+        # Prior estimate of the next state.
         A = self._dfx_dx(x_post)
         self._x_prev = self._fx(x_post) + self._fu(u)  # (7.17)
         self._P_prev = A @ P_post @ A.T + self._Bv @ self._Q @ self._Bv.T  # (7.19)

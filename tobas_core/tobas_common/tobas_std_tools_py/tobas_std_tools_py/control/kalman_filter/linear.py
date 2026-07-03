@@ -9,7 +9,7 @@ from ..observer.util import is_controllable, is_observable
 
 
 class LinearKalmanFilter:
-    """線形カルマンフィルタ(カルマンフィルタ入門, p.111)"""
+    """Linear Kalman filter (Fundamentals of Kalman Filter, p. 111)."""
 
     def __init__(
         self,
@@ -58,11 +58,11 @@ class LinearKalmanFilter:
         assert y.shape == (self._y_dim,)
         assert u.shape == (self._u_dim,)
 
-        # 現在の状態を推定
+        # Estimate the current state.
         x_post = self._x_prev + self._G @ (y - self._C @ self._x_prev)  # (6.58)
         P_post = (self._In - self._G @ self._C) @ self._P_prev  # (6.59)
 
-        # 次の状態の事前推定
+        # Prior estimate of the next state.
         self._x_prev = self._A @ x_post + self._Bu @ u  # (6.55)
         self._P_prev = self._A @ P_post @ self._A.T + self._Bv @ self._Q @ self._Bv.T  # (6.56)
         self._G = (self._P_prev @ self._C.T) @ LA.inv(self._C @ self._P_prev @ self._C.T + self._R)  # (6.57)

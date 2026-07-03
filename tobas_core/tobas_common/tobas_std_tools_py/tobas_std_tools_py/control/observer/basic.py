@@ -11,7 +11,7 @@ from .util import is_observable
 
 
 class BasicObserverDisc(BaseObserver):
-    """離散時間状態観測器(p.72)"""
+    """Discrete-time state observer (p. 72)."""
 
     def __init__(
         self,
@@ -28,15 +28,15 @@ class BasicObserverDisc(BaseObserver):
         Parameters
         ----------
         Ad, Bd, Cy, Cz: np.ndarray
-            離散時間状態方程式の係数行列
+            Coefficient matrices of the discrete-time state equation.
         Ts: float
-            サンプリング時間
+            Sampling time.
         L: np.ndarray, default None
-            オブザーバのゲイン行列
+            Observer gain matrix.
         pole: np.ndarray, default None
-            Ad - L @ Cyの極
+            Poles of `Ad - L @ Cy`.
         init_x: np.ndarray, default None
-            初期状態
+            Initial state.
 
         Returns
         ----------
@@ -44,8 +44,8 @@ class BasicObserverDisc(BaseObserver):
 
         Note
         ----------
-        - Tsは使わない
-        - L, poleはいずれか一方を指定
+        - `Ts` is unused.
+        - Specify either `L` or `pole`.
         """
 
         super().__init__()
@@ -97,7 +97,8 @@ class BasicObserverDisc(BaseObserver):
         self._y = Cy @ self._x
         self._z = Cz @ self._x
 
-        # 収束性の確認: Kの固有値が単位円の外にある場合は収束性が保証されない
+        # Check convergence.
+        # If any eigenvalue of `K` is outside the unit circle, convergence is not guaranteed.
         disc_eig, _ = LA.eig(self._K)
         max_abs_disc_eig = max(abs(disc_eig))
         if max_abs_disc_eig >= 1.0:
@@ -129,7 +130,7 @@ class BasicObserverDisc(BaseObserver):
 
 
 class BasicObserverCont(BasicObserverDisc):
-    """連続時間状態観測器(p.72)"""
+    """Continuous-time state observer (p. 72)."""
 
     def __init__(
         self,
@@ -147,17 +148,17 @@ class BasicObserverCont(BasicObserverDisc):
         Parameters
         ----------
         Ac, Bc, Cy, Cz: np.ndarray
-            連続時間状態方程式の係数行列
+            Coefficient matrices of the continuous-time state equation.
         Ts: float
-            サンプリング時間
+            Sampling time.
         L: np.ndarray, default None
-            離散時間オブザーバのゲイン行列
+            Gain matrix of the discrete-time observer.
         pole: np.ndarray, default None
-            離散時間オブザーバのAd - L @ Cyの極
+            Poles of `Ad - L @ Cy` for the discrete-time observer.
         init_x: np.ndarray, default None
-            初期状態
+            Initial state.
         disc_method: str, default 'euler'
-            離散化手法
+            Discretization method.
 
         Returns
         ----------
@@ -165,7 +166,7 @@ class BasicObserverCont(BasicObserverDisc):
 
         Note
         ----------
-        - L, poleは離散時間のSSに対して適用されることに注意
+        - Note that `L` and `pole` are applied to the discrete-time state-space system.
         """
 
         self._disc_method = disc_method
@@ -175,7 +176,7 @@ class BasicObserverCont(BasicObserverDisc):
 
         super().__init__(
             Ad=np.array(disc_sys.A),  # .matrix -> np.ndarray
-            Bd=np.array(disc_sys.B),  # np.asarray()だとこの型変換はされないことに注意
+            Bd=np.array(disc_sys.B),  # Note that `np.asarray()` does not perform this type conversion.
             Cy=Cy,
             Cz=Cz,
             Ts=Ts,

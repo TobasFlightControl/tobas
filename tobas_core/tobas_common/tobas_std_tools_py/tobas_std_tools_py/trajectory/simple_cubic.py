@@ -8,7 +8,7 @@ from .base import Trajectory
 
 
 class SimpleCubicSpline(Trajectory):
-    """Cubic polynomial trajectory generation (Robotics, p. 192)."""
+    """Cubic polynomial trajectory generation (Introduction to ROBOTICS, p. 192)."""
 
     def __init__(self, x0: np.ndarray, xf: np.ndarray, T: float) -> None:
         """

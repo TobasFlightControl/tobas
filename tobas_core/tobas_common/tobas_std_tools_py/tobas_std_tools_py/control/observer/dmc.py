@@ -8,11 +8,11 @@ from .basic import BasicObserverCont
 
 class DMCObserver(BasicObserverCont):
     """
-    DMC状態観測器
-    - p.69のモデルを連続空間で考える
-    - 一定値出力外乱を仮定
-    - z = Cz @ xと仮定
-    - デッドビート推定
+    DMC state observer.
+    - Consider the model on p. 69 in continuous space.
+    - Assume a constant output disturbance.
+    - Assume `z = Cz @ x`.
+    - Deadbeat estimation.
     """
 
     def __init__(
@@ -28,11 +28,11 @@ class DMCObserver(BasicObserverCont):
         Parameters
         ----------
         Ac, Bc, Cy, Cz: np.ndarray
-            連続時間状態方程式の係数行列
+            Coefficient matrices of the continuous-time state equation.
         Ts: float
-            サンプリング時間
+            Sampling time.
         init_x: np.ndarray, default None
-            初期状態
+            Initial state.
 
         Returns
         ----------
@@ -40,7 +40,7 @@ class DMCObserver(BasicObserverCont):
 
         Note
         ----------
-        - 状態数(x_dim)が(x_dim + y_dim)に変化することに注意
+        - Note that the number of states changes from `x_dim` to `x_dim + y_dim`.
         """
 
         u_dim = Bc.shape[1]
