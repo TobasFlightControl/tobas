@@ -132,8 +132,9 @@ public:
   {
     // Evaluate the position in the specified segment as a cubic Hermite curve with Catmull-Rom tangents.
     // When smoothly connecting any number of ordered points in any dimension,
-    // the curve between two points is determined only by those two points plus the neighboring points before and after
-    // them. cf. [Catmull–Rom spline](https://en.wikipedia.org/wiki/Catmull%E2%80%93Rom_spline)
+    // the curve between two points is determined
+    // only by those two points plus the neighboring points before and after them.
+    // cf. [Catmull–Rom spline](https://en.wikipedia.org/wiki/Catmull%E2%80%93Rom_spline)
 
     const auto& p0 = points_[segment];
     const auto& p1 = points_[segment + 1];
