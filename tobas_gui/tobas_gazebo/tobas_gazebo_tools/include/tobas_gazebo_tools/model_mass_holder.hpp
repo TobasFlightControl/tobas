@@ -9,7 +9,7 @@ namespace tobas
 {
 namespace gazebo
 {
-/* モデルの合計質量を保持する． */
+/* Hold the total mass of the model. */
 class ModelMassHolder
 {
 public:

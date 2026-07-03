@@ -7,7 +7,7 @@
 
       <collision name="collision">
 
-        <!-- 最大接触点数を制限すると計算速度が上がるが精度が落ちる -->
+        <!-- Limiting the maximum number of contact points improves computation speed but reduces accuracy. -->
         <!-- <max_contacts>4</max_contacts> -->
 
         <geometry>
@@ -26,11 +26,11 @@
           </friction> -->
           <contact>
             <ode>
-              <!-- 接触点安定化への効果大だが微調整が必要．なんとなく臨界減衰に設定． -->
+              <!-- This strongly stabilizes contact points, but needs fine tuning. Set roughly to critical damping. -->
               <!-- <kp>2.5e+5</kp>
               <kd>1e+3</kd> -->
 
-              <!-- 以下4パラメータの接触点の安定化への寄与は小さいかも -->
+              <!-- The following four parameters may contribute little to contact-point stabilization. -->
               <!-- <max_vel>10.0</max_vel>
               <min_depth>0.001</min_depth>
               <soft_cfm>1e-3</soft_cfm>
@@ -52,7 +52,7 @@
 
         <material>
           <script>
-            <!-- dsvで"gz_sim_vendor/share/gz/gz-sim8"をパスに追加したため，相対パスでインポートできる． -->
+            <!-- Since `gz_sim_vendor/share/gz/gz-sim8` is added to the path by dsv, this can be imported by relative path. -->
             <uri>media/gazebo.material</uri>
             <name>Gazebo/Gray</name>
           </script>

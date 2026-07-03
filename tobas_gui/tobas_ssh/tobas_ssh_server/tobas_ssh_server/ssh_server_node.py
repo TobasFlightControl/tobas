@@ -245,7 +245,7 @@ def main(args=None) -> None:
 
     try:
         rclpy.spin(node)
-    except KeyboardInterrupt:  # SIGINTをキャッチして綺麗に終了
+    except KeyboardInterrupt:  # Catch SIGINT and exit cleanly.
         pass
 
 

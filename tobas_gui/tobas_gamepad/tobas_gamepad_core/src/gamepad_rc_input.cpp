@@ -101,7 +101,7 @@ bool GamepadRcInput::poll()
   // ref: https://github.com/whot/libevdev/blob/master/tools/libevdev-events.c
   while (true) {
     const int rc = libevdev_next_event(dev_.get(), LIBEVDEV_READ_FLAG_NORMAL, &event);
-    // 新しいイベントを正常に読めた．
+    // A new event was read successfully.
     if (rc == LIBEVDEV_READ_STATUS_SUCCESS) {
       if (event.type == EV_KEY) {
         applyButton(event.code, event.value);
@@ -112,7 +112,7 @@ bool GamepadRcInput::poll()
       continue;
     }
 
-    // イベントを取りこぼした可能性があるため，現在のデバイス状態に同期し直す．
+    // Resynchronize with the current device state because events may have been missed.
     if (rc == LIBEVDEV_READ_STATUS_SYNC) {
       do {
         if (event.type == EV_KEY) {
@@ -126,7 +126,7 @@ bool GamepadRcInput::poll()
       continue;
     }
 
-    // 現時点で読めるイベントがない．
+    // No events are currently available to read.
     if (rc == -EAGAIN) {
       rc_input_.ok = true;
       return true;
@@ -175,32 +175,31 @@ void GamepadRcInput::applyButton(int _code, int _value)
 {
   const bool pressed = (_value != 0);
 
-  // D-ROC RC入力のボタン割り当て．
   switch (_code) {
-    // Aボタン: 押している間キルスイッチを有効にする．
+    // A button: enable the kill switch while pressed.
     case BTN_SOUTH:
       rc_input_.kill = pressed;
       break;
-    // Bボタン: サブモードを切り替える．
+    // B button: toggle the submode.
     case BTN_EAST:
       if (pressed) {
         rc_input_.sub_mode = !rc_input_.sub_mode;
       }
       break;
-    // Yボタン: gpsw[1]を切り替える．
+    // Y button: toggle `gpsw[1]`.
     case BTN_NORTH:
       if (pressed) {
         rc_input_.gpsw[1] = !rc_input_.gpsw[1];
       }
       break;
 
-    // Xボタン: gpsw[0]を切り替える．
+    // X button: toggle `gpsw[0]`.
     case BTN_WEST:
       if (pressed) {
         rc_input_.gpsw[0] = !rc_input_.gpsw[0];
       }
       break;
-    // L1ボタン: 飛行モードをAcrobat方向に切り替える．
+    // L1 button: switch the flight mode toward Acrobat.
     case BTN_TL:
       if (pressed) {
         constexpr auto kModes = magic_enum::enum_values<FlightMode>();
@@ -210,7 +209,7 @@ void GamepadRcInput::applyButton(int _code, int _value)
         }
       }
       break;
-    // R1ボタン: 飛行モードをLoiter方向に切り替える．
+    // R1 button: switch the flight mode toward Loiter.
     case BTN_TR:
       if (pressed) {
         constexpr auto kModes = magic_enum::enum_values<FlightMode>();
@@ -220,13 +219,13 @@ void GamepadRcInput::applyButton(int _code, int _value)
         }
       }
       break;
-    // Backボタン: RC入力を無効化
+    // Back button: disable RC input.
     case BTN_SELECT:
       if (pressed) {
         rc_input_.enable = false;
       }
       break;
-    // STARTボタン: RC入力を有効化
+    // START button: enable RC input.
     case BTN_START:
       if (pressed) {
         rc_input_.enable = true;
@@ -239,21 +238,20 @@ void GamepadRcInput::applyButton(int _code, int _value)
 
 void GamepadRcInput::applyAbs(int _code, int _value)
 {
-  // D-ROC RC入力の軸割り当て．
   switch (_code) {
-    // 左スティック左右: ヨー．
+    // Left stick horizontal: yaw.
     case ABS_X:
       rc_input_.yaw = normalizeAbs(_code, _value, config_.invert_yaw);
       break;
-    // 左スティック上下: ピッチ．
+    // Left stick vertical: pitch.
     case ABS_Y:
       rc_input_.pitch = normalizeAbs(_code, _value, config_.invert_pitch);
       break;
-    // 右スティック左右: ロール．
+    // Right stick horizontal: roll.
     case ABS_RX:
       rc_input_.roll = normalizeAbs(_code, _value, config_.invert_roll);
       break;
-    // 右スティック上下: スロットル．
+    // Right stick vertical: throttle.
     case ABS_RY:
       rc_input_.throttle = normalizeAbs(_code, _value, config_.invert_throttle);
       break;

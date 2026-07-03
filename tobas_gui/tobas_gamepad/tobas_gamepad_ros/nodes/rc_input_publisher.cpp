@@ -14,7 +14,7 @@ namespace tobas
 namespace gamepad
 {
 /**
- * @brief ゲームパッド入力を読み取り，RC入力メッセージとして発行する．
+ * @brief Read gamepad input and publish it as RC input messages.
  */
 class RcInputPublisher : public BaseNode
 {
