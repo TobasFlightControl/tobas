@@ -12,7 +12,7 @@ namespace tobas
 {
 namespace eigen
 {
-/* 3次元ベクトルを FLU (Front-Left-Up) 座標系から FRD (Front-Right-Down) 座標系に変換する．Rx(π)をかけるのと同じ． */
+/* Convert a 3D vector between FLU (Front-Left-Up) and FRD (Front-Right-Down). Equivalent to applying `Rx(pi)`. */
 inline void vectorFrdToFlu(const Eigen::Vector3d& src, Eigen::Vector3d& dst)
 {
   dst.x() = src.x();
@@ -47,19 +47,19 @@ inline Eigen::Vector3d vectorFromAngleAxis(const Eigen::AngleAxisd& angle_axis)
   return angle_axis.angle() * angle_axis.axis();
 }
 
-/* 等価角軸ベクトルから回転行列を作成． */
+/* Create a rotation matrix from an equivalent angle-axis vector. */
 inline Eigen::Matrix3d dcmFromAngleAxis(const Eigen::Vector3d& w)
 {
   return angleAxisFromVector(w).toRotationMatrix();
 }
 
-/* 等価角軸ベクトルからクオータニオンを作成． */
+/* Create a quaternion from an equivalent angle-axis vector. */
 inline Eigen::Quaterniond quaternionFromAngleAxis(const Eigen::Vector3d& w)
 {
   return Eigen::Quaterniond(angleAxisFromVector(w));
 }
 
-/* クオータニオンから等価角軸ベクトルを作成． */
+/* Create an equivalent angle-axis vector from a quaternion. */
 inline Eigen::Vector3d angleAxisFromQuaternion(const Eigen::Quaterniond& q)
 {
   Eigen::AngleAxisd angle_axis(q);
@@ -84,32 +84,33 @@ inline double yawFromDCM(const Eigen::Matrix3d& R)
   return std::atan2(R(1, 0), R(0, 0));
 }
 
-/* ハミルトン(w,x,y,z)をQuaterniondに変換． */
+/* Convert Hamilton format (w,x,y,z) to `Eigen::Quaterniond`. */
 inline Eigen::Quaterniond quaternionFromHamilton(const Eigen::Vector4d& ham)
 {
   return Eigen::Quaterniond((Eigen::Vector4d() << ham.tail<3>(), ham.head<1>()).finished());
 }
 
-/* Quaterniondをハミルトン(w,x,y,z)に変換． */
+/* Convert `Eigen::Quaterniond` to Hamilton format (w,x,y,z). */
 inline Eigen::Vector4d hamiltonFromQuaternion(const Eigen::Quaterniond& q)
 {
-  // Quaternionの要素はメモリ上で連続しているとは限らないため，coeffsを呼ぶとコンパイルエラーになる恐れがある．
+  // Quaternion elements are not guaranteed to be contiguous in memory,
+  // so calling `coeffs` may cause a compilation error.
   return Eigen::Vector4d(q.w(), q.x(), q.y(), q.z());
 }
 
-/* ベクトルの外積に相当する行列を作成する． */
+/* Create the matrix equivalent to a vector cross product. */
 inline Eigen::Matrix3d skew(double x, double y, double z)
 {
   return (Eigen::Matrix3d() << 0, -z, y, z, 0, -x, -y, x, 0).finished();
 }
 
-/* ベクトルの外積に相当する行列を作成する． */
+/* Create the matrix equivalent to a vector cross product. */
 inline Eigen::Matrix3d skew(const Eigen::Vector3d& v)
 {
   return skew(v(0), v(1), v(2));
 }
 
-/* ベクトルの外積に相当する行列の2乗を作成する． */
+/* Create the square of the matrix equivalent to a vector cross product. */
 inline Eigen::Matrix3d skew2(double x, double y, double z)
 {
   const auto xx = x * x;
@@ -122,13 +123,13 @@ inline Eigen::Matrix3d skew2(double x, double y, double z)
   return (Eigen::Matrix3d() << -(yy + zz), xy, zx, xy, -(zz + xx), yz, zx, yz, -(xx + yy)).finished();
 }
 
-/* ベクトルの外積に相当する行列の2乗を作成する． */
+/* Create the square of the matrix equivalent to a vector cross product. */
 inline Eigen::Matrix3d skew2(const Eigen::Vector3d& v)
 {
   return skew2(v(0), v(1), v(2));
 }
 
-/* x0を通る方向v (||v|| = 1) の直線に対しpから下ろした垂点を求める． */
+/* Calculate the foot of the perpendicular from `p` to the line through `x0` in direction `v` (||`v`|| = 1). */
 inline Eigen::Vector3d
 projectPointOnToLine(const Eigen::Vector3d& x0, const Eigen::Vector3d& v, const Eigen::Vector3d& p)
 {

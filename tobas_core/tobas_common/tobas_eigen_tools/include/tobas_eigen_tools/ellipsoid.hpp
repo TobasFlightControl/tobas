@@ -27,7 +27,7 @@ struct EllipsoidCoefficients
 };
 
 /**
- * @brief 3次元楕円体の数理表現．
+ * @brief Mathematical representation of a 3D ellipsoid.
  *
  * https://rikei-tawamure.com/entry/2021/09/27/111205
  */
@@ -39,7 +39,7 @@ public:
 
   bool initialize(const EllipsoidCoefficients& coefs);
 
-  /* 単位球に設定． */
+  /* Set to the unit sphere. */
   void setIdentity();
 
   const Eigen::Vector3d& getHardBias() const;
@@ -48,10 +48,10 @@ public:
   Eigen::Vector6d getSoftBias() const;
   void setSoftBias(const Eigen::Vector6d& t);
 
-  /* 単位球を楕円体に写像する． */
+  /* Map the unit sphere to the ellipsoid. */
   inline Eigen::Vector3d fromUnitSphere(const Eigen::Vector3d& x) const;
 
-  /* 楕円体を単位球に写像する． */
+  /* Map the ellipsoid to the unit sphere. */
   inline Eigen::Vector3d toUnitSphere(const Eigen::Vector3d& x) const;
 
 private:

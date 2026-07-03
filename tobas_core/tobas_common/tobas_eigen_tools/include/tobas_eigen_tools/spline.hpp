@@ -11,10 +11,10 @@ namespace tobas
 namespace eigen
 {
 /**
- * @brief 任意の横軸値を引数にとれる多項式補完クラス．
+ * @brief Polynomial interpolation class that accepts arbitrary horizontal-axis values.
  * https://stackoverflow.com/questions/29822041/
  *
- * @note データ数が多すぎるとメモリ消費量が膨大になるらしい．
+ * @note Memory usage may become huge when the number of data points is too large.
  */
 class SplineFunction
 {

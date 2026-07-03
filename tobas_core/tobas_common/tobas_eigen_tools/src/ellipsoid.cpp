@@ -26,13 +26,13 @@ Ellipsoid::Ellipsoid(const Vector3d& b, const Vector6d& t)
 
 bool Ellipsoid::initialize(const EllipsoidCoefficients& coefs)
 {
-  // 楕円の方程式: x^T A x + b^T x + c = 0
+  // Ellipsoid equation: `x^T A x + b^T x + c = 0`.
   Matrix3d A;
   A << coefs.a_xx, coefs.a_xy, coefs.a_zx, coefs.a_xy, coefs.a_yy, coefs.a_yz, coefs.a_zx, coefs.a_yz, coefs.a_zz;
   Vector3d b;
   b << coefs.b_x, coefs.b_y, coefs.b_z;
 
-  // Aを対角化
+  // Diagonalize `A`.
   const SelfAdjointEigenSolver<Matrix3d> eigen_solver(A);
   const Vector3d Lam = eigen_solver.eigenvalues();
   const Matrix3d P = eigen_solver.eigenvectors();
@@ -42,7 +42,7 @@ bool Ellipsoid::initialize(const EllipsoidCoefficients& coefs)
   const Vector3d A_inv_b = A_inv * b;
   const auto W = 0.25 * b.dot(A_inv_b) - coefs.c;
 
-  // 主軸方向の半径を計算
+  // Calculate radii along the principal axes.
   const Vector3d r2 = W * Lam_inv;
   if (!(r2.array() > 0.).all()) {
     std::cerr << "The given equation does not define an ellipsoid." << std::endl;
@@ -50,7 +50,7 @@ bool Ellipsoid::initialize(const EllipsoidCoefficients& coefs)
   }
   const Vector3d r = r2.cwiseSqrt();
 
-  // バイアスを計算
+  // Calculate biases.
   b_ = -0.5 * A_inv_b;
   T_ = P * r.asDiagonal() * P.transpose();
   T_inv_ = P * r.cwiseInverse().asDiagonal() * P.transpose();
