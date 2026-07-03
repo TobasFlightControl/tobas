@@ -9,7 +9,7 @@ from ...numpy_tools import make_mat_pow_arr, make_block_hankel
 
 
 def step2impulse(S_arr: np.ndarray) -> np.ndarray:
-    """MPC, 演習問題4.1"""
+    """MPC, exercise 4.1."""
 
     assert S_arr.ndim == 3
 
@@ -52,7 +52,7 @@ def ss2step(m: int, n: int, A: np.ndarray, B: np.ndarray, Cy: np.ndarray, Dy: np
     return S_arr[m:, :, :]
 
 
-def step2Upsilon(S_arr: np.ndarray, Hw: int, Hp: int) -> np.ndarray:  # TODO: 未テスト
+def step2Upsilon(S_arr: np.ndarray, Hw: int, Hp: int) -> np.ndarray:  # TODO: Untested.
     """MPC, p.136"""
 
     assert S_arr.ndim == 3 and S_arr.shape[0] > Hp
@@ -63,7 +63,7 @@ def step2Upsilon(S_arr: np.ndarray, Hw: int, Hp: int) -> np.ndarray:  # TODO: �
     return Upsilon
 
 
-def step2Theta(S_arr: np.ndarray, Hw: int, Hp: int, Hu: int) -> np.ndarray:  # TODO: 未テスト
+def step2Theta(S_arr: np.ndarray, Hw: int, Hp: int, Hu: int) -> np.ndarray:  # TODO: Untested.
     """MPC, p.136"""
 
     assert S_arr.ndim == 3 and S_arr.shape[0] > Hp
@@ -87,7 +87,7 @@ def step2ss(S_arr: np.ndarray, n: int = None) -> Tuple[np.ndarray, np.ndarray, n
     """MPC, p.141"""
 
     assert S_arr.ndim == 3
-    # 定常状態に至るまでのステップ応答が必要
+    # The step response must reach the steady state.
     assert np.allclose(S_arr[-2, :, :], S_arr[-1, :, :])
 
     N, y_dim, u_dim = S_arr.shape
@@ -104,7 +104,7 @@ def step2ss(S_arr: np.ndarray, n: int = None) -> Tuple[np.ndarray, np.ndarray, n
     U, sing_vals, V_T = LA.svd(Eta_N, full_matrices=False)  # (4.46)
     Sigma_N = np.diag(sing_vals)
 
-    Sigma_n = Sigma_N.copy()  # ここはコピーでなくてもよい
+    Sigma_n = Sigma_N.copy()  # This does not have to be a copy.
     for i in range(n, max_sing_num):
         Sigma_n[i, i] = 0.0
 
@@ -117,7 +117,7 @@ def step2ss(S_arr: np.ndarray, n: int = None) -> Tuple[np.ndarray, np.ndarray, n
     B = Gamma_n[:, :u_dim]
     C = Omega_n[:y_dim, :]
 
-    # 得られた状態方程式で元のステップ応答が正確に再現できることを確認
+    # Check that the obtained state equation accurately reproduces the original step response.
     assert np.allclose(S_arr, ss2step(0, N, A, B, C))
 
     return A, B, C

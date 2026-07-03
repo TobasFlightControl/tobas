@@ -11,7 +11,7 @@ from ..mpc import BasicMPC
 
 
 class MeasurableDisturbanceMPC(BasicMPC):
-    """状態方程式に測定可能な一定値外乱が含まれる場合のモデル予測制御(p.179)"""
+    """MPC for a state equation with measurable constant disturbance (p. 179)."""
 
     def __init__(self, observer: MeasurableDisturbanceObserver, **kwargs) -> None:
         super().__init__(observer=observer, **kwargs)
@@ -22,23 +22,23 @@ class MeasurableDisturbanceMPC(BasicMPC):
         Parameters
         ----------
         y: np.ndarray
-            現在のプラント出力
+            Current plant output.
         s: np.ndarray
-            設定値
+            Setpoint.
         d: np.ndarray
-            測定された外乱
+            Measured disturbance.
 
         Returns
         ----------
         u: np.ndarray
-            制御入力
+            Control input.
         """
 
         assert y.shape == (self.y_dim,)
         assert s.shape == (self.z_dim,)
         assert d.shape == (self.d_dim,)
 
-        # QP問題を解く
+        # Solve the QP problem.
         phi = self._calc_phi(y, s, d)
         omega = self._calc_omega()
         delta_U = solve_qp(self._Phi, phi, self._Omega, omega, solver=self._qpsolver)
@@ -46,11 +46,11 @@ class MeasurableDisturbanceMPC(BasicMPC):
             rprint("[red]Error: failed to solve QP problem[/red]")
             return
 
-        # 直近の制御入力を求める
+        # Compute the latest control input.
         delta_u = delta_U[: self.u_dim]
         self._last_u += delta_u
 
-        # オブザーバを進める
+        # Advance the observer.
         self._observer.step(y, d, self._last_u)
 
         return self._last_u
@@ -72,7 +72,7 @@ class MeasurableDisturbanceMPC(BasicMPC):
         return Xi
 
     def _calc_phi(self, y, s, d):
-        """(3.11)より，(3.43)のphiを計算"""
+        """Compute `phi` in (3.43) from (3.11)."""
 
         Epsilon = self._calc_Epsilon(y, s, d)
         phi = (self._minus_2_Theta_Q @ Epsilon).ravel()

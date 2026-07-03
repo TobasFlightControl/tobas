@@ -9,11 +9,11 @@ from ..observer import BaseObserver
 from ..mpc import BasicMPC
 
 
-class InfiniteHorizonMPC(BasicMPC):  # TODO: 真面目にやるなら第2章の定式化からやり直す必要あり
+class InfiniteHorizonMPC(BasicMPC):  # TODO: Rebuild from the Chapter 2 formulation for a rigorous version.
     """
-    無限ホライズンのモデル予測制御(p.215)
-    - 安定なダイナミクスを要求
-    - 設定値は0のみ
+    Infinite-horizon model predictive control (p. 215).
+    - Requires stable dynamics.
+    - Supports only a zero setpoint.
     """
 
     def __init__(
@@ -30,10 +30,10 @@ class InfiniteHorizonMPC(BasicMPC):  # TODO: 真面目にやるなら第2章の�
         ref_traj: str = "const",
         show_progress: bool = False,
     ) -> None:
-        assert Q_arr.shape[0] == 1  # ホライズンに渡って一定の重み行列を要求
+        assert Q_arr.shape[0] == 1  # Requires a weight matrix that is constant over the horizon.
         Q = Q_arr[0, :, :]
 
-        # 一旦z = xとしたオブザーバを作成
+        # Temporarily create an observer with `z = x`.
         observer_2 = deepcopy(observer)
         Cz = observer_2.Cz
         observer_2._Cz = np.identity(observer_2.x_dim)
@@ -48,21 +48,21 @@ class InfiniteHorizonMPC(BasicMPC):  # TODO: 真面目にやるなら第2章の�
         Q_arr_2[-1, :, :] = Q_bar
 
         super().__init__(
-            observer=observer_2,  # 変更点
-            Hw=1,  # 変更点
-            Hp=Hu,  # 変更点
+            observer=observer_2,  # Changed point.
+            Hw=1,  # Changed point.
+            Hp=Hu,  # Changed point.
             Hu=Hu,
-            Q_arr=Q_arr_2,  # 変更点
+            Q_arr=Q_arr_2,  # Changed point.
             R_arr=R_arr,
             u_range=u_range,
             u_rate_range=u_rate_range,
-            z_range=None,  # 変更点
+            z_range=None,  # Changed point.
             u_const_mat=u_const_mat,
             u_rate_const_mat=u_rate_const_mat,
-            z_const_mat=None,  # 変更点
+            z_const_mat=None,  # Changed point.
             T_ref=T_ref,
             ref_traj=ref_traj,
-            tracking=False,  # 変更点
+            tracking=False,  # Changed point.
             show_progress=show_progress,
         )
 
@@ -71,16 +71,16 @@ class InfiniteHorizonMPC(BasicMPC):  # TODO: 真面目にやるなら第2章の�
         Parameters
         ----------
         y: np.ndarray
-            現在のプラント出力
+            Current plant output.
 
         Returns
         ----------
         u: np.ndarray
-            制御入力
+            Control input.
 
         Note
         ----------
-        - 設定値は0で固定
+        - The setpoint is fixed to zero.
         """
 
         s = np.zeros((self.z_dim))
