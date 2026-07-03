@@ -9,7 +9,7 @@ from numpy.typing import NDArray
 
 
 def newton_1d(f: Callable, df: Callable, x0: float, eps: float = 1e-10, max_iter: int = 100) -> float:
-    """1次元のニュートン法"""
+    """One-dimensional Newton's method."""
 
     x = x0
 
@@ -31,7 +31,7 @@ def newton(
     eps: float = 1e-10,
     max_iter: int = 100,
 ) -> NDArray:
-    """多次元のニュートン法"""
+    """Multidimensional Newton's method."""
 
     x = np.array(x0)
 

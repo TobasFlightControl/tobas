@@ -13,7 +13,7 @@ class KillableThread(threading.Thread):
     def kill(self) -> bool:
         thread_id = self._get_id()
 
-        # スレッドIDが見つからない場合は既に落ちているということ？
+        # If the thread ID is not found, the thread may have already stopped.
         if thread_id is None:
             return False
 

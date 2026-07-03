@@ -28,19 +28,19 @@ class KeyboardReader:
 
     def read(self) -> Union[str, None]:
         try:
-            # ターミナルをrawモードに設定
+            # Set the terminal to raw mode.
             tty.setraw(sys.stdin.fileno())
 
-            # 入力の待機
+            # Wait for input.
             rlist, _, _ = select.select([sys.stdin], [], [], self._timeout)
 
-            # 入力を取得
+            # Read the input.
             if rlist:
-                # 1文字入力を読み取る
+                # Read a single-character input.
                 key = sys.stdin.read(1)
 
-                # エスケープ文字だったら残りの2文字を読み取る
-                # FIXME: このやり方だとESC単体が押された場合に待機してしまう
+                # If the input is an escape character, read the remaining two characters.
+                # FIXME: This waits when ESC alone is pressed.
                 if key == KeyCode.ESC.value:
                     key += sys.stdin.read(2)
 
@@ -48,5 +48,5 @@ class KeyboardReader:
             else:
                 return None
         finally:
-            # ターミナル設定を元に戻す
+            # Restore the terminal settings.
             termios.tcsetattr(sys.stdin, termios.TCSADRAIN, self._settings)

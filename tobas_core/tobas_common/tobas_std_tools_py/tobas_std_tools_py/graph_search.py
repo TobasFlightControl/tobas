@@ -7,17 +7,18 @@ from heapq import heappop, heappush
 
 def warshall_floyd(dist: list) -> list:
     """
-    ワーシャルフロイド法
+    Warshall-Floyd algorithm.
 
     Parameter
     ----------
     dist: list
-        直接距離テーブル(パスが無いところはINF)
+        Direct distance table.
+        Entries without a path are `INF`.
 
     Return
     ----------
     res: list
-        最短距離を記録したテーブル
+        Table of shortest distances.
 
     """
     res = deepcopy(dist)
@@ -31,19 +32,20 @@ def warshall_floyd(dist: list) -> list:
 
 def dijkstra(graph: list, s: int) -> list:
     """
-    ダイクストラ法
+    Dijkstra's algorithm.
 
     Parameter
     ----------
     graph: list
-        頂点連結リスト
+        Vertex adjacency list.
     s: int
-        始点のインデックス
+        Start vertex index.
 
     Return:
     ----------
     dist: list
-        sからの各点への最短距離のリスト(到達不可能なノードには-1が入る)
+        List of shortest distances from `s`.
+        Unreachable nodes are set to -1.
     """
     dist = [-1] * len(graph)
     que = [(0, s)]

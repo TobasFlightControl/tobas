@@ -4,7 +4,7 @@
 import numpy as np
 
 
-class SimpleLPF:  # TODO: 未テスト
+class SimpleLPF:  # TODO: Untested.
     def __init__(self, cutoff_freq: float, init_x: np.ndarray) -> None:
         assert cutoff_freq > 0.0
         assert init_x.ndim == 1
