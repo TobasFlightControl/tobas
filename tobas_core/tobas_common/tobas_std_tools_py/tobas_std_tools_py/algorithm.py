@@ -6,8 +6,8 @@ from typing import List
 
 def cumsum(data: List) -> List:
     """
-    累積和を計算する．\\
-    res[i] = dataの0番目からi番目の要素までの和
+    Compute the cumulative sum.\\
+    `res[i]` is the sum from element 0 to element i of `data`.
     """
     if len(data) == 0:
         return []

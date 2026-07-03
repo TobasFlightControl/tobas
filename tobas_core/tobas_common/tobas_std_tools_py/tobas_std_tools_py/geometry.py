@@ -6,12 +6,12 @@ from typing import List, Tuple
 
 
 def euler_from_matrix(data: List[float]) -> Tuple[float, float, float]:
-    """回転行列からZYXオイラー角を求める．
+    """Compute ZYX Euler angles from a rotation matrix.
 
     Parameters
     ----------
     data : List[float]
-        回転行列のデータ．
+        Rotation matrix data.
 
     Returns
     -------

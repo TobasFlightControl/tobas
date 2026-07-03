@@ -16,7 +16,7 @@ def rps2rpm(rpm: float) -> float:
 
 
 def remap(x: float, a: float, b: float, c: float, d: float) -> float:
-    """xを[a, b]の範囲から[c, d]の範囲に投影する．"""
+    """Project `x` from the range [a, b] to the range [c, d]."""
     assert math.isfinite(x)
 
     if a == b:
@@ -26,7 +26,7 @@ def remap(x: float, a: float, b: float, c: float, d: float) -> float:
 
 
 def wrap(x, n):
-    """与えられた数を[-n, n]の範囲にラップする．"""
+    """Wrap the given number into the range [-n, n]."""
     n2 = 2 * n
     if x >= 0:
         while x > n:
@@ -46,14 +46,14 @@ def floor(x: float, unit: int = 1) -> int:
 
 
 def is_almost_int(x: float) -> bool:
-    """小数xが整数に近いかどうかを判定する"""
+    """Determine whether decimal `x` is close to an integer."""
 
     r = abs(x - round(x))
     return r < 1e-5
 
 
 def common_range(range_list: List[Tuple[float, float]]) -> Union[Tuple[float, float], None]:
-    """range_listの共通範囲を求める"""
+    """Compute the common range of `range_list`."""
 
     lb_res = -math.inf
     ub_res = math.inf

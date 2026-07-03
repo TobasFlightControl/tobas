@@ -5,7 +5,7 @@ from enum import Enum
 
 
 class JointType:
-    """urdf_parser_py.urdf.Joint.TYPESに対応．"""
+    """Corresponds to `urdf_parser_py.urdf.Joint.TYPES`."""
 
     UNKNOWN = "unknown"
     REVOLUTE = "revolute"

@@ -7,8 +7,8 @@ import numpy.linalg as LA
 
 def calc_diff(a: np.ndarray) -> np.ndarray:
     """
-    aの階差を計算する \\
-    第0要素はそのまま
+    Compute the finite difference of `a`.\\
+    The 0-th element is left unchanged.
     """
 
     return np.r_[a[0], a[1:] - np.roll(a, 1)[1:]]
@@ -16,7 +16,7 @@ def calc_diff(a: np.ndarray) -> np.ndarray:
 
 def make_mat_pow_arr(A: np.ndarray, n: int, A0: np.ndarray = None) -> np.ndarray:
     """
-    Aの0乗からn乗までの配列を返す \\
+    Return an array from the 0-th power to the n-th power of `A`.\\
     res[i] == A0 @ A**i
     """
 
@@ -35,7 +35,7 @@ def make_mat_pow_arr(A: np.ndarray, n: int, A0: np.ndarray = None) -> np.ndarray
 
 def make_mat_diag(A_arr: np.ndarray) -> np.ndarray:
     """
-    A_arrの各要素行列を対角要素としてもつ対角行列もどきを作る \\
+    Create a diagonal-matrix-like matrix whose diagonal elements are the matrices in `A_arr`.\\
     [A[0], 0, 0, 0] \\
     [0, A[1], 0, 0] \\
     [0, 0, A[2], 0] \\
@@ -55,7 +55,7 @@ def make_mat_diag(A_arr: np.ndarray) -> np.ndarray:
 
 
 def make_block_hankel(A_arr: np.ndarray, n: int) -> np.ndarray:
-    """A_arr[i, :, :]を要素とする(n, n)のブロックハンケル行列を作成する"""
+    """Create an (n, n) block Hankel matrix whose elements are `A_arr[i, :, :]`."""
 
     assert A_arr.ndim == 3
     assert n > 0
@@ -75,13 +75,13 @@ def make_block_hankel(A_arr: np.ndarray, n: int) -> np.ndarray:
 
 
 def make_hankel(elements: np.ndarray, n: int) -> np.ndarray:
-    """elements[i]を要素とする(n, n)のブロックハンケル行列を作成する"""
+    """Create an (n, n) block Hankel matrix whose elements are `elements[i]`."""
 
     return make_block_hankel(A_arr=elements.reshape(-1, 1, 1), n=n)
 
 
 def make_cross_mat_3d(v: np.ndarray) -> np.ndarray:
-    """3次元ベクトルの外積行列を作成する"""
+    """Create the cross-product matrix of a 3D vector."""
 
     assert v.shape == (3,)
 
@@ -92,28 +92,28 @@ def make_cross_mat_3d(v: np.ndarray) -> np.ndarray:
 
 
 def is_symmetric(A: np.ndarray) -> bool:
-    """Aが対称行列かどうかを調べる"""
+    """Check whether `A` is a symmetric matrix."""
 
     assert A.ndim == 2 and A.shape[0] == A.shape[1]
     return np.allclose(A, A.T)
 
 
 def is_positive(A: np.ndarray) -> bool:
-    """Aが正定値行列かどうかを調べる"""
+    """Check whether `A` is a positive-definite matrix."""
 
     assert A.ndim == 2 and A.shape[0] == A.shape[1]
     return np.all(LA.eigvals(A) > 0.0)
 
 
 def is_semipositive(A: np.ndarray) -> bool:
-    """Aが準正定行列かどうかを調べる"""
+    """Check whether `A` is a positive-semidefinite matrix."""
 
     assert A.ndim == 2 and A.shape[0] == A.shape[1]
     return np.all(LA.eigvals(A) >= 0.0)
 
 
 def normalize(v: np.ndarray, axis: int = -1, ord: int = 2) -> np.ndarray:
-    """ベクトルを正規化する"""
+    """Normalize a vector."""
 
     l2 = LA.norm(v, ord=ord, axis=axis, keepdims=True)
     l2[l2 == 0] = 1.0
@@ -121,7 +121,7 @@ def normalize(v: np.ndarray, axis: int = -1, ord: int = 2) -> np.ndarray:
 
 
 def calc_euclid_full_pairs(p1: np.ndarray, p2: np.ndarray) -> np.ndarray:
-    """N次元空間における全点間ユークリッド距離の計算"""
+    """Compute Euclidean distances between all point pairs in N-dimensional space."""
 
     assert p1.ndim == p2.ndim == 2
     assert p1.shape[1] == p2.shape[1]

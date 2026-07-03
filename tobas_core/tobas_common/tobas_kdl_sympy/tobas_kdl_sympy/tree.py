@@ -35,11 +35,11 @@ class Tree:
                 raise RuntimeError(f"Invalid joint type: {joint.type}")
 
     def get_num_joints(self) -> int:
-        """固定関節を含む全関節の個数．"""
+        """Number of all joints, including fixed joints."""
         return len(self._robot.joints)
 
     def get_num_links(self) -> int:
-        """リンクの個数．"""
+        """Number of links."""
         return len(self._robot.links)
 
     def get_links(self) -> List[Link]:
@@ -98,7 +98,7 @@ class Tree:
         return link_name not in self._robot.child_map.keys()
 
     def is_fixed_link(self, link_name: str) -> bool:
-        """リンクがルートに固定されている場合にTrueを返す．"""
+        """Return `True` if the link is fixed to the root."""
         assert link_name in self._robot.link_map.keys()
 
         if link_name == self._robot.get_root():
@@ -128,21 +128,21 @@ class Tree:
         return False
 
     def link_names(self) -> List[str]:
-        """全てのリンクの名前を返す．"""
+        """Return the names of all links."""
         links = self.get_links()
         return [link.name for link in links]
 
     def joint_names(self) -> List[str]:
-        """全てのジョイントの名前を変えす．"""
+        """Return the names of all joints."""
         joints = self.get_joints()
         return [joint.name for joint in joints]
 
     def local_pose(self, link_name: str) -> Frame:
-        """親リンクに対する位置姿勢を求める．"""
+        """Compute the pose relative to the parent link."""
         if link_name == self._robot.get_root():
-            return Frame.Identity()  # FIXME: Identityじゃないパターンがあるかも
+            return Frame.Identity()  # FIXME: There may be cases where this is not `Identity`.
 
-        # リンクの原点はジョイントに一致していることを保証
+        # Ensure that the link origin coincides with the joint.
         link = self.get_link(link_name)
         assert link.origin is None
 
@@ -164,13 +164,13 @@ class Tree:
         if joint.axis is None:
             return None
 
-        # ルートからジョイント原点までのTFを求める．
+        # Compute the TF from the root to the joint origin.
         T_W_Parent = self._recursive_fk(joint.parent)
         T_Parent_Joint = self._parent_to_joint(jnt_name)
         T_W_Joint = T_W_Parent * T_Parent_Joint
 
         local_axis = Vector(*joint.axis)
-        return T_W_Joint.M * local_axis  # TFではなく回転のみであることに注意
+        return T_W_Joint.M * local_axis  # Note that this is only the rotation, not the TF.
 
     def _recursive_fk(self, link_name: str) -> Frame:
         cur_frame = self.local_pose(link_name)
@@ -182,7 +182,7 @@ class Tree:
         return self._recursive_fk(parent.name) * cur_frame
 
     def _parent_to_joint(self, jnt_name: str) -> Frame:
-        """親フレーム -> ジョイント原点"""
+        """Parent frame -> joint origin."""
         joint: Joint = self._robot.joint_map[jnt_name]
         if joint.origin is None:
             return Frame.Identity()
@@ -192,7 +192,7 @@ class Tree:
             return Frame(p_origin, M_origin)
 
     def _joint_to_link(self, jnt_name: str) -> Frame:
-        """ジョイント原点 -> リンク原点"""
+        """Joint origin -> link origin."""
         joint: Joint = self._robot.joint_map[jnt_name]
         if joint.type == JointType.FIXED:
             return Frame.Identity()
