@@ -4,7 +4,7 @@
 #pragma once
 
 /**
- * @brief 標準大気
+ * @brief Standard atmosphere.
  * cf. https://pigeon-poppo.com/standard-atmosphere/
  */
 namespace tobas
@@ -12,112 +12,113 @@ namespace tobas
 namespace st
 {
 /**
- * @brief ジオポテンシャル高度から幾何高度を求める．
+ * @brief Calculate geometric altitude from geopotential height.
  *
- * @param gph ジオポテンシャル高度 [m]
- * @return double 幾何高度 [m]
+ * @param gph Geopotential height [m].
+ * @return double Geometric altitude [m].
  */
 double gphToAltitude(const double& gph);
 
 /**
- * @brief 幾何高度からジオポテンシャル高度を求める．
+ * @brief Calculate geopotential height from geometric altitude.
  *
- * @param altitude 幾何高度 [m]
- * @return double ジオポテンシャル高度 [m]
+ * @param altitude Geometric altitude [m].
+ * @return double Geopotential height [m].
  */
 double altitudeToGPH(const double& altitude);
 
 /**
- * @brief ジオポテンシャル高度から標準大気の温度を求める．
+ * @brief Calculate standard atmosphere temperature from geopotential height.
  *
- * @param gph ジオポテンシャル高度 [m]
- * @return double 標準大気の温度 [K]
+ * @param gph Geopotential height [m].
+ * @return double Standard atmosphere temperature [K].
  */
 double gphToTemperature(const double& gph);
 
 /**
- * @brief 幾何高度から標準大気の温度を求める．
+ * @brief Calculate standard atmosphere temperature from geometric altitude.
  *
- * @param altitude 幾何高度 [m]
- * @return double 標準大気の温度 [K]
+ * @param altitude Geometric altitude [m].
+ * @return double Standard atmosphere temperature [K].
  */
 double altitudeToTemperature(const double& altitude);
 
 /**
- * @brief 大気圧から標準大気の温度を求める．
+ * @brief Calculate standard atmosphere temperature from atmospheric pressure.
  *
- * @param p 大気圧 [Pa]
- * @return double 標準大気の温度 [K]
+ * @param p Atmospheric pressure [Pa].
+ * @return double Standard atmosphere temperature [K].
  *
- * @note 対流圏を想定．
+ * @note Assumes the troposphere.
  */
 double pressureToTemperature(const double& p);
 
 /**
- * @brief ジオポテンシャル高度から標準大気の圧力を求める．
+ * @brief Calculate standard atmosphere pressure from geopotential height.
  *
- * @param gph ジオポテンシャル高度 [m]
- * @return double 標準大気の圧力 [Pa]
+ * @param gph Geopotential height [m].
+ * @return double Standard atmosphere pressure [Pa].
  */
 double gphToPressure(const double& gph);
 
 /**
- * @brief 幾何高度から標準大気の圧力を求める．
+ * @brief Calculate standard atmosphere pressure from geometric altitude.
  *
- * @param altitude 幾何高度 [m]
- * @return double 標準大気の圧力 [Pa]
+ * @param altitude Geometric altitude [m].
+ * @return double Standard atmosphere pressure [Pa].
  */
 double altitudeToPressure(const double& altitude);
 
 /**
- * @brief 大気温度から標準大気の圧力を求める．
+ * @brief Calculate standard atmosphere pressure from atmospheric temperature.
  *
- * @param T 大気温度 [K]
- * @return double 標準大気の圧力 [Pa]
+ * @param T Atmospheric temperature [K].
+ * @return double Standard atmosphere pressure [Pa].
  *
- * @note 対流圏を想定．
+ * @note Assumes the troposphere.
  */
 double temperatureToPressure(const double& T);
 
 /**
- * @brief ジオポテンシャル高度から標準大気の密度を求める．
+ * @brief Calculate standard atmosphere density from geopotential height.
  *
- * @param gph ジオポテンシャル高度 [m]
- * @return double 標準大気の密度 [kg/m^3]
+ * @param gph Geopotential height [m].
+ * @return double Standard atmosphere density [kg/m^3].
  */
 double gphToDensity(const double& gph);
 
 /**
- * @brief 幾何高度から標準大気の密度を求める．
+ * @brief Calculate standard atmosphere density from geometric altitude.
  *
- * @param altitude 幾何高度 [m]
- * @return double 標準大気の密度 [kg/m^3]
+ * @param altitude Geometric altitude [m].
+ * @return double Standard atmosphere density [kg/m^3].
  */
 double altitudeToDensity(const double& altitude);
 
 /**
- * @brief 大気圧から標準大気の密度を求める．
+ * @brief Calculate standard atmosphere density from atmospheric pressure.
  *
- * @param p 大気圧 [Pa]
- * @return double 標準大気の密度 [kg/m^3]
+ * @param p Atmospheric pressure [Pa].
+ * @return double Standard atmosphere density [kg/m^3].
  */
 double pressureToDensity(const double& p);
 
 /**
- * @brief 対流圏の標準大気を仮定し，大気圧[Pa]から幾何高度[m]を求める．
+ * @brief Calculate geometric altitude [m] from atmospheric pressure [Pa], assuming the standard troposphere.
  *
- * @param pressure 気圧 [Pa]
- * @return double 幾何高度 [m]
+ * @param pressure Atmospheric pressure [Pa].
+ * @return double Geometric altitude [m].
  */
 double pressureToAltitude(const double& pressure);
 
 /**
- * @brief 対流圏の標準大気を仮定し，大気圧[Pa]から幾何高度[m]を求める．加えて分散も変換する．
+ * @brief Calculate geometric altitude [m] from atmospheric pressure [Pa], assuming the standard troposphere.
+ * Also converts the variance.
  *
- * @param pressure 気圧 [Pa]
- * @param pressure_var 気圧の分散 [Pa^2]
- * @param altitude 幾何高度 [m] (出力)
- * @param altitude_var 幾何高度の分散 [m^2] (出力)
+ * @param pressure Atmospheric pressure [Pa].
+ * @param pressure_var Atmospheric pressure variance [Pa^2].
+ * @param altitude Geometric altitude [m] (output).
+ * @param altitude_var Geometric altitude variance [m^2] (output).
  */
 void pressureToAltitude(const double& pressure, const double& pressure_var, double& altitude, double& altitude_var);
 }  // namespace st
