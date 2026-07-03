@@ -55,18 +55,18 @@ void SpeedRollDeltaPitchController::reset(const builtin_interfaces::msg::Time&, 
 
 void SpeedRollDeltaPitchController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry&, bool)
 {
-  // コマンドを作成
+  // Create command
   auto cmd = std::make_unique<tobas_command_msgs::msg::SpeedRollDeltaPitch>();
   cmd->header = rcin.header;
 
-  // TODO: 機体の制限速度を考慮
+  // TODO: Consider the airframe speed limit.
   const auto throttle = expo(remap(rcin.throttle, kMinThrot, kMaxThrot), speed_expo_);
   cmd->speed = math::remap(throttle, kMinThrot, kMaxThrot, min_speed_, max_speed_);
 
   cmd->roll = remapDead(rcin.roll, -max_roll_, max_roll_);
   cmd->delta_pitch = remapDead(rcin.pitch, -max_dpitch_, max_dpitch_);
 
-  // コマンドを発行
+  // Publish command
   cmd_pub_->publish(std::move(cmd));
 }
 
