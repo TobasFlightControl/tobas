@@ -13,7 +13,7 @@ namespace tobas
 {
 namespace lr_tools
 {
-/* デカルト座標系における遊脚の足先の状態を計算する． */
+/* Compute the swing-leg foot-tip state in the Cartesian coordinate system. */
 class SwingLegController
 {
   static constexpr double kDefaultRaibertGain = 0.03;
@@ -66,13 +66,14 @@ private:
 
   kdl::TreeFkSolverPos fk_solver_;
 
-  std::vector<kdl::CycloidGenerator3d> ref_traj_;  // {gnd}から見た{gnd}に対する{foot}の軌道を生成する
-  std::vector<bool> is_stand_prev_;                // 各足の接地状態
-  std::vector<TimeType> t_switch_;                 // 立脚から遊脚に切り替わった時刻
-  std::vector<kdl::VectorAcc> B_Tdd_BF_;           // {base}から見た{base}に対する{foot}の状態
-  std::vector<kdl::Vector> thigh_0_;               // {base}から見た{base}に対する足の根本の位置
-  kdl::VectorAcc G_Tdd_GF_;                        // {gnd}から見た{gnd}に対する{foot}の状態
-  double roll_, pitch_, yaw_;                      // W_Rot_B
+  std::vector<kdl::CycloidGenerator3d>
+    ref_traj_;                            // Generates the trajectory of {foot} relative to {gnd}, viewed from {gnd}.
+  std::vector<bool> is_stand_prev_;       // Contact state of each foot.
+  std::vector<TimeType> t_switch_;        // Time when each leg switched from stance to swing.
+  std::vector<kdl::VectorAcc> B_Tdd_BF_;  // State of {foot} relative to {base}, viewed from {base}.
+  std::vector<kdl::Vector> thigh_0_;      // Position of the leg root relative to {base}, viewed from {base}.
+  kdl::VectorAcc G_Tdd_GF_;               // State of {foot} relative to {gnd}, viewed from {gnd}.
+  double roll_, pitch_, yaw_;             // W_Rot_B
 
   void setThighOrigins();
 };

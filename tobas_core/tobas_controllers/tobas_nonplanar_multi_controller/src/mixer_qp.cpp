@@ -49,13 +49,13 @@ bool QpMixer::solve(
   const kdl::Vector& ext_force_W,
   const kdl::Vector& ext_torque_B)
 {
-  // 順運動学を計算
+  // Compute forward kinematics.
   if (fk_solver_.jntToCart(cur_q) < 0) {
     cerr << "Forward kinematics failed: " << fk_solver_.errorMessage() << endl;
     return false;
   }
 
-  // 質量特性を計算
+  // Compute mass properties.
   if (inertia_solver_.jntToCart(cur_q) < 0) {
     cerr << "Inertia solver failed: " << inertia_solver_.errorMessage() << endl;
     return false;
@@ -65,19 +65,19 @@ bool QpMixer::solve(
   const auto B_Pos_B2G = inertia.getCOG();
   const auto I_B = inertia.getRotationalInertiaCoG();
 
-  // EoM行列等式の左辺
+  // Left-hand side of the EoM matrix equality.
   for (const auto& [idx, rotor_it] : views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = rotor_it.second;
 
-    // 回転軸を求める
+    // Compute the rotation axis.
     const auto& elem = tree_.getSegment(rotor->link_name)->second;
     const auto& B_Rot_Par = fk_solver_.getFrame(elem.parent->first).M;
     const auto axis_B = B_Rot_Par * elem.segment.joint().axis();
 
-    // 並進
+    // Translation.
     G_.block<3, 1>(0, idx) = axis_B.data;
 
-    // 回転
+    // Rotation.
     const auto d = rotor->sign();
     const auto cm = rotor->momentConst();
     const auto& B_Pos_B2P = fk_solver_.getFrame(rotor->link_name).p;
@@ -85,23 +85,23 @@ bool QpMixer::solve(
     G_.block<3, 1>(3, idx) = (B_Pos_G2P * axis_B - (d * cm) * axis_B).data;
   }
 
-  // 並進EoMの右辺
+  // Right-hand side of the translational EoM.
   const kdl::Vector grav_W(0, 0, -st::kGravity);
   auto eom_trans_right_W = mass * (tar_acc_W - grav_W) - ext_force_W;  // [N]
-  eom_trans_right_W.z(max(eom_trans_right_W.z(), 0.));  // 鉛直下方向に推力を出さないよう制限
+  eom_trans_right_W.z(max(eom_trans_right_W.z(), 0.));  // Limit thrust so that it is not generated vertically downward.
   h_.head<3>() = cur_rot.inverse(eom_trans_right_W).data;
 
-  // 回転EoMの右辺
+  // Right-hand side of the rotational EoM.
   const auto eom_rot_right_B = I_B * tar_dgyro_B + cur_gyro_B * (I_B * cur_gyro_B) - ext_torque_B;  // [Nm]
   h_.tail<3>() = eom_rot_right_B.data;
 
-  // EoMに対する重み
+  // Weights for the EoM.
   const auto linear_scale = mass * kAccelScale;                // [N]
   const auto angular_scale = (I_B.trace() / 3) * kDGyroScale;  // [Nm]
   Q_.diagonal().head<3>().fill(cfg_.linear_weight / math::sqr(linear_scale));
   Q_.diagonal().tail<3>().fill(cfg_.angular_weight / math::sqr(angular_scale));
 
-  // 推力に対する重み
+  // Weights for thrust.
   const auto thrust_scale = mass * st::kGravity / drone_.prop->numRotors();  // [N]
   const auto thrust_weight_base = cfg_.thrust_weight / math::sqr(thrust_scale);
   for (const auto& [idx, pair] : std::views::enumerate(drone_.prop->rotors)) {
@@ -109,11 +109,11 @@ bool QpMixer::solve(
     R_.diagonal()(idx) = thrust_weight_base * rotor->effortWeight();
   }
 
-  // 目的関数
+  // Objective function.
   qp_.problem.P = G_.transpose() * Q_ * G_ + R_;
   qp_.problem.q = -G_.transpose() * Q_ * h_;
 
-  // 不等式制約
+  // Inequality constraints.
   for (const auto& [idx, rotor_it] : views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = rotor_it.second;
     if (rotor_alive_.at(rotor->link_name)) {
@@ -126,7 +126,7 @@ bool QpMixer::solve(
     }
   }
 
-  // QPPを解く
+  // Solve the QPP.
   if (!qp_.solve()) {
     cerr << "QP failed: " << qp_.errorMessage() << endl;
     return false;

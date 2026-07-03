@@ -44,15 +44,16 @@ void ContactEstimator::update(
   assert(cpg_states.size() == nc_);
   assert(cpg_subphases.size() == nc_);
 
-  // カルマンフィルタで接触確率を推定
+  // Estimate contact probabilities with the Kalman filter.
+  // TODO: Use torque in addition to contact sensors as described in the paper.
   kf_.y.segment(0, nc_) = calcProbs_height(T, q);
-  kf_.y.segment(nc_, nc_) = calcProbs_force(contact_forces);  // TODO: 論文通り接触センサに加えトルクも利用
+  kf_.y.segment(nc_, nc_) = calcProbs_force(contact_forces);
   kf_.u = calcProbs_pred(cpg_states, cpg_subphases);
   kf_.update();
 
-  // 接触状態を更新 (Fig.10)
+  // Update contact states (Fig.10).
   for (size_t l = 0; l < nc_; ++l) {
-    const auto contact_detected = (kf_.state()(l) > kContactProbThreshold);  // 接触検知されたか否か
+    const auto contact_detected = (kf_.state()(l) > kContactProbThreshold);  // Whether contact was detected.
 
     switch (states_[l]) {
       case kContact: {

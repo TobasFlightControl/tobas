@@ -18,8 +18,8 @@ bool ControlSurface::isValid() const
     return false;
   }
 
-  // TODO: ジョイントの範囲をチェック
-  // TODO: 安定微係数の符号をチェック
+  // TODO: Check the joint range.
+  // TODO: Check the signs of stability derivatives.
 
   return true;
 }

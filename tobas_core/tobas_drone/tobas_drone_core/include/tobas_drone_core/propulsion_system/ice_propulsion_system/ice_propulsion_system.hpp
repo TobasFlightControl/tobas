@@ -42,13 +42,13 @@ public:
 private:
   std::optional<double> max_engine_speed_;
 
-  /* 平均プロペラピッチ角が固定されているときのエンジンの最大回転数 [rad/s] */
+  /* Maximum engine speed when the average propeller pitch angle is fixed [rad/s]. */
   double maxEngineSpeed();
 
-  /* 平均プロペラピッチ角を固定した上で，エンジンスロットルから定常回転数を求める (memo: 3-29) */
+  /* Compute steady-state speed from engine throttle with the average propeller pitch angle fixed (memo: 3-29). */
   double computeEngineSpeed(double throttle) const;
 
-  /* ニュートン法ソルバーに渡す関数 (memo: 3-29) */
+  /* Function passed to the Newton-method solver (memo: 3-29). */
   double speedFunc(double throttle, double omega) const;
   double speedFuncDeriv(double throttle, double omega) const;
 

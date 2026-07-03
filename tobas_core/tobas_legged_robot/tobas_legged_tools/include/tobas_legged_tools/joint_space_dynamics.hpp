@@ -19,17 +19,17 @@ namespace lr_tools
 {
 struct JointSpaceDynamicsConfig
 {
-  double friction_coef;  // [-] 静止摩擦係数
-  double foot_diameter;  // [m] 足の接地面の直径
+  double friction_coef;  // [-] Static friction coefficient.
+  double foot_diameter;  // [m] Diameter of the foot contact surface.
 
   double min_normal_force;  // [N]
   double max_normal_force;  // [N]
 
-  double force_weight;  // 地面反力の参照値からのエラーに対するペナルティ
-  double base_weight;   // 浮遊リンクの加速度の参照値からのエラーに対するペナルティ
+  double force_weight;  // Penalty for error from the ground reaction force reference.
+  double base_weight;   // Penalty for error from the floating-link acceleration reference.
 };
 
-/* 浮遊リンクの加速度を実現するための地面反力と関節トルクを求める (memo: 2-70) */
+/* Compute ground reaction forces and joint torques for realizing floating-link acceleration (memo: 2-70). */
 class JointSpaceDynamics
 {
   static constexpr size_t kPosIdx = 0;
@@ -37,14 +37,15 @@ class JointSpaceDynamics
   static constexpr size_t kPitchIdx = 4;
   static constexpr size_t kRollIdx = 5;
 
-  static constexpr size_t kBaseDoF = 6;     // 浮遊リンクの自由度
-  static constexpr size_t kIneqSize = 8;    // 足1本あたりの不等式制約の個数
+  static constexpr size_t kBaseDoF = 6;     // Degrees of freedom of the floating link.
+  static constexpr size_t kIneqSize = 8;    // Number of inequality constraints per leg.
   static constexpr size_t kForceSize = 3;   // fx, fy, fz
   static constexpr size_t kTorqueSize = 1;  // tz
   static constexpr size_t kWrenchSize = kForceSize + kTorqueSize;
 
-  static constexpr double kYawAngle = 0.;  // フットプリント座標系で考えるため，ヨー角は常にゼロ．
-  static constexpr double kStandLegNormalForceThresh = 1.;  // [N] 目標垂直抗力がこれ以下なら遊脚と判定
+  static constexpr double kYawAngle = 0.;  // The yaw angle is always zero because the footprint frame is used.
+  static constexpr double kStandLegNormalForceThresh =
+    1.;  // [N] Treat as a swing leg when the target normal force is at or below this value.
 
 public:
   explicit JointSpaceDynamics(
@@ -89,13 +90,14 @@ private:
   Eigen::VectorXd eff_out_;  // size = kBaseDoF + nj_raw_
   std::string error_msg_;
 
-  kdl::Tree tree_;  // 浮遊リンク付きのツリー
+  kdl::Tree tree_;  // Tree with a floating link.
   size_t nj_raw_, nj_;
   kdl::JntArray cur_q_, cur_qd_, tar_qdd_;
-  Eigen::MatrixXd J_;                                  // 足先位置のヤコビアンを並べたもの
-  Eigen::VectorXd w_ref_;                              // 地面反力の参照値
-  Eigen::Matrix<double, kIneqSize, kWrenchSize> A1_;   // 各足の不等式行列方程式の左辺
-  Eigen::Matrix<double, kIneqSize, 1> b1_st_, b1_sw_;  // 各足の不等式行列方程式の右辺
+  Eigen::MatrixXd J_;                                 // Stacked Jacobians of foot positions.
+  Eigen::VectorXd w_ref_;                             // Ground reaction force reference.
+  Eigen::Matrix<double, kIneqSize, kWrenchSize> A1_;  // Left-hand side of the inequality matrix equation for each foot.
+  Eigen::Matrix<double, kIneqSize, 1> b1_st_,
+    b1_sw_;  // Right-hand side of the inequality matrix equation for each foot.
   quadprog::DualActiveSetSolver qp_;
 
   kdl::TreeJacobianSolver jac_solver_;

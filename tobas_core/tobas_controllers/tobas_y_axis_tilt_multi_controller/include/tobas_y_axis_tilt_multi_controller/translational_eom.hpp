@@ -20,10 +20,10 @@ public:
   bool updateInternalDataStructures();
 
   /**
-   * @brief 並進の運動方程式を解き，目標加速度を2軸推力とロール角に変換する．
+   * @brief Solve the translational equations of motion and convert target acceleration into two-axis thrust and roll angle.
    *
-   * ロール系と他の系を分離するためには現在のピッチ，ヨーを用いて計算すべきだが，
-   * ジンバルロックによりヨー角が不安定になる恐れがあるため，それらの目標値を用いて計算する．
+   * To separate the roll system from the other systems, the current pitch and yaw should be used,
+   * but their target values are used instead because gimbal lock may make the yaw angle unstable.
    */
   bool solve(
     const kdl::Vector& tar_acc_W,

@@ -21,19 +21,19 @@ struct StateEstimatorConfig
 };
 
 /**
- * @brief 脚ロボットの状態推定器 (memo: 1-48)
- * @note (memo: 1-48)とは出力ベクトルの並びと制御入力が異なる． // TODO: 更新版をメモ
+ * @brief State estimator for legged robots (memo: 1-48).
+ * @note The output vector order and control input differ from (memo: 1-48). // TODO: Document the updated version.
  */
 class StateEstimator
 {
-  // 出力ベクトルのインデックス (脚数に依らない部分)
+  // Output vector indices that do not depend on the number of legs.
   static constexpr size_t kRollIdx = 0;
   static constexpr size_t kPitchIdx = kRollIdx + 1;
   static constexpr size_t kGyroIdx = kPitchIdx + 1;
   static constexpr size_t kGravIdx = kGyroIdx + 3;
 
-  static constexpr double kFootGroundOffset = 0.02;  // [m] Footフレームの地面に対するオフセット
-  static constexpr double kInitTrunkHeight = 0.3;    // [m] 体高の初期値
+  static constexpr double kFootGroundOffset = 0.02;  // [m] Offset of the foot frame from the ground.
+  static constexpr double kInitTrunkHeight = 0.3;    // [m] Initial trunk height.
 
 public:
   explicit StateEstimator(const kdl::Tree& tree, const std::vector<std::string>& foot_names);
@@ -49,8 +49,8 @@ public:
     const kdl::JntArray& qd,
     const std::vector<bool>& is_stand,
     const std::vector<double>& contact_probs,
-    const std::vector<kdl::Vector>& foot_forces,  // {footprint}から見た地面反力
-    const std::vector<double>& foot_torques,      // {footprint}から見た地面反トルクのZ成分
+    const std::vector<kdl::Vector>& foot_forces,  // Ground reaction forces viewed from {footprint}.
+    const std::vector<double>& foot_torques,      // Z components of ground reaction torques viewed from {footprint}.
     const double& dt);
 
   inline double getRoll() const;
@@ -76,10 +76,10 @@ private:
   void initializeKalmanFilter();
   Eigen::MatrixXd makeCy();
 
-  /* 出力ベクトルの高度に対応するインデックス． */
+  /* Index corresponding to altitude in the output vector. */
   inline size_t altIdx(size_t leg) const;
 
-  /* 出力ベクトルの速度に対応するインデックス． */
+  /* Index corresponding to velocity in the output vector. */
   inline size_t velIdx(size_t leg) const;
 };
 

@@ -11,7 +11,8 @@
 namespace tobas
 {
 /**
- * @brief トリム状態周りの微小擾乱運動方程式．有次元空力安定微係数を個別に提供する．
+ * @brief Small-disturbance equations of motion around the trim state.
+ * Provides dimensional aerodynamic stability derivatives individually.
  */
 class MicroDisturbanceEoM : public SolverI
 {
@@ -34,11 +35,11 @@ public:
   bool updateInternalDataStructures() override;
 
   /**
-   * @brief 内部状態を更新する．
+   * @brief Update the internal state.
    *
-   * @param V 大気に対する機体速度の絶対値 [m/s]
-   * @param rho 大気密度 [kg/m^3]
-   * @param q 可動関節の角度 [rad]
+   * @param V Magnitude of aircraft velocity relative to the atmosphere [m/s].
+   * @param rho Air density [kg/m^3].
+   * @param q Movable joint angles [rad].
    */
   int update(const double& V, const double& rho, const kdl::JntArray& q);
 
@@ -52,7 +53,7 @@ public:
   inline Eigen::VectorXd minDeltaInput() const;
   inline Eigen::VectorXd maxDeltaInput() const;
 
-  /* ピッチ回転のトリムに用いる舵面の添字 */
+  /* Index of the control surface used for pitch trim. */
   inline const std::string& elevatorLinkName() const;
   inline const size_t& inputSize() const;
 
@@ -136,14 +137,14 @@ private:
   TrimConditions trim_;
 
   size_t u_size_;
-  Eigen::VectorXd min_u_;                     // 制御入力の最小値
-  Eigen::VectorXd max_u_;                     // 制御入力の最大値
-  Eigen::Matrix<double, kStateSize, 1> x_0_;  // トリム時の状態
-  Eigen::VectorXd u_0_;                       // トリム時の制御入力
+  Eigen::VectorXd min_u_;                     // Minimum control input.
+  Eigen::VectorXd max_u_;                     // Maximum control input.
+  Eigen::Matrix<double, kStateSize, 1> x_0_;  // State at trim.
+  Eigen::VectorXd u_0_;                       // Control input at trim.
 
-  // 各係数のバッファ
+  // Buffers for each coefficient.
   Eigen::Matrix<double, kStateSize, kStateSize> A_;
-  Eigen::Matrix<double, kStateSize, Eigen::Dynamic> B_;  // 列数は舵面数と一致
+  Eigen::Matrix<double, kStateSize, Eigen::Dynamic> B_;  // Number of columns matches the number of control surfaces.
 
   void resize();
   void setInputLimits();

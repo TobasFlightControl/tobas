@@ -62,29 +62,29 @@ void StateEstimator::update(
   assert(foot_forces.size() == nc_);
   assert(dt >= 0);
 
-  /* ===== 事前計算 ===== */
+  /* ===== Precomputation ===== */
   W_Quat_B.getRPY(roll_, pitch_, yaw_);
   const auto FP_Rot_B = kdl::Rotation::RPY(roll_, pitch_, 0);
   const auto gyro_FP = FP_Rot_B * gyro_B;
 
-  /* ===== ダイナミクスを更新 ===== */
+  /* ===== Update dynamics ===== */
   cont_.update(roll_, pitch_, q, is_stand);
   const auto disc_dyn = c2d_.convert(cont_, dt);
   kf_.ss.updateDynamics(disc_dyn);
 
-  /* ===== 観測ノイズの共分散行列を更新 ===== */
-  // オイラー角
+  /* ===== Update the observation-noise covariance matrix ===== */
+  // Euler angles.
   kf_.R(kRollIdx, kRollIdx) = EPS;
   kf_.R(kPitchIdx, kPitchIdx) = EPS;
 
-  // 回転速度
+  // Rotational velocity.
   kf_.R.diagonal().segment<3>(kGyroIdx).fill(EPS);
 
-  // 重力
+  // Gravity.
   kf_.R(kGravIdx, kGravIdx) = EPS;
 
   for (size_t l = 0; l < nc_; ++l) {
-    // 分散を計算
+    // Compute variance.
     double var;
     if (is_stand[l]) {
       var = std::max(cfg_.variance_coef * std::pow(1 - contact_probs[l], cfg_.variance_exp), EPS);
@@ -93,57 +93,57 @@ void StateEstimator::update(
       var = std::numeric_limits<double>::max();
     }
 
-    // 地面からの高さ
+    // Height from the ground.
     kf_.R(altIdx(l), altIdx(l)) = var;
 
-    // 並進速度
+    // Translational velocity.
     kf_.R.diagonal().segment<3>(velIdx(l)).fill(var);
   }
 
-  /* ===== 出力ベクトルを更新 ===== */
-  // オイラー角
+  /* ===== Update the output vector ===== */
+  // Euler angles.
   kf_.y(kRollIdx) = roll_;
   kf_.y(kPitchIdx) = pitch_;
 
-  // 回転速度
+  // Rotational velocity.
   kf_.y.segment<3>(kGyroIdx) = gyro_FP.data;
 
-  // 重力
+  // Gravity.
   kf_.y(kGravIdx) = st::kGravity;
 
   for (size_t l = 0; l < nc_; ++l) {
     if (is_stand[l]) {
-      // 順運動学
+      // Forward kinematics.
       if (fk_solver_.jntToCart(q, qd, foot_names_[l]) < 0) {
         throw std::runtime_error("FK failed: " + fk_solver_.errorMessage());
       }
       const auto& foot_pos = fk_solver_.getFrameVel().p.p;
       const auto& foot_vel = fk_solver_.getFrameVel().p.v;
 
-      // 地面からの高さを立脚の場合は足先のz座標を符号反転したもので推定
-      // 定常誤差があるので単純にオフセットを設ける
+      // For stance legs, estimate the height from the ground by negating the z coordinate of the foot tip.
+      // A simple offset is added because there is a steady-state error.
       const auto foot_height = (FP_Rot_B * foot_pos).z();
       kf_.y(altIdx(l)) = -foot_height + kFootGroundOffset;
 
-      // 並進速度 (memo: 1-28)
+      // Translational velocity (memo: 1-28).
       kf_.y.segment<3>(velIdx(l)) = -(FP_Rot_B * (gyro_B * foot_pos + foot_vel)).data;
     }
     else {
-      // 遊脚の場合は予測状態をそのまま観測状態とする
-      // TODO: もっと良い推定方法を考える
+      // For swing legs, use the predicted state directly as the observed state.
+      // TODO: Consider a better estimation method.
       kf_.y(altIdx(l)) = kf_.state()(LinearDynamics::kAltIdx);
       kf_.y.segment<3>(velIdx(l)) = kf_.state().segment<3>(LinearDynamics::kVelXIdx);
     }
   }
 
-  /* ===== 制御入力を更新 ===== */
-  // FIXME: 状態推定が制御入力に依存すると発散のリスクがあるため，
+  /* ===== Update control input ===== */
+  // FIXME: If state estimation depends on the control input, it may diverge.
   for (size_t l = 0; l < nc_; ++l) {
     kf_.u.segment<3>(cont_.forceIndex(l)) = foot_forces[l].data;
     kf_.u(cont_.torqueIndex(l)) = foot_torques[l];
   }
 
-  /* ===== カルマンフィルタを1ステップ進める ===== */
+  /* ===== Advance the Kalman filter by one step ===== */
   kf_.update();
 }
 
@@ -152,11 +152,11 @@ void StateEstimator::initializeKalmanFilter()
   kf_.setZero();
 
   kf_.ss.C = makeCy();
-  kf_.Bv.diagonal().setOnes();  // システム雑音は直接加わるとする
+  kf_.Bv.diagonal().setOnes();  // System noise is assumed to be added directly.
   kf_.Q.diagonal().fill(EPS);
 
   Eigen::VectorXd init_x(cont_.stateSize());
-  init_x << 0, 0, kInitTrunkHeight, 0, 0, 0, 0, 0, 0, st::kGravity;  // FIXME: 胴体高さの初期値を推定
+  init_x << 0, 0, kInitTrunkHeight, 0, 0, 0, 0, 0, 0, st::kGravity;  // FIXME: Estimate the initial trunk height.
   kf_.initialize(init_x, Eigen::MatrixXd::Identity(cont_.stateSize(), cont_.stateSize()));
 }
 
@@ -164,22 +164,22 @@ Eigen::MatrixXd StateEstimator::makeCy()
 {
   Eigen::MatrixXd Cy = Eigen::MatrixXd::Zero(kf_.outputSize(), cont_.stateSize());
 
-  // オイラー角
+  // Euler angles.
   Cy(kRollIdx, LinearDynamics::kRollIdx) = 1;
   Cy(kPitchIdx, LinearDynamics::kPitchIdx) = 1;
 
-  // 回転速度
+  // Rotational velocity.
   Cy.block<3, 3>(kGyroIdx, LinearDynamics::kGyroXIdx).diagonal().setOnes();
 
-  // 重力
+  // Gravity.
   Cy(kGravIdx, LinearDynamics::kGravIdx) = 1;
 
-  // 地面からの高さ
+  // Height from the ground.
   for (size_t l = 0; l < nc_; ++l) {
     Cy(altIdx(l), LinearDynamics::kAltIdx) = 1;
   }
 
-  // 並進速度
+  // Translational velocity.
   for (size_t l = 0; l < nc_; ++l) {
     Cy.block<3, 3>(velIdx(l), LinearDynamics::kVelXIdx).diagonal().setOnes();
   }

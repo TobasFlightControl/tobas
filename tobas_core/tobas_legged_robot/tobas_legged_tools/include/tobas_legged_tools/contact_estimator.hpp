@@ -21,7 +21,7 @@ class ContactEstimator
   static constexpr double kContactProbThreshold = 0.5;  // [-]
   static constexpr double kMeanFootHeight = 0.;         // [m]
 
-  // TODO: ユーザが調整できるようにする
+  // TODO: Make this user-adjustable.
   static constexpr double kPredictionNoiseVariance = 0.998;    // [-]
   static constexpr double kFootHeightNoiseVariance = 0.841;    // [-]
   static constexpr double kContactForceNoiseVariance = 0.930;  // [-]
@@ -67,7 +67,7 @@ private:
   kdl::TreeFkSolverPos fk_solver_;
   kdl::TreeMassHolder mass_holder_;
 
-  std::vector<State> states_;  // FSMの状態
+  std::vector<State> states_;  // FSM states.
   ctrl::KalmanFilter kf_;
 
   double erfden_pred_, erfden_height_, erfden_force_;

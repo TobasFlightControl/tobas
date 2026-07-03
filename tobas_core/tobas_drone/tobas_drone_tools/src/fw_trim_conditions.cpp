@@ -83,7 +83,7 @@ int TrimConditions::update(double V, const double& rho, const kdl::JntArray& q)
     return error_code_ = kError;
   }
 
-  // 速度が有効な範囲内にあるかチェック
+  // Check whether the velocity is within the valid range.
   const auto speed_limit = speedLimit(rho);
   if (V < speed_limit.lower) {
     if (error_code_ > kWarn) {
@@ -100,11 +100,11 @@ int TrimConditions::update(double V, const double& rho, const kdl::JntArray& q)
     V = speed_limit.upper;
   }
 
-  // エイリアス
+  // Aliases.
   const auto& aero = drone_.fixed_wing->aerodynamics;
   const auto& elev_cs = drone_.fixed_wing->control_surfaces.at(elev_link_name_);
 
-  // CoGまわりの安定微係数
+  // Stability derivatives around the CoG.
   asd_cog_.update(q);
   if (updateError(asd_cog_) <= kError) {
     return error_code_;
@@ -116,18 +116,18 @@ int TrimConditions::update(double V, const double& rho, const kdl::JntArray& q)
     return error_code_ = kError;
   }
 
-  // 引数に依存する定数
+  // Constants that depend on arguments.
   const auto q_bar = dynamicPressure(rho, V);
 
-  // 縦系の釣り合い
+  // Longitudinal balance.
   c_L_ = W_ / (q_bar * drone_.fixed_wing->vehicle.wing_surface);                // (2.9-47)
   alpha_ = (c_L_ - b_) / a_;                                                    // (2.9-49)
   elevator_ = -(aero.c_pitch_0 + c_pitch_alpha_cg * alpha_) / c_pitch_elev_cg;  // (2.9-46)
-  const auto c_D_alpha = aero.c_drag_0 + aero.c_drag_alpha * alpha_;            // TODO: 2次以上も考慮
-  c_D_ = c_D_alpha + elev_cs.c_drag_abs_delta * std::abs(elevator_);            // (1.8-3)
-  c_T_ = c_D_ / std::cos(alpha_);                                               // (2.2-10b)
+  const auto c_D_alpha = aero.c_drag_0 + aero.c_drag_alpha * alpha_;  // TODO: Consider second and higher orders.
+  c_D_ = c_D_alpha + elev_cs.c_drag_abs_delta * std::abs(elevator_);  // (1.8-3)
+  c_T_ = c_D_ / std::cos(alpha_);                                     // (2.2-10b)
 
-  // その他依存変数
+  // Other dependent variables.
   u_ = V * std::cos(alpha_);
 
   if (!drone_.fixed_wing->vehicle.alpha_limit.inRange(alpha_)) {
@@ -156,13 +156,13 @@ st::Range<double> TrimConditions::speedLimit(const double& rho) const
 
   const auto c = 2 * W_ / rho / drone_.fixed_wing->vehicle.wing_surface;
 
-  // 迎角の最大値から最小速度を求める
+  // Compute the minimum velocity from the maximum angle of attack.
   const auto max_den = a_ * drone_.fixed_wing->vehicle.alpha_limit.upper + b_;
   assert(max_den > 0.);
   const auto V_min = std::sqrt(c / max_den);
 
-  // 迎角の最小値から最大速度を求める
-  // 分母が+0になる場合は，理論上無限の速度で水平飛行できる
+  // Compute the maximum velocity from the minimum angle of attack.
+  // If the denominator approaches +0, level flight is theoretically possible at infinite velocity.
   const auto min_den = a_ * drone_.fixed_wing->vehicle.alpha_limit.lower + b_;
   const auto V_max = min_den > 0. ? std::sqrt(c / min_den) : INFINITY;
 

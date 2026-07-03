@@ -17,19 +17,19 @@ namespace tobas
 namespace eskf
 {
 /**
- * @brief 誤差状態カルマンフィルタ．
+ * @brief Error-state Kalman filter.
  *
- * 基本アルゴリズム: Quaternion kinematics for the error-state Kalman filter [Sola, 2017]
- * 日本語訳: https://www.flight.t.u-tokyo.ac.jp/?p=800
+ * Base algorithm: Quaternion kinematics for the error-state Kalman filter [Sola, 2017]
+ * Japanese translation: https://www.flight.t.u-tokyo.ac.jp/?p=800
  *
- * 地磁気バイアス推定の拡張: Online 3-Axis Magnetometer Hard-Iron and Soft-Iron Bias and Angular Velocity Sensor Bias
- * Estimation Using Angular Velocity Sensors for Improved Dynamic Heading Accuracy [Spielvogel+, 2022]
+ * Magnetometer bias estimation extension: Online 3-Axis Magnetometer Hard-Iron and Soft-Iron Bias and Angular Velocity
+ * Sensor Bias Estimation Using Angular Velocity Sensors for Improved Dynamic Heading Accuracy [Spielvogel+, 2022]
  *
- * @note IMUフレームで考える．
+ * @note Formulated in the IMU frame.
  */
 class ErrorStateKalmanFilter
 {
-  // ノミナル状態の添字
+  // Nominal state indices.
   static constexpr size_t kPosIdx = 0;
   static constexpr size_t kAltIdx = kPosIdx + 2;
   static constexpr size_t kVelIdx = kPosIdx + 3;
@@ -42,7 +42,7 @@ class ErrorStateKalmanFilter
   static constexpr size_t kGravIdx = kBaroAltBiasIdx + 1;
   static constexpr size_t kStateSize = kGravIdx + 1;
 
-  // 誤差状態の添字
+  // Error-state indices.
   static constexpr size_t kDeltaPosIdx = 0;
   static constexpr size_t kDeltaAltIdx = kDeltaPosIdx + 2;
   static constexpr size_t kDeltaVelIdx = kDeltaPosIdx + 3;
@@ -55,7 +55,7 @@ class ErrorStateKalmanFilter
   static constexpr size_t kDeltaGravIdx = kDeltaBaroAltBiasIdx + 1;
   static constexpr size_t kDeltaStateSize = kDeltaGravIdx + 1;
 
-  // 変数の範囲
+  // Variable ranges.
   static constexpr double kMaxAccBias = 1.;                 // [m/s^2]
   static constexpr double kMaxGyroBias = 0.1;               // [rad/s]
   static constexpr double kMaxMagHardBias = 2.;             // [-]
@@ -63,13 +63,16 @@ class ErrorStateKalmanFilter
   static constexpr double kMinGravity = 9.75;               // [m/s^2]
   static constexpr double kMaxGravity = 9.85;               // [m/s^2]
 
-  // センサの不確かさの制限
-  // 各センサの読みにはバイアスが乗っているため，静止時など極端に分散が小さくバイアス成分が優勢だと思われる場合は現実の不確かさを反映していない．
-  // バイアスが乗った値を確かな値として扱い共分散が成長しないと，観測の補正が入らず姿勢が発散する恐れがあるため，その固有値に下限を与える．
+  // Limits on sensor uncertainty.
+  // Each sensor reading includes bias, so an extremely small variance observed at rest or in similar conditions,
+  // where the bias component is likely dominant, does not represent the real uncertainty.
+  // If a biased value is treated as certain and the covariance does not grow,
+  // observation correction may not be applied and the attitude may diverge,
+  // so lower bounds are imposed on the eigenvalues.
   static constexpr double kMinGyroStddev = 0.01;  // [rad/s]
   static constexpr double kMinAccStddev = 0.1;    // [m/s^2]
 
-  // その他
+  // Miscellaneous.
   static constexpr auto kStateHistoryTimeWindow = std::chrono::milliseconds(500);
   static constexpr double kFreeFallAccelNormThresh = 0.1;  // [G]
 
@@ -154,14 +157,14 @@ public:
   inline double getBaroAltBiasVariance() const;
 
   /**
-   * @brief 加速度とジャイロから次の状態を予測し，姿勢を補正する．
+   * @brief Predict the next state from acceleration and gyro measurements, and correct the attitude.
    *
-   * @param acc_meas [m/s^2] 加速度の観測値
-   * @param gyro_meas [rad/s] ジャイロの観測値
-   * @param acc_cov [m^2/s^4] 加速度の観測ノイズの共分散
-   * @param gyro_cov [rad^2/s^2] ジャイロの観測ノイズの共分散
-   * @param grav_cov [m^2/s^4] 重力加速度の観測ノイズの共分散
-   * @param time [s] 現在時刻
+   * @param acc_meas [m/s^2] Measured acceleration.
+   * @param gyro_meas [rad/s] Measured gyro value.
+   * @param acc_cov [m^2/s^4] Covariance of acceleration measurement noise.
+   * @param gyro_cov [rad^2/s^2] Covariance of gyro measurement noise.
+   * @param grav_cov [m^2/s^4] Covariance of gravitational acceleration measurement noise.
+   * @param time [s] Current time.
    */
   double measureIMU(
     const Eigen::Vector3d& acc_meas,
@@ -172,11 +175,11 @@ public:
     const std::chrono::steady_clock::time_point& time);
 
   /**
-   * @brief 位置の観測をノミナル状態に反映させる．
+   * @brief Apply a position observation to the nominal state.
    *
-   * @param pos_meas 世界座標系で表現された位置の観測値
-   * @param pos_cov 位置の観測ノイズの共分散
-   * @param offset IMUフレームで表現された，IMUフレームに対する観測フレームのオフセット
+   * @param pos_meas Position observation expressed in the world coordinate system.
+   * @param pos_cov Covariance of position measurement noise.
+   * @param offset Offset of the observation frame from the IMU frame, expressed in the IMU frame.
    *
    * @return Anomaly score
    */
@@ -187,12 +190,12 @@ public:
     const std::chrono::steady_clock::time_point& time);
 
   /**
-   * @brief 速度の観測をノミナル状態に反映させる．
+   * @brief Apply a velocity observation to the nominal state.
    *
-   * @param pos_meas 世界座標系で表現された速度の観測値
-   * @param pos_cov 速度の観測ノイズの共分散
-   * @param offset IMUフレームで表現された，IMUフレームに対する観測フレームのオフセット
-   * @param gyro_meas ジャイロセンサの読み
+   * @param vel_meas Velocity observation expressed in the world coordinate system.
+   * @param vel_cov Covariance of velocity measurement noise.
+   * @param offset Offset of the observation frame from the IMU frame, expressed in the IMU frame.
+   * @param gyro_meas Gyro sensor reading.
    *
    * @return Anomaly score
    */
@@ -242,19 +245,19 @@ private:
   bool enable_cov_symmetrisation_ = false;
   bool enable_cov_initialization_ = false;
   bool enable_joseph_form_ = true;
-  double acc_bias_proc_noise_density_ = 0.;   // [m/s^3/√Hz] 加速度バイアスのプロセスノイズ密度
-  double gyro_bias_proc_noise_density_ = 0.;  // [rad/s^2/√Hz] ジャイロバイアスのプロセスノイズ密度
-  double mag_hard_bias_proc_noise_density_ = 0.;  // [/s/√Hz] 地磁気ハードアイアンバイアスのプロセスノイズ密度
-  double mag_soft_bias_proc_noise_density_ = 0.;  // [/s/√Hz] 地磁気ソフトアイアンバイアスのプロセスノイズ密度
-  double baro_alt_bias_proc_noise_density_ = 0.;  // [m/s/√Hz] 気圧高度バイアスのプロセスノイズ密度
-  double grav_proc_noise_density_ = 0.;           // [m/s^3/√Hz] 重力加速度のプロセスノイズ密度
+  double acc_bias_proc_noise_density_ = 0.;       // [m/s^3/√Hz] Process noise density of acceleration bias.
+  double gyro_bias_proc_noise_density_ = 0.;      // [rad/s^2/√Hz] Process noise density of gyro bias.
+  double mag_hard_bias_proc_noise_density_ = 0.;  // [/s/√Hz] Process noise density of magnetometer hard-iron bias.
+  double mag_soft_bias_proc_noise_density_ = 0.;  // [/s/√Hz] Process noise density of magnetometer soft-iron bias.
+  double baro_alt_bias_proc_noise_density_ = 0.;  // [m/s/√Hz] Process noise density of barometric altitude bias.
+  double grav_proc_noise_density_ = 0.;           // [m/s^3/√Hz] Process noise density of gravitational acceleration.
 
   StateVector x_;         // State vector of the filter
   DeltaStateMatrix P_;    // Covariance of the error state
   DeltaStateMatrix F_x_;  // Jacobian of the state transition
   DeltaStateMatrix G_;    // Jacobian of the error initialization
 
-  // 出力行列
+  // Output matrices.
   Eigen::Matrix<double, 3, kDeltaStateSize> H_pos_;
   Eigen::Matrix<double, 3, kDeltaStateSize> H_vel_;
   Eigen::Matrix<double, 6, kDeltaStateSize> H_pv_;
@@ -294,10 +297,10 @@ private:
   /* (281) */
   Eigen::Matrix<double, 4, 3> getQ_dtheta(const StateVector& x) const;
 
-  /* ベクトルvのqによる回転をqで偏微分したもの．d(q * v * q') / d(q)． */
+  /* Partial derivative of vector `v` rotated by `q` with respect to `q`: `d(q * v * q') / d(q)`. */
   Eigen::Matrix<double, 3, 4> quatRotationDerivative(const StateVector& x, const Eigen::Vector3d& a) const;
 
-  /* クオータニオンからヨーへの出力方程式． */
+  /* Output equation from quaternion to yaw. */
   Eigen::RowVector4d hamiltonToYawOutputMatrix(const StateVector& x) const;
 
   void setMagSoftBiasFromMatrix(const Eigen::Matrix3d& T);
@@ -305,11 +308,13 @@ private:
   void resetStateHistory();
 
   /**
-   * @brief 重力方向の観測．姿勢の修正に用いる．
+   * @brief Observation of the gravity direction, used to correct the attitude.
    *
-   * @param acc_meas 加速度センサの読み．
-   * @param grav_cov 観測による修正量を決めるパラメータ．
-   * 数式的には共分散として扱うが，センサノイズに加えて推定姿勢の分散も影響するため一般に正しい値は分からないから調整すべき．
+   * @param acc_meas Accelerometer reading.
+   * @param grav_cov Parameter that controls the correction amount from the observation.
+   * It is mathematically treated as covariance,
+   * but it should be tuned because the generally correct value is unknown;
+   * in addition to sensor noise, the variance of the estimated attitude also affects it.
    *
    * @return Anomaly score
    */
@@ -319,12 +324,12 @@ private:
     const std::chrono::steady_clock::time_point& time);
 
   /**
-   * @brief 観測から状態と共分散の事後推定を求める
+   * @brief Compute posterior estimates of the state and covariance from an observation.
    *
-   * @tparam M 観測の次元
-   * @param delta_meas 観測とノミナル状態の誤差
-   * @param meas_cov 観測ノイズの共分散
-   * @param H 観測方程式
+   * @tparam M Observation dimension.
+   * @param delta_meas Error between the observation and the nominal state.
+   * @param meas_cov Covariance of observation noise.
+   * @param H Observation equation.
    *
    * @return Anomaly score
    */
@@ -540,13 +545,13 @@ double ErrorStateKalmanFilter::correct(
   const auto I = DeltaStateVector::Ones().asDiagonal();
   const DeltaStateMatrix I_KH = I - K * H;
   if (enable_joseph_form_) {
-    // 対称正定が保持されやすい
+    // Easier to keep symmetric positive definiteness.
     const auto P1 = I_KH * P_.selfadjointView<Eigen::Lower>() * I_KH.transpose();
     const auto P2 = K * meas_cov.template selfadjointView<Eigen::Lower>() * K.transpose();
     P_ = P1 + P2;
   }
   else {
-    // 理論通りだが数値的に不安定
+    // Theoretically correct, but numerically unstable.
     P_ = I_KH * P_;
   }
 
@@ -566,7 +571,7 @@ double ErrorStateKalmanFilter::correct(
   // (286) Initialize ESKF (Optional)
   if (enable_cov_initialization_) {
     G_.block<3, 3>(kDeltaThetaIdx, kDeltaThetaIdx) = Eigen::Diagonal3d(1, 1, 1) - eigen::skew(0.5 * dtheta);
-    P_ = G_ * P_.selfadjointView<Eigen::Lower>() * G_.transpose();  // TODO: 必要な部分のみ計算
+    P_ = G_ * P_.selfadjointView<Eigen::Lower>() * G_.transpose();  // TODO: Compute only the required parts.
   }
 
   // Apply constraints to avoid numerical errors

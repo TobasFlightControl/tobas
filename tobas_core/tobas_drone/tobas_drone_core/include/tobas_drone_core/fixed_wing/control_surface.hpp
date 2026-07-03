@@ -36,7 +36,7 @@ public:
   std::string link_name = "";
 
   double c_lift_delta = 0.;      // [/rad]
-  double c_drag_abs_delta = 0.;  // [/rad], 舵角の正負にかかわらず抗力が発生するモデル
+  double c_drag_abs_delta = 0.;  // [/rad]
   double c_side_delta = 0.;      // [/rad]
   double c_roll_delta = 0.;      // [/rad]
   double c_pitch_delta = 0.;     // [/rad]

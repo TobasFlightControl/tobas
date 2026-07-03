@@ -26,7 +26,7 @@ public:
   uint32_t channel = 0;
   std::string name = "";
   std::pair<double, double> period_range = { 1000, 2000 };  // [us]
-  std::pair<double, double> value_range = { 0, 0 };         // PWMに対応する値の範囲
+  std::pair<double, double> value_range = { 0, 0 };         // Range of values corresponding to PWM.
 
   bool isValid() const;
 

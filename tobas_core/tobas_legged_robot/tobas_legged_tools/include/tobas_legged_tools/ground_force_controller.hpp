@@ -19,8 +19,8 @@ namespace lr_tools
 {
 struct GroundForceControllerConfig
 {
-  double friction_coef;  // [-] 静止摩擦係数
-  double foot_diameter;  // [m] 足の接地面の直径
+  double friction_coef;  // [-] Static friction coefficient.
+  double foot_diameter;  // [m] Diameter of the foot contact surface.
 
   double min_normal_force;  // [N]
   double max_normal_force;  // [N]
@@ -44,7 +44,7 @@ struct GroundForceControllerConfig
 class GroundForceController
 {
   static constexpr size_t kCtrlSize = 9;
-  static constexpr size_t kNumConstraintsPerLeg = 8;  // 足1本あたりのハード制約の個数
+  static constexpr size_t kNumConstraintsPerLeg = 8;  // Number of hard constraints per leg.
 
 public:
   explicit GroundForceController(const kdl::Tree& tree, const std::vector<std::string>& foot_names);
@@ -104,7 +104,7 @@ private:
   double calcSizeScale();
   Eigen::MatrixXd makeCz();
 
-  /* 制御入力に関する不等式ハード制約条件 (memo: 2-68) */
+  /* Inequality hard constraints on control inputs (memo: 2-68). */
   ctrl::LinearEquation makeInputConstraint();
 };
 

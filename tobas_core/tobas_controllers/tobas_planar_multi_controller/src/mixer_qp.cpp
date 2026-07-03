@@ -49,13 +49,13 @@ bool QpMixer::solve(
     return false;
   }
 
-  // 順運動学を計算
+  // Compute forward kinematics.
   if (fk_solver_.jntToCart(cur_q) < 0) {
     std::cerr << "Forward kinematics failed: " << fk_solver_.errorMessage() << std::endl;
     return false;
   }
 
-  // 質量特性を計算
+  // Compute mass properties.
   if (inertia_solver_.jntToCart(cur_q) < 0) {
     std::cerr << "Inertia solver failed: " << inertia_solver_.errorMessage() << std::endl;
     return false;
@@ -65,7 +65,7 @@ bool QpMixer::solve(
   const auto B_Pos_B2G = inertia.getCOG();
   const auto I_B = inertia.getRotationalInertiaCoG();
 
-  // EoM行列等式の左辺
+  // Left-hand side of the EoM matrix equality.
   for (const auto& [idx, pair] : std::views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = pair.second;
 
@@ -81,14 +81,14 @@ bool QpMixer::solve(
     G_.col(idx) = (B_Pos_G2P * axis_B - (d * cm) * axis_B).data;
   }
 
-  // EoM行列等式の右辺
+  // Right-hand side of the EoM matrix equality.
   h_ = (I_B * tar_dgyro_B + cur_gyro_B * (I_B * cur_gyro_B) - ext_torque_B).data;  // [Nm]
 
-  // EoMに対する重み
+  // Weights for the EoM.
   const auto angular_scale = (I_B.trace() / 3) * kDGyroScale;  // [Nm]
   Q_.diagonal().fill(cfg_.base_weight / math::sqr(angular_scale));
 
-  // 推力に対する重み
+  // Weights for thrust.
   const auto thrust_scale = mass * st::kGravity / drone_.prop->numRotors();  // [N]
   const auto thrust_weight_base = cfg_.thrust_weight / math::sqr(thrust_scale);
   for (const auto& [idx, pair] : std::views::enumerate(drone_.prop->rotors)) {
@@ -96,12 +96,12 @@ bool QpMixer::solve(
     R_.diagonal()(idx) = thrust_weight_base * rotor->effortWeight();
   }
 
-  // 目的関数
+  // Objective function.
   qp_.problem.P = G_.transpose() * Q_ * G_ + R_;
   qp_.problem.q = -G_.transpose() * Q_ * h_;
 
-  // 不等式制約
-  // 同時に合計推力の範囲を計算
+  // Inequality constraints.
+  // Compute the total thrust range at the same time.
   double max_thrust_sum = 0.;
   double min_thrust_sum = 0.;
   for (const auto& [idx, pair] : std::views::enumerate(drone_.prop->rotors)) {
@@ -123,18 +123,18 @@ bool QpMixer::solve(
     min_thrust_sum += min_thrust;
   }
 
-  // 推力を出せない状態の場合は終了
+  // Exit if thrust cannot be generated.
   if (max_thrust_sum == 0.) {
     std::cerr << "The vehicle cannot generate thrust." << std::endl;
     return false;
   }
 
-  // 等式制約
-  // 不等式制約と競合しないようにクランプ
+  // Equality constraints.
+  // Clamp so that it does not conflict with inequality constraints.
   static constexpr double kThrustMargin = 1e-3;  // [N]
   qp_.problem.h(0) = std::clamp(tar_thrusts_sum, min_thrust_sum + kThrustMargin, max_thrust_sum - kThrustMargin);
 
-  // QPPを解く
+  // Solve the QPP.
   // stopwatch_.start();
   if (!qp_.solve()) {
     std::cerr << "QP failed: " << qp_.errorMessage() << std::endl;

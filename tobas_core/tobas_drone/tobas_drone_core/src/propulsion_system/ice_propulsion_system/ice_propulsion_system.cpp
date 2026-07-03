@@ -118,12 +118,12 @@ double IcePropulsionSystemConfig::thrustFromThrottle(const std::string& link_nam
 {
   const auto irotor = getRotor(link_name);
   const auto engine_speed = computeEngineSpeed(throttle);
-  return irotor->thrustFromPitch(engine_speed, irotor->center_pitch);  // 中心ピッチ角のときの推力を返す
+  return irotor->thrustFromPitch(engine_speed, irotor->center_pitch);  // Return thrust at the center pitch angle.
 }
 
 double IcePropulsionSystemConfig::maxEngineSpeed()
 {
-  // フルスロット時のエンジン回転数を1度だけ計算
+  // Compute the engine speed at full throttle only once.
   if (!max_engine_speed_.has_value()) {
     max_engine_speed_ = computeEngineSpeed(kMaxThrot);
   }
@@ -133,7 +133,7 @@ double IcePropulsionSystemConfig::maxEngineSpeed()
 
 double IcePropulsionSystemConfig::computeEngineSpeed(double throttle) const
 {
-  // FIXME: 実際はゼロスロットルでもトルクは発生する (アイドリング)
+  // FIXME: Torque is actually generated even at zero throttle due to idling.
   if (throttle <= std::numeric_limits<double>::epsilon()) {
     return 0.;
   }

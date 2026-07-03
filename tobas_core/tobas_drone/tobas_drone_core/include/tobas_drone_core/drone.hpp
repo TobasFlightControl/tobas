@@ -16,7 +16,7 @@
 namespace tobas
 {
 /**
- * @brief ドローンを記述するのに必要な最低限の情報のみを持つクラス．
+ * @brief Class that holds only the minimum information needed to describe a drone.
  */
 class Drone
 {

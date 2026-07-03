@@ -44,7 +44,7 @@ bool GroundForceController::updateInternalDataStructures()
 
 bool GroundForceController::configure(const GroundForceControllerConfig& cfg)
 {
-  // TODO: 有効な値かチェック
+  // TODO: Check whether the values are valid.
 
   friction_coef_ = cfg.friction_coef;
   foot_diameter_ = cfg.foot_diameter;
@@ -103,7 +103,7 @@ bool GroundForceController::solve(
   assert(is_stand_pred.size() == static_cast<size_t>(mpc_.prediction_steps));
 
   // Update dynamics
-  // ステップ0の連続時間ダイナミクスを後の予測で使うため，未来から逆順で処理する．
+  // Process backward from the future because the continuous-time dynamics at step 0 are used for later prediction.
   for (Eigen::Index k = mpc_.prediction_steps - 1; k >= 0; --k) {
     cont_.update(roll_pred[k], pitch_pred[k], q_pred[k], is_stand_pred[k]);
     mpc_.discrete_dynamics[k] = c2d_.convert(cont_, mpc_.time_step);
@@ -140,12 +140,12 @@ void GroundForceController::initializeMPC()
   const double rpy_sc = M_PI;
   const double size_sc = calcSizeScale();
   const double gyro_sc = M_PI;
-  const double vel_sc = std::sqrt(st::kGravity * size_sc);  // フルード数の定義を元に決定
+  const double vel_sc = std::sqrt(st::kGravity * size_sc);  // Determined from the definition of the Froude number.
   mpc_.state_scale.resize(cont_.stateSize());
   mpc_.input_scale.resize(cont_.inputSize());
   mpc_.control_scale.resize(kCtrlSize);
   mpc_.state_scale << rpy_sc, rpy_sc, size_sc, gyro_sc, gyro_sc, gyro_sc, vel_sc, vel_sc, vel_sc, st::kGravity;
-  mpc_.input_scale.fill(calcMass() * st::kGravity / nc_);  // TODO: 力とトルクでスケールを分ける
+  mpc_.input_scale.fill(calcMass() * st::kGravity / nc_);  // TODO: Use separate scales for force and torque.
   mpc_.control_scale << rpy_sc, rpy_sc, size_sc, gyro_sc, gyro_sc, gyro_sc, vel_sc, vel_sc, vel_sc;
 
   mpc_.current_state.resize(cont_.stateSize());
@@ -180,13 +180,13 @@ ctrl::LinearEquation GroundForceController::makeInputConstraint()
 
   const auto ud = u * d;
 
-  // 足1本について
+  // For one foot.
   Eigen::MatrixXd F1(kNumConstraintsPerLeg, LinearDynamics::kInputSizePerLeg);
   F1 << 0, 0, -1, 0, 0, 0, 1, 0, -1, 0, -u, 0, 1, 0, -u, 0, 0, -1, -u, 0, 0, 1, -u, 0, 0, 0, -ud, -1, 0, 0, -ud, 1;
   Eigen::VectorXd f1(kNumConstraintsPerLeg);
   f1 << -f_min, f_max, 0, 0, 0, 0, 0, 0;
 
-  // 全ての足について
+  // For all feet.
   const auto F = eigen::blockDiag(F1, nc_);
   const auto f = eigen::tile(f1, nc_, 0);
 

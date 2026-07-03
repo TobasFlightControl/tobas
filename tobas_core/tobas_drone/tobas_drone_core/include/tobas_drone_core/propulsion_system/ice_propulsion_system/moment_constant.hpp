@@ -21,7 +21,7 @@ public:
   double a;
   double b;
   double c;
-  double phi0;  // 負の失速角 (= 推力がゼロになるピッチ角) [rad]
+  double phi0;  // Negative stall angle (= pitch angle where thrust becomes zero) [rad].
 
   inline explicit VppMomentConstant(double _a, double _b, double _c, double _phi0) : a(_a), b(_b), c(_c), phi0(_phi0)
   {

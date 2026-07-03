@@ -12,7 +12,7 @@ namespace tobas
 {
 namespace random_axis_tilt_multicopter
 {
-/* チルトロータマルチコプターのミキシングを変数変換で解く (memo: 3-16)． */
+/* Solve tilt-rotor multicopter mixing by variable transformation (memo: 3-16). */
 class PinvMixer : public MixerI
 {
   using super = MixerI;
@@ -54,8 +54,8 @@ private:
   Eigen::Vector6d f_;
   Eigen::VectorXd x_;
 
-  std::map<std::string, kdl::Vector> thrust_points_;  // 祖父母リンクから見た推力の作用点
-  std::map<std::string, bool> is_singular_;           // 各チルトロータが特異状態かどうか
+  std::map<std::string, kdl::Vector> thrust_points_;  // Points of thrust application viewed from the grandparent link.
+  std::map<std::string, bool> is_singular_;           // Whether each tilt rotor is in a singular state.
 };
 }  // namespace random_axis_tilt_multicopter
 }  // namespace tobas

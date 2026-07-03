@@ -45,7 +45,7 @@ bool SwingLegController::updateInternalDataStructures()
 void SwingLegController::reset()
 {
   st::fill(is_stand_prev_, true);
-  st::fill(B_Tdd_BF_, kdl::VectorAcc::Zero());  // TODO: ちゃんと初期化
+  st::fill(B_Tdd_BF_, kdl::VectorAcc::Zero());  // TODO: Initialize properly.
 }
 
 bool SwingLegController::update(
@@ -66,11 +66,11 @@ bool SwingLegController::update(
   const auto G_Rot_B = kdl::Rotation::RPY(roll_, pitch_, 0.);
 
   for (size_t l = 0; l < nc_; ++l) {
-    /* ===== 立脚から遊脚に移行したタイミングで軌道生成 ===== */
+    /* ===== Generate a trajectory when transitioning from stance to swing ===== */
     if (is_stand_prev_[l] && !is_stand[l]) {
       t_switch_[l] = cur_time;
 
-      // {gnd}から見た{gnd}に対する{foot}の初期位置を計算
+      // Compute the initial position of {foot} relative to {gnd}, viewed from {gnd}.
       if (fk_solver_.jntToCart(q, foot_names_[l]) < 0) {
         std::cerr << "FK failed: " << fk_solver_.errorMessage() << std::endl;
         return false;
@@ -79,46 +79,46 @@ bool SwingLegController::update(
       const kdl::Vector G_Pos_GB(0, 0, z);
       const auto G_Pos_GF_0 = G_Pos_GB + G_Rot_B * B_Pos_BF;
 
-      // {gnd}から見た{gnd}に対する{foot}の最終位置を計算
+      // Compute the final position of {foot} relative to {gnd}, viewed from {gnd}.
       // Capture Gain
       // cf. MIT Cheetah 3: Design and Control of a Robust, Dynamic Quadruped Robot
       // https://ieeexplore.ieee.org/abstract/document/8593885
       const auto capture_gain = sqrt(std::max(z, 0.) / st::kGravity);
 
-      // (12) ~ (15): xyのみ合っていれば良い
+      // (12) ~ (15): Only xy needs to match.
       const kdl::Vector tar_vel(vx_, vy_, 0.);
       const kdl::Vector tar_gyro(0., 0., yawrate_);
-      const auto p_thigh = G_Rot_B * thigh_0_[l];  // G_Pos_B2Thigh0 (xyのみ合っていれば良い)
+      const auto p_thigh = G_Rot_B * thigh_0_[l];  // `G_Pos_B2Thigh0`; only xy needs to match.
       const auto p_sym = (stand_period_ / 2) * tar_vel + raibert_gain_ * (G_Vel_GB - tar_vel);
       const auto p_cent = (capture_gain / 2) * (p_thigh * tar_gyro);
       const auto G_Pos_GF_f = p_thigh + p_sym + p_cent;
 
-      // 軌道生成
+      // Trajectory generation.
       if (!ref_traj_[l].generate(G_Pos_GF_0, G_Pos_GF_f, swing_period_, clearance_)) {
         return false;
       }
     }
 
-    /* ===== 接地状態を更新 ===== */
+    /* ===== Update contact states ===== */
     is_stand_prev_[l] = is_stand[l];
 
-    /* ===== 遊脚の足先状態の目標値を更新 ===== */
-    // 立脚なら前回の値のまま
+    /* ===== Update the target swing-leg foot-tip state ===== */
+    // Keep the previous value during stance.
     if (is_stand[l]) {
       continue;
     }
 
-    // {gnd}から見た各足先の目標状態を得る
+    // Get the target state of each foot tip viewed from {gnd}.
     const auto t = std::max(DurationType(cur_time - t_switch_[l]).count(), 0.);
     if (!ref_traj_[l].get(t, G_Tdd_GF_.p, G_Tdd_GF_.v, G_Tdd_GF_.dv)) {
       return false;
     }
 
-    // {gnd}から見た{bs}に対する{foot}の状態を計算
+    // Compute the state of {foot} relative to {bs}, viewed from {gnd}.
     const kdl::Vector G_Pos_GB(0, 0, z);
     const auto G_Tdd_BF = G_Tdd_GF_ - G_Pos_GB;
 
-    // {bs}から見た各足先の目標状態に変換する(memo: 1-50)
+    // Convert to the target state of each foot tip viewed from {bs} (memo: 1-50).
     B_Tdd_BF_[l].p = G_Rot_B.inverse(G_Tdd_BF.p);
     B_Tdd_BF_[l].v = G_Rot_B.inverse(G_Tdd_BF.v - G_Gyro_GB * G_Tdd_BF.p);
     B_Tdd_BF_[l].dv = G_Rot_B.inverse(G_Tdd_BF.dv - 2 * G_Gyro_GB * G_Tdd_BF.v);

@@ -11,7 +11,7 @@ namespace tobas
 {
 namespace planar_multicopter
 {
-/* 疑似逆行列を用いたマルチコプターの推力ミキシング． */
+/* Thrust mixing for multicopters using a pseudoinverse matrix. */
 class PinvMixer : public MixerI
 {
   using super = MixerI;

@@ -40,7 +40,8 @@ JointSpaceDynamics::JointSpaceDynamics(
   A1_(7, 3) = 1;
 
   b1_st_.setZero();
-  b1_sw_.setZero();  // 遊脚の反力の等式制約は反力の範囲を0にすることで表現
+  b1_sw_
+    .setZero();  // The equality constraint on swing-leg reaction force is represented by setting the force range to zero.
 
   qp_.resize(wrench_size_ + kBaseDoF, kBaseDoF, kIneqSize * nc_);
   qp_.setZero();
@@ -54,20 +55,20 @@ JointSpaceDynamics::JointSpaceDynamics(
 
 bool JointSpaceDynamics::updateInternalDataStructures()
 {
-  // 浮遊リンクの名前を取得
+  // Get the floating-link name.
   auto floating_base_name = floating_base_name_;
   if (floating_base_name.empty()) {
     floating_base_name = tree_raw_.getRootName();
   }
 
-  // ベースリンク以下を抽出
+  // Extract the subtree below the base link.
   kdl::Tree base_sub_tree;
   if (!tree_raw_.getSubTree(floating_base_name, base_sub_tree)) {
     std::cerr << "Failed to get sub tree." << std::endl;
     return false;
   }
 
-  // ツリーに浮遊リンクを接続
+  // Connect the floating link to the tree.
   tree_ = kdl::Tree::FloatingBase("world", floating_base_name);
   if (!tree_.addTree(base_sub_tree, floating_base_name)) {
     std::cerr << "Failed to add a floating base link to the tree." << std::endl;
@@ -98,8 +99,9 @@ bool JointSpaceDynamics::updateInternalDataStructures()
   cur_qd_.resize(nj_);
   tar_qdd_.resize(nj_);
 
-  qp_.x_scale.head(wrench_size_).fill(calcMass() * st::kGravity / nc_);  // TODO: 力とトルクでスケールを分ける
-  qp_.x_scale.segment<3>(wrench_size_).fill(std::sqrt(st::kGravity * calcSizeScale()));  // フルード数に基づく
+  qp_.x_scale.head(wrench_size_)
+    .fill(calcMass() * st::kGravity / nc_);  // TODO: Use separate scales for force and torque.
+  qp_.x_scale.segment<3>(wrench_size_).fill(std::sqrt(st::kGravity * calcSizeScale()));  // Based on the Froude number.
   qp_.x_scale.segment<3>(wrench_size_ + 3).fill(M_PI);
 
   return true;
@@ -107,7 +109,7 @@ bool JointSpaceDynamics::updateInternalDataStructures()
 
 bool JointSpaceDynamics::configure(const JointSpaceDynamicsConfig& cfg)
 {
-  // TODO: 有効な値かチェック
+  // TODO: Check whether the values are valid.
 
   A1_.block<4, 1>(2, 2).fill(-cfg.friction_coef);
   A1_.block<2, 1>(6, 2).fill(-cfg.friction_coef * cfg.foot_diameter);
@@ -143,8 +145,8 @@ bool JointSpaceDynamics::solve(
   assert(tar_force.size() == nc_);
   assert(tar_torque.size() == nc_);
 
-  // 浮遊リンクを含む関節状態の現在値を更新
-  cur_q_.data.segment<3>(kPosIdx).setZero();  // 並進位置は関係ない
+  // Update the current joint state including the floating link.
+  cur_q_.data.segment<3>(kPosIdx).setZero();  // Translational position is irrelevant.
   cur_q_(kRollIdx) = roll;
   cur_q_(kPitchIdx) = pitch;
   cur_q_(kYawIdx) = kYawAngle;
@@ -153,7 +155,7 @@ bool JointSpaceDynamics::solve(
   cur_q_.data.tail(nj_raw_) = cur_q.data;
   cur_qd_.data.tail(nj_raw_) = cur_qd.data;
 
-  // ヤコビアンを更新
+  // Update Jacobians.
   for (size_t l = 0; l < nc_; ++l) {
     if (jac_solver_.jntToJac(cur_q_, foot_names_[l]) < 0) {
       error_msg_ = "Jacobian solver failed: " + jac_solver_.errorMessage();
@@ -164,32 +166,32 @@ bool JointSpaceDynamics::solve(
     J_.block(torqueIndex(l), 0, 1, nj_) = jac.row(5);                         // wz
   }
 
-  // 浮遊リンクを含む関節角速度の目標値を更新
+  // Update the target joint velocity including the floating link.
   tar_qdd_.data.segment<3>(kPosIdx) = tar_acc.data;
   tar_qdd_.data(kRollIdx) = tar_rpydd.roll;
   tar_qdd_.data(kPitchIdx) = tar_rpydd.pitch;
   tar_qdd_.data(kYawIdx) = tar_rpydd.yaw;
   tar_qdd_.data.tail(nj_raw_) = tar_qdd.data;
 
-  // 地面反力の参照値を更新
+  // Update the ground reaction force reference.
   for (size_t l = 0; l < nc_; ++l) {
     w_ref_.segment<kForceSize>(forceIndex(l)) = tar_force[l].data;
     w_ref_(torqueIndex(l)) = tar_torque[l];
   }
 
-  // 外力項を除いたトルクを計算
+  // Compute torques excluding external force terms.
   if (rne_.cartToJnt(cur_q_, cur_qd_, tar_qdd_) < 0) {
     error_msg_ = "RNE failed: " + rne_.errorMessage();
     return false;
   }
 
-  // 質量行列を計算
+  // Compute the mass matrix.
   if (mass_solver_.jntToMass(cur_q_) < 0) {
     error_msg_ = "Mass solver failed: " + mass_solver_.errorMessage();
     return false;
   }
 
-  // QPPを作成
+  // Create the QPP.
   const Eigen::Matrix<double, kBaseDoF, Eigen::Dynamic> Jt_base = J_.leftCols<kBaseDoF>().transpose();
   const Eigen::Matrix<double, kBaseDoF, kBaseDoF> Mb = mass_solver_.getMass().data.topLeftCorner<kBaseDoF, kBaseDoF>();
 
@@ -199,7 +201,8 @@ bool JointSpaceDynamics::solve(
   qp_.problem.h = rne_.getEfforts().data.head<kBaseDoF>() - Jt_base * w_ref_;
 
   for (size_t l = 0; l < nc_; ++l) {
-    // 各足の接地状態を制御対象として扱うため，目標地面反力から接地状態を決定する．
+    // Determine contact states from target ground reaction forces,
+    // because the contact state of each foot is treated as a control target.
     const auto is_stand = tar_force[l].z() > kStandLegNormalForceThresh;
     if (is_stand) {
       qp_.problem.b.segment<kIneqSize>(kIneqSize * l) = b1_st_ - A1_ * w_ref_.segment<kWrenchSize>(forceIndex(l));
@@ -209,21 +212,21 @@ bool JointSpaceDynamics::solve(
     }
   }
 
-  // QPPを解く
+  // Solve the QPP.
   if (!qp_.solve()) {
     error_msg_ = "QP failed: " + qp_.errorMessage();
     return false;
   }
 
-  // 地面反力と浮遊リンクの加速度の残渣を取得
+  // Get the residuals of ground reaction force and floating-link acceleration.
   const auto w_res = qp_.solution().head(wrench_size_).eval();
   const auto qdd_res = qp_.solution().tail<kBaseDoF>().eval();
 
-  // 修正された地面反力と関節トルクを計算
+  // Compute the corrected ground reaction forces and joint torques.
   w_out_ = w_ref_ + w_res;
   eff_out_ = rne_.getEfforts().data - J_.transpose() * w_out_;
-  eff_out_.head<kBaseDoF>() += Mb * qdd_res;                    // ベースの修正分
-  assert(math::isClose(eff_out_.head<kBaseDoF>().norm(), 0.));  // ベースのレンチは0になるはず
+  eff_out_.head<kBaseDoF>() += Mb * qdd_res;                    // Base correction.
+  assert(math::isClose(eff_out_.head<kBaseDoF>().norm(), 0.));  // Base wrench should be zero.
 
   return true;
 }

@@ -11,7 +11,8 @@
 namespace tobas
 {
 /**
- * @brief モーメントに関する空力安定微係数の参照フレームを空力中心周りから重心周り変換する．
+ * @brief Convert the reference frame of aerodynamic stability derivatives
+ * for moments from the aerodynamic center to the center of gravity.
  */
 class StabilityDerivativesCG : public SolverI
 {

@@ -28,17 +28,17 @@ int StabilityDerivativesCG::update(const kdl::JntArray& q)
 {
   error_code_ = kNoError;
 
-  // エイリアス
+  // Aliases.
   const auto& aero = drone_.fixed_wing->aerodynamics;
 
-  // CoGを更新
+  // Update CoG.
   if (inertia_solver_.jntToCart(q) < 0) {
     error_msg_ = inertia_solver_.errorMessage();
     return error_code_ = kError;
   }
   const auto cog = inertia_solver_.getInertia().getCOG();
 
-  // 安定微係数を更新: (2.2-40), (3.2-23)
+  // Update stability derivatives: (2.2-40), (3.2-23).
   const auto dx = drone_.fixed_wing->vehicle.ac.x() - cog.x();
   const auto dx_b = dx / drone_.fixed_wing->vehicle.wing_span;
   const auto dx_c = dx / drone_.fixed_wing->vehicle.mac;
