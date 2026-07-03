@@ -22,7 +22,8 @@ class SensorCalibrationWidget : public qt::VerticalTabWidget
   using self = SensorCalibrationWidget;
   using super = qt::VerticalTabWidget;
 
-  static constexpr int kTabHeight = 35;  // これ以上無いと何故かTabBarの文字が横に見切れてしまう
+  // Without at least this much height, the `TabBar` text is clipped horizontally for some reason.
+  static constexpr int kTabHeight = 35;
   static constexpr int kTabWidth = 70;
 
 public:

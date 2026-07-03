@@ -84,7 +84,7 @@ private:
 
   std::unique_ptr<ProjectGenerator> prj_gen_;
 
-  /* 全ての設定を起動時の状態に戻す． */
+  /* Return all settings to their startup state. */
   void reset();
 
   void enableSaveButtons(bool enable);
@@ -94,19 +94,19 @@ private:
 
   FrameType determineFrameType();
 
-  /* 指定したリンクの関節軸が，一般化座標に依らず指定した軸と平行であるかどうかを調べる． */
+  /* Check whether the joint axis of the specified link is parallel to the specified axis regardless of generalized coordinates. */
   bool isJntAxisAlwaysParallel(const std::string& link_name, const kdl::Vector& tar_axis, bool same_direction_only);
 
-  /* 全てのスラストジョイントの軸が，一般化座標に依らず指定した軸と平行であるかどうかを調べる． */
+  /* Check whether all thrust joint axes are parallel to the specified axis regardless of generalized coordinates. */
   bool allThrustJointAxesAlwaysParallel(const kdl::Vector& tar_axis, bool same_direction_only);
 
-  /* 全てのチルト軸とロータ軸が直行するかどうかを調べる． */
+  /* Check whether all tilt axes and rotor axes are orthogonal. */
   bool allTiltRotorAxesPerpendicular();
 
-  /* 全てのチルトジョイントの軸が，一般化座標に依らず指定した軸と平行であるかどうかを調べる． */
+  /* Check whether all tilt joint axes are parallel to the specified axis regardless of generalized coordinates. */
   bool allTiltJointAxesAlwaysParallel(const kdl::Vector& tar_axis, bool same_direction_only);
 
-  /* 全てのチルトジョイントの軸が互いに平行かどうかを調べる． */
+  /* Check whether all tilt joint axes are mutually parallel. */
   bool allTiltJointAxesAlwaysParallel();
 
 private Q_SLOTS:

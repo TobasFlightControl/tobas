@@ -19,7 +19,7 @@ LabeledDoubleSpinBox::LabeledDoubleSpinBox(const QString& label_text)
   cols->addWidget(label);
 
   data_ = new qt::DoubleSpinBox();
-  data_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);  // こうしないとSpinBoxがLabelに押されてしまう
+  data_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
   cols->addWidget(data_);
 
   connect(data_, qOverload<double>(&qt::DoubleSpinBox::valueChanged), this, &self::onValueChanged);

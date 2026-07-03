@@ -79,13 +79,13 @@ public:
   void setCommandInterface(int row, JointCommandInterface value);
   void setHomePosition(int row, double value);  // [rad]
 
-  /* 登録されているジョイント数． */
+  /* Number of registered joints. */
   int numJoints() const;
 
-  /* リンク名に対応するテーブルの行を返す．存在しなければ-1を返す． */
+  /* Return the table row for the link name, or -1 if it does not exist. */
   int findLink(const QString& link_name) const;
 
-  /* ジョイント名に対応するテーブルの行を返す．存在しなければ-1を返す． */
+  /* Return the table row for the joint name, or -1 if it does not exist. */
   int findJoint(const QString& joint_name) const;
 
 private:

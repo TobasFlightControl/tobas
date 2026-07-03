@@ -10,8 +10,8 @@ namespace tobas
 namespace qt
 {
 /**
- * ===== QWidget との違い =====
- * - 追加メソッド
+ * ===== Differences from `QWidget` =====
+ * - Additional methods
  */
 class Widget : public QWidget
 {
@@ -24,23 +24,23 @@ public:
 
   QPoint getCenter() const;
 
-  /* 枠内に収まるテキストの最大のポイントサイズを計算する． */
+  /* Compute the maximum point size for text that fits within the frame. */
   int calcMaxTextPointSize(const QString& text, const QPoint& center) const;
 
-  /* 背景色を設定する． */
+  /* Set background color. */
   void setBackgroundColor(QPalette::ColorRole cr);
 
 protected:
-  /* テキストを書く． */
+  /* Draw text. */
   void drawText(QPainter& painter, const QString& text, const QPoint& center, const QFont& font);
 
-  /* テキストを書く． */
+  /* Draw text. */
   void drawText(QPainter& painter, const QString& text, const QPoint& center, int point_size);
 
-  /* 枠内に収まる最大サイズのテキストを書く． */
+  /* Draw text at the maximum size that fits within the frame. */
   void drawMaximumText(QPainter& painter, const QString& text, const QPoint& center);
 
-  /* 枠内に収まる最大サイズのテキストを書く． */
+  /* Draw text at the maximum size that fits within the frame. */
   void drawMaximumText(QPainter& painter, const QString& text);
 };
 }  // namespace qt

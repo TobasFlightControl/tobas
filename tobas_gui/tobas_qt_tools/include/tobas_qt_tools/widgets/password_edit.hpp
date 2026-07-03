@@ -23,7 +23,7 @@ public:
   void showText();
   void hideText();
 
-  /* 起動時の状態に戻す (clear + hide)． */
+  /* Return to the startup state, clear plus hide. */
   void reset();
 
 private:

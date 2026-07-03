@@ -101,7 +101,7 @@ def generate_launch_description():
                     package="tobas_sbus_driver",
                     plugin="tobas::SbusDriverNode",
                     namespace=DRONE_NAME,
-                    parameters=[{"device": "/dev/ttyAMA0"}],  # TODO: FMUに応じてデバイスを変更
+                    parameters=[{"device": "/dev/ttyAMA0"}],  # TODO: Change the device according to the FMU.
                 ),
                 ComposableNode(
                     package="tobas_real_ros",

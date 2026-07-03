@@ -26,7 +26,7 @@ ExtraJointsWidget::ExtraJointsWidget(const uadf::Model& uadf, const kdl::Tree& t
   table_ = new qt::TableWidget(0, kNumCols);
   table_->setHeaderSectionsClickable(false);
   table_->setHorizontalHeaderLabels({ kLinkNameLabel, kJointNameLabel, kRoleLabel, kCmdIfaceLabel, kHomePosLabel });
-  table_->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);  // 内容に合わせて横幅を自動調整
+  table_->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
   addWidget(table_);
 }
 
@@ -57,18 +57,18 @@ void ExtraJointsWidget::updateInternalDataStructures()
 
     const auto& joint = elem.segment.joint();
 
-    // 可動関節でなければスキップ
+    // Skip non-movable joints.
     if (joint.type == kdl::Joint::kFixed) {
       continue;
     }
 
-    // TODO: 直動ジョイントにも対応
+    // TODO: Support prismatic joints.
     if (joint.type == kdl::Joint::kTranslation) {
       qt::qWarnBox(this, "Translational joint is not supported yet.");
       continue;
     }
 
-    // UADFに記載のあるジョイントはスキップ
+    // Skip joints listed in UADF.
     if (uadf_.thrusts.contains(joint.name)) {
       continue;
     }
@@ -79,7 +79,7 @@ void ExtraJointsWidget::updateInternalDataStructures()
       continue;
     }
 
-    // テーブルに追加
+    // Add to the table.
     addLink(link_name);
   }
 }
@@ -108,7 +108,7 @@ YAML::Node ExtraJointsWidget::dump() const
 
 void ExtraJointsWidget::load(const YAML::Node& node)
 {
-  // 各フィールドの値と有効無効を設定
+  // Set each field value and enabled state.
   for (const auto& pair : node) {
     const auto link_name = pair.first.as<QString>();
     const auto& sub_node = pair.second;
@@ -316,7 +316,7 @@ void ExtraJointsWidget::reset(int row)
 
 void ExtraJointsWidget::setDefaultValues(int row)
 {
-  // 役割に応じてコマンドインターフェースとハードウェアインターフェースを設定
+  // Set the command interface and hardware interface according to the role.
   switch (getRole(row)) {
     case JointRole::kUserActive:
       commandIfaceWidget(row)->setCurrentText(kCmdIfaceLabel_Position);
@@ -330,13 +330,13 @@ void ExtraJointsWidget::setDefaultValues(int row)
       throw;
   }
 
-  // 共通のデフォルト値
+  // Common default values.
   homePositionWidget(row)->setValue(0);
 }
 
 void ExtraJointsWidget::updateEnability(int row)
 {
-  // 役割によるフィールド
+  // Role-specific fields.
   switch (getRole(row)) {
     case JointRole::kUserActive:
       roleWidget(row)->setEnabled(true);

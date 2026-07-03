@@ -11,13 +11,13 @@ namespace uadf
 {
 tinyxml2::XMLDocument* exportUADF(const Model& model)
 {
-  // 基となるXMLを作成
+  // Create the base XML.
   const auto doc = urdf::exportUrdf(*model.urdf);
 
-  // ルートノードを取得
+  // Get the root node.
   const auto robot = doc->RootElement();
 
-  // XMLに特殊なジョイント型を埋め込む
+  // Embed the special joint types in the XML.
   for (auto child = robot->FirstChildElement(); child; child = child->NextSiblingElement()) {
     if (std::strcmp(child->Name(), "joint") == 0) {
       const auto joint_name = child->Attribute("name");

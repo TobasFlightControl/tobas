@@ -41,7 +41,7 @@ public:
 
   QString linkName(int index) const;
 
-  /* タブのインデックスを返す．存在しなければ-1を返す． */
+  /* Return the tab index, or -1 if it does not exist. */
   int index(const QString& link_name) const;
 
   PropulsionUnitWidget* widget(int index);

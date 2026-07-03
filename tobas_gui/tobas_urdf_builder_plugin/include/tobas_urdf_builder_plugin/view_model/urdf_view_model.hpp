@@ -63,7 +63,7 @@ private:
   LinkViewModelPtr root_link_;
   size_t clone_count_ = 0;
 
-  /* 自身以下の全てのリンクとジョイントに接尾語を与える． */
+  /* Add a suffix to all links and joints under this node. */
   void addNameSuffixRec(const LinkViewModelPtr& link_vm, const QString& suffix);
 
   static void removeTextureTagsWithoutFilename(tinyxml2::XMLElement* element);

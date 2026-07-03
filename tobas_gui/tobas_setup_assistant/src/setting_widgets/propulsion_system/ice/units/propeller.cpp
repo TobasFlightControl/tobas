@@ -207,7 +207,7 @@ double PropellerWidget::maxChord() const
 
 double PropellerWidget::meanChord() const
 {
-  // 平均翼弦長を単純に最小値と最大値の平均で計算
+  // Calculate the mean chord length simply as the average of the minimum and maximum values.
   return (minChord() + maxChord()) / 2;
 }
 }  // namespace ice

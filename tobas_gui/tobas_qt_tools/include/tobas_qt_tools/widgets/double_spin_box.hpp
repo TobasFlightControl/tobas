@@ -10,10 +10,10 @@ namespace tobas
 namespace qt
 {
 /**
- * ===== QDoubleSpinBox との違い =====
- * - 最大最小のデフォルト値をdoubleの最大最小に設定
- * - マウスホイールイベントを無効化
- * - フォーカス時にテキスト全体を選択
+ * ===== Differences from `QDoubleSpinBox` =====
+ * - Set default minimum and maximum values to the minimum and maximum of `double`.
+ * - Disable mouse wheel events
+ * - Select all text on focus
  */
 class DoubleSpinBox : public QDoubleSpinBox
 {

@@ -106,16 +106,16 @@ bool URDFViewModel::loadRobot(const QString& file_path)
 
 bool URDFViewModel::saveRobot(const QString& file_path)
 {
-  // ルートリンクのイナーシャを削除
+  // Remove root-link inertia.
   urdf_->root_link_->inertial.reset();
 
-  // URDFを書き出す
+  // Write the URDF.
   const auto doc = urdf::exportUrdf(*urdf_);
 
-  // 不要なテクスチャを削除
+  // Delete unused textures.
   removeTextureTagsWithoutFilename(doc->RootElement());
 
-  // XMLを保存
+  // Save XML.
   if (doc->SaveFile(file_path.toStdString().c_str()) != tinyxml2::XML_SUCCESS) {
     PRINT_ERROR("Failed to save URDF: " << doc->ErrorStr());
     return false;
@@ -153,7 +153,7 @@ void URDFViewModel::addLink(const LinkViewModelPtr& link_vm)
     urdf_->root_link_ = link_vm->model();
     urdf_->joints_.erase(urdf_->root_link_->parent_joint->name);
     urdf_->root_link_->parent_joint.reset();
-    urdf_->root_link_->inertial.reset();  // ルートリンクはイナーシャを持てない
+    urdf_->root_link_->inertial.reset();  // The root link cannot have inertia.
     root_link_.reset(new LinkViewModel(urdf_->root_link_));
   }
   else {
@@ -200,7 +200,7 @@ void URDFViewModel::cloneLink(const LinkViewModelPtr& link_vm)
 void URDFViewModel::removeLink(const LinkViewModelPtr& link_vm)
 {
   const auto& link = link_vm->model();
-  assert(link != urdf_->root_link_);  // ルートリンクを消すとバグる
+  assert(link != urdf_->root_link_);  // Deleting the root link causes bugs.
 
   const auto& parent_link = urdf_->links_[link->parent_joint->parent_link_name];
   auto& child_links = parent_link->child_links;
@@ -305,12 +305,12 @@ void URDFViewModel::removeTextureTagsWithoutFilename(tinyxml2::XMLElement* eleme
   }
 
   for (auto child = element->FirstChildElement(); child; child = child->NextSiblingElement()) {
-    // FIXME: 繰り返し中にツリー構造を変えるのはまずいかも．対象要素をリストしておいて後で消すべき．
+    // FIXME: Changing the tree structure during iteration may be unsafe. List target elements and delete them later.
     if (std::string(child->Name()) == "texture" && !child->Attribute("filename")) {
       element->DeleteChild(child);
     }
 
-    // 再帰的に子要素もチェック
+    // Check child elements recursively.
     removeTextureTagsWithoutFilename(child);
   }
 }

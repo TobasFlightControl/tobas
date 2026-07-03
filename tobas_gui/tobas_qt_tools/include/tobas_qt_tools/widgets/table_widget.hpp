@@ -10,8 +10,8 @@ namespace tobas
 namespace qt
 {
 /**
- * ===== TableWidget との違い =====
- * - 追加メソッド
+ * ===== Differences from `TableWidget` =====
+ * - Additional methods
  */
 class TableWidget : public QTableWidget
 {
@@ -22,16 +22,16 @@ class TableWidget : public QTableWidget
 public:
   using super::QTableWidget;
 
-  /* 全ての行を削除する．clearとは異なり，内容に加えセルまで削除する． */
+  /* Delete all rows. Unlike `clear`, this deletes cells as well as content. */
   void removeAll();
 
-  /* 全ての列幅を一様に固定する． */
+  /* Fix all column widths uniformly. */
   void setColumnsWidth(int width);
 
-  /* 内容に合わせてテーブルの高さを調整する． */
+  /* Adjust table height to fit content. */
   void resizeHeightToContents();
 
-  /* クリック可否を一括で設定する． */
+  /* Set clickability in bulk. */
   void setHeaderSectionsClickable(bool clickable);
 };
 }  // namespace qt

@@ -66,10 +66,10 @@ ParamGetterWidget_DoubleTable::ParamGetterWidget_DoubleTable(
   load_csv_btn->setFixedSize(kButtonWidth, kButtonHeight);
   cols->addWidget(load_csv_btn);
 
-  cols->addStretch();  // ボタンを左詰めにする
+  cols->addStretch();  // Left-align the button.
 
   table_ = new qt::TableWidget(0, num_entry_);
-  table_->verticalHeader()->setVisible(true);  // 行番号を表示
+  table_->verticalHeader()->setVisible(true);  // Show row numbers.
   table_->setHorizontalHeaderLabels(labels);
   rows_->addWidget(table_);
 
@@ -155,7 +155,7 @@ void ParamGetterWidget_DoubleTable::addRow()
 
   for (int col = 0; col < num_entry_; ++col) {
     const auto cell = new qt::DoubleSpinBox();
-    cell->setButtonSymbols(QAbstractSpinBox::NoButtons);  // 増減ボタンを削除
+    cell->setButtonSymbols(QAbstractSpinBox::NoButtons);  // Remove spin buttons.
     cell->setMinimum(minimum_[col]);
     cell->setMaximum(maximum_[col]);
     cell->setValue(default_[col]);
@@ -232,7 +232,7 @@ QString ParamGetterWidget_DoubleTable::getCsvPath()
   const auto file_path = QFileDialog::getOpenFileName(
     this, title_, QString::fromStdString(last_opened_dir), "CSV File (*.csv)", nullptr, QFileDialog::DontUseNativeDialog);
 
-  // 最後に開かれたパスを保存
+  // Save the last opened path.
   if (!file_path.isEmpty()) {
     const auto par_dir = fs::path(file_path.toStdString()).parent_path();
     saveLastOpenedDir(par_dir);

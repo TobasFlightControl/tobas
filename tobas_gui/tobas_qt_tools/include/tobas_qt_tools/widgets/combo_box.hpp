@@ -10,11 +10,11 @@ namespace tobas
 namespace qt
 {
 /**
- * ===== QComboBoxとの違い =====
- * - マウスホイールイベントを無効化
- * - setCurrentIndexで範囲チェック
- * - setCurrentTextで存在しない選択肢を指定するとエラー
- * - 追加メソッド
+ * ===== Differences from `QComboBox` =====
+ * - Disable mouse wheel events
+ * - Range check in `setCurrentIndex`
+ * - Error when `setCurrentText` specifies a nonexistent option
+ * - Additional methods
  */
 class ComboBox : public QComboBox
 {

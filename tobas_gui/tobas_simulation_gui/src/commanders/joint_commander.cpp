@@ -256,18 +256,18 @@ void JointCommanderWidget::publishCurrentCommand()
 
 void JointCommanderWidget::onStartRequested()
 {
-  // 初期コマンドをホームポジションに設定して有効化
+  // Set the initial command to the home position and enable it.
   for (const auto& [jnt_name, commander] : commanders_) {
     commander->setValue(drone_.joints.at(jnt_name).home_pos);
     commander->setEnabled(true);
   }
 
-  // コマンドボタンを有効化
+  // Enable command buttons.
   home_button_->setEnabled(true);
   center_button_->setEnabled(true);
   random_button_->setEnabled(true);
 
-  // 一定時間間隔でコマンド送信開始
+  // Start sending commands at fixed time intervals.
   publish_cmd_timer_.start(kPublishCommandPeriod);
 
   qt::qInfoBox(this, "GUI teleoperation is ready.");

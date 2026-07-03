@@ -21,15 +21,15 @@ LampWidget::LampWidget(const QString& text, QWidget* parent) : super(text, paren
 
 void LampWidget::setColor(const RGBColor& color)
 {
-  // 色が変化しないなら何もしない
+  // Do nothing if the color does not change.
   if (color == c_) {
     return;
   }
 
-  // 新しい色に更新
+  // Update to the new color.
   c_ = color;
 
-  // 描画
+  // Draw.
   draw();
 }
 

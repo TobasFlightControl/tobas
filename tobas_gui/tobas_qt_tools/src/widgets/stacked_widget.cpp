@@ -20,13 +20,13 @@ void StackedWidget::clear()
 
 void StackedWidget::setCurrentIndex(int index)
 {
-  // インデックスを更新
+  // Update the index.
   super::setCurrentIndex(index);
 
-  // Qtのイベントループを更新
+  // Update the Qt event loop.
   QApplication::processEvents();
 
-  // 画面を更新
+  // Update the screen.
   update();
 }
 }  // namespace qt

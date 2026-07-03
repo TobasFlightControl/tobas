@@ -10,8 +10,8 @@ namespace tobas
 namespace qt
 {
 /**
- * ===== QFormLayout との違い =====
- * - 追加メソッド
+ * ===== Differences from `QFormLayout` =====
+ * - Additional methods
  */
 class GridLayout : public QGridLayout
 {

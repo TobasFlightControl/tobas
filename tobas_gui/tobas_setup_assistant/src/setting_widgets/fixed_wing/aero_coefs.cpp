@@ -256,14 +256,14 @@ double AerodynamicsCoefficientsWidget::c_yaw_r() const
 
 void AerodynamicsCoefficientsWidget::onLoadButtonClicked()
 {
-  // 前回開いたパスを取得
+  // Get the previously opened path.
   std::string last_opened_dir;
   if (property_client_.get(kLastOpenedDirKey, last_opened_dir) < 0) {
     RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
     last_opened_dir = ros2::getHomeDir();
   }
 
-  // paramsのパスを取得
+  // Get the params path.
   const auto file_path = QFileDialog::getOpenFileName(
     this,
     "Select OpenVSP Stability Output File",
@@ -272,12 +272,12 @@ void AerodynamicsCoefficientsWidget::onLoadButtonClicked()
     nullptr,
     QFileDialog::DontUseNativeDialog);
 
-  // キャンセルの場合は何もせずに終了
+  // Return without doing anything if canceled.
   if (file_path.isEmpty()) {
     return;
   }
 
-  // ユーザが開いたディレクトリを保存
+  // Save the directory opened by the user.
   const auto par_dir = fs::path(file_path.toStdString()).parent_path();
   if (property_client_.set(kLastOpenedDirKey, par_dir) < 0) {
     RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
@@ -286,14 +286,14 @@ void AerodynamicsCoefficientsWidget::onLoadButtonClicked()
     RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
   }
 
-  // パラメータを読み込む
+  // Load parameters.
   VSPAEROParser parser;
   if (!parser.parse(file_path.toStdString())) {
     qt::qErrorBox(this, "Failed to read coefficients.");
     return;
   }
 
-  // 読み込んだパラメータをフォームに反映
+  // Apply loaded parameters to the form.
   c_lift_0_->setValue(parser.c_lift_0());
   c_lift_alpha_->setValue(parser.c_lift_alpha());
   c_drag_0_->setValue(parser.c_drag_0());

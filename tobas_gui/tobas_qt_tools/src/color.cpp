@@ -10,7 +10,7 @@ namespace qt
 QString toCssColor(Qt::GlobalColor c, bool with_alpha)
 {
   if (c == Qt::transparent) {
-    return "transparent";  // 見やすさ重視
+    return "transparent";  // Prioritize readability.
   }
 
   QColor q(c);

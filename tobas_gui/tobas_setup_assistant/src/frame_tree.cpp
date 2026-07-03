@@ -24,10 +24,10 @@ FrameTreeWidget::FrameTreeWidget(const kdl::Tree& tree, RvizWidget* rviz) : tree
 
 void FrameTreeWidget::updateInternalDataStructures()
 {
-  // ツリーを消去
+  // Clear the tree.
   clear();
 
-  // ルートリンクから再帰的にリンクをTreeに追加していく．
+  // Add links to the tree recursively from the root link.
   // cf. https://doc.qt.io/qtforpython/tutorials/basictutorial/treewidget.html
   const auto& root_name = tree_.getRootName();
   const auto root_item = new QTreeWidgetItem({ QString::fromStdString(root_name) });

@@ -62,37 +62,37 @@ void SbusWidget::onScanTimerTimeout()
 
   const QSignalBlocker block(device_names_);
 
-  // 新しいデバイス名を列挙
+  // Enumerate new device names.
   QSet<QString> new_device_names;
   for (const auto& entry : dir_.entryInfoList(QDir::NoDotAndDotDot | QDir::Files | QDir::System)) {
     new_device_names.insert(entry.fileName());
   }
 
-  // S.BUSドライバを立ち上げない選択肢を与える
+  // Provide an option to not start the S.BUS driver.
   if (device_names_->count() == 0) {
     device_names_->addItem("");
   }
 
-  // 存在しないデバイスをまとめる (ループ内で削除するとイテレータが狂うため)
+  // Collect missing devices first because deleting them inside the loop invalidates iterators.
   QSet<QString> removed_device_names;
-  for (int i = 1; i < device_names_->count(); ++i) {  // インデックス0は空文字
+  for (int i = 1; i < device_names_->count(); ++i) {  // Index 0 is an empty string.
     const auto cur_device_name = device_names_->itemText(i);
     if (!new_device_names.contains(cur_device_name)) {
       removed_device_names.insert(cur_device_name);
     }
   }
 
-  // 存在しないデバイスを選択肢から削除
+  // Remove missing devices from the choices.
   for (const auto& removed_device_name : removed_device_names) {
     device_names_->removeText(removed_device_name);
   }
 
-  // 新たなデバイスを選択肢に追加
+  // Add new devices to the choices.
   for (const auto& new_device_name : new_device_names) {
     if (!device_names_->contains(new_device_name)) {
       device_names_->addItem(new_device_name);
 
-      // 最初に追加されたデバイスならば自動でそれを選択
+      // Automatically select the first added device.
       if (device_names_->count() == 2) {
         device_names_->setCurrentIndex(1);
       }

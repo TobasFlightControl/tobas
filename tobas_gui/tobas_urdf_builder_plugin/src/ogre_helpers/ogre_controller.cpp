@@ -30,15 +30,15 @@ struct OgreController::PImpl
     ogre.names_node = ogre.root_node->createChildSceneNode();
     rviz.robot = new rviz_default_plugins::robot::Robot(ogre.robot_node, context, "urdf_robot_model", nullptr);
 
-    rviz.robot->setAlpha(kDefaultRobotAlpha);  // ロボット全体のAlpha
+    rviz.robot->setAlpha(kDefaultRobotAlpha);  // Alpha for the entire robot.
     rviz.robot->setVisualVisible(kDefaultVisualVisible);
     rviz.robot->setCollisionVisible(kDefaultCollisionVisible);
   }
 
   ~PImpl()
   {
-    // FIXME: ogreのメモリ解放時にエラーが出る (実用上はPImplの開放時にプロセスごと落とすためメモリリークしても問題ない)
-    // ogre.root_node->removeAndDestroyAllChildren();
+    // FIXME: An error occurs when freeing OGRE memory. In practice, the process exits when `PImpl` is released,
+    // so leaking memory is acceptable. ogre.root_node->removeAndDestroyAllChildren();
     // ogre.scene_manager->destroySceneNode(ogre.root_node->getName());
   }
 

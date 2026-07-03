@@ -3,8 +3,8 @@
 
 #pragma once
 
-// OGREは"/usr/include/OGRE"ではなく"/opt/ros/jazzy/opt/rviz_ogre_vendor/include/OGRE"からインクルードする．
-// パスに"OGRE/"を含めれば前者，含めなければ後者からインクルードされる．
+// Include OGRE from `/opt/ros/jazzy/opt/rviz_ogre_vendor/include/OGRE`, not `/usr/include/OGRE`.
+// If the path includes `OGRE/`, the former is used; otherwise, the latter is used.
 #include <OgreMatrix4.h>
 #include <OgreQuaternion.h>
 #include <OgreVector.h>

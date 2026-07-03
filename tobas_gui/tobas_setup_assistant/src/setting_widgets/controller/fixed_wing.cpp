@@ -67,7 +67,7 @@ void FixedWingWidget::load(const YAML::Node&)
 
 bool FixedWingWidget::isValid()
 {
-  // TODO: 制御面の数や符号などに関する条件
+  // TODO: Conditions on the number and signs of control surfaces.
   return true;
 }
 }  // namespace ctrl

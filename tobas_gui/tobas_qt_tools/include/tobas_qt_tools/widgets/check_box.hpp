@@ -10,9 +10,9 @@ namespace tobas
 namespace qt
 {
 /**
- * ===== QCheckBox との違い =====
- * - 初期状態を引数にもつコンストラクタ
- * - 追加メソッド
+ * ===== Differences from `QCheckBox` =====
+ * - Constructor with initial state as an argument
+ * - Additional methods
  */
 class CheckBox : public QCheckBox
 {
@@ -25,7 +25,7 @@ public:
 
   explicit CheckBox(const QString& text, bool checked, QWidget* parent = nullptr);
 
-  /* 無効化したときでもテキストだけは通常表示する． */
+  /* Display only the text normally even when disabled. */
   void setDisabledTextNormal();
 };
 }  // namespace qt

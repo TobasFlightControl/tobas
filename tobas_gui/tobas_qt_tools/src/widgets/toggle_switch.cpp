@@ -116,8 +116,8 @@ void ToggleSwitch::mousePressEvent(QMouseEvent*)
     return;
   }
 
-  checked_ = !checked_;      // 状態をトグル
-  Q_EMIT toggled(checked_);  // トグル状態が変わったことを通知
+  checked_ = !checked_;      // Toggle the state.
+  Q_EMIT toggled(checked_);  // Notify that the toggle state changed.
 }
 
 void ToggleSwitch::resizeEvent(QResizeEvent* event)
@@ -125,8 +125,8 @@ void ToggleSwitch::resizeEvent(QResizeEvent* event)
   const auto w = event->size().width();
   const auto h = event->size().height();
 
-  // アスペクト比を2:1よりも横長に保つ
-  // 足りない方の長さで調整するとウィジェットが消滅してしまうため，必ず足りない方の長さを据え置きでもう片方で合わせる．
+  // Keep the aspect ratio wider than 2:1.
+  // If adjusted by the shorter length, the widget can disappear, so keep the shorter length fixed and adjust the other side.
   if (w < 2 * h) {
     resize(w, w / 2);
   }
@@ -151,7 +151,7 @@ void ToggleSwitch::drawSwitch(QPainter& painter)
 {
   painter.setBrush(Qt::white);
   const auto x = checked_ ? 0 : width() - height();
-  painter.drawEllipse(x, 0, height(), height());  // スイッチ部分の描画
+  painter.drawEllipse(x, 0, height(), height());  // Draw the switch part.
 }
 
 void ToggleSwitch::drawText(QPainter& painter)

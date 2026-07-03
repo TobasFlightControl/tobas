@@ -40,14 +40,14 @@ fs::path CustomWorldWidget::worldPath() const
 
 void CustomWorldWidget::onBrowseButtonClicked()
 {
-  // 前回開いたパスを取得
+  // Get the previously opened path.
   std::string last_opened_dir;
   if (property_client_.get(kLastOpenedDirKey, last_opened_dir) < 0) {
     RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
     last_opened_dir = ros2::getHomeDir();
   }
 
-  // worldのパスを取得
+  // Get the world path.
   const auto file_path = QFileDialog::getOpenFileName(
     this,
     "Select World File",
@@ -56,15 +56,15 @@ void CustomWorldWidget::onBrowseButtonClicked()
     nullptr,
     QFileDialog::DontUseNativeDialog);
 
-  // キャンセルの場合は何もせずに終了
+  // Return without doing anything if canceled.
   if (file_path.isEmpty()) {
     return;
   }
 
-  // パスをテキストに設定
+  // Set the path text.
   file_text_->setText(file_path);
 
-  // ユーザが開いたディレクトリを保存
+  // Save the directory opened by the user.
   const auto par_dir = fs::path(file_path.toStdString()).parent_path();
   if (property_client_.set(kLastOpenedDirKey, par_dir) < 0) {
     RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());

@@ -24,7 +24,7 @@ set(CMAKE_AUTOMOC ON)
 
 include_directories(include)
 
-# AUTOMOCのためにヘッダをターゲットに入れる必要がある
+# Headers must be added to the target for AUTOMOC.
 file(GLOB_RECURSE LIB_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp include/*.hpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_TARGETS})
 ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})

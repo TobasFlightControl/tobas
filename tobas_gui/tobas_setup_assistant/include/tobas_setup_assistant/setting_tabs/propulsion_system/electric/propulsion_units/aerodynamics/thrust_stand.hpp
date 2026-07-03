@@ -17,8 +17,8 @@ namespace propulsion
 namespace electric
 {
 /**
- * @brief 推力係数とトルク係数はThrust Standの実験データから求める．
- * 空気抗力係数はBlade Theoryから求める．
+ * @brief Obtain thrust and torque coefficients from Thrust Stand experimental data.
+ * Obtain the drag coefficient from Blade Theory.
  */
 class AerodynamicsWidget_ThrustStand : public AerodynamicsWidget_Base
 {

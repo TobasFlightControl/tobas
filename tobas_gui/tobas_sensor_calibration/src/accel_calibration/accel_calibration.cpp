@@ -25,7 +25,7 @@ AccelCalibrationWidget::AccelCalibrationWidget(rclcpp::Node::SharedPtr node, con
   start_button_ = new QPushButton("Start");
   start_button_->setFixedSize(kButtonWidth, kButtonHeight);
 
-  // TODO: Rvizで重力方向と測定結果を表示
+  // TODO: Show the gravity direction and measurement result in Rviz.
 
   // Layout
   rows_->addWidget(instruction);
@@ -58,7 +58,7 @@ void AccelCalibrationWidget::setNamespace(const std::string& ns)
 
 void AccelCalibrationWidget::onStartButtonClicked()
 {
-  // アームされていないことを確認
+  // Confirm that the vehicle is not armed.
   if (!arming_) {
     qt::qWarnBox(this, "This operation cannot be performed because the arming status has not been received yet.");
     return;

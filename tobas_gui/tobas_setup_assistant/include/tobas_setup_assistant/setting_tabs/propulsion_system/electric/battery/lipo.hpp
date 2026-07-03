@@ -23,10 +23,10 @@ class BatteryWidget_LiPo : public BatteryWidget_Base
   using self = BatteryWidget_LiPo;
   using super = BatteryWidget_Base;
 
-  static constexpr double kNominalVoltagePerCell = 3.7;  // 1セルあたりの定格電圧
-  static constexpr double kMaxVoltagePerCell = 4.2;      // 1セルあたりの最大電圧
-  static constexpr double kSagVoltagePerCell = 3.4;      // 放電特性が急激に変化する電圧
-  static constexpr double kVoltageThreshPerCell = 3.2;   // 内部抵抗による降圧を考慮した警告の閾値
+  static constexpr double kNominalVoltagePerCell = 3.7;  // Nominal voltage per cell.
+  static constexpr double kMaxVoltagePerCell = 4.2;      // Maximum voltage per cell.
+  static constexpr double kSagVoltagePerCell = 3.4;      // Voltage where discharge characteristics change abruptly.
+  static constexpr double kVoltageThreshPerCell = 3.2;   // Warning threshold considering voltage drop.
 
 public:
   explicit BatteryWidget_LiPo();

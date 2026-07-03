@@ -21,15 +21,15 @@ QString getBaseName(const QString& path);
 QString expandUser(const QString& path);
 
 /**
- * @brief テキストをタイムスタンプ付きのファイルに書き込む．
+ * @brief Write text to a timestamped file.
  *
- * @param content 書き込むテキスト
- * @param dir_path ファイルを保存するディレクトリ
- * @param prefix ファイル名の接頭語
- * @param suffix ファイル名の接尾語
- * @param ext ファイルの拡張子
+ * @param content Text to write.
+ * @param dir_path Directory where the file is saved.
+ * @param prefix Filename prefix.
+ * @param suffix Filename suffix.
+ * @param ext File extension.
  *
- * @return 作成されたファイルのフルパス
+ * @return Full path of the created file.
  */
 std::expected<QString, QString> writeTimestampedFile(
   const QString& content,

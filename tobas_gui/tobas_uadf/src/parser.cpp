@@ -16,17 +16,17 @@ Parser::Parser()
 
 bool Parser::parseFromXml(const tinyxml2::XMLDocument* uadf_doc, Model& uadf_model)
 {
-  // モデルを初期化
+  // Initialize the model.
   uadf_model.clear();
 
-  // 編集用にXMLドキュメントをコピー
+  // Copy the XML document for editing.
   tinyxml2::XMLDocument uadf_doc_cp;
   uadf_doc->DeepCopy(&uadf_doc_cp);
 
-  // ルート要素を取得
+  // Get the root element.
   const auto robot = uadf_doc_cp.RootElement();
 
-  // 特殊なジョイント型をURDFに変換
+  // Convert special joint types to URDF.
   for (auto child = robot->FirstChildElement(); child; child = child->NextSiblingElement()) {
     if (std::strcmp(child->Name(), "joint") == 0) {
       const auto joint_name = child->Attribute("name");
@@ -84,10 +84,10 @@ bool Parser::parseFromXml(const tinyxml2::XMLDocument* uadf_doc, Model& uadf_mod
     }
   }
 
-  // URDFを書き出す
+  // Write the URDF.
   const auto urdf_text = xml::xmlDocumentToString(&uadf_doc_cp);
 
-  // URDFを解析
+  // Parse the URDF.
   uadf_model.urdf = urdf_parser_.parseFromText(urdf_text);
   if (!uadf_model.urdf) {
     error_msg_ = urdf_parser_.errorMessage();

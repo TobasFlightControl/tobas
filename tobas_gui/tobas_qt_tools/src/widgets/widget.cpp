@@ -61,7 +61,7 @@ void Widget::drawText(QPainter& painter, const QString& text, const QPoint& cent
   const auto text_width = fm.horizontalAdvance(text);
   const auto text_height = fm.height();
   const auto x = center.x() - text_width / 2;
-  const auto y = center.y() + text_height / 2 - fm.descent();  // ベースライン補正
+  const auto y = center.y() + text_height / 2 - fm.descent();  // Baseline correction.
   painter.drawText(x, y, text);
 
   painter.restore();

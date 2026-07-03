@@ -82,7 +82,7 @@ void clearLayout(QLayout* layout)
       delete widget;
     }
     else if (QLayout* sub_layout = item->layout()) {
-      clearLayout(sub_layout);  // 再帰的にサブレイアウトを削除
+      clearLayout(sub_layout);  // Recursively delete sub-layouts.
       delete sub_layout;
     }
     delete item;

@@ -18,7 +18,7 @@ ShutdownButton::ShutdownButton(int radius) : super("⏻")
   const auto font_size = radius * 3 / 2;
   const auto diameter = radius * 2;
 
-  // ボタンの外観をスタイルシートで設定
+  // Set the button appearance with a style sheet.
   QString qss = R"(
     QPushButton {
       background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 #FF6666, stop:1 #990000);

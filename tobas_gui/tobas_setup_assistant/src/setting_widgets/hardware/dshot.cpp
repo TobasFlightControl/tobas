@@ -36,13 +36,13 @@ DShotWidget::DShotWidget(const uadf::Model& uadf, const Signals& sig) : super(0,
 
 void DShotWidget::updateInternalDataStructures()
 {
-  // 現在の行数を保存
+  // Save the current row count.
   const auto rows = rowCount();
 
-  // 設定をリセットするために一旦全削除
+  // Delete everything once to reset settings.
   removeAll();
 
-  // 更新された選択肢でチャンネルを加え直す
+  // Add channels again with the updated choices.
   for (int _ = 0; _ < rows; ++_) {
     addLastChannel();
   }
@@ -50,7 +50,7 @@ void DShotWidget::updateInternalDataStructures()
 
 bool DShotWidget::isValid()
 {
-  // ターゲット名が重複していないことを確認
+  // Confirm that target names are not duplicated.
   QSet<QString> target_name_set;
   for (int channel = 0; channel < rowCount(); ++channel) {
     const auto target_name = targetName(channel);
@@ -165,7 +165,7 @@ void DShotWidget::addLastChannel()
 
   // Target name
   const auto target_name = new qt::ComboBox();
-  target_name->addItem("");  // 未選択
+  target_name->addItem("");  // Not selected.
   switch (prop_type_) {
     case PropulsionSystem::kElectric: {
       for (const auto& [joint_name, _] : uadf_.thrusts) {
@@ -183,12 +183,12 @@ void DShotWidget::addLastChannel()
   // Bidirectional
   const auto bidirectional = new QPushButton();
   bidirectional->setCheckable(true);
-  setBidirectionalButtonChecked(bidirectional, true);  // デフォルトで双方向通信
+  setBidirectionalButtonChecked(bidirectional, true);  // Bidirectional communication by default.
   connect(
     bidirectional,
     &QPushButton::toggled,
     std::bind(&self::onBidirectionalButtonToggled, this, bidirectional, std::placeholders::_1));
-  bidirectional->setEnabled(false);  // TODO: 単方向にも対応
+  bidirectional->setEnabled(false);  // TODO: Support unidirectional communication.
 
   // Insert table row
   insertRow(row);
@@ -236,7 +236,7 @@ void DShotWidget::onPropulsionTypeChanged(const PropulsionSystem& new_prop_type)
     return;
   }
 
-  // 前の推進系の不要な選択肢を外す
+  // Remove unnecessary choices from the previous propulsion system.
   switch (prop_type_) {
     case PropulsionSystem::kElectric: {
       for (int channel = 0; channel < rowCount(); ++channel) {
@@ -258,7 +258,7 @@ void DShotWidget::onPropulsionTypeChanged(const PropulsionSystem& new_prop_type)
       throw;
   }
 
-  // 新しい推進系の選択肢を追加
+  // Add choices for the new propulsion system.
   switch (new_prop_type) {
     case PropulsionSystem::kElectric: {
       for (int channel = 0; channel < rowCount(); ++channel) {

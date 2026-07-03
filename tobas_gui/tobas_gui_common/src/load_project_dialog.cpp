@@ -17,21 +17,21 @@ namespace cmn
 LoadProjectDialog::LoadProjectDialog(QWidget* parent, const QString& dir)
   : QFileDialog(parent, "Select Tobas Project (*.TBS)", dir, "Tobas Project (*.TBS)")
 {
-  setOptions(ShowDirsOnly | DontUseNativeDialog);  // カスタム設定のためにQtのダイアログを使用
-  setFileMode(Directory);                          // 既存のディレクトリを選択するモード
+  setOptions(ShowDirsOnly | DontUseNativeDialog);  // Use the Qt dialog for custom settings.
+  setFileMode(Directory);                          // Mode for selecting an existing directory.
   setFilter(QDir::AllDirs | QDir::Hidden | QDir::NoDotAndDotDot);
 
   proxy_ = new QSortFilterProxyModel(this);
   setProxyModel(proxy_);
 
   for (const auto& view_name : QStringList{ "treeView", "listView" }) {
-    // ダイアログ内部のビューを取得
+    // Get the internal view of the dialog.
     const auto view = findChild<QAbstractItemView*>(view_name);
     if (!view) {
       throw std::runtime_error("Dialog view model \"" + view_name.toStdString() + "\" not found.");
     }
 
-    // ダブルクリック (activated) されたら確定させる
+    // Confirm when double-clicked or activated.
     connect(view, &QAbstractItemView::activated, this, &LoadProjectDialog::onItemActivated);
   }
 }

@@ -10,9 +10,9 @@ namespace tobas
 namespace qt
 {
 /**
- * ===== QScrollArea との違い =====
- * - デフォルトでスクロール可能
- * - 追加メソッド
+ * ===== Differences from `QScrollArea` =====
+ * - Scrollable by default
+ * - Additional methods
  */
 class ScrollArea : public QScrollArea
 {
@@ -23,10 +23,10 @@ class ScrollArea : public QScrollArea
 public:
   explicit ScrollArea(QWidget* parent = nullptr);
 
-  /* ウィジェットの中にレイアウトをセットする． */
+  /* Set a layout inside the widget. */
   void setLayout(QLayout* layout);
 
-  /* 背景を透明化する． */
+  /* Make the background transparent. */
   void setBackgroundTransparent();
 };
 }  // namespace qt

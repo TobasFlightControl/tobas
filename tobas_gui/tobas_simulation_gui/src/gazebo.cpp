@@ -79,7 +79,7 @@ public:
       return;
     }
 
-    // Gazeboサーバが落ちるまで待機
+    // Wait until the Gazebo server exits.
     if (!ros2::waitUntilNodeGone(node_, "/tobas_ros_gz_bridge", 30s)) {
       Q_EMIT finished(false, "Timed out waiting for the Gazebo server to shut down.");
       return;
@@ -107,7 +107,8 @@ bool waitUntilGazeboRenderingReady()
 
 bool killGazeboServer()
 {
-  // FIXME: killコマンドだけだとGazeboサーバが落ちないため無理やり落としているが，このやり方だと他のプロセスにも影響が及ぶ恐れがある．
+  // FIXME: The Gazebo server does not exit with only the `kill` command, so it is forcibly terminated.
+  // This method may affect other processes.
   return linux::CommandExecutor().execute(
     "ps aux | grep \"gz sim\" | grep -v grep | awk '{ print \"kill -9\", $2 }' | sh");
 }

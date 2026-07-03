@@ -40,7 +40,7 @@ ParameterTuningWidget::ParameterTuningWidget(rclcpp::Node::SharedPtr node)
   reset_button_->setFixedSize(kButtonWidth, kButtonHeight);
 
   reset();
-  load_button_->setEnabled(false);  // プロジェクトが読み込まれるまではLoadボタンを押せないように
+  load_button_->setEnabled(false);  // Disable the Load button until a project has been loaded.
 
   // Layout
   const auto root_rows = new QVBoxLayout();
@@ -103,7 +103,7 @@ void ParameterTuningWidget::onLoadButtonClicked()
     }
   }
 
-  // 読み込みと同時に可視化
+  // Visualize as soon as loading completes.
   for (const auto& block : blocks_) {
     block->setVisible(true);
   }
@@ -133,7 +133,7 @@ void ParameterTuningWidget::onSaveButtonClicked()
 
 void ParameterTuningWidget::onResetButtonClicked()
 {
-  // 本当に全てのパラメータをリセットしてよいか確認
+  // Confirm before resetting all parameters.
   if (!qt::yesOrNo(this, "Are you sure you want to reset all parameters to their defaults?", qt::WARN)) {
     return;
   }

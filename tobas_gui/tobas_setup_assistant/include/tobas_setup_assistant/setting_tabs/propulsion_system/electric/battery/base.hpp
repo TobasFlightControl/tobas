@@ -31,22 +31,22 @@ public:
   virtual YAML::Node dump() const = 0;
   virtual void load(const YAML::Node& node) = 0;
 
-  /* 公称電圧 [V] */
+  /* Nominal voltage [V]. */
   virtual double nominalVoltage() = 0;
 
-  /* 最大電圧 [V] */
+  /* Maximum voltage [V]. */
   virtual double maxVoltage() = 0;
 
-  /* 放電特性が急激に変化する電圧 [V] */
+  /* Voltage where discharge characteristics change abruptly [V]. */
   virtual double sagVoltage() = 0;
 
-  /* 最大連続電流 [A] */
+  /* Maximum continuous current [A]. */
   virtual double maxCurrent() = 0;
 
-  /* 電気容量 [As] */
+  /* Electric capacity [As]. */
   virtual double capacity() = 0;
 
-  /* 内部抵抗値 [Ω] */
+  /* Internal resistance [ohm]. */
   virtual double internalRegistance() = 0;
 };
 }  // namespace electric

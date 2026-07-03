@@ -20,13 +20,13 @@ void ensureMetaTypeRegistered()
 {
   using D = std::decay_t<T>;
 
-  // メタ型が定義されていることを保証
+  // Ensure that the metatype is defined.
   static_assert(
     QMetaTypeId2<D>::Defined,
     "Signal argument type is not a Qt metatype. "
     "Add Q_DECLARE_METATYPE(Type) in global namespace and include the header here.");
 
-  // 独自型はシグナルスロット接続前に登録が必要なことが多い
+  // Custom types often need to be registered before signal-slot connections.
   qRegisterMetaType<D>();
 }
 
@@ -39,19 +39,19 @@ void ensureMetaTypesRegistered()
 }
 }  // namespace detail
 
-/* GUIを止めずにスレッドの終了を待機する． */
+/* Wait for a thread to finish without stopping the GUI. */
 template <typename Thread, typename... SigArgs>
 auto startThreadAndWait(Thread& thread, void (Thread::*signal)(SigArgs...)) -> std::tuple<std::decay_t<SigArgs>...>
 {
   static_assert(std::is_base_of_v<QThread, Thread>, "Thread must derive from QThread.");
 
-  // QueuedConnection で必要になる型を事前登録
+  // Pre-register types required for `QueuedConnection`.
   detail::ensureMetaTypesRegistered<SigArgs...>();
 
-  // イベントループを用意
+  // Prepare the event loop.
   QEventLoop loop;
 
-  // 別スレッドの結果をキャッチ
+  // Catch results from another thread.
   std::tuple<std::decay_t<SigArgs>...> result;
   const auto result_conn = QObject::connect(
     &thread,
@@ -60,11 +60,11 @@ auto startThreadAndWait(Thread& thread, void (Thread::*signal)(SigArgs...)) -> s
     [&result](SigArgs... args) { result = std::make_tuple(std::forward<SigArgs>(args)...); },
     Qt::QueuedConnection);
 
-  // 別スレッドの終了に合わせてイベントループを終了
+  // End the event loop when the other thread finishes.
   const auto finished_conn =
     QObject::connect(&thread, &QThread::finished, &loop, &QEventLoop::quit, Qt::QueuedConnection);
 
-  // イベントループを回しながらスレッドが終了するまで待機
+  // Wait for the thread to finish while running the event loop.
   thread.start();
   loop.exec(QEventLoop::AllEvents);
   thread.wait();
@@ -75,10 +75,10 @@ auto startThreadAndWait(Thread& thread, void (Thread::*signal)(SigArgs...)) -> s
   return result;
 }
 
-/* 関数を実行するスレッドを作成し，GUIを止めずに終了まで待機する． */
+/* Create a thread that runs a function and wait for it to finish without stopping the GUI. */
 void startThreadAndWait(std::function<void()> func);
 
-/* GUIを止めずに指定した時間だけスリープする． */
+/* Sleep for the specified time without stopping the GUI. */
 template <typename RepType, typename DurType>
 void spinFor(std::chrono::duration<RepType, DurType> time)
 {

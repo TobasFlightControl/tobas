@@ -55,10 +55,10 @@ void SensorCalibrationWidget::updateInternalDataStructures()
   mag_calib_->setNamespace(ns);
   rcin_calib_->updateInternalDataStructures();
 
-  // 各タブを有効化
+  // Enable each tab.
   setTabsEnabled(true);
 
-  // タブを表示・非表示した際の歪みを整える
+  // Adjust distortion caused by showing or hiding tabs.
   update();
 }
 

@@ -5,7 +5,7 @@
 
 #include <OgreMaterialManager.h>
 #include <rviz_common/display_group.hpp>
-#include <rviz_common/visualization_frame.hpp>  // rviz_rendering/render_window.hppがDQT_NO_KEYWORDに対応していない
+#include <rviz_common/visualization_frame.hpp>  // `rviz_rendering/render_window.hpp` does not support `DQT_NO_KEYWORD`.
 #include <rviz_common/visualization_manager.hpp>
 #include <rviz_common/yaml_config_reader.hpp>
 
@@ -112,8 +112,8 @@ void RvizFrameManager::removeDefaultColorMaterials()
     return;
   }
 
-  // rviz_rendering::MaterialManager::createDefaultColorMaterials()で作成されたマテリアルの重複を防ぐために削除する．
-  // TODO: 公式で改善されたらこの処理を削除
+  // Delete this to prevent duplication of materials created by `rviz_rendering::MaterialManager::createDefaultColorMaterials()`.
+  // TODO: Remove this process when it is fixed upstream.
   material_manager->remove("RVIZ/Red", "rviz_rendering");
   material_manager->remove("RVIZ/Green", "rviz_rendering");
   material_manager->remove("RVIZ/Blue", "rviz_rendering");

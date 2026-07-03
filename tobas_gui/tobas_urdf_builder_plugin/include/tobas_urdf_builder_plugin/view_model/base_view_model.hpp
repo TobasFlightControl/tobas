@@ -16,10 +16,10 @@ namespace ub
 namespace view_model
 {
 /**
- * @brief URDFの要素クラスのラッパー．
+ * @brief Wrapper for a URDF element class.
  *
- * @tparam M URDFの要素クラス
- * @tparam Derived 派生クラス
+ * @tparam M URDF element class.
+ * @tparam Derived Derived class.
  */
 template <typename M, typename Derived>
 class BaseViewModel
@@ -45,7 +45,7 @@ public:
     return DerivedPtr(new Derived(utils::clone(model_)));
   }
 
-  /* View Modelの内容をURDFモデルに反映させる． */
+  /* Apply the View Model contents to the URDF model. */
   virtual void sync() = 0;
 
 protected:

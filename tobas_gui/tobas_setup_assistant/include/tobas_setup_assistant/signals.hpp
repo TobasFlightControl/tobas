@@ -14,9 +14,9 @@ namespace gui
 namespace sa
 {
 /**
- * @brief 共通のシグナル．
- * 階層をまたぐウィジェット同士の結合を疎にするためにインターフェースを別クラスにする．
- * ROSメッセージと同じ思想．
+ * @brief Common signals.
+ * Use a separate interface class to loosely couple widgets across hierarchy levels.
+ * This follows the same idea as ROS messages.
  */
 class Signals : public QObject
 {

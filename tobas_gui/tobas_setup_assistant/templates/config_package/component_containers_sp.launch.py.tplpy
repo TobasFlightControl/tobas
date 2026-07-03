@@ -15,7 +15,7 @@ OUTPUT = "output"
 
 
 def handle_output(event):
-    # コンポーネントのロードに失敗したらシャットダウン
+    # Shut down if component loading fails.
     output = event.text.decode().strip()
     if re.search(r"Failed to find class with the requested plugin name", output):
         return EmitEvent(event=Shutdown())

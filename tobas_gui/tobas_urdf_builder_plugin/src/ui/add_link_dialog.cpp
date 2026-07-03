@@ -27,7 +27,7 @@ AddLinkDialog::AddLinkDialog(UrdfBuilderPanel* main, const QStringList& link_nam
     link_vm_.joint()->parentLinkName(link_names.first());
   }
 
-  setWindowTitle("Add Link");  // setupUiの後に呼ぶ必要がある
+  setWindowTitle("Add Link");  // This must be called after `setupUi`.
   enableOkButton(false);
 
   connect(ui_->LinkNameLineEdit, &QLineEdit::textChanged, this, &self::onLinkNameLineEditTextChanged);

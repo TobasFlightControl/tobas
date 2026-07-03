@@ -10,8 +10,8 @@ namespace tobas
 namespace qt
 {
 /**
- * ===== QFormLayout との違い =====
- * - validate() で Intermediate を正確に処理
+ * ===== Differences from `QFormLayout` =====
+ * - Accurately handle `Intermediate` in `validate()`
  */
 class IntValidator : public QIntValidator
 {

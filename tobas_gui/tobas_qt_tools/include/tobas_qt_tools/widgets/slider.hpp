@@ -10,8 +10,8 @@ namespace tobas
 namespace qt
 {
 /**
- * ===== QSlider との違い =====
- * - マウスホイールイベントを無効化
+ * ===== Differences from `QSlider` =====
+ * - Disable mouse wheel events
  */
 class Slider : public QSlider
 {

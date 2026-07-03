@@ -10,9 +10,9 @@ namespace tobas
 namespace qt
 {
 /**
- * ===== QStackedWidget との違い =====
- * - setCurrentIndexを安定化
- * - 追加メソッド
+ * ===== Differences from `QStackedWidget` =====
+ * - Stabilize `setCurrentIndex`
+ * - Additional methods
  */
 class StackedWidget : public QStackedWidget
 {
@@ -23,7 +23,7 @@ class StackedWidget : public QStackedWidget
 public:
   using super::QStackedWidget;
 
-  /* 全てのウィジェットを削除し，メモリを開放する． */
+  /* Delete all widgets and free memory. */
   void clear();
 
 public Q_SLOTS:

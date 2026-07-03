@@ -26,12 +26,12 @@ class RCInputCalibrationWidget : public BaseWidget
   using self = RCInputCalibrationWidget;
   using super = BaseWidget;
 
-  // SBUSのスロットル範囲は172-1811が基本
+  // The basic SBUS throttle range is 172 to 1811.
   static constexpr int kMinPeriod = 0;
   static constexpr int kMaxPeriod = 2000;
 
-  // S.BUSの各チャネルの値の範囲は最低でも1000，最大で2000以下であるため，
-  // 1000を閾値にしておけば3段階スイッチの2段階までしか動かさないヒューマンエラーを防げる．
+  // Each S.BUS channel value is at least 1000 and at most 2000, so
+  // using 1000 as the threshold prevents the human error of moving a three-position switch through only two positions.
   static constexpr int kMinSignalRange = 1000;
 
   static constexpr char kOnText[] = "ON";

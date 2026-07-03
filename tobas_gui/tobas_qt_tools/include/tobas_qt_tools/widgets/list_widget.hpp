@@ -10,9 +10,9 @@ namespace tobas
 namespace qt
 {
 /**
- * ===== QListWidgetItem との違い =====
- * - ドラッグアンドドロップでシグナル発行
- * - 追加メソッド
+ * ===== Differences from `QListWidgetItem` =====
+ * - Emit signals on drag and drop
+ * - Additional methods
  */
 class ListWidget : public QListWidget
 {
@@ -26,22 +26,22 @@ Q_SIGNALS:
 public:
   using super::QListWidget;
 
-  /* リストにテキストが含まれる場合にtrueを返す． */
+  /* Return true if the list contains the text. */
   bool contains(const QString& text) const;
 
-  /* アイテムを削除する． */
+  /* Delete an item. */
   void remove(QListWidgetItem* item);
 
-  /* 指定したテキストのアイテムを選択する． */
+  /* Select the item with the specified text. */
   void setCurrentText(const QString& text);
 
-  /* 何も選択しない状態にする． */
+  /* Clear the selection. */
   void deselect();
 
-  /* リストの高さを行数ぶんだけにする． */
+  /* Set the list height to the number of rows. */
   void shrinkToContents();
 
-  /* 行番号を表示する． */
+  /* Show row numbers. */
   void showRowNumber();
 
 protected:
@@ -49,8 +49,8 @@ protected:
 };
 
 /**
- * ===== QListWidgetItem との違い =====
- * - UserRoleを基準に比較
+ * ===== Differences from `QListWidgetItem` =====
+ * - Compare by `UserRole`
  */
 class ListWidgetItem : public QListWidgetItem
 {

@@ -11,11 +11,11 @@ void startThreadAndWait(std::function<void()> func)
 {
   const auto thread = QThread::create(std::move(func));
 
-  // 別スレッドの結果をキャッチするためのイベントループを用意
+  // Prepare an event loop to catch results from another thread.
   QEventLoop loop;
   const auto conn = QObject::connect(thread, &QThread::finished, &loop, &QEventLoop::quit);
 
-  // イベントループを回しながらスレッドが終了するまで待機
+  // Wait for the thread to finish while running the event loop.
   thread->start();
   loop.exec();
   thread->wait();

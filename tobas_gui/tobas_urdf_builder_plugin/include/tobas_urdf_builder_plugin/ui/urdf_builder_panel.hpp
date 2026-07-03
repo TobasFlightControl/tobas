@@ -30,7 +30,7 @@ namespace ub
 namespace ui
 {
 /**
- * @brief Rvizのメインウィジェットにプラグインするメインパネル．
+ * @brief Main panel plugged into the Rviz main widget.
  */
 class UrdfBuilderPanel : public rviz_common::Panel
 {
@@ -71,7 +71,7 @@ private Q_SLOTS:
   void onLinkDialogChanged();
 
 private:
-  ros2::AsyncNodeManager node_manager_;  // Qtと別のスレッドで動作するノード
+  ros2::AsyncNodeManager node_manager_;  // Node running on a thread separate from Qt.
   const rclcpp::Node::SharedPtr node_;
   ptree::PropertyClient property_client_;
 

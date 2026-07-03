@@ -36,8 +36,8 @@ private:
 };
 
 /**
- * ===== QtabWidget との違い =====
- * - 追加メソッド
+ * ===== Differences from `QTabWidget` =====
+ * - Additional methods
  */
 class TabWidget : public QTabWidget
 {
@@ -49,8 +49,8 @@ public:
   explicit TabWidget(QWidget* parent = nullptr);
 
   /**
-   * @brief マウスホイールイベントを無視する．
-   * @note setMovableなどのTabBarの設定の前に呼ぶ必要がある．
+   * @brief Ignore mouse wheel events.
+   * @note Must be called before TabBar settings such as `setMovable`.
    */
   virtual void enableWheelEvent(bool enable);
 
@@ -64,7 +64,7 @@ public:
   void setTabHeight(int height);
   void setTabSize(int width, int height);
 
-  /* 全てのタブを削除してメモリを開放する． */
+  /* Delete all tabs and free memory. */
   void removeAllTabs();
 
 private:

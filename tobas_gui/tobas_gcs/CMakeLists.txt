@@ -36,8 +36,8 @@ file(GLOB_RECURSE LIB_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} s
 add_library(${PROJECT_NAME} STATIC ${LIB_TARGETS})
 ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
 
-# Match the executable name, desktop file name, and application name without spaces
-# so the icon is displayed correctly in the desktop application.
+# Match the executable name, desktop file name, and application name without spaces so the icon is displayed correctly
+# in the desktop application.
 add_executable(main nodes/main.cpp)
 target_link_libraries(main ${PROJECT_NAME})
 set_target_properties(main PROPERTIES OUTPUT_NAME "TobasGCS")

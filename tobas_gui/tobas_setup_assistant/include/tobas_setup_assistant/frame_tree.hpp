@@ -30,7 +30,7 @@ public:
 private Q_SLOTS:
   void onItemChanged(QTreeWidgetItem* ite);
 
-  /* 文字列の長さに応じて列の幅を調整する． */
+  /* Adjust column widths according to string length. */
   void resizeColumns();
 
 private:

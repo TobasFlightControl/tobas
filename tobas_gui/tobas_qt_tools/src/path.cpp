@@ -56,7 +56,7 @@ std::expected<QString, QString> writeTimestampedFile(
     }
   }
 
-  // 日時からファイル名を生成
+  // Generate the filename from date and time.
   auto filename = QDateTime::currentDateTime().toString("yyyyMMdd_HHmmss_zzz");
   if (!prefix.isEmpty()) {
     filename = prefix + '_' + filename;
@@ -68,7 +68,7 @@ std::expected<QString, QString> writeTimestampedFile(
     filename += '.' + ext;
   }
 
-  // ファイルに書き込み
+  // Write to the file.
   const auto path = dir.filePath(filename);
   QSaveFile file(path);
   if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {

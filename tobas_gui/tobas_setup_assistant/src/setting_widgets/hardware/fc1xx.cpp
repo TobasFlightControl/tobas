@@ -83,7 +83,7 @@ double FC1xxWidget::magNoiseStddev() const
 
 double FC1xxWidget::magHardBiasNorm() const
 {
-  return 0.03;  // IIS2MDCの最大値は6000nTだが，キャリブレーションを前提としてそれより低めに設定．
+  return 0.03;  // The IIS2MDC maximum is 6000 nT, but set this lower assuming calibration.
 }
 
 int FC1xxWidget::presUpdateRate() const
@@ -103,22 +103,22 @@ int FC1xxWidget::gnssUpdateRate() const
 
 double FC1xxWidget::gnssHorizontalPositionAccuracy() const
 {
-  return 5.;  // 一般的な単独測位の精度
+  return 5.;  // Typical standalone positioning accuracy.
 }
 
 double FC1xxWidget::gnssVerticalPositionAccuracy() const
 {
-  return 10.;  // 一般的な単独測位の精度
+  return 10.;  // Typical standalone positioning accuracy.
 }
 
 double FC1xxWidget::gnssHorizontalVelocityStddev() const
 {
-  return 0.05;  // FIXME: 精度 (Accuracy) と標準偏差は異なる
+  return 0.05;  // FIXME: Accuracy and standard deviation are different.
 }
 
 double FC1xxWidget::gnssVerticalVelocityStddev() const
 {
-  return 0.05;  // FIXME: 精度 (Accuracy) と標準偏差は異なる
+  return 0.05;  // FIXME: Accuracy and standard deviation are different.
 }
 
 int FC1xxWidget::numPwmChannels() const

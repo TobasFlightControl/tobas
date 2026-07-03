@@ -42,7 +42,7 @@ UpdateLinkDialog::UpdateLinkDialog(rclcpp::Node::SharedPtr node, UrdfBuilderPane
 {
   ui_->setupUi(this);
 
-  // 不要な項目を不可視にする
+  // Hide unnecessary items.
   ui_->JointSafetyGroupBox->hide();
   ui_->JointCalibrationGroupBox->hide();
   ui_->JointMimicGroupBox->hide();
@@ -253,7 +253,7 @@ void UpdateLinkDialog::onJointTypeComboBoxIndexChanged(int)
   const auto& joint = link_vm_->joint();
   ui_->JointLimitGroupBox->setVisible(joint->limitsEnabled());
 
-  // 固定関節ならばAxis, Dynamicsは表示しない
+  // Do not show Axis or Dynamics for fixed joints.
   if (joint->isFixed()) {
     ui_->JointAxisGroupBox->setVisible(false);
     ui_->JointDynamicsGroupBox->setVisible(false);
@@ -332,7 +332,7 @@ void UpdateLinkDialog::onRenameLinkButtonClicked()
 
   ui_->LinkNameLineEdit->setText(dialog.getText());
 
-  // FIXME: LinkNameLineEditの変更時とここで2回リロードしないとTreeNodeが重複する
+  // FIXME: `TreeNode` is duplicated unless it is reloaded both when `LinkNameLineEdit` changes and here.
   emitChanged();
 }
 
@@ -441,24 +441,24 @@ void UpdateLinkDialog::onVisualGeometryMeshBrowseButtonClicked()
 {
   RCLCPP_DEBUG(node_->get_logger(), "UpdateLinkDialog::onVisualGeometryMeshBrowseButtonClicked");
 
-  // 最後に開いたディレクトリを取得
+  // Get the last opened directory.
   std::string last_dir;
   if (property_client_.get(kConfigKey_VisualGeometryMeshBrowseDir, last_dir) < 0) {
     PRINT_WARN(property_client_.errorMessage());
     last_dir = ros2::getHomeDir();
   }
 
-  // メッシュファイルのパスを取得
+  // Get the mesh file path.
   const auto file_path = QFileDialog::getOpenFileName(
     this, "Select Mesh File", QString::fromStdString(last_dir), "Mesh Files (*.stl *.dae);;All Files (*)");
   if (file_path.isEmpty()) {
     return;
   }
 
-  // メッシュファイルのパスを設定
+  // Set the mesh file path.
   ui_->VisualGeometryMeshPathLineEdit->setText("file://" + file_path);
 
-  // 最後に開いたディレクトリを保存
+  // Save the last opened directory.
   const auto new_dir = fs::path(file_path.toStdString()).parent_path().string();
   if (property_client_.set(kConfigKey_VisualGeometryMeshBrowseDir, new_dir) < 0) {
     PRINT_WARN(property_client_.errorMessage());
@@ -474,14 +474,14 @@ void UpdateLinkDialog::onCollisionGeometryMeshBrowseButtonClicked()
 {
   RCLCPP_DEBUG(node_->get_logger(), "UpdateLinkDialog::onCollisionGeometryMeshBrowseButtonClicked");
 
-  // 最後に開いたディレクトリを取得
+  // Get the last opened directory.
   std::string last_dir;
   if (property_client_.get(kConfigKey_CollisionGeometryMeshBrowseDir, last_dir) < 0) {
     PRINT_WARN(property_client_.errorMessage());
     last_dir = ros2::getHomeDir();
   }
 
-  // メッシュファイルのパスを取得
+  // Get the mesh file path.
   const auto file_path = QFileDialog::getOpenFileName(
     this,
     "Select Mesh File",
@@ -493,10 +493,10 @@ void UpdateLinkDialog::onCollisionGeometryMeshBrowseButtonClicked()
     return;
   }
 
-  // メッシュファイルのパスを設定
+  // Set the mesh file path.
   ui_->CollisionGeometryMeshPathLineEdit->setText("file://" + file_path);
 
-  // 最後に開いたディレクトリを保存
+  // Save the last opened directory.
   const auto new_dir = fs::path(file_path.toStdString()).parent_path().string();
   if (property_client_.set(kConfigKey_CollisionGeometryMeshBrowseDir, new_dir) < 0) {
     PRINT_WARN(property_client_.errorMessage());
@@ -618,7 +618,7 @@ void UpdateLinkDialog::readFromVM(const view_model::JointViewModelPtr& joint)
     ui_->JointLimitVelocitySpinBox->setValue(joint->limits()->velocity());
   }
 
-  // 固定関節ならばAxis, Dynamicsは表示しない
+  // Do not show Axis or Dynamics for fixed joints.
   if (joint->isFixed()) {
     ui_->JointAxisGroupBox->setVisible(false);
     ui_->JointDynamicsGroupBox->setVisible(false);

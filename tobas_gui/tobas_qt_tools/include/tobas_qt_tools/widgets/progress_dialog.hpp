@@ -11,12 +11,12 @@ namespace tobas
 namespace qt
 {
 /**
- * ===== QProgressDialog との違い =====
- * - ユーザーが他のUI要素と対話できないようにする
- * - タイトルを設定
- * - デフォルトで最小値に設定
- * - ラベルテキストの右にスピナーを表示
- * - 追加メソッド
+ * ===== Differences from `QProgressDialog` =====
+ * - Prevent the user from interacting with other UI elements
+ * - Set title
+ * - Set to the minimum value by default
+ * - Show a spinner to the right of the label text
+ * - Additional methods
  */
 class ProgressDialog : public QProgressDialog
 {

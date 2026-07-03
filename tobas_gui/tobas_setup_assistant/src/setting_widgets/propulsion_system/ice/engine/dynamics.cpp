@@ -65,12 +65,12 @@ std::pair<double, double> EngineDynamicsWidget::engineConstant() const
   const auto num_data = data_->count();
   const auto data_mat = data_->getValue();
 
-  // データを取り出す
+  // Extract the data.
   const auto throttles = data_mat.col(0) / 100.;        // [-]
   const auto speeds = data_mat.col(1) * st::kRpmToRps;  // [rad/s]
   const auto torques = data_mat.col(2);                 // [Nm]
 
-  // 線型回帰でエンジンダイナミクスの定数を求める (memo: 3-28)
+  // Find engine dynamics constants by linear regression (memo: 3-28).
   const auto phi = M_PI_2 * throttles;  // [rad]
   const auto A_sqr_coefs = -(torques.array() / (1 - phi.array().cos())).square().matrix();
   const auto B_coefs = Eigen::VectorXd::Ones(num_data);

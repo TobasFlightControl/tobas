@@ -52,7 +52,7 @@ void PasswordEdit::setMode(bool on)
 
 void PasswordEdit::onIconToggled(bool on)
 {
-  const auto cursor_pos = cursorPosition();  // カーソルの位置を保持
+  const auto cursor_pos = cursorPosition();  // Keep the cursor position.
   setMode(on);
   setCursorPosition(cursor_pos);
 }
