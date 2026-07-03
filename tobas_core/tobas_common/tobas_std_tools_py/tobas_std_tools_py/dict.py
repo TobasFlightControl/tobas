@@ -5,7 +5,7 @@ from copy import deepcopy
 
 
 def concatenate(a: dict, b: dict) -> dict:
-    """多重階層の2つの辞書を結合する．"""
+    """Merge two nested dictionaries."""
     res = deepcopy(a)
 
     for key, b_val in b.items():

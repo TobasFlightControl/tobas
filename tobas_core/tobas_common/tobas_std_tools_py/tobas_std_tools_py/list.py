@@ -9,14 +9,14 @@ def is_unique(lst: List) -> bool:
 
 
 def max_depth(lst: Union[List, Any]) -> int:
-    """リストの最大深さ，すなわち入れ子の階数を返す．"""
+    """Return the maximum depth of a list, or its nesting level."""
     if isinstance(lst, List):
         if len(lst) == 0:
-            # 空のリストの深さは1
+            # An empty list has depth 1.
             return 1
         else:
-            # 再帰的に最大深さを計算
+            # Recursively compute the maximum depth.
             return 1 + max(max_depth(item) for item in lst)
     else:
-        # リストでなければ深さは0
+        # Non-list values have depth 0.
         return 0

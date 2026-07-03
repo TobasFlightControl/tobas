@@ -8,11 +8,11 @@ class SegTree:
         Parameters
         ----------
         init_val: List[T]
-            配列の初期値
+            Initial array values.
         segfunc: Callable
-            区間にしたい操作((x, y) -> x or y)
+            Operation to apply over intervals, such as `(x, y) -> x or y`.
         ide_ele: T
-            単位元
+            Identity element.
 
         Returns
         ----------
@@ -24,23 +24,23 @@ class SegTree:
         self.ide_ele = ide_ele
         self.num = 1 << (n - 1).bit_length()
         self.tree = [ide_ele] * 2 * self.num
-        # 配列の値を葉にセット
+        # Set array values to the leaves.
         for i in range(n):
             self.tree[self.num + i] = init_val[i]
-        # 構築していく
+        # Build the tree.
         for i in range(self.num - 1, 0, -1):
             self.tree[i] = self.segfunc(self.tree[2 * i], self.tree[2 * i + 1])
 
     def update(self, k, x):
         """
-        k番目の値をxに更新する
+        Update the `k`-th value to `x`.
 
         Parameters
         ----------
         k: int
-            インデックス
+            Index.
         x: T
-            更新値
+            Updated value.
 
         Returns
         ----------
@@ -55,7 +55,7 @@ class SegTree:
 
     def query(self, left, right):
         """
-        [left, right)のsegfuncしたものを得る
+        Return `segfunc` applied over `[left, right)`.
 
         Parameters
         ----------

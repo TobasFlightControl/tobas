@@ -9,7 +9,7 @@ class FenwickTree:
 
     def add(self, p, x):
         """
-        pの位置にxを足す
+        Add `x` at position `p`.
         """
         assert 0 <= p < self._n
         p += 1
@@ -19,7 +19,7 @@ class FenwickTree:
 
     def sum(self, left, right):
         """
-        [left, right)の和を求める
+        Compute the sum over `[left, right)`.
         """
         assert 0 <= left <= right <= self._n
         return self._sum(right) - self._sum(left)

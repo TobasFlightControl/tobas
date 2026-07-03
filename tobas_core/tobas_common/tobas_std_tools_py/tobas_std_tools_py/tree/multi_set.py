@@ -6,8 +6,8 @@ import heapq
 
 class MultiSet:
     """
-    マルチセット: https://tsubo.hatenablog.jp/entry/2020/06/15/124657 \\
-    Heapqから中間の値を削除できるようにしたものと考えてよさそう
+    Multiset: https://tsubo.hatenablog.jp/entry/2020/06/15/124657 \\
+    This can be viewed as a `heapq` that supports removing intermediate values.
     """
 
     def __init__(self):

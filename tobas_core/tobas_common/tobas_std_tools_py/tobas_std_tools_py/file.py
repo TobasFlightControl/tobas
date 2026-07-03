@@ -5,7 +5,7 @@ import os.path as osp
 
 
 def create_empty_file(file_path: str, exist_ok: bool = False) -> None:
-    """指定されたパスにからのファイルを作成する．"""
+    """Create an empty file at the specified path."""
     if osp.exists(file_path):
         if exist_ok:
             return
@@ -13,4 +13,4 @@ def create_empty_file(file_path: str, exist_ok: bool = False) -> None:
             raise RuntimeError(f"{file_path} already exists.")
 
     with open(file_path, "w"):
-        pass  # ファイルに何も書き込まなければ空のファイルが作成される
+        pass  # Opening without writing creates an empty file.

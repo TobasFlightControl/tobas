@@ -35,11 +35,12 @@ class SegTree2D:
         Parameters
         ----------
         N, M: int
-            葉の数はN * Mになる
+            The number of leaves is `N * M`.
         ls2D: List[List[T]]
-            初期値
+            Initial values.
         mode: Callable
-            区間に対して行う操作{min, max, sum, prd(product), gcd, lmc, ^, &, |}
+            Operation to apply over intervals:
+            {min, max, sum, prd(product), gcd, lmc, ^, &, |}.
 
         Returns
         ----------
@@ -68,10 +69,12 @@ class SegTree2D:
             for j in range(self.M2 - 1, 0, -1):
                 self.dat[i][j] = self.func(self.dat[i][j << 1], self.dat[i][j << 1 | 1])
 
-    def leafvalue(self, x, y):  # (x,y)番目の値の取得
+    def leafvalue(self, x, y):
+        """Get the value at `(x, y)`."""
         return self.dat[x + self.N2][y + self.M2]
 
-    def update(self, x, y, value):  # (x,y)の値をvalueに変える
+    def update(self, x, y, value):
+        """Change the value at `(x, y)` to `value`."""
         i = x + self.N2
         j = y + self.M2
         self.dat[i][j] = value
@@ -88,7 +91,8 @@ class SegTree2D:
             j = y + self.M2
         return
 
-    def query(self, Lx, Rx, Ly, Ry):  # [Lx,Rx)×[Ly,Ry)の区間取得
+    def query(self, Lx, Rx, Ly, Ry):
+        """Query the interval `[Lx, Rx) x [Ly, Ry)`."""
         Lx += self.N2
         Rx += self.N2
         Ly += self.M2
