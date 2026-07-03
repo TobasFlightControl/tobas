@@ -1,4 +1,4 @@
 line_width: 120
 tab_size: 2
-max_subgroups_hwrap: 3 # このグループ数までは1行に表示可能
-dangle_parens: true # 複数行になる場合に閉じ括弧を単独行に配置
+max_subgroups_hwrap: 3 # Up to this number of groups may stay on one line.
+dangle_parens: true # Put closing parentheses on their own line for multi-line calls.

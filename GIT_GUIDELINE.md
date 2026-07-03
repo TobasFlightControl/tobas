@@ -2,10 +2,16 @@
 
 ## Branches
 
-- `${ros-distribution}`: 各 ROS ディストリビューションの開発用ブランチ．
-- `feature/`: 機能実装用のブランチ．`${ros-distribution}`から派生する．マージ後に削除する．
-- `release/`: 後方互換性が保証された各リリース用のブランチ．`${ros-distribution}`から派生する．ここからリリース`vx.x.x`を作る．
-- `hotfix/`: 緊急バグ対応用ブランチ．`${ros-distribution}`またはリリースブランチから派生し，マージ後に削除する．
+- `${ros-distribution}`:
+  Development branch for each ROS distribution.
+- `feature/`:
+  Branch for feature development.
+  Branch from `${ros-distribution}` and delete after merging.
+- `release/`:
+  Branch for each release with backward compatibility guarantees.
+  Branch from `${ros-distribution}` and create release `vx.x.x` from here.
+- `hotfix/`:
+  Branch for urgent bug fixes. Branch from `${ros-distribution}` or a release branch and delete after merging.
 
 ### Example Branch Names
 
@@ -26,26 +32,26 @@
 
 #### Type
 
-- `add`: 機能，ファイル追加
-- `fix`: バグ修正
-- `modify`: 軽微な変更，調整
-- `change`: 仕様変更
-- `remove`: 機能，ファイル削除
-- `wip`: 作業途中 (Work in Progress)
+- `add`: Add features or files
+- `fix`: Fix bugs
+- `modify`: Make minor changes or adjustments
+- `change`: Change specifications
+- `remove`: Remove features or files
+- `wip`: Work in progress
 
 #### Subject
 
-- コミットの概要
-- 50 字以内
-- 文頭大文字
-- ピリオドなし
-- 命令形
+- Summary of the commit
+- 50 characters or fewer
+- Capitalize the first word
+- No period at the end
+- Use the imperative mood
 
 #### Body (Optional)
 
-- コミットの詳細
-- 1 行あたり 72 字以内
-- How ではなく What と Why
+- Details of the commit
+- 72 characters or fewer per line
+- Describe what and why, not how
 
 ### Example Commit Messages
 
@@ -53,9 +59,9 @@
 
 ## Pull Request
 
-- レビュアーに土肥 (@Masa0u0) を指定する．
+- Assign Masayoshi Dohi (@Masa0u0) as a reviewer.
 
-## 参考
+## References
 
 - [Git での基本的な開発フローについて](https://qiita.com/jun1s/items/e45761f103c52926d5e5)
 - [【Git】コミットに規約をつくる | Qiita](https://qiita.com/Kenya/items/f72fba8fecc79d1b090c)

@@ -1,5 +1,4 @@
 # Base: [moveit2/.clang-format](https://github.com/moveit/moveit2/blob/main/.clang-format)
-# cf. [Clang-Formatの書式について](https://qiita.com/koyukitukimino/items/9b8f74d1ae307a7017d3)
 
 BasedOnStyle: Google
 ColumnLimit: 120
@@ -88,10 +87,10 @@ BraceWrapping:
   SplitEmptyNamespace: true # Added
 
 # ===== Added =====
-AlignAfterOpenBracket: AlwaysBreak # 引数が1行に収まらなければ全ての引数を1段下げる
-AlignOperands: true # 長い式の演算子を縦に揃える
-FixNamespaceComments: true # 名前空間の閉じ括弧にコメントを追加/修正
-ShortNamespaceLines: 0 # 名前空間内に1行以上記述されていれば閉じ括弧にコメントを追加
-InsertBraces: true # 必ず{}を挿入する
-AllowAllArgumentsOnNextLine: true # 引数が1行に収まらない場合に改行して次の1行にまとめることを許可する
+AlignAfterOpenBracket: AlwaysBreak # If arguments do not fit on one line, indent every argument one level.
+AlignOperands: true # Vertically align operators in long expressions.
+FixNamespaceComments: true # Add or fix comments on closing braces for namespaces.
+ShortNamespaceLines: 0 # Add closing namespace comments when the namespace contains at least one line.
+InsertBraces: true # Always insert braces.
+AllowAllArgumentsOnNextLine: true # If arguments do not fit on one line, allow them to continue together on the next line.
 # RemoveEmptyLinesInUnwrappedLines: true # clang-format 20+

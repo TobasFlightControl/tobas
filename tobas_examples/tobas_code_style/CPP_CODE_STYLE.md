@@ -4,10 +4,10 @@
 
 See [tobas_cpp_code_style_example](./tobas_cpp_code_style_example/).
 
-## C++ バージョン
+## C++ Version
 
 - C++23
-- 非標準拡張は使用しない
+- Do not use non-standard extensions.
 
 ```cmake
 set(CMAKE_CXX_STANDARD 23)
@@ -18,210 +18,210 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 ## g++
 
 - g++-13
-- コンパイルオプション: `-Wall -Wextra -Wpedantic -Wshadow -Werror`
-- PIC を有効化
+- Compile options: `-Wall -Wextra -Wpedantic -Wshadow -Wswitch-enum -Werror`
+- Enable PIC.
 
 ```cmake
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Wswitch-enum -Werror")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 ```
 
-## 拡張子
+## File Extensions
 
-- `.hpp`, `.cpp`のみ．
+- Use only `.hpp` and `.cpp`.
 
-## ヘッダファイル
+## Header Files
 
-- 以下の例外を除く全ての`.cpp`ファイルは同名の`.hpp`ファイルをもつ．つまり，複数のヘッダファイルの実装を 1 箇所にまとめてはならない．
-  - main 関数をもつ
-  - プラグイン: ROS 2 コンポーネント，Gazebo プラグインなど
-- インクルードガード: `#pragma once`
-- 使用されているシンボルが定義されているヘッダファイルを直接インクルードする．再帰的なインクルードには極力依存しない．
-- 前方宣言は極力使用しない．
-- 関数の宣言と定義を分ける．
-- 定義が短く且つ速度が重視される場合はインライン指定する．
-- インクルード順
+- Every `.cpp` file must have a same-named `.hpp` file, except in the following cases. In other words, do not collect the implementations of multiple header files into a single `.cpp` file.
+  - Files that define a `main` function
+  - Plugins, such as ROS 2 components or Gazebo plugins
+- Use `#pragma once` for include guards.
+- Directly include the header file that defines each symbol you use. Avoid depending on transitive includes whenever possible.
+- Avoid forward declarations whenever possible.
+- Separate function declarations from definitions.
+- Mark definitions as inline when they are short and performance-sensitive.
+- Include order:
   1. Related header file
   1. A blank line
-  1. C system headers, and any other headers in angle brackets with the .h extension, e.g., <unistd.h>, <stdlib.h>.
+  1. C system headers, and any other headers in angle brackets with the `.h` extension, e.g. `<unistd.h>`, `<stdlib.h>`.
   1. A blank line
-  1. C++ standard library headers (without file extension), e.g., <algorithm>, <cstddef>.
+  1. C++ standard library headers without file extensions, e.g. `<algorithm>`, `<cstddef>`.
   1. A blank line
-  1. Third-party libraries' header files
+  1. Third-party library headers
   1. A blank line
-  1. Tobas libraries' header files
+  1. Tobas library headers
   1. A blank line
-  1. [ROS 2 common interfaces'](https://github.com/ros2/common_interfaces/tree/jazzy) header files.
+  1. [ROS 2 common interface](https://github.com/ros2/common_interfaces/tree/jazzy) headers
   1. A blank line
-  1. ROS 2 external interfaces' header files
+  1. ROS 2 external interface headers
   1. A blank line
-  1. ROS 2 Tobas interfaces' header files (including type adapters)
+  1. ROS 2 Tobas interface headers, including type adapters
   1. A blank line
-  1. Your project's header files
-- それぞれのセクションのヘッダファイルをアルファベット順に並べる．
-- 関連ヘッダのインクルードに UNIX ディレクトリエイリアスは使用しない: `../include/my_library/my_class.hpp` -> `my_library/my_class.hpp`
-- 同じライブラリのヘッダのパスのみダブルクオーテーションで囲む．
+  1. Your project's headers
+- Sort the headers in each section alphabetically.
+- Do not use Unix directory aliases when including a related header: `../include/my_library/my_class.hpp` -> `my_library/my_class.hpp`
+- Use double quotes only for headers from the same library.
 
 <!-- Custom -->
 
-- なるべくC由来のヘッダの変わりにC++の標準ライブラリを使用する．
+- Prefer C++ standard library headers over C-style headers whenever possible.
   - e.g. `<string.h>` -> `<cstring>`, `<stdlib.h>` -> `<cstdlib>`
 
-## 名前空間
+## Namespaces
 
-- 全てのシンボルを`tobas`名前空間に含める．
-- 別の cpp ファイルからインクルードされ得るシンボルは`tobas`以下の適切な名前空間に含める．
-- `using namespace`: ヘッダファイルでは不可．ソースファイルでも極力使用しない．
-- cpp ファイル内でシンボルを定義し，内部リンケージにのみ使用する場合は，無名名前空間に入れて他の翻訳単位からは参照されないことを明示する．
-- 関数や変数のスコープはできる限り狭く，できる限り使用直前に定義する．
-- グローバル変数は`constexpr`でのみ定義可能．
+- Put every symbol in the `tobas` namespace.
+- Put symbols that may be included from another `.cpp` file in an appropriate namespace under `tobas`.
+- `using namespace`: Do not use it in header files, and avoid it in source files whenever possible.
+- If a symbol is defined in a `.cpp` file and used only with internal linkage, put it in an anonymous namespace to make it clear that other translation units cannot refer to it.
+- Keep the scope of functions and variables as narrow as possible, and define variables as close as possible to where they are used.
+- Global variables may be defined only as `constexpr`.
 
-## クラス
+## Classes
 
-- コンストラクタではエラーハンドリングが難しいため，失敗する可能性のあるコードをコンストラクタに書かない．代わりに`initialize()`メソッドを定義する．
-- 仮想メソッドのオーバーライドされた実装は基底クラスのコンストラクタ時点では利用できないので，基底クラスのコンストラクタで仮想メソッドを呼ばない．
-- 暗黙的な型変換を防ぐため，コンストラクタにはなるべく`explicit`をつける．
-- コピーコンストラクタ，ムーブコンストラクタを定義し，それぞれが可能かどうかを明示する．
-- `public`なデータのみを含む場合は`struct`を使う．それ以外は基本的に`class`を使う．
-- 意味を明確にするために`std::pair`や`std::tuple`ではなく`struct`を使う．
-- 継承には`public`をつける．
-- 演算子オーバーロードは意味が明確なときのみ可能．
-- メンバ変数は基本`private`で必要最小限のアクセッサを実装するのが望ましいが，正当な理由をコメントすれば他のアクセス権も認める．
-- アクセスグループの定義順
+- Do not put code that can fail in a constructor, because error handling is difficult there. Define an `initialize()` method instead.
+- Do not call virtual methods from a base class constructor, because overridden implementations are not available while the base class constructor is running.
+- Prefer marking constructors as `explicit` to prevent implicit type conversions.
+- Define copy constructors and move constructors, and make it explicit whether each operation is allowed.
+- Use `struct` when the type contains only `public` data. Otherwise, generally use `class`.
+- Use `struct` instead of `std::pair` or `std::tuple` when doing so makes the meaning clearer.
+- Use `public` inheritance.
+- Operator overloads are allowed only when their meaning is clear.
+- Member variables should generally be `private` with only the minimum necessary accessors. Other access levels are allowed if there is a valid reason and it is explained in a comment.
+- Access groups must appear in this order:
   1. public
   1. protected
   1. private
-- アクセスグループ内の定義順
-  1. Types and type aliases (typedef, using, enum, nested structs and classes, and friend types)
-  1. (Optionally, for structs only) non-static data members
+- Within each access group, declarations must appear in this order:
+  1. Types and type aliases, including `typedef`, `using`, `enum`, nested structs and classes, and friend types
+  1. Non-static data members, optionally for structs only
   1. Static constants
   1. Factory functions
   1. Constructors and assignment operators
   1. Destructor
-  1. All other functions (static and non-static member functions, and friend functions)
-  1. All other data members (static and non-static)
-- `friend`はなるべく使わず，`public`メンバでのみ外とやりとりする．
+  1. All other functions, including static and non-static member functions and friend functions
+  1. All other data members, including static and non-static data members
+- Avoid `friend` whenever possible, and interact with other code only through `public` members.
 
 <!-- Custom -->
 
-- メンバ変数のゼロ初期化には`= {}`を使う．
+- Use `= {}` for zero-initializing member variables.
 
-## 関数
+## Functions
 
-- 可読性とパフォーマンスの面から，出力は引数よりも返り値の方が望ましい．
-- 入力引数: プリミティブ型ならコピー，非プリミティブ型なら const 参照．
-- 出力引数: 非 const 参照．
-- 入力引数，出力引数の順に並べる．
-- 関数の役割は最小限に．1 つの関数は 1 つのことを．
-- オーバーロードは関数の意味が変わらず同じ docstrings で説明できる場合のみ．
-- 未定義動作を起こす恐れがあるため，仮想関数の引数にデフォルト値を与えてはならない．
-- ~~返り値は`auto`ではなく明確に定義する．~~ 返り値は明確な意図がある場合を除き`auto`で受ける．
+- For readability and performance, prefer return values over output arguments.
+- Input arguments: pass primitive types by copy and non-primitive types by const reference.
+- Output arguments: pass by non-const reference.
+- Put input arguments before output arguments.
+- Keep each function focused. One function should do one thing.
+- Use overloads only when the meaning of the function does not change and all overloads can be described by the same doc comment.
+- Do not give default values to virtual function arguments, because this can cause undefined behavior.
+- ~~Define return types explicitly instead of using `auto`.~~ Use `auto` for return values unless there is a clear reason not to.
 
-## ポインタ
+## Pointers
 
-- なるべくポインタではなく参照を使う．
-- ポインタを使うにしても，生ポインタではなくスマートポインタを使う．
-- 所有権を明確にするため，`std::shared_ptr`よりも`std::unique_ptr`が望ましい．
-- `std::auto_ptr`は使用不可．
-- `NULL`ではなく`nullptr`を使う．
+- Prefer references over pointers whenever possible.
+- If you need a pointer, use a smart pointer instead of a raw pointer.
+- Prefer `std::unique_ptr` over `std::shared_ptr` to make ownership clear.
+- Do not use `std::auto_ptr`.
+- Use `nullptr` instead of `NULL`.
 
 <!-- Custom -->
 
-- NULL 判定は`if (ptr == nullptr)`ではなく`if (!ptr)`と書く．
+- For null checks, write `if (!ptr)` instead of `if (ptr == nullptr)`.
 
-## 例外
+## Exceptions
 
-- 移動体上で動作する可能性のあるあらゆる関数は例外を吐いてはならない．
-- 返り値を`bool`かエラーコードにしてハンドリングする．
-- 適切にエラーハンドリングした上で`noexcept`を指定する．
+- Functions that may run on a mobile robot or vehicle must not throw exceptions.
+- Use a `bool` return value or an error code for error handling.
+- Specify `noexcept` after handling errors appropriately.
 
-## キャスト
+## Casts
 
-- ダウンキャストは極力しない．
-- C スタイルキャストではなく C++スタイルを使う: `(int)x` -> `static_cast<int>(x)`
+- Avoid downcasts whenever possible.
+- Use C++-style casts instead of C-style casts: `(int)x` -> `static_cast<int>(x)`
 
-## インクリメント
+## Increment
 
-- 特に理由がない限りは前置インクリメントを使用: `i++` -> `++i`
+- Use pre-increment unless there is a specific reason not to: `i++` -> `++i`
 
 ## const
 
-- 指定可能な全ての場所に`constexpr`をつける．
-- 指定可能な全ての場所に`const`をつける．
+- Add `constexpr` everywhere it can be used.
+- Add `const` everywhere it can be used.
 
-## 整数型
+## Integer Types
 
-- `int`以外のビルトイン整数型は使用しない．
-- なるべく用途に合った`size_t`，`strdiff_t`，`time_t`などを使う．
-- その他整数のサイズを保証する場合は`stdint.h`に定義されている整数型を使う．
-- 符号なし整数型はビットパターンなど特殊な場合を除き使用せず，符号は`assert`で保証する．
-
-<!-- Custom -->
-
-- `uint`などの比標準型は使わない．
-
-## 不動小数型
-
-- `float`または`double`のみ使用可．
-- `long double`などは使用不可．
-
-## 命名規則
-
-- 長くなってもよいので読む人が容易に意味や目的を理解できるような名前を付ける．
-
-### ケース
-
-- ファイル: `hoge_fuga.hpp`, `hoge_fuga.cpp`
-- 型 (class, struct, type alias, enum, type template parameter): `HogeFuga`
-- ローカル変数: `hoge_fuga`
-- グローバル変数 (非推奨): `g_hoge_fuga`
-- public 変数: `hoge_fuga`
-- protected, private 変数: `hoge_fuga_`
-- 引数: `_hoge_fuga`
-- constexpr 定数: `kHogeFuga`
-- 関数: `hogeFuga()`
-- 名前空間: `hoge_fuga`
-- 列挙子 (enum の要素): `kHogeFuga`
-- マクロ (非推奨): `HOGE_FUGA`
-
-## コメント
-
-- doc コメント (クラスコメント，関数コメント): `/** @brief ... */`
-- 変数コメント: `/* ... */` or `/** @brief ... */`
-- 実装コメント: `// ...`
-- 一時的なコメントアウト: `// ...`
+- Do not use built-in integer types other than `int`.
+- Prefer purpose-specific types such as `size_t`, `strdiff_t`, and `time_t` when appropriate.
+- When a specific integer size is required, use the integer types defined in `stdint.h`.
+- Do not use unsigned integer types except for special cases such as bit patterns. Use `assert` to guarantee non-negativity.
 
 <!-- Custom -->
 
-- 全て英語で書く
-- 処理の単位ごとに適切な説明コメントを入れる
-- なるべく分節で改行する
+- Do not use non-standard types such as `uint`.
 
-## コメント
+## Floating-Point Types
+
+- Use only `float` or `double`.
+- Do not use types such as `long double`.
+
+## Naming Rules
+
+- Names may be long, but they must make the meaning and purpose easy for readers to understand.
+
+### Case
+
+- Files: `hoge_fuga.hpp`, `hoge_fuga.cpp`
+- Types, including classes, structs, type aliases, enums, and type template parameters: `HogeFuga`
+- Local variables: `hoge_fuga`
+- Global variables, discouraged: `g_hoge_fuga`
+- Public variables: `hoge_fuga`
+- Protected and private variables: `hoge_fuga_`
+- Arguments: `_hoge_fuga`
+- `constexpr` constants: `kHogeFuga`
+- Functions: `hogeFuga()`
+- Namespaces: `hoge_fuga`
+- Enumerators, meaning enum elements: `kHogeFuga`
+- Macros, discouraged: `HOGE_FUGA`
+
+## Comments
+
+- Doc comments, including class and function comments: `/** @brief ... */`
+- Variable comments: `/* ... */` or `/** @brief ... */`
+- Implementation comments: `// ...`
+- Temporary commented-out code: `// ...`
 
 <!-- Custom -->
 
-- 各ファイルの先頭にライセンス条文を入れる
+- Write all comments in English.
+- Add appropriate explanatory comments for each unit of processing.
+- Prefer line breaks at natural phrase boundaries.
 
-## フォーマット
+## License Comments
 
-- [.clang-format](../../.clang-format) に従う．
+<!-- Custom -->
+
+- Put the license text at the beginning of each file.
+
+## Format
+
+- Follow [.clang-format](../../.clang-format).
 
 ## ROS 2
 
 <!-- Custom -->
 
-- 不特定多数へのゼロコピー転送のため，トピックは`UniquePtr`で発行して`ConstSharedPtr`で購読する．
-- パラメータ取得部，Publisher 作成部，Subscriber 作成部はそれぞれまとめて書くとインターフェースがわかりやすい．
+- To support zero-copy delivery to unspecified subscribers, publish topics with `UniquePtr` and subscribe with `ConstSharedPtr`.
+- Group parameter retrieval, Publisher creation, and Subscriber creation separately so the interface is easy to understand.
 
-## その他
+## Miscellaneous
 
 <!-- Custom -->
 
-- 16 進数の英字は大文字: `0x1a2b` -> `0x1A2B`
-- enum のカンマは最後の要素にもつける
+- Use uppercase letters in hexadecimal numbers: `0x1a2b` -> `0x1A2B`
+- Put a comma after the last enumerator in an enum.
 
-## 参考
+## References
 
 - [Google C++ Style Guide](https://google.github.io/styleguide/cppguide.html)
-- [Code styleand language versions | ROS 2 Documentation](https://docs.ros.org/en/rolling/The-ROS2-Project/Contributing/Code-Style-Language-Versions.html#id1)
+- [Code style and language versions | ROS 2 Documentation](https://docs.ros.org/en/rolling/The-ROS2-Project/Contributing/Code-Style-Language-Versions.html#id1)
