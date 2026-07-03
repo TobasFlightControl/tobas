@@ -193,8 +193,15 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 <!-- Custom -->
 
-- ライセンスボイラープレートやヘッダ上部の説明文は不要 <!-- TODO: Add file comments: https://google.github.io/styleguide/cppguide.html#File_Comments -->
-- コメントは日本語でも構わない <!-- TODO: English only -->
+- 全て英語で書く
+- 処理の単位ごとに適切な説明コメントを入れる
+- なるべく分節で改行する
+
+## コメント
+
+<!-- Custom -->
+
+- 各ファイルの先頭にライセンス条文を入れる
 
 ## フォーマット
 
