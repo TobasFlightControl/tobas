@@ -7,9 +7,9 @@
 
 namespace tobas
 {
-/* throttled名前空間のトピック名を返す． */
+/* Return the topic name in the `throttled` namespace. */
 std::string addThrotNS(const std::string& topic);
 
-/* remote_interface名前空間のトピック名を返す． */
+/* Return the topic name in the `remote_interface` namespace. */
 std::string addIfaceNS(const std::string& topic);
 }  // namespace tobas

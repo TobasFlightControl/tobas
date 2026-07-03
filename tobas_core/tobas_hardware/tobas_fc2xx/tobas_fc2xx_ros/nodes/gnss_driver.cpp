@@ -20,8 +20,8 @@ class GnssDriverNode : public BaseNode
   static constexpr char kSpiDevice[] = "/dev/spidev1.0";
   static constexpr auto kMainTimerPeriod = 1ms;
 
-  // GNSSレシーバの更新周期 [ms]
-  // 周波数が高すぎるとFIFOにデータが溜まってタイムシフトが生じるため，そんなに大きくできない
+  // GNSS receiver update period [ms]
+  // This cannot be too short because an overly high frequency fills the FIFO and causes a time shift.
   static constexpr size_t kMeasPeriod = 1000 / 20;
 
   using self = GnssDriverNode;
@@ -87,8 +87,9 @@ bool GnssDriverNode::configure()
     return false;
   }
 
-  // GPS + SBAS + QZSS を有効化
-  // データシートを見るに，複数のメインGNSSを組み合わせると精度はあまり変化しない割に出力周波数が落ちる
+  // Enable GPS + SBAS + QZSS.
+  // According to the datasheet, combining multiple main GNSS systems lowers the output frequency
+  // while providing only a small accuracy improvement.
   if (!gnss_.enableGps()) {
     TOBAS_ERROR("Failed to enable GPS.");
     return false;
@@ -124,8 +125,8 @@ bool GnssDriverNode::configure()
     return false;
   }
 
-  // 同軸ケーブルの長さを設定
-  // TODO: GUIから設定できるようにする
+  // Set the coaxial cable length.
+  // TODO: Make this configurable from the GUI.
   if (!gnss_.setAntennaLength(1)) {
     TOBAS_ERROR("Failed to set the antenna length.");
     return false;
@@ -140,7 +141,7 @@ bool GnssDriverNode::configure()
     TOBAS_ERROR("Failed to disable NMEA protocol.");
     return false;
   }
-  if (!gnss_.enableSpiProtocol_RTCM3X(true, false)) {  // RTK用に入力のみ必要
+  if (!gnss_.enableSpiProtocol_RTCM3X(true, false)) {  // Only input is needed for RTK.
     TOBAS_ERROR("Failed to disable RTCM3X protocol.");
     return false;
   }
@@ -149,8 +150,8 @@ bool GnssDriverNode::configure()
     return false;
   }
 
-  // 不要なインターフェースを無効化
-  // D_SELをオフにしているため，I2CとUARTは始めから無効化されているはず．
+  // Disable unnecessary interfaces.
+  // I2C and UART should already be disabled because D_SEL is off.
   if (!gnss_.enableUsb(false)) {
     TOBAS_ERROR("Failed to disable USB interface.");
     return false;
@@ -191,7 +192,7 @@ void GnssDriverNode::mainTimerCb()
       return;
   }
 
-  // 全てのメッセージが更新されたら発行
+  // Publish after all messages have been updated.
   for (const auto& [_, received] : is_received_) {
     if (!received) {
       return;
@@ -207,7 +208,7 @@ void GnssDriverNode::mainTimerCb()
   auto gnss_msg = std::make_unique<tobas_msgs::Gnss>();
 
   // Fill time stamp
-  // TODO: GNSS信号の遅延を測定
+  // TODO: Measure GNSS signal delay.
   gnss_msg->header.stamp = now() - rclcpp::Duration::from_nanoseconds(80'000'000);
 
   // Fill position

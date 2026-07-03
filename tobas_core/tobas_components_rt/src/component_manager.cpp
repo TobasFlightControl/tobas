@@ -10,8 +10,8 @@ namespace tobas
 {
 namespace
 {
-// プロセス全体で共有するローダと排他ロック
-// ローダをクラス単位ではなくプロセス単位で保持
+// Loader and mutex shared across the entire process.
+// Keep loaders per process rather than per class.
 std::mutex g_loader_mtx;
 std::unordered_map<std::string, std::shared_ptr<class_loader::ClassLoader>> g_loader_cache;
 }  // namespace
@@ -25,7 +25,8 @@ ThreadSafeComponentManager::create_component_factory(const ComponentResource& re
 
   std::shared_ptr<class_loader::ClassLoader> loader;
 
-  // ClassLoaderで1つの共有ライブラリを複数のスレッドが同時にdlopenすると競合するため，排他ロックする必要がある．
+  // Guard with a mutex because concurrent `dlopen` calls for the same shared library
+  // from multiple `ClassLoader` threads can race.
   {
     const std::lock_guard lock(g_loader_mtx);
 

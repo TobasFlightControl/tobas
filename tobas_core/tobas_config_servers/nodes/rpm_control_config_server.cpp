@@ -59,8 +59,9 @@ bool RpmControlConfigServer::gainCb(const long& p)
 
 void RpmControlConfigServer::rotorStatesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr&)
 {
-  // モータの状態が受信可能即ちDShotデバイスを管理しているノードが立ち上がっているのを確認してから動的パラメータを登録する．
-  // そうすることでフィルタの初期設定が確実に反映される．
+  // Register dynamic parameters after confirming that rotor states can be received,
+  // meaning the node managing the DShot device is running.
+  // This ensures that the initial filter settings are applied reliably.
 
   // Register dynamic parameters
   st::staticFor<kMaxDshotChannels>(

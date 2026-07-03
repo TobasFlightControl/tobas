@@ -34,14 +34,14 @@ void MultiThreadedExecutorRT::spin()
     auto func = std::bind(&MultiThreadedExecutorRT::run, this, thread_id);
     threads.emplace_back(func);
 
-    // スレッドのリアルタイム優先度を設定
+    // Set the thread real-time priority.
     if (priority_ > 0) {
       if (!linux::setThreadPriority(threads.back().native_handle(), priority_, policy_)) {
         RCLCPP_WARN(rclcpp::get_logger(kLoggerName), "Failed to set thread realtime priority.");
       }
     }
 
-    // スレッドのCPU割当を設定
+    // Set the thread CPU affinity.
     if (cpu_affinity_ > 0) {
       if (!linux::setThreadCPUAffinity(threads.back().native_handle(), cpu_affinity_)) {
         RCLCPP_WARN(rclcpp::get_logger(kLoggerName), "Failed to set thread CPU affinity.");

@@ -205,16 +205,16 @@ void BaseNode::setClockType(rclcpp::NodeOptions& options)
   }
 
   if (std::strcmp(clock_type, "ros_time") == 0) {
-    options.clock_type(RCL_ROS_TIME);  // 参照クロックがなければシステムクロック
-    options.use_clock_thread(true);    // /clock を受信する可能性があるため専用スレッドを設ける
+    options.clock_type(RCL_ROS_TIME);  // Use the system clock if no reference clock is available.
+    options.use_clock_thread(true);    // Use a dedicated thread because `/clock` may be received.
   }
   else if (std::strcmp(clock_type, "system_time") == 0) {
-    options.clock_type(RCL_SYSTEM_TIME);  // NTPと同期したシステムクロック
-    options.use_clock_thread(false);      // /clock を受信しないので専用スレッドは不要
+    options.clock_type(RCL_SYSTEM_TIME);  // System clock synchronized with NTP.
+    options.use_clock_thread(false);      // No dedicated thread is needed because `/clock` is not received.
   }
   else if (std::strcmp(clock_type, "steady_time") == 0) {
-    options.clock_type(RCL_STEADY_TIME);  // NTPの影響を受けないモノトニックタイマー
-    options.use_clock_thread(false);      // /clock を受信しないので専用スレッドは不要
+    options.clock_type(RCL_STEADY_TIME);  // Monotonic timer unaffected by NTP.
+    options.use_clock_thread(false);      // No dedicated thread is needed because `/clock` is not received.
   }
   else {
     std::cerr << "Unknown clock type: " << clock_type << std::endl;

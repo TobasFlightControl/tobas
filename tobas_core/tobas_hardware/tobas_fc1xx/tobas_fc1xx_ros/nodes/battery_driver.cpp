@@ -18,7 +18,7 @@ namespace fc1xx
 {
 class BatteryDriverNode : public hardware::BaseSensorNode
 {
-  static constexpr auto kSamplingPeriod = 100ms;  // TODO: SPIデバイスをうまく分離してもっと上げる
+  static constexpr auto kSamplingPeriod = 100ms;  // TODO: Increase this after properly separating SPI devices.
 
   using self = BatteryDriverNode;
   using super = hardware::BaseSensorNode;
