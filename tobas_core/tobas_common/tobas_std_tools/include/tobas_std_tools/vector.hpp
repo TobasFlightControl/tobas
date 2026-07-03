@@ -15,7 +15,7 @@
 
 namespace std
 {
-/* `std::vector`のコンソール出力 */
+/* Console output for `std::vector`. */
 template <typename T>
 std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec)
 {
@@ -147,7 +147,7 @@ T variance(const std::vector<T>& arr, size_t start, size_t size)
   return sum.get() / size;
 }
 
-/* 要素の加重平均をとる． */
+/* Calculate the weighted average of elements. */
 template <typename T, typename U>
 T average(const std::vector<T>& vec, const std::vector<U>& weights)
 {
@@ -164,14 +164,14 @@ T average(const std::vector<T>& vec, const std::vector<U>& weights)
   return res;
 }
 
-/* 要素の平均をとる． */
+/* Calculate the average of elements. */
 template <typename T>
 inline T average(const std::vector<T>& vec)
 {
   return average(vec, std::vector<double>(vec.size(), 1.));
 }
 
-/* `std::vector`から要素のインデックスを取得する． */
+/* Get the element index from a `std::vector`. */
 template <typename T>
 ssize_t findIndex(const std::vector<T>& vec, const T& item)
 {
@@ -182,14 +182,14 @@ ssize_t findIndex(const std::vector<T>& vec, const T& item)
   return ret - vec.begin();
 }
 
-/* 全要素を単一の値で埋める． */
+/* Fill all elements with a single value. */
 template <typename T>
 inline void fill(std::vector<T>& vec, const T& item)
 {
   std::fill(vec.begin(), vec.end(), item);
 }
 
-/* 全ての要素がaよりも大きいときにtrueを返す． */
+/* Return true when all elements are greater than `a`. */
 template <typename T>
 bool all_gt(const std::vector<T>& vec, const T& a)
 {
@@ -201,7 +201,7 @@ bool all_gt(const std::vector<T>& vec, const T& a)
   return true;
 }
 
-/* 全ての要素がaよりも小さいときにtrueを返す． */
+/* Return true when all elements are less than `a`. */
 template <typename T>
 bool all_lt(const std::vector<T>& vec, const T& a)
 {
@@ -213,7 +213,7 @@ bool all_lt(const std::vector<T>& vec, const T& a)
   return true;
 }
 
-/* 全ての要素がa以上のときにtrueを返す． */
+/* Return true when all elements are greater than or equal to `a`. */
 template <typename T>
 bool all_ge(const std::vector<T>& vec, const T& a)
 {
@@ -225,7 +225,7 @@ bool all_ge(const std::vector<T>& vec, const T& a)
   return true;
 }
 
-/* 全ての要素がa以下のときにtrueを返す． */
+/* Return true when all elements are less than or equal to `a`. */
 template <typename T>
 bool all_le(const std::vector<T>& vec, const T& a)
 {
@@ -237,13 +237,13 @@ bool all_le(const std::vector<T>& vec, const T& a)
   return true;
 }
 
-/* 最も近い値のインデックスを返す． */
+/* Return the index of the closest value. */
 template <typename T>
 size_t closestIndex(const std::vector<T>& vec, const T& a)
 {
   assert(!vec.empty());
 
-  size_t closest_idx = 0;  // コンパイラの警告を防ぐために適当に初期化
+  size_t closest_idx = 0;  // Initialized to avoid compiler warnings.
   T closest_dist = std::numeric_limits<T>::max();
 
   for (size_t i = 0; i < vec.size(); ++i) {
@@ -257,7 +257,7 @@ size_t closestIndex(const std::vector<T>& vec, const T& a)
   return closest_idx;
 }
 
-/* 重複した要素を除去する． */
+/* Remove duplicate elements. */
 template <typename T>
 std::vector<T> unique(const std::vector<T>& vec)
 {
@@ -274,28 +274,28 @@ std::vector<T> unique(const std::vector<T>& vec)
   return res;
 }
 
-/* 全ての要素が一意のときにTrueを返す． */
+/* Return true when all elements are unique. */
 template <typename T>
 inline bool isUnique(const std::vector<T>& vec)
 {
   return unique(vec).size() == vec.size();
 }
 
-/* 要素を含む場合にTrueを返す． */
+/* Return true when the element is included. */
 template <typename T>
 inline bool contains(const std::vector<T>& vec, const T& val)
 {
   return std::find(vec.begin(), vec.end(), val) != vec.end();
 }
 
-/* 全ての要素が条件を満た場合にTrueを返す． */
+/* Return true when all elements satisfy the condition. */
 template <typename T, typename Lambda>
 inline bool allOf(const std::vector<T>& vec, const Lambda& lambda)
 {
   return all_of(vec.begin(), vec.end(), lambda);
 }
 
-/* 2つの`std::vector`をマージする． */
+/* Merge two `std::vector`s. */
 template <typename T>
 std::vector<T> merge(const std::vector<T>& vec1, const std::vector<T>& vec2)
 {
@@ -304,7 +304,7 @@ std::vector<T> merge(const std::vector<T>& vec1, const std::vector<T>& vec2)
   return res;
 }
 
-/* 要素のインデックスを返す． */
+/* Return the element index. */
 template <typename T>
 ssize_t index(const std::vector<T>& vec, const T& value)
 {
@@ -317,7 +317,7 @@ ssize_t index(const std::vector<T>& vec, const T& value)
   }
 }
 
-/* 指定したインデックスの要素を削除する (O(N))． */
+/* Remove the element at the specified index (O(N)). */
 template <typename T>
 void eraseIndex(std::vector<T>& vec, size_t idx)
 {

@@ -11,7 +11,7 @@ namespace tobas
 {
 namespace st
 {
-/* 指定した期間内のデータのみを保持するバッファ． */
+/* Buffer that keeps only data within the specified duration. */
 template <typename T>
 class TimestampedBuffer
 {
@@ -79,16 +79,18 @@ public:
     return last()->second;
   }
 
-  /* 与えられた時刻以後の最初の値を取得する． */
+  /* Get the first value at or after the given time. */
   const T& closestAfterValue(const TimeType& time) const
   {
     assert(!map_.empty());
 
-    // 与えられた時刻以後の最初の要素を取得
-    // lower_bound, upper_bound はキーを挟んでいるわけではなく，前者はキー以上，後者はキーより大きい要素を返す．
+    // Get the first element at or after the given time.
+    // `lower_bound` and `upper_bound` do not bracket a key.
+    // The former returns an element with a key greater than or equal to the key,
+    // while the latter returns an element with a key greater than the key.
     auto it = map_.lower_bound(time);
 
-    // 要素が古すぎる場合は最新の値を返す
+    // Return the latest value if the element is too old.
     if (it == map_.end()) {
       --it;
     }
