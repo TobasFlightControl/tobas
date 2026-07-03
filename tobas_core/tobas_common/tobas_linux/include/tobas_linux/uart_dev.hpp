@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <termios.h>  // <asm/termios.h>ではダメ
+#include <termios.h>  // <asm/termios.h> does not work.
 
 #include <cstddef>
 #include <cstdint>
@@ -14,7 +14,7 @@ namespace tobas
 namespace linux
 {
 /**
- * @brief UARTドライバ．
+ * @brief UART driver.
  * cf. [pySerial](https://github.com/pyserial/pyserial/tree/7aeea35429d15f3eefed10bbb659674638903e3a)
  */
 class UARTdev

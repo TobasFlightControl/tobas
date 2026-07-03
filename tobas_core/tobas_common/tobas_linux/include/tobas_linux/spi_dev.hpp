@@ -21,8 +21,8 @@ public:
   initialize(const char* spi_dev, void* tx_buf, void* rx_buf, uint32_t speed_hz, uint8_t bits_per_word = 8) noexcept;
 
   /**
-   * @brief 引数で与えたバイト数だけ送受信する．
-   * @note デバイスが接続されてないなど，SPIスレーブが機能していない場合はデッドロックする．
+   * @brief Transmit and receive the number of bytes specified by the argument.
+   * @note This deadlocks if the SPI slave is not working, for example when the device is not connected.
    */
   bool transfer(uint32_t length) noexcept;
 

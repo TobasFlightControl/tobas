@@ -14,10 +14,10 @@ class GitHandler
 public:
   explicit GitHandler();
 
-  /* ユーザ名を返す． */
+  /* Return the user name. */
   std::string getUserName();
 
-  /* メールアドレスを返す． */
+  /* Return the email address. */
   std::string getUserEmail();
 
 private:

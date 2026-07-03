@@ -20,8 +20,8 @@ pid_t createSubprocess(const vector<char*>& _argv)
     return -1;
   }
 
-  // 呼び出し元のプロセスをクローン
-  // この時点で全く同じ内容のプロセスが2つできる
+  // Clone the caller process.
+  // At this point, there are two processes with exactly the same contents.
   const auto pid = fork();
   if (pid < 0) {
     cerr << "Failed to clone the calling process." << endl;
@@ -29,33 +29,33 @@ pid_t createSubprocess(const vector<char*>& _argv)
   }
 
   if (pid > 0) {
-    // 子プロセスのPIDが帰ってきた場合は親プロセスの処理を続ける
+    // If the child process PID is returned, continue parent process handling.
     return pid;
   }
   else {
-    // PIDが0だった場合は子プロセスなので，その内容を与えられたコマンドに置換する．
+    // If PID is 0, this is the child process, so replace its contents with the given command.
     cout << "Executing: ";
     for (const auto& cmd_elem : _argv) {
       cout << cmd_elem << " ";
     }
     cout << endl;
 
-    // 引数リストに終端を加える
+    // Add the terminator to the argument list.
     auto argv = _argv;
     argv.push_back(nullptr);
 
-    // 子プロセスを実行（ブロッキング）
+    // Execute the child process (blocking).
     execvp(argv.front(), argv.data());
 
-    // execvpは失敗したときだけ返る
+    // execvp returns only on failure.
     cerr << "Subprocess failed." << endl;
-    _exit(127);  // exec呼び出し失敗時によく使われるエラーコード
+    _exit(127);  // Error code commonly used when an exec call fails.
   }
 }
 
 pid_t createSubprocess(const string& command)
 {
-  // const_castはコピーをとらないため，プロセス作成時にコマンドのメモリが有効なことを保証する必要がある．
+  // Since const_cast does not copy, the command memory must remain valid when the process is created.
   vector<char*> argv;
   argv.push_back(const_cast<char*>("/bin/bash"));
   argv.push_back(const_cast<char*>("-c"));

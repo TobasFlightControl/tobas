@@ -9,16 +9,16 @@ namespace tobas
 {
 namespace linux
 {
-/* ユーザ名を取得する． */
+/* Get the user name. */
 std::string userName();
 
-/* ホームディレクトリを取得する． */
+/* Get the home directory. */
 std::filesystem::path homeDir();
 
-/* ホームディレクトリを絶対パスに変換する． */
+/* Expand the home directory to an absolute path. */
 std::filesystem::path expandUser(const std::string& path);
 
-/* プログラムがRoot権限で実行されている場合にTrueを返す． */
+/* Return true when the program is running with root privileges. */
 bool isSuperUser() noexcept;
 }  // namespace linux
 }  // namespace tobas

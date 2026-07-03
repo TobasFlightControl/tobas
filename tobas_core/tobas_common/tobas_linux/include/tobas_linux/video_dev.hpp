@@ -14,8 +14,8 @@ namespace tobas
 namespace linux
 {
 /**
- * @brief video deviceドライバ．v4l2 (video for linux 2)を用いてuvcカメラの制御を行う．
- * 写真撮影，映像の取得，デバイスが対応している形式の取得，UVC commandの送信などが可能．
+ * @brief Video device driver. Controls UVC cameras using V4L2 (Video for Linux 2).
+ * Supports taking pictures, capturing video, listing supported device formats, and sending UVC commands.
  */
 class VideoDev
 {
@@ -33,7 +33,7 @@ public:
   explicit VideoDev();
   ~VideoDev();
 
-  /* 初期動作: device open, memory確保など．pixcel_formatは4文字で (MJPG, JPEG, YUYV, etc.)． */
+  /* Initial setup: open the device, allocate memory, and so on. `pixcel_format` is four characters, such as MJPG, JPEG, or YUYV. */
   bool initialize(
     const char* video_dev,
     const char* pixcel_format = "MJPG",
@@ -41,7 +41,7 @@ public:
     const uint32_t& width = 0,
     const uint32_t& height = 0);
 
-  /* サポートしている画像のフォーマットを表示する． */
+  /* Display supported image formats. */
   void displaySupportedFormats();
 
   /**
@@ -50,10 +50,10 @@ public:
    */
   bool execUvcControl(const uvc_xu_control_query& query);
 
-  /* streamをONにしてPCからdeviceのデータを取り出せるようにする． */
+  /* Turn the stream on so the PC can retrieve data from the device. */
   bool startStream();
 
-  /* dequeueして，その分のデータをenqueueする．streamをONにしてからでないと使用不可． */
+  /* Dequeue a buffer and enqueue the same amount of data. Available only after the stream is on. */
   bool takePicture();
 
   void* getImage(uint32_t& length);
@@ -77,34 +77,34 @@ private:
 
   bool is_stream_on_ = false;
 
-  /* deviceのcapabilityを確認． */
+  /* Check device capabilities. */
   bool checkCapability();
 
-  /* deviceにbufferを要求する． */
+  /* Request buffers from the device. */
   bool requestDeviceBuffer();
 
-  /* PC側buffer確保． */
+  /* Allocate PC-side buffers. */
   bool mapBuffer();
 
-  /* device側のbufferのi番目の画像1つ分のメモリを埋める． */
+  /* Fill one image worth of memory in the i-th device-side buffer. */
   bool enqueue(const uint32_t& i);
 
-  /* device側bufferを埋める． */
+  /* Fill device-side buffers. */
   bool fillDeviceBuffer();
 
-  /* deviceにstreamを許可するように通達． */
+  /* Tell the device to allow streaming. */
   bool streamOn();
 
-  /* deviceにstreamを止めるように通達． */
+  /* Tell the device to stop streaming. */
   bool streamOff();
 
-  /* dequeueする．streamをONにしてからでないと使用不可．errorのときは-1を返す． */
+  /* Dequeue a buffer. Available only after the stream is on. Returns -1 on error. */
   int dequeue();
 
-  /* 画像のフォーマットを指定する． */
+  /* Set the image format. */
   bool setImgFormat(const char* pixcel_format, const uint32_t& width = 0, const uint32_t& height = 0);
 
-  /* 画像のフォーマットを取得する． */
+  /* Request the image format. */
   bool requestImgFormat();
 };
 }  // namespace linux
