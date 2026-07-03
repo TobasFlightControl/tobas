@@ -86,7 +86,8 @@ void SBUS::readThreadFunc(std::stop_token st)
   uint8_t start_byte, end_byte, flags;
   std::array<uint8_t, kDataSize> data;
 
-  // インバータが悪いのかLinuxのUARTデバイスにデータが勝手に分割されるため，一括ではなく1バイトずつ取得する．
+  // Receive one byte at a time instead of in bulk.
+  // The inverter or the Linux UART device may split the data unexpectedly.
   while (!st.stop_requested()) {
     // Start byte
     if (!uart_.receive(&start_byte, 1)) {
@@ -132,13 +133,13 @@ void SBUS::readThreadFunc(std::stop_token st)
 
 void SBUS::decodeData(const std::array<uint8_t, kDataSize>& data)
 {
-  // 繰り上がりが面倒なので，一旦データを1つのビット列に変換する．
+  // Convert the data to one bit sequence first because carrying across bytes is cumbersome.
   uint256_t bits = 0;
   for (size_t idx = 0; idx < kDataSize; ++idx) {
     bits |= (static_cast<uint256_t>(data.at(idx)) << (kDataBits * idx));
   }
 
-  // 11ビットずつ取り出す
+  // Extract 11 bits at a time.
   constexpr uint16_t kMask = (1 << kChannelBits) - 1;
   for (size_t ch = 0; ch < kChannelSize; ++ch) {
     packet_.periods.at(ch) = ((bits >> (kChannelBits * ch)) & kMask).convert_to<uint16_t>();

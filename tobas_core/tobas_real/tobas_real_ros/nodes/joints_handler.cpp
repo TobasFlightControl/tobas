@@ -17,8 +17,8 @@ namespace tobas
 namespace real
 {
 /**
- * @brief ジョイントの位置，速度，力のコマンドを受け取り，適切なハードウェアインターフェースに指令する．
- * また，そのジョイントの状態を発行する．
+ * @brief Receive joint position, velocity, and effort commands and command the appropriate hardware interface.
+ * Also publish the joint state.
  */
 class JointsHandlerNode : public BaseNode
 {
@@ -85,7 +85,7 @@ void JointsHandlerNode::droneCb(const Drone::ConstSharedPtr& drone)
 {
   drone_ = drone;
 
-  // オートリセットタイマーを起動または停止
+  // Start or stop auto-reset timers.
   bool has_pos = false;
   bool has_vel = false;
   bool has_eff = false;

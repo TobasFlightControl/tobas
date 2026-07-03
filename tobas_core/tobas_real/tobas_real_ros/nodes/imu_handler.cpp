@@ -46,7 +46,7 @@ private:
   // Config
   kdl::Vector acc_bias_;  // [m/s^2]
 
-  // ジャイロバイアス関連
+  // Gyro bias-related data
   kdl::Vector gyro_bias_;
   size_t gyro_bias_cnt_ = 0;
   std::array<algo::Kahan<double>, 3> gyro_sum_;
@@ -133,13 +133,13 @@ void ImuHandlerNode::imuRawCb(const tobas_msgs::Imu::ConstSharedPtr& imu_raw_in)
         break;
       }
 
-      // 外れ値やノイズの影響を減らすためジャイロをLPFに通す
+      // Pass gyro through LPF to reduce the effect of outliers and noise.
       const auto dt = (cur_time - imu_raw_in_->header.stamp).seconds();
       imu_raw_in_ = imu_raw_in;
       gyro_lpf_.update(gyro_raw, dt);
       const auto& gyro_filt = gyro_lpf_.getValue();
 
-      // 角速度が大きすぎる場合は機体が運動しているとみなしてやり直し
+      // Retry if the angular velocity is too large, treating the vehicle as moving.
       if (gyro_filt.norm() > kStaticGyroThresh) {
         TOBAS_WARN_THROTTLE(kTypicalWarnPeriod, "Motion was detected while measuring the gyro bias. Retrying...");
         gyro_bias_cnt_ = 0;
@@ -150,17 +150,18 @@ void ImuHandlerNode::imuRawCb(const tobas_msgs::Imu::ConstSharedPtr& imu_raw_in)
         break;
       }
 
-      // 最後に機体の運動を検知してから一定時間は計測しない
+      // Do not measure for a fixed time after the last detected vehicle motion.
       if (cur_time - t_last_motion_detected_ < kMotionDetectedDeadTime) {
         break;
       }
 
-      // 角速度を加算
+      // Accumulate angular velocity.
       for (size_t i = 0; i < 3; ++i) {
         gyro_sum_[i].add(gyro_raw(i));
       }
 
-      // データが溜まったら角速度の平均をバイアスの推定値として次のステージに進む
+      // Once enough data is accumulated, use the average angular velocity as the bias estimate.
+      // Then move to the next stage.
       if (++gyro_bias_cnt_ == kMeasureGyroBiasCount) {
         for (size_t i = 0; i < 3; ++i) {
           gyro_bias_(i) = gyro_sum_[i].get() / kMeasureGyroBiasCount;

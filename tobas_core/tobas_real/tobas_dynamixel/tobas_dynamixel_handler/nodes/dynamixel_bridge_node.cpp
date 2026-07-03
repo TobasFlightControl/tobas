@@ -14,7 +14,7 @@ namespace tobas
 {
 namespace dxl
 {
-/* tobas_msgsとtobas_dynamixel_msgsのブリッジ． */
+/* Bridge between `tobas_msgs` and `tobas_dynamixel_msgs`. */
 class DynamixelBridgeNode : public BaseNode
 {
   using self = DynamixelBridgeNode;
@@ -98,7 +98,7 @@ void DynamixelBridgeNode::motorStatesCb(const tobas_dynamixel_msgs::msg::MotorSt
     states_out->states.back().name = state_in.name;
     states_out->states.back().position = state_in.position;
     states_out->states.back().velocity = state_in.velocity;
-    states_out->states.back().effort = NAN;  // TODO: MotorStateにトルク定数から求めたトルクを含める
+    states_out->states.back().effort = NAN;  // TODO: Include torque computed from the torque constant in `MotorState`.
   }
 
   if (!states_out->states.empty()) {

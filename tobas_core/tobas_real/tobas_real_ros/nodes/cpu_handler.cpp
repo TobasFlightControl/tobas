@@ -81,7 +81,7 @@ bool CpuHandlerNode::getFrequency()
     return false;
   }
 
-  const auto freq_str = str::split(command_executor_.getOutput(), '=').back();  // 数値部分のみ抜き出す
+  const auto freq_str = str::split(command_executor_.getOutput(), '=').back();  // Extract only the numeric part.
   freq_ = stoul(freq_str);                                                      // str -> uint64
   return true;
 }
@@ -100,24 +100,24 @@ bool CpuHandlerNode::getTemperature()
 
 bool CpuHandlerNode::getLoad()
 {
-  // ファイルを読み込む
+  // Load the file.
   std::ifstream stat_file(kStatisticsFilePath);
   if (!stat_file) {
     TOBAS_ERROR("Failed to open ", kStatisticsFilePath, ".");
     return false;
   }
 
-  // ファイルの最初の行を読む
+  // Read the first line of the file.
   if (!std::getline(stat_file, cpu_line_)) {
     TOBAS_ERROR("Failed to read the first line of ", kStatisticsFilePath, ".");
     return false;
   }
 
-  // CPUの行を空白で区切る
+  // Split the CPU line by whitespace.
   std::istringstream iss(cpu_line_);
 
-  // CPU使用時間を取得
-  // 最初のトークン ("cpu") を読み飛ばす
+  // Get CPU usage times.
+  // Skip the first token, `"cpu"`.
   iss >> token_;
 
   // 1. Time spent in user mode
@@ -148,18 +148,18 @@ bool CpuHandlerNode::getLoad()
   }
   const auto new_idle_time = stoul(token_);
 
-  // 前回値との差分を計算
+  // Calculate differences from previous values.
   const auto user_time = new_user_time - prev_user_time_;
   const auto nice_time = new_nice_time - prev_nice_time_;
   const auto system_time = new_system_time - prev_system_time_;
   const auto idle_time = new_idle_time - prev_idle_time_;
 
-  // 負荷を計算
+  // Calculate load.
   const auto busy_time = user_time + nice_time + system_time;
   const auto all_time = busy_time + idle_time;
   load_ = static_cast<double>(busy_time) / static_cast<double>(all_time);
 
-  // CPU使用時間を更新
+  // Update CPU usage times.
   prev_user_time_ = new_user_time;
   prev_nice_time_ = new_nice_time;
   prev_system_time_ = new_system_time;
