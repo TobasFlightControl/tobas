@@ -11,7 +11,7 @@ namespace tobas
 {
 namespace kdl
 {
-/* セグメントの位置姿勢に影響を与える関節を抽出する． */
+/* Extract joints that affect segment poses. */
 class TreeActiveJointsExtractor : public TreeSolverI
 {
   using super = TreeSolverI;

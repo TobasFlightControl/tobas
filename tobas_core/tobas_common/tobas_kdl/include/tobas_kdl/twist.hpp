@@ -40,7 +40,7 @@ public:
   // Changes the reference point of the twist.
   // The vector p is expressed in the same base as the twist.
   // The vector p is a vector from the old point to the new point.
-  // 自フレームAと同じ剛体中のフレームBのツイストを求める．
+  // Compute the twist of frame B in the same rigid body as self frame A.
   inline Twist refPoint(const Vector& p) const;
 
   // index-based access to components, first vel(0..2), then rot(3..5)

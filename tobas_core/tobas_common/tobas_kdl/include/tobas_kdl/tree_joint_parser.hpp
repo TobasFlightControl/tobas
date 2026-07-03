@@ -43,7 +43,7 @@ public:
   inline double maxEffort(const size_t& q_nr) const;
   inline double maxEffort(const std::string& jnt_name) const;
 
-  /* 関節がTree内に存在するかどうかを返す． */
+  /* Return whether the joint exists in the `Tree`. */
   inline bool exist(const std::string& jnt_name) const;
 
 private:
@@ -58,7 +58,7 @@ private:
 
   void resize();
 
-  /* 全ての駆動関節名を取得し，RNEと同じ順番に並べる． */
+  /* Get all actuated joint names and order them the same way as RNE. */
   void parseJntNames();
 
   void parseJntNamesStep(const SegmentMap::const_iterator& seg_it);

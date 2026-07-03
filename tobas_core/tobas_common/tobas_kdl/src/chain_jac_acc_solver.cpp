@@ -45,10 +45,10 @@ int ChainJacAccSolver::jntToCart(const JntArray& q, const JntArray& qd)
       qdj_ = 0.;
     }
 
-    X_[i] = seg.pose(qj_);  // X_[i] := {i - 1}から{i}への変換
+    X_[i] = seg.pose(qj_);  // `X_[i]` := transform from {i - 1} to {i}
     const auto vj = X_[i].M.inverse(seg.twist(qj_, qdj_));
 
-    // {0}に対する(加)速度を各フレームから見たものを求める
+    // Compute velocities and accelerations with respect to {0}, expressed from each frame.
     if (i == 0) {
       v_[i] = vj;
       a_[i] = vj * vj;
@@ -59,7 +59,7 @@ int ChainJacAccSolver::jntToCart(const JntArray& q, const JntArray& qd)
     }
   }
 
-  // {0}で表したものに変換する
+  // Convert the result to the representation in {0}.
   Jdqd_out_ = a_.back();
   for (int i = ns_ - 1; i >= 0; --i) {
     Jdqd_out_ = X_[i].M * Jdqd_out_;

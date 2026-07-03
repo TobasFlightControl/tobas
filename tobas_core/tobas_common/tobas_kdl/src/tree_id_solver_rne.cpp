@@ -108,7 +108,7 @@ void TreeIdSolver_RNE::rneStep(
   // If there is a moving joint, evaluate its effort
   if (cur_seg.joint().type != Joint::kFixed) {
     effort_out_(j) = Sj.dot(f_.at(cur_name));
-    // TODO: inertia, damping, frictionの補償をすべき？
+    // TODO: Should inertia, damping, and friction be compensated?
   }
 
   // Add reaction forces to parent segment

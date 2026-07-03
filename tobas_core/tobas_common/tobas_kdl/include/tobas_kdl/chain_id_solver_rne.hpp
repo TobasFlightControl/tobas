@@ -11,7 +11,7 @@ namespace tobas
 {
 namespace kdl
 {
-/* ベースは公式のChainIdSolver_RNEで，重力加速度を呼び出し時に与えるようにしたもの． */
+/* Based on the official `ChainIdSolver_RNE`, with gravitational acceleration provided at call time. */
 class ChainIdSolver_RNE : public ChainSolverI
 {
   using super = ChainSolverI;
@@ -25,14 +25,14 @@ public:
     const JntArray& q,
     const JntArray& qd,
     const JntArray& qdd,
-    const Wrenches& forces,  // 各フレームにかかる力を各フレームから見たもの
+    const Wrenches& forces,  // Forces on each frame, expressed from each frame
     const Vector& grav);
 
   int cartToJnt(
     const JntArray& q,
     const JntArray& qd,
     const JntArray& qdd,
-    const Wrench& f_ee,  // EEにかかる力をベースから見たもの
+    const Wrench& f_ee,  // Force on the EE, expressed from the base
     const Vector& grav);
 
   inline const JntArray& getEfforts() const;

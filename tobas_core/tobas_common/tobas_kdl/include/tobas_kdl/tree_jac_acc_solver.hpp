@@ -11,9 +11,10 @@ namespace tobas
 namespace kdl
 {
 /**
- * @brief xdd = J qd + Jd qd におけるJd qdの項を計算する．
- * qdd = 0, grav = 0としてRNEの順伝搬を行うことでJd qdが求められる．
- * cf. tree_id_solver_rne.cpp
+ * @brief Compute the `Jd qd` term in `xdd = J qd + Jd qd`.
+ * `Jd qd` can be obtained by running the forward propagation of RNE with `qdd = 0` and `grav = 0`.
+ *
+ * cf. `tree_id_solver_rne.cpp`
  */
 class TreeJacAccSolver : public TreeSolverI
 {

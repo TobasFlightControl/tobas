@@ -47,13 +47,14 @@ public:
   explicit Tree(const std::string& root_name = "");
 
   /**
-   * @brief コピーコンストラクタ．
-   * TreeElementのメンバ変数にポインタが含まれるため，オブジェクトをコピーするためには明示的にコピーコンストラクタを定義する必要がある．
+   * @brief Copy constructor.
+   * Since `TreeElement` member variables contain pointers,
+   * an explicit copy constructor is required to copy objects.
    */
   Tree(const Tree& arg);
   Tree& operator=(const Tree& arg);
 
-  /* 6DoFの浮遊リンク系． */
+  /* Floating-link system with 6 DoF. */
   static Tree FloatingBase(const std::string& world_name, const std::string& base_name);
 
   /* Clear all segments. */

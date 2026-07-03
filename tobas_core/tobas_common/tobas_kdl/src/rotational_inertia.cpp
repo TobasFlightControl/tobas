@@ -14,13 +14,13 @@ namespace kdl
 {
 bool RotationalInertia::isValid(string& error_msg) const
 {
-  // 対称行列であることを確認
+  // Check that the matrix is symmetric.
   if (!eigen::isSymmetric(data)) {
     error_msg = "Inertia matrix must be symmetric.";
     return false;
   }
 
-  // 慣性主軸を求める
+  // Compute the principal axes of inertia.
   const EigenSolver<Matrix3d> es(data);
   if (es.info() != Success) {
     error_msg = "Failed to get the eigenvalues of the inertia matrix.";
@@ -31,13 +31,13 @@ bool RotationalInertia::isValid(string& error_msg) const
   const auto& i2 = eigvals.y();
   const auto& i3 = eigvals.z();
 
-  // 正定行列であることを確認
+  // Check that the matrix is positive-definite.
   if (i1 <= 0. || i2 <= 0. || i3 <= 0.) {
     error_msg = "Inertia matrix must be positive-definite.";
     return false;
   }
 
-  // 対角成分の三角不等式を満たすことを確認
+  // Check that the diagonal components satisfy the triangle inequality.
   if (i1 + i2 <= i3 || i2 + i3 <= i1 || i3 + i1 <= i2) {
     error_msg = "Inertia matrix is unrealistic.";
     return false;

@@ -13,7 +13,7 @@ namespace tobas
 {
 namespace kdl
 {
-/* ロボットの全てのフレームを囲う最小の直方体を求める． */
+/* Compute the minimum cuboid enclosing all frames of the robot. */
 class TreeBoundingBoxSolver : public TreeSolverI
 {
   using super = TreeSolverI;

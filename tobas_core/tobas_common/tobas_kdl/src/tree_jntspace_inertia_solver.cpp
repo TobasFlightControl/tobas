@@ -41,7 +41,7 @@ int TreeJntSpaceInertiaSolver::jntToMass(const JntArray& q)
   if (rne_.cartToJnt(q, jntarray_null_, jntarray_null_) < 0) {
     return copyError(rne_);
   }
-  const auto bias = rne_.getEfforts();  // 次で値が書き換わるためコピー
+  const auto bias = rne_.getEfforts();  // Copy because the value is overwritten next.
 
   for (size_t i = 0; i < nj_; ++i) {
     if (rne_.cartToJnt(q, jntarray_null_, elements_[i]) < 0) {

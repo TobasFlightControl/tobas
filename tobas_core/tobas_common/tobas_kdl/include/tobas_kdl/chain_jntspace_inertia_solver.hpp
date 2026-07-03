@@ -10,7 +10,7 @@ namespace tobas
 {
 namespace kdl
 {
-/* ベースは公式のChainDynParamで，重力加速度を呼び出し時に与えるようにしたもの */
+/* Based on the official `ChainDynParam`, with gravitational acceleration provided at call time. */
 class ChainJntSpaceInertiaSolver : public ChainSolverI
 {
   using super = ChainSolverI;

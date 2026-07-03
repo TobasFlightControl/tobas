@@ -20,7 +20,7 @@ public:
 
   bool updateInternalDataStructures() override;
 
-  /* ルートリンク周りの質量特性を計算する． */
+  /* Compute mass properties around the root link. */
   int jntToCart(const JntArray& q);
 
   inline const RigidBodyInertia& getInertia() const;

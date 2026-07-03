@@ -76,7 +76,7 @@ int TreeIkSolverAcc_RAC::cartToJnt(const JntArray& q_in, const JntArray& qd_in, 
     ++i;
   }
 
-  // 評価関数
+  // Objective function.
   const VectorXd Wt = eigen::tile(Wt_, num_points, 0);
   const VectorXd Wj = VectorXd::Constant(nj_, Wj_);
   const MatrixXd JT_Wt = J_.transpose() * Wt.asDiagonal();
@@ -84,11 +84,12 @@ int TreeIkSolverAcc_RAC::cartToJnt(const JntArray& q_in, const JntArray& qd_in, 
   qp_solver_.problem.P.diagonal() += Wj;
   qp_solver_.problem.q = -JT_Wt * a_;
 
-  // 不等式制約
+  // Inequality constraints.
   qdd_min_.fill(-INFINITY);
   qdd_max_.fill(INFINITY);
   for (size_t j = 0; j < nj_; ++j) {
-    // 既に関節角制限をオーバーしている場合は，それ以上違反量を大きくしないように制限
+    // If the joint angle limit is already exceeded,
+    // constrain the acceleration so the violation does not increase further.
     if (q_in(j) < jntparser_.lowerLimit(j)) {
       qdd_min_(j) = 0.;
     }
@@ -98,7 +99,7 @@ int TreeIkSolverAcc_RAC::cartToJnt(const JntArray& q_in, const JntArray& qd_in, 
   }
   quadprog::matIneqFromRange(qdd_min_, qdd_max_, qp_solver_.problem.A, qp_solver_.problem.b);
 
-  // QPを解く
+  // Solve the QP.
   if (!qp_solver_.solve()) {
     return setDefaultError(kQpFailed);
   }
@@ -124,7 +125,7 @@ const Vector6d& TreeIkSolverAcc_RAC::getWeightTS() const
 
 bool TreeIkSolverAcc_RAC::setWeightJS(const double& Wj)
 {
-  // 数値エラーを防ぐため正則化項は必ず入れる
+  // Always include a regularization term to prevent numerical errors.
   if (Wj <= 0) {
     return false;
   }

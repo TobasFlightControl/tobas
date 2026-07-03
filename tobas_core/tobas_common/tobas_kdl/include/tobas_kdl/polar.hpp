@@ -12,7 +12,7 @@ namespace tobas
 namespace kdl
 {
 /**
- * @brief 球面座標系．
+ * @brief Spherical coordinate system.
  * cf. https://wiis.info/math/euclidean-space/euclidean-space/spherical-coordinates/
  */
 class SphericalCoordinate

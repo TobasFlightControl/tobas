@@ -27,7 +27,7 @@ string SolverI::defaultErrorMessage(const int& error_code) const
 {
   switch (error_code) {
     case kNoError:
-      return "";  // 正常時はメモリ割り当てを回避しパフォーマンスを向上させるためにエラーメッセージを空文字にしておく．
+      return "";  // Keep the error message empty when normal to avoid memory allocation and improve performance.
     case kNoConverge:
       return "Failed to converge";
     case kUndefined:

@@ -9,7 +9,7 @@ namespace tobas
 {
 namespace kdl
 {
-/* Tree全体の質量のみを保持する． */
+/* Hold only the total mass of the `Tree`. */
 class TreeMassHolder : public TreeSolverI
 {
   using super = TreeSolverI;
@@ -26,7 +26,7 @@ private:
 
   void updateTotalMass();
 
-  /* 指定したセグメント以下の質量を返す． */
+  /* Return the mass under the specified segment. */
   double computeMass(const SegmentMap::const_iterator& cur_it);
 };
 
