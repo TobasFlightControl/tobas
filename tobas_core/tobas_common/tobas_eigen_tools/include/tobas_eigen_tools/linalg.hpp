@@ -14,14 +14,14 @@ namespace tobas
 {
 namespace eigen
 {
-/* 行列のランクを計算する． */
+/* Calculate the matrix rank. */
 template <typename Derived>
 inline Eigen::Index matrixRank(const Eigen::MatrixBase<Derived>& A)
 {
   return A.fullPivLu().rank();
 }
 
-/* 正方行列が対称行列かどうかを判定する． */
+/* Check whether a square matrix is symmetric. */
 template <typename Derived>
 inline bool isSymmetric(const Eigen::MatrixBase<Derived>& A)
 {
@@ -29,7 +29,7 @@ inline bool isSymmetric(const Eigen::MatrixBase<Derived>& A)
   return A.isApprox(A.transpose());
 }
 
-/* 正方行列が直交行列かどうかを判定する． */
+/* Check whether a square matrix is orthogonal. */
 template <typename Derived>
 inline bool isOrthogonal(const Eigen::MatrixBase<Derived>& A)
 {
@@ -37,7 +37,7 @@ inline bool isOrthogonal(const Eigen::MatrixBase<Derived>& A)
   return (A * A.transpose()).isApprox(Eigen::MatrixBase<Derived>::Identity());
 }
 
-/* 正方行列が特殊直交行列かどうかを判定する． */
+/* Check whether a square matrix is special orthogonal. */
 template <typename Derived>
 inline bool isSpecialOrthogonal(const Eigen::MatrixBase<Derived>& A)
 {
@@ -45,7 +45,7 @@ inline bool isSpecialOrthogonal(const Eigen::MatrixBase<Derived>& A)
 }
 
 /**
- * @brief 行列が正定値行列かどうかを判定する．
+ * @brief Check whether a matrix is positive definite.
  * cf. https://stackoverflow.com/questions/35227131/
  */
 template <typename Derived>
@@ -55,57 +55,60 @@ inline bool isPositiveDefinite(const Eigen::MatrixBase<Derived>& A)
   return A.llt().info() != Eigen::NumericalIssue;
 }
 
-/* 行列が半正定値行列かどうかを判定する． */
+/* Check whether a matrix is positive semidefinite. */
 template <typename Derived>
 bool isSemiPositiveDefinite(const Eigen::MatrixBase<Derived>& A)
 {
   assert(isSquare(A));
+
   const auto ldlt = A.ldlt();
   const auto D = ldlt.vectorD();
   const auto tol = std::numeric_limits<typename Derived::Scalar>::epsilon() * A.cwiseAbs().maxCoeff() * 100;
-  return D.minCoeff() >= -tol;  // ldlt.isPositive()は数値誤差で極小の負の固有値が含まれる際にfalseを返してしまう
+
+  // `ldlt.isPositive()` may return false for tiny negative eigenvalues from numerical error.
+  return D.minCoeff() >= -tol;
 }
 
-/* 行列が正定値対象行列かどうかを判定する． */
+/* Check whether a matrix is symmetric positive definite. */
 template <typename Derived>
 inline bool isSymmetricPositiveDefinite(const Eigen::MatrixBase<Derived>& A)
 {
   return isSymmetric(A) && isPositiveDefinite(A);
 }
 
-/* 行列が半正定値対象行列かどうかを判定する． */
+/* Check whether a matrix is symmetric positive semidefinite. */
 template <typename Derived>
 inline bool isSymmetricSemiPositiveDefinite(const Eigen::MatrixBase<Derived>& A)
 {
   return isSymmetric(A) && isSemiPositiveDefinite(A);
 }
 
-/* 最近接正定行列を求める． */
+/* Find the nearest positive definite matrix. */
 template <typename Derived>
 Derived nearestPositiveDefinite(const Eigen::MatrixBase<Derived>& A, double min_eigenvalue)
 {
   assert(min_eigenvalue >= 0);
 
-  // 対称化
+  // Symmetrize.
   const Derived A_sym = (A + A.transpose()) / 2;
 
-  // 固有値分解
+  // Eigendecomposition.
   const Eigen::SelfAdjointEigenSolver<Derived> es(A_sym);
   auto eigenvalues = es.eigenvalues();
 
-  // 固有値を修正
+  // Correct eigenvalues.
   for (Eigen::Index i = 0; i < eigenvalues.size(); ++i) {
     if (eigenvalues(i) < min_eigenvalue) {
       eigenvalues(i) = min_eigenvalue;
     }
   }
 
-  // 修正後の行列を再構築
+  // Reconstruct the corrected matrix.
   return es.eigenvectors() * eigenvalues.asDiagonal() * es.eigenvectors().transpose();
 }
 
 /**
- * @brief 重み付き二乗ノルム最小化．
+ * @brief Weighted squared-norm minimization.
  * minimize 0.5 ||Ax - b||^2_W1 + 0.5 ||x||^2_W2
  * <=> x = A^# b (A^# = (A^T W1 A + W2)^(-1) A^T W1) <- SR-inverse
  */
@@ -119,7 +122,7 @@ Eigen::Matrix<Scalar, M, 1> minimizeWeightedNorm(
   assert((W1.array() >= 0).all());
   assert((W2.array() >= 0).all());
 
-  // TODO: 冗長問題の場合はラグランジュの未定乗数法
+  // TODO: Use the Lagrange multiplier method for redundant problems.
   const Eigen::Matrix<Scalar, M, N> AT_W1 = A.transpose() * W1.asDiagonal();
 
   // Compute left matrix
@@ -130,7 +133,7 @@ Eigen::Matrix<Scalar, M, 1> minimizeWeightedNorm(
   const auto right = AT_W1 * b;
 
   // Solve linear equation
-  // QR分解は決定不全問題の最小二乗解を与えない
+  // QR decomposition does not give the least-squares solution for underdetermined problems.
   return left.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(right);
 }
 }  // namespace eigen
