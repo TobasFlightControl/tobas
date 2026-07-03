@@ -52,10 +52,10 @@ size_t splineMapSampleCount(const MapSplinePath& path, size_t segment)
 
   // 表示用なので，少数の点で曲線長を近似してからサンプル数を決める．
   double length = 0.;
-  auto prev = path.positionBySegmentParameter(segment, 0.);
+  auto prev = path.get(segment, 0.).pos;
   for (size_t sample = 1; sample <= kSplineMapLengthEstimateSamples; ++sample) {
     const auto u = static_cast<double>(sample) / static_cast<double>(kSplineMapLengthEstimateSamples);
-    const auto cur = path.positionBySegmentParameter(segment, u);
+    const auto cur = path.get(segment, u).pos;
     length += (cur - prev).norm();
     prev = cur;
   }
@@ -353,7 +353,7 @@ void MissionPlannerWidget::addSplinePathToMap(const std::vector<QGeoCoordinate>&
     const auto sample_count = splineMapSampleCount(path, segment);
     for (size_t sample = 1; sample <= sample_count; ++sample) {
       const auto u = static_cast<double>(sample) / static_cast<double>(sample_count);
-      const auto pos = path.positionBySegmentParameter(segment, u);
+      const auto pos = path.get(segment, u).pos;
       const auto [lat, lon] = st::cartToGnssRelative(pos.x(), pos.y(), origin.latitude(), origin.longitude());
       map_->addLine(prev_coord.latitude(), prev_coord.longitude(), lat, lon);
       prev_coord = QGeoCoordinate(lat, lon);
