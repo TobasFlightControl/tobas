@@ -8,20 +8,20 @@ from .base import Trajectory
 
 
 class SimpleCubicSpline(Trajectory):
-    """3次多項式軌道生成(ロボティクス, p.192)"""
+    """Cubic polynomial trajectory generation (Robotics, p. 192)."""
 
     def __init__(self, x0: np.ndarray, xf: np.ndarray, T: float) -> None:
         """
-        SimpleCubicSplineオブジェクトを生成
+        Create a `SimpleCubicSpline` object.
 
         Parameters
         ----------
         x0 : np.ndarray[ndim=1]
-            初期位置
+            Initial position.
         xf : np.ndarray[ndim=1]
-            最終位置
+            Final position.
         T : float
-            時間長
+            Duration.
         """
 
         assert x0.ndim == xf.ndim == 1

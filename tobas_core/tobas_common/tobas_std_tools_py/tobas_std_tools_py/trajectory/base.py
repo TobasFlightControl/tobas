@@ -7,30 +7,30 @@ from abc import ABC, abstractmethod
 
 
 class Trajectory(ABC):
-    """多次元軌道生成器の基底クラス"""
+    """Base class for multidimensional trajectory generators."""
 
     @abstractmethod
     def __call__(self, t: float) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
-        位置，速度，加速度を生成する
+        Generate position, velocity, and acceleration.
 
         Parameters
         ----------
         t : float
-            時刻
+            Time.
 
         Returns
         -------
         pos : np.ndarray[ndim=1]
-            位置
+            Position.
         vel : np.ndarray[ndim=1]
-            速度
+            Velocity.
         acc : np.ndarray[ndim=1]
-            加速度
+            Acceleration.
         """
         raise NotImplementedError()
 
     @abstractmethod
     def get_duration(self) -> float:
-        """軌跡の時間長を返す"""
+        """Return the trajectory duration."""
         raise NotImplementedError()

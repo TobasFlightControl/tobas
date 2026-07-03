@@ -9,25 +9,25 @@ from .base import Trajectory
 
 
 class UnivariateMultiSpline(Trajectory):
-    """scipy.interpolate.UnivariateSplineの多次元拡張"""
+    """Multidimensional extension of `scipy.interpolate.UnivariateSpline`."""
 
     def __init__(self, waypoints: np.ndarray, times: np.ndarray, k: int = 3) -> None:
         """
-        UnivariateMultiSplineオブジェクトを生成
+        Create a `UnivariateMultiSpline` object.
 
         Parameters
         ----------
         waypoints : np.ndarray[shape=(n_splines, n_waypoints)]
-            初期位置
+            Waypoints.
         times : np.ndarray[shape=(n_waypoints,)]
-            各waypointでの時刻
+            Times at each waypoint.
         k : float, default 3
-            スプラインの次元
+            Spline degree.
 
         Note
         ----
-        境界条件は自然境界条件(両端の加速度が0)しか指定できない．
-        速度の境界条件にしたければCubicMultiSplineを使う．
+        Only natural boundary conditions can be specified, where the accelerations at both ends are zero.
+        Use `CubicMultiSpline` to specify velocity boundary conditions.
         """
 
         self._n_splines, self._n_waypoints = waypoints.shape

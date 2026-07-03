@@ -8,24 +8,24 @@ from .base import Trajectory
 
 
 class Cycloid3d(Trajectory):
-    """z方向の誤差を含む3次元のサイクロイド"""
+    """Three-dimensional cycloid with an error along the z direction."""
 
     def __init__(self, p0: np.ndarray, pf: np.ndarray, T: float, h: float, k: float = 5.0) -> None:
         """
-        Cycloid3dオブジェクトを生成
+        Create a `Cycloid3d` object.
 
         Parameters
         ----------
         p0 : np.ndarray[shape=(3,)]
-            初期位置
+            Initial position.
         pf : np.ndarray[shape=(3,)]
-            最終位置
+            Final position.
         T : float
-            時間長
+            Duration.
         h : float
-            pfからの最大高さ
+            Maximum height from `pf`.
         k : float, default 5.
-            z方向のずれの修正強度
+            Correction strength for displacement along the z direction.
         """
 
         assert p0.shape == pf.shape == (3,)

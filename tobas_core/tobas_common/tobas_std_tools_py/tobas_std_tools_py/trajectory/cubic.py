@@ -9,7 +9,7 @@ from .base import Trajectory
 
 
 class CubicMultiSpline(Trajectory):
-    """scipy.interpolate.CubicSplineの多次元拡張"""
+    """Multidimensional extension of `scipy.interpolate.CubicSpline`."""
 
     def __init__(
         self,
@@ -20,20 +20,21 @@ class CubicMultiSpline(Trajectory):
         end2: np.ndarray = None,
     ) -> None:
         """
-        CubicMultiSplineオブジェクトを生成
+        Create a `CubicMultiSpline` object.
 
         Parameters
         ----------
         waypoints : np.ndarray[shape=(n_splines, n_waypoints)]
-            初期位置
+            Waypoints.
         times : np.ndarray[shape=(n_waypoints,)]
-            各waypointでの時刻
+            Times at each waypoint.
         bc_type : int, default 2
-            境界条件のタイプ．1階微分または2階微分
+            Boundary condition type.
+            Specify first- or second-order derivatives.
         end1 : np.ndarray[shape=(n_splines,)], default None
-            始点の境界条件
+            Boundary condition at the start point.
         end2 : np.ndarray[shape=(n_splines,)], default None
-            終点の境界条件
+            Boundary condition at the end point.
         """
 
         self._n_splines, self._n_waypoints = waypoints.shape
