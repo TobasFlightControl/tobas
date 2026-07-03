@@ -18,23 +18,23 @@ namespace st
 {
 long computeGpsDelayFromToW(uint32_t gps_tow_ms)
 {
-  // 現在のUTC時刻を取得
+  // Get the current UTC time.
   const auto now = ch::system_clock::now();
   const auto now_c = ch::system_clock::to_time_t(now);
   const auto utc_time = std::gmtime(&now_c);
 
-  // その週の日曜日0時0分0秒を計算
+  // Calculate 00:00:00 on Sunday of the current week.
   utc_time->tm_sec = 0;
   utc_time->tm_min = 0;
   utc_time->tm_hour = 0;
-  utc_time->tm_mday -= utc_time->tm_wday;  // 現在の曜日から日曜日に戻る
+  utc_time->tm_mday -= utc_time->tm_wday;  // Move back from the current weekday to Sunday.
   const auto start_of_week = ch::system_clock::from_time_t(mktime(utc_time));
 
-  // 週のはじめから現在までの経過時間を計算
+  // Calculate the elapsed time from the start of the week to now.
   const auto duration = now - start_of_week;
   const auto cur_tow_ms = ch::duration_cast<ch::milliseconds>(duration).count();
 
-  // GPS TOWと現在のTOWの差を計算
+  // Calculate the difference between GPS ToW and the current ToW.
   const auto diff_ms = cur_tow_ms - gps_tow_ms;
 
   return diff_ms;
@@ -43,8 +43,8 @@ long computeGpsDelayFromToW(uint32_t gps_tow_ms)
 std::tuple<double, double, double>
 gnssToCartAbsolute(const double& latitude, const double& longitude, const double& altitude)
 {
-  constexpr double kLongRadius = 6378137.;           // 長半径 [m]
-  constexpr double kEccentricity = 0.0818191908426;  // 離心率 [-]
+  constexpr double kLongRadius = 6378137.;           // Semi-major axis [m].
+  constexpr double kEccentricity = 0.0818191908426;  // Eccentricity [-].
 
   const auto phi = deg2rad(latitude);
   const auto lam = deg2rad(longitude);
@@ -65,18 +65,18 @@ gnssToCartAbsolute(const double& latitude, const double& longitude, const double
 std::tuple<double, double>
 gnssToCartRelative(const double& latitude, const double& longitude, const double& latitude_0, const double& longitude_0)
 {
-  // 緯度経度・平面直角座標系原点をラジアンに直す
+  // Convert latitude, longitude, and the planar Cartesian coordinate origin to radians.
   const auto phi = deg2rad(latitude);
   const auto lam = deg2rad(longitude);
   const auto phi_0 = deg2rad(latitude_0);
   const auto lam_0 = deg2rad(longitude_0);
 
-  // 定数 (a, F: 世界測地系-測地基準系1980 (GRS80) 楕円体)
+  // Constants (`a`, `F`: Geodetic Reference System 1980 (GRS80) ellipsoid).
   constexpr double m0 = 0.9999;
   constexpr double a = 6378137.;
   constexpr double F = 298.257222101;
 
-  // (1) n,A_i,alpha_iの計算
+  // (1) Calculate `n`, `A_i`, and `alpha_i`.
   constexpr auto n = 1 / (2 * F - 1);
   constexpr auto n2 = n * n;
   constexpr auto n3 = n2 * n;
@@ -96,27 +96,27 @@ gnssToCartRelative(const double& latitude, const double& longitude, const double
   constexpr auto a4 = (49561. / 161280) * n4 - (179. / 168) * n5;
   constexpr auto a5 = (34729. / 80640) * n5;
 
-  // (2) A,Sの計算
+  // (2) Calculate `A` and `S`.
   constexpr auto m_ = (m0 * a) / (1 + n);
   constexpr auto A_ = m_ * A0;  // [m]
   const auto S_ = m_ * (A0 * phi_0 + A1 * std::sin(2 * phi_0) + A2 * std::sin(4 * phi_0) + A3 * std::sin(6 * phi_0) +
                         A4 * std::sin(8 * phi_0) + A5 * std::sin(10 * phi_0));
 
-  // (3) lam_c,lam_sの計算
+  // (3) Calculate `lam_c` and `lam_s`.
   const auto lam_c = std::cos(lam - lam_0);
   const auto lam_s = std::sin(lam - lam_0);
 
-  // (4) t,t_の計算
+  // (4) Calculate `t` and `t_`.
   const auto t = std::sinh(
     std::atanh(std::sin(phi)) -
     ((2 * std::sqrt(n)) / (1 + n)) * std::atanh(((2 * std::sqrt(n)) / (1 + n)) * std::sin(phi)));
   const auto t_ = std::sqrt(1 + t * t);
 
-  // (5) xi',eta'の計算
+  // (5) Calculate `xi'` and `eta'`.
   const auto xi2 = std::atan(t / lam_c);  // [rad]
   const auto eta2 = std::atanh(lam_s / t_);
 
-  // (6) x,yの計算
+  // (6) Calculate `x` and `y`.
   const auto x = A_ * (xi2 + a1 * std::sin(2 * xi2) * std::cosh(2 * eta2) +
                        a2 * std::sin(4 * xi2) * std::cosh(4 * eta2) + a3 * std::sin(6 * xi2) * std::cosh(6 * eta2) +
                        a4 * std::sin(8 * xi2) * std::cosh(8 * eta2) + a5 * std::sin(10 * xi2) * std::cosh(10 * eta2)) -
@@ -132,16 +132,16 @@ gnssToCartRelative(const double& latitude, const double& longitude, const double
 std::tuple<double, double>
 cartToGnssRelative(const double& east, const double& north, const double& latitude_0, const double& longitude_0)
 {
-  // 平面直角座標系原点をラジアンに直す
+  // Convert the planar Cartesian coordinate origin to radians.
   const auto phi_0 = deg2rad(latitude_0);
   const auto lam_0 = deg2rad(longitude_0);
 
-  // 定数 (a, F: 世界測地系-測地基準系1980 (GRS80) 楕円体)
+  // Constants (`a`, `F`: Geodetic Reference System 1980 (GRS80) ellipsoid).
   constexpr double a = 6378137.;
   constexpr double m0 = 0.9999;
   constexpr double F = 298.257222101;
 
-  // (1) n, A_i, beta_i, delta_iの計算
+  // (1) Calculate `n`, `A_i`, `beta_i`, and `delta_i`.
   constexpr auto n = 1 / (2 * F - 1);
   constexpr auto n2 = n * n;
   constexpr auto n3 = n2 * n;
@@ -169,17 +169,17 @@ cartToGnssRelative(const double& east, const double& north, const double& latitu
   constexpr auto d5 = (4174. / 315) * n5 - (144838. / 6237) * n6;
   constexpr auto d6 = (601676. / 22275) * n6;
 
-  // (2) A,Sの計算
+  // (2) Calculate `A` and `S`.
   constexpr auto m_ = (m0 * a) / (1 + n);
   constexpr auto A_ = m_ * A0;  // [m]
   const auto S_ = m_ * (A0 * phi_0 + A1 * std::sin(2 * phi_0) + A2 * std::sin(4 * phi_0) + A3 * std::sin(6 * phi_0) +
                         A4 * std::sin(8 * phi_0) + A5 * std::sin(10 * phi_0));
 
-  // (3) xi,etaの計算
+  // (3) Calculate `xi` and `eta`.
   const auto xi = (north + S_) / A_;
   const auto eta = east / A_;
 
-  // (4) xi',eta'の計算
+  // (4) Calculate `xi'` and `eta'`.
   const auto xi2 = xi - b1 * std::sin(2 * xi) * std::cosh(2 * eta) - b2 * std::sin(4 * xi) * std::cosh(4 * eta) -
                    b3 * std::sin(6 * xi) * std::cosh(6 * eta) - b4 * std::sin(8 * xi) * std::cosh(8 * eta) -
                    b5 * std::sin(10 * xi) * std::cosh(10 * eta);
@@ -187,15 +187,15 @@ cartToGnssRelative(const double& east, const double& north, const double& latitu
                     b3 * std::cos(6 * xi) * std::sinh(6 * eta) - b4 * std::cos(8 * xi) * std::sinh(8 * eta) -
                     b5 * std::cos(10 * xi) * std::sinh(10 * eta);
 
-  // (5) chiの計算
+  // (5) Calculate `chi`.
   const auto chi = std::asin(std::sin(xi2) / std::cosh(eta2));  // [rad]
 
-  // (6) 北緯，東経の計算
+  // (6) Calculate north latitude and east longitude.
   const auto latitude_rad = chi + d1 * std::sin(2 * chi) + d2 * std::sin(4 * chi) + d3 * std::sin(6 * chi) +
                             d4 * std::sin(8 * chi) + d5 * std::sin(10 * chi) + d6 * std::sin(12 * chi);  // [rad]
   const auto longitude_rad = lam_0 + std::atan(std::sinh(eta2) / std::cos(xi2));                         // [rad]
 
-  // ラジアンを度になおす
+  // Convert radians to degrees.
   const auto latitude = rad2deg(latitude_rad);
   const auto longitude = rad2deg(longitude_rad);
 
