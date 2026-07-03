@@ -26,5 +26,4 @@ rsync -rcmv --delete \
   --exclude .git/ \
   --exclude tobas_cui/ \
   --exclude tobas_description/ \
-  --exclude tobas_legged_robot/ \
   pi@$1:${DEST_DIR}/
