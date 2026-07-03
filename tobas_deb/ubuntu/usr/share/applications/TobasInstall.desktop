@@ -3,12 +3,12 @@ Type=Application
 Name=TobasInstall
 Icon=/usr/share/icons/tobas/install.png
 
-# pkexecを使用しない場合
+# Without pkexec
 # Exec=/usr/bin/tobas_install_prereqs
 # Terminal=true
 
-# pkexecを使用する場合
-# pkexecのプロセスでは環境変数が初期化されXサーバへのアクセス情報が失われるために，そのままではgnome-terminalを起動できない．
-# そのため，Terminal=falseにしてプロセス内で明示的に環境変数の再設定とターミナルの立ち上げを行う．
+# With pkexec
+# The pkexec process resets environment variables and loses X server access information, so it cannot start gnome-terminal directly.
+# Therefore Terminal is set to false, and the process explicitly restores the environment variables and starts the terminal.
 Exec=pkexec /usr/bin/tobas_install_prereqs_gnome
 Terminal=false

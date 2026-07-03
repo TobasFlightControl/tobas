@@ -30,7 +30,7 @@ namespace tobas
 namespace camera
 {
 /**
- * @brief sensor_msgs/msg/CompressedImage型の画像をsubscribeして，データサイズを落としたあとpublishする．
+ * @brief Subscribe to sensor_msgs/msg/CompressedImage images, reduce their data size, and publish the result.
  */
 class MjpgCompressor : public BaseNode
 {
@@ -51,11 +51,11 @@ private:
     size_t sz);
   void callback(const sensor_msgs::msg::CompressedImage::ConstSharedPtr& msg);
 
-  std::string encoding_;      // publishする画像のencoding．MJPGか，H.264か．
-  double resize_rate_ = 1.0;  // resizeする割合
+  std::string encoding_;      // Encoding of the published image, either MJPG or H.264.
+  double resize_rate_ = 1.0;  // Resize ratio
 
   bool initialized_ = false;
-  ffmpeg_encoder_decoder::Encoder encoder_;  // H.264用encoder
+  ffmpeg_encoder_decoder::Encoder encoder_;  // H.264 encoder
 
   ros2::PublisherPtr<sensor_msgs::msg::CompressedImage> mjpg_resized_pub_;
   ros2::PublisherPtr<ffmpeg_image_transport_msgs::msg::FFMPEGPacket> ffmpeg_packet_pub_;

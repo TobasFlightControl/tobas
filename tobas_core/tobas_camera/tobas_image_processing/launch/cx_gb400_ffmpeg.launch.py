@@ -9,8 +9,8 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
     """
-    CX-GB400から映像を取得してffmpegを用いてSRT通信で送信しながら，ジンバルの制御も行う．
-    ROSトピックでの映像の配信は行わない．
+    Capture video from the CX-GB400, send it over SRT with ffmpeg, and control the gimbal.
+    This launch file does not publish video as a ROS topic.
     """
     server_and_port_arg = DeclareLaunchArgument(
         "server_and_port",

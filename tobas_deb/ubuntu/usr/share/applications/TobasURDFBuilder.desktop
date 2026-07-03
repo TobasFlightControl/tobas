@@ -6,5 +6,5 @@ Exec=/usr/bin/tobas_urdf_builder
 Terminal=false
 StartupNotify=true
 
-# TODO: UADFに対応させたら表示
+# TODO: Show this once UADF is supported.
 Hidden=true

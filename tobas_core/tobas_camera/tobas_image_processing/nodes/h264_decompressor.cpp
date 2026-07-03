@@ -29,7 +29,7 @@ namespace tobas
 namespace camera
 {
 /**
- * @brief ffmpeg_image_transport_msgs/msg/FFMPEGPacket型のh.264で圧縮された画像をsubscribeして，解凍してpublishする．
+ * @brief Subscribe to H.264-compressed ffmpeg_image_transport_msgs/msg/FFMPEGPacket images, decompress them, and publish them.
  */
 class H264Decompressor : public BaseNode
 {

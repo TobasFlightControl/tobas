@@ -4,34 +4,34 @@
 
 set -e
 
-# 使い方チェック
+# Check usage
 if [ $# -eq 0 ]; then
   echo "Usage: $(basename "$0") <commit message>"
   exit 1
 fi
 
-# リポジトリのルートに移動
+# Move to the repository root
 PARDIR=$(realpath $(dirname "$0"))
 cd ${PARDIR}/../../
 
-# リポジトリ内か確認
+# Check that this is a git repository
 if ! git rev-parse --git-dir >/dev/null 2>&1; then
   echo "Error: not a git repository (run inside a repo)."
   exit 1
 fi
 
-# 全ての変更をステージ
+# Stage all changes
 git add -A
 
-# 変更があればコミット
+# Commit if there are changes
 if ! git diff --cached --quiet; then
-  msg="$*" # 全ての引数をメッセージにまとめる
+  msg="$*" # Combine all arguments into one message
   git commit -m "$msg"
 else
   echo "Nothing to commit (working tree clean after add)."
 fi
 
-# プッシュ: upstream が設定されていればそれを使う．なければ最初のリモートに -u で設定．
+# Push: use the upstream branch if configured, otherwise set -u on the first remote.
 if git rev-parse --abbrev-ref --symbolic-full-name @{u} >/dev/null 2>&1; then
   git push
 else
