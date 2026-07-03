@@ -8,7 +8,7 @@ from control import matlab
 
 
 class LinearSimulator:
-    """線形離散時間状態方程式のシミュレータ"""
+    """Simulator for linear discrete-time state equations."""
 
     def __init__(
         self,
@@ -24,13 +24,13 @@ class LinearSimulator:
         Parameters
         ----------
         A, Bu, Bv, C: np.ndarray
-            離散時間状態方程式
+            Discrete-time state equations.
         Q: np.ndarray
-            システムノイズの共分散行列
+            Covariance matrix of system noise.
         R: np.ndarray
-            出力ノイズの共分散行列
+            Covariance matrix of output noise.
         init_x: np.ndarray, default None
-            初期状態
+            Initial state.
         """
 
         self._x_dim = A.shape[0]

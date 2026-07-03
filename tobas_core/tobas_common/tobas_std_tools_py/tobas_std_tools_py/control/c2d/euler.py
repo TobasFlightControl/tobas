@@ -8,7 +8,7 @@ from .base import BaseC2D
 
 
 class C2D_Euler(BaseC2D):
-    """オイラー法による一次微分方程式の離散化"""
+    """Discretize a first-order differential equation using Euler's method."""
 
     def __init__(self, f: Callable[[np.ndarray], np.ndarray], dt: float) -> None:
         super().__init__(f, dt)
