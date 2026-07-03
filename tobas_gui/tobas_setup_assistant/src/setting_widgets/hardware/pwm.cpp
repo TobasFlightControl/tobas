@@ -37,13 +37,13 @@ PwmWidget::PwmWidget(const uadf::Model& uadf, const Signals& sig) : super(0, kNu
 
 void PwmWidget::updateInternalDataStructures()
 {
-  // 現在の行数を保存
+  // Save the current row count.
   const auto rows = rowCount();
 
-  // 設定をリセットするために一旦全削除
+  // Delete everything once to reset settings.
   removeAll();
 
-  // 更新された選択肢でチャンネルを加え直す
+  // Add channels again with the updated choices.
   for (int _ = 0; _ < rows; ++_) {
     addLastChannel();
   }
@@ -51,7 +51,7 @@ void PwmWidget::updateInternalDataStructures()
 
 bool PwmWidget::isValid()
 {
-  // ターゲット名が重複していないことを確認
+  // Confirm that target names are not duplicated.
   QSet<QString> target_name_set;
   for (int channel = 0; channel < rowCount(); ++channel) {
     const auto target_name = targetName(channel);
@@ -204,7 +204,7 @@ void PwmWidget::addLastChannel()
 
   // Target name
   const auto target_name = new qt::ComboBox();
-  target_name->addItem("");  // 未選択
+  target_name->addItem("");  // Not selected.
   for (const auto& [joint_name, _] : uadf_.tilts) {
     target_name->addItem(QString::fromStdString(joint_name));
   }
@@ -273,7 +273,7 @@ void PwmWidget::onPropulsionTypeChanged(const PropulsionSystem& new_prop_type)
     return;
   }
 
-  // 前の推進系の不要な選択肢を外す
+  // Remove unnecessary choices from the previous propulsion system.
   switch (prop_type_) {
     case PropulsionSystem::kElectric: {
       break;
@@ -301,7 +301,7 @@ void PwmWidget::onPropulsionTypeChanged(const PropulsionSystem& new_prop_type)
       throw;
   }
 
-  // 新しい推進系の選択肢を追加
+  // Add choices for the new propulsion system.
   switch (new_prop_type) {
     case PropulsionSystem::kElectric: {
       break;

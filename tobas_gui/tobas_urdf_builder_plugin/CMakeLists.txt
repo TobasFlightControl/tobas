@@ -36,7 +36,7 @@ foreach(dependency IN ITEMS ${AMENT_DEPENDENCIES})
   find_package(${dependency} REQUIRED)
 endforeach()
 
-# CMAKE_AUTOMOCやCMAKE_AUTOUICを使わない流儀
+# Style that does not use `CMAKE_AUTOMOC` or `CMAKE_AUTOUIC`.
 
 file(GLOB_RECURSE MOC_HEADERS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} include/${PROJECT_NAME}/ui/*.hpp)
 qt5_wrap_cpp(MOC_SOURCES ${MOC_HEADERS})

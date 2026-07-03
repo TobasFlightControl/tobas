@@ -266,7 +266,7 @@ bool DynamixelHandlerNode::setMinimumLatency()
     return false;
   }
 
-  file << 1;  // uint8だと反映されなかった
+  file << 1;  // `uint8_t` did not take effect.
   file.close();
 
   TOBAS_INFO("Communication latency is updated successfully.");
@@ -682,7 +682,7 @@ void DynamixelHandlerNode::publishCurrentStatesTimerCb()
   if (core_sync_read_->txRxPacket() < 0) {
     TOBAS_ERROR("Failed to receive a sync packet of present states. Disabling torques.");
     disableTorques();
-    printHardwareErrorStatus();  // FIXME: モータのシャットダウン後はHESの取得もできない
+    printHardwareErrorStatus();  // FIXME: HES cannot be read after motor shutdown.
     return;
   }
 

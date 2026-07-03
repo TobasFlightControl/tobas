@@ -77,7 +77,7 @@ void WindParamsWidget::updateNamespace(const std::string& ns)
 
 bool WindParamsWidget::start(ch::milliseconds timeout)
 {
-  // サービスクライアントの準備
+  // Prepare the service client.
   bool success = true;
   QString message;
 
@@ -101,12 +101,12 @@ bool WindParamsWidget::start(ch::milliseconds timeout)
     return false;
   }
 
-  // パラメータの初期値を読み込む
+  // Load initial parameter values.
   if (!loadSimParams()) {
     return false;
   }
 
-  // パラメータの初期値を保存
+  // Save initial parameter values.
   init_mean_speed_ = getMeanSpeed();
   init_direction_ = getDirection();
   init_gust_speed_factor_ = getGustSpeedFactor();

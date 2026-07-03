@@ -37,7 +37,7 @@ int TreeJointStateConverter::convert(const tobas_msgs::msg::JointStateArray& msg
 
   for (const auto& state : msg.states) {
     try {
-      const auto& kdl_idx = jnt_parser_.jointIndex(state.name);  // Tree内でのインデックス
+      const auto& kdl_idx = jnt_parser_.jointIndex(state.name);  // Index in the tree
       q_out_(kdl_idx) = state.position;
       qd_out_(kdl_idx) = state.velocity;
       f_out_(kdl_idx) = state.effort;

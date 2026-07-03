@@ -9,7 +9,7 @@ namespace tobas
 {
 namespace traj
 {
-/* ジャーク，加速度，速度の制約を満たした上で最短時間で目的地に到達する軌跡 (memo: 3-44) */
+/* Minimum-time trajectory to the destination while satisfying jerk, acceleration, and velocity constraints. (memo: 3-44) */
 class JerkLimitedTrajectory : public TrajectoryGenerator
 {
 public:
@@ -19,17 +19,17 @@ public:
   double duration() const noexcept override;
 
 private:
-  const double p0_;           // 初期位置
-  const double pd_;           // p0を原点としたときの目的地 (符号なし)
-  const int sign_;            // pdの符号
-  double jm_, am_, vm_;       // リミット
-  double t1_, t2_, t3_, t4_;  // 時刻
+  const double p0_;           // Initial position
+  const double pd_;           // Destination with `p0` as the origin, unsigned
+  const int sign_;            // Sign of `pd`
+  double jm_, am_, vm_;       // Limits
+  double t1_, t2_, t3_, t4_;  // Times
 
-  /* pdを正としたときのp0に対する相対位置． */
+  /* Relative position with respect to p0 when pd is positive. */
   double p(double t) const noexcept;
-  /* pdを正としたときの速度． */
+  /* Velocity when pd is positive. */
   double v(double t) const noexcept;
-  /* pdを正としたときの加速度． */
+  /* Acceleration when pd is positive. */
   double a(double t) const noexcept;
 };
 }  // namespace traj

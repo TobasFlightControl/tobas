@@ -23,10 +23,10 @@ using namespace std::chrono_literals;
 
 bool takeoff(rclcpp::Node::SharedPtr node)
 {
-  // アクションクライアントを作成
+  // Create action client.
   tobas::ros2::SyncActionClient<tobas_mission_msgs::action::ExecuteMission> client(node, tobas::action::kExecuteMission);
 
-  // ゴールを作成
+  // Create goal.
   tobas::mission::Takeoff takeoff;
   takeoff.altitude = 3.;
   takeoff.max_speed = 1.5;
@@ -41,13 +41,13 @@ bool takeoff(rclcpp::Node::SharedPtr node)
   tobas_mission_msgs::action::ExecuteMission::Goal goal;
   goal.mission.items.push_back(mission_item);
 
-  // アクションを実行
+  // Execute action.
   if (!client.sendGoalAndWait(goal)) {
     RCLCPP_ERROR(node->get_logger(), "Failed to call takeoff action.");
     return false;
   }
 
-  // アクションの成否を確認
+  // Check action result.
   const auto result = client.getResult();
   if (result.code != rclcpp_action::ResultCode::SUCCEEDED) {
     RCLCPP_ERROR_STREAM(node->get_logger(), "Takeoff action failed: " << result.result->error_message);
@@ -72,12 +72,12 @@ int main(int argc, char** argv)
   tobas::ros2::AsyncNodeManager node_manager(argc, argv, "keyboard_teleop");
   const auto node = node_manager.node();
 
-  // 離陸
+  // Take off.
   if (!takeoff(node)) {
     return EXIT_FAILURE;
   }
 
-  // 現在の位置姿勢を初期コマンドに設定
+  // Set the current pose as the initial command.
   const auto init_pose = waitForCurrentPose(node);
   if (!init_pose) {
     RCLCPP_ERROR(node->get_logger(), init_pose.error());
@@ -86,7 +86,7 @@ int main(int argc, char** argv)
   auto cmd_pos = init_pose.value().p;
   auto cmd_yaw = init_pose.value().M.getYaw();
 
-  // 1度のキーボード入力での目標値の変化量を計算
+  // Calculate target-value changes for one keyboard input.
   const auto repeat_interval_ms = tobas::keyboard::getKeyboardRepeatInterval();
   if (!repeat_interval_ms) {
     RCLCPP_ERROR(node->get_logger(), repeat_interval_ms.error());
@@ -96,20 +96,20 @@ int main(int argc, char** argv)
   const auto delta_pos = 3. * repeat_interval;                                          // m/s x s = m
   const auto delta_rot = M_PI_2 * repeat_interval;                                      // rad/s x s = rad
 
-  // 目標値の制限
+  // Target value limits
   const tobas::st::Range<double> x_limit(-10., 10.);
   const tobas::st::Range<double> y_limit(-10., 10.);
   const tobas::st::Range<double> z_limit(-10., 10.);
   const tobas::st::Range<double> yaw_limit(-M_PI, M_PI);
 
-  // キーボードリーダを作成
+  // Create keyboard reader.
   tobas::keyboard::KeyboardReader key_reader;
 
-  // コマンドパブリッシャーを登録
+  // Register command publisher.
   const auto cmd_pub =
     tobas::ros2::createPublisher<tobas_command_msgs::PosVelAccYaw>(node, tobas::topic::kPosVelAccYawCmd);
 
-  // 説明文の表示を開始
+  // Start showing instructions.
   constexpr char kInstructionText[] = "Control your drone!\n"
                                       "---------------------------\n"
                                       "W/S       : Move in the positive/negative direction along X-axis in WCSs\n"
@@ -121,7 +121,7 @@ int main(int argc, char** argv)
   const auto instruction_timer = node->create_timer(10s, [&]() { std::cout << kInstructionText << std::endl; });
 
   while (rclcpp::ok()) {
-    // キーボード入力に依ってコマンドを更新
+    // Update command based on keyboard input.
     const auto c = key_reader.readKey();
     if (c < 0) {
       RCLCPP_ERROR(node->get_logger(), "Failed to read keyboard.");
@@ -179,7 +179,7 @@ int main(int argc, char** argv)
       }
     }
 
-    // コマンドを発行
+    // Publish command.
     auto cmd = std::make_unique<tobas_command_msgs::PosVelAccYaw>();
     cmd->header.stamp = node->now();
     cmd->priority.data = tobas_command_msgs::msg::Priority::NORMAL;

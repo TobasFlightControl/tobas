@@ -27,29 +27,29 @@ RotorMarkerPublisher::RotorMarkerPublisher(rclcpp::Node::SharedPtr node, const u
 
 void RotorMarkerPublisher::updateInternalDataStructures()
 {
-  // マーカの発行を停止
+  // Stop publishing markers.
   publish_markers_timer_.stop();
 
-  // 現在のマーカを全て非表示にする
+  // Hide all current markers.
   for (auto& marker : markers_.markers) {
     marker.action = visualization_msgs::msg::Marker::DELETE;
   }
   publishMarkers();
 
-  // 全てのマーカを削除
+  // Delete all markers.
   markers_.markers.clear();
 
-  // プロペラリンクのマーカを追加
+  // Add markers for propeller links.
   for (const auto& [id, elem] : std::views::enumerate(uadf_.thrusts)) {
     const auto& [joint_name, thrust] = elem;
     const auto joint = uadf_.urdf->getJoint(joint_name);
 
-    // 推力の作用線
+    // Thrust line of action.
     const auto arrow_start = kdl::Vector::Zero();
     const auto arrow_end = kdl::vectorUrdfToKdl(joint->axis) * kArrowLength;
     const auto arrow_scale = kdl::Vector(0.1, 0.2, 0.3) * kArrowLength;
 
-    // マーカを作成
+    // Create the marker.
     visualization_msgs::msg::Marker marker;
 
     marker.header.frame_id = joint->child_link_name;
@@ -62,7 +62,7 @@ void RotorMarkerPublisher::updateInternalDataStructures()
     kdl::pointKDLToMsg(arrow_end, marker.points.at(1));
     kdl::vectorKDLToMsg(arrow_scale, marker.scale);
 
-    // 回転方向によって色分け
+    // Color by rotation direction.
     marker.color.a = 1.0;
     switch (thrust.direction) {
       case uadf::Thrust::CW:
@@ -79,16 +79,16 @@ void RotorMarkerPublisher::updateInternalDataStructures()
         throw;
     }
 
-    marker.lifetime = rclcpp::Duration::from_nanoseconds(0);  // 無限の生存期間
-    marker.frame_locked = true;                               // TFが変化してもフレームに固定
+    marker.lifetime = rclcpp::Duration::from_nanoseconds(0);  // Infinite lifetime.
+    marker.frame_locked = true;                               // Keep fixed to the frame even if TF changes.
 
-    // マーカを追加
+    // Add the marker.
     markers_.markers.push_back(marker);
   }
 
-  // TODO: チルトジョイントと操舵面のマーカも表示
+  // TODO: Also show markers for tilt joints and control surfaces.
 
-  // マーカを発行開始
+  // Start publishing markers.
   publish_markers_timer_.start(100);
 }
 

@@ -7,15 +7,15 @@ import "./map_constants.js" as Constants
 Rectangle {
   id: rectangle
 
-  property real requested_zoom: 0 // ユーザが要求しているズーム（上限超えOK）
-  property real visual_scale: 1.0 // overzoom分の見た目スケール
+  property real requested_zoom: 0 // Zoom requested by the user; exceeding the limit is allowed.
+  property real visual_scale: 1.0 // Visual scale for overzoom.
 
-  // 関数呼び出し用シグナル
+  // Signal for function calls.
   signal setArrowPosition(double latitude, double longitude)
   signal setArrowRotation(double angle)
   signal setMapCenter(double latitude, double longitude)
 
-  // イベント通知用シグナル
+  // Signal for event notifications.
   signal waypointMoved(int index, double latitude, double longitude)
 
   function clamp(v, lb, ub) {
@@ -28,7 +28,7 @@ Rectangle {
     arrow.coordinate = QtPositioning.coordinate(latitude, longitude);
   }
   function onSetArrowRotation(angle) {
-    arrowRotation.angle = angle; // ユニークなIDを直接参照する
+    arrowRotation.angle = angle; // Reference the unique ID directly.
   }
   function onSetMapCenter(latitude, longitude) {
     map.center = QtPositioning.coordinate(latitude, longitude);
@@ -36,7 +36,7 @@ Rectangle {
   function updateZoom() {
     var base_z = Math.min(requested_zoom, map.maximumZoomLevel);
     map.zoomLevel = base_z;
-    var extra = Math.max(0, requested_zoom - base_z); // 上限超え分
+    var extra = Math.max(0, requested_zoom - base_z); // Amount over the limit.
     visual_scale = Math.pow(2, extra);
     map.scale = visual_scale;
   }
@@ -55,7 +55,7 @@ Rectangle {
 
     PluginParameter {
       name: "osm.mapping.custom.host"
-      value: "http://127.0.0.1:8080/tiles/" // ローカルサーバを指定
+      value: "http://127.0.0.1:8080/tiles/" // Specify the local server.
     }
     PluginParameter {
       name: "osm.mapping.cache.directory"
@@ -78,13 +78,13 @@ Rectangle {
   // Map QML Type: https://doc.qt.io/qt-5/qml-qtlocation-map.html
   Map {
     id: map
-    activeMapType: map.supportedMapTypes[map.supportedMapTypes.length - 1] // タイルサーバを指定する場合に必要
+    activeMapType: map.supportedMapTypes[map.supportedMapTypes.length - 1] // Required when specifying a tile server.
     anchors.fill: parent
     center: QtPositioning.coordinate(Constants.defaultLatitude, Constants.defaultLongitude)
     copyrightsVisible: false
-    maximumZoomLevel: 22 // タイルサーバに合わせて調整する (大きすぎるのは問題ない)
-    minimumZoomLevel: 3 // 地図全体が見える最大値に設定
-    objectName: "map" // Qt側からアクセスするためのオブジェクト名
+    maximumZoomLevel: 22 // Adjust to the tile server; too large is not a problem.
+    minimumZoomLevel: 3 // Set this to the maximum value that shows the whole map.
+    objectName: "map" // Object name for access from Qt.
     plugin: mapPlugin
     zoomLevel: 3
 
@@ -93,18 +93,18 @@ Rectangle {
       updateZoom();
     }
 
-    // ホイールイベントでスケールを調整しながらズーム
+    // Zoom while adjusting scale on wheel events.
     WheelHandler {
       target: null
 
       onWheel: e => {
-        const p = point.position; // カーソル位置 (2次元座標)
-        const anchor = map.toCoordinate(p); // カーソル位置 (地理座標)
-        const dz = (e.angleDelta.y / 120.0) * 0.5; // ズーム値の変化量
-        requested_zoom = clamp(requested_zoom + dz, map.minimumZoomLevel, Constants.maximumZoomLevel); // ズーム値の目標値を更新
+        const p = point.position; // Cursor position in 2D coordinates.
+        const anchor = map.toCoordinate(p); // Cursor position in geographic coordinates.
+        const dz = (e.angleDelta.y / 120.0) * 0.5; // Zoom value change.
+        requested_zoom = clamp(requested_zoom + dz, map.minimumZoomLevel, Constants.maximumZoomLevel); // Update the target zoom value.
         // console.log("Zoom Level:", requested_zoom);
-        updateZoom(); // ズームとスケールを更新
-        map.alignCoordinateToPoint(anchor, p); // 元々の地理座標を新しいカーソル位置に合わせる
+        updateZoom(); // Update zoom and scale.
+        map.alignCoordinateToPoint(anchor, p); // Align the original geographic coordinate to the new cursor position.
         e.accepted = true;
       }
     }
@@ -120,7 +120,7 @@ Rectangle {
       sourceItem: Image {
         id: arrowImage
         height: 32 / mapObjectScale()
-        source: "./arrow.png" // アイコン画像の相対パス
+        source: "./arrow.png" // Relative path to the icon image.
         width: 32 / mapObjectScale()
 
         transform: Rotation {
@@ -142,9 +142,9 @@ Rectangle {
     // WaypointModel
     MapItemView {
       model: WaypointModel
-      z: 3 // 他のオブジェクトと重なった際の優先度
+      z: 3 // Priority when overlapping other objects.
 
-      // Rectangleはdelegateに設定できないため，MapQuickItemを使う
+      // `Rectangle` cannot be set as a delegate, so use `MapQuickItem`.
       delegate: MapQuickItem {
         id: waypoint
         anchorPoint.x: circle.width / 2
@@ -154,38 +154,38 @@ Rectangle {
         sourceItem: Rectangle {
           id: circle
           border.color: "black"
-          border.pixelAligned: false // 小数値の枠線幅を許容
+          border.pixelAligned: false // Allow fractional border widths.
           border.width: 2 / mapObjectScale()
           color: model.marker_color
           height: 32 / mapObjectScale()
-          radius: 16 / mapObjectScale() // 半径を正方形の辺長の半分に設定することで，正方形から円を作ることができる
+          radius: 16 / mapObjectScale() // Setting the radius to half the square side length makes a circle from a square.
           width: 32 / mapObjectScale()
           x: 0
           y: 0
 
-          // 円の中心に番号を表示
+          // Show the number at the center of the circle.
           Text {
             color: "black"
-            font.pixelSize: 16 / mapObjectScale() // 2以上じゃないとオーバーズームした際にアラインメントが崩れる
+            font.pixelSize: 16 / mapObjectScale() // Alignment breaks during overzoom unless this is 2 or larger.
             text: model.index
             x: (circle.width - width) / 2
             y: (circle.height - height) / 2
           }
 
-          // 円をドラッグ・アンド・ドロップできるようにするための設定
+          // Settings that allow the circle to be dragged and dropped.
           MouseArea {
             anchors.fill: parent
             cursorShape: pressed ? Qt.ClosedHandCursor : Qt.OpenHandCursor
-            drag.smoothed: false // ターゲットがカーソル位置に直ちに移動
+            drag.smoothed: false // Move the target to the cursor position immediately.
             drag.target: parent
-            drag.threshold: 0 // ドラッグしたらすぐに移動開始
+            drag.threshold: 0 // Start moving as soon as dragging begins.
 
             onReleased: {
-              // ドラッグ・アンド・ドロップによって発生した，親オブジェクトに対する子オブジェクトの移動量
+              // Child-object movement relative to the parent object caused by drag and drop.
               let offset_x = circle.x;
               let offset_y = circle.y;
 
-              // 子オブジェクトの移動分を親オブジェクトに反映させる
+              // Apply the child-object movement to the parent object.
               let old_coord = waypoint.coordinate;
               let old_point = map.fromCoordinate(old_coord);
               let new_x = old_point.x + circle.x;
@@ -193,11 +193,11 @@ Rectangle {
               let new_coord = map.toCoordinate(Qt.point(new_x, new_y));
               waypoint.coordinate = new_coord;
 
-              // 子オブジェクトのオフセットをリセット
+              // Reset the child-object offset.
               circle.x = 0;
               circle.y = 0;
 
-              // ウェイポイントの座標が変化したことを通知
+              // Notify that the waypoint coordinate has changed.
               waypointMoved(model.index, new_coord.latitude, new_coord.longitude);
             }
           }
@@ -205,7 +205,7 @@ Rectangle {
       }
     }
     MapItemView {
-      model: WaypointModel // 1つのモデルに対して複数のMapItemViewを定義できる
+      model: WaypointModel // Multiple `MapItemView` instances can be defined for one model.
       z: 2
 
       delegate: MapCircle {

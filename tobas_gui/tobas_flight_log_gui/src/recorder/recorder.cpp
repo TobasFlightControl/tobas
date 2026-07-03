@@ -107,7 +107,7 @@ void FlightLogRecorderWidget::clearRosbagStateViewerWidgets()
 
 void FlightLogRecorderWidget::onStartRequested()
 {
-  // ファイル名をチェック
+  // Check the file name.
   const auto log_name = log_name_->text().toStdString();
   if (log_name.empty()) {
     qt::qWarnBox(this, "Please specify the name of log file.");
@@ -120,7 +120,7 @@ void FlightLogRecorderWidget::onStartRequested()
     return;
   }
 
-  // ロガーの状態が取得できているかをチェック
+  // Check whether the logger state has been received.
   if (!rosbag_state_) {
     qt::qWarnBox(this, "Unable to start recording because the logger state has not been received yet.");
     start_stop_button_->setChecked(false);
@@ -161,7 +161,7 @@ void FlightLogRecorderWidget::onStopRequested()
   const auto is_real = log_path.startsWith(kRosbagDirRoot);
   Q_EMIT recordFinished(log_name, is_real);
 
-  // ログ名を履歴に追加してクリア
+  // Add the log name to the history and clear it.
   log_name_->addHistory(log_name);
   log_name_->clear();
 
@@ -172,7 +172,7 @@ void FlightLogRecorderWidget::onStopRequested()
 
 void FlightLogRecorderWidget::rosbagStateCb(const tobas_msgs::msg::RosbagState::ConstSharedPtr& rosbag_state)
 {
-  // 現在のレコーダの状態によってウィジェットの状態を切り替えて有効化
+  // Switch and enable the widget state according to the current recorder state.
   start_stop_button_->setChecked(rosbag_state->recording);
   start_stop_button_->setEnabled(true);
 

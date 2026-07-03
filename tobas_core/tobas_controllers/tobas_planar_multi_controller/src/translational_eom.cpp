@@ -28,28 +28,28 @@ bool TranslationalEoM::solve(
   double& roll_out,
   double& pitch_out)
 {
-  // 並進EoMの左辺
+  // Left-hand side of the translational EoM.
   const auto xyz = mass_holder_.getMass() * (tar_acc_W - grav_W_) - ext_force_W;
   const auto x = xyz.x();
   const auto y = xyz.y();
-  const auto z = std::max(xyz.z(), 0.);  // 鉛直下方向に推力は出せない
+  const auto z = std::max(xyz.z(), 0.);  // Thrust cannot be generated vertically downward.
 
-  // 現在のオイラー角を計算
+  // Compute current Euler angles.
   cur_rot.getRPY(roll_, pitch_, yaw_);
 
-  // 姿勢角が90度を超える場合は実現できない
+  // Cannot be realized when an attitude angle exceeds 90 degrees.
   if (std::abs(roll_) > M_PI_2 || std::abs(pitch_) > M_PI_2) {
     std::cerr << "Cannot solve translational EoM because the aircraft is upside-down." << std::endl;
     return false;
   }
 
-  // 姿勢追従と方位追従を分離するために現在の方位角で目標姿勢角を計算
+  // Compute target attitude angles using the current heading to separate attitude tracking from heading tracking.
   const auto cos_yaw = std::cos(yaw_);
   const auto sin_yaw = std::sin(yaw_);
   pitch_out = std::atan2(x * cos_yaw + y * sin_yaw, z);
   roll_out = std::atan2(std::cos(pitch_out) * (x * sin_yaw - y * cos_yaw), z);
 
-  // 高度追従と姿勢追従を分離するために現在の姿勢で目標推力を計算
+  // Compute target thrust with the current attitude to separate altitude tracking from attitude tracking.
   thrust_out = z / (std::cos(roll_) * std::cos(pitch_));
 
   return true;

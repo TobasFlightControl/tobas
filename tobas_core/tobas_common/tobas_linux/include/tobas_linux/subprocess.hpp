@@ -12,7 +12,7 @@ namespace linux
 {
 pid_t createSubprocess(const std::vector<char*>& _argv);
 
-/* サブプロセスでbashコマンドを実行する． */
+/* Run a bash command in a subprocess. */
 pid_t createSubprocess(const std::string& command);
 }  // namespace linux
 }  // namespace tobas

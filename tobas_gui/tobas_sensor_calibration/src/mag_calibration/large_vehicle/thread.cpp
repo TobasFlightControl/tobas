@@ -30,7 +30,7 @@ LargeVehicleMagCalibThread::LargeVehicleMagCalibThread(rclcpp::Node::SharedPtr n
 
 void LargeVehicleMagCalibThread::run()
 {
-  // 必要なトピックが受け取れていることを確認
+  // Confirm that required topics have been received.
   if (!mag_raw_) {
     Q_EMIT finished(false, "Magnetic field has not been received yet.");
     return;
@@ -44,27 +44,27 @@ void LargeVehicleMagCalibThread::run()
     return;
   }
 
-  // 位置情報が取得できていることを確認
+  // Confirm that position information has been received.
   if (gnss_->fix_type != tobas_msgs::msg::Gnss::FIX_3D) {
     Q_EMIT finished(false, "GNSS is not fixed.");
     return;
   }
 
-  // 現在位置での地磁気の参照値を求める
+  // Calculate the geomagnetic reference value at the current position.
   const auto mag =
     geomag::elementsFromGeodetic(gnss_->latitude, gnss_->longitude, gnss_->altitude, tim::yearFraction());
-  const kdl::Vector mag_ref(mag.north, -mag.east, -mag.down);  // 機体は北向きのためコンパスのXYZはNWUに対応する
+  const kdl::Vector mag_ref(mag.north, -mag.east, -mag.down);  // Compass XYZ corresponds to NWU.
 
-  // 初期化
+  // Initialize.
   cnt_ = 0;
   for (auto& sum : mag_sum_) {
     sum.reset();
   }
 
-  // 地磁気データ加算開始
+  // Start accumulating geomagnetic data.
   get_data_ = true;
 
-  // データが溜まるまで待機
+  // Wait until enough data has accumulated.
   const auto clock = node_->get_clock();
   const auto start_time = clock->now();
   rclcpp::Rate rate(100., clock);
@@ -72,7 +72,7 @@ void LargeVehicleMagCalibThread::run()
     if (cnt_ >= kDataCount) {
       break;
     }
-    if (arming_->data) {  // データ収集中にアームされたら強制終了
+    if (arming_->data) {  // Force stop if the vehicle is armed while collecting data.
       Q_EMIT finished(false, "Accelerometer calibration was canceled because an arming command was issued.");
       get_data_ = false;
       return;
@@ -85,20 +85,20 @@ void LargeVehicleMagCalibThread::run()
     rate.sleep();
   }
 
-  // 地磁気データ加算終了
+  // Stop accumulating geomagnetic data.
   get_data_ = false;
 
-  // 平均を計算
+  // Calculate the average.
   kdl::Vector mag_mean;
   for (size_t i = 0; i < 3; ++i) {
     mag_mean(i) = mag_sum_.at(i).get() / cnt_;
   }
 
-  // バイアスを計算 (memo: 3-41)
+  // Calculate the bias. (memo: 3-41)
   const auto hard_bias = mag_mean - mag_ref;
   const auto soft_bias = mag.total;
 
-  // パラメータを作成
+  // Create parameters.
   const auto req = std::make_shared<tobas_real_msgs::srv::SetMagnetometerParams::Request>();
   req->hard_bias.at(0) = hard_bias.x();
   req->hard_bias.at(1) = hard_bias.y();
@@ -110,7 +110,7 @@ void LargeVehicleMagCalibThread::run()
   req->soft_bias.at(4) = 0.;
   req->soft_bias.at(5) = 0.;
 
-  // パラメータを更新
+  // Update parameters.
   ros2::SyncServiceClient<tobas_real_msgs::srv::SetMagnetometerParams> sc(
     node_, path::join(ns_, kRemoteIfaceNS, real::handler::mag::kSetParamSrv));
   if (!sc.call(req, kSetParamTimeout)) {
@@ -118,7 +118,7 @@ void LargeVehicleMagCalibThread::run()
     return;
   }
 
-  // 結果を確認
+  // Check the result.
   const auto res = sc.getResponse();
   if (!res->success) {
     Q_EMIT finished(false, "Calibration results are rejected: " + QString::fromStdString(res->message));

@@ -39,7 +39,7 @@ public:
   /**
    * @brief rviz_common::VisualizationManager::resetTime()
    *
-   * シミュレーション起動時など，TFの時刻が巻き戻ったときに発生するTF_OLD_DATAエラーを回避できる．
+   * This avoids `TF_OLD_DATA` errors that occur when TF time goes backward, such as when starting simulation.
    */
   void resetTime();
 

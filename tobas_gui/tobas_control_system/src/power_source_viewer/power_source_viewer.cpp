@@ -32,7 +32,7 @@ void PowerSourceViewerWidget::updateInternalDataStructures()
     return;
   }
 
-  // 推進系によって表示するウィジェットを切り替える
+  // Switch displayed widgets according to the propulsion system.
   switch (drone_.prop->type()) {
     case PropulsionSystem::kElectric:
       battery_viewer_->updateInternalDataStructures();

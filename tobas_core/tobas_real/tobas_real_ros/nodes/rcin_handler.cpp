@@ -184,7 +184,7 @@ void RCInputHandlerNode::registerPubSub()
 
 FlightMode RCInputHandlerNode::getClosestFlightMode(uint16_t period)
 {
-  FlightMode res = FlightMode::kLoiter;  // コンパイラ警告を抑制するために適当に初期化
+  FlightMode res = FlightMode::kLoiter;  // Initialize to suppress compiler warnings.
   auto min_dist = std::numeric_limits<uint16_t>::max();
 
   for (const auto& [mode, period_ref] : modes_) {

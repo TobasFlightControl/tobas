@@ -39,10 +39,10 @@ dare(const MatrixXd& A, const MatrixXd& B, const MatrixXd& Q, const MatrixXd& R,
   while ((X_next - X_prev).norm() / X_next.norm() > tol) {
     X_prev = X_next;
 
-    // 事前推定
+    // Prior estimate.
     const MatrixXd X_mid = A.transpose() * X_prev.selfadjointView<Lower>() * A + Q;
 
-    // 事後推定
+    // Posterior estimate.
     const MatrixXd XB = X_mid.selfadjointView<Lower>() * B;
     const auto G = XB * (B.transpose() * XB + R).inverse();
     const auto I_GBt = I - G * B.transpose();

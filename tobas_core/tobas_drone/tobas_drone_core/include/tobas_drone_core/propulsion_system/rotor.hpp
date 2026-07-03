@@ -19,19 +19,19 @@ public:
   using SharedPtr = std::shared_ptr<RotorConfig>;
   using ConstSharedPtr = std::shared_ptr<const RotorConfig>;
 
-  std::string link_name = "";                          // プロペラのリンク名
-  TurningDirection direction = TurningDirection::CCW;  // 回転方向: CCW or CW
-  std::string tilt_joint_name = "";                    // チルトジョイント名 (空文字の場合は固定軸)
+  std::string link_name = "";                          // Propeller link name.
+  TurningDirection direction = TurningDirection::CCW;  // Rotation direction: CCW or CW.
+  std::string tilt_joint_name = "";                    // Tilt joint name; an empty string means a fixed axis.
 
   virtual bool isValid() const;
 
   virtual bool load(const YAML::Node& node);
   virtual YAML::Node dump() const;
 
-  /* 推力と反トルクの比率 [m] */
+  /* Ratio between thrust and reaction torque [m]. */
   virtual double momentConst() const = 0;
 
-  /* このアクチュエータで推力を出すコスト（ミキシングで使用） */
+  /* Cost of generating thrust with this actuator, used for mixing. */
   virtual double effortWeight() const = 0;
 
   /* CCW = 1, CW = -1 */

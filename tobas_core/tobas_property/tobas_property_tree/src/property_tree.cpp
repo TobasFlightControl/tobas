@@ -21,13 +21,13 @@ PropertyTree::PropertyTree()
 bool PropertyTree::initialize(const fs::path& file_path)
 {
   if (fs::is_regular_file(file_path)) {
-    // ファイルが存在する場合は読み込む
+    // Load the file if it exists.
     try {
       boost::property_tree::json_parser::read_json(file_path, root_node_);
       cout << file_path << " is loaded successfully." << endl;
     }
     catch (const exception& e) {
-      // 読み込みに失敗したら元のファイルを削除
+      // Remove the original file if loading fails.
       cerr << "Failed to load " << file_path << ": " << e.what() << endl;
       cerr << "Removing " << file_path << "." << endl;
       if (!fs::remove(file_path)) {
@@ -48,7 +48,7 @@ bool PropertyTree::initialize(const fs::path& file_path)
 
 bool PropertyTree::save()
 {
-  // 親ディレクトリが存在しない場合は作成する
+  // Create the parent directory if it does not exist.
   if (!fs::is_directory(parent_dir_)) {
     if (!fs::create_directories(parent_dir_)) {
       cerr << "Failed to create " << parent_dir_ << "." << endl;
@@ -74,10 +74,10 @@ bool PropertyTree::erase(boost::property_tree::ptree& node, boost::property_tree
     return false;
   }
 
-  // パスの先頭要素を取得
+  // Get the first path element.
   const auto child_name = path.reduce();
 
-  // 名前空間がなければ要素を消して終了
+  // If there is no namespace, remove the element and finish.
   if (path.empty()) {
     if (node.erase(child_name) == 0) {
       cerr << "Failed to erase key \"" << child_name << "\"." << endl;
@@ -86,7 +86,7 @@ bool PropertyTree::erase(boost::property_tree::ptree& node, boost::property_tree
     return true;
   }
 
-  // 入れ子になってたら再帰的に呼び出す
+  // Recursively handle nested paths.
   auto child_node_opt = node.get_child_optional(child_name);
   if (!child_node_opt) {
     cerr << "Failed to get child node \"" << child_name << "\"." << endl;

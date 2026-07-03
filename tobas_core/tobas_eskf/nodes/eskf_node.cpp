@@ -47,8 +47,8 @@ class ErrorStateKalmanFilterNode : public BaseNode
   using GetOriginSrv = tobas_msgs::srv::GetGnssOrigin;
   using SetOriginSrv = tobas_msgs::srv::SetGnssOrigin;
 
-  // 標準偏差の初期値
-  // 共分散行列は成長は遅いが収束は割と速いから，大きすぎるくらいで適当に決めてよい
+  // Initial standard deviations.
+  // Covariance grows slowly but converges fairly quickly, so choosing a somewhat large value is acceptable.
   static constexpr double kInitPosStddev = 5.;      // [m]
   static constexpr double kInitVelStddev = 1.;      // [m/s]
   static constexpr double kInitRotStddev = M_PI_4;  // [rad]
@@ -74,24 +74,24 @@ private:
   bool gnss_fix_ = false;
   double gnss_anomaly_score_ = 0.;
 
-  // 地磁気参照値関連
+  // Geomagnetic reference value.
   bool mag_ref_set_ = false;
   size_t init_mag_cnt_ = 0;
   std::array<algo::Kahan<double>, 3> init_mag_sum_;
 
-  // 気圧高度原点関連
-  double baro_alt_origin_;  // 気圧高度原点
+  // Barometric altitude origin.
+  double baro_alt_origin_;  // Barometric altitude origin.
   bool baro_alt_origin_set_ = false;
   size_t init_pres_cnt_ = 0;
   algo::Kahan<double> init_pres_sum_;
 
-  // GNSS座標原点関連
+  // GNSS coordinate origin.
   struct GeoPoint
   {
     double latitude;
     double longitude;
     double altitude;
-  } gnss_origin_;  // GNSS座標原点
+  } gnss_origin_;  // GNSS coordinate origin.
 
   // Static parameters
   std::string frame_id_;
@@ -107,8 +107,8 @@ private:
   bool do_mag_soft_bias_estimation_;
   bool do_baro_alt_bias_estimation_;
   bool do_grav_estimation_;
-  Vector3d imu_offset_;   // [m] ルートリンクに対するIMUの位置 (Local)
-  Vector3d gnss_offset_;  // [m] ルートリンクに対するGNSSレシーバの位置 (Local)
+  Vector3d imu_offset_;   // [m] IMU position relative to the root link (Local).
+  Vector3d gnss_offset_;  // [m] GNSS receiver position relative to the root link (Local).
 
   // Dynamic parameters
   Matrix3d fixed_acc_cov_ = Matrix3d::Zero();       // [m^2/s^4]
@@ -340,44 +340,45 @@ void ErrorStateKalmanFilterNode::registerRosInterfaces()
 
 void ErrorStateKalmanFilterNode::setMagneticFieldRef(const Vector3d& mag_W)
 {
-  // 地磁気の参照値を設定
+  // Set the geomagnetic reference value.
   eskf_.setMagneticFieldRef(mag_W);
 
-  // 地磁気のバイアスを初期化
+  // Initialize magnetometer bias.
   eskf_.initializeMagHardBias(Vector3d::Zero(), Vector3d::Constant(math::sqr(initMagHardBiasStddev())).asDiagonal());
   eskf_.initializeMagSoftBias(Matrix3d::Identity(), Vector6d::Constant(math::sqr(initMagSoftBiasStddev())).asDiagonal());
 
-  // 地磁気を受け取っていればヨーを初期化
-  // でないとヨーの誤差が大きすぎる場合にロールピッチまでフィードバックの影響を受けてしまう
+  // Initialize yaw if geomagnetic data has already been received.
+  // Otherwise, when the yaw error is too large, even roll and pitch may be affected by the feedback.
   if (mag_) {
-    // 現在のRPYを取得
+    // Get the current RPY.
     const auto R_W_B = eskf_.getQuaternion();
     const auto [old_roll, old_pitch, old_yaw] = st::eulerFromQuaternion(R_W_B.x(), R_W_B.y(), R_W_B.z(), R_W_B.w());
 
-    // 地磁気をヨー角のみ機体と一致し，XY軸が地面と平行な地上座標系Gに移す．
+    // Move the geomagnetic field to ground coordinate system `G`,
+    // whose yaw alone matches the body and whose XY axes are parallel to the ground.
     const AngleAxisd R_G_B(old_yaw, Vector3d::UnitZ());
-    const auto mag_G = R_G_B.inverse() * (R_W_B * mag_->mag.data);  // 後ろから計算することで計算量を削減
+    const auto mag_G = R_G_B.inverse() * (R_W_B * mag_->mag.data);  // Reduce computation by evaluating from the back.
     const auto& mx = mag_G.x();
     const auto& my = mag_G.y();
 
-    // 新しい参照に基づくヨーを計算
+    // Compute yaw from the new reference.
     const auto yaw_ref = std::atan2(mag_W.y(), mag_W.x());
     const auto new_yaw = algo::wrapPi(yaw_ref - std::atan2(my, mx));
 
-    // ヨーのみ修正したクオータニオンを計算
+    // Compute the quaternion corrected only in yaw.
     const auto new_q = eigen::quaternionFromRPY(old_roll, old_pitch, new_yaw);
 
-    // 姿勢の共分散のヨー成分を修正
+    // Correct the yaw component of attitude covariance.
     auto rot_cov = eskf_.getRotationCovariance();
     rot_cov.row(2).setZero();
     rot_cov.col(2).setZero();
     rot_cov(2, 2) = math::sqr(kInitRotStddev);
 
-    // 姿勢を初期化
+    // Initialize attitude.
     eskf_.initializeQuaternion(new_q, rot_cov);
   }
 
-  // 地磁気の参照値を発行
+  // Publish the geomagnetic reference value.
   publishMagRef(mag_W);
 
   TOBAS_INFO("The reference magnetic field has been set to ", mag_W.transpose(), ".");
@@ -391,7 +392,7 @@ void ErrorStateKalmanFilterNode::fillOdometryMsg(tobas_msgs::OdometryWithCovaria
   const Quaterniond W_Rot_B = eskf_.getQuaternion();
   const Quaterniond B_Rot_W = W_Rot_B.conjugate();
   const Vector3d B_grav = B_Rot_W * Vector3d(0, 0, -eskf_.getGravity());
-  const Vector3d B_Acc = imu_filt_->accel.data - eskf_.getAccelBias() + B_grav;  // 重力を除いた加速度
+  const Vector3d B_Acc = imu_filt_->accel.data - eskf_.getAccelBias() + B_grav;  // Acceleration excluding gravity.
   const Vector3d B_Gyro = imu_filt_->gyro.data - eskf_.getGyroBias();
 
   // Header
@@ -482,15 +483,24 @@ void ErrorStateKalmanFilterNode::publishFeedback(const std_msgs::msg::Header& he
 
 double ErrorStateKalmanFilterNode::calcGravMeasNoiseStddev(const Vector3d& acc) const
 {
-  // 加速度のL2ノルムから重力方向の観測の不確かさを決める．
-  // 加速度の大きさと重力加速度との誤差が大きいほど重力以外の加速度が生じているため加速度による姿勢の観測が不確かだと考えるのは直感的だが，
-  // その誤差は正規分布に従うわけではなく一様に確かでもないため，誤差をそのまま標準偏差とすることには何の根拠もない．
-  // 実際，重力方向の分散を下げると，並進移動時に進行方向への加速度により実際よりも大きく傾いていると判断され，
-  // 制御器が姿勢を戻そうとし，並進方向の加速度の追従が遅れ，位置制御が振動するという因果関係がある．
-  // 動的加速度が陽にモデルに含まれていない以上，その不確かさの決定はヒューリスティックにならざるを得ない．
-  // 実用的には動作時の追従遅れと静止時の収束速度のトレードオフを考慮して決定するしかないだろう．
-  const auto acc_norm_diff = std::abs(acc.norm() - eskf_.getGravity());  // TODO: モデルから推定した動的加速度を考慮
-  const auto grav_stddev = grav_stddev_min_ + grav_stddev_rate_ * acc_norm_diff;  // TODO: 他のプロファイルを検討？
+  // Determine the uncertainty of the gravity-direction observation from the L2 norm of acceleration.
+  // It is intuitive to consider the attitude observation from acceleration less certain as the error between
+  // the acceleration magnitude and gravitational acceleration grows,
+  // because non-gravitational acceleration is being generated.
+  // However, that error is not normally distributed and is not uniformly reliable,
+  // so there is no basis for using the error directly as the standard deviation.
+  // In practice, reducing the gravity-direction variance can make acceleration in the direction of travel
+  // look like a larger-than-actual tilt during translation.
+  // The controller then tries to recover the attitude, acceleration tracking in the translation direction lags,
+  // and position control oscillates.
+  // Since dynamic acceleration is not explicitly included in the model, its uncertainty must be determined heuristically.
+  // In practice, it should be chosen by considering the trade-off between tracking lag during motion
+  // and convergence speed while stationary.
+
+  // TODO: Consider the modeled dynamic acceleration.
+  // TODO: Consider other profiles?
+  const auto acc_norm_diff = std::abs(acc.norm() - eskf_.getGravity());
+  const auto grav_stddev = grav_stddev_min_ + grav_stddev_rate_ * acc_norm_diff;
   return std::min(grav_stddev, grav_stddev_max_);
 }
 
@@ -749,9 +759,10 @@ void ErrorStateKalmanFilterNode::magCb(const tobas_msgs::MagneticField::ConstSha
 
   mag_ = msg;
 
-  // 最初の地磁気を受け取った時にGPSが受け取れていなければ，ひとまず最初の地磁気ベクトルを参照とする．
+  // If GNSS has not been received when the first geomagnetic data arrives,
+  // temporarily use the first geomagnetic vector as the reference.
   if (!mag_ref_set_) {
-    // 姿勢が安定するまで待機
+    // Wait until the attitude stabilizes.
     const auto rot_cov = eskf_.getRotationCovariance();
     const auto atti_var = (rot_cov(0, 0) + rot_cov(1, 1)) / 2;
     const auto atti_stddev = std::sqrt(atti_var);  // [rad]
@@ -760,13 +771,13 @@ void ErrorStateKalmanFilterNode::magCb(const tobas_msgs::MagneticField::ConstSha
       return;
     }
 
-    // フィルタリング後のIMUが取得できるまで待機
+    // Wait until filtered IMU data is available.
     if (!imu_filt_) {
       TOBAS_INFO_THROTTLE(kTypicalInfoPeriod, "Waiting for the filtered IMU messages.");
       return;
     }
 
-    // 動作を検知したら始めからやり直し
+    // Restart from the beginning if motion is detected.
     if (imu_filt_->gyro.norm() > kStaticGyroThresh) {
       TOBAS_WARN_THROTTLE(
         kTypicalWarnPeriod, "Motion was detected while measuring the reference magnetic field. Retrying...");
@@ -777,18 +788,18 @@ void ErrorStateKalmanFilterNode::magCb(const tobas_msgs::MagneticField::ConstSha
       return;
     }
 
-    // 姿勢を補正し地上座標系から見た地磁気ベクトルを求める
+    // Correct the attitude and compute the geomagnetic vector as seen from the ground coordinate system.
     const auto R_W_B = eskf_.getQuaternion();
     const auto [roll, pitch, _] = st::eulerFromQuaternion(R_W_B.x(), R_W_B.y(), R_W_B.z(), R_W_B.w());
     const auto R_G_B = kdl::Rotation::RPY(roll, pitch, 0.);
     const auto mag_G = R_G_B * msg->mag;
 
-    // 地磁気ベクトルを加算
+    // Accumulate the geomagnetic vector.
     for (size_t i = 0; i < 3; ++i) {
       init_mag_sum_[i].add(mag_G(i));
     }
 
-    // 十分に地磁気データが溜まったら平均値を参照ベクトルに設定
+    // Set the mean value as the reference vector after enough geomagnetic data has been accumulated.
     if (++init_mag_cnt_ >= kInitMagCount) {
       Eigen::Vector3d init_mag_mean;
       for (size_t i = 0; i < 3; ++i) {
@@ -803,7 +814,7 @@ void ErrorStateKalmanFilterNode::magCb(const tobas_msgs::MagneticField::ConstSha
   const auto& mag_meas = msg->mag.data;
   const auto stamp = ros2::chronoFromRosTime(msg->header.stamp);
 
-  // バイアス推定を行う場合は3軸，行わない場合はヨーのみ更新
+  // Update all three axes when estimating bias; otherwise update yaw only.
   if (do_mag_hard_bias_estimation_ || do_mag_soft_bias_estimation_) {
     eskf_.measureMagneticField3d(mag_meas, fixed_mag_cov_, stamp);
   }
@@ -818,7 +829,7 @@ void ErrorStateKalmanFilterNode::baroCb(const tobas_msgs::msg::FluidPressure::Co
     return;
   }
 
-  // 気圧高度の初期値を設定
+  // Set the initial barometric altitude value.
   if (!baro_alt_origin_set_) {
     init_pres_sum_.add(msg->pressure);
     if (++init_pres_cnt_ >= kInitBaroCount) {
@@ -850,7 +861,7 @@ void ErrorStateKalmanFilterNode::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& 
   const auto& vel_cov = adaptive_gnss_noise_ ? msg->velocity_covariance : fixed_gnss_vel_cov_;
 
   if (!gnss_) {
-    // 飛行中にGNSS位置の初期化処理が入ると危険なためスキップ
+    // Skip initialization because initializing the GNSS position during flight is dangerous.
     if (arming_ && arming_->data) {
       TOBAS_WARN_THROTTLE(
         kTypicalWarnPeriod,
@@ -859,39 +870,40 @@ void ErrorStateKalmanFilterNode::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& 
       return;
     }
 
-    // GNSSの初期位置
-    // TODO: 機体フレームに変換
+    // Initial GNSS position.
+    // TODO: Convert to the body frame.
     gnss_origin_.latitude = msg->latitude;
     gnss_origin_.longitude = msg->longitude;
     gnss_origin_.altitude = msg->altitude;
 
-    // GNSSの初期位置を発行
+    // Publish the initial GNSS position.
     publishGnssOrigin(gnss_origin_.latitude, gnss_origin_.longitude, gnss_origin_.altitude);
 
-    // GNSSの初期値から地磁気の参照値を求める
-    // TODO: 位置の変化に合わせてオンラインで参照値を求める
+    // Compute the geomagnetic reference value from the initial GNSS value.
+    // TODO: Compute the reference value online according to position changes.
     const auto mag = geomag::elementsFromGeodetic(
       gnss_origin_.latitude, gnss_origin_.longitude, gnss_origin_.altitude, tim::yearFraction());
     const Vector3d mag_W(mag.east, mag.north, -mag.down);  // ENU coordinates
     setMagneticFieldRef(mag_W);
 
-    // 初めてGNSSを受け取った位置速度で初期化 (でないと姿勢に過大なフィードバックが入ってしまう)
+    // Initialize with the position and velocity from the first received GNSS data.
+    // Otherwise, excessive feedback may be applied to attitude.
     eskf_.initializePosition(Vector3d::Zero(), pos_cov);
     eskf_.initializeVelocity(vel_meas, vel_cov);
   }
 
   gnss_ = msg;
 
-  // 位置の観測値
+  // Position observation.
   std::tie(pos_meas_.x(), pos_meas_.y()) =
     st::gnssToCartRelative(msg->latitude, msg->longitude, gnss_origin_.latitude, gnss_origin_.longitude);
   pos_meas_.z() = msg->altitude - gnss_origin_.altitude;
 
-  // 共分散
+  // Covariance.
   gnss_cov_.topLeftCorner<3, 3>() = pos_cov;
   gnss_cov_.bottomRightCorner<3, 3>() = vel_cov;
 
-  // ESKFを更新
+  // Update ESKF.
   const Vector3d imu2gnss = gnss_offset_ - imu_offset_;
   const auto& gyro_meas = imu_filt_->gyro.data;
   const auto stamp = ros2::chronoFromRosTime(msg->header.stamp);
@@ -910,7 +922,7 @@ void ErrorStateKalmanFilterNode::externalPoseCb(const tobas_kdl_msgs::FrameWithC
   pose.M.getQuaternion(quat.x(), quat.y(), quat.z(), quat.w());
 
   const auto stamp = ros2::chronoFromRosTime(msg->header.stamp);
-  eskf_.measurePose(pose.p.data, quat, msg->frame.covariance, Vector3d::Zero(), stamp);  // TODO: オフセット指定
+  eskf_.measurePose(pose.p.data, quat, msg->frame.covariance, Vector3d::Zero(), stamp);  // TODO: Specify offset.
 }
 
 void ErrorStateKalmanFilterNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& msg)

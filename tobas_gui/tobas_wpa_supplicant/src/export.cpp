@@ -48,7 +48,7 @@ std::string Exporter::exportText(const Data& src) const
         break;
       case KeyMgmt::SAE:
         oss << "\t" << kSaePasswordPrefix << "\"" << network.psk << "\"\n";
-        oss << "\t" << kIeee80211wPrefix << 2 << "\n";  // PMF必須
+        oss << "\t" << kIeee80211wPrefix << 2 << "\n";  // PMF required.
         break;
       default:
         throw;

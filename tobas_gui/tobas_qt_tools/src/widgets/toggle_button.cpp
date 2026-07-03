@@ -24,16 +24,16 @@ bool ToggleButton::isChecked() const
 
 void ToggleButton::setChecked(bool _checked)
 {
-  // 状態が変わらないなら何もしない
+  // Do nothing if the state does not change.
   if (_checked == checked_) {
     return;
   }
 
-  // 状態を更新
+  // Update the state.
   checked_ = _checked;
 
-  // 新しい状態に応じたテキスト設定
-  // シグナル発行は行わない
+  // Set text according to the new state.
+  // Do not emit signals.
   if (_checked) {
     setText(on_text_);
   }

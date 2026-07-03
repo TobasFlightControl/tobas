@@ -20,7 +20,7 @@ namespace eskf
 {
 ErrorStateKalmanFilter::ErrorStateKalmanFilter() : x_history_(kStateHistoryTimeWindow)
 {
-  // 観測方程式の固定部分を埋める
+  // Fill the fixed parts of the observation equations.
   H_pos_.setZero();
   H_vel_.setZero();
   H_pv_.setZero();
@@ -312,12 +312,12 @@ double ErrorStateKalmanFilter::measureIMU(
   assert(eigen::isSymmetricSemiPositiveDefinite(gyro_cov));
   assert(eigen::isSymmetricPositiveDefinite(grav_cov));
 
-  // サンプリングタイムを計算して時刻を更新
+  // Compute the sampling time and update the timestamp.
   const auto dt = ch::duration<double>(time - t_last_imu_).count();  // [s]
   const auto dt2 = math::sqr(dt);
   t_last_imu_ = time;
 
-  // クオータニオンの正規化のためにdt = 0を許容できない
+  // `dt = 0` cannot be accepted because quaternion normalization depends on it.
   if (dt <= 0.) {
     std::cerr << "IMU time gap must be positive: " << dt << " <= 0 [sec]" << std::endl;
     return INFINITY;
@@ -334,19 +334,19 @@ double ErrorStateKalmanFilter::measureIMU(
   const Eigen::Matrix3d W_Rot_B = q.toRotationMatrix();
   const Eigen::Vector3d acc_grav_W = W_Rot_B * acc_B + getGravVector(x_);
 
-  // IMUの共分散を補正
+  // Correct IMU covariance.
   const auto acc_cov_fixed = eigen::nearestPositiveDefinite(acc_cov, math::sqr(kMinAccStddev));
   const auto gyro_cov_fixed = eigen::nearestPositiveDefinite(gyro_cov, math::sqr(kMinGyroStddev));
 
-  // (260) ノミナル状態のキネマティクス
+  // (260) Nominal-state kinematics.
   x_.segment<3>(kPosIdx) += vel_W * dt;
   if (enable_second_integral_) {
-    x_.segment<3>(kPosIdx) += 0.5 * acc_grav_W * dt2;  // 積分誤差増大リスクあり
+    x_.segment<3>(kPosIdx) += 0.5 * acc_grav_W * dt2;  // Risk of increased integration error.
   }
   x_.segment<3>(kVelIdx) += acc_grav_W * dt;
   x_.segment<4>(kQuatIdx) = eigen::hamiltonFromQuaternion(q * delta_q);
 
-  // (270) ヤコビアンの可変部を更新
+  // (270) Update the variable part of the Jacobian.
   F_x_.block<3, 3>(kDeltaPosIdx, kDeltaVelIdx).diagonal().fill(dt);
   F_x_.block<3, 3>(kDeltaVelIdx, kDeltaThetaIdx) = -W_Rot_B * eigen::skew(acc_B * dt);
   F_x_.block<3, 3>(kDeltaVelIdx, kDeltaAccBiasIdx) = -W_Rot_B * dt;
@@ -354,10 +354,10 @@ double ErrorStateKalmanFilter::measureIMU(
   F_x_.block<3, 3>(kDeltaThetaIdx, kDeltaThetaIdx) = delta_R.transpose();
   F_x_.block<3, 3>(kDeltaThetaIdx, kDeltaGyroBiasIdx).diagonal().fill(-dt);
 
-  // (269)第一項: 共分散行列の予測値を更新
-  P_ = F_x_ * P_.selfadjointView<Eigen::Lower>() * F_x_.transpose();  // TODO: 必要な部分のみ計算
+  // (269) First term: update the predicted covariance matrix.
+  P_ = F_x_ * P_.selfadjointView<Eigen::Lower>() * F_x_.transpose();  // TODO: Compute only the required parts.
 
-  // (269)第二項: プロセスノイズを印加
+  // (269) Second term: apply process noise.
   P_.block<3, 3>(kDeltaVelIdx, kDeltaVelIdx) += W_Rot_B * acc_cov_fixed * W_Rot_B.transpose() * dt2;
   P_.block<3, 3>(kDeltaThetaIdx, kDeltaThetaIdx) += W_Rot_B * gyro_cov_fixed * W_Rot_B.transpose() * dt2;
   P_.diagonal().segment<3>(kDeltaAccBiasIdx).array() += math::sqr(acc_bias_proc_noise_density_) * dt;
@@ -370,11 +370,13 @@ double ErrorStateKalmanFilter::measureIMU(
   // Apply constraints to avoid numerical errors
   applyConstraints();
 
-  // 状態の履歴を保存
+  // Save the state history.
   x_history_.add(time, x_);
 
-  // 重力方向の観測: 加速度と姿勢には等式関係 (= 出力方程式) があるため，カルマンフィルタ理論に則って補正を行う．
-  // 自由落下中もしくは加速度が大きすぎる場合は全く姿勢を反映していない恐れがあるため，重力方向の観測を行うのはその間の加速度に限る．
+  // Gravity-direction observation: acceleration and attitude have an equality relation (= output equation),
+  // so correction is performed according to Kalman filter theory.
+  // During free fall or when acceleration is too large, the acceleration may not reflect attitude at all,
+  // so the gravity-direction observation is limited to acceleration values in this range.
   const auto acc_norm = acc_meas.norm();
   const auto gravity = getGravity(x_);
   if (acc_norm < kFreeFallAccelNormThresh * gravity) {
@@ -395,7 +397,7 @@ double ErrorStateKalmanFilter::measurePosition(
 
   const Eigen::Vector3d delta = pos_meas - getPosition(x, offset);
 
-  // 姿勢による偏微分
+  // Partial derivative with respect to attitude.
   const auto dqvq_dq = quatRotationDerivative(x, offset);
   const auto Q_dtheta = getQ_dtheta(x);
   H_pos_.block<3, 3>(0, kDeltaThetaIdx) = dqvq_dq * Q_dtheta;
@@ -417,12 +419,12 @@ double ErrorStateKalmanFilter::measureVelocity(
   const Eigen::Vector3d vel_nominal = getVelocity(x) + getQuaternion(x) * gyro_offset;
   const Eigen::Vector3d delta = vel_meas - vel_nominal;
 
-  // 姿勢による偏微分
+  // Partial derivative with respect to attitude.
   const auto dqvq_dq = quatRotationDerivative(x, gyro_offset);
   const auto Q_dtheta = getQ_dtheta(x);
   H_vel_.block<3, 3>(0, kDeltaThetaIdx) = dqvq_dq * Q_dtheta;
 
-  // ジャイロバイアスによる偏微分
+  // Partial derivative with respect to gyro bias.
   H_vel_.block<3, 3>(0, kDeltaGyroBiasIdx) = getDCM(x) * eigen::skew(offset);
 
   return correct(delta, vel_cov, H_vel_);
@@ -438,23 +440,23 @@ double ErrorStateKalmanFilter::measurePosVel(
 {
   const auto& x = x_history_.closestAfterValue(time);
 
-  // 観測誤差
+  // Observation error.
   Eigen::Vector6d delta;
   const Eigen::Vector3d gyro_nominal = gyro_meas - getGyroBias(x);
   const Eigen::Vector3d gyro_offset = gyro_nominal.cross(offset);
   const Eigen::Vector3d vel_nominal = getVelocity(x) + getQuaternion(x) * gyro_offset;
-  delta.head<3>() = pos_meas - getPosition(x, offset);  // 位置の誤差
-  delta.tail<3>() = vel_meas - vel_nominal;             // 速度の誤差
+  delta.head<3>() = pos_meas - getPosition(x, offset);  // Position error.
+  delta.tail<3>() = vel_meas - vel_nominal;             // Velocity error.
 
-  // 観測方程式
+  // Observation equation.
   const auto Q_dtheta = getQ_dtheta(x);
   const auto pos_q_deriv = quatRotationDerivative(x, offset);
   const auto vel_q_deriv = quatRotationDerivative(x, gyro_offset);
-  H_pv_.block<3, 3>(0, kDeltaThetaIdx) = pos_q_deriv * Q_dtheta;  // 位置の姿勢による偏微分
-  H_pv_.block<3, 3>(3, kDeltaThetaIdx) = vel_q_deriv * Q_dtheta;  // 速度の姿勢による偏微分
+  H_pv_.block<3, 3>(0, kDeltaThetaIdx) = pos_q_deriv * Q_dtheta;  // Position derivative by attitude.
+  H_pv_.block<3, 3>(3, kDeltaThetaIdx) = vel_q_deriv * Q_dtheta;  // Velocity derivative by attitude.
   H_pv_.block<3, 3>(0, kDeltaGyroBiasIdx) = getDCM(x) * eigen::skew(offset);
 
-  // 事後推定を更新
+  // Update the posterior estimate.
   return correct(delta, cov, H_pv_);
 }
 
@@ -480,12 +482,12 @@ double ErrorStateKalmanFilter::measurePose(
 {
   const auto& x = x_history_.closestAfterValue(time);
 
-  // 観測誤差
+  // Observation error.
   Eigen::Vector6d delta;
   delta.head<3>() = pos_meas - getPosition(x, offset);
   delta.tail<3>() = eigen::angleAxisFromQuaternion(getQuaternion(x).conjugate() * q_meas);
 
-  // 位置の観測の姿勢による偏微分
+  // Partial derivative of the position observation with respect to attitude.
   const auto dqvq_dq = quatRotationDerivative(x, offset);
   const auto Q_dtheta = getQ_dtheta(x);
   H_pose_.block<3, 3>(0, kDeltaThetaIdx) = dqvq_dq * Q_dtheta;
@@ -513,15 +515,15 @@ double ErrorStateKalmanFilter::measureMagneticField3d(
   const auto& my = mag_B.y();
   const auto& mz = mag_B.z();
 
-  // 観測誤差
+  // Observation error.
   const auto mag_pred = T * mag_B + m_b;
   const Eigen::Vector3d delta = mag_meas - mag_pred;
 
-  // 観測方程式 (memo: 3-20)
+  // Observation equation (memo: 3-20).
   H_mag_.block<3, 3>(0, kDeltaThetaIdx) = T * eigen::skew(2 * mag_B);
   H_mag_.block<3, 6>(0, kDeltaMagSoftBiasIdx) << mx, my, mz, 0, 0, 0, 0, mx, 0, my, mz, 0, 0, 0, mx, 0, my, mz;
 
-  // 事後推定を更新
+  // Update the posterior estimate.
   return correct(delta, mag_cov, H_mag_);
 }
 
@@ -537,25 +539,26 @@ double ErrorStateKalmanFilter::measureMagneticFieldHead(
 
   const auto& x = x_history_.closestAfterValue(time);
 
-  // オイラー角を取得
+  // Get Euler angles.
   const auto R_W_B = getQuaternion(x);
   const auto [roll_pred, pitch_pred, yaw_pred] = st::eulerFromQuaternion(R_W_B.x(), R_W_B.y(), R_W_B.z(), R_W_B.w());
 
-  // 地磁気をヨー角のみ機体と一致し，XY軸が地面と平行な地上座標系Gに移す．
+  // Move the geomagnetic field to ground coordinate system `G`,
+  // whose yaw alone matches the body and whose XY axes are parallel to the ground.
   const Eigen::AngleAxisd R_W_G(yaw_pred, Eigen::Vector3d::UnitZ());
-  const auto mag_G = R_W_G.inverse() * (R_W_B * mag_meas);  // 後ろから計算することで計算量を削減
+  const auto mag_G = R_W_G.inverse() * (R_W_B * mag_meas);  // Reduce computation by evaluating from the back.
   const auto mx = mag_G.x();
   const auto my = mag_G.y();
 
-  // ヨーの誤差を計算
+  // Compute yaw error.
   const auto yaw_ref = std::atan2(mag_W_.y(), mag_W_.x());
   const auto yaw_meas = yaw_ref - std::atan2(my, mx);
   const auto delta = algo::wrapPi(yaw_meas - yaw_pred);
 
-  // 出力方程式を更新
+  // Update the output equation.
   H_yaw_.block<1, 3>(0, kDeltaThetaIdx) = hamiltonToYawOutputMatrix(x) * getQ_dtheta(x);
 
-  // 事後推定を更新
+  // Update the posterior estimate.
   return correct(Eigen::Scalard(delta), Eigen::Scalard(yaw_var), H_yaw_);
 }
 
@@ -674,10 +677,10 @@ void ErrorStateKalmanFilter::setMagSoftBiasFromMatrix(const Eigen::Matrix3d& T)
 
 void ErrorStateKalmanFilter::applyConstraints()
 {
-  // クオータニオンのノルムは1
+  // Quaternion norm is one.
   x_.segment<4>(kQuatIdx) = getHamilton().normalized();
 
-  // 事前知識を用いて状態の範囲を制限
+  // Limit the state range using prior knowledge.
   if (acc_bias_proc_noise_density_ > 0.) {
     x_.segment<3>(kAccBiasIdx) = getAccelBias().cwiseMax(-kMaxAccBias).cwiseMin(kMaxAccBias);
   }
@@ -691,14 +694,14 @@ void ErrorStateKalmanFilter::applyConstraints()
     x_(kGravIdx) = std::clamp(getGravity(), kMinGravity, kMaxGravity);
   }
 
-  // 地磁気のソフトバイアスは正定値対称
+  // Magnetometer soft-iron bias is symmetric positive definite.
   if (mag_soft_bias_proc_noise_density_) {
     const auto T = getMagSoftBias();
     const auto T_positive = eigen::nearestPositiveDefinite(T, kMinMagSoftBiasEigenValue);
     setMagSoftBiasFromMatrix(T_positive);
   }
 
-  // 共分散行列は対称行列でなければならない
+  // The covariance matrix must be symmetric.
   if (enable_cov_symmetrisation_) {
     eigen::symmetrise(P_);
   }
@@ -715,22 +718,20 @@ double ErrorStateKalmanFilter::measureGravity(
   const Eigen::Matrix3d& grav_cov,
   const ch::steady_clock::time_point& time)
 {
-  // 参考: 姿勢推定の基礎 (森田 直人)
-  // https://www.dropbox.com/s/ijfnlkvcep1w0f2/%E5%A7%BF%E5%8B%A2%E6%8E%A8%E5%AE%9A%E3%81%AE%E5%9F%BA%E7%A4%8E.pdf
-
-  // 観測方程式:
+  // Observation equation:
   //    a_t = a_b - R^T g (g = [0, 0, -9.8xxxx])
-  // ヤコビアン:
+  // Jacobian:
   //    pda_t/pdq = -2 [R^T g]x
   //    pda_t/pda_b = E_3
-  //    pda_t/pdg = -R^T (正の重力加速度のみを推定するため符号反転して2列目だけ使う)
+  //    pda_t/pdg = -R^T (the sign is inverted to estimate only positive gravitational acceleration,
+  //    and only the second column is used)
 
   const auto& x = x_history_.closestAfterValue(time);
 
   const Eigen::Matrix3d R_B_W = getDCM(x).transpose();
   const Eigen::Vector3d grav_B = R_B_W * getGravVector(x);
-  const Eigen::Vector3d acc_ref = getAccelBias(x) - grav_B;  // 動的な加速度なしで観測されるべき加速度
-  const Eigen::Vector3d delta = acc_meas - acc_ref;  // TODO: モデルから推定した動的加速度を引いた値を観測値とする
+  const Eigen::Vector3d acc_ref = getAccelBias(x) - grav_B;  // Acceleration expected without dynamic acceleration.
+  const Eigen::Vector3d delta = acc_meas - acc_ref;
 
   H_grav_.block<3, 3>(0, kDeltaThetaIdx) = -eigen::skew(2 * grav_B);
   H_grav_.col(kDeltaGravIdx) = R_B_W.col(2);

@@ -8,7 +8,7 @@
 
 #include "./future.hpp"
 
-/* 開発用 */
+/* For development. */
 // #include <tobas_std_msgs/action/empty.hpp>
 // using ActType = tobas_std_msgs::action::Empty;
 
@@ -17,8 +17,8 @@ namespace tobas
 namespace ros2
 {
 /**
- * @brief 同期アクションクライアント．
- * @note ブロッキングを行うため，リアルタイム性が重要なノードでは使用しないこと．
+ * @brief Synchronous action client.
+ * @note This blocks, so do not use it in nodes where real-time behavior is important.
  */
 template <typename ActType>
 class SyncActionClient
@@ -43,11 +43,11 @@ public:
   }
 
   /**
-   * @brief アクションを呼ぶ．
+   * @brief Call the action.
    *
-   * @param goal アクションゴール．
+   * @param goal Action goal.
    *
-   * @note ROSノードと同じスレッドで動作するコールバックの中で呼ぶとデッドロックする．
+   * @note Calling this from a callback that runs on the same thread as the ROS node causes a deadlock.
    */
   std::pair<GoalHandlePtr, std::shared_future<typename GoalHandle::WrappedResult>>
   sendGoal(const typename ActType::Goal& goal, FeedbackCb feedback_cb = nullptr)
@@ -73,12 +73,12 @@ public:
   }
 
   /**
-   * @brief アクションを呼び，結果が得られるまで待機する．
+   * @brief Call the action and wait until a result is obtained.
    *
-   * @param goal アクションゴール．
-   * @param get_result_timeout,cancel_goal_timeout 該当ステップのタイムアウト．非正ならば無限待機．
+   * @param goal Action goal.
+   * @param get_result_timeout,cancel_goal_timeout Timeout for each step. Waits indefinitely when non-positive.
    *
-   * @note ROSノードと同じスレッドで動作するコールバックの中で呼ぶとデッドロックする．
+   * @note Calling this from a callback that runs on the same thread as the ROS node causes a deadlock.
    */
   bool sendGoalAndWait(
     const typename ActType::Goal& goal,

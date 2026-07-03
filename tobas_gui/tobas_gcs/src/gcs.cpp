@@ -115,7 +115,7 @@ GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr n
   header_cols->addStretch();
   header_cols->addWidget(remote_conn_);
   header_cols->addLayout(pkg_rows);
-  qt::addSpacing(header_cols, 30, QSizePolicy::Preferred);  // スペースが足りなければ潰れる
+  qt::addSpacing(header_cols, 30, QSizePolicy::Preferred);  // Collapse this when there is not enough space.
   header_cols->addWidget(restart_btn_);
   header_cols->addWidget(shutdown_btn_);
 
@@ -163,11 +163,11 @@ void GroundControlStationWidget::updateInternalDataStructures()
   const auto ns = '/' + drone_.name;
   const auto proj_path = projectPath();
 
-  // まずトピックを貼り替えて以前の機体でのコールバックを全て吐ききる
+  // First switch the topics and drain all callbacks from the previous vehicle.
   bridge_.initializeScopedTopics(ns);
   qt::processAllQueuedEvents();
 
-  // SSHの窓口に接続先の情報を伝える
+  // Pass the connection information to the SSH interface.
   if (ssh_client_.setEndpoint(ssh_config_.host, ssh_config_.user) != ssh::SshClient::kNoError) {
     qt::qErrorBox(this, "Failed to set SSH configuration:\n" + QString(ssh_client_.errorMessage()));
     return;
@@ -204,7 +204,7 @@ fs::path GroundControlStationWidget::projectPath() const
 
 std::expected<void, QString> GroundControlStationWidget::restartInBackground()
 {
-  // コマンドを実行
+  // Run the command.
   const auto res = ssh_client_.execute("systemctl restart tobas_real.target", true);
   if (res != ssh::SshClient::kNoError) {
     return std::unexpected("Failed to restart the flight controller:\n\n" + QString(ssh_client_.errorMessage()));
@@ -215,13 +215,13 @@ std::expected<void, QString> GroundControlStationWidget::restartInBackground()
 
 std::expected<void, QString> GroundControlStationWidget::shutdownInBackground()
 {
-  // コマンドを実行
+  // Run the command.
   const auto res = ssh_client_.execute("poweroff", true, true);
   if (res != ssh::SshClient::kNoError) {
     return std::unexpected("Failed to shutdown the flight controller:\n\n" + QString(ssh_client_.errorMessage()));
   }
 
-  // 確実にラズパイがシャットダウンされるまで適当に待つ
+  // Wait long enough for the Raspberry Pi to shut down reliably.
   qt::spinFor(5s);
 
   return {};
@@ -231,13 +231,13 @@ void GroundControlStationWidget::onLoadButtonClicked()
 {
   qDebug() << "GroundControlStationWidget::onLoadButtonClicked";
 
-  // シミュレーションの起動中でないことを確認
+  // Confirm that the simulation is not running.
   if (simulation_->isRunning()) {
     qt::qWarnBox(this, "Stop the simulation before loading a new project.");
     return;
   }
 
-  // 前回開いたパスを取得
+  // Get the previously opened path.
   std::string last_opened_dir;
   if (property_client_.get(kLastOpenedDirKey, last_opened_dir) < 0) {
     qWarning() << property_client_.errorMessage();
@@ -247,7 +247,7 @@ void GroundControlStationWidget::onLoadButtonClicked()
     }
   }
 
-  // プロジェクトのパスを更新
+  // Update the project path.
   cmn::LoadProjectDialog dialog(this, QString::fromStdString(last_opened_dir));
   if (dialog.exec() != QDialog::Accepted) {
     return;
@@ -255,7 +255,7 @@ void GroundControlStationWidget::onLoadButtonClicked()
   const fs::path proj_path = dialog.selectedFiles().first().toStdString();
   proj_paths_.setProjPath(proj_path);
 
-  // バージョンチェック
+  // Check the version.
   if (proj_version_.load(proj_paths_.versionPath())) {
     if (!proj_version_.isCompatible()) {
       qt::qWarnBox(
@@ -271,10 +271,10 @@ void GroundControlStationWidget::onLoadButtonClicked()
     return;
   }
 
-  // パスをテキストに設定
+  // Set the path text.
   proj_path_->setText(QString::fromStdString(proj_path));
 
-  // ユーザが開いたディレクトリを保存
+  // Save the directory opened by the user.
   const auto par_dir = fs::path(proj_path).parent_path();
   if (property_client_.set(kLastOpenedDirKey, par_dir) < 0) {
     qWarning() << property_client_.errorMessage();
@@ -283,7 +283,7 @@ void GroundControlStationWidget::onLoadButtonClicked()
     qWarning() << property_client_.errorMessage();
   }
 
-  // 機体設定ファイルの存在を確認
+  // Confirm that the vehicle configuration file exists.
   const auto tbsdrn_path = proj_paths_.tbsdrnPath();
   if (!fs::is_regular_file(tbsdrn_path)) {
     qt::qErrorBox(
@@ -321,15 +321,15 @@ void GroundControlStationWidget::onLoadButtonClicked()
     return;
   }
 
-  // 内部状態を更新
+  // Update the internal state.
   updateInternalDataStructures();
 
-  // 制御ボタンを有効化
+  // Enable control buttons.
   write_btn_->setEnabled(true);
   restart_btn_->setEnabled(true);
   shutdown_btn_->setEnabled(true);
 
-  // プロジェクトの読み込みが成功したことを示すダイアログ
+  // Show a dialog indicating that the project was loaded successfully.
   qt::qInfoBox(this, "Tobas project is loaded successfully.");
 }
 
@@ -337,7 +337,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
 {
   qDebug() << "GroundControlStationWidget::onWriteButtonClicked";
 
-  // アームされていないことを確認
+  // Confirm that the vehicle is not armed.
   if (!arming_) {
     if (!qt::yesOrNo(
           this,
@@ -359,12 +359,12 @@ void GroundControlStationWidget::onWriteButtonClicked()
   const auto remote_proj_path = proj_paths_.remoteProjPath();
   const auto config_pkg_name = proj_paths_.cfgPkgName();
 
-  // 進捗バーを作成
+  // Create a progress bar.
   qt::ProgressDialog progress("Write Tobas Project", 12, this);
   progress.setCancelButton(nullptr);
   progress.show();
 
-  // SSH接続
+  // Connect over SSH.
   progress.setLabelText("Connecting to the flight controller.");
   if (ssh_client_.connect() != ssh::SshClient::kNoError) {
     progress.close();
@@ -373,7 +373,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
   }
   progress.progressStep();
 
-  // FCのバージョンを確認
+  // Check the FC version.
   progress.setLabelText("Checking the Tobas version.");
   std::string fc_ver_text;
   if (ssh_client_.execute("/opt/tobas/lib/tobas_version/show_version", fc_ver_text) != ssh::SshClient::kNoError) {
@@ -397,7 +397,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
   }
   progress.progressStep();
 
-  // サービスを停止
+  // Stop the service.
   progress.setLabelText("Stopping the Tobas real service.");
   if (ssh_client_.execute("systemctl stop tobas_real.target", true) != ssh::SshClient::kNoError) {
     progress.close();
@@ -406,7 +406,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
   }
   progress.progressStep();
 
-  // 環境変数を読み込む (読み込めなくても続行)
+  // Load environment variables; continue even if they cannot be loaded.
   progress.setLabelText("Getting environment variables.");
   std::string project_env_text;
   if (ssh_client_.sftpRead(kProjectEnvPath, project_env_text, true) == ssh::SshClient::kNoError) {
@@ -421,9 +421,9 @@ void GroundControlStationWidget::onWriteButtonClicked()
   }
   progress.progressStep();
 
-  // パッケージが変わる場合は競合を避けるためにクリーンビルド
+  // Use a clean build when packages change to avoid conflicts.
   if (config_pkg_name != project_env_parser_.config_pkg) {
-    // ワークスペースを初期化
+    // Initialize the workspace.
     progress.setLabelText("Initializing colcon workspace.");
     if (ssh_client_.execute(std::format("rm -rf {}", kColconWSPathRoot), true)) {
       progress.close();
@@ -441,7 +441,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
     progress.progressStep();
   }
 
-  // 環境変数を更新
+  // Update environment variables.
   progress.setLabelText("Setting environment variables.");
   project_env_parser_.config_pkg = config_pkg_name;
   project_env_parser_.nif = network_config_.interface;
@@ -452,7 +452,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
   }
   progress.progressStep();
 
-  // プロジェクトを送信
+  // Send the project.
   progress.setLabelText("Sending the Tobas project to the flight controller.");
   const auto remote_dir = fs::path(kColconWSPathRoot) / "src/";
   const auto mesh_path = proj_paths_.cfgMeshDirPath();
@@ -464,7 +464,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
   }
   progress.progressStep();
 
-  // GUIを止めないように別スレッドでプロジェクトをビルド
+  // Build the project on another thread so the GUI does not stop.
   progress.setLabelText("Building the Tobas project.");
   if (!remote_proj_builder_.build(proj_paths_.remoteProjPath())) {
     const QString error_msg(remote_proj_builder_.getErrorMessage());
@@ -487,11 +487,11 @@ void GroundControlStationWidget::onWriteButtonClicked()
   }
   progress.progressStep();
 
-  // DDSの設定を更新
+  // Update the DDS settings.
   progress.setLabelText("Writing DDS configuration.");
   cyclonedds::Data dds_data;
   dds_data.interfaces.emplace_back(network_config_.interface);
-  dds_data.shared_memory.enable = false;  // FIXME: プロセス間通信を共有メモリでやろうとするとなぜかジッターが増える
+  dds_data.shared_memory.enable = false;  // FIXME: Jitter increases when IPC tries to use shared memory.
   dds_data.shared_memory.log_level = cyclonedds::SharedMemory::kWarn;
   const auto dds_config_text = cyclonedds::exportText(dds_data);
   if (ssh_client_.sftpWrite(kCycloneddsConfigPath, dds_config_text, true) != ssh::SshClient::kNoError) {
@@ -501,7 +501,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
   }
   progress.progressStep();
 
-  // サービスを有効化
+  // Enable the service.
   progress.setLabelText("Enabling the flight controller.");
   if (ssh_client_.execute("systemctl enable tobas_real.target", true) != ssh::SshClient::kNoError) {
     progress.close();
@@ -510,7 +510,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
   }
   progress.progressStep();
 
-  // サービスを起動
+  // Start the service.
   progress.setLabelText("Starting the flight controller.");
   if (ssh_client_.execute("systemctl start tobas_real.target", true) != ssh::SshClient::kNoError) {
     progress.close();
@@ -519,7 +519,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
   }
   progress.progressStep();
 
-  // リロード
+  // Reload.
   progress.setLabelText("Reloading.");
   reset();
   progress.progressStep();
@@ -536,20 +536,20 @@ void GroundControlStationWidget::onRestartButtonClicked(bool checked)
     return;
   }
 
-  // アームされていないことを確認
+  // Confirm that the vehicle is not armed.
   if (arming_ && arming_->data) {
     qt::qWarnBox(this, "This operation cannot be performed while the vehicle is armed.");
     restart_btn_->setChecked(false);
     return;
   }
 
-  // 本当に再起動してよいか確認
+  // Confirm before restarting.
   if (!qt::yesOrNo(this, "Are you sure you want to restart the flight controller?", qt::WARN)) {
     restart_btn_->setChecked(false);
     return;
   }
 
-  // systemd サービスを再起動
+  // Restart the systemd service.
   spinner_.start();
   const auto res = restartInBackground();
   spinner_.stop();
@@ -562,7 +562,7 @@ void GroundControlStationWidget::onRestartButtonClicked(bool checked)
     qt::qErrorBox(this, res.error());
   }
 
-  // ボタンを押される前に戻す
+  // Return the button to the state before it was pressed.
   restart_btn_->setChecked(false);
 }
 
@@ -574,33 +574,33 @@ void GroundControlStationWidget::onShutdownButtonClicked(bool checked)
     return;
   }
 
-  // アームされていないことを確認
+  // Confirm that the vehicle is not armed.
   if (arming_ && arming_->data) {
     qt::qWarnBox(this, "This operation cannot be performed while the vehicle is armed.");
     shutdown_btn_->setChecked(false);
     return;
   }
 
-  // 本当にシャットダウンしてよいか確認
+  // Confirm before shutting down.
   if (!qt::yesOrNo(this, "Are you sure you want to shut down the FC?", qt::WARN)) {
     shutdown_btn_->setChecked(false);
     return;
   }
 
-  // OS をシャットダウン
+  // Shut down the OS.
   spinner_.start();
   const auto res = shutdownInBackground();
   spinner_.stop();
 
   if (res) {
     qt::qInfoBox(this, "The flight controller has been shut down successfully.");
-    reset();  // ウィジェットが保持しているROSメッセージなどを確実にリセットするために，reset()の呼び出しを最後に行う．
+    reset();  // Call `reset()` last so ROS messages and other state held by widgets are reliably reset.
   }
   else {
     qt::qErrorBox(this, res.error());
   }
 
-  // ボタンを押される前に戻す
+  // Return the button to the state before it was pressed.
   shutdown_btn_->setChecked(false);
 }
 
@@ -608,7 +608,7 @@ void GroundControlStationWidget::onSimRealStateChanged()
 {
   qDebug() << "GroundControlStationWidget::onSimRealStateChanged";
 
-  // シミュレーションウィジェット以外リセット
+  // Reset everything except the simulation widget.
   reset(false);
 }
 
@@ -616,7 +616,7 @@ void GroundControlStationWidget::onRemoteConnectionDisconnected()
 {
   qDebug() << "GroundControlStationWidget::onRemoteConnectionDisconnected";
 
-  // 実機との通信が切断された場合に限り全てのウィジェットをリセットする
+  // Reset all widgets only when communication with the real vehicle is lost.
   if (!simulation_->isRunning()) {
     reset();
   }

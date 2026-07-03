@@ -13,13 +13,13 @@ namespace ros2
 {
 int createTemporalFile(std::string& path)
 {
-  // システムの一時ディレクトリを取得
+  // Get the system temporary directory.
   const auto tmp_dir = rfs::temp_directory_path();
 
-  // テンプレート文字列を作成．末尾6文字がXでなければならない．
+  // Create the template string. The last six characters must be X.
   path = (tmp_dir / "tobas_temporal_file_XXXXXX").string();
 
-  // mkstemp()はテンプレートのX部分をランダムな文字列に置き換え，一時ファイルを作成する．
+  // `mkstemp()` replaces the X part of the template with random characters and creates a temporary file.
   return mkstemp(path.data());
 }
 }  // namespace ros2

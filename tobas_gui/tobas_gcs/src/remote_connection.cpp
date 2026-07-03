@@ -24,8 +24,8 @@ RemoteConnectionWidget::RemoteConnectionWidget(const RosQtBridge& bridge) : brid
   unknown_ = QPixmap(QString::fromStdString(rsrc_dir / "unknown.png"));
 
   icon_ = new QLabel();
-  icon_->setFixedSize(120, 40);  // サイズを固定しておかないとピクセルマップが大きく表示されてしまう
-  icon_->setAlignment(Qt::AlignCenter);  // QPixmapをQLabelの中央に配置
+  icon_->setFixedSize(120, 40);          // Fix the size so the pixmap is not displayed too large.
+  icon_->setAlignment(Qt::AlignCenter);  // Place the `QPixmap` at the center of the `QLabel`.
 
   label_ = new QLabel();
 

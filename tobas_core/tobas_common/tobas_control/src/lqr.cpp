@@ -30,7 +30,7 @@ VectorXd LQR::solve(const bool& update_gain)
     updateGain();
   }
 
-  // スケーリング
+  // Scaling.
   const VectorXd x_scaled = current_state.array() / state_scale.array();
   const VectorXd s_scaled = target_state.array() / state_scale.array();
 

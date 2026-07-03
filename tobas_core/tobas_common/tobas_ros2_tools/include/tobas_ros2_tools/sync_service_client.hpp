@@ -5,7 +5,7 @@
 
 #include <rclcpp/rclcpp.hpp>
 
-/* 開発用 */
+/* For development. */
 // #include <std_srvs/srv/empty.hpp>
 // using SrvType = std_srvs::srv::Empty;
 
@@ -16,8 +16,8 @@ namespace tobas
 namespace ros2
 {
 /**
- * @brief 同期サービスクライアント．
- * @note ブロッキングを行うため，リアルタイム性が重要なノードでは使用しないこと．
+ * @brief Synchronous service client.
+ * @note This blocks, so do not use it in nodes where real-time behavior is important.
  */
 template <typename SrvType>
 class SyncServiceClient
@@ -37,19 +37,19 @@ public:
   }
 
   /**
-   * @brief サービスを呼び，結果が得られるまで待機する．
+   * @brief Call the service and wait until a result is obtained.
    *
-   * @param req サービスリクエスト．
-   * @param timeout レスポンスが得られるまでのタイムアウト．非正ならば無限待機．
+   * @param req Service request.
+   * @param timeout Timeout until a response is obtained. Waits indefinitely when non-positive.
    *
-   * @note ROSノードと同じスレッドで動作するコールバックの中で呼ぶとデッドロックする．
+   * @note Calling this from a callback that runs on the same thread as the ROS node causes a deadlock.
    */
   template <typename RepT = int64_t, typename RatioT = std::milli>
   bool call(
     const typename SrvType::Request::SharedPtr& req,
     std::chrono::duration<RepT, RatioT> timeout = std::chrono::duration<RepT, RatioT>(-1))
   {
-    if (!client_->wait_for_service(kWaitForServer))  // service_is_readyは最初のコールでfalseを返すことが多い
+    if (!client_->wait_for_service(kWaitForServer))  // `service_is_ready` often returns false on the first call.
     {
       RCLCPP_ERROR_STREAM(node_->get_logger(), "\"" << client_->get_service_name() << "\" service is not ready.");
       return false;

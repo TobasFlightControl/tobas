@@ -12,7 +12,7 @@ namespace gui
 {
 namespace ctrl
 {
-/* QMLのコンストラクタ引数． */
+/* QML constructor arguments. */
 class SystemInfo : public QObject
 {
   Q_OBJECT

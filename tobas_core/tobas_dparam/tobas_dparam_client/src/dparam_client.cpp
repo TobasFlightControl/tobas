@@ -54,7 +54,7 @@ const char* DynamicParamClient::errorMessage() const
     case kServiceNotReady:
       return "Dynamic parameter server is not ready.";
     case kServerError:
-      return "Dynamic parameter service finished with error.";  // TODO: サーバから具体的なエラーメッセージを得る
+      return "Dynamic parameter service finished with error.";  // TODO: Get a specific error message from the server.
     default:
       throw;
   }

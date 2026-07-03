@@ -18,7 +18,7 @@ void ScrollArea::setLayout(QLayout* layout)
     throw std::runtime_error("Widget already set.");
   }
 
-  // スクロールエリアに入れられるウィジェットは1つのみだから，Layoutを使うためには空のウィジェットを挟む必要がある
+  // Only one widget can be placed in a scroll area, so an empty widget must be inserted to use a layout.
   const auto inner_widget = new QWidget();
   setWidget(inner_widget);
   inner_widget->setLayout(layout);

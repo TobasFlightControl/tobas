@@ -23,7 +23,7 @@ class RotorMarkerPublisher : public QObject
   using self = RotorMarkerPublisher;
   using super = QObject;
 
-  static constexpr double kArrowLength = 0.2;  // TODO: 想定される推力の最大値を矢印の長さに反映
+  static constexpr double kArrowLength = 0.2;  // TODO: Reflect the expected maximum thrust in the arrow length.
 
 public:
   explicit RotorMarkerPublisher(rclcpp::Node::SharedPtr node, const uadf::Model& uadf);

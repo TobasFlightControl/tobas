@@ -23,7 +23,7 @@ namespace tobas
 namespace gazebo
 {
 /**
- * @brief GNSSの位置データと速度データを発行するプラグイン．
+ * @brief Plugin that publishes GNSS position and velocity data.
  */
 class GazeboGnssPlugin : public BaseNode,
                          public gz::sim::System,
@@ -46,17 +46,17 @@ public:
 private:
   // SDF parameters
   std::string link_name_;
-  int update_rate_;            // 更新頻度 [Hz]
+  int update_rate_;            // Update rate [Hz]
   gz::math::Vector3d offset_;  // B_Pos_BS [m]
-  double delay_;               // GNSSの遅延時間 [s]
-  double pos_corr_time_;       // OU過程の相関時定数 [s]
-  double hor_pos_accuracy_;    // 水平位置精度 (誤差の期待値) [m]
-  double ver_pos_accuracy_;    // 垂直位置精度 (誤差の期待値) [m]
-  double hor_vel_stddev_;      // 水平速度のノイズの標準偏差 [m/s]
-  double ver_vel_stddev_;      // 垂直速度のノイズの標準偏差 [m/s]
-  double lat_0_;               // 原点の北緯 [deg]
-  double lon_0_;               // 原点の東経 [deg]
-  double alt_0_;               // 原点の高度 [m]
+  double delay_;               // GNSS delay time [s]
+  double pos_corr_time_;       // Correlation time constant of the OU process [s]
+  double hor_pos_accuracy_;    // Horizontal position accuracy, expected error value [m]
+  double ver_pos_accuracy_;    // Vertical position accuracy, expected error value [m]
+  double hor_vel_stddev_;      // Standard deviation of horizontal velocity noise [m/s]
+  double ver_vel_stddev_;      // Standard deviation of vertical velocity noise [m/s]
+  double lat_0_;               // Latitude north of the origin [deg]
+  double lon_0_;               // Longitude east of the origin [deg]
+  double alt_0_;               // Altitude of the origin [m]
 
   RateManager::SharedPtr rate_manager_;
 
@@ -125,11 +125,11 @@ void GazeboGnssPlugin::Configure(
 
 void GazeboGnssPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)
 {
-  // 現在の状態を履歴に追加
+  // Add the current state to history.
   const auto& cur_time = info.simTime;
   history_.emplace_back(cur_time, pose_W_->Data(), vel_W_->Data(), gyro_B_->Data());
 
-  // 古い履歴を削除
+  // Delete old history.
   while (ch::duration<double>(cur_time - std::get<0>(history_.front())).count() > delay_) {
     history_.pop_front();
     if (!is_history_filled_) {
@@ -137,37 +137,37 @@ void GazeboGnssPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim
     }
   }
 
-  // オルンシュタイン＝ウーベンレック過程に従って位置のバイアスを更新
+  // Update position bias according to an Ornstein-Uhlenbeck process.
   const auto dt = ch::duration<double>(info.dt).count();
   pos_bias_ += (dpos_noise_->get() - pos_bias_ / pos_corr_time_) * dt;
 
-  // 更新時刻になっていなければ発行しない
+  // Do not publish unless it is time to update.
   if (!rate_manager_->update(info.simTime)) {
     return;
   }
 
-  // 履歴が溜まっていなければ発行しない
+  // Do not publish until enough history has accumulated.
   if (!is_history_filled_) {
     return;
   }
 
-  // 最新の発行時刻を更新
+  // Update the latest publish time.
   t_last_publish_ = cur_time;
 
-  // 最も古い (= delay分遅れている) 状態を取得
+  // Get the oldest state, which is delayed by `delay`.
   const auto& [gnss_time, T_W_B, W_Linvel_WB, B_Angvel_WB] = history_.front();
 
-  // GNSSメッセージを作成
+  // Create the GNSS message.
   auto gnss_msg = std::make_unique<tobas_msgs::Gnss>();
   gnss_msg->header.frame_id = link_name_;
   ros2::timeChronoToMsg(gnss_time, gnss_msg->header.stamp);
   gnss_msg->fix_type = tobas_msgs::msg::Gnss::FIX_3D;
-  gnss_msg->num_satellites_used = 20;  // TODO: 適当に変化させる
+  gnss_msg->num_satellites_used = 20;  // TODO: Vary this appropriately.
   fillCovariances(*gnss_msg);
   updatePosition(*gnss_msg, T_W_B);
   updateVelocity(*gnss_msg, T_W_B.Rot(), W_Linvel_WB, B_Angvel_WB);
 
-  // メッセージを発行
+  // Publish the message.
   gnss_pub_->publish(std::move(gnss_msg));
 }
 
@@ -188,21 +188,21 @@ void GazeboGnssPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 
 void GazeboGnssPlugin::setRandomDistribuitons()
 {
-  // 位置の乱数生成器
-  // バイアスの絶対値の期待値が正確度に一致するように位置のSDEの標準偏差を定める (memo: 2-57)
+  // Random generator for position.
+  // Set the standard deviation of the position SDE so the expected absolute bias matches the accuracy (memo: 2-57).
   const auto hor_dpos_stddev = hor_pos_accuracy_ * std::sqrt(M_PI / pos_corr_time_);
   const auto ver_dpos_stddev = ver_pos_accuracy_ * std::sqrt(M_PI / pos_corr_time_);
   const gz::math::Vector3d dpos_stddev(hor_dpos_stddev, hor_dpos_stddev, ver_dpos_stddev);
   dpos_noise_.reset(new NormalDistribution3d(rnd_dev_, gz::math::Vector3d::Zero, dpos_stddev));
 
-  // 速度の乱数生成器
+  // Random generator for velocity.
   const gz::math::Vector3d vel_stddev(hor_vel_stddev_, hor_vel_stddev_, ver_vel_stddev_);
   vel_noise_.reset(new NormalDistribution3d(rnd_dev_, gz::math::Vector3d::Zero, vel_stddev));
 }
 
 void GazeboGnssPlugin::fillCovariances(tobas_msgs::Gnss& gnss_msg)
 {
-  // FIXME: 正確度と共分散は異なる．しかしGNSSは白色ノイズではないし，どう共分散を計算している？
+  // FIXME: Accuracy and covariance are different. GNSS is not white noise, so how is covariance computed?
   gnss_msg.position_covariance.setZero();
   gnss_msg.position_covariance.diagonal()(0) = math::sqr(hor_pos_accuracy_);
   gnss_msg.position_covariance.diagonal()(1) = math::sqr(hor_pos_accuracy_);
@@ -216,7 +216,7 @@ void GazeboGnssPlugin::fillCovariances(tobas_msgs::Gnss& gnss_msg)
 
 void GazeboGnssPlugin::updatePosition(tobas_msgs::Gnss& gnss_msg, const gz::math::Pose3d& T_W_B)
 {
-  // オフセットを考慮してGNSSレシーバーの位置を計算
+  // Compute GNSS receiver position while considering the offset.
   const auto& W_Pos_WB = T_W_B.Pos();
   const auto& W_Rot_B = T_W_B.Rot();
   auto W_Pos_WS = W_Pos_WB + W_Rot_B.RotateVector(offset_);
@@ -224,7 +224,7 @@ void GazeboGnssPlugin::updatePosition(tobas_msgs::Gnss& gnss_msg, const gz::math
   // Add the altitude of the origin to the z-coordinate
   W_Pos_WS.Z() += alt_0_;
 
-  // 真値にバイアスを加える
+  // Add bias to the true value.
   W_Pos_WS += pos_bias_;
 
   // Fill the GNSS message
@@ -238,7 +238,7 @@ void GazeboGnssPlugin::updateVelocity(
   const gz::math::Vector3d& W_Linvel_WB,
   const gz::math::Vector3d& B_Angvel_WB)
 {
-  // オフセットを考慮してGNSSレシーバの速度を計算
+  // Compute GNSS receiver velocity while considering the offset.
   auto W_Linvel_WS = W_Linvel_WB + W_Rot_B.RotateVector(B_Angvel_WB.Cross(offset_));
 
   // Apply noise to ground speed

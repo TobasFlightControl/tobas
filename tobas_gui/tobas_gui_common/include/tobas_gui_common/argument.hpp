@@ -13,7 +13,7 @@ namespace gui
 namespace cmn
 {
 /**
- * @brief コマンドライン引数を編集する．
+ * @brief Edit command-line arguments.
  *
  * cf. [rviz2/src/main.cpp](https://github.com/ros2/rviz/blob/rolling/rviz2/src/main.cpp)
  */
@@ -26,15 +26,15 @@ public:
   char** argv();
 
   /**
-   * @brief ディスプレイサーバにX11を使うよう設定する．
+   * @brief Configure the display server to use X11.
    */
   bool setPlatformXcb();
 
 private:
   std::vector<std::string> args_;
 
-  int argc_;                 // argcのメモリ確保が必要
-  std::vector<char*> argv_;  // argvのメモリ確保が必要
+  int argc_;                 // Memory allocation is required for `argc`.
+  std::vector<char*> argv_;  // Memory allocation is required for `argv`.
 };
 }  // namespace cmn
 }  // namespace gui

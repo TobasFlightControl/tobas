@@ -9,7 +9,7 @@ namespace tobas
 {
 namespace gazebo
 {
-/* 立ち上がりと立ち下がりで時定数が異なる一次遅れフィルタ． */
+/* First-order lag filter with different time constants for rise and fall. */
 template <typename T>
 class AsymmetricFirstOrderFilter
 {

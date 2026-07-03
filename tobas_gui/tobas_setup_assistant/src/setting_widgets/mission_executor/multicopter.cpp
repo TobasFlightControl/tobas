@@ -50,7 +50,7 @@ MulticopterWidget::MulticopterWidget()
 
   // https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_Z_V_AUTO_DN
   // https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_Z_V_AUTO_UP
-  // TODO: 上昇と下降で設定を分ける
+  // TODO: Use separate settings for ascent and descent.
   wp_max_ver_vel_ = new qt::DoubleSpinBox();
   wp_max_ver_vel_->setDecimals(1);
   wp_max_ver_vel_->setMinimum(0.5);
@@ -60,7 +60,7 @@ MulticopterWidget::MulticopterWidget()
 
   // https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_ACC_DOWN_MAX
   // https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_ACC_UP_MAX
-  // TODO: 上昇と下降で設定を分ける
+  // TODO: Use separate settings for ascent and descent.
   wp_max_ver_acc_ = new qt::DoubleSpinBox();
   wp_max_ver_acc_->setDecimals(1);
   wp_max_ver_acc_->setMinimum(2.);
@@ -126,7 +126,7 @@ MulticopterWidget::MulticopterWidget()
   rtl_min_alt_ = new qt::DoubleSpinBox();
   rtl_min_alt_->setDecimals(2);
   rtl_min_alt_->setMinimum(0.);
-  rtl_min_alt_->setMaximum(150.);  // 日本の飛行禁止空域
+  rtl_min_alt_->setMaximum(150.);  // Japanese prohibited airspace.
   rtl_min_alt_->setValue(15.);     // https://ardupilot.org/copter/docs/rtl-mode.html
   rtl_min_alt_->setSuffix(" m");
 

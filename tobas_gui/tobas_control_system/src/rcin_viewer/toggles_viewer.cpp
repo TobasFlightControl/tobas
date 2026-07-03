@@ -66,7 +66,7 @@ void TogglesViewer::reset()
 
 void TogglesViewer::paintEvent(QPaintEvent*)
 {
-  // スイッチと飛行モードそれぞれについて，ポイントサイズをそれぞれの最大値の最小値に設定する．
+  // For switches and flight modes, set the point size to the smaller of their maximum values.
   setToggleSwitchPointSizes();
   setFlightModePointSizes();
 }

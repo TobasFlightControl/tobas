@@ -30,15 +30,15 @@ public:
 
 protected:
   static constexpr int kExpoScale = 100;
-  static constexpr double kDeadband = 0.02;  // デッドゾーンでRCInputがゼロに張り付くように調整
+  static constexpr double kDeadband = 0.02;  // Adjust so RCInput snaps to zero in the dead zone
 
-  /* デッドバンドに入っていたら 0 にする． */
+  /* Return 0 when the value is inside the deadband. */
   inline double deadband(double x) const;
 
-  /* RCInput の値を範囲  [lb, ub] に投影する． */
+  /* Project an RCInput value into the range [lb, ub]. */
   inline double remap(double x, double lb, double ub) const;
 
-  /* RCInput の値がデッドバンドに入っていたら0，入っていなければ [lb, ub] に投影する． */
+  /* Return 0 when the RCInput value is inside the deadband; otherwise project it into [lb, ub]. */
   inline double remapDead(double x, double lb, double ub) const;
 
   /* expo -> remap */
@@ -47,10 +47,10 @@ protected:
   /* dead -> expo -> remap */
   inline double expoRemapDead(double x, double exp, double lb, double ub) const;
 
-  /* FutabaのEXPO関数とたぶん同じ: [-1, 1] -> [-1, 1] */
+  /* Probably the same as Futaba's EXPO function: [-1, 1] -> [-1, 1] */
   static inline double expo(double x, double exp);
 
-  /* テキストにフライトモードのプリフィックスを与える． */
+  /* Add a flight mode prefix to the text. */
   static std::string addMode(const std::string& text, FlightMode mode);
 };
 

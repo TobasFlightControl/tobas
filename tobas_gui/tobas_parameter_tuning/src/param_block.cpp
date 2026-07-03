@@ -151,13 +151,13 @@ bool ParamBlockWidget::save(const fs::path& path)
 {
   const auto config = createCurrentConfig();
 
-  // 設定ファイルが存在することを確認
+  // Confirm that the configuration file exists.
   if (!fs::is_regular_file(path)) {
     qt::qErrorBox(this, QString::fromStdString(path) + " does not exist on PC.");
     return false;
   }
 
-  // PCに保存
+  // Save to the PC.
   if (!yaml::save(path, config)) {
     qt::qErrorBox(this, "Failed to save configuration to PC.");
     return false;

@@ -15,7 +15,7 @@ namespace tobas
 namespace camera
 {
 /**
- * @brief sensor_msgs::msg::CompressedImage型の画像をsubscribeし，解凍して，sensor_msgs::msg::Image型としてpublishする．
+ * @brief Subscribe to sensor_msgs::msg::CompressedImage images, decompress them, and publish them as sensor_msgs::msg::Image.
  */
 class MjpgDecompressor : public BaseNode
 {

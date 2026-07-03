@@ -102,8 +102,8 @@ QuadProgProblem QuadProgSolver::scaleProblem() const
 {
   QuadProgProblem scaled;
 
-  // xの各要素が同程度の絶対値になるようにスケーリング (memo: 2-21)
-  // 最適化変数は変化するが随伴変数は変化しない
+  // Scale so each element of `x` has a similar absolute value (memo: 2-21).
+  // This changes the optimization variables but not the adjoint variables.
   const DiagonalMatrix<double, Dynamic> x_scale_diag = x_scale.asDiagonal();
   scaled.P = x_scale_diag * problem.P * x_scale_diag;
   scaled.q = x_scale_diag * problem.q;
@@ -112,8 +112,8 @@ QuadProgProblem QuadProgSolver::scaleProblem() const
   scaled.A = problem.A * x_scale_diag;
   scaled.b = problem.b;
 
-  // Pの対角成分の最大値が1になるようにスケーリング
-  // ラグランジュ関数を定数倍しているだけなので最適化変数及び随伴変数は変化しない
+  // Scale so the maximum diagonal element of `P` becomes 1.
+  // This only multiplies the Lagrangian by a constant, so neither optimization variables nor adjoint variables change.
   const auto P_diag_max = scaled.P.diagonal().maxCoeff();
   assert(P_diag_max > 0);
   scaled.P /= P_diag_max;
@@ -123,8 +123,8 @@ QuadProgProblem QuadProgSolver::scaleProblem() const
   scaled.A /= P_diag_max;
   scaled.b /= P_diag_max;
 
-  // TODO: 各制約条件について，係数の絶対値の最大値が1になるようにスケーリング
-  // これを行う場合は随伴変数が変化することに注意
+  // TODO: Scale each constraint so the maximum absolute coefficient becomes 1.
+  // Note that this changes the adjoint variables.
 
   return scaled;
 }

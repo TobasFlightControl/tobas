@@ -65,7 +65,7 @@ int TreeIkSolverVel_pinv::cartToJnt(const JntArray& q_in, const TwistMap& v_in)
     ++i;
   }
 
-  // 評価関数
+  // Objective function.
   const VectorXd Wt = eigen::tile(Wt_, num_points, 0);
   const VectorXd Wj = VectorXd::Constant(nj_, Wj_);
   const MatrixXd JT_Wt = J_.transpose() * Wt.asDiagonal();
@@ -73,11 +73,12 @@ int TreeIkSolverVel_pinv::cartToJnt(const JntArray& q_in, const TwistMap& v_in)
   qp_solver_.problem.P.diagonal() += Wj;
   qp_solver_.problem.q = -JT_Wt * t_;
 
-  // 不等式制約
+  // Inequality constraints.
   auto qd_min = -jntparser_.maxVelocities();
   auto qd_max = +jntparser_.maxVelocities();
   for (size_t j = 0; j < nj_; ++j) {
-    // 既に関節角制限をオーバーしている場合は，それ以上違反量を大きくしないように制限
+    // If the joint angle limit is already exceeded,
+    // constrain the velocity so the violation does not increase further.
     if (q_in(j) < jntparser_.lowerLimit(j)) {
       qd_min(j) = 0.;
     }
@@ -87,7 +88,7 @@ int TreeIkSolverVel_pinv::cartToJnt(const JntArray& q_in, const TwistMap& v_in)
   }
   quadprog::matIneqFromRange(qd_min.data, qd_max.data, qp_solver_.problem.A, qp_solver_.problem.b);
 
-  // QPを解く
+  // Solve the QP.
   if (!qp_solver_.solve()) {
     return setDefaultError(kQpFailed);
   }
@@ -113,7 +114,7 @@ const Vector6d& TreeIkSolverVel_pinv::getWeightTS() const
 
 bool TreeIkSolverVel_pinv::setWeightJS(const double& Wj)
 {
-  // 数値エラーを防ぐため正則化項は必ず入れる
+  // Always include a regularization term to prevent numerical errors.
   if (Wj <= 0) {
     return false;
   }

@@ -2,7 +2,7 @@
 # Copyright (C) 2026 Tobas, Inc.
 
 """
-外部のタイルサーバを QML の OSM プラグインの形式 (.../{z}/{x}/{y}.png) で提供するウェブサーバ．
+Web server that provides an external tile server in the QML OSM plugin format (.../{z}/{x}/{y}.png).
 """
 
 from __future__ import annotations
@@ -12,7 +12,6 @@ from argparse import ArgumentParser
 import httpx
 import uvicorn
 from fastapi import FastAPI, HTTPException, Response
-
 
 g_app = FastAPI()
 g_client: httpx.AsyncClient | None = None
@@ -26,7 +25,7 @@ async def _startup():
     global g_client
 
     g_client = httpx.AsyncClient(
-        headers={"User-Agent": "Tobas (QtLocation tile proxy)"},  # User-Agent が空だとレート制限が入る場合がある
+        headers={"User-Agent": "Tobas (QtLocation tile proxy)"},
         timeout=g_timeout,
         follow_redirects=True,
     )

@@ -26,13 +26,15 @@ void accelFluToFrd(const Accel& src, Accel& dst);
 void accelFrdToFlu(Accel& arg);
 void accelFluToFrd(Accel& arg);
 
-/* 慣性テンソルを FRD (Front-Right-Down) 座標系から FLU (Front-Left-Up) 座標系に変換する (memo: 2-23)． */
+/* Convert an inertia tensor from the FRD (Front-Right-Down) coordinate system
+ * to the FLU (Front-Left-Up) coordinate system. (memo: 2-23) */
 void rotInertiaFrdToFlu(const RotationalInertia& src, RotationalInertia& dst);
 void rotInertiaFluToFrd(const RotationalInertia& src, RotationalInertia& dst);
 void rotInertiaFrdToFlu(RotationalInertia& arg);
 void rotInertiaFluToFrd(RotationalInertia& arg);
 
-/* 回転がつなぐ2つのフレームを共にFRD座標系からFLU座標系に変換するときのオイラー角の変化を求める． */
+/* Compute the Euler angle change when both frames connected by a rotation are converted
+ * from the FRD coordinate system to the FLU coordinate system. */
 void eulerFrdToFlu(const Euler& src, Euler& dst);
 void eulerFluToFrd(const Euler& src, Euler& dst);
 void eulerFrdToFlu(Euler& arg);

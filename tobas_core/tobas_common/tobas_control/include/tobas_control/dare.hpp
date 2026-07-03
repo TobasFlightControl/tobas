@@ -10,7 +10,7 @@ namespace tobas
 namespace ctrl
 {
 /**
- * @brief 離散時間代数リッカチ方程式の解を求める．
+ * @brief Solve the discrete-time algebraic Riccati equation.
  */
 Eigen::MatrixXd dare(
   const Eigen::MatrixXd& A,

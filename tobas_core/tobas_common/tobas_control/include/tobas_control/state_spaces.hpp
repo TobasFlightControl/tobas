@@ -34,7 +34,7 @@ public:
   inline bool isFinite() const;
   inline bool isControllable() const;
 
-  /* スケーリングされた状態と入力に対する状態方程式を作成． */
+  /* Create state equations for scaled states and inputs. */
   LinearDynamics scale(const Eigen::VectorXd& x_scale, const Eigen::VectorXd& u_scale) const;
 
   friend std::ostream& operator<<(std::ostream& os, const LinearDynamics& arg);
@@ -54,7 +54,7 @@ public:
 
   inline LinearDynamics getDynamics() const;
 
-  /* A,Bを更新する． */
+  /* Update `A` and `B`. */
   inline void updateDynamics(const LinearDynamics& dyn);
 
   inline Eigen::Index stateSize() const;

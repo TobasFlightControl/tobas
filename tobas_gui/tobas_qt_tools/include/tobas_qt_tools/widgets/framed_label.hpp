@@ -10,8 +10,8 @@ namespace tobas
 namespace qt
 {
 /**
- * @brief 黒枠付きのラベル．
- * QLineEditをReadOnly + NoFocusにしたものに近いが，こちらの方が効率的．
+ * @brief Label with a black frame.
+ * Similar to `QLineEdit` with ReadOnly + NoFocus, but more efficient.
  */
 class FramedLabel : public QLabel
 {

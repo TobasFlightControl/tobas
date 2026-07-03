@@ -9,7 +9,7 @@ namespace tobas
 {
 namespace gazebo
 {
-/* 文字列をROSノード名に使用可能なものに修正する． */
+/* Sanitize a string so it can be used as a ROS node name. */
 std::string sanitizeNodeName(std::string str);
 }  // namespace gazebo
 }  // namespace tobas

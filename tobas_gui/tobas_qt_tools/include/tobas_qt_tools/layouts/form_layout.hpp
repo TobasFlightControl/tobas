@@ -10,8 +10,8 @@ namespace tobas
 namespace qt
 {
 /**
- * ===== QFormLayout との違い =====
- * - 追加メソッド
+ * ===== Differences from `QFormLayout` =====
+ * - Additional methods
  */
 class FormLayout : public QFormLayout
 {
@@ -23,28 +23,28 @@ class FormLayout : public QFormLayout
 public:
   using QFormLayout::QFormLayout;
 
-  /* ラベルを左中央に配置した行を追加する． */
+  /* Add a row with the label centered on the left. */
   void addVAlignedRow(QWidget* label, QWidget* field);
 
-  /* ラベルを左中央に配置した行を追加する． */
+  /* Add a row with the label centered on the left. */
   void addVAlignedRow(const QString& label_text, QWidget* field);
 
-  /* 拡大するストレッチを追加する． */
+  /* Add an expanding stretch. */
   void addStretch();
 
-  /* 全てのフォームを削除する． */
+  /* Delete all forms. */
   void clear();
 
-  /* 指定した行のラベルを取得する． */
+  /* Get the label of the specified row. */
   QWidget* getLabel(int row);
 
-  /* 指定した行のウィジェットを取得する． */
+  /* Get the widget of the specified row. */
   QWidget* getWidget(int row);
 
-  /* 指定した行を有効/無効にする． */
+  /* Enable or disable the specified row. */
   void setEnabled(int row, bool enabled);
 
-  /* 指定した行を可視/不可視にする． */
+  /* Show or hide the specified row. */
   void setVisible(int row, bool visible);
 };
 }  // namespace qt

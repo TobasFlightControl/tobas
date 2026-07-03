@@ -43,19 +43,19 @@ int ChainIkSolverAcc_RAC::cartToJnt(const JntArray& q, const JntArray& qd, const
     return setDefaultError(kSizeMismatch);
   }
 
-  // 目標加速度を計算
+  // Compute the target acceleration.
   if (jnt2jdqd_.jntToCart(q, qd) < 0) {
     return copyError(jnt2jdqd_);
   }
   const auto acc_diff = acc_ref - jnt2jdqd_.getJdqd().linear;
 
-  // ヤコビアンを更新
+  // Update the Jacobian.
   if (jnt2jac_.jntToJac(q) < 0) {
     return copyError(jnt2jac_);
   }
   const auto& jac = jnt2jac_.getJacobian();
 
-  // 最小二乗解を計算
+  // Compute the least-squares solution.
   // TODO: eigen::minimizeWeightedNorm
   qdd_out_.data = jac.data.topRows(3).jacobiSvd(ComputeThinU | ComputeThinV).solve(acc_diff.data);
 
@@ -71,20 +71,20 @@ int ChainIkSolverAcc_RAC::cartToJnt(const JntArray& q, const JntArray& qd, const
     return setDefaultError(kSizeMismatch);
   }
 
-  // 目標加速度を計算
+  // Compute the target acceleration.
   if (jnt2jdqd_.jntToCart(q, qd) < 0) {
     return copyError(jnt2jdqd_);
   }
   const auto acc_diff = acc_ref - jnt2jdqd_.getJdqd();
   const auto acc_diff_ravel = acc_diff.ravel();
 
-  // ヤコビアンを更新
+  // Update the Jacobian.
   if (jnt2jac_.jntToJac(q) < 0) {
     return copyError(jnt2jac_);
   }
   const auto& jac = jnt2jac_.getJacobian();
 
-  // 最小二乗解を計算
+  // Compute the least-squares solution.
   // TODO: eigen::minimizeWeightedNorm
   qdd_out_.data = jac.data.jacobiSvd(ComputeThinU | ComputeThinV).solve(acc_diff_ravel);
 

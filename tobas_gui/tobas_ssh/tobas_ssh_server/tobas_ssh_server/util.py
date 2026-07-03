@@ -8,14 +8,14 @@ from typing import List
 
 def is_under(path: str, base: str, *, follow_symlinks: bool = True) -> bool:
     """
-    path が base 配下に存在する（配下のファイル/ディレクトリを指す）かを判定する．
-    follow_symlinks=True なら実体パスで判定（シンボリックリンクを解決）．
+    Determine whether `path` exists under `base`, meaning it points to a file or directory below it.
+    If `follow_symlinks=True`, check using the real path after resolving symbolic links.
     """
     p = Path(path)
     b = Path(base)
 
     if follow_symlinks:
-        # 存在しないパスでも解決できる範囲で正規化するために strict=False
+        # Use `strict=False` to normalize as much as possible even for paths that do not exist.
         p = p.resolve(strict=False)
         b = b.resolve(strict=False)
     else:

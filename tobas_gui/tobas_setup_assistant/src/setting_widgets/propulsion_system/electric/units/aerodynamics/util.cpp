@@ -19,7 +19,7 @@ namespace electric
 {
 namespace
 {
-/* 比率の最小2乗解 (memo: 2-28) */
+/* Least-squares solution for the ratio (memo: 2-28). */
 double ratioLeastSquare(const Eigen::VectorXd& num, const Eigen::VectorXd& den)
 {
   assert(num.size() == den.size());
@@ -41,7 +41,7 @@ double momentConstFromThrustStand(const Eigen::VectorXd& thrusts, const Eigen::V
 double motorConstFromUiuc(const Eigen::VectorXd& cts, double d)
 {
   const auto ct = cts.mean();
-  constexpr auto rho = st::kStandardAirDensity;  // TODO: ランタイムの気圧変化を考慮
+  constexpr auto rho = st::kStandardAirDensity;  // TODO: Consider runtime air pressure changes.
   return (ct * rho * math::quar(d)) / math::sqr(M_2PI);
 }
 

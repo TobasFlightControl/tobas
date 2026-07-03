@@ -37,7 +37,7 @@ std::vector<std::string> split(const std::string& s, const char& c)
 
 std::pair<std::string, std::string> rsplit(const std::string& s, const char& c)
 {
-  // 最後の'/'を探す
+  // Find the last specified character.
   size_t pos = s.rfind(c);
 
   if (pos != std::string::npos) {
@@ -81,7 +81,7 @@ std::string stripQuates(const std::string& s)
 
 std::string trim(const std::string& s)
 {
-  // 空文字のときはそのまま返す．でないとfind_(first, last)_not_ofがinfを返してしまう．
+  // Return as-is for an empty string. Otherwise, `find_(first,last)_not_of` would return `inf`.
   if (s.empty()) {
     return {};
   }
@@ -132,7 +132,7 @@ std::string replace(std::string s, const std::string& from, const std::string& t
   size_t start_pos = 0;
   while ((start_pos = s.find(from, start_pos)) != std::string::npos) {
     s.replace(start_pos, from.length(), to);
-    start_pos += to.length();  // 次の検索位置を設定
+    start_pos += to.length();  // Set the next search position.
   }
   return s;
 }
@@ -145,7 +145,7 @@ std::string sanitize(const char* s)
 
   std::string out(s);
 
-  // 改行・タブ類をスペースに
+  // Replace newlines and tabs with spaces.
   for (auto& c : out) {
     switch (c) {
       case '\n':
@@ -160,17 +160,17 @@ std::string sanitize(const char* s)
     }
   }
 
-  // 他の制御文字 (0x00-0x1F, 0x7F) を削除
+  // Remove other control characters (0x00-0x1F, 0x7F).
   out.erase(remove_if(out.begin(), out.end(), [](char ch) { return (ch < 0x20 || ch == 0x7F); }), out.end());
 
-  // 連続スペースを1つに
+  // Collapse consecutive spaces to one.
   out.erase(unique(out.begin(), out.end(), [](char a, char b) { return a == ' ' && b == ' '; }), out.end());
 
-  // 前後のスペースをトリム
+  // Trim leading and trailing spaces.
   const auto notspace = [](char c) { return c != ' '; };
   const auto first = find_if(out.begin(), out.end(), notspace);
   if (first == out.end()) {
-    return {};  // 全部スペース
+    return {};  // All spaces.
   }
   const auto last = find_if(out.rbegin(), out.rend(), notspace).base();
   return std::string(first, last);
@@ -204,7 +204,7 @@ bool isValidEmail(const std::string& email)
 
 std::string convertToSuperscript(const std::string& input)
 {
-  // 上付き文字の対応表
+  // Superscript mapping table.
   const std::map<std::string, std::string> superscripts = {
     { "^0", "⁰" }, { "^1", "¹" }, { "^2", "²" }, { "^3", "³" }, { "^4", "⁴" },
     { "^5", "⁵" }, { "^6", "⁶" }, { "^7", "⁷" }, { "^8", "⁸" }, { "^9", "⁹" },
@@ -215,10 +215,10 @@ std::string convertToSuperscript(const std::string& input)
 
   while (pos < input.size()) {
     if (input[pos] == '^' && pos + 1 < input.size() && std::isdigit(input[pos + 1])) {
-      const auto key = input.substr(pos, 2);  // "^N" を取得
+      const auto key = input.substr(pos, 2);  // Get "^N".
       const auto it = superscripts.find(key);
       if (it != superscripts.end()) {
-        output += it->second;  // 上付き文字に変換
+        output += it->second;  // Convert to superscript.
         pos += 2;
         continue;
       }

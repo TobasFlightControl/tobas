@@ -55,10 +55,10 @@ bool PinvMixer::updateInternalDataStructures()
     const auto& par_seg = par_elem.segment;
     const auto& par_joint = par_seg.joint();
 
-    const auto& p = par_joint.axis();                      // 祖父母リンクから見たチルト軸
-    const auto& q = par_seg.frame().M * cur_joint.axis();  // 親リンクのジョイントフレームから見たロータ軸
+    const auto& p = par_joint.axis();                      // Tilt axis viewed from the grandparent link.
+    const auto& q = par_seg.frame().M * cur_joint.axis();  // Rotor axis viewed from the joint frame of the parent link.
 
-    // 祖父母リンクから見た推力の作用点を保存
+    // Store the point of thrust application viewed from the grandparent link.
     const auto gpar_T_cur = par_seg.frame() * cur_seg.frame();
     const auto& rotor_pos = gpar_T_cur.p;
     const auto thrust_pos = eigen::projectPointOnToLine(par_joint.origin.data, par_joint.axis().data, rotor_pos.data);
@@ -84,13 +84,13 @@ bool PinvMixer::solve(
   const kdl::Vector& ext_force_W,
   const kdl::Vector& ext_torque_B)
 {
-  // 順運動学を計算
+  // Compute forward kinematics.
   if (fk_solver_.jntToCart(cur_q) < 0) {
     cerr << "Forward kinematics failed: " << fk_solver_.errorMessage() << endl;
     return false;
   }
 
-  // 質量特性を計算
+  // Compute mass properties.
   if (inertia_solver_.jntToCart(cur_q) < 0) {
     cerr << "Inertia solver failed: " << inertia_solver_.errorMessage() << endl;
     return false;
@@ -110,10 +110,10 @@ bool PinvMixer::solve(
     const auto& gpar_elem = par_elem.parent->second;
     const auto& gpar_seg = gpar_elem.segment;
 
-    // 祖父母フレームを取得
+    // Get the grandparent frame.
     const auto& B_T_gpar = fk_solver_.getFrame(gpar_seg.name());
 
-    // チルト軸と鉛直方向の偏角を計算
+    // Compute the deviation angle between the tilt axis and vertical direction.
     const auto tilt_axis_B = B_T_gpar.M * par_joint.axis();
     const auto tilt_axis_W = cur_rot * tilt_axis_B;
     auto declination = tilt_axis_W.argument(kdl::Vector::UnitZ());
@@ -121,7 +121,7 @@ bool PinvMixer::solve(
       declination = M_PI - declination;
     }
 
-    // 特異状態を更新
+    // Update the singular state.
     if (is_singular_.at(rotor->link_name)) {
       if (declination > cfg_.singular_declination_ub) {
         is_singular_[rotor->link_name] = false;
@@ -133,10 +133,11 @@ bool PinvMixer::solve(
       }
     }
 
-    // 運動方程式の左辺を計算
+    // Compute the left-hand side of the equations of motion.
     const auto col = 2 * idx;
     if (is_singular_.at(rotor->link_name) || !rotor_alive_.at(rotor->link_name)) {
-      // 特異状態もしくはロータが死んでいる時は推力から期待の運動への伝達をゼロにすることで最適推力がゼロになるよう仕向ける
+      // When the state is singular or the rotor is dead, force the optimal thrust to zero by setting the transfer from
+      // thrust to expected motion to zero.
       E_.middleCols<2>(col).setZero();
     }
     else {
@@ -155,24 +156,25 @@ bool PinvMixer::solve(
     }
   }
 
-  // 並進EoMの右辺
+  // Right-hand side of the translational EoM.
   const kdl::Vector grav_W(0, 0, -st::kGravity);
   auto eom_trans_right_W = mass * (tar_acc_W - grav_W) - ext_force_W;  // [N]
-  // 着陸時など加速度の絶対値が小さいとチルト角の解の変化率が相対的に大きくなる．
-  // ミキサーはチルト角の追従の遅延を無視しているため，チルト角の変位が大きくなるのは避けたい．
-  // そのため，最低限鉛直上方向に推力を出すことを保証しておく．
+  // When the acceleration magnitude is small, such as during landing,
+  // the rate of change in the tilt-angle solution becomes relatively large.
+  // The mixer ignores delay in tilt-angle tracking, so large tilt-angle displacement should be avoided.
+  // Therefore, at minimum, ensure that thrust is generated vertically upward.
   eom_trans_right_W.z(max(eom_trans_right_W.z(), mass * kMinVerticalForcePerMass));
   f_.head<3>() = cur_rot.inverse(eom_trans_right_W).data;
 
-  // 回転EoMの右辺
+  // Right-hand side of the rotational EoM.
   const auto eom_rot_right_B = I_B * tar_dgyro_B + cur_gyro_B * (I_B * cur_gyro_B) - ext_torque_B;  // [Nm]
   f_.tail<3>() = eom_rot_right_B.data;
 
-  // Ex = f の最小二乗解 (冗長自由度がある場合はxのL2ノルム最小化)
-  // TODO: 推力の絶対値の制約を考慮．凸最適化問題にすれば良さそう．
+  // Least-squares solution of `Ex = f`; minimize the L2 norm of `x` when redundant degrees of freedom exist.
+  // TODO: Consider constraints on the absolute thrust value; a convex optimization problem may work well.
   x_ = E_.jacobiSvd(ComputeThinU | ComputeThinV).solve(f_);
 
-  // 特異状態に対応する推力解がゼロになってしまっているため，最小値に固定
+  // Fix to the minimum value because the thrust solution corresponding to the singular state has become zero.
   for (const auto& [idx, rotor_it] : views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = rotor_it.second;
     if (is_singular_.at(rotor->link_name)) {

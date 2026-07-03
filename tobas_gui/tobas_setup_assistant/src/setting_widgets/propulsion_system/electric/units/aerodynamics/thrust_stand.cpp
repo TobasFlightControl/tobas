@@ -38,7 +38,7 @@ const char* AerodynamicsWidget_ThrustStand::name() const
 
 const char* AerodynamicsWidget_ThrustStand::description() const
 {
-  // テキスト中に改行コードを入れるとハイパーリンクが機能しない
+  // Hyperlinks do not work if a newline is inserted in the text.
   return "We estimate the aerodynamic constants from data obtained through Thrust Stand experiments. "
          "For example, see "
          "<a href='https://www.tytorobotics.com/pages/series-1580-1585'>Tyto Rootics Series 1585 Thrust Stand</a>.";
@@ -76,8 +76,8 @@ void AerodynamicsWidget_ThrustStand::load(const YAML::Node& node)
 
 double AerodynamicsWidget_ThrustStand::motorConst() const
 {
-  // TODO: 外れ値を除去
-  // TODO: あまりにモデル(1次関数)からかけ離れていたら警告を出す
+  // TODO: Remove outliers
+  // TODO: Warn if the data is too far from the model (linear function).
   const auto data_mat = data_->getValue();
   const auto rpms = data_mat.col(0).eval();
   const auto thrusts = data_mat.col(1).eval();
@@ -86,8 +86,8 @@ double AerodynamicsWidget_ThrustStand::motorConst() const
 
 double AerodynamicsWidget_ThrustStand::momentConst() const
 {
-  // TODO: 外れ値を除去
-  // TODO: あまりにモデル(1次関数)からかけ離れていたら警告を出す
+  // TODO: Remove outliers
+  // TODO: Warn if the data is too far from the model (linear function).
   const auto data_mat = data_->getValue();
   const auto thrusts = data_mat.col(1).eval();
   const auto torques = data_mat.col(2).eval();

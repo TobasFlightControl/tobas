@@ -48,7 +48,7 @@ void QwtPlotHistogramWrapper::setSamples(
 
     auto index = static_cast<int>((value - min_value) / bin_width);
 
-    // value == max_value のときだけ範囲外になるので最後のbinに入れる
+    // Only `value == max_value` falls outside the range, so put it in the last bin.
     if (index >= bin_count) {
       index = bin_count - 1;
     }

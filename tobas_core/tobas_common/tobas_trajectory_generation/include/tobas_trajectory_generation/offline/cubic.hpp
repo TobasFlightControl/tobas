@@ -9,7 +9,7 @@ namespace tobas
 {
 namespace traj
 {
-/* 3次多項式軌道生成 (ロボティクス, p.192) */
+/* Cubic polynomial trajectory generation. (Introduction to ROBOTICS, p.192) */
 class CubicSpline : public TrajectoryGenerator
 {
 public:

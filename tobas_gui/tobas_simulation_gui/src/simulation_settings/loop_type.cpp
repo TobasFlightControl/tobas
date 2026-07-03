@@ -19,11 +19,11 @@ LoopTypeWidget::LoopTypeWidget()
   btn_group_ = new QButtonGroup(this);
   btn_group_->setExclusive(true);
 
-  // 選択肢の文が長すぎると500pxに収まらなくなる
+  // Long option text does not fit within 500 px.
   sitl_btn_ = new QRadioButton("SITL (Simulation in the Loop)");
   hitl_btn_ = new QRadioButton("HITL (Hardware in the Loop)");
 
-  hitl_btn_->setEnabled(false);  // TODO: HITLできるようにして有効化
+  hitl_btn_->setEnabled(false);  // TODO: Enable this after HITL is supported.
 
   btn_group_->addButton(sitl_btn_);
   btn_group_->addButton(hitl_btn_);

@@ -26,7 +26,7 @@ public:
 
   void attach(QwtPlot* plot);
 
-  /* サンプルを消去する． */
+  /* Clear samples. */
   void clear();
 
 private:

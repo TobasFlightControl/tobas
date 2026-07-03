@@ -53,19 +53,19 @@ int MicroDisturbanceEoM::update(const double& V, const double& rho, const kdl::J
 
   error_code_ = kNoError;
 
-  // トリム状態を更新
+  // Update the trim state.
   trim_.update(V, rho, q);
   if (updateError(trim_) <= kError) {
     return error_code_;
   }
 
-  // エイリアス
+  // Aliases.
   const auto nr = drone_.prop->numRotors();
   const auto& vehicle = drone_.fixed_wing->vehicle;
   const auto& aero = drone_.fixed_wing->aerodynamics;
   const auto& asd_cog = trim_.stabilityDerivativesCG();
 
-  // 重心と慣性テンソル
+  // Center of gravity and inertia tensor.
   if (inertia_solver_.jntToCart(q) < 0) {
     error_msg_ = inertia_solver_.errorMessage();
     return error_code_ = kError;
@@ -73,7 +73,7 @@ int MicroDisturbanceEoM::update(const double& V, const double& rho, const kdl::J
   const auto& I_base = inertia_solver_.getInertia();
   const auto P_base_cog = I_base.getCOG();
   const auto I_cog = I_base.getRotationalInertiaCoG();
-  // TODO: CoGが許容範囲内にあることとX軸対称性をチェック
+  // TODO: Check that the CoG is within the allowable range and that X-axis symmetry holds.
   const auto I_x = I_cog.ixx();
   const auto I_y = I_cog.iyy();
   const auto I_z = I_cog.izz();
@@ -84,7 +84,7 @@ int MicroDisturbanceEoM::update(const double& V, const double& rho, const kdl::J
   const auto I_x_tilde = I_x * tmp;
   const auto I_z_tilde = I_z * tmp;
 
-  // 引数に依存する定数
+  // Constants that depend on arguments.
   const auto q_bar = dynamicPressure(rho, V);
   const auto q_S = q_bar * vehicle.wing_surface;
   const auto q_S_b = q_S * vehicle.wing_span;
@@ -92,7 +92,7 @@ int MicroDisturbanceEoM::update(const double& V, const double& rho, const kdl::J
   const auto rho_V_S = rho * V * vehicle.wing_surface;
   const auto rho_V_S_b2 = rho_V_S * math::sqr(vehicle.wing_span);
   const auto rho_V_S_c2 = rho_V_S * math::sqr(vehicle.mac);
-  const auto P = I_base.getMass() * V;  // 運動量
+  const auto P = I_base.getMass() * V;  // Momentum.
 
   // (2.2-45)
   const auto X_u = -rho_V_S / I_base.getMass() * trim_.c_D();
@@ -127,7 +127,7 @@ int MicroDisturbanceEoM::update(const double& V, const double& rho, const kdl::J
   const auto N_p_dash = rho_V_S_b2 / 4 / I_z_tilde * (aero.c_yaw_p + I_xz / I_x * aero.c_roll_p);
   const auto N_r_dash = rho_V_S_b2 / 4 / I_z_tilde * (aero.c_yaw_r + I_xz / I_x * aero.c_roll_r);
 
-  // Aを更新
+  // Update `A`.
   A_(kStateIdx_u, kStateIdx_u) = X_u;
   A_(kStateIdx_u, kStateIdx_alpha) = X_alpha;
   A_(kStateIdx_u, kStateIdx_theta) = -st::kGravity * std::cos(trim_.theta());
@@ -160,7 +160,7 @@ int MicroDisturbanceEoM::update(const double& V, const double& rho, const kdl::J
   A_(kStateIdx_r, kStateIdx_p) = N_p_dash;
   A_(kStateIdx_r, kStateIdx_r) = N_r_dash;
 
-  // Bを更新
+  // Update `B`.
   // thrust -> u
   for (size_t idx = 0; idx < nr; ++idx) {
     B_(kStateIdx_u, idx) = 1 / I_base.getMass();
@@ -205,7 +205,7 @@ int MicroDisturbanceEoM::update(const double& V, const double& rho, const kdl::J
     B_(kStateIdx_r, col) = N_delta_dash;
   }
 
-  // トリム時の状態を更新
+  // Update the state at trim.
   x_0_(kStateIdx_u) = trim_.u();
   x_0_(kStateIdx_alpha) = trim_.alpha();
   x_0_(kStateIdx_beta) = 0.;
@@ -215,11 +215,11 @@ int MicroDisturbanceEoM::update(const double& V, const double& rho, const kdl::J
   x_0_(kStateIdx_q) = 0.;
   x_0_(kStateIdx_r) = 0.;
 
-  // トリム時の制御入力を更新
+  // Update the control input at trim.
   const auto thrust_sum = q_S * trim_.c_T();  // (2.2-2b)
   for (const auto& [idx, elem] : std::views::enumerate(drone_.prop->rotors)) {
     const auto& link_name = elem.first;
-    auto thrust = thrust_sum / nr;  // TODO: 横の釣り合いも考慮して分配
+    auto thrust = thrust_sum / nr;  // TODO: Distribute while also considering lateral balance.
     const auto max_thrust = drone_.prop->maxThrust(link_name);
     if (thrust > max_thrust) {
       if (error_code_ > kWarn) {

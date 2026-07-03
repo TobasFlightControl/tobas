@@ -56,31 +56,31 @@ public:
 
   inline void fill(double value);
 
-  /* 最小の要素を取得する． */
+  /* Get the minimum element. */
   inline double min() const;
 
-  /* 最大の要素を取得する． */
+  /* Get the maximum element. */
   inline double max() const;
 
-  /* 2つのベクトルのそれぞれの要素について最小値を計算する． */
+  /* Compute the element-wise minimum of two `Vector`s. */
   inline Vector min(const Vector& rhs) const;
 
-  /* 2つのベクトルのそれぞれの要素について最大値を計算する． */
+  /* Compute the element-wise maximum of two `Vector`s. */
   inline Vector max(const Vector& rhs) const;
 
-  /* 2つのベクトルの内積を計算する． */
+  /* Compute the dot product of two `Vector`s. */
   inline double dot(const Vector& rhs) const;
 
-  /* 2つのベクトルの要素積を計算する． */
+  /* Compute the element-wise product of two `Vector`s. */
   inline Vector hadamard(const Vector& rhs) const;
 
-  /* 2つのベクトル間の偏角 (0 ~ pi [rad]) を計算する． */
+  /* Compute the angle between two `Vector`s, from 0 to pi [rad]. */
   inline double argument(const Vector& rhs) const;
 
-  /* 2つのベクトルが直行するかどうかを判定する． */
+  /* Determine whether two `Vector`s are perpendicular. */
   inline bool isPerpendicular(const Vector& rhs) const;
 
-  /* 2つのベクトルが平行かどうかを判定する． */
+  /* Determine whether two `Vector`s are parallel. */
   bool
   isParallel(const Vector& rhs, bool same_direction_only = false, double angle_tol_rad = 1e-3, double zero_tol = 1e-12)
     const;

@@ -77,7 +77,7 @@ int TreeTaskSpacePID::cartToJnt(
     const auto cur_v = cur_pv.getTwist();
 
     // Compute target cartesian acceleration
-    // TODO: I要素を加える
+    // TODO: Add the I term.
     tar_a[seg_name] = ai_ff.second + kp_ * (tar_pi.second - cur_p) + kd_ * (tar_vi.second - cur_v);
   }
 

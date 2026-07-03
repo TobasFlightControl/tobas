@@ -19,7 +19,7 @@ LinearMPC::LinearMPC()
 
 bool LinearMPC::solve()
 {
-  // 初期化
+  // Initialization.
   if (is_first_solve_) {
     x_size_ = state_scale.rows();
     u_size_ = input_scale.rows();
@@ -30,7 +30,7 @@ bool LinearMPC::solve()
 
   checkProblemValidity();
 
-  // 出力行列をスケーリング
+  // Scale the output matrix.
   MatrixXd Cz_scaled = Cz;
   for (Index c = 0; c < x_size_; ++c) {
     Cz_scaled.col(c) *= state_scale(c);
@@ -39,7 +39,7 @@ bool LinearMPC::solve()
     Cz_scaled.row(r) /= control_scale(r);
   }
 
-  // ダイナミクスと制約をスケーリング
+  // Scale dynamics and constraints.
   std::vector<LinearDynamics> dyns_scaled;
   std::vector<LinearEquation> du_eqs_scaled, u_eqs_scaled, z_eqs_scaled;
   std::vector<LinearEquation> du_ineqs_scaled, u_ineqs_scaled, z_ineqs_scaled;
@@ -57,12 +57,12 @@ bool LinearMPC::solve()
     z_ineqs_scaled.emplace_back(control_ineqs[k].scale(control_scale));
   }
 
-  // 状態ベクトル等をスケーリング
+  // Scale the state vectors and related values.
   const VectorXd x_scaled = current_state.array() / state_scale.array();
   const VectorXd s_scaled = set_state.array() / control_scale.array();
   const VectorXd last_u_scaled = last_input_.array() / input_scale.array();
 
-  // 重み行列
+  // Weight matrices.
   const DiagonalMatrix<double, Dynamic> Q = eigen::tile(control_weight, prediction_steps, 0).asDiagonal();
   const MatrixXd R = eigen::tile(input_rate_weight, input_steps, 0).asDiagonal().toDenseMatrix();
   const MatrixXd Sa = makeSa();
@@ -73,7 +73,7 @@ bool LinearMPC::solve()
   const MatrixXd Upsilon = makeUpsilon(dyns_scaled, Cz_scaled);
   const MatrixXd Theta = makeTheta(dyns_scaled, Cz_scaled);
 
-  // 計算量を減らすため，複数回出てくる計算を先に計算しておく
+  // Precompute repeated calculations to reduce computation cost.
   const VectorXd Psi_x = Psi * x_scaled;
   const VectorXd Upsilon_u = Upsilon * last_u_scaled;
   const MatrixXd Theta_Q = Theta.transpose() * Q;
@@ -81,11 +81,11 @@ bool LinearMPC::solve()
   const VectorXd Tau = makeTau(x_scaled, s_scaled, Cz_scaled);
   const VectorXd Epsilon = Tau - Psi_x - Upsilon_u;  // (3.6)
 
-  // 目的関数
+  // Objective function.
   qpsolver_.problem.P = Theta_Q * Theta + R + Sa;  // Phi (= Eta)
   qpsolver_.problem.q = Sb - Theta_Q * Epsilon;    // phi: (3.11), (3.43)
 
-  // 等式制約
+  // Equality constraints.
   updateQpConstraint(
     last_u_scaled,
     Psi_x,
@@ -97,7 +97,7 @@ bool LinearMPC::solve()
     qpsolver_.problem.G,
     qpsolver_.problem.h);
 
-  // 不等式制約
+  // Inequality constraints.
   updateQpConstraint(
     last_u_scaled,
     Psi_x,
@@ -109,18 +109,19 @@ bool LinearMPC::solve()
     qpsolver_.problem.A,
     qpsolver_.problem.b);
 
-  // 決定変数のスケール
-  // 変化率が小さい時の精度を重視し，制御入力の変化率は入力区間で最大値から最小値まで変化する程度を想定する．
-  // 制御入力は1にスケーリングされているため，制御入力の変化量のスケールは (1/Tu)*dt = 1/Hu となる．
+  // Decision variable scale.
+  // Prioritize accuracy when the rate is small,
+  // and assume the control input rate changes from the maximum to the minimum value over the input horizon.
+  // Since the control input is scaled to 1, the control input increment scale is (1/Tu)*dt = 1/Hu.
   qpsolver_.x_scale.conservativeResize(u_size_ * input_steps);
   qpsolver_.x_scale.fill(1. / static_cast<double>(input_steps));
 
-  // QPを解く
+  // Solve the QP.
   if (!qpsolver_.solve()) {
     return false;
   }
 
-  // 最新の制御入力を更新
+  // Update the latest control input.
   const auto& dU = qpsolver_.solution();
   const auto du_scaled = dU.head(u_size_);
   last_input_ += du_scaled.cwiseProduct(input_scale);
@@ -143,7 +144,7 @@ void LinearMPC::checkProblemValidity()
   for ([[maybe_unused]] const auto& dyn : discrete_dynamics) {
     assert(dyn.stateSize() == x_size_ && dyn.inputSize() == u_size_);
     assert(dyn.isFinite());
-    // TODO: 制御変数 (状態変数ではない) の可安定性のチェック
+    // TODO: Check stabilizability of control variables, not state variables.
   }
   assert(Cz.rows() == z_size_ && Cz.cols() == x_size_);
   assert(eigen::isFinite(Cz));
@@ -247,14 +248,14 @@ MatrixXd LinearMPC::makeSa()
 {
   const MatrixXd S_diag = input_weight.asDiagonal();
 
-  // Sの累積和を計算(昔の名残)
+  // Compute the cumulative sum of S. This is left over from the old implementation.
   std::vector<MatrixXd> S_cumsum(input_steps + 1);
   S_cumsum[0] = MatrixXd::Zero(u_size_, u_size_);
   for (Index i = 0; i < input_steps; ++i) {
     S_cumsum[i + 1] = S_cumsum[i] + S_diag;
   }
 
-  // ブロックを当てはめる
+  // Fill the blocks.
   MatrixXd Sa(u_size_ * input_steps, u_size_ * input_steps);
   for (Index i = 0; i < input_steps; ++i) {
     for (Index j = 0; j < input_steps; ++j) {
@@ -267,10 +268,10 @@ MatrixXd LinearMPC::makeSa()
 
 VectorXd LinearMPC::makeSb(const VectorXd& last_u_scaled)
 {
-  // 演習問題3-5
+  // Exercise 3-5.
   const VectorXd Sb_elem = input_weight.cwiseProduct(last_u_scaled);
 
-  // Sが予測区間にわたって一定かつu_refがゼロであることを利用して簡略化している
+  // Simplified using the facts that S is constant over the prediction horizon and u_ref is zero.
   VectorXd Sb(u_size_ * input_steps);
   for (Index i = 0; i < input_steps; ++i) {
     Sb.segment(u_size_ * i, u_size_) = (input_steps - i) * Sb_elem;
@@ -281,16 +282,16 @@ VectorXd LinearMPC::makeSb(const VectorXd& last_u_scaled)
 
 MatrixXd LinearMPC::makeFGothic(const MatrixXd& F)
 {
-  const auto n_cond_u = F.rows();  // (3.35)の条件数
+  const auto n_cond_u = F.rows();  // Number of conditions in (3.35)
 
-  // Fの要素の累積和を計算
+  // Compute cumulative sums of F elements.
   std::vector<MatrixXd> F_cumsum(input_steps + 1);
   F_cumsum[0] = MatrixXd::Zero(n_cond_u, u_size_);
   for (Index i = 0; i < input_steps; ++i) {
     F_cumsum[i + 1] = F_cumsum[i] + F.block(0, u_size_ * i, n_cond_u, u_size_);
   }
 
-  // F_gothicを作成
+  // Create F_gothic.
   MatrixXd F_gothic(n_cond_u, u_size_ * input_steps);
   for (Index i = 0; i < input_steps; ++i) {
     F_gothic.block(0, u_size_ * i, n_cond_u, u_size_) = F_cumsum[input_steps] - F_cumsum[i];

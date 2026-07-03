@@ -9,21 +9,21 @@ namespace tobas
 {
 namespace math
 {
-/* 2乗する． */
+/* Square a value. */
 template <typename T>
 inline constexpr T sqr(const T& x) noexcept
 {
   return x * x;
 }
 
-/* 3乗する． */
+/* Cube a value. */
 template <typename T>
 inline constexpr T cube(const T& x) noexcept
 {
   return x * x * x;
 }
 
-/* 4乗する． */
+/* Raise a value to the fourth power. */
 template <typename T>
 inline constexpr T quar(const T& x) noexcept
 {
@@ -31,7 +31,7 @@ inline constexpr T quar(const T& x) noexcept
   return sqr(x2);
 }
 
-/* 4乗根を計算する． */
+/* Calculate the fourth root. */
 template <typename T>
 inline constexpr T quart(const T& x) noexcept
 {
@@ -39,14 +39,14 @@ inline constexpr T quart(const T& x) noexcept
   return std::sqrt(sqrt_x);
 }
 
-/* 符号を返す．正なら+1，負なら-1，ゼロなら0． */
+/* Return the sign: +1 for positive, -1 for negative, and 0 for zero. */
 template <typename T>
 inline constexpr int sign(const T& x) noexcept
 {
   return (x > 0) - (x < 0);
 }
 
-/* 整数の累乗を計算する． */
+/* Calculate an integer power. */
 template <typename T>
 inline constexpr T ipow(T base, size_t exp) noexcept
 {
@@ -62,35 +62,35 @@ inline constexpr T ipow(T base, size_t exp) noexcept
   return (exp & 1) ? (sqr * base) : sqr;
 }
 
-/* xを[a, b]の範囲から[c, d]の範囲に投影する． */
+/* Remap x from the range [a, b] to the range [c, d]. */
 template <typename T>
 inline T remap(T x, T a, T b, T c, T d) noexcept
 {
   return a == b ? (c + d) / 2 : (c * (b - x) + d * (x - a)) / (b - a);
 }
 
-/* 与えられた単位で切り上げ． */
+/* Round up to the given unit. */
 inline double ceil(double x, double unit = 1.) noexcept
 {
   return std::ceil(x / unit) * unit;
 }
 
-/* 与えられた単位で切り捨て． */
+/* Round down to the given unit. */
 inline double floor(double x, double unit = 1.) noexcept
 {
   return std::floor(x / unit) * unit;
 }
 
-/* 与えられた数を，2nで割った余りを変えずに[-n, n)の範囲に変換する． */
+/* Convert a value to the range [-n, n) without changing its remainder modulo 2n. */
 template <typename T>
 T wrap(T x, T n) noexcept
 {
   const auto n2 = 2 * n;
 
-  // 後の処理のために半周期分足す
+  // Add a half period for the following steps.
   x += n;
 
-  // x を [-2n, 2n) の範囲に変換
+  // Convert x to the range [-2n, 2n).
   if constexpr (std::is_floating_point<T>::value) {
     x = std::fmod(x, n2);
   }
@@ -98,13 +98,13 @@ T wrap(T x, T n) noexcept
     x = x % n2;
   }
 
-  // x が負の場合は範囲を補正
+  // Correct the range if x is negative.
   if (x < 0) {
     x += n2;
   }
 
-  // [0, 2n) から [-n, n) へ変換
-  // 同時に最初に足した半周期を相殺する
+  // Convert from [0, 2n) to [-n, n).
+  // This also cancels the half period added at the start.
   return x - n;
 }
 }  // namespace math

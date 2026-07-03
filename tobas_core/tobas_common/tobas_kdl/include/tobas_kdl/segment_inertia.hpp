@@ -11,7 +11,7 @@ namespace tobas
 namespace kdl
 {
 /**
- * @brief セグメントに対し，ジョイントの単位加速度あたりに発生する力．
+ * @brief Force generated on a segment per unit joint acceleration.
  */
 class SegmentInertia
 {

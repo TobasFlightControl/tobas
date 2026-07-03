@@ -5,7 +5,7 @@ import QtQuick.Controls.Styles 1.4
 Rectangle {
   id: rectangle
 
-  // 関数呼び出し用シグナル
+  // Signal for function calls.
   signal setBackgroundColor(string text)
   signal setBottomText(string text)
   signal setMaximumValue(double value)
@@ -51,11 +51,11 @@ Rectangle {
   // CircularGauge: https://doc.qt.io/qt-5/qml-qtquick-extras-circulargauge.html
   CircularGauge {
     id: gauge
-    anchors.fill: parent // 親ウィジェットの大きさに自動で合わせる
+    anchors.fill: parent // Automatically match the parent widget size.
     objectName: "gauge"
 
     // CircularGaugeStyle: https://doc.qt.io/qt-5/qml-qtquick-controls-styles-circulargaugestyle.html
-    // 親のメンバが更新されたらスタイルのメンバも自動で更新される
+    // Style members are automatically updated when parent members are updated.
     style: CircularGaugeStyle {
       function computeTickmarkStepSize() {
         var step = gauge.maximumValue / 10;

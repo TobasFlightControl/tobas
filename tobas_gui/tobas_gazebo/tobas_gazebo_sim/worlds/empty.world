@@ -11,7 +11,7 @@
     <plugin filename="gz-sim-scene-broadcaster-system" name="gz::sim::systems::SceneBroadcaster"/>
     <plugin filename="gz-sim-contact-system" name="gz::sim::systems::Contact"/>
     <plugin filename="gz-sim-sensors-system" name="gz::sim::systems::Sensors">
-        <render_engine>ogre2</render_engine>
+      <render_engine>ogre2</render_engine>
     </plugin>
 
     <gui fullscreen="0">
@@ -77,9 +77,9 @@
 
     <spherical_coordinates>
       <surface_model>EARTH_WGS84</surface_model>
-      <latitude_deg>35.658099</latitude_deg>      <!-- 日本経緯度原点: 北緯35度39分29秒 -->
-      <longitude_deg>139.741354</longitude_deg>      <!-- 日本経緯度原点: 東経139度44分28秒8759 -->
-      <elevation>24.39</elevation>      <!-- 日本水準原点: https://www.gsi.go.jp/sokuchikijun/suijun-base.html -->
+      <latitude_deg>35.658099</latitude_deg>      <!-- Japanese geodetic datum origin: 35 deg 39 min 29 sec north latitude -->
+      <longitude_deg>139.741354</longitude_deg>      <!-- Japanese geodetic datum origin: 139 deg 44 min 28.8759 sec east longitude -->
+      <elevation>24.39</elevation>      <!-- Japanese leveling origin: https://www.gsi.go.jp/sokuchikijun/suijun-base.html -->
       <heading_deg>0</heading_deg>
     </spherical_coordinates>
 

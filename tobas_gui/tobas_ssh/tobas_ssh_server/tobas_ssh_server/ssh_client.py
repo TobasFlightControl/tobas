@@ -32,10 +32,10 @@ class SSHClientWrapper:
 
         self._cli = paramiko.SSHClient()
 
-        # ~/.ssh/known_hosts を読み込む
+        # Load `~/.ssh/known_hosts`.
         self._cli.load_system_host_keys()
 
-        # サーバの公開鍵がクライアントの known_hosts に含まれない場合の対応
+        # Handle cases where the server public key is not included in the client known_hosts.
         if reject_missing_host:
             missing_host_policy = paramiko.RejectPolicy()
         else:
@@ -44,11 +44,11 @@ class SSHClientWrapper:
 
     def connect(self) -> None:
         """
-        サーバに接続する．
+        Connect to the server.
 
         Note
         ----
-        未接続時にコマンドを実行すると"SSH session not active"エラーの可能性があるため，is_connected()による確認は行わない．
+        Do not check with `is_connected()` because running a command while disconnected may raise an "SSH session not active" error.
         """
         try:
             self._cli.connect(
@@ -88,43 +88,43 @@ class SSHClientWrapper:
         except AttributeError:
             return False, "", "No network connection."
 
-        stdout.channel.recv_exit_status()  # コマンドの実行結果を待つ
+        stdout.channel.recv_exit_status()  # Wait for the command result.
 
-        output: str = stdout.read().decode(self.UTF_8)  # 標準出力
-        error_output: str = stderr.read().decode(self.UTF_8)  # 標準エラー出力
+        output: str = stdout.read().decode(self.UTF_8)  # Standard output.
+        error_output: str = stderr.read().decode(self.UTF_8)  # Standard error output.
         success: bool = stdout.channel.exit_status == 0
 
         return success, output, error_output
 
     def exec_command_super(self, command: str) -> Tuple[bool, str, str]:
-        """sudoコマンドを実行．"""
+        """Run a sudo command."""
         if command.count("'") > 0:
             raise RuntimeError('Command with superuser privilege cannot contain "\'".')
 
         return self.exec_command(self._sudo_command(command))
 
     def exec_command_bg(self, command: str) -> None:
-        """バックグラウンドでコマンドを実行．"""
+        """Run a command in the background."""
         self._cli.exec_command(command + " &")
 
     def exec_command_bg_super(self, command: str) -> None:
-        """バックグラウンドでsudoコマンドを実行．"""
+        """Run a sudo command in the background."""
         self.exec_command_bg(self._sudo_command(command))
 
     def scp_get(
         self, remote_path: str, local_path: str, progress: Callable[[str, int, int], None] | None = None
     ) -> None:
         """
-        SCPでローカルディレクトリ以下にリモートディレクトリをコピーする．
+        Copy a remote directory under a local directory with SCP.
 
         Parameters
         ----------
         remote_path : str
-            リモートディレクトリの絶対パス．
+            Absolute path of the remote directory.
         local_path : str
-            ローカルディレクトリの絶対パス．
+            Absolute path of the local directory.
         progress : Callable[[str, int, int], None]
-            進捗コールバック．
+            Progress callback.
         """
         with SCPClient(self._cli.get_transport(), progress=progress) as scp:
             scp.get(remote_path=remote_path, local_path=local_path, recursive=True)
@@ -137,18 +137,18 @@ class SSHClientWrapper:
         _progress: Callable[[str, int, int], None] | None = None,
     ) -> None:
         """
-        SCPでリモートディレクトリ以下にローカルディレクトリをコピーする．
+        Copy a local directory under a remote directory with SCP.
 
         Parameters
         ----------
         _local_dir : str
-            ローカルディレクトリの絶対パス．
+            Absolute path of the local directory.
         _remote_dir : str
-            リモートディレクトリの絶対パス．
+            Absolute path of the remote directory.
         _exclude_dirs : str
-            ローカルの除外するディレクトリの絶対パス．
+            Absolute path of the local directory to exclude.
         _progress : Callable[[str, int, int], None]
-            進捗コールバック．
+            Progress callback.
         """
         if not osp.isdir(_local_dir):
             raise RuntimeError(f"Local directory {_local_dir} does not exist.")
@@ -157,11 +157,11 @@ class SSHClientWrapper:
 
         with SCPClient(self._cli.get_transport(), progress=_progress) as scp:
             for root, _, files in os.walk(_local_dir):
-                # 除外ディレクトリは送信しない
+                # Do not send excluded directories.
                 if is_under_any(root, _exclude_dirs):
                     continue
 
-                # ファイルを1つずつ送信
+                # Send files one by one.
                 for file in files:
                     local_file = osp.join(root, file)
                     if not osp.isfile(local_file):
@@ -184,22 +184,22 @@ class SSHClientWrapper:
         exclude_dirs: List[str] = [],
         progress: Callable[[str, int, int], None] | None = None,
     ) -> None:
-        """SCPでroot権限が必要なリモートディレクトリ以下にローカルディレクトリをコピーする．"""
-        # 一時オブジェクトのパス
+        """Copy a local directory under a remote directory requiring root privileges with SCP."""
+        # Path of the temporary object.
         tmp_path = osp.join("/tmp", osp.basename(local_dir.rstrip("/")))
 
-        # 一時オブジェクトが存在すれば削除 (paramikoにrsyncがないため)
+        # Delete the temporary object if it exists because paramiko does not provide rsync.
         if self.dir_exists(tmp_path):
             success, _, error_output = self.exec_command(f"rm -r {tmp_path}")
             if not success:
                 raise RuntimeError(f"{tmp_path} already exists, but failed to remove it: {error_output}")
 
-        # 一時オブジェクトに書き込む
-        # 事前に削除しているので確実に同期される
+        # Write to the temporary object.
+        # It is guaranteed to sync because it was deleted beforehand.
         self.scp_put_dir(local_dir, "/tmp/", exclude_dirs, progress)
 
-        # 一時オブジェクトをリモートディレクトリ直下に同期
-        # リモートディレクトリが存在しない場合は自動で作成される
+        # Sync the temporary object directly under the remote directory.
+        # The remote directory is created automatically if it does not exist.
         success, _, error_output = self.exec_command_super(f"rsync -rcm --delete {tmp_path} {remote_dir}")
         if not success:
             raise RuntimeError(f"Failed to move {tmp_path} to {remote_dir}: {error_output}")
@@ -229,20 +229,20 @@ class SSHClientWrapper:
                 f.write(text)
 
     def sftp_write_super(self, remote_path: str, text: str) -> None:
-        """root権限が必要なファイルに書き込む．"""
-        # 一時ファイルのパス
+        """Write to a file requiring root privileges."""
+        # Path of the temporary file.
         tmp_path = osp.join("/tmp", osp.basename(remote_path))
 
-        # 一時ファイルに書き込む
+        # Write to the temporary file.
         self.sftp_write(tmp_path, text)
 
-        # 一時ファイルを目的の場所に移動させる
+        # Move the temporary file to the target location.
         success, _, error_output = self.exec_command_super(f"mv {tmp_path} {remote_path}")
         if not success:
             raise RuntimeError(f"Failed to move {tmp_path} to {remote_path}: {error_output}")
 
     def list(self, remote_pardir: str) -> List[str]:
-        """lsコマンド．"""
+        """`ls` command."""
         with self._cli.open_sftp() as sftp:
             return sftp.listdir(remote_pardir)
 
@@ -253,7 +253,7 @@ class SSHClientWrapper:
         return self.exec_command(f"[ -d {dir_path} ]")[0]
 
     def get_remote_tree_size(self, remote_path: str) -> int:
-        """リモート側の通常ファイルの合計サイズ[byte]を取得する。"""
+        """Get the total size [bytes] of regular files on the remote side."""
         with self._cli.open_sftp() as sftp:
             attr = sftp.stat(remote_path)
 

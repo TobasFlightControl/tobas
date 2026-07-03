@@ -16,7 +16,7 @@ int main()
   const auto en = udev_enumerate_new(udev_ctx);
   udev_enumerate_add_match_subsystem(en, "block");
   udev_enumerate_add_match_property(en, "DEVTYPE", "disk");
-  udev_enumerate_add_match_property(en, "ID_DRIVE_REMOVABLE", "1");  // 内蔵ディスクを除外
+  udev_enumerate_add_match_property(en, "ID_DRIVE_REMOVABLE", "1");  // Exclude internal disks.
 
   udev_enumerate_scan_devices(en);
   const auto devs = udev_enumerate_get_list_entry(en);
@@ -34,7 +34,7 @@ int main()
       continue;
     }
 
-    // メディアの情報を取得
+    // Get media information.
     const auto vendor = tobas::udv::getPropertyValue(disk, "ID_VENDOR");
     const auto model = tobas::udv::getPropertyValue(disk, "ID_MODEL");
     const auto label1 = tobas::udv::getBlockLabel(udev_ctx, devnode + '1');
@@ -44,7 +44,7 @@ int main()
       continue;
     }
 
-    // デバイスを開放
+    // Release the device.
     udev_device_unref(disk);
 
     std::cout << vendor << " " << model << " (" << label1 << ", " << label2 << ") (" << devnode << ")" << std::endl;

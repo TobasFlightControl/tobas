@@ -40,13 +40,13 @@ int ChainIkSolverVel_pinv::cartToJnt(const JntArray& q, const Vector& v)
     return setDefaultError(kSizeMismatch);
   }
 
-  // ヤコビアンを更新
+  // Update the Jacobian.
   if (jnt2jac_.jntToJac(q) < 0) {
     return copyError(jnt2jac_);
   }
   const auto& jac = jnt2jac_.getJacobian();
 
-  // 最小二乗解を求める
+  // Compute the least-squares solution.
   qd_out_.data = jac.data.topRows(3).jacobiSvd(ComputeThinU | ComputeThinV).solve(v.data);
 
   return setDefaultError(kNoError);
@@ -61,13 +61,13 @@ int ChainIkSolverVel_pinv::cartToJnt(const JntArray& q, const Twist& v)
     return setDefaultError(kSizeMismatch);
   }
 
-  // ヤコビアンを更新
+  // Update the Jacobian.
   if (jnt2jac_.jntToJac(q) < 0) {
     return copyError(jnt2jac_);
   }
   const auto& jac = jnt2jac_.getJacobian();
 
-  // 最小二乗解を求める
+  // Compute the least-squares solution.
   qd_out_.data = jac.data.jacobiSvd(ComputeThinU | ComputeThinV).solve(v.ravel());
 
   return setDefaultError(kNoError);

@@ -53,7 +53,7 @@ std::string toString<std::vector<double>>(const std::vector<double>& data)
 template <>
 std::string toString<std::pair<double, double>>(const std::pair<double, double>& data)
 {
-  // format("{} {}", first, second) だと文字化けする可能性があるため，1文字ずつ文字列に変換する．
+  // `format("{} {}", first, second)` may cause mojibake, so convert each character to a string.
   return toString(data.first) + ' ' + toString(data.second);
 }
 

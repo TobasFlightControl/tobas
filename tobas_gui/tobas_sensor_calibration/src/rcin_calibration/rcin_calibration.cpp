@@ -335,7 +335,7 @@ bool RCInputCalibrationWidget::saveParamsToFc()
 
 void RCInputCalibrationWidget::onStartButtonClicked()
 {
-  // アームされていないことを確認
+  // Confirm that the vehicle is not armed.
   if (!arming_) {
     qt::qWarnBox(this, "This operation cannot be performed because the arming status has not been received yet.");
     return;
@@ -345,7 +345,7 @@ void RCInputCalibrationWidget::onStartButtonClicked()
     return;
   }
 
-  // 必要なトピックが受け取れていることを確認
+  // Confirm that required topics have been received.
   if (!sbus_) {
     qt::qWarnBox(this, "S.BUS has not been received yet.");
     return;
@@ -367,13 +367,13 @@ void RCInputCalibrationWidget::onCancelButtonClicked()
 
 void RCInputCalibrationWidget::onFinishButtonClicked()
 {
-  // メッセージの受信を確認
+  // Confirm that messages have been received.
   if (!roll_range_->hasValue()) {
     qt::qWarnBox(this, "No S.BUS message is received.");
     return;
   }
 
-  // 各チャンネルの値の範囲をチェック
+  // Check each channel value range.
   if (roll_range_->getRange() < kMinSignalRange) {
     qt::qWarnBox(this, "The signal range of Roll channel is too narrow.");
     return;

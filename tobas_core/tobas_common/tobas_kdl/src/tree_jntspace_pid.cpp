@@ -44,7 +44,7 @@ int TreeJntSpacePID::cartToJnt(
   }
 
   // Compute target joint accelerations
-  // TODO: I要素を加える
+  // TODO: Add the I term.
   const auto tar_qdd = qdd_ff + kp_ * (tar_q - cur_q) + kd_ * (tar_qd - cur_qd);
 
   // Compute target joint efforts

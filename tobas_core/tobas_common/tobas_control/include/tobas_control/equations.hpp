@@ -26,16 +26,16 @@ public:
 
   inline bool isFinite() const;
 
-  /* 変数の次元． */
+  /* Variable dimension. */
   inline Eigen::Index variableSize() const;
 
-  /* (不)等式の次元． */
+  /* Equation or inequality dimension. */
   inline Eigen::Index equationSize() const;
 
-  /* スケーリングされた変数に対する行列方程式を作成． */
+  /* Create a matrix equation for scaled variables. */
   LinearEquation scale(const Eigen::VectorXd& scale) const;
 
-  /* 変化率についての方程式を離散化して変化量についての方程式に変換． */
+  /* Discretize an equation for rates into an equation for increments. */
   LinearEquation discretise(const double& dt) const;
 
   friend std::ostream& operator<<(std::ostream& os, const LinearEquation& arg);

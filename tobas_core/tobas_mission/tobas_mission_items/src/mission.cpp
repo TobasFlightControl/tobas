@@ -67,7 +67,7 @@
 #define RTL_ALTITUDE_TOLERANCE "altitude_tolerance"
 #define RTL_TIMEOUT "timeout"
 
-/* packed構造体の要素は関数の引数にバインドできないため，直接代入するマクロを定義． */
+/* Define a macro that assigns directly because packed struct elements cannot be bound to function arguments. */
 #define LOAD_PACKED_FIELD(key, parent, field)                                                                          \
   (                                                                                                                    \
     [&]() noexcept -> bool                                                                                             \

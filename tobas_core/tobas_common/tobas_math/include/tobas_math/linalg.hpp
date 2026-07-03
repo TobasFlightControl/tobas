@@ -13,13 +13,13 @@ namespace tobas
 namespace math
 {
 /**
- * @brief L2ノルム．
- * cf. 可変長引数テンプレート: https://marycore.jp/prog/cpp/variadic-function/
+ * @brief L2 norm.
+ * cf. Variadic function templates: https://marycore.jp/prog/cpp/variadic-function/
  */
 template <typename... T>
 double norm(T... args)
 {
-  // 引数の個数は少ない想定なので，Kahanの加算アルゴリズムは使わない．
+  // The number of arguments is expected to be small, so Kahan summation is not used.
   double squared_sum = 0.;
   for (const auto& x : std::initializer_list<double>{ args... }) {
     squared_sum += math::sqr(x);

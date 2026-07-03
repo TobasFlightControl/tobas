@@ -24,13 +24,13 @@ void Model::clear()
 
 bool Model::valid() const
 {
-  // URDFが存在する
+  // The URDF exists.
   if (!urdf) {
     std::cerr << "URDF is null." << std::endl;
     return false;
   }
 
-  // "thrust"はエンドジョイントでなければならない
+  // `"thrust"` must be an end joint.
   for (const auto& [thrust_joint_name, thrust] : thrusts) {
     const auto thrust_joint = urdf->getJoint(thrust_joint_name);
     if (!thrust_joint) {
@@ -51,7 +51,7 @@ bool Model::valid() const
     }
   }
 
-  // "cs"はエンドジョイントでなければならない
+  // `"cs"` must be an end joint.
   for (const auto& [cs_joint_name, cs] : control_surfaces) {
     const auto cs_joint = urdf->getJoint(cs_joint_name);
     if (!cs_joint) {
@@ -72,7 +72,7 @@ bool Model::valid() const
     }
   }
 
-  // "tilt"の次のジョイントは"thrust"が1つのみである
+  // The only joint after `"tilt"` must be one `"thrust"` joint.
   for (const auto& [tilt_joint_name, tilt] : tilts) {
     const auto tilt_joint = urdf->getJoint(tilt_joint_name);
     if (!tilt_joint) {

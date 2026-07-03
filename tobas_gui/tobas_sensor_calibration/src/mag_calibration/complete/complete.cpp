@@ -72,8 +72,8 @@ CompleteMagCalibWidget::CompleteMagCalibWidget(rclcpp::Node::SharedPtr node, con
   const auto rviz_config_path = getPkgShareDir() / "config/mag_calibration.rviz";
   rviz_manager_.initialize(QString::fromStdString(rviz_config_path));
 
-  // 固定フレームを設定
-  // TFが出ているフレームでなければならない
+  // Set the fixed frame.
+  // This must be a frame with TF published.
   rviz_manager_.setFixedFrame(frame::kWorld);
 
   const auto point_stamped_displays = rviz_manager_.getDisplays("PointStamped");
@@ -153,13 +153,13 @@ void CompleteMagCalibWidget::setNamespace(const std::string& ns)
 
 void CompleteMagCalibWidget::paintEvent(QPaintEvent*)
 {
-  // 最小のポイントサイズを決める
+  // Determine the minimum point size.
   auto psize = INT32_MAX;
   for (const auto& face_circle : face_circles_) {
     psize = std::min(psize, face_circle->calcMaxTextPointSize());
   }
 
-  // 最小のポイントサイズに揃える
+  // Align to the minimum point size.
   for (const auto& face_circle : face_circles_) {
     face_circle->setTextPointSize(psize);
   }
@@ -186,7 +186,7 @@ void CompleteMagCalibWidget::resetToPreStart()
 
 void CompleteMagCalibWidget::clearDisplayPoints()
 {
-  // FIXME: クリア後に僅かに遅れて受け取られたPointStampedが表示されてしまうことがある
+  // FIXME: A `PointStamped` received slightly after clearing may still be displayed.
   return rviz_manager_.resetTime();
 }
 
@@ -199,7 +199,7 @@ size_t CompleteMagCalibWidget::computeFaceIndex() const
 {
   const auto& R_W_B = odom_->odom.odom.frame.M;
 
-  // 世界座標系から見た各軸のZ成分を取得
+  // Get each axis Z component in the world coordinate system.
   const auto axz = R_W_B.axisX().z();
   const auto ayz = R_W_B.axisY().z();
   const auto azz = R_W_B.axisZ().z();
@@ -207,7 +207,7 @@ size_t CompleteMagCalibWidget::computeFaceIndex() const
   const auto abs_ayz = std::abs(ayz);
   const auto abs_azz = std::abs(azz);
 
-  // 要素の大小関係から現在上を向いている面を決定
+  // Determine the face currently pointing upward from the order of components.
   if (abs_axz >= std::max(abs_ayz, abs_azz)) {
     if (axz > 0.) {
       return kFrontIdx;
@@ -241,7 +241,7 @@ void CompleteMagCalibWidget::subsample()
 {
   static constexpr int N = 30;
 
-  // バウンディングボックスを求める
+  // Find the bounding box.
   auto lb = kdl::Vector::Constant(std::numeric_limits<double>::max());
   auto ub = kdl::Vector::Constant(std::numeric_limits<double>::lowest());
   for (int pi = 0; pi < cnt_; ++pi) {
@@ -252,11 +252,11 @@ void CompleteMagCalibWidget::subsample()
     lb = lb.min(p);
     ub = ub.max(p);
   }
-  const auto d = (ub - lb) / N;  // 1つの領域の幅
+  const auto d = (ub - lb) / N;  // Width of one region.
 
-  // 各点をグリッドに割り当てる
+  // Assign each point to the grid.
   Eigen::Vector3i gi;                                         // Grid index
-  std::unordered_map<Eigen::Vector3i, std::set<int>> groups;  // 疎なのでハッシュテーブルで管理
+  std::unordered_map<Eigen::Vector3i, std::set<int>> groups;  // Use a hash table because the grid is sparse.
   for (int pi = 0; pi < cnt_; ++pi) {
     if (!active_.at(pi)) {
       continue;
@@ -268,21 +268,21 @@ void CompleteMagCalibWidget::subsample()
     groups[gi].insert(pi);
   }
 
-  // 同じ領域に複数の点が存在する場合は平均でまとめる
+  // If multiple points exist in the same region, merge them by averaging.
   for (const auto& [_, group] : groups) {
     const auto group_size = group.size();
     if (group_size < 2) {
       continue;
     }
 
-    // 同じ領域に属する点の平均を計算
+    // Calculate the average of points in the same region.
     auto sum = kdl::Vector::Zero();
     for (const auto& pi : group) {
       sum += buf_.at(pi);
     }
     const auto mean = sum / group_size;
 
-    // 最初の要素に平均値を入れ，それ以外を無効化する
+    // Put the average in the first element and invalidate the others.
     for (const auto& [i, pi] : std::views::enumerate(group)) {
       if (i == 0) {
         buf_.at(pi) = mean;
@@ -299,7 +299,7 @@ void CompleteMagCalibWidget::removeOutliers()
 {
   const auto size = numActiveSamples();
 
-  // 平均点を求める
+  // Find the average point.
   auto sum = kdl::Vector::Zero();
   for (int pi = 0; pi < cnt_; ++pi) {
     if (!active_.at(pi)) {
@@ -309,7 +309,7 @@ void CompleteMagCalibWidget::removeOutliers()
   }
   const auto mean = sum / size;
 
-  // 平均点からの距離の標準偏差を求める
+  // Find the standard deviation of distances from the average point.
   double dist2_sum = 0.;
   for (int pi = 0; pi < cnt_; ++pi) {
     if (!active_.at(pi)) {
@@ -322,7 +322,7 @@ void CompleteMagCalibWidget::removeOutliers()
   const auto dist_var = dist2_sum / size;
   const auto dist_stddev = std::sqrt(dist_var);
 
-  // 平均点からの距離が大きく外れているものを弾く
+  // Reject points whose distance from the average point is a large outlier.
   for (int pi = 0; pi < cnt_; ++pi) {
     if (!active_.at(pi)) {
       continue;
@@ -348,12 +348,12 @@ bool CompleteMagCalibWidget::computeHardBias(
   const auto yy = y.cwiseProduct(y).eval();
   const auto zz = z.cwiseProduct(z).eval();
 
-  // 適当にスケールを決める
+  // Choose a rough scale.
   const auto scale = (xx + yy + zz).mean();
   Eigen::VectorXd ce0(size);
   ce0.fill(scale);
 
-  // 球体でフィッティング
+  // Fit with a sphere.
   // axx x^2 + axx y^2 + axx z^2 + bx x + by y + bz z + c = 0
   Eigen::MatrixX4d CE(size, 4);
   CE.col(0) = xx + yy + zz;
@@ -380,7 +380,7 @@ bool CompleteMagCalibWidget::computeHardBias(
     return false;
   }
 
-  // オフセットのみ使用
+  // Use only the offset.
   dst = ellipsoid.getHardBias();
   return true;
 }
@@ -400,14 +400,14 @@ bool CompleteMagCalibWidget::computeSoftBias(
   const auto yz = y.cwiseProduct(z).eval();
   const auto zx = z.cwiseProduct(x).eval();
 
-  // 適当にスケールを決める
+  // Choose a rough scale.
   const auto scale = (xx + yy + zz).mean();
   Eigen::VectorXd ce0(size);
   ce0.fill(scale);
 
-  // 原点中心の楕円体でフィッティング
+  // Fit with an ellipsoid centered at the origin.
   // axx x^2 + ayy y^2 + azz z^2 + 2 axy xy + 2 ayz yz + 2 azx zx + c = 0
-  // cf. 最小二乗法で方程式を推定: https://rikei-tawamure.com/entry/2021/10/07/211725
+  // cf. Estimate the equation with least squares: https://rikei-tawamure.com/entry/2021/10/07/211725
   Eigen::MatrixX6d CE(size, 6);
   CE.col(0) = xx;
   CE.col(1) = yy;
@@ -441,12 +441,12 @@ bool CompleteMagCalibWidget::computeSoftBias(
 
 bool CompleteMagCalibWidget::updateRemoteParameters(const Eigen::Vector3d& hard_bias, const Eigen::Vector6d& soft_bias)
 {
-  // パラメータを作成
+  // Create parameters.
   const auto req = std::make_shared<tobas_real_msgs::srv::SetMagnetometerParams::Request>();
   req->hard_bias = eigen::toStdArray(hard_bias);
   req->soft_bias = eigen::toStdArray(soft_bias);
 
-  // パラメータを更新
+  // Update parameters.
   ros2::SyncServiceClient<tobas_real_msgs::srv::SetMagnetometerParams> sc(
     node_, path::join(ns_, kRemoteIfaceNS, real::handler::mag::kSetParamSrv));
   if (!sc.call(req, kSetParamTimeout)) {
@@ -454,7 +454,7 @@ bool CompleteMagCalibWidget::updateRemoteParameters(const Eigen::Vector3d& hard_
     return false;
   }
 
-  // 結果を確認
+  // Check the result.
   const auto res = sc.getResponse();
   if (!res->success) {
     qt::qErrorBox(this, "Calibration results are rejected: " + QString::fromStdString(res->message));
@@ -511,14 +511,14 @@ void CompleteMagCalibWidget::displayEllipsoidWireFrame(const eigen::Ellipsoid& e
   marker.id = 0;
   marker.type = visualization_msgs::msg::Marker::LINE_STRIP;
   marker.action = visualization_msgs::msg::Marker::ADD;
-  marker.scale.x = 0.02;  // LINE_STRIPの場合はy,zは無視される
+  marker.scale.x = 0.02;  // For `LINE_STRIP`, y and z are ignored.
   marker.color.r = 0.0;
   marker.color.g = 0.0;
   marker.color.b = 1.0;
   marker.color.a = 1.0;
   marker.lifetime = rclcpp::Duration::from_nanoseconds(0);
 
-  // theta固定のラインを追加
+  // Add lines with fixed theta.
   for (int theta_deg = -90; theta_deg < 90; theta_deg += kEllipsoidLineStep) {
     marker.points.clear();
 
@@ -532,7 +532,7 @@ void CompleteMagCalibWidget::displayEllipsoidWireFrame(const eigen::Ellipsoid& e
     ++marker.id;
   }
 
-  // phi固定のラインを追加
+  // Add lines with fixed phi.
   for (int phi_deg = 0; phi_deg < 360; phi_deg += kEllipsoidLineStep) {
     marker.points.clear();
 
@@ -546,7 +546,7 @@ void CompleteMagCalibWidget::displayEllipsoidWireFrame(const eigen::Ellipsoid& e
     ++marker.id;
   }
 
-  // マーカを発行
+  // Publish the marker.
   ellipsoid_pub_->publish(std::move(markers));
 }
 
@@ -566,7 +566,7 @@ void CompleteMagCalibWidget::addEllipsoidPoint(
 
 void CompleteMagCalibWidget::onStartButtonClicked()
 {
-  // アームされていないことを確認
+  // Confirm that the vehicle is not armed.
   if (!arming_) {
     qt::qWarnBox(this, "This operation cannot be performed because the arming status has not been received yet.");
     return;
@@ -576,7 +576,7 @@ void CompleteMagCalibWidget::onStartButtonClicked()
     return;
   }
 
-  // 必要なトピックが受け取れていることを確認
+  // Confirm that required topics have been received.
   if (!mag_raw_) {
     qt::qWarnBox(this, "Magnetic field has not been received yet.");
     return;
@@ -615,17 +615,17 @@ void CompleteMagCalibWidget::onFinishButtonClicked()
     return;
   }
 
-  // サンプル分だけ有効化
+  // Enable only the sample count.
   std::fill(active_.begin(), active_.begin() + cnt_, true);
 
-  // 前処理
+  // Preprocess.
   subsample();
   removeOutliers();
 
-  // 有効なサンプル数を計算
+  // Calculate the number of valid samples.
   const auto size = numActiveSamples();
 
-  // データを整理
+  // Organize data.
   Eigen::VectorXd x(size), y(size), z(size);
   int idx = 0;
   for (int pi = 0; pi < cnt_; ++pi) {
@@ -640,37 +640,37 @@ void CompleteMagCalibWidget::onFinishButtonClicked()
   }
   TOBAS_CHECK(idx == size);
 
-  // 球体近似でハードアイアンバイアスを計算
+  // Calculate hard-iron bias using sphere approximation.
   Eigen::Vector3d hard_bias;
   if (!computeHardBias(x, y, z, hard_bias)) {
     return;
   }
 
-  // データを原点中心に移動する
+  // Move data to the origin.
   x = x.array() - hard_bias.x();
   y = y.array() - hard_bias.y();
   z = z.array() - hard_bias.z();
 
-  // 楕円体近似でソフトアイアンバイアスを計算
-  // 展開式を用いた線形回帰はユークリッド距離の最小化ではないが，データが原点中心ならばそれに近くなる
-  // TODO: 写像後の点の原点からの距離の2乗と1の誤差の総和を目的関数にできればより実用に堪えると思われる
+  // Calculate soft-iron bias using ellipsoid approximation.
+  // Linear regression with the expanded equation does not minimize Euclidean distance,
+  // but it becomes close when data is centered at the origin.
   Eigen::Vector6d soft_bias;
   if (!computeSoftBias(x, y, z, soft_bias)) {
     return;
   }
 
-  // FCのパラメータを更新
+  // Update FC parameters.
   if (!updateRemoteParameters(hard_bias, soft_bias)) {
     return;
   }
 
-  // 結果を表示
+  // Show the result.
   rviz_manager_.resetTime();
   const eigen::Ellipsoid ellipsoid(hard_bias, soft_bias);
   displayPointClouds(ellipsoid);
   displayEllipsoidWireFrame(ellipsoid);
 
-  // デバッグ情報を表示
+  // Show debug information.
   std::cout << "The number of samples before preprocessing: " << cnt_ << std::endl;
   std::cout << "The number of samples after preprocessing: " << size << std::endl;
   std::cout << "The number of removed samples: " << cnt_ - size << std::endl;
@@ -689,36 +689,36 @@ void CompleteMagCalibWidget::magCb(const tobas_msgs::MagneticField::ConstSharedP
     return;
   }
 
-  // 最初のデータ
+  // First data point.
   if (cnt_ == 0) {
     last_time_ = msg->header.stamp;
     last_face_idx_ = computeFaceIndex();
     face_circles_.at(last_face_idx_)->setSelected(true);
   }
 
-  // 最大点数に達したら強制終了
+  // Force stop when the maximum number of points is reached.
   if (cnt_ >= kMaxDataSize) {
     resetToPreStart();
     qt::qErrorBox(this, "Magnetometer sample limit reached. Calibration canceled.");
     return;
   }
 
-  // データを追加
+  // Add data.
   buf_.at(cnt_++) = msg->mag;
 
-  // 表示用メッセージを発行
+  // Publish a display message.
   auto point_msg = std::make_unique<geometry_msgs::msg::PointStamped>();
   point_msg->header = msg->header;
-  point_msg->header.frame_id = frame::kWorld;  // Rvizの設定の"Global Options/Fixed Frame"と一致させる
+  point_msg->header.frame_id = frame::kWorld;  // Match the Rviz `Global Options/Fixed Frame` setting.
   kdl::pointKDLToMsg(msg->mag * kRvizPointScale, point_msg->point);
   samples_pub_->publish(std::move(point_msg));
 
-  // 時刻を更新
+  // Update the time.
   const auto& cur_time = msg->header.stamp;
   const auto dt = (cur_time - last_time_).seconds();
   last_time_ = cur_time;
 
-  // 現在の向きを円の外枠の色で表示
+  // Show the current orientation with the circle outline color.
   const auto face_idx = computeFaceIndex();
   if (face_idx != last_face_idx_) {
     face_circles_.at(last_face_idx_)->setSelected(false);
@@ -727,29 +727,29 @@ void CompleteMagCalibWidget::magCb(const tobas_msgs::MagneticField::ConstSharedP
   }
 
   if (!finish_button_->isEnabled()) {
-    // 現在の向きの回転量を更新
+    // Update the rotation amount for the current orientation.
     if (!completed_.at(face_idx)) {
-      // グローバルZ軸回りの回転速さを計算
+      // Calculate the rotation speed around the global Z axis.
       const auto W_gyro = odom_->odom.odom.frame.M * odom_->odom.odom.twist.rot;
       const auto yawrate = std::abs(W_gyro.z());
 
-      // 回転を検知したら回転量を積分
-      // 回転が速すぎると十分にサンプリングできないため上限を定める
+      // Integrate the rotation amount when rotation is detected.
+      // Set an upper limit because sampling is insufficient if rotation is too fast.
       if (yawrate > kMinYawRate) {
         rot_angles_.at(face_idx) += std::min(yawrate, kMaxYawRate) * dt;
       }
 
-      // 個別の進捗を更新
+      // Update individual progress.
       const auto progress = rot_angles_.at(face_idx) / kYawAngleThresh;  // [-]
       face_circles_.at(face_idx)->setProgress(progress);
 
-      // 十分回転したら完了
+      // Complete when enough rotation is reached.
       if (progress > 1.) {
         completed_.at(face_idx) = true;
       }
     }
 
-    // 全体の進捗バーを更新
+    // Update the overall progress bar.
     double total_progress = 0.;  // [-]
     for (const auto& [rot_angle, completed] : std::views::zip(rot_angles_, completed_)) {
       const auto progress = completed ? 1. : rot_angle / kYawAngleThresh;
@@ -757,7 +757,7 @@ void CompleteMagCalibWidget::magCb(const tobas_msgs::MagneticField::ConstSharedP
     }
     progress_bar_->setValue(static_cast<int>(total_progress * 100.));
 
-    // 全ての面のデータが十分に溜まったらFinishボタンを有効化
+    // Enable the Finish button when enough data has been collected for all faces.
     if (st::allEqual(completed_, true)) {
       finish_button_->setEnabled(true);
       progress_bar_->setValue(100);

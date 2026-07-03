@@ -30,8 +30,8 @@ FailsafeWidget::FailsafeWidget()
   items_[kVelAccuracyIdx] = new qt::CheckBox("Check velocity accuracy", true);
   items_[kAttiAccuracyIdx] = new qt::CheckBox("Check attitude accuracy", true);
   items_[kHeadAccuracyIdx] = new qt::CheckBox("Check heading accuracy", true);
-  items_[kMagOffsetIdx] = new qt::CheckBox("Check magnetic field offset", false);  // TODO: デフォルトをtrueに
-  items_[kMagAlignmentIdx] = new qt::CheckBox("Check magnetic field alignment", false);  // TODO: デフォルトをtrueに
+  items_[kMagOffsetIdx] = new qt::CheckBox("Check magnetic field offset", false);
+  items_[kMagAlignmentIdx] = new qt::CheckBox("Check magnetic field alignment", false);
   items_[kVibrationLevelIdx] = new qt::CheckBox("Check vibration level", true);
   items_[kUserDefinedConditionIdx] = new qt::CheckBox("Check user-defined condition", false);
 

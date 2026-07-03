@@ -15,8 +15,9 @@ namespace ub
 namespace utils
 {
 /**
- * @brief デフォルトのクローン関数．
- * インスタンス変数にポインタが含まれる場合，make_sharedではその実態はコピーされないため特殊化 or オーバーロードが必要．
+ * @brief Default clone function.
+ * If instance variables contain pointers, `make_shared` does not copy the pointees,
+ * so specialization or overloading is required.
  */
 template <typename T>
 std::shared_ptr<T> clone(const std::shared_ptr<T>& ptr)

@@ -57,11 +57,11 @@ void RateThrottleVectorController::update(const tobas_msgs::RCInput& rcin, const
   cmd->header = rcin.header;
   cmd->priority.data = tobas_command_msgs::msg::Priority::MANUAL;
 
-  if (rcin.sub_mode) {  // 並進モード
+  if (rcin.sub_mode) {  // Translation mode
     cmd->rate.y(0.);
     cmd->thrust_angle = remapDead(rcin.pitch, -max_thrust_angle_, max_thrust_angle_);
   }
-  else {  // 回転モード
+  else {  // Rotation mode
     cmd->rate.y(expoRemap(rcin.pitch, atti_expo_, -max_atti_rate_, max_atti_rate_));
     cmd->thrust_angle = 0.;
   }

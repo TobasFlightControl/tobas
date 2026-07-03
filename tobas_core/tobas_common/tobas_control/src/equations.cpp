@@ -28,7 +28,7 @@ LinearEquation LinearEquation::discretise(const double& dt) const
   assert(dt >= 0);
 
   auto res = *this;
-  res.b *= dt;  // 単純に方程式の右辺にdtがかかるだけ
+  res.b *= dt;  // Simply multiply the right-hand side of the equation by dt.
   return res;
 }
 

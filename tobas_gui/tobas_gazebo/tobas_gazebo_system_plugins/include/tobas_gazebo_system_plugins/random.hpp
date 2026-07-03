@@ -50,7 +50,7 @@ private:
   gz::math::Vector3d values_;
 };
 
-/* 単位球上の一点をランダムに生成する． */
+/* Generate a random point on the unit sphere. */
 gz::math::Vector3d createUnitSpherePoint(std::random_device& rnd_dev);
 }  // namespace gazebo
 }  // namespace tobas

@@ -104,7 +104,7 @@ void GazeboJointPositionControllerPlugin::PreUpdate(const gz::sim::UpdateInfo&, 
 {
   const auto& cur_pos = jnt_pos_->Data().at(0);
   const auto tar_vel = (tar_pos_ - cur_pos) / param_.time_const;
-  joint_->SetVelocity(ecm, { tar_vel });  // これでジョイントにトルクが発生する
+  joint_->SetVelocity(ecm, { tar_vel });  // This generates torque on the joint.
 }
 
 void GazeboJointPositionControllerPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
@@ -120,7 +120,7 @@ void GazeboJointPositionControllerPlugin::registerRosInterfaces()
 
 void GazeboJointPositionControllerPlugin::commandCb(const tobas_gazebo_msgs::msg::JointCommand::ConstSharedPtr& cmd)
 {
-  // 一度リミットを超えてしまうとコマンドを受け付けなくなるため，若干余裕を持って目標位置をクランプする．
+  // Clamp the target position with a small margin because commands stop being accepted once the limit is exceeded.
   static constexpr double kJointLimitMargin = 1e-2;  // [rad]
   const auto lower = jnt_axis_->Data().Lower() + kJointLimitMargin;
   const auto upper = jnt_axis_->Data().Upper() - kJointLimitMargin;

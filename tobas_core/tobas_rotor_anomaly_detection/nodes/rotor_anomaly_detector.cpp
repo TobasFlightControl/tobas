@@ -92,14 +92,14 @@ void RotorAnomalyDetectorNode::droneCb(const Drone::ConstSharedPtr& drone)
 
 void RotorAnomalyDetectorNode::statesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& states)
 {
-  // モータの状態を受け取ってから生存状況の発行を開始する
+  // Start publishing liveliness after receiving rotor states.
   if (!publish_rotor_liveliness_timer_) {
     publish_rotor_liveliness_timer_ = createTimer(1s, &self::publishRotorLiveliness, this);
   }
 
   bool state_changed = false;
 
-  // TODO: 推進系の種類によって適切な判定を行う
+  // TODO: Choose the appropriate criterion for each propulsion system type.
 
   for (const auto& state : states->states) {
     const auto data_it = data_.find(state.link_name);
@@ -113,7 +113,7 @@ void RotorAnomalyDetectorNode::statesCb(const tobas_msgs::msg::RotorStateArray::
 
     if (data.is_alive) {
       if (state.status == tobas_msgs::msg::RotorState::COMMUNICATION_FAILURE) {
-        // 一定時間通信が途絶えている場合は死んでいるとみなす
+        // Mark as dead if communication has been lost for a fixed time.
         if ((cur_time - data.last_alive_time).seconds() > no_comm_timeout_) {
           state_changed = true;
           data.is_alive = false;
@@ -122,13 +122,13 @@ void RotorAnomalyDetectorNode::statesCb(const tobas_msgs::msg::RotorStateArray::
         }
       }
       else {
-        // 通信が確認できた最新の時刻を更新
+        // Update the latest time when communication was confirmed.
         data.last_alive_time = cur_time;
       }
     }
     else {
       if (state.status != tobas_msgs::msg::RotorState::COMMUNICATION_FAILURE) {
-        // 一定時間通信があれば回復したとみなす
+        // Mark as recovered if communication has been present for a fixed time.
         if ((cur_time - data.last_dead_time).seconds() > no_comm_timeout_ * 2) {
           state_changed = true;
           data.is_alive = true;
@@ -137,13 +137,13 @@ void RotorAnomalyDetectorNode::statesCb(const tobas_msgs::msg::RotorStateArray::
         }
       }
       else {
-        // 通信が確認できない最新の時刻を更新
+        // Update the latest time when communication could not be confirmed.
         data.last_dead_time = cur_time;
       }
     }
   }
 
-  // 状態が切り替わっていれば発行
+  // Publish if the state changed.
   if (state_changed) {
     publishRotorLiveliness();
     publish_rotor_liveliness_timer_->reset();

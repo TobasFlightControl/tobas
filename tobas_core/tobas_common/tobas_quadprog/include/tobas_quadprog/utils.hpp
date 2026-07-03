@@ -10,13 +10,13 @@ namespace tobas
 namespace quadprog
 {
 /**
- * @brief 変数ベクトルxの範囲(lb <= x <= ub)から等価な行列不等式(A @ x <= b)を作る．
+ * @brief Create equivalent matrix inequalities (`A @ x <= b`) from variable ranges (`lb <= x <= ub`).
  *
- * @param lb 下限
- * @param ub 上限
- * @param inf これ以上の値を行列不等式から省く
+ * @param lb Lower bounds.
+ * @param ub Upper bounds.
+ * @param inf Values greater than this are omitted from the matrix inequalities.
  *
- * @return LinearEquation A @ x <= b の(A, b)
+ * @return The (`A`, `b`) pair for `A @ x <= b`.
  */
 void matIneqFromRange(
   const Eigen::VectorXd& lb,

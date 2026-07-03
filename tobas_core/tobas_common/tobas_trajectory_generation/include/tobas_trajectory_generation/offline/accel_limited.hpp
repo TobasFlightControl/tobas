@@ -9,7 +9,7 @@ namespace tobas
 {
 namespace traj
 {
-/* 加速度，速度の制約を満たした上で最短時間で目的地に到達する軌跡 (memo: 3-50) */
+/* Minimum-time trajectory to the destination while satisfying acceleration and velocity constraints. (memo: 3-50) */
 class AccelLimitedTrajectory : public TrajectoryGenerator
 {
 public:
@@ -19,13 +19,13 @@ public:
   double duration() const noexcept override;
 
 private:
-  const double p0_, v0_;  // 初期状態
-  const double pf_, vf_;  // 目標状態
-  const double am_;       // リミット
+  const double p0_, v0_;  // Initial state
+  const double pf_, vf_;  // Target state
+  const double am_;       // Limit
 
-  double s_;   // スイッチング曲線
-  double ts_;  // スイッチング時刻
-  double tf_;  // 到達時刻
+  double s_;   // Switching curve
+  double ts_;  // Switching time
+  double tf_;  // Arrival time
 };
 }  // namespace traj
 }  // namespace tobas

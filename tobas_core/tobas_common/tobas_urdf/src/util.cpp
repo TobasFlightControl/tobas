@@ -27,7 +27,7 @@ fs::path resolveURI(const std::string& uri)
   else if (uri.starts_with(kAbsPathPrefix)) {
     const auto path = str::lstrip(uri, kAbsPathPrefix);
     if (path.find("$(") != std::string::npos) {
-      throw std::runtime_error("Embedded xacro command is not supported.");  // TODO: $(find package_name)を置換
+      throw std::runtime_error("Embedded xacro command is not supported.");  // TODO: Replace `$(find package_name)`.
     }
     return fs::absolute(path);
   }

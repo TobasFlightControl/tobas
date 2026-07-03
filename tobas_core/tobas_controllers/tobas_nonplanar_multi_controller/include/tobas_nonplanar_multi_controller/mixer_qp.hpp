@@ -14,7 +14,7 @@ namespace tobas
 namespace nonplanar_multicopter
 {
 /**
- * @brief 制約を考慮した非平面配置マルチコプターの推力ミキシング (memo: 2-49)
+ * @brief Thrust mixing for nonplanar multicopters with constraints (memo: 2-49).
  */
 class QpMixer : public MixerI
 {
@@ -52,11 +52,11 @@ private:
   kdl::TreeFkSolverPosAll fk_solver_;
   kdl::TreeInertiaSolver inertia_solver_;
 
-  quadprog::DualActiveSetSolver qp_;  // QPソルバー
-  Eigen::Diagonal6d Q_;               // EoMの重み
-  Eigen::DiagonalXd R_;               // 推力の重み
-  Eigen::Matrix6Xd G_;                // EoM行列等式の左辺
-  Eigen::Vector6d h_;                 // EoM行列等式の右辺
+  quadprog::DualActiveSetSolver qp_;  // QP solver.
+  Eigen::Diagonal6d Q_;               // EoM weights.
+  Eigen::DiagonalXd R_;               // Thrust weights.
+  Eigen::Matrix6Xd G_;                // Left-hand side of the EoM matrix equality.
+  Eigen::Vector6d h_;                 // Right-hand side of the EoM matrix equality.
 
   void resizeAndFill();
 };

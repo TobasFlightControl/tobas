@@ -13,7 +13,7 @@
 namespace tobas
 {
 /**
- * @brief 縦系のトリム状態を求める．
+ * @brief Compute the longitudinal trim state.
  */
 class TrimConditions : public SolverI
 {
@@ -23,11 +23,11 @@ public:
   bool updateInternalDataStructures() override;
 
   /**
-   * @brief 内部状態を更新する．
+   * @brief Update the internal state.
    *
-   * @param V 風速に対する機体速度の絶対値 [m/s]
-   * @param rho 大気密度 [kg/m^3]
-   * @param q 関節角 [rad]
+   * @param V Magnitude of aircraft velocity relative to wind speed [m/s].
+   * @param rho Air density [kg/m^3].
+   * @param q Joint angles [rad].
    *
    * @return Error Error code
    */
@@ -35,37 +35,37 @@ public:
 
   inline const StabilityDerivativesCG& stabilityDerivativesCG() const;
 
-  /* ピッチ回転のトリムに用いる舵面の添字 */
+  /* Index of the control surface used for pitch trim. */
   inline const std::string& elevatorLinkName() const;
 
-  /* 迎角 [rad] */
+  /* Angle of attack [rad]. */
   inline const double& alpha() const;
-  /* ピッチ角 [rad] */
+  /* Pitch angle [rad]. */
   inline const double& theta() const;
-  /* エレベーター舵角 [rad] */
+  /* Elevator deflection angle [rad]. */
   inline const double& elevator() const;
-  /* 揚力係数 [-] */
+  /* Lift coefficient [-]. */
   inline const double& c_L() const;
-  /* 抗力係数 [-] */
+  /* Drag coefficient [-]. */
   inline const double& c_D() const;
-  /* 推力係数 [-] */
+  /* Thrust coefficient [-]. */
   inline const double& c_T() const;
-  /* X軸方向の速さ [m/s] */
+  /* Speed in the X-axis direction [m/s]. */
   inline const double& u() const;
 
   inline double minimumSpeed(const double& rho) const;
   inline double maximumSpeed(const double& rho) const;
 
   /**
-   * @brief 失速しないための速度の大きさの範囲．
-   * cf. 青本, p.85, (2.9-47, 2.9-49)
+   * @brief Range of velocity magnitudes that avoid stall.
+   * cf. Blue book, p.85, (2.9-47, 2.9-49)
    *
-   * @param rho 大気密度 [kg/m^3]
-   * @return st::Range<double> 速度の大きさの範囲
+   * @param rho Air density [kg/m^3].
+   * @return st::Range<double> Range of velocity magnitudes.
    */
   st::Range<double> speedLimit(const double& rho) const;
 
-  /* 迎角が0でも機体を持ち上げるだけの揚力が発生する速度． */
+  /* Velocity at which enough lift to raise the aircraft is generated even when the angle of attack is zero. */
   double takeOffSpeed(const double& rho) const;
 
 private:
@@ -75,17 +75,17 @@ private:
   kdl::TreeInertiaSolver inertia_solver_;
   StabilityDerivativesCG asd_cog_;
 
-  // 固定値
-  double W_;                    // 機体の重量 [N]
-  std::string elev_link_name_;  // ピッチ回転の釣り合いに使う舵面
-  double a_, b_;                // (2.9-49)の定数部分
+  // Fixed values.
+  double W_;                    // Aircraft weight [N].
+  std::string elev_link_name_;  // Control surface used to balance pitch rotation.
+  double a_, b_;                // Constant parts of (2.9-49).
 
-  double alpha_;     // トリム時の迎角 [rad]
-  double elevator_;  // トリム時の昇降舵の偏角 [rad]
-  double c_L_;       // トリム時の揚力係数 [-]
-  double c_D_;       // トリム時の抗力係数 [-]
-  double c_T_;       // トリム時の推力係数 [-]
-  double u_;         // トリム時のX軸方向の速さ [m/s]
+  double alpha_;     // Angle of attack at trim [rad].
+  double elevator_;  // Elevator deflection at trim [rad].
+  double c_L_;       // Lift coefficient at trim [-].
+  double c_D_;       // Drag coefficient at trim [-].
+  double c_T_;       // Thrust coefficient at trim [-].
+  double u_;         // Speed in the X-axis direction at trim [m/s].
 };
 
 inline const StabilityDerivativesCG& TrimConditions::stabilityDerivativesCG() const
@@ -105,7 +105,7 @@ inline const double& TrimConditions::alpha() const
 
 inline const double& TrimConditions::theta() const
 {
-  return alpha_;  // 水平飛行より theta = alpha
+  return alpha_;  // `theta = alpha` from level flight.
 }
 
 inline const double& TrimConditions::elevator() const

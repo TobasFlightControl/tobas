@@ -57,7 +57,7 @@ void IPv6Widget::load(const YAML::Node& node)
 
 QString IPv6Widget::host() const
 {
-  return '[' + ipv6_->toString() + ']';  // コロンの衝突を防ぐためのカッコをつける
+  return '[' + ipv6_->toString() + ']';  // Add brackets to avoid colon conflicts.
 }
 }  // namespace rc
 }  // namespace sa

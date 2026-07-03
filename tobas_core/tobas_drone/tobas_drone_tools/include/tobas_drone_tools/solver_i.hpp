@@ -19,9 +19,9 @@ protected:
 public:
   enum Error : int
   {
-    kNoError = 0,  // エラーなし
-    kWarn = -1,    // 警告のみで処理続行
-    kError = -2,   // 処理を停止すべき重大なエラー
+    kNoError = 0,  // No error.
+    kWarn = -1,    // Warning only; continue processing.
+    kError = -2,   // Serious error that should stop processing.
   };
 
   virtual bool updateInternalDataStructures() = 0;
@@ -33,7 +33,7 @@ protected:
   int error_code_ = kNoError;
   std::string error_msg_;
 
-  /* 引数のエラーコードの方が深刻な場合はエラーを更新し，現在のエラーコードを返す． */
+  /* Update the error if the argument error code is more serious, then return the current error code. */
   inline int updateError(const SolverI& arg);
 };
 

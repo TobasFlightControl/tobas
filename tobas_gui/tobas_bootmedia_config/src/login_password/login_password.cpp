@@ -92,21 +92,21 @@ void LoginPasswordWidget::onTextChanged()
   const auto pswd1 = pswd1_->text();
   const auto pswd2 = pswd2_->text();
 
-  // 空はダメ
+  // Empty values are not allowed.
   if (pswd1.isEmpty()) {
     warn_text_->setText("Please enter a password.");
     write_button_->setEnabled(false);
     return;
   }
 
-  // 制御文字はダメ
+  // Control characters are not allowed.
   if (qt::containsControlChars(pswd1)) {
     warn_text_->setText("Password must not contain control characters.");
     write_button_->setEnabled(false);
     return;
   }
 
-  // バイト長チェック
+  // Check the byte length.
   constexpr int kMinPswdBytes = 8;
   constexpr int kMaxPswdBytes = 128;
   const int bytes = pswd1.toUtf8().size();
@@ -121,7 +121,7 @@ void LoginPasswordWidget::onTextChanged()
     return;
   }
 
-  // 複数の文字種を用いる
+  // Use multiple character classes.
   bool has_lower = false, has_upper = false, has_digit = false, has_symbol = false;
   for (const auto& ch : pswd1) {
     if (ch.isLower()) {
@@ -138,7 +138,7 @@ void LoginPasswordWidget::onTextChanged()
     }
   }
   const auto classes = (has_lower ? 1 : 0) + (has_upper ? 1 : 0) + (has_digit ? 1 : 0) + (has_symbol ? 1 : 0);
-  constexpr int kMinClasses = 1;  // TODO: 3種混合くらいを強制すべき？
+  constexpr int kMinClasses = 1;  // TODO: Should we require about three character classes?
   if (classes < kMinClasses) {
     warn_text_->setText(
       "Use a mix of letters, numbers, and symbols (at least " + QString::number(kMinClasses) + " types).");
@@ -146,7 +146,7 @@ void LoginPasswordWidget::onTextChanged()
     return;
   }
 
-  // 2つのパスワードが一致していること
+  // Confirm that the two passwords match.
   if (pswd1 != pswd2) {
     warn_text_->setText("Passwords do not match.");
     write_button_->setEnabled(false);

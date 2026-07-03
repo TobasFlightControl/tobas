@@ -48,7 +48,8 @@ bool CxGb400::initialize(
     return false;
   }
 
-  // gymbal restart, どうやら必要ないっぽい．sendAttitudeを200ms間隔で送ると自動でrestartしてくれる．
+  // Gimbal restart. This does not seem to be necessary;
+  // sending `sendAttitude()` every 200 ms restarts it automatically.
   // uint8_t execute = 0;
   // const uvc_xu_control_query gymbal_restart = {kUnit2, 0xA, UVC_SET_CUR, 1, &execute};
   // if (!execUvcControl(gymbal_restart)) {
@@ -376,7 +377,8 @@ bool CxGb400::getCameraStatus(
     return false;
   }
 
-  // TODO: 他にもstatusが来ているのでそれを読む（今の所必要ない）
+  // TODO: Other status values are also sent, so read them if needed.
+  // They are not currently necessary.
   const uint32_t error_status = msg_union.msg.error_status;
   sd_full = interpretCameraError(error_status, kSdFull);
   time_not_set = interpretCameraError(error_status, kTimeNotSet);
@@ -397,7 +399,7 @@ bool CxGb400::getCameraStatus(
 
 bool CxGb400::interpretCameraError(const uint32_t& error_status, const CameraErrorStatusDigit& digit)
 {
-  // error_statusのdigit桁目が1なら，対応するerrorが出ているという意味
+  // If the `digit`-th bit of `error_status` is 1, the corresponding error is active.
   return (error_status >> digit) & 1;
 }
 

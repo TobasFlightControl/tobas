@@ -11,7 +11,7 @@ namespace gazebo
 {
 std::string sanitizeNodeName(std::string str)
 {
-  // [0-9A-Za-z_] のみ許可するフィルタ
+  // Filter that allows only `[0-9A-Za-z_]`.
   const auto is_allowed = [](unsigned char c) { return std::isalnum(c) || c == '_'; };
 
   for (char& ch : str) {

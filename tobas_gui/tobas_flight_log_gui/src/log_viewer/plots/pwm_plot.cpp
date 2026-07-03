@@ -25,7 +25,7 @@ PwmPlotWidget::PwmPlotWidget()
     plot->setAxisNoLabel(QwtPlot::xBottom);
     plot->setAxisScale(QwtPlot::yLeft, 0., 2500.);
 
-    // ウィジェットをN行2列の格子状に配置
+    // Arrange widgets in an N-row, 2-column grid.
     const auto row = i / 2;
     const auto col = i % 2;
     grid->addWidget(plot, row, col, 1, 1);

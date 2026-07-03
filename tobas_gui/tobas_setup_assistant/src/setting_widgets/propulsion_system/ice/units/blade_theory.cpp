@@ -42,7 +42,7 @@ VppMomentConstant BladeTheory::momentConst() const
 {
   const auto lam = lambda();
   const auto dlam = lambdaDeriv();
-  return VppMomentConstant(R_ * dlam, R_ * lam, 0., 0.);  // FIXME: 1/φ の項を追加
+  return VppMomentConstant(R_ * dlam, R_ * lam, 0., 0.);  // FIXME: Add the 1/phi term.
 }
 
 VppDragConstant BladeTheory::dragConst() const

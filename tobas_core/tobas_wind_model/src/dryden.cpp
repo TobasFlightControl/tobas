@@ -19,7 +19,7 @@ void DrydenComponents::update(const double& relative_wind_speed, const double& a
   assert(relative_wind_speed >= 0);
   assert(dt >= 0);
 
-  const auto h = std::max(altitude, dryden::kMinimumAltitude);  // 高度が正であることを保証
+  const auto h = std::max(altitude, dryden::kMinimumAltitude);  // Ensure the altitude is positive.
   const auto h_ft = h * st::kMeterToFeet;
   if (h_ft > dryden::kLowAltitudeThreshold) {
     PRINT_WARN(
@@ -50,8 +50,8 @@ void DrydenSimulator::update(const double& relative_wind_speed, const double& al
 {
   components_.update(relative_wind_speed, altitude, dt);
 
-  // 乱流を更新
-  // 突風の波長が一定の場合，相対的な風速が大きいほど周波数が大きくなる (ドップラー効果)
+  // Update turbulence.
+  // When the gust wavelength is constant, higher relative wind speed produces a higher frequency (Doppler effect).
   u_ = (1 - components_.updateRateLon()) * u_ + components_.noiseStddevLon() * noise_(rnd_gen_);
   v_ = (1 - components_.updateRateLat()) * v_ + components_.noiseStddevLat() * noise_(rnd_gen_);
   w_ = (1 - components_.updateRateVer()) * w_ + components_.noiseStddevVer() * noise_(rnd_gen_);

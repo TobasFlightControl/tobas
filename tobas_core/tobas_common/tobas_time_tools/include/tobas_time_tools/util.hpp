@@ -44,7 +44,7 @@ tm tmFromUTC(int year, int month, int day, int hour, int min, int sec);
 std::chrono::system_clock::time_point
 timePointFromUTC(int year, int month, int day, int hour, int min, int sec, int nano);
 
-/* 西暦を日数まで年に換算する． */
+/* Convert a Gregorian date to a fractional year using day precision. */
 double yearFraction(const std::chrono::system_clock::time_point& tp = std::chrono::system_clock::now());
 }  // namespace tim
 }  // namespace tobas

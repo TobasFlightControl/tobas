@@ -49,7 +49,7 @@ bool getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, std::
 template <typename T>
 bool getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, gz::math::Vector4<T>& param)
 {
-  // 文字列として取得 (e.g. "1.0 2.0 3.0 0.5")
+  // Get as a string. (e.g. "1.0 2.0 3.0 0.5")
   std::string str;
   if (!getSdfParam(sdf, name, str)) {
     return false;

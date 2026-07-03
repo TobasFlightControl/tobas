@@ -21,7 +21,7 @@
     abort();                                                                                                           \
   }
 
-/* リリースモードでも機能するアサーション．ほとんど失敗し得ない操作の成否を一応確認するために使う． */
+/* Assertion that also works in release mode. Use it to check operations that should almost never fail. */
 #define TOBAS_ASSERT(expr)                                                                                             \
   {                                                                                                                    \
     if (!static_cast<bool>(expr)) {                                                                                    \
@@ -56,7 +56,7 @@ class BaseNode : public rclcpp::Node
   using super = rclcpp::Node;
   using self = BaseNode;
 
-  static constexpr long kMaxDynamicParamSteps = INT64_MAX;  // TODO: 調整しやすいよう最大でも20段階くらいに制限したい
+  static constexpr long kMaxDynamicParamSteps = INT64_MAX;  // TODO: Limit to about 20 steps at most for easier tuning.
 
 public:
   explicit BaseNode(const std::string& node_name, const rclcpp::NodeOptions& options);
@@ -90,14 +90,14 @@ public:
     rclcpp::CallbackGroup::SharedPtr callback_group = nullptr);
 
   /**
-   * @brief アクションサーバを作成する．
+   * @brief Create an action server.
    *
    * @tparam ActType
    * @tparam Obj
    * @param action_name
    * @param handle_goal
    * @param handle_cancel
-   * @param execute 別スレッドで実行されるアクションの実行関数
+   * @param execute Action execution function that runs in a separate thread.
    * @param obj
    * @return ros2::ActionServerPtr<ActType>
    */
@@ -211,10 +211,10 @@ public:
 
   static void setClockType(rclcpp::NodeOptions& options);
 
-  /* Tobasデフォルトのノードオプション． */
+  /* Tobas default node options. */
   static rclcpp::NodeOptions nodeOptions_Default(rclcpp::NodeOptions options);
 
-  /* 動的パラメータをもつノード用のノードオプション． */
+  /* Node options for nodes with dynamic parameters. */
   static rclcpp::NodeOptions nodeOptions_DParam(rclcpp::NodeOptions options);
 
 private:
@@ -223,7 +223,7 @@ private:
 
   ros2::PublisherPtr<tobas_msgs::msg::Message> message_pub_;
 
-  tobas_dparam_msgs::msg::Parameters dparams_;  // 動的パラメータの設定と現在の値をまとめた構造体
+  tobas_dparam_msgs::msg::Parameters dparams_;  // Structure containing dynamic parameter settings and current values
   rclcpp::ParameterEventHandler dparam_sub_;
   std::vector<ros2::ParamHandlePtr> dparam_handles_;
   ros2::ServiceServerPtr<tobas_dparam_msgs::srv::GetParams> get_dparam_ss_;
@@ -660,7 +660,7 @@ T BaseNode::declareParam(const std::string& name, const T& dflt)
   catch (const rclcpp::exceptions::UninitializedStaticallyTypedParameterException&) {
     TOBAS_WARN("Parameter \"", name, "\" is not initialized. The default value \"", dflt, "\" is set.");
 
-    // この時点で宣言だけは済んでいるので，デフォルト値をセットする．
+    // At this point the parameter has only been declared, so set the default value.
     const auto set_param_res = set_parameter(rclcpp::Parameter(name, dflt));
     if (!set_param_res.successful) {
       TOBAS_ERROR("Failed to set \"", name, "\": ", set_param_res.reason);

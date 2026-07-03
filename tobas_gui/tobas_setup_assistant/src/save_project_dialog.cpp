@@ -23,39 +23,39 @@ namespace sa
 SaveProjectDialog::SaveProjectDialog(QWidget* parent, const QString& dir, const QString& dflt_name)
   : super(parent, "Save Tobas Project", dir)
 {
-  setOptions(ShowDirsOnly | DontUseNativeDialog);  // カスタム設定のためにQtのダイアログを使用
-  setAcceptMode(AcceptSave);  // setFileMode(Directory)を実行するとSaveボタンが消えることに注意
+  setOptions(ShowDirsOnly | DontUseNativeDialog);  // Use the Qt dialog for custom settings.
+  setAcceptMode(AcceptSave);  // Note that the Save button disappears if `setFileMode(Directory)` is used.
   setFilter(QDir::AllDirs | QDir::Hidden | QDir::NoDotAndDotDot);
   setLabelText(FileName, "Project name:");
   setDefaultSuffix("TBS");
   selectFile(dflt_name);
 
-  // 保存ボタンを取得
+  // Get the save button.
   const auto button_box = findChild<QDialogButtonBox*>("buttonBox");
   save_button_ = button_box->button(QDialogButtonBox::Save);
 
-  // ファイル名を取得
+  // Get the file name.
   proj_name_ = findChild<QLineEdit*>("fileNameEdit");
   proj_name_->installEventFilter(this);
 
-  // 警告文をレイアウトの一番下に挿入
+  // Insert the warning text at the bottom of the layout.
   warn_text_ = new qt::Label();
   warn_text_->setTextColor(Qt::red);
   const auto grid = qt::qPointerCast<QGridLayout>(layout());
   grid->addWidget(warn_text_, grid->rowCount(), 0, 1, grid->columnCount());
 
-  // パスが変わったらその都度保存可能性をチェック
+  // Check save availability whenever the path changes.
   connect(proj_name_, &QLineEdit::textChanged, this, &self::onProjectPathChanged);
   connect(this, &super::directoryEntered, this, &self::onProjectPathChanged);
 
-  // 最初のチェック
+  // Initial check.
   onProjectPathChanged();
 }
 
 bool SaveProjectDialog::eventFilter(QObject* obj, QEvent* event)
 {
   if (obj == proj_name_) {
-    // 保存ボタンが有効化されている場合のみ認める
+    // Allow this only when the save button is enabled.
     if (event->type() == QEvent::KeyPress) {
       const auto key_event = static_cast<QKeyEvent*>(event);
       if (key_event->key() == Qt::Key_Return || key_event->key() == Qt::Key_Enter) {
@@ -74,35 +74,35 @@ void SaveProjectDialog::onProjectPathChanged()
   const auto dir = directory().absolutePath();
   const auto proj_name = proj_name_->text();
 
-  // ホームディレクトリ以下でなければならない
+  // Must be under the home directory.
   if (!dir.startsWith(ros2::getHomeDir())) {
     warn_text_->setText("The Tobas project must be located under your home directory.");
     save_button_->setEnabled(false);
     return;
   }
 
-  // srcディレクトリ以下でなければならない
+  // Must be under the src directory.
   if (!dir.contains("/src/") && !dir.endsWith("/src")) {
     warn_text_->setText("The Tobas project must be located under a \"src\" directory.");
     save_button_->setEnabled(false);
     return;
   }
 
-  // プロジェクト内にプロジェクトを作ることはできない
+  // A project cannot be created inside another project.
   if (dir.contains(cmn::kProjectExtension + QString("/")) || dir.endsWith(cmn::kProjectExtension)) {
     warn_text_->setText("A project cannot be created inside another project.");
     save_button_->setEnabled(false);
     return;
   }
 
-  // ファイル名が設定されていなければならない
+  // A file name must be set.
   if (proj_name.isEmpty()) {
     warn_text_->setText("Please specify a project name.");
     save_button_->setEnabled(false);
     return;
   }
 
-  // 拡張子を除いたパッケージ名がROSの慣習に沿っていなければならない
+  // The package name without the extension must follow ROS conventions.
   const auto pkg_name = QFileInfo(proj_name).completeBaseName();
   if (!ros2::isValidPackageName(pkg_name.toStdString())) {
     warn_text_->setText("Project name is invalid. It must match: ^[a-z][a-z0-9_]*$");
@@ -110,7 +110,7 @@ void SaveProjectDialog::onProjectPathChanged()
     return;
   }
 
-  // 拡張子が設定されている場合は決められた拡張子でなければならない
+  // If an extension is set, it must be the specified extension.
   if (proj_name.contains('.')) {
     if (!proj_name.endsWith(cmn::kProjectExtension)) {
       warn_text_->setText("Invalid project extension.");

@@ -10,18 +10,18 @@ namespace tobas
 namespace ctrl
 {
 /**
- * @brief 線形カルマンフィルタ．
- * cf. [線形カルマンフィルタの基礎, 足立修一](https://www.tdupress.jp/book/b349390.html)
+ * @brief Linear Kalman filter.
+ * cf. https://www.tdupress.jp/book/b349390.html
  */
 class KalmanFilter
 {
 public:
-  LinearStateSpace ss;  // x(k+1) = A x(k) + B u(k), y(k) = C x(k): 離散時間状態方程式
-  Eigen::MatrixXd Bv;   // プロセスノイズ行列
-  Eigen::MatrixXd Q;    // プロセスノイズの共分散
-  Eigen::MatrixXd R;    // 観測ノイズの共分散
-  Eigen::VectorXd y;    // 観測
-  Eigen::VectorXd u;    // 制御入力 (あれば)
+  LinearStateSpace ss;  // x(k+1) = A x(k) + B u(k), y(k) = C x(k): discrete-time state equation
+  Eigen::MatrixXd Bv;   // Process noise matrix
+  Eigen::MatrixXd Q;    // Process noise covariance
+  Eigen::MatrixXd R;    // Observation noise covariance
+  Eigen::VectorXd y;    // Observation
+  Eigen::VectorXd u;    // Control input, if any
 
   explicit KalmanFilter();
   explicit KalmanFilter(
@@ -51,13 +51,13 @@ private:
   void verify() const;
 };
 
-/* 白色ノイズを含む一定値の推定． */
+/* Estimate a constant value that includes white noise. */
 class IdentityKalmanFilter
 {
 public:
-  Eigen::MatrixXd Q;  // プロセスノイズの共分散
-  Eigen::MatrixXd R;  // 観測ノイズの共分散
-  Eigen::VectorXd y;  // 観測
+  Eigen::MatrixXd Q;  // Process noise covariance
+  Eigen::MatrixXd R;  // Observation noise covariance
+  Eigen::VectorXd y;  // Observation
 
   explicit IdentityKalmanFilter(const Eigen::Index& size = 0);
 

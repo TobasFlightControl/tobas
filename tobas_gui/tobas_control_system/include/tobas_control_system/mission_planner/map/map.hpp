@@ -15,7 +15,7 @@ namespace gui
 namespace ctrl
 {
 /**
- * @brief Open Street Mapを埋め込んだウィジェット．
+ * @brief Widget embedding OpenStreetMap.
  * cf. https://stackoverflow.com/questions/36141170/creating-and-adding-mapquickitem-to-map-in-pyqt
  */
 class MapWidget : public QQuickWidget

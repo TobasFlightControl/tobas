@@ -114,7 +114,7 @@ void UrdfBuilderPanel::onLoadButtonClicked()
 {
   RCLCPP_DEBUG(node_->get_logger(), "UrdfBuilderPanel::onLoadButtonClicked");
 
-  // URDFまたはXACROのパスを取得
+  // Get the URDF or XACRO path.
   const auto last_opened_dir = getLastOpenedDir();
   const auto file_path = QFileDialog::getOpenFileName(
     this,
@@ -131,30 +131,30 @@ void UrdfBuilderPanel::onLoadButtonClicked()
   setLastOpenedDir(file_path);
 
   if (file_path.endsWith(".urdf")) {
-    // URDFを解析
+    // Parse the URDF.
     if (!vm_.loadRobot(file_path)) {
       QMessageBox::warning(this, kError, "Failed to parse URDF.");
       return;
     }
 
-    // URDFのパスを設定
+    // Set the URDF path.
     ui_->Path->setText(file_path);
   }
   else if (file_path.endsWith(".xacro")) {
-    // XACROを展開
+    // Expand XACRO.
     const auto command = "xacro " + file_path + " > " + TMP_URDF_PATH;
     if (system(command.toUtf8()) != EXIT_SUCCESS) {
       QMessageBox::warning(this, kError, "Failed to convert XACRO to URDF.");
       return;
     }
 
-    // URDFを解析
+    // Parse the URDF.
     if (!vm_.loadRobot(TMP_URDF_PATH)) {
       QMessageBox::warning(this, kError, "Failed to parse XACRO.");
       return;
     }
 
-    // XACROをURDFで上書きするのはまずいため保存用パスを消去
+    // Clear the save path because overwriting XACRO with URDF is unsafe.
     ui_->Path->clear();
   }
   else {
@@ -273,7 +273,7 @@ void UrdfBuilderPanel::onAddLinkActionToggled(bool)
 {
   RCLCPP_DEBUG(node_->get_logger(), "UrdfBuilderPanel::onAddLinkActionToggled");
 
-  // ルートリンクが存在する場合のみリンクの追加を許可
+  // Allow adding links only when the root link exists.
   if (!vm_.rootLinkViewModel()) {
     QMessageBox::warning(this, kError, "Please create a new robot model or load one first.");
     return;
@@ -303,7 +303,7 @@ void UrdfBuilderPanel::onRemoveLinkActionToggled(bool)
 
   const auto front = boost::polymorphic_downcast<LinkTreeWidgetItem*>(items.front());
 
-  // ルートリンクは消せないようにする
+  // Prevent deleting the root link.
   const auto& link = front->viewModel()->model();
   const auto& root_link = vm_.rootLinkViewModel()->model();
   if (link == root_link) {
@@ -328,7 +328,7 @@ void UrdfBuilderPanel::onCloneLinkActionToggled(bool)
 
   const auto front = boost::polymorphic_downcast<LinkTreeWidgetItem*>(items.front());
 
-  // ルートリンクは複製不可
+  // The root link cannot be duplicated.
   const auto& link = front->viewModel()->model();
   const auto& root_link = vm_.rootLinkViewModel()->model();
   if (link == root_link) {
@@ -350,7 +350,7 @@ void UrdfBuilderPanel::onLinkDialogChanged()
   RCLCPP_DEBUG(node_->get_logger(), "UrdfBuilderPanel::onLinkDialogChanged");
 
   vm_.updateLink(old_link_vm_, link_dialog_->viewModel());
-  old_link_vm_ = link_dialog_->viewModel()->clone();  // 最後にURDFが更新されたときの設定を保持
+  old_link_vm_ = link_dialog_->viewModel()->clone();  // Keep the settings from the last time the URDF was updated.
   reload();
 }
 
@@ -416,7 +416,7 @@ void UrdfBuilderPanel::reloadLinkTree()
 {
   const QSignalBlocker block(ui_->LinkTreeWidget);
 
-  // 選択されているリンク名を取得
+  // Get the selected link name.
   QString selected_link_name = "";
   const auto& selected_items = ui_->LinkTreeWidget->selectedItems();
   if (!selected_items.empty()) {
@@ -424,13 +424,13 @@ void UrdfBuilderPanel::reloadLinkTree()
     selected_link_name = front->viewModel()->name();
   }
 
-  // チェック状態を取得
+  // Get the checked state.
   QSet<QString> unchecked_links;
   for (int i = 0; i < ui_->LinkTreeWidget->topLevelItemCount(); ++i) {
     collectUncheckedLinks(ui_->LinkTreeWidget->topLevelItem(i), unchecked_links);
   }
 
-  // 一度全てのノードをを削除
+  // Delete all nodes once.
   ui_->LinkTreeWidget->clear();
 
   std::queue<std::pair<view_model::LinkViewModelPtr, QTreeWidgetItem*>> que;
@@ -446,10 +446,10 @@ void UrdfBuilderPanel::reloadLinkTree()
     item->setText(0, link_vm->name());
     item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
 
-    // 選択リンクが残っている場合は再び選択
+    // Select the link again if the selected link still exists.
     item->setSelected(link_vm->name() == selected_link_name);
 
-    // チェック状態を保持
+    // Keep the checked state.
     if (unchecked_links.contains(link_vm->name())) {
       item->setCheckState(0, Qt::Unchecked);
     }
@@ -457,7 +457,7 @@ void UrdfBuilderPanel::reloadLinkTree()
       item->setCheckState(0, Qt::Checked);
     }
 
-    // 子ノードをキューに追加
+    // Add child nodes to the queue.
     for (const auto& child : link_vm->children()) {
       const auto child_item = new LinkTreeWidgetItem(child);
       item->addChild(child_item);
@@ -496,10 +496,10 @@ void UrdfBuilderPanel::reflectSelectedItem(QTreeWidgetItem* item)
   ogre_ctrl_->highlight(link_name);
 
   link_dialog_->show();
-  link_dialog_->readFromVM(link_vm);  // リンクのビューモデルからダイアログの値を更新
-  old_link_vm_ = link_vm->clone();    // リンクが選択された時点での設定を保持
+  link_dialog_->readFromVM(link_vm);  // Update dialog values from the link View Model.
+  old_link_vm_ = link_vm->clone();    // Keep the settings from when the link was selected.
 
-  // ルートリンクだったら変更不可にする
+  // Make it uneditable if it is the root link.
   link_dialog_->setTabsEnabled(link_name != vm_.rootLink()->name);
 }
 
@@ -563,7 +563,7 @@ bool UrdfBuilderPanel::isJointsValid()
     const auto& name = joint_pair.first;
     const auto& joint = joint_pair.second;
 
-    // 可動関節の軸が設定されていなければエラー
+    // Report an error if the movable joint axis is not set.
     const auto& type = joint->type;
     const auto& axis = joint->axis;
 
@@ -587,7 +587,7 @@ void UrdfBuilderPanel::collectUncheckedLinks(QTreeWidgetItem* item, QSet<QString
     set.insert(link_name);
   }
 
-  // 子アイテムを走査
+  // Traverse child items.
   for (int i = 0; i < item->childCount(); ++i) {
     collectUncheckedLinks(item->child(i), set);
   }
@@ -597,5 +597,5 @@ void UrdfBuilderPanel::collectUncheckedLinks(QTreeWidgetItem* item, QSet<QString
 }  // namespace gui
 }  // namespace tobas
 
-// rviz_common::Panelの派生クラスならばRvizのメインウィジェットにプラグインできる
+// A class derived from `rviz_common::Panel` can be plugged into the Rviz main widget.
 PLUGINLIB_EXPORT_CLASS(tobas::gui::ub::ui::UrdfBuilderPanel, rviz_common::Panel)

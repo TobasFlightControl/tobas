@@ -99,7 +99,7 @@ void ElectricRotorCommandHandlerNode::targetSpeedsCb(const tobas_msgs::msg::Roto
     // Create throttle message
     auto throttle = std::make_unique<tobas_gazebo_msgs::msg::Throttle>();
     throttle->header = tar_speeds->header;
-    throttle->data = eprop_->getRotor(speed.link_name)->throttleFromSpeed(speed.speed, battery_->voltage);  // FF項のみ
+    throttle->data = eprop_->getRotor(speed.link_name)->throttleFromSpeed(speed.speed, battery_->voltage);
 
     // Publish throttle message
     throttle_pubs_.at(speed.link_name)->publish(std::move(throttle));

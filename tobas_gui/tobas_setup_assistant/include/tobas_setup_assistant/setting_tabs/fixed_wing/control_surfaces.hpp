@@ -56,13 +56,13 @@ public:
   YAML::Node dump() const;
   void load(const YAML::Node& node);
 
-  /* 登録されている制御面の個数． */
+  /* Number of registered control surfaces. */
   int numUnits() const;
 
-  /* 現在選択されているリンク名を返す．存在しない場合は空文字を返す． */
+  /* Return the currently selected link name, or an empty string if none exists. */
   QString selected() const;
 
-  /* リンク名に対応するテーブルの行を返す．存在しなければ-1を返す． */
+  /* Return the table row for the link name, or -1 if it does not exist. */
   int find(const QString& link_name) const;
 
   void add(const QString& link_name);

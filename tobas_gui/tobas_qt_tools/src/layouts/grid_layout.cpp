@@ -13,7 +13,7 @@ void GridLayout::clear()
 {
   clearLayout(this);
 
-  // 各セルの設定をデフォルトに戻す
+  // Reset each cell setting to the default.
   for (int row = 0; row < rowCount(); ++row) {
     setRowStretch(row, 0);
     setRowMinimumHeight(row, 0);

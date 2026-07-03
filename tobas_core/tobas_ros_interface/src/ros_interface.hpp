@@ -228,7 +228,7 @@ void RosInterfaceNode::topicCallback(
   typename Topic<MsgType>::SharedPtr topic,
   const typename MsgType::ConstSharedPtr& msg)
 {
-  // 購読者はプロセス外のみの想定なので unique_ptr は作らずコピー無しで発行する
+  // Subscribers are expected to be out of process, so publish without creating a unique_ptr or copying.
   topic->publisher->publish(*msg);
 }
 
@@ -243,10 +243,10 @@ void RosInterfaceNode::serviceCallback(
     return;
   }
 
-  auto future = service->client->async_send_request(req);  // req が ConstSharedPtr だとここでコケる
+  auto future = service->client->async_send_request(req);  // `async_send_request` requires a non-const request pointer.
   future.wait();
 
-  *res = *future.get();  // future が const だとここでコケる
+  *res = *future.get();  // `future` must be non-const here.
 }
 
 template <typename ActType>
@@ -259,7 +259,7 @@ void RosInterfaceNode::actionFeedbackCallback(
     return;
   }
 
-  const auto fb_out = std::make_shared<typename ActType::Feedback>(*fb_in);  // const を外す
+  const auto fb_out = std::make_shared<typename ActType::Feedback>(*fb_in);  // Remove constness.
   action->server_gh->publish_feedback(fb_out);
 }
 
@@ -287,7 +287,7 @@ rclcpp_action::GoalResponse RosInterfaceNode::actionHandleGoal(
 
   action->client_gh = future.get();
   if (action->client_gh) {
-    return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;  // -> actionHandleAccepted が実行される
+    return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;  // -> `actionHandleAccepted` is called.
   }
   else {
     return rclcpp_action::GoalResponse::REJECT;
@@ -316,7 +316,7 @@ void RosInterfaceNode::actionHandleAccepted(
   typename Action<ActType>::SharedPtr action,
   const std::shared_ptr<rclcpp_action::ServerGoalHandle<ActType>>& server_gh)
 {
-  // 別メソッドでフィードバックを発行するために ServerGoalHandle を保存
+  // Store `ServerGoalHandle` so feedback can be published from another method.
   action->server_gh = server_gh;
 
   const auto future = action->client->async_get_result(action->client_gh);

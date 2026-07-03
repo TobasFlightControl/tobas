@@ -18,35 +18,35 @@ CommandExecutor::CommandExecutor()
 
 bool CommandExecutor::execute(string command)
 {
-  // 標準エラー出力を標準出力にリダイレクト
-  // TODO: より複雑なリダイレクトコマンドに対応
+  // Redirect standard error to standard output.
+  // TODO: Support more complex redirection commands.
   const auto pos = command.find('>');
   if (pos == string::npos) {
-    command += " 2>&1";  // リダイレクトが無ければ末尾に追加
+    command += " 2>&1";  // Append to the end when there is no redirection.
   }
   else {
-    command.insert(pos, " 2>&1 1");  // 標準出力のみをファイル出力するよう途中に挿入
+    command.insert(pos, " 2>&1 1");  // Insert in the middle so only standard output is written to the file.
   }
 
-  // コマンドを実行
+  // Execute the command.
   unique_ptr<FILE, int (*)(FILE*)> pipe(popen((command).c_str(), "r"), pclose);
   if (!pipe) {
     cerr << "popen() failed." << endl;
     return false;
   }
 
-  // 出力を読み込む
+  // Read the output.
   output_.clear();
   while (fgets(buffer_.data(), buffer_.size(), pipe.get())) {
     output_ += buffer_.data();
   }
 
-  // 出力末尾のの改行コードを削除
+  // Remove trailing newline characters from the output.
   if (!output_.empty() && output_.back() == '\n') {
     output_.pop_back();
   }
 
-  // 終了ステータスを取得
+  // Get the exit status.
   const auto status = pclose(pipe.release());
   return status == EXIT_SUCCESS;
 }

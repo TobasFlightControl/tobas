@@ -19,7 +19,7 @@ bool Vector::isParallel(const Vector& rhs, bool same_direction_only, double angl
   const auto na2 = this->squaredNorm();
   const auto nb2 = rhs.squaredNorm();
 
-  // ゼロベクトルは平行が定義できないため負荷
+  // Parallelism is undefined for zero vectors.
   if (na2 < zero_tol || nb2 < zero_tol) {
     std::cerr << "Parallelism is undefined for zero vector." << std::endl;
     return false;

@@ -48,7 +48,7 @@ int ChainInertiaSolver::jntToCart(const JntArray& q)
     I_[i - 1] += X_[i] * I_[i];
   }
 
-  // 最後に{root}座標系に変換して返す
+  // Finally convert to the {root} frame and return.
   I_out_ = X_[0] * I_[0];
 
   return setDefaultError(kNoError);

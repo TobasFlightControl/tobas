@@ -15,7 +15,7 @@ namespace tobas
 namespace gazebo
 {
 /**
- * @brief ジョイントの位置，速度，力のコマンドを受け取り，Gazeboに指令する．
+ * @brief Receive joint position, velocity, and force commands and send them to Gazebo.
  */
 class JointCommandHandlerNode : public BaseNode
 {

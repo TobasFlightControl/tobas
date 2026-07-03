@@ -52,10 +52,10 @@ public:
 
 private:
   // SDF parameters
-  std::string link_name_;  // プロペラのリンク名
+  std::string link_name_;  // Propeller link name
   int direction_;          // Turning direction: 1(CCW) or -1(CW)
-  double gear_ratio_;      // 減速比 [-]
-  size_t num_blades_;      // プロペラのブレード数
+  double gear_ratio_;      // Reduction ratio [-]
+  size_t num_blades_;      // Number of propeller blades
   VppMotorConstant motor_const_;
   VppMomentConstant moment_const_;
   VppDragConstant drag_const_;

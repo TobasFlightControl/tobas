@@ -82,14 +82,14 @@ void ExportThreadCsv::run()
     const auto& ser_data = bag_msg->serialized_data;
     const auto& topic = bag_msg->topic_name;
 
-    // メッセージをヒストマップに保存
+    // Save messages to the history map.
     try {
       if (topic.ends_with(str::concat('/', topic::kImuRaw).data())) {
         const auto& msg = imu_decoder_.decode(ser_data);
         const auto cur_time = ros2::nanoseconds(msg.header.stamp);
         histmap_[cur_time][topic::kImuRaw] = ser_data;
 
-        // ヒストマップのサイズが大きくなりすぎるのを防ぐため，一定時間以前のデータを逐次書き出す．
+        // Write old data incrementally to prevent the history map from growing too large.
         exportOldestImuLine(csv_file, cur_time - kExpirationTime);
       }
       else if (topic.ends_with(str::concat('/', topic::kOdometry).data())) {
@@ -170,7 +170,7 @@ void ExportThreadCsv::run()
     }
   }
 
-  // 残ったデータを全て書き出す
+  // Write all remaining data.
   while (exportOldestImuLine(csv_file)) {}
 
   csv_file.close();
@@ -508,7 +508,7 @@ std::string ExportThreadCsv::makeCsvDataRow(Time time, const SerializedDataMap& 
 
 bool ExportThreadCsv::exportOldestImuLine(std::ofstream& file, Time before_this_time)
 {
-  // 一定時間以前に取得されたIMUが存在するかどうかを確認
+  // Check whether any IMU data older than the time threshold exists.
   Time imu_time = -1;
   for (auto it = histmap_.begin(); it != histmap_.end() && it->first < before_this_time; ++it) {
     if (it->second.contains(topic::kImuRaw)) {
@@ -520,7 +520,7 @@ bool ExportThreadCsv::exportOldestImuLine(std::ofstream& file, Time before_this_
     return false;
   }
 
-  // 書き出すデータをヒストマップから消しつつ集計
+  // Aggregate data to write while removing it from the history map.
   SerializedDataMap line_data;
   auto it = histmap_.begin();
   while (it != histmap_.end() && it->first <= imu_time) {
@@ -530,7 +530,7 @@ bool ExportThreadCsv::exportOldestImuLine(std::ofstream& file, Time before_this_
     it = histmap_.erase(it);
   }
 
-  // データを1行に書き出す
+  // Write data to one row.
   file << makeCsvDataRow(imu_time, line_data) << std::endl;
 
   return true;

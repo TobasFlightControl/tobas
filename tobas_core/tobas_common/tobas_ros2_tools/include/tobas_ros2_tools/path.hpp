@@ -10,10 +10,10 @@ namespace tobas
 namespace ros2
 {
 /**
- * @brief 一時ファイルを生成する．
+ * @brief Create a temporary file.
  *
- * @param path 作成されたファイルのパス
- * @return ファイルディスクリプタ
+ * @param path Path of the created file.
+ * @return File descriptor.
  */
 int createTemporalFile(std::string& path);
 }  // namespace ros2

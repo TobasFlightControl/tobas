@@ -199,6 +199,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 - Write all comments in English.
 - Add appropriate explanatory comments for each unit of processing.
+- Wrap keywords that appear in the code in backticks.
 - Prefer line breaks at natural phrase boundaries.
 
 ## License Comments

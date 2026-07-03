@@ -10,7 +10,7 @@ namespace tobas
 {
 namespace gazebo
 {
-/* エンティティ直下のコンポーネントを取得する．存在しない場合は新規作成する． */
+/* Get the component directly under an entity. Create a new one if it does not exist. */
 template <typename CompType>
 CompType* getComponent(const gz::sim::Entity& entity, gz::sim::EntityComponentManager& ecm)
 {

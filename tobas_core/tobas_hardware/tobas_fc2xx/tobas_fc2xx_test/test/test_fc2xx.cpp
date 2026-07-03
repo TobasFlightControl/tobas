@@ -99,7 +99,7 @@ bool testMagnetometer()
 
     cout << "Magnetic Field [gauss]: " << mx << ", " << my << ", " << mz << endl;
 
-    if (tobas::math::norm(mx, my, mz) > 1.5) {  // 標準の地磁気の大きさ (0.5くらい) の3倍まで許容
+    if (tobas::math::norm(mx, my, mz) > 1.5) {  // Allow up to 3 times the standard magnetic field strength (~0.5).
       cerr << "Abnormal magnetic field detected." << endl;
       return false;
     }

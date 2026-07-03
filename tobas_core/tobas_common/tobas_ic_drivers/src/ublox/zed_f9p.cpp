@@ -34,7 +34,7 @@ bool ZEDF9P::update(bool nonblock)
   scanner_.reset();
 
   if (nonblock) {
-    // スタートバイトを確認
+    // Check the start byte.
     if (!spi_.transfer(1)) {
       return false;
     }
@@ -42,13 +42,13 @@ bool ZEDF9P::update(bool nonblock)
       return false;
     }
 
-    // データが来てなければ終了
+    // Return if no data has arrived.
     if (scanner_.state() == UBXScanner::kSync1) {
       return false;
     }
   }
 
-  // メッセージを1つスキャン
+  // Scan one message.
   rate_.start();
   while (scanner_.state() != UBXScanner::kDone) {
     if (!spi_.transfer(1)) {
@@ -58,7 +58,8 @@ bool ZEDF9P::update(bool nonblock)
       return false;
     }
 
-    // SPIリクエストの間隔が短すぎると正しくデータが取得できないため，一定の間隔以上になるようスリープ．
+    // If the `SPI` request interval is too short, data cannot be acquired correctly,
+    // so sleep to keep at least the specified interval.
     rate_.sleep();
   }
 
@@ -222,7 +223,7 @@ bool ZEDF9P::enableSpiMessage(UbxClass cls, uint8_t id, bool enable)
     }
   }
 
-  cfg.data[0].value = enable ? 1 : 0;  // Enableならば最大レート
+  cfg.data[0].value = enable ? 1 : 0;  // Maximum rate if enabled.
 
   return configure(CFG_VALSET, &cfg, sizeof(cfg));
 }

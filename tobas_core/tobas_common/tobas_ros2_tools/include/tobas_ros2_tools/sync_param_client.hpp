@@ -12,8 +12,8 @@ namespace tobas
 namespace ros2
 {
 /**
- * @brief 同期パラメータクライアント．
- * @note ブロッキングを行うため，リアルタイム性が重要なノードでは使用しないこと．
+ * @brief Synchronous parameter client.
+ * @note This blocks, so do not use it in nodes where real-time behavior is important.
  */
 class SyncParamClient
 {
@@ -63,8 +63,8 @@ private:
   const rclcpp::Node::SharedPtr node_;
   const std::string remote_node_name_;
 
-  // 非同期のパラメータクライアント
-  // 同期版はspinするからエグゼキュータ上では使えない
+  // Asynchronous parameter client.
+  // The synchronous version spins, so it cannot be used on an executor.
   rclcpp::AsyncParametersClient client_;
 };
 }  // namespace ros2

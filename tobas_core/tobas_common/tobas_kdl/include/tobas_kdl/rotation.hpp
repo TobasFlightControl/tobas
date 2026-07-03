@@ -195,7 +195,7 @@ inline double Rotation::operator()(int i, int j) const
 
 inline Rotation Rotation::operator*(const Rotation& rhs) const
 {
-  return Rotation(data * rhs.data);  // TODO: SO3を維持するための処理
+  return Rotation(data * rhs.data);  // TODO: Add processing to preserve SO3.
 }
 
 inline Vector Rotation::operator*(const Vector& rhs) const

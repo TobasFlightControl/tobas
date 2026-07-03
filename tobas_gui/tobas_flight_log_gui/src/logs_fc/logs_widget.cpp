@@ -34,7 +34,8 @@ FlightLogsWidgetFC::FlightLogsWidgetFC(rclcpp::Node::SharedPtr node)
   read_button_->setFixedSize(kButtonWidth, kButtonHeight);
   clean_button_->setFixedSize(kButtonWidth, kButtonHeight);
 
-  read_button_->setEnabled(false);  // ホストが決まらないとSSH接続できないためTBSが読み込まれるまでは無効化
+  // Disable this until TBS is loaded because SSH cannot connect until the host is known.
+  read_button_->setEnabled(false);
   clean_button_->setEnabled(false);
 
   log_list_ = new qt::ListWidget();

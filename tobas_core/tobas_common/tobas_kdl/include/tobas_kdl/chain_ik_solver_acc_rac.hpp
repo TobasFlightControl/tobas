@@ -11,7 +11,7 @@ namespace tobas
 {
 namespace kdl
 {
-/* 分解加速度制御 */
+/* Resolved acceleration control. */
 class ChainIkSolverAcc_RAC : public ChainIkSolverAcc
 {
   using super = ChainIkSolverAcc;

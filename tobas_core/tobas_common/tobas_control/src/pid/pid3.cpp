@@ -26,10 +26,10 @@ Vector3d PID3::update(
   const Vector3d ep = tar_pos - cur_pos;
   const Vector3d ed = tar_vel - cur_vel;
 
-  // 積分誤差を蓄積
+  // Accumulate the integral error.
   ei_ += ep * dt;
 
-  // アンチワインドアップ
+  // Anti-windup.
   ei_ = ei_.cwiseMax(-i_max).cwiseMin(i_max);
 
   // PID

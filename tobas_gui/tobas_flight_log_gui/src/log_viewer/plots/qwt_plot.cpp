@@ -19,7 +19,7 @@ class NoLabelScaleDraw : public QwtScaleDraw
 public:
   virtual QwtText label(double) const override
   {
-    return QwtText("");  // 空のラベルを返す
+    return QwtText("");  // Return an empty label.
   }
 };
 
@@ -64,17 +64,17 @@ private:
 
 QwtPlot2::QwtPlot2(QWidget* parent) : super(parent)
 {
-  // 最小化可能に
+  // Make it minimizable.
   setMinimumSize(1, 1);
   setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 
-  // 内部に凡例を配置
+  // Place the legend inside.
   const auto legend_item = new QwtPlotLegendItem();
   legend_item->attach(this);
-  legend_item->setAlignment(Qt::AlignTop | Qt::AlignRight);  // 右上に配置
-  legend_item->setMaxColumns(1);                             // 1列に並べる
+  legend_item->setAlignment(Qt::AlignTop | Qt::AlignRight);  // Place it at the upper right.
+  legend_item->setMaxColumns(1);                             // Arrange in one column.
   legend_item->setBackgroundMode(QwtPlotLegendItem::LegendBackground);
-  legend_item->setBorderPen(QPen(Qt::black, 1));  // 黒の枠線
+  legend_item->setBorderPen(QPen(Qt::black, 1));  // Black border.
 }
 
 void QwtPlot2::setAxisNoLabel(const QwtPlot::Axis& axis)

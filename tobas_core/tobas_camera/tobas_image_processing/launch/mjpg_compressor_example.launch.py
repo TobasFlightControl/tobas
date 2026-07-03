@@ -4,8 +4,9 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
     """
-    MJPGの映像を/dev/video0から取得してros topicとしてpublishし，それをH.264に圧縮し，それを解凍する例．
-    解凍後の映像はrviz2で視聴可能．
+    Example pipeline that captures MJPG video from /dev/video0, publishes it as a ROS topic,
+    compresses it to H.264, and then decompresses it.
+    The decompressed video can be viewed in rviz2.
     """
     return LaunchDescription(
         [

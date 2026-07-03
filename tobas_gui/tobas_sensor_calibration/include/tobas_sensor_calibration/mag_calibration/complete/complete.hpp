@@ -38,7 +38,7 @@ class CompleteMagCalibWidget : public BaseMagCalibWidget
   static constexpr char kCalibratedPointsTopic[] = "rviz/mag_calibration/calibrated";
   static constexpr char kEllipsoidTopic[] = "rviz/mag_calibration/ellipsoid";
   static constexpr int kMinDataSize = 500;
-  static constexpr int kMaxDataSize = 10000;  // Rvizの仕様で最大100000
+  static constexpr int kMaxDataSize = 10000;  // Maximum is 100000 due to Rviz limitations.
   static constexpr int kButtonWidth = 100;
   static constexpr int kButtonHeight = 40;
   static constexpr double kRvizPointScale = 10.;
@@ -78,7 +78,7 @@ private:
   QProgressBar* progress_bar_;
   std::array<FaceCircleWidget*, kFaceSize> face_circles_;
 
-  // 計測用の変数
+  // Measurement variables.
   bool running_;
   int cnt_;
   builtin_interfaces::msg::Time last_time_;
@@ -100,36 +100,36 @@ private:
   ros2::PublisherPtr<sensor_msgs::msg::PointCloud> calibrated_pub_;
   ros2::PublisherPtr<visualization_msgs::msg::MarkerArray> ellipsoid_pub_;
 
-  /* キャリブレーション開始前の状態にリセットする． */
+  /* Reset to the state before calibration starts. */
   void resetToPreStart();
 
-  /* 画面上の点群を消去する． */
+  /* Clear the point cloud on the screen. */
   void clearDisplayPoints();
 
   int numActiveSamples() const;
   size_t computeFaceIndex() const;
 
-  /* 密度を均一化: https://www.jstage.jst.go.jp/article/pscjspe/2011A/0/2011A_0_277/_pdf/-char/ja */
+  /* Equalize density: https://www.jstage.jst.go.jp/article/pscjspe/2011A/0/2011A_0_277/_pdf/-char/ja */
   void subsample();
 
-  /* 外れ値を除去: https://www.codexa.net/python-outlier/ */
+  /* Remove outliers: https://www.codexa.net/python-outlier/ */
   void removeOutliers();
 
-  /* 球体近似でオフセットを求める． */
+  /* Find the offset using sphere approximation. */
   bool
   computeHardBias(const Eigen::VectorXd& x, const Eigen::VectorXd& y, const Eigen::VectorXd& z, Eigen::Vector3d& dst);
 
-  /* 楕円体近似で歪みを求める． */
+  /* Find distortion using ellipsoid approximation. */
   bool
   computeSoftBias(const Eigen::VectorXd& x, const Eigen::VectorXd& y, const Eigen::VectorXd& z, Eigen::Vector6d& dst);
 
-  /* FCのパラメータを更新する． */
+  /* Update FC parameters. */
   bool updateRemoteParameters(const Eigen::Vector3d& hard_bias, const Eigen::Vector6d& soft_bias);
 
-  /* 結果の点群を表示する． */
+  /* Display the result point cloud. */
   void displayPointClouds(const eigen::Ellipsoid& ellipsoid);
 
-  /* 推定された楕円体を表示する． */
+  /* Display the estimated ellipsoid. */
   void displayEllipsoidWireFrame(const eigen::Ellipsoid& ellipsoid);
   void addEllipsoidPoint(
     double theta,

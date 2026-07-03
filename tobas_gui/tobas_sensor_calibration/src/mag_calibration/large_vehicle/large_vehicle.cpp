@@ -57,7 +57,7 @@ void LargeVehicleMagCalibWidget::setNamespace(const std::string& ns)
 
 void LargeVehicleMagCalibWidget::onStartButtonClicked()
 {
-  // アームされていないことを確認
+  // Confirm that the vehicle is not armed.
   if (!arming_) {
     qt::qWarnBox(this, "This operation cannot be performed because the arming status has not been received yet.");
     return;

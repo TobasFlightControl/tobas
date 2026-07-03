@@ -208,8 +208,8 @@ bool ImuFilterConfigServer::rpmFilterLpfCutoffCb(const long& p)
 
 void ImuFilterConfigServer::imuRawCb(const tobas_msgs::Imu::ConstSharedPtr&)
 {
-  // IMUの生データが受信可能即ちIMUフィルタを管理しているノードが立ち上がっているのを確認してから動的パラメータを登録する．
-  // そうすることでフィルタの初期設定が確実に反映される．
+  // Register dynamic parameters after confirming that raw IMU data can be received, meaning the node managing the IMU
+  // filter is running. This ensures that the initial filter settings are applied reliably.
 
   // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#IMU_ACCEL_CUTOFF
   addDynamicIntParam("lowpass_filter/accel_cutoff", &self::lowPassFilterAccelCutoffCb, this, 5, 6, 0, 20, " Hz");

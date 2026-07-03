@@ -29,7 +29,7 @@ struct rclcpp::TypeAdapter<tobas::kdl::Tree, tobas_kdl_msgs::msg::Tree>
       tobas_kdl_msgs::SegmentAdapter::convert_to_ros_message(elem.segment, dst.segments.back().segment);
       dst.segments.back().q_nr = elem.q_nr;
 
-      // ルートリンクでなければ親の名前を追加
+      // Add the parent name unless this is the root link.
       if (elem.segment.name() != src.getRootName()) {
         dst.segments.back().parent_name = elem.parent->first;
       }
@@ -42,51 +42,52 @@ struct rclcpp::TypeAdapter<tobas::kdl::Tree, tobas_kdl_msgs::msg::Tree>
   {
     tobas::kdl::Tree tree(src.root_name);
 
-    std::unordered_set<std::string> added_segs;  // ツリーに追加されたリンク名
-    added_segs.insert(src.root_name);  // ツリーを作成した時点でルートリンクは含まれている
+    std::unordered_set<std::string> added_segs;  // Link names added to the tree
+    added_segs.insert(src.root_name);            // The root link is included when the tree is created.
 
     tobas::kdl::Segment seg;
-    size_t q_nr = 0;  // 現在の可動関節の番号
+    size_t q_nr = 0;  // Current movable joint number
 
     for (size_t _ = 0; _ < src.segments.size(); ++_) {
       for (const auto& elem : src.segments) {
-        // リンクが既に追加されていればスキップ
+        // Skip links that have already been added.
         if (added_segs.contains(elem.segment.name)) {
           continue;
         }
 
-        // q_nrの整合性を保つため，可動関節は番号の若い方から順にツリーに追加する．
-        // 固定関節をもつリンクの番号は0だから，常に追加候補になる．
+        // To keep `q_nr` consistent, add movable joints to the tree in ascending order.
+        // Links with fixed joints have number 0, so they are always candidates for addition.
         if (elem.q_nr > q_nr) {
           continue;
         }
 
-        // 親リンクが追加されていればまだ追加できない
+        // Cannot add the link yet if its parent link has not been added.
         if (!added_segs.contains(elem.parent_name)) {
           continue;
         }
 
-        // 現在のリンクをツリーに追加
+        // Add the current link to the tree.
         tobas_kdl_msgs::SegmentAdapter::convert_to_custom(elem.segment, seg);
         if (!tree.addSegment(seg, elem.parent_name)) {
           throw std::runtime_error("Failed to add segment \"" + elem.segment.name + "\".");
         }
         added_segs.insert(elem.segment.name);
 
-        // 可動関節の場合は次の番号の関節をもつリンクを探索
+        // For movable joints, search for the link with the next joint number.
         if (elem.segment.joint.type != tobas::kdl::Joint::kFixed) {
           ++q_nr;
         }
       }
 
-      // 全てのリンクが追加されたらツリーをコピーして終了
+      // Copy the tree and finish once all links have been added.
       if (added_segs.size() == src.segments.size()) {
         dst = tree;
         return;
       }
     }
 
-    // 1回のループで最低でも1つリンクが追加されるため，リンク数のループを終えても終了条件を満たさない場合は何かがおかしい．
+    // At least one link should be added in each loop, so something is wrong
+    // if the end condition is not met after looping over the number of links.
     throw std::runtime_error("Failed to convert tobas_kdl_msgs/Tree to tobas::kdl::Tree.");
   }
 };

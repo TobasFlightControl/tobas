@@ -9,7 +9,7 @@
 namespace tobas
 {
 /**
- * @brief ミキサーの基底クラス．
+ * @brief Base class for mixers.
  */
 class MixerI
 {
@@ -30,7 +30,7 @@ protected:
 
   std::map<std::string, bool> rotor_alive_;
 
-  /* 閾値未満の微小推力をゼロにする． */
+  /* Set tiny thrust values below the threshold to zero. */
   inline double thrustDeadband(double thrust) const;
 
 private:

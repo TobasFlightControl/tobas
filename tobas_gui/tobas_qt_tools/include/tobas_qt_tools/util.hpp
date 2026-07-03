@@ -12,31 +12,31 @@ namespace tobas
 {
 namespace qt
 {
-/* 子ウィジェットを再帰的に走査し，全てのシグナルをブロックする． */
+/* Recursively scan child widgets and block all signals. */
 void blockSignalsRec(QObject* obj, bool block);
 
-/* ウィジェットをレイアウトの中央に追加する． */
+/* Add the widget to the center of the layout. */
 void addWidgetCenter(QWidget* widget, QVBoxLayout* rows, int stretch = 0);
 
-/* ウィジェットをレイアウトの中央に追加する． */
+/* Add the widget to the center of the layout. */
 void addWidgetCenter(QWidget* widget, QHBoxLayout* cols, int stretch = 0);
 
-/* サイズポリシー付きのスペーサを挿入する． */
+/* Insert a spacer with a size policy. */
 void addSpacing(QVBoxLayout* rows, int height, QSizePolicy::Policy v_policy);
 
-/* サイズポリシー付きのスペーサを挿入する． */
+/* Insert a spacer with a size policy. */
 void addSpacing(QHBoxLayout* cols, int width, QSizePolicy::Policy h_policy);
 
-/* 幅固定のQVBoxLayoutを作成する． */
+/* Create a fixed-width `QVBoxLayout`. */
 QVBoxLayout* createFixedWidthQVBoxLayout(int width, QBoxLayout* parent);
 
-/* 高さ固定のQVBoxLayoutを作成する． */
+/* Create a fixed-height `QVBoxLayout`. */
 QHBoxLayout* createFixedHeightQHBoxLayout(int height, QBoxLayout* parent);
 
-/* レイアウト内の全ての要素を削除する． */
+/* Delete all items in the layout. */
 void clearLayout(QLayout* layout);
 
-/* ScrollWidgetを挟んでQVBoxLayoutを作成する． */
+/* Create a `QVBoxLayout` with a `ScrollWidget` between them. */
 QVBoxLayout* createScrollableQVBoxLayout(QBoxLayout* parent);
 }  // namespace qt
 }  // namespace tobas

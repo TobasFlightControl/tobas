@@ -35,7 +35,7 @@ bool Mixer::updateInternalDataStructures()
     return false;
   }
 
-  // 順運動学を計算
+  // Compute forward kinematics.
   if (fk_solver_.jntToCart(kdl::JntArray::Zero(tree_.getNrOfJoints())) < 0) {
     std::cerr << fk_solver_.errorMessage() << std::endl;
     return false;
@@ -69,15 +69,15 @@ bool Mixer::updateInternalDataStructures()
     const auto& gpar_elem = par_elem.parent->second;
     const auto& gpar_seg = gpar_elem.segment;
 
-    // 祖父母リンクから見た推力の作用点を保存
+    // Store the point of thrust application viewed from the grandparent link.
     const auto gpar_T_cur = par_seg.frame() * cur_seg.frame();
     const auto& rotor_pos = gpar_T_cur.p;
     const auto thrust_pos = eigen::projectPointOnToLine(par_joint.origin.data, par_joint.axis().data, rotor_pos.data);
     thrust_points_.at(idx) = thrust_pos;
 
-    // チルト軸の符号を保存
+    // Store the sign of the tilt axis.
     const auto& B_T_gpar = fk_solver_.getFrame(gpar_seg.name());
-    const auto tilt_axis = B_T_gpar.M * par_joint.axis();  // ベースリンクから見たチルト軸
+    const auto tilt_axis = B_T_gpar.M * par_joint.axis();  // Tilt axis viewed from the base link.
     const auto tilt_axis_y = tilt_axis.normalized().y();
     if (!math::isClose(std::abs(tilt_axis_y), 1.)) {
       std::cerr << "Tilt axis must be parallel to the Y axis." << std::endl;
@@ -85,10 +85,10 @@ bool Mixer::updateInternalDataStructures()
     }
     tilt_axis_signs_.at(idx) = math::sign(tilt_axis_y);
 
-    // チルトジョイントの角度が0のときのチルト角の垂直上方向からのオフセットを保存
-    // FIXME: 機体自体がY軸周りに折れ曲がる場合はこのオフセットが変化する！
+    // Store the offset of the tilt angle from vertically upward when the tilt-joint angle is zero.
+    // FIXME: This offset changes if the vehicle itself bends around the Y axis!
     const auto& B_T_par = fk_solver_.getFrame(par_elem.segment.name());
-    const auto n = B_T_par.M * cur_elem.segment.joint().axis();  // ベースリンクから見た回転軸
+    const auto n = B_T_par.M * cur_elem.segment.joint().axis();  // Rotation axis viewed from the base link.
     if (!math::isClose(n.y(), 0.)) {
       std::cerr << "The Y component of the propeller’s axis of rotation must be zero." << std::endl;
       return false;
@@ -107,13 +107,13 @@ bool Mixer::solve(
   const double& uz,
   const kdl::Vector& ext_torque_B)
 {
-  // 順運動学を計算
+  // Compute forward kinematics.
   if (fk_solver_.jntToCart(cur_q) < 0) {
     std::cerr << "Forward kinematics failed: " << fk_solver_.errorMessage() << std::endl;
     return false;
   }
 
-  // 質量特性を計算
+  // Compute mass properties.
   if (inertia_solver_.jntToCart(cur_q) < 0) {
     std::cerr << "Inertia solver failed: " << inertia_solver_.errorMessage() << std::endl;
     return false;
@@ -129,7 +129,7 @@ bool Mixer::solve(
     const auto& par_elem = cur_elem.parent->second;
     const auto& gpar_elem = par_elem.parent->second;
 
-    // 運動方程式の左辺を計算
+    // Compute the left-hand side of the equations of motion.
     const auto col_tx = 2 * idx;
     const auto col_tz = col_tx + 1;
     if (rotor_alive_.at(rotor->link_name)) {
@@ -145,21 +145,21 @@ bool Mixer::solve(
       E_(2, col_tz) = -d_cm;
     }
     else {
-      // ロータが死んでいる時は推力から機体の運動への伝達をゼロにすることで最適推力がゼロになるよう仕向ける
+      // When the rotor is dead, force the optimal thrust to zero by setting the transfer from thrust to vehicle motion to zero.
       E_.middleCols<2>(col_tx).setZero();
     }
   }
 
-  // 運動方程式の右辺
+  // Right-hand side of the equations of motion.
   const auto eom_rot_right_B = I_B * tar_dgyro_B + cur_gyro_B * (I_B * cur_gyro_B) - ext_torque_B;  // [Nm]
   f_.head<3>() = eom_rot_right_B.data;
 
-  // 推力和の条件
+  // Thrust-sum condition.
   f_(3) = ux;
   f_(4) = uz;
 
-  // Ex = f の最小二乗解 (冗長自由度がある場合はxのL2ノルム最小化)
-  // TODO: 推力の絶対値の制約を考慮．凸最適化問題にすれば良さそう．
+  // Least-squares solution of `Ex = f`; minimize the L2 norm of `x` when redundant degrees of freedom exist.
+  // TODO: Consider constraints on the absolute thrust value; a convex optimization problem may work well.
   x_ = E_.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(f_);
 
   return true;

@@ -35,7 +35,7 @@ RvizWidget::RvizWidget(const uadf::Model& uadf, const kdl::Tree& tree)
   // Set up robot_model_display
   display_ = rviz_manager_.getDisplays("RobotState").at(0);
 
-  // 使用するプロパティを取得
+  // Get properties to use.
   enable_visual_ = qt::qPointerCast<rviz_common::properties::BoolProperty>(display_->subProp("Visual Enabled"));
   enable_collision_ = qt::qPointerCast<rviz_common::properties::BoolProperty>(display_->subProp("Collision Enabled"));
   enable_inertia_ = qt::qPointerCast<rviz_common::properties::BoolProperty>(display_->subProp("Inertial Enabled"));
@@ -47,7 +47,7 @@ RvizWidget::RvizWidget(const uadf::Model& uadf, const kdl::Tree& tree)
   enable_collision_->setBool(kDefaultCollisionEnabled);
   enable_inertia_->setBool(kDefaultInertiaEnabled);
 
-  // 可視化ボタン
+  // Visualization button.
   const auto visual_box = new QCheckBox("Show Visual");
   visual_box->setChecked(kDefaultVisualEnabled);
   const auto collision_box = new QCheckBox("Show Collision");
@@ -55,7 +55,7 @@ RvizWidget::RvizWidget(const uadf::Model& uadf, const kdl::Tree& tree)
   const auto inertia_box = new QCheckBox("Show Inertial");
   inertia_box->setChecked(kDefaultInertiaEnabled);
 
-  // レイアウト
+  // Layout.
   const auto rows = new QVBoxLayout();
   setLayout(rows);
   const auto cols = new QHBoxLayout();
@@ -74,16 +74,16 @@ RvizWidget::RvizWidget(const uadf::Model& uadf, const kdl::Tree& tree)
 
 void RvizWidget::updateInternalDataStructures()
 {
-  // 固定フレームをルートリンクに設定
+  // Set the fixed frame to the root link.
   const auto& root_name = tree_.getRootName();
   rviz_manager_.setFixedFrame(QString::fromStdString(root_name));
 
-  // URDFを更新
+  // Update the URDF.
   const auto urdf_doc = urdf::exportUrdf(*uadf_.urdf);
   const auto urdf_text = xml::xmlDocumentToString(urdf_doc);
   rviz_manager_.rawNode()->set_parameter(rclcpp::Parameter(kRobotDescriptionParam, urdf_text));
 
-  // ロボットモデルをリロード
+  // Reload the robot model.
   reload_->setBool(false);
   reload_->setBool(true);
 }

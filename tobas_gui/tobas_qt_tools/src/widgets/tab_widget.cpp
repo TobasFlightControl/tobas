@@ -16,7 +16,7 @@ namespace qt
 {
 TabBar::TabBar()
 {
-  // 無効時に文字を薄くする
+  // Dim text when disabled.
   setStyleSheet("QTabBar::tab:disabled { color: palette(midlight); }");
 }
 
@@ -126,9 +126,9 @@ void TabWidget::setTabSize(int width, int height)
 void TabWidget::removeAllTabs()
 {
   while (count() > 0) {
-    const auto first_widget = widget(0);  // 先頭ページを取得
-    removeTab(0);                         // タブバーから外す
-    first_widget->deleteLater();          // メモリを解放
+    const auto first_widget = widget(0);  // Get the first page.
+    removeTab(0);                         // Remove from the tab bar.
+    first_widget->deleteLater();          // Free memory.
   }
 }
 }  // namespace qt

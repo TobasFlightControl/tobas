@@ -320,4 +320,4 @@ ssh::SshClient::Error SshClientWrapper::list(const std::string& pardir, std::vec
 }  // namespace gui
 }  // namespace tobas
 
-#include "ssh_client.moc"  // cppをMOCに加えるために必要
+#include "ssh_client.moc"  // Required to add this cpp file to MOC.

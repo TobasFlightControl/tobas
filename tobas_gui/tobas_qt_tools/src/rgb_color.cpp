@@ -9,7 +9,7 @@ namespace qt
 {
 RGBColor RGBColor::mean(const RGBColor& other) const
 {
-  // オーバーフローを避けるために一度型変換してから平均を計算する
+  // Convert types before computing the average to avoid overflow.
   const auto r_mean = (uint8_t)(((int)r + (int)other.r) / 2);
   const auto g_mean = (uint8_t)(((int)g + (int)other.g) / 2);
   const auto b_mean = (uint8_t)(((int)b + (int)other.b) / 2);

@@ -16,48 +16,49 @@ namespace tobas
 {
 namespace gamepad
 {
-/* ゲームパッド入力から生成したRC入力状態．*/
+/* RC input state generated from gamepad input.*/
 struct GamepadRcInputState
 {
-  /* 入力デバイスを正常に読めているか．*/
+  /* Whether the input device is being read correctly.*/
   bool ok = false;
-  /* ロール指令 [-1, 1]． */
+  /* Roll command [-1, 1]. */
   double roll = 0.0;
-  /* ピッチ指令 [-1, 1]． */
+  /* Pitch command [-1, 1]. */
   double pitch = 0.0;
-  /* スロットル指令 [-1, 1]． */
+  /* Throttle command [-1, 1]. */
   double throttle = 0.0;
-  /* ヨー指令 [-1, 1]． */
+  /* Yaw command [-1, 1]. */
   double yaw = 0.0;
-  /* 飛行モード． */
+  /* Flight mode. */
   FlightMode mode = FlightMode::kStabilize;
-  /* サブモード切り替え． */
+  /* Submode toggle. */
   bool sub_mode = false;
-  /* RC入力の有効化スイッチ． */
+  /* RC input enable switch. */
   bool enable = false;
-  /* キルスイッチ． */
+  /* Kill switch. */
   bool kill = false;
-  /* 汎用スイッチ． */
+  /* General-purpose switch. */
   std::array<bool, 8> gpsw = {};
 };
 
-/* ゲームパッド入力をRC入力へ変換するための設定．*/
+/* Settings for converting gamepad input to RC input.*/
 struct GamepadRcInputConfig
 {
-  /* ロール軸を反転する． */
+  /* Invert the roll axis. */
   bool invert_roll = false;
-  /* ピッチ軸を反転する． */
+  /* Invert the pitch axis. */
   bool invert_pitch = true;
-  /* スロットル軸を反転する． */
+  /* Invert the throttle axis. */
   bool invert_throttle = true;
-  /* ヨー軸を反転する． */
+  /* Invert the yaw axis. */
   bool invert_yaw = true;
 };
 
 /**
- * @brief libevdevでゲームパッド入力を読み，RC入力状態に変換するドライバ．
+ * @brief Driver that reads gamepad input with libevdev and converts it to RC input state.
  *
- * Linux input event deviceを読み取り，ボタン入力をスイッチに，絶対軸入力を正規化したRC指令値に変換する．
+ * Reads a Linux input event device and converts button input to switches and absolute-axis input
+ * to normalized RC command values.
  */
 class GamepadRcInput
 {
@@ -76,16 +77,16 @@ public:
 
   ~GamepadRcInput();
 
-  /* 入力デバイスを開いて読み取り可能な状態にする */
+  /* Open the input device and make it readable. */
   bool initialize(const std::string& _device_path);
 
-  /* 入力デバイスを閉じる．*/
+  /* Close the input device.*/
   void close();
 
-  /* 入力デバイスが開かれているかを返す．*/
+  /* Return whether the input device is open.*/
   bool isOpen() const;
 
-  /* 現在のRC入力状態を読み出す．*/
+  /* Read the current RC input state.*/
   bool read(GamepadRcInputState& _rc_input);
 
 private:

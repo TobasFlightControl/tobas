@@ -15,10 +15,10 @@ namespace tobas
 namespace eigen
 {
 /**
- * @brief ブロック対角行列を作る．
+ * @brief Create a block diagonal matrix.
  *
- * @param A 部分行列
- * @param num ブロックの個数
+ * @param A Submatrix.
+ * @param num Number of blocks.
  *
  * @return Eigen::MatrixXd
  */
@@ -39,12 +39,12 @@ Eigen::MatrixXd blockDiag(const Eigen::MatrixBase<Derived>& A, const Eigen::Inde
 }
 
 /**
- * @brief Aを行または列方向に繰り返してできる行列を返す．
- * cf. numpy.tile()
+ * @brief Return a matrix created by repeating `A` in the row or column direction.
+ * cf. `numpy.tile()`.
  *
- * @param A 部分行列
- * @param num 繰り返す回数
- * @param axis 繰り返す方向: Row(0) or Column(1)
+ * @param A Submatrix.
+ * @param num Number of repetitions.
+ * @param axis Repetition direction: Row (0) or Column (1).
  *
  * @return Eigen::MatrixXd
  */
@@ -78,11 +78,11 @@ Eigen::MatrixXd tile(const Eigen::MatrixBase<Derived>& A, const Eigen::Index& nu
 }
 
 /**
- * @brief 2つの行列を行方向または列方向に結合する．
- * cf. numpy.concatenate()
+ * @brief Concatenate two matrices in the row or column direction.
+ * cf. `numpy.concatenate()`.
  *
- * @param A,B 結合する行列
- * @param axis 結合する方向: Row(0) or Column(1)
+ * @param A,B Matrices to concatenate.
+ * @param axis Concatenation direction: Row (0) or Column (1).
  *
  * @return Eigen::MatrixXd
  */
@@ -109,11 +109,11 @@ Eigen::MatrixXd concat(const Eigen::MatrixBase<T>& A, const Eigen::MatrixBase<U>
 }
 
 /**
- * @brief 3つの行列を行方向または列方向に結合する．
- * cf. numpy.concatenate()
+ * @brief Concatenate three matrices in the row or column direction.
+ * cf. `numpy.concatenate()`.
  *
- * @param A,B,C 結合する行列
- * @param axis 結合する方向: Row(0) or Column(1)
+ * @param A,B,C Matrices to concatenate.
+ * @param axis Concatenation direction: Row (0) or Column (1).
  *
  * @return Eigen::MatrixXd
  */
@@ -124,21 +124,21 @@ concat(const Eigen::MatrixBase<T>& A, const Eigen::MatrixBase<U>& B, const Eigen
   return concat(concat(A, B, axis), C, axis);
 }
 
-/* Eigen::Vectorをstd::vectorに変換する． */
+/* Convert `Eigen::Vector` to `std::vector`. */
 template <typename T, int N>
 inline std::vector<T> toStdVector(const Eigen::Vector<T, N>& v)
 {
   return std::vector<T>(v.data(), v.data() + v.size());
 }
 
-/* std::vectorをEigen::Vectorに変換する． */
+/* Convert `std::vector` to `Eigen::Vector`. */
 template <typename T>
 inline Eigen::Vector<T, Eigen::Dynamic> fromStdVector(const std::vector<T>& vec)
 {
   return Eigen::Map<const Eigen::Vector<T, Eigen::Dynamic>>(vec.data(), vec.size());
 }
 
-/* Eigen::Vectorをstd::arrayに変換する． */
+/* Convert `Eigen::Vector` to `std::array`. */
 template <typename T, int N>
 inline std::array<T, N> toStdArray(const Eigen::Vector<T, N>& v)
 {
@@ -148,7 +148,7 @@ inline std::array<T, N> toStdArray(const Eigen::Vector<T, N>& v)
   return arr;
 }
 
-/* std::arrayをEigen::Vectorに変換する． */
+/* Convert `std::array` to `Eigen::Vector`. */
 template <typename T, size_t N>
 inline Eigen::Vector<T, N> fromStdArray(const std::array<T, N>& arr)
 {
@@ -156,21 +156,21 @@ inline Eigen::Vector<T, N> fromStdArray(const std::array<T, N>& arr)
   return Eigen::Map<const Eigen::Vector<T, N>>(arr.data(), N);
 }
 
-/* 行列が正方の場合にtrueを返す． */
+/* Return true when the matrix is square. */
 template <typename Derived>
 inline bool isSquare(const Eigen::MatrixBase<Derived>& A)
 {
   return A.rows() == A.cols();
 }
 
-/* trueの場合はnan, infが含まれないことを保証する． */
+/* If true, this guarantees that the matrix contains no `nan` or `inf`. */
 template <typename Derived>
 inline bool isFinite(const Eigen::MatrixBase<Derived>& x)
 {
   return ((x - x).array() == (x - x).array()).all();
 }
 
-/* 2つの行列がほとんど等しいときにtrueを返す． */
+/* Return true when two matrices are nearly equal. */
 template <typename Derived>
 bool isClose(
   const Eigen::MatrixBase<Derived>& x,
@@ -187,10 +187,10 @@ bool isClose(
 }
 
 /**
- * @brief 正方行列を対称化する．
+ * @brief Symmetrize a square matrix.
  *
  * @tparam Derived
- * @param A 対称化する行列
+ * @param A Matrix to symmetrize.
  */
 template <typename Derived>
 inline void symmetrise(Eigen::MatrixBase<Derived>& A)
@@ -198,7 +198,7 @@ inline void symmetrise(Eigen::MatrixBase<Derived>& A)
   A = (A + A.transpose()) / 2;
 }
 
-/* 行方向に平均を計算する． */
+/* Calculate means along rows. */
 template <typename Scalar, int Rows, int Cols>
 Eigen::Matrix<Scalar, Rows, 1> meanRow(const Eigen::Matrix<Scalar, Rows, Cols>& A)
 {
@@ -209,7 +209,7 @@ Eigen::Matrix<Scalar, Rows, 1> meanRow(const Eigen::Matrix<Scalar, Rows, Cols>& 
   return res;
 }
 
-/* 列方向に平均を計算する． */
+/* Calculate means along columns. */
 template <typename Scalar, int Rows, int Cols>
 Eigen::Matrix<Scalar, Cols, 1> meanCol(const Eigen::Matrix<Scalar, Rows, Cols>& A)
 {
@@ -220,7 +220,7 @@ Eigen::Matrix<Scalar, Cols, 1> meanCol(const Eigen::Matrix<Scalar, Rows, Cols>& 
   return res;
 }
 
-/* 行方向に分散を計算する． */
+/* Calculate variances along rows. */
 template <typename Scalar, int Rows, int Cols>
 Eigen::Matrix<Scalar, Rows, 1> varianceRow(const Eigen::Matrix<Scalar, Rows, Cols>& A)
 {
@@ -232,7 +232,7 @@ Eigen::Matrix<Scalar, Rows, 1> varianceRow(const Eigen::Matrix<Scalar, Rows, Col
   return res;
 }
 
-/* 列方向に分散を計算する． */
+/* Calculate variances along columns. */
 template <typename Scalar, int Rows, int Cols>
 Eigen::Matrix<Scalar, Cols, 1> varianceCol(const Eigen::Matrix<Scalar, Rows, Cols>& A)
 {
@@ -244,7 +244,7 @@ Eigen::Matrix<Scalar, Cols, 1> varianceCol(const Eigen::Matrix<Scalar, Rows, Col
   return res;
 }
 
-/* ベクトルの分散を計算する． */
+/* Calculate vector variance. */
 template <typename Scalar, int Size>
 inline Scalar variance(const Eigen::Vector<Scalar, Size>& v)
 {

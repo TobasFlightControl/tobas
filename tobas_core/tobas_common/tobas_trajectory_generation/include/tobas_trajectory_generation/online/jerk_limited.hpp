@@ -10,8 +10,10 @@ namespace tobas
 namespace traj
 {
 /**
- * @brief 制約を満たしつつ最短時間で目標状態に到達する軌道をオンラインで更新する．
- * @note バンバン制御は安定余裕が無いので，遅延，モデル化誤差を含む実環境でフィードバックループとして使うのは難しい．
+ * @brief Online update of the minimum-time trajectory that reaches the target state while satisfying constraints.
+ *
+ * @note Bang-bang control has no stability margin,
+ * so it is difficult to use as a feedback loop in a real environment with delays and modeling errors.
  */
 class JerkLimitedOnlineTrajectoryGenerator
 {

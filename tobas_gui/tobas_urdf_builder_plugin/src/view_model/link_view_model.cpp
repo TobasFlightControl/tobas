@@ -26,8 +26,8 @@ LinkViewModel::LinkViewModel(const ::urdf::LinkSharedPtr& model)
     collisions_.emplace_back(new CollisionViewModel(collision));
   }
 
-  // コンストラクタの時点でURDFと同期しておく．
-  // そうしないとMeshをクローンしたときにパスエラーが出る．
+  // Synchronize with the URDF in the constructor.
+  // Otherwise, cloning a mesh causes a path error.
   sync();
 }
 
@@ -76,7 +76,7 @@ void LinkViewModel::sync()
   // parent_joint
   model_->parent_joint = joint_->model();
 
-  // child_joints, child_linksは変化が起きたらその都度更新
+  // Update `child_joints` and `child_links` whenever they change.
 }
 
 QString LinkViewModel::name() const
@@ -88,7 +88,7 @@ void LinkViewModel::name(const QString& name)
 {
   model_->name = name.toStdString();
 
-  // 整合性をとるために上下の関節に含まれるリンク名も変更する
+  // Also change the link names in the upper and lower joints to keep consistency.
   joint_->childLinkName(name);
   for (const auto& child_link : model_->child_links) {
     child_link->parent_joint->parent_link_name = name.toStdString();

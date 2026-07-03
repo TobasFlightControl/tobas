@@ -60,12 +60,12 @@ void KalmanFilter::update()
 {
   verify();
 
-  // 事前予測
+  // Prior prediction.
   const VectorXd x_prev = ss.A * x_ + ss.B * u;
   const MatrixXd P_prev =
     ss.A * P_.selfadjointView<Lower>() * ss.A.transpose() + Bv * Q.selfadjointView<Lower>() * Bv.transpose();
 
-  // 事後推定
+  // Posterior estimate.
   const MatrixXd PCt = P_prev.selfadjointView<Lower>() * ss.C.transpose();
   const MatrixXd G = PCt * (ss.C * PCt + R).inverse();
   const MatrixXd I_GC = MatrixXd::Identity(stateSize(), stateSize()) - G * ss.C;
@@ -88,8 +88,8 @@ void KalmanFilter::verify() const
   assert(eigen::isFinite(R));
   assert(eigen::isFinite(y));
   assert(eigen::isFinite(u));
-  assert(ctrl::isControllable(ss.A, Bv));  // FIXME: 本当は可安定で十分
-  assert(ctrl::isObservable(ss.A, ss.C));  // FIXME: 本当は可検出で十分
+  assert(ctrl::isControllable(ss.A, Bv));  // FIXME: Stabilizability should actually be sufficient.
+  assert(ctrl::isObservable(ss.A, ss.C));  // FIXME: Detectability should actually be sufficient.
   assert(eigen::isSymmetricSemiPositiveDefinite(Q));
   assert(eigen::isSymmetricPositiveDefinite(R));
 }

@@ -23,7 +23,7 @@ bool RemoteProjectBuilder::build(const fs::path& remote_proj_path)
 {
   const auto meta_pkg_name = cmn::ProjectPaths(remote_proj_path).metaPkgName();
 
-  // Paramikoは非対話型セッションを開始するため，コマンドごとに必要な環境変数を設定する必要がある．
+  // Paramiko starts non-interactive sessions, so required environment variables must be set for each command.
   const auto ros2_setup_bash = (fs::path(kRos2JazzyInstallPath) / "setup.bash").string();
   const auto tobas_setup_bash = (fs::path(kTobasInstallPath) / "local_setup.bash").string();
   const auto pre_cmd = std::format(
@@ -34,7 +34,7 @@ bool RemoteProjectBuilder::build(const fs::path& remote_proj_path)
     tobas_setup_bash,
     kColconWSPathRoot);
 
-  // ルート権限だと--symlink-installが機能しない
+  // `--symlink-install` does not work with root privileges.
   const auto build_cmd = std::format(
     "colcon build "
     "--merge-install "
@@ -43,7 +43,7 @@ bool RemoteProjectBuilder::build(const fs::path& remote_proj_path)
     "--packages-up-to {}",
     meta_pkg_name);
 
-  // ビルドできれば終了
+  // Finish if the build succeeds.
   if (ssh_client_.execute(pre_cmd + " && " + build_cmd, output_, true) != ssh::SshClient::kNoError) {
     RCLCPP_ERROR(node_->get_logger(), "Failed to build the remote package.");
     return false;

@@ -9,7 +9,7 @@ namespace tobas
 {
 namespace kdl
 {
-/* 3次元サイクロイドを生成 */
+/* Generate a 3D cycloid. */
 class CycloidGenerator3d
 {
 public:
@@ -18,40 +18,40 @@ public:
   bool generate(const kdl::Vector& p0, const kdl::Vector& pf, const double& T, const double& h, const double& k = 5.);
 
   /**
-   * @brief 時刻tにおける軌跡を得る
+   * @brief Get the trajectory at time `t`.
    *
-   * @param t 開始点からの時刻
-   * @param r 見たいフレームから計画フレームへの回転
-   * @param p 時刻tにおける位置
-   * @param v 時刻tにおける速度
-   * @param a 時刻tにおける加速度
+   * @param t Time from the start point.
+   * @param r Rotation from the frame to view to the planning frame.
+   * @param p Position at time `t`.
+   * @param v Velocity at time `t`.
+   * @param a Acceleration at time `t`.
    */
   bool get(const double& t, const kdl::Rotation& r, kdl::Vector& p, kdl::Vector& v, kdl::Vector& a) const;
 
   /**
-   * @brief 時刻tにおける軌跡を得る
+   * @brief Get the trajectory at time `t`.
    *
-   * @param t 開始点からの時刻
-   * @param p 時刻tにおける位置
-   * @param v 時刻tにおける速度
-   * @param a 時刻tにおける加速度
+   * @param t Time from the start point.
+   * @param p Position at time `t`.
+   * @param v Velocity at time `t`.
+   * @param a Acceleration at time `t`.
    */
   bool get(const double& t, kdl::Vector& p, kdl::Vector& v, kdl::Vector& a) const;
 
   /**
-   * @brief 時刻tにおける軌跡を得る
+   * @brief Get the trajectory at time `t`.
    *
-   * @param t 開始点からの時刻
-   * @param p 時刻tにおける位置
-   * @param v 時刻tにおける速度
+   * @param t Time from the start point.
+   * @param p Position at time `t`.
+   * @param v Velocity at time `t`.
    */
   bool get(const double& t, kdl::Vector& p, kdl::Vector& v) const;
 
   /**
-   * @brief 時刻tにおける軌跡を得る
+   * @brief Get the trajectory at time `t`.
    *
-   * @param t 開始点からの時刻
-   * @param p 時刻tにおける位置
+   * @param t Time from the start point.
+   * @param p Position at time `t`.
    */
   bool get(const double& t, kdl::Vector& p) const;
 
@@ -64,7 +64,7 @@ private:
   double TT_;
   double kk_;
   kdl::Vector p_diff_;
-  const kdl::Rotation r0_;  // 単位行列
+  const kdl::Rotation r0_;  // Identity matrix
 
   void getPos(const double& t, const kdl::Rotation& r, kdl::Vector& p) const;
   void getVel(const double& t, const kdl::Rotation& r, kdl::Vector& v) const;

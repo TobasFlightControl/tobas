@@ -62,7 +62,7 @@ void MultiComponentManagers::spin()
   std::vector<ComponentManager> managers(num_managers_);
 
   rclcpp::NodeOptions node_options;
-  node_options.use_global_arguments(true);  // falseだとコンポーネントをロードできない
+  node_options.use_global_arguments(true);  // Components cannot be loaded when this is false.
   node_options.enable_rosout(false);
   node_options.use_intra_process_comms(true);
   node_options.start_parameter_services(false);
@@ -80,24 +80,24 @@ void MultiComponentManagers::spin()
     manager.node = std::make_shared<ThreadSafeComponentManager>(manager.exec, nodeName(i), node_options);
     manager.exec->add_node(manager.node);
 
-    // ComponentManagerを別スレッドで起動
+    // Start `ComponentManager` in a separate thread.
     manager.thread = std::thread([&manager]() { manager.exec->spin(); });
 
-    // スレッドのリアルタイム優先度を設定
+    // Set the thread real-time priority.
     if (cfg.priority > 0) {
       if (!linux::setThreadPriority(manager.thread.native_handle(), cfg.priority, cfg.policy)) {
         RCLCPP_WARN(rclcpp::get_logger(kLoggerName), "Failed to set thread realtime priority.");
       }
     }
 
-    // スレッドのCPU割当を設定
+    // Set the thread CPU affinity.
     if (cfg.affinity > 0) {
       if (!linux::setThreadCPUAffinity(manager.thread.native_handle(), cfg.affinity)) {
         RCLCPP_WARN(rclcpp::get_logger(kLoggerName), "Failed to set thread CPU affinity.");
       }
     }
 
-    // 一定時間待機．さもないとスピン中にスピンを呼ぶことになってしまう．
+    // Wait briefly to avoid calling spin while already spinning.
     std::this_thread::sleep_for(100ms);
   }
 

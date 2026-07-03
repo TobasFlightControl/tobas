@@ -24,7 +24,7 @@
 #include <tobas_msgs_adapter/odometry_with_covariance_stamped.hpp>
 #include <tobas_msgs_adapter/rc_input.hpp>
 
-// tobas_ros_interfaceで扱うトピックのうち，FCからPCに流れるもの
+// Topics handled by `tobas_ros_interface` that flow from FC to PC.
 Q_DECLARE_METATYPE(tobas_msgs::msg::Arming::ConstSharedPtr);
 Q_DECLARE_METATYPE(tobas_msgs::msg::Battery::ConstSharedPtr);
 Q_DECLARE_METATYPE(tobas_msgs::msg::Cpu::ConstSharedPtr);

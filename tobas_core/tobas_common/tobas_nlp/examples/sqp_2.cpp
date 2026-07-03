@@ -160,9 +160,9 @@ int main()
   const auto& x_opt = sqp.optimal();
 
   cout << "Optimal solution: " << x_opt.transpose() << endl;
-  cout << "Number of iterations: " << sqp.iterations() << endl;  // scipy.optimize.minimizeだと5
+  cout << "Number of iterations: " << sqp.iterations() << endl;  // 5 with scipy.optimize.minimize.
   cout << "----------" << endl;
-  cout << "f(x*) = " << f(x_opt) << endl;  // scipy.optimize.minimizeだと17.014017247073575
+  cout << "f(x*) = " << f(x_opt) << endl;  // 17.014017247073575 with scipy.optimize.minimize.
   cout << "g(x*) = " << g(x_opt).transpose() << endl;
   cout << "h(x*) = " << h(x_opt).transpose() << endl;
 

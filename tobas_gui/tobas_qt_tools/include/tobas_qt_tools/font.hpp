@@ -9,7 +9,7 @@ namespace tobas
 {
 namespace qt
 {
-/* デフォルトでデフォルトの書式を使用するQFont． */
+/* `QFont` that uses the default style by default. */
 class DefaultFont : public QFont
 {
 public:

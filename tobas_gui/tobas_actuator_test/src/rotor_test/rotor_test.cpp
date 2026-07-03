@@ -106,13 +106,13 @@ void RotorTestWidget::reset()
 {
   disconnect(rotor_states_conn_);
 
-  // モータウィジェットを無効化
+  // Disable motor widgets.
   for (const auto& widget : rotor_widgets_) {
     widget->reset();
     widget->setEnabled(false);
   }
 
-  // タイマーを停止
+  // Stop the timer.
   update_timer_.stop();
 
   start_button_->setEnabled(true);
@@ -127,10 +127,10 @@ void RotorTestWidget::updateProject(const fs::path& proj_path)
 {
   reset();
 
-  // プロジェクtのパスを更新
+  // Update the project path.
   proj_paths_.setProjPath(proj_path);
 
-  // 初期化
+  // Initialize.
   registered_.fill(false);
   for (size_t ch = 0; ch < kMaxDshotChannels; ++ch) {
     const auto text = "CH" + QString::number(ch) + ": unregistered";
@@ -140,7 +140,7 @@ void RotorTestWidget::updateProject(const fs::path& proj_path)
   if (drone_.prop->type() == PropulsionSystem::kElectric) {
     eprop_ = boost::polymorphic_pointer_downcast<ElectricPropulsionSystemConfig>(drone_.prop);
 
-    // モータを登録
+    // Register motors.
     for (const auto& [link_name, _] : eprop_->rotors) {
       const auto erotor = eprop_->getRotor(link_name);
 
@@ -219,7 +219,7 @@ void RotorTestWidget::onStartButtonClicked()
 {
   qDebug() << "RotorTestWidget::onStartButtonClicked";
 
-  // アームされていないことを確認
+  // Confirm that the vehicle is not armed.
   if (!arming_) {
     qt::qWarnBox(this, "This operation cannot be performed because the arming status has not been received yet.");
     return;
@@ -229,22 +229,22 @@ void RotorTestWidget::onStartButtonClicked()
     return;
   }
 
-  // 現在のゲインを反映
+  // Apply the current gain.
   if (!loadCurrentGains()) {
     return;
   }
 
-  // モータウィジェットを有効化
+  // Enable motor widgets.
   for (const auto& [link_name, _] : eprop_->rotors) {
     const auto erotor = eprop_->getRotor(link_name);
     rotor_widgets_.at(erotor->channel)->setEnabled(true);
   }
 
-  // 一時的にロータ状態を購読
+  // Temporarily subscribe to rotor states.
   rotor_states_conn_ =
     connect(&bridge_, &RosQtBridge::rotorStatesReceived, this, &self::rotorStatesCb, Qt::QueuedConnection);
 
-  // 一定周期でコマンドを発行
+  // Publish commands at a fixed interval.
   update_timer_.start(kUpdatePeriod);
 
   start_button_->setEnabled(false);
@@ -318,7 +318,7 @@ void RotorTestWidget::rotorStatesCb(const tobas_msgs::msg::RotorStateArray::Cons
 
 void RotorTestWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
 {
-  // テスト実行中にアームされたら，強制的にテストを終了する
+  // Force the test to stop if the vehicle is armed while the test is running.
   if (running_ && arming->data) {
     reset();
     qt::qWarnBox(this, "Rotor test was terminated because an arming command was issued.");

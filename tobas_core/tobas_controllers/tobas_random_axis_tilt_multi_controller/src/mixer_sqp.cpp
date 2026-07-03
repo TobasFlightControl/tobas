@@ -60,13 +60,13 @@ bool SqpMixer::solve(
   const kdl::Vector& ext_force_W,
   const kdl::Vector& ext_torque_B)
 {
-  // 順運動学を計算
+  // Compute forward kinematics.
   if (fk_solver_.jntToCart(cur_q) < 0) {
     cerr << "Forward kinematics failed: " << fk_solver_.errorMessage() << endl;
     return false;
   }
 
-  // 質量特性を計算
+  // Compute mass properties.
   if (inertia_solver_.jntToCart(cur_q) < 0) {
     cerr << "Inertia solver failed: " << inertia_solver_.errorMessage() << endl;
     return false;
@@ -106,18 +106,19 @@ bool SqpMixer::solve(
     }
   }
 
-  // 並進EoMの右辺
+  // Right-hand side of the translational EoM.
   const kdl::Vector grav_W(0, 0, -st::kGravity);
   const auto eom_trans_right_W = mass * (tar_acc_W - grav_W) - ext_force_W;  // [N]
   d_.head<3>() = cur_rot.inverse(eom_trans_right_W).data;
 
-  // 回転EoMの右辺
+  // Right-hand side of the rotational EoM.
   const auto eom_rot_right_B = I_B * tar_dgyro_B + cur_gyro_B * (I_B * cur_gyro_B) - ext_torque_B;  // [Nm]
   d_.tail<3>() = eom_rot_right_B.data;
 
-  // FIXME: チルトヘキサでチルト角の制限が30degを超えるとSQPが収束しないことがある
-  // TODO: 目的関数や制約に三角関数が含まれていると局所解のリスクが上がるため，x,yと等式制約に置換してみる
-  // TODO: プロペラ位置とイナーシャの，チルト角による変化を考慮
+  // FIXME: SQP may fail to converge on tilt hexacopters when the tilt-angle limit exceeds 30 deg.
+  // TODO: Since trigonometric functions in the objective function and constraints increase the risk of local solutions,
+  // try replacing them with `x`, `y`, and equality constraints.
+  // TODO: Consider changes in propeller positions and inertia caused by tilt angles.
 
   // Update weights
   const auto linear_scale = mass * kAccelScale;                              // [N]
@@ -127,7 +128,7 @@ bool SqpMixer::solve(
   Q_.diagonal().tail<3>().fill(cfg_.angular_weight / math::sqr(angular_scale));
   R_.diagonal().fill(cfg_.thrust_weight / math::sqr(thrust_scale));
 
-  // SQPを解く
+  // Solve the SQP.
   if (sqp_.solve() < 0) {
     cerr << "SQP failed: " << sqp_.errorMessage() << endl;
     return false;
@@ -359,7 +360,7 @@ const MatrixXd& SqpMixer::calc_N(const VectorXd& theta)
     const auto& rotor = rotor_it.second;
     const auto& elem = tree_.getSegment(rotor->link_name)->second;
 
-    // TODO: チルトジョイントがロータジョイントの直接の親じゃない場合にも対応
+    // TODO: Support cases where the tilt joint is not the direct parent of the rotor joint.
     if (!rotor->tilt_joint_name.empty()) {
       const auto& par_elem = elem.parent->second;
       const auto& gpar_elem = par_elem.parent->second;

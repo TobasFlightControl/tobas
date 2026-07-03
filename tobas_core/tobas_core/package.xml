@@ -32,7 +32,6 @@
 	<exec_depend>tobas_hardware</exec_depend>
 	<exec_depend>tobas_joint_states_bridge</exec_depend>
 	<exec_depend>tobas_landing_detection</exec_depend>
-	<exec_depend>tobas_legged_robot</exec_depend>
 	<exec_depend>tobas_manipulation</exec_depend>
 	<exec_depend>tobas_mission</exec_depend>
 	<exec_depend>tobas_msgs</exec_depend>

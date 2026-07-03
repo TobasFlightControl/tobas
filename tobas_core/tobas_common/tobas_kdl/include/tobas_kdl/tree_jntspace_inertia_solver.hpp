@@ -12,7 +12,7 @@ namespace tobas
 namespace kdl
 {
 /**
- * @brief kdl::ChainDynParamのTree版
+ * @brief Tree version of `kdl::ChainDynParam`.
  */
 class TreeJntSpaceInertiaSolver : public TreeSolverI
 {
@@ -24,9 +24,9 @@ public:
   bool updateInternalDataStructures() override;
 
   /**
-   * @brief 単位ベクトル法により関節空間の慣性行列を計算する
+   * @brief Compute the joint-space inertia matrix using the unit vector method.
    *
-   * @param q 関節角
+   * @param q Joint angles.
    */
   int jntToMass(const JntArray& q);
 

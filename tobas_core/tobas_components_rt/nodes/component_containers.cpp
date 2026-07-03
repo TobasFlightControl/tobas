@@ -7,27 +7,28 @@ int main(int argc, char* argv[])
 {
   constexpr size_t kNumManagers = 3;
 
-  // ROSノードを起動．
+  // Initialize ROS nodes.
   rclcpp::init(argc, argv);
 
-  // Ctrl+Cで即終了．
+  // Exit immediately on Ctrl+C.
   signal(SIGINT, [](int) { rclcpp::shutdown(); });
 
-  // 複数のComponentManagerをシングルプロセスで動作させる．
+  // Run multiple component managers in a single process.
   tobas::MultiComponentManagers managers(kNumManagers);
 
   for (size_t i = 0; i < kNumManagers; ++i) {
-    // 厳密に優先度を守るポリシーに設定．
+    // Use a policy that strictly follows priorities.
     managers.setPolicy(i, SCHED_FIFO);
 
-    // IOのIRQのデフォルト値50以上のIRQ値にすると，CPUを固定した場合にデッドロックする恐れがあるため，それ未満に設定する．
+    // Keep this below the default IO IRQ priority of 50 because setting it to 50 or higher can deadlock
+    // when CPU affinity is fixed.
     // https://docs.redhat.com/ja/documentation/red_hat_enterprise_linux/9/html/monitoring_and_managing_system_status_and_performance/priority-map_tuning-scheduling-policy
     managers.setPriority(i, 49 - i);
 
-    // ComponentManagerごとにCPUを専有する．
+    // Dedicate one CPU to each component manager.
     managers.setCpuAffinity(i, 1 << (i + 1));
 
-    // MultiThreadedExecutorはCPU負荷が高く，パフォーマンス向上のため1つのCPUに1つのスレッドのみを割り当てる．
+    // `MultiThreadedExecutor` is CPU intensive, so assign only one thread to each CPU for better performance.
     managers.setNumThreads(i, 1);
   }
 

@@ -55,10 +55,10 @@ ProjectGenerator::ProjectGenerator(
 
 bool ProjectGenerator::generateProject(const fs::path& proj_path)
 {
-  // プロジェクトパスを設定
+  // Set the project path.
   proj_paths_.setProjPath(proj_path);
 
-  // Tobasパッケージを作成
+  // Create the Tobas package.
   const auto create_proj_path_res = path::createDirectories(proj_path);
   if (!create_proj_path_res) {
     qt::qErrorBox(
@@ -66,40 +66,40 @@ bool ProjectGenerator::generateProject(const fs::path& proj_path)
     return false;
   }
 
-  // テンプレート用アイテムを作成
+  // Create template items.
   const auto tpl_data = createTemplateData();
 
-  // メタパッケージを作成
+  // Create the meta package.
   if (!generateMetaPackage(tpl_data)) {
     return false;
   }
 
-  // 設定パッケージを作成
+  // Create the configuration package.
   if (!generateConfigPackage(tpl_data)) {
     return false;
   }
 
-  // ユーザ用Msgパッケージを作成
+  // Create the user message package.
   if (!generateUserMsgPackage(tpl_data)) {
     return false;
   }
 
-  // ユーザ用C++パッケージを作成
+  // Create the user C++ package.
   if (!generateUserCppPackage(tpl_data)) {
     return false;
   }
 
-  // ユーザ用Pythonパッケージを作成
+  // Create the user Python package.
   if (!generateUserPyPackage(tpl_data)) {
     return false;
   }
 
-  // バックアップファイルを作成
+  // Create the backup file.
   if (!generateBackupFiles()) {
     return false;
   }
 
-  // バージョンファイルを作成
+  // Create the version file.
   cmn::Version version;
   version.setToCurrent();
   if (!version.save(proj_paths_.versionPath())) {
@@ -186,7 +186,7 @@ Drone ProjectGenerator::createDrone() const
         rotor->direction = turningDirectionUadfToTbsdrn(uadf_.thrusts.at(cur_jnt.name).direction);
         rotor->moment_const = unit_widget->aerodynamics()->momentConst();
         rotor->tilt_joint_name = uadf_.tilts.contains(par_jnt.name) ? par_jnt.name : "";
-        rotor->channel = settings_->hardware->dshot()->channel(QString::fromStdString(cur_jnt.name));  // TODO: PWM対応
+        rotor->channel = settings_->hardware->dshot()->channel(QString::fromStdString(cur_jnt.name));
         rotor->num_poles = unit_widget->motor()->numPoles();
         rotor->kv = unit_widget->motor()->kv();
         rotor->internal_resistance = unit_widget->motor()->internalResistance();
@@ -285,7 +285,7 @@ Drone ProjectGenerator::createDrone() const
         TOBAS_CHECK(iprop->rotors.insert({ link_name, rotor }).second);
 
         // Variable Pitch Interface
-        // TODO: PWM以外のインターフェースに対応
+        // TODO: Support interfaces other than PWM.
         PwmConfig pitch_pwm;
         const auto vpp_pwm_channel = settings_->hardware->pwm()->channel(QString::fromStdString(cur_jnt.name));
         pitch_pwm.channel = vpp_pwm_channel;
@@ -301,7 +301,7 @@ Drone ProjectGenerator::createDrone() const
           tilt_joint.name = par_jnt.name;
           tilt_joint.role = JointRole::kTiltJoint;
           tilt_joint.cmd_iface = JointCommandInterface::kPosition;
-          tilt_joint.hw_iface = HardwareInterface::kPwm;  // TODO: 選択できるようにする
+          tilt_joint.hw_iface = HardwareInterface::kPwm;  // TODO: Make this selectable.
           tilt_joint.home_pos = 0.;
           TOBAS_CHECK(drone.joints.insert({ tilt_joint.name, tilt_joint }).second);
 
@@ -370,7 +370,7 @@ Drone ProjectGenerator::createDrone() const
       ControlSurface cs;
       cs.link_name = link_name;
       cs.c_lift_delta = css->liftCoef(i);
-      cs.c_drag_abs_delta = css->dragCoef(i);  // TODO: 正負の確認が必要？
+      cs.c_drag_abs_delta = css->dragCoef(i);  // TODO: Do the signs need to be checked?
       cs.c_side_delta = css->sideCoef(i);
       cs.c_roll_delta = css->rollCoef(i);
       cs.c_pitch_delta = css->pitchCoef(i);
@@ -399,7 +399,7 @@ Drone ProjectGenerator::createDrone() const
     joint.name = extra_joints->getJointName(i).toStdString();
     joint.role = extra_joints->getRole(i);
     joint.cmd_iface = extra_joints->getCommandInterface(i);
-    joint.hw_iface = HardwareInterface::kOther;  // TODO: 選択できるようにする
+    joint.hw_iface = HardwareInterface::kOther;  // TODO: Make this selectable.
     joint.home_pos = extra_joints->getHomePosition(i);
     TOBAS_CHECK(drone.joints.insert({ joint.name, joint }).second);
   }
@@ -446,7 +446,7 @@ bool ProjectGenerator::generateConfigPackage(const inja::json& tpl_data)
   const auto pkg_path = proj_paths_.cfgPkgPath();
   fs::create_directory(pkg_path);
 
-  // ディレクトリを作成
+  // Create directories.
   const auto config_dir = proj_paths_.cfgConfigDirPath();
   const auto launch_dir = proj_paths_.cfgLaunchDirPath();
   const auto mesh_dir = proj_paths_.cfgMeshDirPath();
@@ -456,7 +456,7 @@ bool ProjectGenerator::generateConfigPackage(const inja::json& tpl_data)
   fs::create_directory(mesh_dir);
   fs::create_directory(urdf_dir);
 
-  // テンプレートから生成
+  // Generate from templates.
   config_env_->generate(tpl_data, "CMakeLists.txt.tplcmake", pkg_path);
   config_env_->generate(tpl_data, "package.xml.tplxml", pkg_path);
   config_env_->generate(tpl_data, "component_containers_mp.launch.py.tplpy", launch_dir);
@@ -488,7 +488,7 @@ bool ProjectGenerator::generateConfigPackage(const inja::json& tpl_data)
     return false;
   }
 
-  // その他
+  // Other files.
   if (!createEmptyFile(pkg_path / kDoNotEditThisPackage)) {
     return false;
   }
@@ -536,14 +536,14 @@ bool ProjectGenerator::generateUserMsgPackage(const inja::json& tpl_data)
 {
   const auto pkg_path = proj_paths_.userMsgPkgPath();
 
-  // パッケージを作成
+  // Create the package.
   fs::create_directory(pkg_path);
 
-  // テンプレートから作成
+  // Create from templates.
   user_msg_env_->generate(tpl_data, "CMakeLists.txt.tplcmake", pkg_path, false);
   user_msg_env_->generate(tpl_data, "package.xml.tplxml", pkg_path, false);
 
-  // その他
+  // Other files.
   if (!createEmptyFile(pkg_path / kYouCanEditThisPackage)) {
     return false;
   }
@@ -555,16 +555,16 @@ bool ProjectGenerator::generateUserCppPackage(const inja::json& tpl_data)
 {
   const auto pkg_path = proj_paths_.userCppPkgPath();
 
-  // パッケージを作成
+  // Create the package.
   fs::create_directory(pkg_path);
 
-  // ディレクトリを作成
+  // Create directories.
   const auto launch_dir = pkg_path / "launch";
   const auto nodes_dir = pkg_path / "nodes";
   fs::create_directory(launch_dir);
   fs::create_directory(nodes_dir);
 
-  // テンプレートから作成
+  // Create from templates.
   user_cpp_env_->generate(tpl_data, "CMakeLists.txt.tplcmake", pkg_path, false);
   user_cpp_env_->generate(tpl_data, "package.xml.tplxml", pkg_path, false);
   user_cpp_env_->generate(tpl_data, "common_realtime.launch.py.tplpy", launch_dir, false);
@@ -574,7 +574,7 @@ bool ProjectGenerator::generateUserCppPackage(const inja::json& tpl_data)
   user_cpp_env_->generate(tpl_data, "gazebo.launch.py.tplpy", launch_dir, false);
   user_cpp_env_->generate(tpl_data, "user_node.cpp.tplcpp", nodes_dir, false);
 
-  // その他
+  // Other files.
   if (!createEmptyFile(pkg_path / kYouCanEditThisPackage)) {
     return false;
   }
@@ -587,20 +587,20 @@ bool ProjectGenerator::generateUserPyPackage(const inja::json& tpl_data)
   const auto pkg_path = proj_paths_.userPyPkgPath();
   const auto pkg_name = proj_paths_.userPyPkgName();
 
-  // パッケージを作成
+  // Create the package.
   fs::create_directory(pkg_path);
 
-  // 空のresourceファイルを作成
+  // Create an empty resource file.
   const auto resource_file = pkg_path / "resource" / pkg_name;
   TOBAS_CHECK(path::createFilePath(resource_file, true));
 
-  // ディレクトリを作成
+  // Create directories.
   const auto launch_dir = pkg_path / "launch";
   const auto lib_dir = pkg_path / pkg_name;
   fs::create_directory(launch_dir);
   fs::create_directory(lib_dir);
 
-  // テンプレートから作成
+  // Create from templates.
   user_py_env_->generate(tpl_data, "package.xml.tplxml", pkg_path, false);
   user_py_env_->generate(tpl_data, "setup.cfg.tplini", pkg_path, false);
   user_py_env_->generate(tpl_data, "setup.py.tplpy", pkg_path, false);
@@ -609,7 +609,7 @@ bool ProjectGenerator::generateUserPyPackage(const inja::json& tpl_data)
   user_py_env_->generate(tpl_data, "gazebo.launch.py.tplpy", launch_dir, false);
   user_py_env_->generate(tpl_data, "user_node.py.tplpy", lib_dir, false);
 
-  // その他
+  // Other files.
   if (!createEmptyFile(pkg_path / kYouCanEditThisPackage)) {
     return false;
   }
@@ -622,11 +622,11 @@ bool ProjectGenerator::generateUserPyPackage(const inja::json& tpl_data)
 
 bool ProjectGenerator::generateBackupFiles()
 {
-  // ディレクトリを作成
+  // Create directories.
   const auto backup_dir = proj_paths_.projBackupDirPath();
   fs::create_directory(backup_dir);
 
-  // 設定ファイル
+  // Configuration files.
   const auto backup_data = settings_->dump();
   if (!saveYamlNode(proj_paths_.backupSettingsPath(), backup_data)) {
     return false;
@@ -963,12 +963,12 @@ bool ProjectGenerator::resolveModifiedUrdfMeshFilePaths(tinyxml2::XMLElement* el
       return false;
     }
 
-    // 必要に応じてメッシュファイルをTobasパッケージ以下にコピー
+    // Copy mesh files under the Tobas package as needed.
     const auto mesh_dir = proj_paths_.cfgMeshDirPath();
     const auto base_name = src_path.filename();
     const auto dst_path = mesh_dir / base_name;
     if (fs::exists(dst_path)) {
-      // dst_pathが存在するがsrc_pathと内容が異なる場合は，fs::copy_fileでは上書きされないため一度削除した上でコピーする．
+      // If `dst_path` exists but differs from `src_path`, delete it before copying because `fs::copy_file` does not overwrite it.
       if (!fs::equivalent(src_path, dst_path)) {
         if (!fs::remove(dst_path)) {
           qt::qErrorBox(parent_, "Failed to remove " + QString::fromStdString(dst_path) + ".");
@@ -984,7 +984,7 @@ bool ProjectGenerator::resolveModifiedUrdfMeshFilePaths(tinyxml2::XMLElement* el
       }
     }
     else {
-      // dst_pathが存在しない場合は，ただコピーすればよい．
+      // If `dst_path` does not exist, simply copy it.
       if (!fs::copy_file(src_path, dst_path)) {
         qt::qErrorBox(
           parent_,
@@ -993,15 +993,16 @@ bool ProjectGenerator::resolveModifiedUrdfMeshFilePaths(tinyxml2::XMLElement* el
       }
     }
 
-    // メッシュファイルへのパスを置換
-    // package://<pkg_name>の書式だとIgnitionが発見できないため，絶対パスに置換できるようxacroコマンドを埋め込む．
+    // Replace mesh file paths.
+    // Ignition cannot find paths in the `package://<pkg_name>` format,
+    // so embed a xacro command to replace them with absolute paths.
     // cf. https://github.com/moveit/moveit_resources/blob/ros2/panda_description/urdf/panda.urdf.xacro
     const auto cfg_pkg_name = proj_paths_.cfgPkgName();
     const auto new_filename = "file://$(find " + cfg_pkg_name + ")/meshes/" + base_name.string();
     elem->SetAttribute("filename", new_filename.c_str());
   }
 
-  // 再帰的に子要素もチェック
+  // Check child elements recursively.
   for (auto child = elem->FirstChildElement(); child; child = child->NextSiblingElement()) {
     if (!resolveModifiedUrdfMeshFilePaths(child)) {
       return false;
@@ -1024,12 +1025,12 @@ bool ProjectGenerator::replaceOriginalUadfMeshFilePaths(tinyxml2::XMLElement* el
     const auto base_name = src_path.filename().string();
     const auto cfg_pkg_name = proj_paths_.cfgPkgName();
 
-    // config_pkgからの相対パスで指定
+    // Specify as a relative path from `config_pkg`.
     const auto new_filename = "package://" + cfg_pkg_name + "/meshes/" + base_name;
     elem->SetAttribute("filename", new_filename.c_str());
   }
 
-  // 再帰的に子要素もチェック
+  // Check child elements recursively.
   for (auto child = elem->FirstChildElement(); child; child = child->NextSiblingElement()) {
     if (!replaceOriginalUadfMeshFilePaths(child)) {
       return false;
@@ -1131,8 +1132,8 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
     root_name,
     fmu->gnssUpdateRate(),
     Eigen::Vector3d::Zero(),  // TODO
-    0.1,  // GNSS衛星からの電波が地上に到達するまでの時間は概ね決まっている
-    30.,  // TODO: GNSS位置の相関時定数は実際どれくらいだろうか
+    0.1,                      // The time for radio waves from GNSS satellites to reach the ground is roughly fixed.
+    30.,                      // TODO: What is the actual GNSS position correlation time constant?
     fmu->gnssHorizontalPositionAccuracy(),
     fmu->gnssVerticalPositionAccuracy(),
     fmu->gnssHorizontalVelocityStddev(),
@@ -1146,7 +1147,7 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
       const auto units = eprop->units;
 
       // Battery plugin
-      constexpr double kBatterySamplingRate = 100.;  // TODO: サンプリングレートをGUIで設定
+      constexpr double kBatterySamplingRate = 100.;  // TODO: Set the sampling rate in the GUI.
       xml::addBatteryPlugin(
         robot,
         ns,
@@ -1239,7 +1240,8 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
   for (const auto& [jnt_name, _] : drone.joints) {
     joint_names.push_back(jnt_name);
   }
-  xml::addJointStateBroadcasterPlugin(robot, ns, joint_names, 100);  // TODO: GUIで更新レートを調整できるように
+  xml::addJointStateBroadcasterPlugin(
+    robot, ns, joint_names, 100);  // TODO: Allow the update rate to be adjusted in the GUI.
 
   // Joint controller plugins
   for (const auto& [_, joint] : drone.joints) {
@@ -1258,8 +1260,9 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
           break;
         }
 
-        // 最大速度で60deg回転にかかる時間を時定数とする．つまり誤差60degで最大速度が出る．
-        // TODO: サーボモータの仕様 (無付加回転数など) をより正確に再現
+        // Use the time required to rotate 60 deg at maximum speed as the time constant. In other words, maximum speed
+        // is reached at 60 deg error.
+        // TODO: Reproduce servo motor specifications such as no-load speed more accurately.
         const auto time_const = M_PI_3 / max_vel;
         xml::addJointPositionControllerPlugin(robot, ns, joint.name, joint.home_pos, time_const);
         break;

@@ -21,7 +21,7 @@ ProgressDialog::ProgressDialog(const QString& title, int num_steps, QWidget* par
 {
   assert(num_steps > 0);
 
-  setWindowModality(Qt::WindowModal);  // ユーザーが他のUI要素と対話できないようにする
+  setWindowModality(Qt::WindowModal);  // Prevent the user from interacting with other UI elements
   setWindowTitle(title);
   setStep(step_);
 
@@ -63,11 +63,11 @@ void ProgressDialog::onTimerTimeout()
     return;
   }
 
-  // スピナーの文字を決定
+  // Determine spinner text.
   spinner_step_ = (spinner_step_ + 1) % kSpinnerFrameSize;
   const auto spinner = kSpinnerFrames[spinner_step_];
 
-  // スピナー部分だけ等幅で表示
+  // Display only the spinner part in monospace.
   super::setLabelText(
     QString(R"(<div style="text-align:center;">%1 <span style="font-family:monospace;">%2</span></div>)")
       .arg(text_)

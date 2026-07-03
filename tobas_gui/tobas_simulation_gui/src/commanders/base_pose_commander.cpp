@@ -240,18 +240,18 @@ void BasePoseCommanderWidget::onArmRequested()
     return;
   }
 
-  // アーム
+  // Arm.
   if (!arming_->data) {
     if (!armRotors(true)) {
       return;
     }
   }
 
-  // 現在の位置姿勢を取得
+  // Get the current pose.
   const auto& cur_pos = odom_->odom.odom.frame.p;
   const kdl::Euler cur_rpy(odom_->odom.odom.frame.M);
 
-  // 初期コマンドを現在の位置姿勢に設定
+  // Set the initial command to the current pose.
   cmd_xyz_[0]->setValue(cur_pos.x());
   cmd_xyz_[1]->setValue(cur_pos.y());
   cmd_xyz_[2]->setValue(cur_pos.z());
@@ -259,7 +259,7 @@ void BasePoseCommanderWidget::onArmRequested()
   cmd_rpy_[1]->setValue(st::rad2deg(cur_rpy.pitch));
   cmd_rpy_[2]->setValue(st::rad2deg(cur_rpy.yaw));
 
-  // 有効化
+  // Enable command controls.
   home_button_->setEnabled(true);
   for (const auto& cmd : cmd_xyz_) {
     cmd->setEnabled(true);
@@ -306,7 +306,7 @@ void BasePoseCommanderWidget::onHomeButtonClicked()
 
 void BasePoseCommanderWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
 {
-  // 外部からディスアームされたら強制終了
+  // Force stop if the vehicle is disarmed externally.
   if (isRunning() && !arming->data) {
     reset();
   }
@@ -321,7 +321,7 @@ void BasePoseCommanderWidget::odomCb(const tobas_msgs::OdometryWithCovarianceSta
 
 void BasePoseCommanderWidget::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
 {
-  // 手動操縦が有効になったら強制終了
+  // Force stop if manual control is enabled.
   if (isRunning() && rcin->ok && rcin->enable) {
     reset();
   }

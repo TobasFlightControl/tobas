@@ -22,8 +22,8 @@ class NetworkChecker : public QObject
   using self = NetworkChecker;
   using super = QObject;
 
-  static constexpr int kFirstTimeout = 5000;        // 通信切断後の最初のタイムアウト [ms]
-  static constexpr int kSubsequentTimeout = 30000;  // 1度警告後の2度目以降のタイムアウト [ms]
+  static constexpr int kFirstTimeout = 5000;        // First timeout after communication is lost [ms].
+  static constexpr int kSubsequentTimeout = 30000;  // Second and later timeouts after the first warning [ms].
 
 public:
   explicit NetworkChecker(QWidget* parent, const RosQtBridge& bridge);

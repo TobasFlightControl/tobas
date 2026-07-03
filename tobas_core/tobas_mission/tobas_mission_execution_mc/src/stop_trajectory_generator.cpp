@@ -21,16 +21,16 @@ StopTrajectory::StopTrajectory(double p0, double v0, double a0, double am, doubl
   assert(am_ > 0.);
   assert(jm_ > 0.);
 
-  // 既に停止している場合は例外
+  // Special case when already stopped.
   if (v0_ < EPS) {
     t1_ = t2_ = t3_ = 0.;
     return;
   }
 
-  // 時刻の大小関係の制約を満たすようにジャークと加速度の最大値を調整
-  // 初期状態は変えられないため制約を緩めざるを得ない
+  // Adjust the maximum jerk and acceleration to satisfy time-ordering constraints.
+  // The initial state cannot be changed, so the constraints must be relaxed.
   jm_ = std::max(jm_, math::sqr(a0_) / (2 * v0_));
-  am_ = std::clamp(am_, -a0_, std::sqrt(math::sqr(a0_) / 2 + v0_ * jm_));  // lb>ubの場合はubになる
+  am_ = std::clamp(am_, -a0_, std::sqrt(math::sqr(a0_) / 2 + v0_ * jm_));
 
   t1_ = (a0_ + am_) / jm_;
   t2_ = math::sqr(a0_) / (2 * am_ * jm_) + v0_ / am_ + a0_ / jm_;

@@ -7,7 +7,7 @@ namespace tobas
 {
 namespace dsp
 {
-/* 双一次変換のプリワーピング． */
+/* Prewarping for bilinear transformation. */
 double prewarp(double wc, double dt);
 
 /* Convert the filter time constant [s] to the cutoff frequency [Hz]. */

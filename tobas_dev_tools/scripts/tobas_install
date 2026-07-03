@@ -13,7 +13,7 @@ COLCON_WS=~/colcon_ws
 RELEASE_DIR=${COLCON_WS}/release
 INSTALL_BASE=${RELEASE_DIR}/install
 
-sudo rm -rf /opt/tobas # 一旦削除しないとsourceが反映されないことがあった
+sudo rm -rf /opt/tobas # Remove it first because source changes were sometimes not picked up otherwise.
 sudo cp -r ${INSTALL_BASE} /opt/tobas
 if [ $? -ne 0 ]; then
   echo "Failed to copy ${INSTALL_BASE} to /opt/tobas." >&2

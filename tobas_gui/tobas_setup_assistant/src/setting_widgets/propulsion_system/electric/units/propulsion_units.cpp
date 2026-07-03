@@ -29,10 +29,10 @@ void PropulsionUnitsWidget::updateInternalDataStructures()
   removeAllTabs();
 
   for (const auto& [joint_name, _] : uadf_.thrusts) {
-    // プロペラリンク名を取得
+    // Get propeller link names.
     const auto link_name = QString::fromStdString(uadf_.urdf->getJoint(joint_name)->child_link_name);
 
-    // タブを追加
+    // Add the tab.
     const auto link_widget = new PropulsionUnitWidget(node_);
     addTab(link_widget, link_name);
 

@@ -9,7 +9,7 @@ namespace tobas
 {
 namespace planar_multicopter
 {
-/* 並進の運動方程式を用いて，加速度から推力と姿勢角を求める． */
+/* Compute thrust and attitude angles from acceleration using the translational equations of motion. */
 class TranslationalEoM
 {
 public:

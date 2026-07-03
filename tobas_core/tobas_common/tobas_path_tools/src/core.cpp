@@ -20,7 +20,7 @@ bool isReadable(const fs::path& file_path)
 
 bool isWritable(const fs::path& file_path)
 {
-  const std::ofstream ofs(file_path, std::ios::app);  // 既存ファイルを破壊しないようにappendモードで開く
+  const std::ofstream ofs(file_path, std::ios::app);  // Open in append mode to avoid destroying existing files.
   return ofs.good();
 }
 
@@ -45,7 +45,7 @@ std::expected<void, std::string> createDirectories(const fs::path& dir_path, boo
 
 std::expected<void, std::string> createFilePath(const fs::path& file_path, bool exist_ok)
 {
-  // ファイルの存在を確認
+  // Check whether the file exists.
   if (fs::is_regular_file(file_path)) {
     if (exist_ok) {
       return {};
@@ -55,16 +55,16 @@ std::expected<void, std::string> createFilePath(const fs::path& file_path, bool 
     }
   }
 
-  // ファイルのパスからディレクトリ部分のみを取得
+  // Get only the directory part from the file path.
   const auto dir_path = fs::path(file_path).parent_path();
 
-  // ファイルの親ディレクトリまでのパスを作成
+  // Create the path up to the parent directory of the file.
   const auto create_dir_res = createDirectories(dir_path, true);
   if (!create_dir_res) {
     return std::unexpected(create_dir_res.error());
   }
 
-  // 空のファイルを作成
+  // Create an empty file.
   const std::ofstream file(file_path);
   if (!file) {
     return std::unexpected("Failed to create \"" + file_path.string() + "\".");
@@ -82,7 +82,7 @@ size_t computeDirectorySize(const fs::path& dir_path)
 
   size_t total_size = 0;
 
-  // ディレクトリの内容を再帰的に走査
+  // Recursively scan the directory contents.
   for (const auto& entry : fs::recursive_directory_iterator(dir_path)) {
     if (fs::is_regular_file(entry.status())) {
       total_size += fs::file_size(entry.path());

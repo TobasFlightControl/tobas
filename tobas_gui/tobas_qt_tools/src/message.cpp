@@ -28,7 +28,7 @@ bool yesOrNo(QWidget* parent, const QString& text, QMessageLevel level)
 {
   QMessageBox msg_box(parent);
 
-  // メッセージレベルを設定
+  // Set the message level.
   switch (level) {
     case QMessageLevel::INFO:
       msg_box.setIcon(QMessageBox::Icon::Information);
@@ -46,18 +46,19 @@ bool yesOrNo(QWidget* parent, const QString& text, QMessageLevel level)
       throw;
   }
 
-  // テキストの設定
+  // Set text.
   msg_box.setText(text);
 
-  // テキストの設定
+  // Set text.
   msg_box.setText(text);
 
-  // ボタンの設定
-  // 配置は自動で決まる．明確な規則は無いが，全体でルールを統一することが大事: https://nanika.design/blog/1162/
+  // Set buttons.
+  // Layout is determined automatically. There is no clear rule, but consistent rules across the app are important:
+  // https://nanika.design/blog/1162/
   msg_box.setStandardButtons(QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No);
   msg_box.setDefaultButton(QMessageBox::StandardButton::No);
 
-  // ユーザの返事を取得し，Yesの場合にTrueを返す
+  // Get the user response and return true for Yes.
   return msg_box.exec() == QMessageBox::StandardButton::Yes;
 }
 }  // namespace qt

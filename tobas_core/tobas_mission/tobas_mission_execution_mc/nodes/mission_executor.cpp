@@ -47,7 +47,7 @@ namespace
 {
 using CatmullRomPath = traj::CatmullRomPath<Eigen::Vector3d>;
 
-/* NaNではなく且つ正の値の場合にTrueを返す． */
+/* Return true when `value` is finite and positive. */
 inline bool isPositive(double value)
 {
   return std::isfinite(value) && value > 0.;
@@ -63,9 +63,10 @@ inline double selectConservativeLimit(double current, double candidate)
 
 struct PathComponentScale
 {
-  // パス弧長sに対する水平・鉛直方向の最大成分係数．
-  // 例: horizontal=1, vertical=0なら水平だけのパス，horizontal=0, vertical=1なら鉛直だけのパス．
-  // horizontalとverticalは別々のノルムなので，合計が1になるとは限らない．
+  // Maximum horizontal and vertical component coefficients for path arc length `s`.
+  // For example, `horizontal = 1` and `vertical = 0` is a horizontal-only path.
+  // `horizontal = 0` and `vertical = 1` is a vertical-only path.
+  // `horizontal` and `vertical` are separate norms, so their sum is not necessarily 1.
   double horizontal = 0.;
   double vertical = 0.;
 };
@@ -76,7 +77,8 @@ size_t selectPathConstraintSampleCount(const CatmullRomPath& path)
   constexpr size_t kPathConstraintSamplesPerSegment = 20;
   constexpr size_t kMaxPathConstraintSamples = 5000;
 
-  // 長いパスでは距離に応じて，短く曲がりの多いパスではセグメント数に応じてサンプル数を増やす．
+  // Increase the sample count by distance for long paths.
+  // For short paths with many turns, increase it by segment count.
   const auto length_based_samples = static_cast<size_t>(std::ceil(path.length() / kPathConstraintSampleInterval));
   const auto segment_based_samples = path.segmentCount() * kPathConstraintSamplesPerSegment;
   return std::clamp(std::max(length_based_samples, segment_based_samples), 1UL, kMaxPathConstraintSamples);
@@ -88,7 +90,8 @@ PathComponentScale getMaxPathComponentScale(const CatmullRomPath& path)
   const auto path_length = path.length();
   const auto sample_count = selectPathConstraintSampleCount(path);
 
-  // Catmull-Rom曲線では接線方向が区間内で変わるため，パス全体をサンプリングして最も厳しい成分係数を使う．
+  // In a Catmull-Rom curve, the tangent direction changes within each interval.
+  // Sample the whole path and use the strictest component coefficients.
   for (size_t sample = 0; sample <= sample_count; ++sample) {
     const auto s = path_length * static_cast<double>(sample) / static_cast<double>(sample_count);
     const auto tangent = path.get(s).tangent;
@@ -100,8 +103,9 @@ PathComponentScale getMaxPathComponentScale(const CatmullRomPath& path)
 
 double selectPathConstraintLimit(double horizontal_limit, double vertical_limit, const PathComponentScale& scale)
 {
-  // 軸別制約を，パス弧長s方向のスカラー制約へ換算する．
-  // v_xy = horizontal_scale * s_dot, v_z = vertical_scale * s_dot なので，各軸の上限を成分係数で割る．
+  // Convert per-axis constraints into scalar constraints along path arc length `s`.
+  // Since `v_xy = horizontal_scale * s_dot` and `v_z = vertical_scale * s_dot`,
+  // divide each axis limit by the corresponding component coefficient.
   auto path_limit = std::numeric_limits<double>::infinity();
   if (scale.horizontal > 0.) {
     path_limit = std::min(path_limit, horizontal_limit / scale.horizontal);
@@ -205,21 +209,23 @@ private:
 
   void getStaticRosParams();
 
-  /* 設定値が存在すれば設定値，存在しなければ現在値でコマンドを初期化する． */
+  /* Initialize the command from the setpoint if it exists, otherwise from the current state. */
   void initializeCommand();
 
-  /* コマンドを発行する． */
+  /* Publish the command. */
   void publishCommand(const rclcpp::Time& stamp);
 
-  /* 同期通信でアーム・ディスアームを行う． */
+  /* Arm or disarm rotors synchronously. */
   bool armRotors(bool arming);
 
-  /* 現在のコマンドから滑らかに停止させる． */
+  /* Smoothly stop from the current command. */
   void brake();
 
   /**
-   * @brief 外部からの要求（キャンセル，上書きなど）に応じて適切に終了処理を行う．
-   * @return bool ミッション継続可能かどうか
+   * @brief Handle shutdown appropriately in response to external requests.
+   * This includes cancellation, supersession, and similar requests.
+   *
+   * @return bool Whether the mission can continue.
    */
   bool handleExternalRequest(const GoalHandlePtr& gh, const ResultPtr& res);
 
@@ -286,8 +292,8 @@ void MulticopterMissionExecutorNode::initializeCommand()
 {
   const auto& odom = odom_->odom.odom;
 
-  // 設定値もしくは現在値から初期コマンドを決定
-  // 加速度の推定値は振動成分がほとんどである可能性があるため使用しない
+  // Determine the initial command from the setpoint or current state.
+  // Do not use the acceleration estimate because it may mostly contain vibration components.
   if (setpoint_) {
     const auto& sp = setpoint_->odom;
     if (sp.frame.p.isFinite()) {
@@ -325,7 +331,7 @@ void MulticopterMissionExecutorNode::initializeCommand()
 
 void MulticopterMissionExecutorNode::publishCommand(const rclcpp::Time& stamp)
 {
-  // ミッション優先度に応じてコマンド優先度を設定
+  // Set the command priority according to the mission priority.
   uint8_t cmd_priority;
   switch (mission_priority_) {
     case tobas_mission_msgs::msg::Priority::NORMAL:
@@ -403,7 +409,7 @@ bool MulticopterMissionExecutorNode::armRotors(bool arming)
 
 void MulticopterMissionExecutorNode::brake()
 {
-  // 軌道を生成
+  // Generate trajectories.
   const Eigen::Vector2d pxy0(command_.pos.x(), command_.pos.y());
   const Eigen::Vector2d vxy0(command_.vel.x(), command_.vel.y());
   const Eigen::Vector2d axy0(command_.acc.x(), command_.acc.y());
@@ -421,27 +427,27 @@ void MulticopterMissionExecutorNode::brake()
   const auto dir_z = math::sign(vz0);
   const StopTrajectory traj_z(0., vz0_norm, az0_norm * math::sign(vz0 * az0), wp_cfg_.max_ver_acc, wp_cfg_.max_ver_jerk);
 
-  // 所要時間を取得
+  // Get the duration.
   const auto duration = std::max(traj_xy.duration(), traj_z.duration());
   if (duration < kMinBrakeDuration) {
-    return;  // 既にほぼ停止している場合はコマンドを発行せず終了
+    return;  // Exit without publishing commands when already almost stopped.
   }
   TOBAS_INFO("The vehicle will stop in ", duration, " seconds.");
 
-  // 軌道を発行
+  // Publish trajectory commands.
   const auto start_time = now();
   rclcpp::Rate rate(kCommandRate, get_clock());
   while (rclcpp::ok()) {
-    // 開始からの経過時間を計算
+    // Calculate the elapsed time from the start.
     const auto cur_time = now();
     const auto t = (cur_time - start_time).seconds();
 
-    // コマンドを発行し終えたら終了
+    // Exit after all commands have been published.
     if (t > duration) {
       return;
     }
 
-    // 現在の時刻における目標状態を取得
+    // Get the target state at the current time.
     const auto traj_point_xy = traj_xy.get(t);
     const Eigen::Vector2d pxy = pxy0 + traj_point_xy.p * dir_xy;
     const Eigen::Vector2d vxy = traj_point_xy.v * dir_xy;
@@ -454,7 +460,7 @@ void MulticopterMissionExecutorNode::brake()
     command_.vel.set(vxy.x(), vxy.y(), vz);
     command_.acc.set(axy.x(), axy.y(), az);
 
-    // コマンドを発行
+    // Publish the command.
     publishCommand(cur_time);
 
     rate.sleep();
@@ -463,7 +469,7 @@ void MulticopterMissionExecutorNode::brake()
 
 bool MulticopterMissionExecutorNode::handleExternalRequest(const GoalHandlePtr& gh, const ResultPtr& res)
 {
-  // アクション中止の場合は滑らかに停止して終了
+  // Smoothly stop before exiting when the action is canceled.
   if (gh->is_canceling()) {
     brake();
     gh->canceled(res);
@@ -567,7 +573,8 @@ bool MulticopterMissionExecutorNode::executeWaypoints(
     max_head_rate = selectConservativeLimit(max_head_rate, goal.max_heading_rate);
   }
 
-  // 3Dパスは1本のスカラー軌道s(t)で進めるため，xy/z制約をs方向の上限へ変換してから最小値を使う．
+  // A 3D path advances along one scalar trajectory `s(t)`.
+  // Convert xy/z constraints to limits along `s`, then use the minimum.
   const auto path_component_scale = getMaxPathComponentScale(path);
   const auto max_path_vel = selectPathConstraintLimit(max_hor_vel, max_ver_vel, path_component_scale);
   const auto max_path_acc = selectPathConstraintLimit(max_hor_acc, max_ver_acc, path_component_scale);
@@ -620,7 +627,8 @@ bool MulticopterMissionExecutorNode::executeWaypoints(
       }
     }
 
-    // traj_point.p/v/aはパス弧長s方向の状態．CatmullRomPathで3D位置・接線・曲率へ写像する．
+    // `traj_point.p`, `traj_point.v`, and `traj_point.a` are states along path arc length `s`.
+    // Map them to 3D position, tangent, and curvature with `CatmullRomPath`.
     const auto traj_point = traj_path.get(t);
     const auto path_point = path.get(traj_point.p);
     command_.pos.data = path_point.pos;
@@ -665,11 +673,11 @@ bool MulticopterMissionExecutorNode::executeTakeoff(const Takeoff& goal, const G
     return false;
   }
 
-  // 目標状態の初期値を取得
+  // Get the initial target state.
   const auto start_pos = command_.pos.clone();
   const auto start_yaw = command_.rot.yaw;
 
-  // 目標高度を決定
+  // Determine the target altitude.
   double tar_z;  // wrt. the odometry frame
   switch (goal.altitude_frame) {
     case kRelativeToLaunch:
@@ -685,32 +693,32 @@ bool MulticopterMissionExecutorNode::executeTakeoff(const Takeoff& goal, const G
       return false;
   }
 
-  // 制約を決定
+  // Determine constraints.
   const auto max_speed = isPositive(goal.max_speed) ? goal.max_speed : takeoff_cfg_.max_speed;
   const auto max_accel = isPositive(goal.max_accel) ? goal.max_accel : takeoff_cfg_.max_accel;
   const auto max_jerk = isPositive(goal.max_jerk) ? goal.max_jerk : takeoff_cfg_.max_jerk;
 
-  // 軌道を生成
+  // Generate the trajectory.
   const traj::JerkLimitedTrajectory traj_z(start_pos.z(), tar_z, max_jerk, max_accel, max_speed);
 
-  // 所要時間を取得
+  // Get the duration.
   const auto duration = traj_z.duration();
   TOBAS_INFO("Takeoff will take ", duration, " seconds.");
 
-  // 軌道を発行
+  // Publish trajectory commands.
   const auto start_time = now();
   rclcpp::Rate rate(kCommandRate, get_clock());
   while (rclcpp::ok()) {
-    // ミッション継続可能かどうかを確認
+    // Check whether the mission can continue.
     if (!handleExternalRequest(gh, res)) {
       return false;
     }
 
-    // 開始からの経過時間を計算
+    // Calculate the elapsed time from the start.
     const auto cur_time = now();
     const auto t = (cur_time - start_time).seconds();
 
-    // タイムアウトの確認
+    // Check for timeout.
     if (goal.timeout > 0. && t > duration + goal.timeout) {
       res->error_code.data = tobas_mission_msgs::msg::ErrorCode::ACCEPTANCE_TIMEOUT;
       res->error_message = "Timed out before reaching the takeoff altitude tolerance.";
@@ -718,7 +726,7 @@ bool MulticopterMissionExecutorNode::executeTakeoff(const Takeoff& goal, const G
       return false;
     }
 
-    // コマンドを発行し終え，且つ許容範囲内に入っていたらアクション成功
+    // Succeed after all commands have been published and the vehicle is within tolerance.
     const auto& cur_pos = odom_->odom.odom.frame.p;
     const auto alt_err_abs = std::abs(tar_z - cur_pos.z());
     if (t > duration) {
@@ -727,14 +735,14 @@ bool MulticopterMissionExecutorNode::executeTakeoff(const Takeoff& goal, const G
       }
     }
 
-    // コマンドを作成
+    // Create the command.
     const auto traj_point_z = traj_z.get(t);
     command_.pos.set(start_pos.x(), start_pos.y(), traj_point_z.p);
     command_.vel.set(0., 0., traj_point_z.v);
     command_.acc.set(0., 0., traj_point_z.a);
     command_.rot.set(0., 0., start_yaw);
 
-    // コマンドを発行
+    // Publish the command.
     publishCommand(cur_time);
 
     rate.sleep();
@@ -753,36 +761,36 @@ bool MulticopterMissionExecutorNode::executeLand(const Land& goal, const GoalHan
     return false;
   }
 
-  // 開始前に一時停止
+  // Pause before starting.
   brake();
 
-  // 目標状態の初期値を取得
+  // Get the initial target state.
   const auto start_pos = command_.pos.clone();
   const auto start_rot = command_.rot.clone();
 
-  // 下降速度を決定
+  // Determine the descent speed.
   const auto speed = isPositive(goal.speed) ? goal.speed : land_cfg_.speed;
 
-  // 姿勢の起動を生成
+  // Generate attitude trajectories.
   const auto roll_duration = std::abs(start_rot.roll) / kAttitudeRate;
   const auto pitch_duration = std::abs(start_rot.pitch) / kAttitudeRate;
   const traj::LinearSpline traj_roll(start_rot.roll, 0., roll_duration);
   const traj::LinearSpline traj_pitch(start_rot.pitch, 0., pitch_duration);
 
-  // 着陸判定に使うオブジェクトを作成
+  // Create objects used for landing detection.
   const auto stop_speed_thresh = std::min<double>(speed / 2, 0.2);
   auto t_last_high_speed = odom_->header.stamp;
 
-  // 姿勢を戻しながら下降
+  // Descend while restoring attitude.
   const auto start_time = now();
   rclcpp::Rate rate(kCommandRate, get_clock());
   while (rclcpp::ok()) {
-    // ミッション継続可能かどうかを確認
+    // Check whether the mission can continue.
     if (!handleExternalRequest(gh, res)) {
       return false;
     }
 
-    // 現在時刻における目標位置姿勢を計算
+    // Calculate the target pose at the current time.
     const auto cur_time = now();
     const auto t = (cur_time - start_time).seconds();
     const auto tar_z = start_pos.z() - speed * t;
@@ -791,29 +799,29 @@ bool MulticopterMissionExecutorNode::executeLand(const Land& goal, const GoalHan
     command_.acc.setZero();
     command_.rot.set(traj_roll.get(t).p, traj_pitch.get(t).p, start_rot.yaw);
 
-    // コマンドを発行
+    // Publish the command.
     publishCommand(cur_time);
 
-    // 最新のIMU時刻を取得
+    // Get the latest IMU timestamp.
     const auto imu_time = odom_->header.stamp;  // Copy
 
-    // 鉛直方向の速度を計算
+    // Calculate the vertical velocity.
     const auto cur_vel_W = odom_->odom.odom.frame.M * odom_->odom.odom.twist.vel;
     const auto& cur_vz = cur_vel_W.z();
 
-    // 最後に高い速度を検知した時刻からの経過時間を計算
+    // Calculate the elapsed time since the last high-speed detection.
     if (std::abs(cur_vz) > stop_speed_thresh) {
       t_last_high_speed = imu_time;
     }
     const auto time_from_last_high_speed = imu_time - t_last_high_speed;
 
-    // 高度誤差を計算
+    // Calculate the altitude error.
     const auto z_error = tar_z - odom_->odom.odom.frame.p.z();
 
-    // 以下の条件のうちいずれか1つが満たされたらモータを停止して終了
-    // 1. 自重に近い地面反力を検知（共通の着陸検知アルゴリズム）
-    // 2. 鉛直方向の速度の絶対値が小さい状態が一定時間持続: https://ardupilot.org/copter/docs/land-mode.html
-    // 3. 目標高度と推定高度の差が非常に大きい（どうしても他の条件が満たされない場合の最後の手段）
+    // Stop the motors and exit when any of the following conditions is met.
+    // 1. Ground reaction force close to the vehicle weight is detected by the common landing detection algorithm.
+    // 2. The absolute vertical velocity remains small for a while: https://ardupilot.org/copter/docs/land-mode.html
+    // 3. The target altitude differs greatly from the estimated altitude as a last resort.
     if (landed_->landed || time_from_last_high_speed > 1s || z_error < -10.) {
       TOBAS_INFO("Landing detected. Stopping motors.");
       if (!armRotors(false)) {
@@ -842,10 +850,10 @@ bool MulticopterMissionExecutorNode::executeRTL(const ReturnToLaunch& goal, cons
     return false;
   }
 
-  // 開始前に一時停止
+  // Pause before starting.
   brake();
 
-  // ウェイポイントのゴールを作成
+  // Create a waypoint goal.
   Waypoint wp;
   wp.altitude_frame = AltitudeFrame::kRelativeToLaunch;
   wp.max_horizontal_velocity = goal.max_horizontal_velocity;
@@ -860,15 +868,15 @@ bool MulticopterMissionExecutorNode::executeRTL(const ReturnToLaunch& goal, cons
   wp.altitude_tolerance = goal.altitude_tolerance;
   wp.timeout = goal.timeout;
 
-  // 目標高度を決定
+  // Determine the target altitude.
   const auto& cur_pos = odom_->odom.odom.frame.p;
   const auto cur_alt = cur_pos.z() - launch_point_->z();
   const auto xy_dist = math::norm(launch_point_->x() - cur_pos.x(), launch_point_->y() - cur_pos.y());
   const auto min_alt_goal = goal.min_altitude > 0. ? goal.min_altitude : rtl_cfg_.min_alt;
-  const auto min_alt = std::min<double>(min_alt_goal, xy_dist);  // 45度逆円錐ルール
+  const auto min_alt = std::min<double>(min_alt_goal, xy_dist);  // 45-degree inverted cone rule.
   wp.altitude = std::max(cur_alt, min_alt);
 
-  // 現在の高度がRTLの最低高度よりも低い場合はそこまで上昇
+  // Climb to the RTL minimum altitude if the current altitude is lower.
   if (cur_alt < min_alt) {
     const auto [tar_lat, tar_lon] =
       st::cartToGnssRelative(cur_pos.x(), cur_pos.y(), gnss_origin_->latitude, gnss_origin_->longitude);
@@ -880,7 +888,7 @@ bool MulticopterMissionExecutorNode::executeRTL(const ReturnToLaunch& goal, cons
     }
   }
 
-  // アームした地点まで移動
+  // Move to the arming point.
   const auto [tar_lat, tar_lon] =
     st::cartToGnssRelative(launch_point_->x(), launch_point_->y(), gnss_origin_->latitude, gnss_origin_->longitude);
   wp.latitude = tar_lat;
@@ -890,7 +898,7 @@ bool MulticopterMissionExecutorNode::executeRTL(const ReturnToLaunch& goal, cons
     return false;
   }
 
-  // 着陸
+  // Land.
   Land land;
   land.timeout = goal.timeout;
   if (!executeLand(land, gh, res)) {
@@ -917,14 +925,14 @@ void MulticopterMissionExecutorNode::armingCb(const tobas_msgs::msg::Arming::Con
     return;
   }
 
-  // アームされた座標を保存
+  // Save the arming point.
   if (!arming_->data && arming->data) {
     if (odom_) {
       launch_point_ = std::make_unique<kdl::Vector>(odom_->odom.odom.frame.p);
     }
   }
 
-  // ディスアームされたらアーム座標と設定値をリセット
+  // Reset the arming point and setpoint when disarmed.
   if (arming_->data && !arming->data) {
     launch_point_.reset();
     setpoint_.reset();
@@ -1108,10 +1116,10 @@ MulticopterMissionExecutorNode::handleGoal(const rclcpp_action::GoalUUID&, const
     }
   }
 
-  // ミッション優先度を更新
+  // Update the mission priority.
   mission_priority_ = new_priority;
 
-  // 古いミッションが実行中なら中断要求
+  // Request interruption if an old mission is running.
   if (is_executing_) {
     status_ = kMissionSuperseded;
   }

@@ -201,7 +201,7 @@ bool VideoDev::requestDeviceBuffer()
     std::cerr << "Failed to request buffer." << std::endl;
     return false;
   }
-  // 確保できた枚数の確認
+  // Check the number of allocated buffers.
   if (req.count < kBufferSize) {
     std::cerr << "Insufficient buffer memory on device." << std::endl;
     return false;
@@ -303,7 +303,7 @@ bool VideoDev::setImgFormat(const char* pixel_format, const uint32_t& width, con
     pixel_format[0],
     pixel_format[1],
     pixel_format[2],
-    pixel_format[3]);  // 本来はV4L2_PIX_FMT_MJPET, V4L2_PIX_FMT_YUYVなどと指定する
+    pixel_format[3]);  // Normally specified with values such as `V4L2_PIX_FMT_MJPEG` or `V4L2_PIX_FMT_YUYV`.
   fmt_request.fmt.pix.field = V4L2_FIELD_ANY;
   if ((width != 0) && (height != 0)) {
     fmt_request.fmt.pix.width = width;

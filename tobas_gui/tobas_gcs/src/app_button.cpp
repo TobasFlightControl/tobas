@@ -14,7 +14,7 @@ AppButton::AppButton(const QString& text, const QString& icon_path)
   setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
   setText(text);
   setIcon(QIcon(icon_path));
-  setIconSize(QSize(kButtonWidth, kIconHeight));  // レイアウトを整えるためにアイコンの横幅をなるべく大きくとる
+  setIconSize(QSize(kButtonWidth, kIconHeight));  // Make the icon as wide as possible to keep the layout aligned.
   setFixedWidth(kButtonWidth);
   setCheckable(true);
 }

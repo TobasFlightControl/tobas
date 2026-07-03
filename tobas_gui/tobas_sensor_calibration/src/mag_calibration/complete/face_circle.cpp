@@ -95,16 +95,16 @@ void FaceCircleWidget::drawCircle(QPainter& painter, const QColor& color)
   const auto center = getCenter();
   const auto radius = getRadius() - kLineWidth;
 
-  // ラインなし
+  // No line.
   painter.setPen(Qt::NoPen);
 
-  // ブラシを設定
+  // Set the brush.
   QRadialGradient gradient(center, radius);
   gradient.setColorAt(0, color.lighter());
   gradient.setColorAt(1, color);
   painter.setBrush(QBrush(gradient));
 
-  // 描画
+  // Draw.
   painter.drawEllipse(center, radius, radius);
 
   painter.restore();
@@ -117,21 +117,21 @@ void FaceCircleWidget::drawCircleLowerHalf(QPainter& painter, const QColor& colo
   const auto center = getCenter();
   const auto radius = getRadius() - kLineWidth;
 
-  // ラインなし
+  // No line.
   painter.setPen(Qt::NoPen);
 
-  // ブラシを設定
+  // Set the brush.
   QRadialGradient gradient(center, radius);
   gradient.setColorAt(0, QColor(color).lighter());
   gradient.setColorAt(1, color);
   painter.setBrush(QBrush(gradient));
 
-  // 下部のみクリップ
+  // Clip only the lower part.
   const auto top = center.y() + radius * (1 - 2 * rate);
   QRectF clip(0., top, width(), height() - top);
   painter.setClipRect(clip);
 
-  // 描画
+  // Draw.
   painter.drawEllipse(center, radius, radius);
 
   painter.restore();
@@ -144,14 +144,14 @@ void FaceCircleWidget::drawOutline(QPainter& painter)
   const auto center = getCenter();
   const auto radius = getRadius() - kLineWidth / 2;
 
-  // ペンを設定
+  // Set the pen.
   const auto color = selected_ ? kLineColorSelected : kLineColorDeselected;
   painter.setPen(QPen(color, kLineWidth, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
 
-  // 塗りつぶしなし
+  // No fill.
   painter.setBrush(Qt::NoBrush);
 
-  // 描画
+  // Draw.
   painter.drawEllipse(center, radius, radius);
 
   painter.restore();

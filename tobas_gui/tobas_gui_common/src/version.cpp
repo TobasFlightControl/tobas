@@ -64,12 +64,12 @@ QString Version::toString() const
 
 bool Version::fromString(QString str)
 {
-  // 接頭詞を削除
+  // Remove the prefix.
   if (str.startsWith('v', Qt::CaseInsensitive)) {
     str.remove(0, 1);
   }
 
-  // 3つに分割
+  // Split into three parts.
   const auto parts = str.split('.');
   if (parts.size() != 3) {
     qWarning().noquote().nospace() << "Invalid version format: " << str
@@ -77,7 +77,7 @@ bool Version::fromString(QString str)
     return false;
   }
 
-  // 数字に変換
+  // Convert to numbers.
   bool ok1 = false, ok2 = false, ok3 = false;
   major = parts[0].toInt(&ok1);
   minor = parts[1].toInt(&ok2);

@@ -32,9 +32,9 @@ void SecondOrderVelocityFilter::update(double v_des, double dt)
 {
   assert(dt >= 0);
 
-  const auto wn = std::sqrt(j_max_ / v_max_);  // 速度偏差がv_maxのときに最大ジャークが出るように設定
+  const auto wn = std::sqrt(j_max_ / v_max_);  // Set max jerk when the velocity error is `v_max`.
   const auto kp = math::sqr(wn);
-  const auto kd = 2 * wn;  // 臨海減衰: zeta = 1
+  const auto kd = 2 * wn;  // Critical damping: zeta = 1
 
   const auto j = std::clamp(kp * (v_des - v_) + kd * (0 - a_), -j_max_, j_max_);
 

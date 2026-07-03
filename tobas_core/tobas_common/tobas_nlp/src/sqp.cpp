@@ -61,12 +61,12 @@ SQP::Error SQP::solve()
   iter_ = 0;
 
   while (true) {
-    // 繰り返し回数の上限チェック
+    // Check the iteration limit.
     if (++iter_ > max_iter_) {
       return error_code_ = kMaxIterationExceeded;
     }
 
-    // ラグランジュ関数のヘッセ行列を計算
+    // Calculate the Hessian matrix of the Lagrangian.
     auto H = dFdx_(x_);
     if (m_ > 0) {
       H += lam_.transpose().eval() * dGdx_(x_);
@@ -75,7 +75,7 @@ SQP::Error SQP::solve()
       H += mu_.transpose().eval() * dHdx_(x_);
     }
 
-    // 局所的なQPを解く
+    // Solve the local QP.
     qp_.problem.P = eigen::nearestPositiveDefinite(H, EPS);
     qp_.problem.q = dfdx_(x_).transpose();
     qp_.problem.A = dgdx_(x_);
@@ -89,7 +89,7 @@ SQP::Error SQP::solve()
 
     const auto& dx = qp_.solution();
 
-    // 最適化変数を更新
+    // Update optimization variables.
     x_ += dx;
     lam_ = qp_.getLagrangeMultipliersIneq();
     mu_ = qp_.getLagrangeMultipliersEq();
@@ -102,7 +102,7 @@ SQP::Error SQP::solve()
     cout << "----------" << endl;
 #endif
 
-    // 終了判定
+    // Termination check.
     // cf. https://kotakku.github.io/cpp_robotics/tech_note/optimize/tolerances_and_stopping/
     if ((dx.cwiseAbs().array() < (rel_tol_ * qp_.x_scale).array()).all()) {
       return error_code_ = kNoError;

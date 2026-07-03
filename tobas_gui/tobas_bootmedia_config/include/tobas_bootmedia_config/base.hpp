@@ -19,13 +19,13 @@ class BaseConfigWidget : public QWidget
 public:
   explicit BaseConfigWidget();
 
-  /* ページ上部に表示されるタイトル． */
+  /* Title displayed at the top of the page. */
   virtual const char* title() const = 0;
 
-  /* 設定内容を初期化する． */
+  /* Initialize the configuration. */
   virtual void reset() = 0;
 
-  /* ブートデバイス接続時に実行されるメソッド． */
+  /* Method executed when a boot device is connected. */
   virtual bool onConnected() = 0;
 
 protected:

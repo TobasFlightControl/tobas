@@ -10,8 +10,8 @@ namespace tobas
 namespace qt
 {
 /**
- * ===== QFileSystemWatcher との違い =====
- * - 追加メソッド
+ * ===== Differences from `QFileSystemWatcher` =====
+ * - Additional methods
  */
 class FileSystemWatcher : public QFileSystemWatcher
 {
@@ -22,7 +22,7 @@ class FileSystemWatcher : public QFileSystemWatcher
 public:
   using super::QFileSystemWatcher;
 
-  /* 全ての監視パスを削除する． */
+  /* Delete all watched paths. */
   void clear();
 };
 }  // namespace qt

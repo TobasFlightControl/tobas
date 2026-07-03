@@ -30,7 +30,7 @@ bool PinvMixer::updateInternalDataStructures()
   }
 
   E_.conservativeResize(Eigen::NoChange, drone_.prop->numRotors());
-  E_.bottomRows<1>().setOnes();  // 推力和等式の左辺
+  E_.bottomRows<1>().setOnes();  // Left-hand side of the thrust-sum equality.
 
   x_.conservativeResize(drone_.prop->numRotors());
 
@@ -46,13 +46,13 @@ bool PinvMixer::solve(
 {
   assert(tar_thrusts_sum > 0);
 
-  // 順運動学を計算
+  // Compute forward kinematics.
   if (fk_solver_.jntToCart(cur_q) < 0) {
     std::cerr << "Forward kinematics failed: " << fk_solver_.errorMessage() << std::endl;
     return false;
   }
 
-  // 質量特性を計算
+  // Compute mass properties.
   if (inertia_solver_.jntToCart(cur_q) < 0) {
     std::cerr << "Inertia solver failed: " << inertia_solver_.errorMessage() << std::endl;
     return false;
@@ -61,7 +61,7 @@ bool PinvMixer::solve(
   const auto B_Pos_B2G = inertia.getCOG();
   const auto I_B = inertia.getRotationalInertiaCoG();
 
-  // EoM行列等式の左辺
+  // Left-hand side of the EoM matrix equality.
   for (const auto& [idx, pair] : std::views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = pair.second;
 
@@ -78,19 +78,19 @@ bool PinvMixer::solve(
       E_.block<3, 1>(0, idx) = (B_Pos_G2P * axis_B - (d * cm) * axis_B).data;
     }
     else {
-      // ロータが死んでいる時は推力から期待の運動への伝達をゼロにすることで最適推力がゼロになるよう仕向ける
+      // When the rotor is dead, force the optimal thrust to zero by setting the transfer from thrust to expected motion to zero.
       E_.block<3, 1>(0, idx).setZero();
     }
   }
 
-  // EoM行列等式の右辺
+  // Right-hand side of the EoM matrix equality.
   f_.head<3>() = (I_B * tar_dgyro_B + cur_gyro_B * (I_B * cur_gyro_B) - ext_torque_B).data;  // [Nm]
 
-  // 推力和等式の右辺
+  // Right-hand side of the thrust-sum equality.
   f_(3) = tar_thrusts_sum;
 
-  // Ex = f を解く
-  // TODO: Rank(E) < 4 (方程式が解けない) の場合に行ごとに優先度 (atti > thrust > yaw) をつける
+  // Solve `Ex = f`.
+  // TODO: Assign per-row priorities (`atti > thrust > yaw`) when `Rank(E) < 4` and the equation cannot be solved.
   x_ = E_.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(f_);
 
   return true;

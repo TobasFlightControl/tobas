@@ -49,9 +49,9 @@ BaseCommandWidget::BaseCommandWidget()
   form_ = new qt::FormLayout();
   field_rows->addLayout(form_);
 
-  field_rows->addStretch(1);  // フォームウィジェットを最小化
+  field_rows->addStretch(1);  // Minimize the form widget.
 
-  // 純粋仮想関数を基底クラスのコンストラクタで呼ぶことはできないため，タイマーコールバックを使用．
+  // Use a timer callback because pure virtual functions cannot be called from the base-class constructor.
   QTimer::singleShot(0, this, &self::initialize);
 }
 
@@ -62,7 +62,7 @@ void BaseCommandWidget::addField(field::BaseFieldWidget* widget, bool overridabl
   checkboxes_[widget] = checkbox;
 
   const auto stacked = new QStackedWidget();
-  stacked->setStyleSheet("QStackedWidget { border: 0px; }");  // 外枠を消す
+  stacked->setStyleSheet("QStackedWidget { border: 0px; }");  // Remove the outer border.
   stacked->addWidget(new QLabel("    Project Default"));
   stacked->addWidget(widget);
 

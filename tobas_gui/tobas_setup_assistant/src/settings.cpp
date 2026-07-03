@@ -79,17 +79,17 @@ void SettingsWidget::updateInternalDataStructures()
     setPageEnabled(i, true);
   }
 
-  // 回転翼を持たない場合は設定を無効化
+  // Disable settings when there are no rotors.
   if (uadf_.thrusts.empty()) {
     setPageEnabled(propulsion_system, false);
   }
 
-  // 固定翼を持たない場合は設定を無効化
+  // Disable settings when there are no fixed wings.
   if (uadf_.control_surfaces.empty()) {
     setPageEnabled(fixed_wing, false);
   }
 
-  // 追加ジョイントを持たない場合は設定を無効化
+  // Disable settings when there are no extra joints.
   if (extra_joints->numJoints() == 0) {
     setPageEnabled(extra_joints, false);
   }
@@ -100,7 +100,7 @@ void SettingsWidget::updateInternalDataStructures()
 
 bool SettingsWidget::isValid()
 {
-  // 全ての設定項目について，単体で問題ないことを確認
+  // Confirm that each setting item is valid on its own.
   for (int i = 0; i < stack_->count(); ++i) {
     const auto cur_widget = qt::qPointerCast<BaseSettingWidget>(stack_->widget(i));
     if (!cur_widget->isValid()) {
@@ -111,7 +111,7 @@ bool SettingsWidget::isValid()
 
   switch (propulsion_system->type()) {
     case PropulsionSystem::kElectric: {
-      // 電動モータのDShotチャンネルが設定されていることを確認
+      // Confirm that DShot channels are set for electric motors.
       for (const auto& elem : uadf_.thrusts) {
         const auto joint_name = QString::fromStdString(elem.first);
         if (!hardware->dshot()->contains(joint_name)) {
@@ -166,7 +166,7 @@ bool SettingsWidget::load(const YAML::Node& node)
 
 void SettingsWidget::setFrameType(FrameType type)
 {
-  // フレーム型が定義されていなければ制御器の設定を無効化
+  // Disable controller settings if the frame type is undefined.
   if (type == FrameType::kUndefined) {
     setPageEnabled(controller, false);
     setPageEnabled(mission, false);

@@ -10,16 +10,16 @@ namespace tobas
 {
 namespace str
 {
-/* char と char* を接続する． */
+/* Concatenate `char` and `char*`. */
 template <size_t N>
 inline constexpr auto concat(char c, const char (&s)[N])
 {
-  std::array<char, N + 1> out{};  // N は終端 '\0' を含む
+  std::array<char, N + 1> out{};  // `N` includes the terminating '\0'.
   out[0] = c;
   for (size_t i = 0; i < N; ++i) {
     out[i + 1] = s[i];
   }
-  return out;  // data() を返すと std::array が開放されてダングリングポインタになってしまうことに注意
+  return out;  // Returning `data()` would release `std::array` and leave a dangling pointer.
 }
 }  // namespace str
 }  // namespace tobas

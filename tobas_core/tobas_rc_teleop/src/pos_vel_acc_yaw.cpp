@@ -84,7 +84,7 @@ void PosVelAccYawController::reset(
 
 void PosVelAccYawController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom, bool landed)
 {
-  // 時刻を更新
+  // Update time
   const auto dt = (rcin.header.stamp - t_last_rcin_).seconds();
   t_last_rcin_ = rcin.header.stamp;
 

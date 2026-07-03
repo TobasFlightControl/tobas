@@ -30,9 +30,9 @@ public:
   using SharedPtr = std::shared_ptr<IceRotorConfig>;
   using ConstSharedPtr = std::shared_ptr<const IceRotorConfig>;
 
-  double gear_ratio = 0.;                      // 減速比 [-]
-  st::Range<double> pitch_limit = { 0., 0. };  // プロペラピッチ角の範囲 [rad]
-  double center_pitch = 0.;                    // プロペラピッチ角の中心 [rad]
+  double gear_ratio = 0.;                      // Reduction ratio [-].
+  st::Range<double> pitch_limit = { 0., 0. };  // Propeller pitch angle range [rad].
+  double center_pitch = 0.;                    // Center of the propeller pitch angle [rad].
   VppMotorConstant motor_const;
   VppMomentConstant moment_const;
   HardwareInterface hw_iface = HardwareInterface::kOther;
@@ -45,22 +45,22 @@ public:
   inline double momentConst() const override;
   inline double effortWeight() const override;
 
-  /* ピッチ角 [rad] から推力定数 [kg*m/rad^2] を求める． */
+  /* Compute the thrust constant [kg*m/rad^2] from pitch angle [rad]. */
   inline double motorConst(double pitch_angle) const;
 
-  /* ピッチ角 [rad] から反トルク定数 [m] を求める． */
+  /* Compute the reaction torque constant [m] from pitch angle [rad]. */
   inline double momentConst(double pitch_angle) const;
 
-  /* エンジン回転数 [rad/s] からロータ回転数 [rad/s] を求める． */
+  /* Compute rotor speed [rad/s] from engine speed [rad/s]. */
   inline double speedEngineToRotor(double engine_speed) const;
 
-  /* ロータ回転数 [rad/s] からエンジン回転数 [rad/s] を求める． */
+  /* Compute engine speed [rad/s] from rotor speed [rad/s]. */
   inline double speedRotorToEngine(double rotor_speed) const;
 
-  /* ピッチ角 [rad] から推力 [N] を求める． */
+  /* Compute thrust [N] from pitch angle [rad]. */
   inline double thrustFromPitch(double engine_speed, double pitch_angle) const;
 
-  /* 推力 [N] からピッチ角 [rad] を求める． */
+  /* Compute pitch angle [rad] from thrust [N]. */
   inline double pitchFromThrust(double engine_speed, double thrust) const;
 };
 
@@ -71,7 +71,7 @@ inline double IceRotorConfig::momentConst() const
 
 inline double IceRotorConfig::effortWeight() const
 {
-  return momentConst();  // プロペラ効率そのまま
+  return momentConst();  // Propeller efficiency is used as-is.
 }
 
 inline double IceRotorConfig::motorConst(double pitch_angle) const

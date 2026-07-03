@@ -179,8 +179,9 @@ bool I2Cdev::checkDataLength(size_t length) const
 
 bool I2Cdev::selectDevice() const
 {
-  // スレーブアドレスを登録
-  // I2Cの規格ではスレーブアドレスに続いてコマンドを送ることもできるが，LinuxのI2Cドライバはまず応答確認のみ行う．
+  // Register the slave address.
+  // The I2C standard allows sending a command after the slave address,
+  // but the Linux I2C driver only checks for an acknowledgment first.
   if (ioctl(i2c_fd_, I2C_SLAVE, dev_addr_) < 0) {
     std::cerr << "Failed to select I2C device." << std::endl;
     return false;

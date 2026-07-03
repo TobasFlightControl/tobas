@@ -107,7 +107,7 @@ void ControllerWidget::setFrameType(const FrameType& type)
 {
   frame_type_ = type;
 
-  // フレーム型が定義されていなければビルトイン制御器は使えない
+  // Built-in controllers cannot be used if the frame type is undefined.
   if (type == FrameType::kUndefined) {
     dont_use_builtin_ctrl_->setChecked(true);
     dont_use_builtin_ctrl_->setEnabled(false);

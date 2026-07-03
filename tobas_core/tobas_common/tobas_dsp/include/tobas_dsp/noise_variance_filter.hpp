@@ -12,7 +12,7 @@ namespace tobas
 namespace dsp
 {
 /**
- * @brief 信号の高周波ノイズ成分の分散をオンラインで計算する．
+ * @brief Online variance calculation for high-frequency noise components in a signal.
  */
 template <typename Scalar, int Size, size_t Length>
 class NoiseVarianceFilter
@@ -57,17 +57,17 @@ void NoiseVarianceFilter<Scalar, Size, Length>::initialize(double hpf_cutoff_fre
 template <typename Scalar, int Size, size_t Length>
 void NoiseVarianceFilter<Scalar, Size, Length>::update(const DataType& data, double dt)
 {
-  // データをHPFに通す
+  // Pass data through the HPF.
   hpf_.update(data, dt);
 
-  if (num_data_ < Length)  // データが溜まるまではバッファに保存しつつWelfordのアルゴリズムを使う
+  if (num_data_ < Length)  // Use Welford's algorithm while buffering data until the window is full.
   {
     welford_.add(hpf_.getValue());
     data_buf_.at(num_data_) = data;
   }
-  else  // データ数が時間窓を超えてからは移動分散アルゴリズムを使う
+  else  // Use the moving variance algorithm after the number of samples exceeds the time window.
   {
-    // データサイズが時間窓と一致した時にWelfordのアルゴリズムから移動分散アルゴリズムに切り替える
+    // Switch from Welford's algorithm to the moving variance algorithm when the data size reaches the time window.
     if (num_data_ == Length) {
       assert(data_buf_.size() == Length);
       moving_stat_.initialize(data_buf_);

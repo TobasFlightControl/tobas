@@ -8,7 +8,7 @@
 #include <cstring>
 #include <stdexcept>
 
-#define STD_INPUT_FD 0  // 標準入力のファイルディスクリプタ
+#define STD_INPUT_FD 0  // File descriptor for standard input
 
 namespace tobas
 {
@@ -23,9 +23,9 @@ KeyboardReader::KeyboardReader()
   changed_.c_cc[VEOL] = 1;
   changed_.c_cc[VEOF] = 2;
 
-  // 入力受付のタイムリミットを設定
+  // Set the input reception time limit.
   // https://stackoverflow.com/questions/2917881/how-to-implement-a-timeout-in-read-function-call
-  changed_.c_cc[VMIN] = 0;  // 最低文字数を0に設定．つまり入力がなくてもすぐ返す．
+  changed_.c_cc[VMIN] = 0;  // Set the minimum character count to 0, so this returns immediately without input.
   changed_.c_cc[VTIME] = 0;
 
   tcsetattr(STD_INPUT_FD, TCSANOW, &changed_);

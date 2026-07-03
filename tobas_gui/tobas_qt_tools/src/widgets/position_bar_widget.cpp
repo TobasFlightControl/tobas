@@ -217,33 +217,33 @@ void PositionBarWidget::clear()
 
 void PositionBarWidget::paintEvent(QPaintEvent* event)
 {
-  // QPainterはpaintEvent内でのみ定義できる
+  // `QPainter` can only be defined inside `paintEvent`.
   QPainter painter(this);
 
-  // 背景を描画
+  // Draw the background.
   painter.fillRect(event->rect(), Qt::white);
 
-  // 枠を描画
+  // Draw the frame.
   painter.save();
   painter.setPen(Qt::black);
   painter.drawRect(0, 0, width(), height());
   painter.restore();
 
-  // 値の範囲を塗りつぶす
+  // Fill the value range.
   if (fill_range_ && lower_.has_value() && upper_.has_value()) {
     painter.save();
     drawRange(painter, lower_.value(), upper_.value());
     painter.restore();
   }
 
-  // 値の位置を表示
+  // Show the value position.
   if (value_.has_value()) {
     painter.save();
     drawValue(painter, value_.value());
     painter.restore();
   }
 
-  // テキストを表示
+  // Show text.
   if (center_text_.has_value()) {
     painter.save();
     drawCenterText(painter, center_text_.value());
@@ -263,15 +263,15 @@ void PositionBarWidget::paintEvent(QPaintEvent* event)
 
 void HPositionBarWidget::drawRange(QPainter& painter, double lower, double upper)
 {
-  // バーの位置を計算
+  // Compute the bar position.
   const int lower_pos = math::remap<double>(lower, getMinimum(), getMaximum(), 0, width());
   const int upper_pos = math::remap<double>(upper, getMinimum(), getMaximum(), 0, width());
 
-  // 最小値と最大値の間を緑色で塗る
+  // Fill between the minimum and maximum values in green.
   painter.setBrush(fill_color_);
   painter.drawRect(lower_pos, 0, upper_pos - lower_pos, height());
 
-  // 最小値と最大値の位置に黒色の線を描画
+  // Draw black lines at the minimum and maximum value positions.
   painter.setPen(QPen(limit_line_color_, getLineWidth()));
   painter.drawLine(lower_pos, 0, lower_pos, height());
   painter.drawLine(upper_pos, 0, upper_pos, height());
@@ -279,10 +279,10 @@ void HPositionBarWidget::drawRange(QPainter& painter, double lower, double upper
 
 void HPositionBarWidget::drawValue(QPainter& painter, double value)
 {
-  // バーの位置を計算
+  // Compute the bar position.
   const int value_pos = math::remap<double>(value, getMinimum(), getMaximum(), 0, width());
 
-  // 現在値の位置に赤色の線を描画
+  // Draw a red line at the current value position.
   painter.setPen(QPen(value_line_color_, getLineWidth()));
   painter.drawLine(value_pos, 0, value_pos, height());
 }
@@ -313,15 +313,15 @@ void HPositionBarWidget::drawTextCommon(QPainter& painter)
 
 void VPositionBarWidget::drawRange(QPainter& painter, double lower, double upper)
 {
-  // バーの位置を計算
+  // Compute the bar position.
   const int lower_pos = math::remap<double>(lower, getMinimum(), getMaximum(), 0, height());
   const int upper_pos = math::remap<double>(upper, getMinimum(), getMaximum(), 0, height());
 
-  // 最小値と最大値の間を緑色で塗る
+  // Fill between the minimum and maximum values in green.
   painter.setBrush(fill_color_);
   painter.drawRect(0, lower_pos, width(), upper_pos - lower_pos);
 
-  // 最小値と最大値の位置に黒色の線を描画
+  // Draw black lines at the minimum and maximum value positions.
   painter.setPen(QPen(limit_line_color_, getLineWidth()));
   painter.drawLine(0, lower_pos, width(), lower_pos);
   painter.drawLine(0, upper_pos, width(), upper_pos);
@@ -329,10 +329,10 @@ void VPositionBarWidget::drawRange(QPainter& painter, double lower, double upper
 
 void VPositionBarWidget::drawValue(QPainter& painter, double value)
 {
-  // バーの位置を計算
+  // Compute the bar position.
   const int value_pos = math::remap<double>(value, getMinimum(), getMaximum(), 0, height());
 
-  // 現在値の位置に赤色の線を描画
+  // Draw a red line at the current value position.
   painter.setPen(QPen(value_line_color_, getLineWidth()));
   painter.drawLine(0, value_pos, width(), value_pos);
 }
@@ -360,11 +360,11 @@ void VPositionBarWidget::drawUpperText(QPainter& painter, const QString& text)
 
 void VPositionBarWidget::drawTextCommon(QPainter& painter)
 {
-  // フォントを設定
+  // Set the font.
   painter.setPen(Qt::gray);
   painter.setFont(DefaultFont(getTextPSize()));
 
-  // ペインターの回転と移動を設定
+  // Set painter rotation and translation.
   painter.translate(width() / 2, height() / 2);
   painter.rotate(90);
 }

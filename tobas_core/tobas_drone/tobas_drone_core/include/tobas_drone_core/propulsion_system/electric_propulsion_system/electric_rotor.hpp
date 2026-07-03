@@ -30,14 +30,14 @@ public:
   using SharedPtr = std::shared_ptr<ElectricRotorConfig>;
   using ConstSharedPtr = std::shared_ptr<const ElectricRotorConfig>;
 
-  uint32_t channel = 0;             // モータが接続されているチャンネル
-  uint32_t num_poles = 0;           // モータの極数
-  double kv = 0.;                   // モータのKV値 [rad/s/V]
-  double internal_resistance = 0.;  // モータの内部抵抗 [Ω]
-  double min_speed = 0.;            // モータの最小回転数 [rad/s]
-  double propeller_diameter = 0.;   // プロペラの直径 [m]
-  double motor_const = 0.;          // 推力係数 [kg*m/rad^2]
-  double moment_const = 0.;         // 反トルク係数 [m]
+  uint32_t channel = 0;             // Channel to which the motor is connected.
+  uint32_t num_poles = 0;           // Number of motor poles.
+  double kv = 0.;                   // Motor KV value [rad/s/V].
+  double internal_resistance = 0.;  // Motor internal resistance [Ω].
+  double min_speed = 0.;            // Minimum motor speed [rad/s].
+  double propeller_diameter = 0.;   // Propeller diameter [m].
+  double motor_const = 0.;          // Thrust coefficient [kg*m/rad^2].
+  double moment_const = 0.;         // Reaction torque coefficient [m].
 
   bool isValid() const override;
 
@@ -47,25 +47,25 @@ public:
   inline double momentConst() const override;
   inline double effortWeight() const override;
 
-  /* 回転数 [rad/s] から印加電圧 [V] を求める． */
+  /* Compute applied voltage [V] from rotational speed [rad/s]. */
   inline double voltageFromSpeed(double tar_speed) const;
 
-  /* 印加電圧 [V] から回転数 [rad/s] を求める． */
+  /* Compute rotational speed [rad/s] from applied voltage [V]. */
   inline double speedFromVoltage(double voltage) const;
 
-  /* 回転数 [rad/s] から推力 [N] を求める． */
+  /* Compute thrust [N] from rotational speed [rad/s]. */
   inline double thrustFromSpeed(double tar_speed) const;
 
-  /* 推力 [N] から回転数 [rad/s] を求める． */
+  /* Compute rotational speed [rad/s] from thrust [N]. */
   inline double speedFromThrust(double thrust) const;
 
-  /* 印加電圧から推力 [N] を求める． */
+  /* Compute thrust [N] from applied voltage. */
   inline double thrustFromVoltage(double voltage) const;
 
-  /* 回転数 [rad/s] からスロットル [0,1] を求める． */
+  /* Compute throttle [0,1] from rotational speed [rad/s]. */
   inline double throttleFromSpeed(double tar_speed, double battery_voltage) const;
 
-  /* 推力 [N] からスロットル [0,1] を求める． */
+  /* Compute throttle [0,1] from thrust [N]. */
   inline double throttleFromThrust(double thrust, double battery_voltage) const;
 };
 
@@ -76,7 +76,7 @@ inline double ElectricRotorConfig::momentConst() const
 
 inline double ElectricRotorConfig::effortWeight() const
 {
-  return kv * moment_const;  // 推力に対する電流の比率 (I = N / kt = kv cm T)
+  return kv * moment_const;  // Ratio of current to thrust (`I = N / kt = kv cm T`).
 }
 
 inline double ElectricRotorConfig::voltageFromSpeed(double tar_speed) const

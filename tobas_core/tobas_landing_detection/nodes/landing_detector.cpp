@@ -34,7 +34,7 @@ public:
 private:
   bool landed_ = true;
   tobas_kdl_msgs::WrenchStamped::ConstSharedPtr dist_force_;
-  rclcpp::Time t_last_no_change_;  // 最後に鉛直上方向の力が閾値を超えた時刻
+  rclcpp::Time t_last_no_change_;  // Last time the upward vertical force crossed the threshold
   dsp::LowPassFilter<double> force_z_lpf_;
 
   kdl::Tree tree_;
@@ -59,7 +59,7 @@ private:
 LandingDetectorNode::LandingDetectorNode(const rclcpp::NodeOptions& options)
   : super("landing_detector", nodeOptions_Default(options)), mass_holder_(tree_)
 {
-  static_assert(kTakeoffWeightRateThresh < kLandWeightRateThresh);  // ヒステリシスが必要
+  static_assert(kTakeoffWeightRateThresh < kLandWeightRateThresh);  // Hysteresis is required.
 
   force_z_lpf_.setCutoffFrequency(kDistForceLpfCutoff);
 
@@ -117,7 +117,8 @@ void LandingDetectorNode::disturbanceForceCb(const tobas_kdl_msgs::WrenchStamped
   // Update the latest message
   dist_force_ = dist_force;
 
-  // 鉛直上方向の外力（地面反力）が離陸重量の比が閾値を超えた状態が一定時間続いたら離着陸状態を変更
+  // Change the takeoff/landing state if the upward external force (ground reaction force)
+  // stays beyond the threshold ratio to weight for a fixed time.
   const auto& cur_time = dist_force->header.stamp;
   const auto& force_z_filt = force_z_lpf_.getValue();
   const auto weight = mass_holder_.getMass() * st::kGravity;

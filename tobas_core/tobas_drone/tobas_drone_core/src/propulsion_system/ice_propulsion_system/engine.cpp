@@ -55,7 +55,7 @@ double EngineConfig::computeTorque(double speed, double throttle)
 
   const auto& [A, B] = engine_const;
 
-  // FIXME: 実際はゼロスロットル (アイドリング) でも出力トルクはゼロではなく，エンジンモデルの改善が必要．
+  // FIXME: Output torque is not actually zero even at zero throttle due to idling, so the engine model needs to be improved.
   const auto phi = M_PI_2 * throttle;
   const auto f = math::sqr(A / (1 - std::cos(phi)));
   return 2 * B * speed / (sqrt(1 + 4 * B * math::sqr(speed) * f) + 1);

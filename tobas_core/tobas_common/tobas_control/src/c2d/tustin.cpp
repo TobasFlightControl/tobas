@@ -3,7 +3,7 @@
 
 #include "tobas_control/c2d/tustin.hpp"
 
-#include <eigen3/Eigen/LU>  // inverse()に必要
+#include <eigen3/Eigen/LU>  // Required for `inverse()`.
 
 using namespace std;
 using namespace Eigen;

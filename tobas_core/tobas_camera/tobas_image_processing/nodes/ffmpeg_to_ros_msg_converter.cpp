@@ -49,12 +49,12 @@ FFmpegToROSMsgConverter::FFmpegToROSMsgConverter(const rclcpp::NodeOptions& opti
   : BaseNode("ffmpeg_to_ros_msg_converter", nodeOptions_Default(options))
 {
   const auto ros_image_topic_name = getStringParam("ros_image_topic", "image");
-  // ffmpegが送信してくるデータのプロトコルの名称．udp, srtなど．
+  // Protocol name for data sent by ffmpeg, such as udp or srt.
   const auto protocol = getStringParam("protocol", "srt");
   output_msg_encoding_ = getStringParam("output_msg_encoding", "rgb8");
   frame_id_ = getStringParam("frame_id", "map");
-  const auto fps = getIntParam("FPS", 30);  // ffmpegが送信してくる映像データのfpsより高い値であればok．
-  // ffmpegが送信してくるデータの受信側ipアドレスとport番号．
+  const auto fps = getIntParam("FPS", 30);  // This only needs to be higher than the FPS sent by ffmpeg.
+  // Receiver IP address and port for data sent by ffmpeg.
   const auto port_uri = getStringParam("port_uri", "127.0.0.1:8888");
 
   input_url_ = protocol + "://" + port_uri + "?mode=listener&listen_timeout=5000000";
@@ -131,7 +131,7 @@ bool FFmpegToROSMsgConverter::initialize()
     return false;
   }
 
-  // decoder作成
+  // Create decoder
   // find decoder
   const AVCodec* codec = avcodec_find_decoder(video_stream_->codecpar->codec_id);
   if (!codec) {
@@ -179,17 +179,17 @@ void FFmpegToROSMsgConverter::timerCallback()
   auto frame = av_frame_alloc();
   AVPacket packet;
 
-  // frameが1個読み込まれる
+  // Read one frame
   if (av_read_frame(format_context_, &packet) < 0) {
     return;
   }
   if (packet.stream_index == video_stream_->index) {
-    // decoderにpacketを送りつける
+    // Send the packet to the decoder
     if (avcodec_send_packet(codec_context_, &packet) != 0) {
       TOBAS_ERROR("avcodec_send_packet failed");
     }
 
-    // decodeしてもらったデータをframeに格納する
+    // Store decoded data in the frame
     while (avcodec_receive_frame(codec_context_, frame) == 0) {
       auto image_msg = std::make_unique<sensor_msgs::msg::Image>();
       image_msg->height = frame->height;
@@ -206,7 +206,7 @@ void FFmpegToROSMsgConverter::timerCallback()
     }
   }
 
-  // av_read_frame()をやったら必ずこれを呼んでメモリを開放しないといけない
+  // av_read_frame() requires av_packet_unref() afterward to release memory.
   av_packet_unref(&packet);
 }
 

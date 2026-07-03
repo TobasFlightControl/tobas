@@ -110,7 +110,7 @@ void VelocityControllerNode::initialize()
   }
   jnt_names_.insert(jnt_names.begin(), jnt_names.end());
 
-  // shared_from_thisはコンストラクタでは呼べない
+  // `shared_from_this` cannot be called from the constructor.
   tf_listener_ = std::make_shared<ros2::TransformListener>(shared_from_this());
 
   addDynamicDoubleParam("joint_time_constant", &self::jointTimeConstCb, this, 0.1, 3, 1, 10, " s");
@@ -145,13 +145,13 @@ bool VelocityControllerNode::jointSpaceControl(
     return false;
   }
 
-  // 目標関節速度を計算
+  // Calculate target joint velocities.
   const auto& cur_q = cur_js_conv_.getPosition();
   const auto& tar_q = tar_js_conv_.getPosition();
   const auto gain = 1 / jnt_time_const_;
   const auto velocities = gain * (tar_q - cur_q);
 
-  // TODO: 関節角制限を考慮し，制限に違反する速度を出さない
+  // TODO: Account for joint angle limits and avoid velocities that would violate them.
 
   // Fill output message
   for (const auto& tar_state : tar_js.states) {
@@ -191,7 +191,7 @@ bool VelocityControllerNode::taskSpaceControl(
     tar_p[ls.name] = T_Base_Parent * ls.frame;  // Base -> Segment tip
   }
 
-  // 目標関節速度を計算
+  // Calculate target joint velocities.
   const auto& cur_q = cur_js_conv_.getPosition();
   if (vel_ctrl_.cartToJnt(cur_q, tar_p) < 0) {
     TOBAS_ERROR("Cartesian controller failed: ", vel_ctrl_.errorMessage());
@@ -249,7 +249,7 @@ void VelocityControllerNode::droneCb(const Drone::ConstSharedPtr& drone)
 
   home_js_.states.clear();
 
-  // ジョイントのホームポジションを取得
+  // Get joint home positions.
   for (const auto& jnt_name : jnt_names_) {
     const auto joint_it = drone->joints.find(jnt_name);
     if (joint_it == drone->joints.end()) {
@@ -266,7 +266,7 @@ void VelocityControllerNode::droneCb(const Drone::ConstSharedPtr& drone)
     home_js_.states.back().position = joint.home_pos;
   }
 
-  // ホームポジションを初期目標状態に設定
+  // Set home positions as the initial target state.
   if (!home_js_.states.empty()) {
     tar_js_ = std::make_shared<tobas_msgs::msg::JointStateArray>(home_js_);
   }

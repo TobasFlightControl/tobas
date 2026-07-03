@@ -17,7 +17,7 @@ class TaskSpaceStiffness
 {
 public:
   Vector linear;   // [N/m]
-  Vector angular;  // [Nm/rad] 等価角軸ベクトルに対する弾性係数
+  Vector angular;  // [Nm/rad] Elastic coefficient for the equivalent angle-axis vector
 
   inline explicit TaskSpaceStiffness();
   inline explicit TaskSpaceStiffness(const Vector& linear, const Vector& angular);

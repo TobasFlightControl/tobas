@@ -93,7 +93,7 @@ YAML::Node PropulsionSystemWidget::dump() const
 
 void PropulsionSystemWidget::load(const YAML::Node& node)
 {
-  // 実際にユーザが操作するときと同じように推進系の型の選択と変更の通知を行う
+  // Select and notify the propulsion-system type the same way as when the user operates it.
   const auto type_text = node[kTypeKey].as<QString>();
   for (const auto& [idx, button] : std::views::enumerate(type_btn_group_->buttons())) {
     if (button->text() == type_text) {
@@ -154,21 +154,21 @@ void PropulsionSystemWidget::addPropulsionSystemWidget(BasePropulsionSystemWidge
 
 void PropulsionSystemWidget::setCurrentButtonIndex(int index)
 {
-  // チェックされているボタンが切り替わらないなら何もしない
+  // Do nothing if the checked button does not change.
   if (type_btn_group_->checkedId() == index) {
     return;
   }
 
-  // 切り替え前後のボタンを取得
+  // Get the buttons before and after switching.
   const auto old_btn = type_btn_group_->checkedButton();
   const auto new_btn = type_btn_group_->button(index);
 
-  // 全てのシグナルをブロック (nullptrを渡しても問題ない)
+  // Block all signals; passing nullptr is okay.
   const QSignalBlocker block_group(type_btn_group_);
   const QSignalBlocker block_old_btn(old_btn);
   const QSignalBlocker block_new_btn(new_btn);
 
-  // 新しいボタンにチェック (exclusiveなのでold_btnは自動的にチェックが外れる)
+  // Check the new button; `old_btn` is unchecked automatically because the group is exclusive.
   new_btn->setChecked(true);
 }
 
@@ -193,11 +193,11 @@ void PropulsionSystemWidget::onPropulsionTypeClicked(int new_idx)
     return;
   }
 
-  // 推進系のウィジェットを切り替える
+  // Switch propulsion-system widgets.
   propulsion_stack_->setCurrentIndex(new_idx);
   cur_idx_ = new_idx;
 
-  // 推進系の型が変わったことを他のウィジェットに通知
+  // Notify other widgets that the propulsion-system type changed.
   Q_EMIT sig_.propulsionTypeChanged(widget(new_idx)->type());
 }
 }  // namespace propulsion

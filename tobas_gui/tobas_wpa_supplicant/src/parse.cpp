@@ -27,10 +27,10 @@ bool Parser::parseFromText(const std::string& text, Data& dst)
   bool in_network_block = false;
 
   for (auto line : lines) {
-    // 行頭・行末の空白を削除
+    // Remove leading and trailing whitespace.
     line = str::trim(line);
 
-    // 空行やコメント行をスキップ
+    // Skip empty and comment lines.
     if (line.empty() || line.starts_with('#')) {
       continue;
     }
@@ -56,14 +56,14 @@ bool Parser::parseFromText(const std::string& text, Data& dst)
       continue;
     }
 
-    // ネットワークブロックの開始
+    // Start of a network block.
     if (line == kStartNetworkBlock) {
       network = Network();
       in_network_block = true;
       continue;
     }
 
-    // ネットワークブロックの終了
+    // End of a network block.
     if (line == kStopNetworkBlock) {
       if (!in_network_block) {
         std::cerr << "Unexpected closing bracket." << std::endl;

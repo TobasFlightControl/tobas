@@ -63,14 +63,15 @@ void SbusDriverNode::initialize()
 
   sbus_.start();
 
-  // S.BUSの最長周期が14msなので，3フレーム以上来なければ受信機に異常が生じたと判定する．
-  // メッセージが来ない可能性があるとサブスクライバがイベント駆動で実装しづらくなるため，常に何らかのメッセージを発行するようにする．
+  // The longest S.BUS period is 14 ms.
+  // Treat the receiver as abnormal if 3 or more frames are missing.
+  // Always publish some message because subscribers are harder to implement as event-driven logic if messages may stop.
   timeout_timer_ = createWallTimer(14ms * 3, &self::onPacketTimeout, this);
 }
 
 void SbusDriverNode::publishExclusively(tobas_msgs::msg::Sbus::UniquePtr msg)
 {
-  // パケット受信とタイムアウトの2スレッドが同時にPublisherにアクセスしないように排他処理を行う
+  // Lock to prevent the packet reception and timeout threads from accessing the publisher at the same time.
   const std::lock_guard lock(mutex_);
   sbus_pub_->publish(std::move(msg));
 }

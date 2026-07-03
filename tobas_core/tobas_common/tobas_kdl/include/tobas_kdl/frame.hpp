@@ -45,7 +45,7 @@ public:
   /**
    * @brief Constructs a transformation matrix T_link(i-1)_link(i)
    * with the Denavit-Hartenberg convention as described in the Craigs book:
-   * Craig, J. J.,Introduction to Robotics: Mechanics and Control, Addison-Wesley, isbn:0-201-10326-5, 1986.
+   * Craig, J. J., Introduction to ROBOTICS: Mechanics and Control, Addison-Wesley, isbn:0-201-10326-5, 1986.
    *
    * Note that the frame is a redundant way to express the information in the DH-convention.
    * Parameters in full : a(i-1), alpha(i-1), d(i), theta(i)
@@ -110,7 +110,7 @@ public:
    */
   inline void integrate(const Twist& t_this, double frequency);
 
-  /* フレームを6次元ベクトルに変換． */
+  /* Convert the `Frame` to a 6D `Twist`. */
   inline Twist toTwist() const;
 
   inline Frame inverse() const;

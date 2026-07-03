@@ -86,19 +86,19 @@ bool WifiHotspotWidget::checkSsid(QString& msg) const
 {
   const auto ssid = getSsid();
 
-  // 空はダメ
+  // Empty values are not allowed.
   if (ssid.isEmpty()) {
     msg = "Please enter your SSID.";
     return false;
   }
 
-  // 制御文字はダメ
+  // Control characters are not allowed.
   if (qt::containsControlChars(ssid)) {
     msg = "SSID must not contain control characters.";
     return false;
   }
 
-  // バイト長チェック
+  // Check the byte length.
   constexpr int kMaxSsidBytes = 128;
   const int bytes = ssid.toUtf8().size();
   if (bytes > kMaxSsidBytes) {
@@ -106,7 +106,7 @@ bool WifiHotspotWidget::checkSsid(QString& msg) const
     return false;
   }
 
-  // 先頭/末尾の空白は動作上は可能だが非推奨
+  // Leading or trailing spaces work, but are not recommended.
   if (!ssid.isEmpty() && (ssid.front().isSpace() || ssid.back().isSpace())) {
     msg = "SSID should not have leading or trailing whitespace.";
     return false;
@@ -120,19 +120,19 @@ bool WifiHotspotWidget::checkPsk(QString& msg) const
 {
   const auto psk = getPsk();
 
-  // 空はダメ
+  // Empty values are not allowed.
   if (psk.isEmpty()) {
     msg = "Please enter your PSK.";
     return false;
   }
 
-  // ASCIIかHEXのどちらか
+  // Use either ASCII or hex.
   if (!isValidAsciiPsk(psk) && !isValid64HexPsk(psk)) {
     msg = "PSK must be 8–63 ASCII printable characters, or 64 hex digits.";
     return false;
   }
 
-  // 先頭/末尾の空白は動作上は可能だが非推奨
+  // Leading or trailing spaces work, but are not recommended.
   if (!psk.isEmpty() && (psk.front().isSpace() || psk.back().isSpace())) {
     msg = "PSK should not have leading or trailing whitespace.";
     return false;

@@ -46,14 +46,14 @@ void ActuatorTestWidget::updateProject(const fs::path& proj_path)
   rotor_test_->updateProject(proj_path);
   joint_test_->updateInternalDataStructures();
 
-  // テスト系は1つ以上のチャンネルが登録されているときのみ有効化
+  // Enable test functions only when at least one channel is registered.
   setTabEnabled(rotor_test_, rotor_test_->numRegisteredChannels() > 0);
   setTabEnabled(joint_test_, joint_test_->numRegisteredChannels() > 0);
 
-  // 各タブを有効化
+  // Enable each tab.
   setTabsEnabled(true);
 
-  // タブを表示・非表示した際の歪みを整える
+  // Adjust distortion caused by showing or hiding tabs.
   update();
 }
 

@@ -23,7 +23,7 @@ RotorSpeedPlotWidget::RotorSpeedPlotWidget()
 
 void RotorSpeedPlotWidget::clear()
 {
-  // レイアウトとコンテナに同じウィジェットが含まれる場合は，コンテナ，レイアウトの順にクリアする必要がある．
+  // When the same widgets are contained in both the layout and the container, clear the container before the layout.
   plots_.clear();
   cur_speed_curves_.clear();
   tar_speed_curves_.clear();
@@ -83,7 +83,7 @@ bool RotorSpeedPlotWidget::updateInternalDataStructures(const tobas_msgs::msg::R
     const auto plot = new QwtPlot2();
     plot->setAxisNoLabel(QwtPlot::xBottom);
 
-    // ウィジェットをN行2列の格子状に配置
+    // Arrange widgets in an N-row, 2-column grid.
     const auto row = idx / 2;
     const auto col = idx % 2;
     grid_->addWidget(plot, row, col, 1, 1);

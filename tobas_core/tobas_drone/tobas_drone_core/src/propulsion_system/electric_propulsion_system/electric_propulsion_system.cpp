@@ -95,8 +95,9 @@ double ElectricPropulsionSystemConfig::minSpeed(const string& link_name)
 
 double ElectricPropulsionSystemConfig::maxSpeed(const string& link_name)
 {
-  // FIXME: 電動またはICEの誤差を吸収しつつバッテリーまたはエンジンの状態を考慮した最大推力を反映したい．
-  // PropulsionLimitCalculatorから回転数や推力の最大値をトピックで発行するのが良さそう．
+  // FIXME: Reflect the maximum thrust while absorbing errors between electric and ICE models
+  // and considering the battery or engine state.
+  // It may be better for `PropulsionLimitCalculator` to publish maximum speed and thrust values as topics.
   const auto rotor = getRotor(link_name);
   return rotor->speedFromVoltage(battery.nominal_voltage);
 }

@@ -11,10 +11,10 @@
 namespace tobas
 {
 /**
- * @brief 迎角 (alpha) を計算する．
+ * @brief Compute the angle of attack (`alpha`).
  *
- * @param u,w 風に対する相対的な機体速度 (FRD座標系) [m/s]
- * @return double 迎角 [rad]
+ * @param u,w Aircraft velocity relative to wind in the FRD coordinate system [m/s].
+ * @return double Angle of attack [rad].
  */
 inline double angleOfAttack(const double& u, const double& w)
 {
@@ -22,10 +22,10 @@ inline double angleOfAttack(const double& u, const double& w)
 }
 
 /**
- * @brief 迎角 (alpha) を計算する．
+ * @brief Compute the angle of attack (`alpha`).
  *
- * @param linvel_B 風に対する相対的な機体速度 (FRD座標系) [m/s]
- * @return double 迎角 [rad]
+ * @param linvel_B Aircraft velocity relative to wind in the FRD coordinate system [m/s].
+ * @return double Angle of attack [rad].
  */
 inline double angleOfAttack(const Eigen::Vector3d& linvel_B)
 {
@@ -33,10 +33,10 @@ inline double angleOfAttack(const Eigen::Vector3d& linvel_B)
 }
 
 /**
- * @brief 横滑り角 (beta) を計算する．
+ * @brief Compute the sideslip angle (`beta`).
  *
- * @param u,v,w 風に対する相対的な機体速度 (FRD座標系) [m/s]
- * @return double 横滑り角 [rad]
+ * @param u,v,w Aircraft velocity relative to wind in the FRD coordinate system [m/s].
+ * @return double Sideslip angle [rad].
  */
 inline double angleOfSideSlip(const double& u, const double& v, const double& w)
 {
@@ -45,10 +45,10 @@ inline double angleOfSideSlip(const double& u, const double& v, const double& w)
 }
 
 /**
- * @brief 横滑り角 (beta) を計算する．
+ * @brief Compute the sideslip angle (`beta`).
  *
- * @param linvel_B 風に対する相対的な機体速度 (FRD座標系) [m/s]
- * @return double 横滑り角 [rad]
+ * @param linvel_B Aircraft velocity relative to wind in the FRD coordinate system [m/s].
+ * @return double Sideslip angle [rad].
  */
 inline double angleOfSideSlip(const Eigen::Vector3d& linvel_B)
 {
@@ -56,11 +56,11 @@ inline double angleOfSideSlip(const Eigen::Vector3d& linvel_B)
 }
 
 /**
- * @brief 動圧 (q_bar) を計算する．
+ * @brief Compute dynamic pressure (`q_bar`).
  *
- * @param rho 大気密度 [kg/m^3]
- * @param V 風に対する相対的な機体速度の絶対値 [m/s]
- * @return double 動圧 [Pa]
+ * @param rho Air density [kg/m^3].
+ * @param V Magnitude of aircraft velocity relative to wind [m/s].
+ * @return double Dynamic pressure [Pa].
  */
 inline double dynamicPressure(const double& rho, const double& V)
 {

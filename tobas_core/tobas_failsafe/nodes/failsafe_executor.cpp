@@ -95,7 +95,7 @@ void FailsafeExecutorNode::startRTL()
   {
     if (!gh) {
       TOBAS_ERROR("RTL mission was rejected by the executor.");
-      startLand();  // FIXME: 立て続けにアクションゴールを送るとインターフェースノードが詰まる
+      startLand();  // FIXME: The interface node can get stuck if action goals are sent in quick succession.
     }
   };
   opts.result_callback = [this](const GoalHandle::WrappedResult& res)
@@ -183,7 +183,7 @@ void FailsafeExecutorNode::vehicleHealthCb(const tobas_msgs::msg::VehicleHealth:
 {
   using VH = tobas_msgs::msg::VehicleHealth;
 
-  // アームしていなければフェイルセーフは発動しない
+  // Fail-safe does not activate when the vehicle is not armed.
   if (!arming_ || !arming_->data) {
     return;
   }
@@ -198,7 +198,7 @@ void FailsafeExecutorNode::vehicleHealthCb(const tobas_msgs::msg::VehicleHealth:
 
   switch (state_) {
     case kNoFailSafe: {
-      // フェイルセーフを更新
+      // Update fail-safe state.
       if (voltage_too_low) {
         if (landed) {
           TOBAS_WARN("Battery fail-safe is activated.");
@@ -223,7 +223,7 @@ void FailsafeExecutorNode::vehicleHealthCb(const tobas_msgs::msg::VehicleHealth:
       break;
     }
     case kReturnToLaunch: {
-      // 手動操縦が有効になったらフェイルセーフをキャンセル
+      // Cancel fail-safe when manual control is enabled.
       if (manual_ctrl_enabled) {
         TOBAS_INFO("Fail-safe was canceled because the manual control was enabled.");
         mission_ac_->async_cancel_all_goals();
@@ -231,7 +231,7 @@ void FailsafeExecutorNode::vehicleHealthCb(const tobas_msgs::msg::VehicleHealth:
         break;
       }
 
-      // フェイルセーフを更新
+      // Update fail-safe state.
       if (voltage_too_low) {
         if (failsafe_mission_ready) {
           TOBAS_WARN("Battery fail-safe is activated.");
@@ -242,7 +242,7 @@ void FailsafeExecutorNode::vehicleHealthCb(const tobas_msgs::msg::VehicleHealth:
       break;
     }
     case kLand: {
-      // 手動操縦が有効になったらフェイルセーフをキャンセル
+      // Cancel fail-safe when manual control is enabled.
       if (manual_ctrl_enabled) {
         TOBAS_INFO("Fail-safe was canceled because the manual control was enabled.");
         mission_ac_->async_cancel_all_goals();
@@ -266,7 +266,7 @@ void FailsafeExecutorNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPt
   }
 
   if (arming_->data && !arming->data) {
-    // フェイルセーフは全てディスアームに収束するため，ディスアームされたらフェイルセーフが終了したと判定できる．
+    // All fail-safe paths converge to disarming, so fail-safe can be considered finished once disarmed.
     switch (state_) {
       case kNoFailSafe:
         break;

@@ -107,18 +107,18 @@ void CircleWidget::drawCircle(QPainter& painter)
   const auto center = getCenter();
   const auto radius = getRadius() - line_width_ / 2;
 
-  // 塗りつぶし用のブラシを設定
+  // Set the fill brush.
   if (fill_color_ != Qt::transparent) {
     QRadialGradient gradient(center, radius);
-    gradient.setColorAt(0, QColor(fill_color_).lighter());  // 中心
-    gradient.setColorAt(1, fill_color_);                    // 外側
+    gradient.setColorAt(0, QColor(fill_color_).lighter());  // Center.
+    gradient.setColorAt(1, fill_color_);                    // Outer side.
     painter.setBrush(QBrush(gradient));
   }
   else {
     painter.setBrush(Qt::NoBrush);
   }
 
-  // 輪郭用のペンを設定
+  // Set the outline pen.
   if (line_color_ != Qt::transparent && line_width_ > 0) {
     painter.setPen(QPen(line_color_, line_width_, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
   }
@@ -126,7 +126,7 @@ void CircleWidget::drawCircle(QPainter& painter)
     painter.setPen(Qt::NoPen);
   }
 
-  // 中心と半径を指定して正円を描く
+  // Draw a circle by specifying center and radius.
   painter.drawEllipse(center, radius, radius);
 
   painter.restore();

@@ -11,7 +11,7 @@ namespace rc
 {
 BaseController::BaseController()
 {
-  // 不要なrosparamの参照やPubSubの登録を防ぐため，コンストラクタではそれらに関する操作は行わない
+  // Do not access rosparams or register PubSub here because they may be unnecessary.
 }
 
 std::string BaseController::addMode(const std::string& text, FlightMode mode)

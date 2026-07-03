@@ -70,7 +70,7 @@ bool HostnameWidget::onConnected()
     return false;
   }
 
-  const auto hostname = QString::fromStdString(file_content).trimmed();  // 末尾の改行コードを削除
+  const auto hostname = QString::fromStdString(file_content).trimmed();  // Remove the trailing newline.
   hostname_->setText(hostname);
 
   return true;
@@ -130,21 +130,21 @@ std::string HostnameWidget::hostsFilePath()
 
 void HostnameWidget::onHostnameChanged(const QString& hostname)
 {
-  // 空はダメ
+  // Empty values are not allowed.
   if (hostname.isEmpty()) {
     warn_text_->setText("Please enter a hostname.");
     write_button_->setEnabled(false);
     return;
   }
 
-  // FQDN禁止
+  // FQDNs are not allowed.
   if (hostname.contains('.')) {
     warn_text_->setText("Dots are not allowed in the static hostname.");
     write_button_->setEnabled(false);
     return;
   }
 
-  // ASCII前提でバイト長チェック
+  // Check the byte length assuming ASCII.
   const auto hostname_bytes = hostname.toUtf8().size();
   if (hostname_bytes > HOST_NAME_MAX) {
     warn_text_->setText("Hostname is too long (max " + QString::number(HOST_NAME_MAX) + " characters).");
@@ -152,7 +152,7 @@ void HostnameWidget::onHostnameChanged(const QString& hostname)
     return;
   }
 
-  // 小文字の英字・数字・ハイフンのみ許可
+  // Allow only lowercase letters, numbers, and hyphens.
   for (auto ch : hostname) {
     const auto u = ch.unicode();
     const auto is_lower = (u >= 'a' && u <= 'z');
@@ -165,7 +165,7 @@ void HostnameWidget::onHostnameChanged(const QString& hostname)
     }
   }
 
-  // 先頭・末尾のハイフン禁止
+  // Leading or trailing hyphens are not allowed.
   if (hostname.startsWith('-') || hostname.endsWith('-')) {
     warn_text_->setText("Hostname must not start or end with a hyphen (-).");
     write_button_->setEnabled(false);

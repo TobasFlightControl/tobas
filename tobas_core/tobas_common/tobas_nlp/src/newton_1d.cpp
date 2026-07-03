@@ -40,14 +40,14 @@ NewtonSolver1d::Error NewtonSolver1d::solve(double& x)
     assert(std::isfinite(f));
     assert(std::isfinite(dfdx));
 
-    // 停留点の場合
+    // Stationary point case.
     if (dfdx < std::numeric_limits<double>::epsilon()) {
       if (f < std::numeric_limits<double>::epsilon()) {
-        // すでに解にいるならば終了
+        // Exit if already at the solution.
         return error_code_ = kNoError;
       }
       else {
-        // 収束していないならばエラー
+        // Return an error if not converged.
         return error_code_ = kInfeasible;
       }
     }
@@ -55,7 +55,7 @@ NewtonSolver1d::Error NewtonSolver1d::solve(double& x)
     const auto dx = -f / dfdx;
     x += dx;
 
-    // 終了判定
+    // Termination check.
     if (std::abs(dx) < abs_tol_) {
       return error_code_ = kNoError;
     }

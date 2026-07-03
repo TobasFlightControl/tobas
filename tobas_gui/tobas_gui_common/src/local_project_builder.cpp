@@ -52,12 +52,12 @@ private:
 
 LocalProjectBuilder::LocalProjectBuilder()
 {
-  // ワークスペースの install ディレクトリをそのままパスに追加するために --merge-install が必要．
+  // `--merge-install` is required to add the workspace install directory directly to the path.
   colcon_.setMergeInstall(true);
 
-  // 対象のパッケージとは別の同名パッケージのキャッシュが /build 以下に残っている場合，
-  // カレントディレクトリに関わらず colcon がそのパッケージを再利用してしまう．
-  // そのため，確実に対象のパッケージのみをビルド対象にするためにキャッシュをクリアしておく．
+  // If a cache for another package with the same name as the target package remains under `/build`,
+  // `colcon` reuses that package regardless of the current directory.
+  // Therefore, clear the cache to ensure only the target package is built.
   colcon_.setCmakeCleanCache(true);
 }
 

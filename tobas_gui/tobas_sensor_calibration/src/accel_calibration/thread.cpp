@@ -27,7 +27,7 @@ AccelCalibrationThread::AccelCalibrationThread(rclcpp::Node::SharedPtr node, con
 
 void AccelCalibrationThread::run()
 {
-  // 必要なトピックが受け取れていることを確認
+  // Confirm that required topics have been received.
   if (!imu_raw_) {
     Q_EMIT finished(false, "IMU data has not been received yet.");
     return;
@@ -37,16 +37,16 @@ void AccelCalibrationThread::run()
     return;
   }
 
-  // 初期化
+  // Initialize.
   cnt_ = 0;
   for (auto& sum : acc_sum_) {
     sum.reset();
   }
 
-  // 加速度データ加算開始
+  // Start accumulating acceleration data.
   get_data_ = true;
 
-  // データが溜まるまで待機
+  // Wait until enough data has accumulated.
   const auto clock = node_->get_clock();
   const auto start_time = clock->now();
   rclcpp::Rate rate(100., clock);
@@ -54,7 +54,7 @@ void AccelCalibrationThread::run()
     if (cnt_ >= kDataCount) {
       break;
     }
-    if (arming_->data) {  // データ収集中にアームされたら強制終了
+    if (arming_->data) {  // Force stop if the vehicle is armed while collecting data.
       Q_EMIT finished(false, "Accelerometer calibration was canceled because an arming command was issued.");
       get_data_ = false;
       return;
@@ -67,32 +67,32 @@ void AccelCalibrationThread::run()
     rate.sleep();
   }
 
-  // 加速度データ加算終了
+  // Stop accumulating acceleration data.
   get_data_ = false;
 
-  // 平均を計算
+  // Calculate the average.
   kdl::Vector acc_mean;
   for (size_t i = 0; i < 3; ++i) {
     acc_mean(i) = acc_sum_.at(i).get() / cnt_;
   }
 
-  // バイアスを計算
+  // Calculate the bias.
   const kdl::Vector acc_ref(0, 0, st::kGravity);
   const auto acc_bias = acc_mean - acc_ref;
 
-  // バイアスが異常に大きい場合は失敗
+  // Fail if the bias is abnormally large.
   if (acc_bias.norm() > kAccelBiasNormThresh) {
     Q_EMIT finished(false, "Acceleration error is too high. Verify that the FMU is correctly oriented.");
     return;
   }
 
-  // パラメータを作成
+  // Create parameters.
   const auto req = std::make_shared<tobas_real_msgs::srv::SetImuParams::Request>();
   req->offset_x = acc_bias.x();
   req->offset_y = acc_bias.y();
   req->offset_z = acc_bias.z();
 
-  // パラメータを更新
+  // Update parameters.
   ros2::SyncServiceClient<tobas_real_msgs::srv::SetImuParams> sc(
     node_, path::join(ns_, kRemoteIfaceNS, real::handler::imu::kSetParamSrv));
   if (!sc.call(req, kSetParamTimeout)) {
@@ -100,7 +100,7 @@ void AccelCalibrationThread::run()
     return;
   }
 
-  // 結果を確認
+  // Check the result.
   const auto res = sc.getResponse();
   if (!res->success) {
     Q_EMIT finished(false, "Calibration results are rejected: " + QString::fromStdString(res->message));

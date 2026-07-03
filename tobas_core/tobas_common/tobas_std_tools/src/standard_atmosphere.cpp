@@ -9,16 +9,16 @@
 
 #include <tobas_math/core.hpp>
 
-#define R0 6356766.                 // 北緯45度における地球の半径 [m]
-#define TROPOPAUSE_ALTITUDE 1.1e+4  // 対流圏界面 (対流圏と成層圏の境界面) [m]
+#define R0 6356766.                 // Earth radius at 45 degrees north latitude [m].
+#define TROPOPAUSE_ALTITUDE 1.1e+4  // Tropopause, the boundary between the troposphere and stratosphere [m].
 
-// ICAO標準大気
-#define R 8.31432    // 気体定数 [J/K/mol]
-#define P0 101325.   // 海面気圧 [Pa]
-#define G 9.80665    // 重力加速度 [m/s^2]
-#define T0 288.15    // 海面気温 [K]
-#define L -0.0065    // 気温減率 [K/m]
-#define M 0.0289664  // 海面大気のモル質量 [kg/mol]
+// ICAO standard atmosphere.
+#define R 8.31432    // Gas constant [J/K/mol].
+#define P0 101325.   // Sea-level pressure [Pa].
+#define G 9.80665    // Gravitational acceleration [m/s^2].
+#define T0 288.15    // Sea-level temperature [K].
+#define L -0.0065    // Temperature lapse rate [K/m].
+#define M 0.0289664  // Molar mass of sea-level air [kg/mol].
 
 namespace tobas
 {
@@ -110,7 +110,7 @@ double pressureToAltitude(const double& pressure)
   constexpr auto b = -(L * R) / (G * M);
 
   const auto gph = a * (std::pow(pressure / P0, b) - 1.);
-  assert(gph < TROPOPAUSE_ALTITUDE);  // 高度11km以上では誤差が大きい
+  assert(gph < TROPOPAUSE_ALTITUDE);  // Error is large above 11 km altitude.
 
   return gphToAltitude(gph);
 }
@@ -123,7 +123,7 @@ void pressureToAltitude(const double& pressure, const double& pressure_var, doub
 
   altitude = pressureToAltitude(pressure);
 
-  const auto amp = (c / pressure) * std::pow(pressure / P0, b);  // 高度ノイズ/気圧ノイズ ~ 1e-2
+  const auto amp = (c / pressure) * std::pow(pressure / P0, b);  // Altitude noise / pressure noise ~ 1e-2.
   altitude_var = math::sqr(amp) * pressure_var;
 }
 }  // namespace st

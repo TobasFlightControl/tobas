@@ -83,25 +83,25 @@ private:
   bool generateOriginalUadf();
   bool generateModifiedUrdf();
 
-  /* 空のファイルを作成する． */
+  /* Create an empty file. */
   bool createEmptyFile(const std::filesystem::path& file_path);
 
-  /* Map型で要素を持たないyamlファイルを作成する． */
+  /* Create a YAML file with a map type and no elements. */
   bool createEmptyYaml(const std::filesystem::path& file_path, bool overwrite);
 
-  /* YAML::Nodeを保存する． */
+  /* Save `YAML::Node`. */
   bool saveYamlNode(const std::filesystem::path& path, const YAML::Node& node);
 
-  /* 全てのメッシュファイルのパスをパッケージ以下に変更する． */
+  /* Change all mesh file paths to paths under the package. */
   bool resolveModifiedUrdfMeshFilePaths(tinyxml2::XMLElement* elem);
 
-  /* オリジナルURDFの全てのメッシュファイルのパスをパッケージ以下に変更する． */
+  /* Change all mesh file paths in the original URDF to paths under the package. */
   bool replaceOriginalUadfMeshFilePaths(tinyxml2::XMLElement* elem);
 
-  /* プロペラジョイントのlimitタグを削除する． */
+  /* Remove `limit` tags from propeller joints. */
   bool removePropellerJointLimits(tinyxml2::XMLElement* robot);
 
-  /* Gazeboプラグイン等をXMLに追加する． */
+  /* Add Gazebo plugins and related elements to XML. */
   bool addXmlElements(tinyxml2::XMLElement* robot);
 
   static TurningDirection turningDirectionUadfToTbsdrn(const uadf::Thrust::Direction& src);

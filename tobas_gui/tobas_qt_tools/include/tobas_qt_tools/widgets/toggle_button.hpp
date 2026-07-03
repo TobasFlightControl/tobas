@@ -9,7 +9,7 @@ namespace tobas
 {
 namespace qt
 {
-/* 押すたびにテキストが切り替わる単純なトグルボタン． */
+/* Simple toggle button whose text changes each time it is pressed. */
 class ToggleButton : public QPushButton
 {
   Q_OBJECT

@@ -32,7 +32,7 @@ class SuspendedLoadWidget : public QWidget
   static constexpr double kDefaultLoadSize = 0.3;           // [m]
   static constexpr double kDefaultLoadMass = 1.;            // [kg]
   static constexpr double kDefaultCableLength = 3.;         // [m]
-  static constexpr int kDefaultCableYoungModulus = 200;     // [MPa] 低密度ポリエチレン
+  static constexpr int kDefaultCableYoungModulus = 200;     // [MPa] Low-density polyethylene.
   static constexpr int kDefaultCableCrossSectionArea = 50;  // [mm^2]
 
 public:

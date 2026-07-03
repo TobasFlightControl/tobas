@@ -35,7 +35,7 @@ bool ISM330DLC::initialize(const char* spi_device)
   }
 
   // Enable BDU (Block Data Update)
-  // さもないと複数バイトを読んでいる最中にデータが更新されてしまう恐れがある
+  // Otherwise, data may be updated while multiple bytes are being read.
   if (!writeReg(REG_CTRL3_C, BDU | IF_INC)) {
     return false;
   }
@@ -240,7 +240,7 @@ bool ISM330DLC::readImu(double& ax, double& ay, double& az, double& gx, double& 
     return false;
   }
 
-  // 正負両方の値を表現するために，一度符号付き16ビット整数型に変換する必要がある
+  // Convert to a signed 16-bit integer first to represent both positive and negative values.
   gx = static_cast<double>(static_cast<int16_t>((res_[1] << 8) | res_[0])) * gyro_scale_;
   gy = static_cast<double>(static_cast<int16_t>((res_[3] << 8) | res_[2])) * gyro_scale_;
   gz = static_cast<double>(static_cast<int16_t>((res_[5] << 8) | res_[4])) * gyro_scale_;

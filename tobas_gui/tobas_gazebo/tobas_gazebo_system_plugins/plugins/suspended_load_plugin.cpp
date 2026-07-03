@@ -68,9 +68,9 @@ private:
   gz::math::Vector3d L_Pos_LQ_;
   double load_mass_;
   gz::math::Matrix3d load_inertia_ = gz::math::Matrix3d::Zero;
-  double cable_length_;  // [m] ケーブルの自然長
-  double cable_young_;   // [Pa] ヤング率 (Young Modulus)
-  double cable_csa_;     // [m^2] 断面積 (Cross-Sectional Area)
+  double cable_length_;  // [m] Natural cable length
+  double cable_young_;   // [Pa] Young modulus.
+  double cable_csa_;     // [m^2] Cross-sectional area.
   bool load_exist_ = false;
   int load_index_ = 0;
   std::shared_ptr<gz::sim::Link> load_link_;
@@ -108,7 +108,7 @@ void GazeboSuspendedLoadPlugin::Configure(
 {
   initialize(kPluginName, sdf);
 
-  // GUIで調整できるようにSDFパラメータは最小限に
+  // Keep SDF parameters minimal so values can be adjusted from the GUI.
   getSdfParam(sdf, "linkName", link_name_);
 
   const auto world_name = getWorldName(ecm);
@@ -141,7 +141,7 @@ void GazeboSuspendedLoadPlugin::Configure(
   detach_load_ss_ = createService<DetachSrv>(kDetachSuspenedLoadSrv, &self::detachLoadCb, this);
 
   marker_.set_ns(kPluginName);
-  marker_.set_id(1);  // 0だとIDがランダムに割り当てられて無限に増えてしまう
+  marker_.set_id(1);  // If this is 0, IDs are assigned randomly and increase without bound.
   marker_.set_type(gz::msgs::Marker::LINE_LIST);
   line_p0_ = marker_.add_point();
   line_p1_ = marker_.add_point();
@@ -153,7 +153,7 @@ void GazeboSuspendedLoadPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::s
     return;
   }
 
-  // 荷重の状態にアクセスできるようにする
+  // Make the load state accessible.
   if (!load_link_) {
     const auto model_entity = ecm.EntityByComponents(cmp::Model(), cmp::Name(loadName()));
     if (model_entity == gz::sim::kNullEntity) {
@@ -168,7 +168,7 @@ void GazeboSuspendedLoadPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::s
       return;
     }
 
-    const auto link_entity = load_model.CanonicalLink(ecm);  // モデルの代表リンクを取得
+    const auto link_entity = load_model.CanonicalLink(ecm);  // Get the canonical link of the model.
     load_link_ = std::make_shared<gz::sim::Link>(link_entity);
     if (!load_link_->Valid(ecm)) {
       TOBAS_EXIT("Failed to find the canonical link of the load.");
@@ -190,24 +190,24 @@ void GazeboSuspendedLoadPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::s
       return;
     }
 
-    return;  // コンポーネントを取得したサイクルは正しい値が出ないため力を加えない
+    return;  // Do not apply force in the cycle where components were obtained because values are not correct yet.
   }
 
-  // 機体の状態を取得
+  // Get the vehicle state.
   const auto& W_Pose_B = W_Pose_B_->Data();
   const auto& W_Pos_WB = W_Pose_B.Pos();
   const auto& W_Rot_B = W_Pose_B.Rot();
   const auto& W_Vel_WB = W_Vel_WB_->Data();
   const auto& W_Gyro_WB = W_Gyro_WB_->Data();
 
-  // 荷重の状態を取得
+  // Get the load state.
   const auto& W_Pose_L = W_Pose_L_->Data();
   const auto& W_Pos_WL = W_Pose_L.Pos();
   const auto& W_Rot_L = W_Pose_L.Rot();
   const auto& W_Vel_WL = W_Vel_WL_->Data();
   const auto& W_Gyro_WL = W_Gyro_WL_->Data();
 
-  // ケーブルの端点間ベクトルを計算
+  // Compute the vector between cable endpoints.
   const auto W_Pos_BP = W_Rot_B.RotateVector(B_Pos_BP_);
   const auto W_Pos_WP = W_Pos_WB + W_Pos_BP;
   const auto W_Pos_LQ = W_Rot_L.RotateVector(L_Pos_LQ_);
@@ -215,40 +215,40 @@ void GazeboSuspendedLoadPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::s
   const auto W_Pos_PQ = W_Pos_WQ - W_Pos_WP;
   const auto length = W_Pos_PQ.Length();  // [m]
 
-  // ケーブル長が限界以上ならばワイヤロープの弾粘性モデルに従って張力を加える
+  // Apply tension according to a wire-rope elastic-viscous model if the cable length exceeds the limit.
   if (length > cable_length_) {
-    // ケーブル長の変位を計算
+    // Compute cable-length displacement.
     const auto x = length - cable_length_;  // [m]
 
-    // ケーブル長の変化率を計算
+    // Compute cable-length rate.
     const auto W_Vel_WP = W_Vel_WB + W_Gyro_WB.Cross(W_Pos_BP);
     const auto W_Vel_WQ = W_Vel_WL + W_Gyro_WL.Cross(W_Pos_LQ);
     const auto W_Vel_PQ = W_Vel_WQ - W_Vel_WP;
-    const auto xd = W_Vel_PQ.Dot(W_Pos_PQ) / length;  // 相対速度をケーブル方向に射影したものがケーブル長の変化率
+    const auto xd = W_Vel_PQ.Dot(W_Pos_PQ) / length;
 
-    // マスバネダンパ系の係数
+    // Mass-spring-damper coefficients.
     const auto& m1 = mass_holder_.getMass();
     const auto& m2 = load_mass_;
-    const auto m = m1 * m2 / (m1 + m2);                        // [kg] 相対運動の等価質量 (memo: 3-47)
+    const auto m = m1 * m2 / (m1 + m2);                        // [kg] Equivalent mass of relative motion (memo: 3-47).
     const auto k = cable_young_ * cable_csa_ * cable_length_;  // [N/m]
-    const auto d = 2 * std::sqrt(m * k);                       // [Ns/m] 臨海減衰する粘性係数
+    const auto d = 2 * std::sqrt(m * k);                       // [Ns/m] Viscous coefficient for critical damping.
 
-    // ケーブルにかかる力を計算
+    // Compute force applied to the cable.
     const auto T = k * x + d * xd;  // [N]
 
-    // 荷重の回転を打ち消す方向に働くトルク (空気抵抗やケーブル接続部の摩擦を模擬)
+    // Torque that counteracts load rotation, simulating air resistance and friction at the cable joint.
     const auto L_Gyro_WL = W_Rot_L.RotateVectorReverse(W_Gyro_WL);
     const auto L_DGyro_WL = -(1. / kStopLoadRotationTimeConst) * L_Gyro_WL;
     const auto L_Torque_WL = load_inertia_ * L_DGyro_WL + L_Gyro_WL.Cross(load_inertia_ * L_Gyro_WL);
     const auto W_Torque_WL = W_Rot_L.RotateVector(L_Torque_WL);
 
-    // ケーブル方向の張力と回転止めトルクを加える
+    // Apply tension along the cable direction and anti-rotation torque.
     const auto W_Force_PQ = T * W_Pos_PQ.Normalized();
     base_link_->AddWorldForce(ecm, W_Force_PQ, B_Pos_BP_);
     load_link_->AddWorldWrench(ecm, -W_Force_PQ, W_Torque_WL, L_Pos_LQ_);
   }
 
-  // 描画用のラインマーカを更新
+  // Update the line marker for visualization.
   if (rate_manager_.update(info.simTime)) {
     vector3dGzToMsg(W_Pos_WP, *line_p0_);
     vector3dGzToMsg(W_Pos_WQ, *line_p1_);
@@ -302,17 +302,18 @@ void GazeboSuspendedLoadPlugin::attachLoadCb(
 
   const auto sz_2 = req->load_sz / 2;
 
-  // モデル名が被らないようにインデックスを上げる
+  // Increment the index to avoid duplicate model names.
   ++load_index_;
 
-  // 出現位置を決める
+  // Determine spawn position.
   const auto& W_Pose_B = W_Pose_B_->Data();
   const auto& W_Pos_WB = W_Pose_B.Pos();
   const auto& W_Rot_B = W_Pose_B.Rot();
-  const auto W_Pos_WP = W_Pos_WB + W_Rot_B.RotateVector(B_Pos_BP_);  // 取り付け位置
+  const auto W_Pos_WP = W_Pos_WB + W_Rot_B.RotateVector(B_Pos_BP_);  // Attachment position.
   const auto px = W_Pos_WP.X();
   const auto py = W_Pos_WP.Y();
-  const auto pz = std::max(W_Pos_WP.Z() - req->cable_length - sz_2, sz_2);  // ケーブルの長さ分だけ下げるが地面よりは上
+  const auto pz = std::max(
+    W_Pos_WP.Z() - req->cable_length - sz_2, sz_2);  // Lower by the cable length, but keep it above the ground.
 
   gz::msgs::EntityFactory gzreq;
   gzreq.set_sdf(makeBoxSdf(loadName(), req->load_sx, req->load_sy, req->load_sz, req->load_mass, px, py, pz));
@@ -339,7 +340,7 @@ void GazeboSuspendedLoadPlugin::attachLoadCb(
   }
 
   vectorRosToGazebo(req->attachment_point, B_Pos_BP_);
-  L_Pos_LQ_.Set(0., 0., sz_2);  // 直方体の上面の中央にケーブルを取り付ける想定
+  L_Pos_LQ_.Set(0., 0., sz_2);  // Assume the cable is attached to the center of the cuboid top face.
   load_mass_ = req->load_mass;
   cable_length_ = req->cable_length;
   cable_young_ = req->cable_young_modulus;

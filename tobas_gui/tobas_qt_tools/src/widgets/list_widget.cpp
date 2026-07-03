@@ -33,7 +33,7 @@ public:
 
     painter->save();
 
-    // 背景，選択状態，フォーカスなどを通常通り描画
+    // Draw the background, selection state, focus, and so on normally.
     const auto widget = opt.widget;
     const auto style = widget ? widget->style() : QApplication::style();
     style->drawControl(QStyle::CE_ItemViewItem, &opt, painter, widget);
@@ -90,14 +90,14 @@ void ListWidget::setCurrentText(const QString& text)
 
 void ListWidget::deselect()
 {
-  const QSignalBlocker block(this);  // 負の行番号でシグナルが発行されるのを防ぐ
+  const QSignalBlocker block(this);  // Prevent signals from being emitted with a negative row number.
   setCurrentRow(-1);
 }
 
 void ListWidget::shrinkToContents()
 {
   const auto rows = count();
-  const auto row_height = sizeHintForRow(0);  // 行の高さ
+  const auto row_height = sizeHintForRow(0);  // Row height.
   const auto frame = 2 * frameWidth();
   const auto margin = contentsMargins().top() + contentsMargins().bottom();
 

@@ -31,13 +31,13 @@ public:
   virtual RcCommand stabilizeModeCommand() const = 0;
   virtual RcCommand loiterModeCommand() const = 0;
 
-  /* 静的プライベートROSパラメータ． */
+  /* Static private ROS parameters. */
   virtual YAML::Node staticParams() const = 0;
 
   virtual YAML::Node dump() const = 0;
   virtual void load(const YAML::Node& node) = 0;
 
-  /* ユーザ設定が有効な場合にtrueを返す． */
+  /* Return true when user settings are valid. */
   virtual bool isValid() = 0;
 };
 }  // namespace ctrl

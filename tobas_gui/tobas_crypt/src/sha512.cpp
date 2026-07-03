@@ -41,7 +41,7 @@ std::string Sha512::createSalt() const
   std::string salt;
   salt.resize(kLength);
   for (size_t i = 0; i < kLength; ++i) {
-    salt[i] = tbl[buf[i] & 63];  // 0..63 -> 64種
+    salt[i] = tbl[buf[i] & 63];  // 0..63 -> 64 types.
   }
 
   return "$6$rounds=" + std::to_string(rounds_) + "$" + salt;

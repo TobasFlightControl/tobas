@@ -10,9 +10,9 @@ namespace tobas
 namespace qt
 {
 /**
- * ===== QLabel との違い =====
- * - コンストラクタでフォントを指定可
- * - 追加メソッド
+ * ===== Differences from `QLabel` =====
+ * - Font can be specified in the constructor
+ * - Additional methods
  */
 class Label : public QLabel
 {

@@ -10,9 +10,10 @@ namespace tobas
 namespace dsp
 {
 /**
- * @brief Welfordのアルゴリズムで逐次的に平均と分散を計算する (memo: 2-65)
+ * @brief Sequential mean and variance calculation using Welford's algorithm (memo: 2-65).
  *
- * @note 数値誤差は小さいが，分散とデータ数の積を保持するためデータ数が大きすぎると発散する．
+ * @note Numerical error is small, but it stores the product of variance and sample count.
+ * It diverges if the sample count becomes too large.
  */
 template <typename Scalar, int Size>
 class Welford
@@ -23,25 +24,25 @@ class Welford
 public:
   explicit Welford();
 
-  /* 内部変数をリセットする． */
+  /* Reset internal variables. */
   void reset();
 
-  /* 新しいデータを追加する． */
+  /* Add new data. */
   inline void add(const DataType& x);
 
-  /* 平均を取得する． */
+  /* Get the mean. */
   inline const DataType& mean() const;
 
-  /* 分散を取得する． */
+  /* Get the variance. */
   inline CovType variance() const;
 
-  /* データの数を取得する． */
+  /* Get the number of samples. */
   inline size_t count() const;
 
 private:
-  size_t n_;       // データ数
-  DataType mean_;  // 平均
-  CovType var_n_;  // 分散とデータ数の積
+  size_t n_;       // Number of samples.
+  DataType mean_;  // Mean.
+  CovType var_n_;  // Product of variance and sample count.
 };
 
 template <typename Scalar, int Size>

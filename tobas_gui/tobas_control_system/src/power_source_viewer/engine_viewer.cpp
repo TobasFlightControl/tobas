@@ -12,7 +12,7 @@
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 
-#define MAX_FUEL_QUANTITY 100.  // TODO: 燃料容量をEngineConfigに含める
+#define MAX_FUEL_QUANTITY 100.  // TODO: Include fuel capacity in `EngineConfig`.
 
 namespace tobas
 {
@@ -89,7 +89,7 @@ void EngineViewerWidget::updateOilTemperature(const double& oil_temp)
   oil_temp_->setUpper(oil_temp);
   oil_temp_->setCenterText(std::format("{:.1f} ℃", oil_temp).c_str());
 
-  // TODO: 油温の適正値をEngineConfigに含める
+  // TODO: Include the proper oil temperature range in `EngineConfig`.
   if (oil_temp < 60.) {
     oil_temp_->setFillColor(Qt::blue);
   }

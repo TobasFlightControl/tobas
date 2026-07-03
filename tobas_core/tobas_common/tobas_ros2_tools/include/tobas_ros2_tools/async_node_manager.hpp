@@ -10,7 +10,7 @@ namespace tobas
 namespace ros2
 {
 /**
- * @brief メインスレッドとは別のスレッドで動作するROSノードを作成，管理する．
+ * @brief Create and manage a ROS node that runs on a thread separate from the main thread.
  */
 class AsyncNodeManager
 {

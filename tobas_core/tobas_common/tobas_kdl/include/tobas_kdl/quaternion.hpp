@@ -23,46 +23,46 @@ public:
   inline explicit Quaternion(const Rotation& rot);
   inline explicit Quaternion();
 
-  /* 単位クォータニオン． */
+  /* Identity `Quaternion`. */
   static inline Quaternion Identity();
 
-  /* 等価角軸ベクトルからクオータニオンを作成． */
+  /* Create a `Quaternion` from an equivalent angle-axis `Vector`. */
   static inline Quaternion AngleAxis(const Vector& a);
 
-  /* オイラー角からクオータニオンを作成． */
+  /* Create a `Quaternion` from Euler angles. */
   static inline Quaternion RPY(double roll, double pitch, double yaw);
 
-  /* クオータニオンをオイラー角に変換． */
+  /* Convert a `Quaternion` to Euler angles. */
   inline void getRPY(double& roll, double& pitch, double& yaw) const;
 
-  /* 複素共役クォータニオン． */
+  /* Complex conjugate `Quaternion`. */
   inline Quaternion complexConjugate() const;
 
-  /* 逆クオータニオン． */
+  /* Inverse `Quaternion`. */
   inline Quaternion inverse() const;
 
-  /* 要素の2乗和． */
+  /* Sum of squared elements. */
   inline double squaredNorm() const;
 
-  /* L2ノルム． */
+  /* L2 norm. */
   inline double norm() const;
 
-  /* 正規化する． */
+  /* Normalize. */
   inline Quaternion normalize() const;
 
-  /* 正規クオータニオンであればtrueを返す． */
+  /* Return true if this is a normalized `Quaternion`. */
   inline bool isNormalized() const;
 
-  /* クォータニオンの時間微分．角速度はローカルで定義されていることに注意． */
+  /* Time derivative of the `Quaternion`. Note that angular velocity is defined locally. */
   inline Quaternion differential(const Vector& angvel) const;
 
-  /* 全要素をスカラーで割る． */
+  /* Divide all elements by a scalar. */
   inline Quaternion operator/(double rhs) const;
 
-  /* 2つの回転の合計． */
+  /* Composition of two rotations. */
   inline Quaternion operator*(const Quaternion& rhs) const;
 
-  /* 3次元ベクトルを回転させる． */
+  /* Rotate a 3D `Vector`. */
   inline Vector operator*(const Vector& v) const;
 
   inline friend std::ostream& operator<<(std::ostream& os, const Quaternion& arg);

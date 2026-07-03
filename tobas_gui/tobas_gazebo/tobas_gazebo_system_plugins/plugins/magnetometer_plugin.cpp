@@ -27,7 +27,7 @@ namespace gazebo
 /**
  * @brief Gazebo Magnetometer plugin
  *
- * - 初期バイアスはキャリブレーション済みの想定．
+ * - Initial bias is assumed to be calibrated.
  */
 class GazeboMagnetometerPlugin : public BaseNode,
                                  public gz::sim::System,
@@ -50,9 +50,9 @@ private:
   std::string link_name_;
   int update_rate_;            // [Hz] Update rate
   gz::math::Vector3d offset_;  // [m] B_Pos_BS
-  double lat_0_;               // [deg] 原点の北緯
-  double lon_0_;               // [deg] 原点の東経
-  double alt_0_;               // [m] 原点の高度
+  double lat_0_;               // [deg] Latitude north of the origin
+  double lon_0_;               // [deg] Longitude east of the origin
+  double alt_0_;               // [m] Altitude of the origin
   double noise_stddev_;        // [G]
   double hard_bias_norm_;      // [G]
 
@@ -120,19 +120,19 @@ void GazeboMagnetometerPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const
   const auto& W_Rot_B = T_W_B.Rot();
   const auto W_Pos_WS = W_Pos_WB + W_Rot_B.RotateVector(offset_);
 
-  // デカルト座標から経緯度と高度を計算
+  // Compute latitude, longitude, and altitude from Cartesian coordinates.
   std::tie(lat_, lon_) = st::cartToGnssRelative(W_Pos_WS.X(), W_Pos_WS.Y(), lat_0_, lon_0_);
   const auto alt = alt_0_ + W_Pos_WS.Z();
 
-  // 経緯度と高度から地磁気の参照値を計算
-  // TODO: WMMの誤差を考慮
+  // Compute the geomagnetic reference value from latitude, longitude, and altitude.
+  // TODO: Consider WMM error.
   const auto mag = geomag::elementsFromGeodetic(lat_, lon_, alt, tim::yearFraction());
 
-  // 機体座標系から見た地磁気を計算
+  // Compute geomagnetic field viewed from the body coordinate system.
   const gz::math::Vector3d field_W(mag.east, mag.north, -mag.down);  // ENU coordinates
   const auto field_B = T_W_B.Rot().RotateVectorReverse(field_W);
 
-  // ノイズを加えて地磁気のスケールで正規化した値を観測する
+  // Add noise and observe the value normalized by the geomagnetic scale.
   const auto field_meas = (field_B + noise_->get() + hard_bias_) / mag.total;  // [-]
 
   // Create message

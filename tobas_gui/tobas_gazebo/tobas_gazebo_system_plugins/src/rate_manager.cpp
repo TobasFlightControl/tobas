@@ -26,10 +26,10 @@ bool RateManager::update(const ch::steady_clock::duration& cur_time)
   else {
     const ch::nanoseconds period(1'000'000'000 / update_rate_);
     if (cur_time - next_time_ < period) {
-      next_time_ += period;  // 次回時刻基準で更新することで周波数を守る
+      next_time_ += period;  // Keep the frequency by updating based on the next scheduled time.
     }
     else {
-      next_time_ = cur_time + period;  // 2周期以上空いているなら現在時刻基準でリセット
+      next_time_ = cur_time + period;  // Reset based on the current time if two or more periods have elapsed.
     }
     return true;
   }

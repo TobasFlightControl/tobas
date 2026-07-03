@@ -14,74 +14,74 @@ namespace tobas
 namespace ctrl
 {
 /**
- * @brief 可制御性行列を作る．
+ * @brief Create the controllability matrix.
  *
- * @param A,B 連続時間のダイナミクス
+ * @param A,B Continuous-time dynamics.
  *
  * @return Eigen::MatrixXd
  */
 Eigen::MatrixXd ctrb(const Eigen::MatrixXd& A, const Eigen::MatrixXd& B);
 
 /**
- * @brief 可観測性行列を作る．
+ * @brief Create the observability matrix.
  *
- * @param A,C 連続時間のダイナミクス
+ * @param A,C Continuous-time dynamics.
  *
  * @return Eigen::MatrixXd
  */
 Eigen::MatrixXd obsv(const Eigen::MatrixXd& A, const Eigen::MatrixXd& C);
 
 /**
- * @brief 可制御か否かを判定する．
+ * @brief Determine whether the system is controllable.
  *
- * @param A,B 連続時間のダイナミクス
+ * @param A,B Continuous-time dynamics.
  *
  * @return bool
  */
 bool isControllable(const Eigen::MatrixXd& A, const Eigen::MatrixXd& B);
 
 /**
- * @brief 可観測か否かを判定する．
+ * @brief Determine whether the system is observable.
  *
- * @param A,C 連続時間のダイナミクス
+ * @param A,C Continuous-time dynamics.
  *
  * @return bool
  */
 bool isObservable(const Eigen::MatrixXd& A, const Eigen::MatrixXd& C);
 
 /**
- * @brief 変数ベクトルxの範囲(lb <= x <= ub)から等価な行列不等式(A @ x <= b)を作る．
+ * @brief Create an equivalent matrix inequality (`A @ x <= b`) from the variable vector range (`lb <= x <= ub`).
  *
- * @param lb 下限
- * @param ub 上限
- * @param inf これ以上の値を行列不等式から省く
+ * @param lb Lower bound.
+ * @param ub Upper bound.
+ * @param inf Values greater than this are omitted from the matrix inequality.
  *
- * @return LinearEquation A @ x <= b の(A, b)
+ * @return `(A, b)` for `LinearEquation` `A @ x <= b`.
  */
 LinearEquation matIneqFromRange(const Eigen::VectorXd& lb, const Eigen::VectorXd& ub, const double& inf = 1e+12);
 
 /**
- * @brief 位置の追従誤差が指数関数的に減衰する場合の，時刻tにおける位置を計算する．
+ * @brief Compute the position at time `t` when the position tracking error decays exponentially.
  *
- * @param x0 初期位置
- * @param xd 目標位置
- * @param tau 減衰時定数
- * @param t 時刻(= 初期時刻0からの経過時間)
+ * @param x0 Initial position.
+ * @param xd Target position.
+ * @param tau Decay time constant.
+ * @param t Time, elapsed from the initial time 0.
  *
- * @return double 時刻tにおける位置
+ * @return double Position at time `t`.
  */
 double firstOrderPos(const double& x0, const double& xd, const double& tau, const double& t);
 
 /**
- * @brief 速度の追従誤差が指数関数的に減衰する場合の，時刻tにおける位置を計算する． (memo: 1-47)
+ * @brief Compute the position at time `t` when the velocity tracking error decays exponentially. (memo: 1-47)
  *
- * @param x0 初期位置
- * @param v0 初期速度
- * @param vd 目標速度
- * @param tau 減衰時定数
- * @param t 時刻(= 初期時刻0からの経過時間)
+ * @param x0 Initial position.
+ * @param v0 Initial velocity.
+ * @param vd Target velocity.
+ * @param tau Decay time constant.
+ * @param t Time, elapsed from the initial time 0.
  *
- * @return double 時刻tにおける位置
+ * @return double Position at time `t`.
  */
 double firstOrderVel(const double& x0, const double& v0, const double& vd, const double& tau, const double& t);
 }  // namespace ctrl

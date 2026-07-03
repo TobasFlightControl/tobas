@@ -11,7 +11,7 @@ namespace tobas
 {
 namespace st
 {
-/* 要素の最小値を返す． */
+/* Return the minimum element. */
 template <typename T>
 T min(const std::unordered_set<T>& set)
 {
@@ -24,7 +24,7 @@ T min(const std::unordered_set<T>& set)
   return res;
 }
 
-/* 要素の最大値を返す． */
+/* Return the maximum element. */
 template <typename T>
 T max(const std::unordered_set<T>& set)
 {

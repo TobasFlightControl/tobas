@@ -42,12 +42,12 @@ void SimpleJointModel::step(double dt)
 {
   assert(dt >= 0.);
 
-  // 速度制限
+  // Velocity limit.
   const auto ideal_delta_angle = tar_pos_ - cur_pos_;
   const auto max_delta_angle = max_vel * dt;
   const auto delta_angle = std::clamp(ideal_delta_angle, -max_delta_angle, max_delta_angle);
 
-  // 位置制限
+  // Position limit.
   const auto cnd_angle = cur_pos_ + delta_angle;
   cur_pos_ = pos_limit.clamp(cnd_angle);
 }

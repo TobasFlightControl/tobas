@@ -9,23 +9,20 @@ namespace tobas
 {
 namespace ctrl
 {
-/**
- * @brief 無限時間区間の最適レギュレータ
- * cf. 現代制御論, 8.3節
- */
+/* Infinite-horizon optimal regulator. */
 class LQR
 {
 public:
-  LinearDynamics dynamics;  // xd = Ax + Bu: 連続時間状態方程式
+  LinearDynamics dynamics;  // xd = Ax + Bu: continuous-time state equation
 
-  Eigen::VectorXd state_scale;  // 状態変数のスケール
-  Eigen::VectorXd input_scale;  // 制御入力のスケール
+  Eigen::VectorXd state_scale;  // State variable scale
+  Eigen::VectorXd input_scale;  // Control input scale
 
-  Eigen::VectorXd state_weight;  // Q: 状態変数に対する重み (無次元)
-  Eigen::VectorXd input_weight;  // R: 制御入力に対する重み (無次元)
+  Eigen::VectorXd state_weight;  // Q: weight for state variables (dimensionless)
+  Eigen::VectorXd input_weight;  // R: weight for control inputs (dimensionless)
 
-  Eigen::VectorXd current_state;  // x: 現在の状態
-  Eigen::VectorXd target_state;   // s: 設定値
+  Eigen::VectorXd current_state;  // x: current state
+  Eigen::VectorXd target_state;   // s: setpoint
 
   explicit LQR();
 

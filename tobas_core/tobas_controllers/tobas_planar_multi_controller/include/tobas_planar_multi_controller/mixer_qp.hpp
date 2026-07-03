@@ -14,7 +14,7 @@ namespace tobas
 {
 namespace planar_multicopter
 {
-/* 制約を考慮したマルチコプターの推力ミキシング (memo: 3-1)． */
+/* Thrust mixing for multicopters with constraints (memo: 3-1). */
 class QpMixer : public MixerI
 {
   using super = MixerI;
@@ -46,11 +46,11 @@ private:
   kdl::TreeFkSolverPosAll fk_solver_;
   kdl::TreeInertiaSolver inertia_solver_;
 
-  quadprog::DualActiveSetSolver qp_;  // QPソルバー
-  Eigen::Diagonal3d Q_;               // EoMの重み
-  Eigen::DiagonalXd R_;               // 推力の重み
-  Eigen::Matrix3Xd G_;                // EoM行列等式の左辺
-  Eigen::Vector3d h_;                 // EoM行列等式の右辺
+  quadprog::DualActiveSetSolver qp_;  // QP solver.
+  Eigen::Diagonal3d Q_;               // EoM weights.
+  Eigen::DiagonalXd R_;               // Thrust weights.
+  Eigen::Matrix3Xd G_;                // Left-hand side of the EoM matrix equality.
+  Eigen::Vector3d h_;                 // Right-hand side of the EoM matrix equality.
 
   tim::Stopwatch stopwatch_;
 

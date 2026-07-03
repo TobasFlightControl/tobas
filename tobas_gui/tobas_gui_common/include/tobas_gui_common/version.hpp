@@ -42,7 +42,7 @@ public:
   bool load(const std::filesystem::path& path);
   bool save(const std::filesystem::path& path) const;
 
-  /* メンバ変数の宣言順に辞書順比較する比較演算子を自動で定義 (>= C++20) */
+  /* Automatically define comparison operators that compare lexicographically in member declaration order (>= C++20). */
   auto operator<=>(const Version&) const = default;
 };
 }  // namespace cmn

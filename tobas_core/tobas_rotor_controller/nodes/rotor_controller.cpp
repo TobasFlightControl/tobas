@@ -21,7 +21,7 @@ using namespace std::chrono_literals;
 
 namespace tobas
 {
-/* 推進系の目標推力を実現する． */
+/* Realize the target thrust for the propulsion system. */
 class RotorControllerNode : public BaseNode
 {
   using self = RotorControllerNode;
@@ -193,11 +193,11 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
 
       break;
     }
-    case PropulsionSystem::kIce:  // 参照ピッチ角を用いて推力を実現する (memo: 3-27)
+    case PropulsionSystem::kIce:  // Realize thrust using the reference pitch angle (memo: 3-27)
     {
       const auto iprop = boost::polymorphic_pointer_downcast<IcePropulsionSystemConfig>(drone_->prop);
 
-      // エンジン軸にかかる合計トルクとその係数を求める
+      // Calculate the total torque applied to the engine shaft and its coefficient.
       double thrust_sum = 0.;
       double torque_sum = 0.;
       double K = 0.;
@@ -211,15 +211,15 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
         const auto moment_const = irotor->momentConst(irotor->center_pitch);
         const auto tar_thrust = std::max(elem.thrust, 0.);
         thrust_sum += tar_thrust;
-        torque_sum += moment_const * tar_thrust / irotor->gear_ratio;  // 減速比を考慮
+        torque_sum += moment_const * tar_thrust / irotor->gear_ratio;  // Account for gear reduction.
         K += motor_const * moment_const / math::cube(irotor->gear_ratio);
       }
 
-      // コマンドを作成
+      // Create command
       auto ice_cmd_msg = std::make_unique<tobas_msgs::msg::IcePropulsionSystemCommand>();
       ice_cmd_msg->header = tar_thrusts_msg->header;
 
-      // エンジンスロットルとプロペラピッチ角を決める
+      // Determine the engine throttle and propeller pitch angles.
       if (thrust_sum <= 0.) {
         ice_cmd_msg->engine_throttle = 0.;
         for (const auto& elem : tar_thrusts_msg->thrusts) {
@@ -241,7 +241,7 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
         }
       }
 
-      // コマンドを発行
+      // Publish command
       ice_cmd_pub_->publish(std::move(ice_cmd_msg));
 
       break;

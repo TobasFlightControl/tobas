@@ -10,7 +10,7 @@
 namespace tobas
 {
 /**
- * @brief オドメトリから得られた姿勢をオイラー角に変換して発行する．
+ * @brief Convert the attitude from odometry to Euler angles and publish them.
  */
 class MatrixEulerConverterNode : public BaseNode
 {

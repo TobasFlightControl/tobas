@@ -16,11 +16,11 @@ class BatteryConfig
   static constexpr char kInternalResistanceKey[] = "internal_resistance";
 
 public:
-  double nominal_voltage = 0.;      // 公称電圧 [V]
-  double max_voltage = 0.;          // フルチャージ時の電圧 [V]
-  double sag_voltage = 0.;          // 放電特性が急激に変化する電圧 [V]
-  double max_current = 0.;          // 最大連続電流 [A]
-  double internal_resistance = 0.;  // 内部抵抗値 [Ω]
+  double nominal_voltage = 0.;      // Nominal voltage [V].
+  double max_voltage = 0.;          // Voltage at full charge [V].
+  double sag_voltage = 0.;          // Voltage where discharge characteristics change abruptly [V].
+  double max_current = 0.;          // Maximum continuous current [A].
+  double internal_resistance = 0.;  // Internal resistance [Ω].
 
   bool isValid() const;
 

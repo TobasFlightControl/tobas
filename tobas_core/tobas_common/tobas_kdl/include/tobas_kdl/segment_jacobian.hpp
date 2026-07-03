@@ -12,7 +12,7 @@ namespace tobas
 namespace kdl
 {
 /**
- * @brief 1つのセグメント対するヤコビアン．
+ * @brief Jacobian for one segment.
  */
 class SegmentJacobian
 {
@@ -31,12 +31,12 @@ public:
 
   inline SegmentJacobian refPoint(const Vector& p) const;
 
-  /* 関節空間の加速度からタスク空間の加速度を求める． */
+  /* Compute task-space acceleration from joint-space acceleration. */
   inline Accel accel(const double& qdd) const;
 
-  /* 関節に働く力[N or Nm]を計算する． */
+  /* Compute the force [N or Nm] acting on the joint. */
   inline double dot(const Wrench& rhs) const;
-  /* 関節空間における慣性[kg m^2 or kg]を計算する． */
+  /* Compute inertia [kg m^2 or kg] in joint space. */
   inline double dot(const SegmentInertia& rhs) const;
 };
 

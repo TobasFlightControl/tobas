@@ -239,7 +239,7 @@ bool BMM350::setOdrPerformance(uint8_t odr, uint8_t avg)
     std::cerr << "Failed to apply ODR/performance." << std::endl;
     return false;
   }
-  // Bosch SensorAPIに合わせて固定遅延で反映待ちする。
+  // Wait for the setting to take effect with a fixed delay matching the Bosch SensorAPI.
   delayUs(UPD_OAE_DELAY_US);
   return true;
 }
@@ -278,7 +278,7 @@ bool BMM350::setPowerMode(uint8_t mode)
       std::cerr << "Failed to transit PMU to suspend." << std::endl;
       return false;
     }
-    // SensorAPI準拠の固定遅延でsuspend遷移完了を待つ。
+    // Wait for the suspend transition to complete with a fixed delay compliant with SensorAPI.
     delayUs(GOTO_SUSPEND_DELAY_US);
   }
 
@@ -288,7 +288,7 @@ bool BMM350::setPowerMode(uint8_t mode)
   }
 
   if (mode == PMU_NORMAL) {
-    // suspend -> normal 遷移に必要な規定待ち時間。
+    // Specified wait time required for the suspend-to-normal transition.
     delayUs(SUSPEND_TO_NORMAL_DELAY_US);
   }
   return true;

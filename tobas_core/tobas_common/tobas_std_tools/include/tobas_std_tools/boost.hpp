@@ -11,7 +11,7 @@ namespace tobas
 {
 namespace st
 {
-/* 加重平均をとる． */
+/* Calculate the weighted average. */
 template <typename T, typename U, size_t N>
 T average(const boost::array<T, N>& arr, const boost::array<U, N>& weights)
 {
@@ -26,7 +26,7 @@ T average(const boost::array<T, N>& arr, const boost::array<U, N>& weights)
   return res;
 }
 
-/* 平均をとる． */
+/* Calculate the average. */
 template <typename T, size_t N>
 T average(const boost::array<T, N>& arr)
 {
@@ -35,14 +35,14 @@ T average(const boost::array<T, N>& arr)
   return average(arr, weights);
 }
 
-/* 3x3行列の対角要素を埋める． */
+/* Fill the diagonal elements of a 3x3 matrix. */
 template <typename T>
 inline void fillMatrix3Diag(boost::array<T, 9>& m, const T& v)
 {
   m[0] = m[4] = m[8] = v;
 }
 
-/* 3x3行列のトレースを計算する． */
+/* Calculate the trace of a 3x3 matrix. */
 template <typename T>
 inline T trace(const boost::array<T, 9>& m)
 {
@@ -56,14 +56,14 @@ inline std::vector<T> toVector(const boost::array<T, N>& arr)
   return std::vector<T>(arr.begin(), arr.end());
 }
 
-/* 全ての要素が条件を満た場合にTrueを返す． */
+/* Return true when all elements satisfy the condition. */
 template <typename T, size_t N, typename Lambda>
 inline bool allOf(const boost::array<T, N>& arr, const Lambda& lambda)
 {
   return std::all_of(arr.begin(), arr.end(), lambda);
 }
 
-/* 配列全体の型変換． */
+/* Cast the entire array. */
 template <typename After, typename Before, size_t N>
 boost::array<After, N> cast(const boost::array<Before, N>& arr)
 {
