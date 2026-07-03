@@ -18,10 +18,10 @@ using namespace std::chrono_literals;
 
 bool takeoff(rclcpp::Node::SharedPtr node)
 {
-  // アクションクライアントを作成
+  // Create an action client.
   tobas::ros2::SyncActionClient<tobas_mission_msgs::action::ExecuteMission> client(node, tobas::action::kExecuteMission);
 
-  // ゴールを作成
+  // Create a goal.
   tobas::mission::Takeoff takeoff;
   takeoff.altitude = ALTITUDE;
   takeoff.max_speed = 1.5;
@@ -36,13 +36,13 @@ bool takeoff(rclcpp::Node::SharedPtr node)
   tobas_mission_msgs::action::ExecuteMission::Goal goal;
   goal.mission.items.push_back(mission_item);
 
-  // アクションを実行
+  // Execute the action.
   if (!client.sendGoalAndWait(goal)) {
     RCLCPP_ERROR(node->get_logger(), "Failed to call takeoff action.");
     return false;
   }
 
-  // アクションの成否を確認
+  // Check whether the action succeeded.
   const auto result = client.getResult();
   if (result.code != rclcpp_action::ResultCode::SUCCEEDED) {
     RCLCPP_ERROR_STREAM(node->get_logger(), "Failed to takeoff: " << result.result->error_message);
@@ -54,10 +54,10 @@ bool takeoff(rclcpp::Node::SharedPtr node)
 
 bool land(rclcpp::Node::SharedPtr node)
 {
-  // アクションクライアントを作成
+  // Create an action client.
   tobas::ros2::SyncActionClient<tobas_mission_msgs::action::ExecuteMission> client(node, tobas::action::kExecuteMission);
 
-  // ゴールを作成
+  // Create a goal.
   tobas::mission::Land land;
   land.speed = 0.7;
 
@@ -68,13 +68,13 @@ bool land(rclcpp::Node::SharedPtr node)
   tobas_mission_msgs::action::ExecuteMission::Goal goal;
   goal.mission.items.push_back(mission_item);
 
-  // アクションを実行
+  // Execute the action.
   if (!client.sendGoalAndWait(goal)) {
     RCLCPP_ERROR(node->get_logger(), "Failed to call land action.");
     return false;
   }
 
-  // アクションの成否を確認
+  // Check whether the action succeeded.
   const auto result = client.getResult();
   if (result.code != rclcpp_action::ResultCode::SUCCEEDED) {
     RCLCPP_ERROR_STREAM(node->get_logger(), "Failed to land: " << result.result->error_message);
@@ -92,7 +92,7 @@ bool followCirclePath(rclcpp::Node::SharedPtr node)
   constexpr double kSpeed = kRadius * kOmega;                    // [m/s]
   constexpr double kAccel = kRadius * tobas::math::sqr(kOmega);  // [m/s^2]
 
-  // コマンドのパブリッシャーを作成
+  // Create a command publisher.
   const auto pub =
     tobas::ros2::createPublisher<tobas_command_msgs::msg::PosVelAccYaw>(node, tobas::topic::kPosVelAccYawCmd);
 
@@ -137,21 +137,21 @@ int main(int argc, char** argv)
   tobas::ros2::AsyncNodeManager node_manager(argc, argv, "command_circle_trajectory");
   const auto node = node_manager.node();
 
-  // 離陸
+  // Take off.
   if (!takeoff(node)) {
     return EXIT_FAILURE;
   }
 
   rclcpp::sleep_for(1s);
 
-  // 円周上を周遊
+  // Fly along a circular path.
   if (!followCirclePath(node)) {
     return EXIT_FAILURE;
   }
 
   rclcpp::sleep_for(1s);
 
-  // 着陸
+  // Land.
   if (!land(node)) {
     return EXIT_FAILURE;
   }

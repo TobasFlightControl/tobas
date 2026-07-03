@@ -117,7 +117,7 @@ bool CpuHandlerNode::getLoad()
   std::istringstream iss(cpu_line_);
 
   // Get CPU usage times.
-  // Skip the first token, `"cpu"`.
+  // Skip the first token, "cpu".
   iss >> token_;
 
   // 1. Time spent in user mode

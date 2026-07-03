@@ -8,7 +8,7 @@
 
 #include "./altitude_frame.hpp"
 
-#define PACKED __attribute__((__packed__))  // 構造体のメンバ変数がメモリ上で連続する
+#define PACKED __attribute__((__packed__))  // Struct member variables are stored contiguously in memory.
 
 namespace tobas
 {

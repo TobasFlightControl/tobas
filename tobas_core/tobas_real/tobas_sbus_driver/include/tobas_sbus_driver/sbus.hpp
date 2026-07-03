@@ -10,10 +10,7 @@
 
 namespace tobas
 {
-/**
- * @brief Read S.BUS through UART after inverting the signal with an inverter.
- * cf. [Raspberry Pi PicoのUARTでラジコン受信機の信号を読む](https://rikei-tawamure.com/entry/2021/02/12/130248)
- */
+/* Read S.BUS through UART after inverting the signal with an inverter. */
 class SBUS
 {
 public:
