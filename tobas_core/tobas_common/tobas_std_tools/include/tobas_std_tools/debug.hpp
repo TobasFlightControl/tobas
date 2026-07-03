@@ -3,7 +3,7 @@
 
 #pragma once
 
-// 呼ばれた位置のファイル名と行数を表示．
+/* Print the file name and line number of the call site. */
 #define PRINT_LOCATION() st::_printLocation(__FILE__, __LINE__)
 
 namespace tobas

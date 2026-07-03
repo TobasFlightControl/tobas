@@ -7,7 +7,7 @@
 
 #include "./ansi_text_styles.hpp"
 
-/* Releaseビルドでも機能するアサーション． */
+/* Assertion that also works in release builds. */
 #define TOBAS_CHECK(expr)                                                                                              \
   {                                                                                                                    \
     if (!static_cast<bool>(expr)) {                                                                                    \

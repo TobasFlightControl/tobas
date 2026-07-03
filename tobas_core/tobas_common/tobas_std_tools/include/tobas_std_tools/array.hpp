@@ -12,7 +12,7 @@
 
 namespace std
 {
-/* std::arrayのコンソール出力 */
+/* Console output for `std::array`. */
 template <typename T, size_t N>
 std::ostream& operator<<(std::ostream& os, const std::array<T, N>& arr)
 {
@@ -69,13 +69,13 @@ T fmean(const std::array<T, N>& arr)
   }
 }
 
-/* 最も近い値のインデックスを返す． */
+/* Return the index of the closest value. */
 template <typename T, size_t N>
 size_t closestIndex(const std::array<T, N>& arr, const T& val)
 {
   assert(N > 0);
 
-  size_t closest_idx = 0;  // コンパイラの警告を防ぐために適当に初期化
+  size_t closest_idx = 0;  // Initialized to avoid compiler warnings.
   T closest_dist = std::numeric_limits<T>::max();
 
   for (size_t i = 0; i < N; ++i) {
@@ -89,14 +89,14 @@ size_t closestIndex(const std::array<T, N>& arr, const T& val)
   return closest_idx;
 }
 
-/* 特定の要素の個数を数える． */
+/* Count a specific element. */
 template <typename T, size_t N>
 inline size_t count(const std::array<T, N>& arr, const T& val)
 {
   return std::count(arr.begin(), arr.end(), val);
 }
 
-/* 全ての要素が等しい場合にtrueを返す． */
+/* Return true when all elements are equal. */
 template <typename T, size_t N>
 inline bool allEqual(const std::array<T, N>& arr, const T& target)
 {

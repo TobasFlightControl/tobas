@@ -9,9 +9,7 @@ namespace tobas
 {
 namespace st
 {
-/**
- * @brief マップの要素の先頭からの距離を取得する．
- */
+/* Get the distance from the beginning of the map to an element. */
 template <typename T, typename U>
 ptrdiff_t getIndex(const std::map<T, U>& mp, const T& key)
 {

@@ -10,7 +10,7 @@ namespace tobas
 {
 namespace st
 {
-/* Pythonのenum.Enumを模したクラス．列挙型の番号と名前を対応付けることができる． */
+/* Class modeled after Python `enum.Enum`. It maps enum values to names. */
 struct NamedEnum
 {
   const char* name;
@@ -26,7 +26,7 @@ struct NamedEnum
 
   bool operator==(const NamedEnum& other) const
   {
-    // ポインタ (ここではchar*) 同士を==などで比較すると，値ではなくアドレスの比較になってしまうことに注意．
+    // Note that comparing pointers such as `char*` with `==` compares addresses, not values.
     return typeid(*this) == typeid(other) && std::strcmp(name, other.name) == 0 && value == other.value;
   }
 };
