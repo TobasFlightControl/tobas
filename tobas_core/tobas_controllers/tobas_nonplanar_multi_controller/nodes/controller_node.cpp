@@ -207,7 +207,7 @@ bool ControllerNode::updateInternalDataStructures()
 
 bool ControllerNode::updateAttitudePDGain()
 {
-  // PD制御を2段階に分割したときのゲインを計算 (memo: 3-22)
+  // Compute gains when PD control is split into two stages (memo: 3-22)
   const auto angle_gain = atti_wn_ / atti_zeta_ / 2;
   const auto rate_gain = atti_wn_ * atti_zeta_ * 2;
 
@@ -218,7 +218,7 @@ bool ControllerNode::updateAttitudePDGain()
 
 bool ControllerNode::updateHeadingPDGain()
 {
-  // PD制御を2段階に分割したときのゲインを計算 (memo: 3-22)
+  // Compute gains when PD control is split into two stages (memo: 3-22)
   const auto angle_gain = head_wn_ / head_zeta_ / 2;
   const auto rate_gain = head_wn_ * head_zeta_ * 2;
 
@@ -377,76 +377,76 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
     return;
   }
 
-  // 経過時間を計算してオドメトリを更新
+  // Compute elapsed time and update odometry.
   const auto& cur_time = odom->header.stamp;
   const auto dt = (cur_time - odom_->header.stamp).seconds();
   odom_ = odom;
 
-  // 設定値メッセージを作成
+  // Create the setpoint message.
   auto setpoint = std::make_unique<tobas_msgs::OdometryStamped>();
   setpoint->header.stamp = cur_time;
   setpoint->odom.setNaN();
 
-  // フィードバックメッセージを作成
+  // Create the feedback message.
   auto feedback = std::make_unique<tobas_debug_msgs::MulticopterControllerFeedback>();
   feedback->header.stamp = cur_time;
 
-  // エイリアス
+  // Aliases.
   const auto& cur_pos_W = odom->odom.odom.frame.p;
   const auto& cur_rot = odom->odom.odom.frame.M;
   const auto& cur_vel_B = odom->odom.odom.twist.vel;
   const auto& cur_gyro_B = odom->odom.odom.twist.rot;
 
-  // 位置制御器
+  // Position controller.
   if (pos_cmd_) {
     if (!acc_cmd_) {
       acc_cmd_ = std::make_unique<tobas_command_msgs::Accel>();
     }
 
-    // 世界座標系から見た現在の位置速度
+    // Current position and velocity viewed from the world coordinate system.
     const auto cur_vel_W = cur_rot * cur_vel_B;
 
-    // 目標加速度を計算（接地している場合は誤差の積分を行わない）
+    // Compute target acceleration; do not integrate error while grounded.
     acc_cmd_->accel =
       pos_cmd_->acc + pos_pid_.update(cur_pos_W, cur_vel_W, pos_cmd_->pos, pos_cmd_->vel, landed_->landed ? 0. : dt);
 
-    // フィードバックメッセージを埋める
+    // Fill the feedback message.
     setpoint->odom.frame.p = pos_cmd_->pos;
     setpoint->odom.twist.vel = cur_rot.inverse(pos_cmd_->vel);
     feedback->position_integral_error = pos_pid_.getIntegralError();
   }
 
-  // 姿勢制御器
+  // Attitude controller.
   if (angle_cmd_) {
     if (!rate_cmd_) {
       rate_cmd_ = std::make_unique<tobas_command_msgs::Rate>();
     }
 
-    // 目標角速度を計算（接地している場合は誤差の積分を行わない）
+    // Compute target angular velocity; do not integrate error while grounded.
     const auto tar_rot = angle_cmd_->angle.toRotation();
     rate_cmd_->rate = rot_pi_.update(cur_rot, tar_rot, landed_->landed ? 0. : dt);
 
-    // フィードバックメッセージを埋める
+    // Fill the feedback message.
     setpoint->odom.frame.M = tar_rot;
     feedback->angle_integral_error = rot_pi_.getIntegralError();
   }
 
-  // 角速度制御器
+  // Angular velocity controller.
   if (rate_cmd_) {
     if (!tar_dgyro_) {
       tar_dgyro_ = std::make_unique<kdl::Vector>();
     }
 
-    // 目標角加速度を計算
+    // Compute target angular acceleration.
     *tar_dgyro_ = rate_gain_.hadamard(rate_cmd_->rate - cur_gyro_B);
 
-    // フィードバックメッセージを埋める
+    // Fill the feedback message.
     setpoint->odom.twist.rot = rate_cmd_->rate;
   }
 
-  // ミキサー
+  // Mixer.
   if (acc_cmd_ && tar_dgyro_) {
-    // 6軸加速度をプロペラの推力に変換
+    // Convert 6-axis acceleration to propeller thrust.
     const auto& dist_force_W = do_dist_comp_trans_ ? dist_force_->wrench.force : kdl::Vector::Zero();
     const auto& dist_torque_B = do_dist_comp_rot_ ? dist_force_->wrench.torque : kdl::Vector::Zero();
     if (!mixer_.solve(
@@ -455,7 +455,7 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
       return;
     }
 
-    // 目標推力を発行
+    // Publish target thrust.
     auto tar_thrusts = std::make_unique<tobas_msgs::msg::RotorThrustArray>();
     tar_thrusts->header.stamp = cur_time;
     for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
@@ -465,11 +465,11 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
     }
     tar_thrusts_pub_->publish(std::move(tar_thrusts));
 
-    // フィードバックメッセージを埋める
+    // Fill the feedback message.
     setpoint->odom.accel.linear = cur_rot.inverse(acc_cmd_->accel);
     setpoint->odom.accel.angular = *tar_dgyro_;
 
-    // フィードバックメッセージを発行
+    // Publish the feedback message.
     setpoint_pub_->publish(std::move(setpoint));
     feedback_pub_->publish(std::move(feedback));
   }
@@ -482,7 +482,8 @@ void ControllerNode::disturbanceForceCb(const tobas_kdl_msgs::WrenchStamped::Con
 
 void ControllerNode::jointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& js)
 {
-  // 異なる関節の情報が別々のメッセージで送られてくる場合を想定し，メッセージそのものを保持せずにコールバックでKDLへの変換まで行う．
+  // Assume that information for different joints may arrive in separate messages, and convert to KDL inside the
+  // callback instead of storing the message itself.
   if (js_converter_.convert(*js) < 0) {
     TOBAS_ERROR("Joint state converter failed: ", js_converter_.errorMessage());
     return;
@@ -503,7 +504,7 @@ void ControllerNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arm
     return;
   }
 
-  // ディスアームしたら積分誤差とコマンドをリセット
+  // Reset integral errors and commands when disarmed.
   if (!arming->data && arming_->data) {
     pos_pid_.resetIntegralError();
     rot_pi_.resetIntegralError();
@@ -539,12 +540,12 @@ void ControllerNode::positionCommandCb(const tobas_command_msgs::PosVelAcc::Cons
     return;
   }
 
-  // コマンドを作成
+  // Create the command.
   if (!pos_cmd_) {
     pos_cmd_ = std::make_unique<tobas_command_msgs::PosVelAcc>();
   }
 
-  // コマンドを更新
+  // Update the command.
   *pos_cmd_ = *pos_cmd;
 }
 
@@ -554,15 +555,15 @@ void ControllerNode::accelCommandCb(const tobas_command_msgs::Accel::ConstShared
     return;
   }
 
-  // 外側の制御を止める
+  // Stop the outer control loop.
   pos_cmd_.reset();
 
-  // コマンドを作成
+  // Create the command.
   if (!acc_cmd_) {
     acc_cmd_ = std::make_unique<tobas_command_msgs::Accel>();
   }
 
-  // コマンドを更新
+  // Update the command.
   *acc_cmd_ = *acc_cmd;
 }
 
@@ -572,12 +573,12 @@ void ControllerNode::angleCommandCb(const tobas_command_msgs::Angle::ConstShared
     return;
   }
 
-  // コマンドを作成
+  // Create the command.
   if (!angle_cmd_) {
     angle_cmd_ = std::make_unique<tobas_command_msgs::Angle>();
   }
 
-  // コマンドを更新
+  // Update the command.
   *angle_cmd_ = *angle_cmd;
 }
 
@@ -587,15 +588,15 @@ void ControllerNode::rateCommandCb(const tobas_command_msgs::Rate::ConstSharedPt
     return;
   }
 
-  // 外側の制御を止める
+  // Stop the outer control loop.
   angle_cmd_.reset();
 
-  // コマンドを作成
+  // Create the command.
   if (!rate_cmd_) {
     rate_cmd_ = std::make_unique<tobas_command_msgs::Rate>();
   }
 
-  // コマンドを更新
+  // Update the command.
   *rate_cmd_ = *rate_cmd;
 }
 

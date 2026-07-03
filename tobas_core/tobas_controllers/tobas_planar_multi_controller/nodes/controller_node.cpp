@@ -92,22 +92,22 @@ private:
   bool topics_received_ = false;
   CommandPriorityHandler cmd_priority_handler_;
   tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr odom_;
-  tobas_msgs::RepulsiveAcceleration::ConstSharedPtr repulsive_accel_;  // 障害物仮想反加速度
-  tobas_kdl_msgs::WrenchStamped::ConstSharedPtr dist_force_;           // 推定外力
+  tobas_msgs::RepulsiveAcceleration::ConstSharedPtr repulsive_accel_;  // Virtual repulsive acceleration from obstacles.
+  tobas_kdl_msgs::WrenchStamped::ConstSharedPtr dist_force_;           // Estimated external force.
   tobas_msgs::msg::LandedState::ConstSharedPtr landed_;
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
 
   // Command
-  tobas_command_msgs::PosVelAccYaw::UniquePtr pos_cmd_;  // 位置制御の目標値 (世界座標系)
-  tobas_command_msgs::AccelYaw::UniquePtr acc_cmd_;      // 加速度制御の目標値 (世界座標系)
-  std::unique_ptr<kdl::Euler> tar_angle_;                // 目標オイラー角 (世界座標系)
-  std::unique_ptr<kdl::Vector> tar_gyro_;                // 目標角速度 (機体座標系)
-  kdl::Vector tar_dgyro_;                                // 目標角加速度 (機体座標系)
-  double tar_thrust_ = 0.;                               // 目標推力 (機体座標系)
+  tobas_command_msgs::PosVelAccYaw::UniquePtr pos_cmd_;  // Position-control target value in the world coordinate system.
+  tobas_command_msgs::AccelYaw::UniquePtr acc_cmd_;  // Acceleration-control target value in the world coordinate system.
+  std::unique_ptr<kdl::Euler> tar_angle_;            // Target Euler angles in the world coordinate system.
+  std::unique_ptr<kdl::Vector> tar_gyro_;            // Target angular velocity in the body coordinate system.
+  kdl::Vector tar_dgyro_;                            // Target angular acceleration in the body coordinate system.
+  double tar_thrust_ = 0.;                           // Target thrust in the body coordinate system.
 
   // Command smoothing
   traj::VelocityLimitedOnlineTrajectoryGenerator roll_filt_, pitch_filt_;
-  bool smooth_tar_roll_ = false, smooth_tar_pitch_ = false;  // 飛行モード遷移時に目標姿勢の平滑化を行っている状態
+  bool smooth_tar_roll_ = false, smooth_tar_pitch_ = false;
 
   // Publishers
   ros2::PublisherPtr<tobas_msgs::msg::RotorThrustArray> tar_thrusts_pub_;
@@ -289,7 +289,7 @@ void ControllerNode::startSmoothTargetAttitude()
 
 kdl::Vector ControllerNode::computeEulerError(const kdl::Euler& cur_rpy, const kdl::Euler& tar_rpy)
 {
-  // 2つのオイラー角を結ぶ直線は回転における最短距離ではないことに注意
+  // Note that a straight line connecting two Euler angles is not the shortest distance in rotation.
   const auto roll_err = algo::wrapPi(tar_rpy.roll - cur_rpy.roll);
   const auto pitch_err = algo::wrapPi(tar_rpy.pitch - cur_rpy.pitch);
   const auto yaw_err = algo::wrapPi(tar_rpy.yaw - cur_rpy.yaw);
@@ -428,56 +428,58 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
     return;
   }
 
-  // 経過時間を計算してオドメトリを更新
+  // Compute elapsed time and update odometry.
   const auto& cur_time = odom->header.stamp;
   const auto dt = (cur_time - odom_->header.stamp).seconds();
   odom_ = odom;
 
-  // 設定値メッセージを作成
+  // Create the setpoint message.
   auto setpoint = std::make_unique<tobas_msgs::OdometryStamped>();
   setpoint->header.stamp = cur_time;
   setpoint->odom.setNaN();
 
-  // フィードバックメッセージを作成
+  // Create the feedback message.
   auto feedback = std::make_unique<tobas_debug_msgs::MulticopterControllerFeedback>();
   feedback->header.stamp = cur_time;
 
-  // エイリアス
+  // Aliases.
   const auto& cur_pos_W = odom->odom.odom.frame.p;
   const auto& cur_rot = odom->odom.odom.frame.M;
   const auto& cur_vel_B = odom->odom.odom.twist.vel;
   const auto& cur_gyro_B = odom->odom.odom.twist.rot;
 
-  // 目標推力が重量の割合で定められた閾値未満のときは，推力が小さいほど制御器の自然周波数が小さくなるように調整する．
-  // 例えば可変ピッチプロペラの姿勢制御の場合，これで低速域でのジャイロに対するピッチ角の感度が一定になる． (memo: 3-33)
+  // When target thrust is below the threshold defined as a fraction of weight,
+  // reduce the controller natural frequency as thrust decreases.
+  // For example, in attitude control with variable-pitch propellers,
+  // this keeps pitch-angle sensitivity to gyro constant in low-speed ranges (memo: 3-33).
   const auto thrust_thresh = mass_holder_.getMass() * st::kGravity * throttle_gain_thresh_;
   const auto land_suspect = (tar_thrust_ < thrust_thresh);
   const auto gain_throt = land_suspect ? tar_thrust_ / thrust_thresh : 1.;
 
-  // 位置制御器
+  // Position controller.
   if (pos_cmd_) {
     if (!acc_cmd_) {
       acc_cmd_ = std::make_unique<tobas_command_msgs::AccelYaw>();
     }
 
-    // ゲインを決定
+    // Determine gains.
     const auto hor_wn = trans_ctrl_.hor_wn * gain_throt;
-    const auto ver_wn = trans_ctrl_.ver_wn;  // 垂直方向はスロットルしない
+    const auto ver_wn = trans_ctrl_.ver_wn;  // Do not throttle the vertical direction.
     const auto hor_kp = math::sqr(hor_wn);
     const auto ver_kp = math::sqr(ver_wn);
     const auto hor_ki = trans_ctrl_.hor_ki * gain_throt;
-    const auto ver_ki = trans_ctrl_.ver_ki;  // 垂直方向はスロットルしない
+    const auto ver_ki = trans_ctrl_.ver_ki;  // Do not throttle the vertical direction.
     const auto hor_kd = 2 * trans_ctrl_.hor_zeta * hor_wn;
     const auto ver_kd = 2 * trans_ctrl_.ver_zeta * ver_wn;
     const kdl::Vector kp(hor_kp, hor_kp, ver_kp);
     const kdl::Vector ki(hor_ki, hor_ki, ver_ki);
     const kdl::Vector kd(hor_kd, hor_kd, ver_kd);
 
-    // 誤差を計算
+    // Compute error.
     const auto ep = pos_cmd_->pos - cur_pos_W;
     const auto ed = pos_cmd_->vel - cur_rot * cur_vel_B;
 
-    // 浮遊していれば積分誤差を蓄積
+    // Accumulate integral error while airborne.
     if (!land_suspect) {
       assert(trans_ctrl_.hor_ki > 0.);
       assert(trans_ctrl_.ver_ki > 0.);
@@ -488,50 +490,50 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
       trans_ctrl_.ei = next_ei.clamp(-max_ei, max_ei);
     }
 
-    // 目標加速度を計算
+    // Compute target acceleration.
     acc_cmd_->accel = pos_cmd_->acc + kp.hadamard(ep) + ki.hadamard(trans_ctrl_.ei) + kd.hadamard(ed);
 
-    // 障害物反力加速度を足す
+    // Add repulsive acceleration from obstacles.
     if (repulsive_accel_) {
       acc_cmd_->accel += repulsive_accel_->accel;
     }
 
-    // ヨー角はそのまま流す
+    // Pass yaw through as-is.
     acc_cmd_->yaw = pos_cmd_->yaw;
 
-    // フィードバックメッセージを埋める
+    // Fill the feedback message.
     setpoint->odom.frame.p = pos_cmd_->pos;
     setpoint->odom.twist.vel = cur_rot.inverse(pos_cmd_->vel);
     feedback->position_integral_error = trans_ctrl_.ei;
   }
 
-  // 加速度制御器
+  // Acceleration controller.
   if (acc_cmd_) {
     if (!tar_angle_) {
       tar_angle_ = std::make_unique<kdl::Euler>();
     }
 
-    // 推力和と目標姿勢を計算
+    // Compute thrust sum and target attitude.
     const auto& dist_force_W = do_dist_comp_trans_ ? dist_force_->wrench.force : kdl::Vector::Zero();
     if (!trans_eom_.solve(cur_rot, acc_cmd_->accel, dist_force_W, tar_thrust_, tar_angle_->roll, tar_angle_->pitch)) {
       TOBAS_FATAL("Failed to solve the translational EoM.");
       return;
     }
 
-    // ヨー角はそのまま流す
+    // Pass yaw through as-is.
     tar_angle_->yaw = acc_cmd_->yaw;
 
-    // フィードバックメッセージを埋める
+    // Fill the feedback message.
     setpoint->odom.accel.linear = cur_rot.inverse(acc_cmd_->accel);
   }
 
-  // 姿勢制御器
+  // Attitude controller.
   if (tar_angle_) {
     if (!tar_gyro_) {
       tar_gyro_ = std::make_unique<kdl::Vector>();
     }
 
-    // ゲインを決定
+    // Determine gains.
     const auto atti_wn = rot_ctrl_.atti_wn * gain_throt;
     const auto head_wn = rot_ctrl_.head_wn * gain_throt;
     const auto atti_angle_gain = atti_wn / rot_ctrl_.atti_zeta / 2;
@@ -541,9 +543,10 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
     const kdl::Vector angle_gain(atti_angle_gain, atti_angle_gain, head_angle_gain);
     const kdl::Vector ki(atti_ki, atti_ki, head_ki);
 
-    // 目標姿勢を決定
-    // 姿勢制御モードから位置制御モードに変化したときに目標姿勢が不連続に変化するのを避けるため，遷移期間は目標姿勢の変化率を制限する．
-    // 基本的にシステムの入力制約は行わないのが望ましいため，遷移期間が終わったら制限を解くようにする．
+    // Determine target attitude.
+    // Limit the target-attitude rate during transition to avoid discontinuous target-attitude changes
+    // when switching from attitude-control mode to position-control mode.
+    // Since it is generally desirable not to constrain system inputs, release this limit after the transition period ends.
     auto tar_rpy = *tar_angle_;
     if (smooth_tar_roll_) {
       tar_rpy.roll = roll_filt_.setTargetPointAndUpdate(tar_angle_->roll, dt);
@@ -554,13 +557,15 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
       smooth_tar_pitch_ = pitch_filt_.isSaturated();
     }
 
-    // 回転角的にはクォータニオンや回転行列で目標姿勢と現在姿勢の誤差を計算し，それを角軸ベクトルに変換したものが最短距離だが，
-    // その場合は方位のみの追従誤差がモデル化誤差によって姿勢の動きに変換されて不安定になる恐れがあるため，
-    // 姿勢と方位を分離する目的でオイラー角で回転誤差を計算している．
+    // In terms of rotation angle,
+    // the shortest distance is obtained by computing the error between target and current attitudes
+    // with quaternions or rotation matrices and converting it to an angle-axis vector,
+    // but in that case heading-only tracking error may be converted into attitude motion by modeling error and become
+    // unstable, so rotation error is computed with Euler angles to separate attitude and heading.
     const kdl::Euler cur_rpy(cur_rot);
     const auto ep = computeEulerError(cur_rpy, tar_rpy);
 
-    // 浮遊していれば積分誤差を蓄積
+    // Accumulate integral error while airborne.
     if (!land_suspect) {
       for (int i = 0; i < 3; ++i) {
         if (ki(i) > 0.) {
@@ -572,35 +577,35 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
       }
     }
 
-    // 目標オイラー角速度を計算
+    // Compute target Euler angle rates.
     const auto tar_drpy = angle_gain.hadamard(ep) + ki.hadamard(rot_ctrl_.ei);
 
-    // オイラー角速度をジャイロに変換
+    // Convert Euler angle rates to gyro values.
     *tar_gyro_ = eigen::angvelFromEulerrateLocal(tar_drpy.data, cur_rpy.roll, cur_rpy.pitch);
 
-    // フィードバックメッセージを埋める
+    // Fill the feedback message.
     setpoint->odom.frame.M = tar_rpy.toRotation();
     feedback->angle_integral_error = rot_ctrl_.ei;
   }
 
   if (tar_gyro_) {
-    // 角速度制御器
+    // Angular velocity controller.
     {
-      // ゲインを決定
+      // Determine gains.
       const auto atti_wn = rot_ctrl_.atti_wn * gain_throt;
       const auto head_wn = rot_ctrl_.head_wn * gain_throt;
       const auto atti_rate_gain = atti_wn * rot_ctrl_.atti_zeta * 2;
       const auto head_rate_gain = head_wn * rot_ctrl_.head_zeta * 2;
       const kdl::Vector rate_gain(atti_rate_gain, atti_rate_gain, head_rate_gain);
 
-      // 目標角加速度を計算
+      // Compute target angular acceleration.
       tar_dgyro_ = rate_gain.hadamard(*tar_gyro_ - cur_gyro_B);
 
-      // フィードバックメッセージを埋める
+      // Fill the feedback message.
       setpoint->odom.twist.rot = *tar_gyro_;
     }
 
-    // ミキサー
+    // Mixer.
     {
       const auto& dist_torque_B = do_dist_comp_rot_ ? dist_force_->wrench.torque : kdl::Vector::Zero();
       if (!mixer_.solve(js_converter_.getPosition(), cur_gyro_B, tar_dgyro_, tar_thrust_, dist_torque_B)) {
@@ -608,11 +613,11 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
         return;
       }
 
-      // フィードバックメッセージを埋める
+      // Fill the feedback message.
       setpoint->odom.accel.angular = tar_dgyro_;
     }
 
-    // 目標推力を発行
+    // Publish target thrust.
     auto thrusts_msg = std::make_unique<tobas_msgs::msg::RotorThrustArray>();
     thrusts_msg->header.stamp = cur_time;
     for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
@@ -622,7 +627,7 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
     }
     tar_thrusts_pub_->publish(std::move(thrusts_msg));
 
-    // フィードバックメッセージを発行
+    // Publish the feedback message.
     setpoint_pub_->publish(std::move(setpoint));
     feedback_pub_->publish(std::move(feedback));
   }
@@ -640,7 +645,8 @@ void ControllerNode::disturbanceForceCb(const tobas_kdl_msgs::WrenchStamped::Con
 
 void ControllerNode::jointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& js)
 {
-  // 異なる関節の情報が別々のメッセージで送られてくる場合を想定し，メッセージそのものを保持せずにコールバックでKDLへの変換まで行う．
+  // Assume that information for different joints may arrive in separate messages,
+  // and convert to KDL inside the callback instead of storing the message itself.
   if (js_converter_.convert(*js) < 0) {
     TOBAS_ERROR("Joint state converter failed: ", js_converter_.errorMessage());
     return;
@@ -661,7 +667,7 @@ void ControllerNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arm
     return;
   }
 
-  // ディスアームしたら積分誤差とコマンドをリセット
+  // Reset integral errors and commands when disarmed.
   if (!arming->data && arming_->data) {
     trans_ctrl_.ei.setZero();
     rot_ctrl_.ei.setZero();
@@ -696,13 +702,13 @@ void ControllerNode::positionCommandCb(const tobas_command_msgs::PosVelAccYaw::C
     return;
   }
 
-  // コマンドを作成
+  // Create the command.
   if (!pos_cmd_) {
     pos_cmd_ = std::make_unique<tobas_command_msgs::PosVelAccYaw>();
     startSmoothTargetAttitude();
   }
 
-  // コマンドを更新
+  // Update the command.
   *pos_cmd_ = *pos_cmd;
 }
 
@@ -712,16 +718,16 @@ void ControllerNode::accelCommandCb(const tobas_command_msgs::AccelYaw::ConstSha
     return;
   }
 
-  // 外側の制御を止める
+  // Stop the outer control loop.
   pos_cmd_.reset();
 
-  // コマンドを作成
+  // Create the command.
   if (!acc_cmd_) {
     acc_cmd_ = std::make_unique<tobas_command_msgs::AccelYaw>();
     startSmoothTargetAttitude();
   }
 
-  // コマンドを更新
+  // Update the command.
   *acc_cmd_ = *acc_cmd;
 }
 
@@ -741,16 +747,16 @@ void ControllerNode::angleCommandCb(const tobas_command_msgs::AngleThrottle::Con
     return;
   }
 
-  // 外側の制御を止める
+  // Stop the outer control loop.
   pos_cmd_.reset();
   acc_cmd_.reset();
 
-  // コマンドを作成
+  // Create the command.
   if (!tar_angle_) {
     tar_angle_ = std::make_unique<kdl::Euler>();
   }
 
-  // コマンドを更新
+  // Update the command.
   *tar_angle_ = angle_cmd->angle;
   tar_thrust_ = max_thrust_sum_ * std::clamp(angle_cmd->throttle, kMinThrot, kMaxThrot);
 }
@@ -761,17 +767,17 @@ void ControllerNode::rateCommandCb(const tobas_command_msgs::RateThrottle::Const
     return;
   }
 
-  // 外側の制御を止める
+  // Stop the outer control loop.
   pos_cmd_.reset();
   acc_cmd_.reset();
   tar_angle_.reset();
 
-  // コマンドを作成
+  // Create the command.
   if (!tar_gyro_) {
     tar_gyro_ = std::make_unique<kdl::Vector>();
   }
 
-  // コマンドを更新
+  // Update the command.
   *tar_gyro_ = rate_cmd->rate;
   tar_thrust_ = max_thrust_sum_ * std::clamp(rate_cmd->throttle, kMinThrot, kMaxThrot);
 }

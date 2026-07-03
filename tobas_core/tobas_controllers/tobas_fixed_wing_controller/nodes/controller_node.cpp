@@ -56,9 +56,9 @@ private:
   kdl::Tree tree_;
 
   kdl::TreeMassHolder mass_holder_;
-  MicroDisturbanceEoM eom_;  // 微小擾乱状態方程式
+  MicroDisturbanceEoM eom_;  // Small-disturbance state equation.
 
-  // 固定値
+  // Fixed values.
   kdl::JntArray q_0_;
 
   bool is_initialized_ = false;
@@ -66,14 +66,14 @@ private:
   bool tree_received_ = false;
   bool topics_received_ = false;
   CommandPriorityHandler cmd_priority_handler_;
-  tobas_msgs::msg::FluidPressure::ConstSharedPtr air_pressure_;           // 大気圧
-  tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr odom_flu_;    // 現在の状態 (FLU座標系)
-  tobas_command_msgs::msg::SpeedRollDeltaPitch::ConstSharedPtr cmd_flu_;  // 現在のコマンド (FLU座標系)
-  tobas_msgs::Odometry odom_frd_;                                         // 現在の状態 (FRD座標系)
-  tobas_msgs::msg::Arming::ConstSharedPtr arming_;                        // ロータのアーム状態
-  tobas_command_msgs::msg::SpeedRollDeltaPitch cmd_frd_;                  // 現在のコマンド (FRD座標系)
+  tobas_msgs::msg::FluidPressure::ConstSharedPtr air_pressure_;           // Atmospheric pressure.
+  tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr odom_flu_;    // Current state in the FLU coordinate system.
+  tobas_command_msgs::msg::SpeedRollDeltaPitch::ConstSharedPtr cmd_flu_;  // Current command in the FLU coordinate system.
+  tobas_msgs::Odometry odom_frd_;                                         // Current state in the FRD coordinate system.
+  tobas_msgs::msg::Arming::ConstSharedPtr arming_;                        // Rotor arming state.
+  tobas_command_msgs::msg::SpeedRollDeltaPitch cmd_frd_;  // Current command in the FRD coordinate system.
   ControllerParameters params_;
-  ctrl::LQD lqd_;  // 最適レギュレータ
+  ctrl::LQD lqd_;  // Optimal regulator.
 
   // Publishers
   ros2::PublisherPtr<tobas_msgs::msg::RotorThrustArray> tar_thrusts_pub_;
@@ -170,7 +170,7 @@ bool ControllerNode::initialize()
   q_0_.resize(tree_.getNrOfJoints());
   q_0_.setZero();
 
-  // 状態変数のスケール
+  // State-variable scales.
   lqd_.state_scale.resize(eom_.kStateSize);
   lqd_.state_scale(eom_.kStateIdx_u) = eom_.trimCondition().takeOffSpeed(st::kStandardAirDensity);
   lqd_.state_scale(eom_.kStateIdx_alpha) = drone_.fixed_wing->vehicle.alpha_limit.range();
@@ -181,7 +181,7 @@ bool ControllerNode::initialize()
   lqd_.state_scale(eom_.kStateIdx_q) = M_PI;
   lqd_.state_scale(eom_.kStateIdx_r) = M_PI;
 
-  // 制御入力のスケール
+  // Control-input scales.
   lqd_.input_scale.resize(eom_.inputSize());
   const auto thrust_scale = mass_holder_.getMass() * st::kGravity / drone_.prop->numRotors();
   lqd_.input_scale.head(drone_.prop->numRotors()).fill(thrust_scale);
@@ -205,7 +205,7 @@ void ControllerNode::updateCurrentStateVector()
   const auto& trim = eom_.trimCondition();
   const auto [roll, pitch, _] = odom_frd_.frame.M.getRPY();
 
-  // TODO: 横系のトリムも考慮
+  // TODO: Also consider lateral trim.
   lqd_.current_state(eom_.kStateIdx_u) = odom_frd_.twist.vel.x() - trim.u();
   lqd_.current_state(eom_.kStateIdx_alpha) = angleOfAttack(odom_frd_.twist.vel.data) - trim.alpha();
   lqd_.current_state(eom_.kStateIdx_beta) = angleOfSideSlip(odom_frd_.twist.vel.data);
@@ -220,7 +220,7 @@ void ControllerNode::updateSetStateVector()
 {
   const auto& trim = eom_.trimCondition();
 
-  // 失速しないように速度制限をした上で目標推力を計算
+  // Compute target thrust after applying velocity limits to avoid stall.
   const auto rho = st::pressureToDensity(air_pressure_->pressure);
   const auto tar_speed = trim.speedLimit(rho).clamp(cmd_frd_.speed);
   const auto tar_u = tar_speed * std::cos(eom_.trimCondition().alpha());
@@ -486,11 +486,11 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
     return;
   }
 
-  // 経過時間を計算してオドメトリを更新
+  // Compute elapsed time and update odometry.
   const auto dt = (odom_flu->header.stamp - odom_flu_->header.stamp).seconds();
   odom_flu_ = odom_flu;
 
-  // コマンドがなければスキップ
+  // Skip if no command is available.
   if (!cmd_flu_) {
     return;
   }
@@ -499,7 +499,7 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
   odometryFluToFrd(odom_flu_->odom.odom, odom_frd_);
   speedRollDeltaPitchFluToFrd(*cmd_flu_, cmd_frd_);
 
-  // 現在の速度を使って状態方程式を更新
+  // Update the state equation using the current velocity.
   const auto rho = st::pressureToDensity(air_pressure_->pressure);
   switch (eom_.update(odom_frd_.twist.vel.norm(), rho, q_0_)) {
     case SolverI::kNoError:
@@ -521,7 +521,7 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
   updateCurrentStateVector();
   updateSetStateVector();
 
-  // 最適制御入力を求める
+  // Compute the optimal control input.
   const Eigen::VectorXd du = lqd_.solve(dt);
   const Eigen::VectorXd u = eom_.trimInput() + du;
 
