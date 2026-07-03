@@ -124,10 +124,10 @@ void FlightLogViewerWidget::setLogName(const QString& log_name)
 {
   reset();
 
-  // rosbagの絶対パスを更新
+  // Update the absolute rosbag path.
   log_path_ = ros2::expandUser(kRosbagDirHome) / log_name.toStdString();
 
-  // rosbagを開く
+  // Open the rosbag.
   if (!open(log_path_)) {
     if (!ros2::reindexRosBag(log_path_)) {
       qt::qErrorBox(this, "The log file is broken and failed to fix it.");
@@ -139,12 +139,12 @@ void FlightLogViewerWidget::setLogName(const QString& log_name)
     }
   }
 
-  // ログの長さを更新
+  // Update the log length.
   const auto& metadata = reader_.get_metadata();
   const auto duration = metadata.duration.count() * 1e-9;  // [s]
   playback_ctrl_->setDuration(std::max(duration - kWindowDuration, 0.));
 
-  // 時刻0のログを表示
+  // Show the log at time 0.
   setPlotData(0.);
 }
 
@@ -178,15 +178,15 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
   const auto window_start_time = record_start_time + static_cast<long>(time_from_start * 1e+9);  // [ns]
   const auto window_stop_time = window_start_time + static_cast<long>(kWindowDuration * 1e+9);   // [ns]
 
-  // 初期時刻に移動
+  // Move to the initial time.
   reader_.seek(window_start_time);
 
-  // データを初期化
+  // Initialize data.
   for (const auto& elem : data_) {
     elem->clearValues();
   }
 
-  // データを仕分ける
+  // Classify data.
   while (reader_.has_next()) {
     const auto bag_msg = reader_.read_next();
 
@@ -198,12 +198,12 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
       break;
     }
 
-    // 一度デコードに失敗したトピックはログがリセットされるまでデコードしない
+    // Do not decode topics that failed once until the log is reset.
     if (decode_fail_topics_.contains(topic)) {
       continue;
     }
 
-    // デコード
+    // Decode.
     for (const auto& elem : data_) {
       if (topic.ends_with(elem->getTopic())) {
         if (!elem->decode(cur_time, ser_data)) {
@@ -215,9 +215,9 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
     }
   }
 
-  // データをプロット
+  // Plot data.
   for (const auto& plot_tab : plot_tabs_) {
-    // データの設定の前に範囲を指定しないと若干プロットが崩れる
+    // The plot becomes slightly distorted unless the range is set before setting data.
     plot_tab->setTimeScale(window_start_time * 1e-9, window_stop_time * 1e-9);
     plot_tab->plot();
   }

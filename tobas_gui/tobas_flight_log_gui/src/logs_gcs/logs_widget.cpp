@@ -136,7 +136,7 @@ void FlightLogsWidgetGCS::onReadButtonClicked()
 {
   qDebug() << "FlightLogsWidgetGCS::onReadButtonClicked";
 
-  // 現在選択されているアイテムを取得
+  // Get the currently selected item.
   const auto cur_text = currentLogName();
 
   clearLogs();
@@ -164,7 +164,7 @@ void FlightLogsWidgetGCS::onReadButtonClicked()
 
   sortLogs();
 
-  // 選択されていたアイテムを再び選択
+  // Select the previously selected item again.
   if (!cur_text.isEmpty()) {
     setCurrentLogName(cur_text);
   }

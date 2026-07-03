@@ -111,8 +111,8 @@ void IceRotorModel::applyWrench(
   const auto axis_W = R_W_L.RotateVector(axis_L);
 
   // Coriolis moment (Gyro effect)
-  const auto I_W = link_->WorldInertiaMatrix(ecm).value();      // 回転軸上に重心がある想定
-  const auto L_W = I_W * (getVelocity(engine_speed) * axis_W);  // プロペラの角運動量
+  const auto I_W = link_->WorldInertiaMatrix(ecm).value();  // Assume the center of gravity lies on the rotation axis.
+  const auto L_W = I_W * (getVelocity(engine_speed) * axis_W);  // Angular momentum of the propeller.
   const auto coriolis_moment_W = -angvel_W_->Data().Cross(L_W);
 
   // External force: Thrust force
@@ -128,7 +128,7 @@ void IceRotorModel::applyWrench(
 
   // Apply wrench
   link_->AddWorldWrench(ecm, thrust_force_W + h_force_W, gz::math::Vector3d::Zero);
-  parent_link_->AddWorldWrench(ecm, gz::math::Vector3d::Zero, coriolis_moment_W + drag_moment_W);  // 慣性力は無視
+  parent_link_->AddWorldWrench(ecm, gz::math::Vector3d::Zero, coriolis_moment_W + drag_moment_W);  // No inertial force.
 }
 
 void IceRotorModel::updateJointPosition(gz::sim::EntityComponentManager& ecm, const double& engine_pos)

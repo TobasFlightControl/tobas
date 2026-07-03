@@ -21,12 +21,12 @@ class PoseViewerWidget : public qt::Widget
   using super = qt::Widget;
 
   static constexpr int kOriginalSize = 640;
-  static constexpr int kLineWidth = 3;       // ゲージ線の幅
+  static constexpr int kLineWidth = 3;       // Gauge line width.
   static constexpr int kScaleInterval = 10;  // [deg]
-  static constexpr int kRollRadius = 200;    // ロール円の半径
+  static constexpr int kRollRadius = 200;    // Roll circle radius.
   static constexpr int kRollTickLength = 10;
-  static constexpr double kPitchAngleOfView = st::deg2rad(120);  // [rad] 人間の視野角程度
-  static constexpr int kPitchVisualRange = 25;                   // [deg] 描画するピッチ角の範囲
+  static constexpr double kPitchAngleOfView = st::deg2rad(120);  // [rad] Approximately the human field of view.
+  static constexpr int kPitchVisualRange = 25;                   // [deg] Pitch angle range to draw.
   static constexpr int kPitchLineLength = 100;
   static constexpr double kYawAngleOfView = st::deg2rad(120);  // [rad]
   static constexpr int kYawLineY = 60;
@@ -44,9 +44,9 @@ public:
   void reset();
 
 private:
-  double roll_, pitch_, yaw_;  // 現在のオイラー角
-  double alt_rel_;             // 現在の起動地点からの相対高度 [m]
-  double alt_msl_;             // 現在の海抜高度 [m]
+  double roll_, pitch_, yaw_;  // Current Euler angles.
+  double alt_rel_;             // Current relative altitude from the takeoff point [m].
+  double alt_msl_;             // Current altitude above mean sea level [m].
   bool alt_msl_valid_;
 
   void paintEvent(QPaintEvent* event) override;
@@ -63,16 +63,16 @@ private:
 
   void addGradation(QPainter& painter);
 
-  /* カメラの枠内の点が空に含まれるかどうかを判定する． */
+  /* Determine whether a point in the camera frame is included in the sky. */
   bool isSky(const QPoint& p, double a, double b) const;
 
-  /* ピッチ角 [rad] をウィンドウ高さに変換する． */
+  /* Convert pitch angle [rad] to window height. */
   static double pitchToHeight(double pitch);
 
-  /* ヨー角 [rad] をウィンドウ幅に変換する． */
+  /* Convert yaw angle [rad] to window width. */
   static double yawToWidth(double yaw);
 
-  /* 高度差 [m] をウィンドウ高さに変換する． */
+  /* Convert altitude difference [m] to window height. */
   static double altitudeToHeight(double altitude);
 
 private Q_SLOTS:

@@ -12,7 +12,7 @@ namespace tobas
 {
 namespace gazebo
 {
-/* Gazeboメッセージを1通だけ取得する． */
+/* Receive exactly one Gazebo message. */
 template <typename MsgT, typename RepT = int64_t, typename RatioT = std::milli>
 bool waitForMessage(
   MsgT& _msg_out,
@@ -24,25 +24,25 @@ bool waitForMessage(
   std::condition_variable cv;
   bool got = false;
 
-  // コールバック (最初の1通だけ採用)
+  // Callback; only the first message is accepted.
   const std::function<void(const MsgT&)> cb = [&](const MsgT& msg)
   {
     const std::lock_guard lock(mutex);
     if (got) {
-      return;  // 2通目以降は無視
+      return;  // Ignore the second and later messages.
     }
     _msg_out = msg;
     got = true;
     cv.notify_one();
   };
 
-  // 購読開始
+  // Start subscription.
   if (!node.Subscribe(_topic, cb)) {
     gzerr << "Failed to subscribe \"" << _topic << "\"." << std::endl;
     return false;
   }
 
-  // メッセージの受信待ち
+  // Wait for message reception.
   {
     std::unique_lock<std::mutex> lock(mutex);
     const auto wait_cb = [&] { return got; };
@@ -54,7 +54,7 @@ bool waitForMessage(
     }
   }
 
-  // 購読解除
+  // Unsubscribe.
   node.Unsubscribe(_topic);
 
   return got;

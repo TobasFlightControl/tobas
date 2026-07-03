@@ -47,7 +47,7 @@ public:
   ~BaseNode();
 
 protected:
-  /* SDFパラメータの制約． */
+  /* Constraints on SDF parameters. */
   enum SdfConstraint
   {
     kNone,

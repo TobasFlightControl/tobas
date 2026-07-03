@@ -9,7 +9,7 @@ namespace tobas
 {
 namespace gazebo
 {
-/* 位置と最大速度の制約を含む単純な関節モデル． */
+/* Simple joint model with position and maximum-velocity constraints. */
 class SimpleJointModel
 {
 public:

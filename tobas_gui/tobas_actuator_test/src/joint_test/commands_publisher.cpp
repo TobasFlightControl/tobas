@@ -32,11 +32,11 @@ void JointCommandsPublisherWidget::updateInternalDataStructures()
 {
   TOBAS_CHECK(joint_parser_.updateInternalDataStructures());
 
-  // 初期化
+  // Initialize.
   commanders_.clear();
   qt::clearLayout(rows_);
 
-  // アクティブ回転ジョイントのコマンダーを作成
+  // Create commanders for active rotary joints.
   for (const auto& [jnt_name, joint] : drone_.joints) {
     if (!joint.isServoJoint()) {
       continue;
@@ -106,7 +106,7 @@ void JointCommandsPublisherWidget::updateInternalDataStructures()
     commanders_[jnt_name] = commander;
   }
 
-  // トピックを更新
+  // Update topics.
   const auto ns = '/' + drone_.name;
   const auto pos_topic = path::join(ns, kRemoteIfaceNS, topic::kJointPosCmd);
   const auto vel_topic = path::join(ns, kRemoteIfaceNS, topic::kJointVelCmd);
@@ -118,7 +118,7 @@ void JointCommandsPublisherWidget::updateInternalDataStructures()
 
 void JointCommandsPublisherWidget::start()
 {
-  // コマンダーを有効化
+  // Enable the commander.
   for (const auto& [jnt_name, commander] : commanders_) {
     const auto& joint = drone_.joints.at(jnt_name);
     switch (joint.cmd_iface) {
@@ -139,19 +139,19 @@ void JointCommandsPublisherWidget::start()
     commander->setEnabled(true);
   }
 
-  // ジョイントがリセットされないよう一定周期でコマンドを発行し続ける
+  // Keep publishing commands at a fixed interval so the joints are not reset.
   publish_timer_.start(kPublishPeriod);
 }
 
 void JointCommandsPublisherWidget::stop()
 {
-  // コマンダーを無効化
+  // Disable the commander.
   for (const auto& [jnt_name, commander] : commanders_) {
     commander->setValue(0., true);
     commander->setEnabled(false);
   }
 
-  // タイマーを停止
+  // Stop the timer.
   publish_timer_.stop();
 }
 

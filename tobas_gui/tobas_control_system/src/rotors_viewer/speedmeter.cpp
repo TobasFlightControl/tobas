@@ -18,11 +18,11 @@ namespace ctrl
 {
 SpeedmeterWidget::SpeedmeterWidget()
 {
-  // サイズポリシーとリサイズモードの指定 (しないとウィジェットが潰れてしまう)
+  // Set the size policy and resize mode; otherwise the widget collapses.
   setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
   setResizeMode(QQuickWidget::SizeRootObjectToView);
 
-  // QMLを読み込む
+  // Load QML.
   const auto qml_path = getPkgShareDir() / "qml/SpeedMeter.qml";
   setSource(QUrl::fromLocalFile(QString::fromStdString(qml_path)));
 }

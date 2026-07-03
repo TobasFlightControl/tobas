@@ -47,9 +47,9 @@ protected:
   bool isChecked(field::BaseFieldWidget* widget) const;
   void setChecked(field::BaseFieldWidget* widget, bool checked);
 
-  /* チェックされていたら設定された値，されていなければNaNを返す． */
+  /* Return the configured value if checked; otherwise return NaN. */
   double getValueOrDefault(field::FieldWidget<double>* widget) const;
-  /* 有効な値ならばそのままセットし，NaNならばデフォルト値を使う． */
+  /* Set a valid value as-is; use the default value if it is NaN. */
   void setValueOrDefault(field::FieldWidget<double>* widget, double value);
 
 private:

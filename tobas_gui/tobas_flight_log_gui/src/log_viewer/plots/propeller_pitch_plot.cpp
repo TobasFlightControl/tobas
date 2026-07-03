@@ -23,7 +23,7 @@ PropellerPitchPlotWidget::PropellerPitchPlotWidget()
 
 void PropellerPitchPlotWidget::clear()
 {
-  // レイアウトとコンテナに同じウィジェットが含まれる場合は，コンテナ，レイアウトの順にクリアする必要がある．
+  // When the same widgets are contained in both the layout and the container, clear the container before the layout.
   plots_.clear();
   curves_.clear();
   grid_->clear();
@@ -103,7 +103,7 @@ bool PropellerPitchPlotWidget::updateInternalDataStructures(const tobas_msgs::ms
     const auto plot = new QwtPlot2();
     plot->setAxisNoLabel(QwtPlot::xBottom);
 
-    // ウィジェットをN行2列の格子状に配置
+    // Arrange widgets in an N-row, 2-column grid.
     const auto row = idx / 2;
     const auto col = idx % 2;
     grid_->addWidget(plot, row, col, 1, 1);

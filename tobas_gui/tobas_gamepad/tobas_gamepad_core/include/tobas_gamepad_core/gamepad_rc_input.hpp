@@ -57,7 +57,8 @@ struct GamepadRcInputConfig
 /**
  * @brief Driver that reads gamepad input with libevdev and converts it to RC input state.
  *
- * Reads a Linux input event device and converts button input to switches and absolute-axis input to normalized RC command values.
+ * Reads a Linux input event device and converts button input to switches and absolute-axis input
+ * to normalized RC command values.
  */
 class GamepadRcInput
 {

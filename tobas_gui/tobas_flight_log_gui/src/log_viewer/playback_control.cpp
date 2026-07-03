@@ -109,7 +109,7 @@ QString PlaybackControlWidget::formatTime(int msec)
 void PlaybackControlWidget::onPlayButtonToggled(bool checked)
 {
   if (checked) {
-    // 終了してたら先頭に戻してスタート
+    // If playback has finished, return to the beginning and start.
     if (slider_->value() == slider_->maximum()) {
       slider_->setValue(0);
     }
@@ -149,7 +149,7 @@ void PlaybackControlWidget::onTimerTimeout()
 
   auto next_time = slider_->value() + kTimerInterval;  // [ms]
 
-  // 終了時点で停止
+  // Stop at the end.
   if (next_time > slider_->maximum()) {
     next_time = slider_->maximum();
     play_button_->setChecked(false);

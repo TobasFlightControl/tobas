@@ -68,7 +68,7 @@ private:
 
   gz::math::Vector3d wind_vel_W_ = gz::math::Vector3d::Zero;  // [m/s]
   builtin_interfaces::msg::Time prev_sim_time_;
-  builtin_interfaces::msg::Time last_cmd_time_;  // 最後にスロットルコマンドが指令された時刻
+  builtin_interfaces::msg::Time last_cmd_time_;  // Time when the last throttle command was issued
   RateManager::SharedPtr publish_state_rate_manager_;
 
   // Publishers
@@ -148,7 +148,7 @@ void GazeboIcePropulsionSystemPlugin::PreUpdate(const gz::sim::UpdateInfo& info,
   // Update the previous simulation step time
   ros2::timeChronoToMsg(info.simTime, prev_sim_time_);
 
-  // 最後にスロットルコマンドが指令された時刻から一定時間経過したら強制的にスロットルをゼロにする
+  // Force throttle to zero after a fixed time has elapsed since the last throttle command was issued.
   const auto secs_from_last_cmd = (prev_sim_time_ - last_cmd_time_).seconds();
   if (secs_from_last_cmd > kAutoStopTimeout) {
     engine_.setThrottle(0.);
@@ -195,7 +195,7 @@ void GazeboIcePropulsionSystemPlugin::PostUpdate(const gz::sim::UpdateInfo& info
     ros2::timeChronoToMsg(info.simTime, rotor_state_gt->header.stamp);
     rotor_state_gt->rotation_speed = rotor.getSpeed(engine_.getSpeed());
     rotor_state_gt->current = 0.;
-    rotor_state_gt->vibration_force = 0.;  // TODO: エンジン駆動プロペラの振動モデル
+    rotor_state_gt->vibration_force = 0.;  // TODO: Vibration model for engine-driven propellers.
     rotor_state_gt_pubs_.at(link_name)->publish(std::move(rotor_state_gt));
   }
 
@@ -231,10 +231,10 @@ void GazeboIcePropulsionSystemPlugin::registerPubSub()
 void GazeboIcePropulsionSystemPlugin::iceCommandCb(
   const tobas_msgs::msg::IcePropulsionSystemCommand::ConstSharedPtr& ice_cmd)
 {
-  // 最後にコマンドを受け取った時刻を更新
+  // Update the time when the last command was received.
   last_cmd_time_ = prev_sim_time_;
 
-  // エンジンスロットルを更新
+  // Update engine throttle.
   const auto& engine_throt = ice_cmd->engine_throttle;
   if (!std::isfinite(engine_throt)) {
     TOBAS_WARN("The commanded engine throttle is not finite: ", engine_throt);
@@ -246,7 +246,7 @@ void GazeboIcePropulsionSystemPlugin::iceCommandCb(
   }
   engine_.setThrottle(engine_throt);
 
-  // プロペラピッチ角を更新
+  // Update propeller pitch angle.
   for (const auto& elem : ice_cmd->pitch_angles) {
     if (!rotors_.contains(elem.link_name)) {
       TOBAS_WARN("Rotor link \"", elem.link_name, "\" does not exist.");

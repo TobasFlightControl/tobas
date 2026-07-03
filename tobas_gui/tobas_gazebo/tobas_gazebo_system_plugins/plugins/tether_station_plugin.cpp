@@ -36,7 +36,7 @@ class GazeboTetherStationPlugin : public BaseNode,
   // Default parameters
   static constexpr double kDefaultInitTension = 1.;       // [N]
   static constexpr double kDefaultInitMaxLength = 5.;     // [N]
-  static constexpr double kDefaultYoungModulus = 200.;    // [MPa] 低密度ポリエチレン
+  static constexpr double kDefaultYoungModulus = 200.;    // [MPa] Low-density polyethylene.
   static constexpr double kDefaultCrossSectionArea = 1.;  // [mm^2]
 
   using self = GazeboTetherStationPlugin;
@@ -61,8 +61,8 @@ private:
   gz::math::Vector3d B_Pos_BQ_;
   double init_tension_;     // [N]
   double init_max_length_;  // [m]
-  double young_;            // [MPa] ヤング率 (Young Modulus)
-  double csa_;              // [mm^2] 断面積 (Cross-Sectional Area)
+  double young_;            // [MPa] Young modulus.
+  double csa_;              // [mm^2] Cross-sectional area.
 
   tobas_gazebo_msgs::msg::TetherParams params_;
 
@@ -124,7 +124,7 @@ void GazeboTetherStationPlugin::Configure(
 
   marker_.set_action(gz::msgs::Marker::ADD_MODIFY);
   marker_.set_ns(kPluginName);
-  marker_.set_id(1);  // 0だとIDがランダムに割り当てられて無限に増えてしまう
+  marker_.set_id(1);  // If this is 0, IDs are assigned randomly and increase without bound.
   marker_.set_type(gz::msgs::Marker::LINE_LIST);
   line_p0_ = marker_.add_point();
   line_p1_ = marker_.add_point();
@@ -132,47 +132,47 @@ void GazeboTetherStationPlugin::Configure(
 
 void GazeboTetherStationPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::EntityComponentManager& ecm)
 {
-  // 現在の状態を取得
+  // Get the current state.
   const auto& T_W_B = pose_W_->Data();
   const auto& W_Pos_WB = T_W_B.Pos();
   const auto& R_W_B = T_W_B.Rot();
   const auto& linvel_W = linvel_W_->Data();
   const auto& angvel_W = angvel_W_->Data();
 
-  // ケーブルの端点間ベクトルを計算
+  // Compute the vector between cable endpoints.
   const auto W_Pos_BQ = R_W_B.RotateVector(B_Pos_BQ_);
   const auto W_Pos_WQ = W_Pos_WB + W_Pos_BQ;
   const auto W_Pos_PQ = W_Pos_WQ - W_Pos_WP_;
   const auto length = W_Pos_PQ.Length();  // [m]
 
-  // 張力を決定
+  // Determine tension.
   double T;                               // [N]
-  if (length > params_.maximum_length) {  // ケーブル長が限界以上ならばワイヤロープの弾粘性モデル
-    // ケーブル長の変位を計算
+  if (length > params_.maximum_length) {  // Use a wire-rope elastic-viscous model if the cable length exceeds the limit.
+    // Compute cable-length displacement.
     const auto x = length - params_.maximum_length;  // [m]
 
-    // ケーブル長の変化率を計算
+    // Compute cable-length rate.
     const auto W_Vel_PQ = linvel_W + angvel_W.Cross(W_Pos_BQ);  // W_Vel_PQ = W_Vel_WQ - W_Vel_WP = W_Vel_WQ
-    const auto xd = W_Vel_PQ.Dot(W_Pos_PQ) / length;  // 相対速度をケーブル方向に射影したものがケーブル長の変化率
+    const auto xd = W_Vel_PQ.Dot(W_Pos_PQ) / length;
 
-    // マスバネダンパ系の係数
+    // Mass-spring-damper coefficients.
     const auto m = mass_holder_.getMass();                  // [kg]
     const auto k = young_ * csa_ * params_.maximum_length;  // [N/m]
-    const auto d = 2 * std::sqrt(m * k);                    // [Ns/m] 臨海減衰する粘性係数
+    const auto d = 2 * std::sqrt(m * k);                    // [Ns/m] Viscous coefficient for critical damping.
 
-    // ケーブルにかかる力を計算
+    // Compute force applied to the cable.
     T = k * x + d * xd;
   }
-  else {  // ケーブルが伸び切っていない場合は一定張力
+  else {  // Use constant tension if the cable is not fully stretched.
     T = params_.tension;
   }
 
-  // ケーブルの方向に張力を加える
+  // Apply tension along the cable direction.
   const auto axis_W = -W_Pos_PQ.Normalized();
   const auto force_W = T * axis_W;
   link_->AddWorldForce(ecm, force_W, B_Pos_BQ_);
 
-  // 描画用のラインマーカを更新
+  // Update the line marker for visualization.
   if (rate_manager_.update(info.simTime)) {
     vector3dGzToMsg(W_Pos_WP_, *line_p0_);
     vector3dGzToMsg(W_Pos_WQ, *line_p1_);

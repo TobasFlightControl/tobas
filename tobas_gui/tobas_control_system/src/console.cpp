@@ -18,10 +18,10 @@ ConsoleWidget::ConsoleWidget(const RosQtBridge& bridge)
 {
   table_ = new qt::TableWidget(0, kNumCols);
   table_->setHorizontalHeaderLabels({ "Stamp", "Name", "Level", "Message" });
-  table_->setEditTriggers(QAbstractItemView::NoEditTriggers);  // 編集禁止
-  table_->setSelectionMode(QAbstractItemView::NoSelection);    // 選択禁止
-  table_->setFocusPolicy(Qt::NoFocus);                         // フォーカス禁止
-  table_->setHeaderSectionsClickable(false);                   // ヘッダのクリック禁止
+  table_->setEditTriggers(QAbstractItemView::NoEditTriggers);  // Disable editing.
+  table_->setSelectionMode(QAbstractItemView::NoSelection);    // Disable selection.
+  table_->setFocusPolicy(Qt::NoFocus);                         // Disable focus.
+  table_->setHeaderSectionsClickable(false);                   // Disable header clicks.
 
   const auto hor_header = table_->horizontalHeader();
   hor_header->setSectionResizeMode(kStampCol, QHeaderView::ResizeToContents);
@@ -46,12 +46,12 @@ void ConsoleWidget::reset()
 
 void ConsoleWidget::messageCb(const tobas_msgs::msg::Message::ConstSharedPtr& msg)
 {
-  // TODO: ボタンでメッセージのスクリーニング
+  // TODO: Screen messages with buttons.
 
-  // 先頭に行を追加
+  // Add a row at the top.
   table_->insertRow(0);
 
-  // 行が溢れていたら古い方から消す
+  // If rows overflow, delete the oldest row.
   const auto num_rows = table_->rowCount();
   if (num_rows > kMaxRows) {
     table_->removeRow(num_rows - 1);
@@ -108,7 +108,7 @@ void ConsoleWidget::messageCb(const tobas_msgs::msg::Message::ConstSharedPtr& ms
   table_->setItem(0, kLevelCol, level_item);
   table_->setItem(0, kMessageCol, message_item);
 
-  // 行の追加前後で表示位置が変化しないようにスクロール位置を調整
+  // Adjust the scroll position so the display position does not change before and after adding the row.
   const auto sb = table_->verticalScrollBar();
   const auto old_scroll = sb->value();
   if (old_scroll > 0) {

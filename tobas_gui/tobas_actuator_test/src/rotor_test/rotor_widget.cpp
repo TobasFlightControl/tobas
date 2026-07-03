@@ -32,7 +32,7 @@ RotorWidget::RotorWidget()
 
   gain_slider_ = new QwtSlider(Qt::Vertical);
   gain_slider_->setScale(kMinRotorCtrlGain, kMaxRotorCtrlGain);
-  gain_slider_->setTotalSteps(kMaxRotorCtrlGain - kMinRotorCtrlGain);  // 1刻み
+  gain_slider_->setTotalSteps(kMaxRotorCtrlGain - kMinRotorCtrlGain);  // Step size is 1.
   gain_slider_->setScalePosition(QwtSlider::TrailingScale);
   gain_slider_->setTrough(false);
   gain_slider_->setGroove(true);
@@ -109,14 +109,14 @@ void RotorWidget::setText(const QString& text)
 
 void RotorWidget::setMaximumRPM(int rpm)
 {
-  // スライダの範囲指定時にvalueChangedが発行されるのを防ぐ
+  // Prevent `valueChanged` from being emitted while setting the slider range.
   const QSignalBlocker cur_rpm_block(cur_rpm_meter_);
   const QSignalBlocker tar_rpm_block(tar_rpm_slider_);
 
   cur_rpm_meter_->setUpperBound(rpm);
 
   tar_rpm_slider_->setUpperBound(rpm);
-  tar_rpm_slider_->setTotalSteps(rpm);  // 1刻み
+  tar_rpm_slider_->setTotalSteps(rpm);  // Step size is 1.
 }
 
 void RotorWidget::setCurrentRPM(int rpm)

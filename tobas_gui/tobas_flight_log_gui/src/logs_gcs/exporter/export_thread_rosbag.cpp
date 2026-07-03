@@ -36,14 +36,14 @@ void ExportThreadRosbag::run()
 
   QDir source_dir(log_path);
 
-  // トップディレクトリ自体を追加
+  // Add the top directory itself.
   if (!addZipEntry(zip, log_path, log_name_ + '/')) {
     zip.close();
     QFile::remove(save_path_);
     return;
   }
 
-  // トップディレクトリ以下の全てのディレクトリとファイルを追加
+  // Add all directories and files under the top directory.
   QDirIterator it(
     log_path, QDir::AllEntries | QDir::NoDotAndDotDot | QDir::Hidden | QDir::System, QDirIterator::Subdirectories);
 
@@ -86,13 +86,13 @@ bool ExportThreadRosbag::addZipEntry(QuaZip& zip, const QString& abs_path, const
   QuaZipNewInfo zip_info(zip_path, abs_path);
   zip_info.setPermissions(info.permissions());
 
-  // zipファイルを作成
+  // Create the zip file.
   if (!zip_file.open(QIODevice::WriteOnly, zip_info)) {
     Q_EMIT finished(false, "Failed to add entry to zip: " + zip_path);
     return false;
   }
 
-  // ソースがファイルの場合はその内容を書き込む
+  // If the source is a file, write its contents.
   if (info.isFile()) {
     QFile input_file(abs_path);
 
@@ -102,7 +102,7 @@ bool ExportThreadRosbag::addZipEntry(QuaZip& zip, const QString& abs_path, const
     }
 
     QByteArray buffer;
-    buffer.resize(64 * (1 << 10));  // 64 KiBずつ読み込む
+    buffer.resize(64 * (1 << 10));  // Read 64 KiB at a time.
 
     while (true) {
       const auto read_size = input_file.read(buffer.data(), buffer.size());

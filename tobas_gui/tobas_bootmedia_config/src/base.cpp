@@ -16,7 +16,7 @@ namespace bm
 {
 BaseConfigWidget::BaseConfigWidget()
 {
-  // QTabWidgetのデフォルトの背景色は白すぎるため，ベース色に固定．
+  // Fix the `QTabWidget` background to the base color because the default background is too white.
   setAutoFillBackground(true);
   auto pal = palette();
   pal.setColor(QPalette::Window, pal.color(QPalette::Base));

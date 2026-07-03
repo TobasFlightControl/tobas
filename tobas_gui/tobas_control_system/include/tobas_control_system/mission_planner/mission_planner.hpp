@@ -84,35 +84,35 @@ private:
 
   void clearMission();
 
-  /* プランナーにミッションコマンドを追加する． */
+  /* Add a mission command to the planner. */
   void addCommand(mission::Type type, BaseCommandWidget* widget);
 
-  /* 各ウィジェットを実行モードに切り替える． */
+  /* Switch each widget to execute mode. */
   void setExecuteMode();
 
-  /* 各ウィジェットを編集モードに切り替える． */
+  /* Switch each widget to edit mode. */
   void setEditMode();
 
-  /* 選択されているリストアイテムに基づいてコマンドウィジェットの表示を更新する． */
+  /* Update the displayed command widget based on the selected list item. */
   void listToCommands();
 
-  /* 現在のコマンドに基づいてマップ上のオブジェクトを描き直す． */
+  /* Redraw map objects based on the current commands. */
   void commandsToMap();
 
-  /* コマンド列から各Waypointがスプライン終端かどうかを更新する． */
+  /* Update whether each `Waypoint` is a spline endpoint from the command sequence. */
   void updateWaypointSplineEnds();
 
-  /* Waypoint列をスプラインとしてマップに描画する． */
+  /* Draw the `Waypoint` sequence on the map as a spline. */
   void addSplinePathToMap(const std::vector<QGeoCoordinate>& waypoints);
 
-  /* リストの要素に対応するコマンドウィジェットを取得する． */
+  /* Get the command widget corresponding to the list item. */
   BaseCommandWidget* findCommandWidget(const QListWidgetItem* _item);
   const BaseCommandWidget* findCommandWidget(const QListWidgetItem* _item) const;
 
-  /* 最後のウェイポイントウィジェットを取得する． */
+  /* Get the last waypoint widget. */
   const WaypointWidget* findLastWaypoint() const;
 
-  /* 現在の設定からミッションを作成する． */
+  /* Create a mission from the current settings. */
   tobas::mission::Mission createMission() const;
 
 private Q_SLOTS:

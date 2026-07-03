@@ -17,11 +17,11 @@ namespace tobas
 namespace gazebo
 {
 /**
- * @brief Gazebo の GPU LiDAR を ROS 2 で Hesai LiDAR っぽく使用できるようにブリッジする．
+ * @brief Bridge Gazebo GPU LiDAR so it can be used from ROS 2 like a Hesai LiDAR.
  *
- * gpu_lidar センサと gz-sim-sensors-system プラグインにより発出される
- * gz::msgs::PointCloudPacked 型のメッセージを購読し，
- * ROS 2 の sensor_msgs::msg::PointCloud2 型のメッセージとして再発行する．
+ * Subscribes to messages emitted by the `gpu_lidar` sensor and `gz-sim-sensors-system` plugin,
+ * subscribes to `gz::msgs::PointCloudPacked` messages,
+ * and republishes them as ROS 2 `sensor_msgs::msg::PointCloud2` messages.
  */
 class HesaiLidarPlugin : public BaseNode, public gz::sim::System, public gz::sim::ISystemConfigure
 {
@@ -45,24 +45,24 @@ private:
     int vertical_samples;
   } params_;
 
-  // LiDAR関連
-  // 1回発行するまでに何回gpu_rayをサンプリングするか
+  // LiDAR-related values.
+  // Number of `gpu_ray` samples before one publish.
   int sampling_times_;
-  // gpu_lidarを前の発行から数えて何回受信して詰めたか
+  // Number of `gpu_lidar` messages received and packed since the previous publish.
   int phase_ = 0;
-  // messageに入っている1つの点の情報にどれくらいのサイズが使われているか
+  // Size used for one point in the message.
   uint32_t point_step_;
-  // messageのデータ構造
+  // Message data layout.
   uint32_t x_offset_;
   uint32_t y_offset_;
   uint32_t z_offset_;
   uint32_t intensity_offset_;
   uint32_t ring_offset_;
   uint32_t timestamp_offset_;
-  // 各ringに対して, 水平方向のサンプリングを始めるインデックス
-  // 点群データを歪ませるためにgpu_rayのデータからこのインデックスから開始した点のみを間引いてサンプリングする
+  // For each ring, the index where horizontal sampling starts.
+  // To distort point-cloud data, subsample only points starting from this index in `gpu_ray` data.
   std::vector<uint32_t> sampling_start_idx_;
-  // LiDARのデータのどのインデックスのところにデータをつめるか
+  // Index in LiDAR data where data is packed.
   uint32_t lidar_data_index_ = 0;
 
   // Gazebo interfaces
@@ -126,27 +126,28 @@ void HesaiLidarPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 
 void HesaiLidarPlugin::gpuRayCb(const gz::msgs::PointCloudPacked& msg)
 {
-  // 初回か発行した後でpoint_cloud_msg_がnullptrになっている場合はデータを詰める
+  // Pack data on the first run or when `point_cloud_msg_` is `nullptr` after publishing.
   if (phase_ == 0) {
     setupPointCloudMsg(msg);
   }
 
   const auto is_final_phase = (phase_ == sampling_times_ - 1);
 
-  // まんべんなくサンプリングする
+  // Sample evenly.
   const auto offset_time = nanoseconds(msg.header().stamp()) - ros2::nanoseconds(point_cloud_msg_->header.stamp);
-  const double timestamp = static_cast<double>(offset_time) * 1e-9;  // 単位は秒, Hesai Lidarのtime stampの単位と揃える
+  // Unit is seconds, matching the timestamp unit of Hesai LiDAR.
+  const double timestamp = static_cast<double>(offset_time) * 1e-9;
   for (int i = 0; i < params_.vertical_samples; ++i) {
-    // 各ringに対してsample点を見つける
+    // Find sample points for each ring.
     auto horizontal_samples = params_.horizontal_samples / sampling_times_;
-    // もし割り切れない場合は端数がでるので一番最後のphaseで調整
+    // If it is not divisible, adjust the remainder in the final phase.
     if (is_final_phase) {
       horizontal_samples = params_.horizontal_samples - horizontal_samples * (sampling_times_ - 1);
     }
     for (int j = 0; j < horizontal_samples; ++j) {
-      // point_cloud_msg_のデータのどのメモリ位置にデータを入れるか計算
+      // Compute the memory position in `point_cloud_msg_` where data is inserted.
       const auto embedding_index = lidar_data_index_ * point_step_;
-      // gpu_rayのデータのどの点をサンプリングするか，そのメモリの位置を計算
+      // Compute which point in `gpu_ray` data to sample and its memory position.
       auto sampling_idx = sampling_start_idx_[i] + j;
       if (sampling_idx >= msg.width()) {
         sampling_idx -= msg.width();
@@ -168,7 +169,7 @@ void HesaiLidarPlugin::gpuRayCb(const gz::msgs::PointCloudPacked& msg)
       // Update
       ++lidar_data_index_;
     }
-    // 次のsamplingはずらした地点から行う
+    // Start the next sampling from the shifted point.
     sampling_start_idx_[i] += horizontal_samples;
     if (sampling_start_idx_[i] >= msg.width()) {
       sampling_start_idx_[i] -= msg.width();
@@ -235,7 +236,7 @@ void HesaiLidarPlugin::setupPointCloudMsg(const gz::msgs::PointCloudPacked& msg)
   point_cloud_msg_->fields.push_back(field_timestamp);
 
   // Setup other message data
-  // Hesai ROS 2 driverのstampはpublishした時刻ではなくてframe start timeであるらしい
+  // The Hesai ROS 2 driver stamp appears to be the frame start time, not the publish time.
   // https://github.com/HesaiTechnology/HesaiLidar_ROS_2.0/blob/96be4a1fcbf74d41a04c74e12e5d5df694fab693/src/manager/source_driver_ros2.hpp#L303
   point_cloud_msg_->header.frame_id = "map";
   point_cloud_msg_->header.stamp.sec = msg.header().stamp().sec();

@@ -71,14 +71,14 @@ bool SshAuthorizedKeysWidget::onConnected()
   const auto file_path = authorizedKeysPath();
 
   if (fs::exists(file_path)) {
-    // ファイルを解析して鍵を取得
+    // Parse the file and get keys.
     const auto keys = ssh::ak::parseFile(authorizedKeysPath());
     if (!keys) {
       qt::qErrorBox(this, QString::fromStdString(keys.error()));
       return false;
     }
 
-    // 現在の鍵をリストに反映
+    // Reflect the current keys in the list.
     keys_.clear();
     list_->clear();
     for (const auto& key : keys.value()) {
@@ -86,7 +86,7 @@ bool SshAuthorizedKeysWidget::onConnected()
     }
   }
   else {
-    // ファイルが存在しなければ作る
+    // Create the file if it does not exist.
     const auto res = path::createFilePath(file_path);
     if (!res) {
       qt::qErrorBox(this, "Failed to create the authorized keys file:\n" + QString::fromStdString(res.error()));
@@ -94,7 +94,7 @@ bool SshAuthorizedKeysWidget::onConnected()
     }
   }
 
-  // 編集用ボタンを有効化
+  // Enable edit buttons.
   add_button_->setEnabled(true);
   remove_button_->setEnabled(true);
   clear_button_->setEnabled(true);
@@ -112,7 +112,7 @@ void SshAuthorizedKeysWidget::addKey(const ssh::ak::Data& key)
 
 bool SshAuthorizedKeysWidget::writeCurrentConfig()
 {
-  // 全ての鍵をテキストに出力
+  // Output all keys as text.
   std::string content;
   for (const auto& key : keys_) {
     const auto line = ssh::ak::exportLine(key);
@@ -123,7 +123,7 @@ bool SshAuthorizedKeysWidget::writeCurrentConfig()
     content += line.value() + '\n';
   }
 
-  // 設定を書き込む
+  // Write the configuration.
   const auto file_path = authorizedKeysPath();
   if (!str::writeText(file_path, content)) {
     qt::qErrorBox(this, "Failed to write to " + QString::fromStdString(file_path));
@@ -141,14 +141,14 @@ std::string SshAuthorizedKeysWidget::authorizedKeysPath()
 
 void SshAuthorizedKeysWidget::onAddButtonClicked()
 {
-  // ダイアログで鍵を取得
+  // Get a key from the dialog.
   AddSshKeyDialog dialog(this);
   const auto result = dialog.exec();
   if (result != QDialog::Accepted) {
     return;
   }
 
-  // 鍵を解析
+  // Parse the key.
   const auto line = dialog.getKey().toStdString();
   const auto key = ssh::ak::parseLine(line);
   if (!key) {
@@ -156,10 +156,10 @@ void SshAuthorizedKeysWidget::onAddButtonClicked()
     return;
   }
 
-  // 鍵を追加
+  // Add the key.
   addKey(key.value());
 
-  // 現在の設定をメディアに反映
+  // Apply the current configuration to the media.
   if (!writeCurrentConfig()) {
     reset();
     return;
@@ -168,23 +168,23 @@ void SshAuthorizedKeysWidget::onAddButtonClicked()
 
 void SshAuthorizedKeysWidget::onRemoveButtonClicked()
 {
-  // 消すべき行を取得
+  // Get the rows to delete.
   const auto row = list_->currentRow();
   if (row < 0) {
     qt::qWarnBox(this, "Please select the SSH key to remove.");
     return;
   }
 
-  // 本当に選択した鍵を消して大丈夫か確認
+  // Confirm before deleting the selected key.
   if (!qt::yesOrNo(this, "Are you sure you want to remove the selected key?", qt::WARN)) {
     return;
   }
 
-  // 鍵を削除
+  // Delete the key.
   st::eraseIndex(keys_, row);
   list_->takeItem(row);
 
-  // 現在の設定をメディアに反映
+  // Apply the current configuration to the media.
   if (!writeCurrentConfig()) {
     reset();
     return;
@@ -193,16 +193,16 @@ void SshAuthorizedKeysWidget::onRemoveButtonClicked()
 
 void SshAuthorizedKeysWidget::onClearButtonClicked()
 {
-  // 本当に全削除して大丈夫か確認
+  // Confirm before deleting everything.
   if (!qt::yesOrNo(this, "Are you sure you want to remove all SSH keys?", qt::WARN)) {
     return;
   }
 
-  // 全ての鍵を削除
+  // Delete all keys.
   keys_.clear();
   list_->clear();
 
-  // 現在の設定をメディアに反映
+  // Apply the current configuration to the media.
   if (!writeCurrentConfig()) {
     reset();
     return;

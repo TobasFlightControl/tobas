@@ -98,7 +98,7 @@ void GazeboJointVelocityControllerPlugin::Configure(
 
 void GazeboJointVelocityControllerPlugin::PreUpdate(const gz::sim::UpdateInfo&, gz::sim::EntityComponentManager& ecm)
 {
-  joint_->SetVelocity(ecm, { tar_vel_ });  // これでジョイントにトルクが発生する
+  joint_->SetVelocity(ecm, { tar_vel_ });  // This generates torque on the joint.
 }
 
 void GazeboJointVelocityControllerPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)

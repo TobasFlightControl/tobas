@@ -26,7 +26,7 @@ ImuFftPlotWidget::ImuFftPlotWidget()
   setLayout(grid);
 
   for (size_t i = 0; i < kNumAxes; ++i) {
-    // 1次元なので虚数部分は不要
+    // The imaginary part is unnecessary because the data is one-dimensional.
     raw_ffts_[i].SetFlag(Eigen::FFT<double>::HalfSpectrum);
     filt_ffts_[i].SetFlag(Eigen::FFT<double>::HalfSpectrum);
 
@@ -64,7 +64,7 @@ void ImuFftPlotWidget::setData(
   const QVector<tobas_msgs::msg::Imu>& raw_msgs,
   const QVector<tobas_msgs::msg::Imu>& filt_msgs)
 {
-  // 並列実行
+  // Run in parallel.
   auto f1 = std::async(std::launch::async, [this, raw_msgs] { updateSamples(raw_msgs, raw_ffts_, raw_curves_); });
   auto f2 = std::async(std::launch::async, [this, filt_msgs] { updateSamples(filt_msgs, filt_ffts_, filt_curves_); });
   f1.wait();
@@ -86,7 +86,7 @@ void ImuFftPlotWidget::updateSamples(
     return;
   }
 
-  // データ収集
+  // Collect data.
   std::array<std::vector<double>, kNumAxes> imu_data;
   for (const auto& imu : msgs) {
     const auto& accel = imu.accel;
@@ -100,17 +100,17 @@ void ImuFftPlotWidget::updateSamples(
     imu_data[5].push_back(gyro.z);
   }
 
-  // 周波数変換して表示
-  // FFTが重い (N log(N)) ため各軸に対して並列実行
+  // Transform to the frequency domain and display.
+  // Run each axis in parallel because FFT is expensive (N log(N)).
 #pragma omp parallel for num_threads(kNumAxes)
   for (size_t i = 0; i < kNumAxes; ++i) {
-    // フーリエ変換
+    // Fourier transform.
     std::vector<std::complex<double>> spec;
     ffts[i].fwd(spec, imu_data.at(i));
     assert(spec.size() == n / 2 + 1);
 
-    // FFTの結果から周波数と振幅を計算
-    // 平均値 (k = 0) は含めない
+    // Calculate frequency and amplitude from the FFT result.
+    // Exclude the mean value (k = 0).
     QVector<double> freqs, amps;
     for (size_t k = 1; k < spec.size(); ++k) {
       const auto freq = static_cast<double>(kImuSamplingRate) * k / n;  // [Hz]

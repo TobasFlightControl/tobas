@@ -18,7 +18,7 @@ RtlMinAltitudeWidget::RtlMinAltitudeWidget()
   spin_box_ = new qt::DoubleSpinBox();
   spin_box_->setDecimals(2);
   spin_box_->setMinimum(0.);
-  spin_box_->setMaximum(150.);  // 日本の飛行禁止空域
+  spin_box_->setMaximum(150.);  // Japanese prohibited airspace.
   spin_box_->setValue(15.);     // https://ardupilot.org/copter/docs/rtl-mode.html
   spin_box_->setSuffix(" m");
 

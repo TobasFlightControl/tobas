@@ -73,16 +73,16 @@ void PoseViewerWidget::drawSky(QPainter& painter)
   const auto w = width();
   const auto h = height();
 
-  // 描画領域の四隅の点
+  // Four corner points of the drawing area.
   const QPoint OO(0, 0);
   const QPoint WO(w, 0);
   const QPoint OH(0, h);
   const QPoint WH(w, h);
 
-  // 縦の画角に対するピッチ角の割合
+  // Pitch angle ratio relative to the vertical angle of view.
   const auto r = pitch_ / (kPitchAngleOfView / 2);
 
-  // 空の領域を構成する点群を作成 (memo: 3-43)
+  // Create points that make up the sky area (memo: 3-43).
   QVector<QPoint> points;
   if (roll_ == 0.) {
     const auto y = (h / 2) * (1 - r);
@@ -96,20 +96,20 @@ void PoseViewerWidget::drawSky(QPainter& painter)
     }
   }
   else {
-    // 直線の方程式: y = ax + b
+    // Line equation: y = ax + b.
     const auto sin_phi = std::sin(roll_);
     const auto cos_phi = std::cos(roll_);
     const auto tan_phi = std::tan(roll_);
     const auto a = -tan_phi;
     const auto b = (tan_phi / 2) * (w - h * r * sin_phi) + (h / 2) * (1 - r * cos_phi);
 
-    // 直線と描画領域の外辺の交点
-    const QPoint XO(-b / a, 0);       // 直線と y = 0 の交点
-    const QPoint XH((h - b) / a, h);  // 直線と y = h の交点
-    const QPoint OY(0, b);            // 直線と x = 0 の交点
-    const QPoint WY(w, a * w + b);    // 直線と x = w の交点
+    // Intersections between the line and drawing-area edges.
+    const QPoint XO(-b / a, 0);       // Intersection with y = 0.
+    const QPoint XH((h - b) / a, h);  // Intersection with y = h.
+    const QPoint OY(0, b);            // Intersection with x = 0.
+    const QPoint WY(w, a * w + b);    // Intersection with x = w.
 
-    // 描画領域の四隅がそれぞれ空領域に含まれるかどうかを判定
+    // Determine whether each corner of the drawing area is included in the sky area.
     const auto OO_sky = isSky(OO, a, b);
     const auto WO_sky = isSky(WO, a, b);
     const auto OH_sky = isSky(OH, a, b);
@@ -177,7 +177,7 @@ void PoseViewerWidget::drawSky(QPainter& painter)
     }
   }
 
-  // 描画
+  // Draw.
   QPolygon polygon(points);
   painter.save();
   painter.setBrush(QColor(36, 139, 255));
@@ -189,34 +189,34 @@ void PoseViewerWidget::drawRoll(QPainter& painter)
 {
   painter.save();
 
-  // 機体から見た円の中心に移動
+  // Move to the circle center as seen from the vehicle.
   painter.translate(width() / 2, height() / 2);
   painter.rotate(-st::rad2deg(roll_));
 
-  // ウィジェットの大きさに合わせてスケーリング
+  // Scale to the widget size.
   scale(painter, true);
 
-  // 円を描画
+  // Draw the circle.
   painter.setPen(QPen(Qt::white, kLineWidth));
   painter.drawEllipse(QPoint(0, 0), kRollRadius, kRollRadius);
 
-  // 各値を描画
+  // Draw each value.
   const auto outer_radius = kRollRadius + kRollTickLength;
   const auto text_radius = outer_radius + 20;
   for (int deg = 0; deg < 360; deg += kScaleInterval) {
-    // 目盛りを描画
+    // Draw ticks.
     painter.drawLine(0, -kRollRadius, 0, -outer_radius);
 
-    // 数字を描画
+    // Draw numbers.
     painter.drawText(-10, -text_radius, std::format("{}°", math::wrap(deg, 180)).c_str());
 
-    // 目盛りの間隔だけ進める
+    // Advance by the tick interval.
     painter.rotate(kScaleInterval);
   }
 
   painter.restore();
 
-  // 現在の位置に目印を描く
+  // Draw a marker at the current position.
   painter.save();
   painter.translate(width() / 2, height() / 2);
   scale(painter, true);
@@ -229,41 +229,41 @@ void PoseViewerWidget::drawPitch(QPainter& painter)
 {
   painter.save();
 
-  // 機体から見た中心位置に移動
+  // Move to the center position as seen from the vehicle.
   painter.translate(width() / 2, height() / 2);
   painter.rotate(-st::rad2deg(roll_));
 
-  // ウィジェットの大きさに合わせてスケーリング
+  // Scale to the widget size.
   scale(painter, true);
 
-  // 描画する値の範囲を決める
+  // Determine the value range to draw.
   const auto pitch_deg = st::rad2deg(pitch_);
   const auto pitch_min = math::floor(pitch_deg - kPitchVisualRange, kScaleInterval);
   const auto pitch_max = math::ceil(pitch_deg + kPitchVisualRange, kScaleInterval);
 
-  // 初期位置に移動
+  // Move to the initial position.
   painter.translate(0, pitchToHeight(st::deg2rad(pitch_min - pitch_deg)));
 
-  // 各値を描画
+  // Draw each value.
   const auto line_half = kPitchLineLength / 2;
   const auto text_x = -line_half - 30;
   const auto text_y = 5;
   const auto y_interval = pitchToHeight(st::deg2rad(kScaleInterval));
   painter.setPen(QPen(Qt::white, kLineWidth));
   for (int deg = pitch_min; deg <= pitch_max; deg += kScaleInterval) {
-    // 目盛りを描画
+    // Draw ticks.
     painter.drawLine(-line_half, 0, line_half, 0);
 
-    // 数字を描画
+    // Draw numbers.
     painter.drawText(text_x, text_y, std::format("{}°", math::wrap(deg, 180)).c_str());
 
-    // 目盛りの間隔だけ進める
+    // Advance by the tick interval.
     painter.translate(0, y_interval);
   }
 
   painter.restore();
 
-  // 現在の位置に目印を描く
+  // Draw a marker at the current position.
   painter.save();
   painter.translate(width() / 2, height() / 2);
   painter.rotate(-st::rad2deg(roll_));
@@ -277,43 +277,43 @@ void PoseViewerWidget::drawYaw(QPainter& painter)
 {
   painter.save();
 
-  // ウィジェットの大きさに合わせてスケーリング
+  // Scale to the widget size.
   scale(painter, false);
 
-  // 中心位置に移動
+  // Move to the center position.
   const auto beta = kYawAngleOfView / 2;  // [rad]
   painter.translate(yawToWidth(beta), kYawLineY);
 
-  // 数直線を描画
+  // Draw the number line.
   painter.setPen(QPen(Qt::white, kLineWidth));
   painter.drawLine(-kOriginalSize / 2, 0, kOriginalSize / 2, 0);
 
-  // 描画する値の範囲を決める
+  // Determine the value range to draw.
   const auto yaw_deg = st::rad2deg(yaw_);
   const auto yaw_min = math::floor(st::rad2deg(yaw_ - beta), kScaleInterval);
   const auto yaw_max = math::ceil(st::rad2deg(yaw_ + beta), kScaleInterval);
 
-  // 初期位置に移動
+  // Move to the initial position.
   painter.translate(yawToWidth(st::deg2rad(yaw_deg - yaw_min)), 0);
 
-  // 各値を描画
+  // Draw each value.
   const auto text_x = -10;
   const auto text_y = -kYawTickLength - 20;
   const auto x_interval = yawToWidth(st::deg2rad(kScaleInterval));
   for (int deg = yaw_min; deg <= yaw_max; deg += kScaleInterval) {
-    // 目盛りを描画
+    // Draw ticks.
     painter.drawLine(0, 0, 0, -kYawTickLength);
 
-    // 数字を描画
+    // Draw numbers.
     painter.drawText(text_x, text_y, std::format("{}°", math::wrap(deg, 180)).c_str());
 
-    // 目盛りの間隔だけ進める
+    // Advance by the tick interval.
     painter.translate(-x_interval, 0);
   }
 
   painter.restore();
 
-  // 現在の位置に目印を描く
+  // Draw a marker at the current position.
   painter.save();
   scale(painter, false);
   painter.translate(yawToWidth(beta), kYawLineY);
@@ -392,18 +392,18 @@ void PoseViewerWidget::addGradation(QPainter& painter)
 {
   painter.save();
 
-  // 中央を明るくするためのグラデーション設定
+  // Gradient settings to brighten the center.
   QRadialGradient grad(getCenter(), width() / 2);
 
-  grad.setColorAt(0, QColor(255, 255, 255, 100));  // 中心は半透明の白
-  grad.setColorAt(1, QColor(255, 255, 255, 0));    // 外側は透明
+  grad.setColorAt(0, QColor(255, 255, 255, 100));  // The center is translucent white.
+  grad.setColorAt(1, QColor(255, 255, 255, 0));    // The outside is transparent.
 
-  // ブラシにグラデーションを設定
+  // Set the gradient on the brush.
   painter.setBrush(grad);
-  painter.setPen(Qt::NoPen);  // ペンなしで塗りつぶす
+  painter.setPen(Qt::NoPen);  // Fill without a pen.
 
-  // 明るさを重ねる
-  painter.drawRect(0, 0, width(), height());  // ウィジェット全体に円形グラデーションを適用
+  // Overlay brightness.
+  painter.drawRect(0, 0, width(), height());  // Apply a radial gradient to the entire widget.
 
   painter.restore();
 }
@@ -413,7 +413,7 @@ bool PoseViewerWidget::isSky(const QPoint& p, double a, double b) const
   const auto left = p.y();
   const auto right = a * p.x() + b;
 
-  // ロール角で場合分け．ロール角が90度を超えている場合は天地が逆転している．
+  // Branch by roll angle. If the roll angle exceeds 90 degrees, up and down are inverted.
   if (std::abs(roll_) < M_PI_2) {
     return left < right;
   }

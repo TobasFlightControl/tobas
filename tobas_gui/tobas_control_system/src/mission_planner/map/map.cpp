@@ -19,22 +19,22 @@ namespace ctrl
 {
 MapWidget::MapWidget()
 {
-  // サイズポリシーとリサイズモードの指定 (しないとウィジェットが潰れてしまう)
+  // Set the size policy and resize mode; otherwise the widget collapses.
   setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
   setResizeMode(QQuickWidget::SizeRootObjectToView);
 
-  // モデルオブジェクトの設定
-  // QMLファイルのロード前に行う必要がある
+  // Set model objects.
+  // This must be done before loading the QML file.
   waypoint_ = new map::WaypointModel();
   line_ = new map::LineModel();
   rootContext()->setContextProperty(waypoint_->modelName(), waypoint_);
   rootContext()->setContextProperty(line_->modelName(), line_);
 
-  // コンストラクタ引数を設定
+  // Set constructor arguments.
   const auto system_info = new SystemInfo();
   rootContext()->setContextProperty(system_info->modelName(), system_info);
 
-  // QMLを読み込む
+  // Load QML.
   const auto qml_path = getPkgShareDir() / "qml/Map.qml";
   setSource(QUrl::fromLocalFile(QString::fromStdString(qml_path)));
 

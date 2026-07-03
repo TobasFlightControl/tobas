@@ -30,10 +30,10 @@ WifiClientWidget::WifiClientWidget()
   table_ = new qt::TableWidget(0, kNumCols);
   table_->setHorizontalHeaderLabels({ "AKM", "SSID", "PSK", "Priority", "Hidden" });
   table_->setColumnsWidth(kColWidth);
-  table_->setEditTriggers(QAbstractItemView::NoEditTriggers);    // 編集禁止
-  table_->setSelectionBehavior(QAbstractItemView::SelectRows);   // 行単位で選択
-  table_->setSelectionMode(QAbstractItemView::SingleSelection);  // 1行だけ選択
-  table_->setHeaderSectionsClickable(false);                     // ヘッダのクリック禁止
+  table_->setEditTriggers(QAbstractItemView::NoEditTriggers);    // Disable editing.
+  table_->setSelectionBehavior(QAbstractItemView::SelectRows);   // Select by row.
+  table_->setSelectionMode(QAbstractItemView::SingleSelection);  // Select only one row.
+  table_->setHeaderSectionsClickable(false);                     // Disable header clicks.
 
   // Layout
   const auto cols = new QHBoxLayout();
@@ -67,20 +67,20 @@ void WifiClientWidget::reset()
 
 bool WifiClientWidget::onConnected()
 {
-  // 設定ファイルを読み込む
+  // Load the configuration file.
   std::string text;
   if (!str::readText(configPath(), text)) {
     qt::qErrorBox(this, "Failed to read network configuration file.");
     return false;
   }
 
-  // 設定ファイルを解析
+  // Parse the configuration file.
   if (!wpa_parser_.parseFromText(text, wpa_data_)) {
     qt::qErrorBox(this, "Failed to parse network configuration.");
     return false;
   }
 
-  // 現在の設定をテーブルに反映
+  // Reflect the current configuration in the table.
   table_->removeAll();
   for (const auto& network : wpa_data_.networks) {
     addRow(
@@ -91,7 +91,7 @@ bool WifiClientWidget::onConnected()
       network.scan_ssid);
   }
 
-  // 編集用ボタンを有効化
+  // Enable edit buttons.
   add_button_->setEnabled(true);
   remove_button_->setEnabled(true);
   clear_button_->setEnabled(true);
@@ -134,8 +134,9 @@ void WifiClientWidget::addRow(const QString& key_mgmt, const QString& ssid, cons
   table_->setItem(row, kSsidCol, new QTableWidgetItem(ssid));
 
   const auto psk_it = new QTableWidgetItem();
-  psk_it->setData(Qt::UserRole, psk);  // 平文をUserRoleで保持 (EditRoleはDisplayRoleとリンクしているため使えない)
-  psk_it->setData(Qt::DisplayRole, QString(psk.length(), QChar(0x25CF)));  // 黒丸で表示
+  // Store plain text in `UserRole`; `EditRole` cannot be used because it is linked to `DisplayRole`.
+  psk_it->setData(Qt::UserRole, psk);
+  psk_it->setData(Qt::DisplayRole, QString(psk.length(), QChar(0x25CF)));  // Display with black circles.
   table_->setItem(row, kPskCol, psk_it);
 
   const auto priority_it = new QTableWidgetItem();
@@ -150,7 +151,7 @@ void WifiClientWidget::addRow(const QString& key_mgmt, const QString& ssid, cons
 
 bool WifiClientWidget::writeCurrentConfig()
 {
-  // テーブルの内容を反映
+  // Apply the table contents.
   wpa_data_.networks.clear();
   for (int row = 0; row < table_->rowCount(); ++row) {
     wpa::Network network;
@@ -169,7 +170,7 @@ bool WifiClientWidget::writeCurrentConfig()
     wpa_data_.networks.push_back(network);
   }
 
-  // 設定を書き込む
+  // Write the configuration.
   const auto path = configPath();
   const auto text = wpa_exporter_.exportText(wpa_data_);
   if (!str::writeText(path, text)) {
@@ -188,17 +189,17 @@ std::string WifiClientWidget::configPath()
 
 void WifiClientWidget::onAddButtonClicked()
 {
-  // ダイアログでネットワークを取得
+  // Get a network from the dialog.
   AddWifiDialog dialog(this);
   const auto result = dialog.exec();
   if (result != QDialog::Accepted) {
     return;
   }
 
-  // テーブルにネットワークを追加
+  // Add the network to the table.
   addRow(dialog.getKeyMgmt(), dialog.getSsid(), dialog.getPsk(), dialog.getPriority(), dialog.getHidden());
 
-  // 現在の設定をメディアに反映
+  // Apply the current configuration to the media.
   if (!writeCurrentConfig()) {
     reset();
     return;
@@ -207,22 +208,22 @@ void WifiClientWidget::onAddButtonClicked()
 
 void WifiClientWidget::onRemoveButtonClicked()
 {
-  // 消すべき行を取得
+  // Get the rows to delete.
   const auto row = table_->currentRow();
   if (row < 0) {
     qt::qWarnBox(this, "Please select the network to remove.");
     return;
   }
 
-  // 本当に選択したネットワークを消して大丈夫か確認
+  // Confirm before deleting the selected network.
   if (!qt::yesOrNo(this, "Are you sure you want to remove \"" + getSsid(row) + "\"?", qt::WARN)) {
     return;
   }
 
-  // ネットワークをテーブルから削除
+  // Delete the network from the table.
   table_->removeRow(row);
 
-  // 現在の設定をメディアに反映
+  // Apply the current configuration to the media.
   if (!writeCurrentConfig()) {
     reset();
     return;
@@ -231,15 +232,15 @@ void WifiClientWidget::onRemoveButtonClicked()
 
 void WifiClientWidget::onClearButtonClicked()
 {
-  // 本当に全削除して大丈夫か確認
+  // Confirm before deleting everything.
   if (!qt::yesOrNo(this, "Are you sure you want to remove all networks?", qt::WARN)) {
     return;
   }
 
-  // ネットワークをテーブルから削除
+  // Delete the network from the table.
   table_->removeAll();
 
-  // 現在の設定をメディアに反映
+  // Apply the current configuration to the media.
   if (!writeCurrentConfig()) {
     reset();
     return;

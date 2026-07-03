@@ -10,7 +10,7 @@ namespace tobas
 {
 namespace gazebo
 {
-/* モデルに属する全てのリンクを保持する． */
+/* Hold all links that belong to the model. */
 class ModelLinksParser
 {
 public:

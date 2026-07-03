@@ -66,7 +66,7 @@ std::pair<std::string, std::string> MediaManagerWidget::getVendorAndModel(udev_d
   auto vendor = udv::getPropertyValue(dev, "ID_VENDOR");
   auto model = udv::getPropertyValue(dev, "ID_MODEL");
 
-  // 取得できなかった場合はUSBデバイスから補完
+  // If this cannot be obtained, fill it from the USB device.
   if (vendor.empty() || model.empty()) {
     const auto usb = udev_device_get_parent_with_subsystem_devtype(dev, "usb", "usb_device");
     if (!usb) {
@@ -101,12 +101,12 @@ void MediaManagerWidget::onScanTimerTimeout()
   const auto en = udev_enumerate_new(udev_ctx);
   udev_enumerate_add_match_subsystem(en, "block");
   udev_enumerate_add_match_property(en, "DEVTYPE", "disk");
-  udev_enumerate_add_match_property(en, "ID_DRIVE_REMOVABLE", "1");  // 内蔵ディスクを除外
+  udev_enumerate_add_match_property(en, "ID_DRIVE_REMOVABLE", "1");  // Exclude internal disks.
 
   udev_enumerate_scan_devices(en);
   const auto devs = udev_enumerate_get_list_entry(en);
 
-  // 有効なメディアを探索
+  // Search for valid media.
   std::unordered_map<QString, BootMedia> new_medias;
   for (auto it = devs; it; it = udev_list_entry_get_next(it)) {
     const auto syspath = udev_list_entry_get_name(it);
@@ -121,7 +121,7 @@ void MediaManagerWidget::onScanTimerTimeout()
       continue;
     }
 
-    // ラベルがbootfs/rootfsであることを確認
+    // Confirm that the labels are `bootfs` and `rootfs`.
     const auto label1 = udv::getBlockLabel(udev_ctx, devnode + '1');
     const auto label2 = udv::getBlockLabel(udev_ctx, devnode + '2');
     if (label1 != "bootfs" || label2 != "rootfs") {
@@ -129,26 +129,26 @@ void MediaManagerWidget::onScanTimerTimeout()
       continue;
     }
 
-    // ベンダとモデルを取得
+    // Get the vendor and model.
     const auto [vendor, model] = getVendorAndModel(disk);
     if (vendor.empty() || model.empty()) {
       udev_device_unref(disk);
       continue;
     }
 
-    // デバイスを開放
+    // Release the device.
     udev_device_unref(disk);
 
-    // メディアを追加
+    // Add the media.
     const BootMedia media(vendor.c_str(), model.c_str(), devnode.c_str());
     new_medias[media.string()] = media;
   }
 
-  // udevを開放
+  // Release `udev`.
   udev_enumerate_unref(en);
   udev_unref(udev_ctx);
 
-  // 存在しないメディアをまとめる (ループ内で削除するとイテレータが狂うため)
+  // Collect missing media first because deleting them inside the loop invalidates iterators.
   QSet<QString> removed_medias;
   for (const auto& [cur_media_name, _] : medias_) {
     if (!new_medias.contains(cur_media_name)) {
@@ -156,11 +156,11 @@ void MediaManagerWidget::onScanTimerTimeout()
     }
   }
 
-  // 存在しないメディアを選択肢から削除
+  // Remove missing media from the choices.
   for (const auto& removed_media : removed_medias) {
     qInfo().noquote() << "Remove:" << removed_media;
 
-    // 接続中に切断された場合
+    // If the media is disconnected while connected.
     if (isConnected() && media_name_->currentText() == removed_media) {
       qt::qErrorBox(this, "The connected media was ejected unexpectedly.");
       media_name_->setEnabled(true);
@@ -172,7 +172,7 @@ void MediaManagerWidget::onScanTimerTimeout()
     media_name_->removeText(removed_media);
   }
 
-  // 新たなメディアを選択肢に追加
+  // Add new media to the choices.
   for (const auto& [new_media_name, new_media] : new_medias) {
     if (!medias_.contains(new_media_name)) {
       qInfo().noquote() << "Add:" << new_media_name;
@@ -182,7 +182,7 @@ void MediaManagerWidget::onScanTimerTimeout()
     }
   }
 
-  // 未接続時は有効なメディアが存在する場合に限りConnectボタンを有効化
+  // When disconnected, enable the Connect button only if valid media exists.
   if (!isConnected()) {
     connect_btn_->setEnabled(!medias_.empty());
   }
@@ -190,14 +190,14 @@ void MediaManagerWidget::onScanTimerTimeout()
 
 void MediaManagerWidget::onConnectRequested()
 {
-  // 管理者権限を確認
+  // Check administrator privileges.
   if (!linux::isSuperUser()) {
     qt::qErrorBox(this, "Permission denied. Run as root (or use sudo) to perform this operation.");
     connect_btn_->setChecked(false);
     return;
   }
 
-  // マウント先のディレクトリを作成
+  // Create the mount directory.
   if (mkdir(kBootPath, kPermission) < 0 && errno != EEXIST) {
     qt::qErrorBox(this, "Failed to create " + QString(kBootPath) + ".");
     connect_btn_->setChecked(false);
@@ -209,16 +209,16 @@ void MediaManagerWidget::onConnectRequested()
     return;
   }
 
-  // デバイスのパスを取得
+  // Get the device path.
   const auto& media = currentBootMedia();
   const auto sdx1 = media.devnode + '1';
   const auto sdx2 = media.devnode + '2';
 
-  // 自動マウントされていれば先に外しておく
+  // Unmount it first if it was automatically mounted.
   cmd_exec_.execute("udisksctl unmount -b " + sdx1.toStdString() + " || true");
   cmd_exec_.execute("udisksctl unmount -b " + sdx2.toStdString() + " || true");
 
-  // 外部ストレージをマウント
+  // Mount the external storage.
   if (mount(sdx1.toUtf8().constData(), kBootPath, "vfat", MS_NOATIME, nullptr) < 0) {
     qt::qErrorBox(this, "Failed to mount " + sdx1 + " on " + kBootPath + ": " + linux::strError().c_str());
     connect_btn_->setChecked(false);
@@ -230,9 +230,9 @@ void MediaManagerWidget::onConnectRequested()
     return;
   }
 
-  // TODO: TobasOSであることを確認 (バージョンチェックも)
+  // TODO: Confirm that this is TobasOS, including a version check.
 
-  // マウント中はメディア名を変更できないようにする
+  // Prevent changing the media name while mounted.
   media_name_->setEnabled(false);
 
   Q_EMIT connected(media);
@@ -242,10 +242,10 @@ void MediaManagerWidget::onConnectRequested()
 
 void MediaManagerWidget::onDisconnectRequested()
 {
-  // カーネルの書き込みキャッシュをストレージに吐き出す
+  // Flush the kernel write cache to storage.
   sync();
 
-  // 外部ストレージをアンマウント
+  // Unmount the external storage.
   if (umount2(kBootPath, 0) < 0) {
     qt::qErrorBox(this, "Failed to unmount " + QString(kBootPath) + ": " + linux::strError().c_str());
     connect_btn_->setChecked(true);
@@ -257,13 +257,13 @@ void MediaManagerWidget::onDisconnectRequested()
     return;
   }
 
-  // デバイス全体を安全に取り外す
+  // Safely remove the entire device.
   const auto& media = currentBootMedia();
   if (!cmd_exec_.execute("udisksctl power-off -b " + media.devnode.toStdString())) {
     qWarning().noquote().nospace() << "Failed to eject " << media.devnode << ": " << cmd_exec_.getOutput().c_str();
   }
 
-  // 再びメディア名を選択可能にする
+  // Allow selecting the media name again.
   media_name_->setEnabled(true);
 
   Q_EMIT disconnected();

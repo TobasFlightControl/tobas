@@ -23,12 +23,12 @@ namespace gazebo
 {
 /**
  * @brief Modeling of Wind Phenomena and Analysis of Their Effects on UAV Trajectory Tracking
- * Performance [Siqueira+, 2017] の4つの風を実装． \n
+ * Performance [Siqueira+, 2017]. Implements the four wind components.
  *
- * - Constant wind: \n
- * - Turbulance: https://jp.mathworks.com/help/aeroblks/drydenwindturbulencemodeldiscrete.html \n
- * - Wind gust: 1-cosine model (https://aero.w3.kanazawa-u.ac.jp/cgi-bin/wiki.cgi?page=DISTB) \n
- * - Wind shear: // TODO: An overview of various kinds of wind effects on unmanned aerial vehicle \n
+ * - Constant wind:
+ * - Turbulance: https://jp.mathworks.com/help/aeroblks/drydenwindturbulencemodeldiscrete.html
+ * - Wind gust: 1-cosine model (https://aero.w3.kanazawa-u.ac.jp/cgi-bin/wiki.cgi?page=DISTB)
+ * - Wind shear: // TODO: An overview of various kinds of wind effects on unmanned aerial vehicle
  */
 class GazeboWindPlugin : public BaseNode,
                          public gz::sim::System,
@@ -122,7 +122,7 @@ void GazeboWindPlugin::Configure(
 
 void GazeboWindPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)
 {
-  // 突風
+  // Gust.
   const auto t_gust = ch::duration<double>(info.simTime - gust_state_change_time_).count();  // [s]
   switch (gust_state_) {
     case kOn: {
@@ -151,26 +151,26 @@ void GazeboWindPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim
     }
   }
 
-  // 定常風 (平均風速 + 突風)
+  // Steady wind, mean wind velocity plus gust.
   const auto v_steady_wind = params_.mean_speed + gust_speed_;
   const gz::math::Vector3d steady_W(
     v_steady_wind * std::cos(params_.direction), v_steady_wind * std::sin(params_.direction), 0.);
 
-  // 乱流成分を更新
-  const auto rel_wind_speed = (steady_W - vel_W_->Data()).Length();  // 定常風の相対速度
+  // Update the turbulence component.
+  const auto rel_wind_speed = (steady_W - vel_W_->Data()).Length();  // Relative velocity of steady wind.
   const auto dt = ch::duration<double>(info.dt).count();
   dryden_.update(rel_wind_speed, pose_W_->Data().Pos().Z(), dt);
   const gz::math::Vector3d turb_B(dryden_.u(), dryden_.v(), dryden_.w());
 
-  // 全体の風速を計算
+  // Compute the total wind velocity.
   const auto wind_W = steady_W + pose_W_->Data().Rot().RotateVector(turb_B);
 
-  // 風速メッセージを作成
+  // Create the wind velocity message.
   auto wind_msg = std::make_unique<tobas_msgs::Wind>();
   wind_msg->header.frame_id = frame::kWorld;
   vectorGazeboToKDL(wind_W, wind_msg->vel);
 
-  // 風速を発行
+  // Publish wind velocity.
   wind_pub_->publish(std::move(wind_msg));
 }
 

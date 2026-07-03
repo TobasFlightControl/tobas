@@ -50,7 +50,7 @@ size_t splineMapSampleCount(const MapSplinePath& path, size_t segment)
   constexpr size_t kMaxSplineMapSamplesPerSegment = 80;
   constexpr size_t kSplineMapLengthEstimateSamples = 10;
 
-  // 表示用なので，少数の点で曲線長を近似してからサンプル数を決める．
+  // This is for display, so approximate the curve length with a small number of points before determining the sample count.
   double length = 0.;
   auto prev = path.get(segment, 0.).pos;
   for (size_t sample = 1; sample <= kSplineMapLengthEstimateSamples; ++sample) {
@@ -229,16 +229,16 @@ void MissionPlannerWidget::listToCommands()
     return;
   }
 
-  // 選択されているアイテムを取得
+  // Get the selected item.
   auto cur_item = command_list_->currentItem();
 
-  // 何も選択されていなければ強制的に最初の要素を選択
+  // If nothing is selected, force-select the first item.
   if (!cur_item) {
     command_list_->setCurrentRow(0);
     cur_item = command_list_->item(0);
   }
 
-  // 選択アイテムに対応するコマンドを表示
+  // Show the command corresponding to the selected item.
   for (const auto& [item, command] : pairs_) {
     if (item == cur_item) {
       commands_->setCurrentWidget(command);
@@ -256,7 +256,7 @@ void MissionPlannerWidget::commandsToMap()
 
   int wp_index = 1;
 
-  // 停止位置で区切られるまでのWaypoint列を，1本のスプラインとしてまとめて描く．
+  // Draw the `Waypoint` sequence up to the next stop position as one spline.
   std::vector<QGeoCoordinate> spline_waypoints;
   QGeoCoordinate previous_spline_end;
   bool has_previous_spline_end = false;
@@ -278,7 +278,7 @@ void MissionPlannerWidget::commandsToMap()
         const auto point_color = item == cur_item ? "orange" : "cyan";
         map_->addWaypoint(wp_index, coord, acceptance_radius, point_color);
 
-        // Stop後にWaypointが続く場合，次のスプライン区間は停止点から再開する．
+        // If a `Waypoint` follows after a stop, restart the next spline segment from the stop point.
         if (spline_waypoints.empty() && has_previous_spline_end) {
           spline_waypoints.push_back(previous_spline_end);
         }
@@ -298,7 +298,7 @@ void MissionPlannerWidget::commandsToMap()
       case mission::Type::kTakeoff:
       case mission::Type::kLand:
       case mission::Type::kReturnToLaunch: {
-        // Waypoint以外のコマンドはスプライン列を切る境界として扱う．
+        // Treat non-`Waypoint` commands as boundaries that split spline sequences.
         addSplinePathToMap(spline_waypoints);
         spline_waypoints.clear();
         has_previous_spline_end = false;
@@ -347,7 +347,7 @@ void MissionPlannerWidget::addSplinePathToMap(const std::vector<QGeoCoordinate>&
 
   const MapSplinePath path(std::move(points));
 
-  // QML側は短いMapPolylineの集合なので，スプラインを一定間隔で折れ線近似して渡す．
+  // Because QML receives a set of short `MapPolyline` objects, approximate the spline with polylines at fixed intervals.
   auto prev_coord = waypoints.front();
   for (size_t segment = 0; segment < path.segmentCount(); ++segment) {
     const auto sample_count = splineMapSampleCount(path, segment);
@@ -445,7 +445,7 @@ void MissionPlannerWidget::onLoadButtonClicked()
 {
   qDebug() << "MissionPlannerWidget::onLoadButtonClicked";
 
-  // ミッションのパスを取得
+  // Get the mission path.
   const auto dir = getMissionDir();
   const auto file_path = QFileDialog::getOpenFileName(
     this, "Load Mission", dir, "Mission (*.mission);;All Files (*)", nullptr, QFileDialog::DontUseNativeDialog);
@@ -454,24 +454,24 @@ void MissionPlannerWidget::onLoadButtonClicked()
   }
   setMissionDir(file_path);
 
-  // YAMLを読み込む
+  // Load YAML.
   const auto node = yaml::load(file_path.toStdString());
   if (!node) {
     qt::qErrorBox(this, "Failed to load the mission file: " + QString::fromStdString(node.error()));
     return;
   }
 
-  // ミッションを解析
+  // Parse the mission.
   mission::Mission mission;
   if (!mission.load(node.value())) {
     qt::qErrorBox(this, "Failed to load the mission file.");
     return;
   }
 
-  // 現在のミッションを消去
+  // Clear the current mission.
   clearMission();
 
-  // ミッションをプランナーウィジェットに反映
+  // Apply the mission to the planner widget.
   for (const auto& [idx, item] : std::views::enumerate(mission.items)) {
     const auto cmd_number = idx + 1;
 
@@ -530,7 +530,7 @@ void MissionPlannerWidget::onLoadButtonClicked()
     }
   }
 
-  // プランナーの状態をマップに反映
+  // Apply the planner state to the map.
   listToCommands();
   commandsToMap();
 
@@ -541,16 +541,16 @@ void MissionPlannerWidget::onSaveButtonClicked()
 {
   qDebug() << "MissionPlannerWidget::onSaveButtonClicked";
 
-  // ミッションが存在するか確認
+  // Check whether a mission exists.
   if (command_list_->count() == 0) {
     qt::qWarnBox(this, "Cannot save an empty mission.");
     return;
   }
 
-  // デフォルトのディレクトリを取得
+  // Get the default directory.
   const auto dir = getMissionDir();
 
-  // ディレクトリが存在しなければ作成
+  // Create the directory if it does not exist.
   if (!fs::is_directory(dir.toStdString())) {
     std::error_code ec;
     if (!fs::create_directories(dir.toStdString(), ec)) {
@@ -559,7 +559,7 @@ void MissionPlannerWidget::onSaveButtonClicked()
     }
   }
 
-  // ミッションのパスを取得
+  // Get the mission path.
   SaveMissionDialog dialog(this, dir);
   if (dialog.exec() != QDialog::Accepted) {
     return;
@@ -567,10 +567,10 @@ void MissionPlannerWidget::onSaveButtonClicked()
   const auto file_path = dialog.selectedFiles().first();
   TOBAS_CHECK(file_path.endsWith(cmn::kMissionExtension));
 
-  // ユーザが開いたディレクトリを保存
+  // Save the directory opened by the user.
   setMissionDir(file_path);
 
-  // ミッションを保存
+  // Save the mission.
   const auto mission = createMission();
   const auto node = mission.dump();
   if (!yaml::save(file_path.toStdString(), node)) {
@@ -599,13 +599,13 @@ void MissionPlannerWidget::onAddButtonClicked()
       const auto new_wp = new WaypointWidget();
       const auto last_wp = findLastWaypoint();
       if (last_wp) {
-        // 2つ目以降のウェイポイントは最後のポイントの少し東に配置
+        // Place the second and later waypoints slightly east of the last point.
         const auto [lat, lon] = st::cartToGnssRelative(10., 0., last_wp->latitude(), last_wp->longitude());
         new_wp->latitude(lat);
         new_wp->longitude(lon);
       }
       else {
-        // 最初のウェイポイントはマップの中央に配置
+        // Place the first waypoint at the center of the map.
         const auto center = map_->getCenter();
         new_wp->latitude(center.latitude());
         new_wp->longitude(center.longitude());
@@ -664,7 +664,7 @@ void MissionPlannerWidget::onCacheButtonClicked()
     TOBAS_CHECK(fs::create_directories(dir_to));
   }
 
-  // 全てのPNGファイルをコピー
+  // Copy all PNG files.
   for (const auto& entry : fs::directory_iterator(dir_from)) {
     if (entry.path().extension() == ".png") {
       const auto& file_from = entry.path();
@@ -673,7 +673,7 @@ void MissionPlannerWidget::onCacheButtonClicked()
     }
   }
 
-  // ディレクトリ内のPNGファイルを取得
+  // Get PNG files in the directory.
   std::vector<fs::path> files;
   for (const auto& entry : fs::directory_iterator(dir_to)) {
     if (entry.path().extension() == ".png") {
@@ -681,27 +681,27 @@ void MissionPlannerWidget::onCacheButtonClicked()
     }
   }
 
-  // PNGファイルを最終変更時刻が新しい順にソート
+  // Sort PNG files by newest modification time first.
   std::sort(
     files.begin(),
     files.end(),
     [](const fs::path& a, const fs::path& b) { return fs::last_write_time(a) > fs::last_write_time(b); });
 
-  // ファイルサイズを取得
+  // Get file sizes.
   std::vector<uintmax_t> sizes;
   for (const auto& file : files) {
     sizes.push_back(fs::file_size(file));
   }
 
-  // ファイルサイズの累積和を計算
+  // Calculate cumulative file sizes.
   std::vector<uintmax_t> sizes_cs(sizes.size());
   std::partial_sum(sizes.begin(), sizes.end(), sizes_cs.begin());
 
-  // 最大サイズを超える最初の位置を見つける
+  // Find the first position that exceeds the maximum size.
   auto it = std::lower_bound(sizes_cs.begin(), sizes_cs.end(), kCacheMaxSize);
   const auto last_alive_idx = std::distance(sizes_cs.begin(), it);
 
-  // サイズがリミットを超えたファイルを削除
+  // Delete files whose total size exceeds the limit.
   for (size_t i = last_alive_idx; i < files.size(); ++i) {
     if (!fs::remove(files[i])) {
       RCLCPP_WARN_STREAM(node_->get_logger(), "Failed to remove " << files[i]);
@@ -719,24 +719,24 @@ void MissionPlannerWidget::onExecuteButtonClicked()
     return;
   }
 
-  // ミッションが設定されているかどうかを確認
+  // Check whether a mission is configured.
   if (command_list_->count() == 0) {
     qt::qWarnBox(this, "Mission is empty.");
     return;
   }
 
-  // ミッション実行サーバの状態を確認
+  // Check the mission execution server state.
   if (!mission_ac_->action_server_is_ready()) {
     qt::qWarnBox(this, "Mission executor is not ready.");
     return;
   }
 
-  // ミッションを作成
+  // Create the mission.
   Action::Goal goal;
   tobas_mission_msgs::MissionAdapter::convert_to_ros_message(createMission(), goal.mission);
   goal.priority.data = tobas_mission_msgs::msg::Priority::NORMAL;
 
-  // ミッションを実行
+  // Execute the mission.
   Client::SendGoalOptions opts;
   opts.goal_response_callback = [this](const GoalHandle::SharedPtr& gh) { Q_EMIT goalResponseReceived(gh != nullptr); };
   opts.feedback_callback = [this](const GoalHandle::SharedPtr&, const Action::Feedback::ConstSharedPtr& fb)
@@ -847,7 +847,9 @@ void MissionPlannerWidget::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss)
 void MissionPlannerWidget::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom)
 {
   const auto yaw = odom->odom.odom.frame.M.getYaw();
-  map_->setArrowRotation(-st::rad2deg(yaw - M_PI_2));  // 東向きが方位の基準なので90degのオフセットを考慮
+
+  // Account for the 90 deg offset because east is the heading reference.
+  map_->setArrowRotation(-st::rad2deg(yaw - M_PI_2));
 }
 
 void MissionPlannerWidget::actionGoalResponseCb(bool ok)

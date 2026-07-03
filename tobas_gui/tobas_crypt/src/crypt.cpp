@@ -21,7 +21,7 @@ namespace crypt
 {
 namespace
 {
-/* /etc/shadow を行単位で読み込む． */
+/* Read `/etc/shadow` line by line. */
 std::vector<std::string> readLines(const std::string& path)
 {
   std::ifstream ifs(path);
@@ -39,7 +39,7 @@ std::vector<std::string> readLines(const std::string& path)
   return lines;
 }
 
-/* コロン区切りを配列に変換する． */
+/* Convert colon-separated text to an array. */
 std::vector<std::string> splitShadow(const std::string& line)
 {
   std::vector<std::string> fields;
@@ -59,7 +59,7 @@ std::vector<std::string> splitShadow(const std::string& line)
   return fields;
 }
 
-/* 配列をコロン区切りに戻す． */
+/* Convert an array back to colon-separated text. */
 std::string joinShadow(const std::vector<std::string>& fields)
 {
   std::ostringstream ss;
@@ -72,17 +72,17 @@ std::string joinShadow(const std::vector<std::string>& fields)
   return ss.str();
 }
 
-/* ファイルを安全に上書きする． */
+/* Safely overwrite a file. */
 bool atomicOverwrite(const std::string& path, const std::string& content)
 {
-  // 既存のメタデータを保存
+  // Save existing metadata.
   struct stat st;
   if (stat(path.c_str(), &st) < 0) {
     std::cerr << "stat failed on " + path + ": " << linux::strError() << std::endl;
     return false;
   }
 
-  // 同ディレクトリにテンポラリを作る
+  // Create a temporary file in the same directory.
   const auto dir = path.substr(0, path.find_last_of('/'));
   auto tmp = dir + "/.shadow.tmp.XXXXXX";
   std::vector<char> tmpc(tmp.begin(), tmp.end());
@@ -95,7 +95,7 @@ bool atomicOverwrite(const std::string& path, const std::string& content)
   }
   tmp.assign(tmpc.data());
 
-  // パーミッション/オーナーを合わせる (安全のため 0640 で上書き)
+  // Match permissions and owner, overwriting with 0640 for safety.
   if (fchmod(fd, st.st_mode & 0640 ? st.st_mode : 0640) < 0) {
     std::cerr << "Failed to change mode." << std::endl;
     return false;
@@ -105,7 +105,7 @@ bool atomicOverwrite(const std::string& path, const std::string& content)
     return false;
   }
 
-  // 書き込み
+  // Write.
   const auto wr = ::write(fd, content.data(), content.size());
   if (wr != static_cast<ssize_t>(content.size())) {
     ::close(fd);
@@ -114,7 +114,7 @@ bool atomicOverwrite(const std::string& path, const std::string& content)
     return false;
   }
 
-  // 改行で終わっていなければ付与
+  // Append a newline if missing.
   if (content.empty() || content.back() != '\n') {
     if (::write(fd, "\n", 1) != 1) {
       std::cerr << "write failed: " << linux::strError() << std::endl;
@@ -122,7 +122,7 @@ bool atomicOverwrite(const std::string& path, const std::string& content)
     }
   }
 
-  // ディスクへフラッシュ
+  // Flush to disk.
   if (::fsync(fd) < 0) {
     ::close(fd);
     ::unlink(tmp.c_str());
@@ -131,7 +131,7 @@ bool atomicOverwrite(const std::string& path, const std::string& content)
   }
   ::close(fd);
 
-  // 原子的に差し替え
+  // Replace atomically.
   if (::rename(tmp.c_str(), path.c_str()) < 0) {
     ::unlink(tmp.c_str());
     std::cerr << "rename failed: " << linux::strError() << std::endl;
@@ -153,19 +153,19 @@ bool setShadowPassword(
     return false;
   }
 
-  // ハッシュを生成
+  // Generate hash.
   const auto hash = _crypt.crypt(_new_password);
   if (hash.empty()) {
     return false;
   }
 
-  // 変更日を取得 (days since epoch)
+  // Get the change date, days since epoch.
   const auto days = duration_cast<ch::hours>(ch::system_clock::now().time_since_epoch()).count() / 24;
 
-  // ユーザのログインパスワードのみ変更
+  // Change only the user login password.
   bool found = false;
   for (auto& line : lines) {
-    // 空欄とコメント行をスキップ
+    // Skip blank and comment lines.
     if (line.empty() || line[0] == '#') {
       continue;
     }
@@ -176,14 +176,14 @@ bool setShadowPassword(
     }
 
     if (fields[0] == _username) {
-      // フィールド数が足りなければ埋める
+      // Fill missing fields if there are too few.
       constexpr size_t kMinNumFields = 9;
       if (fields.size() < kMinNumFields) {
         fields.resize(kMinNumFields, "");
       }
 
-      fields[1] = hash;                  // ハッシュ
-      fields[2] = std::to_string(days);  // 最終変更日
+      fields[1] = hash;                  // Hash.
+      fields[2] = std::to_string(days);  // Last change date.
       line = joinShadow(fields);
       found = true;
       break;
@@ -195,7 +195,7 @@ bool setShadowPassword(
     return false;
   }
 
-  // 内容をまとめる
+  // Assemble content.
   std::ostringstream out;
   for (size_t i = 0; i < lines.size(); ++i) {
     out << lines[i];
@@ -204,7 +204,7 @@ bool setShadowPassword(
     }
   }
 
-  // ファイルを安全に上書き
+  // Safely overwrite the file.
   if (!atomicOverwrite(_shadow_path, out.str())) {
     return false;
   }

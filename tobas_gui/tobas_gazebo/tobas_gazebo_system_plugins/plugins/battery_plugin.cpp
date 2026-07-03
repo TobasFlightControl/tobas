@@ -27,13 +27,6 @@ class GazeboBatteryPlugin : public BaseNode,
                             public gz::sim::ISystemConfigure,
                             public gz::sim::ISystemPostUpdate
 {
-  // Constants
-  static constexpr double kSagCapRate = 0.2;  // [-] 放電特性が急激に変化する点における電気残率
-
-  // Default parameters
-  static constexpr double kDefaultVoltageNoiseStddev = 0.01;  // [V]
-  static constexpr double kDefaultCurrentNoiseStddev = 0.01;  // [A]
-
   using self = GazeboBatteryPlugin;
 
 public:
@@ -50,17 +43,17 @@ public:
 private:
   // SDF parameters
   int update_rate_;
-  double max_voltage_;  // [V] 満充電時の電圧
-  double sag_voltage_;  // [V] 放電特性が急激に変化する電圧．LiPoなら1セルあたり3.4Vくらい．
-  double max_current_;  // [A] 最大電流
-  double capacity_;     // [As] 電気容量
-  double registance_;   // [Ω] 内部抵抗値
-  double voltage_noise_stddev_;  // [V] 電圧の観測ノイズの標準偏差
-  double current_noise_stddev_;  // [A] 電流の観測ノイズの標準偏差
+  double max_voltage_;  // [V] Voltage at full charge
+  double sag_voltage_;  // [V] Voltage where discharge characteristics change abruptly. For LiPo, about 3.4 V per cell.
+  double max_current_;  // [A] Maximum current
+  double capacity_;     // [As] Electrical capacity
+  double registance_;   // [Ω] Internal resistance
+  double voltage_noise_stddev_;  // [V] Standard deviation of voltage observation noise
+  double current_noise_stddev_;  // [A] Standard deviation of current observation noise
   std::vector<std::string> rotor_link_names_;
 
-  std::map<std::string, double> rotor_currents_;  // [A] 各モータに流れる電流
-  double q_;                                      // [As] 現在の電気量
+  std::map<std::string, double> rotor_currents_;  // [A] Current flowing through each motor
+  double q_;                                      // [As] Current charge amount
   RateManager::SharedPtr rate_manager_;
 
   // Noise generator
@@ -109,7 +102,7 @@ void GazeboBatteryPlugin::Configure(
   battery_pub_ = createPublisher<tobas_msgs::msg::Battery>(topic::kBattery);
   battery_gt_pub_ = createPublisher<tobas_msgs::msg::Battery>(kBatteryGtTopic);
 
-  // モータ状態のコールバックとサブスクライバを設定
+  // Set up motor-state callbacks and subscribers.
   for (const auto& link_name : rotor_link_names_) {
     const auto topic = path::join(kRotorStateGtTopicNS, link_name);
     const ros2::qos::QoS qos(false, false, 1);
@@ -140,7 +133,7 @@ void GazeboBatteryPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::
     }
   }
 
-  // 電流を計算
+  // Compute current.
   double current_true = 0.;
   for (const auto& [_, current] : rotor_currents_) {
     current_true += current;
@@ -148,25 +141,25 @@ void GazeboBatteryPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::
   if (current_true > max_current_) {
     TOBAS_WARN_THROTTLE(kWarnPeriod, "The battery current is over limit: ", current_true, " > ", max_current_, " [A]");
   }
-  const auto current_obs = std::max(current_true + current_noise_(rnd_gen_), 0.);  // 観測ノイズを受けた観測電流
+  const auto current_obs = std::max(current_true + current_noise_(rnd_gen_), 0.);
 
-  // 電気容量の減少
+  // Decrease in electrical capacity.
   const auto dt = ch::duration<double>(info.dt).count();
   q_ = std::max(q_ - current_true * dt, 0.);
 
-  // 電圧を計算
-  const auto voltage_in = currentVoltage();                                        // 内部電圧
-  const auto voltage_out = std::max(voltage_in - registance_ * current_true, 0.);  // 内部抵抗による電圧降下
-  const auto voltage_obs = std::max(voltage_out + voltage_noise_(rnd_gen_), 0.);  // 観測ノイズを受けた観測電圧
+  // Compute voltage.
+  const auto voltage_in = currentVoltage();
+  const auto voltage_out = std::max(voltage_in - registance_ * current_true, 0.);
+  const auto voltage_obs = std::max(voltage_out + voltage_noise_(rnd_gen_), 0.);
 
-  // 観測したバッテリーの状態を発行
+  // Publish the observed battery state.
   auto battery = std::make_unique<tobas_msgs::msg::Battery>();
   ros2::timeChronoToMsg(info.simTime, battery->header.stamp);
   battery->voltage = voltage_obs;
   battery->current = current_obs;
   battery_pub_->publish(std::move(battery));
 
-  // 真のバッテリーの状態を発行
+  // Publish the true battery state.
   auto battery_gt = std::make_unique<tobas_msgs::msg::Battery>();
   ros2::timeChronoToMsg(info.simTime, battery_gt->header.stamp);
   battery_gt->voltage = voltage_out;
@@ -182,13 +175,16 @@ void GazeboBatteryPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
   getSdfParam(sdf, "maxCurrent", max_current_, kPositive);
   getSdfParam(sdf, "currentCapacity", capacity_, kPositive);
   getSdfParam(sdf, "internalRegistance", registance_, kNonNegative);
-  getSdfParam(sdf, "voltageNoiseStddev", voltage_noise_stddev_, kDefaultVoltageNoiseStddev, kNonNegative);
-  getSdfParam(sdf, "currentNoiseStddev", current_noise_stddev_, kDefaultCurrentNoiseStddev, kNonNegative);
+  getSdfParam(sdf, "voltageNoiseStddev", voltage_noise_stddev_, 0.01, kNonNegative);
+  getSdfParam(sdf, "currentNoiseStddev", current_noise_stddev_, 0.01, kNonNegative);
   getSdfParam(sdf, "rotorLinkNames", rotor_link_names_);
 }
 
 double GazeboBatteryPlugin::currentVoltage()
 {
+  // Remaining charge ratio at the point where discharge characteristics change abruptly
+  constexpr double kSagCapRate = 0.2;
+
   // memo: 2-50
   const auto rate = q_ / capacity_;
   if (rate < kSagCapRate) {

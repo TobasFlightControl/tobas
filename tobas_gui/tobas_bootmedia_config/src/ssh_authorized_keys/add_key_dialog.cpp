@@ -20,7 +20,7 @@ AddSshKeyDialog::AddSshKeyDialog(QWidget* parent) : super(parent)
 
   key_ = new QPlainTextEdit();
   const QFontMetrics fm(key_->font());
-  key_->setMinimumHeight(fm.lineSpacing() * 6 + key_->frameWidth() * 2);  // ある程度の縦幅を確保
+  key_->setMinimumHeight(fm.lineSpacing() * 6 + key_->frameWidth() * 2);  // Reserve enough height.
 
   btn_box_ = new QDialogButtonBox();
   btn_box_->setOrientation(Qt::Horizontal);

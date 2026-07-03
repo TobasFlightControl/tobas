@@ -44,9 +44,10 @@ double EngineModel::getPosition() const
 
 double EngineModel::getVibrationForce()
 {
-  // 往復慣性力を正弦波と振幅の変動で表現
-  // 振幅の変動率を正規分布Nを用いて (1 + n) で表すと負になる恐れがあるため，1を中心とするライス分布を使用．
-  // TODO: 実機のIMUの周波数解析結果を分析してより正確な振動モデルを構築
+  // Represent reciprocating inertia force with a sine wave and amplitude variation.
+  // Use a Rice distribution centered at 1 because representing amplitude variation as `(1 + n)`
+  // with normal distribution `N` may become negative.
+  // TODO: Analyze frequency-domain results from the real IMU and build a more accurate vibration model.
   const auto amp = vibration_force_coef_ * math::sqr(getSpeed());
   return amp * (std::sin(position_) + vibration_double_freq_coef_ * std::sin(position_ * 2)) * rice_(rnd_gen_);
 }
@@ -116,7 +117,7 @@ bool EngineModel::getSdfParams(const sdf::ElementConstPtr& sdf)
 
 double EngineModel::computeSteadySpeed()
 {
-  // FIXME: 実際はゼロスロットルでもトルクは発生する (アイドリング)
+  // FIXME: Torque is actually generated even at zero throttle due to idling.
   if (throttle_ <= std::numeric_limits<double>::epsilon()) {
     return 0.;
   }
