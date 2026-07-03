@@ -162,6 +162,7 @@ void GazeboGnssPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim
   gnss_msg->header.frame_id = link_name_;
   ros2::timeChronoToMsg(gnss_time, gnss_msg->header.stamp);
   gnss_msg->fix_type = tobas_msgs::msg::Gnss::FIX_3D;
+  gnss_msg->num_satellites_used = 20;  // TODO: 適当に変化させる
   fillCovariances(*gnss_msg);
   updatePosition(*gnss_msg, T_W_B);
   updateVelocity(*gnss_msg, T_W_B.Rot(), W_Linvel_WB, B_Angvel_WB);
