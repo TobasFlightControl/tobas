@@ -186,7 +186,7 @@ void RosbagRecorderNode::typeAdaptedMsgCb(
     return;
   }
 
-  // Publisher側にシリアライズさせるのを防ぐため，TypeAdapterのまま購読し，こちら側でROSメッセージへの変換を行う．
+  // Subscribe through TypeAdapter and convert to a ROS message here to prevent serialization on the publisher side.
   rclcpp::TypeAdapter<ExtMsgType, RawMsgType>::convert_to_ros_message(*ext_msg, raw_msg);
 
   this->write(raw_msg, topic);

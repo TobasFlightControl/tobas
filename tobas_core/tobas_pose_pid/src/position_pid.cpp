@@ -22,24 +22,24 @@ kdl::Vector PositionPID::update(
   const kdl::Vector& tar_vel,
   const double& dt)
 {
-  // 誤差を計算
+  // Calculate errors
   const auto ep = tar_pos - cur_pos;
   const auto ed = tar_vel - cur_vel;
 
   for (size_t i = 0; i < 3; ++i) {
-    if (ki_(i) > 0.) {  // I制御を行う場合
-      // 積分誤差を蓄積
+    if (ki_(i) > 0.) {  // When using integral control
+      // Accumulate integral error
       const auto next_ei = ei_(i) + ep(i) * dt;
       ei_(i) = clamp(next_ei, -max_i_acc_(i), max_i_acc_(i));
     }
-    else  // I制御を行わない場合
+    else  // When not using integral control
     {
-      // 積分誤差をリセット
+      // Reset integral error
       ei_(i) = 0.;
     }
   }
 
-  // 目標加速度を計算
+  // Calculate target acceleration
   return kp_.hadamard(ep) + ki_.hadamard(ei_) + kd_.hadamard(ed);
 }
 

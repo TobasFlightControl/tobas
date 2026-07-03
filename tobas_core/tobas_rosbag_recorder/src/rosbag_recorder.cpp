@@ -14,8 +14,8 @@ RosbagRecorderNode::RosbagRecorderNode(const rclcpp::NodeOptions& options)
   rosbag_state_pub_ = createPublisher<tobas_msgs::msg::RosbagState>(topic::kRosbagState);
 
   // Resister subscribers
-  // トピック通信の接続はローカルであっても遅延の原因になりうるため，レコード開始時ではなく先に接続を確立しておく．
-  // ビルド時のメモリ削減のために分割コンパイルするためにテンプレートを多用するメソッドを複数に分けている．
+  // Establish topic connections before recording starts because even local topic communication can introduce latency.
+  // Template-heavy methods are split for separate compilation to reduce build-time memory usage.
   registerStateSubscribers();
   registerSensorSubscribers();
   registerStateSubscribers();
@@ -94,7 +94,7 @@ void RosbagRecorderNode::startCb(const StartSrv::Request::ConstSharedPtr& req, c
     return;
   }
 
-  // rosbagディレクトリが存在しなければ作成
+  // Create the rosbag directory if it does not exist.
   if (!fs::exists(rosbag_dir_)) {
     std::error_code ec;
     if (!fs::create_directories(rosbag_dir_, ec)) {
@@ -104,7 +104,7 @@ void RosbagRecorderNode::startCb(const StartSrv::Request::ConstSharedPtr& req, c
     }
   }
 
-  // 同名のログが存在しないことを確認
+  // Check that a log with the same name does not exist.
   file_path_ = rosbag_dir_ / req->name;
   if (fs::exists(file_path_)) {
     if (req->overwrite) {
@@ -117,7 +117,7 @@ void RosbagRecorderNode::startCb(const StartSrv::Request::ConstSharedPtr& req, c
     }
   }
 
-  // ストレージに十分な空き容量があることを確認
+  // Check that the storage has enough free space.
   const auto available_size = getDiskAvailableSize();
   if (available_size < kMinAvailableSize) {
     res->success = false;
@@ -133,7 +133,7 @@ void RosbagRecorderNode::startCb(const StartSrv::Request::ConstSharedPtr& req, c
   try {
     writer_.open(options);
   }
-  catch (const std::exception& e) {  // ストレージ容量オーバーなど
+  catch (const std::exception& e) {  // Storage capacity exceeded, etc.
     res->success = false;
     res->message = "Failed to open " + options.uri + ": " + e.what();
     return;

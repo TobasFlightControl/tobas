@@ -25,7 +25,7 @@ kdl::Vector PositionPDD2::update(
   const kdl::Vector& tar_acc,
   const double& dt)
 {
-  // 誤差を計算
+  // Calculate errors
   const auto ep = tar_pos - cur_pos;
   const auto ev = tar_vel - cur_vel;
   const auto ea = tar_acc - cur_acc;
@@ -33,7 +33,7 @@ kdl::Vector PositionPDD2::update(
   // PDD2 + clamp
   const auto cmd_jerk = kp_.hadamard(ep) + kv_.hadamard(ev) + ka_.hadamard(ea);
 
-  // 目標ジャークを積分して出力
+  // Integrate the target jerk and output it.
   cmd_acc_ += cmd_jerk * dt;
   return cmd_acc_;
 }

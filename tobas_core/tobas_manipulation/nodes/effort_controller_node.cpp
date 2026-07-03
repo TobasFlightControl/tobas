@@ -115,7 +115,7 @@ void EffortControllerNode::initialize()
   }
   jnt_names_.insert(jnt_names.begin(), jnt_names.end());
 
-  // shared_from_thisはコンストラクタでは呼べない
+  // `shared_from_this` cannot be called from the constructor.
   tf_listener_ = std::make_shared<ros2::TransformListener>(shared_from_this());
 
   addDynamicIntParam("joint_stiffness", &self::jointStiffnessCb, this, 5, 5, 1, 20);
@@ -158,7 +158,7 @@ bool EffortControllerNode::jointSpaceControl(
   const auto& tar_q = tar_js_conv_.getPosition();
   const auto& tar_qd = tar_js_conv_.getVelocity();
 
-  // PIDで関節トルクを計算
+  // Calculate joint torques with PID.
   if (pid_js_.cartToJnt(cur_q, cur_qd, tar_q, tar_qd) < 0) {
     TOBAS_ERROR("Joint space PID failed: ", pid_js_.errorMessage());
     return false;
@@ -191,7 +191,7 @@ bool EffortControllerNode::taskSpaceControl(
     return false;
   }
 
-  // デカルト座標系の目標値を更新
+  // Update task-space target values.
   kdl::Frame T_Base_Parent;
   kdl::FrameMap tar_p;
   kdl::TwistMap tar_v;
@@ -203,7 +203,7 @@ bool EffortControllerNode::taskSpaceControl(
       continue;
     }
 
-    // 親フレームで表現された値をベースリンクで表現された値に変換
+    // Convert values expressed in the parent frame to values expressed in the base link.
     kdl::transformMsgToKDL(tf_listener_->getTransform().transform, T_Base_Parent);
     tar_p[ls.name] = T_Base_Parent * ls.frame;
     tar_v[ls.name] = T_Base_Parent.M * ls.twist;
@@ -211,7 +211,7 @@ bool EffortControllerNode::taskSpaceControl(
     f_ext[ls.name] = T_Base_Parent.M * ls.wrench;
   }
 
-  // PIDで関節トルクを計算
+  // Calculate joint torques with PID.
   const auto& cur_q = cur_js_conv_.getPosition();
   const auto& cur_qd = cur_js_conv_.getVelocity();
   if (pid_ts_.cartToJnt(cur_q, cur_qd, tar_p, tar_v, a_ff, f_ext) < 0) {
@@ -304,7 +304,7 @@ void EffortControllerNode::droneCb(const Drone::ConstSharedPtr& drone)
 
   home_js_.states.clear();
 
-  // ジョイントのホームポジションを取得
+  // Get joint home positions.
   for (const auto& jnt_name : jnt_names_) {
     const auto joint_it = drone->joints.find(jnt_name);
     if (joint_it == drone->joints.end()) {
@@ -321,7 +321,7 @@ void EffortControllerNode::droneCb(const Drone::ConstSharedPtr& drone)
     home_js_.states.back().position = joint.home_pos;
   }
 
-  // ホームポジションを初期目標状態に設定
+  // Set home positions as the initial target state.
   if (!home_js_.states.empty()) {
     tar_js_ = std::make_shared<tobas_msgs::msg::JointStateArray>(home_js_);
   }

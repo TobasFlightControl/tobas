@@ -20,7 +20,7 @@ void ControlLatencyPublisher::initialize(rclcpp::Node::SharedPtr node)
 
 void ControlLatencyPublisher::publish(const builtin_interfaces::msg::Time& start_time)
 {
-  const builtin_interfaces::msg::Time cur_time(node_->now());  // クロックタイプの削除して例外を回避
+  const builtin_interfaces::msg::Time cur_time(node_->now());  // Drop the clock type to avoid exceptions.
 
   auto msg = std::make_unique<tobas_msgs::msg::Latency>();
   msg->header.stamp = cur_time;

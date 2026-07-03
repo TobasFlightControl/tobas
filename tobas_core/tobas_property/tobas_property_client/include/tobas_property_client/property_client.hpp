@@ -13,8 +13,8 @@ namespace tobas
 namespace ptree
 {
 /**
- * @brief プロパティサーバのクライアント．
- * @note ROSノードと同じスレッドで動作するコールバックの中で呼ぶとデッドロックする．
+ * @brief Client for the property server.
+ * @note Calling this from a callback that runs on the same thread as the ROS node causes a deadlock.
  */
 class PropertyClient
 {

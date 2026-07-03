@@ -190,7 +190,7 @@ void HealthMonitorNode::droneCb(const Drone::ConstSharedPtr& drone)
 
 void HealthMonitorNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
 {
-  // ディスアームされたら位置ドリフトチェック用のバッファを初期化
+  // Clear `pos_bufs_` for position drift checks when disarmed.
   if (!arming_ || (arming_->data && !arming->data)) {
     for (auto& buf : pos_bufs_) {
       buf.clear();
@@ -211,41 +211,41 @@ void HealthMonitorNode::battCb(const tobas_msgs::msg::Battery::ConstSharedPtr& b
     return;
   }
 
-  // 内部抵抗による電圧降下を補償した電圧を計算
+  // Calculate voltage compensated for the drop caused by internal resistance.
   const auto voltage = battery->voltage + eprop->battery.internal_resistance * battery->current;
 
-  // 初期状態を決める
+  // Determine the initial state.
   if (!battery_) {
     battery_ = battery;
     batt_voltage_ok_ = voltage > eprop->battery.nominal_voltage;
     return;
   }
 
-  // 最新のバッテリー状態を更新
+  // Update the latest battery state.
   battery_ = battery;
 
-  // ヒステリシスと時間窓を含めて安定的に状態を切り替える
+  // Switch state robustly using hysteresis and a time window.
   const auto& cur_time = battery->header.stamp;
   if (batt_voltage_ok_) {
-    // 最後に電圧が閾値を上回った時刻を更新
+    // Update the last time the voltage was above the threshold.
     if (voltage > eprop->battery.sag_voltage) {
       t_last_voltage_ok_ = cur_time;
     }
 
-    // 一定時間電圧が閾値を下回ったら状態を切り替える
+    // Switch state if the voltage stays below the threshold for a fixed time.
     if (cur_time - t_last_voltage_ok_ > kBattVoltageDownTimeThresh) {
       batt_voltage_ok_ = false;
       t_last_voltage_ng_ = cur_time;
     }
   }
   else {
-    // 最後に電圧が閾値を下回った時刻を更新
+    // Update the last time the voltage was below the threshold.
     if (voltage < eprop->battery.nominal_voltage) {
       t_last_voltage_ng_ = cur_time;
     }
 
-    // 一定時間電圧が閾値を上回ったら状態を切り替える
-    // 通常，低電圧状態から自然に回復することはないため，切り替えの判断は慎重に行う．
+    // Switch state if the voltage stays above the threshold for a fixed time.
+    // Usually the vehicle does not naturally recover from low voltage, so this transition should be conservative.
     if (cur_time - t_last_voltage_ng_ > kBattVoltageUpTimeThresh) {
       batt_voltage_ok_ = true;
       t_last_voltage_ok_ = cur_time;
@@ -272,7 +272,7 @@ void HealthMonitorNode::rotorLivCb(const tobas_msgs::msg::RotorLivelinessArray::
 
 void HealthMonitorNode::samplingTimeCb(const tobas_msgs::msg::Latency::ConstSharedPtr& sampling_time)
 {
-  // メッセージの時間差を確認
+  // Check message time difference.
   if (sampling_time->data > kImuSamplingTimeThresh) {
     t_last_rt_violation_ = rclcpp::Time(sampling_time->header.stamp, get_clock()->get_clock_type());
   }
@@ -282,7 +282,7 @@ void HealthMonitorNode::samplingTimeCb(const tobas_msgs::msg::Latency::ConstShar
 
 void HealthMonitorNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom)
 {
-  // アームされていなければ位置の履歴を保存
+  // Store position history while the vehicle is not armed.
   if (arming_ && !arming_->data) {
     const auto stamp = ros2::chronoFromRosTime(odom->header.stamp);
     for (size_t i = 0; i < 3; ++i) {
@@ -301,8 +301,8 @@ void HealthMonitorNode::magCb(const tobas_msgs::MagneticField::ConstSharedPtr& m
 
   const auto& mag_B = mag->mag;
 
-  // 世界座標系から見た地磁気ベクトル (理想的には不変ベクトル)
-  // 姿勢と地磁気の時間ずれをなくすためにLPFを通す前に世界座標系に変換する
+  // Magnetic field vector in the world frame, ideally an invariant vector.
+  // Convert to the world frame before passing through the LPF to avoid attitude-magnetic-field time offset.
   const auto mag_W = odom_->odom.odom.frame.M * mag_B;
 
   if (!mag_) {
@@ -353,9 +353,9 @@ void HealthMonitorNode::mainTimerCb()
   health->header.stamp = cur_time;
   health->ok = true;
 
-  // 制御スレッドのリアルタイム性
-  // FIFOスケジューリングのシングルスレッドなのでIMUのサンプリング間隔だけで判定できる
-  // 通信環境が悪くノードグラフの構築に時間がかかっている場合にリアルタイム性が落ちることがあるため確認必須
+  // Real-time compliance of the control thread.
+  // Since this is a single FIFO-scheduled thread, checking only the IMU sampling interval is enough.
+  // This must be checked because poor communication can slow node graph construction and degrade real-time behavior.
   if (do_check_.realtime_compliance) {
     if (sampling_time_) {
       if (cur_time - t_last_rt_violation_ < kRTComplianceCheckTimeWindow) {
@@ -372,12 +372,12 @@ void HealthMonitorNode::mainTimerCb()
     health->realtime_compliance = tobas_msgs::msg::VehicleHealth::IGNORED;
   }
 
-  // 推進系のタイプよる場合分け
+  // Branch by propulsion system type.
   switch (drone_->prop->type()) {
     case PropulsionSystem::kElectric: {
       const auto eprop = boost::polymorphic_pointer_downcast<ElectricPropulsionSystemConfig>(drone_->prop);
 
-      // バッテリー電圧が閾値以上
+      // Battery voltage is above the threshold.
       if (do_check_.battery_voltage) {
         if (battery_) {
           if (!batt_voltage_ok_) {
@@ -397,7 +397,7 @@ void HealthMonitorNode::mainTimerCb()
       break;
     }
     case PropulsionSystem::kIce: {
-      // 未使用項目を無視
+      // Ignore unused item.
       health->battery_voltage = tobas_msgs::msg::VehicleHealth::IGNORED;
 
       const auto iprop = boost::polymorphic_pointer_downcast<IcePropulsionSystemConfig>(drone_->prop);
@@ -411,7 +411,7 @@ void HealthMonitorNode::mainTimerCb()
     }
   }
 
-  // CPU温度
+  // CPU temperature
   if (do_check_.cpu_temperature) {
     if (cpu_) {
       if (cpu_->temperature > kCPUTempThresh) {
@@ -428,7 +428,7 @@ void HealthMonitorNode::mainTimerCb()
     health->cpu_temperature = tobas_msgs::msg::VehicleHealth::IGNORED;
   }
 
-  // RC送信機と受信機の通信
+  // Communication between RC transmitter and receiver
   if (do_check_.radio_link) {
     if (t_last_rcin_.nanoseconds() == 0 || cur_time - t_last_rcin_ > kRadioLinkLostTimeThresh) {
       health->radio_link = tobas_msgs::msg::VehicleHealth::FAILED;
@@ -439,7 +439,7 @@ void HealthMonitorNode::mainTimerCb()
     health->radio_link = tobas_msgs::msg::VehicleHealth::IGNORED;
   }
 
-  // モータ状態
+  // Rotor state
   if (do_check_.rotor_links) {
     if (rotor_liv_) {
       for (const auto& elem : rotor_liv_->data) {
@@ -459,7 +459,7 @@ void HealthMonitorNode::mainTimerCb()
     health->rotor_links = tobas_msgs::msg::VehicleHealth::IGNORED;
   }
 
-  // 姿勢角
+  // Attitude angle
   if (do_check_.attitude_level && !arming_->data) {
     if (odom_) {
       const auto [roll, pitch, _] = odom_->odom.odom.frame.M.getRPY();
@@ -477,7 +477,7 @@ void HealthMonitorNode::mainTimerCb()
     health->attitude_level = tobas_msgs::msg::VehicleHealth::IGNORED;
   }
 
-  // 位置のドリフト
+  // Position drift
   if (do_check_.position_stability && !arming_->data) {
     if (odom_) {
       for (const auto& buf : pos_bufs_) {
@@ -497,7 +497,7 @@ void HealthMonitorNode::mainTimerCb()
     health->position_stability = tobas_msgs::msg::VehicleHealth::IGNORED;
   }
 
-  // 位置推定の確かさ
+  // Position estimation accuracy
   if (do_check_.position_accuracy) {
     if (odom_) {
       const auto pos_cov_diag = odom_->odom.position_covariance.diagonal().eval();
@@ -517,7 +517,7 @@ void HealthMonitorNode::mainTimerCb()
     health->position_accuracy = tobas_msgs::msg::VehicleHealth::IGNORED;
   }
 
-  // 速度推定の確かさ
+  // Velocity estimation accuracy
   if (do_check_.velocity_accuracy) {
     if (odom_) {
       const auto vel_var = odom_->odom.velocity_covariance.diagonal().maxCoeff();
@@ -535,7 +535,7 @@ void HealthMonitorNode::mainTimerCb()
     health->velocity_accuracy = tobas_msgs::msg::VehicleHealth::IGNORED;
   }
 
-  // 姿勢推定の確かさ
+  // Attitude estimation accuracy
   if (do_check_.attitude_accuracy) {
     if (odom_) {
       const auto atti_var = odom_->odom.orientation_covariance.diagonal().head<2>().maxCoeff();
@@ -553,7 +553,7 @@ void HealthMonitorNode::mainTimerCb()
     health->attitude_accuracy = tobas_msgs::msg::VehicleHealth::IGNORED;
   }
 
-  // 方位推定の確かさ
+  // Heading estimation accuracy
   if (do_check_.heading_accuracy) {
     if (odom_) {
       const auto head_var = odom_->odom.orientation_covariance(2, 2);
@@ -571,7 +571,7 @@ void HealthMonitorNode::mainTimerCb()
     health->heading_accuracy = tobas_msgs::msg::VehicleHealth::IGNORED;
   }
 
-  // 地磁気オフセット
+  // Magnetic field offset
   if (do_check_.mag_offset) {
     if (mag_) {
       if (std::abs(mag_B_lpf_.getValue().norm() - 1.) > kMagLengthErrorThresh) {
@@ -588,7 +588,7 @@ void HealthMonitorNode::mainTimerCb()
     health->mag_offset = tobas_msgs::msg::VehicleHealth::IGNORED;
   }
 
-  // 世界座標系から見た地磁気ベクトルが参照と一致するか
+  // Whether the magnetic field vector in the world frame matches the reference
   if (do_check_.mag_alignment) {
     if (mag_ && mag_ref_) {
       const auto align_error = mag_W_lpf_.getValue().argument(mag_ref_->mag);  // [rad]
@@ -606,7 +606,7 @@ void HealthMonitorNode::mainTimerCb()
     health->mag_alignment = tobas_msgs::msg::VehicleHealth::IGNORED;
   }
 
-  // 振動レベル
+  // Vibration level
   if (do_check_.vibration_level) {
     if (vibe_) {
       // Vibration levels below 30m/s/s are normally acceptable
@@ -625,7 +625,7 @@ void HealthMonitorNode::mainTimerCb()
     health->vibration_level = tobas_msgs::msg::VehicleHealth::IGNORED;
   }
 
-  // カスタムチェック項目
+  // Custom check item
   if (do_check_.user_defined_condition) {
     if (user_health_) {
       health->user_defined_condition = user_health_->data;

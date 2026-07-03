@@ -81,7 +81,7 @@ PositionControllerNode::PositionControllerNode(const rclcpp::NodeOptions& option
 
 bool PositionControllerNode::jointSpaceControl(tobas_msgs::msg::JointCommandArray& positions_msg)
 {
-  // 位置コマンドをそのまま流すだけ
+  // Pass position commands through as-is.
   for (const auto& tar_state : tar_js_->states) {
     const auto& jnt_name = tar_state.name;
     if (!jnt_names_.contains(jnt_name)) {
@@ -109,7 +109,7 @@ void PositionControllerNode::droneCb(const Drone::ConstSharedPtr& drone)
 
   home_js_.states.clear();
 
-  // ジョイントのホームポジションを取得
+  // Get joint home positions.
   for (const auto& jnt_name : jnt_names_) {
     const auto joint_it = drone->joints.find(jnt_name);
     if (joint_it == drone->joints.end()) {
@@ -126,7 +126,7 @@ void PositionControllerNode::droneCb(const Drone::ConstSharedPtr& drone)
     home_js_.states.back().position = joint.home_pos;
   }
 
-  // ホームポジションを初期目標状態に設定
+  // Set home positions as the initial target state.
   if (!home_js_.states.empty()) {
     tar_js_ = std::make_shared<tobas_msgs::msg::JointStateArray>(home_js_);
   }

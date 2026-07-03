@@ -107,7 +107,7 @@ void DisturbanceObserverNode::rotorStatesCb(const tobas_msgs::msg::RotorStateArr
   for (const auto& elem : rotor_states->states) {
     const auto thrust_it = rotor_thrusts_.find(elem.link_name);
     if (thrust_it == rotor_thrusts_.end()) {
-      // 機体のモデルに含まれるリンク名ならば追加
+      // Add this rotor if the link name is included in the vehicle model.
       if (!tree_.hasSegment(elem.link_name) || !drone_->prop->rotors.contains(elem.link_name)) {
         TOBAS_ERROR("The drone does not have rotor named \"", elem.link_name, "\".");
         continue;
@@ -115,8 +115,8 @@ void DisturbanceObserverNode::rotorStatesCb(const tobas_msgs::msg::RotorStateArr
       rotor_thrusts_[elem.link_name] = 0.;
     }
     else {
-      // モータの状態が取得できている場合のみ回転数を更新
-      // つまりモータの状態が一時的に取得できないならば回転数は変化していないとみなす
+      // Update thrust only when the rotor state is available.
+      // In other words, assume the thrust has not changed if the rotor state is temporarily unavailable.
       if (elem.status == tobas_msgs::msg::RotorState::NO_ERROR) {
         thrust_it->second = elem.thrust;
       }
@@ -133,7 +133,7 @@ void DisturbanceObserverNode::rotorLivelinessCb(
       continue;
     }
 
-    // モータが死んでいたらその回転数をゼロとみなす
+    // Treat the thrust as zero if the rotor is dead.
     if (!elem.alive) {
       thrust_it->second = 0.;
     }
@@ -164,13 +164,13 @@ void DisturbanceObserverNode::odomCb(const tobas_msgs::OdometryWithCovarianceSta
     return;
   }
 
-  // 順運動学を計算
+  // Calculate forward kinematics.
   if (fk_solver_.jntToCart(js_converter_.getPosition()) < 0) {
     TOBAS_ERROR("Forward kinematics failed: ", fk_solver_.errorMessage());
     return;
   }
 
-  // 質量特性を計算
+  // Calculate mass properties.
   if (inertia_solver_.jntToCart(js_converter_.getPosition()) < 0) {
     TOBAS_ERROR("Inertia solver failed: ", inertia_solver_.errorMessage());
     return;
@@ -181,7 +181,7 @@ void DisturbanceObserverNode::odomCb(const tobas_msgs::OdometryWithCovarianceSta
   const auto& mass = inertia.getMass();
   const auto weight = mass * st::kGravity;
 
-  // 推力がかかる項を計算
+  // Calculate terms affected by thrust.
   kdl::Vector trans_sum = kdl::Vector::Zero();
   kdl::Vector rot_sum = kdl::Vector::Zero();
   for (const auto& [link_name, thrust] : rotor_thrusts_) {
@@ -200,22 +200,23 @@ void DisturbanceObserverNode::odomCb(const tobas_msgs::OdometryWithCovarianceSta
     rot_sum += (B_Pos_G2P * axis_B - (d * cm) * axis_B) * thrust;
   }
 
-  // 外力を計算
-  // TODO: 固定翼の力も考慮
+  // Calculate external force.
+  // TODO: Also consider fixed-wing forces.
+  // FIXME: DGyro numerical errors reduce external torque accuracy.
   const auto& W_Rot_B = odom->odom.odom.frame.M;
   const auto& gyro_B = odom->odom.odom.twist.rot;
   const auto& acc_B = odom->odom.odom.accel.linear;
-  const auto& dgyro_B = odom->odom.odom.accel.angular;  // FIXME: DGyroの数値誤差が大きく外力トルクの推定制度が低い
+  const auto& dgyro_B = odom->odom.odom.accel.angular;
   const auto force_W = kdl::Vector(0, 0, weight) + W_Rot_B * (mass * acc_B - trans_sum);
   const auto torque_B = I_B * dgyro_B + gyro_B * (I_B * gyro_B) - rot_sum;
 
-  // 外力メッセージを作成
+  // Create external force message.
   auto dist_force_msg = std::make_unique<tobas_kdl_msgs::WrenchStamped>();
   dist_force_msg->header.stamp = odom->header.stamp;
   dist_force_msg->wrench.force = force_W;
   dist_force_msg->wrench.torque = torque_B;
 
-  // 外力メッセージを発行
+  // Publish external force message.
   dist_force_pub_->publish(std::move(dist_force_msg));
 }
 }  // namespace tobas

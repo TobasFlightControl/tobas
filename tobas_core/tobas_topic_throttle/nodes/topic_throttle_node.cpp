@@ -51,8 +51,9 @@ private:
 
   void callback(const typename MsgType::ConstSharedPtr& msg_in)
   {
-    // ネットワークトラフィックの改善のため，周波数の高いトピックを間引く．
-    // ヘッダの時刻だとPCとFCのシステムクロックの誤差が出力レートを壊す恐れがあるため，タイマーをノードのものに統一する．
+    // Thin out high-frequency topics to reduce network traffic.
+    // Use the node clock because PC-FC system clock differences can break the output rate
+    // when header timestamps are used.
     if (!rate_manager_.update(node_->now())) {
       return;
     }

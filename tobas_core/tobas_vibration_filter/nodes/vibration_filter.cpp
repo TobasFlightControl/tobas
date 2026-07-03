@@ -61,7 +61,7 @@ void VibrationFilterNode::imuCb(const tobas_msgs::Imu::ConstSharedPtr& imu)
   const auto dt = (imu->header.stamp - imu_->header.stamp).seconds();
   imu_ = imu;
 
-  // 高周波成分の2乗を平滑化することで擬似的にRMSを計算する (ArduPilotのVIBEの計算方法と同じ)
+  // Approximate RMS by smoothing the squared high-frequency component, matching ArduPilot's VIBE calculation.
   hpf_.update(acc_meas, dt);
   const auto acc_vibe_sqr = hpf_.getValue().sqr();  // [m^2/s^4]
   lpf_.update(acc_vibe_sqr, dt);
