@@ -2,7 +2,7 @@
 
 	<name>tobas_config_servers</name>
 	<version>0.0.0</version>
-	<description>TODO</description>
+	<description>Provides parameters shared through services as dynamic parameters.</description>
 	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
 	<license>GPL-3.0-or-later</license>
 

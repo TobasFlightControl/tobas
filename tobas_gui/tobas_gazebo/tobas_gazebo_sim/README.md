@@ -1,19 +1,19 @@
 # tobas_gazebo_sim
 
-## メモ
+## Notes
 
 ### Documentation
 
 - [Gazebo Tutorials/SDF worlds](https://gazebosim.org/docs/latest/sdf_worlds/)
 
-### world ファイルの例
+### Example World Files
 
 - [gz-sim](https://github.com/gazebosim/gz-sim/tree/ign-gazebo3/examples/worlds)
 - [Fuel Latest Worlds](https://app.gazebosim.org/fuel/worlds)
-  - OpenRobotics のモデルはメッシュをダウンロードする方式が多いからファイル自体は軽量で良い
+  - OpenRobotics models often download meshes separately, so the files themselves can stay lightweight
 - [Gazebo Worlds | PX4](https://docs.px4.io/main/en/sim_gazebo_gz/worlds.html)
 
-### パッケージからの URI 指定 (dsv.in にパスを正しく設定する必要あり)
+### URI Specification from Packages
 
 ```xml
 <include>
@@ -21,7 +21,9 @@
 </include>
 ```
 
-### Fuel (Gazebo 用のモデル共有サイト) からダウンロード
+The path must be set correctly in `dsv.in`.
+
+### Download from Fuel, a model-sharing site for Gazebo
 
 ```xml
 <include>

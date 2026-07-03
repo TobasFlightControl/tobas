@@ -2,8 +2,8 @@
 
 ## Setup
 
-- OSをSDカードに焼く: [Raspberry Pi OS Lite](https://downloads.raspberrypi.com/raspios_lite_armhf/images/raspios_lite_armhf-2025-12-04/2025-12-04-raspios-trixie-armhf-lite.img.xz)
-- SDカードをPCにマウント
+- Flash the OS to an SD card:
+  [Raspberry Pi OS Lite](https://downloads.raspberrypi.com/raspios_lite_armhf/images/raspios_lite_armhf-2025-12-04/2025-12-04-raspios-trixie-armhf-lite.img.xz)
 
 ```bash
 $ sudo mkdir -p /mnt/bootfs /mnt/rootfs
@@ -11,33 +11,33 @@ $ sudo mount /dev/sda1 /mnt/bootfs
 $ sudo mount /dev/sda2 /mnt/rootfs
 ```
 
-- ルート以下に各ファイルを配置
-- `tobas_bootmedia_config`を用いてネットワークなどの設定
-- ディスプレイ，USBキーボード，LANケーブルを接続してラズパイを起動
-- `control`に記載の依存パッケージをインストール
-- `postinst`に従う
-- 一度電源を切り，Wi-Fi経由でSSH接続
-- 追加の設定 (下)
+- Place each file under the root filesystem
+- Configure the network and other settings with `tobas_bootmedia_config`
+- Connect a display, USB keyboard, and LAN cable, then boot the Raspberry Pi
+- Install the dependencies listed in `control`
+- Follow `postinst`
+- Power off once, then connect by SSH over Wi-Fi
+- Apply the additional settings below
 
-## 追加の設定
+## Additional Settings
 
-### raspi-config から I2C と UART を有効化
+### Enable I2C and UART from raspi-config
 
 - I2C: Interface Options -> I2C
 - UART: Interface Options -> Serial Port -> Shell: No, Hardware: Yes
 
 ### CCACHE
 
-- CCACHEを有効化
+- Enable CCACHE
 
 ```bash
 $ sudo apt update && sudo apt install -y ccache
 $ mkdir -p ~/.cache/ccache
-$ echo "max_size = 5G" > ~/.cache/ccache/ccache.conf  # デフォルトの5GBで十分
+$ echo "max_size = 5G" > ~/.cache/ccache/ccache.conf  # The default 5 GB is sufficient
 $ ccache -s
 ```
 
-- `~/.bashrc`に以下を追記
+- Add the following to `~/.bashrc`
 
 ```bash
 export CC="/usr/lib/ccache/gcc"
@@ -45,20 +45,13 @@ export CXX="/usr/lib/ccache/g++"
 export CCACHE_DIR="$HOME/.cache/ccache/"
 ```
 
-### ROS 2 をインストール
+### Install ROS 2
 
 `tobas/tobas_dev_tools/scripts/install_ros2_raspbian`
 
-## メモ
+## Notes
 
-### cmdline.txtについて
-
-#### 参考
-
-- [リアルタイム性能の測定に向けたRaspberryPi3のセットアップ](https://wazalabo.com/ros2_raspberrypi3_setup.html)
-- [DPDKのパケットロスを抑制する](https://www.miraclelinux.com/tech-blog/0f7a6b)
-
-#### オプション
+### `/boot/firmware/cmdline.txt`
 
 - `console=tty1`:
   Disable the serial console

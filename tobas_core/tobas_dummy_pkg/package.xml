@@ -2,7 +2,7 @@
 
 	<name>tobas_dummy_pkg</name>
 	<version>0.0.0</version>
-	<description>TODO</description>
+	<description>Placeholder package for nodes and other items that have not yet been implemented.</description>
 	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
 	<license>GPL-3.0-or-later</license>
 

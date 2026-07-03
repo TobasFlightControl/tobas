@@ -2,7 +2,7 @@
 
 	<name>tobas_std_tools</name>
 	<version>0.0.0</version>
-	<description>TODO</description>
+	<description>Library containing basic functionality comparable to extensions of the standard library.</description>
 	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
 	<license>GPL-3.0-or-later</license>
 

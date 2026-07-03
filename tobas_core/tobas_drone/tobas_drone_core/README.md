@@ -1,7 +1,7 @@
 # tobas_drone_core
 
-ドローンの構造を定義．
 
-## 設計思想
 
-- 必要最小限の情報のみを定義．
+## Design Philosophy
+
+- 

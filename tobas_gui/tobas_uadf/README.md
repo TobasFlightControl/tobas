@@ -1,14 +1,14 @@
 # Universal Aircraft Description Format
 
-## 仕様
+## Specification
 
-XACRO の航空機拡張．
-航空機の運動方程式 (力を求めるまで) に関する部分を記述する．
+Aircraft extension for XACRO.
+Describes the parts related to the aircraft equations of motion, up to force computation.
 
-### 特殊なジョイント
+### Special Joints
 
-- `thrust`: 推進ユニット
-  - `direction`: 回転方向
+- `thrust`: propulsion unit
+  - `direction`: rotation direction
     - `value`: `cw`/`ccw`
-- `cs`: 固定翼の操舵面
-- `tilt`: チルトジョイント
+- `cs`: fixed-wing control surface
+- `tilt`: tilt joint

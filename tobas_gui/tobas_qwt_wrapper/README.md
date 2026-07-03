@@ -1,7 +1,7 @@
 # tobas_qwt_wrapper
 
-"qwt/qwt_series_store.h"を C++20 以降を使用する依存先がインクルードすることを防ぐためのラッパー．
+Wrapper that prevents dependencies using C++20 or later from including `"qwt/qwt_series_store.h"`.
 
 ## TODO
 
-Qt6 が使えるようになったら (= Rviz が Qt6 に対応したら) このパッケージを削除する．
+Remove this package once Qt6 becomes available, that is, once Rviz supports Qt6.

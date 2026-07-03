@@ -1,58 +1,58 @@
 # Tobas Fail-Safe
 
-## 共通仕様
+## Common Specification
 
-### フェイルセーフの動作の流れ
+### Fail-Safe Flow
 
-- 離陸前にフェイルセーフが発動したらディスアーム．
-- フェイルセーフの流れは統一で，必ず最後はディスアーム: RTL -> Land -> Disarm
+- Disarm if a fail-safe is triggered before takeoff.
+- The fail-safe flow is unified and always ends with disarm: RTL -> Land -> Disarm
 
-### フェイルセーフを発動しない条件
+### Conditions That Do Not Trigger Fail-Safe
 
-1. 手動操縦中
-2. 位置と速度の推定精度が低い場合
+1. During manual control
+2. When position and velocity estimation accuracy is low
 
-## 動作
+## Behavior
 
 ### RTL (Return to Launch)
 
-最低高度まで上昇後にアームされた地点まで戻り，着陸してディスアームする．
+Ascend to the minimum altitude, return to the arming point, land, and disarm.
 
 ### Land
 
-その場で着陸してディスアームする．
+Land in place and disarm.
 
 ### Disarm
 
-全てのモータを即座に停止する．
+Stop all motors immediately.
 
-## チェック項目
+## Check Items
 
-### バッテリーフェイルセーフ
+### Battery Fail-Safe
 
-#### 発動条件
+#### Trigger Condition
 
-バッテリー電圧が閾値を下回った状態が一定時間続く．
+The battery voltage remains below the threshold for a certain period of time.
 
-#### 動作
+#### Behavior
 
 Land
 
-#### 回復
+#### Recovery
 
-なし
+None
 
-### ラジオフェイルセーフ
+### Radio Fail-Safe
 
-#### 発動条件
+#### Trigger Condition
 
-レシーバからの S.BUS が一定時間途絶える．
+S.BUS from the receiver is interrupted for a certain period of time.
 
-#### 動作
+#### Behavior
 
-- 位置推定できている場合 -> RTL
-- 位置推定できていない場合 -> Land
+- If position can be estimated -> RTL
+- If position cannot be estimated -> Land
 
-#### 回復
+#### Recovery
 
-再び S.BUS が確認されたら手動操縦を再開．
+Resume manual control once S.BUS is detected again.

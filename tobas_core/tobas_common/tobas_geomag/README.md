@@ -2,6 +2,6 @@
 
 cf. [XYZgeomag | nhz2](https://github.com/nhz2/XYZgeomag/tree/master)
 
-## 主な変更点
+## Main Changes
 
-- 単精度から倍精度に変更
+- Changed from single precision to double precision

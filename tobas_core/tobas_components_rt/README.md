@@ -1,9 +1,7 @@
 # tobas_components_rt
 
-複数の ComponentManager を同じプロセスで起動し，それぞれを別々のスレッドでスピンさせることで，
+By starting multiple ComponentManagers in the same process and spinning each in a separate thread, this package enables:
 
-- 動的リンク
-- ゼロコピー
-- ノード群ごとにリアルタイム優先度を設定
-
-を実現できる．
+- dynamic linking
+- zero-copy communication
+- real-time priority settings for each group of nodes

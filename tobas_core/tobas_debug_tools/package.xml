@@ -2,7 +2,10 @@
 
 	<name>tobas_debug_tools</name>
 	<version>0.0.0</version>
-	<description>TODO</description>
+	<description>
+		Package containing simple nodes for debugging.
+		Topics published by nodes in this package are used only for verification.
+	</description>
 	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
 	<license>GPL-3.0-or-later</license>
 

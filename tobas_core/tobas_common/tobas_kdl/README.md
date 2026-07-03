@@ -1,8 +1,8 @@
 # tobas_kdl
 
-Orocos KDL の拡張
+Extensions for Orocos KDL
 
-## 設計思想
+## Design Philosophy
 
-- エラーハンドリングはエラーコードで統一．メモリ消費の多い例外は極力投げない．
-- 必要なメモリ確保は出力も含めて極力クラスのインスタンス変数にする
+- Use error codes consistently for error handling. Avoid memory-heavy exceptions whenever possible.
+- Store required allocations, including outputs, in class instance variables whenever possible.

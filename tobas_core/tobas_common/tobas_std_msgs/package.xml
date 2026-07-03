@@ -2,7 +2,10 @@
 
 	<name>tobas_std_msgs</name>
 	<version>0.0.0</version>
-	<description>TODO</description>
+	<description>
+		Very primitive message types without units or domains.
+		Use only as elements of other messages.
+	</description>
 	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
 	<license>Apache-2.0</license>
 

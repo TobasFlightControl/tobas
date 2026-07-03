@@ -1,3 +1,3 @@
 # tobas_common
 
-Tobasに限らない，抽象度の高いパッケージを配置．
+Packages that are not specific to Tobas are placed here.

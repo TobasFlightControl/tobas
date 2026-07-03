@@ -1,10 +1,10 @@
 # Tobas GUI
 
-## 設計思想
+## Design Philosophy
 
-- 基本的にアプリは機能ごとに分ける
-- 1 つのアプリの機能は 1 行で説明できるべき
-- GUI を分けた方が使いやすいとき
-  - 使う順序が決まっている (e.g. STM32CubeMX → STM32CubeIDE)
-  - 使う頻度が異なる
-  - 同時に使う可能性がある
+- In principle, separate apps by function
+- The purpose of a single app should be explainable in one line
+- Split GUIs when doing so improves usability
+  - The usage order is fixed (e.g. STM32CubeMX -> STM32CubeIDE)
+  - Usage frequency differs
+  - They may be used at the same time

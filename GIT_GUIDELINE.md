@@ -60,8 +60,3 @@
 ## Pull Request
 
 - Assign Masayoshi Dohi (@Masa0u0) as a reviewer.
-
-## References
-
-- [Git での基本的な開発フローについて](https://qiita.com/jun1s/items/e45761f103c52926d5e5)
-- [【Git】コミットに規約をつくる | Qiita](https://qiita.com/Kenya/items/f72fba8fecc79d1b090c)

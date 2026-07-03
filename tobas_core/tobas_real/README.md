@@ -1,12 +1,3 @@
 # Tobas Real
 
-基本的に実機でのみ使用するパッケージを配置．
-
-## やること
-
-- センサのキャリブレーション結果の反映
-- 重複したセンサデータのフィルタリング
-
-## やらないこと
-
-- 分散の計算 (Gazebo との共通化のため)
+Packages used mainly on real hardware are placed here.

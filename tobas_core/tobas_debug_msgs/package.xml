@@ -2,7 +2,7 @@
 
 	<name>tobas_debug_msgs</name>
 	<version>0.0.0</version>
-	<description>TODO</description>
+	<description>Debug messages for controllers, observers, and related components.</description>
 	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
 	<license>Apache-2.0</license>
 

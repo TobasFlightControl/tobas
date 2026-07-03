@@ -1,7 +1,7 @@
 # tobas_manipulation
 
-## メモ
+## Notes
 
-関節空間の制御とタスク空間の制御は独立しているため，別々のノードとして実装するのが望ましい．
-しかし，両者は直列にも並列にもできないため，どちらか一方のみが有効であることを保証する必要がある．
-そのため，両者を同一ノードに実装し，最新のコマンドメッセージによって分岐させている．
+Joint-space control and task-space control are independent, so it is preferable to implement them as separate nodes.
+However, they can be neither serial nor parallel, so the system must guarantee that only one is active.
+For that reason, both are implemented in the same node and switched based on the latest command message.
