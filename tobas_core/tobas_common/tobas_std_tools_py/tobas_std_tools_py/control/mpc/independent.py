@@ -13,7 +13,7 @@ from ...numpy_tools import make_mat_pow_arr, make_mat_diag
 
 
 class IndependentMPC:
-    """BasicMPCをオブザーバから独立させたモデル"""
+    """Model that decouples `BasicMPC` from the observer."""
 
     def __init__(
         self,
@@ -44,31 +44,31 @@ class IndependentMPC:
         Parameters
         ----------
         Ac, Bc, Cy, Cz: np.ndarray
-            連続時間状態方程式の係数行列
+            Coefficient matrices of the continuous-time state equation.
         dt: float
-            離散化する時間幅
+            Time interval for discretization.
         Hw, Hp: int
-            [Hw, Hp]の区間の出力を評価する
+            Evaluate the output over `[Hw, Hp]`.
         Hu: int
-            [1, Hu]の区間の入力を制御できる
+            Control the input over `[1, Hu]`.
         Q_values, R_values, S_values: np.ndarray
-            z, u_rate, uにかかる重み
+            Weights applied to `z`, `u_rate`, and `u`.
         u_range, u_rate_range, z_range: np.ndarray, default None
-            入力，入力の変化率，制御変数に関する不等式制約
-            制約を設けない部分には±np.infを入れる
+            Inequality constraints on input, input rate, and controlled variables.
+            Use `+/-np.inf` where no constraint is applied.
         u_const_mat, u_rate_const_mat, z_const_mat: np.ndarray, default None
-            不等式成約を行列で与える場合
-            (F c) @ (u 1).T <= 0の(F c)の部分を与える
+            Matrix form for inequality constraints.
+            Provide the `(F c)` part of `(F c) @ (u 1).T <= 0`.
         T_ref: float, default None
-            応答時定数
+            Response time constant.
         ref_traj: str, default 'const'
-            設定値に対する参照軌道の作成方法
+            Method for creating the reference trajectory for the setpoint.
         disc_method: str, default 'euler'
-            離散化手法
+            Discretization method.
         qpsolver: str, default 'quadprog'
-            QP問題のソルバ(https://pypi.org/project/qpsolvers/)
+            Solver for the QP problem (https://pypi.org/project/qpsolvers/).
         y_labels: List[str], default None
-            各出力変数の名前
+            Names of each output variable.
 
         Returns
         ----------
@@ -76,9 +76,9 @@ class IndependentMPC:
 
         Note
         ----------
-        - u_rateの時間単位はdtと一致している必要がある
-        - hoge_rangeとhoge_const_matはどちらか一方を指定する
-        - Q, R, Sが対称行列と仮定して計算している部分がいくつかある
+        - The time unit of `u_rate` must match `dt`.
+        - Specify either `hoge_range` or `hoge_const_mat`.
+        - Some computations assume that `Q`, `R`, and `S` are symmetric matrices.
         """
 
         self._x_dim = Ac.shape[0]
@@ -171,7 +171,7 @@ class IndependentMPC:
         self._Gamma = G[:, :-1]
         self._g = G[:, -1]
 
-        # 練習問題3-5
+        # Exercise 3-5.
         S = np.diag(S_values)
         self._Sa = self._calc_Sa(S)
         self._Sb_over_u_diff = np.array([i * S for i in reversed(range(1, Hu + 1))]).reshape(-1, self._u_dim)
@@ -193,16 +193,16 @@ class IndependentMPC:
         Parameters
         ----------
         x: np.ndarray
-            現在の推定状態
+            Current estimated state.
         s: np.ndarray
-            設定値
+            Setpoint.
         u_ref: np.ndarray, default None
-            制御入力の参照値
+            Reference value of the control input.
 
         Returns
         ----------
         u: np.ndarray
-            制御入力
+            Control input.
         """
 
         assert x.shape == (self._x_dim,), f"{x.shape} != {(self._x_dim,)}"
@@ -212,7 +212,7 @@ class IndependentMPC:
         else:
             assert u_ref.shape == (self._u_dim,), f"{u_ref.shape} != {(self._u_dim,)}"
 
-        # QP問題を解く
+        # Solve the QP problem.
         phi = self._calc_phi(x, s, u_ref)
         omega = self._calc_omega(x)
         delta_U = qpsolvers.solve_qp(self._Phi, phi, self._Omega, omega, solver=self._qpsolver)
@@ -222,23 +222,23 @@ class IndependentMPC:
         else:
             delta_u = delta_U[: self._u_dim]
 
-        # 制御入力を更新して返す
+        # Update and return the control input.
         self._last_u += delta_u
         return self._last_u
 
-    def plot_frequency_response(  # TODO: うまくいかない(数値誤差？)
+    def plot_frequency_response(  # TODO: Does not work well, possibly due to numerical error.
         self,
         L: np.ndarray,
         min_omega: float = 1e-2,
         num: int = 100,
         figsize: Tuple[float, float] = (12.0, 9.0),
     ) -> None:
-        """ハード制約がない場合の感度関数の特異値をプロットする(p.244, 演習問題7.6)"""
+        """Plot singular values of sensitivity functions without hard constraints (p. 244, exercise 7.6)."""
 
         assert L.shape == (self._x_dim, self._y_dim)
         assert LA.matrix_rank(self._Ad) == self._x_dim
 
-        max_omega = np.pi / self._dt  # ナイキスト周波数
+        max_omega = np.pi / self._dt  # Nyquist frequency.
         assert 0.0 < min_omega < max_omega, f"min_omega: {min_omega}, max_omega: {max_omega}"
         omega_list = np.power(10.0, (np.linspace(np.log10(min_omega), np.log10(max_omega), num)))
 
@@ -303,12 +303,12 @@ class IndependentMPC:
 
     def update_dynamics(self, Ac: np.ndarray, Bc: np.ndarray) -> None:
         """
-        状態方程式を更新する場合にMPC側で必要な処理を行う
+        Perform the MPC-side processing required when updating the state equation.
 
         Parameters
         ----------
         Ac, Bc: np.ndarray
-            新しい連続時間状態方程式
+            New continuous-time state equation.
 
         Returns
         ----------
@@ -316,7 +316,7 @@ class IndependentMPC:
 
         Note
         ----------
-        - オブザーバは連続時間用でなければならないことに注意
+        - Note that the observer must be for continuous time.
         """
 
         assert Ac.shape == (self._x_dim, self._x_dim)
@@ -340,13 +340,13 @@ class IndependentMPC:
         self._Phi = self._Theta.T @ self._Q @ self._Theta + self._R_plus_Sa
         self._Omega = np.r_[self._F_gothic, self._Gamma @ self._Theta, self._W]
 
-        # その他の事前に計算しておくもの
+        # Other values to precompute.
         self._Theta_Q = self._Theta.T @ self._Q
         self._Gamma_Psi = self._Gamma @ self._Psi
         self._Gamma_Upsilon = self._Gamma @ self._Upsilon
 
     def _calc_decays(self, T_ref, ref_traj):
-        """p.12,例題1.3を参考に減衰率を計算"""
+        """Compute the decay rate based on p. 12, example 1.3."""
 
         coin_times = self._dt * np.arange(1, self._Hp + 1)
         if ref_traj == "const":
@@ -382,7 +382,7 @@ class IndependentMPC:
         assert values.ndim == 1
         assert 0 < Hw <= Hp
 
-        # Hwより前のステップの重みを0にする
+        # Set the weights before step `Hw` to zero.
         dim = values.shape[0]
         mat_arr_tile = np.concatenate(
             [
@@ -396,7 +396,7 @@ class IndependentMPC:
         return res
 
     def _calc_F_gothic(self, F):
-        n_cond = F.shape[0]  # (3.35)の条件数
+        n_cond = F.shape[0]  # Number of conditions in (3.35).
         F_tilda = [np.zeros((n_cond, self._u_dim))] + np.hsplit(F[:, :-1], self._Hu)
         F_cs = np.cumsum(F_tilda, axis=0)
 
@@ -450,7 +450,7 @@ class IndependentMPC:
         return Theta
 
     def _calc_phi(self, x, s, u_ref):
-        """(3.11)より，(3.43)のphiを計算"""
+        """Compute `phi` in (3.43) from (3.11)."""
 
         Sb = self._calc_Sb(u_ref)
         Epsilon = self._calc_Epsilon(x, s)
@@ -470,14 +470,14 @@ class IndependentMPC:
         return Epsilon
 
     def _calc_Tau(self, x, s):
-        """p.12,例題1.3を参考にp.90のTauを計算"""
+        """Compute `Tau` on p. 90 based on p. 12, example 1.3."""
 
         err = s - self._Cz @ x
         Tau = (s - self._decays * err).ravel()
         return Tau
 
     def _calc_omega(self, x):
-        """(3.41)の右辺を計算"""
+        """Compute the right-hand side of (3.41)."""
 
         vec1 = -self._F_gothic_1 @ self._last_u - self._f
         vec2 = -self._Gamma_Psi @ x - self._Gamma_Upsilon @ self._last_u - self._g
