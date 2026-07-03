@@ -224,7 +224,7 @@ private:
   /**
    * @brief Handle shutdown appropriately in response to external requests.
    * This includes cancellation, supersession, and similar requests.
-   * 
+   *
    * @return bool Whether the mission can continue.
    */
   bool handleExternalRequest(const GoalHandlePtr& gh, const ResultPtr& res);
