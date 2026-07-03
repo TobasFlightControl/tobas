@@ -35,7 +35,7 @@ MatrixXd care_ArimotoPotter(const MatrixXd& A, const MatrixXd& B, const MatrixXd
   assert(eigen::isFinite(R));
   assert(eigen::isPositiveDefinite(R));
 
-  // TODO: 可安定性を確認
+  // TODO: Check stabilizability.
 
   // Make Hamilton matrix
   MatrixXd H(n * 2, n * 2);
@@ -50,10 +50,10 @@ MatrixXd care_ArimotoPotter(const MatrixXd& A, const MatrixXd& B, const MatrixXd
     throw runtime_error("Failed to get eigenvalues.");
   }
   const auto eigvals = es.eigenvalues().real().eval();
-  const auto eigvecs = es.eigenvectors().eval();  // 固有ベクトルは虚部も使う必要がある
+  const auto eigvecs = es.eigenvectors().eval();  // Eigenvectors require the imaginary parts too.
 
-  // 実部が負の固有値の個数はシステムの次数に等しいはず
-  // 0と比較すると未初期化の値がヒットするため，少しマージンを設ける
+  // The number of eigenvalues with negative real parts should match the order of the system.
+  // Use a small margin because comparing with 0 can catch uninitialized values.
   const auto num_stable_eigvals = (eigvals.array() < -numeric_limits<double>::epsilon()).count();
   if (num_stable_eigvals != n) {
     throw runtime_error("The number of stable eigenvalues does not match the order of the system.");

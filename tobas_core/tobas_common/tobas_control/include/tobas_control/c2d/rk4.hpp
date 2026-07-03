@@ -23,8 +23,8 @@ public:
 
 private:
   Eigen::Index x_size_, u_size_;
-  std::array<Eigen::MatrixXd, 5> Ac_dt_pows_;  // Ac*dtの累乗を保持する配列
-  std::array<double, 5> factorials_;           // 階乗を保持する配列
+  std::array<Eigen::MatrixXd, 5> Ac_dt_pows_;  // Array holding powers of Ac*dt
+  std::array<double, 5> factorials_;           // Array holding factorials
 };
 }  // namespace ctrl
 }  // namespace tobas

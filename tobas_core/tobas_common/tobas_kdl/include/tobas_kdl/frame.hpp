@@ -110,7 +110,7 @@ public:
    */
   inline void integrate(const Twist& t_this, double frequency);
 
-  /* フレームを6次元ベクトルに変換． */
+  /* Convert the `Frame` to a 6D `Twist`. */
   inline Twist toTwist() const;
 
   inline Frame inverse() const;

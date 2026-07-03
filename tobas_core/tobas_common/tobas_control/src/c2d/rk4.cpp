@@ -25,19 +25,19 @@ LinearDynamics C2D_RK4::convert(const LinearDynamics& cont, const double& dt)
   assert(cont.isFinite());
   assert(dt >= 0);
 
-  // Ac_dtの累乗を計算
+  // Compute powers of Ac_dt.
   const MatrixXd Ac_dt = cont.A * dt;
   for (size_t i = 1; i <= 4; ++i) {
     Ac_dt_pows_[i] = Ac_dt_pows_[i - 1] * Ac_dt;
   }
 
-  // Adを計算
+  // Compute Ad.
   MatrixXd Ad = MatrixXd::Identity(x_size_, x_size_);
   for (size_t i = 1; i <= 4; ++i) {
     Ad += Ac_dt_pows_[i] / factorials_[i];
   }
 
-  // Bdを計算
+  // Compute Bd.
   MatrixXd Bd = MatrixXd::Identity(x_size_, x_size_);
   for (size_t i = 1; i <= 3; ++i) {
     Bd += Ac_dt_pows_[i] / factorials_[i + 1];

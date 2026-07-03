@@ -31,18 +31,18 @@ VectorXd LQD::solve(const double& dt, const bool& update_gain)
     updateGain();
   }
 
-  // スケーリング
+  // Scaling.
   const VectorXd x_scaled = current_state.array() / state_scale.array();
   const VectorXd s_scaled = target_state.array() / state_scale.array();
   const VectorXd last_u_scaled = last_input.array() / input_scale.array();
 
-  // 拡大状態を作成
+  // Create the augmented state.
   const VectorXd x_tilde = eigen::concat(x_scaled, last_u_scaled, 0);
   const VectorXd s_tilde = eigen::concat(s_scaled, VectorXd::Zero(input_weight.rows()), 0);
 
   const auto ud_scaled = K_ * (s_tilde - x_tilde);
 
-  // 最新の制御入力を更新
+  // Update the latest control input.
   const auto ud = ud_scaled.cwiseProduct(input_scale);
   last_input += ud * dt;
 
@@ -71,10 +71,10 @@ void LQD::updateGain()
   const auto u_size = input_weight.rows();
   const auto x_tilde_size = x_size + u_size;
 
-  // スケーリング
+  // Scaling.
   const auto dyn_scaled = dynamics.scale(state_scale, input_scale);
 
-  // 拡大状態に対応するダイナミクスを作成
+  // Create dynamics for the augmented state.
   MatrixXd A_tilde(x_tilde_size, x_tilde_size);
   A_tilde.topLeftCorner(x_size, x_size) = dyn_scaled.A;
   A_tilde.topRightCorner(x_size, u_size) = dyn_scaled.B;
@@ -84,14 +84,14 @@ void LQD::updateGain()
   B_tilde.topRows(x_size).setZero();
   B_tilde.bottomRows(u_size).setIdentity();
 
-  // 重み行列を作成
+  // Create weight matrices.
   const MatrixXd Q_tilde = eigen::concat(state_weight, input_weight, 0).asDiagonal();
   const MatrixXd R_tilde = input_rate_weight.asDiagonal();
 
-  // CAREを解く
+  // Solve CARE.
   P_inf_ = care_ArimotoPotter(A_tilde, B_tilde, Q_tilde, R_tilde);
 
-  // LQRの解を計算
+  // Compute the LQR solution.
   K_ = R_tilde.diagonal().cwiseInverse().asDiagonal() * B_tilde.transpose() * P_inf_;
 }
 

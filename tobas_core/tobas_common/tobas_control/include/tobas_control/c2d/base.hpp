@@ -10,7 +10,7 @@ namespace tobas
 namespace ctrl
 {
 /**
- * @brief 連続時間状態方程式を離散時間状態方程式に変換するクラスの基底．
+ * @brief Base class for converting continuous-time state equations to discrete-time state equations.
  */
 class BaseC2D
 {

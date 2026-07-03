@@ -10,23 +10,23 @@ namespace tobas
 namespace ctrl
 {
 /**
- * @brief 線形二次微分制御 (memo: 2-22)
+ * @brief Linear quadratic derivative control. (memo: 2-22)
  */
 class LQD
 {
 public:
-  LinearDynamics dynamics;  // xd = Ax + Bu: 連続時間状態方程式
+  LinearDynamics dynamics;  // xd = Ax + Bu: continuous-time state equation
 
-  Eigen::VectorXd state_scale;  // 状態変数のスケール
-  Eigen::VectorXd input_scale;  // 制御入力のスケール
+  Eigen::VectorXd state_scale;  // State variable scale
+  Eigen::VectorXd input_scale;  // Control input scale
 
-  Eigen::VectorXd state_weight;       // Q: 状態変数に対する重み (無次元)
-  Eigen::VectorXd input_weight;       // R: 制御入力に対する重み (無次元)
-  Eigen::VectorXd input_rate_weight;  // S: 制御入力の変化率に対する重み (無次元)
+  Eigen::VectorXd state_weight;       // Q: weight for state variables (dimensionless)
+  Eigen::VectorXd input_weight;       // R: weight for control inputs (dimensionless)
+  Eigen::VectorXd input_rate_weight;  // S: weight for control input rates (dimensionless)
 
-  Eigen::VectorXd current_state;  // x: 現在の状態
-  Eigen::VectorXd target_state;   // s: 設定値
-  Eigen::VectorXd last_input;     // u: 最新の制御入力
+  Eigen::VectorXd current_state;  // x: current state
+  Eigen::VectorXd target_state;   // s: setpoint
+  Eigen::VectorXd last_input;     // u: latest control input
 
   explicit LQD();
 

@@ -6,7 +6,7 @@
 #include <cinttypes>
 #include <cstddef>
 
-/* cf: [Cyclic Redundancy Check (CRC) を理解する | Qiita](https://qiita.com/tobira-code/items/dbcffc41f54201130b6c) */
+/* cf: https://qiita.com/tobira-code/items/dbcffc41f54201130b6c */
 namespace tobas
 {
 namespace algo

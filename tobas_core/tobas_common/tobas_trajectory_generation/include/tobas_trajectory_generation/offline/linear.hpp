@@ -9,7 +9,7 @@ namespace tobas
 {
 namespace traj
 {
-/* 直線軌道生成 */
+/* Linear trajectory generation. */
 class LinearSpline : public TrajectoryGenerator
 {
 public:
