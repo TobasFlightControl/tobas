@@ -7,7 +7,7 @@
 
 #include <tobas_linux/video_dev.hpp>
 
-#define PACKED __attribute__((__packed__))  // 構造体のメンバ変数がメモリ上で連続する
+#define PACKED __attribute__((__packed__))  // Struct member variables are contiguous in memory.
 
 namespace tobas
 {
@@ -27,10 +27,10 @@ public:
 
   enum class CameraPosition : uint8_t
   {
-    kLower = 0x0,         // 機体に下向きで取り付ける（レンズより台が上になる向き）
-    kUpper = 0x1,         // 機体に上向きで取り付ける（レンズより台が下になる向き）
-    kUpperYawFix = 0x02,  // 機体に上向きで取り付ける（ヨーは回転フリー）
-    kAuto = 0x03,         // 自動で決定（デフォルト）
+    kLower = 0x0,         // Mount facing downward on the aircraft, with the base above the lens.
+    kUpper = 0x1,         // Mount facing upward on the aircraft, with the base below the lens.
+    kUpperYawFix = 0x02,  // Mount facing upward on the aircraft, with yaw rotation free.
+    kAuto = 0x03,         // Determine automatically (default).
   };
   enum class PhotoQuality : uint8_t
   {
@@ -50,17 +50,20 @@ public:
     k30p = 0x00,  // 30FPS
     k60p = 0x01,  // 60FPS
   };
-  // 露出モードの設定, 以下の説明には多くの推測が含まれる
-  // manual : 露出時間, ISO感度, 絞りを人間が指定
-  // setExposureTime, setIsoSensitivityで露出時間 & ISO感度を設定することで撮影configを設定
-  // program : 露出時間, ISO露出, 絞りをカメラが決定
-  // setExposureCompensation, setPhotometryにより露出補正, 測光モード設定を行うことで間接的に露出時間, ISO感度,
-  // 絞りを変更, 撮影configを設定 注 : ホワイトバランスの設定はこれとは関係ない
+  // Exposure mode setting. The following description includes many assumptions.
+  // manual: the user specifies exposure time, ISO sensitivity, and aperture.
+  // Configure shooting settings by setting exposure time and ISO sensitivity with
+  // `setExposureTime()` and `setIsoSensitivity()`.
+  // program: the camera determines exposure time, ISO exposure, and aperture.
+  // Indirectly change exposure time, ISO sensitivity, and aperture,
+  // and configure shooting settings by setting exposure compensation and photometry mode
+  // with `setExposureCompensation()` and `setPhotometry()`.
+  // Note: white balance settings are unrelated to this.
   enum class ExposureMode : uint8_t
   {
-    kManual = 0x00,  // manual, 露出時間, ISO感度, 絞りを人間が指定
-    kProgram =
-      0x03,  // program (default), 露出時間, ISO露出をカメラが決定(多分), 補正のためには露出補正(+0.3とか)を行う
+    kManual = 0x00,   // manual: the user specifies exposure time, ISO sensitivity, and aperture.
+    kProgram = 0x03,  // program (default): the camera probably determines exposure time and ISO exposure; use exposure
+                      // compensation, such as +0.3, for correction.
   };
   enum class ExposureTime : uint8_t
   {
@@ -184,53 +187,53 @@ public:
    */
   bool sendGimbalCtrl(const double& pitch_deg, const double& yaw_deg);
 
-  /* 工場出荷リセット． */
+  /* Factory reset. */
   bool fullReset();
 
-  /* 工場出荷リセット実施後，通常起動前に1回のみ実施する． */
+  /* Run only once after factory reset and before normal startup. */
   bool turnOffUavcan();
 
-  /* SDカードをフォーマットする */
+  /* Format the SD card. */
   bool formatSdCard();
-  /* 静止画を撮影する. 現在設定の画質で撮影. 画像は内蔵SDカードに保存 */
+  /* Take a still image using the current image quality setting. The image is saved to the built-in SD card. */
   bool takePictureToSd();
-  /* 静止画の画質を設定する. superfine, fine, normalの中から選択 */
+  /* Set still image quality. Choose from superfine, fine, and normal. */
   bool setPhotoQuality(const PhotoQuality& photo_quality);
-  /* 動画撮影を開始する 動画はSDへ保存 */
+  /* Start video recording. Videos are saved to the SD card. */
   bool startRecording();
-  /* 動画撮影を止める 動画はSDへ保存 */
+  /* Stop video recording. Videos are saved to the SD card. */
   bool stopRecording();
-  /* レコーディングする動画の画質を設定する */
+  /* Set the video quality for recording. */
   bool setVideoResolution(const VideoQuality& video_quality);
-  /* レコーディングする動画のフレームレートを設定する */
+  /* Set the video frame rate for recording. */
   bool setVideoFrameRate(const VideoFrameRate& video_frame_rate);
-  /* 露出モードを取得する 結果から与えられた変数の値を変更する */
+  /* Get the exposure mode and update the given variable from the result. */
   bool getExposureMode(uint8_t& exposure_mode);
-  /* 露出モードを設定する */
+  /* Set the exposure mode. */
   bool setExposureMode(const ExposureMode& exposure_mode);
-  /* 露出時間を取得する 結果から与えられた変数の値を変更する */
+  /* Get the exposure time and update the given variable from the result. */
   bool getExposureTime(uint8_t& exposure_time);
-  /* 露出時間を設定する */
+  /* Set the exposure time. */
   bool setExposureTime(const ExposureTime& exposure_time);
-  /* isoを取得する 結果から引数として与えられた変数の値を変更する */
+  /* Get ISO sensitivity and update the variable given as an argument from the result. */
   bool getIsoSensitivity(uint8_t& iso_sensitivity);
-  /* isoを設定する */
+  /* Set ISO sensitivity. */
   bool setIsoSensitivity(const IsoSensitivity& iso_sensitivity);
-  /* 露出補正を取得する 結果から引数として与えられた変数の値を変更する:*/
+  /* Get exposure compensation and update the variable given as an argument from the result. */
   bool getExposureCompensation(uint8_t& exposure_compenstation);
-  /* 露出補正を行う */
+  /* Set exposure compensation. */
   bool setExposureCompensation(const ExposureCompensation& exposure_compensation);
-  /* 測光モードを取得する 結果から引数として与えられた変数の値を変更する */
+  /* Get photometry mode and update the variable given as an argument from the result. */
   bool getPhotometry(uint8_t& photometry);
-  /* 測光モード設定を行う */
+  /* Set photometry mode. */
   bool setPhotometry(const Photometry& photometry);
-  /* ホワイトバランスを設定する */
+  /* Set white balance. */
   bool setWhiteBalance(const WhiteBalance& white_balance);
-  /* カメラ状態を取得する 結果から引数として与えられた変数の値を変更する */
+  /* Get camera status and update variables given as arguments from the result. */
   bool getCameraStatus(
     bool& sd_full,
     bool& time_not_set,
-    bool& media_error,  // SDカードが挿入されていないか満タン
+    bool& media_error,  // The SD card is not inserted or is full.
     bool& lens_error,
     bool& gimbal_error,
     bool& gimbal_motor_error,
@@ -291,8 +294,8 @@ private:
     uint32_t error_status;
     uint32_t video_remain_time;
     uint32_t photo_remain_count;
-    uint32_t card_full_size;  // SDカードのサイズ 単位はMB
-    uint32_t card_free_mem;   // SDカードの残りのサイズ 単位はMB
+    uint32_t card_full_size;  // SD card size in MB.
+    uint32_t card_free_mem;   // Remaining SD card size in MB.
     uint16_t ad_value_body;
     uint16_t ad_value_cmos;
     uint16_t ad_value_gimbal_pitch;
@@ -301,8 +304,8 @@ private:
     uint16_t reserve1;
     uint8_t get_date_time[7];
     uint8_t reserve2;
-    uint32_t get_exposure_time;  // 単位はus(micro second)
-    uint16_t get_aperture;       // F値を100倍した値
+    uint32_t get_exposure_time;  // Unit is us (microsecond).
+    uint16_t get_aperture;       // F-number multiplied by 100.
     uint16_t get_iso_sensitivity;
   };
   static_assert(sizeof(CameraStatusMsg) == 48, "CameraStatusMsg size is strange!");
