@@ -9,7 +9,7 @@
 #include "./ubx_payload.hpp"
 #include "./ubx_scanner.hpp"
 
-#define PACKED __attribute__((__packed__))  // 構造体のメンバ変数がメモリ上で連続する
+#define PACKED __attribute__((__packed__))  // Struct member variables are contiguous in memory.
 
 namespace tobas
 {
@@ -29,11 +29,12 @@ class ZEDF9P
 private:
   static constexpr uint32_t kSpiClockFreq = 5'500'000;  // Maximum frequency is 5.5MHz
   static constexpr size_t kSpiBufSize = 256;
-  static constexpr uint8_t kRG174CableDelay = 5;  // [ns/m] 同軸ケーブルの遅延
+  static constexpr uint8_t kRG174CableDelay = 5;  // [ns/m] Coaxial cable delay.
   static constexpr auto kWaitForGnssAck = std::chrono::seconds(1);
 
-  // SPIで1バイト受け取る間隔 [us]
-  // 小さいほど通信遅延を小さくできるが，小さすぎるとレシーバへのリクエスト過多で精度が落ちる．
+  // Interval for receiving one byte over `SPI` [us].
+  // A smaller value reduces communication latency,
+  // but too small a value overloads the receiver with requests and degrades accuracy.
   static constexpr auto kReqInterval = std::chrono::microseconds(50);
 
 public:
@@ -154,7 +155,7 @@ public:
   bool enableSpiProtocol_RTCM3X(bool enable_input, bool enable_output);
   bool enableSpiProtocol_SPARTN(bool enable_input);
 
-  /* RF174ケーブルの長さからアナログ伝達の遅延を設定する． */
+  /* Set the analog transmission delay from the length of the `RF174` cable. */
   bool setAntennaLength(uint8_t length_m);
 
   bool enableUsb(bool enable);

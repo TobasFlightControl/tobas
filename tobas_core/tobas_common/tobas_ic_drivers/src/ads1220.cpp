@@ -29,12 +29,14 @@ bool ADS1220::initialize(const char* spi_device)
     return false;
   }
 
-  if (!configure(CFG_REG_0, MUX_AIN0_AVSS | GAIN_1 | PGA_DISABLED))  // 電圧ピンとGNDの電位差を測る
+  if (!configure(
+        CFG_REG_0,
+        MUX_AIN0_AVSS | GAIN_1 | PGA_DISABLED))  // Measure the potential difference between the voltage pin and GND.
   {
     return false;
   }
 
-  if (!configure(CFG_REG_1, DR_330SPS | MODE_NORMAL | CM_CONTINUOUS))  // 遅延回避のためContinuousモード
+  if (!configure(CFG_REG_1, DR_330SPS | MODE_NORMAL | CM_CONTINUOUS))  // Continuous mode to avoid delay.
   {
     return false;
   }
@@ -57,14 +59,14 @@ bool ADS1220::readVoltage(double& dst)
   }
   int lsb = (rx_buf_[0] << 16) | (rx_buf_[1] << 8) | rx_buf_[2];
 
-  // 24ビット符号付き整数をデコード
+  // Decode a 24-bit signed integer.
   // cf. 8.5.2 Data Format (p.35)
   if ((lsb >> 23) & 1) {
     lsb -= (1 << 24);
   }
 
-  // スケーリング
-  // TODO: 実際の電圧に変換
+  // Scaling.
+  // TODO: Convert to the actual voltage.
   dst = math::remap<double>(lsb, -(1 << 23), (1 << 23), 0., 2 * kVref / kGain);
 
   return true;
@@ -72,7 +74,8 @@ bool ADS1220::readVoltage(double& dst)
 
 bool ADS1220::readCurrent(double&)
 {
-  // TODO: DRDYがLOWになったら，マルチプレクサを切り替えるコマンドを送ると同時に切り替え前のデータを読み取る．
+  // TODO: When `DRDY` goes LOW, send the command to switch the multiplexer
+  // and read the data before switching at the same time.
   // cf. 8.5.5 Sending Commands (p.38)
 
   cerr << "Not implemented." << endl;
@@ -124,8 +127,8 @@ bool ADS1220::configure(const uint8_t& rr, const uint8_t& tar_cfg)
     return false;
   }
 
-  // FIXME: 書き込んだ内容と読み取った内容が一致しない．
-  // しかしRDATAの出力を見るに設定変更は正しく反映されているように思える．
+  // FIXME: The written and read values do not match.
+  // However, the `RDATA` output suggests that the configuration change is applied correctly.
   return true;
 
   // Verify that the configuration is reflected

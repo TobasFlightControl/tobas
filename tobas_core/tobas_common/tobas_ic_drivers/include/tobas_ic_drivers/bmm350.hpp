@@ -35,19 +35,19 @@ public:
     AVG_4 = 0x04,
   };
 
-  /*　センサ初期化を実行する. */
+  /* Initialize the sensor. */
   bool initialize(const char* i2c_device = "/dev/i2c-1");
 
   /**
-   * @brief 初期化時に適用するODRとaveragingを設定する．
+   * @brief Set the `ODR` and averaging values applied during initialization.
    *
-   * @param _odr ODR設定値
-   * @param _averaging averaging設定値
-   * @note 実機反映はinitialize()内のapplyConfiguration()内で行う．
+   * @param _odr `ODR` setting value.
+   * @param _averaging Averaging setting value.
+   * @note The settings are applied to the device in `applyConfiguration()` inside `initialize()`.
    */
   bool configure(ODR odr = ODR_100Hz, Averaging averaging = AVG_4);
 
-  /* 現在の磁気データ [uT] を読み出す. */
+  /* Read the current magnetic field data [uT]. */
   bool readMag(float& _mx, float& _my, float& _mz);
 
 private:
@@ -125,7 +125,7 @@ private:
     SIGNED_24_BIT = 24,
   };
 
-  /* Bosch BMM350 SensorAPIのbmm350_defs.hの待ち時間に合わせている. */
+  /* Matches the wait times in `bmm350_defs.h` from the Bosch BMM350 SensorAPI. */
   enum TimingUs : uint32_t
   {
     STARTUP_DELAY_US = 3000,             // POR startup time
@@ -222,57 +222,58 @@ private:
   bool configure();
   bool magneticResetAndWait();
   bool getPmuCmdStatus0(PmuCmdStatus0& _status);
-  /* OTPレジスタを全件読み出して内部補償係数に反映する. */
+  /* Read all `OTP` registers and apply them to the internal compensation coefficients. */
   bool readOtpRegisters();
-  /* 指定したOTPワードを1件読み出す. */
+  /* Read one specified `OTP` word. */
   bool readOtpWord(uint8_t _addr, uint16_t& _word);
-  /* OTP生データから補償パラメータを更新する. */
+  /* Update compensation parameters from raw `OTP` data. */
   void updateCompensationFromOtp();
   bool setOdrPerformance(uint8_t _odr = ODR_100Hz, uint8_t _avg = AVG_4);
   bool readRawMagData(RawMagData& _raw);
   /**
-   * @brief bmm350はレジスタ読み取り時の最初の２バイトが0x00で返ってくるため，必ず＋２バイト分読み取って最初の２バイトを捨てる
+   * @brief The first two bytes returned by `BMM350` during register reads are `0x00`,
+   * so always read two extra bytes and discard the first two bytes.
    * @note Datasheet 9.2.3 Dummy bites in I2C mode
    * Datasheet: https://www.bosch-sensortec.com/products/motion-sensors/magnetometers/bmm350/
    */
   bool readBytesWithDummy(uint8_t reg_addr, size_t length, uint8_t* rx);
 
   /**
-   * @brief 補償済みX軸磁気データ [uT] を算出する.
+   * @brief Compute compensated magnetic field data on the X-axis [uT].
    *
-   * @param x X軸の補償前データ [uT]
-   * @param y Y軸の補償前データ [uT]
-   * @param z Z軸の補償前データ [uT]
-   * @param temperature 温度データ [degC]
-   * @return float 補償後X軸磁気データ [uT]
+   * @param x Uncompensated X-axis data [uT].
+   * @param y Uncompensated Y-axis data [uT].
+   * @param z Uncompensated Z-axis data [uT].
+   * @param temperature Temperature data [degC].
+   * @return float Compensated X-axis magnetic field data [uT].
    */
   float compensateX(float _x, float _y, float _z, float _temperature) const;
 
   /**
-   * @brief 補償済みY軸磁気データ [uT] を算出する.
+   * @brief Compute compensated magnetic field data on the Y-axis [uT].
    *
-   * @param x X軸の補償前データ [uT]
-   * @param y Y軸の補償前データ [uT]
-   * @param z Z軸の補償前データ [uT]
-   * @param temperature 温度データ [degC]
-   * @return float 補償後Y軸磁気データ [uT]
+   * @param x Uncompensated X-axis data [uT].
+   * @param y Uncompensated Y-axis data [uT].
+   * @param z Uncompensated Z-axis data [uT].
+   * @param temperature Temperature data [degC].
+   * @return float Compensated Y-axis magnetic field data [uT].
    */
   float compensateY(float _x, float _y, float _z, float _temperature) const;
 
   /**
-   * @brief 補償済みZ軸磁気データ [uT] を算出する.
+   * @brief Compute compensated magnetic field data on the Z-axis [uT].
    *
-   * @param x X軸の補償前データ [uT]
-   * @param y Y軸の補償前データ [uT]
-   * @param z Z軸の補償前データ [uT]
-   * @param temperature 温度データ [degC]
-   * @return float 補償後Z軸磁気データ [uT]
+   * @param x Uncompensated X-axis data [uT].
+   * @param y Uncompensated Y-axis data [uT].
+   * @param z Uncompensated Z-axis data [uT].
+   * @param temperature Temperature data [degC].
+   * @return float Compensated Z-axis magnetic field data [uT].
    */
   float compensateZ(float _x, float _y, float _z, float _temperature) const;
 
-  /* nビット符号付き値として符号拡張する. */
+  /* Sign-extend as an `n`-bit signed value. */
   static int32_t fixSign(uint32_t _raw, int _bits);
-  /* マイクロ秒単位で待機する. */
+  /* Wait in microseconds. */
   static void delayUs(uint32_t _period_us);
 
   linux::I2Cdev i2c_;

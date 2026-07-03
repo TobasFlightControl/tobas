@@ -90,7 +90,7 @@ private:
   };
 
   linux::I2Cdev i2c_;
-  int16_t mag_buf_[3] = {};  // 正負両方の値を表現するために符号付き16ビット整数型が必須
+  int16_t mag_buf_[3] = {};  // A signed 16-bit integer type is required to represent both positive and negative values.
 
   bool checkWhoAmI();
   bool configure();
