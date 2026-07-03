@@ -12,14 +12,14 @@
 namespace tobas
 {
 /**
- * @brief IMUの共分散をオンラインで計算する．
+ * @brief Calculate IMU covariance online.
  */
 class ImuNoiseFilter : public BaseNode
 {
   using self = ImuNoiseFilter;
   using super = BaseNode;
 
-  static constexpr size_t kWindowSize = 400;    // 400Hzで1秒
+  static constexpr size_t kWindowSize = 400;    // 1 second at 400 Hz
   static constexpr double kHpfCutoffFreq = 1.;  // [Hz]
 
 public:

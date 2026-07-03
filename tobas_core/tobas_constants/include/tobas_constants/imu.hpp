@@ -5,7 +5,7 @@
 
 namespace tobas
 {
-// エイリアシングを防ぐためにサンプリング周波数はなるべく高めにするとよい
+// Use as high a sampling rate as practical to prevent aliasing.
 static constexpr int kImuSamplingRate = 800;  // [Hz]
 
 static constexpr double kStaticAccThresh = 1.;    // [m/s^2]
