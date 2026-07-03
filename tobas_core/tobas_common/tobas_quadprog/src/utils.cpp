@@ -28,7 +28,7 @@ void matIneqFromRange(const VectorXd& lb, const VectorXd& ub, MatrixXd& A, Vecto
   A.conservativeResize(num_valid, size);
   b.conservativeResize(num_valid);
 
-  int row = 0;  // 行列不等式の行番号
+  int row = 0;  // Matrix inequality row index.
   for (int i = 0; i < size * 2; ++i) {
     if (!is_valid(i)) {
       continue;

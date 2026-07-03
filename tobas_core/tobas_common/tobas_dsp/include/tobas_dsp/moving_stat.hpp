@@ -12,7 +12,7 @@ namespace tobas
 namespace dsp
 {
 /**
- * @brief ベクトルの移動平均と移動共分散を逐次的に計算する (memo: 2-66)
+ * @brief Sequential moving mean and moving covariance calculation for vectors (memo: 2-66).
  */
 template <typename Scalar, int Size, size_t Length>
 class MovingStatistics
@@ -70,7 +70,7 @@ inline void MovingStatistics<Scalar, Size, Length>::add(const DataType& x_new)
 {
   const DataType& x_old = que_.front();
 
-  // 平均・分散を更新
+  // Update mean and variance.
   const DataType d = (x_new - x_old) / Length;
   m_ += d;
 
@@ -79,7 +79,7 @@ inline void MovingStatistics<Scalar, Size, Length>::add(const DataType& x_new)
   v_ += d * d.transpose() + (diff_new * diff_new.transpose() - diff_old * diff_old.transpose()) / Length;
   eigen::symmetrise(v_);
 
-  // キューを更新
+  // Update the queue.
   que_.pop_front();
   que_.push_back(x_new);
 }

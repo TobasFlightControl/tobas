@@ -9,13 +9,13 @@ namespace math
 {
 std::complex<double> cbrt(const std::complex<double>& z)
 {
-  const auto r = std::abs(z);      // z の絶対値 (極座標の r)
-  const auto theta = std::arg(z);  // z の偏角 (極座標の θ)
+  const auto r = std::abs(z);      // Absolute value of `z`, or `r` in polar coordinates.
+  const auto theta = std::arg(z);  // Argument of `z`, or `theta` in polar coordinates.
 
-  const auto cbrt_r = std::cbrt(r);   // r の立方根
-  const auto cbrt_theta = theta / 3;  // θ を 3 で割る
+  const auto cbrt_r = std::cbrt(r);   // Cube root of `r`.
+  const auto cbrt_theta = theta / 3;  // Divide `theta` by 3.
 
-  return std::polar(cbrt_r, cbrt_theta);  // 極座標から複素数に変換
+  return std::polar(cbrt_r, cbrt_theta);  // Convert from polar coordinates to a complex number.
 }
 }  // namespace math
 }  // namespace tobas

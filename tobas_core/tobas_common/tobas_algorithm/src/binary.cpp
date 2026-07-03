@@ -20,7 +20,7 @@ std::float16_t decodeR16(uint16_t bin)
 std::float32_t decodeR32(uint32_t bin)
 {
   const int32_t sign = bin >> 31 ? -1 : 1;
-  const int32_t exponent = (bin >> 23) & 0xFF;  // (exponent - 150)のオーバーフローを防ぐために符号付き
+  const int32_t exponent = (bin >> 23) & 0xFF;  // Signed to prevent overflow in `exponent - 150`.
   const int32_t mantissa = (exponent == 0) ? (bin & 0x7FFFFF) << 1 : (bin & 0x7FFFFF) | 0x800000;
   return std::ldexp(static_cast<std::float32_t>(sign * mantissa), exponent - 150);
 }

@@ -34,7 +34,7 @@ bool PrimalDualInteriorPointSolver::solve()
     is_first_solve_ = false;
   }
 
-  // 制約がない場合は停留点を求めて終わり
+  // If there are no constraints, find the stationary point and finish.
   if (eq_dim_ == 0 && ineq_dim_ == 0) {
     const LLT<MatrixXd> llt(scaled.P);
     if (llt.info() == NumericalIssue) {
@@ -52,7 +52,7 @@ bool PrimalDualInteriorPointSolver::solve()
   // hence it is assumed fixed a priori.
   for (size_t _ = 0; _ < num_iter_; ++_) {
     const DiagonalMatrix<double, Dynamic> W = lam_.cwiseProduct(s_.cwiseInverse()).asDiagonal();
-    const double mu = lam_.dot(s_) / static_cast<double>(eq_dim_ + ineq_dim_);  // 制約なしだとNaN
+    const double mu = lam_.dot(s_) / static_cast<double>(eq_dim_ + ineq_dim_);  // NaN when unconstrained.
     const VectorXd sigma_mu_sinv = sigma_ * mu * s_.cwiseInverse();
 
     // 1
@@ -66,7 +66,7 @@ bool PrimalDualInteriorPointSolver::solve()
 
     // 3
     const PartialPivLU<MatrixXd> lu(A_);
-    const VectorXd z = lu.solve(b_);  // TODO: 正則かどうかを確かめる
+    const VectorXd z = lu.solve(b_);  // TODO: Check whether the matrix is regular.
     const VectorXd theta_dtheta = z.head(var_dim_);
     // const VectorXd dnu = z.bottomRows(eq_dim_);
     const VectorXd dtheta = theta_dtheta - theta_;
@@ -88,9 +88,9 @@ bool PrimalDualInteriorPointSolver::solve()
     s_ += alpha * ds;
   }
 
-  // TODO: 解の収束と実行可能性をチェック
+  // TODO: Check solution convergence and feasibility.
 
-  // 解を元のスケールに戻す
+  // Restore the solution to the original scale.
   x_opt_ = theta_.cwiseProduct(x_scale);
 
   return true;
@@ -132,7 +132,7 @@ bool PrimalDualInteriorPointSolver::initialize(const QuadProgProblem& scaled)
   eq_dim_ = scaled.h.rows();
   ineq_dim_ = scaled.b.rows();
 
-  // 実行可能な初期解をアクティブセット法で求める
+  // Find a feasible initial solution using the active-set method.
   DualActiveSetSolver active_set_solver_;
   active_set_solver_.problem = scaled;
   active_set_solver_.x_scale = VectorXd::Ones(problem.varSize());
@@ -141,7 +141,7 @@ bool PrimalDualInteriorPointSolver::initialize(const QuadProgProblem& scaled)
   }
   theta_ = active_set_solver_.solution();
 
-  // 不等式制約のラグランジュ乗数とスラック変数の初期値を1に設定
+  // Initialize inequality constraint Lagrange multipliers and slack variables to 1.
   lam_ = VectorXd::Ones(ineq_dim_);
   s_ = VectorXd::Ones(ineq_dim_);
 

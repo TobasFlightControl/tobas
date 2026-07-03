@@ -22,10 +22,10 @@ bool QpOasesSolver::solve()
 {
   checkProblemValidity();
 
-  // スケーリング
+  // Scale the problem.
   const auto scaled = scaleProblem();
 
-  // qpOASES用の行列を作成
+  // Create matrices for qpOASES.
   const auto var_size = scaled.varSize();
   const auto con_size = scaled.eqSize() + scaled.ineqSize();
 
@@ -37,10 +37,10 @@ bool QpOasesSolver::solve()
   double lbA[con_size];
   double ubA[con_size];
 
-  std::memcpy(H, scaled.P.data(), sizeof(H));  // Hは対称行列だから列優先でも行優先でもコピーできる
+  std::memcpy(H, scaled.P.data(), sizeof(H));  // Since `H` is symmetric, either column-major or row-major copy works.
   std::memcpy(g, scaled.q.data(), sizeof(g));
 
-  // 列優先の場合を考慮し，要素を1つずつコピー
+  // Copy elements one by one to account for column-major storage.
   const MatrixXd A_eigen = eigen::concat(scaled.G, scaled.A, 0);
   for (Index r = 0; r < con_size; ++r) {
     for (Index c = 0; c < var_size; ++c) {
@@ -60,17 +60,17 @@ bool QpOasesSolver::solve()
   const VectorXd ubA_eigen = eigen::concat(scaled.h, scaled.b, 0);
   std::memcpy(ubA, ubA_eigen.data(), sizeof(ubA));
 
-  // QPソルバを作成
+  // Create the QP solver.
   qpOASES::QProblem solver(var_size, con_size);
 
-  // QPソルバの設定
+  // Configure the QP solver.
   qpOASES::Options options;
   options.setToMPC();
   options.printLevel = qpOASES::PL_LOW;
   options.enableEqualities = scaled.eqSize() > 0 ? qpOASES::BT_TRUE : qpOASES::BT_FALSE;
   solver.setOptions(options);
 
-  // QPを解く
+  // Solve the QP.
   solver.init(H, g, A, lb, ub, lbA, ubA, nWSR_);
 
   double x_opt[var_size];
@@ -80,7 +80,7 @@ bool QpOasesSolver::solve()
     return false;
   }
 
-  // 解を元のスケールに戻す
+  // Restore the solution to the original scale.
   VectorXd x_scaled = Map<VectorXd>(x_opt, var_size);
   x_opt_ = x_scaled.cwiseProduct(x_scale);
 

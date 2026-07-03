@@ -28,9 +28,9 @@ public:
   /**
    * @brief Construct a new CRC16 object
    *
-   * @param poly 生成多項式 (最高次数は省略)
-   * @param init_value 初期値
-   * @param out_xor 除算後のXOR
+   * @param poly Generator polynomial, omitting the highest-order term.
+   * @param init_value Initial value.
+   * @param out_xor XOR after division.
    */
   explicit CRC16(uint16_t poly, uint16_t init_value = 0, uint16_t out_xor = 0) noexcept;
 
@@ -50,9 +50,9 @@ public:
   /**
    * @brief Construct a new CRC32 object
    *
-   * @param poly 生成多項式 (最高次数は省略)
-   * @param init_value 初期値
-   * @param out_xor 除算後のXOR
+   * @param poly Generator polynomial, omitting the highest-order term.
+   * @param init_value Initial value.
+   * @param out_xor XOR after division.
    */
   explicit CRC32(uint32_t poly, uint32_t init_value = 0, uint32_t out_xor = 0) noexcept;
 

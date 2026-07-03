@@ -136,9 +136,8 @@ Elements elementsFromGeodetic(double lat, double lon, double h, double dyear, co
     PRINT_ERROR("The year should be greater than the epoch of the magnetic field model.");
   }
 
-  // 5年ごとに新しいデータが出るので，それを2回分過ぎたら警告する．
+  // New data is released every five years, so warn after two release cycles have passed.
   // World Magnetic Model: https://www.ncei.noaa.gov/products/world-magnetic-model
-  // FIXME: PRINT_WARN_THROTTLEを実装
   if (dyear - WMM.epoch > 10) {
     PRINT_WARN("It is time to replace the WMM data with the latest version.");
   }

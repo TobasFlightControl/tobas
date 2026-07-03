@@ -15,11 +15,11 @@ namespace algo
 {
 double wrapPi(double angle)
 {
-  angle = std::fmod(angle + M_PI, M_2PI);  // angle を [0, 2π) の範囲に変換
+  angle = std::fmod(angle + M_PI, M_2PI);  // Convert `angle` to the range [0, 2pi).
   if (angle < 0.) {
-    angle += M_2PI;  // angle が負の場合、範囲を補正
+    angle += M_2PI;  // Correct the range if `angle` is negative.
   }
-  return angle - M_PI;  // [0, 2π) から [-π, π) へ変換
+  return angle - M_PI;  // Convert from [0, 2pi) to [-pi, pi).
 }
 
 void clamp2d(double& x, double& y, const double& max_length)

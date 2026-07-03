@@ -27,7 +27,7 @@ void matrixEigenToQp(const MatrixXd& e, Matrix<double>& q)
 
 void matrixQpToEigen(const Matrix<double>& q, MatrixXd& e)
 {
-  // Eigenは安易にresizeできないため，引数の時点でサイズが合っていることを確認する
+  // Eigen cannot be resized casually here, so ensure the argument already has the correct size.
   assert(e.rows() == q.nrows() && e.cols() == q.ncols());
 
   for (Index i = 0; i < e.rows(); ++i) {
@@ -73,10 +73,10 @@ bool QuadProgppSolver::solve()
 {
   checkProblemValidity();
 
-  // スケーリング
+  // Scale the problem.
   const auto scaled = scaleProblem();
 
-  // QuadProg++の行列に変換
+  // Convert to QuadProg++ matrices.
   quadprogpp::matrixEigenToQp(scaled.P, G_);
   quadprogpp::vectorEigenToQp(scaled.q, g0_);
   quadprogpp::matrixEigenToQp(-scaled.G.transpose(), CE_);
@@ -84,7 +84,7 @@ bool QuadProgppSolver::solve()
   quadprogpp::matrixEigenToQp(-scaled.A.transpose(), CI_);
   quadprogpp::vectorEigenToQp(scaled.b, ci0_);
 
-  // QPを解く
+  // Solve the QP.
   const double f_value = quadprogpp::solve_quadprog(G_, g0_, CE_, ce0_, CI_, ci0_, x_);
   if (f_value > F_VALUE_THRESHOLD) {
     error_msg_ = "QPP is infeasible.";
@@ -94,7 +94,7 @@ bool QuadProgppSolver::solve()
   VectorXd x_scaled(x_.size());
   quadprogpp::vectorQpToEigen(x_, x_scaled);
 
-  // 解を元のスケールに戻す
+  // Restore the solution to the original scale.
   x_opt_ = x_scaled.cwiseProduct(x_scale);
 
   return true;

@@ -47,7 +47,7 @@ class QuadProgSolver
 {
 public:
   QuadProgProblem problem;
-  Eigen::VectorXd x_scale;  // 決定変数のスケール
+  Eigen::VectorXd x_scale;  // Decision variable scale.
 
   explicit QuadProgSolver();
 

@@ -36,7 +36,7 @@ std::string base64NoPad(const uint8_t* p, size_t n)
     out.push_back(T[(v >> 18) & 63]);
     out.push_back(T[(v >> 12) & 63]);
     if (i + 1 < n) {
-      out.push_back(T[(v >> 6) & 63]);  // パディングは付けない
+      out.push_back(T[(v >> 6) & 63]);  // Do not add padding.
     }
   }
 
@@ -54,13 +54,13 @@ std::expected<std::string, std::string> prettify(const Data& src)
     return std::unexpected("SSH key is null.");
   }
 
-  // タイプ名
+  // Type name.
   const auto key_type_name = ssh_key_type_to_char(src.key_type);
   if (!key_type_name) {
     return std::unexpected("Failed to get SSH key type name.");
   }
 
-  // フィンガープリント SHA256（OpenSSHの既定表示）
+  // SHA256 fingerprint, matching the default OpenSSH display.
   uint8_t* hash = nullptr;
   size_t hlen = 0;
   if (ssh_get_publickey_hash(src.key, SSH_PUBLICKEY_HASH_SHA256, &hash, &hlen) != SSH_OK || !hash || hlen == 0) {
