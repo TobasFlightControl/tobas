@@ -38,26 +38,26 @@ bool waitUntilNodeGone(const rclcpp::Node::SharedPtr& node, const std::string& t
     return false;
   }
 
-  // ノードグラフを取得
+  // Get the node graph.
   const auto graph = node->get_node_graph_interface();
 
-  // すでに居なければ即終了
+  // Exit immediately if the target is already absent.
   if (!isPresent(graph, target_fqn)) {
     RCLCPP_INFO_STREAM(node->get_logger(), "Target FQN \"" << target_fqn << "\" does not exist.");
     return true;
   }
 
-  // 一定周期で目標ノードの存在を確認
+  // Check for the target node periodically.
   const auto deadline = ch::steady_clock::now() + timeout;
   rclcpp::Rate rate(10., node->get_clock());
   while (rclcpp::ok()) {
-    // タイムアウトの処理
+    // Handle timeout.
     if (ch::steady_clock::now() > deadline) {
       RCLCPP_WARN_STREAM(node->get_logger(), "Timed out waiting for \"" << target_fqn << "\" to shut down.");
       return false;
     }
 
-    // グラフの変化後に目標ノードがまだ居るかを確認
+    // Check whether the target node is still present after graph changes.
     if (!isPresent(graph, target_fqn)) {
       RCLCPP_INFO_STREAM(node->get_logger(), "\"" << target_fqn << "\" has gone.");
       return true;

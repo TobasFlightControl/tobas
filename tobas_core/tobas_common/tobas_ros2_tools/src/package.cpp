@@ -93,18 +93,18 @@ std::expected<fs::path, std::string> estimateWorkspaceOf(const fs::path& path)
 
 bool isAlreadyBuiltAndInstalled(const fs::path& pkg_path)
 {
-  // share直下にある
+  // Directly under `share`.
   if (pkg_path.parent_path().filename() != "share") {
     return false;
   }
 
-  // C++パッケージではない
+  // Not a C++ package.
   const auto cmake_lists_path = pkg_path / "CMakeLists.txt";
   if (fs::is_regular_file(cmake_lists_path)) {
     return false;
   }
 
-  // Pythonパッケージではない
+  // Not a Python package.
   const auto setup_py_path = pkg_path / "setup.py";
   if (fs::is_regular_file(setup_py_path)) {
     return false;

@@ -10,19 +10,19 @@ namespace tobas
 {
 namespace ros2
 {
-/* pathが属するパッケージのパスを返す． */
+/* Return the path of the package that `path` belongs to. */
 std::expected<std::filesystem::path, std::string> getPackagePathOf(const std::filesystem::path& path);
 
-/* pathが属するパッケージのpackage.xmlのnameを読み取る． */
+/* Read the `name` in `package.xml` of the package that `path` belongs to. */
 std::expected<std::string, std::string> getPackageNameOf(const std::filesystem::path& path);
 
-/* pathが属するパッケージのパスから最も近いsrcディレクトリの親ディレクトリを返す． */
+/* Return the parent directory of the nearest `src` directory from the package path that `path` belongs to. */
 std::expected<std::filesystem::path, std::string> estimateWorkspaceOf(const std::filesystem::path& path);
 
-/* パッケージがビルド・インストール済みかどうかを判定する． */
+/* Check whether the package has already been built and installed. */
 bool isAlreadyBuiltAndInstalled(const std::filesystem::path& pkg_path);
 
-/* 有効なパッケージ名かどうかを判定する． */
+/* Check whether the package name is valid. */
 bool isValidPackageName(const std::string& pkg_name);
 }  // namespace ros2
 }  // namespace tobas
