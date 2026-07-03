@@ -10,7 +10,7 @@
 
 namespace YAML
 {
-template <int Rows, int Cols>  // Rows, Colsの型はEigen::Indexではなくintである必要がある
+template <int Rows, int Cols>  // `Rows` and `Cols` must be `int`, not `Eigen::Index`.
 struct convert<Eigen::Matrix<double, Rows, Cols>>
 {
   static Node encode(const Eigen::Matrix<double, Rows, Cols>& rhs)

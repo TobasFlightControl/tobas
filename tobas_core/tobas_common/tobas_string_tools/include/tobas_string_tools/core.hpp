@@ -10,53 +10,53 @@ namespace tobas
 {
 namespace str
 {
-/* 文字列を区切ってvectorにして返す． */
+/* Split a string and return a vector. */
 std::vector<std::string> split(const std::string& s, const char& c);
 
-/* 文字列を最後の指定文字で区切る． */
+/* Split a string at the last specified character. */
 std::pair<std::string, std::string> rsplit(const std::string& s, const char& c);
 
-/* 先頭の特定の文字列を削除する． */
+/* Remove a specific string from the beginning. */
 std::string lstrip(const std::string& s, const std::string& del);
 
-/* 末尾の特定の文字列を削除する． */
+/* Remove a specific string from the end. */
 std::string rstrip(const std::string& s, const std::string& del);
 
-/* 引用符を削除する． */
+/* Remove quotation marks. */
 std::string stripQuates(const std::string& s);
 
-/* 行頭・行末の空白，タブに加えて改行などの制御文字を削除する． */
+/* Remove leading and trailing spaces, tabs, and control characters such as newlines. */
 std::string trim(const std::string& s);
 
-/* 行を分割する． */
+/* Split lines. */
 std::vector<std::string> splitLines(const std::string& text);
 
-/* 文字列中の改行コードを削除． */
+/* Remove newline characters from a string. */
 std::string deleteNl(const std::string& s);
 
-/* 小文字に変換． */
+/* Convert to lowercase. */
 std::string toLower(std::string arg);
 
-/* 大文字に変換． */
+/* Convert to uppercase. */
 std::string toUpper(std::string arg);
 
-/* 文字列中の特定の文字列を別の文字列に変換する． */
+/* Replace a specific string in a string with another string. */
 std::string replace(std::string s, const std::string& from, const std::string& to);
 
-/* 文字列から制御文字を削除する． */
+/* Remove control characters from a string. */
 std::string sanitize(const char* s);
 
-/* 部分文字列が含まれるかどうかを調べる． */
+/* Check whether a substring is included. */
 bool contains(const std::string& s, const std::string& sub);
 
-/* 部分文字列が含まれるかどうかを調べる． */
+/* Check whether a character is included. */
 bool contains(const std::string& s, const char& sub);
 
-/* ファイル名に不正な文字列が含まれていないかどうかを調べる． */
+/* Check whether a file name contains no invalid strings. */
 bool isValidFileName(const std::string& file_name);
 
 /**
- * @brief Emailアドレスが有効かどうかを判定する．
+ * @brief Check whether an email address is valid.
  * cf. https://www.geeksforgeeks.org/check-if-email-address-valid-or-not-in-python/
  */
 bool isValidEmail(const std::string& email);
@@ -64,19 +64,19 @@ bool isValidEmail(const std::string& email);
 /* Converts digits following a caret (^) into their superscript equivalent. */
 std::string convertToSuperscript(const std::string& input);
 
-/* Title CaseをPascalCaseに変換する． */
+/* Convert Title Case to PascalCase. */
 std::string pascalFromTitle(const std::string& title_case);
 
-/* snake_caseをPascalCaseに変換する． */
+/* Convert snake_case to PascalCase. */
 std::string pascalFromSnake(const std::string& snake_case);
 
-/* snake_caseをTitle Caseに変換する． */
+/* Convert snake_case to Title Case. */
 std::string titleFromSnake(const std::string& snake_case);
 
-/* PascalCaseをsnake_caseに変換する． */
+/* Convert PascalCase to snake_case. */
 std::string snakeFromPascal(const std::string& pascal_case);
 
-/* Title Caseをsnake_caseに変換する． */
+/* Convert Title Case to snake_case. */
 std::string snakeFromTitle(const std::string& title_case);
 }  // namespace str
 }  // namespace tobas

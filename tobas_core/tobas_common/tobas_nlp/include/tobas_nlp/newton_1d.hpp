@@ -10,7 +10,7 @@ namespace tobas
 namespace nlp
 {
 /**
- * @brief 1次元のニュートン法のソルバー．
+ * @brief One-dimensional Newton method solver.
  *
  * Solve: f(x) = 0
  */

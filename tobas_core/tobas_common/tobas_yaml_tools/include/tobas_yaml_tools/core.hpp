@@ -41,7 +41,7 @@ bool load(const std::string& key, const YAML::Node& parent, T& value) noexcept
   return true;
 }
 
-/* YAML::Nodeをテキストに変換する． */
+/* Convert `YAML::Node` to text. */
 std::string dump(const YAML::Node& node) noexcept;
 
 std::expected<YAML::Node, std::string> load(const std::filesystem::path& path) noexcept;
