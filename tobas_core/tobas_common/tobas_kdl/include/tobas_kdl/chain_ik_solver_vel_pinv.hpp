@@ -10,7 +10,7 @@ namespace tobas
 {
 namespace kdl
 {
-/* 公式のChainIkSolverVel_pinvを並進速度のみの場合にも対応させたもの */
+/* Official `ChainIkSolverVel_pinv` extended to also support translation-only velocity. */
 class ChainIkSolverVel_pinv : public ChainIkSolverVel
 {
   using super = ChainIkSolverVel;
