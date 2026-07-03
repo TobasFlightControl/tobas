@@ -32,7 +32,8 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 ## Header Files
 
-- Every `.cpp` file must have a same-named `.hpp` file, except in the following cases. In other words, do not collect the implementations of multiple header files into a single `.cpp` file.
+- Every `.cpp` file must have a same-named `.hpp` file, except in the following cases.
+  In other words, do not collect the implementations of multiple header files into a single `.cpp` file.
   - Files that define a `main` function
   - Plugins, such as ROS 2 components or Gazebo plugins
 - Use `#pragma once` for include guards.
@@ -72,21 +73,24 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 - Put every symbol in the `tobas` namespace.
 - Put symbols that may be included from another `.cpp` file in an appropriate namespace under `tobas`.
 - `using namespace`: Do not use it in header files, and avoid it in source files whenever possible.
-- If a symbol is defined in a `.cpp` file and used only with internal linkage, put it in an anonymous namespace to make it clear that other translation units cannot refer to it.
+- If a symbol is defined in a `.cpp` file and used only with internal linkage,
+  put it in an anonymous namespace to make it clear that other translation units cannot refer to it.
 - Keep the scope of functions and variables as narrow as possible, and define variables as close as possible to where they are used.
 - Global variables may be defined only as `constexpr`.
 
 ## Classes
 
 - Do not put code that can fail in a constructor, because error handling is difficult there. Define an `initialize()` method instead.
-- Do not call virtual methods from a base class constructor, because overridden implementations are not available while the base class constructor is running.
+- Do not call virtual methods from a base class constructor,
+  because overridden implementations are not available while the base class constructor is running.
 - Prefer marking constructors as `explicit` to prevent implicit type conversions.
 - Define copy constructors and move constructors, and make it explicit whether each operation is allowed.
 - Use `struct` when the type contains only `public` data. Otherwise, generally use `class`.
 - Use `struct` instead of `std::pair` or `std::tuple` when doing so makes the meaning clearer.
 - Use `public` inheritance.
 - Operator overloads are allowed only when their meaning is clear.
-- Member variables should generally be `private` with only the minimum necessary accessors. Other access levels are allowed if there is a valid reason and it is explained in a comment.
+- Member variables should generally be `private` with only the minimum necessary accessors.
+  Other access levels are allowed if there is a valid reason and it is explained in a comment.
 - Access groups must appear in this order:
   1. public
   1. protected
