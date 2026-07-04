@@ -3,8 +3,15 @@
 
 #pragma once
 
-#include "./throttles_viewer.hpp"
-#include "./toggles_viewer.hpp"
+#include <QColor>
+#include <QLabel>
+#include <QString>
+#include <QWidget>
+
+#include <tobas_constants/flight_mode.hpp>
+#include <tobas_rqt_bridge/bridge.hpp>
+
+#include "./stick_panel.hpp"
 
 namespace tobas
 {
@@ -18,14 +25,31 @@ class RCInputViewerWidget : public QWidget
 {
   Q_OBJECT
 
+  using self = RCInputViewerWidget;
+  using super = QWidget;
+
 public:
   explicit RCInputViewerWidget(const RosQtBridge& bridge);
 
   void reset();
 
 private:
-  ThrottlesViewer* throttles_viewer_;
-  TogglesViewer* toggles_viewer_;
+  StickPanel* roll_pitch_;
+  StickPanel* yaw_throttle_;
+
+  QLabel* enable_;
+  QLabel* kill_;
+  QLabel* sub_mode_;
+  QLabel* acrobat_;
+  QLabel* stabilize_;
+  QLabel* loiter_;
+
+  QLabel* makeBadge(const QString& text) const;
+  void setBadge(QLabel* badge, const QString& text, const QColor& background);
+  void setMode(FlightMode mode);
+
+private Q_SLOTS:
+  void rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin);
 };
 }  // namespace rcin
 }  // namespace ctrl
