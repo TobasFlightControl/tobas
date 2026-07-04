@@ -3,6 +3,7 @@
 
 [![Latest version](https://img.shields.io/github/v/release/TobasFlightControl/tobas)](https://github.com/TobasFlightControl/tobas/releases)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![Slack](https://img.shields.io/badge/Slack-User%20Community-4A154B?logo=slack&logoColor=white)](https://join.slack.com/t/tobasusers/shared_invite/zt-43adzzbao-LwcIzacq3aNOAK4F_0olDw)
 
 Tobas is a Linux-based, model-based flight controller for drones and robotic aircraft.
 It designs control systems from each airframe's physical model,
