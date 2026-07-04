@@ -9,6 +9,7 @@
 #include <QPalette>
 #include <QStringList>
 
+#include <tobas_qt_tools/color.hpp>
 #include <tobas_qt_tools/font.hpp>
 
 namespace tobas
@@ -92,13 +93,13 @@ void ArmStateBanner::updateState()
     setStateText("Waiting for vehicle health", Qt::lightGray, Qt::black);
   }
   else if (arming_->data) {
-    setStateText("Armed", QColor(245, 205, 205), Qt::black);
+    setStateText("Armed", qt::color::lightBlue(), Qt::black);
   }
   else if (health_->ok) {
-    setStateText("Ready to Arm", QColor(210, 245, 210), Qt::black);
+    setStateText("Ready to Arm", qt::color::lightGreen(), Qt::black);
   }
   else {
-    setStateText("Not Ready to Arm: " + armReadinessIssueText(), QColor(255, 240, 190), Qt::black);
+    setStateText("Not Ready to Arm: " + armReadinessIssueText(), qt::color::lightYellow(), Qt::black);
   }
 }
 

@@ -8,6 +8,8 @@
 #include <QPainter>
 #include <QPalette>
 
+#include <tobas_qt_tools/color.hpp>
+
 namespace tobas
 {
 namespace gui
@@ -42,19 +44,19 @@ void StickPanel::paintEvent(QPaintEvent*)
   painter.setRenderHint(QPainter::Antialiasing);
 
   const auto frame = rect().adjusted(0, 0, -1, -1);
-  painter.setPen(QPen(QColor(184, 184, 184), 1));
-  painter.setBrush(QColor(248, 248, 248));
+  painter.setPen(QPen(qt::color::gray70(), 1));
+  painter.setBrush(qt::color::gray90());
   painter.drawRect(frame);
 
   painter.setPen(palette().color(QPalette::WindowText));
   painter.drawText(QRect(0, 4, width(), 18), Qt::AlignHCenter | Qt::AlignVCenter, title_);
 
   const auto field = fieldRect();
-  painter.setPen(QPen(QColor(200, 200, 200), 1));
+  painter.setPen(QPen(qt::color::gray80(), 1));
   painter.setBrush(Qt::white);
   painter.drawRect(field);
 
-  painter.setPen(QPen(QColor(216, 216, 216), 1));
+  painter.setPen(QPen(qt::color::gray80(), 1));
   painter.drawLine(field.center().x(), field.top(), field.center().x(), field.bottom());
   painter.drawLine(field.left(), field.center().y(), field.right(), field.center().y());
 
@@ -63,12 +65,12 @@ void StickPanel::paintEvent(QPaintEvent*)
   const auto marker_y = field.center().y() - y_ * (field.height() - kMarkerRadius * 2) / 2;
   const QPointF marker_pos(marker_x, marker_y);
 
-  painter.setPen(QPen(enabled_ ? QColor(70, 120, 184) : QColor(119, 119, 119), 1));
-  painter.setBrush(ok_ ? (enabled_ ? QColor(220, 236, 255) : QColor(238, 238, 238)) : QColor(240, 240, 240));
+  painter.setPen(QPen(enabled_ ? qt::color::steelBlue() : qt::color::gray50(), 1));
+  painter.setBrush(ok_ ? (enabled_ ? qt::color::lightBlue() : qt::color::gray90()) : Qt::lightGray);
   painter.drawEllipse(marker_pos, kMarkerRadius, kMarkerRadius);
 
   const auto text_y = height() - 22;
-  painter.setPen(QColor(48, 48, 48));
+  painter.setPen(qt::color::gray20());
   painter.drawText(
     QRect(12, text_y, width() / 2 - 12, 18), Qt::AlignLeft | Qt::AlignVCenter, x_label_ + ": " + axisText(x_));
   painter.drawText(

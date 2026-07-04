@@ -8,6 +8,7 @@
 #include <QPalette>
 #include <QVBoxLayout>
 
+#include <tobas_qt_tools/color.hpp>
 #include <tobas_qt_tools/util.hpp>
 
 namespace tobas
@@ -61,9 +62,9 @@ void RCInputViewerWidget::reset()
 {
   roll_pitch_->reset();
   yaw_throttle_->reset();
-  setBadge(enable_, "---", QColor(240, 240, 240));
-  setBadge(kill_, "Kill: ---", QColor(238, 238, 238));
-  setBadge(sub_mode_, "Sub: ---", QColor(238, 238, 238));
+  setBadge(enable_, "---", qt::color::gray90());
+  setBadge(kill_, "Kill: ---", qt::color::gray90());
+  setBadge(sub_mode_, "Sub: ---", qt::color::gray90());
   setMode(static_cast<FlightMode>(-1));
 }
 
@@ -90,9 +91,9 @@ void RCInputViewerWidget::setBadge(QLabel* badge, const QString& text, const QCo
 
 void RCInputViewerWidget::setMode(FlightMode mode)
 {
-  setBadge(acrobat_, "Acrobat", mode == FlightMode::kAcrobat ? QColor(220, 236, 255) : QColor(238, 238, 238));
-  setBadge(stabilize_, "Stabilize", mode == FlightMode::kStabilize ? QColor(220, 236, 255) : QColor(238, 238, 238));
-  setBadge(loiter_, "Loiter", mode == FlightMode::kLoiter ? QColor(220, 236, 255) : QColor(238, 238, 238));
+  setBadge(acrobat_, "Acrobat", mode == FlightMode::kAcrobat ? qt::color::lightBlue() : qt::color::gray90());
+  setBadge(stabilize_, "Stabilize", mode == FlightMode::kStabilize ? qt::color::lightBlue() : qt::color::gray90());
+  setBadge(loiter_, "Loiter", mode == FlightMode::kLoiter ? qt::color::lightBlue() : qt::color::gray90());
 }
 
 void RCInputViewerWidget::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
@@ -104,13 +105,13 @@ void RCInputViewerWidget::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& r
 
   roll_pitch_->setValues(rcin->roll, rcin->pitch, true, rcin->enable);
   yaw_throttle_->setValues(-rcin->yaw, rcin->throttle, true, rcin->enable);
-  setBadge(enable_, rcin->enable ? "Enabled" : "Disabled", rcin->enable ? QColor(220, 236, 255) : QColor(238, 238, 238));
+  setBadge(enable_, rcin->enable ? "Enabled" : "Disabled", rcin->enable ? qt::color::lightBlue() : qt::color::gray90());
   setBadge(
-    kill_, QString("Kill: ") + (rcin->kill ? "ON" : "OFF"), rcin->kill ? QColor(241, 210, 210) : QColor(238, 238, 238));
+    kill_, QString("Kill: ") + (rcin->kill ? "ON" : "OFF"), rcin->kill ? qt::color::lightRed() : qt::color::gray90());
   setBadge(
     sub_mode_,
     QString("Sub: ") + (rcin->sub_mode ? "ON" : "OFF"),
-    rcin->sub_mode ? QColor(220, 236, 255) : QColor(238, 238, 238));
+    rcin->sub_mode ? qt::color::lightBlue() : qt::color::gray90());
   setMode(rcin->mode);
 }
 }  // namespace rcin

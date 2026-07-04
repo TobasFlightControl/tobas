@@ -11,5 +11,25 @@ namespace tobas
 namespace qt
 {
 QString toCssColor(Qt::GlobalColor c, bool with_alpha = false);
+
+namespace color
+{
+QColor gray10();
+QColor gray20();
+QColor gray30();
+QColor gray40();
+QColor gray50();
+QColor gray60();
+QColor gray70();
+QColor gray80();
+QColor gray90();
+
+QColor lightRed();
+QColor lightGreen();
+QColor lightYellow();
+QColor lightBlue();
+
+QColor steelBlue();
+}  // namespace color
 }  // namespace qt
 }  // namespace tobas
