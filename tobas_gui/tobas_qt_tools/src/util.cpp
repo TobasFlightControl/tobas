@@ -45,10 +45,12 @@ void addSpacing(QHBoxLayout* cols, int width, QSizePolicy::Policy h_policy)
   cols->addSpacerItem(spacer);
 }
 
-QGroupBox* makeGroup(const QString& title, QWidget* widget)
+QGroupBox* makeGroup(const QString& title, QWidget* widget, int margin)
 {
   const auto group = new QGroupBox(title);
   const auto rows = new QVBoxLayout();
+  rows->setContentsMargins(margin, margin, margin, margin);
+  rows->setSpacing(0);
   rows->addWidget(widget);
   group->setLayout(rows);
   return group;
