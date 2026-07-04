@@ -52,14 +52,6 @@ void ArmStateBanner::reset()
 
 QString ArmStateBanner::armReadinessIssueText() const
 {
-  if (!arming_) {
-    return "Waiting for arming state";
-  }
-
-  if (!health_) {
-    return "Waiting for vehicle health";
-  }
-
   QStringList issues;
   appendArmReadinessIssue(issues, "Realtime Compliance", health_->realtime_compliance);
   appendArmReadinessIssue(issues, "Battery Voltage", health_->battery_voltage);
@@ -93,10 +85,16 @@ QString ArmStateBanner::armReadinessIssueText() const
 
 void ArmStateBanner::updateState()
 {
-  if (arming_ && arming_->data) {
+  if (!arming_) {
+    setStateText("Waiting for arming state", Qt::lightGray, Qt::black);
+  }
+  else if (!health_) {
+    setStateText("Waiting for vehicle health", Qt::lightGray, Qt::black);
+  }
+  else if (arming_->data) {
     setStateText("Armed", QColor(245, 205, 205), Qt::black);
   }
-  else if (arming_ && health_ && health_->ok) {
+  else if (health_->ok) {
     setStateText("Ready to Arm", QColor(210, 245, 210), Qt::black);
   }
   else {
