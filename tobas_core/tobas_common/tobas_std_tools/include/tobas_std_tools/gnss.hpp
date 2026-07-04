@@ -14,12 +14,12 @@ namespace st
 long computeGpsDelayFromToW(uint32_t gps_tow_ms);
 
 /**
- * @brief Convert latitude, longitude, and altitude to 3D Cartesian coordinates.
+ * @brief Convert latitude, longitude, and ellipsoid height to 3D Cartesian coordinates.
  * cf. https://qiita.com/Toramin10/items/fa0c8e79aaadf84ddb25
  *
  * @param latitude Latitude [deg].
  * @param longitude Longitude [deg].
- * @param altitude Altitude [m].
+ * @param altitude Ellipsoid height [m].
  *
  * @return XYZ Cartesian coordinates [m].
  */
