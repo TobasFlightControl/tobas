@@ -21,8 +21,8 @@ GnssViewerWidget::GnssViewerWidget(const RosQtBridge& bridge)
 
   // Layout
   const auto form = new qt::FormLayout();
-  form->addVAlignedRow(new qt::Label("GNSS Status", kLabelPSize), status_);
-  form->addVAlignedRow(new qt::Label("GNSS NSats", kLabelPSize), nsats_);
+  form->addVAlignedRow(new qt::Label("Status", kLabelPSize), status_);
+  form->addVAlignedRow(new qt::Label("NSats", kLabelPSize), nsats_);
   setLayout(form);
 
   // Connection

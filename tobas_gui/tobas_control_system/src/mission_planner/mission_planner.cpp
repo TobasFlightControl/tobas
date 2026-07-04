@@ -19,6 +19,7 @@
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/path.hpp>
+#include <tobas_qt_tools/util.hpp>
 #include <tobas_std_tools/byte.hpp>
 #include <tobas_std_tools/check.hpp>
 #include <tobas_std_tools/gnss.hpp>
@@ -85,7 +86,6 @@ MissionPlannerWidget::MissionPlannerWidget(rclcpp::Node::SharedPtr node, const R
   command_list_->setDragDropMode(QListWidget::InternalMove);
 
   commands_ = new qt::StackedWidget();
-  commands_->setStyleSheet("QStackedWidget { border: 1px solid black; background-color: white; }");
 
   reset();
 
@@ -102,8 +102,8 @@ MissionPlannerWidget::MissionPlannerWidget(rclcpp::Node::SharedPtr node, const R
   button_cols->addWidget(focus_button_, 1);
 
   const auto mission_cols = new QHBoxLayout();
-  mission_cols->addWidget(command_list_, 1);
-  mission_cols->addWidget(commands_, 3);
+  mission_cols->addWidget(qt::makeGroup("Commands", command_list_), 1);
+  mission_cols->addWidget(qt::makeGroup("Command Details", commands_), 3);
 
   const auto rows = new QVBoxLayout();
   rows->addWidget(map_, 2);

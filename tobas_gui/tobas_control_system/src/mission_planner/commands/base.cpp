@@ -34,7 +34,6 @@ BaseCommandWidget::BaseCommandWidget()
   header_cols->addStretch();
 
   delete_button_ = new QPushButton("Delete");
-  delete_button_->setStyleSheet("background-color: red");
   header_cols->addWidget(delete_button_);
   connect(delete_button_, &QPushButton::clicked, this, &self::onDeleteButtonClicked);
 
@@ -62,7 +61,6 @@ void BaseCommandWidget::addField(field::BaseFieldWidget* widget, bool overridabl
   checkboxes_[widget] = checkbox;
 
   const auto stacked = new QStackedWidget();
-  stacked->setStyleSheet("QStackedWidget { border: 0px; }");  // Remove the outer border.
   stacked->addWidget(new QLabel("    Project Default"));
   stacked->addWidget(widget);
 

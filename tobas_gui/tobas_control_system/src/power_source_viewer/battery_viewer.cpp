@@ -28,8 +28,8 @@ BatteryViewerWidget::BatteryViewerWidget(const RosQtBridge& bridge, const Drone&
 
   // Layout
   const auto form = new qt::FormLayout();
-  form->addVAlignedRow(new qt::Label("Batt Volt", kLabelPSize), voltage_);
-  form->addVAlignedRow(new qt::Label("Batt Curr", kLabelPSize), current_);
+  form->addVAlignedRow(new qt::Label("Volt", kLabelPSize), voltage_);
+  form->addVAlignedRow(new qt::Label("Curr", kLabelPSize), current_);
   setLayout(form);
 
   // Connection

@@ -6,7 +6,6 @@
 #include <QHBoxLayout>
 
 #include <tobas_drone_core/drone.hpp>
-#include <tobas_qt_tools/widgets/scroll_area.hpp>
 #include <tobas_rqt_bridge/bridge.hpp>
 
 #include "./speedmeter.hpp"
@@ -17,12 +16,12 @@ namespace gui
 {
 namespace ctrl
 {
-class RotorsViewerWiddget : public qt::ScrollArea
+class RotorsViewerWiddget : public QWidget
 {
   Q_OBJECT
 
   using self = RotorsViewerWiddget;
-  using super = qt::ScrollArea;
+  using super = QWidget;
 
   static constexpr char kAliveBackgroundColor[] = "transparent";
   static constexpr char kDeadBackgroundColor[] = "red";

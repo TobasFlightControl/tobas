@@ -30,8 +30,8 @@ CpuViewerWidget::CpuViewerWidget(const RosQtBridge& bridge)
 
   // Layout
   const auto form = new qt::FormLayout();
-  form->addVAlignedRow(new qt::Label("CPU Temp", kLabelPSize), temp_);
-  form->addVAlignedRow(new qt::Label("CPU Load", kLabelPSize), load_);
+  form->addVAlignedRow(new qt::Label("Temp", kLabelPSize), temp_);
+  form->addVAlignedRow(new qt::Label("Load", kLabelPSize), load_);
   setLayout(form);
 
   // Connection
