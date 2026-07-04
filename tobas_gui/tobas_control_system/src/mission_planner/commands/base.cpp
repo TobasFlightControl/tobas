@@ -7,11 +7,11 @@
 
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QScrollArea>
 #include <QStackedWidget>
 #include <QTimer>
 
 #include <tobas_qt_tools/font.hpp>
-#include <tobas_qt_tools/widgets/scroll_area.hpp>
 
 namespace tobas
 {
@@ -37,13 +37,11 @@ BaseCommandWidget::BaseCommandWidget()
   header_cols->addWidget(delete_button_);
   connect(delete_button_, &QPushButton::clicked, this, &self::onDeleteButtonClicked);
 
-  const auto scroll_area = new qt::ScrollArea();
+  const auto scroll_area = new QScrollArea();
   root_rows->addWidget(scroll_area);
 
   const auto field_rows = new QVBoxLayout();
   scroll_area->setLayout(field_rows);
-
-  scroll_area->setBackgroundTransparent();
 
   form_ = new qt::FormLayout();
   field_rows->addLayout(form_);
