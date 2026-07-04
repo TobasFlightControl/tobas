@@ -14,15 +14,15 @@ namespace gui
 {
 namespace ctrl
 {
-class StatusViewerWidget : public qt::ScrollArea
+class HealthViewerWidget : public qt::ScrollArea
 {
   Q_OBJECT
 
-  using self = StatusViewerWidget;
+  using self = HealthViewerWidget;
   using super = qt::ScrollArea;
 
 public:
-  explicit StatusViewerWidget(const RosQtBridge& bridge);
+  explicit HealthViewerWidget(const RosQtBridge& bridge);
 
   void reset();
 

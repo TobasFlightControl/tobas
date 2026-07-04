@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include "tobas_control_system/status_viewer/status.hpp"
+#include "tobas_control_system/health_viewer/status.hpp"
 
 #include <QDebug>
 #include <QHBoxLayout>

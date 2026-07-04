@@ -26,7 +26,7 @@ ControlSystemWidget::ControlSystemWidget(rclcpp::Node::SharedPtr node, const Ros
   rcin_viewer_ = new rcin::RCInputViewerWidget(bridge);
   rotors_viewer_ = new RotorsViewerWiddget(bridge, drone);
   console_ = new ConsoleWidget(bridge);
-  status_viewer_ = new StatusViewerWidget(bridge);
+  health_viewer_ = new HealthViewerWidget(bridge);
   mission_planner_ = new MissionPlannerWidget(node, bridge);
 
   // Layout
@@ -43,7 +43,7 @@ ControlSystemWidget::ControlSystemWidget(rclcpp::Node::SharedPtr node, const Ros
 
   const auto cols2 = new QHBoxLayout();
   cols2->addLayout(rows2, 3);
-  cols2->addWidget(qt::makeGroup("Status", status_viewer_), 1);
+  cols2->addWidget(qt::makeGroup("Vehicle Health", health_viewer_), 1);
 
   const auto rows1 = new QVBoxLayout();
   rows1->addWidget(qt::makeGroup("Pose", pose_viewer_), 2);
@@ -69,7 +69,7 @@ void ControlSystemWidget::reset()
   rcin_viewer_->reset();
   rotors_viewer_->reset();
   console_->reset();
-  status_viewer_->reset();
+  health_viewer_->reset();
   mission_planner_->reset();
 }
 

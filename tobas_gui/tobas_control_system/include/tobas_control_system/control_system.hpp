@@ -7,12 +7,12 @@
 #include "./console.hpp"
 #include "./cpu_viewer.hpp"
 #include "./gnss_viewer.hpp"
+#include "./health_viewer/health_viewer.hpp"
 #include "./mission_planner/mission_planner.hpp"
 #include "./pose_viewer.hpp"
 #include "./power_source_viewer/power_source_viewer.hpp"
 #include "./rcin_viewer/rcin_viewer.hpp"
 #include "./rotors_viewer/rotors_viewer.hpp"
-#include "./status_viewer/status_viewer.hpp"
 
 namespace tobas
 {
@@ -41,7 +41,7 @@ private:
   rcin::RCInputViewerWidget* rcin_viewer_;
   RotorsViewerWiddget* rotors_viewer_;
   ConsoleWidget* console_;
-  StatusViewerWidget* status_viewer_;
+  HealthViewerWidget* health_viewer_;
   MissionPlannerWidget* mission_planner_;
 };
 }  // namespace ctrl

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include "tobas_control_system/status_viewer/status_viewer.hpp"
+#include "tobas_control_system/health_viewer/health_viewer.hpp"
 
 #include <QVBoxLayout>
 
@@ -13,7 +13,7 @@ namespace gui
 {
 namespace ctrl
 {
-StatusViewerWidget::StatusViewerWidget(const RosQtBridge& bridge)
+HealthViewerWidget::HealthViewerWidget(const RosQtBridge& bridge)
 {
   rt_compliance_status_ = new StatusWidget("Realtime Compliance");
   battery_voltage_status_ = new StatusWidget("Battery Voltage");
@@ -55,7 +55,7 @@ StatusViewerWidget::StatusViewerWidget(const RosQtBridge& bridge)
   connect(&bridge, &RosQtBridge::vehicleHealthReceived, this, &self::healthCb, Qt::QueuedConnection);
 }
 
-void StatusViewerWidget::reset()
+void HealthViewerWidget::reset()
 {
   rt_compliance_status_->reset();
   battery_voltage_status_->reset();
@@ -74,7 +74,7 @@ void StatusViewerWidget::reset()
   user_defined_status_->reset();
 }
 
-void StatusViewerWidget::healthCb(const tobas_msgs::msg::VehicleHealth::ConstSharedPtr& health)
+void HealthViewerWidget::healthCb(const tobas_msgs::msg::VehicleHealth::ConstSharedPtr& health)
 {
   rt_compliance_status_->setStatus(health->realtime_compliance);
   battery_voltage_status_->setStatus(health->battery_voltage);
