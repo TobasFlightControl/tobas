@@ -1,6 +1,25 @@
 # Tobas Documentation
 
-## Setup (Ubuntu 24.04 LTS)
+This directory contains the MkDocs project used to build the Tobas user guide.
+It is intended for people editing, translating, previewing, or publishing the documentation.
+If you want to install or use Tobas, start from the published guide:
+
+- https://tobasflightcontrol.github.io/tobas/latest/
+
+## Structure
+
+- `docs/ja`: Japanese source documentation.
+- `docs/en`: English documentation generated or maintained from the Japanese source.
+- `mkdocs.yaml`: MkDocs Material, navigation, versioning, and i18n configuration.
+- `translate_docs.py`: Helper script for translating Japanese Markdown into English.
+- `requirements.txt`: Python dependencies for building and publishing the documentation.
+
+Use `docs/ja` as the source language when adding or restructuring user-guide content.
+Keep `README.md` files as local maintainer notes; they are not translation targets.
+
+## Setup
+
+Use Python 3 on Ubuntu 24.04 LTS or a compatible environment.
 
 ```bash
 $ python -m venv .venv
@@ -9,46 +28,42 @@ $ pip install --upgrade pip
 $ pip install -r requirements.txt
 ```
 
-## Translate Japanese to English
-
-1. Install openai
-
-```bash
-$ pip install openai
-```
-
-2. Set OpenAI API key
-
-```bash
-$ export OPENAI_API_KEY="your_api_key_here"
-```
-
-3. Run the translation script
-
-```bash
-$ python translate_docs.py  # Try -h to see the available options.
-```
-
-## Local Test
-
-1. Start the MkDocs server.
+## Preview Locally
 
 ```bash
 $ mkdocs serve --livereload
 ```
 
-2. Then open http://127.0.0.1:8000/ in your browser.
+Then open http://127.0.0.1:8000/ in your browser.
+
+## Translate Japanese to English
+
+The translation helper uses the OpenAI API.
+
+```bash
+$ pip install openai
+$ export OPENAI_API_KEY="your_api_key_here"
+$ python translate_docs.py --help
+```
+
+Translate only changed Japanese Markdown files when updating existing English pages:
+
+```bash
+$ python translate_docs.py --changed-only --src docs/ja --dst docs/en --base-ref HEAD
+```
 
 ## Deploy
 
-[Material for MkDocs/Setting up versioning/Usage](https://squidfunk.github.io/mkdocs-material/setup/setting-up-versioning/#usage)
+Documentation versions are managed with `mike`.
+See the [Material for MkDocs versioning guide](https://squidfunk.github.io/mkdocs-material/setup/setting-up-versioning/#usage)
+for background.
 
 ```bash
 $ mike deploy --push --update-aliases vx.x latest
 $ mike set-default --push latest
 ```
 
-If you want to delete a specific version, execute:
+To delete a specific version:
 
 ```bash
 $ mike list

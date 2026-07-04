@@ -1,5 +1,13 @@
 # Contributing to Tobas
 
+This guide is for contributors preparing changes for review.
+If you only want to install and use Tobas, start from the
+[Tobas User Guide](https://tobasflightcontrol.github.io/tobas/latest/).
+
+## Setup
+
+See [Setup](./SETUP.md) for source checkout, PC build, and FC deployment instructions.
+
 ## Pre-Commit Check
 
 Install dependencies:
