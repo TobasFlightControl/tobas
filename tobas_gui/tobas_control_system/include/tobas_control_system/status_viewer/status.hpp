@@ -3,7 +3,10 @@
 
 #pragma once
 
-#include <tobas_qt_tools/widgets/circle_widget.hpp>
+#include <QColor>
+#include <QLabel>
+
+#include <tobas_qt_tools/widgets/framed_label.hpp>
 
 namespace tobas
 {
@@ -15,13 +18,8 @@ class StatusWidget : public QWidget
 {
   Q_OBJECT
 
-  static constexpr int kLEDSize = 20;
+  static constexpr int kStatusWidth = 40;
   static constexpr int kTextPSize = 12;
-
-  static constexpr auto kPassedColor = Qt::green;
-  static constexpr auto kFailedColor = Qt::red;
-  static constexpr auto kIgnoredColor = Qt::yellow;
-  static constexpr auto kUnknownColor = Qt::gray;
 
 public:
   enum Status
@@ -41,7 +39,10 @@ public:
   void setStatus(bool ok);
 
 private:
-  qt::CircleWidget* led_;
+  qt::FramedLabel* status_;
+  QLabel* label_;
+
+  void setStatusText(const QString& text, const QColor& color);
 };
 }  // namespace ctrl
 }  // namespace gui
