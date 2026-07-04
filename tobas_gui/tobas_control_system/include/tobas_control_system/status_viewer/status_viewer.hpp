@@ -27,8 +27,6 @@ public:
   void reset();
 
 private:
-  tobas_msgs::msg::Arming::ConstSharedPtr arming_;
-
   StatusWidget* rt_compliance_status_;
   StatusWidget* battery_voltage_status_;
   StatusWidget* cpu_temp_status_;
@@ -45,11 +43,7 @@ private:
   StatusWidget* vibration_level_status_;
   StatusWidget* user_defined_status_;
 
-  StatusWidget* ready_arm_status_;
-  StatusWidget* armed_status_;
-
 private Q_SLOTS:
-  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
   void healthCb(const tobas_msgs::msg::VehicleHealth::ConstSharedPtr& health);
 };
 }  // namespace ctrl

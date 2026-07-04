@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "./arm_state_banner.hpp"
 #include "./console.hpp"
 #include "./cpu_viewer.hpp"
 #include "./gnss_viewer.hpp"
@@ -32,6 +33,7 @@ public:
 private:
   const Drone& drone_;
 
+  ArmStateBanner* arm_state_banner_;
   PoseViewerWidget* pose_viewer_;
   PowerSourceViewerWidget* power_source_viewer_;
   CpuViewerWidget* cpu_viewer_;

@@ -18,6 +18,7 @@ ControlSystemWidget::ControlSystemWidget(rclcpp::Node::SharedPtr node, const Ros
   : drone_(drone)
 {
   // Components
+  arm_state_banner_ = new ArmStateBanner(bridge);
   pose_viewer_ = new PoseViewerWidget(bridge);
   power_source_viewer_ = new PowerSourceViewerWidget(bridge, drone);
   cpu_viewer_ = new CpuViewerWidget(bridge);
@@ -52,11 +53,15 @@ ControlSystemWidget::ControlSystemWidget(rclcpp::Node::SharedPtr node, const Ros
   cols1->addLayout(rows1, 2);
   cols1->addWidget(qt::makeGroup("Mission Planner", mission_planner_), 3);
 
-  setLayout(cols1);
+  const auto rows0 = new QVBoxLayout();
+  rows0->addWidget(arm_state_banner_);
+  rows0->addLayout(cols1, 1);
+  setLayout(rows0);
 }
 
 void ControlSystemWidget::reset()
 {
+  arm_state_banner_->reset();
   pose_viewer_->reset();
   power_source_viewer_->reset();
   cpu_viewer_->reset();
