@@ -7,22 +7,6 @@ namespace tobas
 {
 namespace qt
 {
-QString toCssColor(Qt::GlobalColor c, bool with_alpha)
-{
-  if (c == Qt::transparent) {
-    return "transparent";  // Prioritize readability.
-  }
-
-  QColor q(c);
-
-  if (with_alpha) {
-    return q.name(QColor::HexArgb);  // #AARRGGBB
-  }
-  else {
-    return q.name(QColor::HexRgb);  // #RRGGBB
-  }
-}
-
 namespace color
 {
 namespace
