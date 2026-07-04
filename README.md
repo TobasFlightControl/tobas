@@ -6,11 +6,12 @@ so unconventional aircraft can be simulated, configured, and flown with the same
 
 ## Quick Links
 
-| Purpose                  | Link                                                                                                  |
+| Purpose                  | Document                                                                                              |
 | ------------------------ | ----------------------------------------------------------------------------------------------------- |
 | Use Tobas                | [Tobas User Guide](https://tobasflightcontrol.github.io/tobas/latest/)                                |
 | Install Tobas            | [Installation Guide](https://tobasflightcontrol.github.io/tobas/latest/getting_started/installation/) |
-| Build from source        | [Contributing to Tobas](./CONTRIBUTING.md)                                                            |
+| Build from source        | [Setup](./SETUP.md)                                                                                   |
+| Contribute changes       | [Contributing to Tobas](./CONTRIBUTING.md)                                                            |
 | Edit the documentation   | [Documentation README](./docs/README.md)                                                              |
 | Review licensing options | [Commercial License](./COMMERCIAL-LICENSE.md)                                                         |
 
@@ -19,8 +20,6 @@ so unconventional aircraft can be simulated, configured, and flown with the same
 - Ubuntu 24.04 LTS
 - ROS 2 Jazzy
 - Debian Trixie for flight-controller images
-
-See the installation guide linked above for the full setup procedure.
 
 ## Repository Layout
 
