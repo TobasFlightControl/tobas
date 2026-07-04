@@ -1,8 +1,8 @@
-# Tobas - Flight Controller for All Drones
+# Tobas Flight Controller
 
-Tobas is a model-based flight controller for drones and robotic aircraft.
-It uses each airframe's physical properties when designing the control system,
-so unconventional aircraft can be simulated, configured, and flown with the same ROS 2 based interface.
+Tobas is a Linux-based, model-based flight controller for drones and robotic aircraft.
+It designs control systems from each airframe's physical model,
+so unconventional aircraft can be simulated, configured, and flown through the same ROS 2 interface.
 
 ## Quick Links
 
