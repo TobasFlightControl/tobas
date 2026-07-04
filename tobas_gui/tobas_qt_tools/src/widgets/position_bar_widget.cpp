@@ -143,19 +143,19 @@ void PositionBarWidget::setTextPSize(int text_psize)
   update();
 }
 
-void PositionBarWidget::setFillColor(Qt::GlobalColor color)
+void PositionBarWidget::setFillColor(const QColor& color)
 {
   fill_color_ = color;
   update();
 }
 
-void PositionBarWidget::setLimitLineColor(Qt::GlobalColor color)
+void PositionBarWidget::setLimitLineColor(const QColor& color)
 {
   limit_line_color_ = color;
   update();
 }
 
-void PositionBarWidget::setValueLineColor(Qt::GlobalColor color)
+void PositionBarWidget::setValueLineColor(const QColor& color)
 {
   value_line_color_ = color;
   update();
@@ -267,7 +267,7 @@ void HPositionBarWidget::drawRange(QPainter& painter, double lower, double upper
   const int lower_pos = math::remap<double>(lower, getMinimum(), getMaximum(), 0, width());
   const int upper_pos = math::remap<double>(upper, getMinimum(), getMaximum(), 0, width());
 
-  // Fill between the minimum and maximum values in green.
+  // Fill between the minimum and maximum values.
   painter.setBrush(fill_color_);
   painter.drawRect(lower_pos, 0, upper_pos - lower_pos, height());
 
@@ -317,7 +317,7 @@ void VPositionBarWidget::drawRange(QPainter& painter, double lower, double upper
   const int lower_pos = math::remap<double>(lower, getMinimum(), getMaximum(), 0, height());
   const int upper_pos = math::remap<double>(upper, getMinimum(), getMaximum(), 0, height());
 
-  // Fill between the minimum and maximum values in green.
+  // Fill between the minimum and maximum values.
   painter.setBrush(fill_color_);
   painter.drawRect(0, lower_pos, width(), upper_pos - lower_pos);
 
