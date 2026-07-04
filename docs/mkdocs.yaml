@@ -31,8 +31,8 @@ theme:
     text: Roboto
     code: Roboto Mono
   language: ja # https://squidfunk.github.io/mkdocs-material/setup/changing-the-language/
-  logo: assets/icon_white.png # https://squidfunk.github.io/mkdocs-material/setup/changing-the-logo-and-icons/#logo
-  favicon: assets/icon_black.png # https://squidfunk.github.io/mkdocs-material/setup/changing-the-logo-and-icons/#favicon
+  logo: assets/brand/icon_white.png # https://squidfunk.github.io/mkdocs-material/setup/changing-the-logo-and-icons/#logo
+  favicon: assets/brand/icon_black.png # https://squidfunk.github.io/mkdocs-material/setup/changing-the-logo-and-icons/#favicon
   icon: # https://squidfunk.github.io/mkdocs-material/setup/changing-the-logo-and-icons/#site-icons
     repo: fontawesome/brands/github # https://squidfunk.github.io/mkdocs-material/setup/adding-a-git-repository/#repository-icon
   features:
