@@ -42,7 +42,7 @@ private:
   const QString text_ = "";
   int text_psize_ = 0;
 
-  double progress_ = 0.;
+  double progress_ = 0.0;
   bool completed_ = false;
   bool selected_ = false;
 

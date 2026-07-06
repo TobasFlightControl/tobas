@@ -33,8 +33,8 @@ private:
   QString x_label_;
   QString y_label_;
 
-  double x_ = 0.;
-  double y_ = 0.;
+  double x_ = 0.0;
+  double y_ = 0.0;
   bool ok_ = false;
   bool enabled_ = false;
 

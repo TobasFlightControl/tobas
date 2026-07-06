@@ -103,7 +103,7 @@ void GazeboMagnetometerPlugin::Configure(
 
   hard_bias_ = createUnitSpherePoint(rnd_dev_) * hard_bias_norm_;
 
-  noise_ = std::make_shared<NormalDistribution3d>(rnd_dev_, 0., noise_stddev_);
+  noise_ = std::make_shared<NormalDistribution3d>(rnd_dev_, 0.0, noise_stddev_);
 
   mag_pub_ = createPublisher<tobas_msgs::MagneticField>(topic::kMagneticField);
 }

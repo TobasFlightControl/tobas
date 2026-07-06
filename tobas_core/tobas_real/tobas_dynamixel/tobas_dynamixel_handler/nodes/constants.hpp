@@ -21,9 +21,9 @@ static constexpr double kPosition = M_2PI / (1 << 12);
 static constexpr double kVelocity = 0.229 * math::kRpm2Rps;
 static constexpr double kAcceleration = 214.577 * math::sqr(math::kRpm2Rps);
 static constexpr double kLoad = 0.1;
-static constexpr double kPwm = 100. / 855;
+static constexpr double kPwm = 100.0 / 855;
 static constexpr double kVoltage = 0.1;
-static constexpr double kTemperature = 1.;
+static constexpr double kTemperature = 1.0;
 }  // namespace scale_factor
 
 // Address: https://www.besttechnology.co.jp/modules/knowledge/?X%20Series%20Control%20table#q28d55a1

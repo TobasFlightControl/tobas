@@ -19,13 +19,13 @@ namespace traj
 JerkLimitedTrajectory::JerkLimitedTrajectory(double p0, double pf, double max_jerk, double max_acc, double max_vel)
   : p0_(p0), pd_(std::abs(pf - p0)), sign_(math::sign(pf - p0)), jm_(max_jerk), am_(max_acc), vm_(max_vel)
 {
-  assert(jm_ > 0.);
-  assert(am_ > 0.);
-  assert(vm_ > 0.);
+  assert(jm_ > 0.0);
+  assert(am_ > 0.0);
+  assert(vm_ > 0.0);
 
   // Handle the exceptional case where the start and target positions match.
   if (pd_ < EPS) {
-    t1_ = t2_ = t3_ = t4_ = 0.;
+    t1_ = t2_ = t3_ = t4_ = 0.0;
     return;
   }
 
@@ -69,7 +69,7 @@ JerkLimitedTrajectory::JerkLimitedTrajectory(double p0, double pf, double max_je
 TrajectoryPoint JerkLimitedTrajectory::get(double t) const noexcept
 {
   if (pd_ < EPS) {
-    return { p0_, 0., 0. };
+    return { p0_, 0.0, 0.0 };
   }
 
   // Restore the origin and movement direction removed at the beginning.

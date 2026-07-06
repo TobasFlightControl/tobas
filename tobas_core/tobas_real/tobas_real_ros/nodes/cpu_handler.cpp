@@ -58,8 +58,8 @@ CpuHandlerNode::CpuHandlerNode(const rclcpp::NodeOptions& options)
   : super("real_cpu_handler", nodeOptions_Default(options))
 {
   // Configure the LPFs
-  temp_lpf_.setCutoffFrequency(dsp::cutoffFromTimeConst(5.));
-  load_lpf_.setCutoffFrequency(dsp::cutoffFromTimeConst(1.));
+  temp_lpf_.setCutoffFrequency(dsp::cutoffFromTimeConst(5.0));
+  load_lpf_.setCutoffFrequency(dsp::cutoffFromTimeConst(1.0));
 
   // Set the initial status
   if (!getStatus()) {

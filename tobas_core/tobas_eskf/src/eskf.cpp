@@ -179,7 +179,7 @@ void ErrorStateKalmanFilter::initializeMagSoftBias(const Eigen::Matrix3d& value,
 
 void ErrorStateKalmanFilter::initializeBaroAltBias(const double& value, const double& var)
 {
-  assert(var >= 0.);
+  assert(var >= 0.0);
 
   x_(kBaroAltBiasIdx) = value;
 
@@ -192,7 +192,7 @@ void ErrorStateKalmanFilter::initializeBaroAltBias(const double& value, const do
 
 void ErrorStateKalmanFilter::initializeGravity(const double& value, const double& var)
 {
-  assert(var >= 0.);
+  assert(var >= 0.0);
 
   x_(kGravIdx) = value;
 
@@ -225,7 +225,7 @@ void ErrorStateKalmanFilter::enableJosephForm(bool enable)
 
 bool ErrorStateKalmanFilter::setAccBiasProcNoiseDensity(double value)
 {
-  if (value < 0.) {
+  if (value < 0.0) {
     std::cerr << "The noise density of accelerometer bias process must be non-negative." << std::endl;
     return false;
   }
@@ -236,7 +236,7 @@ bool ErrorStateKalmanFilter::setAccBiasProcNoiseDensity(double value)
 
 bool ErrorStateKalmanFilter::setGyroBiasProcNoiseDensity(double value)
 {
-  if (value < 0.) {
+  if (value < 0.0) {
     std::cerr << "The noise density of gyroscope bias process must be non-negative." << std::endl;
     return false;
   }
@@ -247,7 +247,7 @@ bool ErrorStateKalmanFilter::setGyroBiasProcNoiseDensity(double value)
 
 bool ErrorStateKalmanFilter::setMagHardBiasProcNoiseDensity(double value)
 {
-  if (value < 0.) {
+  if (value < 0.0) {
     std::cerr << "The noise density of magnetometer hard-iron bias process must be non-negative." << std::endl;
     return false;
   }
@@ -258,7 +258,7 @@ bool ErrorStateKalmanFilter::setMagHardBiasProcNoiseDensity(double value)
 
 bool ErrorStateKalmanFilter::setMagSoftBiasProcNoiseDensity(double value)
 {
-  if (value < 0.) {
+  if (value < 0.0) {
     std::cerr << "The noise density of magnetometer soft-iron bias process must be non-negative." << std::endl;
     return false;
   }
@@ -269,7 +269,7 @@ bool ErrorStateKalmanFilter::setMagSoftBiasProcNoiseDensity(double value)
 
 bool ErrorStateKalmanFilter::setBaroAltBiasProcNoiseDensity(double value)
 {
-  if (value < 0.) {
+  if (value < 0.0) {
     std::cerr << "The noise density of barometer altitude bias process must be non-negative." << std::endl;
     return false;
   }
@@ -280,7 +280,7 @@ bool ErrorStateKalmanFilter::setBaroAltBiasProcNoiseDensity(double value)
 
 bool ErrorStateKalmanFilter::setGravProcNoiseDensity(double value)
 {
-  if (value < 0.) {
+  if (value < 0.0) {
     std::cerr << "The noise density of gravity process must be non-negative." << std::endl;
     return false;
   }
@@ -291,7 +291,7 @@ bool ErrorStateKalmanFilter::setGravProcNoiseDensity(double value)
 
 void ErrorStateKalmanFilter::setMagneticFieldRef(const Eigen::Vector3d& mag_W)
 {
-  assert(mag_W.norm() > 0.);
+  assert(mag_W.norm() > 0.0);
   mag_W_ = mag_W.normalized();
 }
 
@@ -318,7 +318,7 @@ double ErrorStateKalmanFilter::measureIMU(
   t_last_imu_ = time;
 
   // `dt = 0` cannot be accepted because quaternion normalization depends on it.
-  if (dt <= 0.) {
+  if (dt <= 0.0) {
     std::cerr << "IMU time gap must be positive: " << dt << " <= 0 [sec]" << std::endl;
     return INFINITY;
   }
@@ -500,7 +500,7 @@ double ErrorStateKalmanFilter::measureMagneticField3d(
   const Eigen::Matrix3d& mag_cov,
   const ch::steady_clock::time_point& time)
 {
-  if (mag_W_.norm() == 0.) {
+  if (mag_W_.norm() == 0.0) {
     std::cerr << "Reference magnetic field is not set." << std::endl;
     return INFINITY;
   }
@@ -532,7 +532,7 @@ double ErrorStateKalmanFilter::measureMagneticFieldHead(
   const double& yaw_var,
   const ch::steady_clock::time_point& time)
 {
-  if (mag_W_.norm() == 0.) {
+  if (mag_W_.norm() == 0.0) {
     std::cerr << "Reference magnetic field is not set." << std::endl;
     return INFINITY;
   }
@@ -681,16 +681,16 @@ void ErrorStateKalmanFilter::applyConstraints()
   x_.segment<4>(kQuatIdx) = getHamilton().normalized();
 
   // Limit the state range using prior knowledge.
-  if (acc_bias_proc_noise_density_ > 0.) {
+  if (acc_bias_proc_noise_density_ > 0.0) {
     x_.segment<3>(kAccBiasIdx) = getAccelBias().cwiseMax(-kMaxAccBias).cwiseMin(kMaxAccBias);
   }
-  if (gyro_bias_proc_noise_density_ > 0.) {
+  if (gyro_bias_proc_noise_density_ > 0.0) {
     x_.segment<3>(kGyroBiasIdx) = getGyroBias().cwiseMax(-kMaxGyroBias).cwiseMin(kMaxGyroBias);
   }
-  if (mag_hard_bias_proc_noise_density_ > 0.) {
+  if (mag_hard_bias_proc_noise_density_ > 0.0) {
     x_.segment<3>(kMagHardBiasIdx) = getMagHardBias().cwiseMax(-kMaxMagHardBias).cwiseMin(kMaxMagHardBias);
   }
-  if (grav_proc_noise_density_ > 0.) {
+  if (grav_proc_noise_density_ > 0.0) {
     x_(kGravIdx) = std::clamp(getGravity(), kMinGravity, kMaxGravity);
   }
 

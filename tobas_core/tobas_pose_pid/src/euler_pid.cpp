@@ -30,7 +30,7 @@ kdl::Vector EulerPID::update(
 
   // Accumulate integral error when using integral control.
   for (size_t i = 0; i < 3; ++i) {
-    if (ki_(i) > 0.) {
+    if (ki_(i) > 0.0) {
       ei_(i) += ep(i) * dt;
     }
   }
@@ -49,7 +49,7 @@ bool EulerPID::setNaturalFreq(int idx, double value)
     return false;
   }
 
-  if (value < 0.) {
+  if (value < 0.0) {
     cerr << "Natural frequency must be non-negative." << endl;
     return false;
   }
@@ -66,7 +66,7 @@ bool EulerPID::setDampingRatio(int idx, double value)
     return false;
   }
 
-  if (value < 0.) {
+  if (value < 0.0) {
     cerr << "Damping ratio must be non-negative." << endl;
     return false;
   }
@@ -83,13 +83,13 @@ bool EulerPID::setIntegralGain(int idx, double value)
     return false;
   }
 
-  if (value < 0.) {
+  if (value < 0.0) {
     cerr << "Integral gain must be non-negative." << endl;
     return false;
   }
 
   ki_(idx) = value;
-  ei_(idx) = 0.;
+  ei_(idx) = 0.0;
 
   return true;
 }

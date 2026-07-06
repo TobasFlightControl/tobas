@@ -30,9 +30,9 @@ public:
   using SharedPtr = std::shared_ptr<IceRotorConfig>;
   using ConstSharedPtr = std::shared_ptr<const IceRotorConfig>;
 
-  double gear_ratio = 0.;                      // Reduction ratio [-].
-  st::Range<double> pitch_limit = { 0., 0. };  // Propeller pitch angle range [rad].
-  double center_pitch = 0.;                    // Center of the propeller pitch angle [rad].
+  double gear_ratio = 0.0;                       // Reduction ratio [-].
+  st::Range<double> pitch_limit = { 0.0, 0.0 };  // Propeller pitch angle range [rad].
+  double center_pitch = 0.0;                     // Center of the propeller pitch angle [rad].
   VppMotorConstant motor_const;
   VppMomentConstant moment_const;
   HardwareInterface hw_iface = HardwareInterface::kOther;
@@ -96,7 +96,7 @@ inline double IceRotorConfig::speedRotorToEngine(double rotor_speed) const
 
 inline double IceRotorConfig::thrustFromPitch(double engine_speed, double pitch_angle) const
 {
-  assert(engine_speed >= 0.);
+  assert(engine_speed >= 0.0);
 
   const auto rot_speed = speedEngineToRotor(engine_speed);
   return motorConst(pitch_angle) * math::sqr(rot_speed);
@@ -104,7 +104,7 @@ inline double IceRotorConfig::thrustFromPitch(double engine_speed, double pitch_
 
 inline double IceRotorConfig::pitchFromThrust(double engine_speed, double thrust) const
 {
-  assert(engine_speed > 0.);
+  assert(engine_speed > 0.0);
 
   const auto rot_speed = speedEngineToRotor(engine_speed);
   return pitch_limit.clamp((thrust / math::sqr(rot_speed) - motor_const.c0) / motor_const.c1);

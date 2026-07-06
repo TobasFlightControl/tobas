@@ -12,7 +12,7 @@
 #include <tobas_command_msgs/msg/pos_vel_acc_yaw.hpp>
 #include <tobas_mission_msgs/action/execute_mission.hpp>
 
-#define ALTITUDE 3.  // [m]
+#define ALTITUDE 3.0  // [m]
 
 using namespace std::chrono_literals;
 
@@ -25,8 +25,8 @@ bool takeoff(rclcpp::Node::SharedPtr node)
   tobas::mission::Takeoff takeoff;
   takeoff.altitude = ALTITUDE;
   takeoff.max_speed = 1.5;
-  takeoff.max_accel = 4.;
-  takeoff.max_jerk = 4.;
+  takeoff.max_accel = 4.0;
+  takeoff.max_jerk = 4.0;
   takeoff.altitude_tolerance = 0.5;
 
   tobas_mission_msgs::msg::MissionItem mission_item;
@@ -86,8 +86,8 @@ bool land(rclcpp::Node::SharedPtr node)
 
 bool followCirclePath(rclcpp::Node::SharedPtr node)
 {
-  constexpr double kRadius = 5.;                                 // [m]
-  constexpr double kPeriod = 10.;                                // [s]
+  constexpr double kRadius = 5.0;                                // [m]
+  constexpr double kPeriod = 10.0;                               // [s]
   constexpr double kOmega = 2 * M_PI / kPeriod;                  // [rad/s]
   constexpr double kSpeed = kRadius * kOmega;                    // [m/s]
   constexpr double kAccel = kRadius * tobas::math::sqr(kOmega);  // [m/s^2]
@@ -98,7 +98,7 @@ bool followCirclePath(rclcpp::Node::SharedPtr node)
 
   const auto start_time = node->now();
 
-  rclcpp::Rate rate(100., node->get_clock());
+  rclcpp::Rate rate(100.0, node->get_clock());
   while (rclcpp::ok()) {
     const auto cur_time = node->now();
     const auto t = (cur_time - start_time).seconds();
@@ -118,10 +118,10 @@ bool followCirclePath(rclcpp::Node::SharedPtr node)
     cmd->pos.z = ALTITUDE;
     cmd->vel.x = kSpeed * cos_theta;
     cmd->vel.y = kSpeed * sin_theta;
-    cmd->vel.z = 0.;
+    cmd->vel.z = 0.0;
     cmd->acc.x = -kAccel * sin_theta;
     cmd->acc.y = kAccel * cos_theta;
-    cmd->acc.z = 0.;
+    cmd->acc.z = 0.0;
     cmd->yaw = theta;
 
     pub->publish(std::move(cmd));

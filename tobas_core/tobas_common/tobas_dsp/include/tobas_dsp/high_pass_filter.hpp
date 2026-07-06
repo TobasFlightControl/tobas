@@ -43,10 +43,10 @@ HighPassFilter<T>::HighPassFilter()
 template <typename T>
 void HighPassFilter<T>::update(const T& u, const double& dt)
 {
-  assert(dt >= 0.);
+  assert(dt >= 0.0);
 
   const auto wc = prewarp(wc_, dt);
-  const auto tau = 2. / wc;
+  const auto tau = 2.0 / wc;
 
   y_ = dt < tau ? ((tau - dt) * y_ + tau * (u - prev_u_)) / (tau + dt) : u;
   prev_u_ = u;
@@ -67,7 +67,7 @@ inline void HighPassFilter<T>::setValue(const T& x)
 template <typename T>
 void HighPassFilter<T>::setCutoffFrequency(const double& fc_hz)
 {
-  if (fc_hz <= 0.) {
+  if (fc_hz <= 0.0) {
     wc_ = INFINITY;
   }
   else {

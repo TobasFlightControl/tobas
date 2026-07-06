@@ -22,7 +22,7 @@ class LandingDetectorNode : public BaseNode
   using super = BaseNode;
 
   static constexpr auto kPublishPeriod = 1s;
-  static constexpr double kDistForceLpfCutoff = 1.;        // [Hz]
+  static constexpr double kDistForceLpfCutoff = 1.0;       // [Hz]
   static constexpr double kTakeoffWeightRateThresh = 0.3;  // [-]
   static constexpr auto kTakeoffDetectTimeThresh = 200ms;
   static constexpr double kLandWeightRateThresh = 0.7;  // [-]

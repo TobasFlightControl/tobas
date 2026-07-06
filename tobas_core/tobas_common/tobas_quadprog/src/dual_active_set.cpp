@@ -11,7 +11,7 @@
 
 #define EPS std::numeric_limits<double>::epsilon()
 #define INF std::numeric_limits<double>::infinity()
-#define TOL_FACTOR 100.
+#define TOL_FACTOR 100.0
 
 // #define TRACE_SOLVER
 
@@ -83,7 +83,7 @@ bool DualActiveSetSolver::solve()
 
   iq_ = 0;
   c_ = scaled.P.trace() * J_.trace();  // An estimate for cond(P)
-  R_norm_ = 1.;                        // This variable will hold the norm of the matrix R
+  R_norm_ = 1.0;                       // This variable will hold the norm of the matrix R
   R_.setZero();
   d_.setZero();
 
@@ -111,7 +111,7 @@ bool DualActiveSetSolver::solve()
 
     // Compute full step length t2: i.e., the minimum step in primal space
     // s.t. the constraint becomes feasible
-    const auto t2 = z_.dot(z_) > EPS ? (-np_.dot(x_) - scaled.h(i)) / z_.dot(np_) : 0.;
+    const auto t2 = z_.dot(z_) > EPS ? (-np_.dot(x_) - scaled.h(i)) / z_.dot(np_) : 0.0;
 
     // Set x = x + t2 * z
     x_ += t2 * z_;
@@ -147,7 +147,7 @@ bool DualActiveSetSolver::solve()
           iai_(A_(i)) = -1;
         }
 
-        ss_ = 0.;
+        ss_ = 0.0;
         ip_ = 0;  // ip will be the index of the chosen violated constraint
         for (Eigen::Index i = 0; i < m_; ++i) {
           iaexcl_[i] = true;
@@ -160,7 +160,7 @@ bool DualActiveSetSolver::solve()
         cout << "s:\n" << s_.head(m_).transpose() << endl;
 #endif
 
-        const auto psi = s_.head(m_).cwiseMin(0.).sum();  // Sum of all infeasibilities
+        const auto psi = s_.head(m_).cwiseMin(0.0).sum();  // Sum of all infeasibilities
         if (std::abs(psi) <= m_ * EPS * c_ * TOL_FACTOR) {
           // Numerically there are no infeasibilities anymore
           x_opt_ = x_.cwiseProduct(x_scale);
@@ -182,7 +182,7 @@ bool DualActiveSetSolver::solve()
             ip_ = i;
           }
         }
-        if (ss_ >= 0.) {
+        if (ss_ >= 0.0) {
           x_opt_ = x_.cwiseProduct(x_scale);
           return true;
         }
@@ -190,7 +190,7 @@ bool DualActiveSetSolver::solve()
         // Set np = n(ip)
         np_ = -scaled.A.row(ip_);
         // Set u = [u 0]^T
-        u_(iq_) = 0.;
+        u_(iq_) = 0.0;
         // Add ip to the active set A
         A_(iq_) = ip_;
 
@@ -226,7 +226,7 @@ bool DualActiveSetSolver::solve()
         auto t1 = INF;
         // Find the index l s.t. it reaches the minimum of u+[x] / r
         for (Eigen::Index k = p_; k < iq_; ++k) {
-          if (r_(k) > 0.) {
+          if (r_(k) > 0.0) {
             if (u_(k) / r_(k) < t1) {
               t1 = u_(k) / r_(k);
               l = A_(k);
@@ -418,10 +418,10 @@ bool DualActiveSetSolver::addConstraint()
       continue;
     }
 
-    d_(j) = 0.;
+    d_(j) = 0.0;
     ss = ss / h;
     cc = cc / h;
-    if (cc < 0.) {
+    if (cc < 0.0) {
       cc = -cc;
       ss = -ss;
       d_(j - 1) = -h;
@@ -430,7 +430,7 @@ bool DualActiveSetSolver::addConstraint()
       d_(j - 1) = h;
     }
 
-    const auto xny = ss / (1. + cc);
+    const auto xny = ss / (1.0 + cc);
     const Eigen::VectorXd t1 = J_.col(j - 1);
     const Eigen::VectorXd t2 = J_.col(j);
     J_.col(j - 1) = t1 * cc + t2 * ss;
@@ -484,7 +484,7 @@ void DualActiveSetSolver::deleteConstraint(const Eigen::Index& l)
   A_(iq_ - 1) = A_(iq_);
   u_(iq_ - 1) = u_(iq_);
   A_(iq_) = 0;
-  u_(iq_) = 0.;
+  u_(iq_) = 0.0;
   R_.block(0, iq_ - 1, iq_, 1).setZero();
 
   // Constraint has been fully removed
@@ -508,8 +508,8 @@ void DualActiveSetSolver::deleteConstraint(const Eigen::Index& l)
     }
     cc = cc / h;
     ss = ss / h;
-    R_(j + 1, j) = 0.;
-    if (cc < 0.) {
+    R_(j + 1, j) = 0.0;
+    if (cc < 0.0) {
       R_(j, j) = -h;
       cc = -cc;
       ss = -ss;
@@ -518,7 +518,7 @@ void DualActiveSetSolver::deleteConstraint(const Eigen::Index& l)
       R_(j, j) = h;
     }
 
-    const auto xny = ss / (1. + cc);
+    const auto xny = ss / (1.0 + cc);
 
     const auto r1 = R_.block(j, j + 1, 1, iq_ - j - 1).eval();
     const auto r2 = R_.block(j + 1, j + 1, 1, iq_ - j - 1).eval();
@@ -538,11 +538,11 @@ double DualActiveSetSolver::distance(const double& a, const double& b)
   const auto b1 = std::abs(b);
   if (a1 > b1) {
     const auto t = b1 / a1;
-    return a1 * std::sqrt(1. + math::sqr(t));
+    return a1 * std::sqrt(1.0 + math::sqr(t));
   }
   else if (b1 > a1) {
     const auto t = a1 / b1;
-    return b1 * std::sqrt(1. + math::sqr(t));
+    return b1 * std::sqrt(1.0 + math::sqr(t));
   }
   else {
     return a1 * M_SQRT2;

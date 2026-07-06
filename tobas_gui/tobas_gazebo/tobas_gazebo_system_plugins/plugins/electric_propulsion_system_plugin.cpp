@@ -33,7 +33,7 @@
 // Motor inductance is often unknown, so use the fact that its product with Kv is roughly constant.
 // Because the ESC electronically suppresses current changes,
 // apparent inductance is much larger than the measured value, perhaps around 100 times.
-#define L_KV 2.
+#define L_KV 2.0
 
 namespace ch = std::chrono;
 namespace cmp = gz::sim::components;
@@ -51,7 +51,7 @@ class GazeboElectricPropulsionSystemPlugin : public BaseNode,
   // Constants
   static constexpr char kDebugTopicNS[] = "gazebo/rotor_debug";
   static constexpr double kAutoStopTimeout = 0.5;    // [s]
-  static constexpr double kMinBatteryVoltage = 3.;   // [V]
+  static constexpr double kMinBatteryVoltage = 3.0;  // [V]
   static constexpr double kThrotLimitMargin = 1e-3;  // [-]
 
   using self = GazeboElectricPropulsionSystemPlugin;
@@ -85,10 +85,10 @@ private:
     double vib_force_var_rate;  // [-]
   } param_;
 
-  double throt_ = 0.;  // [0, 1]
-  double acc_ = 0.;    // [rad/s^2]
-  double vel_ = 0.;    // [rad/s]
-  double pos_ = 0.;    // [rad]
+  double throt_ = 0.0;  // [0, 1]
+  double acc_ = 0.0;    // [rad/s^2]
+  double vel_ = 0.0;    // [rad/s]
+  double pos_ = 0.0;    // [rad]
   tobas_msgs::msg::Battery::ConstSharedPtr battery_gt_;
   gz::math::Vector3d wind_vel_W_ = gz::math::Vector3d::Zero;  // [m/s]
   ch::steady_clock::duration prev_sim_time_;
@@ -163,7 +163,7 @@ void GazeboElectricPropulsionSystemPlugin::Configure(
   initialize("gazebo_" + sanitizeNodeName(link_name_) + "_controller_plugin", sdf);
   getSdfParams(sdf);
 
-  rice_ = RiceDistribution(1., param_.vib_force_var_rate);
+  rice_ = RiceDistribution(1.0, param_.vib_force_var_rate);
 
   publish_state_rate_manager_ = std::make_shared<RateManager>(param_.publish_state_rate);
 
@@ -237,7 +237,7 @@ void GazeboElectricPropulsionSystemPlugin::PreUpdate(
   // Force the motor to stop after a fixed time has elapsed since the last throttle command was issued.
   const auto secs_from_last_cmd = ch::duration<double>(info.simTime - last_cmd_time_).count();
   if (secs_from_last_cmd > kAutoStopTimeout) {
-    throt_ = 0.;
+    throt_ = 0.0;
   }
 
   // Compute time after previous simulation time
@@ -328,7 +328,7 @@ void GazeboElectricPropulsionSystemPlugin::applyWrenchAndPublishState(
 
   // Compute electric current
   // Torque constant = generator coefficient = inverse of Kv, independent of internal resistance.
-  const auto kt = 1. / param_.kv;
+  const auto kt = 1.0 / param_.kv;
   const auto current = torque / kt;
 
   // For safety, treat the ESC as burned out if overcurrent flows even momentarily.
@@ -342,7 +342,7 @@ void GazeboElectricPropulsionSystemPlugin::applyWrenchAndPublishState(
       param_.max_current,
       " A.");
     is_intact_ = false;
-    throt_ = 0.;
+    throt_ = 0.0;
   }
 
   // Publish observed state
@@ -388,19 +388,19 @@ void GazeboElectricPropulsionSystemPlugin::applyWrenchAndPublishState(
 void GazeboElectricPropulsionSystemPlugin::updateJointState(gz::sim::EntityComponentManager& ecm, double dt)
 {
   // Motor dynamics coefficients (memo: 2-78).
-  const auto a = 2. * L_KV * param_.moment_const * param_.motor_const;
+  const auto a = 2.0 * L_KV * param_.moment_const * param_.motor_const;
   const auto b = param_.resistance * param_.kv * param_.moment_const * param_.motor_const;
-  const auto c = 1. / param_.kv;
+  const auto c = 1.0 / param_.kv;
 
   // Compute applied voltage.
   const auto Ea = battery_gt_->voltage * throt_;
 
   // Compute rotational speed at the equilibrium point.
-  const auto eq_speed = Ea == 0. ? 0. : (std::sqrt(math::sqr(c) + 4 * b * Ea) - c) / (2 * b);
+  const auto eq_speed = Ea == 0.0 ? 0.0 : (std::sqrt(math::sqr(c) + 4 * b * Ea) - c) / (2 * b);
 
   // Compute rotational speed at the next time.
   double next_speed;
-  const auto cur_speed = std::max(param_.direction * vel_, 0.);
+  const auto cur_speed = std::max(param_.direction * vel_, 0.0);
   if (cur_speed < 1e-3) {
     // Because the motor moment of inertia is ignored, when the current speed is zero it theoretically converges to the
     // equilibrium point in zero time.
@@ -465,7 +465,7 @@ void GazeboElectricPropulsionSystemPlugin::breakCb(
 {
   if (is_intact_) {
     is_intact_ = false;
-    throt_ = 0.;
+    throt_ = 0.0;
     res->message = "Rotor \"" + link_name_ + "\" has been broken.";
   }
   else {

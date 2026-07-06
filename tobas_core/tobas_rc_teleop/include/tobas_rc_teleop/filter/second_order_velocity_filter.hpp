@@ -26,8 +26,8 @@ public:
 
 private:
   // State
-  double v_ = 0.;
-  double a_ = 0.;
+  double v_ = 0.0;
+  double a_ = 0.0;
 
   // Config
   double v_max_ = std::numeric_limits<double>::max();

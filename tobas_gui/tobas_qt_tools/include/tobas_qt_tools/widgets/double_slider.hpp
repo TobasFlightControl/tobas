@@ -17,8 +17,8 @@ class DoubleSlider : public Slider
   using super = Slider;
 
   static constexpr int kRange = 10000;
-  static constexpr double kDefaultMinimum = 0.;
-  static constexpr double kDefaultMaximum = 1.;
+  static constexpr double kDefaultMinimum = 0.0;
+  static constexpr double kDefaultMaximum = 1.0;
 
 Q_SIGNALS:
   void valueChanged(double value);

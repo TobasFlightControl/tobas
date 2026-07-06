@@ -72,9 +72,9 @@ void TreeIdSolver_RNE::rneStep(
     qddj_ = qdd(j);
   }
   else {
-    qj_ = 0.;
-    qdj_ = 0.;
-    qddj_ = 0.;
+    qj_ = 0.0;
+    qdj_ = 0.0;
+    qddj_ = 0.0;
   }
 
   const auto Xj = cur_seg.pose(qj_);

@@ -13,7 +13,7 @@ namespace tobas
 {
 bool VppMomentConstant::isValid() const
 {
-  if (a <= 0. || c <= 0.) {
+  if (a <= 0.0 || c <= 0.0) {
     std::cerr << "The first and third term of the moment constant must be positive." << std::endl;
     return false;
   }

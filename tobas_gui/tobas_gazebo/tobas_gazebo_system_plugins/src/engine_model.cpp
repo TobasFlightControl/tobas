@@ -20,14 +20,14 @@ bool EngineModel::initialize(const sdf::ElementConstPtr& sdf)
     return false;
   }
 
-  if (!speed_filter_.initialize(time_const_up_, time_const_down_, 0.)) {
+  if (!speed_filter_.initialize(time_const_up_, time_const_down_, 0.0)) {
     return false;
   }
 
   newton_.initialize(
     bind(&self::speedFunc, this, std::placeholders::_1), bind(&self::speedFuncDeriv, this, std::placeholders::_1));
 
-  rice_ = RiceDistribution(1., vibration_force_variation_rate_);
+  rice_ = RiceDistribution(1.0, vibration_force_variation_rate_);
 
   return true;
 }
@@ -54,12 +54,12 @@ double EngineModel::getVibrationForce()
 
 void EngineModel::setThrottle(const double& throttle)
 {
-  throttle_ = std::clamp(throttle, 0., 1.);
+  throttle_ = std::clamp(throttle, 0.0, 1.0);
 }
 
 bool EngineModel::step(const double& dt)
 {
-  if (dt <= 0.) {
+  if (dt <= 0.0) {
     return false;
   }
 
@@ -78,7 +78,7 @@ bool EngineModel::getSdfParams(const sdf::ElementConstPtr& sdf)
   if (!getSdfParam(sdf, "engineConstant", engine_const_)) {
     return false;
   }
-  if (engine_const_.first <= 0. || engine_const_.second <= 0.) {
+  if (engine_const_.first <= 0.0 || engine_const_.second <= 0.0) {
     gzerr << "Engine constants must be positive." << std::endl;
     return false;
   }
@@ -89,25 +89,25 @@ bool EngineModel::getSdfParams(const sdf::ElementConstPtr& sdf)
   if (!getSdfParam(sdf, "timeConstDown", time_const_down_)) {
     return false;
   }
-  if (time_const_up_ < 0. || time_const_down_ < 0.) {
+  if (time_const_up_ < 0.0 || time_const_down_ < 0.0) {
     gzerr << "The time constant of engine speed convergence must be non-negative." << std::endl;
     return false;
   }
 
   getSdfParam(sdf, "vibrationForceCoefficient", vibration_force_coef_, kDefaultVibrationForceCoef);
-  if (vibration_force_coef_ < 0.) {
+  if (vibration_force_coef_ < 0.0) {
     gzerr << "The vibration force coefficient must be non-negative." << std::endl;
     return false;
   }
 
   getSdfParam(sdf, "vibrationForceVariationRate", vibration_force_variation_rate_, kDefaultVibrationForceVariationRate);
-  if (vibration_force_variation_rate_ < 0.) {
+  if (vibration_force_variation_rate_ < 0.0) {
     gzerr << "The vibration force variation rate must be non-negative." << std::endl;
     return false;
   }
 
   getSdfParam(sdf, "vibrationDoubleFrequencyCoefficient", vibration_double_freq_coef_, kDefaultVibrationDoubleFreqCoef);
-  if (vibration_double_freq_coef_ < 0.) {
+  if (vibration_double_freq_coef_ < 0.0) {
     gzerr << "The vibration double frequency coefficient must be non-negative." << std::endl;
     return false;
   }
@@ -119,13 +119,13 @@ double EngineModel::computeSteadySpeed()
 {
   // FIXME: Torque is actually generated even at zero throttle due to idling.
   if (throttle_ <= std::numeric_limits<double>::epsilon()) {
-    return 0.;
+    return 0.0;
   }
 
-  double speed = 0.;
+  double speed = 0.0;
   if (newton_.solve(speed) < 0) {
     gzerr << "Failed to solve the engine dynamics equation: " << newton_.errorMessage() << std::endl;
-    return 0.;
+    return 0.0;
   }
 
   return speed;
@@ -160,7 +160,7 @@ double EngineModel::calc_f() const
 
 double EngineModel::calc_k() const
 {
-  double res = 0.;
+  double res = 0.0;
   for (const auto& [_, rotor] : rotors_) {
     res += rotor.getMotorConst() * rotor.getMomentConst() / math::cube(rotor.getGearRatio());
   }

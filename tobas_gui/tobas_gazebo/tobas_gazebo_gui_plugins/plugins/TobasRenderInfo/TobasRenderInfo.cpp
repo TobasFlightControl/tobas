@@ -64,12 +64,12 @@ void TobasRenderInfo::onRender()
   const auto dt = ch::duration_cast<ch::duration<double>>(now - t_last_tick_).count();  // [s]
   t_last_tick_ = now;
 
-  const auto fps_inst = 1. / dt;
+  const auto fps_inst = 1.0 / dt;
   if (std::isnan(fps_ema_)) {
     fps_ema_ = fps_inst;
   }
   else {
-    fps_ema_ = kAlpha * fps_inst + (1. - kAlpha) * fps_ema_;
+    fps_ema_ = kAlpha * fps_inst + (1.0 - kAlpha) * fps_ema_;
   }
 
   if (now - t_last_pub_ >= kPublishPeriod) {

@@ -33,15 +33,15 @@ quaternionFromEuler(const double& roll, const double& pitch, const double& yaw)
 std::tuple<double, double, double>
 eulerFromQuaternion(const double& x, const double& y, const double& z, const double& w)
 {
-  assert(math::isClose(math::sqr(x) + math::sqr(y) + math::sqr(z) + math::sqr(w), 1.));
+  assert(math::isClose(math::sqr(x) + math::sqr(y) + math::sqr(z) + math::sqr(w), 1.0));
 
   const auto sy = -2 * (x * z - y * w);
 
   const auto pitch = std::asin(sy);
 
   double roll, yaw;
-  if (math::isClose(std::abs(sy), 1.)) {
-    roll = 0.;
+  if (math::isClose(std::abs(sy), 1.0)) {
+    roll = 0.0;
     yaw = std::atan2(-2 * (x * y - z * w), 2 * (math::sqr(w) + math::sqr(y)) - 1);
   }
   else {

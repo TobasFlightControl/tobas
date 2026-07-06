@@ -12,11 +12,11 @@ namespace traj
 {
 LinearSpline::LinearSpline(double p0, double pf, double T) : p0_(p0), T_(T)
 {
-  if (T > 0.) {
+  if (T > 0.0) {
     v_ = (pf - p0) / T;
   }
-  else if (p0 == pf && T == 0.) {
-    v_ = 0.;
+  else if (p0 == pf && T == 0.0) {
+    v_ = 0.0;
   }
   else {
     throw std::runtime_error("There is no linear spline that satisfies the conditions.");
@@ -25,8 +25,8 @@ LinearSpline::LinearSpline(double p0, double pf, double T) : p0_(p0), T_(T)
 
 TrajectoryPoint LinearSpline::get(double _t) const noexcept
 {
-  const auto t = std::clamp(_t, 0., T_);
-  return { p0_ + v_ * t, v_, 0. };
+  const auto t = std::clamp(_t, 0.0, T_);
+  return { p0_ + v_ * t, v_, 0.0 };
 }
 
 double LinearSpline::duration() const noexcept

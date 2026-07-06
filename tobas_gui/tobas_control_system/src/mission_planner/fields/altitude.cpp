@@ -17,7 +17,7 @@ AltitudeWidget::AltitudeWidget()
 {
   spin_box_ = new qt::DoubleSpinBox();
   spin_box_->setDecimals(2);
-  spin_box_->setValue(5.);
+  spin_box_->setValue(5.0);
   spin_box_->setSuffix(" m");
 
   const auto cols = new QHBoxLayout();

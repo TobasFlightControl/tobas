@@ -117,7 +117,7 @@ void ImuFftPlotWidget::updateSamples(
       freqs.push_back(freq);
 
       const auto is_edge = (n % 2 == 0 && k == n / 2);
-      const auto scale = is_edge ? 1. : 2.;
+      const auto scale = is_edge ? 1.0 : 2.0;
       const auto amp = scale * std::abs(spec.at(k)) / n;  // RMS
       amps.push_back(amp);
     }

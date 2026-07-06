@@ -30,11 +30,11 @@ public:
 
 private:
   // State
-  double traj_pos_ = 0.;
+  double traj_pos_ = 0.0;
   bool is_saturated_ = false;
 
   // Target
-  double tar_pos_ = 0.;
+  double tar_pos_ = 0.0;
 
   // Limit
   double max_vel_ = NAN;

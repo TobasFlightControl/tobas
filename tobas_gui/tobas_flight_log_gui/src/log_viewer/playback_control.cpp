@@ -68,7 +68,7 @@ double PlaybackControlWidget::getCurrentTime() const
 
 void PlaybackControlWidget::setDuration(double sec)
 {
-  TOBAS_CHECK(sec >= 0.);
+  TOBAS_CHECK(sec >= 0.0);
 
   slider_->setMaximum(sec * 1e+3);
   updateTimeLabels(slider_->value());
@@ -76,7 +76,7 @@ void PlaybackControlWidget::setDuration(double sec)
 
 void PlaybackControlWidget::setCurrentTime(double sec)
 {
-  TOBAS_CHECK(sec >= 0.);
+  TOBAS_CHECK(sec >= 0.0);
 
   slider_->setValue(sec * 1e+3);
 }

@@ -96,8 +96,8 @@ private:
   tobas_command_msgs::AccelPitchYaw::UniquePtr acc_cmd_;      // Acceleration-control target value in the WCS.
   std::unique_ptr<kdl::Rotation> tar_rot_;                    // Target attitude in the body coordinate system.
   std::unique_ptr<kdl::Vector> tar_gyro_;                     // Target angular velocity in the body coordinate system.
-  kdl::Vector tar_dgyro_;     // Target angular acceleration in the body coordinate system.
-  double ux_ = 0., uz_ = 0.;  // Target thrust in the body coordinate system.
+  kdl::Vector tar_dgyro_;       // Target angular acceleration in the body coordinate system.
+  double ux_ = 0.0, uz_ = 0.0;  // Target thrust in the body coordinate system.
 
   // Publishers
   ros2::PublisherPtr<tobas_msgs::msg::RotorThrustArray> tar_thrusts_pub_;
@@ -174,7 +174,7 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   // Register dynamic parameters
   addDynamicDoubleParam("horizontal_natural_frequency", &self::horizontalNaturalFreqCb, this, 0.2, 5, 1, 30, " rad/s");
   addDynamicDoubleParam("vertical_natural_frequency", &self::verticalNaturalFreqCb, this, 0.2, 10, 1, 30, " rad/s");
-  addDynamicDoubleParam("attitude_natural_frequency", &self::attitudeNaturalFreqCb, this, 1., 10, 1, 30, " rad/s");
+  addDynamicDoubleParam("attitude_natural_frequency", &self::attitudeNaturalFreqCb, this, 1.0, 10, 1, 30, " rad/s");
   addDynamicDoubleParam("heading_natural_frequency", &self::headingNaturalFreqCb, this, 0.5, 10, 1, 30, " rad/s");
   addDynamicDoubleParam("horizontal_damping_ratio", &self::horizontalDampingRatioCb, this, 0.1, 7, 1, 20);
   addDynamicDoubleParam("vertical_damping_ratio", &self::verticalDampingRatioCb, this, 0.1, 10, 1, 20);
@@ -186,7 +186,7 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   addDynamicDoubleParam("heading_i_gain", &self::headingIGainCb, this, 0.01, 10, 1, 30);
   addDynamicDoubleParam("horizontal_i_max_accel", &self::horizontalIMaxAccelCb, this, 0.5, 4, 0, 20, " m/s^2");
   addDynamicDoubleParam("vertical_i_max_accel", &self::verticalIMaxAccelCb, this, 0.5, 4, 0, 20, " m/s^2");
-  addDynamicDoubleParam("throttle_gain_threshold", &self::throttleGainThresholdCb, this, 1., 70, 0, 100, " %");
+  addDynamicDoubleParam("throttle_gain_threshold", &self::throttleGainThresholdCb, this, 1.0, 70, 0, 100, " %");
 
   // Register publishers
   tar_thrusts_pub_ = createPublisher<tobas_msgs::msg::RotorThrustArray>(topic::kRotorThrustsCmd);
@@ -229,7 +229,7 @@ bool ControllerNode::updateInternalDataStructures()
   }
 
   // Update the maximum total thrust
-  max_thrust_sum_ = 0.;
+  max_thrust_sum_ = 0.0;
   for (const auto& [link_name, _] : drone_.prop->rotors) {
     const auto thrust_at_full_throt = drone_.prop->thrustFromThrottle(link_name, kMaxThrot);
     max_thrust_sum_ += thrust_at_full_throt;
@@ -344,7 +344,7 @@ bool ControllerNode::headingIGainCb(const double& p)
 
 bool ControllerNode::throttleGainThresholdCb(const double& p)
 {
-  throttle_gain_thresh_ = p / 100.;
+  throttle_gain_thresh_ = p / 100.0;
   return true;
 }
 
@@ -415,7 +415,7 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
   const auto tar_thrust = math::norm(ux_, uz_);
   const auto thrust_thresh = mass_holder_.getMass() * st::kGravity * throttle_gain_thresh_;
   const auto land_suspect = (tar_thrust < thrust_thresh);
-  const auto gain_throt = land_suspect ? tar_thrust / thrust_thresh : 1.;
+  const auto gain_throt = land_suspect ? tar_thrust / thrust_thresh : 1.0;
 
   // Position controller.
   if (pos_cmd_) {
@@ -442,8 +442,8 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
 
     // Accumulate integral error while airborne.
     if (!land_suspect) {
-      assert(trans_ctrl_.hor_ki > 0.);
-      assert(trans_ctrl_.ver_ki > 0.);
+      assert(trans_ctrl_.hor_ki > 0.0);
+      assert(trans_ctrl_.ver_ki > 0.0);
       const auto hor_max_ei = trans_ctrl_.hor_max_i_acc / trans_ctrl_.hor_ki;
       const auto ver_max_ei = trans_ctrl_.ver_max_i_acc / trans_ctrl_.ver_ki;
       const kdl::Vector max_ei(hor_max_ei, hor_max_ei, ver_max_ei);
@@ -503,11 +503,11 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
     // Accumulate integral error while airborne.
     if (!land_suspect) {
       for (int i = 0; i < 3; ++i) {
-        if (ki(i) > 0.) {
+        if (ki(i) > 0.0) {
           rot_ctrl_.ei(i) += ep(i) * dt;
         }
         else {
-          rot_ctrl_.ei(i) = 0.;
+          rot_ctrl_.ei(i) = 0.0;
         }
       }
     }

@@ -26,7 +26,7 @@ StickPanel::StickPanel(const QString& title, const QString& x_label, const QStri
 
 void StickPanel::reset()
 {
-  setValues(0., 0., false, false);
+  setValues(0.0, 0.0, false, false);
 }
 
 void StickPanel::setValues(double x, double y, bool ok, bool enabled)
@@ -88,7 +88,7 @@ QString StickPanel::axisText(double value) const
     return "---";
   }
 
-  return QString::number(std::lround(value * 100.));
+  return QString::number(std::lround(value * 100.0));
 }
 }  // namespace rcin
 }  // namespace ctrl

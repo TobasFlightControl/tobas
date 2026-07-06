@@ -15,7 +15,7 @@ bool IceRotorConfig::isValid() const
     return false;
   }
 
-  if (gear_ratio <= 0.) {
+  if (gear_ratio <= 0.0) {
     std::cerr << "Gear ratio must be positive." << std::endl;
     return false;
   }

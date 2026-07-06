@@ -42,14 +42,14 @@ public:
 
 private:
   // Trajectory Point
-  double traj_pos_ = 0.;
-  double traj_vel_ = 0.;
-  double traj_acc_ = 0.;
+  double traj_pos_ = 0.0;
+  double traj_vel_ = 0.0;
+  double traj_acc_ = 0.0;
 
   // Target
-  double tar_pos_ = 0.;
-  double tar_vel_ = 0.;
-  double tar_acc_ = 0.;
+  double tar_pos_ = 0.0;
+  double tar_vel_ = 0.0;
+  double tar_acc_ = 0.0;
 
   // Limit
   double v_min_ = NAN;

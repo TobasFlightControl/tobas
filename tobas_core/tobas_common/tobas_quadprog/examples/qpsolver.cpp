@@ -14,10 +14,10 @@ using namespace Eigen;
 int main()
 {
   tobas::quadprog::QuadProgProblem problem(2, 0, 2);
-  problem.P << 1., 0., 0., 0.5;
-  problem.q << 1.5, 1.;
-  problem.A << 1., 1., -1., -1.;
-  problem.b << 1., 0.;
+  problem.P << 1.0, 0.0, 0.0, 0.5;
+  problem.q << 1.5, 1.0;
+  problem.A << 1.0, 1.0, -1.0, -1.0;
+  problem.b << 1.0, 0.0;
   const Vector2d x_scale = Vector2d::Ones();
 
   tobas::quadprog::QuadProgppSolver quadprog;

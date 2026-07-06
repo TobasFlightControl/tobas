@@ -112,7 +112,7 @@ void DisturbanceObserverNode::rotorStatesCb(const tobas_msgs::msg::RotorStateArr
         TOBAS_ERROR("The drone does not have rotor named \"", elem.link_name, "\".");
         continue;
       }
-      rotor_thrusts_[elem.link_name] = 0.;
+      rotor_thrusts_[elem.link_name] = 0.0;
     }
     else {
       // Update thrust only when the rotor state is available.
@@ -135,7 +135,7 @@ void DisturbanceObserverNode::rotorLivelinessCb(
 
     // Treat the thrust as zero if the rotor is dead.
     if (!elem.alive) {
-      thrust_it->second = 0.;
+      thrust_it->second = 0.0;
     }
   }
 }

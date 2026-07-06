@@ -202,7 +202,7 @@ DynamixelHandlerNode::DynamixelHandlerNode(const rclcpp::NodeOptions& options)
   enable_torques_ss_ = createService<std_srvs::srv::SetBool>(service::kEnableTorques, &self::enableTorquesCb, this);
 
   // Start main timer with maximum rate
-  const auto state_pub_period = state_pub_rate_ > 0 ? ch::duration<double>(1. / state_pub_rate_) : 0s;
+  const auto state_pub_period = state_pub_rate_ > 0 ? ch::duration<double>(1.0 / state_pub_rate_) : 0s;
   pub_states_timer_ = createWallTimer(state_pub_period, &self::publishCurrentStatesTimerCb, this);
 }
 
@@ -317,7 +317,7 @@ bool DynamixelHandlerNode::getMotorConfigs()
       case model_number::kXC330T181:
       case model_number::kXC330T288:
         cfg.current_available = true;
-        cfg.current_scaling_factor = 1.;
+        cfg.current_scaling_factor = 1.0;
         break;
       case model_number::kXL430W250:
       case model_number::k2XL430W250:
@@ -325,7 +325,7 @@ bool DynamixelHandlerNode::getMotorConfigs()
       case model_number::kXC430W240:
       case model_number::k2XC430W250:
         cfg.current_available = false;
-        cfg.current_scaling_factor = 0.;
+        cfg.current_scaling_factor = 0.0;
         break;
       case model_number::kXM430W210:
       case model_number::kXH430W210:
@@ -350,7 +350,7 @@ bool DynamixelHandlerNode::getMotorConfigs()
       default:
         TOBAS_WARN("Current scaling factor for model number ", model_number, " is unknown.");
         cfg.current_available = false;
-        cfg.current_scaling_factor = 0.;
+        cfg.current_scaling_factor = 0.0;
     }
     cfg.current_scaling_factor *= 1e-3;  // mA -> A
 

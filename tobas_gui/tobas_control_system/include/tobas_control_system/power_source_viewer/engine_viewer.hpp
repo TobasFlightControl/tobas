@@ -28,8 +28,8 @@ class EngineViewerWidget : public QWidget
   static constexpr int kLabelPSize = 12;
   static constexpr int kBarHeight = 30;
 
-  static constexpr double kMinOilTemp = 0.;    // [degC]
-  static constexpr double kMaxOilTemp = 130.;  // [degC]
+  static constexpr double kMinOilTemp = 0.0;    // [degC]
+  static constexpr double kMaxOilTemp = 130.0;  // [degC]
 
 public:
   explicit EngineViewerWidget(const RosQtBridge& bridge, const Drone& drone);

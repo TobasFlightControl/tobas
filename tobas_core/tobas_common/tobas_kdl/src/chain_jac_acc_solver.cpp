@@ -41,8 +41,8 @@ int ChainJacAccSolver::jntToCart(const JntArray& q, const JntArray& qd)
       ++j_;
     }
     else {
-      qj_ = 0.;
-      qdj_ = 0.;
+      qj_ = 0.0;
+      qdj_ = 0.0;
     }
 
     X_[i] = seg.pose(qj_);  // `X_[i]` := transform from {i - 1} to {i}

@@ -174,13 +174,13 @@ void CompleteMagCalibWidget::resetToPreStart()
   progress_bar_->setValue(0);
 
   for (const auto& face_circle : face_circles_) {
-    face_circle->setProgress(0.);
+    face_circle->setProgress(0.0);
     face_circle->setSelected(false);
   }
 
   running_ = false;
   cnt_ = 0;
-  rot_angles_.fill(0.);
+  rot_angles_.fill(0.0);
   completed_.fill(false);
 }
 
@@ -209,7 +209,7 @@ size_t CompleteMagCalibWidget::computeFaceIndex() const
 
   // Determine the face currently pointing upward from the order of components.
   if (abs_axz >= std::max(abs_ayz, abs_azz)) {
-    if (axz > 0.) {
+    if (axz > 0.0) {
       return kFrontIdx;
     }
     else {
@@ -217,7 +217,7 @@ size_t CompleteMagCalibWidget::computeFaceIndex() const
     }
   }
   else if (abs_ayz >= std::max(abs_azz, abs_axz)) {
-    if (ayz > 0.) {
+    if (ayz > 0.0) {
       return kLeftIdx;
     }
     else {
@@ -225,7 +225,7 @@ size_t CompleteMagCalibWidget::computeFaceIndex() const
     }
   }
   else if (abs_azz >= std::max(abs_axz, abs_ayz)) {
-    if (azz > 0.) {
+    if (azz > 0.0) {
       return kTopIdx;
     }
     else {
@@ -310,7 +310,7 @@ void CompleteMagCalibWidget::removeOutliers()
   const auto mean = sum / size;
 
   // Find the standard deviation of distances from the average point.
-  double dist2_sum = 0.;
+  double dist2_sum = 0.0;
   for (int pi = 0; pi < cnt_; ++pi) {
     if (!active_.at(pi)) {
       continue;
@@ -744,18 +744,18 @@ void CompleteMagCalibWidget::magCb(const tobas_msgs::MagneticField::ConstSharedP
       face_circles_.at(face_idx)->setProgress(progress);
 
       // Complete when enough rotation is reached.
-      if (progress > 1.) {
+      if (progress > 1.0) {
         completed_.at(face_idx) = true;
       }
     }
 
     // Update the overall progress bar.
-    double total_progress = 0.;  // [-]
+    double total_progress = 0.0;  // [-]
     for (const auto& [rot_angle, completed] : std::views::zip(rot_angles_, completed_)) {
-      const auto progress = completed ? 1. : rot_angle / kYawAngleThresh;
+      const auto progress = completed ? 1.0 : rot_angle / kYawAngleThresh;
       total_progress += progress / kFaceSize;
     }
-    progress_bar_->setValue(static_cast<int>(total_progress * 100.));
+    progress_bar_->setValue(static_cast<int>(total_progress * 100.0));
 
     // Enable the Finish button when enough data has been collected for all faces.
     if (st::allEqual(completed_, true)) {

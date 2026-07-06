@@ -114,7 +114,7 @@ bool LinearMPC::solve()
   // and assume the control input rate changes from the maximum to the minimum value over the input horizon.
   // Since the control input is scaled to 1, the control input increment scale is (1/Tu)*dt = 1/Hu.
   qpsolver_.x_scale.conservativeResize(u_size_ * input_steps);
-  qpsolver_.x_scale.fill(1. / static_cast<double>(input_steps));
+  qpsolver_.x_scale.fill(1.0 / static_cast<double>(input_steps));
 
   // Solve the QP.
   if (!qpsolver_.solve()) {

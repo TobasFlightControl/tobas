@@ -30,7 +30,7 @@ public:
 
 private:
   // rosparams
-  double min_speed_ = 0.;                                  // [m/s]
+  double min_speed_ = 0.0;                                 // [m/s]
   double max_speed_ = std::numeric_limits<double>::max();  // [m/s]
   double max_roll_;                                        // [rad]
   double max_dpitch_;                                      // [rad]

@@ -38,7 +38,7 @@ int ChainInertiaSolver::jntToCart(const JntArray& q)
   j_ = 0;
   for (size_t i = 0; i < ns_; ++i) {
     const auto& seg = chain_.getSegment(i);
-    const auto qj = seg.joint().type != Joint::kFixed ? q(j_++) : 0.;
+    const auto qj = seg.joint().type != Joint::kFixed ? q(j_++) : 0.0;
     I_[i] = seg.inertia();
     X_[i] = seg.pose(qj);
   }

@@ -9,8 +9,8 @@ namespace tobas
 {
 namespace dryden
 {
-static constexpr double kLowAltitudeThreshold = 1000.;  // [ft]
-static constexpr double kMinimumAltitude = 1.;          // [m]
+static constexpr double kLowAltitudeThreshold = 1000.0;  // [ft]
+static constexpr double kMinimumAltitude = 1.0;          // [m]
 };  // namespace dryden
 
 /**
@@ -39,7 +39,7 @@ public:
   inline double noiseStddevVer() const;
 
 private:
-  double mean_speed_ = 0.;
+  double mean_speed_ = 0.0;
 
   double L_uv_, L_w_;          // [m] Turbulence scale length
   double sigma_uv_, sigma_w_;  // [m/s] Standard deviation of wind speed
@@ -63,7 +63,7 @@ public:
   inline const double& w() const;
 
 private:
-  double u_ = 0., v_ = 0., w_ = 0.;  // Gust components in the body frame
+  double u_ = 0.0, v_ = 0.0, w_ = 0.0;  // Gust components in the body frame
 
   DrydenComponents components_;
 

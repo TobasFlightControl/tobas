@@ -27,15 +27,15 @@ PlanarJointModel::PlanarJointModel(const std::string& name, size_t joint_index, 
 void PlanarJointModel::getVariableDefaultPositions(double* values) const
 {
   for (size_t i = 0; i < 2; ++i) {
-    values[i] = 0.;
+    values[i] = 0.0;
   }
-  values[2] = 0.;
+  values[2] = 0.0;
 }
 
 void PlanarJointModel::computeTransform(const double* joint_values, Eigen::Isometry3d& transform) const
 {
   transform = Eigen::Isometry3d(
-    Eigen::Translation3d(joint_values[0], joint_values[1], 0.) *
+    Eigen::Translation3d(joint_values[0], joint_values[1], 0.0) *
     Eigen::AngleAxisd(joint_values[2], Eigen::Vector3d::UnitZ()));
 }
 
@@ -48,12 +48,12 @@ void PlanarJointModel::computeVariablePositions(const Eigen::Isometry3d& transfo
   const Eigen::Quaterniond q(transform.linear());
 
   // Taken from Bullet
-  const auto s_squared = 1. - (q.w() * q.w());
-  if (s_squared < 10. * std::numeric_limits<double>::epsilon()) {
-    joint_values[2] = 0.;
+  const auto s_squared = 1.0 - (q.w() * q.w());
+  if (s_squared < 10.0 * std::numeric_limits<double>::epsilon()) {
+    joint_values[2] = 0.0;
   }
   else {
-    const auto s = 1. / std::sqrt(s_squared);
+    const auto s = 1.0 / std::sqrt(s_squared);
     joint_values[2] = (std::acos(q.w()) * 2.0f) * (q.z() * s);
   }
 }

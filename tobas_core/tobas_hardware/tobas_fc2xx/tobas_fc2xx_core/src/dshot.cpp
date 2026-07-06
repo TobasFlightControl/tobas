@@ -85,7 +85,7 @@ bool DShot::setTargetSpeed(size_t ch, double rps) noexcept
     return false;
   }
 
-  if (rps < 0.) {
+  if (rps < 0.0) {
     cerr << "Target speed must be non-negative." << endl;
     return false;
   }
@@ -107,7 +107,7 @@ bool DShot::setKv(size_t ch, double kv_si) noexcept
     return false;
   }
 
-  if (kv_si <= 0.) {
+  if (kv_si <= 0.0) {
     cerr << "Kv value must be positive." << endl;
     return false;
   }
@@ -133,7 +133,7 @@ bool DShot::setInternalResistance(size_t ch, double resistance) noexcept
     return false;
   }
 
-  if (resistance <= 0.) {
+  if (resistance <= 0.0) {
     cerr << "Internal resistance must be positive." << endl;
     return false;
   }
@@ -159,7 +159,7 @@ bool DShot::setPropellerDiameter(size_t ch, double diameter) noexcept
     return false;
   }
 
-  if (diameter <= 0.) {
+  if (diameter <= 0.0) {
     cerr << "Propeller diameter must be positive." << endl;
     return false;
   }
@@ -185,7 +185,7 @@ bool DShot::setMomentConstant(size_t ch, double moment_const) noexcept
     return false;
   }
 
-  if (moment_const <= 0.) {
+  if (moment_const <= 0.0) {
     cerr << "Moment constant must be positive." << endl;
     return false;
   }
@@ -262,7 +262,7 @@ double DShot::getSpeed(size_t ch) noexcept
     return NAN;
   }
   else if (erpm == 0x0FFF) {
-    return 0.;
+    return 0.0;
   }
 
   const auto exp = erpm >> 9;

@@ -404,7 +404,7 @@ void RobotModel::buildMimic(const urdf::ModelInterface& urdf_model)
         if (joint_model == joint_model->getMimic()) {
           RCLCPP_ERROR(getLogger(), "Cycle found in joint that mimic each other. Ignoring all mimic joints.");
           for (const auto& joint_model_recal : joint_model_vector_) {
-            joint_model_recal->setMimic(nullptr, 0., 0.);
+            joint_model_recal->setMimic(nullptr, 0.0, 0.0);
           }
           change = false;
           break;

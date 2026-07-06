@@ -153,7 +153,7 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   // Register dynamic parameters
   addDynamicDoubleParam("horizontal_natural_frequency", &self::horizontalNaturalFreqCb, this, 0.2, 5, 1, 30, " rad/s");
   addDynamicDoubleParam("vertical_natural_frequency", &self::verticalNaturalFreqCb, this, 0.2, 10, 1, 30, " rad/s");
-  addDynamicDoubleParam("attitude_natural_frequency", &self::attitudeNaturalFreqCb, this, 1., 10, 1, 30, " rad/s");
+  addDynamicDoubleParam("attitude_natural_frequency", &self::attitudeNaturalFreqCb, this, 1.0, 10, 1, 30, " rad/s");
   addDynamicDoubleParam("heading_natural_frequency", &self::headingNaturalFreqCb, this, 0.5, 10, 1, 30, " rad/s");
   addDynamicDoubleParam("horizontal_damping_ratio", &self::horizontalDampingRatioCb, this, 0.1, 7, 1, 20);
   addDynamicDoubleParam("vertical_damping_ratio", &self::verticalDampingRatioCb, this, 0.1, 10, 1, 20);
@@ -408,7 +408,7 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
 
     // Compute target acceleration; do not integrate error while grounded.
     acc_cmd_->accel =
-      pos_cmd_->acc + pos_pid_.update(cur_pos_W, cur_vel_W, pos_cmd_->pos, pos_cmd_->vel, landed_->landed ? 0. : dt);
+      pos_cmd_->acc + pos_pid_.update(cur_pos_W, cur_vel_W, pos_cmd_->pos, pos_cmd_->vel, landed_->landed ? 0.0 : dt);
 
     // Fill the feedback message.
     setpoint->odom.frame.p = pos_cmd_->pos;
@@ -424,7 +424,7 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
 
     // Compute target angular velocity; do not integrate error while grounded.
     const auto tar_rot = angle_cmd_->angle.toRotation();
-    rate_cmd_->rate = rot_pi_.update(cur_rot, tar_rot, landed_->landed ? 0. : dt);
+    rate_cmd_->rate = rot_pi_.update(cur_rot, tar_rot, landed_->landed ? 0.0 : dt);
 
     // Fill the feedback message.
     setpoint->odom.frame.M = tar_rot;

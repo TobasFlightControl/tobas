@@ -203,13 +203,13 @@ inline VectorAcc operator*(const Rotation& R, const VectorAcc& x)
 
 inline VectorAcc operator/(const VectorAcc& r1, double r2)
 {
-  assert(r2 != 0.);
+  assert(r2 != 0.0);
   return VectorAcc(r1.p / r2, r1.v / r2, r1.dv / r2);
 }
 
 inline VectorAcc operator/(const VectorAcc& r2, const doubleAcc& r1)
 {
-  return r2 * (1. / r1);
+  return r2 * (1.0 / r1);
 }
 }  // namespace kdl
 }  // namespace tobas

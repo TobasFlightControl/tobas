@@ -26,7 +26,7 @@ namespace tobas
 template <typename MsgType>
 class TopicThrottle
 {
-  static constexpr double kPublishRate = 25.;  // [Hz]
+  static constexpr double kPublishRate = 25.0;  // [Hz]
 
 public:
   explicit TopicThrottle() : rate_manager_(kPublishRate)

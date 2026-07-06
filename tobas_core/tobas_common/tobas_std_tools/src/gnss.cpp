@@ -43,7 +43,7 @@ long computeGpsDelayFromToW(uint32_t gps_tow_ms)
 std::tuple<double, double, double>
 gnssToCartAbsolute(const double& latitude, const double& longitude, const double& altitude)
 {
-  constexpr double kLongRadius = 6378137.;           // Semi-major axis [m].
+  constexpr double kLongRadius = 6378137.0;          // Semi-major axis [m].
   constexpr double kEccentricity = 0.0818191908426;  // Eccentricity [-].
 
   const auto phi = deg2rad(latitude);
@@ -73,7 +73,7 @@ gnssToCartRelative(const double& latitude, const double& longitude, const double
 
   // Constants (`a`, `F`: Geodetic Reference System 1980 (GRS80) ellipsoid).
   constexpr double m0 = 0.9999;
-  constexpr double a = 6378137.;
+  constexpr double a = 6378137.0;
   constexpr double F = 298.257222101;
 
   // (1) Calculate `n`, `A_i`, and `alpha_i`.
@@ -84,17 +84,17 @@ gnssToCartRelative(const double& latitude, const double& longitude, const double
   constexpr auto n5 = n4 * n;
 
   constexpr auto A0 = 1 + n2 / 4 + n4 / 64;
-  constexpr auto A1 = -(3. / 2) * (n - n3 / 8 - n5 / 64);
-  constexpr auto A2 = (15. / 16) * (n2 - n4 / 4);
-  constexpr auto A3 = -(35. / 48) * (n3 - (5. / 16) * n5);
-  constexpr auto A4 = (315. / 512) * n4;
-  constexpr auto A5 = -(693. / 1280) * n5;
+  constexpr auto A1 = -(3.0 / 2) * (n - n3 / 8 - n5 / 64);
+  constexpr auto A2 = (15.0 / 16) * (n2 - n4 / 4);
+  constexpr auto A3 = -(35.0 / 48) * (n3 - (5.0 / 16) * n5);
+  constexpr auto A4 = (315.0 / 512) * n4;
+  constexpr auto A5 = -(693.0 / 1280) * n5;
 
-  constexpr auto a1 = (1. / 2) * n - (2. / 3) * n2 + (5. / 16) * n3 + (41. / 180) * n4 - (127. / 288) * n5;
-  constexpr auto a2 = (13. / 48) * n2 - (3. / 5) * n3 + (557. / 1440) * n4 + (281. / 630) * n5;
-  constexpr auto a3 = (61. / 240) * n3 - (103. / 140) * n4 + (15061. / 26880) * n5;
-  constexpr auto a4 = (49561. / 161280) * n4 - (179. / 168) * n5;
-  constexpr auto a5 = (34729. / 80640) * n5;
+  constexpr auto a1 = (1.0 / 2) * n - (2.0 / 3) * n2 + (5.0 / 16) * n3 + (41.0 / 180) * n4 - (127.0 / 288) * n5;
+  constexpr auto a2 = (13.0 / 48) * n2 - (3.0 / 5) * n3 + (557.0 / 1440) * n4 + (281.0 / 630) * n5;
+  constexpr auto a3 = (61.0 / 240) * n3 - (103.0 / 140) * n4 + (15061.0 / 26880) * n5;
+  constexpr auto a4 = (49561.0 / 161280) * n4 - (179.0 / 168) * n5;
+  constexpr auto a5 = (34729.0 / 80640) * n5;
 
   // (2) Calculate `A` and `S`.
   constexpr auto m_ = (m0 * a) / (1 + n);
@@ -137,7 +137,7 @@ cartToGnssRelative(const double& east, const double& north, const double& latitu
   const auto lam_0 = deg2rad(longitude_0);
 
   // Constants (`a`, `F`: Geodetic Reference System 1980 (GRS80) ellipsoid).
-  constexpr double a = 6378137.;
+  constexpr double a = 6378137.0;
   constexpr double m0 = 0.9999;
   constexpr double F = 298.257222101;
 
@@ -150,24 +150,24 @@ cartToGnssRelative(const double& east, const double& north, const double& latitu
   constexpr auto n6 = n5 * n;
 
   constexpr auto A0 = 1 + n2 / 4 + n4 / 64;
-  constexpr auto A1 = -(3. / 2) * (n - n3 / 8 - n5 / 64);
-  constexpr auto A2 = (15. / 16) * (n2 - n4 / 4);
-  constexpr auto A3 = -(35. / 48) * (n3 - (5. / 16) * n5);
-  constexpr auto A4 = (315. / 512) * n4;
-  constexpr auto A5 = -(693. / 1280) * n5;
+  constexpr auto A1 = -(3.0 / 2) * (n - n3 / 8 - n5 / 64);
+  constexpr auto A2 = (15.0 / 16) * (n2 - n4 / 4);
+  constexpr auto A3 = -(35.0 / 48) * (n3 - (5.0 / 16) * n5);
+  constexpr auto A4 = (315.0 / 512) * n4;
+  constexpr auto A5 = -(693.0 / 1280) * n5;
 
-  constexpr auto b1 = (1. / 2) * n - (2. / 3) * n2 + (37. / 96) * n3 - (1. / 360) * n4 - (81. / 512) * n5;
-  constexpr auto b2 = (1. / 48) * n2 + (1. / 15) * n3 - (437. / 1440) * n4 + (46. / 105) * n5;
-  constexpr auto b3 = (17. / 480) * n3 - (37. / 840) * n4 - (209. / 4480) * n5;
-  constexpr auto b4 = (4397. / 161280) * n4 - (11. / 504) * n5;
-  constexpr auto b5 = (4583. / 161280) * n5;
+  constexpr auto b1 = (1.0 / 2) * n - (2.0 / 3) * n2 + (37.0 / 96) * n3 - (1.0 / 360) * n4 - (81.0 / 512) * n5;
+  constexpr auto b2 = (1.0 / 48) * n2 + (1.0 / 15) * n3 - (437.0 / 1440) * n4 + (46.0 / 105) * n5;
+  constexpr auto b3 = (17.0 / 480) * n3 - (37.0 / 840) * n4 - (209.0 / 4480) * n5;
+  constexpr auto b4 = (4397.0 / 161280) * n4 - (11.0 / 504) * n5;
+  constexpr auto b5 = (4583.0 / 161280) * n5;
 
-  constexpr auto d1 = 2 * n - (2. / 3) * n2 - 2 * n3 + (116. / 45) * n4 + (26. / 45) * n5 - (2854. / 675) * n6;
-  constexpr auto d2 = (7. / 3) * n2 - (8. / 5) * n3 - (227. / 45) * n4 + (2704. / 315) * n5 + (2323. / 945) * n6;
-  constexpr auto d3 = (56. / 15) * n3 - (136. / 35) * n4 - (1262. / 105) * n5 + (73814. / 2835) * n6;
-  constexpr auto d4 = (4279. / 630) * n4 - (332. / 35) * n5 - (399572. / 14175) * n6;
-  constexpr auto d5 = (4174. / 315) * n5 - (144838. / 6237) * n6;
-  constexpr auto d6 = (601676. / 22275) * n6;
+  constexpr auto d1 = 2 * n - (2.0 / 3) * n2 - 2 * n3 + (116.0 / 45) * n4 + (26.0 / 45) * n5 - (2854.0 / 675) * n6;
+  constexpr auto d2 = (7.0 / 3) * n2 - (8.0 / 5) * n3 - (227.0 / 45) * n4 + (2704.0 / 315) * n5 + (2323.0 / 945) * n6;
+  constexpr auto d3 = (56.0 / 15) * n3 - (136.0 / 35) * n4 - (1262.0 / 105) * n5 + (73814.0 / 2835) * n6;
+  constexpr auto d4 = (4279.0 / 630) * n4 - (332.0 / 35) * n5 - (399572.0 / 14175) * n6;
+  constexpr auto d5 = (4174.0 / 315) * n5 - (144838.0 / 6237) * n6;
+  constexpr auto d6 = (601676.0 / 22275) * n6;
 
   // (2) Calculate `A` and `S`.
   constexpr auto m_ = (m0 * a) / (1 + n);

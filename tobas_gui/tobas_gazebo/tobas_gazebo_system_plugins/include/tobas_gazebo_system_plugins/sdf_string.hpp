@@ -18,8 +18,8 @@ std::string makeBoxSdf(
   double px,
   double py,
   double pz,
-  double rr = 0.,
-  double rp = 0.,
-  double ry = 0.);
+  double rr = 0.0,
+  double rp = 0.0,
+  double ry = 0.0);
 }  // namespace gazebo
 }  // namespace tobas

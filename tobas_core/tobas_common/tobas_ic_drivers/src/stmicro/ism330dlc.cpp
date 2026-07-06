@@ -212,11 +212,11 @@ bool ISM330DLC::setGyroFullScale(fs_g_t fs)
       break;
     case fs_g_t::FS_G_1000DPS:
       ctrl2_g |= FS_G_1000DPS;
-      gyro_scale_ = 35.;
+      gyro_scale_ = 35.0;
       break;
     case fs_g_t::FS_G_2000DPS:
       ctrl2_g |= FS_G_2000DPS;
-      gyro_scale_ = 70.;
+      gyro_scale_ = 70.0;
       break;
     default:
       std::cerr << "Invalid gyroscope full scale type: " << (int)fs << std::endl;

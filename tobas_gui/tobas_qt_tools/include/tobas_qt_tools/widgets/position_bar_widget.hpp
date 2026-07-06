@@ -60,8 +60,8 @@ public:
 protected:
   void paintEvent(QPaintEvent* event) override;
 
-  double minimum_ = 0.;
-  double maximum_ = 1.;
+  double minimum_ = 0.0;
+  double maximum_ = 1.0;
   bool fill_range_ = true;
   int line_width_ = 3;
   int text_psize_ = 10;

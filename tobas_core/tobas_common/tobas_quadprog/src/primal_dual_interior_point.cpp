@@ -108,7 +108,7 @@ bool PrimalDualInteriorPointSolver::setNumberOfIterations(const size_t& num_iter
 
 bool PrimalDualInteriorPointSolver::setSigma(const double& sigma)
 {
-  if (sigma <= 0. || 1. <= sigma) {
+  if (sigma <= 0.0 || 1.0 <= sigma) {
     return false;
   }
 
@@ -118,7 +118,7 @@ bool PrimalDualInteriorPointSolver::setSigma(const double& sigma)
 
 bool PrimalDualInteriorPointSolver::setAlphaTolerance(const double& alpha_tol)
 {
-  if (alpha_tol <= 0. || 1. <= alpha_tol) {
+  if (alpha_tol <= 0.0 || 1.0 <= alpha_tol) {
     return false;
   }
 
@@ -153,8 +153,8 @@ bool PrimalDualInteriorPointSolver::initialize(const QuadProgProblem& scaled)
 
 double PrimalDualInteriorPointSolver::findAlpha(const VectorXd& dlam, const VectorXd& ds) const
 {
-  double lb = 0.;
-  double ub = 1.;
+  double lb = 0.0;
+  double ub = 1.0;
 
   while (ub - lb > alpha_tol_) {
     const auto mid = (lb + ub) / 2;

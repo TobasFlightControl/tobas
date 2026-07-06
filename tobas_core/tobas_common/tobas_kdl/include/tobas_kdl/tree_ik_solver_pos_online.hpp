@@ -29,7 +29,7 @@ class TreeIkSolverPos_Online : public TreeSolverI
   using super = TreeSolverI;
 
 public:
-  static constexpr double kDefaultMaxLinearVelocity = 1.;     // [m/s]
+  static constexpr double kDefaultMaxLinearVelocity = 1.0;    // [m/s]
   static constexpr double kDefaultMaxAngularVelocity = M_PI;  // [rad/s]
 
   explicit TreeIkSolverPos_Online(const Tree& tree);

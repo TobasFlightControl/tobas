@@ -11,7 +11,7 @@ namespace gui
 {
 namespace log
 {
-static constexpr double kLineWidth = 1.;
+static constexpr double kLineWidth = 1.0;
 
 static constexpr Qt::GlobalColor kCurrentValueColor = Qt::blue;
 static constexpr Qt::GlobalColor kTargetValueColor = Qt::red;

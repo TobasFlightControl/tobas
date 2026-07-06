@@ -38,7 +38,7 @@ Rotation Rotation::RotZ(double angle)
 Rotation Rotation::Rot(const Vector& axis, double angle)
 {
   // Axis must be normalized
-  assert(math::isClose(axis.norm(), 1.));
+  assert(math::isClose(axis.norm(), 1.0));
 
   // The formula
   // R(n, θ) = n n^T + (E - n n^T)) std::cos(θ) + skew(n) sin(θ) = E + skew(n) sin(θ) + skew(n)^2 (1 - std::cos(θ))
@@ -97,7 +97,7 @@ Rotation Rotation::RPY(double roll, double pitch, double yaw)
 
 Rotation Rotation::Quaternion(double x, double y, double z, double w)
 {
-  assert(math::isClose(math::norm(x, y, z, w), 1.));
+  assert(math::isClose(math::norm(x, y, z, w), 1.0));
 
   const auto tx = 2 * x;
   const auto ty = 2 * y;
@@ -130,7 +130,7 @@ void Rotation::getQuaternion(double& x, double& y, double& z, double& w) const
 {
   const auto trace = data.trace();
   if (trace > EPS) {
-    const auto s = 0.5 / std::sqrt(trace + 1.);
+    const auto s = 0.5 / std::sqrt(trace + 1.0);
     w = 0.25 / s;
     x = (data(2, 1) - data(1, 2)) * s;
     y = (data(0, 2) - data(2, 0)) * s;
@@ -138,21 +138,21 @@ void Rotation::getQuaternion(double& x, double& y, double& z, double& w) const
   }
   else {
     if (data(0, 0) > data(1, 1) && data(0, 0) > data(2, 2)) {
-      const auto s = 2. * std::sqrt(1. + data(0, 0) - data(1, 1) - data(2, 2));
+      const auto s = 2.0 * std::sqrt(1.0 + data(0, 0) - data(1, 1) - data(2, 2));
       w = (data(2, 1) - data(1, 2)) / s;
       x = 0.25 * s;
       y = (data(0, 1) + data(1, 0)) / s;
       z = (data(0, 2) + data(2, 0)) / s;
     }
     else if (data(1, 1) > data(2, 2)) {
-      const auto s = 2. * std::sqrt(1. + data(1, 1) - data(0, 0) - data(2, 2));
+      const auto s = 2.0 * std::sqrt(1.0 + data(1, 1) - data(0, 0) - data(2, 2));
       w = (data(0, 2) - data(2, 0)) / s;
       x = (data(0, 1) + data(1, 0)) / s;
       y = 0.25 * s;
       z = (data(1, 2) + data(2, 1)) / s;
     }
     else {
-      const auto s = 2. * std::sqrt(1. + data(2, 2) - data(0, 0) - data(1, 1));
+      const auto s = 2.0 * std::sqrt(1.0 + data(2, 2) - data(0, 0) - data(1, 1));
       w = (data(1, 0) - data(0, 1)) / s;
       x = (data(0, 2) + data(2, 0)) / s;
       y = (data(1, 2) + data(2, 1)) / s;
@@ -166,7 +166,7 @@ void Rotation::getRPY(double& roll, double& pitch, double& yaw) const
   pitch = getPitch();
   if (std::abs(pitch) > (M_PI_2 - EPS)) {
     yaw = std::atan2(-data(0, 1), data(1, 1));
-    roll = 0.;
+    roll = 0.0;
   }
   else {
     roll = std::atan2(data(2, 1), data(2, 2));
@@ -204,7 +204,7 @@ std::pair<double, Vector> Rotation::getAngleAxis() const
       std::abs(data(0, 1) + data(1, 0)) < eps2 && std::abs(data(0, 2) + data(2, 0)) < eps2 &&
       std::abs(data(1, 2) + data(2, 1)) < eps2 && std::abs(this->trace() - 3) < eps2) {
       // This singularity is identity matrix so angle = 0, axis is arbitrary chose.
-      return { 0., Vector::UnitZ() };
+      return { 0.0, Vector::UnitZ() };
     }
 
     // otherwise this singularity is angle = 180

@@ -76,7 +76,7 @@ inline Euler::Euler(const Rotation& rot)
 
 inline Euler Euler::Zero()
 {
-  return Euler(0., 0., 0.);
+  return Euler(0.0, 0.0, 0.0);
 }
 
 inline Euler Euler::clone() const
@@ -86,7 +86,7 @@ inline Euler Euler::clone() const
 
 inline void Euler::setZero()
 {
-  this->fill(0.);
+  this->fill(0.0);
 }
 
 inline void Euler::setNaN()

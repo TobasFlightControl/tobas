@@ -41,11 +41,11 @@ class CompleteMagCalibWidget : public BaseMagCalibWidget
   static constexpr int kMaxDataSize = 10000;  // Maximum is 100000 due to Rviz limitations.
   static constexpr int kButtonWidth = 100;
   static constexpr int kButtonHeight = 40;
-  static constexpr double kRvizPointScale = 10.;
+  static constexpr double kRvizPointScale = 10.0;
   static constexpr double kMinYawRate = M_PI / 30;     // [rad/s]
   static constexpr double kMaxYawRate = M_PI_2;        // [rad/s]
   static constexpr double kYawAngleThresh = 8 * M_PI;  // [rad]
-  static constexpr double kZScoreThresh = 2.;
+  static constexpr double kZScoreThresh = 2.0;
   static constexpr int kEllipsoidLineStep = 20;  // [deg]
 
   static constexpr size_t kTopIdx = 0;

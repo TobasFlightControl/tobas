@@ -24,7 +24,7 @@ RotorsViewerWiddget::RotorsViewerWiddget(const RosQtBridge& bridge, const Drone&
 void RotorsViewerWiddget::reset()
 {
   for (const auto& [link_name, meter] : meters_) {
-    setSpeed(link_name, 0.);
+    setSpeed(link_name, 0.0);
     meter->setBackgroundColor(kAliveBackgroundColor);
   }
 }

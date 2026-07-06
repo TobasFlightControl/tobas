@@ -30,14 +30,14 @@ public:
   using SharedPtr = std::shared_ptr<ElectricRotorConfig>;
   using ConstSharedPtr = std::shared_ptr<const ElectricRotorConfig>;
 
-  uint32_t channel = 0;             // Channel to which the motor is connected.
-  uint32_t num_poles = 0;           // Number of motor poles.
-  double kv = 0.;                   // Motor KV value [rad/s/V].
-  double internal_resistance = 0.;  // Motor internal resistance [Ω].
-  double min_speed = 0.;            // Minimum motor speed [rad/s].
-  double propeller_diameter = 0.;   // Propeller diameter [m].
-  double motor_const = 0.;          // Thrust coefficient [kg*m/rad^2].
-  double moment_const = 0.;         // Reaction torque coefficient [m].
+  uint32_t channel = 0;              // Channel to which the motor is connected.
+  uint32_t num_poles = 0;            // Number of motor poles.
+  double kv = 0.0;                   // Motor KV value [rad/s/V].
+  double internal_resistance = 0.0;  // Motor internal resistance [Ω].
+  double min_speed = 0.0;            // Minimum motor speed [rad/s].
+  double propeller_diameter = 0.0;   // Propeller diameter [m].
+  double motor_const = 0.0;          // Thrust coefficient [kg*m/rad^2].
+  double moment_const = 0.0;         // Reaction torque coefficient [m].
 
   bool isValid() const override;
 
@@ -81,19 +81,19 @@ inline double ElectricRotorConfig::effortWeight() const
 
 inline double ElectricRotorConfig::voltageFromSpeed(double tar_speed) const
 {
-  assert(tar_speed >= 0.);
+  assert(tar_speed >= 0.0);
 
   const auto b = internal_resistance * kv * moment_const * motor_const;
-  const auto c = 1. / kv;
+  const auto c = 1.0 / kv;
   return tar_speed * (b * tar_speed + c);
 }
 
 inline double ElectricRotorConfig::speedFromVoltage(double voltage) const
 {
-  assert(voltage >= 0.);
+  assert(voltage >= 0.0);
 
   const auto b = internal_resistance * kv * moment_const * motor_const;
-  const auto c = 1. / kv;
+  const auto c = 1.0 / kv;
   return b > 0 ? (std::sqrt(math::sqr(c) + 4 * b * voltage) - c) / (2 * b) : voltage * kv;
 }
 
@@ -104,7 +104,7 @@ inline double ElectricRotorConfig::thrustFromSpeed(double tar_speed) const
 
 inline double ElectricRotorConfig::speedFromThrust(double thrust) const
 {
-  assert(thrust >= 0.);
+  assert(thrust >= 0.0);
   return std::sqrt(thrust / motor_const);
 }
 
@@ -118,7 +118,7 @@ inline double ElectricRotorConfig::thrustFromVoltage(double voltage) const
 
 inline double ElectricRotorConfig::throttleFromSpeed(double tar_speed, double battery_voltage) const
 {
-  assert(tar_speed >= 0.);
+  assert(tar_speed >= 0.0);
 
   const auto voltage = voltageFromSpeed(tar_speed);
   return voltage / battery_voltage;
@@ -126,7 +126,7 @@ inline double ElectricRotorConfig::throttleFromSpeed(double tar_speed, double ba
 
 inline double ElectricRotorConfig::throttleFromThrust(double thrust, double battery_voltage) const
 {
-  assert(thrust >= 0.);
+  assert(thrust >= 0.0);
 
   const auto tar_speed = speedFromThrust(thrust);
   return throttleFromSpeed(tar_speed, battery_voltage);

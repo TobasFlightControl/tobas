@@ -12,7 +12,7 @@ namespace tobas
 {
 bool VppDragConstant::isValid() const
 {
-  if (c1 <= 0.) {
+  if (c1 <= 0.0) {
     std::cerr << "The second term of the drag constant must be positive." << std::endl;
     return false;
   }

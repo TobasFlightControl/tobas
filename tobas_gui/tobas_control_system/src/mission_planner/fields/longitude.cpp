@@ -17,9 +17,9 @@ LongitudeWidget::LongitudeWidget()
 {
   spin_box_ = new qt::DoubleSpinBox();
   spin_box_->setDecimals(9);
-  spin_box_->setMinimum(-180.);
-  spin_box_->setMaximum(180.);
-  spin_box_->setValue(0.);
+  spin_box_->setMinimum(-180.0);
+  spin_box_->setMaximum(180.0);
+  spin_box_->setValue(0.0);
   spin_box_->setSuffix(" deg");
 
   const auto cols = new QHBoxLayout();

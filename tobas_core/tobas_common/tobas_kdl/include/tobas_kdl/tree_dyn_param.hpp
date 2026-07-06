@@ -17,7 +17,7 @@ class TreeDynParam : public TreeSolverI
   using super = TreeSolverI;
 
 public:
-  explicit TreeDynParam(const Tree& tree, const Vector& grav = Vector(0., 0., -st::kGravity));
+  explicit TreeDynParam(const Tree& tree, const Vector& grav = Vector(0.0, 0.0, -st::kGravity));
 
   bool updateInternalDataStructures() override;
 

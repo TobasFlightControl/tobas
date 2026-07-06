@@ -20,7 +20,7 @@ template <typename... T>
 double norm(T... args)
 {
   // The number of arguments is expected to be small, so Kahan summation is not used.
-  double squared_sum = 0.;
+  double squared_sum = 0.0;
   for (const auto& x : std::initializer_list<double>{ args... }) {
     squared_sum += math::sqr(x);
   }

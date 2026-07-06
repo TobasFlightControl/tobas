@@ -40,14 +40,14 @@ void AccelYawController::initialize(BaseNode* node, FlightMode mode)
   node->addDynamicDoubleParam(
     addMode("max_horizontal_accel", mode), &self::maxHorizontalAccelCb, this, 0.5, 10, 1, 20, " m/s^2");
   node->addDynamicDoubleParam(
-    addMode("max_horizontal_jerk", mode), &self::maxHorizontalJerkCb, this, 5., 8, 1, 20, " m/s^3");
+    addMode("max_horizontal_jerk", mode), &self::maxHorizontalJerkCb, this, 5.0, 8, 1, 20, " m/s^3");
   node->addDynamicDoubleParam(
     addMode("max_vertical_accel", mode), &self::maxVerticalAccelCb, this, 0.5, 16, 1, 20, " m/s^2");
-  node->addDynamicDoubleParam(addMode("max_heading_rate", mode), &self::maxHeadingRateCb, this, 15., 6, 1, 12, " dps");
+  node->addDynamicDoubleParam(addMode("max_heading_rate", mode), &self::maxHeadingRateCb, this, 15.0, 6, 1, 12, " dps");
   node->addDynamicDoubleParam(
-    addMode("horizontal_accel_expo", mode), &self::horizontalAccelExpoCb, this, 5., -6, -20, 20);
-  node->addDynamicDoubleParam(addMode("vertical_accel_expo", mode), &self::verticalAccelExpoCb, this, 5., 0, -20, 20);
-  node->addDynamicDoubleParam(addMode("heading_expo", mode), &self::headingExpoCb, this, 5., -3, -20, 20);
+    addMode("horizontal_accel_expo", mode), &self::horizontalAccelExpoCb, this, 5.0, -6, -20, 20);
+  node->addDynamicDoubleParam(addMode("vertical_accel_expo", mode), &self::verticalAccelExpoCb, this, 5.0, 0, -20, 20);
+  node->addDynamicDoubleParam(addMode("heading_expo", mode), &self::headingExpoCb, this, 5.0, -3, -20, 20);
 
   cmd_pub_ = node->createPublisher<tobas_command_msgs::AccelYaw>(topic::kAccelYawCmd);
 }
@@ -56,8 +56,8 @@ void AccelYawController::reset(const builtin_interfaces::msg::Time& stamp, const
 {
   t_last_rcin_ = stamp;
 
-  ax_filt_.resetCurrentTrajectoryPoint(0.);
-  ay_filt_.resetCurrentTrajectoryPoint(0.);
+  ax_filt_.resetCurrentTrajectoryPoint(0.0);
+  ay_filt_.resetCurrentTrajectoryPoint(0.0);
 
   tar_yaw_ = setpoint.frame.M.getYaw();
 }

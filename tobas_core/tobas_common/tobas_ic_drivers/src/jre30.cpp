@@ -25,7 +25,7 @@ void JRE30Packet_A::decode(uint8_t* buf)
   distance = dist_lsb * 0.01;
 
   const uint16_t strength_lsb = (buf[10] << 8) | buf[11];
-  strength = strength_lsb * 1.;
+  strength = strength_lsb * 1.0;
 
   const uint16_t status = (buf[12] << 8) | buf[13];
   gain = (status >> 0) & 1;

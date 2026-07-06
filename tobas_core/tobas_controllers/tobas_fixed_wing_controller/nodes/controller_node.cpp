@@ -226,13 +226,13 @@ void ControllerNode::updateSetStateVector()
   const auto tar_u = tar_speed * std::cos(eom_.trimCondition().alpha());
 
   lqd_.target_state(eom_.kStateIdx_u) = tar_u - trim.u();
-  lqd_.target_state(eom_.kStateIdx_alpha) = 0.;
-  lqd_.target_state(eom_.kStateIdx_beta) = 0.;
+  lqd_.target_state(eom_.kStateIdx_alpha) = 0.0;
+  lqd_.target_state(eom_.kStateIdx_beta) = 0.0;
   lqd_.target_state(eom_.kStateIdx_phi) = cmd_frd_.roll;
   lqd_.target_state(eom_.kStateIdx_theta) = cmd_frd_.delta_pitch;
-  lqd_.target_state(eom_.kStateIdx_p) = 0.;
-  lqd_.target_state(eom_.kStateIdx_q) = 0.;
-  lqd_.target_state(eom_.kStateIdx_r) = 0.;
+  lqd_.target_state(eom_.kStateIdx_p) = 0.0;
+  lqd_.target_state(eom_.kStateIdx_q) = 0.0;
+  lqd_.target_state(eom_.kStateIdx_r) = 0.0;
 }
 
 void ControllerNode::publishThrusts(const builtin_interfaces::msg::Time& stamp, const Eigen::VectorXd& thrusts)
@@ -245,7 +245,7 @@ void ControllerNode::publishThrusts(const builtin_interfaces::msg::Time& stamp, 
   for (const auto& [idx, elem] : std::views::enumerate(drone_.prop->rotors)) {
     thrusts_msg->thrusts.emplace_back();
     thrusts_msg->thrusts.back().link_name = elem.first;
-    thrusts_msg->thrusts.back().thrust = std::max(thrusts(idx), 0.);
+    thrusts_msg->thrusts.back().thrust = std::max(thrusts(idx), 0.0);
   }
 
   tar_thrusts_pub_->publish(std::move(thrusts_msg));

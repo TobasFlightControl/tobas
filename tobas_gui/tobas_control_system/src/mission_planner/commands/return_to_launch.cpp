@@ -56,7 +56,7 @@ mission::ReturnToLaunch ReturnToLaunchWidget::dump() const
   res.max_heading_accel = maxHeadingAccel();
   res.acceptance_radius = acceptanceRadius();
   res.altitude_tolerance = altitudeTolerance();
-  res.timeout = 0.;  // TODO
+  res.timeout = 0.0;  // TODO
 
   return res;
 }

@@ -21,7 +21,7 @@ public:
   {
   }
 
-  inline explicit VppDragConstant() : c0(0.), c1(0.)
+  inline explicit VppDragConstant() : c0(0.0), c1(0.0)
   {
   }
 

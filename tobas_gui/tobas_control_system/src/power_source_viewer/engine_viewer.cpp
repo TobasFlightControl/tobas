@@ -13,7 +13,7 @@
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 
-#define MAX_FUEL_QUANTITY 100.  // TODO: Include fuel capacity in `EngineConfig`.
+#define MAX_FUEL_QUANTITY 100.0  // TODO: Include fuel capacity in `EngineConfig`.
 
 namespace tobas
 {
@@ -59,14 +59,15 @@ void EngineViewerWidget::updateInternalDataStructures()
 
 void EngineViewerWidget::updateFuelQuantity(const double& fuel_quantity)
 {
-  const auto fuel_rate = math::remap(fuel_quantity, 0., MAX_FUEL_QUANTITY, 0., 100.);
+  const auto fuel_rate = math::remap(fuel_quantity, 0.0, MAX_FUEL_QUANTITY, 0.0, 100.0);
   fuel_quantity_->setPercentage(fuel_rate);
-  fuel_quantity_->setFormat(std::format("{:.2f} L ({:.0f} %)", fuel_quantity, std::clamp(fuel_rate, 0., 100.)).c_str());
+  fuel_quantity_->setFormat(
+    std::format("{:.2f} L ({:.0f} %)", fuel_quantity, std::clamp(fuel_rate, 0.0, 100.0)).c_str());
 
-  if (fuel_rate > 20.) {
+  if (fuel_rate > 20.0) {
     fuel_quantity_->setFillColor(Qt::green);
   }
-  else if (fuel_rate > 10.) {
+  else if (fuel_rate > 10.0) {
     fuel_quantity_->setFillColor(Qt::yellow);
   }
   else {
@@ -76,18 +77,18 @@ void EngineViewerWidget::updateFuelQuantity(const double& fuel_quantity)
 
 void EngineViewerWidget::updateOilTemperature(const double& oil_temp)
 {
-  const auto oil_temp_rate = math::remap(oil_temp, kMinOilTemp, kMaxOilTemp, 0., 100.);
+  const auto oil_temp_rate = math::remap(oil_temp, kMinOilTemp, kMaxOilTemp, 0.0, 100.0);
   oil_temp_->setPercentage(oil_temp_rate);
   oil_temp_->setFormat(std::format("{:.1f} ℃", oil_temp).c_str());
 
   // TODO: Include the proper oil temperature range in `EngineConfig`.
-  if (oil_temp < 60.) {
+  if (oil_temp < 60.0) {
     oil_temp_->setFillColor(Qt::blue);
   }
-  else if (oil_temp < 100.) {
+  else if (oil_temp < 100.0) {
     oil_temp_->setFillColor(Qt::green);
   }
-  else if (oil_temp < 120.) {
+  else if (oil_temp < 120.0) {
     oil_temp_->setFillColor(Qt::yellow);
   }
   else {

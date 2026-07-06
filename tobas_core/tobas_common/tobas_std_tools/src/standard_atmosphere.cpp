@@ -9,12 +9,12 @@
 
 #include <tobas_math/core.hpp>
 
-#define R0 6356766.                 // Earth radius at 45 degrees north latitude [m].
+#define R0 6356766.0                // Earth radius at 45 degrees north latitude [m].
 #define TROPOPAUSE_ALTITUDE 1.1e+4  // Tropopause, the boundary between the troposphere and stratosphere [m].
 
 // ICAO standard atmosphere.
 #define R 8.31432    // Gas constant [J/K/mol].
-#define P0 101325.   // Sea-level pressure [Pa].
+#define P0 101325.0  // Sea-level pressure [Pa].
 #define G 9.80665    // Gravitational acceleration [m/s^2].
 #define T0 288.15    // Sea-level temperature [K].
 #define L -0.0065    // Temperature lapse rate [K/m].
@@ -63,7 +63,7 @@ double gphToPressure(const double& gph)
 
 double pressureToTemperature(const double& p)
 {
-  assert(p > 0.);
+  assert(p > 0.0);
 
   constexpr auto exp = (L * R) / (G * M);
   return T0 * std::pow(P0 / p, exp);
@@ -77,7 +77,7 @@ double altitudeToPressure(const double& altitude)
 
 double temperatureToPressure(const double& T)
 {
-  assert(T > 0.);
+  assert(T > 0.0);
 
   constexpr auto exp = (G * M) / (L * R);
   return P0 * std::pow(T0 / T, exp);
@@ -104,12 +104,12 @@ double pressureToDensity(const double& p)
 
 double pressureToAltitude(const double& pressure)
 {
-  assert(pressure > 0.);
+  assert(pressure > 0.0);
 
   constexpr auto a = T0 / L;
   constexpr auto b = -(L * R) / (G * M);
 
-  const auto gph = a * (std::pow(pressure / P0, b) - 1.);
+  const auto gph = a * (std::pow(pressure / P0, b) - 1.0);
   assert(gph < TROPOPAUSE_ALTITUDE);  // Error is large above 11 km altitude.
 
   return gphToAltitude(gph);

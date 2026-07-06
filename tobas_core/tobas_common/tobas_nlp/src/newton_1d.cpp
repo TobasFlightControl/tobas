@@ -91,7 +91,7 @@ bool NewtonSolver1d::setMaximumIterations(size_t max_iter)
 
 bool NewtonSolver1d::setAbsoluteTolerance(double abs_tol)
 {
-  if (abs_tol <= 0.) {
+  if (abs_tol <= 0.0) {
     std::cerr << "Absolute tolerance must be positive." << std::endl;
     return false;
   }

@@ -38,8 +38,8 @@ int ChainFkSolverVel_recursive::jntToCart(const JntArray& q_in, const JntArray& 
       ++j_;  // Increase joint number only if the segment has a joint
     }
     else {
-      qj_ = 0.;
-      qdj_ = 0.;
+      qj_ = 0.0;
+      qdj_ = 0.0;
     }
     p_out_ = p_out_ * FrameVel(seg.pose(qj_), seg.twist(qj_, qdj_));
   }

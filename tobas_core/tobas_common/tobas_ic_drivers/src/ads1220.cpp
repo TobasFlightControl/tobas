@@ -67,7 +67,7 @@ bool ADS1220::readVoltage(double& dst)
 
   // Scaling.
   // TODO: Convert to the actual voltage.
-  dst = math::remap<double>(lsb, -(1 << 23), (1 << 23), 0., 2 * kVref / kGain);
+  dst = math::remap<double>(lsb, -(1 << 23), (1 << 23), 0.0, 2 * kVref / kGain);
 
   return true;
 }

@@ -26,7 +26,7 @@ mission::Land LandWidget::dump() const
   mission::Land res;
 
   res.speed = speed();
-  res.timeout = 0.;  // TODO
+  res.timeout = 0.0;  // TODO
 
   return res;
 }

@@ -204,10 +204,10 @@ inline double Frame::operator()(int i, int j)
   assert((0 <= i) && (i <= 3) && (0 <= j) && (j <= 3));
   if (i == 3) {
     if (j == 3) {
-      return 1.;
+      return 1.0;
     }
     else {
-      return 0.;
+      return 0.0;
     }
   }
   else {
@@ -225,10 +225,10 @@ inline double Frame::operator()(int i, int j) const
   assert((0 <= i) && (i <= 3) && (0 <= j) && (j <= 3));
   if (i == 3) {
     if (j == 3) {
-      return 1.;
+      return 1.0;
     }
     else {
-      return 0.;
+      return 0.0;
     }
   }
   else {

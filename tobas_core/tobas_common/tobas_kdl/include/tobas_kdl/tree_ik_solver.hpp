@@ -12,7 +12,7 @@ namespace tobas
 {
 namespace kdl
 {
-static constexpr double kDefaultWeightTS = 1.;
+static constexpr double kDefaultWeightTS = 1.0;
 static constexpr double kDefaultWeightJS = 1e-3;  // TODO: Scale by the supported weight for each joint.
 
 /**

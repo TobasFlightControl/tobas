@@ -41,7 +41,7 @@ bool TranslationalEoM::solve(
   f_W.z(std::max(f_W.z(), mass * kMinVerticalForcePerMass));
 
   // Convert the target force to the local coordinate system before roll.
-  const auto f_L = kdl::Rotation::RPY(0., tar_pitch, tar_yaw).inverse(f_W);
+  const auto f_L = kdl::Rotation::RPY(0.0, tar_pitch, tar_yaw).inverse(f_W);
   const auto& fx = f_L.x();
   const auto& fy = f_L.y();
   const auto& fz = f_L.z();
@@ -50,25 +50,25 @@ bool TranslationalEoM::solve(
   const auto cos_pitch = std::cos(tar_pitch);
   const auto sin_pitch = std::sin(tar_pitch);
   const auto den = fx * sin_pitch - fz * cos_pitch;
-  if (den == 0.) {
+  if (den == 0.0) {
     std::cerr << "Free fall is commanded." << std::endl;
     return false;
   }
-  const auto sin_phi = std::clamp(fy / den, -1., 1.);
+  const auto sin_phi = std::clamp(fy / den, -1.0, 1.0);
   const auto phi = std::asin(sin_phi);
 
   // Compute the third rotation matrix.
-  const kdl::Vector n(cos_pitch, 0., sin_pitch);
+  const kdl::Vector n(cos_pitch, 0.0, sin_pitch);
   const auto rot_x = kdl::Rotation::Rot(n, phi);
 
   // Compute the thrust sum viewed from the body coordinate system.
   const auto u = rot_x.inverse(f_L);
-  assert(math::isClose(u.y(), 0., 1e-3));
+  assert(math::isClose(u.y(), 0.0, 1e-3));
   ux_out = u.x();
   uz_out = u.z();
 
   // Compute the target attitude matrix after solving the nonlinear equation.
-  rot_out = kdl::Rotation::RPY(0., tar_pitch, tar_yaw) * rot_x;
+  rot_out = kdl::Rotation::RPY(0.0, tar_pitch, tar_yaw) * rot_x;
 
   return true;
 }

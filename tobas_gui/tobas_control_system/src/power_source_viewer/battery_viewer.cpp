@@ -57,14 +57,14 @@ void BatteryViewerWidget::updateInternalDataStructures()
 
 void BatteryViewerWidget::updateVoltage(const double& voltage)
 {
-  const auto volt_rate = math::remap(voltage, eprop_->battery.sag_voltage, eprop_->battery.max_voltage, 0., 100.);
+  const auto volt_rate = math::remap(voltage, eprop_->battery.sag_voltage, eprop_->battery.max_voltage, 0.0, 100.0);
   voltage_->setPercentage(volt_rate);
-  voltage_->setFormat(std::format("{:.2f} V ({:.0f} %)", voltage, std::clamp(volt_rate, 0., 100.)).c_str());
+  voltage_->setFormat(std::format("{:.2f} V ({:.0f} %)", voltage, std::clamp(volt_rate, 0.0, 100.0)).c_str());
 
-  if (volt_rate > 20.) {
+  if (volt_rate > 20.0) {
     voltage_->setFillColor(Qt::green);
   }
-  else if (volt_rate > 10.) {
+  else if (volt_rate > 10.0) {
     voltage_->setFillColor(Qt::yellow);
   }
   else {
@@ -74,7 +74,7 @@ void BatteryViewerWidget::updateVoltage(const double& voltage)
 
 void BatteryViewerWidget::updateCurrent(const double& current)
 {
-  const auto current_rate = math::remap(current, 0., eprop_->battery.max_current, 0., 100.);
+  const auto current_rate = math::remap(current, 0.0, eprop_->battery.max_current, 0.0, 100.0);
   current_->setPercentage(current_rate);
   current_->setFormat(std::format("{:.2f} A", current).c_str());
 

@@ -106,7 +106,7 @@ void RotorControllerNode::publishZeroThrottle()
         const auto erotor = boost::polymorphic_pointer_downcast<ElectricRotorConfig>(rotor);
         tar_speeds_msg->speeds.emplace_back();
         tar_speeds_msg->speeds.back().link_name = link_name;
-        tar_speeds_msg->speeds.back().speed = 0.;
+        tar_speeds_msg->speeds.back().speed = 0.0;
       }
 
       rotor_speeds_pub_->publish(std::move(tar_speeds_msg));
@@ -118,7 +118,7 @@ void RotorControllerNode::publishZeroThrottle()
 
       auto ice_cmd_msg = std::make_unique<tobas_msgs::msg::IcePropulsionSystemCommand>();
       ice_cmd_msg->header.stamp = now();
-      ice_cmd_msg->engine_throttle = 0.;
+      ice_cmd_msg->engine_throttle = 0.0;
       for (const auto& [link_name, rotor] : iprop->rotors) {
         const auto irotor = boost::polymorphic_pointer_downcast<IceRotorConfig>(rotor);
         ice_cmd_msg->pitch_angles.emplace_back();
@@ -181,7 +181,7 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
           TOBAS_ERROR("Electric rotor \"" + elem.link_name + "\" does not exist.");
           continue;
         }
-        const auto tar_thrust = std::max(elem.thrust, 0.);
+        const auto tar_thrust = std::max(elem.thrust, 0.0);
         const auto tar_speed = erotor->speedFromThrust(tar_thrust);
         tar_speeds_msg->speeds.emplace_back();
         tar_speeds_msg->speeds.back().link_name = elem.link_name;
@@ -198,9 +198,9 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
       const auto iprop = boost::polymorphic_pointer_downcast<IcePropulsionSystemConfig>(drone_->prop);
 
       // Calculate the total torque applied to the engine shaft and its coefficient.
-      double thrust_sum = 0.;
-      double torque_sum = 0.;
-      double K = 0.;
+      double thrust_sum = 0.0;
+      double torque_sum = 0.0;
+      double K = 0.0;
       for (const auto& elem : tar_thrusts_msg->thrusts) {
         const auto irotor = iprop->getRotor(elem.link_name);
         if (!irotor) {
@@ -209,7 +209,7 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
         }
         const auto motor_const = irotor->motorConst(irotor->center_pitch);
         const auto moment_const = irotor->momentConst(irotor->center_pitch);
-        const auto tar_thrust = std::max(elem.thrust, 0.);
+        const auto tar_thrust = std::max(elem.thrust, 0.0);
         thrust_sum += tar_thrust;
         torque_sum += moment_const * tar_thrust / irotor->gear_ratio;  // Account for gear reduction.
         K += motor_const * moment_const / math::cube(irotor->gear_ratio);
@@ -220,8 +220,8 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
       ice_cmd_msg->header = tar_thrusts_msg->header;
 
       // Determine the engine throttle and propeller pitch angles.
-      if (thrust_sum <= 0.) {
-        ice_cmd_msg->engine_throttle = 0.;
+      if (thrust_sum <= 0.0) {
+        ice_cmd_msg->engine_throttle = 0.0;
         for (const auto& elem : tar_thrusts_msg->thrusts) {
           const auto irotor = iprop->getRotor(elem.link_name);
           ice_cmd_msg->pitch_angles.emplace_back();
@@ -234,7 +234,7 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
         ice_cmd_msg->engine_throttle = iprop->engine.computeThrottle(torque_sum, engine_speed);
         for (const auto& elem : tar_thrusts_msg->thrusts) {
           const auto irotor = iprop->getRotor(elem.link_name);
-          const auto tar_thrust = std::max(elem.thrust, 0.);
+          const auto tar_thrust = std::max(elem.thrust, 0.0);
           ice_cmd_msg->pitch_angles.emplace_back();
           ice_cmd_msg->pitch_angles.back().link_name = elem.link_name;
           ice_cmd_msg->pitch_angles.back().angle = irotor->pitchFromThrust(engine_speed, tar_thrust);

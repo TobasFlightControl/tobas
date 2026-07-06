@@ -66,7 +66,7 @@ std::pair<double, double> EngineDynamicsWidget::engineConstant() const
   const auto data_mat = data_->getValue();
 
   // Extract the data.
-  const auto throttles = data_mat.col(0) / 100.;        // [-]
+  const auto throttles = data_mat.col(0) / 100.0;       // [-]
   const auto speeds = data_mat.col(1) * st::kRpmToRps;  // [rad/s]
   const auto torques = data_mat.col(2);                 // [Nm]
 

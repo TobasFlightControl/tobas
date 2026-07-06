@@ -20,10 +20,10 @@ BladeTheory::BladeTheory(int num_blades, double radius, double blade_chord, doub
   : N_(num_blades), R_(radius), c_(blade_chord), theta_(pitch_angle), rho_(air_density)
 {
   TOBAS_CHECK(num_blades > 0);
-  TOBAS_CHECK(radius > 0.);
-  TOBAS_CHECK(blade_chord > 0.);
-  TOBAS_CHECK(0. < pitch_angle && pitch_angle < M_PI_2);
-  TOBAS_CHECK(air_density > 0.);
+  TOBAS_CHECK(radius > 0.0);
+  TOBAS_CHECK(blade_chord > 0.0);
+  TOBAS_CHECK(0.0 < pitch_angle && pitch_angle < M_PI_2);
+  TOBAS_CHECK(air_density > 0.0);
 }
 
 VppMotorConstant BladeTheory::motorConst() const
@@ -42,7 +42,7 @@ VppMomentConstant BladeTheory::momentConst() const
 {
   const auto lam = lambda();
   const auto dlam = lambdaDeriv();
-  return VppMomentConstant(R_ * dlam, R_ * lam, 0., 0.);  // FIXME: Add the 1/phi term.
+  return VppMomentConstant(R_ * dlam, R_ * lam, 0.0, 0.0);  // FIXME: Add the 1/phi term.
 }
 
 VppDragConstant BladeTheory::dragConst() const
@@ -52,15 +52,15 @@ VppDragConstant BladeTheory::dragConst() const
   const auto dlam = lambdaDeriv();
 
   const auto b0 = 0.5 * gamma * (theta_ / 4 - lam / 3);
-  const auto b1c = 2 * (lam - (4. / 3) * theta_);  // divided by mu
-  const auto b1s = -(4. / 3) * b0;                 // divided by mu
+  const auto b1c = 2 * (lam - (4.0 / 3) * theta_);  // divided by mu
+  const auto b1s = -(4.0 / 3) * b0;                 // divided by mu
   const auto ch =
     (sig / 4) *
     (C_d0 + (a / 6) * (2 * theta_ * (3 * lam - 2 * b1c) + 9 * lam * b1c + 2 * b0 * b1s + 3 * math::sqr(b0)));
 
-  const auto db0 = (gamma / 2) * (1. / 4 - dlam / 3);
-  const auto db1c = 2 * (dlam - 4. / 3);
-  const auto db1s = -(4. / 3) * db0;
+  const auto db0 = (gamma / 2) * (1.0 / 4 - dlam / 3);
+  const auto db1c = 2 * (dlam - 4.0 / 3);
+  const auto db1s = -(4.0 / 3) * db0;
   const auto dch = (a * sig / 24) * ((6 * lam - 4 * b1c) + (3 * theta_ + 9 * b1c) * dlam + (6 * b0 + 2 * b1s) * db0 +
                                      (9 * lam - 2 * theta_) * db1c + 2 * b0 * db1s);
 

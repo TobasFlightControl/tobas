@@ -32,7 +32,7 @@ bool RotationalInertia::isValid(string& error_msg) const
   const auto& i3 = eigvals.z();
 
   // Check that the matrix is positive-definite.
-  if (i1 <= 0. || i2 <= 0. || i3 <= 0.) {
+  if (i1 <= 0.0 || i2 <= 0.0 || i3 <= 0.0) {
     error_msg = "Inertia matrix must be positive-definite.";
     return false;
   }

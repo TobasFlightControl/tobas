@@ -18,9 +18,9 @@ TakeoffMaxAccelWidget::TakeoffMaxAccelWidget()
   // https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_ACC_UP_MAX
   spin_box_ = new qt::DoubleSpinBox();
   spin_box_->setDecimals(1);
-  spin_box_->setMinimum(1.);
-  spin_box_->setMaximum(15.);
-  spin_box_->setValue(4.);
+  spin_box_->setMinimum(1.0);
+  spin_box_->setMaximum(15.0);
+  spin_box_->setValue(4.0);
   spin_box_->setSuffix(" m/s²");
 
   const auto cols = new QHBoxLayout();

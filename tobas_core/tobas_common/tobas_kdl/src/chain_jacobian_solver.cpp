@@ -58,7 +58,7 @@ int ChainJacobianSolver::jntToJac(const JntArray& q_in, int _seg_nr)
     const auto& seg = chain_.getSegment(i);
 
     // Calculate new Frame_base_ee
-    const auto qj = seg.joint().type != Joint::kFixed ? q_in(j_) : 0.;
+    const auto qj = seg.joint().type != Joint::kFixed ? q_in(j_) : 0.0;
     const auto T_total = T_tmp_ * seg.pose(qj);  // pose of the new end-point expressed in the base
 
     // Changing Refpoint of all columns to new ee

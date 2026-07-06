@@ -30,7 +30,7 @@ class ImuHandlerNode : public BaseNode
   using SetParams = tobas_real_msgs::srv::SetImuParams;
 
   static constexpr int kMeasureGyroBiasCount = 1000;  // [-]
-  static constexpr double kGyroLpfCutoff = 30.;       // [Hz]
+  static constexpr double kGyroLpfCutoff = 30.0;      // [Hz]
   static constexpr auto kMotionDetectedDeadTime = 3s;
 
 public:

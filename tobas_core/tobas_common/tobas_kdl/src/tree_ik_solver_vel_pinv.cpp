@@ -80,10 +80,10 @@ int TreeIkSolverVel_pinv::cartToJnt(const JntArray& q_in, const TwistMap& v_in)
     // If the joint angle limit is already exceeded,
     // constrain the velocity so the violation does not increase further.
     if (q_in(j) < jntparser_.lowerLimit(j)) {
-      qd_min(j) = 0.;
+      qd_min(j) = 0.0;
     }
     else if (q_in(j) > jntparser_.upperLimit(j)) {
-      qd_max(j) = 0.;
+      qd_max(j) = 0.0;
     }
   }
   quadprog::matIneqFromRange(qd_min.data, qd_max.data, qp_solver_.problem.A, qp_solver_.problem.b);

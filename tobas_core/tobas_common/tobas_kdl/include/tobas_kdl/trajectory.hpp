@@ -15,7 +15,7 @@ class CycloidGenerator3d
 public:
   explicit CycloidGenerator3d();
 
-  bool generate(const kdl::Vector& p0, const kdl::Vector& pf, const double& T, const double& h, const double& k = 5.);
+  bool generate(const kdl::Vector& p0, const kdl::Vector& pf, const double& T, const double& h, const double& k = 5.0);
 
   /**
    * @brief Get the trajectory at time `t`.

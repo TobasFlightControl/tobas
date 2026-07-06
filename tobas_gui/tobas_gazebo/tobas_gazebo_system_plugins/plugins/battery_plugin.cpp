@@ -96,8 +96,8 @@ void GazeboBatteryPlugin::Configure(
   q_ = capacity_;
   rate_manager_ = std::make_shared<RateManager>(update_rate_);
 
-  voltage_noise_ = NormalDistribution(0., voltage_noise_stddev_);
-  current_noise_ = NormalDistribution(0., current_noise_stddev_);
+  voltage_noise_ = NormalDistribution(0.0, voltage_noise_stddev_);
+  current_noise_ = NormalDistribution(0.0, current_noise_stddev_);
 
   battery_pub_ = createPublisher<tobas_msgs::msg::Battery>(topic::kBattery);
   battery_gt_pub_ = createPublisher<tobas_msgs::msg::Battery>(kBatteryGtTopic);
@@ -108,7 +108,7 @@ void GazeboBatteryPlugin::Configure(
     const ros2::qos::QoS qos(false, false, 1);
     const auto cb = [this, link_name](const tobas_gazebo_msgs::msg::RotorState::ConstSharedPtr& msg)
     {
-      if (msg->current < 0.) {
+      if (msg->current < 0.0) {
         TOBAS_WARN("Battery current must be non-negative.");
       }
       rotor_currents_[link_name] = msg->current;
@@ -134,23 +134,23 @@ void GazeboBatteryPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::
   }
 
   // Compute current.
-  double current_true = 0.;
+  double current_true = 0.0;
   for (const auto& [_, current] : rotor_currents_) {
     current_true += current;
   }
   if (current_true > max_current_) {
     TOBAS_WARN_THROTTLE(kWarnPeriod, "The battery current is over limit: ", current_true, " > ", max_current_, " [A]");
   }
-  const auto current_obs = std::max(current_true + current_noise_(rnd_gen_), 0.);
+  const auto current_obs = std::max(current_true + current_noise_(rnd_gen_), 0.0);
 
   // Decrease in electrical capacity.
   const auto dt = ch::duration<double>(info.dt).count();
-  q_ = std::max(q_ - current_true * dt, 0.);
+  q_ = std::max(q_ - current_true * dt, 0.0);
 
   // Compute voltage.
   const auto voltage_in = currentVoltage();
-  const auto voltage_out = std::max(voltage_in - registance_ * current_true, 0.);
-  const auto voltage_obs = std::max(voltage_out + voltage_noise_(rnd_gen_), 0.);
+  const auto voltage_out = std::max(voltage_in - registance_ * current_true, 0.0);
+  const auto voltage_obs = std::max(voltage_out + voltage_noise_(rnd_gen_), 0.0);
 
   // Publish the observed battery state.
   auto battery = std::make_unique<tobas_msgs::msg::Battery>();

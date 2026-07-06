@@ -109,7 +109,7 @@ void WaitSpinnerWidget::setColor(QColor color)
 
 void WaitSpinnerWidget::setRoundness(double roundness)
 {
-  roundness_ = std::max(0., std::min(100., roundness));
+  roundness_ = std::max(0.0, std::min(100.0, roundness));
 }
 
 void WaitSpinnerWidget::setMinimumTrailOpacity(double min_trail_opacity)
@@ -250,8 +250,8 @@ QColor WaitSpinnerWidget::currentLineColor(
     return color;
   }
 
-  const auto min_alpha_f = min_opacity / 100.;
-  const auto dist_thresh = static_cast<int>(ceil((total_num_lines - 1) * trail_fade_perc / 100.));
+  const auto min_alpha_f = min_opacity / 100.0;
+  const auto dist_thresh = static_cast<int>(ceil((total_num_lines - 1) * trail_fade_perc / 100.0));
 
   if (count_dist > dist_thresh) {
     color.setAlphaF(min_alpha_f);
@@ -262,7 +262,7 @@ QColor WaitSpinnerWidget::currentLineColor(
     auto result_alpha = color.alphaF() - gradient * count_dist;
 
     // If alpha is out of bounds, clip it.
-    result_alpha = std::min(1., std::max(0., result_alpha));
+    result_alpha = std::min(1.0, std::max(0.0, result_alpha));
     color.setAlphaF(result_alpha);
   }
 

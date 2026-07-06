@@ -17,7 +17,7 @@ bool PwmConfig::isValid() const
     return false;
   }
 
-  if (period_range.first <= 0. || period_range.second <= 0.) {
+  if (period_range.first <= 0.0 || period_range.second <= 0.0) {
     cerr << "PWM period range of \"" << name << "\" must be positive." << endl;
     return false;
   }

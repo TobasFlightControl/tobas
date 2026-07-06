@@ -14,16 +14,16 @@ namespace dsp
 {
 double prewarp(double wc, double dt)
 {
-  assert(wc > 0.);
-  assert(dt > 0.);
+  assert(wc > 0.0);
+  assert(dt > 0.0);
 
-  const auto dt_2 = dt / 2.;
+  const auto dt_2 = dt / 2.0;
   return std::tan(wc * dt_2) / dt_2;
 }
 
 double cutoffFromTimeConst(double tau)
 {
-  return 1. / (M_2PI * tau);
+  return 1.0 / (M_2PI * tau);
 }
 }  // namespace dsp
 }  // namespace tobas

@@ -20,8 +20,8 @@ AltitudeToleranceWidget::AltitudeToleranceWidget()
   spin_box_ = new qt::DoubleSpinBox();
   spin_box_->setDecimals(2);
   spin_box_->setMinimum(0.05);
-  spin_box_->setMaximum(200.);
-  spin_box_->setValue(2.);
+  spin_box_->setMaximum(200.0);
+  spin_box_->setValue(2.0);
   spin_box_->setSuffix(" m");
 
   const auto cols = new QHBoxLayout();

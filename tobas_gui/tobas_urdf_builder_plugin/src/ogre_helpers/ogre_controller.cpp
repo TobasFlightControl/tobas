@@ -100,7 +100,7 @@ void OgreController::reloadRobot(const view_model::URDFViewModel& vm)
     }
 
     if (hidden_links_.find(name) != hidden_links_.end()) {
-      link->setRobotAlpha(0.);
+      link->setRobotAlpha(0.0);
     }
     else {
       link->setRobotAlpha(kDefaultRobotAlpha);
@@ -168,7 +168,7 @@ void OgreController::show(const std::string& link_name)
 void OgreController::hide(const std::string& link_name)
 {
   const auto link = pimpl_->rviz.robot->getLink(link_name);
-  link->setRobotAlpha(0.);
+  link->setRobotAlpha(0.0);
   hidden_links_.insert(link_name);
 }
 

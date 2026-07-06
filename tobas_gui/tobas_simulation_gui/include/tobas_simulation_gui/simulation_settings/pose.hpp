@@ -21,8 +21,8 @@ class PoseWidget : public QWidget
   using self = PoseWidget;
   using super = QWidget;
 
-  static constexpr std::array<double, 3> kDefaultXYZ = { 0., 0., 0.5 };  // [m]
-  static constexpr std::array<int, 3> kDefaultRPY = { 0, 0, 0 };         // [deg]
+  static constexpr std::array<double, 3> kDefaultXYZ = { 0.0, 0.0, 0.5 };  // [m]
+  static constexpr std::array<int, 3> kDefaultRPY = { 0, 0, 0 };           // [deg]
 
 public:
   explicit PoseWidget();

@@ -19,7 +19,7 @@ public:
     const rclcpp::Node::SharedPtr& node,
     const std::string& ros_name = "robot_description",
     bool default_continuous_value = false,
-    double default_timeout = 10.);
+    double default_timeout = 10.0);
 
   const urdf::ModelInterfaceSharedPtr& getURDF() const;
   void setNewModelCallback(const NewModelCallback& cb);

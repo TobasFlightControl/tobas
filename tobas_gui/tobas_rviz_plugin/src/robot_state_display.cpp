@@ -38,8 +38,8 @@ RobotStateDisplay::RobotStateDisplay()
 
   robot_alpha_property_ = new rviz_common::properties::FloatProperty(
     "Robot Alpha", 1.0f, "Specifies the alpha for the robot links", this, SLOT(changedRobotSceneAlpha()), this);
-  robot_alpha_property_->setMin(0.);
-  robot_alpha_property_->setMax(1.);
+  robot_alpha_property_->setMin(0.0);
+  robot_alpha_property_->setMax(1.0);
 
   enable_link_highlight_ = new rviz_common::properties::BoolProperty(
     "Show Highlights",

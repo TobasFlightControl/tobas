@@ -77,9 +77,9 @@ private:
   const bool disable_parent_when_spinning_;
 
   QColor color_ = Qt::black;
-  double roundness_ = 100.;  // 0..100
+  double roundness_ = 100.0;  // 0..100
   double min_trail_opacity_ = M_PI;
-  double trail_fade_perc_ = 80.;
+  double trail_fade_perc_ = 80.0;
   double revolutions_per_sec_ = M_PI_2;
   int num_lines_ = 20;
   int line_length_ = 10;

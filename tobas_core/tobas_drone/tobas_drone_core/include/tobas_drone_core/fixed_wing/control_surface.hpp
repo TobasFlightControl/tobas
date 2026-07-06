@@ -35,12 +35,12 @@ class ControlSurface
 public:
   std::string link_name = "";
 
-  double c_lift_delta = 0.;      // [/rad]
-  double c_drag_abs_delta = 0.;  // [/rad]
-  double c_side_delta = 0.;      // [/rad]
-  double c_roll_delta = 0.;      // [/rad]
-  double c_pitch_delta = 0.;     // [/rad]
-  double c_yaw_delta = 0.;       // [/rad]
+  double c_lift_delta = 0.0;      // [/rad]
+  double c_drag_abs_delta = 0.0;  // [/rad]
+  double c_side_delta = 0.0;      // [/rad]
+  double c_roll_delta = 0.0;      // [/rad]
+  double c_pitch_delta = 0.0;     // [/rad]
+  double c_yaw_delta = 0.0;       // [/rad]
 
   bool isValid() const;
 

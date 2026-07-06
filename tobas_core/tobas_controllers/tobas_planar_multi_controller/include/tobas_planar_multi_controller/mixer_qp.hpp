@@ -39,7 +39,7 @@ public:
 private:
   struct Config
   {
-    double base_weight = 1.;
+    double base_weight = 1.0;
     double thrust_weight = 1e-9;
   } cfg_;
 

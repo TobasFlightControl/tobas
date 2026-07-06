@@ -18,9 +18,9 @@ TakeoffMaxJerkWidget::TakeoffMaxJerkWidget()
   // https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_JERK_AUTO
   spin_box_ = new qt::DoubleSpinBox();
   spin_box_->setDecimals(1);
-  spin_box_->setMinimum(1.);
-  spin_box_->setMaximum(80.);
-  spin_box_->setValue(4.);
+  spin_box_->setMinimum(1.0);
+  spin_box_->setMaximum(80.0);
+  spin_box_->setValue(4.0);
   spin_box_->setSuffix(" m/s³");
 
   const auto cols = new QHBoxLayout();

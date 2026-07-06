@@ -19,8 +19,8 @@ class ImuNoiseFilter : public BaseNode
   using self = ImuNoiseFilter;
   using super = BaseNode;
 
-  static constexpr size_t kWindowSize = 400;    // 1 second at 400 Hz
-  static constexpr double kHpfCutoffFreq = 1.;  // [Hz]
+  static constexpr size_t kWindowSize = 400;     // 1 second at 400 Hz
+  static constexpr double kHpfCutoffFreq = 1.0;  // [Hz]
 
 public:
   explicit ImuNoiseFilter(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());

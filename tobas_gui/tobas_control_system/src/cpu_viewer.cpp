@@ -40,32 +40,32 @@ void CpuViewerWidget::reset()
 
 void CpuViewerWidget::cpuCb(const tobas_msgs::msg::Cpu::ConstSharedPtr& cpu)
 {
-  const auto temp_rate = math::remap(cpu->temperature, kMinTemp, kMaxTemp, 0., 100.);
+  const auto temp_rate = math::remap(cpu->temperature, kMinTemp, kMaxTemp, 0.0, 100.0);
   temp_->setPercentage(temp_rate);
   temp_->setFormat(std::format("{:.0f} ℃", cpu->temperature).c_str());
-  if (cpu->temperature > 85.) {
+  if (cpu->temperature > 85.0) {
     temp_->setFillColor(Qt::magenta);
   }
-  else if (cpu->temperature > 80.) {
+  else if (cpu->temperature > 80.0) {
     temp_->setFillColor(Qt::red);
   }
-  else if (cpu->temperature > 60.) {
+  else if (cpu->temperature > 60.0) {
     temp_->setFillColor(Qt::yellow);
   }
-  else if (cpu->temperature > 0.) {
+  else if (cpu->temperature > 0.0) {
     temp_->setFillColor(Qt::green);
   }
   else {
     temp_->setFillColor(Qt::blue);
   }
 
-  const auto load_percent = cpu->load * 100.;
+  const auto load_percent = cpu->load * 100.0;
   load_->setPercentage(load_percent);
   load_->setFormat(std::format("{:.0f} %", load_percent).c_str());
-  if (load_percent > 80.) {
+  if (load_percent > 80.0) {
     load_->setFillColor(Qt::red);
   }
-  else if (load_percent > 60.) {
+  else if (load_percent > 60.0) {
     load_->setFillColor(Qt::yellow);
   }
   else {

@@ -88,7 +88,8 @@ bool QpMixer::solve(
   // Right-hand side of the translational EoM.
   const kdl::Vector grav_W(0, 0, -st::kGravity);
   auto eom_trans_right_W = mass * (tar_acc_W - grav_W) - ext_force_W;  // [N]
-  eom_trans_right_W.z(max(eom_trans_right_W.z(), 0.));  // Limit thrust so that it is not generated vertically downward.
+  eom_trans_right_W.z(
+    max(eom_trans_right_W.z(), 0.0));  // Limit thrust so that it is not generated vertically downward.
   h_.head<3>() = cur_rot.inverse(eom_trans_right_W).data;
 
   // Right-hand side of the rotational EoM.
@@ -121,8 +122,8 @@ bool QpMixer::solve(
       qp_.problem.b(drone_.prop->numRotors() + idx) = -drone_.prop->minThrust(rotor->link_name);
     }
     else {
-      qp_.problem.b(idx) = 0.;
-      qp_.problem.b(drone_.prop->numRotors() + idx) = 0.;
+      qp_.problem.b(idx) = 0.0;
+      qp_.problem.b(drone_.prop->numRotors() + idx) = 0.0;
     }
   }
 
@@ -147,7 +148,7 @@ double QpMixer::getThrust(size_t idx) const
 
 bool QpMixer::setLinearWeight(double p)
 {
-  if (p <= 0.) {
+  if (p <= 0.0) {
     cerr << "Linear weight must be positive." << endl;
     return false;
   }
@@ -158,7 +159,7 @@ bool QpMixer::setLinearWeight(double p)
 
 bool QpMixer::setAngularWeight(double p)
 {
-  if (p <= 0.) {
+  if (p <= 0.0) {
     cerr << "Angular weight must be positive." << endl;
     return false;
   }
@@ -169,7 +170,7 @@ bool QpMixer::setAngularWeight(double p)
 
 bool QpMixer::setThrustWeight(double p)
 {
-  if (p <= 0.) {
+  if (p <= 0.0) {
     cerr << "Thrust weight must be positive." << endl;
     return false;
   }

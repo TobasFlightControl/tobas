@@ -49,7 +49,7 @@ private:
   std::shared_ptr<gz::sim::Joint> joint_;
   const cmp::JointTransmittedWrench* jnt_eff_;
 
-  double tar_eff_ = 0.;
+  double tar_eff_ = 0.0;
 
   ros2::SubscriberPtr<tobas_gazebo_msgs::msg::JointCommand> cmd_sub_;
 

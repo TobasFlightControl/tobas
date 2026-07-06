@@ -32,7 +32,7 @@ bool TranslationalEoM::solve(
   const auto xyz = mass_holder_.getMass() * (tar_acc_W - grav_W_) - ext_force_W;
   const auto x = xyz.x();
   const auto y = xyz.y();
-  const auto z = std::max(xyz.z(), 0.);  // Thrust cannot be generated vertically downward.
+  const auto z = std::max(xyz.z(), 0.0);  // Thrust cannot be generated vertically downward.
 
   // Compute current Euler angles.
   cur_rot.getRPY(roll_, pitch_, yaw_);

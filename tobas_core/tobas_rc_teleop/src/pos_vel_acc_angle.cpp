@@ -40,22 +40,23 @@ void PosVelAccAngleController::initialize(BaseNode* node, FlightMode mode)
   node->addDynamicDoubleParam(
     addMode("max_horizontal_velocity", mode), &self::maxHorizontalVelocityCb, this, 0.5, 12, 0, 20, " m/s");
   node->addDynamicDoubleParam(
-    addMode("max_horizontal_jerk", mode), &self::maxHorizontalJerkCb, this, 5., 8, 1, 20, " m/s^3");
+    addMode("max_horizontal_jerk", mode), &self::maxHorizontalJerkCb, this, 5.0, 8, 1, 20, " m/s^3");
   node->addDynamicDoubleParam(
     addMode("max_vertical_velocity", mode), &self::maxVerticalVelocityCb, this, 0.5, 8, 0, 20, " m/s");
   node->addDynamicDoubleParam(
-    addMode("max_vertical_jerk", mode), &self::maxVerticalJerkCb, this, 5., 8, 1, 20, " m/s^3");
-  node->addDynamicDoubleParam(addMode("max_attitude", mode), &self::maxAttitudeCb, this, 15., 6, 1, 12, " deg");
-  node->addDynamicDoubleParam(addMode("max_attitude_rate", mode), &self::maxAttitudeRateCb, this, 15., 6, 1, 12, " dps");
-  node->addDynamicDoubleParam(addMode("max_heading_rate", mode), &self::maxHeadingRateCb, this, 15., 6, 1, 12, " dps");
+    addMode("max_vertical_jerk", mode), &self::maxVerticalJerkCb, this, 5.0, 8, 1, 20, " m/s^3");
+  node->addDynamicDoubleParam(addMode("max_attitude", mode), &self::maxAttitudeCb, this, 15.0, 6, 1, 12, " deg");
+  node->addDynamicDoubleParam(
+    addMode("max_attitude_rate", mode), &self::maxAttitudeRateCb, this, 15.0, 6, 1, 12, " dps");
+  node->addDynamicDoubleParam(addMode("max_heading_rate", mode), &self::maxHeadingRateCb, this, 15.0, 6, 1, 12, " dps");
   node->addDynamicDoubleParam(
     addMode("max_position_error_down", mode), &self::maxPositionErrorDown, this, 0.5, 4, 0, 20, " m");
   node->addDynamicDoubleParam(
-    addMode("horizontal_velocity_expo", mode), &self::horizontalVelocityExpoCb, this, 5., -6, -20, 20);
+    addMode("horizontal_velocity_expo", mode), &self::horizontalVelocityExpoCb, this, 5.0, -6, -20, 20);
   node->addDynamicDoubleParam(
-    addMode("vertical_velocity_expo", mode), &self::verticalVelocityExpoCb, this, 5., 0, -20, 20);
-  node->addDynamicDoubleParam(addMode("attitude_expo", mode), &self::attitudeExpoCb, this, 5., 0, -20, 20);
-  node->addDynamicDoubleParam(addMode("heading_expo", mode), &self::headingExpoCb, this, 5., -3, -20, 20);
+    addMode("vertical_velocity_expo", mode), &self::verticalVelocityExpoCb, this, 5.0, 0, -20, 20);
+  node->addDynamicDoubleParam(addMode("attitude_expo", mode), &self::attitudeExpoCb, this, 5.0, 0, -20, 20);
+  node->addDynamicDoubleParam(addMode("heading_expo", mode), &self::headingExpoCb, this, 5.0, -3, -20, 20);
 
   pos_vel_acc_pub_ = node->createPublisher<tobas_command_msgs::PosVelAcc>(topic::kPosVelAccCmd);
   angle_pub_ = node->createPublisher<tobas_command_msgs::Angle>(topic::kAngleCmd);
@@ -70,16 +71,16 @@ void PosVelAccAngleController::reset(
 
   const auto [roll, pitch, yaw] = setpoint.frame.M.getRPY();
 
-  const auto R_G_B = kdl::Rotation::RPY(roll, pitch, 0.);
+  const auto R_G_B = kdl::Rotation::RPY(roll, pitch, 0.0);
   const auto tar_vel_G = R_G_B * setpoint.twist.vel;
-  vx_filt_.resetCurrentTrajectoryPoint(tar_vel_G.x(), 0.);
-  vy_filt_.resetCurrentTrajectoryPoint(tar_vel_G.y(), 0.);
-  vz_filt_.resetCurrentTrajectoryPoint(tar_vel_G.z(), 0.);
+  vx_filt_.resetCurrentTrajectoryPoint(tar_vel_G.x(), 0.0);
+  vy_filt_.resetCurrentTrajectoryPoint(tar_vel_G.y(), 0.0);
+  vz_filt_.resetCurrentTrajectoryPoint(tar_vel_G.z(), 0.0);
 
   tar_pos_W_ = setpoint.frame.p;
 
   if (landed) {
-    vz_filt_.resetCurrentTrajectoryPoint(-max_ver_vel_, 0.);
+    vz_filt_.resetCurrentTrajectoryPoint(-max_ver_vel_, 0.0);
     tar_pos_W_.z() -= max_ep_down_;
   }
 
@@ -99,15 +100,15 @@ void PosVelAccAngleController::update(const tobas_msgs::RCInput& rcin, const tob
   {
     vx_filt_.update(expoRemap(rcin.pitch, hor_vel_expo_, -max_hor_vel_, max_hor_vel_), dt);
     vy_filt_.update(-expoRemap(rcin.roll, hor_vel_expo_, -max_hor_vel_, max_hor_vel_), dt);
-    roll_filt_.setTargetPointAndUpdate(0., dt);
-    pitch_filt_.setTargetPointAndUpdate(0., dt);
+    roll_filt_.setTargetPointAndUpdate(0.0, dt);
+    pitch_filt_.setTargetPointAndUpdate(0.0, dt);
   }
   else  // Rotation mode
   {
     roll_filt_.setTargetPointAndUpdate(expoRemapDead(rcin.roll, atti_expo_, -max_attitude_, max_attitude_), dt);
     pitch_filt_.setTargetPointAndUpdate(expoRemapDead(rcin.pitch, atti_expo_, -max_attitude_, max_attitude_), dt);
-    vx_filt_.update(0., dt);
-    vy_filt_.update(0., dt);
+    vx_filt_.update(0.0, dt);
+    vy_filt_.update(0.0, dt);
   }
 
   // Vertical velocity

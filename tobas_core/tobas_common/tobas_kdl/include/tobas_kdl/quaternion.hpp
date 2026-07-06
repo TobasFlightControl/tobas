@@ -136,7 +136,7 @@ inline Quaternion Quaternion::normalize() const
 
 inline bool Quaternion::isNormalized() const
 {
-  return math::isClose(this->squaredNorm(), 1.);
+  return math::isClose(this->squaredNorm(), 1.0);
 }
 
 inline Quaternion Quaternion::differential(const Vector& angvel) const

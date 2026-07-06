@@ -20,9 +20,9 @@ MaxVerticalAccelWidget::MaxVerticalAccelWidget()
   // TODO: Use separate settings for ascent and descent.
   spin_box_ = new qt::DoubleSpinBox();
   spin_box_->setDecimals(1);
-  spin_box_->setMinimum(2.);
-  spin_box_->setMaximum(15.);
-  spin_box_->setValue(3.);
+  spin_box_->setMinimum(2.0);
+  spin_box_->setMaximum(15.0);
+  spin_box_->setValue(3.0);
   spin_box_->setSuffix(" m/s²");
 
   const auto cols = new QHBoxLayout();

@@ -44,7 +44,7 @@ bool Ellipsoid::initialize(const EllipsoidCoefficients& coefs)
 
   // Calculate radii along the principal axes.
   const Vector3d r2 = W * Lam_inv;
-  if (!(r2.array() > 0.).all()) {
+  if (!(r2.array() > 0.0).all()) {
     std::cerr << "The given equation does not define an ellipsoid." << std::endl;
     return false;
   }

@@ -44,7 +44,7 @@ bool PositionPDD2::setNaturalFreq(int idx, double value)
     return false;
   }
 
-  if (value <= 0.) {
+  if (value <= 0.0) {
     cerr << "Natural frequency must be positive." << endl;
     return false;
   }
@@ -61,7 +61,7 @@ bool PositionPDD2::setInertiaRatio(int idx, double value)
     return false;
   }
 
-  if (value <= 0.) {
+  if (value <= 0.0) {
     cerr << "Inertia ratio must be positive." << endl;
     return false;
   }
@@ -78,7 +78,7 @@ bool PositionPDD2::setDampingRatio(int idx, double value)
     return false;
   }
 
-  if (value <= 0.) {
+  if (value <= 0.0) {
     cerr << "Damping ratio must be positive." << endl;
     return false;
   }

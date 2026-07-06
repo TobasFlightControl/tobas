@@ -24,8 +24,8 @@ public:
   void step(double dt);
 
 private:
-  double cur_pos_ = 0.;
-  double tar_pos_ = 0.;
+  double cur_pos_ = 0.0;
+  double tar_pos_ = 0.0;
 };
 }  // namespace gazebo
 }  // namespace tobas

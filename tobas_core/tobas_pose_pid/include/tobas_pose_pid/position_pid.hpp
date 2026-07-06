@@ -32,13 +32,13 @@ public:
 
 private:
   // Gain
-  kdl::Vector kp_ = { 1., 1., 1. };  // [/s^2]
-  kdl::Vector ki_ = { 0., 0., 0. };  // [/s^3]
-  kdl::Vector kd_ = { 2., 2., 2. };  // [/s]
+  kdl::Vector kp_ = { 1.0, 1.0, 1.0 };  // [/s^2]
+  kdl::Vector ki_ = { 0.0, 0.0, 0.0 };  // [/s^3]
+  kdl::Vector kd_ = { 2.0, 2.0, 2.0 };  // [/s]
 
   // Second-order form
-  kdl::Vector natural_freq_ = { 1., 1., 1. };  // [rad/s]
-  kdl::Vector damp_ratio_ = { 1., 1., 1. };    // [-]
+  kdl::Vector natural_freq_ = { 1.0, 1.0, 1.0 };  // [rad/s]
+  kdl::Vector damp_ratio_ = { 1.0, 1.0, 1.0 };    // [-]
 
   // Limit
   kdl::Vector max_i_acc_ = { INFINITY, INFINITY, INFINITY };

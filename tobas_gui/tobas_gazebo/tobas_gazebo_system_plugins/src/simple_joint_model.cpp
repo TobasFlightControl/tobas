@@ -15,10 +15,10 @@ SimpleJointModel::SimpleJointModel(double _min_pos, double _max_pos, double _max
   : pos_limit(_min_pos, _max_pos), max_vel(_max_vel)
 {
   assert(pos_limit.isValid());
-  assert(max_vel >= 0.);
+  assert(max_vel >= 0.0);
 }
 
-SimpleJointModel::SimpleJointModel() : SimpleJointModel(0., 0., 0.)
+SimpleJointModel::SimpleJointModel() : SimpleJointModel(0.0, 0.0, 0.0)
 {
 }
 
@@ -40,7 +40,7 @@ void SimpleJointModel::setTargetPosition(double tar_pos)
 
 void SimpleJointModel::step(double dt)
 {
-  assert(dt >= 0.);
+  assert(dt >= 0.0);
 
   // Velocity limit.
   const auto ideal_delta_angle = tar_pos_ - cur_pos_;

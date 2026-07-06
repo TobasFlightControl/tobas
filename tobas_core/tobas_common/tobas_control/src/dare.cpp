@@ -29,7 +29,7 @@ dare(const MatrixXd& A, const MatrixXd& B, const MatrixXd& Q, const MatrixXd& R,
   assert(isControllable(A, B));
   assert(eigen::isSymmetricSemiPositiveDefinite(Q));
   assert(eigen::isSymmetricPositiveDefinite(R));
-  assert(tol > 0.);
+  assert(tol > 0.0);
 
   const MatrixXd I = MatrixXd::Identity(n, n);
   MatrixXd X_prev = MatrixXd::Zero(n, n);

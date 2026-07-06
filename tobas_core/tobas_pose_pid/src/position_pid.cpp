@@ -27,7 +27,7 @@ kdl::Vector PositionPID::update(
   const auto ed = tar_vel - cur_vel;
 
   for (size_t i = 0; i < 3; ++i) {
-    if (ki_(i) > 0.) {  // When using integral control
+    if (ki_(i) > 0.0) {  // When using integral control
       // Accumulate integral error
       const auto next_ei = ei_(i) + ep(i) * dt;
       ei_(i) = clamp(next_ei, -max_i_acc_(i), max_i_acc_(i));
@@ -35,7 +35,7 @@ kdl::Vector PositionPID::update(
     else  // When not using integral control
     {
       // Reset integral error
-      ei_(i) = 0.;
+      ei_(i) = 0.0;
     }
   }
 
@@ -49,7 +49,7 @@ bool PositionPID::setProportionalGain(int idx, double value)
     return false;
   }
 
-  if (value < 0.) {
+  if (value < 0.0) {
     cerr << "Proportional gain must be non-negative." << endl;
     return false;
   }
@@ -65,7 +65,7 @@ bool PositionPID::setIntegralGain(int idx, double value)
     return false;
   }
 
-  if (value < 0.) {
+  if (value < 0.0) {
     cerr << "Integral gain must be non-negative." << endl;
     return false;
   }
@@ -81,7 +81,7 @@ bool PositionPID::setDerivativeGain(int idx, double value)
     return false;
   }
 
-  if (value < 0.) {
+  if (value < 0.0) {
     cerr << "Derivative gain must be non-negative." << endl;
     return false;
   }
@@ -97,7 +97,7 @@ bool PositionPID::setNaturalFreq(int idx, double value)
     return false;
   }
 
-  if (value < 0.) {
+  if (value < 0.0) {
     cerr << "Natural frequency must be non-negative." << endl;
     return false;
   }
@@ -114,7 +114,7 @@ bool PositionPID::setDampingRatio(int idx, double value)
     return false;
   }
 
-  if (value < 0.) {
+  if (value < 0.0) {
     cerr << "Damping ratio must be non-negative." << endl;
     return false;
   }
@@ -131,7 +131,7 @@ bool PositionPID::setMaxIntegralAccel(int idx, double value)
     return false;
   }
 
-  if (value <= 0.) {
+  if (value <= 0.0) {
     cerr << "Maximum acceleration must be positive." << endl;
     return false;
   }

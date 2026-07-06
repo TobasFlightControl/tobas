@@ -26,32 +26,32 @@ bool ElectricRotorConfig::isValid() const
     return false;
   }
 
-  if (kv <= 0.) {
+  if (kv <= 0.0) {
     cerr << "Kv value must be positive." << endl;
     return false;
   }
 
-  if (internal_resistance <= 0.) {
+  if (internal_resistance <= 0.0) {
     cerr << "Internal resistance must be positive." << endl;
     return false;
   }
 
-  if (min_speed < 0.) {
+  if (min_speed < 0.0) {
     cerr << "Minimum rotation speed must be non-negative." << endl;
     return false;
   }
 
-  if (propeller_diameter <= 0.) {
+  if (propeller_diameter <= 0.0) {
     cerr << "Propeller diameter must be positive." << endl;
     return false;
   }
 
-  if (motor_const <= 0.) {
+  if (motor_const <= 0.0) {
     cerr << "Motor constant must be positive." << endl;
     return false;
   }
 
-  if (moment_const <= 0.) {
+  if (moment_const <= 0.0) {
     cerr << "Moment constant must be positive." << endl;
     return false;
   }

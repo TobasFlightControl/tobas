@@ -71,14 +71,14 @@ void LQR::checkProblemValidity()
   assert(dynamics.isFinite());
 
   assert(state_scale.rows() == x_size);
-  assert((state_scale.array() > 0.).all());
+  assert((state_scale.array() > 0.0).all());
   assert(input_scale.rows() == u_size);
-  assert((input_scale.array() > 0.).all());
+  assert((input_scale.array() > 0.0).all());
 
   assert(state_weight.rows() == x_size);
-  assert((state_weight.array() >= 0.).all());
+  assert((state_weight.array() >= 0.0).all());
   assert(input_weight.rows() == u_size);
-  assert((input_weight.array() > 0.).all());
+  assert((input_weight.array() > 0.0).all());
 }
 
 ostream& operator<<(ostream& os, const LQR& arg)

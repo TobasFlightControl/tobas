@@ -35,8 +35,8 @@ class GazeboSuspendedLoadPlugin : public BaseNode,
 {
   static constexpr char kPluginName[] = "gazebo_suspended_load_plugin";
   static constexpr char kLoadNamePrefix[] = "load_";
-  static constexpr double kStopLoadRotationTimeConst = 10.;  // [s]
-  static constexpr int kUpdateMarkerRate = 60;               // [Hz]
+  static constexpr double kStopLoadRotationTimeConst = 10.0;  // [s]
+  static constexpr int kUpdateMarkerRate = 60;                // [Hz]
 
   using self = GazeboSuspendedLoadPlugin;
   using AttachSrv = tobas_gazebo_msgs::srv::AttachSuspendedLoad;
@@ -238,7 +238,7 @@ void GazeboSuspendedLoadPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::s
 
     // Torque that counteracts load rotation, simulating air resistance and friction at the cable joint.
     const auto L_Gyro_WL = W_Rot_L.RotateVectorReverse(W_Gyro_WL);
-    const auto L_DGyro_WL = -(1. / kStopLoadRotationTimeConst) * L_Gyro_WL;
+    const auto L_DGyro_WL = -(1.0 / kStopLoadRotationTimeConst) * L_Gyro_WL;
     const auto L_Torque_WL = load_inertia_ * L_DGyro_WL + L_Gyro_WL.Cross(load_inertia_ * L_Gyro_WL);
     const auto W_Torque_WL = W_Rot_L.RotateVector(L_Torque_WL);
 
@@ -274,27 +274,27 @@ void GazeboSuspendedLoadPlugin::attachLoadCb(
     return;
   }
 
-  if (req->load_sx <= 0. || req->load_sy <= 0. || req->load_sz <= 0.) {
+  if (req->load_sx <= 0.0 || req->load_sy <= 0.0 || req->load_sz <= 0.0) {
     res->success = false;
     res->message = "Load size must be positive.";
     return;
   }
-  if (req->load_mass <= 0.) {
+  if (req->load_mass <= 0.0) {
     res->success = false;
     res->message = "Load mass must be positive.";
     return;
   }
-  if (req->cable_length <= 0.) {
+  if (req->cable_length <= 0.0) {
     res->success = false;
     res->message = "Cable length must be positive.";
     return;
   }
-  if (req->cable_young_modulus <= 0.) {
+  if (req->cable_young_modulus <= 0.0) {
     res->success = false;
     res->message = "Cable young modulus must be positive.";
     return;
   }
-  if (req->cable_cross_sectional_area <= 0.) {
+  if (req->cable_cross_sectional_area <= 0.0) {
     res->success = false;
     res->message = "Cable cross section area must be positive.";
     return;
@@ -340,7 +340,7 @@ void GazeboSuspendedLoadPlugin::attachLoadCb(
   }
 
   vectorRosToGazebo(req->attachment_point, B_Pos_BP_);
-  L_Pos_LQ_.Set(0., 0., sz_2);  // Assume the cable is attached to the center of the cuboid top face.
+  L_Pos_LQ_.Set(0.0, 0.0, sz_2);  // Assume the cable is attached to the center of the cuboid top face.
   load_mass_ = req->load_mass;
   cable_length_ = req->cable_length;
   cable_young_ = req->cable_young_modulus;

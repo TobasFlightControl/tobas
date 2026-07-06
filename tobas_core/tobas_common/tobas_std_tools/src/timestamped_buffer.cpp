@@ -39,7 +39,7 @@ double TimestampedBufferDouble::range() const
 double TimestampedBufferDouble::mean() const
 {
   if (this->size() == 0) {
-    return 0.;
+    return 0.0;
   }
 
   algo::Kahan<double> sum;
@@ -53,7 +53,7 @@ double TimestampedBufferDouble::mean() const
 double TimestampedBufferDouble::variance() const
 {
   if (this->size() == 0) {
-    return 0.;
+    return 0.0;
   }
 
   const auto mean = this->mean();

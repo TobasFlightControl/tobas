@@ -46,14 +46,14 @@ using MapSplinePath = traj::CatmullRomPath<Eigen::Vector2d>;
 
 size_t splineMapSampleCount(const MapSplinePath& path, size_t segment)
 {
-  constexpr double kSplineMapSampleInterval = 1.;  // [m]
+  constexpr double kSplineMapSampleInterval = 1.0;  // [m]
   constexpr size_t kMinSplineMapSamplesPerSegment = 4;
   constexpr size_t kMaxSplineMapSamplesPerSegment = 80;
   constexpr size_t kSplineMapLengthEstimateSamples = 10;
 
   // This is for display, so approximate the curve length with a small number of points before determining the sample count.
-  double length = 0.;
-  auto prev = path.get(segment, 0.).pos;
+  double length = 0.0;
+  auto prev = path.get(segment, 0.0).pos;
   for (size_t sample = 1; sample <= kSplineMapLengthEstimateSamples; ++sample) {
     const auto u = static_cast<double>(sample) / static_cast<double>(kSplineMapLengthEstimateSamples);
     const auto cur = path.get(segment, u).pos;
@@ -134,8 +134,8 @@ MissionPlannerWidget::MissionPlannerWidget(rclcpp::Node::SharedPtr node, const R
 void MissionPlannerWidget::reset()
 {
   map_->clear();
-  map_->setArrowPosition(0., 0.);
-  map_->setArrowRotation(0.);
+  map_->setArrowPosition(0.0, 0.0);
+  map_->setArrowRotation(0.0);
 
   clearMission();
   setEditMode();
@@ -274,7 +274,7 @@ void MissionPlannerWidget::commandsToMap()
         const auto longitude = waypoint->longitude();
         const auto coord = QGeoCoordinate(latitude, longitude);
 
-        const auto acceptance_radius = waypoint->isSplineSegmentEnd() ? waypoint->acceptanceRadius() : 0.;
+        const auto acceptance_radius = waypoint->isSplineSegmentEnd() ? waypoint->acceptanceRadius() : 0.0;
         const auto point_color = item == cur_item ? "orange" : "cyan";
         map_->addWaypoint(wp_index, coord, acceptance_radius, point_color);
 
@@ -600,7 +600,7 @@ void MissionPlannerWidget::onAddButtonClicked()
       const auto last_wp = findLastWaypoint();
       if (last_wp) {
         // Place the second and later waypoints slightly east of the last point.
-        const auto [lat, lon] = st::cartToGnssRelative(10., 0., last_wp->latitude(), last_wp->longitude());
+        const auto [lat, lon] = st::cartToGnssRelative(10.0, 0.0, last_wp->latitude(), last_wp->longitude());
         new_wp->latitude(lat);
         new_wp->longitude(lon);
       }

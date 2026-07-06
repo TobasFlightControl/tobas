@@ -142,7 +142,7 @@ void JointCommanderWidget::updateInternalDataStructures()
 
         tobas_msgs::msg::JointCommand cmd;
         cmd.name = jnt_name;
-        cmd.data = 0.;
+        cmd.data = 0.0;
         tar_js_vel_.commands.push_back(cmd);
 
         break;
@@ -165,7 +165,7 @@ void JointCommanderWidget::updateInternalDataStructures()
 
         tobas_msgs::msg::JointCommand cmd;
         cmd.name = jnt_name;
-        cmd.data = 0.;
+        cmd.data = 0.0;
         tar_js_eff_.commands.push_back(cmd);
 
         break;
@@ -179,7 +179,7 @@ void JointCommanderWidget::updateInternalDataStructures()
       }
     }
 
-    commander->setValue(0.);
+    commander->setValue(0.0);
     commander->setEnabled(false);
     connect(
       commander,
@@ -215,18 +215,18 @@ void JointCommanderWidget::reset()
   start_stop_button_->setChecked(false);
 
   for (const auto& [_, commander] : commanders_) {
-    commander->setValue(0.);
+    commander->setValue(0.0);
     commander->setEnabled(false);
   }
 
   for (auto& cmd : tar_js_pos_.commands) {
-    cmd.data = 0.;
+    cmd.data = 0.0;
   }
   for (auto& cmd : tar_js_vel_.commands) {
-    cmd.data = 0.;
+    cmd.data = 0.0;
   }
   for (auto& cmd : tar_js_eff_.commands) {
-    cmd.data = 0.;
+    cmd.data = 0.0;
   }
 
   home_button_->setEnabled(false);

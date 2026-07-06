@@ -26,7 +26,7 @@ class ParamGetterWidget_DoubleTable : public ParamGetterWidget<Eigen::MatrixXd>
 
   static constexpr int kButtonWidth = 90;
   static constexpr int kButtonHeight = 36;
-  static constexpr double kDefaultValue = 0.;
+  static constexpr double kDefaultValue = 0.0;
   static constexpr int kDefaultDecimals = 2;
 
 Q_SIGNALS:

@@ -28,10 +28,10 @@ bool takeoff(rclcpp::Node::SharedPtr node)
 
   // Create goal.
   tobas::mission::Takeoff takeoff;
-  takeoff.altitude = 3.;
+  takeoff.altitude = 3.0;
   takeoff.max_speed = 1.5;
-  takeoff.max_accel = 4.;
-  takeoff.max_jerk = 4.;
+  takeoff.max_accel = 4.0;
+  takeoff.max_jerk = 4.0;
   takeoff.altitude_tolerance = 0.5;
 
   tobas_mission_msgs::msg::MissionItem mission_item;
@@ -93,13 +93,13 @@ int main(int argc, char** argv)
     return EXIT_FAILURE;
   }
   const auto repeat_interval = static_cast<double>(repeat_interval_ms.value()) * 1e-3;  // [s]
-  const auto delta_pos = 3. * repeat_interval;                                          // m/s x s = m
+  const auto delta_pos = 3.0 * repeat_interval;                                         // m/s x s = m
   const auto delta_rot = M_PI_2 * repeat_interval;                                      // rad/s x s = rad
 
   // Target value limits
-  const tobas::st::Range<double> x_limit(-10., 10.);
-  const tobas::st::Range<double> y_limit(-10., 10.);
-  const tobas::st::Range<double> z_limit(-10., 10.);
+  const tobas::st::Range<double> x_limit(-10.0, 10.0);
+  const tobas::st::Range<double> y_limit(-10.0, 10.0);
+  const tobas::st::Range<double> z_limit(-10.0, 10.0);
   const tobas::st::Range<double> yaw_limit(-M_PI, M_PI);
 
   // Create keyboard reader.
