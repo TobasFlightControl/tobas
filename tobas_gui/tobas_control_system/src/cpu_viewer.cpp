@@ -16,17 +16,11 @@ namespace ctrl
 {
 CpuViewerWidget::CpuViewerWidget(const RosQtBridge& bridge)
 {
-  temp_ = new qt::HPositionBarWidget();
+  temp_ = new qt::ProgressBar();
   temp_->setFixedHeight(kBarHeight);
-  temp_->setLower(kMinTemp);
-  temp_->setMinimum(kMinTemp);
-  temp_->setMaximum(kMaxTemp);
 
-  load_ = new qt::HPositionBarWidget();
+  load_ = new qt::ProgressBar();
   load_->setFixedHeight(kBarHeight);
-  load_->setLower(kMinLoad);
-  load_->setMinimum(kMinLoad);
-  load_->setMaximum(kMaxLoad);
 
   // Layout
   const auto form = new qt::FormLayout();
@@ -40,17 +34,15 @@ CpuViewerWidget::CpuViewerWidget(const RosQtBridge& bridge)
 
 void CpuViewerWidget::reset()
 {
-  temp_->setUpper(temp_->getMinimum());
-  temp_->setCenterText("");
-
-  load_->setUpper(load_->getMinimum());
-  load_->setCenterText("");
+  temp_->reset();
+  load_->reset();
 }
 
 void CpuViewerWidget::cpuCb(const tobas_msgs::msg::Cpu::ConstSharedPtr& cpu)
 {
-  temp_->setUpper(cpu->temperature);
-  temp_->setCenterText(std::format("{:.0f} ℃", cpu->temperature).c_str());
+  const auto temp_rate = math::remap(cpu->temperature, kMinTemp, kMaxTemp, 0., 100.);
+  temp_->setPercentage(temp_rate);
+  temp_->setFormat(std::format("{:.0f} ℃", cpu->temperature).c_str());
   if (cpu->temperature > 85.) {
     temp_->setFillColor(Qt::magenta);
   }
@@ -67,12 +59,13 @@ void CpuViewerWidget::cpuCb(const tobas_msgs::msg::Cpu::ConstSharedPtr& cpu)
     temp_->setFillColor(Qt::blue);
   }
 
-  load_->setUpper(cpu->load * 100);
-  load_->setCenterText(std::format("{:.0f} %", cpu->load * 100).c_str());
-  if (cpu->load > 80.) {
+  const auto load_percent = cpu->load * 100.;
+  load_->setPercentage(load_percent);
+  load_->setFormat(std::format("{:.0f} %", load_percent).c_str());
+  if (load_percent > 80.) {
     load_->setFillColor(Qt::red);
   }
-  else if (cpu->load > 60.) {
+  else if (load_percent > 60.) {
     load_->setFillColor(Qt::yellow);
   }
   else {

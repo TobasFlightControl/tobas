@@ -3,9 +3,11 @@
 
 #pragma once
 
+#include <QWidget>
+
 #include <tobas_drone_core/drone.hpp>
 #include <tobas_drone_core/propulsion_system/ice_propulsion_system/ice_propulsion_system.hpp>
-#include <tobas_qt_tools/widgets/position_bar_widget.hpp>
+#include <tobas_qt_tools/widgets/progress_bar.hpp>
 #include <tobas_rqt_bridge/bridge.hpp>
 
 #include <tobas_msgs/msg/engine_state.hpp>
@@ -39,8 +41,8 @@ private:
   const Drone& drone_;
   IcePropulsionSystemConfig::ConstSharedPtr iprop_;
 
-  qt::HPositionBarWidget* fuel_quantity_;
-  qt::HPositionBarWidget* oil_temp_;
+  qt::ProgressBar* fuel_quantity_;
+  qt::ProgressBar* oil_temp_;
 
   void updateFuelQuantity(const double& fuel_quantity);
   void updateOilTemperature(const double& oil_temp);

@@ -3,7 +3,9 @@
 
 #pragma once
 
-#include <tobas_qt_tools/widgets/position_bar_widget.hpp>
+#include <QWidget>
+
+#include <tobas_qt_tools/widgets/progress_bar.hpp>
 #include <tobas_rqt_bridge/bridge.hpp>
 
 namespace tobas
@@ -24,8 +26,6 @@ class CpuViewerWidget : public QWidget
 
   static constexpr double kMinTemp = 0.;    // [degC]
   static constexpr double kMaxTemp = 100.;  // [degC]
-  static constexpr double kMinLoad = 0.;    // [%]
-  static constexpr double kMaxLoad = 100.;  // [%]
 
 public:
   explicit CpuViewerWidget(const RosQtBridge& bridge);
@@ -33,8 +33,8 @@ public:
   void reset();
 
 private:
-  qt::HPositionBarWidget* temp_;
-  qt::HPositionBarWidget* load_;
+  qt::ProgressBar* temp_;
+  qt::ProgressBar* load_;
 
 private Q_SLOTS:
   void cpuCb(const tobas_msgs::msg::Cpu::ConstSharedPtr& cpu);
