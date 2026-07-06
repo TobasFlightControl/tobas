@@ -36,18 +36,6 @@ public:
   void heightLink(const QString& link_name);
   void unheightLink(const QString& link_name);
 
-  /**
-   * @brief rviz_common::VisualizationManager::resetTime()
-   *
-   * This avoids `TF_OLD_DATA` errors that occur when TF time goes backward, such as when starting simulation.
-   */
-  void resetTime();
-
-private Q_SLOTS:
-  void onVisualBoxToggled(bool checked);
-  void onCollisionBoxToggled(bool checked);
-  void onInertiaBoxToggled(bool checked);
-
 private:
   const uadf::Model& uadf_;
   const kdl::Tree& tree_;
@@ -63,6 +51,13 @@ private:
   rviz_common::properties::BoolProperty* reload_;
 
   QString highlighted_link_;
+
+  void resetOrbitView();
+
+private Q_SLOTS:
+  void onVisualBoxToggled(bool checked);
+  void onCollisionBoxToggled(bool checked);
+  void onInertiaBoxToggled(bool checked);
 };
 }  // namespace sa
 }  // namespace gui

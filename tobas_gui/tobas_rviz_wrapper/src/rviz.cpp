@@ -5,6 +5,9 @@
 
 #include <OgreMaterialManager.h>
 #include <rviz_common/display_group.hpp>
+#include <rviz_common/properties/float_property.hpp>
+#include <rviz_common/properties/vector_property.hpp>
+#include <rviz_common/view_manager.hpp>
 #include <rviz_common/visualization_frame.hpp>  // `rviz_rendering/render_window.hpp` does not support `DQT_NO_KEYWORD`.
 #include <rviz_common/visualization_manager.hpp>
 #include <rviz_common/yaml_config_reader.hpp>
@@ -82,6 +85,44 @@ QString RvizFrameManager::getFixedFrame() const
 void RvizFrameManager::setFixedFrame(const QString& frame)
 {
   manager_->setFixedFrame(frame);
+}
+
+void RvizFrameManager::setOrbitView(
+  const float distance,
+  const float yaw,
+  const float pitch,
+  const float focal_x,
+  const float focal_y,
+  const float focal_z)
+{
+  const auto view_manager = manager_->getViewManager();
+  view_manager->setCurrentViewControllerType("rviz_default_plugins/Orbit");
+  const auto view = view_manager->getCurrent();
+  if (!view) {
+    RCLCPP_WARN(rawNode()->get_logger(), "Failed to get the current RViz view controller.");
+    return;
+  }
+
+  const auto set_float = [this, view](const char* name, const float value)
+  {
+    const auto prop = qobject_cast<rviz_common::properties::FloatProperty*>(view->subProp(name));
+    if (!prop) {
+      RCLCPP_WARN_STREAM(rawNode()->get_logger(), "Failed to get RViz view property: " << name);
+      return;
+    }
+    prop->setFloat(value);
+  };
+
+  set_float("Distance", distance);
+  set_float("Yaw", yaw);
+  set_float("Pitch", pitch);
+
+  const auto focal_point = qobject_cast<rviz_common::properties::VectorProperty*>(view->subProp("Focal Point"));
+  if (!focal_point) {
+    RCLCPP_WARN(rawNode()->get_logger(), "Failed to get RViz view property: Focal Point");
+    return;
+  }
+  focal_point->setVector(Ogre::Vector3(focal_x, focal_y, focal_z));
 }
 
 std::vector<rviz_common::Display*> RvizFrameManager::getDisplays(const QString& name)

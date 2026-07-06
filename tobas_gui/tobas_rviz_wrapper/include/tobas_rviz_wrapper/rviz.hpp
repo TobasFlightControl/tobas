@@ -32,6 +32,7 @@ public:
 
   QString getFixedFrame() const;
   void setFixedFrame(const QString& frame);
+  void setOrbitView(float distance, float yaw, float pitch, float focal_x, float focal_y, float focal_z);
   void resetTime();
 
   std::vector<rviz_common::Display*> getDisplays(const QString& name);

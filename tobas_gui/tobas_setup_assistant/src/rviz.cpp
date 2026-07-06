@@ -31,6 +31,7 @@ RvizWidget::RvizWidget(const uadf::Model& uadf, const kdl::Tree& tree)
   // Initialize Rviz
   const auto rviz_config_path = getPkgShareDir() / "config/setup_assistant.rviz";
   rviz_manager_.initialize(QString::fromStdString(rviz_config_path));
+  resetOrbitView();
 
   // Set up robot_model_display
   display_ = rviz_manager_.getDisplays("RobotState").at(0);
@@ -74,6 +75,9 @@ RvizWidget::RvizWidget(const uadf::Model& uadf, const kdl::Tree& tree)
 
 void RvizWidget::updateInternalDataStructures()
 {
+  // Reset the orbit view
+  resetOrbitView();
+
   // Set the fixed frame to the root link.
   const auto& root_name = tree_.getRootName();
   rviz_manager_.setFixedFrame(QString::fromStdString(root_name));
@@ -107,9 +111,9 @@ void RvizWidget::unheightLink(const QString& link_name)
   unhighlight_link_->setValue(link_name);
 }
 
-void RvizWidget::resetTime()
+void RvizWidget::resetOrbitView()
 {
-  rviz_manager_.resetTime();
+  rviz_manager_.setOrbitView(1.7f, M_PIf, M_PI_4f, 0.0f, 0.0f, 0.0f);
 }
 
 void RvizWidget::onVisualBoxToggled(bool checked)
