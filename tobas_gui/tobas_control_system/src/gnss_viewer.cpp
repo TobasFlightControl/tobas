@@ -19,6 +19,9 @@ GnssViewerWidget::GnssViewerWidget(const RosQtBridge& bridge)
   status_ = new qt::FramedLabel();
   nsats_ = new qt::FramedLabel();
 
+  status_->setMinimumWidth(kLabelMinWidth);
+  nsats_->setMinimumWidth(kLabelMinWidth);
+
   // Layout
   const auto form = new qt::FormLayout();
   form->addVAlignedRow(new qt::Label("Status", kLabelPSize), status_);

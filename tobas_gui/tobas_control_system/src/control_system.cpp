@@ -31,9 +31,9 @@ ControlSystemWidget::ControlSystemWidget(rclcpp::Node::SharedPtr node, const Ros
 
   // Layout
   const auto cols3 = new QHBoxLayout();
-  cols3->addWidget(qt::makeGroup("Power", power_source_viewer_), 2);
-  cols3->addWidget(qt::makeGroup("CPU", cpu_viewer_), 2);
-  cols3->addWidget(qt::makeGroup("GNSS", gnss_viewer_), 1);
+  cols3->addWidget(qt::makeGroup("Power", power_source_viewer_), 1);
+  cols3->addWidget(qt::makeGroup("CPU", cpu_viewer_), 1);
+  cols3->addWidget(qt::makeGroup("GNSS", gnss_viewer_), 0);
 
   const auto rows2 = new QVBoxLayout();
   rows2->addLayout(cols3, 0);
@@ -54,7 +54,7 @@ ControlSystemWidget::ControlSystemWidget(rclcpp::Node::SharedPtr node, const Ros
   cols1->addWidget(qt::makeGroup("Mission Planner", mission_planner_), 3);
 
   const auto rows0 = new QVBoxLayout();
-  rows0->addWidget(arm_state_banner_);
+  rows0->addWidget(arm_state_banner_, 0);
   rows0->addLayout(cols1, 1);
   setLayout(rows0);
 }
