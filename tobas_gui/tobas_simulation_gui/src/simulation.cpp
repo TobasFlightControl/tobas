@@ -154,13 +154,12 @@ bool SimulationWidget::startSITL()
     }
     else {
       const auto log_path =
-        qt::writeTimestampedFile(error_msg + '\n', qt::expandUser(kGuiLogDir), "", "builderr_local");
+        qt::writeTimestampedFile(error_msg + '\n', qt::expandUser(kGuiLogDir), "", "builderr_project_local");
       if (log_path) {
         qt::qErrorBox(this, "Failed to build the Tobas project. The output has been saved to:\n" + log_path.value());
       }
       else {
-        qWarning() << "Failed to save the build error output.";
-        qt::qErrorBox(this, "Failed to build the Tobas project:\n\n" + error_msg);
+        qt::qErrorBox(this, "Failed to build the Tobas project, and also failed to save the error message.");
       }
     }
     return false;
