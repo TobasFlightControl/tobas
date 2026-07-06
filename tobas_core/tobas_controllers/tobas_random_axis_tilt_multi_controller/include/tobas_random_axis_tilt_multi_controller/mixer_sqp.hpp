@@ -46,8 +46,8 @@ public:
 private:
   struct Config
   {
-    double linear_weight = 1.;
-    double angular_weight = 1.;
+    double linear_weight = 1.0;
+    double angular_weight = 1.0;
     double thrust_weight = 1e-6;
   } cfg_;
 

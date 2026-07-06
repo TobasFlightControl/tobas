@@ -47,8 +47,8 @@ bool MicroDisturbanceEoM::updateInternalDataStructures()
 
 int MicroDisturbanceEoM::update(const double& V, const double& rho, const kdl::JntArray& q)
 {
-  assert(V > 0.);
-  assert(rho > 0.);
+  assert(V > 0.0);
+  assert(rho > 0.0);
   assert(q.rows() == tree_.getNrOfJoints());
 
   error_code_ = kNoError;
@@ -111,7 +111,7 @@ int MicroDisturbanceEoM::update(const double& V, const double& rho, const kdl::J
   const auto L_r_dash = rho_V_S_b2 / 4 / I_x_tilde * (aero.c_roll_r + I_xz / I_z * aero.c_yaw_r);
 
   // (2.2-47)
-  const auto M_u = 0.;
+  const auto M_u = 0.0;
   const auto M_alpha = q_S_c / I_y * asd_cog.cPitchAlpha();
   const auto M_q = rho_V_S_c2 / 4 / I_y * aero.c_pitch_q;
   const auto M_alpha_rate = rho_V_S_c2 / 4 / I_y * aero.c_pitch_alpha_rate;
@@ -208,12 +208,12 @@ int MicroDisturbanceEoM::update(const double& V, const double& rho, const kdl::J
   // Update the state at trim.
   x_0_(kStateIdx_u) = trim_.u();
   x_0_(kStateIdx_alpha) = trim_.alpha();
-  x_0_(kStateIdx_beta) = 0.;
-  x_0_(kStateIdx_phi) = 0.;
+  x_0_(kStateIdx_beta) = 0.0;
+  x_0_(kStateIdx_phi) = 0.0;
   x_0_(kStateIdx_theta) = trim_.theta();
-  x_0_(kStateIdx_p) = 0.;
-  x_0_(kStateIdx_q) = 0.;
-  x_0_(kStateIdx_r) = 0.;
+  x_0_(kStateIdx_p) = 0.0;
+  x_0_(kStateIdx_q) = 0.0;
+  x_0_(kStateIdx_r) = 0.0;
 
   // Update the control input at trim.
   const auto thrust_sum = q_S * trim_.c_T();  // (2.2-2b)

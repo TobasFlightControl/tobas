@@ -18,8 +18,8 @@ class TreeTaskSpacePID : public TreeSolverI
   using super = TreeSolverI;
 
 public:
-  static constexpr double kDefaultStiffness = 25.;
-  static constexpr double kDefaultDamping = 10.;
+  static constexpr double kDefaultStiffness = 25.0;
+  static constexpr double kDefaultDamping = 10.0;
 
   explicit TreeTaskSpacePID(const Tree& tree, const Vector& grav = Vector(0, 0, -st::kGravity));
 

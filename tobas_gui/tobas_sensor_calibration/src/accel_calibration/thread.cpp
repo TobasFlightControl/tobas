@@ -49,7 +49,7 @@ void AccelCalibrationThread::run()
   // Wait until enough data has accumulated.
   const auto clock = node_->get_clock();
   const auto start_time = clock->now();
-  rclcpp::Rate rate(100., clock);
+  rclcpp::Rate rate(100.0, clock);
   while (rclcpp::ok()) {
     if (cnt_ >= kDataCount) {
       break;

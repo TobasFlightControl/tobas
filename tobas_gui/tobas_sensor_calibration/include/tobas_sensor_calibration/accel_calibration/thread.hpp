@@ -23,7 +23,7 @@ class AccelCalibrationThread : public QThread
 
   static constexpr size_t kDataCount = 200;
   static constexpr auto kCollectDataTimeout = std::chrono::seconds(30);
-  static constexpr double kAccelBiasNormThresh = 1.;  // [m/s^2] ISM330DLC has up to 85 mg (= 0.83 m/s^2) offset.
+  static constexpr double kAccelBiasNormThresh = 1.0;  // [m/s^2] ISM330DLC has up to 85 mg (= 0.83 m/s^2) offset.
 
 Q_SIGNALS:
   void finished(bool success, const QString& message);

@@ -19,7 +19,7 @@ class EngineModel
 
   static constexpr double kDefaultVibrationForceCoef = 0.0015;
   static constexpr double kDefaultVibrationForceVariationRate = 0.2;
-  static constexpr double kDefaultVibrationDoubleFreqCoef = 1.;
+  static constexpr double kDefaultVibrationDoubleFreqCoef = 1.0;
 
 public:
   explicit EngineModel(const IceRotorModelMap& rotors);
@@ -51,10 +51,10 @@ private:
   double vibration_double_freq_coef_;       // [-]
 
   // Command
-  double throttle_ = 0.;  // Throttle opening [0, 1].
+  double throttle_ = 0.0;  // Throttle opening [0, 1].
 
   // State
-  double position_ = 0.;  // Position [rad].
+  double position_ = 0.0;  // Position [rad].
   AsymmetricFirstOrderFilter<double> speed_filter_;
 
   // Solver

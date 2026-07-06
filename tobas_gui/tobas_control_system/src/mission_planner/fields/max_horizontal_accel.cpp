@@ -18,9 +18,9 @@ MaxHorizontalAccelWidget::MaxHorizontalAccelWidget()
   // https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_ACC_HOR_MAX
   spin_box_ = new qt::DoubleSpinBox();
   spin_box_->setDecimals(1);
-  spin_box_->setMinimum(2.);
-  spin_box_->setMaximum(15.);
-  spin_box_->setValue(5.);
+  spin_box_->setMinimum(2.0);
+  spin_box_->setMaximum(15.0);
+  spin_box_->setValue(5.0);
   spin_box_->setSuffix(" m/s²");
 
   const auto cols = new QHBoxLayout();

@@ -173,7 +173,7 @@ void RosbagRecorderNode::standardMsgCb(const typename MsgType::ConstSharedPtr& m
     return;
   }
 
-  this->write(*msg, topic);
+  write(*msg, topic);
 }
 
 template <typename ExtMsgType, typename RawMsgType>
@@ -189,6 +189,6 @@ void RosbagRecorderNode::typeAdaptedMsgCb(
   // Subscribe through TypeAdapter and convert to a ROS message here to prevent serialization on the publisher side.
   rclcpp::TypeAdapter<ExtMsgType, RawMsgType>::convert_to_ros_message(*ext_msg, raw_msg);
 
-  this->write(raw_msg, topic);
+  write(raw_msg, topic);
 }
 }  // namespace tobas

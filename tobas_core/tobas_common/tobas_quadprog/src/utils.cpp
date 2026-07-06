@@ -15,7 +15,7 @@ namespace quadprog
 void matIneqFromRange(const VectorXd& lb, const VectorXd& ub, MatrixXd& A, VectorXd& b, const double inf)
 {
   assert(lb.rows() == ub.rows());
-  assert(((ub - lb).array() >= 0.).all());
+  assert(((ub - lb).array() >= 0.0).all());
 
   const auto size = lb.rows();
 

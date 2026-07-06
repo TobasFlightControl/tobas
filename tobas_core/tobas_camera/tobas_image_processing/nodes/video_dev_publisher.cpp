@@ -109,7 +109,7 @@ void VideoDevPublisherNode::timerCallback()
   // using MJPG
   if (use_compressed_img_) {
     auto message_compressed = std::make_unique<sensor_msgs::msg::CompressedImage>();
-    message_compressed->header.stamp = this->now();
+    message_compressed->header.stamp = now();
     message_compressed->header.frame_id = "map";
     message_compressed->format = std::string("jpeg");
     message_compressed->data.resize(image_size);

@@ -13,10 +13,10 @@ namespace kdl
 {
 bool Vector::isParallel(const Vector& rhs, bool same_direction_only, double angle_tol_rad, double zero_tol) const
 {
-  assert(0. < angle_tol_rad && angle_tol_rad < 1.);
-  assert(zero_tol > 0.);
+  assert(0.0 < angle_tol_rad && angle_tol_rad < 1.0);
+  assert(zero_tol > 0.0);
 
-  const auto na2 = this->squaredNorm();
+  const auto na2 = squaredNorm();
   const auto nb2 = rhs.squaredNorm();
 
   // Parallelism is undefined for zero vectors.
@@ -30,7 +30,7 @@ bool Vector::isParallel(const Vector& rhs, bool same_direction_only, double angl
   const auto thresh = math::sqr(std::cos(angle_tol_rad));
 
   if (same_direction_only) {
-    return cos2 > thresh && dot > 0.;
+    return cos2 > thresh && dot > 0.0;
   }
   else {
     return cos2 > thresh;

@@ -31,7 +31,7 @@ void QwtPlotHistogramWrapper::setSamples(
   double bin_width)
 {
   assert(min_value <= max_value);
-  assert(bin_width > 0.);
+  assert(bin_width > 0.0);
 
   QVector<QwtIntervalSample> samples;
 

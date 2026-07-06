@@ -43,7 +43,7 @@ int ChainJntSpaceInertiaSolver::jntToMass(const JntArray& q)
       ++k_;
     }
     else {
-      qk_ = 0.;
+      qk_ = 0.0;
     }
     X_[i] = chain_.getSegment(i).pose(qk_);
     S_[i] = X_[i].M.inverse(chain_.getSegment(i).jacobian(qk_));

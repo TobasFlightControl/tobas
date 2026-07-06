@@ -17,7 +17,7 @@ class PinvMixer : public MixerI
 {
   using super = MixerI;
 
-  static constexpr double kMinVerticalForcePerMass = 1.;  // [m/s^2]
+  static constexpr double kMinVerticalForcePerMass = 1.0;  // [m/s^2]
 
 public:
   explicit PinvMixer(const Drone& drone, const kdl::Tree& tree);
@@ -42,8 +42,8 @@ public:
 private:
   struct Config
   {
-    double singular_declination_lb = 0.;  // [rad]
-    double singular_declination_ub = 0.;  // [rad]
+    double singular_declination_lb = 0.0;  // [rad]
+    double singular_declination_ub = 0.0;  // [rad]
   } cfg_;
 
   kdl::TreeFkSolverPosAll fk_solver_;

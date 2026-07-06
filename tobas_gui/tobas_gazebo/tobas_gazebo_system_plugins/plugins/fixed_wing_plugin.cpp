@@ -80,7 +80,7 @@ private:
   const cmp::WorldLinearVelocity* vel_W_;
   const cmp::AngularVelocity* gyro_B_;
 
-  double prev_alpha_ = 0.;
+  double prev_alpha_ = 0.0;
   bool is_initialized_ = false;
   gz::math::Vector3d wind_vel_W_ = gz::math::Vector3d::Zero;  // Wind velocity [m/s]
 
@@ -181,10 +181,10 @@ void GazeboFixedWingPlugin::Configure(
     if (joint_axis.Lower() >= joint_axis.Upper()) {
       TOBAS_EXIT("The position limit of ", link_name, " is invalid.");
     }
-    if (joint_axis.MaxVelocity() <= 0.) {
+    if (joint_axis.MaxVelocity() <= 0.0) {
       TOBAS_EXIT("The velocity limit of ", link_name, " must be positive.");
     }
-    if (joint_axis.Effort() <= 0.) {
+    if (joint_axis.Effort() <= 0.0) {
       TOBAS_EXIT("The effort limit of ", link_name, " must be positive.");
     }
 
@@ -342,12 +342,12 @@ void GazeboFixedWingPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
         TOBAS_EXIT("The joint names of each control surface must be unique.");
       }
 
-      getSdfParam(cs_elem, "cLiftDelta", cs.c_lift_delta, 0.);
-      getSdfParam(cs_elem, "cDragAbsDelta", cs.c_drag_abs_delta, 0.);
-      getSdfParam(cs_elem, "cSideDelta", cs.c_side_delta, 0.);
-      getSdfParam(cs_elem, "cRollDelta", cs.c_roll_delta, 0.);
-      getSdfParam(cs_elem, "cPitchDelta", cs.c_pitch_delta, 0.);
-      getSdfParam(cs_elem, "cYawDelta", cs.c_yaw_delta, 0.);
+      getSdfParam(cs_elem, "cLiftDelta", cs.c_lift_delta, 0.0);
+      getSdfParam(cs_elem, "cDragAbsDelta", cs.c_drag_abs_delta, 0.0);
+      getSdfParam(cs_elem, "cSideDelta", cs.c_side_delta, 0.0);
+      getSdfParam(cs_elem, "cRollDelta", cs.c_roll_delta, 0.0);
+      getSdfParam(cs_elem, "cPitchDelta", cs.c_pitch_delta, 0.0);
+      getSdfParam(cs_elem, "cYawDelta", cs.c_yaw_delta, 0.0);
 
       joint_names.emplace(cs.link_name);
       control_surfaces_[cs.link_name] = cs;

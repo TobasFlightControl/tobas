@@ -118,11 +118,11 @@ void LQD::checkProblemValidity()
   assert(eigen::isFinite(input_weight));
   assert(eigen::isFinite(input_rate_weight));
 
-  assert((state_scale.array() > 0.).all());
-  assert((input_scale.array() > 0.).all());
-  assert((state_weight.array() >= 0.).all());
-  assert((input_weight.array() >= 0.).all());
-  assert((input_rate_weight.array() > 0.).all());
+  assert((state_scale.array() > 0.0).all());
+  assert((input_scale.array() > 0.0).all());
+  assert((state_weight.array() >= 0.0).all());
+  assert((input_weight.array() >= 0.0).all());
+  assert((input_rate_weight.array() > 0.0).all());
 }
 
 ostream& operator<<(ostream& os, const LQD& arg)

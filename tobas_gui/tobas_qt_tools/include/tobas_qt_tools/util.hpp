@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <QGroupBox>
 #include <QHBoxLayout>
 #include <QObject>
 #include <QVBoxLayout>
@@ -26,6 +27,9 @@ void addSpacing(QVBoxLayout* rows, int height, QSizePolicy::Policy v_policy);
 
 /* Insert a spacer with a size policy. */
 void addSpacing(QHBoxLayout* cols, int width, QSizePolicy::Policy h_policy);
+
+/* Create a titled group box containing the widget. */
+QGroupBox* makeGroup(const QString& title, QWidget* widget, int margin = 0);
 
 /* Create a fixed-width `QVBoxLayout`. */
 QVBoxLayout* createFixedWidthQVBoxLayout(int width, QBoxLayout* parent);

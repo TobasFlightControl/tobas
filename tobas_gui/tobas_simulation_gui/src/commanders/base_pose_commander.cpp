@@ -51,7 +51,7 @@ BasePoseCommanderWidget::BasePoseCommanderWidget(
   static constexpr std::array<const char*, 3> kLabelsXYZ = { "X", "Y", "Z" };
   for (size_t i = 0; i < 3; ++i) {
     cmd_xyz_[i] = new qt::DoubleSliderDisplay();
-    cmd_xyz_[i]->setRange(-10., 10.);
+    cmd_xyz_[i]->setRange(-10.0, 10.0);
     cmd_xyz_[i]->setText(kLabelsXYZ[i]);
     cmd_xyz_[i]->setSuffix(" m");
     cmd_xyz_[i]->setDecimals(2);
@@ -133,7 +133,7 @@ void BasePoseCommanderWidget::reset()
   home_button_->setEnabled(false);
 
   for (const auto& cmd : cmd_xyz_) {
-    cmd->setValue(0.);
+    cmd->setValue(0.0);
     cmd->setEnabled(false);
   }
   for (const auto& cmd : cmd_rpy_) {
@@ -296,8 +296,8 @@ void BasePoseCommanderWidget::onValueChanged()
 
 void BasePoseCommanderWidget::onHomeButtonClicked()
 {
-  cmd_xyz_[0]->setValue(0.);
-  cmd_xyz_[1]->setValue(0.);
+  cmd_xyz_[0]->setValue(0.0);
+  cmd_xyz_[1]->setValue(0.0);
   cmd_xyz_[2]->setValue(kHomeAltitude);
   cmd_rpy_[0]->setValue(0);
   cmd_rpy_[1]->setValue(0);

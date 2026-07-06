@@ -34,10 +34,10 @@ class GazeboTetherStationPlugin : public BaseNode,
   static constexpr int kUpdateMarkerRate = 60;  // [Hz]
 
   // Default parameters
-  static constexpr double kDefaultInitTension = 1.;       // [N]
-  static constexpr double kDefaultInitMaxLength = 5.;     // [N]
-  static constexpr double kDefaultYoungModulus = 200.;    // [MPa] Low-density polyethylene.
-  static constexpr double kDefaultCrossSectionArea = 1.;  // [mm^2]
+  static constexpr double kDefaultInitTension = 1.0;       // [N]
+  static constexpr double kDefaultInitMaxLength = 5.0;     // [N]
+  static constexpr double kDefaultYoungModulus = 200.0;    // [MPa] Low-density polyethylene.
+  static constexpr double kDefaultCrossSectionArea = 1.0;  // [mm^2]
 
   using self = GazeboTetherStationPlugin;
   using GetSrv = tobas_gazebo_msgs::srv::GetTetherParams;

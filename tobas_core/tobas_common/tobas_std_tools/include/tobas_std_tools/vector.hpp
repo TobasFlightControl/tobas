@@ -168,7 +168,7 @@ T average(const std::vector<T>& vec, const std::vector<U>& weights)
 template <typename T>
 inline T average(const std::vector<T>& vec)
 {
-  return average(vec, std::vector<double>(vec.size(), 1.));
+  return average(vec, std::vector<double>(vec.size(), 1.0));
 }
 
 /* Get the element index from a `std::vector`. */

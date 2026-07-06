@@ -21,7 +21,7 @@ MaxVerticalVelocityWidget::MaxVerticalVelocityWidget()
   spin_box_ = new qt::DoubleSpinBox();
   spin_box_->setDecimals(1);
   spin_box_->setMinimum(0.5);
-  spin_box_->setMaximum(4.);
+  spin_box_->setMaximum(4.0);
   spin_box_->setValue(1.5);
   spin_box_->setSuffix(" m/s");
 

@@ -201,7 +201,7 @@ void FFmpegToROSMsgConverter::timerCallback()
         TOBAS_ERROR("Failed to convert frame to message.");
       }
       image_msg->header.frame_id = frame_id_;
-      image_msg->header.stamp = this->get_clock()->now();
+      image_msg->header.stamp = get_clock()->now();
       img_pub_->publish(std::move(image_msg));
     }
   }

@@ -99,7 +99,7 @@ void TreeIkSolverPos_Online::enforceJointVelLimits(JntArray& delta_q, const doub
   // check, if one (or more) joint velocities exceed the maximum value
   // and if so, safe the biggest overshoot for scaling delta_q properly
   // to keep the direction of the velocity vector the same
-  double rel_os_max = 0.;  // the biggest relative overshoot
+  double rel_os_max = 0.0;  // the biggest relative overshoot
   bool max_exceeded = false;
 
   for (size_t i = 0; i < nj_; ++i) {

@@ -24,7 +24,7 @@ class FlightLogViewerWidget : public QWidget
   using self = FlightLogViewerWidget;
   using super = QWidget;
 
-  static constexpr double kWindowDuration = 5.;  // [s]
+  static constexpr double kWindowDuration = 5.0;  // [s]
 
 public:
   explicit FlightLogViewerWidget();

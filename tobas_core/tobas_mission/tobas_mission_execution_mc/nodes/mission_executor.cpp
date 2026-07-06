@@ -50,7 +50,7 @@ using CatmullRomPath = traj::CatmullRomPath<Eigen::Vector3d>;
 /* Return true when `value` is finite and positive. */
 inline bool isPositive(double value)
 {
-  return std::isfinite(value) && value > 0.;
+  return std::isfinite(value) && value > 0.0;
 }
 
 inline double selectConservativeLimit(double current, double candidate)
@@ -67,13 +67,13 @@ struct PathComponentScale
   // For example, `horizontal = 1` and `vertical = 0` is a horizontal-only path.
   // `horizontal = 0` and `vertical = 1` is a vertical-only path.
   // `horizontal` and `vertical` are separate norms, so their sum is not necessarily 1.
-  double horizontal = 0.;
-  double vertical = 0.;
+  double horizontal = 0.0;
+  double vertical = 0.0;
 };
 
 size_t selectPathConstraintSampleCount(const CatmullRomPath& path)
 {
-  constexpr double kPathConstraintSampleInterval = 1.;  // [m]
+  constexpr double kPathConstraintSampleInterval = 1.0;  // [m]
   constexpr size_t kPathConstraintSamplesPerSegment = 20;
   constexpr size_t kMaxPathConstraintSamples = 5000;
 
@@ -107,10 +107,10 @@ double selectPathConstraintLimit(double horizontal_limit, double vertical_limit,
   // Since `v_xy = horizontal_scale * s_dot` and `v_z = vertical_scale * s_dot`,
   // divide each axis limit by the corresponding component coefficient.
   auto path_limit = std::numeric_limits<double>::infinity();
-  if (scale.horizontal > 0.) {
+  if (scale.horizontal > 0.0) {
     path_limit = std::min(path_limit, horizontal_limit / scale.horizontal);
   }
-  if (scale.vertical > 0.) {
+  if (scale.vertical > 0.0) {
     path_limit = std::min(path_limit, vertical_limit / scale.vertical);
   }
   return std::isfinite(path_limit) ? path_limit : std::min(horizontal_limit, vertical_limit);
@@ -130,7 +130,7 @@ class MulticopterMissionExecutorNode : public BaseNode
   using GoalHandle = rclcpp_action::ServerGoalHandle<Action>;
   using GoalHandlePtr = std::shared_ptr<GoalHandle>;
 
-  static constexpr double kCommandRate = 100.;       // [Hz]
+  static constexpr double kCommandRate = 100.0;      // [Hz]
   static constexpr double kAttitudeRate = M_PI / 6;  // [rad/s]
   static constexpr double kMinBrakeDuration = 0.1;   // [s]
 
@@ -415,9 +415,9 @@ void MulticopterMissionExecutorNode::brake()
   const Eigen::Vector2d axy0(command_.acc.x(), command_.acc.y());
   const auto vxy0_norm = vxy0.norm();
   const auto axy0_norm = axy0.norm();
-  const auto dir_xy = vxy0_norm > 0. ? (vxy0 / vxy0_norm).eval() : Eigen::Vector2d::Zero();
+  const auto dir_xy = vxy0_norm > 0.0 ? (vxy0 / vxy0_norm).eval() : Eigen::Vector2d::Zero();
   const StopTrajectory traj_xy(
-    0., vxy0_norm, axy0_norm * math::sign(vxy0.dot(axy0)), wp_cfg_.max_hor_acc, wp_cfg_.max_hor_jerk);
+    0.0, vxy0_norm, axy0_norm * math::sign(vxy0.dot(axy0)), wp_cfg_.max_hor_acc, wp_cfg_.max_hor_jerk);
 
   const auto pz0 = command_.pos.z();  // Must be copy
   const auto vz0 = command_.vel.z();  // Must be copy
@@ -425,7 +425,8 @@ void MulticopterMissionExecutorNode::brake()
   const auto vz0_norm = std::abs(vz0);
   const auto az0_norm = std::abs(az0);
   const auto dir_z = math::sign(vz0);
-  const StopTrajectory traj_z(0., vz0_norm, az0_norm * math::sign(vz0 * az0), wp_cfg_.max_ver_acc, wp_cfg_.max_ver_jerk);
+  const StopTrajectory traj_z(
+    0.0, vz0_norm, az0_norm * math::sign(vz0 * az0), wp_cfg_.max_ver_acc, wp_cfg_.max_ver_jerk);
 
   // Get the duration.
   const auto duration = std::max(traj_xy.duration(), traj_z.duration());
@@ -552,7 +553,7 @@ bool MulticopterMissionExecutorNode::executeWaypoints(
 
   const CatmullRomPath path(std::move(path_points));
   const auto path_length = path.length();
-  if (path_length == 0.) {
+  if (path_length == 0.0) {
     return true;
   }
 
@@ -580,13 +581,13 @@ bool MulticopterMissionExecutorNode::executeWaypoints(
   const auto max_path_acc = selectPathConstraintLimit(max_hor_acc, max_ver_acc, path_component_scale);
   const auto max_path_jerk = selectPathConstraintLimit(max_hor_jerk, max_ver_jerk, path_component_scale);
 
-  const traj::JerkLimitedTrajectory traj_path(0., path_length, max_path_jerk, max_path_acc, max_path_vel);
+  const traj::JerkLimitedTrajectory traj_path(0.0, path_length, max_path_jerk, max_path_acc, max_path_vel);
 
   const auto roll_duration = std::abs(start_rot.roll) / kAttitudeRate;
-  const traj::LinearSpline traj_roll(start_rot.roll, 0., roll_duration);
+  const traj::LinearSpline traj_roll(start_rot.roll, 0.0, roll_duration);
 
   const auto pitch_duration = std::abs(start_rot.pitch) / kAttitudeRate;
-  const traj::LinearSpline traj_pitch(start_rot.pitch, 0., pitch_duration);
+  const traj::LinearSpline traj_pitch(start_rot.pitch, 0.0, pitch_duration);
 
   const auto duration = algo::max(traj_path.duration(), traj_roll.duration(), traj_pitch.duration());
   TOBAS_INFO("Moving along the waypoint path will take ", duration, " seconds.");
@@ -608,7 +609,7 @@ bool MulticopterMissionExecutorNode::executeWaypoints(
     const auto dt = (cur_time - prev_time).seconds();
     prev_time = cur_time;
 
-    if (final_goal.timeout > 0. && t > duration + final_goal.timeout) {
+    if (final_goal.timeout > 0.0 && t > duration + final_goal.timeout) {
       res->error_code.data = tobas_mission_msgs::msg::ErrorCode::ACCEPTANCE_TIMEOUT;
       res->error_message = "Timed out before reaching the waypoint acceptance radius.";
       gh->abort(res);
@@ -620,8 +621,8 @@ bool MulticopterMissionExecutorNode::executeWaypoints(
       const auto pos_err = final_goal_pos - cur_pos;
       const auto xy_err_abs = math::norm(pos_err.x(), pos_err.y());
       const auto z_err_abs = std::abs(pos_err.z());
-      const auto hor_ok = final_goal.acceptance_radius <= 0. || xy_err_abs < final_goal.acceptance_radius;
-      const auto ver_ok = final_goal.altitude_tolerance <= 0. || z_err_abs < final_goal.altitude_tolerance;
+      const auto hor_ok = final_goal.acceptance_radius <= 0.0 || xy_err_abs < final_goal.acceptance_radius;
+      const auto ver_ok = final_goal.altitude_tolerance <= 0.0 || z_err_abs < final_goal.altitude_tolerance;
       if (hor_ok && ver_ok) {
         return true;
       }
@@ -638,7 +639,7 @@ bool MulticopterMissionExecutorNode::executeWaypoints(
     auto yaw = command_.rot.yaw;
     if (auto_heading) {
       const auto tangent_xy_norm = math::norm(path_point.tangent.x(), path_point.tangent.y());
-      if (tangent_xy_norm > 0.) {
+      if (tangent_xy_norm > 0.0) {
         const auto desired_yaw = std::atan2(path_point.tangent.y(), path_point.tangent.x());
         const auto yaw_diff = algo::wrapPi(desired_yaw - yaw);
         const auto max_yaw_step = max_head_rate * dt;
@@ -719,7 +720,7 @@ bool MulticopterMissionExecutorNode::executeTakeoff(const Takeoff& goal, const G
     const auto t = (cur_time - start_time).seconds();
 
     // Check for timeout.
-    if (goal.timeout > 0. && t > duration + goal.timeout) {
+    if (goal.timeout > 0.0 && t > duration + goal.timeout) {
       res->error_code.data = tobas_mission_msgs::msg::ErrorCode::ACCEPTANCE_TIMEOUT;
       res->error_message = "Timed out before reaching the takeoff altitude tolerance.";
       gh->abort(res);
@@ -730,7 +731,7 @@ bool MulticopterMissionExecutorNode::executeTakeoff(const Takeoff& goal, const G
     const auto& cur_pos = odom_->odom.odom.frame.p;
     const auto alt_err_abs = std::abs(tar_z - cur_pos.z());
     if (t > duration) {
-      if (goal.altitude_tolerance <= 0. || alt_err_abs < goal.altitude_tolerance) {
+      if (goal.altitude_tolerance <= 0.0 || alt_err_abs < goal.altitude_tolerance) {
         return true;
       }
     }
@@ -738,9 +739,9 @@ bool MulticopterMissionExecutorNode::executeTakeoff(const Takeoff& goal, const G
     // Create the command.
     const auto traj_point_z = traj_z.get(t);
     command_.pos.set(start_pos.x(), start_pos.y(), traj_point_z.p);
-    command_.vel.set(0., 0., traj_point_z.v);
-    command_.acc.set(0., 0., traj_point_z.a);
-    command_.rot.set(0., 0., start_yaw);
+    command_.vel.set(0.0, 0.0, traj_point_z.v);
+    command_.acc.set(0.0, 0.0, traj_point_z.a);
+    command_.rot.set(0.0, 0.0, start_yaw);
 
     // Publish the command.
     publishCommand(cur_time);
@@ -774,8 +775,8 @@ bool MulticopterMissionExecutorNode::executeLand(const Land& goal, const GoalHan
   // Generate attitude trajectories.
   const auto roll_duration = std::abs(start_rot.roll) / kAttitudeRate;
   const auto pitch_duration = std::abs(start_rot.pitch) / kAttitudeRate;
-  const traj::LinearSpline traj_roll(start_rot.roll, 0., roll_duration);
-  const traj::LinearSpline traj_pitch(start_rot.pitch, 0., pitch_duration);
+  const traj::LinearSpline traj_roll(start_rot.roll, 0.0, roll_duration);
+  const traj::LinearSpline traj_pitch(start_rot.pitch, 0.0, pitch_duration);
 
   // Create objects used for landing detection.
   const auto stop_speed_thresh = std::min<double>(speed / 2, 0.2);
@@ -795,7 +796,7 @@ bool MulticopterMissionExecutorNode::executeLand(const Land& goal, const GoalHan
     const auto t = (cur_time - start_time).seconds();
     const auto tar_z = start_pos.z() - speed * t;
     command_.pos.set(start_pos.x(), start_pos.y(), tar_z);
-    command_.vel.set(0., 0., -speed);
+    command_.vel.set(0.0, 0.0, -speed);
     command_.acc.setZero();
     command_.rot.set(traj_roll.get(t).p, traj_pitch.get(t).p, start_rot.yaw);
 
@@ -822,7 +823,7 @@ bool MulticopterMissionExecutorNode::executeLand(const Land& goal, const GoalHan
     // 1. Ground reaction force close to the vehicle weight is detected by the common landing detection algorithm.
     // 2. The absolute vertical velocity remains small for a while: https://ardupilot.org/copter/docs/land-mode.html
     // 3. The target altitude differs greatly from the estimated altitude as a last resort.
-    if (landed_->landed || time_from_last_high_speed > 1s || z_error < -10.) {
+    if (landed_->landed || time_from_last_high_speed > 1s || z_error < -10.0) {
       TOBAS_INFO("Landing detected. Stopping motors.");
       if (!armRotors(false)) {
         res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
@@ -872,7 +873,7 @@ bool MulticopterMissionExecutorNode::executeRTL(const ReturnToLaunch& goal, cons
   const auto& cur_pos = odom_->odom.odom.frame.p;
   const auto cur_alt = cur_pos.z() - launch_point_->z();
   const auto xy_dist = math::norm(launch_point_->x() - cur_pos.x(), launch_point_->y() - cur_pos.y());
-  const auto min_alt_goal = goal.min_altitude > 0. ? goal.min_altitude : rtl_cfg_.min_alt;
+  const auto min_alt_goal = goal.min_altitude > 0.0 ? goal.min_altitude : rtl_cfg_.min_alt;
   const auto min_alt = std::min<double>(min_alt_goal, xy_dist);  // 45-degree inverted cone rule.
   wp.altitude = std::max(cur_alt, min_alt);
 
@@ -1048,7 +1049,7 @@ MulticopterMissionExecutorNode::handleGoal(const rclcpp_action::GoalUUID&, const
           return rclcpp_action::GoalResponse::REJECT;
         }
 
-        if (takeoff.altitude <= 0.) {
+        if (takeoff.altitude <= 0.0) {
           TOBAS_WARN("Mission No. ", cmd_number, ": Target altitude must be positive.");
           return rclcpp_action::GoalResponse::REJECT;
         }

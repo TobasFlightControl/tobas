@@ -107,7 +107,7 @@ int ChainIkSolverPos_LM::cartToJnt(const JntArray& q_init, const Frame& T_base_g
       computeJacobian(q_new);
       jac_ = L_.asDiagonal() * jac_;
       const auto tmp = 2 * rho - 1;
-      lambda *= max(1 / 3., 1 - tmp * tmp * tmp);
+      lambda *= max(1 / 3.0, 1 - tmp * tmp * tmp);
       v = kInitV;
     }
     else {
@@ -181,7 +181,7 @@ void ChainIkSolverPos_LM::computeFwdPos(const VectorXd& q)
       ++j;
     }
     else {
-      T_base_head_ = T_base_head_ * seg.pose(0.);
+      T_base_head_ = T_base_head_ * seg.pose(0.0);
     }
   }
 }

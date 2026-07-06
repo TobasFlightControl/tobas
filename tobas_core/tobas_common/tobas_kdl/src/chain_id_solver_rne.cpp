@@ -50,9 +50,9 @@ int ChainIdSolver_RNE::cartToJnt(
       ++j_;
     }
     else {
-      qj_ = 0.;
-      qdj_ = 0.;
-      qddj_ = 0.;
+      qj_ = 0.0;
+      qdj_ = 0.0;
+      qddj_ = 0.0;
     }
 
     X_[i] = chain_.getSegment(i).pose(qj_);
@@ -110,9 +110,9 @@ int ChainIdSolver_RNE::cartToJnt(
       ++j_;
     }
     else {
-      qj_ = 0.;
-      qdj_ = 0.;
-      qddj_ = 0.;
+      qj_ = 0.0;
+      qdj_ = 0.0;
+      qddj_ = 0.0;
     }
 
     X_[i] = chain_.getSegment(i).pose(qj_);

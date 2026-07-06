@@ -21,8 +21,8 @@ static constexpr size_t kMinSbusChannels = 8;
 static constexpr size_t kMaxSbusChannels = 16;
 static constexpr size_t kMaxNumOfGpsw = kMaxSbusChannels - kMinSbusChannels;
 
-static constexpr double kRcInputMin = -1.;
-static constexpr double kRcInputMax = 1.;
+static constexpr double kRcInputMin = -1.0;
+static constexpr double kRcInputMax = 1.0;
 static constexpr double kRCInputMid = (kRcInputMax + kRcInputMin) / 2;
 static constexpr double kRcInputRange = kRcInputMax - kRcInputMin;
 }  // namespace tobas

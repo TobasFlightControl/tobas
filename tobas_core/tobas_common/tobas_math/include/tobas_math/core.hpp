@@ -70,13 +70,13 @@ inline T remap(T x, T a, T b, T c, T d) noexcept
 }
 
 /* Round up to the given unit. */
-inline double ceil(double x, double unit = 1.) noexcept
+inline double ceil(double x, double unit = 1.0) noexcept
 {
   return std::ceil(x / unit) * unit;
 }
 
 /* Round down to the given unit. */
-inline double floor(double x, double unit = 1.) noexcept
+inline double floor(double x, double unit = 1.0) noexcept
 {
   return std::floor(x / unit) * unit;
 }

@@ -21,21 +21,21 @@ CpuPlotWidget::CpuPlotWidget()
 
   freq_plot_ = new QwtPlot2();
   freq_plot_->setAxisNoLabel(QwtPlot::xBottom);
-  freq_plot_->setAxisScale(QwtPlot::yLeft, 0., 3.);
+  freq_plot_->setAxisScale(QwtPlot::yLeft, 0.0, 3.0);
   freq_curve_.setPen(Qt::black, kLineWidth);
   freq_curve_.attach(freq_plot_);
   rows->addWidget(freq_plot_, 1);
 
   temp_plot_ = new QwtPlot2();
   temp_plot_->setAxisNoLabel(QwtPlot::xBottom);
-  temp_plot_->setAxisScale(QwtPlot2::yLeft, 0., 100.);
+  temp_plot_->setAxisScale(QwtPlot2::yLeft, 0.0, 100.0);
   temp_curve_.setPen(Qt::black, kLineWidth);
   temp_curve_.attach(temp_plot_);
   rows->addWidget(temp_plot_, 1);
 
   load_plot_ = new QwtPlot2();
   load_plot_->setAxisNoLabel(QwtPlot::xBottom);
-  load_plot_->setAxisScale(QwtPlot::yLeft, 0., 100.);
+  load_plot_->setAxisScale(QwtPlot::yLeft, 0.0, 100.0);
   load_curve_.setPen(Qt::black, kLineWidth);
   load_curve_.attach(load_plot_);
   rows->addWidget(load_plot_, 1);
@@ -72,7 +72,7 @@ void CpuPlotWidget::setData(const QVector<tobas_msgs::msg::Cpu>& msgs)
 
     freq_data.push_back(static_cast<double>(msg.frequency) * 1e-9);
     temp_data.push_back(msg.temperature);
-    load_data.push_back(msg.load * 100.);
+    load_data.push_back(msg.load * 100.0);
   }
 
   freq_curve_.setSamples(t_data, freq_data);

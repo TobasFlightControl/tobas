@@ -5,6 +5,6 @@
 
 namespace
 {
-constexpr auto kAccelScale = 10.;   // [m/s^2]
-constexpr auto kDGyroScale = 100.;  // [rad/s^2]
+constexpr auto kAccelScale = 10.0;   // [m/s^2]
+constexpr auto kDGyroScale = 100.0;  // [rad/s^2]
 }  // namespace

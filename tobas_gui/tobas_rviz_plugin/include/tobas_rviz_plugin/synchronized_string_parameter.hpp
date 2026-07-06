@@ -32,7 +32,7 @@ public:
     const std::string& name,
     const StringCallback& parent_callback = {},
     bool default_continuous_value = false,
-    double default_timeout = 10.);
+    double default_timeout = 10.0);
 
 private:
   bool getMainParameter();

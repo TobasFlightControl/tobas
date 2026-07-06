@@ -36,11 +36,11 @@ class GazeboWindPlugin : public BaseNode,
                          public gz::sim::ISystemPostUpdate
 {
   // Default parameters
-  static constexpr double kDefaultMeanWindSpeed = 0.;          // [m/s]
-  static constexpr double kDefaultConstantWindDirection = 0.;  // [rad]
-  static constexpr double kDefaultGustSpeedFactor = 1.;        // [-]
-  static constexpr double kDefaultGustDuration = 5.;           // [s]
-  static constexpr double kDefaultGustInterval = 10.;          // [s]
+  static constexpr double kDefaultMeanWindSpeed = 0.0;          // [m/s]
+  static constexpr double kDefaultConstantWindDirection = 0.0;  // [rad]
+  static constexpr double kDefaultGustSpeedFactor = 1.0;        // [-]
+  static constexpr double kDefaultGustDuration = 5.0;           // [s]
+  static constexpr double kDefaultGustInterval = 10.0;          // [s]
 
   using self = GazeboWindPlugin;
   using GetSrv = tobas_gazebo_msgs::srv::GetWindParams;
@@ -73,7 +73,7 @@ private:
   tobas_gazebo_msgs::msg::WindParams params_;
   ch::steady_clock::duration gust_state_change_time_;
   GustState gust_state_ = kOff;
-  double gust_speed_ = 0.;
+  double gust_speed_ = 0.0;
   DrydenSimulator dryden_;
 
   ros2::PublisherPtr<tobas_msgs::Wind> wind_pub_;
@@ -143,7 +143,7 @@ void GazeboWindPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim
         break;
       }
 
-      gust_speed_ = 0.;
+      gust_speed_ = 0.0;
       break;
     }
     default: {
@@ -154,7 +154,7 @@ void GazeboWindPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim
   // Steady wind, mean wind velocity plus gust.
   const auto v_steady_wind = params_.mean_speed + gust_speed_;
   const gz::math::Vector3d steady_W(
-    v_steady_wind * std::cos(params_.direction), v_steady_wind * std::sin(params_.direction), 0.);
+    v_steady_wind * std::cos(params_.direction), v_steady_wind * std::sin(params_.direction), 0.0);
 
   // Update the turbulence component.
   const auto rel_wind_speed = (steady_W - vel_W_->Data()).Length();  // Relative velocity of steady wind.

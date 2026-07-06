@@ -20,10 +20,10 @@ BladeTheory::BladeTheory(int num_blades, double radius, double blade_chord, doub
   : N_(num_blades), R_(radius), c_(blade_chord), theta_(pitch_angle), rho_(air_density)
 {
   TOBAS_CHECK(num_blades > 0);
-  TOBAS_CHECK(radius > 0.);
-  TOBAS_CHECK(blade_chord > 0.);
-  TOBAS_CHECK(0. < pitch_angle && pitch_angle < M_PI_2);
-  TOBAS_CHECK(air_density > 0.);
+  TOBAS_CHECK(radius > 0.0);
+  TOBAS_CHECK(blade_chord > 0.0);
+  TOBAS_CHECK(0.0 < pitch_angle && pitch_angle < M_PI_2);
+  TOBAS_CHECK(air_density > 0.0);
 }
 
 double BladeTheory::motorConst() const
@@ -61,8 +61,8 @@ double BladeTheory::C_H() const
 {
   const auto lam = lambda();
   const auto b0 = 0.5 * gamma * (theta_ / 4 - lam / 3);
-  const auto b1c = 2 * (lam - (4. / 3) * theta_);  // divided by mu
-  const auto b1s = -(4. / 3) * b0;                 // divided by mu
+  const auto b1c = 2 * (lam - (4.0 / 3) * theta_);  // divided by mu
+  const auto b1s = -(4.0 / 3) * b0;                 // divided by mu
   return (sigma() / 4) *
          (C_d0 + (a / 6) * (2 * theta_ * (3 * lam - 2 * b1c) + 9 * lam * b1c + 2 * b0 * b1s + 3 * math::sqr(b0)));
 }

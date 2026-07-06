@@ -32,7 +32,7 @@ class JointCommandsPublisherWidget : public QWidget
 
   static constexpr int kPublishPeriod = 10;        // [ms]
   static constexpr double kDefaultMaxVel = M_2PI;  // [rad/s]
-  static constexpr double kDefaultMaxEff = 10.;    // [Nm]
+  static constexpr double kDefaultMaxEff = 10.0;   // [Nm]
 
 public:
   explicit JointCommandsPublisherWidget(rclcpp::Node::SharedPtr node, const kdl::Tree& tree, const Drone& drone);

@@ -23,7 +23,7 @@ PwmPlotWidget::PwmPlotWidget()
   for (int i = 0; i < kPwmChannels; ++i) {
     const auto plot = new QwtPlot2();
     plot->setAxisNoLabel(QwtPlot::xBottom);
-    plot->setAxisScale(QwtPlot::yLeft, 0., 2500.);
+    plot->setAxisScale(QwtPlot::yLeft, 0.0, 2500.0);
 
     // Arrange widgets in an N-row, 2-column grid.
     const auto row = i / 2;

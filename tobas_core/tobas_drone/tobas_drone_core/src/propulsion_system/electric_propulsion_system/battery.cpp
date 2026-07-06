@@ -12,7 +12,7 @@ namespace tobas
 {
 bool BatteryConfig::isValid() const
 {
-  if (sag_voltage <= 0.) {
+  if (sag_voltage <= 0.0) {
     cerr << "Battery sag voltage must be positive." << endl;
     return false;
   }
@@ -27,12 +27,12 @@ bool BatteryConfig::isValid() const
     return false;
   }
 
-  if (max_current <= 0.) {
+  if (max_current <= 0.0) {
     cerr << "Battery max current must be positive." << endl;
     return false;
   }
 
-  if (internal_resistance < 0.) {
+  if (internal_resistance < 0.0) {
     cerr << "Battery internal resistance must be non-negative." << endl;
     return false;
   }

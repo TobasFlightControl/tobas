@@ -92,7 +92,7 @@ const char* PropellerWidget::name() const
 bool PropellerWidget::isValid()
 {
   const auto [min_pitch, max_pitch] = pitchAngleLimit();
-  if (0. <= min_pitch || max_pitch <= 0.) {
+  if (0.0 <= min_pitch || max_pitch <= 0.0) {
     qt::qWarnBox(this, "Pitch angle range must include 0.");
     return false;
   }

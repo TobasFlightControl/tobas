@@ -12,7 +12,7 @@ namespace y_axis_tilt_multicopter
 /* memo: 3-38 */
 class TranslationalEoM
 {
-  static constexpr double kMinVerticalForcePerMass = 1.;  // [m/s^2]
+  static constexpr double kMinVerticalForcePerMass = 1.0;  // [m/s^2]
 
 public:
   explicit TranslationalEoM(const kdl::Tree& tree);

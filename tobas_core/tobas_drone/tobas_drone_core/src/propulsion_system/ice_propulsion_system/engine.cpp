@@ -13,7 +13,7 @@ namespace tobas
 {
 bool EngineConfig::isValid() const
 {
-  if (engine_const.first <= 0. || engine_const.second <= 0.) {
+  if (engine_const.first <= 0.0 || engine_const.second <= 0.0) {
     std::cerr << "Engine constants must be positive." << std::endl;
     return false;
   }
@@ -46,11 +46,11 @@ YAML::Node EngineConfig::dump() const
 
 double EngineConfig::computeTorque(double speed, double throttle)
 {
-  assert(speed >= 0.);
-  assert(0. <= throttle && throttle <= 1.);
+  assert(speed >= 0.0);
+  assert(0.0 <= throttle && throttle <= 1.0);
 
   if (throttle < std::numeric_limits<double>::epsilon()) {
-    return 0.;
+    return 0.0;
   }
 
   const auto& [A, B] = engine_const;
@@ -63,17 +63,17 @@ double EngineConfig::computeTorque(double speed, double throttle)
 
 double EngineConfig::computeThrottle(double torque, double speed)
 {
-  assert(torque >= 0.);
-  assert(speed >= 0.);
+  assert(torque >= 0.0);
+  assert(speed >= 0.0);
 
   if (speed < std::numeric_limits<double>::epsilon()) {
-    return 0.;
+    return 0.0;
   }
 
   const auto& [A, B] = engine_const;
 
-  const auto cos_phi = 1. - A * torque / sqrt(std::max(B - torque / speed, 0.));
-  const auto phi = std::acos(std::clamp(cos_phi, 0., 1.));
+  const auto cos_phi = 1.0 - A * torque / sqrt(std::max(B - torque / speed, 0.0));
+  const auto phi = std::acos(std::clamp(cos_phi, 0.0, 1.0));
   return phi / M_PI_2;
 }
 

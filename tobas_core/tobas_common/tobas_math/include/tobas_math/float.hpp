@@ -22,7 +22,7 @@ template <typename T>
 inline bool isInteger(T x)
 {
   double ip;
-  return modf(x, &ip) == 0.;
+  return modf(x, &ip) == 0.0;
 }
 }  // namespace math
 }  // namespace tobas

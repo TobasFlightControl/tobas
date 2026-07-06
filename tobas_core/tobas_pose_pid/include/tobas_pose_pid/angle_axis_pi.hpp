@@ -22,8 +22,8 @@ public:
 
 private:
   // Gain
-  kdl::Vector kp_ = { 0., 0., 0. };
-  kdl::Vector ki_ = { 0., 0., 0. };
+  kdl::Vector kp_ = { 0.0, 0.0, 0.0 };
+  kdl::Vector ki_ = { 0.0, 0.0, 0.0 };
 
   // Error
   kdl::Vector ei_ = kdl::Vector::Zero();

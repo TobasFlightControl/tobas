@@ -38,18 +38,18 @@ bool AngleThrottleVectorController::requireHeading()
 
 void AngleThrottleVectorController::initialize(BaseNode* node, FlightMode mode)
 {
-  node->addDynamicDoubleParam(addMode("max_roll", mode), &self::maxRollCb, this, 5., 9, 1, 16, " deg");
-  node->addDynamicDoubleParam(addMode("max_roll_rate", mode), &self::maxRollRateCb, this, 15., 6, 1, 12, " dps");
-  node->addDynamicDoubleParam(addMode("max_pitch", mode), &self::maxPitchCb, this, 15., 6, 1, 12, " deg");
-  node->addDynamicDoubleParam(addMode("max_pitch_rate", mode), &self::maxPitchRateCb, this, 15., 6, 1, 12, " dps");
-  node->addDynamicDoubleParam(addMode("max_yaw_rate", mode), &self::maxYawRateCb, this, 15., 6, 1, 12, " dps");
-  node->addDynamicDoubleParam(addMode("max_thrust_angle", mode), &self::maxThrustAngleCb, this, 15., 6, 1, 12, " deg");
+  node->addDynamicDoubleParam(addMode("max_roll", mode), &self::maxRollCb, this, 5.0, 9, 1, 16, " deg");
+  node->addDynamicDoubleParam(addMode("max_roll_rate", mode), &self::maxRollRateCb, this, 15.0, 6, 1, 12, " dps");
+  node->addDynamicDoubleParam(addMode("max_pitch", mode), &self::maxPitchCb, this, 15.0, 6, 1, 12, " deg");
+  node->addDynamicDoubleParam(addMode("max_pitch_rate", mode), &self::maxPitchRateCb, this, 15.0, 6, 1, 12, " dps");
+  node->addDynamicDoubleParam(addMode("max_yaw_rate", mode), &self::maxYawRateCb, this, 15.0, 6, 1, 12, " dps");
+  node->addDynamicDoubleParam(addMode("max_thrust_angle", mode), &self::maxThrustAngleCb, this, 15.0, 6, 1, 12, " deg");
   node->addDynamicDoubleParam(
-    addMode("max_thrust_angle_rate", mode), &self::maxThrustAngleRateCb, this, 15., 6, 1, 12, " dps");
-  node->addDynamicDoubleParam(addMode("roll_expo", mode), &self::rollExpoCb, this, 5., -6, -20, 20);
-  node->addDynamicDoubleParam(addMode("yaw_expo", mode), &self::yawExpoCb, this, 5., -3, -20, 20);
-  node->addDynamicDoubleParam(addMode("throttle_expo", mode), &self::throttleExpoCb, this, 5., 0, 0, 20);
-  node->addDynamicDoubleParam(addMode("thrust_angle_expo", mode), &self::thrustAngleExpoCb, this, 5., 0, -20, 20);
+    addMode("max_thrust_angle_rate", mode), &self::maxThrustAngleRateCb, this, 15.0, 6, 1, 12, " dps");
+  node->addDynamicDoubleParam(addMode("roll_expo", mode), &self::rollExpoCb, this, 5.0, -6, -20, 20);
+  node->addDynamicDoubleParam(addMode("yaw_expo", mode), &self::yawExpoCb, this, 5.0, -3, -20, 20);
+  node->addDynamicDoubleParam(addMode("throttle_expo", mode), &self::throttleExpoCb, this, 5.0, 0, 0, 20);
+  node->addDynamicDoubleParam(addMode("thrust_angle_expo", mode), &self::thrustAngleExpoCb, this, 5.0, 0, -20, 20);
 
   cmd_pub_ = node->createPublisher<tobas_command_msgs::AngleThrottleVector>(topic::kAngleThrotVectorCmd);
 }
@@ -94,7 +94,7 @@ void AngleThrottleVectorController::update(const tobas_msgs::RCInput& rcin, cons
   // Pitch & Thrust Angle
   if (rcin.sub_mode)  // Translation mode
   {
-    pitch_filt_.setTargetPointAndUpdate(0., dt);
+    pitch_filt_.setTargetPointAndUpdate(0.0, dt);
     thrust_angle_filt_.setTargetPointAndUpdate(
       expoRemapDead(rcin.pitch, thrust_angle_expo_, -max_thrust_angle_, max_thrust_angle_), dt);
   }

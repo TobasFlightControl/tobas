@@ -27,7 +27,7 @@ public:
   {
   }
 
-  inline explicit VppMomentConstant() : a(0.), b(0.), c(0.), phi0(0.)
+  inline explicit VppMomentConstant() : a(0.0), b(0.0), c(0.0), phi0(0.0)
   {
   }
 

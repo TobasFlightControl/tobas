@@ -37,12 +37,13 @@ bool RateThrottleVectorController::requireHeading()
 
 void RateThrottleVectorController::initialize(BaseNode* node, FlightMode mode)
 {
-  node->addDynamicDoubleParam(addMode("max_attitude_rate", mode), &self::maxAttitudeRateCb, this, 45., 8, 1, 16, " dps");
-  node->addDynamicDoubleParam(addMode("max_heading_rate", mode), &self::maxHeadingRateCb, this, 45., 8, 1, 16, " dps");
-  node->addDynamicDoubleParam(addMode("max_thrust_angle", mode), &self::maxThrustAngleCb, this, 15., 6, 1, 12, " deg");
-  node->addDynamicDoubleParam(addMode("attitude_expo", mode), &self::attitudeExpoCb, this, 5., -6, -20, 20);
-  node->addDynamicDoubleParam(addMode("heading_expo", mode), &self::headingExpoCb, this, 5., -3, -20, 20);
-  node->addDynamicDoubleParam(addMode("throttle_expo", mode), &self::throttleExpoCb, this, 5., 0, 0, 20);
+  node->addDynamicDoubleParam(
+    addMode("max_attitude_rate", mode), &self::maxAttitudeRateCb, this, 45.0, 8, 1, 16, " dps");
+  node->addDynamicDoubleParam(addMode("max_heading_rate", mode), &self::maxHeadingRateCb, this, 45.0, 8, 1, 16, " dps");
+  node->addDynamicDoubleParam(addMode("max_thrust_angle", mode), &self::maxThrustAngleCb, this, 15.0, 6, 1, 12, " deg");
+  node->addDynamicDoubleParam(addMode("attitude_expo", mode), &self::attitudeExpoCb, this, 5.0, -6, -20, 20);
+  node->addDynamicDoubleParam(addMode("heading_expo", mode), &self::headingExpoCb, this, 5.0, -3, -20, 20);
+  node->addDynamicDoubleParam(addMode("throttle_expo", mode), &self::throttleExpoCb, this, 5.0, 0, 0, 20);
 
   cmd_pub_ = node->createPublisher<tobas_command_msgs::RateThrottleVector>(topic::kRateThrotVectorCmd);
 }
@@ -58,12 +59,12 @@ void RateThrottleVectorController::update(const tobas_msgs::RCInput& rcin, const
   cmd->priority.data = tobas_command_msgs::msg::Priority::MANUAL;
 
   if (rcin.sub_mode) {  // Translation mode
-    cmd->rate.y(0.);
+    cmd->rate.y(0.0);
     cmd->thrust_angle = remapDead(rcin.pitch, -max_thrust_angle_, max_thrust_angle_);
   }
   else {  // Rotation mode
     cmd->rate.y(expoRemap(rcin.pitch, atti_expo_, -max_atti_rate_, max_atti_rate_));
-    cmd->thrust_angle = 0.;
+    cmd->thrust_angle = 0.0;
   }
 
   cmd->rate.x(expoRemap(rcin.roll, atti_expo_, -max_atti_rate_, max_atti_rate_));

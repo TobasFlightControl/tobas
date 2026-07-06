@@ -40,7 +40,7 @@ bool AsymmetricFirstOrderFilter<T>::initialize(
   const double& time_const_down,
   const T& init_value)
 {
-  if (time_const_up < 0. || time_const_down < 0.) {
+  if (time_const_up < 0.0 || time_const_down < 0.0) {
     std::cerr << "Time constant must be non-negative." << std::endl;
     return false;
   }
@@ -61,7 +61,7 @@ bool AsymmetricFirstOrderFilter<T>::update(const T& input_value, const double& s
     return false;
   }
 
-  if (sampling_time <= 0.) {
+  if (sampling_time <= 0.0) {
     std::cerr << "Sampling time must be positive." << std::endl;
     return false;
   }

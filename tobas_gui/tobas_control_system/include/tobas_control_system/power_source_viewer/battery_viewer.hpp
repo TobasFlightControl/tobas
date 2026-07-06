@@ -3,9 +3,11 @@
 
 #pragma once
 
+#include <QWidget>
+
 #include <tobas_drone_core/drone.hpp>
 #include <tobas_drone_core/propulsion_system/electric_propulsion_system/electric_propulsion_system.hpp>
-#include <tobas_qt_tools/widgets/position_bar_widget.hpp>
+#include <tobas_qt_tools/widgets/progress_bar.hpp>
 #include <tobas_rqt_bridge/bridge.hpp>
 
 namespace tobas
@@ -34,8 +36,8 @@ private:
   const Drone& drone_;
   ElectricPropulsionSystemConfig::ConstSharedPtr eprop_;
 
-  qt::HPositionBarWidget* voltage_;
-  qt::HPositionBarWidget* current_;
+  qt::ProgressBar* voltage_;
+  qt::ProgressBar* current_;
 
   void updateVoltage(const double& voltage);
   void updateCurrent(const double& current);

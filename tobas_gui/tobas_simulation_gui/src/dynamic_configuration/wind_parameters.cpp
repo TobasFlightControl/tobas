@@ -33,11 +33,11 @@ WindParamsWidget::WindParamsWidget(rclcpp::Node::SharedPtr node) : node_(node)
   reset_button_ = new QPushButton("Reset");
   reset_button_->setFixedSize(kHeaderButtonWidth, kHeaderButtonHeight);
 
-  mean_speed_ = new qt::DoubleSliderTextWidget(0., 20., 1);
+  mean_speed_ = new qt::DoubleSliderTextWidget(0.0, 20.0, 1);
   direction_ = new qt::IntSliderTextWidget(-180, 180);
-  gust_speed_factor_ = new qt::DoubleSliderTextWidget(0., 10., 1);
-  gust_duration_ = new qt::DoubleSliderTextWidget(0., 10., 1);
-  gust_interval_ = new qt::DoubleSliderTextWidget(0., 30., 1);
+  gust_speed_factor_ = new qt::DoubleSliderTextWidget(0.0, 10.0, 1);
+  gust_duration_ = new qt::DoubleSliderTextWidget(0.0, 10.0, 1);
+  gust_interval_ = new qt::DoubleSliderTextWidget(0.0, 30.0, 1);
 
   reset();
 
@@ -118,11 +118,11 @@ bool WindParamsWidget::start(ch::milliseconds timeout)
 
 void WindParamsWidget::reset()
 {
-  setMeanSpeed(0.);
-  setDirection(0.);
-  setGustSpeedFactor(0.);
-  setGustDuration(0.);
-  setGustInterval(0.);
+  setMeanSpeed(0.0);
+  setDirection(0.0);
+  setGustSpeedFactor(0.0);
+  setGustDuration(0.0);
+  setGustInterval(0.0);
 }
 
 double WindParamsWidget::getMeanSpeed() const

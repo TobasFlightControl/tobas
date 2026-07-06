@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include "tobas_control_system/status_viewer/status.hpp"
+#include "tobas_control_system/health_viewer/status.hpp"
 
 #include <QDebug>
 #include <QHBoxLayout>
+#include <QPalette>
 
 #include <tobas_qt_tools/widgets/label.hpp>
 
@@ -16,36 +17,41 @@ namespace ctrl
 {
 StatusWidget::StatusWidget(const QString& text)
 {
-  led_ = new qt::CircleWidget();
-  led_->setFixedSize(kLEDSize, kLEDSize);
+  setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
+
+  status_ = new qt::FramedLabel();
+  status_->setAlignment(Qt::AlignCenter);
+  status_->setFixedWidth(kStatusWidth);
+
+  label_ = new qt::Label(text, kTextPSize);
 
   reset();
 
   const auto cols = new QHBoxLayout();
-  cols->addWidget(led_);
-  cols->addWidget(new qt::Label(text, kTextPSize));
+  cols->addWidget(status_);
+  cols->addWidget(label_);
   setLayout(cols);
 }
 
 void StatusWidget::reset()
 {
-  led_->setFillColor(kUnknownColor);
+  setStatusText("---", palette().color(QPalette::Disabled, QPalette::WindowText));
 }
 
 void StatusWidget::setStatus(Status status)
 {
   switch (status) {
     case PASSED:
-      led_->setFillColor(kPassedColor);
+      setStatusText("OK", Qt::darkGreen);
       break;
     case FAILED:
-      led_->setFillColor(kFailedColor);
+      setStatusText("NG", Qt::darkRed);
       break;
     case IGNORED:
-      led_->setFillColor(kIgnoredColor);
+      setStatusText("Skip", Qt::darkYellow);
       break;
     case UNKNOWN:
-      led_->setFillColor(kUnknownColor);
+      reset();
       break;
     default:
       qWarning() << "Unknown status:" << status;
@@ -63,6 +69,15 @@ void StatusWidget::setStatus(bool ok)
 {
   const auto status = ok ? PASSED : FAILED;
   setStatus(status);
+}
+
+void StatusWidget::setStatusText(const QString& text, const QColor& color)
+{
+  status_->setText(text);
+
+  auto pal = status_->palette();
+  pal.setColor(QPalette::WindowText, color);
+  status_->setPalette(pal);
 }
 }  // namespace ctrl
 }  // namespace gui

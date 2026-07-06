@@ -21,7 +21,7 @@ public:
   {
   }
 
-  inline explicit VppMotorConstant() : c0(0.), c1(0.)
+  inline explicit VppMotorConstant() : c0(0.0), c1(0.0)
   {
   }
 

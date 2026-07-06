@@ -40,17 +40,18 @@ void AccelAngleController::initialize(BaseNode* node, FlightMode mode)
   node->addDynamicDoubleParam(
     addMode("max_horizontal_accel", mode), &self::maxHorizontalAccelCb, this, 0.5, 10, 1, 20, " m/s^2");
   node->addDynamicDoubleParam(
-    addMode("max_horizontal_jerk", mode), &self::maxHorizontalJerkCb, this, 5., 8, 1, 20, " m/s^3");
+    addMode("max_horizontal_jerk", mode), &self::maxHorizontalJerkCb, this, 5.0, 8, 1, 20, " m/s^3");
   node->addDynamicDoubleParam(
     addMode("max_vertical_accel", mode), &self::maxVerticalAccelCb, this, 0.5, 16, 1, 20, " m/s^2");
-  node->addDynamicDoubleParam(addMode("max_attitude", mode), &self::maxAttitudeCb, this, 15., 6, 1, 12, " deg");
-  node->addDynamicDoubleParam(addMode("max_attitude_rate", mode), &self::maxAttitudeRateCb, this, 15., 6, 1, 12, " dps");
-  node->addDynamicDoubleParam(addMode("max_heading_rate", mode), &self::maxHeadingRateCb, this, 15., 6, 1, 12, " dps");
+  node->addDynamicDoubleParam(addMode("max_attitude", mode), &self::maxAttitudeCb, this, 15.0, 6, 1, 12, " deg");
   node->addDynamicDoubleParam(
-    addMode("horizontal_accel_expo", mode), &self::horizontalAccelExpoCb, this, 5., -6, -20, 20);
-  node->addDynamicDoubleParam(addMode("vertical_accel_expo", mode), &self::verticalAccelExpoCb, this, 5., 0, -20, 20);
-  node->addDynamicDoubleParam(addMode("attitude_expo", mode), &self::attitudeExpoCb, this, 5., 0, -20, 20);
-  node->addDynamicDoubleParam(addMode("heading_expo", mode), &self::headingExpoCb, this, 5., -3, -20, 20);
+    addMode("max_attitude_rate", mode), &self::maxAttitudeRateCb, this, 15.0, 6, 1, 12, " dps");
+  node->addDynamicDoubleParam(addMode("max_heading_rate", mode), &self::maxHeadingRateCb, this, 15.0, 6, 1, 12, " dps");
+  node->addDynamicDoubleParam(
+    addMode("horizontal_accel_expo", mode), &self::horizontalAccelExpoCb, this, 5.0, -6, -20, 20);
+  node->addDynamicDoubleParam(addMode("vertical_accel_expo", mode), &self::verticalAccelExpoCb, this, 5.0, 0, -20, 20);
+  node->addDynamicDoubleParam(addMode("attitude_expo", mode), &self::attitudeExpoCb, this, 5.0, 0, -20, 20);
+  node->addDynamicDoubleParam(addMode("heading_expo", mode), &self::headingExpoCb, this, 5.0, -3, -20, 20);
 
   accel_pub_ = node->createPublisher<tobas_command_msgs::Accel>(topic::kAccelCmd);
   angle_pub_ = node->createPublisher<tobas_command_msgs::Angle>(topic::kAngleCmd);
@@ -60,8 +61,8 @@ void AccelAngleController::reset(const builtin_interfaces::msg::Time& stamp, con
 {
   t_last_rcin_ = stamp;
 
-  ax_filt_.resetCurrentTrajectoryPoint(0.);
-  ay_filt_.resetCurrentTrajectoryPoint(0.);
+  ax_filt_.resetCurrentTrajectoryPoint(0.0);
+  ay_filt_.resetCurrentTrajectoryPoint(0.0);
 
   const auto [roll, pitch, yaw] = setpoint.frame.M.getRPY();
   roll_filt_.resetCurrentTrajectoryPoint(roll);
@@ -80,15 +81,15 @@ void AccelAngleController::update(const tobas_msgs::RCInput& rcin, const tobas_m
   {
     ax_filt_.setTargetPointAndUpdate(expoRemap(rcin.pitch, hor_acc_expo_, -max_hor_acc_, max_hor_acc_), dt);
     ay_filt_.setTargetPointAndUpdate(-expoRemap(rcin.roll, hor_acc_expo_, -max_hor_acc_, max_hor_acc_), dt);
-    roll_filt_.setTargetPointAndUpdate(0., dt);
-    pitch_filt_.setTargetPointAndUpdate(0., dt);
+    roll_filt_.setTargetPointAndUpdate(0.0, dt);
+    pitch_filt_.setTargetPointAndUpdate(0.0, dt);
   }
   else  // Rotation mode
   {
     roll_filt_.setTargetPointAndUpdate(expoRemapDead(rcin.roll, atti_expo_, -max_attitude_, max_attitude_), dt);
     pitch_filt_.setTargetPointAndUpdate(expoRemapDead(rcin.pitch, atti_expo_, -max_attitude_, max_attitude_), dt);
-    ax_filt_.setTargetPointAndUpdate(0., dt);
-    ay_filt_.setTargetPointAndUpdate(0., dt);
+    ax_filt_.setTargetPointAndUpdate(0.0, dt);
+    ay_filt_.setTargetPointAndUpdate(0.0, dt);
   }
 
   // Vertical acceleration

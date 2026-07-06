@@ -63,7 +63,7 @@ MatrixXd care_ArimotoPotter(const MatrixXd& A, const MatrixXd& B, const MatrixXd
   MatrixXcd eigvecs_stable(n * 2, n);
   Index j = 0;  // The index of stable eigenvalue. This value must become identical to n.
   for (Index i = 0; i < n * 2; ++i) {
-    if (eigvals(i) < 0.) {
+    if (eigvals(i) < 0.0) {
       eigvecs_stable.col(j) = eigvecs.col(i);
       ++j;
     }

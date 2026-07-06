@@ -25,7 +25,7 @@ private:
   static constexpr size_t kCrcIdx = kPacketLength - 2;  // uint16
 
   static constexpr double kAccelScale = 0.488 * 1e-3 * st::kGravity;
-  static constexpr double kGyroScale = 35. * 1e-3 * st::kDeg2Rad;
+  static constexpr double kGyroScale = 35.0 * 1e-3 * st::kDeg2Rad;
   static constexpr double kDGyroScale = st::kDeg2Rad / 3.2767;
 
 public:
@@ -62,7 +62,7 @@ private:
 
 inline void PwmBattImu::getBattVoltage(double& voltage) const
 {
-  voltage = rx_buf_[0] / 771.;
+  voltage = rx_buf_[0] / 771.0;
 }
 
 inline void PwmBattImu::getBattCurrent(double& current) const

@@ -44,7 +44,7 @@ bool QpMixer::solve(
   const double& tar_thrusts_sum,
   const kdl::Vector& ext_torque_B)
 {
-  if (tar_thrusts_sum < 0.) {
+  if (tar_thrusts_sum < 0.0) {
     std::cerr << "Target thrust must be non-negative: " << tar_thrusts_sum << " < 0" << std::endl;
     return false;
   }
@@ -102,8 +102,8 @@ bool QpMixer::solve(
 
   // Inequality constraints.
   // Compute the total thrust range at the same time.
-  double max_thrust_sum = 0.;
-  double min_thrust_sum = 0.;
+  double max_thrust_sum = 0.0;
+  double min_thrust_sum = 0.0;
   for (const auto& [idx, pair] : std::views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = pair.second;
 
@@ -113,8 +113,8 @@ bool QpMixer::solve(
       min_thrust = drone_.prop->minThrust(rotor->link_name);
     }
     else {
-      max_thrust = 0.;
-      min_thrust = 0.;
+      max_thrust = 0.0;
+      min_thrust = 0.0;
     }
 
     qp_.problem.b(idx) = max_thrust;
@@ -124,7 +124,7 @@ bool QpMixer::solve(
   }
 
   // Exit if thrust cannot be generated.
-  if (max_thrust_sum == 0.) {
+  if (max_thrust_sum == 0.0) {
     std::cerr << "The vehicle cannot generate thrust." << std::endl;
     return false;
   }
@@ -152,7 +152,7 @@ double QpMixer::getThrust(size_t idx) const
 
 bool QpMixer::setBaseWeight(double p)
 {
-  if (p <= 0.) {
+  if (p <= 0.0) {
     std::cerr << "Base weight must be positive." << std::endl;
     return false;
   }
@@ -163,7 +163,7 @@ bool QpMixer::setBaseWeight(double p)
 
 bool QpMixer::setThrustWeight(double p)
 {
-  if (p <= 0.) {
+  if (p <= 0.0) {
     std::cerr << "Thrust weight must be positive." << std::endl;
     return false;
   }

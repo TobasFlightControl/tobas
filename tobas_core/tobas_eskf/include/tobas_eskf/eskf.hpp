@@ -56,9 +56,9 @@ class ErrorStateKalmanFilter
   static constexpr size_t kDeltaStateSize = kDeltaGravIdx + 1;
 
   // Variable ranges.
-  static constexpr double kMaxAccBias = 1.;                 // [m/s^2]
+  static constexpr double kMaxAccBias = 1.0;                // [m/s^2]
   static constexpr double kMaxGyroBias = 0.1;               // [rad/s]
-  static constexpr double kMaxMagHardBias = 2.;             // [-]
+  static constexpr double kMaxMagHardBias = 2.0;            // [-]
   static constexpr double kMinMagSoftBiasEigenValue = 0.1;  // [-]
   static constexpr double kMinGravity = 9.75;               // [m/s^2]
   static constexpr double kMaxGravity = 9.85;               // [m/s^2]
@@ -245,12 +245,12 @@ private:
   bool enable_cov_symmetrisation_ = false;
   bool enable_cov_initialization_ = false;
   bool enable_joseph_form_ = true;
-  double acc_bias_proc_noise_density_ = 0.;       // [m/s^3/√Hz] Process noise density of acceleration bias.
-  double gyro_bias_proc_noise_density_ = 0.;      // [rad/s^2/√Hz] Process noise density of gyro bias.
-  double mag_hard_bias_proc_noise_density_ = 0.;  // [/s/√Hz] Process noise density of magnetometer hard-iron bias.
-  double mag_soft_bias_proc_noise_density_ = 0.;  // [/s/√Hz] Process noise density of magnetometer soft-iron bias.
-  double baro_alt_bias_proc_noise_density_ = 0.;  // [m/s/√Hz] Process noise density of barometric altitude bias.
-  double grav_proc_noise_density_ = 0.;           // [m/s^3/√Hz] Process noise density of gravitational acceleration.
+  double acc_bias_proc_noise_density_ = 0.0;       // [m/s^3/√Hz] Process noise density of acceleration bias.
+  double gyro_bias_proc_noise_density_ = 0.0;      // [rad/s^2/√Hz] Process noise density of gyro bias.
+  double mag_hard_bias_proc_noise_density_ = 0.0;  // [/s/√Hz] Process noise density of magnetometer hard-iron bias.
+  double mag_soft_bias_proc_noise_density_ = 0.0;  // [/s/√Hz] Process noise density of magnetometer soft-iron bias.
+  double baro_alt_bias_proc_noise_density_ = 0.0;  // [m/s/√Hz] Process noise density of barometric altitude bias.
+  double grav_proc_noise_density_ = 0.0;           // [m/s^3/√Hz] Process noise density of gravitational acceleration.
 
   StateVector x_;         // State vector of the filter
   DeltaStateMatrix P_;    // Covariance of the error state
@@ -271,7 +271,7 @@ private:
   std::chrono::steady_clock::time_point t_last_imu_;
   st::TimestampedBuffer<StateVector> x_history_;
   Eigen::Vector3d mag_W_ = Eigen::Vector3d::Zero();
-  double baro_alt_origin_ = 0.;
+  double baro_alt_origin_ = 0.0;
 
   // Direct value getters
   inline Eigen::Vector3d getPosition(const StateVector& x) const;

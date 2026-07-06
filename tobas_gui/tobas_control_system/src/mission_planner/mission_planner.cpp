@@ -19,6 +19,7 @@
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/path.hpp>
+#include <tobas_qt_tools/util.hpp>
 #include <tobas_std_tools/byte.hpp>
 #include <tobas_std_tools/check.hpp>
 #include <tobas_std_tools/gnss.hpp>
@@ -45,14 +46,14 @@ using MapSplinePath = traj::CatmullRomPath<Eigen::Vector2d>;
 
 size_t splineMapSampleCount(const MapSplinePath& path, size_t segment)
 {
-  constexpr double kSplineMapSampleInterval = 1.;  // [m]
+  constexpr double kSplineMapSampleInterval = 1.0;  // [m]
   constexpr size_t kMinSplineMapSamplesPerSegment = 4;
   constexpr size_t kMaxSplineMapSamplesPerSegment = 80;
   constexpr size_t kSplineMapLengthEstimateSamples = 10;
 
   // This is for display, so approximate the curve length with a small number of points before determining the sample count.
-  double length = 0.;
-  auto prev = path.get(segment, 0.).pos;
+  double length = 0.0;
+  auto prev = path.get(segment, 0.0).pos;
   for (size_t sample = 1; sample <= kSplineMapLengthEstimateSamples; ++sample) {
     const auto u = static_cast<double>(sample) / static_cast<double>(kSplineMapLengthEstimateSamples);
     const auto cur = path.get(segment, u).pos;
@@ -85,7 +86,6 @@ MissionPlannerWidget::MissionPlannerWidget(rclcpp::Node::SharedPtr node, const R
   command_list_->setDragDropMode(QListWidget::InternalMove);
 
   commands_ = new qt::StackedWidget();
-  commands_->setStyleSheet("QStackedWidget { border: 1px solid black; background-color: white; }");
 
   reset();
 
@@ -102,8 +102,8 @@ MissionPlannerWidget::MissionPlannerWidget(rclcpp::Node::SharedPtr node, const R
   button_cols->addWidget(focus_button_, 1);
 
   const auto mission_cols = new QHBoxLayout();
-  mission_cols->addWidget(command_list_, 1);
-  mission_cols->addWidget(commands_, 3);
+  mission_cols->addWidget(qt::makeGroup("Commands", command_list_), 1);
+  mission_cols->addWidget(qt::makeGroup("Command Details", commands_), 3);
 
   const auto rows = new QVBoxLayout();
   rows->addWidget(map_, 2);
@@ -134,8 +134,8 @@ MissionPlannerWidget::MissionPlannerWidget(rclcpp::Node::SharedPtr node, const R
 void MissionPlannerWidget::reset()
 {
   map_->clear();
-  map_->setArrowPosition(0., 0.);
-  map_->setArrowRotation(0.);
+  map_->setArrowPosition(0.0, 0.0);
+  map_->setArrowRotation(0.0);
 
   clearMission();
   setEditMode();
@@ -274,7 +274,7 @@ void MissionPlannerWidget::commandsToMap()
         const auto longitude = waypoint->longitude();
         const auto coord = QGeoCoordinate(latitude, longitude);
 
-        const auto acceptance_radius = waypoint->isSplineSegmentEnd() ? waypoint->acceptanceRadius() : 0.;
+        const auto acceptance_radius = waypoint->isSplineSegmentEnd() ? waypoint->acceptanceRadius() : 0.0;
         const auto point_color = item == cur_item ? "orange" : "cyan";
         map_->addWaypoint(wp_index, coord, acceptance_radius, point_color);
 
@@ -600,7 +600,7 @@ void MissionPlannerWidget::onAddButtonClicked()
       const auto last_wp = findLastWaypoint();
       if (last_wp) {
         // Place the second and later waypoints slightly east of the last point.
-        const auto [lat, lon] = st::cartToGnssRelative(10., 0., last_wp->latitude(), last_wp->longitude());
+        const auto [lat, lon] = st::cartToGnssRelative(10.0, 0.0, last_wp->latitude(), last_wp->longitude());
         new_wp->latitude(lat);
         new_wp->longitude(lon);
       }

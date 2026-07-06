@@ -3,6 +3,7 @@
 
 #include "tobas_control_system/power_source_viewer/battery_viewer.hpp"
 
+#include <algorithm>
 #include <format>
 
 #include <boost/polymorphic_pointer_cast.hpp>
@@ -20,16 +21,16 @@ namespace ctrl
 {
 BatteryViewerWidget::BatteryViewerWidget(const RosQtBridge& bridge, const Drone& drone) : drone_(drone)
 {
-  voltage_ = new qt::HPositionBarWidget();
-  current_ = new qt::HPositionBarWidget();
+  voltage_ = new qt::ProgressBar();
+  current_ = new qt::ProgressBar();
 
   voltage_->setFixedHeight(kBarHeight);
   current_->setFixedHeight(kBarHeight);
 
   // Layout
   const auto form = new qt::FormLayout();
-  form->addVAlignedRow(new qt::Label("Batt Volt", kLabelPSize), voltage_);
-  form->addVAlignedRow(new qt::Label("Batt Curr", kLabelPSize), current_);
+  form->addVAlignedRow(new qt::Label("Volt", kLabelPSize), voltage_);
+  form->addVAlignedRow(new qt::Label("Curr", kLabelPSize), current_);
   setLayout(form);
 
   // Connection
@@ -38,11 +39,8 @@ BatteryViewerWidget::BatteryViewerWidget(const RosQtBridge& bridge, const Drone&
 
 void BatteryViewerWidget::reset()
 {
-  voltage_->setUpper(voltage_->getMinimum());
-  voltage_->setCenterText("");
-
-  current_->setUpper(current_->getMinimum());
-  current_->setCenterText("");
+  voltage_->reset();
+  current_->reset();
 }
 
 void BatteryViewerWidget::updateInternalDataStructures()
@@ -51,14 +49,6 @@ void BatteryViewerWidget::updateInternalDataStructures()
 
   if (drone_.prop->type() == PropulsionSystem::kElectric) {
     eprop_ = boost::polymorphic_pointer_downcast<ElectricPropulsionSystemConfig>(drone_.prop);
-
-    voltage_->setLower(eprop_->battery.sag_voltage);
-    voltage_->setMinimum(eprop_->battery.sag_voltage);
-    voltage_->setMaximum(eprop_->battery.max_voltage);
-
-    current_->setLower(0.);
-    current_->setMinimum(0.);
-    current_->setMaximum(eprop_->battery.max_current);
   }
   else {
     eprop_.reset();
@@ -67,14 +57,14 @@ void BatteryViewerWidget::updateInternalDataStructures()
 
 void BatteryViewerWidget::updateVoltage(const double& voltage)
 {
-  const auto volt_rate = math::remap(voltage, eprop_->battery.sag_voltage, eprop_->battery.max_voltage, 0., 100.);
-  voltage_->setUpper(voltage);
-  voltage_->setCenterText(std::format("{:.2f} V ({:.0f} %)", voltage, std::max(volt_rate, 0.)).c_str());
+  const auto volt_rate = math::remap(voltage, eprop_->battery.sag_voltage, eprop_->battery.max_voltage, 0.0, 100.0);
+  voltage_->setPercentage(volt_rate);
+  voltage_->setFormat(std::format("{:.2f} V ({:.0f} %)", voltage, std::clamp(volt_rate, 0.0, 100.0)).c_str());
 
-  if (volt_rate > 20.) {
+  if (volt_rate > 20.0) {
     voltage_->setFillColor(Qt::green);
   }
-  else if (volt_rate > 10.) {
+  else if (volt_rate > 10.0) {
     voltage_->setFillColor(Qt::yellow);
   }
   else {
@@ -84,8 +74,9 @@ void BatteryViewerWidget::updateVoltage(const double& voltage)
 
 void BatteryViewerWidget::updateCurrent(const double& current)
 {
-  current_->setUpper(current);
-  current_->setCenterText(std::format("{:.2f} A", current).c_str());
+  const auto current_rate = math::remap(current, 0.0, eprop_->battery.max_current, 0.0, 100.0);
+  current_->setPercentage(current_rate);
+  current_->setFormat(std::format("{:.2f} A", current).c_str());
 
   if (current < eprop_->battery.max_current * 0.6) {
     current_->setFillColor(Qt::green);

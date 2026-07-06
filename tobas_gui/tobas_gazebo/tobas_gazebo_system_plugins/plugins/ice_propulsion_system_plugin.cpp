@@ -151,7 +151,7 @@ void GazeboIcePropulsionSystemPlugin::PreUpdate(const gz::sim::UpdateInfo& info,
   // Force throttle to zero after a fixed time has elapsed since the last throttle command was issued.
   const auto secs_from_last_cmd = (prev_sim_time_ - last_cmd_time_).seconds();
   if (secs_from_last_cmd > kAutoStopTimeout) {
-    engine_.setThrottle(0.);
+    engine_.setThrottle(0.0);
   }
 
   // Update gazebo states
@@ -194,8 +194,8 @@ void GazeboIcePropulsionSystemPlugin::PostUpdate(const gz::sim::UpdateInfo& info
     auto rotor_state_gt = std::make_unique<tobas_gazebo_msgs::msg::RotorState>();
     ros2::timeChronoToMsg(info.simTime, rotor_state_gt->header.stamp);
     rotor_state_gt->rotation_speed = rotor.getSpeed(engine_.getSpeed());
-    rotor_state_gt->current = 0.;
-    rotor_state_gt->vibration_force = 0.;  // TODO: Vibration model for engine-driven propellers.
+    rotor_state_gt->current = 0.0;
+    rotor_state_gt->vibration_force = 0.0;  // TODO: Vibration model for engine-driven propellers.
     rotor_state_gt_pubs_.at(link_name)->publish(std::move(rotor_state_gt));
   }
 
@@ -254,7 +254,7 @@ void GazeboIcePropulsionSystemPlugin::iceCommandCb(
     }
     if (!std::isfinite(elem.angle)) {
       TOBAS_WARN("The commanded pitch angle of propeller \"", elem.link_name, "\" is not finite: ", elem.angle);
-      rotors_.at(elem.link_name).setTargetPitchAngle(0.);
+      rotors_.at(elem.link_name).setTargetPitchAngle(0.0);
       continue;
     }
     rotors_.at(elem.link_name).setTargetPitchAngle(elem.angle);

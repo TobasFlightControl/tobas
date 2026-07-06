@@ -49,7 +49,7 @@ bool waitUntilNodeGone(const rclcpp::Node::SharedPtr& node, const std::string& t
 
   // Check for the target node periodically.
   const auto deadline = ch::steady_clock::now() + timeout;
-  rclcpp::Rate rate(10., node->get_clock());
+  rclcpp::Rate rate(10.0, node->get_clock());
   while (rclcpp::ok()) {
     // Handle timeout.
     if (ch::steady_clock::now() > deadline) {

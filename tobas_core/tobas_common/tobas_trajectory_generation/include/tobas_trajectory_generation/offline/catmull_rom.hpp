@@ -58,9 +58,9 @@ public:
     }
 
     // Approximate the arc length by finely sampling each segment so `get()` can quickly find the segment from distance `s`.
-    lengths_.push_back(0.);
+    lengths_.push_back(0.0);
     for (size_t segment = 0; segment < segmentCount(); ++segment) {
-      auto prev = get(segment, 0.).pos;
+      auto prev = get(segment, 0.0).pos;
       for (size_t sample = 1; sample <= kSplineSamplesPerSegment; ++sample) {
         const auto u = static_cast<double>(sample) / static_cast<double>(kSplineSamplesPerSegment);
         const auto cur = get(segment, u).pos;
@@ -98,11 +98,11 @@ public:
    */
   CatmullRomPathPoint<Vector> get(double s) const
   {
-    if (s <= 0.) {
-      return get(0, 0.);
+    if (s <= 0.0) {
+      return get(0, 0.0);
     }
     if (s >= length()) {
-      return get(segmentCount() - 1, 1.);
+      return get(segmentCount() - 1, 1.0);
     }
 
     // Find samples that bracket `s` in the arc-length table,
@@ -115,7 +115,7 @@ public:
 
     const auto s0 = lengths_[prev_idx];
     const auto s1 = lengths_[idx];
-    const auto ratio = s1 > s0 ? (s - s0) / (s1 - s0) : 0.;
+    const auto ratio = s1 > s0 ? (s - s0) / (s1 - s0) : 0.0;
     const auto u0 = static_cast<double>(sample) / static_cast<double>(kSplineSamplesPerSegment);
     const auto u1 = static_cast<double>(sample + 1) / static_cast<double>(kSplineSamplesPerSegment);
     return get(segment, u0 + (u1 - u0) * ratio);
@@ -148,7 +148,7 @@ public:
     const auto ddu = (12 * u - 6) * p0 + (6 * u - 4) * m0 + (-12 * u + 6) * p1 + (6 * u - 2) * m1;
 
     const auto du_norm = du.norm();
-    if (du_norm == 0.) {
+    if (du_norm == 0.0) {
       // If the tangent cannot be defined locally, for example due to duplicate points,
       // do not issue velocity or acceleration commands.
       return { pos, Vector::Zero(), Vector::Zero() };

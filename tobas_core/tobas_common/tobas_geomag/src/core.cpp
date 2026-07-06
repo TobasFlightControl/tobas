@@ -43,8 +43,8 @@ Vector ecefFromGeodetic(double lat, double lon, double h)
   const auto lam = st::deg2rad(lon);
 
   // WGS 84 constants
-  constexpr double a = 6378137.;  // [m]
-  constexpr double f = 1. / 298.257223563;
+  constexpr double a = 6378137.0;  // [m]
+  constexpr double f = 1.0 / 298.257223563;
   constexpr double e2 = f * (2 - f);
   constexpr double e2m = (1 - f) * (1 - f);
 
@@ -52,7 +52,7 @@ Vector ecefFromGeodetic(double lat, double lon, double h)
   const auto cphi = std::cos(phi);
   const auto slam = std::sin(lam);
   const auto clam = std::cos(lam);
-  const auto n = a / std::sqrt(1. - e2 * (sphi * sphi));
+  const auto n = a / std::sqrt(1.0 - e2 * (sphi * sphi));
   const auto z = (e2m * n + h) * sphi;
   const auto r = (n + h) * cphi;
   return { r * clam, r * slam, z };
@@ -61,16 +61,16 @@ Vector ecefFromGeodetic(double lat, double lon, double h)
 Vector magFieldFromECEF(double dyear, const Vector& position_itrs, const ConstModel& WMM)
 {
   // Mean radius of  ellipsoid in meters from section 1.2 of the WMM2015 Technical report
-  constexpr double EARTH_R = 6371200.;
+  constexpr double EARTH_R = 6371200.0;
 
   const auto& x = position_itrs.x;
   const auto& y = position_itrs.y;
   const auto& z = position_itrs.z;
   const auto rsqrd = math::sqr(x) + math::sqr(y) + math::sqr(z);
 
-  double px = 0.;
-  double py = 0.;
-  double pz = 0.;
+  double px = 0.0;
+  double py = 0.0;
+  double pz = 0.0;
 
   auto temp = EARTH_R / rsqrd;
   const auto a = x * temp;
@@ -80,9 +80,9 @@ Vector magFieldFromECEF(double dyear, const Vector& position_itrs, const ConstMo
 
   // First m==0 row, just solve for the Vs
   auto Vtop = EARTH_R / std::sqrt(rsqrd);  // V0,0
-  double Wtop = 0.;                        // W0,0
-  double Vprev = 0.;
-  double Wprev = 0.;
+  double Wtop = 0.0;                       // W0,0
+  double Vprev = 0.0;
+  double Wprev = 0.0;
   auto Vnm = Vtop;
   auto Wnm = Wtop;
 
@@ -103,7 +103,7 @@ Vector magFieldFromECEF(double dyear, const Vector& position_itrs, const ConstMo
       }
       else {
         temp = Vnm;
-        const auto invs_temp = 1. / ((n - m));
+        const auto invs_temp = 1.0 / ((n - m));
         Vnm = ((2 * n - 1) * f * Vnm - (n + m - 1) * g * Vprev) * invs_temp;
         Vprev = temp;
         temp = Wnm;

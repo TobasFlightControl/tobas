@@ -19,7 +19,7 @@ LandSpeedWidget::LandSpeedWidget()
   spin_box_ = new qt::DoubleSpinBox();
   spin_box_->setDecimals(1);
   spin_box_->setMinimum(0.6);
-  spin_box_->setMaximum(2.);
+  spin_box_->setMaximum(2.0);
   spin_box_->setValue(0.7);
   spin_box_->setSuffix(" m/s");
 

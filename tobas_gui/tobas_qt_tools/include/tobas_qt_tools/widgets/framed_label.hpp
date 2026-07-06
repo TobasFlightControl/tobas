@@ -10,7 +10,7 @@ namespace tobas
 namespace qt
 {
 /**
- * @brief Label with a black frame.
+ * @brief Label with a standard frame.
  * Similar to `QLineEdit` with ReadOnly + NoFocus, but more efficient.
  */
 class FramedLabel : public QLabel

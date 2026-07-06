@@ -41,7 +41,7 @@ mission::Takeoff TakeoffWidget::dump() const
   res.max_accel = maxAccel();
   res.max_jerk = maxJerk();
   res.altitude_tolerance = altitudeTolerance();
-  res.timeout = 0.;  // TODO
+  res.timeout = 0.0;  // TODO
 
   return res;
 }

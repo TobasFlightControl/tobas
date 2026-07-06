@@ -48,7 +48,7 @@ class GazeboImuPlugin : public BaseNode,
   static constexpr char kDebugTopic[] = "gazebo/imu_debug";
 
   // TODO: Consider acceleration ratio and gyro vibration more carefully.
-  static constexpr double kVibrationAccVerHorRate = 1.;
+  static constexpr double kVibrationAccVerHorRate = 1.0;
   static constexpr double kVibrationAccGyroRate = 0.05;
   static constexpr double kVibrationGyroAttiHeadRate = 0.5;
 
@@ -122,7 +122,7 @@ private:
     const tobas_msgs::srv::ConfigureImuRpmFilter::Response::SharedPtr& res);
 };
 
-GazeboImuPlugin::GazeboImuPlugin() : normal_(rnd_dev_, 0., 1.)
+GazeboImuPlugin::GazeboImuPlugin() : normal_(rnd_dev_, 0.0, 1.0)
 {
   acc_lpf_.setValue(gz::math::Vector3d::Zero);
   gyro_lpf_.setValue(gz::math::Vector3d::Zero);

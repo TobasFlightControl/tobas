@@ -27,9 +27,9 @@ public:
 
 private:
   // Config
-  kdl::Vector wn_ = { 1., 1., 1. };    // [rad/s]
-  kdl::Vector zeta_ = { 1., 1., 1. };  // [-]
-  kdl::Vector xi_ = { 1., 1., 1. };    // [-]
+  kdl::Vector wn_ = { 1.0, 1.0, 1.0 };    // [rad/s]
+  kdl::Vector zeta_ = { 1.0, 1.0, 1.0 };  // [-]
+  kdl::Vector xi_ = { 1.0, 1.0, 1.0 };    // [-]
 
   // Gain
   kdl::Vector kp_;

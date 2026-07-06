@@ -59,11 +59,11 @@ bool TrimConditions::updateInternalDataStructures()
   a_ = aero.c_lift_alpha - aero.c_pitch_alpha * ml_raito;
   b_ = aero.c_lift_0 - aero.c_pitch_0 * ml_raito;
 
-  if (a_ <= 0.) {
+  if (a_ <= 0.0) {
     std::cerr << "The aerodynamic coefficient \"a\" must be positive." << std::endl;
     return false;
   }
-  if (b_ <= 0.) {
+  if (b_ <= 0.0) {
     std::cerr << "The aerodynamic coefficient \"b\" must be positive." << std::endl;
     return false;
   }
@@ -158,13 +158,13 @@ st::Range<double> TrimConditions::speedLimit(const double& rho) const
 
   // Compute the minimum velocity from the maximum angle of attack.
   const auto max_den = a_ * drone_.fixed_wing->vehicle.alpha_limit.upper + b_;
-  assert(max_den > 0.);
+  assert(max_den > 0.0);
   const auto V_min = std::sqrt(c / max_den);
 
   // Compute the maximum velocity from the minimum angle of attack.
   // If the denominator approaches +0, level flight is theoretically possible at infinite velocity.
   const auto min_den = a_ * drone_.fixed_wing->vehicle.alpha_limit.lower + b_;
-  const auto V_max = min_den > 0. ? std::sqrt(c / min_den) : INFINITY;
+  const auto V_max = min_den > 0.0 ? std::sqrt(c / min_den) : INFINITY;
 
   return st::Range<double>(V_min, V_max);
 }
@@ -174,7 +174,7 @@ double TrimConditions::takeOffSpeed(const double& rho) const
   assert(rho > 0);
 
   const auto c = 2 * W_ / rho / drone_.fixed_wing->vehicle.wing_surface;
-  constexpr double alpha_zero = 0.;
+  constexpr double alpha_zero = 0.0;
   return std::sqrt(c / (a_ * alpha_zero + b_));
 }
 }  // namespace tobas

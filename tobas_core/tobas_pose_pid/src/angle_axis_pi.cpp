@@ -22,7 +22,7 @@ kdl::Vector AngleAxisPI::update(const kdl::Rotation& cur_rot, const kdl::Rotatio
 
   // Integrate error
   for (size_t i = 0; i < 3; ++i) {
-    if (ki_(i) > 0.) {
+    if (ki_(i) > 0.0) {
       ei_(i) += ep(i) * dt;
     }
   }
@@ -37,7 +37,7 @@ bool AngleAxisPI::setProportionalGain(int idx, double value)
     return false;
   }
 
-  if (value < 0.) {
+  if (value < 0.0) {
     cerr << "Proportional gain must be non-negative." << endl;
     return false;
   }
@@ -53,13 +53,13 @@ bool AngleAxisPI::setIntegralGain(int idx, double value)
     return false;
   }
 
-  if (value < 0.) {
+  if (value < 0.0) {
     cerr << "Integral gain must be non-negative." << endl;
     return false;
   }
 
   ki_(idx) = value;
-  ei_(idx) = 0.;
+  ei_(idx) = 0.0;
 
   return true;
 }

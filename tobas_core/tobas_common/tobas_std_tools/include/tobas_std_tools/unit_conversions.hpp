@@ -12,25 +12,25 @@ namespace st
 /* degree -> radian */
 inline constexpr double deg2rad(const double& deg)
 {
-  return deg * (M_PI / 180.);
+  return deg * (M_PI / 180.0);
 }
 
 /* radian -> degree */
 inline constexpr double rad2deg(const double& rad)
 {
-  return rad * (180. / M_PI);
+  return rad * (180.0 / M_PI);
 }
 
 /* rpm -> rad/s */
 inline constexpr double rpm2rps(const double& rpm)
 {
-  return rpm * (M_PI / 30.);
+  return rpm * (M_PI / 30.0);
 }
 
 /* rad/s -> rpm */
 inline constexpr double rps2rpm(const double& rps)
 {
-  return rps * (30. / M_PI);
+  return rps * (30.0 / M_PI);
 }
 
 /* inch -> m */

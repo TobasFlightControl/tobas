@@ -98,11 +98,11 @@ bool SqpMixer::solve(
     }
     else {
       if (!rotor->tilt_joint_name.empty()) {
-        ci0_(idx) = 0.;
-        ci0_(nr + idx) = 0.;
+        ci0_(idx) = 0.0;
+        ci0_(nr + idx) = 0.0;
       }
-      ci0_(2 * nr + idx) = 0.;
-      ci0_(3 * nr + idx) = 0.;
+      ci0_(2 * nr + idx) = 0.0;
+      ci0_(3 * nr + idx) = 0.0;
     }
   }
 
@@ -149,7 +149,7 @@ double SqpMixer::getTiltAngle(size_t idx) const
 
 bool SqpMixer::setLinearWeight(double p)
 {
-  if (p <= 0.) {
+  if (p <= 0.0) {
     cerr << "Linear weight must be positive." << endl;
     return false;
   }
@@ -160,7 +160,7 @@ bool SqpMixer::setLinearWeight(double p)
 
 bool SqpMixer::setAngularWeight(double p)
 {
-  if (p <= 0.) {
+  if (p <= 0.0) {
     cerr << "Angular weight must be positive." << endl;
     return false;
   }
@@ -171,7 +171,7 @@ bool SqpMixer::setAngularWeight(double p)
 
 bool SqpMixer::setThrustWeight(double p)
 {
-  if (p <= 0.) {
+  if (p <= 0.0) {
     cerr << "Thrust weight must be positive." << endl;
     return false;
   }

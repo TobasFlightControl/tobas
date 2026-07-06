@@ -39,10 +39,10 @@ void FakeRcInputPublisherNode::timerCb()
   auto msg = std::make_unique<tobas_msgs::RCInput>();
   msg->header.stamp = now();
   msg->ok = true;
-  msg->roll = 0.;
-  msg->pitch = 0.;
-  msg->throttle = -1.;
-  msg->yaw = 0.;
+  msg->roll = 0.0;
+  msg->pitch = 0.0;
+  msg->throttle = -1.0;
+  msg->yaw = 0.0;
   msg->mode = FlightMode::kAcrobat;
   msg->sub_mode = false;
   msg->enable = false;

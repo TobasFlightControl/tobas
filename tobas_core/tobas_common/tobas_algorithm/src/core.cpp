@@ -16,7 +16,7 @@ namespace algo
 double wrapPi(double angle)
 {
   angle = std::fmod(angle + M_PI, M_2PI);  // Convert `angle` to the range [0, 2pi).
-  if (angle < 0.) {
+  if (angle < 0.0) {
     angle += M_2PI;  // Correct the range if `angle` is negative.
   }
   return angle - M_PI;  // Convert from [0, 2pi) to [-pi, pi).
@@ -24,7 +24,7 @@ double wrapPi(double angle)
 
 void clamp2d(double& x, double& y, const double& max_length)
 {
-  assert(max_length >= 0.);
+  assert(max_length >= 0.0);
 
   const auto length = std::sqrt(math::sqr(x) + math::sqr(y));
   if (length > max_length) {

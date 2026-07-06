@@ -48,7 +48,7 @@ double FC2xxWidget::gyroNoiseDensity() const
 
 double FC2xxWidget::gyroRandomWalk() const
 {
-  return 0.;  // TODO
+  return 0.0;  // TODO
 }
 
 int FC2xxWidget::gyroBiasCorrTime() const
@@ -63,7 +63,7 @@ double FC2xxWidget::accNoiseDensity() const
 
 double FC2xxWidget::accRandomWalk() const
 {
-  return 0.;  // TODO
+  return 0.0;  // TODO
 }
 
 int FC2xxWidget::accBiasCorrTime() const
@@ -103,12 +103,12 @@ int FC2xxWidget::gnssUpdateRate() const
 
 double FC2xxWidget::gnssHorizontalPositionAccuracy() const
 {
-  return 5.;  // Typical standalone positioning accuracy.
+  return 5.0;  // Typical standalone positioning accuracy.
 }
 
 double FC2xxWidget::gnssVerticalPositionAccuracy() const
 {
-  return 10.;  // Typical standalone positioning accuracy.
+  return 10.0;  // Typical standalone positioning accuracy.
 }
 
 double FC2xxWidget::gnssHorizontalVelocityStddev() const

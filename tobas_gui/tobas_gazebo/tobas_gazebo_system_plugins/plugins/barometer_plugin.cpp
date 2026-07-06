@@ -80,7 +80,7 @@ void GazeboBarometerPlugin::Configure(
 
   pose_W_ = getComponent<cmp::WorldPose>(link, ecm);
   rate_manager_ = std::make_shared<RateManager>(update_rate_);
-  pressure_noise_ = NormalDistribution(0., noise_stddev_);
+  pressure_noise_ = NormalDistribution(0.0, noise_stddev_);
 
   pressure_pub_ = createPublisher<tobas_msgs::msg::FluidPressure>(topic::kAirPressure);
 }

@@ -35,19 +35,19 @@ class HealthMonitorNode : public BaseNode
   static constexpr auto kBattVoltageDownTimeThresh = 10s;
   static constexpr auto kBattVoltageUpTimeThresh = 30s;
   static constexpr auto kRadioLinkLostTimeThresh = 500ms;
-  static constexpr double kPosDriftThresh = 1.;  // [m]
+  static constexpr double kPosDriftThresh = 1.0;  // [m]
   static constexpr auto kPosDriftCheckTimeWindow = 5s;
-  static constexpr double kCPUTempThresh = 80.;              // [degC]
+  static constexpr double kCPUTempThresh = 80.0;             // [degC]
   static constexpr double kAttitudeThresh = M_PI / 12;       // [rad]
-  static constexpr double kHorPosStddevThresh = 1.;          // [m]
-  static constexpr double kVerPosStddevThresh = 2.;          // [m]
+  static constexpr double kHorPosStddevThresh = 1.0;         // [m]
+  static constexpr double kVerPosStddevThresh = 2.0;         // [m]
   static constexpr double kVelStddevThresh = 0.3;            // [m/s]
   static constexpr double kAttiStddevThresh = M_PI / 24;     // [rad]
   static constexpr double kHeadStddevThresh = M_PI / 12;     // [rad]
-  static constexpr double kMagLpfCutoff = 1.;                // [s]
+  static constexpr double kMagLpfCutoff = 1.0;               // [s]
   static constexpr double kMagLengthErrorThresh = 0.2;       // [-]
   static constexpr double kMagAlignErrorThresh = M_PI / 12;  // [rad]
-  static constexpr double kVibrationLevelThresh = 10.;       // [m/s^2]
+  static constexpr double kVibrationLevelThresh = 10.0;      // [m/s^2]
 
   using self = HealthMonitorNode;
   using super = BaseNode;
@@ -574,7 +574,7 @@ void HealthMonitorNode::mainTimerCb()
   // Magnetic field offset
   if (do_check_.mag_offset) {
     if (mag_) {
-      if (std::abs(mag_B_lpf_.getValue().norm() - 1.) > kMagLengthErrorThresh) {
+      if (std::abs(mag_B_lpf_.getValue().norm() - 1.0) > kMagLengthErrorThresh) {
         health->mag_offset = tobas_msgs::msg::VehicleHealth::FAILED;
         health->ok = false;
       }

@@ -56,7 +56,7 @@ protected:
 
 inline double BaseController::deadband(double x) const
 {
-  return std::abs(x) < kDeadband ? 0. : x;
+  return std::abs(x) < kDeadband ? 0.0 : x;
 }
 
 inline double BaseController::remap(double x, double lb, double ub) const
@@ -81,9 +81,9 @@ inline double BaseController::expoRemapDead(double x, double exp, double lb, dou
 
 inline double BaseController::expo(double x, double exp)
 {
-  assert(std::abs(x) < 1.);
-  assert(std::abs(exp) < 1.);
-  return (1. + exp) * x - exp * math::sign(x) * math::sqr(x);
+  assert(std::abs(x) < 1.0);
+  assert(std::abs(exp) < 1.0);
+  return (1.0 + exp) * x - exp * math::sign(x) * math::sqr(x);
 }
 }  // namespace rc
 }  // namespace tobas

@@ -67,7 +67,7 @@ void LargeVehicleMagCalibThread::run()
   // Wait until enough data has accumulated.
   const auto clock = node_->get_clock();
   const auto start_time = clock->now();
-  rclcpp::Rate rate(100., clock);
+  rclcpp::Rate rate(100.0, clock);
   while (rclcpp::ok()) {
     if (cnt_ >= kDataCount) {
       break;
@@ -106,9 +106,9 @@ void LargeVehicleMagCalibThread::run()
   req->soft_bias.at(0) = soft_bias;
   req->soft_bias.at(1) = soft_bias;
   req->soft_bias.at(2) = soft_bias;
-  req->soft_bias.at(3) = 0.;
-  req->soft_bias.at(4) = 0.;
-  req->soft_bias.at(5) = 0.;
+  req->soft_bias.at(3) = 0.0;
+  req->soft_bias.at(4) = 0.0;
+  req->soft_bias.at(5) = 0.0;
 
   // Update parameters.
   ros2::SyncServiceClient<tobas_real_msgs::srv::SetMagnetometerParams> sc(

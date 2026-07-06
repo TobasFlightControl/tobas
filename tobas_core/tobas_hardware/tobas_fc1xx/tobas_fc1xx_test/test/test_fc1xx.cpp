@@ -51,7 +51,7 @@ bool testImu()
     cout << "Accel [m/s^2]: " << ax << ", " << ay << ", " << az << endl;
     cout << "Gyro [rad/s] : " << gx << ", " << gy << ", " << gz << endl;
 
-    if (tobas::math::norm(ax, ay, az - tobas::st::kGravity) > 1.) {
+    if (tobas::math::norm(ax, ay, az - tobas::st::kGravity) > 1.0) {
       cerr << "Abnormal accel detected." << endl;
       return false;
     }
@@ -123,16 +123,16 @@ bool testBarometer()
       return false;
     }
 
-    const auto pres_hpa = pres / 100.;
+    const auto pres_hpa = pres / 100.0;
 
     cout << "Pressure [hPa]    : " << pres_hpa << endl;
     cout << "Temperature [degC]: " << temp << endl;
 
-    if (pres_hpa < 900. || 1100. < pres_hpa) {
+    if (pres_hpa < 900.0 || 1100.0 < pres_hpa) {
       cerr << "Abnormal air pressure detected." << endl;
       return false;
     }
-    if (temp < 0. || 80. < temp) {
+    if (temp < 0.0 || 80.0 < temp) {
       cerr << "Abnormal temperature detected." << endl;
       return false;
     }
@@ -166,11 +166,11 @@ bool testPowerSensor()
     cout << "Voltage [V]: " << volt << endl;
     cout << "Current [A]: " << curr << endl;
 
-    if (volt < 5. || 50. < volt) {
+    if (volt < 5.0 || 50.0 < volt) {
       cerr << "Abnormal voltage detected." << endl;
       return false;
     }
-    if (curr <= 0. || 10. < curr) {
+    if (curr <= 0.0 || 10.0 < curr) {
       cerr << "Abnormal current detected." << endl;
       return false;
     }

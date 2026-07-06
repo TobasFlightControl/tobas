@@ -20,7 +20,7 @@ EnginePlotWidget::EnginePlotWidget() : throttle_curve_("Throttle [%]")
 
   throttle_plot_ = new QwtPlot2();
   throttle_plot_->setAxisNoLabel(QwtPlot::xBottom);
-  throttle_plot_->setAxisScale(QwtPlot::yLeft, 0., 100.);
+  throttle_plot_->setAxisScale(QwtPlot::yLeft, 0.0, 100.0);
   rows->addWidget(throttle_plot_, 1);
 
   throttle_curve_.setPen(Qt::black, kLineWidth);
@@ -45,7 +45,7 @@ void EnginePlotWidget::setData(const QVector<tobas_msgs::msg::IcePropulsionSyste
 
   for (const auto& msg : msgs) {
     t_data.push_back(ros2::seconds(msg.header.stamp));
-    throttle_data.push_back(msg.engine_throttle * 100.);
+    throttle_data.push_back(msg.engine_throttle * 100.0);
   }
 
   throttle_curve_.setSamples(t_data, throttle_data);

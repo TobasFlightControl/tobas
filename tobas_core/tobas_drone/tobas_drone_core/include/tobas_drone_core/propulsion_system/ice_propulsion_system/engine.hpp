@@ -17,7 +17,7 @@ class EngineConfig
   static constexpr char kHardwareIfaceKey[] = "hw_iface";
 
 public:
-  std::pair<double, double> engine_const = { 0., 0. };  // A, B (memo: 3-28)
+  std::pair<double, double> engine_const = { 0.0, 0.0 };  // A, B (memo: 3-28)
   HardwareInterface hw_iface = HardwareInterface::kOther;
 
   bool isValid() const;

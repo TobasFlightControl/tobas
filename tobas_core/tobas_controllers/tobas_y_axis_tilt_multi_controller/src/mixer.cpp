@@ -79,7 +79,7 @@ bool Mixer::updateInternalDataStructures()
     const auto& B_T_gpar = fk_solver_.getFrame(gpar_seg.name());
     const auto tilt_axis = B_T_gpar.M * par_joint.axis();  // Tilt axis viewed from the base link.
     const auto tilt_axis_y = tilt_axis.normalized().y();
-    if (!math::isClose(std::abs(tilt_axis_y), 1.)) {
+    if (!math::isClose(std::abs(tilt_axis_y), 1.0)) {
       std::cerr << "Tilt axis must be parallel to the Y axis." << std::endl;
       return false;
     }
@@ -89,7 +89,7 @@ bool Mixer::updateInternalDataStructures()
     // FIXME: This offset changes if the vehicle itself bends around the Y axis!
     const auto& B_T_par = fk_solver_.getFrame(par_elem.segment.name());
     const auto n = B_T_par.M * cur_elem.segment.joint().axis();  // Rotation axis viewed from the base link.
-    if (!math::isClose(n.y(), 0.)) {
+    if (!math::isClose(n.y(), 0.0)) {
       std::cerr << "The Y component of the propeller’s axis of rotation must be zero." << std::endl;
       return false;
     }

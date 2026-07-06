@@ -19,10 +19,13 @@ GnssViewerWidget::GnssViewerWidget(const RosQtBridge& bridge)
   status_ = new qt::FramedLabel();
   nsats_ = new qt::FramedLabel();
 
+  status_->setMinimumWidth(kLabelMinWidth);
+  nsats_->setMinimumWidth(kLabelMinWidth);
+
   // Layout
   const auto form = new qt::FormLayout();
-  form->addVAlignedRow(new qt::Label("GNSS Status", kLabelPSize), status_);
-  form->addVAlignedRow(new qt::Label("GNSS NSats", kLabelPSize), nsats_);
+  form->addVAlignedRow(new qt::Label("Status", kLabelPSize), status_);
+  form->addVAlignedRow(new qt::Label("NSats", kLabelPSize), nsats_);
   setLayout(form);
 
   // Connection

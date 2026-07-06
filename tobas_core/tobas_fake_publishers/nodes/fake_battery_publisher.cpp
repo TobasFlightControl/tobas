@@ -15,7 +15,7 @@ class FakeBattPublisherNode : public BaseNode
   static constexpr auto kSamplingPeriod = 10ms;
 
   static constexpr double kDefaultVoltage = 14.8;  // [V]
-  static constexpr double kDefaultCurrent = 20.;   // [A]
+  static constexpr double kDefaultCurrent = 20.0;  // [A]
 
   using self = FakeBattPublisherNode;
   using super = BaseNode;

@@ -26,8 +26,8 @@ public:
     bool italic = false,
     QWidget* parent = nullptr);
 
-  void setTextColor(const QString color);
-  void setTextColor(const Qt::GlobalColor color);
+  void setTextColor(const QString& color);
+  void setTextColor(Qt::GlobalColor color);
 };
 }  // namespace qt
 }  // namespace tobas

@@ -28,13 +28,13 @@ FloatingJointModel::FloatingJointModel(const std::string& name, size_t joint_ind
 void FloatingJointModel::getVariableDefaultPositions(double* values) const
 {
   for (size_t i = 0; i < 3; ++i) {
-    values[i] = 0.;
+    values[i] = 0.0;
   }
 
-  values[3] = 0.;
-  values[4] = 0.;
-  values[5] = 0.;
-  values[6] = 1.;
+  values[3] = 0.0;
+  values[4] = 0.0;
+  values[5] = 0.0;
+  values[6] = 1.0;
 }
 
 void FloatingJointModel::computeTransform(const double* joint_values, Eigen::Isometry3d& transform) const

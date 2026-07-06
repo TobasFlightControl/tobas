@@ -20,7 +20,7 @@ RigidBodyInertia::RigidBodyInertia(double m, const Vector& oc, const RotationalI
 
 bool RigidBodyInertia::isValid(string& error_msg) const
 {
-  if (m_ <= 0.) {
+  if (m_ <= 0.0) {
     error_msg = "Mass must be positive.";
     return false;
   }

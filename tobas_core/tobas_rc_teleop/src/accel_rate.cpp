@@ -40,13 +40,14 @@ void AccelRateController::initialize(BaseNode* node, FlightMode mode)
     addMode("max_horizontal_accel", mode), &self::maxHorizontalAccelCb, this, 0.5, 10, 1, 20, " m/s^2");
   node->addDynamicDoubleParam(
     addMode("max_vertical_accel", mode), &self::maxVerticalAccelCb, this, 0.5, 16, 1, 20, " m/s^2");
-  node->addDynamicDoubleParam(addMode("max_attitude_rate", mode), &self::maxAttitudeRateCb, this, 45., 8, 1, 16, " dps");
-  node->addDynamicDoubleParam(addMode("max_heading_rate", mode), &self::maxHeadingRateCb, this, 45., 8, 1, 16, " dps");
   node->addDynamicDoubleParam(
-    addMode("horizontal_accel_expo", mode), &self::horizontalAccelExpoCb, this, 5., -6, -20, 20);
-  node->addDynamicDoubleParam(addMode("vertical_accel_expo", mode), &self::verticalAccelExpoCb, this, 5., 0, -20, 20);
-  node->addDynamicDoubleParam(addMode("attitude_expo", mode), &self::attitudeExpoCb, this, 5., 0, -20, 20);
-  node->addDynamicDoubleParam(addMode("heading_expo", mode), &self::headingExpoCb, this, 5., -3, -20, 20);
+    addMode("max_attitude_rate", mode), &self::maxAttitudeRateCb, this, 45.0, 8, 1, 16, " dps");
+  node->addDynamicDoubleParam(addMode("max_heading_rate", mode), &self::maxHeadingRateCb, this, 45.0, 8, 1, 16, " dps");
+  node->addDynamicDoubleParam(
+    addMode("horizontal_accel_expo", mode), &self::horizontalAccelExpoCb, this, 5.0, -6, -20, 20);
+  node->addDynamicDoubleParam(addMode("vertical_accel_expo", mode), &self::verticalAccelExpoCb, this, 5.0, 0, -20, 20);
+  node->addDynamicDoubleParam(addMode("attitude_expo", mode), &self::attitudeExpoCb, this, 5.0, 0, -20, 20);
+  node->addDynamicDoubleParam(addMode("heading_expo", mode), &self::headingExpoCb, this, 5.0, -3, -20, 20);
 
   accel_pub_ = node->createPublisher<tobas_command_msgs::Accel>(topic::kAccelCmd);
   rate_pub_ = node->createPublisher<tobas_command_msgs::Rate>(topic::kRateCmd);
@@ -63,15 +64,15 @@ void AccelRateController::update(const tobas_msgs::RCInput& rcin, const tobas_ms
   {
     tar_acc_G_.x(expoRemap(rcin.pitch, hor_acc_expo_, -max_hor_acc_, max_hor_acc_));
     tar_acc_G_.y(-expoRemap(rcin.roll, hor_acc_expo_, -max_hor_acc_, max_hor_acc_));
-    tar_gyro_B_.x(0.);
-    tar_gyro_B_.y(0.);
+    tar_gyro_B_.x(0.0);
+    tar_gyro_B_.y(0.0);
   }
   else  // Rotation mode
   {
     tar_gyro_B_.x(expoRemap(rcin.roll, atti_expo_, -max_atti_rate_, max_atti_rate_));
     tar_gyro_B_.y(expoRemap(rcin.pitch, atti_expo_, -max_atti_rate_, max_atti_rate_));
-    tar_acc_G_.x(0.);
-    tar_acc_G_.y(0.);
+    tar_acc_G_.x(0.0);
+    tar_acc_G_.y(0.0);
   }
 
   // Vertical acceleration

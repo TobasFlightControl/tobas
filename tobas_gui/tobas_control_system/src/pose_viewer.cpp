@@ -24,11 +24,11 @@ PoseViewerWidget::PoseViewerWidget(const RosQtBridge& bridge)
 
 void PoseViewerWidget::reset()
 {
-  roll_ = 0.;
-  pitch_ = 0.;
-  yaw_ = 0.;
-  alt_rel_ = 0.;
-  alt_msl_ = 0.;
+  roll_ = 0.0;
+  pitch_ = 0.0;
+  yaw_ = 0.0;
+  alt_rel_ = 0.0;
+  alt_msl_ = 0.0;
   alt_msl_valid_ = false;
 
   update();
@@ -84,9 +84,9 @@ void PoseViewerWidget::drawSky(QPainter& painter)
 
   // Create points that make up the sky area (memo: 3-43).
   QVector<QPoint> points;
-  if (roll_ == 0.) {
+  if (roll_ == 0.0) {
     const auto y = (h / 2) * (1 - r);
-    if (0. <= y && y <= h) {
+    if (0.0 <= y && y <= h) {
       const QPoint OY(0, y);
       const QPoint WY(w, y);
       points = { OO, WO, WY, OY };

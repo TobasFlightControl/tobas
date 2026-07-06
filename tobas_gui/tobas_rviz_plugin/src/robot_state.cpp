@@ -637,7 +637,7 @@ void RobotState::markVelocity()
 {
   if (!has_velocity_) {
     has_velocity_ = true;
-    std::fill(velocity_.begin(), velocity_.end(), 0.);
+    std::fill(velocity_.begin(), velocity_.end(), 0.0);
   }
 }
 
@@ -646,7 +646,7 @@ void RobotState::markAcceleration()
   if (!has_acceleration_) {
     has_acceleration_ = true;
     has_effort_ = false;
-    std::fill(effort_or_acceleration_.begin(), effort_or_acceleration_.end(), 0.);
+    std::fill(effort_or_acceleration_.begin(), effort_or_acceleration_.end(), 0.0);
   }
 }
 
@@ -655,7 +655,7 @@ void RobotState::markEffort()
   if (!has_effort_) {
     has_acceleration_ = false;
     has_effort_ = true;
-    std::fill(effort_or_acceleration_.begin(), effort_or_acceleration_.end(), 0.);
+    std::fill(effort_or_acceleration_.begin(), effort_or_acceleration_.end(), 0.0);
   }
 }
 

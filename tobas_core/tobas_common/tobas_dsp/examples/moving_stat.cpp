@@ -23,7 +23,7 @@ int main(int argc, char** argv)
   // Define random generator
   random_device rnd_dev;
   mt19937 rnd_gen(rnd_dev());
-  uniform_real_distribution<double> uniform(0., 1.);
+  uniform_real_distribution<double> uniform(0.0, 1.0);
 
   // Create data
   array<Vector3d, LENGTH> init_data;

@@ -25,7 +25,7 @@ public:
    * the vector from the reference point to cog and the rotational nertia in the cog.
    */
   explicit RigidBodyInertia(
-    double m = 0.,
+    double m = 0.0,
     const Vector& oc = Vector::Zero(),
     const RotationalInertia& Ic = RotationalInertia::Zero());
 

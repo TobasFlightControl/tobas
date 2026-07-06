@@ -74,7 +74,7 @@ void JointStatePublisherWidget::updateInternalDataStructures()
     }
 
     js_.name.push_back(joint.name);
-    js_.position.push_back(0.);
+    js_.position.push_back(0.0);
 
     const auto slider = new qt::DoubleSliderDisplay();
     slider->setText(QString::fromStdString(joint.name));
@@ -88,7 +88,7 @@ void JointStatePublisherWidget::updateInternalDataStructures()
     slider->setMinimum(lower_limit);
     slider->setMaximum(upper_limit);
 
-    slider->setValue(0.);
+    slider->setValue(0.0);
 
     connect(
       slider,
@@ -134,7 +134,7 @@ void JointStatePublisherWidget::onValueChanged(double value, const std::string& 
 void JointStatePublisherWidget::onZeroButtonClicked()
 {
   for (auto& slider : sliders_) {
-    slider->setValue(0.);
+    slider->setValue(0.0);
   }
 }
 

@@ -38,8 +38,8 @@ namespace rc
 {
 class RCTeleopNode : public BaseNode
 {
-  static constexpr double kArmCommandInfoPeriod = 2.;  // [s]
-  static constexpr double kWarnPeriod = 1.;            // [s]
+  static constexpr double kArmCommandInfoPeriod = 2.0;  // [s]
+  static constexpr double kWarnPeriod = 1.0;            // [s]
 
   using self = RCTeleopNode;
   using super = BaseNode;
@@ -351,13 +351,13 @@ bool RCTeleopNode::isFlightModeApplicable(FlightMode mode)
 
 bool RCTeleopNode::armThrottleThresholdCb(const double& p)
 {
-  arm_throt_thresh_ = kRcInputRange * (p / 100.);
+  arm_throt_thresh_ = kRcInputRange * (p / 100.0);
   return true;
 }
 
 bool RCTeleopNode::armThrottleHysteresisCb(const double& p)
 {
-  arm_throt_hyst_ = kRcInputRange * (p / 100.);
+  arm_throt_hyst_ = kRcInputRange * (p / 100.0);
   return true;
 }
 

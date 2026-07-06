@@ -44,7 +44,7 @@ VehicleParametersWidget::VehicleParametersWidget()
 
   aerodynamic_center_ = new ParamGetterWidget_Vector3d("Aerodynamic Center", "");
   aerodynamic_center_->setDecimals(3);
-  aerodynamic_center_->setValue({ 0.1, 0., 0. });
+  aerodynamic_center_->setValue({ 0.1, 0.0, 0.0 });
   aerodynamic_center_->setSuffix(" m");
   rows->addWidget(aerodynamic_center_);
 

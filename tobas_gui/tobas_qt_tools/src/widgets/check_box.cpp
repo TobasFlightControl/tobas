@@ -14,11 +14,11 @@ CheckBox::CheckBox(const QString& text, bool checked, QWidget* parent) : super(t
 
 void CheckBox::setDisabledTextNormal()
 {
-  auto pal = this->palette();
+  auto pal = palette();
   const auto normal = pal.color(QPalette::Active, QPalette::WindowText);
   pal.setColor(QPalette::Disabled, QPalette::WindowText, normal);
   pal.setColor(QPalette::Disabled, QPalette::Text, normal);
-  this->setPalette(pal);
+  setPalette(pal);
 }
 }  // namespace qt
 }  // namespace tobas

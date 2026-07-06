@@ -93,7 +93,7 @@ PropulsionSystem IcePropulsionSystemConfig::type() const
 
 double IcePropulsionSystemConfig::minSpeed(const std::string&)
 {
-  return 0.;
+  return 0.0;
 }
 
 double IcePropulsionSystemConfig::maxSpeed(const std::string& link_name)
@@ -103,7 +103,7 @@ double IcePropulsionSystemConfig::maxSpeed(const std::string& link_name)
 
 double IcePropulsionSystemConfig::minThrust(const std::string&)
 {
-  return 0.;
+  return 0.0;
 }
 
 double IcePropulsionSystemConfig::maxThrust(const std::string& link_name)
@@ -135,7 +135,7 @@ double IcePropulsionSystemConfig::computeEngineSpeed(double throttle) const
 {
   // FIXME: Torque is actually generated even at zero throttle due to idling.
   if (throttle <= std::numeric_limits<double>::epsilon()) {
-    return 0.;
+    return 0.0;
   }
 
   nlp::NewtonSolver1d newton;
@@ -144,10 +144,10 @@ double IcePropulsionSystemConfig::computeEngineSpeed(double throttle) const
     bind(&self::speedFunc, this, throttle, std::placeholders::_1),
     bind(&self::speedFuncDeriv, this, throttle, std::placeholders::_1));
 
-  double engine_speed = 0.;
+  double engine_speed = 0.0;
   if (newton.solve(engine_speed) < 0) {
     std::cerr << "Failed to solve the engine dynamics equation: " << newton.errorMessage() << std::endl;
-    return 0.;
+    return 0.0;
   }
 
   return engine_speed;
@@ -182,7 +182,7 @@ double IcePropulsionSystemConfig::calc_f(double throttle) const
 
 double IcePropulsionSystemConfig::calc_k() const
 {
-  double res = 0.;
+  double res = 0.0;
   for (const auto& [_, rotor] : rotors) {
     const auto irotor = boost::polymorphic_pointer_downcast<IceRotorConfig>(rotor);
     const auto& phi_r = irotor->center_pitch;

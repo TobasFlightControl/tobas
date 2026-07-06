@@ -133,10 +133,10 @@ protected:
   const JointModel* mimic_ = nullptr;
 
   /* The multiplier to the mimic joint */
-  double mimic_factor_ = 1.;
+  double mimic_factor_ = 1.0;
 
   /* The offset to the mimic joint */
-  double mimic_offset_ = 0.;
+  double mimic_offset_ = 0.0;
 
   /* The set of joints that should get a value copied to them when this joint changes */
   std::vector<const JointModel*> mimic_requests_;

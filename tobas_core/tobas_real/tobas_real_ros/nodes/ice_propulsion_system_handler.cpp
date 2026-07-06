@@ -67,7 +67,7 @@ void IcePropulsionSystemHandlerNode::stopActuator()
       const auto& pwm_cfg = drone_->pwms.at(pwm_key::kEngineThrottleKey);
       pwms->pwms.emplace_back();
       pwms->pwms.back().channel = pwm_cfg.channel;
-      pwms->pwms.back().period = pwm_cfg.periodFromValue(0.);
+      pwms->pwms.back().period = pwm_cfg.periodFromValue(0.0);
       break;
     }
     case HardwareInterface::kOther: {

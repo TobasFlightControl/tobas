@@ -103,7 +103,7 @@ void IceRotorModel::applyWrench(
   const double& engine_speed,
   const gz::math::Vector3d& wind_vel_W)
 {
-  assert(engine_speed >= 0.);
+  assert(engine_speed >= 0.0);
 
   // Get joint axes
   const auto& R_W_L = pose_W_->Data().Rot();
@@ -155,7 +155,7 @@ bool IceRotorModel::getSdfParams(const sdf::ElementConstPtr& sdf)
   if (!getSdfParam(sdf, "gearRatio", gear_ratio_)) {
     return false;
   }
-  if (gear_ratio_ <= 0.) {
+  if (gear_ratio_ <= 0.0) {
     gzerr << "Gear ratio must be positive." << std::endl;
     return false;
   }
@@ -182,7 +182,7 @@ bool IceRotorModel::getSdfParams(const sdf::ElementConstPtr& sdf)
   if (!getSdfParam(sdf, "maxPitchAngleRate", pitch_angle_.max_vel)) {
     return false;
   }
-  if (pitch_angle_.max_vel < 0.) {
+  if (pitch_angle_.max_vel < 0.0) {
     gzerr << "The maximum propeller pitch angle rate must be non-negative." << std::endl;
     return false;
   }

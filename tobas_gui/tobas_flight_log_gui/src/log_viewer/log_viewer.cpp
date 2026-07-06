@@ -114,7 +114,7 @@ void FlightLogViewerWidget::reset()
 
   for (const auto& plot_tab : plot_tabs_) {
     plot_tab->clear();
-    plot_tab->setTimeScale(0., kWindowDuration);
+    plot_tab->setTimeScale(0.0, kWindowDuration);
   }
 
   playback_ctrl_->reset();
@@ -142,10 +142,10 @@ void FlightLogViewerWidget::setLogName(const QString& log_name)
   // Update the log length.
   const auto& metadata = reader_.get_metadata();
   const auto duration = metadata.duration.count() * 1e-9;  // [s]
-  playback_ctrl_->setDuration(std::max(duration - kWindowDuration, 0.));
+  playback_ctrl_->setDuration(std::max(duration - kWindowDuration, 0.0));
 
   // Show the log at time 0.
-  setPlotData(0.);
+  setPlotData(0.0);
 }
 
 bool FlightLogViewerWidget::open(const std::string& rosbag_path)

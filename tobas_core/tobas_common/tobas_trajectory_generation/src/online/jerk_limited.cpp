@@ -102,7 +102,7 @@ void JerkLimitedOnlineTrajectoryGenerator::update(double dt)
   }
   else if ((eddk >= edd_min) && (edk >= (math::sqr(edd_min) - math::sqr(eddk) / 2))) {
     const auto tmp = math::sqr(eddk) + 2 * edk;
-    sigma = ek - edd_min * tmp / 4. - math::sqr(tmp) / (8 * edd_min) + eddk * (3 * edk + math::sqr(eddk)) / 3;
+    sigma = ek - edd_min * tmp / 4.0 - math::sqr(tmp) / (8 * edd_min) + eddk * (3 * edk + math::sqr(eddk)) / 3;
   }
   else {
     const auto tmp = math::sqr(eddk) + 2 * edk * sgnd;

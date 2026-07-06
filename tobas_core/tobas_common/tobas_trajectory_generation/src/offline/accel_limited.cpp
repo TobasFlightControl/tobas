@@ -25,7 +25,7 @@ double solveQuadraticEquationPositive(double a, double b, double c)
 AccelLimitedTrajectory::AccelLimitedTrajectory(double p0, double v0, double pf, double vf, double max_acc)
   : p0_(p0), v0_(v0), pf_(pf), vf_(vf), am_(max_acc)
 {
-  assert(am_ > 0.);
+  assert(am_ > 0.0);
 
   const auto td = (vf_ - v0_) / am_;
   const auto am_2 = am_ / 2;
@@ -55,7 +55,7 @@ TrajectoryPoint AccelLimitedTrajectory::get(double t) const noexcept
       return { pf_ - vf_ * tr + am_2 * math::sqr(tr), vf_ - am_ * tr, am_ };
     }
     else {
-      return { pf_, vf_, 0. };
+      return { pf_, vf_, 0.0 };
     }
   }
   else {  // +a -> -a
@@ -67,7 +67,7 @@ TrajectoryPoint AccelLimitedTrajectory::get(double t) const noexcept
       return { pf_ - vf_ * tr - am_2 * math::sqr(tr), vf_ + am_ * tr, -am_ };
     }
     else {
-      return { pf_, vf_, 0. };
+      return { pf_, vf_, 0.0 };
     }
   }
 }

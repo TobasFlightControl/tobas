@@ -76,7 +76,7 @@ inline Euler::Euler(const Rotation& rot)
 
 inline Euler Euler::Zero()
 {
-  return Euler(0., 0., 0.);
+  return Euler(0.0, 0.0, 0.0);
 }
 
 inline Euler Euler::clone() const
@@ -86,12 +86,12 @@ inline Euler Euler::clone() const
 
 inline void Euler::setZero()
 {
-  this->fill(0.);
+  fill(0.0);
 }
 
 inline void Euler::setNaN()
 {
-  this->fill(NAN);
+  fill(NAN);
 }
 
 inline void Euler::set(double _roll, double _pitch, double _yaw)
@@ -113,7 +113,7 @@ inline Rotation Euler::toRotation() const
 
 inline Vector Euler::toAngleAxis() const
 {
-  return this->toRotation().getRot();
+  return toRotation().getRot();
 }
 
 inline Quaternion Euler::toQuaternion() const

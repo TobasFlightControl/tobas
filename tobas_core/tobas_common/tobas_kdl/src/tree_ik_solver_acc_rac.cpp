@@ -91,10 +91,10 @@ int TreeIkSolverAcc_RAC::cartToJnt(const JntArray& q_in, const JntArray& qd_in, 
     // If the joint angle limit is already exceeded,
     // constrain the acceleration so the violation does not increase further.
     if (q_in(j) < jntparser_.lowerLimit(j)) {
-      qdd_min_(j) = 0.;
+      qdd_min_(j) = 0.0;
     }
     else if (q_in(j) > jntparser_.upperLimit(j)) {
-      qdd_max_(j) = 0.;
+      qdd_max_(j) = 0.0;
     }
   }
   quadprog::matIneqFromRange(qdd_min_, qdd_max_, qp_solver_.problem.A, qp_solver_.problem.b);

@@ -72,7 +72,7 @@ void TobasLookAtCamera::onRender()
   const auto pitch = -std::asin(dir.Z());
 
   // Roll = 0, so construct quaternion(roll, pitch, yaw)
-  const gz::math::Quaterniond camera_rot(0., pitch, yaw);
+  const gz::math::Quaterniond camera_rot(0.0, pitch, yaw);
 
   // Construct the new camera pose
   const gz::math::Pose3d camera_pose(camera_pos, camera_rot);

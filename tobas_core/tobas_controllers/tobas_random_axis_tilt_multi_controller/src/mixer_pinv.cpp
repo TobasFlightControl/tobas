@@ -179,7 +179,7 @@ bool PinvMixer::solve(
     const auto& rotor = rotor_it.second;
     if (is_singular_.at(rotor->link_name)) {
       x_(2 * idx) = drone_.prop->minThrust(rotor->link_name);
-      x_(2 * idx + 1) = 0.;
+      x_(2 * idx + 1) = 0.0;
     }
   }
 
@@ -200,7 +200,7 @@ double PinvMixer::getTiltAngle(size_t idx) const
 
 bool PinvMixer::setTiltAxisSingularDeclinationLB(double lb_rad)
 {
-  if (lb_rad < 0.) {
+  if (lb_rad < 0.0) {
     cerr << "The lower bind of singular tilt axis declination must be non-negative." << endl;
     return false;
   }
@@ -211,7 +211,7 @@ bool PinvMixer::setTiltAxisSingularDeclinationLB(double lb_rad)
 
 bool PinvMixer::setTiltAxisSingularDeclinationUB(double ub_rad)
 {
-  if (ub_rad < 0.) {
+  if (ub_rad < 0.0) {
     cerr << "The upper bind of singular tilt axis declination must be non-negative." << endl;
     return false;
   }

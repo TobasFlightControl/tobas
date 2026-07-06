@@ -33,7 +33,7 @@ class BasePoseCommanderWidget : public QWidget
   using self = BasePoseCommanderWidget;
   using super = QWidget;
 
-  static constexpr double kHomeAltitude = 3.;  // [m]
+  static constexpr double kHomeAltitude = 3.0;  // [m]
 
 public:
   explicit BasePoseCommanderWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge, const Drone& drone);

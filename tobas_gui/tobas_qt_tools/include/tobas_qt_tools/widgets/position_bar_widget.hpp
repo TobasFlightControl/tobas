@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <QColor>
 #include <QWidget>
 
 namespace tobas
@@ -44,9 +45,9 @@ public:
   void setFillRange(bool fill_range);
   void setLineWidth(int line_width);
   void setTextPSize(int text_psize);
-  void setFillColor(Qt::GlobalColor color);
-  void setLimitLineColor(Qt::GlobalColor color);
-  void setValueLineColor(Qt::GlobalColor color);
+  void setFillColor(const QColor& color);
+  void setLimitLineColor(const QColor& color);
+  void setValueLineColor(const QColor& color);
   void setCenterText(const QString& text);
   void setLowerText(const QString& text);
   void setUpperText(const QString& text);
@@ -59,14 +60,14 @@ public:
 protected:
   void paintEvent(QPaintEvent* event) override;
 
-  double minimum_ = 0.;
-  double maximum_ = 1.;
+  double minimum_ = 0.0;
+  double maximum_ = 1.0;
   bool fill_range_ = true;
   int line_width_ = 3;
   int text_psize_ = 10;
-  Qt::GlobalColor fill_color_ = Qt::green;
-  Qt::GlobalColor limit_line_color_ = Qt::black;
-  Qt::GlobalColor value_line_color_ = Qt::red;
+  QColor fill_color_ = Qt::green;
+  QColor limit_line_color_ = Qt::black;
+  QColor value_line_color_ = Qt::red;
 
   std::optional<QString> center_text_;
   std::optional<QString> lower_text_;

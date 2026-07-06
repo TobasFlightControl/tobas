@@ -61,7 +61,7 @@ void JointCommandsPublisherWidget::updateInternalDataStructures()
 
         commander->setMinimum(min_pos);
         commander->setMaximum(max_pos);
-        commander->setValue(0., true);
+        commander->setValue(0.0, true);
         commander->setSuffix(" rad");
 
         break;
@@ -74,7 +74,7 @@ void JointCommandsPublisherWidget::updateInternalDataStructures()
 
         commander->setMinimum(-max_vel);
         commander->setMaximum(max_vel);
-        commander->setValue(0., true);
+        commander->setValue(0.0, true);
         commander->setSuffix(" rad/s");
 
         break;
@@ -87,7 +87,7 @@ void JointCommandsPublisherWidget::updateInternalDataStructures()
 
         commander->setMinimum(-max_eff);
         commander->setMaximum(max_eff);
-        commander->setValue(0., true);
+        commander->setValue(0.0, true);
         commander->setSuffix(" Nm");
 
         break;
@@ -126,10 +126,10 @@ void JointCommandsPublisherWidget::start()
         commander->setValue(joint.home_pos, true);
         break;
       case JointCommandInterface::kVelocity:
-        commander->setValue(0., true);
+        commander->setValue(0.0, true);
         break;
       case JointCommandInterface::kEffort:
-        commander->setValue(0., true);
+        commander->setValue(0.0, true);
         break;
       case JointCommandInterface::kNone:
       default:
@@ -147,7 +147,7 @@ void JointCommandsPublisherWidget::stop()
 {
   // Disable the commander.
   for (const auto& [jnt_name, commander] : commanders_) {
-    commander->setValue(0., true);
+    commander->setValue(0.0, true);
     commander->setEnabled(false);
   }
 
@@ -158,7 +158,7 @@ void JointCommandsPublisherWidget::stop()
 void JointCommandsPublisherWidget::setZero()
 {
   for (const auto& [_, commander] : commanders_) {
-    commander->setValue(0.);
+    commander->setValue(0.0);
   }
 }
 
@@ -171,10 +171,10 @@ void JointCommandsPublisherWidget::setHome()
         commander->setValue(joint.home_pos);
         break;
       case JointCommandInterface::kVelocity:
-        commander->setValue(0.);
+        commander->setValue(0.0);
         break;
       case JointCommandInterface::kEffort:
-        commander->setValue(0.);
+        commander->setValue(0.0);
         break;
       case JointCommandInterface::kNone:
       default:

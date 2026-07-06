@@ -29,8 +29,8 @@ void FaceCircleWidget::setTextPointSize(int psize)
 
 void FaceCircleWidget::setProgress(double progress)
 {
-  progress_ = std::clamp(progress, 0., 1.);
-  completed_ = progress >= 1.;
+  progress_ = std::clamp(progress, 0.0, 1.0);
+  completed_ = progress >= 1.0;
 }
 
 void FaceCircleWidget::setSelected(bool selected)
@@ -128,7 +128,7 @@ void FaceCircleWidget::drawCircleLowerHalf(QPainter& painter, const QColor& colo
 
   // Clip only the lower part.
   const auto top = center.y() + radius * (1 - 2 * rate);
-  QRectF clip(0., top, width(), height() - top);
+  QRectF clip(0.0, top, width(), height() - top);
   painter.setClipRect(clip);
 
   // Draw.

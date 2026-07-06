@@ -17,13 +17,13 @@ namespace mission
 StopTrajectory::StopTrajectory(double p0, double v0, double a0, double am, double jm)
   : p0_(p0), v0_(v0), a0_(a0), am_(am), jm_(jm)
 {
-  assert(v0_ >= 0.);
-  assert(am_ > 0.);
-  assert(jm_ > 0.);
+  assert(v0_ >= 0.0);
+  assert(am_ > 0.0);
+  assert(jm_ > 0.0);
 
   // Special case when already stopped.
   if (v0_ < EPS) {
-    t1_ = t2_ = t3_ = 0.;
+    t1_ = t2_ = t3_ = 0.0;
     return;
   }
 
@@ -36,7 +36,7 @@ StopTrajectory::StopTrajectory(double p0, double v0, double a0, double am, doubl
   t2_ = math::sqr(a0_) / (2 * am_ * jm_) + v0_ / am_ + a0_ / jm_;
   t3_ = t2_ + am_ / jm_;
 
-  assert(0. <= t1_);
+  assert(0.0 <= t1_);
   assert(t1_ <= t2_);
   assert(t2_ <= t3_);
 }
@@ -44,7 +44,7 @@ StopTrajectory::StopTrajectory(double p0, double v0, double a0, double am, doubl
 traj::TrajectoryPoint StopTrajectory::get(double t) const noexcept
 {
   if (v0_ < EPS) {
-    return { p0_, 0., 0. };
+    return { p0_, 0.0, 0.0 };
   }
 
   return { p(t), v(t), a(t) };

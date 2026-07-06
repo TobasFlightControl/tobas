@@ -147,7 +147,7 @@ bool SQP::setMaximumIterations(size_t max_iter)
 
 bool SQP::setRelativeTolerance(double rel_tol)
 {
-  if (rel_tol <= 0.) {
+  if (rel_tol <= 0.0) {
     cerr << "Relative tolerance must be positive." << endl;
     return false;
   }

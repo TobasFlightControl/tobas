@@ -3,6 +3,7 @@
 
 #include "tobas_control_system/power_source_viewer/engine_viewer.hpp"
 
+#include <algorithm>
 #include <format>
 
 #include <boost/polymorphic_pointer_cast.hpp>
@@ -12,7 +13,7 @@
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 
-#define MAX_FUEL_QUANTITY 100.  // TODO: Include fuel capacity in `EngineConfig`.
+#define MAX_FUEL_QUANTITY 100.0  // TODO: Include fuel capacity in `EngineConfig`.
 
 namespace tobas
 {
@@ -22,8 +23,8 @@ namespace ctrl
 {
 EngineViewerWidget::EngineViewerWidget(const RosQtBridge& bridge, const Drone& drone) : drone_(drone)
 {
-  fuel_quantity_ = new qt::HPositionBarWidget();
-  oil_temp_ = new qt::HPositionBarWidget();
+  fuel_quantity_ = new qt::ProgressBar();
+  oil_temp_ = new qt::ProgressBar();
 
   fuel_quantity_->setFixedHeight(kBarHeight);
   oil_temp_->setFixedHeight(kBarHeight);
@@ -40,11 +41,8 @@ EngineViewerWidget::EngineViewerWidget(const RosQtBridge& bridge, const Drone& d
 
 void EngineViewerWidget::reset()
 {
-  fuel_quantity_->setUpper(fuel_quantity_->getMinimum());
-  fuel_quantity_->setCenterText("");
-
-  oil_temp_->setUpper(oil_temp_->getMinimum());
-  oil_temp_->setCenterText("");
+  fuel_quantity_->reset();
+  oil_temp_->reset();
 }
 
 void EngineViewerWidget::updateInternalDataStructures()
@@ -53,14 +51,6 @@ void EngineViewerWidget::updateInternalDataStructures()
 
   if (drone_.prop->type() == PropulsionSystem::kIce) {
     iprop_ = boost::polymorphic_pointer_downcast<IcePropulsionSystemConfig>(drone_.prop);
-
-    fuel_quantity_->setLower(0.);
-    fuel_quantity_->setMinimum(0.);
-    fuel_quantity_->setMaximum(MAX_FUEL_QUANTITY);
-
-    oil_temp_->setLower(kMinOilTemp);
-    oil_temp_->setMinimum(kMinOilTemp);
-    oil_temp_->setMaximum(kMaxOilTemp);
   }
   else {
     iprop_.reset();
@@ -69,14 +59,15 @@ void EngineViewerWidget::updateInternalDataStructures()
 
 void EngineViewerWidget::updateFuelQuantity(const double& fuel_quantity)
 {
-  const auto fuel_rate = math::remap(fuel_quantity, 0., MAX_FUEL_QUANTITY, 0., 100.);
-  fuel_quantity_->setUpper(fuel_quantity);
-  fuel_quantity_->setCenterText(std::format("{:.2f} L ({:.0f} %)", fuel_quantity, fuel_rate).c_str());
+  const auto fuel_rate = math::remap(fuel_quantity, 0.0, MAX_FUEL_QUANTITY, 0.0, 100.0);
+  fuel_quantity_->setPercentage(fuel_rate);
+  fuel_quantity_->setFormat(
+    std::format("{:.2f} L ({:.0f} %)", fuel_quantity, std::clamp(fuel_rate, 0.0, 100.0)).c_str());
 
-  if (fuel_rate > 20.) {
+  if (fuel_rate > 20.0) {
     fuel_quantity_->setFillColor(Qt::green);
   }
-  else if (fuel_rate > 10.) {
+  else if (fuel_rate > 10.0) {
     fuel_quantity_->setFillColor(Qt::yellow);
   }
   else {
@@ -86,17 +77,18 @@ void EngineViewerWidget::updateFuelQuantity(const double& fuel_quantity)
 
 void EngineViewerWidget::updateOilTemperature(const double& oil_temp)
 {
-  oil_temp_->setUpper(oil_temp);
-  oil_temp_->setCenterText(std::format("{:.1f} ℃", oil_temp).c_str());
+  const auto oil_temp_rate = math::remap(oil_temp, kMinOilTemp, kMaxOilTemp, 0.0, 100.0);
+  oil_temp_->setPercentage(oil_temp_rate);
+  oil_temp_->setFormat(std::format("{:.1f} ℃", oil_temp).c_str());
 
   // TODO: Include the proper oil temperature range in `EngineConfig`.
-  if (oil_temp < 60.) {
+  if (oil_temp < 60.0) {
     oil_temp_->setFillColor(Qt::blue);
   }
-  else if (oil_temp < 100.) {
+  else if (oil_temp < 100.0) {
     oil_temp_->setFillColor(Qt::green);
   }
-  else if (oil_temp < 120.) {
+  else if (oil_temp < 120.0) {
     oil_temp_->setFillColor(Qt::yellow);
   }
   else {

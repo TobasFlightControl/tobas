@@ -81,7 +81,7 @@ inline void TwistAcc::setNaN()
 
 inline TwistAcc TwistAcc::refPoint(const VectorAcc& v_base_AB)
 {
-  return TwistAcc(this->vel + this->rot * v_base_AB, this->rot);
+  return TwistAcc(vel + rot * v_base_AB, rot);
 }
 
 inline Twist TwistAcc::getTwist() const

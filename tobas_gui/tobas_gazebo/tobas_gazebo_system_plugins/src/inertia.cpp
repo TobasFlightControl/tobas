@@ -13,10 +13,10 @@ namespace gazebo
 {
 std::tuple<double, double, double> boxInertia(double sx, double sy, double sz, double mass)
 {
-  assert(sx > 0.);
-  assert(sy > 0.);
-  assert(sz > 0.);
-  assert(mass > 0.);
+  assert(sx > 0.0);
+  assert(sy > 0.0);
+  assert(sz > 0.0);
+  assert(mass > 0.0);
 
   const auto sx2 = math::sqr(sx);
   const auto sy2 = math::sqr(sy);

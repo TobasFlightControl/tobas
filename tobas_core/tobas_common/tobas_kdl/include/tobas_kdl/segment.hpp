@@ -86,7 +86,7 @@ private:
 };
 
 inline Segment::Segment(const std::string& name, const Joint& joint, const Frame& f_tip, const RigidBodyInertia& I)
-  : name_(name), joint_(joint), f_tip_(joint.pose(0.).inverse() * f_tip), I_(I)
+  : name_(name), joint_(joint), f_tip_(joint.pose(0.0).inverse() * f_tip), I_(I)
 {
 }
 
@@ -127,7 +127,7 @@ inline const Joint& Segment::joint() const
 
 inline Frame Segment::frame() const
 {
-  return joint_.pose(0.) * f_tip_;
+  return joint_.pose(0.0) * f_tip_;
 }
 
 inline const RigidBodyInertia& Segment::inertia() const

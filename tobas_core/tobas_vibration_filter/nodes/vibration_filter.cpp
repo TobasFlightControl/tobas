@@ -19,8 +19,8 @@ class VibrationFilterNode : public BaseNode
 
   // ArduPilot: fc_hpf = 5Hz, fc_lpf = 2Hz
   // https://firmware.ardupilot.org/coverage/AP_InertialSensor/AP_InertialSensor.h.gcov.html
-  static constexpr double kHpfCutoff = 10.;  // [Hz] (G(1Hz) ~ 0.1, G(30Hz) ~ 0.95)
-  static constexpr double kLpfCutoff = 1.;   // [Hz]
+  static constexpr double kHpfCutoff = 10.0;  // [Hz] (G(1Hz) ~ 0.1, G(30Hz) ~ 0.95)
+  static constexpr double kLpfCutoff = 1.0;   // [Hz]
 
 public:
   explicit VibrationFilterNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());

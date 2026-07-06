@@ -35,7 +35,7 @@ int main(int argc, char** argv)
       continue;
     }
 
-    cout << "Pressure [hPa]     : " << pres / 100. << endl;
+    cout << "Pressure [hPa]     : " << pres / 100.0 << endl;
     cout << "Temperature [degC]: " << temp << endl;
 
     this_thread::sleep_for(1s);

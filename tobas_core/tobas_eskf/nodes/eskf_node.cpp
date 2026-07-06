@@ -49,8 +49,8 @@ class ErrorStateKalmanFilterNode : public BaseNode
 
   // Initial standard deviations.
   // Covariance grows slowly but converges fairly quickly, so choosing a somewhat large value is acceptable.
-  static constexpr double kInitPosStddev = 5.;      // [m]
-  static constexpr double kInitVelStddev = 1.;      // [m/s]
+  static constexpr double kInitPosStddev = 5.0;     // [m]
+  static constexpr double kInitVelStddev = 1.0;     // [m/s]
   static constexpr double kInitRotStddev = M_PI_4;  // [rad]
   static constexpr double kInitMagStddev = 0.5;     // [-]
 
@@ -72,7 +72,7 @@ private:
   tobas_msgs::Gnss::ConstSharedPtr gnss_;
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
   bool gnss_fix_ = false;
-  double gnss_anomaly_score_ = 0.;
+  double gnss_anomaly_score_ = 0.0;
 
   // Geomagnetic reference value.
   bool mag_ref_set_ = false;
@@ -246,7 +246,7 @@ void ErrorStateKalmanFilterNode::registerDynamicRosParams()
   addDynamicDoubleParam("gyro_meas_noise_stddev", &self::fixedGyroMeasNoiseStddevCb, this, 0.005, 20, 1, 20, " rad/s");
 
   // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_MAG_NOISE
-  addDynamicDoubleParam("mag_meas_noise_stddev", &self::fixedMagMeasNoiseStddevCb, this, 5., 1, 1, 20, " uT");
+  addDynamicDoubleParam("mag_meas_noise_stddev", &self::fixedMagMeasNoiseStddevCb, this, 5.0, 1, 1, 20, " uT");
 
   // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_HEAD_NOISE
   addDynamicDoubleParam("head_meas_noise_stddev", &self::fixedHeadMeasNoiseStddevCb, this, 0.05, 6, 1, 20, " rad");
@@ -269,9 +269,10 @@ void ErrorStateKalmanFilterNode::registerDynamicRosParams()
       "grav_meas_noise_stddev_min", &self::adaptiveGravMeasNoiseStddevMinCb, this, 0.01, 1, 0, 100, " m/s^2");
 
     addDynamicDoubleParam(
-      "grav_meas_noise_stddev_max", &self::adaptiveGravMeasNoiseStddevMaxCb, this, 1., 20, 10, 100, " m/s^2");
+      "grav_meas_noise_stddev_max", &self::adaptiveGravMeasNoiseStddevMaxCb, this, 1.0, 20, 10, 100, " m/s^2");
 
-    addDynamicDoubleParam("grav_meas_noise_stddev_rate", &self::adaptiveGravMeasNoiseStddevRateCb, this, 5., 20, 0, 100);
+    addDynamicDoubleParam(
+      "grav_meas_noise_stddev_rate", &self::adaptiveGravMeasNoiseStddevRateCb, this, 5.0, 20, 0, 100);
   }
   else {
     // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_GRAV_NOISE
@@ -280,12 +281,12 @@ void ErrorStateKalmanFilterNode::registerDynamicRosParams()
   if (do_acc_bias_estimation_) {
     // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_ACC_B_NOISE
     addDynamicDoubleParam(
-      "acc_bias_proc_noise_density", &self::accBiasProcNoiseDensityCb, this, 1., 15, 0, 50, " ug/s/√Hz");
+      "acc_bias_proc_noise_density", &self::accBiasProcNoiseDensityCb, this, 1.0, 15, 0, 50, " ug/s/√Hz");
   }
   if (do_gyro_bias_estimation_) {
     // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_GYR_B_NOISE
     addDynamicDoubleParam(
-      "gyro_bias_proc_noise_density", &self::gyroBiasProcNoiseDensityCb, this, 1., 3, 0, 30, " mdps/s/√Hz");
+      "gyro_bias_proc_noise_density", &self::gyroBiasProcNoiseDensityCb, this, 1.0, 3, 0, 30, " mdps/s/√Hz");
   }
   if (do_mag_hard_bias_estimation_) {
     // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_MAG_B_NOISE
@@ -304,7 +305,7 @@ void ErrorStateKalmanFilterNode::registerDynamicRosParams()
   }
   if (do_grav_estimation_) {
     addDynamicDoubleParam(
-      "grav_noise_proc_noise_density", &self::gravProcNoiseDensityCb, this, 1., 15, 0, 50, " ug/s/√Hz");
+      "grav_noise_proc_noise_density", &self::gravProcNoiseDensityCb, this, 1.0, 15, 0, 50, " ug/s/√Hz");
   }
 }
 
@@ -513,32 +514,32 @@ Matrix3d ErrorStateKalmanFilterNode::calcGravMeasNoiseCov(const Vector3d& acc) c
 
 double ErrorStateKalmanFilterNode::initAccelBiasStddev() const
 {
-  return do_acc_bias_estimation_ ? 1. : 0.;
+  return do_acc_bias_estimation_ ? 1.0 : 0.0;
 }
 
 double ErrorStateKalmanFilterNode::initGyroBiasStddev() const
 {
-  return do_gyro_bias_estimation_ ? 0.1 : 0.;
+  return do_gyro_bias_estimation_ ? 0.1 : 0.0;
 }
 
 double ErrorStateKalmanFilterNode::initMagHardBiasStddev() const
 {
-  return do_mag_hard_bias_estimation_ ? 0.1 : 0.;
+  return do_mag_hard_bias_estimation_ ? 0.1 : 0.0;
 }
 
 double ErrorStateKalmanFilterNode::initMagSoftBiasStddev() const
 {
-  return do_mag_soft_bias_estimation_ ? 0.1 : 0.;
+  return do_mag_soft_bias_estimation_ ? 0.1 : 0.0;
 }
 
 double ErrorStateKalmanFilterNode::initBaroAltBiasStddev() const
 {
-  return do_baro_alt_bias_estimation_ ? 0.1 : 0.;
+  return do_baro_alt_bias_estimation_ ? 0.1 : 0.0;
 }
 
 double ErrorStateKalmanFilterNode::initGravBiasStddev() const
 {
-  return do_grav_estimation_ ? 0.1 : 0.;
+  return do_grav_estimation_ ? 0.1 : 0.0;
 }
 
 bool ErrorStateKalmanFilterNode::fixedAccMeasNoiseStddevCb(const double& p)
@@ -707,7 +708,7 @@ void ErrorStateKalmanFilterNode::imuRawCb(const tobas_msgs::Imu::ConstSharedPtr&
       Vector3d::Constant(math::sqr(initMagHardBiasStddev())).asDiagonal(),  // Init mag hard bias covariance
       Matrix3d::Identity(),                                                 // Init mag soft bias
       Vector6d::Constant(math::sqr(initMagSoftBiasStddev())).asDiagonal(),  // Init mag soft bias covariance
-      0.,                                                                   // Init barometer altitude bias
+      0.0,                                                                  // Init barometer altitude bias
       math::sqr(initBaroAltBiasStddev()),                                   // Init barometer altitude bias variance
       st::kGravity,                                                         // Init gravity
       math::sqr(initGravBiasStddev()),                                      // Init gravity variance
@@ -791,7 +792,7 @@ void ErrorStateKalmanFilterNode::magCb(const tobas_msgs::MagneticField::ConstSha
     // Correct the attitude and compute the geomagnetic vector as seen from the ground coordinate system.
     const auto R_W_B = eskf_.getQuaternion();
     const auto [roll, pitch, _] = st::eulerFromQuaternion(R_W_B.x(), R_W_B.y(), R_W_B.z(), R_W_B.w());
-    const auto R_G_B = kdl::Rotation::RPY(roll, pitch, 0.);
+    const auto R_G_B = kdl::Rotation::RPY(roll, pitch, 0.0);
     const auto mag_G = R_G_B * msg->mag;
 
     // Accumulate the geomagnetic vector.

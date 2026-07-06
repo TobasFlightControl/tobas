@@ -207,7 +207,7 @@ Drone ProjectGenerator::createDrone() const
           else {
             tilt_joint.hw_iface = HardwareInterface::kOther;
           }
-          tilt_joint.home_pos = 0.;
+          tilt_joint.home_pos = 0.0;
           TOBAS_CHECK(drone.joints.insert({ tilt_joint.name, tilt_joint }).second);
 
           if (tilt_joint.hw_iface == HardwareInterface::kPwm) {
@@ -302,7 +302,7 @@ Drone ProjectGenerator::createDrone() const
           tilt_joint.role = JointRole::kTiltJoint;
           tilt_joint.cmd_iface = JointCommandInterface::kPosition;
           tilt_joint.hw_iface = HardwareInterface::kPwm;  // TODO: Make this selectable.
-          tilt_joint.home_pos = 0.;
+          tilt_joint.home_pos = 0.0;
           TOBAS_CHECK(drone.joints.insert({ tilt_joint.name, tilt_joint }).second);
 
           if (tilt_joint.hw_iface == HardwareInterface::kPwm) {
@@ -387,7 +387,7 @@ Drone ProjectGenerator::createDrone() const
       else {
         joint.hw_iface = HardwareInterface::kOther;
       }
-      joint.home_pos = 0.;
+      joint.home_pos = 0.0;
       TOBAS_CHECK(drone.joints.insert({ joint.name, joint }).second);
     }
   }
@@ -1133,7 +1133,7 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
     fmu->gnssUpdateRate(),
     Eigen::Vector3d::Zero(),  // TODO
     0.1,                      // The time for radio waves from GNSS satellites to reach the ground is roughly fixed.
-    30.,                      // TODO: What is the actual GNSS position correlation time constant?
+    30.0,                     // TODO: What is the actual GNSS position correlation time constant?
     fmu->gnssHorizontalPositionAccuracy(),
     fmu->gnssVerticalPositionAccuracy(),
     fmu->gnssHorizontalVelocityStddev(),
@@ -1147,7 +1147,7 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
       const auto units = eprop->units;
 
       // Battery plugin
-      constexpr double kBatterySamplingRate = 100.;  // TODO: Set the sampling rate in the GUI.
+      constexpr double kBatterySamplingRate = 100.0;  // TODO: Set the sampling rate in the GUI.
       xml::addBatteryPlugin(
         robot,
         ns,
@@ -1255,7 +1255,7 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
       }
       case JointCommandInterface::kPosition: {
         const auto max_vel = uadf_.urdf->getJoint(joint.name)->limits->velocity;
-        if (max_vel <= 0.) {
+        if (max_vel <= 0.0) {
           qWarning() << "The maximum velocity of" << QString::fromStdString(joint.name) << "is invalid:" << max_vel;
           break;
         }

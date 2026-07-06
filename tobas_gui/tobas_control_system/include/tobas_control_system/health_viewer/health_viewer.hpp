@@ -14,21 +14,19 @@ namespace gui
 {
 namespace ctrl
 {
-class StatusViewerWidget : public qt::ScrollArea
+class HealthViewerWidget : public qt::ScrollArea
 {
   Q_OBJECT
 
-  using self = StatusViewerWidget;
+  using self = HealthViewerWidget;
   using super = qt::ScrollArea;
 
 public:
-  explicit StatusViewerWidget(const RosQtBridge& bridge);
+  explicit HealthViewerWidget(const RosQtBridge& bridge);
 
   void reset();
 
 private:
-  tobas_msgs::msg::Arming::ConstSharedPtr arming_;
-
   StatusWidget* rt_compliance_status_;
   StatusWidget* battery_voltage_status_;
   StatusWidget* cpu_temp_status_;
@@ -45,11 +43,7 @@ private:
   StatusWidget* vibration_level_status_;
   StatusWidget* user_defined_status_;
 
-  StatusWidget* ready_arm_status_;
-  StatusWidget* armed_status_;
-
 private Q_SLOTS:
-  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
   void healthCb(const tobas_msgs::msg::VehicleHealth::ConstSharedPtr& health);
 };
 }  // namespace ctrl
