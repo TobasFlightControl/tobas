@@ -268,12 +268,12 @@ inline Vector Vector::hadamard(const Vector& rhs) const
 
 inline double Vector::argument(const Vector& rhs) const
 {
-  return std::acos(this->normalized().dot(rhs.normalized()));
+  return std::acos(normalized().dot(rhs.normalized()));
 }
 
 inline bool Vector::isPerpendicular(const Vector& rhs) const
 {
-  return math::isClose(this->dot(rhs), 0.0);
+  return math::isClose(dot(rhs), 0.0);
 }
 
 inline Vector Vector::clamp(const double& lb, const double& ub) const
@@ -308,13 +308,13 @@ inline double Vector::squaredNorm() const
 
 inline void Vector::normalize()
 {
-  assert(this->squaredNorm() > 0.0);
+  assert(squaredNorm() > 0.0);
   data.normalize();
 }
 
 inline Vector Vector::normalized() const
 {
-  assert(this->squaredNorm() > 0.0);
+  assert(squaredNorm() > 0.0);
   return Vector(data.normalized());
 }
 

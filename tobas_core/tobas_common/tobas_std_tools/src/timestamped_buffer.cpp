@@ -33,12 +33,12 @@ double TimestampedBufferDouble::min() const
 
 double TimestampedBufferDouble::range() const
 {
-  return this->max() - this->min();
+  return max() - min();
 }
 
 double TimestampedBufferDouble::mean() const
 {
-  if (this->size() == 0) {
+  if (size() == 0) {
     return 0.0;
   }
 
@@ -47,12 +47,12 @@ double TimestampedBufferDouble::mean() const
     sum.add(x);
   }
 
-  return sum.get() / this->size();
+  return sum.get() / size();
 }
 
 double TimestampedBufferDouble::variance() const
 {
-  if (this->size() == 0) {
+  if (size() == 0) {
     return 0.0;
   }
 
@@ -63,12 +63,12 @@ double TimestampedBufferDouble::variance() const
     sum.add(math::sqr(x - mean));
   }
 
-  return sum.get() / this->size();
+  return sum.get() / size();
 }
 
 double TimestampedBufferDouble::stddev() const
 {
-  return std::sqrt(this->variance());
+  return std::sqrt(variance());
 }
 }  // namespace st
 }  // namespace tobas

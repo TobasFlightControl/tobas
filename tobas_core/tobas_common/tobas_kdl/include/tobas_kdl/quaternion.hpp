@@ -116,7 +116,7 @@ inline Quaternion Quaternion::complexConjugate() const
 
 inline Quaternion Quaternion::inverse() const
 {
-  return this->complexConjugate() / this->squaredNorm();
+  return complexConjugate() / squaredNorm();
 }
 
 inline double Quaternion::squaredNorm() const
@@ -126,17 +126,17 @@ inline double Quaternion::squaredNorm() const
 
 inline double Quaternion::norm() const
 {
-  return std::sqrt(this->squaredNorm());
+  return std::sqrt(squaredNorm());
 }
 
 inline Quaternion Quaternion::normalize() const
 {
-  return *this / this->norm();
+  return *this / norm();
 }
 
 inline bool Quaternion::isNormalized() const
 {
-  return math::isClose(this->squaredNorm(), 1.0);
+  return math::isClose(squaredNorm(), 1.0);
 }
 
 inline Quaternion Quaternion::differential(const Vector& angvel) const
@@ -162,7 +162,7 @@ inline Quaternion Quaternion::operator*(const Quaternion& rhs) const
 
 inline Vector Quaternion::operator*(const Vector& v) const
 {
-  const auto res = *this * Quaternion(v.x(), v.y(), v.z(), 0) * this->complexConjugate();
+  const auto res = *this * Quaternion(v.x(), v.y(), v.z(), 0) * complexConjugate();
   return Vector(res.x, res.y, res.z);
 }
 

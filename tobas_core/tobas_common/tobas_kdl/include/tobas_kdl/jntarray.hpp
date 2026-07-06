@@ -93,7 +93,7 @@ inline size_t JntArray::size() const
 
 inline size_t JntArray::rows() const
 {
-  return this->size();
+  return size();
 }
 
 inline double JntArray::max() const
@@ -118,7 +118,7 @@ inline JntArray JntArray::min(double x)
 
 inline JntArray JntArray::hadamard(const JntArray& arg)
 {
-  assert(this->rows() == arg.rows());
+  assert(rows() == arg.rows());
   return JntArray(data.cwiseProduct(arg.data));
 }
 
@@ -134,13 +134,13 @@ inline double& JntArray::operator()(size_t i)
 
 inline JntArray JntArray::operator+(const JntArray& rhs) const
 {
-  assert(this->rows() == rhs.rows());
+  assert(rows() == rhs.rows());
   return JntArray(data + rhs.data);
 }
 
 inline JntArray JntArray::operator-(const JntArray& rhs) const
 {
-  assert(this->rows() == rhs.rows());
+  assert(rows() == rhs.rows());
   return JntArray(data - rhs.data);
 }
 
@@ -157,14 +157,14 @@ inline JntArray JntArray::operator/(const double& rhs) const
 
 inline JntArray& JntArray::operator+=(const JntArray& rhs)
 {
-  assert(this->rows() == rhs.rows());
+  assert(rows() == rhs.rows());
   data += rhs.data;
   return *this;
 }
 
 inline JntArray& JntArray::operator-=(const JntArray& rhs)
 {
-  assert(this->rows() == rhs.rows());
+  assert(rows() == rhs.rows());
   data -= rhs.data;
   return *this;
 }

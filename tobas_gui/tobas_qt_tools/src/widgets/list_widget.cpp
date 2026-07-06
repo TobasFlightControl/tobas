@@ -119,7 +119,7 @@ void ListWidget::dropEvent(QDropEvent* event)
 
 bool ListWidgetItem::operator<(const QListWidgetItem& rhs) const
 {
-  const auto ldata = this->data(Qt::UserRole);
+  const auto ldata = data(Qt::UserRole);
   const auto rdata = rhs.data(Qt::UserRole);
   return ldata.toString() < rdata.toString();
 }

@@ -16,7 +16,7 @@ bool Vector::isParallel(const Vector& rhs, bool same_direction_only, double angl
   assert(0.0 < angle_tol_rad && angle_tol_rad < 1.0);
   assert(zero_tol > 0.0);
 
-  const auto na2 = this->squaredNorm();
+  const auto na2 = squaredNorm();
   const auto nb2 = rhs.squaredNorm();
 
   // Parallelism is undefined for zero vectors.

@@ -128,15 +128,15 @@ void MjpgCompressor::callback(const sensor_msgs::msg::CompressedImage::ConstShar
   }
   if (encoding_ == "MJPG") {
     auto message = std::make_unique<sensor_msgs::msg::CompressedImage>();
-    message->header.stamp = this->now();
+    message->header.stamp = now();
     message->header.frame_id = "map";
     message->format = std::string("jpeg");
     cv::imencode(".jpg", image_resized, message->data);
     mjpg_resized_pub_->publish(std::move(message));
   }
   else if (encoding_ == "H.264") {
-    if (!this->encoder_.isInitialized()) {
-      if (!this->encoder_.initialize(
+    if (!encoder_.isInitialized()) {
+      if (!encoder_.initialize(
             image_resized.cols,
             image_resized.rows,
             std::bind(&MjpgCompressor::packetReady, this, _1, _2, _3, _4, _5, _6, _7, _8, _9))) {

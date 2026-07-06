@@ -144,8 +144,8 @@ CxGb400PublisherNode::CxGb400PublisherNode(const rclcpp::NodeOptions& options)
     service::kTakePictureToSd, &CxGb400PublisherNode::takePictureToSdCb, this);
 
   timer_ = createTimer(std::chrono::milliseconds(1000 / fps), &CxGb400PublisherNode::timerCallback, this);
-  last_attitude_send_ = this->now();
-  last_status_send_ = this->now();
+  last_attitude_send_ = now();
+  last_status_send_ = now();
 }
 
 void CxGb400PublisherNode::setFfmpegParameters()
@@ -255,8 +255,8 @@ void CxGb400PublisherNode::timerCallback()
     std::vector<uint8_t> image_data(image_size);
     std::memcpy(&*image_data.begin(), image_ptr, image_size);
     const auto image = cv::imdecode(cv::Mat(image_data), 1);
-    if (!this->encoder_.isInitialized()) {
-      if (!this->encoder_.initialize(
+    if (!encoder_.isInitialized()) {
+      if (!encoder_.initialize(
             image.cols,
             image.rows,
             std::bind(&CxGb400PublisherNode::packetReady, this, _1, _2, _3, _4, _5, _6, _7, _8, _9))) {

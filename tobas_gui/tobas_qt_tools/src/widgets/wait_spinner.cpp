@@ -47,7 +47,7 @@ void WaitSpinnerWidget::paintEvent(QPaintEvent*)
 {
   updatePosition();
   QPainter painter(this);
-  painter.fillRect(this->rect(), Qt::transparent);
+  painter.fillRect(rect(), Qt::transparent);
   painter.setRenderHint(QPainter::Antialiasing, true);
 
   if (cur_counter_ >= num_lines_) {
