@@ -14,6 +14,7 @@
 #include <tobas_gui_common/version.hpp>
 #include <tobas_path_tools/core.hpp>
 #include <tobas_qt_tools/message.hpp>
+#include <tobas_qt_tools/path.hpp>
 #include <tobas_ros2_tools/package.hpp>
 #include <tobas_ros2_tools/util.hpp>
 #include <tobas_std_tools/check.hpp>
@@ -395,16 +396,29 @@ void SetupAssistantWidget::onNewButtonClicked()
       qt::qErrorBox(this, "Failed to get the ROS package name of the UADF: " + QString::fromStdString(pkg_name.error()));
       return;
     }
+    const auto pkg_name_qt = QString::fromStdString(pkg_name.value());
 
-    qInfo().nospace() << "UADF is in ROS package " << QString::fromStdString(pkg_name.value()) << ". Building it.";
+    qInfo().nospace() << "UADF is in ROS package " << pkg_name_qt << ". Building it.";
     spinner_.start();
     const auto build_success = cmn::colconBuild(colcon_, pkg_path.value(), ros2::expandUser(kColconWSPathHome));
     spinner_.stop();
+
     if (!build_success) {
-      qt::qErrorBox(
-        this,
-        "Failed to build \"" + QString::fromStdString(pkg_name.value()) + "\":\n\n" +
-          QString::fromStdString(colcon_.errorMessage()));
+      const auto error_msg = QString::fromStdString(colcon_.errorMessage());
+      if (error_msg.size() < cmn::kSaveLogTextSizeThresh) {
+        qt::qErrorBox(this, "Failed to build \"" + pkg_name_qt + "\":\n\n" + error_msg);
+      }
+      else {
+        const auto log_path =
+          qt::writeTimestampedFile(error_msg + '\n', qt::expandUser(kGuiLogDir), "", "builderr_description_package");
+        if (log_path) {
+          qt::qErrorBox(
+            this, "Failed to build \"" + pkg_name_qt + "\". The output has been saved to:\n" + log_path.value());
+        }
+        else {
+          qt::qErrorBox(this, "Failed to build \"" + pkg_name_qt + "\", and also failed to save the error message.");
+        }
+      }
       return;
     }
   }
@@ -412,7 +426,20 @@ void SetupAssistantWidget::onNewButtonClicked()
   // Parse XACRO.
   std::string uadf_text;
   if (!xacro_parser_.parseFromPath(uadf_path.toStdString(), uadf_text)) {
-    qt::qErrorBox(this, "Failed to parse XACRO:\n\n" + QString::fromStdString(xacro_parser_.getOutput()));
+    const auto error_msg = QString::fromStdString(xacro_parser_.getOutput());
+    if (error_msg.size() < cmn::kSaveLogTextSizeThresh) {
+      qt::qErrorBox(this, "Failed to parse XACRO:\n\n" + error_msg);
+    }
+    else {
+      const auto log_path =
+        qt::writeTimestampedFile(error_msg + '\n', qt::expandUser(kGuiLogDir), "", "xacro_parse_error");
+      if (log_path) {
+        qt::qErrorBox(this, "Failed to parse XACRO. The output has been saved to:\n" + log_path.value());
+      }
+      else {
+        qt::qErrorBox(this, "Failed to parse XACRO, and also failed to save the error message.");
+      }
+    }
     return;
   }
 
