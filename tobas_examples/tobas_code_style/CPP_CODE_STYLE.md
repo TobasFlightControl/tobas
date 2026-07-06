@@ -169,6 +169,16 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 - Use only `float` or `double`.
 - Do not use types such as `long double`.
 
+<!-- Custom -->
+
+- Write `double` literals with at least one digit after the decimal point. Use `1.0` instead of `1.`.
+
+```cpp
+double gain = 1.0;  // OK
+double bias = 0.0;  // OK
+double scale = 1.;  // NG
+```
+
 ## Naming Rules
 
 - Names may be long, but they must make the meaning and purpose easy for readers to understand.
