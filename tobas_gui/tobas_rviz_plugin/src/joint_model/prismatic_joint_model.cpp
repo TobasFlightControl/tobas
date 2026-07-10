@@ -10,7 +10,6 @@ PrismaticJointModel::PrismaticJointModel(const std::string& name, size_t joint_i
 {
   type_ = kPrismatic;
   variable_names_.push_back(getName());
-  variable_index_map_[getName()] = 0;
 }
 
 void PrismaticJointModel::getVariableDefaultPositions(double* values) const
@@ -48,13 +47,6 @@ void PrismaticJointModel::computeVariablePositions(const Eigen::Isometry3d& tran
   joint_values[0] = transform.translation().dot(axis_);
 }
 
-/* Get the axis of translation. */
-const Eigen::Vector3d& PrismaticJointModel::getAxis() const
-{
-  return axis_;
-}
-
-/* Set the axis of translation. */
 void PrismaticJointModel::setAxis(const Eigen::Vector3d& axis)
 {
   axis_ = axis;

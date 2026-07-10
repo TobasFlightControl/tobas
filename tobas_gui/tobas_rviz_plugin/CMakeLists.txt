@@ -11,18 +11,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Wswitch-enum -Werror")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-set(AMENT_DEPENDENCIES
-    eigen_stl_containers
-    angles
-    tf2_eigen
-    rsl
-    trajectory_msgs
-    rviz_common
-    rviz_default_plugins
-    rviz_rendering
-    tobas_math
-    tobas_visualization_msgs
-)
+set(AMENT_DEPENDENCIES tf2_eigen rsl rviz_common rviz_default_plugins tobas_visualization_msgs)
 
 find_package(ament_cmake REQUIRED)
 
@@ -46,13 +35,10 @@ target_link_options(${PROJECT_NAME} PRIVATE -Wl,--no-undefined)
 
 install(
   TARGETS ${PROJECT_NAME}
-  EXPORT ${PROJECT_NAME}
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
   RUNTIME DESTINATION bin
 )
 pluginlib_export_plugin_description_file(rviz_common rviz_plugin_description.xml)
-
-ament_export_dependencies(${AMENT_DEPENDENCIES})
 
 ament_package()

@@ -3,8 +3,6 @@
 
 #include "tobas_rviz_plugin/joint_model/revolute_joint_model.hpp"
 
-#include <tobas_math/definitions.hpp>
-
 namespace tobas
 {
 RevoluteJointModel::RevoluteJointModel(const std::string& name, size_t joint_index, size_t first_variable_index)
@@ -12,7 +10,6 @@ RevoluteJointModel::RevoluteJointModel(const std::string& name, size_t joint_ind
 {
   type_ = kRevolute;
   variable_names_.push_back(getName());
-  variable_index_map_[getName()] = 0;
 }
 
 void RevoluteJointModel::getVariableDefaultPositions(double* values) const
@@ -64,21 +61,6 @@ void RevoluteJointModel::computeVariablePositions(const Eigen::Isometry3d& trans
   size_t max_idx;
   axis_.array().abs().maxCoeff(&max_idx);
   joint_values[0] = 2.0 * std::atan2(q.vec()[max_idx] / axis_[max_idx], q.w());
-}
-
-bool RevoluteJointModel::isContinuous() const
-{
-  return continuous_;
-}
-
-void RevoluteJointModel::setContinuous(bool flag)
-{
-  continuous_ = flag;
-}
-
-const Eigen::Vector3d& RevoluteJointModel::getAxis() const
-{
-  return axis_;
 }
 
 void RevoluteJointModel::setAxis(const Eigen::Vector3d& axis)

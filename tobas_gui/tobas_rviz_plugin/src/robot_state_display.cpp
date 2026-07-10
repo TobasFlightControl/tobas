@@ -113,27 +113,6 @@ void RobotStateDisplay::reset()
   }
 }
 
-void RobotStateDisplay::setLinkColor(const std::string& link_name, const QColor& color)
-{
-  const auto link = robot_->getLink(link_name);
-  if (link) {
-    link->setColor(color.redF(), color.greenF(), color.blueF());
-  }
-}
-
-void RobotStateDisplay::unsetLinkColor(const std::string& link_name)
-{
-  const auto link = robot_->getLink(link_name);
-  if (link) {
-    link->unsetColor();
-  }
-}
-
-void RobotStateDisplay::setVisible(bool visible)
-{
-  robot_->setVisible(visible);
-}
-
 void RobotStateDisplay::onInitialize()
 {
   super::onInitialize();
@@ -251,7 +230,6 @@ void RobotStateDisplay::newRobotStateCallback(
     robot_state_ = std::make_shared<RobotState>(robot_model_);
   }
 
-  // Possibly use TF to construct a Transforms object to pass in to the conversion function?
   try {
     robotStateMsgToRobotState(state_msg->state, *robot_state_);
     setRobotHighlights(state_msg->highlight_links);

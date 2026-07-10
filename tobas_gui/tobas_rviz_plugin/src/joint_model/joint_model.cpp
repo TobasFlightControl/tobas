@@ -24,19 +24,9 @@ JointModel::JointType JointModel::getType() const
   return type_;
 }
 
-const LinkModel* JointModel::getParentLinkModel() const
-{
-  return parent_link_model_;
-}
-
 const LinkModel* JointModel::getChildLinkModel() const
 {
   return child_link_model_;
-}
-
-void JointModel::setParentLinkModel(const LinkModel* link)
-{
-  parent_link_model_ = link;
 }
 
 void JointModel::setChildLinkModel(const LinkModel* link)
@@ -62,16 +52,6 @@ size_t JointModel::getFirstVariableIndex() const
 size_t JointModel::getJointIndex() const
 {
   return joint_index_;
-}
-
-size_t JointModel::getLocalVariableIndex(const std::string& variable) const
-{
-  const auto it = variable_index_map_.find(variable);
-  if (it == variable_index_map_.end()) {
-    throw std::runtime_error(
-      "Could not find variable '" + variable + "' to get bounds for within joint '" + name_ + "'");
-  }
-  return it->second;
 }
 
 const JointModel* JointModel::getMimic() const
@@ -109,9 +89,6 @@ void JointModel::addMimicRequest(const JointModel* joint)
 void JointModel::addDescendantJointModel(const JointModel* joint)
 {
   descendant_joint_models_.push_back(joint);
-  if (joint->getType() != kFixed) {
-    non_fixed_descendant_joint_models_.push_back(joint);
-  }
 }
 
 void JointModel::addDescendantLinkModel(const LinkModel* link)
@@ -129,8 +106,4 @@ const std::vector<const JointModel*>& JointModel::getDescendantJointModels() con
   return descendant_joint_models_;
 }
 
-const std::vector<const JointModel*>& JointModel::getNonFixedDescendantJointModels() const
-{
-  return non_fixed_descendant_joint_models_;
-}
 }  // namespace tobas
