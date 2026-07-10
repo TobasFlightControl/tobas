@@ -85,21 +85,21 @@ void RemoteConnectionWidget::setConnected()
 {
   state_ = kConnected;
   setIconPixmap(connected_);
-  label_->setText("Connected");
+  label_->setText("TELEM OK");
 }
 
 void RemoteConnectionWidget::setDisonnected()
 {
   state_ = kDisonnected;
   setIconPixmap(disconnected_);
-  label_->setText("Not Connected");
+  label_->setText("TELEM LOST");
 }
 
 void RemoteConnectionWidget::setUnknown()
 {
   state_ = kUnknown;
   setIconPixmap(unknown_);
-  label_->setText("Connecting...");
+  label_->setText("Waiting...");
 }
 
 void RemoteConnectionWidget::setIconPixmap(const QPixmap& pixmap)
