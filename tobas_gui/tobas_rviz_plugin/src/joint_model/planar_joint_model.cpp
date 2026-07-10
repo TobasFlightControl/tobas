@@ -5,8 +5,6 @@
 
 #include <limits>
 
-#include <geometric_shapes/check_isometry.h>
-
 namespace tobas
 {
 PlanarJointModel::PlanarJointModel(const std::string& name, size_t joint_index, size_t first_variable_index)
@@ -44,7 +42,6 @@ void PlanarJointModel::computeVariablePositions(const Eigen::Isometry3d& transfo
   joint_values[0] = transform.translation().x();
   joint_values[1] = transform.translation().y();
 
-  ASSERT_ISOMETRY(transform)  // Unsanitized input, could contain a non-isometry
   const Eigen::Quaterniond q(transform.linear());
 
   // Taken from Bullet

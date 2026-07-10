@@ -14,7 +14,6 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(AMENT_DEPENDENCIES
     eigen_stl_containers
     angles
-    geometric_shapes
     tf2_eigen
     rsl
     trajectory_msgs

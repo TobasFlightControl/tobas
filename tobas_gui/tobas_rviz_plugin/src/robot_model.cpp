@@ -5,7 +5,6 @@
 
 #include <set>
 
-#include <geometric_shapes/shape_operations.h>
 #include <rclcpp/logging.hpp>
 
 #include "tobas_rviz_plugin/logger.hpp"
@@ -23,6 +22,21 @@ rclcpp::Logger getLogger()
 using DescMap = std::map<
   const JointModel*,
   std::pair<std::set<const LinkModel*, OrderLinksByIndex>, std::set<const JointModel*, OrderJointsByIndex>>>;
+
+bool hasCollisionGeometry(const urdf::Geometry* geometry)
+{
+  switch (geometry->type) {
+    case urdf::Geometry::SPHERE:
+    case urdf::Geometry::BOX:
+    case urdf::Geometry::CYLINDER:
+      return true;
+    case urdf::Geometry::MESH:
+      return !static_cast<const urdf::Mesh*>(geometry)->filename.empty();
+    default:
+      RCLCPP_ERROR(getLogger(), "Unknown geometry type: %d", static_cast<int>(geometry->type));
+      return false;
+  }
+}
 
 void computeDescendantsHelper(
   const JointModel* joint,
@@ -565,11 +579,12 @@ JointModel* RobotModel::buildRecursive(LinkModel* parent, const urdf::Link* urdf
   link_model_vector_.push_back(link);
   link_model_vector_const_.push_back(link);
   link_model_names_vector_.push_back(link->getName());
-  if (!link->getShapes().empty()) {
+  const auto collision_geometry_count = link->getCollisionOriginTransforms().size();
+  if (collision_geometry_count > 0) {
     link_models_with_collision_geometry_vector_.push_back(link);
     link_model_names_with_collision_geometry_vector_.push_back(link->getName());
     link->setFirstCollisionBodyTransformIndex(link_geometry_count_);
-    link_geometry_count_ += link->getShapes().size();
+    link_geometry_count_ += collision_geometry_count;
   }
   link->setParentJointModel(joint);
 
@@ -645,22 +660,17 @@ LinkModel* RobotModel::constructLinkModel(const urdf::Link* urdf_link)
     urdf_link->collision_array.empty() ? std::vector<urdf::CollisionSharedPtr>(1, urdf_link->collision) :
                                          urdf_link->collision_array;
 
-  std::vector<shapes::ShapeConstPtr> shapes;
   EigenSTL::vector_Isometry3d poses;
 
   for (const auto& col : col_array) {
-    if (col && col->geometry) {
-      const auto s = constructShape(col->geometry.get());
-      if (s) {
-        shapes.push_back(s);
-        poses.push_back(urdfPose2Isometry3d(col->origin));
-      }
+    if (col && col->geometry && hasCollisionGeometry(col->geometry.get())) {
+      poses.push_back(urdfPose2Isometry3d(col->origin));
     }
   }
 
   // Should we warn that old (melodic) behaviour has changed, not copying visual to collision geometries anymore?
   bool warn_about_missing_collision = false;
-  if (shapes.empty()) {
+  if (poses.empty()) {
     const auto& vis_array = urdf_link->visual_array.empty() ? std::vector<urdf::VisualSharedPtr>{ urdf_link->visual } :
                                                               urdf_link->visual_array;
     for (const auto& vis : vis_array) {
@@ -678,7 +688,7 @@ LinkModel* RobotModel::constructLinkModel(const urdf::Link* urdf_link)
                  "Fix your URDF file by explicitly specifying collision geometry.");
   }
 
-  new_link_model->setGeometry(shapes, poses);
+  new_link_model->setCollisionOriginTransforms(poses);
 
   // Figure out visual mesh (try visual urdf tag first, collision tag otherwise
   if (urdf_link->visual && urdf_link->visual->geometry) {
@@ -712,39 +722,4 @@ LinkModel* RobotModel::constructLinkModel(const urdf::Link* urdf_link)
   return new_link_model;
 }
 
-shapes::ShapePtr RobotModel::constructShape(const urdf::Geometry* geom)
-{
-  shapes::Shape* new_shape = nullptr;
-  switch (geom->type) {
-    case urdf::Geometry::SPHERE: {
-      new_shape = new shapes::Sphere(static_cast<const urdf::Sphere*>(geom)->radius);
-      break;
-    }
-    case urdf::Geometry::BOX: {
-      const auto dim = static_cast<const urdf::Box*>(geom)->dim;
-      new_shape = new shapes::Box(dim.x, dim.y, dim.z);
-      break;
-    }
-    case urdf::Geometry::CYLINDER: {
-      new_shape = new shapes::Cylinder(
-        static_cast<const urdf::Cylinder*>(geom)->radius, static_cast<const urdf::Cylinder*>(geom)->length);
-      break;
-    }
-    case urdf::Geometry::MESH: {
-      const urdf::Mesh* mesh = static_cast<const urdf::Mesh*>(geom);
-      if (!mesh->filename.empty()) {
-        Eigen::Vector3d scale(mesh->scale.x, mesh->scale.y, mesh->scale.z);
-        shapes::Mesh* m = shapes::createMeshFromResource(mesh->filename, scale);
-        new_shape = m;
-      }
-      break;
-    }
-    default: {
-      RCLCPP_ERROR(getLogger(), "Unknown geometry type: %d", static_cast<int>(geom->type));
-      break;
-    }
-  }
-
-  return shapes::ShapePtr(new_shape);
-}
 }  // namespace tobas

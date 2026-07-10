@@ -3,8 +3,6 @@
 
 #include "tobas_rviz_plugin/robot_state.hpp"
 
-#include <geometric_shapes/check_isometry.h>
-#include <geometric_shapes/shape_operations.h>
 #include <rclcpp/rclcpp.hpp>
 #include <tf2_eigen/tf2_eigen.hpp>
 

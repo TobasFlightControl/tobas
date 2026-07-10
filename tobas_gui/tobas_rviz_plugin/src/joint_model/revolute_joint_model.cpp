@@ -3,8 +3,6 @@
 
 #include "tobas_rviz_plugin/joint_model/revolute_joint_model.hpp"
 
-#include <geometric_shapes/check_isometry.h>
-
 #include <tobas_math/definitions.hpp>
 
 namespace tobas
@@ -61,7 +59,6 @@ void RevoluteJointModel::computeTransform(const double* joint_values, Eigen::Iso
 
 void RevoluteJointModel::computeVariablePositions(const Eigen::Isometry3d& transform, double* joint_values) const
 {
-  ASSERT_ISOMETRY(transform)  // unsanitized input, could contain a non-isometry
   Eigen::Quaterniond q(transform.linear());
   q.normalize();
   size_t max_idx;

@@ -10,7 +10,6 @@
 
   <depend>eigen_stl_containers</depend>
   <depend>angles</depend>
-  <depend>geometric_shapes</depend>
   <depend>tf2_eigen</depend>
   <depend>rsl</depend>
   <depend>trajectory_msgs</depend>

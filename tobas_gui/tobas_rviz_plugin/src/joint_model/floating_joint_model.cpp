@@ -3,7 +3,6 @@
 
 #include "tobas_rviz_plugin/joint_model/floating_joint_model.hpp"
 
-#include <geometric_shapes/check_isometry.h>
 #include <eigen3/Eigen/Geometry>
 
 namespace tobas
@@ -49,7 +48,6 @@ void FloatingJointModel::computeVariablePositions(const Eigen::Isometry3d& trans
   joint_values[0] = transform.translation().x();
   joint_values[1] = transform.translation().y();
   joint_values[2] = transform.translation().z();
-  ASSERT_ISOMETRY(transform)  // unsanitized input, could contain non-isometry
   const Eigen::Quaterniond q(transform.linear());
   joint_values[3] = q.x();
   joint_values[4] = q.y();

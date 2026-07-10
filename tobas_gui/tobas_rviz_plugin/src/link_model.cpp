@@ -3,9 +3,6 @@
 
 #include "tobas_rviz_plugin/joint_model/joint_model.hpp"
 
-#include <geometric_shapes/check_isometry.h>
-#include <geometric_shapes/shape_operations.h>
-
 #include "tobas_rviz_plugin/link_model.hpp"
 
 namespace tobas
@@ -85,7 +82,6 @@ bool LinkModel::parentJointIsFixed() const
 
 void LinkModel::setJointOriginTransform(const Eigen::Isometry3d& transform)
 {
-  ASSERT_ISOMETRY(transform)  // Unsanitized input, could contain a non-isometry
   joint_origin_transform_ = transform;
   joint_origin_transform_is_identity_ =
     joint_origin_transform_.linear().isIdentity() &&
@@ -102,19 +98,12 @@ const std::vector<int>& LinkModel::areCollisionOriginTransformsIdentity() const
   return collision_origin_transform_is_identity_;
 }
 
-const std::vector<shapes::ShapeConstPtr>& LinkModel::getShapes() const
+void LinkModel::setCollisionOriginTransforms(const EigenSTL::vector_Isometry3d& origins)
 {
-  return shapes_;
-}
-
-void LinkModel::setGeometry(const std::vector<shapes::ShapeConstPtr>& shapes, const EigenSTL::vector_Isometry3d& origins)
-{
-  shapes_ = shapes;
   collision_origin_transform_ = origins;
   collision_origin_transform_is_identity_.resize(collision_origin_transform_.size());
 
-  for (size_t i = 0; i < shapes_.size(); ++i) {
-    ASSERT_ISOMETRY(collision_origin_transform_[i])  // unsanitized input, could contain a non-isometry
+  for (size_t i = 0; i < collision_origin_transform_.size(); ++i) {
     collision_origin_transform_is_identity_[i] =
       (collision_origin_transform_[i].linear().isIdentity() &&
        collision_origin_transform_[i].translation().norm() < std::numeric_limits<double>::epsilon()) ?
@@ -125,7 +114,6 @@ void LinkModel::setGeometry(const std::vector<shapes::ShapeConstPtr>& shapes, co
 
 void LinkModel::addAssociatedFixedTransform(const LinkModel* link_model, const Eigen::Isometry3d& transform)
 {
-  ASSERT_ISOMETRY(transform);  // unsanitized input, could contain a non-isometry
   associated_fixed_transforms_[link_model] = transform;
 }
 

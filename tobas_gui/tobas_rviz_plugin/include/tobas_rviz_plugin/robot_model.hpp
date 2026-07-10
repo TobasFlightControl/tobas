@@ -224,8 +224,5 @@ private:
 
   /* Given a urdf link, build the corresponding LinkModel object. */
   LinkModel* constructLinkModel(const urdf::Link* urdf_link);
-
-  /* Given a geometry spec from the URDF and a filename (for a mesh), construct the corresponding shape object. */
-  shapes::ShapePtr constructShape(const urdf::Geometry* geom);
 };
 }  // namespace tobas

@@ -10,8 +10,6 @@
 #include <eigen_stl_containers/eigen_stl_vector_container.h>
 #include <eigen3/Eigen/Geometry>
 
-#include "./shape.hpp"
-
 namespace tobas
 {
 class JointModel;
@@ -71,10 +69,7 @@ public:
   /* Return flags for each transform specifying whether they are identity or not. */
   const std::vector<int>& areCollisionOriginTransformsIdentity() const;
 
-  /* Get shape associated to the collision geometry for this link. */
-  const std::vector<shapes::ShapeConstPtr>& getShapes() const;
-
-  void setGeometry(const std::vector<shapes::ShapeConstPtr>& shapes, const EigenSTL::vector_Isometry3d& origins);
+  void setCollisionOriginTransforms(const EigenSTL::vector_Isometry3d& origins);
 
   /* Remember that `link_model` is attached to this link using a fixed transform. */
   void addAssociatedFixedTransform(const LinkModel* link_model, const Eigen::Isometry3d& transform);
@@ -114,9 +109,6 @@ private:
 
   /* The set of links that are attached to this one via fixed transforms */
   LinkTransformMap associated_fixed_transforms_;
-
-  /* The collision geometry of the link */
-  std::vector<shapes::ShapeConstPtr> shapes_;
 
   /* Filename associated with the visual geometry mesh of this link. If empty, no mesh was used. */
   std::string visual_mesh_filename_;
