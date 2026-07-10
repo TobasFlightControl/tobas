@@ -47,13 +47,13 @@ $ gdown --fuzzy 'https://drive.google.com/file/d/1R_Efi_-HoPTEq7rY3pQs6Z4MmEuOyv
 既に Tobas がインストールされていて更新したい場合は，一度古いパッケージをアンインストールします．
 
 ```bash
-$ sudo dpkg -r tobas
+$ sudo apt remove tobas -y
 ```
 
 Tobas をインストールします．
 
 ```bash
-$ sudo dpkg -i tobas_2.15.0_amd64.deb
+$ sudo apt install tobas_2.15.0_amd64.deb -y
 ```
 
 依存パッケージをインストールします．
