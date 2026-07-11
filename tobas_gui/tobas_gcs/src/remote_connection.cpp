@@ -29,7 +29,7 @@ RemoteConnectionWidget::RemoteConnectionWidget(const RosQtBridge& bridge) : brid
 
   label_ = new QLabel();
 
-  timeout_timer_.setInterval(5000);
+  timeout_timer_.setInterval(kTimeout);
 
   // Layout
   const auto rows = new QVBoxLayout();
