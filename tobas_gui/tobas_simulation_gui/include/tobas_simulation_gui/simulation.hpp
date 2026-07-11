@@ -42,6 +42,7 @@ class SimulationWidget : public QWidget
   static constexpr auto kWaitForServerTimeout = std::chrono::seconds(3);
 
 Q_SIGNALS:
+  void telemetryLossExpected();
   void started();
   void terminated();
 

@@ -133,6 +133,7 @@ GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr n
   connect(shutdown_btn_, &QPushButton::clicked, this, &self::onShutdownButtonClicked);
   connect(simulation_, &sim::SimulationWidget::started, this, &self::onSimRealStateChanged);
   connect(simulation_, &sim::SimulationWidget::terminated, this, &self::onSimRealStateChanged);
+  connect(simulation_, &sim::SimulationWidget::telemetryLossExpected, this, &self::expectTelemetryLoss);
   connect(remote_conn_, &RemoteConnectionWidget::disconnected, this, &self::onRemoteConnectionDisconnected);
   connect(&bridge_, &RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
 }
@@ -141,6 +142,7 @@ void GroundControlStationWidget::reset(bool include_simulation)
 {
   qt::processAllQueuedEvents();
 
+  clearExpectedTelemetryLoss();
   remote_conn_->restart();
 
   sensor_calib_->reset();
@@ -200,6 +202,16 @@ void GroundControlStationWidget::closeEvent(QCloseEvent* event)
 fs::path GroundControlStationWidget::projectPath() const
 {
   return proj_path_->text().toStdString();
+}
+
+void GroundControlStationWidget::expectTelemetryLoss()
+{
+  telemetry_loss_expected_ = true;
+}
+
+void GroundControlStationWidget::clearExpectedTelemetryLoss()
+{
+  telemetry_loss_expected_ = false;
 }
 
 std::expected<void, QString> GroundControlStationWidget::restartInBackground()
@@ -399,7 +411,9 @@ void GroundControlStationWidget::onWriteButtonClicked()
 
   // Stop the service.
   progress.setLabelText("Stopping the Tobas real service.");
+  expectTelemetryLoss();
   if (ssh_client_.execute("systemctl stop tobas_real.target", true) != ssh::SshClient::kNoError) {
+    clearExpectedTelemetryLoss();
     progress.close();
     qt::qErrorBox(this, "Failed to stop Tobas real service:\n\n" + QString(ssh_client_.errorMessage()));
     return;
@@ -549,6 +563,7 @@ void GroundControlStationWidget::onRestartButtonClicked(bool checked)
   }
 
   // Restart the systemd service.
+  expectTelemetryLoss();
   spinner_.start();
   const auto res = restartInBackground();
   spinner_.stop();
@@ -558,6 +573,7 @@ void GroundControlStationWidget::onRestartButtonClicked(bool checked)
     reset();
   }
   else {
+    clearExpectedTelemetryLoss();
     qt::qErrorBox(this, res.error());
   }
 
@@ -587,6 +603,7 @@ void GroundControlStationWidget::onShutdownButtonClicked(bool checked)
   }
 
   // Shut down the OS.
+  expectTelemetryLoss();
   spinner_.start();
   const auto res = shutdownInBackground();
   spinner_.stop();
@@ -596,6 +613,7 @@ void GroundControlStationWidget::onShutdownButtonClicked(bool checked)
     reset();  // Call `reset()` last so ROS messages and other state held by widgets are reliably reset.
   }
   else {
+    clearExpectedTelemetryLoss();
     qt::qErrorBox(this, res.error());
   }
 
@@ -615,10 +633,11 @@ void GroundControlStationWidget::onRemoteConnectionDisconnected()
 {
   qDebug() << "GroundControlStationWidget::onRemoteConnectionDisconnected";
 
-  // Reset all widgets only when communication with the real vehicle is lost.
-  if (!simulation_->isRunning()) {
-    reset();
+  if (!telemetry_loss_expected_) {
+    qt::qWarnBox(this, "Telemetry reception timed out. The connection to the flight controller may have been lost.");
   }
+
+  reset();
 }
 
 void GroundControlStationWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)

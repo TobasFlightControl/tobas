@@ -221,6 +221,8 @@ bool SimulationWidget::startSITL()
 
 void SimulationWidget::terminateSITL()
 {
+  Q_EMIT telemetryLossExpected();
+
   // Stop dynamic parameters.
   qInfo() << "Terminating dynamic configuration";
   dynamic_config_->reset();
@@ -282,6 +284,7 @@ bool SimulationWidget::startHITL()
 
   // Stop the Real service.
   progress.setLabelText("Stopping the Tobas real service.");
+  Q_EMIT telemetryLossExpected();
   if (ssh_client_.execute("systemctl stop tobas_real.target", true) != ssh::SshClient::kNoError) {
     qt::qErrorBox(this, "Failed to stop Tobas real service:\n\n" + QString(ssh_client_.errorMessage()));
     progress.close();
@@ -360,6 +363,8 @@ bool SimulationWidget::startHITL()
 
 void SimulationWidget::terminateHITL()
 {
+  Q_EMIT telemetryLossExpected();
+
   // Create a progress bar.
   qt::ProgressDialog progress("Terminate HITL", 3, this);
   progress.setCancelButton(nullptr);

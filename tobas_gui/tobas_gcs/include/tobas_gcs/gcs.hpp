@@ -97,8 +97,12 @@ private:
   sim::SimulationWidget* simulation_;
 
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
+  bool telemetry_loss_expected_ = false;
 
   std::filesystem::path projectPath() const;
+
+  void expectTelemetryLoss();
+  void clearExpectedTelemetryLoss();
 
   std::expected<void, QString> restartInBackground();
   std::expected<void, QString> shutdownInBackground();
