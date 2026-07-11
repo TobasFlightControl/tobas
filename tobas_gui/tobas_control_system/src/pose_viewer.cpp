@@ -41,13 +41,14 @@ void PoseViewerWidget::paintEvent(QPaintEvent*)
 
   drawGround(painter);
   drawSky(painter);
+
+  addGradation(painter);
+
   drawRoll(painter);
   drawPitch(painter);
   drawYaw(painter);
   drawRelativeAltitude(painter);
   drawMslAltitude(painter);
-
-  addGradation(painter);
 }
 
 void PoseViewerWidget::scale(QPainter& painter, bool keep_aspect)
