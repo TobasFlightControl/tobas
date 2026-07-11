@@ -118,6 +118,15 @@ def generate_launch_description():
     # Launch 3th priority nodes (Others)
     ld.add_action(
         Node(
+            package="tobas_connection_monitor",
+            executable="heartbeat_sender",
+            namespace=DRONE_NAME,
+            ros_arguments=ros_args,
+            output=output,
+        )
+    )
+    ld.add_action(
+        Node(
             package="tobas_tree_server",
             executable="tree_server",
             namespace=DRONE_NAME,

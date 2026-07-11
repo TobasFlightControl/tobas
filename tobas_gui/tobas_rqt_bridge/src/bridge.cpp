@@ -39,7 +39,7 @@ void RosQtBridge::initializeScopedTopics(const std::string& ns)
   addScoped<tobas_msgs::msg::Arming, &self::armingReceived>(ns, path::join(ri, topic::kArming));
   addScoped<tobas_msgs::msg::VehicleHealth, &self::vehicleHealthReceived>(ns, path::join(ri, topic::kVehicleHealth));
   addScoped<tobas_msgs::msg::RosbagState, &self::rosbagStateReceived>(ns, path::join(ri, topic::kRosbagState));
-  addScoped<tobas_msgs::msg::Heartbeat, &self::remoteHeartbeatReceived>(ns, topic::kHeartbeat);
+  addScoped<tobas_msgs::msg::Heartbeat, &self::remoteHeartbeatReceived>(ns, path::join(ri, topic::kHeartbeat));
   addScoped<tobas_msgs::Imu, &self::rawImuReceived>(ns, path::join(ri, real::topic::kImuRaw));
   addScoped<tobas_msgs::MagneticField, &self::rawMagReceived>(ns, path::join(ri, real::topic::kMagneticField));
 }

@@ -49,17 +49,6 @@ def generate_launch_description():
         )
     )
 
-    # Launch heartbeat sender
-    ld.add_action(
-        Node(
-            package="tobas_connection_monitor",
-            executable="heartbeat_sender",
-            namespace=DRONE_NAME,
-            ros_arguments=ros_args,
-            output=output,
-        )
-    )
-
     # Launch interface bridge
     ld.add_action(
         Node(

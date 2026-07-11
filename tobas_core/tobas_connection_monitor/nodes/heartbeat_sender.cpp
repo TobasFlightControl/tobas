@@ -30,7 +30,7 @@ HeartbeatSenderNode::HeartbeatSenderNode(const rclcpp::NodeOptions& options)
   : super("heartbeat_sender", nodeOptions_Default(options))
 {
   heartbeat_pub_ = createPublisher<tobas_msgs::msg::Heartbeat>(topic::kHeartbeat);
-  main_timer_ = createTimer(1s, &self::mainTimerCb, this);
+  main_timer_ = createTimer(200ms, &self::mainTimerCb, this);
 }
 
 void HeartbeatSenderNode::mainTimerCb()

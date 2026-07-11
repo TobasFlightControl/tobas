@@ -140,6 +140,11 @@ def generate_launch_description():
             target_container=f"{DRONE_NAME}/component_manager_3",
             composable_node_descriptions=[
                 ComposableNode(
+                    package="tobas_connection_monitor",
+                    plugin="tobas::HeartbeatSenderNode",
+                    namespace=DRONE_NAME,
+                ),
+                ComposableNode(
                     package="tobas_tree_server",
                     plugin="tobas::TreeServerNode",
                     namespace=DRONE_NAME,

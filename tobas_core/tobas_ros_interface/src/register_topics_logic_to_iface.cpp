@@ -11,6 +11,7 @@
 #include <tobas_msgs/msg/engine_state.hpp>
 #include <tobas_msgs/msg/fluid_pressure.hpp>
 #include <tobas_msgs/msg/gnss.hpp>
+#include <tobas_msgs/msg/heartbeat.hpp>
 #include <tobas_msgs/msg/imu.hpp>
 #include <tobas_msgs/msg/joint_state_array.hpp>
 #include <tobas_msgs/msg/magnetic_field.hpp>
@@ -51,5 +52,6 @@ void RosInterfaceNode::registerTopicsLogicToIface()
   addTopicLogicToIface<tobas_msgs::msg::MagneticField>(
     addThrotNS(real::topic::kMagneticField), real::topic::kMagneticField);
   addTopicLogicToIface<tobas_msgs::msg::RosbagState>(topic::kRosbagState, topic::kRosbagState);
+  addTopicLogicToIface<tobas_msgs::msg::Heartbeat>(topic::kHeartbeat, topic::kHeartbeat);
 }
 }  // namespace tobas
