@@ -5,6 +5,7 @@
 
 #include <format>
 
+#include <tobas_qt_tools/color.hpp>
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 
@@ -44,32 +45,32 @@ void CpuViewerWidget::cpuCb(const tobas_msgs::msg::Cpu::ConstSharedPtr& cpu)
   temp_->setPercentage(temp_rate);
   temp_->setFormat(std::format("{:.0f} ℃", cpu->temperature).c_str());
   if (cpu->temperature > 85.0) {
-    temp_->setFillColor(Qt::magenta);
+    temp_->setFillColor(qt::color::magenta500());
   }
   else if (cpu->temperature > 80.0) {
-    temp_->setFillColor(Qt::red);
+    temp_->setFillColor(qt::color::red500());
   }
   else if (cpu->temperature > 60.0) {
-    temp_->setFillColor(Qt::yellow);
+    temp_->setFillColor(qt::color::yellow500());
   }
   else if (cpu->temperature > 0.0) {
-    temp_->setFillColor(Qt::green);
+    temp_->setFillColor(qt::color::green500());
   }
   else {
-    temp_->setFillColor(Qt::blue);
+    temp_->setFillColor(qt::color::cyan500());
   }
 
   const auto load_percent = cpu->load * 100.0;
   load_->setPercentage(load_percent);
   load_->setFormat(std::format("{:.0f} %", load_percent).c_str());
   if (load_percent > 80.0) {
-    load_->setFillColor(Qt::red);
+    load_->setFillColor(qt::color::red500());
   }
   else if (load_percent > 60.0) {
-    load_->setFillColor(Qt::yellow);
+    load_->setFillColor(qt::color::yellow500());
   }
   else {
-    load_->setFillColor(Qt::green);
+    load_->setFillColor(qt::color::green500());
   }
 }
 }  // namespace ctrl

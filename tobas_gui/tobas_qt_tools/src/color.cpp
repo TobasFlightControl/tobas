@@ -84,6 +84,31 @@ QColor lightBlue()
   return QColor(220, 236, 255);
 }
 
+QColor red500()
+{
+  return QColor(239, 68, 68);
+}
+
+QColor green500()
+{
+  return QColor(34, 197, 94);
+}
+
+QColor yellow500()
+{
+  return QColor(234, 179, 8);
+}
+
+QColor cyan500()
+{
+  return QColor(6, 182, 212);
+}
+
+QColor magenta500()
+{
+  return QColor(217, 70, 239);
+}
+
 QColor steelBlue()
 {
   return QColor(70, 130, 180);

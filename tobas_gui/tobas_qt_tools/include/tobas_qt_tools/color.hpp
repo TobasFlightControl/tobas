@@ -26,6 +26,17 @@ QColor lightGreen();
 QColor lightYellow();
 QColor lightBlue();
 
+/* https://tailscan.com/tailwind/backgrounds/bg-red-500 */
+QColor red500();
+/* https://tailscan.com/tailwind/backgrounds/bg-green-500 */
+QColor green500();
+/* https://tailscan.com/tailwind/backgrounds/bg-yellow-500 */
+QColor yellow500();
+/* https://tailscan.com/tailwind/backgrounds/bg-cyan-500 */
+QColor cyan500();
+/* https://tailscan.com/tailwind/backgrounds/bg-fuchsia-500 */
+QColor magenta500();
+
 QColor steelBlue();
 }  // namespace color
 }  // namespace qt

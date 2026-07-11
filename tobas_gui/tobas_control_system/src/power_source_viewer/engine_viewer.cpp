@@ -9,6 +9,7 @@
 #include <boost/polymorphic_pointer_cast.hpp>
 
 #include <tobas_math/core.hpp>
+#include <tobas_qt_tools/color.hpp>
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
@@ -65,13 +66,13 @@ void EngineViewerWidget::updateFuelQuantity(const double& fuel_quantity)
     std::format("{:.2f} L ({:.0f} %)", fuel_quantity, std::clamp(fuel_rate, 0.0, 100.0)).c_str());
 
   if (fuel_rate > 20.0) {
-    fuel_quantity_->setFillColor(Qt::green);
+    fuel_quantity_->setFillColor(qt::color::green500());
   }
   else if (fuel_rate > 10.0) {
-    fuel_quantity_->setFillColor(Qt::yellow);
+    fuel_quantity_->setFillColor(qt::color::yellow500());
   }
   else {
-    fuel_quantity_->setFillColor(Qt::red);
+    fuel_quantity_->setFillColor(qt::color::red500());
   }
 }
 
@@ -83,16 +84,16 @@ void EngineViewerWidget::updateOilTemperature(const double& oil_temp)
 
   // TODO: Include the proper oil temperature range in `EngineConfig`.
   if (oil_temp < 60.0) {
-    oil_temp_->setFillColor(Qt::blue);
+    oil_temp_->setFillColor(qt::color::cyan500());
   }
   else if (oil_temp < 100.0) {
-    oil_temp_->setFillColor(Qt::green);
+    oil_temp_->setFillColor(qt::color::green500());
   }
   else if (oil_temp < 120.0) {
-    oil_temp_->setFillColor(Qt::yellow);
+    oil_temp_->setFillColor(qt::color::yellow500());
   }
   else {
-    oil_temp_->setFillColor(Qt::red);
+    oil_temp_->setFillColor(qt::color::red500());
   }
 }
 

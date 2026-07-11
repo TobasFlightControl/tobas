@@ -9,6 +9,7 @@
 #include <boost/polymorphic_pointer_cast.hpp>
 
 #include <tobas_math/core.hpp>
+#include <tobas_qt_tools/color.hpp>
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
@@ -62,13 +63,13 @@ void BatteryViewerWidget::updateVoltage(const double& voltage)
   voltage_->setFormat(std::format("{:.2f} V ({:.0f} %)", voltage, std::clamp(volt_rate, 0.0, 100.0)).c_str());
 
   if (volt_rate > 20.0) {
-    voltage_->setFillColor(Qt::green);
+    voltage_->setFillColor(qt::color::green500());
   }
   else if (volt_rate > 10.0) {
-    voltage_->setFillColor(Qt::yellow);
+    voltage_->setFillColor(qt::color::yellow500());
   }
   else {
-    voltage_->setFillColor(Qt::red);
+    voltage_->setFillColor(qt::color::red500());
   }
 }
 
@@ -79,13 +80,13 @@ void BatteryViewerWidget::updateCurrent(const double& current)
   current_->setFormat(std::format("{:.2f} A", current).c_str());
 
   if (current < eprop_->battery.max_current * 0.6) {
-    current_->setFillColor(Qt::green);
+    current_->setFillColor(qt::color::green500());
   }
   else if (current < eprop_->battery.max_current * 0.8) {
-    current_->setFillColor(Qt::yellow);
+    current_->setFillColor(qt::color::yellow500());
   }
   else {
-    current_->setFillColor(Qt::red);
+    current_->setFillColor(qt::color::red500());
   }
 }
 
