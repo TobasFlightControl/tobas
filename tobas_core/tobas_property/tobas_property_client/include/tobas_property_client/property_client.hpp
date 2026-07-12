@@ -8,6 +8,17 @@
 #include <tobas_property_common/constants.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
 
+#include <std_srvs/srv/trigger.hpp>
+
+#include <tobas_property_msgs/srv/get_bool.hpp>
+#include <tobas_property_msgs/srv/get_double.hpp>
+#include <tobas_property_msgs/srv/get_int.hpp>
+#include <tobas_property_msgs/srv/get_string.hpp>
+#include <tobas_property_msgs/srv/set_bool.hpp>
+#include <tobas_property_msgs/srv/set_double.hpp>
+#include <tobas_property_msgs/srv/set_int.hpp>
+#include <tobas_property_msgs/srv/set_string.hpp>
+
 namespace tobas
 {
 namespace ptree
@@ -58,32 +69,40 @@ private:
   const rclcpp::Node::SharedPtr node_;
   const std::string section_;
 
+  ros2::SyncServiceClient<tobas_property_msgs::srv::GetBool> get_bool_sc_;
+  ros2::SyncServiceClient<tobas_property_msgs::srv::GetInt> get_int_sc_;
+  ros2::SyncServiceClient<tobas_property_msgs::srv::GetDouble> get_double_sc_;
+  ros2::SyncServiceClient<tobas_property_msgs::srv::GetString> get_string_sc_;
+  ros2::SyncServiceClient<tobas_property_msgs::srv::SetBool> set_bool_sc_;
+  ros2::SyncServiceClient<tobas_property_msgs::srv::SetInt> set_int_sc_;
+  ros2::SyncServiceClient<tobas_property_msgs::srv::SetDouble> set_double_sc_;
+  ros2::SyncServiceClient<tobas_property_msgs::srv::SetString> set_string_sc_;
+  ros2::SyncServiceClient<std_srvs::srv::Trigger> save_sc_;
+
   Error error_code_ = kNoError;
   std::string server_error_msg_;
 
-  template <typename SrvType, const char* SrvName, typename T>
-  Error getProperty(const std::string& key, T& value);
+  template <typename SrvType, typename T>
+  Error getProperty(ros2::SyncServiceClient<SrvType>& sc, const std::string& key, T& value);
 
-  template <typename SrvType, const char* SrvName, typename T>
-  Error setProperty(const std::string& key, T& value);
+  template <typename SrvType, typename T>
+  Error setProperty(ros2::SyncServiceClient<SrvType>& sc, const std::string& key, T& value);
 };
 
-template <typename SrvType, const char* SrvName, typename T>
-PropertyClient::Error PropertyClient::getProperty(const std::string& key, T& value)
+template <typename SrvType, typename T>
+PropertyClient::Error PropertyClient::getProperty(ros2::SyncServiceClient<SrvType>& sc, const std::string& key, T& value)
 {
   RCLCPP_DEBUG_STREAM(node_->get_logger(), "Get property requested: " << key);
-
-  ros2::SyncServiceClient<SrvType> sc(node_, SrvName);
 
   const auto req = std::make_shared<typename SrvType::Request>();
   req->section = section_;
   req->key = key;
 
-  if (!sc.call(req)) {
+  const auto res = sc.sendRequestAndWait(req);
+  if (!res) {
     return error_code_ = kServiceNotReady;
   }
 
-  const auto res = sc.getResponse();
   if (!res->success) {
     server_error_msg_ = res->message;
     return error_code_ = kServerError;
@@ -94,23 +113,21 @@ PropertyClient::Error PropertyClient::getProperty(const std::string& key, T& val
   return error_code_ = kNoError;
 }
 
-template <typename SrvType, const char* SrvName, typename T>
-PropertyClient::Error PropertyClient::setProperty(const std::string& key, T& value)
+template <typename SrvType, typename T>
+PropertyClient::Error PropertyClient::setProperty(ros2::SyncServiceClient<SrvType>& sc, const std::string& key, T& value)
 {
   RCLCPP_DEBUG_STREAM(node_->get_logger(), "Set property requested: " << key << ", " << value);
-
-  ros2::SyncServiceClient<SrvType> sc(node_, SrvName);
 
   const auto req = std::make_shared<typename SrvType::Request>();
   req->section = section_;
   req->key = key;
   req->value = value;
 
-  if (!sc.call(req)) {
+  const auto res = sc.sendRequestAndWait(req);
+  if (!res) {
     return error_code_ = kServiceNotReady;
   }
 
-  const auto res = sc.getResponse();
   if (!res->success) {
     server_error_msg_ = res->message;
     return error_code_ = kServerError;

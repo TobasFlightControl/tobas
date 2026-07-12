@@ -182,16 +182,15 @@ void WindParamsWidget::setGustInterval(double value)
 
 bool WindParamsWidget::loadSimParams()
 {
-  const auto get_req = std::make_shared<GetSrv::Request>();
+  const auto req = std::make_shared<GetSrv::Request>();
 
-  if (!get_sc_->call(get_req, kServiceCallTimeout)) {
+  const auto res = get_sc_->sendRequestAndWait(req);
+  if (!res) {
     qt::qErrorBox(this, "Failed to call \"" + QString(gazebo::kGetWindParamsSrv) + "\" service.");
     return false;
   }
 
-  const auto get_res = get_sc_->getResponse();
-  const auto& cur_params = get_res->params;
-
+  const auto& cur_params = res->params;
   setMeanSpeed(cur_params.mean_speed);
   setDirection(cur_params.direction);
   setGustSpeedFactor(cur_params.gust_speed_factor);
@@ -203,20 +202,20 @@ bool WindParamsWidget::loadSimParams()
 
 bool WindParamsWidget::sendGuiParams()
 {
-  const auto set_req = std::make_shared<SetSrv::Request>();
-  set_req->params.mean_speed = getMeanSpeed();
-  set_req->params.direction = getDirection();
-  set_req->params.gust_speed_factor = getGustSpeedFactor();
-  set_req->params.gust_duration = getGustDuration();
-  set_req->params.gust_interval = getGustInterval();
+  const auto req = std::make_shared<SetSrv::Request>();
+  req->params.mean_speed = getMeanSpeed();
+  req->params.direction = getDirection();
+  req->params.gust_speed_factor = getGustSpeedFactor();
+  req->params.gust_duration = getGustDuration();
+  req->params.gust_interval = getGustInterval();
 
-  if (!set_sc_->call(set_req, kServiceCallTimeout)) {
+  const auto res = set_sc_->sendRequestAndWait(req);
+  if (!res) {
     qt::qErrorBox(this, "Failed to call \"" + QString(gazebo::kSetWindParamsSrv) + "\" service.");
     return false;
   }
 
-  const auto set_res = set_sc_->getResponse();
-  if (!set_res->success) {
+  if (!res->success) {
     qt::qErrorBox(this, "Failed to set wind parameters.");
     return false;
   }

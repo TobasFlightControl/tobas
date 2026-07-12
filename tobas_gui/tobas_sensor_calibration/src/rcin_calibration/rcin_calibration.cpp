@@ -15,12 +15,7 @@
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
 #include <tobas_real_common/handler.hpp>
-#include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_ros2_tools/util.hpp>
-
-#include <tobas_real_msgs/srv/set_rc_input_params.hpp>
-
-#include "tobas_sensor_calibration/constants.hpp"
 
 namespace tobas
 {
@@ -212,6 +207,10 @@ void RCInputCalibrationWidget::updateInternalDataStructures()
 {
   reset();
 
+  const auto set_params_srv = path::join('/', drone_.name, kRemoteIfaceNS, real::handler::rcin::kSetParamSrv);
+  set_params_sc_ =
+    std::make_shared<ros2::SyncServiceClient<tobas_real_msgs::srv::SetRcInputParams>>(node_, set_params_srv);
+
   for (size_t i = 0; i < numOfGpswChannels(); ++i) {
     gpsw_labels_.at(i)->setText(std::format("GPSw{} (CH{})", i + 1, kRcChannelGpsw + i + 1).c_str());
     gpsw_ranges_.at(i)->setEnabled(true);
@@ -317,14 +316,12 @@ bool RCInputCalibrationWidget::saveParamsToFc()
     req->gpsw_off[i] = 0;
   }
 
-  ros2::SyncServiceClient<tobas_real_msgs::srv::SetRcInputParams> sc(
-    node_, path::join('/', drone_.name, kRemoteIfaceNS, real::handler::rcin::kSetParamSrv));
-  if (!sc.call(req, kSetParamTimeout)) {
+  const auto res = set_params_sc_->sendRequestAndWait(req);
+  if (!res) {
     qt::qErrorBox(this, "Failed to send calibration results to FC.");
     return false;
   }
 
-  const auto res = sc.getResponse();
   if (!res->success) {
     qt::qErrorBox(this, "Calibration results are rejected: " + QString::fromStdString(res->message));
     return false;

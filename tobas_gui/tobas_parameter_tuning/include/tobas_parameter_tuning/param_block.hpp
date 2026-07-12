@@ -13,7 +13,9 @@
 #include <tobas_dparam_client/dparam_client.hpp>
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_qt_tools/widgets/slider.hpp>
-#include <tobas_ros2_tools/register.hpp>
+#include <tobas_ros2_tools/sync_service_client.hpp>
+
+#include <tobas_dparam_msgs/srv/get_params.hpp>
 
 namespace tobas
 {
@@ -59,17 +61,18 @@ class ParamBlockWidget : public QWidget
 public:
   explicit ParamBlockWidget(rclcpp::Node::SharedPtr node, const std::string& node_name, const QString& label);
 
-  bool load(const std::string& ns);
+  void setNamespace(const std::string& ns);
+
+  bool load();
   bool save(const std::filesystem::path& path);
   void clear();
   bool setToDefaults();
-
-  const QString& errorMessage() const;
 
 private:
   const rclcpp::Node::SharedPtr node_;
   const std::string node_name_;
 
+  ros2::SyncServiceClient<tobas_dparam_msgs::srv::GetParams>::SharedPtr get_param_sc_;
   dparam::DynamicParamClient::SharedPtr dparam_cli_;
 
   std::map<std::string, IntConfig> int_configs_;

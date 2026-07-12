@@ -14,6 +14,8 @@
 
 #include <geometry_msgs/msg/point_stamped.hpp>
 #include <sensor_msgs/msg/point_cloud.hpp>
+#include <tobas_real_msgs/srv/set_magnetometer_params.hpp>
+#include <tobas_ros2_tools/sync_service_client.hpp>
 #include <visualization_msgs/msg/marker_array.hpp>
 
 #include "../base.hpp"
@@ -67,9 +69,10 @@ protected:
 
 private:
   const rclcpp::Node::SharedPtr node_;
-  rviz::RvizFrameManager rviz_manager_;
 
-  std::string ns_;
+  ros2::SyncServiceClient<tobas_real_msgs::srv::SetMagnetometerParams>::SharedPtr sc_;
+
+  rviz::RvizFrameManager rviz_manager_;
 
   QPushButton* start_button_;
   QPushButton* finish_button_;

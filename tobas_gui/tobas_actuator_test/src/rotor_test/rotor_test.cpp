@@ -201,13 +201,13 @@ void RotorTestWidget::publishTargetSppeds()
 bool RotorTestWidget::loadCurrentGains()
 {
   const auto req = std::make_shared<tobas_dparam_msgs::srv::GetParams::Request>();
-  if (!get_params_sc_->call(req, 3s)) {
+  const auto res = get_params_sc_->sendRequestAndWait(req);
+  if (!res) {
     qt::qErrorBox(this, "Failed to get the current RPM control gains.");
     return false;
   }
-  const auto& params = get_params_sc_->getResponse()->params;
 
-  for (const auto& [ch, param] : std::views::enumerate(params.ints)) {
+  for (const auto& [ch, param] : std::views::enumerate(res->params.ints)) {
     TOBAS_CHECK(param.name == paramName(ch));
     rotor_widgets_.at(ch)->setGain(param.value);
   }

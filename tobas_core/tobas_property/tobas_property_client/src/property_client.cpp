@@ -3,54 +3,52 @@
 
 #include "tobas_property_client/property_client.hpp"
 
-#include <std_srvs/srv/trigger.hpp>
-
-#include <tobas_property_msgs/srv/get_bool.hpp>
-#include <tobas_property_msgs/srv/get_double.hpp>
-#include <tobas_property_msgs/srv/get_int.hpp>
-#include <tobas_property_msgs/srv/get_string.hpp>
-#include <tobas_property_msgs/srv/set_bool.hpp>
-#include <tobas_property_msgs/srv/set_double.hpp>
-#include <tobas_property_msgs/srv/set_int.hpp>
-#include <tobas_property_msgs/srv/set_string.hpp>
-
 using namespace std;
-using namespace std_srvs::srv;
-using namespace tobas_property_msgs::srv;
 
 namespace tobas
 {
 namespace ptree
 {
-PropertyClient::PropertyClient(rclcpp::Node::SharedPtr node, const string& section) : node_(node), section_(section)
+PropertyClient::PropertyClient(rclcpp::Node::SharedPtr node, const string& section)
+  : node_(node)
+  , section_(section)
+  , get_bool_sc_(node, kGetBoolSrv)
+  , get_int_sc_(node, kGetIntSrv)
+  , get_double_sc_(node, kGetDoubleSrv)
+  , get_string_sc_(node, kGetStringSrv)
+  , set_bool_sc_(node, kSetBoolSrv)
+  , set_int_sc_(node, kSetIntSrv)
+  , set_double_sc_(node, kSetDoubleSrv)
+  , set_string_sc_(node, kSetStringSrv)
+  , save_sc_(node, kSaveFileSrv)
 {
 }
 
 PropertyClient::Error PropertyClient::get(const string& key, bool& value)
 {
-  return getProperty<GetBool, kGetBoolSrv>(key, value);
+  return getProperty(get_bool_sc_, key, value);
 }
 
 PropertyClient::Error PropertyClient::get(const string& key, int& value)
 {
-  return getProperty<GetInt, kGetIntSrv>(key, value);
+  return getProperty(get_int_sc_, key, value);
 }
 
 PropertyClient::Error PropertyClient::get(const string& key, double& value)
 {
-  return getProperty<GetDouble, kGetDoubleSrv>(key, value);
+  return getProperty(get_double_sc_, key, value);
 }
 
 PropertyClient::Error PropertyClient::get(const string& key, string& value)
 {
-  return getProperty<GetString, kGetStringSrv>(key, value);
+  return getProperty(get_string_sc_, key, value);
 }
 
 PropertyClient::Error PropertyClient::get(const string& key, uint8_t& value)
 {
   int tmp;
 
-  if (getProperty<GetInt, kGetIntSrv>(key, tmp) < 0) {
+  if (getProperty(get_int_sc_, key, tmp) < 0) {
     return error_code_;
   }
 
@@ -66,7 +64,7 @@ PropertyClient::Error PropertyClient::get(const string& key, uint16_t& value)
 {
   int tmp;
 
-  if (getProperty<GetInt, kGetIntSrv>(key, tmp) < 0) {
+  if (getProperty(get_int_sc_, key, tmp) < 0) {
     return error_code_;
   }
 
@@ -80,55 +78,52 @@ PropertyClient::Error PropertyClient::get(const string& key, uint16_t& value)
 
 PropertyClient::Error PropertyClient::get(const string& key, float& value)
 {
-  return getProperty<GetDouble, kGetDoubleSrv>(key, value);
+  return getProperty(get_double_sc_, key, value);
 }
 
 PropertyClient::Error PropertyClient::set(const string& key, const bool& value)
 {
-  return setProperty<SetBool, kSetBoolSrv>(key, value);
+  return setProperty(set_bool_sc_, key, value);
 }
 
 PropertyClient::Error PropertyClient::set(const string& key, const int& value)
 {
-  return setProperty<SetInt, kSetIntSrv>(key, value);
+  return setProperty(set_int_sc_, key, value);
 }
 
 PropertyClient::Error PropertyClient::set(const string& key, const double& value)
 {
-  return setProperty<SetDouble, kSetDoubleSrv>(key, value);
+  return setProperty(set_double_sc_, key, value);
 }
 
 PropertyClient::Error PropertyClient::set(const string& key, const string& value)
 {
-  return setProperty<SetString, kSetStringSrv>(key, value);
+  return setProperty(set_string_sc_, key, value);
 }
 
 PropertyClient::Error PropertyClient::set(const string& key, const uint8_t& value)
 {
-  return setProperty<SetInt, kSetIntSrv>(key, value);
+  return setProperty(set_int_sc_, key, value);
 }
 
 PropertyClient::Error PropertyClient::set(const string& key, const uint16_t& value)
 {
-  return setProperty<SetInt, kSetIntSrv>(key, value);
+  return setProperty(set_int_sc_, key, value);
 }
 
 PropertyClient::Error PropertyClient::set(const string& key, const float& value)
 {
-  return setProperty<SetDouble, kSetDoubleSrv>(key, value);
+  return setProperty(set_double_sc_, key, value);
 }
 
 PropertyClient::Error PropertyClient::save()
 {
-  ros2::SyncServiceClient<Trigger> sc(node_, kSaveFileSrv);
-
-  const auto req = make_shared<Trigger::Request>();
-
-  if (!sc.call(req)) {
+  const auto req = make_shared<std_srvs::srv::Trigger::Request>();
+  const auto res = save_sc_.sendRequestAndWait(req);
+  if (!res) {
     return error_code_ = kServiceNotReady;
   }
 
-  const auto res = sc.getResponse();
   if (!res->success) {
     server_error_msg_ = res->message;
     return error_code_ = kServerError;

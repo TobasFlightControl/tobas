@@ -6,7 +6,10 @@
 #include <QThread>
 
 #include <tobas_algorithm/kahan.hpp>
+#include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_rqt_bridge/bridge.hpp>
+
+#include <tobas_real_msgs/srv/set_imu_params.hpp>
 
 namespace tobas
 {
@@ -39,7 +42,7 @@ public:
 private:
   const rclcpp::Node::SharedPtr node_;
 
-  std::string ns_;
+  ros2::SyncServiceClient<tobas_real_msgs::srv::SetImuParams>::SharedPtr sc_;
 
   tobas_msgs::Imu::ConstSharedPtr imu_raw_;
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;

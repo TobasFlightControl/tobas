@@ -7,12 +7,7 @@
 #include <tobas_geomag/core.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_real_common/handler.hpp>
-#include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_time_tools/util.hpp>
-
-#include <tobas_real_msgs/srv/set_magnetometer_params.hpp>
-
-#include "tobas_sensor_calibration/constants.hpp"
 
 namespace tobas
 {
@@ -111,15 +106,13 @@ void LargeVehicleMagCalibThread::run()
   req->soft_bias.at(5) = 0.0;
 
   // Update parameters.
-  ros2::SyncServiceClient<tobas_real_msgs::srv::SetMagnetometerParams> sc(
-    node_, path::join(ns_, kRemoteIfaceNS, real::handler::mag::kSetParamSrv));
-  if (!sc.call(req, kSetParamTimeout)) {
+  const auto res = set_params_sc_->sendRequestAndWait(req);
+  if (!res) {
     Q_EMIT finished(false, "Failed to send calibration results.");
     return;
   }
 
   // Check the result.
-  const auto res = sc.getResponse();
   if (!res->success) {
     Q_EMIT finished(false, "Calibration results are rejected: " + QString::fromStdString(res->message));
     return;
@@ -143,7 +136,9 @@ void LargeVehicleMagCalibThread::reset()
 
 void LargeVehicleMagCalibThread::setNamespace(const std::string& ns)
 {
-  ns_ = ns;
+  const auto srv_name = path::join(ns, kRemoteIfaceNS, real::handler::mag::kSetParamSrv);
+  set_params_sc_ =
+    std::make_shared<ros2::SyncServiceClient<tobas_real_msgs::srv::SetMagnetometerParams>>(node_, srv_name);
 }
 
 void LargeVehicleMagCalibThread::magCb(const tobas_msgs::MagneticField::ConstSharedPtr& mag_raw)

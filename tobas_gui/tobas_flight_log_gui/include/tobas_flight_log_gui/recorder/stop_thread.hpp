@@ -6,6 +6,10 @@
 #include <QThread>
 #include <rclcpp/node.hpp>
 
+#include <tobas_ros2_tools/sync_service_client.hpp>
+
+#include <tobas_msgs/srv/bag_record_stop.hpp>
+
 namespace tobas
 {
 namespace gui
@@ -28,8 +32,7 @@ public:
 
 private:
   const rclcpp::Node::SharedPtr node_;
-
-  std::string ns_;
+  ros2::SyncServiceClient<tobas_msgs::srv::BagRecordStop>::SharedPtr sc_;
 };
 }  // namespace log
 }  // namespace gui

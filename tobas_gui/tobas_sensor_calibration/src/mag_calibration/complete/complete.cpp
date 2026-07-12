@@ -22,15 +22,11 @@
 #include <tobas_qt_tools/widgets/description_widget.hpp>
 #include <tobas_real_common/handler.hpp>
 #include <tobas_real_common/ros_interface.hpp>
-#include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_std_tools/array.hpp>
 #include <tobas_std_tools/check.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 
-#include <tobas_real_msgs/srv/set_magnetometer_params.hpp>
-
-#include "tobas_sensor_calibration/constants.hpp"
 #include "tobas_sensor_calibration/util.hpp"
 
 namespace tobas
@@ -148,7 +144,8 @@ void CompleteMagCalibWidget::reset()
 
 void CompleteMagCalibWidget::setNamespace(const std::string& ns)
 {
-  ns_ = ns;
+  sc_ = std::make_shared<ros2::SyncServiceClient<tobas_real_msgs::srv::SetMagnetometerParams>>(
+    node_, path::join(ns, kRemoteIfaceNS, real::handler::mag::kSetParamSrv));
 }
 
 void CompleteMagCalibWidget::paintEvent(QPaintEvent*)
@@ -447,15 +444,13 @@ bool CompleteMagCalibWidget::updateRemoteParameters(const Eigen::Vector3d& hard_
   req->soft_bias = eigen::toStdArray(soft_bias);
 
   // Update parameters.
-  ros2::SyncServiceClient<tobas_real_msgs::srv::SetMagnetometerParams> sc(
-    node_, path::join(ns_, kRemoteIfaceNS, real::handler::mag::kSetParamSrv));
-  if (!sc.call(req, kSetParamTimeout)) {
+  const auto res = sc_->sendRequestAndWait(req);
+  if (!res) {
     qt::qErrorBox(this, "Failed to send calibration results.");
     return false;
   }
 
   // Check the result.
-  const auto res = sc.getResponse();
   if (!res->success) {
     qt::qErrorBox(this, "Calibration results are rejected: " + QString::fromStdString(res->message));
     return false;

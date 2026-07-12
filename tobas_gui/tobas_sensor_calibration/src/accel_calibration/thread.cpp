@@ -6,12 +6,7 @@
 #include <tobas_constants/ros_interface.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_real_common/handler.hpp>
-#include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
-
-#include <tobas_real_msgs/srv/set_imu_params.hpp>
-
-#include "tobas_sensor_calibration/constants.hpp"
 
 namespace tobas
 {
@@ -93,15 +88,13 @@ void AccelCalibrationThread::run()
   req->offset_z = acc_bias.z();
 
   // Update parameters.
-  ros2::SyncServiceClient<tobas_real_msgs::srv::SetImuParams> sc(
-    node_, path::join(ns_, kRemoteIfaceNS, real::handler::imu::kSetParamSrv));
-  if (!sc.call(req, kSetParamTimeout)) {
+  const auto res = sc_->sendRequestAndWait(req);
+  if (!res) {
     Q_EMIT finished(false, "Failed to send calibration results.");
     return;
   }
 
   // Check the result.
-  const auto res = sc.getResponse();
   if (!res->success) {
     Q_EMIT finished(false, "Calibration results are rejected: " + QString::fromStdString(res->message));
     return;
@@ -124,7 +117,8 @@ void AccelCalibrationThread::reset()
 
 void AccelCalibrationThread::setNamespace(const std::string& ns)
 {
-  ns_ = ns;
+  sc_ = std::make_shared<ros2::SyncServiceClient<tobas_real_msgs::srv::SetImuParams>>(
+    node_, path::join(ns, kRemoteIfaceNS, real::handler::imu::kSetParamSrv));
 }
 
 void AccelCalibrationThread::imuCb(const tobas_msgs::Imu::ConstSharedPtr& imu_raw)

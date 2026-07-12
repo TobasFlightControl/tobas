@@ -5,13 +5,13 @@
 
 #include <ranges>
 
+#include <QDebug>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
 #include <tobas_constants/node.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/util.hpp>
-#include <tobas_qt_tools/widgets/scroll_area.hpp>
 
 namespace fs = std::filesystem;
 
@@ -91,14 +91,21 @@ bool ParameterTuningWidget::updateProject(const fs::path& proj_path)
     return false;
   }
 
+  // Set namespace
+  const auto ns = '/' + drone_.name;
+  for (const auto& block : blocks_) {
+    block->setNamespace(ns);
+  }
+
   return true;
 }
 
 void ParameterTuningWidget::onLoadButtonClicked()
 {
-  const auto ns = '/' + drone_.name;
+  qDebug() << "ParameterTuningWidget::onLoadButtonClicked";
+
   for (const auto& block : blocks_) {
-    if (!block->load(ns)) {
+    if (!block->load()) {
       return;
     }
   }
@@ -116,6 +123,8 @@ void ParameterTuningWidget::onLoadButtonClicked()
 
 void ParameterTuningWidget::onSaveButtonClicked()
 {
+  qDebug() << "ParameterTuningWidget::onSaveButtonClicked";
+
   const auto config_dir_path = proj_paths_.cfgConfigDirPath();
 
   for (const auto& [block, file_name] : std::views::zip(blocks_, file_names_)) {
@@ -133,6 +142,8 @@ void ParameterTuningWidget::onSaveButtonClicked()
 
 void ParameterTuningWidget::onResetButtonClicked()
 {
+  qDebug() << "ParameterTuningWidget::onResetButtonClicked";
+
   // Confirm before resetting all parameters.
   if (!qt::yesOrNo(this, "Are you sure you want to reset all parameters to their defaults?", qt::WARN)) {
     return;

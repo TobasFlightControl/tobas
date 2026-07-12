@@ -8,8 +8,10 @@
 #include <tobas_constants/rc_input.hpp>
 #include <tobas_drone_core/drone.hpp>
 #include <tobas_qt_tools/widgets/position_bar_widget.hpp>
-#include <tobas_ros2_tools/register.hpp>
+#include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_rqt_bridge/bridge.hpp>
+
+#include <tobas_real_msgs/srv/set_rc_input_params.hpp>
 
 #include "../base.hpp"
 
@@ -17,6 +19,7 @@ namespace tobas
 {
 namespace gui
 {
+
 namespace sc
 {
 class RCInputCalibrationWidget : public BaseWidget
@@ -53,6 +56,8 @@ public:
 private:
   const rclcpp::Node::SharedPtr node_;
   const Drone& drone_;
+
+  ros2::SyncServiceClient<tobas_real_msgs::srv::SetRcInputParams>::SharedPtr set_params_sc_;
 
   bool running_;
   tobas_msgs::msg::Sbus::ConstSharedPtr sbus_;

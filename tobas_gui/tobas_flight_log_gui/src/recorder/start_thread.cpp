@@ -6,9 +6,6 @@
 #include <tobas_constants/ros_interface.hpp>
 #include <tobas_msgs/srv/bag_record_start.hpp>
 #include <tobas_path_tools/join.hpp>
-#include <tobas_ros2_tools/sync_service_client.hpp>
-
-#include "tobas_flight_log_gui/recorder/constants.hpp"
 
 namespace tobas
 {
@@ -22,18 +19,15 @@ RecordStartThread::RecordStartThread(rclcpp::Node::SharedPtr node) : node_(node)
 
 void RecordStartThread::run()
 {
-  ros2::SyncServiceClient<tobas_msgs::srv::BagRecordStart> sc(
-    node_, path::join(ns_, kRemoteIfaceNS, service::kRosbagRecordStart));
-
   const auto req = std::make_shared<tobas_msgs::srv::BagRecordStart::Request>();
   req->name = log_name_;
 
-  if (!sc.call(req, kRecordServiceTimeout)) {
+  const auto res = sc_->sendRequestAndWait(req);
+  if (!res) {
     Q_EMIT finished(false, "Flight log recording service is unavailable.");
     return;
   }
 
-  const auto res = sc.getResponse();
   if (!res->success) {
     Q_EMIT finished(false, "Failed to start recording flight log: " + QString::fromStdString(res->message));
     return;
@@ -44,7 +38,8 @@ void RecordStartThread::run()
 
 void RecordStartThread::setNamespace(const std::string& ns)
 {
-  ns_ = ns;
+  sc_ = std::make_shared<ros2::SyncServiceClient<tobas_msgs::srv::BagRecordStart>>(
+    node_, path::join(ns, kRemoteIfaceNS, service::kRosbagRecordStart));
 }
 
 void RecordStartThread::setLogName(const std::string& log_name)

@@ -206,12 +206,13 @@ bool BasePoseCommanderWidget::armRotors(bool arming)
 {
   const auto req = std::make_shared<tobas_msgs::srv::SetArm::Request>();
   req->arming = arming;
-  if (!set_arm_sc_->call(req, kServiceCallTimeout)) {
+
+  const auto res = set_arm_sc_->sendRequestAndWait(req);
+  if (!res) {
     qt::qErrorBox(this, "Failed to connect to the rotor controller.");
     return false;
   }
 
-  const auto res = set_arm_sc_->getResponse();
   if (!res->success) {
     qt::qErrorBox(this, "Arming service failed: " + QString::fromStdString(res->message));
     return false;

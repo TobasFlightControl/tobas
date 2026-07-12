@@ -13,11 +13,8 @@
 #include <tobas_qt_tools/font.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/util.hpp>
-#include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_string_tools/core.hpp>
 #include <tobas_yaml_tools/core.hpp>
-
-#include <tobas_dparam_msgs/srv/get_params.hpp>
 
 using namespace std::chrono_literals;
 namespace fs = std::filesystem;
@@ -42,21 +39,25 @@ ParamBlockWidget::ParamBlockWidget(rclcpp::Node::SharedPtr node, const std::stri
   rows->addLayout(form_);
 }
 
-bool ParamBlockWidget::load(const std::string& ns)
+void ParamBlockWidget::setNamespace(const std::string& ns)
 {
-  dparam_cli_ = std::make_shared<dparam::DynamicParamClient>(node_, node_name_, ns);
+  const auto get_param_srv = path::join(ns, kRemoteIfaceNS, node_name_, service::kGetDynamicParams);
+  get_param_sc_ = std::make_shared<ros2::SyncServiceClient<tobas_dparam_msgs::srv::GetParams>>(node_, get_param_srv);
 
+  dparam_cli_ = std::make_shared<dparam::DynamicParamClient>(node_, node_name_, ns);
+}
+
+bool ParamBlockWidget::load()
+{
   clear();
 
   // Get dynamic parameters
-  const auto service_name = path::join(ns, kRemoteIfaceNS, node_name_, service::kGetDynamicParams);
-  ros2::SyncServiceClient<tobas_dparam_msgs::srv::GetParams> sc(node_, service_name);
   const auto req = std::make_shared<tobas_dparam_msgs::srv::GetParams::Request>();
-  if (!sc.call(req, 3s)) {
+  const auto res = get_param_sc_->sendRequestAndWait(req);
+  if (!res) {
     qt::qErrorBox(this, "Failed to get dynamic parameters configuration of \"" + label_->text() + "\".");
     return false;
   }
-  const auto res = sc.getResponse();
   const auto& params = res->params;
 
   // Add sliders

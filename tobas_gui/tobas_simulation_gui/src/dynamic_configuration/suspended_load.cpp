@@ -153,13 +153,13 @@ void SuspendedLoadWidget::onAttachRequested()
   req->cable_young_modulus = cable_young_->value() * 1e+6;
   req->cable_cross_sectional_area = cable_csa_->value() * 1e-6;
 
-  if (!attach_sc_->call(req, kServiceCallTimeout)) {
+  const auto res = attach_sc_->sendRequestAndWait(req);
+  if (!res) {
     qt::qErrorBox(this, "Failed to call \"" + QString(gazebo::kAttachSuspenedLoadSrv) + "\" service.");
     reset();
     return;
   }
 
-  const auto res = attach_sc_->getResponse();
   if (!res->success) {
     qt::qErrorBox(this, "Failed to attach a load: " + QString::fromStdString(res->message));
     reset();
@@ -171,13 +171,13 @@ void SuspendedLoadWidget::onDetachRequested()
 {
   const auto req = std::make_shared<DetachSrv::Request>();
 
-  if (!detach_sc_->call(req, kServiceCallTimeout)) {
+  const auto res = detach_sc_->sendRequestAndWait(req);
+  if (!res) {
     qt::qErrorBox(this, "Failed to call \"" + QString(gazebo::kDetachSuspenedLoadSrv) + "\" service.");
     reset();
     return;
   }
 
-  const auto res = detach_sc_->getResponse();
   if (!res->success) {
     qt::qErrorBox(this, "Failed to detach the load: " + QString::fromStdString(res->message));
     reset();

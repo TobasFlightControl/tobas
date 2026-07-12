@@ -17,13 +17,11 @@ namespace ros2
 {
 /**
  * @brief Synchronous service client.
- * @note This blocks, so do not use it in nodes where real-time behavior is important.
+ * @note Service calls block the calling thread. Do not use this client where real-time behavior is required.
  */
 template <typename SrvType>
 class SyncServiceClient
 {
-  static constexpr auto kWaitForServer = std::chrono::seconds(1);
-
 public:
   using SharedPtr = std::shared_ptr<SyncServiceClient>;
 
@@ -45,25 +43,29 @@ public:
    * @note Calling this from a callback that runs on the same thread as the ROS node causes a deadlock.
    */
   template <typename RepT = int64_t, typename RatioT = std::milli>
-  bool call(
+  typename SrvType::Response::ConstSharedPtr sendRequestAndWait(
     const typename SrvType::Request::SharedPtr& req,
     std::chrono::duration<RepT, RatioT> timeout = std::chrono::duration<RepT, RatioT>(-1))
   {
-    if (!client_->wait_for_service(kWaitForServer))  // `service_is_ready` often returns false on the first call.
-    {
+    // The service may not be ready immediately after client creation because DDS discovery may still be in progress.
+    if (!client_->service_is_ready()) {
       RCLCPP_ERROR_STREAM(node_->get_logger(), "\"" << client_->get_service_name() << "\" service is not ready.");
-      return false;
+      return nullptr;
     }
 
+    // Send the request and wait for the response.
     auto future = client_->async_send_request(req);
     if (waitForFuture(future, timeout) != std::future_status::ready) {
       RCLCPP_ERROR_STREAM(node_->get_logger(), "Timeout before \"" << client_->get_service_name() << "\" response.");
-      return false;
+      return nullptr;
     }
 
-    res_ = future.get();
+    return future.get();
+  }
 
-    return true;
+  bool serviceIsReady()
+  {
+    return client_->service_is_ready();
   }
 
   template <typename RepT = int64_t, typename RatioT = std::milli>
@@ -72,15 +74,9 @@ public:
     return client_->wait_for_service(timeout);
   }
 
-  inline typename SrvType::Response::SharedPtr getResponse() const
-  {
-    return res_;
-  }
-
 private:
   rclcpp::Node::SharedPtr node_;
   typename rclcpp::Client<SrvType>::SharedPtr client_;
-  typename SrvType::Response::SharedPtr res_;
 };
 }  // namespace ros2
 }  // namespace tobas

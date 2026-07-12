@@ -6,7 +6,10 @@
 #include <QThread>
 
 #include <tobas_algorithm/kahan.hpp>
+#include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_rqt_bridge/bridge.hpp>
+
+#include <tobas_real_msgs/srv/set_magnetometer_params.hpp>
 
 namespace tobas
 {
@@ -38,7 +41,7 @@ public:
 private:
   const rclcpp::Node::SharedPtr node_;
 
-  std::string ns_;
+  ros2::SyncServiceClient<tobas_real_msgs::srv::SetMagnetometerParams>::SharedPtr set_params_sc_;
 
   tobas_msgs::MagneticField::ConstSharedPtr mag_raw_;
   tobas_msgs::Gnss::ConstSharedPtr gnss_;

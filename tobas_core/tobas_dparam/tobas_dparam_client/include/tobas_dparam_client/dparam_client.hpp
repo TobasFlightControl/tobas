@@ -6,6 +6,11 @@
 #include <tobas_path_tools/join.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
 
+#include <tobas_dparam_msgs/srv/set_bool.hpp>
+#include <tobas_dparam_msgs/srv/set_double.hpp>
+#include <tobas_dparam_msgs/srv/set_int.hpp>
+#include <tobas_dparam_msgs/srv/set_string.hpp>
+
 namespace tobas
 {
 namespace dparam
@@ -35,29 +40,32 @@ public:
 private:
   const rclcpp::Node::SharedPtr node_;
   const std::string node_name_;
-  const std::string ns_;
+
+  ros2::SyncServiceClient<tobas_dparam_msgs::srv::SetBool> bool_sc_;
+  ros2::SyncServiceClient<tobas_dparam_msgs::srv::SetInt> int_sc_;
+  ros2::SyncServiceClient<tobas_dparam_msgs::srv::SetDouble> double_sc_;
+  ros2::SyncServiceClient<tobas_dparam_msgs::srv::SetString> string_sc_;
 
   Error error_code_ = kNoError;
 
-  template <typename SrvType, const char* SrvName, typename T>
-  Error setParam(const std::string& param_name, T& value);
+  template <typename SrvType, typename T>
+  Error setParam(ros2::SyncServiceClient<SrvType>& sc, const std::string& param_name, T& value);
 };
 
-template <typename SrvType, const char* SrvName, typename T>
-DynamicParamClient::Error DynamicParamClient::setParam(const std::string& param_name, T& value)
+template <typename SrvType, typename T>
+DynamicParamClient::Error
+DynamicParamClient::setParam(ros2::SyncServiceClient<SrvType>& sc, const std::string& param_name, T& value)
 {
-  ros2::SyncServiceClient<SrvType> sc(node_, path::join(ns_, SrvName));
-
   const auto req = std::make_shared<typename SrvType::Request>();
   req->node_name = node_name_;
   req->param_name = param_name;
   req->value = value;
 
-  if (!sc.call(req)) {
+  const auto res = sc.sendRequestAndWait(req);
+  if (!res) {
     return error_code_ = kServiceNotReady;
   }
 
-  const auto res = sc.getResponse();
   if (!res->success) {
     return error_code_ = kServerError;
   }

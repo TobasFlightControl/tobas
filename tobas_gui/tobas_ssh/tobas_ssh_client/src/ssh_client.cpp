@@ -51,7 +51,8 @@ SshClient::Error SshClient::setEndpoint(const std::string& host, const std::stri
   req->host = host;
   req->user = user;
 
-  if (!set_endpoint_sc_.call(req)) {
+  const auto res = set_endpoint_sc_.sendRequestAndWait(req);
+  if (!res) {
     return error_code_ = kServiceNotReady;
   }
 
@@ -62,11 +63,11 @@ SshClient::Error SshClient::connect()
 {
   const auto req = std::make_shared<Connect::Request>();
 
-  if (!connect_sc_.call(req)) {
+  const auto res = connect_sc_.sendRequestAndWait(req);
+  if (!res) {
     return error_code_ = kServiceNotReady;
   }
 
-  const auto res = connect_sc_.getResponse();
   if (!res->success) {
     server_error_msg_ = res->message;
     return error_code_ = kServerError;
@@ -82,11 +83,11 @@ SshClient::Error SshClient::execute(const std::string& command, std::string& out
   req->superuser = superuser;
   req->background = background;
 
-  if (!execute_sc_.call(req)) {
+  const auto res = execute_sc_.sendRequestAndWait(req);
+  if (!res) {
     return error_code_ = kServiceNotReady;
   }
 
-  const auto res = execute_sc_.getResponse();
   if (!res->success) {
     server_error_msg_ = res->error_output;
     return error_code_ = kServerError;
@@ -178,11 +179,11 @@ SshClient::Error SshClient::sftpRead(const std::string& remote_path, std::string
   req->remote_path = remote_path;
   req->superuser = superuser;
 
-  if (!sftp_read_sc_.call(req)) {
+  const auto res = sftp_read_sc_.sendRequestAndWait(req);
+  if (!res) {
     return error_code_ = kServiceNotReady;
   }
 
-  const auto res = sftp_read_sc_.getResponse();
   if (!res->success) {
     server_error_msg_ = res->message;
     return error_code_ = kServerError;
@@ -199,11 +200,11 @@ SshClient::Error SshClient::sftpWrite(const std::string& remote_path, const std:
   req->text = text;
   req->superuser = superuser;
 
-  if (!sftp_write_sc_.call(req)) {
+  const auto res = sftp_write_sc_.sendRequestAndWait(req);
+  if (!res) {
     return error_code_ = kServiceNotReady;
   }
 
-  const auto res = sftp_write_sc_.getResponse();
   if (!res->success) {
     server_error_msg_ = res->message;
     return error_code_ = kServerError;
@@ -217,11 +218,11 @@ SshClient::Error SshClient::list(const std::string& pardir, std::vector<std::str
   const auto req = std::make_shared<List::Request>();
   req->pardir = pardir;
 
-  if (!list_sc_.call(req)) {
+  const auto res = list_sc_.sendRequestAndWait(req);
+  if (!res) {
     return error_code_ = kServiceNotReady;
   }
 
-  const auto res = list_sc_.getResponse();
   if (!res->success) {
     server_error_msg_ = res->message;
     return error_code_ = kServerError;

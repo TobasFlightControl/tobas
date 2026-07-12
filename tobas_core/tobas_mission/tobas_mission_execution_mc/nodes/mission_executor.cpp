@@ -205,6 +205,8 @@ private:
   ros2::SubscriberPtr<tobas_msgs::msg::GeodeticCoordinates> gnss_origin_sub_;
   ros2::SubscriberPtr<tobas_msgs::RCInput> rcin_sub_;
 
+  ros2::SyncServiceClient<tobas_msgs::srv::SetArm>::SharedPtr set_arm_sc_;
+
   ros2::ActionServerPtr<Action> as_;
 
   void getStaticRosParams();
@@ -389,16 +391,15 @@ void MulticopterMissionExecutorNode::publishCommand(const rclcpp::Time& stamp)
 
 bool MulticopterMissionExecutorNode::armRotors(bool arming)
 {
-  ros2::SyncServiceClient<tobas_msgs::srv::SetArm> sc(shared_from_this(), service::kSetArm);
-
   const auto req = std::make_shared<tobas_msgs::srv::SetArm::Request>();
   req->arming = arming;
-  if (!sc.call(req)) {
+
+  const auto res = set_arm_sc_->sendRequestAndWait(req);
+  if (!res) {
     TOBAS_ERROR("Failed to call \"", service::kSetArm, "\" service.");
     return false;
   }
 
-  const auto res = sc.getResponse();
   if (!res->success) {
     TOBAS_ERROR("Failed to set the arming status: ", res->message);
     return false;
@@ -921,8 +922,11 @@ void MulticopterMissionExecutorNode::setpointCb(const tobas_msgs::OdometryStampe
 
 void MulticopterMissionExecutorNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
 {
+  // Initialize.
   if (!arming_) {
     arming_ = arming;
+    set_arm_sc_ =
+      std::make_shared<ros2::SyncServiceClient<tobas_msgs::srv::SetArm>>(shared_from_this(), service::kSetArm);
     return;
   }
 
