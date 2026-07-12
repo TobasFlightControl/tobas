@@ -74,9 +74,9 @@ bool ADS1220::readVoltage(double& dst)
 
 bool ADS1220::readCurrent(double&)
 {
-  // TODO: When `DRDY` goes LOW, send the command to switch the multiplexer
-  // and read the data before switching at the same time.
-  // cf. 8.5.5 Sending Commands (p.38)
+  // TODO: When `DRDY` goes LOW, send the multiplexer-switching command
+  // and read the current data before the switch takes effect.
+  // See section 8.5.5, "Sending Commands" (p. 38).
 
   cerr << "Not implemented." << endl;
   return false;

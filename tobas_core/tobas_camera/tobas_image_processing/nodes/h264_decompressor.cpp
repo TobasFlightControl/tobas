@@ -65,15 +65,15 @@ void H264Decompressor::publishRawImg(const sensor_msgs::msg::Image::ConstSharedP
 void H264Decompressor::callback(const ffmpeg_image_transport_msgs::msg::FFMPEGPacket::ConstSharedPtr& msg)
 {
   if (decoder_.isInitialized()) {
-    // the decoder is already initialized
+    // Decode the packet directly once the decoder has been initialized.
     decoder_.decodePacket(
       msg->encoding, &msg->data[0], msg->data.size(), msg->pts, msg->header.frame_id, msg->header.stamp);
     return;
   }
 
-  // need to initialize the decoder
+  // Initialize the decoder when the first key frame arrives.
   if (msg->flags == 0) {
-    return;  // wait for key frame!
+    return;  // Wait for a key frame.
   }
 
   if (msg->encoding.empty()) {

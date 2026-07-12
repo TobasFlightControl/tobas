@@ -29,7 +29,7 @@ public:
   void update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom, bool landed) override;
 
 private:
-  // rosparams
+  // ROS parameters.
   double max_atti_rate_;     // [rad/s]
   double max_head_rate_;     // [rad/s]
   double max_thrust_angle_;  // [rad]

@@ -203,7 +203,7 @@ std::pair<double, Vector> Rotation::getAngleAxis() const
     if (
       std::abs(data(0, 1) + data(1, 0)) < eps2 && std::abs(data(0, 2) + data(2, 0)) < eps2 &&
       std::abs(data(1, 2) + data(2, 1)) < eps2 && std::abs(trace() - 3) < eps2) {
-      // This singularity is identity matrix so angle = 0, axis is arbitrary chose.
+      // This singularity is the identity matrix, so the angle is 0 and the axis is arbitrary.
       return { 0.0, Vector::UnitZ() };
     }
 

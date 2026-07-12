@@ -22,7 +22,7 @@ RotorLinkPlotWidget::RotorLinkPlotWidget()
 
 void RotorLinkPlotWidget::clear()
 {
-  // When the same widgets are contained in both the layout and the container, clear the container before the layout.
+  // The containers and layout reference the same widgets, so clear the containers first.
   plots_.clear();
   curves_.clear();
   grid_->clear();

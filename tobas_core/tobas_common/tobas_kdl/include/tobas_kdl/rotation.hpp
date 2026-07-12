@@ -50,7 +50,7 @@ public:
 
   /**
    * @brief Along an arbitrary axes. Axis must be normalized.
-   * Returns identity rotation matrix in the case that the norm of axis is to small to be used.
+   * Returns the identity rotation matrix if the norm of the axis is too small to use.
    * R = std::exp(ω)
    */
   static Rotation Rot(const Vector& axis, double angle);

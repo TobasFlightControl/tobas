@@ -9,7 +9,7 @@ namespace tobas
 {
 namespace linux
 {
-/* Return "[Errno errno] strerror(errno)"" */
+/* Return an error string in the form "[Errno errno] strerror(errno)". */
 std::string strError(int error_number = errno);
 }  // namespace linux
 }  // namespace tobas

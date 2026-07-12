@@ -30,7 +30,7 @@ namespace ub
 namespace ui
 {
 /**
- * @brief Main panel plugged into the Rviz main widget.
+ * @brief Main panel embedded in the RViz window.
  */
 class UrdfBuilderPanel : public rviz_common::Panel
 {

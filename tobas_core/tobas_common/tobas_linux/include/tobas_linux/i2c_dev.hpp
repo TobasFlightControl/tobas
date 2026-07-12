@@ -65,7 +65,7 @@ public:
   bool readBytesNoRegAddress(size_t length, void* rx);
 
   /**
-   * @brief write a single bit in an 8-bit device register.
+   * @brief Write a single bit to an 8-bit device register.
    *
    * @param reg_addr Register address to write to
    * @param bit_pos Bit position to write (0-7)
@@ -103,7 +103,7 @@ private:
   uint8_t dev_addr_;
   int i2c_fd_ = -1;
   uint8_t tx_[kBufSize + 1] = {};  // Register Address + TX data
-  uint8_t rx_[kBufSize] = {};      // Temporal RX data
+  uint8_t rx_[kBufSize] = {};      // Temporary RX data.
 
   bool checkDataLength(size_t length) const;
   bool selectDevice() const;

@@ -129,13 +129,13 @@ private:
   enum TimingUs : uint32_t
   {
     STARTUP_DELAY_US = 3000,             // POR startup time
-    SOFT_RESET_DELAY_US = 24000,         // wait after CMD soft reset
+    SOFT_RESET_DELAY_US = 24000,         // Wait after a CMD soft reset.
     SUSPEND_TO_NORMAL_DELAY_US = 38000,  // PMU suspend -> normal
     GOTO_SUSPEND_DELAY_US = 6000,        // PMU transition into suspend
-    UPD_OAE_DELAY_US = 1000,             // wait after PMU_UPD_OAE
+    UPD_OAE_DELAY_US = 1000,             // Wait after PMU_UPD_OAE.
     OTP_POLL_DELAY_US = 300,             // OTP status polling interval
-    BR_DELAY_US = 14000,                 // wait after PMU BR command
-    FGR_DELAY_US = 18000,                // wait after PMU FGR command
+    BR_DELAY_US = 14000,                 // Wait after a PMU BR command.
+    FGR_DELAY_US = 18000,                // Wait after a PMU FGR command.
   };
 
   enum DataLength : uint8_t

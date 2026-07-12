@@ -88,8 +88,8 @@ MjpgCompressor::MjpgCompressor(const rclcpp::NodeOptions& options)
 void MjpgCompressor::setFfmpegParameters()
 {
   encoder_.setEncoder("libx264");
-  encoder_.setMeasurePerformance(
-    false);  // to suppress error "can't subtract times with different time sources [2 != 1]", somewhere else may be wrong?
+  // Disable performance measurement to avoid subtracting timestamps from different time sources.
+  encoder_.setMeasurePerformance(false);
   encoder_.addAVOption("tune", "zerolatency");
 }
 

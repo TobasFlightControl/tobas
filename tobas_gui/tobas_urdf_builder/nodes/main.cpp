@@ -24,7 +24,7 @@ int main(int argc, char** argv)
   // Colorize console output.
   qInstallMessageHandler(tobas::qt::colorMessageHandler);
 
-  // Start the node so namespace and other arguments are reflected in Rviz-related nodes.
+  // Start the node so that RViz-related nodes receive the namespace and other arguments.
   rclcpp::init(argc, argv);
 
   // Show the GUI.

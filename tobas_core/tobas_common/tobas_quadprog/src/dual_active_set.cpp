@@ -121,7 +121,7 @@ bool DualActiveSetSolver::solve()
     u_.head(iq_) -= t2 * r_.head(iq_);
 
     // To distinguish between equality constraints and inequality constraints,
-    // the indexes of equality constraints are stored as negative values.
+    // The indices of equality constraints are stored as negative values.
     A_(i) = -i - 1;
 
     if (!addConstraint()) {

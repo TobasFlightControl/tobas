@@ -27,13 +27,13 @@ public:
   /* Get URDF model. */
   const ::urdf::ModelSharedPtr& urdf() const;
 
-  /* Get complete list of Links. */
+  /* Get the complete list of links. */
   const std::map<std::string, ::urdf::LinkSharedPtr>& links() const;
 
-  /* Get complete list of Joints. */
+  /* Get the complete list of joints. */
   const std::map<std::string, ::urdf::JointSharedPtr>& joints() const;
 
-  /* Get complete list of Materials. */
+  /* Get the complete list of materials. */
   const std::map<std::string, ::urdf::MaterialSharedPtr>& materials() const;
 
   /* Get the name of the robot model. */
@@ -41,7 +41,7 @@ public:
   /* Set the name of the robot model. */
   void name(const std::string& name);
 
-  /* Get the root is always a link (the parent of the tree describing the robot). */
+  /* Get the root link (the parent of the tree describing the robot). */
   const ::urdf::LinkSharedPtr& rootLink() const;
 
   const LinkViewModelPtr& rootLinkViewModel() const;

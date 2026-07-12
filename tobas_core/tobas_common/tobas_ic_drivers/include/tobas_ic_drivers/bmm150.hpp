@@ -21,10 +21,10 @@ class BMM150
   // Overflow handlings numbers, written in https://github.com/boschsensortec/BMM150_SensorAPI/blob/master/bmm150.c
   static constexpr int16_t kXyaxesFlipOverflowAdcval = -4096;
   static constexpr int16_t kZaxisHallOverflowAdcval = -16384;
-  static constexpr int16_t kOverflowOutput = -32768;  // return this value as mag sensor raw data ()
+  static constexpr int16_t kOverflowOutput = -32768;  // Raw magnetometer value returned on overflow.
   static constexpr int16_t kNegativeSaturationZ = -32767;
   static constexpr int16_t kPositiveSaturationZ = 32767;
-  static constexpr double kResolution = 1.0 / 16.0;  // (int16_t)raw_data * kResolution = ~ micro tesla
+  static constexpr double kResolution = 1.0 / 16.0;  // (int16_t)raw_data * kResolution is approximately microteslas.
 
 public:
   explicit BMM150();

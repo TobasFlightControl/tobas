@@ -23,7 +23,7 @@ RotorSpeedPlotWidget::RotorSpeedPlotWidget()
 
 void RotorSpeedPlotWidget::clear()
 {
-  // When the same widgets are contained in both the layout and the container, clear the container before the layout.
+  // The containers and layout reference the same widgets, so clear the containers first.
   plots_.clear();
   cur_speed_curves_.clear();
   tar_speed_curves_.clear();

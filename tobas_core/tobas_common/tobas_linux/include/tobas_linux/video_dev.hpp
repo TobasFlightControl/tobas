@@ -53,7 +53,7 @@ public:
   /* Turn the stream on so the PC can retrieve data from the device. */
   bool startStream();
 
-  /* Dequeue a buffer and enqueue the same amount of data. Available only after the stream is on. */
+  /* Dequeue and re-enqueue a buffer. Available only after the stream is on. */
   bool takePicture();
 
   void* getImage(uint32_t& length);

@@ -49,7 +49,7 @@ void AccelCalibrationThread::run()
     if (cnt_ >= kDataCount) {
       break;
     }
-    if (arming_->data) {  // Force stop if the vehicle is armed while collecting data.
+    if (arming_->data) {  // Abort if the vehicle is armed while collecting data.
       Q_EMIT finished(false, "Accelerometer calibration was canceled because an arming command was issued.");
       get_data_ = false;
       return;

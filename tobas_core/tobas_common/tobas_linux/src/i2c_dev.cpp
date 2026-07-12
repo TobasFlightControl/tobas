@@ -46,7 +46,7 @@ bool I2Cdev::initialize(const char* i2c_dev, uint8_t dev_addr)
 
   dev_addr_ = dev_addr;
 
-  // Wait here to avoid 121 remote I/O error
+  // Wait to avoid remote I/O error 121.
   std::this_thread::sleep_for(10ms);
 
   return true;

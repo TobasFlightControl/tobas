@@ -17,7 +17,7 @@ namespace gui
 {
 namespace sa
 {
-/* A base class of a widget for getting a user parameter. */
+/* Base class for widgets that retrieve user parameters. */
 template <typename T>
 class ParamGetterWidget : public QWidget
 {

@@ -159,7 +159,7 @@ bool setShadowPassword(
     return false;
   }
 
-  // Get the change date, days since epoch.
+  // Get the password change date as the number of days since the Unix epoch.
   const auto days = duration_cast<ch::hours>(ch::system_clock::now().time_since_epoch()).count() / 24;
 
   // Change only the user login password.

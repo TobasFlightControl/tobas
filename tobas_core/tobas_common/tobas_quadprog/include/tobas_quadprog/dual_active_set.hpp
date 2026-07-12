@@ -22,10 +22,10 @@ public:
 
   bool solve() override;
 
-  /* Get the lagrange multipliers of the equality constraints. */
+  /* Get the Lagrange multipliers of the equality constraints. */
   Eigen::VectorXd getLagrangeMultipliersEq() const;
 
-  /* Get the lagrange multipliers of the inequality constraints. */
+  /* Get the Lagrange multipliers of the inequality constraints. */
   Eigen::VectorXd getLagrangeMultipliersIneq() const;
 
 private:
@@ -53,7 +53,7 @@ private:
   Eigen::VectorXd np_;
   Eigen::VectorXd x_, x_old_;  // Optimization variables
   Eigen::VectorXd u_, u_old_;  // Lagrange multipliers
-  Eigen::VectorXi A_, A_old_;  // The index of active constraints corresponding to the lagrange multipliers
+  Eigen::VectorXi A_, A_old_;  // Indices of active constraints corresponding to the Lagrange multipliers.
   Eigen::VectorXi iai_;
   std::vector<bool> iaexcl_;
 

@@ -40,13 +40,13 @@ double TreeMassHolder::computeMass(const SegmentMap::const_iterator& cur_it)
 
   algo::Kahan<double> mass_sum;
 
-  // Compute the total mass of child segments
+  // Compute the total mass of the child segments.
   for (const auto& child_it : cur_ele.children) {
     mass_sum.add(computeMass(child_it));
   }
 
-  // To reduce numerical errors, the mass of the current segment,
-  // which is nearest to the root and tend to be large, is added last.
+  // To reduce numerical error, add the current segment's mass last because segments
+  // near the root tend to have greater mass.
   mass_sum.add(cur_seg.inertia().getMass());
 
   return mass_sum.get();

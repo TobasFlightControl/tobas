@@ -38,7 +38,7 @@ private:
   rclcpp::TimerBase::SharedPtr timer_;
   rclcpp::Publisher<geometry_msgs::msg::PointStamped>::SharedPtr publisher_;
   driver::BMM350 mag_;
-  float mx_, my_, mz_;  // micro tesla
+  float mx_, my_, mz_;  // [uT]
   bool initialized_ = false;
 };
 

@@ -206,7 +206,7 @@ void CxGb400PublisherNode::timerCallback()
     initialized_ = initialize();
   }
 
-  // send quadcopter attitude to camera
+  // Send the multicopter attitude to the camera.
   if ((now - last_attitude_send_).to_chrono<std::chrono::milliseconds>() >= camera_.kSendAttitudeInterval) {
     if (camera_.sendCopterAttitude(
           copter_attitude_.w(), copter_attitude_.x(), copter_attitude_.y(), copter_attitude_.z())) {
@@ -217,7 +217,7 @@ void CxGb400PublisherNode::timerCallback()
     }
   }
 
-  // read and publish camera status
+  // Read and publish the camera status.
   if ((now - last_status_send_).to_chrono<std::chrono::seconds>() >= kStatusSendInterval) {
     auto msg = std::make_unique<tobas_camera_msgs::msg::Status>();
     if (camera_.getCameraStatus(
@@ -243,9 +243,9 @@ void CxGb400PublisherNode::timerCallback()
     }
   }
 
-  // publish Hvideo
+  // Publish HVideo images.
   if (!disable_video_streaming_) {
-    // take a picture
+    // Capture an image.
     if (!camera_.takePicture()) {
       TOBAS_WARN("Failed to take a picture.");
       return;

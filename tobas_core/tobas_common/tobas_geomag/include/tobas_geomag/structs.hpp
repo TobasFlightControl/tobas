@@ -28,11 +28,11 @@ struct Elements
   double total;       // Local total magnetic field intensity [G]
 
   // Also called the dip angle, the angle measured from the horizontal plane to the magnetic field vector,
-  // a downward field is positive [deg]
+  // A downward field is positive [deg].
   double inclination;
 
   // Also called the magnetic variation, the angle between true north and the horizontal component of the field,
-  // a eastward magnetic field of true North is positive [deg]
+  // An eastward magnetic field relative to true north is positive [deg].
   double declination;
 };
 

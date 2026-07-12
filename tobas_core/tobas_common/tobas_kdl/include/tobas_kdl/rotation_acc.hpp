@@ -14,7 +14,7 @@ class RotationAcc
 public:
   Rotation R;  // rotation matrix
   Vector w;    // angular velocity vector
-  Vector dw;   // angular acceration vector
+  Vector dw;   // Angular acceleration vector.
 
   inline explicit RotationAcc();
   inline explicit RotationAcc(const Rotation& _R);

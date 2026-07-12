@@ -83,7 +83,7 @@ public:
   /* Close the input device.*/
   void close();
 
-  /* Return whether the input device is open.*/
+  /* Return true if the input device is open. */
   bool isOpen() const;
 
   /* Read the current RC input state.*/

@@ -35,10 +35,10 @@ public:
   }
 
   /**
-   * @brief Call the service and wait until a result is obtained.
+   * @brief Call the service and wait for a response.
    *
    * @param req Service request.
-   * @param timeout Timeout until a response is obtained. Waits indefinitely when non-positive.
+   * @param timeout Maximum time to wait for a response. Waits indefinitely when non-positive.
    *
    * @note Calling this from a callback that runs on the same thread as the ROS node causes a deadlock.
    */

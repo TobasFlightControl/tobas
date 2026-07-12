@@ -27,7 +27,7 @@ bool PwmBattImu::initialize()
     return false;
   }
 
-  // Discard the first data
+  // Discard the first response.
   if (!spi_.transfer(sizeof(tx_buf_))) {
     return false;
   }

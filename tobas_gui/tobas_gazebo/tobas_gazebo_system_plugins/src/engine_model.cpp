@@ -45,8 +45,8 @@ double EngineModel::getPosition() const
 double EngineModel::getVibrationForce()
 {
   // Represent reciprocating inertia force with a sine wave and amplitude variation.
-  // Use a Rice distribution centered at 1 because representing amplitude variation as `(1 + n)`
-  // with normal distribution `N` may become negative.
+  // Use a Rice distribution centered at 1 because the expression `(1 + n)`, where `n` follows a normal distribution,
+  // may be negative.
   // TODO: Analyze frequency-domain results from the real IMU and build a more accurate vibration model.
   const auto amp = vibration_force_coef_ * math::sqr(getSpeed());
   return amp * (std::sin(position_) + vibration_double_freq_coef_ * std::sin(position_ * 2)) * rice_(rnd_gen_);

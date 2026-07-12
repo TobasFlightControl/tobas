@@ -597,5 +597,5 @@ void UrdfBuilderPanel::collectUncheckedLinks(QTreeWidgetItem* item, QSet<QString
 }  // namespace gui
 }  // namespace tobas
 
-// A class derived from `rviz_common::Panel` can be plugged into the Rviz main widget.
+// A class derived from `rviz_common::Panel` can be embedded in the RViz window.
 PLUGINLIB_EXPORT_CLASS(tobas::gui::ub::ui::UrdfBuilderPanel, rviz_common::Panel)

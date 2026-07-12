@@ -648,7 +648,7 @@ void CompleteMagCalibWidget::onFinishButtonClicked()
 
   // Calculate soft-iron bias using ellipsoid approximation.
   // Linear regression with the expanded equation does not minimize Euclidean distance,
-  // but it becomes close when data is centered at the origin.
+  // but centering the data at the origin makes the result a close approximation.
   Eigen::Vector6d soft_bias;
   if (!computeSoftBias(x, y, z, soft_bias)) {
     return;
@@ -691,7 +691,7 @@ void CompleteMagCalibWidget::magCb(const tobas_msgs::MagneticField::ConstSharedP
     face_circles_.at(last_face_idx_)->setSelected(true);
   }
 
-  // Force stop when the maximum number of points is reached.
+  // Stop collecting data when the maximum number of points is reached.
   if (cnt_ >= kMaxDataSize) {
     resetToPreStart();
     qt::qErrorBox(this, "Magnetometer sample limit reached. Calibration canceled.");
@@ -704,7 +704,7 @@ void CompleteMagCalibWidget::magCb(const tobas_msgs::MagneticField::ConstSharedP
   // Publish a display message.
   auto point_msg = std::make_unique<geometry_msgs::msg::PointStamped>();
   point_msg->header = msg->header;
-  point_msg->header.frame_id = frame::kWorld;  // Match the Rviz `Global Options/Fixed Frame` setting.
+  point_msg->header.frame_id = frame::kWorld;  // Match the RViz `Global Options/Fixed Frame` setting.
   kdl::pointKDLToMsg(msg->mag * kRvizPointScale, point_msg->point);
   samples_pub_->publish(std::move(point_msg));
 

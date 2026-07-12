@@ -190,7 +190,7 @@ bool BMM150::readTrimRegisters()
     return false;
   }
 
-  // Trim data which is read is updated in the device structure
+  // Store the trim data read from the device.
   trim_data_.dig_x1 = static_cast<int8_t>(trim_x1y1[0]);
   trim_data_.dig_y1 = static_cast<int8_t>(trim_x1y1[1]);
   trim_data_.dig_x2 = static_cast<int8_t>(trim_xyz_data[2]);

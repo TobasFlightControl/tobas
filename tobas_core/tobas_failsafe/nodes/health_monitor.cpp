@@ -56,7 +56,7 @@ public:
   explicit HealthMonitorNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  // rosparams
+  // ROS parameters.
   struct DoCheck
   {
     bool realtime_compliance;

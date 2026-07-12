@@ -35,7 +35,7 @@ private:
   traj::VelocityLimitedOnlineTrajectoryGenerator roll_filt_, pitch_filt_;
   double tar_yaw_;
 
-  // rosparams
+  // ROS parameters.
   double max_attitude_;   // [rad]
   double max_head_rate_;  // [rad/s]
   double atti_expo_;

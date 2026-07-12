@@ -84,14 +84,14 @@ void JointCommanderWidget::updateInternalDataStructures()
   tar_js_vel_.commands.clear();
   tar_js_eff_.commands.clear();
 
-  // Add joints of current robot
+  // Add the current robot's joints.
   for (const auto& [jnt_name, joint] : drone_.joints) {
-    // User active joint only
+    // Include only user-controlled joints.
     if (joint.role != JointRole::kUserActive) {
       continue;
     }
 
-    // Check joint type is not FIXED
+    // Check that the joint is not fixed.
     const auto& jnt_type = joint_parser_.joint(jnt_name).type;
     if (jnt_type == kdl::Joint::kFixed) {
       qWarning() << "The joint type of" << QString::fromStdString(jnt_name) << "is FIXED.";

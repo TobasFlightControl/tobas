@@ -49,8 +49,7 @@ bool ProcessSettings::init(int argc, char* argv[])
 
 bool ProcessSettings::configureProcess()
 {
-  // Set the priority of this thread to the maximum safe value,
-  // and set its scheduling policy to a deterministic (real-time safe) algorithm.
+  // Set the requested real-time priority and use a deterministic scheduling policy.
   if (process_priority_ > 0 && process_priority_ < 99) {
     if (!setThisProcessPriority(process_priority_, SCHED_RR)) {
       return false;

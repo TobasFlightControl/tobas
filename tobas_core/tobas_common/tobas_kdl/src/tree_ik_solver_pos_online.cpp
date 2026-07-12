@@ -96,10 +96,9 @@ bool TreeIkSolverPos_Online::setMaxAngularVelocity(const double& max_angvel)
 
 void TreeIkSolverPos_Online::enforceJointVelLimits(JntArray& delta_q, const double& dt)
 {
-  // check, if one (or more) joint velocities exceed the maximum value
-  // and if so, safe the biggest overshoot for scaling delta_q properly
-  // to keep the direction of the velocity vector the same
-  double rel_os_max = 0.0;  // the biggest relative overshoot
+  // Find the largest joint-velocity limit violation and use it to scale `delta_q`
+  // without changing the direction of the velocity vector.
+  double rel_os_max = 0.0;  // Largest relative overshoot.
   bool max_exceeded = false;
 
   for (size_t i = 0; i < nj_; ++i) {
@@ -120,7 +119,7 @@ void TreeIkSolverPos_Online::enforceJointVelLimits(JntArray& delta_q, const doub
     }
   }
 
-  // scales delta_q, if one joint exceeds the maximum value
+  // Scale `delta_q` if any joint exceeds its velocity limit.
   if (max_exceeded == true) {
     delta_q *= 1 / (1 + rel_os_max);
   }

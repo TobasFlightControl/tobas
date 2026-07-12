@@ -23,7 +23,7 @@ RvizFrameManager::RvizFrameManager(int argc, char** argv, const std::string& nod
     rclcpp::init(argc, argv);
   }
 
-  // Create Rviz ROS interface
+  // Create the RViz ROS interface.
   node_ = std::make_shared<rviz_common::ros_integration::RosNodeAbstraction>(node_name);
 }
 

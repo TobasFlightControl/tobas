@@ -29,7 +29,7 @@ public:
   void update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom, bool landed) override;
 
 private:
-  // rosparams
+  // ROS parameters.
   double min_speed_ = 0.0;                                 // [m/s]
   double max_speed_ = std::numeric_limits<double>::max();  // [m/s]
   double max_roll_;                                        // [rad]

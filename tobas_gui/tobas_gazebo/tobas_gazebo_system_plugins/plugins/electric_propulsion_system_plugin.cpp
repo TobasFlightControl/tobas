@@ -429,12 +429,12 @@ void GazeboElectricPropulsionSystemPlugin::updateJointState(gz::sim::EntityCompo
 
 void GazeboElectricPropulsionSystemPlugin::throttleCmdCb(const tobas_gazebo_msgs::msg::Throttle::ConstSharedPtr& throttle)
 {
-  // No response if battery information is unavailable or voltage is too low.
+  // Ignore the command if battery information is unavailable or the voltage is too low.
   if (!battery_gt_ || battery_gt_->voltage < kMinBatteryVoltage) {
     return;
   }
 
-  // No response if broken.
+  // Ignore the command if the propulsion system is broken.
   if (!is_intact_) {
     return;
   }

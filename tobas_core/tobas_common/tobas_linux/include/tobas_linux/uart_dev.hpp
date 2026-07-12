@@ -41,7 +41,7 @@ public:
   bool disableHungupClose();
   bool setTimeout(cc_t msec_100);
 
-  /* Set the minimum number of characters which we wait for in receive(). */
+  /* Set the minimum number of characters that receive() waits for. */
   bool setMinimumChars(uint8_t num);
 
   bool send(const uint8_t* data, size_t length);

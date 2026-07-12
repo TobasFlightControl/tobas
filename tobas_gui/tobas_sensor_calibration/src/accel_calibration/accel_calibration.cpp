@@ -25,7 +25,7 @@ AccelCalibrationWidget::AccelCalibrationWidget(rclcpp::Node::SharedPtr node, con
   start_button_ = new QPushButton("Start");
   start_button_->setFixedSize(kButtonWidth, kButtonHeight);
 
-  // TODO: Show the gravity direction and measurement result in Rviz.
+  // TODO: Show the gravity direction and measurement result in RViz.
 
   // Layout
   rows_->addWidget(instruction);

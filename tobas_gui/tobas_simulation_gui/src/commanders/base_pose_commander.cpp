@@ -307,7 +307,7 @@ void BasePoseCommanderWidget::onHomeButtonClicked()
 
 void BasePoseCommanderWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
 {
-  // Force stop if the vehicle is disarmed externally.
+  // Stop commanding if the vehicle is disarmed externally.
   if (isRunning() && !arming->data) {
     reset();
   }
@@ -322,7 +322,7 @@ void BasePoseCommanderWidget::odomCb(const tobas_msgs::OdometryWithCovarianceSta
 
 void BasePoseCommanderWidget::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
 {
-  // Force stop if manual control is enabled.
+  // Stop commanding if manual control is enabled.
   if (isRunning() && rcin->ok && rcin->enable) {
     reset();
   }

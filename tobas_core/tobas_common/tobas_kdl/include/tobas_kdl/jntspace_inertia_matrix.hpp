@@ -12,7 +12,7 @@ namespace tobas
 namespace kdl
 {
 /**
- * @brief This class represents an fixed nj matrix containing
+ * @brief This class represents a fixed nj matrix containing
  * the Joint-Space Inertia Matrix of a kdl::Chain.
  *
  * @warning An object constructed with the default constructor provides

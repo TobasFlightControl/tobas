@@ -24,11 +24,11 @@ namespace sa
 RvizWidget::RvizWidget(const uadf::Model& uadf, const kdl::Tree& tree)
   : uadf_(uadf), tree_(tree), rviz_manager_("rviz_robot_state_display")
 {
-  // Declare rosparams
+  // Declare ROS parameters.
   constexpr char kMinimulUrdf[] = "<robot name=\"empty\"><link name=\"root\"/></robot>";
   ros2::declareParam(rviz_manager_.rawNode(), kRobotDescriptionParam, kMinimulUrdf);
 
-  // Initialize Rviz
+  // Initialize RViz.
   const auto rviz_config_path = getPkgShareDir() / "config/setup_assistant.rviz";
   rviz_manager_.initialize(QString::fromStdString(rviz_config_path));
   resetOrbitView();
