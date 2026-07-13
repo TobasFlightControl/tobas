@@ -3,14 +3,19 @@
 
 #pragma once
 
+#include <cmath>
+#include <cstddef>
 #include <random>
 
+#include <QElapsedTimer>
 #include <QTimer>
 #include <QVBoxLayout>
 
 #include <tobas_kdl/tree.hpp>
+#include <tobas_math/definitions.hpp>
 #include <tobas_qt_tools/widgets/slider_display.hpp>
 #include <tobas_ros2_tools/definitions.hpp>
+#include <tobas_uadf/model.hpp>
 
 #include <sensor_msgs/msg/joint_state.hpp>
 
@@ -30,14 +35,22 @@ class JointStatePublisherWidget : public QWidget
   using super = QWidget;
 
   static constexpr int kButtonHeight = 40;
+  static constexpr double kThrustJointAngularVelocity = M_PI / 6;  // [rad/s]
 
 public:
-  explicit JointStatePublisherWidget(rclcpp::Node::SharedPtr node, const kdl::Tree& tree);
+  explicit JointStatePublisherWidget(rclcpp::Node::SharedPtr node, const uadf::Model& uadf, const kdl::Tree& tree);
 
   void updateInternalDataStructures();
 
 private:
+  struct ThrustJoint
+  {
+    size_t state_index;
+    double rotation_sign;
+  };
+
   const rclcpp::Node::SharedPtr node_;
+  const uadf::Model& uadf_;
   const kdl::Tree& tree_;
 
   std::random_device rnd_dev_;
@@ -47,11 +60,13 @@ private:
 
   sensor_msgs::msg::JointState js_;
   std::vector<qt::DoubleSliderDisplay*> sliders_;
+  std::vector<ThrustJoint> thrust_joints_;
 
   ros2::PublisherPtr<sensor_msgs::msg::JointState> js_pub_;
   ros2::PublisherPtr<tobas_visualization_msgs::msg::DisplayRobotState> drs_pub_;
 
   QTimer publish_timer_;
+  QElapsedTimer thrust_rotation_timer_;
 
   void publish();
 

@@ -63,7 +63,7 @@ SetupAssistantWidget::SetupAssistantWidget(rclcpp::Node::SharedPtr node)
   rviz_ = new RvizWidget(uadf_, tree_);
   frame_tree_ = new FrameTreeWidget(tree_, rviz_);
   properties_ = new RobotPropertiesWidget(uadf_, tree_);
-  jsp_ = new JointStatePublisherWidget(node, tree_);
+  jsp_ = new JointStatePublisherWidget(node, uadf_, tree_);
   settings_ = new SettingsWidget(node, uadf_, tree_, sig_);
 
   prj_gen_ = std::make_unique<ProjectGenerator>(node, uadf_, tree_, settings_, this);

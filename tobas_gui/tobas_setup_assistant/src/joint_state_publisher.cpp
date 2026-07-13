@@ -19,8 +19,11 @@ namespace gui
 {
 namespace sa
 {
-JointStatePublisherWidget::JointStatePublisherWidget(rclcpp::Node::SharedPtr node, const kdl::Tree& tree)
-  : node_(node), tree_(tree), rnd_gen_(rnd_dev_())
+JointStatePublisherWidget::JointStatePublisherWidget(
+  rclcpp::Node::SharedPtr node,
+  const uadf::Model& uadf,
+  const kdl::Tree& tree)
+  : node_(node), uadf_(uadf), tree_(tree), rnd_gen_(rnd_dev_())
 {
   slider_rows_ = new QVBoxLayout();
 
@@ -65,6 +68,7 @@ void JointStatePublisherWidget::updateInternalDataStructures()
   js_.name.clear();
   js_.position.clear();
   sliders_.clear();
+  thrust_joints_.clear();
   qt::clearLayout(slider_rows_);
 
   for (const auto& [_, elem] : tree_.getSegments()) {
@@ -76,40 +80,57 @@ void JointStatePublisherWidget::updateInternalDataStructures()
     js_.name.push_back(joint.name);
     js_.position.push_back(0.0);
 
-    const auto slider = new qt::DoubleSliderDisplay();
-    slider->setText(QString::fromStdString(joint.name));
+    const auto thrust_it = uadf_.thrusts.find(joint.name);
+    if (thrust_it != uadf_.thrusts.end()) {  // Rotate `thrust` joints automatically.
+      const auto rotation_sign = thrust_it->second.direction == uadf::Thrust::CCW ? 1.0 : -1.0;
+      thrust_joints_.push_back({ js_.position.size() - 1, rotation_sign });
 
-    auto lower_limit = joint.lower_limit;
-    auto upper_limit = joint.upper_limit;
-    if (joint.type == kdl::Joint::kRotation && upper_limit - lower_limit > M_2PI) {
-      lower_limit = -M_PI;
-      upper_limit = +M_PI;
+      qInfo().nospace() << QString::fromStdString(joint.name) << " will rotate automatically.";
     }
-    slider->setMinimum(lower_limit);
-    slider->setMaximum(upper_limit);
+    else {  // Allow users to control other movable joints with sliders.
+      const auto slider = new qt::DoubleSliderDisplay();
+      slider->setText(QString::fromStdString(joint.name));
 
-    slider->setValue(0.0);
+      auto lower_limit = joint.lower_limit;
+      auto upper_limit = joint.upper_limit;
+      if (joint.type == kdl::Joint::kRotation && upper_limit - lower_limit > M_2PI) {
+        lower_limit = -M_PI;
+        upper_limit = +M_PI;
+      }
+      slider->setMinimum(lower_limit);
+      slider->setMaximum(upper_limit);
 
-    connect(
-      slider,
-      &qt::DoubleSliderDisplay::valueChanged,
-      this,
-      std::bind(&self::onValueChanged, this, std::placeholders::_1, joint.name));
+      slider->setValue(0.0);
 
-    sliders_.push_back(slider);
-    slider_rows_->addWidget(slider);
+      connect(
+        slider,
+        &qt::DoubleSliderDisplay::valueChanged,
+        this,
+        std::bind(&self::onValueChanged, this, std::placeholders::_1, joint.name));
 
-    qInfo().nospace() << QString::fromStdString(joint.name) << "was added to the JSP slider.";
+      sliders_.push_back(slider);
+      slider_rows_->addWidget(slider);
+
+      qInfo().nospace() << QString::fromStdString(joint.name) << "was added to the JSP slider.";
+    }
   }
 
   slider_rows_->addStretch();
 
   // Start to publish joint states
   publish_timer_.start(100);
+  thrust_rotation_timer_.start();
 }
 
 void JointStatePublisherWidget::publish()
 {
+  // Update the thrust joint positions
+  const auto elapsed_sec = static_cast<double>(thrust_rotation_timer_.restart()) / 1000.0;
+  for (const auto& thrust_joint : thrust_joints_) {
+    auto& position = js_.position.at(thrust_joint.state_index);
+    position = std::remainder(position + thrust_joint.rotation_sign * kThrustJointAngularVelocity * elapsed_sec, M_2PI);
+  }
+
   js_.header.stamp = node_->now();
 
   auto js = make_unique<sensor_msgs::msg::JointState>(js_);
