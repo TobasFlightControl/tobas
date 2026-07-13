@@ -144,7 +144,7 @@ void CompleteMagCalibWidget::reset()
 
 void CompleteMagCalibWidget::setNamespace(const std::string& ns)
 {
-  sc_ = std::make_shared<ros2::SyncServiceClient<tobas_real_msgs::srv::SetMagnetometerParams>>(
+  set_params_sc_ = std::make_shared<ros2::SyncServiceClient<tobas_real_msgs::srv::SetMagnetometerParams>>(
     node_, path::join(ns, kRemoteIfaceNS, real::handler::mag::kSetParamSrv));
 }
 
@@ -444,7 +444,7 @@ bool CompleteMagCalibWidget::updateRemoteParameters(const Eigen::Vector3d& hard_
   req->soft_bias = eigen::toStdArray(soft_bias);
 
   // Update parameters.
-  const auto res = sc_->sendRequestAndWait(req);
+  const auto res = set_params_sc_->sendRequestAndWait(req);
   if (!res) {
     qt::qErrorBox(this, "Failed to send calibration results.");
     return false;

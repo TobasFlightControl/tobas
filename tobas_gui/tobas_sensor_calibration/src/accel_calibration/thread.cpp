@@ -88,7 +88,7 @@ void AccelCalibrationThread::run()
   req->offset_z = acc_bias.z();
 
   // Update parameters.
-  const auto res = sc_->sendRequestAndWait(req);
+  const auto res = set_params_sc_->sendRequestAndWait(req);
   if (!res) {
     Q_EMIT finished(false, "Failed to send calibration results.");
     return;
@@ -117,7 +117,7 @@ void AccelCalibrationThread::reset()
 
 void AccelCalibrationThread::setNamespace(const std::string& ns)
 {
-  sc_ = std::make_shared<ros2::SyncServiceClient<tobas_real_msgs::srv::SetImuParams>>(
+  set_params_sc_ = std::make_shared<ros2::SyncServiceClient<tobas_real_msgs::srv::SetImuParams>>(
     node_, path::join(ns, kRemoteIfaceNS, real::handler::imu::kSetParamSrv));
 }
 

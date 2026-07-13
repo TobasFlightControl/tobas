@@ -42,7 +42,7 @@ public:
 private:
   const rclcpp::Node::SharedPtr node_;
 
-  ros2::SyncServiceClient<tobas_real_msgs::srv::SetImuParams>::SharedPtr sc_;
+  ros2::SyncServiceClient<tobas_real_msgs::srv::SetImuParams>::SharedPtr set_params_sc_;
 
   tobas_msgs::Imu::ConstSharedPtr imu_raw_;
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;

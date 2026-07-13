@@ -70,7 +70,7 @@ protected:
 private:
   const rclcpp::Node::SharedPtr node_;
 
-  ros2::SyncServiceClient<tobas_real_msgs::srv::SetMagnetometerParams>::SharedPtr sc_;
+  ros2::SyncServiceClient<tobas_real_msgs::srv::SetMagnetometerParams>::SharedPtr set_params_sc_;
 
   rviz::RvizFrameManager rviz_manager_;
 
