@@ -3,6 +3,8 @@
 
 #include "tobas_flight_log_gui/log_viewer/plots/pose_plot.hpp"
 
+#include <ranges>
+
 #include <QGridLayout>
 
 #include <tobas_kdl/euler.hpp>
@@ -57,18 +59,32 @@ void PosePlotWidget::setData(
   const QVector<tobas_msgs::msg::OdometryWithCovarianceStamped>& odom_msgs,
   const QVector<tobas_msgs::msg::OdometryStamped>& setpoint_msgs)
 {
-  updateCurrentSamples(odom_msgs);
-  updateTargetSamples(setpoint_msgs);
+  auto ranges = updateCurrentSamples(odom_msgs);
+  const auto tar_ranges = updateTargetSamples(setpoint_msgs);
+
+  for (const auto& [range, tar_range] : std::views::zip(ranges, tar_ranges)) {
+    range.include(tar_range);
+  }
+
+  ranges[kRollAxis].include(-kMinRollPitchScale);
+  ranges[kRollAxis].include(kMinRollPitchScale);
+  setSharedZeroCenteredVerticalScale(std::span(plots_).subspan(kRollAxis, 1), ranges[kRollAxis]);
+
+  ranges[kPitchAxis].include(-kMinRollPitchScale);
+  ranges[kPitchAxis].include(kMinRollPitchScale);
+  setSharedZeroCenteredVerticalScale(std::span(plots_).subspan(kPitchAxis, 1), ranges[kPitchAxis]);
 
   for (auto& plot : plots_) {
     plot->replot();
   }
 }
 
-void PosePlotWidget::updateCurrentSamples(const QVector<tobas_msgs::msg::OdometryWithCovarianceStamped>& odom_msgs)
+PosePlotWidget::VerticalScaleRanges
+PosePlotWidget::updateCurrentSamples(const QVector<tobas_msgs::msg::OdometryWithCovarianceStamped>& odom_msgs)
 {
   QVector<double> t_data;
   std::array<QVector<double>, kNumAxes> val_data;
+  VerticalScaleRanges ranges;
 
   for (const auto& odom : odom_msgs) {
     t_data.push_back(ros2::seconds(odom.header.stamp));
@@ -83,17 +99,25 @@ void PosePlotWidget::updateCurrentSamples(const QVector<tobas_msgs::msg::Odometr
     val_data[3].push_back(st::rad2deg(roll));
     val_data[4].push_back(st::rad2deg(pitch));
     val_data[5].push_back(st::rad2deg(yaw));
+
+    for (size_t i = 0; i < kNumAxes; ++i) {
+      ranges[i].include(val_data[i].back());
+    }
   }
 
   for (size_t i = 0; i < kNumAxes; ++i) {
     cur_curves_[i].setSamples(t_data, val_data[i]);
   }
+
+  return ranges;
 }
 
-void PosePlotWidget::updateTargetSamples(const QVector<tobas_msgs::msg::OdometryStamped>& setpoint_msgs)
+PosePlotWidget::VerticalScaleRanges
+PosePlotWidget::updateTargetSamples(const QVector<tobas_msgs::msg::OdometryStamped>& setpoint_msgs)
 {
   QVector<double> t_data;
   std::array<QVector<double>, kNumAxes> val_data;
+  VerticalScaleRanges ranges;
   double roll, pitch, yaw;  // [rad]
 
   for (const auto& setpoint : setpoint_msgs) {
@@ -109,11 +133,17 @@ void PosePlotWidget::updateTargetSamples(const QVector<tobas_msgs::msg::Odometry
     val_data[3].push_back(st::rad2deg(roll));
     val_data[4].push_back(st::rad2deg(pitch));
     val_data[5].push_back(st::rad2deg(yaw));
+
+    for (size_t i = 0; i < kNumAxes; ++i) {
+      ranges[i].include(val_data[i].back());
+    }
   }
 
   for (size_t i = 0; i < kNumAxes; ++i) {
     tar_curves_[i].setSamples(t_data, val_data[i]);
   }
+
+  return ranges;
 }
 }  // namespace log
 }  // namespace gui
