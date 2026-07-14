@@ -30,7 +30,8 @@ class PosePlotWidget : public BasePlotWidget
   static constexpr size_t kYawAxis = kPitchAxis + 1;
   static constexpr size_t kNumAxes = kYawAxis + 1;
 
-  static constexpr double kMinRollPitchScale = 4.0;  // [deg]
+  static constexpr double kMinPositionScale = 1.0;  // [m]
+  static constexpr double kMinAngleScale = 4.0;     // [deg]
 
   using VerticalScaleRanges = std::array<VerticalScaleRange, kNumAxes>;
 

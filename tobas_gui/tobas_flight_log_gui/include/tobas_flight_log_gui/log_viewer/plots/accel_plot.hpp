@@ -26,7 +26,10 @@ class AccelPlotWidget : public BasePlotWidget
   static constexpr size_t kNumGroups = 2;
   static constexpr size_t kNumAxes = kNumAxesPerGroup * kNumGroups;
 
-  using ValueRanges = std::array<VerticalScaleRange, kNumGroups>;
+  static constexpr double kMinLinearScale = 1.0;   // [m/s²]
+  static constexpr double kMinAngularScale = 1.0;  // [rad/s²]
+
+  using ValueRanges = std::array<VerticalScaleRange, kNumAxes>;
 
 public:
   explicit AccelPlotWidget();

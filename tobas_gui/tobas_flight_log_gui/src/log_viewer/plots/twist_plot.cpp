@@ -57,13 +57,12 @@ void TwistPlotWidget::setData(
   const QVector<tobas_msgs::msg::OdometryWithCovarianceStamped>& odom_msgs,
   const QVector<tobas_msgs::msg::OdometryStamped>& setpoint_msgs)
 {
-  auto ranges = updateCurrentSamples(odom_msgs);
+  const auto ranges = updateCurrentSamples(odom_msgs);
   const auto tar_ranges = updateTargetSamples(setpoint_msgs);
 
-  for (size_t group = 0; group < kNumGroups; ++group) {
-    ranges[group].include(tar_ranges[group]);
-    setSharedZeroCenteredVerticalScale(
-      std::span(plots_).subspan(group * kNumAxesPerGroup, kNumAxesPerGroup), ranges[group]);
+  for (size_t i = 0; i < kNumAxes; ++i) {
+    const auto minimum_half_range = i < kNumAxesPerGroup ? kMinLinearScale : kMinAngularScale;
+    setTargetCenteredVerticalScale(*plots_[i], ranges[i], tar_ranges[i], minimum_half_range);
   }
 
   for (auto& plot : plots_) {
@@ -92,7 +91,7 @@ TwistPlotWidget::updateCurrentSamples(const QVector<tobas_msgs::msg::OdometryWit
     val_data[5].push_back(ang_vel.z);
 
     for (size_t i = 0; i < kNumAxes; ++i) {
-      ranges[i / kNumAxesPerGroup].include(val_data[i].back());
+      ranges[i].include(val_data[i].back());
     }
   }
 
@@ -124,7 +123,7 @@ TwistPlotWidget::updateTargetSamples(const QVector<tobas_msgs::msg::OdometryStam
     val_data[5].push_back(ang_vel.z);
 
     for (size_t i = 0; i < kNumAxes; ++i) {
-      ranges[i / kNumAxesPerGroup].include(val_data[i].back());
+      ranges[i].include(val_data[i].back());
     }
   }
 

@@ -29,6 +29,12 @@ private:
   double max_ = std::numeric_limits<double>::lowest();
 };
 
+void setVerticalScale(QwtPlot2& plot, const VerticalScaleRange& range);
+void setTargetCenteredVerticalScale(
+  QwtPlot2& plot,
+  const VerticalScaleRange& range,
+  const VerticalScaleRange& target_range,
+  double minimum_half_range);
 void setSharedVerticalScale(std::span<QwtPlot2* const> plots, const VerticalScaleRange& range);
 void setSharedZeroCenteredVerticalScale(std::span<QwtPlot2* const> plots, const VerticalScaleRange& range);
 }  // namespace log

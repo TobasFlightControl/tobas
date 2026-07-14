@@ -3,8 +3,6 @@
 
 #include "tobas_flight_log_gui/log_viewer/plots/pose_plot.hpp"
 
-#include <ranges>
-
 #include <QGridLayout>
 
 #include <tobas_kdl/euler.hpp>
@@ -59,20 +57,13 @@ void PosePlotWidget::setData(
   const QVector<tobas_msgs::msg::OdometryWithCovarianceStamped>& odom_msgs,
   const QVector<tobas_msgs::msg::OdometryStamped>& setpoint_msgs)
 {
-  auto ranges = updateCurrentSamples(odom_msgs);
+  const auto ranges = updateCurrentSamples(odom_msgs);
   const auto tar_ranges = updateTargetSamples(setpoint_msgs);
 
-  for (const auto& [range, tar_range] : std::views::zip(ranges, tar_ranges)) {
-    range.include(tar_range);
+  for (size_t i = 0; i < kNumAxes; ++i) {
+    const auto minimum_half_range = i <= kZAxis ? kMinPositionScale : kMinAngleScale;
+    setTargetCenteredVerticalScale(*plots_[i], ranges[i], tar_ranges[i], minimum_half_range);
   }
-
-  ranges[kRollAxis].include(-kMinRollPitchScale);
-  ranges[kRollAxis].include(kMinRollPitchScale);
-  setSharedZeroCenteredVerticalScale(std::span(plots_).subspan(kRollAxis, 1), ranges[kRollAxis]);
-
-  ranges[kPitchAxis].include(-kMinRollPitchScale);
-  ranges[kPitchAxis].include(kMinRollPitchScale);
-  setSharedZeroCenteredVerticalScale(std::span(plots_).subspan(kPitchAxis, 1), ranges[kPitchAxis]);
 
   for (auto& plot : plots_) {
     plot->replot();

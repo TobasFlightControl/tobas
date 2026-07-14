@@ -19,11 +19,23 @@ namespace log
 {
 namespace
 {
-void setVerticalScale(std::span<QwtPlot2* const> plots, double scale_min, double scale_max, double scale_step)
+struct VerticalScale
 {
-  for (auto& plot : plots) {
-    plot->setAxisScale(QwtPlot::yLeft, scale_min, scale_max, scale_step);
-  }
+  double min;
+  double max;
+  double step;
+};
+
+VerticalScale makeVerticalScale(const VerticalScaleRange& range)
+{
+  VerticalScale scale{ range.empty() ? -1.0 : range.min(), range.empty() ? 1.0 : range.max(), 0.0 };
+  QwtLinearScaleEngine().autoScale(kMaxVerticalScaleSteps, scale.min, scale.max, scale.step);
+  return scale;
+}
+
+void applyVerticalScale(QwtPlot2& plot, const VerticalScale& scale)
+{
+  plot.setAxisScale(QwtPlot::yLeft, scale.min, scale.max, scale.step);
 }
 }  // namespace
 
@@ -58,14 +70,34 @@ double VerticalScaleRange::max() const
   return max_;
 }
 
+void setVerticalScale(QwtPlot2& plot, const VerticalScaleRange& range)
+{
+  applyVerticalScale(plot, makeVerticalScale(range));
+}
+
+void setTargetCenteredVerticalScale(
+  QwtPlot2& plot,
+  const VerticalScaleRange& range,
+  const VerticalScaleRange& target_range,
+  double minimum_half_range)
+{
+  auto scale_range = range;
+  scale_range.include(target_range);
+
+  const auto& center_range = target_range.empty() ? range : target_range;
+  const auto center = center_range.empty() ? 0.0 : (center_range.max() + center_range.min()) / 2.0;
+  scale_range.include(center - minimum_half_range);
+  scale_range.include(center + minimum_half_range);
+
+  setVerticalScale(plot, scale_range);
+}
+
 void setSharedVerticalScale(std::span<QwtPlot2* const> plots, const VerticalScaleRange& range)
 {
-  double scale_min = range.empty() ? -1.0 : range.min();
-  double scale_max = range.empty() ? 1.0 : range.max();
-  double scale_step = 0.0;
-  QwtLinearScaleEngine().autoScale(kMaxVerticalScaleSteps, scale_min, scale_max, scale_step);
-
-  setVerticalScale(plots, scale_min, scale_max, scale_step);
+  const auto scale = makeVerticalScale(range);
+  for (auto& plot : plots) {
+    applyVerticalScale(*plot, scale);
+  }
 }
 
 void setSharedZeroCenteredVerticalScale(std::span<QwtPlot2* const> plots, const VerticalScaleRange& range)
@@ -76,7 +108,10 @@ void setSharedZeroCenteredVerticalScale(std::span<QwtPlot2* const> plots, const 
   QwtLinearScaleEngine().autoScale(kMaxVerticalScaleSteps / 2, scale_min, scale_max, scale_step);
 
   scale_max = std::max(std::abs(scale_min), std::abs(scale_max));
-  setVerticalScale(plots, -scale_max, scale_max, scale_step);
+  const VerticalScale scale{ -scale_max, scale_max, scale_step };
+  for (auto& plot : plots) {
+    applyVerticalScale(*plot, scale);
+  }
 }
 }  // namespace log
 }  // namespace gui
