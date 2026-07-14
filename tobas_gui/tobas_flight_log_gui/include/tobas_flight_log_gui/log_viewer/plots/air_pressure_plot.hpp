@@ -19,6 +19,8 @@ class AirPressurePlotWidget : public BasePlotWidget
 {
   Q_OBJECT
 
+  static constexpr double kMinPressureScale = 0.1;  // [hPa]
+
 public:
   explicit AirPressurePlotWidget();
 

@@ -23,6 +23,7 @@ public:
   bool empty() const;
   double min() const;
   double max() const;
+  double center() const;
 
 private:
   double min_ = std::numeric_limits<double>::max();
@@ -30,6 +31,7 @@ private:
 };
 
 void setVerticalScale(QwtPlot2& plot, const VerticalScaleRange& range);
+void setCenteredVerticalScale(QwtPlot2& plot, const VerticalScaleRange& range, double minimum_half_range);
 void setTargetCenteredVerticalScale(
   QwtPlot2& plot,
   const VerticalScaleRange& range,

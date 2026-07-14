@@ -37,6 +37,12 @@ void applyVerticalScale(QwtPlot2& plot, const VerticalScale& scale)
 {
   plot.setAxisScale(QwtPlot::yLeft, scale.min, scale.max, scale.step);
 }
+
+void includeMinimumRange(VerticalScaleRange& range, double center, double minimum_half_range)
+{
+  range.include(center - minimum_half_range);
+  range.include(center + minimum_half_range);
+}
 }  // namespace
 
 void VerticalScaleRange::include(double value)
@@ -70,9 +76,21 @@ double VerticalScaleRange::max() const
   return max_;
 }
 
+double VerticalScaleRange::center() const
+{
+  return empty() ? 0.0 : (max() + min()) / 2.0;
+}
+
 void setVerticalScale(QwtPlot2& plot, const VerticalScaleRange& range)
 {
   applyVerticalScale(plot, makeVerticalScale(range));
+}
+
+void setCenteredVerticalScale(QwtPlot2& plot, const VerticalScaleRange& range, double minimum_half_range)
+{
+  auto scale_range = range;
+  includeMinimumRange(scale_range, range.center(), minimum_half_range);
+  setVerticalScale(plot, scale_range);
 }
 
 void setTargetCenteredVerticalScale(
@@ -85,9 +103,7 @@ void setTargetCenteredVerticalScale(
   scale_range.include(target_range);
 
   const auto& center_range = target_range.empty() ? range : target_range;
-  const auto center = center_range.empty() ? 0.0 : (center_range.max() + center_range.min()) / 2.0;
-  scale_range.include(center - minimum_half_range);
-  scale_range.include(center + minimum_half_range);
+  includeMinimumRange(scale_range, center_range.center(), minimum_half_range);
 
   setVerticalScale(plot, scale_range);
 }

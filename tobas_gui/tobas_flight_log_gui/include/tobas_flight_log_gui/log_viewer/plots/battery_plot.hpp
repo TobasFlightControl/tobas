@@ -19,6 +19,9 @@ class BatteryPlotWidget : public BasePlotWidget
 {
   Q_OBJECT
 
+  static constexpr double kMinVoltageScale = 0.1;  // [V]
+  static constexpr double kMinCurrentScale = 0.1;  // [A]
+
 public:
   explicit BatteryPlotWidget();
 
