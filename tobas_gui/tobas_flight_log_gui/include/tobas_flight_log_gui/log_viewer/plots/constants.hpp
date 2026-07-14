@@ -11,6 +11,8 @@ namespace gui
 {
 namespace log
 {
+static constexpr int kMaxVerticalScaleSteps = 10;
+
 static constexpr double kLineWidth = 1.0;
 
 static constexpr Qt::GlobalColor kCurrentValueColor = Qt::blue;

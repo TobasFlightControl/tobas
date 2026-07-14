@@ -43,8 +43,9 @@ private:
 
   bool updateInternalDataStructures(const tobas_msgs::msg::RotorStateArray& msg);
 
-  void updateCurrentSpeedSamples(const QVector<tobas_msgs::msg::RotorStateArray>& msgs);
-  void updateTargetSpeedSamples(const QVector<tobas_msgs::msg::RotorSpeedArray>& msgs);
+  std::pair<double, double> updateCurrentSpeedSamples(const QVector<tobas_msgs::msg::RotorStateArray>& msgs);
+  std::pair<double, double> updateTargetSpeedSamples(const QVector<tobas_msgs::msg::RotorSpeedArray>& msgs);
+  void updateVerticalScale(double min_speed, double max_speed);
 };
 }  // namespace log
 }  // namespace gui
