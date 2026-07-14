@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <tobas_qwt_wrapper/qwt_plot_curve.hpp>
+
 #include <tobas_debug_msgs/msg/multicopter_controller_feedback.hpp>
 
 #include "./utilities/utilities.hpp"

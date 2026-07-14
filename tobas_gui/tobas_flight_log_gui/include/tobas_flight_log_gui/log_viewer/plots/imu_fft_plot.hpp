@@ -5,6 +5,8 @@
 
 #include <eigen3/unsupported/Eigen/FFT>
 
+#include <tobas_qwt_wrapper/qwt_plot_curve.hpp>
+
 #include <tobas_msgs/msg/imu.hpp>
 
 #include "./utilities/utilities.hpp"

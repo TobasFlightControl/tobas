@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <tobas_qwt_wrapper/qwt_plot_curve.hpp>
+
 #include <tobas_kdl_msgs/msg/wrench_stamped.hpp>
 
 #include "./utilities/utilities.hpp"

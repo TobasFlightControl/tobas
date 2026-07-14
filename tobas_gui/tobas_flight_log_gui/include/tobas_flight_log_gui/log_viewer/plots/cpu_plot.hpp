@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <tobas_qwt_wrapper/qwt_plot_curve.hpp>
+
 #include <tobas_msgs/msg/cpu.hpp>
 
 #include "./utilities/utilities.hpp"

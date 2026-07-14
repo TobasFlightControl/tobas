@@ -5,6 +5,8 @@
 
 #include <array>
 
+#include <tobas_qwt_wrapper/qwt_plot_curve.hpp>
+
 #include <tobas_msgs/msg/odometry_stamped.hpp>
 #include <tobas_msgs/msg/odometry_with_covariance_stamped.hpp>
 

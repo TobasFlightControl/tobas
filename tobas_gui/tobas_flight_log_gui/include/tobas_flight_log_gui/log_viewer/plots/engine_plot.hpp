@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <tobas_qwt_wrapper/qwt_plot_curve.hpp>
+
 #include <tobas_msgs/msg/ice_propulsion_system_command.hpp>
 
 #include "./utilities/utilities.hpp"
