@@ -72,8 +72,8 @@ void DisturbanceForcePlotWidget::setData(const QVector<tobas_kdl_msgs::msg::Wren
     curves_[i].setSamples(t_data, val_data[i]);
   }
 
-  setSharedVerticalScale(std::span(plots_).first(kNumAxesPerGroup), ranges[0]);
-  setSharedVerticalScale(std::span(plots_).last(kNumAxesPerGroup), ranges[1]);
+  setSharedZeroCenteredVerticalScale(std::span(plots_).first(kNumAxesPerGroup), ranges[0]);
+  setSharedZeroCenteredVerticalScale(std::span(plots_).last(kNumAxesPerGroup), ranges[1]);
 
   for (auto& plot : plots_) {
     plot->replot();

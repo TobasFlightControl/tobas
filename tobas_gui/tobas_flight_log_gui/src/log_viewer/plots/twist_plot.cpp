@@ -62,7 +62,8 @@ void TwistPlotWidget::setData(
 
   for (size_t group = 0; group < kNumGroups; ++group) {
     ranges[group].include(tar_ranges[group]);
-    setSharedVerticalScale(std::span(plots_).subspan(group * kNumAxesPerGroup, kNumAxesPerGroup), ranges[group]);
+    setSharedZeroCenteredVerticalScale(
+      std::span(plots_).subspan(group * kNumAxesPerGroup, kNumAxesPerGroup), ranges[group]);
   }
 
   for (auto& plot : plots_) {

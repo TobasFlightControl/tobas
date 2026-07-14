@@ -64,7 +64,7 @@ void RepulsiveAccelPlotWidget::setData(const QVector<tobas_msgs::msg::RepulsiveA
     curves_[i].setSamples(t_data, acc_data[i]);
   }
 
-  setSharedVerticalScale(plots_, range);
+  setSharedZeroCenteredVerticalScale(plots_, range);
 
   for (auto& plot : plots_) {
     plot->replot();

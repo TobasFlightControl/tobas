@@ -30,6 +30,7 @@ private:
 };
 
 void setSharedVerticalScale(std::span<QwtPlot2* const> plots, const VerticalScaleRange& range);
+void setSharedZeroCenteredVerticalScale(std::span<QwtPlot2* const> plots, const VerticalScaleRange& range);
 }  // namespace log
 }  // namespace gui
 }  // namespace tobas
