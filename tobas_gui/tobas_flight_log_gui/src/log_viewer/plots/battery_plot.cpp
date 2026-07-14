@@ -69,7 +69,7 @@ void BatteryPlotWidget::setData(const QVector<tobas_msgs::msg::Battery>& batt_ms
   }
 
   voltage_curve_.setSamples(t_data, voltage_data);
-  setCenteredVerticalScale(*voltage_plot_, voltage_range, kMinVoltageScale);
+  setVerticalScale(*voltage_plot_, voltage_range, kMinVoltageScale);
   voltage_plot_->replot();
 
   current_curve_.setSamples(t_data, current_data);
