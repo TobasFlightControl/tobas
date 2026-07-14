@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <array>
+
 #include <tobas_msgs/msg/odometry_stamped.hpp>
 #include <tobas_msgs/msg/odometry_with_covariance_stamped.hpp>
 
@@ -18,7 +20,11 @@ class TwistPlotWidget : public BasePlotWidget
 {
   Q_OBJECT
 
-  static constexpr size_t kNumAxes = 6;
+  static constexpr size_t kNumAxesPerGroup = 3;
+  static constexpr size_t kNumGroups = 2;
+  static constexpr size_t kNumAxes = kNumAxesPerGroup * kNumGroups;
+
+  using ValueRanges = std::array<VerticalScaleRange, kNumGroups>;
 
 public:
   explicit TwistPlotWidget();
@@ -36,8 +42,8 @@ private:
   std::array<qwt::QwtPlotCurveWrapper, kNumAxes> cur_curves_;
   std::array<qwt::QwtPlotCurveWrapper, kNumAxes> tar_curves_;
 
-  void updateCurrentSamples(const QVector<tobas_msgs::msg::OdometryWithCovarianceStamped>& odom_msgs);
-  void updateTargetSamples(const QVector<tobas_msgs::msg::OdometryStamped>& setpoint_msgs);
+  ValueRanges updateCurrentSamples(const QVector<tobas_msgs::msg::OdometryWithCovarianceStamped>& odom_msgs);
+  ValueRanges updateTargetSamples(const QVector<tobas_msgs::msg::OdometryStamped>& setpoint_msgs);
 };
 }  // namespace log
 }  // namespace gui

@@ -65,17 +65,25 @@ void ImuFftPlotWidget::setData(
   const QVector<tobas_msgs::msg::Imu>& filt_msgs)
 {
   // Run in parallel.
-  auto f1 = std::async(std::launch::async, [this, raw_msgs] { updateSamples(raw_msgs, raw_ffts_, raw_curves_); });
-  auto f2 = std::async(std::launch::async, [this, filt_msgs] { updateSamples(filt_msgs, filt_ffts_, filt_curves_); });
-  f1.wait();
-  f2.wait();
+  auto f1 =
+    std::async(std::launch::async, [this, raw_msgs] { return updateSamples(raw_msgs, raw_ffts_, raw_curves_); });
+  auto f2 =
+    std::async(std::launch::async, [this, filt_msgs] { return updateSamples(filt_msgs, filt_ffts_, filt_curves_); });
+  auto ranges = f1.get();
+  const auto filt_ranges = f2.get();
+
+  for (size_t group = 0; group < kNumGroups; ++group) {
+    ranges[group].include(filt_ranges[group]);
+    setSharedVerticalScale(
+      plots_.begin() + group * kNumAxesPerGroup, plots_.begin() + (group + 1) * kNumAxesPerGroup, ranges[group]);
+  }
 
   for (auto& plot : plots_) {
     plot->replot();
   }
 }
 
-void ImuFftPlotWidget::updateSamples(
+ImuFftPlotWidget::ValueRanges ImuFftPlotWidget::updateSamples(
   const QVector<tobas_msgs::msg::Imu>& msgs,
   std::array<Eigen::FFT<double>, kNumAxes>& ffts,
   std::array<qwt::QwtPlotCurveWrapper, kNumAxes>& curves)
@@ -83,7 +91,10 @@ void ImuFftPlotWidget::updateSamples(
   const auto n = static_cast<size_t>(msgs.size());
 
   if (n < 2) {
-    return;
+    for (auto& curve : curves) {
+      curve.clear();
+    }
+    return {};
   }
 
   // Collect data.
@@ -102,6 +113,7 @@ void ImuFftPlotWidget::updateSamples(
 
   // Transform to the frequency domain and display.
   // Run each axis in parallel because FFT is expensive (N log(N)).
+  std::array<VerticalScaleRange, kNumAxes> axis_ranges;
 #pragma omp parallel for num_threads(kNumAxes)
   for (size_t i = 0; i < kNumAxes; ++i) {
     // Fourier transform.
@@ -120,10 +132,17 @@ void ImuFftPlotWidget::updateSamples(
       const auto scale = is_edge ? 1.0 : 2.0;
       const auto amp = scale * std::abs(spec.at(k)) / n;  // RMS
       amps.push_back(amp);
+      axis_ranges[i].include(amp);
     }
 
     curves[i].setSamples(freqs, amps);
   }
+
+  ValueRanges ranges;
+  for (size_t i = 0; i < kNumAxes; ++i) {
+    ranges[i / kNumAxesPerGroup].include(axis_ranges[i]);
+  }
+  return ranges;
 }
 }  // namespace log
 }  // namespace gui

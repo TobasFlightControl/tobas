@@ -54,6 +54,7 @@ void PropellerPitchPlotWidget::setData(const QVector<tobas_msgs::msg::IcePropuls
 
   QVector<QVector<double>> t_data(num_rotors_);
   QVector<QVector<double>> pitch_data(num_rotors_);
+  VerticalScaleRange range;
 
   for (const auto& msg : msgs) {
     if (msg.pitch_angles.size() != num_rotors_) {
@@ -68,15 +69,19 @@ void PropellerPitchPlotWidget::setData(const QVector<tobas_msgs::msg::IcePropuls
       }
 
       const auto& idx = name2idx_.at(elem.link_name);
+      const auto pitch = st::rad2deg(elem.angle);
 
       t_data[idx].push_back(ros2::seconds(msg.header.stamp));
-      pitch_data[idx].push_back(st::rad2deg(elem.angle));
+      pitch_data[idx].push_back(pitch);
+      range.include(pitch);
     }
   }
 
   for (size_t i = 0; i < num_rotors_; ++i) {
     curves_[i].setSamples(t_data[i], pitch_data[i]);
   }
+
+  setSharedVerticalScale(plots_.begin(), plots_.end(), range);
 
   for (auto& plot : plots_) {
     plot->replot();

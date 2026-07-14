@@ -56,18 +56,26 @@ void AccelPlotWidget::setData(
   const QVector<tobas_msgs::msg::OdometryWithCovarianceStamped>& odom_msgs,
   const QVector<tobas_msgs::msg::OdometryStamped>& setpoint_msgs)
 {
-  updateCurrentSamples(odom_msgs);
-  updateTargetSamples(setpoint_msgs);
+  auto ranges = updateCurrentSamples(odom_msgs);
+  const auto tar_ranges = updateTargetSamples(setpoint_msgs);
+
+  for (size_t group = 0; group < kNumGroups; ++group) {
+    ranges[group].include(tar_ranges[group]);
+    setSharedVerticalScale(
+      plots_.begin() + group * kNumAxesPerGroup, plots_.begin() + (group + 1) * kNumAxesPerGroup, ranges[group]);
+  }
 
   for (auto& plot : plots_) {
     plot->replot();
   }
 }
 
-void AccelPlotWidget::updateCurrentSamples(const QVector<tobas_msgs::msg::OdometryWithCovarianceStamped>& odom_msgs)
+AccelPlotWidget::ValueRanges
+AccelPlotWidget::updateCurrentSamples(const QVector<tobas_msgs::msg::OdometryWithCovarianceStamped>& odom_msgs)
 {
   QVector<double> t_data;
   std::array<QVector<double>, kNumAxes> val_data;
+  ValueRanges ranges;
 
   for (const auto& odom : odom_msgs) {
     t_data.push_back(ros2::seconds(odom.header.stamp));
@@ -81,17 +89,25 @@ void AccelPlotWidget::updateCurrentSamples(const QVector<tobas_msgs::msg::Odomet
     val_data[3].push_back(ang_acc.x);
     val_data[4].push_back(ang_acc.y);
     val_data[5].push_back(ang_acc.z);
+
+    for (size_t i = 0; i < kNumAxes; ++i) {
+      ranges[i / kNumAxesPerGroup].include(val_data[i].back());
+    }
   }
 
   for (size_t i = 0; i < kNumAxes; ++i) {
     cur_curves_[i].setSamples(t_data, val_data[i]);
   }
+
+  return ranges;
 }
 
-void AccelPlotWidget::updateTargetSamples(const QVector<tobas_msgs::msg::OdometryStamped>& setpoint_msgs)
+AccelPlotWidget::ValueRanges
+AccelPlotWidget::updateTargetSamples(const QVector<tobas_msgs::msg::OdometryStamped>& setpoint_msgs)
 {
   QVector<double> t_data;
   std::array<QVector<double>, kNumAxes> val_data;
+  ValueRanges ranges;
 
   for (const auto& setpoint : setpoint_msgs) {
     t_data.push_back(ros2::seconds(setpoint.header.stamp));
@@ -105,11 +121,17 @@ void AccelPlotWidget::updateTargetSamples(const QVector<tobas_msgs::msg::Odometr
     val_data[3].push_back(ang_acc.x);
     val_data[4].push_back(ang_acc.y);
     val_data[5].push_back(ang_acc.z);
+
+    for (size_t i = 0; i < kNumAxes; ++i) {
+      ranges[i / kNumAxesPerGroup].include(val_data[i].back());
+    }
   }
 
   for (size_t i = 0; i < kNumAxes; ++i) {
     tar_curves_[i].setSamples(t_data, val_data[i]);
   }
+
+  return ranges;
 }
 }  // namespace log
 }  // namespace gui

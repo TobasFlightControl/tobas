@@ -19,7 +19,11 @@ class ImuFftPlotWidget : public BasePlotWidget
 {
   Q_OBJECT
 
-  static constexpr size_t kNumAxes = 6;
+  static constexpr size_t kNumAxesPerGroup = 3;
+  static constexpr size_t kNumGroups = 2;
+  static constexpr size_t kNumAxes = kNumAxesPerGroup * kNumGroups;
+
+  using ValueRanges = std::array<VerticalScaleRange, kNumGroups>;
 
 public:
   explicit ImuFftPlotWidget();
@@ -36,7 +40,7 @@ private:
   std::array<qwt::QwtPlotCurveWrapper, kNumAxes> raw_curves_;
   std::array<qwt::QwtPlotCurveWrapper, kNumAxes> filt_curves_;
 
-  static void updateSamples(
+  static ValueRanges updateSamples(
     const QVector<tobas_msgs::msg::Imu>& msgs,
     std::array<Eigen::FFT<double>, kNumAxes>& ffts,
     std::array<qwt::QwtPlotCurveWrapper, kNumAxes>& curves);
