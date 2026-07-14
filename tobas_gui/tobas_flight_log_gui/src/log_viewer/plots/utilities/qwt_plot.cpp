@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include "tobas_flight_log_gui/log_viewer/plots/qwt_plot.hpp"
+#include "tobas_flight_log_gui/log_viewer/plots/utilities/qwt_plot.hpp"
 
 #include <qwt/qwt_plot_legenditem.h>
 #include <qwt/qwt_scale_draw.h>

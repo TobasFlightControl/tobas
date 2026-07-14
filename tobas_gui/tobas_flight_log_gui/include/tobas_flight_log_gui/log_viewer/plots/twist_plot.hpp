@@ -8,7 +8,7 @@
 #include <tobas_msgs/msg/odometry_stamped.hpp>
 #include <tobas_msgs/msg/odometry_with_covariance_stamped.hpp>
 
-#include "./common.hpp"
+#include "./utilities/utilities.hpp"
 
 namespace tobas
 {

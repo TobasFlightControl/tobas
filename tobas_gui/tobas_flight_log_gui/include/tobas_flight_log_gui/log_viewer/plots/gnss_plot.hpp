@@ -5,7 +5,7 @@
 
 #include <tobas_msgs/msg/gnss.hpp>
 
-#include "./common.hpp"
+#include "./utilities/utilities.hpp"
 
 namespace tobas
 {

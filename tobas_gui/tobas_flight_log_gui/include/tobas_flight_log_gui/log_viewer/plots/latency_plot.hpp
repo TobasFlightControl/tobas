@@ -7,7 +7,7 @@
 
 #include <tobas_msgs/msg/latency.hpp>
 
-#include "./common.hpp"
+#include "./utilities/utilities.hpp"
 
 namespace tobas
 {

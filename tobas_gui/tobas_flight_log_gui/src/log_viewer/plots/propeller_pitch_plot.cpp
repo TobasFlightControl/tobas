@@ -81,7 +81,7 @@ void PropellerPitchPlotWidget::setData(const QVector<tobas_msgs::msg::IcePropuls
     curves_[i].setSamples(t_data[i], pitch_data[i]);
   }
 
-  setSharedVerticalScale(plots_.begin(), plots_.end(), range);
+  setSharedVerticalScale({ plots_.data(), static_cast<size_t>(plots_.size()) }, range);
 
   for (auto& plot : plots_) {
     plot->replot();

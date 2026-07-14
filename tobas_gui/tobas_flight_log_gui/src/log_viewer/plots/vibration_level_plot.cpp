@@ -65,7 +65,7 @@ void VibrationLevelPlotWidget::setData(const QVector<tobas_msgs::msg::VibrationL
     curves_[i].setSamples(t_data, mag_data[i]);
   }
 
-  setSharedVerticalScale(plots_.begin(), plots_.end(), range);
+  setSharedVerticalScale(plots_, range);
 
   for (auto& plot : plots_) {
     plot->replot();

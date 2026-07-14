@@ -8,7 +8,7 @@
 #include <tobas_msgs/msg/joint_command_array.hpp>
 #include <tobas_msgs/msg/joint_state_array.hpp>
 
-#include "./common.hpp"
+#include "./utilities/utilities.hpp"
 
 namespace tobas
 {
