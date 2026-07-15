@@ -3,6 +3,10 @@
 
 #include "tobas_flight_log_gui/log_viewer/plots/pose_plot.hpp"
 
+#include <array>
+#include <cmath>
+#include <optional>
+
 #include <QGridLayout>
 
 #include <tobas_kdl/euler.hpp>
@@ -15,6 +19,22 @@ namespace gui
 {
 namespace log
 {
+namespace
+{
+/* Maps an angle to the closest equivalent value on the previous sample's continuous branch. */
+double unwrapAngle(double angle, std::optional<double>& previous_angle)
+{
+  if (!std::isfinite(angle)) {
+    return angle;
+  }
+  if (previous_angle) {
+    angle += 360.0 * std::round((*previous_angle - angle) / 360.0);
+  }
+  previous_angle = angle;
+  return angle;
+}
+}  // namespace
+
 PosePlotWidget::PosePlotWidget()
   : cur_curves_{ "Current X [m]",      "Current Y [m]",       "Current Z [m]",
                  "Current Roll [deg]", "Current Pitch [deg]", "Current Yaw [deg]" }
@@ -58,7 +78,7 @@ void PosePlotWidget::setData(
   const QVector<tobas_msgs::msg::OdometryStamped>& setpoint_msgs)
 {
   const auto ranges = updateCurrentSamples(odom_msgs);
-  const auto tar_ranges = updateTargetSamples(setpoint_msgs);
+  const auto tar_ranges = updateTargetSamples(setpoint_msgs, ranges);
 
   for (size_t i = 0; i < kNumAxes; ++i) {
     const auto minimum_half_range = i <= kZAxis ? kMinPositionScale : kMinAngleScale;
@@ -76,6 +96,8 @@ PosePlotWidget::updateCurrentSamples(const QVector<tobas_msgs::msg::OdometryWith
   QVector<double> t_data;
   std::array<QVector<double>, kNumAxes> val_data;
   VerticalScaleRanges ranges;
+  std::array<std::optional<double>, 3> previous_angles;
+  double roll, pitch, yaw;  // [rad]
 
   for (const auto& odom : odom_msgs) {
     t_data.push_back(ros2::seconds(odom.header.stamp));
@@ -86,10 +108,11 @@ PosePlotWidget::updateCurrentSamples(const QVector<tobas_msgs::msg::OdometryWith
     val_data[2].push_back(pos.z);
 
     const kdl::Rotation rot(odom.odom.odom.frame.rot.data);
-    const auto [roll, pitch, yaw] = rot.getRPY();
-    val_data[3].push_back(st::rad2deg(roll));
-    val_data[4].push_back(st::rad2deg(pitch));
-    val_data[5].push_back(st::rad2deg(yaw));
+    rot.getRPY(roll, pitch, yaw);
+    const std::array angles{ st::rad2deg(roll), st::rad2deg(pitch), st::rad2deg(yaw) };  // [deg]
+    for (size_t i = 0; i < angles.size(); ++i) {
+      val_data[kRollAxis + i].push_back(unwrapAngle(angles[i], previous_angles[i]));
+    }
 
     for (size_t i = 0; i < kNumAxes; ++i) {
       ranges[i].include(val_data[i].back());
@@ -103,13 +126,22 @@ PosePlotWidget::updateCurrentSamples(const QVector<tobas_msgs::msg::OdometryWith
   return ranges;
 }
 
-PosePlotWidget::VerticalScaleRanges
-PosePlotWidget::updateTargetSamples(const QVector<tobas_msgs::msg::OdometryStamped>& setpoint_msgs)
+PosePlotWidget::VerticalScaleRanges PosePlotWidget::updateTargetSamples(
+  const QVector<tobas_msgs::msg::OdometryStamped>& setpoint_msgs,
+  const VerticalScaleRanges& current_ranges)
 {
   QVector<double> t_data;
   std::array<QVector<double>, kNumAxes> val_data;
   VerticalScaleRanges ranges;
+  std::array<std::optional<double>, 3> previous_angles;
   double roll, pitch, yaw;  // [rad]
+
+  for (size_t i = 0; i < 3; ++i) {
+    const auto& current_range = current_ranges[kRollAxis + i];
+    if (!current_range.empty()) {
+      previous_angles[i] = current_range.center();
+    }
+  }
 
   for (const auto& setpoint : setpoint_msgs) {
     t_data.push_back(ros2::seconds(setpoint.header.stamp));
@@ -121,9 +153,10 @@ PosePlotWidget::updateTargetSamples(const QVector<tobas_msgs::msg::OdometryStamp
 
     const kdl::Rotation rot(setpoint.odom.frame.rot.data);
     rot.getRPY(roll, pitch, yaw);
-    val_data[3].push_back(st::rad2deg(roll));
-    val_data[4].push_back(st::rad2deg(pitch));
-    val_data[5].push_back(st::rad2deg(yaw));
+    const std::array angles{ st::rad2deg(roll), st::rad2deg(pitch), st::rad2deg(yaw) };  // [deg]
+    for (size_t i = 0; i < angles.size(); ++i) {
+      val_data[kRollAxis + i].push_back(unwrapAngle(angles[i], previous_angles[i]));
+    }
 
     for (size_t i = 0; i < kNumAxes; ++i) {
       ranges[i].include(val_data[i].back());

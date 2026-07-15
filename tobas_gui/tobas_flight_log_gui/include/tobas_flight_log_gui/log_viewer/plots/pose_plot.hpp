@@ -52,7 +52,9 @@ private:
   std::array<qwt::QwtPlotCurveWrapper, kNumAxes> tar_curves_;
 
   VerticalScaleRanges updateCurrentSamples(const QVector<tobas_msgs::msg::OdometryWithCovarianceStamped>& odom_msgs);
-  VerticalScaleRanges updateTargetSamples(const QVector<tobas_msgs::msg::OdometryStamped>& setpoint_msgs);
+  VerticalScaleRanges updateTargetSamples(
+    const QVector<tobas_msgs::msg::OdometryStamped>& setpoint_msgs,
+    const VerticalScaleRanges& current_ranges);
 };
 }  // namespace log
 }  // namespace gui
