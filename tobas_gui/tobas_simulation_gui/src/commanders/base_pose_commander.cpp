@@ -48,7 +48,7 @@ BasePoseCommanderWidget::BasePoseCommanderWidget(
   connect(arming_button_, &qt::ToggleButton::checked, this, &self::onArmRequested);
   connect(arming_button_, &qt::ToggleButton::unchecked, this, &self::onDisarmRequested);
 
-  static constexpr std::array<const char*, 3> kLabelsXYZ = { "X", "Y", "Z" };
+  constexpr std::array kLabelsXYZ = { "X", "Y", "Z" };
   for (size_t i = 0; i < 3; ++i) {
     cmd_xyz_[i] = new qt::DoubleSliderDisplay();
     cmd_xyz_[i]->setRange(-10.0, 10.0);
@@ -60,7 +60,7 @@ BasePoseCommanderWidget::BasePoseCommanderWidget(
     connect(cmd_xyz_[i], &qt::DoubleSliderDisplay::valueChanged, this, &self::onValueChanged);
   }
 
-  static constexpr std::array<const char*, 3> kLabelsRPY = { "Roll", "Pitch", "Yaw" };
+  constexpr std::array kLabelsRPY = { "Roll", "Pitch", "Yaw" };
   for (size_t i = 0; i < 3; ++i) {
     cmd_rpy_[i] = new qt::IntSliderDisplay();
     cmd_rpy_[i]->setRange(-180, 180);
