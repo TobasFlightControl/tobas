@@ -64,7 +64,7 @@ void ImuFftPlotWidget::setData(
   const QVector<tobas_msgs::msg::Imu>& raw_msgs,
   const QVector<tobas_msgs::msg::Imu>& filt_msgs)
 {
-  // Run in parallel.
+  // Calculate raw and filtered spectra in parallel.
   auto f1 =
     std::async(std::launch::async, [this, raw_msgs] { return updateSamples(raw_msgs, raw_ffts_, raw_curves_); });
   auto f2 =
@@ -110,13 +110,12 @@ ImuFftPlotWidget::ValueRanges ImuFftPlotWidget::updateSamples(
     imu_data[5].push_back(gyro.z);
   }
 
-  // Transform to the frequency domain and display.
-  // Run each axis in parallel because FFT is expensive (N log(N)).
-  std::array<VerticalScaleRange, kNumAxes> axis_ranges;
+  // Transform each axis to the frequency domain.
+  ValueRanges ranges;
 #pragma omp parallel for num_threads(kNumAxes)
   for (size_t i = 0; i < kNumAxes; ++i) {
     // Fourier transform.
-    std::vector<std::complex<double>> spec;
+    std::vector<Eigen::dcomplex> spec;
     ffts[i].fwd(spec, imu_data.at(i));
     assert(spec.size() == n / 2 + 1);
 
@@ -129,18 +128,14 @@ ImuFftPlotWidget::ValueRanges ImuFftPlotWidget::updateSamples(
 
       const auto is_edge = (n % 2 == 0 && k == n / 2);
       const auto scale = is_edge ? 1.0 : 2.0;
-      const auto amp = scale * std::abs(spec.at(k)) / n;  // RMS
+      const auto amp = scale * std::abs(spec.at(k)) / n;
       amps.push_back(amp);
-      axis_ranges[i].include(amp);
+      ranges[i / kNumAxesPerGroup].include(amp);
     }
 
     curves[i].setSamples(freqs, amps);
   }
 
-  ValueRanges ranges;
-  for (size_t i = 0; i < kNumAxes; ++i) {
-    ranges[i / kNumAxesPerGroup].include(axis_ranges[i]);
-  }
   return ranges;
 }
 }  // namespace log
