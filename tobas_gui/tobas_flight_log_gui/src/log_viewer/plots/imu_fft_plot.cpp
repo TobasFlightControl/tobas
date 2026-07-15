@@ -64,18 +64,25 @@ void ImuFftPlotWidget::setData(
   const QVector<tobas_msgs::msg::Imu>& raw_msgs,
   const QVector<tobas_msgs::msg::Imu>& filt_msgs)
 {
-  // Run in parallel.
-  auto f1 = std::async(std::launch::async, [this, raw_msgs] { updateSamples(raw_msgs, raw_ffts_, raw_curves_); });
-  auto f2 = std::async(std::launch::async, [this, filt_msgs] { updateSamples(filt_msgs, filt_ffts_, filt_curves_); });
-  f1.wait();
-  f2.wait();
+  // Calculate raw and filtered spectra in parallel.
+  auto f1 =
+    std::async(std::launch::async, [this, raw_msgs] { return updateSamples(raw_msgs, raw_ffts_, raw_curves_); });
+  auto f2 =
+    std::async(std::launch::async, [this, filt_msgs] { return updateSamples(filt_msgs, filt_ffts_, filt_curves_); });
+  auto ranges = f1.get();
+  const auto filt_ranges = f2.get();
+
+  for (size_t group = 0; group < kNumGroups; ++group) {
+    ranges[group].include(filt_ranges[group]);
+    setSharedVerticalScale(std::span(plots_).subspan(group * kNumAxesPerGroup, kNumAxesPerGroup), ranges[group]);
+  }
 
   for (auto& plot : plots_) {
     plot->replot();
   }
 }
 
-void ImuFftPlotWidget::updateSamples(
+ImuFftPlotWidget::ValueRanges ImuFftPlotWidget::updateSamples(
   const QVector<tobas_msgs::msg::Imu>& msgs,
   std::array<Eigen::FFT<double>, kNumAxes>& ffts,
   std::array<qwt::QwtPlotCurveWrapper, kNumAxes>& curves)
@@ -83,7 +90,10 @@ void ImuFftPlotWidget::updateSamples(
   const auto n = static_cast<size_t>(msgs.size());
 
   if (n < 2) {
-    return;
+    for (auto& curve : curves) {
+      curve.clear();
+    }
+    return {};
   }
 
   // Collect data.
@@ -100,12 +110,12 @@ void ImuFftPlotWidget::updateSamples(
     imu_data[5].push_back(gyro.z);
   }
 
-  // Transform to the frequency domain and display.
-  // Run each axis in parallel because FFT is expensive (N log(N)).
+  // Transform each axis to the frequency domain.
+  ValueRanges ranges;
 #pragma omp parallel for num_threads(kNumAxes)
   for (size_t i = 0; i < kNumAxes; ++i) {
     // Fourier transform.
-    std::vector<std::complex<double>> spec;
+    std::vector<Eigen::dcomplex> spec;
     ffts[i].fwd(spec, imu_data.at(i));
     assert(spec.size() == n / 2 + 1);
 
@@ -118,12 +128,15 @@ void ImuFftPlotWidget::updateSamples(
 
       const auto is_edge = (n % 2 == 0 && k == n / 2);
       const auto scale = is_edge ? 1.0 : 2.0;
-      const auto amp = scale * std::abs(spec.at(k)) / n;  // RMS
+      const auto amp = scale * std::abs(spec.at(k)) / n;
       amps.push_back(amp);
+      ranges[i / kNumAxesPerGroup].include(amp);
     }
 
     curves[i].setSamples(freqs, amps);
   }
+
+  return ranges;
 }
 }  // namespace log
 }  // namespace gui

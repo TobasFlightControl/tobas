@@ -3,9 +3,11 @@
 
 #pragma once
 
+#include <tobas_qwt_wrapper/qwt_plot_curve.hpp>
+
 #include <tobas_kdl_msgs/msg/wrench_stamped.hpp>
 
-#include "./common.hpp"
+#include "./utilities/utilities.hpp"
 
 namespace tobas
 {
@@ -17,7 +19,9 @@ class DisturbanceForcePlotWidget : public BasePlotWidget
 {
   Q_OBJECT
 
-  static constexpr size_t kNumAxes = 6;
+  static constexpr size_t kNumAxesPerGroup = 3;
+  static constexpr size_t kNumGroups = 2;
+  static constexpr size_t kNumAxes = kNumAxesPerGroup * kNumGroups;
 
 public:
   explicit DisturbanceForcePlotWidget();

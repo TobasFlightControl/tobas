@@ -41,13 +41,16 @@ void AirPressurePlotWidget::setData(const QVector<tobas_msgs::msg::FluidPressure
 {
   QVector<double> t_data;
   QVector<double> val_data;
+  VerticalScaleRange range;
 
   for (const auto& msg : msgs) {
     t_data.push_back(ros2::seconds(msg.header.stamp));
     val_data.push_back(msg.pressure * 1e-2);
+    range.include(val_data.back());
   }
 
   curve_.setSamples(t_data, val_data);
+  setVerticalScale(*plot_, range, kMinPressureScale);
   plot_->replot();
 }
 }  // namespace log

@@ -4,10 +4,11 @@
 #pragma once
 
 #include <tobas_qt_tools/layouts/grid_layout.hpp>
+#include <tobas_qwt_wrapper/qwt_plot_curve.hpp>
 
 #include <tobas_msgs/msg/ice_propulsion_system_command.hpp>
 
-#include "./common.hpp"
+#include "./utilities/utilities.hpp"
 
 namespace tobas
 {

@@ -30,7 +30,7 @@ PoseWidget::PoseWidget()
 
   const auto xyz_form = new qt::FormLayout();
   cols->addLayout(xyz_form, 1);
-  static constexpr std::array<const char*, 3> kLabelsXYZ = { "X:", "Y:", "Z:" };
+  constexpr std::array kLabelsXYZ = { "X:", "Y:", "Z:" };
   for (size_t i = 0; i < 3; ++i) {
     xyz_[i] = new qt::DoubleSpinBox();
     xyz_[i]->setDecimals(1);
@@ -42,7 +42,7 @@ PoseWidget::PoseWidget()
 
   const auto rpy_form = new qt::FormLayout();
   cols->addLayout(rpy_form, 1);
-  static constexpr std::array<const char*, 3> kLabelsRPY = { "Roll:", "Pitch:", "Yaw:" };
+  constexpr std::array kLabelsRPY = { "Roll:", "Pitch:", "Yaw:" };
   for (size_t i = 0; i < 3; ++i) {
     rpy_[i] = new qt::SpinBox();
     rpy_[i]->setSuffix(" deg");

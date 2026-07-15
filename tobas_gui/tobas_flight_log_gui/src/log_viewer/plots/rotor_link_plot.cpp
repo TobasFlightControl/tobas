@@ -3,6 +3,7 @@
 
 #include "tobas_flight_log_gui/log_viewer/plots/rotor_link_plot.hpp"
 
+#include <algorithm>
 #include <ranges>
 
 #include <tobas_qt_tools/util.hpp>
@@ -40,14 +41,12 @@ void RotorLinkPlotWidget::setTimeScale(double t_start, double t_stop)
 
 void RotorLinkPlotWidget::setData(const QVector<tobas_msgs::msg::RotorStateArray>& msgs)
 {
-  if (msgs.empty()) {
-    return;
-  }
-
-  const auto& first_msg = msgs.first();
-  if (first_msg.states.size() != num_rotors_) {
-    if (!updateInternalDataStructures(first_msg)) {
-      return;
+  if (msgs.size() > 0) {
+    const auto& first_msg = msgs.first();
+    if (first_msg.states.size() != num_rotors_) {
+      if (!updateInternalDataStructures(first_msg)) {
+        return;
+      }
     }
   }
 

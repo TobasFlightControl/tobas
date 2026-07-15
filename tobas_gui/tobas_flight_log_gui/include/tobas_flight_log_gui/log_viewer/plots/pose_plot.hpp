@@ -3,10 +3,14 @@
 
 #pragma once
 
+#include <array>
+
+#include <tobas_qwt_wrapper/qwt_plot_curve.hpp>
+
 #include <tobas_msgs/msg/odometry_stamped.hpp>
 #include <tobas_msgs/msg/odometry_with_covariance_stamped.hpp>
 
-#include "./common.hpp"
+#include "./utilities/utilities.hpp"
 
 namespace tobas
 {
@@ -18,7 +22,18 @@ class PosePlotWidget : public BasePlotWidget
 {
   Q_OBJECT
 
-  static constexpr size_t kNumAxes = 6;
+  static constexpr size_t kXAxis = 0;
+  static constexpr size_t kYAxis = kXAxis + 1;
+  static constexpr size_t kZAxis = kYAxis + 1;
+  static constexpr size_t kRollAxis = kZAxis + 1;
+  static constexpr size_t kPitchAxis = kRollAxis + 1;
+  static constexpr size_t kYawAxis = kPitchAxis + 1;
+  static constexpr size_t kNumAxes = kYawAxis + 1;
+
+  static constexpr double kMinPositionScale = 1.0;  // [m]
+  static constexpr double kMinAngleScale = 4.0;     // [deg]
+
+  using VerticalScaleRanges = std::array<VerticalScaleRange, kNumAxes>;
 
 public:
   explicit PosePlotWidget();
@@ -36,8 +51,10 @@ private:
   std::array<qwt::QwtPlotCurveWrapper, kNumAxes> cur_curves_;
   std::array<qwt::QwtPlotCurveWrapper, kNumAxes> tar_curves_;
 
-  void updateCurrentSamples(const QVector<tobas_msgs::msg::OdometryWithCovarianceStamped>& odom_msgs);
-  void updateTargetSamples(const QVector<tobas_msgs::msg::OdometryStamped>& setpoint_msgs);
+  VerticalScaleRanges updateCurrentSamples(const QVector<tobas_msgs::msg::OdometryWithCovarianceStamped>& odom_msgs);
+  VerticalScaleRanges updateTargetSamples(
+    const QVector<tobas_msgs::msg::OdometryStamped>& setpoint_msgs,
+    const VerticalScaleRanges& current_ranges);
 };
 }  // namespace log
 }  // namespace gui

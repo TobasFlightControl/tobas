@@ -53,20 +53,27 @@ void ImuPlotWidget::setTimeScale(double t_start, double t_stop)
 
 void ImuPlotWidget::setData(const QVector<tobas_msgs::msg::Imu>& raw_msgs, const QVector<tobas_msgs::msg::Imu>& filt_msgs)
 {
-  updateSamples(raw_msgs, raw_curves_);
-  updateSamples(filt_msgs, filt_curves_);
+  auto ranges = updateSamples(raw_msgs, raw_curves_);
+  const auto filt_ranges = updateSamples(filt_msgs, filt_curves_);
+
+  for (size_t group = 0; group < kNumGroups; ++group) {
+    ranges[group].include(filt_ranges[group]);
+    setSharedZeroCenteredVerticalScale(
+      std::span(plots_).subspan(group * kNumAxesPerGroup, kNumAxesPerGroup), ranges[group]);
+  }
 
   for (auto& plot : plots_) {
     plot->replot();
   }
 }
 
-void ImuPlotWidget::updateSamples(
+ImuPlotWidget::ValueRanges ImuPlotWidget::updateSamples(
   const QVector<tobas_msgs::msg::Imu>& msgs,
   std::array<qwt::QwtPlotCurveWrapper, kNumAxes>& curves)
 {
   QVector<double> t_data;
   std::array<QVector<double>, kNumAxes> val_data;
+  ValueRanges ranges;
 
   for (const auto& msg : msgs) {
     t_data.push_back(ros2::seconds(msg.header.stamp));
@@ -80,11 +87,17 @@ void ImuPlotWidget::updateSamples(
     val_data[3].push_back(gyro.x);
     val_data[4].push_back(gyro.y);
     val_data[5].push_back(gyro.z);
+
+    for (size_t i = 0; i < kNumAxes; ++i) {
+      ranges[i / kNumAxesPerGroup].include(val_data[i].back());
+    }
   }
 
   for (size_t i = 0; i < kNumAxes; ++i) {
     curves[i].setSamples(t_data, val_data[i]);
   }
+
+  return ranges;
 }
 }  // namespace log
 }  // namespace gui

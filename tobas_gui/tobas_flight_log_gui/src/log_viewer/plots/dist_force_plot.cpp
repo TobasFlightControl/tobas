@@ -48,6 +48,7 @@ void DisturbanceForcePlotWidget::setData(const QVector<tobas_kdl_msgs::msg::Wren
 {
   QVector<double> t_data;
   std::array<QVector<double>, kNumAxes> val_data;
+  std::array<VerticalScaleRange, kNumGroups> ranges;
 
   for (const auto& msg : msgs) {
     t_data.push_back(ros2::seconds(msg.header.stamp));
@@ -61,11 +62,21 @@ void DisturbanceForcePlotWidget::setData(const QVector<tobas_kdl_msgs::msg::Wren
     val_data[3].push_back(torque.x);
     val_data[4].push_back(torque.y);
     val_data[5].push_back(torque.z);
+
+    for (size_t i = 0; i < kNumAxes; ++i) {
+      ranges[i / kNumAxesPerGroup].include(val_data[i].back());
+    }
   }
 
   for (size_t i = 0; i < kNumAxes; ++i) {
     curves_[i].setSamples(t_data, val_data[i]);
-    plots_[i]->replot();
+  }
+
+  setSharedZeroCenteredVerticalScale(std::span(plots_).first(kNumAxesPerGroup), ranges[0]);
+  setSharedZeroCenteredVerticalScale(std::span(plots_).last(kNumAxesPerGroup), ranges[1]);
+
+  for (auto& plot : plots_) {
+    plot->replot();
   }
 }
 }  // namespace log

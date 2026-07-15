@@ -47,6 +47,7 @@ void VibrationLevelPlotWidget::setData(const QVector<tobas_msgs::msg::VibrationL
 {
   QVector<double> t_data;
   std::array<QVector<double>, kNumAxes> mag_data;
+  VerticalScaleRange range;
 
   for (const auto& mag : msgs) {
     t_data.push_back(ros2::seconds(mag.header.stamp));
@@ -54,11 +55,20 @@ void VibrationLevelPlotWidget::setData(const QVector<tobas_msgs::msg::VibrationL
     mag_data[0].push_back(mag.data.x);
     mag_data[1].push_back(mag.data.y);
     mag_data[2].push_back(mag.data.z);
+
+    range.include(mag.data.x);
+    range.include(mag.data.y);
+    range.include(mag.data.z);
   }
 
   for (size_t i = 0; i < kNumAxes; ++i) {
     curves_[i].setSamples(t_data, mag_data[i]);
-    plots_[i]->replot();
+  }
+
+  setSharedVerticalScale(plots_, range);
+
+  for (auto& plot : plots_) {
+    plot->replot();
   }
 }
 }  // namespace log

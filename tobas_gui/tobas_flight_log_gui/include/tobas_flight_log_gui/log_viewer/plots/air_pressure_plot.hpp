@@ -3,9 +3,11 @@
 
 #pragma once
 
+#include <tobas_qwt_wrapper/qwt_plot_curve.hpp>
+
 #include <tobas_msgs/msg/fluid_pressure.hpp>
 
-#include "./common.hpp"
+#include "./utilities/utilities.hpp"
 
 namespace tobas
 {
@@ -16,6 +18,8 @@ namespace log
 class AirPressurePlotWidget : public BasePlotWidget
 {
   Q_OBJECT
+
+  static constexpr double kMinPressureScale = 0.1;  // [hPa]
 
 public:
   explicit AirPressurePlotWidget();

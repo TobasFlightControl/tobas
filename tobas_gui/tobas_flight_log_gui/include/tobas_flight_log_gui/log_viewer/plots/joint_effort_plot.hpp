@@ -4,11 +4,12 @@
 #pragma once
 
 #include <tobas_qt_tools/layouts/grid_layout.hpp>
+#include <tobas_qwt_wrapper/qwt_plot_curve.hpp>
 
 #include <tobas_msgs/msg/joint_command_array.hpp>
 #include <tobas_msgs/msg/joint_state_array.hpp>
 
-#include "./common.hpp"
+#include "./utilities/utilities.hpp"
 
 namespace tobas
 {

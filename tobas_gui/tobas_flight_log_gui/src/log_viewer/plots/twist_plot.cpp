@@ -57,18 +57,25 @@ void TwistPlotWidget::setData(
   const QVector<tobas_msgs::msg::OdometryWithCovarianceStamped>& odom_msgs,
   const QVector<tobas_msgs::msg::OdometryStamped>& setpoint_msgs)
 {
-  updateCurrentSamples(odom_msgs);
-  updateTargetSamples(setpoint_msgs);
+  const auto ranges = updateCurrentSamples(odom_msgs);
+  const auto tar_ranges = updateTargetSamples(setpoint_msgs);
+
+  for (size_t i = 0; i < kNumAxes; ++i) {
+    const auto minimum_half_range = i < kNumAxesPerGroup ? kMinLinearScale : kMinAngularScale;
+    setTargetCenteredVerticalScale(*plots_[i], ranges[i], tar_ranges[i], minimum_half_range);
+  }
 
   for (auto& plot : plots_) {
     plot->replot();
   }
 }
 
-void TwistPlotWidget::updateCurrentSamples(const QVector<tobas_msgs::msg::OdometryWithCovarianceStamped>& odom_msgs)
+TwistPlotWidget::ValueRanges
+TwistPlotWidget::updateCurrentSamples(const QVector<tobas_msgs::msg::OdometryWithCovarianceStamped>& odom_msgs)
 {
   QVector<double> t_data;
   std::array<QVector<double>, kNumAxes> val_data;
+  ValueRanges ranges;
 
   for (const auto& odom : odom_msgs) {
     t_data.push_back(ros2::seconds(odom.header.stamp));
@@ -82,17 +89,25 @@ void TwistPlotWidget::updateCurrentSamples(const QVector<tobas_msgs::msg::Odomet
     val_data[3].push_back(ang_vel.x);
     val_data[4].push_back(ang_vel.y);
     val_data[5].push_back(ang_vel.z);
+
+    for (size_t i = 0; i < kNumAxes; ++i) {
+      ranges[i].include(val_data[i].back());
+    }
   }
 
   for (size_t i = 0; i < kNumAxes; ++i) {
     cur_curves_[i].setSamples(t_data, val_data[i]);
   }
+
+  return ranges;
 }
 
-void TwistPlotWidget::updateTargetSamples(const QVector<tobas_msgs::msg::OdometryStamped>& setpoint_msgs)
+TwistPlotWidget::ValueRanges
+TwistPlotWidget::updateTargetSamples(const QVector<tobas_msgs::msg::OdometryStamped>& setpoint_msgs)
 {
   QVector<double> t_data;
   std::array<QVector<double>, kNumAxes> val_data;
+  ValueRanges ranges;
 
   for (const auto& setpoint : setpoint_msgs) {
     t_data.push_back(ros2::seconds(setpoint.header.stamp));
@@ -106,11 +121,17 @@ void TwistPlotWidget::updateTargetSamples(const QVector<tobas_msgs::msg::Odometr
     val_data[3].push_back(ang_vel.x);
     val_data[4].push_back(ang_vel.y);
     val_data[5].push_back(ang_vel.z);
+
+    for (size_t i = 0; i < kNumAxes; ++i) {
+      ranges[i].include(val_data[i].back());
+    }
   }
 
   for (size_t i = 0; i < kNumAxes; ++i) {
     tar_curves_[i].setSamples(t_data, val_data[i]);
   }
+
+  return ranges;
 }
 }  // namespace log
 }  // namespace gui

@@ -3,7 +3,11 @@
 
 #include "tobas_flight_log_gui/log_viewer/plots/rotor_speed_plot.hpp"
 
+#include <algorithm>
+#include <cmath>
 #include <ranges>
+
+#include <qwt/qwt_scale_engine.h>
 
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_ros2_tools/time.hpp>
@@ -44,19 +48,22 @@ void RotorSpeedPlotWidget::setData(
   const QVector<tobas_msgs::msg::RotorStateArray>& cur_msgs,
   const QVector<tobas_msgs::msg::RotorSpeedArray>& tar_msgs)
 {
-  if (cur_msgs.empty()) {
-    return;
-  }
-
-  const auto& first_msg = cur_msgs.first();
-  if (first_msg.states.size() != num_rotors_) {
-    if (!updateInternalDataStructures(first_msg)) {
-      return;
+  if (cur_msgs.size() > 0) {
+    const auto& first_msg = cur_msgs.first();
+    if (first_msg.states.size() != num_rotors_) {
+      if (!updateInternalDataStructures(first_msg)) {
+        return;
+      }
     }
   }
 
-  updateCurrentSpeedSamples(cur_msgs);
-  updateTargetSpeedSamples(tar_msgs);
+  const auto [min_cur_speed, max_cur_speed] = updateCurrentSpeedSamples(cur_msgs);
+  const auto [min_tar_speed, max_tar_speed] = updateTargetSpeedSamples(tar_msgs);
+  const auto min_speed = std::min(min_cur_speed, min_tar_speed);
+  const auto max_speed = std::max(max_cur_speed, max_tar_speed);
+  if (min_speed <= max_speed) {
+    updateVerticalScale(min_speed, max_speed);
+  }
 
   for (auto& plot : plots_) {
     plot->replot();
@@ -106,10 +113,13 @@ bool RotorSpeedPlotWidget::updateInternalDataStructures(const tobas_msgs::msg::R
   return true;
 }
 
-void RotorSpeedPlotWidget::updateCurrentSpeedSamples(const QVector<tobas_msgs::msg::RotorStateArray>& msgs)
+std::pair<double, double>
+RotorSpeedPlotWidget::updateCurrentSpeedSamples(const QVector<tobas_msgs::msg::RotorStateArray>& msgs)
 {
   QVector<QVector<double>> t_data(num_rotors_);
   QVector<QVector<double>> speed_data(num_rotors_);
+  double min_speed = std::numeric_limits<double>::max();
+  double max_speed = 0.0;
 
   for (const auto& msg : msgs) {
     if (msg.states.size() != num_rotors_) {
@@ -128,21 +138,32 @@ void RotorSpeedPlotWidget::updateCurrentSpeedSamples(const QVector<tobas_msgs::m
       }
 
       const auto& idx = name2idx_.at(elem.link_name);
+      const auto speed = st::rps2rpm(elem.speed);
 
       t_data[idx].push_back(ros2::seconds(msg.header.stamp));
-      speed_data[idx].push_back(st::rps2rpm(elem.speed));
+      speed_data[idx].push_back(speed);
+
+      if (std::isfinite(speed)) {
+        min_speed = std::min(min_speed, speed);
+        max_speed = std::max(max_speed, speed);
+      }
     }
   }
 
   for (size_t i = 0; i < num_rotors_; ++i) {
     cur_speed_curves_[i].setSamples(t_data[i], speed_data[i]);
   }
+
+  return { min_speed, max_speed };
 }
 
-void RotorSpeedPlotWidget::updateTargetSpeedSamples(const QVector<tobas_msgs::msg::RotorSpeedArray>& msgs)
+std::pair<double, double>
+RotorSpeedPlotWidget::updateTargetSpeedSamples(const QVector<tobas_msgs::msg::RotorSpeedArray>& msgs)
 {
   QVector<QVector<double>> t_data(num_rotors_);
   QVector<QVector<double>> speed_data(num_rotors_);
+  double min_speed = std::numeric_limits<double>::max();
+  double max_speed = 0.0;
 
   for (const auto& msg : msgs) {
     if (msg.speeds.size() != num_rotors_) {
@@ -150,21 +171,41 @@ void RotorSpeedPlotWidget::updateTargetSpeedSamples(const QVector<tobas_msgs::ms
       continue;
     }
 
-    for (const auto& speed : msg.speeds) {
-      if (!name2idx_.contains(speed.link_name)) {
-        qWarning() << "Rotor" << QString::fromStdString(speed.link_name) << "is not registered.";
+    for (const auto& elem : msg.speeds) {
+      if (!name2idx_.contains(elem.link_name)) {
+        qWarning() << "Rotor" << QString::fromStdString(elem.link_name) << "is not registered.";
         continue;
       }
 
-      const auto& idx = name2idx_[speed.link_name];
+      const auto& idx = name2idx_[elem.link_name];
+      const auto speed = st::rps2rpm(elem.speed);
 
       t_data[idx].push_back(ros2::seconds(msg.header.stamp));
-      speed_data[idx].push_back(st::rps2rpm(speed.speed));
+      speed_data[idx].push_back(speed);
+
+      if (std::isfinite(speed)) {
+        min_speed = std::min(min_speed, speed);
+        max_speed = std::max(max_speed, speed);
+      }
     }
   }
 
   for (size_t i = 0; i < num_rotors_; ++i) {
     tar_speed_curves_[i].setSamples(t_data[i], speed_data[i]);
+  }
+
+  return { min_speed, max_speed };
+}
+
+void RotorSpeedPlotWidget::updateVerticalScale(const double min_speed, const double max_speed)
+{
+  double scale_min = min_speed;
+  double scale_max = std::max(max_speed, 1000.0);
+  double scale_step = 0.0;
+  QwtLinearScaleEngine().autoScale(kMaxVerticalScaleSteps, scale_min, scale_max, scale_step);
+
+  for (auto& plot : plots_) {
+    plot->setAxisScale(QwtPlot::yLeft, scale_min, scale_max, scale_step);
   }
 }
 }  // namespace log

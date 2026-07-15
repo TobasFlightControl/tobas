@@ -3,9 +3,11 @@
 
 #pragma once
 
+#include <tobas_qwt_wrapper/qwt_plot_curve.hpp>
+
 #include <tobas_msgs/msg/battery.hpp>
 
-#include "./common.hpp"
+#include "./utilities/utilities.hpp"
 
 namespace tobas
 {
@@ -16,6 +18,9 @@ namespace log
 class BatteryPlotWidget : public BasePlotWidget
 {
   Q_OBJECT
+
+  static constexpr double kMinVoltageScale = 0.1;  // [V]
+  static constexpr double kMinCurrentScale = 0.1;  // [A]
 
 public:
   explicit BatteryPlotWidget();

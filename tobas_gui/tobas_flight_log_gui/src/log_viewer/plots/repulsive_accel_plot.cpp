@@ -46,6 +46,7 @@ void RepulsiveAccelPlotWidget::setData(const QVector<tobas_msgs::msg::RepulsiveA
 {
   QVector<double> t_data;
   std::array<QVector<double>, kNumAxes> acc_data;
+  VerticalScaleRange range;
 
   for (const auto& msg : msgs) {
     t_data.push_back(ros2::seconds(msg.header.stamp));
@@ -53,11 +54,20 @@ void RepulsiveAccelPlotWidget::setData(const QVector<tobas_msgs::msg::RepulsiveA
     acc_data[0].push_back(msg.accel.x);
     acc_data[1].push_back(msg.accel.y);
     acc_data[2].push_back(msg.accel.z);
+
+    range.include(msg.accel.x);
+    range.include(msg.accel.y);
+    range.include(msg.accel.z);
   }
 
   for (size_t i = 0; i < kNumAxes; ++i) {
     curves_[i].setSamples(t_data, acc_data[i]);
-    plots_[i]->replot();
+  }
+
+  setSharedZeroCenteredVerticalScale(plots_, range);
+
+  for (auto& plot : plots_) {
+    plot->replot();
   }
 }
 }  // namespace log

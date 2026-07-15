@@ -4,11 +4,12 @@
 #pragma once
 
 #include <tobas_qt_tools/layouts/grid_layout.hpp>
+#include <tobas_qwt_wrapper/qwt_plot_curve.hpp>
 
 #include <tobas_msgs/msg/rotor_speed_array.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
 
-#include "./common.hpp"
+#include "./utilities/utilities.hpp"
 
 namespace tobas
 {
@@ -43,8 +44,9 @@ private:
 
   bool updateInternalDataStructures(const tobas_msgs::msg::RotorStateArray& msg);
 
-  void updateCurrentSpeedSamples(const QVector<tobas_msgs::msg::RotorStateArray>& msgs);
-  void updateTargetSpeedSamples(const QVector<tobas_msgs::msg::RotorSpeedArray>& msgs);
+  std::pair<double, double> updateCurrentSpeedSamples(const QVector<tobas_msgs::msg::RotorStateArray>& msgs);
+  std::pair<double, double> updateTargetSpeedSamples(const QVector<tobas_msgs::msg::RotorSpeedArray>& msgs);
+  void updateVerticalScale(double min_speed, double max_speed);
 };
 }  // namespace log
 }  // namespace gui

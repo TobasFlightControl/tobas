@@ -46,6 +46,7 @@ void MagPlotWidget::setData(const QVector<tobas_msgs::msg::MagneticField>& msgs)
 {
   QVector<double> t_data;
   std::array<QVector<double>, kNumAxes> mag_data;
+  VerticalScaleRange range;
 
   for (const auto& msg : msgs) {
     t_data.push_back(ros2::seconds(msg.header.stamp));
@@ -53,11 +54,20 @@ void MagPlotWidget::setData(const QVector<tobas_msgs::msg::MagneticField>& msgs)
     mag_data[0].push_back(msg.mag.x);
     mag_data[1].push_back(msg.mag.y);
     mag_data[2].push_back(msg.mag.z);
+
+    range.include(msg.mag.x);
+    range.include(msg.mag.y);
+    range.include(msg.mag.z);
   }
 
   for (size_t i = 0; i < kNumAxes; ++i) {
     curves_[i].setSamples(t_data, mag_data[i]);
-    plots_[i]->replot();
+  }
+
+  setSharedVerticalScale(plots_, range);
+
+  for (auto& plot : plots_) {
+    plot->replot();
   }
 }
 }  // namespace log
