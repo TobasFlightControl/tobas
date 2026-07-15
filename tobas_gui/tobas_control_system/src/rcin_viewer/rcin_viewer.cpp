@@ -21,8 +21,8 @@ namespace rcin
 {
 RCInputViewerWidget::RCInputViewerWidget(const RosQtBridge& bridge)
 {
-  roll_pitch_ = new StickPanel("Roll / Pitch", "Roll", "Pitch");
-  yaw_throttle_ = new StickPanel("Yaw / Throttle", "Yaw", "Throttle");
+  yaw_pitch_ = new StickPanel("Yaw / Pitch", "Yaw", "Pitch");
+  roll_throttle_ = new StickPanel("Roll / Throttle", "Roll", "Throttle");
 
   enable_ = makeBadge("---");
   kill_ = makeBadge("Kill: ---");
@@ -49,8 +49,8 @@ RCInputViewerWidget::RCInputViewerWidget(const RosQtBridge& bridge)
   status_rows->addLayout(mode_rows);
 
   const auto cols = new QHBoxLayout();
-  cols->addWidget(roll_pitch_, 1);
-  cols->addWidget(yaw_throttle_, 1);
+  cols->addWidget(yaw_pitch_, 1);
+  cols->addWidget(roll_throttle_, 1);
   cols->addLayout(status_rows);
   setLayout(cols);
 
@@ -60,8 +60,8 @@ RCInputViewerWidget::RCInputViewerWidget(const RosQtBridge& bridge)
 
 void RCInputViewerWidget::reset()
 {
-  roll_pitch_->reset();
-  yaw_throttle_->reset();
+  yaw_pitch_->reset();
+  roll_throttle_->reset();
   setBadge(enable_, "---", qt::color::gray90());
   setBadge(kill_, "Kill: ---", qt::color::gray90());
   setBadge(sub_mode_, "Sub: ---", qt::color::gray90());
@@ -103,8 +103,8 @@ void RCInputViewerWidget::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& r
     return;
   }
 
-  roll_pitch_->setValues(rcin->roll, rcin->pitch, true, rcin->enable);
-  yaw_throttle_->setValues(-rcin->yaw, rcin->throttle, true, rcin->enable);
+  yaw_pitch_->setValues(-rcin->yaw, rcin->pitch, true, rcin->enable);
+  roll_throttle_->setValues(rcin->roll, rcin->throttle, true, rcin->enable);
   setBadge(enable_, rcin->enable ? "Enabled" : "Disabled", rcin->enable ? qt::color::lightBlue() : qt::color::gray90());
   setBadge(
     kill_, QString("Kill: ") + (rcin->kill ? "ON" : "OFF"), rcin->kill ? qt::color::lightRed() : qt::color::gray90());

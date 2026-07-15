@@ -34,8 +34,8 @@ public:
   void reset();
 
 private:
-  StickPanel* roll_pitch_;
-  StickPanel* yaw_throttle_;
+  StickPanel* yaw_pitch_;
+  StickPanel* roll_throttle_;
 
   QLabel* enable_;
   QLabel* kill_;
