@@ -98,13 +98,13 @@ void GnssPlotWidget::setData(const QVector<tobas_msgs::msg::Gnss>& gnss_msgs)
   QVector<double> latitude_data;
   QVector<double> longitude_data;
   QVector<double> altitude_data;
+  QVector<double> east_speed_data;
   QVector<double> north_speed_data;
-  QVector<double> west_speed_data;
   QVector<double> up_speed_data;
 
   for (const auto& gnss : gnss_msgs) {
     if (gnss.fix_type != tobas_msgs::msg::Gnss::FIX_3D) {
-      break;
+      continue;
     }
 
     t_data.push_back(ros2::seconds(gnss.header.stamp));
@@ -112,8 +112,8 @@ void GnssPlotWidget::setData(const QVector<tobas_msgs::msg::Gnss>& gnss_msgs)
     latitude_data.push_back(gnss.latitude);
     longitude_data.push_back(gnss.longitude);
     altitude_data.push_back(gnss.altitude);
-    north_speed_data.push_back(gnss.ground_speed.x);
-    west_speed_data.push_back(gnss.ground_speed.y);
+    east_speed_data.push_back(gnss.ground_speed.x);
+    north_speed_data.push_back(gnss.ground_speed.y);
     up_speed_data.push_back(gnss.ground_speed.z);
   }
 
@@ -126,10 +126,10 @@ void GnssPlotWidget::setData(const QVector<tobas_msgs::msg::Gnss>& gnss_msgs)
   altitude_curve_.setSamples(t_data, altitude_data);
   altitude_plot_->replot();
 
-  east_speed_curve_.setSamples(t_data, north_speed_data);
+  east_speed_curve_.setSamples(t_data, east_speed_data);
   east_speed_plot_->replot();
 
-  north_speed_curve_.setSamples(t_data, west_speed_data);
+  north_speed_curve_.setSamples(t_data, north_speed_data);
   north_speed_plot_->replot();
 
   up_speed_curve_.setSamples(t_data, up_speed_data);
