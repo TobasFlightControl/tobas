@@ -3,6 +3,7 @@
 
 #include "tobas_flight_log_gui/log_viewer/plots/propeller_pitch_plot.hpp"
 
+#include <algorithm>
 #include <ranges>
 
 #include <tobas_qt_tools/util.hpp>
@@ -41,14 +42,12 @@ void PropellerPitchPlotWidget::setTimeScale(double t_start, double t_stop)
 
 void PropellerPitchPlotWidget::setData(const QVector<tobas_msgs::msg::IcePropulsionSystemCommand>& msgs)
 {
-  if (msgs.empty()) {
-    return;
-  }
-
-  const auto& first_msg = msgs.first();
-  if (first_msg.pitch_angles.size() != num_rotors_) {
-    if (!updateInternalDataStructures(first_msg)) {
-      return;
+  if (msgs.size() > 0) {
+    const auto& first_msg = msgs.first();
+    if (first_msg.pitch_angles.size() != num_rotors_) {
+      if (!updateInternalDataStructures(first_msg)) {
+        return;
+      }
     }
   }
 

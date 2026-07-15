@@ -48,20 +48,22 @@ void RotorSpeedPlotWidget::setData(
   const QVector<tobas_msgs::msg::RotorStateArray>& cur_msgs,
   const QVector<tobas_msgs::msg::RotorSpeedArray>& tar_msgs)
 {
-  if (cur_msgs.empty()) {
-    return;
-  }
-
-  const auto& first_msg = cur_msgs.first();
-  if (first_msg.states.size() != num_rotors_) {
-    if (!updateInternalDataStructures(first_msg)) {
-      return;
+  if (cur_msgs.size() > 0) {
+    const auto& first_msg = cur_msgs.first();
+    if (first_msg.states.size() != num_rotors_) {
+      if (!updateInternalDataStructures(first_msg)) {
+        return;
+      }
     }
   }
 
   const auto [min_cur_speed, max_cur_speed] = updateCurrentSpeedSamples(cur_msgs);
   const auto [min_tar_speed, max_tar_speed] = updateTargetSpeedSamples(tar_msgs);
-  updateVerticalScale(std::min(min_cur_speed, min_tar_speed), std::max(max_cur_speed, max_tar_speed));
+  const auto min_speed = std::min(min_cur_speed, min_tar_speed);
+  const auto max_speed = std::max(max_cur_speed, max_tar_speed);
+  if (min_speed <= max_speed) {
+    updateVerticalScale(min_speed, max_speed);
+  }
 
   for (auto& plot : plots_) {
     plot->replot();
