@@ -341,7 +341,7 @@ void MissionPlannerWidget::addSplinePathToMap(const std::vector<QGeoCoordinate>&
   points.reserve(waypoints.size());
   for (const auto& waypoint : waypoints) {
     const auto coord =
-      geo::geodeticToPlane(waypoint.latitude(), waypoint.longitude(), origin.latitude(), origin.longitude());
+      geography_.geodeticToPlane(waypoint.latitude(), waypoint.longitude(), origin.latitude(), origin.longitude());
     points.emplace_back(coord.east, coord.north);
   }
 
@@ -354,7 +354,7 @@ void MissionPlannerWidget::addSplinePathToMap(const std::vector<QGeoCoordinate>&
     for (size_t sample = 1; sample <= sample_count; ++sample) {
       const auto u = static_cast<double>(sample) / static_cast<double>(sample_count);
       const auto pos = path.get(segment, u).pos;
-      const auto coord = geo::planeToGeodetic(pos.x(), pos.y(), origin.latitude(), origin.longitude());
+      const auto coord = geography_.planeToGeodetic(pos.x(), pos.y(), origin.latitude(), origin.longitude());
       map_->addLine(prev_coord.latitude(), prev_coord.longitude(), coord.latitude, coord.longitude);
       prev_coord = QGeoCoordinate(coord.latitude, coord.longitude);
     }
@@ -600,7 +600,7 @@ void MissionPlannerWidget::onAddButtonClicked()
       const auto last_wp = findLastWaypoint();
       if (last_wp) {
         // Place the second and later waypoints slightly east of the last point.
-        const auto coord = geo::planeToGeodetic(10.0, 0.0, last_wp->latitude(), last_wp->longitude());
+        const auto coord = geography_.planeToGeodetic(10.0, 0.0, last_wp->latitude(), last_wp->longitude());
         new_wp->latitude(coord.latitude);
         new_wp->longitude(coord.longitude);
       }

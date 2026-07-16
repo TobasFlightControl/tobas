@@ -7,6 +7,7 @@
 
 #include <rclcpp_action/rclcpp_action.hpp>
 
+#include <tobas_geographic/geography.hpp>
 #include <tobas_mission_items/mission.hpp>
 #include <tobas_property_client/property_client.hpp>
 #include <tobas_qt_tools/widgets/list_widget.hpp>
@@ -58,6 +59,7 @@ public:
 private:
   const rclcpp::Node::SharedPtr node_;
   ptree::PropertyClient property_client_;
+  geo::Geography geography_;
 
   MapWidget* map_;
 

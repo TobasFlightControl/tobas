@@ -44,6 +44,8 @@ public:
   void PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager& ecm) override;
 
 private:
+  geo::Geography geography_;
+
   // SDF parameters
   std::string link_name_;
   int update_rate_;            // Update rate [Hz]
@@ -228,7 +230,7 @@ void GazeboGnssPlugin::updatePosition(tobas_msgs::Gnss& gnss_msg, const gz::math
   W_Pos_WS += pos_bias_;
 
   // Fill the GNSS message.
-  const auto coord = geo::planeToGeodetic(W_Pos_WS.X(), W_Pos_WS.Y(), lat_0_, lon_0_);
+  const auto coord = geography_.planeToGeodetic(W_Pos_WS.X(), W_Pos_WS.Y(), lat_0_, lon_0_);
   gnss_msg.latitude = coord.latitude;
   gnss_msg.longitude = coord.longitude;
   gnss_msg.altitude = W_Pos_WS.Z();

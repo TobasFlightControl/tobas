@@ -62,6 +62,7 @@ public:
   explicit ErrorStateKalmanFilterNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
+  geo::Geography geography_;
   eskf::ErrorStateKalmanFilter eskf_;
 
   Vector3d pos_meas_;
@@ -881,7 +882,8 @@ void ErrorStateKalmanFilterNode::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& 
 
     // Compute the geomagnetic reference value from the initial GNSS value.
     // TODO: Compute the reference value online according to position changes.
-    const auto mag = geo::magneticField(msg->latitude, msg->longitude, msg->ellipsoid_height, tim::yearFraction());
+    const auto mag =
+      geography_.magneticField(msg->latitude, msg->longitude, msg->ellipsoid_height, tim::yearFraction());
     const Vector3d mag_W(mag.east, mag.north, mag.up);  // ENU coordinates
     setMagneticFieldRef(mag_W);
 
@@ -894,7 +896,8 @@ void ErrorStateKalmanFilterNode::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& 
   gnss_ = msg;
 
   // Position observation.
-  const auto pos = geo::geodeticToPlane(msg->latitude, msg->longitude, gnss_origin_.latitude, gnss_origin_.longitude);
+  const auto pos =
+    geography_.geodeticToPlane(msg->latitude, msg->longitude, gnss_origin_.latitude, gnss_origin_.longitude);
   pos_meas_.x() = pos.east;
   pos_meas_.y() = pos.north;
   pos_meas_.z() = msg->altitude - gnss_origin_.altitude;

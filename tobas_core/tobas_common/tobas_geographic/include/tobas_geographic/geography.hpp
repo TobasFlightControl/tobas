@@ -3,6 +3,9 @@
 
 #pragma once
 
+#include <GeographicLib/MagneticModel.hpp>
+#include <GeographicLib/TransverseMercator.hpp>
+
 namespace tobas
 {
 namespace geo
@@ -27,26 +30,52 @@ struct MagneticField
   double total;  // [G]
 };
 
-/**
- * @brief Project geodetic coordinates onto a GRS80 Gauss-Kruger plane.
- *
- * The origin is assigned zero easting and northing. The central scale factor is 0.9999.
- */
-PlaneCoordinates geodeticToPlane(double latitude, double longitude, double origin_latitude, double origin_longitude);
+class Geography final
+{
+public:
+  /** @brief Load the projection and WMM2025 models. */
+  explicit Geography();
 
-/**
- * @brief Reverse a GRS80 Gauss-Kruger projection with a zero-valued origin.
- */
-GeodeticCoordinates planeToGeodetic(double east, double north, double origin_latitude, double origin_longitude);
+  Geography(const Geography&) = delete;
+  Geography& operator=(const Geography&) = delete;
+  Geography(Geography&&) = delete;
+  Geography& operator=(Geography&&) = delete;
 
-/**
- * @brief Evaluate WMM2025 at the specified geodetic position and decimal year.
- *
- * @param latitude Geodetic latitude [deg].
- * @param longitude Geodetic longitude [deg].
- * @param ellipsoid_height Height above the WGS 84 ellipsoid [m].
- * @param decimal_year Decimal year.
- */
-MagneticField magneticField(double latitude, double longitude, double ellipsoid_height, double decimal_year);
+  /**
+   * @brief Project geodetic coordinates onto a GRS80 Gauss-Kruger plane.
+   *
+   * The origin is assigned zero easting and northing. The central scale factor is 0.9999.
+   */
+  PlaneCoordinates geodeticToPlane(double latitude, double longitude, double origin_latitude, double origin_longitude);
+
+  /** @brief Reverse a GRS80 Gauss-Kruger projection with a zero-valued origin. */
+  GeodeticCoordinates planeToGeodetic(double east, double north, double origin_latitude, double origin_longitude);
+
+  /**
+   * @brief Evaluate WMM2025 at the specified geodetic position and decimal year.
+   *
+   * @param latitude Geodetic latitude [deg].
+   * @param longitude Geodetic longitude [deg].
+   * @param ellipsoid_height Height above the WGS 84 ellipsoid [m].
+   * @param decimal_year Decimal year.
+   */
+  MagneticField magneticField(double latitude, double longitude, double ellipsoid_height, double decimal_year);
+
+private:
+  GeographicLib::TransverseMercator plane_projection_;
+  GeographicLib::MagneticModel magnetic_model_;
+
+  double origin_east_;   // Projected origin easting [m]
+  double origin_north_;  // Projected origin northing [m]
+  double east_;          // Easting [m] or magnetic east component [nT]
+  double north_;         // Northing [m] or magnetic north component [nT]
+  double up_;            // Magnetic up component [nT]
+  double latitude_;      // Reverse-projected latitude [deg]
+  double longitude_;     // Reverse-projected longitude [deg]
+  double horizontal_;    // Horizontal magnetic intensity [nT]
+  double total_;         // Total magnetic intensity [nT]
+  double declination_;   // Magnetic declination [deg]
+  double inclination_;   // Magnetic inclination [deg]
+};
 }  // namespace geo
 }  // namespace tobas

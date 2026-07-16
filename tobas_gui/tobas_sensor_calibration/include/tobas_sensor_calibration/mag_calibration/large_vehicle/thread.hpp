@@ -6,6 +6,7 @@
 #include <QThread>
 
 #include <tobas_algorithm/kahan.hpp>
+#include <tobas_geographic/geography.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_rqt_bridge/bridge.hpp>
 
@@ -40,6 +41,7 @@ public:
 
 private:
   const rclcpp::Node::SharedPtr node_;
+  geo::Geography geography_;
 
   ros2::SyncServiceClient<tobas_real_msgs::srv::SetMagnetometerParams>::SharedPtr set_params_sc_;
 

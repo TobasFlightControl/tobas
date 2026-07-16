@@ -46,7 +46,8 @@ void LargeVehicleMagCalibThread::run()
   }
 
   // Calculate the geomagnetic reference value at the current position.
-  const auto mag = geo::magneticField(gnss_->latitude, gnss_->longitude, gnss_->ellipsoid_height, tim::yearFraction());
+  const auto mag =
+    geography_.magneticField(gnss_->latitude, gnss_->longitude, gnss_->ellipsoid_height, tim::yearFraction());
   const kdl::Vector mag_ref(mag.north, -mag.east, mag.up);  // Compass XYZ corresponds to NWU.
 
   // Initialize.

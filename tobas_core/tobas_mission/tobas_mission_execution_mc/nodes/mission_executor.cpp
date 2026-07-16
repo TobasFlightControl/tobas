@@ -138,6 +138,8 @@ public:
   explicit MulticopterMissionExecutorNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
+  geo::Geography geography_;
+
   struct WaypointConfig
   {
     double max_hor_vel;    // [m/s]
@@ -528,7 +530,7 @@ bool MulticopterMissionExecutorNode::executeWaypoints(
 
   for (const auto& goal : goals) {
     const auto goal_coord =
-      geo::geodeticToPlane(goal.latitude, goal.longitude, gnss_origin_->latitude, gnss_origin_->longitude);
+      geography_.geodeticToPlane(goal.latitude, goal.longitude, gnss_origin_->latitude, gnss_origin_->longitude);
     kdl::Vector goal_pos(goal_coord.east, goal_coord.north, NAN);  // wrt. the odometry frame
     switch (goal.altitude_frame) {
       case kRelativeToLaunch:
@@ -881,7 +883,7 @@ bool MulticopterMissionExecutorNode::executeRTL(const ReturnToLaunch& goal, cons
   // Climb to the RTL minimum altitude if the current altitude is lower.
   if (cur_alt < min_alt) {
     const auto tar_coord =
-      geo::planeToGeodetic(cur_pos.x(), cur_pos.y(), gnss_origin_->latitude, gnss_origin_->longitude);
+      geography_.planeToGeodetic(cur_pos.x(), cur_pos.y(), gnss_origin_->latitude, gnss_origin_->longitude);
     wp.latitude = tar_coord.latitude;
     wp.longitude = tar_coord.longitude;
     wp.auto_heading = false;
@@ -892,7 +894,7 @@ bool MulticopterMissionExecutorNode::executeRTL(const ReturnToLaunch& goal, cons
 
   // Move to the arming point.
   const auto tar_coord =
-    geo::planeToGeodetic(launch_point_->x(), launch_point_->y(), gnss_origin_->latitude, gnss_origin_->longitude);
+    geography_.planeToGeodetic(launch_point_->x(), launch_point_->y(), gnss_origin_->latitude, gnss_origin_->longitude);
   wp.latitude = tar_coord.latitude;
   wp.longitude = tar_coord.longitude;
   wp.auto_heading = true;

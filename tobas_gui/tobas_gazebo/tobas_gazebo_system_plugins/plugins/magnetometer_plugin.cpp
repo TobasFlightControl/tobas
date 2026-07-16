@@ -45,6 +45,8 @@ public:
   void PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager& ecm) override;
 
 private:
+  geo::Geography geography_;
+
   // SDF parameters
   std::string link_name_;
   int update_rate_;            // [Hz] Update rate
@@ -120,14 +122,14 @@ void GazeboMagnetometerPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const
   const auto W_Pos_WS = W_Pos_WB + W_Rot_B.RotateVector(offset_);
 
   // Compute latitude, longitude, and altitude from Cartesian coordinates.
-  const auto coord = geo::planeToGeodetic(W_Pos_WS.X(), W_Pos_WS.Y(), lat_0_, lon_0_);
+  const auto coord = geography_.planeToGeodetic(W_Pos_WS.X(), W_Pos_WS.Y(), lat_0_, lon_0_);
   lat_ = coord.latitude;
   lon_ = coord.longitude;
   const auto alt = alt_0_ + W_Pos_WS.Z();
 
   // Compute the geomagnetic reference value from latitude, longitude, and altitude.
   // TODO: Consider WMM error.
-  const auto mag = geo::magneticField(lat_, lon_, alt, tim::yearFraction());
+  const auto mag = geography_.magneticField(lat_, lon_, alt, tim::yearFraction());
 
   // Compute geomagnetic field viewed from the body coordinate system.
   const gz::math::Vector3d field_W(mag.east, mag.north, mag.up);  // ENU coordinates
