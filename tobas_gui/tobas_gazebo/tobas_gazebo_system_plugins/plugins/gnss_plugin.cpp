@@ -233,8 +233,8 @@ void GazeboGnssPlugin::updatePosition(tobas_msgs::Gnss& gnss_msg, const gz::math
   const auto coord = geography_.planeToGeodetic(W_Pos_WS.X(), W_Pos_WS.Y(), lat_0_, lon_0_);
   gnss_msg.latitude = coord.latitude;
   gnss_msg.longitude = coord.longitude;
-  gnss_msg.altitude = W_Pos_WS.Z();
-  gnss_msg.ellipsoid_height = W_Pos_WS.Z();
+  gnss_msg.height_wgs84 = W_Pos_WS.Z();
+  gnss_msg.height_msl = W_Pos_WS.Z();
 }
 
 void GazeboGnssPlugin::updateVelocity(

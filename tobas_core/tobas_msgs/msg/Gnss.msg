@@ -13,15 +13,15 @@ uint8 GPS_DEAD_RECHONING_COMBINED = 4
 uint8 TIME_ONLY_FIX = 5
 
 # Position
-float64 latitude                               # [deg]
-float64 longitude                              # [deg]
-float64 altitude                               # Height above mean sea level [m]
-float64 ellipsoid_height                       # Height above the WGS 84 ellipsoid [m]
-tobas_eigen_msgs/Matrix3d position_covariance  # [m^2]
+float64 latitude                               # Geodetic latitude [deg]
+float64 longitude                              # Geodetic longitude [deg]
+float64 height_wgs84                           # Height above the WGS 84 ellipsoid [m]
+float64 height_msl                             # Height above mean sea level [m]
+tobas_eigen_msgs/Matrix3d position_covariance  # Position covariance [m^2]
 
 # Velocity
-tobas_kdl_msgs/Vector ground_speed             # [m/s]
-tobas_eigen_msgs/Matrix3d velocity_covariance  # [m^2/s^2]
+tobas_kdl_msgs/Vector ground_speed             # Ground velocity in ENU coordinates [m/s]
+tobas_eigen_msgs/Matrix3d velocity_covariance  # Ground-velocity covariance [m^2/s^2]
 
 # Status
-uint8 num_satellites_used  # The number of satellites used in NAV solution
+uint8 num_satellites_used  # Satellites used in the navigation solution

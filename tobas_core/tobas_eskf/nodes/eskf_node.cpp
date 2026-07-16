@@ -875,15 +875,14 @@ void ErrorStateKalmanFilterNode::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& 
     // TODO: Convert to the body frame.
     gnss_origin_.latitude = msg->latitude;
     gnss_origin_.longitude = msg->longitude;
-    gnss_origin_.altitude = msg->altitude;
+    gnss_origin_.altitude = msg->height_msl;
 
     // Publish the initial GNSS position.
     publishGnssOrigin(gnss_origin_.latitude, gnss_origin_.longitude, gnss_origin_.altitude);
 
     // Compute the geomagnetic reference value from the initial GNSS value.
     // TODO: Compute the reference value online according to position changes.
-    const auto mag =
-      geography_.magneticField(msg->latitude, msg->longitude, msg->ellipsoid_height, tim::yearFraction());
+    const auto mag = geography_.magneticField(msg->latitude, msg->longitude, msg->height_wgs84, tim::yearFraction());
     const Vector3d mag_W(mag.east, mag.north, mag.up);  // ENU coordinates
     setMagneticFieldRef(mag_W);
 
@@ -900,7 +899,7 @@ void ErrorStateKalmanFilterNode::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& 
     geography_.geodeticToPlane(msg->latitude, msg->longitude, gnss_origin_.latitude, gnss_origin_.longitude);
   pos_meas_.x() = pos.east;
   pos_meas_.y() = pos.north;
-  pos_meas_.z() = msg->altitude - gnss_origin_.altitude;
+  pos_meas_.z() = msg->height_msl - gnss_origin_.altitude;
 
   // Covariance.
   gnss_cov_.topLeftCorner<3, 3>() = pos_cov;

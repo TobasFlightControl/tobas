@@ -39,9 +39,9 @@ Geography::planeToGeodetic(double east, double north, double origin_latitude, do
   return { latitude_, longitude_ };
 }
 
-MagneticField Geography::magneticField(double latitude, double longitude, double ellipsoid_height, double decimal_year)
+MagneticField Geography::magneticField(double latitude, double longitude, double height_wgs84, double decimal_year)
 {
-  magnetic_model_(decimal_year, latitude, longitude, ellipsoid_height, east_, north_, up_);
+  magnetic_model_(decimal_year, latitude, longitude, height_wgs84, east_, north_, up_);
   GeographicLib::MagneticModel::FieldComponents(east_, north_, up_, horizontal_, total_, declination_, inclination_);
   return { east_ * kNanoTeslaToGauss, north_ * kNanoTeslaToGauss, up_ * kNanoTeslaToGauss, total_ * kNanoTeslaToGauss };
 }

@@ -56,10 +56,10 @@ public:
    *
    * @param latitude Geodetic latitude [deg].
    * @param longitude Geodetic longitude [deg].
-   * @param ellipsoid_height Height above the WGS 84 ellipsoid [m].
+   * @param height_wgs84 Height above the WGS 84 ellipsoid [m].
    * @param decimal_year Decimal year.
    */
-  MagneticField magneticField(double latitude, double longitude, double ellipsoid_height, double decimal_year);
+  MagneticField magneticField(double latitude, double longitude, double height_wgs84, double decimal_year);
 
 private:
   GeographicLib::TransverseMercator plane_projection_;

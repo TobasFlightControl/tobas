@@ -234,7 +234,7 @@ std::string ExportThreadCsv::makeCsvHeader() const
     "IMU/Gyro/X[rad/s],IMU/Gyro/Y[rad/s],IMU/Gyro/Z[rad/s],"
     "IMU/DGyro/X[rad/s^2],IMU/DGyro/Y[rad/s^2],IMU/DGyro/Z[rad/s^2],"
     "MagneticField/X[-],MagneticField/Y[-],MagneticField/Z[-],"
-    "GNSS/Latitude[deg],GNSS/Longitude[deg],GNSS/Altitude[m],"
+    "GNSS/Latitude[deg],GNSS/Longitude[deg],GNSS/HeightMSL[m],"
     "GNSS/EastSpeed[m/s],GNSS/NorthSpeed[m/s],GNSS/UpSpeed[m/s],"
     "RCInput/Roll,RCInput/Pitch,RCInput/Throttle,RCInput/Yaw,"
     "RCInput/FlightMode,RCInput/SubMode,RCInput/Enable,RCInput/Kill,"
@@ -337,7 +337,7 @@ std::string ExportThreadCsv::makeCsvDataRow(Time time, const SerializedDataMap& 
   if (gnss_it != data.end()) {
     const auto& msg = gnss_decoder_.decode(gnss_it->second);
     if (msg.fix_type == tobas_msgs::msg::Gnss::FIX_3D) {
-      res += std::to_string(msg.latitude) + ',' + std::to_string(msg.longitude) + ',' + std::to_string(msg.altitude) +
+      res += std::to_string(msg.latitude) + ',' + std::to_string(msg.longitude) + ',' + std::to_string(msg.height_msl) +
              ',' + std::to_string(msg.ground_speed.x) + ',' + std::to_string(msg.ground_speed.y) + ',' +
              std::to_string(msg.ground_speed.z) + ',';
     }

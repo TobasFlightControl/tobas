@@ -221,8 +221,8 @@ void GnssDriverNode::mainTimerCb()
   // Fill position.
   gnss_msg->latitude = pvt_.lat;
   gnss_msg->longitude = pvt_.lon;
-  gnss_msg->altitude = static_cast<double>(pvt_.hMSL) * 1e-3;
-  gnss_msg->ellipsoid_height = static_cast<double>(pvt_.height) * 1e-3;
+  gnss_msg->height_wgs84 = static_cast<double>(pvt_.height) * 1e-3;
+  gnss_msg->height_msl = static_cast<double>(pvt_.hMSL) * 1e-3;
   gnss_msg->position_covariance(0, 0) = cov_.posCovNN;
   gnss_msg->position_covariance(0, 1) = cov_.posCovNE;
   gnss_msg->position_covariance(0, 2) = cov_.posCovND;
