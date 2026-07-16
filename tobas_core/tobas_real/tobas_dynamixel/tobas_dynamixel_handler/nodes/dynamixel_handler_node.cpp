@@ -202,7 +202,7 @@ DynamixelHandlerNode::DynamixelHandlerNode(const rclcpp::NodeOptions& options)
   enable_torques_ss_ = createService<std_srvs::srv::SetBool>(service::kEnableTorques, &self::enableTorquesCb, this);
 
   // Start main timer with maximum rate
-  const auto state_pub_period = state_pub_rate_ > 0 ? ch::duration<double>(1.0 / state_pub_rate_) : 0s;
+  const auto state_pub_period = state_pub_rate_ > 0 ? ch::duration<double>(1.0 / state_pub_rate_) : 0ms;
   pub_states_timer_ = createWallTimer(state_pub_period, &self::publishCurrentStatesTimerCb, this);
 }
 
