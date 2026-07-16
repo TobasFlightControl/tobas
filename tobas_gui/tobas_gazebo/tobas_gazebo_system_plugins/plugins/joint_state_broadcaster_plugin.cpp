@@ -73,13 +73,13 @@ void GazeboJointStateBroadcasterPlugin::Configure(
 
   rate_manager_ = std::make_shared<RateManager>(param_.update_rate);
 
-  // Get robot model
+  // Get robot model.
   const gz::sim::Model model(model_entity);
   if (!model.Valid(ecm)) {
     TOBAS_EXIT("Failed to find model.");
   }
 
-  // Get joint states
+  // Get joint states.
   for (const auto& jnt_name : param_.joint_names) {
     const auto joint_entity = model.JointByName(ecm, jnt_name);
     const auto joint = std::make_shared<gz::sim::Joint>(joint_entity);
@@ -91,7 +91,7 @@ void GazeboJointStateBroadcasterPlugin::Configure(
     TOBAS_CHECK(jnt_eff_[jnt_name] = getComponent<cmp::JointTransmittedWrench>(joint_entity, ecm));
   }
 
-  // Register ROS interfaces
+  // Register ROS interfaces.
   registerRosInterfaces();
 }
 

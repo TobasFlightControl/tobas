@@ -165,7 +165,7 @@ bool EffortControllerNode::jointSpaceControl(
   }
   const auto efforts = tar_js_conv_.getEffort() + pid_js_.getEfforts();  // FF + FB
 
-  // Fill output message
+  // Fill output message.
   for (const auto& tar_state : tar_js.states) {
     const auto& jnt_name = tar_state.name;
     if (!jnt_names_.contains(jnt_name)) {
@@ -224,7 +224,7 @@ bool EffortControllerNode::taskSpaceControl(
   active_jnts_extractor_.solve(manipulation::linkNames(tar_ls));
   const auto& active_jnt_names = active_jnts_extractor_.activeJointNames();
 
-  // Fill output message
+  // Fill output message.
   for (const auto& jnt_name : active_jnt_names) {
     if (!jnt_names_.contains(jnt_name)) {
       TOBAS_ERROR("The target joint \"", jnt_name, "\" is not included in the joint group.");
@@ -375,7 +375,7 @@ void EffortControllerNode::currentJointStateCb(const tobas_msgs::msg::JointState
     return;
   }
 
-  // Create joint efforts command
+  // Create joint efforts command.
   auto efforts_msg = std::make_unique<tobas_msgs::msg::JointCommandArray>();
   efforts_msg->header.stamp = cur_js->header.stamp;
 
@@ -395,7 +395,7 @@ void EffortControllerNode::currentJointStateCb(const tobas_msgs::msg::JointState
     return;
   }
 
-  // Publish joint efforts command
+  // Publish joint efforts command.
   efforts_pub_->publish(std::move(efforts_msg));
 }
 

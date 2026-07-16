@@ -138,16 +138,16 @@ void PwmBattImuDriverNode::configureImuRpmFilter(
 
 void PwmBattImuDriverNode::mainTimerCb()
 {
-  // Get the current time
+  // Get the current time.
   const auto cur_time = now();
 
-  // Communicate with the MCU
+  // Communicate with the MCU.
   if (!driver_.transfer()) {
     TOBAS_ERROR("Failed to communicate with the MCU.");
     return;
   }
 
-  // Publish the battery state
+  // Publish the battery state.
   auto batt_msg = std::make_unique<tobas_msgs::msg::Battery>();
   batt_msg->header.stamp = cur_time;
   driver_.getBattVoltage(batt_msg->voltage);
@@ -159,7 +159,7 @@ void PwmBattImuDriverNode::mainTimerCb()
     TOBAS_WARN_THROTTLE(kTypicalWarnPeriod, "Battery state is unavailable.");
   }
 
-  // Publish the raw IMU
+  // Publish the raw IMU.
   auto imu_raw_msg = std::make_unique<tobas_msgs::Imu>();
   imu_raw_msg->header.stamp = cur_time;
   driver_.getRawAccel(imu_raw_msg->accel.x(), imu_raw_msg->accel.y(), imu_raw_msg->accel.z());
@@ -167,7 +167,7 @@ void PwmBattImuDriverNode::mainTimerCb()
   driver_.getRawDGyro(imu_raw_msg->dgyro.x(), imu_raw_msg->dgyro.y(), imu_raw_msg->dgyro.z());
   imu_raw_pub_->publish(std::move(imu_raw_msg));
 
-  // Publish the filtered IMU
+  // Publish the filtered IMU.
   auto imu_filt_msg = std::make_unique<tobas_msgs::Imu>();
   imu_filt_msg->header.stamp = cur_time;
   driver_.getFilteredAccel(imu_filt_msg->accel.x(), imu_filt_msg->accel.y(), imu_filt_msg->accel.z());
@@ -175,7 +175,7 @@ void PwmBattImuDriverNode::mainTimerCb()
   driver_.getFilteredDGyro(imu_filt_msg->dgyro.x(), imu_filt_msg->dgyro.y(), imu_filt_msg->dgyro.z());
   imu_filt_pub_->publish(std::move(imu_filt_msg));
 
-  // Publish the sampling time
+  // Publish the sampling time.
   sampling_time_pub_.publish(cur_time);
 }
 }  // namespace fc2xx

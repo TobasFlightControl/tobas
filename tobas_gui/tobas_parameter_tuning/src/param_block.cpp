@@ -51,7 +51,7 @@ bool ParamBlockWidget::load()
 {
   clear();
 
-  // Get dynamic parameters
+  // Get dynamic parameters.
   const auto req = std::make_shared<tobas_dparam_msgs::srv::GetParams::Request>();
   const auto res = get_param_sc_->sendRequestAndWait(req);
   if (!res) {
@@ -60,7 +60,7 @@ bool ParamBlockWidget::load()
   }
   const auto& params = res->params;
 
-  // Add sliders
+  // Add sliders.
   for (const auto& param : params.ints) {
     const auto param_name_label = new QLabel(QString::fromStdString(param.name));
     param_name_label->setFixedWidth(kParamNameWidth);

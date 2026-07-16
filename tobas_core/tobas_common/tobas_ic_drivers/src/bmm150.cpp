@@ -144,7 +144,7 @@ bool BMM150::execSelfTest()
     return false;
   }
 
-  this_thread::sleep_for(3ms);  // Wait for BMM150's self test
+  this_thread::sleep_for(3ms);  // Wait for BMM150's self test.
 
   return true;
 }
@@ -176,7 +176,7 @@ bool BMM150::readTrimRegisters()
   uint8_t trim_xy1xy2[10] = {};
   uint16_t temp_msb = 0;
 
-  // Trim register value is read
+  // Trim register value is read.
   if (!i2c_.readBytes(DIG_X1_REG, sizeof(trim_x1y1), trim_x1y1)) {
     cerr << "Failed to read DIG_X1_REG." << endl;
     return false;
@@ -306,7 +306,7 @@ int16_t BMM150::compensateZ(const int16_t& mag_data_z, const uint16_t& data_r_ha
       const int16_t process_comp_z4 = (int16_t)((process_comp_z3 + 32768) / 65536);
       const int32_t retval = ((process_comp_z2 - process_comp_z1) / (trim_data_.dig_z2 + process_comp_z4));
 
-      // Saturate result to +/- 2 micro-tesla
+      // Saturate result to +/- 2 micro-tesla.
       if (retval > kPositiveSaturationZ) {
         return kPositiveSaturationZ;
       }

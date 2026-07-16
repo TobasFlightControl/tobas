@@ -122,11 +122,11 @@ void SBUS::readThreadFunc(std::stop_token st)
       continue;
     }
 
-    // Decode packet
+    // Decode packet.
     decodeData(data);
     decodeFlags(flags);
 
-    // Call user callback
+    // Call user callback.
     packet_cb_(packet_);
   }
 }

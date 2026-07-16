@@ -167,13 +167,13 @@ void GazeboElectricPropulsionSystemPlugin::Configure(
 
   publish_state_rate_manager_ = std::make_shared<RateManager>(param_.publish_state_rate);
 
-  // Get robot model
+  // Get robot model.
   const gz::sim::Model model(model_entity);
   if (!model.Valid(ecm)) {
     TOBAS_EXIT("Failed to find model.");
   }
 
-  // Get joint
+  // Get joint.
   const auto joint_entity = findJointWithChildLink(ecm, link_name_);
   if (!joint_entity.has_value()) {
     TOBAS_EXIT("Failed to find the parent joint of rotor link \"", link_name_, "\".");
@@ -183,23 +183,23 @@ void GazeboElectricPropulsionSystemPlugin::Configure(
     TOBAS_EXIT("Failed to find rotor link \"", link_name_, "\".");
   }
 
-  // Get joint name
+  // Get joint name.
   const auto joint_name = joint_->Name(ecm).value();
 
-  // Check joint type
+  // Check joint type.
   const auto joint_type = joint_->Type(ecm).value();
   if (joint_type != sdf::JointType::CONTINUOUS && joint_type != sdf::JointType::REVOLUTE) {
     TOBAS_EXIT("Joint \"", joint_name, "\" is not a rotating joint.");
   }
 
-  // Get child link
+  // Get child link.
   const auto link_entity = model.LinkByName(ecm, link_name_);
   link_ = std::make_shared<gz::sim::Link>(link_entity);
   if (!link_->Valid(ecm)) {
     TOBAS_EXIT("Failed to find the child link \"", link_name_, "\".");
   }
 
-  // Get parent link
+  // Get parent link.
   const auto parent_link_name = joint_->ParentLinkName(ecm).value();
   const auto parent_link_entity = model.LinkByName(ecm, parent_link_name);
   parent_link_ = std::make_shared<gz::sim::Link>(parent_link_entity);
@@ -207,7 +207,7 @@ void GazeboElectricPropulsionSystemPlugin::Configure(
     TOBAS_EXIT("Failed to find the parent link \"", parent_link_name, "\".");
   }
 
-  // Create necessary components
+  // Create necessary components.
   TOBAS_CHECK(jnt_axis_ = getComponent<cmp::JointAxis>(joint_entity.value(), ecm));
   TOBAS_CHECK(jnt_vel_ = getComponent<cmp::JointVelocity>(joint_entity.value(), ecm));
   TOBAS_CHECK(pose_W_ = getComponent<cmp::WorldPose>(link_entity, ecm));
@@ -215,7 +215,7 @@ void GazeboElectricPropulsionSystemPlugin::Configure(
   TOBAS_CHECK(angvel_W_ = getComponent<cmp::WorldAngularVelocity>(link_entity, ecm));
   TOBAS_CHECK(inertial_ = getComponent<cmp::Inertial>(link_entity, ecm));
 
-  // Register ROS interfaces
+  // Register ROS interfaces.
   registerRosInterfaces();
 }
 
@@ -223,10 +223,10 @@ void GazeboElectricPropulsionSystemPlugin::PreUpdate(
   const gz::sim::UpdateInfo& info,
   gz::sim::EntityComponentManager& ecm)
 {
-  // Update the previous simulation step time
+  // Update the previous simulation step time.
   prev_sim_time_ = info.simTime;
 
-  // Check topics
+  // Check topics.
   if (!battery_gt_) {
     if (info.simTime > kCheckTopicWarnStartTime) {
       TOBAS_WARN_THROTTLE(kWarnPeriod, "Battery message has not been received yet.");
@@ -240,15 +240,15 @@ void GazeboElectricPropulsionSystemPlugin::PreUpdate(
     throt_ = 0.0;
   }
 
-  // Compute time after previous simulation time
+  // Compute time after previous simulation time.
   const auto dt = ch::duration<double>(info.dt).count();
 
-  // Check aliasing
+  // Check aliasing.
   if (std::abs(velocitySim() * dt) > M_PI) {
     TOBAS_WARN_THROTTLE(kWarnPeriod, "Aliasing on motor \"", link_name_, "\" might occur. Lower simulation time step.");
   }
 
-  // Update simulation state
+  // Update simulation state.
   applyWrenchAndPublishState(ecm, info.simTime);
   updateJointState(ecm, dt);
 }
@@ -296,7 +296,7 @@ void GazeboElectricPropulsionSystemPlugin::applyWrenchAndPublishState(
   gz::sim::EntityComponentManager& ecm,
   const ch::steady_clock::duration& cur_time)
 {
-  // Get joint axes
+  // Get joint axes.
   const auto& R_W_L = pose_W_->Data().Rot();
   const auto& axis_L = jnt_axis_->Data().Xyz();
   const auto axis_W = R_W_L.RotateVector(axis_L);
@@ -322,11 +322,11 @@ void GazeboElectricPropulsionSystemPlugin::applyWrenchAndPublishState(
   const auto torque = param_.moment_const * thrust;
   const auto drag_moment_W = (-param_.direction * torque) * axis_W;
 
-  // Apply wrench
+  // Apply wrench.
   link_->AddWorldWrench(ecm, thrust_force_W + h_force_W, gz::math::Vector3d::Zero);
   parent_link_->AddWorldWrench(ecm, gz::math::Vector3d::Zero, inertial_moment_W + coriolis_moment_W + drag_moment_W);
 
-  // Compute electric current
+  // Compute electric current.
   // Torque constant = generator coefficient = inverse of Kv, independent of internal resistance.
   const auto kt = 1.0 / param_.kv;
   const auto current = torque / kt;
@@ -345,7 +345,7 @@ void GazeboElectricPropulsionSystemPlugin::applyWrenchAndPublishState(
     throt_ = 0.0;
   }
 
-  // Publish observed state
+  // Publish observed state.
   if (publish_state_rate_manager_->update(cur_time)) {
     auto state_msg_obs = std::make_unique<tobas_msgs::msg::RotorState>();
     state_msg_obs->link_name = link_name_;
@@ -362,7 +362,7 @@ void GazeboElectricPropulsionSystemPlugin::applyWrenchAndPublishState(
     state_pub_->publish(std::move(state_msg_obs));
   }
 
-  // Publish ground-truth state
+  // Publish ground-truth state.
   // TODO: Analyze frequency-domain results from the real IMU and build a more accurate vibration model, including harmonic frequencies.
   auto state_msg_gt = std::make_unique<tobas_gazebo_msgs::msg::RotorState>();
   ros2::timeChronoToMsg(cur_time, state_msg_gt->header.stamp);
@@ -371,7 +371,7 @@ void GazeboElectricPropulsionSystemPlugin::applyWrenchAndPublishState(
   state_msg_gt->vibration_force = param_.vib_force_coef * thrust * std::sin(pos_) * rice_(rnd_gen_);
   state_gt_pub_->publish(std::move(state_msg_gt));
 
-  // Publish debug information
+  // Publish debug information.
   auto debug_msg = std::make_unique<tobas_gazebo_msgs::msg::RotorDebug>();
   ros2::timeChronoToMsg(cur_time, debug_msg->header.stamp);
   debug_msg->position = pos_;

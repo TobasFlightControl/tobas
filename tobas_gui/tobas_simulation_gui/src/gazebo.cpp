@@ -73,7 +73,7 @@ public:
 
   void run() override
   {
-    // Kill Gazebo server
+    // Kill Gazebo server.
     if (!killGazeboServer()) {
       Q_EMIT finished(false, "Failed to send kill signal to the Gazebo server.");
       return;

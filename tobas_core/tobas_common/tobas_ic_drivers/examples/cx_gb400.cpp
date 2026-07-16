@@ -28,7 +28,7 @@ int main(int argc, char** argv)
   }
 
   tobas::driver::CxGb400 camera;
-  // reset uavcan
+  // Reset uavcan.
   if (reset_uavcan) {
     if (!camera.initialize(device, tobas::driver::CxGb400::CameraPosition::kLower)) {
       std::cerr << "Failed to initialize cx_gb400." << std::endl;
@@ -45,7 +45,7 @@ int main(int argc, char** argv)
     return EXIT_SUCCESS;
   }
 
-  // usual operations without resetting uavcan.
+  // Usual operations without resetting uavcan.
   if (!camera.initialize(device, tobas::driver::CxGb400::CameraPosition::kLower)) {
     std::cerr << "Failed to initialize cx_gb400." << std::endl;
     return EXIT_FAILURE;
@@ -79,7 +79,7 @@ int main(int argc, char** argv)
       }
       uint32_t image_size = 0;
       void* image_ptr = camera.getImage(image_size);
-      // save image
+      // Save image.
       int out = open("out.jpg", O_RDWR | O_CREAT, S_IRWXU | S_IRWXO | S_IRWXG);
       if (out < 0) {
         std::cerr << "file error" << std::endl;

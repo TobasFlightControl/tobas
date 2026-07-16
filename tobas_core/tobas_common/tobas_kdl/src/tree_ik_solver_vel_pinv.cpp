@@ -47,18 +47,18 @@ int TreeIkSolverVel_pinv::cartToJnt(const JntArray& q_in, const TwistMap& v_in)
   const auto num_points = v_in.size();
   const auto eq_dim = 6 * num_points;
 
-  // Create big jacobian and velocity
+  // Create big jacobian and velocity.
   J_.conservativeResize(eq_dim, nj_);
   t_.conservativeResize(eq_dim);
   size_t i = 0;
   for (const auto& [seg_name, twist] : v_in) {
-    // Update big jacobian
+    // Update big jacobian.
     if (jnt2jac_.jntToJac(q_in, seg_name) < 0) {
       return copyError(jnt2jac_);
     }
     J_.block(6 * i, 0, 6, nj_) = jnt2jac_.getJacobian().data;
 
-    // Update big velocity
+    // Update big velocity.
     t_.segment(6 * i, 3) = twist.vel.data;
     t_.segment(6 * i + 3, 3) = twist.rot.data;
 

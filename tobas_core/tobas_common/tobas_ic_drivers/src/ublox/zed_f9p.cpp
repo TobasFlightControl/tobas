@@ -21,7 +21,7 @@ ZEDF9P::ZEDF9P() : rate_(kReqInterval)
 
 bool ZEDF9P::initialize(const char* spi_device)
 {
-  // Initialize SPI device
+  // Initialize SPI device.
   if (!spi_.initialize(spi_device, tx_buf_, rx_buf_, kSpiClockFreq)) {
     return false;
   }
@@ -240,25 +240,25 @@ bool ZEDF9P::configureMeasurementRate(uint16_t period_ms)
 
 bool ZEDF9P::enableGps()
 {
-  // Enable GPS
+  // Enable GPS.
   if (!enableGps(true)) {
     std::cerr << "Failed to enable GPS." << std::endl;
     return false;
   }
 
-  // Enable L1 band
+  // Enable L1 band.
   if (!enableGpsL1()) {
     std::cerr << "Failed to enable GPS L1." << std::endl;
     return false;
   }
 
-  // Try to enable L2 band
+  // Try to enable L2 band.
   if (enableGpsL2()) {
     std::cout << "GPS L1/L2 is enabled." << std::endl;
     return true;
   }
 
-  // Try to enable L5 band
+  // Try to enable L5 band.
   if (enableGpsL5()) {
     std::cout << "GPS L1/L5 is enabled." << std::endl;
     return true;
@@ -275,13 +275,13 @@ bool ZEDF9P::disableGps()
 
 bool ZEDF9P::enableSbas()
 {
-  // Enable SBAS
+  // Enable SBAS.
   if (!enableSbas(true)) {
     std::cerr << "Failed to enable SBAS." << std::endl;
     return false;
   }
 
-  // Enable L1 band
+  // Enable L1 band.
   if (!enableSbasL1()) {
     std::cerr << "Failed to enable SBAS L1." << std::endl;
     return false;
@@ -297,25 +297,25 @@ bool ZEDF9P::disableSbas()
 
 bool ZEDF9P::enableGalileo()
 {
-  // Enable Galileo
+  // Enable Galileo.
   if (!enableGalileo(true)) {
     std::cerr << "Failed to enable Galileo." << std::endl;
     return false;
   }
 
-  // Enable L1 band
+  // Enable L1 band.
   if (!enableGalileoL1()) {
     std::cerr << "Failed to enable Galileo L1." << std::endl;
     return false;
   }
 
-  // Try to enable L2 band
+  // Try to enable L2 band.
   if (enableGalileoL2()) {
     std::cout << "Galileo L1/L2 is enabled." << std::endl;
     return true;
   }
 
-  // Try to enable L5 band
+  // Try to enable L5 band.
   if (enableGalileoL5()) {
     std::cout << "Galileo L1/L5 is enabled." << std::endl;
     return true;
@@ -332,25 +332,25 @@ bool ZEDF9P::disableGalileo()
 
 bool ZEDF9P::enableBeiDou()
 {
-  // Enable BeiDou
+  // Enable BeiDou.
   if (!enableBeiDou(true)) {
     std::cerr << "Failed to enable BeiDou." << std::endl;
     return false;
   }
 
-  // Enable L1 band
+  // Enable L1 band.
   if (!enableBeiDouL1()) {
     std::cerr << "Failed to enable BeiDou L1." << std::endl;
     return false;
   }
 
-  // Try to enable L2 band
+  // Try to enable L2 band.
   if (enableBeiDouL2()) {
     std::cout << "BeiDou L1/L2 is enabled." << std::endl;
     return true;
   }
 
-  // Try to enable L5 band
+  // Try to enable L5 band.
   if (enableBeiDouL5()) {
     std::cout << "BeiDou L1/L5 is enabled." << std::endl;
     return true;
@@ -367,25 +367,25 @@ bool ZEDF9P::disableBeiDou()
 
 bool ZEDF9P::enableQzss()
 {
-  // Enable QZSS
+  // Enable QZSS.
   if (!enableQzss(true)) {
     std::cerr << "Failed to enable QZSS." << std::endl;
     return false;
   }
 
-  // Enable L1 band
+  // Enable L1 band.
   if (!enableQzssL1()) {
     std::cerr << "Failed to enable QZSS L1." << std::endl;
     return false;
   }
 
-  // Try to enable L2 band
+  // Try to enable L2 band.
   if (enableQzssL2()) {
     std::cout << "QZSS L1/L2 is enabled." << std::endl;
     return true;
   }
 
-  // Try to enable L5 band
+  // Try to enable L5 band.
   if (enableQzssL5()) {
     std::cout << "QZSS L1/L5 is enabled." << std::endl;
     return true;
@@ -402,19 +402,19 @@ bool ZEDF9P::disableQzss()
 
 bool ZEDF9P::enableGlonass()
 {
-  // Enable GLONASS
+  // Enable GLONASS.
   if (!enableGlonass(true)) {
     std::cerr << "Failed to enable GLONASS." << std::endl;
     return false;
   }
 
-  // Enable L1 band
+  // Enable L1 band.
   if (!enableGlonassL1()) {
     std::cerr << "Failed to enable GLONASS L1." << std::endl;
     return false;
   }
 
-  // Try to enable L2 band
+  // Try to enable L2 band.
   if (enableGlonassL2()) {
     std::cout << "GLONASS L1/L2 is enabled." << std::endl;
     return true;
@@ -431,13 +431,13 @@ bool ZEDF9P::disableGlonass()
 
 bool ZEDF9P::enableNavIc()
 {
-  // Enable NavIC
+  // Enable NavIC.
   if (!enableNavIc(true)) {
     std::cerr << "Failed to enable NavIC." << std::endl;
     return false;
   }
 
-  // Enable L5 band
+  // Enable L5 band.
   if (!enableNavIcL5()) {
     std::cerr << "Failed to enable NavIC L5." << std::endl;
     return false;

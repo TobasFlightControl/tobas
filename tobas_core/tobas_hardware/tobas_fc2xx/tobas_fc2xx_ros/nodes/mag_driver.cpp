@@ -57,20 +57,20 @@ void MagDriverNode::initialize()
 
 void MagDriverNode::mainTimerCb()
 {
-  // Read sensor
+  // Read sensor.
   if (!mag_.readMag(mx_, my_, mz_)) {
     TOBAS_FATAL("Failed to read magnetometer.");
     return;
   }
 
-  // Create a message
+  // Create a message.
   auto msg = std::make_unique<tobas_msgs::MagneticField>();
   msg->header.stamp = now();
   msg->mag.x(my_);
   msg->mag.y(-mx_);
   msg->mag.z(-mz_);
 
-  // Publish the message
+  // Publish the message.
   mag_pub_->publish(std::move(msg));
 }
 }  // namespace fc2xx

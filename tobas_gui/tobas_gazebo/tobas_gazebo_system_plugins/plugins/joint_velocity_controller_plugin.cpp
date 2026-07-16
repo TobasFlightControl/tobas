@@ -73,26 +73,26 @@ void GazeboJointVelocityControllerPlugin::Configure(
   initialize("gazebo_" + sanitizeNodeName(joint_name_) + "_controller_plugin", sdf);
   getSdfParams(sdf);
 
-  // Get robot model
+  // Get robot model.
   const gz::sim::Model model(model_entity);
   if (!model.Valid(ecm)) {
     TOBAS_EXIT("Failed to find model.");
   }
 
-  // Get joint
+  // Get joint.
   const auto joint_entity = model.JointByName(ecm, joint_name_);
   joint_ = std::make_shared<gz::sim::Joint>(joint_entity);
   if (!joint_->Valid(ecm)) {
     TOBAS_EXIT("Failed to find joint \"", joint_name_, "\".");
   }
 
-  // Get joint velocity
+  // Get joint velocity.
   TOBAS_CHECK(jnt_vel_ = getComponent<cmp::JointVelocity>(joint_entity, ecm));
 
-  // Reset joint position
+  // Reset joint position.
   joint_->ResetPosition(ecm, { param_.home_pos });
 
-  // Register ROS interfaces
+  // Register ROS interfaces.
   registerRosInterfaces();
 }
 

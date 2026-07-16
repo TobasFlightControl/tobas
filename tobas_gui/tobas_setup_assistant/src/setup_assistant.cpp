@@ -144,7 +144,7 @@ bool SetupAssistantWidget::resolveMeshPaths(const fs::path& config_pkg_path, tin
 
 bool SetupAssistantWidget::updateInternalDataStructures()
 {
-  // Update KDL objects
+  // Update KDL objects.
   q_zeros_ = kdl::JntArray::Zero(tree_.getNrOfJoints());
   if (!jnt_parser_.updateInternalDataStructures()) {
     return false;
@@ -153,7 +153,7 @@ bool SetupAssistantWidget::updateInternalDataStructures()
     return false;
   }
 
-  // Update widgets
+  // Update widgets.
   rotor_marker_publisher_.updateInternalDataStructures();
   settings_->updateInternalDataStructures();
   rviz_->updateInternalDataStructures();
@@ -161,7 +161,7 @@ bool SetupAssistantWidget::updateInternalDataStructures()
   properties_->updateInternalDataStructures();
   jsp_->updateInternalDataStructures();
 
-  // Update RSP parameter
+  // Update RSP parameter.
   const auto urdf_doc = urdf::exportUrdf(*uadf_.urdf);
   const auto urdf_text = xml::xmlDocumentToString(urdf_doc);
   if (!rsp_client_.setParam("robot_description", urdf_text)) {
@@ -443,14 +443,14 @@ void SetupAssistantWidget::onNewButtonClicked()
     return;
   }
 
-  // Load UADF
+  // Load UADF.
   if (!uadf_parser_.parseFromText(uadf_text, uadf_)) {
     qt::qErrorBox(this, "Failed to parse UADF:\n\n" + QString::fromStdString(uadf_parser_.errorMessage()));
     reset();
     return;
   }
 
-  // Load KDL tree
+  // Load KDL tree.
   if (!tree_parser_.parseFromUrdf(*uadf_.urdf, tree_)) {
     qt::qErrorBox(
       this, "Failed to construct KDL tree from URDF:\n\n" + QString::fromStdString(tree_parser_.errorMessage()));
@@ -458,7 +458,7 @@ void SetupAssistantWidget::onNewButtonClicked()
     return;
   }
 
-  // Check model validity
+  // Check model validity.
   std::string error_msg;
   if (!uadf_.valid()) {
     qt::qErrorBox(this, "UADF is invalid.");  // TODO: Show a detailed error message.
@@ -554,14 +554,14 @@ void SetupAssistantWidget::onLoadButtonClicked()
     return;
   }
 
-  // Load the backup UADF whose mesh paths are resolved
+  // Load the backup UADF whose mesh paths are resolved.
   if (!uadf_parser_.parseFromXml(&uadf_doc, uadf_)) {
     qt::qErrorBox(this, "Failed to parse UADF:\n\n" + QString::fromStdString(uadf_parser_.errorMessage()));
     reset();
     return;
   }
 
-  // Load KDL tree
+  // Load KDL tree.
   if (!tree_parser_.parseFromUrdf(*uadf_.urdf, tree_)) {
     qt::qErrorBox(
       this, "Failed to construct KDL tree from URDF:\n\n" + QString::fromStdString(tree_parser_.errorMessage()));
@@ -569,7 +569,7 @@ void SetupAssistantWidget::onLoadButtonClicked()
     return;
   }
 
-  // Check model validity
+  // Check model validity.
   std::string error_msg;
   if (!uadf_.valid()) {
     qt::qErrorBox(this, "UADF is invalid.");  // TODO: Show a detailed error message.

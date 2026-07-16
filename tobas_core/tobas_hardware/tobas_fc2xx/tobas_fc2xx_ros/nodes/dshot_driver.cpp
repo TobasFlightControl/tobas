@@ -98,7 +98,7 @@ void DShotDriverNode::initialize()
 
 bool DShotDriverNode::configure()
 {
-  // Set Kv values
+  // Set Kv values.
   for (const auto& [link_name, _] : eprop_->rotors) {
     const auto erotor = eprop_->getRotor(link_name);
     if (!dshot_.setKv(erotor->channel, erotor->kv)) {
@@ -110,7 +110,7 @@ bool DShotDriverNode::configure()
     return false;
   }
 
-  // Set internal resistances
+  // Set internal resistances.
   for (const auto& [link_name, _] : eprop_->rotors) {
     const auto erotor = eprop_->getRotor(link_name);
     if (!dshot_.setInternalResistance(erotor->channel, erotor->internal_resistance)) {
@@ -122,7 +122,7 @@ bool DShotDriverNode::configure()
     return false;
   }
 
-  // Set propeller diameters
+  // Set propeller diameters.
   for (const auto& [link_name, _] : eprop_->rotors) {
     const auto erotor = eprop_->getRotor(link_name);
     if (!dshot_.setPropellerDiameter(erotor->channel, erotor->propeller_diameter)) {
@@ -134,7 +134,7 @@ bool DShotDriverNode::configure()
     return false;
   }
 
-  // Set moment constants
+  // Set moment constants.
   for (const auto& [link_name, _] : eprop_->rotors) {
     const auto erotor = eprop_->getRotor(link_name);
     const auto moment_const = erotor->motor_const * erotor->moment_const / std::pow(erotor->propeller_diameter, 5);
@@ -147,7 +147,7 @@ bool DShotDriverNode::configure()
     return false;
   }
 
-  // Set the number of poles
+  // Set the number of poles.
   for (const auto& [link_name, _] : eprop_->rotors) {
     const auto erotor = eprop_->getRotor(link_name);
     if (!dshot_.setNumPoles(erotor->channel, erotor->num_poles)) {
@@ -241,7 +241,7 @@ void DShotDriverNode::droneCb(const Drone::ConstSharedPtr& drone)
 
 void DShotDriverNode::targetSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::ConstSharedPtr& tar_speeds)
 {
-  // Set target speeds of each channel
+  // Set target speeds of each channel.
   for (const auto& elem : tar_speeds->speeds) {
     const auto erotor = eprop_->getRotor(elem.link_name);
     if (!erotor) {
@@ -255,7 +255,7 @@ void DShotDriverNode::targetSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::Con
     }
   }
 
-  // Send the commands and publish the rotor states
+  // Send the commands and publish the rotor states.
   // NOTE: Even in the event of a communication error, the motor status must always be published.
   if (transfer()) {
     publishCurrentRotorStates();
@@ -264,13 +264,13 @@ void DShotDriverNode::targetSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::Con
     publishErrorRotorStates();
   }
 
-  // Publish the control latency
+  // Publish the control latency.
   latency_pub_.publish(tar_speeds->header.stamp);
 
-  // Reset the timeout timer
+  // Reset the timeout timer.
   auto_stop_timer_->reset();
 
-  // Now the rotors are commanded
+  // Now the rotors are commanded.
   is_commanded_ = true;
 }
 

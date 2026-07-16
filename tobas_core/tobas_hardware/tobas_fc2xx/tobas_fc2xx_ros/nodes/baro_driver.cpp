@@ -55,19 +55,19 @@ void BaroDriverNode::initialize()
 
 void BaroDriverNode::mainTimerCb()
 {
-  // Create messages
+  // Create messages.
   auto msg = std::make_unique<tobas_msgs::msg::FluidPressure>();
 
-  // Fill headers
+  // Fill headers.
   msg->header.stamp = now();
 
-  // Read sensor
+  // Read sensor.
   if (!baro_.readPressure(msg->pressure)) {
     TOBAS_FATAL("Failed to read barometer.");
     return;
   }
 
-  // Publish message
+  // Publish message.
   baro_pub_->publish(std::move(msg));
 }
 }  // namespace fc2xx

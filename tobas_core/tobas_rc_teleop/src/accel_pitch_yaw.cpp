@@ -68,7 +68,7 @@ void AccelPitchYawController::reset(const builtin_interfaces::msg::Time& stamp, 
 
 void AccelPitchYawController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry&, bool)
 {
-  // Update timestamp
+  // Update timestamp.
   const auto dt = (rcin.header.stamp - t_last_rcin_).seconds();
   t_last_rcin_ = rcin.header.stamp;
 
@@ -94,11 +94,11 @@ void AccelPitchYawController::update(const tobas_msgs::RCInput& rcin, const toba
   const auto yawrate = expoRemapDead(rcin.yaw, yaw_expo_, -max_yaw_rate_, max_yaw_rate_);
   tar_yaw_ += yawrate * dt;
 
-  // Compute the acceleration wrt. the world frame
+  // Compute the acceleration wrt. the world frame.
   const kdl::Vector tar_acc_G(ax_filt_.getTrajectoryPosition(), ay_filt_.getTrajectoryPosition(), az);
   const auto tar_acc_W = kdl::Rotation::RotZ(tar_yaw_) * tar_acc_G;
 
-  // Create a command
+  // Create a command.
   auto cmd = std::make_unique<tobas_command_msgs::AccelPitchYaw>();
   cmd->header = rcin.header;
   cmd->priority.data = tobas_command_msgs::msg::Priority::MANUAL;
@@ -106,7 +106,7 @@ void AccelPitchYawController::update(const tobas_msgs::RCInput& rcin, const toba
   cmd->pitch = pitch_filt_.getTrajectoryPosition();
   cmd->yaw = tar_yaw_;
 
-  // Publish the command
+  // Publish the command.
   cmd_pub_->publish(std::move(cmd));
 }
 

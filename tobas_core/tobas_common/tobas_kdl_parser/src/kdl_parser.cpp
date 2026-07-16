@@ -56,7 +56,7 @@ bool TreeParser::parseFromUrdf(const ::urdf::ModelInterface& model, Tree& tree)
     return false;
   }
 
-  // Add all children
+  // Add all children.
   for (const auto& child : root_link->child_links) {
     addChildrenToTree(child, tree);
   }
@@ -71,25 +71,25 @@ const string& TreeParser::errorMessage() const
 
 void TreeParser::addChildrenToTree(const ::urdf::LinkConstSharedPtr& root, Tree& tree)
 {
-  // Construct the KDL joint
+  // Construct the KDL joint.
   const auto joint = jointUrdfToKdl(*root->parent_joint);
 
-  // Construct the tip frame
+  // Construct the tip frame.
   const auto f_tip = poseUrdfToKdl(root->parent_joint->parent_to_joint_origin_transform);
 
-  // Construct the optional inertia
+  // Construct the optional inertia.
   RigidBodyInertia inertia;
   if (root->inertial) {
     inertiaUrdfToKdl(*root->inertial, inertia);
   }
 
-  // construct the KDL segment
+  // Construct the KDL segment.
   const Segment segment(root->name, joint, f_tip, inertia);
 
-  // Add segment to tree
+  // Add segment to tree.
   tree.addSegment(segment, root->parent_joint->parent_link_name);
 
-  // Recurslively add all children
+  // Recurslively add all children.
   for (const auto& child : root->child_links) {
     addChildrenToTree(child, tree);
   }

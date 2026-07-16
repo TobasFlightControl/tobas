@@ -75,28 +75,28 @@ void GazeboJointPositionControllerPlugin::Configure(
   initialize("gazebo_" + sanitizeNodeName(joint_name_) + "_controller_plugin", sdf);
   getSdfParams(sdf);
 
-  // Get robot model
+  // Get robot model.
   const gz::sim::Model model(model_entity);
   if (!model.Valid(ecm)) {
     TOBAS_EXIT("Failed to find model.");
   }
 
-  // Get joint
+  // Get joint.
   const auto joint_entity = model.JointByName(ecm, joint_name_);
   joint_ = std::make_shared<gz::sim::Joint>(joint_entity);
   if (!joint_->Valid(ecm)) {
     TOBAS_EXIT("Failed to find joint \"", joint_name_, "\".");
   }
 
-  // Get joint position
+  // Get joint position.
   TOBAS_CHECK(jnt_pos_ = getComponent<cmp::JointPosition>(joint_entity, ecm));
   TOBAS_CHECK(jnt_axis_ = getComponent<cmp::JointAxis>(joint_entity, ecm));
 
-  // Reset joint position
+  // Reset joint position.
   tar_pos_ = param_.home_pos;
   joint_->ResetPosition(ecm, { tar_pos_ });
 
-  // Register ROS interfaces
+  // Register ROS interfaces.
   registerRosInterfaces();
 }
 

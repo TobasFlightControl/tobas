@@ -109,12 +109,12 @@ private:
 DynamixelHandlerNode::DynamixelHandlerNode(const rclcpp::NodeOptions& options)
   : super("dynamixel_handler", nodeOptions_Default(options))
 {
-  // Get ROS parameters
+  // Get ROS parameters.
   if (!getStaticRosParams()) {
     return;
   }
 
-  // Get the device absolute path
+  // Get the device absolute path.
   std::error_code ec;
   device_name_ = fs::canonical(device_name_, ec);
   if (ec) {
@@ -122,7 +122,7 @@ DynamixelHandlerNode::DynamixelHandlerNode(const rclcpp::NodeOptions& options)
     return;
   }
 
-  // Initialize Dynamixel SDK
+  // Initialize Dynamixel SDK.
   poh_ = dynamixel::PortHandler::getPortHandler(device_name_.c_str());
   pah_ = dynamixel::PacketHandler::getPacketHandler(protocol_version_);
 
@@ -137,49 +137,49 @@ DynamixelHandlerNode::DynamixelHandlerNode(const rclcpp::NodeOptions& options)
   pos_sync_write_ = std::make_unique<dynamixel::GroupSyncWrite>(poh_, pah_, address::kGoalPosition, 4);
   vel_sync_write_ = std::make_unique<dynamixel::GroupSyncWrite>(poh_, pah_, address::kGoalVelocity, 4);
 
-  // Open serial port
+  // Open serial port.
   if (!poh_->openPort()) {
     TOBAS_ERROR("Failed to open port \"", device_name_, "\"");
     return;
   }
 
-  // Set baudrate
+  // Set baudrate.
   if (!poh_->setBaudRate(baudrate_)) {
     TOBAS_ERROR("Failed to set baudrate to ", baudrate_);
     return;
   }
 
-  // Get motor configurations
+  // Get motor configurations.
   if (!getMotorConfigs()) {
     return;
   }
 
   for (const auto& [name, cfg] : motors_) {
-    // Add parameters to dynamixel::GroupSyncRead objects
+    // Add parameters to dynamixel::GroupSyncRead objects.
     if (!core_sync_read_->addParam(cfg.id) || !hes_sync_read_->addParam(cfg.id)) {
       TOBAS_ERROR("Motor ID ", static_cast<int>(cfg.id), " is duplicated.");
       return;
     }
 
-    // Disable torque
+    // Disable torque.
     if (pah_->write1ByteTxRx(poh_, cfg.id, address::kToruqeEnable, torque_enable::kDisable) < 0) {
       TOBAS_ERROR("Failed to disable torque of \"", name, "\".");
       return;
     }
 
-    // Set return delay time
+    // Set return delay time.
     if (pah_->write1ByteTxRx(poh_, cfg.id, address::kReturnDelayTime, return_delay_time_) < 0) {
       TOBAS_ERROR("Failed to set return delay time of \"", name, "\".");
       return;
     }
 
-    // Set operating mode
+    // Set operating mode.
     if (pah_->write1ByteTxRx(poh_, cfg.id, address::kOperatingMode, cfg.operating_mode) < 0) {
       TOBAS_ERROR("Failed to set operating mode of \"", name, "\".");
       return;
     }
 
-    // Enable torque
+    // Enable torque.
     if (pah_->write1ByteTxRx(poh_, cfg.id, address::kToruqeEnable, torque_enable::kEnable) < 0) {
       TOBAS_ERROR("Failed to enable torque of \"", name, "\".");
       return;
@@ -188,30 +188,30 @@ DynamixelHandlerNode::DynamixelHandlerNode(const rclcpp::NodeOptions& options)
     TOBAS_INFO("\"", name, "\" has been initialized.");
   }
 
-  // Reduce latency
+  // Reduce latency.
   if (!setMinimumLatency()) {
     TOBAS_ERROR("Failed to set communication latency.");
     return;
   }
 
-  // Register publishers and subscribers
+  // Register publishers and subscribers.
   registerPublishers();
   registerSubscribers();
 
-  // Register service servers
+  // Register service servers.
   enable_torques_ss_ = createService<std_srvs::srv::SetBool>(service::kEnableTorques, &self::enableTorquesCb, this);
 
-  // Start main timer with maximum rate
+  // Start main timer with maximum rate.
   const auto state_pub_period = state_pub_rate_ > 0 ? ch::duration<double>(1.0 / state_pub_rate_) : 0ms;
   pub_states_timer_ = createWallTimer(state_pub_period, &self::publishCurrentStatesTimerCb, this);
 }
 
 DynamixelHandlerNode::~DynamixelHandlerNode()
 {
-  // Disable torque
+  // Disable torque.
   disableTorques();
 
-  // Close serial port
+  // Close serial port.
   poh_->closePort();
 }
 
@@ -469,7 +469,7 @@ bool DynamixelHandlerNode::getMotorConfigs()
       return false;
     }
 
-    // Insert motor config
+    // Insert motor config.
     motors_[name] = cfg;
   }
 
@@ -674,11 +674,11 @@ void DynamixelHandlerNode::enableTorquesCb(
 
 void DynamixelHandlerNode::publishCurrentStatesTimerCb()
 {
-  // Create motor states message
+  // Create motor states message.
   auto motor_states = std::make_unique<tobas_dynamixel_msgs::msg::MotorStateArray>();
   motor_states->header.stamp = now();
 
-  // Read packets
+  // Read packets.
   if (core_sync_read_->txRxPacket() < 0) {
     TOBAS_ERROR("Failed to receive a sync packet of present states. Disabling torques.");
     disableTorques();
@@ -686,7 +686,7 @@ void DynamixelHandlerNode::publishCurrentStatesTimerCb()
     return;
   }
 
-  // Compute joint states in the SI unit system
+  // Compute joint states in the SI unit system.
   for (const auto& [name, cfg] : motors_) {
     motor_state_.name = name;
 
@@ -709,7 +709,7 @@ void DynamixelHandlerNode::publishCurrentStatesTimerCb()
     motor_states->states.push_back(motor_state_);
   }
 
-  // Publish motor states message
+  // Publish motor states message.
   motor_states_pub_->publish(std::move(motor_states));
 }
 }  // namespace dxl

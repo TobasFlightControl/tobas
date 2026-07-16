@@ -21,14 +21,14 @@ bool sourceTobasProject(const fs::path& proj_path)
 {
   constexpr char AMENT_PREFIX_PATH[] = "AMENT_PREFIX_PATH";
 
-  // Get old paths
+  // Get old paths.
   const auto old_paths = getenv(AMENT_PREFIX_PATH);
   if (!old_paths) {
     std::cerr << "Failed to get \"" << AMENT_PREFIX_PATH << "\"." << std::endl;
     return false;
   }
 
-  // Set new paths
+  // Set new paths.
   const cmn::ProjectPaths proj_paths(proj_path);
   const auto config_path = proj_paths.cfgPkgPath();
   const auto user_path = proj_paths.cfgPkgPath();

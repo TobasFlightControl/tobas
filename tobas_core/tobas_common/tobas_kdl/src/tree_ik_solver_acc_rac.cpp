@@ -52,23 +52,23 @@ int TreeIkSolverAcc_RAC::cartToJnt(const JntArray& q_in, const JntArray& qd_in, 
   const auto num_points = acc_in.size();
   const auto eq_dim = 6 * num_points;
 
-  // Update Jdqd
+  // Update Jdqd.
   if (jnt2jdqd_.jntToCart(q_in, qd_in) < 0) {
     return copyError(jnt2jdqd_);
   }
 
-  // Create big jacobian and acceleration
+  // Create big jacobian and acceleration.
   J_.conservativeResize(eq_dim, nj_);
   a_.conservativeResize(eq_dim);
   size_t i = 0;
   for (const auto& [seg_name, accel] : acc_in) {
-    // Update big jacobian
+    // Update big jacobian.
     if (jnt2jac_.jntToJac(q_in, seg_name) < 0) {
       return copyError(jnt2jac_);
     }
     J_.block(6 * i, 0, 6, nj_) = jnt2jac_.getJacobian().data;
 
-    // Update big acceleration
+    // Update big acceleration.
     const auto& Jdqd = jnt2jdqd_.getJdqd(seg_name);
     a_.segment(6 * i, 3) = (accel.linear - Jdqd.linear).data;
     a_.segment(6 * i + 3, 3) = (accel.angular - Jdqd.angular).data;

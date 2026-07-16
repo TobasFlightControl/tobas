@@ -26,7 +26,7 @@ bool ISM330DLC::initialize(const char* spi_device)
     return false;
   }
 
-  // Set default full scales
+  // Set default full scales.
   if (!setAccelFullScale(fs_xl_t::FS_XL_2G)) {
     return false;
   }
@@ -34,13 +34,13 @@ bool ISM330DLC::initialize(const char* spi_device)
     return false;
   }
 
-  // Enable BDU (Block Data Update)
+  // Enable BDU (Block Data Update).
   // Otherwise, data may be updated while multiple bytes are being read.
   if (!writeReg(REG_CTRL3_C, BDU | IF_INC)) {
     return false;
   }
 
-  // Disable I2C
+  // Disable I2C.
   if (!writeReg(REG_CTRL4_C, I2C_DISABLE)) {
     return false;
   }

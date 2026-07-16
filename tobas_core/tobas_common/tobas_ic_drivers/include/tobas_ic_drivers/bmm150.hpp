@@ -31,7 +31,7 @@ public:
 
   bool initialize(const char* i2c_device);
 
-  /* Read the current magnetic field [μT]. axis orientation ref: p.46*/
+  /* Read the current magnetic field [μT]. */
   bool readMag(double& mx, double& my, double& mz);
 
 private:

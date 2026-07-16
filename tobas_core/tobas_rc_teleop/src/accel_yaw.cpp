@@ -64,7 +64,7 @@ void AccelYawController::reset(const builtin_interfaces::msg::Time& stamp, const
 
 void AccelYawController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry&, bool)
 {
-  // Update timestamp
+  // Update timestamp.
   const auto dt = (rcin.header.stamp - t_last_rcin_).seconds();
   t_last_rcin_ = rcin.header.stamp;
 
@@ -79,18 +79,18 @@ void AccelYawController::update(const tobas_msgs::RCInput& rcin, const tobas_msg
   const auto yawrate = expoRemapDead(rcin.yaw, head_expo_, -max_head_rate_, max_head_rate_);
   tar_yaw_ += yawrate * dt;
 
-  // Compute the acceleration wrt. the world frame
+  // Compute the acceleration wrt. the world frame.
   const kdl::Vector tar_acc_G(ax_filt_.getTrajectoryPosition(), ay_filt_.getTrajectoryPosition(), az);
   const auto tar_acc_W = kdl::Rotation::RotZ(tar_yaw_) * tar_acc_G;
 
-  // Create a command
+  // Create a command.
   auto cmd = std::make_unique<tobas_command_msgs::AccelYaw>();
   cmd->header = rcin.header;
   cmd->priority.data = tobas_command_msgs::msg::Priority::MANUAL;
   cmd->accel = tar_acc_W;
   cmd->yaw = tar_yaw_;
 
-  // Publish the command
+  // Publish the command.
   cmd_pub_->publish(std::move(cmd));
 }
 

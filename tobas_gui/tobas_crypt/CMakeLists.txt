@@ -15,7 +15,7 @@ set(AMENT_DEPENDENCIES tobas_linux)
 
 find_package(ament_cmake REQUIRED)
 
-# Search for libcrypt
+# Search for libcrypt.
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(LIBCRYPT REQUIRED libcrypt)
 

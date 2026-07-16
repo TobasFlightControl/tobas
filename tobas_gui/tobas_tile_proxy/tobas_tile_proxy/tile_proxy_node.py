@@ -63,7 +63,7 @@ def main(args=None) -> None:
     global g_upstream
     global g_timeout
 
-    # Get arguments
+    # Get arguments.
     parser = ArgumentParser()
     parser.add_argument("--host", type=str, default="127.0.0.1")
     parser.add_argument("--port", type=int, default=8080)
@@ -75,11 +75,11 @@ def main(args=None) -> None:
     parser.add_argument("--timeout", type=float, default=5.0)
     args, _ = parser.parse_known_args(args)
 
-    # Set global parameters
+    # Set global parameters.
     g_upstream = args.upstream
     g_timeout = args.timeout
 
-    # Run proxy
+    # Run proxy.
     uvicorn.run(g_app, host=args.host, port=args.port, reload=False, log_level="warning")
 
 

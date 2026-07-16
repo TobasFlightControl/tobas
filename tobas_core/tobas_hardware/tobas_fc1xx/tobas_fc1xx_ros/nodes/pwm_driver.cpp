@@ -50,7 +50,7 @@ void PwmDriverNode::initialize()
 
 void PwmDriverNode::pwmsCb(const tobas_msgs::msg::PwmArray::ConstSharedPtr& pwms)
 {
-  // Set PWM periods of each channel
+  // Set PWM periods of each channel.
   for (const auto& elem : pwms->pwms) {
     if (elem.channel >= PWM::kChannelSize) {
       TOBAS_ERROR("PWM channel ", elem.channel, " does not exist.");
@@ -63,7 +63,7 @@ void PwmDriverNode::pwmsCb(const tobas_msgs::msg::PwmArray::ConstSharedPtr& pwms
     }
   }
 
-  // Send PWM pwms
+  // Send PWM pwms.
   if (!pwm_.transfer()) {
     TOBAS_ERROR("Failed to send PWM command.");
   }

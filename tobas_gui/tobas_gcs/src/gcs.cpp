@@ -303,7 +303,7 @@ void GroundControlStationWidget::onLoadButtonClicked()
     return;
   }
 
-  // Load KDL tree
+  // Load KDL tree.
   const auto uadf_path = proj_paths_.originalUadfPath();
   if (!uadf_parser_.parseFromPath(uadf_path, uadf_)) {
     qt::qErrorBox(this, "Failed to parse UADF:\n\n" + QString::fromStdString(uadf_parser_.errorMessage()));
@@ -315,19 +315,19 @@ void GroundControlStationWidget::onLoadButtonClicked()
     return;
   }
 
-  // Load drone configuration
+  // Load drone configuration.
   if (!drone_.load(tbsdrn_path)) {
     qt::qErrorBox(this, "Failed to load drone configuration.");
     return;
   }
 
-  // Load SSH configuration
+  // Load SSH configuration.
   if (!ssh_config_.load(proj_paths_.sshConfigPath())) {
     qt::qErrorBox(this, "Failed to load SSH configuration.");
     return;
   }
 
-  // Load network configuration
+  // Load network configuration.
   if (!network_config_.load(proj_paths_.networkConfigPath())) {
     qt::qErrorBox(this, "Failed to load network configuration.");
     return;

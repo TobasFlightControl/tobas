@@ -25,15 +25,15 @@ kdl::Vector AngleAxisPDD2::update(
   const kdl::Vector& tar_dgyro,
   const double& dt)
 {
-  // Compute error in angle-axis form wrt. the local frame
+  // Compute error in angle-axis form wrt. the local frame.
   const auto ep = (cur_rot.inverse() * tar_rot).getRot();
   const auto ev = tar_gyro - cur_gyro;
   const auto ea = tar_dgyro - cur_dgyro;
 
-  // Compute command ddgyro
+  // Compute command ddgyro.
   const auto cmd_ddgyro = kp_.hadamard(ep) + kv_.hadamard(ev) + ka_.hadamard(ea);
 
-  // Integrate command ddgyro
+  // Integrate command ddgyro.
   cmd_dgyro_ += cmd_ddgyro * dt;
   return cmd_dgyro_;
 }

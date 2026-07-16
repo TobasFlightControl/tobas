@@ -58,17 +58,17 @@ int TreeTaskSpacePID::cartToJnt(
     return setDefaultError(kSizeMismatch);
   }
 
-  // Create target acceleration map
+  // Create target acceleration map.
   AccelMap tar_a;
   for (const auto& [tar_pi, tar_vi, ai_ff] : views::zip(tar_p, tar_v, a_ff)) {
-    // Check if all keys match
+    // Check if all keys match.
     const auto& seg_name = tar_pi.first;
     if (tar_vi.first != seg_name || ai_ff.first != seg_name) {
       error_msg_ = "The keys of input maps do not match.";
       return (error_code_ = kOutputRange);
     }
 
-    // Compute current frame and twist
+    // Compute current frame and twist.
     if (fk_.jntToCart(cur_q, cur_qd, seg_name) < 0) {
       return copyError(fk_);
     }
@@ -76,17 +76,17 @@ int TreeTaskSpacePID::cartToJnt(
     const auto cur_p = cur_pv.getFrame();
     const auto cur_v = cur_pv.getTwist();
 
-    // Compute target cartesian acceleration
+    // Compute target cartesian acceleration.
     // TODO: Add the I term.
     tar_a[seg_name] = ai_ff.second + kp_ * (tar_pi.second - cur_p) + kd_ * (tar_vi.second - cur_v);
   }
 
-  // Compute target joint accelerations
+  // Compute target joint accelerations.
   if (rac_.cartToJnt(cur_q, cur_qd, tar_a) < 0) {
     return copyError(rac_);
   }
 
-  // Compute target joint efforts
+  // Compute target joint efforts.
   if (rne_.cartToJnt(cur_q, cur_qd, rac_.getAccelerations(), f_ext) < 0) {
     return copyError(rne_);
   }

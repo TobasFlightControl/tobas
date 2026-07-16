@@ -63,7 +63,7 @@ void RpmControlConfigServer::rotorStatesCb(const tobas_msgs::msg::RotorStateArra
   // meaning the node managing the DShot device is running.
   // This ensures that the initial filter settings are applied reliably.
 
-  // Register dynamic parameters
+  // Register dynamic parameters.
   st::staticFor<kMaxDshotChannels>(
     [&]<size_t I>()
     {
@@ -71,7 +71,7 @@ void RpmControlConfigServer::rotorStatesCb(const tobas_msgs::msg::RotorStateArra
       addDynamicIntParam(param_name, &self::gainCb<I>, this, 1, 0, 0, UINT8_MAX);
     });
 
-  // Cancel subscription
+  // Cancel subscription.
   rotor_states_sub_.reset();
 }
 }  // namespace tobas

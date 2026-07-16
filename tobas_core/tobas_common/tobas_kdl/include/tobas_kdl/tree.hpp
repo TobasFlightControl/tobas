@@ -42,7 +42,7 @@ public:
   using ConstSharedPtr = std::shared_ptr<const Tree>;
 
   /**
-   * @brief The constructor of a tree, a new tree is always empty
+   * @brief The constructor of a tree, a new tree is always empty.
    */
   explicit Tree(const std::string& root_name = "");
 
@@ -103,7 +103,7 @@ public:
    *
    * @param seg_name The name of the segment to be used as root of the new tree
    * @param tree The resulting sub-tree
-   * @param root_mass_ok If false and the new root segment has mass, it will throw an exception
+   * @param root_mass_ok If false and the new root segment has mass, it will throw an exception.
    */
   bool getSubTree(const std::string& seg_name, Tree& tree, bool root_mass_ok = false) const;
 

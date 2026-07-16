@@ -29,7 +29,7 @@ ExportThreadCsv::ExportThreadCsv(const QString& log_name, const QString& save_pa
 
 void ExportThreadCsv::run()
 {
-  // Open rosbag
+  // Open rosbag.
   const auto log_path = ros2::expandUser(kRosbagDirHome) / log_name_.toStdString();
   if (!openRosBag(log_path.string())) {
     if (!ros2::reindexRosBag(log_path.string())) {
@@ -42,7 +42,7 @@ void ExportThreadCsv::run()
     }
   }
 
-  // Get the rotor link names
+  // Get the rotor link names.
   rotor_link_names_.clear();
   reader_.seek(0);
   while (reader_.has_next()) {
@@ -63,17 +63,17 @@ void ExportThreadCsv::run()
     }
   }
 
-  // Open the output file
+  // Open the output file.
   std::ofstream csv_file(save_path_.toStdString());
   if (!csv_file.is_open()) {
     finished(false, "Failed to open " + save_path_);
     return;
   }
 
-  // Write header
+  // Write header.
   csv_file << makeCsvHeader() << std::endl;
 
-  // Read and export data
+  // Read and export data.
   histmap_.clear();
   reader_.seek(0);
   while (reader_.has_next()) {

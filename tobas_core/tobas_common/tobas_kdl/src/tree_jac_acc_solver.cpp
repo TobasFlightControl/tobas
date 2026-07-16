@@ -53,7 +53,7 @@ void TreeJacAccSolver::jntToCartRec(const SegmentMap::const_iterator& segment, c
   const auto& seg_name = segment->first;
   const auto& par_name = segment->second.parent->first;
 
-  // Do forward calculations
+  // Do forward calculations.
   const auto& j = segment->second.q_nr;
   double qj, qdj;
   if (seg.joint().type != Joint::kFixed) {
@@ -65,7 +65,7 @@ void TreeJacAccSolver::jntToCartRec(const SegmentMap::const_iterator& segment, c
   }
 
   const auto Xj = seg.pose(qj);
-  const auto vj = Xj.M.inverse(seg.twist(qj, qdj));  // Transform velocity
+  const auto vj = Xj.M.inverse(seg.twist(qj, qdj));  // Transform velocity.
 
   if (segment == tree_.getRootSegment()) {
     R_.at(seg_name) = Rotation::Identity();
@@ -78,10 +78,10 @@ void TreeJacAccSolver::jntToCartRec(const SegmentMap::const_iterator& segment, c
     a_.at(seg_name) = Xj.inverse(a_.at(par_name)) + v_.at(seg_name) * vj;
   }
 
-  // Calculate Jdqd wrt. the root frame
+  // Calculate Jdqd wrt. the root frame.
   Jdqd_out_.at(seg_name) = R_.at(seg_name) * a_.at(seg_name);
 
-  // propagate calculations over each child segment
+  // propagate calculations over each child segment.
   for (const auto& child : segment->second.children) {
     jntToCartRec(child, q, qd);
   }

@@ -14,7 +14,7 @@ OUTPUT = "output"
 def generate_launch_description():
     ld = LaunchDescription()
 
-    # Add ament prefix path
+    # Add ament prefix path.
     new_ament_prefix_path = PathJoinSubstitution([EnvironmentVariable("HOME"), ".local/share/tobas/colcon_ws/install"])
     set_ament_prefix_path = SetEnvironmentVariable(
         name="AMENT_PREFIX_PATH",
@@ -26,7 +26,7 @@ def generate_launch_description():
     )
     ld.add_action(set_ament_prefix_path)
 
-    # Add python path
+    # Add python path.
     python_version = f"python{sys.version_info.major}.{sys.version_info.minor}"
     new_python_path = PathJoinSubstitution([new_ament_prefix_path, "lib", python_version, "site-packages"])
     set_ament_prefix_path = SetEnvironmentVariable(
@@ -39,18 +39,18 @@ def generate_launch_description():
     )
     ld.add_action(set_ament_prefix_path)
 
-    # Declare arguments
+    # Declare arguments.
     ld.add_action(DeclareLaunchArgument(LOG_LEVEL, default_value="info"))
     ld.add_action(DeclareLaunchArgument(OUTPUT, default_value="screen"))
 
-    # Get arguments
+    # Get arguments.
     log_level = LaunchConfiguration(LOG_LEVEL)
     output = LaunchConfiguration(OUTPUT)
 
-    # Create a namespace for this session
+    # Create a namespace for this session.
     session_ns = f"session_{uuid.uuid4().hex[:8]}"
 
-    # Set log level
+    # Set log level.
     ros_args = ["--log-level", log_level]
     for node_name in [
         "rcl",
@@ -62,7 +62,7 @@ def generate_launch_description():
     ]:
         ros_args += ["--log-level", f"{node_name}:=WARN"]
 
-    # Launch property server
+    # Launch property server.
     run_property_server = Node(
         package="tobas_property_server",
         executable="property_server",
@@ -73,7 +73,7 @@ def generate_launch_description():
     )
     ld.add_action(run_property_server)
 
-    # Launch SSH server
+    # Launch SSH server.
     run_ssh_server = Node(
         package="tobas_ssh_server",
         executable="ssh_server_node",
@@ -84,7 +84,7 @@ def generate_launch_description():
     )
     ld.add_action(run_ssh_server)
 
-    # Launch Tile proxy
+    # Launch Tile proxy.
     run_tile_server = Node(
         package="tobas_tile_proxy",
         executable="tile_proxy_node",
@@ -95,7 +95,7 @@ def generate_launch_description():
     )
     ld.add_action(run_tile_server)
 
-    # Launch heartbeat sender to monitor network connectivity
+    # Launch heartbeat sender to monitor network connectivity.
     run_heartbeat_sender = Node(
         package="tobas_connection_monitor",
         executable="heartbeat_sender",
@@ -106,7 +106,7 @@ def generate_launch_description():
     )
     ld.add_action(run_heartbeat_sender)
 
-    # Launch ground control station
+    # Launch ground control station.
     run_gcs = Node(
         package="tobas_gcs",
         executable="TobasGCS",

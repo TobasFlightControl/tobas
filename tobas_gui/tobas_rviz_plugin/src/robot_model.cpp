@@ -249,7 +249,7 @@ void RobotModel::buildModel(const urdf::ModelInterface& urdf_model)
 
 void RobotModel::buildMimic(const urdf::ModelInterface& urdf_model)
 {
-  // Compute mimic joints
+  // Compute mimic joints.
   for (const auto& joint_model : joint_model_vector_) {
     const auto jm = urdf_model.getJoint(joint_model->getName()).get();
     if (jm) {
@@ -303,7 +303,7 @@ void RobotModel::buildMimic(const urdf::ModelInterface& urdf_model)
     }
   }
 
-  // Build mimic requests
+  // Build mimic requests.
   for (const auto& joint_model : joint_model_vector_) {
     if (joint_model->getMimic()) {
       const_cast<JointModel*>(joint_model->getMimic())->addMimicRequest(joint_model);
@@ -314,7 +314,7 @@ void RobotModel::buildMimic(const urdf::ModelInterface& urdf_model)
 
 void RobotModel::buildJointInfo()
 {
-  // Construct additional maps for easy access by name
+  // Construct additional maps for easy access by name.
   variable_count_ = 0;
   active_joint_model_start_index_.reserve(joint_model_vector_.size());
   joints_of_variable_.reserve(joint_model_vector_.size());
@@ -322,7 +322,7 @@ void RobotModel::buildJointInfo()
   for (const auto& joint : joint_model_vector_) {
     const auto& name_order = joint->getVariableNames();
 
-    // Compute index map
+    // Compute index map.
     if (!name_order.empty()) {
       for (size_t j = 0; j < name_order.size(); ++j) {
         joint_variables_index_map_[name_order[j]] = variable_count_ + j;
@@ -335,19 +335,19 @@ void RobotModel::buildJointInfo()
 
       joint_variables_index_map_[joint->getName()] = variable_count_;
 
-      // Compute variable count
+      // Compute variable count.
       const auto vc = joint->getVariableCount();
       variable_count_ += vc;
     }
   }
 
   computeDescendants();
-  computeCommonRoots();  // Must be called _after_ list of descendants was computed
+  computeCommonRoots();  // Must be called _after_ list of descendants was computed.
 }
 
 void RobotModel::computeDescendants()
 {
-  // Compute the list of descendants for all joints
+  // Compute the list of descendants for all joints.
   std::vector<const JointModel*> parents;
   std::set<const JointModel*> seen;
 
@@ -368,9 +368,9 @@ void RobotModel::computeCommonRoots()
 {
   // Compute common roots for all pairs of joints.
   // There are 3 cases of pairs (X, Y):
-  //    X != Y && X and Y are not descendants of one another
+  //    X != Y && X and Y are not descendants of one another.
   //    X == Y
-  //    X != Y && X and Y are descendants of one another
+  //    X != Y && X and Y are descendants of one another.
 
   // By default, the common root is always the global root.
   common_joint_roots_.resize(joint_model_vector_.size() * joint_model_vector_.size(), 0);
@@ -398,7 +398,7 @@ void RobotModel::computeCommonRoots()
 
 JointModel* RobotModel::buildRecursive(LinkModel* parent, const urdf::Link* urdf_link)
 {
-  // Construct the joint
+  // Construct the joint.
   const auto joint = constructJointModel(urdf_link);
 
   if (!joint) {
@@ -409,7 +409,7 @@ JointModel* RobotModel::buildRecursive(LinkModel* parent, const urdf::Link* urdf
   joint_model_vector_.push_back(joint);
   joint_model_map_[joint->getName()] = joint;
 
-  // Construct the link
+  // Construct the link.
   const auto link = constructLinkModel(urdf_link);
   joint->setChildLinkModel(link);
   link->setParentLinkModel(parent);
@@ -419,7 +419,7 @@ JointModel* RobotModel::buildRecursive(LinkModel* parent, const urdf::Link* urdf
   link_model_vector_.push_back(link);
   link->setParentJointModel(joint);
 
-  // Recursively build child links (and joints)
+  // Recursively build child links (and joints).
   for (const auto& child_link : urdf_link->child_links) {
     const auto jm = buildRecursive(link, child_link.get());
     if (jm) {
@@ -438,7 +438,7 @@ JointModel* RobotModel::constructJointModel(const urdf::Link* child_link)
                                                                   joint_model_vector_.back()->getFirstVariableIndex() +
                                                                     joint_model_vector_.back()->getVariableCount();
 
-  // if parent_joint exists, must be the root link transform
+  // if parent_joint exists, must be the root link transform.
   if (parent_joint) {
     switch (parent_joint->type) {
       case urdf::Joint::REVOLUTE: {

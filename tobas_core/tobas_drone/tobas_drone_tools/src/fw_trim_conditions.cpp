@@ -18,7 +18,7 @@ TrimConditions::TrimConditions(const Drone& drone, const kdl::Tree& tree)
 
 bool TrimConditions::updateInternalDataStructures()
 {
-  // Check drone configuration
+  // Check drone configuration.
   if (!drone_.fixed_wing) {
     std::cerr << "The drone is not equipped with fixed wing." << std::endl;
     return false;
@@ -28,7 +28,7 @@ bool TrimConditions::updateInternalDataStructures()
     return false;
   }
 
-  // Update solvers
+  // Update solvers.
   if (!inertia_solver_.updateInternalDataStructures()) {
     return false;
   }
@@ -36,14 +36,14 @@ bool TrimConditions::updateInternalDataStructures()
     return false;
   }
 
-  // Set mass
+  // Set mass.
   if (inertia_solver_.jntToCart(kdl::JntArray::Zero(tree_.getNrOfJoints())) < 0) {
     std::cerr << "Inertia solver failed: " << inertia_solver_.errorMessage() << std::endl;
     return false;
   }
   W_ = inertia_solver_.getInertia().getMass() * st::kGravity;
 
-  // Set elevator index
+  // Set elevator index.
   auto max_c_pitch_delta = -INFINITY;
   for (const auto& [link_name, cs] : drone_.fixed_wing->control_surfaces) {
     if (std::abs(cs.c_pitch_delta) > max_c_pitch_delta) {
@@ -52,7 +52,7 @@ bool TrimConditions::updateInternalDataStructures()
     }
   }
 
-  // Set coefficients
+  // Set coefficients.
   const auto& aero = drone_.fixed_wing->aerodynamics;
   const auto& elev_cs = drone_.fixed_wing->control_surfaces.at(elev_link_name_);
   const auto ml_raito = elev_cs.c_lift_delta / elev_cs.c_pitch_delta;

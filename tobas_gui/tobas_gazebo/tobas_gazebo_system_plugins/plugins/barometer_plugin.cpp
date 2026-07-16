@@ -91,26 +91,26 @@ void GazeboBarometerPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz
     return;
   }
 
-  // Get the current geometric height of sensor
+  // Get the current geometric height of sensor.
   const auto& T_W_B = pose_W_->Data();
   const auto& W_Pos_WB = T_W_B.Pos();
   const auto& W_Rot_B = T_W_B.Rot();
   const auto W_Pos_WS = W_Pos_WB + W_Rot_B.RotateVector(offset_);
   const auto altitude = alt_0_ + W_Pos_WS.Z();
 
-  // Compute the air pressure at the current altitude
+  // Compute the air pressure at the current altitude.
   auto pressure = st::altitudeToPressure(altitude);
 
-  // Add noise to pressure measurement
+  // Add noise to pressure measurement.
   pressure += pressure_noise_(rnd_gen_);
 
-  // Create a pressure message
+  // Create a pressure message.
   auto pressure_msg = std::make_unique<tobas_msgs::msg::FluidPressure>();
   ros2::timeChronoToMsg(info.simTime, pressure_msg->header.stamp);
   pressure_msg->header.frame_id = link_name_;
   pressure_msg->pressure = pressure;
 
-  // Publish the pressure message
+  // Publish the pressure message.
   pressure_pub_->publish(std::move(pressure_msg));
 }
 

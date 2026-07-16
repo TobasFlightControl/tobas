@@ -168,7 +168,7 @@ bool testGnssReceiver()
     return false;
   }
 
-  // Enable GNSS
+  // Enable GNSS.
   if (!gnss.enableGps()) {
     cerr << "Failed to enable GPS." << endl;
     return false;
@@ -182,7 +182,7 @@ bool testGnssReceiver()
     return false;
   }
 
-  // Enable messages
+  // Enable messages.
   if (!gnss.enableSpiMessage(tobas::ublox::ZEDF9P::CLASS_NAV, tobas::ublox::ZEDF9P::NAV_PVT, true)) {
     cerr << "Failed to enable NAV_PVT message." << endl;
     return false;

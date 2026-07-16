@@ -33,7 +33,7 @@ RvizWidget::RvizWidget(const uadf::Model& uadf, const kdl::Tree& tree)
   rviz_manager_.initialize(QString::fromStdString(rviz_config_path));
   resetOrbitView();
 
-  // Set up robot_model_display
+  // Set up robot_model_display.
   display_ = rviz_manager_.getDisplays("RobotState").at(0);
 
   // Get properties to use.
@@ -75,7 +75,7 @@ RvizWidget::RvizWidget(const uadf::Model& uadf, const kdl::Tree& tree)
 
 void RvizWidget::updateInternalDataStructures()
 {
-  // Reset the orbit view
+  // Reset the orbit view.
   resetOrbitView();
 
   // Set the fixed frame to the root link.

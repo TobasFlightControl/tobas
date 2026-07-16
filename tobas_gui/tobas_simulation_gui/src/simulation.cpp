@@ -83,10 +83,10 @@ bool SimulationWidget::updateProject(const fs::path& proj_path)
 {
   reset();
 
-  // Update project path
+  // Update project path.
   proj_paths_.setProjPath(proj_path);
 
-  // Load KDL tree
+  // Load KDL tree.
   const auto uadf_path = proj_paths_.originalUadfPath();
   if (!uadf_parser_.parseFromPath(uadf_path, uadf_)) {
     qt::qErrorBox(this, "Failed to parse UADF:\n\n" + QString::fromStdString(uadf_parser_.errorMessage()));
@@ -98,7 +98,7 @@ bool SimulationWidget::updateProject(const fs::path& proj_path)
     return false;
   }
 
-  // Load drone configuration
+  // Load drone configuration.
   const auto tbsdrn_path = proj_paths_.tbsdrnPath();
   if (!drone_.load(tbsdrn_path)) {
     qt::qErrorBox(this, "Failed to load drone configuration.");

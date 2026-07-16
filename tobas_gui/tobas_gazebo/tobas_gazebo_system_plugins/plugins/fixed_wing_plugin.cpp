@@ -130,34 +130,34 @@ void GazeboFixedWingPlugin::Configure(
   initialize("gazebo_fixed_wing_plugin", sdf);
   getSdfParams(sdf);
 
-  // Get the world origin
+  // Get the world origin.
   const auto sc = getWorldSphericalCoordinates(ecm);
   if (!sc) {
     TOBAS_EXIT(sc.error());
   }
   alt_0_ = sc.value().ElevationReference();
 
-  // Get robot model
+  // Get robot model.
   const gz::sim::Model model(model_entity);
   if (!model.Valid(ecm)) {
     TOBAS_EXIT("Failed to find model.");
   }
 
-  // Get base link
+  // Get base link.
   const auto base_link_entity = model.LinkByName(ecm, base_link_name_);
   base_link_ = std::make_shared<gz::sim::Link>(base_link_entity);
   if (!base_link_->Valid(ecm)) {
     TOBAS_EXIT("Failed to find base link \"", base_link_name_, "\".");
   }
 
-  // Create necessary components
+  // Create necessary components.
   TOBAS_CHECK(pose_W_ = getComponent<cmp::WorldPose>(base_link_entity, ecm));
   TOBAS_CHECK(vel_W_ = getComponent<cmp::WorldLinearVelocity>(base_link_entity, ecm));
   TOBAS_CHECK(gyro_B_ = getComponent<cmp::AngularVelocity>(base_link_entity, ecm));
 
-  // Get control surface joint models
+  // Get control surface joint models.
   for (const auto& [link_name, _] : control_surfaces_) {
-    // Get control surface joint
+    // Get control surface joint.
     const auto joint_entity = findJointWithChildLink(ecm, link_name);
     if (!joint_entity.has_value()) {
       TOBAS_EXIT("Failed to find the parent joint of control surface link \"", link_name, "\".");
@@ -167,16 +167,16 @@ void GazeboFixedWingPlugin::Configure(
       TOBAS_EXIT("Failed to find control surface \"", link_name, "\".");
     }
 
-    // Get joint name
+    // Get joint name.
     const auto joint_name = joint->Name(ecm).value();
 
-    // Check joint type
+    // Check joint type.
     const auto joint_type = joint->Type(ecm).value();
     if (joint_type != sdf::JointType::REVOLUTE) {
       TOBAS_EXIT("The type of control surface joint \"", link_name, "\" must be revolute.");
     }
 
-    // Check joint limits
+    // Check joint limits.
     const auto joint_axis = joint->Axis(ecm).value().front();
     if (joint_axis.Lower() >= joint_axis.Upper()) {
       TOBAS_EXIT("The position limit of ", link_name, " is invalid.");
@@ -188,11 +188,11 @@ void GazeboFixedWingPlugin::Configure(
       TOBAS_EXIT("The effort limit of ", link_name, " must be positive.");
     }
 
-    // Add joint model
+    // Add joint model.
     cs_joints_[link_name] = joint;
   }
 
-  // Register ROS interfaces
+  // Register ROS interfaces.
   debug_pub_ = createPublisher<tobas_gazebo_msgs::msg::FixedWingDebug>(kDebugTopic);
   wind_sub_ = createSubscriber(kWindGtTopic, &self::windSpeedCb, this);
 }

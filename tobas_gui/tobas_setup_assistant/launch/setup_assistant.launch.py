@@ -13,11 +13,11 @@ OUTPUT = "output"
 def generate_launch_description():
     ld = LaunchDescription()
 
-    # Set localhost only
+    # Set localhost only.
     set_discovery_range = SetEnvironmentVariable("ROS_AUTOMATIC_DISCOVERY_RANGE", "LOCALHOST")
     ld.add_action(set_discovery_range)
 
-    # Add ament prefix path
+    # Add ament prefix path.
     new_ament_prefix_path = PathJoinSubstitution([EnvironmentVariable("HOME"), ".local/share/tobas/colcon_ws/install"])
     set_ament_prefix_path = SetEnvironmentVariable(
         name="AMENT_PREFIX_PATH",
@@ -29,21 +29,21 @@ def generate_launch_description():
     )
     ld.add_action(set_ament_prefix_path)
 
-    # Declare arguments
+    # Declare arguments.
     ld.add_action(DeclareLaunchArgument(LOG_LEVEL, default_value="info"))
     ld.add_action(DeclareLaunchArgument(OUTPUT, default_value="screen"))
 
-    # Get arguments
+    # Get arguments.
     log_level = LaunchConfiguration(LOG_LEVEL)
     output = LaunchConfiguration(OUTPUT)
 
-    # Create a namespace for this session
+    # Create a namespace for this session.
     session_ns = f"session_{uuid.uuid4().hex[:8]}"
 
-    # Set log level
+    # Set log level.
     ros_args = ["--log-level", log_level]
 
-    # Launch robot state publisher with minimul URDF
+    # Launch robot state publisher with minimul URDF.
     minimul_urdf = '<robot name="empty"><link name="root"/></robot>'
     run_rsp = Node(
         package="robot_state_publisher",
@@ -55,7 +55,7 @@ def generate_launch_description():
     )
     ld.add_action(run_rsp)
 
-    # Launch property server
+    # Launch property server.
     run_property_server = Node(
         package="tobas_property_server",
         executable="property_server",
@@ -65,7 +65,7 @@ def generate_launch_description():
     )
     ld.add_action(run_property_server)
 
-    # Launch setup assistant
+    # Launch setup assistant.
     run_setup_assistant = Node(
         package="tobas_setup_assistant",
         executable="TobasSetupAssistant",

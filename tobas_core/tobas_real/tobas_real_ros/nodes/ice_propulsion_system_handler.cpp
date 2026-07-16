@@ -58,7 +58,7 @@ IcePropulsionSystemHandlerNode::IcePropulsionSystemHandlerNode(const rclcpp::Nod
 
 void IcePropulsionSystemHandlerNode::stopActuator()
 {
-  // Create command message
+  // Create command message.
   auto pwms = std::make_unique<tobas_msgs::msg::PwmArray>();
 
   // Engine
@@ -83,10 +83,10 @@ void IcePropulsionSystemHandlerNode::stopActuator()
   for (const auto& [_, rotor] : iprop_->rotors) {
     const auto irotor = boost::polymorphic_pointer_downcast<IceRotorConfig>(rotor);
 
-    // Set current pitch angle
+    // Set current pitch angle.
     pitch_angles_.at(irotor->link_name) = irotor->center_pitch;
 
-    // Set command
+    // Set command.
     switch (irotor->hw_iface) {
       case HardwareInterface::kPwm: {
         const auto& pwm_cfg = drone_->pwms.at(irotor->link_name);
@@ -109,7 +109,7 @@ void IcePropulsionSystemHandlerNode::stopActuator()
     }
   }
 
-  // Publish command
+  // Publish command.
   if (!pwms->pwms.empty()) {
     pwms->header.stamp = now();
     pwms_pub_->publish(std::move(pwms));
@@ -129,23 +129,23 @@ void IcePropulsionSystemHandlerNode::droneCb(const Drone::ConstSharedPtr& drone)
   drone_ = drone;
   iprop_ = boost::polymorphic_pointer_downcast<IcePropulsionSystemConfig>(drone->prop);
 
-  // Initialize pitch angle map
+  // Initialize pitch angle map.
   pitch_angles_.clear();
   for (const auto& [_, rotor] : iprop_->rotors) {
     const auto irotor = boost::polymorphic_pointer_downcast<IceRotorConfig>(rotor);
     pitch_angles_[irotor->link_name] = irotor->center_pitch;
   }
 
-  // Register publishers
+  // Register publishers.
   pwms_pub_ = createPublisher<tobas_msgs::msg::PwmArray>(topic::kPwmCmd);
   rotor_states_pub_ = createPublisher<tobas_msgs::msg::RotorStateArray>(topic::kRotorStates);
   latency_pub_.initialize(shared_from_this());
 
-  // Register subscribers
+  // Register subscribers.
   engine_state_sub_ = createSubscriber(topic::kEngineState, &self::engineStateCb, this);
   ice_cmd_sub_ = createSubscriber(topic::kIcePropulsionSystemCmd, &self::iceCommandCb, this);
 
-  // Create timers
+  // Create timers.
   auto_stop_timer_ = createWallTimer(kCommandAutoResetTimeout, &self::autoStopTimerCb, this);
 }
 
@@ -170,7 +170,7 @@ void IcePropulsionSystemHandlerNode::engineStateCb(const tobas_msgs::msg::Engine
 void IcePropulsionSystemHandlerNode::iceCommandCb(
   const tobas_msgs::msg::IcePropulsionSystemCommand::ConstSharedPtr& ice_cmd)
 {
-  // Create command message
+  // Create command message.
   auto pwms = std::make_unique<tobas_msgs::msg::PwmArray>();
 
   // Engine
@@ -196,7 +196,7 @@ void IcePropulsionSystemHandlerNode::iceCommandCb(
     const auto& link_name = elem.link_name;
     auto cmd_angle = elem.angle;
 
-    // Get rotor config
+    // Get rotor config.
     const auto rotor_it = iprop_->rotors.find(link_name);
     if (rotor_it == iprop_->rotors.end()) {
       TOBAS_ERROR("Rotor link \"", link_name, "\" is not found.");
@@ -204,7 +204,7 @@ void IcePropulsionSystemHandlerNode::iceCommandCb(
     }
     const auto irotor = boost::polymorphic_pointer_downcast<IceRotorConfig>(rotor_it->second);
 
-    // Check pitch angle limit
+    // Check pitch angle limit.
     if (!irotor->pitch_limit.inRange(cmd_angle)) {
       TOBAS_WARN_THROTTLE(
         kTypicalWarnPeriod,
@@ -217,10 +217,10 @@ void IcePropulsionSystemHandlerNode::iceCommandCb(
       cmd_angle = irotor->pitch_limit.clamp(cmd_angle);
     }
 
-    // Set current pitch angle
+    // Set current pitch angle.
     pitch_angles_.at(link_name) = cmd_angle;
 
-    // Set command
+    // Set command.
     switch (irotor->hw_iface) {
       case HardwareInterface::kPwm: {
         const auto& pwm_cfg = drone_->pwms.at(link_name);
@@ -240,19 +240,19 @@ void IcePropulsionSystemHandlerNode::iceCommandCb(
     }
   }
 
-  // Publish command
+  // Publish command.
   if (!pwms->pwms.empty()) {
     pwms->header.stamp = ice_cmd->header.stamp;
     pwms_pub_->publish(std::move(pwms));
   }
 
-  // Publish control latency
+  // Publish control latency.
   latency_pub_.publish(ice_cmd->header.stamp);
 
-  // Reset timeout timer
+  // Reset timeout timer.
   auto_stop_timer_->reset();
 
-  // Now the propulsion system is commanded
+  // Now the propulsion system is commanded.
   is_commanded_ = true;
 }
 

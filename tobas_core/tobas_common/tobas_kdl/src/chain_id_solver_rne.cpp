@@ -37,7 +37,7 @@ int ChainIdSolver_RNE::cartToJnt(
     return setDefaultError(kSizeMismatch);
   }
 
-  // Update gravity
+  // Update gravity.
   ag_.linear = -grav;
 
   // Sweep from root to leaf
@@ -98,7 +98,7 @@ int ChainIdSolver_RNE::cartToJnt(
     return setDefaultError(kSizeMismatch);
   }
 
-  // Update gravity
+  // Update gravity.
   ag_.linear = -grav;
 
   // Sweep from root to leaf

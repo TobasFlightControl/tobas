@@ -55,7 +55,7 @@ void SpeedRollDeltaPitchController::reset(const builtin_interfaces::msg::Time&, 
 
 void SpeedRollDeltaPitchController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry&, bool)
 {
-  // Create command
+  // Create command.
   auto cmd = std::make_unique<tobas_command_msgs::msg::SpeedRollDeltaPitch>();
   cmd->header = rcin.header;
 
@@ -66,7 +66,7 @@ void SpeedRollDeltaPitchController::update(const tobas_msgs::RCInput& rcin, cons
   cmd->roll = remapDead(rcin.roll, -max_roll_, max_roll_);
   cmd->delta_pitch = remapDead(rcin.pitch, -max_dpitch_, max_dpitch_);
 
-  // Publish command
+  // Publish command.
   cmd_pub_->publish(std::move(cmd));
 }
 

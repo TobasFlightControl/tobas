@@ -72,10 +72,9 @@ private:
   ros2::PublisherPtr<sensor_msgs::msg::PointCloud2> point_cloud_publisher_;
   sensor_msgs::msg::PointCloud2::UniquePtr point_cloud_msg_;
 
-  // Load configurations from SDF
+  /* Load configurations from SDF. */
   void getSdfParams(const sdf::ElementConstPtr& sdf);
 
-  // LiDAR related functions
   void gpuRayCb(const gz::msgs::PointCloudPacked& msg);
   void setupPointCloudMsg(const gz::msgs::PointCloudPacked& msg);
 };
@@ -166,7 +165,7 @@ void HesaiLidarPlugin::gpuRayCb(const gz::msgs::PointCloudPacked& msg)
       // Timestamp
       std::memcpy(&point_cloud_msg_->data[embedding_index + timestamp_offset_], &timestamp, sizeof(double));
 
-      // Update
+      // Update.
       ++lidar_data_index_;
     }
     // Start the next sampling from the shifted point.
@@ -176,13 +175,13 @@ void HesaiLidarPlugin::gpuRayCb(const gz::msgs::PointCloudPacked& msg)
     }
   }
 
-  // Update
+  // Update.
   ++phase_;
 
-  // Publish if sampling finished
+  // Publish if sampling finished.
   if (is_final_phase) {
     point_cloud_publisher_->publish(std::move(point_cloud_msg_));
-    // Reset index
+    // Reset index.
     phase_ = 0;
     lidar_data_index_ = 0;
   }
@@ -191,43 +190,43 @@ void HesaiLidarPlugin::gpuRayCb(const gz::msgs::PointCloudPacked& msg)
 void HesaiLidarPlugin::setupPointCloudMsg(const gz::msgs::PointCloudPacked& msg)
 {
   point_cloud_msg_ = std::make_unique<sensor_msgs::msg::PointCloud2>();
-  // Fill message field data to be consistent with the Hesai ROS 2 driver
-  // Fill x
+  // Fill message field data to be consistent with the Hesai ROS 2 driver.
+  // Fill x.
   sensor_msgs::msg::PointField field_x;
   field_x.name = "x";
   field_x.count = 1;
   field_x.offset = x_offset_;
   field_x.datatype = sensor_msgs::msg::PointField::FLOAT32;
   point_cloud_msg_->fields.push_back(field_x);
-  // Fill y
+  // Fill y.
   sensor_msgs::msg::PointField field_y;
   field_y.name = "y";
   field_y.count = 1;
   field_y.offset = y_offset_;
   field_y.datatype = sensor_msgs::msg::PointField::FLOAT32;
   point_cloud_msg_->fields.push_back(field_y);
-  // Fill z
+  // Fill z.
   sensor_msgs::msg::PointField field_z;
   field_z.name = "z";
   field_z.count = 1;
   field_z.offset = z_offset_;
   field_z.datatype = sensor_msgs::msg::PointField::FLOAT32;
   point_cloud_msg_->fields.push_back(field_z);
-  // Fill intensity
+  // Fill intensity.
   sensor_msgs::msg::PointField field_intensity;
   field_intensity.name = "intensity";
   field_intensity.count = 1;
   field_intensity.offset = intensity_offset_;
   field_intensity.datatype = sensor_msgs::msg::PointField::FLOAT32;
   point_cloud_msg_->fields.push_back(field_intensity);
-  // Fill ring
+  // Fill ring.
   sensor_msgs::msg::PointField field_ring;
   field_ring.name = "ring";
   field_ring.count = 1;
   field_ring.offset = ring_offset_;
   field_ring.datatype = sensor_msgs::msg::PointField::UINT16;
   point_cloud_msg_->fields.push_back(field_ring);
-  // Fill timestamp
+  // Fill timestamp.
   sensor_msgs::msg::PointField field_timestamp;
   field_timestamp.name = "timestamp";
   field_timestamp.count = 1;

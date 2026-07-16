@@ -53,7 +53,7 @@ bool VideoDev::initialize(
     close(fd_);
   }
 
-  // open device
+  // Open device.
   fd_ = open(video_dev, O_RDWR);
   if (fd_ < 0) {
     std::cerr << "Failed to open video device: " << video_dev << std::endl;
@@ -313,7 +313,7 @@ bool VideoDev::setImgFormat(const char* pixel_format, const uint32_t& width, con
     std::cerr << "Failed to set image format. errno : " << errno << " : " << strerror(errno) << std::endl;
     return false;
   }
-  // check format
+  // Check format.
   if (ioctl(fd_, VIDIOC_G_FMT, &fmt_request) < 0) {
     std::cerr << "Failed to get image format." << std::endl;
     return false;

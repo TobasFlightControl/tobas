@@ -137,7 +137,7 @@ void JointsHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCommandA
     return;
   }
 
-  // Create messages
+  // Create messages.
   auto pwms = std::make_unique<tobas_msgs::msg::PwmArray>();
   auto joint_states = std::make_unique<tobas_msgs::msg::JointStateArray>();
 
@@ -145,7 +145,7 @@ void JointsHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCommandA
     const auto& jnt_name = cmd.name;
     auto cmd_pos = cmd.data;
 
-    // Get joint config
+    // Get joint config.
     const auto joint_it = drone_->joints.find(jnt_name);
     if (joint_it == drone_->joints.end()) {
       TOBAS_ERROR("Joint \"", jnt_name, "\" is not found.");
@@ -153,7 +153,7 @@ void JointsHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCommandA
     }
     const auto& joint = joint_it->second;
 
-    // Fill commands
+    // Fill commands.
     switch (joint.hw_iface) {
       case HardwareInterface::kPwm: {
         const auto& pwm_cfg = drone_->pwms.at(joint.name);
@@ -180,7 +180,7 @@ void JointsHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCommandA
     }
   }
 
-  // Publish messages
+  // Publish messages.
   if (!pwms->pwms.empty()) {
     pwms->header.stamp = positions->header.stamp;
     pwms_pub_->publish(std::move(pwms));
@@ -190,7 +190,7 @@ void JointsHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCommandA
     joint_states_pub_->publish(std::move(joint_states));
   }
 
-  // Reset timeout timer
+  // Reset timeout timer.
   pos_commanded_ = true;
   pos_reset_timer_->reset();
 }
@@ -203,7 +203,7 @@ void JointsHandlerNode::jointVelocitiesCmdCb(const tobas_msgs::msg::JointCommand
 
   (void)velocities;  // TODO
 
-  // Reset timeout timer
+  // Reset timeout timer.
   vel_commanded_ = true;
   vel_reset_timer_->reset();
 }
@@ -216,14 +216,14 @@ void JointsHandlerNode::jointEffortsCmdCb(const tobas_msgs::msg::JointCommandArr
 
   (void)efforts;  // TODO
 
-  // Reset timeout timer
+  // Reset timeout timer.
   eff_commanded_ = true;
   eff_reset_timer_->reset();
 }
 
 void JointsHandlerNode::positionResetTimerCb()
 {
-  // Create messages
+  // Create messages.
   auto pwms = std::make_unique<tobas_msgs::msg::PwmArray>();
   auto joint_states = std::make_unique<tobas_msgs::msg::JointStateArray>();
 
@@ -236,7 +236,7 @@ void JointsHandlerNode::positionResetTimerCb()
       continue;
     }
 
-    // Fill commands
+    // Fill commands.
     switch (joint.hw_iface) {
       case HardwareInterface::kPwm: {
         const auto& pwm_cfg = drone_->pwms.at(joint.name);
@@ -263,7 +263,7 @@ void JointsHandlerNode::positionResetTimerCb()
     }
   }
 
-  // Publish messages
+  // Publish messages.
   if (!pwms->pwms.empty()) {
     pwms->header.stamp = now();
     pwms_pub_->publish(std::move(pwms));
@@ -273,7 +273,7 @@ void JointsHandlerNode::positionResetTimerCb()
     joint_states_pub_->publish(std::move(joint_states));
   }
 
-  // Warn if commanded positions are reset
+  // Warn if commanded positions are reset.
   if (pos_commanded_) {
     pos_commanded_ = false;
     TOBAS_WARN(

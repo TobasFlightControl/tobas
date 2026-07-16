@@ -170,11 +170,11 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
     case PropulsionSystem::kElectric: {
       const auto eprop = boost::polymorphic_pointer_downcast<ElectricPropulsionSystemConfig>(drone_->prop);
 
-      // Create target speeds message
+      // Create target speeds message.
       auto tar_speeds_msg = std::make_unique<tobas_msgs::msg::RotorSpeedArray>();
       tar_speeds_msg->header = tar_thrusts_msg->header;
 
-      // Convert target thrusts to target speeds
+      // Convert target thrusts to target speeds.
       for (const auto& elem : tar_thrusts_msg->thrusts) {
         const auto erotor = eprop->getRotor(elem.link_name);
         if (!erotor) {
@@ -188,7 +188,7 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
         tar_speeds_msg->speeds.back().speed = std::max(tar_speed, erotor->min_speed);
       }
 
-      // Publish target speeds
+      // Publish target speeds.
       rotor_speeds_pub_->publish(std::move(tar_speeds_msg));
 
       break;
@@ -215,7 +215,7 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
         K += motor_const * moment_const / math::cube(irotor->gear_ratio);
       }
 
-      // Create command
+      // Create command.
       auto ice_cmd_msg = std::make_unique<tobas_msgs::msg::IcePropulsionSystemCommand>();
       ice_cmd_msg->header = tar_thrusts_msg->header;
 
@@ -241,7 +241,7 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
         }
       }
 
-      // Publish command
+      // Publish command.
       ice_cmd_pub_->publish(std::move(ice_cmd_msg));
 
       break;
@@ -252,7 +252,7 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
     }
   }
 
-  // Reset timeout timers
+  // Reset timeout timers.
   if (is_commanded_) {
     auto_disarm_timer_->reset();
   }

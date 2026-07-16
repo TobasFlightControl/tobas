@@ -242,7 +242,7 @@ void PwmWidget::addLastChannel()
   period_ub->setValue(2000);
   period_ub->setSuffix(" us");
 
-  // Insert table row
+  // Insert table row.
   insertRow(row);
   setVerticalHeaderItem(row, new QTableWidgetItem("CH" + QString::number(row)));
   setCellWidget(row, kTargetNameCol, target_name);

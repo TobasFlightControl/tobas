@@ -35,7 +35,7 @@ int ChainFkSolverVel_recursive::jntToCart(const JntArray& q_in, const JntArray& 
     if (seg.joint().type != Joint::kFixed) {
       qj_ = q_in(j_);
       qdj_ = qd_in(j_);
-      ++j_;  // Increase joint number only if the segment has a joint
+      ++j_;  // Increase joint number only if the segment has a joint.
     }
     else {
       qj_ = 0.0;

@@ -156,16 +156,16 @@ bool WifiHotspotWidget::isValid64HexPsk(const QString& psk)
 
 void WifiHotspotWidget::onWriteButtonClicked()
 {
-  // Create data
+  // Create data.
   inja::json tpl_data;
   tpl_data["ssid"] = getSsid().toStdString();
   tpl_data["psk"] = getPsk().toStdString();
 
-  // Get paths
+  // Get paths.
   const auto tpl_path = getPkgShareDir() / "templates/hostapd.conf";
   const auto out_path = fs::path(kRootPath) / "etc/hostapd/hostapd.conf";
 
-  // Generate file
+  // Generate file.
   inja::Environment env;
   try {
     const auto temp = env.parse_template(tpl_path);

@@ -136,24 +136,24 @@ void ImuDriverNode::initializeTimerCb()
 
 void ImuDriverNode::mainTimerCb()
 {
-  // Get current time
+  // Get current time.
   const auto cur_time = now();
 
-  // Read IMU data
+  // Read IMU data.
   if (!imu_.readImu(acc_raw_.x(), acc_raw_.y(), acc_raw_.z(), gyro_raw_.x(), gyro_raw_.y(), gyro_raw_.z())) {
     TOBAS_FATAL("Failed to read IMU.");
     return;
   }
 
-  // Compute time difference
+  // Compute time difference.
   const auto dt = (cur_time - t_prev_).seconds();  // [s]
   t_prev_ = cur_time;
 
-  // Compute D-Gyro
+  // Compute D-Gyro.
   const auto dgyro_raw = (gyro_raw_ - prev_gyro_raw_) / dt;
   prev_gyro_raw_ = gyro_raw_;
 
-  // Publish raw IMU message
+  // Publish raw IMU message.
   auto imu_raw = std::make_unique<tobas_msgs::Imu>();
   imu_raw->header.stamp = cur_time;
   imu_raw->accel = acc_raw_;
@@ -162,12 +162,12 @@ void ImuDriverNode::mainTimerCb()
   imu_raw_pub_->publish(std::move(imu_raw));
 
   if (lpf_initialized_) {
-    // Filter IMU data
+    // Filter IMU data.
     acc_lpf_.update(acc_raw_, dt);
     gyro_lpf_.update(gyro_raw_, dt);
     dgyro_lpf_.update(dgyro_raw, dt);
 
-    // Publish filtered IMU message
+    // Publish filtered IMU message.
     auto imu_filt = std::make_unique<tobas_msgs::Imu>();
     imu_filt->header.stamp = cur_time;
     imu_filt->accel = acc_lpf_.getValue();
@@ -176,7 +176,7 @@ void ImuDriverNode::mainTimerCb()
     imu_filt_pub_->publish(std::move(imu_filt));
   }
 
-  // Publish sampling time
+  // Publish sampling time.
   sampling_time_pub_.publish(cur_time);
 }
 }  // namespace fc1xx

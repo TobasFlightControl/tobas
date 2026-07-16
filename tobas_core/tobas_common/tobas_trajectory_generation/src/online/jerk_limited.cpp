@@ -114,12 +114,12 @@ void JerkLimitedOnlineTrajectoryGenerator::update(double dt)
   const auto tmp = std::min(uc, u_v(ed_max, u_, edd_min, edd_max, edk, eddk));
   const auto uk = std::max(u_v(ed_min, u_, edd_min, edd_max, edk, eddk), tmp);
 
-  // Compute filter output
+  // Compute filter output.
   const auto next_acc = traj_acc_ + dt * uk;
   const auto next_vel = traj_vel_ + dt / 2 * (traj_acc_ + next_acc);
   const auto next_pos = traj_pos_ + dt / 2 * (traj_vel_ + next_vel);
 
-  // Update trajectory point
+  // Update trajectory point.
   traj_acc_ = std::clamp(next_acc, a_min_, a_max_);
   traj_vel_ = std::clamp(next_vel, v_min_, v_max_);
   traj_pos_ = next_pos;

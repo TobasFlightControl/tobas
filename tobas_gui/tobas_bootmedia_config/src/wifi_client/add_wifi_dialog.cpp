@@ -96,14 +96,14 @@ void AddWifiDialog::enableOkButton(bool enable)
 
 void AddWifiDialog::onChanged()
 {
-  // Check SSID
+  // Check SSID.
   const auto ssid = getSsid();
   if (ssid.isEmpty()) {
     enableOkButton(false);
     return;
   }
 
-  // Check PSK
+  // Check PSK.
   if (getKeyMgmt().toStdString() == wpa::labelFromEnum(wpa::KeyMgmt::NONE)) {
     psk_->setEnabled(false);
   }

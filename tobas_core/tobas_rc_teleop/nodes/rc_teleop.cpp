@@ -556,12 +556,12 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
           std::max(std::abs(rcin->roll), std::abs(rcin->pitch)) < arm_throt_thresh_ &&
           rcin->yaw > kRcInputMax - arm_throt_thresh_) {
           TOBAS_INFO_THROTTLE(kArmCommandInfoPeriod, "Disarm stick position detected. Hold to disarm.");
-          if ((rcin->header.stamp - t_disarm_start_).seconds() > disarm_duration_) {  // Request if held long enough
+          if ((rcin->header.stamp - t_disarm_start_).seconds() > disarm_duration_) {  // Request if held long enough.
             TOBAS_INFO("Disarming rotors...");
             requestArmingRotors(false);
             t_disarm_start_ = rcin->header.stamp;
           }
-          break;  // Exit without updating the disarm command start time
+          break;  // Exit without updating the disarm command start time.
         }
       }
       else {  // Otherwise, send the command normally.

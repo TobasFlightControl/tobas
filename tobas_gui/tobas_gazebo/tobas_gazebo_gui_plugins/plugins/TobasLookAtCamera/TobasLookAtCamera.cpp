@@ -61,29 +61,29 @@ void TobasLookAtCamera::onRender()
     return;
   }
 
-  // Get camera position
+  // Get camera position.
   const auto camera_pos = camera_->WorldPosition();
 
-  // Direction vector
+  // Compute the direction vector
   const auto dir = (tar_pos_ - camera_pos).Normalized();
 
-  // Compute yaw/pitch from direction vector
+  // Compute yaw/pitch from the direction vector.
   const auto yaw = std::atan2(dir.Y(), dir.X());
   const auto pitch = -std::asin(dir.Z());
 
-  // Roll = 0, so construct quaternion(roll, pitch, yaw)
+  // Roll = 0, so construct quaternion(roll, pitch, yaw).
   const gz::math::Quaterniond camera_rot(0.0, pitch, yaw);
 
-  // Construct the new camera pose
+  // Construct the new camera pose.
   const gz::math::Pose3d camera_pose(camera_pos, camera_rot);
 
-  // Update camera pose in the scene (world coordinates)
+  // Update camera pose in the scene (world coordinates).
   camera_->SetWorldPose(camera_pose);
 }
 
 void TobasLookAtCamera::initialize()
 {
-  // Attach to the first camera we find
+  // Attach to the first camera we find.
   for (size_t i = 0; i < scene_->NodeCount(); ++i) {
     const auto camera = std::dynamic_pointer_cast<gz::rendering::Camera>(scene_->NodeByIndex(i));
     if (camera) {

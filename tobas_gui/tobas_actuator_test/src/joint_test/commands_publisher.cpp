@@ -190,12 +190,12 @@ size_t JointCommandsPublisherWidget::numRegisteredChannels() const
 
 void JointCommandsPublisherWidget::publishCurrentValues()
 {
-  // Create messages
+  // Create messages.
   auto tar_pos = std::make_unique<tobas_msgs::msg::JointCommandArray>();
   auto tar_vel = std::make_unique<tobas_msgs::msg::JointCommandArray>();
   auto tar_eff = std::make_unique<tobas_msgs::msg::JointCommandArray>();
 
-  // Fill messages
+  // Fill messages.
   for (const auto& [jnt_name, commander] : commanders_) {
     const auto& joint = drone_.joints.at(jnt_name);
     switch (joint.cmd_iface) {
@@ -220,7 +220,7 @@ void JointCommandsPublisherWidget::publishCurrentValues()
     }
   }
 
-  // Publish messages
+  // Publish messages.
   if (!tar_pos->commands.empty()) {
     tar_pos->header.stamp = node_->now();
     pos_pub_->publish(std::move(tar_pos));

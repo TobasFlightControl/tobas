@@ -81,17 +81,17 @@ bool ParameterTuningWidget::updateProject(const fs::path& proj_path)
 {
   reset();
 
-  // Update project path
+  // Update project path.
   proj_paths_.setProjPath(proj_path);
 
-  // Load drone configuration
+  // Load drone configuration.
   const auto tbsdrn_path = proj_paths_.tbsdrnPath();
   if (!drone_.load(tbsdrn_path)) {
     qt::qErrorBox(this, "Failed to load drone configuration.");
     return false;
   }
 
-  // Set namespace
+  // Set namespace.
   const auto ns = '/' + drone_.name;
   for (const auto& block : blocks_) {
     block->setNamespace(ns);

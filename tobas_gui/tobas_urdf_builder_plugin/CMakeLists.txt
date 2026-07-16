@@ -11,7 +11,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Wswitch-enum -Werror")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-# Disable warnings about Ogre
+# Disable warnings about Ogre.
 add_compile_options(-Wno-register)
 add_compile_options(-Wno-deprecated-copy)
 add_compile_options(-Wno-unused-but-set-parameter)

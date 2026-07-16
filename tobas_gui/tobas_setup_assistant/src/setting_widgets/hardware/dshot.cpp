@@ -190,7 +190,7 @@ void DShotWidget::addLastChannel()
     std::bind(&self::onBidirectionalButtonToggled, this, bidirectional, std::placeholders::_1));
   bidirectional->setEnabled(false);  // TODO: Support unidirectional communication.
 
-  // Insert table row
+  // Insert table row.
   insertRow(row);
   setVerticalHeaderItem(row, new QTableWidgetItem("CH" + QString::number(row)));
   setCellWidget(row, kTargetNameCol, target_name);

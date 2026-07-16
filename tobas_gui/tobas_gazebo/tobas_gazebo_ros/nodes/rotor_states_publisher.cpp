@@ -66,11 +66,11 @@ void RotorStatesPublisherNode::rotorStateCb(const tobas_msgs::msg::RotorState::C
     return;
   }
 
-  // Store rotor state
+  // Store rotor state.
   rotor_states_[link_name] = *rotor_state;
 
   if (rotor_states_.size() == drone_->prop->numRotors()) {
-    // Publish rotor states
+    // Publish rotor states.
     auto rotor_states_msg = std::make_unique<tobas_msgs::msg::RotorStateArray>();
     rotor_states_msg->header.stamp = now();
     for (const auto& [_, state] : rotor_states_) {
@@ -78,7 +78,7 @@ void RotorStatesPublisherNode::rotorStateCb(const tobas_msgs::msg::RotorState::C
     }
     rotor_states_pub_->publish(std::move(rotor_states_msg));
 
-    // Reset
+    // Reset.
     rotor_states_.clear();
   }
 }

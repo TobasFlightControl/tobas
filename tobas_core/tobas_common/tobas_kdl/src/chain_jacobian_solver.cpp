@@ -49,7 +49,7 @@ int ChainJacobianSolver::jntToJac(const JntArray& q_in, int _seg_nr)
     return setDefaultError(kOutputRange);
   }
 
-  // Initialize Jacobian to zero since only seg_nr columns are computed
+  // Initialize Jacobian to zero since only seg_nr columns are computed.
   J_out_.setZero();
 
   T_tmp_.setIdentity();
@@ -57,16 +57,16 @@ int ChainJacobianSolver::jntToJac(const JntArray& q_in, int _seg_nr)
   for (size_t i = 0; i < seg_nr; ++i) {
     const auto& seg = chain_.getSegment(i);
 
-    // Calculate new Frame_base_ee
+    // Calculate new Frame_base_ee.
     const auto qj = seg.joint().type != Joint::kFixed ? q_in(j_) : 0.0;
-    const auto T_total = T_tmp_ * seg.pose(qj);  // pose of the new end-point expressed in the base
+    const auto T_total = T_tmp_ * seg.pose(qj);  // Pose of the new end-point expressed in the base
 
-    // Changing Refpoint of all columns to new ee
+    // Changing Refpoint of all columns to new ee.
     J_out_.changeRefPoint(T_total.p - T_tmp_.p);
 
-    // Only increase jointnr if the segment has a joint
+    // Only increase jointnr if the segment has a joint.
     if (seg.joint().type != Joint::kFixed) {
-      // Only put the twist inside if it is not locked
+      // Only put the twist inside if it is not locked.
       if (!locked_joints_[j_]) {
         J_out_.setColumn(k_++, T_tmp_.M * seg.jacobian(q_in(j_)));
       }

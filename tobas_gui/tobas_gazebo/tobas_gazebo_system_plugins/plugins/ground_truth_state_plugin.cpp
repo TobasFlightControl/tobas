@@ -91,35 +91,35 @@ void GazeboGroundTruthStatePlugin::PostUpdate(const gz::sim::UpdateInfo& info, c
     return;
   }
 
-  // Create Pose & Twist message
+  // Create Pose & Twist message.
   auto odom = std::make_unique<tobas_msgs::OdometryWithCovarianceStamped>();
   odom->header.frame_id = link_name_;
 
-  // Update time stamp
+  // Update time stamp.
   ros2::timeChronoToMsg(info.simTime, odom->header.stamp);
 
-  // Update pose (Global)
+  // Update pose (Global).
   poseGazeboToKDL(pose_W_->Data(), odom->odom.odom.frame);
 
-  // Update linear velocity (Local)
+  // Update linear velocity (Local).
   vectorGazeboToKDL(vel_B_->Data(), odom->odom.odom.twist.vel);
 
-  // Update angular velocity (Local)
+  // Update angular velocity (Local).
   vectorGazeboToKDL(gyro_B_->Data(), odom->odom.odom.twist.rot);
 
-  // Update linear acceleration (Local)
+  // Update linear acceleration (Local).
   vectorGazeboToKDL(acc_B_->Data(), odom->odom.odom.accel.linear);
 
-  // Update angular acceleration (Local)
+  // Update angular acceleration (Local).
   vectorGazeboToKDL(dgyro_B_->Data(), odom->odom.odom.accel.angular);
 
-  // Update covariances
+  // Update covariances.
   odom->odom.position_covariance.setZero();
   odom->odom.orientation_covariance.setZero();
   odom->odom.velocity_covariance.setZero();
   odom->odom.gyro_covariance.setZero();
 
-  // Publish state message
+  // Publish state message.
   odom_pub_->publish(std::move(odom));
 }
 

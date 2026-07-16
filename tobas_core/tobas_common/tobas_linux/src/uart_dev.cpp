@@ -68,12 +68,12 @@ bool UARTdev::initialize(const char* uart_dev, bool block_mode)
 {
   block_mode_ = block_mode;
 
-  // Close UART device if already opened
+  // Close UART device if already opened.
   if (uart_fd_ >= 0) {
     close(uart_fd_);
   }
 
-  // Open UART device
+  // Open UART device.
   int oflag = O_RDWR | O_NOCTTY;
   if (!block_mode) {
     oflag |= O_NONBLOCK;
@@ -84,7 +84,7 @@ bool UARTdev::initialize(const char* uart_dev, bool block_mode)
     return false;
   }
 
-  // Get the current configuration of the serial interface
+  // Get the current configuration of the serial interface.
   if (!getConfig()) {
     return false;
   }
@@ -109,20 +109,20 @@ bool UARTdev::initialize(const char* uart_dev, bool block_mode)
   // c_lflag bits
   options_.c_lflag = 0;
 
-  // Ignore control characters
+  // Ignore control characters.
   for (auto& c_cc : options_.c_cc) {
     c_cc = 0;
   }
 
-  // Set minimum characters
+  // Set minimum characters.
   options_.c_cc[VMIN] = block_mode ? 1 : 0;
 
-  // Set the new configuration of the serial interface
+  // Set the new configuration of the serial interface.
   if (!setConfig()) {
     return false;
   }
 
-  // Reset input buffer
+  // Reset input buffer.
   if (tcflush(uart_fd_, TCIFLUSH) != 0) {
     cerr << "Failed to reset input buffer: " << strError() << endl;
     return false;

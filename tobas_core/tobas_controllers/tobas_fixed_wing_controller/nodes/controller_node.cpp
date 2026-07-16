@@ -131,7 +131,7 @@ private:
 ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   : super(node::kController, nodeOptions_DParam(options)), mass_holder_(tree_), eom_(drone_, tree_)
 {
-  // Register dynamic parameters
+  // Register dynamic parameters.
   addDynamicIntParam("forward_speed_weight", &self::forwardSpeedWeightCb, this, 5, 1, 1, 20);
   addDynamicIntParam("alpha_weight", &self::alphaWeightCb, this, 5, 1, 1, 20);
   addDynamicIntParam("beta_weight", &self::betaWeightCb, this, 5, 1, 1, 20);
@@ -142,11 +142,11 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   addDynamicIntParam("deflection_weight_log10", &self::deflectionWeightLog10Cb, this, 1, -3, -3, 3);
   addDynamicIntParam("deflection_rate_weight_log10", &self::deflectionRateWeightLog10Cb, this, 1, -1, -3, 3);
 
-  // Register publishers
+  // Register publishers.
   tar_thrusts_pub_ = createPublisher<tobas_msgs::msg::RotorThrustArray>(topic::kRotorThrustsCmd);
   tar_angles_pub_ = createPublisher<tobas_msgs::msg::JointCommandArray>(topic::kJointPosCmd);
 
-  // Register subscribers
+  // Register subscribers.
   drone_sub_ = createSubscriber(topic::kDrone, &self::droneCb, this, true, true);
   tree_sub_ = createSubscriber(topic::kKdlTree, &self::treeCb, this, true, true);
   arming_sub_ = createSubscriber(topic::kArming, &self::armingCb, this);
@@ -154,7 +154,7 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   odom_sub_ = createSubscriber(topic::kOdometry, &self::odomCb, this);
   cmd_sub_ = createSubscriber(topic::kSpeedRollDpitchCmd, &self::commandCb, this);
 
-  // Register timers
+  // Register timers.
   check_topics_timer_ = createTimer(kCheckTopicsPeriod, &self::checkTopicsTimerCb, this);
 }
 
@@ -528,7 +528,7 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
   const Eigen::VectorXd thrusts = u.head(drone_.prop->numRotors());
   const Eigen::VectorXd deflections = u.tail(drone_.fixed_wing->numControlSurfaces());
 
-  // Publish
+  // Publish.
   publishThrusts(odom_flu->header.stamp, thrusts);
   publishDeflections(odom_flu->header.stamp, deflections);
 }

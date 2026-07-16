@@ -42,19 +42,19 @@ void DroneServerNode::publishDrone()
 
 bool DroneServerNode::fileParamCb(const std::string& p)
 {
-  // Load drone configuration
+  // Load drone configuration.
   if (!drone_.load(p)) {
     TOBAS_ERROR("Failed to load drone configuration from \"", p, "\".");
     return false;
   }
 
-  // Check drone configuration validity
+  // Check drone configuration validity.
   if (!drone_.isValid()) {
     TOBAS_ERROR("Drone configuration is invalid.");
     return false;
   }
 
-  // Publish drone configuration
+  // Publish drone configuration.
   publishDrone();
 
   TOBAS_INFO("New drone configuration message is published.");

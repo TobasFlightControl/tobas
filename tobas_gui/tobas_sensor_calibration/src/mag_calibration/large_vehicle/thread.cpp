@@ -89,7 +89,7 @@ void LargeVehicleMagCalibThread::run()
     mag_mean(i) = mag_sum_.at(i).get() / cnt_;
   }
 
-  // Calculate the bias. (memo: 3-41)
+  // Calculate the bias. (memo: 3-41).
   const auto hard_bias = mag_mean - mag_ref;
   const auto soft_bias = mag.total;
 

@@ -61,28 +61,28 @@ private:
 RCInputHandlerNode::RCInputHandlerNode(const rclcpp::NodeOptions& options)
   : super("real_rcin_handler", nodeOptions_Default(options))
 {
-  // Initialize property tree
+  // Initialize property tree.
   const auto cfg_dir = linux::isSuperUser() ? fs::path(kConfigDirRoot) : ros2::expandUser(kConfigDirHome);
   if (!pt_.initialize((cfg_dir / handler::rcin::kConfigFileName))) {
     TOBAS_ERROR("Failed to initialize property tree. This node will not work.");
     return;
   }
 
-  // Initialize mode map
+  // Initialize mode map.
   for (const auto mode : magic_enum::enum_values<FlightMode>()) {
     modes_[mode];
   }
 
-  // Register service server
+  // Register service server.
   set_params_ss_ = createService<SetParams>(handler::rcin::kSetParamSrv, &self::setParamsCb, this);
 
-  // Try to get configuration
+  // Try to get configuration.
   if (!getConfig()) {
     TOBAS_ERROR("Failed to get configuration. This node will not work until they are set.");
     return;
   }
 
-  // Register publishers and subscribers if getting configuration is successful
+  // Register publishers and subscribers if getting configuration is successful.
   registerPubSub();
 }
 
@@ -241,7 +241,7 @@ void RCInputHandlerNode::setParamsCb(
   const SetParams::Request::ConstSharedPtr& req,
   const SetParams::Response::SharedPtr& res)
 {
-  // Update parameters
+  // Update parameters.
   roll_.lower = req->roll_left;
   roll_.upper = req->roll_right;
   pitch_.upper = req->pitch_up;
@@ -262,7 +262,7 @@ void RCInputHandlerNode::setParamsCb(
   gpsw_on_ = req->gpsw_on;
   gpsw_off_ = req->gpsw_off;
 
-  // Save parameters
+  // Save parameters.
   pt_.set(ns(), handler::rcin::kRollLeftKey, req->roll_left);
   pt_.set(ns(), handler::rcin::kRollRightKey, req->roll_right);
   pt_.set(ns(), handler::rcin::kPitchUpKey, req->pitch_up);

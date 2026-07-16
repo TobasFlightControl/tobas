@@ -176,16 +176,16 @@ void ParamGetterWidget_DoubleTable::deleteRow()
 
 void ParamGetterWidget_DoubleTable::loadCsv()
 {
-  // Get CSV file path
+  // Get CSV file path.
   const auto file_path = getCsvPath();
   if (file_path.isEmpty()) {
     return;
   }
 
-  // Load CSV
+  // Load CSV.
   const auto doc = csv::load(file_path.toStdString());
 
-  // Read data
+  // Read data.
   std::vector<std::vector<double>> columns(num_entry_);
   for (int i = 0; i < num_entry_; ++i) {
     const auto& label = labels_.at(i);
@@ -195,7 +195,7 @@ void ParamGetterWidget_DoubleTable::loadCsv()
     }
   }
 
-  // Fill data
+  // Fill data.
   const auto num_data = columns.front().size();
   Eigen::MatrixXd data_array(num_data, num_entry_);
   for (int col = 0; col < num_entry_; ++col) {
@@ -208,7 +208,7 @@ void ParamGetterWidget_DoubleTable::loadCsv()
     }
   }
 
-  // Set data
+  // Set data.
   if (!setValue(data_array)) {
     return;
   }

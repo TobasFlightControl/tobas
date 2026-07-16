@@ -38,15 +38,15 @@ bool DShot::initialize() noexcept
 
 bool DShot::transfer() noexcept
 {
-  // Compute CRC
+  // Compute CRC.
   tx_buf_[kChannelSize] = crc_.compute((uint8_t*)tx_buf_, sizeof(uint32_t) * kChannelSize);
 
-  // Transfer
+  // Transfer.
   if (!spi_.transfer(sizeof(tx_buf_))) {
     return false;
   }
 
-  // Check CRC
+  // Check CRC.
   const auto cs = rx_buf_[kChannelSize];
   const auto cr = crc_.compute((uint8_t*)rx_buf_, sizeof(uint32_t) * kChannelSize);
   if (cs != cr) {

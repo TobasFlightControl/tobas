@@ -19,7 +19,7 @@ Parser::Parser()
 
 bool Parser::parseFromText(const std::string& text, Data& dst)
 {
-  // Reset
+  // Reset.
   dst.networks.clear();
 
   const auto lines = str::splitLines(text);

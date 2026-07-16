@@ -27,7 +27,7 @@ namespace ublox
 class ZEDF9P
 {
 private:
-  static constexpr uint32_t kSpiClockFreq = 5'500'000;  // Maximum frequency is 5.5MHz
+  static constexpr uint32_t kSpiClockFreq = 5'500'000;  // Maximum frequency is 5.5MHz.
   static constexpr size_t kSpiBufSize = 256;
   static constexpr uint8_t kRG174CableDelay = 5;  // [ns/m] Coaxial cable delay.
   static constexpr auto kWaitForGnssAck = std::chrono::seconds(1);
@@ -171,7 +171,7 @@ private:
   /* Supported storage size identifiers */
   enum CfgSize : uint8_t
   {
-    ONE_BIT = 0x01,  // Only the LSB is used
+    ONE_BIT = 0x01,  // Only the LSB is used.
     ONE_BYTE = 0x02,
     TWO_BYTES = 0x03,
     FOUR_BYTES = 0x04,
@@ -257,7 +257,7 @@ private:
   {
     const uint8_t version = 0x00;  // Message version, set to 0
 
-    // The layers where the configuration should be applied
+    // The layers where the configuration should be applied.
     enum CfgLayer : uint8_t
     {
       RAM = 0b001,

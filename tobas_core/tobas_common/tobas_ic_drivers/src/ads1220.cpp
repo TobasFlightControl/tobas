@@ -50,7 +50,7 @@ bool ADS1220::initialize(const char* spi_device)
 
 bool ADS1220::readVoltage(double& dst)
 {
-  // Read data
+  // Read data.
   // cf. 8.5.4 Reading Data (p.37)
   // cf. https://www.denshi.club/pc/python/circuitpython/circuitpython-10-step2-6-adc1220.html
   tx_buf_[0] = RDATA;
@@ -119,7 +119,7 @@ bool ADS1220::configure(const uint8_t& rr, const uint8_t& tar_cfg)
   constexpr uint8_t nn = 0b00;  // 1 [byte] - 1 = 0
   const uint8_t rrnn = rr | nn;
 
-  // Send write command
+  // Send write command.
   tx_buf_[0] = WREG | rrnn;
   tx_buf_[1] = tar_cfg;
   if (!spi_.transfer(2)) {
@@ -131,7 +131,7 @@ bool ADS1220::configure(const uint8_t& rr, const uint8_t& tar_cfg)
   // However, the `RDATA` output suggests that the configuration change is applied correctly.
   return true;
 
-  // Verify that the configuration is reflected
+  // Verify that the configuration is reflected.
   tx_buf_[0] = RREG | rrnn;
   if (!spi_.transfer(2)) {
     cerr << "Failed to send read register command." << endl;

@@ -72,7 +72,7 @@ void AccelAngleController::reset(const builtin_interfaces::msg::Time& stamp, con
 
 void AccelAngleController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry&, bool)
 {
-  // Update timestamp
+  // Update timestamp.
   const auto dt = (rcin.header.stamp - t_last_rcin_).seconds();
   t_last_rcin_ = rcin.header.stamp;
 
@@ -99,11 +99,11 @@ void AccelAngleController::update(const tobas_msgs::RCInput& rcin, const tobas_m
   const auto yawrate = expoRemapDead(rcin.yaw, head_expo_, -max_head_rate_, max_head_rate_);
   tar_yaw_ += yawrate * dt;
 
-  // Compute the acceleration wrt. the world frame
+  // Compute the acceleration wrt. the world frame.
   const kdl::Vector tar_acc_G(ax_filt_.getTrajectoryPosition(), ay_filt_.getTrajectoryPosition(), az);
   const auto tar_acc_W = kdl::Rotation::RotZ(tar_yaw_) * tar_acc_G;
 
-  // Publish commands
+  // Publish commands.
   publishAccel(rcin.header.stamp, tar_acc_W);
   publishAngle(rcin.header.stamp, roll_filt_.getTrajectoryPosition(), pitch_filt_.getTrajectoryPosition(), tar_yaw_);
 }

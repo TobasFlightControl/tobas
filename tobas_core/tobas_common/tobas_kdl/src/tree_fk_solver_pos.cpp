@@ -32,7 +32,7 @@ int TreeFkSolverPos::jntToCart(const JntArray& q, const string& seg_name)
 
 Frame TreeFkSolverPos::recursiveFk(const JntArray& q, const SegmentMap::const_iterator& cur_it)
 {
-  // Get the Frame for the current segment
+  // Get the Frame for the current segment.
   const auto& cur_ele = cur_it->second;
   const auto& cur_seg = cur_ele.segment;
   const auto& cur_idx = cur_ele.q_nr;

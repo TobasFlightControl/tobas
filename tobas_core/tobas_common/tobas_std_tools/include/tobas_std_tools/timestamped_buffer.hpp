@@ -107,7 +107,7 @@ protected:
   {
     auto it = map_.begin();
     while (it != map_.end() && cur_time - it->first > expiry_duration_) {
-      it = map_.erase(it);  // Erase returns the iterator following the removed element
+      it = map_.erase(it);  // Erase returns the iterator following the removed element.
       is_filled_ = true;
     }
   }

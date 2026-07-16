@@ -60,7 +60,7 @@ void ElectricRotorCommandHandlerNode::droneCb(const Drone::ConstSharedPtr& drone
 
   eprop_ = boost::polymorphic_pointer_downcast<ElectricPropulsionSystemConfig>(drone->prop);
 
-  // Register publishers
+  // Register publishers.
   throttle_pubs_.clear();
   for (const auto& [link_name, _] : eprop_->rotors) {
     const auto topic = path::join(gazebo::kRotorThrottleCmdTopicNS, link_name);
@@ -68,7 +68,7 @@ void ElectricRotorCommandHandlerNode::droneCb(const Drone::ConstSharedPtr& drone
   }
   latency_pub_.initialize(shared_from_this());
 
-  // Register subscribers
+  // Register subscribers.
   battery_sub_ = createSubscriber(topic::kBattery, &self::batteryCb, this);
   tar_speeds_sub_ = createSubscriber(topic::kRotorSpeedsCmd, &self::targetSpeedsCb, this);
 }
@@ -90,22 +90,22 @@ void ElectricRotorCommandHandlerNode::targetSpeedsCb(const tobas_msgs::msg::Roto
   }
 
   for (const auto& speed : tar_speeds->speeds) {
-    // Check link name
+    // Check link name.
     if (!throttle_pubs_.contains(speed.link_name)) {
       TOBAS_ERROR("Electric rotor \"" + speed.link_name + "\" does not exist.");
       continue;
     }
 
-    // Create throttle message
+    // Create throttle message.
     auto throttle = std::make_unique<tobas_gazebo_msgs::msg::Throttle>();
     throttle->header = tar_speeds->header;
     throttle->data = eprop_->getRotor(speed.link_name)->throttleFromSpeed(speed.speed, battery_->voltage);
 
-    // Publish throttle message
+    // Publish throttle message.
     throttle_pubs_.at(speed.link_name)->publish(std::move(throttle));
   }
 
-  // Publish control latency
+  // Publish control latency.
   latency_pub_.publish(tar_speeds->header.stamp);
 }
 }  // namespace gazebo

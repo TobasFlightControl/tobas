@@ -25,7 +25,7 @@ kdl::Vector PositionPDD2::update(
   const kdl::Vector& tar_acc,
   const double& dt)
 {
-  // Calculate errors
+  // Calculate errors.
   const auto ep = tar_pos - cur_pos;
   const auto ev = tar_vel - cur_vel;
   const auto ea = tar_acc - cur_acc;

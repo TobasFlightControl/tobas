@@ -25,12 +25,12 @@ endforeach()
 
 include_directories(include)
 
-# Build common library
+# Build common library.
 file(GLOB_RECURSE LIB_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_TARGETS})
 ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
 
-# Build each plugin
+# Build each plugin.
 file(GLOB PLUGIN_DIR_PATHS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} plugins/*)
 set(TARGETS_TO_INSTALL "")
 foreach(dir_path IN LISTS PLUGIN_DIR_PATHS)
@@ -43,11 +43,11 @@ foreach(dir_path IN LISTS PLUGIN_DIR_PATHS)
   list(APPEND TARGETS_TO_INSTALL ${PLUGIN_NAME})
 endforeach()
 
-# Install plugins
+# Install plugins.
 install(TARGETS ${TARGETS_TO_INSTALL} EXPORT ${PROJECT_NAME} LIBRARY DESTINATION lib/${PROJECT_NAME}/plugins)
 ament_environment_hooks("${CMAKE_CURRENT_SOURCE_DIR}/env_hooks/${PROJECT_NAME}.dsv.in")
 
-# Export plugins
+# Export plugins.
 ament_export_libraries(${TARGETS_TO_INSTALL})
 
 ament_package()

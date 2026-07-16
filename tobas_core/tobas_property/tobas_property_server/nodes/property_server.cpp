@@ -64,7 +64,7 @@ PropertyServer::PropertyServer(const rclcpp::NodeOptions& options)
     return;
   }
 
-  // Advertise service servers
+  // Advertise service servers.
   get_bool_ss_ = createService<GetBool>(kGetBoolSrv, &self::getCb<GetBool>, this);
   get_int_ss_ = createService<GetInt>(kGetIntSrv, &self::getCb<GetInt>, this);
   get_double_ss_ = createService<GetDouble>(kGetDoubleSrv, &self::getCb<GetDouble>, this);

@@ -36,12 +36,12 @@ bool SaveMissionDialog::eventFilter(QObject* obj, QEvent* event)
   if (obj == line_edit_ && event->type() == QEvent::KeyPress) {
     const auto key_event = static_cast<QKeyEvent*>(event);
     if (key_event->key() == Qt::Key_Return || key_event->key() == Qt::Key_Enter) {
-      // Only accept if the save button is enabled
+      // Only accept if the save button is enabled.
       if (save_button_->isEnabled()) {
         accept();
       }
 
-      // Consume the event
+      // Consume the event.
       return true;
     }
   }
@@ -51,7 +51,7 @@ bool SaveMissionDialog::eventFilter(QObject* obj, QEvent* event)
 
 void SaveMissionDialog::onLineEditTextChanged()
 {
-  // Enable the save button only if the file name is valid
+  // Enable the save button only if the file name is valid.
   const auto file_name = line_edit_->text();
   if (file_name.contains('.')) {
     save_button_->setEnabled(file_name.endsWith(cmn::kMissionExtension) && !qt::getBaseName(file_name).isEmpty());

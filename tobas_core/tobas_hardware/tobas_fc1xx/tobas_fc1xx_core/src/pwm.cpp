@@ -43,10 +43,10 @@ bool PWM::setPeriod(size_t ch, uint16_t period_us)
 
 bool PWM::transfer()
 {
-  // Compute CRC
+  // Compute CRC.
   *(uint32_t*)(tx_buf_ + kChannelSize) = crc_.compute((uint8_t*)tx_buf_, sizeof(uint16_t) * kChannelSize);
 
-  // Transfer
+  // Transfer.
   if (!spi_.transfer(sizeof(tx_buf_))) {
     return false;
   }

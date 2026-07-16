@@ -503,7 +503,7 @@ void BaseNode::addDynamicStringParam(
 template <typename... Args>
 void BaseNode::log(uint8_t level, const Args&... args) const
 {
-  // Create message
+  // Create message.
   auto message = std::make_unique<tobas_msgs::msg::Message>();
   message->header.stamp = now();
   message->level = level;
@@ -513,7 +513,7 @@ void BaseNode::log(uint8_t level, const Args&... args) const
   // Output message to the console
   rclcppLog(level, message->message);
 
-  // Publish message
+  // Publish message.
   message_pub_->publish(std::move(message));
 }
 

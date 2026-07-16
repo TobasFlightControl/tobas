@@ -43,11 +43,11 @@ int TreeJntSpacePID::cartToJnt(
     return setDefaultError(kSizeMismatch);
   }
 
-  // Compute target joint accelerations
+  // Compute target joint accelerations.
   // TODO: Add the I term.
   const auto tar_qdd = qdd_ff + kp_ * (tar_q - cur_q) + kd_ * (tar_qd - cur_qd);
 
-  // Compute target joint efforts
+  // Compute target joint efforts.
   if (rne_.cartToJnt(cur_q, cur_qd, tar_qdd) < 0) {
     return copyError(rne_);
   }

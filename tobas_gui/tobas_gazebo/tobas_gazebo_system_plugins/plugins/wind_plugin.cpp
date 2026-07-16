@@ -100,7 +100,7 @@ void GazeboWindPlugin::Configure(
   initialize("gazebo_wind_plugin", sdf);
   getSdfParams(sdf);
 
-  // Initialize wind parameters
+  // Initialize wind parameters.
   params_.mean_speed = kDefaultMeanWindSpeed;
   params_.direction = kDefaultConstantWindDirection;
   params_.gust_speed_factor = kDefaultGustSpeedFactor;
@@ -222,7 +222,7 @@ void GazeboWindPlugin::setParamsCb(const SetSrv::Request::ConstSharedPtr& req, c
     TOBAS_WARN("Gust interval remains unchanged.");
   }
 
-  // Update dryden wind model
+  // Update dryden wind model.
   dryden_.setMeanWindSpeed(req->params.mean_speed);
 
   res->success = true;

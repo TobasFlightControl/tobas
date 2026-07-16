@@ -23,7 +23,7 @@ WorldWidget_Standard::WorldWidget_Standard()
   combo_box_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
   cols->addWidget(combo_box_);
 
-  // Add world names
+  // Add world names.
   for (const auto& entry : fs::recursive_directory_iterator(worldDirectoryPath())) {
     if (entry.is_regular_file() && entry.path().extension() == ".world") {
       const auto world_name = entry.path().stem().string();

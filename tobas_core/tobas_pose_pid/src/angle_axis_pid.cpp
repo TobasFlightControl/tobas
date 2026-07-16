@@ -23,18 +23,18 @@ kdl::Vector AngleAxisPID::update(
   const kdl::Vector& tar_gyro,
   const double& dt)
 {
-  // Compute error in angle-axis form wrt. the local frame
+  // Compute error in angle-axis form wrt. the local frame.
   const auto ep = (cur_rot.inverse() * tar_rot).getRot();
   const auto ed = tar_gyro - cur_gyro;
 
-  // Integrate error
+  // Integrate error.
   for (size_t i = 0; i < 3; ++i) {
     if (ki_(i) > 0.0) {
       ei_(i) += ep(i) * dt;
     }
   }
 
-  // Compute target dgyro
+  // Compute target dgyro.
   return kp_.hadamard(ep) + ki_.hadamard(ei_) + kd_.hadamard(ed);
 }
 

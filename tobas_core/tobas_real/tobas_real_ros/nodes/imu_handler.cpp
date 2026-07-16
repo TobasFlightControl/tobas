@@ -173,14 +173,14 @@ void ImuHandlerNode::imuRawCb(const tobas_msgs::Imu::ConstSharedPtr& imu_raw_in)
       break;
     }
     case kPublish: {
-      // Create IMU message
+      // Create IMU message.
       auto imu_raw_out = std::make_unique<tobas_msgs::Imu>();
       imu_raw_out->header = imu_raw_in->header;
       imu_raw_out->accel = imu_raw_in->accel - acc_bias_;
       imu_raw_out->gyro = imu_raw_in->gyro - gyro_bias_;
       imu_raw_out->dgyro = imu_raw_in->dgyro;
 
-      // Publish message
+      // Publish message.
       imu_raw_pub_->publish(std::move(imu_raw_out));
 
       break;
@@ -194,25 +194,25 @@ void ImuHandlerNode::imuFiltCb(const tobas_msgs::Imu::ConstSharedPtr& imu_filt_i
     return;
   }
 
-  // Create IMU message
+  // Create IMU message.
   auto imu_filt_out = std::make_unique<tobas_msgs::Imu>();
   imu_filt_out->header = imu_filt_in->header;
   imu_filt_out->accel = imu_filt_in->accel - acc_bias_;
   imu_filt_out->gyro = imu_filt_in->gyro - gyro_bias_;
   imu_filt_out->dgyro = imu_filt_in->dgyro;
 
-  // Publish message
+  // Publish message.
   imu_filt_pub_->publish(std::move(imu_filt_out));
 }
 
 void ImuHandlerNode::setParamsCb(const SetParams::Request::ConstSharedPtr& req, const SetParams::Response::SharedPtr& res)
 {
-  // Update parameters
+  // Update parameters.
   acc_bias_.x(req->offset_x);
   acc_bias_.y(req->offset_y);
   acc_bias_.z(req->offset_z);
 
-  // Save parameters
+  // Save parameters.
   pt_.set(ns(), handler::imu::kOffsetXKey, req->offset_x);
   pt_.set(ns(), handler::imu::kOffsetYKey, req->offset_y);
   pt_.set(ns(), handler::imu::kOffsetZKey, req->offset_z);

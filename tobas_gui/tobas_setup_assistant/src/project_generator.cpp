@@ -870,16 +870,16 @@ bool ProjectGenerator::generateNetworkConfig()
 
 bool ProjectGenerator::generateOriginalUadf()
 {
-  // Export the original UADF
+  // Export the original UADF.
   const auto doc = uadf::exportUADF(uadf_);
   const auto robot = doc->RootElement();
 
-  // Modify
+  // Modify.
   if (!replaceOriginalUadfMeshFilePaths(robot)) {
     return false;
   }
 
-  // Save
+  // Save.
   if (doc->SaveFile(proj_paths_.originalUadfPath().c_str()) != tinyxml2::XML_SUCCESS) {
     qt::qErrorBox(parent_, "Failed to save the original UADF.");
     return false;
@@ -890,11 +890,11 @@ bool ProjectGenerator::generateOriginalUadf()
 
 bool ProjectGenerator::generateModifiedUrdf()
 {
-  // Export the original URDF
+  // Export the original URDF.
   const auto doc = urdf::exportUrdf(*uadf_.urdf);
   const auto robot = doc->RootElement();
 
-  // Modify
+  // Modify.
   if (!resolveModifiedUrdfMeshFilePaths(robot)) {
     return false;
   }
@@ -905,7 +905,7 @@ bool ProjectGenerator::generateModifiedUrdf()
     return false;
   }
 
-  // Save
+  // Save.
   if (doc->SaveFile(proj_paths_.xacroPath().c_str()) != tinyxml2::XML_SUCCESS) {
     qt::qErrorBox(parent_, "Failed to save the modified URDF.");
     return false;
@@ -1082,7 +1082,7 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
 
   const auto drone = createDrone();
 
-  // Get rotor link names
+  // Get rotor link names.
   std::vector<std::string> rotor_link_names;
   for (const auto& [link_name, _] : drone.prop->rotors) {
     rotor_link_names.push_back(link_name);

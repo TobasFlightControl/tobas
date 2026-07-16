@@ -37,14 +37,14 @@ MatrixXd care_ArimotoPotter(const MatrixXd& A, const MatrixXd& B, const MatrixXd
 
   // TODO: Check stabilizability.
 
-  // Make Hamilton matrix
+  // Make Hamilton matrix.
   MatrixXd H(n * 2, n * 2);
   H.topLeftCorner(n, n) = A;
   H.topRightCorner(n, n) = -B * R.inverse() * B.transpose();
   H.bottomLeftCorner(n, n) = -Q;
   H.bottomRightCorner(n, n) = -A.transpose();
 
-  // Get eigenvalues and eigenvectors
+  // Get eigenvalues and eigenvectors.
   const EigenSolver<MatrixXd> es(H);
   if (es.info() != Success) {
     throw runtime_error("Failed to get eigenvalues.");
@@ -59,7 +59,7 @@ MatrixXd care_ArimotoPotter(const MatrixXd& A, const MatrixXd& B, const MatrixXd
     throw runtime_error("The number of stable eigenvalues does not match the order of the system.");
   }
 
-  // Extract eigenvectors corresponding to stable eigenvalues
+  // Extract eigenvectors corresponding to stable eigenvalues.
   MatrixXcd eigvecs_stable(n * 2, n);
   Index j = 0;  // The index of stable eigenvalue. This value must become identical to n.
   for (Index i = 0; i < n * 2; ++i) {
@@ -70,7 +70,7 @@ MatrixXd care_ArimotoPotter(const MatrixXd& A, const MatrixXd& B, const MatrixXd
   }
   assert(j == n);
 
-  // Compute P with stable eigen vector matrix
+  // Compute P with stable eigen vector matrix.
   const auto Y = eigvecs_stable.block(0, 0, n, n);
   const auto Z = eigvecs_stable.block(n, 0, n, n);
   return (Z * Y.inverse()).real();

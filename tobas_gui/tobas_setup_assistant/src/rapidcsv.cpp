@@ -25,7 +25,7 @@ rapidcsv::Document load(const fs::path& path)
 
   const rapidcsv::ConverterParams converter_params;
 
-  // Skip comment and blank lines
+  // Skip comment and blank lines.
   const rapidcsv::LineReaderParams line_reader_params(true, '#', true);
 
   return rapidcsv::Document(path, label_params, separator_params, converter_params, line_reader_params);

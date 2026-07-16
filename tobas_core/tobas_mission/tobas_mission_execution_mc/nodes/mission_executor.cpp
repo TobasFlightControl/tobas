@@ -420,9 +420,9 @@ void MulticopterMissionExecutorNode::brake()
   const StopTrajectory traj_xy(
     0.0, vxy0_norm, axy0_norm * math::sign(vxy0.dot(axy0)), wp_cfg_.max_hor_acc, wp_cfg_.max_hor_jerk);
 
-  const auto pz0 = command_.pos.z();  // Must be copy
-  const auto vz0 = command_.vel.z();  // Must be copy
-  const auto az0 = command_.acc.z();  // Must be copy
+  const auto pz0 = command_.pos.z();  // Must be copy.
+  const auto vz0 = command_.vel.z();  // Must be copy.
+  const auto az0 = command_.acc.z();  // Must be copy.
   const auto vz0_norm = std::abs(vz0);
   const auto az0_norm = std::abs(az0);
   const auto dir_z = math::sign(vz0);
@@ -659,7 +659,7 @@ bool MulticopterMissionExecutorNode::executeWaypoints(
 
 bool MulticopterMissionExecutorNode::executeTakeoff(const Takeoff& goal, const GoalHandlePtr& gh, const ResultPtr& res)
 {
-  // Verify that the vehicle is disarmed
+  // Verify that the vehicle is disarmed.
   if (arming_->data) {
     res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
     res->error_message = "The takeoff mission cannot be started because the vehicle is already armed.";
@@ -755,7 +755,7 @@ bool MulticopterMissionExecutorNode::executeTakeoff(const Takeoff& goal, const G
 
 bool MulticopterMissionExecutorNode::executeLand(const Land& goal, const GoalHandlePtr& gh, const ResultPtr& res)
 {
-  // Verify that the vehicle is armed
+  // Verify that the vehicle is armed.
   if (!arming_->data) {
     res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
     res->error_message = "The land mission cannot be started because the vehicle is disarmed.";
@@ -975,7 +975,7 @@ MulticopterMissionExecutorNode::handleGoal(const rclcpp_action::GoalUUID&, const
 {
   TOBAS_INFO("A new mission has been uploaded.");
 
-  // Check mission priority
+  // Check mission priority.
   const auto& new_priority = goal->priority.data;
   if (new_priority > tobas_mission_msgs::msg::Priority::DEFENSIVE) {
     TOBAS_WARN("Invalid mission priority: ", (int)new_priority);
@@ -988,7 +988,7 @@ MulticopterMissionExecutorNode::handleGoal(const rclcpp_action::GoalUUID&, const
     }
   }
 
-  // Check the essential topics
+  // Check the essential topics.
   if (!odom_) {
     TOBAS_WARN("Odometry has not been received yet.");
     return rclcpp_action::GoalResponse::REJECT;
@@ -1006,13 +1006,13 @@ MulticopterMissionExecutorNode::handleGoal(const rclcpp_action::GoalUUID&, const
     return rclcpp_action::GoalResponse::REJECT;
   }
 
-  // Reject the mission if manual control is enabled
+  // Reject the mission if manual control is enabled.
   if (is_manual_ctrl_enabled_) {
     TOBAS_WARN("Mission cannot be executed while manual control is enabled.");
     return rclcpp_action::GoalResponse::REJECT;
   }
 
-  // Check the mission items
+  // Check the mission items.
   auto armed = arming_->data;
   for (const auto& [idx, item] : std::views::enumerate(goal->mission.items)) {
     const auto cmd_number = idx + 1;
@@ -1146,33 +1146,33 @@ rclcpp_action::CancelResponse MulticopterMissionExecutorNode::handleCancel(const
 
 void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& gh)
 {
-  // Wait until the previous mission is finished
+  // Wait until the previous mission is finished.
   rclcpp::Rate rate(kCommandRate);
   while (rclcpp::ok() && is_executing_) {
     rate.sleep();
   }
 
-  // Now the new mission is in execution
+  // Now the new mission is in execution.
   is_executing_ = true;
   status_ = kNoProblem;
 
-  // Initialize the command
+  // Initialize the command.
   initializeCommand();
 
-  // Create result
+  // Create result.
   const auto res = std::make_shared<Result>();
 
-  // Get goal
+  // Get goal.
   const auto goal = gh->get_goal();
 
-  // Execute mission
+  // Execute mission.
   const auto& items = goal->mission.items;
   for (size_t idx = 0; idx < items.size();) {
     const auto& item = items[idx];
     const auto cmd_number = idx + 1;
     TOBAS_INFO("Start mission No. ", cmd_number);
 
-    // Publish the current mission number
+    // Publish the current mission number.
     const auto feedback = std::make_shared<Action::Feedback>();
     feedback->current_command_index = idx;
     gh->publish_feedback(feedback);

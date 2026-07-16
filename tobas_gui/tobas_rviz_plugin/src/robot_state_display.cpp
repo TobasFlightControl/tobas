@@ -341,7 +341,7 @@ void RobotStateDisplay::changedRobotSceneAlpha()
 
 void RobotStateDisplay::changedRobotStateTopic()
 {
-  // Reset model to default state, we don't want to show previous messages
+  // Reset model to default state, we don't want to show previous messages.
   if (static_cast<bool>(robot_state_)) {
     robot_state_->setToDefaultValues();
   }

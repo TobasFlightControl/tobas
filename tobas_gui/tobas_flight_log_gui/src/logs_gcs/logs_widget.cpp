@@ -214,18 +214,18 @@ void FlightLogsWidgetGCS::onExportButtonClicked(const QString& log_name)
   static constexpr char kFilterTextCsv[] = "CSV Files (*.csv)";
   static constexpr char kFilterTextRosbag[] = "ROS bag Archive (*.zip)";
 
-  // Get the last opened directory path
+  // Get the last opened directory path.
   std::string last_opened_dir;
   if (property_client_.get(kLastOpenedDirKey, last_opened_dir) < 0) {
     qWarning() << property_client_.errorMessage();
     last_opened_dir = ros2::getHomeDir();
   }
 
-  // Set the default output file path
+  // Set the default output file path.
   auto default_out_path = fs::path(last_opened_dir) / log_name.toStdString();
   default_out_path.replace_extension(".csv");
 
-  // Get the save file path
+  // Get the save file path.
   QString selected_filter;
   const auto save_path = QFileDialog::getSaveFileName(
     this,
@@ -235,12 +235,12 @@ void FlightLogsWidgetGCS::onExportButtonClicked(const QString& log_name)
     &selected_filter,
     QFileDialog::DontUseNativeDialog);
 
-  // Return if canceled
+  // Return if canceled.
   if (save_path.isEmpty()) {
     return;
   }
 
-  // Save the selected directory path
+  // Save the selected directory path.
   const auto par_dir = fs::path(save_path.toStdString()).parent_path();
   if (property_client_.set(kLastOpenedDirKey, par_dir) < 0) {
     qWarning() << property_client_.errorMessage();
@@ -249,7 +249,7 @@ void FlightLogsWidgetGCS::onExportButtonClicked(const QString& log_name)
     qWarning() << property_client_.errorMessage();
   }
 
-  // Create an export thread
+  // Create an export thread.
   ExportThread* thread = nullptr;
   if (selected_filter == kFilterTextCsv) {
     thread = new ExportThreadCsv(log_name, save_path);
@@ -261,12 +261,12 @@ void FlightLogsWidgetGCS::onExportButtonClicked(const QString& log_name)
     throw std::runtime_error("Unexpected filter: " + selected_filter.toStdString());
   }
 
-  // Export the flight log
+  // Export the flight log.
   spinner_.start();
   const auto [success, message] = qt::startThreadAndWait(*thread, &ExportThread::finished);
   spinner_.stop();
 
-  // Show the result
+  // Show the result.
   if (success) {
     qt::qInfoBox(this, "The flight log has been exported successfully.");
   }

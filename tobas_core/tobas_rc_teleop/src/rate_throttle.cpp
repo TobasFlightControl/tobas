@@ -53,7 +53,7 @@ void RateThrottleController::reset(const builtin_interfaces::msg::Time&, const t
 
 void RateThrottleController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry&, bool)
 {
-  // Create command
+  // Create command.
   auto cmd = std::make_unique<tobas_command_msgs::RateThrottle>();
   cmd->header = rcin.header;
   cmd->priority.data = tobas_command_msgs::msg::Priority::MANUAL;
@@ -62,7 +62,7 @@ void RateThrottleController::update(const tobas_msgs::RCInput& rcin, const tobas
   cmd->rate.z(expoRemap(rcin.yaw, head_expo_, -max_head_rate_, max_head_rate_));
   cmd->throttle = expo(remap(rcin.throttle, kMinThrot, kMaxThrot), throt_expo_);
 
-  // Publish command
+  // Publish command.
   cmd_pub_->publish(std::move(cmd));
 }
 

@@ -10,10 +10,10 @@ RosbagRecorderNode::RosbagRecorderNode(const rclcpp::NodeOptions& options)
   , ns_(std::string(get_namespace()) + "/")
   , rosbag_dir_(linux::isSuperUser() ? kRosbagDirRoot : ros2::expandUser(kRosbagDirHome))
 {
-  // Register publishers
+  // Register publishers.
   rosbag_state_pub_ = createPublisher<tobas_msgs::msg::RosbagState>(topic::kRosbagState);
 
-  // Resister subscribers
+  // Resister subscribers.
   // Establish topic connections before recording starts because even local topic communication can introduce latency.
   // Template-heavy methods are split for separate compilation to reduce build-time memory usage.
   registerStateSubscribers();
@@ -22,12 +22,12 @@ RosbagRecorderNode::RosbagRecorderNode(const rclcpp::NodeOptions& options)
   registerCommandSubscribers();
   registerDebugSubscribers();
 
-  // Register services
+  // Register services.
   start_srv_ = createService<StartSrv>(service::kRosbagRecordStart, &self::startCb, this);
   stop_srv_ = createService<StopSrv>(service::kRosbagRecordStop, &self::stopCb, this);
   clean_srv_ = createService<CleanSrv>(service::kRosbagClean, &self::cleanCb, this);
 
-  // Start main timer
+  // Start main timer.
   main_timer_ = createTimer(kMainTimerPeriod, &self::mainTimerCb, this);
 }
 

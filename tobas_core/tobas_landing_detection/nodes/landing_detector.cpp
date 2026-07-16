@@ -93,12 +93,12 @@ void LandingDetectorNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
 
 void LandingDetectorNode::disturbanceForceCb(const tobas_kdl_msgs::WrenchStamped::ConstSharedPtr& dist_force)
 {
-  // Verify that the KDL tree has been received
+  // Verify that the KDL tree has been received.
   if (tree_.getNrOfSegments() == 0) {
     return;
   }
 
-  // Get the latest vertical force wrt. the world frame
+  // Get the latest vertical force wrt. the world frame.
   const auto& force_z = dist_force->wrench.force.z();
 
   // First message
@@ -110,11 +110,11 @@ void LandingDetectorNode::disturbanceForceCb(const tobas_kdl_msgs::WrenchStamped
     return;
   }
 
-  // Smooth the vertical force
+  // Smooth the vertical force.
   const auto dt = (dist_force->header.stamp - dist_force_->header.stamp).seconds();
   force_z_lpf_.update(force_z, dt);
 
-  // Update the latest message
+  // Update the latest message.
   dist_force_ = dist_force;
 
   // Change the takeoff/landing state if the upward external force (ground reaction force)

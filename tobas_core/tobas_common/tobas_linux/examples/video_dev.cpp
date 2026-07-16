@@ -32,7 +32,7 @@ int main(int argc, char** argv)
   }
   uint32_t image_size = 0;
   void* image_ptr = camera.getImage(image_size);
-  // save image
+  // Save image.
   int out = open("out.jpg", O_RDWR | O_CREAT, S_IRWXU | S_IRWXO | S_IRWXG);
   if (out < 0) {
     std::cerr << "file error" << std::endl;

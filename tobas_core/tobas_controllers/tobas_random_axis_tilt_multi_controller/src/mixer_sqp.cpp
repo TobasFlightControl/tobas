@@ -79,14 +79,14 @@ bool SqpMixer::solve(
   for (const auto& [idx, rotor_it] : views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = rotor_it.second;
 
-    // Update B
+    // Update B.
     const auto d = rotor->sign();
     const auto cm = rotor->momentConst();
     const auto& B_Pos_B2P = fk_solver_.getFrame(rotor->link_name).p;
     const auto r = B_Pos_B2P - B_Pos_B2G;
     B_.block<3, 3>(3, 3 * idx) = eigen::skew(r.data) - (d * cm) * Diagonal3d(1, 1, 1);
 
-    // Update ci0
+    // Update ci0.
     const auto nr = drone_.prop->numRotors();
     if (rotor_alive_.at(rotor->link_name)) {
       if (!rotor->tilt_joint_name.empty()) {
@@ -120,7 +120,7 @@ bool SqpMixer::solve(
   // try replacing them with `x`, `y`, and equality constraints.
   // TODO: Consider changes in propeller positions and inertia caused by tilt angles.
 
-  // Update weights
+  // Update weights.
   const auto linear_scale = mass * kAccelScale;                              // [N]
   const auto angular_scale = (I_B.trace() / 3) * kDGyroScale;                // [Nm]
   const auto thrust_scale = mass * st::kGravity / drone_.prop->numRotors();  // [N]

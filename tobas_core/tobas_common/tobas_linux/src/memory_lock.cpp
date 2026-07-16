@@ -25,14 +25,14 @@ bool lockMemory()
     return false;
   }
 
-  // Turn off malloc trimming
+  // Turn off malloc trimming.
   if (mallopt(M_TRIM_THRESHOLD, -1) == 0) {
     std::cerr << "mallopt for trim threshold failed: " << strError() << std::endl;
     munlockall();
     return false;
   }
 
-  // Turn off mmap usage
+  // Turn off mmap usage.
   if (mallopt(M_MMAP_MAX, 0) == 0) {
     std::cerr << "mallopt for mmap failed: " << strError() << std::endl;
     mallopt(M_TRIM_THRESHOLD, 1 << 17);
@@ -58,7 +58,7 @@ bool lockAndPrefaultDynamic()
   size_t encountered_minflts = 1;
   size_t encountered_majflts = 1;
 
-  // Prefault until you see no more pagefaults
+  // Prefault until you see no more pagefaults.
   while (encountered_minflts > 0 || encountered_majflts > 0) {
     char* ptr;
     try {

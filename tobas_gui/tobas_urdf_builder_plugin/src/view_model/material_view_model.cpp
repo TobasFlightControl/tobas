@@ -15,10 +15,10 @@ MaterialViewModel::MaterialViewModel(const ::urdf::MaterialSharedPtr& model)
   : BaseViewModel<::urdf::Material, MaterialViewModel>(model)
 {
   if (model_->name.empty()) {
-    // Set default name
+    // Set default name.
     model_->name = "material_" + std::to_string(utils::timeNowMilliseconds());
 
-    // Set default color
+    // Set default color.
     model_->color.r = kDefaultColorR;
     model_->color.g = kDefaultColorG;
     model_->color.b = kDefaultColorB;

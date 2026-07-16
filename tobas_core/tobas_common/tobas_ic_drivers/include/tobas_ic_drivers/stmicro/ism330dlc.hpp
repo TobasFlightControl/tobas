@@ -78,7 +78,7 @@ public:
 private:
   static constexpr size_t kImuDataSize = 6 * 2;  // Gyro + Accel
   static constexpr size_t kSpiBufSize = kImuDataSize + 1;
-  static constexpr uint32_t kSpiClockFreq = 10'000'000;  // Maximum frequency is 10MHz
+  static constexpr uint32_t kSpiClockFreq = 10'000'000;  // Maximum frequency is 10MHz.
   static constexpr uint8_t kReadFlag = 0x80;
 
   /* 9: Register mapping (p.37) */

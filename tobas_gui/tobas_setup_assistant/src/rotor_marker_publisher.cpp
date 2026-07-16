@@ -94,13 +94,13 @@ void RotorMarkerPublisher::updateInternalDataStructures()
 
 void RotorMarkerPublisher::publishMarkers()
 {
-  // Fill timestamps
+  // Fill timestamps.
   const auto cur_time = node_->now();
   for (auto& marker : markers_.markers) {
     marker.header.stamp = cur_time;
   }
 
-  // Publish markers
+  // Publish markers.
   auto markers_ptr = make_unique<visualization_msgs::msg::MarkerArray>(markers_);
   markers_pub_->publish(std::move(markers_ptr));
 }

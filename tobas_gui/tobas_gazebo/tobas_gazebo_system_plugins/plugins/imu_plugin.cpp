@@ -207,13 +207,13 @@ void GazeboImuPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim:
   // If the offset is translation only, the gyro sensor reading matches the angular velocity of the base frame.
   auto gyro_meas = gyro_B;
 
-  // Get delta time
+  // Get delta time.
   const auto dt = ch::duration<double>(info.dt).count();
 
-  // Add noise to the true values
+  // Add noise to the true values.
   addNoise(acc_meas, gyro_meas, dt);
 
-  // Compute D-gyro
+  // Compute D-gyro.
   const auto dgyro_meas = (gyro_meas - prev_gyro_meas_) / dt;
   prev_gyro_meas_ = gyro_meas;
 
@@ -229,23 +229,23 @@ void GazeboImuPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim:
     return;
   }
 
-  // Filter
+  // Filter.
   if (lpf_initialized_) {
     acc_lpf_.update(acc_meas, dt);
     gyro_lpf_.update(gyro_meas, dt);
     dgyro_lpf_.update(dgyro_meas, dt);
   }
 
-  // Publish rate filter
+  // Publish rate filter.
   if (!rate_manager_->update(info.simTime)) {
     return;
   }
 
-  // Get current time
+  // Get current time.
   builtin_interfaces::msg::Time cur_time;
   ros2::timeChronoToMsg(info.simTime, cur_time);
 
-  // Publish raw IMU message
+  // Publish raw IMU message.
   auto imu_raw_msg = std::make_unique<tobas_msgs::Imu>();
   imu_raw_msg->header.stamp = cur_time;
   imu_raw_msg->header.frame_id = link_name_;
@@ -254,7 +254,7 @@ void GazeboImuPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim:
   vectorGazeboToKDL(dgyro_meas, imu_raw_msg->dgyro);
   imu_raw_pub_->publish(std::move(imu_raw_msg));
 
-  // Publish filtered IMU message
+  // Publish filtered IMU message.
   if (lpf_initialized_) {
     auto imu_filt_msg = std::make_unique<tobas_msgs::Imu>();
     imu_filt_msg->header.stamp = cur_time;
@@ -265,10 +265,10 @@ void GazeboImuPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim:
     imu_filt_pub_->publish(std::move(imu_filt_msg));
   }
 
-  // Publish sampling time
+  // Publish sampling time.
   sampling_time_pub_.publish(cur_time);
 
-  // Publish debug message
+  // Publish debug message.
   auto debug_msg = std::make_unique<tobas_gazebo_msgs::msg::ImuDebug>();
   debug_msg->header.stamp = cur_time;
   debug_msg->header.frame_id = link_name_;
@@ -296,7 +296,7 @@ void GazeboImuPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 
 void GazeboImuPlugin::addNoise(gz::math::Vector3d& acc, gz::math::Vector3d& gyro, const double& dt)
 {
-  // Compute vibration force
+  // Compute vibration force.
   auto vibration_force_sum = engine_vibration_force_;
   for (const auto& [_, vibration_force] : rotor_vibration_forces_) {
     vibration_force_sum += vibration_force;
@@ -313,24 +313,24 @@ void GazeboImuPlugin::addNoise(gz::math::Vector3d& acc, gz::math::Vector3d& gyro
   // Discrete-time std. dev equivalent to an "integrating" sampler with integration time dt
   const auto sigma_a_d = acc_noise_density_ / std::sqrt(dt);  // [m/s^2]
   const auto sigma_b_a = acc_random_walk_;
-  // Compute exact covariance of the process after dt [Maybeck 4-114] (memo: 2-32)
+  // Compute exact covariance of the process after dt [Maybeck 4-114] (memo: 2-32).
   const auto sigma_b_a_d = sigma_b_a * std::sqrt(tau_a / 2 * (1 - std::exp(-2 * dt / tau_a)));  // [m/s^2]
-  // Compute state-transition
+  // Compute state-transition.
   const auto phi_a_d = std::exp(-dt / tau_a);
-  // Simulate accelerometer noise processes and add them to the true linear acceleration
+  // Simulate accelerometer noise processes and add them to the true linear acceleration.
   acc_bias_ = phi_a_d * acc_bias_ + sigma_b_a_d * normal_.get();
   acc += sigma_a_d * normal_.get() + acc_bias_ + vibration_acc;
 
   // Gyro
   const auto tau_g = gyro_bias_corr_time_;
-  // Discrete-time std. dev equivalent to an "integrating" sampler with integration time dt
+  // Discrete-time std. dev equivalent to an "integrating" sampler with integration time dt.
   const auto sigma_g_d = gyro_noise_density_ / std::sqrt(dt);  // [rad/s]
   const auto sigma_b_g = gyro_random_walk_;
-  // Compute exact covariance of the process after dt [Maybeck 4-114] (memo: 2-32)
+  // Compute exact covariance of the process after dt [Maybeck 4-114] (memo: 2-32).
   const auto sigma_b_g_d = sigma_b_g * std::sqrt(tau_g / 2 * (1 - std::exp(-2 * dt / tau_g)));  // [rad/s]
-  // Compute state-transition
+  // Compute state-transition.
   const auto phi_g_d = std::exp(-dt / tau_g);
-  // Simulate gyroscope noise processes and add them to the true angular rate
+  // Simulate gyroscope noise processes and add them to the true angular rate.
   gyro_bias_ = phi_g_d * gyro_bias_ + sigma_b_g_d * normal_.get();
   gyro += sigma_g_d * normal_.get() + gyro_bias_ + vibration_gyro;
 }

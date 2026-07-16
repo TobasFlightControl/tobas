@@ -22,15 +22,15 @@ bool ProjectEnvParser::parseFromText(const std::string& text)
   const auto lines = str::splitLines(text);
 
   for (auto line : lines) {
-    // Trim whitespaces
+    // Trim whitespaces.
     line = str::trim(line);
 
-    // Skip blank lines and comments
+    // Skip blank lines and comments.
     if (line.empty() || line.starts_with('#')) {
       continue;
     }
 
-    // Get elements
+    // Get elements.
     if (line.starts_with(kConfigPkgPrefix)) {
       config_pkg = line.substr(sizeof(kConfigPkgPrefix) - 1);
       continue;

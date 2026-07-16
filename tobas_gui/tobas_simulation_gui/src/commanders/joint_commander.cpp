@@ -76,7 +76,7 @@ void JointCommanderWidget::updateInternalDataStructures()
     return;
   }
 
-  // Clear joints for previous robot
+  // Clear joints for previous robot.
   commanders_.clear();
   qt::clearLayout(cmd_rows_);
 
@@ -189,10 +189,10 @@ void JointCommanderWidget::updateInternalDataStructures()
     cmd_rows_->addWidget(commander);
   }
 
-  // Enable joint commander only if at least one commander exists
+  // Enable joint commander only if at least one commander exists.
   start_stop_button_->setEnabled(!commanders_.empty());
 
-  // Register command publishers
+  // Register command publishers.
   const auto ns = '/' + drone_.name;
   if (!tar_js_pos_.commands.empty()) {
     tar_js_pos_pub_ = ros2::createPublisher<CmdMsg>(node_, path::join(ns, topic::kJointPosCmd));

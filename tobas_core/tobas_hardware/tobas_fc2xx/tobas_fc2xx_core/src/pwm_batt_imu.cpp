@@ -16,7 +16,7 @@ PwmBattImu::PwmBattImu() : crc_(algo::CRC32Left::CRC_32)
 {
   crc_.initialize();
 
-  // Set an invalid command
+  // Set an invalid command.
   tx_buf_[kCmdTypeIdx] = 0xFFFF;
   setTxCrc();
 }
@@ -37,12 +37,12 @@ bool PwmBattImu::initialize()
 
 bool PwmBattImu::transfer()
 {
-  // Transfer
+  // Transfer.
   if (!spi_.transfer(sizeof(tx_buf_))) {
     return false;
   }
 
-  // Check CRC
+  // Check CRC.
   const uint32_t cs = (rx_buf_[kCrcIdx + 1] << 16) | rx_buf_[kCrcIdx];
   const auto cr = crc_.compute((uint8_t*)rx_buf_, sizeof(uint16_t) * kCrcIdx);
   if (cs != cr) {

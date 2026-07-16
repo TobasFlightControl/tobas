@@ -20,12 +20,12 @@ int main(int argc, char** argv)
 
   const auto steps = stoul(argv[1]);
 
-  // Define random generator
+  // Define random generator.
   random_device rnd_dev;
   mt19937 rnd_gen(rnd_dev());
   uniform_real_distribution<double> uniform(0.0, 1.0);
 
-  // Create data
+  // Create data.
   array<Vector3d, LENGTH> init_data;
   vector<Vector3d> incoming_data(steps);
   vector<Vector3d> total_data(LENGTH + steps);
@@ -40,12 +40,12 @@ int main(int argc, char** argv)
     total_data.at(LENGTH + i) = data;
   }
 
-  // Initialize MovingStatistics object
+  // Initialize MovingStatistics object.
   tobas::dsp::MovingStatistics<double, 3, LENGTH> moving_stat;
   moving_stat.initialize(init_data);
 
   for (size_t i = 0; i < steps; ++i) {
-    // Compute moving statistics with offline method
+    // Compute moving statistics with offline method.
     Vector3d data_sum = Vector3d::Zero();
     for (size_t j = i; j < i + LENGTH; ++j) {
       data_sum += total_data.at(j);
@@ -59,11 +59,11 @@ int main(int argc, char** argv)
     }
     const Matrix3d cov_1 = cov_sum / LENGTH;
 
-    // Compute moving statistics with online method
+    // Compute moving statistics with online method.
     const auto mean_2 = moving_stat.mean();
     const auto cov_2 = moving_stat.variance();
 
-    // Show results
+    // Show results.
     cout << "Start Index: " << i << ", Window Size: " << LENGTH << endl;
     cout << "Mean (Normal Method): " << mean_1.transpose() << endl;
     cout << "Mean (Moving Stat)  : " << mean_2.transpose() << endl;
@@ -71,13 +71,13 @@ int main(int argc, char** argv)
     cout << "Covariance (Moving Stat)  :" << endl << cov_2 << endl;
     cout << "----------" << endl;
 
-    // Validate
+    // Validate.
     if (!tobas::eigen::isClose(mean_1, mean_2) || !tobas::eigen::isClose(cov_1, cov_2)) {
       cerr << "Moving statistics is inaccurate." << endl;
       return EXIT_FAILURE;
     }
 
-    // Add next data
+    // Add next data.
     moving_stat.add(incoming_data[i]);
   }
 

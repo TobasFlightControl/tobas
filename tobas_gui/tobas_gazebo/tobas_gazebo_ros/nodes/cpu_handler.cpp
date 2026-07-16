@@ -40,13 +40,13 @@ CpuHandlerNode::CpuHandlerNode(const rclcpp::NodeOptions& options) : super("cpu_
 
 void CpuHandlerNode::mainTimerCb()
 {
-  // Create ROS message
+  // Create ROS message.
   auto cpu_msg = std::make_unique<tobas_msgs::msg::Cpu>();
   cpu_msg->header.stamp = now();
 
   // TODO: Get CPU information in a cross-platform way
 
-  // Publish ROS message
+  // Publish ROS message.
   cpu_pub_->publish(std::move(cpu_msg));
 }
 }  // namespace gazebo

@@ -221,13 +221,13 @@ void GazeboGnssPlugin::updatePosition(tobas_msgs::Gnss& gnss_msg, const gz::math
   const auto& W_Rot_B = T_W_B.Rot();
   auto W_Pos_WS = W_Pos_WB + W_Rot_B.RotateVector(offset_);
 
-  // Add the altitude of the origin to the z-coordinate
+  // Add the altitude of the origin to the z-coordinate.
   W_Pos_WS.Z() += alt_0_;
 
   // Add bias to the true value.
   W_Pos_WS += pos_bias_;
 
-  // Fill the GNSS message
+  // Fill the GNSS message.
   std::tie(gnss_msg.latitude, gnss_msg.longitude) = st::cartToGnssRelative(W_Pos_WS.X(), W_Pos_WS.Y(), lat_0_, lon_0_);
   gnss_msg.altitude = W_Pos_WS.Z();
 }
@@ -241,7 +241,7 @@ void GazeboGnssPlugin::updateVelocity(
   // Compute GNSS receiver velocity while considering the offset.
   auto W_Linvel_WS = W_Linvel_WB + W_Rot_B.RotateVector(B_Angvel_WB.Cross(offset_));
 
-  // Apply noise to ground speed
+  // Apply noise to ground speed.
   W_Linvel_WS += vel_noise_->get();
 
   // Fill the ground speed message.

@@ -141,7 +141,7 @@ void PositionControllerNode::currentJointStateCb(const tobas_msgs::msg::JointSta
     return;
   }
 
-  // Create joint positions command
+  // Create joint positions command.
   auto positions_msg = std::make_unique<tobas_msgs::msg::JointCommandArray>();
   positions_msg->header.stamp = now();
 
@@ -161,7 +161,7 @@ void PositionControllerNode::currentJointStateCb(const tobas_msgs::msg::JointSta
     return;
   }
 
-  // Publish joint positions command
+  // Publish joint positions command.
   positions_pub_->publish(std::move(positions_msg));
 }
 

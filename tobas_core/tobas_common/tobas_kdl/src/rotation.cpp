@@ -37,7 +37,7 @@ Rotation Rotation::RotZ(double angle)
 
 Rotation Rotation::Rot(const Vector& axis, double angle)
 {
-  // Axis must be normalized
+  // Axis must be normalized.
   assert(math::isClose(axis.norm(), 1.0));
 
   // The formula
@@ -197,9 +197,9 @@ std::pair<double, Vector> Rotation::getAngleAxis() const
   if (
     std::abs(data(0, 1) - data(1, 0) < EPS) && std::abs(data(0, 2) - data(2, 0)) < EPS &&
     std::abs(data(1, 2) - data(2, 1)) < EPS) {
-    // Singularity found
+    // Singularity found.
     // First check for identity matrix which must have +1
-    // for all terms in leading diagonal and zero in other terms
+    // for all terms in leading diagonal and zero in other terms.
     if (
       std::abs(data(0, 1) + data(1, 0)) < eps2 && std::abs(data(0, 2) + data(2, 0)) < eps2 &&
       std::abs(data(1, 2) + data(2, 1)) < eps2 && std::abs(trace() - 3) < eps2) {
@@ -207,7 +207,7 @@ std::pair<double, Vector> Rotation::getAngleAxis() const
       return { 0.0, Vector::UnitZ() };
     }
 
-    // otherwise this singularity is angle = 180
+    // Otherwise this singularity is angle = 180.
     const auto xx = (data(0, 0) + 1) / 2;
     const auto yy = (data(1, 1) + 1) / 2;
     const auto zz = (data(2, 2) + 1) / 2;
@@ -217,25 +217,25 @@ std::pair<double, Vector> Rotation::getAngleAxis() const
 
     double x, y, z;
     if (xx > yy && xx > zz) {
-      // data(0, 0) is the largest diagonal term
+      // data(0, 0) is the largest diagonal term.
       x = std::sqrt(xx);
       y = xy / x;
       z = xz / x;
     }
     else if (yy > zz) {
-      // data(1, 1) is the largest diagonal term
+      // data(1, 1) is the largest diagonal term.
       y = std::sqrt(yy);
       x = xy / y;
       z = yz / y;
     }
     else {
-      // data(2, 2) is the largest diagonal term so base result on this
+      // data(2, 2) is the largest diagonal term so base result on this.
       z = std::sqrt(zz);
       x = xz / z;
       y = yz / z;
     }
 
-    return { M_PI, Vector(x, y, z) };  // return 180 deg rotation
+    return { M_PI, Vector(x, y, z) };  // return 180 deg rotation.
   }
 
   const auto f = (data.trace() - 1) / 2;

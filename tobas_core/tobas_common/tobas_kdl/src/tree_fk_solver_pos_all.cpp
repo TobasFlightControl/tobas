@@ -47,14 +47,14 @@ int TreeFkSolverPosAll::jntToCart(const JntArray& q)
 
 void TreeFkSolverPosAll::recursiveFk(const JntArray& q, const Frame& par_frame, const SegmentMap::const_iterator& cur_it)
 {
-  // Get the current segment
+  // Get the current segment.
   const auto& cur_name = cur_it->first;
   const auto& cur_ele = cur_it->second;
 
-  // Fill the frame for the current segment
+  // Fill the frame for the current segment.
   frames_[cur_name] = par_frame * cur_ele.segment.pose(q(cur_ele.q_nr));
 
-  // Spread to the children
+  // Spread to the children.
   for (const auto& child_it : cur_ele.children) {
     recursiveFk(q, frames_.at(cur_name), child_it);
   }

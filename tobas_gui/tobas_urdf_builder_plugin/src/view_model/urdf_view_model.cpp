@@ -232,7 +232,7 @@ void URDFViewModel::removeLink(const LinkViewModelPtr& link_vm)
 
 void URDFViewModel::updateLink(const LinkViewModelPtr& old_link_vm, const LinkViewModelPtr& new_link_vm)
 {
-  // remove old
+  // Remove old.
   const auto& old_joint = old_link_vm->joint();
 
   urdf_->links_.erase(old_link_vm->name().toStdString());
@@ -260,7 +260,7 @@ void URDFViewModel::updateLink(const LinkViewModelPtr& old_link_vm, const LinkVi
     child_joints.erase(it2, child_joints.end());
   }
 
-  // add new
+  // Add new.
   const auto& new_joint = new_link_vm->joint();
   const auto& new_parent_link_it = urdf_->links_.find(new_joint->parentLinkName().toStdString());
   if (new_parent_link_it != urdf_->links_.end()) {

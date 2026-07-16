@@ -145,11 +145,11 @@ private:
 ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   : super(node::kController, nodeOptions_DParam(options)), js_converter_(tree_), mixer_(drone_, tree_)
 {
-  // Get static parameters
+  // Get static parameters.
   do_dist_comp_trans_ = getBoolParam("do_disturbance_compensation_translation");
   do_dist_comp_rot_ = getBoolParam("do_disturbance_compensation_rotation");
 
-  // Register dynamic parameters
+  // Register dynamic parameters.
   addDynamicDoubleParam("horizontal_natural_frequency", &self::horizontalNaturalFreqCb, this, 0.2, 5, 1, 30, " rad/s");
   addDynamicDoubleParam("vertical_natural_frequency", &self::verticalNaturalFreqCb, this, 0.2, 10, 1, 30, " rad/s");
   addDynamicDoubleParam("attitude_natural_frequency", &self::attitudeNaturalFreqCb, this, 1.0, 10, 1, 30, " rad/s");
@@ -169,13 +169,13 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   addDynamicDoubleParam(
     "tilt_axis_singular_declination_ub", &self::tiltAsixSingularDeclinationUBCb, this, 1.0, 20, 0, 45, " deg");
 
-  // Register publishers
+  // Register publishers.
   tar_thrusts_pub_ = createPublisher<tobas_msgs::msg::RotorThrustArray>(topic::kRotorThrustsCmd);
   tar_angles_pub_ = createPublisher<tobas_msgs::msg::JointCommandArray>(topic::kJointPosCmd);
   setpoint_pub_ = createPublisher<tobas_msgs::OdometryStamped>(topic::kTrajSetpoint);
   feedback_pub_ = createPublisher<tobas_debug_msgs::MulticopterControllerFeedback>(topic::kMRCtrlFeedback);
 
-  // Register subscribers
+  // Register subscribers.
   drone_sub_ = createSubscriber(topic::kDrone, &self::droneCb, this, true, true);
   tree_sub_ = createSubscriber(topic::kKdlTree, &self::treeCb, this, true, true);
   odom_sub_ = createSubscriber(topic::kOdometry, &self::odomCb, this);
@@ -190,7 +190,7 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   angle_cmd_sub_ = createSubscriber(topic::kAngleCmd, &self::angleCommandCb, this);
   rate_cmd_sub_ = createSubscriber(topic::kRateCmd, &self::rateCommandCb, this);
 
-  // Register timers
+  // Register timers.
   check_topics_timer_ = createTimer(kCheckTopicsPeriod, &self::checkTopicsTimerCb, this);
 }
 
@@ -208,7 +208,7 @@ bool ControllerNode::updateInternalDataStructures()
 
 bool ControllerNode::updateAttitudePDGain()
 {
-  // Compute gains when PD control is split into two stages (memo: 3-22)
+  // Compute gains when PD control is split into two stages (memo: 3-22).
   const auto angle_gain = atti_wn_ / atti_zeta_ / 2;
   const auto rate_gain = atti_wn_ * atti_zeta_ * 2;
 
@@ -219,7 +219,7 @@ bool ControllerNode::updateAttitudePDGain()
 
 bool ControllerNode::updateHeadingPDGain()
 {
-  // Compute gains when PD control is split into two stages (memo: 3-22)
+  // Compute gains when PD control is split into two stages (memo: 3-22).
   const auto angle_gain = head_wn_ / head_zeta_ / 2;
   const auto rate_gain = head_wn_ * head_zeta_ * 2;
 

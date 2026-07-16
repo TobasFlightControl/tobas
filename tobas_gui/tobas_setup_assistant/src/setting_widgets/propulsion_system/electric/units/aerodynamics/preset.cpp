@@ -30,7 +30,7 @@ AerodynamicsWidget_Preset::AerodynamicsWidget_Preset(const PropellerWidget* prop
 {
   data_name_ = new qt::ComboBox();
 
-  // Add thrust data names
+  // Add thrust data names.
   for (const auto& entry : fs::recursive_directory_iterator(thrustStandDataDir())) {
     if (entry.is_regular_file() && entry.path().extension() == ".csv") {
       const auto data_name = entry.path().stem().string();
@@ -38,7 +38,7 @@ AerodynamicsWidget_Preset::AerodynamicsWidget_Preset(const PropellerWidget* prop
     }
   }
 
-  // Add UIUC data names
+  // Add UIUC data names.
   for (const auto& entry : fs::recursive_directory_iterator(uiucDataDir())) {
     if (entry.is_regular_file() && entry.path().extension() == ".csv") {
       const auto data_name = entry.path().stem().string();
@@ -46,7 +46,7 @@ AerodynamicsWidget_Preset::AerodynamicsWidget_Preset(const PropellerWidget* prop
     }
   }
 
-  // Sort data
+  // Sort data.
   data_name_->sort();
 
   // Default
@@ -161,10 +161,10 @@ AerodynamicsWidget_Preset::DataType AerodynamicsWidget_Preset::getCurrentDataTyp
 std::tuple<Eigen::VectorXd, Eigen::VectorXd, Eigen::VectorXd>
 AerodynamicsWidget_Preset::parseThrustStandData(const fs::path& path) const
 {
-  // Load CSV
+  // Load CSV.
   const auto doc = csv::load(path);
 
-  // Read data
+  // Read data.
   const auto rpms = eigen::fromStdVector(doc.GetColumn<double>(kRpmColName));
   const auto thrusts = eigen::fromStdVector(doc.GetColumn<double>(kThrustColName));
   const auto torques = eigen::fromStdVector(doc.GetColumn<double>(kTorqueColName));
@@ -175,10 +175,10 @@ AerodynamicsWidget_Preset::parseThrustStandData(const fs::path& path) const
 std::tuple<Eigen::VectorXd, Eigen::VectorXd, Eigen::VectorXd>
 AerodynamicsWidget_Preset::parseUiucData(const fs::path& path) const
 {
-  // Load CSV
+  // Load CSV.
   const auto doc = csv::load(path);
 
-  // Read data
+  // Read data.
   const auto rpms = eigen::fromStdVector(doc.GetColumn<double>(kRpmColName));
   const auto cts = eigen::fromStdVector(doc.GetColumn<double>(kUiucCtColName));
   const auto cps = eigen::fromStdVector(doc.GetColumn<double>(kUiucCpColName));

@@ -232,7 +232,7 @@ void ErrorStateKalmanFilterNode::getStaticRosParams()
 
 void ErrorStateKalmanFilterNode::setupTransformMessage()
 {
-  // Fill the static part of the transform message
+  // Fill the static part of the transform message.
   tf_.header.frame_id = frame::kWorld;
   tf_.child_frame_id = frame_id_;
 }
@@ -311,13 +311,13 @@ void ErrorStateKalmanFilterNode::registerDynamicRosParams()
 
 void ErrorStateKalmanFilterNode::registerRosInterfaces()
 {
-  // Register publishers
+  // Register publishers.
   odom_pub_ = createPublisher<tobas_msgs::OdometryWithCovarianceStamped>(topic::kOdometry);
   mag_ref_pub_ = createPublisher<tobas_msgs::MagneticField>(topic::kMagRef, true, true);
   gnss_origin_pub_ = createPublisher<tobas_msgs::msg::GeodeticCoordinates>(topic::kGnssOrigin, true, true);
   feedback_pub_ = createPublisher<tobas_debug_msgs::ObserverFeedback>(topic::kObsvFeedback);
 
-  // Register subscribers
+  // Register subscribers.
   imu_raw_sub_ = createSubscriber(topic::kImuRaw, &self::imuRawCb, this);
   imu_filt_sub_ = createSubscriber(topic::kImuFilt, &self::imuFiltCb, this);
   if (use_mag_) {
@@ -334,7 +334,7 @@ void ErrorStateKalmanFilterNode::registerRosInterfaces()
   }
   arming_sub_ = createSubscriber(topic::kArming, &self::armingCb, this);
 
-  // Register service servers
+  // Register service servers.
   get_gnss_origin_ss_ = createService<GetOriginSrv>(service::kGetGnssOrigin, &self::getGnssOriginCb, this);
   set_gnss_origin_ss_ = createService<SetOriginSrv>(service::kSetGnssOrigin, &self::setGnssOriginCb, this);
 }
@@ -688,10 +688,10 @@ bool ErrorStateKalmanFilterNode::gravProcNoiseDensityCb(const double& p)
 
 void ErrorStateKalmanFilterNode::imuRawCb(const tobas_msgs::Imu::ConstSharedPtr& msg)
 {
-  // Compute IMU time
+  // Compute IMU time.
   const auto cur_time = ros2::chronoFromRosTime(msg->header.stamp);
 
-  // Initialization
+  // Initialize ESKF.
   if (!imu_raw_) {
     eskf_.initialize(
       Vector3d::Zero(),                                                     // Init position
@@ -717,33 +717,33 @@ void ErrorStateKalmanFilterNode::imuRawCb(const tobas_msgs::Imu::ConstSharedPtr&
     return;
   }
 
-  // Update IMU message
+  // Update IMU message.
   imu_raw_ = msg;
 
-  // Measure IMU
+  // Measure IMU.
   const auto& acc_meas = msg->accel.data;
   const auto& gyro_meas = msg->gyro.data;
   const auto grav_cov = adaptive_grav_noise_ ? calcGravMeasNoiseCov(acc_meas) : fixed_grav_cov_;
   eskf_.measureIMU(acc_meas, gyro_meas, fixed_acc_cov_, fixed_gyro_cov_, grav_cov, cur_time);
 
-  // Do not publish any messages if filtered IMU message is not ready
+  // Do not publish any messages if filtered IMU message is not ready.
   if (!imu_filt_) {
     return;
   }
 
-  // Create odometry message
+  // Create odometry message.
   auto odom = std::make_unique<tobas_msgs::OdometryWithCovarianceStamped>();
   fillOdometryMsg(*odom);
 
-  // Create TF message
+  // Create TF message.
   tf_.header.stamp = odom->header.stamp;
   kdl::transformKDLToMsg(odom->odom.odom.frame, tf_.transform);
 
-  // Publish odometry and TF
+  // Publish odometry and TF.
   odom_pub_->publish(std::move(odom));
   tf_br_.sendTransform(tf_);
 
-  // Publish feedback
+  // Publish feedback.
   publishFeedback(msg->header);
 }
 

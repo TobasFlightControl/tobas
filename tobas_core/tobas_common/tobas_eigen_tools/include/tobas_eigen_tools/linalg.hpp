@@ -125,14 +125,14 @@ Eigen::Matrix<Scalar, M, 1> minimizeWeightedNorm(
   // TODO: Use the Lagrange multiplier method for redundant problems.
   const Eigen::Matrix<Scalar, M, N> AT_W1 = A.transpose() * W1.asDiagonal();
 
-  // Compute left matrix
+  // Compute left matrix.
   Eigen::Matrix<Scalar, M, M> left = AT_W1 * A;
   left.diagonal() += W2;
 
-  // Compute right vector
+  // Compute right vector.
   const auto right = AT_W1 * b;
 
-  // Solve linear equation
+  // Solve linear equation.
   // QR decomposition does not give the least-squares solution for underdetermined problems.
   return left.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(right);
 }

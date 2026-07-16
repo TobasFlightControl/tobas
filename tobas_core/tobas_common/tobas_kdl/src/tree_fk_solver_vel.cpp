@@ -32,7 +32,7 @@ int TreeFkSolverVel::jntToCart(const JntArray& q, const JntArray& qd, const stri
 
 FrameVel TreeFkSolverVel::recursiveFk(const JntArray& q, const JntArray& qd, const SegmentMap::const_iterator& cur_it)
 {
-  // Get the FraveVel for the current segment
+  // Get the FraveVel for the current segment.
   const auto& cur_ele = cur_it->second;
   const auto& cur_seg = cur_ele.segment;
   const auto& cur_idx = cur_ele.q_nr;

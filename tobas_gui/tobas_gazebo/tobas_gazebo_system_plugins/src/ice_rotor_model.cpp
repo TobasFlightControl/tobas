@@ -105,7 +105,7 @@ void IceRotorModel::applyWrench(
 {
   assert(engine_speed >= 0.0);
 
-  // Get joint axes
+  // Get joint axes.
   const auto& R_W_L = pose_W_->Data().Rot();
   const auto& axis_L = jnt_axis_->Data().Xyz();
   const auto axis_W = R_W_L.RotateVector(axis_L);
@@ -126,7 +126,7 @@ void IceRotorModel::applyWrench(
   // External moment: Drag torque
   const auto drag_moment_W = (-direction_ * getTorque(engine_speed)) * axis_W;
 
-  // Apply wrench
+  // Apply wrench.
   link_->AddWorldWrench(ecm, thrust_force_W + h_force_W, gz::math::Vector3d::Zero);
   parent_link_->AddWorldWrench(ecm, gz::math::Vector3d::Zero, coriolis_moment_W + drag_moment_W);  // No inertial force.
 }
@@ -224,7 +224,7 @@ bool IceRotorModel::getSdfParams(const sdf::ElementConstPtr& sdf)
 
 bool IceRotorModel::initializeGazeboObjects(gz::sim::EntityComponentManager& ecm, const gz::sim::Model& model)
 {
-  // Get joint
+  // Get joint.
   const auto joint_entity = findJointWithChildLink(ecm, link_name_);
   if (!joint_entity.has_value()) {
     gzerr << "Failed to find the parent joint of rotor link \"" << link_name_ << "\"." << std::endl;
@@ -236,17 +236,17 @@ bool IceRotorModel::initializeGazeboObjects(gz::sim::EntityComponentManager& ecm
     return false;
   }
 
-  // Get joint name
+  // Get joint name.
   const auto joint_name = joint_->Name(ecm).value();
 
-  // Check joint type
+  // Check joint type.
   const auto joint_type = joint_->Type(ecm).value();
   if (joint_type != sdf::JointType::CONTINUOUS && joint_type != sdf::JointType::REVOLUTE) {
     gzerr << "Joint \"" << joint_name << "\" is not a rotating joint." << std::endl;
     return false;
   }
 
-  // Get child link
+  // Get child link.
   const auto link_entity = model.LinkByName(ecm, link_name_);
   link_ = std::make_shared<gz::sim::Link>(link_entity);
   if (!link_->Valid(ecm)) {
@@ -254,7 +254,7 @@ bool IceRotorModel::initializeGazeboObjects(gz::sim::EntityComponentManager& ecm
     return false;
   }
 
-  // Get parent link
+  // Get parent link.
   const auto parent_link_name = joint_->ParentLinkName(ecm).value();
   const auto parent_link_entity = model.LinkByName(ecm, parent_link_name);
   parent_link_ = std::make_shared<gz::sim::Link>(parent_link_entity);
@@ -263,7 +263,7 @@ bool IceRotorModel::initializeGazeboObjects(gz::sim::EntityComponentManager& ecm
     return false;
   }
 
-  // Create necessary components
+  // Create necessary components.
   TOBAS_CHECK(jnt_axis_ = getComponent<cmp::JointAxis>(joint_entity.value(), ecm));
   TOBAS_CHECK(jnt_vel_ = getComponent<cmp::JointVelocity>(joint_entity.value(), ecm));
   TOBAS_CHECK(pose_W_ = getComponent<cmp::WorldPose>(link_entity, ecm));

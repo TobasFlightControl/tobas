@@ -198,7 +198,7 @@ class SSHServerNode(Node):
             goal_handle.abort()
             return result
 
-        # Create parent directories
+        # Create parent directories.
         if goal.parents:
             mkdir_command = f"mkdir -p {goal.remote_dir}"
             if goal.superuser:

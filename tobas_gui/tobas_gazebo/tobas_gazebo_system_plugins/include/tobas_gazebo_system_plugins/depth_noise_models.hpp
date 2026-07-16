@@ -21,7 +21,7 @@ public:
   bool inRange(const float& depth) const;
 
 private:
-  // Values smaller/larger than these two are replaced by NaN
+  // Values smaller/larger than these two are replaced by NaN.
   float min_depth_;  // [m]
   float max_depth_;  // [m]
 };

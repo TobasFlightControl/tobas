@@ -38,7 +38,7 @@ int main(int argc, char** argv)
     return EXIT_FAILURE;
   }
 
-  // Enable GNSS
+  // Enable GNSS.
   cout << "Enabling GNSS." << endl;
   if (!gnss.enableGps()) {
     cerr << "Failed to enable GPS." << endl;
@@ -65,7 +65,7 @@ int main(int argc, char** argv)
     return EXIT_FAILURE;
   }
 
-  // Enable messages
+  // Enable messages.
   cout << "Enabling messages." << endl;
   if (!gnss.enableSpiMessage(tobas::ublox::ZEDF9P::CLASS_NAV, tobas::ublox::ZEDF9P::NAV_COV, true)) {
     cerr << "Failed to enable NAV_COV message." << endl;

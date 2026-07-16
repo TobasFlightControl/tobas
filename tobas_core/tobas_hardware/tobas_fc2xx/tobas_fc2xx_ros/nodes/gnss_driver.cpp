@@ -115,7 +115,7 @@ bool GnssDriverNode::configure()
     return false;
   }
 
-  // Enable messages
+  // Enable messages.
   if (!gnss_.enableSpiMessage(ublox::ZEDF9P::CLASS_NAV, ublox::ZEDF9P::NAV_PVT, true)) {
     TOBAS_ERROR("Failed to enable NAV_PVT message.");
     return false;
@@ -132,7 +132,7 @@ bool GnssDriverNode::configure()
     return false;
   }
 
-  // Enable/Disable protocols
+  // Enable/Disable protocols.
   if (!gnss_.enableSpiProtocol_UBX(true, true)) {
     TOBAS_ERROR("Failed to enable UBX protocol.");
     return false;
@@ -199,19 +199,19 @@ void GnssDriverNode::mainTimerCb()
     }
   }
 
-  // Reset UBX message checker flags
+  // Reset UBX message checker flags.
   for (auto& [_, received] : is_received_) {
     received = false;
   }
 
-  // Create GNSS message
+  // Create GNSS message.
   auto gnss_msg = std::make_unique<tobas_msgs::Gnss>();
 
-  // Fill time stamp
+  // Fill time stamp.
   // TODO: Measure GNSS signal delay.
   gnss_msg->header.stamp = now() - rclcpp::Duration::from_nanoseconds(80'000'000);
 
-  // Fill position
+  // Fill position.
   gnss_msg->latitude = pvt_.lat;
   gnss_msg->longitude = pvt_.lon;
   gnss_msg->altitude = static_cast<double>(pvt_.hMSL) * 1e-3;
@@ -225,7 +225,7 @@ void GnssDriverNode::mainTimerCb()
   gnss_msg->position_covariance(2, 1) = cov_.posCovED;
   gnss_msg->position_covariance(2, 2) = cov_.posCovDD;
 
-  // Fill velocity
+  // Fill velocity.
   gnss_msg->ground_speed.x(static_cast<double>(pvt_.velE) * 1e-3);
   gnss_msg->ground_speed.y(static_cast<double>(pvt_.velN) * 1e-3);
   gnss_msg->ground_speed.z(-static_cast<double>(pvt_.velD) * 1e-3);
@@ -239,11 +239,11 @@ void GnssDriverNode::mainTimerCb()
   gnss_msg->velocity_covariance(2, 1) = cov_.velCovED;
   gnss_msg->velocity_covariance(2, 2) = cov_.velCovDD;
 
-  // Fill other status
+  // Fill other status.
   gnss_msg->fix_type = pvt_.fixType;
   gnss_msg->num_satellites_used = pvt_.numSV;
 
-  // Publish GNSS message
+  // Publish GNSS message.
   gnss_pub_->publish(std::move(gnss_msg));
 }
 }  // namespace fc2xx

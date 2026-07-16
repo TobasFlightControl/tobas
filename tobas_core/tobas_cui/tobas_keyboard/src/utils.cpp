@@ -11,19 +11,19 @@ namespace keyboard
 {
 XkbControlsPtr getKeyboardControls()
 {
-  // Open display
+  // Open display.
   const auto display = XOpenDisplay(nullptr);
   if (!display) {
     return nullptr;
   }
 
-  // Get keyboard map
+  // Get keyboard map.
   const auto kb = XkbGetMap(display, XkbAllComponentsMask, XkbUseCoreKbd);
   if (!kb) {
     return nullptr;
   }
 
-  // Get keyboard controls
+  // Get keyboard controls.
   if (XkbGetControls(display, XkbAllControlsMask, kb) != Success) {
     return nullptr;
   }

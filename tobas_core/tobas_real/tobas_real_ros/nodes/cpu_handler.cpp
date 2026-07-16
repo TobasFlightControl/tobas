@@ -57,11 +57,11 @@ private:
 CpuHandlerNode::CpuHandlerNode(const rclcpp::NodeOptions& options)
   : super("real_cpu_handler", nodeOptions_Default(options))
 {
-  // Configure the LPFs
+  // Configure the LPFs.
   temp_lpf_.setCutoffFrequency(dsp::cutoffFromTimeConst(5.0));
   load_lpf_.setCutoffFrequency(dsp::cutoffFromTimeConst(1.0));
 
-  // Set the initial status
+  // Set the initial status.
   if (!getStatus()) {
     TOBAS_ERROR("This node will not work.");
     return;
@@ -69,7 +69,7 @@ CpuHandlerNode::CpuHandlerNode(const rclcpp::NodeOptions& options)
   temp_lpf_.setValue(temp_);
   load_lpf_.setValue(load_);
 
-  // Resister the ROS interfaces
+  // Resister the ROS interfaces.
   cpu_pub_ = createPublisher<tobas_msgs::msg::Cpu>(topic::kCpu);
   main_timer_ = createWallTimer(kSamplingPeriod, &self::mainTimerCb, this);
 }
@@ -187,17 +187,17 @@ bool CpuHandlerNode::getStatus()
 
 void CpuHandlerNode::mainTimerCb()
 {
-  // Get CPU status
+  // Get CPU status.
   if (!getStatus()) {
     return;
   }
 
-  // Smooth CPU load
+  // Smooth CPU load.
   constexpr auto dt = ch::duration<double>(kSamplingPeriod).count();
   temp_lpf_.update(temp_, dt);
   load_lpf_.update(load_, dt);
 
-  // Publish CPU status
+  // Publish CPU status.
   auto cpu_msg = std::make_unique<tobas_msgs::msg::Cpu>();
   cpu_msg->header.stamp = now();
   cpu_msg->frequency = freq_;

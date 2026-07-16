@@ -38,7 +38,7 @@ Elements elementsFromMagField(const Vector& mag_field_itrs, double lat, double l
 
 Vector ecefFromGeodetic(double lat, double lon, double h)
 {
-  // Convert to radians
+  // Convert to radians.
   const auto phi = st::deg2rad(lat);
   const auto lam = st::deg2rad(lon);
 
@@ -60,7 +60,7 @@ Vector ecefFromGeodetic(double lat, double lon, double h)
 
 Vector magFieldFromECEF(double dyear, const Vector& position_itrs, const ConstModel& WMM)
 {
-  // Mean radius of  ellipsoid in meters from section 1.2 of the WMM2015 Technical report
+  // Mean radius of ellipsoid in meters from section 1.2 of the WMM2015 Technical report
   constexpr double EARTH_R = 6371200.0;
 
   const auto& x = position_itrs.x;
@@ -78,7 +78,7 @@ Vector magFieldFromECEF(double dyear, const Vector& position_itrs, const ConstMo
   const auto f = z * temp;
   const auto g = EARTH_R * temp;
 
-  // First m==0 row, just solve for the Vs
+  // First m==0 row, just solve for the Vs.
   auto Vtop = EARTH_R / std::sqrt(rsqrd);  // V0,0
   double Wtop = 0.0;                       // W0,0
   double Vprev = 0.0;
@@ -86,9 +86,9 @@ Vector magFieldFromECEF(double dyear, const Vector& position_itrs, const ConstMo
   auto Vnm = Vtop;
   auto Wnm = Wtop;
 
-  // Iterate through all ms
+  // Iterate through all ms.
   for (size_t m = 0; m <= NMAX + 1; ++m) {
-    // Iterate through all ns
+    // Iterate through all ns.
     for (size_t n = m; n <= NMAX + 1; ++n) {
       if (n == m) {
         if (m != 0) {

@@ -114,7 +114,7 @@ void GazeboMagnetometerPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const
     return;
   }
 
-  // Get the sensor pose
+  // Get the sensor pose.
   const auto& T_W_B = pose_W_->Data();
   const auto& W_Pos_WB = T_W_B.Pos();
   const auto& W_Rot_B = T_W_B.Rot();
@@ -135,13 +135,13 @@ void GazeboMagnetometerPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const
   // Add noise and observe the value normalized by the geomagnetic scale.
   const auto field_meas = (field_B + noise_->get() + hard_bias_) / mag.total;  // [-]
 
-  // Create message
+  // Create message.
   auto mag_msg = std::make_unique<tobas_msgs::MagneticField>();
   ros2::timeChronoToMsg(info.simTime, mag_msg->header.stamp);
   mag_msg->header.frame_id = link_name_;
   vectorGazeboToKDL(field_meas, mag_msg->mag);
 
-  // Publish message
+  // Publish message.
   mag_pub_->publish(std::move(mag_msg));
 }
 

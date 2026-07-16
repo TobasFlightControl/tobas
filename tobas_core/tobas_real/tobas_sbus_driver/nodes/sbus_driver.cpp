@@ -78,10 +78,10 @@ void SbusDriverNode::publishExclusively(tobas_msgs::msg::Sbus::UniquePtr msg)
 
 void SbusDriverNode::onPacket(const SBUS::Packet& packet)
 {
-  // Reset the timeout timer
+  // Reset the timeout timer.
   timeout_timer_.reset();
 
-  // Create a message
+  // Create a message.
   auto sbus_msg = std::make_unique<tobas_msgs::msg::Sbus>();
   sbus_msg->header.stamp = now();
 
@@ -91,13 +91,13 @@ void SbusDriverNode::onPacket(const SBUS::Packet& packet)
   sbus_msg->frame_lost = packet.frame_lost;
   sbus_msg->failsafe = packet.failsafe;
 
-  // Publish the message
+  // Publish the message.
   publishExclusively(std::move(sbus_msg));
 }
 
 void SbusDriverNode::onPacketTimeout()
 {
-  // Publish a frame-lost message
+  // Publish a frame-lost message.
   auto sbus_msg = std::make_unique<tobas_msgs::msg::Sbus>();
   sbus_msg->header.stamp = now();
   sbus_msg->frame_lost = true;

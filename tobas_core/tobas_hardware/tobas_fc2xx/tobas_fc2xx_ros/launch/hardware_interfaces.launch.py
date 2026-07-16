@@ -15,7 +15,7 @@ def generate_launch_description():
     ld.add_action(DeclareLaunchArgument(NAMESPACE))
     ns = LaunchConfiguration(NAMESPACE)
 
-    # Launch 1st priority nodes (Twist Control)
+    # Launch 1st priority nodes (Twist Control).
     ld.add_action(
         LoadComposableNodes(
             target_container=PathJoinSubstitution([ns, "component_manager_1"]),
@@ -34,7 +34,7 @@ def generate_launch_description():
         )
     )
 
-    # Launch 2nd priority nodes (Pose Control & Navigation & Manipulation)
+    # Launch 2nd priority nodes (Pose Control & Navigation & Manipulation).
     ld.add_action(
         LoadComposableNodes(
             target_container=PathJoinSubstitution([ns, "component_manager_2"]),

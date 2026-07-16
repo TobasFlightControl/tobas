@@ -29,14 +29,14 @@ CustomFrameWidget::CustomFrameWidget()
   stabilize_mode_ = new qt::ComboBox();
   loiter_mode_ = new qt::ComboBox();
 
-  // Add command choices
+  // Add command choices.
   for (const auto& [text, _] : command_map_) {
     acrobat_mode_->addItem(text);
     stabilize_mode_->addItem(text);
     loiter_mode_->addItem(text);
   }
 
-  // Set default command
+  // Set default command.
   acrobat_mode_->setCurrentText(kRateThrottleLabel);
   stabilize_mode_->setCurrentText(kAccelYawLabel);
   loiter_mode_->setCurrentText(kPosVelAccYawLabel);

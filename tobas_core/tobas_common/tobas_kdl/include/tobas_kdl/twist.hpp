@@ -37,10 +37,12 @@ public:
 
   inline Eigen::Vector6d ravel() const;
 
-  // Changes the reference point of the twist.
-  // The vector p is expressed in the same base as the twist.
-  // The vector p is a vector from the old point to the new point.
-  // Compute the twist of frame B in the same rigid body as self frame A.
+  /**
+   * @brief Changes the reference point of the twist.
+   * The vector p is expressed in the same base as the twist.
+   * The vector p is a vector from the old point to the new point.
+   * Compute the twist of frame B in the same rigid body as self frame A.
+   */
   inline Twist refPoint(const Vector& p) const;
 
   // index-based access to components, first vel(0..2), then rot(3..5)
@@ -58,8 +60,10 @@ public:
   inline friend Twist operator+(const Twist& lhs, const Twist& rhs);
   inline friend Twist operator-(const Twist& lhs, const Twist& rhs);
 
-  // Spatial cross product for 6d motion vectors,
-  // beware all of them have to be expressed in the same reference frame
+  /**
+   * @brief Spatial cross product for 6d motion vectors,
+   * beware all of them have to be expressed in the same reference frame.
+   */
   inline friend Accel operator*(const Twist& lhs, const Twist& rhs);
 
   inline friend std::ostream& operator<<(std::ostream& os, const Twist& arg);

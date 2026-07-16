@@ -55,11 +55,11 @@ SettingsWidget::SettingsWidget(rclcpp::Node::SharedPtr node, const uadf::Model& 
   addEntry(additional_list_, failsafe);
   addEntry(additional_list_, author_info);
 
-  // Make mutually exclusive
+  // Make mutually exclusive.
   connect(basic_list_, &QListWidget::currentRowChanged, additional_list_, &qt::ListWidget::deselect);
   connect(additional_list_, &QListWidget::currentRowChanged, basic_list_, &qt::ListWidget::deselect);
 
-  // Disable all pages
+  // Disable all pages.
   for (int i = 0; i < stack_->count(); ++i) {
     setPageEnabled(i, false);
   }

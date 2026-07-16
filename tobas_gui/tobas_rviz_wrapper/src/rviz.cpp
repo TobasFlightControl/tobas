@@ -18,7 +18,7 @@ namespace rviz
 {
 RvizFrameManager::RvizFrameManager(int argc, char** argv, const std::string& node_name)
 {
-  // Initialize ROS node
+  // Initialize ROS node.
   if (!rclcpp::ok()) {
     rclcpp::init(argc, argv);
   }
@@ -35,24 +35,24 @@ void RvizFrameManager::initialize(const QString& config_path, QWidget* parent)
 {
   removeDefaultColorMaterials();
 
-  // Read configuration
+  // Read configuration.
   rviz_common::YamlConfigReader reader;
   rviz_common::Config config;
   reader.readFile(config, config_path);
 
-  // Initialize visualization frame
+  // Initialize visualization frame.
   frame_ = new rviz_common::VisualizationFrame(node_, parent);
   frame_->setSplashPath("");  // Do not show a splash image.
   frame_->initialize(node_);  // The initialization method must be called after the splash path is set.
 
-  // Configure visualization frame
+  // Configure visualization frame.
   frame_->load(config);
   frame_->setMenuBar(nullptr);
   frame_->setStatusBar(nullptr);
   frame_->setHideButtonVisibility(false);
-  frame_->setStyleSheet("QSizeGrip { width: 0px; height: 0px; }");  // Remove sizegrip
+  frame_->setStyleSheet("QSizeGrip { width: 0px; height: 0px; }");  // Remove sizegrip.
 
-  // Get child instances
+  // Get child instances.
   manager_ = frame_->getManager();
   display_group_ = manager_->getRootDisplayGroup();
 }

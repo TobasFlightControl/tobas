@@ -57,7 +57,7 @@ JointStatePublisherWidget::JointStatePublisherWidget(
   connect(random_button, &QPushButton::clicked, this, &self::onRandomButtonClicked);
   connect(&publish_timer_, &QTimer::timeout, this, &self::publish);
 
-  // Register publishers
+  // Register publishers.
   js_pub_ = ros2::createPublisher<sensor_msgs::msg::JointState>(node_, "joint_states");
   drs_pub_ =
     ros2::createPublisher<tobas_visualization_msgs::msg::DisplayRobotState>(node_, "display_robot_state", false, true);
@@ -117,14 +117,14 @@ void JointStatePublisherWidget::updateInternalDataStructures()
 
   slider_rows_->addStretch();
 
-  // Start to publish joint states
+  // Start to publish joint states.
   publish_timer_.start(100);
   thrust_rotation_timer_.start();
 }
 
 void JointStatePublisherWidget::publish()
 {
-  // Update the thrust joint positions
+  // Update the thrust joint positions.
   const auto elapsed_sec = static_cast<double>(thrust_rotation_timer_.restart()) / 1000.0;
   for (const auto& thrust_joint : thrust_joints_) {
     auto& position = js_.position.at(thrust_joint.state_index);

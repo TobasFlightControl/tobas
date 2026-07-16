@@ -63,7 +63,7 @@ bool DualActiveSetSolver::solve()
 
   /* Preprocessing phase */
 
-  // Decompose the matrix P in the form L L^T
+  // Decompose the matrix P in the form L L^T.
   const Eigen::LLT<Eigen::MatrixXd> llt(scaled.P);
   if (llt.info() == Eigen::NumericalIssue) {
     error_msg_ = "Cholesky decomposition failed.";
@@ -74,7 +74,7 @@ bool DualActiveSetSolver::solve()
   cout << "LL^T:\n" << llt.matrixLLT() << endl;
 #endif
 
-  // Compute the inverse of the factorized matrix U^-1, this is the initial value for H
+  // Compute the inverse of the factorized matrix U^-1, this is the initial value for H.
   J_ = llt.matrixU().solve(Eigen::MatrixXd::Identity(n_, n_));
 
 #ifdef TRACE_SOLVER
@@ -83,19 +83,19 @@ bool DualActiveSetSolver::solve()
 
   iq_ = 0;
   c_ = scaled.P.trace() * J_.trace();  // An estimate for cond(P)
-  R_norm_ = 1.0;                       // This variable will hold the norm of the matrix R
+  R_norm_ = 1.0;                       // This variable will hold the norm of the matrix R.
   R_.setZero();
   d_.setZero();
 
-  // Find the unconstrained minimizer of the quadratic form 0.5 * x^T P x + q^T x
-  // This is a feasible point in the dual space: x = -P^-1 * q
+  // Find the unconstrained minimizer of the quadratic form 0.5 * x^T P x + q^T x.
+  // This is a feasible point in the dual space: x = -P^-1 * q.
   x_ = -llt.solve(scaled.q);
 
 #ifdef TRACE_SOLVER
   cout << "Unconstrained solution:\n" << x_.transpose() << endl;
 #endif
 
-  // Add equality constraints to the active set A
+  // Add equality constraints to the active set A.
   for (Eigen::Index i = 0; i < p_; ++i) {
     np_ = -scaled.G.row(i);
     d_ = J_.transpose() * np_;
@@ -110,13 +110,13 @@ bool DualActiveSetSolver::solve()
 #endif
 
     // Compute full step length t2: i.e., the minimum step in primal space
-    // s.t. the constraint becomes feasible
+    // s.t. the constraint becomes feasible.
     const auto t2 = z_.dot(z_) > EPS ? (-np_.dot(x_) - scaled.h(i)) / z_.dot(np_) : 0.0;
 
-    // Set x = x + t2 * z
+    // Set x = x + t2 * z.
     x_ += t2 * z_;
 
-    // Set u = u - t2 * r
+    // Set u = u - t2 * r.
     u_(iq_) = t2;
     u_.head(iq_) -= t2 * r_.head(iq_);
 
@@ -130,7 +130,7 @@ bool DualActiveSetSolver::solve()
     }
   }
 
-  // Set iai = K \ A
+  // Set iai = K \ A.
   for (Eigen::Index i = 0; i < m_; ++i) {
     iai_(i) = i;
   }
@@ -148,12 +148,12 @@ bool DualActiveSetSolver::solve()
         }
 
         ss_ = 0.0;
-        ip_ = 0;  // ip will be the index of the chosen violated constraint
+        ip_ = 0;  // ip will be the index of the chosen violated constraint.
         for (Eigen::Index i = 0; i < m_; ++i) {
           iaexcl_[i] = true;
         }
 
-        // Compute s[x] = b - A * x for all elements of K \ A
+        // Compute s[x] = b - A * x for all elements of K \ A.
         s_.head(m_) = scaled.b - scaled.A * x_;
 
 #ifdef TRACE_SOLVER
@@ -162,12 +162,12 @@ bool DualActiveSetSolver::solve()
 
         const auto psi = s_.head(m_).cwiseMin(0.0).sum();  // Sum of all infeasibilities
         if (std::abs(psi) <= m_ * EPS * c_ * TOL_FACTOR) {
-          // Numerically there are no infeasibilities anymore
+          // Numerically there are no infeasibilities anymore.
           x_opt_ = x_.cwiseProduct(x_scale);
           return true;
         }
 
-        // Save old values for u, A, and x
+        // Save old values for u, A, and x.
         u_old_.head(iq_) = u_.head(iq_);
         A_old_.head(iq_) = A_.head(iq_);
         x_old_ = x_;
@@ -187,11 +187,11 @@ bool DualActiveSetSolver::solve()
           return true;
         }
 
-        // Set np = n(ip)
+        // Set np = n(ip).
         np_ = -scaled.A.row(ip_);
-        // Set u = [u 0]^T
+        // Set u = [u 0]^T.
         u_(iq_) = 0.0;
-        // Add ip to the active set A
+        // Add ip to the active set A.
         A_(iq_) = ip_;
 
 #ifdef TRACE_SOLVER
@@ -203,10 +203,10 @@ bool DualActiveSetSolver::solve()
         break;
       }
       case kDetermineStepDirection: {
-        // Compute z = H np: the step direction in the primal space (through J, see the paper)
+        // Compute z = H np: the step direction in the primal space (through J, see the paper).
         d_ = J_.transpose() * np_;
         z_ = J_.rightCols(n_ - iq_) * d_.tail(n_ - iq_);
-        // Compute N * np (if q > 0): the negative of the step direction in the dual space
+        // Compute N * np (if q > 0): the negative of the step direction in the dual space.
         update_r();
 
 #ifdef TRACE_SOLVER
@@ -222,9 +222,9 @@ bool DualActiveSetSolver::solve()
         Eigen::Index l = 0;
 
         // Compute t1: partial step length
-        // = maximum step in dual space without violating dual feasibility
+        // = maximum step in dual space without violating dual feasibility.
         auto t1 = INF;
-        // Find the index l s.t. it reaches the minimum of u+[x] / r
+        // Find the index l s.t. it reaches the minimum of u+[x] / r.
         for (Eigen::Index k = p_; k < iq_; ++k) {
           if (r_(k) > 0.0) {
             if (u_(k) / r_(k) < t1) {
@@ -235,7 +235,7 @@ bool DualActiveSetSolver::solve()
         }
 
         // Compute t2: full step length
-        // = minimum step in primal space such that the constraint ip becomes feasible
+        // = minimum step in primal space such that the constraint ip becomes feasible.
         auto t2 = INF;
         if (z_.dot(z_) > EPS)  // i.e. z != 0
         {
@@ -246,7 +246,7 @@ bool DualActiveSetSolver::solve()
           }
         }
 
-        // The step is chosen as the minimum of t1 and t2
+        // The step is chosen as the minimum of t1 and t2.
         const auto t = std::min(t1, t2);
 
 #ifdef TRACE_SOLVER
@@ -263,7 +263,7 @@ bool DualActiveSetSolver::solve()
 
         // case (ii): step in dual space
         if (t2 >= INF) {
-          // Set u = u + t * [-r 1] and drop constraint l from the active set A
+          // Set u = u + t * [-r 1] and drop constraint l from the active set A.
           u_.head(iq_) -= t * r_.head(iq_);
           u_(iq_) += t;
           iai_(l) = l;
@@ -282,9 +282,9 @@ bool DualActiveSetSolver::solve()
 
         // case (iii): step in primal and dual space
 
-        // Set x = x + t * z
+        // Set x = x + t * z.
         x_ += t * z_;
-        // Set u = u + t * [-r 1]
+        // Set u = u + t * [-r 1].
         u_.head(iq_) -= t * r_.head(iq_);
         u_(iq_) += t;
 
@@ -302,8 +302,8 @@ bool DualActiveSetSolver::solve()
           cout << "x:\n" << x_.transpose() << endl;
 #endif
 
-          // Full step has taken
-          // Add constraint ip to the active set
+          // Full step has taken.
+          // Add constraint ip to the active set.
           if (!addConstraint()) {
             iaexcl_[ip_] = false;
             deleteConstraint(ip_);
@@ -341,13 +341,13 @@ bool DualActiveSetSolver::solve()
           break;
         }
 
-        // A partial step has taken
+        // A partial step has taken.
 #ifdef TRACE_SOLVER
         cout << "Partial step has taken " << t << endl;
         cout << "x:\n" << x_.transpose() << endl;
 #endif
 
-        // Drop constraint l
+        // Drop constraint l.
         iai_(l) = l;
         deleteConstraint(l);
 
@@ -356,7 +356,7 @@ bool DualActiveSetSolver::solve()
         cout << "A:\n" << A_.head(iq_).transpose() << endl;
 #endif
 
-        // update s(ip) = b - A * x
+        // update s(ip) = b - A * x.
         s_(ip_) = scaled.b(ip_) - scaled.A.row(ip_).dot(x_);
 
 #ifdef TRACE_SOLVER
@@ -386,7 +386,7 @@ Eigen::VectorXd DualActiveSetSolver::getLagrangeMultipliersIneq() const
 
 void DualActiveSetSolver::update_r()
 {
-  // Set r = R^-1 d
+  // Set r = R^-1 d.
   for (Eigen::Index i = iq_ - 1; i >= 0; --i) {
     const auto sum = (R_.block(i, i + 1, 1, iq_ - i - 1) * r_.block(i + 1, 0, iq_ - i - 1, 1)).value();
     r_(i) = (d_(i) - sum) / R_(i, i);
@@ -406,8 +406,7 @@ bool DualActiveSetSolver::addConstraint()
     // If cc is one, then element (j) of d is zero compared with element (j - 1).
     // Hence we don't have to do anything.
     // If cc is zero, then we just have to switch column (j) and column (j - 1) of J.
-    // Since we only switch columns in J, we have to be careful how we update d
-    // depending on the sign of gs.
+    // Since we only switch columns in J, we have to be careful how we update d depending on the sign of gs.
     // Otherwise we have to apply the Givens rotation to these columns.
     // The (i - 1) element of d has to be updated to h.
     auto cc = d_(j - 1);
@@ -436,10 +435,10 @@ bool DualActiveSetSolver::addConstraint()
     J_.col(j - 1) = t1 * cc + t2 * ss;
     J_.col(j) = xny * (t1 + J_.col(j - 1)) - t2;
   }
-  // Update the number of constraints added
+  // Update the number of constraints added.
   ++iq_;
 
-  // To update R we have to put the iq components of the d vector into column iq - 1 of R
+  // To update R we have to put the iq components of the d vector into column iq - 1 of R.
   R_.block(0, iq_ - 1, iq_, 1) = d_.head(iq_);
 
 #ifdef TRACE_SOLVER
@@ -464,10 +463,10 @@ void DualActiveSetSolver::deleteConstraint(const Eigen::Index& l)
   cout << "Delete constraint " << l << " " << iq_;
 #endif
 
-  Eigen::Index qq = 0;  // Initialize qq just to prevent warnings from smart compilers
+  Eigen::Index qq = 0;  // Initialize qq just to prevent warnings from smart compilers.
   [[maybe_unused]] bool found = false;
 
-  // Find the index qq for active constraint l to be removed
+  // Find the index qq for active constraint l to be removed.
   for (Eigen::Index i = p_; i < iq_; ++i) {
     if (A_(i) == l) {
       qq = i;
@@ -477,7 +476,7 @@ void DualActiveSetSolver::deleteConstraint(const Eigen::Index& l)
   }
   assert(found);
 
-  // Remove the constraint from the active set and the duals
+  // Remove the constraint from the active set and the duals.
   A_.block(qq, 0, iq_ - 1 - qq, 1) = A_.block(qq + 1, 0, iq_ - 1 - qq, 1);
   u_.block(qq, 0, iq_ - 1 - qq, 1) = u_.block(qq + 1, 0, iq_ - 1 - qq, 1);
   R_.block(0, qq, n_, iq_ - 1 - qq) = R_.block(0, qq + 1, n_, iq_ - 1 - qq);
@@ -487,7 +486,7 @@ void DualActiveSetSolver::deleteConstraint(const Eigen::Index& l)
   u_(iq_) = 0.0;
   R_.block(0, iq_ - 1, iq_, 1).setZero();
 
-  // Constraint has been fully removed
+  // Constraint has been fully removed.
   --iq_;
 
 #ifdef TRACE_SOLVER

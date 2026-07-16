@@ -21,7 +21,7 @@ using FrameMap = std::map<std::string, Frame>;
  * @brief represents a frame transformation in 3D space (rotation + translation)
  *
  * If V2 = Frame*V1 (V2 expressed in frame A, V1 expressed in frame B)
- * then V2 = Frame.M*V1+Frame.p
+ * then V2 = Frame.M*V1+Frame.p.
  *
  * Frame.M contains columns that represent the axes of frame B wrt frame A.
  * Frame.p contains the origin of frame B expressed in frame A.
@@ -33,9 +33,9 @@ public:
   Rotation M;  // Orientation of the frame
 
   inline explicit Frame(const Rotation& R, const Vector& V);
-  // The rotation matrix defaults to identity
+  // The rotation matrix defaults to identity.
   inline explicit Frame(const Vector& V);
-  // The position matrix defaults to zero
+  // The position matrix defaults to zero.
   inline explicit Frame(const Rotation& R);
   inline explicit Frame();
 
@@ -51,13 +51,13 @@ public:
    * Parameters in full : a(i-1), alpha(i-1), d(i), theta(i)
    *
    * Axis (i-1) is connected by link (i-1) to axis (i)
-   * numbering axis (1) to axis (n) link (0) (immobile base) to link (n)
+   * numbering axis (1) to axis (n) link (0) (immobile base) to link (n).
    *
    * Link length a(i-1): Length of the mutual perpendicular line (normal) between the 2 axes.
    * This normal runs from (i-1) to (i) axis.
    *
    * Link twist alpha(i-1): Construct plane perpendicular to the normal project axis(i-1) and axis(i)
-   * into plane angle from (i-1) to (i) measured in the direction of the normal
+   * into plane angle from (i-1) to (i) measured in the direction of the normal.
    *
    * Link offset d(i): Signed distance between normal (i-1) to (i) and normal (i) to (i+1)
    * along axis (i) joint angle theta(i) signed angle

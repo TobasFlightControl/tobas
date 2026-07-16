@@ -65,15 +65,15 @@ void ErrorStateKalmanFilter::initialize(
   const double& init_grav_var,
   const ch::steady_clock::time_point& time)
 {
-  // Set initial IMU time
+  // Set initial IMU time.
   t_last_imu_ = time;
 
-  // Fill the constant part of matrices
+  // Fill the constant part of matrices.
   P_.setZero();
   F_x_.setIdentity();
   G_.setIdentity();
 
-  // Initialize states and covariances
+  // Initialize states and covariances.
   initializePosition(init_pos, init_pos_cov);
   initializeVelocity(init_vel, init_vel_cov);
   initializeQuaternion(init_quat, init_dtheta_cov);
@@ -367,7 +367,7 @@ double ErrorStateKalmanFilter::measureIMU(
   P_(kDeltaBaroAltBiasIdx, kDeltaBaroAltBiasIdx) += math::sqr(baro_alt_bias_proc_noise_density_) * dt;
   P_(kDeltaGravIdx, kDeltaGravIdx) += math::sqr(grav_proc_noise_density_) * dt;
 
-  // Apply constraints to avoid numerical errors
+  // Apply constraints to avoid numerical errors.
   applyConstraints();
 
   // Save the state history.
@@ -612,7 +612,7 @@ Eigen::RowVector4d ErrorStateKalmanFilter::hamiltonToYawOutputMatrix(const State
   const auto& qy = ham(2);
   const auto& qz = ham(3);
 
-  // Choose A or B computational paths to avoid singularity in derivation at +-90 degrees yaw
+  // Choose A or B computational paths to avoid singularity in derivation at +-90 degrees yaw.
   bool can_use_a = false;
   const auto sa0 = 2 * qz;
   const auto sa1 = 2 * qy;
@@ -636,7 +636,7 @@ Eigen::RowVector4d ErrorStateKalmanFilter::hamiltonToYawOutputMatrix(const State
     can_use_b = std::abs(sb5_inv) > kEpsilon;
   }
 
-  // Compute output matrix
+  // Compute output matrix.
   Eigen::RowVector4d H;
   if (can_use_a && (!can_use_b || std::abs(sa5_inv) >= std::abs(sb5_inv))) {
     const auto sa5 = 1 / sa5_inv;
@@ -724,7 +724,7 @@ double ErrorStateKalmanFilter::measureGravity(
   //    pda_t/pdq = -2 [R^T g]x
   //    pda_t/pda_b = E_3
   //    pda_t/pdg = -R^T (the sign is inverted to estimate only positive gravitational acceleration,
-  //    and only the second column is used)
+  //    and only the second column is used).
 
   const auto& x = x_history_.closestAfterValue(time);
 

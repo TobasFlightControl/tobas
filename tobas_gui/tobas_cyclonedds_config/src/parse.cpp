@@ -15,10 +15,10 @@ namespace cyclonedds
 {
 bool parseFromText(const std::string& text, Data& dst)
 {
-  // Clear data
+  // Clear data.
   dst.interfaces.clear();
 
-  // Parse XML
+  // Parse XML.
   tinyxml2::XMLDocument doc;
   if (doc.Parse(text.c_str()) != tinyxml2::XML_SUCCESS) {
     std::cerr << "Failed to parse XML." << std::endl;

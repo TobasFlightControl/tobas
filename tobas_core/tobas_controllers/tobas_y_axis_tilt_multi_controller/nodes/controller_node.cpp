@@ -167,11 +167,11 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   , trans_eom_(tree_)
   , mixer_(drone_, tree_)
 {
-  // Get static parameters
+  // Get static parameters.
   do_dist_comp_trans_ = getBoolParam("do_disturbance_compensation_translation");
   do_dist_comp_rot_ = getBoolParam("do_disturbance_compensation_rotation");
 
-  // Register dynamic parameters
+  // Register dynamic parameters.
   addDynamicDoubleParam("horizontal_natural_frequency", &self::horizontalNaturalFreqCb, this, 0.2, 5, 1, 30, " rad/s");
   addDynamicDoubleParam("vertical_natural_frequency", &self::verticalNaturalFreqCb, this, 0.2, 10, 1, 30, " rad/s");
   addDynamicDoubleParam("attitude_natural_frequency", &self::attitudeNaturalFreqCb, this, 1.0, 10, 1, 30, " rad/s");
@@ -188,13 +188,13 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   addDynamicDoubleParam("vertical_i_max_accel", &self::verticalIMaxAccelCb, this, 0.5, 4, 0, 20, " m/s^2");
   addDynamicDoubleParam("throttle_gain_threshold", &self::throttleGainThresholdCb, this, 1.0, 70, 0, 100, " %");
 
-  // Register publishers
+  // Register publishers.
   tar_thrusts_pub_ = createPublisher<tobas_msgs::msg::RotorThrustArray>(topic::kRotorThrustsCmd);
   tar_angles_pub_ = createPublisher<tobas_msgs::msg::JointCommandArray>(topic::kJointPosCmd);
   setpoint_pub_ = createPublisher<tobas_msgs::OdometryStamped>(topic::kTrajSetpoint);
   feedback_pub_ = createPublisher<tobas_debug_msgs::MulticopterControllerFeedback>(topic::kMRCtrlFeedback);
 
-  // Register subscribers
+  // Register subscribers.
   drone_sub_ = createSubscriber(topic::kDrone, &self::droneCb, this, true, true);
   tree_sub_ = createSubscriber(topic::kKdlTree, &self::treeCb, this, true, true);
   odom_sub_ = createSubscriber(topic::kOdometry, &self::odomCb, this);
@@ -209,7 +209,7 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   angle_cmd_sub_ = createSubscriber(topic::kAngleThrotVectorCmd, &self::angleCommandCb, this);
   rate_cmd_sub_ = createSubscriber(topic::kRateThrotVectorCmd, &self::rateCommandCb, this);
 
-  // Register timers
+  // Register timers.
   check_topics_timer_ = createTimer(kCheckTopicsPeriod, &self::checkTopicsTimerCb, this);
 }
 
@@ -228,7 +228,7 @@ bool ControllerNode::updateInternalDataStructures()
     return false;
   }
 
-  // Update the maximum total thrust
+  // Update the maximum total thrust.
   max_thrust_sum_ = 0.0;
   for (const auto& [link_name, _] : drone_.prop->rotors) {
     const auto thrust_at_full_throt = drone_.prop->thrustFromThrottle(link_name, kMaxThrot);
@@ -676,7 +676,7 @@ void ControllerNode::angleCommandCb(const tobas_command_msgs::AngleThrottleVecto
     return;
   }
 
-  // Check command range
+  // Check command range.
   if (std::abs(angle_cmd->angle.roll) > M_PI_2) {
     TOBAS_WARN_THROTTLE(kIgnoreCmdMsgPeriod, "Target roll is invalid.");
     return;

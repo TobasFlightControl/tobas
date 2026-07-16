@@ -22,7 +22,7 @@ bool Battery::initialize()
     return false;
   }
 
-  // Discard the initial data
+  // Discard the initial data.
   for (int _ = 0; _ < 10; ++_) {
     std::this_thread::sleep_for(1ms);
     if (!spi_.transfer(sizeof(tx_buf_))) {

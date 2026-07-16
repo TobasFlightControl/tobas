@@ -96,15 +96,15 @@ bool HostnameWidget::writeHostnameFile(const QString& hostname)
 
 bool HostnameWidget::writeHostsFile(const QString& hostname)
 {
-  // Create data
+  // Create data.
   inja::json tpl_data;
   tpl_data["hostname"] = hostname.toStdString();
 
-  // Get paths
+  // Get paths.
   const auto tpl_path = getPkgShareDir() / "templates/hosts";
   const auto out_path = fs::path(kRootPath) / "etc/hosts";
 
-  // Generate file
+  // Generate file.
   inja::Environment env;
   try {
     const auto temp = env.parse_template(tpl_path);

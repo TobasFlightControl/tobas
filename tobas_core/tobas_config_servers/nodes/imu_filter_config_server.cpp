@@ -226,7 +226,7 @@ void ImuFilterConfigServer::imuRawCb(const tobas_msgs::Imu::ConstSharedPtr&)
     addDynamicIntParam("rpm_filter/lpf_cutoff", &self::rpmFilterLpfCutoffCb, this, 10, 10, 1, 20, " Hz");
   }
 
-  // Cancel subscription
+  // Cancel subscription.
   imu_raw_sub_.reset();
 }
 }  // namespace tobas

@@ -574,10 +574,10 @@ double ErrorStateKalmanFilter::correct(
     P_ = G_ * P_.selfadjointView<Eigen::Lower>() * G_.transpose();  // TODO: Compute only the required parts.
   }
 
-  // Apply constraints to avoid numerical errors
+  // Apply constraints to avoid numerical errors.
   applyConstraints();
 
-  // Compute anomaly score
+  // Compute anomaly score.
   const double anomaly_score = (delta_meas.transpose() * Sigma_inv * delta_meas)(0) / M;
   return anomaly_score;
 }

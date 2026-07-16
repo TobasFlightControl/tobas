@@ -200,17 +200,17 @@ ros2::ServiceServerPtr<SrvType> BaseNode::createService(
 template <typename... Args>
 void BaseNode::log(uint8_t level, const Args&... args) const
 {
-  // Create message
+  // Create message.
   auto message = std::make_unique<tobas_msgs::msg::Message>();
   message->header.stamp = node_->now();
   message->level = level;
   message->name = node_->get_name();
   message->message = st::buildString(args...);
 
-  // Output message to the console
+  // Output message to the console.
   gazeboLog(level, message->message);
 
-  // Publish message
+  // Publish message.
   message_pub_->publish(std::move(message));
 }
 

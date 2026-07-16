@@ -102,11 +102,11 @@ void MagnetometerHandlerNode::setParamsCb(
   const SetParams::Request::ConstSharedPtr& req,
   const SetParams::Response::SharedPtr& res)
 {
-  // Update parameters
+  // Update parameters.
   ellipsoid_.setHardBias(eigen::fromStdArray(req->hard_bias));
   ellipsoid_.setSoftBias(eigen::fromStdArray(req->soft_bias));
 
-  // Save parameters
+  // Save parameters.
   pt_.set(ns(), handler::mag::kHardBiasKey, req->hard_bias);
   pt_.set(ns(), handler::mag::kSoftBiasKey, req->soft_bias);
   if (!pt_.save()) {

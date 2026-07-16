@@ -24,7 +24,7 @@ kdl::Vector EulerPID::update(
   const kdl::Vector& tar_gyro,
   const double& dt)
 {
-  // Calculate errors
+  // Calculate errors.
   const auto ep = computeProportionalError(cur_rpy, tar_rpy);
   const auto ed = computeDerivativeError(cur_rpy, cur_gyro, tar_gyro);
 

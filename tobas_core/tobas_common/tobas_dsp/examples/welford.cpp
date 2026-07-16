@@ -18,18 +18,18 @@ int main(int argc, char** argv)
 
   const auto length = stoul(argv[1]);
 
-  // Define random generator
+  // Define random generator.
   random_device rnd_dev;
   mt19937 rnd_gen(rnd_dev());
   uniform_real_distribution<double> uniform(0.0, 1.0);
 
-  // Create data
+  // Create data.
   vector<Vector3d> data;
   for (size_t _ = 0; _ < length; ++_) {
     data.emplace_back(uniform(rnd_gen), uniform(rnd_gen), uniform(rnd_gen));
   }
 
-  // Compute variance with normal method
+  // Compute variance with normal method.
   Vector3d data_sum = Vector3d::Zero();
   for (const auto& x : data) {
     data_sum += x;
@@ -43,7 +43,7 @@ int main(int argc, char** argv)
   }
   const Matrix3d cov_1 = cov_sum / length;
 
-  // Compute variance with Welford method
+  // Compute variance with Welford method.
   tobas::dsp::Welford<double, 3> welford;
   for (const auto& x : data) {
     welford.add(x);
@@ -51,13 +51,13 @@ int main(int argc, char** argv)
   const Vector3d& mean_2 = welford.mean();
   const Matrix3d& cov_2 = welford.variance();
 
-  // Show results
+  // Show results.
   cout << "Mean (Normal Method) : " << mean_1.transpose() << endl;
   cout << "Mean (Welford Method): " << mean_2.transpose() << endl;
   cout << "Coariance (Normal Method):" << endl << cov_1 << endl;
   cout << "Coariance (Welford Method):" << endl << cov_2 << endl;
 
-  // Validate
+  // Validate.
   if (!tobas::eigen::isClose(mean_1, mean_2) || !tobas::eigen::isClose(cov_1, cov_2)) {
     cerr << "Welford method is inaccurate." << endl;
     return EXIT_FAILURE;

@@ -45,7 +45,7 @@ int TreeIkSolverPos_Online::cartToJnt(const JntArray& q_in, const FrameMap& p_in
     return setDefaultError(kNegativeDeltaTime);
   }
 
-  // Compute delta twists
+  // Compute delta twists.
   TwistMap delta_twists;
   for (const auto& [seg_name, frame] : p_in) {
     if (fksolver_.jntToCart(q_in, seg_name) < 0) {
@@ -56,17 +56,17 @@ int TreeIkSolverPos_Online::cartToJnt(const JntArray& q_in, const FrameMap& p_in
     delta_twists[seg_name] = delta_t;
   }
 
-  // Compute delta q
+  // Compute delta q.
   if (iksolver_.cartToJnt(q_in, delta_twists) < 0) {
     return copyError(iksolver_);
   }
   auto delta_q = iksolver_.getVelocities();
   enforceJointVelLimits(delta_q, dt);
 
-  // Integrate
+  // Integrate.
   q_out_ = q_in + delta_q;
 
-  // Limit joint positions
+  // Limit joint positions.
   const auto& lb = jntparser_.lowerLimits().data;
   const auto& ub = jntparser_.upperLimits().data;
   q_out_.data = q_out_.data.cwiseMax(lb).cwiseMin(ub);

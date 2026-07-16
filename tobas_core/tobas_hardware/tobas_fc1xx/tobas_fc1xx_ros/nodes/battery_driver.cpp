@@ -58,19 +58,19 @@ void BatteryDriverNode::initialize()
 
 void BatteryDriverNode::mainTimerCb()
 {
-  // Read data
+  // Read data.
   if (!battery_.read(voltage_, current_)) {
     TOBAS_ERROR("Failed to read battery state.");
     return;
   }
 
-  // Check data
+  // Check data.
   if (voltage_ <= 0.0) {
     TOBAS_WARN_THROTTLE(kTypicalWarnPeriod, "Battery state is unavailable.");
     return;
   }
 
-  // Publish message
+  // Publish message.
   auto msg = std::make_unique<tobas_msgs::msg::Battery>();
   msg->header.stamp = now();
   msg->voltage = static_cast<double>(voltage_);

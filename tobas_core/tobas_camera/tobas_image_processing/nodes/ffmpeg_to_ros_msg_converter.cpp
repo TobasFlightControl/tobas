@@ -178,17 +178,17 @@ void FFmpegToROSMsgConverter::timerCallback()
   auto frame = av_frame_alloc();
   AVPacket packet;
 
-  // Read one frame
+  // Read one frame.
   if (av_read_frame(format_context_, &packet) < 0) {
     return;
   }
   if (packet.stream_index == video_stream_->index) {
-    // Send the packet to the decoder
+    // Send the packet to the decoder.
     if (avcodec_send_packet(codec_context_, &packet) != 0) {
       TOBAS_ERROR("avcodec_send_packet failed");
     }
 
-    // Store decoded data in the frame
+    // Store decoded data in the frame.
     while (avcodec_receive_frame(codec_context_, frame) == 0) {
       auto image_msg = std::make_unique<sensor_msgs::msg::Image>();
       image_msg->height = frame->height;

@@ -59,7 +59,7 @@
       <child link="${base_link}"/>
     </joint>
 
-    <!-- Set dummy transmissions for avoiding gazebo error -->
+    <!-- Set dummy transmissions for avoiding gazebo error. -->
     <transmission name="base_joint_trans_x_transmission">
       <type>transmission_interface/SimpleTransmission</type>
       <joint name="base_joint_trans_x">

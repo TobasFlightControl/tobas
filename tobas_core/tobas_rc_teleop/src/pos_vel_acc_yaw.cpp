@@ -84,7 +84,7 @@ void PosVelAccYawController::reset(
 
 void PosVelAccYawController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom, bool landed)
 {
-  // Update time
+  // Update time.
   const auto dt = (rcin.header.stamp - t_last_rcin_).seconds();
   t_last_rcin_ = rcin.header.stamp;
 
@@ -97,7 +97,7 @@ void PosVelAccYawController::update(const tobas_msgs::RCInput& rcin, const tobas
   const auto yawrate = expoRemapDead(rcin.yaw, head_expo_, -max_head_rate_, max_head_rate_);
   tar_yaw_ += yawrate * dt;
 
-  // Compute the velocity and acceleration wrt. the world frame
+  // Compute the velocity and acceleration wrt. the world frame.
   const kdl::Vector tar_vel_G(
     vx_filt_.getTrajectoryVelocity(), vy_filt_.getTrajectoryVelocity(), vz_filt_.getTrajectoryVelocity());
   const kdl::Vector tar_acc_G(
@@ -106,21 +106,21 @@ void PosVelAccYawController::update(const tobas_msgs::RCInput& rcin, const tobas
   const auto tar_vel_W = R_W_G * tar_vel_G;
   const auto tar_acc_W = R_W_G * tar_acc_G;
 
-  // Integrate the velocity
+  // Integrate the velocity.
   tar_pos_W_ += tar_vel_W * dt;
 
-  // Do not perform horizontal position control while landed
+  // Do not perform horizontal position control while landed.
   const auto& cur_pos_W = odom.frame.p;
   if (landed) {
     tar_pos_W_.x() = cur_pos_W.x();
     tar_pos_W_.y() = cur_pos_W.y();
   }
 
-  // Limit the error to prevent the target altitude from dropping too far while on the ground
+  // Limit the error to prevent the target altitude from dropping too far while on the ground.
   const auto& cur_z = cur_pos_W.z();
   tar_pos_W_.z() = std::max(tar_pos_W_.z(), cur_z - max_ep_down_);
 
-  // Create a command
+  // Create a command.
   auto cmd = std::make_unique<tobas_command_msgs::PosVelAccYaw>();
   cmd->header = rcin.header;
   cmd->priority.data = tobas_command_msgs::msg::Priority::MANUAL;
@@ -129,7 +129,7 @@ void PosVelAccYawController::update(const tobas_msgs::RCInput& rcin, const tobas
   cmd->acc = tar_acc_W;
   cmd->yaw = tar_yaw_;
 
-  // Publish the command
+  // Publish the command.
   cmd_pub_->publish(std::move(cmd));
 }
 

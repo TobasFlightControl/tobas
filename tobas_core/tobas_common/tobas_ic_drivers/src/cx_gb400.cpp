@@ -27,7 +27,7 @@ bool CxGb400::initialize(
     std::cerr << "Failed to initialize video device." << std::endl;
     return false;
   }
-  // check UAVCAN is turned off (= UVC control is available)
+  // Check UAVCAN is turned off (= UVC control is available).
   uint8_t is_uavcan_on = 0;
   const uvc_xu_control_query check_uavcan_query = { kUnit2, 0x1E, UVC_GET_CUR, 1, &is_uavcan_on };
   if (!execUvcControl(check_uavcan_query)) {
@@ -40,22 +40,13 @@ bool CxGb400::initialize(
     return false;
   }
 
-  // set camera position
+  // Set camera position.
   uint8_t cam_pos_data = static_cast<uint8_t>(camera_position);
   const uvc_xu_control_query set_cam_pos_query = { kUnit2, 0x1B, UVC_SET_CUR, 1, &cam_pos_data };
   if (!execUvcControl(set_cam_pos_query)) {
     std::cerr << "Failed to set camera position." << std::endl;
     return false;
   }
-
-  // Gimbal restart. This does not seem to be necessary;
-  // sending `sendAttitude()` every 200 ms restarts it automatically.
-  // uint8_t execute = 0;
-  // const uvc_xu_control_query gymbal_restart = {kUnit2, 0xA, UVC_SET_CUR, 1, &execute};
-  // if (!execUvcControl(gymbal_restart)) {
-  //   std::cerr << "Failed to restart gymbal." << std::endl;
-  //   return false;
-  // }
 
   if (disable_full_hd) {
     uint8_t video_resolution_data = static_cast<uint8_t>(3);

@@ -58,17 +58,17 @@ void TreeInertiaSolver::step(const SegmentMap::const_iterator& cur_it, const Jnt
   const auto& par_it = cur_ele.parent;
   const auto& par_name = par_it->first;
 
-  // Forward calculation
+  // Forward calculation.
   const auto& qj = cur_seg.joint().type == Joint::kFixed ? 0.0 : q(cur_ele.q_nr);
   X_.at(cur_name) = cur_seg.pose(qj);
   I_.at(cur_name) = cur_seg.inertia();
 
-  // Propagate calculations over each child segment
+  // Propagate calculations over each child segment.
   for (const auto& child_it : cur_ele.children) {
     step(child_it, q);
   }
 
-  // Backward calculation
+  // Backward calculation.
   if (cur_it != tree_.getRootSegment()) {
     I_.at(par_name) += X_.at(cur_name) * I_.at(cur_name);
   }

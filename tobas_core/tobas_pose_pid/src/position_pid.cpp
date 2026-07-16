@@ -22,24 +22,24 @@ kdl::Vector PositionPID::update(
   const kdl::Vector& tar_vel,
   const double& dt)
 {
-  // Calculate errors
+  // Calculate errors.
   const auto ep = tar_pos - cur_pos;
   const auto ed = tar_vel - cur_vel;
 
   for (size_t i = 0; i < 3; ++i) {
     if (ki_(i) > 0.0) {  // When using integral control
-      // Accumulate integral error
+      // Accumulate integral error.
       const auto next_ei = ei_(i) + ep(i) * dt;
       ei_(i) = clamp(next_ei, -max_i_acc_(i), max_i_acc_(i));
     }
     else  // When not using integral control
     {
-      // Reset integral error
+      // Reset integral error.
       ei_(i) = 0.0;
     }
   }
 
-  // Calculate target acceleration
+  // Calculate target acceleration.
   return kp_.hadamard(ep) + ki_.hadamard(ei_) + kd_.hadamard(ed);
 }
 

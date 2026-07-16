@@ -61,11 +61,11 @@ void AngleThrottleController::reset(const builtin_interfaces::msg::Time& stamp, 
 
 void AngleThrottleController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry&, bool)
 {
-  // Update timestamp
+  // Update timestamp.
   const auto dt = (rcin.header.stamp - t_last_rcin_).seconds();
   t_last_rcin_ = rcin.header.stamp;
 
-  // Create a command
+  // Create a command.
   auto cmd = std::make_unique<tobas_command_msgs::AngleThrottle>();
   cmd->header = rcin.header;
   cmd->priority.data = tobas_command_msgs::msg::Priority::MANUAL;
@@ -86,7 +86,7 @@ void AngleThrottleController::update(const tobas_msgs::RCInput& rcin, const toba
   // Throttle
   cmd->throttle = expo(remap(rcin.throttle, kMinThrot, kMaxThrot), throt_expo_);
 
-  // Publish the command
+  // Publish the command.
   cmd_pub_->publish(std::move(cmd));
 }
 
