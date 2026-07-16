@@ -5,10 +5,9 @@
 #include <tobas_gazebo_conversions/gazebo_kdl.hpp>
 #include <tobas_gazebo_tools/math.hpp>
 #include <tobas_gazebo_tools/utils.hpp>
-#include <tobas_geomag/core.hpp>
+#include <tobas_geographic/geography.hpp>
 #include <tobas_math/core.hpp>
 #include <tobas_ros2_tools/time.hpp>
-#include <tobas_std_tools/gnss.hpp>
 #include <tobas_time_tools/util.hpp>
 
 #include <tobas_msgs_adapter/magnetic_field.hpp>
@@ -121,15 +120,17 @@ void GazeboMagnetometerPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const
   const auto W_Pos_WS = W_Pos_WB + W_Rot_B.RotateVector(offset_);
 
   // Compute latitude, longitude, and altitude from Cartesian coordinates.
-  std::tie(lat_, lon_) = st::cartToGnssRelative(W_Pos_WS.X(), W_Pos_WS.Y(), lat_0_, lon_0_);
+  const auto coord = geo::planeToGeodetic(W_Pos_WS.X(), W_Pos_WS.Y(), lat_0_, lon_0_);
+  lat_ = coord.latitude;
+  lon_ = coord.longitude;
   const auto alt = alt_0_ + W_Pos_WS.Z();
 
   // Compute the geomagnetic reference value from latitude, longitude, and altitude.
   // TODO: Consider WMM error.
-  const auto mag = geomag::elementsFromGeodetic(lat_, lon_, alt, tim::yearFraction());
+  const auto mag = geo::magneticField(lat_, lon_, alt, tim::yearFraction());
 
   // Compute geomagnetic field viewed from the body coordinate system.
-  const gz::math::Vector3d field_W(mag.east, mag.north, -mag.down);  // ENU coordinates
+  const gz::math::Vector3d field_W(mag.east, mag.north, mag.up);  // ENU coordinates
   const auto field_B = T_W_B.Rot().RotateVectorReverse(field_W);
 
   // Add noise and observe the value normalized by the geomagnetic scale.

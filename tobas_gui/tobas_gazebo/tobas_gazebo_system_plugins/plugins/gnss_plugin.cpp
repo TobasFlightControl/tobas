@@ -4,9 +4,9 @@
 #include <tobas_constants/ros_interface.hpp>
 #include <tobas_gazebo_conversions/gazebo_kdl.hpp>
 #include <tobas_gazebo_tools/utils.hpp>
+#include <tobas_geographic/geography.hpp>
 #include <tobas_math/core.hpp>
 #include <tobas_ros2_tools/time.hpp>
-#include <tobas_std_tools/gnss.hpp>
 
 #include <tobas_msgs_adapter/gnss.hpp>
 
@@ -228,8 +228,11 @@ void GazeboGnssPlugin::updatePosition(tobas_msgs::Gnss& gnss_msg, const gz::math
   W_Pos_WS += pos_bias_;
 
   // Fill the GNSS message.
-  std::tie(gnss_msg.latitude, gnss_msg.longitude) = st::cartToGnssRelative(W_Pos_WS.X(), W_Pos_WS.Y(), lat_0_, lon_0_);
+  const auto coord = geo::planeToGeodetic(W_Pos_WS.X(), W_Pos_WS.Y(), lat_0_, lon_0_);
+  gnss_msg.latitude = coord.latitude;
+  gnss_msg.longitude = coord.longitude;
   gnss_msg.altitude = W_Pos_WS.Z();
+  gnss_msg.ellipsoid_height = W_Pos_WS.Z();
 }
 
 void GazeboGnssPlugin::updateVelocity(

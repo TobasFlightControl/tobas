@@ -12,6 +12,7 @@
 
 #include <tobas_constants/path.hpp>
 #include <tobas_constants/ros_interface.hpp>
+#include <tobas_geographic/geography.hpp>
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_mission_msgs_adapter/mission.hpp>
 #include <tobas_path_tools/core.hpp>
@@ -22,7 +23,6 @@
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_std_tools/byte.hpp>
 #include <tobas_std_tools/check.hpp>
-#include <tobas_std_tools/gnss.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 #include <tobas_trajectory_generation/offline/catmull_rom.hpp>
 #include <tobas_yaml_tools/core.hpp>
@@ -340,9 +340,9 @@ void MissionPlannerWidget::addSplinePathToMap(const std::vector<QGeoCoordinate>&
   std::vector<Eigen::Vector2d> points;
   points.reserve(waypoints.size());
   for (const auto& waypoint : waypoints) {
-    const auto [x, y] =
-      st::gnssToCartRelative(waypoint.latitude(), waypoint.longitude(), origin.latitude(), origin.longitude());
-    points.emplace_back(x, y);
+    const auto coord =
+      geo::geodeticToPlane(waypoint.latitude(), waypoint.longitude(), origin.latitude(), origin.longitude());
+    points.emplace_back(coord.east, coord.north);
   }
 
   const MapSplinePath path(std::move(points));
@@ -354,9 +354,9 @@ void MissionPlannerWidget::addSplinePathToMap(const std::vector<QGeoCoordinate>&
     for (size_t sample = 1; sample <= sample_count; ++sample) {
       const auto u = static_cast<double>(sample) / static_cast<double>(sample_count);
       const auto pos = path.get(segment, u).pos;
-      const auto [lat, lon] = st::cartToGnssRelative(pos.x(), pos.y(), origin.latitude(), origin.longitude());
-      map_->addLine(prev_coord.latitude(), prev_coord.longitude(), lat, lon);
-      prev_coord = QGeoCoordinate(lat, lon);
+      const auto coord = geo::planeToGeodetic(pos.x(), pos.y(), origin.latitude(), origin.longitude());
+      map_->addLine(prev_coord.latitude(), prev_coord.longitude(), coord.latitude, coord.longitude);
+      prev_coord = QGeoCoordinate(coord.latitude, coord.longitude);
     }
   }
 }
@@ -600,9 +600,9 @@ void MissionPlannerWidget::onAddButtonClicked()
       const auto last_wp = findLastWaypoint();
       if (last_wp) {
         // Place the second and later waypoints slightly east of the last point.
-        const auto [lat, lon] = st::cartToGnssRelative(10.0, 0.0, last_wp->latitude(), last_wp->longitude());
-        new_wp->latitude(lat);
-        new_wp->longitude(lon);
+        const auto coord = geo::planeToGeodetic(10.0, 0.0, last_wp->latitude(), last_wp->longitude());
+        new_wp->latitude(coord.latitude);
+        new_wp->longitude(coord.longitude);
       }
       else {
         // Place the first waypoint at the center of the map.

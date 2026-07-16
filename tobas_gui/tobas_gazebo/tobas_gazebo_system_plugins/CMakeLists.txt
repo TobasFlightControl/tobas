@@ -15,7 +15,7 @@ set(AMENT_DEPENDENCIES
     std_srvs
     sensor_msgs
     tobas_dsp
-    tobas_geomag
+    tobas_geographic
     tobas_nlp
     tobas_node
     tobas_tools

@@ -1,0 +1,17 @@
+WMMF-2
+# A World Magnetic Model data file. For documentation, see:
+# https://geographiclib.sourceforge.io/C++/doc/magnetic.html#magneticformat
+Name            wmm2025
+Description     World Magnetic Model 2025
+URL             https://www.ncei.noaa.gov/products/world-magnetic-model
+Publisher       National Oceanic and Atmospheric Administration
+ReleaseDate     2024-11-13
+ConversionDate  2024-12-18
+DataVersion     1
+Radius          6371200
+Epoch           2025
+MinTime         2025
+MaxTime         2030
+MinHeight       -1000
+MaxHeight       850000
+ID              WMM2025A

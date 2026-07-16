@@ -18,6 +18,7 @@ struct Gnss
   double latitude;
   double longitude;
   double altitude;
+  double ellipsoid_height;
   Eigen::Matrix3d position_covariance;
   tobas::kdl::Vector ground_speed;
   Eigen::Matrix3d velocity_covariance;
@@ -44,6 +45,7 @@ struct rclcpp::TypeAdapter<tobas_msgs::Gnss, tobas_msgs::msg::Gnss>
     dst.latitude = src.latitude;
     dst.longitude = src.longitude;
     dst.altitude = src.altitude;
+    dst.ellipsoid_height = src.ellipsoid_height;
     tobas_eigen_msgs::Matrix3dAdapter::convert_to_ros_message(src.position_covariance, dst.position_covariance);
     tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(src.ground_speed, dst.ground_speed);
     tobas_eigen_msgs::Matrix3dAdapter::convert_to_ros_message(src.velocity_covariance, dst.velocity_covariance);
@@ -57,6 +59,7 @@ struct rclcpp::TypeAdapter<tobas_msgs::Gnss, tobas_msgs::msg::Gnss>
     dst.latitude = src.latitude;
     dst.longitude = src.longitude;
     dst.altitude = src.altitude;
+    dst.ellipsoid_height = src.ellipsoid_height;
     tobas_eigen_msgs::Matrix3dAdapter::convert_to_custom(src.position_covariance, dst.position_covariance);
     tobas_kdl_msgs::VectorAdapter::convert_to_custom(src.ground_speed, dst.ground_speed);
     tobas_eigen_msgs::Matrix3dAdapter::convert_to_custom(src.velocity_covariance, dst.velocity_covariance);

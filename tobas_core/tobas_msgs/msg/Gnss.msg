@@ -15,7 +15,8 @@ uint8 TIME_ONLY_FIX = 5
 # Position
 float64 latitude                               # [deg]
 float64 longitude                              # [deg]
-float64 altitude                               # [m]
+float64 altitude                               # Height above mean sea level [m]
+float64 ellipsoid_height                       # Height above the WGS 84 ellipsoid [m]
 tobas_eigen_msgs/Matrix3d position_covariance  # [m^2]
 
 # Velocity
