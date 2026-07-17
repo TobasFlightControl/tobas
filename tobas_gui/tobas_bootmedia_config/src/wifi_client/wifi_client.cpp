@@ -5,7 +5,9 @@
 
 #include <QDebug>
 
+#include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
+#include <tobas_qt_tools/widgets/password_edit.hpp>
 #include <tobas_string_tools/stream.hpp>
 
 #include "tobas_bootmedia_config/constants.hpp"
@@ -111,7 +113,8 @@ QString WifiClientWidget::getSsid(int row) const
 
 QString WifiClientWidget::getPsk(int row) const
 {
-  return table_->item(row, kPskCol)->data(Qt::UserRole).toString();
+  const auto psk_edit = qt::qConstPointerCast<qt::PasswordEdit>(table_->cellWidget(row, kPskCol));
+  return psk_edit->text();
 }
 
 int WifiClientWidget::getPriority(int row) const
@@ -133,11 +136,10 @@ void WifiClientWidget::addRow(const QString& key_mgmt, const QString& ssid, cons
 
   table_->setItem(row, kSsidCol, new QTableWidgetItem(ssid));
 
-  const auto psk_it = new QTableWidgetItem();
-  // Store plain text in `UserRole`; `EditRole` cannot be used because it is linked to `DisplayRole`.
-  psk_it->setData(Qt::UserRole, psk);
-  psk_it->setData(Qt::DisplayRole, QString(psk.length(), QChar(0x25CF)));  // Display with black circles.
-  table_->setItem(row, kPskCol, psk_it);
+  const auto psk_edit = new qt::PasswordEdit();
+  psk_edit->setText(psk);
+  psk_edit->setReadOnly(true);
+  table_->setCellWidget(row, kPskCol, psk_edit);
 
   const auto priority_it = new QTableWidgetItem();
   priority_it->setData(Qt::DisplayRole, priority);
