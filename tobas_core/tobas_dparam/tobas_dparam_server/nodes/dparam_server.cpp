@@ -11,6 +11,7 @@
 #include <tobas_dparam_msgs/srv/set_int.hpp>
 #include <tobas_dparam_msgs/srv/set_string.hpp>
 
+using namespace std::chrono_literals;
 using namespace tobas_dparam_msgs::srv;
 
 namespace tobas
@@ -28,6 +29,7 @@ public:
 private:
   rclcpp::CallbackGroup::SharedPtr cb_group_;
   std::vector<rclcpp::ServiceBase::SharedPtr> services_;
+  std::map<std::string, ros2::SyncParamClient> clients_;
 
   template <typename SrvType, typename ValueType>
   void callback(const typename SrvType::Request::ConstSharedPtr& req, const typename SrvType::Response::SharedPtr& res);
@@ -49,13 +51,33 @@ void DynamicParamServer::callback(
   const typename SrvType::Request::ConstSharedPtr& req,
   const typename SrvType::Response::SharedPtr& res)
 {
-  ros2::SyncParamClient client(shared_from_this(), req->node_name);
-  if (!client.setParam<ValueType>(req->param_name, req->value)) {
+  if (req->node_name.empty()) {
     res->success = false;
+    res->message = "The node name is empty.";
+    return;
+  }
+
+  auto client_it = clients_.find(req->node_name);
+  if (client_it == clients_.end()) {
+    TOBAS_INFO("Creating a new parameter client for \"", req->node_name, "\".");
+    ros2::SyncParamClient client(shared_from_this(), req->node_name);
+    if (!client.waitForService(1s)) {
+      res->success = false;
+      res->message = "Failed to find \"" + req->node_name + "\".";
+      return;
+    }
+    client_it = clients_.insert({ req->node_name, client }).first;
+  }
+
+  auto& client = client_it->second;
+  if (client.template setParam<ValueType>(req->param_name, req->value) != ros2::SyncParamClient::kNoError) {
+    res->success = false;
+    res->message = client.errorMessage();
     return;
   }
 
   res->success = true;
+  res->message.clear();
 }
 }  // namespace dparam
 }  // namespace tobas
