@@ -60,7 +60,9 @@ WifiClientWidget::WifiClientWidget()
   connect(add_button_, &QPushButton::clicked, this, &self::onAddButtonClicked);
   connect(remove_button_, &QPushButton::clicked, this, &self::onRemoveButtonClicked);
   connect(clear_button_, &QPushButton::clicked, this, &self::onClearButtonClicked);
-  connect(table_, &QTableWidget::itemSelectionChanged, this, &self::updateTableEmbeddedWidgetStyles);
+  // Immediately after a cell is removed, `QTableWidget::rowCount()` does not yet reflect the updated row count,
+  // so use `Qt::QueuedConnection` instead of `Qt::DirectConnection`.
+  connect(table_, &QTableWidget::itemSelectionChanged, this, &self::updateTableCellStyles, Qt::QueuedConnection);
 }
 
 const char* WifiClientWidget::title() const
@@ -117,7 +119,7 @@ void WifiClientWidget::changeEvent(QEvent* event)
 
   // Apply the enabled-state palette to each cell.
   if (event->type() == QEvent::EnabledChange && isEnabled()) {
-    updateTableEmbeddedWidgetStyles();
+    updateTableCellStyles();
   }
 }
 
@@ -172,11 +174,11 @@ void WifiClientWidget::addRow(const QString& key_mgmt, const QString& ssid, cons
   table_->setItem(row, kHiddenCol, hidden_it);
 
   if (isEnabled()) {
-    updateTableEmbeddedWidgetStyles();
+    updateTableCellStyles();
   }
 }
 
-void WifiClientWidget::updateTableEmbeddedWidgetStyles()
+void WifiClientWidget::updateTableCellStyles()
 {
   const auto table_palette = table_->palette();
 

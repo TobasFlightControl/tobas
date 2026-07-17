@@ -64,7 +64,7 @@ private:
   void addRow(const QString& key_mgmt, const QString& ssid, const QString& psk, int priority, bool hidden);
 
   /* Match the styles of embedded widgets to the other cells. */
-  void updateTableEmbeddedWidgetStyles();
+  void updateTableCellStyles();
 
   /* Write all current table contents to the configuration file on the boot device. */
   bool writeCurrentConfig();
