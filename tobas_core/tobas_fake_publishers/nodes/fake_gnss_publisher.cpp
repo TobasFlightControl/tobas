@@ -50,7 +50,8 @@ void FakeGnssPublisherNode::timerCb()
   gnss_msg->fix_type = tobas_msgs::msg::Gnss::FIX_3D;
   gnss_msg->latitude = 0.0;
   gnss_msg->longitude = 0.0;
-  gnss_msg->altitude = 0.0;
+  gnss_msg->height_wgs84 = 0.0;
+  gnss_msg->height_msl = 0.0;
   gnss_msg->ground_speed.setZero();
   gnss_msg->position_covariance = Eigen::Vector3d::Constant(pos_stddev_).asDiagonal();
   gnss_msg->velocity_covariance = Eigen::Vector3d::Constant(vel_stddev_).asDiagonal();

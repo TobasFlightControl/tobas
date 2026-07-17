@@ -10,13 +10,13 @@
 
 #include <tobas_algorithm/core.hpp>
 #include <tobas_constants/node.hpp>
+#include <tobas_geographic/geography.hpp>
 #include <tobas_math/linalg.hpp>
 #include <tobas_mission_items/mission.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_std_tools/byte.hpp>
-#include <tobas_std_tools/gnss.hpp>
 #include <tobas_trajectory_generation/offline/catmull_rom.hpp>
 #include <tobas_trajectory_generation/offline/jerk_limited.hpp>
 #include <tobas_trajectory_generation/offline/linear.hpp>
@@ -138,6 +138,8 @@ public:
   explicit MulticopterMissionExecutorNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
+  geo::Geography geography_;
+
   struct WaypointConfig
   {
     double max_hor_vel;    // [m/s]
@@ -527,9 +529,9 @@ bool MulticopterMissionExecutorNode::executeWaypoints(
   path_points.push_back(start_pos.data);
 
   for (const auto& goal : goals) {
-    kdl::Vector goal_pos;  // wrt. the odometry frame
-    std::tie(goal_pos.x(), goal_pos.y()) =
-      st::gnssToCartRelative(goal.latitude, goal.longitude, gnss_origin_->latitude, gnss_origin_->longitude);
+    const auto goal_coord =
+      geography_.geodeticToPlane(goal.latitude, goal.longitude, gnss_origin_->latitude, gnss_origin_->longitude);
+    kdl::Vector goal_pos(goal_coord.east, goal_coord.north, NAN);  // wrt. the odometry frame
     switch (goal.altitude_frame) {
       case kRelativeToLaunch:
         if (!launch_point_) {
@@ -880,10 +882,10 @@ bool MulticopterMissionExecutorNode::executeRTL(const ReturnToLaunch& goal, cons
 
   // Climb to the RTL minimum altitude if the current altitude is lower.
   if (cur_alt < min_alt) {
-    const auto [tar_lat, tar_lon] =
-      st::cartToGnssRelative(cur_pos.x(), cur_pos.y(), gnss_origin_->latitude, gnss_origin_->longitude);
-    wp.latitude = tar_lat;
-    wp.longitude = tar_lon;
+    const auto tar_coord =
+      geography_.planeToGeodetic(cur_pos.x(), cur_pos.y(), gnss_origin_->latitude, gnss_origin_->longitude);
+    wp.latitude = tar_coord.latitude;
+    wp.longitude = tar_coord.longitude;
     wp.auto_heading = false;
     if (!executeWaypoints(std::span<const Waypoint>(&wp, 1), gh, res)) {
       return false;
@@ -891,10 +893,10 @@ bool MulticopterMissionExecutorNode::executeRTL(const ReturnToLaunch& goal, cons
   }
 
   // Move to the arming point.
-  const auto [tar_lat, tar_lon] =
-    st::cartToGnssRelative(launch_point_->x(), launch_point_->y(), gnss_origin_->latitude, gnss_origin_->longitude);
-  wp.latitude = tar_lat;
-  wp.longitude = tar_lon;
+  const auto tar_coord =
+    geography_.planeToGeodetic(launch_point_->x(), launch_point_->y(), gnss_origin_->latitude, gnss_origin_->longitude);
+  wp.latitude = tar_coord.latitude;
+  wp.longitude = tar_coord.longitude;
   wp.auto_heading = true;
   if (!executeWaypoints(std::span<const Waypoint>(&wp, 1), gh, res)) {
     return false;

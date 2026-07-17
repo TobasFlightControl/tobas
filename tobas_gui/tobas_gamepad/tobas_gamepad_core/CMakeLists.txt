@@ -11,13 +11,15 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Wswitch-enum -Werror")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-find_package(ament_cmake REQUIRED)
-find_package(PkgConfig REQUIRED)
 set(AMENT_DEPENDENCIES magic_enum_ament tobas_math tobas_constants)
+
+find_package(ament_cmake REQUIRED)
+
 foreach(dependency IN ITEMS ${AMENT_DEPENDENCIES})
   find_package(${dependency} REQUIRED)
 endforeach()
 
+find_package(PkgConfig REQUIRED)
 pkg_check_modules(LIBEVDEV REQUIRED libevdev)
 
 include_directories(include ${LIBEVDEV_INCLUDE_DIRS})
@@ -25,7 +27,6 @@ include_directories(include ${LIBEVDEV_INCLUDE_DIRS})
 file(GLOB_RECURSE LIB_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_TARGETS})
 ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
-
 target_link_libraries(${PROJECT_NAME} ${LIBEVDEV_LIBRARIES})
 
 install(
@@ -33,10 +34,10 @@ install(
   EXPORT ${PROJECT_NAME}
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
+  RUNTIME DESTINATION bin
   INCLUDES
   DESTINATION include
 )
-
 install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
 
 ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)

@@ -20,6 +20,7 @@ set(AMENT_DEPENDENCIES
     tobas_property_client
     tobas_constants
     tobas_drone_core
+    tobas_geographic
     tobas_msgs_adapter
     tobas_mission_msgs_adapter
     tobas_qt_tools

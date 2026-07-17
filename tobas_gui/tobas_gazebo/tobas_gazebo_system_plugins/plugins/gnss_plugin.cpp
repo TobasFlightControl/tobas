@@ -4,9 +4,9 @@
 #include <tobas_constants/ros_interface.hpp>
 #include <tobas_gazebo_conversions/gazebo_kdl.hpp>
 #include <tobas_gazebo_tools/utils.hpp>
+#include <tobas_geographic/geography.hpp>
 #include <tobas_math/core.hpp>
 #include <tobas_ros2_tools/time.hpp>
-#include <tobas_std_tools/gnss.hpp>
 
 #include <tobas_msgs_adapter/gnss.hpp>
 
@@ -44,6 +44,8 @@ public:
   void PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager& ecm) override;
 
 private:
+  geo::Geography geography_;
+
   // SDF parameters
   std::string link_name_;
   int update_rate_;            // Update rate [Hz]
@@ -54,9 +56,11 @@ private:
   double ver_pos_accuracy_;    // Vertical position accuracy, expected error value [m]
   double hor_vel_stddev_;      // Standard deviation of horizontal velocity noise [m/s]
   double ver_vel_stddev_;      // Standard deviation of vertical velocity noise [m/s]
-  double lat_0_;               // Latitude north of the origin [deg]
-  double lon_0_;               // Longitude east of the origin [deg]
-  double alt_0_;               // Altitude of the origin [m]
+  double geoid_undulation_;    // WGS 84 ellipsoid height minus MSL height [m]
+
+  double lat_0_;  // Latitude north of the origin [deg]
+  double lon_0_;  // Longitude east of the origin [deg]
+  double alt_0_;  // Altitude of the origin [m]
 
   RateManager::SharedPtr rate_manager_;
 
@@ -184,6 +188,8 @@ void GazeboGnssPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
   getSdfParam(sdf, "verPosAccuracy", ver_pos_accuracy_, kNonNegative);
   getSdfParam(sdf, "horVelStdDev", hor_vel_stddev_, kNonNegative);
   getSdfParam(sdf, "verVelStdDev", ver_vel_stddev_, kNonNegative);
+
+  getSdfParam(sdf, "geoidUndulation", geoid_undulation_, 0.0);
 }
 
 void GazeboGnssPlugin::setRandomDistribuitons()
@@ -228,8 +234,11 @@ void GazeboGnssPlugin::updatePosition(tobas_msgs::Gnss& gnss_msg, const gz::math
   W_Pos_WS += pos_bias_;
 
   // Fill the GNSS message.
-  std::tie(gnss_msg.latitude, gnss_msg.longitude) = st::cartToGnssRelative(W_Pos_WS.X(), W_Pos_WS.Y(), lat_0_, lon_0_);
-  gnss_msg.altitude = W_Pos_WS.Z();
+  const auto coord = geography_.planeToGeodetic(W_Pos_WS.X(), W_Pos_WS.Y(), lat_0_, lon_0_);
+  gnss_msg.latitude = coord.latitude;
+  gnss_msg.longitude = coord.longitude;
+  gnss_msg.height_msl = W_Pos_WS.Z();
+  gnss_msg.height_wgs84 = gnss_msg.height_msl + geoid_undulation_;
 }
 
 void GazeboGnssPlugin::updateVelocity(

@@ -13,7 +13,7 @@
 	<depend>std_srvs</depend>
 	<depend>sensor_msgs</depend>
 	<depend>tobas_dsp</depend>
-	<depend>tobas_geomag</depend>
+	<depend>tobas_geographic</depend>
 	<depend>tobas_nlp</depend>
 	<depend>tobas_node</depend>
 	<depend>tobas_tools</depend>

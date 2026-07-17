@@ -4,7 +4,7 @@
 #include "tobas_sensor_calibration/mag_calibration/large_vehicle/thread.hpp"
 
 #include <tobas_constants/ros_interface.hpp>
-#include <tobas_geomag/core.hpp>
+#include <tobas_geographic/geography.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_real_common/handler.hpp>
 #include <tobas_time_tools/util.hpp>
@@ -47,8 +47,8 @@ void LargeVehicleMagCalibThread::run()
 
   // Calculate the geomagnetic reference value at the current position.
   const auto mag =
-    geomag::elementsFromGeodetic(gnss_->latitude, gnss_->longitude, gnss_->altitude, tim::yearFraction());
-  const kdl::Vector mag_ref(mag.north, -mag.east, -mag.down);  // Compass XYZ corresponds to NWU.
+    geography_.magneticField(gnss_->latitude, gnss_->longitude, gnss_->height_wgs84, tim::yearFraction());
+  const kdl::Vector mag_ref(mag.north, -mag.east, mag.up);  // Compass XYZ corresponds to NWU.
 
   // Initialize.
   cnt_ = 0;

@@ -9,12 +9,11 @@
 #include <tobas_constants/imu.hpp>
 #include <tobas_constants/node.hpp>
 #include <tobas_constants/time.hpp>
-#include <tobas_geomag/core.hpp>
+#include <tobas_geographic/geography.hpp>
 #include <tobas_kdl_conversions/kdl_msg.hpp>
 #include <tobas_math/core.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_ros2_tools/time.hpp>
-#include <tobas_std_tools/gnss.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_time_tools/util.hpp>
 
@@ -63,6 +62,7 @@ public:
   explicit ErrorStateKalmanFilterNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
+  geo::Geography geography_;
   eskf::ErrorStateKalmanFilter eskf_;
 
   Vector3d pos_meas_;
@@ -875,16 +875,15 @@ void ErrorStateKalmanFilterNode::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& 
     // TODO: Convert to the body frame.
     gnss_origin_.latitude = msg->latitude;
     gnss_origin_.longitude = msg->longitude;
-    gnss_origin_.altitude = msg->altitude;
+    gnss_origin_.altitude = msg->height_msl;
 
     // Publish the initial GNSS position.
     publishGnssOrigin(gnss_origin_.latitude, gnss_origin_.longitude, gnss_origin_.altitude);
 
     // Compute the geomagnetic reference value from the initial GNSS value.
     // TODO: Compute the reference value online according to position changes.
-    const auto mag = geomag::elementsFromGeodetic(
-      gnss_origin_.latitude, gnss_origin_.longitude, gnss_origin_.altitude, tim::yearFraction());
-    const Vector3d mag_W(mag.east, mag.north, -mag.down);  // ENU coordinates
+    const auto mag = geography_.magneticField(msg->latitude, msg->longitude, msg->height_wgs84, tim::yearFraction());
+    const Vector3d mag_W(mag.east, mag.north, mag.up);  // ENU coordinates
     setMagneticFieldRef(mag_W);
 
     // Initialize with the position and velocity from the first received GNSS data.
@@ -896,9 +895,11 @@ void ErrorStateKalmanFilterNode::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& 
   gnss_ = msg;
 
   // Position observation.
-  std::tie(pos_meas_.x(), pos_meas_.y()) =
-    st::gnssToCartRelative(msg->latitude, msg->longitude, gnss_origin_.latitude, gnss_origin_.longitude);
-  pos_meas_.z() = msg->altitude - gnss_origin_.altitude;
+  const auto pos =
+    geography_.geodeticToPlane(msg->latitude, msg->longitude, gnss_origin_.latitude, gnss_origin_.longitude);
+  pos_meas_.x() = pos.east;
+  pos_meas_.y() = pos.north;
+  pos_meas_.z() = msg->height_msl - gnss_origin_.altitude;
 
   // Covariance.
   gnss_cov_.topLeftCorner<3, 3>() = pos_cov;
