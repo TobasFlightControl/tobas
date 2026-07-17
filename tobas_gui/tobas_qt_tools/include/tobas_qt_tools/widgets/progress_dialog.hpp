@@ -13,6 +13,7 @@ namespace qt
 /**
  * ===== Differences from `QProgressDialog` =====
  * - Prevent the user from interacting with other UI elements
+ * - Hide the title bar buttons
  * - Set title
  * - Set to the minimum value by default
  * - Show a spinner to the right of the label text
@@ -24,9 +25,6 @@ class ProgressDialog : public QProgressDialog
 
   using self = ProgressDialog;
   using super = QProgressDialog;
-
-  static constexpr int kSpinnerFrameSize = 4;
-  static constexpr char kSpinnerFrames[] = "|/-\\";
 
 public:
   explicit ProgressDialog(const QString& title = "", int num_steps = 1, QWidget* parent = nullptr);

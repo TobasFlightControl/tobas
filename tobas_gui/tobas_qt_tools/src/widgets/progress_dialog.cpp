@@ -21,7 +21,8 @@ ProgressDialog::ProgressDialog(const QString& title, int num_steps, QWidget* par
 {
   assert(num_steps > 0);
 
-  setWindowModality(Qt::WindowModal);  // Prevent the user from interacting with other UI elements
+  setWindowModality(Qt::WindowModal);  // Prevent the user from interacting with other UI elements.
+  setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);  // Hide the title bar buttons.
   setWindowTitle(title);
   setStep(step_);
 
@@ -64,7 +65,8 @@ void ProgressDialog::onTimerTimeout()
   }
 
   // Determine spinner text.
-  spinner_step_ = (spinner_step_ + 1) % kSpinnerFrameSize;
+  constexpr std::array kSpinnerFrames = { '|', '/', '-', '\\' };
+  spinner_step_ = (spinner_step_ + 1) % kSpinnerFrames.size();
   const auto spinner = kSpinnerFrames[spinner_step_];
 
   // Display only the spinner part in monospace.
