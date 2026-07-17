@@ -7,6 +7,7 @@
 	<license>GPL-3.0-or-later</license>
 
 	<buildtool_depend>ament_cmake</buildtool_depend>
+	<buildtool_depend>pkg-config</buildtool_depend>
 
 	<depend>libssh-dev</depend>
 	<depend>tobas_string_tools</depend>

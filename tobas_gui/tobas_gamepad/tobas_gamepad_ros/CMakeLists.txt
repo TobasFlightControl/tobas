@@ -11,33 +11,25 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Wswitch-enum -Werror")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-find_package(ament_cmake REQUIRED)
-find_package(PkgConfig REQUIRED)
-
-pkg_check_modules(LIBEVDEV REQUIRED libevdev)
-
 set(AMENT_DEPENDENCIES tobas_node tobas_constants tobas_gamepad_core tobas_msgs_adapter)
+
+find_package(ament_cmake REQUIRED)
 
 foreach(dependency IN ITEMS ${AMENT_DEPENDENCIES})
   find_package(${dependency} REQUIRED)
 endforeach()
 
-add_library(${PROJECT_NAME}_node SHARED nodes/rc_input_publisher.cpp)
-
-target_include_directories(${PROJECT_NAME}_node PRIVATE ${LIBEVDEV_INCLUDE_DIRS})
-ament_target_dependencies(${PROJECT_NAME}_node ${AMENT_DEPENDENCIES})
-
-target_link_options(${PROJECT_NAME}_node PRIVATE -Wl,--no-undefined)
-
-rclcpp_components_register_node(
-  ${PROJECT_NAME}_node PLUGIN "tobas::gamepad::RcInputPublisher" EXECUTABLE rc_input_publisher
-)
+add_library(${PROJECT_NAME} SHARED nodes/rc_input_publisher.cpp)
+target_include_directories(${PROJECT_NAME} PRIVATE ${LIBEVDEV_INCLUDE_DIRS})
+ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
+target_link_options(${PROJECT_NAME} PRIVATE -Wl,--no-undefined)
+rclcpp_components_register_node(${PROJECT_NAME} PLUGIN "tobas::gamepad::RcInputPublisher" EXECUTABLE rc_input_publisher)
 
 install(
-  TARGETS ${PROJECT_NAME}_node rc_input_publisher
+  TARGETS ${PROJECT_NAME} rc_input_publisher
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
-  RUNTIME DESTINATION lib/${PROJECT_NAME}
+  RUNTIME DESTINATION bin
 )
 
 ament_package()
