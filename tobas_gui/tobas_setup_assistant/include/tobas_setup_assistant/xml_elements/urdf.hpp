@@ -71,7 +71,8 @@ void addGnssPlugin(
   double hor_pos_accuracy,
   double ver_pos_accuracy,
   double hor_vel_stddev,
-  double ver_vel_stddev);
+  double ver_vel_stddev,
+  double geoid_undulation);
 
 void addElectricPropulsionSystemPlugin(
   tinyxml2::XMLElement* robot,

@@ -1097,7 +1097,7 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
     ns,
     root_name,
     kImuSamplingRate,
-    Eigen::Vector3d::Zero(),  // TODO
+    Eigen::Vector3d::Zero(),  // TODO: Offset
     fmu->gyroNoiseDensity(),
     fmu->gyroRandomWalk(),
     fmu->gyroBiasCorrTime(),
@@ -1112,7 +1112,7 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
     ns,
     root_name,
     fmu->magUpdateRate(),
-    Eigen::Vector3d::Zero(),  // TODO
+    Eigen::Vector3d::Zero(),  // TODO: Offset
     fmu->magNoiseStddev(),
     fmu->magHardBiasNorm());
 
@@ -1122,7 +1122,7 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
     ns,
     root_name,
     fmu->presUpdateRate(),
-    Eigen::Vector3d::Zero(),  // TODO
+    Eigen::Vector3d::Zero(),  // TODO: Offset
     fmu->presNoiseStddev());
 
   // GNSS plugin
@@ -1131,13 +1131,15 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
     ns,
     root_name,
     fmu->gnssUpdateRate(),
-    Eigen::Vector3d::Zero(),  // TODO
+    Eigen::Vector3d::Zero(),  // TODO: Offset
     0.1,                      // The time for radio waves from GNSS satellites to reach the ground is roughly fixed.
     30.0,                     // TODO: What is the actual GNSS position correlation time constant?
     fmu->gnssHorizontalPositionAccuracy(),
     fmu->gnssVerticalPositionAccuracy(),
     fmu->gnssHorizontalVelocityStddev(),
-    fmu->gnssVerticalVelocityStddev());
+    fmu->gnssVerticalVelocityStddev(),
+    0.0  // TODO: Geoid Undulation
+  );
 
   // Propulsion system plugins
   switch (drone.prop->type()) {

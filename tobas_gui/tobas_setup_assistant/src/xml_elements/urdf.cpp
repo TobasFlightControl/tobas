@@ -182,7 +182,8 @@ void addGnssPlugin(
   double hor_pos_accuracy,
   double ver_pos_accuracy,
   double ver_vel_stddev,
-  double hor_vel_stddev)
+  double hor_vel_stddev,
+  double geoid_undulation)
 {
   const auto plugin = addGazeboPlugin(robot, "tobas_gazebo_gnss_plugin", "tobas::gazebo::GazeboGnssPlugin");
   plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
@@ -195,6 +196,7 @@ void addGnssPlugin(
   plugin->InsertNewChildElement("verPosAccuracy")->SetText(toString(ver_pos_accuracy).c_str());
   plugin->InsertNewChildElement("horVelStdDev")->SetText(toString(hor_vel_stddev).c_str());
   plugin->InsertNewChildElement("verVelStdDev")->SetText(toString(ver_vel_stddev).c_str());
+  plugin->InsertNewChildElement("geoidUndulation")->SetText(toString(geoid_undulation).c_str());
 }
 
 void addElectricPropulsionSystemPlugin(
