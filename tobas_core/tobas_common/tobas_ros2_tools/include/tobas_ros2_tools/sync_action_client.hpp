@@ -18,7 +18,7 @@ namespace ros2
 {
 /**
  * @brief Synchronous action client.
- * @note This blocks, so do not use it in nodes where real-time behavior is important.
+ * @note Action calls block the calling thread. Do not use this client where real-time behavior is required.
  */
 template <typename ActType>
 class SyncActionClient
