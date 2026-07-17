@@ -4,6 +4,7 @@
 #include "tobas_bootmedia_config/wifi_client/wifi_client.hpp"
 
 #include <QDebug>
+#include <QEvent>
 
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
@@ -19,6 +20,14 @@ namespace gui
 {
 namespace bm
 {
+namespace
+{
+std::string configPath()
+{
+  return std::string(kRootPath) + "/etc/wpa_supplicant/wpa_supplicant-nl80211-wlan0.conf";
+}
+}  // namespace
+
 WifiClientWidget::WifiClientWidget()
 {
   add_button_ = new QPushButton("Add");
@@ -51,6 +60,7 @@ WifiClientWidget::WifiClientWidget()
   connect(add_button_, &QPushButton::clicked, this, &self::onAddButtonClicked);
   connect(remove_button_, &QPushButton::clicked, this, &self::onRemoveButtonClicked);
   connect(clear_button_, &QPushButton::clicked, this, &self::onClearButtonClicked);
+  connect(table_, &QTableWidget::itemSelectionChanged, this, &self::updateTableEmbeddedWidgetStyles);
 }
 
 const char* WifiClientWidget::title() const
@@ -101,6 +111,16 @@ bool WifiClientWidget::onConnected()
   return true;
 }
 
+void WifiClientWidget::changeEvent(QEvent* event)
+{
+  super::changeEvent(event);
+
+  // Apply the enabled-state palette to each cell.
+  if (event->type() == QEvent::EnabledChange && isEnabled()) {
+    updateTableEmbeddedWidgetStyles();
+  }
+}
+
 QString WifiClientWidget::getKeyMgmt(int row) const
 {
   return table_->item(row, kKeyMgmtCol)->text();
@@ -139,6 +159,7 @@ void WifiClientWidget::addRow(const QString& key_mgmt, const QString& ssid, cons
   const auto psk_edit = new qt::PasswordEdit();
   psk_edit->setText(psk);
   psk_edit->setReadOnly(true);
+  psk_edit->setFrame(false);  // Blend in with surrounding cells.
   table_->setCellWidget(row, kPskCol, psk_edit);
 
   const auto priority_it = new QTableWidgetItem();
@@ -149,6 +170,27 @@ void WifiClientWidget::addRow(const QString& key_mgmt, const QString& ssid, cons
   hidden_it->setData(Qt::UserRole, hidden);
   hidden_it->setData(Qt::DisplayRole, hidden ? "Yes" : "No");
   table_->setItem(row, kHiddenCol, hidden_it);
+
+  if (isEnabled()) {
+    updateTableEmbeddedWidgetStyles();
+  }
+}
+
+void WifiClientWidget::updateTableEmbeddedWidgetStyles()
+{
+  const auto table_palette = table_->palette();
+
+  for (int row = 0; row < table_->rowCount(); ++row) {
+    const auto selected = table_->item(row, kSsidCol)->isSelected();
+    const auto background = table_palette.color(selected ? QPalette::Highlight : QPalette::Base);
+    const auto foreground = table_palette.color(selected ? QPalette::HighlightedText : QPalette::Text);
+
+    const auto qss =
+      QString("border: none; background-color: %1; color: %2; selection-background-color: %1; selection-color: %2;")
+        .arg(background.name(), foreground.name());
+
+    table_->cellWidget(row, kPskCol)->setStyleSheet(qss);
+  }
 }
 
 bool WifiClientWidget::writeCurrentConfig()
@@ -182,11 +224,6 @@ bool WifiClientWidget::writeCurrentConfig()
 
   qt::qInfoBox(this, "Network configuration is updated successfully.");
   return true;
-}
-
-std::string WifiClientWidget::configPath()
-{
-  return std::string(kRootPath) + "/etc/wpa_supplicant/wpa_supplicant-nl80211-wlan0.conf";
 }
 
 void WifiClientWidget::onAddButtonClicked()

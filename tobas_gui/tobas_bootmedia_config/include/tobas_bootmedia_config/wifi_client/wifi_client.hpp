@@ -41,6 +41,9 @@ public:
 
   bool onConnected() override;
 
+protected:
+  void changeEvent(QEvent* event) override;
+
 private:
   wpa::Data wpa_data_;
   wpa::Parser wpa_parser_;
@@ -59,9 +62,12 @@ private:
   bool getHidden(int row) const;
 
   void addRow(const QString& key_mgmt, const QString& ssid, const QString& psk, int priority, bool hidden);
-  bool writeCurrentConfig();
 
-  static std::string configPath();
+  /* Match the styles of embedded widgets to the other cells. */
+  void updateTableEmbeddedWidgetStyles();
+
+  /* Write all current table contents to the configuration file on the boot device. */
+  bool writeCurrentConfig();
 
 private Q_SLOTS:
   void onAddButtonClicked();
