@@ -90,6 +90,89 @@ std::pair<std::string, std::string> MediaManagerWidget::getVendorAndModel(udev_d
   return { vendor, model };
 }
 
+void MediaManagerWidget::onConnectRequested()
+{
+  // Check administrator privileges.
+  if (!linux::isSuperUser()) {
+    qt::qErrorBox(this, "Permission denied. Run as root (or use sudo) to perform this operation.");
+    connect_btn_->setChecked(false);
+    return;
+  }
+
+  // Create the mount directory.
+  if (mkdir(kBootPath, kPermission) < 0 && errno != EEXIST) {
+    qt::qErrorBox(this, "Failed to create " + QString(kBootPath) + ".");
+    connect_btn_->setChecked(false);
+    return;
+  }
+  if (mkdir(kRootPath, kPermission) < 0 && errno != EEXIST) {
+    qt::qErrorBox(this, "Failed to create " + QString(kRootPath) + ".");
+    connect_btn_->setChecked(false);
+    return;
+  }
+
+  // Get the device path.
+  const auto& media = currentBootMedia();
+  const auto sdx1 = media.devnode + '1';
+  const auto sdx2 = media.devnode + '2';
+
+  // Unmount it first if it was automatically mounted.
+  cmd_exec_.execute("udisksctl unmount -b " + sdx1.toStdString() + " || true");
+  cmd_exec_.execute("udisksctl unmount -b " + sdx2.toStdString() + " || true");
+
+  // Mount the external storage.
+  if (mount(sdx1.toUtf8().constData(), kBootPath, "vfat", MS_NOATIME, nullptr) < 0) {
+    qt::qErrorBox(this, "Failed to mount " + sdx1 + " on " + kBootPath + ": " + linux::strError().c_str());
+    connect_btn_->setChecked(false);
+    return;
+  }
+  if (mount(sdx2.toUtf8().constData(), kRootPath, "ext4", MS_NOATIME, nullptr) < 0) {
+    qt::qErrorBox(this, "Failed to mount " + sdx2 + " on " + kRootPath + ": " + linux::strError().c_str());
+    connect_btn_->setChecked(false);
+    return;
+  }
+
+  // TODO: Confirm that this is TobasOS, including a version check.
+
+  // Prevent changing the media name while mounted.
+  media_name_->setEnabled(false);
+
+  Q_EMIT connected(media);
+
+  qt::qInfoBox(this, "The boot device was connected successfully.");
+}
+
+void MediaManagerWidget::onDisconnectRequested()
+{
+  // Flush the kernel write cache to storage.
+  sync();
+
+  // Unmount the external storage.
+  if (umount2(kBootPath, 0) < 0) {
+    qt::qErrorBox(this, "Failed to unmount " + QString(kBootPath) + ": " + linux::strError().c_str());
+    connect_btn_->setChecked(true);
+    return;
+  }
+  if (umount2(kRootPath, 0) < 0) {
+    qt::qErrorBox(this, "Failed to unmount " + QString(kRootPath) + ": " + linux::strError().c_str());
+    connect_btn_->setChecked(true);
+    return;
+  }
+
+  // Safely remove the entire device.
+  const auto& media = currentBootMedia();
+  if (!cmd_exec_.execute("udisksctl power-off -b " + media.devnode.toStdString())) {
+    qWarning().noquote().nospace() << "Failed to eject " << media.devnode << ": " << cmd_exec_.getOutput().c_str();
+  }
+
+  // Allow selecting the media name again.
+  media_name_->setEnabled(true);
+
+  Q_EMIT disconnected();
+
+  qt::qInfoBox(this, "The boot device was disconnected successfully.");
+}
+
 void MediaManagerWidget::onScanTimerTimeout()
 {
   const auto udev_ctx = udev_new();
@@ -186,89 +269,6 @@ void MediaManagerWidget::onScanTimerTimeout()
   if (!isConnected()) {
     connect_btn_->setEnabled(!medias_.empty());
   }
-}
-
-void MediaManagerWidget::onConnectRequested()
-{
-  // Check administrator privileges.
-  if (!linux::isSuperUser()) {
-    qt::qErrorBox(this, "Permission denied. Run as root (or use sudo) to perform this operation.");
-    connect_btn_->setChecked(false);
-    return;
-  }
-
-  // Create the mount directory.
-  if (mkdir(kBootPath, kPermission) < 0 && errno != EEXIST) {
-    qt::qErrorBox(this, "Failed to create " + QString(kBootPath) + ".");
-    connect_btn_->setChecked(false);
-    return;
-  }
-  if (mkdir(kRootPath, kPermission) < 0 && errno != EEXIST) {
-    qt::qErrorBox(this, "Failed to create " + QString(kRootPath) + ".");
-    connect_btn_->setChecked(false);
-    return;
-  }
-
-  // Get the device path.
-  const auto& media = currentBootMedia();
-  const auto sdx1 = media.devnode + '1';
-  const auto sdx2 = media.devnode + '2';
-
-  // Unmount it first if it was automatically mounted.
-  cmd_exec_.execute("udisksctl unmount -b " + sdx1.toStdString() + " || true");
-  cmd_exec_.execute("udisksctl unmount -b " + sdx2.toStdString() + " || true");
-
-  // Mount the external storage.
-  if (mount(sdx1.toUtf8().constData(), kBootPath, "vfat", MS_NOATIME, nullptr) < 0) {
-    qt::qErrorBox(this, "Failed to mount " + sdx1 + " on " + kBootPath + ": " + linux::strError().c_str());
-    connect_btn_->setChecked(false);
-    return;
-  }
-  if (mount(sdx2.toUtf8().constData(), kRootPath, "ext4", MS_NOATIME, nullptr) < 0) {
-    qt::qErrorBox(this, "Failed to mount " + sdx2 + " on " + kRootPath + ": " + linux::strError().c_str());
-    connect_btn_->setChecked(false);
-    return;
-  }
-
-  // TODO: Confirm that this is TobasOS, including a version check.
-
-  // Prevent changing the media name while mounted.
-  media_name_->setEnabled(false);
-
-  Q_EMIT connected(media);
-
-  qt::qInfoBox(this, "The boot device was connected successfully.");
-}
-
-void MediaManagerWidget::onDisconnectRequested()
-{
-  // Flush the kernel write cache to storage.
-  sync();
-
-  // Unmount the external storage.
-  if (umount2(kBootPath, 0) < 0) {
-    qt::qErrorBox(this, "Failed to unmount " + QString(kBootPath) + ": " + linux::strError().c_str());
-    connect_btn_->setChecked(true);
-    return;
-  }
-  if (umount2(kRootPath, 0) < 0) {
-    qt::qErrorBox(this, "Failed to unmount " + QString(kRootPath) + ": " + linux::strError().c_str());
-    connect_btn_->setChecked(true);
-    return;
-  }
-
-  // Safely remove the entire device.
-  const auto& media = currentBootMedia();
-  if (!cmd_exec_.execute("udisksctl power-off -b " + media.devnode.toStdString())) {
-    qWarning().noquote().nospace() << "Failed to eject " << media.devnode << ": " << cmd_exec_.getOutput().c_str();
-  }
-
-  // Allow selecting the media name again.
-  media_name_->setEnabled(true);
-
-  Q_EMIT disconnected();
-
-  qt::qInfoBox(this, "The boot device was disconnected successfully.");
 }
 }  // namespace bm
 }  // namespace gui
