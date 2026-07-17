@@ -6,6 +6,8 @@ This package delegates geographic coordinate conversions and geomagnetic field c
 The bundled WMM2025 data files were generated and distributed by the GeographicLib project
 from the NOAA World Magnetic Model 2025 coefficients.
 WMM2025 is valid from 2025 through 2030.
+Evaluating the magnetic field after the model's `MaxTime` emits one warning per `Geography` instance,
+while the calculation continues with the expired model.
 
 ## Magnetic model data
 

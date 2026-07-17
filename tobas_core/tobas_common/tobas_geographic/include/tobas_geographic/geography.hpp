@@ -33,8 +33,7 @@ struct MagneticField
 class Geography final
 {
 public:
-  /** @brief Load the projection and WMM2025 models. */
-  explicit Geography();
+  explicit Geography(const std::string& name = "wmm2025");
 
   Geography(const Geography&) = delete;
   Geography& operator=(const Geography&) = delete;
@@ -76,6 +75,8 @@ private:
   double total_;         // Total magnetic intensity [nT]
   double declination_;   // Magnetic declination [deg]
   double inclination_;   // Magnetic inclination [deg]
+
+  bool model_expiration_warned_ = false;  // Whether the expiration warning has been emitted
 };
 }  // namespace geo
 }  // namespace tobas

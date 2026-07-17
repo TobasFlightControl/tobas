@@ -5,6 +5,8 @@
 
 #include <ament_index_cpp/get_package_share_directory.hpp>
 
+#include <tobas_std_tools/console.hpp>
+
 namespace tobas
 {
 namespace geo
@@ -17,9 +19,9 @@ constexpr double kCentralScale = 0.9999;                  // [-]
 constexpr double kNanoTeslaToGauss = 1e-5;
 }  // namespace
 
-Geography::Geography()
+Geography::Geography(const std::string& name)
   : plane_projection_(kGrs80SemiMajorAxis, kGrs80Flattening, kCentralScale)
-  , magnetic_model_("wmm2025", ament_index_cpp::get_package_share_directory("tobas_geographic") + "/data/magnetic")
+  , magnetic_model_(name, ament_index_cpp::get_package_share_directory("tobas_geographic") + "/data/magnetic")
 {
 }
 
@@ -41,6 +43,14 @@ Geography::planeToGeodetic(double east, double north, double origin_latitude, do
 
 MagneticField Geography::magneticField(double latitude, double longitude, double height_wgs84, double decimal_year)
 {
+  if (decimal_year > magnetic_model_.MaxTime() && !model_expiration_warned_) {
+    PRINT_WARN(
+      "Magnetic model \"" << magnetic_model_.MagneticModelName() << "\" expired at decimal year "
+                          << magnetic_model_.MaxTime() << "; requested year is " << decimal_year
+                          << ". Update the bundled magnetic model data.");
+    model_expiration_warned_ = true;
+  }
+
   magnetic_model_(decimal_year, latitude, longitude, height_wgs84, east_, north_, up_);
   GeographicLib::MagneticModel::FieldComponents(east_, north_, up_, horizontal_, total_, declination_, inclination_);
   return { east_ * kNanoTeslaToGauss, north_ * kNanoTeslaToGauss, up_ * kNanoTeslaToGauss, total_ * kNanoTeslaToGauss };
