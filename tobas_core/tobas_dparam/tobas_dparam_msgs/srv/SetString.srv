@@ -6,3 +6,4 @@ string param_name
 string value
 ---
 bool success
+string message

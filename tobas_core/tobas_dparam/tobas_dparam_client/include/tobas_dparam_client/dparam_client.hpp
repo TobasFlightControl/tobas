@@ -47,6 +47,7 @@ private:
   ros2::SyncServiceClient<tobas_dparam_msgs::srv::SetString> string_sc_;
 
   Error error_code_ = kNoError;
+  std::string server_error_msg_;
 
   template <typename SrvType, typename T>
   Error setParam(ros2::SyncServiceClient<SrvType>& sc, const std::string& param_name, T& value);
@@ -67,6 +68,7 @@ DynamicParamClient::setParam(ros2::SyncServiceClient<SrvType>& sc, const std::st
   }
 
   if (!res->success) {
+    server_error_msg_ = res->message;
     return error_code_ = kServerError;
   }
 

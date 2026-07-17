@@ -294,8 +294,8 @@ void RotorTestWidget::onTargetRPMChanged(int, size_t)
 void RotorTestWidget::onGainChanged(int gain, size_t ch)
 {
   if (dparam_cli_->setInt(paramName(ch), gain) != dparam::DynamicParamClient::kNoError) {
-    qt::qErrorBox(
-      this, "Failed to set the RPM control gain or channel " + QString::number(ch) + ": " + dparam_cli_->errorMessage());
+    qWarning() << dparam_cli_->errorMessage();
+    qt::qErrorBox(this, "Failed to set the RPM control gain of channel " + QString::number(ch) + ".");
   }
 }
 

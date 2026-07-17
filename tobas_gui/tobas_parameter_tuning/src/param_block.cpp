@@ -182,6 +182,7 @@ bool ParamBlockWidget::setToDefaults()
     }
 
     if (dparam_cli_->setInt(name, config.dflt) != dparam::DynamicParamClient::kNoError) {
+      qWarning() << dparam_cli_->errorMessage();
       qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter \"" + name.c_str() + "\".");
       return false;
     }
@@ -197,6 +198,7 @@ bool ParamBlockWidget::setToDefaults()
     }
 
     if (dparam_cli_->setDouble(name, config.dflt) != dparam::DynamicParamClient::kNoError) {
+      qWarning() << dparam_cli_->errorMessage();
       qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter \"" + name.c_str() + "\".");
       return false;
     }

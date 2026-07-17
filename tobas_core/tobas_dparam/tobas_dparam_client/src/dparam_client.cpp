@@ -48,13 +48,13 @@ const char* DynamicParamClient::errorMessage() const
 {
   switch (error_code_) {
     case kNoError:
-      return "";
+      return "No error.";
     case kServiceNotReady:
       return "Dynamic parameter server is not ready.";
     case kServerError:
-      return "Dynamic parameter service finished with error.";  // TODO: Get a specific error message from the server.
+      return server_error_msg_.c_str();
     default:
-      throw;
+      return "Unexpected error.";
   }
 }
 }  // namespace dparam

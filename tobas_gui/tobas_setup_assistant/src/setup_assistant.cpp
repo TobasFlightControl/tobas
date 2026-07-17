@@ -164,8 +164,9 @@ bool SetupAssistantWidget::updateInternalDataStructures()
   // Update RSP parameter.
   const auto urdf_doc = urdf::exportUrdf(*uadf_.urdf);
   const auto urdf_text = xml::xmlDocumentToString(urdf_doc);
-  if (!rsp_client_.setParam("robot_description", urdf_text)) {
-    qt::qErrorBox(this, "Failed to update robot state publisher.");
+  if (rsp_client_.setParam("robot_description", urdf_text) != ros2::SyncParamClient::kNoError) {
+    qWarning() << rsp_client_.errorMessage();
+    qt::qErrorBox(this, "Failed to update the robot state publisher.");
     return false;
   }
 
