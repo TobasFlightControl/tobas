@@ -44,7 +44,7 @@ public:
   enum Error
   {
     kNoError = 0,
-    kServiceNotReady = -1,
+    kServerNotReady = -1,
     kServerError = -2,
   };
 

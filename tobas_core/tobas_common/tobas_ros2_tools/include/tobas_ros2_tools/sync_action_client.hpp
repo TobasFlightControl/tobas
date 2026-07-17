@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <optional>
+
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp_action/rclcpp_action.hpp>
 
@@ -23,8 +25,6 @@ namespace ros2
 template <typename ActType>
 class SyncActionClient
 {
-  static constexpr auto kWaitForServer = std::chrono::seconds(1);
-
   using Client = rclcpp_action::Client<ActType>;
   using GoalHandle = rclcpp_action::ClientGoalHandle<ActType>;
   using GoalHandlePtr = typename GoalHandle::SharedPtr;
@@ -52,7 +52,7 @@ public:
   std::pair<GoalHandlePtr, std::shared_future<typename GoalHandle::WrappedResult>>
   sendGoal(const typename ActType::Goal& goal, FeedbackCb feedback_cb = nullptr)
   {
-    if (!client_->wait_for_action_server(kWaitForServer)) {
+    if (!client_->action_server_is_ready()) {
       RCLCPP_ERROR_STREAM(node_->get_logger(), "\"" << action_name_ << "\" action server is not ready.");
       return {};
     }
@@ -80,15 +80,16 @@ public:
    *
    * @note Calling this from a callback that runs on the same thread as the ROS node causes a deadlock.
    */
-  bool sendGoalAndWait(
+  template <typename RepT = int64_t, typename RatioT = std::milli>
+  std::optional<typename GoalHandle::WrappedResult> sendGoalAndWait(
     const typename ActType::Goal& goal,
     FeedbackCb feedback_cb = nullptr,
-    std::chrono::milliseconds get_result_timeout = std::chrono::milliseconds(-1),
-    std::chrono::milliseconds cancel_goal_timeout = std::chrono::milliseconds(-1))
+    std::chrono::duration<RepT, RatioT> get_result_timeout = std::chrono::duration<RepT, RatioT>(-1),
+    std::chrono::duration<RepT, RatioT> cancel_goal_timeout = std::chrono::duration<RepT, RatioT>(-1))
   {
     const auto [goal_handle, get_result_future] = sendGoal(goal, feedback_cb);
     if (!get_result_future.valid()) {
-      return false;
+      return std::nullopt;
     }
 
     if (waitForFuture(get_result_future, get_result_timeout) != std::future_status::ready) {
@@ -96,15 +97,13 @@ public:
         node_->get_logger(), "Timeout before getting \"" << action_name_ << "\" action result. Cancelling goal...");
 
       if (!cancelGoalAndWait(goal_handle, cancel_goal_timeout)) {
-        return false;
+        return std::nullopt;
       }
 
-      return false;
+      return std::nullopt;
     }
 
-    result_ = get_result_future.get();
-
-    return true;
+    return get_result_future.get();
   }
 
   std::shared_future<std::shared_ptr<action_msgs::srv::CancelGoal_Response>> cancelGoal(GoalHandlePtr goal_handle)
@@ -112,7 +111,10 @@ public:
     return client_->async_cancel_goal(goal_handle);
   }
 
-  bool cancelGoalAndWait(GoalHandlePtr goal_handle, std::chrono::milliseconds timeout = std::chrono::milliseconds(-1))
+  template <typename RepT = int64_t, typename RatioT = std::milli>
+  bool cancelGoalAndWait(
+    GoalHandlePtr goal_handle,
+    std::chrono::duration<RepT, RatioT> timeout = std::chrono::duration<RepT, RatioT>(-1))
   {
     const auto cancel_goal_future = client_->async_cancel_goal(goal_handle);
     if (waitForFuture(cancel_goal_future, timeout) != std::future_status::ready) {
@@ -122,16 +124,16 @@ public:
     return true;
   }
 
-  inline const typename GoalHandle::WrappedResult& getResult() const
+  template <typename RepT = int64_t, typename RatioT = std::milli>
+  bool waitForServer(std::chrono::duration<RepT, RatioT> timeout = std::chrono::duration<RepT, RatioT>(-1))
   {
-    return result_;
+    return client_->wait_for_action_server(timeout);
   }
 
 private:
   const rclcpp::Node::SharedPtr node_;
-  std::string action_name_;
+  const std::string action_name_;
   typename Client::SharedPtr client_;
-  typename GoalHandle::WrappedResult result_;
 };
 }  // namespace ros2
 }  // namespace tobas

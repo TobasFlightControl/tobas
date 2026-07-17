@@ -25,6 +25,7 @@ bool takeoff(rclcpp::Node::SharedPtr node)
 {
   // Create action client.
   tobas::ros2::SyncActionClient<tobas_mission_msgs::action::ExecuteMission> client(node, tobas::action::kExecuteMission);
+  client.waitForServer();
 
   // Create goal.
   tobas::mission::Takeoff takeoff;
@@ -42,13 +43,14 @@ bool takeoff(rclcpp::Node::SharedPtr node)
   goal.mission.items.push_back(mission_item);
 
   // Execute action.
-  if (!client.sendGoalAndWait(goal)) {
+  const auto res = client.sendGoalAndWait(goal);
+  if (!res) {
     RCLCPP_ERROR(node->get_logger(), "Failed to call takeoff action.");
     return false;
   }
 
   // Check action result.
-  const auto result = client.getResult();
+  const auto result = res.value();
   if (result.code != rclcpp_action::ResultCode::SUCCEEDED) {
     RCLCPP_ERROR_STREAM(node->get_logger(), "Takeoff action failed: " << result.result->error_message);
     return false;

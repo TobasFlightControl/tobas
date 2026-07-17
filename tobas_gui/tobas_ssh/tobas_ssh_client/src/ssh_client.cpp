@@ -36,8 +36,8 @@ const char* SshClient::errorMessage() const
   switch (error_code_) {
     case kNoError:
       return "";
-    case kServiceNotReady:
-      return "Service server is not ready.";
+    case kServerNotReady:
+      return "The SSH server is not ready.";
     case kServerError:
       return server_error_msg_.c_str();
     default:
@@ -53,7 +53,7 @@ SshClient::Error SshClient::setEndpoint(const std::string& host, const std::stri
 
   const auto res = set_endpoint_sc_.sendRequestAndWait(req);
   if (!res) {
-    return error_code_ = kServiceNotReady;
+    return error_code_ = kServerNotReady;
   }
 
   return error_code_ = kNoError;
@@ -65,7 +65,7 @@ SshClient::Error SshClient::connect()
 
   const auto res = connect_sc_.sendRequestAndWait(req);
   if (!res) {
-    return error_code_ = kServiceNotReady;
+    return error_code_ = kServerNotReady;
   }
 
   if (!res->success) {
@@ -85,7 +85,7 @@ SshClient::Error SshClient::execute(const std::string& command, std::string& out
 
   const auto res = execute_sc_.sendRequestAndWait(req);
   if (!res) {
-    return error_code_ = kServiceNotReady;
+    return error_code_ = kServerNotReady;
   }
 
   if (!res->success) {
@@ -112,23 +112,23 @@ SshClient::Error SshClient::scpGet(
   goal.remote_path = remote_path;
   goal.local_path = local_path;
 
-  bool service_executed;
+  std::optional<rclcpp_action::ClientGoalHandle<ScpGet>::WrappedResult> result_opt;
   if (callback) {
     const auto feedback_cb =
       [callback](const rclcpp_action::ClientGoalHandle<ScpGet>::SharedPtr&, const ScpGet::Feedback::ConstSharedPtr& fb)
     { callback(fb->total_size, fb->transferred); };
-    service_executed = scp_get_ac_.sendGoalAndWait(goal, feedback_cb);
+    result_opt = scp_get_ac_.sendGoalAndWait(goal, feedback_cb);
   }
   else {
-    service_executed = scp_get_ac_.sendGoalAndWait(goal);
+    result_opt = scp_get_ac_.sendGoalAndWait(goal);
   }
-  if (!service_executed) {
-    return error_code_ = kServiceNotReady;
+  if (!result_opt) {
+    return error_code_ = kServerNotReady;
   }
 
-  const auto res = scp_get_ac_.getResult();
-  if (res.code != rclcpp_action::ResultCode::SUCCEEDED) {
-    server_error_msg_ = res.result->error_message;
+  const auto& result = result_opt.value();
+  if (result.code != rclcpp_action::ResultCode::SUCCEEDED) {
+    server_error_msg_ = result.result->error_message;
     return error_code_ = kServerError;
   }
 
@@ -150,23 +150,23 @@ SshClient::Error SshClient::scpPut(
   goal.exclude_dirs = exclude_dirs;
   goal.superuser = superuser;
 
-  bool service_executed;
+  std::optional<rclcpp_action::ClientGoalHandle<ScpPut>::WrappedResult> result_opt;
   if (callback) {
     const auto feedback_cb =
       [callback](const rclcpp_action::ClientGoalHandle<ScpPut>::SharedPtr&, const ScpPut::Feedback::ConstSharedPtr& fb)
     { callback(fb->total_size, fb->transferred); };
-    service_executed = scp_put_ac_.sendGoalAndWait(goal, feedback_cb);
+    result_opt = scp_put_ac_.sendGoalAndWait(goal, feedback_cb);
   }
   else {
-    service_executed = scp_put_ac_.sendGoalAndWait(goal);
+    result_opt = scp_put_ac_.sendGoalAndWait(goal);
   }
-  if (!service_executed) {
-    return error_code_ = kServiceNotReady;
+  if (!result_opt) {
+    return error_code_ = kServerNotReady;
   }
 
-  const auto res = scp_put_ac_.getResult();
-  if (res.code != rclcpp_action::ResultCode::SUCCEEDED) {
-    server_error_msg_ = res.result->error_message;
+  const auto& result = result_opt.value();
+  if (result.code != rclcpp_action::ResultCode::SUCCEEDED) {
+    server_error_msg_ = result.result->error_message;
     return error_code_ = kServerError;
   }
 
@@ -181,7 +181,7 @@ SshClient::Error SshClient::sftpRead(const std::string& remote_path, std::string
 
   const auto res = sftp_read_sc_.sendRequestAndWait(req);
   if (!res) {
-    return error_code_ = kServiceNotReady;
+    return error_code_ = kServerNotReady;
   }
 
   if (!res->success) {
@@ -202,7 +202,7 @@ SshClient::Error SshClient::sftpWrite(const std::string& remote_path, const std:
 
   const auto res = sftp_write_sc_.sendRequestAndWait(req);
   if (!res) {
-    return error_code_ = kServiceNotReady;
+    return error_code_ = kServerNotReady;
   }
 
   if (!res->success) {
@@ -220,7 +220,7 @@ SshClient::Error SshClient::list(const std::string& pardir, std::vector<std::str
 
   const auto res = list_sc_.sendRequestAndWait(req);
   if (!res) {
-    return error_code_ = kServiceNotReady;
+    return error_code_ = kServerNotReady;
   }
 
   if (!res->success) {
