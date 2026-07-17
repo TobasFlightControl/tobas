@@ -54,7 +54,7 @@ void BaseNode::initialize(const std::string& name, const sdf::ElementConstPtr& s
   const auto spin = [this]() { executor_->spin(); };
   spin_thread_ = std::thread(spin);
 
-  message_pub_ = createPublisher<tobas_msgs::msg::Message>(topic::kMessage);
+  message_pub_ = createPublisher<tobas_msgs::msg::Message>(topic::kMessage, false, true, 1);
 }
 
 const std::string& BaseNode::name() const
