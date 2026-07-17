@@ -3,9 +3,6 @@
 
 #include "tobas_qt_tools/widgets/progress_dialog.hpp"
 
-#include <QApplication>
-#include <QThread>
-
 #include <tobas_math/core.hpp>
 
 #include "tobas_qt_tools/event.hpp"
@@ -16,7 +13,7 @@ namespace tobas
 {
 namespace qt
 {
-ProgressDialog::ProgressDialog(const QString& title, int num_steps, QWidget* parent)
+ProgressDialog::ProgressDialog(const QString& title, const int num_steps, QWidget* parent)
   : super(parent), num_steps_(num_steps), timer_(this)
 {
   assert(num_steps > 0);
@@ -46,7 +43,7 @@ void ProgressDialog::setLabelText(const QString& text)
   text_ = text;
 }
 
-void ProgressDialog::setStep(int step)
+void ProgressDialog::setStep(const int step)
 {
   step_ = std::clamp(step, 0, num_steps_);
   const auto value = math::remap(step_, 0, num_steps_, minimum(), maximum());
@@ -66,7 +63,7 @@ void ProgressDialog::onTimerTimeout()
 
   // Determine spinner text.
   constexpr std::array kSpinnerFrames = { '|', '/', '-', '\\' };
-  spinner_step_ = (spinner_step_ + 1) % kSpinnerFrames.size();
+  ++spinner_step_ %= kSpinnerFrames.size();
   const auto spinner = kSpinnerFrames[spinner_step_];
 
   // Display only the spinner part in monospace.
