@@ -1,7 +1,5 @@
 [Unit]
 Description=Tobas Realtime Process
-After=tobas_iox_roudi.service
-After=tobas_network_wait_online.service
 PartOf=tobas_real.target
 
 [Service]
@@ -9,11 +7,13 @@ Type=simple
 EnvironmentFile=/etc/tobas/common.env
 EnvironmentFile=/etc/tobas/config/project.env
 Environment="ROS_AUTOMATIC_DISCOVERY_RANGE=LOCALHOST"
+Environment="CYCLONEDDS_URI=/etc/tobas/config/cyclonedds_realtime.xml"
 ExecStart=/bin/bash -c 'source /opt/ros/jazzy/setup.bash && source /opt/tobas/local_setup.bash && source /etc/tobas/colcon_ws/install/local_setup.bash && /opt/ros/jazzy/bin/ros2 launch ${TOBAS_CONFIG_PKG} real_realtime.launch.py'
 Restart=no
 CPUSchedulingPolicy=fifo
-CPUSchedulingPriority=3
-CPUAffinity=1 2 3
+CPUSchedulingPriority=20
+# Start the parent process on a single CPU to prevent memory contention between component managers.
+CPUAffinity=0
 
 [Install]
 WantedBy=multi-user.target
