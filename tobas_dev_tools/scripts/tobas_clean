@@ -6,6 +6,16 @@ if [ "$(id -un)" != "pi" ]; then
   exit 1
 fi
 
+# Confirm before deleting Tobas settings and data
+read -rp "This operation permanently deletes Tobas settings and data. Continue? [y/N] " response
+case "$response" in
+  [yY] | [yY][eE][sS]) ;;
+  *)
+    echo "Cleaning canceled."
+    exit 0
+    ;;
+esac
+
 # Clean apt cache
 sudo apt clean
 
