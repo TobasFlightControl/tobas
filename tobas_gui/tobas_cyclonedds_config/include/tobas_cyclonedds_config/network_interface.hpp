@@ -12,6 +12,7 @@ namespace cyclonedds
 struct NetworkInterface
 {
   std::string name;
+  int priority = 0;
 };
 }  // namespace cyclonedds
 }  // namespace tobas

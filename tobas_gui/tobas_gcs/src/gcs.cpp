@@ -505,7 +505,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
   cyclonedds::Data dds_data;
   // Use the loopback interface for inter-process communication within the flight controller.
   // The interface must be selected explicitly because processes cannot communicate if they select different NIFs.
-  dds_data.interfaces.emplace_back("lo");
+  dds_data.interfaces.emplace_back("lo", 0);
   const auto dds_config_rt_text = cyclonedds::exportText(dds_data);
   if (ssh_client_.sftpWrite(kCycloneddsRealtimePath, dds_config_rt_text, true) != ssh::SshClient::kNoError) {
     progress.close();
@@ -513,7 +513,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
       this, "Failed to write the DDS configuration of the realtime process:\n\n" + QString(ssh_client_.errorMessage()));
     return;
   }
-  dds_data.interfaces.emplace_back(network_config_.interface);
+  dds_data.interfaces.emplace_back(network_config_.interface, 1);
   const auto dds_config_if_text = cyclonedds::exportText(dds_data);
   if (ssh_client_.sftpWrite(kCycloneddsInterfacePath, dds_config_if_text, true) != ssh::SshClient::kNoError) {
     progress.close();

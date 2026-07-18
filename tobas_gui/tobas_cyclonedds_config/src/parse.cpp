@@ -25,35 +25,39 @@ bool parseFromText(const std::string& text, Data& dst)
     return false;
   }
 
-  const auto root = doc.RootElement();
-  if (std::strcmp(root->Name(), elem::kCycloneDDS) != 0) {
+  const auto e_root = doc.RootElement();
+  if (std::strcmp(e_root->Name(), elem::kCycloneDDS) != 0) {
     std::cerr << "The root element must be \"" << elem::kCycloneDDS << "\"." << std::endl;
     return false;
   }
 
-  const auto domain = root->FirstChildElement(elem::kDomain);
-  if (domain) {
-    const auto general = domain->FirstChildElement(elem::kGeneral);
-    if (general) {
-      const auto interfaces = general->FirstChildElement(elem::kInterfaces);
-      if (interfaces) {
-        for (auto nif = interfaces->FirstChildElement(elem::kNIF); nif; nif = nif->NextSiblingElement(elem::kNIF)) {
-          const auto name = nif->Attribute(attr::kName);
+  const auto e_domain = e_root->FirstChildElement(elem::kDomain);
+  if (e_domain) {
+    const auto e_general = e_domain->FirstChildElement(elem::kGeneral);
+    if (e_general) {
+      const auto e_ifaces = e_general->FirstChildElement(elem::kInterfaces);
+      if (e_ifaces) {
+        for (auto e_nif = e_ifaces->FirstChildElement(elem::kNIF); e_nif;
+             e_nif = e_nif->NextSiblingElement(elem::kNIF)) {
+          const auto name = e_nif->Attribute(attr::kName);
           if (!name) {
             continue;
           }
-          dst.interfaces.emplace_back(name);
+          tobas::cyclonedds::NetworkInterface nif;
+          nif.name = name;
+          nif.priority = e_nif->IntAttribute(attr::kPriority, 0);
+          dst.interfaces.push_back(nif);
         }
       }
     }
 
-    const auto shared_memory = domain->FirstChildElement(elem::kSharedMemory);
-    if (shared_memory) {
-      const auto enable = shared_memory->FirstChildElement(elem::kEnable);
-      if (enable) {
-        dst.shared_memory.enable = (std::strcmp(enable->GetText(), "true") == 0);
+    const auto e_shared_memory = e_domain->FirstChildElement(elem::kSharedMemory);
+    if (e_shared_memory) {
+      const auto e_enable = e_shared_memory->FirstChildElement(elem::kEnable);
+      if (e_enable) {
+        dst.shared_memory.enable = (std::strcmp(e_enable->GetText(), "true") == 0);
       }
-      const auto log_level = shared_memory->FirstChildElement(elem::kLogLevel);
+      const auto log_level = e_shared_memory->FirstChildElement(elem::kLogLevel);
       if (log_level) {
         const auto log_level_text = log_level->GetText();
         if (std::strcmp(log_level_text, "verbose") == 0) {

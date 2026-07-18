@@ -22,6 +22,7 @@ static constexpr char kLogLevel[] = "LogLevel";
 namespace attr
 {
 static constexpr char kName[] = "name";
+static constexpr char kPriority[] = "priority";
 }  // namespace attr
 }  // namespace cyclonedds
 }  // namespace tobas
