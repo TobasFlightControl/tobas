@@ -504,8 +504,6 @@ void GroundControlStationWidget::onWriteButtonClicked()
   progress.setLabelText("Writing DDS configuration.");
   cyclonedds::Data dds_data;
   dds_data.interfaces.emplace_back(network_config_.interface);
-  dds_data.shared_memory.enable = false;  // FIXME: Jitter increases when IPC tries to use shared memory.
-  dds_data.shared_memory.log_level = cyclonedds::SharedMemory::kWarn;
   const auto dds_config_text = cyclonedds::exportText(dds_data);
   if (ssh_client_.sftpWrite(kCycloneddsConfigPath, dds_config_text, true) != ssh::SshClient::kNoError) {
     progress.close();
