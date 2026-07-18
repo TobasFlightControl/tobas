@@ -96,11 +96,6 @@ def generate_launch_description():
                     plugin="tobas::RotorControllerNode",
                     namespace=DRONE_NAME,
                 ),
-                ComposableNode(
-                    package="tobas_disturbance_observer",
-                    plugin="tobas::DisturbanceObserverNode",
-                    namespace=DRONE_NAME,
-                ),
             ],
         )
     )
@@ -110,6 +105,11 @@ def generate_launch_description():
         LoadComposableNodes(
             target_container=f"{DRONE_NAME}/component_manager_2",
             composable_node_descriptions=[
+                ComposableNode(
+                    package="tobas_disturbance_observer",
+                    plugin="tobas::DisturbanceObserverNode",
+                    namespace=DRONE_NAME,
+                ),
                 ComposableNode(
                     package="tobas_rc_teleop",
                     plugin="tobas::rc::RCTeleopNode",
