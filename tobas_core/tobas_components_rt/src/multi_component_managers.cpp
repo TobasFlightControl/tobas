@@ -12,6 +12,7 @@
 
 #include "tobas_components_rt/component_manager.hpp"
 #include "tobas_components_rt/multi_threaded_executor.hpp"
+#include "tobas_components_rt/timer_coalescing_events_queue.hpp"
 
 using namespace std::chrono_literals;
 
@@ -73,7 +74,8 @@ void MultiComponentManagers::spin()
 
   for (auto&& [i, manager, cfg] : std::views::zip(std::views::iota(0), managers, configs_)) {
     if (cfg.num_threads == 1) {
-      manager.exec = std::make_shared<rclcpp::experimental::executors::EventsExecutor>();
+      manager.exec = std::make_shared<rclcpp::experimental::executors::EventsExecutor>(
+        std::make_unique<TimerCoalescingEventsQueue>());
     }
     else {
       manager.exec = std::make_shared<MultiThreadedExecutorRT>(cfg.policy, cfg.priority, cfg.affinity, cfg.num_threads);
