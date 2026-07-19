@@ -514,6 +514,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
     return;
   }
   dds_data.interfaces.emplace_back(network_config_.interface, 1);
+  dds_data.redundant_networking = true;  // Use both network interfaces simultaneously.
   const auto dds_config_if_text = cyclonedds::exportText(dds_data);
   if (ssh_client_.sftpWrite(kCycloneddsInterfacePath, dds_config_if_text, true) != ssh::SshClient::kNoError) {
     progress.close();

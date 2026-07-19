@@ -11,6 +11,14 @@ namespace tobas
 {
 namespace cyclonedds
 {
+namespace
+{
+const char* boolToText(bool v)
+{
+  return v ? "true" : "false";
+}
+}  // namespace
+
 std::string exportText(const Data& src)
 {
   tinyxml2::XMLDocument doc;
@@ -34,13 +42,15 @@ std::string exportText(const Data& src)
         e_nif->SetAttribute(attr::kPriority, nif.priority);
       }
     }
+
+    e_general->InsertNewChildElement(elem::kRedundantNetworking)->SetText(boolToText(src.redundant_networking));
   }
 
   {
     const auto e_shared_memory = e_domain->InsertNewChildElement(elem::kSharedMemory);
 
     const auto e_enable = e_shared_memory->InsertNewChildElement(elem::kEnable);
-    e_enable->SetText(src.shared_memory.enable ? "true" : "false");
+    e_enable->SetText(boolToText(src.shared_memory.enable));
 
     const auto e_log_level = e_shared_memory->InsertNewChildElement(elem::kLogLevel);
     switch (src.shared_memory.log_level) {

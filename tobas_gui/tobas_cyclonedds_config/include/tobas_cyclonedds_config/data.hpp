@@ -15,6 +15,7 @@ namespace cyclonedds
 struct Data
 {
   std::vector<NetworkInterface> interfaces;
+  bool redundant_networking = false;
   SharedMemory shared_memory;
 };
 }  // namespace cyclonedds

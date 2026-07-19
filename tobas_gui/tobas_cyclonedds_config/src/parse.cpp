@@ -13,6 +13,14 @@ namespace tobas
 {
 namespace cyclonedds
 {
+namespace
+{
+bool textToBool(const char* text)
+{
+  return std::strcmp(text, "true") == 0;
+}
+}  // namespace
+
 bool parseFromText(const std::string& text, Data& dst)
 {
   // Clear data.
@@ -49,13 +57,18 @@ bool parseFromText(const std::string& text, Data& dst)
           dst.interfaces.push_back(nif);
         }
       }
+
+      const auto e_redundant_networking = e_general->FirstChildElement(elem::kRedundantNetworking);
+      if (e_redundant_networking) {
+        dst.redundant_networking = textToBool(e_redundant_networking->GetText());
+      }
     }
 
     const auto e_shared_memory = e_domain->FirstChildElement(elem::kSharedMemory);
     if (e_shared_memory) {
       const auto e_enable = e_shared_memory->FirstChildElement(elem::kEnable);
       if (e_enable) {
-        dst.shared_memory.enable = (std::strcmp(e_enable->GetText(), "true") == 0);
+        dst.shared_memory.enable = textToBool(e_enable->GetText());
       }
       const auto log_level = e_shared_memory->FirstChildElement(elem::kLogLevel);
       if (log_level) {
