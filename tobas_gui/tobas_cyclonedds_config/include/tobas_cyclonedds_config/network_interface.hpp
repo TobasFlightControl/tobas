@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <optional>
 #include <string>
 
 namespace tobas
@@ -12,7 +13,8 @@ namespace cyclonedds
 struct NetworkInterface
 {
   std::string name;
-  int priority = 0;
+  std::optional<int> priority;
+  std::optional<bool> multicast;
 };
 }  // namespace cyclonedds
 }  // namespace tobas

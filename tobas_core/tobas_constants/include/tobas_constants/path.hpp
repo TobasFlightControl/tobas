@@ -18,8 +18,7 @@ static constexpr char kColconWSPathRoot[] = "/etc/tobas/colcon_ws";
 static constexpr char kRosbagDirHome[] = "~/.local/share/tobas/rosbag";
 static constexpr char kRosbagDirRoot[] = "/etc/tobas/rosbag";
 static constexpr char kProjectEnvPath[] = "/etc/tobas/config/project.env";
-static constexpr char kCycloneddsRealtimePath[] = "/etc/tobas/config/cyclonedds_realtime.xml";
-static constexpr char kCycloneddsInterfacePath[] = "/etc/tobas/config/cyclonedds_interface.xml";
+static constexpr char kCycloneddsConfigPath[] = "/etc/tobas/config/cyclonedds.xml";
 static constexpr char kGuiLogDir[] = "~/.local/share/tobas/log";
 static constexpr char kMissionDir[] = "~/.local/share/tobas/mission";
 }  // namespace tobas

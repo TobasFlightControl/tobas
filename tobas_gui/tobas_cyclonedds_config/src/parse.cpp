@@ -5,7 +5,7 @@
 
 #include <iostream>
 
-#include <tinyxml2.h>
+#include <tobas_xml_tools/core.hpp>
 
 #include "tobas_cyclonedds_config/constants.hpp"
 
@@ -53,7 +53,8 @@ bool parseFromText(const std::string& text, Data& dst)
           }
           tobas::cyclonedds::NetworkInterface nif;
           nif.name = name;
-          nif.priority = e_nif->IntAttribute(attr::kPriority, 0);
+          nif.priority = xml::getAttribute<int>(e_nif, attr::kPriority);
+          nif.multicast = xml::getAttribute<bool>(e_nif, attr::kMulticast);
           dst.interfaces.push_back(nif);
         }
       }

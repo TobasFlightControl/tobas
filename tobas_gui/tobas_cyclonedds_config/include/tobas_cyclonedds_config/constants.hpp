@@ -24,6 +24,7 @@ namespace attr
 {
 static constexpr char kName[] = "name";
 static constexpr char kPriority[] = "priority";
+static constexpr char kMulticast[] = "multicast";
 }  // namespace attr
 }  // namespace cyclonedds
 }  // namespace tobas

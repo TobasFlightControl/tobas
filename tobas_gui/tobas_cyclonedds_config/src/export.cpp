@@ -39,7 +39,8 @@ std::string exportText(const Data& src)
         }
         const auto e_nif = e_ifaces->InsertNewChildElement(elem::kNIF);
         e_nif->SetAttribute(attr::kName, nif.name.c_str());
-        e_nif->SetAttribute(attr::kPriority, nif.priority);
+        xml::setAttribute(e_nif, attr::kPriority, nif.priority);
+        xml::setAttribute(e_nif, attr::kMulticast, nif.multicast);
       }
     }
 

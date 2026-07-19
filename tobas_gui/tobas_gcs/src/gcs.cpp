@@ -503,23 +503,12 @@ void GroundControlStationWidget::onWriteButtonClicked()
   // Update the DDS settings.
   progress.setLabelText("Writing DDS configuration.");
   cyclonedds::Data dds_data;
-  // Use the loopback interface for inter-process communication within the flight controller.
-  // The interface must be selected explicitly because processes cannot communicate if they select different NIFs.
-  dds_data.interfaces.emplace_back("lo", 0);
-  const auto dds_config_rt_text = cyclonedds::exportText(dds_data);
-  if (ssh_client_.sftpWrite(kCycloneddsRealtimePath, dds_config_rt_text, true) != ssh::SshClient::kNoError) {
-    progress.close();
-    qt::qErrorBox(
-      this, "Failed to write the DDS configuration of the realtime process:\n\n" + QString(ssh_client_.errorMessage()));
-    return;
-  }
-  dds_data.interfaces.emplace_back(network_config_.interface, 1);
-  dds_data.redundant_networking = true;  // Use both network interfaces simultaneously.
+  dds_data.interfaces.emplace_back("lo", 1, true);  // Multicast must be enabled to bridge the two NICs.
+  dds_data.interfaces.emplace_back(network_config_.interface, 0, true);
   const auto dds_config_if_text = cyclonedds::exportText(dds_data);
-  if (ssh_client_.sftpWrite(kCycloneddsInterfacePath, dds_config_if_text, true) != ssh::SshClient::kNoError) {
+  if (ssh_client_.sftpWrite(kCycloneddsConfigPath, dds_config_if_text, true) != ssh::SshClient::kNoError) {
     progress.close();
-    qt::qErrorBox(
-      this, "Failed to write DDS configuration of the interface process:\n\n" + QString(ssh_client_.errorMessage()));
+    qt::qErrorBox(this, "Failed to write DDS configuration:\n\n" + QString(ssh_client_.errorMessage()));
     return;
   }
   progress.progressStep();
