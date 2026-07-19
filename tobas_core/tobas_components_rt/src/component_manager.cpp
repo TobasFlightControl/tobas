@@ -14,6 +14,10 @@ namespace
 // Keep loaders per process rather than per class.
 std::mutex g_loader_mtx;
 std::unordered_map<std::string, std::shared_ptr<class_loader::ClassLoader>> g_loader_cache;
+
+// Component construction and destruction modify the process-wide rclcpp intra-process manager.
+// Serialize them across all component managers to prevent entity registration from racing entity destruction.
+std::mutex g_component_lifecycle_mtx;
 }  // namespace
 
 std::shared_ptr<rclcpp_components::NodeFactory>
@@ -59,5 +63,23 @@ ThreadSafeComponentManager::create_component_factory(const ComponentResource& re
   }
 
   return {};
+}
+
+void ThreadSafeComponentManager::on_load_node(
+  const std::shared_ptr<rmw_request_id_t> request_header,
+  const std::shared_ptr<LoadNode::Request> request,
+  std::shared_ptr<LoadNode::Response> response)
+{
+  const std::lock_guard lock(g_component_lifecycle_mtx);
+  ComponentManager::on_load_node(request_header, request, response);
+}
+
+void ThreadSafeComponentManager::on_unload_node(
+  const std::shared_ptr<rmw_request_id_t> request_header,
+  const std::shared_ptr<UnloadNode::Request> request,
+  std::shared_ptr<UnloadNode::Response> response)
+{
+  const std::lock_guard lock(g_component_lifecycle_mtx);
+  ComponentManager::on_unload_node(request_header, request, response);
 }
 }  // namespace tobas

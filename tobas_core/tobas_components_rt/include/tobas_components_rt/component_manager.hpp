@@ -14,5 +14,16 @@ public:
 
   virtual std::shared_ptr<rclcpp_components::NodeFactory>
   create_component_factory(const ComponentResource& resource) override;
+
+protected:
+  virtual void on_load_node(
+    const std::shared_ptr<rmw_request_id_t> request_header,
+    const std::shared_ptr<LoadNode::Request> request,
+    std::shared_ptr<LoadNode::Response> response) override;
+
+  virtual void on_unload_node(
+    const std::shared_ptr<rmw_request_id_t> request_header,
+    const std::shared_ptr<UnloadNode::Request> request,
+    std::shared_ptr<UnloadNode::Response> response) override;
 };
 }  // namespace tobas

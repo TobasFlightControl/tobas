@@ -6,6 +6,8 @@
 #include <ranges>
 #include <thread>
 
+#include <rclcpp/experimental/executors/events_executor/events_executor.hpp>
+
 #include <tobas_linux/realtime.hpp>
 
 #include "tobas_components_rt/component_manager.hpp"
@@ -57,7 +59,7 @@ void MultiComponentManagers::setNumThreads(size_t idx, size_t num_threads)
 
 void MultiComponentManagers::spin()
 {
-  constexpr char kLoggerName[] = "multi_component_managers";
+  const auto logger = rclcpp::get_logger("multi_component_managers");
 
   std::vector<ComponentManager> managers(num_managers_);
 
@@ -71,7 +73,7 @@ void MultiComponentManagers::spin()
 
   for (auto&& [i, manager, cfg] : std::views::zip(std::views::iota(0), managers, configs_)) {
     if (cfg.num_threads == 1) {
-      manager.exec = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
+      manager.exec = std::make_shared<rclcpp::experimental::executors::EventsExecutor>();
     }
     else {
       manager.exec = std::make_shared<MultiThreadedExecutorRT>(cfg.policy, cfg.priority, cfg.affinity, cfg.num_threads);
@@ -80,22 +82,27 @@ void MultiComponentManagers::spin()
     manager.node = std::make_shared<ThreadSafeComponentManager>(manager.exec, nodeName(i), node_options);
     manager.exec->add_node(manager.node);
 
-    // Start `ComponentManager` in a separate thread.
-    manager.thread = std::thread([&manager]() { manager.exec->spin(); });
+    const auto policy = cfg.policy;
+    const auto priority = cfg.priority;
+    const auto affinity = cfg.affinity;
 
-    // Set the thread real-time priority.
-    if (cfg.priority > 0) {
-      if (!linux::setThreadPriority(manager.thread.native_handle(), cfg.priority, cfg.policy)) {
-        RCLCPP_WARN(rclcpp::get_logger(kLoggerName), "Failed to set thread realtime priority.");
-      }
-    }
-
-    // Set the thread CPU affinity.
-    if (cfg.affinity > 0) {
-      if (!linux::setThreadCPUAffinity(manager.thread.native_handle(), cfg.affinity)) {
-        RCLCPP_WARN(rclcpp::get_logger(kLoggerName), "Failed to set thread CPU affinity.");
-      }
-    }
+    // Configure the worker before spin() creates any executor-internal threads.
+    manager.thread = std::thread(
+      [&manager, policy, priority, affinity, logger]()
+      {
+        const auto thread = pthread_self();
+        if (priority > 0) {
+          if (!linux::setThreadPriority(thread, priority, policy)) {
+            RCLCPP_WARN(logger, "Failed to set thread realtime priority.");
+          }
+        }
+        if (affinity > 0) {
+          if (!linux::setThreadCPUAffinity(thread, affinity)) {
+            RCLCPP_WARN(logger, "Failed to set thread CPU affinity.");
+          }
+        }
+        manager.exec->spin();
+      });
 
     // Wait briefly to avoid calling spin while already spinning.
     std::this_thread::sleep_for(100ms);
