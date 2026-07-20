@@ -45,17 +45,17 @@ bool parseFromText(const std::string& text, Data& dst)
     if (e_general) {
       const auto e_ifaces = e_general->FirstChildElement(elem::kInterfaces);
       if (e_ifaces) {
-        for (auto e_nif = e_ifaces->FirstChildElement(elem::kNIF); e_nif;
-             e_nif = e_nif->NextSiblingElement(elem::kNIF)) {
-          const auto name = e_nif->Attribute(attr::kName);
+        for (auto e_nic = e_ifaces->FirstChildElement(elem::kNetworkIface); e_nic;
+             e_nic = e_nic->NextSiblingElement(elem::kNetworkIface)) {
+          const auto name = e_nic->Attribute(attr::kName);
           if (!name) {
             continue;
           }
-          tobas::cyclonedds::NetworkInterface nif;
-          nif.name = name;
-          nif.priority = xml::getAttribute<int>(e_nif, attr::kPriority);
-          nif.multicast = xml::getAttribute<bool>(e_nif, attr::kMulticast);
-          dst.interfaces.push_back(nif);
+          tobas::cyclonedds::NetworkInterface nic;
+          nic.name = name;
+          nic.priority = xml::getAttribute<int>(e_nic, attr::kPriority);
+          nic.multicast = xml::getAttribute<bool>(e_nic, attr::kMulticast);
+          dst.interfaces.push_back(nic);
         }
       }
 

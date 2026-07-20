@@ -90,7 +90,7 @@ bool Network::load(const std::string& path)
 
   name = ini.GetValue(kMatchSection, kNameKey, "");
   if (name.empty()) {
-    std::cerr << "NIF name is not defined." << std::endl;
+    std::cerr << "NIC name is not defined." << std::endl;
     return false;
   }
 

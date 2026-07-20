@@ -458,7 +458,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
   // Update environment variables.
   progress.setLabelText("Setting environment variables.");
   project_env_parser_.config_pkg = config_pkg_name;
-  project_env_parser_.nif = network_config_.interface;
+  project_env_parser_.nic = network_config_.interface;
   if (ssh_client_.sftpWrite(kProjectEnvPath, project_env_parser_.exportText(), true) != ssh::SshClient::kNoError) {
     progress.close();
     qt::qErrorBox(this, "Failed to set environment variables:\n\n" + QString(ssh_client_.errorMessage()));

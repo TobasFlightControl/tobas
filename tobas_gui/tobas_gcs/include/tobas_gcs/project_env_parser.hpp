@@ -14,11 +14,11 @@ namespace gcs
 class ProjectEnvParser
 {
   static constexpr char kConfigPkgPrefix[] = "TOBAS_CONFIG_PKG=";
-  static constexpr char kNetworkIfacePrefix[] = "TOBAS_NIF=";
+  static constexpr char kNetworkIfacePrefix[] = "TOBAS_NIC=";
 
 public:
   std::string config_pkg;
-  std::string nif;
+  std::string nic;
 
   explicit ProjectEnvParser();
 

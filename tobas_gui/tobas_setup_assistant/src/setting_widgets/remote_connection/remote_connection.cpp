@@ -18,11 +18,11 @@ namespace rc
 RemoteConnectionWidget::RemoteConnectionWidget()
 {
   host_ = new HostWidget();
-  nif_ = new NetworkIfaceWidget();
+  nic_ = new NetworkIfaceWidget();
 
   addWidget(new qt::Label(kNetworkIfaceLabel, cmn::kLabelPSize, QFont::Bold));
   addWidget(new qt::DescriptionWidget("Specify the network interface used by the flight controller.", cmn::kBodyPSize));
-  addWidget(nif_);
+  addWidget(nic_);
 
   addWidget(new qt::Label(kHostLabel, cmn::kLabelPSize, QFont::Bold));
   addWidget(new qt::DescriptionWidget(
@@ -55,7 +55,7 @@ void RemoteConnectionWidget::updateInternalDataStructures()
 
 bool RemoteConnectionWidget::isValid()
 {
-  if (!nif_->isValid()) {
+  if (!nic_->isValid()) {
     return false;
   }
   if (!host_->isValid()) {
@@ -69,7 +69,7 @@ YAML::Node RemoteConnectionWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
-  node[kNetworkIfaceLabel] = nif_->dump();
+  node[kNetworkIfaceLabel] = nic_->dump();
   node[kHostLabel] = host_->dump();
 
   return node;
@@ -77,13 +77,13 @@ YAML::Node RemoteConnectionWidget::dump() const
 
 void RemoteConnectionWidget::load(const YAML::Node& node)
 {
-  nif_->load(node[kNetworkIfaceLabel]);
+  nic_->load(node[kNetworkIfaceLabel]);
   host_->load(node[kHostLabel]);
 }
 
 QString RemoteConnectionWidget::networkInterface() const
 {
-  return nif_->networkInterface();
+  return nic_->networkInterface();
 }
 
 QString RemoteConnectionWidget::host() const

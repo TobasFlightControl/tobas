@@ -36,7 +36,7 @@ bool ProjectEnvParser::parseFromText(const std::string& text)
       continue;
     }
     if (line.starts_with(kNetworkIfacePrefix)) {
-      nif = line.substr(sizeof(kNetworkIfacePrefix) - 1);
+      nic = line.substr(sizeof(kNetworkIfacePrefix) - 1);
       continue;
     }
   }
@@ -49,7 +49,7 @@ std::string ProjectEnvParser::exportText() const
   std::ostringstream oss;
 
   oss << kConfigPkgPrefix << config_pkg << std::endl;
-  oss << kNetworkIfacePrefix << nif << std::endl;
+  oss << kNetworkIfacePrefix << nic << std::endl;
 
   return oss.str();
 }

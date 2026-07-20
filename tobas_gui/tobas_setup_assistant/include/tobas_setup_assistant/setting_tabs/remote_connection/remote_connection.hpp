@@ -42,7 +42,7 @@ public:
   QString host() const;
 
 private:
-  NetworkIfaceWidget* nif_;
+  NetworkIfaceWidget* nic_;
   HostWidget* host_;
 };
 }  // namespace rc

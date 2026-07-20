@@ -23,25 +23,25 @@ namespace rc
 {
 NetworkIfaceWidget::NetworkIfaceWidget()
 {
-  nif_btn_group_ = new QButtonGroup(this);
-  nif_btn_group_->setExclusive(true);
+  nic_btn_group_ = new QButtonGroup(this);
+  nic_btn_group_->setExclusive(true);
 
   int id = 0;
-  const auto wired_btn = addNifTypeButton("Wired (Ethernet)", id++);
-  const auto wireless_btn = addNifTypeButton("Wireless (Wi-Fi Client)", id++);
-  const auto ap_btn = addNifTypeButton("Access Point (Wi-Fi Hotspot)", id++);
-  const auto other_btn = addNifTypeButton("Other", id++);
+  const auto wired_btn = addNicTypeButton("Wired (Ethernet)", id++);
+  const auto wireless_btn = addNicTypeButton("Wireless (Wi-Fi Client)", id++);
+  const auto ap_btn = addNicTypeButton("Access Point (Wi-Fi Hotspot)", id++);
+  const auto other_btn = addNicTypeButton("Other", id++);
 
-  nif_btn_group_->button(kWirelessIdx)->setChecked(true);  // Default
+  nic_btn_group_->button(kWirelessIdx)->setChecked(true);  // Default
 
-  other_nif_name_ = new QLineEdit();
-  other_nif_name_->setPlaceholderText("e.g. wwan0, eth1, enx...");
-  other_nif_name_->setEnabled(false);
+  other_nic_name_ = new QLineEdit();
+  other_nic_name_->setPlaceholderText("e.g. wwan0, eth1, enx...");
+  other_nic_name_->setEnabled(false);
 
   // Layout
   const auto other_row = new QHBoxLayout();
   other_row->addWidget(other_btn);
-  other_row->addWidget(other_nif_name_);
+  other_row->addWidget(other_nic_name_);
 
   const auto rows = new QVBoxLayout();
   rows->addWidget(wired_btn);
@@ -57,8 +57,8 @@ NetworkIfaceWidget::NetworkIfaceWidget()
 
 bool NetworkIfaceWidget::isValid()
 {
-  if (nif_btn_group_->checkedId() == kOtherIdx) {
-    if (other_nif_name_->text().isEmpty()) {
+  if (nic_btn_group_->checkedId() == kOtherIdx) {
+    if (other_nic_name_->text().isEmpty()) {
       qt::qWarnBox(this, "Please specify a network interface name.");
       return false;
     }
@@ -71,30 +71,30 @@ YAML::Node NetworkIfaceWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
-  const auto cur_btn = nif_btn_group_->checkedButton();
-  node[kNifTypeKey] = cur_btn->text();
+  const auto cur_btn = nic_btn_group_->checkedButton();
+  node[kNicTypeKey] = cur_btn->text();
 
-  node[kOtherNifNameKey] = other_nif_name_->text();
+  node[kOtherNicNameKey] = other_nic_name_->text();
 
   return node;
 }
 
 void NetworkIfaceWidget::load(const YAML::Node& node)
 {
-  const auto nif_type_text = node[kNifTypeKey].as<QString>();
-  for (const auto& [idx, btn] : std::views::enumerate(nif_btn_group_->buttons())) {
-    if (btn->text() == nif_type_text) {
-      nif_btn_group_->button(idx)->setChecked(true);
+  const auto nic_type_text = node[kNicTypeKey].as<QString>();
+  for (const auto& [idx, btn] : std::views::enumerate(nic_btn_group_->buttons())) {
+    if (btn->text() == nic_type_text) {
+      nic_btn_group_->button(idx)->setChecked(true);
       break;
     }
   }
 
-  other_nif_name_->setText(node[kOtherNifNameKey].as<QString>());
+  other_nic_name_->setText(node[kOtherNicNameKey].as<QString>());
 }
 
 QString NetworkIfaceWidget::networkInterface() const
 {
-  const auto id = nif_btn_group_->checkedId();
+  const auto id = nic_btn_group_->checkedId();
   switch (id) {
     case kWiredIdx:
       return "eth0";
@@ -103,26 +103,26 @@ QString NetworkIfaceWidget::networkInterface() const
     case kAccessPointIdx:
       return "ap0";
     case kOtherIdx:
-      return other_nif_name_->text();
+      return other_nic_name_->text();
     default:
       throw std::runtime_error("Invalid network interface ID: " + std::to_string(id));
   }
 }
 
-QRadioButton* NetworkIfaceWidget::addNifTypeButton(const QString& text, int id)
+QRadioButton* NetworkIfaceWidget::addNicTypeButton(const QString& text, int id)
 {
   const auto btn = new QRadioButton(text);
-  nif_btn_group_->addButton(btn, id);
+  nic_btn_group_->addButton(btn, id);
   return btn;
 }
 
 void NetworkIfaceWidget::onOtherButtonToggled(bool checked)
 {
-  other_nif_name_->setEnabled(checked);
+  other_nic_name_->setEnabled(checked);
 
   if (checked) {
-    other_nif_name_->setFocus();
-    other_nif_name_->selectAll();
+    other_nic_name_->setFocus();
+    other_nic_name_->selectAll();
   }
 }
 }  // namespace rc

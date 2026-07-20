@@ -33,14 +33,14 @@ std::string exportText(const Data& src)
 
     {
       const auto e_ifaces = e_general->InsertNewChildElement(elem::kInterfaces);
-      for (const auto& nif : src.interfaces) {
-        if (nif.name.empty()) {
+      for (const auto& nic : src.interfaces) {
+        if (nic.name.empty()) {
           continue;
         }
-        const auto e_nif = e_ifaces->InsertNewChildElement(elem::kNIF);
-        e_nif->SetAttribute(attr::kName, nif.name.c_str());
-        xml::setAttribute(e_nif, attr::kPriority, nif.priority);
-        xml::setAttribute(e_nif, attr::kMulticast, nif.multicast);
+        const auto e_nic = e_ifaces->InsertNewChildElement(elem::kNetworkIface);
+        e_nic->SetAttribute(attr::kName, nic.name.c_str());
+        xml::setAttribute(e_nic, attr::kPriority, nic.priority);
+        xml::setAttribute(e_nic, attr::kMulticast, nic.multicast);
       }
     }
 

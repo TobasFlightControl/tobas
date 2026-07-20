@@ -28,8 +28,8 @@ class NetworkIfaceWidget : public QWidget
   static constexpr int kAccessPointIdx = 2;
   static constexpr int kOtherIdx = 3;
 
-  static constexpr char kNifTypeKey[] = "nif_type";
-  static constexpr char kOtherNifNameKey[] = "other_nif_name";
+  static constexpr char kNicTypeKey[] = "nic_type";
+  static constexpr char kOtherNicNameKey[] = "other_nic_name";
 
 public:
   explicit NetworkIfaceWidget();
@@ -42,10 +42,10 @@ public:
   QString networkInterface() const;
 
 private:
-  QButtonGroup* nif_btn_group_;
-  QLineEdit* other_nif_name_;
+  QButtonGroup* nic_btn_group_;
+  QLineEdit* other_nic_name_;
 
-  QRadioButton* addNifTypeButton(const QString& text, int id);
+  QRadioButton* addNicTypeButton(const QString& text, int id);
 
 private Q_SLOTS:
   void onOtherButtonToggled(bool checked);
