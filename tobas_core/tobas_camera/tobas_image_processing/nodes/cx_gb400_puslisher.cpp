@@ -42,7 +42,8 @@ namespace camera
 class CxGb400PublisherNode : public BaseNode
 {
 public:
-  static constexpr std::chrono::duration kStatusSendInterval = 1s;
+  static constexpr auto kStatusSendInterval = 1s;
+
   explicit CxGb400PublisherNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
