@@ -75,7 +75,7 @@ void MultiComponentManagers::spin()
   for (auto&& [i, manager, cfg] : std::views::zip(std::views::iota(0), managers, configs_)) {
     if (cfg.num_threads == 1) {
       manager.exec = std::make_shared<rclcpp::experimental::executors::EventsExecutor>(
-        std::make_unique<TimerCoalescingEventsQueue>());
+        std::make_unique<TimerCoalescingEventsQueue>(), false);
     }
     else {
       manager.exec = std::make_shared<MultiThreadedExecutorRT>(cfg.policy, cfg.priority, cfg.affinity, cfg.num_threads);
