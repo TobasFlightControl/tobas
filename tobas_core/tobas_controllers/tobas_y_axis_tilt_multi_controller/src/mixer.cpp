@@ -5,7 +5,6 @@
 
 #include <ranges>
 
-#include <tobas_algorithm/core.hpp>
 #include <tobas_eigen_tools/core.hpp>
 #include <tobas_eigen_tools/geometry.hpp>
 #include <tobas_eigen_tools/operators.hpp>
@@ -43,15 +42,15 @@ bool Mixer::updateInternalDataStructures()
 
   const auto nr = drone_.prop->numRotors();
 
-  E_.conservativeResize(Eigen::NoChange, 2 * nr);
+  A_.conservativeResize(Eigen::NoChange, 2 * nr);
   for (size_t i = 0; i < nr; ++i) {
-    E_.block<2, 2>(3, 2 * i).setIdentity();
+    A_.block<2, 2>(3, 2 * i).setIdentity();
   }
   x_.conservativeResize(2 * nr);
 
   thrust_points_.resize(nr);
-  tilt_axis_signs_.resize(nr);
-  tilt_offsets_.resize(nr);
+  sign_.resize(nr);
+  alpha_.resize(nr);
 
   for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = rotor_it.second;
@@ -83,17 +82,7 @@ bool Mixer::updateInternalDataStructures()
       std::cerr << "Tilt axis must be parallel to the Y axis." << std::endl;
       return false;
     }
-    tilt_axis_signs_.at(idx) = math::sign(tilt_axis_y);
-
-    // Store the offset of the tilt angle from vertically upward when the tilt-joint angle is zero.
-    // FIXME: This offset changes if the vehicle itself bends around the Y axis!
-    const auto& B_T_par = fk_solver_.getFrame(par_elem.segment.name());
-    const auto n = B_T_par.M * cur_elem.segment.joint().axis();  // Rotation axis viewed from the base link.
-    if (!math::isClose(n.y(), 0.0)) {
-      std::cerr << "The Y component of the propeller’s axis of rotation must be zero." << std::endl;
-      return false;
-    }
-    tilt_offsets_.at(idx) = std::atan2(n.x(), n.z());
+    sign_.at(idx) = math::sign(tilt_axis_y);
   }
 
   return true;
@@ -129,6 +118,12 @@ bool Mixer::solve(
     const auto& par_elem = cur_elem.parent->second;
     const auto& gpar_elem = par_elem.parent->second;
 
+    // Store the offset of the tilt angle from vertically upward when the tilt-joint angle is zero.
+    const auto& B_T_par = fk_solver_.getFrame(par_elem.segment.name());
+    const auto n = B_T_par.M * cur_elem.segment.joint().axis();  // Rotation axis viewed from the base link.
+    assert(math::isClose(n.y(), 0.0));  // Thrust is always generated only in the XZ plane of the body frame.
+    alpha_.at(idx) = std::atan2(n.x(), n.z());
+
     // Compute the left-hand side of the equations of motion.
     const auto col_tx = 2 * idx;
     const auto col_tz = col_tx + 1;
@@ -137,16 +132,16 @@ bool Mixer::solve(
       const auto B_Pos_B2P = B_T_gpar * thrust_points_.at(idx);
       const auto B_Pos_G2P = B_Pos_B2P - B_Pos_B2G;
       const auto d_cm = rotor->sign() * rotor->momentConst();
-      E_(0, col_tx) = -d_cm;
-      E_(1, col_tx) = B_Pos_G2P.z();
-      E_(2, col_tx) = -B_Pos_G2P.y();
-      E_(0, col_tz) = B_Pos_G2P.y();
-      E_(1, col_tz) = -B_Pos_G2P.x();
-      E_(2, col_tz) = -d_cm;
+      A_(0, col_tx) = -d_cm;
+      A_(1, col_tx) = B_Pos_G2P.z();
+      A_(2, col_tx) = -B_Pos_G2P.y();
+      A_(0, col_tz) = B_Pos_G2P.y();
+      A_(1, col_tz) = -B_Pos_G2P.x();
+      A_(2, col_tz) = -d_cm;
     }
     else {
       // When the rotor is dead, force the optimal thrust to zero by setting the transfer from thrust to vehicle motion to zero.
-      E_.middleCols<2>(col_tx).setZero();
+      A_.middleCols<2>(col_tx).setZero();
     }
   }
 
@@ -160,7 +155,7 @@ bool Mixer::solve(
 
   // Least-squares solution of `Ex = f`; minimize the L2 norm of `x` when redundant degrees of freedom exist.
   // TODO: Consider constraints on the absolute thrust value; a convex optimization problem may work well.
-  x_ = E_.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(f_);
+  x_ = A_.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(f_);
 
   return true;
 }
@@ -174,7 +169,7 @@ double Mixer::getTiltAngle(size_t idx) const
 {
   const auto tx = thrustDeadband(x_(2 * idx));
   const auto tz = thrustDeadband(x_(2 * idx + 1));
-  return tilt_axis_signs_.at(idx) * algo::wrapPi(std::atan2(tx, tz) - tilt_offsets_.at(idx));
+  return sign_.at(idx) * std::atan2(tx, tz) - alpha_.at(idx);
 }
 }  // namespace y_axis_tilt_multicopter
 }  // namespace tobas
