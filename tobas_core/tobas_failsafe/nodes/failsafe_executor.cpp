@@ -227,7 +227,7 @@ void FailsafeExecutorNode::vehicleHealthCb(const tobas_msgs::msg::VehicleHealth:
         }
         else if (failsafe_mission_ready) {
           TOBAS_WARN("Rotor fail-safe has been activated.");
-          startRTL();
+          startRTL();  // TODO: Deploy the parachute if attitude stabilization is theoretically impossible.
         }
       }
 
