@@ -77,6 +77,7 @@ sudo \
       -DCMAKE_BUILD_TYPE=Release \
       -DCMAKE_C_FLAGS="-mcpu=native" \
       -DCMAKE_CXX_FLAGS="-mcpu=native" \
+      -DTRACETOOLS_DISABLED=ON
 
 # Verify installation is successful
 source /opt/ros/jazzy/setup.bash
