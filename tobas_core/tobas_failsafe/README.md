@@ -56,3 +56,17 @@ S.BUS from the receiver is interrupted for a certain period of time.
 #### Recovery
 
 Resume manual control once S.BUS is detected again.
+
+### Rotor Fail-Safe
+
+#### Trigger Condition
+
+At least one rotor liveliness status becomes false.
+
+#### Behavior
+
+RTL
+
+#### Recovery
+
+None

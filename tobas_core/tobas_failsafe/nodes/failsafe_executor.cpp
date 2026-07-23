@@ -190,6 +190,7 @@ void FailsafeExecutorNode::vehicleHealthCb(const tobas_msgs::msg::VehicleHealth:
 
   const auto voltage_too_low = (health->battery_voltage == VH::FAILED);
   const auto radio_link_lost = (health->radio_link == VH::FAILED);
+  const auto rotor_link_lost = (health->rotor_links == VH::FAILED);
   const auto posvel_accurate = (health->position_accuracy == VH::PASSED) && (health->velocity_accuracy == VH::PASSED);
 
   const auto landed = (landed_ && landed_->landed);
@@ -201,21 +202,31 @@ void FailsafeExecutorNode::vehicleHealthCb(const tobas_msgs::msg::VehicleHealth:
       // Update fail-safe state.
       if (voltage_too_low) {
         if (landed) {
-          TOBAS_WARN("Battery fail-safe is activated.");
+          TOBAS_WARN("Battery fail-safe has been activated.");
           disarm();
         }
         else if (failsafe_mission_ready) {
-          TOBAS_WARN("Battery fail-safe is activated.");
+          TOBAS_WARN("Battery fail-safe has been activated.");
           startLand();
         }
       }
       else if (radio_link_lost) {
         if (landed) {
-          TOBAS_WARN("Radio fail-safe is activated.");
+          TOBAS_WARN("Radio fail-safe has been activated.");
           disarm();
         }
         else if (failsafe_mission_ready) {
-          TOBAS_WARN("Radio fail-safe is activated.");
+          TOBAS_WARN("Radio fail-safe has been activated.");
+          startRTL();
+        }
+      }
+      else if (rotor_link_lost) {
+        if (landed) {
+          TOBAS_WARN("Rotor fail-safe has been activated.");
+          disarm();
+        }
+        else if (failsafe_mission_ready) {
+          TOBAS_WARN("Rotor fail-safe has been activated.");
           startRTL();
         }
       }
@@ -234,7 +245,7 @@ void FailsafeExecutorNode::vehicleHealthCb(const tobas_msgs::msg::VehicleHealth:
       // Update fail-safe state.
       if (voltage_too_low) {
         if (failsafe_mission_ready) {
-          TOBAS_WARN("Battery fail-safe is activated.");
+          TOBAS_WARN("Battery fail-safe has been activated.");
           startLand();
         }
       }
