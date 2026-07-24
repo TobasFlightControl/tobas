@@ -94,20 +94,13 @@ private:
 
   FrameType determineFrameType();
 
-  /* Check whether the joint axis of the specified link is parallel to the specified axis regardless of generalized coordinates. */
   bool isJntAxisAlwaysParallel(const std::string& link_name, const kdl::Vector& tar_axis, bool same_direction_only);
-
-  /* Check whether all thrust joint axes are parallel to the specified axis regardless of generalized coordinates. */
+  bool isJntAxisAlwaysPerpendicular(const std::string& link_name, const kdl::Vector& tar_axis);
   bool allThrustJointAxesAlwaysParallel(const kdl::Vector& tar_axis, bool same_direction_only);
-
-  /* Check whether all tilt axes and rotor axes are orthogonal. */
-  bool allTiltRotorAxesPerpendicular();
-
-  /* Check whether all tilt joint axes are parallel to the specified axis regardless of generalized coordinates. */
+  bool allThrustJointAxesAlwaysPerpendicular(const kdl::Vector& tar_axis);
   bool allTiltJointAxesAlwaysParallel(const kdl::Vector& tar_axis, bool same_direction_only);
-
-  /* Check whether all tilt joint axes are mutually parallel. */
-  bool allTiltJointAxesAlwaysParallel();
+  bool eachTiltRotorAxesPerpendicular();
+  bool allTiltRotorAxesPerpendicular();
 
 private Q_SLOTS:
   void onNewButtonClicked();
