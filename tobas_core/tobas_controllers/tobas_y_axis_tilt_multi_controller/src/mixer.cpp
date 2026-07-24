@@ -41,48 +41,45 @@ bool Mixer::updateInternalDataStructures()
   }
 
   const auto nr = drone_.prop->numRotors();
+  info_.resize(nr);
 
-  A_.conservativeResize(Eigen::NoChange, 2 * nr);
-  for (size_t i = 0; i < nr; ++i) {
-    A_.block<2, 2>(3, 2 * i).setIdentity();
+  size_t col = 0;
+  for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
+    const auto& rotor = rotor_it.second;
+    auto& info = info_[idx];
+    info.column = col;
+    if (rotor->tilt_joint_name.empty()) {
+      info.is_tilt = false;
+      col += 1;
+    }
+    else {
+      info.is_tilt = true;
+      col += 2;
+    }
   }
-  x_.conservativeResize(2 * nr);
 
-  thrust_points_.resize(nr);
-  sign_.resize(nr);
-  alpha_.resize(nr);
+  E_.conservativeResize(Eigen::NoChange, col);
+  x_.conservativeResize(col);
 
   for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = rotor_it.second;
+    auto& info = info_[idx];
 
-    if (rotor->tilt_joint_name.empty()) {
-      std::cerr << "The tilt joint of rotor " << rotor->link_name << " is not specified." << std::endl;
-      return false;
+    if (info.is_tilt) {
+      const auto& cur_elem = tree_.getSegment(rotor->link_name)->second;
+      const auto& par_elem = cur_elem.parent->second;
+      const auto& gpar_elem = par_elem.parent->second;
+
+      // Store the sign of the tilt axis.
+      const auto& B_T_gpar = fk_solver_.getFrame(gpar_elem.segment.name());
+      const auto tilt_axis = B_T_gpar.M * par_elem.segment.joint().axis();  // Tilt axis viewed from the base link.
+      const auto tilt_axis_y = tilt_axis.normalized().y();
+      if (!math::isClose(std::abs(tilt_axis_y), 1.0)) {
+        std::cerr << "Tilt axis must be parallel to the Y axis." << std::endl;
+        return false;
+      }
+      info.sign = math::sign(tilt_axis_y);
     }
-
-    const auto& cur_elem = tree_.getSegment(rotor->link_name)->second;
-    const auto& cur_seg = cur_elem.segment;
-    const auto& par_elem = cur_elem.parent->second;
-    const auto& par_seg = par_elem.segment;
-    const auto& par_joint = par_seg.joint();
-    const auto& gpar_elem = par_elem.parent->second;
-    const auto& gpar_seg = gpar_elem.segment;
-
-    // Store the point of thrust application viewed from the grandparent link.
-    const auto gpar_T_cur = par_seg.frame() * cur_seg.frame();
-    const auto& rotor_pos = gpar_T_cur.p;
-    const auto thrust_pos = eigen::projectPointOnToLine(par_joint.origin.data, par_joint.axis().data, rotor_pos.data);
-    thrust_points_.at(idx) = thrust_pos;
-
-    // Store the sign of the tilt axis.
-    const auto& B_T_gpar = fk_solver_.getFrame(gpar_seg.name());
-    const auto tilt_axis = B_T_gpar.M * par_joint.axis();  // Tilt axis viewed from the base link.
-    const auto tilt_axis_y = tilt_axis.normalized().y();
-    if (!math::isClose(std::abs(tilt_axis_y), 1.0)) {
-      std::cerr << "Tilt axis must be parallel to the Y axis." << std::endl;
-      return false;
-    }
-    sign_.at(idx) = math::sign(tilt_axis_y);
   }
 
   return true;
@@ -113,35 +110,66 @@ bool Mixer::solve(
 
   for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = rotor_it.second;
+    auto& info = info_[idx];
 
     const auto& cur_elem = tree_.getSegment(rotor->link_name)->second;
+    const auto& cur_seg = cur_elem.segment;
     const auto& par_elem = cur_elem.parent->second;
-    const auto& gpar_elem = par_elem.parent->second;
+    const auto& par_seg = par_elem.segment;
 
-    // Store the offset of the tilt angle from vertically upward when the tilt-joint angle is zero.
-    const auto& B_T_par = fk_solver_.getFrame(par_elem.segment.name());
-    const auto n = B_T_par.M * cur_elem.segment.joint().axis();  // Rotation axis viewed from the base link.
-    assert(math::isClose(n.y(), 0.0));  // Thrust is always generated only in the XZ plane of the body frame.
-    alpha_.at(idx) = std::atan2(n.x(), n.z());
+    const auto d_cm = rotor->sign() * rotor->momentConst();
 
-    // Compute the left-hand side of the equations of motion.
-    const auto col_tx = 2 * idx;
-    const auto col_tz = col_tx + 1;
-    if (rotor_alive_.at(rotor->link_name)) {
-      const auto& B_T_gpar = fk_solver_.getFrame(gpar_elem.segment.name());
-      const auto B_Pos_B2P = B_T_gpar * thrust_points_.at(idx);
-      const auto B_Pos_G2P = B_Pos_B2P - B_Pos_B2G;
-      const auto d_cm = rotor->sign() * rotor->momentConst();
-      A_(0, col_tx) = -d_cm;
-      A_(1, col_tx) = B_Pos_G2P.z();
-      A_(2, col_tx) = -B_Pos_G2P.y();
-      A_(0, col_tz) = B_Pos_G2P.y();
-      A_(1, col_tz) = -B_Pos_G2P.x();
-      A_(2, col_tz) = -d_cm;
+    if (info.is_tilt) {
+      // チルト角がゼロのときの機体座標系に対するロータ回転軸の角度を更新
+      const auto& gpar_elem = par_elem.parent->second;
+      const auto& gpar_seg = gpar_elem.segment;
+      const auto& B_T_gpar = fk_solver_.getFrame(gpar_seg.name());
+      const auto B_T_par = B_T_gpar * par_seg.pose(0.0);
+      const auto n = B_T_par.M * cur_seg.joint().axis();
+      info.alpha = std::atan2(n.x(), n.z());
+
+      // Compute the left-hand side of the equations of motion.
+      // When the rotor is dead, force the optimal thrust to zero by setting the transfer from thrust to vehicle motion to zero.
+      if (rotor_alive_[rotor->link_name]) {
+        // Compute the point of thrust application viewed from the grandparent link.
+        const auto& par_joint = par_seg.joint();
+        const auto gpar_T_cur = par_seg.frame() * cur_seg.frame();
+        const auto thrust_pos =
+          eigen::projectPointOnToLine(par_joint.origin.data, par_joint.axis().data, gpar_T_cur.p.data);
+
+        const auto B_Pos_B2P = B_T_gpar * thrust_pos;
+        const auto B_Pos_G2P = B_Pos_B2P - B_Pos_B2G;
+        const auto col_tx = info.column;
+        const auto col_tz = col_tx + 1;
+        E_(0, col_tx) = -d_cm;
+        E_(1, col_tx) = B_Pos_G2P.z();
+        E_(2, col_tx) = -B_Pos_G2P.y();
+        E_(0, col_tz) = B_Pos_G2P.y();
+        E_(1, col_tz) = -B_Pos_G2P.x();
+        E_(2, col_tz) = -d_cm;
+        E_.block<2, 2>(3, col_tx).setIdentity();
+      }
+      else {
+        E_.middleCols<2>(info.column).setZero();
+      }
     }
     else {
-      // When the rotor is dead, force the optimal thrust to zero by setting the transfer from thrust to vehicle motion to zero.
-      A_.middleCols<2>(col_tx).setZero();
+      // 機体座標系に対するロータ回転軸の角度を更新
+      const auto& B_T_par = fk_solver_.getFrame(par_seg.name());
+      const auto n = B_T_par.M * cur_seg.joint().axis();
+      info.alpha = std::atan2(n.x(), n.z());
+
+      // EoMの左辺を更新
+      if (rotor_alive_[rotor->link_name]) {
+        const auto& B_Pos_B2P = fk_solver_.getFrame(cur_seg.name()).p;
+        const auto B_Pos_G2P = B_Pos_B2P - B_Pos_B2G;
+        E_.block<3, 1>(0, info.column) = (B_Pos_G2P * n - d_cm * n).data;
+        E_(3, info.column) = std::sin(info.alpha);
+        E_(4, info.column) = std::cos(info.alpha);
+      }
+      else {
+        E_.col(info.column).setZero();
+      }
     }
   }
 
@@ -155,21 +183,34 @@ bool Mixer::solve(
 
   // Least-squares solution of `Ex = f`; minimize the L2 norm of `x` when redundant degrees of freedom exist.
   // TODO: Consider constraints on the absolute thrust value; a convex optimization problem may work well.
-  x_ = A_.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(f_);
+  x_ = E_.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(f_);
 
   return true;
 }
 
 double Mixer::getThrust(size_t idx) const
 {
-  return thrustDeadband(x_.segment<2>(2 * idx).norm());
+  const auto& info = info_.at(idx);
+  if (info.is_tilt) {
+    return thrustDeadband(x_.segment<2>(info.column).norm());
+  }
+  else {
+    return thrustDeadband(x_(info.column));
+  }
 }
 
 double Mixer::getTiltAngle(size_t idx) const
 {
-  const auto tx = thrustDeadband(x_(2 * idx));
-  const auto tz = thrustDeadband(x_(2 * idx + 1));
-  return sign_.at(idx) * std::atan2(tx, tz) - alpha_.at(idx);
+  const auto& info = info_.at(idx);
+  if (info.is_tilt) {
+    const auto tx = thrustDeadband(x_(info.column));
+    const auto tz = thrustDeadband(x_(info.column + 1));
+    return info.sign * (std::atan2(tx, tz) - info.alpha);
+  }
+  else {
+    std::cerr << "Rotor " << idx << " is not a tilt rotor." << std::endl;
+    return 0.0;
+  }
 }
 }  // namespace y_axis_tilt_multicopter
 }  // namespace tobas
