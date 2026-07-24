@@ -120,7 +120,7 @@ bool Mixer::solve(
     const auto d_cm = rotor->sign() * rotor->momentConst();
 
     if (info.is_tilt) {
-      // チルト角がゼロのときの機体座標系に対するロータ回転軸の角度を更新
+      // Update the rotor axis angle relative to the body frame at zero tilt angle.
       const auto& gpar_elem = par_elem.parent->second;
       const auto& gpar_seg = gpar_elem.segment;
       const auto& B_T_gpar = fk_solver_.getFrame(gpar_seg.name());
@@ -154,12 +154,12 @@ bool Mixer::solve(
       }
     }
     else {
-      // 機体座標系に対するロータ回転軸の角度を更新
+      // Update the rotor axis angle relative to the body frame.
       const auto& B_T_par = fk_solver_.getFrame(par_seg.name());
       const auto n = B_T_par.M * cur_seg.joint().axis();
       info.alpha = std::atan2(n.x(), n.z());
 
-      // EoMの左辺を更新
+      // Update the left-hand side of the equations of motion.
       if (rotor_alive_[rotor->link_name]) {
         const auto& B_Pos_B2P = fk_solver_.getFrame(cur_seg.name()).p;
         const auto B_Pos_G2P = B_Pos_B2P - B_Pos_B2G;

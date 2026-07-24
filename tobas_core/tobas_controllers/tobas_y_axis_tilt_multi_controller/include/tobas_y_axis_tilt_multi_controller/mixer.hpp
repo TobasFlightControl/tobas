@@ -37,7 +37,7 @@ private:
   kdl::TreeFkSolverPosAll fk_solver_;
   kdl::TreeInertiaSolver inertia_solver_;
 
-  /* それぞれのプロペラリンクに関する情報． */
+  /* Information about each propeller link. */
   struct PropellerLinkInfo
   {
     bool is_tilt;
