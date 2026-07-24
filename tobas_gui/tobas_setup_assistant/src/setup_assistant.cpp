@@ -211,8 +211,7 @@ FrameType SetupAssistantWidget::determineFrameType()
         }
       }
     }
-    else  // When the model has tilt rotors.
-    {
+    else {  // When the model has tilt rotors.
       msg += "  • which has at least one tilt rotors\n";
 
       if (allTiltRotorAxesPerpendicular()) {  // All tilt axes and rotor axes are orthogonal.
