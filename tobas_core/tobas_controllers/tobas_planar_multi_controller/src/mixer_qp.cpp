@@ -108,7 +108,7 @@ bool QpMixer::solve(
     const auto& rotor = pair.second;
 
     double max_thrust, min_thrust;
-    if (rotor_alive_.at(rotor->link_name)) {
+    if (rotor_alive_[rotor->link_name]) {
       max_thrust = drone_.prop->maxThrust(rotor->link_name);
       min_thrust = drone_.prop->minThrust(rotor->link_name);
     }
@@ -131,7 +131,7 @@ bool QpMixer::solve(
 
   // Equality constraints.
   // Clamp so that it does not conflict with inequality constraints.
-  static constexpr double kThrustMargin = 1e-3;  // [N]
+  constexpr double kThrustMargin = 1e-3;  // [N]
   qp_.problem.h(0) = std::clamp(tar_thrusts_sum, min_thrust_sum + kThrustMargin, max_thrust_sum - kThrustMargin);
 
   // Solve the QPP.

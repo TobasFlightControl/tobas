@@ -64,8 +64,8 @@ bool PinvMixer::updateInternalDataStructures()
     const auto thrust_pos = eigen::projectPointOnToLine(par_joint.origin.data, par_joint.axis().data, rotor_pos.data);
     thrust_points_[rotor->link_name] = thrust_pos;
 
-    A_.at(idx).col(0) = q.data;
-    A_.at(idx).col(1) = (p * q).data;
+    A_[idx].col(0) = q.data;
+    A_[idx].col(1) = (p * q).data;
   }
 
   for (const auto& [_, rotor] : drone_.prop->rotors) {
@@ -122,7 +122,7 @@ bool PinvMixer::solve(
     }
 
     // Update the singular state.
-    if (is_singular_.at(rotor->link_name)) {
+    if (is_singular_[rotor->link_name]) {
       if (declination > cfg_.singular_declination_ub) {
         is_singular_[rotor->link_name] = false;
       }
@@ -135,19 +135,19 @@ bool PinvMixer::solve(
 
     // Compute the left-hand side of the equations of motion.
     const auto col = 2 * idx;
-    if (is_singular_.at(rotor->link_name) || !rotor_alive_.at(rotor->link_name)) {
+    if (is_singular_[rotor->link_name] || !rotor_alive_[rotor->link_name]) {
       // When the state is singular or the rotor is dead, force the optimal thrust to zero by setting the transfer from
       // thrust to expected motion to zero.
       E_.middleCols<2>(col).setZero();
     }
     else {
-      const auto B_Pos_B2P = B_T_gpar * thrust_points_.at(rotor->link_name);
+      const auto B_Pos_B2P = B_T_gpar * thrust_points_[rotor->link_name];
       const auto B_Pos_G2P = B_Pos_B2P - B_Pos_B2G;
 
       const auto d = rotor->sign();
       const auto cm = rotor->momentConst();
 
-      const Matrix<double, 3, 2> B = B_T_gpar.M.data * A_.at(idx);
+      const Matrix<double, 3, 2> B = B_T_gpar.M.data * A_[idx];
       const Matrix3d C = eigen::skew(B_Pos_G2P.data) - (d * cm) * Diagonal3d(1, 1, 1);
       const auto D = C * B;
 
@@ -177,7 +177,7 @@ bool PinvMixer::solve(
   // Fix to the minimum value because the thrust solution corresponding to the singular state has become zero.
   for (const auto& [idx, rotor_it] : views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = rotor_it.second;
-    if (is_singular_.at(rotor->link_name)) {
+    if (is_singular_[rotor->link_name]) {
       x_(2 * idx) = drone_.prop->minThrust(rotor->link_name);
       x_(2 * idx + 1) = 0.0;
     }

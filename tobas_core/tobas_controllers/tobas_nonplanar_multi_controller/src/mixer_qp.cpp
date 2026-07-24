@@ -117,7 +117,7 @@ bool QpMixer::solve(
   // Inequality constraints.
   for (const auto& [idx, rotor_it] : views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = rotor_it.second;
-    if (rotor_alive_.at(rotor->link_name)) {
+    if (rotor_alive_[rotor->link_name]) {
       qp_.problem.b(idx) = drone_.prop->maxThrust(rotor->link_name);
       qp_.problem.b(drone_.prop->numRotors() + idx) = -drone_.prop->minThrust(rotor->link_name);
     }

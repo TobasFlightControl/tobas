@@ -65,7 +65,7 @@ bool PinvMixer::solve(
   for (const auto& [idx, pair] : std::views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = pair.second;
 
-    if (rotor_alive_.at(rotor->link_name)) {
+    if (rotor_alive_[rotor->link_name]) {
       const auto& B_Pos_B2P = fk_solver_.getFrame(rotor->link_name).p;
 
       const auto& elem = tree_.getSegment(rotor->link_name)->second;
