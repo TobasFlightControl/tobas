@@ -189,28 +189,23 @@ FrameType SetupAssistantWidget::determineFrameType()
   if (uadf_.control_surfaces.empty()) {  // Does not have fixed wings.
     msg += "  • which does not have fixed wings\n";
 
-    if (uadf_.tilts.empty())  // Does not have tilt rotors.
-    {
+    if (uadf_.tilts.empty()) {  // Does not have tilt rotors.
       msg += "  • which does not have any tilt rotors\n";
 
-      if (uadf_.thrusts.size() < 3)  // Has fewer than three propellers.
-      {
+      if (uadf_.thrusts.size() < 3) {  // Has fewer than three propellers.
         msg += "  • which has fewer than 3 propellers\n";
         qt::qWarnBox(this, msg + kIsNotSupported);
         return FrameType::kUndefined;  // TODO: Two propellers might be controllable.
       }
-      else  // Has three or more propellers.
-      {
+      else {  // Has three or more propellers.
         msg += "  • which has 3 or more propellers\n";
 
         if (allThrustJointAxesAlwaysParallel(
-              kdl::Vector::UnitZ(), true))  // All propeller rotation axes always point toward Z+.
-        {
+              kdl::Vector::UnitZ(), true)) {  // All propeller rotation axes always point toward Z+.
           msg += "  • whose propeller rotation axes all point toward Z+\n";
           return FrameType::kPlanarMulticopter;  // TODO: Classify by manipulability.
         }
-        else  // At least one propeller rotation axis may point somewhere other than Z+.
-        {
+        else {  // At least one propeller rotation axis may point somewhere other than Z+.
           msg += "  • which have propellers whose rotation axis can be oriented in a direction other than Z+\n";
           return FrameType::kNonPlanarMulticopter;  // TODO: Classify by manipulability.
         }
@@ -220,8 +215,7 @@ FrameType SetupAssistantWidget::determineFrameType()
     {
       msg += "  • which has at least one tilt rotors\n";
 
-      if (allTiltRotorAxesPerpendicular())  // All tilt axes and rotor axes are orthogonal.
-      {
+      if (allTiltRotorAxesPerpendicular()) {  // All tilt axes and rotor axes are orthogonal.
         msg += "  • which has each tilt axis perpendicular to its corresponding propeller rotation axis\n";
 
         if (allTiltJointAxesAlwaysParallel()) {  // All tilt axes are always mutually parallel.
@@ -250,8 +244,7 @@ FrameType SetupAssistantWidget::determineFrameType()
       }
     }
   }
-  else  // When the model has fixed wings.
-  {
+  else {  // When the model has fixed wings.
     msg += "  • which has fixed wings\n";
     qt::qWarnBox(this, msg + kIsNotSupported);
     return FrameType::kUndefined;  // TODO: Support fixed wings.
