@@ -59,7 +59,7 @@ If you only want to install and use Tobas, start from the
 
    ```bash
    $ cd ~/colcon_ws/src
-   $ git clone git@github.com:TobasFlightControl/tobas.git --recursive -b jazzy
+   $ git clone git@github.com:TobasFlightControl/tobas.git -b jazzy
    ```
 
 5. Install dependencies

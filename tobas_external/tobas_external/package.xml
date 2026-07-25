@@ -2,15 +2,15 @@
 <package format="3">
 
 	<name>tobas_external</name>
-	<version>0.0.0</version>
+	<version>2.16.0</version>
 	<description>TODO</description>
 	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
 	<license>GPL-3.0-or-later</license>
 
 	<buildtool_depend>ament_cmake</buildtool_depend>
 
-	<exec_depend>inja_ament</exec_depend>
-	<exec_depend>rapidcsv_ament</exec_depend>
+	<exec_depend>tobas_inja_vendor</exec_depend>
+	<exec_depend>tobas_rapidcsv_vendor</exec_depend>
 
 	<export>
 		<build_type>ament_cmake</build_type>

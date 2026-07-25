@@ -15,8 +15,8 @@ set(AMENT_DEPENDENCIES
     magic_enum
     sensor_msgs
     visualization_msgs
-    inja_ament
-    rapidcsv_ament
+    tobas_inja_vendor
+    tobas_rapidcsv_vendor
     tobas_string_tools
     tobas_xml_tools
     tobas_git

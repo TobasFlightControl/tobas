@@ -1,13 +1,15 @@
 <?xml version="1.0"?>
 <package format="3">
 
-  <name>rapidcsv_ament</name>
-  <version>0.0.0</version>
-  <description>TODO</description>
+  <name>tobas_inja_vendor</name>
+  <version>2.16.0</version>
+  <description>Vendor package for the header-only inja template engine</description>
   <maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
-  <license>GPL-3.0-or-later</license>
+  <license>MIT</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>nlohmann-json-dev</depend>
 
   <export>
     <build_type>ament_cmake</build_type>
