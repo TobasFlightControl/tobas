@@ -134,10 +134,10 @@ bool Mixer::solve(
         // Compute the point of thrust application viewed from the grandparent link.
         const auto& par_joint = par_seg.joint();
         const auto gpar_T_cur = par_seg.frame() * cur_seg.frame();
-        const auto thrust_pos =
+        const auto gpar_P_gpar2P =
           eigen::projectPointOnToLine(par_joint.origin.data, par_joint.axis().data, gpar_T_cur.p.data);
 
-        const auto B_Pos_B2P = B_T_gpar * thrust_pos;
+        const auto B_Pos_B2P = B_T_gpar * gpar_P_gpar2P;
         const auto B_Pos_G2P = B_Pos_B2P - B_Pos_B2G;
         const auto col_tx = info.column;
         const auto col_tz = col_tx + 1;
