@@ -59,7 +59,7 @@ FrameTypeDetectionResult FrameTypeDetector::determineFrameType()
         }
       }
     }
-    else {  // When the model has tilt rotors.
+    else {
       msg += "  • which has at least one tilt rotors\n";
 
       if (eachTiltRotorAxesPerpendicular()) {
