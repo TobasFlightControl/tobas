@@ -6,7 +6,7 @@
 #include <QFormLayout>
 #include <QPushButton>
 #include <QVBoxLayout>
-#include <magic_enum.hpp>
+#include <magic_enum/magic_enum.hpp>
 
 #include "tobas_bootmedia_config/constants.hpp"
 

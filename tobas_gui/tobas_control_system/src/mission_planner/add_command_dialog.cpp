@@ -6,7 +6,7 @@
 #include <QHBoxLayout>
 #include <QPushButton>
 #include <QVBoxLayout>
-#include <magic_enum.hpp>
+#include <magic_enum/magic_enum.hpp>
 
 namespace tobas
 {
