@@ -1,6 +1,6 @@
 <package format="3">
   <name>tobas_gamepad_ros</name>
-  <version>0.0.0</version>
+  <version>2.16.0</version>
   <description>ROS nodes for tobas_gamepad_core</description>
   <maintainer email="r.onitsuka@tobas.jp">Ryo Onitsuka</maintainer>
   <license>GPL-3.0-or-later</license>
