@@ -22,10 +22,11 @@ endforeach()
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(LIBEVDEV REQUIRED libevdev)
 
-include_directories(include ${LIBEVDEV_INCLUDE_DIRS})
+include_directories(include)
 
 file(GLOB_RECURSE LIB_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_TARGETS})
+target_include_directories(${PROJECT_NAME} PUBLIC ${LIBEVDEV_INCLUDE_DIRS})
 ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
 target_link_libraries(${PROJECT_NAME} ${LIBEVDEV_LIBRARIES})
 

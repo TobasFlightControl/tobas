@@ -20,7 +20,6 @@ foreach(dependency IN ITEMS ${AMENT_DEPENDENCIES})
 endforeach()
 
 add_library(${PROJECT_NAME} SHARED nodes/rc_input_publisher.cpp)
-target_include_directories(${PROJECT_NAME} PRIVATE ${LIBEVDEV_INCLUDE_DIRS})
 ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
 target_link_options(${PROJECT_NAME} PRIVATE -Wl,--no-undefined)
 rclcpp_components_register_node(${PROJECT_NAME} PLUGIN "tobas::gamepad::RcInputPublisher" EXECUTABLE rc_input_publisher)
