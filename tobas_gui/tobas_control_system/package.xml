@@ -8,8 +8,9 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
+  <depend>magic_enum</depend>
   <depend>qtpositioning5-dev</depend>
-  <depend>magic_enum_ament</depend>
+
   <depend>tobas_path_tools</depend>
   <depend>tobas_ros2_tools</depend>
   <depend>tobas_property_client</depend>

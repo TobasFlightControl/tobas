@@ -4,7 +4,7 @@
 #include "tobas_setup_assistant/setting_tabs/controller/custom.hpp"
 
 #include <QVBoxLayout>
-#include <magic_enum/magic_enum.hpp>
+#include <magic_enum.hpp>
 
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/layouts/form_layout.hpp>

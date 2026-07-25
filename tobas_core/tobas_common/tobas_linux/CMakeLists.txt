@@ -11,9 +11,10 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Wswitch-enum -Werror")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-set(AMENT_DEPENDENCIES cxxopts_ament tobas_std_tools)
+set(AMENT_DEPENDENCIES tobas_std_tools)
 
 find_package(ament_cmake REQUIRED)
+find_package(cxxopts REQUIRED)
 
 foreach(dependency IN ITEMS ${AMENT_DEPENDENCIES})
   find_package(${dependency} REQUIRED)
@@ -31,7 +32,7 @@ set(TARGETS_TO_INSTALL "")
 foreach(file_path IN LISTS EXEC_TARGETS)
   get_filename_component(NAME ${file_path} NAME_WE)
   add_executable(${NAME} ${file_path})
-  target_link_libraries(${NAME} ${PROJECT_NAME})
+  target_link_libraries(${NAME} ${PROJECT_NAME} cxxopts::cxxopts)
   list(APPEND TARGETS_TO_INSTALL ${NAME})
 endforeach()
 

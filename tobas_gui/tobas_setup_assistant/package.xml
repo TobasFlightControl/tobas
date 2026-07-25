@@ -8,11 +8,12 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
+  <depend>magic_enum</depend>
   <depend>sensor_msgs</depend>
   <depend>visualization_msgs</depend>
+
   <depend>inja_ament</depend>
   <depend>rapidcsv_ament</depend>
-  <depend>magic_enum_ament</depend>
   <depend>tobas_string_tools</depend>
   <depend>tobas_xml_tools</depend>
   <depend>tobas_git</depend>

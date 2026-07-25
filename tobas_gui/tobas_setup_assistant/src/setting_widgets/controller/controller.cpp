@@ -3,7 +3,7 @@
 
 #include "tobas_setup_assistant/setting_tabs/controller/controller.hpp"
 
-#include <magic_enum/magic_enum.hpp>
+#include <magic_enum.hpp>
 
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/cast.hpp>

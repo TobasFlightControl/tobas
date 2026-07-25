@@ -12,11 +12,11 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Wswit
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 set(AMENT_DEPENDENCIES
+    magic_enum
     sensor_msgs
     visualization_msgs
     inja_ament
     rapidcsv_ament
-    magic_enum_ament
     tobas_string_tools
     tobas_xml_tools
     tobas_git
@@ -47,6 +47,7 @@ include_directories(include)
 file(GLOB_RECURSE LIB_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp include/*.hpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_TARGETS})
 ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
+target_link_libraries(${PROJECT_NAME} magic_enum::magic_enum)
 
 add_executable(main nodes/main.cpp)
 target_link_libraries(main ${PROJECT_NAME})

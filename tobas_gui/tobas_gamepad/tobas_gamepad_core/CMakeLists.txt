@@ -11,7 +11,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Wswitch-enum -Werror")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-set(AMENT_DEPENDENCIES magic_enum_ament tobas_math tobas_constants)
+set(AMENT_DEPENDENCIES magic_enum tobas_math tobas_constants)
 
 find_package(ament_cmake REQUIRED)
 
@@ -28,7 +28,7 @@ file(GLOB_RECURSE LIB_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} s
 add_library(${PROJECT_NAME} STATIC ${LIB_TARGETS})
 target_include_directories(${PROJECT_NAME} PUBLIC ${LIBEVDEV_INCLUDE_DIRS})
 ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
-target_link_libraries(${PROJECT_NAME} ${LIBEVDEV_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${LIBEVDEV_LIBRARIES} magic_enum::magic_enum)
 
 install(
   TARGETS ${PROJECT_NAME}

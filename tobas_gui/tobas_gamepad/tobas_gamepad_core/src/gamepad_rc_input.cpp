@@ -12,7 +12,7 @@
 #include <utility>
 
 #include <libevdev/libevdev.h>
-#include <magic_enum/magic_enum.hpp>
+#include <magic_enum.hpp>
 
 #include <tobas_constants/flight_mode.hpp>
 #include <tobas_math/core.hpp>

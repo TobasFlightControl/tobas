@@ -8,7 +8,8 @@
 
 	<buildtool_depend>ament_cmake</buildtool_depend>
 
-	<depend>cxxopts_ament</depend>
+	<depend>libcxxopts-dev</depend>
+
 	<depend>tobas_std_tools</depend>
 
 	<export>

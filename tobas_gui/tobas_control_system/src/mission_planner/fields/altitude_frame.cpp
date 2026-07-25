@@ -8,7 +8,7 @@
 #include <stdexcept>
 
 #include <QHBoxLayout>
-#include <magic_enum/magic_enum.hpp>
+#include <magic_enum.hpp>
 
 #define RELATIVE_TO_LAUNCH_LABEL "Relative to Launch"
 #define MEAN_SEA_LEVEL_LABEL "Mean Sea Level"

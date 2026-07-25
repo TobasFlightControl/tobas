@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include <magic_enum/magic_enum.hpp>
+#include <magic_enum.hpp>
 
 #include <tobas_constants/path.hpp>
 #include <tobas_constants/rc_input.hpp>
