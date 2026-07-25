@@ -16,6 +16,7 @@ Only the public `src/rapidcsv.h` header is vendored.
 
 1. Find the latest stable tag on the [upstream releases page](https://github.com/d99kris/rapidcsv/releases/latest),
    and set `UPSTREAM_TAG` below to that exact tag.
+
 2. From this package directory, download and extract the corresponding source archive:
 
    ```bash
