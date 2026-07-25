@@ -4,7 +4,7 @@
 	<name>tobas_external</name>
 	<version>0.0.0</version>
 	<description>TODO</description>
-	<maintainer email="masa0u0masa1215@gmail.com">Masayoshi Dohi</maintainer>
+	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
 	<license>GPL-3.0-or-later</license>
 
 	<buildtool_depend>ament_cmake</buildtool_depend>
