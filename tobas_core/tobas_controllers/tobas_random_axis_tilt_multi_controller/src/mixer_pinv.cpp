@@ -33,6 +33,7 @@ bool PinvMixer::updateInternalDataStructures()
 
   const auto nr = drone_.prop->numRotors();
   info_.resize(nr);
+  state_.resize(nr);
   E_.conservativeResize(NoChange, 2 * nr);
   x_.conservativeResize(2 * nr);
 
@@ -92,7 +93,8 @@ bool PinvMixer::solve(
 
   for (const auto& [idx, rotor_it] : views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = rotor_it.second;
-    auto& info = info_[idx];
+    const auto& info = info_[idx];
+    auto& state = state_[idx];
 
     const auto& cur_elem = tree_.getSegment(rotor->link_name)->second;
     const auto& cur_seg = cur_elem.segment;
@@ -115,21 +117,21 @@ bool PinvMixer::solve(
       }
 
       // Update the singular state.
-      if (info.is_singular) {
+      if (state.is_singular) {
         if (declination > cfg_.singular_declination_ub) {
-          info.is_singular = false;
+          state.is_singular = false;
         }
       }
       else {
         if (declination < cfg_.singular_declination_lb) {
-          info.is_singular = true;
+          state.is_singular = true;
         }
       }
     }
 
     // Compute the left-hand side of the equations of motion.
     const auto col = 2 * idx;
-    if (rotor_alive_[rotor->link_name] && !info.is_singular) {
+    if (rotor_alive_[rotor->link_name] && !state.is_singular) {
       // Compute the point of thrust application viewed from the grandparent link.
       const auto gpar_T_cur = par_seg.frame() * cur_seg.frame();
       const auto gpar_P_gpar2P =
@@ -176,8 +178,8 @@ bool PinvMixer::solve(
   // Fix to the minimum value because the thrust solution corresponding to the singular state has become zero.
   for (const auto& [idx, rotor_it] : views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = rotor_it.second;
-    const auto& info = info_[idx];
-    if (info.is_singular) {
+    const auto& state = state_[idx];
+    if (state.is_singular) {
       x_(2 * idx) = drone_.prop->minThrust(rotor->link_name);
       x_(2 * idx + 1) = 0.0;
     }

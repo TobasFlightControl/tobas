@@ -42,6 +42,7 @@ bool Mixer::updateInternalDataStructures()
 
   const auto nr = drone_.prop->numRotors();
   info_.resize(nr);
+  state_.resize(nr);
 
   size_t col = 0;
   for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
@@ -110,7 +111,8 @@ bool Mixer::solve(
 
   for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = rotor_it.second;
-    auto& info = info_[idx];
+    const auto& info = info_[idx];
+    auto& state = state_[idx];
 
     const auto& cur_elem = tree_.getSegment(rotor->link_name)->second;
     const auto& cur_seg = cur_elem.segment;
@@ -126,7 +128,7 @@ bool Mixer::solve(
       const auto& B_T_gpar = fk_solver_.getFrame(gpar_seg.name());
       const auto B_T_par = B_T_gpar * par_seg.pose(0.0);
       const auto n = B_T_par.M * cur_seg.joint().axis();
-      info.alpha = std::atan2(n.x(), n.z());
+      state.alpha = std::atan2(n.x(), n.z());
 
       // Compute the left-hand side of the equations of motion.
       // When the rotor is dead, force the optimal thrust to zero by setting the transfer from thrust to vehicle motion to zero.
@@ -157,15 +159,15 @@ bool Mixer::solve(
       // Update the rotor axis angle relative to the body frame.
       const auto& B_T_par = fk_solver_.getFrame(par_seg.name());
       const auto n = B_T_par.M * cur_seg.joint().axis();
-      info.alpha = std::atan2(n.x(), n.z());
+      state.alpha = std::atan2(n.x(), n.z());
 
       // Update the left-hand side of the equations of motion.
       if (rotor_alive_[rotor->link_name]) {
         const auto& B_Pos_B2P = fk_solver_.getFrame(cur_seg.name()).p;
         const auto B_Pos_G2P = B_Pos_B2P - B_Pos_B2G;
         E_.block<3, 1>(0, info.column) = (B_Pos_G2P * n - d_cm * n).data;
-        E_(3, info.column) = std::sin(info.alpha);
-        E_(4, info.column) = std::cos(info.alpha);
+        E_(3, info.column) = std::sin(state.alpha);
+        E_(4, info.column) = std::cos(state.alpha);
       }
       else {
         E_.col(info.column).setZero();
@@ -191,6 +193,7 @@ bool Mixer::solve(
 double Mixer::getThrust(size_t idx) const
 {
   const auto& info = info_.at(idx);
+
   if (info.is_tilt) {
     return thrustDeadband(x_.segment<2>(info.column).norm());
   }
@@ -202,10 +205,12 @@ double Mixer::getThrust(size_t idx) const
 double Mixer::getTiltAngle(size_t idx) const
 {
   const auto& info = info_.at(idx);
+  const auto& state = state_.at(idx);
+
   if (info.is_tilt) {
     const auto tx = thrustDeadband(x_(info.column));
     const auto tz = thrustDeadband(x_(info.column + 1));
-    return info.sign * (std::atan2(tx, tz) - info.alpha);
+    return info.sign * (std::atan2(tx, tz) - state.alpha);
   }
   else {
     std::cerr << "Rotor " << idx << " is not a tilt rotor." << std::endl;

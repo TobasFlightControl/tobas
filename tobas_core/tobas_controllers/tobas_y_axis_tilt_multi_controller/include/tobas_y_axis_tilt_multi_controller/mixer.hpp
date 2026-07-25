@@ -37,15 +37,19 @@ private:
   kdl::TreeFkSolverPosAll fk_solver_;
   kdl::TreeInertiaSolver inertia_solver_;
 
-  /* Information about each propeller link. */
-  struct PropellerLinkInfo
+  struct StaticRotorLinkInfo
   {
     bool is_tilt;
     size_t column;
-    int sign;      // Signs of the Y components of tilt axes viewed from the body frame.
+    int sign;  // Signs of the Y components of tilt axes viewed from the body frame.
+  };
+  std::vector<StaticRotorLinkInfo> info_;
+
+  struct DynamicRotorLinkState
+  {
     double alpha;  // Tilt angle offsets viewed from the body frame [rad].
   };
-  std::vector<PropellerLinkInfo> info_;
+  std::vector<DynamicRotorLinkState> state_;
 
   Eigen::Matrix5Xd E_;
   Eigen::Vector5d f_;

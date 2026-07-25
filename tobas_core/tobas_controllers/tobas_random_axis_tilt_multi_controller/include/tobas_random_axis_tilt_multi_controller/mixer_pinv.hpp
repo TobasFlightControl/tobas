@@ -49,13 +49,18 @@ private:
   kdl::TreeFkSolverPosAll fk_solver_;
   kdl::TreeInertiaSolver inertia_solver_;
 
-  struct PropellerLinkInfo
+  struct StaticRotorLinkInfo
   {
     bool is_tilt;
-    bool is_singular = false;
     Eigen::Matrix<double, 3, 2> A;
   };
-  std::vector<PropellerLinkInfo> info_;
+  std::vector<StaticRotorLinkInfo> info_;
+
+  struct DynamicRotorLinkState
+  {
+    bool is_singular = false;
+  };
+  std::vector<DynamicRotorLinkState> state_;
 
   Eigen::Matrix6Xd E_;
   Eigen::Vector6d f_;
