@@ -37,13 +37,23 @@ private:
   kdl::TreeFkSolverPosAll fk_solver_;
   kdl::TreeInertiaSolver inertia_solver_;
 
+  struct StaticRotorLinkInfo
+  {
+    bool is_tilt;
+    size_t column;
+    int sign;  // Signs of the Y components of tilt axes viewed from the body frame.
+  };
+  std::vector<StaticRotorLinkInfo> info_;
+
+  struct DynamicRotorLinkState
+  {
+    double alpha;  // Tilt angle offsets viewed from the body frame [rad].
+  };
+  std::vector<DynamicRotorLinkState> state_;
+
   Eigen::Matrix5Xd E_;
   Eigen::Vector5d f_;
   Eigen::VectorXd x_;
-
-  std::vector<kdl::Vector> thrust_points_;  // Points of thrust application viewed from the grandparent link.
-  std::vector<int> tilt_axis_signs_;        // Signs of the Y components of tilt axes viewed from the body frame.
-  std::vector<double> tilt_offsets_;        // Tilt angle offsets viewed from the body frame [rad].
 };
 }  // namespace y_axis_tilt_multicopter
 }  // namespace tobas

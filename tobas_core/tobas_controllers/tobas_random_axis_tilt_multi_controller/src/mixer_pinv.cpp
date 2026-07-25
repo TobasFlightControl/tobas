@@ -32,21 +32,16 @@ bool PinvMixer::updateInternalDataStructures()
   inertia_solver_.updateInternalDataStructures();
 
   const auto nr = drone_.prop->numRotors();
-
-  A_.resize(nr);
+  info_.resize(nr);
+  state_.resize(nr);
   E_.conservativeResize(NoChange, 2 * nr);
   x_.conservativeResize(2 * nr);
 
-  thrust_points_.clear();
-  is_singular_.clear();
-
   for (const auto& [idx, rotor_it] : views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = rotor_it.second;
+    auto& info = info_[idx];
 
-    if (rotor->tilt_joint_name.empty()) {
-      cerr << "The tilt joint of rotor " << rotor->link_name << " is not specified." << endl;
-      return false;
-    }
+    info.is_tilt = !rotor->tilt_joint_name.empty();
 
     const auto& cur_elem = tree_.getSegment(rotor->link_name)->second;
     const auto& cur_seg = cur_elem.segment;
@@ -55,21 +50,17 @@ bool PinvMixer::updateInternalDataStructures()
     const auto& par_seg = par_elem.segment;
     const auto& par_joint = par_seg.joint();
 
-    const auto& p = par_joint.axis();                      // Tilt axis viewed from the grandparent link.
     const auto& q = par_seg.frame().M * cur_joint.axis();  // Rotor axis viewed from the joint frame of the parent link.
 
-    // Store the point of thrust application viewed from the grandparent link.
-    const auto gpar_T_cur = par_seg.frame() * cur_seg.frame();
-    const auto& rotor_pos = gpar_T_cur.p;
-    const auto thrust_pos = eigen::projectPointOnToLine(par_joint.origin.data, par_joint.axis().data, rotor_pos.data);
-    thrust_points_[rotor->link_name] = thrust_pos;
-
-    A_.at(idx).col(0) = q.data;
-    A_.at(idx).col(1) = (p * q).data;
-  }
-
-  for (const auto& [_, rotor] : drone_.prop->rotors) {
-    is_singular_[rotor->link_name] = false;
+    info.A.col(0) = q.data;
+    if (info.is_tilt) {
+      const auto& p = par_joint.axis();  // Tilt axis viewed from the grandparent link.
+      info.A.col(1) = (p * q).data;
+    }
+    else {
+      // For a non-tilt rotor, force the tilt angle to remain zero by setting the transfer from `sin(theta)` to zero.
+      info.A.col(1).setZero();
+    }
   }
 
   return true;
@@ -102,8 +93,11 @@ bool PinvMixer::solve(
 
   for (const auto& [idx, rotor_it] : views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = rotor_it.second;
+    const auto& info = info_[idx];
+    auto& state = state_[idx];
 
     const auto& cur_elem = tree_.getSegment(rotor->link_name)->second;
+    const auto& cur_seg = cur_elem.segment;
     const auto& par_elem = cur_elem.parent->second;
     const auto& par_seg = par_elem.segment;
     const auto& par_joint = par_seg.joint();
@@ -113,46 +107,53 @@ bool PinvMixer::solve(
     // Get the grandparent frame.
     const auto& B_T_gpar = fk_solver_.getFrame(gpar_seg.name());
 
-    // Compute the deviation angle between the tilt axis and vertical direction.
-    const auto tilt_axis_B = B_T_gpar.M * par_joint.axis();
-    const auto tilt_axis_W = cur_rot * tilt_axis_B;
-    auto declination = tilt_axis_W.argument(kdl::Vector::UnitZ());
-    if (declination > M_PI_2) {
-      declination = M_PI - declination;
-    }
-
-    // Update the singular state.
-    if (is_singular_.at(rotor->link_name)) {
-      if (declination > cfg_.singular_declination_ub) {
-        is_singular_[rotor->link_name] = false;
+    if (info.is_tilt) {
+      // Compute the deviation angle between the tilt axis and vertical direction.
+      const auto tilt_axis_B = B_T_gpar.M * par_joint.axis();
+      const auto tilt_axis_W = cur_rot * tilt_axis_B;
+      auto declination = tilt_axis_W.argument(kdl::Vector::UnitZ());
+      if (declination > M_PI_2) {
+        declination = M_PI - declination;
       }
-    }
-    else {
-      if (declination < cfg_.singular_declination_lb) {
-        is_singular_[rotor->link_name] = true;
+
+      // Update the singular state.
+      if (state.is_singular) {
+        if (declination > cfg_.singular_declination_ub) {
+          state.is_singular = false;
+        }
+      }
+      else {
+        if (declination < cfg_.singular_declination_lb) {
+          state.is_singular = true;
+        }
       }
     }
 
     // Compute the left-hand side of the equations of motion.
     const auto col = 2 * idx;
-    if (is_singular_.at(rotor->link_name) || !rotor_alive_.at(rotor->link_name)) {
-      // When the state is singular or the rotor is dead, force the optimal thrust to zero by setting the transfer from
-      // thrust to expected motion to zero.
-      E_.middleCols<2>(col).setZero();
-    }
-    else {
-      const auto B_Pos_B2P = B_T_gpar * thrust_points_.at(rotor->link_name);
+    if (rotor_alive_[rotor->link_name] && !state.is_singular) {
+      // Compute the point of thrust application viewed from the grandparent link.
+      const auto gpar_T_cur = par_seg.frame() * cur_seg.frame();
+      const auto gpar_P_gpar2P =
+        eigen::projectPointOnToLine(par_joint.origin.data, par_joint.axis().data, gpar_T_cur.p.data);
+
+      const auto B_Pos_B2P = B_T_gpar * gpar_P_gpar2P;
       const auto B_Pos_G2P = B_Pos_B2P - B_Pos_B2G;
 
       const auto d = rotor->sign();
       const auto cm = rotor->momentConst();
 
-      const Matrix<double, 3, 2> B = B_T_gpar.M.data * A_.at(idx);
+      const Matrix<double, 3, 2> B = B_T_gpar.M.data * info.A;
       const Matrix3d C = eigen::skew(B_Pos_G2P.data) - (d * cm) * Diagonal3d(1, 1, 1);
       const auto D = C * B;
 
       E_.block<3, 2>(0, col) = B;
       E_.block<3, 2>(3, col) = D;
+    }
+    else {
+      // When the state is singular or the rotor is dead,
+      // force the optimal thrust to zero by setting the transfer from thrust to expected motion to zero.
+      E_.middleCols<2>(col).setZero();
     }
   }
 
@@ -177,7 +178,8 @@ bool PinvMixer::solve(
   // Fix to the minimum value because the thrust solution corresponding to the singular state has become zero.
   for (const auto& [idx, rotor_it] : views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = rotor_it.second;
-    if (is_singular_.at(rotor->link_name)) {
+    const auto& state = state_[idx];
+    if (state.is_singular) {
       x_(2 * idx) = drone_.prop->minThrust(rotor->link_name);
       x_(2 * idx + 1) = 0.0;
     }

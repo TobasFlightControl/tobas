@@ -36,8 +36,7 @@ namespace gui
 namespace sa
 {
 SetupAssistantWidget::SetupAssistantWidget(rclcpp::Node::SharedPtr node)
-  : jnt_parser_(tree_)
-  , axis_solver_(tree_)
+  : frame_type_detector_(uadf_, tree_)
   , property_client_(node, "tobas_setup_assistant/setup_assistant")
   , rsp_client_(node, "robot_state_publisher")
   , spinner_(Qt::WindowModal, this)
@@ -145,11 +144,7 @@ bool SetupAssistantWidget::resolveMeshPaths(const fs::path& config_pkg_path, tin
 bool SetupAssistantWidget::updateInternalDataStructures()
 {
   // Update KDL objects.
-  q_zeros_ = kdl::JntArray::Zero(tree_.getNrOfJoints());
-  if (!jnt_parser_.updateInternalDataStructures()) {
-    return false;
-  }
-  if (!axis_solver_.updateInternalDataStructures()) {
+  if (!frame_type_detector_.updateInternalDataStructures()) {
     return false;
   }
 
@@ -171,190 +166,16 @@ bool SetupAssistantWidget::updateInternalDataStructures()
   }
 
   // Determine the frame type.
-  const auto frame_type = determineFrameType();
+  const auto frame_type_detection_result = frame_type_detector_.determineFrameType();
+  if (!frame_type_detection_result.warning_message.empty()) {
+    qt::qWarnBox(this, QString::fromStdString(frame_type_detection_result.warning_message));
+  }
 
   // Apply the frame type to widgets.
-  properties_->setFrameType(frame_type);
-  settings_->setFrameType(frame_type);
+  properties_->setFrameType(frame_type_detection_result.frame_type);
+  settings_->setFrameType(frame_type_detection_result.frame_type);
 
   return true;
-}
-
-FrameType SetupAssistantWidget::determineFrameType()
-{
-  constexpr char kIsNotSupported[] = "is not supported.";
-
-  QString msg = "Airframe\n";
-
-  if (uadf_.control_surfaces.empty()) {  // Does not have fixed wings.
-    msg += "  • which does not have fixed wings\n";
-
-    if (uadf_.tilts.empty())  // Does not have tilt rotors.
-    {
-      msg += "  • which does not have any tilt rotors\n";
-
-      if (uadf_.thrusts.size() < 3)  // Has fewer than three propellers.
-      {
-        msg += "  • which has fewer than 3 propellers\n";
-        qt::qWarnBox(this, msg + kIsNotSupported);
-        return FrameType::kUndefined;  // TODO: Two propellers might be controllable.
-      }
-      else  // Has three or more propellers.
-      {
-        msg += "  • which has 3 or more propellers\n";
-
-        if (allThrustJointAxesAlwaysParallel(
-              kdl::Vector::UnitZ(), true))  // All propeller rotation axes always point toward Z+.
-        {
-          msg += "  • whose propeller rotation axes all point toward Z+\n";
-          return FrameType::kPlanarMulticopter;  // TODO: Classify by manipulability.
-        }
-        else  // At least one propeller rotation axis may point somewhere other than Z+.
-        {
-          msg += "  • which have propellers whose rotation axis can be oriented in a direction other than Z+\n";
-          return FrameType::kNonPlanarMulticopter;  // TODO: Classify by manipulability.
-        }
-      }
-    }
-    else  // When the model has tilt rotors.
-    {
-      msg += "  • which has at least one tilt rotors\n";
-
-      if (allTiltRotorAxesPerpendicular())  // All tilt axes and rotor axes are orthogonal.
-      {
-        msg += "  • which has each tilt axis perpendicular to its corresponding propeller rotation axis\n";
-
-        if (allTiltJointAxesAlwaysParallel()) {  // All tilt axes are always mutually parallel.
-          msg += "  • whose tilt axes are all parallel to each other\n";
-
-          if (allTiltJointAxesAlwaysParallel(
-                kdl::Vector::UnitY(), false)) {  // All tilt axes are always parallel to the Y axis.
-            msg += "  • whose tilt axes are parallel to the Y axis\n";
-            return FrameType::kYAxisTiltMulticopter;
-          }
-          else {  // Not all tilt axes are always parallel to the Y axis.
-            msg += "  • whose tilt axes are not parallel to the Y axis\n";
-            qt::qWarnBox(this, msg + kIsNotSupported);
-            return FrameType::kUndefined;
-          }
-        }
-        else {  // A pair of tilt axes is not parallel.
-          msg += "  • there exists a pair of non-parallel tilt axes\n";
-          return FrameType::kRandomAxisTiltMulticopter;
-        }
-      }
-      else {  // Some tilt rotors have non-orthogonal tilt and rotor axes.
-        msg += "  • which has a tilt axis that is not perpendicular to the propeller rotation axis\n";
-        qt::qWarnBox(this, msg + kIsNotSupported);
-        return FrameType::kUndefined;  // TODO: Support models whose tilt axes and rotation axes are not orthogonal.
-      }
-    }
-  }
-  else  // When the model has fixed wings.
-  {
-    msg += "  • which has fixed wings\n";
-    qt::qWarnBox(this, msg + kIsNotSupported);
-    return FrameType::kUndefined;  // TODO: Support fixed wings.
-  }
-}
-
-bool SetupAssistantWidget::isJntAxisAlwaysParallel(
-  const std::string& link_name,
-  const kdl::Vector& tar_axis,
-  bool same_direction_only)
-{
-  const auto seg_it = tree_.getSegment(link_name);
-
-  // Return true if traversal reaches the root link without problems.
-  if (seg_it == tree_.getRootSegment()) {
-    return true;
-  }
-
-  // For a given joint angle, the necessary and sufficient condition is that
-  // all joint axes in the chain are parallel to the target.
-  // Therefore, return false if a movable-joint link exists whose joint axis is not parallel to the target.
-  const auto& joint = seg_it->second.segment.joint();
-  if (joint.type != kdl::Joint::kFixed) {
-    TOBAS_CHECK(axis_solver_.jntToCart(q_zeros_, link_name) == kdl::SolverI::kNoError);
-    const auto& cur_axis = axis_solver_.getAxis();
-    if (!cur_axis.isParallel(tar_axis, same_direction_only, kJntAxisParallelTol)) {
-      return false;
-    }
-  }
-
-  // Check the parent link.
-  const auto& par_name = seg_it->second.parent->first;
-  return isJntAxisAlwaysParallel(par_name, tar_axis, same_direction_only);
-}
-
-bool SetupAssistantWidget::allThrustJointAxesAlwaysParallel(const kdl::Vector& tar_axis, bool same_direction_only)
-{
-  for (const auto& [joint_name, _] : uadf_.thrusts) {
-    const auto& link_name = jnt_parser_.segmentName(joint_name);
-    if (!isJntAxisAlwaysParallel(link_name, tar_axis, same_direction_only)) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
-bool SetupAssistantWidget::allTiltRotorAxesPerpendicular()
-{
-  for (const auto& [tilt_joint_name, _] : uadf_.tilts) {
-    const auto tilt_joint_urdf = uadf_.urdf->getJoint(tilt_joint_name);
-    const auto& tilt_link_name = tilt_joint_urdf->child_link_name;
-    const auto tilt_link_urdf = uadf_.urdf->getLink(tilt_link_name);
-    const auto& thrust_joint_urdf = tilt_link_urdf->child_joints.front();
-    const auto& thrust_link_name = thrust_joint_urdf->child_link_name;
-
-    const auto& thrust_elem = tree_.getSegment(thrust_link_name)->second;
-    const auto& thrust_seg = thrust_elem.segment;
-    const auto& thrust_joint_kdl = thrust_seg.joint();
-
-    const auto& tilt_elem = tree_.getSegment(tilt_link_name)->second;
-    const auto& tilt_seg = tilt_elem.segment;
-    const auto& tilt_joint_kdl = tilt_seg.joint();
-
-    const auto& p = tilt_joint_kdl.axis();  // Tilt axis as seen from the grandparent link.
-    const auto& q =
-      tilt_seg.frame().M * thrust_joint_kdl.axis();  // Rotor axis as seen from the parent link joint frame.
-
-    if (!p.isPerpendicular(q)) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
-bool SetupAssistantWidget::allTiltJointAxesAlwaysParallel(const kdl::Vector& tar_axis, bool same_direction_only)
-{
-  for (const auto& [joint_name, _] : uadf_.tilts) {
-    const auto& link_name = jnt_parser_.segmentName(joint_name);
-    if (!isJntAxisAlwaysParallel(link_name, tar_axis, same_direction_only)) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
-bool SetupAssistantWidget::allTiltJointAxesAlwaysParallel()
-{
-  if (uadf_.tilts.empty()) {
-    qWarning() << "The drone has no tilt joints.";
-    return false;
-  }
-
-  // Get one tilt axis.
-  const auto& first_tilt_joint_name = uadf_.tilts.cbegin()->first;
-  const auto& first_tilt_link_name = jnt_parser_.segmentName(first_tilt_joint_name);
-  TOBAS_CHECK(axis_solver_.jntToCart(q_zeros_, first_tilt_link_name) == kdl::SolverI::kNoError);
-  const auto first_tilt_joint_axis = axis_solver_.getAxis().clone();
-
-  // If all other tilt axes are parallel to the first tilt axis, all tilt axes are mutually parallel.
-  return allTiltJointAxesAlwaysParallel(first_tilt_joint_axis, false);
 }
 
 void SetupAssistantWidget::onNewButtonClicked()

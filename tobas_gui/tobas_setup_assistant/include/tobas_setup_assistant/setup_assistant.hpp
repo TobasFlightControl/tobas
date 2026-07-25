@@ -5,19 +5,15 @@
 
 #include <tobas_colcon_cpp/core.hpp>
 #include <tobas_kdl/tree.hpp>
-#include <tobas_kdl/tree_joint_axis_solver.hpp>
-#include <tobas_kdl/tree_joint_parser.hpp>
 #include <tobas_kdl_parser/kdl_parser.hpp>
 #include <tobas_property_client/property_client.hpp>
 #include <tobas_qt_tools/widgets/wait_spinner.hpp>
 #include <tobas_ros2_tools/sync_param_client.hpp>
-#include <tobas_std_tools/unit_conversions.hpp>
-#include <tobas_uadf/model.hpp>
 #include <tobas_uadf/parser.hpp>
 
 #include "./constants.hpp"
 #include "./frame_tree.hpp"
-#include "./frame_type.hpp"
+#include "./frame_type_detector.hpp"
 #include "./joint_state_publisher.hpp"
 #include "./project_generator.hpp"
 #include "./robot_properties.hpp"
@@ -44,8 +40,6 @@ class SetupAssistantWidget : public QWidget
   static constexpr char kLastOpenedDirKey_Load[] = "last_opened_dir/load";
   static constexpr char kLastOpenedDirKey_Save[] = "last_opened_dir/save";
 
-  static constexpr double kJntAxisParallelTol = st::deg2rad(5);  // [rad]
-
 public:
   explicit SetupAssistantWidget(rclcpp::Node::SharedPtr node);
 
@@ -53,9 +47,7 @@ private:
   uadf::Model uadf_;
   kdl::Tree tree_;
 
-  kdl::JntArray q_zeros_;
-  kdl::TreeJointParser jnt_parser_;
-  kdl::TreeJointAxisSolver axis_solver_;
+  FrameTypeDetector frame_type_detector_;
 
   XacroParser xacro_parser_;
   uadf::Parser uadf_parser_;
@@ -91,23 +83,6 @@ private:
   bool resolveMeshPaths(const std::filesystem::path& config_pkg_path, tinyxml2::XMLElement* elem);
 
   bool updateInternalDataStructures();
-
-  FrameType determineFrameType();
-
-  /* Check whether the joint axis of the specified link is parallel to the specified axis regardless of generalized coordinates. */
-  bool isJntAxisAlwaysParallel(const std::string& link_name, const kdl::Vector& tar_axis, bool same_direction_only);
-
-  /* Check whether all thrust joint axes are parallel to the specified axis regardless of generalized coordinates. */
-  bool allThrustJointAxesAlwaysParallel(const kdl::Vector& tar_axis, bool same_direction_only);
-
-  /* Check whether all tilt axes and rotor axes are orthogonal. */
-  bool allTiltRotorAxesPerpendicular();
-
-  /* Check whether all tilt joint axes are parallel to the specified axis regardless of generalized coordinates. */
-  bool allTiltJointAxesAlwaysParallel(const kdl::Vector& tar_axis, bool same_direction_only);
-
-  /* Check whether all tilt joint axes are mutually parallel. */
-  bool allTiltJointAxesAlwaysParallel();
 
 private Q_SLOTS:
   void onNewButtonClicked();
