@@ -49,13 +49,17 @@ private:
   kdl::TreeFkSolverPosAll fk_solver_;
   kdl::TreeInertiaSolver inertia_solver_;
 
-  std::vector<Eigen::Matrix<double, 3, 2>> A_;
+  struct PropellerLinkInfo
+  {
+    bool is_tilt;
+    bool is_singular = false;
+    Eigen::Matrix<double, 3, 2> A;
+  };
+  std::vector<PropellerLinkInfo> info_;
+
   Eigen::Matrix6Xd E_;
   Eigen::Vector6d f_;
   Eigen::VectorXd x_;
-
-  std::map<std::string, kdl::Vector> thrust_points_;  // Points of thrust application viewed from the grandparent link.
-  std::map<std::string, bool> is_singular_;           // Whether each tilt rotor is in a singular state.
 };
 }  // namespace random_axis_tilt_multicopter
 }  // namespace tobas
