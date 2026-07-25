@@ -55,12 +55,14 @@ repos:
         entry: black
         language: system
         files: \.(py|tplpy)$
+        exclude: ^tobas_external/
       - id: clang-format
         name: clang-format
         entry: clang-format
         language: system
         args: ["-fallback-style=none", "-i"]
         files: \.(cpp|hpp|tplcpp|tplhpp)$
+        exclude: ^tobas_external/
       - id: cmake-format
         name: cmake-format
         entry: cmake-format
