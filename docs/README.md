@@ -48,9 +48,15 @@ $ python translate_docs.py --help
 
 Translate only changed Japanese Markdown files when updating existing English pages:
 
+Choose a model and one of its supported reasoning levels from the
+[OpenAI models documentation](https://developers.openai.com/api/docs/models),
+then specify them with `--model` and `--reasoning-effort`.
+
 ```bash
-$ python translate_docs.py --changed-only --src docs/ja --dst docs/en --base-ref HEAD
+$ python translate_docs.py --changed-only --src docs/ja --dst docs/en --base-ref HEAD --model gpt-5.6-sol --reasoning-effort max
 ```
+
+Omit `--reasoning-effort` to use the model's default reasoning level.
 
 ## Deploy
 

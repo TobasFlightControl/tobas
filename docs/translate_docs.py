@@ -1,11 +1,6 @@
 #!/usr/bin/env python3
 """
 Translate all Markdown files under docs/ja/ into English and write them under docs/en/.
-
-Examples:
-  python translate_docs.py
-  python translate_docs.py --src docs/ja --dst docs/en --model gpt-5.5
-  python translate_docs.py --changed-only
 """
 
 from __future__ import annotations
@@ -49,7 +44,16 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--src", type=Path, default=Path("docs/ja"))
     parser.add_argument("--dst", type=Path, default=Path("docs/en"))
-    parser.add_argument("--model", default="gpt-5.5")
+    parser.add_argument("--model", default="gpt-5.6-sol")
+    parser.add_argument(
+        "--reasoning-effort",
+        "--reasoning",
+        metavar="LEVEL",
+        help=(
+            "Reasoning effort passed to the Responses API, for example low, "
+            "medium, or high. If omitted, the model default is used."
+        ),
+    )
     parser.add_argument("--chunk-chars", type=int, default=6000)
     parser.add_argument("--retries", type=int, default=3)
     parser.add_argument("--sleep", type=float, default=1.5)
@@ -152,6 +156,7 @@ def translate_chunk(
     client: OpenAI,
     text: str,
     model: str,
+    reasoning_effort: str | None,
     retries: int,
     sleep_sec: float,
 ) -> str:
@@ -159,10 +164,12 @@ def translate_chunk(
 
     for attempt in range(1, retries + 1):
         try:
+            reasoning_options = {"reasoning": {"effort": reasoning_effort}} if reasoning_effort is not None else {}
             response = client.responses.create(
                 model=model,
                 instructions=TRANSLATION_INSTRUCTIONS,
                 input=text,
+                **reasoning_options,
             )
             output = response.output_text
             if not output:
@@ -270,6 +277,7 @@ def translate_markdown_diff(
     src_text: str,
     dst_text: str,
     model: str,
+    reasoning_effort: str | None,
     chunk_chars: int,
     retries: int,
     sleep_sec: float,
@@ -315,6 +323,7 @@ def translate_markdown_diff(
                 client=client,
                 src_text=changed_text,
                 model=model,
+                reasoning_effort=reasoning_effort,
                 chunk_chars=chunk_chars,
                 retries=retries,
                 sleep_sec=sleep_sec,
@@ -328,6 +337,7 @@ def translate_markdown(
     client: OpenAI,
     src_text: str,
     model: str,
+    reasoning_effort: str | None,
     chunk_chars: int,
     retries: int,
     sleep_sec: float,
@@ -345,6 +355,7 @@ def translate_markdown(
             client=client,
             text=chunk,
             model=model,
+            reasoning_effort=reasoning_effort,
             retries=retries,
             sleep_sec=sleep_sec,
         )
@@ -408,6 +419,7 @@ def main() -> int:
                         src_text=src_text,
                         dst_text=dst_text,
                         model=args.model,
+                        reasoning_effort=args.reasoning_effort,
                         chunk_chars=args.chunk_chars,
                         retries=args.retries,
                         sleep_sec=args.sleep,
@@ -420,6 +432,7 @@ def main() -> int:
                 client=client,
                 src_text=src_text,
                 model=args.model,
+                reasoning_effort=args.reasoning_effort,
                 chunk_chars=args.chunk_chars,
                 retries=args.retries,
                 sleep_sec=args.sleep,
