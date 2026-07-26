@@ -1,4 +1,4 @@
-# Tobas FC1xx
+# Tobas (Raspbian)
 
 ## Setup
 
