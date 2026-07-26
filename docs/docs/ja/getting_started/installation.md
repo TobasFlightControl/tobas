@@ -36,7 +36,7 @@ $ source /opt/ros/jazzy/setup.bash
 - 16 GB 以上のマイクロ SD カード (例: <a href=https://www.sandisk.com/products/memory-cards/microsd-cards/sandisk-extreme-uhs-i-microsd target="_blank">SanDisk Extreme microSDXC™ UHS-I CARD - 32GB</a>)
 - SD カードリーダー (例: <a href=https://www.sandisk.com/products/accessories/memory-card-readers/sandisk-quickflow-microsd-memory-card-reader-usb-c target="_blank">SANDISK QuickFlow microSD Card Reader with USB-C</a>)
 
-### 手順 (デスクトップから)
+### 手順
 
 <a href=https://drive.google.com/file/d/1ECkhHWGlVKN-8F47updfDKAXjJOI3xxc/view target="_blank">tobas_2.15.0_arm64.img.gz</a>
 をダウンロードしてください．
@@ -52,36 +52,6 @@ SD カードを，カードリーダーを介して PC に接続してくださ�
 以下は balenaEtcher の画面です．
 
 ![balena_etcher](../../assets/installation/balena_etcher.png)
-
-正常に終了したら SD カードを PC から取り外してください．
-
-### 手順 (ターミナルから)
-
-<a href=https://drive.google.com/file/d/1ECkhHWGlVKN-8F47updfDKAXjJOI3xxc/view target="_blank">tobas_2.15.0_arm64.img.gz</a>
-をダウンロードします．
-
-```bash
-$ sudo apt install -y python3-pip
-$ sudo pip install gdown --break-system-packages
-$ cd ~/Download
-$ gdown --fuzzy 'https://drive.google.com/file/d/1ECkhHWGlVKN-8F47updfDKAXjJOI3xxc/view'
-```
-
-ダウンロードしたファイルを解凍します．
-
-```bash
-$ sudo apt install -y gzip
-$ gunzip tobas_2.15.0_arm64.img.gz
-```
-
-SD カードを，カードリーダーを介して PC に接続してください．
-
-イメージを SD カードに書き込みます．
-`/dev/sdx`は実際のパスに置き換えてください．
-
-```bash
-$ sudo dd if=tobas_2.15.0_arm64.img of=/dev/sdx bs=4M conv=fsync status=progress
-```
 
 正常に終了したら SD カードを PC から取り外してください．
 

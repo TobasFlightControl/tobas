@@ -19,20 +19,6 @@ Ubuntu の起動画面でユーザ名を選択した際に画面右下に現れ�
 - `Ubuntu` もしくは `Ubuntu on Wayland` が選択可能な場合 → `Ubuntu`
 - `Ubuntu on Xorg` もしくは `Ubuntu` が選択可能な場合 → `Ubuntu on Xorg`
 
-## 明らかに存在するプロジェクトフォルダが存在しないと言われる: Local directory /.../hoge.TBS does not exist.
-
----
-
-Python の`os.path.isdir()`が，ディレクトリが存在するにも関わらず`False`を返しています．
-原因は不明ですが，apt パッケージを更新することで改善しました．
-
-```bash
-$ sudo apt update
-$ sudo apt upgrade -y
-$ sudo apt autoremove --purge -y
-$ sudo apt autoclean
-```
-
 ## FC と PC 間の ROS 通信ができない
 
 ---

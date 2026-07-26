@@ -20,7 +20,7 @@ Setup Assistant で作成した Tobas プロジェクト (例: tobas_f450.TBS) �
 このような仕組みになっているのは，ROS 2 のバックエンドである DDS のノード探索アルゴリズムがリアルタイム性に悪影響を及ぼすのを避けるためです．
 
 試しに GNSS の状態を確認し，3 次元測位できている場合に 1 秒おきにメッセージを発する C++ ノードを作成してみます．
-`tobas_f450_user_cpp/tobas_f450_user_cpp/user_node.cpp`を以下のように編集してください．
+`tobas_f450_user_cpp/nodes/user_node.cpp`を以下のように編集してください．
 
 ```cpp
 #include <tobas_constants/ros_interface.hpp>
@@ -28,13 +28,13 @@ Setup Assistant で作成した Tobas プロジェクト (例: tobas_f450.TBS) �
 
 #include <tobas_msgs_adapter/gnss.hpp>
 
-class GnssStateCheckerNode : public tobas::BaseNode
+class UserNode : public tobas::BaseNode
 {
-  using self = GnssStateCheckerNode;
+  using self = UserNode;
   using super = tobas::BaseNode;
 
 public:
-  explicit GnssStateCheckerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit UserNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
   tobas::ros2::SubscriberPtr<tobas_msgs::Gnss> gnss_sub_;
@@ -42,20 +42,28 @@ private:
   void gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss);
 };
 
-GnssStateCheckerNode::GnssStateCheckerNode(const rclcpp::NodeOptions& options)
+UserNode::UserNode(const rclcpp::NodeOptions& options)
   : super("gnss_state_checker", nodeOptions_Default(options))
 {
   gnss_sub_ = createSubscriber<tobas_msgs::Gnss>(tobas::topic::kGnss, &self::gnssCb, this);
 }
 
-void GnssStateCheckerNode::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss)
+void UserNode::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss)
 {
   if (gnss->fix_type == tobas_msgs::msg::Gnss::FIX_3D) {
     TOBAS_INFO_THROTTLE(1., "GNSS 3D Fix");
   }
 }
 
-RCLCPP_COMPONENTS_REGISTER_NODE(GnssStateCheckerNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(UserNode)
+```
+
+このノードで使用する依存パッケージを`tobas_f450_user_cpp/package.xml`に追加してください．
+
+```xml
+<depend>tobas_constants</depend>
+<depend>tobas_node</depend>
+<depend>tobas_msgs_adapter</depend>
 ```
 
 このノードをビルド対象に追加します．

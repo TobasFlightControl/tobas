@@ -54,8 +54,8 @@ std_msgs/Header header
 		int32 sec
 		uint32 nanosec
 	string frame_id
-float64 temperature  # [degC]
 uint64 frequency     # [Hz]
+float64 temperature  # [degC]
 float64 load         # [-]
 ```
 
@@ -925,9 +925,10 @@ string message # informational, e.g. for error messages
 
 ```txt
 # Goal
-tobas_mission_msgs/MissionItem[] items
-	uint8 type
-	byte[] data
+tobas_mission_msgs/Mission mission
+	tobas_mission_msgs/MissionItem[] items
+		uint8 type
+		byte[] data
 tobas_mission_msgs/Priority priority
 	uint8 data
 	uint8 NORMAL = 0
@@ -944,11 +945,12 @@ tobas_mission_msgs/ErrorCode error_code
 	int8 ACCEPTANCE_TIMEOUT = -3
 	int8 OTHER_ERROR = -4
 string error_message
+uint32 last_command_index
 
 ---
 
 # Feedback
-uint32 current_index
+uint32 current_command_index
 ```
 
 <!-- TODO: ミッションコマンドの詳細 -->

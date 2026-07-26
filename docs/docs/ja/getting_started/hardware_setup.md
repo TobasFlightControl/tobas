@@ -167,7 +167,7 @@ $ ros2 launch tobas_gcs gcs.launch.py
 
 ---
 
-1. 画面右上にある赤色の電源ボタンを押すと FC をシャットダウンされます．
+1. 画面右上にある赤色の電源ボタンを押すと FC がシャットダウンされます．
 1. ラズパイの電源ボタンが緑色から赤色に変化したことを確認して電源を抜いてください．
 
 ![power_off](../../assets/hardware_setup/power_off.png)

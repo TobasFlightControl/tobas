@@ -13,7 +13,7 @@ Tobas のイメージが書き込まれたマイクロ SD カードを用意し�
 ここでは外部ボリュームを扱うためにルート権限が必要です．
 
 ```bash
-$ sudo bash -c 'source ./install/setup.bash && ros2 run tobas_bootmedia_config TobasBootmediaConfig'
+$ sudo bash -c 'source /opt/ros/jazzy/setup.bash && ros2 run tobas_bootmedia_config TobasBootmediaConfig'
 ```
 
 ![start](../../assets/bootmedia_config/start.png)
@@ -64,7 +64,7 @@ SSH 鍵認証の設定を行います．
 Tobas では地上局からフライトコントローラ (FC) を操作するのに一部 SSH 鍵認証を用いているため，
 地上局として使用する PC の公開鍵を FC に登録しておく必要があります．
 
-まずSSH鍵を作成します．
+まず SSH 鍵を作成します．
 ターミナルで以下を実行して，`Passwords and Keys`を起動します．
 
 ```bash
@@ -73,9 +73,9 @@ $ seahorse
 
 左上の`+`ボタンから`Secure Shell key`を選択します．
 出てきたダイアログで`Description`に適当な識別子（`<ユーザ名>@<ホスト名>` など）を入力し，`Generate`をクリックします．
-出てきたダイアログで`OK`をクリックするとSSHの公開鍵と秘密鍵が生成されます．パスワードは空欄のままで大丈夫です．
+出てきたダイアログで`OK`をクリックすると SSH の公開鍵と秘密鍵が生成されます．パスワードは空欄のままで大丈夫です．
 その後`OpenSSH keys`をクリックすると作成された鍵が表示されていることが確認できます．
-鍵をダブルクリックし，出てきたダイアログで`Public key`をメモしたら`Password and Keys`を閉じてください．
+鍵をダブルクリックし，出てきたダイアログで`Public key`をメモしたら`Passwords and Keys`を閉じてください．
 
 <img src="../../../assets/bootmedia_config/ssh_key_1.png" alt="ssh_key_1" width="49%"/>
 <img src="../../../assets/bootmedia_config/ssh_key_2.png" alt="ssh_key_2" width="49%"/>
