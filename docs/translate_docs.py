@@ -9,9 +9,12 @@ import argparse
 import difflib
 import os
 import re
+import secrets
 import subprocess
 import sys
+import tempfile
 import time
+from collections import Counter
 from pathlib import Path
 from typing import TYPE_CHECKING, Dict, List, Sequence, Tuple
 
@@ -20,11 +23,24 @@ if TYPE_CHECKING:
 
 FRONT_MATTER_RE = re.compile(r"\A(---\n.*?\n---\n?)", re.DOTALL)
 FENCED_CODE_RE = re.compile(
-    r"(^```[^\n]*\n.*?^```[ \t]*$|^~~~[^\n]*\n.*?^~~~[ \t]*$)",
+    r"(^[ \t]*(?P<fence>`{3,}|~{3,})[^\n]*\n.*?^[ \t]*(?P=fence)[ \t]*$)",
     re.MULTILINE | re.DOTALL,
 )
 INLINE_CODE_RE = re.compile(r"(`+)([^`\n]|[^`\n].*?[^`\n])\1")
 HTML_COMMENT_RE = re.compile(r"<!--.*?-->", re.DOTALL)
+HTML_TAG_RE = re.compile(r"</?[A-Za-z][^>\n]*>|<!DOCTYPE[^>\n]*>", re.IGNORECASE)
+MARKDOWN_LINK_DEST_RE = re.compile(
+    r"(?P<prefix>!?\[[^\]\n]*\]\(\s*)"
+    r"(?P<destination><[^>\n]+>|[^\s)]+)"
+    r"(?P<suffix>\s*(?:(?:\"[^\"\n]*\"|'[^'\n]*'|\([^\n)]*\))\s*)?\))"
+)
+REFERENCE_LINK_DEST_RE = re.compile(
+    r"(?P<prefix>^[ \t]{0,3}\[[^\]\n]+\]:[ \t]*)" r"(?P<destination><[^>\n]+>|\S+)",
+    re.MULTILINE,
+)
+URL_RE = re.compile(r"https?://[^\s<>\"]+")
+PLACEHOLDER_RE = re.compile(r"⟪TOBAS_[A-F0-9]{16}_\d{4,}⟫")
+CONTEXT_CHARS = 1200
 
 TRANSLATION_INSTRUCTIONS = """\
 You are a professional technical translator.
@@ -32,18 +48,39 @@ Translate Japanese Markdown into natural, concise English.
 
 Rules:
 - Preserve Markdown structure exactly: headings, lists, tables, blockquotes, admonitions, checklists.
-- Preserve placeholders like ⟪PH_0001⟫ exactly.
+- Preserve every placeholder beginning with ⟪TOBAS_ exactly and exactly once.
 - Do not change fenced code blocks, inline code, HTML comments, URLs, anchors, file paths, command lines, environment variables, API names, class/function names, or product names unless they are natural-language prose.
 - Keep ROS 2, C++, Python, CMake, Tobas, UADF, PX4, ArduPilot, GitHub Pages, Read the Docs, and similar names unchanged.
 - Keep relative links and image paths unchanged.
+- Use terminology consistently with the surrounding context.
+- Translate only the text inside <SOURCE_TO_TRANSLATE>. The other XML sections are context only and must not appear in the output.
 - Return only the translated Markdown. No explanation.
 """
 
 
+class TranslationValidationError(RuntimeError):
+    """Raised when a translation changes protected Markdown content or structure."""
+
+
+def positive_int(value: str) -> int:
+    parsed = int(value)
+    if parsed <= 0:
+        raise argparse.ArgumentTypeError("must be greater than zero")
+    return parsed
+
+
+def nonnegative_float(value: str) -> float:
+    parsed = float(value)
+    if parsed < 0:
+        raise argparse.ArgumentTypeError("must be zero or greater")
+    return parsed
+
+
 def parse_args() -> argparse.Namespace:
+    docs_dir = Path(__file__).resolve().parent
     parser = argparse.ArgumentParser()
-    parser.add_argument("--src", type=Path, default=Path("docs/ja"))
-    parser.add_argument("--dst", type=Path, default=Path("docs/en"))
+    parser.add_argument("--src", type=Path, default=docs_dir / "docs/ja")
+    parser.add_argument("--dst", type=Path, default=docs_dir / "docs/en")
     parser.add_argument("--model", default="gpt-5.6-sol")
     parser.add_argument(
         "--reasoning-effort",
@@ -54,9 +91,9 @@ def parse_args() -> argparse.Namespace:
             "medium, or high. If omitted, the model default is used."
         ),
     )
-    parser.add_argument("--chunk-chars", type=int, default=6000)
-    parser.add_argument("--retries", type=int, default=3)
-    parser.add_argument("--sleep", type=float, default=1.5)
+    parser.add_argument("--chunk-chars", type=positive_int, default=6000)
+    parser.add_argument("--retries", type=positive_int, default=3)
+    parser.add_argument("--sleep", type=nonnegative_float, default=1.5)
     parser.add_argument(
         "--overwrite",
         action="store_true",
@@ -74,6 +111,16 @@ def parse_args() -> argparse.Namespace:
         "--base-ref",
         default="HEAD",
         help="Git revision used as the base for --changed-only.",
+    )
+    parser.add_argument(
+        "--allow-full-fallback",
+        action="store_true",
+        help=("Allow --changed-only to replace a whole English file when its " "blocks cannot be aligned safely."),
+    )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Print generated diffs without writing destination files.",
     )
     return parser.parse_args()
 
@@ -93,31 +140,137 @@ def split_front_matter(text: str) -> Tuple[str, str]:
 
 def mask_segments(text: str) -> Tuple[str, Dict[str, str]]:
     """
-    Mask code blocks, inline code, and HTML comments so the translator won't touch them.
+    Mask content that must remain byte-for-byte identical after translation.
     """
     placeholders: Dict[str, str] = {}
     counter = 0
+    namespace = f"TOBAS_{secrets.token_hex(8).upper()}"
+    while namespace in text:
+        namespace = f"TOBAS_{secrets.token_hex(8).upper()}"
 
-    def make_replacer(prefix: str):
+    def make_placeholder(value: str) -> str:
+        nonlocal counter
+        key = f"⟪{namespace}_{counter:04d}⟫"
+        placeholders[key] = value
+        counter += 1
+        return key
+
+    def make_replacer(_prefix: str):
         def replacer(match: re.Match[str]) -> str:
-            nonlocal counter
-            key = f"⟪{prefix}_{counter:04d}⟫"
-            placeholders[key] = match.group(0)
-            counter += 1
-            return key
+            return make_placeholder(match.group(0))
 
         return replacer
+
+    def replace_destination(match: re.Match[str]) -> str:
+        return (
+            match.group("prefix") + make_placeholder(match.group("destination")) + match.groupdict().get("suffix", "")
+        )
 
     text = FENCED_CODE_RE.sub(make_replacer("PH"), text)
     text = HTML_COMMENT_RE.sub(make_replacer("PH"), text)
     text = INLINE_CODE_RE.sub(make_replacer("PH"), text)
+    text = MARKDOWN_LINK_DEST_RE.sub(replace_destination, text)
+    text = REFERENCE_LINK_DEST_RE.sub(replace_destination, text)
+    text = HTML_TAG_RE.sub(make_replacer("PH"), text)
+    text = URL_RE.sub(make_replacer("PH"), text)
     return text, placeholders
 
 
 def unmask_segments(text: str, placeholders: Dict[str, str]) -> str:
     for key, value in placeholders.items():
+        count = text.count(key)
+        if count != 1:
+            raise TranslationValidationError(f"Expected placeholder {key} exactly once, found {count} times.")
         text = text.replace(key, value)
     return text
+
+
+def markdown_structure(text: str) -> List[str]:
+    """Return the ordered Markdown constructs that translation must preserve."""
+    structure: List[str] = []
+    for line in text.splitlines():
+        stripped = line.lstrip()
+        indent = len(line) - len(stripped)
+
+        heading = re.match(r"(#{1,6})\s", stripped)
+        if heading:
+            structure.append(f"heading:{len(heading.group(1))}")
+            continue
+        if re.match(r"!!!\s+\S+", stripped):
+            structure.append(f"admonition:{indent}")
+            continue
+        if stripped.startswith(">"):
+            structure.append(f"blockquote:{indent}")
+            continue
+        if re.match(r"[-+*]\s+", stripped):
+            structure.append(f"unordered-list:{indent}")
+            continue
+        if re.match(r"\d+[.)]\s+", stripped):
+            structure.append(f"ordered-list:{indent}")
+            continue
+        if "|" in stripped:
+            if re.match(r"\|?[ :|-]+\|[ :|-]*\|?$", stripped) and "-" in stripped:
+                structure.append(f"table-separator:{stripped.count('|')}")
+            else:
+                structure.append(f"table-row:{stripped.count('|')}")
+
+    return structure
+
+
+def validate_masked_translation(source: str, translated: str) -> None:
+    source_placeholders = Counter(PLACEHOLDER_RE.findall(source))
+    translated_placeholders = Counter(PLACEHOLDER_RE.findall(translated))
+    if translated_placeholders != source_placeholders:
+        raise TranslationValidationError("The translation changed, removed, or duplicated protected content.")
+
+    source_structure = markdown_structure(source)
+    translated_structure = markdown_structure(translated)
+    if translated_structure != source_structure:
+        raise TranslationValidationError("The translation changed the Markdown structure.")
+    if re.findall(r"\n{2,}", translated) != re.findall(r"\n{2,}", source):
+        raise TranslationValidationError("The translation changed Markdown paragraph boundaries.")
+
+
+def split_oversized_text(text: str, max_chars: int) -> List[str]:
+    """Split a large Markdown block without cutting protected placeholders."""
+    atoms = re.split(f"({PLACEHOLDER_RE.pattern})", text)
+    pieces: List[str] = []
+    current = ""
+
+    def append_piece(piece: str) -> None:
+        nonlocal current
+        if not piece:
+            return
+        if len(current) + len(piece) <= max_chars:
+            current += piece
+            return
+        if current:
+            pieces.append(current)
+            current = ""
+        if len(piece) <= max_chars:
+            current = piece
+            return
+        if PLACEHOLDER_RE.fullmatch(piece):
+            raise ValueError("--chunk-chars is too small to preserve protected Markdown content.")
+        for start in range(0, len(piece), max_chars):
+            segment = piece[start : start + max_chars]
+            if len(segment) == max_chars:
+                pieces.append(segment)
+            else:
+                current = segment
+
+    for atom in atoms:
+        if not atom:
+            continue
+        if PLACEHOLDER_RE.fullmatch(atom):
+            append_piece(atom)
+            continue
+        for token in re.findall(r"\S+\s*|\s+", atom):
+            append_piece(token)
+
+    if current:
+        pieces.append(current)
+    return pieces
 
 
 def chunk_text(text: str, max_chars: int) -> List[str]:
@@ -134,21 +287,24 @@ def chunk_text(text: str, max_chars: int) -> List[str]:
     for part in parts:
         if not part:
             continue
+        if len(part) > max_chars:
+            if current:
+                chunks.append(current)
+                current = ""
+            chunks.extend(split_oversized_text(part, max_chars))
+            continue
         if len(current) + len(part) <= max_chars:
             current += part
             continue
         if current:
             chunks.append(current)
-            current = part
-        else:
-            # Fallback for a single huge block
-            for i in range(0, len(part), max_chars):
-                chunks.append(part[i : i + max_chars])
-            current = ""
+        current = part
 
     if current:
         chunks.append(current)
 
+    if "".join(chunks) != text:
+        raise RuntimeError("Internal error: chunking changed the source text.")
     return chunks
 
 
@@ -159,8 +315,17 @@ def translate_chunk(
     reasoning_effort: str | None,
     retries: int,
     sleep_sec: float,
+    previous_translation: str = "",
+    following_source: str = "",
 ) -> str:
     last_error: Exception | None = None
+    request_input = (
+        "Translate only the Markdown in <SOURCE_TO_TRANSLATE>. "
+        "Use the other sections only to keep terminology and style consistent.\n\n"
+        f"<PREVIOUS_TRANSLATION>\n{previous_translation}\n</PREVIOUS_TRANSLATION>\n\n"
+        f"<SOURCE_TO_TRANSLATE>\n{text}\n</SOURCE_TO_TRANSLATE>\n\n"
+        f"<FOLLOWING_SOURCE>\n{following_source}\n</FOLLOWING_SOURCE>"
+    )
 
     for attempt in range(1, retries + 1):
         try:
@@ -168,18 +333,38 @@ def translate_chunk(
             response = client.responses.create(
                 model=model,
                 instructions=TRANSLATION_INSTRUCTIONS,
-                input=text,
+                input=request_input,
                 **reasoning_options,
             )
             output = response.output_text
             if not output:
-                raise RuntimeError("Empty translation response.")
+                raise TranslationValidationError("The API returned an empty translation.")
+            validate_masked_translation(text, output)
             return output
         except Exception as exc:
             last_error = exc
+            status_code = getattr(exc, "status_code", None)
+            retryable = isinstance(exc, TranslationValidationError)
+            retryable = retryable or status_code in {408, 409, 429}
+            retryable = retryable or isinstance(status_code, int) and status_code >= 500
+            retryable = retryable or type(exc).__name__ in {
+                "APIConnectionError",
+                "APITimeoutError",
+                "RateLimitError",
+            }
+            if not retryable:
+                raise RuntimeError(f"Translation failed: {exc}") from exc
             if attempt == retries:
                 break
-            time.sleep(sleep_sec * attempt)
+            retry_after = None
+            response_headers = getattr(getattr(exc, "response", None), "headers", {})
+            if response_headers:
+                try:
+                    retry_after = float(response_headers.get("retry-after"))
+                except (TypeError, ValueError):
+                    pass
+            delay = retry_after if retry_after is not None else sleep_sec * (2 ** (attempt - 1))
+            time.sleep(delay)
 
     raise RuntimeError(f"Translation failed after {retries} attempts: {last_error}")
 
@@ -271,6 +456,55 @@ def split_markdown_blocks(text: str) -> List[str]:
     return blocks
 
 
+def masked_markdown_structure(text: str) -> List[str]:
+    masked, _ = mask_segments(text)
+    return markdown_structure(masked)
+
+
+def validate_block_alignment(base_blocks: Sequence[str], dst_blocks: Sequence[str]) -> None:
+    if len(base_blocks) != len(dst_blocks):
+        raise ValueError(
+            "Cannot align Japanese base blocks with existing English blocks "
+            f"({len(base_blocks)} != {len(dst_blocks)})."
+        )
+
+    for index, (base_block, dst_block) in enumerate(zip(base_blocks, dst_blocks), start=1):
+        if masked_markdown_structure(base_block) != masked_markdown_structure(dst_block):
+            raise ValueError(f"Markdown structure differs in aligned block {index}.")
+
+
+def markdown_link_destinations(text: str) -> List[str]:
+    destinations = [match.group("destination") for match in MARKDOWN_LINK_DEST_RE.finditer(text)]
+    destinations.extend(match.group("destination") for match in REFERENCE_LINK_DEST_RE.finditer(text))
+    return destinations
+
+
+def validate_document_translation(source: str, translated: str) -> None:
+    """Validate invariants that must hold before generated Markdown is written."""
+    if markdown_structure(source) != markdown_structure(translated):
+        raise TranslationValidationError("The generated document changed the Markdown structure.")
+    if re.findall(r"\n{2,}", translated) != re.findall(r"\n{2,}", source):
+        raise TranslationValidationError("The generated document changed Markdown paragraph boundaries.")
+
+    ordered_extractors = {
+        "fenced code blocks": lambda value: [match.group(0) for match in FENCED_CODE_RE.finditer(value)],
+        "HTML comments": lambda value: [match.group(0) for match in HTML_COMMENT_RE.finditer(value)],
+        "HTML tags": lambda value: [match.group(0) for match in HTML_TAG_RE.finditer(value)],
+    }
+    for label, extractor in ordered_extractors.items():
+        if extractor(source) != extractor(translated):
+            raise TranslationValidationError(f"The generated document changed {label}.")
+
+    reorderable_extractors = {
+        "inline code": lambda value: [match.group(0) for match in INLINE_CODE_RE.finditer(value)],
+        "link destinations": markdown_link_destinations,
+        "URLs": lambda value: [match.group(0) for match in URL_RE.finditer(value)],
+    }
+    for label, extractor in reorderable_extractors.items():
+        if Counter(extractor(source)) != Counter(extractor(translated)):
+            raise TranslationValidationError(f"The generated document changed {label}.")
+
+
 def translate_markdown_diff(
     client: OpenAI,
     base_src_text: str,
@@ -294,11 +528,7 @@ def translate_markdown_diff(
     src_blocks = split_markdown_blocks(src_body)
     dst_blocks = split_markdown_blocks(dst_body)
 
-    if len(base_blocks) != len(dst_blocks):
-        raise ValueError(
-            "Cannot align Japanese base blocks with existing English blocks "
-            f"({len(base_blocks)} != {len(dst_blocks)})."
-        )
+    validate_block_alignment(base_blocks, dst_blocks)
 
     front_matter = dst_front_matter
     if src_front_matter != base_front_matter:
@@ -327,10 +557,14 @@ def translate_markdown_diff(
                 chunk_chars=chunk_chars,
                 retries=retries,
                 sleep_sec=sleep_sec,
+                context_before="".join(dst_blocks[max(0, i1 - 2) : i1]),
+                context_after="".join(src_blocks[j2 : j2 + 2]),
             )
         )
 
-    return front_matter + "".join(result_blocks)
+    translated_body = "".join(result_blocks)
+    validate_document_translation(src_body, translated_body)
+    return front_matter + translated_body
 
 
 def translate_markdown(
@@ -341,6 +575,8 @@ def translate_markdown(
     chunk_chars: int,
     retries: int,
     sleep_sec: float,
+    context_before: str = "",
+    context_after: str = "",
 ) -> str:
     src_text = normalize_newlines(src_text)
     front_matter, body = split_front_matter(src_text)
@@ -351,6 +587,8 @@ def translate_markdown(
     translated_chunks: List[str] = []
     for idx, chunk in enumerate(chunks, start=1):
         print(f"    chunk {idx}/{len(chunks)}")
+        previous_translation = translated_chunks[-1] if translated_chunks else context_before
+        following_source = chunks[idx] if idx < len(chunks) else context_after
         translated = translate_chunk(
             client=client,
             text=chunk,
@@ -358,11 +596,14 @@ def translate_markdown(
             reasoning_effort=reasoning_effort,
             retries=retries,
             sleep_sec=sleep_sec,
+            previous_translation=previous_translation[-CONTEXT_CHARS:],
+            following_source=following_source[:CONTEXT_CHARS],
         )
         translated_chunks.append(translated)
 
     translated_body = "".join(translated_chunks)
     translated_body = unmask_segments(translated_body, placeholders)
+    validate_document_translation(body, translated_body)
 
     return front_matter + translated_body
 
@@ -371,14 +612,73 @@ def iter_markdown_files(root: Path) -> List[Path]:
     return sorted(p for p in root.rglob("*.md") if p.is_file() and p.name != "README.md")
 
 
+def deleted_markdown_files(root: Path, base_ref: str) -> List[Path]:
+    git_root = find_git_root(root)
+    root_path = to_git_path(root, git_root)
+    deleted = run_git(
+        ["diff", "--diff-filter=D", "--name-only", base_ref, "--", root_path],
+        git_root,
+    ).splitlines()
+    return [git_root / path for path in deleted if Path(path).suffix == ".md" and Path(path).name != "README.md"]
+
+
+def validate_paths(src: Path, dst: Path) -> None:
+    if not src.is_dir():
+        raise ValueError(f"Source directory does not exist or is not a directory: {src}")
+
+    src_resolved = src.resolve()
+    dst_resolved = dst.resolve()
+    if src_resolved == dst_resolved:
+        raise ValueError("Source and destination directories must be different.")
+    if src_resolved in dst_resolved.parents or dst_resolved in src_resolved.parents:
+        raise ValueError("Source and destination directories must not contain one another.")
+
+
+def write_text_atomic(path: Path, text: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    file_descriptor, temp_name = tempfile.mkstemp(prefix=f".{path.name}.", dir=path.parent, text=True)
+    temp_path = Path(temp_name)
+    try:
+        with os.fdopen(file_descriptor, "w", encoding="utf-8", newline="") as stream:
+            stream.write(text)
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.replace(temp_path, path)
+    finally:
+        temp_path.unlink(missing_ok=True)
+
+
+def print_generated_diff(path: Path, translated: str) -> None:
+    current = path.read_text(encoding="utf-8") if path.exists() else ""
+    diff = difflib.unified_diff(
+        current.splitlines(keepends=True),
+        translated.splitlines(keepends=True),
+        fromfile=str(path),
+        tofile=f"{path} (generated)",
+    )
+    sys.stdout.writelines(diff)
+
+
 def main() -> int:
     args = parse_args()
 
-    if not args.src.exists():
-        print(f"Source directory does not exist: {args.src}", file=sys.stderr)
-        return 1
+    try:
+        validate_paths(args.src, args.dst)
+    except ValueError as exc:
+        print(exc, file=sys.stderr)
+        return 2
 
     files = changed_markdown_files(args.src, args.base_ref) if args.changed_only else iter_markdown_files(args.src)
+    deleted_files = deleted_markdown_files(args.src, args.base_ref) if args.changed_only else []
+    for deleted_path in deleted_files:
+        rel = deleted_path.resolve().relative_to(args.src.resolve())
+        stale_dst = args.dst / rel
+        if stale_dst.exists():
+            print(
+                f"Warning: source was deleted but destination still exists: {stale_dst}",
+                file=sys.stderr,
+            )
+
     if not files:
         if args.changed_only:
             print(f"No changed Markdown files found under: {args.src}")
@@ -390,7 +690,11 @@ def main() -> int:
         print("OPENAI_API_KEY is not set.", file=sys.stderr)
         return 1
 
-    from openai import OpenAI
+    try:
+        from openai import OpenAI
+    except ImportError:
+        print("The openai package is not installed. Run: pip install openai", file=sys.stderr)
+        return 1
 
     client = OpenAI()
 
@@ -425,6 +729,13 @@ def main() -> int:
                         sleep_sec=args.sleep,
                     )
                 except ValueError as exc:
+                    if not args.allow_full_fallback:
+                        print(
+                            f"Cannot update {dst_path} safely: {exc}\n"
+                            "Re-run with --allow-full-fallback to translate the whole file.",
+                            file=sys.stderr,
+                        )
+                        return 1
                     print(f"    fallback to full translation: {exc}")
 
         if translated is None:
@@ -438,8 +749,10 @@ def main() -> int:
                 sleep_sec=args.sleep,
             )
 
-        dst_path.parent.mkdir(parents=True, exist_ok=True)
-        dst_path.write_text(translated, encoding="utf-8")
+        if args.dry_run:
+            print_generated_diff(dst_path, translated)
+        else:
+            write_text_atomic(dst_path, translated)
 
     print("Done.")
     return 0

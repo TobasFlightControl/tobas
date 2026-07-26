@@ -53,10 +53,14 @@ Choose a model and one of its supported reasoning levels from the
 then specify them with `--model` and `--reasoning-effort`.
 
 ```bash
-$ python translate_docs.py --changed-only --src docs/ja --dst docs/en --base-ref HEAD --model gpt-5.6-sol --reasoning-effort max
+$ python translate_docs.py --changed-only --src docs/ja --dst docs/en --base-ref HEAD --model gpt-5.6-sol --reasoning-effort max --dry-run
 ```
 
-Omit `--reasoning-effort` to use the model's default reasoning level.
+Review the generated diff, then run the same command without `--dry-run` to update the files.
+The helper rejects translations that change protected code, links, URLs, HTML, or Markdown structure.
+If an existing English file cannot be aligned safely with its Japanese source, inspect the files first and
+use `--allow-full-fallback` only when replacing the entire English file is intended.
+Deleted Japanese files are reported as warnings so that their English counterparts can be reviewed before removal.
 
 ## Deploy
 
