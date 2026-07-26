@@ -48,7 +48,7 @@ rosdep update
 source /opt/ros/jazzy/setup.bash
 
 # ===== Install ROS dependencies of Tobas =====
-rosdep install --from-paths /opt/tobas/share/ -yi
+rosdep install --from-paths /opt/ros/jazzy/share/ -yi
 
 # ===== Other settings =====
 # Add user to the dialout group (required to access USB devices)

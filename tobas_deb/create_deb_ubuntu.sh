@@ -6,7 +6,7 @@ set -e
 TOBAS_DEB=$(realpath $(dirname "$0"))
 UBUNTU_WORKSPACE=${TOBAS_DEB}/ubuntu
 TMP_BUILD_DIR=${ROS2_WORKSPACE}/tmp # Temporal build directory
-INSTALL_BASE=${UBUNTU_WORKSPACE}/opt/tobas
+INSTALL_BASE=${UBUNTU_WORKSPACE}/opt/ros/jazzy
 BUILD_BASE=${TMP_BUILD_DIR}/build
 
 # Navigate to the colcon workspace.
@@ -22,4 +22,4 @@ colcon build --merge-install --packages-up-to tobas --parallel-workers $(nproc) 
 fakeroot dpkg-deb --build ${UBUNTU_WORKSPACE} ${TOBAS_DEB}
 
 # Remove generated objects.
-rm -rf ${TMP_BUILD_DIR} ${UBUNTU_WORKSPACE}/opt/tobas
+rm -rf ${TMP_BUILD_DIR} ${UBUNTU_WORKSPACE}/opt/ros/jazzy

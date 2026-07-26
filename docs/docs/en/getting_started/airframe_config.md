@@ -44,7 +44,7 @@ $ ros2 launch tobas_setup_assistant setup_assistant.launch.py
 
 ---
 
-Click `New`, select `/opt/tobas/share/tobas_description/urdf/f450.uadf` in the file dialog, and click `Open`.
+Click `New`, select `/opt/ros/jazzy/share/tobas_description/urdf/f450.uadf` in the file dialog, and click `Open`.
 The airframe will then appear in the model view, and each settings page will be enabled.
 
 ![load](../../assets/airframe_config/load.png)
