@@ -161,5 +161,4 @@ extra_css:
 
 # https://squidfunk.github.io/mkdocs-material/customization/?h=css#additional-javascript
 extra_javascript:
-  - javascripts/mathjax.js
   - https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js
