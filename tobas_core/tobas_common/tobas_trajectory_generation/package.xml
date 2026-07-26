@@ -2,7 +2,7 @@
 
 	<name>tobas_trajectory_generation</name>
 	<version>2.16.0</version>
-	<description>TODO</description>
+	<description>Online and offline trajectory generators with velocity, acceleration, and jerk constraints.</description>
 	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
 	<license>GPL-3.0-or-later</license>
 

@@ -2,7 +2,7 @@
 
 	<name>tobas_dsp</name>
 	<version>2.16.0</version>
-	<description>TODO</description>
+	<description>Digital signal-processing filters and online statistical estimators for Tobas.</description>
 	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
 	<license>GPL-3.0-or-later</license>
 

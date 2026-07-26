@@ -2,7 +2,7 @@
 
 	<name>tobas_pose_pid</name>
 	<version>2.16.0</version>
-	<description>TODO</description>
+	<description>Position and orientation PID-family controllers for vehicle pose control.</description>
 	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
 	<license>GPL-3.0-or-later</license>
 

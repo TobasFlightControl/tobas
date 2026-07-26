@@ -2,7 +2,7 @@
 
 	<name>tobas_quadprog</name>
 	<version>2.16.0</version>
-	<description>TODO</description>
+	<description>Quadratic-programming interfaces and active-set, interior-point, and qpOASES-based solvers.</description>
 	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
 	<license>GPL-3.0-or-later</license>
 

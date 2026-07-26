@@ -2,7 +2,7 @@
 
 	<name>tobas_urdf</name>
 	<version>2.16.0</version>
-	<description>TODO</description>
+	<description>URDF parsing, export, and model utility library for Tobas.</description>
 	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
 	<license>GPL-3.0-or-later</license>
 

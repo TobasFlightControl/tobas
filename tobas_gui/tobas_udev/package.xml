@@ -2,7 +2,7 @@
 
 	<name>tobas_udev</name>
 	<version>2.16.0</version>
-	<description>TODO</description>
+	<description>C++ utilities for enumerating and monitoring Linux udev devices.</description>
 	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
 	<license>GPL-3.0-or-later</license>
 

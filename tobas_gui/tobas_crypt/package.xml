@@ -2,7 +2,7 @@
 
 	<name>tobas_crypt</name>
 	<version>2.16.0</version>
-	<description>TODO</description>
+	<description>Cryptographic hashing and password-verification utilities for Tobas applications.</description>
 	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
 	<license>GPL-3.0-or-later</license>
 

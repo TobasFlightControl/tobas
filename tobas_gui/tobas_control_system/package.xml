@@ -2,7 +2,7 @@
 
   <name>tobas_control_system</name>
   <version>2.16.0</version>
-  <description>TODO</description>
+  <description>Qt control dashboard for monitoring vehicles and planning and executing missions.</description>
   <maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
   <license>GPL-3.0-or-later</license>
 

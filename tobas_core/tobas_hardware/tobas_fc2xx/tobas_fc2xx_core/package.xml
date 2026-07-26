@@ -2,7 +2,7 @@
 
 	<name>tobas_fc2xx_core</name>
 	<version>2.16.0</version>
-	<description>TODO</description>
+	<description>Low-level PWM, DShot, GPIO, and battery drivers for FC2xx hardware.</description>
 	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
 	<license>GPL-3.0-or-later</license>
 

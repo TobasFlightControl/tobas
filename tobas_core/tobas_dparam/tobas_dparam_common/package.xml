@@ -2,7 +2,7 @@
 
 	<name>tobas_dparam_common</name>
 	<version>2.16.0</version>
-	<description>TODO</description>
+	<description>Shared names and constants for the Tobas dynamic parameter system.</description>
 	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
 	<license>GPL-3.0-or-later</license>
 

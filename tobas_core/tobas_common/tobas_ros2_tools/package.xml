@@ -2,7 +2,7 @@
 
 	<name>tobas_ros2_tools</name>
 	<version>2.16.0</version>
-	<description>TODO</description>
+	<description>Reusable ROS 2 utilities for nodes, QoS, timing, actions, services, parameters, TF, and rosbag.</description>
 	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
 	<license>GPL-3.0-or-later</license>
 

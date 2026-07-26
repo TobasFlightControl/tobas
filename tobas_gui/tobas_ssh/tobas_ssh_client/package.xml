@@ -2,7 +2,7 @@
 
 	<name>tobas_ssh_client</name>
 	<version>2.16.0</version>
-	<description>TODO</description>
+	<description>C++ ROS 2 client for remote command execution and file transfer over SSH.</description>
 	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
 	<license>GPL-3.0-or-later</license>
 

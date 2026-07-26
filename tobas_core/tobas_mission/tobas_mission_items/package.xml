@@ -2,7 +2,7 @@
 
 	<name>tobas_mission_items</name>
 	<version>2.16.0</version>
-	<description>TODO</description>
+	<description>C++ mission, mission-item, priority, and altitude-frame data models.</description>
 	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
 	<license>GPL-3.0-or-later</license>
 

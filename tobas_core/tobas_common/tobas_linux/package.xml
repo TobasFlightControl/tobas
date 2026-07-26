@@ -2,7 +2,7 @@
 
 	<name>tobas_linux</name>
 	<version>2.16.0</version>
-	<description>TODO</description>
+	<description>Linux utilities for devices, processes, files, real-time scheduling, memory locking, and subprocesses.</description>
 	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
 	<license>GPL-3.0-or-later</license>
 

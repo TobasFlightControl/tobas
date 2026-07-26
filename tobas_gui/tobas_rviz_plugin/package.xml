@@ -2,7 +2,7 @@
 
   <name>tobas_rviz_plugin</name>
   <version>2.16.0</version>
-  <description>TODO</description>
+  <description>RViz display plugins for visualizing Tobas vehicles, models, trajectories, and sensor data.</description>
   <maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
   <license>GPL-3.0-or-later</license>
 

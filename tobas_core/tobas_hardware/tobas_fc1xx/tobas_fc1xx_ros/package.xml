@@ -2,7 +2,7 @@
 
 	<name>tobas_fc1xx_ros</name>
 	<version>2.16.0</version>
-	<description>TODO</description>
+	<description>ROS 2 sensor and actuator driver nodes for FC1xx flight controllers.</description>
 	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
 	<license>GPL-3.0-or-later</license>
 

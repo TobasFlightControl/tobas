@@ -2,7 +2,7 @@
 
 	<name>tobas_gazebo_tools</name>
 	<version>2.16.0</version>
-	<description>TODO</description>
+	<description>Utility nodes and tools for controlling and inspecting Tobas Gazebo simulations.</description>
 	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
 	<license>GPL-3.0-or-later</license>
 

@@ -2,7 +2,7 @@
 
 	<name>tobas_time_tools</name>
 	<version>2.16.0</version>
-	<description>TODO</description>
+	<description>Timing utilities for rates, stopwatches, frequency measurement, and duration operations.</description>
 	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
 	<license>GPL-3.0-or-later</license>
 

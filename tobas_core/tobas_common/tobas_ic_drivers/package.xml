@@ -2,7 +2,7 @@
 
 	<name>tobas_ic_drivers</name>
 	<version>2.16.0</version>
-	<description>TODO</description>
+	<description>C++ drivers for sensors, converters, GNSS receivers, and other integrated circuits used by Tobas.</description>
 	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
 	<license>GPL-3.0-or-later</license>
 

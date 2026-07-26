@@ -2,7 +2,7 @@
 
 	<name>tobas_control</name>
 	<version>2.16.0</version>
-	<description>TODO</description>
+	<description>Control-system algorithms including state-space models, optimal control, Kalman filtering, MPC, and PID.</description>
 	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
 	<license>GPL-3.0-or-later</license>
 

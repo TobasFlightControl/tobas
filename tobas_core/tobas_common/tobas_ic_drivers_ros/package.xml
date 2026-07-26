@@ -2,7 +2,7 @@
 
 	<name>tobas_ic_drivers_ros</name>
 	<version>2.16.0</version>
-	<description>TODO</description>
+	<description>ROS 2 publisher nodes for integrated-circuit sensor drivers.</description>
 	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
 	<license>GPL-3.0-or-later</license>
 

@@ -2,7 +2,7 @@
 
 	<name>tobas_colcon_cpp</name>
 	<version>2.16.0</version>
-	<description>TODO</description>
+	<description>C++ interface for invoking colcon builds and processing build events.</description>
 	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
 	<license>GPL-3.0-or-later</license>
 

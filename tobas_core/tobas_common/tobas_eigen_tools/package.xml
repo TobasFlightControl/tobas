@@ -2,7 +2,7 @@
 
 	<name>tobas_eigen_tools</name>
 	<version>2.16.0</version>
-	<description>TODO</description>
+	<description>Eigen utilities for geometry, kinematics, interpolation, tensors, hashing, and linear algebra.</description>
 	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
 	<license>GPL-3.0-or-later</license>
 

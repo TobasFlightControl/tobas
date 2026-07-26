@@ -2,7 +2,7 @@
 
 	<name>tobas_algorithm</name>
 	<version>2.16.0</version>
-	<description>TODO</description>
+	<description>General-purpose C++ algorithms for binary data, CRC calculation, stable summation, and range handling.</description>
 	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
 	<license>GPL-3.0-or-later</license>
 

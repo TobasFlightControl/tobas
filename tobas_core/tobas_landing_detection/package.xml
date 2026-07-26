@@ -2,7 +2,7 @@
 
 	<name>tobas_landing_detection</name>
 	<version>2.16.0</version>
-	<description>TODO</description>
+	<description>ROS 2 node that detects vehicle landing and landed-state transitions.</description>
 	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
 	<license>GPL-3.0-or-later</license>
 

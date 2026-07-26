@@ -2,7 +2,7 @@
 
 	<name>tobas_random_axis_tilt_multi_controller</name>
 	<version>2.16.0</version>
-	<description>TODO</description>
+	<description>Flight controller and mixer for multirotors with randomly oriented tilting axes.</description>
 	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
 	<license>GPL-3.0-or-later</license>
 

@@ -2,7 +2,7 @@
 
 	<name>tobas_constants</name>
 	<version>2.16.0</version>
-	<description>TODO</description>
+	<description>Shared constants and enumerations for Tobas flight modes, frames, hardware, topics, and commands.</description>
 	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
 	<license>GPL-3.0-or-later</license>
 

@@ -2,7 +2,7 @@
 
   <name>tobas_qt_tools</name>
   <version>2.16.0</version>
-  <description>TODO</description>
+  <description>Reusable Qt widgets, models, dialogs, validators, and application utilities.</description>
   <maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
   <license>GPL-3.0-or-later</license>
 

@@ -2,7 +2,7 @@
 
   <name>tobas_rqt_bridge</name>
   <version>2.16.0</version>
-  <description>TODO</description>
+  <description>Qt signal bridge for delivering Tobas ROS 2 messages to GUI applications.</description>
   <maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
   <license>GPL-3.0-or-later</license>
 

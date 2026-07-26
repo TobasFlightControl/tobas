@@ -2,7 +2,7 @@
 
 	<name>tobas_gazebo_common</name>
 	<version>2.16.0</version>
-	<description>TODO</description>
+	<description>Shared constants and utilities for Tobas Gazebo plugins and simulations.</description>
 	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
 	<license>GPL-3.0-or-later</license>
 

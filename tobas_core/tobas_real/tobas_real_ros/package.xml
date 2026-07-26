@@ -2,7 +2,7 @@
 
 	<name>tobas_real_ros</name>
 	<version>2.16.0</version>
-	<description>TODO</description>
+	<description>ROS 2 handlers for real IMU, magnetometer, RC, joint, CPU, and propulsion-system data.</description>
 	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
 	<license>GPL-3.0-or-later</license>
 

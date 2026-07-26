@@ -2,7 +2,7 @@
 
 	<name>tobas_vibration_filter</name>
 	<version>2.16.0</version>
-	<description>TODO</description>
+	<description>ROS 2 node that filters IMU vibration and publishes vibration metrics.</description>
 	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
 	<license>GPL-3.0-or-later</license>
 

@@ -2,7 +2,7 @@
 
 	<name>tobas_dynamixel_msgs</name>
 	<version>2.16.0</version>
-	<description>TODO</description>
+	<description>ROS 2 message definitions for Dynamixel motor commands and states.</description>
 	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
 	<license>Apache-2.0</license>
 

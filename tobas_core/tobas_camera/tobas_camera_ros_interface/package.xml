@@ -2,7 +2,7 @@
 
 	<name>tobas_camera_ros_interface</name>
 	<version>2.16.0</version>
-	<description>TODO</description>
+	<description>C++ ROS 2 interface helpers for communicating with Tobas-compatible cameras.</description>
 	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
 	<license>GPL-3.0-or-later</license>
 

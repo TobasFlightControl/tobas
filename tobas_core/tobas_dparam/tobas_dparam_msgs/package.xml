@@ -2,7 +2,7 @@
 
 	<name>tobas_dparam_msgs</name>
 	<version>2.16.0</version>
-	<description>TODO</description>
+	<description>ROS 2 messages and services for typed dynamic parameters.</description>
 	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
 	<license>Apache-2.0</license>
 

@@ -2,7 +2,7 @@
 
   <name>tobas_setup_assistant</name>
   <version>2.16.0</version>
-  <description>TODO</description>
+  <description>Qt setup assistant for configuring Tobas projects, vehicles, and runtime environments.</description>
   <maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
   <license>GPL-3.0-or-later</license>
 

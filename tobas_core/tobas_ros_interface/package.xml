@@ -2,7 +2,7 @@
 
 	<name>tobas_ros_interface</name>
 	<version>2.16.0</version>
-	<description>TODO</description>
+	<description>ROS 2 boundary node that routes Tobas logic topics, services, and actions to external interfaces.</description>
 	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
 	<license>GPL-3.0-or-later</license>
 

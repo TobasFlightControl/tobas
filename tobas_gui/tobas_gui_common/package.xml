@@ -2,7 +2,7 @@
 
 	<name>tobas_gui_common</name>
 	<version>2.16.0</version>
-	<description>TODO</description>
+	<description>Shared project, networking, SSH, build, and user-interface utilities for Tobas GUI applications.</description>
 	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
 	<license>GPL-3.0-or-later</license>
 

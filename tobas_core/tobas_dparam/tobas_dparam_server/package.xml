@@ -2,7 +2,7 @@
 
 	<name>tobas_dparam_server</name>
 	<version>2.16.0</version>
-	<description>TODO</description>
+	<description>ROS 2 server node for storing and updating dynamic parameters.</description>
 	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
 	<license>GPL-3.0-or-later</license>
 

@@ -2,7 +2,7 @@
 
 	<name>tobas_cui</name>
 	<version>2.16.0</version>
-	<description>TODO</description>
+	<description>Aggregation package for Tobas command-line and keyboard user interfaces.</description>
 	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
 	<license>GPL-3.0-or-later</license>
 

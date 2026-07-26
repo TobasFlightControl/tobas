@@ -2,7 +2,7 @@
 
 	<name>tobas_rc_teleop</name>
 	<version>2.16.0</version>
-	<description>TODO</description>
+	<description>RC-input teleoperation controllers that generate flight commands for multiple control modes.</description>
 	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
 	<license>GPL-3.0-or-later</license>
 

@@ -2,7 +2,7 @@
 
 	<name>tobas_rosbag_recorder</name>
 	<version>2.16.0</version>
-	<description>TODO</description>
+	<description>Configurable recorder for Tobas command, sensor, model, debug, and state topics.</description>
 	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
 	<license>GPL-3.0-or-later</license>
 

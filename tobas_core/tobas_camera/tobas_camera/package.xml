@@ -2,7 +2,7 @@
 
 	<name>tobas_camera</name>
 	<version>2.16.0</version>
-	<description>TODO</description>
+	<description>Aggregation package for Tobas camera drivers, interfaces, messages, and image processing.</description>
 	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
 	<license>GPL-3.0-or-later</license>
 

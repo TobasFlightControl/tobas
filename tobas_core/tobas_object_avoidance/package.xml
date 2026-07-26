@@ -2,7 +2,7 @@
 
   <name>tobas_object_avoidance</name>
   <version>2.16.0</version>
-  <description>TODO: Package description</description>
+  <description>ROS 2 node that computes obstacle-avoidance acceleration from an OctoMap using repulsive potential fields.</description>
   <maintainer email="dtetsuka@fundamentum.co.jp">dtetsuka</maintainer>
   <license>GPL-3.0-or-later</license>
 

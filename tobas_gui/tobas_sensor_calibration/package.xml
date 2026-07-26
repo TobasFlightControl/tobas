@@ -2,7 +2,7 @@
 
   <name>tobas_sensor_calibration</name>
   <version>2.16.0</version>
-  <description>TODO</description>
+  <description>Qt application for calibrating Tobas accelerometers, magnetometers, and RC input.</description>
   <maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
   <license>GPL-3.0-or-later</license>
 
