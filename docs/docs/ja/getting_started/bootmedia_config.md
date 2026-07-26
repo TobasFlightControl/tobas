@@ -9,11 +9,11 @@ Tobas のイメージが書き込まれたマイクロ SD カードを用意し�
 
 ### 設定用 GUI の起動
 
-アプリケーションメニューから`TobasBootmediaConfig`を開くか，ターミナルで以下を実行してください．
-ここでは外部ボリュームを扱うため，ユーザのログインパスワードが要求されます．
+ターミナルで以下を実行し，Tobas Bootmedia Config を起動してください．
+ここでは外部ボリュームを扱うためにルート権限が必要です．
 
 ```bash
-$ tobas_bootmedia_config
+$ sudo bash -c 'source ./install/setup.bash && ros2 run tobas_bootmedia_config TobasBootmediaConfig'
 ```
 
 ![start](../../assets/bootmedia_config/start.png)
@@ -65,7 +65,13 @@ Tobas では地上局からフライトコントローラ (FC) を操作する�
 地上局として使用する PC の公開鍵を FC に登録しておく必要があります．
 
 まずSSH鍵を作成します．
-アプリケーションメニューから`Passwords and Keys`を起動し，左上の`+`ボタンから`Secure Shell key`を選択します．
+ターミナルで以下を実行して，`Passwords and Keys`を起動します．
+
+```bash
+$ seahorse
+```
+
+左上の`+`ボタンから`Secure Shell key`を選択します．
 出てきたダイアログで`Description`に適当な識別子（`<ユーザ名>@<ホスト名>` など）を入力し，`Generate`をクリックします．
 出てきたダイアログで`OK`をクリックするとSSHの公開鍵と秘密鍵が生成されます．パスワードは空欄のままで大丈夫です．
 その後`OpenSSH keys`をクリックすると作成された鍵が表示されていることが確認できます．

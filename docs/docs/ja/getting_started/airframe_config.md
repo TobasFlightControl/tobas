@@ -32,7 +32,7 @@ UADF の詳細については[What is UADF](../additional_information/what_is_ua
 
 ---
 
-アプリケーションメニューから`TobasSetupAssistant`を起動するか，もしくはターミナルで以下を実行します．
+ターミナルで以下を実行し，Tobas Setup Assistant を起動します．
 
 ```bash
 $ ros2 launch tobas_setup_assistant setup_assistant.launch.py

@@ -78,7 +78,7 @@ GPSw (General Purpose Switch) はユーザが自由に使えるスイッチで�
 [Boot Device Configuration](./bootmedia_config.md)で複数のネットワークを設定した場合は，
 利用可能な最も優先度の高いネットワークが選択されていることに注意してください．
 
-アプリケーションメニューから`TobasGCS`を起動するか，もしくはターミナルで以下を実行します．
+ターミナルで以下を実行し，Tobas GCS を起動します．
 
 ```bash
 $ ros2 launch tobas_gcs gcs.launch.py
