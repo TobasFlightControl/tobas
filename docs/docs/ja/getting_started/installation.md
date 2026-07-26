@@ -4,65 +4,25 @@
 
 ---
 
-### 手順 (デスクトップから)
+### ROS 2 Jazzy のインストール
 
-<a href=https://drive.google.com/file/d/1R_Efi_-HoPTEq7rY3pQs6Z4MmEuOyvgo/view target="_blank">tobas_2.15.0_amd64.deb</a>
-をダウンロードしてください．
+<a href=https://docs.ros.org/en/jazzy/Installation/Ubuntu-Install-Debs.html target="_blank">ROS 2 Jazzy の公式手順</a>
+に従って ROS 2 を deb パッケージからインストールしてください．
+このドキュメントでは`ros-jazzy-desktop`を使用します．
 
-エクスプローラを開き，ダウンロードした deb パッケージをダブルクリックすると，App Center が起動します．
-`Install`をクリックするとインストールが開始します．これには数分かかることがあります．
+### Tobas のインストール
 
-![app_center](../../assets/installation/app_center.png)
-
-既に Tobas がインストールされていて更新したい場合は，一度古いパッケージをアンインストールする必要があります．
-App Center で Synaptic Package Manager をインストールして起動し，
-`tobas`を右クリックして完全削除を指定してから適用するとパッケージがアンインストールされ，再びインストールできるようになります．
-
-![synaptic](../../assets/installation/synaptic.png)
-
-インストールが完了すると，アプリケーションメニューに
-`TobasBootmediaConfig`，`TobasGCS`，`TobasInstall`，`TobasSetupAssistant`
-が追加されます．
-
-![applications](../../assets/installation/applications.png)
-
-アプリケーションメニューから`TobasInstall`を起動すると，ターミナルが開き追加のインストールが開始します．これには数十分かかることがあります．
-ターミナルの最後に`Installation finished successfully.`と表示されればインストール成功です．
-Enter キーを押してターミナルを閉じてください．
-
-![tobas_install_prereqs](../../assets/installation/tobas_install_prereqs.png)
-
-### 手順 (ターミナルから)
-
-<a href=https://drive.google.com/file/d/1R_Efi_-HoPTEq7rY3pQs6Z4MmEuOyvgo/view target="_blank">tobas_2.15.0_amd64.deb</a>
-をダウンロードします．
+ROS 2 の apt リポジトリから Tobas をインストールします．
 
 ```bash
-$ sudo apt install -y python3-pip
-$ sudo pip install gdown --break-system-packages
-$ cd ~/Download
-$ gdown --fuzzy 'https://drive.google.com/file/d/1R_Efi_-HoPTEq7rY3pQs6Z4MmEuOyvgo/view'
+$ sudo apt update
+$ sudo apt install ros-jazzy-tobas
 ```
 
-既に Tobas がインストールされていて更新したい場合は，一度古いパッケージをアンインストールします．
+Tobas を使用するターミナルでは，ROS 2 Jazzy の環境を読み込んでください．
 
 ```bash
-$ sudo apt remove tobas -y
-```
-
-Tobas をインストールします．
-
-```bash
-$ sudo apt install tobas_2.15.0_amd64.deb -y
-```
-
-依存パッケージをインストールします．
-最後に`Installation finished successfully.`と表示されればインストール成功です．
-
-```bash
-$ tobas_install_prereqs
-> ...
-> Installation finished successfully.
+$ source /opt/ros/jazzy/setup.bash
 ```
 
 ## フライトコントローラのイメージ書き込み
@@ -124,12 +84,6 @@ $ sudo dd if=tobas_2.15.0_arm64.img of=/dev/sdx bs=4M conv=fsync status=progress
 ```
 
 正常に終了したら SD カードを PC から取り外してください．
-
-<!-- prettier-ignore-start -->
-!!! note
-    PC用のdebパッケージとFC用のイメージのバージョンは，マイナーバージョン (2桁目) まで一致していれば対応しています．
-    例えば，PCがv1.2.3でFCがv1.2.4の場合は対応していますが，v1.2.3とv1.3.3の場合は動作が保証されません．
-<!-- prettier-ignore-end -->
 
 ## 次の手順へ
 
