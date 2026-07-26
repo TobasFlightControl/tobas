@@ -3,7 +3,7 @@
 <!-- cf. PX4 Releases: https://docs.px4.io/main/en/releases/ -->
 
 These are the release notes for Tobas software.
-Each version page describes the main changes since the previous release as well as bug fixes made within that version.
+Each version page describes the major changes since the previous release and the bug fixes made within that version.
 
 ## ROS 2 Jazzy
 

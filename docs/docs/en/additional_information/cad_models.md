@@ -1,7 +1,7 @@
 # 3D Models
 
-These are the product 3D models.
-Please use them when designing your airframe.
+These are 3D models of the products.
+Please use them when designing your aircraft.
 
 ## Flight Management Unit
 

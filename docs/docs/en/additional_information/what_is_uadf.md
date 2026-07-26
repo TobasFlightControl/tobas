@@ -1,28 +1,30 @@
-# What Is UADF
+# What Is UADF?
 
-The Universal Aircraft Description Format (UADF), defined by Tobas, is a format that extends the Universal Robot Description Format (URDF), a general-purpose format for describing robots, with aircraft-specific elements.
+The Universal Aircraft Description Format (UADF), defined by Tobas,
+extends the Universal Robot Description Format (URDF), a general-purpose format for representing robots,
+with elements specific to aircraft.
 
-## What Is URDF
+## What Is URDF?
 
 ---
 
-It is a format for describing any robot represented as a rigid-link system.
-In addition to the mass, collision, and visual information of each link in a robot, it also defines the joints that connect them.
+URDF is a format for describing any robot that can be represented as a system of rigid links.
+It defines the mass, collision, and visual information of each link, as well as the joints connecting them.
 For details, see <a href=https://wiki.ros.org/urdf target="_blank">urdf | ROS.org</a>.
 
 ## Differences Between UADF and URDF
 
 ---
 
-In addition to the URDF joint types, UADF adds the following aircraft-specific joint types.
+In addition to the URDF joint types, UADF provides the following aircraft-specific joint types.
 
 ### thrust
 
-A joint representing a propulsion unit consisting of a motor and propeller.
+This joint represents a propulsion unit consisting of a motor and propeller.
 It is based on URDF's `continuous`, but differs in the following ways.
 
-- `axis`: Rotation axis. Thrust is assumed to be generated along the axis direction.
-- `direction`: Rotation direction. Specify either `cw` or `ccw` for `value`.
+- `axis`: Axis of rotation. Thrust is assumed to act along this axis.
+- `direction`: Direction of rotation. Set `value` to either `cw` or `ccw`.
 
 <!-- prettier-ignore-start -->
 !!! note
@@ -31,7 +33,7 @@ It is based on URDF's `continuous`, but differs in the following ways.
 
 ### cs
 
-A joint representing a control surface on a fixed-wing aircraft.
+This joint represents a control surface on a fixed-wing aircraft.
 It is based on URDF's `revolute`.
 
 <!-- prettier-ignore-start -->
@@ -41,26 +43,27 @@ It is based on URDF's `revolute`.
 
 ### tilt
 
-Represents the tilt joint of an active tilt-rotor.
+This joint represents the tilt joint of an active tiltrotor.
 It is based on URDF's `revolute`.
 
 <!-- prettier-ignore-start -->
 !!! note
-    Exactly one `thrust` joint must be connected downstream of a `tilt` joint.
+    Exactly one `thrust` joint must be connected downstream of the `tilt` joint.
 <!-- prettier-ignore-end -->
 
-## How to Create UADF
+## Creating a UADF
 
 ---
 
-Here, we create a UADF for the DJI F450, a typical quadcopter used in the tutorial.
+Here, we will create a UADF for the DJI F450, the typical quadcopter used in the tutorial.
 
 ![f450](../../assets/what_is_uadf/f450.png)
 
-URDF supports importing mesh files and texture files for visualization.
-Since those files are often distributed together with the URDF itself, it is convenient to create a dedicated ROS package for each robot.
-In this example, we create a package called ` tobas_f450_description` directly under `~/colcon_ws/src/` and include all required files in it.
-The completed package is published at
+URDF can reference mesh and texture files for visualization.
+Because these files are often distributed together with the URDF file itself,
+it is convenient to create a dedicated ROS package for each robot.
+Here, we will create a package named ` tobas_f450_description` directly under `~/colcon_ws/src/` and include all required files in it.
+The completed package is available at
 <a href=https://github.com/TobasFlightControl/tobas_f450_description target="_blank">TobasFlightControl/tobas_f450_description</a>.
 
 ### ROS Package Structure and Required Files
@@ -80,9 +83,9 @@ tobas_f450_description/
 └── package.xml
 ```
 
-`package.xml` is a file that describes the package overview and dependencies.
-Exactly one of these must be placed at the root of every ROS package.
-Since the package created here does not depend on any external packages, it contains only the minimum required elements such as the package name and license.
+`package.xml` describes the package overview and dependencies.
+Every ROS package must have exactly one at its root.
+Because this package does not depend on any external packages, it contains only the minimum required elements, such as the package name and license.
 
 ```xml
 <package format="3">
@@ -98,8 +101,8 @@ Since the package created here does not depend on any external packages, it cont
 </package>
 ```
 
-`CMakeLists.txt` is a file that describes the package build and installation procedures.
-Configure it to install `meshes`, the directory that stores mesh files, and `urdf`, the directory that stores the UADF.
+`CMakeLists.txt` describes how to build and install the package.
+It is configured to install `meshes`, the directory containing mesh files, and `urdf`, the directory containing UADF files.
 
 ```cmake
 cmake_minimum_required(VERSION 3.25)
@@ -109,21 +112,21 @@ install(DIRECTORY meshes urdf DESTINATION share/${PROJECT_NAME})
 ament_package()
 ```
 
-### How to Write UADF
+### Writing a UADF
 
-The UADF for the F450 created here consists of the following components.
+The F450 UADF created here consists of the following components.
 
 - An empty root link (required)
-- The main frame including the motors
+- The main frame, including the motors
 - A battery fixed to the main frame
 - An FMU fixed to the main frame
 - Four propellers
 
-Each of these elements is described as a single rigid link,
-and the entire model forms one tree structure by connecting them with appropriate joints.
+Each component is described as a single rigid link,
+and they form a single tree structure by being connected with appropriate joints.
 
-In this example, all links under the main frame are attached directly to the root link.
-The overall tree structure is as follows.
+In this example, all links from the main frame onward are attached to the root link.
+The complete tree structure is as follows.
 
 ```text
 base_link
@@ -136,28 +139,28 @@ base_link
 └──propeller_3
 ```
 
-First, describe the URDF root element.
-The URDF root element must be `robot`, and the `name` attribute must be specified.
-All elements below are described inside this root element.
+First, define the URDF root element.
+The root element of a URDF must be `robot` and must include the `name` attribute.
+All subsequent elements are placed inside this root element.
 
 ```xml
 <robot name="f450">
 </robot>
 ```
 
-Describe an empty root link inside `robot`.
-The root link is a conceptual link with no size or mass, and every UADF must have exactly one root link.
+Define an empty root link inside `robot`.
+The root link is a conceptual link with no size or mass, and every UADF must contain exactly one.
 
 ```xml
   <!-- Base Link (Empty) -->
   <link name="base_link"/>
 ```
 
-Fix the main frame to the root link.
-The mesh file for `visual` is specified using a path relative to the package.
-In this way, `package://<package name>` can be used to describe a path relative to a ROS package.
-The collision geometry of `collision` is approximated as a rectangular box because using a mesh file would make the simulation heavier.
-The mass properties of `inertial` are copied directly from values obtained from 3D CAD.
+Attach the main frame to the root link.
+The mesh file in `visual` is specified using a path relative to the package.
+In this way, `package://<package name>` can be used to specify a path relative to a ROS package.
+The collision geometry in `collision` is approximated by a box because using a mesh would make the simulation computationally expensive.
+The inertial properties in `inertial` are copied directly from values obtained from 3D CAD.
 
 ```xml
   <!-- Main Frame -->
@@ -191,8 +194,8 @@ The mass properties of `inertial` are copied directly from values obtained from 
 ```
 
 Add the battery and FMU in the same way as the main frame.
-Their moments of inertia are calculated assuming the mass is uniformly distributed in a rectangular box of the same size as `collision`.
-For the specific calculation method, see [Inertia Moment](./inertia_moment.md).
+Their moments of inertia are calculated assuming that their mass is uniformly distributed within a rectangular box of the same dimensions as `collision`.
+For details on the calculation, see [Inertia Moment](./inertia_moment.md).
 
 ```xml
   <!-- Battery -->
@@ -255,11 +258,11 @@ For the specific calculation method, see [Inertia Moment](./inertia_moment.md).
 ```
 
 Add a propeller.
-Specify the UADF-specific `thrust` as the joint type, set `axis` to the +Z-axis direction of thrust (`0 0 1`), and set `direction` to counterclockwise (`ccw`).
-The mesh file for `visual` is specified using a path relative to the package.
-The collision geometry of `collision` is approximated as a cylinder.
-The moment of inertia of `inertial` is calculated assuming the mass is uniformly distributed in a cylinder of the same size as `collision`.
-For the specific calculation method, see [Inertia Moment](./inertia_moment.md).
+Specify the UADF-specific `thrust` as the joint type, set `axis` to the +Z axis as the thrust direction (`0 0 1`), and set `direction` to counterclockwise (`ccw`).
+The mesh file in `visual` is specified using a path relative to the package.
+The collision geometry in `collision` is approximated by a cylinder.
+The moment of inertia in `inertial` is calculated assuming that the mass is uniformly distributed within a cylinder of the same dimensions as `collision`.
+For details on the calculation, see [Inertia Moment](./inertia_moment.md).
 
 ```xml
   <!-- Propeller (0) -->
@@ -294,8 +297,8 @@ For the specific calculation method, see [Inertia Moment](./inertia_moment.md).
   </link>
 ```
 
-Add the other three propellers in the same way.
-Note that their joint origins, rotation directions, and mesh paths are different.
+Similarly, add the other three propellers.
+Note that each has a different joint origin, rotation direction, and mesh path.
 
 The final UADF is as follows.
 
@@ -519,30 +522,30 @@ The final UADF is as follows.
 </robot>
 ```
 
-## UADF Creation Examples
+## UADF Examples
 
 ---
 
-Above, we created a UADF for a simple quadcopter, but UADF can also represent many other types of aircraft.
+Above, we created a simple quadcopter UADF, but UADF can also represent many other types of aircraft.
 Here are several other UADF examples.
 
-Unlike the previous example, these use XML macros called XACRO and perform the following kinds of programming-like processing internally:
+Unlike the previous example, these use XML macros called XACRO to perform the following programming-like operations:
 
 - Include other files
 - Define constants
 - Perform simple numerical calculations
-- Encapsulate repeated processing as functions
+- Encapsulate repetitive operations in functions
 
 Using XACRO makes XML shorter and easier to understand.
 
 ### Non-Planar Octacopter (TOC8)
 
 An octacopter with eight `thrust` joints.
-However, each propeller is arranged to point outward from a vertex of a cube.
+Each propeller, however, is positioned to point outward from a vertex of a cube.
 
 ![toc8_pt001](../../assets/what_is_uadf/toc8_pt001.png)
 
-<details><summary>Before XACRO expansion</summary>
+<details><summary>Before XACRO Expansion</summary>
 
 ```xml
 <robot xmlns:xacro="http://ros.org/wiki/xacro" name="toc8_pt001">
@@ -630,7 +633,7 @@ However, each propeller is arranged to point outward from a vertex of a cube.
 
 </details>
 
-<details><summary>After XACRO expansion</summary>
+<details><summary>After XACRO Expansion</summary>
 
 ```xml
 <robot name="toc8_pt001">
@@ -1222,11 +1225,11 @@ However, each propeller is arranged to point outward from a vertex of a cube.
 
 ### Active Tilt Hexacopter (Voliro Like)
 
-A hexacopter with six pairs of `thrust` joints and `tilt` joints.
+A hexacopter with six pairs of `thrust` and `tilt` joints.
 
 ![voliro_like_pt003](../../assets/what_is_uadf/voliro_like_pt003.png)
 
-<details><summary>Before XACRO expansion</summary>
+<details><summary>Before XACRO Expansion</summary>
 
 ```xml
 <robot xmlns:xacro="http://ros.org/wiki/xacro" name="voliro_like_pt003">
@@ -1336,7 +1339,7 @@ A hexacopter with six pairs of `thrust` joints and `tilt` joints.
 
 </details>
 
-<details><summary>After XACRO expansion</summary>
+<details><summary>After XACRO Expansion</summary>
 
 ```xml
 <robot name="voliro_like_pt003">
@@ -1957,12 +1960,12 @@ A hexacopter with six pairs of `thrust` joints and `tilt` joints.
 
 ### Transformable Multicopter (JSK Hydrus)
 
-A quadcopter with four `thrust` joints and three `revolute` joints.
-Command values for the `revolute` joints can be freely specified by the user.
+A quadcopter with three `revolute` joints in addition to four `thrust` joints.
+Users can freely specify command values for the `revolute` joints.
 
 ![hydrus](../../assets/what_is_uadf/hydrus.png)
 
-<details><summary>Before XACRO expansion</summary>
+<details><summary>Before XACRO Expansion</summary>
 
 ```xml
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="hydrus">
@@ -2056,7 +2059,7 @@ Command values for the `revolute` joints can be freely specified by the user.
 
 </details>
 
-<details><summary>After XACRO expansion</summary>
+<details><summary>After XACRO Expansion</summary>
 
 ```xml
 <robot name="hydrus">

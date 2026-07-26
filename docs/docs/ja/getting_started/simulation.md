@@ -57,6 +57,6 @@ sudo usermod -aG dialout "${USER}"
 
 ---
 
-フライトコントローラを構成する各コンポーネント間の通信は全て ROS (ROS 2 Jazzy) で行われているため，
+フライトコントローラを構成する各コンポーネント間の通信は全て ROS で行われているため，
 ユーザは自分のプログラムから機体を操作することができます．
 詳しくは[User Code (Python)](../for_developers/user_code_py.md)や[User Code (C++)](../for_developers/user_code_cpp.md)をご覧ください．
