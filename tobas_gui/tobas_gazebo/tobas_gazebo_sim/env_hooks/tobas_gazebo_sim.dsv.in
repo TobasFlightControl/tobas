@@ -1,3 +1,2 @@
-prepend-non-duplicate;GZ_SIM_RESOURCE_PATH;@CMAKE_INSTALL_PREFIX@/share/@PROJECT_NAME@
-prepend-non-duplicate;GZ_SIM_RESOURCE_PATH;/opt/ros/jazzy/share/@PROJECT_NAME@
-prepend-non-duplicate;GZ_SIM_RESOURCE_PATH;/opt/ros/jazzy/opt/gz_sim_vendor/share/gz/gz-sim8
+prepend-non-duplicate;GZ_SIM_RESOURCE_PATH;share/@PROJECT_NAME@
+prepend-non-duplicate;GZ_SIM_RESOURCE_PATH;@GZ_SIM_VENDOR_PREFIX@/opt/gz_sim_vendor/share/gz/gz-sim8

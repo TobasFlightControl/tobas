@@ -8,8 +8,8 @@
 
 	<buildtool_depend>ament_cmake</buildtool_depend>
 
+	<depend>gz_sim_vendor</depend>
 	<exec_depend>ros_gz</exec_depend>
-	<exec_depend>gz_sim_vendor</exec_depend>
 
 	<export>
 		<build_type>ament_cmake</build_type>
