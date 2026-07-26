@@ -3,5 +3,5 @@ Maintainer: Masayoshi Dohi <m.dohi@tobas.jp>
 Architecture: arm64
 Version: 2.16.0
 Description: Tobas Flight Controller
-Homepage: https://tobas-wiki-ja.readthedocs.io/ja/stable/
+Homepage: https://tobas.jp/
 Depends: linux-image-rpi-v8-rt, openssh-server, hostapd, dnsmasq, dhcpcd, netfilter-persistent, iptables-persistent, dphys-swapfile, libmagicenum-dev, libgit2-dev
