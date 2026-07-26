@@ -5,12 +5,8 @@
 
 namespace tobas
 {
-// Install Path
-static constexpr char kRos2JazzyInstallPath[] = "/opt/ros/jazzy";
-static constexpr char kTobasInstallPath[] = "/opt/tobas";
-
 // Resource Path
-// XDG Base Directory Specification: https://specifications.freedesktop.org/basedir/
+// cf. XDG Base Directory Specification: https://specifications.freedesktop.org/basedir/
 static constexpr char kConfigDirHome[] = "~/.local/share/tobas/config";
 static constexpr char kConfigDirRoot[] = "/etc/tobas/config";
 static constexpr char kColconWSPathHome[] = "~/.local/share/tobas/colcon_ws";

@@ -24,15 +24,8 @@ bool RemoteProjectBuilder::build(const fs::path& remote_proj_path)
   const auto meta_pkg_name = cmn::ProjectPaths(remote_proj_path).metaPkgName();
 
   // Paramiko starts non-interactive sessions, so required environment variables must be set for each command.
-  const auto ros2_setup_bash = (fs::path(kRos2JazzyInstallPath) / "setup.bash").string();
-  const auto tobas_setup_bash = (fs::path(kTobasInstallPath) / "local_setup.bash").string();
-  const auto pre_cmd = std::format(
-    "source {} && "
-    "source {} && "
-    "cd {}",
-    ros2_setup_bash,
-    tobas_setup_bash,
-    kColconWSPathRoot);
+  const auto pre_cmd =
+    std::format("source /opt/ros/jazzy/setup.bash && source /opt/tobas/local_setup.bash && cd {}", kColconWSPathRoot);
 
   // `--symlink-install` does not work with root privileges.
   const auto build_cmd = std::format(
