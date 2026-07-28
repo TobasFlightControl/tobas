@@ -1,19 +1,19 @@
 # User Code (Python)
 
-This section assumes that the user has learned the basics of Python and ROS 2.
-For learning ROS 2, please refer to
+This section assumes that you have a basic understanding of Python and ROS 2.
+To learn ROS 2, refer to
 <a href=https://docs.ros.org/en/jazzy/Tutorials.html target="_blank">Tutorials | ROS 2 Documentation</a>.
 
-Among the ROS packages included in a Tobas project created with Setup Assistant (example: tobas_f450.TBS),
-the user Python package (example: tobas_f450_user_py) is a Python package that the user can edit freely.
-It includes the following three launch files.
+Among the ROS packages included in a Tobas project created with Setup Assistant (e.g., tobas_f450.TBS),
+the user Python package (e.g., tobas_f450_user_py) can be edited freely by the user.
+It includes the following three launch files:
 
-- `common.launch.py`: Launched in both real hardware and simulation.
+- `common.launch.py`: Launched for both real hardware and simulation.
 - `real.launch.py`: Launched only on real hardware.
 - `gazebo.launch.py`: Launched only during simulation.
 
-As an example, let's create a Python node that checks the GNSS status and outputs a message when 3D positioning is available.
-Please edit `tobas_f450_user_py/tobas_f450_user_py/user_node.py` as follows.
+As an example, let's create a Python node that checks the GNSS status and outputs a message when a 3D fix is available.
+Edit `tobas_f450_user_py/tobas_f450_user_py/user_node.py` as follows.
 
 ```python
 import rclpy
@@ -56,7 +56,7 @@ if __name__ == "__main__":
     main()
 ```
 
-Configure this node to start automatically.
+Configure this node to launch automatically.
 Uncomment the `add_action` section in `tobas_f450_user_py/launch/common.launch.py`.
 
 ```python
@@ -81,8 +81,8 @@ def generate_launch_description():
     return ld
 ```
 
-When you start the simulation from the GCS, a message will be displayed in the console of `Control System`.
+When you start the simulation from the GCS, a message appears in the `Control System` console.
 
 ![console](../../assets/user_code_py/console.png)
 
-For details on the API, see [ROS API](./ros_api.md).
+For details about the API, see the [ROS API](./ros_api.md).

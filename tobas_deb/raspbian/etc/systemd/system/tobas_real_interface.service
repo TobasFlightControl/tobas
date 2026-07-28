@@ -11,7 +11,7 @@ Environment="ROS_AUTOMATIC_DISCOVERY_RANGE=SUBNET"
 Environment="CYCLONEDDS_URI=/etc/tobas/config/cyclonedds.xml"
 # Wait until the NIC used for inter-network communication has an IP address.
 ExecStartPre=/usr/lib/systemd/systemd-networkd-wait-online --interface=${TOBAS_NIC}:routable --ipv4 --timeout=0
-ExecStart=/bin/bash -c 'source /opt/ros/jazzy/setup.bash && source /opt/tobas/local_setup.bash && source /etc/tobas/colcon_ws/install/local_setup.bash && /opt/ros/jazzy/bin/ros2 launch ${TOBAS_CONFIG_PKG} real_interface.launch.py'
+ExecStart=/bin/bash -c 'source /opt/ros/jazzy/setup.bash && source /opt/tobas/local_setup.bash && source /etc/tobas/colcon_ws/install/local_setup.bash && ros2 launch ${TOBAS_CONFIG_PKG} real_interface.launch.py'
 Restart=no
 CPUSchedulingPolicy=fifo
 CPUSchedulingPriority=10

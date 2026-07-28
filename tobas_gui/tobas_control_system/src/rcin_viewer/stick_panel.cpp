@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-3.-or-later
+// SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
 #include "tobas_control_system/rcin_viewer/stick_panel.hpp"

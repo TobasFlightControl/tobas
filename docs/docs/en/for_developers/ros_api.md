@@ -1,8 +1,8 @@
 # ROS API
 
-This does not cover all APIs; only the main ones are described here.
-For details, check at runtime with `$ ros2 topic list` and similar tools.
-You can also communicate with the FC from an external terminal by using the APIs in the `remote_interface` namespace.
+This page covers only the main APIs, not every available API.
+For details, check at runtime using `$ ros2 topic list` or a similar tool.
+Using the APIs in the `remote_interface` namespace also allows communication with the FC from an external terminal.
 
 ## Topics
 
@@ -13,7 +13,7 @@ You can also communicate with the FC from an external terminal by using the APIs
 
 ### Common
 
-These topics can be used on both real hardware and in simulation.
+These topics are available both on real hardware and in simulation.
 
 #### battery (tobas_msgs/Battery)
 
@@ -54,14 +54,14 @@ std_msgs/Header header
 		int32 sec
 		uint32 nanosec
 	string frame_id
-float64 temperature  # [degC]
 uint64 frequency     # [Hz]
+float64 temperature  # [degC]
 float64 load         # [-]
 ```
 
 #### sbus (tobas_msgs/Sbus)
 
-Raw S.BUS messages obtained from the RC receiver.
+Raw S.BUS messages received from the RC receiver.
 
 ```txt
 std_msgs/Header header
@@ -78,7 +78,7 @@ bool failsafe
 
 #### rc_input (tobas_msgs/RCInput)
 
-A converted S.BUS message in a more convenient format.
+S.BUS messages converted into a more convenient format.
 
 ```txt
 std_msgs/Header header
@@ -92,10 +92,10 @@ float64 roll      # CH1: [-1, 1]
 float64 pitch     # CH2: [-1, 1]
 float64 throttle  # CH3: [-1, 1]
 float64 yaw       # CH4: [-1, 1]
-uint8 mode        # CH7: Flight Mode
-bool sub_mode     # CH8: Sub Flight Mode
-bool enable       # CH5: Enable Radio Control
-bool kill         # CH6: Kill Switch
+uint8 mode        # CH5: Flight Mode
+bool sub_mode     # CH6: Sub Flight Mode
+bool enable       # CH7: Enable Radio Control
+bool kill         # CH8: Kill Switch
 bool[8] gpsw      # CH9-16: General Purpose Switch
 ```
 
@@ -149,7 +149,7 @@ tobas_kdl_msgs/Vector dgyro  # [rad/s^2]
 
 #### magnetic_field (tobas_msgs/MagneticField)
 
-3-axis geomagnetic field.
+Three-axis geomagnetic field.
 
 ```txt
 std_msgs/Header header
@@ -237,7 +237,7 @@ tobas_msgs/RotorState[] states
 
 #### joint_states_2 (tobas_msgs/JointStateArray)
 
-State of movable joints.
+States of the movable joints.
 
 ```txt
 std_msgs/Header header
@@ -301,8 +301,8 @@ tobas_msgs/OdometryWithCovariance odom
 
 #### trajectory_setpoint (tobas_msgs/OdometryStamped)
 
-Current setpoint of the controller.
-Uncontrolled values (for example, position and velocity in attitude control mode) are set to NaN.
+Current controller setpoints.
+Values that are not controlled (e.g., position and velocity in attitude control mode) are set to NaN.
 
 ```txt
 std_msgs/Header header
@@ -353,8 +353,8 @@ bool data
 
 ### Command
 
-Users can control the drone by publishing these topics from inside the FC.
-Accepted commands depend on the airframe type and flight mode, so check with the ROS 2 CLI.
+Users can control the drone by publishing these topics from within the FC.
+The accepted commands depend on the airframe type and flight mode, so check them using the ROS 2 CLI.
 
 #### command/rate (tobas_command_msgs/Rate)
 
@@ -653,7 +653,7 @@ float64 delta_pitch  # [rad]
 
 #### command/joint_positions (tobas_msgs/JointCommandArray)
 
-Position commands for joints.
+Position commands for the joints.
 
 ```txt
 std_msgs/Header header
@@ -668,7 +668,7 @@ tobas_msgs/JointCommand[] commands
 
 #### command/joint_velocities (tobas_msgs/JointCommandArray)
 
-Velocity commands for joints.
+Velocity commands for the joints.
 
 ```txt
 std_msgs/Header header
@@ -683,7 +683,7 @@ tobas_msgs/JointCommand[] commands
 
 #### command/joint_efforts (tobas_msgs/JointCommandArray)
 
-Force commands for joints.
+Effort commands for the joints.
 
 ```txt
 std_msgs/Header header
@@ -698,7 +698,7 @@ tobas_msgs/JointCommand[] commands
 
 ### Gazebo
 
-These topics are used only during Gazebo simulation.
+These topics are used only in Gazebo simulation.
 
 #### gazebo/ground_truth/battery (tobas_msgs/Battery)
 
@@ -763,7 +763,7 @@ tobas_msgs/OdometryWithCovariance odom
 
 #### gazebo/ground_truth/wind (tobas_msgs/Wind)
 
-Ground-truth wind velocity in the global coordinate system.
+Ground-truth wind velocity in the global coordinate frame.
 
 ```txt
 std_msgs/Header header
@@ -783,11 +783,11 @@ tobas_kdl_msgs/Vector vel  # [m/s]
 
 ### Common
 
-These services can be used on both real hardware and in simulation.
+These services are available both on real hardware and in simulation.
 
 #### set_arm (tobas_msgs/SetArm)
 
-Change the arm state of all rotors.
+Changes the arm state of all rotors.
 
 ```txt
 bool arming
@@ -798,11 +798,11 @@ string message
 
 ### Gazebo
 
-These services are used only during Gazebo simulation.
+These services are used only in Gazebo simulation.
 
 #### gazebo/charge_battery (std_srvs/Empty)
 
-Fully charge the battery.
+Fully charges the battery.
 
 ```txt
 ---
@@ -810,7 +810,7 @@ Fully charge the battery.
 
 #### gazebo/get_wind_parameters (tobas_gazebo_msgs/GetWindParams)
 
-Get the parameters used to generate wind in the simulation.
+Gets the parameters used to generate wind in the simulation.
 
 ```txt
 ---
@@ -824,7 +824,7 @@ tobas_gazebo_msgs/WindParams params
 
 #### gazebo/set_wind_parameters (tobas_gazebo_msgs/SetWindParams)
 
-Set the parameters used to generate wind in the simulation.
+Sets the parameters used to generate wind in the simulation.
 
 ```txt
 tobas_gazebo_msgs/WindParams params
@@ -845,7 +845,7 @@ tobas_gazebo_msgs/WindParams params
 
 #### gazebo/get_tether_parameters (tobas_gazebo_msgs/GetTetherParams)
 
-Get parameters related to the tether station.
+Gets the parameters for the tether station.
 
 ```txt
 ---
@@ -856,7 +856,7 @@ tobas_gazebo_msgs/TetherParams params
 
 #### gazebo/set_tether_parameters (tobas_gazebo_msgs/SetTetherParams)
 
-Set parameters related to the tether station.
+Sets the parameters for the tether station.
 
 ```txt
 tobas_gazebo_msgs/TetherParams params
@@ -871,7 +871,7 @@ tobas_gazebo_msgs/TetherParams params
 
 #### gazebo/attach_suspended_load (tobas_gazebo_msgs/AttachSuspendedLoad)
 
-Attach a suspended load.
+Attaches a suspended load.
 
 ```txt
 geometry_msgs/Vector3 attachment_point  # [m] Attachment point on the aircraft wrt. the local frame
@@ -892,7 +892,7 @@ string message
 
 #### gazebo/detach_suspended_load (tobas_gazebo_msgs/DetachSuspendedLoad)
 
-Detach a suspended load.
+Detaches a suspended load.
 
 ```txt
 ---
@@ -902,7 +902,7 @@ string message
 
 #### gazebo/break_rotor/${rotor_link_name} (std_srvs/Trigger)
 
-Force a motor to stop.
+Forcibly stops the motor.
 
 ```txt
 ---
@@ -916,18 +916,19 @@ string message # informational, e.g. for error messages
 
 ### Common
 
-These actions can be used on both real hardware and in simulation.
+These actions are available both on real hardware and in simulation.
 
 #### execute_mission (tobas_mission_msgs/ExecuteMission)
 
-Execute a sequence of missions.
-For details of each command, see `tobas_mission_items`.
+Executes a sequence of missions.
+See `tobas_mission_items` for details on each command.
 
 ```txt
 # Goal
-tobas_mission_msgs/MissionItem[] items
-	uint8 type
-	byte[] data
+tobas_mission_msgs/Mission mission
+	tobas_mission_msgs/MissionItem[] items
+		uint8 type
+		byte[] data
 tobas_mission_msgs/Priority priority
 	uint8 data
 	uint8 NORMAL = 0
@@ -944,11 +945,12 @@ tobas_mission_msgs/ErrorCode error_code
 	int8 ACCEPTANCE_TIMEOUT = -3
 	int8 OTHER_ERROR = -4
 string error_message
+uint32 last_command_index
 
 ---
 
 # Feedback
-uint32 current_index
+uint32 current_command_index
 ```
 
 <!-- TODO: ミッションコマンドの詳細 -->

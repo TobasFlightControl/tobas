@@ -1,7 +1,7 @@
 [Desktop Entry]
 Type=Application
 Name=TobasGCS
-Icon=/opt/tobas/share/tobas_gcs/resources/icon.png
+Icon=/opt/ros/jazzy/share/tobas_gcs/resources/icon.png
 Exec=/usr/bin/tobas_gcs
 Terminal=false
 StartupNotify=true

@@ -54,8 +54,8 @@ std_msgs/Header header
 		int32 sec
 		uint32 nanosec
 	string frame_id
-float64 temperature  # [degC]
 uint64 frequency     # [Hz]
+float64 temperature  # [degC]
 float64 load         # [-]
 ```
 
@@ -92,10 +92,10 @@ float64 roll      # CH1: [-1, 1]
 float64 pitch     # CH2: [-1, 1]
 float64 throttle  # CH3: [-1, 1]
 float64 yaw       # CH4: [-1, 1]
-uint8 mode        # CH7: Flight Mode
-bool sub_mode     # CH8: Sub Flight Mode
-bool enable       # CH5: Enable Radio Control
-bool kill         # CH6: Kill Switch
+uint8 mode        # CH5: Flight Mode
+bool sub_mode     # CH6: Sub Flight Mode
+bool enable       # CH7: Enable Radio Control
+bool kill         # CH8: Kill Switch
 bool[8] gpsw      # CH9-16: General Purpose Switch
 ```
 
@@ -925,9 +925,10 @@ string message # informational, e.g. for error messages
 
 ```txt
 # Goal
-tobas_mission_msgs/MissionItem[] items
-	uint8 type
-	byte[] data
+tobas_mission_msgs/Mission mission
+	tobas_mission_msgs/MissionItem[] items
+		uint8 type
+		byte[] data
 tobas_mission_msgs/Priority priority
 	uint8 data
 	uint8 NORMAL = 0
@@ -944,11 +945,12 @@ tobas_mission_msgs/ErrorCode error_code
 	int8 ACCEPTANCE_TIMEOUT = -3
 	int8 OTHER_ERROR = -4
 string error_message
+uint32 last_command_index
 
 ---
 
 # Feedback
-uint32 current_index
+uint32 current_command_index
 ```
 
 <!-- TODO: ミッションコマンドの詳細 -->

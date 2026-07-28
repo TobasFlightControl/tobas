@@ -10,7 +10,7 @@ EnvironmentFile=/etc/tobas/config/project.env
 Environment="ROS_AUTOMATIC_DISCOVERY_RANGE=LOCALHOST"
 # Use the loopback interface for inter-process communication.
 Environment='CYCLONEDDS_URI=<CycloneDDS><Domain><General><Interfaces><NetworkInterface name="lo"/></Interfaces></General></Domain></CycloneDDS>'
-ExecStart=/bin/bash -c 'source /opt/ros/jazzy/setup.bash && source /opt/tobas/local_setup.bash && source /etc/tobas/colcon_ws/install/local_setup.bash && /opt/ros/jazzy/bin/ros2 launch ${TOBAS_CONFIG_PKG} real_realtime.launch.py'
+ExecStart=/bin/bash -c 'source /opt/ros/jazzy/setup.bash && source /opt/tobas/local_setup.bash && source /etc/tobas/colcon_ws/install/local_setup.bash && ros2 launch ${TOBAS_CONFIG_PKG} real_realtime.launch.py'
 Restart=no
 # Apply the real-time scheduling policy to the entire process so that non-component nodes also run with low latency.
 CPUSchedulingPolicy=fifo

@@ -29,8 +29,6 @@ public:
 
   static Version Current();
 
-  void setToCurrent();
-
   bool isValid() const;
 
   bool isCompatible(const Version& other) const;

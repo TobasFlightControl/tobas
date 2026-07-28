@@ -8,6 +8,8 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
+  <depend>libquazip1-qt5-dev</depend>
+
   <depend>tobas_string_tools</depend>
   <depend>tobas_kdl</depend>
   <depend>tobas_ros2_tools</depend>

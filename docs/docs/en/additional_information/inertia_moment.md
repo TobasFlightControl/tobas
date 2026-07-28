@@ -1,9 +1,9 @@
-# Typical Moments of Inertia
+# Common Moments of Inertia
 
-This section explains how to calculate the moment of inertia about the center of mass for a uniform-density object with mass $m$.
-Use this when creating a URDF.
+The following formulas calculate the moments of inertia about the center of mass for uniform-density objects of mass $m$.
+Use them when creating URDF files.
 
-## Rectangular prism with side lengths $x$, $y$, and $z$
+## Rectangular Cuboid with Side Lengths $x$, $y$, and $z$
 
 ---
 
@@ -22,7 +22,7 @@ $$
 </xacro:macro>
 ```
 
-## Cylinder with radius $r$ and height $h$
+## Cylinder with Radius $r$ and Height $h$
 
 ---
 
@@ -40,7 +40,7 @@ $$
 </xacro:macro>
 ```
 
-## Sphere with radius $r$
+## Sphere with Radius $r$
 
 ---
 
