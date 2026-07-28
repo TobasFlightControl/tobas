@@ -66,7 +66,6 @@ If you only want to install and use Tobas, start from the
 
    ```bash
    $ rosdep install --from-paths ~/colcon_ws/src/tobas -yi
-   $ sudo apt install -y libgit2-dev libsimpleini-dev
    ```
 
 6. Build
