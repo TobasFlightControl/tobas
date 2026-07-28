@@ -336,13 +336,14 @@ void SetupAssistantWidget::onLoadButtonClicked()
   }
 
   // If the version is incompatible, configure dynamic parameters to be initialized when the project is generated.
-  if (version.isCompatible()) {
+  const auto cur_version = cmn::Version::Current();
+  if (version.isCompatible(cur_version)) {
     prj_gen_->setClearDynamicParams(false);
   }
   else {
     if (!qt::yesOrNo(
           this,
-          "The current Tobas version (" + cmn::Version::Current().toString() +
+          "The current Tobas version (" + cur_version.toString() +
             ") is incompatible with the version used to create this project (" + version.toString() +
             "). Errors may occur during loading, "
             "and if you save the project again, the dynamic parameters will be reset to their default values. "

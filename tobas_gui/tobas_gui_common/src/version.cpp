@@ -44,11 +44,6 @@ bool Version::isCompatible(const Version& other) const
   return major == other.major && minor == other.minor;
 }
 
-bool Version::isCompatible() const
-{
-  return isCompatible(Version::Current());
-}
-
 QString Version::toString() const
 {
   QString res = "v%1.%2.%3";

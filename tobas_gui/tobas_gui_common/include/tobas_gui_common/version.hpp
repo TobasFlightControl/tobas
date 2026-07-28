@@ -30,9 +30,7 @@ public:
   static Version Current();
 
   bool isValid() const;
-
   bool isCompatible(const Version& other) const;
-  bool isCompatible() const;
 
   QString toString() const;
   bool fromString(QString str);
