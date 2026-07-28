@@ -272,14 +272,13 @@ void GroundControlStationWidget::onLoadButtonClicked()
     if (!proj_version_.isCompatible()) {
       qt::qWarnBox(
         this,
-        "The current Tobas version (" + cmn::Version::Current().toString() +
-          ") is incompatible with the version used to create this project (" + proj_version_.toString() +
-          "). Please update the project using the Setup Assistant.");
+        "The current FC version (" + cmn::Version::Current().toString() +
+          ") is incompatible with the version used to create this project (" + proj_version_.toString() + ").");
       return;
     }
   }
   else {
-    qt::qWarnBox(this, "Failed to read the project version. Please update the project using the Setup Assistant.");
+    qt::qWarnBox(this, "Failed to read the project version. Please create a new Tobas project.");
     return;
   }
 
@@ -298,8 +297,7 @@ void GroundControlStationWidget::onLoadButtonClicked()
   // Confirm that the vehicle configuration file exists.
   const auto tbsdrn_path = proj_paths_.tbsdrnPath();
   if (!fs::is_regular_file(tbsdrn_path)) {
-    qt::qErrorBox(
-      this, "\"" + QString::fromStdString(tbsdrn_path) + "\" does not exist. Please create a new Tobas project.");
+    qt::qErrorBox(this, "The drone configuration file does not exist. Please create a new Tobas project.");
     return;
   }
 
@@ -386,25 +384,25 @@ void GroundControlStationWidget::onWriteButtonClicked()
   progress.progressStep();
 
   // Check the FC version.
-  progress.setLabelText("Checking the Tobas version.");
+  progress.setLabelText("Checking the FC version.");
   std::string fc_ver_text;
   if (ssh_client_.execute("/opt/tobas/lib/tobas_version/show_version", fc_ver_text) != ssh::SshClient::kNoError) {
     progress.close();
-    qt::qErrorBox(this, "Failed to retrieve the firmware version: " + QString(ssh_client_.errorMessage()));
+    qt::qErrorBox(this, "Failed to retrieve the FC version: " + QString(ssh_client_.errorMessage()));
     return;
   }
   cmn::Version fc_version;
   if (!fc_version.fromString(QString::fromStdString(fc_ver_text))) {
     progress.close();
-    qt::qErrorBox(this, "Failed to parse the firmware version: " + QString::fromStdString(fc_ver_text));
+    qt::qErrorBox(this, "Failed to parse the FC version: " + QString::fromStdString(fc_ver_text));
     return;
   }
   if (!fc_version.isCompatible(proj_version_)) {
     progress.close();
     qt::qWarnBox(
       this,
-      "The firmware version (" + fc_version.toString() +
-        ") is incompatible with the version used to create this project (" + proj_version_.toString() + ").");
+      "The FC version (" + fc_version.toString() + ") is incompatible with the version used to create this project (" +
+        proj_version_.toString() + ").");
     return;
   }
   progress.progressStep();
