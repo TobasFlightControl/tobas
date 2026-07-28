@@ -4,7 +4,7 @@
 	<version>2.16.0</version>
 	<description>Shared constants and enumerations for Tobas flight modes, frames, hardware, topics, and commands.</description>
 	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
-	<license>GPL-3.0-or-later</license>
+	<license>Apache-2.0</license>
 
 	<buildtool_depend>ament_cmake</buildtool_depend>
 
