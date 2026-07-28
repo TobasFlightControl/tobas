@@ -1,18 +1,46 @@
 #!/bin/python
 
+from functools import cache
 from pathlib import Path
+from xml.etree import ElementTree
 
 LICENSE_IDENTIFIER = "SPDX-License-Identifier:"
 COPYRIGHT = "Copyright (C) 2026 Tobas, Inc."
-IFACE_HEADER = "# " + LICENSE_IDENTIFIER + " Apache-2.0\n# " + COPYRIGHT
-PY_HEADER = "# " + LICENSE_IDENTIFIER + " GPL-3.0-or-later\n# " + COPYRIGHT
-C_HEADER = "// " + LICENSE_IDENTIFIER + " GPL-3.0-or-later\n// " + COPYRIGHT
 
 IFACE_EXTS = {".msg", ".srv", ".action"}
 PY_EXTS = {".py"}
 C_EXTS = {".h", ".c", ".hh", ".cc", ".hpp", ".cpp"}
 
 EXCLUDED_DIR_NAMES = {".git", ".venv", "docs", "tobas_external"}
+
+
+def find_package_xml(path, base_dir: str) -> str | None:
+    for parent in path.parents:
+        package_xml = parent / "package.xml"
+        if package_xml.is_file():
+            return package_xml
+        if parent == base_dir:
+            break
+
+    return None
+
+
+@cache
+def read_package_license(package_xml: str) -> str:
+    license_elements = ElementTree.parse(package_xml).getroot().findall("license")
+    if len(license_elements) != 1:
+        raise ValueError(f"Expected exactly one license in {package_xml}")
+
+    license_name = (license_elements[0].text or "").strip()
+    if not license_name:
+        raise ValueError(f"License must not be empty in {package_xml}")
+
+    return license_name
+
+
+def make_header(comment_prefix: str, license_name: str) -> str:
+    return f"{comment_prefix} {LICENSE_IDENTIFIER} {license_name}\n{comment_prefix} {COPYRIGHT}"
+
 
 if __name__ == "__main__":
     base_dir = Path(__file__).resolve().parents[2]
@@ -32,14 +60,23 @@ if __name__ == "__main__":
             if LICENSE_IDENTIFIER in text:
                 continue
 
+            package_xml = find_package_xml(path, base_dir)
+            if package_xml is None:
+                print(f"Skipped (package.xml not found): {path}")
+                continue
+
+            license_name = read_package_license(package_xml)
+
             if path.suffix in IFACE_EXTS:
-                path.write_text(IFACE_HEADER + "\n\n" + text, encoding="utf-8")
+                header = make_header("#", license_name)
             elif path.suffix in PY_EXTS:
                 if path.name == "setup.py" or path.name.endswith(".launch.py"):
                     continue
-                path.write_text(PY_HEADER + "\n\n" + text, encoding="utf-8")
+                header = make_header("#", license_name)
             elif path.suffix in C_EXTS:
-                path.write_text(C_HEADER + "\n\n" + text, encoding="utf-8")
+                header = make_header("//", license_name)
+
+            path.write_text(header + "\n\n" + text, encoding="utf-8")
 
             num_updated += 1
             print(f"Updated: {path}")
