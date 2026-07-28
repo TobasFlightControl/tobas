@@ -268,11 +268,12 @@ void GroundControlStationWidget::onLoadButtonClicked()
   proj_paths_.setProjPath(proj_path);
 
   // Check the version.
+  const auto cur_version = cmn::Version::Current();
   if (proj_version_.load(proj_paths_.versionPath())) {
-    if (!proj_version_.isCompatible()) {
+    if (!proj_version_.isCompatible(cur_version)) {
       qt::qWarnBox(
         this,
-        "The current FC version (" + cmn::Version::Current().toString() +
+        "The current FC version (" + cur_version.toString() +
           ") is incompatible with the version used to create this project (" + proj_version_.toString() + ").");
       return;
     }
@@ -404,6 +405,17 @@ void GroundControlStationWidget::onWriteButtonClicked()
       "The FC version (" + fc_version.toString() + ") is incompatible with the version used to create this project (" +
         proj_version_.toString() + ").");
     return;
+  }
+  else {
+    const auto cur_version = cmn::Version::Current();
+    if (fc_version < cur_version) {
+      progress.close();
+      qt::qWarnBox(
+        this,
+        "The FC version (" + fc_version.toString() + ") is older than the GCS version (" + cur_version.toString() +
+          "). Please update the FC image to incorporate bug fixes and other updates.");
+      return;
+    }
   }
   progress.progressStep();
 
