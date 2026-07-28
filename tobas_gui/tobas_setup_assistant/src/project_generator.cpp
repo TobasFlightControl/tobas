@@ -100,9 +100,7 @@ bool ProjectGenerator::generateProject(const fs::path& proj_path)
   }
 
   // Create the version file.
-  cmn::Version version;
-  version.setToCurrent();
-  if (!version.save(proj_paths_.versionPath())) {
+  if (!cmn::Version::Current().save(proj_paths_.versionPath())) {
     qt::qErrorBox(parent_, "Failed to save the current version.");
     return false;
   }

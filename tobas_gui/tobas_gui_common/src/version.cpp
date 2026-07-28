@@ -29,13 +29,6 @@ Version Version::Current()
   return Version(version::kMajor, version::kMinor, version::kPatch);
 }
 
-void Version::setToCurrent()
-{
-  major = version::kMajor;
-  minor = version::kMinor;
-  patch = version::kPatch;
-}
-
 bool Version::isValid() const
 {
   return major >= 0 && minor >= 0 && patch >= 0;
