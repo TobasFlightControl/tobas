@@ -16,7 +16,22 @@ cd ${ROS2_WORKSPACE}
 export COLCON_LOG_PATH=${TMP_BUILD_DIR}/log
 
 # Build in the temporal build directory.
-colcon build --merge-install --packages-up-to tobas --parallel-workers $(nproc) --install-base ${INSTALL_BASE} --build-base ${BUILD_BASE} --cmake-args -DCMAKE_BUILD_TYPE=Release
+colcon build \
+  --merge-install \
+  --packages-up-to tobas \
+  --parallel-workers $(nproc) \
+  --install-base ${INSTALL_BASE} \
+  --build-base ${BUILD_BASE} \
+  --cmake-args -DCMAKE_BUILD_TYPE=Release
+
+# Remove colcon-generated prefix-level files and directories that are not package installation destinations.
+find "${INSTALL_BASE}" -mindepth 1 -maxdepth 1 \
+  ! -name bin \
+  ! -name etc \
+  ! -name include \
+  ! -name lib \
+  ! -name share \
+  -exec rm -rf -- {} +
 
 # Create deb package.
 fakeroot dpkg-deb --build ${UBUNTU_WORKSPACE} ${TOBAS_DEB}
