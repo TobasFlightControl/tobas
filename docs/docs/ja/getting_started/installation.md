@@ -38,7 +38,7 @@ $ source /opt/ros/jazzy/setup.bash
 
 ### 手順
 
-<a href=https://drive.google.com/file/d/1ECkhHWGlVKN-8F47updfDKAXjJOI3xxc/view target="_blank">tobas_2.15.0_arm64.img.gz</a>
+<a href=https://drive.google.com/file/d/1B80llkgNSvuoI6HSFZNbjZA3OYDf1oZ2/view target="_blank">tobas_2.16.0_arm64.img.gz</a>
 をダウンロードしてください．
 
 適当なイメージフラッシャーをインストールしてください．例えば以下が使用可能です．

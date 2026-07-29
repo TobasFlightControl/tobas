@@ -38,7 +38,7 @@ $ source /opt/ros/jazzy/setup.bash
 
 ### Procedure
 
-Download <a href=https://drive.google.com/file/d/1ECkhHWGlVKN-8F47updfDKAXjJOI3xxc/view target="_blank">tobas_2.15.0_arm64.img.gz</a>.
+Download <a href=https://drive.google.com/file/d/1B80llkgNSvuoI6HSFZNbjZA3OYDf1oZ2/view target="_blank">tobas_2.16.0_arm64.img.gz</a>.
 
 Install a suitable image flashing tool. For example, you can use one of the following:
 
