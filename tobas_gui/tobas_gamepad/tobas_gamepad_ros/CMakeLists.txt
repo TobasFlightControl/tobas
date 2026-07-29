@@ -19,13 +19,15 @@ foreach(dependency IN ITEMS ${AMENT_DEPENDENCIES})
   find_package(${dependency} REQUIRED)
 endforeach()
 
-add_library(${PROJECT_NAME} SHARED nodes/rc_input_publisher.cpp)
+file(GLOB_RECURSE NODE_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} nodes/*.cpp)
+add_library(${PROJECT_NAME} SHARED ${NODE_TARGETS})
 ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
 target_link_options(${PROJECT_NAME} PRIVATE -Wl,--no-undefined)
 rclcpp_components_register_node(${PROJECT_NAME} PLUGIN "tobas::gamepad::RcInputPublisher" EXECUTABLE rc_input_publisher)
 
 install(
-  TARGETS ${PROJECT_NAME} rc_input_publisher
+  TARGETS ${PROJECT_NAME}
+  EXPORT ${PROJECT_NAME}
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin
