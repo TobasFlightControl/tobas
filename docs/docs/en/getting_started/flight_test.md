@@ -30,7 +30,7 @@
 
 ### Shutdown Procedure
 
-1. After landing, the drone automatically disarms once the throttle stick has remained down for a certain period.
+1. To disarm the drone, hold the throttle stick down and the yaw stick to the left for one second.
    Alternatively, turn on the `Kill` switch to disarm it immediately.
 1. Click the GCS power button (red) to shut down the FC.
 1. Exercise extreme caution and disconnect power from the FC and ESC.
