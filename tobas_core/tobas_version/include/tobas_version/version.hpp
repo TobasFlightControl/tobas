@@ -9,6 +9,6 @@ namespace version
 {
 static constexpr int kMajor = 2;
 static constexpr int kMinor = 15;
-static constexpr int kPatch = 0;
+static constexpr int kPatch = 1;
 }  // namespace version
 }  // namespace tobas

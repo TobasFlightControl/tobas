@@ -6,7 +6,7 @@
 
 ### 手順 (デスクトップから)
 
-<a href=https://drive.google.com/file/d/1R_Efi_-HoPTEq7rY3pQs6Z4MmEuOyvgo/view target="_blank">tobas_2.15.0_amd64.deb</a>
+<a href=https://drive.google.com/file/d/1Bs4-zw4BHEcM1GlkxnsXK5fT7vnCO-OJ/view target="_blank">tobas_2.15.1_amd64.deb</a>
 をダウンロードしてください．
 
 エクスプローラを開き，ダウンロードした deb パッケージをダブルクリックすると，App Center が起動します．
@@ -34,14 +34,14 @@ Enter キーを押してターミナルを閉じてください．
 
 ### 手順 (ターミナルから)
 
-<a href=https://drive.google.com/file/d/1R_Efi_-HoPTEq7rY3pQs6Z4MmEuOyvgo/view target="_blank">tobas_2.15.0_amd64.deb</a>
+<a href=https://drive.google.com/file/d/1Bs4-zw4BHEcM1GlkxnsXK5fT7vnCO-OJ/view target="_blank">tobas_2.15.1_amd64.deb</a>
 をダウンロードします．
 
 ```bash
 $ sudo apt install -y python3-pip
 $ sudo pip install gdown --break-system-packages
 $ cd ~/Download
-$ gdown --fuzzy 'https://drive.google.com/file/d/1R_Efi_-HoPTEq7rY3pQs6Z4MmEuOyvgo/view'
+$ gdown --fuzzy 'https://drive.google.com/file/d/1Bs4-zw4BHEcM1GlkxnsXK5fT7vnCO-OJ/view'
 ```
 
 既に Tobas がインストールされていて更新したい場合は，一度古いパッケージをアンインストールします．
@@ -53,7 +53,7 @@ $ sudo dpkg -r tobas
 Tobas をインストールします．
 
 ```bash
-$ sudo dpkg -i tobas_2.15.0_amd64.deb
+$ sudo dpkg -i tobas_2.15.1_amd64.deb
 ```
 
 依存パッケージをインストールします．

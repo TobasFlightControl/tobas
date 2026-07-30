@@ -7,7 +7,7 @@
 ### Procedure (from the desktop)
 
 Please download
-<a href=https://drive.google.com/file/d/1R_Efi_-HoPTEq7rY3pQs6Z4MmEuOyvgo/view target="_blank">tobas_2.15.0_amd64.deb</a>.
+<a href=https://drive.google.com/file/d/1Bs4-zw4BHEcM1GlkxnsXK5fT7vnCO-OJ/view target="_blank">tobas_2.15.1_amd64.deb</a>.
 
 Open the file explorer and double-click the downloaded deb package to launch App Center.
 Click `Install` to start the installation. This may take a few minutes.
@@ -34,13 +34,13 @@ Press Enter to close the terminal.
 ### Procedure (from the terminal)
 
 Download
-<a href=https://drive.google.com/file/d/1R_Efi_-HoPTEq7rY3pQs6Z4MmEuOyvgo/view target="_blank">tobas_2.15.0_amd64.deb</a>.
+<a href=https://drive.google.com/file/d/1Bs4-zw4BHEcM1GlkxnsXK5fT7vnCO-OJ/view target="_blank">tobas_2.15.1_amd64.deb</a>.
 
 ```bash
 $ sudo apt install -y python3-pip
 $ sudo pip install gdown --break-system-packages
 $ cd ~/Download
-$ gdown --fuzzy 'https://drive.google.com/file/d/1R_Efi_-HoPTEq7rY3pQs6Z4MmEuOyvgo/view'
+$ gdown --fuzzy 'https://drive.google.com/file/d/1Bs4-zw4BHEcM1GlkxnsXK5fT7vnCO-OJ/view'
 ```
 
 If Tobas is already installed and you want to update it, first uninstall the old package.
@@ -52,7 +52,7 @@ $ sudo dpkg -r tobas
 Install Tobas.
 
 ```bash
-$ sudo dpkg -i tobas_2.15.0_amd64.deb
+$ sudo dpkg -i tobas_2.15.1_amd64.deb
 ```
 
 Install the dependent packages.
