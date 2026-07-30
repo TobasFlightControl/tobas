@@ -20,7 +20,7 @@ std::string SynchronizedStringParameter::loadInitialValue(
 
   if (getMainParameter()) {
     if (shouldPublish()) {
-      // Transient local is similar to latching in ROS 1
+      // Transient local is similar to latching in ROS 1.
       string_publisher_ = node_->create_publisher<std_msgs::msg::String>(name_, rclcpp::QoS(1).transient_local());
 
       std_msgs::msg::String msg;
@@ -30,7 +30,7 @@ std::string SynchronizedStringParameter::loadInitialValue(
     return content_;
   }
 
-  // Load topic parameters
+  // Load topic parameters.
   const auto keep_open_param = name_ + "_continuous";
   if (!node_->has_parameter(keep_open_param)) {
     node_->declare_parameter(keep_open_param, rclcpp::ParameterType::PARAMETER_BOOL);
@@ -90,7 +90,7 @@ bool SynchronizedStringParameter::waitForMessage(const rclcpp::Duration& timeout
   const auto temp_node = std::make_shared<rclcpp::Node>(nd_name, node_->get_namespace());
   string_subscriber_ = temp_node->create_subscription<std_msgs::msg::String>(
     name_,
-    rclcpp::QoS(1).transient_local().reliable(),  // "transient_local()" is required for supporting late subscriptions
+    rclcpp::QoS(1).transient_local().reliable(),  // "transient_local()" is required for supporting late subscriptions.
     [this](const std_msgs::msg::String::ConstSharedPtr& msg) { return stringCallback(msg); });
 
   rclcpp::WaitSet wait_set;

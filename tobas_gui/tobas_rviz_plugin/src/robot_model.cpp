@@ -5,7 +5,6 @@
 
 #include <set>
 
-#include <geometric_shapes/shape_operations.h>
 #include <rclcpp/logging.hpp>
 
 #include "tobas_rviz_plugin/logger.hpp"
@@ -106,7 +105,6 @@ Eigen::Isometry3d urdfPose2Isometry3d(const urdf::Pose& pose)
 
 RobotModel::RobotModel(const urdf::ModelInterfaceSharedPtr& urdf_model)
 {
-  root_joint_ = nullptr;
   urdf_ = urdf_model;
   buildModel(*urdf_model);
 }
@@ -151,44 +149,9 @@ const JointModel* RobotModel::getJointModel(const std::string& name) const
   return it->second;
 }
 
-const JointModel* RobotModel::getJointModel(size_t index) const
-{
-  if (index >= joint_model_vector_.size()) {
-    RCLCPP_ERROR(getLogger(), "Joint index '%li' out of bounds of joints in model '%s'.", index, model_name_.c_str());
-    return nullptr;
-  }
-  assert(joint_model_vector_[index]->getJointIndex() == index);
-  return joint_model_vector_[index];
-}
-
-JointModel* RobotModel::getJointModel(const std::string& name)
-{
-  const auto it = joint_model_map_.find(name);
-  if (it != joint_model_map_.end()) {
-    return it->second;
-  }
-  RCLCPP_ERROR(getLogger(), "Joint '%s' not found in model '%s'.", name.c_str(), model_name_.c_str());
-  return nullptr;
-}
-
-const std::vector<const JointModel*>& RobotModel::getSingleDOFJointModels() const
-{
-  return single_dof_joints_;
-}
-
-const std::vector<const JointModel*>& RobotModel::getMultiDOFJointModels() const
-{
-  return multi_dof_joints_;
-}
-
 const JointModel* RobotModel::getJointOfVariable(int variable_index) const
 {
   return joints_of_variable_[variable_index];
-}
-
-const JointModel* RobotModel::getJointOfVariable(const std::string& variable) const
-{
-  return joints_of_variable_[getVariableIndex(variable)];
 }
 
 size_t RobotModel::getJointModelCount() const
@@ -201,37 +164,13 @@ const LinkModel* RobotModel::getRootLink() const
   return root_link_;
 }
 
-const LinkModel* RobotModel::getLinkModel(const std::string& name, bool* has_link) const
+const LinkModel* RobotModel::getLinkModel(const std::string& name) const
 {
-  return const_cast<RobotModel*>(this)->getLinkModel(name, has_link);
-}
-
-const LinkModel* RobotModel::getLinkModel(size_t index) const
-{
-  if (index >= link_model_vector_.size()) {
-    RCLCPP_ERROR(getLogger(), "Link index '%li' out of bounds of links in model '%s'.", index, model_name_.c_str());
-    return nullptr;
-  }
-  assert(link_model_vector_[index]->getLinkIndex() == index);
-  return link_model_vector_[index];
-}
-
-LinkModel* RobotModel::getLinkModel(const std::string& name, bool* has_link)
-{
-  if (has_link) {
-    *has_link = true;  // Start out optimistic
-  }
   const auto it = link_model_map_.find(name);
   if (it != link_model_map_.end()) {
     return it->second;
   }
-
-  if (has_link) {
-    *has_link = false;  // Report failure via argument
-  }
-  else {  // Otherwise print error
-    RCLCPP_ERROR(getLogger(), "Link '%s' not found in model '%s'.", name.c_str(), model_name_.c_str());
-  }
+  RCLCPP_ERROR(getLogger(), "Link '%s' not found in model '%s'.", name.c_str(), model_name_.c_str());
   return nullptr;
 }
 
@@ -240,43 +179,18 @@ size_t RobotModel::getLinkModelCount() const
   return link_model_vector_.size();
 }
 
-size_t RobotModel::getLinkGeometryCount() const
-{
-  return link_geometry_count_;
-}
-
-void RobotModel::getVariableDefaultPositions(double* values) const
-{
-  for (size_t i = 0; i < active_joint_model_vector_.size(); ++i) {
-    active_joint_model_vector_[i]->getVariableDefaultPositions(values + active_joint_model_start_index_[i]);
-  }
-  updateMimicJoints(values);
-}
-
 void RobotModel::getVariableDefaultPositions(std::vector<double>& values) const
 {
   values.resize(variable_count_);
-  getVariableDefaultPositions(&values.front());
-}
-
-void RobotModel::getVariableDefaultPositions(std::map<std::string, double>& values) const
-{
-  std::vector<double> tmp(variable_count_);
-  getVariableDefaultPositions(&tmp.front());
-  values.clear();
-  for (size_t i = 0; i < variable_names_.size(); ++i) {
-    values[variable_names_[i]] = tmp[i];
+  for (size_t i = 0; i < active_joint_model_vector_.size(); ++i) {
+    active_joint_model_vector_[i]->getVariableDefaultPositions(values.data() + active_joint_model_start_index_[i]);
   }
+  updateMimicJoints(values.data());
 }
 
 size_t RobotModel::getVariableCount() const
 {
   return variable_count_;
-}
-
-const std::vector<std::string>& RobotModel::getVariableNames() const
-{
-  return variable_names_;
 }
 
 size_t RobotModel::getVariableIndex(const std::string& variable) const
@@ -299,22 +213,6 @@ const JointModel* RobotModel::getCommonRoot(const JointModel* a, const JointMode
   return joint_model_vector_[common_joint_roots_[a->getJointIndex() * joint_model_vector_.size() + b->getJointIndex()]];
 }
 
-void RobotModel::computeFixedTransforms(
-  const LinkModel* link,
-  const Eigen::Isometry3d& transform,
-  LinkTransformMap& associated_transforms)
-{
-  associated_transforms[link] = transform * link->getJointOriginTransform();
-  for (size_t i = 0; i < link->getChildJointModels().size(); ++i) {
-    if (link->getChildJointModels()[i]->getType() == JointModel::kFixed) {
-      computeFixedTransforms(
-        link->getChildJointModels()[i]->getChildLinkModel(),
-        transform * link->getJointOriginTransform(),
-        associated_transforms);
-    }
-  }
-}
-
 void RobotModel::updateMimicJoints(double* values) const
 {
   for (const auto& mimic_joint : mimic_joints_) {
@@ -326,10 +224,6 @@ void RobotModel::updateMimicJoints(double* values) const
 
 void RobotModel::buildModel(const urdf::ModelInterface& urdf_model)
 {
-  root_joint_ = nullptr;
-  root_link_ = nullptr;
-  link_geometry_count_ = 0;
-  variable_count_ = 0;
   model_name_ = urdf_model.getName();
   RCLCPP_INFO(getLogger(), "Loading robot model '%s'...", model_name_.c_str());
 
@@ -347,10 +241,6 @@ void RobotModel::buildModel(const urdf::ModelInterface& urdf_model)
 
     RCLCPP_DEBUG(getLogger(), "... computing joint indexing.");
     buildJointInfo();
-
-    if (link_models_with_collision_geometry_vector_.empty()) {
-      RCLCPP_WARN(getLogger(), "No geometry is associated to any robot links.");
-    }
   }
   else {
     RCLCPP_WARN(getLogger(), "No root link found.");
@@ -359,7 +249,7 @@ void RobotModel::buildModel(const urdf::ModelInterface& urdf_model)
 
 void RobotModel::buildMimic(const urdf::ModelInterface& urdf_model)
 {
-  // Compute mimic joints
+  // Compute mimic joints.
   for (const auto& joint_model : joint_model_vector_) {
     const auto jm = urdf_model.getJoint(joint_model->getName()).get();
     if (jm) {
@@ -404,7 +294,7 @@ void RobotModel::buildMimic(const urdf::ModelInterface& urdf_model)
         if (joint_model == joint_model->getMimic()) {
           RCLCPP_ERROR(getLogger(), "Cycle found in joint that mimic each other. Ignoring all mimic joints.");
           for (const auto& joint_model_recal : joint_model_vector_) {
-            joint_model_recal->setMimic(nullptr, 0., 0.);
+            joint_model_recal->setMimic(nullptr, 0.0, 0.0);
           }
           change = false;
           break;
@@ -413,7 +303,7 @@ void RobotModel::buildMimic(const urdf::ModelInterface& urdf_model)
     }
   }
 
-  // Build mimic requests
+  // Build mimic requests.
   for (const auto& joint_model : joint_model_vector_) {
     if (joint_model->getMimic()) {
       const_cast<JointModel*>(joint_model->getMimic())->addMimicRequest(joint_model);
@@ -424,73 +314,40 @@ void RobotModel::buildMimic(const urdf::ModelInterface& urdf_model)
 
 void RobotModel::buildJointInfo()
 {
-  // Construct additional maps for easy access by name
+  // Construct additional maps for easy access by name.
   variable_count_ = 0;
   active_joint_model_start_index_.reserve(joint_model_vector_.size());
-  variable_names_.reserve(joint_model_vector_.size());
   joints_of_variable_.reserve(joint_model_vector_.size());
 
   for (const auto& joint : joint_model_vector_) {
     const auto& name_order = joint->getVariableNames();
 
-    // Compute index map
+    // Compute index map.
     if (!name_order.empty()) {
       for (size_t j = 0; j < name_order.size(); ++j) {
         joint_variables_index_map_[name_order[j]] = variable_count_ + j;
-        variable_names_.push_back(name_order[j]);
         joints_of_variable_.push_back(joint);
       }
       if (!joint->getMimic()) {
         active_joint_model_start_index_.push_back(variable_count_);
         active_joint_model_vector_.push_back(joint);
-        active_joint_model_names_vector_.push_back(joint->getName());
-        active_joint_model_vector_const_.push_back(joint);
-      }
-
-      if (joint->getType() == JointModel::kRevolute && static_cast<const RevoluteJointModel*>(joint)->isContinuous()) {
-        continuous_joint_model_vector_.push_back(joint);
       }
 
       joint_variables_index_map_[joint->getName()] = variable_count_;
 
-      // Compute variable count
+      // Compute variable count.
       const auto vc = joint->getVariableCount();
       variable_count_ += vc;
-      if (vc == 1) {
-        single_dof_joints_.push_back(joint);
-      }
-      else {
-        multi_dof_joints_.push_back(joint);
-      }
-    }
-  }
-
-  std::vector<bool> link_considered(link_model_vector_.size(), false);
-  for (const LinkModel* link : link_model_vector_) {
-    if (link_considered[link->getLinkIndex()]) {
-      continue;
-    }
-
-    LinkTransformMap associated_transforms;
-    computeFixedTransforms(link, link->getJointOriginTransform().inverse(), associated_transforms);
-    for (const auto& tf_base : associated_transforms) {
-      link_considered[tf_base.first->getLinkIndex()] = true;
-      for (const auto& tf_target : associated_transforms) {
-        if (&tf_base != &tf_target) {
-          const_cast<LinkModel*>(tf_base.first)  // Regain write access to base LinkModel
-            ->addAssociatedFixedTransform(tf_target.first, tf_base.second.inverse() * tf_target.second);
-        }
-      }
     }
   }
 
   computeDescendants();
-  computeCommonRoots();  // Must be called _after_ list of descendants was computed
+  computeCommonRoots();  // Must be called _after_ list of descendants was computed.
 }
 
 void RobotModel::computeDescendants()
 {
-  // Compute the list of descendants for all joints
+  // Compute the list of descendants for all joints.
   std::vector<const JointModel*> parents;
   std::set<const JointModel*> seen;
 
@@ -511,9 +368,9 @@ void RobotModel::computeCommonRoots()
 {
   // Compute common roots for all pairs of joints.
   // There are 3 cases of pairs (X, Y):
-  //    X != Y && X and Y are not descendants of one another
+  //    X != Y && X and Y are not descendants of one another.
   //    X == Y
-  //    X != Y && X and Y are descendants of one another
+  //    X != Y && X and Y are descendants of one another.
 
   // By default, the common root is always the global root.
   common_joint_roots_.resize(joint_model_vector_.size() * joint_model_vector_.size(), 0);
@@ -541,7 +398,7 @@ void RobotModel::computeCommonRoots()
 
 JointModel* RobotModel::buildRecursive(LinkModel* parent, const urdf::Link* urdf_link)
 {
-  // Construct the joint
+  // Construct the joint.
   const auto joint = constructJointModel(urdf_link);
 
   if (!joint) {
@@ -551,11 +408,8 @@ JointModel* RobotModel::buildRecursive(LinkModel* parent, const urdf::Link* urdf
   // Bookkeeping for the joint
   joint_model_vector_.push_back(joint);
   joint_model_map_[joint->getName()] = joint;
-  joint_model_vector_const_.push_back(joint);
-  joint_model_names_vector_.push_back(joint->getName());
-  joint->setParentLinkModel(parent);
 
-  // Construct the link
+  // Construct the link.
   const auto link = constructLinkModel(urdf_link);
   joint->setChildLinkModel(link);
   link->setParentLinkModel(parent);
@@ -563,17 +417,9 @@ JointModel* RobotModel::buildRecursive(LinkModel* parent, const urdf::Link* urdf
   // Bookkeeping for the link
   link_model_map_[joint->getChildLinkModel()->getName()] = link;
   link_model_vector_.push_back(link);
-  link_model_vector_const_.push_back(link);
-  link_model_names_vector_.push_back(link->getName());
-  if (!link->getShapes().empty()) {
-    link_models_with_collision_geometry_vector_.push_back(link);
-    link_model_names_with_collision_geometry_vector_.push_back(link->getName());
-    link->setFirstCollisionBodyTransformIndex(link_geometry_count_);
-    link_geometry_count_ += link->getShapes().size();
-  }
   link->setParentJointModel(joint);
 
-  // Recursively build child links (and joints)
+  // Recursively build child links (and joints).
   for (const auto& child_link : urdf_link->child_links) {
     const auto jm = buildRecursive(link, child_link.get());
     if (jm) {
@@ -592,18 +438,16 @@ JointModel* RobotModel::constructJointModel(const urdf::Link* child_link)
                                                                   joint_model_vector_.back()->getFirstVariableIndex() +
                                                                     joint_model_vector_.back()->getVariableCount();
 
-  // if parent_joint exists, must be the root link transform
+  // if parent_joint exists, must be the root link transform.
   if (parent_joint) {
     switch (parent_joint->type) {
       case urdf::Joint::REVOLUTE: {
         const auto j = new RevoluteJointModel(parent_joint->name, joint_index, first_variable_index);
-        j->setContinuous(false);
         j->setAxis(Eigen::Vector3d(parent_joint->axis.x, parent_joint->axis.y, parent_joint->axis.z));
         new_joint_model = j;
       } break;
       case urdf::Joint::CONTINUOUS: {
         const auto j = new RevoluteJointModel(parent_joint->name, joint_index, first_variable_index);
-        j->setContinuous(true);
         j->setAxis(Eigen::Vector3d(parent_joint->axis.x, parent_joint->axis.y, parent_joint->axis.z));
         new_joint_model = j;
       } break;
@@ -641,69 +485,6 @@ LinkModel* RobotModel::constructLinkModel(const urdf::Link* urdf_link)
   const auto link_index = link_model_vector_.size();
   const auto new_link_model = new LinkModel(urdf_link->name, link_index);
 
-  const std::vector<urdf::CollisionSharedPtr>& col_array =
-    urdf_link->collision_array.empty() ? std::vector<urdf::CollisionSharedPtr>(1, urdf_link->collision) :
-                                         urdf_link->collision_array;
-
-  std::vector<shapes::ShapeConstPtr> shapes;
-  EigenSTL::vector_Isometry3d poses;
-
-  for (const auto& col : col_array) {
-    if (col && col->geometry) {
-      const auto s = constructShape(col->geometry.get());
-      if (s) {
-        shapes.push_back(s);
-        poses.push_back(urdfPose2Isometry3d(col->origin));
-      }
-    }
-  }
-
-  // Should we warn that old (melodic) behaviour has changed, not copying visual to collision geometries anymore?
-  bool warn_about_missing_collision = false;
-  if (shapes.empty()) {
-    const auto& vis_array = urdf_link->visual_array.empty() ? std::vector<urdf::VisualSharedPtr>{ urdf_link->visual } :
-                                                              urdf_link->visual_array;
-    for (const auto& vis : vis_array) {
-      if (vis && vis->geometry) {
-        warn_about_missing_collision = true;
-      }
-    }
-  }
-  if (warn_about_missing_collision) {
-    RCLCPP_WARN_STREAM(
-      getLogger(),
-      "Link " << urdf_link->name
-              << " has visual geometry but no collision geometry. "
-                 "Collision geometry will be left empty. "
-                 "Fix your URDF file by explicitly specifying collision geometry.");
-  }
-
-  new_link_model->setGeometry(shapes, poses);
-
-  // Figure out visual mesh (try visual urdf tag first, collision tag otherwise
-  if (urdf_link->visual && urdf_link->visual->geometry) {
-    if (urdf_link->visual->geometry->type == urdf::Geometry::MESH) {
-      const auto mesh = static_cast<const urdf::Mesh*>(urdf_link->visual->geometry.get());
-      if (!mesh->filename.empty()) {
-        new_link_model->setVisualMesh(
-          mesh->filename,
-          urdfPose2Isometry3d(urdf_link->visual->origin),
-          Eigen::Vector3d(mesh->scale.x, mesh->scale.y, mesh->scale.z));
-      }
-    }
-  }
-  else if (urdf_link->collision && urdf_link->collision->geometry) {
-    if (urdf_link->collision->geometry->type == urdf::Geometry::MESH) {
-      const auto mesh = static_cast<const urdf::Mesh*>(urdf_link->collision->geometry.get());
-      if (!mesh->filename.empty()) {
-        new_link_model->setVisualMesh(
-          mesh->filename,
-          urdfPose2Isometry3d(urdf_link->collision->origin),
-          Eigen::Vector3d(mesh->scale.x, mesh->scale.y, mesh->scale.z));
-      }
-    }
-  }
-
   if (urdf_link->parent_joint) {
     new_link_model->setJointOriginTransform(
       urdfPose2Isometry3d(urdf_link->parent_joint->parent_to_joint_origin_transform));
@@ -712,39 +493,4 @@ LinkModel* RobotModel::constructLinkModel(const urdf::Link* urdf_link)
   return new_link_model;
 }
 
-shapes::ShapePtr RobotModel::constructShape(const urdf::Geometry* geom)
-{
-  shapes::Shape* new_shape = nullptr;
-  switch (geom->type) {
-    case urdf::Geometry::SPHERE: {
-      new_shape = new shapes::Sphere(static_cast<const urdf::Sphere*>(geom)->radius);
-      break;
-    }
-    case urdf::Geometry::BOX: {
-      const auto dim = static_cast<const urdf::Box*>(geom)->dim;
-      new_shape = new shapes::Box(dim.x, dim.y, dim.z);
-      break;
-    }
-    case urdf::Geometry::CYLINDER: {
-      new_shape = new shapes::Cylinder(
-        static_cast<const urdf::Cylinder*>(geom)->radius, static_cast<const urdf::Cylinder*>(geom)->length);
-      break;
-    }
-    case urdf::Geometry::MESH: {
-      const urdf::Mesh* mesh = static_cast<const urdf::Mesh*>(geom);
-      if (!mesh->filename.empty()) {
-        Eigen::Vector3d scale(mesh->scale.x, mesh->scale.y, mesh->scale.z);
-        shapes::Mesh* m = shapes::createMeshFromResource(mesh->filename, scale);
-        new_shape = m;
-      }
-      break;
-    }
-    default: {
-      RCLCPP_ERROR(getLogger(), "Unknown geometry type: %d", static_cast<int>(geom->type));
-      break;
-    }
-  }
-
-  return shapes::ShapePtr(new_shape);
-}
 }  // namespace tobas

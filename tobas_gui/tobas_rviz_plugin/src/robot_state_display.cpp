@@ -38,8 +38,8 @@ RobotStateDisplay::RobotStateDisplay()
 
   robot_alpha_property_ = new rviz_common::properties::FloatProperty(
     "Robot Alpha", 1.0f, "Specifies the alpha for the robot links", this, SLOT(changedRobotSceneAlpha()), this);
-  robot_alpha_property_->setMin(0.);
-  robot_alpha_property_->setMax(1.);
+  robot_alpha_property_->setMin(0.0);
+  robot_alpha_property_->setMax(1.0);
 
   enable_link_highlight_ = new rviz_common::properties::BoolProperty(
     "Show Highlights",
@@ -111,27 +111,6 @@ void RobotStateDisplay::reset()
   if (isEnabled()) {
     onEnable();
   }
-}
-
-void RobotStateDisplay::setLinkColor(const std::string& link_name, const QColor& color)
-{
-  const auto link = robot_->getLink(link_name);
-  if (link) {
-    link->setColor(color.redF(), color.greenF(), color.blueF());
-  }
-}
-
-void RobotStateDisplay::unsetLinkColor(const std::string& link_name)
-{
-  const auto link = robot_->getLink(link_name);
-  if (link) {
-    link->unsetColor();
-  }
-}
-
-void RobotStateDisplay::setVisible(bool visible)
-{
-  robot_->setVisible(visible);
 }
 
 void RobotStateDisplay::onInitialize()
@@ -251,7 +230,6 @@ void RobotStateDisplay::newRobotStateCallback(
     robot_state_ = std::make_shared<RobotState>(robot_model_);
   }
 
-  // Possibly use TF to construct a Transforms object to pass in to the conversion function?
   try {
     robotStateMsgToRobotState(state_msg->state, *robot_state_);
     setRobotHighlights(state_msg->highlight_links);
@@ -363,7 +341,7 @@ void RobotStateDisplay::changedRobotSceneAlpha()
 
 void RobotStateDisplay::changedRobotStateTopic()
 {
-  // Reset model to default state, we don't want to show previous messages
+  // Reset model to default state, we don't want to show previous messages.
   if (static_cast<bool>(robot_state_)) {
     robot_state_->setToDefaultValues();
   }

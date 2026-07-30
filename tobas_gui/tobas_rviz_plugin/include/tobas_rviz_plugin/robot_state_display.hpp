@@ -37,12 +37,6 @@ public:
   void update(float wall_dt, float ros_dt) override;
   void reset() override;
 
-  void setLinkColor(const std::string& link_name, const QColor& color);
-  void unsetLinkColor(const std::string& link_name);
-
-public Q_SLOTS:
-  void setVisible(bool visible);
-
 protected:
   void onInitialize() override;
   void onEnable() override;

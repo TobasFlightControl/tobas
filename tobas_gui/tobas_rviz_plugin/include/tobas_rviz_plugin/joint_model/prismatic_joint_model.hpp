@@ -18,7 +18,6 @@ public:
   void computeTransform(const double* joint_values, Eigen::Isometry3d& transform) const override;
   void computeVariablePositions(const Eigen::Isometry3d& transform, double* joint_values) const override;
 
-  const Eigen::Vector3d& getAxis() const;
   void setAxis(const Eigen::Vector3d& axis);
 
 private:

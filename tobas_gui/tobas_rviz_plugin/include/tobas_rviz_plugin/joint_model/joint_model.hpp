@@ -14,9 +14,6 @@ namespace tobas
 class LinkModel;
 class JointModel;
 
-/* Data type for holding mappings from variable names to their position in a state vector. */
-using VariableIndexMap = std::map<std::string, size_t>;
-
 /* Map of names to instances for JointModel. */
 using JointModelMap = std::map<std::string, JointModel*>;
 
@@ -48,12 +45,7 @@ public:
   JointType getType() const;
 
   /* Get the link that this joint connects to. */
-  const LinkModel* getParentLinkModel() const;
-
-  /* Get the link that this joint connects to. */
   const LinkModel* getChildLinkModel() const;
-
-  void setParentLinkModel(const LinkModel* link);
 
   void setChildLinkModel(const LinkModel* link);
 
@@ -68,9 +60,6 @@ public:
 
   /* Get the index of this joint within the robot model. */
   size_t getJointIndex() const;
-
-  /* Get the index of the variable within this joint. */
-  size_t getLocalVariableIndex(const std::string& variable) const;
 
   /* Provide a default value for the joint given the joint variable bounds. */
   virtual void getVariableDefaultPositions(double* values) const = 0;
@@ -101,9 +90,6 @@ public:
   /* Get all the joint models that descend from this joint, in the kinematic tree. */
   const std::vector<const JointModel*>& getDescendantJointModels() const;
 
-  /* Get all the non-fixed joint models that descend from this joint, in the kinematic tree. */
-  const std::vector<const JointModel*>& getNonFixedDescendantJointModels() const;
-
   /* Given the joint values for a joint, compute the corresponding transform. */
   virtual void computeTransform(const double* joint_values, Eigen::Isometry3d& transform) const = 0;
 
@@ -114,17 +100,8 @@ protected:
   /* The type of joint */
   JointType type_ = kUnknown;
 
-  /* The local names to use for the variables that make up this joint */
-  std::vector<std::string> local_variable_names_;
-
   /* The full names to use for the variables that make up this joint */
   std::vector<std::string> variable_names_;
-
-  /* Map from variable names to the corresponding index in `variable_names_` */
-  VariableIndexMap variable_index_map_;
-
-  /* The link before this joint */
-  const LinkModel* parent_link_model_ = nullptr;
 
   /* The link after this joint */
   const LinkModel* child_link_model_ = nullptr;
@@ -133,10 +110,10 @@ protected:
   const JointModel* mimic_ = nullptr;
 
   /* The multiplier to the mimic joint */
-  double mimic_factor_ = 1.;
+  double mimic_factor_ = 1.0;
 
   /* The offset to the mimic joint */
-  double mimic_offset_ = 0.;
+  double mimic_offset_ = 0.0;
 
   /* The set of joints that should get a value copied to them when this joint changes */
   std::vector<const JointModel*> mimic_requests_;
@@ -146,9 +123,6 @@ protected:
 
   /* Pointers to all the joints that follow this one in the kinematic tree (including mimic joints) */
   std::vector<const JointModel*> descendant_joint_models_;
-
-  /* Pointers to all the joints that follow this one in the kinematic tree, including mimic joints, but excluding fixed joints */
-  std::vector<const JointModel*> non_fixed_descendant_joint_models_;
 
 private:
   /* Name of the joint */

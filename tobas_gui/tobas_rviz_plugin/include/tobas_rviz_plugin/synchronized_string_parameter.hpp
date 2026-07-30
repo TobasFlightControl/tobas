@@ -17,7 +17,7 @@ namespace tobas
  *
  * If the parameter is loaded successfully, you can publish the value as a String msg if the publish_NAME param is true.
  *
- * You can specify how long to wait for a subscribed message with NAME_timeout (double in seconds)
+ * You can specify how long to wait for a subscribed message with NAME_timeout (double in seconds).
  *
  * By default, the subscription will be killed after the first message is received.
  * If the parameter NAME_continuous is true, then the parent_callback will be called on every subsequent message.
@@ -32,7 +32,7 @@ public:
     const std::string& name,
     const StringCallback& parent_callback = {},
     bool default_continuous_value = false,
-    double default_timeout = 10.);
+    double default_timeout = 10.0);
 
 private:
   bool getMainParameter();
