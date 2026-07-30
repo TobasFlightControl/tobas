@@ -33,11 +33,11 @@ ParameterTuningWidget::ParameterTuningWidget(rclcpp::Node::SharedPtr node)
 {
   load_button_ = new QPushButton("Load");
   save_button_ = new QPushButton("Save");
-  reset_button_ = new QPushButton("Reset");
+  dflt_button_ = new QPushButton("Default");
 
   load_button_->setFixedSize(kButtonWidth, kButtonHeight);
   save_button_->setFixedSize(kButtonWidth, kButtonHeight);
-  reset_button_->setFixedSize(kButtonWidth, kButtonHeight);
+  dflt_button_->setFixedSize(kButtonWidth, kButtonHeight);
 
   reset();
   load_button_->setEnabled(false);  // Disable the Load button until a project has been loaded.
@@ -50,7 +50,7 @@ ParameterTuningWidget::ParameterTuningWidget(rclcpp::Node::SharedPtr node)
   root_rows->addLayout(button_cols);
   button_cols->addWidget(load_button_);
   button_cols->addWidget(save_button_);
-  button_cols->addWidget(reset_button_);
+  button_cols->addWidget(dflt_button_);
   button_cols->addStretch();
 
   const auto param_rows = qt::createScrollableQVBoxLayout(root_rows);
@@ -62,14 +62,14 @@ ParameterTuningWidget::ParameterTuningWidget(rclcpp::Node::SharedPtr node)
   // Connection
   connect(load_button_, &QPushButton::clicked, this, &self::onLoadButtonClicked);
   connect(save_button_, &QPushButton::clicked, this, &self::onSaveButtonClicked);
-  connect(reset_button_, &QPushButton::clicked, this, &self::onResetButtonClicked);
+  connect(dflt_button_, &QPushButton::clicked, this, &self::onDefaultButtonClicked);
 }
 
 void ParameterTuningWidget::reset()
 {
   load_button_->setEnabled(true);
   save_button_->setEnabled(false);
-  reset_button_->setEnabled(false);
+  dflt_button_->setEnabled(false);
 
   for (const auto& block : blocks_) {
     block->clear();
@@ -116,7 +116,7 @@ void ParameterTuningWidget::onLoadButtonClicked()
   }
 
   save_button_->setEnabled(true);
-  reset_button_->setEnabled(true);
+  dflt_button_->setEnabled(true);
 
   qt::qInfoBox(this, "Dynamic parameters are loaded successfully.");
 }
@@ -140,9 +140,9 @@ void ParameterTuningWidget::onSaveButtonClicked()
     "Please click \"Write\" button again to flash them to the FC.");
 }
 
-void ParameterTuningWidget::onResetButtonClicked()
+void ParameterTuningWidget::onDefaultButtonClicked()
 {
-  qDebug() << "ParameterTuningWidget::onResetButtonClicked";
+  qDebug() << "ParameterTuningWidget::onDefaultButtonClicked";
 
   // Confirm before resetting all parameters.
   if (!qt::yesOrNo(this, "Are you sure you want to reset all parameters to their defaults?", qt::WARN)) {

@@ -44,12 +44,12 @@ private:
 
   QPushButton* load_button_;
   QPushButton* save_button_;
-  QPushButton* reset_button_;
+  QPushButton* dflt_button_;
 
 private Q_SLOTS:
   void onLoadButtonClicked();
   void onSaveButtonClicked();
-  void onResetButtonClicked();
+  void onDefaultButtonClicked();
 };
 }  // namespace param
 }  // namespace gui
