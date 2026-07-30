@@ -2,385 +2,385 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
     <url>
         <loc>https://TobasFlightControl.github.io/tobas/latest/</loc>
-        <lastmod>2026-06-29</lastmod>
+        <lastmod>2026-07-30</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://TobasFlightControl.github.io/tobas/latest/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://TobasFlightControl.github.io/tobas/latestja/"/>
     </url>
     <url>
         <loc>https://TobasFlightControl.github.io/tobas/latest/additional_information/cad_models/</loc>
-        <lastmod>2026-06-29</lastmod>
+        <lastmod>2026-07-30</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://TobasFlightControl.github.io/tobas/latest/additional_information/cad_models/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://TobasFlightControl.github.io/tobas/latestja/additional_information/cad_models/"/>
     </url>
     <url>
         <loc>https://TobasFlightControl.github.io/tobas/latest/additional_information/inertia_moment/</loc>
-        <lastmod>2026-06-29</lastmod>
+        <lastmod>2026-07-30</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://TobasFlightControl.github.io/tobas/latest/additional_information/inertia_moment/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://TobasFlightControl.github.io/tobas/latestja/additional_information/inertia_moment/"/>
     </url>
     <url>
         <loc>https://TobasFlightControl.github.io/tobas/latest/additional_information/rpm_filter/</loc>
-        <lastmod>2026-06-29</lastmod>
+        <lastmod>2026-07-30</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://TobasFlightControl.github.io/tobas/latest/additional_information/rpm_filter/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://TobasFlightControl.github.io/tobas/latestja/additional_information/rpm_filter/"/>
     </url>
     <url>
         <loc>https://TobasFlightControl.github.io/tobas/latest/additional_information/system_architecture/</loc>
-        <lastmod>2026-06-29</lastmod>
+        <lastmod>2026-07-30</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://TobasFlightControl.github.io/tobas/latest/additional_information/system_architecture/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://TobasFlightControl.github.io/tobas/latestja/additional_information/system_architecture/"/>
     </url>
     <url>
         <loc>https://TobasFlightControl.github.io/tobas/latest/additional_information/troubleshooting/</loc>
-        <lastmod>2026-06-29</lastmod>
+        <lastmod>2026-07-30</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://TobasFlightControl.github.io/tobas/latest/additional_information/troubleshooting/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://TobasFlightControl.github.io/tobas/latestja/additional_information/troubleshooting/"/>
     </url>
     <url>
         <loc>https://TobasFlightControl.github.io/tobas/latest/additional_information/what_is_uadf/</loc>
-        <lastmod>2026-06-29</lastmod>
+        <lastmod>2026-07-30</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://TobasFlightControl.github.io/tobas/latest/additional_information/what_is_uadf/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://TobasFlightControl.github.io/tobas/latestja/additional_information/what_is_uadf/"/>
     </url>
     <url>
         <loc>https://TobasFlightControl.github.io/tobas/latest/for_developers/ros_api/</loc>
-        <lastmod>2026-06-29</lastmod>
+        <lastmod>2026-07-30</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://TobasFlightControl.github.io/tobas/latest/for_developers/ros_api/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://TobasFlightControl.github.io/tobas/latestja/for_developers/ros_api/"/>
     </url>
     <url>
         <loc>https://TobasFlightControl.github.io/tobas/latest/for_developers/user_code_cpp/</loc>
-        <lastmod>2026-06-29</lastmod>
+        <lastmod>2026-07-30</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://TobasFlightControl.github.io/tobas/latest/for_developers/user_code_cpp/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://TobasFlightControl.github.io/tobas/latestja/for_developers/user_code_cpp/"/>
     </url>
     <url>
         <loc>https://TobasFlightControl.github.io/tobas/latest/for_developers/user_code_py/</loc>
-        <lastmod>2026-06-29</lastmod>
+        <lastmod>2026-07-30</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://TobasFlightControl.github.io/tobas/latest/for_developers/user_code_py/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://TobasFlightControl.github.io/tobas/latestja/for_developers/user_code_py/"/>
     </url>
     <url>
         <loc>https://TobasFlightControl.github.io/tobas/latest/getting_started/airframe_config/</loc>
-        <lastmod>2026-06-29</lastmod>
+        <lastmod>2026-07-30</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://TobasFlightControl.github.io/tobas/latest/getting_started/airframe_config/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://TobasFlightControl.github.io/tobas/latestja/getting_started/airframe_config/"/>
     </url>
     <url>
         <loc>https://TobasFlightControl.github.io/tobas/latest/getting_started/bootmedia_config/</loc>
-        <lastmod>2026-06-29</lastmod>
+        <lastmod>2026-07-30</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://TobasFlightControl.github.io/tobas/latest/getting_started/bootmedia_config/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://TobasFlightControl.github.io/tobas/latestja/getting_started/bootmedia_config/"/>
     </url>
     <url>
         <loc>https://TobasFlightControl.github.io/tobas/latest/getting_started/flight_test/</loc>
-        <lastmod>2026-06-29</lastmod>
+        <lastmod>2026-07-30</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://TobasFlightControl.github.io/tobas/latest/getting_started/flight_test/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://TobasFlightControl.github.io/tobas/latestja/getting_started/flight_test/"/>
     </url>
     <url>
         <loc>https://TobasFlightControl.github.io/tobas/latest/getting_started/hardware_setup/</loc>
-        <lastmod>2026-06-29</lastmod>
+        <lastmod>2026-07-30</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://TobasFlightControl.github.io/tobas/latest/getting_started/hardware_setup/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://TobasFlightControl.github.io/tobas/latestja/getting_started/hardware_setup/"/>
     </url>
     <url>
         <loc>https://TobasFlightControl.github.io/tobas/latest/getting_started/installation/</loc>
-        <lastmod>2026-06-29</lastmod>
+        <lastmod>2026-07-30</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://TobasFlightControl.github.io/tobas/latest/getting_started/installation/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://TobasFlightControl.github.io/tobas/latestja/getting_started/installation/"/>
     </url>
     <url>
         <loc>https://TobasFlightControl.github.io/tobas/latest/getting_started/simulation/</loc>
-        <lastmod>2026-06-29</lastmod>
+        <lastmod>2026-07-30</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://TobasFlightControl.github.io/tobas/latest/getting_started/simulation/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://TobasFlightControl.github.io/tobas/latestja/getting_started/simulation/"/>
     </url>
     <url>
         <loc>https://TobasFlightControl.github.io/tobas/latest/releases/process/</loc>
-        <lastmod>2026-06-29</lastmod>
+        <lastmod>2026-07-30</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://TobasFlightControl.github.io/tobas/latest/releases/process/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://TobasFlightControl.github.io/tobas/latestja/releases/process/"/>
     </url>
     <url>
         <loc>https://TobasFlightControl.github.io/tobas/latest/releases/releases/</loc>
-        <lastmod>2026-06-29</lastmod>
+        <lastmod>2026-07-30</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://TobasFlightControl.github.io/tobas/latest/releases/releases/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://TobasFlightControl.github.io/tobas/latestja/releases/releases/"/>
     </url>
     <url>
         <loc>https://TobasFlightControl.github.io/tobas/latest/releases/v2.10/</loc>
-        <lastmod>2026-06-29</lastmod>
+        <lastmod>2026-07-30</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://TobasFlightControl.github.io/tobas/latest/releases/v2.10/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://TobasFlightControl.github.io/tobas/latestja/releases/v2.10/"/>
     </url>
     <url>
         <loc>https://TobasFlightControl.github.io/tobas/latest/releases/v2.11/</loc>
-        <lastmod>2026-06-29</lastmod>
+        <lastmod>2026-07-30</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://TobasFlightControl.github.io/tobas/latest/releases/v2.11/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://TobasFlightControl.github.io/tobas/latestja/releases/v2.11/"/>
     </url>
     <url>
         <loc>https://TobasFlightControl.github.io/tobas/latest/releases/v2.12/</loc>
-        <lastmod>2026-06-29</lastmod>
+        <lastmod>2026-07-30</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://TobasFlightControl.github.io/tobas/latest/releases/v2.12/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://TobasFlightControl.github.io/tobas/latestja/releases/v2.12/"/>
     </url>
     <url>
         <loc>https://TobasFlightControl.github.io/tobas/latest/releases/v2.13/</loc>
-        <lastmod>2026-06-29</lastmod>
+        <lastmod>2026-07-30</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://TobasFlightControl.github.io/tobas/latest/releases/v2.13/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://TobasFlightControl.github.io/tobas/latestja/releases/v2.13/"/>
     </url>
     <url>
         <loc>https://TobasFlightControl.github.io/tobas/latest/releases/v2.14/</loc>
-        <lastmod>2026-06-29</lastmod>
+        <lastmod>2026-07-30</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://TobasFlightControl.github.io/tobas/latest/releases/v2.14/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://TobasFlightControl.github.io/tobas/latestja/releases/v2.14/"/>
     </url>
     <url>
         <loc>https://TobasFlightControl.github.io/tobas/latest/releases/v2.15/</loc>
-        <lastmod>2026-06-29</lastmod>
+        <lastmod>2026-07-30</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://TobasFlightControl.github.io/tobas/latest/releases/v2.15/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://TobasFlightControl.github.io/tobas/latestja/releases/v2.15/"/>
     </url>
     <url>
         <loc>https://TobasFlightControl.github.io/tobas/latest/releases/v2.7/</loc>
-        <lastmod>2026-06-29</lastmod>
+        <lastmod>2026-07-30</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://TobasFlightControl.github.io/tobas/latest/releases/v2.7/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://TobasFlightControl.github.io/tobas/latestja/releases/v2.7/"/>
     </url>
     <url>
         <loc>https://TobasFlightControl.github.io/tobas/latest/releases/v2.8/</loc>
-        <lastmod>2026-06-29</lastmod>
+        <lastmod>2026-07-30</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://TobasFlightControl.github.io/tobas/latest/releases/v2.8/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://TobasFlightControl.github.io/tobas/latestja/releases/v2.8/"/>
     </url>
     <url>
         <loc>https://TobasFlightControl.github.io/tobas/latest/releases/v2.9/</loc>
-        <lastmod>2026-06-29</lastmod>
+        <lastmod>2026-07-30</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://TobasFlightControl.github.io/tobas/latest/releases/v2.9/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://TobasFlightControl.github.io/tobas/latestja/releases/v2.9/"/>
     </url>
     <url>
         <loc>https://TobasFlightControl.github.io/tobas/latest/ja/</loc>
-        <lastmod>2026-06-29</lastmod>
+        <lastmod>2026-07-30</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://TobasFlightControl.github.io/tobas/latest/ja/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://TobasFlightControl.github.io/tobas/latest"/>
     </url>
     <url>
         <loc>https://TobasFlightControl.github.io/tobas/latest/ja/additional_information/cad_models/</loc>
-        <lastmod>2026-06-29</lastmod>
+        <lastmod>2026-07-30</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://TobasFlightControl.github.io/tobas/latest/ja/additional_information/cad_models/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://TobasFlightControl.github.io/tobas/latestadditional_information/cad_models/"/>
     </url>
     <url>
         <loc>https://TobasFlightControl.github.io/tobas/latest/ja/additional_information/inertia_moment/</loc>
-        <lastmod>2026-06-29</lastmod>
+        <lastmod>2026-07-30</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://TobasFlightControl.github.io/tobas/latest/ja/additional_information/inertia_moment/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://TobasFlightControl.github.io/tobas/latestadditional_information/inertia_moment/"/>
     </url>
     <url>
         <loc>https://TobasFlightControl.github.io/tobas/latest/ja/additional_information/rpm_filter/</loc>
-        <lastmod>2026-06-29</lastmod>
+        <lastmod>2026-07-30</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://TobasFlightControl.github.io/tobas/latest/ja/additional_information/rpm_filter/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://TobasFlightControl.github.io/tobas/latestadditional_information/rpm_filter/"/>
     </url>
     <url>
         <loc>https://TobasFlightControl.github.io/tobas/latest/ja/additional_information/system_architecture/</loc>
-        <lastmod>2026-06-29</lastmod>
+        <lastmod>2026-07-30</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://TobasFlightControl.github.io/tobas/latest/ja/additional_information/system_architecture/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://TobasFlightControl.github.io/tobas/latestadditional_information/system_architecture/"/>
     </url>
     <url>
         <loc>https://TobasFlightControl.github.io/tobas/latest/ja/additional_information/troubleshooting/</loc>
-        <lastmod>2026-06-29</lastmod>
+        <lastmod>2026-07-30</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://TobasFlightControl.github.io/tobas/latest/ja/additional_information/troubleshooting/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://TobasFlightControl.github.io/tobas/latestadditional_information/troubleshooting/"/>
     </url>
     <url>
         <loc>https://TobasFlightControl.github.io/tobas/latest/ja/additional_information/what_is_uadf/</loc>
-        <lastmod>2026-06-29</lastmod>
+        <lastmod>2026-07-30</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://TobasFlightControl.github.io/tobas/latest/ja/additional_information/what_is_uadf/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://TobasFlightControl.github.io/tobas/latestadditional_information/what_is_uadf/"/>
     </url>
     <url>
         <loc>https://TobasFlightControl.github.io/tobas/latest/ja/for_developers/ros_api/</loc>
-        <lastmod>2026-06-29</lastmod>
+        <lastmod>2026-07-30</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://TobasFlightControl.github.io/tobas/latest/ja/for_developers/ros_api/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://TobasFlightControl.github.io/tobas/latestfor_developers/ros_api/"/>
     </url>
     <url>
         <loc>https://TobasFlightControl.github.io/tobas/latest/ja/for_developers/user_code_cpp/</loc>
-        <lastmod>2026-06-29</lastmod>
+        <lastmod>2026-07-30</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://TobasFlightControl.github.io/tobas/latest/ja/for_developers/user_code_cpp/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://TobasFlightControl.github.io/tobas/latestfor_developers/user_code_cpp/"/>
     </url>
     <url>
         <loc>https://TobasFlightControl.github.io/tobas/latest/ja/for_developers/user_code_py/</loc>
-        <lastmod>2026-06-29</lastmod>
+        <lastmod>2026-07-30</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://TobasFlightControl.github.io/tobas/latest/ja/for_developers/user_code_py/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://TobasFlightControl.github.io/tobas/latestfor_developers/user_code_py/"/>
     </url>
     <url>
         <loc>https://TobasFlightControl.github.io/tobas/latest/ja/getting_started/airframe_config/</loc>
-        <lastmod>2026-06-29</lastmod>
+        <lastmod>2026-07-30</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://TobasFlightControl.github.io/tobas/latest/ja/getting_started/airframe_config/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://TobasFlightControl.github.io/tobas/latestgetting_started/airframe_config/"/>
     </url>
     <url>
         <loc>https://TobasFlightControl.github.io/tobas/latest/ja/getting_started/bootmedia_config/</loc>
-        <lastmod>2026-06-29</lastmod>
+        <lastmod>2026-07-30</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://TobasFlightControl.github.io/tobas/latest/ja/getting_started/bootmedia_config/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://TobasFlightControl.github.io/tobas/latestgetting_started/bootmedia_config/"/>
     </url>
     <url>
         <loc>https://TobasFlightControl.github.io/tobas/latest/ja/getting_started/flight_test/</loc>
-        <lastmod>2026-06-29</lastmod>
+        <lastmod>2026-07-30</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://TobasFlightControl.github.io/tobas/latest/ja/getting_started/flight_test/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://TobasFlightControl.github.io/tobas/latestgetting_started/flight_test/"/>
     </url>
     <url>
         <loc>https://TobasFlightControl.github.io/tobas/latest/ja/getting_started/hardware_setup/</loc>
-        <lastmod>2026-06-29</lastmod>
+        <lastmod>2026-07-30</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://TobasFlightControl.github.io/tobas/latest/ja/getting_started/hardware_setup/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://TobasFlightControl.github.io/tobas/latestgetting_started/hardware_setup/"/>
     </url>
     <url>
         <loc>https://TobasFlightControl.github.io/tobas/latest/ja/getting_started/installation/</loc>
-        <lastmod>2026-06-29</lastmod>
+        <lastmod>2026-07-30</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://TobasFlightControl.github.io/tobas/latest/ja/getting_started/installation/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://TobasFlightControl.github.io/tobas/latestgetting_started/installation/"/>
     </url>
     <url>
         <loc>https://TobasFlightControl.github.io/tobas/latest/ja/getting_started/simulation/</loc>
-        <lastmod>2026-06-29</lastmod>
+        <lastmod>2026-07-30</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://TobasFlightControl.github.io/tobas/latest/ja/getting_started/simulation/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://TobasFlightControl.github.io/tobas/latestgetting_started/simulation/"/>
     </url>
     <url>
         <loc>https://TobasFlightControl.github.io/tobas/latest/ja/releases/process/</loc>
-        <lastmod>2026-06-29</lastmod>
+        <lastmod>2026-07-30</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://TobasFlightControl.github.io/tobas/latest/ja/releases/process/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://TobasFlightControl.github.io/tobas/latestreleases/process/"/>
     </url>
     <url>
         <loc>https://TobasFlightControl.github.io/tobas/latest/ja/releases/releases/</loc>
-        <lastmod>2026-06-29</lastmod>
+        <lastmod>2026-07-30</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://TobasFlightControl.github.io/tobas/latest/ja/releases/releases/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://TobasFlightControl.github.io/tobas/latestreleases/releases/"/>
     </url>
     <url>
         <loc>https://TobasFlightControl.github.io/tobas/latest/ja/releases/v2.10/</loc>
-        <lastmod>2026-06-29</lastmod>
+        <lastmod>2026-07-30</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://TobasFlightControl.github.io/tobas/latest/ja/releases/v2.10/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://TobasFlightControl.github.io/tobas/latestreleases/v2.10/"/>
     </url>
     <url>
         <loc>https://TobasFlightControl.github.io/tobas/latest/ja/releases/v2.11/</loc>
-        <lastmod>2026-06-29</lastmod>
+        <lastmod>2026-07-30</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://TobasFlightControl.github.io/tobas/latest/ja/releases/v2.11/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://TobasFlightControl.github.io/tobas/latestreleases/v2.11/"/>
     </url>
     <url>
         <loc>https://TobasFlightControl.github.io/tobas/latest/ja/releases/v2.12/</loc>
-        <lastmod>2026-06-29</lastmod>
+        <lastmod>2026-07-30</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://TobasFlightControl.github.io/tobas/latest/ja/releases/v2.12/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://TobasFlightControl.github.io/tobas/latestreleases/v2.12/"/>
     </url>
     <url>
         <loc>https://TobasFlightControl.github.io/tobas/latest/ja/releases/v2.13/</loc>
-        <lastmod>2026-06-29</lastmod>
+        <lastmod>2026-07-30</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://TobasFlightControl.github.io/tobas/latest/ja/releases/v2.13/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://TobasFlightControl.github.io/tobas/latestreleases/v2.13/"/>
     </url>
     <url>
         <loc>https://TobasFlightControl.github.io/tobas/latest/ja/releases/v2.14/</loc>
-        <lastmod>2026-06-29</lastmod>
+        <lastmod>2026-07-30</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://TobasFlightControl.github.io/tobas/latest/ja/releases/v2.14/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://TobasFlightControl.github.io/tobas/latestreleases/v2.14/"/>
     </url>
     <url>
         <loc>https://TobasFlightControl.github.io/tobas/latest/ja/releases/v2.15/</loc>
-        <lastmod>2026-06-29</lastmod>
+        <lastmod>2026-07-30</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://TobasFlightControl.github.io/tobas/latest/ja/releases/v2.15/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://TobasFlightControl.github.io/tobas/latestreleases/v2.15/"/>
     </url>
     <url>
         <loc>https://TobasFlightControl.github.io/tobas/latest/ja/releases/v2.7/</loc>
-        <lastmod>2026-06-29</lastmod>
+        <lastmod>2026-07-30</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://TobasFlightControl.github.io/tobas/latest/ja/releases/v2.7/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://TobasFlightControl.github.io/tobas/latestreleases/v2.7/"/>
     </url>
     <url>
         <loc>https://TobasFlightControl.github.io/tobas/latest/ja/releases/v2.8/</loc>
-        <lastmod>2026-06-29</lastmod>
+        <lastmod>2026-07-30</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://TobasFlightControl.github.io/tobas/latest/ja/releases/v2.8/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://TobasFlightControl.github.io/tobas/latestreleases/v2.8/"/>
     </url>
     <url>
         <loc>https://TobasFlightControl.github.io/tobas/latest/ja/releases/v2.9/</loc>
-        <lastmod>2026-06-29</lastmod>
+        <lastmod>2026-07-30</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://TobasFlightControl.github.io/tobas/latest/ja/releases/v2.9/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://TobasFlightControl.github.io/tobas/latestreleases/v2.9/"/>
     </url>
     <url>
         <loc>https://TobasFlightControl.github.io/tobas/latest/ja/releases/</loc>
-        <lastmod>2026-06-29</lastmod>
+        <lastmod>2026-07-30</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://TobasFlightControl.github.io/tobas/latest/ja/releases/"/>
     </url>

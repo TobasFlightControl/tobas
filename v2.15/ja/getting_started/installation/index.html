@@ -30,7 +30,7 @@
       
       
       <link rel="icon" href="../../../assets/icon_black.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -38,7 +38,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -1510,7 +1510,7 @@
 <h2 id="pc-tobas">PC への Tobas のインストール<a class="headerlink" href="#pc-tobas" title="Permanent link">&para;</a></h2>
 <hr />
 <h3 id="_2">手順 (デスクトップから)<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h3>
-<p><a href=https://drive.google.com/file/d/1R_Efi_-HoPTEq7rY3pQs6Z4MmEuOyvgo/view target="_blank">tobas_2.15.0_amd64.deb</a>
+<p><a href=https://drive.google.com/file/d/1Bs4-zw4BHEcM1GlkxnsXK5fT7vnCO-OJ/view target="_blank">tobas_2.15.1_amd64.deb</a>
 をダウンロードしてください．</p>
 <p>エクスプローラを開き，ダウンロードした deb パッケージをダブルクリックすると，App Center が起動します．
 <code>Install</code>をクリックするとインストールが開始します．これには数分かかることがあります．</p>
@@ -1528,18 +1528,18 @@ App Center で Synaptic Package Manager をインストールして起動し，
 Enter キーを押してターミナルを閉じてください．</p>
 <p><img alt="tobas_install_prereqs" src="../../../assets/installation/tobas_install_prereqs.png" /></p>
 <h3 id="_3">手順 (ターミナルから)<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h3>
-<p><a href=https://drive.google.com/file/d/1R_Efi_-HoPTEq7rY3pQs6Z4MmEuOyvgo/view target="_blank">tobas_2.15.0_amd64.deb</a>
+<p><a href=https://drive.google.com/file/d/1Bs4-zw4BHEcM1GlkxnsXK5fT7vnCO-OJ/view target="_blank">tobas_2.15.1_amd64.deb</a>
 をダウンロードします．</p>
 <div class="highlight"><pre><span></span><code>$<span class="w"> </span>sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>python3-pip
 $<span class="w"> </span>sudo<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>gdown<span class="w"> </span>--break-system-packages
 $<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>~/Download
-$<span class="w"> </span>gdown<span class="w"> </span>--fuzzy<span class="w"> </span><span class="s1">&#39;https://drive.google.com/file/d/1R_Efi_-HoPTEq7rY3pQs6Z4MmEuOyvgo/view&#39;</span>
+$<span class="w"> </span>gdown<span class="w"> </span>--fuzzy<span class="w"> </span><span class="s1">&#39;https://drive.google.com/file/d/1Bs4-zw4BHEcM1GlkxnsXK5fT7vnCO-OJ/view&#39;</span>
 </code></pre></div>
 <p>既に Tobas がインストールされていて更新したい場合は，一度古いパッケージをアンインストールします．</p>
 <div class="highlight"><pre><span></span><code>$<span class="w"> </span>sudo<span class="w"> </span>dpkg<span class="w"> </span>-r<span class="w"> </span>tobas
 </code></pre></div>
 <p>Tobas をインストールします．</p>
-<div class="highlight"><pre><span></span><code>$<span class="w"> </span>sudo<span class="w"> </span>dpkg<span class="w"> </span>-i<span class="w"> </span>tobas_2.15.0_amd64.deb
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>sudo<span class="w"> </span>dpkg<span class="w"> </span>-i<span class="w"> </span>tobas_2.15.1_amd64.deb
 </code></pre></div>
 <p>依存パッケージをインストールします．
 最後に<code>Installation finished successfully.</code>と表示されればインストール成功です．</p>
@@ -1713,7 +1713,7 @@ $<span class="w"> </span>gunzip<span class="w"> </span>tobas_2.15.0_arm64.img.gz
       <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.path", "navigation.top", "navigation.footer", "toc.follow", "search.suggest", "search.highlight", "search.share", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.footnote.tooltips", "content.tooltips"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u30b3\u30d4\u30fc\u3057\u307e\u3057\u305f", "clipboard.copy": "\u30af\u30ea\u30c3\u30d7\u30dc\u30fc\u30c9\u3078\u30b3\u30d4\u30fc", "search.result.more.one": "\u3053\u306e\u30da\u30fc\u30b8\u5185\u306b\u3082\u30461\u4ef6\u898b\u3064\u304b\u308a\u307e\u3057\u305f", "search.result.more.other": "\u3053\u306e\u30da\u30fc\u30b8\u5185\u306b\u3042\u3068#\u4ef6\u898b\u3064\u304b\u308a\u307e\u3057\u305f", "search.result.none": "\u4f55\u3082\u898b\u3064\u304b\u308a\u307e\u305b\u3093\u3067\u3057\u305f", "search.result.one": "1\u4ef6\u898b\u3064\u304b\u308a\u307e\u3057\u305f", "search.result.other": "#\u4ef6\u898b\u3064\u304b\u308a\u307e\u3057\u305f", "search.result.placeholder": "\u691c\u7d22\u30ad\u30fc\u30ef\u30fc\u30c9\u3092\u5165\u529b\u3057\u3066\u304f\u3060\u3055\u3044", "search.result.term.missing": "\u691c\u7d22\u306b\u542b\u307e\u308c\u306a\u3044", "select.version": "\u30d0\u30fc\u30b8\u30e7\u30f3\u5207\u308a\u66ff\u3048"}, "version": {"alias": true, "provider": "mike"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
         <script src="../../../javascripts/mathjax.js"></script>
       
