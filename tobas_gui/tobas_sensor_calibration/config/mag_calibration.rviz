@@ -27,6 +27,7 @@ Visualization Manager:
         Filter size: 1
         History Policy: Keep Last
         Reliability Policy: Best Effort
+        Value: undefined
     - Alpha: 1
       Class: rviz_default_plugins/PointCloud
       Color: 255; 255; 255
@@ -43,6 +44,7 @@ Visualization Manager:
         Filter size: 1
         History Policy: Keep Last
         Reliability Policy: Best Effort
+        Value: undefined
       Use Fixed Frame: true
     - Alpha: 1
       Class: rviz_default_plugins/PointCloud
@@ -60,6 +62,7 @@ Visualization Manager:
         Filter size: 1
         History Policy: Keep Last
         Reliability Policy: Best Effort
+        Value: undefined
       Use Fixed Frame: true
     - Alpha: 1
       Class: rviz_default_plugins/PointCloud
@@ -77,6 +80,7 @@ Visualization Manager:
         Filter size: 1
         History Policy: Keep Last
         Reliability Policy: Best Effort
+        Value: undefined
       Use Fixed Frame: true
     - Class: rviz_default_plugins/MarkerArray
       Enabled: true
@@ -87,6 +91,7 @@ Visualization Manager:
         Durability Policy: Volatile
         History Policy: Keep Last
         Reliability Policy: Best Effort
+        Value: undefined
     - Class: rviz_default_plugins/Axes
       Enabled: true
       Length: 1
@@ -114,6 +119,7 @@ Visualization Manager:
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
+    Fixed Frame: undefined
     Frame Rate: 30
   Name: root
   Tools:
