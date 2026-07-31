@@ -41,6 +41,8 @@ ControlSurfacesWidget::ControlSurfacesWidget(const uadf::Model& uadf) : super(0,
     kYawCoefLabel,
   });
   setColumnsWidth(kColWidth);
+  setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+  setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
   setHeaderSectionsClickable(false);
   horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
 }

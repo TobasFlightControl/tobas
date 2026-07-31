@@ -25,6 +25,7 @@ namespace hw
 {
 PwmWidget::PwmWidget(const uadf::Model& uadf, const Signals& sig) : super(0, kNumCols), uadf_(uadf)
 {
+  setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
   setHorizontalHeaderLabels({ kTargetNameLabel, kPeriodLbLabel, kPeriodUbLabel });
   setHeaderSectionsClickable(false);
 
