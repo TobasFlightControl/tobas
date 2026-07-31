@@ -28,9 +28,6 @@ public:
   /* Fix all column widths uniformly. */
   void setColumnsWidth(int width);
 
-  /* Adjust table height to fit content. */
-  void resizeHeightToContents();
-
   /* Set clickability in bulk. */
   void setHeaderSectionsClickable(bool clickable);
 };

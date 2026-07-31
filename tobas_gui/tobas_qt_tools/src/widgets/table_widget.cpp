@@ -23,15 +23,6 @@ void TableWidget::setColumnsWidth(int width)
   }
 }
 
-void TableWidget::resizeHeightToContents()
-{
-  int total_height = 0;
-  for (int row = 0; row < rowCount(); ++row) {
-    total_height += rowHeight(row);
-  }
-  setFixedHeight(total_height);
-}
-
 void TableWidget::setHeaderSectionsClickable(bool clickable)
 {
   horizontalHeader()->setSectionsClickable(clickable);
