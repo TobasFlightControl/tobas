@@ -48,6 +48,9 @@ If you only want to install and use Tobas, start from the
 
 3. Set up your system automatically each time a new shell is opened
 
+   Tobas requires Cyclone DDS (`rmw_cyclonedds_cpp`) on both the FC and GCS.
+   Do not use another RMW implementation.
+
    ```bash
    $ echo "export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp" >> ~/.bashrc
    $ echo "source /opt/ros/jazzy/setup.bash" >> ~/.bashrc
@@ -90,6 +93,8 @@ If you only want to install and use Tobas, start from the
 ## FC (Debian Trixie)
 
 1. Flash the Tobas image to the SD card and complete the initial setup
+
+   The image configures the FC to use Cyclone DDS. Do not change `RMW_IMPLEMENTATION` to another RMW implementation.
    - [Installation | Tobas Doc](https://tobasflightcontrol.github.io/tobas/latest/getting_started/installation/)
    - [Boot Device Configuration | Tobas Doc](https://tobasflightcontrol.github.io/tobas/latest/getting_started/bootmedia_config/)
 

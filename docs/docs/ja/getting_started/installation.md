@@ -19,10 +19,13 @@ $ sudo apt update
 $ sudo apt install ros-jazzy-tobas
 ```
 
-Tobas を使用するターミナルでは，ROS 2 Jazzy の環境を読み込んでください．
+Tobas は FC と GCS の両方で Cyclone DDS (`rmw_cyclonedds_cpp`) を使用する必要があります．
+Fast DDS など，他の RMW 実装では動作しません．
+Tobas を使用するターミナルでは，ROS 2 Jazzy の環境を読み込み，Cyclone DDS を指定してください．
 
 ```bash
 $ source /opt/ros/jazzy/setup.bash
+$ export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 ```
 
 ## フライトコントローラのイメージ書き込み

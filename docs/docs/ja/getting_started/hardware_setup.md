@@ -78,10 +78,10 @@ GPSw (General Purpose Switch) はユーザが自由に使えるスイッチで�
 [Boot Device Configuration](./bootmedia_config.md)で複数のネットワークを設定した場合は，
 利用可能な最も優先度の高いネットワークが選択されていることに注意してください．
 
-ターミナルで以下を実行し，Tobas GCS を起動します．
+ターミナルで以下を実行し，Cyclone DDS を指定して Tobas GCS を起動します．
 
 ```bash
-$ ros2 launch tobas_gcs gcs.launch.py
+$ RMW_IMPLEMENTATION=rmw_cyclonedds_cpp ros2 launch tobas_gcs gcs.launch.py
 ```
 
 `Load Project`をクリックし，Setup Assistant で作成した`tobas_f450.TBS`をダブルクリックして読み込みます．

@@ -19,10 +19,13 @@ $ sudo apt update
 $ sudo apt install ros-jazzy-tobas
 ```
 
-In each terminal where you use Tobas, source the ROS 2 Jazzy environment.
+Both the FC and GCS must use Cyclone DDS (`rmw_cyclonedds_cpp`).
+Tobas does not work with other RMW implementations, such as Fast DDS.
+In each terminal where you use Tobas, source the ROS 2 Jazzy environment and select Cyclone DDS.
 
 ```bash
 $ source /opt/ros/jazzy/setup.bash
+$ export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 ```
 
 ## Flashing the Flight Controller Image
