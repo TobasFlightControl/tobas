@@ -2,5 +2,5 @@ mike
 mkdocs
 mkdocs-material
 mkdocs-static-i18n
-pymdown-extensions
 openai
+pymdown-extensions
