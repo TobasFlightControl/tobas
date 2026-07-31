@@ -41,7 +41,6 @@ Then open http://127.0.0.1:8000/ in your browser.
 The translation helper uses the OpenAI API.
 
 ```bash
-$ pip install openai
 $ export OPENAI_API_KEY="your_api_key_here"
 $ python translate_docs.py --help
 ```
