@@ -29,6 +29,8 @@ int main(int argc, char** argv)
 
   // Show the GUI.
   QApplication qapp(arg_parser.argc(), arg_parser.argv());
+  QApplication::setOrganizationName("tobas");
+  QApplication::setApplicationName("urdf_builder");
   const auto title = "Tobas URDF Builder (" + tobas::gui::cmn::Version::Current().toString() + ")";
   const auto icon_path = tobas::gui::ub::getPkgShareDir() / "resources/icon.png";
   const auto widget = new tobas::gui::ub::URDFBuilder();

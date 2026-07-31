@@ -29,6 +29,8 @@ int main(int argc, char** argv)
 
   // Show the GUI.
   QApplication qapp(arg_parser.argc(), arg_parser.argv());
+  QApplication::setOrganizationName("tobas");
+  QApplication::setApplicationName("gcs");
   const auto title = "Tobas (" + tobas::gui::cmn::Version::Current().toString() + ")";
   const auto icon_path = tobas::gui::gcs::getPkgShareDir() / "resources/icon.png";
   const auto widget = new tobas::gui::gcs::GroundControlStationWidget(node_manager.node());

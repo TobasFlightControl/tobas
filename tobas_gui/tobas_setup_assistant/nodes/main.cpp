@@ -29,6 +29,8 @@ int main(int argc, char** argv)
 
   // Show the GUI.
   QApplication qapp(arg_parser.argc(), arg_parser.argv());
+  QApplication::setOrganizationName("tobas");
+  QApplication::setApplicationName("setup_assistant");
   const auto title = "Tobas Setup Assistant (" + tobas::gui::cmn::Version::Current().toString() + ")";
   const auto icon_path = tobas::gui::sa::getPkgShareDir() / "resources/icon.png";
   const auto widget = new tobas::gui::sa::SetupAssistantWidget(node_manager.node());

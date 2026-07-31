@@ -23,6 +23,10 @@ protected:
 
 private:
   QWidget* widget_;
+  bool geometry_saved_ = false;
+
+  void restoreWindowGeometry();
+  void saveWindowGeometry();
 };
 }  // namespace qt
 }  // namespace tobas

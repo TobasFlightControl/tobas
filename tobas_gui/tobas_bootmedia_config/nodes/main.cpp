@@ -15,6 +15,9 @@ int main(int argc, char** argv)
   qInstallMessageHandler(tobas::qt::colorMessageHandler);
 
   QApplication qapp(argc, argv);
+  QApplication::setOrganizationName("tobas");
+  QApplication::setApplicationName("bootmedia_config");
+
   const auto title = "Tobas Bootmedia Config (" + tobas::gui::cmn::Version::Current().toString() + ")";
   const auto icon_path = tobas::gui::bm::getPkgShareDir() / "resources/icon.png";
   const auto widget = new tobas::gui::bm::BootmediaConfigWidget();
