@@ -24,6 +24,7 @@ class HostnameWidget : public BaseHostWidget
 public:
   explicit HostnameWidget();
 
+  void setToDefaults() override;
   const char* label() const override;
 
   bool isValid() override;

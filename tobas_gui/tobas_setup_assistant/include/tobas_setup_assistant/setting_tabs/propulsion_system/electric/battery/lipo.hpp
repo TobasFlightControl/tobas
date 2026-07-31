@@ -32,7 +32,7 @@ public:
   explicit BatteryWidget_LiPo();
 
   const char* name() const override;
-
+  void setToDefaults() override;
   bool isValid() override;
 
   YAML::Node dump() const override;

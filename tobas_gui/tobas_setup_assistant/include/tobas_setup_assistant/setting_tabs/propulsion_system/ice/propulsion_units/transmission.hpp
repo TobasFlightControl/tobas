@@ -27,6 +27,7 @@ public:
   explicit TransmissionWidget();
 
   const char* name() const override;
+  void setToDefaults() override;
   bool isValid() override;
   void copyFrom(const BaseSelectedLinkSettingWidget* src) override;
 

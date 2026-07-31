@@ -23,18 +23,22 @@ PlanarMulticopterWidget::PlanarMulticopterWidget()
   setLayout(rows);
 
   do_object_avoidance_ = new QCheckBox("Do Object Avoidance");
-  do_object_avoidance_->setChecked(false);
   rows->addWidget(do_object_avoidance_);
 
   do_dist_comp_trans_ = new QCheckBox("Do Disturbance Compensation (Translation)");
-  do_dist_comp_trans_->setChecked(false);
   rows->addWidget(do_dist_comp_trans_);
 
   do_dist_comp_rot_ = new QCheckBox("Do Disturbance Compensation (Rotation)");
-  do_dist_comp_rot_->setChecked(false);
   rows->addWidget(do_dist_comp_rot_);
 
   rows->addStretch();
+}
+
+void PlanarMulticopterWidget::setToDefaults()
+{
+  do_object_avoidance_->setChecked(false);
+  do_dist_comp_trans_->setChecked(false);
+  do_dist_comp_rot_->setChecked(false);
 }
 
 FrameType PlanarMulticopterWidget::frameType() const

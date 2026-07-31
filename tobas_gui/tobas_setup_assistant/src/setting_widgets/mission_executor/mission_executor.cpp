@@ -59,6 +59,12 @@ void MissionExecutorWidget::updateInternalDataStructures()
 {
 }
 
+void MissionExecutorWidget::setToDefaults()
+{
+  none_->setToDefaults();
+  multicopter_->setToDefaults();
+}
+
 bool MissionExecutorWidget::isValid()
 {
   if (!selected()->isValid()) {

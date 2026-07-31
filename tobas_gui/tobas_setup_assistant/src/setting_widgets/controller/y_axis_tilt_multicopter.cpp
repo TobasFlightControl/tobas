@@ -22,14 +22,18 @@ YAxisTiltMulticopterWidget::YAxisTiltMulticopterWidget()
   setLayout(rows);
 
   do_dist_comp_trans_ = new QCheckBox("Do Disturbance Compensation (Translation)");
-  do_dist_comp_trans_->setChecked(false);
   rows->addWidget(do_dist_comp_trans_);
 
   do_dist_comp_rot_ = new QCheckBox("Do Disturbance Compensation (Rotation)");
-  do_dist_comp_rot_->setChecked(false);
   rows->addWidget(do_dist_comp_rot_);
 
   rows->addStretch();
+}
+
+void YAxisTiltMulticopterWidget::setToDefaults()
+{
+  do_dist_comp_trans_->setChecked(false);
+  do_dist_comp_rot_->setChecked(false);
 }
 
 FrameType YAxisTiltMulticopterWidget::frameType() const

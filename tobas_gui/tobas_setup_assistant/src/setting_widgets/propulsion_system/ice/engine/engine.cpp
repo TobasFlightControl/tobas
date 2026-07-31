@@ -25,6 +25,12 @@ EngineWidget::EngineWidget(rclcpp::Node::SharedPtr node)
   addTab(response_, kResponseLabel);
 }
 
+void EngineWidget::setToDefaults()
+{
+  dynamics_->setToDefaults();
+  response_->setToDefaults();
+}
+
 bool EngineWidget::isValid()
 {
   if (!dynamics_->isValid()) {

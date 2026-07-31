@@ -34,6 +34,7 @@ class NetworkIfaceWidget : public QWidget
 public:
   explicit NetworkIfaceWidget();
 
+  void setToDefaults();
   bool isValid();
 
   YAML::Node dump() const;

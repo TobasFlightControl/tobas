@@ -15,14 +15,40 @@ namespace gui
 {
 namespace sa
 {
+namespace
+{
+QString getDefaultName()
+{
+  const auto git_user_name = git::getGitConfigValue("user.name");
+  if (!git_user_name.empty()) {
+    return QString::fromStdString(git_user_name);
+  }
+
+  const auto user_name = ros2::getUserName();
+  if (user_name) {
+    return QString(user_name);
+  }
+
+  return QString("todo");
+}
+
+QString getDefaultEmail()
+{
+  const auto git_user_email = git::getGitConfigValue("user.email");
+  if (!git_user_email.empty()) {
+    return QString::fromStdString(git_user_email);
+  }
+
+  return QString("todo@todo.todo");
+}
+}  // namespace
+
 AuthorInformationWidget::AuthorInformationWidget()
 {
   name_ = new ParamGetterWidget_LineEdit("Name of the Maintainer", "");
-  name_->setValue(getDefaultName());
   addWidget(name_);
 
   email_ = new ParamGetterWidget_LineEdit("Email of the Maintainer", "");
-  email_->setValue(getDefaultEmail());
   addWidget(email_);
 
   addStretch();
@@ -48,6 +74,12 @@ const char* AuthorInformationWidget::description() const
 void AuthorInformationWidget::updateInternalDataStructures()
 {
   return;
+}
+
+void AuthorInformationWidget::setToDefaults()
+{
+  name_->setValue(getDefaultName());
+  email_->setValue(getDefaultEmail());
 }
 
 bool AuthorInformationWidget::isValid()
@@ -95,31 +127,6 @@ QString AuthorInformationWidget::authorName() const
 QString AuthorInformationWidget::authorEmail() const
 {
   return email_->getValue();
-}
-
-QString AuthorInformationWidget::getDefaultName()
-{
-  const auto git_user_name = git::getGitConfigValue("user.name");
-  if (!git_user_name.empty()) {
-    return QString::fromStdString(git_user_name);
-  }
-
-  const auto user_name = ros2::getUserName();
-  if (user_name) {
-    return QString(user_name);
-  }
-
-  return QString("todo");
-}
-
-QString AuthorInformationWidget::getDefaultEmail()
-{
-  const auto git_user_email = git::getGitConfigValue("user.email");
-  if (!git_user_email.empty()) {
-    return QString::fromStdString(git_user_email);
-  }
-
-  return QString("todo@todo.todo");
 }
 }  // namespace sa
 }  // namespace gui

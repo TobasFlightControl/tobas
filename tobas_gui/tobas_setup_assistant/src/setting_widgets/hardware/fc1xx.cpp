@@ -31,6 +31,10 @@ void FC1xxWidget::load(const YAML::Node&)
 {
 }
 
+void FC1xxWidget::setToDefaults()
+{
+}
+
 bool FC1xxWidget::isValid()
 {
   return true;

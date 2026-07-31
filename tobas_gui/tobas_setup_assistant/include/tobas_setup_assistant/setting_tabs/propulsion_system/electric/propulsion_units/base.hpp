@@ -22,6 +22,7 @@ class BaseSelectedLinkSettingWidget : public QWidget
 
 public:
   virtual const char* name() const = 0;
+  virtual void setToDefaults() = 0;
   virtual bool isValid() = 0;
   virtual void copyFrom(const BaseSelectedLinkSettingWidget* src) = 0;
 

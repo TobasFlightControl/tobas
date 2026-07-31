@@ -31,6 +31,7 @@ class HostWidget : public QWidget
 public:
   explicit HostWidget();
 
+  void setToDefaults();
   bool isValid();
 
   YAML::Node dump();

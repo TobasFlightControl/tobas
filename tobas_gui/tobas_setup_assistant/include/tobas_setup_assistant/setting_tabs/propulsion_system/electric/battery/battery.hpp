@@ -31,6 +31,7 @@ class BatteryWidget : public qt::ScrollArea
 public:
   explicit BatteryWidget();
 
+  void setToDefaults();
   bool isValid();
 
   YAML::Node dump() const;

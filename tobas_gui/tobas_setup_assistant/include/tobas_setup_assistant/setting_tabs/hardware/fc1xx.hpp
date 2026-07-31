@@ -25,6 +25,7 @@ public:
   YAML::Node dump() const override;
   void load(const YAML::Node& node) override;
 
+  void setToDefaults() override;
   bool isValid() override;
 
   const char* hardwarePackage() const override;

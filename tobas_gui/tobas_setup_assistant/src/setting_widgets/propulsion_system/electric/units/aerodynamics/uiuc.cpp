@@ -32,6 +32,11 @@ AerodynamicsWidget_UIUC::AerodynamicsWidget_UIUC(rclcpp::Node::SharedPtr node, c
   rows_->addWidget(data_);
 }
 
+void AerodynamicsWidget_UIUC::setToDefaults()
+{
+  data_->table()->removeAll();
+}
+
 const char* AerodynamicsWidget_UIUC::name() const
 {
   return "Estimate from UIUC Propeller Data";

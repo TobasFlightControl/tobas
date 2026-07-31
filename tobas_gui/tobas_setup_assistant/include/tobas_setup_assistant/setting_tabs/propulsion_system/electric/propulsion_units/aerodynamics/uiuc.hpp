@@ -27,6 +27,7 @@ public:
   const char* name() const override;
   const char* description() const override;
 
+  void setToDefaults() override;
   bool isValid() override;
   void copyFrom(const AerodynamicsWidget_Base* src) override;
 

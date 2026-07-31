@@ -32,8 +32,6 @@ NetworkIfaceWidget::NetworkIfaceWidget()
   const auto ap_btn = addNicTypeButton("Access Point (Wi-Fi Hotspot)", id++);
   const auto other_btn = addNicTypeButton("Other", id++);
 
-  nic_btn_group_->button(kWirelessIdx)->setChecked(true);  // Default
-
   other_nic_name_ = new QLineEdit();
   other_nic_name_->setPlaceholderText("e.g. wwan0, eth1, enx...");
   other_nic_name_->setEnabled(false);
@@ -53,6 +51,12 @@ NetworkIfaceWidget::NetworkIfaceWidget()
 
   // Connection
   connect(other_btn, &QRadioButton::toggled, this, &self::onOtherButtonToggled);
+}
+
+void NetworkIfaceWidget::setToDefaults()
+{
+  nic_btn_group_->button(kWirelessIdx)->setChecked(true);
+  other_nic_name_->clear();
 }
 
 bool NetworkIfaceWidget::isValid()

@@ -36,6 +36,7 @@ Q_SIGNALS:
 public:
   explicit PropulsionUnitWidget(rclcpp::Node::SharedPtr node);
 
+  void setToDefaults();
   bool isValid();
   void copyFrom(const PropulsionUnitWidget* src);
 

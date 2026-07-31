@@ -24,6 +24,7 @@ class EngineDynamicsWidget : public QWidget
 public:
   explicit EngineDynamicsWidget(rclcpp::Node::SharedPtr node);
 
+  void setToDefaults();
   bool isValid();
 
   YAML::Node dump() const;

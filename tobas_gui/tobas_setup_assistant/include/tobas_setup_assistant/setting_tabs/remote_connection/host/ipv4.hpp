@@ -24,6 +24,7 @@ class IPv4Widget : public BaseHostWidget
 public:
   explicit IPv4Widget();
 
+  void setToDefaults() override;
   const char* label() const override;
 
   bool isValid() override;

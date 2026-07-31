@@ -29,12 +29,10 @@ PropellerWidget::PropellerWidget()
   num_blades_ = new ParamGetterWidget_SpinBox("Number of Blades");
   num_blades_->setMinimum(2);
   num_blades_->setMaximum(5);
-  num_blades_->setValue(2);
   rows->addWidget(num_blades_);
 
   diameter_ = new ParamGetterWidget_SpinBox("Propeller Diameter");
   diameter_->setMinimum(1);
-  diameter_->setValue(49);
   diameter_->setSuffix(" inch");
   rows->addWidget(diameter_);
 
@@ -42,7 +40,6 @@ PropellerWidget::PropellerWidget()
     "Propeller Pitch (Neutoral)", "The propeller pitch length when the pitch angle is 0°.");
   pitch_length_neutoral_->setDecimals(1);
   pitch_length_neutoral_->setMinimum(0.1);
-  pitch_length_neutoral_->setValue(18);
   pitch_length_neutoral_->setSuffix(" inch");
   rows->addWidget(pitch_length_neutoral_);
 
@@ -51,7 +48,6 @@ PropellerWidget::PropellerWidget()
   pitch_angle_limit_->setDecimals(1);
   pitch_angle_limit_->setMinimum(-90);
   pitch_angle_limit_->setMaximum(+90);
-  pitch_angle_limit_->setValue({ -10, 10 });
   pitch_angle_limit_->setSuffix(" deg");
   rows->addWidget(pitch_angle_limit_);
 
@@ -59,25 +55,21 @@ PropellerWidget::PropellerWidget()
   center_pitch_angle_->setDecimals(1);
   center_pitch_angle_->setMinimum(-90);
   center_pitch_angle_->setMaximum(+90);
-  center_pitch_angle_->setValue(0);
   center_pitch_angle_->setSuffix(" deg");
   rows->addWidget(center_pitch_angle_);
 
   max_pitch_angle_rate_ = new ParamGetterWidget_SpinBox("Max Pitch Angle Rate");
   max_pitch_angle_rate_->setMinimum(0);
-  max_pitch_angle_rate_->setValue(600);
   max_pitch_angle_rate_->setSuffix(" dps");
   rows->addWidget(max_pitch_angle_rate_);
 
   min_chord_ = new ParamGetterWidget_SpinBox("Minimum Blade Chord Length", "Typically at the propeller tip.");
   min_chord_->setMinimum(1);
-  min_chord_->setValue(45);
   min_chord_->setSuffix(" mm");
   rows->addWidget(min_chord_);
 
   max_chord_ = new ParamGetterWidget_SpinBox("Maximum Blade Chord Length", "");
   max_chord_->setMinimum(1);
-  max_chord_->setValue(60);
   max_chord_->setSuffix(" mm");
   rows->addWidget(max_chord_);
 
@@ -87,6 +79,18 @@ PropellerWidget::PropellerWidget()
 const char* PropellerWidget::name() const
 {
   return "Propeller";
+}
+
+void PropellerWidget::setToDefaults()
+{
+  num_blades_->setValue(2);
+  diameter_->setValue(49);
+  pitch_length_neutoral_->setValue(18);
+  pitch_angle_limit_->setValue({ -10, 10 });
+  center_pitch_angle_->setValue(0);
+  max_pitch_angle_rate_->setValue(600);
+  min_chord_->setValue(45);
+  max_chord_->setValue(60);
 }
 
 bool PropellerWidget::isValid()

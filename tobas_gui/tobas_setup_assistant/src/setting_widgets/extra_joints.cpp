@@ -84,6 +84,13 @@ void ExtraJointsWidget::updateInternalDataStructures()
   }
 }
 
+void ExtraJointsWidget::setToDefaults()
+{
+  for (int row = 0; row < table_->rowCount(); ++row) {
+    reset(row);
+  }
+}
+
 bool ExtraJointsWidget::isValid()
 {
   return true;
@@ -395,9 +402,6 @@ void ExtraJointsWidget::addLink(const std::string& link_name)
   table_->setCellWidget(row, kRoleCol, role);
   table_->setCellWidget(row, kCmdIfaceCol, cmd_iface);
   table_->setCellWidget(row, kHomePosCol, home_pos);
-
-  // Reset
-  reset(row);
 
   // Connection
   connect(role, &qt::ComboBox::currentTextChanged, std::bind(&self::onRoleChanged, this, row));

@@ -39,6 +39,7 @@ public:
   const char* description() const override;
 
   void updateInternalDataStructures() override;
+  void setToDefaults() override;
   bool isValid() override;
 
   YAML::Node dump() const override;
@@ -97,11 +98,16 @@ private:
   PwmWidget* pwm_;
   DShotWidget* dshot_;
 
+  BaseHardwareWidget* widget(int index);
+  const BaseHardwareWidget* widget(int index) const;
+
   BaseHardwareWidget* selected();
   const BaseHardwareWidget* selected() const;
 
-private Q_SLOTS:
   void setCurrentHardware(int index);
+
+private Q_SLOTS:
+  void onHardwareTypeChanged(int index);
 };
 }  // namespace hw
 }  // namespace sa

@@ -34,6 +34,7 @@ class EngineWidget : public qt::TabWidget
 public:
   explicit EngineWidget(rclcpp::Node::SharedPtr node);
 
+  void setToDefaults();
   bool isValid();
 
   YAML::Node dump() const;

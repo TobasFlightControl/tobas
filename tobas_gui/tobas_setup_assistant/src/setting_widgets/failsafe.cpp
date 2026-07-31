@@ -19,25 +19,24 @@ namespace sa
 {
 FailsafeWidget::FailsafeWidget()
 {
-  items_[kRtComplianceIdx] = new qt::CheckBox("Check realtime compliance", true);
-  items_[kBatteryVoltageIdx] = new qt::CheckBox("Check battery voltage", true);
-  items_[kCpuTempIdx] = new qt::CheckBox("Check CPU temperature", true);
-  items_[kRadioLinkIdx] = new qt::CheckBox("Check radio link", true);
-  items_[kRotorLinksIdx] = new qt::CheckBox("Check rotor links", true);
-  items_[kAttiLevelIdx] = new qt::CheckBox("Check attitude level", true);
-  items_[kPosStabilityIdx] = new qt::CheckBox("Check position stability", true);
-  items_[kPosAccuracyIdx] = new qt::CheckBox("Check position accuracy", true);
-  items_[kVelAccuracyIdx] = new qt::CheckBox("Check velocity accuracy", true);
-  items_[kAttiAccuracyIdx] = new qt::CheckBox("Check attitude accuracy", true);
-  items_[kHeadAccuracyIdx] = new qt::CheckBox("Check heading accuracy", true);
-  items_[kMagOffsetIdx] = new qt::CheckBox("Check magnetic field offset", false);
-  items_[kMagAlignmentIdx] = new qt::CheckBox("Check magnetic field alignment", false);
-  items_[kVibrationLevelIdx] = new qt::CheckBox("Check vibration level", true);
-  items_[kUserDefinedConditionIdx] = new qt::CheckBox("Check user-defined condition", false);
+  items_[kRtComplianceIdx] = new qt::CheckBox("Check realtime compliance");
+  items_[kBatteryVoltageIdx] = new qt::CheckBox("Check battery voltage");
+  items_[kCpuTempIdx] = new qt::CheckBox("Check CPU temperature");
+  items_[kRadioLinkIdx] = new qt::CheckBox("Check radio link");
+  items_[kRotorLinksIdx] = new qt::CheckBox("Check rotor links");
+  items_[kAttiLevelIdx] = new qt::CheckBox("Check attitude level");
+  items_[kPosStabilityIdx] = new qt::CheckBox("Check position stability");
+  items_[kPosAccuracyIdx] = new qt::CheckBox("Check position accuracy");
+  items_[kVelAccuracyIdx] = new qt::CheckBox("Check velocity accuracy");
+  items_[kAttiAccuracyIdx] = new qt::CheckBox("Check attitude accuracy");
+  items_[kHeadAccuracyIdx] = new qt::CheckBox("Check heading accuracy");
+  items_[kMagOffsetIdx] = new qt::CheckBox("Check magnetic field offset");
+  items_[kMagAlignmentIdx] = new qt::CheckBox("Check magnetic field alignment");
+  items_[kVibrationLevelIdx] = new qt::CheckBox("Check vibration level");
+  items_[kUserDefinedConditionIdx] = new qt::CheckBox("Check user-defined condition");
 
   esc_no_comm_timeout_ = new qt::SpinBox();
   esc_no_comm_timeout_->setSuffix(" ms");
-  esc_no_comm_timeout_->setValue(200);
 
   // Layout
   const auto checklist_rows = new QVBoxLayout();
@@ -81,6 +80,27 @@ const char* FailsafeWidget::description() const
 
 void FailsafeWidget::updateInternalDataStructures()
 {
+}
+
+void FailsafeWidget::setToDefaults()
+{
+  items_[kRtComplianceIdx]->setChecked(true);
+  items_[kBatteryVoltageIdx]->setChecked(true);
+  items_[kCpuTempIdx]->setChecked(true);
+  items_[kRadioLinkIdx]->setChecked(true);
+  items_[kRotorLinksIdx]->setChecked(true);
+  items_[kAttiLevelIdx]->setChecked(true);
+  items_[kPosStabilityIdx]->setChecked(true);
+  items_[kPosAccuracyIdx]->setChecked(true);
+  items_[kVelAccuracyIdx]->setChecked(true);
+  items_[kAttiAccuracyIdx]->setChecked(true);
+  items_[kHeadAccuracyIdx]->setChecked(true);
+  items_[kMagOffsetIdx]->setChecked(false);
+  items_[kMagAlignmentIdx]->setChecked(false);
+  items_[kVibrationLevelIdx]->setChecked(true);
+  items_[kUserDefinedConditionIdx]->setChecked(false);
+
+  esc_no_comm_timeout_->setValue(200);
 }
 
 bool FailsafeWidget::isValid()

@@ -98,6 +98,14 @@ void SettingsWidget::updateInternalDataStructures()
   setCurrentPage(0);
 }
 
+void SettingsWidget::setToDefaults()
+{
+  for (int i = 0; i < stack_->count(); ++i) {
+    const auto page = qt::qPointerCast<BaseSettingWidget>(stack_->widget(i));
+    page->setToDefaults();
+  }
+}
+
 bool SettingsWidget::isValid()
 {
   // Confirm that each setting item is valid on its own.

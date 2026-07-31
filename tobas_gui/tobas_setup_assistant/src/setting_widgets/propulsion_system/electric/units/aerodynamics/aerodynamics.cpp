@@ -52,6 +52,16 @@ AerodynamicsWidget::AerodynamicsWidget(rclcpp::Node::SharedPtr node, const Prope
     method_name_, qOverload<int>(&qt::ComboBox::currentIndexChanged), methods_, &qt::StackedWidget::setCurrentIndex);
 }
 
+void AerodynamicsWidget::setToDefaults()
+{
+  for (int i = 0; i < methods_->count(); ++i) {
+    const auto method = qt::qPointerCast<AerodynamicsWidget_Base>(methods_->widget(i));
+    method->setToDefaults();
+  }
+
+  method_name_->setCurrentIndex(0);
+}
+
 const char* AerodynamicsWidget::name() const
 {
   return "Aerodynamics";

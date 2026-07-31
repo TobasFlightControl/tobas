@@ -34,11 +34,9 @@ HardwareWidget::HardwareWidget(const uadf::Model& uadf, const Signals& sig)
   hardwares_->addWidget(new FC2xxWidget());
 
   for (int i = 0; i < hardwares_->count(); ++i) {
-    const auto hardware = qt::qConstPointerCast<BaseHardwareWidget>(hardwares_->widget(i));
+    const auto hardware = widget(i);
     type_->addItem(hardware->name());
   }
-
-  setCurrentHardware(0);
 
   // Layout
   const auto pwm_rows = new QVBoxLayout();
@@ -84,6 +82,16 @@ void HardwareWidget::updateInternalDataStructures()
   dshot_->updateInternalDataStructures();
 }
 
+void HardwareWidget::setToDefaults()
+{
+  for (int i = 0; i < hardwares_->count(); ++i) {
+    const auto hardware = widget(i);
+    hardware->setToDefaults();
+  }
+
+  setCurrentHardware(0);
+}
+
 bool HardwareWidget::isValid()
 {
   if (!selected()->isValid()) {
@@ -107,7 +115,7 @@ YAML::Node HardwareWidget::dump() const
   node[kTypeKey] = type_->currentText();
 
   for (int i = 0; i < hardwares_->count(); ++i) {
-    const auto hardware = qt::qConstPointerCast<BaseHardwareWidget>(hardwares_->widget(i));
+    const auto hardware = widget(i);
     node[hardware->name()] = hardware->dump();
   }
 
@@ -122,7 +130,7 @@ void HardwareWidget::load(const YAML::Node& node)
   type_->setCurrentText(node[kTypeKey].as<QString>());
 
   for (int i = 0; i < hardwares_->count(); ++i) {
-    const auto hardware = qt::qPointerCast<BaseHardwareWidget>(hardwares_->widget(i));
+    const auto hardware = widget(i);
     hardware->load(node[hardware->name()]);
   }
 
@@ -245,25 +253,40 @@ bool HardwareWidget::hasRpmFilter() const
   return selected()->hasRpmFilter();
 }
 
-void HardwareWidget::setCurrentHardware(int index)
+BaseHardwareWidget* HardwareWidget::widget(int index)
 {
-  qDebug().nospace() << "HardwareWidget::setCurrentHardware(" << index << ")";
+  return qt::qPointerCast<BaseHardwareWidget>(hardwares_->widget(index));
+}
 
-  hardwares_->setCurrentIndex(index);
-
-  const auto hardware = qt::qConstPointerCast<BaseHardwareWidget>(hardwares_->widget(index));
-  pwm_->setNumChannels(hardware->numPwmChannels());
-  dshot_->setNumChannels(hardware->numDShotChannels());
+const BaseHardwareWidget* HardwareWidget::widget(int index) const
+{
+  return qt::qConstPointerCast<BaseHardwareWidget>(hardwares_->widget(index));
 }
 
 BaseHardwareWidget* HardwareWidget::selected()
 {
-  return qt::qPointerCast<BaseHardwareWidget>(hardwares_->currentWidget());
+  return widget(hardwares_->currentIndex());
 }
 
 const BaseHardwareWidget* HardwareWidget::selected() const
 {
-  return qt::qConstPointerCast<BaseHardwareWidget>(hardwares_->currentWidget());
+  return widget(hardwares_->currentIndex());
+}
+
+void HardwareWidget::setCurrentHardware(int index)
+{
+  hardwares_->setCurrentIndex(index);
+
+  const auto hardware = widget(index);
+  pwm_->setNumChannels(hardware->numPwmChannels());
+  dshot_->setNumChannels(hardware->numDShotChannels());
+}
+
+void HardwareWidget::onHardwareTypeChanged(int index)
+{
+  qDebug().nospace() << "HardwareWidget::onHardwareTypeChanged(" << index << ")";
+
+  setCurrentHardware(index);
 }
 }  // namespace hw
 }  // namespace sa

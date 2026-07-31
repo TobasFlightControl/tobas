@@ -25,6 +25,11 @@ IPv6Widget::IPv6Widget()
   cols->addWidget(ipv6_);
 }
 
+void IPv6Widget::setToDefaults()
+{
+  ipv6_->clear();
+}
+
 const char* IPv6Widget::label() const
 {
   return "IPv6 (HEX)";

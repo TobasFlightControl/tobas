@@ -19,6 +19,8 @@ class BaseExecutorWidget : public QWidget
   Q_OBJECT
 
 public:
+  virtual void setToDefaults() = 0;
+
   virtual QString executorPackage() const = 0;
   virtual QString pluginName() const = 0;
 

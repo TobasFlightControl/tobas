@@ -27,6 +27,7 @@ public:
   const char* description() const override;
 
   void updateInternalDataStructures() override;
+  void setToDefaults() override;
   bool isValid() override;
 
   YAML::Node dump() const override;
@@ -38,9 +39,6 @@ public:
 private:
   ParamGetterWidget_LineEdit* name_;
   ParamGetterWidget_LineEdit* email_;
-
-  static QString getDefaultName();
-  static QString getDefaultEmail();
 };
 }  // namespace sa
 }  // namespace gui

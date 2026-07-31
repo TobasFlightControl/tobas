@@ -15,6 +15,10 @@ NoneWidget::NoneWidget()
 {
 }
 
+void NoneWidget::setToDefaults()
+{
+}
+
 QString NoneWidget::executorPackage() const
 {
   return "tobas_dummy_pkg";

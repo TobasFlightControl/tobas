@@ -27,6 +27,7 @@ class EngineResponseWidget : public QWidget
 public:
   explicit EngineResponseWidget();
 
+  void setToDefaults();
   bool isValid();
 
   YAML::Node dump() const;

@@ -28,7 +28,7 @@ public:
   explicit BatteryWidget_Other();
 
   const char* name() const override;
-
+  void setToDefaults() override;
   bool isValid() override;
 
   YAML::Node dump() const override;

@@ -24,6 +24,7 @@ public:
   virtual YAML::Node dump() const = 0;
   virtual void load(const YAML::Node& node) = 0;
 
+  virtual void setToDefaults() = 0;
   virtual bool isValid() = 0;
 
   virtual const char* hardwarePackage() const = 0;

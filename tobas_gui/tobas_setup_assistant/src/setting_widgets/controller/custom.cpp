@@ -36,11 +36,6 @@ CustomFrameWidget::CustomFrameWidget()
     loiter_mode_->addItem(text);
   }
 
-  // Set default command.
-  acrobat_mode_->setCurrentText(kRateThrottleLabel);
-  stabilize_mode_->setCurrentText(kAccelYawLabel);
-  loiter_mode_->setCurrentText(kPosVelAccYawLabel);
-
   // Layout
   const auto form = new qt::FormLayout();
   form->addRow(kAcrobatLabel, acrobat_mode_);
@@ -53,6 +48,13 @@ CustomFrameWidget::CustomFrameWidget()
   rows->addStretch();
 
   setLayout(rows);
+}
+
+void CustomFrameWidget::setToDefaults()
+{
+  acrobat_mode_->setCurrentText(kRateThrottleLabel);
+  stabilize_mode_->setCurrentText(kAccelYawLabel);
+  loiter_mode_->setCurrentText(kPosVelAccYawLabel);
 }
 
 FrameType CustomFrameWidget::frameType() const

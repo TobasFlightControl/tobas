@@ -32,6 +32,7 @@ public:
   explicit PropulsionUnitsWidget(rclcpp::Node::SharedPtr node, const uadf::Model& uadf);
 
   void updateInternalDataStructures();
+  void setToDefaults();
   bool isValid();
 
   YAML::Node dump() const;

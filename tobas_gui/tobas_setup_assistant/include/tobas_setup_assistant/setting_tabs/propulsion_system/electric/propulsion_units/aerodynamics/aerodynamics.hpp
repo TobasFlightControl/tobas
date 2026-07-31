@@ -31,6 +31,7 @@ class AerodynamicsWidget : public BaseSelectedLinkSettingWidget
 public:
   explicit AerodynamicsWidget(rclcpp::Node::SharedPtr node, const PropellerWidget* propeller);
 
+  void setToDefaults() override;
   const char* name() const override;
   bool isValid() override;
   void copyFrom(const BaseSelectedLinkSettingWidget* src) override;

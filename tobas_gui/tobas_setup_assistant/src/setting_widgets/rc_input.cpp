@@ -18,7 +18,6 @@ RcInputWidget::RcInputWidget()
     "S.BUS Channels", "Specifies the number of S.BUS channels actually used in manual control mode.");
   num_sbus_channels_->setMinimum(kMinSbusChannels);
   num_sbus_channels_->setMaximum(kMaxSbusChannels);
-  num_sbus_channels_->setValue(kMinSbusChannels);
   addWidget(num_sbus_channels_);
 
   arm_duration_ = new ParamGetterWidget_DoubleSpinBox(
@@ -26,7 +25,6 @@ RcInputWidget::RcInputWidget()
   arm_duration_->setDecimals(1);
   arm_duration_->setMinimum(0.0);
   arm_duration_->setMaximum(10.0);
-  arm_duration_->setValue(1.0);
   arm_duration_->setSuffix(" s");
   addWidget(arm_duration_);
 
@@ -36,7 +34,6 @@ RcInputWidget::RcInputWidget()
   disarm_duration_->setDecimals(1);
   disarm_duration_->setMinimum(0.0);
   disarm_duration_->setMaximum(10.0);
-  disarm_duration_->setValue(1.0);
   disarm_duration_->setSuffix(" s");
   addWidget(disarm_duration_);
 
@@ -62,6 +59,13 @@ const char* RcInputWidget::description() const
 
 void RcInputWidget::updateInternalDataStructures()
 {
+}
+
+void RcInputWidget::setToDefaults()
+{
+  num_sbus_channels_->setValue(kMinSbusChannels);
+  arm_duration_->setValue(1.0);
+  disarm_duration_->setValue(1.0);
 }
 
 bool RcInputWidget::isValid()

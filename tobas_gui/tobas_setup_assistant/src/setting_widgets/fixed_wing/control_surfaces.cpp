@@ -55,6 +55,13 @@ void ControlSurfacesWidget::updateInternalDataStructures()
   }
 }
 
+void ControlSurfacesWidget::setToDefaults()
+{
+  for (int row = 0; row < rowCount(); ++row) {
+    setToDefault(row);
+  }
+}
+
 bool ControlSurfacesWidget::isValid()
 {
   return true;
@@ -145,39 +152,35 @@ void ControlSurfacesWidget::add(const QString& link_name)
 
   const auto c_lift_delta = new qt::DoubleSpinBox();
   c_lift_delta->setDecimals(kStabilityCoefDecimals);
-  c_lift_delta->setValue(0.0);
   c_lift_delta->setSuffix(" /rad");
   setCellWidget(row, kLiftCoefCol, c_lift_delta);
 
   const auto c_drag_delta = new qt::DoubleSpinBox();
   c_drag_delta->setDecimals(kStabilityCoefDecimals);
-  c_drag_delta->setValue(0.0);
   c_drag_delta->setSuffix(" /rad");
   setCellWidget(row, kDragCoefCol, c_drag_delta);
 
   const auto c_side_delta = new qt::DoubleSpinBox();
   c_side_delta->setDecimals(kStabilityCoefDecimals);
-  c_side_delta->setValue(0.0);
   c_side_delta->setSuffix(" /rad");
   setCellWidget(row, kSideCoefCol, c_side_delta);
 
   const auto c_roll_delta = new qt::DoubleSpinBox();
   c_roll_delta->setDecimals(kStabilityCoefDecimals);
-  c_roll_delta->setValue(0.0);
   c_roll_delta->setSuffix(" /rad");
   setCellWidget(row, kRollCoefCol, c_roll_delta);
 
   const auto c_pitch_delta = new qt::DoubleSpinBox();
   c_pitch_delta->setDecimals(kStabilityCoefDecimals);
-  c_pitch_delta->setValue(0.0);
   c_pitch_delta->setSuffix(" /rad");
   setCellWidget(row, kPitchCoefCol, c_pitch_delta);
 
   const auto c_yaw_delta = new qt::DoubleSpinBox();
   c_yaw_delta->setDecimals(kStabilityCoefDecimals);
-  c_yaw_delta->setValue(0.0);
   c_yaw_delta->setSuffix(" /rad");
   setCellWidget(row, kYawCoefCol, c_yaw_delta);
+
+  setToDefault(row);
 }
 
 void ControlSurfacesWidget::remove(const QString& link_name)
@@ -280,6 +283,16 @@ void ControlSurfacesWidget::yawCoef(int row, double value)
 {
   const auto cell = qt::qPointerCast<qt::DoubleSpinBox>(cellWidget(row, kYawCoefCol));
   return cell->setValue(value);
+}
+
+void ControlSurfacesWidget::setToDefault(int row)
+{
+  liftCoef(row, 0.0);
+  dragCoef(row, 0.0);
+  sideCoef(row, 0.0);
+  rollCoef(row, 0.0);
+  pitchCoef(row, 0.0);
+  yawCoef(row, 0.0);
 }
 }  // namespace fw
 }  // namespace sa

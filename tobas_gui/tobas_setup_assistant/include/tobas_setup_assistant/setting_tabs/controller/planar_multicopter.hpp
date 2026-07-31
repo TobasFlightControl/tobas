@@ -22,6 +22,8 @@ class PlanarMulticopterWidget : public BaseControllerWidget
 public:
   explicit PlanarMulticopterWidget();
 
+  void setToDefaults() override;
+
   FrameType frameType() const override;
   QString controllerPackage() const override;
   QString pluginName() const override;

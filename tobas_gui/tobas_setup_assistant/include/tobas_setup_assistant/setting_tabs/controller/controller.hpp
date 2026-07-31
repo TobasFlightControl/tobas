@@ -34,6 +34,7 @@ public:
   const char* description() const override;
 
   void updateInternalDataStructures() override;
+  void setToDefaults() override;
   bool isValid() override;
 
   YAML::Node dump() const override;

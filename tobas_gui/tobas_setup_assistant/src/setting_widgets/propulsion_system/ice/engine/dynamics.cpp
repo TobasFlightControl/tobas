@@ -36,6 +36,11 @@ EngineDynamicsWidget::EngineDynamicsWidget(rclcpp::Node::SharedPtr node)
   setLayout(rows);
 }
 
+void EngineDynamicsWidget::setToDefaults()
+{
+  data_->table()->removeAll();
+}
+
 bool EngineDynamicsWidget::isValid()
 {
   if (data_->count() == 0) {

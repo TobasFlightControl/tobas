@@ -51,6 +51,7 @@ public:
   explicit ControlSurfacesWidget(const uadf::Model& uadf);
 
   void updateInternalDataStructures();
+  void setToDefaults();
   bool isValid();
 
   YAML::Node dump() const;
@@ -90,6 +91,8 @@ public:
 
 private:
   const uadf::Model& uadf_;
+
+  void setToDefault(int row);
 };
 }  // namespace fw
 }  // namespace sa

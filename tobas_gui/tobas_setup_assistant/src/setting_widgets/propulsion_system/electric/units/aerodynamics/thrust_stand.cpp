@@ -31,6 +31,11 @@ AerodynamicsWidget_ThrustStand::AerodynamicsWidget_ThrustStand(rclcpp::Node::Sha
   rows_->addWidget(data_);
 }
 
+void AerodynamicsWidget_ThrustStand::setToDefaults()
+{
+  data_->table()->removeAll();
+}
+
 const char* AerodynamicsWidget_ThrustStand::name() const
 {
   return "Estimate from Thrust Stand Data";

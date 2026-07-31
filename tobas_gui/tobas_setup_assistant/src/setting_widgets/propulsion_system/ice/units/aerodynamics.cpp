@@ -41,6 +41,11 @@ AerodynamicsWidget::AerodynamicsWidget(rclcpp::Node::SharedPtr node, const Prope
   setLayout(rows);
 }
 
+void AerodynamicsWidget::setToDefaults()
+{
+  data_->table()->removeAll();
+}
+
 const char* AerodynamicsWidget::name() const
 {
   return "Aerodynamics";

@@ -102,8 +102,7 @@ void SetupAssistantWidget::reset()
 {
   uadf_.clear();
   tree_.clear();
-
-  // TODO: Return all settings to their startup state.
+  settings_->setToDefaults();
 }
 
 void SetupAssistantWidget::enableSaveButtons(bool enable)
@@ -298,6 +297,9 @@ void SetupAssistantWidget::onNewButtonClicked()
     reset();
     return;
   }
+
+  // Return all settings to their default values.
+  settings_->setToDefaults();
 
   // Clear the project path.
   proj_path_->clear();

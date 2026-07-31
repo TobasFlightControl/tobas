@@ -22,6 +22,8 @@ class YAxisTiltMulticopterWidget : public BaseControllerWidget
 public:
   explicit YAxisTiltMulticopterWidget();
 
+  void setToDefaults() override;
+
   FrameType frameType() const override;
   QString controllerPackage() const override;
   QString pluginName() const override;

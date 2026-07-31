@@ -28,31 +28,26 @@ PropellerWidget::PropellerWidget()
   num_blades_ = new ParamGetterWidget_SpinBox("Number of Blades", "");
   num_blades_->setMinimum(2);
   num_blades_->setMaximum(5);
-  num_blades_->setValue(2);
   rows->addWidget(num_blades_);
 
   diameter_ = new ParamGetterWidget_SpinBox("Propeller Diameter", "");
   diameter_->setMinimum(1);
-  diameter_->setValue(9);
   diameter_->setSuffix(" inch");
   rows->addWidget(diameter_);
 
   pitch_ = new ParamGetterWidget_DoubleSpinBox("Propeller Pitch", "");
   pitch_->setDecimals(1);
   pitch_->setMinimum(0.1);
-  pitch_->setValue(4.5);
   pitch_->setSuffix(" inch");
   rows->addWidget(pitch_);
 
   min_chord_ = new ParamGetterWidget_SpinBox("Minimum Blade Chord Length", "Typically at the propeller tip.");
   min_chord_->setMinimum(1);
-  min_chord_->setValue(10);
   min_chord_->setSuffix(" mm");
   rows->addWidget(min_chord_);
 
   max_chord_ = new ParamGetterWidget_SpinBox("Maximum Blade Chord Length", "");
   max_chord_->setMinimum(1);
-  max_chord_->setValue(30);
   max_chord_->setSuffix(" mm");
   rows->addWidget(max_chord_);
 
@@ -62,6 +57,15 @@ PropellerWidget::PropellerWidget()
 const char* PropellerWidget::name() const
 {
   return "Propeller";
+}
+
+void PropellerWidget::setToDefaults()
+{
+  num_blades_->setValue(2);
+  diameter_->setValue(9);
+  pitch_->setValue(4.5);
+  min_chord_->setValue(10);
+  max_chord_->setValue(30);
 }
 
 bool PropellerWidget::isValid()

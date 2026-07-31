@@ -23,6 +23,8 @@ class BaseControllerWidget : public QWidget
   Q_OBJECT
 
 public:
+  virtual void setToDefaults() = 0;
+
   virtual FrameType frameType() const = 0;
   virtual QString controllerPackage() const = 0;
   virtual QString pluginName() const = 0;

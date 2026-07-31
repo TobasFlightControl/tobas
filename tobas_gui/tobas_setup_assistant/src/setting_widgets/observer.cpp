@@ -15,51 +15,39 @@ namespace sa
 ObserverWidget::ObserverWidget()
 {
   use_magnetometer_ = new QCheckBox("Use Magnetometer");
-  use_magnetometer_->setChecked(true);
   addWidget(use_magnetometer_);
 
   use_barometer_ = new QCheckBox("Use Barometer");
-  use_barometer_->setChecked(true);
   addWidget(use_barometer_);
 
   use_gnss_ = new QCheckBox("Use GNSS");
-  use_gnss_->setChecked(true);
   addWidget(use_gnss_);
 
   use_ext_pose_ = new QCheckBox("Use External Pose");
-  use_ext_pose_->setChecked(false);
   addWidget(use_ext_pose_);
 
   adaptive_gnss_noise_ = new QCheckBox("Adaptive GNSS Measurement Noise");
-  adaptive_gnss_noise_->setChecked(true);
   addWidget(adaptive_gnss_noise_);
 
   adaptive_grav_noise_ = new QCheckBox("Adaptive Gravity Measurement Noise");
-  adaptive_grav_noise_->setChecked(false);
   addWidget(adaptive_grav_noise_);
 
   do_acc_bias_estimation_ = new QCheckBox("Do Accelerometer Bias Estimation");
-  do_acc_bias_estimation_->setChecked(false);
   addWidget(do_acc_bias_estimation_);
 
   do_gyro_bias_estimation_ = new QCheckBox("Do Gyroscope Bias Estimation");
-  do_gyro_bias_estimation_->setChecked(true);
   addWidget(do_gyro_bias_estimation_);
 
   do_mag_hard_bias_estimation_ = new QCheckBox("Do Magnetometer Hard-Iron Bias Estimation");
-  do_mag_hard_bias_estimation_->setChecked(false);
   addWidget(do_mag_hard_bias_estimation_);
 
   do_mag_soft_bias_estimation_ = new QCheckBox("Do Magnetometer Soft-Iron Bias Estimation");
-  do_mag_soft_bias_estimation_->setChecked(false);
   addWidget(do_mag_soft_bias_estimation_);
 
   do_baro_alt_bias_estimation_ = new QCheckBox("Do Barometer Altitude Bias Estimation");
-  do_baro_alt_bias_estimation_->setChecked(true);
   addWidget(do_baro_alt_bias_estimation_);
 
   do_grav_estimation_ = new QCheckBox("Do Gravity Estimation");
-  do_grav_estimation_->setChecked(true);
   addWidget(do_grav_estimation_);
 
   addStretch();
@@ -86,6 +74,22 @@ const char* ObserverWidget::description() const
 void ObserverWidget::updateInternalDataStructures()
 {
   return;
+}
+
+void ObserverWidget::setToDefaults()
+{
+  use_magnetometer_->setChecked(true);
+  use_barometer_->setChecked(true);
+  use_gnss_->setChecked(true);
+  use_ext_pose_->setChecked(false);
+  adaptive_gnss_noise_->setChecked(true);
+  adaptive_grav_noise_->setChecked(false);
+  do_acc_bias_estimation_->setChecked(false);
+  do_gyro_bias_estimation_->setChecked(true);
+  do_mag_hard_bias_estimation_->setChecked(false);
+  do_mag_soft_bias_estimation_->setChecked(false);
+  do_baro_alt_bias_estimation_->setChecked(true);
+  do_grav_estimation_->setChecked(true);
 }
 
 bool ObserverWidget::isValid()

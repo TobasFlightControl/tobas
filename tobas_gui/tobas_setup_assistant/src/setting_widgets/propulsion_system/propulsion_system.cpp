@@ -31,8 +31,6 @@ PropulsionSystemWidget::PropulsionSystemWidget(rclcpp::Node::SharedPtr node, con
   addPropulsionSystemWidget(new electric::PropulsionSystemWidget(node, uadf), id++);
   addPropulsionSystemWidget(new ice::PropulsionSystemWidget(node, uadf), id++);
 
-  setCurrentIndex(0);  // Default
-
   addSpacing(50);
   addWidget(propulsion_stack_);
 
@@ -65,6 +63,17 @@ void PropulsionSystemWidget::updateInternalDataStructures()
     const auto propulsion = widget(i);
     propulsion->updateInternalDataStructures();
   }
+}
+
+void PropulsionSystemWidget::setToDefaults()
+{
+  for (int i = 0; i < propulsion_stack_->count(); ++i) {
+    widget(i)->setToDefaults();
+  }
+
+  constexpr int kDefaultIndex = 0;
+  setCurrentIndex(kDefaultIndex);
+  Q_EMIT sig_.propulsionTypeChanged(widget(kDefaultIndex)->type());
 }
 
 bool PropulsionSystemWidget::isValid()

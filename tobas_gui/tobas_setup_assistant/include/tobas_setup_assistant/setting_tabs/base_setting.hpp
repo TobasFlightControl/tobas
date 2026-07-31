@@ -35,6 +35,9 @@ public:
   /* Update the internal state according to URDF changes. */
   virtual void updateInternalDataStructures() = 0;
 
+  /* Return all settings to their default values. */
+  virtual void setToDefaults() = 0;
+
   /* Return true when user settings have no problems. */
   virtual bool isValid() = 0;
 

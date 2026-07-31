@@ -25,6 +25,11 @@ HostnameWidget::HostnameWidget()
   cols->addWidget(hostname_);
 }
 
+void HostnameWidget::setToDefaults()
+{
+  hostname_->clear();
+}
+
 const char* HostnameWidget::label() const
 {
   return "Hostname";

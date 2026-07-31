@@ -26,7 +26,6 @@ ESCWidget::ESCWidget()
     "Exceeding this maximum current may lead to overheating or damage to the ESC, "
     "and in the worst case, it could cause failure or fire.");
   max_current_->setMinimum(1);
-  max_current_->setValue(35);
   max_current_->setSuffix(" A");
   rows->addWidget(max_current_);
 
@@ -36,6 +35,11 @@ ESCWidget::ESCWidget()
 const char* ESCWidget::name() const
 {
   return "ESC";
+}
+
+void ESCWidget::setToDefaults()
+{
+  max_current_->setValue(35);
 }
 
 bool ESCWidget::isValid()

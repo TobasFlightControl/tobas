@@ -70,6 +70,15 @@ void ControllerWidget::updateInternalDataStructures()
 {
 }
 
+void ControllerWidget::setToDefaults()
+{
+  for (int i = 0; i < stack_->count(); ++i) {
+    widget(i)->setToDefaults();
+  }
+
+  setFrameType(frame_type_);
+}
+
 bool ControllerWidget::isValid()
 {
   if (!selected()->isValid()) {

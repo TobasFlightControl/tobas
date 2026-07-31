@@ -49,7 +49,7 @@ public:
   explicit SettingsWidget(rclcpp::Node::SharedPtr node, const uadf::Model& uadf, const kdl::Tree& tree, Signals& sig);
 
   void updateInternalDataStructures();
-
+  void setToDefaults();
   bool isValid();
 
   YAML::Node dump() const;

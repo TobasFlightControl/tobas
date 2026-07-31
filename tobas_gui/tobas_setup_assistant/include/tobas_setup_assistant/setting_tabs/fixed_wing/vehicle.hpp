@@ -30,6 +30,7 @@ public:
   explicit VehicleParametersWidget();
 
   void updateInternalDataStructures();
+  void setToDefaults();
   bool isValid();
 
   YAML::Node dump() const;

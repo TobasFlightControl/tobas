@@ -26,7 +26,6 @@ TransmissionWidget::TransmissionWidget()
   gear_ratio_->setMinimum(1);
   gear_ratio_->setLeftText("Engine");
   gear_ratio_->setRightText("Propeller");
-  gear_ratio_->setValue({ 60 * 33 * 23 * 39, 30 * 44 * 11 * 34 });
   rows->addWidget(gear_ratio_);
 
   rows->addStretch();
@@ -35,6 +34,11 @@ TransmissionWidget::TransmissionWidget()
 const char* TransmissionWidget::name() const
 {
   return "Transmission";
+}
+
+void TransmissionWidget::setToDefaults()
+{
+  gear_ratio_->setValue({ 60 * 33 * 23 * 39, 30 * 44 * 11 * 34 });
 }
 
 bool TransmissionWidget::isValid()

@@ -62,6 +62,13 @@ void FixedWingWidget::updateInternalDataStructures()
   control_surfaces_->updateInternalDataStructures();
 }
 
+void FixedWingWidget::setToDefaults()
+{
+  vehicle_->setToDefaults();
+  aero_coefs_->setToDefaults();
+  control_surfaces_->setToDefaults();
+}
+
 bool FixedWingWidget::isValid()
 {
   if (!vehicle_->isValid()) {

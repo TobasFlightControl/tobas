@@ -44,6 +44,14 @@ PropulsionUnitWidget::PropulsionUnitWidget(rclcpp::Node::SharedPtr node)
   connect(copy_to_all_btn_, &QPushButton::clicked, [this]() { Q_EMIT copyToAllButtonClicked(); });
 }
 
+void PropulsionUnitWidget::setToDefaults()
+{
+  for (int i = 0; i < tabs_->count(); ++i) {
+    const auto widget = qt::qPointerCast<BaseSelectedLinkSettingWidget>(tabs_->widget(i));
+    widget->setToDefaults();
+  }
+}
+
 bool PropulsionUnitWidget::isValid()
 {
   for (int i = 0; i < tabs_->count(); ++i) {

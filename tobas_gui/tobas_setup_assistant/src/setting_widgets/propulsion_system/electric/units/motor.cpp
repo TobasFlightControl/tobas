@@ -28,26 +28,22 @@ MotorWidget::MotorWidget()
     "It is the number of pairs of N and S poles of permanent magnets attached to the rotor.");
   num_poles_->setSingleStep(2);
   num_poles_->setMinimum(2);
-  num_poles_->setValue(14);
   rows->addWidget(num_poles_);
 
   kv_ =
     new ParamGetterWidget_SpinBox("Kv", "Motor's rotational speed under no load, relative to the supplied voltage.");
   kv_->setMinimum(1);
-  kv_->setValue(920);
   kv_->setSuffix(" rpm/V");
   rows->addWidget(kv_);
 
   resistance_ = new ParamGetterWidget_SpinBox("Internal Registance", "Internal resistance value of the motor.");
   resistance_->setMinimum(1);
-  resistance_->setValue(250);
   resistance_->setSuffix(" mΩ");
   rows->addWidget(resistance_);
 
   min_speed_ = new ParamGetterWidget_SpinBox(
     "Minimum Rotation Speed", "The minimum rotational speed at which the motor can spin smoothly.");
   min_speed_->setMinimum(0);
-  min_speed_->setValue(300);
   min_speed_->setSuffix(" rpm");
   rows->addWidget(min_speed_);
 
@@ -57,6 +53,14 @@ MotorWidget::MotorWidget()
 const char* MotorWidget::name() const
 {
   return "Motor";
+}
+
+void MotorWidget::setToDefaults()
+{
+  num_poles_->setValue(14);
+  kv_->setValue(920);
+  resistance_->setValue(250);
+  min_speed_->setValue(300);
 }
 
 bool MotorWidget::isValid()

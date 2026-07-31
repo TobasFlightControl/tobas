@@ -19,6 +19,8 @@ class BaseHostWidget : public QWidget
   Q_OBJECT
 
 public:
+  virtual void setToDefaults() = 0;
+
   virtual const char* label() const = 0;
 
   virtual bool isValid() = 0;

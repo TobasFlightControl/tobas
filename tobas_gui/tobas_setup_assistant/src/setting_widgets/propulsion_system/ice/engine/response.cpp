@@ -22,17 +22,21 @@ EngineResponseWidget::EngineResponseWidget()
 
   time_const_up_ = new ParamGetterWidget_SpinBox("Time Constant Up", "");  // TODO
   time_const_up_->setMinimum(0);
-  time_const_up_->setValue(100);
   time_const_up_->setSuffix(" ms");
   rows->addWidget(time_const_up_);
 
   time_const_down_ = new ParamGetterWidget_SpinBox("Time Constant Down", "");  // TODO
   time_const_down_->setMinimum(0);
-  time_const_down_->setValue(200);
   time_const_down_->setSuffix(" ms");
   rows->addWidget(time_const_down_);
 
   rows->addStretch();
+}
+
+void EngineResponseWidget::setToDefaults()
+{
+  time_const_up_->setValue(100);
+  time_const_down_->setValue(200);
 }
 
 bool EngineResponseWidget::isValid()

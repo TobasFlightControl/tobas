@@ -24,6 +24,11 @@ IPv4Widget::IPv4Widget()
   cols->addWidget(ipv4_);
 }
 
+void IPv4Widget::setToDefaults()
+{
+  ipv4_->clear();
+}
+
 const char* IPv4Widget::label() const
 {
   return "IPv4 (DEC)";

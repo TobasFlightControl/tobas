@@ -24,6 +24,7 @@ class IPv6Widget : public BaseHostWidget
 public:
   explicit IPv6Widget();
 
+  void setToDefaults() override;
   const char* label() const override;
 
   bool isValid() override;

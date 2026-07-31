@@ -17,8 +17,8 @@ namespace rc
 {
 RemoteConnectionWidget::RemoteConnectionWidget()
 {
-  host_ = new HostWidget();
   nic_ = new NetworkIfaceWidget();
+  host_ = new HostWidget();
 
   addWidget(new qt::Label(kNetworkIfaceLabel, cmn::kLabelPSize, QFont::Bold));
   addWidget(new qt::DescriptionWidget("Specify the network interface used by the flight controller.", cmn::kBodyPSize));
@@ -51,6 +51,12 @@ const char* RemoteConnectionWidget::description() const
 void RemoteConnectionWidget::updateInternalDataStructures()
 {
   return;
+}
+
+void RemoteConnectionWidget::setToDefaults()
+{
+  nic_->setToDefaults();
+  host_->setToDefaults();
 }
 
 bool RemoteConnectionWidget::isValid()

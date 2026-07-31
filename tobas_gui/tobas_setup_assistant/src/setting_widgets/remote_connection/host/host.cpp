@@ -29,11 +29,17 @@ HostWidget::HostWidget()
   addRow(form, btn_group, new IPv4Widget());
   addRow(form, btn_group, new IPv6Widget());
 
-  // Default
+  connect(btn_group, &QButtonGroup::idClicked, this, &self::onButtonGroupIdClicked);
+}
+
+void HostWidget::setToDefaults()
+{
+  for (const auto widget : widgets_) {
+    widget->setToDefaults();
+  }
+
   buttons_.at(0)->setChecked(true);
   updateEnabled();
-
-  connect(btn_group, &QButtonGroup::idClicked, this, &self::onButtonGroupIdClicked);
 }
 
 bool HostWidget::isValid()

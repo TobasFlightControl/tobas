@@ -51,6 +51,12 @@ void PropulsionSystemWidget::updateInternalDataStructures()
   units->updateInternalDataStructures();
 }
 
+void PropulsionSystemWidget::setToDefaults()
+{
+  battery->setToDefaults();
+  units->setToDefaults();
+}
+
 bool PropulsionSystemWidget::isValid()
 {
   if (!battery->isValid()) {

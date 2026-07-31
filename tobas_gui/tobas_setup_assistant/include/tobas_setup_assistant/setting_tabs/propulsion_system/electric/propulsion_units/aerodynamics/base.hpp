@@ -28,6 +28,7 @@ public:
   virtual const char* name() const = 0;
   virtual const char* description() const = 0;
 
+  virtual void setToDefaults() = 0;
   virtual bool isValid() = 0;
   virtual void copyFrom(const AerodynamicsWidget_Base* src) = 0;
 

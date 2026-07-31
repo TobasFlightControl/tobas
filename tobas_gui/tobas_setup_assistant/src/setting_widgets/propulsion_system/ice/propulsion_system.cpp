@@ -51,6 +51,12 @@ void PropulsionSystemWidget::updateInternalDataStructures()
   units->updateInternalDataStructures();
 }
 
+void PropulsionSystemWidget::setToDefaults()
+{
+  engine->setToDefaults();
+  units->setToDefaults();
+}
+
 bool PropulsionSystemWidget::isValid()
 {
   if (!engine->isValid()) {

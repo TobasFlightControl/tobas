@@ -21,26 +21,22 @@ BatteryWidget_LiPo::BatteryWidget_LiPo()
   num_cells_ = new ParamGetterWidget_SpinBox("Number of Cells", "The number of cells in the battery.");
   num_cells_->setMinimum(1);
   num_cells_->setMaximum(100);
-  num_cells_->setValue(3);
   rows->addWidget(num_cells_);
 
   capacity_ = new ParamGetterWidget_SpinBox(
     "Current Capacity", "The amount of electric charge that can be drawn from the battery.");
   capacity_->setMinimum(1);
-  capacity_->setValue(5000);
   capacity_->setSuffix(" mAh");
   rows->addWidget(capacity_);
 
   C_cont_ = new ParamGetterWidget_SpinBox(
     "Continuous Discharge Current Rate", "The maximum continuous discharge current that the battery can provide.");
   C_cont_->setMinimum(1);
-  C_cont_->setValue(50);
   C_cont_->setSuffix(" /h");
   rows->addWidget(C_cont_);
 
   registance_ = new ParamGetterWidget_SpinBox("Internal Registance", "Internal resistance value per cell.");
   registance_->setMinimum(0);
-  registance_->setValue(3);
   registance_->setSuffix(" mΩ");
   rows->addWidget(registance_);
 
@@ -50,6 +46,14 @@ BatteryWidget_LiPo::BatteryWidget_LiPo()
 const char* BatteryWidget_LiPo::name() const
 {
   return "Lithium Polymer Battery (LiPo)";
+}
+
+void BatteryWidget_LiPo::setToDefaults()
+{
+  num_cells_->setValue(3);
+  capacity_->setValue(5000);
+  C_cont_->setValue(50);
+  registance_->setValue(3);
 }
 
 bool BatteryWidget_LiPo::isValid()

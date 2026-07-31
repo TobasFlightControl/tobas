@@ -40,6 +40,15 @@ BatteryWidget::BatteryWidget()
   connect(type_, qOverload<int>(&qt::ComboBox::currentIndexChanged), batteries_, &qt::StackedWidget::setCurrentIndex);
 }
 
+void BatteryWidget::setToDefaults()
+{
+  for (int i = 0; i < batteries_->count(); ++i) {
+    widget(i)->setToDefaults();
+  }
+
+  type_->setCurrentIndex(0);
+}
+
 bool BatteryWidget::isValid()
 {
   if (!selected()->isValid()) {

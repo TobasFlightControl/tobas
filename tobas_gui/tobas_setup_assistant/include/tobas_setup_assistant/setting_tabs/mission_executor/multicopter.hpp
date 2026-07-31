@@ -40,6 +40,8 @@ class MulticopterWidget : public BaseExecutorWidget
 public:
   explicit MulticopterWidget();
 
+  void setToDefaults() override;
+
   QString executorPackage() const override;
   QString pluginName() const override;
 

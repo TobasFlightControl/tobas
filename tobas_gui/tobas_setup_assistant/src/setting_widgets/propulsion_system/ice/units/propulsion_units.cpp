@@ -45,6 +45,13 @@ void PropulsionUnitsWidget::updateInternalDataStructures()
   }
 }
 
+void PropulsionUnitsWidget::setToDefaults()
+{
+  for (int i = 0; i < count(); ++i) {
+    widget(i)->setToDefaults();
+  }
+}
+
 bool PropulsionUnitsWidget::isValid()
 {
   for (int i = 0; i < count(); ++i) {

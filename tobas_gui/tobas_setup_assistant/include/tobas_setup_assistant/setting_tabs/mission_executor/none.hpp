@@ -20,6 +20,8 @@ class NoneWidget : public BaseExecutorWidget
 public:
   explicit NoneWidget();
 
+  void setToDefaults() override;
+
   QString executorPackage() const override;
   QString pluginName() const override;
 

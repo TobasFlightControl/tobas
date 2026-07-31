@@ -21,6 +21,10 @@ FixedWingWidget::FixedWingWidget()
   rows->addStretch();
 }
 
+void FixedWingWidget::setToDefaults()
+{
+}
+
 FrameType FixedWingWidget::frameType() const
 {
   return FrameType::kFixedWing;
