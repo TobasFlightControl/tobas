@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <csignal>
+
 #include <QApplication>
 
 #include <tobas_gui_common/version.hpp>
@@ -23,6 +25,8 @@ int main(int argc, char** argv)
   const auto widget = new tobas::gui::bm::BootmediaConfigWidget();
   tobas::qt::MainWidget main(title, QString::fromStdString(icon_path), widget);
   main.show();
+
+  signal(SIGINT, [](int) { QApplication::quit(); });
 
   const auto result = qapp.exec();
   return result;

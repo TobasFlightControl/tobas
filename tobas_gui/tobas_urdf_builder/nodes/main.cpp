@@ -9,8 +9,8 @@
 #include <tobas_qt_tools/debug.hpp>
 #include <tobas_qt_tools/widgets/main_widget.hpp>
 
-#include <tobas_urdf_builder/urdf_builder.hpp>
-#include <tobas_urdf_builder/util.hpp>
+#include "tobas_urdf_builder/urdf_builder.hpp"
+#include "tobas_urdf_builder/util.hpp"
 
 int main(int argc, char** argv)
 {
