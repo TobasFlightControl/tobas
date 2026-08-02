@@ -29,7 +29,7 @@ class RCInputCalibrationWidget : public BaseWidget
   using self = RCInputCalibrationWidget;
   using super = BaseWidget;
 
-  // The basic SBUS throttle range is 172 to 1811.
+  // The basic S.BUS throttle range is 172 to 1811.
   static constexpr int kMinPeriod = 0;
   static constexpr int kMaxPeriod = 2000;
 

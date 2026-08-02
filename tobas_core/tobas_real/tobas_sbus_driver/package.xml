@@ -2,7 +2,7 @@
 
 	<name>tobas_sbus_driver</name>
 	<version>2.16.0</version>
-	<description>SBUS protocol driver library and ROS 2 receiver node.</description>
+	<description>S.BUS protocol driver library and ROS 2 receiver node.</description>
 	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
 	<license>GPL-3.0-or-later</license>
 
