@@ -4,12 +4,10 @@
 #pragma once
 
 #include <urdf/model.h>
+#include <QSettings>
 #include <QTimer>
 #include <QTreeWidgetItem>
 #include <rviz_common/panel.hpp>
-
-#include <tobas_property_client/property_client.hpp>
-#include <tobas_ros2_tools/async_node_manager.hpp>
 
 #include "../ogre_helpers/ogre_controller.hpp"
 #include "../ogre_helpers/static_link_updater.hpp"
@@ -39,7 +37,7 @@ class UrdfBuilderPanel : public rviz_common::Panel
   using self = UrdfBuilderPanel;
   using super = rviz_common::Panel;
 
-  static constexpr char kConfigKey_LastOpenedDir[] = "last_opened_dir";
+  static constexpr char kConfigKey_LastOpenedDir[] = "urdf_builder_panel/last_opened_dir";
 
 public:
   explicit UrdfBuilderPanel(QWidget* parent = nullptr);
@@ -71,9 +69,7 @@ private Q_SLOTS:
   void onLinkDialogChanged();
 
 private:
-  ros2::AsyncNodeManager node_manager_;  // Node running on a thread separate from Qt.
-  const rclcpp::Node::SharedPtr node_;
-  ptree::PropertyClient property_client_;
+  QSettings settings_store_;
 
   Ui::URDFBuilderPanelUI* ui_;
   view_model::URDFViewModel vm_;

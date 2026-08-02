@@ -5,7 +5,6 @@
 
 #include <QButtonGroup>
 #include <QRadioButton>
-#include <rclcpp/node.hpp>
 
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 
@@ -25,7 +24,7 @@ class WorldWidget : public QWidget
   using super = QWidget;
 
 public:
-  explicit WorldWidget(rclcpp::Node::SharedPtr node);
+  explicit WorldWidget();
 
   std::filesystem::path worldPath() const;
 

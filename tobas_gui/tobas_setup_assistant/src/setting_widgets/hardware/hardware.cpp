@@ -128,6 +128,7 @@ YAML::Node HardwareWidget::dump() const
 void HardwareWidget::load(const YAML::Node& node)
 {
   type_->setCurrentText(node[kTypeKey].as<QString>());
+  setCurrentHardware(type_->currentIndex());
 
   for (int i = 0; i < hardwares_->count(); ++i) {
     const auto hardware = widget(i);

@@ -20,11 +20,10 @@ namespace propulsion
 {
 namespace electric
 {
-AerodynamicsWidget_UIUC::AerodynamicsWidget_UIUC(rclcpp::Node::SharedPtr node, const PropellerWidget* propeller)
-  : propeller_(propeller)
+AerodynamicsWidget_UIUC::AerodynamicsWidget_UIUC(const PropellerWidget* propeller) : propeller_(propeller)
 {
   data_ = new ParamGetterWidget_DoubleTable(
-    node, "Measurements in static condition", "Select UIUC Data", { kRpmColName, kUiucCtColName, kUiucCpColName });
+    "Measurements in static condition", "Select UIUC Data", { kRpmColName, kUiucCtColName, kUiucCpColName });
   data_->setDecimals({ 3, 6, 6 });
   data_->setMinimum({ 1e-3, 1e-6, 1e-6 });
   data_->table()->setColumnsWidth(kDataTableColWidth);

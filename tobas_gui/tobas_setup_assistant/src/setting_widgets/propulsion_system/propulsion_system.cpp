@@ -19,8 +19,7 @@ namespace sa
 {
 namespace propulsion
 {
-PropulsionSystemWidget::PropulsionSystemWidget(rclcpp::Node::SharedPtr node, const uadf::Model& uadf, Signals& sig)
-  : sig_(sig)
+PropulsionSystemWidget::PropulsionSystemWidget(const uadf::Model& uadf, Signals& sig) : sig_(sig)
 {
   type_btn_group_ = new QButtonGroup(this);
   type_btn_group_->setExclusive(true);
@@ -28,8 +27,8 @@ PropulsionSystemWidget::PropulsionSystemWidget(rclcpp::Node::SharedPtr node, con
   propulsion_stack_ = new qt::StackedWidget();
 
   int id = 0;
-  addPropulsionSystemWidget(new electric::PropulsionSystemWidget(node, uadf), id++);
-  addPropulsionSystemWidget(new ice::PropulsionSystemWidget(node, uadf), id++);
+  addPropulsionSystemWidget(new electric::PropulsionSystemWidget(uadf), id++);
+  addPropulsionSystemWidget(new ice::PropulsionSystemWidget(uadf), id++);
 
   addSpacing(50);
   addWidget(propulsion_stack_);

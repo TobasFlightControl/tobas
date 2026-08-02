@@ -29,7 +29,7 @@ class PropulsionUnitsWidget : public qt::TabWidget
   static constexpr int kTabHeight = 50;
 
 public:
-  explicit PropulsionUnitsWidget(rclcpp::Node::SharedPtr node, const uadf::Model& uadf);
+  explicit PropulsionUnitsWidget(const uadf::Model& uadf);
 
   void updateInternalDataStructures();
   void setToDefaults();
@@ -51,7 +51,6 @@ public:
   const PropulsionUnitWidget* widget(const QString& link_name) const;
 
 private:
-  const rclcpp::Node::SharedPtr node_;
   const uadf::Model& uadf_;
 
 private Q_SLOTS:

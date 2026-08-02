@@ -31,7 +31,7 @@ public:
   BatteryWidget* battery;
   PropulsionUnitsWidget* units;
 
-  explicit PropulsionSystemWidget(rclcpp::Node::SharedPtr node, const uadf::Model& uadf);
+  explicit PropulsionSystemWidget(const uadf::Model& uadf);
 
   const char* name() const override;
 

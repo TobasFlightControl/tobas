@@ -3,8 +3,7 @@
 
 #include "tobas_setup_assistant/param_getters/double_table.hpp"
 
-#include <filesystem>
-
+#include <QFileInfo>
 #include <QHBoxLayout>
 #include <QHeaderView>
 #include <QPushButton>
@@ -14,11 +13,8 @@
 #include <tobas_qt_tools/widgets/double_spin_box.hpp>
 #include <tobas_ros2_tools/util.hpp>
 #include <tobas_std_tools/check.hpp>
-#include <tobas_string_tools/core.hpp>
 
 #include "tobas_setup_assistant/rapidcsv.hpp"
-
-namespace fs = std::filesystem;
 
 namespace tobas
 {
@@ -27,18 +23,15 @@ namespace gui
 namespace sa
 {
 ParamGetterWidget_DoubleTable::ParamGetterWidget_DoubleTable(
-  rclcpp::Node::SharedPtr node,
   const QString& param_name,
   const QString& title,
   const QStringList& labels,
   const QString& description_text)
   : super(param_name, description_text)
-  , node_(node)
-  , last_opend_dir_key_("last_opened_dir/" + str::replace(param_name.toStdString(), " ", "_"))
+  , last_opened_dir_key_("double_table/last_opened_dir/" + QString(param_name).replace(' ', '_'))
   , title_(title)
   , labels_(labels)
   , num_entry_(labels.size())
-  , property_client_(node, "tobas_setup_assistant/double_table")
 {
   TOBAS_CHECK(num_entry_ > 0);
 
@@ -223,19 +216,16 @@ void ParamGetterWidget_DoubleTable::onCellValueChanged()
 
 QString ParamGetterWidget_DoubleTable::getCsvPath()
 {
-  std::string last_opened_dir;
-  if (property_client_.get(last_opend_dir_key_, last_opened_dir) < 0) {
-    RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
-    last_opened_dir = ros2::getHomeDir();
-  }
+  const auto last_opened_dir =
+    settings_store_.value(last_opened_dir_key_, QString::fromStdString(ros2::getHomeDir())).toString();
 
   const auto file_path = QFileDialog::getOpenFileName(
-    this, title_, QString::fromStdString(last_opened_dir), "CSV File (*.csv)", nullptr, QFileDialog::DontUseNativeDialog);
+    this, title_, last_opened_dir, "CSV File (*.csv)", nullptr, QFileDialog::DontUseNativeDialog);
 
   // Save the last opened path.
   if (!file_path.isEmpty()) {
-    const auto par_dir = fs::path(file_path.toStdString()).parent_path();
-    saveLastOpenedDir(par_dir);
+    const auto par_dir = QFileInfo(file_path).absolutePath();
+    settings_store_.setValue(last_opened_dir_key_, par_dir);
   }
 
   return file_path;
@@ -257,18 +247,6 @@ bool ParamGetterWidget_DoubleTable::isValidData(const Eigen::MatrixXd& src)
   }
 
   return true;
-}
-
-void ParamGetterWidget_DoubleTable::saveLastOpenedDir(const std::string& dir)
-{
-  if (property_client_.set(last_opend_dir_key_, dir) < 0) {
-    RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
-    return;
-  }
-  if (property_client_.save() < 0) {
-    RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
-    return;
-  }
 }
 }  // namespace sa
 }  // namespace gui

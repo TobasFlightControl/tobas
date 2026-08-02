@@ -5,11 +5,11 @@
 
 #include <vector>
 
+#include <QSettings>
 #include <rclcpp_action/rclcpp_action.hpp>
 
 #include <tobas_geographic/geography.hpp>
 #include <tobas_mission_items/mission.hpp>
-#include <tobas_property_client/property_client.hpp>
 #include <tobas_qt_tools/widgets/list_widget.hpp>
 #include <tobas_qt_tools/widgets/stacked_widget.hpp>
 #include <tobas_qt_tools/widgets/wait_spinner.hpp>
@@ -43,7 +43,7 @@ class MissionPlannerWidget : public QWidget
   static constexpr char kCacheDirOffline[] = "~/.cache/tobas/tiles/offline";
   static constexpr uintmax_t kCacheMaxSize = 1 << 30;  // 1GiB
 
-  static constexpr char kLastOpenedDirKey[] = "last_opened_dir";
+  static constexpr char kLastOpenedDirKey[] = "mission_planner/last_opened_dir";
 
 Q_SIGNALS:
   void goalResponseReceived(bool ok);
@@ -58,7 +58,7 @@ public:
 
 private:
   const rclcpp::Node::SharedPtr node_;
-  ptree::PropertyClient property_client_;
+  QSettings settings_store_;
   geo::Geography geography_;
 
   MapWidget* map_;

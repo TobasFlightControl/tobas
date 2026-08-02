@@ -13,7 +13,6 @@
   <depend>tobas_string_tools</depend>
   <depend>tobas_kdl</depend>
   <depend>tobas_ros2_tools</depend>
-  <depend>tobas_property_client</depend>
   <depend>tobas_msgs</depend>
   <depend>tobas_debug_msgs</depend>
   <depend>tobas_qt_tools</depend>

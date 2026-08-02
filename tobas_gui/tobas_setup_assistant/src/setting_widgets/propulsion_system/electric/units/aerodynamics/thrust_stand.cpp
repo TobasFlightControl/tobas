@@ -20,10 +20,10 @@ namespace propulsion
 {
 namespace electric
 {
-AerodynamicsWidget_ThrustStand::AerodynamicsWidget_ThrustStand(rclcpp::Node::SharedPtr node)
+AerodynamicsWidget_ThrustStand::AerodynamicsWidget_ThrustStand()
 {
   data_ = new ParamGetterWidget_DoubleTable(
-    node, "Data from thrust stand", "Select Test Data", { kRpmColName, kThrustColName, kTorqueColName });
+    "Data from thrust stand", "Select Test Data", { kRpmColName, kThrustColName, kTorqueColName });
   data_->setDecimals({ 0, 6, 6 });
   data_->setMinimum({ 1, 1e-6, 1e-6 });
   data_->table()->setColumnsWidth(kDataTableColWidth);

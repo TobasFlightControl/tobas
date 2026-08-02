@@ -15,15 +15,14 @@ namespace gui
 {
 namespace sa
 {
-SettingsWidget::SettingsWidget(rclcpp::Node::SharedPtr node, const uadf::Model& uadf, const kdl::Tree& tree, Signals& sig)
-  : uadf_(uadf)
+SettingsWidget::SettingsWidget(const uadf::Model& uadf, const kdl::Tree& tree, Signals& sig) : uadf_(uadf)
 {
   toolbox_ = new QToolBox();
   stack_ = new qt::StackedWidget();
 
   // Pages
-  propulsion_system = new propulsion::PropulsionSystemWidget(node, uadf, sig);
-  fixed_wing = new fw::FixedWingWidget(node, uadf);
+  propulsion_system = new propulsion::PropulsionSystemWidget(uadf, sig);
+  fixed_wing = new fw::FixedWingWidget(uadf);
   hardware = new hw::HardwareWidget(uadf, sig);
   remote_connection = new rc::RemoteConnectionWidget();
   observer = new ObserverWidget();

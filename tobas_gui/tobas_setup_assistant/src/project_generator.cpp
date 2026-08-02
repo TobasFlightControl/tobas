@@ -38,12 +38,11 @@ namespace gui
 namespace sa
 {
 ProjectGenerator::ProjectGenerator(
-  rclcpp::Node::SharedPtr node,
   const uadf::Model& uadf,
   const kdl::Tree& tree,
   const SettingsWidget* settings,
   QWidget* parent)
-  : node_(node), uadf_(uadf), tree_(tree), settings_(settings), parent_(parent)
+  : uadf_(uadf), tree_(tree), settings_(settings), parent_(parent)
 {
   const auto templates_path = getPkgShareDir() / "templates";
   meta_env_ = std::make_shared<TemplateGenerator>(templates_path / "meta_package");

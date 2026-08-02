@@ -21,10 +21,10 @@ namespace propulsion
 {
 namespace ice
 {
-EngineDynamicsWidget::EngineDynamicsWidget(rclcpp::Node::SharedPtr node)
+EngineDynamicsWidget::EngineDynamicsWidget()
 {
   data_ = new ParamGetterWidget_DoubleTable(
-    node, "Engine Torque Test Data", "Select Test Data", { "Throttle [%]", "RPM", "Torque [Nm]" });
+    "Engine Torque Test Data", "Select Test Data", { "Throttle [%]", "RPM", "Torque [Nm]" });
   data_->setDecimals({ 2, 0, 6 });
   data_->setMinimum({ 1e-2, 1, 1e-6 });
   data_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);

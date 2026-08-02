@@ -7,6 +7,7 @@
 #include <cmath>
 #include <ranges>
 
+#include <QFileInfo>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
@@ -67,7 +68,7 @@ size_t splineMapSampleCount(const MapSplinePath& path, size_t segment)
 }  // namespace
 
 MissionPlannerWidget::MissionPlannerWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge)
-  : node_(node), property_client_(node, "tobas_control_system/mission_planner"), spinner_(Qt::WindowModal, this)
+  : node_(node), spinner_(Qt::WindowModal, this)
 {
   map_ = new MapWidget();
 
@@ -153,29 +154,13 @@ void MissionPlannerWidget::updateNamespace(const std::string& ns)
 
 QString MissionPlannerWidget::getMissionDir()
 {
-  std::string last_opened_dir;
-  if (property_client_.get(kLastOpenedDirKey, last_opened_dir) == ptree::PropertyClient::kNoError) {
-    return QString::fromStdString(last_opened_dir);
-  }
-  else {
-    qWarning() << property_client_.errorMessage();
-    return qt::expandUser(kMissionDir);
-  }
+  return settings_store_.value(kLastOpenedDirKey, qt::expandUser(kMissionDir)).toString();
 }
 
 void MissionPlannerWidget::setMissionDir(const QString& file_path)
 {
-  fs::path p(file_path.toStdString());
-  const auto dir = p.parent_path().string();
-
-  if (property_client_.set(kLastOpenedDirKey, dir) < 0) {
-    qWarning() << property_client_.errorMessage();
-    return;
-  }
-  if (property_client_.save() < 0) {
-    qWarning() << property_client_.errorMessage();
-    return;
-  }
+  const auto dir = QFileInfo(file_path).absolutePath();
+  settings_store_.setValue(kLastOpenedDirKey, dir);
 }
 
 void MissionPlannerWidget::clearMission()

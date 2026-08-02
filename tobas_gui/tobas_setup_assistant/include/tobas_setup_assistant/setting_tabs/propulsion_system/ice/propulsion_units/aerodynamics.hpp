@@ -27,7 +27,7 @@ class AerodynamicsWidget : public BaseSelectedLinkSettingWidget
   Q_OBJECT
 
 public:
-  explicit AerodynamicsWidget(rclcpp::Node::SharedPtr node, const PropellerWidget* propeller);
+  explicit AerodynamicsWidget(const PropellerWidget* propeller);
 
   void setToDefaults() override;
   const char* name() const override;

@@ -16,7 +16,7 @@ namespace propulsion
 {
 namespace electric
 {
-PropulsionUnitWidget::PropulsionUnitWidget(rclcpp::Node::SharedPtr node)
+PropulsionUnitWidget::PropulsionUnitWidget()
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);
@@ -33,7 +33,7 @@ PropulsionUnitWidget::PropulsionUnitWidget(rclcpp::Node::SharedPtr node)
   esc_ = new ESCWidget();
   motor_ = new MotorWidget();
   propeller_ = new PropellerWidget();
-  aerodynamics_ = new AerodynamicsWidget(node, propeller_);
+  aerodynamics_ = new AerodynamicsWidget(propeller_);
 
   tabs_->addTab(esc_, esc_->name());
   tabs_->addTab(motor_, motor_->name());

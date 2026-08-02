@@ -4,6 +4,7 @@
 #include "tobas_flight_log_gui/logs_gcs/logs_widget.hpp"
 
 #include <QFileDialog>
+#include <QFileInfo>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
@@ -28,8 +29,7 @@ namespace gui
 {
 namespace log
 {
-FlightLogsWidgetGCS::FlightLogsWidgetGCS(rclcpp::Node::SharedPtr node)
-  : property_client_(node, "tobas_flight_log_gui/logs_gcs"), spinner_(Qt::WindowModal, this)
+FlightLogsWidgetGCS::FlightLogsWidgetGCS() : spinner_(Qt::WindowModal, this)
 {
   read_button_ = new QPushButton("Read");
   clean_button_ = new QPushButton("Clean");
@@ -215,14 +215,11 @@ void FlightLogsWidgetGCS::onExportButtonClicked(const QString& log_name)
   static constexpr char kFilterTextRosbag[] = "ROS bag Archive (*.zip)";
 
   // Get the last opened directory path.
-  std::string last_opened_dir;
-  if (property_client_.get(kLastOpenedDirKey, last_opened_dir) < 0) {
-    qWarning() << property_client_.errorMessage();
-    last_opened_dir = ros2::getHomeDir();
-  }
+  const auto last_opened_dir =
+    settings_store_.value(kLastOpenedDirKey, QString::fromStdString(ros2::getHomeDir())).toString();
 
   // Set the default output file path.
-  auto default_out_path = fs::path(last_opened_dir) / log_name.toStdString();
+  auto default_out_path = fs::path(last_opened_dir.toStdString()) / log_name.toStdString();
   default_out_path.replace_extension(".csv");
 
   // Get the save file path.
@@ -241,13 +238,8 @@ void FlightLogsWidgetGCS::onExportButtonClicked(const QString& log_name)
   }
 
   // Save the selected directory path.
-  const auto par_dir = fs::path(save_path.toStdString()).parent_path();
-  if (property_client_.set(kLastOpenedDirKey, par_dir) < 0) {
-    qWarning() << property_client_.errorMessage();
-  }
-  if (property_client_.save() < 0) {
-    qWarning() << property_client_.errorMessage();
-  }
+  const auto par_dir = QFileInfo(save_path).absolutePath();
+  settings_store_.setValue(kLastOpenedDirKey, par_dir);
 
   // Create an export thread.
   ExportThread* thread = nullptr;

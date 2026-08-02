@@ -55,16 +55,6 @@ def generate_launch_description():
     )
     ld.add_action(run_rsp)
 
-    # Launch property server.
-    run_property_server = Node(
-        package="tobas_property_server",
-        executable="property_server",
-        namespace=session_ns,
-        ros_arguments=ros_args,
-        output=output,
-    )
-    ld.add_action(run_property_server)
-
     # Launch setup assistant.
     run_setup_assistant = Node(
         package="tobas_setup_assistant",

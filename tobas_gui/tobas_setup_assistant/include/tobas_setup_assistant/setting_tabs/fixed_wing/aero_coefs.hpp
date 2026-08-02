@@ -4,8 +4,8 @@
 #pragma once
 
 #include <yaml-cpp/yaml.h>
+#include <QSettings>
 
-#include <tobas_property_client/property_client.hpp>
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 
 #include "tobas_setup_assistant/param_getters/double_spin_box.hpp"
@@ -27,10 +27,10 @@ class AerodynamicsCoefficientsWidget : public QWidget
 
   static constexpr int kButtonWidth = 180;
   static constexpr int kButtonHeight = 60;
-  static constexpr char kLastOpenedDirKey[] = "last_opened_dir";
+  static constexpr char kLastOpenedDirKey[] = "fixed_wing/aero_coefs/last_opened_dir";
 
 public:
-  explicit AerodynamicsCoefficientsWidget(rclcpp::Node::SharedPtr node);
+  explicit AerodynamicsCoefficientsWidget();
 
   void updateInternalDataStructures();
   void setToDefaults();
@@ -60,8 +60,7 @@ private Q_SLOTS:
   void onLoadButtonClicked();
 
 private:
-  const rclcpp::Node::SharedPtr node_;
-  ptree::PropertyClient property_client_;
+  QSettings settings_store_;
 
   qt::FormLayout* form_;
 

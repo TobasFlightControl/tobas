@@ -21,8 +21,7 @@ namespace propulsion
 {
 namespace electric
 {
-AerodynamicsWidget::AerodynamicsWidget(rclcpp::Node::SharedPtr node, const PropellerWidget* propeller)
-  : propeller_(propeller)
+AerodynamicsWidget::AerodynamicsWidget(const PropellerWidget* propeller) : propeller_(propeller)
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);
@@ -30,8 +29,8 @@ AerodynamicsWidget::AerodynamicsWidget(rclcpp::Node::SharedPtr node, const Prope
   method_name_ = new qt::ComboBox();
 
   const auto preset = new AerodynamicsWidget_Preset(propeller);
-  const auto thrust_stand = new AerodynamicsWidget_ThrustStand(node);
-  const auto uiuc = new AerodynamicsWidget_UIUC(node, propeller);
+  const auto thrust_stand = new AerodynamicsWidget_ThrustStand();
+  const auto uiuc = new AerodynamicsWidget_UIUC(propeller);
 
   methods_ = new qt::StackedWidget();
   methods_->addWidget(preset);

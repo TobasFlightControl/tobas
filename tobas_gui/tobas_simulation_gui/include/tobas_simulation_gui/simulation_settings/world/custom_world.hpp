@@ -5,8 +5,7 @@
 
 #include <QLineEdit>
 #include <QPushButton>
-
-#include <tobas_property_client/property_client.hpp>
+#include <QSettings>
 
 #include "./base.hpp"
 
@@ -23,16 +22,15 @@ class CustomWorldWidget : public BaseWorldWidget
   using self = CustomWorldWidget;
   using super = BaseWorldWidget;
 
-  static constexpr char kLastOpenedDirKey[] = "last_opened_dir";
+  static constexpr char kLastOpenedDirKey[] = "simulation_settings/world/custom_world/last_opened_dir";
 
 public:
-  explicit CustomWorldWidget(rclcpp::Node::SharedPtr node);
+  explicit CustomWorldWidget();
 
   std::filesystem::path worldPath() const override;
 
 private:
-  const rclcpp::Node::SharedPtr node_;
-  ptree::PropertyClient property_client_;
+  QSettings settings_store_;
 
   QLineEdit* file_text_;
   QPushButton* browse_button_;

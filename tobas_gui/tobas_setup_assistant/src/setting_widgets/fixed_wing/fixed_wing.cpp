@@ -16,7 +16,7 @@ namespace sa
 {
 namespace fw
 {
-FixedWingWidget::FixedWingWidget(rclcpp::Node::SharedPtr node, const uadf::Model& uadf) : node_(node)
+FixedWingWidget::FixedWingWidget(const uadf::Model& uadf)
 {
   // Vehicle
   addWidget(new qt::Label(kVehicleLabel, cmn::kTitlePSize));
@@ -25,7 +25,7 @@ FixedWingWidget::FixedWingWidget(rclcpp::Node::SharedPtr node, const uadf::Model
 
   // Aerodynamic Coefficients
   addWidget(new qt::Label(kAeroCoefsLabel, cmn::kTitlePSize));
-  aero_coefs_ = new AerodynamicsCoefficientsWidget(node_);
+  aero_coefs_ = new AerodynamicsCoefficientsWidget();
   addWidget(aero_coefs_);
 
   // Control Surfaces

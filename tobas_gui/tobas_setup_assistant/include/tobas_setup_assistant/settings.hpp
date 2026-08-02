@@ -46,7 +46,7 @@ public:
   FailsafeWidget* failsafe;
   AuthorInformationWidget* author_info;
 
-  explicit SettingsWidget(rclcpp::Node::SharedPtr node, const uadf::Model& uadf, const kdl::Tree& tree, Signals& sig);
+  explicit SettingsWidget(const uadf::Model& uadf, const kdl::Tree& tree, Signals& sig);
 
   void updateInternalDataStructures();
   void setToDefaults();

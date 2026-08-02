@@ -28,7 +28,7 @@ class FixedWingWidget : public BaseSettingWidget
   static constexpr char kControlSurfacesLabel[] = "Control Surfaces";
 
 public:
-  explicit FixedWingWidget(rclcpp::Node::SharedPtr node, const uadf::Model& uadf);
+  explicit FixedWingWidget(const uadf::Model& uadf);
 
   const char* name() const override;
   const char* title() const override;
@@ -46,8 +46,6 @@ public:
   const ControlSurfacesWidget* controlSurfaces() const;
 
 private:
-  const rclcpp::Node::SharedPtr node_;
-
   VehicleParametersWidget* vehicle_;
   AerodynamicsCoefficientsWidget* aero_coefs_;
   ControlSurfacesWidget* control_surfaces_;

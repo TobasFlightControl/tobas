@@ -21,7 +21,7 @@ namespace gui
 {
 namespace sim
 {
-WorldWidget::WorldWidget(rclcpp::Node::SharedPtr node)
+WorldWidget::WorldWidget()
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);
@@ -36,7 +36,7 @@ WorldWidget::WorldWidget(rclcpp::Node::SharedPtr node)
   btn_group->setExclusive(true);
 
   addRow(form, btn_group, new WorldWidget_Standard(), "Standard World");
-  addRow(form, btn_group, new CustomWorldWidget(node), "Custom World");
+  addRow(form, btn_group, new CustomWorldWidget(), "Custom World");
 
   // Default
   buttons_.at(0)->setChecked(true);

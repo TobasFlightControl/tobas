@@ -4,9 +4,9 @@
 #pragma once
 
 #include <QFileDialog>
+#include <QSettings>
 #include <eigen3/Eigen/Core>
 
-#include <tobas_property_client/property_client.hpp>
 #include <tobas_qt_tools/widgets/table_widget.hpp>
 
 #include "./base.hpp"
@@ -34,7 +34,6 @@ Q_SIGNALS:
 
 public:
   explicit ParamGetterWidget_DoubleTable(
-    rclcpp::Node::SharedPtr node,
     const QString& param_name,
     const QString& title,
     const QStringList& labels,
@@ -59,8 +58,7 @@ private Q_SLOTS:
   void onCellValueChanged();
 
 private:
-  const rclcpp::Node::SharedPtr node_;
-  const std::string last_opend_dir_key_;
+  const QString last_opened_dir_key_;
   const QString title_;
   const QStringList labels_;
   const int num_entry_;
@@ -72,11 +70,10 @@ private:
 
   qt::TableWidget* table_;
 
-  ptree::PropertyClient property_client_;
+  QSettings settings_store_;
 
   QString getCsvPath();
   bool isValidData(const Eigen::MatrixXd& src);
-  void saveLastOpenedDir(const std::string& dir);
 };
 }  // namespace sa
 }  // namespace gui

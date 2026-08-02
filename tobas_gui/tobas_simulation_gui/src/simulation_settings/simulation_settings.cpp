@@ -17,7 +17,7 @@ namespace gui
 {
 namespace sim
 {
-SimulationSettingsWidget::SimulationSettingsWidget(rclcpp::Node::SharedPtr node)
+SimulationSettingsWidget::SimulationSettingsWidget()
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);
@@ -30,7 +30,7 @@ SimulationSettingsWidget::SimulationSettingsWidget(rclcpp::Node::SharedPtr node)
   type_ = new LoopTypeWidget();
   scroll_rows->addWidget(type_);
 
-  world_ = new WorldWidget(node);
+  world_ = new WorldWidget();
   scroll_rows->addWidget(world_);
 
   pose_ = new PoseWidget();

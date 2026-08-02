@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include <rclcpp/node.hpp>
-
 #include <tobas_qt_tools/widgets/combo_box.hpp>
 #include <tobas_qt_tools/widgets/stacked_widget.hpp>
 
@@ -29,7 +27,7 @@ class AerodynamicsWidget : public BaseSelectedLinkSettingWidget
   static constexpr char kMethodNameKey[] = "method_name";
 
 public:
-  explicit AerodynamicsWidget(rclcpp::Node::SharedPtr node, const PropellerWidget* propeller);
+  explicit AerodynamicsWidget(const PropellerWidget* propeller);
 
   void setToDefaults() override;
   const char* name() const override;

@@ -22,7 +22,6 @@
   <depend>tobas_path_tools</depend>
   <depend>tobas_ros2_tools</depend>
   <depend>tobas_urdf</depend>
-  <depend>tobas_property_client</depend>
   <depend>tobas_drone_msgs_adapter</depend>
   <depend>tobas_visualization_msgs</depend>
   <depend>tobas_uadf</depend>
@@ -33,7 +32,6 @@
   <exec_depend>xacro</exec_depend>
   <exec_depend>hardware_interface</exec_depend>
   <exec_depend>tobas_rviz_plugin</exec_depend>
-  <exec_depend>tobas_property_server</exec_depend>
 
   <export>
     <build_type>ament_cmake</build_type>

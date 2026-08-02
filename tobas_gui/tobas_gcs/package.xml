@@ -17,7 +17,6 @@
   <depend>tobas_simulation_gui</depend>
 
   <exec_depend>rmw_cyclonedds_cpp</exec_depend>
-  <exec_depend>tobas_property_server</exec_depend>
   <exec_depend>tobas_ssh_server</exec_depend>
   <exec_depend>tobas_tile_proxy</exec_depend>
   <exec_depend>tobas_gazebo_sim</exec_depend>

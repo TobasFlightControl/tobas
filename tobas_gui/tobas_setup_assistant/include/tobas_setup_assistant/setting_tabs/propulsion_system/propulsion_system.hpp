@@ -31,7 +31,7 @@ class PropulsionSystemWidget : public BaseSettingWidget
   static constexpr char kTypeKey[] = "propulsion_system_type";
 
 public:
-  explicit PropulsionSystemWidget(rclcpp::Node::SharedPtr node, const uadf::Model& uadf, Signals& sig);
+  explicit PropulsionSystemWidget(const uadf::Model& uadf, Signals& sig);
 
   const char* name() const override;
   const char* title() const override;

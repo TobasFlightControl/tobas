@@ -3,16 +3,11 @@
 
 #include "tobas_urdf_builder_plugin/ui/update_link_dialog.hpp"
 
-#include <filesystem>
-
 #include <QColorDialog>
+#include <QDebug>
 #include <QFileDialog>
 #include <QMessageBox>
 #include <boost/polymorphic_cast.hpp>
-#include <rclcpp/rclcpp.hpp>
-
-#include <tobas_ros2_tools/util.hpp>
-#include <tobas_std_tools/console.hpp>
 
 #include "ui_update_link_dialog.h"
 
@@ -22,8 +17,6 @@
 #include "tobas_urdf_builder_plugin/utils/constants.hpp"
 #include "tobas_urdf_builder_plugin/utils/widget_item.hpp"
 
-namespace fs = std::filesystem;
-
 namespace tobas
 {
 namespace gui
@@ -32,10 +25,9 @@ namespace ub
 {
 namespace ui
 {
-UpdateLinkDialog::UpdateLinkDialog(rclcpp::Node::SharedPtr node, UrdfBuilderPanel* main)
+UpdateLinkDialog::UpdateLinkDialog(UrdfBuilderPanel* main)
   : super(main)
-  , node_(node)
-  , property_client_(node, "tobas_urdf_builder_plugin/update_link_dialog")
+  , settings_store_("tobas", "urdf_builder")
   , main_(main)
   , ui_(new Ui::UpdateLinkDialogUI())
   , link_vm_(new view_model::LinkViewModel())
@@ -126,7 +118,7 @@ const view_model::LinkViewModelPtr& UpdateLinkDialog::viewModel() const
 
 void UpdateLinkDialog::onVisualGeometryTypeComboBoxIndexChanged(int)
 {
-  RCLCPP_DEBUG(node_->get_logger(), "UpdateLinkDialog::onVisualGeometryTypeComboBoxIndexChanged");
+  qDebug() << "UpdateLinkDialog::onVisualGeometryTypeComboBoxIndexChanged";
 
   const auto geometry_type = ui_->VisualGeometryTypeComboBox->currentText();
   arrangeVisualGeometryTypeFrames(frame_map_.visual_geom, geometry_type);
@@ -138,7 +130,7 @@ void UpdateLinkDialog::onVisualGeometryTypeComboBoxIndexChanged(int)
 
 void UpdateLinkDialog::onCollisionGeometryTypeComboBoxIndexChanged(int)
 {
-  RCLCPP_DEBUG(node_->get_logger(), "UpdateLinkDialog::CollisionGeometryTypeComboBoxIndexChange");
+  qDebug() << "UpdateLinkDialog::CollisionGeometryTypeComboBoxIndexChange";
 
   const auto geometry_type = ui_->CollisionGeometryTypeComboBox->currentText();
   arrangeVisualGeometryTypeFrames(frame_map_.collision_geom, geometry_type);
@@ -150,8 +142,7 @@ void UpdateLinkDialog::onCollisionGeometryTypeComboBoxIndexChanged(int)
 
 void UpdateLinkDialog::onLinkNameLineEditTextChanged(const QString& text)
 {
-  RCLCPP_DEBUG_STREAM(
-    node_->get_logger(), "UpdateLinkDialog::onLinkNameLineEditTextChanged(" << text.toStdString() << ")");
+  qDebug().nospace() << "UpdateLinkDialog::onLinkNameLineEditTextChanged(" << text << ")";
 
   link_vm_->name(text);
   link_vm_->sync();
@@ -161,8 +152,7 @@ void UpdateLinkDialog::onLinkNameLineEditTextChanged(const QString& text)
 
 void UpdateLinkDialog::onJointNameLineEditTextChanged(const QString& text)
 {
-  RCLCPP_DEBUG_STREAM(
-    node_->get_logger(), "UpdateLinkDialog::onJointNameLineEditTextChanged(" << text.toStdString() << ")");
+  qDebug().nospace() << "UpdateLinkDialog::onJointNameLineEditTextChanged(" << text << ")";
 
   link_vm_->joint()->name(text);
   link_vm_->sync();
@@ -172,8 +162,7 @@ void UpdateLinkDialog::onJointNameLineEditTextChanged(const QString& text)
 
 void UpdateLinkDialog::onVisualNameLineEditTextChanged(const QString& text)
 {
-  RCLCPP_DEBUG_STREAM(
-    node_->get_logger(), "UpdateLinkDialog::onVisualNameLineEditTextChanged(" << text.toStdString() << ")");
+  qDebug().nospace() << "UpdateLinkDialog::onVisualNameLineEditTextChanged(" << text << ")";
 
   visual_vm_->name(text);
   link_vm_->sync();
@@ -183,8 +172,7 @@ void UpdateLinkDialog::onVisualNameLineEditTextChanged(const QString& text)
 
 void UpdateLinkDialog::onVisualGeometryMeshPathLineEditTextChanged(const QString& text)
 {
-  RCLCPP_DEBUG_STREAM(
-    node_->get_logger(), "UpdateLinkDialog::onVisualGeometryMeshPathLineEditTextChanged(" << text.toStdString() << ")");
+  qDebug().nospace() << "UpdateLinkDialog::onVisualGeometryMeshPathLineEditTextChanged(" << text << ")";
 
   visual_vm_->geometry()->filePath(text);
   link_vm_->sync();
@@ -194,8 +182,7 @@ void UpdateLinkDialog::onVisualGeometryMeshPathLineEditTextChanged(const QString
 
 void UpdateLinkDialog::onCollisionNameLineEditTextChanged(const QString& text)
 {
-  RCLCPP_DEBUG_STREAM(
-    node_->get_logger(), "UpdateLinkDialog::onCollisionNameLineEditTextChanged(" << text.toStdString() << ")");
+  qDebug().nospace() << "UpdateLinkDialog::onCollisionNameLineEditTextChanged(" << text << ")";
 
   collision_vm_->name(text);
 
@@ -204,8 +191,7 @@ void UpdateLinkDialog::onCollisionNameLineEditTextChanged(const QString& text)
 
 void UpdateLinkDialog::onCollisionGeometryMeshPathEditTextChanged(const QString& text)
 {
-  RCLCPP_DEBUG_STREAM(
-    node_->get_logger(), "UpdateLinkDialog::onCollisionGeometryMeshPathEditTextChanged(" << text.toStdString() << ")");
+  qDebug().nospace() << "UpdateLinkDialog::onCollisionGeometryMeshPathEditTextChanged(" << text << ")";
 
   collision_vm_->geometry()->filePath(text);
   link_vm_->sync();
@@ -215,8 +201,7 @@ void UpdateLinkDialog::onCollisionGeometryMeshPathEditTextChanged(const QString&
 
 void UpdateLinkDialog::onMaterialNameLineEditTextChanged(const QString& text)
 {
-  RCLCPP_DEBUG_STREAM(
-    node_->get_logger(), "UpdateLinkDialog::onMaterialNameLineEditTextChanged(" << text.toStdString() << ")");
+  qDebug().nospace() << "UpdateLinkDialog::onMaterialNameLineEditTextChanged(" << text << ")";
 
   visual_vm_->material()->name(text);
   link_vm_->sync();
@@ -226,8 +211,7 @@ void UpdateLinkDialog::onMaterialNameLineEditTextChanged(const QString& text)
 
 void UpdateLinkDialog::onMaterialTexturePathLineEditTextChanged(const QString& text)
 {
-  RCLCPP_DEBUG_STREAM(
-    node_->get_logger(), "UpdateLinkDialog::onMaterialTexturePathLineEditTextChanged(" << text.toStdString() << ")");
+  qDebug().nospace() << "UpdateLinkDialog::onMaterialTexturePathLineEditTextChanged(" << text << ")";
 
   visual_vm_->material()->textureFileName(text);
   link_vm_->sync();
@@ -237,7 +221,7 @@ void UpdateLinkDialog::onMaterialTexturePathLineEditTextChanged(const QString& t
 
 void UpdateLinkDialog::onJointParentComboBoxIndexChanged(int)
 {
-  RCLCPP_DEBUG(node_->get_logger(), "UpdateLinkDialog::onJointParentComboBoxIndexChanged");
+  qDebug() << "UpdateLinkDialog::onJointParentComboBoxIndexChanged";
 
   readFromUI(link_vm_->joint());
 
@@ -246,7 +230,7 @@ void UpdateLinkDialog::onJointParentComboBoxIndexChanged(int)
 
 void UpdateLinkDialog::onJointTypeComboBoxIndexChanged(int)
 {
-  RCLCPP_DEBUG(node_->get_logger(), "UpdateLinkDialog::onJointTypeComboBoxIndexChanged");
+  qDebug() << "UpdateLinkDialog::onJointTypeComboBoxIndexChanged";
 
   readFromUI(link_vm_->joint());
 
@@ -268,7 +252,7 @@ void UpdateLinkDialog::onJointTypeComboBoxIndexChanged(int)
 
 void UpdateLinkDialog::onJointSpinBoxValueChanged(double)
 {
-  RCLCPP_DEBUG(node_->get_logger(), "UpdateLinkDialog::onJointSpinBoxValueChanged");
+  qDebug() << "UpdateLinkDialog::onJointSpinBoxValueChanged";
 
   readFromUI(link_vm_->joint());
   emitChanged();
@@ -276,7 +260,7 @@ void UpdateLinkDialog::onJointSpinBoxValueChanged(double)
 
 void UpdateLinkDialog::onVisualSpinBoxValueChanged(double)
 {
-  RCLCPP_DEBUG(node_->get_logger(), "UpdateLinkDialog::onVisualSpinBoxValueChanged");
+  qDebug() << "UpdateLinkDialog::onVisualSpinBoxValueChanged";
 
   readFromUI(visual_vm_);
   emitChanged();
@@ -284,7 +268,7 @@ void UpdateLinkDialog::onVisualSpinBoxValueChanged(double)
 
 void UpdateLinkDialog::onCollisionSpinBoxValueChanged(double)
 {
-  RCLCPP_DEBUG(node_->get_logger(), "UpdateLinkDialog::onCollisionSpinBoxValueChanged");
+  qDebug() << "UpdateLinkDialog::onCollisionSpinBoxValueChanged";
 
   readFromUI(collision_vm_);
   emitChanged();
@@ -292,7 +276,7 @@ void UpdateLinkDialog::onCollisionSpinBoxValueChanged(double)
 
 void UpdateLinkDialog::onInertialSpinBoxValueChanged(double)
 {
-  RCLCPP_DEBUG(node_->get_logger(), "UpdateLinkDialog::onInertialSpinBoxValueChanged");
+  qDebug() << "UpdateLinkDialog::onInertialSpinBoxValueChanged";
 
   readFromUI(link_vm_->inertial());
   emitChanged();
@@ -300,8 +284,7 @@ void UpdateLinkDialog::onInertialSpinBoxValueChanged(double)
 
 void UpdateLinkDialog::onVisualListWidgetItemClicked(QListWidgetItem* item)
 {
-  RCLCPP_DEBUG_STREAM(
-    node_->get_logger(), "UpdateLinkDialog::onVisualListWidgetItemClicked(" << item->text().toStdString() << ")");
+  qDebug().nospace() << "UpdateLinkDialog::onVisualListWidgetItemClicked(" << item->text() << ")";
 
   const auto visual_item = boost::polymorphic_downcast<VisualListWidgetItem*>(item);
   readFromVM(visual_item->viewModel());
@@ -309,8 +292,7 @@ void UpdateLinkDialog::onVisualListWidgetItemClicked(QListWidgetItem* item)
 
 void UpdateLinkDialog::onCollisionListWidgetItemClicked(QListWidgetItem* item)
 {
-  RCLCPP_DEBUG_STREAM(
-    node_->get_logger(), "UpdateLinkDialog::onCollisionListWidgetItemClicked(" << item->text().toStdString() << ")");
+  qDebug().nospace() << "UpdateLinkDialog::onCollisionListWidgetItemClicked(" << item->text() << ")";
 
   const auto collision_item = boost::polymorphic_downcast<CollisionListWidgetItem*>(item);
   readFromVM(collision_item->viewModel());
@@ -318,7 +300,7 @@ void UpdateLinkDialog::onCollisionListWidgetItemClicked(QListWidgetItem* item)
 
 void UpdateLinkDialog::onRenameLinkButtonClicked()
 {
-  RCLCPP_DEBUG(node_->get_logger(), "UpdateLinkDialog::onRenameLinkButtonClicked");
+  qDebug() << "UpdateLinkDialog::onRenameLinkButtonClicked";
 
   const auto cur_name = ui_->LinkNameLineEdit->text();
   auto excludeds = main_->linkNames();
@@ -338,7 +320,7 @@ void UpdateLinkDialog::onRenameLinkButtonClicked()
 
 void UpdateLinkDialog::onRenameJointButtonClicked()
 {
-  RCLCPP_DEBUG(node_->get_logger(), "UpdateLinkDialog::onRenameJointButtonClicked");
+  qDebug() << "UpdateLinkDialog::onRenameJointButtonClicked";
 
   const auto cur_name = ui_->JointNameLineEdit->text();
   auto excludeds = main_->jointNames();
@@ -357,7 +339,7 @@ void UpdateLinkDialog::onRenameJointButtonClicked()
 
 void UpdateLinkDialog::onAddVisualButtonClicked()
 {
-  RCLCPP_DEBUG(node_->get_logger(), "UpdateLinkDialog::onAddVisualButtonClicked");
+  qDebug() << "UpdateLinkDialog::onAddVisualButtonClicked";
 
   const auto visual_vm = std::make_shared<view_model::VisualViewModel>(nullptr);
   const auto item = new VisualListWidgetItem(visual_vm);
@@ -371,7 +353,7 @@ void UpdateLinkDialog::onAddVisualButtonClicked()
 
 void UpdateLinkDialog::onRemoveVisualButtonClicked()
 {
-  RCLCPP_DEBUG(node_->get_logger(), "UpdateLinkDialog::onRemoveVisualButtonClicked");
+  qDebug() << "UpdateLinkDialog::onRemoveVisualButtonClicked";
 
   if (ui_->VisualListWidget->selectedItems().empty()) {
     QMessageBox::warning(this, kError, "No visual is selected.");
@@ -398,7 +380,7 @@ void UpdateLinkDialog::onRemoveVisualButtonClicked()
 
 void UpdateLinkDialog::onAddCollisionButtonClicked()
 {
-  RCLCPP_DEBUG(node_->get_logger(), "UpdateLinkDialog::onAddCollisionButtonClicked");
+  qDebug() << "UpdateLinkDialog::onAddCollisionButtonClicked";
 
   const auto collision_vm = std::make_shared<view_model::CollisionViewModel>(nullptr);
   const auto item = new CollisionListWidgetItem(collision_vm);
@@ -412,7 +394,7 @@ void UpdateLinkDialog::onAddCollisionButtonClicked()
 
 void UpdateLinkDialog::onRemoveCollisionButtonClicked()
 {
-  RCLCPP_DEBUG(node_->get_logger(), "UpdateLinkDialog::onRemoveCollisionButtonClicked");
+  qDebug() << "UpdateLinkDialog::onRemoveCollisionButtonClicked";
 
   if (ui_->CollisionListWidget->selectedItems().empty()) {
     QMessageBox::warning(this, kError, "No collision is selected.");
@@ -439,18 +421,14 @@ void UpdateLinkDialog::onRemoveCollisionButtonClicked()
 
 void UpdateLinkDialog::onVisualGeometryMeshBrowseButtonClicked()
 {
-  RCLCPP_DEBUG(node_->get_logger(), "UpdateLinkDialog::onVisualGeometryMeshBrowseButtonClicked");
+  qDebug() << "UpdateLinkDialog::onVisualGeometryMeshBrowseButtonClicked";
 
   // Get the last opened directory.
-  std::string last_dir;
-  if (property_client_.get(kConfigKey_VisualGeometryMeshBrowseDir, last_dir) < 0) {
-    PRINT_WARN(property_client_.errorMessage());
-    last_dir = ros2::getHomeDir();
-  }
+  const auto last_dir = settings_store_.value(kConfigKey_VisualGeometryMeshBrowseDir, QDir::homePath()).toString();
 
   // Get the mesh file path.
-  const auto file_path = QFileDialog::getOpenFileName(
-    this, "Select Mesh File", QString::fromStdString(last_dir), "Mesh Files (*.stl *.dae);;All Files (*)");
+  const auto file_path =
+    QFileDialog::getOpenFileName(this, "Select Mesh File", last_dir, "Mesh Files (*.stl *.dae);;All Files (*)");
   if (file_path.isEmpty()) {
     return;
   }
@@ -459,33 +437,22 @@ void UpdateLinkDialog::onVisualGeometryMeshBrowseButtonClicked()
   ui_->VisualGeometryMeshPathLineEdit->setText("file://" + file_path);
 
   // Save the last opened directory.
-  const auto new_dir = fs::path(file_path.toStdString()).parent_path().string();
-  if (property_client_.set(kConfigKey_VisualGeometryMeshBrowseDir, new_dir) < 0) {
-    PRINT_WARN(property_client_.errorMessage());
-    return;
-  }
-  if (property_client_.save() < 0) {
-    PRINT_WARN(property_client_.errorMessage());
-    return;
-  }
+  const auto new_dir = QFileInfo(file_path).absolutePath();
+  settings_store_.setValue(kConfigKey_VisualGeometryMeshBrowseDir, new_dir);
 }
 
 void UpdateLinkDialog::onCollisionGeometryMeshBrowseButtonClicked()
 {
-  RCLCPP_DEBUG(node_->get_logger(), "UpdateLinkDialog::onCollisionGeometryMeshBrowseButtonClicked");
+  qDebug() << "UpdateLinkDialog::onCollisionGeometryMeshBrowseButtonClicked";
 
   // Get the last opened directory.
-  std::string last_dir;
-  if (property_client_.get(kConfigKey_CollisionGeometryMeshBrowseDir, last_dir) < 0) {
-    PRINT_WARN(property_client_.errorMessage());
-    last_dir = ros2::getHomeDir();
-  }
+  const auto last_dir = settings_store_.value(kConfigKey_CollisionGeometryMeshBrowseDir, QDir::homePath()).toString();
 
   // Get the mesh file path.
   const auto file_path = QFileDialog::getOpenFileName(
     this,
     "Select Mesh File",
-    QString::fromStdString(last_dir),
+    last_dir,
     "Mesh Files (*.stl *.dae);;All Files (*)",
     nullptr,
     QFileDialog::DontUseNativeDialog);
@@ -497,20 +464,13 @@ void UpdateLinkDialog::onCollisionGeometryMeshBrowseButtonClicked()
   ui_->CollisionGeometryMeshPathLineEdit->setText("file://" + file_path);
 
   // Save the last opened directory.
-  const auto new_dir = fs::path(file_path.toStdString()).parent_path().string();
-  if (property_client_.set(kConfigKey_CollisionGeometryMeshBrowseDir, new_dir) < 0) {
-    PRINT_WARN(property_client_.errorMessage());
-    return;
-  }
-  if (property_client_.save() < 0) {
-    PRINT_WARN(property_client_.errorMessage());
-    return;
-  }
+  const auto new_dir = QFileInfo(file_path).absolutePath();
+  settings_store_.setValue(kConfigKey_CollisionGeometryMeshBrowseDir, new_dir);
 }
 
 void UpdateLinkDialog::onMaterialColorPickButtonClicked()
 {
-  RCLCPP_DEBUG(node_->get_logger(), "UpdateLinkDialog::onMaterialColorPickButtonClicked");
+  qDebug() << "UpdateLinkDialog::onMaterialColorPickButtonClicked";
 
   const auto& color = visual_vm_->material()->color();
   QColorDialog dialog(QColor::fromRgbF(color.r, color.g, color.b, color.a));
@@ -528,7 +488,7 @@ void UpdateLinkDialog::onMaterialColorPickButtonClicked()
 
 void UpdateLinkDialog::onBuildInertiaBoxButtonClicked()
 {
-  RCLCPP_DEBUG(node_->get_logger(), "UpdateLinkDialog::onBuildInertiaBoxButtonClicked");
+  qDebug() << "UpdateLinkDialog::onBuildInertiaBoxButtonClicked";
 
   DoubleMapInputDialog dialog(this, "Box Inertia", { "X", "Y", "Z" });
   const auto result = dialog.exec();
@@ -550,7 +510,7 @@ void UpdateLinkDialog::onBuildInertiaBoxButtonClicked()
 
 void UpdateLinkDialog::onBuildInertiaCylinderButtonClicked()
 {
-  RCLCPP_DEBUG(node_->get_logger(), "UpdateLinkDialog::onBuildInertiaCylinderButtonClicked");
+  qDebug() << "UpdateLinkDialog::onBuildInertiaCylinderButtonClicked";
 
   DoubleMapInputDialog dialog(this, "Cylinder Inertia", { "Radius", "Length" });
   const auto result = dialog.exec();
@@ -571,7 +531,7 @@ void UpdateLinkDialog::onBuildInertiaCylinderButtonClicked()
 
 void UpdateLinkDialog::onBuildInertiaSphereButtonClicked()
 {
-  RCLCPP_DEBUG(node_->get_logger(), "UpdateLinkDialog::onBuildInertiaSphereButtonClicked");
+  qDebug() << "UpdateLinkDialog::onBuildInertiaSphereButtonClicked";
 
   DoubleMapInputDialog dialog(this, "Sphere Inertia", { "Radius" });
   const auto result = dialog.exec();

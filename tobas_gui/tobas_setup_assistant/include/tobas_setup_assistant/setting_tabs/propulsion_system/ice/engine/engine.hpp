@@ -32,7 +32,7 @@ class EngineWidget : public qt::TabWidget
   static constexpr char kResponseLabel[] = "Response";
 
 public:
-  explicit EngineWidget(rclcpp::Node::SharedPtr node);
+  explicit EngineWidget();
 
   void setToDefaults();
   bool isValid();

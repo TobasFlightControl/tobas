@@ -62,17 +62,6 @@ def generate_launch_description():
     ]:
         ros_args += ["--log-level", f"{node_name}:=WARN"]
 
-    # Launch property server.
-    run_property_server = Node(
-        package="tobas_property_server",
-        executable="property_server",
-        namespace=session_ns,
-        ros_arguments=ros_args,
-        output=output,
-        additional_env={"ROS_AUTOMATIC_DISCOVERY_RANGE": "LOCALHOST"},
-    )
-    ld.add_action(run_property_server)
-
     # Launch SSH server.
     run_ssh_server = Node(
         package="tobas_ssh_server",

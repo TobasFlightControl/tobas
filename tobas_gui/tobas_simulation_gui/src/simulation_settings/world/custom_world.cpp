@@ -4,6 +4,7 @@
 #include "tobas_simulation_gui/simulation_settings/world/custom_world.hpp"
 
 #include <QFileDialog>
+#include <QFileInfo>
 #include <QHBoxLayout>
 
 #include <tobas_ros2_tools/path.hpp>
@@ -17,8 +18,7 @@ namespace gui
 {
 namespace sim
 {
-CustomWorldWidget::CustomWorldWidget(rclcpp::Node::SharedPtr node)
-  : node_(node), property_client_(node, "tobas_simulation_gui/simulation_settings/world/custom_world")
+CustomWorldWidget::CustomWorldWidget()
 {
   const auto cols = new QHBoxLayout();
   setLayout(cols);
@@ -41,20 +41,12 @@ fs::path CustomWorldWidget::worldPath() const
 void CustomWorldWidget::onBrowseButtonClicked()
 {
   // Get the previously opened path.
-  std::string last_opened_dir;
-  if (property_client_.get(kLastOpenedDirKey, last_opened_dir) < 0) {
-    RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
-    last_opened_dir = ros2::getHomeDir();
-  }
+  const auto last_opened_dir =
+    settings_store_.value(kLastOpenedDirKey, QString::fromStdString(ros2::getHomeDir())).toString();
 
   // Get the world path.
   const auto file_path = QFileDialog::getOpenFileName(
-    this,
-    "Select World File",
-    QString::fromStdString(last_opened_dir),
-    "Gazebo World (*.world)",
-    nullptr,
-    QFileDialog::DontUseNativeDialog);
+    this, "Select World File", last_opened_dir, "Gazebo World (*.world)", nullptr, QFileDialog::DontUseNativeDialog);
 
   // Return without doing anything if canceled.
   if (file_path.isEmpty()) {
@@ -65,13 +57,8 @@ void CustomWorldWidget::onBrowseButtonClicked()
   file_text_->setText(file_path);
 
   // Save the directory opened by the user.
-  const auto par_dir = fs::path(file_path.toStdString()).parent_path();
-  if (property_client_.set(kLastOpenedDirKey, par_dir) < 0) {
-    RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
-  }
-  if (property_client_.save() < 0) {
-    RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
-  }
+  const auto par_dir = QFileInfo(file_path).absolutePath();
+  settings_store_.setValue(kLastOpenedDirKey, par_dir);
 }
 }  // namespace sim
 }  // namespace gui

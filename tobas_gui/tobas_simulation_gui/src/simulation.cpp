@@ -35,7 +35,7 @@ SimulationWidget::SimulationWidget(rclcpp::Node::SharedPtr node, const RosQtBrid
   start_stop_button_ = new qt::ToggleButton("Start", "Terminate");
   start_stop_button_->setFixedSize(kButtonWidth, kButtonHeight);
 
-  sim_settings_ = new SimulationSettingsWidget(node);
+  sim_settings_ = new SimulationSettingsWidget();
   dynamic_config_ = new DynamicConfigWidget(node);
   commanders_ = new CommandersWidget(node, bridge, tree_, drone_);
 

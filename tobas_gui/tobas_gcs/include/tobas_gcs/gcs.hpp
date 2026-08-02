@@ -5,6 +5,7 @@
 
 #include <QLineEdit>
 #include <QPushButton>
+#include <QSettings>
 #include <QWidget>
 
 #include <tobas_actuator_test/actuator_test.hpp>
@@ -17,7 +18,6 @@
 #include <tobas_gui_common/version.hpp>
 #include <tobas_kdl_parser/kdl_parser.hpp>
 #include <tobas_parameter_tuning/parameter_tuning.hpp>
-#include <tobas_property_client/property_client.hpp>
 #include <tobas_sensor_calibration/sensor_calibration.hpp>
 #include <tobas_simulation_gui/simulation.hpp>
 #include <tobas_ssh_client/ssh_client.hpp>
@@ -45,7 +45,7 @@ class GroundControlStationWidget : public QWidget
   using self = GroundControlStationWidget;
   using super = QWidget;
 
-  static constexpr char kLastOpenedDirKey[] = "last_opened_dir";
+  static constexpr char kLastOpenedDirKey[] = "gcs/last_opened_dir";
 
   static constexpr int kPathMaxWidth = 400;
   static constexpr int kPowerButtonRadius = 40;
@@ -67,7 +67,7 @@ private:
   kdl::Tree tree_;
   Drone drone_;
 
-  ptree::PropertyClient property_client_;
+  QSettings settings_store_;
   uadf::Parser uadf_parser_;
   kdl::TreeParser tree_parser_;
   cmn::ProjectPaths proj_paths_;

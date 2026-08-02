@@ -12,7 +12,6 @@
   <depend>tobas_rviz_wrapper</depend>
   <depend>tobas_gui_common</depend>
 
-  <exec_depend>tobas_property_server</exec_depend>
   <exec_depend>tobas_urdf_builder_plugin</exec_depend>
 
   <export>

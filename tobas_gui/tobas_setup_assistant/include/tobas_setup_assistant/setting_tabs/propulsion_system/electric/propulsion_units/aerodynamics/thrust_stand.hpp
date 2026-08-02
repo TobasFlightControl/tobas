@@ -25,7 +25,7 @@ class AerodynamicsWidget_ThrustStand : public AerodynamicsWidget_Base
   Q_OBJECT
 
 public:
-  explicit AerodynamicsWidget_ThrustStand(rclcpp::Node::SharedPtr node);
+  explicit AerodynamicsWidget_ThrustStand();
 
   const char* name() const override;
   const char* description() const override;

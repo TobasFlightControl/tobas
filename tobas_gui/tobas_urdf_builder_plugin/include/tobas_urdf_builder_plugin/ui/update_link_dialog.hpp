@@ -7,8 +7,7 @@
 
 #include <QDialog>
 #include <QListWidgetItem>
-
-#include <tobas_property_client/property_client.hpp>
+#include <QSettings>
 
 #include "../view_model/joint_view_model.hpp"
 #include "../view_model/link_view_model.hpp"
@@ -36,14 +35,14 @@ class UpdateLinkDialog : public QDialog
   using self = UpdateLinkDialog;
   using super = QDialog;
 
-  static constexpr char kConfigKey_VisualGeometryMeshBrowseDir[] = "visual_geometry_mesh_dir";
-  static constexpr char kConfigKey_CollisionGeometryMeshBrowseDir[] = "collision_geometry_mesh_dir";
+  static constexpr char kConfigKey_VisualGeometryMeshBrowseDir[] = "update_link_dialog/visual_geometry_mesh_dir";
+  static constexpr char kConfigKey_CollisionGeometryMeshBrowseDir[] = "update_link_dialog/collision_geometry_mesh_dir";
 
 Q_SIGNALS:
   void Changed();
 
 public:
-  explicit UpdateLinkDialog(rclcpp::Node::SharedPtr node, UrdfBuilderPanel* main);
+  explicit UpdateLinkDialog(UrdfBuilderPanel* main);
 
   void done(int code) override;
 
@@ -85,8 +84,7 @@ private Q_SLOTS:
   void onBuildInertiaSphereButtonClicked();
 
 private:
-  const rclcpp::Node::SharedPtr node_;
-  ptree::PropertyClient property_client_;
+  QSettings settings_store_;
 
   UrdfBuilderPanel* main_;
   Ui::UpdateLinkDialogUIPtr ui_;

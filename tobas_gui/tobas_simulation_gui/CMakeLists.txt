@@ -16,7 +16,6 @@ set(AMENT_DEPENDENCIES
     tobas_kdl_parser
     tobas_ros2_tools
     tobas_drone_core
-    tobas_property_client
     tobas_msgs_adapter
     tobas_command_msgs_adapter
     tobas_gazebo_common

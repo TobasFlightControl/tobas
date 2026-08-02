@@ -3,9 +3,8 @@
 
 #include "tobas_setup_assistant/setting_tabs/fixed_wing/aero_coefs.hpp"
 
-#include <filesystem>
-
 #include <QFileDialog>
+#include <QFileInfo>
 #include <QPushButton>
 
 #include <tobas_qt_tools/cast.hpp>
@@ -17,8 +16,6 @@
 #include "tobas_setup_assistant/setting_tabs/fixed_wing/constants.hpp"
 #include "tobas_setup_assistant/setting_tabs/fixed_wing/vspaero_parser.hpp"
 
-namespace fs = std::filesystem;
-
 namespace tobas
 {
 namespace gui
@@ -27,8 +24,7 @@ namespace sa
 {
 namespace fw
 {
-AerodynamicsCoefficientsWidget::AerodynamicsCoefficientsWidget(rclcpp::Node::SharedPtr node)
-  : node_(node), property_client_(node, "tobas_setup_assistant/fixed_wing/aero_coefs")
+AerodynamicsCoefficientsWidget::AerodynamicsCoefficientsWidget()
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);
@@ -261,17 +257,14 @@ double AerodynamicsCoefficientsWidget::c_yaw_r() const
 void AerodynamicsCoefficientsWidget::onLoadButtonClicked()
 {
   // Get the previously opened path.
-  std::string last_opened_dir;
-  if (property_client_.get(kLastOpenedDirKey, last_opened_dir) < 0) {
-    RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
-    last_opened_dir = ros2::getHomeDir();
-  }
+  const auto last_opened_dir =
+    settings_store_.value(kLastOpenedDirKey, QString::fromStdString(ros2::getHomeDir())).toString();
 
   // Get the params path.
   const auto file_path = QFileDialog::getOpenFileName(
     this,
     "Select OpenVSP Stability Output File",
-    QString::fromStdString(last_opened_dir),
+    last_opened_dir,
     "OpenVSP Stability Derivatives (*.stab)",
     nullptr,
     QFileDialog::DontUseNativeDialog);
@@ -282,13 +275,8 @@ void AerodynamicsCoefficientsWidget::onLoadButtonClicked()
   }
 
   // Save the directory opened by the user.
-  const auto par_dir = fs::path(file_path.toStdString()).parent_path();
-  if (property_client_.set(kLastOpenedDirKey, par_dir) < 0) {
-    RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
-  }
-  if (property_client_.save() < 0) {
-    RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
-  }
+  const auto par_dir = QFileInfo(file_path).absolutePath();
+  settings_store_.setValue(kLastOpenedDirKey, par_dir);
 
   // Load parameters.
   VSPAEROParser parser;

@@ -22,7 +22,7 @@ class EngineDynamicsWidget : public QWidget
   Q_OBJECT
 
 public:
-  explicit EngineDynamicsWidget(rclcpp::Node::SharedPtr node);
+  explicit EngineDynamicsWidget();
 
   void setToDefaults();
   bool isValid();

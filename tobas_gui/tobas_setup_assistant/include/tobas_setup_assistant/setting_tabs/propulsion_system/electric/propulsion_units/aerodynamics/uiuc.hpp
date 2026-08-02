@@ -22,7 +22,7 @@ class AerodynamicsWidget_UIUC : public AerodynamicsWidget_Base
   Q_OBJECT
 
 public:
-  explicit AerodynamicsWidget_UIUC(rclcpp::Node::SharedPtr node, const PropellerWidget* propeller);
+  explicit AerodynamicsWidget_UIUC(const PropellerWidget* propeller);
 
   const char* name() const override;
   const char* description() const override;

@@ -18,8 +18,7 @@ namespace propulsion
 {
 namespace ice
 {
-PropulsionUnitsWidget::PropulsionUnitsWidget(rclcpp::Node::SharedPtr node, const uadf::Model& uadf)
-  : node_(node), uadf_(uadf)
+PropulsionUnitsWidget::PropulsionUnitsWidget(const uadf::Model& uadf) : uadf_(uadf)
 {
   setTabSize(kTabWidth, kTabHeight);
 }
@@ -33,7 +32,7 @@ void PropulsionUnitsWidget::updateInternalDataStructures()
     const auto link_name = QString::fromStdString(uadf_.urdf->getJoint(joint_name)->child_link_name);
 
     // Add the tab.
-    const auto link_widget = new PropulsionUnitWidget(node_);
+    const auto link_widget = new PropulsionUnitWidget();
     addTab(link_widget, link_name);
 
     // Connection

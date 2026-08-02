@@ -19,7 +19,6 @@
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_qt_tools/widgets/progress_dialog.hpp>
 #include <tobas_qt_tools/widgets/stacked_widget.hpp>
-#include <tobas_ros2_tools/util.hpp>
 #include <tobas_string_tools/stream.hpp>
 
 #include "tobas_gcs/app_button.hpp"
@@ -37,7 +36,6 @@ namespace gcs
 GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr node)
   : bridge_(node)
   , network_checker_(this, bridge_)
-  , property_client_(node, "tobas_gcs/gcs")
   , ssh_client_(node)
   , remote_proj_builder_(node)
   , spinner_(Qt::WindowModal, this)
@@ -250,17 +248,14 @@ void GroundControlStationWidget::onLoadButtonClicked()
   }
 
   // Get the previously opened path.
-  std::string last_opened_dir;
-  if (property_client_.get(kLastOpenedDirKey, last_opened_dir) < 0) {
-    qWarning() << property_client_.errorMessage();
-    last_opened_dir = ros2::expandUser(kColconWSPathHome) / "src";
-    if (!fs::is_directory(last_opened_dir)) {
-      last_opened_dir = ros2::getHomeDir();
-    }
+  auto default_dir = qt::expandUser(kColconWSPathHome) + "/src";
+  if (!QFileInfo(default_dir).isDir()) {
+    default_dir = QDir::homePath();
   }
+  const auto last_opened_dir = settings_store_.value(kLastOpenedDirKey, default_dir).toString();
 
   // Update the project path.
-  cmn::LoadProjectDialog dialog(this, QString::fromStdString(last_opened_dir));
+  cmn::LoadProjectDialog dialog(this, last_opened_dir);
   if (dialog.exec() != QDialog::Accepted) {
     return;
   }
@@ -288,12 +283,7 @@ void GroundControlStationWidget::onLoadButtonClicked()
 
   // Save the directory opened by the user.
   const auto par_dir = fs::path(proj_path).parent_path();
-  if (property_client_.set(kLastOpenedDirKey, par_dir) < 0) {
-    qWarning() << property_client_.errorMessage();
-  }
-  if (property_client_.save() < 0) {
-    qWarning() << property_client_.errorMessage();
-  }
+  settings_store_.setValue(kLastOpenedDirKey, QString::fromStdString(par_dir.string()));
 
   // Confirm that the vehicle configuration file exists.
   const auto tbsdrn_path = proj_paths_.tbsdrnPath();

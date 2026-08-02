@@ -20,10 +20,10 @@ namespace propulsion
 {
 namespace ice
 {
-PropulsionSystemWidget::PropulsionSystemWidget(rclcpp::Node::SharedPtr node, const uadf::Model& uadf)
+PropulsionSystemWidget::PropulsionSystemWidget(const uadf::Model& uadf)
 {
-  engine = new EngineWidget(node);
-  units = new PropulsionUnitsWidget(node, uadf);
+  engine = new EngineWidget();
+  units = new PropulsionUnitsWidget(uadf);
 
   // Layout
   const auto battery_rows = new QVBoxLayout();

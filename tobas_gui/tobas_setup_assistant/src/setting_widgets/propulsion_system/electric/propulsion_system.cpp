@@ -20,10 +20,10 @@ namespace propulsion
 {
 namespace electric
 {
-PropulsionSystemWidget::PropulsionSystemWidget(rclcpp::Node::SharedPtr node, const uadf::Model& uadf)
+PropulsionSystemWidget::PropulsionSystemWidget(const uadf::Model& uadf)
 {
   battery = new BatteryWidget();
-  units = new PropulsionUnitsWidget(node, uadf);
+  units = new PropulsionUnitsWidget(uadf);
 
   // Layout
   const auto battery_rows = new QVBoxLayout();

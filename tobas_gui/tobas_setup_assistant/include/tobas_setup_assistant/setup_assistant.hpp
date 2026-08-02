@@ -3,10 +3,11 @@
 
 #pragma once
 
+#include <QSettings>
+
 #include <tobas_colcon_cpp/core.hpp>
 #include <tobas_kdl/tree.hpp>
 #include <tobas_kdl_parser/kdl_parser.hpp>
-#include <tobas_property_client/property_client.hpp>
 #include <tobas_qt_tools/widgets/wait_spinner.hpp>
 #include <tobas_ros2_tools/sync_param_client.hpp>
 #include <tobas_uadf/parser.hpp>
@@ -36,9 +37,9 @@ class SetupAssistantWidget : public QWidget
   using self = SetupAssistantWidget;
   using super = QWidget;
 
-  static constexpr char kLastOpenedDirKey_New[] = "last_opened_dir/new";
-  static constexpr char kLastOpenedDirKey_Load[] = "last_opened_dir/load";
-  static constexpr char kLastOpenedDirKey_Save[] = "last_opened_dir/save";
+  static constexpr char kLastOpenedDirKey_New[] = "setup_assistant/last_opened_dir/new";
+  static constexpr char kLastOpenedDirKey_Load[] = "setup_assistant/last_opened_dir/load";
+  static constexpr char kLastOpenedDirKey_Save[] = "setup_assistant/last_opened_dir/save";
 
 public:
   explicit SetupAssistantWidget(rclcpp::Node::SharedPtr node);
@@ -53,7 +54,7 @@ private:
   uadf::Parser uadf_parser_;
   kdl::TreeParser tree_parser_;
 
-  ptree::PropertyClient property_client_;
+  QSettings settings_store_;
   ros2::SyncParamClient rsp_client_;
 
   colcon::Colcon colcon_;

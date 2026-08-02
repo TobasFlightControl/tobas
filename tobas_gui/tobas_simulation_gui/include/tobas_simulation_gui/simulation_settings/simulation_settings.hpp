@@ -23,7 +23,7 @@ class SimulationSettingsWidget : public QWidget
   using super = QWidget;
 
 public:
-  explicit SimulationSettingsWidget(rclcpp::Node::SharedPtr node);
+  explicit SimulationSettingsWidget();
 
   LoopType loopType() const;
 

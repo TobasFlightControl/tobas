@@ -17,7 +17,6 @@ set(AMENT_DEPENDENCIES
     Qt5Positioning
     tobas_path_tools
     tobas_ros2_tools
-    tobas_property_client
     tobas_constants
     tobas_drone_core
     tobas_geographic

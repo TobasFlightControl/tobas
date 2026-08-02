@@ -29,7 +29,6 @@ class ProjectGenerator
 
 public:
   explicit ProjectGenerator(
-    rclcpp::Node::SharedPtr node,
     const uadf::Model& uadf,
     const kdl::Tree& tree,
     const SettingsWidget* settings,
@@ -40,7 +39,6 @@ public:
   void setClearDynamicParams(bool flag);
 
 private:
-  const rclcpp::Node::SharedPtr node_;
   const uadf::Model& uadf_;
   const kdl::Tree& tree_;
   const SettingsWidget* const settings_;

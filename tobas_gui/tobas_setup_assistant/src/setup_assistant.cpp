@@ -4,6 +4,7 @@
 #include "tobas_setup_assistant/setup_assistant.hpp"
 
 #include <QDebug>
+#include <QFileInfo>
 #include <ament_index_cpp/get_package_share_directory.hpp>
 
 #include <tobas_constants/path.hpp>
@@ -37,7 +38,6 @@ namespace sa
 {
 SetupAssistantWidget::SetupAssistantWidget(rclcpp::Node::SharedPtr node)
   : frame_type_detector_(uadf_, tree_)
-  , property_client_(node, "tobas_setup_assistant/setup_assistant")
   , rsp_client_(node, "robot_state_publisher")
   , spinner_(Qt::WindowModal, this)
   , rotor_marker_publisher_(node, uadf_)
@@ -63,9 +63,9 @@ SetupAssistantWidget::SetupAssistantWidget(rclcpp::Node::SharedPtr node)
   frame_tree_ = new FrameTreeWidget(tree_, rviz_);
   properties_ = new RobotPropertiesWidget(uadf_, tree_);
   jsp_ = new JointStatePublisherWidget(node, uadf_, tree_);
-  settings_ = new SettingsWidget(node, uadf_, tree_, sig_);
+  settings_ = new SettingsWidget(uadf_, tree_, sig_);
 
-  prj_gen_ = std::make_unique<ProjectGenerator>(node, uadf_, tree_, settings_, this);
+  prj_gen_ = std::make_unique<ProjectGenerator>(uadf_, tree_, settings_, this);
 
   // Layout
   const auto pkg_cols = new QHBoxLayout();
@@ -180,17 +180,15 @@ bool SetupAssistantWidget::updateInternalDataStructures()
 void SetupAssistantWidget::onNewButtonClicked()
 {
   // Get the previously opened path.
-  std::string last_opened_dir;
-  if (property_client_.get(kLastOpenedDirKey_New, last_opened_dir) < 0) {
-    qWarning() << property_client_.errorMessage();
-    last_opened_dir = fs::path(ament_index_cpp::get_package_share_directory("tobas_description")) / "urdf";
-  }
+  const auto default_dir = fs::path(ament_index_cpp::get_package_share_directory("tobas_description")) / "urdf";
+  const auto last_opened_dir =
+    settings_store_.value(kLastOpenedDirKey_New, QString::fromStdString(default_dir.string())).toString();
 
   // Get the UADF path.
   const auto uadf_path = QFileDialog::getOpenFileName(
     this,
     "Select Aircraft Description",
-    QString::fromStdString(last_opened_dir),
+    last_opened_dir,
     "Aircraft Description (*.uadf)",
     nullptr,
     QFileDialog::DontUseNativeDialog);
@@ -201,13 +199,8 @@ void SetupAssistantWidget::onNewButtonClicked()
   }
 
   // Save the directory opened by the user.
-  const auto par_dir = fs::path(uadf_path.toStdString()).parent_path();
-  if (property_client_.set(kLastOpenedDirKey_New, par_dir) < 0) {
-    qWarning() << property_client_.errorMessage();
-  }
-  if (property_client_.save() < 0) {
-    qWarning() << property_client_.errorMessage();
-  }
+  const auto par_dir = QFileInfo(uadf_path).absolutePath();
+  settings_store_.setValue(kLastOpenedDirKey_New, par_dir);
 
   // Build the package if the UADF exists in a ROS package before installation.
   const auto pkg_path = ros2::getPackagePathOf(uadf_path.toStdString());
@@ -313,17 +306,14 @@ void SetupAssistantWidget::onNewButtonClicked()
 void SetupAssistantWidget::onLoadButtonClicked()
 {
   // Get the previously opened path.
-  std::string last_opened_dir;
-  if (property_client_.get(kLastOpenedDirKey_Load, last_opened_dir) < 0) {
-    qWarning() << property_client_.errorMessage();
-    last_opened_dir = ros2::expandUser(kColconWSPathHome) / "src";
-    if (!fs::is_directory(last_opened_dir)) {
-      last_opened_dir = ros2::getHomeDir();
-    }
+  auto default_dir = qt::expandUser(kColconWSPathHome) + "/src";
+  if (!QFileInfo(default_dir).isDir()) {
+    default_dir = QDir::homePath();
   }
+  const auto last_opened_dir = settings_store_.value(kLastOpenedDirKey_Load, default_dir).toString();
 
   // Get the project path.
-  cmn::LoadProjectDialog dialog(this, QString::fromStdString(last_opened_dir));
+  cmn::LoadProjectDialog dialog(this, last_opened_dir);
   if (dialog.exec() != QDialog::Accepted) {
     return;
   }
@@ -361,12 +351,7 @@ void SetupAssistantWidget::onLoadButtonClicked()
 
   // Save the directory opened by the user.
   const auto par_dir = proj_path.parent_path();
-  if (property_client_.set(kLastOpenedDirKey_Load, par_dir) < 0) {
-    qWarning() << property_client_.errorMessage();
-  }
-  if (property_client_.save() < 0) {
-    qWarning() << property_client_.errorMessage();
-  }
+  settings_store_.setValue(kLastOpenedDirKey_Load, QString::fromStdString(par_dir.string()));
 
   // Resolve mesh paths in the backup UADF so it can be parsed without building `config_pkg`.
   tinyxml2::XMLDocument uadf_doc;
@@ -459,16 +444,13 @@ void SetupAssistantWidget::onSaveButtonClicked()
 void SetupAssistantWidget::onSaveAsButtonClicked()
 {
   // Get the previously opened path.
-  std::string last_opened_dir;
-  if (property_client_.get(kLastOpenedDirKey_Save, last_opened_dir) < 0) {
-    qWarning() << property_client_.errorMessage();
-    last_opened_dir = ros2::expandUser(kColconWSPathHome) / "src";
-    TOBAS_CHECK(path::createDirectories(last_opened_dir, true));
-  }
+  const auto default_dir = qt::expandUser(kColconWSPathHome) + "/src";
+  TOBAS_CHECK(QDir().mkpath(default_dir));
+  const auto last_opened_dir = settings_store_.value(kLastOpenedDirKey_Load, default_dir).toString();
 
   // Get the project path.
   const auto dflt_proj_name = "tobas_" + QString::fromStdString(uadf_.urdf->getName());
-  SaveProjectDialog dialog(this, QString::fromStdString(last_opened_dir), dflt_proj_name);
+  SaveProjectDialog dialog(this, last_opened_dir, dflt_proj_name);
   if (dialog.exec() != QDialog::Accepted) {
     return;
   }
@@ -476,13 +458,8 @@ void SetupAssistantWidget::onSaveAsButtonClicked()
   TOBAS_CHECK(proj_path.endsWith(cmn::kProjectExtension));
 
   // Save the directory opened by the user.
-  const auto par_dir = fs::path(proj_path.toStdString()).parent_path();
-  if (property_client_.set(kLastOpenedDirKey_Save, par_dir) < 0) {
-    qWarning() << property_client_.errorMessage();
-  }
-  if (property_client_.save() < 0) {
-    qWarning() << property_client_.errorMessage();
-  }
+  const auto par_dir = QFileInfo(proj_path).absolutePath();
+  settings_store_.setValue(kLastOpenedDirKey_Save, par_dir);
 
   // If an unloaded package path already exists, ask the user whether to replace it.
   if (proj_path != proj_path_->text() && fs::exists(proj_path.toStdString())) {

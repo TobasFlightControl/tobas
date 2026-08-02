@@ -31,16 +31,6 @@ def generate_launch_description():
     # Set log level.
     ros_args = ["--log-level", log_level]
 
-    # Launch property server.
-    property_server = Node(
-        package="tobas_property_server",
-        executable="property_server",
-        namespace=session_ns,
-        ros_arguments=ros_args,
-        output=output,
-    )
-    ld.add_action(property_server)
-
     # Launch setup assistant.
     setup_assistant = Node(
         package="tobas_urdf_builder",

@@ -3,16 +3,13 @@
 
 #include "tobas_urdf_builder_plugin/ui/urdf_builder_panel.hpp"
 
-#include <filesystem>
-
+#include <QDebug>
 #include <QMenu>
 #include <QMessageBox>
 #include <boost/polymorphic_cast.hpp>
 #include <pluginlib/class_list_macros.hpp>
 #include <rviz_default_plugins/robot/robot.hpp>
 #include <rviz_default_plugins/robot/robot_link.hpp>
-
-#include <tobas_ros2_tools/util.hpp>
 
 #include "ui_urdf_builder_panel.h"
 
@@ -26,8 +23,6 @@
 #define INVALID_CHARS " '\"#$%&()^~|,.<>/\\!?"
 #define TMP_URDF_PATH "/tmp/urdf_builder.urdf"
 
-namespace fs = std::filesystem;
-
 namespace tobas
 {
 namespace gui
@@ -37,10 +32,7 @@ namespace ub
 namespace ui
 {
 UrdfBuilderPanel::UrdfBuilderPanel(QWidget* parent)
-  : rviz_common::Panel(parent)
-  , node_manager_(0, nullptr, "urdf_builder")
-  , node_(node_manager_.node())
-  , property_client_(node_, "tobas_urdf_builder_plugin/urdf_builder_panel")
+  : rviz_common::Panel(parent), settings_store_("tobas", "urdf_builder")
 {
   ui_ = new Ui::URDFBuilderPanelUI();
   ui_->setupUi(this);
@@ -49,7 +41,7 @@ UrdfBuilderPanel::UrdfBuilderPanel(QWidget* parent)
   ui_->EnableCollisionCheckBox->setChecked(kDefaultCollisionVisible);
   ui_->EnableInertiaCheckBox->setChecked(kDefaultInertiaVisible);
 
-  link_dialog_ = new UpdateLinkDialog(node_, this);
+  link_dialog_ = new UpdateLinkDialog(this);
   link_dialog_->hide();
   ui_->scrollAreaWidgetContents->layout()->addWidget(link_dialog_);
 
@@ -91,14 +83,14 @@ QStringList UrdfBuilderPanel::jointNames() const
 
 void UrdfBuilderPanel::onRobotNameTextChanged(const QString& name)
 {
-  RCLCPP_DEBUG(node_->get_logger(), "UrdfBuilderPanel::onRobotNameTextChanged");
+  qDebug() << "UrdfBuilderPanel::onRobotNameTextChanged";
 
   vm_.name(name.toStdString());
 }
 
 void UrdfBuilderPanel::onNewButtonClicked()
 {
-  RCLCPP_DEBUG(node_->get_logger(), "UrdfBuilderPanel::onNewButtonClicked");
+  qDebug() << "UrdfBuilderPanel::onNewButtonClicked";
 
   vm_.newRobot();
 
@@ -112,7 +104,7 @@ void UrdfBuilderPanel::onNewButtonClicked()
 
 void UrdfBuilderPanel::onLoadButtonClicked()
 {
-  RCLCPP_DEBUG(node_->get_logger(), "UrdfBuilderPanel::onLoadButtonClicked");
+  qDebug() << "UrdfBuilderPanel::onLoadButtonClicked";
 
   // Get the URDF or XACRO path.
   const auto last_opened_dir = getLastOpenedDir();
@@ -170,7 +162,7 @@ void UrdfBuilderPanel::onLoadButtonClicked()
 
 void UrdfBuilderPanel::onSaveButtonClicked()
 {
-  RCLCPP_DEBUG(node_->get_logger(), "UrdfBuilderPanel::onSaveButtonClicked");
+  qDebug() << "UrdfBuilderPanel::onSaveButtonClicked";
 
   const auto cur_urdf_path = ui_->Path->text();
 
@@ -190,7 +182,7 @@ void UrdfBuilderPanel::onSaveButtonClicked()
 
 void UrdfBuilderPanel::onSaveAsButtonClicked()
 {
-  RCLCPP_DEBUG(node_->get_logger(), "UrdfBuilderPanel::onSaveAsButtonClicked");
+  qDebug() << "UrdfBuilderPanel::onSaveAsButtonClicked";
 
   if (!isValid()) {
     return;
@@ -215,35 +207,35 @@ void UrdfBuilderPanel::onSaveAsButtonClicked()
 
 void UrdfBuilderPanel::onEnableVisualCheckBoxToggled(bool checked)
 {
-  RCLCPP_DEBUG_STREAM(node_->get_logger(), "UrdfBuilderPanel::onEnableVisualCheckBoxToggled(" << checked << ")");
+  qDebug().nospace() << "UrdfBuilderPanel::onEnableVisualCheckBoxToggled(" << checked << ")";
 
   ogre_ctrl_->setVisualVisible(checked);
 }
 
 void UrdfBuilderPanel::onEnableCollisionCheckBoxToggled(bool checked)
 {
-  RCLCPP_DEBUG_STREAM(node_->get_logger(), "UrdfBuilderPanel::EnableCollisiolCheckBoxToggled(" << checked << ")");
+  qDebug().nospace() << "UrdfBuilderPanel::EnableCollisiolCheckBoxToggled(" << checked << ")";
 
   ogre_ctrl_->setCollisionVisible(checked);
 }
 
 void UrdfBuilderPanel::onEnableInertiaCheckBoxToggled(bool checked)
 {
-  RCLCPP_DEBUG_STREAM(node_->get_logger(), "UrdfBuilderPanel::onEnableInertiaCheckBoxToggled(" << checked << ")");
+  qDebug().nospace() << "UrdfBuilderPanel::onEnableInertiaCheckBoxToggled(" << checked << ")";
 
   ogre_ctrl_->setInertiaVisible(checked);
 }
 
 void UrdfBuilderPanel::onLinkTreeWidgetItemClicked(QTreeWidgetItem* item, int)
 {
-  RCLCPP_DEBUG(node_->get_logger(), "UrdfBuilderPanel::onLinkTreeWidgetItemClicked");
+  qDebug() << "UrdfBuilderPanel::onLinkTreeWidgetItemClicked";
 
   reflectSelectedItem(item);
 }
 
 void UrdfBuilderPanel::onLinkTreeWidgetItemChanged(QTreeWidgetItem* item, int)
 {
-  RCLCPP_DEBUG(node_->get_logger(), "UrdfBuilderPanel::onLinkTreeWidgetItemChanged");
+  qDebug() << "UrdfBuilderPanel::onLinkTreeWidgetItemChanged";
 
   selectLink(item);
 
@@ -260,7 +252,7 @@ void UrdfBuilderPanel::onLinkTreeWidgetItemChanged(QTreeWidgetItem* item, int)
 
 void UrdfBuilderPanel::onLinkTreeContextMenuRequested(const QPoint& point)
 {
-  RCLCPP_DEBUG(node_->get_logger(), "UrdfBuilderPanel::onLinkTreeContextMenuRequested");
+  qDebug() << "UrdfBuilderPanel::onLinkTreeContextMenuRequested";
 
   QMenu menu(this);
   menu.addAction(ui_->AddLinkAction);
@@ -271,7 +263,7 @@ void UrdfBuilderPanel::onLinkTreeContextMenuRequested(const QPoint& point)
 
 void UrdfBuilderPanel::onAddLinkActionToggled(bool)
 {
-  RCLCPP_DEBUG(node_->get_logger(), "UrdfBuilderPanel::onAddLinkActionToggled");
+  qDebug() << "UrdfBuilderPanel::onAddLinkActionToggled";
 
   // Allow adding links only when the root link exists.
   if (!vm_.rootLinkViewModel()) {
@@ -293,7 +285,7 @@ void UrdfBuilderPanel::onAddLinkActionToggled(bool)
 
 void UrdfBuilderPanel::onRemoveLinkActionToggled(bool)
 {
-  RCLCPP_DEBUG(node_->get_logger(), "UrdfBuilderPanel::onRemoveLinkActionToggled");
+  qDebug() << "UrdfBuilderPanel::onRemoveLinkActionToggled";
 
   const auto& items = ui_->LinkTreeWidget->selectedItems();
   if (items.empty()) {
@@ -318,7 +310,7 @@ void UrdfBuilderPanel::onRemoveLinkActionToggled(bool)
 
 void UrdfBuilderPanel::onCloneLinkActionToggled(bool)
 {
-  RCLCPP_DEBUG(node_->get_logger(), "UrdfBuilderPanel::onCloneLinkActionToggled");
+  qDebug() << "UrdfBuilderPanel::onCloneLinkActionToggled";
 
   const auto& items = ui_->LinkTreeWidget->selectedItems();
   if (items.empty()) {
@@ -347,7 +339,7 @@ void UrdfBuilderPanel::onUpdate()
 
 void UrdfBuilderPanel::onLinkDialogChanged()
 {
-  RCLCPP_DEBUG(node_->get_logger(), "UrdfBuilderPanel::onLinkDialogChanged");
+  qDebug() << "UrdfBuilderPanel::onLinkDialogChanged";
 
   vm_.updateLink(old_link_vm_, link_dialog_->viewModel());
   old_link_vm_ = link_dialog_->viewModel()->clone();  // Keep the settings from the last time the URDF was updated.
@@ -356,27 +348,13 @@ void UrdfBuilderPanel::onLinkDialogChanged()
 
 QString UrdfBuilderPanel::getLastOpenedDir()
 {
-  std::string last_opened_dir;
-  if (property_client_.get(kConfigKey_LastOpenedDir, last_opened_dir) < 0) {
-    RCLCPP_WARN(node_->get_logger(), property_client_.errorMessage());
-    last_opened_dir = ros2::getHomeDir();
-  }
-  return QString::fromStdString(last_opened_dir);
+  return settings_store_.value(kConfigKey_LastOpenedDir, QDir::homePath()).toString();
 }
 
 void UrdfBuilderPanel::setLastOpenedDir(const QString& file_path)
 {
-  fs::path p(file_path.toStdString());
-  const auto dir = p.parent_path().string();
-
-  if (property_client_.set(kConfigKey_LastOpenedDir, dir) < 0) {
-    RCLCPP_WARN(node_->get_logger(), property_client_.errorMessage());
-    return;
-  }
-  if (property_client_.save() < 0) {
-    RCLCPP_WARN(node_->get_logger(), property_client_.errorMessage());
-    return;
-  }
+  const auto dir = QFileInfo(file_path).absolutePath();
+  settings_store_.setValue(kConfigKey_LastOpenedDir, dir);
 }
 
 void UrdfBuilderPanel::defineConnections()
@@ -406,7 +384,7 @@ void UrdfBuilderPanel::defineConnections()
 
 void UrdfBuilderPanel::reload()
 {
-  RCLCPP_DEBUG(node_->get_logger(), "UrdfBuilderPanel::reload");
+  qDebug() << "UrdfBuilderPanel::reload";
 
   reloadLinkTree();
   reloadRobot();
