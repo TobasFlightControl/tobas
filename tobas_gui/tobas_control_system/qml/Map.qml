@@ -14,6 +14,7 @@ Rectangle {
   signal setArrowPosition(double latitude, double longitude)
   signal setArrowRotation(double angle)
   signal setMapCenter(double latitude, double longitude)
+  signal setZoomLevel(double zoom_level)
 
   // Signal for event notifications.
   signal waypointMoved(int index, double latitude, double longitude)
@@ -33,6 +34,10 @@ Rectangle {
   function onSetMapCenter(latitude, longitude) {
     map.center = QtPositioning.coordinate(latitude, longitude);
   }
+  function onSetZoomLevel(zoom_level) {
+    requested_zoom = clamp(zoom_level, map.minimumZoomLevel, Constants.maximumZoomLevel);
+    updateZoom();
+  }
   function updateZoom() {
     var base_z = Math.min(requested_zoom, map.maximumZoomLevel);
     map.zoomLevel = base_z;
@@ -44,6 +49,7 @@ Rectangle {
   Component.onCompleted: {
     console.log("Available map service providers:", mapPlugin.availableServiceProviders);
     setMapCenter.connect(onSetMapCenter);
+    setZoomLevel.connect(onSetZoomLevel);
     setArrowPosition.connect(onSetArrowPosition);
     setArrowRotation.connect(onSetArrowRotation);
   }

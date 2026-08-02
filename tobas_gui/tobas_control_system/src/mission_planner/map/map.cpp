@@ -3,6 +3,9 @@
 
 #include "tobas_control_system/mission_planner/map/map.hpp"
 
+#include <cmath>
+
+#include <QSettings>
 #include <QtQml/QQmlContext>
 #include <QtQuick/QQuickItem>
 
@@ -17,6 +20,14 @@ namespace gui
 {
 namespace ctrl
 {
+namespace
+{
+constexpr char kSettingsGroup[] = "mission_planner/map";
+constexpr char kLatitudeKey[] = "latitude";
+constexpr char kLongitudeKey[] = "longitude";
+constexpr char kZoomLevelKey[] = "zoom_level";
+}  // namespace
+
 MapWidget::MapWidget()
 {
   // Set the size policy and resize mode; otherwise the widget collapses.
@@ -40,6 +51,13 @@ MapWidget::MapWidget()
 
   // Connection
   connect(rootObject(), SIGNAL(waypointMoved(int, double, double)), this, SLOT(onWaypointMoved(int, double, double)));
+
+  restoreView();
+}
+
+MapWidget::~MapWidget()
+{
+  saveView();
 }
 
 void MapWidget::clear()
@@ -63,6 +81,11 @@ QGeoCoordinate MapWidget::getCenter() const
   return getMapObject()->property("center").value<QGeoCoordinate>();
 }
 
+double MapWidget::getZoomLevel() const
+{
+  return rootObject()->property("requested_zoom").toDouble();
+}
+
 QGeoCoordinate MapWidget::getArrowPosition() const
 {
   return getArrowObject()->property("coordinate").value<QGeoCoordinate>();
@@ -78,6 +101,11 @@ void MapWidget::setMapCenter(double latitude, double longitude)
   QMetaObject::invokeMethod(rootObject(), "setMapCenter", Q_ARG(double, latitude), Q_ARG(double, longitude));
 }
 
+void MapWidget::setZoomLevel(double zoom_level)
+{
+  QMetaObject::invokeMethod(rootObject(), "setZoomLevel", Q_ARG(double, zoom_level));
+}
+
 void MapWidget::setArrowPosition(double latitude, double longitude)
 {
   QMetaObject::invokeMethod(rootObject(), "setArrowPosition", Q_ARG(double, latitude), Q_ARG(double, longitude));
@@ -86,6 +114,44 @@ void MapWidget::setArrowPosition(double latitude, double longitude)
 void MapWidget::setArrowRotation(double angle_deg)
 {
   QMetaObject::invokeMethod(rootObject(), "setArrowRotation", Q_ARG(double, angle_deg));
+}
+
+void MapWidget::restoreView()
+{
+  QSettings settings;
+  settings.beginGroup(kSettingsGroup);
+
+  const auto current_center = getCenter();
+  const auto latitude = settings.value(kLatitudeKey, current_center.latitude()).toDouble();
+  const auto longitude = settings.value(kLongitudeKey, current_center.longitude()).toDouble();
+  const QGeoCoordinate stored_center(latitude, longitude);
+  if (stored_center.isValid()) {
+    setMapCenter(latitude, longitude);
+  }
+
+  const auto zoom_level = settings.value(kZoomLevelKey, getZoomLevel()).toDouble();
+  if (std::isfinite(zoom_level)) {
+    setZoomLevel(zoom_level);
+  }
+}
+
+void MapWidget::saveView() const
+{
+  QSettings settings;
+  settings.beginGroup(kSettingsGroup);
+
+  const auto center = getCenter();
+  if (center.isValid()) {
+    settings.setValue(kLatitudeKey, center.latitude());
+    settings.setValue(kLongitudeKey, center.longitude());
+  }
+
+  const auto zoom_level = getZoomLevel();
+  if (std::isfinite(zoom_level)) {
+    settings.setValue(kZoomLevelKey, zoom_level);
+  }
+
+  settings.sync();
 }
 
 QObject* MapWidget::getMapObject() const

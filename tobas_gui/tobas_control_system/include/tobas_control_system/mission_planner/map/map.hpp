@@ -30,6 +30,7 @@ Q_SIGNALS:
 
 public:
   explicit MapWidget();
+  ~MapWidget() override;
 
   void clear();
 
@@ -37,16 +38,21 @@ public:
   void addLine(double latitude_1, double longitude_1, double latitude_2, double longitude_2);
 
   QGeoCoordinate getCenter() const;
+  double getZoomLevel() const;
   QGeoCoordinate getArrowPosition() const;
   double getArrowRotation() const;  // [deg]
 
   void setMapCenter(double latitude, double longitude);
+  void setZoomLevel(double zoom_level);
   void setArrowPosition(double latitude, double longitude);
   void setArrowRotation(double angle_deg);
 
 private:
   map::WaypointModel* waypoint_;
   map::LineModel* line_;
+
+  void restoreView();
+  void saveView() const;
 
   QObject* getMapObject() const;
   QObject* getArrowObject() const;
