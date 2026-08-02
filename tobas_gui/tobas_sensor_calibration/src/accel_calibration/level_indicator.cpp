@@ -129,11 +129,13 @@ void LevelIndicatorWidget::setCalibratedAccel(const kdl::Vector& acc, double dt)
 
 void LevelIndicatorWidget::paintEvent(QPaintEvent*)
 {
-  constexpr int kOuterMargin = 48;
+  constexpr int kOuterMargin = 64;
+  constexpr int kVerticalDirectionLabelGap = 4;
+  constexpr int kHorizontalDirectionLabelGap = 12;
   constexpr int kDirectionFontPointSize = 16;
   constexpr int kReadingFontPointSize = 12;
   constexpr int kReadingLineHeight = 26;
-  constexpr int kReadingBottomMargin = 6;
+  constexpr int kReadingBottomMargin = 18;
   constexpr int kTiltPrecision = 1;
   constexpr double kOutlineWidth = 2.0;
   constexpr double kGuideWidth = 1.0;
@@ -169,17 +171,34 @@ void LevelIndicatorWidget::paintEvent(QPaintEvent*)
   painter.setFont(displayFont(font(), kDirectionFontPointSize));
   painter.setPen(palette().color(QPalette::Text));
   painter.drawText(
-    QRectF(level_rect.left(), level_rect.top() - kOuterMargin, level_rect.width(), kOuterMargin),
+    QRectF(
+      level_rect.left(), level_rect.top() - kOuterMargin, level_rect.width(), kOuterMargin - kVerticalDirectionLabelGap),
     Qt::AlignCenter,
     "Front");
   painter.drawText(
-    QRectF(level_rect.left(), level_rect.bottom(), level_rect.width(), kOuterMargin), Qt::AlignCenter, "Rear");
+    QRectF(
+      level_rect.left(),
+      level_rect.bottom() + kVerticalDirectionLabelGap,
+      level_rect.width(),
+      kOuterMargin - kVerticalDirectionLabelGap),
+    Qt::AlignCenter,
+    "Rear");
   painter.drawText(
-    QRectF(level_rect.left() - kOuterMargin, level_rect.top(), kOuterMargin, level_rect.height()),
+    QRectF(
+      level_rect.left() - kOuterMargin,
+      level_rect.top(),
+      kOuterMargin - kHorizontalDirectionLabelGap,
+      level_rect.height()),
     Qt::AlignCenter,
     "Left");
   painter.drawText(
-    QRectF(level_rect.right(), level_rect.top(), kOuterMargin, level_rect.height()), Qt::AlignCenter, "Right");
+    QRectF(
+      level_rect.right() + kHorizontalDirectionLabelGap,
+      level_rect.top(),
+      kOuterMargin - kHorizontalDirectionLabelGap,
+      level_rect.height()),
+    Qt::AlignCenter,
+    "Right");
 
   const auto marker_radius = std::max(kMinimumMarkerRadius, radius * kMarkerRadiusRatio);
   const auto raw_text_rect = QRectF(
