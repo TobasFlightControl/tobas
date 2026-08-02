@@ -13,7 +13,7 @@ Run the following command in a terminal to launch Tobas Bootmedia Config.
 Root privileges are required because this tool accesses external volumes.
 
 ```bash
-$ sudo bash -c 'source /opt/ros/jazzy/setup.bash && ros2 run tobas_bootmedia_config TobasBootmediaConfig'
+$ sudo env XDG_CONFIG_HOME="$HOME/.config" bash -c 'source /opt/ros/jazzy/setup.bash && ros2 run tobas_bootmedia_config TobasBootmediaConfig'
 ```
 
 ![start](../../assets/bootmedia_config/start.png)

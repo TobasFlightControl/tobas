@@ -13,7 +13,7 @@ Tobas のイメージが書き込まれたマイクロ SD カードを用意し�
 ここでは外部ボリュームを扱うためにルート権限が必要です．
 
 ```bash
-$ sudo bash -c 'source /opt/ros/jazzy/setup.bash && ros2 run tobas_bootmedia_config TobasBootmediaConfig'
+$ sudo env XDG_CONFIG_HOME="$HOME/.config" bash -c 'source /opt/ros/jazzy/setup.bash && ros2 run tobas_bootmedia_config TobasBootmediaConfig'
 ```
 
 ![start](../../assets/bootmedia_config/start.png)
