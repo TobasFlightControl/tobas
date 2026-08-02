@@ -177,21 +177,21 @@ void RCInputCalibrationWidget::reset()
   pitch_range_->clear();
   yaw_range_->clear();
   throt_range_->clear();
-  mode_range_->clear();
-  sub_mode_range_->clear();
-  enable_range_->clear();
-  kill_range_->clear();
 
+  mode_range_->clear();
   mode_range_->setLowerText("Loiter");
   mode_range_->setCenterText("Stabilize");
   mode_range_->setUpperText("Acrobat");
 
+  sub_mode_range_->clear();
   sub_mode_range_->setLowerText(kOnText);
   sub_mode_range_->setUpperText(kOffText);
 
+  enable_range_->clear();
   enable_range_->setLowerText(kOnText);
   enable_range_->setUpperText(kOffText);
 
+  kill_range_->clear();
   kill_range_->setLowerText(kOnText);
   kill_range_->setUpperText(kOffText);
 
