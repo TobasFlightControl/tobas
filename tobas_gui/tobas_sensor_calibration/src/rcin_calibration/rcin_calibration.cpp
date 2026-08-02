@@ -177,7 +177,6 @@ void RCInputCalibrationWidget::reset()
   pitch_range_->clear();
   yaw_range_->clear();
   throt_range_->clear();
-
   mode_range_->clear();
   sub_mode_range_->clear();
   enable_range_->clear();
@@ -253,7 +252,6 @@ bool RCInputCalibrationWidget::saveParamsToGcs()
   pt.set(ns, real::handler::rcin::kYawRightKey, yaw_range_->getUpper());
   pt.set(ns, real::handler::rcin::kThrotUpKey, throt_range_->getLower());
   pt.set(ns, real::handler::rcin::kThrotDownKey, throt_range_->getUpper());
-
   pt.set(ns, real::handler::rcin::kModeAcrobatKey, mode_range_->getUpper());
   pt.set(ns, real::handler::rcin::kModeStabilizeKey, mode_range_->getMiddle());
   pt.set(ns, real::handler::rcin::kModeLoiterKey, mode_range_->getLower());
@@ -296,7 +294,6 @@ bool RCInputCalibrationWidget::saveParamsToFc()
   req->yaw_right = yaw_range_->getUpper();
   req->throttle_up = throt_range_->getLower();
   req->throttle_down = throt_range_->getUpper();
-
   req->mode_acrobat = mode_range_->getUpper();
   req->mode_stabilize = mode_range_->getMiddle();
   req->mode_loiter = mode_range_->getLower();
@@ -438,7 +435,6 @@ void RCInputCalibrationWidget::sbusCb(const tobas_msgs::msg::Sbus::ConstSharedPt
   pitch_range_->setValue(sbus->periods.at(kRcChannelPitch));
   yaw_range_->setValue(sbus->periods.at(kRcChannelYaw));
   throt_range_->setValue(sbus->periods.at(kRcChannelThrot));
-
   mode_range_->setValue(sbus->periods.at(kRcChannelMode));
   sub_mode_range_->setValue(sbus->periods.at(kRcChannelSubMode));
   enable_range_->setValue(sbus->periods.at(kRcChannelEnable));
