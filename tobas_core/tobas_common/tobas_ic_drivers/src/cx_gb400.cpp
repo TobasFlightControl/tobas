@@ -13,10 +13,6 @@ CxGb400::CxGb400() : linux::VideoDev::VideoDev()
 {
 }
 
-CxGb400::~CxGb400()
-{
-}
-
 bool CxGb400::initialize(
   const char* video_dev,
   const CameraPosition& camera_position,

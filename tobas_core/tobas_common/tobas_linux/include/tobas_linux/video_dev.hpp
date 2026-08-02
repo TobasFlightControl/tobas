@@ -31,7 +31,7 @@ public:
   };
 
   explicit VideoDev();
-  ~VideoDev();
+  virtual ~VideoDev();
 
   /* Initial setup: open the device, allocate memory, and so on. `pixcel_format` is four characters, such as MJPG, JPEG, or YUYV. */
   bool initialize(

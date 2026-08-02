@@ -171,7 +171,6 @@ public:
   };
 
   explicit CxGb400();
-  ~CxGb400();
 
   bool initialize(
     const char* video_dev,

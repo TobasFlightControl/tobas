@@ -21,7 +21,7 @@ class FFmpegToROSMsgConverter : public BaseNode
 {
 public:
   explicit FFmpegToROSMsgConverter(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
-  ~FFmpegToROSMsgConverter();
+  ~FFmpegToROSMsgConverter() override;
 
 private:
   bool initialize();

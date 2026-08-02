@@ -50,7 +50,7 @@ class DynamixelHandlerNode : public BaseNode
 
 public:
   explicit DynamixelHandlerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
-  ~DynamixelHandlerNode();
+  ~DynamixelHandlerNode() override;
 
 private:
   dynamixel::PortHandler* poh_;

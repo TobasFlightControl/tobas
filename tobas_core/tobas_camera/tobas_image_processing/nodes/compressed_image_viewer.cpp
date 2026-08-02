@@ -17,7 +17,7 @@ class CompressedImageViewer : public BaseNode
 {
 public:
   explicit CompressedImageViewer(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
-  ~CompressedImageViewer();
+  ~CompressedImageViewer() override;
 
 private:
   void msgCb(const sensor_msgs::msg::CompressedImage::ConstSharedPtr& _msg);
