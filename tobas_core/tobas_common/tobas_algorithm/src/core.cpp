@@ -6,7 +6,6 @@
 #include <cassert>
 #include <cmath>
 
-#include <tobas_math/core.hpp>
 #include <tobas_math/definitions.hpp>
 
 namespace tobas
@@ -26,7 +25,7 @@ void clamp2d(double& x, double& y, const double& max_length)
 {
   assert(max_length >= 0.0);
 
-  const auto length = std::sqrt(math::sqr(x) + math::sqr(y));
+  const auto length = std::hypot(x, y);
   if (length > max_length) {
     const auto scale = max_length / length;
     x *= scale;
