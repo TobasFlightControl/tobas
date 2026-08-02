@@ -125,12 +125,6 @@ void PositionBarWidget::setMaximum(double maximum)
   update();
 }
 
-void PositionBarWidget::setFillRange(bool fill_range)
-{
-  fill_range_ = fill_range;
-  update();
-}
-
 void PositionBarWidget::setLineWidth(int line_width)
 {
   line_width_ = line_width;
@@ -182,13 +176,6 @@ void PositionBarWidget::setUpperText(const QString& text)
 void PositionBarWidget::setValue(double value)
 {
   value_ = value;
-  if (!lower_.has_value() || value < lower_.value()) {
-    lower_ = value;
-  }
-  if (!upper_.has_value() || value > upper_.value()) {
-    upper_ = value;
-  }
-
   update();
 }
 
@@ -215,6 +202,22 @@ void PositionBarWidget::clear()
   update();
 }
 
+void PositionBarWidget::updateRangeFromValue()
+{
+  if (!value_) {
+    return;
+  }
+
+  if (!lower_ || value_.value() < lower_.value()) {
+    lower_ = value_;
+  }
+  if (!upper_ || value_.value() > upper_.value()) {
+    upper_ = value_;
+  }
+
+  update();
+}
+
 void PositionBarWidget::paintEvent(QPaintEvent* event)
 {
   // `QPainter` can only be defined inside `paintEvent`.
@@ -230,31 +233,31 @@ void PositionBarWidget::paintEvent(QPaintEvent* event)
   painter.restore();
 
   // Fill the value range.
-  if (fill_range_ && lower_.has_value() && upper_.has_value()) {
+  if (lower_ && upper_) {
     painter.save();
     drawRange(painter, lower_.value(), upper_.value());
     painter.restore();
   }
 
   // Show the value position.
-  if (value_.has_value()) {
+  if (value_) {
     painter.save();
     drawValue(painter, value_.value());
     painter.restore();
   }
 
   // Show text.
-  if (center_text_.has_value()) {
+  if (center_text_) {
     painter.save();
     drawCenterText(painter, center_text_.value());
     painter.restore();
   }
-  if (lower_text_.has_value()) {
+  if (lower_text_) {
     painter.save();
     drawLowerText(painter, lower_text_.value());
     painter.restore();
   }
-  if (upper_text_.has_value()) {
+  if (upper_text_) {
     painter.save();
     drawUpperText(painter, upper_text_.value());
     painter.restore();

@@ -42,7 +42,6 @@ public:
 
   void setMinimum(double minimum);
   void setMaximum(double maximum);
-  void setFillRange(bool fill_range);
   void setLineWidth(int line_width);
   void setTextPSize(int text_psize);
   void setFillColor(const QColor& color);
@@ -56,13 +55,13 @@ public:
   void setUpper(double upper);
 
   void clear();
+  void updateRangeFromValue();
 
 protected:
   void paintEvent(QPaintEvent* event) override;
 
   double minimum_ = 0.0;
   double maximum_ = 1.0;
-  bool fill_range_ = true;
   int line_width_ = 3;
   int text_psize_ = 10;
   QColor fill_color_ = Qt::green;

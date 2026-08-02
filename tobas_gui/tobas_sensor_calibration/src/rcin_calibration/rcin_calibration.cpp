@@ -427,10 +427,6 @@ void RCInputCalibrationWidget::sbusCb(const tobas_msgs::msg::Sbus::ConstSharedPt
 
   sbus_ = sbus;
 
-  if (!running_) {
-    return;
-  }
-
   roll_range_->setValue(sbus->periods.at(kRcChannelRoll));
   pitch_range_->setValue(sbus->periods.at(kRcChannelPitch));
   yaw_range_->setValue(sbus->periods.at(kRcChannelYaw));
@@ -439,9 +435,22 @@ void RCInputCalibrationWidget::sbusCb(const tobas_msgs::msg::Sbus::ConstSharedPt
   sub_mode_range_->setValue(sbus->periods.at(kRcChannelSubMode));
   enable_range_->setValue(sbus->periods.at(kRcChannelEnable));
   kill_range_->setValue(sbus->periods.at(kRcChannelKill));
-
   for (size_t i = 0; i < numOfGpswChannels(); ++i) {
     gpsw_ranges_[i]->setValue(sbus->periods.at(kRcChannelGpsw + i));
+  }
+
+  if (running_) {
+    roll_range_->updateRangeFromValue();
+    pitch_range_->updateRangeFromValue();
+    yaw_range_->updateRangeFromValue();
+    throt_range_->updateRangeFromValue();
+    mode_range_->updateRangeFromValue();
+    sub_mode_range_->updateRangeFromValue();
+    enable_range_->updateRangeFromValue();
+    kill_range_->updateRangeFromValue();
+    for (size_t i = 0; i < numOfGpswChannels(); ++i) {
+      gpsw_ranges_[i]->updateRangeFromValue();
+    }
   }
 }
 
