@@ -33,15 +33,6 @@ protected:
   void paintEvent(QPaintEvent* event) override;
 
 private:
-  struct IndicatorPosition
-  {
-    QPointF center;
-    double tilt;
-  };
-
-  IndicatorPosition
-  calculateIndicatorPosition(const kdl::Vector& acc, const QPointF& center, double radius, double marker_radius) const;
-
   dsp::LowPassFilter<kdl::Vector> acc_raw_lpf_, acc_calib_lpf_;
   bool has_raw_data_ = false;
   bool has_calib_data_ = false;
