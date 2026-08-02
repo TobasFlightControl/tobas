@@ -15,7 +15,9 @@ set(AMENT_DEPENDENCIES
     geometry_msgs
     sensor_msgs
     visualization_msgs
+    tobas_dsp
     tobas_eigen_conversions
+    tobas_kdl
     tobas_kdl_conversions
     tobas_time_tools
     tobas_geographic
