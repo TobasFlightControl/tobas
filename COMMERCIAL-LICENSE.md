@@ -14,4 +14,4 @@ per-project, or enterprise basis, depending on the intended use.
 
 Commercial licensing is granted only under a separate written agreement with Tobas.
 
-For commercial licensing inquiries, please contact: m.dohi@tobas.jp
+For commercial licensing inquiries, please contact: contact@tobas.jp
