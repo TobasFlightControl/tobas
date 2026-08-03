@@ -17,8 +17,9 @@ namespace sa
 {
 SettingsWidget::SettingsWidget(const uadf::Model& uadf, const kdl::Tree& tree, Signals& sig) : uadf_(uadf)
 {
-  toolbox_ = new QToolBox();
   stack_ = new qt::StackedWidget();
+  navigation_ = new SettingsNavigationWidget();
+  connect(navigation_, &SettingsNavigationWidget::currentEntryChanged, stack_, &QStackedWidget::setCurrentIndex);
 
   // Pages
   propulsion_system = new propulsion::PropulsionSystemWidget(uadf, sig);
@@ -34,29 +35,21 @@ SettingsWidget::SettingsWidget(const uadf::Model& uadf, const kdl::Tree& tree, S
   author_info = new AuthorInformationWidget();
 
   // Basic settings
-  basic_list_ = new qt::ListWidget();
-  toolbox_->addItem(basic_list_, "Basic Settings");
-  connect(basic_list_, &QListWidget::currentItemChanged, this, &self::onListItemChanged);
-  addEntry(basic_list_, propulsion_system);
-  addEntry(basic_list_, fixed_wing);
-  addEntry(basic_list_, hardware);
-  addEntry(basic_list_, remote_connection);
+  navigation_->addSection("BASIC SETTINGS");
+  addPage(propulsion_system);
+  addPage(fixed_wing);
+  addPage(hardware);
+  addPage(remote_connection);
 
-  // Additional settings
-  additional_list_ = new qt::ListWidget();
-  toolbox_->addItem(additional_list_, "Additional Settings");
-  connect(additional_list_, &QListWidget::currentItemChanged, this, &self::onListItemChanged);
-  addEntry(additional_list_, observer);
-  addEntry(additional_list_, controller);
-  addEntry(additional_list_, mission);
-  addEntry(additional_list_, rc_input);
-  addEntry(additional_list_, extra_joints);
-  addEntry(additional_list_, failsafe);
-  addEntry(additional_list_, author_info);
-
-  // Make mutually exclusive.
-  connect(basic_list_, &QListWidget::currentRowChanged, additional_list_, &qt::ListWidget::deselect);
-  connect(additional_list_, &QListWidget::currentRowChanged, basic_list_, &qt::ListWidget::deselect);
+  // Advanced settings
+  navigation_->addSection("ADVANCED SETTINGS");
+  addPage(observer);
+  addPage(controller);
+  addPage(mission);
+  addPage(rc_input);
+  addPage(extra_joints);
+  addPage(failsafe);
+  addPage(author_info);
 
   // Disable all pages.
   for (int i = 0; i < stack_->count(); ++i) {
@@ -65,8 +58,10 @@ SettingsWidget::SettingsWidget(const uadf::Model& uadf, const kdl::Tree& tree, S
 
   // Layout
   const auto cols = new QHBoxLayout();
+  cols->setContentsMargins(0, 0, 0, 0);
+  cols->setSpacing(12);
   setLayout(cols);
-  cols->addWidget(toolbox_, 0);
+  cols->addWidget(navigation_, 0);
   cols->addWidget(stack_, 1);
 }
 
@@ -190,23 +185,15 @@ int SettingsWidget::getIndex(BaseSettingWidget* page) const
   return idx;
 }
 
-void SettingsWidget::addEntry(QListWidget* list, BaseSettingWidget* page)
+void SettingsWidget::addPage(BaseSettingWidget* page)
 {
   const auto idx = stack_->addWidget(page);
-  const auto item = new QListWidgetItem(page->name(), list);
-  item->setData(Qt::UserRole, idx);
+  navigation_->addEntry(page->name(), idx);
 }
 
 void SettingsWidget::setCurrentPage(int idx)
 {
-  if (idx < basic_list_->count()) {
-    toolbox_->setCurrentWidget(basic_list_);
-    basic_list_->setCurrentRow(idx);
-  }
-  else {
-    toolbox_->setCurrentWidget(additional_list_);
-    additional_list_->setCurrentRow(idx - basic_list_->count());
-  }
+  navigation_->setCurrentEntry(idx);
 }
 
 void SettingsWidget::setCurrentPage(BaseSettingWidget* page)
@@ -216,17 +203,8 @@ void SettingsWidget::setCurrentPage(BaseSettingWidget* page)
 
 void SettingsWidget::setPageEnabled(int idx, bool enabled)
 {
-  const auto page = stack_->widget(idx);
-  page->setEnabled(enabled);
-
-  if (idx < basic_list_->count()) {
-    const auto item = basic_list_->item(idx);
-    setListItemEnabled(item, enabled);
-  }
-  else {
-    const auto item = additional_list_->item(idx - basic_list_->count());
-    setListItemEnabled(item, enabled);
-  }
+  stack_->widget(idx)->setEnabled(enabled);
+  navigation_->setEntryEnabled(idx, enabled);
 }
 
 void SettingsWidget::setPageEnabled(BaseSettingWidget* page, bool enabled)
@@ -234,34 +212,6 @@ void SettingsWidget::setPageEnabled(BaseSettingWidget* page, bool enabled)
   setPageEnabled(getIndex(page), enabled);
 }
 
-void SettingsWidget::setListItemEnabled(QListWidgetItem* item, bool enabled)
-{
-  constexpr auto kEnableFlags = Qt::ItemIsSelectable | Qt::ItemIsEnabled;
-
-  if (enabled) {
-    item->setFlags(item->flags() | kEnableFlags);
-  }
-  else {
-    item->setFlags(item->flags() & ~kEnableFlags);
-  }
-}
-
-void SettingsWidget::onListItemChanged(QListWidgetItem* item)
-{
-  qDebug() << "SettingsWidget::onListItemChanged";
-
-  if (!item) {
-    qWarning() << "The list item is null.";
-    return;
-  }
-
-  const auto idx = item->data(Qt::UserRole).toInt();
-  if (idx < 0) {
-    qWarning() << "Corresponding widget not found.";
-    return;
-  }
-  stack_->setCurrentIndex(idx);
-}
 }  // namespace sa
 }  // namespace gui
 }  // namespace tobas

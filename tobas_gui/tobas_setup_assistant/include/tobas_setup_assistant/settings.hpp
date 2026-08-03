@@ -3,9 +3,6 @@
 
 #pragma once
 
-#include <QToolBox>
-
-#include <tobas_qt_tools/widgets/list_widget.hpp>
 #include <tobas_qt_tools/widgets/stacked_widget.hpp>
 
 #include "./setting_tabs/author_information.hpp"
@@ -19,6 +16,7 @@
 #include "./setting_tabs/propulsion_system/propulsion_system.hpp"
 #include "./setting_tabs/rc_input.hpp"
 #include "./setting_tabs/remote_connection/remote_connection.hpp"
+#include "./settings_navigation.hpp"
 
 namespace tobas
 {
@@ -60,21 +58,15 @@ public:
 private:
   const uadf::Model& uadf_;
 
-  QToolBox* toolbox_;
+  SettingsNavigationWidget* navigation_;
   qt::StackedWidget* stack_;
-  qt::ListWidget* basic_list_;
-  qt::ListWidget* additional_list_;
 
   int getIndex(BaseSettingWidget* page) const;
-  void addEntry(QListWidget* list, BaseSettingWidget* page);
+  void addPage(BaseSettingWidget* page);
   void setCurrentPage(int idx);
   void setCurrentPage(BaseSettingWidget* page);
   void setPageEnabled(int idx, bool enabled);
   void setPageEnabled(BaseSettingWidget* page, bool enabled);
-  void setListItemEnabled(QListWidgetItem* item, bool enabled);
-
-private Q_SLOTS:
-  void onListItemChanged(QListWidgetItem* item);
 };
 }  // namespace sa
 }  // namespace gui
