@@ -72,7 +72,10 @@ GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr n
   btn_group->addButton(param_tuning_btn, btn_id++);
   btn_group->addButton(flight_log_btn, btn_id++);
   btn_group->addButton(simulation_btn, btn_id++);
-  btn_group->buttons().first()->setChecked(true);
+
+  // Default page
+  app_sw->setCurrentWidget(control_system_);
+  control_system_btn->setChecked(true);
 
   // Connection checker
   remote_conn_ = new RemoteConnectionWidget(bridge_);
