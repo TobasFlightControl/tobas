@@ -2,7 +2,7 @@
 <package format="3">
 
 	<name>tobas_cpp_code_style_example</name>
-	<version>2.16.0</version>
+	<version>2.17.0</version>
 	<description>Package covering the contents described in `CPP_CODE_STYLE.md`.</description>
 	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
 	<license>GPL-3.0-or-later</license>
