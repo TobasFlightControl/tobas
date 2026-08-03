@@ -41,12 +41,11 @@ SettingsNavigationWidget::SettingsNavigationWidget()
       padding: 6px 0;
     }
     QListWidget#settingsNavigation::item {
-      border-left: 4px solid transparent;
+      border: none;
       padding: 0 12px;
     }
     QListWidget#settingsNavigation::item:selected {
       background-color: palette(highlight);
-      border-left: 4px solid palette(highlighted-text);
       color: palette(highlighted-text);
     }
     QListWidget#settingsNavigation::item:disabled {
