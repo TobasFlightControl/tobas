@@ -5,8 +5,10 @@
 
 #include <stdexcept>
 
+#include <QHelpEvent>
 #include <QItemSelectionModel>
 #include <QMouseEvent>
+#include <QToolTip>
 
 namespace tobas
 {
@@ -83,9 +85,11 @@ void SettingsNavigationWidget::setCurrentEntry(int id)
   setCurrentItem(getEntry(id));
 }
 
-void SettingsNavigationWidget::setEntryEnabled(int id, bool enabled)
+void SettingsNavigationWidget::setEntryEnabled(int id, bool enabled, const QString& disabled_reason)
 {
-  setListItemEnabled(getEntry(id), enabled);
+  const auto item = getEntry(id);
+  item->setToolTip(enabled ? "" : disabled_reason);
+  setListItemEnabled(item, enabled);
 }
 
 void SettingsNavigationWidget::currentChanged(const QModelIndex& current, const QModelIndex& previous)
@@ -155,6 +159,22 @@ void SettingsNavigationWidget::mousePressEvent(QMouseEvent* event)
   }
 
   super::mousePressEvent(event);
+}
+
+bool SettingsNavigationWidget::viewportEvent(QEvent* event)
+{
+  if (event->type() == QEvent::ToolTip) {
+    const auto help_event = static_cast<QHelpEvent*>(event);
+    const auto item = itemAt(help_event->pos());
+    const auto is_disabled = item && !item->flags().testFlag(Qt::ItemIsEnabled);
+    if (is_disabled && !item->toolTip().isEmpty()) {
+      // Disabled items do not reliably receive Qt's standard tooltip handling, so display their reason explicitly.
+      QToolTip::showText(help_event->globalPos(), item->toolTip(), viewport(), visualItemRect(item));
+      return true;
+    }
+  }
+
+  return super::viewportEvent(event);
 }
 
 QListWidgetItem* SettingsNavigationWidget::getEntry(int id) const

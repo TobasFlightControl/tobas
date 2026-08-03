@@ -53,7 +53,7 @@ SettingsWidget::SettingsWidget(const uadf::Model& uadf, const kdl::Tree& tree, S
 
   // Disable all pages.
   for (int i = 0; i < stack_->count(); ++i) {
-    setPageEnabled(i, false);
+    setPageEnabled(i, false, "Create or load a project to configure this setting.");
   }
 
   // Layout
@@ -75,17 +75,17 @@ void SettingsWidget::updateInternalDataStructures()
 
   // Disable settings when there are no rotors.
   if (uadf_.thrusts.empty()) {
-    setPageEnabled(propulsion_system, false);
+    setPageEnabled(propulsion_system, false, "No thrust-generating joints were found in the UADF.");
   }
 
   // Disable settings when there are no fixed wings.
   if (uadf_.control_surfaces.empty()) {
-    setPageEnabled(fixed_wing, false);
+    setPageEnabled(fixed_wing, false, "No control surfaces were found in the UADF.");
   }
 
   // Disable settings when there are no extra joints.
   if (extra_joints->numJoints() == 0) {
-    setPageEnabled(extra_joints, false);
+    setPageEnabled(extra_joints, false, "No configurable extra joints were found in the UADF.");
   }
 
   // Default page
@@ -170,8 +170,9 @@ void SettingsWidget::setFrameType(FrameType type)
 {
   // Disable controller settings if the frame type is undefined.
   if (type == FrameType::kUndefined) {
-    setPageEnabled(controller, false);
-    setPageEnabled(mission, false);
+    const auto reason = "The airframe type could not be determined from the UADF.";
+    setPageEnabled(controller, false, reason);
+    setPageEnabled(mission, false, reason);
   }
 
   controller->setFrameType(type);
@@ -201,15 +202,15 @@ void SettingsWidget::setCurrentPage(BaseSettingWidget* page)
   setCurrentPage(getIndex(page));
 }
 
-void SettingsWidget::setPageEnabled(int idx, bool enabled)
+void SettingsWidget::setPageEnabled(int idx, bool enabled, const QString& disabled_reason)
 {
   stack_->widget(idx)->setEnabled(enabled);
-  navigation_->setEntryEnabled(idx, enabled);
+  navigation_->setEntryEnabled(idx, enabled, disabled_reason);
 }
 
-void SettingsWidget::setPageEnabled(BaseSettingWidget* page, bool enabled)
+void SettingsWidget::setPageEnabled(BaseSettingWidget* page, bool enabled, const QString& disabled_reason)
 {
-  setPageEnabled(getIndex(page), enabled);
+  setPageEnabled(getIndex(page), enabled, disabled_reason);
 }
 }  // namespace sa
 }  // namespace gui

@@ -65,8 +65,8 @@ private:
   void addPage(BaseSettingWidget* page);
   void setCurrentPage(int idx);
   void setCurrentPage(BaseSettingWidget* page);
-  void setPageEnabled(int idx, bool enabled);
-  void setPageEnabled(BaseSettingWidget* page, bool enabled);
+  void setPageEnabled(int idx, bool enabled, const QString& disabled_reason = {});
+  void setPageEnabled(BaseSettingWidget* page, bool enabled, const QString& disabled_reason = {});
 };
 }  // namespace sa
 }  // namespace gui

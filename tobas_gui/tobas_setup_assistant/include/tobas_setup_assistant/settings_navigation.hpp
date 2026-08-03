@@ -25,28 +25,28 @@ class SettingsNavigationWidget : public QListWidget
   using super = QListWidget;
 
 Q_SIGNALS:
-  /** Emitted when the user or caller selects an entry. */
   void currentEntryChanged(int id);
 
 public:
   explicit SettingsNavigationWidget();
 
-  /** Add a non-selectable section heading. */
+  /* Add a non-selectable section heading. */
   void addSection(const QString& title);
 
-  /** Add a selectable entry. IDs must be unique within the widget. */
+  /* Add a selectable entry. IDs must be unique within the widget. */
   void addEntry(const QString& title, int id);
 
-  /** Select the entry corresponding to `id`. */
+  /* Select the entry corresponding to `id`. */
   void setCurrentEntry(int id);
 
-  /** Enable or disable both interaction and selection for the entry corresponding to `id`. */
-  void setEntryEnabled(int id, bool enabled);
+  /* Enable or disable an entry, displaying `disabled_reason` as a tooltip while disabled. */
+  void setEntryEnabled(int id, bool enabled, const QString& disabled_reason = {});
 
 protected:
   void currentChanged(const QModelIndex& current, const QModelIndex& previous) override;
   QModelIndex moveCursor(CursorAction cursor_action, Qt::KeyboardModifiers modifiers) override;
   void mousePressEvent(QMouseEvent* event) override;
+  bool viewportEvent(QEvent* event) override;
 
 private:
   bool restoring_current_item_ = false;
