@@ -57,4 +57,4 @@ alternative commercial licensing is available from Tobas.
 
 See [COMMERCIAL-LICENSE.md](./COMMERCIAL-LICENSE.md) for commercial licensing information.
 
-For commercial licensing inquiries, please contact: m.dohi@tobas.jp
+For commercial licensing inquiries, please contact: contact@tobas.jp
