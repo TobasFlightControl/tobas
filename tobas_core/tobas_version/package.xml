@@ -7,6 +7,7 @@
 	<license>GPL-3.0-or-later</license>
 
 	<buildtool_depend>ament_cmake</buildtool_depend>
+	<buildtool_depend>ament_cmake_gen_version_h</buildtool_depend>
 
 	<export>
 		<build_type>ament_cmake</build_type>
