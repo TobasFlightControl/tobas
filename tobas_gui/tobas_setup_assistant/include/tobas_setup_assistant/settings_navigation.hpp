@@ -11,6 +11,12 @@ namespace gui
 {
 namespace sa
 {
+/**
+ * Grouped, single-selection navigation list.
+ *
+ * Sections are non-selectable headings. Entries are identified by caller-provided integer IDs, allowing this widget
+ * to remain independent of the content widget that reacts to a selection.
+ */
 class SettingsNavigationWidget : public QListWidget
 {
   Q_OBJECT
@@ -19,14 +25,22 @@ class SettingsNavigationWidget : public QListWidget
   using super = QListWidget;
 
 Q_SIGNALS:
+  /** Emitted when the user or caller selects an entry. */
   void currentEntryChanged(int id);
 
 public:
   explicit SettingsNavigationWidget();
 
+  /** Add a non-selectable section heading. */
   void addSection(const QString& title);
+
+  /** Add a selectable entry. IDs must be unique within the widget. */
   void addEntry(const QString& title, int id);
+
+  /** Select the entry corresponding to `id`. */
   void setCurrentEntry(int id);
+
+  /** Enable or disable both interaction and selection for the entry corresponding to `id`. */
   void setEntryEnabled(int id, bool enabled);
 
 protected:

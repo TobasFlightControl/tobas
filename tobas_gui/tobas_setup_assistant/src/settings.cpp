@@ -211,7 +211,6 @@ void SettingsWidget::setPageEnabled(BaseSettingWidget* page, bool enabled)
 {
   setPageEnabled(getIndex(page), enabled);
 }
-
 }  // namespace sa
 }  // namespace gui
 }  // namespace tobas
