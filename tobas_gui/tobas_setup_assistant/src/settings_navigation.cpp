@@ -48,9 +48,6 @@ SettingsNavigationWidget::SettingsNavigationWidget()
       background-color: palette(highlight);
       color: palette(highlighted-text);
     }
-    QListWidget#settingsNavigation::item:disabled {
-      color: palette(mid);
-    }
   )");
 
   connect(this, &QListWidget::currentItemChanged, this, &self::onCurrentItemChanged);
