@@ -193,8 +193,7 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
 
       break;
     }
-    case PropulsionSystem::kIce:  // Realize thrust using the reference pitch angle (memo: 3-27)
-    {
+    case PropulsionSystem::kIce: {  // Realize thrust using the reference pitch angle (memo: 3-27)
       const auto iprop = boost::polymorphic_pointer_downcast<IcePropulsionSystemConfig>(drone_->prop);
 
       // Calculate the total torque applied to the engine shaft and its coefficient.
