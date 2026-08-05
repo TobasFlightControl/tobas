@@ -41,38 +41,42 @@ private:
   ros2::PublisherPtr<tobas_msgs::Gnss> gnss_pub_;
   ros2::TimerPtr initialize_timer_, main_timer_;
 
-  void initialize();
+  bool initialize();
   bool configure();
+  void registerRosInterfaces();
   void warnUnnecessaryUBXMessage();
 
+  void initializeTimerCb();
   void mainTimerCb();
 };
 
 GnssDriverNode::GnssDriverNode(const rclcpp::NodeOptions& options)
   : super("fc2xx_gnss_driver", nodeOptions_Default(options))
 {
-  initialize_timer_ = createWallTimer(kRetryInitializationInterval, &self::initialize, this);
+  is_received_[ublox::ZEDF9P::NAV_PVT] = false;
+  is_received_[ublox::ZEDF9P::NAV_COV] = false;
+
+  if (initialize()) {
+    registerRosInterfaces();
+  }
+  else {
+    initialize_timer_ = createWallTimer(kRetryInitializationInterval, &self::initializeTimerCb, this);
+  }
 }
 
-void GnssDriverNode::initialize()
+bool GnssDriverNode::initialize()
 {
   if (!gnss_.initialize(kSpiDevice)) {
     TOBAS_ERROR("Failed to initialize GNSS driver. Retrying...");
-    return;
+    return false;
   }
 
   if (!configure()) {
     TOBAS_ERROR("Failed to configure GNSS receiver. Retrying...");
-    return;
+    return false;
   }
 
-  is_received_[ublox::ZEDF9P::NAV_PVT] = false;
-  is_received_[ublox::ZEDF9P::NAV_COV] = false;
-
-  gnss_pub_ = createPublisher<tobas_msgs::Gnss>(topic::kGnss);
-
-  initialize_timer_->cancel();
-  main_timer_ = createWallTimer(kMainTimerPeriod, &self::mainTimerCb, this);
+  return true;
 }
 
 bool GnssDriverNode::configure()
@@ -160,11 +164,26 @@ bool GnssDriverNode::configure()
   return true;
 }
 
+void GnssDriverNode::registerRosInterfaces()
+{
+  gnss_pub_ = createPublisher<tobas_msgs::Gnss>(topic::kGnss);
+
+  main_timer_ = createWallTimer(kMainTimerPeriod, &self::mainTimerCb, this);
+}
+
 void GnssDriverNode::warnUnnecessaryUBXMessage()
 {
   const auto cls = gnss_.latestClass();
   const auto id = gnss_.latestId();
   TOBAS_WARN("Unnecessary UBX message is received: (Class, ID) = (", (int)cls, ", ", (int)id, ")");
+}
+
+void GnssDriverNode::initializeTimerCb()
+{
+  if (initialize()) {
+    registerRosInterfaces();
+    initialize_timer_->cancel();
+  }
 }
 
 void GnssDriverNode::mainTimerCb()

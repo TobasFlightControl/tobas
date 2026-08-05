@@ -48,7 +48,8 @@ private:
 
   ros2::TimerPtr initialize_timer_, main_timer_;
 
-  void initialize();
+  bool initialize();
+  void registerRosInterfaces();
 
   void pwmsCb(const tobas_msgs::msg::PwmArray::ConstSharedPtr& pwms);
 
@@ -59,26 +60,36 @@ private:
     const tobas_msgs::srv::ConfigureImuRpmFilter::Request::ConstSharedPtr& req,
     const tobas_msgs::srv::ConfigureImuRpmFilter::Response::SharedPtr& res);
 
+  void initializeTimerCb();
   void mainTimerCb();
 };
 
 PwmBattImuDriverNode::PwmBattImuDriverNode(const rclcpp::NodeOptions& options)
-  : super("fc2xx_pwm_batt_imu_driver", nodeOptions_Default(options))
+  : super("fc2xx_pwm_batt_imu_driver", nodeOptions_Default(options)), sampling_time_pub_(this)
 {
-  initialize_timer_ = createWallTimer(kRetryInitializationInterval, &self::initialize, this);
+  if (initialize()) {
+    registerRosInterfaces();
+  }
+  else {
+    initialize_timer_ = createWallTimer(kRetryInitializationInterval, &self::initializeTimerCb, this);
+  }
 }
 
-void PwmBattImuDriverNode::initialize()
+bool PwmBattImuDriverNode::initialize()
 {
   if (!driver_.initialize()) {
     TOBAS_ERROR("Failed to initialize the driver. Retrying...");
-    return;
+    return false;
   }
 
+  return true;
+}
+
+void PwmBattImuDriverNode::registerRosInterfaces()
+{
   batt_pub_ = createPublisher<tobas_msgs::msg::Battery>(topic::kBattery);
   imu_raw_pub_ = createPublisher<tobas_msgs::Imu>(real::topic::kImuRaw);
   imu_filt_pub_ = createPublisher<tobas_msgs::Imu>(real::topic::kImuFilt);
-  sampling_time_pub_.initialize(shared_from_this(), now());
 
   pwms_sub_ = createSubscriber(topic::kPwmCmd, &self::pwmsCb, this);
 
@@ -87,7 +98,6 @@ void PwmBattImuDriverNode::initialize()
   config_rpm_filter_ss_ = createService<tobas_msgs::srv::ConfigureImuRpmFilter>(
     service::kConfigureImuRpmFilter, &self::configureImuRpmFilter, this);
 
-  initialize_timer_->cancel();
   main_timer_ = createWallTimer(tim::periodFromFrequency<kImuSamplingRate>(), &self::mainTimerCb, this);
 }
 
@@ -134,6 +144,14 @@ void PwmBattImuDriverNode::configureImuRpmFilter(
 
   res->success = true;
   res->message.clear();
+}
+
+void PwmBattImuDriverNode::initializeTimerCb()
+{
+  if (initialize()) {
+    registerRosInterfaces();
+    initialize_timer_->cancel();
+  }
 }
 
 void PwmBattImuDriverNode::mainTimerCb()

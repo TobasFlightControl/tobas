@@ -30,27 +30,47 @@ private:
   ros2::PublisherPtr<tobas_msgs::msg::FluidPressure> baro_pub_;
   ros2::TimerPtr initialize_timer_, main_timer_;
 
-  void initialize();
+  bool initialize();
+  void registerRosInterfaces();
+
+  void initializeTimerCb();
   void mainTimerCb();
 };
 
 BaroDriverNode::BaroDriverNode(const rclcpp::NodeOptions& options)
   : super("fc2xx_baro_driver", nodeOptions_Default(options))
 {
-  initialize_timer_ = createWallTimer(kRetryInitializationInterval, &self::initialize, this);
+  if (initialize()) {
+    registerRosInterfaces();
+  }
+  else {
+    initialize_timer_ = createWallTimer(kRetryInitializationInterval, &self::initializeTimerCb, this);
+  }
 }
 
-void BaroDriverNode::initialize()
+bool BaroDriverNode::initialize()
 {
   if (!baro_.initialize("/dev/i2c-1")) {
     TOBAS_ERROR("Failed to initialize Barometer. Retrying...");
-    return;
+    return false;
   }
 
+  return true;
+}
+
+void BaroDriverNode::registerRosInterfaces()
+{
   baro_pub_ = createPublisher<tobas_msgs::msg::FluidPressure>(topic::kAirPressure);
 
-  initialize_timer_->cancel();
   main_timer_ = createWallTimer(kSamplingPeriod, &self::mainTimerCb, this);
+}
+
+void BaroDriverNode::initializeTimerCb()
+{
+  if (initialize()) {
+    registerRosInterfaces();
+    initialize_timer_->cancel();
+  }
 }
 
 void BaroDriverNode::mainTimerCb()

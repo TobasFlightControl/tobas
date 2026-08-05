@@ -32,27 +32,47 @@ private:
   ros2::PublisherPtr<tobas_msgs::MagneticField> mag_pub_;
   ros2::TimerPtr initialize_timer_, main_timer_;
 
-  void initialize();
+  bool initialize();
+  void registerRosInterfaces();
+
+  void initializeTimerCb();
   void mainTimerCb();
 };
 
 MagDriverNode::MagDriverNode(const rclcpp::NodeOptions& options)
   : super("fc2xx_mag_driver", nodeOptions_Default(options))
 {
-  initialize_timer_ = createWallTimer(kRetryInitializationInterval, &self::initialize, this);
+  if (initialize()) {
+    registerRosInterfaces();
+  }
+  else {
+    initialize_timer_ = createWallTimer(kRetryInitializationInterval, &self::initializeTimerCb, this);
+  }
 }
 
-void MagDriverNode::initialize()
+bool MagDriverNode::initialize()
 {
   if (!mag_.initialize("/dev/i2c-1")) {
     TOBAS_ERROR("Failed to initialize Magnetometer. Retrying...");
-    return;
+    return false;
   }
 
+  return true;
+}
+
+void MagDriverNode::registerRosInterfaces()
+{
   mag_pub_ = createPublisher<tobas_msgs::MagneticField>(real::topic::kMagneticField);
 
-  initialize_timer_->cancel();
   main_timer_ = createWallTimer(kSamplingPeriod, &self::mainTimerCb, this);
+}
+
+void MagDriverNode::initializeTimerCb()
+{
+  if (initialize()) {
+    registerRosInterfaces();
+    initialize_timer_->cancel();
+  }
 }
 
 void MagDriverNode::mainTimerCb()
