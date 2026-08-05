@@ -31,11 +31,6 @@ bool DShot::initialize() noexcept
     }
   }
 
-  // Discard the first response without checking its CRC.
-  if (!spi_.transfer(sizeof(tx_buf_))) {
-    return false;
-  }
-
   return true;
 }
 
