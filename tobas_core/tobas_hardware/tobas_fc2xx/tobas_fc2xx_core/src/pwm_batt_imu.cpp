@@ -6,8 +6,6 @@
 #include <cstring>
 #include <iostream>
 
-using namespace std;
-
 namespace tobas
 {
 namespace fc2xx
@@ -46,7 +44,7 @@ bool PwmBattImu::transfer()
   const uint32_t cs = (rx_buf_[kCrcIdx + 1] << 16) | rx_buf_[kCrcIdx];
   const auto cr = crc_.compute((uint8_t*)rx_buf_, sizeof(uint16_t) * kCrcIdx);
   if (cs != cr) {
-    cerr << "CRC failed: " << hex << uppercase << cs << " != " << cr << dec << endl;
+    std::cerr << "CRC failed: " << std::hex << std::uppercase << cs << " != " << cr << std::dec << std::endl;
     return false;
   }
 
