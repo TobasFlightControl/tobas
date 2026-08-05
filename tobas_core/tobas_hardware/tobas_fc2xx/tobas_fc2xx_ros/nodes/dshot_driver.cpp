@@ -100,36 +100,30 @@ bool DShotDriverNode::configure()
   // Set Kv values.
   for (const auto& [link_name, _] : eprop_->rotors) {
     const auto erotor = eprop_->getRotor(link_name);
-    if (!dshot_.setKv(erotor->channel, erotor->kv)) {
-      TOBAS_ERROR("Failed to set Kv of channel ", erotor->channel, ".");
-      return false;
-    }
+    TOBAS_ASSERT(dshot_.setKv(erotor->channel, erotor->kv));
   }
   if (!transferAndSleep()) {
+    TOBAS_ERROR("Failed to set Kv values.");
     return false;
   }
 
   // Set internal resistances.
   for (const auto& [link_name, _] : eprop_->rotors) {
     const auto erotor = eprop_->getRotor(link_name);
-    if (!dshot_.setInternalResistance(erotor->channel, erotor->internal_resistance)) {
-      TOBAS_ERROR("Failed to set internal resistance of channel ", erotor->channel, ".");
-      return false;
-    }
+    TOBAS_ASSERT(dshot_.setInternalResistance(erotor->channel, erotor->internal_resistance));
   }
   if (!transferAndSleep()) {
+    TOBAS_ERROR("Failed to set internal resistances.");
     return false;
   }
 
   // Set propeller diameters.
   for (const auto& [link_name, _] : eprop_->rotors) {
     const auto erotor = eprop_->getRotor(link_name);
-    if (!dshot_.setPropellerDiameter(erotor->channel, erotor->propeller_diameter)) {
-      TOBAS_ERROR("Failed to set propeller diameter of channel ", erotor->channel, ".");
-      return false;
-    }
+    TOBAS_ASSERT(dshot_.setPropellerDiameter(erotor->channel, erotor->propeller_diameter));
   }
   if (!transferAndSleep()) {
+    TOBAS_ERROR("Failed to set propeller diameters.");
     return false;
   }
 
@@ -137,24 +131,20 @@ bool DShotDriverNode::configure()
   for (const auto& [link_name, _] : eprop_->rotors) {
     const auto erotor = eprop_->getRotor(link_name);
     const auto moment_const = erotor->motor_const * erotor->moment_const / std::pow(erotor->propeller_diameter, 5);
-    if (!dshot_.setMomentConstant(erotor->channel, moment_const)) {
-      TOBAS_ERROR("Failed to set moment constant of channel ", erotor->channel, ".");
-      return false;
-    }
+    TOBAS_ASSERT(dshot_.setMomentConstant(erotor->channel, moment_const));
   }
   if (!transferAndSleep()) {
+    TOBAS_ERROR("Failed to set moment constants.");
     return false;
   }
 
   // Set the number of poles.
   for (const auto& [link_name, _] : eprop_->rotors) {
     const auto erotor = eprop_->getRotor(link_name);
-    if (!dshot_.setNumPoles(erotor->channel, erotor->num_poles)) {
-      TOBAS_ERROR("Failed to set the number of poles of channel ", erotor->channel, ".");
-      return false;
-    }
+    TOBAS_ASSERT(dshot_.setNumPoles(erotor->channel, erotor->num_poles));
   }
   if (!transferAndSleep()) {
+    TOBAS_ERROR("Failed to set the number of poles.");
     return false;
   }
 
