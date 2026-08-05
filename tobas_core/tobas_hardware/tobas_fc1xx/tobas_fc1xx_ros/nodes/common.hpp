@@ -9,6 +9,6 @@ namespace tobas
 {
 namespace fc1xx
 {
-static constexpr auto kRetryInitializationInterval = std::chrono::seconds(1);
+static constexpr auto kRetryInitializationInterval = std::chrono::seconds(3);
 }  // namespace fc1xx
 }  // namespace tobas
