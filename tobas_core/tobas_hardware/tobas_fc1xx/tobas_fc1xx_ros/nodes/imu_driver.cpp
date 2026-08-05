@@ -58,7 +58,7 @@ private:
 };
 
 ImuDriverNode::ImuDriverNode(const rclcpp::NodeOptions& options)
-  : super("fc1xx_imu_driver", nodeOptions_Default(options))
+  : super("fc1xx_imu_driver", nodeOptions_Default(options)), sampling_time_pub_(this)
 {
   prev_gyro_raw_.setZero();
 
@@ -123,7 +123,6 @@ void ImuDriverNode::initializeTimerCb()
 
   imu_raw_pub_ = createPublisher<tobas_msgs::Imu>(real::topic::kImuRaw);
   imu_filt_pub_ = createPublisher<tobas_msgs::Imu>(real::topic::kImuFilt);
-  sampling_time_pub_.initialize(shared_from_this(), now());
 
   config_ss_ = createService<tobas_msgs::srv::ConfigureImuLowPassFilter>(
     service::kConfigureImuLowPassFilter, &self::configureImuLowPassFilterCb, this);

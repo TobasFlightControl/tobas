@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <tobas_ros2_tools/register.hpp>
+#include <rclcpp/node.hpp>
 
 #include <tobas_msgs/msg/latency.hpp>
 
@@ -12,13 +12,14 @@ namespace tobas
 class ControlLatencyPublisher
 {
 public:
-  explicit ControlLatencyPublisher();
+  using SharedPtr = std::shared_ptr<ControlLatencyPublisher>;
 
-  void initialize(rclcpp::Node::SharedPtr node);
+  explicit ControlLatencyPublisher(rclcpp::Node* node);
+
   void publish(const builtin_interfaces::msg::Time& start_time);
 
 private:
-  rclcpp::Node::SharedPtr node_;
-  ros2::PublisherPtr<tobas_msgs::msg::Latency> pub_;
+  rclcpp::Node* const node_;
+  rclcpp::Publisher<tobas_msgs::msg::Latency>::SharedPtr pub_;
 };
 }  // namespace tobas
