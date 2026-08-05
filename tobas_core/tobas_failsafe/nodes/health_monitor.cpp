@@ -31,7 +31,7 @@ class HealthMonitorNode : public BaseNode
   static constexpr auto kMainTimerPeriod = 100ms;
 
   static constexpr auto kImuSamplingTimeThresh = 5ms;
-  static constexpr auto kRTComplianceCheckTimeWindow = 5s;
+  static constexpr auto kRTComplianceCheckTimeWindow = 1s;
   static constexpr auto kBattVoltageDownTimeThresh = 10s;
   static constexpr auto kBattVoltageUpTimeThresh = 30s;
   static constexpr auto kRadioLinkLostTimeThresh = 500ms;
