@@ -27,6 +27,3 @@ sudo netfilter-persistent save
 # Use WPA Supplicant instead of NetworkManager
 sudo systemctl disable NetworkManager.service
 sudo systemctl enable wpa_supplicant-nl80211@wlan0.service
-
-# Enable Tobas services
-sudo systemctl enable tobas_network_wait_online.service
