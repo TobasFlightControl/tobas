@@ -67,6 +67,7 @@ private:
   static constexpr uint8_t kSetMomentConstCmd = 5;
   static constexpr uint8_t kSetHalfNumPolesCmd = 6;
   static constexpr uint8_t kSetGainCmd = 7;
+  static constexpr uint8_t kNoOperationCmd = UINT8_MAX;
 
   static constexpr char kSpiDevice[] = "/dev/spidev0.0";
   static constexpr uint32_t kSpiClockFreq = 12'000'000;  // [Hz]
@@ -93,6 +94,8 @@ public:
   bool setNumPoles(size_t ch, uint16_t num_poles) noexcept;
   /* Set the motor speed control gain (2 to the x-1 power). No feedback when 0 is specified. */
   bool setRpmControlGain(size_t ch, uint8_t gain) noexcept;
+  /* Set the no-operation command. */
+  bool setNoOperation(size_t ch) noexcept;
 
   /* Get the validity of the telemetry. */
   bool getValidity(size_t ch) noexcept;

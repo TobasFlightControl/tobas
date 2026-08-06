@@ -52,6 +52,7 @@ private:
   void initialize();
   bool configure();
 
+  void sleep();
   bool transfer();
   bool transferAndSleep();
 
@@ -79,6 +80,8 @@ void DShotDriverNode::initialize()
     TOBAS_ERROR("Failed to initialize DShot driver. Retrying...");
     return;
   }
+
+  sleep();
 
   if (!configure()) {
     TOBAS_ERROR("Failed to configure the rotor speed control MCU. Retrying...");
@@ -150,6 +153,11 @@ bool DShotDriverNode::configure()
   return true;
 }
 
+void DShotDriverNode::sleep()
+{
+  rclcpp::sleep_for(1ms);
+}
+
 bool DShotDriverNode::transfer()
 {
   if (!dshot_.transfer()) {
@@ -162,7 +170,7 @@ bool DShotDriverNode::transfer()
 bool DShotDriverNode::transferAndSleep()
 {
   const auto res = transfer();
-  rclcpp::sleep_for(1ms);
+  sleep();
   return res;
 }
 

@@ -19,16 +19,24 @@ DShot::DShot() noexcept : crc_(algo::CRC32Left::CRC_32)
 
 bool DShot::initialize() noexcept
 {
+  // Initialize SPI communication.
   if (!spi_.initialize(kSpiDevice, tx_buf_, rx_buf_, kSpiClockFreq)) {
     return false;
   }
 
+  // Initialize the number of motor pole pairs.
   half_num_poles_.fill(1);
 
+  // Set no-operation commands for all channels.
   for (size_t ch = 0; ch < kChannelSize; ++ch) {
-    if (!setThrottle(ch, DSHOT_CMD_MOTOR_STOP)) {
+    if (!setNoOperation(ch)) {
       return false;
     }
+  }
+
+  // Discard the first response.
+  if (!spi_.transfer(sizeof(tx_buf_))) {
+    return false;
   }
 
   return true;
@@ -237,6 +245,17 @@ bool DShot::setRpmControlGain(size_t ch, uint8_t gain) noexcept
   }
 
   tx_buf_[ch] = (kSetGainCmd << 28) | gain;
+
+  return true;
+}
+
+bool DShot::setNoOperation(size_t ch) noexcept
+{
+  if (!checkChannelSize(ch)) {
+    return false;
+  }
+
+  tx_buf_[ch] = (kNoOperationCmd << 28);
 
   return true;
 }
