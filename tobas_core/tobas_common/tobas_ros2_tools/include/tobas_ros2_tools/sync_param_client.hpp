@@ -46,9 +46,6 @@ public:
   inline const char* errorMessage() const;
 
 private:
-  const rclcpp::Node::SharedPtr node_;
-  const std::string remote_node_name_;
-
   // Asynchronous parameter client.
   // The synchronous version spins, so it cannot be used on an executor.
   rclcpp::AsyncParametersClient client_;
@@ -58,7 +55,7 @@ private:
 };
 
 inline SyncParamClient::SyncParamClient(rclcpp::Node::SharedPtr node, const std::string& remote_node_name)
-  : node_(node), remote_node_name_(remote_node_name), client_(node, remote_node_name)
+  : client_(node, remote_node_name)
 {
 }
 

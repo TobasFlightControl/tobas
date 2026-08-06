@@ -43,10 +43,10 @@ public:
     const typename SrvType::Request::SharedPtr& req,
     std::chrono::duration<RepT, RatioT> timeout = std::chrono::duration<RepT, RatioT>(-1));
 
-  bool serviceIsReady() const;
+  inline bool serviceIsReady() const;
 
   template <typename RepT = int64_t, typename RatioT = std::milli>
-  bool waitForService(std::chrono::duration<RepT, RatioT> timeout = std::chrono::duration<RepT, RatioT>(-1));
+  inline bool waitForService(std::chrono::duration<RepT, RatioT> timeout = std::chrono::duration<RepT, RatioT>(-1));
 
 private:
   rclcpp::Node::SharedPtr node_;
@@ -86,14 +86,14 @@ typename SrvType::Response::ConstSharedPtr SyncServiceClient<SrvType>::sendReque
 }
 
 template <typename SrvType>
-bool SyncServiceClient<SrvType>::serviceIsReady() const
+inline bool SyncServiceClient<SrvType>::serviceIsReady() const
 {
   return client_->service_is_ready();
 }
 
 template <typename SrvType>
 template <typename RepT, typename RatioT>
-bool SyncServiceClient<SrvType>::waitForService(std::chrono::duration<RepT, RatioT> timeout)
+inline bool SyncServiceClient<SrvType>::waitForService(std::chrono::duration<RepT, RatioT> timeout)
 {
   return client_->wait_for_service(timeout);
 }
