@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <chrono>
+#include <thread>
+
 #include <tobas_constants/imu.hpp>
 #include <tobas_constants/ros_interface.hpp>
 #include <tobas_constants/time.hpp>
@@ -28,12 +31,17 @@ class PwmBattImuDriverNode : public BaseNode
   using self = PwmBattImuDriverNode;
   using super = BaseNode;
 
+  using clock = std::chrono::steady_clock;
+
+  static constexpr auto kMinCommunicationInterval = 200us;  // Communication errors occur at 100 us.
+
 public:
   explicit PwmBattImuDriverNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
   PwmBattImu driver_;
   uint16_t pwm_periods_[PwmBattImu::kPwmChannels] = {};
+  clock::time_point last_comm_time_;
 
   ros2::PublisherPtr<tobas_msgs::msg::Battery> batt_pub_;
   ros2::PublisherPtr<tobas_msgs::Imu> imu_raw_pub_;
@@ -48,7 +56,7 @@ private:
   ros2::TimerPtr initialize_timer_, main_timer_;
 
   bool initialize();
-  void registerRosInterfaces();
+  bool transfer();
 
   void pwmsCb(const tobas_msgs::msg::PwmArray::ConstSharedPtr& pwms);
 
@@ -66,10 +74,7 @@ private:
 PwmBattImuDriverNode::PwmBattImuDriverNode(const rclcpp::NodeOptions& options)
   : super("fc2xx_pwm_batt_imu_driver", nodeOptions_Default(options)), sampling_time_pub_(this)
 {
-  if (initialize()) {
-    registerRosInterfaces();
-  }
-  else {
+  if (!initialize()) {
     initialize_timer_ = createWallTimer(hardware::kRetryInitializationInterval, &self::initializeTimerCb, this);
   }
 }
@@ -81,11 +86,8 @@ bool PwmBattImuDriverNode::initialize()
     return false;
   }
 
-  return true;
-}
+  last_comm_time_ = clock::now();
 
-void PwmBattImuDriverNode::registerRosInterfaces()
-{
   batt_pub_ = createPublisher<tobas_msgs::msg::Battery>(topic::kBattery);
   imu_raw_pub_ = createPublisher<tobas_msgs::Imu>(real::topic::kImuRaw);
   imu_filt_pub_ = createPublisher<tobas_msgs::Imu>(real::topic::kImuFilt);
@@ -98,6 +100,16 @@ void PwmBattImuDriverNode::registerRosInterfaces()
     service::kConfigureImuRpmFilter, &self::configureImuRpmFilter, this);
 
   main_timer_ = createWallTimer(tim::periodFromFrequency<kImuSamplingRate>(), &self::mainTimerCb, this);
+
+  return true;
+}
+
+bool PwmBattImuDriverNode::transfer()
+{
+  std::this_thread::sleep_until(last_comm_time_ + kMinCommunicationInterval);
+  const auto res = driver_.transfer();
+  last_comm_time_ = clock::now();
+  return res;
 }
 
 void PwmBattImuDriverNode::pwmsCb(const tobas_msgs::msg::PwmArray::ConstSharedPtr& pwms)
@@ -119,7 +131,7 @@ void PwmBattImuDriverNode::configureImuLowPassFilterCb(
 {
   driver_.configureLowPassFilter(req->accel_cutoff, req->gyro_cutoff, req->dgyro_cutoff);
 
-  if (!driver_.transfer()) {
+  if (!transfer()) {
     res->success = false;
     res->message = "Failed to communicate with the MCU.";
     return;
@@ -135,7 +147,7 @@ void PwmBattImuDriverNode::configureImuRpmFilter(
 {
   driver_.configureRpmFilter(req->quality_factor, req->min_center_freq, req->fade_range, req->lpf_cutoff);
 
-  if (!driver_.transfer()) {
+  if (!transfer()) {
     res->success = false;
     res->message = "Failed to communicate with the MCU.";
     return;
@@ -148,7 +160,6 @@ void PwmBattImuDriverNode::configureImuRpmFilter(
 void PwmBattImuDriverNode::initializeTimerCb()
 {
   if (initialize()) {
-    registerRosInterfaces();
     initialize_timer_->cancel();
   }
 }
@@ -159,7 +170,7 @@ void PwmBattImuDriverNode::mainTimerCb()
   const auto cur_time = now();
 
   // Communicate with the MCU.
-  if (!driver_.transfer()) {
+  if (!transfer()) {
     TOBAS_ERROR("Failed to communicate with the MCU.");
     return;
   }
