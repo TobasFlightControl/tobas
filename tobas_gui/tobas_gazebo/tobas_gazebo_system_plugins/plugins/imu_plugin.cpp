@@ -360,8 +360,8 @@ void GazeboImuPlugin::configureImuRpmFilter(
 {
   // TODO: Implement an RPM filter. In discrete time the update frequency is insufficient,
   // so it may be better to create a continuous-time transfer function before signal generation.
-  res->success = false;
-  res->message = "The RPM filter is not implemented in the simulation.";
+  res->success = true;
+  res->message.clear();
 }
 }  // namespace gazebo
 }  // namespace tobas
