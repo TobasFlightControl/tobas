@@ -2,12 +2,11 @@
 // Copyright (C) 2026 Tobas, Inc.
 
 #include <tobas_constants/ros_interface.hpp>
+#include <tobas_hardware_common/constants.hpp>
 #include <tobas_ic_drivers/ublox/zed_f9p.hpp>
 #include <tobas_node/node.hpp>
 
 #include <tobas_msgs_adapter/gnss.hpp>
-
-#include "./common.hpp"
 
 using namespace std::chrono_literals;
 
@@ -41,29 +40,32 @@ private:
   ros2::PublisherPtr<tobas_msgs::Gnss> gnss_pub_;
   ros2::TimerPtr initialize_timer_, main_timer_;
 
-  void initialize();
+  bool initialize();
   bool configure();
   void warnUnnecessaryUBXMessage();
 
+  void initializeTimerCb();
   void mainTimerCb();
 };
 
 GnssDriverNode::GnssDriverNode(const rclcpp::NodeOptions& options)
   : super("fc2xx_gnss_driver", nodeOptions_Default(options))
 {
-  initialize_timer_ = createWallTimer(kRetryInitializationInterval, &self::initialize, this);
+  if (!initialize()) {
+    initialize_timer_ = createWallTimer(hardware::kRetryInitializationInterval, &self::initializeTimerCb, this);
+  }
 }
 
-void GnssDriverNode::initialize()
+bool GnssDriverNode::initialize()
 {
   if (!gnss_.initialize(kSpiDevice)) {
     TOBAS_ERROR("Failed to initialize GNSS driver. Retrying...");
-    return;
+    return false;
   }
 
   if (!configure()) {
     TOBAS_ERROR("Failed to configure GNSS receiver. Retrying...");
-    return;
+    return false;
   }
 
   is_received_[ublox::ZEDF9P::NAV_PVT] = false;
@@ -71,8 +73,9 @@ void GnssDriverNode::initialize()
 
   gnss_pub_ = createPublisher<tobas_msgs::Gnss>(topic::kGnss);
 
-  initialize_timer_->cancel();
   main_timer_ = createWallTimer(kMainTimerPeriod, &self::mainTimerCb, this);
+
+  return true;
 }
 
 bool GnssDriverNode::configure()
@@ -165,6 +168,13 @@ void GnssDriverNode::warnUnnecessaryUBXMessage()
   const auto cls = gnss_.latestClass();
   const auto id = gnss_.latestId();
   TOBAS_WARN("Unnecessary UBX message is received: (Class, ID) = (", (int)cls, ", ", (int)id, ")");
+}
+
+void GnssDriverNode::initializeTimerCb()
+{
+  if (initialize()) {
+    initialize_timer_->cancel();
+  }
 }
 
 void GnssDriverNode::mainTimerCb()

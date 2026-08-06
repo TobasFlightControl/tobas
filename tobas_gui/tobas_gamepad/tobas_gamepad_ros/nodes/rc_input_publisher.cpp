@@ -47,7 +47,7 @@ RcInputPublisher::RcInputPublisher(const rclcpp::NodeOptions& _options)
   }
 
   publisher_ = createPublisher<tobas_msgs::RCInput>(topic::kRcInput);
-  initialize_timer_ = createWallTimer(3s, &self::initialize, this);
+  initialize_timer_ = createWallTimer(1s, &self::initialize, this);
 }
 
 void RcInputPublisher::initialize()

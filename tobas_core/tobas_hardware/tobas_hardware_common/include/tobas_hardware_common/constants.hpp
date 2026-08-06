@@ -7,8 +7,8 @@
 
 namespace tobas
 {
-namespace fc2xx
+namespace hardware
 {
-static constexpr auto kRetryInitializationInterval = std::chrono::seconds(3);
-}  // namespace fc2xx
+static constexpr auto kRetryInitializationInterval = std::chrono::seconds(1);
+}  // namespace hardware
 }  // namespace tobas

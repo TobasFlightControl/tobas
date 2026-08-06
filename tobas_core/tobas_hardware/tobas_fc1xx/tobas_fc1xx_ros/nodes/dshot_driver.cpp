@@ -62,7 +62,7 @@ private:
 };
 
 DShotDriverNode::DShotDriverNode(const rclcpp::NodeOptions& options)
-  : super("fc1xx_dshot_driver", nodeOptions_Default(options))
+  : super("fc1xx_dshot_driver", nodeOptions_Default(options)), latency_pub_(this)
 {
   drone_sub_ = createSubscriber(topic::kDrone, &self::droneCb, this, true, true);
   set_gains_ss_ = createService<SetGains>(service::kSetRpmControlGains, &self::setGainsCb, this);
@@ -211,7 +211,6 @@ void DShotDriverNode::droneCb(const Drone::ConstSharedPtr& drone)
 
   // Resister publishers.
   rotor_states_pub_ = createPublisher<tobas_msgs::msg::RotorStateArray>(topic::kRotorStates);
-  latency_pub_.initialize(shared_from_this());
 
   // Resister subscribers.
   tar_speeds_sub_ = createSubscriber(topic::kRotorSpeedsCmd, &self::targetSpeedsCb, this);

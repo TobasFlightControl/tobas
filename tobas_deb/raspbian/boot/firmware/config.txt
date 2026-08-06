@@ -12,8 +12,11 @@ arm_64bit=1
 # Required to expand the rootfs partition.
 auto_initramfs=1
 
-# Assign the fast UART to GPIOs 4-5 (/dev/serial0)
+# Disable unused features
 dtoverlay=disable-bt
+dtparam=audio=off
+disable_poe_fan=1
+disable_splash=1
 
 # Allow turbo when low-voltage is present
 avoid_warnings=2

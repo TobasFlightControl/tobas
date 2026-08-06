@@ -4,18 +4,15 @@
 #include "tobas_tools/imu_sampling_time_publisher.hpp"
 
 #include <tobas_constants/ros_interface.hpp>
+#include <tobas_ros2_tools/qos.hpp>
+#include <tobas_ros2_tools/time.hpp>
 
 namespace tobas
 {
-ImuSamplingTimePublisher::ImuSamplingTimePublisher()
+ImuSamplingTimePublisher::ImuSamplingTimePublisher(rclcpp::Node* node)
 {
-}
-
-void ImuSamplingTimePublisher::initialize(rclcpp::Node::SharedPtr node, const rclcpp::Time& cur_time)
-{
-  last_time_ = cur_time;
-
-  pub_ = ros2::createPublisher<tobas_msgs::msg::Latency>(node, topic::kImuSamplingTime);
+  last_time_ = node->now();
+  pub_ = node->create_publisher<tobas_msgs::msg::Latency>(topic::kImuSamplingTime, ros2::qos::DefaultQoS());
 }
 
 void ImuSamplingTimePublisher::publish(const rclcpp::Time& cur_time)

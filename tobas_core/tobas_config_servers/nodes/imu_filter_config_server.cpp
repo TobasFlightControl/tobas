@@ -8,6 +8,8 @@
 #include <tobas_msgs/srv/configure_imu_rpm_filter.hpp>
 #include <tobas_msgs_adapter/imu.hpp>
 
+using namespace std::placeholders;
+
 namespace tobas
 {
 class ImuFilterConfigServer : public BaseNode
@@ -42,6 +44,9 @@ private:
   bool notchFilterConfigReady() const;
   bool sendLowPassFilterConfigRequest();
   bool sendRpmFilterConfigRequest();
+
+  void lowPassFilterConfigResponseCb(rclcpp::Client<tobas_msgs::srv::ConfigureImuLowPassFilter>::SharedFuture future);
+  void rpmFilterConfigResponseCb(rclcpp::Client<tobas_msgs::srv::ConfigureImuRpmFilter>::SharedFuture future);
 
   bool lowPassFilterAccelCutoffCb(const long& p);
   bool lowPassFilterGyroCutoffCb(const long& p);
@@ -92,7 +97,7 @@ bool ImuFilterConfigServer::sendLowPassFilterConfigRequest()
   req->gyro_cutoff = lowpass_cfg_.gyro_cutoff;
   req->dgyro_cutoff = lowpass_cfg_.dgyro_cutoff;
 
-  config_lowpass_filter_sc_->async_send_request(req);
+  config_lowpass_filter_sc_->async_send_request(req, std::bind(&self::lowPassFilterConfigResponseCb, this, _1));
 
   return true;
 }
@@ -110,9 +115,29 @@ bool ImuFilterConfigServer::sendRpmFilterConfigRequest()
   req->fade_range = notch_cfg_.fade_range;
   req->lpf_cutoff = notch_cfg_.lpf_cutoff;
 
-  config_rpm_filter_sc_->async_send_request(req);
+  config_rpm_filter_sc_->async_send_request(req, std::bind(&self::rpmFilterConfigResponseCb, this, _1));
 
   return true;
+}
+
+void ImuFilterConfigServer::lowPassFilterConfigResponseCb(
+  rclcpp::Client<tobas_msgs::srv::ConfigureImuLowPassFilter>::SharedFuture future)
+{
+  const auto res = future.get();
+  if (!res->success) {
+    TOBAS_ERROR("Failed to configure the IMU low-pass filter: ", res->message, " Retrying...");
+    sendLowPassFilterConfigRequest();
+  }
+}
+
+void ImuFilterConfigServer::rpmFilterConfigResponseCb(
+  rclcpp::Client<tobas_msgs::srv::ConfigureImuRpmFilter>::SharedFuture future)
+{
+  const auto res = future.get();
+  if (!res->success) {
+    TOBAS_ERROR("Failed to configure the IMU RPM filter: ", res->message, " Retrying...");
+    sendRpmFilterConfigRequest();
+  }
 }
 
 bool ImuFilterConfigServer::lowPassFilterAccelCutoffCb(const long& p)

@@ -96,6 +96,8 @@ private:
   std::array<st::TimestampedBufferDouble, 3> pos_bufs_;
   dsp::LowPassFilter<kdl::Vector> mag_B_lpf_, mag_W_lpf_;
 
+  bool last_ok_ = false;
+
   ros2::PublisherPtr<tobas_msgs::msg::VehicleHealth> health_pub_;
 
   ros2::SubscriberPtr<Drone> drone_sub_;
@@ -114,6 +116,7 @@ private:
   ros2::TimerPtr main_timer_;
 
   void getStaticRosParams();
+  std::unique_ptr<tobas_msgs::msg::VehicleHealth> createHealthMessage() const;
 
   void droneCb(const Drone::ConstSharedPtr& drone);
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
@@ -183,169 +186,8 @@ void HealthMonitorNode::getStaticRosParams()
   do_check_.user_defined_condition = getBoolParam("check_user_defined_condition");
 }
 
-void HealthMonitorNode::droneCb(const Drone::ConstSharedPtr& drone)
+std::unique_ptr<tobas_msgs::msg::VehicleHealth> HealthMonitorNode::createHealthMessage() const
 {
-  drone_ = drone;
-}
-
-void HealthMonitorNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
-{
-  // Clear `pos_bufs_` for position drift checks when disarmed.
-  if (!arming_ || (arming_->data && !arming->data)) {
-    for (auto& buf : pos_bufs_) {
-      buf.clear();
-    }
-  }
-
-  arming_ = arming;
-}
-
-void HealthMonitorNode::battCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery)
-{
-  if (!drone_) {
-    return;
-  }
-
-  const auto eprop = boost::polymorphic_pointer_downcast<ElectricPropulsionSystemConfig>(drone_->prop);
-  if (!eprop) {
-    return;
-  }
-
-  // Calculate voltage compensated for the drop caused by internal resistance.
-  const auto voltage = battery->voltage + eprop->battery.internal_resistance * battery->current;
-
-  // Determine the initial state.
-  if (!battery_) {
-    battery_ = battery;
-    batt_voltage_ok_ = voltage > eprop->battery.nominal_voltage;
-    return;
-  }
-
-  // Update the latest battery state.
-  battery_ = battery;
-
-  // Switch state robustly using hysteresis and a time window.
-  const auto& cur_time = battery->header.stamp;
-  if (batt_voltage_ok_) {
-    // Update the last time the voltage was above the threshold.
-    if (voltage > eprop->battery.sag_voltage) {
-      t_last_voltage_ok_ = cur_time;
-    }
-
-    // Switch state if the voltage stays below the threshold for a fixed time.
-    if (cur_time - t_last_voltage_ok_ > kBattVoltageDownTimeThresh) {
-      batt_voltage_ok_ = false;
-      t_last_voltage_ng_ = cur_time;
-    }
-  }
-  else {
-    // Update the last time the voltage was below the threshold.
-    if (voltage < eprop->battery.nominal_voltage) {
-      t_last_voltage_ng_ = cur_time;
-    }
-
-    // Switch state if the voltage stays above the threshold for a fixed time.
-    // Usually the vehicle does not naturally recover from low voltage, so this transition should be conservative.
-    if (cur_time - t_last_voltage_ng_ > kBattVoltageUpTimeThresh) {
-      batt_voltage_ok_ = true;
-      t_last_voltage_ok_ = cur_time;
-    }
-  }
-}
-
-void HealthMonitorNode::cpuCb(const tobas_msgs::msg::Cpu::ConstSharedPtr& cpu)
-{
-  cpu_ = cpu;
-}
-
-void HealthMonitorNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
-{
-  if (rcin->ok) {
-    t_last_rcin_ = rclcpp::Time(rcin->header.stamp, get_clock()->get_clock_type());
-  }
-}
-
-void HealthMonitorNode::rotorLivCb(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& rotor_liv)
-{
-  rotor_liv_ = rotor_liv;
-}
-
-void HealthMonitorNode::samplingTimeCb(const tobas_msgs::msg::Latency::ConstSharedPtr& sampling_time)
-{
-  // Check message time difference.
-  if (sampling_time->data > kImuSamplingTimeThresh) {
-    t_last_rt_violation_ = rclcpp::Time(sampling_time->header.stamp, get_clock()->get_clock_type());
-  }
-
-  sampling_time_ = sampling_time;
-}
-
-void HealthMonitorNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom)
-{
-  // Store position history while the vehicle is not armed.
-  if (arming_ && !arming_->data) {
-    const auto stamp = ros2::chronoFromRosTime(odom->header.stamp);
-    for (size_t i = 0; i < 3; ++i) {
-      pos_bufs_[i].add(stamp, odom->odom.odom.frame.p(i));
-    }
-  }
-
-  odom_ = odom;
-}
-
-void HealthMonitorNode::magCb(const tobas_msgs::MagneticField::ConstSharedPtr& mag)
-{
-  if (!odom_) {
-    return;
-  }
-
-  const auto& mag_B = mag->mag;
-
-  // Magnetic field vector in the world frame, ideally an invariant vector.
-  // Convert to the world frame before passing through the LPF to avoid attitude-magnetic-field time offset.
-  const auto mag_W = odom_->odom.odom.frame.M * mag_B;
-
-  if (!mag_) {
-    mag_B_lpf_.setValue(mag_B);
-    mag_W_lpf_.setValue(mag_W);
-
-    mag_ = mag;
-    return;
-  }
-
-  const auto dt = (mag->header.stamp - mag_->header.stamp).seconds();
-  mag_ = mag;
-
-  mag_B_lpf_.update(mag_B, dt);
-  mag_W_lpf_.update(mag_W, dt);
-}
-
-void HealthMonitorNode::magRefCb(const tobas_msgs::MagneticField::ConstSharedPtr& mag_ref)
-{
-  mag_ref_ = mag_ref;
-}
-
-void HealthMonitorNode::vibrationLevelCb(const tobas_msgs::VibrationLevel::ConstSharedPtr& vibe)
-{
-  vibe_ = vibe;
-}
-
-void HealthMonitorNode::userDefinedHealthStatusCb(
-  const tobas_msgs::msg::UserDefinedHealthStatus::ConstSharedPtr& user_health)
-{
-  user_health_ = user_health;
-}
-
-void HealthMonitorNode::mainTimerCb()
-{
-  if (!drone_) {
-    return;
-  }
-
-  if (!arming_) {
-    return;
-  }
-
   const auto cur_time = now();
 
   auto health = std::make_unique<tobas_msgs::msg::VehicleHealth>();
@@ -641,6 +483,179 @@ void HealthMonitorNode::mainTimerCb()
   else {
     health->user_defined_condition = tobas_msgs::msg::VehicleHealth::IGNORED;
   }
+
+  return health;
+}
+
+void HealthMonitorNode::droneCb(const Drone::ConstSharedPtr& drone)
+{
+  drone_ = drone;
+}
+
+void HealthMonitorNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
+{
+  // Clear `pos_bufs_` for position drift checks when disarmed.
+  if (!arming_ || (arming_->data && !arming->data)) {
+    for (auto& buf : pos_bufs_) {
+      buf.clear();
+    }
+  }
+
+  arming_ = arming;
+}
+
+void HealthMonitorNode::battCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery)
+{
+  if (!drone_) {
+    return;
+  }
+
+  const auto eprop = boost::polymorphic_pointer_downcast<ElectricPropulsionSystemConfig>(drone_->prop);
+  if (!eprop) {
+    return;
+  }
+
+  // Calculate voltage compensated for the drop caused by internal resistance.
+  const auto voltage = battery->voltage + eprop->battery.internal_resistance * battery->current;
+
+  // Determine the initial state.
+  if (!battery_) {
+    battery_ = battery;
+    batt_voltage_ok_ = voltage > eprop->battery.nominal_voltage;
+    return;
+  }
+
+  // Update the latest battery state.
+  battery_ = battery;
+
+  // Switch state robustly using hysteresis and a time window.
+  const auto& cur_time = battery->header.stamp;
+  if (batt_voltage_ok_) {
+    // Update the last time the voltage was above the threshold.
+    if (voltage > eprop->battery.sag_voltage) {
+      t_last_voltage_ok_ = cur_time;
+    }
+
+    // Switch state if the voltage stays below the threshold for a fixed time.
+    if (cur_time - t_last_voltage_ok_ > kBattVoltageDownTimeThresh) {
+      batt_voltage_ok_ = false;
+      t_last_voltage_ng_ = cur_time;
+    }
+  }
+  else {
+    // Update the last time the voltage was below the threshold.
+    if (voltage < eprop->battery.nominal_voltage) {
+      t_last_voltage_ng_ = cur_time;
+    }
+
+    // Switch state if the voltage stays above the threshold for a fixed time.
+    // Usually the vehicle does not naturally recover from low voltage, so this transition should be conservative.
+    if (cur_time - t_last_voltage_ng_ > kBattVoltageUpTimeThresh) {
+      batt_voltage_ok_ = true;
+      t_last_voltage_ok_ = cur_time;
+    }
+  }
+}
+
+void HealthMonitorNode::cpuCb(const tobas_msgs::msg::Cpu::ConstSharedPtr& cpu)
+{
+  cpu_ = cpu;
+}
+
+void HealthMonitorNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
+{
+  if (rcin->ok) {
+    t_last_rcin_ = rclcpp::Time(rcin->header.stamp, get_clock()->get_clock_type());
+  }
+}
+
+void HealthMonitorNode::rotorLivCb(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& rotor_liv)
+{
+  rotor_liv_ = rotor_liv;
+}
+
+void HealthMonitorNode::samplingTimeCb(const tobas_msgs::msg::Latency::ConstSharedPtr& sampling_time)
+{
+  // Check message time difference.
+  if (sampling_time->data > kImuSamplingTimeThresh) {
+    t_last_rt_violation_ = rclcpp::Time(sampling_time->header.stamp, get_clock()->get_clock_type());
+  }
+
+  sampling_time_ = sampling_time;
+}
+
+void HealthMonitorNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom)
+{
+  // Store position history while the vehicle is not armed.
+  if (arming_ && !arming_->data) {
+    const auto stamp = ros2::chronoFromRosTime(odom->header.stamp);
+    for (size_t i = 0; i < 3; ++i) {
+      pos_bufs_[i].add(stamp, odom->odom.odom.frame.p(i));
+    }
+  }
+
+  odom_ = odom;
+}
+
+void HealthMonitorNode::magCb(const tobas_msgs::MagneticField::ConstSharedPtr& mag)
+{
+  if (!odom_) {
+    return;
+  }
+
+  const auto& mag_B = mag->mag;
+
+  // Magnetic field vector in the world frame, ideally an invariant vector.
+  // Convert to the world frame before passing through the LPF to avoid attitude-magnetic-field time offset.
+  const auto mag_W = odom_->odom.odom.frame.M * mag_B;
+
+  if (!mag_) {
+    mag_B_lpf_.setValue(mag_B);
+    mag_W_lpf_.setValue(mag_W);
+
+    mag_ = mag;
+    return;
+  }
+
+  const auto dt = (mag->header.stamp - mag_->header.stamp).seconds();
+  mag_ = mag;
+
+  mag_B_lpf_.update(mag_B, dt);
+  mag_W_lpf_.update(mag_W, dt);
+}
+
+void HealthMonitorNode::magRefCb(const tobas_msgs::MagneticField::ConstSharedPtr& mag_ref)
+{
+  mag_ref_ = mag_ref;
+}
+
+void HealthMonitorNode::vibrationLevelCb(const tobas_msgs::VibrationLevel::ConstSharedPtr& vibe)
+{
+  vibe_ = vibe;
+}
+
+void HealthMonitorNode::userDefinedHealthStatusCb(
+  const tobas_msgs::msg::UserDefinedHealthStatus::ConstSharedPtr& user_health)
+{
+  user_health_ = user_health;
+}
+
+void HealthMonitorNode::mainTimerCb()
+{
+  if (!drone_) {
+    return;
+  }
+
+  if (!arming_) {
+    return;
+  }
+
+  auto health = createHealthMessage();
+
+  if (!arming_->data && !last_ok_ && health->ok) {
+    TOBAS_INFO("The vehicle is ready to arm.");
+  }
+  last_ok_ = health->ok;
 
   health_pub_->publish(std::move(health));
 }

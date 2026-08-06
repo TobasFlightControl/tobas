@@ -6,8 +6,6 @@
 #include <cstring>
 #include <iostream>
 
-using namespace std;
-
 namespace tobas
 {
 namespace fc2xx
@@ -15,17 +13,18 @@ namespace fc2xx
 PwmBattImu::PwmBattImu() : crc_(algo::CRC32Left::CRC_32)
 {
   crc_.initialize();
-
-  // Set an invalid command.
-  tx_buf_[kCmdTypeIdx] = 0xFFFF;
-  setTxCrc();
 }
 
 bool PwmBattImu::initialize()
 {
+  // Initialize the SPI device.
   if (!spi_.initialize(kSpiDevice, tx_buf_, rx_buf_, kSpiClockFreq)) {
     return false;
   }
+
+  // Set a no-operation command.
+  tx_buf_[kCmdTypeIdx] = 0xFFFF;
+  setTxCrc();
 
   // Discard the first response.
   if (!spi_.transfer(sizeof(tx_buf_))) {
@@ -46,7 +45,7 @@ bool PwmBattImu::transfer()
   const uint32_t cs = (rx_buf_[kCrcIdx + 1] << 16) | rx_buf_[kCrcIdx];
   const auto cr = crc_.compute((uint8_t*)rx_buf_, sizeof(uint16_t) * kCrcIdx);
   if (cs != cr) {
-    cerr << "CRC failed: " << hex << uppercase << cs << " != " << cr << dec << endl;
+    std::cerr << "CRC failed: " << std::hex << std::uppercase << cs << " != " << cr << std::dec << std::endl;
     return false;
   }
 

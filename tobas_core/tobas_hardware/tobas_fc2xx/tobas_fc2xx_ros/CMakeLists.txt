@@ -18,6 +18,7 @@ set(AMENT_DEPENDENCIES
     tobas_msgs_adapter
     tobas_drone_msgs_adapter
     tobas_real_common
+    tobas_hardware_common
     tobas_fc2xx_core
 )
 

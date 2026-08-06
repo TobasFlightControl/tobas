@@ -43,7 +43,7 @@ private:
 };
 
 ElectricRotorCommandHandlerNode::ElectricRotorCommandHandlerNode(const rclcpp::NodeOptions& options)
-  : super("gazebo_electric_rotor_command_handler", nodeOptions_Default(options))
+  : super("gazebo_electric_rotor_command_handler", nodeOptions_Default(options)), latency_pub_(this)
 {
   drone_sub_ = createSubscriber(topic::kDrone, &self::droneCb, this, true, true);
 }
@@ -66,7 +66,6 @@ void ElectricRotorCommandHandlerNode::droneCb(const Drone::ConstSharedPtr& drone
     const auto topic = path::join(gazebo::kRotorThrottleCmdTopicNS, link_name);
     throttle_pubs_[link_name] = createPublisher<tobas_gazebo_msgs::msg::Throttle>(topic);
   }
-  latency_pub_.initialize(shared_from_this());
 
   // Register subscribers.
   battery_sub_ = createSubscriber(topic::kBattery, &self::batteryCb, this);

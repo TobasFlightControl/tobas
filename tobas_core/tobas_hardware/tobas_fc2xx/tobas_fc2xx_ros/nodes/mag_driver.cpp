@@ -1,13 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <tobas_hardware_common/constants.hpp>
 #include <tobas_ic_drivers/stmicro/iis2mdc.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_real_common/ros_interface.hpp>
 
 #include <tobas_msgs_adapter/magnetic_field.hpp>
-
-#include "./common.hpp"
 
 using namespace std::chrono_literals;
 
@@ -32,27 +31,39 @@ private:
   ros2::PublisherPtr<tobas_msgs::MagneticField> mag_pub_;
   ros2::TimerPtr initialize_timer_, main_timer_;
 
-  void initialize();
+  bool initialize();
+
+  void initializeTimerCb();
   void mainTimerCb();
 };
 
 MagDriverNode::MagDriverNode(const rclcpp::NodeOptions& options)
   : super("fc2xx_mag_driver", nodeOptions_Default(options))
 {
-  initialize_timer_ = createWallTimer(kRetryInitializationInterval, &self::initialize, this);
+  if (!initialize()) {
+    initialize_timer_ = createWallTimer(hardware::kRetryInitializationInterval, &self::initializeTimerCb, this);
+  }
 }
 
-void MagDriverNode::initialize()
+bool MagDriverNode::initialize()
 {
   if (!mag_.initialize("/dev/i2c-1")) {
     TOBAS_ERROR("Failed to initialize Magnetometer. Retrying...");
-    return;
+    return false;
   }
 
   mag_pub_ = createPublisher<tobas_msgs::MagneticField>(real::topic::kMagneticField);
 
-  initialize_timer_->cancel();
   main_timer_ = createWallTimer(kSamplingPeriod, &self::mainTimerCb, this);
+
+  return true;
+}
+
+void MagDriverNode::initializeTimerCb()
+{
+  if (initialize()) {
+    initialize_timer_->cancel();
+  }
 }
 
 void MagDriverNode::mainTimerCb()

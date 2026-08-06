@@ -51,7 +51,7 @@ private:
 };
 
 IcePropulsionSystemHandlerNode::IcePropulsionSystemHandlerNode(const rclcpp::NodeOptions& options)
-  : super("real_ice_propulsion_system_handler", nodeOptions_Default(options))
+  : super("real_ice_propulsion_system_handler", nodeOptions_Default(options)), latency_pub_(this)
 {
   drone_sub_ = createSubscriber(topic::kDrone, &self::droneCb, this, true, true);
 }
@@ -139,7 +139,6 @@ void IcePropulsionSystemHandlerNode::droneCb(const Drone::ConstSharedPtr& drone)
   // Register publishers.
   pwms_pub_ = createPublisher<tobas_msgs::msg::PwmArray>(topic::kPwmCmd);
   rotor_states_pub_ = createPublisher<tobas_msgs::msg::RotorStateArray>(topic::kRotorStates);
-  latency_pub_.initialize(shared_from_this());
 
   // Register subscribers.
   engine_state_sub_ = createSubscriber(topic::kEngineState, &self::engineStateCb, this);

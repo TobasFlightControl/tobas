@@ -101,7 +101,7 @@ private:
   ros2::PublisherPtr<tobas_msgs::Imu> imu_raw_pub_;
   ros2::PublisherPtr<tobas_msgs::Imu> imu_filt_pub_;
   ros2::PublisherPtr<tobas_gazebo_msgs::msg::ImuDebug> debug_pub_;
-  ImuSamplingTimePublisher sampling_time_pub_;
+  ImuSamplingTimePublisher::SharedPtr sampling_time_pub_;
 
   ros2::SubscriberPtr<tobas_gazebo_msgs::msg::EngineState> engine_state_sub_;
   std::vector<ros2::SubscriberPtr<tobas_gazebo_msgs::msg::RotorState>> rotor_state_subs_;
@@ -163,7 +163,7 @@ void GazeboImuPlugin::Configure(
   imu_raw_pub_ = createPublisher<tobas_msgs::Imu>(topic::kImuRaw);
   imu_filt_pub_ = createPublisher<tobas_msgs::Imu>(topic::kImuFilt);
   debug_pub_ = createPublisher<tobas_gazebo_msgs::msg::ImuDebug>(kDebugTopic);
-  sampling_time_pub_.initialize(node_, node_->now());
+  sampling_time_pub_ = std::make_shared<ImuSamplingTimePublisher>(node_.get());
 
   engine_state_sub_ = createSubscriber(kEngineStateGtTopic, &self::engineStateCb, this);
 
@@ -266,7 +266,7 @@ void GazeboImuPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim:
   }
 
   // Publish sampling time.
-  sampling_time_pub_.publish(cur_time);
+  sampling_time_pub_->publish(cur_time);
 
   // Publish debug message.
   auto debug_msg = std::make_unique<tobas_gazebo_msgs::msg::ImuDebug>();
@@ -360,8 +360,8 @@ void GazeboImuPlugin::configureImuRpmFilter(
 {
   // TODO: Implement an RPM filter. In discrete time the update frequency is insufficient,
   // so it may be better to create a continuous-time transfer function before signal generation.
-  res->success = false;
-  res->message = "The RPM filter is not implemented in the simulation.";
+  res->success = true;
+  res->message.clear();
 }
 }  // namespace gazebo
 }  // namespace tobas

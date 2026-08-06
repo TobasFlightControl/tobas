@@ -5,10 +5,9 @@
 #include <tobas_constants/time.hpp>
 #include <tobas_fc1xx_core/battery.hpp>
 #include <tobas_hardware_common/base_sensor_node.hpp>
+#include <tobas_hardware_common/constants.hpp>
 
 #include <tobas_msgs/msg/battery.hpp>
-
-#include "./common.hpp"
 
 using namespace std::chrono_literals;
 
@@ -40,7 +39,7 @@ private:
 BatteryDriverNode::BatteryDriverNode(const rclcpp::NodeOptions& options)
   : super("fc1xx_battery_driver", nodeOptions_Default(options))
 {
-  initialize_timer_ = createWallTimer(kRetryInitializationInterval, &self::initialize, this);
+  initialize_timer_ = createWallTimer(hardware::kRetryInitializationInterval, &self::initialize, this);
 }
 
 void BatteryDriverNode::initialize()

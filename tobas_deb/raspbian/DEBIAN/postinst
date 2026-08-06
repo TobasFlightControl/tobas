@@ -1,15 +1,17 @@
 #!/bin/bash
 
+# Disable unecessary services
+# See: `$ systemd-analyze blame`
+sudo systemctl disable exim4.service
+sudo systemctl disable ModemManager.service
+sudo systemctl disable lm-sensors.service
+
 # Reload system daemons
 sudo systemctl daemon-reload
 
 # Apply udev rules
 sudo udevadm control --reload-rules
 sudo udevadm trigger
-
-# Enable "wait" service to make sure that services start after the network is up
-# https://www.freedesktop.org/wiki/Software/systemd/NetworkTarget/
-sudo systemctl enable systemd-networkd-wait-online.service
 
 # Enable SSH server
 sudo systemctl enable ssh.service
