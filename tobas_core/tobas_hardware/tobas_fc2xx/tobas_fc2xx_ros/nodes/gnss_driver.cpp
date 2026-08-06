@@ -42,7 +42,6 @@ private:
 
   bool initialize();
   bool configure();
-  void registerRosInterfaces();
   void warnUnnecessaryUBXMessage();
 
   void initializeTimerCb();
@@ -52,13 +51,7 @@ private:
 GnssDriverNode::GnssDriverNode(const rclcpp::NodeOptions& options)
   : super("fc2xx_gnss_driver", nodeOptions_Default(options))
 {
-  is_received_[ublox::ZEDF9P::NAV_PVT] = false;
-  is_received_[ublox::ZEDF9P::NAV_COV] = false;
-
-  if (initialize()) {
-    registerRosInterfaces();
-  }
-  else {
+  if (!initialize()) {
     initialize_timer_ = createWallTimer(hardware::kRetryInitializationInterval, &self::initializeTimerCb, this);
   }
 }
@@ -74,6 +67,13 @@ bool GnssDriverNode::initialize()
     TOBAS_ERROR("Failed to configure GNSS receiver. Retrying...");
     return false;
   }
+
+  is_received_[ublox::ZEDF9P::NAV_PVT] = false;
+  is_received_[ublox::ZEDF9P::NAV_COV] = false;
+
+  gnss_pub_ = createPublisher<tobas_msgs::Gnss>(topic::kGnss);
+
+  main_timer_ = createWallTimer(kMainTimerPeriod, &self::mainTimerCb, this);
 
   return true;
 }
@@ -163,13 +163,6 @@ bool GnssDriverNode::configure()
   return true;
 }
 
-void GnssDriverNode::registerRosInterfaces()
-{
-  gnss_pub_ = createPublisher<tobas_msgs::Gnss>(topic::kGnss);
-
-  main_timer_ = createWallTimer(kMainTimerPeriod, &self::mainTimerCb, this);
-}
-
 void GnssDriverNode::warnUnnecessaryUBXMessage()
 {
   const auto cls = gnss_.latestClass();
@@ -180,7 +173,6 @@ void GnssDriverNode::warnUnnecessaryUBXMessage()
 void GnssDriverNode::initializeTimerCb()
 {
   if (initialize()) {
-    registerRosInterfaces();
     initialize_timer_->cancel();
   }
 }

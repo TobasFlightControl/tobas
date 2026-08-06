@@ -30,7 +30,6 @@ private:
   ros2::TimerPtr initialize_timer_, main_timer_;
 
   bool initialize();
-  void registerRosInterfaces();
 
   void initializeTimerCb();
   void mainTimerCb();
@@ -39,10 +38,7 @@ private:
 BaroDriverNode::BaroDriverNode(const rclcpp::NodeOptions& options)
   : super("fc2xx_baro_driver", nodeOptions_Default(options))
 {
-  if (initialize()) {
-    registerRosInterfaces();
-  }
-  else {
+  if (!initialize()) {
     initialize_timer_ = createWallTimer(hardware::kRetryInitializationInterval, &self::initializeTimerCb, this);
   }
 }
@@ -54,20 +50,16 @@ bool BaroDriverNode::initialize()
     return false;
   }
 
-  return true;
-}
-
-void BaroDriverNode::registerRosInterfaces()
-{
   baro_pub_ = createPublisher<tobas_msgs::msg::FluidPressure>(topic::kAirPressure);
 
   main_timer_ = createWallTimer(kSamplingPeriod, &self::mainTimerCb, this);
+
+  return true;
 }
 
 void BaroDriverNode::initializeTimerCb()
 {
   if (initialize()) {
-    registerRosInterfaces();
     initialize_timer_->cancel();
   }
 }

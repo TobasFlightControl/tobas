@@ -32,7 +32,6 @@ private:
   ros2::TimerPtr initialize_timer_, main_timer_;
 
   bool initialize();
-  void registerRosInterfaces();
 
   void initializeTimerCb();
   void mainTimerCb();
@@ -41,10 +40,7 @@ private:
 MagDriverNode::MagDriverNode(const rclcpp::NodeOptions& options)
   : super("fc2xx_mag_driver", nodeOptions_Default(options))
 {
-  if (initialize()) {
-    registerRosInterfaces();
-  }
-  else {
+  if (!initialize()) {
     initialize_timer_ = createWallTimer(hardware::kRetryInitializationInterval, &self::initializeTimerCb, this);
   }
 }
@@ -56,20 +52,16 @@ bool MagDriverNode::initialize()
     return false;
   }
 
-  return true;
-}
-
-void MagDriverNode::registerRosInterfaces()
-{
   mag_pub_ = createPublisher<tobas_msgs::MagneticField>(real::topic::kMagneticField);
 
   main_timer_ = createWallTimer(kSamplingPeriod, &self::mainTimerCb, this);
+
+  return true;
 }
 
 void MagDriverNode::initializeTimerCb()
 {
   if (initialize()) {
-    registerRosInterfaces();
     initialize_timer_->cancel();
   }
 }
