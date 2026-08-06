@@ -9,6 +9,6 @@ namespace tobas
 {
 namespace hardware
 {
-static constexpr auto kRetryInitializationInterval = std::chrono::seconds(3);
+static constexpr auto kRetryInitializationInterval = std::chrono::seconds(1);
 }  // namespace hardware
 }  // namespace tobas
