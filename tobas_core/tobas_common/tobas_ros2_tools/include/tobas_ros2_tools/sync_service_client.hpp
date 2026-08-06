@@ -28,11 +28,7 @@ public:
   explicit SyncServiceClient(
     rclcpp::Node::SharedPtr node,
     const std::string& name,
-    rclcpp::CallbackGroup::SharedPtr group = nullptr)
-    : node_(node)
-  {
-    client_ = node->create_client<SrvType>(name, rclcpp::ServicesQoS(), group);
-  }
+    rclcpp::CallbackGroup::SharedPtr group = nullptr);
 
   /**
    * @brief Call the service and wait for a response.
@@ -45,38 +41,61 @@ public:
   template <typename RepT = int64_t, typename RatioT = std::milli>
   typename SrvType::Response::ConstSharedPtr sendRequestAndWait(
     const typename SrvType::Request::SharedPtr& req,
-    std::chrono::duration<RepT, RatioT> timeout = std::chrono::duration<RepT, RatioT>(-1))
-  {
-    // The service may not be ready immediately after client creation because DDS discovery may still be in progress.
-    if (!client_->service_is_ready()) {
-      RCLCPP_ERROR_STREAM(node_->get_logger(), "\"" << client_->get_service_name() << "\" service is not ready.");
-      return nullptr;
-    }
+    std::chrono::duration<RepT, RatioT> timeout = std::chrono::duration<RepT, RatioT>(-1));
 
-    // Send the request and wait for the response.
-    auto future = client_->async_send_request(req);
-    if (waitForFuture(future, timeout) != std::future_status::ready) {
-      RCLCPP_ERROR_STREAM(node_->get_logger(), "Timeout before \"" << client_->get_service_name() << "\" response.");
-      return nullptr;
-    }
-
-    return future.get();
-  }
-
-  bool serviceIsReady()
-  {
-    return client_->service_is_ready();
-  }
+  bool serviceIsReady() const;
 
   template <typename RepT = int64_t, typename RatioT = std::milli>
-  bool waitForService(std::chrono::duration<RepT, RatioT> timeout = std::chrono::duration<RepT, RatioT>(-1))
-  {
-    return client_->wait_for_service(timeout);
-  }
+  bool waitForService(std::chrono::duration<RepT, RatioT> timeout = std::chrono::duration<RepT, RatioT>(-1));
 
 private:
   rclcpp::Node::SharedPtr node_;
   typename rclcpp::Client<SrvType>::SharedPtr client_;
 };
+
+template <typename SrvType>
+SyncServiceClient<SrvType>::SyncServiceClient(
+  rclcpp::Node::SharedPtr node,
+  const std::string& name,
+  rclcpp::CallbackGroup::SharedPtr group)
+  : node_(node)
+{
+  client_ = node->create_client<SrvType>(name, rclcpp::ServicesQoS(), group);
+}
+
+template <typename SrvType>
+template <typename RepT, typename RatioT>
+typename SrvType::Response::ConstSharedPtr SyncServiceClient<SrvType>::sendRequestAndWait(
+  const typename SrvType::Request::SharedPtr& req,
+  std::chrono::duration<RepT, RatioT> timeout)
+{
+  // The service may not be ready immediately after client creation because DDS discovery may still be in progress.
+  if (!client_->service_is_ready()) {
+    RCLCPP_ERROR_STREAM(node_->get_logger(), "\"" << client_->get_service_name() << "\" service is not ready.");
+    return nullptr;
+  }
+
+  // Send the request and wait for the response.
+  auto future = client_->async_send_request(req);
+  if (waitForFuture(future, timeout) != std::future_status::ready) {
+    RCLCPP_ERROR_STREAM(node_->get_logger(), "Timeout before \"" << client_->get_service_name() << "\" response.");
+    return nullptr;
+  }
+
+  return future.get();
+}
+
+template <typename SrvType>
+bool SyncServiceClient<SrvType>::serviceIsReady() const
+{
+  return client_->service_is_ready();
+}
+
+template <typename SrvType>
+template <typename RepT, typename RatioT>
+bool SyncServiceClient<SrvType>::waitForService(std::chrono::duration<RepT, RatioT> timeout)
+{
+  return client_->wait_for_service(timeout);
+}
 }  // namespace ros2
 }  // namespace tobas
