@@ -5,6 +5,7 @@
 #include <tobas_constants/ros_interface.hpp>
 #include <tobas_constants/time.hpp>
 #include <tobas_fc2xx_core/pwm_batt_imu.hpp>
+#include <tobas_hardware_common/constants.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_real_common/ros_interface.hpp>
 #include <tobas_time_tools/util.hpp>
@@ -15,8 +16,6 @@
 #include <tobas_msgs/srv/configure_imu_low_pass_filter.hpp>
 #include <tobas_msgs/srv/configure_imu_rpm_filter.hpp>
 #include <tobas_msgs_adapter/imu.hpp>
-
-#include "./common.hpp"
 
 using namespace std::chrono_literals;
 
@@ -71,7 +70,7 @@ PwmBattImuDriverNode::PwmBattImuDriverNode(const rclcpp::NodeOptions& options)
     registerRosInterfaces();
   }
   else {
-    initialize_timer_ = createWallTimer(kRetryInitializationInterval, &self::initializeTimerCb, this);
+    initialize_timer_ = createWallTimer(hardware::kRetryInitializationInterval, &self::initializeTimerCb, this);
   }
 }
 

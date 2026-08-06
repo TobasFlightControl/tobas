@@ -5,6 +5,7 @@
 #include <tobas_constants/ros_interface.hpp>
 #include <tobas_dsp/low_pass_filter.hpp>
 #include <tobas_hardware_common/base_sensor_node.hpp>
+#include <tobas_hardware_common/constants.hpp>
 #include <tobas_ic_drivers/stmicro/ism330dlc.hpp>
 #include <tobas_real_common/ros_interface.hpp>
 #include <tobas_time_tools/util.hpp>
@@ -12,8 +13,6 @@
 
 #include <tobas_msgs/srv/configure_imu_low_pass_filter.hpp>
 #include <tobas_msgs_adapter/imu.hpp>
-
-#include "./common.hpp"
 
 using namespace std::chrono_literals;
 
@@ -66,7 +65,7 @@ ImuDriverNode::ImuDriverNode(const rclcpp::NodeOptions& options)
   gyro_lpf_.setValue(kdl::Vector::Zero());
   dgyro_lpf_.setValue(kdl::Vector::Zero());
 
-  initialize_timer_ = createWallTimer(kRetryInitializationInterval, &self::initializeTimerCb, this);
+  initialize_timer_ = createWallTimer(hardware::kRetryInitializationInterval, &self::initializeTimerCb, this);
 }
 
 bool ImuDriverNode::initializeImuDriver()

@@ -1,13 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <tobas_hardware_common/constants.hpp>
 #include <tobas_ic_drivers/stmicro/iis2mdc.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_real_common/ros_interface.hpp>
 
 #include <tobas_msgs_adapter/magnetic_field.hpp>
-
-#include "./common.hpp"
 
 using namespace std::chrono_literals;
 
@@ -46,7 +45,7 @@ MagDriverNode::MagDriverNode(const rclcpp::NodeOptions& options)
     registerRosInterfaces();
   }
   else {
-    initialize_timer_ = createWallTimer(kRetryInitializationInterval, &self::initializeTimerCb, this);
+    initialize_timer_ = createWallTimer(hardware::kRetryInitializationInterval, &self::initializeTimerCb, this);
   }
 }
 

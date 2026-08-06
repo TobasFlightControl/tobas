@@ -2,12 +2,11 @@
 // Copyright (C) 2026 Tobas, Inc.
 
 #include <tobas_hardware_common/base_sensor_node.hpp>
+#include <tobas_hardware_common/constants.hpp>
 #include <tobas_ic_drivers/stmicro/iis2mdc.hpp>
 #include <tobas_real_common/ros_interface.hpp>
 
 #include <tobas_msgs_adapter/magnetic_field.hpp>
-
-#include "./common.hpp"
 
 using namespace std::chrono_literals;
 
@@ -39,7 +38,7 @@ private:
 MagDriverNode::MagDriverNode(const rclcpp::NodeOptions& options)
   : super("fc1xx_mag_driver", nodeOptions_Default(options))
 {
-  initialize_timer_ = createWallTimer(kRetryInitializationInterval, &self::initialize, this);
+  initialize_timer_ = createWallTimer(hardware::kRetryInitializationInterval, &self::initialize, this);
 }
 
 void MagDriverNode::initialize()

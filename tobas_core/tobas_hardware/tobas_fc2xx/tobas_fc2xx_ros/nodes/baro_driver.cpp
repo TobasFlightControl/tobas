@@ -2,12 +2,11 @@
 // Copyright (C) 2026 Tobas, Inc.
 
 #include <tobas_constants/ros_interface.hpp>
+#include <tobas_hardware_common/constants.hpp>
 #include <tobas_ic_drivers/stmicro/ilps22qs.hpp>
 #include <tobas_node/node.hpp>
 
 #include <tobas_msgs/msg/fluid_pressure.hpp>
-
-#include "./common.hpp"
 
 using namespace std::chrono_literals;
 
@@ -44,7 +43,7 @@ BaroDriverNode::BaroDriverNode(const rclcpp::NodeOptions& options)
     registerRosInterfaces();
   }
   else {
-    initialize_timer_ = createWallTimer(kRetryInitializationInterval, &self::initializeTimerCb, this);
+    initialize_timer_ = createWallTimer(hardware::kRetryInitializationInterval, &self::initializeTimerCb, this);
   }
 }
 

@@ -7,6 +7,7 @@
 #include <tobas_constants/time.hpp>
 #include <tobas_drone_core/propulsion_system/electric_propulsion_system/electric_propulsion_system.hpp>
 #include <tobas_fc2xx_core/dshot.hpp>
+#include <tobas_hardware_common/constants.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_tools/control_latency_publisher.hpp>
 
@@ -14,8 +15,6 @@
 #include <tobas_msgs/msg/rotor_speed_array.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
 #include <tobas_msgs/srv/set_rpm_control_gains.hpp>
-
-#include "./common.hpp"
 
 using namespace std::chrono_literals;
 
@@ -225,7 +224,7 @@ void DShotDriverNode::droneCb(const Drone::ConstSharedPtr& drone)
 
   eprop_ = boost::polymorphic_pointer_downcast<ElectricPropulsionSystemConfig>(drone->prop);
 
-  initialize_timer_ = createWallTimer(kRetryInitializationInterval, &self::initialize, this);
+  initialize_timer_ = createWallTimer(hardware::kRetryInitializationInterval, &self::initialize, this);
 }
 
 void DShotDriverNode::targetSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::ConstSharedPtr& tar_speeds)

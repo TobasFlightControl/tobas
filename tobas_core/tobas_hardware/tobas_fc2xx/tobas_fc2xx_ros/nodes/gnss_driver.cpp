@@ -2,12 +2,11 @@
 // Copyright (C) 2026 Tobas, Inc.
 
 #include <tobas_constants/ros_interface.hpp>
+#include <tobas_hardware_common/constants.hpp>
 #include <tobas_ic_drivers/ublox/zed_f9p.hpp>
 #include <tobas_node/node.hpp>
 
 #include <tobas_msgs_adapter/gnss.hpp>
-
-#include "./common.hpp"
 
 using namespace std::chrono_literals;
 
@@ -60,7 +59,7 @@ GnssDriverNode::GnssDriverNode(const rclcpp::NodeOptions& options)
     registerRosInterfaces();
   }
   else {
-    initialize_timer_ = createWallTimer(kRetryInitializationInterval, &self::initializeTimerCb, this);
+    initialize_timer_ = createWallTimer(hardware::kRetryInitializationInterval, &self::initializeTimerCb, this);
   }
 }
 

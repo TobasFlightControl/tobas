@@ -3,11 +3,10 @@
 
 #include <tobas_constants/ros_interface.hpp>
 #include <tobas_hardware_common/base_sensor_node.hpp>
+#include <tobas_hardware_common/constants.hpp>
 #include <tobas_ic_drivers/stmicro/ilps22qs.hpp>
 
 #include <tobas_msgs/msg/fluid_pressure.hpp>
-
-#include "./common.hpp"
 
 using namespace std::chrono_literals;
 
@@ -37,7 +36,7 @@ private:
 BaroDriverNode::BaroDriverNode(const rclcpp::NodeOptions& options)
   : super("fc1xx_baro_driver", nodeOptions_Default(options))
 {
-  initialize_timer_ = createWallTimer(kRetryInitializationInterval, &self::initialize, this);
+  initialize_timer_ = createWallTimer(hardware::kRetryInitializationInterval, &self::initialize, this);
 }
 
 void BaroDriverNode::initialize()
