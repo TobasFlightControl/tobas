@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Disable unecessary services
+# See: `$ systemd-analyze blame`
+sudo systemctl disable exim4.service
+sudo systemctl disable ModemManager.service
+sudo systemctl disable lm-sensors.service
+
 # Reload system daemons
 sudo systemctl daemon-reload
 

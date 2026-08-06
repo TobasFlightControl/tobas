@@ -26,6 +26,20 @@ $ sudo mount /dev/sda2 /mnt/rootfs
 - I2C: Interface Options -> I2C
 - UART: Interface Options -> Serial Port -> Shell: No, Hardware: Yes
 
+### Disable the Network Installation UI
+
+Open the configuration file with `rpi-eeprom-config`:
+
+```
+$ sudo EDITOR=emacs rpi-eeprom-config --edit
+```
+
+Edit the `NET_INSTALL_AT_POWER_ON` line:
+
+```
+NET_INSTALL_AT_POWER_ON=0
+```
+
 ### CCACHE
 
 - Enable CCACHE

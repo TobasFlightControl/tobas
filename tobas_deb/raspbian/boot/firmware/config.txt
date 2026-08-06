@@ -15,6 +15,12 @@ auto_initramfs=1
 # Assign the fast UART to GPIOs 4-5 (/dev/serial0)
 dtoverlay=disable-bt
 
+# Disable onboard audio
+dtparam=audio=off
+
+# Disable the rainbow splash screen
+disable_splash=1
+
 # Allow turbo when low-voltage is present
 avoid_warnings=2
 
