@@ -13,17 +13,18 @@ namespace fc2xx
 PwmBattImu::PwmBattImu() : crc_(algo::CRC32Left::CRC_32)
 {
   crc_.initialize();
-
-  // Set an invalid command.
-  tx_buf_[kCmdTypeIdx] = 0xFFFF;
-  setTxCrc();
 }
 
 bool PwmBattImu::initialize()
 {
+  // Initialize the SPI device.
   if (!spi_.initialize(kSpiDevice, tx_buf_, rx_buf_, kSpiClockFreq)) {
     return false;
   }
+
+  // Set a no-operation command.
+  tx_buf_[kCmdTypeIdx] = 0xFFFF;
+  setTxCrc();
 
   // Discard the first response.
   if (!spi_.transfer(sizeof(tx_buf_))) {
