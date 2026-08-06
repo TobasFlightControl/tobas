@@ -37,8 +37,10 @@ public:
     const ValueT& value,
     std::chrono::duration<RepT, RatioT> timeout = std::chrono::duration<RepT, RatioT>(-1));
 
+  inline bool serviceIsReady() const;
+
   template <typename RepT = int64_t, typename RatioT = std::milli>
-  bool waitForService(std::chrono::duration<RepT, RatioT> timeout = std::chrono::duration<RepT, RatioT>(-1));
+  inline bool waitForService(std::chrono::duration<RepT, RatioT> timeout = std::chrono::duration<RepT, RatioT>(-1));
 
   inline ErrorCode errorCode() const;
   inline const char* errorMessage() const;
@@ -87,8 +89,13 @@ SyncParamClient::setParam(const std::string& param_name, const ValueT& value, st
   return error_code_ = kNoError;
 }
 
+inline bool SyncParamClient::serviceIsReady() const
+{
+  return client_.service_is_ready();
+}
+
 template <typename RepT, typename RatioT>
-bool SyncParamClient::waitForService(std::chrono::duration<RepT, RatioT> timeout)
+inline bool SyncParamClient::waitForService(std::chrono::duration<RepT, RatioT> timeout)
 {
   return client_.wait_for_service(timeout);
 }

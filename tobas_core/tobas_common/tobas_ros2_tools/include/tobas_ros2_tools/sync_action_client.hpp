@@ -71,8 +71,10 @@ public:
     GoalHandlePtr goal_handle,
     std::chrono::duration<RepT, RatioT> timeout = std::chrono::duration<RepT, RatioT>(-1));
 
+  inline bool serverIsReady() const;
+
   template <typename RepT = int64_t, typename RatioT = std::milli>
-  bool waitForServer(std::chrono::duration<RepT, RatioT> timeout = std::chrono::duration<RepT, RatioT>(-1));
+  inline bool waitForServer(std::chrono::duration<RepT, RatioT> timeout = std::chrono::duration<RepT, RatioT>(-1));
 
 private:
   const rclcpp::Node::SharedPtr node_;
@@ -161,8 +163,14 @@ bool SyncActionClient<ActType>::cancelGoalAndWait(GoalHandlePtr goal_handle, std
 }
 
 template <typename ActType>
+inline bool SyncActionClient<ActType>::serverIsReady() const
+{
+  return client_->action_server_is_ready();
+}
+
+template <typename ActType>
 template <typename RepT, typename RatioT>
-bool SyncActionClient<ActType>::waitForServer(std::chrono::duration<RepT, RatioT> timeout)
+inline bool SyncActionClient<ActType>::waitForServer(std::chrono::duration<RepT, RatioT> timeout)
 {
   return client_->wait_for_action_server(timeout);
 }
