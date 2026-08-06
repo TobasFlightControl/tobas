@@ -13,10 +13,6 @@ sudo systemctl daemon-reload
 sudo udevadm control --reload-rules
 sudo udevadm trigger
 
-# Enable "wait" service to make sure that services start after the network is up
-# https://www.freedesktop.org/wiki/Software/systemd/NetworkTarget/
-sudo systemctl enable systemd-networkd-wait-online.service
-
 # Enable SSH server
 sudo systemctl enable ssh.service
 

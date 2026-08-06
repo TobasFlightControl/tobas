@@ -1,5 +1,6 @@
 [Unit]
 Description=Tobas Interface Process
+Requires=systemd-networkd.service
 After=network.target
 PartOf=tobas_real.target
 
