@@ -194,7 +194,8 @@ void FailsafeExecutorNode::vehicleHealthCb(const tobas_msgs::msg::VehicleHealth:
   const auto posvel_accurate = (health->position_accuracy == VH::PASSED) && (health->velocity_accuracy == VH::PASSED);
 
   const auto landed = (landed_ && landed_->landed);
-  const auto manual_ctrl_enabled = (!radio_link_lost && rcin_ && rcin_->ok && rcin_->enable);
+  const auto rcin_ok = (!radio_link_lost && rcin_ && rcin_->status == tobas_msgs::msg::RCInput::STATUS_OK);
+  const auto manual_ctrl_enabled = (rcin_ok && rcin_->enable);
   const auto failsafe_mission_ready = (!manual_ctrl_enabled && posvel_accurate);
 
   switch (state_) {

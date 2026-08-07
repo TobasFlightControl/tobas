@@ -14,7 +14,7 @@ namespace tobas_msgs
 struct RCInput
 {
   std_msgs::msg::Header header;
-  bool ok;
+  uint8_t status;
   double roll;
   double pitch;
   double throttle;
@@ -42,7 +42,7 @@ struct rclcpp::TypeAdapter<tobas_msgs::RCInput, tobas_msgs::msg::RCInput>
   static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
   {
     dst.header = src.header;
-    dst.ok = src.ok;
+    dst.status = src.status;
     dst.roll = src.roll;
     dst.pitch = src.pitch;
     dst.throttle = src.throttle;
@@ -57,7 +57,7 @@ struct rclcpp::TypeAdapter<tobas_msgs::RCInput, tobas_msgs::msg::RCInput>
   static void convert_to_custom(const ros_message_type& src, custom_type& dst)
   {
     dst.header = src.header;
-    dst.ok = src.ok;
+    dst.status = src.status;
     dst.roll = src.roll;
     dst.pitch = src.pitch;
     dst.throttle = src.throttle;

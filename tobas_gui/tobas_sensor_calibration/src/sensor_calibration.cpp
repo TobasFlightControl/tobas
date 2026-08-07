@@ -111,7 +111,7 @@ void SensorCalibrationWidget::magCb(const tobas_msgs::MagneticField::ConstShared
 
 void SensorCalibrationWidget::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& msg)
 {
-  if (msg->ok) {
+  if (msg->status == tobas_msgs::msg::RCInput::STATUS_OK) {
     setCompleted(rcin_calib_);
   }
 }

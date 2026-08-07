@@ -2,7 +2,12 @@
 # Copyright (C) 2026 Tobas, Inc.
 
 std_msgs/Header header
-bool ok
+
+uint8 status
+uint8 STATUS_OK = 0
+uint8 STATUS_FRAME_LOST = 1
+uint8 STATUS_TIMEOUT = 2
+uint8 STATUS_OTHER = 3
 
 float64 roll      # CH1: [-1, 1]
 float64 pitch     # CH2: [-1, 1]

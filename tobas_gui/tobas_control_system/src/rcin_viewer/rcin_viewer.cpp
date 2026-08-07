@@ -98,7 +98,7 @@ void RCInputViewerWidget::setMode(FlightMode mode)
 
 void RCInputViewerWidget::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
 {
-  if (!rcin->ok) {
+  if (rcin->status != tobas_msgs::msg::RCInput::STATUS_OK) {
     reset();
     return;
   }

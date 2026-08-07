@@ -965,7 +965,7 @@ void MulticopterMissionExecutorNode::gnssOriginCb(const tobas_msgs::msg::Geodeti
 
 void MulticopterMissionExecutorNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
 {
-  is_manual_ctrl_enabled_ = (rcin->ok && rcin->enable);
+  is_manual_ctrl_enabled_ = (rcin->status == tobas_msgs::msg::RCInput::STATUS_OK && rcin->enable);
 
   if (is_executing_ && is_manual_ctrl_enabled_) {
     status_ = kManualOverride;

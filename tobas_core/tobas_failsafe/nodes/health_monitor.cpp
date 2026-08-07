@@ -564,7 +564,7 @@ void HealthMonitorNode::cpuCb(const tobas_msgs::msg::Cpu::ConstSharedPtr& cpu)
 
 void HealthMonitorNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
 {
-  if (rcin->ok) {
+  if (rcin->status == tobas_msgs::msg::RCInput::STATUS_OK) {
     t_last_rcin_ = rclcpp::Time(rcin->header.stamp, get_clock()->get_clock_type());
   }
 }

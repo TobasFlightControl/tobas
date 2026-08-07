@@ -5,6 +5,7 @@
 
 #include <tobas_constants/path.hpp>
 #include <tobas_constants/rc_input.hpp>
+#include <tobas_constants/time.hpp>
 #include <tobas_linux/core.hpp>
 #include <tobas_math/core.hpp>
 #include <tobas_node/node.hpp>
@@ -17,6 +18,7 @@
 #include <tobas_msgs_adapter/rc_input.hpp>
 #include <tobas_real_msgs/srv/set_rc_input_params.hpp>
 
+using namespace std::chrono_literals;
 namespace fs = std::filesystem;
 
 namespace tobas
@@ -50,11 +52,14 @@ private:
   ros2::SubscriberPtr<tobas_msgs::msg::Sbus> sbus_sub_;
   ros2::ServiceServerPtr<SetParams> set_params_ss_;
 
+  ros2::TimerPtr timeout_timer_;
+
   bool getConfig();
   void registerPubSub();
   FlightMode getClosestFlightMode(uint16_t period);
 
   void sbusCb(const tobas_msgs::msg::Sbus::ConstSharedPtr& sbus);
+  void timeoutTimerCb();
   void setParamsCb(const SetParams::Request::ConstSharedPtr& req, const SetParams::Response::SharedPtr& res);
 };
 
@@ -84,6 +89,11 @@ RCInputHandlerNode::RCInputHandlerNode(const rclcpp::NodeOptions& options)
 
   // Register publishers and subscribers if getting configuration is successful.
   registerPubSub();
+
+  // The longest S.BUS period is 14 ms.
+  // Treat the receiver as abnormal if 3 or more frames are missing.
+  // Always publish some message because subscribers are harder to implement as event-driven logic if messages may stop.
+  timeout_timer_ = createWallTimer(14ms * 3, &self::timeoutTimerCb, this);
 }
 
 bool RCInputHandlerNode::getConfig()
@@ -200,14 +210,16 @@ FlightMode RCInputHandlerNode::getClosestFlightMode(uint16_t period)
 
 void RCInputHandlerNode::sbusCb(const tobas_msgs::msg::Sbus::ConstSharedPtr& sbus)
 {
+  timeout_timer_.reset();
+
   auto rcin_msg = std::make_unique<tobas_msgs::RCInput>();
   rcin_msg->header = sbus->header;
 
   if (sbus->frame_lost) {
-    rcin_msg->ok = false;
+    rcin_msg->status = tobas_msgs::msg::RCInput::STATUS_FRAME_LOST;
   }
   else {
-    rcin_msg->ok = true;
+    rcin_msg->status = tobas_msgs::msg::RCInput::STATUS_OK;
 
     const auto& roll = sbus->periods[kRcChannelRoll];
     const auto& pitch = sbus->periods[kRcChannelPitch];
@@ -234,6 +246,16 @@ void RCInputHandlerNode::sbusCb(const tobas_msgs::msg::Sbus::ConstSharedPtr& sbu
     }
   }
 
+  rcin_pub_->publish(std::move(rcin_msg));
+}
+
+void RCInputHandlerNode::timeoutTimerCb()
+{
+  TOBAS_WARN_THROTTLE(kTypicalWarnPeriod, "S.BUS timed out.");
+
+  auto rcin_msg = std::make_unique<tobas_msgs::RCInput>();
+  rcin_msg->header.stamp = now();
+  rcin_msg->status = tobas_msgs::msg::RCInput::STATUS_TIMEOUT;
   rcin_pub_->publish(std::move(rcin_msg));
 }
 

@@ -323,7 +323,7 @@ void BasePoseCommanderWidget::odomCb(const tobas_msgs::OdometryWithCovarianceSta
 void BasePoseCommanderWidget::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
 {
   // Stop commanding if manual control is enabled.
-  if (isRunning() && rcin->ok && rcin->enable) {
+  if (isRunning() && rcin->status == tobas_msgs::msg::RCInput::STATUS_OK && rcin->enable) {
     reset();
   }
 

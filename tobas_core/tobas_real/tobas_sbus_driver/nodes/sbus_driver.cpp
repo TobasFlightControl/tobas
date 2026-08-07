@@ -23,19 +23,12 @@ public:
 private:
   std::string device_;
   SBUS sbus_;
-  std::mutex mutex_;
 
   ros2::PublisherPtr<tobas_msgs::msg::Sbus> sbus_pub_;
   ros2::TimerPtr initialize_timer_;
-  ros2::TimerPtr timeout_timer_;
 
   void initialize();
-
-  void publishExclusively(tobas_msgs::msg::Sbus::UniquePtr msg);
-
   void onPacket(const SBUS::Packet& packet);
-
-  void onPacketTimeout();
 };
 
 SbusDriverNode::SbusDriverNode(const rclcpp::NodeOptions& options)
@@ -59,28 +52,13 @@ void SbusDriverNode::initialize()
     return;
   }
 
-  initialize_timer_->cancel();
-
   sbus_.start();
 
-  // The longest S.BUS period is 14 ms.
-  // Treat the receiver as abnormal if 3 or more frames are missing.
-  // Always publish some message because subscribers are harder to implement as event-driven logic if messages may stop.
-  timeout_timer_ = createWallTimer(14ms * 3, &self::onPacketTimeout, this);
-}
-
-void SbusDriverNode::publishExclusively(tobas_msgs::msg::Sbus::UniquePtr msg)
-{
-  // Lock to prevent the packet reception and timeout threads from accessing the publisher at the same time.
-  const std::lock_guard lock(mutex_);
-  sbus_pub_->publish(std::move(msg));
+  initialize_timer_->cancel();
 }
 
 void SbusDriverNode::onPacket(const SBUS::Packet& packet)
 {
-  // Reset the timeout timer.
-  timeout_timer_.reset();
-
   // Create a message.
   auto sbus_msg = std::make_unique<tobas_msgs::msg::Sbus>();
   sbus_msg->header.stamp = now();
@@ -92,16 +70,7 @@ void SbusDriverNode::onPacket(const SBUS::Packet& packet)
   sbus_msg->failsafe = packet.failsafe;
 
   // Publish the message.
-  publishExclusively(std::move(sbus_msg));
-}
-
-void SbusDriverNode::onPacketTimeout()
-{
-  // Publish a frame-lost message.
-  auto sbus_msg = std::make_unique<tobas_msgs::msg::Sbus>();
-  sbus_msg->header.stamp = now();
-  sbus_msg->frame_lost = true;
-  publishExclusively(std::move(sbus_msg));
+  sbus_pub_->publish(std::move(sbus_msg));
 }
 }  // namespace tobas
 

@@ -78,7 +78,7 @@ void RcInputPublisher::publishFromState(const GamepadRcInputState& _state)
 {
   auto msg = std::make_unique<tobas_msgs::RCInput>();
   msg->header.stamp = now();
-  msg->ok = _state.ok;
+  msg->status = _state.ok ? tobas_msgs::msg::RCInput::STATUS_OK : tobas_msgs::msg::RCInput::STATUS_OTHER;
   msg->roll = _state.roll;
   msg->pitch = _state.pitch;
   msg->throttle = _state.throttle;

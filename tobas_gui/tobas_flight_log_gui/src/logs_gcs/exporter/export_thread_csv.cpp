@@ -353,7 +353,7 @@ std::string ExportThreadCsv::makeCsvDataRow(Time time, const SerializedDataMap& 
   const auto rcin_it = data.find(topic::kRcInput);
   if (rcin_it != data.end()) {
     const auto& msg = rcin_decoder_.decode(rcin_it->second);
-    if (msg.ok) {
+    if (msg.status == tobas_msgs::msg::RCInput::STATUS_OK) {
       res += std::to_string(msg.roll) + ',' + std::to_string(msg.pitch) + ',' + std::to_string(msg.throttle) + ',' +
              std::to_string(msg.yaw) + ',' + std::to_string(msg.mode) + ',' + std::to_string(msg.sub_mode) + ',' +
              std::to_string(msg.enable) + ',' + std::to_string(msg.kill) + ',';

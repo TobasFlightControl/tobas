@@ -400,7 +400,7 @@ void RCTeleopNode::landedCb(const tobas_msgs::msg::LandedState::ConstSharedPtr& 
 
 void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
 {
-  if (!rcin->ok) {
+  if (rcin->status != tobas_msgs::msg::RCInput::STATUS_OK) {
     return;
   }
 

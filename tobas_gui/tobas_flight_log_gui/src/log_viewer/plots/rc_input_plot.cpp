@@ -136,7 +136,7 @@ void RcInputPlotWidget::setData(const QVector<tobas_msgs::msg::RCInput>& msgs)
   QVector<double> kill_data;
 
   for (const auto& msg : msgs) {
-    if (!msg.ok) {
+    if (msg.status != tobas_msgs::msg::RCInput::STATUS_OK) {
       continue;
     }
 
