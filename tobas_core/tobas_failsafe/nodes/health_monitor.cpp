@@ -90,10 +90,10 @@ private:
   tobas_msgs::VibrationLevel::ConstSharedPtr vibe_;
   tobas_msgs::msg::UserDefinedHealthStatus::ConstSharedPtr user_health_;
 
-  rclcpp::Time t_last_rt_violation_;
+  builtin_interfaces::msg::Time t_last_rt_violation_;
   bool batt_voltage_ok_ = true;
   builtin_interfaces::msg::Time t_last_voltage_ok_, t_last_voltage_ng_;
-  rclcpp::Time t_last_valid_rcin_;
+  builtin_interfaces::msg::Time t_last_valid_rcin_;
   std::array<st::TimestampedBufferDouble, 3> pos_bufs_;
   dsp::LowPassFilter<kdl::Vector> mag_B_lpf_, mag_W_lpf_;
 
@@ -189,11 +189,9 @@ void HealthMonitorNode::getStaticRosParams()
 
 std::unique_ptr<tobas_msgs::msg::VehicleHealth> HealthMonitorNode::createHealthMessage() const
 {
-  const auto cur_time = now();
-
   auto health = std::make_unique<tobas_msgs::msg::VehicleHealth>();
 
-  health->header.stamp = cur_time;
+  health->header.stamp = now();
   health->ok = true;
 
   // Real-time compliance of the control thread.
@@ -201,7 +199,7 @@ std::unique_ptr<tobas_msgs::msg::VehicleHealth> HealthMonitorNode::createHealthM
   // This must be checked because poor communication can slow node graph construction and degrade real-time behavior.
   if (do_check_.realtime_compliance) {
     if (sampling_time_) {
-      if (cur_time - t_last_rt_violation_ < kRTComplianceCheckTimeWindow) {
+      if (sampling_time_->header.stamp - t_last_rt_violation_ < kRTComplianceCheckTimeWindow) {
         health->realtime_compliance = tobas_msgs::msg::VehicleHealth::FAILED;
         health->ok = false;
       }
@@ -273,9 +271,27 @@ std::unique_ptr<tobas_msgs::msg::VehicleHealth> HealthMonitorNode::createHealthM
 
   // Communication between RC transmitter and receiver
   if (do_check_.radio_link) {
-    const auto frame_lost = rcin_ && (rcin_->status == tobas_msgs::msg::RCInput::STATUS_FRAME_LOST);
-    if (frame_lost || cur_time - t_last_valid_rcin_ > kRadioLinkLostTimeThresh) {
-      health->radio_link = tobas_msgs::msg::VehicleHealth::FAILED;
+    if (rcin_) {
+      switch (rcin_->status) {
+        case tobas_msgs::msg::RCInput::STATUS_OK:
+          break;
+        case tobas_msgs::msg::RCInput::STATUS_FRAME_LOST:
+          health->radio_link = tobas_msgs::msg::VehicleHealth::FAILED;
+          health->ok = false;
+          break;
+        case tobas_msgs::msg::RCInput::STATUS_TIMEOUT:
+          if (rcin_->header.stamp - t_last_valid_rcin_ > kRadioLinkLostTimeThresh) {
+            health->radio_link = tobas_msgs::msg::VehicleHealth::FAILED;
+            health->ok = false;
+          }
+          break;
+        default:
+          TOBAS_WARN("Invalid RC status: ", (int)rcin_->status);
+          break;
+      }
+    }
+    else {
+      health->radio_link = tobas_msgs::msg::VehicleHealth::UNKNOWN;
       health->ok = false;
     }
   }
