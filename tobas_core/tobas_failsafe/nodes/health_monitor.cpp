@@ -81,6 +81,7 @@ private:
 
   tobas_msgs::msg::Battery::ConstSharedPtr battery_;
   tobas_msgs::msg::Cpu::ConstSharedPtr cpu_;
+  tobas_msgs::RCInput::ConstSharedPtr rcin_;
   tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr rotor_liv_;
   tobas_msgs::msg::Latency::ConstSharedPtr sampling_time_;
   tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr odom_;
@@ -92,7 +93,7 @@ private:
   rclcpp::Time t_last_rt_violation_;
   bool batt_voltage_ok_ = true;
   builtin_interfaces::msg::Time t_last_voltage_ok_, t_last_voltage_ng_;
-  rclcpp::Time t_last_rcin_;
+  rclcpp::Time t_last_valid_rcin_;
   std::array<st::TimestampedBufferDouble, 3> pos_bufs_;
   dsp::LowPassFilter<kdl::Vector> mag_B_lpf_, mag_W_lpf_;
 
@@ -272,7 +273,8 @@ std::unique_ptr<tobas_msgs::msg::VehicleHealth> HealthMonitorNode::createHealthM
 
   // Communication between RC transmitter and receiver
   if (do_check_.radio_link) {
-    if (t_last_rcin_.nanoseconds() == 0 || cur_time - t_last_rcin_ > kRadioLinkLostTimeThresh) {
+    const auto frame_lost = rcin_ && (rcin_->status == tobas_msgs::msg::RCInput::STATUS_FRAME_LOST);
+    if (frame_lost || cur_time - t_last_valid_rcin_ > kRadioLinkLostTimeThresh) {
       health->radio_link = tobas_msgs::msg::VehicleHealth::FAILED;
       health->ok = false;
     }
@@ -565,8 +567,10 @@ void HealthMonitorNode::cpuCb(const tobas_msgs::msg::Cpu::ConstSharedPtr& cpu)
 void HealthMonitorNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
 {
   if (rcin->status == tobas_msgs::msg::RCInput::STATUS_OK) {
-    t_last_rcin_ = rclcpp::Time(rcin->header.stamp, get_clock()->get_clock_type());
+    t_last_valid_rcin_ = rclcpp::Time(rcin->header.stamp, get_clock()->get_clock_type());
   }
+
+  rcin_ = rcin;
 }
 
 void HealthMonitorNode::rotorLivCb(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& rotor_liv)
