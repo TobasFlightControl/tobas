@@ -8,7 +8,7 @@
 namespace tobas
 {
 // Common period & timeout
-static constexpr auto kCheckTopicsPeriod = std::chrono::seconds(5);
+static constexpr auto kCheckTopicsPeriod = std::chrono::seconds(1);
 static constexpr auto kCommandAutoResetTimeout = std::chrono::milliseconds(500);
 
 // Console message period
