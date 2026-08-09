@@ -16,7 +16,6 @@ find_package(ament_cmake REQUIRED)
 set(AMENT_DEPENDENCIES
     OpenCV
     cv_bridge
-    PkgConfig
     ffmpeg_encoder_decoder
     ffmpeg_image_transport_msgs
     sensor_msgs
