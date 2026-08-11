@@ -15,12 +15,12 @@ AccelPitchYawController::AccelPitchYawController()
 {
 }
 
-bool AccelPitchYawController::requirePosition()
+bool AccelPitchYawController::requireHorizontalPosition()
 {
   return false;
 }
 
-bool AccelPitchYawController::requireVelocity()
+bool AccelPitchYawController::requireVerticalPosition()
 {
   return false;
 }

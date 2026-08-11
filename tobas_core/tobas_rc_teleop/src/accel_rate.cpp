@@ -14,12 +14,12 @@ AccelRateController::AccelRateController()
 {
 }
 
-bool AccelRateController::requirePosition()
+bool AccelRateController::requireHorizontalPosition()
 {
   return false;
 }
 
-bool AccelRateController::requireVelocity()
+bool AccelRateController::requireVerticalPosition()
 {
   return false;
 }

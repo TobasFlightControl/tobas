@@ -21,8 +21,8 @@ class AngleThrottleVectorController : public BaseController
 public:
   explicit AngleThrottleVectorController();
 
-  bool requirePosition() override;
-  bool requireVelocity() override;
+  bool requireHorizontalPosition() override;
+  bool requireVerticalPosition() override;
   bool requireAttitude() override;
   bool requireHeading() override;
 

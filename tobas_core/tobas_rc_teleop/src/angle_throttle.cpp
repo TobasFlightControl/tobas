@@ -16,12 +16,12 @@ AngleThrottleController::AngleThrottleController()
 {
 }
 
-bool AngleThrottleController::requirePosition()
+bool AngleThrottleController::requireHorizontalPosition()
 {
   return false;
 }
 
-bool AngleThrottleController::requireVelocity()
+bool AngleThrottleController::requireVerticalPosition()
 {
   return false;
 }

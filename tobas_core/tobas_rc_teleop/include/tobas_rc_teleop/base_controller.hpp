@@ -19,8 +19,8 @@ class BaseController
 public:
   explicit BaseController();
 
-  virtual bool requirePosition() = 0;
-  virtual bool requireVelocity() = 0;
+  virtual bool requireHorizontalPosition() = 0;
+  virtual bool requireVerticalPosition() = 0;
   virtual bool requireAttitude() = 0;
   virtual bool requireHeading() = 0;
 

@@ -15,12 +15,12 @@ PosVelAccAngleController::PosVelAccAngleController()
 {
 }
 
-bool PosVelAccAngleController::requirePosition()
+bool PosVelAccAngleController::requireHorizontalPosition()
 {
   return true;
 }
 
-bool PosVelAccAngleController::requireVelocity()
+bool PosVelAccAngleController::requireVerticalPosition()
 {
   return true;
 }

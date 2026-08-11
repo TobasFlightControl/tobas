@@ -15,12 +15,12 @@ RateThrottleController::RateThrottleController()
 {
 }
 
-bool RateThrottleController::requirePosition()
+bool RateThrottleController::requireHorizontalPosition()
 {
   return false;
 }
 
-bool RateThrottleController::requireVelocity()
+bool RateThrottleController::requireVerticalPosition()
 {
   return false;
 }

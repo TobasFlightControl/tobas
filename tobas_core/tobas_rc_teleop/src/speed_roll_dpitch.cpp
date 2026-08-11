@@ -16,12 +16,12 @@ SpeedRollDeltaPitchController::SpeedRollDeltaPitchController()
 {
 }
 
-bool SpeedRollDeltaPitchController::requirePosition()
+bool SpeedRollDeltaPitchController::requireHorizontalPosition()
 {
-  return false;
+  return true;
 }
 
-bool SpeedRollDeltaPitchController::requireVelocity()
+bool SpeedRollDeltaPitchController::requireVerticalPosition()
 {
   return true;
 }

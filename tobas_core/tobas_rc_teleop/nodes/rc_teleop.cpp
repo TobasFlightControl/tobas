@@ -262,44 +262,48 @@ bool RCTeleopNode::isFlightModeApplicable(FlightMode mode)
 {
   const auto& controller = controllers_.at(mode);
 
-  if (controller->requirePosition()) {
-    switch (health_->position_accuracy) {
+  if (controller->requireHorizontalPosition()) {
+    switch (health_->horizontal_position_accuracy) {
       case tobas_msgs::msg::VehicleHealth::PASSED:
         break;
       case tobas_msgs::msg::VehicleHealth::FAILED:
         TOBAS_WARN_THROTTLE(
-          kWarnPeriod, mode2str_.at(mode), " mode cannot be applied because the position estimation is inaccurate.");
+          kWarnPeriod,
+          mode2str_.at(mode),
+          " mode cannot be applied because the horizontal position estimation is inaccurate.");
         return false;
       case tobas_msgs::msg::VehicleHealth::IGNORED:
       case tobas_msgs::msg::VehicleHealth::UNKNOWN:
         TOBAS_WARN_THROTTLE(
           kWarnPeriod,
           mode2str_.at(mode),
-          " mode cannot be applied because the position estimation accuracy has not been checked.");
+          " mode cannot be applied because the horizontal position estimation accuracy has not been checked.");
         return false;
       default:
-        TOBAS_ERROR("The position accuracy state is invalid: ", (int)health_->position_accuracy);
+        TOBAS_ERROR("The horizontal position accuracy state is invalid: ", (int)health_->horizontal_position_accuracy);
         return false;
     }
   }
 
-  if (controller->requireVelocity()) {
-    switch (health_->velocity_accuracy) {
+  if (controller->requireVerticalPosition()) {
+    switch (health_->vertical_position_accuracy) {
       case tobas_msgs::msg::VehicleHealth::PASSED:
         break;
       case tobas_msgs::msg::VehicleHealth::FAILED:
         TOBAS_WARN_THROTTLE(
-          kWarnPeriod, mode2str_.at(mode), " mode cannot be applied because the velocity estimation is inaccurate.");
+          kWarnPeriod,
+          mode2str_.at(mode),
+          " mode cannot be applied because the vertical position estimation is inaccurate.");
         return false;
       case tobas_msgs::msg::VehicleHealth::IGNORED:
       case tobas_msgs::msg::VehicleHealth::UNKNOWN:
         TOBAS_WARN_THROTTLE(
           kWarnPeriod,
           mode2str_.at(mode),
-          " mode cannot be applied because the velocity estimation accuracy has not been checked.");
+          " mode cannot be applied because the vertical position estimation accuracy has not been checked.");
         return false;
       default:
-        TOBAS_ERROR("The velocity accuracy state is invalid: ", (int)health_->position_accuracy);
+        TOBAS_ERROR("The vertical position accuracy state is invalid: ", (int)health_->vertical_position_accuracy);
         return false;
     }
   }
@@ -320,7 +324,7 @@ bool RCTeleopNode::isFlightModeApplicable(FlightMode mode)
           " mode cannot be applied because the attitude estimation accuracy has not been checked.");
         return false;
       default:
-        TOBAS_ERROR("The attitude accuracy state is invalid: ", (int)health_->position_accuracy);
+        TOBAS_ERROR("The attitude accuracy state is invalid: ", (int)health_->attitude_accuracy);
         return false;
     }
   }
@@ -341,7 +345,7 @@ bool RCTeleopNode::isFlightModeApplicable(FlightMode mode)
           " mode cannot be applied because the heading estimation accuracy has not been checked.");
         return false;
       default:
-        TOBAS_ERROR("The heading accuracy state is invalid: ", (int)health_->position_accuracy);
+        TOBAS_ERROR("The heading accuracy state is invalid: ", (int)health_->heading_accuracy);
         return false;
     }
   }

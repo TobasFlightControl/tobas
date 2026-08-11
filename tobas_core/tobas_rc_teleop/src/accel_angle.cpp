@@ -15,12 +15,12 @@ AccelAngleController::AccelAngleController()
 {
 }
 
-bool AccelAngleController::requirePosition()
+bool AccelAngleController::requireHorizontalPosition()
 {
   return false;
 }
 
-bool AccelAngleController::requireVelocity()
+bool AccelAngleController::requireVerticalPosition()
 {
   return false;
 }

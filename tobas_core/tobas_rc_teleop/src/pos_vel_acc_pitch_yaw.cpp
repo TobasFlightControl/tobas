@@ -15,12 +15,12 @@ PosVelAccPitchYawController::PosVelAccPitchYawController()
 {
 }
 
-bool PosVelAccPitchYawController::requirePosition()
+bool PosVelAccPitchYawController::requireHorizontalPosition()
 {
   return true;
 }
 
-bool PosVelAccPitchYawController::requireVelocity()
+bool PosVelAccPitchYawController::requireVerticalPosition()
 {
   return true;
 }
