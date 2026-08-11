@@ -210,7 +210,7 @@ FlightMode RCInputHandlerNode::getClosestFlightMode(uint16_t period)
 
 void RCInputHandlerNode::sbusCb(const tobas_msgs::msg::Sbus::ConstSharedPtr& sbus)
 {
-  timeout_timer_.reset();
+  timeout_timer_->reset();
 
   auto rcin_msg = std::make_unique<tobas_msgs::RCInput>();
   rcin_msg->header = sbus->header;
