@@ -22,8 +22,8 @@ HealthViewerWidget::HealthViewerWidget(const RosQtBridge& bridge)
   rotor_links_status_ = new StatusWidget("Rotor Links");
   level_atti_status_ = new StatusWidget("Level Attitude");
   pos_stability_status_ = new StatusWidget("Position Stability");
-  pos_accuracy_status_ = new StatusWidget("Position Accuracy");
-  vel_accuracy_status_ = new StatusWidget("Velocity Accuracy");
+  hor_pos_accuracy_status_ = new StatusWidget("Horizontal Position Accuracy");
+  ver_pos_accuracy_status_ = new StatusWidget("Vertical Position Accuracy");
   atti_accuracy_status_ = new StatusWidget("Attitude Accuracy");
   head_accuracy_status_ = new StatusWidget("Heading Accuracy");
   mag_offset_status_ = new StatusWidget("Mag Offset");
@@ -40,8 +40,8 @@ HealthViewerWidget::HealthViewerWidget(const RosQtBridge& bridge)
   rows->addWidget(rotor_links_status_);
   rows->addWidget(level_atti_status_);
   rows->addWidget(pos_stability_status_);
-  rows->addWidget(pos_accuracy_status_);
-  rows->addWidget(vel_accuracy_status_);
+  rows->addWidget(hor_pos_accuracy_status_);
+  rows->addWidget(ver_pos_accuracy_status_);
   rows->addWidget(atti_accuracy_status_);
   rows->addWidget(head_accuracy_status_);
   rows->addWidget(mag_offset_status_);
@@ -64,8 +64,8 @@ void HealthViewerWidget::reset()
   rotor_links_status_->reset();
   level_atti_status_->reset();
   pos_stability_status_->reset();
-  pos_accuracy_status_->reset();
-  vel_accuracy_status_->reset();
+  hor_pos_accuracy_status_->reset();
+  ver_pos_accuracy_status_->reset();
   atti_accuracy_status_->reset();
   head_accuracy_status_->reset();
   mag_offset_status_->reset();
@@ -83,8 +83,8 @@ void HealthViewerWidget::healthCb(const tobas_msgs::msg::VehicleHealth::ConstSha
   rotor_links_status_->setStatus(health->rotor_links);
   level_atti_status_->setStatus(health->attitude_level);
   pos_stability_status_->setStatus(health->position_stability);
-  pos_accuracy_status_->setStatus(health->position_accuracy);
-  vel_accuracy_status_->setStatus(health->velocity_accuracy);
+  hor_pos_accuracy_status_->setStatus(health->horizontal_position_accuracy);
+  ver_pos_accuracy_status_->setStatus(health->vertical_position_accuracy);
   atti_accuracy_status_->setStatus(health->attitude_accuracy);
   head_accuracy_status_->setStatus(health->heading_accuracy);
   mag_offset_status_->setStatus(health->mag_offset);

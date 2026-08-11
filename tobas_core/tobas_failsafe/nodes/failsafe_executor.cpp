@@ -191,44 +191,54 @@ void FailsafeExecutorNode::vehicleHealthCb(const tobas_msgs::msg::VehicleHealth:
   const auto voltage_too_low = (health->battery_voltage == VH::FAILED);
   const auto radio_link_lost = (health->radio_link == VH::FAILED);
   const auto rotor_link_lost = (health->rotor_links == VH::FAILED);
-  const auto posvel_accurate = (health->position_accuracy == VH::PASSED) && (health->velocity_accuracy == VH::PASSED);
+  const auto horizontal_position_accurate = (health->horizontal_position_accuracy == VH::PASSED);
+  const auto vertical_position_accurate = (health->vertical_position_accuracy == VH::PASSED);
 
   const auto landed = (landed_ && landed_->landed);
   const auto rcin_ok = (!radio_link_lost && rcin_ && rcin_->status == tobas_msgs::msg::RCInput::STATUS_OK);
   const auto manual_ctrl_enabled = (rcin_ok && rcin_->enable);
-  const auto failsafe_mission_ready = (!manual_ctrl_enabled && posvel_accurate);
+  const auto landing_ready = (!manual_ctrl_enabled && vertical_position_accurate);
+  const auto rtl_ready = (landing_ready && horizontal_position_accurate);
 
   switch (state_) {
     case kNoFailSafe: {
       // Update fail-safe state.
       if (voltage_too_low) {
         if (landed) {
-          TOBAS_WARN("Battery fail-safe has been activated.");
+          TOBAS_WARN("Battery fail-safe activated: disarming because the vehicle is already landed.");
           disarm();
         }
-        else if (failsafe_mission_ready) {
-          TOBAS_WARN("Battery fail-safe has been activated.");
+        else if (landing_ready) {
+          TOBAS_WARN("Battery fail-safe activated: starting landing.");
           startLand();
         }
       }
       else if (radio_link_lost) {
         if (landed) {
-          TOBAS_WARN("Radio fail-safe has been activated.");
+          TOBAS_WARN("Radio fail-safe activated: disarming because the vehicle is already landed.");
           disarm();
         }
-        else if (failsafe_mission_ready) {
-          TOBAS_WARN("Radio fail-safe has been activated.");
+        else if (rtl_ready) {
+          TOBAS_WARN("Radio fail-safe activated: starting return to launch.");
           startRTL();
+        }
+        else if (landing_ready) {
+          TOBAS_WARN("Radio fail-safe activated: landing in place because horizontal position is inaccurate.");
+          startLand();
         }
       }
       else if (rotor_link_lost) {
         if (landed) {
-          TOBAS_WARN("Rotor fail-safe has been activated.");
+          TOBAS_WARN("Rotor fail-safe activated: disarming because the vehicle is already landed.");
           disarm();
         }
-        else if (failsafe_mission_ready) {
-          TOBAS_WARN("Rotor fail-safe has been activated.");
-          startRTL();  // TODO: Deploy the parachute if attitude stabilization is theoretically impossible.
+        else if (rtl_ready) {
+          TOBAS_WARN("Rotor fail-safe activated: starting return to launch.");
+          startRTL();
+        }
+        else if (landing_ready) {
+          TOBAS_WARN("Rotor fail-safe activated: landing in place because horizontal position is inaccurate.");
+          startLand();
         }
       }
 
@@ -244,11 +254,13 @@ void FailsafeExecutorNode::vehicleHealthCb(const tobas_msgs::msg::VehicleHealth:
       }
 
       // Update fail-safe state.
-      if (voltage_too_low) {
-        if (failsafe_mission_ready) {
-          TOBAS_WARN("Battery fail-safe has been activated.");
-          startLand();
-        }
+      if (landing_ready && voltage_too_low) {
+        TOBAS_WARN("Battery fail-safe activated during RTL: switching to landing.");
+        startLand();
+      }
+      else if (landing_ready && !horizontal_position_accurate) {
+        TOBAS_WARN("Landing in place because horizontal position became inaccurate during RTL.");
+        startLand();
       }
 
       break;

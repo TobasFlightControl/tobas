@@ -41,7 +41,6 @@ class HealthMonitorNode : public BaseNode
   static constexpr double kAttitudeThresh = M_PI / 12;       // [rad]
   static constexpr double kHorPosStddevThresh = 1.0;         // [m]
   static constexpr double kVerPosStddevThresh = 2.0;         // [m]
-  static constexpr double kVelStddevThresh = 0.3;            // [m/s]
   static constexpr double kAttiStddevThresh = M_PI / 24;     // [rad]
   static constexpr double kHeadStddevThresh = M_PI / 12;     // [rad]
   static constexpr double kMagLpfCutoff = 1.0;               // [s]
@@ -66,8 +65,8 @@ private:
     bool rotor_links;
     bool attitude_level;
     bool position_stability;
-    bool position_accuracy;
-    bool velocity_accuracy;
+    bool horizontal_position_accuracy;
+    bool vertical_position_accuracy;
     bool attitude_accuracy;
     bool heading_accuracy;
     bool mag_offset;
@@ -177,8 +176,8 @@ void HealthMonitorNode::getStaticRosParams()
   do_check_.rotor_links = getBoolParam("check_rotor_links");
   do_check_.attitude_level = getBoolParam("check_attitude_level");
   do_check_.position_stability = getBoolParam("check_position_stability");
-  do_check_.position_accuracy = getBoolParam("check_position_accuracy");
-  do_check_.velocity_accuracy = getBoolParam("check_velocity_accuracy");
+  do_check_.horizontal_position_accuracy = getBoolParam("check_horizontal_position_accuracy");
+  do_check_.vertical_position_accuracy = getBoolParam("check_vertical_position_accuracy");
   do_check_.attitude_accuracy = getBoolParam("check_attitude_accuracy");
   do_check_.heading_accuracy = getBoolParam("check_heading_accuracy");
   do_check_.mag_offset = getBoolParam("check_mag_offset");
@@ -357,42 +356,40 @@ std::unique_ptr<tobas_msgs::msg::VehicleHealth> HealthMonitorNode::createHealthM
     health->position_stability = tobas_msgs::msg::VehicleHealth::IGNORED;
   }
 
-  // Position estimation accuracy
-  if (do_check_.position_accuracy) {
+  // Horizontal position estimation accuracy
+  if (do_check_.horizontal_position_accuracy) {
     if (odom_) {
-      const auto pos_cov_diag = odom_->odom.position_covariance.diagonal().eval();
-      const auto hor_pos_var = std::max(pos_cov_diag.x(), pos_cov_diag.y());
-      const auto ver_pos_var = pos_cov_diag.z();
-      if (hor_pos_var > math::sqr(kHorPosStddevThresh) || ver_pos_var > math::sqr(kVerPosStddevThresh)) {
-        health->position_accuracy = tobas_msgs::msg::VehicleHealth::FAILED;
+      const auto hor_pos_var = odom_->odom.position_covariance.diagonal().head<2>().maxCoeff();
+      if (hor_pos_var > math::sqr(kHorPosStddevThresh)) {
+        health->horizontal_position_accuracy = tobas_msgs::msg::VehicleHealth::FAILED;
         health->ok = false;
       }
     }
     else {
-      health->position_accuracy = tobas_msgs::msg::VehicleHealth::UNKNOWN;
+      health->horizontal_position_accuracy = tobas_msgs::msg::VehicleHealth::UNKNOWN;
       health->ok = false;
     }
   }
   else {
-    health->position_accuracy = tobas_msgs::msg::VehicleHealth::IGNORED;
+    health->horizontal_position_accuracy = tobas_msgs::msg::VehicleHealth::IGNORED;
   }
 
-  // Velocity estimation accuracy
-  if (do_check_.velocity_accuracy) {
+  // Vertical position estimation accuracy
+  if (do_check_.vertical_position_accuracy) {
     if (odom_) {
-      const auto vel_var = odom_->odom.velocity_covariance.diagonal().maxCoeff();
-      if (vel_var > math::sqr(kVelStddevThresh)) {
-        health->velocity_accuracy = tobas_msgs::msg::VehicleHealth::FAILED;
+      const auto ver_pos_var = odom_->odom.position_covariance(2, 2);
+      if (ver_pos_var > math::sqr(kVerPosStddevThresh)) {
+        health->vertical_position_accuracy = tobas_msgs::msg::VehicleHealth::FAILED;
         health->ok = false;
       }
     }
     else {
-      health->velocity_accuracy = tobas_msgs::msg::VehicleHealth::UNKNOWN;
+      health->vertical_position_accuracy = tobas_msgs::msg::VehicleHealth::UNKNOWN;
       health->ok = false;
     }
   }
   else {
-    health->velocity_accuracy = tobas_msgs::msg::VehicleHealth::IGNORED;
+    health->vertical_position_accuracy = tobas_msgs::msg::VehicleHealth::IGNORED;
   }
 
   // Attitude estimation accuracy

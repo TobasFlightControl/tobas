@@ -34,8 +34,8 @@ private:
   StatusWidget* rotor_links_status_;
   StatusWidget* level_atti_status_;
   StatusWidget* pos_stability_status_;
-  StatusWidget* pos_accuracy_status_;
-  StatusWidget* vel_accuracy_status_;
+  StatusWidget* hor_pos_accuracy_status_;
+  StatusWidget* ver_pos_accuracy_status_;
   StatusWidget* atti_accuracy_status_;
   StatusWidget* head_accuracy_status_;
   StatusWidget* mag_offset_status_;

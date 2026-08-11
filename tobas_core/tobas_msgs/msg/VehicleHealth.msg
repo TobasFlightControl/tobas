@@ -12,8 +12,8 @@ uint8 radio_link
 uint8 rotor_links
 uint8 attitude_level
 uint8 position_stability
-uint8 position_accuracy
-uint8 velocity_accuracy
+uint8 horizontal_position_accuracy
+uint8 vertical_position_accuracy
 uint8 attitude_accuracy
 uint8 heading_accuracy
 uint8 mag_offset

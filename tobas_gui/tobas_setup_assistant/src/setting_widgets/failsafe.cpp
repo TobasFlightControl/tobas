@@ -26,8 +26,8 @@ FailsafeWidget::FailsafeWidget()
   items_[kRotorLinksIdx] = new qt::CheckBox("Check rotor links");
   items_[kAttiLevelIdx] = new qt::CheckBox("Check attitude level");
   items_[kPosStabilityIdx] = new qt::CheckBox("Check position stability");
-  items_[kPosAccuracyIdx] = new qt::CheckBox("Check position accuracy");
-  items_[kVelAccuracyIdx] = new qt::CheckBox("Check velocity accuracy");
+  items_[kHorPosAccuracyIdx] = new qt::CheckBox("Check horizontal position accuracy");
+  items_[kVerPosAccuracyIdx] = new qt::CheckBox("Check vertical position accuracy");
   items_[kAttiAccuracyIdx] = new qt::CheckBox("Check attitude accuracy");
   items_[kHeadAccuracyIdx] = new qt::CheckBox("Check heading accuracy");
   items_[kMagOffsetIdx] = new qt::CheckBox("Check magnetic field offset");
@@ -91,8 +91,8 @@ void FailsafeWidget::setToDefaults()
   items_[kRotorLinksIdx]->setChecked(true);
   items_[kAttiLevelIdx]->setChecked(true);
   items_[kPosStabilityIdx]->setChecked(true);
-  items_[kPosAccuracyIdx]->setChecked(true);
-  items_[kVelAccuracyIdx]->setChecked(true);
+  items_[kHorPosAccuracyIdx]->setChecked(true);
+  items_[kVerPosAccuracyIdx]->setChecked(true);
   items_[kAttiAccuracyIdx]->setChecked(true);
   items_[kHeadAccuracyIdx]->setChecked(true);
   items_[kMagOffsetIdx]->setChecked(false);
@@ -165,14 +165,14 @@ bool FailsafeWidget::checkPositionStability() const
   return items_[kPosStabilityIdx]->isChecked();
 }
 
-bool FailsafeWidget::checkPositionAccuracy() const
+bool FailsafeWidget::checkHorizontalPositionAccuracy() const
 {
-  return items_[kPosAccuracyIdx]->isChecked();
+  return items_[kHorPosAccuracyIdx]->isChecked();
 }
 
-bool FailsafeWidget::checkVelocityAccuracy() const
+bool FailsafeWidget::checkVerticalPositionAccuracy() const
 {
-  return items_[kVelAccuracyIdx]->isChecked();
+  return items_[kVerPosAccuracyIdx]->isChecked();
 }
 
 bool FailsafeWidget::checkAttitudeAccuracy() const

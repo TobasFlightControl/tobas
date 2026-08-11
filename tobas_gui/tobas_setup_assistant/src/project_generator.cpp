@@ -655,8 +655,8 @@ bool ProjectGenerator::generateHealthMonitorConfig()
   params["check_rotor_links"] = settings_->failsafe->checkRotorLinks();
   params["check_attitude_level"] = settings_->failsafe->checkAttitudeLevel();
   params["check_position_stability"] = settings_->failsafe->checkPositionStability();
-  params["check_position_accuracy"] = settings_->failsafe->checkPositionAccuracy();
-  params["check_velocity_accuracy"] = settings_->failsafe->checkVelocityAccuracy();
+  params["check_horizontal_position_accuracy"] = settings_->failsafe->checkHorizontalPositionAccuracy();
+  params["check_vertical_position_accuracy"] = settings_->failsafe->checkVerticalPositionAccuracy();
   params["check_attitude_accuracy"] = settings_->failsafe->checkAttitudeAccuracy();
   params["check_heading_accuracy"] = settings_->failsafe->checkHeadingAccuracy();
   params["check_mag_offset"] = settings_->failsafe->checkMagOffset();

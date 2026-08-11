@@ -61,8 +61,8 @@ QString ArmStateBanner::armReadinessIssueText() const
   appendArmReadinessIssue(issues, "Rotor Links", health_->rotor_links);
   appendArmReadinessIssue(issues, "Level Attitude", health_->attitude_level);
   appendArmReadinessIssue(issues, "Position Stability", health_->position_stability);
-  appendArmReadinessIssue(issues, "Position Accuracy", health_->position_accuracy);
-  appendArmReadinessIssue(issues, "Velocity Accuracy", health_->velocity_accuracy);
+  appendArmReadinessIssue(issues, "Horizontal Position Accuracy", health_->horizontal_position_accuracy);
+  appendArmReadinessIssue(issues, "Vertical Position Accuracy", health_->vertical_position_accuracy);
   appendArmReadinessIssue(issues, "Attitude Accuracy", health_->attitude_accuracy);
   appendArmReadinessIssue(issues, "Heading Accuracy", health_->heading_accuracy);
   appendArmReadinessIssue(issues, "Mag Offset", health_->mag_offset);
