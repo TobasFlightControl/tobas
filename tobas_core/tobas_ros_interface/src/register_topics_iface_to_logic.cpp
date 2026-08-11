@@ -17,6 +17,7 @@
 #include <tobas_kdl_msgs/msg/frame_with_covariance_stamped.hpp>
 #include <tobas_msgs/msg/ice_propulsion_system_command.hpp>
 #include <tobas_msgs/msg/joint_command_array.hpp>
+#include <tobas_msgs/msg/pwm_array.hpp>
 #include <tobas_msgs/msg/rotor_speed_array.hpp>
 
 #include "./ros_interface.hpp"
@@ -29,6 +30,7 @@ void RosInterfaceNode::registerTopicsIfaceToLogic()
   addTopicIfaceToLogic<tobas_msgs::msg::RotorSpeedArray>(topic::kRotorSpeedsCmd, topic::kRotorSpeedsCmd);
   addTopicIfaceToLogic<tobas_msgs::msg::IcePropulsionSystemCommand>(
     topic::kIcePropulsionSystemCmd, topic::kIcePropulsionSystemCmd);
+  addTopicIfaceToLogic<tobas_msgs::msg::PwmArray>(topic::kPwmCmd, topic::kPwmCmd);
   addTopicIfaceToLogic<tobas_command_msgs::msg::Rate>(topic::kRateCmd, topic::kRateCmd);
   addTopicIfaceToLogic<tobas_command_msgs::msg::RateThrottle>(topic::kRateThrotCmd, topic::kRateThrotCmd);
   addTopicIfaceToLogic<tobas_command_msgs::msg::Angle>(topic::kAngleCmd, topic::kAngleCmd);
