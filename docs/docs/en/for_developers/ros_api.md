@@ -813,6 +813,26 @@ Fully charges the battery.
 ---
 ```
 
+#### gazebo/lose_gnss_fix (std_srvs/Trigger)
+
+Forces subsequent GNSS messages to report `NO_FIX` until the simulation is restarted.
+
+```txt
+---
+bool success   # indicate successful run of triggered service
+string message # informational, e.g. for error messages
+```
+
+#### gazebo/break_rotor/${rotor_link_name} (std_srvs/Trigger)
+
+Forcibly stops the motor.
+
+```txt
+---
+bool success   # indicate successful run of triggered service
+string message # informational, e.g. for error messages
+```
+
 #### gazebo/get_wind_parameters (tobas_gazebo_msgs/GetWindParams)
 
 Gets the parameters used to generate wind in the simulation.
@@ -903,16 +923,6 @@ Detaches a suspended load.
 ---
 bool success
 string message
-```
-
-#### gazebo/break_rotor/${rotor_link_name} (std_srvs/Trigger)
-
-Forcibly stops the motor.
-
-```txt
----
-bool success   # indicate successful run of triggered service
-string message # informational, e.g. for error messages
 ```
 
 ## Actions

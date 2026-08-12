@@ -813,6 +813,26 @@ Gazeboシミュレーション時にのみ使用されるサービスです．
 ---
 ```
 
+#### gazebo/lose_gnss_fix (std_srvs/Trigger)
+
+シミュレーションを再起動するまで，以降のGNSSメッセージを`NO_FIX`にする．
+
+```txt
+---
+bool success   # indicate successful run of triggered service
+string message # informational, e.g. for error messages
+```
+
+#### gazebo/break_rotor/${rotor_link_name} (std_srvs/Trigger)
+
+モータを強制的に停止する．
+
+```txt
+---
+bool success   # indicate successful run of triggered service
+string message # informational, e.g. for error messages
+```
+
 #### gazebo/get_wind_parameters (tobas_gazebo_msgs/GetWindParams)
 
 シミュレーション中の風を生成するパラメータを取得する．
@@ -903,16 +923,6 @@ string message
 ---
 bool success
 string message
-```
-
-#### gazebo/break_rotor/${rotor_link_name} (std_srvs/Trigger)
-
-モータを強制的に停止する．
-
-```txt
----
-bool success   # indicate successful run of triggered service
-string message # informational, e.g. for error messages
 ```
 
 ## アクション

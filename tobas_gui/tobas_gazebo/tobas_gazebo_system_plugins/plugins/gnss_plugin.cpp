@@ -1,12 +1,17 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <atomic>
+
 #include <tobas_constants/ros_interface.hpp>
+#include <tobas_gazebo_common/constants.hpp>
 #include <tobas_gazebo_conversions/gazebo_kdl.hpp>
 #include <tobas_gazebo_tools/utils.hpp>
 #include <tobas_geographic/geography.hpp>
 #include <tobas_math/core.hpp>
 #include <tobas_ros2_tools/time.hpp>
+
+#include <std_srvs/srv/trigger.hpp>
 
 #include <tobas_msgs_adapter/gnss.hpp>
 
@@ -30,7 +35,9 @@ class GazeboGnssPlugin : public BaseNode,
                          public gz::sim::ISystemConfigure,
                          public gz::sim::ISystemPostUpdate
 {
+  using self = GazeboGnssPlugin;
   using HistoryType = std::tuple<ch::steady_clock::duration, gz::math::Pose3d, gz::math::Vector3d, gz::math::Vector3d>;
+  using LoseFixSrv = std_srvs::srv::Trigger;
 
 public:
   explicit GazeboGnssPlugin();
@@ -72,6 +79,7 @@ private:
   bool is_history_filled_ = false;
   ch::steady_clock::duration t_last_publish_;
   gz::math::Vector3d pos_bias_ = gz::math::Vector3d::Zero;
+  std::atomic_bool force_no_fix_ = false;
 
   std::random_device rnd_dev_;
   NormalDistribution3d::SharedPtr dpos_noise_;
@@ -79,6 +87,9 @@ private:
 
   // Publishers
   ros2::PublisherPtr<tobas_msgs::Gnss> gnss_pub_;
+
+  // Services
+  ros2::ServiceServerPtr<LoseFixSrv> lose_fix_ss_;
 
   void getSdfParams(const sdf::ElementConstPtr& sdf);
   void setRandomDistribuitons();
@@ -89,6 +100,8 @@ private:
     const gz::math::Quaterniond& W_Rot_B,
     const gz::math::Vector3d& W_Linvel_WB,
     const gz::math::Vector3d& B_Angvel_WB);
+
+  void loseFixCb(const LoseFixSrv::Request::ConstSharedPtr& req, const LoseFixSrv::Response::SharedPtr& res);
 };
 
 GazeboGnssPlugin::GazeboGnssPlugin()
@@ -125,6 +138,7 @@ void GazeboGnssPlugin::Configure(
   gyro_B_ = getComponent<cmp::AngularVelocity>(link, ecm);
 
   gnss_pub_ = createPublisher<tobas_msgs::Gnss>(topic::kGnss);
+  lose_fix_ss_ = createService<LoseFixSrv>(kLoseGnssFixSrv, &self::loseFixCb, this);
 }
 
 void GazeboGnssPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)
@@ -165,8 +179,14 @@ void GazeboGnssPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim
   auto gnss_msg = std::make_unique<tobas_msgs::Gnss>();
   gnss_msg->header.frame_id = link_name_;
   ros2::timeChronoToMsg(gnss_time, gnss_msg->header.stamp);
-  gnss_msg->fix_type = tobas_msgs::msg::Gnss::FIX_3D;
-  gnss_msg->num_satellites_used = 20;  // TODO: Vary this appropriately.
+  if (force_no_fix_.load()) {
+    gnss_msg->fix_type = tobas_msgs::msg::Gnss::NO_FIX;
+    gnss_msg->num_satellites_used = 0;
+  }
+  else {
+    gnss_msg->fix_type = tobas_msgs::msg::Gnss::FIX_3D;
+    gnss_msg->num_satellites_used = 20;  // TODO: Vary this appropriately.
+  }
   fillCovariances(*gnss_msg);
   updatePosition(*gnss_msg, T_W_B);
   updateVelocity(*gnss_msg, T_W_B.Rot(), W_Linvel_WB, B_Angvel_WB);
@@ -255,6 +275,18 @@ void GazeboGnssPlugin::updateVelocity(
 
   // Fill the ground speed message.
   vectorGazeboToKDL(W_Linvel_WS, gnss_msg.ground_speed);
+}
+
+void GazeboGnssPlugin::loseFixCb(const LoseFixSrv::Request::ConstSharedPtr&, const LoseFixSrv::Response::SharedPtr& res)
+{
+  if (!force_no_fix_.exchange(true)) {
+    res->message = "GNSS fix has been lost.";
+  }
+  else {
+    res->message = "GNSS fix is already lost.";
+  }
+
+  res->success = true;
 }
 }  // namespace gazebo
 }  // namespace tobas
