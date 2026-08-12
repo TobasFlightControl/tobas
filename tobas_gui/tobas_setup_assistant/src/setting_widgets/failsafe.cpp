@@ -25,6 +25,7 @@ FailsafeWidget::FailsafeWidget()
   items_[kRadioLinkIdx] = new qt::CheckBox("Check radio link");
   items_[kRotorLinksIdx] = new qt::CheckBox("Check rotor links");
   items_[kAttiLevelIdx] = new qt::CheckBox("Check attitude level");
+  items_[kGnssFixIdx] = new qt::CheckBox("Check GNSS fix");
   items_[kPosStabilityIdx] = new qt::CheckBox("Check position stability");
   items_[kHorPosAccuracyIdx] = new qt::CheckBox("Check horizontal position accuracy");
   items_[kVerPosAccuracyIdx] = new qt::CheckBox("Check vertical position accuracy");
@@ -90,6 +91,7 @@ void FailsafeWidget::setToDefaults()
   items_[kRadioLinkIdx]->setChecked(true);
   items_[kRotorLinksIdx]->setChecked(true);
   items_[kAttiLevelIdx]->setChecked(true);
+  items_[kGnssFixIdx]->setChecked(true);
   items_[kPosStabilityIdx]->setChecked(true);
   items_[kHorPosAccuracyIdx]->setChecked(true);
   items_[kVerPosAccuracyIdx]->setChecked(true);
@@ -158,6 +160,11 @@ bool FailsafeWidget::checkRotorLinks() const
 bool FailsafeWidget::checkAttitudeLevel() const
 {
   return items_[kAttiLevelIdx]->isChecked();
+}
+
+bool FailsafeWidget::checkGnssFix() const
+{
+  return items_[kGnssFixIdx]->isChecked();
 }
 
 bool FailsafeWidget::checkPositionStability() const

@@ -60,6 +60,7 @@ QString ArmStateBanner::armReadinessIssueText() const
   appendArmReadinessIssue(issues, "Radio Link", health_->radio_link);
   appendArmReadinessIssue(issues, "Rotor Links", health_->rotor_links);
   appendArmReadinessIssue(issues, "Level Attitude", health_->attitude_level);
+  appendArmReadinessIssue(issues, "GNSS Fix", health_->gnss_fix);
   appendArmReadinessIssue(issues, "Position Stability", health_->position_stability);
   appendArmReadinessIssue(issues, "Horizontal Position Accuracy", health_->horizontal_position_accuracy);
   appendArmReadinessIssue(issues, "Vertical Position Accuracy", health_->vertical_position_accuracy);

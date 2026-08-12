@@ -27,7 +27,8 @@ class FailsafeWidget : public BaseSettingWidget
   static constexpr size_t kRadioLinkIdx = kCpuTempIdx + 1;
   static constexpr size_t kRotorLinksIdx = kRadioLinkIdx + 1;
   static constexpr size_t kAttiLevelIdx = kRotorLinksIdx + 1;
-  static constexpr size_t kPosStabilityIdx = kAttiLevelIdx + 1;
+  static constexpr size_t kGnssFixIdx = kAttiLevelIdx + 1;
+  static constexpr size_t kPosStabilityIdx = kGnssFixIdx + 1;
   static constexpr size_t kHorPosAccuracyIdx = kPosStabilityIdx + 1;
   static constexpr size_t kVerPosAccuracyIdx = kHorPosAccuracyIdx + 1;
   static constexpr size_t kAttiAccuracyIdx = kVerPosAccuracyIdx + 1;
@@ -60,6 +61,7 @@ public:
   bool checkRadioLink() const;
   bool checkRotorLinks() const;
   bool checkAttitudeLevel() const;
+  bool checkGnssFix() const;
   bool checkPositionStability() const;
   bool checkHorizontalPositionAccuracy() const;
   bool checkVerticalPositionAccuracy() const;

@@ -17,6 +17,7 @@
 #include <tobas_msgs/msg/rotor_liveliness_array.hpp>
 #include <tobas_msgs/msg/user_defined_health_status.hpp>
 #include <tobas_msgs/msg/vehicle_health.hpp>
+#include <tobas_msgs_adapter/gnss.hpp>
 #include <tobas_msgs_adapter/magnetic_field.hpp>
 #include <tobas_msgs_adapter/odometry_with_covariance_stamped.hpp>
 #include <tobas_msgs_adapter/rc_input.hpp>
@@ -35,6 +36,8 @@ class HealthMonitorNode : public BaseNode
   static constexpr auto kBattVoltageDownTimeThresh = 10s;
   static constexpr auto kBattVoltageUpTimeThresh = 30s;
   static constexpr auto kRadioLinkLostTimeThresh = 500ms;
+  static constexpr auto kGnssFixLossTimeThresh = 1s;
+  static constexpr auto kGnssFixRecoveryTimeThresh = 3s;
   static constexpr double kPosDriftThresh = 1.0;  // [m]
   static constexpr auto kPosDriftCheckTimeWindow = 5s;
   static constexpr double kCPUTempThresh = 80.0;             // [degC]
@@ -64,6 +67,7 @@ private:
     bool radio_link;
     bool rotor_links;
     bool attitude_level;
+    bool gnss_fix;
     bool position_stability;
     bool horizontal_position_accuracy;
     bool vertical_position_accuracy;
@@ -84,6 +88,7 @@ private:
   tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr rotor_liv_;
   tobas_msgs::msg::Latency::ConstSharedPtr sampling_time_;
   tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr odom_;
+  tobas_msgs::Gnss::ConstSharedPtr gnss_;
   tobas_msgs::MagneticField::ConstSharedPtr mag_;
   tobas_msgs::MagneticField::ConstSharedPtr mag_ref_;
   tobas_msgs::VibrationLevel::ConstSharedPtr vibe_;
@@ -93,6 +98,8 @@ private:
   bool batt_voltage_ok_ = true;
   builtin_interfaces::msg::Time t_last_voltage_ok_, t_last_voltage_ng_;
   builtin_interfaces::msg::Time t_last_valid_rcin_;
+  bool gnss_fixed_ = false;
+  builtin_interfaces::msg::Time t_last_gnss_fix_, t_last_gnss_no_fix_;
   std::array<st::TimestampedBufferDouble, 3> pos_bufs_;
   dsp::LowPassFilter<kdl::Vector> mag_B_lpf_, mag_W_lpf_;
 
@@ -108,6 +115,7 @@ private:
   ros2::SubscriberPtr<tobas_msgs::msg::RotorLivelinessArray> rotor_liv_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Latency> sampling_time_sub_;
   ros2::SubscriberPtr<tobas_msgs::OdometryWithCovarianceStamped> odom_sub_;
+  ros2::SubscriberPtr<tobas_msgs::Gnss> gnss_sub_;
   ros2::SubscriberPtr<tobas_msgs::MagneticField> mag_sub_;
   ros2::SubscriberPtr<tobas_msgs::MagneticField> mag_ref_sub_;
   ros2::SubscriberPtr<tobas_msgs::VibrationLevel> vibe_sub_;
@@ -126,6 +134,7 @@ private:
   void rotorLivCb(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& rotor_liv);
   void samplingTimeCb(const tobas_msgs::msg::Latency::ConstSharedPtr& sampling_time);
   void odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom);
+  void gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss);
   void magCb(const tobas_msgs::MagneticField::ConstSharedPtr& mag);
   void magRefCb(const tobas_msgs::MagneticField::ConstSharedPtr& mag_ref);
   void vibrationLevelCb(const tobas_msgs::VibrationLevel::ConstSharedPtr& vibe);
@@ -156,6 +165,9 @@ HealthMonitorNode::HealthMonitorNode(const rclcpp::NodeOptions& options)
   rotor_liv_sub_ = createSubscriber(topic::kRotorLiv, &self::rotorLivCb, this);
   sampling_time_sub_ = createSubscriber(topic::kImuSamplingTime, &self::samplingTimeCb, this);
   odom_sub_ = createSubscriber(addThrotNS(topic::kOdometry), &self::odomCb, this);
+  if (do_check_.gnss_fix) {
+    gnss_sub_ = createSubscriber(topic::kGnss, &self::gnssCb, this);
+  }
   mag_sub_ = createSubscriber(topic::kMagneticField, &self::magCb, this);
   mag_ref_sub_ = createSubscriber(topic::kMagRef, &self::magRefCb, this);
   vibe_sub_ = createSubscriber(topic::kVibrationLevel, &self::vibrationLevelCb, this);
@@ -175,6 +187,7 @@ void HealthMonitorNode::getStaticRosParams()
   do_check_.radio_link = getBoolParam("check_radio_link");
   do_check_.rotor_links = getBoolParam("check_rotor_links");
   do_check_.attitude_level = getBoolParam("check_attitude_level");
+  do_check_.gnss_fix = getBoolParam("check_gnss_fix", false);
   do_check_.position_stability = getBoolParam("check_position_stability");
   do_check_.horizontal_position_accuracy = getBoolParam("check_horizontal_position_accuracy");
   do_check_.vertical_position_accuracy = getBoolParam("check_vertical_position_accuracy");
@@ -334,6 +347,23 @@ std::unique_ptr<tobas_msgs::msg::VehicleHealth> HealthMonitorNode::createHealthM
   }
   else {
     health->attitude_level = tobas_msgs::msg::VehicleHealth::IGNORED;
+  }
+
+  // GNSS 3D fix
+  if (do_check_.gnss_fix) {
+    if (gnss_) {
+      if (!gnss_fixed_) {
+        health->gnss_fix = tobas_msgs::msg::VehicleHealth::FAILED;
+        health->ok = false;
+      }
+    }
+    else {
+      health->gnss_fix = tobas_msgs::msg::VehicleHealth::UNKNOWN;
+      health->ok = false;
+    }
+  }
+  else {
+    health->gnss_fix = tobas_msgs::msg::VehicleHealth::IGNORED;
   }
 
   // Position drift
@@ -612,6 +642,33 @@ void HealthMonitorNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::
   }
 
   odom_ = odom;
+}
+
+void HealthMonitorNode::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss)
+{
+  const auto fix_available = (gnss->fix_type == tobas_msgs::msg::Gnss::FIX_3D);
+  const auto& cur_time = gnss->header.stamp;
+
+  gnss_ = gnss;
+
+  if (gnss_fixed_) {
+    if (fix_available) {
+      t_last_gnss_fix_ = cur_time;
+    }
+    else if (cur_time - t_last_gnss_fix_ > kGnssFixLossTimeThresh) {
+      gnss_fixed_ = false;
+      t_last_gnss_no_fix_ = cur_time;
+    }
+  }
+  else {
+    if (!fix_available) {
+      t_last_gnss_no_fix_ = cur_time;
+    }
+    else if (cur_time - t_last_gnss_no_fix_ > kGnssFixRecoveryTimeThresh) {
+      gnss_fixed_ = true;
+      t_last_gnss_fix_ = cur_time;
+    }
+  }
 }
 
 void HealthMonitorNode::magCb(const tobas_msgs::MagneticField::ConstSharedPtr& mag)

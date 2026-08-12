@@ -21,6 +21,7 @@ HealthViewerWidget::HealthViewerWidget(const RosQtBridge& bridge)
   radio_link_status_ = new StatusWidget("Radio Link");
   rotor_links_status_ = new StatusWidget("Rotor Links");
   level_atti_status_ = new StatusWidget("Level Attitude");
+  gnss_fix_status_ = new StatusWidget("GNSS Fix");
   pos_stability_status_ = new StatusWidget("Position Stability");
   hor_pos_accuracy_status_ = new StatusWidget("Horizontal Position Accuracy");
   ver_pos_accuracy_status_ = new StatusWidget("Vertical Position Accuracy");
@@ -39,6 +40,7 @@ HealthViewerWidget::HealthViewerWidget(const RosQtBridge& bridge)
   rows->addWidget(radio_link_status_);
   rows->addWidget(rotor_links_status_);
   rows->addWidget(level_atti_status_);
+  rows->addWidget(gnss_fix_status_);
   rows->addWidget(pos_stability_status_);
   rows->addWidget(hor_pos_accuracy_status_);
   rows->addWidget(ver_pos_accuracy_status_);
@@ -63,6 +65,7 @@ void HealthViewerWidget::reset()
   radio_link_status_->reset();
   rotor_links_status_->reset();
   level_atti_status_->reset();
+  gnss_fix_status_->reset();
   pos_stability_status_->reset();
   hor_pos_accuracy_status_->reset();
   ver_pos_accuracy_status_->reset();
@@ -82,6 +85,7 @@ void HealthViewerWidget::healthCb(const tobas_msgs::msg::VehicleHealth::ConstSha
   radio_link_status_->setStatus(health->radio_link);
   rotor_links_status_->setStatus(health->rotor_links);
   level_atti_status_->setStatus(health->attitude_level);
+  gnss_fix_status_->setStatus(health->gnss_fix);
   pos_stability_status_->setStatus(health->position_stability);
   hor_pos_accuracy_status_->setStatus(health->horizontal_position_accuracy);
   ver_pos_accuracy_status_->setStatus(health->vertical_position_accuracy);

@@ -33,6 +33,7 @@ private:
   StatusWidget* radio_link_status_;
   StatusWidget* rotor_links_status_;
   StatusWidget* level_atti_status_;
+  StatusWidget* gnss_fix_status_;
   StatusWidget* pos_stability_status_;
   StatusWidget* hor_pos_accuracy_status_;
   StatusWidget* ver_pos_accuracy_status_;
