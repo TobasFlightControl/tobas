@@ -191,6 +191,7 @@ void FailsafeExecutorNode::vehicleHealthCb(const tobas_msgs::msg::VehicleHealth:
   const auto voltage_too_low = (health->battery_voltage == VH::FAILED);
   const auto radio_link_lost = (health->radio_link == VH::FAILED);
   const auto rotor_link_lost = (health->rotor_links == VH::FAILED);
+  const auto gnss_fix_lost = (health->gnss_fix == VH::FAILED);
   const auto gnss_fixed = (health->gnss_fix == VH::PASSED);
   const auto horizontal_position_accurate = (health->horizontal_position_accuracy == VH::PASSED);
   const auto vertical_position_accurate = (health->vertical_position_accuracy == VH::PASSED);
@@ -242,6 +243,16 @@ void FailsafeExecutorNode::vehicleHealthCb(const tobas_msgs::msg::VehicleHealth:
           startLand();
         }
       }
+      else if (gnss_fix_lost) {
+        if (landed) {
+          TOBAS_WARN("GNSS fail-safe activated: disarming because the vehicle is already landed.");
+          disarm();
+        }
+        else if (landing_ready) {
+          TOBAS_WARN("GNSS fail-safe activated: landing in place because GNSS lost its 3D fix.");
+          startLand();
+        }
+      }
 
       break;
     }
@@ -257,6 +268,10 @@ void FailsafeExecutorNode::vehicleHealthCb(const tobas_msgs::msg::VehicleHealth:
       // Update fail-safe state.
       if (voltage_too_low && landing_ready) {
         TOBAS_WARN("Battery fail-safe activated during RTL: switching to landing.");
+        startLand();
+      }
+      else if (gnss_fix_lost && landing_ready) {
+        TOBAS_WARN("GNSS fail-safe activated during RTL: switching to landing.");
         startLand();
       }
 
