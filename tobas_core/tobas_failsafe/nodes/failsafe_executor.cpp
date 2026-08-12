@@ -191,6 +191,7 @@ void FailsafeExecutorNode::vehicleHealthCb(const tobas_msgs::msg::VehicleHealth:
   const auto voltage_too_low = (health->battery_voltage == VH::FAILED);
   const auto radio_link_lost = (health->radio_link == VH::FAILED);
   const auto rotor_link_lost = (health->rotor_links == VH::FAILED);
+  const auto gnss_fixed = (health->gnss_fix == VH::PASSED);
   const auto horizontal_position_accurate = (health->horizontal_position_accuracy == VH::PASSED);
   const auto vertical_position_accurate = (health->vertical_position_accuracy == VH::PASSED);
 
@@ -198,7 +199,7 @@ void FailsafeExecutorNode::vehicleHealthCb(const tobas_msgs::msg::VehicleHealth:
   const auto rcin_ok = (!radio_link_lost && rcin_ && rcin_->status == tobas_msgs::msg::RCInput::STATUS_OK);
   const auto manual_ctrl_enabled = (rcin_ok && rcin_->enable);
   const auto landing_ready = (!manual_ctrl_enabled && vertical_position_accurate);
-  const auto rtl_ready = (landing_ready && horizontal_position_accurate);
+  const auto rtl_ready = (landing_ready && gnss_fixed && horizontal_position_accurate);
 
   switch (state_) {
     case kNoFailSafe: {
@@ -254,12 +255,8 @@ void FailsafeExecutorNode::vehicleHealthCb(const tobas_msgs::msg::VehicleHealth:
       }
 
       // Update fail-safe state.
-      if (landing_ready && voltage_too_low) {
+      if (voltage_too_low && landing_ready) {
         TOBAS_WARN("Battery fail-safe activated during RTL: switching to landing.");
-        startLand();
-      }
-      else if (landing_ready && !horizontal_position_accurate) {
-        TOBAS_WARN("Landing in place because horizontal position became inaccurate during RTL.");
         startLand();
       }
 

@@ -38,6 +38,7 @@
 #include "tobas_mission_execution_mc/stop_trajectory_generator.hpp"
 
 using namespace std::chrono_literals;
+using VH = tobas_msgs::msg::VehicleHealth;
 
 namespace tobas
 {
@@ -232,6 +233,24 @@ private:
    * @return bool Whether the mission can continue.
    */
   bool handleExternalRequest(const GoalHandlePtr& gh, const ResultPtr& res);
+
+  /**
+   * @brief Verify the navigation states required by the current mission phase.
+   *
+   * Vertical position accuracy is always required because every mission phase,
+   * including the emergency landing fallback, uses altitude control.
+   * GNSS fix and horizontal position accuracy are checked only when requested.
+   * If a requested horizontal navigation state is lost in flight,
+   * perform an altitude-only landing before aborting.
+   *
+   * @return bool Whether the mission can continue.
+   */
+  bool ensureNavigationHealth(
+    bool require_gnss_fix,
+    bool require_horizontal_position_accuracy,
+    const char* mission_name,
+    const GoalHandlePtr& gh,
+    const ResultPtr& res);
 
   bool executeWaypoints(std::span<const Waypoint> goals, const GoalHandlePtr& gh, const ResultPtr& res);
   bool executeTakeoff(const Takeoff& goal, const GoalHandlePtr& gh, const ResultPtr& res);
@@ -502,6 +521,63 @@ bool MulticopterMissionExecutorNode::handleExternalRequest(const GoalHandlePtr& 
   }
 }
 
+bool MulticopterMissionExecutorNode::ensureNavigationHealth(
+  bool require_gnss_fix,
+  bool require_horizontal_position_accuracy,
+  const char* mission_name,
+  const GoalHandlePtr& gh,
+  const ResultPtr& res)
+{
+  // Altitude control is the minimum navigation capability required by every autonomous flight mode.
+  if (health_->vertical_position_accuracy != VH::PASSED) {
+    res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
+    res->error_message =
+      std::string("The ") + mission_name + " mission cannot continue because vertical position estimation inaccurate.";
+    gh->abort(res);
+    return false;
+  }
+
+  // A GNSS fix is required separately from estimator accuracy because geodetic missions depend on live GNSS data.
+  if (require_gnss_fix && health_->gnss_fix != VH::PASSED) {
+    const auto error_message =
+      std::string("The ") + mission_name + " mission cannot continue because GNSS does not have a 3D fix.";
+
+    // If airborne, replace the GNSS-dependent command with an altitude-only landing command.
+    if (arming_->data) {
+      TOBAS_WARN(error_message, " Starting an altitude-only emergency landing.");
+      if (!executeLand(Land(), gh, res)) {
+        return false;
+      }
+    }
+
+    res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
+    res->error_message = error_message;
+    gh->abort(res);
+    return false;
+  }
+
+  // Horizontal position accuracy is not required for altitude-only landing.
+  if (require_horizontal_position_accuracy && health_->horizontal_position_accuracy != VH::PASSED) {
+    const auto error_message = std::string("The ") + mission_name +
+                               " mission cannot continue because horizontal position estimation inaccurate.";
+
+    // If airborne, replace the invalid horizontal position command with an altitude-only landing command.
+    if (arming_->data) {
+      TOBAS_WARN(error_message, " Starting an altitude-only emergency landing.");
+      if (!executeLand(Land(), gh, res)) {
+        return false;
+      }
+    }
+
+    res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
+    res->error_message = error_message;
+    gh->abort(res);
+    return false;
+  }
+
+  return true;
+}
+
 bool MulticopterMissionExecutorNode::executeWaypoints(
   std::span<const Waypoint> goals,
   const GoalHandlePtr& gh,
@@ -518,12 +594,17 @@ bool MulticopterMissionExecutorNode::executeWaypoints(
     return false;
   }
 
-  // Waypoints are grouped into one continuous path until stop_at_waypoint requests an arrival check.
+  // A waypoint path is expressed in geodetic coordinates and controlled in all three position axes.
+  if (!ensureNavigationHealth(true, true, "waypoint", gh, res)) {
+    return false;
+  }
+
   brake();
 
   const auto start_pos = command_.pos.clone();
   const auto start_rot = command_.rot.clone();
 
+  // Waypoints are grouped into one continuous path until stop_at_waypoint requests an arrival check.
   std::vector<Eigen::Vector3d> path_points;
   path_points.reserve(goals.size() + 1);
   path_points.push_back(start_pos.data);
@@ -606,6 +687,9 @@ bool MulticopterMissionExecutorNode::executeWaypoints(
     if (!handleExternalRequest(gh, res)) {
       return false;
     }
+    if (!ensureNavigationHealth(true, true, "waypoint", gh, res)) {
+      return false;
+    }
 
     const auto cur_time = now();
     const auto t = (cur_time - start_time).seconds();
@@ -669,6 +753,12 @@ bool MulticopterMissionExecutorNode::executeTakeoff(const Takeoff& goal, const G
     return false;
   }
 
+  // Relative-altitude takeoff uses only local odometry; mean-sea-level altitude additionally depends on GNSS.
+  const auto require_gnss_fix = (goal.altitude_frame == kMeanSeaLevel);
+  if (!ensureNavigationHealth(require_gnss_fix, true, "takeoff", gh, res)) {
+    return false;
+  }
+
   // Arm rotors
   if (!armRotors(true)) {
     res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
@@ -715,6 +805,9 @@ bool MulticopterMissionExecutorNode::executeTakeoff(const Takeoff& goal, const G
   while (rclcpp::ok()) {
     // Check whether the mission can continue.
     if (!handleExternalRequest(gh, res)) {
+      return false;
+    }
+    if (!ensureNavigationHealth(require_gnss_fix, true, "takeoff", gh, res)) {
       return false;
     }
 
@@ -765,8 +858,21 @@ bool MulticopterMissionExecutorNode::executeLand(const Land& goal, const GoalHan
     return false;
   }
 
-  // Pause before starting.
-  brake();
+  // Landing can continue without GNSS or horizontal position, but it always requires a valid altitude estimate.
+  if (!ensureNavigationHealth(false, false, "land", gh, res)) {
+    return false;
+  }
+
+  auto use_horizontal_position = (health_->horizontal_position_accuracy == tobas_msgs::msg::VehicleHealth::PASSED);
+
+  if (use_horizontal_position) {
+    TOBAS_INFO("Landing with 3D position control.");
+    brake();
+  }
+  else {
+    // Do not brake using an unreliable horizontal position estimate.
+    TOBAS_WARN("Horizontal position is unavailable. Landing with altitude control only.");
+  }
 
   // Get the initial target state.
   const auto start_pos = command_.pos.clone();
@@ -793,12 +899,27 @@ bool MulticopterMissionExecutorNode::executeLand(const Land& goal, const GoalHan
     if (!handleExternalRequest(gh, res)) {
       return false;
     }
+    if (!ensureNavigationHealth(false, false, "land", gh, res)) {
+      return false;
+    }
+
+    if (use_horizontal_position && health_->horizontal_position_accuracy != tobas_msgs::msg::VehicleHealth::PASSED) {
+      TOBAS_WARN("Horizontal position became inaccurate. Switching to altitude-only landing.");
+      use_horizontal_position = false;
+    }
 
     // Calculate the target pose at the current time.
     const auto cur_time = now();
     const auto t = (cur_time - start_time).seconds();
     const auto tar_z = start_pos.z() - speed * t;
-    command_.pos.set(start_pos.x(), start_pos.y(), tar_z);
+    if (use_horizontal_position) {
+      command_.pos.set(start_pos.x(), start_pos.y(), tar_z);
+    }
+    else {
+      // Follow the current horizontal estimate so the horizontal position error remains zero.
+      const auto& cur_pos = odom_->odom.odom.frame.p;
+      command_.pos.set(cur_pos.x(), cur_pos.y(), tar_z);
+    }
     command_.vel.set(0.0, 0.0, -speed);
     command_.acc.setZero();
     command_.rot.set(traj_roll.get(t).p, traj_pitch.get(t).p, start_rot.yaw);
@@ -851,6 +972,11 @@ bool MulticopterMissionExecutorNode::executeRTL(const ReturnToLaunch& goal, cons
     res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
     res->error_message = "The RTL mission cannot be started because the launch point is not set.";
     gh->abort(res);
+    return false;
+  }
+
+  // RTL requires GNSS for global navigation and accurate horizontal position to return to the launch point.
+  if (!ensureNavigationHealth(true, true, "RTL", gh, res)) {
     return false;
   }
 
@@ -1014,7 +1140,10 @@ MulticopterMissionExecutorNode::handleGoal(const rclcpp_action::GoalUUID&, const
     return rclcpp_action::GoalResponse::REJECT;
   }
 
-  // Check the mission items.
+  // Snapshot the navigation health used for admission checks. Execution loops check the latest health continuously.
+  const auto gnss_fixed = (health_->gnss_fix == VH::PASSED);
+  const auto horizontal_position_accurate = (health_->horizontal_position_accuracy == VH::PASSED);
+  const auto vertical_position_accurate = (health_->vertical_position_accuracy == VH::PASSED);
   auto armed = arming_->data;
   for (const auto& [idx, item] : std::views::enumerate(goal->mission.items)) {
     const auto cmd_number = idx + 1;
@@ -1037,12 +1166,27 @@ MulticopterMissionExecutorNode::handleGoal(const rclcpp_action::GoalUUID&, const
         }
 
         if (!armed) {
-          TOBAS_WARN("Mission No. ", cmd_number, ": The vehicle must be armed before a \"Waypoint\" command.");
+          TOBAS_WARN("Mission No. ", cmd_number, ": The vehicle must be armed before a waypoint command.");
           return rclcpp_action::GoalResponse::REJECT;
         }
 
         if (!gnss_origin_) {
-          TOBAS_WARN("Mission No. ", cmd_number, ": GNSS must be fixed before a \"Waypoint\" command.");
+          TOBAS_WARN("Mission No. ", cmd_number, ": GNSS origin is required for a waypoint command.");
+          return rclcpp_action::GoalResponse::REJECT;
+        }
+
+        if (!gnss_fixed) {
+          TOBAS_WARN("Mission No. ", cmd_number, ": GNSS 3D fix is required for a waypoint command.");
+          return rclcpp_action::GoalResponse::REJECT;
+        }
+
+        if (!horizontal_position_accurate) {
+          TOBAS_WARN("Mission No. ", cmd_number, ": Accurate horizontal position is required for a waypoint command.");
+          return rclcpp_action::GoalResponse::REJECT;
+        }
+
+        if (!vertical_position_accurate) {
+          TOBAS_WARN("Mission No. ", cmd_number, ": Accurate vertical position is required for a waypoint command.");
           return rclcpp_action::GoalResponse::REJECT;
         }
 
@@ -1061,12 +1205,29 @@ MulticopterMissionExecutorNode::handleGoal(const rclcpp_action::GoalUUID&, const
         }
 
         if (armed) {
-          TOBAS_WARN("Mission No. ", cmd_number, ": The vehicle must be disarmed before a \"Takeoff\" command.");
+          TOBAS_WARN("Mission No. ", cmd_number, ": The vehicle must be disarmed before a takeoff command.");
           return rclcpp_action::GoalResponse::REJECT;
         }
 
-        if (!gnss_origin_) {
-          TOBAS_WARN("Mission No. ", cmd_number, ": The vehicle cannot takeoff because GNSS has not fixed yet.");
+        if (takeoff.altitude_frame == kMeanSeaLevel) {
+          if (!gnss_origin_) {
+            TOBAS_WARN("Mission No. ", cmd_number, ": GNSS origin is required for a mean-sea-level takeoff command.");
+            return rclcpp_action::GoalResponse::REJECT;
+          }
+
+          if (!gnss_fixed) {
+            TOBAS_WARN("Mission No. ", cmd_number, ": GNSS 3D fix is required for a mean-sea-level takeoff command.");
+            return rclcpp_action::GoalResponse::REJECT;
+          }
+        }
+
+        if (!horizontal_position_accurate) {
+          TOBAS_WARN("Mission No. ", cmd_number, ": Accurate horizontal position is required for a takeoff command.");
+          return rclcpp_action::GoalResponse::REJECT;
+        }
+
+        if (!vertical_position_accurate) {
+          TOBAS_WARN("Mission No. ", cmd_number, ": Accurate vertical position is required for a takeoff command.");
           return rclcpp_action::GoalResponse::REJECT;
         }
 
@@ -1087,7 +1248,12 @@ MulticopterMissionExecutorNode::handleGoal(const rclcpp_action::GoalUUID&, const
         }
 
         if (!armed) {
-          TOBAS_WARN("Mission No. ", cmd_number, ": The vehicle must be armed before a \"Land\" command.");
+          TOBAS_WARN("Mission No. ", cmd_number, ": The vehicle must be armed before a land command.");
+          return rclcpp_action::GoalResponse::REJECT;
+        }
+
+        if (!vertical_position_accurate) {
+          TOBAS_WARN("Mission No. ", cmd_number, ": Accurate vertical position is required for a land command.");
           return rclcpp_action::GoalResponse::REJECT;
         }
 
@@ -1103,12 +1269,27 @@ MulticopterMissionExecutorNode::handleGoal(const rclcpp_action::GoalUUID&, const
         }
 
         if (!armed) {
-          TOBAS_WARN("Mission No. ", cmd_number, ": The vehicle must be armed before a \"RTL\" command.");
+          TOBAS_WARN("Mission No. ", cmd_number, ": The vehicle must be armed before a RTL command.");
           return rclcpp_action::GoalResponse::REJECT;
         }
 
         if (!gnss_origin_) {
-          TOBAS_WARN("Mission No. ", cmd_number, ": GNSS must be fixed before a \"RTL\" command.");
+          TOBAS_WARN("Mission No. ", cmd_number, ": GNSS origin is required for an RTL command.");
+          return rclcpp_action::GoalResponse::REJECT;
+        }
+
+        if (!gnss_fixed) {
+          TOBAS_WARN("Mission No. ", cmd_number, ": GNSS 3D fix is required for an RTL command.");
+          return rclcpp_action::GoalResponse::REJECT;
+        }
+
+        if (!horizontal_position_accurate) {
+          TOBAS_WARN("Mission No. ", cmd_number, ": Accurate horizontal position is required for an RTL command.");
+          return rclcpp_action::GoalResponse::REJECT;
+        }
+
+        if (!vertical_position_accurate) {
+          TOBAS_WARN("Mission No. ", cmd_number, ": Accurate vertical position is required for an RTL command.");
           return rclcpp_action::GoalResponse::REJECT;
         }
 
