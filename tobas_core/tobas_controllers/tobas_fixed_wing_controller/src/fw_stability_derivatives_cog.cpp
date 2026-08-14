@@ -3,8 +3,6 @@
 
 #include "tobas_fixed_wing_controller/fw_stability_derivatives_cog.hpp"
 
-using namespace std;
-
 namespace tobas
 {
 namespace fixed_wing

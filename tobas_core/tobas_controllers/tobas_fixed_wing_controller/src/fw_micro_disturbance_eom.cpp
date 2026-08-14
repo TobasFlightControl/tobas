@@ -12,7 +12,6 @@
 #include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_tools/fixed_wing.hpp>
 
-
 #define X_AXIS Eigen::Vector3d(1, 0, 0)
 
 namespace tobas
