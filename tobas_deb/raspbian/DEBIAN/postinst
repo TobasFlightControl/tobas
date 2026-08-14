@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Disable unecessary services
+# Disable unnecessary services
 # See: `$ systemd-analyze blame`
 sudo systemctl disable exim4.service
 sudo systemctl disable ModemManager.service

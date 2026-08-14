@@ -19,7 +19,6 @@ set(AMENT_DEPENDENCIES
     tobas_node
     tobas_pose_pid
     tobas_tools
-    tobas_drone_tools
     tobas_nonplanar_multi_controller
     tobas_drone_msgs_adapter
     tobas_debug_msgs_adapter

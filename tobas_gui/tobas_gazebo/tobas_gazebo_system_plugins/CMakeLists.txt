@@ -21,7 +21,6 @@ set(AMENT_DEPENDENCIES
     tobas_tools
     tobas_wind_model
     tobas_msgs_adapter
-    tobas_drone_tools
     tobas_gazebo_common
     tobas_gazebo_conversions
     tobas_gazebo_tools

@@ -10,6 +10,8 @@
 
 namespace tobas
 {
+namespace fixed_wing
+{
 /**
  * @brief Small-disturbance equations of motion around the trim state.
  * Provides dimensional aerodynamic stability derivatives individually.
@@ -399,4 +401,5 @@ inline const double& MicroDisturbanceEoM::r_delta(const size_t& cs_idx) const
 {
   return B_(kStateIdx_r, drone_.prop->numRotors() + cs_idx);
 }
+}  // namespace fixed_wing
 }  // namespace tobas

@@ -19,7 +19,6 @@
 	<depend>tobas_tools</depend>
 	<depend>tobas_wind_model</depend>
 	<depend>tobas_msgs_adapter</depend>
-	<depend>tobas_drone_tools</depend>
 	<depend>tobas_gazebo_common</depend>
 	<depend>tobas_gazebo_conversions</depend>
 	<depend>tobas_gazebo_tools</depend>

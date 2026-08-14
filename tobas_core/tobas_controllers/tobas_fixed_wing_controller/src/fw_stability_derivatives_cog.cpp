@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include "tobas_drone_tools/fw_stability_derivatives_cog.hpp"
+#include "tobas_fixed_wing_controller/fw_stability_derivatives_cog.hpp"
 
 using namespace std;
 
 namespace tobas
+{
+namespace fixed_wing
 {
 StabilityDerivativesCG::StabilityDerivativesCG(const Drone& drone, const kdl::Tree& tree)
   : drone_(drone), tree_(tree), inertia_solver_(tree)
@@ -53,4 +55,5 @@ int StabilityDerivativesCG::update(const kdl::JntArray& q)
 
   return error_code_;
 }
+}  // namespace fixed_wing
 }  // namespace tobas

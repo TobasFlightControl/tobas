@@ -8,6 +8,8 @@
 
 namespace tobas
 {
+namespace fixed_wing
+{
 class SolverI
 {
 protected:
@@ -55,4 +57,5 @@ inline int SolverI::updateError(const SolverI& arg)
   }
   return error_code_;
 }
+}  // namespace fixed_wing
 }  // namespace tobas

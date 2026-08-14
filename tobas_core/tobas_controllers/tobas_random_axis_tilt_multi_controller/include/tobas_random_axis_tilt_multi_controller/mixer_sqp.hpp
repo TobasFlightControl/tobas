@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include <tobas_drone_tools/mixer_i.hpp>
 #include <tobas_eigen_tools/tensor.hpp>
 #include <tobas_eigen_tools/typedef.hpp>
 #include <tobas_kdl/tree_fk_solver_pos_all.hpp>
@@ -11,6 +10,7 @@
 #include <tobas_kdl/tree_joint_parser.hpp>
 #include <tobas_nlp/sqp.hpp>
 #include <tobas_nonplanar_multi_controller/mixer_qp.hpp>
+#include <tobas_tools/mixer_i.hpp>
 
 namespace tobas
 {

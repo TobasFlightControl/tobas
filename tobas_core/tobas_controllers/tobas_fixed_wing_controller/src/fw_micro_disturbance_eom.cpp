@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include "tobas_drone_tools/fw_micro_disturbance_eom.hpp"
+#include "tobas_fixed_wing_controller/fw_micro_disturbance_eom.hpp"
 
 #include <format>
 #include <ranges>
@@ -10,12 +10,14 @@
 #include <tobas_std_tools/map.hpp>
 #include <tobas_std_tools/standard_atmosphere.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
+#include <tobas_tools/fixed_wing.hpp>
 
-#include "tobas_drone_tools/utils/fixed_wing_tools.hpp"
 
 #define X_AXIS Eigen::Vector3d(1, 0, 0)
 
 namespace tobas
+{
+namespace fixed_wing
 {
 MicroDisturbanceEoM::MicroDisturbanceEoM(const Drone& drone, const kdl::Tree& tree)
   : drone_(drone), tree_(tree), fk_solver_(tree), inertia_solver_(tree), trim_(drone, tree)
@@ -266,4 +268,5 @@ void MicroDisturbanceEoM::setInputLimits()
     ++cs_idx;
   }
 }
+}  // namespace fixed_wing
 }  // namespace tobas

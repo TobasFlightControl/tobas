@@ -1,15 +1,16 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include "tobas_drone_tools/fw_trim_conditions.hpp"
+#include "tobas_fixed_wing_controller/fw_trim_conditions.hpp"
 
 #include <tobas_std_tools/console.hpp>
 #include <tobas_std_tools/standard_atmosphere.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
+#include <tobas_tools/fixed_wing.hpp>
 
-#include "tobas_drone_tools/utils/fixed_wing_tools.hpp"
 
 namespace tobas
+{namespace fixed_wing
 {
 TrimConditions::TrimConditions(const Drone& drone, const kdl::Tree& tree)
   : drone_(drone), tree_(tree), inertia_solver_(tree), asd_cog_(drone, tree)
@@ -178,3 +179,4 @@ double TrimConditions::takeOffSpeed(const double& rho) const
   return std::sqrt(c / (a_ * alpha_zero + b_));
 }
 }  // namespace tobas
+}

@@ -6,8 +6,6 @@
 #include <tobas_constants/node.hpp>
 #include <tobas_constants/time.hpp>
 #include <tobas_control/lqd.hpp>
-#include <tobas_drone_tools/fw_micro_disturbance_eom.hpp>
-#include <tobas_drone_tools/utils/fixed_wing_tools.hpp>
 #include <tobas_eigen_tools/core.hpp>
 #include <tobas_kdl/tree_mass_holder.hpp>
 #include <tobas_node/node.hpp>
@@ -16,6 +14,7 @@
 #include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_tools/command_priority_handler.hpp>
 #include <tobas_tools/coordinates.hpp>
+#include <tobas_tools/fixed_wing.hpp>
 
 #include <tobas_command_msgs/msg/speed_roll_delta_pitch.hpp>
 #include <tobas_drone_msgs_adapter/drone.hpp>
@@ -26,23 +25,12 @@
 #include <tobas_msgs/msg/rotor_thrust_array.hpp>
 #include <tobas_msgs_adapter/odometry_with_covariance_stamped.hpp>
 
+#include "tobas_fixed_wing_controller/fw_micro_disturbance_eom.hpp"
+
 namespace tobas
 {
 namespace fixed_wing
 {
-struct ControllerParameters
-{
-  long forward_speed_weight;
-  long alpha_weight;
-  long beta_weight;
-  long attitude_weight;
-  long angular_velocity_weight;
-  long thrust_weight_log10;
-  long thrust_rate_weight_log10;
-  long deflection_weight_log10;
-  long deflection_rate_weight_log10;
-};
-
 class ControllerNode : public BaseNode
 {
   using self = ControllerNode;
@@ -52,6 +40,19 @@ public:
   explicit ControllerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
+  struct ControllerParameters
+  {
+    long forward_speed_weight;
+    long alpha_weight;
+    long beta_weight;
+    long attitude_weight;
+    long angular_velocity_weight;
+    long thrust_weight_log10;
+    long thrust_rate_weight_log10;
+    long deflection_weight_log10;
+    long deflection_rate_weight_log10;
+  } params_;
+
   Drone drone_;
   kdl::Tree tree_;
 
@@ -72,8 +73,7 @@ private:
   tobas_msgs::Odometry odom_frd_;                                         // Current state in the FRD coordinate system.
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;                        // Rotor arming state.
   tobas_command_msgs::msg::SpeedRollDeltaPitch cmd_frd_;  // Current command in the FRD coordinate system.
-  ControllerParameters params_;
-  ctrl::LQD lqd_;  // Optimal regulator.
+  ctrl::LQD lqd_;                                         // Optimal regulator.
 
   // Publishers
   ros2::PublisherPtr<tobas_msgs::msg::RotorThrustArray> tar_thrusts_pub_;

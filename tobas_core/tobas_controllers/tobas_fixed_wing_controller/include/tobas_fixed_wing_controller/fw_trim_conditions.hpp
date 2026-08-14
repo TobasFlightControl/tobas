@@ -12,6 +12,8 @@
 
 namespace tobas
 {
+namespace fixed_wing
+{
 /**
  * @brief Compute the longitudinal trim state.
  */
@@ -142,4 +144,5 @@ inline double TrimConditions::maximumSpeed(const double& rho) const
 {
   return speedLimit(rho).upper;
 }
+}  // namespace fixed_wing
 }  // namespace tobas

@@ -10,6 +10,8 @@
 
 namespace tobas
 {
+namespace fixed_wing
+{
 /**
  * @brief Convert the reference frame of aerodynamic stability derivatives
  * for moments from the aerodynamic center to the center of gravity.
@@ -61,4 +63,5 @@ inline const double& StabilityDerivativesCG::cYawDelta(const std::string& link_n
 {
   return c_yaw_delta_cg_.at(link_name);
 }
+}  // namespace fixed_wing
 }  // namespace tobas

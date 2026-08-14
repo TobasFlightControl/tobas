@@ -9,7 +9,6 @@
 
 #include <tobas_constants/fixed_wing.hpp>
 #include <tobas_drone_core/fixed_wing/fixed_wing.hpp>
-#include <tobas_drone_tools/utils/fixed_wing_tools.hpp>
 #include <tobas_gazebo_common/constants.hpp>
 #include <tobas_gazebo_conversions/gazebo_kdl.hpp>
 #include <tobas_gazebo_conversions/gazebo_ros.hpp>
@@ -20,6 +19,7 @@
 #include <tobas_std_tools/range.hpp>
 #include <tobas_std_tools/standard_atmosphere.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
+#include <tobas_tools/fixed_wing.hpp>
 
 #include <tobas_gazebo_msgs/msg/fixed_wing_debug.hpp>
 #include <tobas_msgs_adapter/wind.hpp>
