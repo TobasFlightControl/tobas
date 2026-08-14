@@ -40,7 +40,7 @@ public:
   explicit ControllerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  struct ControllerParameters
+  struct DynamicParameters
   {
     long forward_speed_weight;
     long alpha_weight;
@@ -57,9 +57,9 @@ private:
   kdl::Tree tree_;
 
   kdl::TreeMassHolder mass_holder_;
-  MicroDisturbanceEoM eom_;  // Small-disturbance state equation.
+  MicroDisturbanceEoM eom_;
 
-  // Fixed values.
+  // Fixed values
   kdl::JntArray q_0_;
 
   bool is_initialized_ = false;
@@ -67,13 +67,13 @@ private:
   bool tree_received_ = false;
   bool topics_received_ = false;
   CommandPriorityHandler cmd_priority_handler_;
-  tobas_msgs::msg::FluidPressure::ConstSharedPtr air_pressure_;           // Atmospheric pressure.
-  tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr odom_flu_;    // Current state in the FLU coordinate system.
-  tobas_command_msgs::msg::SpeedRollDeltaPitch::ConstSharedPtr cmd_flu_;  // Current command in the FLU coordinate system.
-  tobas_msgs::Odometry odom_frd_;                                         // Current state in the FRD coordinate system.
-  tobas_msgs::msg::Arming::ConstSharedPtr arming_;                        // Rotor arming state.
-  tobas_command_msgs::msg::SpeedRollDeltaPitch cmd_frd_;  // Current command in the FRD coordinate system.
-  ctrl::LQD lqd_;                                         // Optimal regulator.
+  tobas_msgs::msg::FluidPressure::ConstSharedPtr air_pressure_;           // Atmospheric pressure
+  tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr odom_flu_;    // Current state in the FLU coordinate system
+  tobas_command_msgs::msg::SpeedRollDeltaPitch::ConstSharedPtr cmd_flu_;  // Current command in the FLU coordinate system
+  tobas_msgs::Odometry odom_frd_;                                         // Current state in the FRD coordinate system
+  tobas_msgs::msg::Arming::ConstSharedPtr arming_;                        // Rotor arming state
+  tobas_command_msgs::msg::SpeedRollDeltaPitch cmd_frd_;  // Current command in the FRD coordinate system
+  ctrl::LQD lqd_;                                         // Optimal regulator
 
   // Publishers
   ros2::PublisherPtr<tobas_msgs::msg::RotorThrustArray> tar_thrusts_pub_;
@@ -170,7 +170,7 @@ bool ControllerNode::initialize()
   q_0_.resize(tree_.getNrOfJoints());
   q_0_.setZero();
 
-  // State-variable scales.
+  // State-variable scales
   lqd_.state_scale.resize(eom_.kStateSize);
   lqd_.state_scale(eom_.kStateIdx_u) = eom_.trimCondition().takeOffSpeed(st::kStandardAirDensity);
   lqd_.state_scale(eom_.kStateIdx_alpha) = drone_.fixed_wing->vehicle.alpha_limit.range();
@@ -181,7 +181,7 @@ bool ControllerNode::initialize()
   lqd_.state_scale(eom_.kStateIdx_q) = M_PI;
   lqd_.state_scale(eom_.kStateIdx_r) = M_PI;
 
-  // Control-input scales.
+  // Control-input scales
   lqd_.input_scale.resize(eom_.inputSize());
   const auto thrust_scale = mass_holder_.getMass() * st::kGravity / drone_.prop->numRotors();
   lqd_.input_scale.head(drone_.prop->numRotors()).fill(thrust_scale);
@@ -273,7 +273,7 @@ void ControllerNode::publishDeflections(const builtin_interfaces::msg::Time& sta
 bool ControllerNode::isCommandAccepted(const tobas_command_msgs::msg::Priority& priority)
 {
   if (!topics_received_) {
-    TOBAS_WARN_THROTTLE(kIgnoreCmdMsgPeriod, "The command is ignored because some topics are not received yet.");
+    TOBAS_WARN_THROTTLE(kIgnoreCmdMsgPeriod, "The command is ignored because some topics have not been received yet.");
     return false;
   }
 
@@ -320,26 +320,26 @@ void ControllerNode::updateAngularVelicityWeight()
 
 void ControllerNode::updateThrustWeightLog10()
 {
-  const auto thrust_weight = exp10(params_.thrust_weight_log10);
-  lqd_.input_weight.head(drone_.prop->numRotors()).fill(thrust_weight);
+  const auto weight = exp10(params_.thrust_weight_log10);
+  lqd_.input_weight.head(drone_.prop->numRotors()).fill(weight);
 }
 
 void ControllerNode::updateThrustRateWeightLog10()
 {
-  const auto thrust_rate_weight = exp10(params_.thrust_rate_weight_log10);
-  lqd_.input_rate_weight.head(drone_.prop->numRotors()).fill(thrust_rate_weight);
+  const auto weight = exp10(params_.thrust_rate_weight_log10);
+  lqd_.input_rate_weight.head(drone_.prop->numRotors()).fill(weight);
 }
 
 void ControllerNode::updateDeflectionWeightLog10()
 {
-  const auto deflection_weight = exp10(params_.deflection_weight_log10);
-  lqd_.input_weight.tail(drone_.fixed_wing->numControlSurfaces()).fill(deflection_weight);
+  const auto weight = exp10(params_.deflection_weight_log10);
+  lqd_.input_weight.tail(drone_.fixed_wing->numControlSurfaces()).fill(weight);
 }
 
 void ControllerNode::updateDeflectionRateWeightLog10()
 {
-  const auto deflection_rate_weight = exp10(params_.deflection_rate_weight_log10);
-  lqd_.input_rate_weight.tail(drone_.fixed_wing->numControlSurfaces()).fill(deflection_rate_weight);
+  const auto weight = exp10(params_.deflection_rate_weight_log10);
+  lqd_.input_rate_weight.tail(drone_.fixed_wing->numControlSurfaces()).fill(weight);
 }
 
 void ControllerNode::updateParameters()
@@ -528,7 +528,7 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
   const Eigen::VectorXd thrusts = u.head(drone_.prop->numRotors());
   const Eigen::VectorXd deflections = u.tail(drone_.fixed_wing->numControlSurfaces());
 
-  // Publish.
+  // Publish commands.
   publishThrusts(odom_flu->header.stamp, thrusts);
   publishDeflections(odom_flu->header.stamp, deflections);
 }
