@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include <tobas_math/linalg.hpp>
-
 #include "./vector.hpp"
 
 namespace tobas
@@ -41,7 +39,7 @@ inline SphericalCoordinate::SphericalCoordinate(double _rho, double _phi, double
 
 inline SphericalCoordinate SphericalCoordinate::Cartesian(const Vector& cart)
 {
-  const auto r = math::norm(cart.x(), cart.y());
+  const auto r = std::hypot(cart.x(), cart.y());
   return SphericalCoordinate(cart.norm(), std::atan2(r, cart.z()), std::atan2(cart.y(), cart.x()));
 }
 

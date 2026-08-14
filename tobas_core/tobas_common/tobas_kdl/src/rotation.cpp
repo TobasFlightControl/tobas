@@ -97,7 +97,7 @@ Rotation Rotation::RPY(double roll, double pitch, double yaw)
 
 Rotation Rotation::Quaternion(double x, double y, double z, double w)
 {
-  assert(math::isClose(math::norm(x, y, z, w), 1.0));
+  assert(math::isClose(std::hypot(x, y, z, w), 1.0));
 
   const auto tx = 2 * x;
   const auto ty = 2 * y;

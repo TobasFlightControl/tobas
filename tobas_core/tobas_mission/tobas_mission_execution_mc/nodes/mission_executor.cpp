@@ -11,7 +11,6 @@
 #include <tobas_algorithm/core.hpp>
 #include <tobas_constants/node.hpp>
 #include <tobas_geographic/geography.hpp>
-#include <tobas_math/linalg.hpp>
 #include <tobas_mission_items/mission.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
@@ -96,7 +95,7 @@ PathComponentScale getMaxPathComponentScale(const CatmullRomPath& path)
   for (size_t sample = 0; sample <= sample_count; ++sample) {
     const auto s = path_length * static_cast<double>(sample) / static_cast<double>(sample_count);
     const auto tangent = path.get(s).tangent;
-    scale.horizontal = std::max(scale.horizontal, math::norm(tangent.x(), tangent.y()));
+    scale.horizontal = std::max(scale.horizontal, std::hypot(tangent.x(), tangent.y()));
     scale.vertical = std::max(scale.vertical, std::abs(tangent.z()));
   }
   return scale;
@@ -706,7 +705,7 @@ bool MulticopterMissionExecutorNode::executeWaypoints(
     const auto& cur_pos = odom_->odom.odom.frame.p;
     if (t > duration) {
       const auto pos_err = final_goal_pos - cur_pos;
-      const auto xy_err_abs = math::norm(pos_err.x(), pos_err.y());
+      const auto xy_err_abs = std::hypot(pos_err.x(), pos_err.y());
       const auto z_err_abs = std::abs(pos_err.z());
       const auto hor_ok = final_goal.acceptance_radius <= 0.0 || xy_err_abs < final_goal.acceptance_radius;
       const auto ver_ok = final_goal.altitude_tolerance <= 0.0 || z_err_abs < final_goal.altitude_tolerance;
@@ -725,7 +724,7 @@ bool MulticopterMissionExecutorNode::executeWaypoints(
 
     auto yaw = command_.rot.yaw;
     if (auto_heading) {
-      const auto tangent_xy_norm = math::norm(path_point.tangent.x(), path_point.tangent.y());
+      const auto tangent_xy_norm = std::hypot(path_point.tangent.x(), path_point.tangent.y());
       if (tangent_xy_norm > 0.0) {
         const auto desired_yaw = std::atan2(path_point.tangent.y(), path_point.tangent.x());
         const auto yaw_diff = algo::wrapPi(desired_yaw - yaw);
@@ -1001,7 +1000,7 @@ bool MulticopterMissionExecutorNode::executeRTL(const ReturnToLaunch& goal, cons
   // Determine the target altitude.
   const auto& cur_pos = odom_->odom.odom.frame.p;
   const auto cur_alt = cur_pos.z() - launch_point_->z();
-  const auto xy_dist = math::norm(launch_point_->x() - cur_pos.x(), launch_point_->y() - cur_pos.y());
+  const auto xy_dist = std::hypot(launch_point_->x() - cur_pos.x(), launch_point_->y() - cur_pos.y());
   const auto min_alt_goal = goal.min_altitude > 0.0 ? goal.min_altitude : rtl_cfg_.min_alt;
   const auto min_alt = std::min<double>(min_alt_goal, xy_dist);  // 45-degree inverted cone rule.
   wp.altitude = std::max(cur_alt, min_alt);

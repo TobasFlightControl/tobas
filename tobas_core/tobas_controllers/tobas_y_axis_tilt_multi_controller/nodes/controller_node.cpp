@@ -412,7 +412,7 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
 
   // When target thrust is below the threshold defined as a fraction of weight,
   // reduce the controller natural frequency as thrust decreases.
-  const auto tar_thrust = math::norm(ux_, uz_);
+  const auto tar_thrust = std::hypot(ux_, uz_);
   const auto thrust_thresh = mass_holder_.getMass() * st::kGravity * throttle_gain_thresh_;
   const auto land_suspect = (tar_thrust < thrust_thresh);
   const auto gain_throt = land_suspect ? tar_thrust / thrust_thresh : 1.0;

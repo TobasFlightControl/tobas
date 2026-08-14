@@ -5,6 +5,7 @@
 
 #include <format>
 
+#include <tobas_math/core.hpp>
 #include <tobas_qt_tools/color.hpp>
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>

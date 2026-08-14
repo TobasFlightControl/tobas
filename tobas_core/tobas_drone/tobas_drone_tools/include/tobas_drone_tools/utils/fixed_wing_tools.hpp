@@ -6,7 +6,7 @@
 #include <eigen3/Eigen/Core>
 
 #include <tobas_constants/fixed_wing.hpp>
-#include <tobas_math/linalg.hpp>
+#include <tobas_math/core.hpp>
 
 namespace tobas
 {
@@ -40,7 +40,7 @@ inline double angleOfAttack(const Eigen::Vector3d& linvel_B)
  */
 inline double angleOfSideSlip(const double& u, const double& v, const double& w)
 {
-  const auto V = math::norm(u, v, w);
+  const auto V = std::hypot(u, v, w);
   return V > kMinAirSpeedThresh ? std::asin(v / V) : 0;
 }
 

@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include <tobas_math/linalg.hpp>
-
 #include "./accel.hpp"
 #include "./segment_jacobian.hpp"
 #include "./twist.hpp"
@@ -275,7 +273,7 @@ inline Vector Rotation::axisZ() const
 
 inline double Rotation::getPitch() const
 {
-  return std::atan2(-data(2, 0), math::norm(data(0, 0), data(1, 0)));
+  return std::atan2(-data(2, 0), std::hypot(data(0, 0), data(1, 0)));
 }
 
 inline double Rotation::getYaw() const
