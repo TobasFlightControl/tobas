@@ -45,7 +45,7 @@ bool TrimConditions::updateInternalDataStructures()
   W_ = inertia_solver_.getInertia().getMass() * st::kGravity;
 
   // Set elevator index.
-  auto max_c_pitch_delta = -INFINITY;
+  double max_c_pitch_delta = std::numeric_limits<double>::lowest();
   for (const auto& [link_name, cs] : drone_.fixed_wing->control_surfaces) {
     if (std::abs(cs.c_pitch_delta) > max_c_pitch_delta) {
       max_c_pitch_delta = std::abs(cs.c_pitch_delta);
@@ -165,7 +165,7 @@ st::Range<double> TrimConditions::speedLimit(const double& rho) const
   // Compute the maximum velocity from the minimum angle of attack.
   // If the denominator approaches +0, level flight is theoretically possible at infinite velocity.
   const auto min_den = a_ * drone_.fixed_wing->vehicle.alpha_limit.lower + b_;
-  const auto V_max = min_den > 0.0 ? std::sqrt(c / min_den) : INFINITY;
+  const auto V_max = min_den > 0.0 ? std::sqrt(c / min_den) : std::numeric_limits<double>::max();
 
   return st::Range<double>(V_min, V_max);
 }

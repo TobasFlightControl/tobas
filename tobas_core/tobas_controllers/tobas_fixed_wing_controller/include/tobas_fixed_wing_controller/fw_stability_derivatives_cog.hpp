@@ -40,8 +40,6 @@ private:
   double c_yaw_beta_cg_;
   std::map<std::string, double> c_pitch_delta_cg_;
   std::map<std::string, double> c_yaw_delta_cg_;
-
-  void clear();
 };
 
 inline const double& StabilityDerivativesCG::cPitchAlpha() const
