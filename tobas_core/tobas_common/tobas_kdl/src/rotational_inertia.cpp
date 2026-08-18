@@ -20,7 +20,7 @@ bool RotationalInertia::isValid(string& error_msg) const
     return false;
   }
 
-  // Compute the principal axes of inertia.
+  // Compute the principal moments of inertia.
   const EigenSolver<Matrix3d> es(data);
   if (es.info() != Success) {
     error_msg = "Failed to get the eigenvalues of the inertia matrix.";
@@ -31,14 +31,14 @@ bool RotationalInertia::isValid(string& error_msg) const
   const auto& i2 = eigvals.y();
   const auto& i3 = eigvals.z();
 
-  // Check that the matrix is positive-definite.
-  if (i1 <= 0.0 || i2 <= 0.0 || i3 <= 0.0) {
-    error_msg = "Inertia matrix must be positive-definite.";
+  // Check that the matrix is positive-semidefinite.
+  if (i1 < 0.0 || i2 < 0.0 || i3 < 0.0) {
+    error_msg = "Inertia matrix must be positive-semidefinite.";
     return false;
   }
 
-  // Check that the diagonal components satisfy the triangle inequality.
-  if (i1 + i2 <= i3 || i2 + i3 <= i1 || i3 + i1 <= i2) {
+  // Check that the principal moments satisfy the triangle inequality.
+  if (i1 + i2 < i3 || i2 + i3 < i1 || i3 + i1 < i2) {
     error_msg = "Inertia matrix is unrealistic.";
     return false;
   }
