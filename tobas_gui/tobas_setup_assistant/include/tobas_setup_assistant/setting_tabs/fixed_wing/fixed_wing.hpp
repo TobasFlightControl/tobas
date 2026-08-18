@@ -3,10 +3,13 @@
 
 #pragma once
 
+#include <tobas_qt_tools/widgets/tab_widget.hpp>
+
 #include "../base_setting.hpp"
-#include "./aero_coefs.hpp"
-#include "./control_surfaces.hpp"
 #include "./vehicle.hpp"
+#include "./coefs/coefs.hpp"
+#include "./coefs/aero_coefs.hpp"
+#include "./coefs/control_surfaces.hpp"
 
 namespace tobas
 {
@@ -26,6 +29,8 @@ class FixedWingWidget : public BaseSettingWidget
   static constexpr char kVehicleLabel[] = "Vehicle Parameters";
   static constexpr char kAeroCoefsLabel[] = "Aerodynamic Coefficients";
   static constexpr char kControlSurfacesLabel[] = "Control Surfaces";
+  static constexpr int kTabWidth = 120;
+  static constexpr int kTabHeight = 40;
 
 public:
   explicit FixedWingWidget(const uadf::Model& uadf);
@@ -46,9 +51,10 @@ public:
   const ControlSurfacesWidget* controlSurfaces() const;
 
 private:
+  qt::TabWidget* tabs_;
+
   VehicleParametersWidget* vehicle_;
-  AerodynamicsCoefficientsWidget* aero_coefs_;
-  ControlSurfacesWidget* control_surfaces_;
+  CoefficientsWidget* coefs_;
 };
 }  // namespace fw
 }  // namespace sa

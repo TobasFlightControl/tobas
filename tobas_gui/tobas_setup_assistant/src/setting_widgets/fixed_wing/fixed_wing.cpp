@@ -23,15 +23,15 @@ FixedWingWidget::FixedWingWidget(const uadf::Model& uadf)
   vehicle_ = new VehicleParametersWidget();
   addWidget(vehicle_);
 
-  // Aerodynamic Coefficients
-  addWidget(new qt::Label(kAeroCoefsLabel, cmn::kTitlePSize));
-  aero_coefs_ = new AerodynamicsCoefficientsWidget();
-  addWidget(aero_coefs_);
+  tabs_ = new qt::TabWidget();
+  tabs_->enableWheelEvent(false);
+  tabs_->setTabSize(kTabWidth, kTabHeight);
+  addWidget(tabs_);
 
-  // Control Surfaces
-  addWidget(new qt::Label(kControlSurfacesLabel, cmn::kTitlePSize));
-  control_surfaces_ = new ControlSurfacesWidget(uadf);
-  addWidget(control_surfaces_);
+  coefs_ = new CoefficientsWidget(uadf);
+
+  tabs_->addTab(coefs_, coefs_->name());
+
 }
 
 const char* FixedWingWidget::name() const
@@ -58,15 +58,13 @@ const char* FixedWingWidget::description() const
 void FixedWingWidget::updateInternalDataStructures()
 {
   vehicle_->updateInternalDataStructures();
-  aero_coefs_->updateInternalDataStructures();
-  control_surfaces_->updateInternalDataStructures();
+  coefs_->updateInternalDataStructures();
 }
 
 void FixedWingWidget::setToDefaults()
 {
   vehicle_->setToDefaults();
-  aero_coefs_->setToDefaults();
-  control_surfaces_->setToDefaults();
+  coefs_->setToDefaults();
 }
 
 bool FixedWingWidget::isValid()
@@ -74,10 +72,7 @@ bool FixedWingWidget::isValid()
   if (!vehicle_->isValid()) {
     return false;
   }
-  if (!aero_coefs_->isValid()) {
-    return false;
-  }
-  if (!control_surfaces_->isValid()) {
+  if (!coefs_->isValid()) {
     return false;
   }
 
@@ -89,8 +84,9 @@ YAML::Node FixedWingWidget::dump() const
   YAML::Node node(YAML::NodeType::Map);
 
   node[kVehicleLabel] = vehicle_->dump();
-  node[kAeroCoefsLabel] = aero_coefs_->dump();
-  node[kControlSurfacesLabel] = control_surfaces_->dump();
+  for (const auto& item: coefs_->dump()) {
+    node[item.first] = item.second;
+  }
 
   return node;
 }
@@ -98,8 +94,7 @@ YAML::Node FixedWingWidget::dump() const
 void FixedWingWidget::load(const YAML::Node& node)
 {
   vehicle_->load(node[kVehicleLabel]);
-  aero_coefs_->load(node[kAeroCoefsLabel]);
-  control_surfaces_->load(node[kControlSurfacesLabel]);
+  coefs_->load(node);
 }
 
 const VehicleParametersWidget* FixedWingWidget::vehicle() const
@@ -109,12 +104,12 @@ const VehicleParametersWidget* FixedWingWidget::vehicle() const
 
 const AerodynamicsCoefficientsWidget* FixedWingWidget::aeroCoefs() const
 {
-  return aero_coefs_;
+  return coefs_->aeroCoefs();
 }
 
 const ControlSurfacesWidget* FixedWingWidget::controlSurfaces() const
 {
-  return control_surfaces_;
+  return coefs_->controlSurfaces();
 }
 }  // namespace fw
 }  // namespace sa

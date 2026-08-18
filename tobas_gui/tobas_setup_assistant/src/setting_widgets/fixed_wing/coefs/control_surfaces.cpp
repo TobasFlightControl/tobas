@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include "tobas_setup_assistant/setting_tabs/fixed_wing/control_surfaces.hpp"
+#include "tobas_setup_assistant/setting_tabs/fixed_wing/coefs/control_surfaces.hpp"
 
 #include <QDebug>
 #include <QHeaderView>
@@ -55,6 +55,13 @@ void ControlSurfacesWidget::updateInternalDataStructures()
     const auto& link_name = uadf_.urdf->getJoint(joint_name)->child_link_name;
     add(QString::fromStdString(link_name));
   }
+
+  setFixedHeight(
+      horizontalHeader()->height()
+      + verticalHeader()->length()
+      + 2 * frameWidth());
+
+  updateGeometry();
 }
 
 void ControlSurfacesWidget::setToDefaults()
