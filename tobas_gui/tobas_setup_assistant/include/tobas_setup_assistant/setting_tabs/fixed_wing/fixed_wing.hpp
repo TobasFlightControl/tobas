@@ -10,6 +10,7 @@
 #include "./coefs/coefs.hpp"
 #include "./coefs/aero_coefs.hpp"
 #include "./coefs/control_surfaces.hpp"
+#include "./helper/helper.hpp"
 
 namespace tobas
 {
@@ -55,6 +56,7 @@ private:
 
   VehicleParametersWidget* vehicle_;
   CoefficientsWidget* coefs_;
+  HelperWidget* helper_;
 };
 }  // namespace fw
 }  // namespace sa

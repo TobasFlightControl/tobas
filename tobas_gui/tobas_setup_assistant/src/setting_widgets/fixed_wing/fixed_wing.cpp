@@ -28,9 +28,13 @@ FixedWingWidget::FixedWingWidget(const uadf::Model& uadf)
   tabs_->setTabSize(kTabWidth, kTabHeight);
   addWidget(tabs_);
 
+  // coefficients widget
   coefs_ = new CoefficientsWidget(uadf);
-
   tabs_->addTab(coefs_, coefs_->name());
+
+  // helper widget
+  helper_ = new HelperWidget(uadf);
+  tabs_->addTab(helper_, helper_->name());
 
 }
 
@@ -59,12 +63,14 @@ void FixedWingWidget::updateInternalDataStructures()
 {
   vehicle_->updateInternalDataStructures();
   coefs_->updateInternalDataStructures();
+  helper_->updateInternalDataStructures();
 }
 
 void FixedWingWidget::setToDefaults()
 {
   vehicle_->setToDefaults();
   coefs_->setToDefaults();
+  helper_->setToDefaults();
 }
 
 bool FixedWingWidget::isValid()
@@ -73,6 +79,9 @@ bool FixedWingWidget::isValid()
     return false;
   }
   if (!coefs_->isValid()) {
+    return false;
+  }
+  if (helper_->isValid()) {
     return false;
   }
 

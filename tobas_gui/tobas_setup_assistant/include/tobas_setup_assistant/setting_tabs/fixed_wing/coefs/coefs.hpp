@@ -3,9 +3,10 @@
 
 #pragma once
 
-#include "../../base_setting.hpp"
 #include "./aero_coefs.hpp"
 #include "./control_surfaces.hpp"
+
+#include <tobas_qt_tools/widgets/scroll_area.hpp>
 
 namespace tobas
 {
@@ -40,10 +41,6 @@ public:
   const ControlSurfacesWidget* controlSurfaces() const;
 
 private:
-  QSettings settings_store_;
-
-  qt::FormLayout* form_;
-
   AerodynamicsCoefficientsWidget* aero_coefs_;
   ControlSurfacesWidget* control_surfaces_;
 };
