@@ -22,6 +22,7 @@ Keep `README.md` files as local maintainer notes; they are not translation targe
 Use Python 3 on Ubuntu 24.04 LTS or a compatible environment.
 
 ```bash
+$ sudo apt install -y python3-dev python3-venv
 $ python -m venv .venv
 $ source .venv/bin/activate
 $ pip install --upgrade pip
