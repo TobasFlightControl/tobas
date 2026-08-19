@@ -20,6 +20,7 @@ WingsWidget::WingsWidget()
   setLayout(rows);
 
   tabs_ = new qt::TabWidget();
+  tabs_->tabBar()->setElideMode(Qt::ElideRight);
   rows->addWidget(tabs_);
 
   const auto wing = new WingWidget();
@@ -40,7 +41,7 @@ WingsWidget::WingsWidget()
   button_layout->addWidget(add_button);
   button_layout->addWidget(remove_button);
 
-  tabs_->setCornerWidget(buttons, Qt::TopRightCorner);
+  tabs_->setCornerWidget(buttons, Qt::TopLeftCorner);
 
   connect(add_button, &QToolButton::clicked,
           this, &self::addWingWidget);
@@ -101,6 +102,11 @@ void WingsWidget::removeWingWidget()
     return;
   }
 
+  // 最後の一つは消去しない, 消去してしまうとtab部の+-ボタンまで一緒に消えてしまう
+  if (tabs_->count() <= 1) {
+    return;
+  }
+
   QWidget* widget = tabs_->widget(current_index);
 
   tabs_->removeTab(current_index);
@@ -120,7 +126,7 @@ void WingsWidget::renameWingWidget(const int index)
       QInputDialog::getText(
           this,
           "Rename Wing",
-          "Name:",
+          "New Name:",
           QLineEdit::Normal,
           old_name,
           &ok);
