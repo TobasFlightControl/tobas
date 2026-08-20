@@ -99,6 +99,7 @@ plugins:
             開発者向け: For Developers
             ユーザーコード（Python）: User Code (Python)
             ユーザーコード（C++）: User Code (C++)
+            コンパニオンPCを介した通信: Communication via a Companion Computer
             追加情報: Additional Information
             UADFとは: What is UADF
             慣性モーメント: Inertia Moment
@@ -126,6 +127,7 @@ nav:
       - ROS API: for_developers/ros_api.md
       - ユーザーコード（Python）: for_developers/user_code_py.md
       - ユーザーコード（C++）: for_developers/user_code_cpp.md
+      - コンパニオンPCを介した通信: for_developers/companion_pc_network.md
   - 追加情報:
       - UADFとは: additional_information/what_is_uadf.md
       - 慣性モーメント: additional_information/inertia_moment.md
