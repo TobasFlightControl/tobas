@@ -17,12 +17,12 @@ IP forwarding と Proxy ARP によって外部 PC から FC 側サブネット�
 
 ![コンパニオン PC をルータとして使用するネットワーク構成](../../assets/companion_pc_network/network_topology.png)
 
-| 機能                                 | サービス        |
-| ------------------------------------ | --------------- |
-| FC への IP アドレス割り当て          | Dnsmasq         |
-| 外部 PC から FC へのパケット転送     | IP Forwarding   |
-| 外部 LAN での FC アドレスの ARP 応答 | Proxy ARP       |
-| `.local`ホスト名の中継               | Avahi Reflector |
+| 機能                                           | サービス        |
+| ---------------------------------------------- | --------------- |
+| FC への IP アドレス割り当て                    | Dnsmasq         |
+| 外部 PC から FC へのパケット転送               | IP Forwarding   |
+| FC が外部 LAN に直接接続されているように見せる | Proxy ARP       |
+| `.local`ホスト名の中継                         | Avahi Reflector |
 
 !!! warning
 
@@ -121,7 +121,14 @@ dhcp-range=172.22.1.100,172.22.1.200,255.255.255.0,12h
 
 ### IP forwarding と Proxy ARP を有効化する
 
-IPv4 パケット転送と外部 LAN 側の Proxy ARP を有効化するため，`/etc/sysctl.d/99-tobas-routing.conf`を作成します．
+後述のルートを設定すると，外部 PC は FC 宛てのパケットを同じ LAN 上の端末に送るように処理します．
+Proxy ARP を有効にすると，コンパニオン PC が FC の代わりに外部 PC へ応答し，
+FC 宛てのパケットを受け取ります．
+これにより，外部 PC からは FC が同じ LAN に直接接続されているように見えます．
+
+IP forwarding は，コンパニオン PC が受け取ったパケットを，
+外部 LAN 側インターフェースと FC 側イーサネットの間で転送します．
+これらを有効にするため，`/etc/sysctl.d/99-tobas-routing.conf`を作成します．
 `wlan0`は実際の外部 LAN 側インターフェース名に置き換えてください．
 
 ```ini
