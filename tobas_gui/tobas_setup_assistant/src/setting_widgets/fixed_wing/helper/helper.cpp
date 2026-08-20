@@ -13,7 +13,9 @@ namespace sa
 {
 namespace fw
 {
-HelperWidget::HelperWidget(const uadf::Model&)
+namespace hp
+{
+HelperWidget::HelperWidget(const uadf::Model& uadf)
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);
@@ -25,8 +27,8 @@ HelperWidget::HelperWidget(const uadf::Model&)
 
   // Control Surfaces
   rows->addWidget(new qt::Label(kControlSurfacesLabel, cmn::kTitlePSize));
-//   control_surfaces_ = new ControlSurfacesWidget(uadf);
-//   rows->addWidget(control_surfaces_);
+  control_surfaces_ = new ControlSurfacesWidget(uadf, wings_);
+  rows->addWidget(control_surfaces_);
 }
 
 const char* HelperWidget::name() const
@@ -37,16 +39,18 @@ const char* HelperWidget::name() const
 void HelperWidget::updateInternalDataStructures()
 {
   wings_->updateInternalDataStructures();
+  control_surfaces_->updateInternalDataStructures();
 }
 
 void HelperWidget::setToDefaults()
 {
   wings_->setToDefaults();
+  control_surfaces_->setToDefaults();
 }
 
 bool HelperWidget::isValid()
 {
-  return wings_->isValid();
+  return wings_->isValid() && control_surfaces_->isValid();
 }
 
 YAML::Node HelperWidget::dump() const
@@ -59,6 +63,7 @@ YAML::Node HelperWidget::dump() const
 void HelperWidget::load(const YAML::Node&)
 {
 }
+}  // namespace hp
 }  // namespace fw
 }  // namespace sa
 }  // namespace gui

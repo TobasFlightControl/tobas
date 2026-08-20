@@ -33,7 +33,7 @@ FixedWingWidget::FixedWingWidget(const uadf::Model& uadf)
   tabs_->addTab(coefs_, coefs_->name());
 
   // helper widget
-  helper_ = new HelperWidget(uadf);
+  helper_ = new hp::HelperWidget(uadf);
   tabs_->addTab(helper_, helper_->name());
 
 }

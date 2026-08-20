@@ -14,6 +14,8 @@ namespace sa
 {
 namespace fw
 {
+namespace hp
+{
 class WingWidget : public QWidget
 {
   Q_OBJECT
@@ -49,6 +51,7 @@ private:
   ParamGetterWidget_Vector3d* position_;
   ParamGetterWidget_Vector3d* rotation_;
 };
+}  // namespace hp
 }  // namespace fw
 }  // namespace sa
 }  // namespace gui

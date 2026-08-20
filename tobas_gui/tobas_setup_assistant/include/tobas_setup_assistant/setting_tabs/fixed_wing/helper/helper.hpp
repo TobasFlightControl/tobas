@@ -5,6 +5,7 @@
 #include <tobas_qt_tools/widgets/scroll_area.hpp>
 #include <tobas_uadf/model.hpp>
 
+#include "./control_surfaces.hpp"
 #include "./wings.hpp"
 
 namespace tobas
@@ -14,6 +15,8 @@ namespace gui
 namespace sa
 {
 namespace fw
+{
+namespace hp
 {
 class HelperWidget : public qt::ScrollArea
 {
@@ -38,7 +41,9 @@ public:
 
 private:
   WingsWidget* wings_;
+  ControlSurfacesWidget* control_surfaces_;
 };
+}  // namespace hp
 }  // namespace fw
 }  // namespace sa
 }  // namespace gui

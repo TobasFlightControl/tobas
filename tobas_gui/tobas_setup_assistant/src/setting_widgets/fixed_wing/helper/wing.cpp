@@ -10,6 +10,8 @@ namespace sa
 {
 namespace fw
 {
+namespace hp
+{
 WingWidget::WingWidget()
 {
   const auto rows = new QVBoxLayout();
@@ -148,7 +150,7 @@ Eigen::Vector3d WingWidget::rotation()
 {
   return rotation_->getValue();
 }
-
+}  // namespace hp
 }  // namespace fw
 }  // namespace sa
 }  // namespace gui

@@ -4,6 +4,7 @@
 #include <QToolButton>
 #include <QInputDialog>
 
+#include <tobas_qt_tools/message.hpp>
 #include <tobas_setup_assistant/setting_tabs/fixed_wing/helper/wing.hpp>
 
 namespace tobas
@@ -13,6 +14,8 @@ namespace gui
 namespace sa
 {
 namespace fw
+{
+namespace hp
 {
 WingsWidget::WingsWidget()
 {
@@ -24,7 +27,7 @@ WingsWidget::WingsWidget()
   rows->addWidget(tabs_);
 
   const auto wing = new WingWidget();
-  tabs_->addTab(wing, "main_wing");
+  tabs_->addTab(wing, kMainWing);
 
   // "+" and "-" buttons
   const auto buttons = new QWidget(tabs_);
@@ -70,7 +73,7 @@ void WingsWidget::setToDefaults()
   }
 }
 
-bool WingsWidget::isValid()
+bool WingsWidget::isValid() const
 {
   bool is_valid = true;
   const auto all_tabs = tabs_->count();
@@ -83,6 +86,11 @@ bool WingsWidget::isValid()
   return is_valid;
 }
 
+QString WingsWidget::requiredWingName() const
+{
+  return kMainWing;
+}
+
 void WingsWidget::addWingWidget()
 {
   index_++;
@@ -90,8 +98,10 @@ void WingsWidget::addWingWidget()
   const auto wing = new WingWidget();
   wing->setToDefaults();
 
-  tabs_->addTab(wing, QString("wing_%1").arg(index_));
+  QString default_name = QString("wing_%1").arg(index_);
+  tabs_->addTab(wing, default_name);
   tabs_->setCurrentWidget(wing);
+  Q_EMIT tabAdded(default_name);
 }
 
 void WingsWidget::removeWingWidget()
@@ -102,8 +112,8 @@ void WingsWidget::removeWingWidget()
     return;
   }
 
-  // 最後の一つは消去しない, 消去してしまうとtab部の+-ボタンまで一緒に消えてしまう
-  if (tabs_->count() <= 1) {
+  // main_wingは消去しない. 全てのtabを消去してしまうとtab部の+-ボタンまで一緒に消えてしまうのも理由の一つ
+  if (tabs_->tabText(current_index) == kMainWing) {
     return;
   }
 
@@ -111,6 +121,7 @@ void WingsWidget::removeWingWidget()
 
   tabs_->removeTab(current_index);
   widget->deleteLater();
+  Q_EMIT tabRemoved(current_index);
 }
 
 void WingsWidget::renameWingWidget(const int index)
@@ -131,11 +142,31 @@ void WingsWidget::renameWingWidget(const int index)
           old_name,
           &ok);
 
-  if (ok && !new_name.trimmed().isEmpty()) {
-    tabs_->setTabText(index, new_name.trimmed());
+  if (!ok) {
+    return;
   }
-}
 
+  const QString name = new_name.trimmed();
+  if (name.isEmpty()) {
+    return;
+  }
+
+  bool duplicate = false;
+  for (int i = 0; i < tabs_->count(); ++i) {
+    if (i != index && tabs_->tabText(i) == name) {
+      duplicate = true;
+      break;
+    }
+  }
+  if (duplicate) {
+    qt::qWarnBox(this,"The name is already used by another wing.");
+    return;
+  }
+
+  tabs_->setTabText(index, name);
+  Q_EMIT tabRenamed(index, name);
+}
+}  // namespace hp
 }  // namespace fw
 }  // namespace sa
 }  // namespace gui

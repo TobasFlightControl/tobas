@@ -56,7 +56,7 @@ private:
 
   VehicleParametersWidget* vehicle_;
   CoefficientsWidget* coefs_;
-  HelperWidget* helper_;
+  hp::HelperWidget* helper_;
 };
 }  // namespace fw
 }  // namespace sa
