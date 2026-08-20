@@ -238,7 +238,7 @@ SSH と`ROS_STATIC_PEERS`に`172.22.1.2`を直接指定する場合は，mDNS �
 
 ```bash
 $ ssh pi@172.22.1.2
-$ export ROS_STATIC_PEERS=172.22.1.2
+$ export ROS_STATIC_PEERS="172.22.1.2"
 ```
 
 ### 複数機を同一 LAN 内で運用する
@@ -255,5 +255,5 @@ $ export ROS_STATIC_PEERS=172.22.1.2
 複数の FC と ROS 2 通信する場合は，セミコロンで区切って静的ピアを指定します．
 
 ```bash
-$ export ROS_STATIC_PEERS='host1.local;host2.local;host3.local'
+$ export ROS_STATIC_PEERS="host1.local;host2.local;host3.local"
 ```
