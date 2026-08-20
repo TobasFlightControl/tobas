@@ -1,7 +1,7 @@
 # コンパニオン PC を介した通信
 
-このページでは，Nvidia Jetson Nano などの Linux コンパニオン PC を介しつつも，
-それを全く意識することなく外部 PC と FC を SSH と ROS 2 で通信させる方法を説明します．
+このページでは，NVIDIA Jetson Nano などの Linux コンパニオン PC を介して，
+外部 PC と FC を従来と同様に SSH と ROS 2 で通信させる方法を説明します．
 
 この方法により，元々の PC-FC 間の通信を損なうことなく，機体側に画像処理や SLAM などの高度な処理に必要な計算力を追加することができます．
 
@@ -36,7 +36,7 @@ IP forwarding と Proxy ARP によって外部 PC から FC 側サブネット�
 
 ここでは以下の条件を前提とします．
 
-- 外部 PC とコンパニオン PC が同じサブネットに属していること
+- 外部 PC とコンパニオン PC が直接通信可能な同じ LAN に属していること
 - コンパニオン PC が NetworkManager でネットワークを管理していること
 - コンパニオン PC と FC がイーサネットで接続されていること
 - 外部 PC に ROS 2 Jazzy と Cyclone DDS がインストールされていること
@@ -46,13 +46,21 @@ IP forwarding と Proxy ARP によって外部 PC から FC 側サブネット�
 ---
 
 コンパニオン PC のイーサネットのインターフェース名と NetworkManager の接続プロファイル名を確認します．
-以下のコマンドを実行してください．
+
+Jetson を使用している場合は，先に USB Device Mode が作成する仮想イーサネットを無効化します．
+Jetson 以外のコンパニオン PC ではこのコマンドを実行しないでください．
+
+```bash
+$ sudo systemctl disable --now nv-l4t-usb-device-mode-runtime.service
+```
+
+続けて，インターフェースとアドレスを確認します．
 
 ```bash
 $ nmcli -f DEVICE,TYPE,STATE,CONNECTION device
 ```
 
-得られた出力から`TYPE`が`ethernet`となっている行を探してください．
+得られた出力から，`TYPE`が`ethernet`の行を探してください．
 
 ```txt
 DEVICE             TYPE      STATE                   CONNECTION
@@ -131,15 +139,6 @@ FC が広告する`.local`ホスト名を外部 LAN へ中継するため，`/et
 enable-reflector=yes
 ```
 
-### Jetson の USB 仮想イーサネットを無効化する
-
-Jetson を使用している場合は，USB Device Mode が作成する仮想イーサネットを無効化します．
-Jetson 以外のコンパニオン PC ではこの手順をスキップしてください．
-
-```bash
-$ sudo systemctl disable --now nv-l4t-usb-device-mode-runtime.service
-```
-
 ## 外部 PC に FC 側サブネットへのルートを設定する
 
 ---
@@ -155,7 +154,7 @@ ACTION="$2"
 [ "$ACTION" = "up" ] || [ "$ACTION" = "dhcp4-change" ] || exit 0
 
 # 現在のデフォルトルートで使用されているNICを取得する．
-IFACE="$(ip route show default | sort -nk5 | awk 'NR==1 {for (i=1;i<=NF;i++) if ($i=="dev") print $(i+1)}')"
+IFACE="$(ip route get 1.1.1.1 | awk '{for(i=1;i<=NF;i++) if($i=="dev"){print $(i+1); exit}}')"
 
 # デフォルトルートが存在しなければ何もしない．
 [ -n "$IFACE" ] || exit 0
@@ -166,7 +165,7 @@ TYPE="$(nmcli -g GENERAL.TYPE device show "$IFACE" 2>/dev/null)"
 # Wi-FiまたはEthernet以外なら何もしない．
 [ "$TYPE" = "wifi" ] || [ "$TYPE" = "ethernet" ] || exit 0
 
-# RPi側サブネットへのルートを，現在のデフォルトルートのNICに設定する．
+# FC側サブネットへのルートを，現在のデフォルトルートのNICに設定する．
 ip route replace 172.22.0.0/16 dev "$IFACE"
 ```
 
@@ -182,7 +181,7 @@ $ sudo chown root:root /etc/NetworkManager/dispatcher.d/90-tobas-route
 ---
 
 上記の操作が完了したら，一度 FC，コンパニオン PC，外部 PC を再起動してください．
-設定が正しく反映されていれば，コンパニオン PC を飛び越えて外部 PC と FC の間で通信ができるようになっているはずです．
+設定が正しく反映されていれば，コンパニオン PC を介して外部 PC と FC の間で通信ができるようになっているはずです．
 
 ### SSH 接続を確認する
 
@@ -202,6 +201,7 @@ $ ssh pi@host1.local
 $ source /opt/ros/jazzy/setup.bash
 $ export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 $ export ROS_STATIC_PEERS=host1.local
+$ ros2 daemon stop
 $ ros2 topic list
 ```
 
@@ -219,7 +219,27 @@ $ ros2 topic echo <Topic Name>
 ### FC の IP を固定する
 
 上記では FC の識別に mDNS ホスト名を使用しましたが，代わりに固定 IP アドレスを使用することもできます．
-その場合は，DHCP サーバの設定と mDNS リフレクタの有効化は不要になります．
+
+FC を起動する前に，[Tobas Bootmedia Config](../getting_started/bootmedia_config.md)を使ってブートデバイスに固定 IP アドレスを書き込みます．
+`IP Address`タブの`Wired`に以下を設定してください．
+
+| 項目            | 設定値               |
+| --------------- | -------------------- |
+| `Method`        | `Manual`             |
+| `Prefix Length` | `24 - 255.255.255.0` |
+| `Address`       | `172.22.1.2`         |
+| `Gateway`       | `172.22.1.1`         |
+
+`Write`をクリックして設定を書き込んだ後，`Disconnect`をクリックしてブートデバイスを取り外し，FC を起動します．
+`Gateway`にコンパニオン PC のアドレス`172.22.1.1`を指定することで，FC から外部 PC へ応答パケットを返せるようになります．
+
+この場合，コンパニオン PC の DHCP サーバ設定は不要です．
+SSH と`ROS_STATIC_PEERS`に`172.22.1.2`を直接指定する場合は，mDNS リフレクタも不要です．
+
+```bash
+$ ssh pi@172.22.1.2
+$ export ROS_STATIC_PEERS=172.22.1.2
+```
 
 ### 複数機を同一 LAN 内で運用する
 
