@@ -3,17 +3,12 @@
 
 #pragma once
 
-#include <chrono>
-#include <string>
-
-#include <rclcpp/rclcpp.hpp>
+#include <rclcpp/node.hpp>
 
 namespace tobas
 {
 namespace ros2
 {
-bool isPresent(const rclcpp::node_interfaces::NodeGraphInterface::SharedPtr& graph, const std::string& target_fqn);
-
 bool waitUntilNodeGone(
   const rclcpp::Node::SharedPtr& node,
   const std::string& target_fqn,  // FQN = Fully Qualified Name

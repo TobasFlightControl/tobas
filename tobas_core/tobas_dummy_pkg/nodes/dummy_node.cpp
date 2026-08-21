@@ -2,9 +2,10 @@
 // Copyright (C) 2026 Tobas, Inc.
 
 #include <random>
+#include <string>
 #include <string_view>
 
-#include <rclcpp/rclcpp.hpp>
+#include <rclcpp/node.hpp>
 #include <rclcpp_components/register_node_macro.hpp>
 
 namespace tobas

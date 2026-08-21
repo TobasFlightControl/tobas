@@ -5,7 +5,9 @@
 
 #include <sched.h>
 
-#include <rclcpp/rclcpp.hpp>
+#include <cstddef>
+#include <cstdint>
+#include <vector>
 
 #include <tobas_linux/types.hpp>
 

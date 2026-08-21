@@ -3,7 +3,10 @@
 
 #pragma once
 
-#include <rclcpp/rclcpp.hpp>
+#include <chrono>
+#include <cstdint>
+
+#include <rclcpp/time.hpp>
 
 namespace tobas
 {

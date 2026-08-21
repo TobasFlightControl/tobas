@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <gz/msgs/pointcloud_packed.pb.h>
 #include <gz/transport/Node.hh>
 
 #include <tobas_gazebo_tools/time.hpp>

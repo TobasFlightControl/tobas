@@ -3,6 +3,8 @@
 
 #include "tobas_gazebo_tools/model_mass_holder.hpp"
 
+#include <gz/sim/components/Inertial.hh>
+
 using namespace gz::sim;
 
 namespace tobas

@@ -4,11 +4,16 @@
 #pragma once
 
 #include <QTimer>
+#include <rclcpp/node.hpp>
 
-#include <tobas_ros2_tools/register.hpp>
 #include <tobas_uadf/model.hpp>
 
 #include <visualization_msgs/msg/marker_array.hpp>
+
+namespace rclcpp
+{
+class Node;
+}  // namespace rclcpp
 
 namespace tobas
 {
@@ -37,7 +42,7 @@ private:
   const uadf::Model& uadf_;
 
   visualization_msgs::msg::MarkerArray markers_;
-  ros2::PublisherPtr<visualization_msgs::msg::MarkerArray> markers_pub_;
+  rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr markers_pub_;
   QTimer publish_markers_timer_;
 
 private Q_SLOTS:

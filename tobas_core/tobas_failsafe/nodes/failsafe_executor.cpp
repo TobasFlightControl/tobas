@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include <rclcpp_action/rclcpp_action.hpp>
+#include <rclcpp_action/client.hpp>
+#include <rclcpp_action/create_client.hpp>
 
 #include <tobas_mission_items/mission.hpp>
 #include <tobas_node/node.hpp>

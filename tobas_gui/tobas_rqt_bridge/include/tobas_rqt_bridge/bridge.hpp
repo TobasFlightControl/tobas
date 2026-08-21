@@ -4,7 +4,8 @@
 #pragma once
 
 #include <QObject>
-#include <rclcpp/rclcpp.hpp>
+#include <rclcpp/node.hpp>
+#include <rclcpp/subscription_base.hpp>
 
 #include <tobas_ros2_tools/qos.hpp>
 

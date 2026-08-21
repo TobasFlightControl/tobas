@@ -5,16 +5,13 @@
 #include <linux/videodev2.h>
 #include <unistd.h>
 
-#include <chrono>
-#include <cstring>
-#include <functional>
-#include <memory>
-#include <string>
-
 #include <cv_bridge/cv_bridge.hpp>
 #include <ffmpeg_encoder_decoder/encoder.hpp>
 #include <ffmpeg_image_transport_msgs/msg/ffmpeg_packet.hpp>
-#include <opencv2/opencv.hpp>
+#include <opencv2/core/mat.hpp>
+#include <opencv2/core/types.hpp>
+#include <opencv2/imgcodecs.hpp>
+#include <opencv2/imgproc.hpp>
 #include <sensor_msgs/image_encodings.hpp>
 
 #include <tobas_linux/video_dev.hpp>

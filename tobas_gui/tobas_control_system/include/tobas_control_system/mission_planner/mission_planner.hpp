@@ -3,10 +3,8 @@
 
 #pragma once
 
-#include <vector>
-
 #include <QSettings>
-#include <rclcpp_action/rclcpp_action.hpp>
+#include <rclcpp_action/client.hpp>
 
 #include <tobas_geographic/geography.hpp>
 #include <tobas_mission_items/mission.hpp>

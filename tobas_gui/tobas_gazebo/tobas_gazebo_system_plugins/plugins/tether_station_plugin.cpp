@@ -3,6 +3,12 @@
 
 #include <gz/msgs/marker.pb.h>
 #include <gz/sim/Link.hh>
+#include <gz/sim/components/AngularVelocity.hh>
+#include <gz/sim/components/LinearVelocity.hh>
+#include <gz/sim/components/Link.hh>
+#include <gz/sim/components/Name.hh>
+#include <gz/sim/components/ParentEntity.hh>
+#include <gz/sim/components/Pose.hh>
 #include <gz/transport/Node.hh>
 
 #include <tobas_gazebo_common/constants.hpp>

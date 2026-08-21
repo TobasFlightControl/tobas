@@ -3,6 +3,8 @@
 
 #include "tobas_ros2_tools/async_node_manager.hpp"
 
+#include <rclcpp/utilities.hpp>
+
 namespace tobas
 {
 namespace ros2

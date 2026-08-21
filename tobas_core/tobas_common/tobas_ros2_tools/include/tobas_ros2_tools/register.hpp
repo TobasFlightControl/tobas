@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <rclcpp/node.hpp>
+
 #include "./definitions.hpp"
 #include "./qos.hpp"
 

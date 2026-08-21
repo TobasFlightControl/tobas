@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <rclcpp/rclcpp.hpp>
+#include <rclcpp/node.hpp>
 
 #include <std_msgs/msg/string.hpp>
 

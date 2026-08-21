@@ -3,6 +3,8 @@
 
 #include "tobas_tools/command_priority_handler.hpp"
 
+#include <iostream>
+
 using namespace std;
 
 namespace tobas

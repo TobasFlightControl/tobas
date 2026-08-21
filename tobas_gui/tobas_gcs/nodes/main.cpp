@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <csignal>
+
 #include <QApplication>
 
 #include <tobas_gui_common/argument.hpp>

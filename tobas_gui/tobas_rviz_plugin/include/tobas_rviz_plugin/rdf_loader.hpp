@@ -4,7 +4,7 @@
 #pragma once
 
 #include <urdf/model.h>
-#include <rclcpp/rclcpp.hpp>
+#include <rclcpp/node.hpp>
 
 #include "./synchronized_string_parameter.hpp"
 

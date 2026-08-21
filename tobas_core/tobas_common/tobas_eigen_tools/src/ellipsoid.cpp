@@ -5,7 +5,8 @@
 
 #include <iostream>
 
-#include <eigen3/Eigen/Eigen>
+#include <eigen3/Eigen/Eigenvalues>
+#include <eigen3/Eigen/LU>
 
 using namespace Eigen;
 

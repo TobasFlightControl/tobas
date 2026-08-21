@@ -5,16 +5,9 @@
 #include <linux/videodev2.h>
 #include <unistd.h>
 
-#include <chrono>
-#include <cstring>
-#include <functional>
-#include <memory>
-#include <string>
-
 #include <ffmpeg_encoder_decoder/decoder.hpp>
 #include <ffmpeg_encoder_decoder/utils.hpp>
 #include <ffmpeg_image_transport_msgs/msg/ffmpeg_packet.hpp>
-#include <opencv2/opencv.hpp>
 
 #include <tobas_linux/video_dev.hpp>
 #include <tobas_node/node.hpp>

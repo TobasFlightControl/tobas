@@ -3,6 +3,13 @@
 
 #include "tobas_gazebo_tools/link_world_pose_solver.hpp"
 
+#include <iostream>
+
+#include <gz/common/Console.hh>
+#include <gz/sim/components/Model.hh>
+#include <gz/sim/components/Pose.hh>
+#include <gz/sim/components/World.hh>
+
 using namespace gz;
 
 namespace tobas

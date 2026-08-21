@@ -3,6 +3,7 @@
 
 #include <gz/sim/Joint.hh>
 #include <gz/sim/Model.hh>
+#include <gz/sim/components/JointVelocity.hh>
 
 #include <tobas_gazebo_common/constants.hpp>
 #include <tobas_gazebo_tools/utils.hpp>

@@ -3,7 +3,9 @@
 
 #pragma once
 
+#include <gz/plugin/Register.hh>
+#include <gz/sim/System.hh>
+
 #include "./constants.hpp"
 #include "./definitions.hpp"
 #include "./node.hpp"
-#include "./plugin.hpp"

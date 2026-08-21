@@ -4,14 +4,9 @@
 // Usage: ros2 run tobas_ic_drivers bmm350_publisher --ros-args -p odr_hz=:100 -p averaging:4
 // Param: odr_hz: 25 or 100, averaging: 2 or 4
 
-#include <chrono>
 #include <expected>
-#include <functional>
-#include <memory>
-#include <stdexcept>
-#include <string>
 
-#include <rclcpp/rclcpp.hpp>
+#include <rclcpp/node.hpp>
 #include <rclcpp_components/register_node_macro.hpp>
 
 #include <tobas_ic_drivers/bmm350.hpp>

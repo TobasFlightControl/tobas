@@ -2,9 +2,6 @@
 // Copyright (C) 2026 Tobas, Inc.
 
 #pragma once
-
-#include <cmath>
-#include <cstddef>
 #include <random>
 
 #include <QElapsedTimer>
@@ -20,6 +17,11 @@
 #include <sensor_msgs/msg/joint_state.hpp>
 
 #include <tobas_visualization_msgs/msg/display_robot_state.hpp>
+
+namespace rclcpp
+{
+class Node;
+}  // namespace rclcpp
 
 namespace tobas
 {
@@ -38,7 +40,7 @@ class JointStatePublisherWidget : public QWidget
   static constexpr double kThrustJointAngularVelocity = M_PI / 6;  // [rad/s]
 
 public:
-  explicit JointStatePublisherWidget(rclcpp::Node::SharedPtr node, const uadf::Model& uadf, const kdl::Tree& tree);
+  explicit JointStatePublisherWidget(std::shared_ptr<rclcpp::Node> node, const uadf::Model& uadf, const kdl::Tree& tree);
 
   void updateInternalDataStructures();
 
@@ -49,7 +51,7 @@ private:
     double rotation_sign;
   };
 
-  const rclcpp::Node::SharedPtr node_;
+  const std::shared_ptr<rclcpp::Node> node_;
   const uadf::Model& uadf_;
   const kdl::Tree& tree_;
 

@@ -6,6 +6,9 @@
 #include <gz/sim/Joint.hh>
 #include <gz/sim/Link.hh>
 #include <gz/sim/Model.hh>
+#include <gz/sim/components/AngularVelocity.hh>
+#include <gz/sim/components/LinearVelocity.hh>
+#include <gz/sim/components/Pose.hh>
 
 #include <tobas_constants/fixed_wing.hpp>
 #include <tobas_drone_core/fixed_wing/fixed_wing.hpp>

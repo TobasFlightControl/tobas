@@ -3,7 +3,8 @@
 
 #pragma once
 
-#include <rclcpp/rclcpp.hpp>
+#include <rclcpp/client.hpp>
+#include <rclcpp/node.hpp>
 
 /* For development. */
 // #include <std_srvs/srv/empty.hpp>

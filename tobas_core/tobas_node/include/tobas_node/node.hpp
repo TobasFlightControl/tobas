@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <rclcpp/node.hpp>
+#include <rclcpp_action/create_server.hpp>
 #include <rclcpp_components/register_node_macro.hpp>
 
 #include <tobas_constants/ros_interface.hpp>

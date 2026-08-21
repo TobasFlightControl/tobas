@@ -3,6 +3,13 @@
 
 #include "tobas_components_rt/multi_component_managers.hpp"
 
+#include <sched.h>
+
+#include <csignal>
+#include <cstddef>
+
+#include <rclcpp/utilities.hpp>
+
 int main(int argc, char* argv[])
 {
   constexpr size_t kNumManagers = 3;

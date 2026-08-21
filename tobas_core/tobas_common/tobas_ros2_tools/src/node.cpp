@@ -3,6 +3,9 @@
 
 #include "tobas_ros2_tools/node.hpp"
 
+#include <rclcpp/node_interfaces/node_graph_interface.hpp>
+#include <rclcpp/rate.hpp>
+
 namespace ch = std::chrono;
 
 namespace tobas
@@ -18,7 +21,6 @@ std::string makeFQN(const std::string& name, const std::string& ns)
   }
   return (ns.back() == '/' ? ns : ns + "/") + name;
 }
-}  // namespace
 
 bool isPresent(const rclcpp::node_interfaces::NodeGraphInterface::SharedPtr& graph, const std::string& target_fqn)
 {
@@ -30,6 +32,7 @@ bool isPresent(const rclcpp::node_interfaces::NodeGraphInterface::SharedPtr& gra
   }
   return false;
 }
+}  // namespace
 
 bool waitUntilNodeGone(const rclcpp::Node::SharedPtr& node, const std::string& target_fqn, ch::nanoseconds timeout)
 {

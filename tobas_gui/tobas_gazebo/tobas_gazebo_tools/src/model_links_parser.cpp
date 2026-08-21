@@ -3,6 +3,11 @@
 
 #include "tobas_gazebo_tools/model_links_parser.hpp"
 
+#include <gz/common/Console.hh>
+#include <gz/sim/components/Link.hh>
+#include <gz/sim/components/Model.hh>
+#include <gz/sim/components/Name.hh>
+
 #include "tobas_gazebo_tools/utils.hpp"
 
 namespace cmp = gz::sim::components;

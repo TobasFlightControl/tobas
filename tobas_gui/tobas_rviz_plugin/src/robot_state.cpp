@@ -3,7 +3,8 @@
 
 #include "tobas_rviz_plugin/robot_state.hpp"
 
-#include <rclcpp/rclcpp.hpp>
+#include <rclcpp/logger.hpp>
+#include <rclcpp/logging.hpp>
 
 #include "tobas_rviz_plugin/logger.hpp"
 

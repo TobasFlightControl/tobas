@@ -4,6 +4,12 @@
 #include <gz/sim/Joint.hh>
 #include <gz/sim/Link.hh>
 #include <gz/sim/Model.hh>
+#include <gz/sim/components/AngularVelocity.hh>
+#include <gz/sim/components/Inertial.hh>
+#include <gz/sim/components/JointAxis.hh>
+#include <gz/sim/components/JointVelocity.hh>
+#include <gz/sim/components/LinearVelocity.hh>
+#include <gz/sim/components/Pose.hh>
 
 #include <tobas_constants/throttle.hpp>
 #include <tobas_gazebo_common/constants.hpp>

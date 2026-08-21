@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <rclcpp/executors/multi_threaded_executor.hpp>
+
 #include "./ros_interface.hpp"
 
 int main(int argc, char* argv[])

@@ -4,8 +4,8 @@
 #pragma once
 
 #include <gz/math/Pose3.hh>
-#include <gz/sim/System.hh>
-#include <gz/sim/components.hh>
+#include <gz/sim/Entity.hh>
+#include <gz/sim/EntityComponentManager.hh>
 
 namespace tobas
 {

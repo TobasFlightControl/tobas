@@ -3,6 +3,8 @@
 
 #include "tobas_simulation_gui/simulation.hpp"
 
+#include <csignal>
+
 #include <QCloseEvent>
 #include <QDebug>
 #include <QHBoxLayout>

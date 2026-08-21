@@ -3,6 +3,9 @@
 
 #include "tobas_gazebo_tools/utils.hpp"
 
+#include <gz/sim/components/ChildLinkName.hh>
+#include <gz/sim/components/Joint.hh>
+
 namespace cmp = gz::sim::components;
 
 namespace tobas

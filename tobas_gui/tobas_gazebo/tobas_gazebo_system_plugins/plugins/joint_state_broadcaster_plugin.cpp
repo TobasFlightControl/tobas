@@ -3,6 +3,9 @@
 
 #include <gz/sim/Joint.hh>
 #include <gz/sim/Model.hh>
+#include <gz/sim/components/JointPosition.hh>
+#include <gz/sim/components/JointTransmittedWrench.hh>
+#include <gz/sim/components/JointVelocity.hh>
 
 #include <tobas_constants/ros_interface.hpp>
 #include <tobas_gazebo_tools/utils.hpp>

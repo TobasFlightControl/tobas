@@ -6,7 +6,12 @@
 #include <gz/sim/Joint.hh>
 #include <gz/sim/Link.hh>
 #include <gz/sim/Model.hh>
-#include <gz/sim/components.hh>
+#include <gz/sim/components/AngularVelocity.hh>
+#include <gz/sim/components/Inertial.hh>
+#include <gz/sim/components/JointAxis.hh>
+#include <gz/sim/components/JointVelocity.hh>
+#include <gz/sim/components/LinearVelocity.hh>
+#include <gz/sim/components/Pose.hh>
 
 #include <tobas_drone_core/propulsion_system/ice_propulsion_system/aerodynamics.hpp>
 #include <tobas_std_tools/range.hpp>

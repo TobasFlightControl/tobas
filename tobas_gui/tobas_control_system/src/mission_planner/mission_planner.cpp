@@ -3,13 +3,10 @@
 
 #include "tobas_control_system/mission_planner/mission_planner.hpp"
 
-#include <algorithm>
-#include <cmath>
-#include <ranges>
-
 #include <QFileInfo>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
+#include <rclcpp_action/create_client.hpp>
 
 #include <tobas_constants/path.hpp>
 #include <tobas_constants/ros_interface.hpp>

@@ -3,16 +3,11 @@
 
 #include <linux/videodev2.h>
 
-#include <chrono>
-#include <cstring>
-#include <functional>
-#include <memory>
-#include <string>
-
 #include <cv_bridge/cv_bridge.hpp>
 #include <eigen3/Eigen/Geometry>
 #include <ffmpeg_encoder_decoder/encoder.hpp>
-#include <opencv2/opencv.hpp>
+#include <opencv2/core/mat.hpp>
+#include <opencv2/imgcodecs.hpp>
 
 #include <tobas_camera_ros_interface/ros_interface.hpp>
 #include <tobas_ic_drivers/cx_gb400.hpp>

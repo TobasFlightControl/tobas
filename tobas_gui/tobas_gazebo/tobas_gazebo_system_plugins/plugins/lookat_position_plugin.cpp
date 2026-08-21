@@ -2,6 +2,10 @@
 // Copyright (C) 2026 Tobas, Inc.
 
 #include <gz/msgs/vector3d.pb.h>
+#include <gz/sim/components/Link.hh>
+#include <gz/sim/components/Name.hh>
+#include <gz/sim/components/ParentEntity.hh>
+#include <gz/sim/components/Pose.hh>
 #include <gz/transport/Node.hh>
 
 #include <tobas_gazebo_common/constants.hpp>

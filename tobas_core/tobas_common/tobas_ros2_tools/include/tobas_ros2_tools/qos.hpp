@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <rclcpp/rclcpp.hpp>
+#include <rclcpp/qos.hpp>
 
 namespace tobas
 {
