@@ -19,9 +19,10 @@ The companion PC uses `172.22.1.1` and assigns the FC an address from `172.22.1.
 
 | Function                                                    | Service         |
 | ----------------------------------------------------------- | --------------- |
-| Assigning an IP address to the FC                           | Dnsmasq         |
+| Assigning an IP address to the FC                           | dnsmasq         |
 | Forwarding packets from the external PC to the FC           | IP Forwarding   |
 | Making the FC appear directly connected to the external LAN | Proxy ARP       |
+| Applying NAT to traffic from the FC-side subnet             | iptables        |
 | Relaying the `.local` hostname                              | Avahi Reflector |
 
 !!! warning
@@ -87,11 +88,11 @@ Replace them with the values for your environment.
 
 ### Install the required packages
 
-Install Dnsmasq and Avahi.
+Install dnsmasq, Avahi, and the package required to persist iptables rules.
 
 ```bash
 $ sudo apt update
-$ sudo apt install -y dnsmasq avahi-daemon
+$ sudo apt install -y dnsmasq avahi-daemon iptables-persistent
 ```
 
 ### Set a static IP address for Ethernet
@@ -134,6 +135,19 @@ Replace `wlan0` with the actual interface name on the external LAN side.
 ```ini
 net.ipv4.ip_forward=1
 net.ipv4.conf.wlan0.proxy_arp=1
+```
+
+### Configure NAT
+
+Add a NAT rule that replaces the source address of packets sent from the FC-side subnet
+to external networks with the companion PC's address.
+After adding the rule, save it so that `netfilter-persistent` automatically restores it at startup.
+
+```bash
+$ sudo iptables -t nat -A POSTROUTING \
+    -s 172.22.1.0/24 ! -d 172.22.1.0/24 \
+    -j MASQUERADE
+$ sudo netfilter-persistent save
 ```
 
 ### Enable the mDNS reflector

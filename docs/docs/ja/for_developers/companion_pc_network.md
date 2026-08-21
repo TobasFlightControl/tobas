@@ -19,9 +19,10 @@ IP forwarding と Proxy ARP によって外部 PC から FC 側サブネット�
 
 | 機能                                           | サービス        |
 | ---------------------------------------------- | --------------- |
-| FC への IP アドレス割り当て                    | Dnsmasq         |
+| FC への IP アドレス割り当て                    | dnsmasq         |
 | 外部 PC から FC へのパケット転送               | IP Forwarding   |
 | FC が外部 LAN に直接接続されているように見せる | Proxy ARP       |
+| FC 側サブネットから外部への通信を NAT する     | iptables        |
 | `.local`ホスト名の中継                         | Avahi Reflector |
 
 !!! warning
@@ -87,11 +88,11 @@ eth0               ethernet  connected               Wired connection 1
 
 ### 必要パッケージのインストール
 
-Dnsmasq と Avahi をインストールします．
+dnsmasq，Avahi，iptables の永続化に必要なパッケージをインストールします．
 
 ```bash
 $ sudo apt update
-$ sudo apt install -y dnsmasq avahi-daemon
+$ sudo apt install -y dnsmasq avahi-daemon iptables-persistent
 ```
 
 ### イーサネットの IP アドレスを固定する
@@ -134,6 +135,18 @@ IP forwarding は，コンパニオン PC が受け取ったパケットを，
 ```ini
 net.ipv4.ip_forward=1
 net.ipv4.conf.wlan0.proxy_arp=1
+```
+
+### NAT を設定する
+
+FC 側サブネットから外部ネットワークへ送信するパケットの送信元アドレスを，コンパニオン PC のアドレスに変換する NAT ルールを追加します．
+追加後にルールを保存すると，再起動時に`netfilter-persistent`が自動的に復元します．
+
+```bash
+$ sudo iptables -t nat -A POSTROUTING \
+    -s 172.22.1.0/24 ! -d 172.22.1.0/24 \
+    -j MASQUERADE
+$ sudo netfilter-persistent save
 ```
 
 ### mDNS リフレクタを有効化する
