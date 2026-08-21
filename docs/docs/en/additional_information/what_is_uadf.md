@@ -26,30 +26,27 @@ It is based on URDF's `continuous`, but differs in the following ways.
 - `axis`: Axis of rotation. Thrust is assumed to act along this axis.
 - `direction`: Direction of rotation. Set `value` to either `cw` or `ccw`.
 
-<!-- prettier-ignore-start -->
 !!! note
+
     A `thrust` joint must be an end joint.
-<!-- prettier-ignore-end -->
 
 ### cs
 
 This joint represents a control surface on a fixed-wing aircraft.
 It is based on URDF's `revolute`.
 
-<!-- prettier-ignore-start -->
 !!! note
+
     A `cs` joint must be an end joint.
-<!-- prettier-ignore-end -->
 
 ### tilt
 
 This joint represents the tilt joint of an active tiltrotor.
 It is based on URDF's `revolute`.
 
-<!-- prettier-ignore-start -->
 !!! note
+
     Exactly one `thrust` joint must be connected downstream of the `tilt` joint.
-<!-- prettier-ignore-end -->
 
 ## Creating a UADF
 

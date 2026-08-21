@@ -22,11 +22,10 @@
 <iframe width="560" height="315" src="https://www.youtube.com/embed/sHoA8yKJPs4?si=CCOEPsu6z9hd7zOb" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 <br>
 
-<!-- prettier-ignore-start -->
 !!! note
+
     In environments where GNSS is unavailable, such as indoors, the position and velocity checks cannot pass.
     These checks must be disabled from the Fail-Safe tab in Setup Assistant.
-<!-- prettier-ignore-end -->
 
 ### Shutdown Procedure
 
@@ -70,10 +69,9 @@ The right side of the screen provides mission planning features for creating and
    Waypoint coordinates can also be adjusted by dragging and dropping their icons on the map.
 1. Click the `Execute` button to execute the mission.
 
-<!-- prettier-ignore-start -->
 !!! note
+
     If the `Enable` switch on the RC transmitter is on, commands from the transmitter take priority. Always turn it off before executing a mission.
-<!-- prettier-ignore-end -->
 
 ![mission_planner](../../assets/flight_test/mission_planner.png)
 
@@ -130,12 +128,11 @@ Check the flight log (described below), and
 if **the target motor speed oscillates with an amplitude of 10% or more of the hovering speed**, consider the filtered angular velocity oscillation excessive and reduce the value.
 The default value was used in this case.
 
-<!-- prettier-ignore-start -->
 !!! tip
+
     Some FMUs support an [RPM filter](../additional_information/rpm_filter.md) that efficiently attenuates propeller vibration.
     It can be configured here in the same way as the parameters above.
     We recommend enabling this powerful feature.
-<!-- prettier-ignore-end -->
 
 ## Flight Log
 

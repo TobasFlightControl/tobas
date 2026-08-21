@@ -22,11 +22,10 @@
 <iframe width="560" height="315" src="https://www.youtube.com/embed/sHoA8yKJPs4?si=CCOEPsu6z9hd7zOb" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 <br>
 
-<!-- prettier-ignore-start -->
 !!! note
+
     屋内などGNSSが使えない環境では位置・速度に関するチェック項目にパスできないため，
     Setup Assistant の Fail-Safe のタブからそれらに関するチェックを外す必要があります．
-<!-- prettier-ignore-end -->
 
 ### 終了の手順
 
@@ -70,10 +69,9 @@
    ウェイポイントの座標は画面上のマップ中のアイコンをドラッグアンドドロップすることでも操作できます．
 1. `Execute`ボタンを押すとミッションが実行されます．
 
-<!-- prettier-ignore-start -->
 !!! note
+
     プロポの`Enable`スイッチがオンだとプロポからの指令が優先されるため，必ずオフにした状態で実行してください．
-<!-- prettier-ignore-end -->
 
 ![mission_planner](../../assets/flight_test/mission_planner.png)
 
@@ -130,12 +128,11 @@
 **モータ回転数の目標値がホバリング回転数の 10% 以上の振幅で振動する**場合はフィルター後の角速度の振動が大きすぎると判断して値を小さくしてください．
 今回はデフォルトのままとしました．
 
-<!-- prettier-ignore-start -->
 !!! tip
+
     FMUによってはプロペラの振動を効率よく減衰させる[RPMフィルタ](../additional_information/rpm_filter.md)が利用可能であり，
     上記のパラメータと同様にこちらで設定可能です．
     強力な機能なので有効化することをおすすめします．
-<!-- prettier-ignore-end -->
 
 ## Flight Log
 

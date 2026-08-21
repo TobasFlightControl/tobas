@@ -70,11 +70,10 @@ Configure each propulsion unit.
 First, configure the `propeller_0` link.
 Check the specifications of each component and enter the appropriate values for `ESC`, `Motor`, and `Propeller`.
 
-<!-- prettier-ignore-start -->
 !!! tip
+
     If you are unsure which link name corresponds to a propeller on the aircraft,
     click the link name under `Frame Tree` in the upper-left corner to highlight it in the model view.
-<!-- prettier-ignore-end -->
 
 ![propulsion/esc](../../assets/airframe_config/propulsion/esc.png)
 
@@ -101,12 +100,11 @@ then set the appropriate DShot channel for each of the four propulsion units.
 
 ![hardware_interface](../../assets/airframe_config/hardware_interface.png)
 
-<!-- prettier-ignore-start -->
 !!! note
+
     If you do not specify an interface here, such as when using a CAN-ESC,
     the hardware will not operate as-is.
     You must create a custom ROS node that connects the hardware to the Tobas software.
-<!-- prettier-ignore-end -->
 
 ## Remote Connection
 

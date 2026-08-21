@@ -13,15 +13,14 @@ Setup Assistant で設定したとおりに実機を作成します．
 <img src="../../../assets/hardware_setup/f450_1.png" alt="f450_1" width="49%"/>
 <img src="../../../assets/hardware_setup/f450_2.png" alt="f450_2" width="49%"/>
 
-<!-- prettier-ignore-start -->
 !!! note
+
     フライトコントローラを機体に取り付ける際，必ず最低限の振動対策を施すようにしてください．
     固定が硬すぎるとモータやプロペラからの振動により加速度が荒れ姿勢推定の精度が下がる恐れがありますが，
     逆に柔らかすぎるとジャイロの取得が遅れることにより角速度制御に振動が生じる恐れがあります．
     簡単に使えるものとしては
     <a href=https://holybro.com/products/foam-pads-20pcs target="_blank">Holybro Foam Pads</a>や
     <a href=https://rc.kyosho.com/ja/z8006b.html target="_blank">京商 Z8006B</a>がおすすめです．
-<!-- prettier-ignore-end -->
 
 ## プロポの設定
 
@@ -152,11 +151,10 @@ $ RMW_IMPLEMENTATION=rmw_cyclonedds_cpp ros2 launch tobas_gcs gcs.launch.py
 1. `Stop`をクリックすると，テストが終了します．
 1. `Write Project`をクリックすると，保存された制御ゲインがFCにフラッシュされます．
 
-<!-- prettier-ignore-start -->
 !!! note
+
     モータが回転しない場合は，FC上面の`ERR`ランプが点灯していないか確認してください．
     点灯している場合は，一度電源を切ってから再び給電してみてください．
-<!-- prettier-ignore-end -->
 
 ### Joint Test
 

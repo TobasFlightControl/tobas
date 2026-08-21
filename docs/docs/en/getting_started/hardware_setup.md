@@ -13,15 +13,14 @@ Assemble the vehicle as configured in Setup Assistant.
 <img src="../../../assets/hardware_setup/f450_1.png" alt="f450_1" width="49%"/>
 <img src="../../../assets/hardware_setup/f450_2.png" alt="f450_2" width="49%"/>
 
-<!-- prettier-ignore-start -->
 !!! note
+
     When mounting the flight controller on the vehicle, be sure to provide at least basic vibration isolation.
     If the mounting is too rigid, vibrations from the motors and propellers may make acceleration readings noisy and reduce attitude estimation accuracy.
     Conversely, if it is too soft, delayed gyro measurements may cause oscillations in angular velocity control.
     For readily available options, we recommend
     <a href=https://holybro.com/products/foam-pads-20pcs target="_blank">Holybro Foam Pads</a> or
     <a href=https://rc.kyosho.com/ja/z8006b.html target="_blank">Kyosho Z8006B</a>.
-<!-- prettier-ignore-end -->
 
 ## Transmitter Setup
 
@@ -152,11 +151,10 @@ Click `Actuator Test` in the toolbar at the top of the screen.
 1. Click `Stop` to end the test.
 1. Click `Write Project` to flash the saved control gains to the FC.
 
-<!-- prettier-ignore-start -->
 !!! note
+
     If the motors do not spin, check whether the `ERR` indicator on top of the FC is lit.
     If it is lit, turn the power off and then power the FC on again.
-<!-- prettier-ignore-end -->
 
 ### Joint Test
 
