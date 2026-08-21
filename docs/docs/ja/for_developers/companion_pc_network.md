@@ -156,7 +156,7 @@ enable-reflector=yes
 ```sh
 #!/bin/sh
 
-# インターフェイスが有効化されたとき，またはDHCP情報が更新されたときだけ処理する．
+# インターフェースが有効化されたとき，またはDHCP情報が更新されたときだけ処理する．
 ACTION="$2"
 [ "$ACTION" = "up" ] || [ "$ACTION" = "dhcp4-change" ] || exit 0
 
