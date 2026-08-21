@@ -1,4 +1,4 @@
-# Communication via a companion PC
+# Companion PC Networking
 
 This page explains how an external PC and the FC can continue to communicate over SSH and ROS 2
 through a Linux companion PC such as an NVIDIA Jetson Nano.
