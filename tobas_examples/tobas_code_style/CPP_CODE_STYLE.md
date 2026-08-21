@@ -41,6 +41,23 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 - Avoid forward declarations whenever possible.
 - Separate function declarations from definitions.
 - Mark definitions as inline when they are short and performance-sensitive.
+- Sort the headers in each section alphabetically.
+- Do not use Unix directory aliases when including a related header: `../include/my_library/my_class.hpp` -> `my_library/my_class.hpp`
+- Use double quotes only for headers from the same library.
+
+<!-- Custom -->
+
+- Prefer C++ standard library headers over C-style headers whenever possible.
+  - e.g. `<string.h>` -> `<cstring>`, `<stdlib.h>` -> `<cstdlib>`
+- Avoid expensive umbrella headers when more specific headers are available.
+  Include the individual headers that define the APIs in use instead.
+  If an umbrella header is genuinely necessary, prefer including it in a `.cpp` file rather than exposing it through a public `.hpp` file.
+  In particular, avoid the following headers:
+  - `<rclcpp/rclcpp.hpp>`
+  - `<rclcpp_action/rclcpp_action.hpp>`
+  - `<gz/sim/components.hh>`
+  - `<eigen3/Eigen/Eigen>`
+  - `<opencv2/opencv.hpp>`
 - Include order:
   1. Related header file
   1. A blank line
@@ -59,14 +76,6 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
   1. ROS 2 Tobas interface headers, including type adapters
   1. A blank line
   1. Your project's headers
-- Sort the headers in each section alphabetically.
-- Do not use Unix directory aliases when including a related header: `../include/my_library/my_class.hpp` -> `my_library/my_class.hpp`
-- Use double quotes only for headers from the same library.
-
-<!-- Custom -->
-
-- Prefer C++ standard library headers over C-style headers whenever possible.
-  - e.g. `<string.h>` -> `<cstring>`, `<stdlib.h>` -> `<cstdlib>`
 
 ## Namespaces
 
