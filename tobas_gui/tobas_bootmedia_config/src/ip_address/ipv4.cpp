@@ -95,7 +95,8 @@ Network IPv4Widget::dump() const
       res.manual.address = address_->toInt();
       res.manual.prefix = prefixIndexToValue(static_cast<PrefixLength>(prefix_->currentIndex()));
       res.manual.gateway = gateway_->toInt();
-      res.manual.dns.push_back(res.manual.gateway);
+      res.manual.dns.push_back(0x01010101);  // one.one.one.one
+      res.manual.dns.push_back(0x08080808);  // dns.google
       break;
     default:
       throw std::runtime_error("Invalid method.");
