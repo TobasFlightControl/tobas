@@ -4,4 +4,4 @@ Architecture: arm64
 Version: 2.17.0
 Description: Tobas Flight Controller
 Homepage: https://tobas.jp/
-Depends: linux-image-rpi-v8-rt, openssh-server, hostapd, dnsmasq, netfilter-persistent, iptables-persistent, dphys-swapfile
+Depends: linux-image-rpi-v8-rt, dphys-swapfile, openssh-server, hostapd, dnsmasq, netfilter-persistent, iptables-persistent, systemd-resolved
