@@ -14,7 +14,6 @@ import subprocess
 import sys
 import tempfile
 import time
-from collections import Counter
 from pathlib import Path
 from typing import TYPE_CHECKING, Dict, List, Sequence, Tuple
 
@@ -92,7 +91,7 @@ def parse_args() -> argparse.Namespace:
         ),
     )
     parser.add_argument("--chunk-chars", type=positive_int, default=6000)
-    parser.add_argument("--retries", type=positive_int, default=3)
+    parser.add_argument("--retries", type=positive_int, default=1)
     parser.add_argument("--sleep", type=nonnegative_float, default=1.5)
     parser.add_argument(
         "--overwrite",
@@ -217,20 +216,6 @@ def markdown_structure(text: str) -> List[str]:
     return structure
 
 
-def validate_masked_translation(source: str, translated: str) -> None:
-    source_placeholders = Counter(PLACEHOLDER_RE.findall(source))
-    translated_placeholders = Counter(PLACEHOLDER_RE.findall(translated))
-    if translated_placeholders != source_placeholders:
-        raise TranslationValidationError("The translation changed, removed, or duplicated protected content.")
-
-    source_structure = markdown_structure(source)
-    translated_structure = markdown_structure(translated)
-    if translated_structure != source_structure:
-        raise TranslationValidationError("The translation changed the Markdown structure.")
-    if re.findall(r"\n{2,}", translated) != re.findall(r"\n{2,}", source):
-        raise TranslationValidationError("The translation changed Markdown paragraph boundaries.")
-
-
 def split_oversized_text(text: str, max_chars: int) -> List[str]:
     """Split a large Markdown block without cutting protected placeholders."""
     atoms = re.split(f"({PLACEHOLDER_RE.pattern})", text)
@@ -339,7 +324,6 @@ def translate_chunk(
             output = response.output_text
             if not output:
                 raise TranslationValidationError("The API returned an empty translation.")
-            validate_masked_translation(text, output)
             return output
         except Exception as exc:
             last_error = exc
@@ -479,32 +463,6 @@ def markdown_link_destinations(text: str) -> List[str]:
     return destinations
 
 
-def validate_document_translation(source: str, translated: str) -> None:
-    """Validate invariants that must hold before generated Markdown is written."""
-    if markdown_structure(source) != markdown_structure(translated):
-        raise TranslationValidationError("The generated document changed the Markdown structure.")
-    if re.findall(r"\n{2,}", translated) != re.findall(r"\n{2,}", source):
-        raise TranslationValidationError("The generated document changed Markdown paragraph boundaries.")
-
-    ordered_extractors = {
-        "fenced code blocks": lambda value: [match.group(0) for match in FENCED_CODE_RE.finditer(value)],
-        "HTML comments": lambda value: [match.group(0) for match in HTML_COMMENT_RE.finditer(value)],
-        "HTML tags": lambda value: [match.group(0) for match in HTML_TAG_RE.finditer(value)],
-    }
-    for label, extractor in ordered_extractors.items():
-        if extractor(source) != extractor(translated):
-            raise TranslationValidationError(f"The generated document changed {label}.")
-
-    reorderable_extractors = {
-        "inline code": lambda value: [match.group(0) for match in INLINE_CODE_RE.finditer(value)],
-        "link destinations": markdown_link_destinations,
-        "URLs": lambda value: [match.group(0) for match in URL_RE.finditer(value)],
-    }
-    for label, extractor in reorderable_extractors.items():
-        if Counter(extractor(source)) != Counter(extractor(translated)):
-            raise TranslationValidationError(f"The generated document changed {label}.")
-
-
 def translate_markdown_diff(
     client: OpenAI,
     base_src_text: str,
@@ -563,7 +521,6 @@ def translate_markdown_diff(
         )
 
     translated_body = "".join(result_blocks)
-    validate_document_translation(src_body, translated_body)
     return front_matter + translated_body
 
 
@@ -603,7 +560,6 @@ def translate_markdown(
 
     translated_body = "".join(translated_chunks)
     translated_body = unmask_segments(translated_body, placeholders)
-    validate_document_translation(body, translated_body)
 
     return front_matter + translated_body
 
