@@ -125,11 +125,6 @@ fs::path ProjectPaths::tbsdrnPath() const
   return cfgConfigDirPath() / "drone.tbsdrn";
 }
 
-fs::path ProjectPaths::sshConfigPath() const
-{
-  return cfgConfigDirPath() / "ssh.yaml";
-}
-
 fs::path ProjectPaths::networkConfigPath() const
 {
   return cfgConfigDirPath() / "network.yaml";

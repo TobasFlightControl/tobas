@@ -10,7 +10,6 @@
 #include <tobas_gui_common/command.hpp>
 #include <tobas_gui_common/network_config.hpp>
 #include <tobas_gui_common/project_paths.hpp>
-#include <tobas_gui_common/ssh_config.hpp>
 #include <tobas_gui_common/version.hpp>
 #include <tobas_math/definitions.hpp>
 #include <tobas_path_tools/core.hpp>
@@ -513,9 +512,6 @@ bool ProjectGenerator::generateConfigPackage(const inja::json& tpl_data)
   if (!generateRotorAnomalyDetectorConfig()) {
     return false;
   }
-  if (!generateSshConfig()) {
-    return false;
-  }
   if (!generateNetworkConfig()) {
     return false;
   }
@@ -839,24 +835,10 @@ bool ProjectGenerator::generateImuFilterConfig()
   return true;
 }
 
-bool ProjectGenerator::generateSshConfig()
-{
-  cmn::SshConfig config;
-  config.host = settings_->remote_connection->host().toStdString();
-  config.user = cmn::kUserNameFC;
-
-  if (!config.save(proj_paths_.sshConfigPath())) {
-    qt::qErrorBox(parent_, "Failed to save the SSH configuration.");
-    return false;
-  }
-
-  return true;
-}
-
 bool ProjectGenerator::generateNetworkConfig()
 {
   cmn::NetworkConfig config;
-  config.interface = settings_->remote_connection->networkInterface().toStdString();
+  config.interface = settings_->network->networkInterface().toStdString();
 
   if (!config.save(proj_paths_.networkConfigPath())) {
     qt::qErrorBox(parent_, "Failed to save the network configuration.");

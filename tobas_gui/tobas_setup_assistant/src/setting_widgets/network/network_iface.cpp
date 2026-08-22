@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include "tobas_setup_assistant/setting_tabs/remote_connection/network_iface.hpp"
+#include "tobas_setup_assistant/setting_tabs/network/network_iface.hpp"
 
 #include <ranges>
 
@@ -19,7 +19,7 @@ namespace gui
 {
 namespace sa
 {
-namespace rc
+namespace network
 {
 NetworkIfaceWidget::NetworkIfaceWidget()
 {
@@ -129,7 +129,7 @@ void NetworkIfaceWidget::onOtherButtonToggled(bool checked)
     other_nic_name_->selectAll();
   }
 }
-}  // namespace rc
+}  // namespace network
 }  // namespace sa
 }  // namespace gui
 }  // namespace tobas

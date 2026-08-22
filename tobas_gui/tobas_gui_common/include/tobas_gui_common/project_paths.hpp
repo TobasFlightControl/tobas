@@ -82,9 +82,6 @@ public:
   /* Return the absolute path of drone.tbsdrn. */
   std::filesystem::path tbsdrnPath() const;
 
-  /* Return the absolute path of ssh.yaml. */
-  std::filesystem::path sshConfigPath() const;
-
   /* Return the absolute path of network.yaml. */
   std::filesystem::path networkConfigPath() const;
 

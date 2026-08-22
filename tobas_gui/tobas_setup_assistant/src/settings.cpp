@@ -25,7 +25,7 @@ SettingsWidget::SettingsWidget(const uadf::Model& uadf, const kdl::Tree& tree, S
   propulsion_system = new propulsion::PropulsionSystemWidget(uadf, sig);
   fixed_wing = new fw::FixedWingWidget(uadf);
   hardware = new hw::HardwareWidget(uadf, sig);
-  remote_connection = new rc::RemoteConnectionWidget();
+  network = new network::NetworkWidget();
   observer = new ObserverWidget();
   controller = new ctrl::ControllerWidget();
   mission = new mission::MissionExecutorWidget();
@@ -39,7 +39,7 @@ SettingsWidget::SettingsWidget(const uadf::Model& uadf, const kdl::Tree& tree, S
   addPage(propulsion_system);
   addPage(fixed_wing);
   addPage(hardware);
-  addPage(remote_connection);
+  addPage(network);
 
   // Advanced settings
   navigation_->addSection("ADVANCED SETTINGS");
