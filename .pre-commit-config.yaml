@@ -88,3 +88,9 @@ repos:
         language_version: 22.17.1
         additional_dependencies: ["prettier@3.6.2"]
         files: \.md$
+      - id: normalize-japanese-punctuation
+        name: normalize Japanese punctuation
+        entry: python3 normalize_japanese_punctuation
+        language: system
+        types: [text]
+        exclude: ^tobas_external/
