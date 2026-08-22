@@ -30,6 +30,8 @@ public:
   explicit MagnetometerHandlerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
+  std::string section_;
+
   // Config
   eigen::Ellipsoid ellipsoid_;
 
@@ -49,6 +51,8 @@ private:
 MagnetometerHandlerNode::MagnetometerHandlerNode(const rclcpp::NodeOptions& options)
   : super("real_magnetometer_handler", nodeOptions_Default(options))
 {
+  section_ = getStringParam("section");
+
   const auto cfg_dir = linux::isSuperUser() ? fs::path(kConfigDirRoot) : ros2::expandUser(kConfigDirHome);
   if (!pt_.initialize((cfg_dir / handler::mag::kConfigFileName))) {
     TOBAS_ERROR("Failed to initialize property tree. This node will not work.");
@@ -70,11 +74,11 @@ bool MagnetometerHandlerNode::getConfig()
   std::array<double, 3> hard_bias;
   std::array<double, 6> soft_bias;
 
-  if (!pt_.get(ns(), handler::mag::kHardBiasKey, hard_bias)) {
+  if (!pt_.get(section_, handler::mag::kHardBiasKey, hard_bias)) {
     TOBAS_ERROR("Failed to get \"", handler::mag::kHardBiasKey, "\" from configuration file.");
     return false;
   }
-  if (!pt_.get(ns(), handler::mag::kSoftBiasKey, soft_bias)) {
+  if (!pt_.get(section_, handler::mag::kSoftBiasKey, soft_bias)) {
     TOBAS_ERROR("Failed to get \"", handler::mag::kSoftBiasKey, "\" from configuration file.");
     return false;
   }
@@ -107,8 +111,8 @@ void MagnetometerHandlerNode::setParamsCb(
   ellipsoid_.setSoftBias(eigen::fromStdArray(req->soft_bias));
 
   // Save parameters.
-  pt_.set(ns(), handler::mag::kHardBiasKey, req->hard_bias);
-  pt_.set(ns(), handler::mag::kSoftBiasKey, req->soft_bias);
+  pt_.set(section_, handler::mag::kHardBiasKey, req->hard_bias);
+  pt_.set(section_, handler::mag::kSoftBiasKey, req->soft_bias);
   if (!pt_.save()) {
     res->success = false;
     res->message = "Failed to save parameters.";

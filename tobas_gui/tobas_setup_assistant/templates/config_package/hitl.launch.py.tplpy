@@ -57,6 +57,13 @@ def generate_launch_description():
             parameters=[{"device": "/dev/ttyAMA0"}],  # TODO: Change the device according to the FMU.
         )
     )
-    ld.add_action(Node(package="tobas_real_ros", executable="rcin_handler", namespace=namespace))
+    ld.add_action(
+        Node(
+            package="tobas_real_ros",
+            executable="rcin_handler",
+            namespace=namespace,
+            parameters=[{"section": DRONE_NAME}],
+        )
+    )
 
     return ld

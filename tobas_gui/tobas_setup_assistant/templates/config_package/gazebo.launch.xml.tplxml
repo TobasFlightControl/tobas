@@ -64,7 +64,9 @@
       <node pkg="tobas_sbus_driver" exec="sbus_driver" ros_args="--log-level $(var log_level)" output="$(var output)">
         <param name="device" value="$(var sbus_device)"/>
       </node>
-      <node pkg="tobas_real_ros" exec="rcin_handler" ros_args="--log-level $(var log_level)" output="$(var output)"/>
+      <node pkg="tobas_real_ros" exec="rcin_handler" ros_args="--log-level $(var log_level)" output="$(var output)">
+        <param name="section" value="{{ drone_name }}"/>
+      </node>
     </group>
     <!-- If no S.BUS device is specified, start the fake RC input publisher to pass the radio failsafe. -->
     <group if="$(eval '\'$(var sbus_device)\' == \'\'')">

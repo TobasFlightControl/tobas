@@ -80,6 +80,7 @@ def generate_launch_description():
                     package="tobas_real_ros",
                     plugin="tobas::real::ImuHandlerNode",
                     namespace=namespace,
+                    parameters=[{"section": DRONE_NAME}],
                 ),
                 ComposableNode(
                     package="tobas_real_ros",
@@ -112,11 +113,13 @@ def generate_launch_description():
                     package="tobas_real_ros",
                     plugin="tobas::real::RCInputHandlerNode",
                     namespace=namespace,
+                    parameters=[{"section": DRONE_NAME}],
                 ),
                 ComposableNode(
                     package="tobas_real_ros",
                     plugin="tobas::real::MagnetometerHandlerNode",
                     namespace=namespace,
+                    parameters=[{"section": DRONE_NAME}],
                 ),
                 ComposableNode(
                     package="tobas_real_ros",
