@@ -45,6 +45,7 @@ public:
   double aspectRatio() const;
   double c_mac() const;
   double y_mac() const;
+  Eigen::Vector3d mac_position() const; // wing座標系(flu)でみたときのmacの位置
   double c_lift_alpha() const;
   double c_lift(const double& alpha) const;
   double c_drag(const double& alpha) const;
@@ -57,7 +58,7 @@ public:
   double c_yaw(const double& V, const double& alpha, const double& p, const double& r) const;
 
 private:
-  QCheckBox* symmetric_;
+  QCheckBox* symmetric_; // 対称でないときは翼の右側が残ることにする
   ParamGetterWidget_DoubleSpinBox* c_root_;
   ParamGetterWidget_DoubleSpinBox* c_tip_;
   ParamGetterWidget_DoubleSpinBox* span_;

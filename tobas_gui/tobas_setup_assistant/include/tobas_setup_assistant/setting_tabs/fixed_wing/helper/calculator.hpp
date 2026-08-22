@@ -69,21 +69,34 @@ private:
   double c_yaw_beta_;
   double c_yaw_p_;
   double c_yaw_r_;
+  // control surface coefficients
+  struct CsCoefs {
+    double lift;
+    double drag;
+    double side;
+    double roll;
+    double pitch;
+    double yaw;
+  };
+  std::vector<CsCoefs> control_surface_coefs_;
 
   void onClicked();
   static void XZ2DL(const kdl::Vector& force, const double& alpha, double& drag, double& lift);
+  void calcWingTranslations(const WingWidget* wing, kdl::Frame& W_T_R, kdl::Frame& R_T_W) const;
+  void calcMacTranslations(const WingWidget* wing, kdl::Frame& M_T_R, kdl::Frame& R_T_M) const;
   // vehicleの欄に書かれている内容とmain_wingから推算される内容に大きな乖離がないかをチェック
   void validate(const double& cruise_alpha);
   // 機体モーメント基準点のlocal座標系で見たとき, 機体が発生する空力を計算する
   kdl::Wrench calcMachineAeroDynamicForce(const kdl::Twist& twist_ref) const;
-  // 指定されたwingのlocal座標系で見たとき, そのwingが発生する空力を計算する
-  kdl::Wrench calcWingAeroDynamicForce(const WingWidget* wing, const kdl::Twist& twist_frd) const;
+  // 指定されたwingのmac座標系で見たとき, そのwingが発生する空力を計算する
+  kdl::Wrench calcWingAeroDynamicForce(const WingWidget* wing, const kdl::Twist& twist_mac) const;
   void calcCruiseCoeff(const double& cruise_speed, const double& cruise_alpha);
   void calcAoACoeff(const double& cruise_speed, const double& cruise_alpha);
   void calcAoSCoeff(const double& cruise_speed, const double& cruise_alpha);
   void calcPCoeff(const double& cruise_speed, const double& cruise_alpha);
   void calcQCoeff(const double& cruise_speed, const double& cruise_alpha);
   void calcRCoeff(const double& cruise_speed, const double& cruise_alpha);
+  void calcControlCoeff(const double& cruise_speed); // TODO : consider cruise_alpha effect
 };
 }  // namespace hp
 }  // namespace fw

@@ -28,6 +28,8 @@ WingWidget::WingWidget()
   header->addWidget(symmetric_);
   header->addStretch();
   rows->addLayout(header);
+  const auto description = new qt::DescriptionWidget("If 'Symmetric' is unchecked, the right side of the wing is treated as existing.", cmn::kBodyPSize);
+  rows->addWidget(description);
 
   c_root_ = new ParamGetterWidget_DoubleSpinBox("Root Chord Length", "");
   c_root_->setDecimals(3);
@@ -41,7 +43,7 @@ WingWidget::WingWidget()
   c_tip_->setSuffix(" m");
   rows->addWidget(c_tip_);
 
-  span_ = new ParamGetterWidget_DoubleSpinBox("Span Length", "If “half” is checked, consider the distance from the wing root to the wing tip to be b/2.");
+  span_ = new ParamGetterWidget_DoubleSpinBox("Span Length", "If 'Symmetric' is unchecked, consider the distance from the wing root to the wing tip to be b/2.");
   span_->setDecimals(3);
   span_->setMinimum(1e-3);
   span_->setSuffix(" m");
@@ -188,6 +190,17 @@ double WingWidget::y_mac() const
 {
   const auto lambda = c_tip() / c_root();
   return (lambda + 2) / (2 * lambda + 1) * 0.5 * span();
+}
+
+Eigen::Vector3d WingWidget::mac_position() const
+{
+  const auto x_mac = - (0.25 * c_root() + y_mac() * tan(sweepBack()));
+  if (symmetric()) {
+    return Eigen::Vector3d(x_mac, 0, 0);
+  } else {
+    // symmetricでない場合は右側が残るので, flu座標系でみてy軸方向負の部分が残っている
+    return Eigen::Vector3d(x_mac, -y_mac(), 0);
+  }
 }
 
 double WingWidget::c_lift_alpha() const
