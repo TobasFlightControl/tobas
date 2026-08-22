@@ -23,6 +23,7 @@ set(AMENT_DEPENDENCIES
     tobas_kdl_parser
     tobas_path_tools
     tobas_ros2_tools
+    tobas_tools
     tobas_urdf
     tobas_drone_msgs_adapter
     tobas_visualization_msgs

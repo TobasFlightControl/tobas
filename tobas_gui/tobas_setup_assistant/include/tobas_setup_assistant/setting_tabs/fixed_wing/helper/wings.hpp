@@ -4,6 +4,8 @@
 
 #include <tobas_qt_tools/widgets/tab_widget.hpp>
 
+#include "./wing.hpp"
+
 namespace tobas
 {
 namespace gui
@@ -33,10 +35,15 @@ public:
   void updateInternalDataStructures();
   void setToDefaults();
   bool isValid() const;
+  double cruiseSpeed() const;
   QString requiredWingName() const;
+  WingWidget* getWing(const int& index);
+  WingWidget* getMainWing();
+  int count();
 
 private:
   int index_ = 0;
+  ParamGetterWidget_DoubleSpinBox* cruise_speed_;
   qt::TabWidget* tabs_;
 
   void addWingWidget();

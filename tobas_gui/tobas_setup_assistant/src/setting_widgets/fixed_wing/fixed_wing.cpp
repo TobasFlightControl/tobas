@@ -16,7 +16,7 @@ namespace sa
 {
 namespace fw
 {
-FixedWingWidget::FixedWingWidget(const uadf::Model& uadf)
+FixedWingWidget::FixedWingWidget(const uadf::Model& uadf, const kdl::Tree& tree)
 {
   // Vehicle
   addWidget(new qt::Label(kVehicleLabel, cmn::kTitlePSize));
@@ -33,7 +33,7 @@ FixedWingWidget::FixedWingWidget(const uadf::Model& uadf)
   tabs_->addTab(coefs_, coefs_->name());
 
   // helper widget
-  helper_ = new hp::HelperWidget(uadf);
+  helper_ = new hp::HelperWidget(uadf, tree, vehicle_);
   tabs_->addTab(helper_, helper_->name());
 
 }

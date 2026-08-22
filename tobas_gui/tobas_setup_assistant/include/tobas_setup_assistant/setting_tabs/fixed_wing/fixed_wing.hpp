@@ -4,6 +4,7 @@
 #pragma once
 
 #include <tobas_qt_tools/widgets/tab_widget.hpp>
+#include <tobas_kdl/tree.hpp>
 
 #include "../base_setting.hpp"
 #include "./vehicle.hpp"
@@ -34,7 +35,7 @@ class FixedWingWidget : public BaseSettingWidget
   static constexpr int kTabHeight = 40;
 
 public:
-  explicit FixedWingWidget(const uadf::Model& uadf);
+  explicit FixedWingWidget(const uadf::Model& uadf, const kdl::Tree& tree);
 
   const char* name() const override;
   const char* title() const override;

@@ -23,7 +23,7 @@ SettingsWidget::SettingsWidget(const uadf::Model& uadf, const kdl::Tree& tree, S
 
   // Pages
   propulsion_system = new propulsion::PropulsionSystemWidget(uadf, sig);
-  fixed_wing = new fw::FixedWingWidget(uadf);
+  fixed_wing = new fw::FixedWingWidget(uadf, tree);
   hardware = new hw::HardwareWidget(uadf, sig);
   remote_connection = new rc::RemoteConnectionWidget();
   observer = new ObserverWidget();

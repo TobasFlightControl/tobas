@@ -5,7 +5,6 @@
 #include <QInputDialog>
 
 #include <tobas_qt_tools/message.hpp>
-#include <tobas_setup_assistant/setting_tabs/fixed_wing/helper/wing.hpp>
 
 namespace tobas
 {
@@ -21,6 +20,11 @@ WingsWidget::WingsWidget()
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);
+
+  cruise_speed_ = new ParamGetterWidget_DoubleSpinBox("Cruise Speed");
+  cruise_speed_->setDecimals(2);
+  cruise_speed_->setSuffix(" m/s");
+  rows->addWidget(cruise_speed_);
 
   tabs_ = new qt::TabWidget();
   tabs_->tabBar()->setElideMode(Qt::ElideRight);
@@ -66,6 +70,8 @@ void WingsWidget::updateInternalDataStructures()
 
 void WingsWidget::setToDefaults()
 {
+  cruise_speed_->setValue(15.0);
+
   const auto all_tabs = tabs_->count();
   for (int i = 0; i < all_tabs; i++) {
     const auto widget = static_cast<WingWidget*>(tabs_->widget(i));
@@ -86,9 +92,29 @@ bool WingsWidget::isValid() const
   return is_valid;
 }
 
+double WingsWidget::cruiseSpeed() const
+{
+  return cruise_speed_->getValue();
+}
+
 QString WingsWidget::requiredWingName() const
 {
   return kMainWing;
+}
+
+WingWidget* WingsWidget::getWing(const int& index)
+{
+  return static_cast<WingWidget*>(tabs_->widget(index));
+}
+
+WingWidget* WingsWidget::getMainWing()
+{
+  return getWing(0);
+}
+
+int WingsWidget::count()
+{
+  return tabs_->count();
 }
 
 void WingsWidget::addWingWidget()

@@ -4,6 +4,9 @@
 
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
+#include <tobas_qt_tools/util.hpp>
+
+#include <tobas_setup_assistant/setting_tabs/fixed_wing/helper/calculator.hpp>
 
 namespace tobas
 {
@@ -15,7 +18,7 @@ namespace fw
 {
 namespace hp
 {
-HelperWidget::HelperWidget(const uadf::Model& uadf)
+HelperWidget::HelperWidget(const uadf::Model& uadf, const kdl::Tree& tree, VehicleParametersWidget* vehicle)
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);
@@ -29,6 +32,10 @@ HelperWidget::HelperWidget(const uadf::Model& uadf)
   rows->addWidget(new qt::Label(kControlSurfacesLabel, cmn::kTitlePSize));
   control_surfaces_ = new ControlSurfacesWidget(uadf, wings_);
   rows->addWidget(control_surfaces_);
+
+  // calculate button
+  calculator_ = new Calculator(tree, vehicle, wings_, control_surfaces_);
+  qt::addWidgetCenter(calculator_, rows);
 }
 
 const char* HelperWidget::name() const
@@ -40,6 +47,7 @@ void HelperWidget::updateInternalDataStructures()
 {
   wings_->updateInternalDataStructures();
   control_surfaces_->updateInternalDataStructures();
+  calculator_->updateInternalDataStructures();
 }
 
 void HelperWidget::setToDefaults()

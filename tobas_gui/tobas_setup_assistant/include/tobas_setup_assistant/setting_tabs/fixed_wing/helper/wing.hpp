@@ -27,23 +27,41 @@ public:
   explicit WingWidget();
   void updateInternalDataStructures();
   void setToDefaults();
-  bool isValid();
-  bool symmetric();
-  double c_root();
-  double c_tip();
-  double span();
-  double c_lift_0();
-  double c_drag_0();
-  double c_pitch_0();
-  double sweep_back();
-  Eigen::Vector3d position();
-  Eigen::Vector3d rotation();
+  bool isValid() const;
+  // getters
+  bool symmetric() const;
+  double c_root() const;
+  double c_tip() const;
+  double span() const;
+  double oswaldEfficiency() const;
+  double c_lift_0() const;
+  double c_drag_0() const;
+  double c_pitch_0() const;
+  double sweepBack() const;
+  Eigen::Vector3d position() const;
+  Eigen::Vector3d rotation() const;
+  // properties
+  double surfaceArea() const;
+  double aspectRatio() const;
+  double c_mac() const;
+  double y_mac() const;
+  double c_lift_alpha() const;
+  double c_lift(const double& alpha) const;
+  double c_drag(const double& alpha) const;
+  double c_roll_beta(const double& alpha) const;
+  double c_roll_p() const;
+  double c_roll_r(const double& alpha) const;
+  double c_roll(const double& V, const double& alpha, const double& beta, const double& p, const double& r) const;
+  double c_yaw_p(const double& alpha) const;
+  double c_yaw_r(const double& alpha) const;
+  double c_yaw(const double& V, const double& alpha, const double& p, const double& r) const;
 
 private:
   QCheckBox* symmetric_;
   ParamGetterWidget_DoubleSpinBox* c_root_;
   ParamGetterWidget_DoubleSpinBox* c_tip_;
   ParamGetterWidget_DoubleSpinBox* span_;
+  ParamGetterWidget_DoubleSpinBox* oswald_efficiency_;
   ParamGetterWidget_DoubleSpinBox* c_lift_0_;
   ParamGetterWidget_DoubleSpinBox* c_drag_0_;
   ParamGetterWidget_DoubleSpinBox* c_pitch_0_;

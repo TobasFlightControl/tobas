@@ -21,6 +21,7 @@
   <depend>tobas_kdl_parser</depend>
   <depend>tobas_path_tools</depend>
   <depend>tobas_ros2_tools</depend>
+  <depend>tobas_tools</depend>
   <depend>tobas_urdf</depend>
   <depend>tobas_drone_msgs_adapter</depend>
   <depend>tobas_visualization_msgs</depend>

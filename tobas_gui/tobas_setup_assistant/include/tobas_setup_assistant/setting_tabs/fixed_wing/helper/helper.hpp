@@ -4,9 +4,12 @@
 
 #include <tobas_qt_tools/widgets/scroll_area.hpp>
 #include <tobas_uadf/model.hpp>
+#include <tobas_kdl/tree.hpp>
 
+#include "./calculator.hpp"
 #include "./control_surfaces.hpp"
 #include "./wings.hpp"
+#include "../vehicle.hpp"
 
 namespace tobas
 {
@@ -29,7 +32,7 @@ class HelperWidget : public qt::ScrollArea
   static constexpr char kControlSurfacesLabel[] = "Control Surfaces";
 
 public:
-  explicit HelperWidget(const uadf::Model& uadf);
+  explicit HelperWidget(const uadf::Model& uadf, const kdl::Tree& tree, VehicleParametersWidget* vehicle);
 
   const char* name() const;
   void updateInternalDataStructures();
@@ -42,6 +45,7 @@ public:
 private:
   WingsWidget* wings_;
   ControlSurfacesWidget* control_surfaces_;
+  Calculator* calculator_;
 };
 }  // namespace hp
 }  // namespace fw
