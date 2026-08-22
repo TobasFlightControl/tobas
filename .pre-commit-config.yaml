@@ -90,7 +90,7 @@ repos:
         files: \.md$
       - id: normalize-japanese-punctuation
         name: normalize Japanese punctuation
-        entry: python3 normalize_japanese_punctuation
+        entry: python3 tobas_dev_tools/scripts/normalize_japanese_punctuation
         language: system
         types: [text]
         exclude: ^tobas_external/
