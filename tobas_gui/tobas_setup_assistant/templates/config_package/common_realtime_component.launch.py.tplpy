@@ -21,6 +21,7 @@ LOG_LEVEL = "log_level"
 OUTPUT = "output"
 USE_SIM_TIME = "use_sim_time"
 MULTIPROCESS = "multiprocess"
+ID = "id"
 
 
 def generate_launch_description():
@@ -31,17 +32,20 @@ def generate_launch_description():
     ld.add_action(DeclareLaunchArgument(OUTPUT, default_value="screen"))
     ld.add_action(DeclareLaunchArgument(USE_SIM_TIME, default_value="false"))
     ld.add_action(DeclareLaunchArgument(MULTIPROCESS, default_value="false"))
+    ld.add_action(DeclareLaunchArgument(ID, default_value="0"))
 
     # Get arguments
     log_level = LaunchConfiguration(LOG_LEVEL)
     output = LaunchConfiguration(OUTPUT)
     use_sim_time = LaunchConfiguration(USE_SIM_TIME)
     multiprocess = LaunchConfiguration(MULTIPROCESS)
+    id = LaunchConfiguration(ID)
 
     # Set common parameters
     # cf. https://zenn.dev/ntrlmt/articles/d41c7e220ff0fe
     ld.add_action(SetParameter(USE_SIM_TIME, value=use_sim_time))
 
+    namespace = PathJoinSubstitution([DRONE_NAME, id])
     config_pkg_share = FindPackageShare(CONFIG_PKG_NAME)
     user_cpp_pkg_share = FindPackageShare(USER_CPP_PKG_NAME)
 
@@ -51,7 +55,7 @@ def generate_launch_description():
             PythonLaunchDescriptionSource(
                 PathJoinSubstitution([config_pkg_share, "launch", "component_containers_mp.launch.py"])
             ),
-            launch_arguments={"log_level": log_level, "output": output}.items(),
+            launch_arguments={"log_level": log_level, "output": output, "id": id}.items(),
             condition=IfCondition(multiprocess),
         )
     )
@@ -60,7 +64,7 @@ def generate_launch_description():
             PythonLaunchDescriptionSource(
                 PathJoinSubstitution([config_pkg_share, "launch", "component_containers_sp.launch.py"])
             ),
-            launch_arguments={"log_level": log_level, "output": output}.items(),
+            launch_arguments={"log_level": log_level, "output": output, "id": id}.items(),
             condition=UnlessCondition(multiprocess),
         )
     )
@@ -68,13 +72,13 @@ def generate_launch_description():
     # Launch 1st priority nodes (Twist Control)
     ld.add_action(
         LoadComposableNodes(
-            target_container=f"{DRONE_NAME}/component_manager_1",
+            target_container=PathJoinSubstitution([namespace, "component_manager_1"]),
             composable_node_descriptions=[
                 ComposableNode(
                     package="tobas_eskf",
                     plugin="tobas::ErrorStateKalmanFilterNode",
                     name="observer",
-                    namespace=DRONE_NAME,
+                    namespace=namespace,
                     parameters=[
                         PathJoinSubstitution([config_pkg_share, "config", "observer_static.yaml"]),
                         PathJoinSubstitution([config_pkg_share, "config", "observer_dynamic.yaml"]),
@@ -85,7 +89,7 @@ def generate_launch_description():
                     package=CONTROLLER_PKG,
                     plugin=CONTROLLER_PLUGIN,
                     name="controller",
-                    namespace=DRONE_NAME,
+                    namespace=namespace,
                     parameters=[
                         PathJoinSubstitution([config_pkg_share, "config", "controller_static.yaml"]),
                         PathJoinSubstitution([config_pkg_share, "config", "controller_dynamic.yaml"]),
@@ -94,7 +98,7 @@ def generate_launch_description():
                 ComposableNode(
                     package="tobas_rotor_controller",
                     plugin="tobas::RotorControllerNode",
-                    namespace=DRONE_NAME,
+                    namespace=namespace,
                 ),
             ],
         )
@@ -103,17 +107,17 @@ def generate_launch_description():
     # Launch 2nd priority nodes (Pose Control & Navigation & Manipulation)
     ld.add_action(
         LoadComposableNodes(
-            target_container=f"{DRONE_NAME}/component_manager_2",
+            target_container=PathJoinSubstitution([namespace, "component_manager_2"]),
             composable_node_descriptions=[
                 ComposableNode(
                     package="tobas_disturbance_observer",
                     plugin="tobas::DisturbanceObserverNode",
-                    namespace=DRONE_NAME,
+                    namespace=namespace,
                 ),
                 ComposableNode(
                     package="tobas_rc_teleop",
                     plugin="tobas::rc::RCTeleopNode",
-                    namespace=DRONE_NAME,
+                    namespace=namespace,
                     parameters=[
                         PathJoinSubstitution([config_pkg_share, "config", "rc_teleop_static.yaml"]),
                         PathJoinSubstitution([config_pkg_share, "config", "rc_teleop_dynamic.yaml"]),
@@ -122,13 +126,13 @@ def generate_launch_description():
                 ComposableNode(
                     package=MISSION_EXECUTOR_PKG,
                     plugin=MISSION_EXECUTOR_PLUGIN,
-                    namespace=DRONE_NAME,
+                    namespace=namespace,
                     parameters=[PathJoinSubstitution([config_pkg_share, "config", "mission_executor_static.yaml"])],
                 ),
                 ComposableNode(
                     package="tobas_object_avoidance",
                     plugin="tobas::ObjectAvoidance",
-                    namespace=DRONE_NAME,
+                    namespace=namespace,
                 ),
             ],
         )
@@ -137,22 +141,22 @@ def generate_launch_description():
     # Launch 3th priority nodes (Others)
     ld.add_action(
         LoadComposableNodes(
-            target_container=f"{DRONE_NAME}/component_manager_3",
+            target_container=PathJoinSubstitution([namespace, "component_manager_3"]),
             composable_node_descriptions=[
                 ComposableNode(
                     package="tobas_connection_monitor",
                     plugin="tobas::HeartbeatSenderNode",
-                    namespace=DRONE_NAME,
+                    namespace=namespace,
                 ),
                 ComposableNode(
                     package="tobas_tree_server",
                     plugin="tobas::TreeServerNode",
-                    namespace=DRONE_NAME,
+                    namespace=namespace,
                 ),
                 ComposableNode(
                     package="tobas_drone_server",
                     plugin="tobas::DroneServerNode",
-                    namespace=DRONE_NAME,
+                    namespace=namespace,
                     parameters=[
                         {
                             "tbsdrn_path": PathJoinSubstitution([config_pkg_share, "config", "drone.tbsdrn"]),
@@ -162,12 +166,12 @@ def generate_launch_description():
                 ComposableNode(
                     package="tobas_rosbag_recorder",
                     plugin="tobas::RosbagRecorderNode",
-                    namespace=DRONE_NAME,
+                    namespace=namespace,
                 ),
                 ComposableNode(
                     package="tobas_config_servers",
                     plugin="tobas::ImuFilterConfigServer",
-                    namespace=DRONE_NAME,
+                    namespace=namespace,
                     parameters=[
                         PathJoinSubstitution([config_pkg_share, "config", "imu_filter_static.yaml"]),
                         PathJoinSubstitution([config_pkg_share, "config", "imu_filter_dynamic.yaml"]),
@@ -176,45 +180,45 @@ def generate_launch_description():
                 ComposableNode(
                     package="tobas_config_servers",
                     plugin="tobas::RpmControlConfigServer",
-                    namespace=DRONE_NAME,
+                    namespace=namespace,
                     parameters=[PathJoinSubstitution([config_pkg_share, "config", "rpm_control_dynamic.yaml"])],
                 ),
                 ComposableNode(
                     package="tobas_failsafe",
                     plugin="tobas::HealthMonitorNode",
-                    namespace=DRONE_NAME,
+                    namespace=namespace,
                     parameters=[PathJoinSubstitution([config_pkg_share, "config", "health_monitor.yaml"])],
                 ),
                 ComposableNode(
                     package="tobas_failsafe",
                     plugin="tobas::FailsafeExecutorNode",
-                    namespace=DRONE_NAME,
+                    namespace=namespace,
                 ),
                 ComposableNode(
                     package="tobas_landing_detection",
                     plugin="tobas::LandingDetectorNode",
-                    namespace=DRONE_NAME,
+                    namespace=namespace,
                 ),
                 ComposableNode(
                     package="tobas_rotor_anomaly_detection",
                     plugin="tobas::RotorAnomalyDetectorNode",
-                    namespace=DRONE_NAME,
+                    namespace=namespace,
                     parameters=[PathJoinSubstitution([config_pkg_share, "config", "rotor_anomaly_detector.yaml"])],
                 ),
                 ComposableNode(
                     package="tobas_vibration_filter",
                     plugin="tobas::VibrationFilterNode",
-                    namespace=DRONE_NAME,
+                    namespace=namespace,
                 ),
                 ComposableNode(
                     package="tobas_joint_states_bridge",
                     plugin="tobas::JointStatesBridgeNode",
-                    namespace=DRONE_NAME,
+                    namespace=namespace,
                 ),
                 ComposableNode(
                     package="tobas_topic_throttle",
                     plugin="tobas::TopicThrottleNode",
-                    namespace=DRONE_NAME,
+                    namespace=namespace,
                 ),
             ],
         )
@@ -224,7 +228,7 @@ def generate_launch_description():
     ld.add_action(
         GroupAction(
             [
-                PushRosNamespace(DRONE_NAME),
+                PushRosNamespace(namespace),
                 IncludeLaunchDescription(
                     PythonLaunchDescriptionSource(
                         PathJoinSubstitution([user_cpp_pkg_share, "launch", "common_realtime.launch.py"])

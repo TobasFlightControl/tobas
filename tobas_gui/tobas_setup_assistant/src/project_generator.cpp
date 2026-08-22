@@ -1053,7 +1053,7 @@ bool ProjectGenerator::removePropellerJointLimits(tinyxml2::XMLElement* robot)
 
 bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
 {
-  const auto& ns = uadf_.urdf->getName();
+  const auto ns = uadf_.urdf->getName() + "/$(arg ID)";
   const auto& root_name = tree_.getRootName();
   const auto cfg_pkg_name = proj_paths_.cfgPkgName();
 

@@ -102,6 +102,7 @@ def generate_launch_description():
         namespace=session_ns,
         ros_arguments=ros_args,
         output=output,
+        additional_env={"ROS_AUTOMATIC_DISCOVERY_RANGE": "LOCALHOST"},
         on_exit=Shutdown(),
     )
     ld.add_action(run_gcs)

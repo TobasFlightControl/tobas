@@ -13,6 +13,7 @@ CONFIG_PKG_NAME = "{{ config_pkg_name }}"
 LOG_LEVEL = "log_level"
 OUTPUT = "output"
 USE_SIM_TIME = "use_sim_time"
+ID = "id"
 
 
 def generate_launch_description():
@@ -22,12 +23,15 @@ def generate_launch_description():
     ld.add_action(DeclareLaunchArgument(LOG_LEVEL, default_value="info"))
     ld.add_action(DeclareLaunchArgument(OUTPUT, default_value="screen"))
     ld.add_action(DeclareLaunchArgument(USE_SIM_TIME, default_value="false"))
+    ld.add_action(DeclareLaunchArgument(ID, default_value="0"))
 
     # Get arguments
     log_level = LaunchConfiguration(LOG_LEVEL)
     output = LaunchConfiguration(OUTPUT)
     use_sim_time = LaunchConfiguration(USE_SIM_TIME)
+    id = LaunchConfiguration(ID)
 
+    namespace = PathJoinSubstitution([DRONE_NAME, id])
     config_pkg_share = FindPackageShare(CONFIG_PKG_NAME)
 
     # Launch Tobas core software
@@ -39,6 +43,7 @@ def generate_launch_description():
             "log_level": log_level,
             "output": output,
             "use_sim_time": use_sim_time,
+            "id": id,
         }.items(),
     )
     # ld.add_action(common_launch)  # FIXME: Communication delay and heavy communication load are issues.
@@ -48,10 +53,10 @@ def generate_launch_description():
         Node(
             package="tobas_sbus_driver",
             executable="sbus_driver",
-            namespace=DRONE_NAME,
+            namespace=namespace,
             parameters=[{"device": "/dev/ttyAMA0"}],  # TODO: Change the device according to the FMU.
         )
     )
-    ld.add_action(Node(package="tobas_real_ros", executable="rcin_handler", namespace=DRONE_NAME))
+    ld.add_action(Node(package="tobas_real_ros", executable="rcin_handler", namespace=namespace))
 
     return ld
