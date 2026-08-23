@@ -18,7 +18,7 @@ namespace fw
 {
 namespace hp
 {
-HelperWidget::HelperWidget(const uadf::Model& uadf, const kdl::Tree& tree, VehicleParametersWidget* vehicle)
+HelperWidget::HelperWidget(const uadf::Model& uadf, const kdl::Tree& tree, VehicleParametersWidget* vehicle, CoefficientsWidget* coefs)
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);
@@ -34,7 +34,7 @@ HelperWidget::HelperWidget(const uadf::Model& uadf, const kdl::Tree& tree, Vehic
   rows->addWidget(control_surfaces_);
 
   // calculate button
-  calculator_ = new Calculator(tree, vehicle, wings_, control_surfaces_);
+  calculator_ = new Calculator(tree, vehicle, coefs, wings_, control_surfaces_);
   qt::addWidgetCenter(calculator_, rows);
 }
 

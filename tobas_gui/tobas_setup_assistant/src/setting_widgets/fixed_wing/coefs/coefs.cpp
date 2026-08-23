@@ -65,12 +65,12 @@ void CoefficientsWidget::load(const YAML::Node& node)
   control_surfaces_->load(node[kControlSurfacesLabel]);
 }
 
-const AerodynamicsCoefficientsWidget* CoefficientsWidget::aeroCoefs() const
+AerodynamicsCoefficientsWidget* CoefficientsWidget::aeroCoefs() const
 {
   return aero_coefs_;
 }
 
-const ControlSurfacesWidget* CoefficientsWidget::controlSurfaces() const
+ControlSurfacesWidget* CoefficientsWidget::controlSurfaces() const
 {
   return control_surfaces_;
 }

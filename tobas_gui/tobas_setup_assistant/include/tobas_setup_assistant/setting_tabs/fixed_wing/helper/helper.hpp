@@ -10,6 +10,7 @@
 #include "./control_surfaces.hpp"
 #include "./wings.hpp"
 #include "../vehicle.hpp"
+#include "../coefs/coefs.hpp"
 
 namespace tobas
 {
@@ -32,7 +33,7 @@ class HelperWidget : public qt::ScrollArea
   static constexpr char kControlSurfacesLabel[] = "Control Surfaces";
 
 public:
-  explicit HelperWidget(const uadf::Model& uadf, const kdl::Tree& tree, VehicleParametersWidget* vehicle);
+  explicit HelperWidget(const uadf::Model& uadf, const kdl::Tree& tree, VehicleParametersWidget* vehicle, CoefficientsWidget* coefs);
 
   const char* name() const;
   void updateInternalDataStructures();

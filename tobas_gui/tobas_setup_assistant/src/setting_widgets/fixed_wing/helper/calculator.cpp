@@ -18,7 +18,7 @@ namespace fw
 {
 namespace hp
 {
-Calculator::Calculator(const kdl::Tree& tree, VehicleParametersWidget* vehicle, WingsWidget* wings, ControlSurfacesWidget* control_surfaces): super("Calculate"), mass_holder_(tree), vehicle_(vehicle), wings_(wings), control_surfaces_(control_surfaces)
+Calculator::Calculator(const kdl::Tree& tree, VehicleParametersWidget* vehicle, CoefficientsWidget* coefs, WingsWidget* wings, ControlSurfacesWidget* control_surfaces): super("Calculate"), mass_holder_(tree), vehicle_(vehicle), coefs_(coefs), wings_(wings), control_surfaces_(control_surfaces)
 {
   setFixedSize(kButtonWidth, kButtonHeight);
 
@@ -32,15 +32,12 @@ void Calculator::updateInternalDataStructures()
 
 void Calculator::onClicked()
 {
-  std::cout << "start" << std::endl;
   // cruise飛行時の迎角, 速度を求める
   const auto cruise_speed = wings_->cruiseSpeed();
   const auto mass = mass_holder_.getMass();
   const auto main_wing = wings_->getMainWing();
   const auto C_L = mass * st::kGravity / (dynamicPressure(st::kStandardAirDensity, cruise_speed) * main_wing->surfaceArea());
-  std::cout << "C_L : " << C_L << std::endl;
   const auto cruise_alpha = (C_L - main_wing->c_lift_0()) / main_wing->c_lift_alpha();
-  std::cout << "cruise_alpha : " << cruise_alpha / M_PI * 180.0 << " deg" << std::endl;
   validate(cruise_alpha);
   // cruise時係数を求める
   calcCruiseCoeff(cruise_speed, cruise_alpha);
@@ -56,6 +53,7 @@ void Calculator::onClicked()
   calcRCoeff(cruise_speed, cruise_alpha);
   // control surfacesに関して数値微分を取る
   calcControlCoeff(cruise_speed);
+  writeResults();
 }
 
 void Calculator::XZ2DL(const kdl::Vector& force, const double& alpha, double& drag, double& lift)
@@ -156,18 +154,10 @@ kdl::Wrench Calculator::calcWingAeroDynamicForce(const WingWidget* wing, const k
   const auto C_n = wing->c_yaw(airspeed, alpha, p, r);
 
   const auto q = dynamicPressure(st::kStandardAirDensity, airspeed);
-  // std::cout << "q : " << q << std::endl;
-  // std::cout << "c_tip : " << wing->c_tip() << std::endl;
-  // std::cout << "c_root : " << wing->c_root() << std::endl;
-  // std::cout << "span : " << wing->span() << std::endl;
-  // std::cout << "S : " << wing->surfaceArea() << std::endl;
   const kdl::Vector lift = q * wing->surfaceArea() * C_L * kdl::Vector(sin(alpha), 0, -cos(alpha)); // mac座標系(frd)でみたときの力のベクトル
   const kdl::Vector drag = q * wing->surfaceArea() * C_D * kdl::Vector(-cos(alpha), 0, -sin(alpha));
-  // std::cout << "lift : " << lift << std::endl;
-  // std::cout << "drag : " << drag << std::endl;
   const auto force = lift + drag;
   const auto moment = kdl::Vector(q * wing->span() * C_l, q * wing->c_mac() * wing->c_pitch_0(), q * wing->span() * C_n);
-  // std::cout << "moment : " << moment << std::endl;
   return kdl::Wrench(force, moment);
 }
 
@@ -324,7 +314,8 @@ void Calculator::calcControlCoeff(const double& cruise_speed)
     const auto k1 = control_surfaces_->startSpan(i);
     const auto k2 = control_surfaces_->finishSpan(i);
     CsCoefs coefs;
-    if (k1 > 0) {
+    kdl::Wrench wrench_ref; // ref座標系(frd)でのwrench
+    if (k1 >= 0) {
       // control surface前方のみ切り取った場合の翼の諸元
       const auto c_root_c = (1 - k1) * c_root + k1 * c_tip;
       const auto c_tip_c = (1 - k2) * c_root + k2 * c_tip;
@@ -344,15 +335,8 @@ void Calculator::calcControlCoeff(const double& cruise_speed)
       const kdl::Vector W_Pos_W2M(x_mac, y_mac, 0); // wing座標系でみたときのwingからmacまでのposition
       const auto W_T_M =  kdl::Frame(kdl::Rotation::RPY(M_PI, 0, 0), W_Pos_W2M); // wing座標系で表したmac座標系のFrame
       // ref座標系でみたときのwrenchに変換
-      const auto wrench_ref = R_T_W * W_T_M * wrench_mac; // ref座標系で表したwrench
-      // numerical differentiation
-      coefs.drag = -wrench_ref.force.x() / (dynamicPressure(st::kStandardAirDensity, cruise_speed) * main_wing->surfaceArea()) / kDelta; // alpha傾けてないのが怪しいがそもそもwrench_macの計算時に傾きを考えてないので近似的にはok
-      coefs.lift = -wrench_ref.force.z() / (dynamicPressure(st::kStandardAirDensity, cruise_speed) * main_wing->surfaceArea()) / kDelta;
-      coefs.side = wrench_ref.force.y() / (dynamicPressure(st::kStandardAirDensity, cruise_speed) * main_wing->surfaceArea()) / kDelta;
-      coefs.roll = wrench_ref.torque.x() / (dynamicPressure(st::kStandardAirDensity, cruise_speed) * main_wing->surfaceArea() * main_wing->span()) / kDelta;
-      coefs.pitch = wrench_ref.torque.y() / (dynamicPressure(st::kStandardAirDensity, cruise_speed) * main_wing->surfaceArea() * main_wing->c_mac()) / kDelta;
-      coefs.yaw = wrench_ref.torque.z() / (dynamicPressure(st::kStandardAirDensity, cruise_speed) * main_wing->surfaceArea() * main_wing->span()) / kDelta;
-    } if (k2 < 0) {
+      wrench_ref = R_T_W * W_T_M * wrench_mac; // ref座標系で表したwrench
+    } else if (k2 <= 0) {
       // control surface前方のみ切り取った場合の翼の諸元
       const auto c_root_c = (1 + k2) * c_root - k2 * c_tip;
       const auto c_tip_c = (1 + k1) * c_root - k1 * c_tip;
@@ -372,22 +356,15 @@ void Calculator::calcControlCoeff(const double& cruise_speed)
       const kdl::Vector W_Pos_W2M(x_mac, y_mac, 0); // wing座標系でみたときのwingからmacまでのposition
       const auto W_T_M =  kdl::Frame(kdl::Rotation::RPY(M_PI, 0, 0), W_Pos_W2M); // wing座標系で表したmac座標系のFrame
       // ref座標系でみたときのwrenchに変換
-      const auto wrench_ref = R_T_W * W_T_M * wrench_mac; // ref座標系で表したwrench
-      // numerical differentiation
-      coefs.drag = -wrench_ref.force.x() / (dynamicPressure(st::kStandardAirDensity, cruise_speed) * main_wing->surfaceArea()) / kDelta;
-      coefs.lift = -wrench_ref.force.z() / (dynamicPressure(st::kStandardAirDensity, cruise_speed) * main_wing->surfaceArea()) / kDelta;
-      coefs.side = wrench_ref.force.y() / (dynamicPressure(st::kStandardAirDensity, cruise_speed) * main_wing->surfaceArea()) / kDelta;
-      coefs.roll = wrench_ref.torque.x() / (dynamicPressure(st::kStandardAirDensity, cruise_speed) * main_wing->surfaceArea() * main_wing->span()) / kDelta;
-      coefs.pitch = wrench_ref.torque.y() / (dynamicPressure(st::kStandardAirDensity, cruise_speed) * main_wing->surfaceArea() * main_wing->c_mac()) / kDelta;
-      coefs.yaw = wrench_ref.torque.z() / (dynamicPressure(st::kStandardAirDensity, cruise_speed) * main_wing->surfaceArea() * main_wing->span()) / kDelta;
+      wrench_ref = R_T_W * W_T_M * wrench_mac; // ref座標系で表したwrench
     } else {
-      // k2 ~ 0, 0 ~ k1に分けて計算
+      // k1 ~ 0, 0 ~ k2に分けて計算
       kdl::Wrench wrench_left_ref, wrench_right_ref;
-      // k2 ~ 0
+      // k1 ~ 0
       {
         const auto c_root_c = c_root;
-        const auto c_tip_c = (1 + k2) * c_root - k2 * c_tip;
-        const auto span_c = -k2 * 0.5 * wing->span();
+        const auto c_tip_c = (1 + k1) * c_root - k1 * c_tip;
+        const auto span_c = -k1 * 0.5 * wing->span();
         const auto S_c = 0.5 * (c_root_c + c_tip_c) * span_c;
         // 翼空力中心にかかる力
         // mac座標系はfrd座標系とする
@@ -398,18 +375,18 @@ void Calculator::calcControlCoeff(const double& cruise_speed)
         // 翼座標系からみたときの翼空力中心の座標
         // 翼座標系はflu座標系
         const auto lambda = c_tip_c / c_root_c;
-        const auto y_mac =  (lambda + 2) / (2 * lambda + 1) * 0.5 * span_c - k2 * 0.5 * wing->span();
+        const auto y_mac =  (lambda + 2) / (2 * lambda + 1) * 0.5 * span_c - k1 * 0.5 * wing->span();
         const auto x_mac = - (0.25 * c_root_c - y_mac * tan(wing->sweepBack()));
         const kdl::Vector W_Pos_W2M(x_mac, y_mac, 0); // wing座標系でみたときのwingからmacまでのposition
         const auto W_T_M =  kdl::Frame(kdl::Rotation::RPY(M_PI, 0, 0), W_Pos_W2M); // wing座標系で表したmac座標系のFrame
         // ref座標系でみたときのwrenchに変換
         wrench_left_ref = R_T_W * W_T_M * wrench_mac; // ref座標系で表したwrench
       }
-      // 0 ~ k1
+      // 0 ~ k2
       {
         const auto c_root_c = c_root;
-        const auto c_tip_c = (1 - k1) * c_root + k1 * c_tip;
-        const auto span_c = k1 * 0.5 * wing->span();
+        const auto c_tip_c = (1 - k2) * c_root + k2 * c_tip;
+        const auto span_c = k2 * 0.5 * wing->span();
         const auto S_c = 0.5 * (c_root_c + c_tip_c) * span_c;
         // 翼空力中心にかかる力
         // mac座標系はfrd座標系とする
@@ -420,22 +397,22 @@ void Calculator::calcControlCoeff(const double& cruise_speed)
         // 翼座標系からみたときの翼空力中心の座標
         // 翼座標系はflu座標系
         const auto lambda = c_tip_c / c_root_c;
-        const auto y_mac =  - (lambda + 2) / (2 * lambda + 1) * 0.5 * span_c - k1 * 0.5 * wing->span();
+        const auto y_mac =  - (lambda + 2) / (2 * lambda + 1) * 0.5 * span_c - k2 * 0.5 * wing->span();
         const auto x_mac = - (0.25 * c_root_c + y_mac * tan(wing->sweepBack()));
         const kdl::Vector W_Pos_W2M(x_mac, y_mac, 0); // wing座標系でみたときのwingからmacまでのposition
         const auto W_T_M =  kdl::Frame(kdl::Rotation::RPY(M_PI, 0, 0), W_Pos_W2M); // wing座標系で表したmac座標系のFrame
         // ref座標系でみたときのwrenchに変換
         wrench_right_ref = R_T_W * W_T_M * wrench_mac; // ref座標系で表したwrench
       }
-      const auto wrench_ref = wrench_left_ref + wrench_right_ref;
-      // numerical differentiation
-      coefs.drag = -wrench_ref.force.x() / (dynamicPressure(st::kStandardAirDensity, cruise_speed) * main_wing->surfaceArea()) / kDelta;
-      coefs.lift = -wrench_ref.force.z() / (dynamicPressure(st::kStandardAirDensity, cruise_speed) * main_wing->surfaceArea()) / kDelta;
-      coefs.side = wrench_ref.force.y() / (dynamicPressure(st::kStandardAirDensity, cruise_speed) * main_wing->surfaceArea()) / kDelta;
-      coefs.roll = wrench_ref.torque.x() / (dynamicPressure(st::kStandardAirDensity, cruise_speed) * main_wing->surfaceArea() * main_wing->span()) / kDelta;
-      coefs.pitch = wrench_ref.torque.y() / (dynamicPressure(st::kStandardAirDensity, cruise_speed) * main_wing->surfaceArea() * main_wing->c_mac()) / kDelta;
-      coefs.yaw = wrench_ref.torque.z() / (dynamicPressure(st::kStandardAirDensity, cruise_speed) * main_wing->surfaceArea() * main_wing->span()) / kDelta;
+      wrench_ref = wrench_left_ref + wrench_right_ref;
     }
+    // numerical differentiation
+    coefs.drag = -wrench_ref.force.x() / (dynamicPressure(st::kStandardAirDensity, cruise_speed) * main_wing->surfaceArea()) / kDelta; // alpha傾けてないのが怪しいがそもそもwrench_macの計算時に傾きを考えてないので近似的にはok
+    coefs.lift = -wrench_ref.force.z() / (dynamicPressure(st::kStandardAirDensity, cruise_speed) * main_wing->surfaceArea()) / kDelta;
+    coefs.side = wrench_ref.force.y() / (dynamicPressure(st::kStandardAirDensity, cruise_speed) * main_wing->surfaceArea()) / kDelta;
+    coefs.roll = wrench_ref.torque.x() / (dynamicPressure(st::kStandardAirDensity, cruise_speed) * main_wing->surfaceArea() * main_wing->span()) / kDelta;
+    coefs.pitch = wrench_ref.torque.y() / (dynamicPressure(st::kStandardAirDensity, cruise_speed) * main_wing->surfaceArea() * main_wing->c_mac()) / kDelta;
+    coefs.yaw = wrench_ref.torque.z() / (dynamicPressure(st::kStandardAirDensity, cruise_speed) * main_wing->surfaceArea() * main_wing->span()) / kDelta;
     control_surface_coefs_[i] = coefs;
   }
   for (int i = 0; i < n_of_cs; i++) {
@@ -448,6 +425,41 @@ void Calculator::calcControlCoeff(const double& cruise_speed)
     std::cout << "pitch: " << coefs.pitch << std::endl;
     std::cout << "yaw  : " << coefs.yaw << std::endl;
   }
+}
+
+void Calculator::writeResults()
+{
+  auto aero_coefs = coefs_->aeroCoefs();
+  aero_coefs->c_lift_0(c_lift_0_);
+  aero_coefs->c_lift_alpha(c_lift_alpha_);
+  aero_coefs->c_drag_0(c_drag_0_);
+  aero_coefs->c_drag_alpha(c_drag_alpha_);
+  // TODO: c_drag_alpha^2
+  aero_coefs->c_side_beta(c_side_beta_);
+  // TODO: c_side_p, c_side_r
+  aero_coefs->c_roll_beta(c_roll_beta_);
+  aero_coefs->c_roll_p(c_roll_p_);
+  aero_coefs->c_roll_r(c_roll_r_);
+  aero_coefs->c_pitch_0(c_pitch_0_);
+  aero_coefs->c_pitch_alpha(c_pitch_alpha_);
+  aero_coefs->c_pitch_abs_beta(c_pitch_abs_beta_);
+  aero_coefs->c_pitch_alpha_rate(c_pitch_alpha_rate_);
+  aero_coefs->c_pitch_q(c_pitch_q_);
+  aero_coefs->c_yaw_beta(c_yaw_beta_);
+  aero_coefs->c_yaw_p(c_yaw_p_);
+  aero_coefs->c_yaw_r(c_yaw_r_);
+
+  auto cs_widget = coefs_->controlSurfaces();
+  for (int i = 0; i < control_surfaces_->rowCount(); i++) {
+    cs_widget->liftCoef(i, control_surface_coefs_[i].lift);
+    cs_widget->dragCoef(i, control_surface_coefs_[i].drag);
+    cs_widget->sideCoef(i, control_surface_coefs_[i].side);
+    cs_widget->rollCoef(i, control_surface_coefs_[i].roll);
+    cs_widget->pitchCoef(i, control_surface_coefs_[i].pitch);
+    cs_widget->yawCoef(i, control_surface_coefs_[i].yaw);
+  }
+
+  qt::qInfoBox(this, "Coefficients are estimated successfully.");
 }
 }  // namespace hp
 }  // namespace fw

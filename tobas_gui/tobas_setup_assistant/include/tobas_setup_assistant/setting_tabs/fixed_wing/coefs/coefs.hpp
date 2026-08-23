@@ -37,8 +37,8 @@ public:
   YAML::Node dump() const;
   void load(const YAML::Node& node);
 
-  const AerodynamicsCoefficientsWidget* aeroCoefs() const;
-  const ControlSurfacesWidget* controlSurfaces() const;
+  AerodynamicsCoefficientsWidget* aeroCoefs() const;
+  ControlSurfacesWidget* controlSurfaces() const;
 
 private:
   AerodynamicsCoefficientsWidget* aero_coefs_;

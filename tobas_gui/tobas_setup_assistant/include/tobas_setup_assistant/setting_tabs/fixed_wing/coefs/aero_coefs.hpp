@@ -39,6 +39,7 @@ public:
   YAML::Node dump() const;
   void load(const YAML::Node& node);
 
+  // getters
   double c_lift_0() const;
   double c_lift_alpha() const;
   double c_drag_0() const;
@@ -55,6 +56,24 @@ public:
   double c_yaw_beta() const;
   double c_yaw_p() const;
   double c_yaw_r() const;
+
+  // setters
+  void c_lift_0(const double& value);
+  void c_lift_alpha(const double& value);
+  void c_drag_0(const double& value);
+  void c_drag_alpha(const double& value);
+  void c_side_beta(const double& value);
+  void c_roll_beta(const double& value);
+  void c_roll_p(const double& value);
+  void c_roll_r(const double& value);
+  void c_pitch_0(const double& value);
+  void c_pitch_alpha(const double& value);
+  void c_pitch_abs_beta(const double& value);
+  void c_pitch_alpha_rate(const double& value);
+  void c_pitch_q(const double& value);
+  void c_yaw_beta(const double& value);
+  void c_yaw_p(const double& value);
+  void c_yaw_r(const double& value);
 
 private Q_SLOTS:
   void onLoadButtonClicked();

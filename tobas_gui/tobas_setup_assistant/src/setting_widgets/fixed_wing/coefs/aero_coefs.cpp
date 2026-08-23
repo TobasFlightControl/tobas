@@ -254,6 +254,86 @@ double AerodynamicsCoefficientsWidget::c_yaw_r() const
   return c_yaw_r_->value();
 }
 
+void AerodynamicsCoefficientsWidget::c_lift_0(const double& value)
+{
+  return c_lift_0_->setValue(value);
+}
+
+void AerodynamicsCoefficientsWidget::c_lift_alpha(const double& value) 
+{
+  return c_lift_alpha_->setValue(value);
+}
+
+void AerodynamicsCoefficientsWidget::c_drag_0(const double& value)
+{
+  return c_drag_0_->setValue(value);
+}
+
+void AerodynamicsCoefficientsWidget::c_drag_alpha(const double& value)
+{
+  return c_drag_alpha_->setValue(value);
+}
+
+void AerodynamicsCoefficientsWidget::c_side_beta(const double& value)
+{
+  return c_side_beta_->setValue(value);
+}
+
+void AerodynamicsCoefficientsWidget::c_roll_beta(const double& value)
+{
+  return c_roll_beta_->setValue(value);
+}
+
+void AerodynamicsCoefficientsWidget::c_roll_p(const double& value)
+{
+  return c_roll_p_->setValue(value);
+}
+
+void AerodynamicsCoefficientsWidget::c_roll_r(const double& value)
+{
+  return c_roll_r_->setValue(value);
+}
+
+void AerodynamicsCoefficientsWidget::c_pitch_0(const double& value)
+{
+  return c_pitch_0_->setValue(value);
+}
+
+void AerodynamicsCoefficientsWidget::c_pitch_alpha(const double& value)
+{
+  return c_pitch_alpha_->setValue(value);
+}
+
+void AerodynamicsCoefficientsWidget::c_pitch_abs_beta(const double& value)
+{
+  return c_pitch_abs_beta_->setValue(value);
+}
+
+void AerodynamicsCoefficientsWidget::c_pitch_alpha_rate(const double& value)
+{
+  return c_pitch_alpha_rate_->setValue(value);
+}
+
+void AerodynamicsCoefficientsWidget::c_pitch_q(const double& value)
+{
+  return c_pitch_q_->setValue(value);
+}
+
+void AerodynamicsCoefficientsWidget::c_yaw_beta(const double& value)
+{
+  return c_yaw_beta_->setValue(value);
+}
+
+void AerodynamicsCoefficientsWidget::c_yaw_p(const double& value)
+{
+  return c_yaw_p_->setValue(value);
+}
+
+void AerodynamicsCoefficientsWidget::c_yaw_r(const double& value)
+{
+  return c_yaw_r_->setValue(value);
+}
+
 void AerodynamicsCoefficientsWidget::onLoadButtonClicked()
 {
   // Get the previously opened path.

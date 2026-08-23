@@ -33,7 +33,7 @@ FixedWingWidget::FixedWingWidget(const uadf::Model& uadf, const kdl::Tree& tree)
   tabs_->addTab(coefs_, coefs_->name());
 
   // helper widget
-  helper_ = new hp::HelperWidget(uadf, tree, vehicle_);
+  helper_ = new hp::HelperWidget(uadf, tree, vehicle_, coefs_);
   tabs_->addTab(helper_, helper_->name());
 
 }

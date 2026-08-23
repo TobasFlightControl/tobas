@@ -11,6 +11,7 @@
 #include "./wing.hpp"
 #include "./wings.hpp"
 #include "../vehicle.hpp"
+#include "../coefs/coefs.hpp"
 
 namespace tobas
 {
@@ -35,13 +36,14 @@ class Calculator : public QPushButton
   static constexpr double kAffordableRate = 0.1;
 
 public:
-  explicit Calculator(const kdl::Tree& tree, VehicleParametersWidget* vehicle, WingsWidget* wings, ControlSurfacesWidget* control_surfaces);
+  explicit Calculator(const kdl::Tree& tree, VehicleParametersWidget* vehicle, CoefficientsWidget* coefs, WingsWidget* wings, ControlSurfacesWidget* control_surfaces);
   void updateInternalDataStructures();
 
 private:
   kdl::TreeMassHolder mass_holder_;
 
   VehicleParametersWidget* vehicle_;
+  CoefficientsWidget* coefs_;
   WingsWidget* wings_;
   ControlSurfacesWidget* control_surfaces_;
 
@@ -97,6 +99,7 @@ private:
   void calcQCoeff(const double& cruise_speed, const double& cruise_alpha);
   void calcRCoeff(const double& cruise_speed, const double& cruise_alpha);
   void calcControlCoeff(const double& cruise_speed); // TODO : consider cruise_alpha effect
+  void writeResults();
 };
 }  // namespace hp
 }  // namespace fw
