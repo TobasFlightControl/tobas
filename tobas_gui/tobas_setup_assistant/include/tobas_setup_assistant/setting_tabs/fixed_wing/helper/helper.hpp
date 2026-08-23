@@ -2,15 +2,15 @@
 
 #include <yaml-cpp/yaml.h>
 
+#include <tobas_kdl/tree.hpp>
 #include <tobas_qt_tools/widgets/scroll_area.hpp>
 #include <tobas_uadf/model.hpp>
-#include <tobas_kdl/tree.hpp>
 
+#include "../coefs/coefs.hpp"
+#include "../vehicle.hpp"
 #include "./calculator.hpp"
 #include "./control_surfaces.hpp"
 #include "./wings.hpp"
-#include "../vehicle.hpp"
-#include "../coefs/coefs.hpp"
 
 namespace tobas
 {
@@ -33,7 +33,11 @@ class HelperWidget : public qt::ScrollArea
   static constexpr char kControlSurfacesLabel[] = "Control Surfaces";
 
 public:
-  explicit HelperWidget(const uadf::Model& uadf, const kdl::Tree& tree, VehicleParametersWidget* vehicle, CoefficientsWidget* coefs);
+  explicit HelperWidget(
+    const uadf::Model& uadf,
+    const kdl::Tree& tree,
+    VehicleParametersWidget* vehicle,
+    CoefficientsWidget* coefs);
 
   const char* name() const;
   void updateInternalDataStructures();

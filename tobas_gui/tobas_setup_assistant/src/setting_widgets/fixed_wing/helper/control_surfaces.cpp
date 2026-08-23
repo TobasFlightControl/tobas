@@ -28,19 +28,14 @@ namespace fw
 {
 namespace hp
 {
-ControlSurfacesWidget::ControlSurfacesWidget(const uadf::Model& uadf, WingsWidget* wings_widget) : super(0, kNumCols), uadf_(uadf), wings_widget_(wings_widget)
+ControlSurfacesWidget::ControlSurfacesWidget(const uadf::Model& uadf, WingsWidget* wings_widget)
+  : super(0, kNumCols), uadf_(uadf), wings_widget_(wings_widget)
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);
 
-  setHorizontalHeaderLabels({
-    kLinkNameLabel,
-    kJointNameLabel,
-    kWingLabel,
-    kStartSpanLabel,
-    kFinishSpanLabel,
-    kChordRatioLabel
-  });
+  setHorizontalHeaderLabels(
+    { kLinkNameLabel, kJointNameLabel, kWingLabel, kStartSpanLabel, kFinishSpanLabel, kChordRatioLabel });
   setColumnsWidth(kColWidth);
   setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
@@ -62,10 +57,7 @@ void ControlSurfacesWidget::updateInternalDataStructures()
     add(QString::fromStdString(link_name));
   }
 
-  setFixedHeight(
-      horizontalHeader()->height()
-      + verticalHeader()->length()
-      + 2 * frameWidth());
+  setFixedHeight(horizontalHeader()->height() + verticalHeader()->length() + 2 * frameWidth());
 
   updateGeometry();
 }
@@ -106,16 +98,22 @@ void ControlSurfacesWidget::add(const QString& link_name)
   const auto start_span = new qt::DoubleSpinBox();
   start_span->setDecimals(2);
   start_span->setSuffix("");
+  start_span->setMinimum(-1.0);
+  start_span->setMaximum(1.0);
   setCellWidget(row, kStartSpanCol, start_span);
 
   const auto finish_span = new qt::DoubleSpinBox();
   finish_span->setDecimals(2);
   finish_span->setSuffix("");
+  finish_span->setMinimum(-1.0);
+  finish_span->setMaximum(1.0);
   setCellWidget(row, kFinishSpanCol, finish_span);
 
   const auto chord_ratio = new qt::DoubleSpinBox();
   chord_ratio->setDecimals(2);
   chord_ratio->setSuffix("");
+  chord_ratio->setMinimum(0.01);
+  chord_ratio->setMaximum(1.0);
   setCellWidget(row, kChordRatioCol, chord_ratio);
 
   setToDefault(row);
@@ -198,7 +196,7 @@ void ControlSurfacesWidget::setToDefault(int row)
   wingIdx(row, 0);
   startSpan(row, -1.0);
   finishSpan(row, 1.0);
-  chordRatio(row, 0.0);
+  chordRatio(row, 0.2);
 }
 
 void ControlSurfacesWidget::onWingsTabAdded(QString tab_name)

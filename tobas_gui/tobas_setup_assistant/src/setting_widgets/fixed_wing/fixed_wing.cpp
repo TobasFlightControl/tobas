@@ -35,7 +35,6 @@ FixedWingWidget::FixedWingWidget(const uadf::Model& uadf, const kdl::Tree& tree)
   // helper widget
   helper_ = new hp::HelperWidget(uadf, tree, vehicle_, coefs_);
   tabs_->addTab(helper_, helper_->name());
-
 }
 
 const char* FixedWingWidget::name() const
@@ -93,7 +92,7 @@ YAML::Node FixedWingWidget::dump() const
   YAML::Node node(YAML::NodeType::Map);
 
   node[kVehicleLabel] = vehicle_->dump();
-  for (const auto& item: coefs_->dump()) {
+  for (const auto& item : coefs_->dump()) {
     node[item.first] = item.second;
   }
 

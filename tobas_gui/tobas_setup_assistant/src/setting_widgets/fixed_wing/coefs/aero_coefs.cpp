@@ -259,7 +259,7 @@ void AerodynamicsCoefficientsWidget::c_lift_0(const double& value)
   return c_lift_0_->setValue(value);
 }
 
-void AerodynamicsCoefficientsWidget::c_lift_alpha(const double& value) 
+void AerodynamicsCoefficientsWidget::c_lift_alpha(const double& value)
 {
   return c_lift_alpha_->setValue(value);
 }

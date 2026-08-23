@@ -3,8 +3,8 @@
 #include <QVBoxLayout>
 
 #include <tobas_gui_common/constants.hpp>
-#include <tobas_qt_tools/widgets/label.hpp>
 #include <tobas_qt_tools/util.hpp>
+#include <tobas_qt_tools/widgets/label.hpp>
 
 #include <tobas_setup_assistant/setting_tabs/fixed_wing/helper/calculator.hpp>
 
@@ -18,7 +18,11 @@ namespace fw
 {
 namespace hp
 {
-HelperWidget::HelperWidget(const uadf::Model& uadf, const kdl::Tree& tree, VehicleParametersWidget* vehicle, CoefficientsWidget* coefs)
+HelperWidget::HelperWidget(
+  const uadf::Model& uadf,
+  const kdl::Tree& tree,
+  VehicleParametersWidget* vehicle,
+  CoefficientsWidget* coefs)
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);
@@ -76,4 +80,3 @@ void HelperWidget::load(const YAML::Node&)
 }  // namespace sa
 }  // namespace gui
 }  // namespace tobas
-

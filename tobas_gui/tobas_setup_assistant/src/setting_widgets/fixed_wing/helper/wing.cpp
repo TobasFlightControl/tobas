@@ -17,8 +17,10 @@ WingWidget::WingWidget()
   const auto rows = new QVBoxLayout();
   setLayout(rows);
 
+  const auto symmetric_layout = new QVBoxLayout();
+  symmetric_layout->setContentsMargins(
+    rows->contentsMargins());  // ParamGetterWidgetと文字の左端を合わせるための苦肉の策
   const auto header = new QHBoxLayout();
-  header->setContentsMargins(rows->contentsMargins()); // ParamGetterWidgetと文字の左端を合わせるための苦肉の策
   const auto label = new QLabel("Symmetric");
   label->setFont(qt::DefaultFont(cmn::kLabelPSize, QFont::Bold));
   label->setAlignment(Qt::AlignTop | Qt::AlignLeft);
@@ -27,9 +29,11 @@ WingWidget::WingWidget()
   header->addWidget(label);
   header->addWidget(symmetric_);
   header->addStretch();
-  rows->addLayout(header);
-  const auto description = new qt::DescriptionWidget("If 'Symmetric' is unchecked, the right side of the wing is treated as existing.", cmn::kBodyPSize);
-  rows->addWidget(description);
+  symmetric_layout->addLayout(header);
+  const auto description = new qt::DescriptionWidget(
+    "If 'Symmetric' is unchecked, the right side of the wing is treated as existing.", cmn::kBodyPSize);
+  symmetric_layout->addWidget(description);
+  rows->addLayout(symmetric_layout);
 
   c_root_ = new ParamGetterWidget_DoubleSpinBox("Root Chord Length", "");
   c_root_->setDecimals(3);
@@ -43,7 +47,8 @@ WingWidget::WingWidget()
   c_tip_->setSuffix(" m");
   rows->addWidget(c_tip_);
 
-  span_ = new ParamGetterWidget_DoubleSpinBox("Span Length", "If 'Symmetric' is unchecked, consider the distance from the wing root to the wing tip to be b/2.");
+  span_ = new ParamGetterWidget_DoubleSpinBox(
+    "Span Length", "If 'Symmetric' is unchecked, consider the distance from the wing root to the wing tip to be b/2.");
   span_->setDecimals(3);
   span_->setMinimum(1e-3);
   span_->setSuffix(" m");
@@ -76,12 +81,16 @@ WingWidget::WingWidget()
   sweep_back_->setSuffix(" rad");
   rows->addWidget(sweep_back_);
 
-  position_ = new ParamGetterWidget_Vector3d("Position", "The position of the leading edge of the main wingtip as viewed in the base_link coordinate frame.");
+  position_ = new ParamGetterWidget_Vector3d(
+    "Position", "The position of the leading edge of the main wingtip as viewed in the base_link coordinate frame.");
   position_->setDecimals(3);
   position_->setSuffix(" m");
   rows->addWidget(position_);
 
-  rotation_ = new ParamGetterWidget_Vector3d("Rotation", "The rotation of the main wing coordinate frame as viewed in the base_link coordinate frame, expressed as Euler angles for rotations performed in the order X-Y-Z.");
+  rotation_ = new ParamGetterWidget_Vector3d(
+    "Rotation",
+    "The rotation of the main wing coordinate frame as viewed in the base_link coordinate frame, expressed as Euler "
+    "angles for rotations performed in the order X-Y-Z.");
   rotation_->setDecimals(3);
   rotation_->setSuffix(" rad");
   rows->addWidget(rotation_);
@@ -170,20 +179,21 @@ double WingWidget::surfaceArea() const
 {
   if (symmetric()) {
     return 0.5 * (c_root() + c_tip()) * span();
-  } else {
+  }
+  else {
     return 0.25 * (c_root() + c_tip()) * span();
   }
 }
 
 double WingWidget::aspectRatio() const
 {
-  return span() * span() / surfaceArea(); // 非対称だと怪しいが翼根が壁面についている場合ならこれが正解
+  return span() * span() / surfaceArea();  // 非対称だと怪しいが翼根が壁面についている場合ならこれが正解
 }
 
 double WingWidget::c_mac() const
 {
   const auto lambda = c_tip() / c_root();
-  return (2.0 / 3.0) * (lambda* lambda + lambda + 1) / (lambda + 1) * c_root();
+  return (2.0 / 3.0) * (lambda * lambda + lambda + 1) / (lambda + 1) * c_root();
 }
 
 double WingWidget::y_mac() const
@@ -194,10 +204,11 @@ double WingWidget::y_mac() const
 
 Eigen::Vector3d WingWidget::mac_position() const
 {
-  const auto x_mac = - (0.25 * c_root() + y_mac() * tan(sweepBack()));
+  const auto x_mac = -(0.25 * c_root() + y_mac() * tan(sweepBack()));
   if (symmetric()) {
     return Eigen::Vector3d(x_mac, 0, 0);
-  } else {
+  }
+  else {
     // symmetricでない場合は右側が残るので, flu座標系でみてy軸方向負の部分が残っている
     return Eigen::Vector3d(x_mac, -y_mac(), 0);
   }
@@ -221,20 +232,22 @@ double WingWidget::c_drag(const double& alpha) const
 
 double WingWidget::c_roll_beta(const double& alpha) const
 {
-  return - y_mac() / span() * c_lift(alpha) * tan(sweepBack());
+  return -y_mac() / span() * c_lift(alpha) * tan(sweepBack());
 }
 
 double WingWidget::c_roll_p() const
 {
-  return - c_lift_alpha() / (8 * 0.5 * (c_root() + c_tip())) * (c_root() / 3.0 + c_tip());
+  return -c_lift_alpha() / (8 * 0.5 * (c_root() + c_tip())) * (c_root() / 3.0 + c_tip());
 }
 
 double WingWidget::c_roll_r(const double& alpha) const
 {
-  return (8.0 * c_lift(alpha)) / (0.5 * span() * (c_root() + c_tip()) * pow(span(), 2)) * (1.0 / 12.0 * c_root() + 1.0 / 4.0 * c_tip()) * pow(0.5 * span(), 3);
+  return (8.0 * c_lift(alpha)) / (0.5 * span() * (c_root() + c_tip()) * pow(span(), 2)) *
+         (1.0 / 12.0 * c_root() + 1.0 / 4.0 * c_tip()) * pow(0.5 * span(), 3);
 }
 
-double WingWidget::c_roll(const double& V, const double& alpha, const double& beta, const double& p, const double& r) const
+double
+WingWidget::c_roll(const double& V, const double& alpha, const double& beta, const double& p, const double& r) const
 {
   return c_roll_beta(alpha) * beta + c_roll_p() * span() / (2.0 * V) * p + c_roll_r(alpha) * span() / (2.0 * V) * r;
 }
@@ -246,7 +259,8 @@ double WingWidget::c_yaw_p(const double& alpha) const
 
 double WingWidget::c_yaw_r(const double& alpha) const
 {
-  return - (8.0 * c_drag(alpha)) / (0.5 * span() * (c_root() + c_tip()) * pow(span(), 2)) * (1.0 / 12.0 * c_root() + 1.0 / 4.0 * c_tip()) * pow(0.5 * span(), 3);
+  return -(8.0 * c_drag(alpha)) / (0.5 * span() * (c_root() + c_tip()) * pow(span(), 2)) *
+         (1.0 / 12.0 * c_root() + 1.0 / 4.0 * c_tip()) * pow(0.5 * span(), 3);
 }
 
 double WingWidget::c_yaw(const double& V, const double& alpha, const double& p, const double& r) const

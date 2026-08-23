@@ -79,4 +79,3 @@ ControlSurfacesWidget* CoefficientsWidget::controlSurfaces() const
 }  // namespace sa
 }  // namespace gui
 }  // namespace tobas
-

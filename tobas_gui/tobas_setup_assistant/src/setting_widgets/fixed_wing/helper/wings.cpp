@@ -1,8 +1,8 @@
 #include <tobas_setup_assistant/setting_tabs/fixed_wing/helper/wings.hpp>
 
-#include <QVBoxLayout>
-#include <QToolButton>
 #include <QInputDialog>
+#include <QToolButton>
+#include <QVBoxLayout>
 
 #include <tobas_qt_tools/message.hpp>
 
@@ -50,13 +50,10 @@ WingsWidget::WingsWidget()
 
   tabs_->setCornerWidget(buttons, Qt::TopLeftCorner);
 
-  connect(add_button, &QToolButton::clicked,
-          this, &self::addWingWidget);
+  connect(add_button, &QToolButton::clicked, this, &self::addWingWidget);
 
-  connect(remove_button, &QToolButton::clicked,
-          this, &self::removeWingWidget);
-  connect(tabs_->tabBar(), &QTabBar::tabBarDoubleClicked,
-          this, &self::renameWingWidget);
+  connect(remove_button, &QToolButton::clicked, this, &self::removeWingWidget);
+  connect(tabs_->tabBar(), &QTabBar::tabBarDoubleClicked, this, &self::renameWingWidget);
 }
 
 void WingsWidget::updateInternalDataStructures()
@@ -159,14 +156,7 @@ void WingsWidget::renameWingWidget(const int index)
   const QString old_name = tabs_->tabText(index);
 
   bool ok = false;
-  const QString new_name =
-      QInputDialog::getText(
-          this,
-          "Rename Wing",
-          "New Name:",
-          QLineEdit::Normal,
-          old_name,
-          &ok);
+  const QString new_name = QInputDialog::getText(this, "Rename Wing", "New Name:", QLineEdit::Normal, old_name, &ok);
 
   if (!ok) {
     return;
@@ -185,7 +175,7 @@ void WingsWidget::renameWingWidget(const int index)
     }
   }
   if (duplicate) {
-    qt::qWarnBox(this,"The name is already used by another wing.");
+    qt::qWarnBox(this, "The name is already used by another wing.");
     return;
   }
 

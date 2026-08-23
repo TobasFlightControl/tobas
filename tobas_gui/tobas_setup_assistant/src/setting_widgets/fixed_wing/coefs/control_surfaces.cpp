@@ -56,10 +56,7 @@ void ControlSurfacesWidget::updateInternalDataStructures()
     add(QString::fromStdString(link_name));
   }
 
-  setFixedHeight(
-      horizontalHeader()->height()
-      + verticalHeader()->length()
-      + 2 * frameWidth());
+  setFixedHeight(horizontalHeader()->height() + verticalHeader()->length() + 2 * frameWidth());
 
   updateGeometry();
 }

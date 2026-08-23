@@ -2,16 +2,16 @@
 
 #include <QPushButton>
 
-#include <tobas_kdl/twist.hpp>
-#include <tobas_kdl/wrench.hpp>
 #include <tobas_kdl/tree.hpp>
 #include <tobas_kdl/tree_mass_holder.hpp>
+#include <tobas_kdl/twist.hpp>
+#include <tobas_kdl/wrench.hpp>
 
+#include "../coefs/coefs.hpp"
+#include "../vehicle.hpp"
 #include "./control_surfaces.hpp"
 #include "./wing.hpp"
 #include "./wings.hpp"
-#include "../vehicle.hpp"
-#include "../coefs/coefs.hpp"
 
 namespace tobas
 {
@@ -36,7 +36,12 @@ class Calculator : public QPushButton
   static constexpr double kAffordableRate = 0.1;
 
 public:
-  explicit Calculator(const kdl::Tree& tree, VehicleParametersWidget* vehicle, CoefficientsWidget* coefs, WingsWidget* wings, ControlSurfacesWidget* control_surfaces);
+  explicit Calculator(
+    const kdl::Tree& tree,
+    VehicleParametersWidget* vehicle,
+    CoefficientsWidget* coefs,
+    WingsWidget* wings,
+    ControlSurfacesWidget* control_surfaces);
   void updateInternalDataStructures();
 
 private:
@@ -55,8 +60,8 @@ private:
   double c_drag_alpha_;
   // C_Y = C_side_beta * beta + C_side_p * p_hat + C_side_r * r_hat. p_hat = b / 2V * p
   double c_side_beta_;
-  double c_side_p_; // not implemented in coeff widget
-  double c_side_r_; // not implemented in coeff widget
+  double c_side_p_;  // not implemented in coeff widget
+  double c_side_r_;  // not implemented in coeff widget
   // C_l = C_lbeta * beta + C_lp * p_hat + C_lr * r_hat
   double c_roll_beta_;
   double c_roll_p_;
@@ -72,7 +77,8 @@ private:
   double c_yaw_p_;
   double c_yaw_r_;
   // control surface coefficients
-  struct CsCoefs {
+  struct CsCoefs
+  {
     double lift;
     double drag;
     double side;
@@ -98,7 +104,7 @@ private:
   void calcPCoeff(const double& cruise_speed, const double& cruise_alpha);
   void calcQCoeff(const double& cruise_speed, const double& cruise_alpha);
   void calcRCoeff(const double& cruise_speed, const double& cruise_alpha);
-  void calcControlCoeff(const double& cruise_speed); // TODO : consider cruise_alpha effect
+  void calcControlCoeff(const double& cruise_speed);  // TODO : consider cruise_alpha effect
   void writeResults();
 };
 }  // namespace hp
