@@ -16,6 +16,8 @@ namespace sa
 {
 namespace fw
 {
+namespace cf
+{
 class ControlSurfacesWidget : public qt::TableWidget
 {
   Q_OBJECT
@@ -94,6 +96,7 @@ private:
 
   void setToDefault(int row);
 };
+}  // namespace cf
 }  // namespace fw
 }  // namespace sa
 }  // namespace gui

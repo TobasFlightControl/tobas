@@ -39,7 +39,7 @@ public:
   explicit Calculator(
     const kdl::Tree& tree,
     VehicleParametersWidget* vehicle,
-    CoefficientsWidget* coefs,
+    cf::CoefficientsWidget* coefs,
     WingsWidget* wings,
     ControlSurfacesWidget* control_surfaces);
   void updateInternalDataStructures();
@@ -48,7 +48,7 @@ private:
   kdl::TreeMassHolder mass_holder_;
 
   VehicleParametersWidget* vehicle_;
-  CoefficientsWidget* coefs_;
+  cf::CoefficientsWidget* coefs_;
   WingsWidget* wings_;
   ControlSurfacesWidget* control_surfaces_;
 

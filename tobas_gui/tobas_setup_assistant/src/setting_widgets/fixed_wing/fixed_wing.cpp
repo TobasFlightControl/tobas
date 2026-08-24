@@ -29,7 +29,7 @@ FixedWingWidget::FixedWingWidget(const uadf::Model& uadf, const kdl::Tree& tree)
   addWidget(tabs_);
 
   // coefficients widget
-  coefs_ = new CoefficientsWidget(uadf);
+  coefs_ = new cf::CoefficientsWidget(uadf);
   tabs_->addTab(coefs_, coefs_->name());
 
   // helper widget
@@ -92,9 +92,8 @@ YAML::Node FixedWingWidget::dump() const
   YAML::Node node(YAML::NodeType::Map);
 
   node[kVehicleLabel] = vehicle_->dump();
-  for (const auto& item : coefs_->dump()) {
-    node[item.first] = item.second;
-  }
+  node[kCoefsLabel] = coefs_->dump();
+  node[kHelperLabel] = helper_->dump();
 
   return node;
 }
@@ -102,7 +101,8 @@ YAML::Node FixedWingWidget::dump() const
 void FixedWingWidget::load(const YAML::Node& node)
 {
   vehicle_->load(node[kVehicleLabel]);
-  coefs_->load(node);
+  coefs_->load(node[kCoefsLabel]);
+  helper_->load(node[kHelperLabel]);
 }
 
 const VehicleParametersWidget* FixedWingWidget::vehicle() const
@@ -110,12 +110,12 @@ const VehicleParametersWidget* FixedWingWidget::vehicle() const
   return vehicle_;
 }
 
-const AerodynamicsCoefficientsWidget* FixedWingWidget::aeroCoefs() const
+const cf::AerodynamicsCoefficientsWidget* FixedWingWidget::aeroCoefs() const
 {
   return coefs_->aeroCoefs();
 }
 
-const ControlSurfacesWidget* FixedWingWidget::controlSurfaces() const
+const cf::ControlSurfacesWidget* FixedWingWidget::controlSurfaces() const
 {
   return coefs_->controlSurfaces();
 }

@@ -32,14 +32,19 @@ Q_SIGNALS:
 
 public:
   explicit WingsWidget();
+
   void updateInternalDataStructures();
   void setToDefaults();
   bool isValid() const;
+
+  YAML::Node dump() const;
+  void load(const YAML::Node& node);
+
   double cruiseSpeed() const;
   QString requiredWingName() const;
-  WingWidget* getWing(const int& index);
-  WingWidget* getMainWing();
-  int count();
+  WingWidget* getWing(const int& index) const;
+  WingWidget* getMainWing() const;
+  int count() const;
 
 private:
   int index_ = 0;
@@ -47,6 +52,7 @@ private:
   qt::TabWidget* tabs_;
 
   void addWingWidget();
+  void addWingWidgetWithName(const std::string& wing_name);
   void removeWingWidget();
   void renameWingWidget(const int index);
 };

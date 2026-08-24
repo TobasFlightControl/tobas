@@ -29,8 +29,8 @@ class FixedWingWidget : public BaseSettingWidget
   using super = BaseSettingWidget;
 
   static constexpr char kVehicleLabel[] = "Vehicle Parameters";
-  static constexpr char kAeroCoefsLabel[] = "Aerodynamic Coefficients";
-  static constexpr char kControlSurfacesLabel[] = "Control Surfaces";
+  static constexpr char kCoefsLabel[] = "Coefficients Tab";
+  static constexpr char kHelperLabel[] = "Helper Tab";
   static constexpr int kTabWidth = 120;
   static constexpr int kTabHeight = 40;
 
@@ -49,14 +49,14 @@ public:
   void load(const YAML::Node& node) override;
 
   const VehicleParametersWidget* vehicle() const;
-  const AerodynamicsCoefficientsWidget* aeroCoefs() const;
-  const ControlSurfacesWidget* controlSurfaces() const;
+  const cf::AerodynamicsCoefficientsWidget* aeroCoefs() const;
+  const cf::ControlSurfacesWidget* controlSurfaces() const;
 
 private:
   qt::TabWidget* tabs_;
 
   VehicleParametersWidget* vehicle_;
-  CoefficientsWidget* coefs_;
+  cf::CoefficientsWidget* coefs_;
   hp::HelperWidget* helper_;
 };
 }  // namespace fw

@@ -16,6 +16,8 @@ namespace sa
 {
 namespace fw
 {
+namespace cf
+{
 class CoefficientsWidget : public qt::ScrollArea
 {
   Q_OBJECT
@@ -44,6 +46,7 @@ private:
   AerodynamicsCoefficientsWidget* aero_coefs_;
   ControlSurfacesWidget* control_surfaces_;
 };
+}  // namespace cf
 }  // namespace fw
 }  // namespace sa
 }  // namespace gui

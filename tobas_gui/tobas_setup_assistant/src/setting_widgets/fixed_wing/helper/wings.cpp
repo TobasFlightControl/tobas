@@ -89,6 +89,34 @@ bool WingsWidget::isValid() const
   return is_valid;
 }
 
+YAML::Node WingsWidget::dump() const
+{
+  YAML::Node node(YAML::NodeType::Map);
+
+  const auto all_tabs = tabs_->count();
+  for (int i = 0; i < all_tabs; i++) {
+    node[tabs_->tabText(i).toStdString()] = getWing(i)->dump();
+  }
+
+  return node;
+}
+
+void WingsWidget::load(const YAML::Node& node)
+{
+  int i = 0;
+  for (const auto& item : node) {
+    const auto wing_name = item.first.as<std::string>();
+    if (wing_name != kMainWing) {
+      addWingWidgetWithName(wing_name);
+    }
+    const auto widget = static_cast<WingWidget*>(tabs_->widget(i));
+    widget->load(item.second);
+    i++;
+  }
+
+  tabs_->setCurrentIndex(0); // main wing widgetに戻す
+}
+
 double WingsWidget::cruiseSpeed() const
 {
   return cruise_speed_->getValue();
@@ -99,17 +127,17 @@ QString WingsWidget::requiredWingName() const
   return kMainWing;
 }
 
-WingWidget* WingsWidget::getWing(const int& index)
+WingWidget* WingsWidget::getWing(const int& index) const
 {
   return static_cast<WingWidget*>(tabs_->widget(index));
 }
 
-WingWidget* WingsWidget::getMainWing()
+WingWidget* WingsWidget::getMainWing() const
 {
   return getWing(0);
 }
 
-int WingsWidget::count()
+int WingsWidget::count() const
 {
   return tabs_->count();
 }
@@ -125,6 +153,18 @@ void WingsWidget::addWingWidget()
   tabs_->addTab(wing, default_name);
   tabs_->setCurrentWidget(wing);
   Q_EMIT tabAdded(default_name);
+}
+
+void WingsWidget::addWingWidgetWithName(const std::string& wing_name)
+{
+  index_++;
+
+  const auto wing = new WingWidget();
+  wing->setToDefaults();
+
+  tabs_->addTab(wing, QString::fromStdString(wing_name));
+  tabs_->setCurrentWidget(wing);
+  Q_EMIT tabAdded(QString::fromStdString(wing_name));
 }
 
 void WingsWidget::removeWingWidget()

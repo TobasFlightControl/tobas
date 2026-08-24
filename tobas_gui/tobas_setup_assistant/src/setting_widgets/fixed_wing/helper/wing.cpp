@@ -2,6 +2,10 @@
 
 #include <QVBoxLayout>
 
+#include <tobas_qt_tools/cast.hpp>
+#include <tobas_yaml_tools/convert/eigen.hpp>
+#include <tobas_yaml_tools/format.hpp>
+
 namespace tobas
 {
 namespace gui
@@ -120,6 +124,40 @@ bool WingWidget::isValid() const
   return true;
 }
 
+YAML::Node WingWidget::dump() const
+{
+  YAML::Node node(YAML::NodeType::Map);
+
+  node[kSymmetricLabel] = symmetric();
+  node[kCRootLabel] = yaml::format(c_root());
+  node[kCTipLabel] = yaml::format(c_tip());
+  node[kSpanLabel] = yaml::format(span());
+  node[kOswaldLabel] = yaml::format(oswaldEfficiency());
+  node[kCLift0Label] = yaml::format(c_lift_0());
+  node[kCDrag0Label] = yaml::format(c_drag_0());
+  node[kCPitch0Label] = yaml::format(c_pitch_0());
+  node[kSweepBackLabel] = yaml::format(sweepBack());
+  node[kPositionLabel] = position();
+  node[kRotationLabel] = rotation();
+
+  return node;
+}
+
+void WingWidget::load(const YAML::Node& node)
+{
+  symmetric(node[kSymmetricLabel].as<bool>());
+  c_root(node[kCRootLabel].as<double>());
+  c_tip(node[kCTipLabel].as<double>());
+  span(node[kSpanLabel].as<double>());
+  oswaldEfficiency(node[kOswaldLabel].as<double>());
+  c_lift_0(node[kCLift0Label].as<double>());
+  c_drag_0(node[kCDrag0Label].as<double>());
+  c_pitch_0(node[kCPitch0Label].as<double>());
+  sweepBack(node[kSweepBackLabel].as<double>());
+  position(node[kPositionLabel].as<Eigen::Vector3d>());
+  rotation(node[kRotationLabel].as<Eigen::Vector3d>());
+}
+
 bool WingWidget::symmetric() const
 {
   return symmetric_->isChecked();
@@ -173,6 +211,61 @@ Eigen::Vector3d WingWidget::position() const
 Eigen::Vector3d WingWidget::rotation() const
 {
   return rotation_->getValue();
+}
+
+void WingWidget::symmetric(const bool& value)
+{
+  symmetric_->setChecked(value);
+}
+
+void WingWidget::c_root(const double& value)
+{
+  c_root_->setValue(value);
+}
+
+void WingWidget::c_tip(const double& value)
+{
+  c_tip_->setValue(value);
+}
+
+void WingWidget::span(const double& value)
+{
+  span_->setValue(value);
+}
+
+void WingWidget::oswaldEfficiency(const double& value)
+{
+  oswald_efficiency_->setValue(value);
+}
+
+void WingWidget::c_lift_0(const double& value)
+{
+  c_lift_0_->setValue(value);
+}
+
+void WingWidget::c_drag_0(const double& value)
+{
+  c_drag_0_->setValue(value);
+}
+
+void WingWidget::c_pitch_0(const double& value)
+{
+  c_pitch_0_->setValue(value);
+}
+
+void WingWidget::sweepBack(const double& value)
+{
+  sweep_back_->setValue(value);
+}
+
+void WingWidget::position(const Eigen::Vector3d& value)
+{
+  position_->setValue(value);
+}
+
+void WingWidget::rotation(const Eigen::Vector3d& value)
+{
+  rotation_->setValue(value);
 }
 
 double WingWidget::surfaceArea() const

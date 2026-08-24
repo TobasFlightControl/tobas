@@ -25,6 +25,8 @@ namespace sa
 {
 namespace fw
 {
+namespace cf
+{
 ControlSurfacesWidget::ControlSurfacesWidget(const uadf::Model& uadf) : super(0, kNumCols), uadf_(uadf)
 {
   const auto rows = new QVBoxLayout();
@@ -300,6 +302,7 @@ void ControlSurfacesWidget::setToDefault(int row)
   pitchCoef(row, 0.0);
   yawCoef(row, 0.0);
 }
+}  // namespace cf
 }  // namespace fw
 }  // namespace sa
 }  // namespace gui

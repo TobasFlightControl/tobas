@@ -74,6 +74,45 @@ bool ControlSurfacesWidget::isValid()
   return true;
 }
 
+YAML::Node ControlSurfacesWidget::dump() const
+{
+  YAML::Node node;
+
+  for (int row = 0; row < rowCount(); ++row) {
+    YAML::Node sub_node(YAML::NodeType::Map);
+    sub_node[kJointNameLabel] = jointName(row);
+    sub_node[kWingLabel] = wingIdx(row);
+    sub_node[kStartSpanLabel] = yaml::format(startSpan(row));
+    sub_node[kFinishSpanLabel] = yaml::format(finishSpan(row));
+    sub_node[kChordRatioLabel] = yaml::format(chordRatio(row));
+
+    const auto link_name = linkName(row);
+    node[link_name.toStdString()] = sub_node;
+  }
+
+  return node;
+}
+
+void ControlSurfacesWidget::load(const YAML::Node& node)
+{
+  for (const auto& pair : node) {
+    const auto link_name = pair.first.as<QString>();
+    const auto& sub_node = pair.second;
+
+    const auto row = find(link_name);
+    if (row < 0) {
+      throw std::runtime_error("Failed to find CS link \"" + link_name.toStdString() + "\".");
+    }
+
+    linkName(row, link_name);
+    jointName(row, sub_node[kJointNameLabel].as<QString>());
+    wingIdx(row, sub_node[kWingLabel].as<int>());
+    startSpan(row, sub_node[kStartSpanLabel].as<double>());
+    finishSpan(row, sub_node[kFinishSpanLabel].as<double>());
+    chordRatio(row, sub_node[kChordRatioLabel].as<double>());
+  }
+}
+
 void ControlSurfacesWidget::add(const QString& link_name)
 {
   const auto joint = uadf_.urdf->getLink(link_name.toStdString())->parent_joint;
@@ -197,6 +236,18 @@ void ControlSurfacesWidget::setToDefault(int row)
   startSpan(row, -1.0);
   finishSpan(row, 1.0);
   chordRatio(row, 0.2);
+}
+
+int ControlSurfacesWidget::find(const QString& link_name) const
+{
+  for (int row = 0; row < rowCount(); ++row) {
+    if (linkName(row) == link_name) {
+      return row;
+    }
+  }
+
+  qWarning() << link_name << "is not selected as a control surface.";
+  return -1;
 }
 
 void ControlSurfacesWidget::onWingsTabAdded(QString tab_name)

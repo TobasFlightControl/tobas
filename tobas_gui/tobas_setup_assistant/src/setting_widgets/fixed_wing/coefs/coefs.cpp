@@ -11,6 +11,8 @@ namespace sa
 {
 namespace fw
 {
+namespace cf
+{
 CoefficientsWidget::CoefficientsWidget(const uadf::Model& uadf)
 {
   const auto rows = new QVBoxLayout();
@@ -74,7 +76,7 @@ ControlSurfacesWidget* CoefficientsWidget::controlSurfaces() const
 {
   return control_surfaces_;
 }
-
+}  // namespace cf
 }  // namespace fw
 }  // namespace sa
 }  // namespace gui

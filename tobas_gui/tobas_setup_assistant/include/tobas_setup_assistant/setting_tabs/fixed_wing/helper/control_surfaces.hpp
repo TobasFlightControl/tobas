@@ -42,7 +42,7 @@ class ControlSurfacesWidget : public qt::TableWidget
   // Labels
   static constexpr char kLinkNameLabel[] = "Link Name";
   static constexpr char kJointNameLabel[] = "Joint Name";
-  static constexpr char kWingLabel[] = "Wing Name";
+  static constexpr char kWingLabel[] = "Wing Index";
   static constexpr char kStartSpanLabel[] = "Start Span";
   static constexpr char kFinishSpanLabel[] = "Finish Span";
   static constexpr char kChordRatioLabel[] = "Chord Ratio";
@@ -53,6 +53,9 @@ public:
   void updateInternalDataStructures();
   void setToDefaults();
   bool isValid();
+
+  YAML::Node dump() const;
+  void load(const YAML::Node& node);
 
   void add(const QString& link_name);
 
@@ -77,6 +80,7 @@ private:
   WingsWidget* wings_widget_;
 
   void setToDefault(int row);
+  int find(const QString& link_name) const;
   void onWingsTabAdded(QString tab_name);
   void onWingsTabRemoved(int index);
   void onWingsTabRenamed(int index, QString new_name);

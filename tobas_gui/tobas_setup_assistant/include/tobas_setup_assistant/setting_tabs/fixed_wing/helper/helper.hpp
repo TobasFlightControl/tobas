@@ -37,7 +37,7 @@ public:
     const uadf::Model& uadf,
     const kdl::Tree& tree,
     VehicleParametersWidget* vehicle,
-    CoefficientsWidget* coefs);
+    cf::CoefficientsWidget* coefs);
 
   const char* name() const;
   void updateInternalDataStructures();

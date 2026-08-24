@@ -21,7 +21,7 @@ namespace hp
 Calculator::Calculator(
   const kdl::Tree& tree,
   VehicleParametersWidget* vehicle,
-  CoefficientsWidget* coefs,
+  cf::CoefficientsWidget* coefs,
   WingsWidget* wings,
   ControlSurfacesWidget* control_surfaces)
   : super("Calculate")

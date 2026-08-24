@@ -1,5 +1,6 @@
 #pragma once
 
+#include <yaml-cpp/yaml.h>
 #include <QCheckBox>
 #include <QWidget>
 
@@ -23,11 +24,27 @@ class WingWidget : public QWidget
   using self = WingWidget;
   using super = QWidget;
 
+  static constexpr char kSymmetricLabel[] = "symmetric";
+  static constexpr char kCRootLabel[] = "c_root";
+  static constexpr char kCTipLabel[] = "c_tip";
+  static constexpr char kSpanLabel[] = "span";
+  static constexpr char kOswaldLabel[] = "oswald efficiency";
+  static constexpr char kCLift0Label[] = "c_lift_0";
+  static constexpr char kCDrag0Label[] = "c_drag_0";
+  static constexpr char kCPitch0Label[] = "c_pitch_0";
+  static constexpr char kSweepBackLabel[] = "sweep_back";
+  static constexpr char kPositionLabel[] = "position";
+  static constexpr char kRotationLabel[] = "rotation";
+
 public:
   explicit WingWidget();
   void updateInternalDataStructures();
   void setToDefaults();
   bool isValid() const;
+
+  YAML::Node dump() const;
+  void load(const YAML::Node& node);
+
   // getters
   bool symmetric() const;
   double c_root() const;
@@ -40,6 +57,18 @@ public:
   double sweepBack() const;
   Eigen::Vector3d position() const;
   Eigen::Vector3d rotation() const;
+  // setters
+  void symmetric(const bool& value);
+  void c_root(const double& value);
+  void c_tip(const double& value);
+  void span(const double& value);
+  void oswaldEfficiency(const double& value);
+  void c_lift_0(const double& value);
+  void c_drag_0(const double& value);
+  void c_pitch_0(const double& value);
+  void sweepBack(const double& value);
+  void position(const Eigen::Vector3d& value);
+  void rotation(const Eigen::Vector3d& value);
   // properties
   double surfaceArea() const;
   double aspectRatio() const;

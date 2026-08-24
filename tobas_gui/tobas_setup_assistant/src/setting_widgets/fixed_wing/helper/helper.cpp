@@ -22,7 +22,7 @@ HelperWidget::HelperWidget(
   const uadf::Model& uadf,
   const kdl::Tree& tree,
   VehicleParametersWidget* vehicle,
-  CoefficientsWidget* coefs)
+  cf::CoefficientsWidget* coefs)
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);
@@ -69,11 +69,16 @@ YAML::Node HelperWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
+  node[kWingsLabel] = wings_->dump();
+  node[kControlSurfacesLabel] = control_surfaces_->dump();
+
   return node;
 }
 
-void HelperWidget::load(const YAML::Node&)
+void HelperWidget::load(const YAML::Node& node)
 {
+  wings_->load(node[kWingsLabel]);
+  control_surfaces_->load(node[kControlSurfacesLabel]);
 }
 }  // namespace hp
 }  // namespace fw

@@ -24,6 +24,8 @@ namespace sa
 {
 namespace fw
 {
+namespace cf
+{
 AerodynamicsCoefficientsWidget::AerodynamicsCoefficientsWidget()
 {
   const auto rows = new QVBoxLayout();
@@ -385,6 +387,7 @@ void AerodynamicsCoefficientsWidget::onLoadButtonClicked()
 
   qt::qInfoBox(this, "Coefficients are loaded successfully.");
 }
+}  // namespace cf
 }  // namespace fw
 }  // namespace sa
 }  // namespace gui
