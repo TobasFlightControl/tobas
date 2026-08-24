@@ -17,7 +17,7 @@ namespace gui
 {
 namespace sim
 {
-DynamicConfigWidget::DynamicConfigWidget(rclcpp::Node::SharedPtr node)
+DynamicConfigWidget::DynamicConfigWidget()
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);
@@ -27,19 +27,19 @@ DynamicConfigWidget::DynamicConfigWidget(rclcpp::Node::SharedPtr node)
 
   const auto scroll_rows = qt::createScrollableQVBoxLayout(rows);
 
-  wind_params_ = new WindParamsWidget(node);
+  wind_params_ = new WindParamsWidget();
   scroll_rows->addWidget(wind_params_);
 
-  suspended_load_ = new SuspendedLoadWidget(node);
+  suspended_load_ = new SuspendedLoadWidget();
   scroll_rows->addWidget(suspended_load_);
 
   scroll_rows->addStretch();
 }
 
-void DynamicConfigWidget::updateNamespace(const std::string& ns)
+void DynamicConfigWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
 {
-  wind_params_->updateNamespace(ns);
-  suspended_load_->updateNamespace(ns);
+  wind_params_->initializeRosInterfaces(node, ns);
+  suspended_load_->initializeRosInterfaces(node, ns);
 }
 
 bool DynamicConfigWidget::start(ch::milliseconds timeout)

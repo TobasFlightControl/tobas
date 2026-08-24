@@ -31,15 +31,14 @@ namespace gui
 {
 namespace sim
 {
-SimulationWidget::SimulationWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge)
-  : node_(node), ssh_client_(node), remote_proj_builder_(node), spinner_(Qt::WindowModal, this)
+SimulationWidget::SimulationWidget(const RosQtBridge& bridge) : spinner_(Qt::WindowModal, this)
 {
   start_stop_button_ = new qt::ToggleButton("Start", "Terminate");
   start_stop_button_->setFixedSize(kButtonWidth, kButtonHeight);
 
   sim_settings_ = new SimulationSettingsWidget();
-  dynamic_config_ = new DynamicConfigWidget(node);
-  commanders_ = new CommandersWidget(node, bridge, tree_, drone_);
+  dynamic_config_ = new DynamicConfigWidget();
+  commanders_ = new CommandersWidget(bridge, tree_, drone_);
 
   // Layout
   const auto config_rows = new QVBoxLayout();
@@ -81,38 +80,38 @@ void SimulationWidget::reset()
   commanders_->setEnabled(false);
 }
 
-bool SimulationWidget::updateProject(const fs::path& proj_path)
+void SimulationWidget::updateProject(const fs::path& proj_path)
 {
-  reset();
-
   // Update project path.
   proj_paths_.setProjPath(proj_path);
 
   // Load KDL tree.
   const auto uadf_path = proj_paths_.originalUadfPath();
-  if (!uadf_parser_.parseFromPath(uadf_path, uadf_)) {
-    qt::qErrorBox(this, "Failed to parse UADF:\n\n" + QString::fromStdString(uadf_parser_.errorMessage()));
-    return false;
-  }
-  if (!tree_parser_.parseFromUrdf(*uadf_.urdf, tree_)) {
-    qt::qErrorBox(
-      this, "Failed to construct KDL tree from URDF:\n\n" + QString::fromStdString(tree_parser_.errorMessage()));
-    return false;
-  }
+  TOBAS_CHECK(uadf_parser_.parseFromPath(uadf_path, uadf_));
+  TOBAS_CHECK(tree_parser_.parseFromUrdf(*uadf_.urdf, tree_));
 
   // Load drone configuration.
   const auto tbsdrn_path = proj_paths_.tbsdrnPath();
-  if (!drone_.load(tbsdrn_path)) {
-    qt::qErrorBox(this, "Failed to load drone configuration.");
-    return false;
-  }
+  TOBAS_CHECK(drone_.load(tbsdrn_path));
 
-  dynamic_config_->updateNamespace('/' + drone_.name);
   commanders_->updateInternalDataStructures();
 
-  setEnabled(true);
+  project_loaded_ = true;
+  setEnabled(ros_initialized_);
+}
 
-  return true;
+void SimulationWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
+{
+  node_ = std::move(node);
+  drone_id_ = fs::path(ns).filename().string();
+
+  ssh_client_.emplace(node_);
+  remote_proj_builder_.emplace(node_);
+  dynamic_config_->initializeRosInterfaces(node_, ns);
+  commanders_->initializeRosInterfaces(node_, ns);
+
+  ros_initialized_ = true;
+  setEnabled(project_loaded_);
 }
 
 bool SimulationWidget::isRunning() const
@@ -277,8 +276,8 @@ bool SimulationWidget::startHITL()
 
   // Connect over SSH.
   progress.setLabelText("Connecting to the flight controller.");
-  if (ssh_client_.connect() != ssh::SshClient::kNoError) {
-    qt::qErrorBox(this, "No SSH connection: " + QString(ssh_client_.errorMessage()));
+  if (ssh_client_->connect() != ssh::SshClient::kNoError) {
+    qt::qErrorBox(this, "No SSH connection: " + QString(ssh_client_->errorMessage()));
     progress.close();
     return false;
   }
@@ -287,8 +286,8 @@ bool SimulationWidget::startHITL()
   // Stop the Real service.
   progress.setLabelText("Stopping the Tobas real service.");
   Q_EMIT telemetryLossExpected();
-  if (ssh_client_.execute("systemctl stop tobas_real.target", true) != ssh::SshClient::kNoError) {
-    qt::qErrorBox(this, "Failed to stop Tobas real service:\n\n" + QString(ssh_client_.errorMessage()));
+  if (ssh_client_->execute("systemctl stop tobas_real.target", true) != ssh::SshClient::kNoError) {
+    qt::qErrorBox(this, "Failed to stop Tobas real service:\n\n" + QString(ssh_client_->errorMessage()));
     progress.close();
     return false;
   }
@@ -299,8 +298,8 @@ bool SimulationWidget::startHITL()
   const auto& proj_path = proj_paths_.getProjPath();
   const auto mesh_path = proj_paths_.cfgMeshDirPath();
   const auto remote_dir = fs::path(kColconWSPathRoot) / "src/";
-  if (ssh_client_.scpPut(proj_path, remote_dir, true, { mesh_path }, true) != ssh::SshClient::kNoError) {
-    qt::qErrorBox(this, "Failed to send Tobas project:\n\n" + QString(ssh_client_.errorMessage()));
+  if (ssh_client_->scpPut(proj_path, remote_dir, true, { mesh_path }, true) != ssh::SshClient::kNoError) {
+    qt::qErrorBox(this, "Failed to send Tobas project:\n\n" + QString(ssh_client_->errorMessage()));
     progress.close();
     return false;
   }
@@ -308,8 +307,8 @@ bool SimulationWidget::startHITL()
 
   // Build remote packages.
   progress.setLabelText("Building the Tobas project.");
-  if (!remote_proj_builder_.build(proj_paths_.remoteProjPath())) {
-    qt::qErrorBox(this, "Failed to build the Tobas project:\n\n" + QString(remote_proj_builder_.getErrorMessage()));
+  if (!remote_proj_builder_->build(proj_paths_.remoteProjPath())) {
+    qt::qErrorBox(this, "Failed to build the Tobas project:\n\n" + QString(remote_proj_builder_->getErrorMessage()));
     progress.close();
     return false;
   }
@@ -336,8 +335,8 @@ bool SimulationWidget::startHITL()
 
   // Start the HITL service.
   progress.setLabelText("Starting the Tobas HITL service.");
-  if (ssh_client_.execute("systemctl restart tobas_hitl.service", true) != ssh::SshClient::kNoError) {
-    qt::qErrorBox(this, "Failed to restart Tobas HITL service:\n\n" + QString(ssh_client_.errorMessage()));
+  if (ssh_client_->execute("systemctl restart tobas_hitl.service", true) != ssh::SshClient::kNoError) {
+    qt::qErrorBox(this, "Failed to restart Tobas HITL service:\n\n" + QString(ssh_client_->errorMessage()));
     progress.close();
     return false;
   }
@@ -379,8 +378,8 @@ void SimulationWidget::terminateHITL()
 
   // Stop the HITL service.
   progress.setLabelText("Stopping the Tobas HITL service.");
-  if (ssh_client_.execute("systemctl stop tobas_hitl.service", true) != ssh::SshClient::kNoError) {
-    qt::qErrorBox(this, "Failed to stop Tobas HITL service:\n\n" + QString(ssh_client_.errorMessage()));
+  if (ssh_client_->execute("systemctl stop tobas_hitl.service", true) != ssh::SshClient::kNoError) {
+    qt::qErrorBox(this, "Failed to stop Tobas HITL service:\n\n" + QString(ssh_client_->errorMessage()));
     progress.close();
     reset();
     return;
@@ -389,8 +388,8 @@ void SimulationWidget::terminateHITL()
 
   // Start the Real service.
   progress.setLabelText("Starting the Tobas real service.");
-  if (ssh_client_.execute("systemctl restart tobas_real.target", true) != ssh::SshClient::kNoError) {
-    qt::qErrorBox(this, "Failed to start Tobas real service:\n\n" + QString(ssh_client_.errorMessage()));
+  if (ssh_client_->execute("systemctl restart tobas_real.target", true) != ssh::SshClient::kNoError) {
+    qt::qErrorBox(this, "Failed to start Tobas real service:\n\n" + QString(ssh_client_->errorMessage()));
     progress.close();
     reset();
     return;
@@ -408,6 +407,7 @@ std::map<QString, QString> SimulationWidget::makeGazeboLaunchArguments(bool laun
 {
   std::map<QString, QString> args{
     { "user_debug", qt::boolToText(sim_settings_->userDebug()) },
+    { "id", QString::fromStdString(drone_id_) },
     { "launch_core", qt::boolToText(launch_core) },
     { "x", QString::number(sim_settings_->x()) },
     { "y", QString::number(sim_settings_->y()) },

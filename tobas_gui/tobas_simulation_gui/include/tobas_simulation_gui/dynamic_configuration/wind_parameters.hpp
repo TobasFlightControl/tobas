@@ -27,15 +27,14 @@ class WindParamsWidget : public QWidget
   using SetSrv = tobas_gazebo_msgs::srv::SetWindParams;
 
 public:
-  explicit WindParamsWidget(rclcpp::Node::SharedPtr node);
+  explicit WindParamsWidget();
 
-  void updateNamespace(const std::string& ns);
+  void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
 
   bool start(std::chrono::milliseconds timeout);
   void reset();
 
 private:
-  const rclcpp::Node::SharedPtr node_;
   ros2::SyncServiceClient<GetSrv>::SharedPtr get_sc_;
   ros2::SyncServiceClient<SetSrv>::SharedPtr set_sc_;
 

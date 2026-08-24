@@ -26,11 +26,7 @@ namespace gui
 {
 namespace sim
 {
-BasePoseCommanderWidget::BasePoseCommanderWidget(
-  rclcpp::Node::SharedPtr node,
-  const RosQtBridge& bridge,
-  const Drone& drone)
-  : node_(node), drone_(drone)
+BasePoseCommanderWidget::BasePoseCommanderWidget(const RosQtBridge& bridge)
 {
   const auto root_rows = new QVBoxLayout();
   setLayout(root_rows);
@@ -86,18 +82,16 @@ BasePoseCommanderWidget::BasePoseCommanderWidget(
   connect(&bridge, &RosQtBridge::rcInputReceived, this, &self::rcInputCb, Qt::QueuedConnection);
 }
 
-void BasePoseCommanderWidget::updateInternalDataStructures()
+void BasePoseCommanderWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
 {
-  const auto ns = '/' + drone_.name;
-
-  angle_pub_ = ros2::createPublisher<tobas_command_msgs::Angle>(node_, path::join(ns, topic::kAngleCmd));
-  pva_pub_ = ros2::createPublisher<tobas_command_msgs::PosVelAcc>(node_, path::join(ns, topic::kPosVelAccCmd));
-  pvay_pub_ = ros2::createPublisher<tobas_command_msgs::PosVelAccYaw>(node_, path::join(ns, topic::kPosVelAccYawCmd));
+  angle_pub_ = ros2::createPublisher<tobas_command_msgs::Angle>(node, path::join(ns, topic::kAngleCmd));
+  pva_pub_ = ros2::createPublisher<tobas_command_msgs::PosVelAcc>(node, path::join(ns, topic::kPosVelAccCmd));
+  pvay_pub_ = ros2::createPublisher<tobas_command_msgs::PosVelAccYaw>(node, path::join(ns, topic::kPosVelAccYawCmd));
   pvapy_pub_ =
-    ros2::createPublisher<tobas_command_msgs::PosVelAccPitchYaw>(node_, path::join(ns, topic::kPosVelAccPitchYawCmd));
+    ros2::createPublisher<tobas_command_msgs::PosVelAccPitchYaw>(node, path::join(ns, topic::kPosVelAccPitchYawCmd));
 
   set_arm_sc_ =
-    std::make_shared<ros2::SyncServiceClient<tobas_msgs::srv::SetArm>>(node_, path::join(ns, service::kSetArm));
+    std::make_shared<ros2::SyncServiceClient<tobas_msgs::srv::SetArm>>(node, path::join(ns, service::kSetArm));
 }
 
 bool BasePoseCommanderWidget::start(ch::milliseconds timeout)

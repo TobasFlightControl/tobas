@@ -27,7 +27,7 @@ namespace gui
 {
 namespace sim
 {
-SuspendedLoadWidget::SuspendedLoadWidget(rclcpp::Node::SharedPtr node) : node_(node)
+SuspendedLoadWidget::SuspendedLoadWidget()
 {
   const auto title = new qt::Label("Suspended Load", cmn::kLabelPSize, QFont::Bold);
 
@@ -88,12 +88,12 @@ SuspendedLoadWidget::SuspendedLoadWidget(rclcpp::Node::SharedPtr node) : node_(n
   connect(attach_detach_btn_, &qt::ToggleButton::unchecked, this, &self::onDetachRequested);
 }
 
-void SuspendedLoadWidget::updateNamespace(const std::string& ns)
+void SuspendedLoadWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
 {
   attach_sc_ =
-    std::make_shared<ros2::SyncServiceClient<AttachSrv>>(node_, path::join(ns, gazebo::kAttachSuspenedLoadSrv));
+    std::make_shared<ros2::SyncServiceClient<AttachSrv>>(node, path::join(ns, gazebo::kAttachSuspenedLoadSrv));
   detach_sc_ =
-    std::make_shared<ros2::SyncServiceClient<DetachSrv>>(node_, path::join(ns, gazebo::kDetachSuspenedLoadSrv));
+    std::make_shared<ros2::SyncServiceClient<DetachSrv>>(node, path::join(ns, gazebo::kDetachSuspenedLoadSrv));
 
   setParamsToDefault();
 }

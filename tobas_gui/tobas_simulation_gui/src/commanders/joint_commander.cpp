@@ -23,8 +23,8 @@ namespace gui
 {
 namespace sim
 {
-JointCommanderWidget::JointCommanderWidget(rclcpp::Node::SharedPtr node, const kdl::Tree& tree, const Drone& drone)
-  : node_(node), tree_(tree), drone_(drone), rnd_gen_(rnd_dev_()), joint_parser_(tree)
+JointCommanderWidget::JointCommanderWidget(const kdl::Tree& tree, const Drone& drone)
+  : tree_(tree), drone_(drone), rnd_gen_(rnd_dev_()), joint_parser_(tree)
 {
   const auto title = new qt::Label("User Joint", cmn::kLabelPSize, QFont::Bold);
 
@@ -71,6 +71,12 @@ JointCommanderWidget::JointCommanderWidget(rclcpp::Node::SharedPtr node, const k
 
 void JointCommanderWidget::updateInternalDataStructures()
 {
+  // Stop publishing and release ROS interfaces before rebuilding project-dependent state.
+  reset();
+  tar_js_pos_pub_.reset();
+  tar_js_vel_pub_.reset();
+  tar_js_eff_pub_.reset();
+
   if (!joint_parser_.updateInternalDataStructures()) {
     qt::qErrorBox(this, "Failed to update joint parser.");
     return;
@@ -191,17 +197,18 @@ void JointCommanderWidget::updateInternalDataStructures()
 
   // Enable joint commander only if at least one commander exists.
   start_stop_button_->setEnabled(!commanders_.empty());
+}
 
-  // Register command publishers.
-  const auto ns = '/' + drone_.name;
+void JointCommanderWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
+{
   if (!tar_js_pos_.commands.empty()) {
-    tar_js_pos_pub_ = ros2::createPublisher<CmdMsg>(node_, path::join(ns, topic::kJointPosCmd));
+    tar_js_pos_pub_ = ros2::createPublisher<CmdMsg>(node, path::join(ns, topic::kJointPosCmd));
   }
   if (!tar_js_vel_.commands.empty()) {
-    tar_js_vel_pub_ = ros2::createPublisher<CmdMsg>(node_, path::join(ns, topic::kJointVelCmd));
+    tar_js_vel_pub_ = ros2::createPublisher<CmdMsg>(node, path::join(ns, topic::kJointVelCmd));
   }
   if (!tar_js_eff_.commands.empty()) {
-    tar_js_eff_pub_ = ros2::createPublisher<CmdMsg>(node_, path::join(ns, topic::kJointEffCmd));
+    tar_js_eff_pub_ = ros2::createPublisher<CmdMsg>(node, path::join(ns, topic::kJointEffCmd));
   }
 }
 

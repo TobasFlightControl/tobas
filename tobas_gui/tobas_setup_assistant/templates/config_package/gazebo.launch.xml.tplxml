@@ -11,7 +11,7 @@
   <arg name="ground_truth" default="false"/>
   <arg name="standalone" default="false"/>
   <arg name="multiprocess" default="true"/>
-  <arg name="id" default="0"/>
+  <arg name="id" default="id0"/>
   <arg name="launch_core" default="true"/>
   <arg name="sbus_device" default=""/>
   <arg name="x" default="0.0" description="Initial X position in meters."/>

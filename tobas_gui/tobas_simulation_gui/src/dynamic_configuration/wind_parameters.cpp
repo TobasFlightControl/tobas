@@ -26,7 +26,7 @@ namespace gui
 {
 namespace sim
 {
-WindParamsWidget::WindParamsWidget(rclcpp::Node::SharedPtr node) : node_(node)
+WindParamsWidget::WindParamsWidget()
 {
   const auto title = new qt::Label("Wind Parameters", cmn::kLabelPSize, QFont::Bold);
 
@@ -69,10 +69,10 @@ WindParamsWidget::WindParamsWidget(rclcpp::Node::SharedPtr node) : node_(node)
   connect(gust_interval_, &qt::DoubleSliderTextWidget::valueChanged, this, &self::onValueChanged);
 }
 
-void WindParamsWidget::updateNamespace(const std::string& ns)
+void WindParamsWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
 {
-  get_sc_ = std::make_shared<ros2::SyncServiceClient<GetSrv>>(node_, path::join(ns, gazebo::kGetWindParamsSrv));
-  set_sc_ = std::make_shared<ros2::SyncServiceClient<SetSrv>>(node_, path::join(ns, gazebo::kSetWindParamsSrv));
+  get_sc_ = std::make_shared<ros2::SyncServiceClient<GetSrv>>(node, path::join(ns, gazebo::kGetWindParamsSrv));
+  set_sc_ = std::make_shared<ros2::SyncServiceClient<SetSrv>>(node, path::join(ns, gazebo::kSetWindParamsSrv));
 }
 
 bool WindParamsWidget::start(ch::milliseconds timeout)

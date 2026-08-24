@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include <expected>
-
 #include <QProcess>
 #include <QPushButton>
 #include <QWidget>
@@ -47,10 +45,11 @@ Q_SIGNALS:
   void terminated();
 
 public:
-  explicit SimulationWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge);
+  explicit SimulationWidget(const RosQtBridge& bridge);
 
   void reset();
-  bool updateProject(const std::filesystem::path& proj_path);
+  void updateProject(const std::filesystem::path& proj_path);
+  void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
 
   bool isRunning() const;
 
@@ -58,17 +57,18 @@ protected:
   void closeEvent(QCloseEvent* event) override;
 
 private:
-  const rclcpp::Node::SharedPtr node_;
+  rclcpp::Node::SharedPtr node_;
 
   uadf::Parser uadf_parser_;
   kdl::TreeParser tree_parser_;
   cmn::ProjectPaths proj_paths_;
-  cmn::SshClientWrapper ssh_client_;
-  cmn::RemoteProjectBuilder remote_proj_builder_;
+  std::optional<cmn::SshClientWrapper> ssh_client_;
+  std::optional<cmn::RemoteProjectBuilder> remote_proj_builder_;
 
   uadf::Model uadf_;
   kdl::Tree tree_;
   Drone drone_;
+  std::string drone_id_;
 
   QProcess* launch_proc_ = nullptr;
   qt::WaitSpinnerWidget spinner_;
@@ -80,6 +80,9 @@ private:
   CommandersWidget* commanders_;
 
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
+
+  bool project_loaded_ = false;
+  bool ros_initialized_ = false;
 
   bool startSITL();
   void terminateSITL();
