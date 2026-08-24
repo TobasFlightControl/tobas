@@ -21,15 +21,15 @@ namespace gui
 {
 namespace param
 {
-ParameterTuningWidget::ParameterTuningWidget(rclcpp::Node::SharedPtr node)
+ParameterTuningWidget::ParameterTuningWidget()
   : file_names_{ cmn::ProjectPaths::kImuFilterDynamicParamFileName,
                  cmn::ProjectPaths::kObserverDynamicParamFileName,
                  cmn::ProjectPaths::kControllerDynamicParamFileName,
                  cmn::ProjectPaths::kRcTeleopDynamicParamFileName }
-  , blocks_{ new ParamBlockWidget(node, node::kImuFilterConfigServer, "IMU Filter"),
-             new ParamBlockWidget(node, node::kObserver, "State Estimator"),
-             new ParamBlockWidget(node, node::kController, "Flight Controller"),
-             new ParamBlockWidget(node, node::kRcTeleop, "Radio Control") }
+  , blocks_{ new ParamBlockWidget(node::kImuFilterConfigServer, "IMU Filter"),
+             new ParamBlockWidget(node::kObserver, "State Estimator"),
+             new ParamBlockWidget(node::kController, "Flight Controller"),
+             new ParamBlockWidget(node::kRcTeleop, "Radio Control") }
 {
   load_button_ = new QPushButton("Load");
   save_button_ = new QPushButton("Save");
@@ -40,7 +40,7 @@ ParameterTuningWidget::ParameterTuningWidget(rclcpp::Node::SharedPtr node)
   dflt_button_->setFixedSize(kButtonWidth, kButtonHeight);
 
   reset();
-  load_button_->setEnabled(false);  // Disable the Load button until a project has been loaded.
+  load_button_->setEnabled(false);
 
   // Layout
   const auto root_rows = new QVBoxLayout();
@@ -67,7 +67,6 @@ ParameterTuningWidget::ParameterTuningWidget(rclcpp::Node::SharedPtr node)
 
 void ParameterTuningWidget::reset()
 {
-  load_button_->setEnabled(true);
   save_button_->setEnabled(false);
   dflt_button_->setEnabled(false);
 
@@ -91,13 +90,16 @@ bool ParameterTuningWidget::updateProject(const fs::path& proj_path)
     return false;
   }
 
-  // Set namespace.
-  const auto ns = '/' + drone_.name;
+  return true;
+}
+
+void ParameterTuningWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
+{
   for (const auto& block : blocks_) {
-    block->setNamespace(ns);
+    block->initializeRosInterfaces(node, ns);
   }
 
-  return true;
+  load_button_->setEnabled(true);
 }
 
 void ParameterTuningWidget::onLoadButtonClicked()

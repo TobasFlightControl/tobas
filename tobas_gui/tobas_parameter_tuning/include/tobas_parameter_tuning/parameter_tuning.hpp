@@ -30,10 +30,11 @@ class ParameterTuningWidget : public QWidget
   static constexpr int kButtonHeight = 40;
 
 public:
-  explicit ParameterTuningWidget(rclcpp::Node::SharedPtr node);
+  explicit ParameterTuningWidget();
 
   void reset();
   bool updateProject(const std::filesystem::path& proj_path);
+  void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
 
 private:
   cmn::ProjectPaths proj_paths_;

@@ -59,9 +59,9 @@ class ParamBlockWidget : public QWidget
   static constexpr int kLineEditWidth = 150;
 
 public:
-  explicit ParamBlockWidget(rclcpp::Node::SharedPtr node, const std::string& node_name, const QString& label);
+  explicit ParamBlockWidget(const std::string& node_name, const QString& label);
 
-  void setNamespace(const std::string& ns);
+  void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
 
   bool load();
   bool save(const std::filesystem::path& path);
@@ -69,7 +69,6 @@ public:
   bool setToDefaults();
 
 private:
-  const rclcpp::Node::SharedPtr node_;
   const std::string node_name_;
 
   ros2::SyncServiceClient<tobas_dparam_msgs::srv::GetParams>::SharedPtr get_param_sc_;

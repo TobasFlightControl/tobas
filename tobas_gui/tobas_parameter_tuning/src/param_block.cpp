@@ -25,8 +25,7 @@ namespace gui
 {
 namespace param
 {
-ParamBlockWidget::ParamBlockWidget(rclcpp::Node::SharedPtr node, const std::string& node_name, const QString& label)
-  : node_(node), node_name_(node_name)
+ParamBlockWidget::ParamBlockWidget(const std::string& node_name, const QString& label) : node_name_(node_name)
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);
@@ -39,17 +38,22 @@ ParamBlockWidget::ParamBlockWidget(rclcpp::Node::SharedPtr node, const std::stri
   rows->addLayout(form_);
 }
 
-void ParamBlockWidget::setNamespace(const std::string& ns)
+void ParamBlockWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
 {
   const auto get_param_srv = path::join(ns, kRemoteIfaceNS, node_name_, service::kGetDynamicParams);
-  get_param_sc_ = std::make_shared<ros2::SyncServiceClient<tobas_dparam_msgs::srv::GetParams>>(node_, get_param_srv);
+  get_param_sc_ = std::make_shared<ros2::SyncServiceClient<tobas_dparam_msgs::srv::GetParams>>(node, get_param_srv);
 
-  dparam_cli_ = std::make_shared<dparam::DynamicParamClient>(node_, node_name_, ns);
+  dparam_cli_ = std::make_shared<dparam::DynamicParamClient>(node, node_name_, ns);
 }
 
 bool ParamBlockWidget::load()
 {
   clear();
+
+  if (!get_param_sc_) {
+    qt::qErrorBox(this, "ROS interfaces have not been initialized.");
+    return false;
+  }
 
   // Get dynamic parameters.
   const auto req = std::make_shared<tobas_dparam_msgs::srv::GetParams::Request>();
@@ -176,6 +180,11 @@ void ParamBlockWidget::clear()
 
 bool ParamBlockWidget::setToDefaults()
 {
+  if (!dparam_cli_) {
+    qt::qErrorBox(this, "ROS interfaces have not been initialized.");
+    return false;
+  }
+
   for (const auto& [name, config] : int_configs_) {
     if (config.slider->value() == config.dflt) {
       continue;
