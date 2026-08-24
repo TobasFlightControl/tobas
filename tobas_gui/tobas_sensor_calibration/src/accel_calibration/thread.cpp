@@ -14,7 +14,7 @@ namespace gui
 {
 namespace sc
 {
-AccelCalibrationThread::AccelCalibrationThread(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge) : node_(node)
+AccelCalibrationThread::AccelCalibrationThread(const RosQtBridge& bridge)
 {
   connect(&bridge, &RosQtBridge::rawImuReceived, this, &self::imuCb, Qt::QueuedConnection);
   connect(&bridge, &RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
@@ -115,8 +115,9 @@ void AccelCalibrationThread::reset()
   }
 }
 
-void AccelCalibrationThread::setNamespace(const std::string& ns)
+void AccelCalibrationThread::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
 {
+  node_ = std::move(node);
   set_params_sc_ = std::make_shared<ros2::SyncServiceClient<tobas_real_msgs::srv::SetImuParams>>(
     node_, path::join(ns, kRemoteIfaceNS, real::handler::imu::kSetParamSrv));
 }

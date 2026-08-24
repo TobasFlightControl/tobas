@@ -5,6 +5,7 @@
 
 #include <QProgressBar>
 #include <QPushButton>
+#include <QVBoxLayout>
 #include <rviz_common/properties/property.hpp>
 
 #include <tobas_eigen_tools/ellipsoid.hpp>
@@ -59,16 +60,16 @@ class CompleteMagCalibWidget : public BaseMagCalibWidget
   static constexpr size_t kFaceSize = kRightIdx + 1;
 
 public:
-  explicit CompleteMagCalibWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge);
+  explicit CompleteMagCalibWidget(const RosQtBridge& bridge);
 
   void reset() override;
-  void setNamespace(const std::string& ns) override;
+  void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns) override;
 
 protected:
   void paintEvent(QPaintEvent* event) override;
 
 private:
-  const rclcpp::Node::SharedPtr node_;
+  rclcpp::Node::SharedPtr node_;
 
   ros2::SyncServiceClient<tobas_real_msgs::srv::SetMagnetometerParams>::SharedPtr set_params_sc_;
 

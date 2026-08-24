@@ -35,8 +35,7 @@ namespace gui
 {
 namespace sc
 {
-CompleteMagCalibWidget::CompleteMagCalibWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge)
-  : node_(node), rviz_manager_("rviz_mag_calibration")
+CompleteMagCalibWidget::CompleteMagCalibWidget(const RosQtBridge& bridge) : rviz_manager_("rviz_mag_calibration")
 {
   const auto instruction = new qt::DescriptionWidget(
     "1. Click \"Start,\" and the magnetic field points (white) will begin appearing in the view.\n\n"
@@ -93,12 +92,6 @@ CompleteMagCalibWidget::CompleteMagCalibWidget(rclcpp::Node::SharedPtr node, con
   calibrated_display->subProp(kTopicProperty)->setValue(kCalibratedPointsTopic);
   ellipsoid_display->subProp(kTopicProperty)->setValue(kEllipsoidTopic);
 
-  samples_pub_ = ros2::createPublisher<geometry_msgs::msg::PointStamped>(node_, kSampledPointsTopic);
-  used_pub_ = ros2::createPublisher<sensor_msgs::msg::PointCloud>(node_, kUsedPointsTopic);
-  removed_pub_ = ros2::createPublisher<sensor_msgs::msg::PointCloud>(node_, kRemovedPointsTopic);
-  calibrated_pub_ = ros2::createPublisher<sensor_msgs::msg::PointCloud>(node_, kCalibratedPointsTopic);
-  ellipsoid_pub_ = ros2::createPublisher<visualization_msgs::msg::MarkerArray>(node_, kEllipsoidTopic);
-
   // Layout
   const auto button_cols = new QHBoxLayout();
   button_cols->addWidget(start_button_);
@@ -142,8 +135,16 @@ void CompleteMagCalibWidget::reset()
   odom_.reset();
 }
 
-void CompleteMagCalibWidget::setNamespace(const std::string& ns)
+void CompleteMagCalibWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
 {
+  node_ = std::move(node);
+
+  samples_pub_ = ros2::createPublisher<geometry_msgs::msg::PointStamped>(node_, kSampledPointsTopic);
+  used_pub_ = ros2::createPublisher<sensor_msgs::msg::PointCloud>(node_, kUsedPointsTopic);
+  removed_pub_ = ros2::createPublisher<sensor_msgs::msg::PointCloud>(node_, kRemovedPointsTopic);
+  calibrated_pub_ = ros2::createPublisher<sensor_msgs::msg::PointCloud>(node_, kCalibratedPointsTopic);
+  ellipsoid_pub_ = ros2::createPublisher<visualization_msgs::msg::MarkerArray>(node_, kEllipsoidTopic);
+
   set_params_sc_ = std::make_shared<ros2::SyncServiceClient<tobas_real_msgs::srv::SetMagnetometerParams>>(
     node_, path::join(ns, kRemoteIfaceNS, real::handler::mag::kSetParamSrv));
 }
@@ -184,7 +185,7 @@ void CompleteMagCalibWidget::resetToPreStart()
 void CompleteMagCalibWidget::clearDisplayPoints()
 {
   // FIXME: A `PointStamped` received slightly after clearing may still be displayed.
-  return rviz_manager_.resetTime();
+  rviz_manager_.resetTime();
 }
 
 int CompleteMagCalibWidget::numActiveSamples() const

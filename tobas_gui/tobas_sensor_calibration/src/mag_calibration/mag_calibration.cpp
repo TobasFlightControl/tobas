@@ -16,7 +16,7 @@ namespace gui
 {
 namespace sc
 {
-MagCalibrationWidget::MagCalibrationWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge)
+MagCalibrationWidget::MagCalibrationWidget(const RosQtBridge& bridge)
 {
   btn_group_ = new QButtonGroup(this);
   btn_group_->setExclusive(true);
@@ -24,8 +24,8 @@ MagCalibrationWidget::MagCalibrationWidget(rclcpp::Node::SharedPtr node, const R
   stack_ = new qt::StackedWidget();
 
   int id = 0;
-  addMagCalibWidget(new CompleteMagCalibWidget(node, bridge), "Complete Calibration (Recommended)", id++);
-  addMagCalibWidget(new LargeVehicleMagCalibWidget(node, bridge), "Large Vehicle Calibration", id++);
+  addMagCalibWidget(new CompleteMagCalibWidget(bridge), "Complete Calibration (Recommended)", id++);
+  addMagCalibWidget(new LargeVehicleMagCalibWidget(bridge), "Large Vehicle Calibration", id++);
 
   setCurrentIndex(kDefaultIndex);
 
@@ -48,12 +48,12 @@ void MagCalibrationWidget::reset()
   }
 }
 
-void MagCalibrationWidget::setNamespace(const std::string& ns)
+void MagCalibrationWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
 {
   for (int i = 0; i < stack_->count(); ++i) {
     const auto widget = getWidget(i);
     widget->reset();
-    widget->setNamespace(ns);
+    widget->initializeRosInterfaces(node, ns);
   }
 
   setCurrentIndex(kDefaultIndex);

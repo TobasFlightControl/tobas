@@ -15,8 +15,8 @@ namespace gui
 {
 namespace sc
 {
-AccelCalibrationWidget::AccelCalibrationWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge)
-  : spinner_(Qt::WindowModal, this), thread_(node, bridge)
+AccelCalibrationWidget::AccelCalibrationWidget(const RosQtBridge& bridge)
+  : spinner_(Qt::WindowModal, this), thread_(bridge)
 {
   const auto instruction = new qt::DescriptionWidget(
     "1. Place the flight controller on a level surface. The yellow Raw marker is a rough guide before calibration.\n\n"
@@ -57,11 +57,11 @@ void AccelCalibrationWidget::reset()
   imu_calib_.reset();
 }
 
-void AccelCalibrationWidget::setNamespace(const std::string& ns)
+void AccelCalibrationWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
 {
   reset();
 
-  thread_.setNamespace(ns);
+  thread_.initializeRosInterfaces(std::move(node), ns);
 }
 
 void AccelCalibrationWidget::onStartButtonClicked()

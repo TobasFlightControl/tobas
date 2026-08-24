@@ -11,22 +11,18 @@ namespace gui
 {
 namespace sc
 {
-SensorCalibrationWidget::SensorCalibrationWidget(
-  rclcpp::Node::SharedPtr node,
-  const RosQtBridge& bridge,
-  const Drone& drone)
-  : drone_(drone)
+SensorCalibrationWidget::SensorCalibrationWidget(const RosQtBridge& bridge, const Drone& drone) : drone_(drone)
 {
   setTabSize(kTabWidth, kTabHeight);
   enableWheelEvent(false);
 
-  accel_calib_ = new AccelCalibrationWidget(node, bridge);
+  accel_calib_ = new AccelCalibrationWidget(bridge);
   addTab(accel_calib_, "Accelerometer");
 
-  mag_calib_ = new MagCalibrationWidget(node, bridge);
+  mag_calib_ = new MagCalibrationWidget(bridge);
   addTab(mag_calib_, "Magnetometer");
 
-  rcin_calib_ = new RCInputCalibrationWidget(node, bridge, drone);
+  rcin_calib_ = new RCInputCalibrationWidget(bridge, drone);
   addTab(rcin_calib_, "Radio Control");
 
   setTabsEnabled(false);
@@ -48,18 +44,21 @@ void SensorCalibrationWidget::reset()
 void SensorCalibrationWidget::updateInternalDataStructures()
 {
   reset();
-
-  const auto ns = '/' + drone_.name;
-
-  accel_calib_->setNamespace(ns);
-  mag_calib_->setNamespace(ns);
   rcin_calib_->updateInternalDataStructures();
 
-  // Enable each tab.
-  setTabsEnabled(true);
+  // ROS interfaces are initialized only after the connection target has been selected.
+  setTabsEnabled(false);
+}
 
-  // Adjust distortion caused by showing or hiding tabs.
-  update();
+void SensorCalibrationWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
+{
+  reset();
+
+  accel_calib_->initializeRosInterfaces(node, ns);
+  mag_calib_->initializeRosInterfaces(node, ns);
+  rcin_calib_->initializeRosInterfaces(node, ns);
+
+  setTabsEnabled(true);
 }
 
 BaseWidget* SensorCalibrationWidget::getWidget(int index)

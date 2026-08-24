@@ -29,13 +29,13 @@ class AccelCalibrationWidget : public BaseWidget
   static constexpr int kButtonHeight = 40;
 
 public:
-  explicit AccelCalibrationWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge);
+  explicit AccelCalibrationWidget(const RosQtBridge& bridge);
 
   const char* title() const override;
 
   void reset() override;
 
-  void setNamespace(const std::string& ns);
+  void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
 
 private:
   QPushButton* start_button_;

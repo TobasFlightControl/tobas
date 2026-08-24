@@ -15,8 +15,7 @@ namespace gui
 {
 namespace sc
 {
-LargeVehicleMagCalibThread::LargeVehicleMagCalibThread(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge)
-  : node_(node)
+LargeVehicleMagCalibThread::LargeVehicleMagCalibThread(const RosQtBridge& bridge)
 {
   connect(&bridge, &RosQtBridge::rawMagReceived, this, &self::magCb, Qt::QueuedConnection);
   connect(&bridge, &RosQtBridge::gnssReceived, this, &self::gnssCb, Qt::QueuedConnection);
@@ -134,8 +133,9 @@ void LargeVehicleMagCalibThread::reset()
   }
 }
 
-void LargeVehicleMagCalibThread::setNamespace(const std::string& ns)
+void LargeVehicleMagCalibThread::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
 {
+  node_ = std::move(node);
   const auto srv_name = path::join(ns, kRemoteIfaceNS, real::handler::mag::kSetParamSrv);
   set_params_sc_ =
     std::make_shared<ros2::SyncServiceClient<tobas_real_msgs::srv::SetMagnetometerParams>>(node_, srv_name);

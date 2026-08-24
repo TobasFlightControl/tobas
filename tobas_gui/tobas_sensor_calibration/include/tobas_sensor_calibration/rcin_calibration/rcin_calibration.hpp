@@ -45,21 +45,22 @@ class RCInputCalibrationWidget : public BaseWidget
   static constexpr int kRangeSideShort = 50;
 
 public:
-  explicit RCInputCalibrationWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge, const Drone& drone);
+  explicit RCInputCalibrationWidget(const RosQtBridge& bridge, const Drone& drone);
 
   const char* title() const override;
 
   void reset() override;
 
   void updateInternalDataStructures();
+  void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
 
 private:
-  const rclcpp::Node::SharedPtr node_;
   const Drone& drone_;
 
   ros2::SyncServiceClient<tobas_real_msgs::srv::SetRcInputParams>::SharedPtr set_params_sc_;
 
-  bool running_;
+  bool ros_initialized_ = false;
+  bool running_ = false;
   tobas_msgs::msg::Sbus::ConstSharedPtr sbus_;
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
 

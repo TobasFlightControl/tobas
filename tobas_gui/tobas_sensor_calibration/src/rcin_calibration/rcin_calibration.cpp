@@ -23,11 +23,7 @@ namespace gui
 {
 namespace sc
 {
-RCInputCalibrationWidget::RCInputCalibrationWidget(
-  rclcpp::Node::SharedPtr node,
-  const RosQtBridge& bridge,
-  const Drone& drone)
-  : node_(node), drone_(drone)
+RCInputCalibrationWidget::RCInputCalibrationWidget(const RosQtBridge& bridge, const Drone& drone) : drone_(drone)
 {
   const auto instruction = new qt::DescriptionWidget(
     "1. Click \"Start\" to begin displaying S.BUS data in the view.\n\n"
@@ -169,7 +165,7 @@ void RCInputCalibrationWidget::reset()
   sbus_.reset();
   arming_.reset();
 
-  start_button_->setEnabled(true);
+  start_button_->setEnabled(ros_initialized_);
   finish_button_->setEnabled(false);
   cancel_button_->setEnabled(false);
 
@@ -204,11 +200,9 @@ void RCInputCalibrationWidget::reset()
 
 void RCInputCalibrationWidget::updateInternalDataStructures()
 {
+  ros_initialized_ = false;
+  set_params_sc_.reset();
   reset();
-
-  const auto set_params_srv = path::join('/', drone_.name, kRemoteIfaceNS, real::handler::rcin::kSetParamSrv);
-  set_params_sc_ =
-    std::make_shared<ros2::SyncServiceClient<tobas_real_msgs::srv::SetRcInputParams>>(node_, set_params_srv);
 
   for (size_t i = 0; i < numOfGpswChannels(); ++i) {
     gpsw_labels_.at(i)->setText(std::format("GPSw{} (CH{})", i + 1, kRcChannelGpsw + i + 1).c_str());
@@ -218,6 +212,16 @@ void RCInputCalibrationWidget::updateInternalDataStructures()
     gpsw_labels_.at(i)->setText("Not Registered");
     gpsw_ranges_.at(i)->setEnabled(false);
   }
+}
+
+void RCInputCalibrationWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
+{
+  const auto set_params_srv = path::join(ns, kRemoteIfaceNS, real::handler::rcin::kSetParamSrv);
+  set_params_sc_ =
+    std::make_shared<ros2::SyncServiceClient<tobas_real_msgs::srv::SetRcInputParams>>(std::move(node), set_params_srv);
+
+  ros_initialized_ = true;
+  reset();
 }
 
 size_t RCInputCalibrationWidget::numOfGpswChannels() const
@@ -242,25 +246,25 @@ bool RCInputCalibrationWidget::saveParamsToGcs()
     return false;
   }
 
-  const auto ns = '/' + drone_.name;
+  const auto& section = drone_.name;
 
-  pt.set(ns, real::handler::rcin::kRollLeftKey, roll_range_->getLower());
-  pt.set(ns, real::handler::rcin::kRollRightKey, roll_range_->getUpper());
-  pt.set(ns, real::handler::rcin::kPitchUpKey, pitch_range_->getLower());
-  pt.set(ns, real::handler::rcin::kPitchDownKey, pitch_range_->getUpper());
-  pt.set(ns, real::handler::rcin::kYawLeftKey, yaw_range_->getLower());
-  pt.set(ns, real::handler::rcin::kYawRightKey, yaw_range_->getUpper());
-  pt.set(ns, real::handler::rcin::kThrotUpKey, throt_range_->getLower());
-  pt.set(ns, real::handler::rcin::kThrotDownKey, throt_range_->getUpper());
-  pt.set(ns, real::handler::rcin::kModeAcrobatKey, mode_range_->getUpper());
-  pt.set(ns, real::handler::rcin::kModeStabilizeKey, mode_range_->getMiddle());
-  pt.set(ns, real::handler::rcin::kModeLoiterKey, mode_range_->getLower());
-  pt.set(ns, real::handler::rcin::kSubModeOnKey, sub_mode_range_->getLower());
-  pt.set(ns, real::handler::rcin::kSubModeOffKey, sub_mode_range_->getUpper());
-  pt.set(ns, real::handler::rcin::kEnableOnKey, enable_range_->getLower());
-  pt.set(ns, real::handler::rcin::kEnableOffKey, enable_range_->getUpper());
-  pt.set(ns, real::handler::rcin::kKillOnKey, kill_range_->getLower());
-  pt.set(ns, real::handler::rcin::kKillOffKey, kill_range_->getUpper());
+  pt.set(section, real::handler::rcin::kRollLeftKey, roll_range_->getLower());
+  pt.set(section, real::handler::rcin::kRollRightKey, roll_range_->getUpper());
+  pt.set(section, real::handler::rcin::kPitchUpKey, pitch_range_->getLower());
+  pt.set(section, real::handler::rcin::kPitchDownKey, pitch_range_->getUpper());
+  pt.set(section, real::handler::rcin::kYawLeftKey, yaw_range_->getLower());
+  pt.set(section, real::handler::rcin::kYawRightKey, yaw_range_->getUpper());
+  pt.set(section, real::handler::rcin::kThrotUpKey, throt_range_->getLower());
+  pt.set(section, real::handler::rcin::kThrotDownKey, throt_range_->getUpper());
+  pt.set(section, real::handler::rcin::kModeAcrobatKey, mode_range_->getUpper());
+  pt.set(section, real::handler::rcin::kModeStabilizeKey, mode_range_->getMiddle());
+  pt.set(section, real::handler::rcin::kModeLoiterKey, mode_range_->getLower());
+  pt.set(section, real::handler::rcin::kSubModeOnKey, sub_mode_range_->getLower());
+  pt.set(section, real::handler::rcin::kSubModeOffKey, sub_mode_range_->getUpper());
+  pt.set(section, real::handler::rcin::kEnableOnKey, enable_range_->getLower());
+  pt.set(section, real::handler::rcin::kEnableOffKey, enable_range_->getUpper());
+  pt.set(section, real::handler::rcin::kKillOnKey, kill_range_->getLower());
+  pt.set(section, real::handler::rcin::kKillOffKey, kill_range_->getUpper());
 
   std::array<int, kMaxNumOfGpsw> gpsw_on, gpsw_off;
   for (size_t i = 0; i < numOfGpswChannels(); ++i) {
@@ -271,8 +275,8 @@ bool RCInputCalibrationWidget::saveParamsToGcs()
     gpsw_on[i] = std::numeric_limits<uint16_t>::max();
     gpsw_off[i] = 0;
   }
-  pt.set(ns, real::handler::rcin::kGpswOnKey, gpsw_on);
-  pt.set(ns, real::handler::rcin::kGpswOffKey, gpsw_off);
+  pt.set(section, real::handler::rcin::kGpswOnKey, gpsw_on);
+  pt.set(section, real::handler::rcin::kGpswOffKey, gpsw_off);
 
   if (!pt.save()) {
     qt::qErrorBox(this, "Failed to save calibration results on GCS.");

@@ -32,15 +32,15 @@ Q_SIGNALS:
   void finished(bool success, const QString& message);
 
 public:
-  explicit AccelCalibrationThread(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge);
+  explicit AccelCalibrationThread(const RosQtBridge& bridge);
 
   void run() override;
 
   void reset();
-  void setNamespace(const std::string& ns);
+  void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
 
 private:
-  const rclcpp::Node::SharedPtr node_;
+  rclcpp::Node::SharedPtr node_;
 
   ros2::SyncServiceClient<tobas_real_msgs::srv::SetImuParams>::SharedPtr set_params_sc_;
 

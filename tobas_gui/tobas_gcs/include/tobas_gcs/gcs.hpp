@@ -3,6 +3,13 @@
 
 #pragma once
 
+#include <expected>
+#include <filesystem>
+#include <memory>
+#include <optional>
+#include <string>
+#include <vector>
+
 #include <QComboBox>
 #include <QLineEdit>
 #include <QPushButton>
