@@ -14,6 +14,10 @@ OUTPUT = "output"
 def generate_launch_description():
     ld = LaunchDescription()
 
+    # Set localhost only.
+    set_discovery_range = SetEnvironmentVariable("ROS_AUTOMATIC_DISCOVERY_RANGE", "LOCALHOST")
+    ld.add_action(set_discovery_range)
+
     # Add ament prefix path.
     new_ament_prefix_path = PathJoinSubstitution([EnvironmentVariable("HOME"), ".local/share/tobas/colcon_ws/install"])
     set_ament_prefix_path = SetEnvironmentVariable(
@@ -69,7 +73,6 @@ def generate_launch_description():
         namespace=session_ns,
         ros_arguments=ros_args,
         output=output,
-        additional_env={"ROS_AUTOMATIC_DISCOVERY_RANGE": "LOCALHOST"},
     )
     ld.add_action(run_ssh_server)
 
@@ -80,7 +83,6 @@ def generate_launch_description():
         namespace=session_ns,
         ros_arguments=ros_args,
         output=output,
-        additional_env={"ROS_AUTOMATIC_DISCOVERY_RANGE": "LOCALHOST"},
     )
     ld.add_action(run_tile_server)
 
@@ -91,7 +93,6 @@ def generate_launch_description():
         namespace=session_ns,
         ros_arguments=ros_args,
         output=output,
-        additional_env={"ROS_AUTOMATIC_DISCOVERY_RANGE": "LOCALHOST"},
     )
     ld.add_action(run_heartbeat_sender)
 
@@ -102,7 +103,6 @@ def generate_launch_description():
         namespace=session_ns,
         ros_arguments=ros_args,
         output=output,
-        additional_env={"ROS_AUTOMATIC_DISCOVERY_RANGE": "LOCALHOST"},
         on_exit=Shutdown(),
     )
     ld.add_action(run_gcs)

@@ -15,10 +15,12 @@ class ProjectEnvParser
 {
   static constexpr char kConfigPkgPrefix[] = "TOBAS_CONFIG_PKG=";
   static constexpr char kNetworkIfacePrefix[] = "TOBAS_NIC=";
+  static constexpr char kIdPrefix[] = "TOBAS_ID=";
 
 public:
   std::string config_pkg;
   std::string nic;
+  std::string id;
 
   explicit ProjectEnvParser();
 

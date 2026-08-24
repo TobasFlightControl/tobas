@@ -46,18 +46,17 @@ Q_SIGNALS:
   void rawMagReceived(const tobas_msgs::MagneticField::ConstSharedPtr& msg);
 
 public:
-  explicit RosQtBridge(rclcpp::Node::SharedPtr node);
+  explicit RosQtBridge(QObject* parent = nullptr);
 
-  void initializeScopedTopics(const std::string& ns);
+  void initializeRosInterfaces(const rclcpp::Node::SharedPtr& node, const std::string& ns);
 
 private:
-  const rclcpp::Node::SharedPtr node_;
-
   std::vector<rclcpp::SubscriptionBase::SharedPtr> global_subs_;
   std::vector<rclcpp::SubscriptionBase::SharedPtr> scoped_subs_;
 
   template <typename MsgType, auto SignalType>
   void add(
+    const rclcpp::Node::SharedPtr& node,
     const std::string& topic,
     std::vector<rclcpp::SubscriptionBase::SharedPtr>& buf,
     bool latch,
@@ -66,6 +65,7 @@ private:
 
   template <typename MsgType, auto SignalType>
   void addGlobal(
+    const rclcpp::Node::SharedPtr& node,
     const std::string& topic,
     bool latch = ros2::qos::kDefaultLatch,
     bool reliable = ros2::qos::kDefaultReliable,
@@ -73,6 +73,7 @@ private:
 
   template <typename MsgType, auto SignalType>
   void addScoped(
+    const rclcpp::Node::SharedPtr& node,
     const std::string& ns,
     const std::string& topic,
     bool latch = ros2::qos::kDefaultLatch,

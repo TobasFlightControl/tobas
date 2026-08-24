@@ -8,6 +8,7 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
+  <depend>tobas_ros2_tools</depend>
   <depend>tobas_cyclonedds_config</depend>
   <depend>tobas_sensor_calibration</depend>
   <depend>tobas_actuator_test</depend>

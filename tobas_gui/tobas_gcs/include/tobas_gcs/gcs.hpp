@@ -3,21 +3,22 @@
 
 #pragma once
 
+#include <QComboBox>
 #include <QLineEdit>
 #include <QPushButton>
 #include <QSettings>
+#include <QSpinBox>
 #include <QWidget>
 
 #include <tobas_actuator_test/actuator_test.hpp>
 #include <tobas_control_system/control_system.hpp>
 #include <tobas_flight_log_gui/flight_log.hpp>
 #include <tobas_gui_common/network_config.hpp>
-#include <tobas_gui_common/project_paths.hpp>
 #include <tobas_gui_common/ssh_client.hpp>
-#include <tobas_gui_common/ssh_config.hpp>
 #include <tobas_gui_common/version.hpp>
 #include <tobas_kdl_parser/kdl_parser.hpp>
 #include <tobas_parameter_tuning/parameter_tuning.hpp>
+#include <tobas_ros2_tools/async_node_manager.hpp>
 #include <tobas_sensor_calibration/sensor_calibration.hpp>
 #include <tobas_simulation_gui/simulation.hpp>
 #include <tobas_ssh_client/ssh_client.hpp>
@@ -26,11 +27,10 @@
 
 #include <tobas_msgs/msg/arming.hpp>
 
+#include "./flight_controller_scanner.hpp"
 #include "./network_checker.hpp"
 #include "./project_env_parser.hpp"
 #include "./remote_connection.hpp"
-#include "./restart_button.hpp"
-#include "./shutdown_button.hpp"
 
 namespace tobas
 {
@@ -47,11 +47,8 @@ class GroundControlStationWidget : public QWidget
 
   static constexpr char kLastOpenedDirKey[] = "gcs/last_opened_dir";
 
-  static constexpr int kPathMaxWidth = 400;
-  static constexpr int kPowerButtonRadius = 40;
-
 public:
-  explicit GroundControlStationWidget(rclcpp::Node::SharedPtr node);
+  explicit GroundControlStationWidget(int argc, char** argv);
 
   void reset(bool include_simulation = true);
   void updateInternalDataStructures();
@@ -61,7 +58,7 @@ protected:
 
 private:
   RosQtBridge bridge_;
-  const NetworkChecker network_checker_;
+  NetworkChecker network_checker_;
 
   uadf::Model uadf_;
   kdl::Tree tree_;
@@ -70,22 +67,23 @@ private:
   QSettings settings_store_;
   uadf::Parser uadf_parser_;
   kdl::TreeParser tree_parser_;
-  cmn::ProjectPaths proj_paths_;
   cmn::Version proj_version_;
-  cmn::SshConfig ssh_config_;
   cmn::NetworkConfig network_config_;
-  cmn::SshClientWrapper ssh_client_;
-  cmn::RemoteProjectBuilder remote_proj_builder_;
   ProjectEnvParser project_env_parser_;
 
   RemoteConnectionWidget* remote_conn_;
 
   QLineEdit* proj_path_;
   QPushButton* load_btn_;
-  QPushButton* write_btn_;
 
-  RestartButton* restart_btn_;
-  ShutdownButton* shutdown_btn_;
+  FlightControllerScanner* fc_scanner_;
+  QComboBox* fc_selector_;
+  QSpinBox* vehicle_id_;
+  QPushButton* connect_btn_;
+
+  QPushButton* write_btn_;
+  QPushButton* restart_btn_;
+  QPushButton* shutdown_btn_;
 
   qt::WaitSpinnerWidget spinner_;
 
@@ -98,8 +96,24 @@ private:
 
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
   bool telemetry_loss_expected_ = false;
+  bool project_loaded_ = false;
+  bool connection_ready_ = false;
+
+  std::vector<std::string> ros_args_;
+  QString configured_host_;
+  int configured_id_;
+  std::unique_ptr<ros2::AsyncNodeManager> ros_node_manager_;
+  rclcpp::Node::SharedPtr ros_node_;
+  std::optional<cmn::SshClientWrapper> ssh_client_;
+  std::optional<cmn::RemoteProjectBuilder> remote_proj_builder_;
 
   std::filesystem::path projectPath() const;
+
+  void updateConnectionAvailability();
+  void updateActionAvailability();
+  void setFlightControllerPlaceholder(const QString& text);
+  QString currentHost() const;
+  QString currentConnectionDescription() const;
 
   void expectTelemetryLoss();
   void clearExpectedTelemetryLoss();
@@ -109,10 +123,14 @@ private:
 
 private Q_SLOTS:
   void onLoadButtonClicked();
+  void onConnectButtonClicked();
   void onWriteButtonClicked();
 
-  void onRestartButtonClicked(bool checked);
-  void onShutdownButtonClicked(bool checked);
+  void onFlightControllerScanFinished(const QVector<DiscoveredFlightController>& flight_controllers);
+  void onFlightControllerScanFailed(const QString& message);
+
+  void onRestartButtonClicked();
+  void onShutdownButtonClicked();
 
   void onSimRealStateChanged();
   void onRemoteConnectionDisconnected();

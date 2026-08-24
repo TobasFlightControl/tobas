@@ -13,7 +13,8 @@ namespace gcs
 {
 namespace
 {
-static constexpr char kServiceType[] = "_tobas-fc._tcp";
+constexpr char kServiceType[] = "_tobas-fc._tcp";
+constexpr int kScanInterval = 5000;  // [ms]
 
 QVector<DiscoveredFlightController> parse(const QString& output)
 {
@@ -43,11 +44,25 @@ QVector<DiscoveredFlightController> parse(const QString& output)
 
 FlightControllerScanner::FlightControllerScanner(QObject* parent) : super(parent)
 {
+  scan_timer_.setInterval(kScanInterval);
+
+  connect(&scan_timer_, &QTimer::timeout, this, &self::scanOnce);
   connect(&process_, qOverload<int, QProcess::ExitStatus>(&QProcess::finished), this, &self::onFinished);
   connect(&process_, &QProcess::errorOccurred, this, &self::onErrorOccurred);
 }
 
 void FlightControllerScanner::start()
+{
+  scan_timer_.start();
+  scanOnce();
+}
+
+void FlightControllerScanner::stop()
+{
+  scan_timer_.stop();
+}
+
+void FlightControllerScanner::scanOnce()
 {
   if (process_.state() != QProcess::NotRunning) {
     return;
