@@ -48,6 +48,7 @@ Q_SIGNALS:
 public:
   explicit RosQtBridge(QObject* parent = nullptr);
 
+  void clearRosInterfaces();
   void initializeRosInterfaces(const rclcpp::Node::SharedPtr& node, const std::string& ns);
 
 private:

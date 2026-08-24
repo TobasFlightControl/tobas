@@ -409,6 +409,10 @@ void GroundControlStationWidget::onLoadButtonClicked()
     return;
   }
 
+  // Release subscriptions associated with the previously loaded project.
+  bridge_.clearRosInterfaces();
+  qt::processAllQueuedEvents();
+
   // Update the internal states.
   updateInternalDataStructures();
   project_loaded_ = true;

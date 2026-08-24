@@ -15,10 +15,15 @@ RosQtBridge::RosQtBridge(QObject* parent) : super(parent)
 {
 }
 
-void RosQtBridge::initializeRosInterfaces(const rclcpp::Node::SharedPtr& node, const std::string& ns)
+void RosQtBridge::clearRosInterfaces()
 {
   global_subs_.clear();
   scoped_subs_.clear();
+}
+
+void RosQtBridge::initializeRosInterfaces(const rclcpp::Node::SharedPtr& node, const std::string& ns)
+{
+  clearRosInterfaces();
 
   addGlobal<tobas_msgs::msg::Heartbeat, &self::localHeartbeatReceived>(node, topic::kHeartbeat);
   static constexpr auto ri = kRemoteIfaceNS;
