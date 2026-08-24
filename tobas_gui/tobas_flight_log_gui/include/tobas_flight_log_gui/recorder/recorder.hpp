@@ -37,10 +37,10 @@ Q_SIGNALS:
   void recordFinished(const QString& log_name, bool is_real);
 
 public:
-  explicit FlightLogRecorderWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge);
+  explicit FlightLogRecorderWidget(const RosQtBridge& bridge);
 
   void reset();
-  void updateNamespace(const std::string& ns);
+  void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
 
 private:
   qt::HistoryLineEdit* log_name_;
@@ -55,6 +55,7 @@ private:
   qt::WaitSpinnerWidget spinner_;
 
   tobas_msgs::msg::RosbagState::ConstSharedPtr rosbag_state_;
+  bool ros_initialized_ = false;
 
   void clearRosbagStateViewerWidgets();
 

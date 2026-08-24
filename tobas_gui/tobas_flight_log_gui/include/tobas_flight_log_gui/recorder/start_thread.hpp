@@ -24,15 +24,12 @@ Q_SIGNALS:
   void finished(bool success, const QString& message);
 
 public:
-  explicit RecordStartThread(rclcpp::Node::SharedPtr node);
-
   void run() override;
 
-  void setNamespace(const std::string& ns);
+  void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
   void setLogName(const std::string& log_name);
 
 private:
-  const rclcpp::Node::SharedPtr node_;
   ros2::SyncServiceClient<tobas_msgs::srv::BagRecordStart>::SharedPtr sc_;
 
   std::string log_name_;

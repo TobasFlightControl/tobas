@@ -13,10 +13,10 @@ namespace gui
 {
 namespace log
 {
-FlightLogWidget::FlightLogWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge)
+FlightLogWidget::FlightLogWidget(const RosQtBridge& bridge)
 {
-  recorder_ = new FlightLogRecorderWidget(node, bridge);
-  logs_fc_ = new FlightLogsWidgetFC(node);
+  recorder_ = new FlightLogRecorderWidget(bridge);
+  logs_fc_ = new FlightLogsWidgetFC();
   logs_gcs_ = new FlightLogsWidgetGCS();
   log_viewer_ = new FlightLogViewerWidget();
 
@@ -48,10 +48,19 @@ void FlightLogWidget::reset()
   recorder_->reset();
 }
 
-void FlightLogWidget::updateNamespace(const std::string& ns)
+void FlightLogWidget::onProjectLoaded()
 {
-  recorder_->updateNamespace(ns);
+  reset();
+
   logs_fc_->onProjectLoaded();
+}
+
+void FlightLogWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
+{
+  reset();
+
+  recorder_->initializeRosInterfaces(node, ns);
+  logs_fc_->initializeRosInterfaces(node, ns);
 }
 
 void FlightLogWidget::onRecordFinished(const QString& log_name, bool is_real)

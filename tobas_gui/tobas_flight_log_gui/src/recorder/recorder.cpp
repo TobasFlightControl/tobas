@@ -28,8 +28,7 @@ namespace gui
 {
 namespace log
 {
-FlightLogRecorderWidget::FlightLogRecorderWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge)
-  : start_thread_(node), stop_thread_(node), spinner_(Qt::WindowModal, this)
+FlightLogRecorderWidget::FlightLogRecorderWidget(const RosQtBridge& bridge) : spinner_(Qt::WindowModal, this)
 {
   log_name_ = new qt::HistoryLineEdit();
   log_name_->setEnabled(false);
@@ -79,20 +78,20 @@ void FlightLogRecorderWidget::reset()
 {
   start_stop_button_->setChecked(false);
   start_stop_button_->setEnabled(false);
+  log_name_->setEnabled(ros_initialized_);
 
   clearRosbagStateViewerWidgets();
 
   rosbag_state_.reset();
 }
 
-void FlightLogRecorderWidget::updateNamespace(const std::string& ns)
+void FlightLogRecorderWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
 {
+  start_thread_.initializeRosInterfaces(node, ns);
+  stop_thread_.initializeRosInterfaces(node, ns);
+
+  ros_initialized_ = true;
   reset();
-
-  log_name_->setEnabled(true);
-
-  start_thread_.setNamespace(ns);
-  stop_thread_.setNamespace(ns);
 }
 
 void FlightLogRecorderWidget::clearRosbagStateViewerWidgets()

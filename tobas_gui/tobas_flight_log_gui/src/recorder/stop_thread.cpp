@@ -12,12 +12,13 @@ namespace gui
 {
 namespace log
 {
-RecordStopThread::RecordStopThread(rclcpp::Node::SharedPtr node) : node_(node)
-{
-}
-
 void RecordStopThread::run()
 {
+  if (!sc_) {
+    Q_EMIT finished(false, "ROS interfaces have not been initialized.", "");
+    return;
+  }
+
   const auto req = std::make_shared<tobas_msgs::srv::BagRecordStop::Request>();
 
   const auto res = sc_->sendRequestAndWait(req);
@@ -34,10 +35,10 @@ void RecordStopThread::run()
   Q_EMIT finished(true, "", QString::fromStdString(res->path));
 }
 
-void RecordStopThread::setNamespace(const std::string& ns)
+void RecordStopThread::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
 {
   sc_ = std::make_shared<ros2::SyncServiceClient<tobas_msgs::srv::BagRecordStop>>(
-    node_, path::join(ns, kRemoteIfaceNS, service::kRosbagRecordStop));
+    node, path::join(ns, kRemoteIfaceNS, service::kRosbagRecordStop));
 }
 }  // namespace log
 }  // namespace gui

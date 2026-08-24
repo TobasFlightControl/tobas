@@ -30,9 +30,11 @@ Q_SIGNALS:
   void logDownloaded(const QString& log_name);
 
 public:
-  explicit FlightLogsWidgetFC(rclcpp::Node::SharedPtr node);
+  explicit FlightLogsWidgetFC();
 
+  void reset();
   void onProjectLoaded();
+  void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
 
   void addLog(const QString& log_name);
   void removeLog(const QString& log_name);
@@ -41,7 +43,7 @@ public:
   void clearLogs();
 
 private:
-  cmn::SshClientWrapper ssh_client_;
+  std::optional<cmn::SshClientWrapper> ssh_client_;
 
   QPushButton* read_button_;
   QPushButton* clean_button_;
@@ -50,7 +52,11 @@ private:
 
   qt::ListWidget* log_list_;
 
+  bool project_loaded_ = false;
+  bool ros_initialized_ = false;
+
   void sortLogs();
+  void updateOperationButtons();
 
 private Q_SLOTS:
   void onReadButtonClicked();

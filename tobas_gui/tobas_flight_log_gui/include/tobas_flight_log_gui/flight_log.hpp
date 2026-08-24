@@ -22,10 +22,11 @@ class FlightLogWidget : public QWidget
   using super = QWidget;
 
 public:
-  explicit FlightLogWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge);
+  explicit FlightLogWidget(const RosQtBridge& bridge);
 
   void reset();
-  void updateNamespace(const std::string& ns);
+  void onProjectLoaded();
+  void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
 
 private:
   FlightLogRecorderWidget* recorder_;

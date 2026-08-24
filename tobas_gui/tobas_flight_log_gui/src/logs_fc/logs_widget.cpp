@@ -25,8 +25,7 @@ namespace gui
 {
 namespace log
 {
-FlightLogsWidgetFC::FlightLogsWidgetFC(rclcpp::Node::SharedPtr node)
-  : ssh_client_(node), spinner_(Qt::WindowModal, this)
+FlightLogsWidgetFC::FlightLogsWidgetFC() : spinner_(Qt::WindowModal, this)
 {
   read_button_ = new QPushButton("Read");
   clean_button_ = new QPushButton("Clean");
@@ -59,9 +58,27 @@ FlightLogsWidgetFC::FlightLogsWidgetFC(rclcpp::Node::SharedPtr node)
   connect(clean_button_, &QPushButton::clicked, this, &self::onCleanButtonClicked);
 }
 
+void FlightLogsWidgetFC::reset()
+{
+  clearLogs();
+  clean_button_->setEnabled(false);
+}
+
 void FlightLogsWidgetFC::onProjectLoaded()
 {
-  read_button_->setEnabled(true);
+  reset();
+
+  project_loaded_ = true;
+  updateOperationButtons();
+}
+
+void FlightLogsWidgetFC::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string&)
+{
+  reset();
+
+  ssh_client_.emplace(node);
+  ros_initialized_ = true;
+  updateOperationButtons();
 }
 
 void FlightLogsWidgetFC::addLog(const QString& log_name)
@@ -110,16 +127,21 @@ void FlightLogsWidgetFC::sortLogs()
   log_list_->sortItems();
 }
 
+void FlightLogsWidgetFC::updateOperationButtons()
+{
+  read_button_->setEnabled(project_loaded_ && ros_initialized_);
+}
+
 void FlightLogsWidgetFC::onReadButtonClicked()
 {
   std::vector<std::string> log_names;
 
   spinner_.start();
-  const auto res = ssh_client_.list(kRosbagDirRoot, log_names);
+  const auto res = ssh_client_->list(kRosbagDirRoot, log_names);
   spinner_.stop();
 
   if (res != ssh::SshClient::kNoError) {
-    qt::qErrorBox(this, ssh_client_.errorMessage());
+    qt::qErrorBox(this, ssh_client_->errorMessage());
     return;
   }
 
@@ -146,11 +168,11 @@ void FlightLogsWidgetFC::onCleanButtonClicked()
   }
 
   spinner_.start();
-  const auto res = ssh_client_.execute("rm -rf " + std::string(kRosbagDirRoot) + "/*", true);
+  const auto res = ssh_client_->execute("rm -rf " + std::string(kRosbagDirRoot) + "/*", true);
   spinner_.stop();
 
   if (res != ssh::SshClient::kNoError) {
-    qt::qErrorBox(this, ssh_client_.errorMessage());
+    qt::qErrorBox(this, ssh_client_->errorMessage());
     return;
   }
 
@@ -192,11 +214,11 @@ void FlightLogsWidgetFC::onDownloadButtonClicked(const QString& log_name)
   };
 
   progress.show();
-  const auto res = ssh_client_.scpGet(remote_rosbag_path, local_pardir, callback);
+  const auto res = ssh_client_->scpGet(remote_rosbag_path, local_pardir, callback);
   progress.close();
 
   if (res != ssh::SshClient::kNoError) {
-    qt::qErrorBox(this, ssh_client_.errorMessage());
+    qt::qErrorBox(this, ssh_client_->errorMessage());
     return;
   }
 
@@ -214,11 +236,11 @@ void FlightLogsWidgetFC::onDeleteButtonClicked(const QString& log_name)
   const auto rosbag_path = fs::path(kRosbagDirRoot) / log_name.toStdString();
 
   spinner_.start();
-  const auto res = ssh_client_.execute("rm -rf " + rosbag_path.string(), true);
+  const auto res = ssh_client_->execute("rm -rf " + rosbag_path.string(), true);
   spinner_.stop();
 
   if (res != ssh::SshClient::kNoError) {
-    qt::qErrorBox(this, ssh_client_.errorMessage());
+    qt::qErrorBox(this, ssh_client_->errorMessage());
     return;
   }
 

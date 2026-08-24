@@ -13,12 +13,13 @@ namespace gui
 {
 namespace log
 {
-RecordStartThread::RecordStartThread(rclcpp::Node::SharedPtr node) : node_(node)
-{
-}
-
 void RecordStartThread::run()
 {
+  if (!sc_) {
+    Q_EMIT finished(false, "ROS interfaces have not been initialized.");
+    return;
+  }
+
   const auto req = std::make_shared<tobas_msgs::srv::BagRecordStart::Request>();
   req->name = log_name_;
 
@@ -36,10 +37,10 @@ void RecordStartThread::run()
   Q_EMIT finished(true, "");
 }
 
-void RecordStartThread::setNamespace(const std::string& ns)
+void RecordStartThread::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
 {
   sc_ = std::make_shared<ros2::SyncServiceClient<tobas_msgs::srv::BagRecordStart>>(
-    node_, path::join(ns, kRemoteIfaceNS, service::kRosbagRecordStart));
+    node, path::join(ns, kRemoteIfaceNS, service::kRosbagRecordStart));
 }
 
 void RecordStartThread::setLogName(const std::string& log_name)
