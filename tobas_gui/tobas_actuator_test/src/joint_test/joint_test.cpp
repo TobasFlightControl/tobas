@@ -15,12 +15,8 @@ namespace gui
 {
 namespace at
 {
-JointTestWidget::JointTestWidget(
-  rclcpp::Node::SharedPtr node,
-  const RosQtBridge& bridge,
-  const kdl::Tree& tree,
-  const Drone& drone)
-  : node_(node), tree_(tree), drone_(drone)
+JointTestWidget::JointTestWidget(const RosQtBridge& bridge, const kdl::Tree& tree, const Drone& drone)
+  : tree_(tree), drone_(drone)
 {
   const auto instruction = new qt::DescriptionWidget(
     "1. Click \"Start\" to start joint test.\n\n"
@@ -31,7 +27,7 @@ JointTestWidget::JointTestWidget(
 
   start_button_ = new QPushButton("Start");
   start_button_->setFixedSize(kButtonWidth, kButtonHeight);
-  start_button_->setEnabled(true);
+  start_button_->setEnabled(false);
 
   stop_button_ = new QPushButton("Stop");
   stop_button_->setFixedSize(kButtonWidth, kButtonHeight);
@@ -45,7 +41,7 @@ JointTestWidget::JointTestWidget(
   home_button_->setFixedSize(kButtonWidth, kButtonHeight);
   home_button_->setEnabled(false);
 
-  commands_publisher_ = new JointCommandsPublisherWidget(node, tree, drone);
+  commands_publisher_ = new JointCommandsPublisherWidget(tree, drone);
 
   // Layout
   const auto cols = new QHBoxLayout();
@@ -77,7 +73,7 @@ void JointTestWidget::reset()
 {
   commands_publisher_->stop();
 
-  start_button_->setEnabled(true);
+  start_button_->setEnabled(ros_initialized_ && numRegisteredChannels() > 0);
   stop_button_->setEnabled(false);
   zero_button_->setEnabled(false);
   home_button_->setEnabled(false);
@@ -87,9 +83,16 @@ void JointTestWidget::reset()
 
 void JointTestWidget::updateInternalDataStructures()
 {
+  ros_initialized_ = false;
   reset();
-
   commands_publisher_->updateInternalDataStructures();
+}
+
+void JointTestWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
+{
+  reset();
+  commands_publisher_->initializeRosInterfaces(std::move(node), ns);
+  ros_initialized_ = true;
 }
 
 int JointTestWidget::numRegisteredChannels() const

@@ -44,18 +44,19 @@ class RotorTestWidget : public BaseWidget
   static constexpr auto kWaitForService = std::chrono::seconds(3);
 
 public:
-  explicit RotorTestWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge, const Drone& drone);
+  explicit RotorTestWidget(const RosQtBridge& bridge, const Drone& drone);
 
   const char* title() const override;
 
   void reset() override;
 
   void updateProject(const std::filesystem::path& proj_path);
+  void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
 
   int numRegisteredChannels() const;
 
 private:
-  const rclcpp::Node::SharedPtr node_;
+  rclcpp::Node::SharedPtr node_;
   const RosQtBridge& bridge_;
   const Drone& drone_;
   ElectricPropulsionSystemConfig::ConstSharedPtr eprop_;
@@ -68,6 +69,7 @@ private:
   std::array<bool, kMaxDshotChannels> registered_;
   std::array<RotorWidget*, kMaxDshotChannels> rotor_widgets_;
 
+  bool ros_initialized_ = false;
   bool running_ = false;
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
 

@@ -34,9 +34,10 @@ std::string paramName(size_t ch)
 }
 }  // namespace
 
-RotorTestWidget::RotorTestWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge, const Drone& drone)
-  : node_(node), bridge_(bridge), drone_(drone)
+RotorTestWidget::RotorTestWidget(const RosQtBridge& bridge, const Drone& drone) : bridge_(bridge), drone_(drone)
 {
+  registered_.fill(false);
+
   const auto warning =
     new qt::DescriptionWidget("Warning: Ensure that propellers are removed from motors.\n\n", cmn::kBodyPSize);
   warning->setStyleSheet("color: red; font-weight: bold;");
@@ -59,7 +60,7 @@ RotorTestWidget::RotorTestWidget(rclcpp::Node::SharedPtr node, const RosQtBridge
 
   start_button_ = new QPushButton("Start");
   start_button_->setFixedSize(kButtonWidth, kButtonHeight);
-  start_button_->setEnabled(true);
+  start_button_->setEnabled(false);
   button_cols->addWidget(start_button_);
   connect(start_button_, &QPushButton::clicked, this, &self::onStartButtonClicked);
 
@@ -115,7 +116,7 @@ void RotorTestWidget::reset()
   // Stop the timer.
   update_timer_.stop();
 
-  start_button_->setEnabled(true);
+  start_button_->setEnabled(ros_initialized_ && numRegisteredChannels() > 0);
   stop_button_->setEnabled(false);
   save_button_->setEnabled(false);
 
@@ -125,7 +126,13 @@ void RotorTestWidget::reset()
 
 void RotorTestWidget::updateProject(const fs::path& proj_path)
 {
+  // Release ROS interfaces before rebuilding state for the new project.
+  ros_initialized_ = false;
   reset();
+  node_.reset();
+  tar_speeds_pub_.reset();
+  dparam_cli_.reset();
+  get_params_sc_.reset();
 
   // Update the project path.
   proj_paths_.setProjPath(proj_path);
@@ -157,20 +164,26 @@ void RotorTestWidget::updateProject(const fs::path& proj_path)
       const auto max_rpm = st::rps2rpm(drone_.prop->maxSpeed(link_name));
       rotor_widgets_.at(erotor->channel)->setMaximumRPM(max_rpm);
     }
-
-    const auto ns = '/' + drone_.name;
-    tar_speeds_pub_ = ros2::createPublisher<tobas_msgs::msg::RotorSpeedArray>(
-      node_, path::join(ns, kRemoteIfaceNS, topic::kRotorSpeedsCmd));
-    dparam_cli_ = std::make_shared<dparam::DynamicParamClient>(node_, node::kRpmControlConfigServer, ns);
-    get_params_sc_ = std::make_shared<ros2::SyncServiceClient<tobas_dparam_msgs::srv::GetParams>>(
-      node_, path::join(ns, kRemoteIfaceNS, node::kRpmControlConfigServer, service::kGetDynamicParams));
   }
   else {
     eprop_.reset();
-    tar_speeds_pub_.reset();
-    dparam_cli_.reset();
-    get_params_sc_.reset();
   }
+}
+
+void RotorTestWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
+{
+  reset();
+
+  if (eprop_) {
+    tar_speeds_pub_ = ros2::createPublisher<tobas_msgs::msg::RotorSpeedArray>(
+      node, path::join(ns, kRemoteIfaceNS, topic::kRotorSpeedsCmd));
+    dparam_cli_ = std::make_shared<dparam::DynamicParamClient>(node, node::kRpmControlConfigServer, ns);
+    get_params_sc_ = std::make_shared<ros2::SyncServiceClient<tobas_dparam_msgs::srv::GetParams>>(
+      node, path::join(ns, kRemoteIfaceNS, node::kRpmControlConfigServer, service::kGetDynamicParams));
+  }
+
+  node_ = std::move(node);
+  ros_initialized_ = true;
 }
 
 int RotorTestWidget::numRegisteredChannels() const

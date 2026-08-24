@@ -16,11 +16,8 @@ namespace gui
 {
 namespace at
 {
-JointCommandsPublisherWidget::JointCommandsPublisherWidget(
-  rclcpp::Node::SharedPtr node,
-  const kdl::Tree& tree,
-  const Drone& drone)
-  : node_(node), tree_(tree), drone_(drone), joint_parser_(tree)
+JointCommandsPublisherWidget::JointCommandsPublisherWidget(const kdl::Tree& tree, const Drone& drone)
+  : tree_(tree), drone_(drone), joint_parser_(tree)
 {
   rows_ = new QVBoxLayout();
   setLayout(rows_);
@@ -30,6 +27,13 @@ JointCommandsPublisherWidget::JointCommandsPublisherWidget(
 
 void JointCommandsPublisherWidget::updateInternalDataStructures()
 {
+  // Stop publishing and release ROS interfaces before rebuilding project-dependent state.
+  stop();
+  node_.reset();
+  pos_pub_.reset();
+  vel_pub_.reset();
+  eff_pub_.reset();
+
   TOBAS_CHECK(joint_parser_.updateInternalDataStructures());
 
   // Initialize.
@@ -105,9 +109,12 @@ void JointCommandsPublisherWidget::updateInternalDataStructures()
     connect(commander, &qt::DoubleSliderDisplay::valueChanged, this, &self::onValueChanged);
     commanders_[jnt_name] = commander;
   }
+}
 
-  // Update topics.
-  const auto ns = '/' + drone_.name;
+void JointCommandsPublisherWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
+{
+  node_ = std::move(node);
+
   const auto pos_topic = path::join(ns, kRemoteIfaceNS, topic::kJointPosCmd);
   const auto vel_topic = path::join(ns, kRemoteIfaceNS, topic::kJointVelCmd);
   const auto eff_topic = path::join(ns, kRemoteIfaceNS, topic::kJointEffCmd);
@@ -190,6 +197,10 @@ size_t JointCommandsPublisherWidget::numRegisteredChannels() const
 
 void JointCommandsPublisherWidget::publishCurrentValues()
 {
+  if (!node_) {
+    return;
+  }
+
   // Create messages.
   auto tar_pos = std::make_unique<tobas_msgs::msg::JointCommandArray>();
   auto tar_vel = std::make_unique<tobas_msgs::msg::JointCommandArray>();

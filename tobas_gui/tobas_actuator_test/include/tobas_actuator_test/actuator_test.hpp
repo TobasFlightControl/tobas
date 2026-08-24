@@ -26,14 +26,11 @@ class ActuatorTestWidget : public qt::VerticalTabWidget
   static constexpr int kTabWidth = 70;
 
 public:
-  explicit ActuatorTestWidget(
-    rclcpp::Node::SharedPtr node,
-    const RosQtBridge& bridge,
-    const kdl::Tree& tree,
-    const Drone& drone);
+  explicit ActuatorTestWidget(const RosQtBridge& bridge, const kdl::Tree& tree, const Drone& drone);
 
   void reset();
   void updateProject(const std::filesystem::path& proj_path);
+  void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
 
 private:
   const Drone& drone_;

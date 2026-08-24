@@ -3,6 +3,7 @@
 
 #include "tobas_control_system/mission_planner/mission_planner.hpp"
 
+#include <QDebug>
 #include <QFileInfo>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -64,8 +65,7 @@ size_t splineMapSampleCount(const MapSplinePath& path, size_t segment)
 }
 }  // namespace
 
-MissionPlannerWidget::MissionPlannerWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge)
-  : node_(node), spinner_(Qt::WindowModal, this)
+MissionPlannerWidget::MissionPlannerWidget(const RosQtBridge& bridge) : spinner_(Qt::WindowModal, this)
 {
   map_ = new MapWidget();
 
@@ -141,12 +141,13 @@ void MissionPlannerWidget::reset()
   mission_executing_ = false;
 }
 
-void MissionPlannerWidget::updateNamespace(const std::string& ns)
+void MissionPlannerWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
 {
-  reset();
-
   const auto action_name = path::join(ns, kRemoteIfaceNS, action::kExecuteMission);
-  mission_ac_ = rclcpp_action::create_client<Action>(node_, action_name);
+  mission_ac_ = rclcpp_action::create_client<Action>(node, action_name);
+
+  ros_initialized_ = true;
+  setEditMode();
 }
 
 QString MissionPlannerWidget::getMissionDir()
@@ -198,7 +199,7 @@ void MissionPlannerWidget::setEditMode()
   save_button_->setEnabled(true);
   add_button_->setEnabled(true);
   clear_button_->setEnabled(true);
-  execute_button_->setEnabled(true);
+  execute_button_->setEnabled(ros_initialized_);
   cancel_button_->setEnabled(false);
 
   command_list_->setDragDropMode(QListWidget::InternalMove);
@@ -686,7 +687,7 @@ void MissionPlannerWidget::onCacheButtonClicked()
   // Delete files whose total size exceeds the limit.
   for (size_t i = last_alive_idx; i < files.size(); ++i) {
     if (!fs::remove(files[i])) {
-      RCLCPP_WARN_STREAM(node_->get_logger(), "Failed to remove " << files[i]);
+      qWarning() << "Failed to remove" << QString::fromStdString(files[i].string());
     }
   }
 

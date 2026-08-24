@@ -26,22 +26,18 @@ class JointTestWidget : public BaseWidget
   static constexpr int kButtonHeight = 40;
 
 public:
-  explicit JointTestWidget(
-    rclcpp::Node::SharedPtr node,
-    const RosQtBridge& bridge,
-    const kdl::Tree& tree,
-    const Drone& drone);
+  explicit JointTestWidget(const RosQtBridge& bridge, const kdl::Tree& tree, const Drone& drone);
 
   const char* title() const override;
 
   void reset() override;
 
   void updateInternalDataStructures();
+  void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
 
   int numRegisteredChannels() const;
 
 private:
-  const rclcpp::Node::SharedPtr node_;
   const kdl::Tree& tree_;
   const Drone& drone_;
 
@@ -52,6 +48,7 @@ private:
 
   JointCommandsPublisherWidget* commands_publisher_;
 
+  bool ros_initialized_ = false;
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
 
 private Q_SLOTS:
