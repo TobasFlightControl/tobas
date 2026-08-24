@@ -431,20 +431,19 @@ void GroundControlStationWidget::onConnectButtonClicked()
 
   configured_host_ = currentHost();
   configured_id_ = vehicle_id_->value();
+
   ros_node_manager_ = createRosNodeManager(configured_host_, ros_args_);
   ros_node_ = ros_node_manager_->node();
+
   ssh_client_.emplace(ros_node_);
   remote_proj_builder_.emplace(ros_node_);
 
-  spinner_.start();
   if (ssh_client_->setEndpoint(configured_host_.toStdString(), cmn::kUserNameFC) != ssh::SshClient::kNoError) {
     qt::qErrorBox(this, "Failed to configure " + configured_host_ + ":\n\n" + QString(ssh_client_->errorMessage()));
     return;
   }
-  spinner_.stop();
 
   const auto ns = path::join("/", drone_.name, kIdPrefix + std::to_string(configured_id_));
-
   bridge_.initializeRosInterfaces(ros_node_, ns);
   sensor_calib_->initializeRosInterfaces(ros_node_, ns);
   actuator_test_->initializeRosInterfaces(ros_node_, ns);
@@ -456,6 +455,8 @@ void GroundControlStationWidget::onConnectButtonClicked()
   connection_ready_ = true;
   reset();
   updateActionAvailability();
+
+  qt::qInfoBox(this, "The connection to " + currentConnectionDescription() + " is ready.");
 }
 
 void GroundControlStationWidget::onWriteButtonClicked()
