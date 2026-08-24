@@ -73,7 +73,8 @@ private:
 
   ros2::SyncServiceClient<tobas_real_msgs::srv::SetMagnetometerParams>::SharedPtr set_params_sc_;
 
-  rviz::RvizFrameManager rviz_manager_;
+  std::optional<rviz::RvizFrameManager> rviz_manager_;
+  QVBoxLayout* rviz_rows_;
 
   QPushButton* start_button_;
   QPushButton* finish_button_;
@@ -103,6 +104,8 @@ private:
   ros2::PublisherPtr<sensor_msgs::msg::PointCloud> removed_pub_;
   ros2::PublisherPtr<sensor_msgs::msg::PointCloud> calibrated_pub_;
   ros2::PublisherPtr<visualization_msgs::msg::MarkerArray> ellipsoid_pub_;
+
+  void initializeRviz();
 
   /* Reset to the state before calibration starts. */
   void resetToPreStart();
