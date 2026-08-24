@@ -226,9 +226,9 @@ void GroundControlStationWidget::updateInternalDataStructures()
   sensor_calib_->updateInternalDataStructures();
   actuator_test_->updateProject(proj_path);
   control_system_->updateInternalDataStructures();
-  TOBAS_CHECK(param_tuning_->updateProject(proj_path));
+  param_tuning_->updateProject(proj_path);
   flight_log_->onProjectLoaded();
-  TOBAS_CHECK(simulation_->updateProject(proj_path));
+  simulation_->updateProject(proj_path);
 }
 
 void GroundControlStationWidget::closeEvent(QCloseEvent* event)

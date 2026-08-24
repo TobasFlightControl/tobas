@@ -33,7 +33,7 @@ public:
   explicit ParameterTuningWidget();
 
   void reset();
-  bool updateProject(const std::filesystem::path& proj_path);
+  void updateProject(const std::filesystem::path& proj_path);
   void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
 
 private:
@@ -46,6 +46,11 @@ private:
   QPushButton* load_button_;
   QPushButton* save_button_;
   QPushButton* dflt_button_;
+
+  bool project_loaded_ = false;
+  bool ros_initialized_ = false;
+
+  void updateOperationButtons();
 
 private Q_SLOTS:
   void onLoadButtonClicked();

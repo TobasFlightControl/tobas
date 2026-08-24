@@ -12,6 +12,7 @@
 #include <tobas_constants/node.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/util.hpp>
+#include <tobas_std_tools/check.hpp>
 
 namespace fs = std::filesystem;
 
@@ -40,7 +41,6 @@ ParameterTuningWidget::ParameterTuningWidget()
   dflt_button_->setFixedSize(kButtonWidth, kButtonHeight);
 
   reset();
-  load_button_->setEnabled(false);
 
   // Layout
   const auto root_rows = new QVBoxLayout();
@@ -67,6 +67,7 @@ ParameterTuningWidget::ParameterTuningWidget()
 
 void ParameterTuningWidget::reset()
 {
+  updateOperationButtons();
   save_button_->setEnabled(false);
   dflt_button_->setEnabled(false);
 
@@ -76,7 +77,7 @@ void ParameterTuningWidget::reset()
   }
 }
 
-bool ParameterTuningWidget::updateProject(const fs::path& proj_path)
+void ParameterTuningWidget::updateProject(const fs::path& proj_path)
 {
   reset();
 
@@ -85,12 +86,10 @@ bool ParameterTuningWidget::updateProject(const fs::path& proj_path)
 
   // Load drone configuration.
   const auto tbsdrn_path = proj_paths_.tbsdrnPath();
-  if (!drone_.load(tbsdrn_path)) {
-    qt::qErrorBox(this, "Failed to load drone configuration.");
-    return false;
-  }
+  TOBAS_CHECK(drone_.load(tbsdrn_path));
 
-  return true;
+  project_loaded_ = true;
+  updateOperationButtons();
 }
 
 void ParameterTuningWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
@@ -99,7 +98,13 @@ void ParameterTuningWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node
     block->initializeRosInterfaces(node, ns);
   }
 
-  load_button_->setEnabled(true);
+  ros_initialized_ = true;
+  updateOperationButtons();
+}
+
+void ParameterTuningWidget::updateOperationButtons()
+{
+  load_button_->setEnabled(project_loaded_ && ros_initialized_);
 }
 
 void ParameterTuningWidget::onLoadButtonClicked()
