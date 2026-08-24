@@ -36,7 +36,6 @@ public:
   explicit HelperWidget(
     const uadf::Model& uadf,
     const kdl::Tree& tree,
-    VehicleParametersWidget* vehicle,
     cf::CoefficientsWidget* coefs);
 
   const char* name() const;

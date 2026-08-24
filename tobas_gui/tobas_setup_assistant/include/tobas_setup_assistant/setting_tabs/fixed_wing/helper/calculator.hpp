@@ -3,12 +3,11 @@
 #include <QPushButton>
 
 #include <tobas_kdl/tree.hpp>
-#include <tobas_kdl/tree_mass_holder.hpp>
+#include <tobas_kdl/tree_inertia_solver.hpp>
 #include <tobas_kdl/twist.hpp>
 #include <tobas_kdl/wrench.hpp>
 
 #include "../coefs/coefs.hpp"
-#include "../vehicle.hpp"
 #include "./control_surfaces.hpp"
 #include "./wing.hpp"
 #include "./wings.hpp"
@@ -38,19 +37,21 @@ class Calculator : public QPushButton
 public:
   explicit Calculator(
     const kdl::Tree& tree,
-    VehicleParametersWidget* vehicle,
     cf::CoefficientsWidget* coefs,
     WingsWidget* wings,
     ControlSurfacesWidget* control_surfaces);
   void updateInternalDataStructures();
 
 private:
-  kdl::TreeMassHolder mass_holder_;
+  const kdl::Tree& tree_;
+  kdl::TreeInertiaSolver inertia_solver_;
 
-  VehicleParametersWidget* vehicle_;
   cf::CoefficientsWidget* coefs_;
   WingsWidget* wings_;
   ControlSurfacesWidget* control_surfaces_;
+
+  double mass_;
+  kdl::Vector B_Pos_B2R_; // base_link座標系でみたときのbase_linkからref座標系までの距離. ref座標系はCoGに取る. 
 
   // C_L = C_L0 + C_Lalpha * alpha
   double c_lift_0_;
@@ -92,8 +93,6 @@ private:
   static void XZ2DL(const kdl::Vector& force, const double& alpha, double& drag, double& lift);
   void calcWingTranslations(const WingWidget* wing, kdl::Frame& W_T_R, kdl::Frame& R_T_W) const;
   void calcMacTranslations(const WingWidget* wing, kdl::Frame& M_T_R, kdl::Frame& R_T_M) const;
-  // vehicleの欄に書かれている内容とmain_wingから推算される内容に大きな乖離がないかをチェック
-  void validate(const double& cruise_alpha);
   // 機体モーメント基準点のlocal座標系で見たとき, 機体が発生する空力を計算する
   kdl::Wrench calcMachineAeroDynamicForce(const kdl::Twist& twist_ref) const;
   // 指定されたwingのmac座標系で見たとき, そのwingが発生する空力を計算する

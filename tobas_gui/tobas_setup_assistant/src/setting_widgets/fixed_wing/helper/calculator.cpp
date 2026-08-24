@@ -20,13 +20,12 @@ namespace hp
 {
 Calculator::Calculator(
   const kdl::Tree& tree,
-  VehicleParametersWidget* vehicle,
   cf::CoefficientsWidget* coefs,
   WingsWidget* wings,
   ControlSurfacesWidget* control_surfaces)
   : super("Calculate")
-  , mass_holder_(tree)
-  , vehicle_(vehicle)
+  , tree_(tree)
+  , inertia_solver_(tree)
   , coefs_(coefs)
   , wings_(wings)
   , control_surfaces_(control_surfaces)
@@ -38,19 +37,26 @@ Calculator::Calculator(
 
 void Calculator::updateInternalDataStructures()
 {
-  mass_holder_.updateInternalDataStructures();
+  inertia_solver_.updateInternalDataStructures();
+
+  // Center of gravity and inertia tensor.
+  kdl::JntArray q(tree_.getNrOfJoints());
+  if (inertia_solver_.jntToCart(q) < 0) {
+    std::cout << inertia_solver_.errorMessage() << std::endl;
+  }
+  const auto& I_base = inertia_solver_.getInertia();
+  mass_ = I_base.getMass();
+  B_Pos_B2R_ = I_base.getCOG();
 }
 
 void Calculator::onClicked()
 {
   // cruise飛行時の迎角, 速度を求める
   const auto cruise_speed = wings_->cruiseSpeed();
-  const auto mass = mass_holder_.getMass();
   const auto main_wing = wings_->getMainWing();
   const auto C_L =
-    mass * st::kGravity / (dynamicPressure(st::kStandardAirDensity, cruise_speed) * main_wing->surfaceArea());
+    mass_ * st::kGravity / (dynamicPressure(st::kStandardAirDensity, cruise_speed) * main_wing->surfaceArea());
   const auto cruise_alpha = (C_L - main_wing->c_lift_0()) / main_wing->c_lift_alpha();
-  validate(cruise_alpha);
   // cruise時係数を求める
   calcCruiseCoeff(cruise_speed, cruise_alpha);
   // alphaに関して数値微分を取る
@@ -78,7 +84,7 @@ void Calculator::calcWingTranslations(const WingWidget* wing, kdl::Frame& W_T_R,
 {
   // base_link座標系 : urdfのbase_linkの座標系. flu座標系
   // wing座標系 : WingWidgetで設定した翼の, 翼根の前縁部を原点とする座標系. flu座標系
-  // ref座標系 : VechcleWidgetで設定した, この点のまわりで線形化した空力微係数を求める座標系. frd座標系
+  // ref座標系 : この点のまわりで線形化した空力微係数を求める座標系. frd座標系. CoGに取る
 
   // GUIで設定するのは
   // base_link座標系でみたときのwingまでの位置と回転
@@ -89,11 +95,9 @@ void Calculator::calcWingTranslations(const WingWidget* wing, kdl::Frame& W_T_R,
   const auto B_R_B2W =
     kdl::Rotation::RPY(rpy.x(), rpy.y(), rpy.z());  // base_link座標系でみたときのbase_linkからwingまでのrotation
   const auto B_T_W = kdl::Frame(B_R_B2W, B_Pos_B2W);  // base座標系で表したwing座標系のFrame
-  const kdl::Vector B_Pos_B2R =
-    vehicle_->aerodynamicCenter();  // base_link座標系からみたときのbase_linkからref座標系までのposition
   const auto B_R_B2R =
     kdl::Rotation::RPY(M_PI, 0, 0);  // base_link座標系からみたときのbase_linkからref座標系までのrotation
-  const auto B_T_R = kdl::Frame(B_R_B2R, B_Pos_B2R);  // base_link座標系で表したref座標系のFrame
+  const auto B_T_R = kdl::Frame(B_R_B2R, B_Pos_B2R_);  // base_link座標系で表したref座標系のFrame
   W_T_R = B_T_W.inverse() * B_T_R;                    // wing座標系で表したref座標系のFrame
   R_T_W = B_T_R.inverse() * B_T_W;                    // ref座標系で表したwing座標系のFrame
 }
@@ -103,8 +107,8 @@ void Calculator::calcMacTranslations(const WingWidget* wing, kdl::Frame& M_T_R, 
   // base_link座標系 : urdfのbase_linkの座標系. flu座標系
   // wing座標系 : WingWidgetで設定した翼の, 翼根の前縁部を原点とする座標系. flu座標系
   // mac座標系 : WingWidgetで設定した翼の, 空力中心を原点とする座標系. frd座標系.
-  // wingがsymmetricか否かでwing座標系での位置が変わる ref座標系 : VechcleWidgetで設定した,
-  // この点のまわりで線形化した空力微係数を求める座標系. frd座標系
+  // wingがsymmetricか否かでwing座標系での位置が変わる
+  // ref座標系 : この点のまわりで線形化した空力微係数を求める座標系. frd座標系. CoGに取る
 
   const auto W_T_M = kdl::Frame(
     kdl::Rotation::RPY(M_PI, 0, 0), kdl::Vector(wing->mac_position()));  // wing座標系で表したmac座標系のFrame
@@ -112,44 +116,6 @@ void Calculator::calcMacTranslations(const WingWidget* wing, kdl::Frame& M_T_R, 
   calcWingTranslations(wing, W_T_R, R_T_W);
   M_T_R = W_T_M.inverse() * W_T_R;
   R_T_M = R_T_W * W_T_M;
-}
-
-void Calculator::validate(const double& cruise_alpha)
-{
-  const auto main_wing = wings_->getMainWing();
-  // wing surface
-  if (abs(main_wing->surfaceArea() - vehicle_->wingSurface()) / vehicle_->wingSurface() > kAffordableRate) {
-    qt::qWarnBox(
-      this,
-      QString::fromStdString(std::format(
-        "The wing area entered in the Vehicle Parameters section differs significantly from the estimated wing "
-        "area.\nEstimated : {:.2f} m^2",
-        main_wing->surfaceArea())));
-  }
-  if (abs(main_wing->span() - vehicle_->wingSpan()) / vehicle_->wingSpan() > kAffordableRate) {
-    qt::qWarnBox(
-      this,
-      QString::fromStdString(std::format(
-        "The wing span entered in the Vehicle Parameters section differs significantly from the estimated wing "
-        "area.\nEstimated : {:.2f} m",
-        main_wing->span())));
-  }
-  if (abs(main_wing->c_mac() - vehicle_->mac()) / vehicle_->mac() > kAffordableRate) {
-    qt::qWarnBox(
-      this,
-      QString::fromStdString(std::format(
-        "The mean aerodynamics chord entered in the Vehicle Parameters section differs significantly from the "
-        "estimated wing area.\nEstimated : {:.2f} m",
-        main_wing->c_mac())));
-  }
-  if (!vehicle_->alphaLimit().inRange(cruise_alpha)) {
-    qt::qWarnBox(
-      this,
-      QString::fromStdString(std::format(
-        "The cruise AoA is outside the valid range entered in the Vehicle Parameters section.\nEstimated cruise AoA : "
-        "{:2f} rad",
-        cruise_alpha)));
-  }
 }
 
 kdl::Wrench Calculator::calcMachineAeroDynamicForce(const kdl::Twist& twist_ref) const

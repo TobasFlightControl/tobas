@@ -21,7 +21,6 @@ namespace hp
 HelperWidget::HelperWidget(
   const uadf::Model& uadf,
   const kdl::Tree& tree,
-  VehicleParametersWidget* vehicle,
   cf::CoefficientsWidget* coefs)
 {
   const auto rows = new QVBoxLayout();
@@ -38,7 +37,7 @@ HelperWidget::HelperWidget(
   rows->addWidget(control_surfaces_);
 
   // calculate button
-  calculator_ = new Calculator(tree, vehicle, coefs, wings_, control_surfaces_);
+  calculator_ = new Calculator(tree, coefs, wings_, control_surfaces_);
   qt::addWidgetCenter(calculator_, rows);
 }
 
