@@ -25,6 +25,7 @@
 #include <tobas_gui_common/version.hpp>
 #include <tobas_kdl_parser/kdl_parser.hpp>
 #include <tobas_parameter_tuning/parameter_tuning.hpp>
+#include <tobas_qt_tools/widgets/toggle_button.hpp>
 #include <tobas_ros2_tools/async_node_manager.hpp>
 #include <tobas_sensor_calibration/sensor_calibration.hpp>
 #include <tobas_simulation_gui/simulation.hpp>
@@ -81,8 +82,7 @@ private:
   FlightControllerScanner* fc_scanner_;
   QComboBox* fc_selector_;
   QSpinBox* vehicle_id_;
-  QPushButton* connect_btn_;
-
+  qt::ToggleButton* connect_btn_;
   QPushButton* write_btn_;
   QPushButton* restart_btn_;
   QPushButton* shutdown_btn_;
@@ -113,9 +113,11 @@ private:
   void updateInternalDataStructures();
   void initializeRosConnection();
   void clearRosConnection();
+  void connectToFlightController();
+  void disconnectFromFlightController();
+  bool waitForHeartbeat();
 
-  void updateConnectionAvailability();
-  void updateActionAvailability();
+  void updateHeaderActionAvailability();
   void setFlightControllerPlaceholder(const QString& text);
 
   QString currentHost() const;
@@ -130,7 +132,8 @@ private:
 
 private Q_SLOTS:
   void onLoadButtonClicked();
-  void onConnectButtonClicked();
+  void onConnectRequested();
+  void onDisconnectRequested();
   void onWriteButtonClicked();
 
   void onFlightControllerScanFinished(const QVector<DiscoveredFlightController>& flight_controllers);
