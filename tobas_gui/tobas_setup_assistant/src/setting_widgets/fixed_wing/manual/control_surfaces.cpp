@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include "tobas_setup_assistant/setting_tabs/fixed_wing/coefs/control_surfaces.hpp"
+#include "tobas_setup_assistant/setting_tabs/fixed_wing/manual/control_surfaces.hpp"
 
 #include <QDebug>
 #include <QHeaderView>
@@ -15,7 +15,7 @@
 #include <tobas_yaml_tools/convert/qstring.hpp>
 #include <tobas_yaml_tools/format.hpp>
 
-#include "tobas_setup_assistant/setting_tabs/fixed_wing/constants.hpp"
+#include <tobas_setup_assistant/setting_tabs/fixed_wing/constants.hpp>
 
 namespace tobas
 {
@@ -25,7 +25,7 @@ namespace sa
 {
 namespace fw
 {
-namespace cf
+namespace mn
 {
 ControlSurfacesWidget::ControlSurfacesWidget(const uadf::Model& uadf) : super(0, kNumCols), uadf_(uadf)
 {
@@ -302,7 +302,7 @@ void ControlSurfacesWidget::setToDefault(int row)
   pitchCoef(row, 0.0);
   yawCoef(row, 0.0);
 }
-}  // namespace cf
+}  // namespace mn
 }  // namespace fw
 }  // namespace sa
 }  // namespace gui

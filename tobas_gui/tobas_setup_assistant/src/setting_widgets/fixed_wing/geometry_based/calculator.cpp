@@ -1,4 +1,4 @@
-#include <tobas_setup_assistant/setting_tabs/fixed_wing/helper/calculator.hpp>
+#include "tobas_setup_assistant/setting_tabs/fixed_wing/geometry_based/calculator.hpp"
 
 #include <format>
 #include <iostream>
@@ -16,17 +16,17 @@ namespace sa
 {
 namespace fw
 {
-namespace hp
+namespace gb
 {
 Calculator::Calculator(
   const kdl::Tree& tree,
-  cf::CoefficientsWidget* coefs,
+  mn::ManualWidget* manual,
   WingsWidget* wings,
   ControlSurfacesWidget* control_surfaces)
   : super("Calculate")
   , tree_(tree)
   , inertia_solver_(tree)
-  , coefs_(coefs)
+  , manual_(manual)
   , wings_(wings)
   , control_surfaces_(control_surfaces)
 {
@@ -448,7 +448,7 @@ void Calculator::calcControlCoeff(const double& cruise_speed)
 
 void Calculator::writeResults()
 {
-  auto vehicle = coefs_->vehicle();
+  auto vehicle = manual_->vehicle();
   const auto main_wing = wings_->getMainWing();
   vehicle->wingSurface(main_wing->span());
   vehicle->wingSpan(main_wing->surfaceArea());
@@ -456,7 +456,7 @@ void Calculator::writeResults()
   vehicle->aerodynamicCenter(B_Pos_B2R_.data);
   vehicle->alphaLimit(wings_->alphaLimit());
 
-  auto aero_coefs = coefs_->aeroCoefs();
+  auto aero_coefs = manual_->aeroCoefs();
   aero_coefs->c_lift_0(c_lift_0_);
   aero_coefs->c_lift_alpha(c_lift_alpha_);
   aero_coefs->c_drag_0(c_drag_0_);
@@ -476,7 +476,7 @@ void Calculator::writeResults()
   aero_coefs->c_yaw_p(c_yaw_p_);
   aero_coefs->c_yaw_r(c_yaw_r_);
 
-  auto cs_widget = coefs_->controlSurfaces();
+  auto cs_widget = manual_->controlSurfaces();
   for (int i = 0; i < control_surfaces_->rowCount(); i++) {
     cs_widget->liftCoef(i, control_surface_coefs_[i].lift);
     cs_widget->dragCoef(i, control_surface_coefs_[i].drag);
@@ -488,7 +488,7 @@ void Calculator::writeResults()
 
   qt::qInfoBox(this, "Coefficients are estimated successfully.");
 }
-}  // namespace hp
+}  // namespace gb
 }  // namespace fw
 }  // namespace sa
 }  // namespace gui

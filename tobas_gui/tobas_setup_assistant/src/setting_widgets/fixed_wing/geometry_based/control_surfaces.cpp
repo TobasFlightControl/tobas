@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include "tobas_setup_assistant/setting_tabs/fixed_wing/helper/control_surfaces.hpp"
+#include "tobas_setup_assistant/setting_tabs/fixed_wing/geometry_based/control_surfaces.hpp"
 
 #include <QDebug>
 #include <QHeaderView>
@@ -16,7 +16,7 @@
 #include <tobas_yaml_tools/convert/qstring.hpp>
 #include <tobas_yaml_tools/format.hpp>
 
-#include "tobas_setup_assistant/setting_tabs/fixed_wing/constants.hpp"
+#include <tobas_setup_assistant/setting_tabs/fixed_wing/constants.hpp>
 
 namespace tobas
 {
@@ -26,7 +26,7 @@ namespace sa
 {
 namespace fw
 {
-namespace hp
+namespace gb
 {
 ControlSurfacesWidget::ControlSurfacesWidget(const uadf::Model& uadf, WingsWidget* wings_widget)
   : super(0, kNumCols), uadf_(uadf), wings_widget_(wings_widget)
@@ -274,7 +274,7 @@ void ControlSurfacesWidget::onWingsTabRenamed(int index, QString new_name)
   }
 }
 
-}  // namespace hp
+}  // namespace gb
 }  // namespace fw
 }  // namespace sa
 }  // namespace gui

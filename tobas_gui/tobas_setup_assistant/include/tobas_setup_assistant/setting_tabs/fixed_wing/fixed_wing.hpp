@@ -9,12 +9,9 @@
 #include <tobas_qt_tools/widgets/stacked_widget.hpp>
 #include <tobas_qt_tools/widgets/tab_widget.hpp>
 
-#include "../base_setting.hpp"
-#include "./coefs/aero_coefs.hpp"
-#include "./coefs/coefs.hpp"
-#include "./coefs/control_surfaces.hpp"
-#include "./coefs/vehicle.hpp"
-#include "./helper/helper.hpp"
+#include <tobas_setup_assistant/setting_tabs/base_setting.hpp>
+#include <tobas_setup_assistant/setting_tabs/fixed_wing/geometry_based/geometry_based.hpp>
+#include <tobas_setup_assistant/setting_tabs/fixed_wing/manual/manual.hpp>
 
 namespace tobas
 {
@@ -32,8 +29,8 @@ class FixedWingWidget : public BaseSettingWidget
   using super = BaseSettingWidget;
 
   static constexpr char kTypeKey[] = "setting_type";
-  static constexpr char kHelperLabel[] = "Helper";
-  static constexpr char kCoefsLabel[] = "Coefficients";
+  static constexpr char kGeometryBasedLabel[] = "Geometry-Based";
+  static constexpr char kManualLabel[] = "Manual";
   static constexpr int kTabWidth = 120;
   static constexpr int kTabHeight = 40;
 
@@ -51,17 +48,17 @@ public:
   YAML::Node dump() const override;
   void load(const YAML::Node& node) override;
 
-  const cf::VehicleParametersWidget* vehicle() const;
-  const cf::AerodynamicsCoefficientsWidget* aeroCoefs() const;
-  const cf::ControlSurfacesWidget* controlSurfaces() const;
+  const mn::VehicleParametersWidget* vehicle() const;
+  const mn::AerodynamicsCoefficientsWidget* aeroCoefs() const;
+  const mn::ControlSurfacesWidget* controlSurfaces() const;
 
 private:
   QButtonGroup* type_btn_group_;
   qt::StackedWidget* stack_;
   qt::TabWidget* tabs_;
 
-  cf::CoefficientsWidget* coefs_;
-  hp::HelperWidget* helper_;
+  mn::ManualWidget* manual_;
+  gb::GeometryBasedWidget* geometry_based_;
 
   int cur_idx_;
 

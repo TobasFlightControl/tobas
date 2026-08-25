@@ -30,21 +30,21 @@ FixedWingWidget::FixedWingWidget(const uadf::Model& uadf, const kdl::Tree& tree)
   int id = 0;
 
   // widgets in stack
-  coefs_ = new cf::CoefficientsWidget(uadf);
-  helper_ = new hp::HelperWidget(uadf, tree, coefs_);
+  manual_ = new mn::ManualWidget(uadf);
+  geometry_based_= new gb::GeometryBasedWidget(uadf, tree, manual_);
 
   // helper button
-  const auto helper_btn = new QRadioButton(helper_->name());
+  const auto helper_btn = new QRadioButton(geometry_based_->name());
   type_btn_group_->addButton(helper_btn, id++);
   addWidget(helper_btn);
   // coefs button
-  const auto coefs_btn = new QRadioButton(coefs_->name());
+  const auto coefs_btn = new QRadioButton(manual_->name());
   type_btn_group_->addButton(coefs_btn, id++);
   addWidget(coefs_btn);
 
   // stack
-  stack_->addWidget(helper_); // helperが先
-  stack_->addWidget(coefs_);
+  stack_->addWidget(geometry_based_); // geometry basedが先
+  stack_->addWidget(manual_);
   addWidget(stack_);
 
   connect(type_btn_group_, &QButtonGroup::idClicked, this, &self::onSettingTypeClicked);
@@ -73,14 +73,14 @@ const char* FixedWingWidget::description() const
 
 void FixedWingWidget::updateInternalDataStructures()
 {
-  coefs_->updateInternalDataStructures();
-  helper_->updateInternalDataStructures();
+  geometry_based_->updateInternalDataStructures();
+  manual_->updateInternalDataStructures();
 }
 
 void FixedWingWidget::setToDefaults()
 {
-  coefs_->setToDefaults();
-  helper_->setToDefaults();
+  geometry_based_->setToDefaults();
+  manual_->setToDefaults();
 
   static constexpr int kDefaultIndex = 0;
   setCurrentIndex(kDefaultIndex);
@@ -88,10 +88,10 @@ void FixedWingWidget::setToDefaults()
 
 bool FixedWingWidget::isValid()
 {
-  if (!coefs_->isValid()) {
+  if (!geometry_based_->isValid()) {
     return false;
   }
-  if (!helper_->isValid()) {
+  if (!manual_->isValid()) {
     return false;
   }
 
@@ -104,8 +104,8 @@ YAML::Node FixedWingWidget::dump() const
 
   const auto type_btn = type_btn_group_->checkedButton();
   node[kTypeKey] = type_btn->text();
-  node[kCoefsLabel] = coefs_->dump();
-  node[kHelperLabel] = helper_->dump();
+  node[kGeometryBasedLabel] = geometry_based_->dump();
+  node[kManualLabel] = manual_->dump();
 
   return node;
 }
@@ -120,23 +120,23 @@ void FixedWingWidget::load(const YAML::Node& node)
     }
   }
 
-  coefs_->load(node[kCoefsLabel]);
-  helper_->load(node[kHelperLabel]);
+  geometry_based_->load(node[kGeometryBasedLabel]);
+  manual_->load(node[kManualLabel]);
 }
 
-const cf::VehicleParametersWidget* FixedWingWidget::vehicle() const
+const mn::VehicleParametersWidget* FixedWingWidget::vehicle() const
 {
-  return coefs_->vehicle();
+  return manual_->vehicle();
 }
 
-const cf::AerodynamicsCoefficientsWidget* FixedWingWidget::aeroCoefs() const
+const mn::AerodynamicsCoefficientsWidget* FixedWingWidget::aeroCoefs() const
 {
-  return coefs_->aeroCoefs();
+  return manual_->aeroCoefs();
 }
 
-const cf::ControlSurfacesWidget* FixedWingWidget::controlSurfaces() const
+const mn::ControlSurfacesWidget* FixedWingWidget::controlSurfaces() const
 {
-  return coefs_->controlSurfaces();
+  return manual_->controlSurfaces();
 }
 
 void FixedWingWidget::setCurrentButtonIndex(int index)

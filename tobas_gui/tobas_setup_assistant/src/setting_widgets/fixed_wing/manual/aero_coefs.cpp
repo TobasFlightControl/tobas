@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include "tobas_setup_assistant/setting_tabs/fixed_wing/coefs/aero_coefs.hpp"
+#include "tobas_setup_assistant/setting_tabs/fixed_wing/manual/aero_coefs.hpp"
 
 #include <QFileDialog>
 #include <QFileInfo>
@@ -12,9 +12,9 @@
 #include <tobas_ros2_tools/util.hpp>
 #include <tobas_yaml_tools/format.hpp>
 
-#include "tobas_setup_assistant/constants.hpp"
-#include "tobas_setup_assistant/setting_tabs/fixed_wing/constants.hpp"
-#include "tobas_setup_assistant/setting_tabs/fixed_wing/coefs/vspaero_parser.hpp"
+#include <tobas_setup_assistant/constants.hpp>
+#include <tobas_setup_assistant/setting_tabs/fixed_wing/constants.hpp>
+#include <tobas_setup_assistant/setting_tabs/fixed_wing/manual/vspaero_parser.hpp>
 
 namespace tobas
 {
@@ -24,7 +24,7 @@ namespace sa
 {
 namespace fw
 {
-namespace cf
+namespace mn
 {
 AerodynamicsCoefficientsWidget::AerodynamicsCoefficientsWidget()
 {
@@ -387,7 +387,7 @@ void AerodynamicsCoefficientsWidget::onLoadButtonClicked()
 
   qt::qInfoBox(this, "Coefficients are loaded successfully.");
 }
-}  // namespace cf
+}  // namespace mn
 }  // namespace fw
 }  // namespace sa
 }  // namespace gui

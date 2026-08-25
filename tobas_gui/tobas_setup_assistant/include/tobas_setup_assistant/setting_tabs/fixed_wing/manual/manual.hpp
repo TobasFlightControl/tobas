@@ -3,11 +3,11 @@
 
 #pragma once
 
-#include "./aero_coefs.hpp"
-#include "./control_surfaces.hpp"
-#include "./vehicle.hpp"
-
 #include <tobas_qt_tools/widgets/scroll_area.hpp>
+
+#include <tobas_setup_assistant/setting_tabs/fixed_wing/manual/aero_coefs.hpp>
+#include <tobas_setup_assistant/setting_tabs/fixed_wing/manual/control_surfaces.hpp>
+#include <tobas_setup_assistant/setting_tabs/fixed_wing/manual/vehicle.hpp>
 
 namespace tobas
 {
@@ -17,13 +17,13 @@ namespace sa
 {
 namespace fw
 {
-namespace cf
+namespace mn
 {
-class CoefficientsWidget : public qt::ScrollArea
+class ManualWidget : public qt::ScrollArea
 {
   Q_OBJECT
 
-  using self = CoefficientsWidget;
+  using self = ManualWidget;
   using super = qt::ScrollArea;
 
   static constexpr char kVehicleLabel[] = "Vehicle Parameters";
@@ -31,7 +31,7 @@ class CoefficientsWidget : public qt::ScrollArea
   static constexpr char kControlSurfacesLabel[] = "Control Surfaces";
 
 public:
-  explicit CoefficientsWidget(const uadf::Model& uadf);
+  explicit ManualWidget(const uadf::Model& uadf);
 
   const char* name() const;
   void updateInternalDataStructures();
@@ -50,7 +50,7 @@ private:
   AerodynamicsCoefficientsWidget* aero_coefs_;
   ControlSurfacesWidget* control_surfaces_;
 };
-}  // namespace cf
+}  // namespace mn
 }  // namespace fw
 }  // namespace sa
 }  // namespace gui

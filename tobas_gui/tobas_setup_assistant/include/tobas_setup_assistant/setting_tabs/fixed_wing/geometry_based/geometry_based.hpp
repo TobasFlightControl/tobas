@@ -6,10 +6,10 @@
 #include <tobas_qt_tools/widgets/scroll_area.hpp>
 #include <tobas_uadf/model.hpp>
 
-#include "../coefs/coefs.hpp"
-#include "./calculator.hpp"
-#include "./control_surfaces.hpp"
-#include "./wings.hpp"
+#include <tobas_setup_assistant/setting_tabs/fixed_wing/manual/manual.hpp>
+#include <tobas_setup_assistant/setting_tabs/fixed_wing/geometry_based/calculator.hpp>
+#include <tobas_setup_assistant/setting_tabs/fixed_wing/geometry_based/control_surfaces.hpp>
+#include <tobas_setup_assistant/setting_tabs/fixed_wing/geometry_based/wings.hpp>
 
 namespace tobas
 {
@@ -19,23 +19,23 @@ namespace sa
 {
 namespace fw
 {
-namespace hp
+namespace gb
 {
-class HelperWidget : public qt::ScrollArea
+class GeometryBasedWidget : public qt::ScrollArea
 {
   Q_OBJECT
 
-  using self = HelperWidget;
+  using self = GeometryBasedWidget;
   using super = qt::ScrollArea;
 
   static constexpr char kWingsLabel[] = "Wings";
   static constexpr char kControlSurfacesLabel[] = "Control Surfaces";
 
 public:
-  explicit HelperWidget(
+  explicit GeometryBasedWidget(
     const uadf::Model& uadf,
     const kdl::Tree& tree,
-    cf::CoefficientsWidget* coefs);
+    mn::ManualWidget* manual);
 
   const char* name() const;
   void updateInternalDataStructures();
@@ -50,7 +50,7 @@ private:
   ControlSurfacesWidget* control_surfaces_;
   Calculator* calculator_;
 };
-}  // namespace hp
+}  // namespace gb
 }  // namespace fw
 }  // namespace sa
 }  // namespace gui

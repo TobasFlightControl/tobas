@@ -1,4 +1,4 @@
-#include <tobas_setup_assistant/setting_tabs/fixed_wing/helper/helper.hpp>
+#include "tobas_setup_assistant/setting_tabs/fixed_wing/geometry_based/geometry_based.hpp"
 
 #include <QVBoxLayout>
 
@@ -6,7 +6,7 @@
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 
-#include <tobas_setup_assistant/setting_tabs/fixed_wing/helper/calculator.hpp>
+#include <tobas_setup_assistant/setting_tabs/fixed_wing/geometry_based/calculator.hpp>
 
 namespace tobas
 {
@@ -16,12 +16,12 @@ namespace sa
 {
 namespace fw
 {
-namespace hp
+namespace gb
 {
-HelperWidget::HelperWidget(
+GeometryBasedWidget::GeometryBasedWidget(
   const uadf::Model& uadf,
   const kdl::Tree& tree,
-  cf::CoefficientsWidget* coefs)
+  mn::ManualWidget* manual)
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);
@@ -37,34 +37,34 @@ HelperWidget::HelperWidget(
   rows->addWidget(control_surfaces_);
 
   // calculate button
-  calculator_ = new Calculator(tree, coefs, wings_, control_surfaces_);
+  calculator_ = new Calculator(tree, manual, wings_, control_surfaces_);
   qt::addWidgetCenter(calculator_, rows);
 }
 
-const char* HelperWidget::name() const
+const char* GeometryBasedWidget::name() const
 {
-  return "Helper";
+  return "Geometry-Based";
 }
 
-void HelperWidget::updateInternalDataStructures()
+void GeometryBasedWidget::updateInternalDataStructures()
 {
   wings_->updateInternalDataStructures();
   control_surfaces_->updateInternalDataStructures();
   calculator_->updateInternalDataStructures();
 }
 
-void HelperWidget::setToDefaults()
+void GeometryBasedWidget::setToDefaults()
 {
   wings_->setToDefaults();
   control_surfaces_->setToDefaults();
 }
 
-bool HelperWidget::isValid()
+bool GeometryBasedWidget::isValid()
 {
   return wings_->isValid() && control_surfaces_->isValid();
 }
 
-YAML::Node HelperWidget::dump() const
+YAML::Node GeometryBasedWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
@@ -74,12 +74,12 @@ YAML::Node HelperWidget::dump() const
   return node;
 }
 
-void HelperWidget::load(const YAML::Node& node)
+void GeometryBasedWidget::load(const YAML::Node& node)
 {
   wings_->load(node[kWingsLabel]);
   control_surfaces_->load(node[kControlSurfacesLabel]);
 }
-}  // namespace hp
+}  // namespace gb
 }  // namespace fw
 }  // namespace sa
 }  // namespace gui

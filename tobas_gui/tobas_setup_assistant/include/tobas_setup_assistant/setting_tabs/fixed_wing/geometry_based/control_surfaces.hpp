@@ -8,7 +8,7 @@
 #include <tobas_qt_tools/widgets/table_widget.hpp>
 #include <tobas_uadf/model.hpp>
 
-#include "./wings.hpp"
+#include <tobas_setup_assistant/setting_tabs/fixed_wing/geometry_based/wings.hpp>
 
 namespace tobas
 {
@@ -18,7 +18,7 @@ namespace sa
 {
 namespace fw
 {
-namespace hp
+namespace gb
 {
 class ControlSurfacesWidget : public qt::TableWidget
 {
@@ -85,7 +85,7 @@ private:
   void onWingsTabRemoved(int index);
   void onWingsTabRenamed(int index, QString new_name);
 };
-}  // namespace hp
+}  // namespace gb
 }  // namespace fw
 }  // namespace sa
 }  // namespace gui

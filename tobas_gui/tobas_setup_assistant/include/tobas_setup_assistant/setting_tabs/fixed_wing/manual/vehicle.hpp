@@ -7,9 +7,9 @@
 
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 
-#include "tobas_setup_assistant/param_getters/double_range.hpp"
-#include "tobas_setup_assistant/param_getters/double_spin_box.hpp"
-#include "tobas_setup_assistant/param_getters/vector3d.hpp"
+#include <tobas_setup_assistant/param_getters/double_range.hpp>
+#include <tobas_setup_assistant/param_getters/double_spin_box.hpp>
+#include <tobas_setup_assistant/param_getters/vector3d.hpp>
 
 namespace tobas
 {
@@ -19,7 +19,7 @@ namespace sa
 {
 namespace fw
 {
-namespace cf
+namespace mn
 {
 class VehicleParametersWidget : public QWidget
 {
@@ -58,7 +58,7 @@ private:
   ParamGetterWidget_Vector3d* aerodynamic_center_;
   ParamGetterWidget_DoubleRange* alpha_limit_;
 };
-}  // namespace cf
+}  // namespace mn
 }  // namespace fw
 }  // namespace sa
 }  // namespace gui

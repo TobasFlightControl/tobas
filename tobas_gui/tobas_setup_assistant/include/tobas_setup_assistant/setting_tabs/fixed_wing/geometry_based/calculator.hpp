@@ -7,10 +7,10 @@
 #include <tobas_kdl/twist.hpp>
 #include <tobas_kdl/wrench.hpp>
 
-#include "../coefs/coefs.hpp"
-#include "./control_surfaces.hpp"
-#include "./wing.hpp"
-#include "./wings.hpp"
+#include <tobas_setup_assistant/setting_tabs/fixed_wing/manual/manual.hpp>
+#include <tobas_setup_assistant/setting_tabs/fixed_wing/geometry_based/control_surfaces.hpp>
+#include <tobas_setup_assistant/setting_tabs/fixed_wing/geometry_based/wing.hpp>
+#include <tobas_setup_assistant/setting_tabs/fixed_wing/geometry_based/wings.hpp>
 
 namespace tobas
 {
@@ -20,7 +20,7 @@ namespace sa
 {
 namespace fw
 {
-namespace hp
+namespace gb
 {
 class Calculator : public QPushButton
 {
@@ -37,7 +37,7 @@ class Calculator : public QPushButton
 public:
   explicit Calculator(
     const kdl::Tree& tree,
-    cf::CoefficientsWidget* coefs,
+    mn::ManualWidget* manual,
     WingsWidget* wings,
     ControlSurfacesWidget* control_surfaces);
   void updateInternalDataStructures();
@@ -46,7 +46,7 @@ private:
   const kdl::Tree& tree_;
   kdl::TreeInertiaSolver inertia_solver_;
 
-  const cf::CoefficientsWidget* coefs_;
+  const mn::ManualWidget* manual_;
   const WingsWidget* wings_;
   const ControlSurfacesWidget* control_surfaces_;
 
@@ -106,7 +106,7 @@ private:
   void calcControlCoeff(const double& cruise_speed);  // TODO : consider cruise_alpha effect
   void writeResults();
 };
-}  // namespace hp
+}  // namespace gb
 }  // namespace fw
 }  // namespace sa
 }  // namespace gui

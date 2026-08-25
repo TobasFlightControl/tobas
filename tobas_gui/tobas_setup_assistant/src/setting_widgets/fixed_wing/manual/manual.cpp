@@ -1,4 +1,4 @@
-#include <tobas_setup_assistant/setting_tabs/fixed_wing/coefs/coefs.hpp>
+#include "tobas_setup_assistant/setting_tabs/fixed_wing/manual/manual.hpp"
 
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
@@ -11,9 +11,9 @@ namespace sa
 {
 namespace fw
 {
-namespace cf
+namespace mn
 {
-CoefficientsWidget::CoefficientsWidget(const uadf::Model& uadf)
+ManualWidget::ManualWidget(const uadf::Model& uadf)
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);
@@ -34,31 +34,31 @@ CoefficientsWidget::CoefficientsWidget(const uadf::Model& uadf)
   rows->addWidget(control_surfaces_);
 }
 
-const char* CoefficientsWidget::name() const
+const char* ManualWidget::name() const
 {
-  return "Coefficients";
+  return "Manual";
 }
 
-void CoefficientsWidget::updateInternalDataStructures()
+void ManualWidget::updateInternalDataStructures()
 {
   vehicle_->updateInternalDataStructures();
   aero_coefs_->updateInternalDataStructures();
   control_surfaces_->updateInternalDataStructures();
 }
 
-void CoefficientsWidget::setToDefaults()
+void ManualWidget::setToDefaults()
 {
   vehicle_->setToDefaults();
   aero_coefs_->setToDefaults();
   control_surfaces_->setToDefaults();
 }
 
-bool CoefficientsWidget::isValid()
+bool ManualWidget::isValid()
 {
   return vehicle_->isValid() && aero_coefs_->isValid() && control_surfaces_->isValid();
 }
 
-YAML::Node CoefficientsWidget::dump() const
+YAML::Node ManualWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
@@ -69,28 +69,28 @@ YAML::Node CoefficientsWidget::dump() const
   return node;
 }
 
-void CoefficientsWidget::load(const YAML::Node& node)
+void ManualWidget::load(const YAML::Node& node)
 {
   vehicle_->load(node[kVehicleLabel]);
   aero_coefs_->load(node[kAeroCoefsLabel]);
   control_surfaces_->load(node[kControlSurfacesLabel]);
 }
 
-VehicleParametersWidget* CoefficientsWidget::vehicle() const
+VehicleParametersWidget* ManualWidget::vehicle() const
 {
   return vehicle_;
 }
 
-AerodynamicsCoefficientsWidget* CoefficientsWidget::aeroCoefs() const
+AerodynamicsCoefficientsWidget* ManualWidget::aeroCoefs() const
 {
   return aero_coefs_;
 }
 
-ControlSurfacesWidget* CoefficientsWidget::controlSurfaces() const
+ControlSurfacesWidget* ManualWidget::controlSurfaces() const
 {
   return control_surfaces_;
 }
-}  // namespace cf
+}  // namespace mn
 }  // namespace fw
 }  // namespace sa
 }  // namespace gui

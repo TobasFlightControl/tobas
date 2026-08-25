@@ -13,7 +13,7 @@ namespace sa
 {
 namespace fw
 {
-namespace cf
+namespace mn
 {
 class VSPAEROParser
 {
@@ -62,7 +62,7 @@ private:
   double c_yaw_p_;
   double c_yaw_r_;
 };
-}  // namespace cf
+}  // namespace mn
 }  // namespace fw
 }  // namespace sa
 }  // namespace gui

@@ -15,7 +15,7 @@ namespace sa
 {
 namespace fw
 {
-namespace hp
+namespace gb
 {
 class WingWidget : public QWidget
 {
@@ -99,7 +99,7 @@ private:
   qt::Vector3dEditHorizontal* position_;
   qt::Vector3dEditHorizontal* rotation_;
 };
-}  // namespace hp
+}  // namespace gb
 }  // namespace fw
 }  // namespace sa
 }  // namespace gui

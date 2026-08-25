@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include "tobas_setup_assistant/setting_tabs/fixed_wing/coefs/vehicle.hpp"
+#include "tobas_setup_assistant/setting_tabs/fixed_wing/manual/vehicle.hpp"
 
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_yaml_tools/convert/eigen.hpp>
@@ -16,7 +16,7 @@ namespace sa
 {
 namespace fw
 {
-namespace cf
+namespace mn
 {
 VehicleParametersWidget::VehicleParametersWidget()
 {
@@ -147,7 +147,7 @@ void VehicleParametersWidget::alphaLimit(const st::Range<double>& value)
   alpha_limit_->setValue(value);
 }
 
-}  // namespace cf
+}  // namespace mn
 }  // namespace fw
 }  // namespace sa
 }  // namespace gui

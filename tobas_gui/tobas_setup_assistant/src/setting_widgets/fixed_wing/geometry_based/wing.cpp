@@ -1,4 +1,4 @@
-#include <tobas_setup_assistant/setting_tabs/fixed_wing/helper/wing.hpp>
+#include "tobas_setup_assistant/setting_tabs/fixed_wing/geometry_based/wing.hpp"
 
 #include <QLabel>
 #include <QVBoxLayout>
@@ -16,7 +16,7 @@ namespace sa
 {
 namespace fw
 {
-namespace hp
+namespace gb
 {
 WingWidget::WingWidget()
 {
@@ -355,7 +355,7 @@ double WingWidget::c_yaw(const double& V, const double& alpha, const double& p, 
 {
   return c_yaw_p(alpha) * span() / (2.0 * V) * p + c_yaw_r(alpha) * span() / (2.0 * V) * r;
 }
-}  // namespace hp
+}  // namespace gb
 }  // namespace fw
 }  // namespace sa
 }  // namespace gui

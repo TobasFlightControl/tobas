@@ -5,8 +5,7 @@
 #include <tobas_qt_tools/widgets/tab_widget.hpp>
 #include <tobas_setup_assistant/param_getters/double_spin_box.hpp>
 #include <tobas_setup_assistant/param_getters/double_range.hpp>
-
-#include "./wing.hpp"
+#include <tobas_setup_assistant/setting_tabs/fixed_wing/geometry_based/wing.hpp>
 
 namespace tobas
 {
@@ -16,7 +15,7 @@ namespace sa
 {
 namespace fw
 {
-namespace hp
+namespace gb
 {
 class WingsWidget : public QWidget
 {
@@ -63,7 +62,7 @@ private:
   void removeWingWidget();
   void renameWingWidget(const int index);
 };
-}  // namespace hp
+}  // namespace gb
 }  // namespace fw
 }  // namespace sa
 }  // namespace gui

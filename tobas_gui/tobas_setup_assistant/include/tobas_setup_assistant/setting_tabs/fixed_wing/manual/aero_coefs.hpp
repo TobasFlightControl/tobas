@@ -8,7 +8,7 @@
 
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 
-#include "tobas_setup_assistant/param_getters/double_spin_box.hpp"
+#include <tobas_setup_assistant/param_getters/double_spin_box.hpp>
 
 namespace tobas
 {
@@ -18,7 +18,7 @@ namespace sa
 {
 namespace fw
 {
-namespace cf
+namespace mn
 {
 class AerodynamicsCoefficientsWidget : public QWidget
 {
@@ -102,7 +102,7 @@ private:
   qt::DoubleSpinBox* c_yaw_p_;
   qt::DoubleSpinBox* c_yaw_r_;
 };
-}  // namespace cf
+}  // namespace mn
 }  // namespace fw
 }  // namespace sa
 }  // namespace gui

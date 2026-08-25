@@ -1,4 +1,4 @@
-#include <tobas_setup_assistant/setting_tabs/fixed_wing/helper/wings.hpp>
+#include "tobas_setup_assistant/setting_tabs/fixed_wing/geometry_based/wings.hpp"
 
 #include <QInputDialog>
 #include <QToolButton>
@@ -15,7 +15,7 @@ namespace sa
 {
 namespace fw
 {
-namespace hp
+namespace gb
 {
 WingsWidget::WingsWidget()
 {
@@ -248,7 +248,7 @@ void WingsWidget::renameWingWidget(const int index)
   tabs_->setTabText(index, name);
   Q_EMIT tabRenamed(index, name);
 }
-}  // namespace hp
+}  // namespace gb
 }  // namespace fw
 }  // namespace sa
 }  // namespace gui
