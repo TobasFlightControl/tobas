@@ -82,7 +82,6 @@ private:
 
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
 
-
   bool startSITL();
   void terminateSITL();
 

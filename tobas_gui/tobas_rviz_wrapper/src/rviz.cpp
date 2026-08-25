@@ -18,9 +18,12 @@ namespace rviz
 {
 RvizFrameManager::RvizFrameManager(int argc, char** argv, const std::string& node_name)
 {
-  // Initialize ROS node.
+  // Initialize ROS node in a unique domain ID.
   if (!rclcpp::ok()) {
-    rclcpp::init(argc, argv);
+    rclcpp::InitOptions options;
+    options.use_default_domain_id();
+    options.set_domain_id(options.get_domain_id() + 1);
+    rclcpp::init(argc, argv, options);
   }
 
   // Create the RViz ROS interface.

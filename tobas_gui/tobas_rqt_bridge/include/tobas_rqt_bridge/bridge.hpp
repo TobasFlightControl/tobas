@@ -52,31 +52,13 @@ public:
   void initializeRosInterfaces(const rclcpp::Node::SharedPtr& node, const std::string& ns);
 
 private:
-  std::vector<rclcpp::SubscriptionBase::SharedPtr> global_subs_;
-  std::vector<rclcpp::SubscriptionBase::SharedPtr> scoped_subs_;
+  std::vector<rclcpp::SubscriptionBase::SharedPtr> subs_;
 
   template <typename MsgType, auto SignalType>
   void add(
     const rclcpp::Node::SharedPtr& node,
-    const std::string& topic,
-    std::vector<rclcpp::SubscriptionBase::SharedPtr>& buf,
-    bool latch,
-    bool reliable,
-    size_t queue_size);
-
-  template <typename MsgType, auto SignalType>
-  void addGlobal(
-    const rclcpp::Node::SharedPtr& node,
-    const std::string& topic,
-    bool latch = ros2::qos::kDefaultLatch,
-    bool reliable = ros2::qos::kDefaultReliable,
-    size_t queue_size = ros2::qos::kDefaultQueueSize);
-
-  template <typename MsgType, auto SignalType>
-  void addScoped(
-    const rclcpp::Node::SharedPtr& node,
     const std::string& ns,
-    const std::string& topic,
+    const char* base_topic,
     bool latch = ros2::qos::kDefaultLatch,
     bool reliable = ros2::qos::kDefaultReliable,
     size_t queue_size = ros2::qos::kDefaultQueueSize);
