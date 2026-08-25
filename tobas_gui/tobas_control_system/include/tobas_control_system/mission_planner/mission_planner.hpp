@@ -76,6 +76,7 @@ private:
 
   qt::WaitSpinnerWidget spinner_;
 
+  bool ros_initialized_ = false;
   bool mission_executing_ = false;
   Client::SharedPtr mission_ac_;
 
