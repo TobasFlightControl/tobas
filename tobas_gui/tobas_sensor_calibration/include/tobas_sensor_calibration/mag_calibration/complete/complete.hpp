@@ -64,6 +64,7 @@ public:
 
   void reset() override;
   void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns) override;
+  void clearRosInterfaces() override;
 
 protected:
   void paintEvent(QPaintEvent* event) override;
@@ -73,8 +74,7 @@ private:
 
   ros2::SyncServiceClient<tobas_real_msgs::srv::SetMagnetometerParams>::SharedPtr set_params_sc_;
 
-  std::optional<rviz::RvizFrameManager> rviz_manager_;
-  QVBoxLayout* rviz_rows_;
+  rviz::RvizFrameManager rviz_manager_;
 
   QPushButton* start_button_;
   QPushButton* finish_button_;
@@ -84,8 +84,8 @@ private:
   std::array<FaceCircleWidget*, kFaceSize> face_circles_;
 
   // Measurement variables.
-  bool running_;
-  int cnt_;
+  bool running_ = false;
+  int cnt_ = 0;
   builtin_interfaces::msg::Time last_time_;
   size_t last_face_idx_;
   std::array<double, kFaceSize> rot_angles_;

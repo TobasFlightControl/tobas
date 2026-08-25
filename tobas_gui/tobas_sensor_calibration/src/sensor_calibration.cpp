@@ -43,20 +43,25 @@ void SensorCalibrationWidget::reset()
 
 void SensorCalibrationWidget::updateInternalDataStructures()
 {
-  reset();
-  rcin_calib_->updateInternalDataStructures();
+  for (int i = 0; i < count(); ++i) {
+    getWidget(i)->updateInternalDataStructures();
+  }
+}
 
-  // ROS interfaces are initialized only after the connection target has been selected.
+void SensorCalibrationWidget::clearRosInterfaces()
+{
+  for (int i = 0; i < count(); ++i) {
+    getWidget(i)->clearRosInterfaces();
+  }
+
   setTabsEnabled(false);
 }
 
 void SensorCalibrationWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
 {
-  reset();
-
-  accel_calib_->initializeRosInterfaces(node, ns);
-  mag_calib_->initializeRosInterfaces(node, ns);
-  rcin_calib_->initializeRosInterfaces(node, ns);
+  for (int i = 0; i < count(); ++i) {
+    getWidget(i)->initializeRosInterfaces(node, ns);
+  }
 
   setTabsEnabled(true);
 }

@@ -32,10 +32,10 @@ public:
   explicit AccelCalibrationWidget(const RosQtBridge& bridge);
 
   const char* title() const override;
-
   void reset() override;
-
-  void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
+  void updateInternalDataStructures() override;
+  void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns) override;
+  void clearRosInterfaces() override;
 
 private:
   QPushButton* start_button_;

@@ -32,6 +32,7 @@ public:
 
   void reset() override;
   void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns) override;
+  void clearRosInterfaces() override;
 
 private:
   QPushButton* start_button_;

@@ -31,6 +31,7 @@ public:
 
   void reset();
   void updateInternalDataStructures();
+  void clearRosInterfaces();
   void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
 
 private:

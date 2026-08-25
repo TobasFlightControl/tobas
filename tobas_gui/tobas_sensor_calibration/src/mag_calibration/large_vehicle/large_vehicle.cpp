@@ -55,6 +55,11 @@ void LargeVehicleMagCalibWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr
   thread_.initializeRosInterfaces(std::move(node), ns);
 }
 
+void LargeVehicleMagCalibWidget::clearRosInterfaces()
+{
+  thread_.clearRosInterfaces();
+}
+
 void LargeVehicleMagCalibWidget::onStartButtonClicked()
 {
   // Confirm that the vehicle is not armed.

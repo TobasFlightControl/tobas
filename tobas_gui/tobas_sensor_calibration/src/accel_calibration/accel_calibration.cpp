@@ -57,11 +57,18 @@ void AccelCalibrationWidget::reset()
   imu_calib_.reset();
 }
 
+void AccelCalibrationWidget::updateInternalDataStructures()
+{
+}
+
 void AccelCalibrationWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
 {
-  reset();
-
   thread_.initializeRosInterfaces(std::move(node), ns);
+}
+
+void AccelCalibrationWidget::clearRosInterfaces()
+{
+  thread_.clearRosInterfaces();
 }
 
 void AccelCalibrationWidget::onStartButtonClicked()

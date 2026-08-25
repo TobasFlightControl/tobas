@@ -22,6 +22,11 @@ LargeVehicleMagCalibThread::LargeVehicleMagCalibThread(const RosQtBridge& bridge
   connect(&bridge, &RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
 }
 
+LargeVehicleMagCalibThread::~LargeVehicleMagCalibThread()
+{
+  clearRosInterfaces();
+}
+
 void LargeVehicleMagCalibThread::run()
 {
   // Confirm that required topics have been received.
@@ -136,9 +141,16 @@ void LargeVehicleMagCalibThread::reset()
 void LargeVehicleMagCalibThread::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
 {
   node_ = std::move(node);
+
   const auto srv_name = path::join(ns, kRemoteIfaceNS, real::handler::mag::kSetParamSrv);
   set_params_sc_ =
     std::make_shared<ros2::SyncServiceClient<tobas_real_msgs::srv::SetMagnetometerParams>>(node_, srv_name);
+}
+
+void LargeVehicleMagCalibThread::clearRosInterfaces()
+{
+  node_.reset();
+  set_params_sc_.reset();
 }
 
 void LargeVehicleMagCalibThread::magCb(const tobas_msgs::MagneticField::ConstSharedPtr& mag_raw)

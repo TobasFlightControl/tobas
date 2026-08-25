@@ -48,11 +48,10 @@ public:
   explicit RCInputCalibrationWidget(const RosQtBridge& bridge, const Drone& drone);
 
   const char* title() const override;
-
   void reset() override;
-
-  void updateInternalDataStructures();
-  void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
+  void updateInternalDataStructures() override;
+  void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns) override;
+  void clearRosInterfaces() override;
 
 private:
   const Drone& drone_;

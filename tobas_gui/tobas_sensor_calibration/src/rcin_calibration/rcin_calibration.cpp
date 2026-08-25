@@ -200,10 +200,6 @@ void RCInputCalibrationWidget::reset()
 
 void RCInputCalibrationWidget::updateInternalDataStructures()
 {
-  ros_initialized_ = false;
-  set_params_sc_.reset();
-  reset();
-
   for (size_t i = 0; i < numOfGpswChannels(); ++i) {
     gpsw_labels_.at(i)->setText(std::format("GPSw{} (CH{})", i + 1, kRcChannelGpsw + i + 1).c_str());
     gpsw_ranges_.at(i)->setEnabled(true);
@@ -214,6 +210,13 @@ void RCInputCalibrationWidget::updateInternalDataStructures()
   }
 }
 
+void RCInputCalibrationWidget::clearRosInterfaces()
+{
+  set_params_sc_.reset();
+
+  ros_initialized_ = false;
+}
+
 void RCInputCalibrationWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
 {
   const auto set_params_srv = path::join(ns, kRemoteIfaceNS, real::handler::rcin::kSetParamSrv);
@@ -221,7 +224,6 @@ void RCInputCalibrationWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr n
     std::make_shared<ros2::SyncServiceClient<tobas_real_msgs::srv::SetRcInputParams>>(std::move(node), set_params_srv);
 
   ros_initialized_ = true;
-  reset();
 }
 
 size_t RCInputCalibrationWidget::numOfGpswChannels() const

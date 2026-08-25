@@ -20,6 +20,11 @@ AccelCalibrationThread::AccelCalibrationThread(const RosQtBridge& bridge)
   connect(&bridge, &RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
 }
 
+AccelCalibrationThread::~AccelCalibrationThread()
+{
+  clearRosInterfaces();
+}
+
 void AccelCalibrationThread::run()
 {
   // Confirm that required topics have been received.
@@ -120,6 +125,12 @@ void AccelCalibrationThread::initializeRosInterfaces(rclcpp::Node::SharedPtr nod
   node_ = std::move(node);
   set_params_sc_ = std::make_shared<ros2::SyncServiceClient<tobas_real_msgs::srv::SetImuParams>>(
     node_, path::join(ns, kRemoteIfaceNS, real::handler::imu::kSetParamSrv));
+}
+
+void AccelCalibrationThread::clearRosInterfaces()
+{
+  node_.reset();
+  set_params_sc_.reset();
 }
 
 void AccelCalibrationThread::imuCb(const tobas_msgs::Imu::ConstSharedPtr& imu_raw)

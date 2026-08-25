@@ -33,11 +33,13 @@ Q_SIGNALS:
 
 public:
   explicit LargeVehicleMagCalibThread(const RosQtBridge& bridge);
+  ~LargeVehicleMagCalibThread();
 
   void run() override;
 
   void reset();
   void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
+  void clearRosInterfaces();
 
 private:
   rclcpp::Node::SharedPtr node_;
