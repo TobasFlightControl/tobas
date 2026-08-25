@@ -199,8 +199,6 @@ GroundControlStationWidget::GroundControlStationWidget(int argc, char** argv) : 
 
   updateConnectionAvailability();
   updateActionAvailability();
-
-  fc_scanner_->start();
 }
 
 void GroundControlStationWidget::closeEvent(QCloseEvent* event)
@@ -499,6 +497,8 @@ void GroundControlStationWidget::onLoadButtonClicked()
   reset();
 
   project_loaded_ = true;
+  updateConnectionAvailability();
+  fc_scanner_->start();
 
   // Show a dialog indicating that the project was loaded successfully.
   qt::qInfoBox(this, "Tobas project has been loaded successfully.");
@@ -755,6 +755,7 @@ void GroundControlStationWidget::onFlightControllerScanFinished(
     });
 
   const QSignalBlocker block(fc_selector_);
+
   fc_selector_->clear();
   fc_selector_->addItem("Select FC...");
   for (const auto& flight_controller : sorted_flight_controllers) {
@@ -764,8 +765,11 @@ void GroundControlStationWidget::onFlightControllerScanFinished(
     fc_selector_->setItemData(index, flight_controller.address, kHostRole);
   }
 
+  // Preserve the current selection, or automatically select the first FC when none has been selected yet.
   const auto selected_index = fc_selector_->findData(selected_host, kHostRole);
-  fc_selector_->setCurrentIndex(std::max(0, selected_index));
+  const auto next_index = selected_index > 0 ? selected_index : (selected_host.isEmpty() ? 1 : 0);
+  fc_selector_->setCurrentIndex(next_index);
+
   updateConnectionAvailability();
 }
 
