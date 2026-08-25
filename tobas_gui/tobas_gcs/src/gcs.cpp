@@ -3,11 +3,17 @@
 
 #include "tobas_gcs/gcs.hpp"
 
+#include <exception>
+#include <limits>
+#include <utility>
+
 #include <QButtonGroup>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QSignalBlocker>
 #include <QVBoxLayout>
+#include <rclcpp/init_options.hpp>
+#include <rclcpp/utilities.hpp>
 
 #include <tobas_constants/path.hpp>
 #include <tobas_cyclonedds_config/cyclonedds_config.hpp>
@@ -23,7 +29,6 @@
 #include <tobas_qt_tools/widgets/progress_dialog.hpp>
 #include <tobas_qt_tools/widgets/stacked_widget.hpp>
 #include <tobas_std_tools/check.hpp>
-#include <tobas_string_tools/stream.hpp>
 
 #include "tobas_gcs/app_button.hpp"
 #include "tobas_gcs/util.hpp"
@@ -42,8 +47,10 @@ namespace
 constexpr int kHostRole = Qt::UserRole;
 constexpr char kIdPrefix[] = "id";
 
-std::unique_ptr<ros2::AsyncNodeManager>
-createRosNodeManager(const QString& static_peer, std::vector<std::string> ros_args)
+std::unique_ptr<ros2::AsyncNodeManager> createRosNodeManager(
+  const QString& static_peer,
+  std::vector<std::string> ros_args,
+  const rclcpp::Context::SharedPtr& context)
 {
   TOBAS_CHECK(qputenv("ROS_STATIC_PEERS", static_peer.toUtf8()));
 
@@ -52,12 +59,16 @@ createRosNodeManager(const QString& static_peer, std::vector<std::string> ros_ar
     ros_argv.push_back(arg.data());
   }
 
-  return std::make_unique<ros2::AsyncNodeManager>(static_cast<int>(ros_argv.size()), ros_argv.data(), "tobas_gcs");
+  rclcpp::InitOptions context_options;
+  context_options.shutdown_on_signal = false;
+  context_options.auto_initialize_logging(false);
+  context->init(static_cast<int>(ros_argv.size()), ros_argv.data(), context_options);
+
+  return std::make_unique<ros2::AsyncNodeManager>(context, "tobas_gcs");
 }
 }  // namespace
 
-GroundControlStationWidget::GroundControlStationWidget(int argc, char** argv)
-  : network_checker_(this, bridge_), spinner_(Qt::WindowModal, this)
+GroundControlStationWidget::GroundControlStationWidget(int argc, char** argv) : spinner_(Qt::WindowModal, this)
 {
   for (int i = 0; i < argc; ++i) {
     ros_args_.emplace_back(argv[i]);
@@ -192,6 +203,22 @@ GroundControlStationWidget::GroundControlStationWidget(int argc, char** argv)
   fc_scanner_->start();
 }
 
+void GroundControlStationWidget::closeEvent(QCloseEvent* event)
+{
+  qDebug() << "GroundControlStationWidget::closeEvent";
+
+  clearRosConnection();
+
+  sensor_calib_->close();
+  actuator_test_->close();
+  control_system_->close();
+  param_tuning_->close();
+  flight_log_->close();
+  simulation_->close();
+
+  event->accept();
+}
+
 void GroundControlStationWidget::reset(bool include_simulation)
 {
   qt::processAllQueuedEvents();
@@ -216,12 +243,15 @@ void GroundControlStationWidget::reset(bool include_simulation)
 
   arming_.reset();
 
+  updateConnectionAvailability();
+  updateActionAvailability();
+
   qt::processAllQueuedEvents();
 }
 
 void GroundControlStationWidget::updateInternalDataStructures()
 {
-  const auto proj_path = projectPath();
+  const auto proj_path = proj_path_->text().toStdString();
 
   sensor_calib_->updateInternalDataStructures();
   actuator_test_->updateProject(proj_path);
@@ -231,27 +261,62 @@ void GroundControlStationWidget::updateInternalDataStructures()
   simulation_->updateProject(proj_path);
 }
 
-void GroundControlStationWidget::closeEvent(QCloseEvent* event)
+void GroundControlStationWidget::initializeRosConnection()
 {
-  qDebug() << "GroundControlStationWidget::closeEvent";
+  const auto host = currentHost();
+  const auto id = currentId();
 
-  sensor_calib_->close();
-  actuator_test_->close();
-  control_system_->close();
-  param_tuning_->close();
-  flight_log_->close();
-  simulation_->close();
+  ros_context_ = std::make_shared<rclcpp::Context>();
+  ros_node_manager_ = createRosNodeManager(host, ros_args_, ros_context_);
+  ros_node_ = ros_node_manager_->node();
 
-  if (rclcpp::ok()) {
-    rclcpp::shutdown();
+  ssh_client_.emplace(ros_node_);
+  remote_proj_builder_.emplace(ros_node_);
+
+  if (ssh_client_->setEndpoint(host.toStdString(), cmn::kUserNameFC) != ssh::SshClient::kNoError) {
+    const auto message = "Failed to configure " + host + ":\n\n" + QString(ssh_client_->errorMessage());
+    clearRosConnection();
+    qt::qErrorBox(this, message);
+    return;
   }
 
-  event->accept();
+  const auto ns = path::join("/", drone_.name, kIdPrefix + std::to_string(id));
+  bridge_.initializeRosInterfaces(ros_node_, ns);
+  sensor_calib_->initializeRosInterfaces(ros_node_, ns);
+  actuator_test_->initializeRosInterfaces(ros_node_, ns);
+  control_system_->initializeRosInterfaces(ros_node_, ns);
+  param_tuning_->initializeRosInterfaces(ros_node_, ns);
+  flight_log_->initializeRosInterfaces(ros_node_, ns);
+  simulation_->initializeRosInterfaces(ros_node_, ns);
+
+  connection_ready_ = true;
 }
 
-fs::path GroundControlStationWidget::projectPath() const
+void GroundControlStationWidget::clearRosConnection()
 {
-  return proj_path_->text().toStdString();
+  bridge_.clearRosInterfaces();
+  sensor_calib_->clearRosInterfaces();
+  actuator_test_->clearRosInterfaces();
+  control_system_->clearRosInterfaces();
+  param_tuning_->clearRosInterfaces();
+  flight_log_->clearRosInterfaces();
+  simulation_->clearRosInterfaces();
+
+  ssh_client_.reset();
+  remote_proj_builder_.reset();
+
+  ros_node_.reset();
+  if (ros_node_manager_) {
+    ros_node_manager_->clear();
+  }
+  ros_node_manager_.reset();
+
+  if (ros_context_ && ros_context_->is_valid()) {
+    ros_context_->shutdown("Changing the GCS connection endpoint.");
+  }
+  ros_context_.reset();
+
+  connection_ready_ = false;
 }
 
 void GroundControlStationWidget::updateConnectionAvailability()
@@ -286,13 +351,18 @@ QString GroundControlStationWidget::currentHost() const
   return fc_selector_->currentData(kHostRole).toString();
 }
 
+int GroundControlStationWidget::currentId() const
+{
+  return vehicle_id_->value();
+}
+
 QString GroundControlStationWidget::currentConnectionDescription() const
 {
   if (!connection_ready_) {
     return "unconfigured FC";
   }
 
-  return fc_selector_->currentText() + " [ID: " + QString::number(configured_id_) + ']';
+  return currentHost() + " [ID: " + QString::number(currentId()) + ']';
 }
 
 void GroundControlStationWidget::expectTelemetryLoss()
@@ -355,14 +425,15 @@ void GroundControlStationWidget::onLoadButtonClicked()
   const fs::path proj_path = dialog.selectedFiles().first().toStdString();
   cmn::ProjectPaths proj_paths(proj_path);
 
-  // Check the version.
+  // Validate the project before replacing the current project or connection.
   const auto cur_version = cmn::Version::Current();
-  if (proj_version_.load(proj_paths.versionPath())) {
-    if (!proj_version_.isCompatible(cur_version)) {
+  cmn::Version next_proj_version;
+  if (next_proj_version.load(proj_paths.versionPath())) {
+    if (!next_proj_version.isCompatible(cur_version)) {
       qt::qWarnBox(
         this,
         "The current FC version (" + cur_version.toString() +
-          ") is incompatible with the version used to create this project (" + proj_version_.toString() + ").");
+          ") is incompatible with the version used to create this project (" + next_proj_version.toString() + ").");
       return;
     }
   }
@@ -370,13 +441,6 @@ void GroundControlStationWidget::onLoadButtonClicked()
     qt::qWarnBox(this, "Failed to read the project version. Please create a new Tobas project.");
     return;
   }
-
-  // Set the path text.
-  proj_path_->setText(QString::fromStdString(proj_path));
-
-  // Save the directory opened by the user.
-  const auto par_dir = fs::path(proj_path).parent_path();
-  settings_store_.setValue(kLastOpenedDirKey, QString::fromStdString(par_dir.string()));
 
   // Confirm that the vehicle configuration file exists.
   const auto tbsdrn_path = proj_paths.tbsdrnPath();
@@ -386,38 +450,55 @@ void GroundControlStationWidget::onLoadButtonClicked()
   }
 
   // Load KDL tree.
+  uadf::Model next_uadf;
   const auto uadf_path = proj_paths.originalUadfPath();
-  if (!uadf_parser_.parseFromPath(uadf_path, uadf_)) {
+  if (!uadf_parser_.parseFromPath(uadf_path, next_uadf)) {
     qt::qErrorBox(this, "Failed to parse UADF:\n\n" + QString::fromStdString(uadf_parser_.errorMessage()));
     return;
   }
-  if (!tree_parser_.parseFromUrdf(*uadf_.urdf, tree_)) {
+  kdl::Tree next_tree;
+  if (!tree_parser_.parseFromUrdf(*next_uadf.urdf, next_tree)) {
     qt::qErrorBox(
       this, "Failed to construct KDL tree from URDF:\n\n" + QString::fromStdString(tree_parser_.errorMessage()));
     return;
   }
 
   // Load drone configuration.
-  if (!drone_.load(tbsdrn_path)) {
+  Drone next_drone;
+  if (!next_drone.load(tbsdrn_path)) {
     qt::qErrorBox(this, "Failed to load drone configuration.");
     return;
   }
 
   // Load network configuration.
-  if (!network_config_.load(proj_paths.networkConfigPath())) {
+  cmn::NetworkConfig next_network_config;
+  if (!next_network_config.load(proj_paths.networkConfigPath())) {
     qt::qErrorBox(this, "Failed to load network configuration.");
     return;
   }
 
-  // Release subscriptions associated with the previously loaded project.
-  bridge_.clearRosInterfaces();
-  qt::processAllQueuedEvents();
+  if (arming_ && arming_->data) {
+    qt::qWarnBox(this, "A new project cannot be loaded while the vehicle is armed.");
+    return;
+  }
+
+  proj_version_ = std::move(next_proj_version);
+  uadf_ = std::move(next_uadf);
+  tree_ = std::move(next_tree);
+  drone_ = std::move(next_drone);
+  network_config_ = std::move(next_network_config);
+
+  // Commit the path only after every project file has been validated.
+  proj_path_->setText(QString::fromStdString(proj_path));
+  const auto par_dir = fs::path(proj_path).parent_path();
+  settings_store_.setValue(kLastOpenedDirKey, QString::fromStdString(par_dir.string()));
 
   // Update the internal states.
+  clearRosConnection();
   updateInternalDataStructures();
+  reset();
+
   project_loaded_ = true;
-  updateConnectionAvailability();
-  updateActionAvailability();
 
   // Show a dialog indicating that the project was loaded successfully.
   qt::qInfoBox(this, "Tobas project has been loaded successfully.");
@@ -429,32 +510,18 @@ void GroundControlStationWidget::onConnectButtonClicked()
 
   TOBAS_CHECK(project_loaded_);
 
-  configured_host_ = currentHost();
-  configured_id_ = vehicle_id_->value();
-
-  ros_node_manager_ = createRosNodeManager(configured_host_, ros_args_);
-  ros_node_ = ros_node_manager_->node();
-
-  ssh_client_.emplace(ros_node_);
-  remote_proj_builder_.emplace(ros_node_);
-
-  if (ssh_client_->setEndpoint(configured_host_.toStdString(), cmn::kUserNameFC) != ssh::SshClient::kNoError) {
-    qt::qErrorBox(this, "Failed to configure " + configured_host_ + ":\n\n" + QString(ssh_client_->errorMessage()));
+  if (simulation_->isRunning()) {
+    qt::qWarnBox(this, "Stop the simulation before changing the connection target.");
+    return;
+  }
+  if (arming_ && arming_->data) {
+    qt::qWarnBox(this, "The connection target cannot be changed while the vehicle is armed.");
     return;
   }
 
-  const auto ns = path::join("/", drone_.name, kIdPrefix + std::to_string(configured_id_));
-  bridge_.initializeRosInterfaces(ros_node_, ns);
-  sensor_calib_->initializeRosInterfaces(ros_node_, ns);
-  actuator_test_->initializeRosInterfaces(ros_node_, ns);
-  control_system_->initializeRosInterfaces(ros_node_, ns);
-  param_tuning_->initializeRosInterfaces(ros_node_, ns);
-  flight_log_->initializeRosInterfaces(ros_node_, ns);
-  simulation_->initializeRosInterfaces(ros_node_, ns);
-
-  connection_ready_ = true;
+  clearRosConnection();
+  initializeRosConnection();
   reset();
-  updateActionAvailability();
 
   qt::qInfoBox(this, "The connection to " + currentConnectionDescription() + " is ready.");
 }
@@ -479,7 +546,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
     return;
   }
 
-  const auto proj_path = projectPath();
+  const auto proj_path = proj_path_->text().toStdString();
   cmn::ProjectPaths proj_paths(proj_path);
 
   const auto remote_proj_path = proj_paths.remoteProjPath();
@@ -584,7 +651,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
   progress.setLabelText("Setting environment variables.");
   project_env_parser_.config_pkg = config_pkg_name;
   project_env_parser_.nic = network_config_.interface;
-  project_env_parser_.id = kIdPrefix + std::to_string(configured_id_);
+  project_env_parser_.id = kIdPrefix + std::to_string(currentId());
   if (ssh_client_->sftpWrite(kProjectEnvPath, project_env_parser_.exportText(), true) != ssh::SshClient::kNoError) {
     progress.close();
     qt::qErrorBox(this, "Failed to set environment variables:\n\n" + QString(ssh_client_->errorMessage()));
@@ -669,10 +736,6 @@ void GroundControlStationWidget::onWriteButtonClicked()
 void GroundControlStationWidget::onFlightControllerScanFinished(
   const QVector<DiscoveredFlightController>& flight_controllers)
 {
-  if (ros_node_) {
-    return;
-  }
-
   if (flight_controllers.isEmpty()) {
     setFlightControllerPlaceholder("No FC found");
     return;
@@ -788,6 +851,10 @@ void GroundControlStationWidget::onSimRealStateChanged()
 void GroundControlStationWidget::onRemoteConnectionDisconnected()
 {
   qDebug() << "GroundControlStationWidget::onRemoteConnectionDisconnected";
+
+  if (!connection_ready_) {
+    return;
+  }
 
   if (!telemetry_loss_expected_) {
     qt::qWarnBox(this, "Telemetry reception timed out. The connection to the flight controller may have been lost.");

@@ -4,7 +4,6 @@
 #pragma once
 
 #include <expected>
-#include <filesystem>
 #include <memory>
 #include <optional>
 #include <string>
@@ -16,6 +15,7 @@
 #include <QSettings>
 #include <QSpinBox>
 #include <QWidget>
+#include <rclcpp/context.hpp>
 
 #include <tobas_actuator_test/actuator_test.hpp>
 #include <tobas_control_system/control_system.hpp>
@@ -35,7 +35,6 @@
 #include <tobas_msgs/msg/arming.hpp>
 
 #include "./flight_controller_scanner.hpp"
-#include "./network_checker.hpp"
 #include "./project_env_parser.hpp"
 #include "./remote_connection.hpp"
 
@@ -57,15 +56,11 @@ class GroundControlStationWidget : public QWidget
 public:
   explicit GroundControlStationWidget(int argc, char** argv);
 
-  void reset(bool include_simulation = true);
-  void updateInternalDataStructures();
-
 protected:
   void closeEvent(QCloseEvent* event) override;
 
 private:
   RosQtBridge bridge_;
-  NetworkChecker network_checker_;
 
   uadf::Model uadf_;
   kdl::Tree tree_;
@@ -107,19 +102,24 @@ private:
   bool connection_ready_ = false;
 
   std::vector<std::string> ros_args_;
-  QString configured_host_;
-  int configured_id_;
+  rclcpp::Context::SharedPtr ros_context_;
   std::unique_ptr<ros2::AsyncNodeManager> ros_node_manager_;
   rclcpp::Node::SharedPtr ros_node_;
+
   std::optional<cmn::SshClientWrapper> ssh_client_;
   std::optional<cmn::RemoteProjectBuilder> remote_proj_builder_;
 
-  std::filesystem::path projectPath() const;
+  void reset(bool include_simulation = true);
+  void updateInternalDataStructures();
+  void initializeRosConnection();
+  void clearRosConnection();
 
   void updateConnectionAvailability();
   void updateActionAvailability();
   void setFlightControllerPlaceholder(const QString& text);
+
   QString currentHost() const;
+  int currentId() const;
   QString currentConnectionDescription() const;
 
   void expectTelemetryLoss();
