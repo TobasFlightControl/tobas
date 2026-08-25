@@ -35,6 +35,7 @@ public:
   void reset();
   void onProjectLoaded();
   void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
+  void clearRosInterfaces();
 
   void addLog(const QString& log_name);
   void removeLog(const QString& log_name);
@@ -56,7 +57,6 @@ private:
   bool ros_initialized_ = false;
 
   void sortLogs();
-  void updateOperationButtons();
 
 private Q_SLOTS:
   void onReadButtonClicked();

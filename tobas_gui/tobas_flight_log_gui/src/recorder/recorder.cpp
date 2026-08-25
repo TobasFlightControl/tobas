@@ -78,7 +78,7 @@ void FlightLogRecorderWidget::reset()
 {
   start_stop_button_->setChecked(false);
   start_stop_button_->setEnabled(false);
-  log_name_->setEnabled(ros_initialized_);
+  log_name_->setEnabled(false);
 
   clearRosbagStateViewerWidgets();
 
@@ -89,9 +89,12 @@ void FlightLogRecorderWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr no
 {
   start_thread_.initializeRosInterfaces(node, ns);
   stop_thread_.initializeRosInterfaces(node, ns);
+}
 
-  ros_initialized_ = true;
-  reset();
+void FlightLogRecorderWidget::clearRosInterfaces()
+{
+  start_thread_.clearRosInterfaces();
+  stop_thread_.clearRosInterfaces();
 }
 
 void FlightLogRecorderWidget::clearRosbagStateViewerWidgets()

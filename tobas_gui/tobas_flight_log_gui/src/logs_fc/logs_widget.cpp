@@ -61,24 +61,26 @@ FlightLogsWidgetFC::FlightLogsWidgetFC() : spinner_(Qt::WindowModal, this)
 void FlightLogsWidgetFC::reset()
 {
   clearLogs();
+
+  read_button_->setEnabled(project_loaded_ && ros_initialized_);
   clean_button_->setEnabled(false);
 }
 
 void FlightLogsWidgetFC::onProjectLoaded()
 {
-  reset();
-
   project_loaded_ = true;
-  updateOperationButtons();
 }
 
 void FlightLogsWidgetFC::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string&)
 {
-  reset();
-
   ssh_client_.emplace(node);
   ros_initialized_ = true;
-  updateOperationButtons();
+}
+
+void FlightLogsWidgetFC::clearRosInterfaces()
+{
+  ssh_client_.reset();
+  ros_initialized_ = false;
 }
 
 void FlightLogsWidgetFC::addLog(const QString& log_name)
@@ -125,11 +127,6 @@ void FlightLogsWidgetFC::clearLogs()
 void FlightLogsWidgetFC::sortLogs()
 {
   log_list_->sortItems();
-}
-
-void FlightLogsWidgetFC::updateOperationButtons()
-{
-  read_button_->setEnabled(project_loaded_ && ros_initialized_);
 }
 
 void FlightLogsWidgetFC::onReadButtonClicked()

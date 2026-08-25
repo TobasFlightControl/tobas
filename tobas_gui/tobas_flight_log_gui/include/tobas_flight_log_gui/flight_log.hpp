@@ -27,6 +27,7 @@ public:
   void reset();
   void onProjectLoaded();
   void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
+  void clearRosInterfaces();
 
 private:
   FlightLogRecorderWidget* recorder_;

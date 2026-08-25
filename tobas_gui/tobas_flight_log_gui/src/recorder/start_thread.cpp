@@ -43,6 +43,11 @@ void RecordStartThread::initializeRosInterfaces(rclcpp::Node::SharedPtr node, co
     node, path::join(ns, kRemoteIfaceNS, service::kRosbagRecordStart));
 }
 
+void RecordStartThread::clearRosInterfaces()
+{
+  sc_.reset();
+}
+
 void RecordStartThread::setLogName(const std::string& log_name)
 {
   log_name_ = log_name;

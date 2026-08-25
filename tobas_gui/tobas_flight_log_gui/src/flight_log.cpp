@@ -50,17 +50,19 @@ void FlightLogWidget::reset()
 
 void FlightLogWidget::onProjectLoaded()
 {
-  reset();
-
   logs_fc_->onProjectLoaded();
 }
 
 void FlightLogWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
 {
-  reset();
-
   recorder_->initializeRosInterfaces(node, ns);
   logs_fc_->initializeRosInterfaces(node, ns);
+}
+
+void FlightLogWidget::clearRosInterfaces()
+{
+  recorder_->clearRosInterfaces();
+  logs_fc_->clearRosInterfaces();
 }
 
 void FlightLogWidget::onRecordFinished(const QString& log_name, bool is_real)

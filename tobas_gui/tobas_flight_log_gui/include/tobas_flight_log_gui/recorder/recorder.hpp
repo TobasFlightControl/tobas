@@ -41,6 +41,7 @@ public:
 
   void reset();
   void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
+  void clearRosInterfaces();
 
 private:
   qt::HistoryLineEdit* log_name_;
@@ -55,7 +56,6 @@ private:
   qt::WaitSpinnerWidget spinner_;
 
   tobas_msgs::msg::RosbagState::ConstSharedPtr rosbag_state_;
-  bool ros_initialized_ = false;
 
   void clearRosbagStateViewerWidgets();
 

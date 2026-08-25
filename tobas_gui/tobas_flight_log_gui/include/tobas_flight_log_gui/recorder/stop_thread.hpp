@@ -27,6 +27,7 @@ public:
   void run() override;
 
   void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
+  void clearRosInterfaces();
 
 private:
   ros2::SyncServiceClient<tobas_msgs::srv::BagRecordStop>::SharedPtr sc_;
