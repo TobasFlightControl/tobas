@@ -31,8 +31,9 @@ class FixedWingWidget : public BaseSettingWidget
   using self = FixedWingWidget;
   using super = BaseSettingWidget;
 
-  static constexpr char kCoefsLabel[] = "Coefficients Tab";
-  static constexpr char kHelperLabel[] = "Helper Tab";
+  static constexpr char kTypeKey[] = "setting_type";
+  static constexpr char kHelperLabel[] = "Helper";
+  static constexpr char kCoefsLabel[] = "Coefficients";
   static constexpr int kTabWidth = 120;
   static constexpr int kTabHeight = 40;
 

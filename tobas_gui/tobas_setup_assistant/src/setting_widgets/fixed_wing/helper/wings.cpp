@@ -93,18 +93,25 @@ YAML::Node WingsWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
+  node[kCruiseSpeedLabel] = cruise_speed_->getValue();
+
+  YAML::Node wings_node(YAML::NodeType::Map);
   const auto all_tabs = tabs_->count();
   for (int i = 0; i < all_tabs; i++) {
-    node[tabs_->tabText(i).toStdString()] = getWing(i)->dump();
+    wings_node[tabs_->tabText(i).toStdString()] = getWing(i)->dump();
   }
+  node[kWingsLabel] = wings_node;
 
   return node;
 }
 
 void WingsWidget::load(const YAML::Node& node)
 {
+  cruise_speed_->setValue(node[kCruiseSpeedLabel].as<double>());
+
+  const auto wings_node = node[kWingsLabel];
   int i = 0;
-  for (const auto& item : node) {
+  for (const auto& item : wings_node) {
     const auto wing_name = item.first.as<std::string>();
     if (wing_name != kMainWing) {
       addWingWidgetWithName(wing_name);
@@ -190,6 +197,11 @@ void WingsWidget::removeWingWidget()
 void WingsWidget::renameWingWidget(const int index)
 {
   if (index < 0) {
+    return;
+  }
+
+  if (index == 0) {
+    qt::qWarnBox(this, "You can't change the name of the main wing.");
     return;
   }
 

@@ -3,12 +3,15 @@
 
 #include "tobas_setup_assistant/setting_tabs/fixed_wing/fixed_wing.hpp"
 
+#include <ranges>
+
 #include <QRadioButton>
 
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
+#include <tobas_yaml_tools/convert/qstring.hpp>
 
 namespace tobas
 {
@@ -88,7 +91,7 @@ bool FixedWingWidget::isValid()
   if (!coefs_->isValid()) {
     return false;
   }
-  if (helper_->isValid()) {
+  if (!helper_->isValid()) {
     return false;
   }
 
@@ -99,6 +102,8 @@ YAML::Node FixedWingWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
+  const auto type_btn = type_btn_group_->checkedButton();
+  node[kTypeKey] = type_btn->text();
   node[kCoefsLabel] = coefs_->dump();
   node[kHelperLabel] = helper_->dump();
 
@@ -107,6 +112,14 @@ YAML::Node FixedWingWidget::dump() const
 
 void FixedWingWidget::load(const YAML::Node& node)
 {
+  const auto type_text = node[kTypeKey].as<QString>();
+  for (const auto& [idx, button] : std::views::enumerate(type_btn_group_->buttons())) {
+    if (button->text() == type_text) {
+      setCurrentIndex(idx);
+      break;
+    }
+  }
+
   coefs_->load(node[kCoefsLabel]);
   helper_->load(node[kHelperLabel]);
 }

@@ -23,7 +23,9 @@ class WingsWidget : public QWidget
   using self = WingsWidget;
   using super = QWidget;
 
-  static constexpr char kMainWing[] = "main_wing";
+  static constexpr char kCruiseSpeedLabel[] = "Cruise Speed";
+  static constexpr char kWingsLabel[] = "Wings";
+  static constexpr char kMainWing[] = "Main Wing";
 
 Q_SIGNALS:
   void tabAdded(QString tab_name);
