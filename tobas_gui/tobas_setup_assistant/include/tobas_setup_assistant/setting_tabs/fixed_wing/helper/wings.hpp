@@ -3,6 +3,8 @@
 #include <QWidget>
 
 #include <tobas_qt_tools/widgets/tab_widget.hpp>
+#include <tobas_setup_assistant/param_getters/double_spin_box.hpp>
+#include <tobas_setup_assistant/param_getters/double_range.hpp>
 
 #include "./wing.hpp"
 
@@ -24,6 +26,7 @@ class WingsWidget : public QWidget
   using super = QWidget;
 
   static constexpr char kCruiseSpeedLabel[] = "Cruise Speed";
+  static constexpr char kAlphaLimitLabel[] = "Alpha Limit";
   static constexpr char kWingsLabel[] = "Wings";
   static constexpr char kMainWing[] = "Main Wing";
 
@@ -43,6 +46,7 @@ public:
   void load(const YAML::Node& node);
 
   double cruiseSpeed() const;
+  st::Range<double> alphaLimit() const;
   QString requiredWingName() const;
   WingWidget* getWing(const int& index) const;
   WingWidget* getMainWing() const;
@@ -51,6 +55,7 @@ public:
 private:
   int index_ = 0;
   ParamGetterWidget_DoubleSpinBox* cruise_speed_;
+  ParamGetterWidget_DoubleRange* alpha_limit_;
   qt::TabWidget* tabs_;
 
   void addWingWidget();

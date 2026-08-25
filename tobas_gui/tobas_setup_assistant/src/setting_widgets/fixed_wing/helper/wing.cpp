@@ -1,8 +1,10 @@
 #include <tobas_setup_assistant/setting_tabs/fixed_wing/helper/wing.hpp>
 
+#include <QLabel>
 #include <QVBoxLayout>
 
 #include <tobas_qt_tools/cast.hpp>
+#include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_yaml_tools/convert/eigen.hpp>
 #include <tobas_yaml_tools/format.hpp>
 
@@ -21,83 +23,76 @@ WingWidget::WingWidget()
   const auto rows = new QVBoxLayout();
   setLayout(rows);
 
-  const auto symmetric_layout = new QVBoxLayout();
-  symmetric_layout->setContentsMargins(
-    rows->contentsMargins());  // ParamGetterWidgetと文字の左端を合わせるための苦肉の策
-  const auto header = new QHBoxLayout();
-  const auto label = new QLabel("Symmetric");
-  label->setFont(qt::DefaultFont(cmn::kLabelPSize, QFont::Bold));
-  label->setAlignment(Qt::AlignTop | Qt::AlignLeft);
-  symmetric_ = new QCheckBox();
-  symmetric_->setFont(qt::DefaultFont(cmn::kLabelPSize, QFont::Bold));
-  header->addWidget(label);
-  header->addWidget(symmetric_);
-  header->addStretch();
-  symmetric_layout->addLayout(header);
-  const auto description = new qt::DescriptionWidget(
-    "If 'Symmetric' is unchecked, the right side of the wing is treated as existing.", cmn::kBodyPSize);
-  symmetric_layout->addWidget(description);
-  rows->addLayout(symmetric_layout);
+  const auto form = new qt::FormLayout();
+  rows->addLayout(form);
 
-  c_root_ = new ParamGetterWidget_DoubleSpinBox("Root Chord Length", "");
+  const auto symmetric_label = new QLabel("Symmetric");
+  symmetric_label->setToolTip("If 'Symmetric' is unchecked, the right side of the wing is treated as existing.");
+  symmetric_ = new QCheckBox();
+  form->addRow(symmetric_label, symmetric_);
+
+  c_root_ = new qt::DoubleSpinBox();
   c_root_->setDecimals(3);
   c_root_->setMinimum(1e-3);
   c_root_->setSuffix(" m");
-  rows->addWidget(c_root_);
+  form->addRow(new QLabel("Root Chord Length"), c_root_);
 
-  c_tip_ = new ParamGetterWidget_DoubleSpinBox("Tip Chord Length", "");
+  c_tip_ = new qt::DoubleSpinBox();
   c_tip_->setDecimals(3);
   c_tip_->setMinimum(1e-3);
   c_tip_->setSuffix(" m");
-  rows->addWidget(c_tip_);
+  form->addRow(new QLabel("Tip Chord Length"), c_tip_);
 
-  span_ = new ParamGetterWidget_DoubleSpinBox(
-    "Span Length", "If 'Symmetric' is unchecked, consider the distance from the wing root to the wing tip to be b/2.");
+  span_ = new qt::DoubleSpinBox();
   span_->setDecimals(3);
   span_->setMinimum(1e-3);
   span_->setSuffix(" m");
-  rows->addWidget(span_);
+  const auto span_label = new QLabel("Span Length");
+  span_label->setToolTip("If 'Symmetric' is unchecked, consider the distance from the wing root to the wing tip to be b/2.");
+  form->addRow(span_label, span_);
 
-  oswald_efficiency_ = new ParamGetterWidget_DoubleSpinBox("Oswald Efficiency", "");
+  oswald_efficiency_ = new qt::DoubleSpinBox();
   oswald_efficiency_->setDecimals(3);
   oswald_efficiency_->setMinimum(1e-3);
   oswald_efficiency_->setMaximum(1.0);
   oswald_efficiency_->setSuffix("");
-  rows->addWidget(oswald_efficiency_);
+  form->addRow(new QLabel("Oswald Efficiency"), oswald_efficiency_);
 
-  c_lift_0_ = new ParamGetterWidget_DoubleSpinBox("C_lift_0", "");
+  c_lift_0_ = new qt::DoubleSpinBox();
   c_lift_0_->setDecimals(3);
   c_lift_0_->setSuffix("");
-  rows->addWidget(c_lift_0_);
+  form->addRow(new QLabel("C_lift_0"), c_lift_0_);
 
-  c_drag_0_ = new ParamGetterWidget_DoubleSpinBox("C_drag_0", "");
+  c_drag_0_ = new qt::DoubleSpinBox();
   c_drag_0_->setDecimals(3);
   c_drag_0_->setSuffix("");
-  rows->addWidget(c_drag_0_);
+  form->addRow("C_drag_0", c_drag_0_);
 
-  c_pitch_0_ = new ParamGetterWidget_DoubleSpinBox("C_pitch_0", "");
+  c_pitch_0_ = new qt::DoubleSpinBox();
   c_pitch_0_->setDecimals(3);
   c_pitch_0_->setSuffix("");
-  rows->addWidget(c_pitch_0_);
+  form->addRow(new QLabel("C_pitch_0"), c_pitch_0_);
 
-  sweep_back_ = new ParamGetterWidget_DoubleSpinBox("Sweep Back Angle", "");
+  sweep_back_ = new qt::DoubleSpinBox();
   sweep_back_->setDecimals(3);
   sweep_back_->setSuffix(" rad");
-  rows->addWidget(sweep_back_);
+  form->addRow(new QLabel("Sweep Back Angle"), sweep_back_);
 
-  position_ = new ParamGetterWidget_Vector3d(
-    "Position", "The position of the leading edge of the main wingtip as viewed in the base_link coordinate frame.");
+  position_ = new qt::Vector3dEditHorizontal();
   position_->setDecimals(3);
   position_->setSuffix(" m");
-  rows->addWidget(position_);
+  const auto position_label = new QLabel("Position");
+  position_label->setToolTip("The position of the leading edge of the main wingtip as viewed in the base_link coordinate frame.");
+  form->addVAlignedRow(position_label, position_);
 
-  rotation_ = new ParamGetterWidget_Vector3d(
-    "Rotation",
-    "The rotation of the main wing coordinate frame as viewed in the base_link coordinate frame, expressed as Euler "
-    "angles for rotations performed in the order X-Y-Z.");
+  rotation_ = new qt::Vector3dEditHorizontal();
   rotation_->setDecimals(3);
   rotation_->setSuffix(" rad");
-  rows->addWidget(rotation_);
+  const auto rotation_label = new QLabel("Rotation");
+  rotation_label->setToolTip(
+    "The rotation of the main wing coordinate frame as viewed in the base_link coordinate frame, expressed as Euler "
+    "angles for rotations performed in the order X-Y-Z.");
+  form->addVAlignedRow(rotation_label, rotation_);
 }
 
 void WingWidget::updateInternalDataStructures()
@@ -115,8 +110,8 @@ void WingWidget::setToDefaults()
   c_drag_0_->setValue(0.0);
   c_pitch_0_->setValue(0.0);
   sweep_back_->setValue(0.0);
-  position_->setValue(Eigen::Vector3d::Zero(3));
-  rotation_->setValue(Eigen::Vector3d::Zero(3));
+  position_->setVector(Eigen::Vector3d::Zero(3));
+  rotation_->setVector(Eigen::Vector3d::Zero(3));
 }
 
 bool WingWidget::isValid() const
@@ -165,52 +160,52 @@ bool WingWidget::symmetric() const
 
 double WingWidget::c_root() const
 {
-  return c_root_->getValue();
+  return c_root_->value();
 }
 
 double WingWidget::c_tip() const
 {
-  return c_tip_->getValue();
+  return c_tip_->value();
 }
 
 double WingWidget::span() const
 {
-  return span_->getValue();
+  return span_->value();
 }
 
 double WingWidget::oswaldEfficiency() const
 {
-  return oswald_efficiency_->getValue();
+  return oswald_efficiency_->value();
 }
 
 double WingWidget::c_lift_0() const
 {
-  return c_lift_0_->getValue();
+  return c_lift_0_->value();
 }
 
 double WingWidget::c_drag_0() const
 {
-  return c_drag_0_->getValue();
+  return c_drag_0_->value();
 }
 
 double WingWidget::c_pitch_0() const
 {
-  return c_pitch_0_->getValue();
+  return c_pitch_0_->value();
 }
 
 double WingWidget::sweepBack() const
 {
-  return sweep_back_->getValue();
+  return sweep_back_->value();
 }
 
 Eigen::Vector3d WingWidget::position() const
 {
-  return position_->getValue();
+  return position_->vector();
 }
 
 Eigen::Vector3d WingWidget::rotation() const
 {
-  return rotation_->getValue();
+  return rotation_->vector();
 }
 
 void WingWidget::symmetric(const bool& value)
@@ -260,12 +255,12 @@ void WingWidget::sweepBack(const double& value)
 
 void WingWidget::position(const Eigen::Vector3d& value)
 {
-  position_->setValue(value);
+  position_->setVector(value);
 }
 
 void WingWidget::rotation(const Eigen::Vector3d& value)
 {
-  rotation_->setValue(value);
+  rotation_->setVector(value);
 }
 
 double WingWidget::surfaceArea() const

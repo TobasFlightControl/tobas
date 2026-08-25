@@ -4,8 +4,8 @@
 #include <QCheckBox>
 #include <QWidget>
 
-#include "tobas_setup_assistant/param_getters/double_spin_box.hpp"
-#include "tobas_setup_assistant/param_getters/vector3d.hpp"
+#include <tobas_qt_tools/widgets/double_spin_box.hpp>
+#include <tobas_qt_tools/widgets/vector3d_edit_horizontal.hpp>
 
 namespace tobas
 {
@@ -88,16 +88,16 @@ public:
 
 private:
   QCheckBox* symmetric_;  // 対称でないときは翼の右側が残ることにする
-  ParamGetterWidget_DoubleSpinBox* c_root_;
-  ParamGetterWidget_DoubleSpinBox* c_tip_;
-  ParamGetterWidget_DoubleSpinBox* span_;
-  ParamGetterWidget_DoubleSpinBox* oswald_efficiency_;
-  ParamGetterWidget_DoubleSpinBox* c_lift_0_;
-  ParamGetterWidget_DoubleSpinBox* c_drag_0_;
-  ParamGetterWidget_DoubleSpinBox* c_pitch_0_;
-  ParamGetterWidget_DoubleSpinBox* sweep_back_;
-  ParamGetterWidget_Vector3d* position_;
-  ParamGetterWidget_Vector3d* rotation_;
+  qt::DoubleSpinBox* c_root_;
+  qt::DoubleSpinBox* c_tip_;
+  qt::DoubleSpinBox* span_;
+  qt::DoubleSpinBox* oswald_efficiency_;
+  qt::DoubleSpinBox* c_lift_0_;
+  qt::DoubleSpinBox* c_drag_0_;
+  qt::DoubleSpinBox* c_pitch_0_;
+  qt::DoubleSpinBox* sweep_back_;
+  qt::Vector3dEditHorizontal* position_;
+  qt::Vector3dEditHorizontal* rotation_;
 };
 }  // namespace hp
 }  // namespace fw

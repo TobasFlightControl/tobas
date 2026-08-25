@@ -5,6 +5,7 @@
 #include <QVBoxLayout>
 
 #include <tobas_qt_tools/message.hpp>
+#include <tobas_yaml_tools/convert/range.hpp>
 
 namespace tobas
 {
@@ -25,6 +26,11 @@ WingsWidget::WingsWidget()
   cruise_speed_->setDecimals(2);
   cruise_speed_->setSuffix(" m/s");
   rows->addWidget(cruise_speed_);
+
+  alpha_limit_ = new ParamGetterWidget_DoubleRange("Limitation of Angle of Attack", "");
+  alpha_limit_->setDecimals(3);
+  alpha_limit_->setSuffix(" rad");
+  rows->addWidget(alpha_limit_);
 
   tabs_ = new qt::TabWidget();
   tabs_->tabBar()->setElideMode(Qt::ElideRight);
@@ -68,6 +74,7 @@ void WingsWidget::updateInternalDataStructures()
 void WingsWidget::setToDefaults()
 {
   cruise_speed_->setValue(15.0);
+  alpha_limit_->setValue({ -0.27, 0.27 });
 
   const auto all_tabs = tabs_->count();
   for (int i = 0; i < all_tabs; i++) {
@@ -94,6 +101,7 @@ YAML::Node WingsWidget::dump() const
   YAML::Node node(YAML::NodeType::Map);
 
   node[kCruiseSpeedLabel] = cruise_speed_->getValue();
+  node[kAlphaLimitLabel] = alpha_limit_->getValue();
 
   YAML::Node wings_node(YAML::NodeType::Map);
   const auto all_tabs = tabs_->count();
@@ -108,6 +116,7 @@ YAML::Node WingsWidget::dump() const
 void WingsWidget::load(const YAML::Node& node)
 {
   cruise_speed_->setValue(node[kCruiseSpeedLabel].as<double>());
+  alpha_limit_->setValue(node[kAlphaLimitLabel].as<st::Range<double>>());
 
   const auto wings_node = node[kWingsLabel];
   int i = 0;
@@ -127,6 +136,11 @@ void WingsWidget::load(const YAML::Node& node)
 double WingsWidget::cruiseSpeed() const
 {
   return cruise_speed_->getValue();
+}
+
+st::Range<double> WingsWidget::alphaLimit() const
+{
+  return alpha_limit_->getValue();
 }
 
 QString WingsWidget::requiredWingName() const

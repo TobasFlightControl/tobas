@@ -454,7 +454,7 @@ void Calculator::writeResults()
   vehicle->wingSpan(main_wing->surfaceArea());
   vehicle->mac(main_wing->c_mac());
   vehicle->aerodynamicCenter(B_Pos_B2R_.data);
-  // vehicle->alphaLimit(); // TODO: set alpha limit
+  vehicle->alphaLimit(wings_->alphaLimit());
 
   auto aero_coefs = coefs_->aeroCoefs();
   aero_coefs->c_lift_0(c_lift_0_);
