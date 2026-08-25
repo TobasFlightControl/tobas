@@ -38,7 +38,6 @@ void ActuatorTestWidget::reset()
 void ActuatorTestWidget::updateProject(const fs::path& proj_path)
 {
   setTabsEnabled(false);
-  reset();
 
   rotor_test_->updateProject(proj_path);
   joint_test_->updateInternalDataStructures();
@@ -53,12 +52,18 @@ void ActuatorTestWidget::updateProject(const fs::path& proj_path)
 
 void ActuatorTestWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
 {
-  reset();
-
   rotor_test_->initializeRosInterfaces(node, ns);
   joint_test_->initializeRosInterfaces(node, ns);
 
   setTabsEnabled(true);
+}
+
+void ActuatorTestWidget::clearRosInterfaces()
+{
+  rotor_test_->clearRosInterfaces();
+  joint_test_->clearRosInterfaces();
+
+  setTabsEnabled(false);
 }
 
 BaseWidget* ActuatorTestWidget::getWidget(int index)

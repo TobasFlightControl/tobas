@@ -27,13 +27,6 @@ JointCommandsPublisherWidget::JointCommandsPublisherWidget(const kdl::Tree& tree
 
 void JointCommandsPublisherWidget::updateInternalDataStructures()
 {
-  // Stop publishing and release ROS interfaces before rebuilding project-dependent state.
-  stop();
-  node_.reset();
-  pos_pub_.reset();
-  vel_pub_.reset();
-  eff_pub_.reset();
-
   TOBAS_CHECK(joint_parser_.updateInternalDataStructures());
 
   // Initialize.
@@ -123,6 +116,16 @@ void JointCommandsPublisherWidget::initializeRosInterfaces(rclcpp::Node::SharedP
   eff_pub_ = ros2::createPublisher<tobas_msgs::msg::JointCommandArray>(node_, eff_topic);
 }
 
+void JointCommandsPublisherWidget::clearRosInterfaces()
+{
+  stop();
+
+  eff_pub_.reset();
+  vel_pub_.reset();
+  pos_pub_.reset();
+  node_.reset();
+}
+
 void JointCommandsPublisherWidget::start()
 {
   // Enable the commander.
@@ -165,8 +168,10 @@ void JointCommandsPublisherWidget::stop()
 void JointCommandsPublisherWidget::setZero()
 {
   for (const auto& [_, commander] : commanders_) {
-    commander->setValue(0.0);
+    commander->setValue(0.0, true);
   }
+
+  publishCurrentValues();
 }
 
 void JointCommandsPublisherWidget::setHome()
@@ -175,19 +180,21 @@ void JointCommandsPublisherWidget::setHome()
     const auto& joint = drone_.joints.at(jnt_name);
     switch (joint.cmd_iface) {
       case JointCommandInterface::kPosition:
-        commander->setValue(joint.home_pos);
+        commander->setValue(joint.home_pos, true);
         break;
       case JointCommandInterface::kVelocity:
-        commander->setValue(0.0);
+        commander->setValue(0.0, true);
         break;
       case JointCommandInterface::kEffort:
-        commander->setValue(0.0);
+        commander->setValue(0.0, true);
         break;
       case JointCommandInterface::kNone:
       default:
         throw;
     }
   }
+
+  publishCurrentValues();
 }
 
 size_t JointCommandsPublisherWidget::numRegisteredChannels() const

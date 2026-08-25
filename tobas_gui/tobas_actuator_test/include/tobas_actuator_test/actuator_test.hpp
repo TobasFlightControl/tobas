@@ -31,6 +31,7 @@ public:
   void reset();
   void updateProject(const std::filesystem::path& proj_path);
   void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
+  void clearRosInterfaces();
 
 private:
   const Drone& drone_;

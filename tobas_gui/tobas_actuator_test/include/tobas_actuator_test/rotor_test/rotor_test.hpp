@@ -52,6 +52,7 @@ public:
 
   void updateProject(const std::filesystem::path& proj_path);
   void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
+  void clearRosInterfaces();
 
   int numRegisteredChannels() const;
 
@@ -69,7 +70,6 @@ private:
   std::array<bool, kMaxDshotChannels> registered_;
   std::array<RotorWidget*, kMaxDshotChannels> rotor_widgets_;
 
-  bool ros_initialized_ = false;
   bool running_ = false;
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
 

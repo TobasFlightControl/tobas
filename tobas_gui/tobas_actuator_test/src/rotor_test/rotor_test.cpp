@@ -116,7 +116,7 @@ void RotorTestWidget::reset()
   // Stop the timer.
   update_timer_.stop();
 
-  start_button_->setEnabled(ros_initialized_ && numRegisteredChannels() > 0);
+  start_button_->setEnabled(numRegisteredChannels() > 0 && node_);
   stop_button_->setEnabled(false);
   save_button_->setEnabled(false);
 
@@ -126,14 +126,6 @@ void RotorTestWidget::reset()
 
 void RotorTestWidget::updateProject(const fs::path& proj_path)
 {
-  // Release ROS interfaces before rebuilding state for the new project.
-  ros_initialized_ = false;
-  reset();
-  node_.reset();
-  tar_speeds_pub_.reset();
-  dparam_cli_.reset();
-  get_params_sc_.reset();
-
   // Update the project path.
   proj_paths_.setProjPath(proj_path);
 
@@ -172,8 +164,6 @@ void RotorTestWidget::updateProject(const fs::path& proj_path)
 
 void RotorTestWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
 {
-  reset();
-
   if (eprop_) {
     tar_speeds_pub_ = ros2::createPublisher<tobas_msgs::msg::RotorSpeedArray>(
       node, path::join(ns, kRemoteIfaceNS, topic::kRotorSpeedsCmd));
@@ -183,7 +173,14 @@ void RotorTestWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, cons
   }
 
   node_ = std::move(node);
-  ros_initialized_ = true;
+}
+
+void RotorTestWidget::clearRosInterfaces()
+{
+  get_params_sc_.reset();
+  dparam_cli_.reset();
+  tar_speeds_pub_.reset();
+  node_.reset();
 }
 
 int RotorTestWidget::numRegisteredChannels() const
@@ -200,7 +197,7 @@ void RotorTestWidget::publishTargetSppeds()
   auto tar_speeds = std::make_unique<tobas_msgs::msg::RotorSpeedArray>();
   tar_speeds->header.stamp = node_->now();
 
-  for (const auto& [link_name, _] : drone_.prop->rotors) {
+  for (const auto& [link_name, _] : eprop_->rotors) {
     const auto erotor = eprop_->getRotor(link_name);
 
     tar_speeds->speeds.emplace_back();

@@ -73,7 +73,7 @@ void JointTestWidget::reset()
 {
   commands_publisher_->stop();
 
-  start_button_->setEnabled(ros_initialized_ && numRegisteredChannels() > 0);
+  start_button_->setEnabled(numRegisteredChannels() > 0 && ros_initialized_);
   stop_button_->setEnabled(false);
   zero_button_->setEnabled(false);
   home_button_->setEnabled(false);
@@ -83,16 +83,19 @@ void JointTestWidget::reset()
 
 void JointTestWidget::updateInternalDataStructures()
 {
-  ros_initialized_ = false;
-  reset();
   commands_publisher_->updateInternalDataStructures();
 }
 
 void JointTestWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
 {
-  reset();
   commands_publisher_->initializeRosInterfaces(std::move(node), ns);
   ros_initialized_ = true;
+}
+
+void JointTestWidget::clearRosInterfaces()
+{
+  commands_publisher_->clearRosInterfaces();
+  ros_initialized_ = false;
 }
 
 int JointTestWidget::numRegisteredChannels() const
