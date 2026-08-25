@@ -75,6 +75,12 @@ void WindParamsWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, con
   set_sc_ = std::make_shared<ros2::SyncServiceClient<SetSrv>>(node, path::join(ns, gazebo::kSetWindParamsSrv));
 }
 
+void WindParamsWidget::clearRosInterfaces()
+{
+  get_sc_.reset();
+  set_sc_.reset();
+}
+
 bool WindParamsWidget::start(ch::milliseconds timeout)
 {
   // Prepare the service client.

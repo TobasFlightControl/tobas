@@ -50,6 +50,7 @@ public:
   void reset();
   void updateProject(const std::filesystem::path& proj_path);
   void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
+  void clearRosInterfaces();
 
   bool isRunning() const;
 
@@ -81,8 +82,6 @@ private:
 
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
 
-  bool project_loaded_ = false;
-  bool ros_initialized_ = false;
 
   bool startSITL();
   void terminateSITL();

@@ -94,6 +94,16 @@ void BasePoseCommanderWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr no
     std::make_shared<ros2::SyncServiceClient<tobas_msgs::srv::SetArm>>(node, path::join(ns, service::kSetArm));
 }
 
+void BasePoseCommanderWidget::clearRosInterfaces()
+{
+  angle_pub_.reset();
+  pva_pub_.reset();
+  pvay_pub_.reset();
+  pvapy_pub_.reset();
+
+  set_arm_sc_.reset();
+}
+
 bool BasePoseCommanderWidget::start(ch::milliseconds timeout)
 {
   bool success = true;

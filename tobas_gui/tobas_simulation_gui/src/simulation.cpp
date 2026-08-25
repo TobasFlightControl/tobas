@@ -95,9 +95,6 @@ void SimulationWidget::updateProject(const fs::path& proj_path)
   TOBAS_CHECK(drone_.load(tbsdrn_path));
 
   commanders_->updateInternalDataStructures();
-
-  project_loaded_ = true;
-  setEnabled(ros_initialized_);
 }
 
 void SimulationWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
@@ -110,8 +107,20 @@ void SimulationWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, con
   dynamic_config_->initializeRosInterfaces(node_, ns);
   commanders_->initializeRosInterfaces(node_, ns);
 
-  ros_initialized_ = true;
-  setEnabled(project_loaded_);
+  setEnabled(true);
+}
+
+void SimulationWidget::clearRosInterfaces()
+{
+  node_.reset();
+  drone_id_.clear();
+
+  ssh_client_.reset();
+  remote_proj_builder_.reset();
+  dynamic_config_->clearRosInterfaces();
+  commanders_->clearRosInterfaces();
+
+  setEnabled(false);
 }
 
 bool SimulationWidget::isRunning() const
@@ -223,14 +232,6 @@ bool SimulationWidget::startSITL()
 void SimulationWidget::terminateSITL()
 {
   Q_EMIT telemetryLossExpected();
-
-  // Stop dynamic parameters.
-  qInfo() << "Terminating dynamic configuration";
-  dynamic_config_->reset();
-
-  // Stop commanders.
-  qInfo() << "Terminating commanders";
-  commanders_->reset();
 
   // Stop the Gazebo process on another thread.
   qInfo() << "Terminating Gazebo";

@@ -30,6 +30,7 @@ public:
   explicit WindParamsWidget();
 
   void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
+  void clearRosInterfaces();
 
   bool start(std::chrono::milliseconds timeout);
   void reset();

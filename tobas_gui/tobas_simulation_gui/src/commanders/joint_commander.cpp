@@ -71,12 +71,6 @@ JointCommanderWidget::JointCommanderWidget(const kdl::Tree& tree, const Drone& d
 
 void JointCommanderWidget::updateInternalDataStructures()
 {
-  // Stop publishing and release ROS interfaces before rebuilding project-dependent state.
-  reset();
-  tar_js_pos_pub_.reset();
-  tar_js_vel_pub_.reset();
-  tar_js_eff_pub_.reset();
-
   if (!joint_parser_.updateInternalDataStructures()) {
     qt::qErrorBox(this, "Failed to update joint parser.");
     return;
@@ -210,6 +204,13 @@ void JointCommanderWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node,
   if (!tar_js_eff_.commands.empty()) {
     tar_js_eff_pub_ = ros2::createPublisher<CmdMsg>(node, path::join(ns, topic::kJointEffCmd));
   }
+}
+
+void JointCommanderWidget::clearRosInterfaces()
+{
+  tar_js_pos_pub_.reset();
+  tar_js_vel_pub_.reset();
+  tar_js_eff_pub_.reset();
 }
 
 bool JointCommanderWidget::start(ch::milliseconds)

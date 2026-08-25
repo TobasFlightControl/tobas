@@ -47,6 +47,12 @@ void CommandersWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, con
   joint_commander_->initializeRosInterfaces(node, ns);
 }
 
+void CommandersWidget::clearRosInterfaces()
+{
+  base_pose_commander_->clearRosInterfaces();
+  joint_commander_->clearRosInterfaces();
+}
+
 bool CommandersWidget::start(ch::milliseconds timeout)
 {
   if (!base_pose_commander_->start(timeout)) {

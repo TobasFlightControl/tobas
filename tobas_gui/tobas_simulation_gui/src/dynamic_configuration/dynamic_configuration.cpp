@@ -42,6 +42,12 @@ void DynamicConfigWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, 
   suspended_load_->initializeRosInterfaces(node, ns);
 }
 
+void DynamicConfigWidget::clearRosInterfaces()
+{
+  wind_params_->clearRosInterfaces();
+  suspended_load_->clearRosInterfaces();
+}
+
 bool DynamicConfigWidget::start(ch::milliseconds timeout)
 {
   if (!wind_params_->start(timeout)) {
