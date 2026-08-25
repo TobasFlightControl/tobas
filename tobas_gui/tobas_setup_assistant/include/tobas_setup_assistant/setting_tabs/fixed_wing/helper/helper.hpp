@@ -7,7 +7,6 @@
 #include <tobas_uadf/model.hpp>
 
 #include "../coefs/coefs.hpp"
-#include "../vehicle.hpp"
 #include "./calculator.hpp"
 #include "./control_surfaces.hpp"
 #include "./wings.hpp"

@@ -3,15 +3,18 @@
 
 #pragma once
 
+#include <QButtonGroup>
+
 #include <tobas_kdl/tree.hpp>
+#include <tobas_qt_tools/widgets/stacked_widget.hpp>
 #include <tobas_qt_tools/widgets/tab_widget.hpp>
 
 #include "../base_setting.hpp"
 #include "./coefs/aero_coefs.hpp"
 #include "./coefs/coefs.hpp"
 #include "./coefs/control_surfaces.hpp"
+#include "./coefs/vehicle.hpp"
 #include "./helper/helper.hpp"
-#include "./vehicle.hpp"
 
 namespace tobas
 {
@@ -28,7 +31,6 @@ class FixedWingWidget : public BaseSettingWidget
   using self = FixedWingWidget;
   using super = BaseSettingWidget;
 
-  static constexpr char kVehicleLabel[] = "Vehicle Parameters";
   static constexpr char kCoefsLabel[] = "Coefficients Tab";
   static constexpr char kHelperLabel[] = "Helper Tab";
   static constexpr int kTabWidth = 120;
@@ -48,16 +50,23 @@ public:
   YAML::Node dump() const override;
   void load(const YAML::Node& node) override;
 
-  const VehicleParametersWidget* vehicle() const;
+  const cf::VehicleParametersWidget* vehicle() const;
   const cf::AerodynamicsCoefficientsWidget* aeroCoefs() const;
   const cf::ControlSurfacesWidget* controlSurfaces() const;
 
 private:
+  QButtonGroup* type_btn_group_;
+  qt::StackedWidget* stack_;
   qt::TabWidget* tabs_;
 
-  VehicleParametersWidget* vehicle_;
   cf::CoefficientsWidget* coefs_;
   hp::HelperWidget* helper_;
+
+  int cur_idx_;
+
+  void setCurrentButtonIndex(int index);
+  void setCurrentIndex(int index);
+  void onSettingTypeClicked(int new_idx);
 };
 }  // namespace fw
 }  // namespace sa

@@ -46,9 +46,9 @@ private:
   const kdl::Tree& tree_;
   kdl::TreeInertiaSolver inertia_solver_;
 
-  cf::CoefficientsWidget* coefs_;
-  WingsWidget* wings_;
-  ControlSurfacesWidget* control_surfaces_;
+  const cf::CoefficientsWidget* coefs_;
+  const WingsWidget* wings_;
+  const ControlSurfacesWidget* control_surfaces_;
 
   double mass_;
   kdl::Vector B_Pos_B2R_; // base_link座標系でみたときのbase_linkからref座標系までの距離. ref座標系はCoGに取る. 

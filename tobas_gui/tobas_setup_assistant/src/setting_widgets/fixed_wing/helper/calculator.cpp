@@ -448,6 +448,14 @@ void Calculator::calcControlCoeff(const double& cruise_speed)
 
 void Calculator::writeResults()
 {
+  auto vehicle = coefs_->vehicle();
+  const auto main_wing = wings_->getMainWing();
+  vehicle->wingSurface(main_wing->span());
+  vehicle->wingSpan(main_wing->surfaceArea());
+  vehicle->mac(main_wing->c_mac());
+  vehicle->aerodynamicCenter(B_Pos_B2R_.data);
+  // vehicle->alphaLimit(); // TODO: set alpha limit
+
   auto aero_coefs = coefs_->aeroCoefs();
   aero_coefs->c_lift_0(c_lift_0_);
   aero_coefs->c_lift_alpha(c_lift_alpha_);

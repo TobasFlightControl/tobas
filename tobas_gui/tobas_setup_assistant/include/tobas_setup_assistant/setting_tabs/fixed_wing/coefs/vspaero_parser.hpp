@@ -13,6 +13,8 @@ namespace sa
 {
 namespace fw
 {
+namespace cf
+{
 class VSPAEROParser
 {
   static constexpr char CL[] = "CL";
@@ -60,6 +62,7 @@ private:
   double c_yaw_p_;
   double c_yaw_r_;
 };
+}  // namespace cf
 }  // namespace fw
 }  // namespace sa
 }  // namespace gui

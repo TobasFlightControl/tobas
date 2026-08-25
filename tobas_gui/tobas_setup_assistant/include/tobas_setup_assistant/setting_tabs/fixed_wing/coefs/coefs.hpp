@@ -5,6 +5,7 @@
 
 #include "./aero_coefs.hpp"
 #include "./control_surfaces.hpp"
+#include "./vehicle.hpp"
 
 #include <tobas_qt_tools/widgets/scroll_area.hpp>
 
@@ -25,6 +26,7 @@ class CoefficientsWidget : public qt::ScrollArea
   using self = CoefficientsWidget;
   using super = qt::ScrollArea;
 
+  static constexpr char kVehicleLabel[] = "Vehicle Parameters";
   static constexpr char kAeroCoefsLabel[] = "Aerodynamic Coefficients";
   static constexpr char kControlSurfacesLabel[] = "Control Surfaces";
 
@@ -39,10 +41,12 @@ public:
   YAML::Node dump() const;
   void load(const YAML::Node& node);
 
+  VehicleParametersWidget* vehicle() const;
   AerodynamicsCoefficientsWidget* aeroCoefs() const;
   ControlSurfacesWidget* controlSurfaces() const;
 
 private:
+  VehicleParametersWidget* vehicle_;
   AerodynamicsCoefficientsWidget* aero_coefs_;
   ControlSurfacesWidget* control_surfaces_;
 };

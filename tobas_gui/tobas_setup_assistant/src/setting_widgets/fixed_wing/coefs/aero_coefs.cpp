@@ -14,7 +14,7 @@
 
 #include "tobas_setup_assistant/constants.hpp"
 #include "tobas_setup_assistant/setting_tabs/fixed_wing/constants.hpp"
-#include "tobas_setup_assistant/setting_tabs/fixed_wing/vspaero_parser.hpp"
+#include "tobas_setup_assistant/setting_tabs/fixed_wing/coefs/vspaero_parser.hpp"
 
 namespace tobas
 {

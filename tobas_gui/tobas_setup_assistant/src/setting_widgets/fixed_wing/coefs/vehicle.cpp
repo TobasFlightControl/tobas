@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include "tobas_setup_assistant/setting_tabs/fixed_wing/vehicle.hpp"
+#include "tobas_setup_assistant/setting_tabs/fixed_wing/coefs/vehicle.hpp"
 
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_yaml_tools/convert/eigen.hpp>
@@ -15,6 +15,8 @@ namespace gui
 namespace sa
 {
 namespace fw
+{
+namespace cf
 {
 VehicleParametersWidget::VehicleParametersWidget()
 {
@@ -119,6 +121,33 @@ st::Range<double> VehicleParametersWidget::alphaLimit() const
 {
   return alpha_limit_->getValue();
 }
+
+void VehicleParametersWidget::wingSurface(const double& value)
+{
+  wing_surface_->setValue(value);
+}
+
+void VehicleParametersWidget::wingSpan(const double& value)
+{
+  wing_span_->setValue(value);
+}
+
+void VehicleParametersWidget::mac(const double& value)
+{
+  mac_->setValue(value);
+}
+
+void VehicleParametersWidget::aerodynamicCenter(const Eigen::Vector3d& value)
+{
+  aerodynamic_center_->setValue(value);
+}
+
+void VehicleParametersWidget::alphaLimit(const st::Range<double>& value)
+{
+  alpha_limit_->setValue(value);
+}
+
+}  // namespace cf
 }  // namespace fw
 }  // namespace sa
 }  // namespace gui

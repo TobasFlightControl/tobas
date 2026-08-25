@@ -3,9 +3,11 @@
 
 #include "tobas_setup_assistant/setting_tabs/fixed_wing/fixed_wing.hpp"
 
-#include <QVBoxLayout>
+#include <QRadioButton>
 
 #include <tobas_gui_common/constants.hpp>
+#include <tobas_qt_tools/cast.hpp>
+#include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 
 namespace tobas
@@ -18,23 +20,31 @@ namespace fw
 {
 FixedWingWidget::FixedWingWidget(const uadf::Model& uadf, const kdl::Tree& tree)
 {
-  // Vehicle
-  addWidget(new qt::Label(kVehicleLabel, cmn::kTitlePSize));
-  vehicle_ = new VehicleParametersWidget();
-  addWidget(vehicle_);
+  type_btn_group_ = new QButtonGroup(this);
+  type_btn_group_->setExclusive(true);
 
-  tabs_ = new qt::TabWidget();
-  tabs_->enableWheelEvent(false);
-  tabs_->setTabSize(kTabWidth, kTabHeight);
-  addWidget(tabs_);
+  stack_ = new qt::StackedWidget();
+  int id = 0;
 
-  // coefficients widget
+  // widgets in stack
   coefs_ = new cf::CoefficientsWidget(uadf);
-  tabs_->addTab(coefs_, coefs_->name());
-
-  // helper widget
   helper_ = new hp::HelperWidget(uadf, tree, coefs_);
-  tabs_->addTab(helper_, helper_->name());
+
+  // helper button
+  const auto helper_btn = new QRadioButton(helper_->name());
+  type_btn_group_->addButton(helper_btn, id++);
+  addWidget(helper_btn);
+  // coefs button
+  const auto coefs_btn = new QRadioButton(coefs_->name());
+  type_btn_group_->addButton(coefs_btn, id++);
+  addWidget(coefs_btn);
+
+  // stack
+  stack_->addWidget(helper_); // helperが先
+  stack_->addWidget(coefs_);
+  addWidget(stack_);
+
+  connect(type_btn_group_, &QButtonGroup::idClicked, this, &self::onSettingTypeClicked);
 }
 
 const char* FixedWingWidget::name() const
@@ -60,23 +70,21 @@ const char* FixedWingWidget::description() const
 
 void FixedWingWidget::updateInternalDataStructures()
 {
-  vehicle_->updateInternalDataStructures();
   coefs_->updateInternalDataStructures();
   helper_->updateInternalDataStructures();
 }
 
 void FixedWingWidget::setToDefaults()
 {
-  vehicle_->setToDefaults();
   coefs_->setToDefaults();
   helper_->setToDefaults();
+
+  static constexpr int kDefaultIndex = 0;
+  setCurrentIndex(kDefaultIndex);
 }
 
 bool FixedWingWidget::isValid()
 {
-  if (!vehicle_->isValid()) {
-    return false;
-  }
   if (!coefs_->isValid()) {
     return false;
   }
@@ -91,7 +99,6 @@ YAML::Node FixedWingWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
-  node[kVehicleLabel] = vehicle_->dump();
   node[kCoefsLabel] = coefs_->dump();
   node[kHelperLabel] = helper_->dump();
 
@@ -100,14 +107,13 @@ YAML::Node FixedWingWidget::dump() const
 
 void FixedWingWidget::load(const YAML::Node& node)
 {
-  vehicle_->load(node[kVehicleLabel]);
   coefs_->load(node[kCoefsLabel]);
   helper_->load(node[kHelperLabel]);
 }
 
-const VehicleParametersWidget* FixedWingWidget::vehicle() const
+const cf::VehicleParametersWidget* FixedWingWidget::vehicle() const
 {
-  return vehicle_;
+  return coefs_->vehicle();
 }
 
 const cf::AerodynamicsCoefficientsWidget* FixedWingWidget::aeroCoefs() const
@@ -118,6 +124,46 @@ const cf::AerodynamicsCoefficientsWidget* FixedWingWidget::aeroCoefs() const
 const cf::ControlSurfacesWidget* FixedWingWidget::controlSurfaces() const
 {
   return coefs_->controlSurfaces();
+}
+
+void FixedWingWidget::setCurrentButtonIndex(int index)
+{
+  // Do nothing if the checked button does not change.
+  if (type_btn_group_->checkedId() == index) {
+    return;
+  }
+
+  // Get the buttons before and after switching.
+  const auto old_btn = type_btn_group_->checkedButton();
+  const auto new_btn = type_btn_group_->button(index);
+
+  // Block all signals; passing nullptr is okay.
+  const QSignalBlocker block_group(type_btn_group_);
+  const QSignalBlocker block_old_btn(old_btn);
+  const QSignalBlocker block_new_btn(new_btn);
+
+  // Check the new button; `old_btn` is unchecked automatically because the group is exclusive.
+  new_btn->setChecked(true);
+}
+
+void FixedWingWidget::setCurrentIndex(int index)
+{
+  setCurrentButtonIndex(index);
+  stack_->setCurrentIndex(index);
+  cur_idx_ = index;
+}
+
+void FixedWingWidget::onSettingTypeClicked(int new_idx)
+{
+  qDebug().nospace() << "FixedWingWidget::onSettingTypeChanged(" << new_idx << ")";
+
+  if (new_idx == cur_idx_) {
+    return;
+  }
+
+  // Switch propulsion-system widgets.
+  stack_->setCurrentIndex(new_idx);
+  cur_idx_ = new_idx;
 }
 }  // namespace fw
 }  // namespace sa

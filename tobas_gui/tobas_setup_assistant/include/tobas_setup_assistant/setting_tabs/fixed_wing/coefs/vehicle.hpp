@@ -19,6 +19,8 @@ namespace sa
 {
 namespace fw
 {
+namespace cf
+{
 class VehicleParametersWidget : public QWidget
 {
   Q_OBJECT
@@ -36,11 +38,18 @@ public:
   YAML::Node dump() const;
   void load(const YAML::Node& node);
 
+  // getters
   double wingSurface() const;
   double wingSpan() const;
   double mac() const;
   Eigen::Vector3d aerodynamicCenter() const;
   st::Range<double> alphaLimit() const;
+  // setters
+  void wingSurface(const double& value);
+  void wingSpan(const double& value);
+  void mac(const double& value);
+  void aerodynamicCenter(const Eigen::Vector3d& value);
+  void alphaLimit(const st::Range<double>& value);
 
 private:
   ParamGetterWidget_DoubleSpinBox* wing_surface_;
@@ -49,6 +58,7 @@ private:
   ParamGetterWidget_Vector3d* aerodynamic_center_;
   ParamGetterWidget_DoubleRange* alpha_limit_;
 };
+}  // namespace cf
 }  // namespace fw
 }  // namespace sa
 }  // namespace gui

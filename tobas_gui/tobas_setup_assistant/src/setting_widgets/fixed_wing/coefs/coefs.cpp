@@ -18,6 +18,11 @@ CoefficientsWidget::CoefficientsWidget(const uadf::Model& uadf)
   const auto rows = new QVBoxLayout();
   setLayout(rows);
 
+  // Vehicle Parameters
+  rows->addWidget(new qt::Label(kVehicleLabel, cmn::kTitlePSize));
+  vehicle_ = new VehicleParametersWidget();
+  rows->addWidget(vehicle_);
+
   // Aerodynamic Coefficients
   rows->addWidget(new qt::Label(kAeroCoefsLabel, cmn::kTitlePSize));
   aero_coefs_ = new AerodynamicsCoefficientsWidget();
@@ -36,25 +41,28 @@ const char* CoefficientsWidget::name() const
 
 void CoefficientsWidget::updateInternalDataStructures()
 {
+  vehicle_->updateInternalDataStructures();
   aero_coefs_->updateInternalDataStructures();
   control_surfaces_->updateInternalDataStructures();
 }
 
 void CoefficientsWidget::setToDefaults()
 {
+  vehicle_->setToDefaults();
   aero_coefs_->setToDefaults();
   control_surfaces_->setToDefaults();
 }
 
 bool CoefficientsWidget::isValid()
 {
-  return aero_coefs_->isValid() && control_surfaces_->isValid();
+  return vehicle_->isValid() && aero_coefs_->isValid() && control_surfaces_->isValid();
 }
 
 YAML::Node CoefficientsWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
+  node[kVehicleLabel] = vehicle_->dump();
   node[kAeroCoefsLabel] = aero_coefs_->dump();
   node[kControlSurfacesLabel] = control_surfaces_->dump();
 
@@ -63,8 +71,14 @@ YAML::Node CoefficientsWidget::dump() const
 
 void CoefficientsWidget::load(const YAML::Node& node)
 {
+  vehicle_->load(node[kVehicleLabel]);
   aero_coefs_->load(node[kAeroCoefsLabel]);
   control_surfaces_->load(node[kControlSurfacesLabel]);
+}
+
+VehicleParametersWidget* CoefficientsWidget::vehicle() const
+{
+  return vehicle_;
 }
 
 AerodynamicsCoefficientsWidget* CoefficientsWidget::aeroCoefs() const
