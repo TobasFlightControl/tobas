@@ -145,9 +145,11 @@ void MissionPlannerWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node,
 {
   const auto action_name = path::join(ns, kRemoteIfaceNS, action::kExecuteMission);
   mission_ac_ = rclcpp_action::create_client<Action>(node, action_name);
+}
 
-  ros_initialized_ = true;
-  setEditMode();
+void MissionPlannerWidget::clearRosInterfaces()
+{
+  mission_ac_.reset();
 }
 
 QString MissionPlannerWidget::getMissionDir()

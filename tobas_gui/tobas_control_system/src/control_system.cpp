@@ -74,8 +74,6 @@ void ControlSystemWidget::reset()
 
 void ControlSystemWidget::updateInternalDataStructures()
 {
-  reset();
-
   power_source_viewer_->updateInternalDataStructures();
   rotors_viewer_->updateInternalDataStructures();
 }
@@ -83,6 +81,11 @@ void ControlSystemWidget::updateInternalDataStructures()
 void ControlSystemWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
 {
   mission_planner_->initializeRosInterfaces(node, ns);
+}
+
+void ControlSystemWidget::clearRosInterfaces()
+{
+  mission_planner_->clearRosInterfaces();
 }
 }  // namespace ctrl
 }  // namespace gui

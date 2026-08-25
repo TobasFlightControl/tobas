@@ -53,6 +53,7 @@ public:
 
   void reset();
   void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
+  void clearRosInterfaces();
 
 private:
   QSettings settings_store_;
@@ -75,7 +76,6 @@ private:
 
   qt::WaitSpinnerWidget spinner_;
 
-  bool ros_initialized_ = false;
   bool mission_executing_ = false;
   Client::SharedPtr mission_ac_;
 
