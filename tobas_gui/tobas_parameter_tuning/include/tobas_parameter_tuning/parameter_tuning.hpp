@@ -35,6 +35,7 @@ public:
   void reset();
   void updateProject(const std::filesystem::path& proj_path);
   void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
+  void clearRosInterfaces();
 
 private:
   cmn::ProjectPaths proj_paths_;
@@ -49,8 +50,6 @@ private:
 
   bool project_loaded_ = false;
   bool ros_initialized_ = false;
-
-  void updateOperationButtons();
 
 private Q_SLOTS:
   void onLoadButtonClicked();

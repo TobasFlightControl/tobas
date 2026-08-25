@@ -46,6 +46,12 @@ void ParamBlockWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, con
   dparam_cli_ = std::make_shared<dparam::DynamicParamClient>(node, node_name_, ns);
 }
 
+void ParamBlockWidget::clearRosInterfaces()
+{
+  dparam_cli_.reset();
+  get_param_sc_.reset();
+}
+
 bool ParamBlockWidget::load()
 {
   clear();

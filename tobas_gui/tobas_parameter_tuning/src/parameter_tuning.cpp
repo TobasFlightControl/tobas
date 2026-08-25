@@ -67,7 +67,7 @@ ParameterTuningWidget::ParameterTuningWidget()
 
 void ParameterTuningWidget::reset()
 {
-  updateOperationButtons();
+  load_button_->setEnabled(project_loaded_ && ros_initialized_);
   save_button_->setEnabled(false);
   dflt_button_->setEnabled(false);
 
@@ -79,8 +79,6 @@ void ParameterTuningWidget::reset()
 
 void ParameterTuningWidget::updateProject(const fs::path& proj_path)
 {
-  reset();
-
   // Update project path.
   proj_paths_.setProjPath(proj_path);
 
@@ -89,7 +87,6 @@ void ParameterTuningWidget::updateProject(const fs::path& proj_path)
   TOBAS_CHECK(drone_.load(tbsdrn_path));
 
   project_loaded_ = true;
-  updateOperationButtons();
 }
 
 void ParameterTuningWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
@@ -99,12 +96,15 @@ void ParameterTuningWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node
   }
 
   ros_initialized_ = true;
-  updateOperationButtons();
 }
 
-void ParameterTuningWidget::updateOperationButtons()
+void ParameterTuningWidget::clearRosInterfaces()
 {
-  load_button_->setEnabled(project_loaded_ && ros_initialized_);
+  for (const auto& block : blocks_) {
+    block->clearRosInterfaces();
+  }
+
+  ros_initialized_ = false;
 }
 
 void ParameterTuningWidget::onLoadButtonClicked()

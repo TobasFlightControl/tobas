@@ -62,6 +62,7 @@ public:
   explicit ParamBlockWidget(const std::string& node_name, const QString& label);
 
   void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
+  void clearRosInterfaces();
 
   bool load();
   bool save(const std::filesystem::path& path);
