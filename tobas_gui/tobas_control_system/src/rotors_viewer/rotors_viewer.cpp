@@ -42,8 +42,6 @@ void RotorsViewerWiddget::updateInternalDataStructures()
     meters_[link_name] = meter;
     cols_->addWidget(meter);
   }
-
-  reset();
 }
 
 void RotorsViewerWiddget::setSpeed(const std::string& link_name, const double& rps)
