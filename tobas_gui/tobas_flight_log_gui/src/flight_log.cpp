@@ -46,6 +46,7 @@ FlightLogWidget::FlightLogWidget(const rqt::RosQtBridge& bridge)
 void FlightLogWidget::reset()
 {
   recorder_->reset();
+  logs_fc_->reset();
 }
 
 void FlightLogWidget::onProjectLoaded()
