@@ -42,7 +42,7 @@ QVector<DiscoveredFlightController> parse(const QString& output)
 }
 }  // namespace
 
-FlightControllerScanner::FlightControllerScanner(QObject* parent) : super(parent)
+FlightControllerScanner::FlightControllerScanner(QObject* parent) : super(parent), process_(this)
 {
   scan_timer_.setInterval(kScanInterval);
 
