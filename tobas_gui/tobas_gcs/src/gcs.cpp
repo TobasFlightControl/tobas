@@ -332,7 +332,7 @@ void GroundControlStationWidget::disconnectFromFlightController()
   fc_scanner_->start();
 }
 
-bool GroundControlStationWidget::waitForHeartbeat()
+bool GroundControlStationWidget::waitForHeartbeat() const
 {
   return static_cast<bool>(waitForMessage<&RosQtBridge::remoteHeartbeatReceived>(bridge_, kHeartbeatTimeout));
 }

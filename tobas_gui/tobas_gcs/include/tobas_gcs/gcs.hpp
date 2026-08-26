@@ -115,7 +115,7 @@ private:
   void clearRosConnection();
   void connectToFlightController();
   void disconnectFromFlightController();
-  bool waitForHeartbeat();
+  bool waitForHeartbeat() const;
 
   void updateHeaderActionAvailability();
   void setFlightControllerPlaceholder(const QString& text);
