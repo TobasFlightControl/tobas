@@ -6,10 +6,10 @@
 #include <tobas_qt_tools/widgets/scroll_area.hpp>
 #include <tobas_uadf/model.hpp>
 
-#include <tobas_setup_assistant/setting_tabs/fixed_wing/manual/manual.hpp>
 #include <tobas_setup_assistant/setting_tabs/fixed_wing/geometry_based/calculator.hpp>
 #include <tobas_setup_assistant/setting_tabs/fixed_wing/geometry_based/control_surfaces.hpp>
 #include <tobas_setup_assistant/setting_tabs/fixed_wing/geometry_based/wings.hpp>
+#include <tobas_setup_assistant/setting_tabs/fixed_wing/manual/manual.hpp>
 
 namespace tobas
 {
@@ -32,10 +32,7 @@ class GeometryBasedWidget : public qt::ScrollArea
   static constexpr char kControlSurfacesLabel[] = "Control Surfaces";
 
 public:
-  explicit GeometryBasedWidget(
-    const uadf::Model& uadf,
-    const kdl::Tree& tree,
-    mn::ManualWidget* manual);
+  explicit GeometryBasedWidget(const uadf::Model& uadf, const kdl::Tree& tree, mn::ManualWidget* manual);
 
   const char* name() const;
   void updateInternalDataStructures();

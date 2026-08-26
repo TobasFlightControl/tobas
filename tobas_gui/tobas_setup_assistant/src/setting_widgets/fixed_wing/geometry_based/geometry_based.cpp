@@ -18,10 +18,7 @@ namespace fw
 {
 namespace gb
 {
-GeometryBasedWidget::GeometryBasedWidget(
-  const uadf::Model& uadf,
-  const kdl::Tree& tree,
-  mn::ManualWidget* manual)
+GeometryBasedWidget::GeometryBasedWidget(const uadf::Model& uadf, const kdl::Tree& tree, mn::ManualWidget* manual)
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);

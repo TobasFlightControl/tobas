@@ -31,7 +31,7 @@ FixedWingWidget::FixedWingWidget(const uadf::Model& uadf, const kdl::Tree& tree)
 
   // widgets in stack
   manual_ = new mn::ManualWidget(uadf);
-  geometry_based_= new gb::GeometryBasedWidget(uadf, tree, manual_);
+  geometry_based_ = new gb::GeometryBasedWidget(uadf, tree, manual_);
 
   // helper button
   const auto helper_btn = new QRadioButton(geometry_based_->name());
@@ -43,7 +43,7 @@ FixedWingWidget::FixedWingWidget(const uadf::Model& uadf, const kdl::Tree& tree)
   addWidget(coefs_btn);
 
   // stack
-  stack_->addWidget(geometry_based_); // geometry basedが先
+  stack_->addWidget(geometry_based_);  // geometry basedが先
   stack_->addWidget(manual_);
   addWidget(stack_);
 
@@ -62,13 +62,15 @@ const char* FixedWingWidget::title() const
 
 const char* FixedWingWidget::description() const
 {
-  return "Build the mathematical model for the fixed wing and its control surfaces. "
-         "In addition to the general airframe specifications, "
-         "supply the stability derivatives for the main wing and each control surface. "
-         "<a href="
-         "'https://vspu.larc.nasa.gov/training-content/chapter-3-model-analysis-in-openvsp/vspaero-basics'"
-         ">VSPAERO</a> "
-         "analysis results can be imported for the main wing if available.";
+  return "Build the mathematical model for the fixed wing and its control surfaces.<br>"
+         "Choose one of the following methods for defining the aircraft stability derivatives:<br>"
+         "1. Geometry-Based: Estimate the stability derivatives from the specified wing geometry.<br>"
+         "2. Manual: Enter the stability derivatives directly.<br>"
+         "When using the Manual method, "
+         "<a href=\"https://vspu.larc.nasa.gov/training-content/chapter-3-model-analysis-in-openvsp/vspaero-basics\">"
+         "VSPAERO"
+         "</a> "
+         "analysis results can be imported to provide the stability derivatives.";
 }
 
 void FixedWingWidget::updateInternalDataStructures()

@@ -7,10 +7,10 @@
 #include <tobas_kdl/twist.hpp>
 #include <tobas_kdl/wrench.hpp>
 
-#include <tobas_setup_assistant/setting_tabs/fixed_wing/manual/manual.hpp>
 #include <tobas_setup_assistant/setting_tabs/fixed_wing/geometry_based/control_surfaces.hpp>
 #include <tobas_setup_assistant/setting_tabs/fixed_wing/geometry_based/wing.hpp>
 #include <tobas_setup_assistant/setting_tabs/fixed_wing/geometry_based/wings.hpp>
+#include <tobas_setup_assistant/setting_tabs/fixed_wing/manual/manual.hpp>
 
 namespace tobas
 {
@@ -51,7 +51,7 @@ private:
   const ControlSurfacesWidget* control_surfaces_;
 
   double mass_;
-  kdl::Vector B_Pos_B2R_; // base_link座標系でみたときのbase_linkからref座標系までの距離. ref座標系はCoGに取る. 
+  kdl::Vector B_Pos_B2R_;  // base_link座標系でみたときのbase_linkからref座標系までの距離. ref座標系はCoGに取る.
 
   // C_L = C_L0 + C_Lalpha * alpha
   double c_lift_0_;

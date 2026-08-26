@@ -98,8 +98,8 @@ void Calculator::calcWingTranslations(const WingWidget* wing, kdl::Frame& W_T_R,
   const auto B_R_B2R =
     kdl::Rotation::RPY(M_PI, 0, 0);  // base_link座標系からみたときのbase_linkからref座標系までのrotation
   const auto B_T_R = kdl::Frame(B_R_B2R, B_Pos_B2R_);  // base_link座標系で表したref座標系のFrame
-  W_T_R = B_T_W.inverse() * B_T_R;                    // wing座標系で表したref座標系のFrame
-  R_T_W = B_T_R.inverse() * B_T_W;                    // ref座標系で表したwing座標系のFrame
+  W_T_R = B_T_W.inverse() * B_T_R;                     // wing座標系で表したref座標系のFrame
+  R_T_W = B_T_R.inverse() * B_T_W;                     // ref座標系で表したwing座標系のFrame
 }
 
 void Calculator::calcMacTranslations(const WingWidget* wing, kdl::Frame& M_T_R, kdl::Frame& R_T_M) const

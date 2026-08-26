@@ -3,8 +3,8 @@
 #include <QWidget>
 
 #include <tobas_qt_tools/widgets/tab_widget.hpp>
-#include <tobas_setup_assistant/param_getters/double_spin_box.hpp>
 #include <tobas_setup_assistant/param_getters/double_range.hpp>
+#include <tobas_setup_assistant/param_getters/double_spin_box.hpp>
 #include <tobas_setup_assistant/setting_tabs/fixed_wing/geometry_based/wing.hpp>
 
 namespace tobas

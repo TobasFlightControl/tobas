@@ -130,7 +130,7 @@ void WingsWidget::load(const YAML::Node& node)
     i++;
   }
 
-  tabs_->setCurrentIndex(0); // main wing widgetに戻す
+  tabs_->setCurrentIndex(0);  // main wing widgetに戻す
 }
 
 double WingsWidget::cruiseSpeed() const

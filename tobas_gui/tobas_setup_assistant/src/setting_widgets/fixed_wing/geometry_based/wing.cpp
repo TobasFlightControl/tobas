@@ -48,7 +48,8 @@ WingWidget::WingWidget()
   span_->setMinimum(1e-3);
   span_->setSuffix(" m");
   const auto span_label = new QLabel("Span Length");
-  span_label->setToolTip("If 'Symmetric' is unchecked, consider the distance from the wing root to the wing tip to be b/2.");
+  span_label->setToolTip(
+    "If 'Symmetric' is unchecked, consider the distance from the wing root to the wing tip to be b/2.");
   form->addRow(span_label, span_);
 
   oswald_efficiency_ = new qt::DoubleSpinBox();
@@ -82,7 +83,8 @@ WingWidget::WingWidget()
   position_->setDecimals(3);
   position_->setSuffix(" m");
   const auto position_label = new QLabel("Position");
-  position_label->setToolTip("The position of the leading edge of the main wingtip as viewed in the base_link coordinate frame.");
+  position_label->setToolTip(
+    "The position of the leading edge of the main wingtip as viewed in the base_link coordinate frame.");
   form->addVAlignedRow(position_label, position_);
 
   rotation_ = new qt::Vector3dEditHorizontal();
