@@ -8,14 +8,10 @@
 #include <utility>
 
 #include <QButtonGroup>
-#include <QEventLoop>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QSignalBlocker>
-#include <QTimer>
 #include <QVBoxLayout>
-#include <rclcpp/init_options.hpp>
-#include <rclcpp/utilities.hpp>
 
 #include <tobas_constants/path.hpp>
 #include <tobas_cyclonedds_config/cyclonedds_config.hpp>
@@ -30,6 +26,7 @@
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_qt_tools/widgets/progress_dialog.hpp>
 #include <tobas_qt_tools/widgets/stacked_widget.hpp>
+#include <tobas_rqt_bridge/wait_for_message.hpp>
 #include <tobas_std_tools/check.hpp>
 
 #include "tobas_gcs/app_button.hpp"
@@ -337,28 +334,8 @@ void GroundControlStationWidget::disconnectFromFlightController()
 
 bool GroundControlStationWidget::waitForHeartbeat()
 {
-  bool heartbeat_received = false;
-  QEventLoop event_loop;
-  QTimer timeout_timer;
-  timeout_timer.setSingleShot(true);
-
-  const auto heartbeat_connection = connect(
-    &bridge_,
-    &RosQtBridge::remoteHeartbeatReceived,
-    &event_loop,
-    [&heartbeat_received, &event_loop](const tobas_msgs::msg::Heartbeat::ConstSharedPtr&)
-    {
-      heartbeat_received = true;
-      event_loop.quit();
-    },
-    Qt::QueuedConnection);
-  connect(&timeout_timer, &QTimer::timeout, &event_loop, &QEventLoop::quit);
-
-  timeout_timer.start(kHeartbeatTimeout);
-  event_loop.exec(QEventLoop::AllEvents | QEventLoop::ExcludeUserInputEvents);
-
-  disconnect(heartbeat_connection);
-  return heartbeat_received;
+  return static_cast<bool>(
+    waitForMessage<tobas_msgs::msg::Heartbeat, &RosQtBridge::remoteHeartbeatReceived>(bridge_, kHeartbeatTimeout));
 }
 
 void GroundControlStationWidget::updateHeaderActionAvailability()
