@@ -334,8 +334,7 @@ void GroundControlStationWidget::disconnectFromFlightController()
 
 bool GroundControlStationWidget::waitForHeartbeat()
 {
-  return static_cast<bool>(
-    waitForMessage<tobas_msgs::msg::Heartbeat, &RosQtBridge::remoteHeartbeatReceived>(bridge_, kHeartbeatTimeout));
+  return static_cast<bool>(waitForMessage<&RosQtBridge::remoteHeartbeatReceived>(bridge_, kHeartbeatTimeout));
 }
 
 void GroundControlStationWidget::updateHeaderActionAvailability()

@@ -13,10 +13,29 @@ namespace tobas
 {
 namespace gui
 {
-template <typename MsgType, auto SignalType>
-typename MsgType::ConstSharedPtr waitForMessage(RosQtBridge& bridge, int timeout_ms)
+namespace detail
 {
-  typename MsgType::ConstSharedPtr res;
+/**
+ * Extract the argument type from a single-argument Qt signal.
+ * For example, `void received(const Msg::ConstSharedPtr&)` yields `Msg::ConstSharedPtr`.
+ */
+template <typename>
+struct SignalTraits;
+
+template <typename Class, typename Arg>
+struct SignalTraits<void (Class::*)(const Arg&)>
+{
+  using Argument = Arg;
+};
+}  // namespace detail
+
+template <auto SignalType>
+auto waitForMessage(RosQtBridge& bridge, int timeout_ms)
+{
+  // Derive the message pointer type from the signal so callers only need to specify the signal itself.
+  using MsgPtr = typename detail::SignalTraits<decltype(SignalType)>::Argument;
+
+  MsgPtr res;
 
   QEventLoop event_loop;
   QTimer timeout_timer;
@@ -26,7 +45,7 @@ typename MsgType::ConstSharedPtr waitForMessage(RosQtBridge& bridge, int timeout
     &bridge,
     SignalType,
     &event_loop,
-    [&res, &event_loop](const typename MsgType::ConstSharedPtr& msg)
+    [&res, &event_loop](const MsgPtr& msg)
     {
       res = msg;
       event_loop.quit();
