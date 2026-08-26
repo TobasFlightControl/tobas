@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <unordered_map>
+
 #include <QObject>
 #include <rclcpp/node.hpp>
 #include <rclcpp/subscription_base.hpp>
@@ -48,11 +50,11 @@ Q_SIGNALS:
 public:
   explicit RosQtBridge(QObject* parent = nullptr);
 
-  void clearRosInterfaces();
   void initializeRosInterfaces(const rclcpp::Node::SharedPtr& node, const std::string& ns);
+  void clearRosInterfaces();
 
 private:
-  std::vector<rclcpp::SubscriptionBase::SharedPtr> subs_;
+  std::unordered_map<const char*, rclcpp::SubscriptionBase::SharedPtr> subs_;
 
   template <typename MsgType, auto SignalType>
   void add(

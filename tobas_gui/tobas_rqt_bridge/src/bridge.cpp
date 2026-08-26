@@ -15,15 +15,8 @@ RosQtBridge::RosQtBridge(QObject* parent) : super(parent)
 {
 }
 
-void RosQtBridge::clearRosInterfaces()
-{
-  subs_.clear();
-}
-
 void RosQtBridge::initializeRosInterfaces(const rclcpp::Node::SharedPtr& node, const std::string& ns)
 {
-  clearRosInterfaces();
-
   add<tobas_msgs::msg::Message, &self::messageReceived>(node, ns, topic::kMessage, false, true, 100);
   add<tobas_msgs::msg::Battery, &self::batteryReceived>(node, ns, topic::kBattery);
   add<tobas_msgs::msg::EngineState, &self::engineStateReceived>(node, ns, topic::kEngineState);
@@ -46,6 +39,11 @@ void RosQtBridge::initializeRosInterfaces(const rclcpp::Node::SharedPtr& node, c
   add<tobas_msgs::MagneticField, &self::rawMagReceived>(node, ns, real::topic::kMagneticField);
 }
 
+void RosQtBridge::clearRosInterfaces()
+{
+  subs_.clear();
+}
+
 template <typename MsgType, auto SignalType>
 void RosQtBridge::add(
   const rclcpp::Node::SharedPtr& node,
@@ -58,7 +56,7 @@ void RosQtBridge::add(
   const auto topic = path::join(ns, kRemoteIfaceNS, base_topic);
   const ros2::qos::QoS qos(latch, reliable, queue_size);
   const auto cb = [this](const typename MsgType::ConstSharedPtr& msg) { (this->*SignalType)(msg); };
-  subs_.push_back(node->create_subscription<MsgType>(topic, qos, cb));
+  subs_[base_topic] = node->create_subscription<MsgType>(topic, qos, cb);
 }
 }  // namespace gui
 }  // namespace tobas
