@@ -126,6 +126,11 @@ void FixedWingWidget::load(const YAML::Node& node)
   manual_->load(node[kManualLabel]);
 }
 
+gb::Calculator* FixedWingWidget::calculator() const
+{
+  return geometry_based_->calculator();
+}
+
 const mn::VehicleParametersWidget* FixedWingWidget::vehicle() const
 {
   return manual_->vehicle();
@@ -139,6 +144,16 @@ const mn::AerodynamicsCoefficientsWidget* FixedWingWidget::aeroCoefs() const
 const mn::ControlSurfacesWidget* FixedWingWidget::controlSurfaces() const
 {
   return manual_->controlSurfaces();
+}
+
+FixedWingWidget::Type FixedWingWidget::type() const
+{
+  if (cur_idx_ == 0) {
+    return kGEOMETRY_BASED;
+  }
+  else {
+    return kMANUAL;
+  }
 }
 
 void FixedWingWidget::setCurrentButtonIndex(int index)

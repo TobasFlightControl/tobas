@@ -42,6 +42,8 @@ public:
   YAML::Node dump() const;
   void load(const YAML::Node& node);
 
+  Calculator* calculator();
+
 private:
   WingsWidget* wings_;
   ControlSurfacesWidget* control_surfaces_;

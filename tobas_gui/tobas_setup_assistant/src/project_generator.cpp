@@ -328,64 +328,94 @@ Drone ProjectGenerator::createDrone() const
   if (!uadf_.control_surfaces.empty()) {
     drone.fixed_wing = std::make_shared<FixedWingConfig>();
 
-    // Vehicle
-    const auto vehicle = settings_->fixed_wing->vehicle();
-    drone.fixed_wing->vehicle.wing_surface = vehicle->wingSurface();
-    drone.fixed_wing->vehicle.wing_span = vehicle->wingSpan();
-    drone.fixed_wing->vehicle.mac = vehicle->mac();
-    drone.fixed_wing->vehicle.ac.data = vehicle->aerodynamicCenter();
-    drone.fixed_wing->vehicle.alpha_limit = vehicle->alphaLimit();
+    switch (settings_->fixed_wing->type()) {
+      case fw::FixedWingWidget::kGEOMETRY_BASED: {
+        drone.fixed_wing = settings_->fixed_wing->calculator()->calcFixedWingConfig();
 
-    // Aerodynamic Coefficients
-    const auto aero_coefs = settings_->fixed_wing->aeroCoefs();
-    drone.fixed_wing->aerodynamics.c_lift_0 = aero_coefs->c_lift_0();
-    drone.fixed_wing->aerodynamics.c_lift_alpha = aero_coefs->c_lift_alpha();
-    drone.fixed_wing->aerodynamics.c_drag_0 = aero_coefs->c_drag_0();
-    drone.fixed_wing->aerodynamics.c_drag_alpha = aero_coefs->c_drag_alpha();
-    drone.fixed_wing->aerodynamics.c_side_beta = aero_coefs->c_side_beta();
-    drone.fixed_wing->aerodynamics.c_roll_beta = aero_coefs->c_roll_beta();
-    drone.fixed_wing->aerodynamics.c_roll_p = aero_coefs->c_roll_p();
-    drone.fixed_wing->aerodynamics.c_roll_r = aero_coefs->c_roll_r();
-    drone.fixed_wing->aerodynamics.c_pitch_0 = aero_coefs->c_pitch_0();
-    drone.fixed_wing->aerodynamics.c_pitch_alpha = aero_coefs->c_pitch_alpha();
-    drone.fixed_wing->aerodynamics.c_pitch_abs_beta = aero_coefs->c_pitch_abs_beta();
-    drone.fixed_wing->aerodynamics.c_pitch_alpha_rate = aero_coefs->c_pitch_alpha_rate();
-    drone.fixed_wing->aerodynamics.c_pitch_q = aero_coefs->c_pitch_q();
-    drone.fixed_wing->aerodynamics.c_yaw_beta = aero_coefs->c_yaw_beta();
-    drone.fixed_wing->aerodynamics.c_yaw_p = aero_coefs->c_yaw_p();
-    drone.fixed_wing->aerodynamics.c_yaw_r = aero_coefs->c_yaw_r();
-
-    // Control Surfaces
-    const auto css = settings_->fixed_wing->controlSurfaces();
-    for (int i = 0; i < css->numUnits(); ++i) {
-      const auto link_name = css->linkName(i).toStdString();
-
-      const auto& cur_ele = tree_.getSegment(link_name)->second;
-      const auto& cur_seg = cur_ele.segment;
-      const auto& cur_jnt = cur_seg.joint();
-
-      ControlSurface cs;
-      cs.link_name = link_name;
-      cs.c_lift_delta = css->liftCoef(i);
-      cs.c_drag_abs_delta = css->dragCoef(i);  // TODO: Do the signs need to be checked?
-      cs.c_side_delta = css->sideCoef(i);
-      cs.c_roll_delta = css->rollCoef(i);
-      cs.c_pitch_delta = css->pitchCoef(i);
-      cs.c_yaw_delta = css->yawCoef(i);
-      drone.fixed_wing->control_surfaces[link_name] = cs;
-
-      JointConfig joint;
-      joint.name = cur_jnt.name;
-      joint.role = JointRole::kControlSurface;
-      joint.cmd_iface = JointCommandInterface::kPosition;
-      if (settings_->hardware->pwm()->contains(QString::fromStdString(cur_jnt.name))) {
-        joint.hw_iface = HardwareInterface::kPwm;
+        for (const auto& [link_name, _] : drone.fixed_wing->control_surfaces) {
+          const auto& cur_ele = tree_.getSegment(link_name)->second;
+          const auto& cur_seg = cur_ele.segment;
+          const auto& cur_jnt = cur_seg.joint();
+          JointConfig joint;
+          joint.name = cur_jnt.name;
+          joint.role = JointRole::kControlSurface;
+          joint.cmd_iface = JointCommandInterface::kPosition;
+          if (settings_->hardware->pwm()->contains(QString::fromStdString(cur_jnt.name))) {
+            joint.hw_iface = HardwareInterface::kPwm;
+          }
+          else {
+            joint.hw_iface = HardwareInterface::kOther;
+          }
+          joint.home_pos = 0.0;
+          TOBAS_CHECK(drone.joints.insert({ joint.name, joint }).second);
+        }
+        break;
       }
-      else {
-        joint.hw_iface = HardwareInterface::kOther;
+      case fw::FixedWingWidget::Type::kMANUAL: {
+        // Vehicle
+        const auto vehicle = settings_->fixed_wing->vehicle();
+        drone.fixed_wing->vehicle.wing_surface = vehicle->wingSurface();
+        drone.fixed_wing->vehicle.wing_span = vehicle->wingSpan();
+        drone.fixed_wing->vehicle.mac = vehicle->mac();
+        drone.fixed_wing->vehicle.ac.data = vehicle->aerodynamicCenter();
+        drone.fixed_wing->vehicle.alpha_limit = vehicle->alphaLimit();
+
+        // Aerodynamic Coefficients
+        const auto aero_coefs = settings_->fixed_wing->aeroCoefs();
+        drone.fixed_wing->aerodynamics.c_lift_0 = aero_coefs->c_lift_0();
+        drone.fixed_wing->aerodynamics.c_lift_alpha = aero_coefs->c_lift_alpha();
+        drone.fixed_wing->aerodynamics.c_drag_0 = aero_coefs->c_drag_0();
+        drone.fixed_wing->aerodynamics.c_drag_alpha = aero_coefs->c_drag_alpha();
+        drone.fixed_wing->aerodynamics.c_side_beta = aero_coefs->c_side_beta();
+        drone.fixed_wing->aerodynamics.c_roll_beta = aero_coefs->c_roll_beta();
+        drone.fixed_wing->aerodynamics.c_roll_p = aero_coefs->c_roll_p();
+        drone.fixed_wing->aerodynamics.c_roll_r = aero_coefs->c_roll_r();
+        drone.fixed_wing->aerodynamics.c_pitch_0 = aero_coefs->c_pitch_0();
+        drone.fixed_wing->aerodynamics.c_pitch_alpha = aero_coefs->c_pitch_alpha();
+        drone.fixed_wing->aerodynamics.c_pitch_abs_beta = aero_coefs->c_pitch_abs_beta();
+        drone.fixed_wing->aerodynamics.c_pitch_alpha_rate = aero_coefs->c_pitch_alpha_rate();
+        drone.fixed_wing->aerodynamics.c_pitch_q = aero_coefs->c_pitch_q();
+        drone.fixed_wing->aerodynamics.c_yaw_beta = aero_coefs->c_yaw_beta();
+        drone.fixed_wing->aerodynamics.c_yaw_p = aero_coefs->c_yaw_p();
+        drone.fixed_wing->aerodynamics.c_yaw_r = aero_coefs->c_yaw_r();
+
+        // Control Surfaces
+        const auto css = settings_->fixed_wing->controlSurfaces();
+        for (int i = 0; i < css->numUnits(); ++i) {
+          const auto link_name = css->linkName(i).toStdString();
+
+          const auto& cur_ele = tree_.getSegment(link_name)->second;
+          const auto& cur_seg = cur_ele.segment;
+          const auto& cur_jnt = cur_seg.joint();
+
+          ControlSurface cs;
+          cs.link_name = link_name;
+          cs.c_lift_delta = css->liftCoef(i);
+          cs.c_drag_abs_delta = css->dragCoef(i);  // TODO: Do the signs need to be checked?
+          cs.c_side_delta = css->sideCoef(i);
+          cs.c_roll_delta = css->rollCoef(i);
+          cs.c_pitch_delta = css->pitchCoef(i);
+          cs.c_yaw_delta = css->yawCoef(i);
+          drone.fixed_wing->control_surfaces[link_name] = cs;
+
+          JointConfig joint;
+          joint.name = cur_jnt.name;
+          joint.role = JointRole::kControlSurface;
+          joint.cmd_iface = JointCommandInterface::kPosition;
+          if (settings_->hardware->pwm()->contains(QString::fromStdString(cur_jnt.name))) {
+            joint.hw_iface = HardwareInterface::kPwm;
+          }
+          else {
+            joint.hw_iface = HardwareInterface::kOther;
+          }
+          joint.home_pos = 0.0;
+          TOBAS_CHECK(drone.joints.insert({ joint.name, joint }).second);
+        }
+        break;
       }
-      joint.home_pos = 0.0;
-      TOBAS_CHECK(drone.joints.insert({ joint.name, joint }).second);
+      default: {
+        throw;
+      }
     }
   }
 

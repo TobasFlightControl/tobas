@@ -23,7 +23,7 @@ Calculator::Calculator(
   mn::ManualWidget* manual,
   WingsWidget* wings,
   ControlSurfacesWidget* control_surfaces)
-  : super("Calculate")
+  : super("Apply to Manual")
   , tree_(tree)
   , inertia_solver_(tree)
   , manual_(manual)
@@ -49,28 +49,58 @@ void Calculator::updateInternalDataStructures()
   B_Pos_B2R_ = I_base.getCOG();
 }
 
+std::shared_ptr<FixedWingConfig> Calculator::calcFixedWingConfig()
+{
+  calcCoefficients();
+  auto fixed_wing = std::make_shared<FixedWingConfig>();
+
+  auto& vehicle = fixed_wing->vehicle;
+  const auto main_wing = wings_->getMainWing();
+  vehicle.wing_surface = main_wing->surfaceArea();
+  vehicle.wing_span = main_wing->span();
+  vehicle.mac = main_wing->c_mac();
+  vehicle.ac = B_Pos_B2R_;
+  vehicle.alpha_limit = wings_->alphaLimit();
+
+  auto& aerodynamics = fixed_wing->aerodynamics;
+  aerodynamics.c_lift_0 = c_lift_0_;
+  aerodynamics.c_lift_alpha = c_lift_alpha_;
+  aerodynamics.c_drag_0 = c_drag_0_;
+  aerodynamics.c_drag_alpha = c_drag_alpha_;
+  aerodynamics.c_side_beta = c_side_beta_;
+  aerodynamics.c_roll_beta = c_roll_beta_;
+  aerodynamics.c_roll_p = c_roll_p_;
+  aerodynamics.c_roll_r = c_roll_r_;
+  aerodynamics.c_pitch_0 = c_pitch_0_;
+  aerodynamics.c_pitch_alpha = c_pitch_alpha_;
+  aerodynamics.c_pitch_abs_beta = c_pitch_abs_beta_;
+  aerodynamics.c_pitch_alpha_rate = c_pitch_alpha_rate_;
+  aerodynamics.c_pitch_q = c_pitch_q_;
+  aerodynamics.c_yaw_beta = c_yaw_beta_;
+  aerodynamics.c_yaw_p = c_yaw_p_;
+  aerodynamics.c_yaw_r = c_yaw_r_;
+
+  auto& control_surfaces = fixed_wing->control_surfaces;
+  for (int i = 0; i < control_surfaces_->rowCount(); i++) {
+    ControlSurface cs;
+    const auto link_name = control_surfaces_->linkName(i).toStdString();
+    cs.link_name = link_name;
+    const auto coefs = control_surface_coefs_[i];
+    cs.c_lift_delta = coefs.lift;
+    cs.c_drag_abs_delta = coefs.drag;
+    cs.c_side_delta = coefs.side;
+    cs.c_roll_delta = coefs.roll;
+    cs.c_pitch_delta = coefs.pitch;
+    cs.c_yaw_delta = coefs.yaw;
+    control_surfaces[link_name] = cs;
+  }
+
+  return fixed_wing;
+}
+
 void Calculator::onClicked()
 {
-  // cruise飛行時の迎角, 速度を求める
-  const auto cruise_speed = wings_->cruiseSpeed();
-  const auto main_wing = wings_->getMainWing();
-  const auto C_L =
-    mass_ * st::kGravity / (dynamicPressure(st::kStandardAirDensity, cruise_speed) * main_wing->surfaceArea());
-  const auto cruise_alpha = (C_L - main_wing->c_lift_0()) / main_wing->c_lift_alpha();
-  // cruise時係数を求める
-  calcCruiseCoeff(cruise_speed, cruise_alpha);
-  // alphaに関して数値微分を取る
-  calcAoACoeff(cruise_speed, cruise_alpha);
-  // betaに関して数値微分を取る
-  calcAoSCoeff(cruise_speed, cruise_alpha);
-  // pに関して数値微分を取る
-  calcPCoeff(cruise_speed, cruise_alpha);
-  // qに関して数値微分を取る
-  calcQCoeff(cruise_speed, cruise_alpha);
-  // rに関して数値微分を取る
-  calcRCoeff(cruise_speed, cruise_alpha);
-  // control surfacesに関して数値微分を取る
-  calcControlCoeff(cruise_speed);
+  calcCoefficients();
   writeResults();
 }
 
@@ -444,6 +474,30 @@ void Calculator::calcControlCoeff(const double& cruise_speed)
     std::cout << "pitch: " << coefs.pitch << std::endl;
     std::cout << "yaw  : " << coefs.yaw << std::endl;
   }
+}
+
+void Calculator::calcCoefficients()
+{
+  // cruise飛行時の迎角, 速度を求める
+  const auto cruise_speed = wings_->cruiseSpeed();
+  const auto main_wing = wings_->getMainWing();
+  const auto C_L =
+    mass_ * st::kGravity / (dynamicPressure(st::kStandardAirDensity, cruise_speed) * main_wing->surfaceArea());
+  const auto cruise_alpha = (C_L - main_wing->c_lift_0()) / main_wing->c_lift_alpha();
+  // cruise時係数を求める
+  calcCruiseCoeff(cruise_speed, cruise_alpha);
+  // alphaに関して数値微分を取る
+  calcAoACoeff(cruise_speed, cruise_alpha);
+  // betaに関して数値微分を取る
+  calcAoSCoeff(cruise_speed, cruise_alpha);
+  // pに関して数値微分を取る
+  calcPCoeff(cruise_speed, cruise_alpha);
+  // qに関して数値微分を取る
+  calcQCoeff(cruise_speed, cruise_alpha);
+  // rに関して数値微分を取る
+  calcRCoeff(cruise_speed, cruise_alpha);
+  // control surfacesに関して数値微分を取る
+  calcControlCoeff(cruise_speed);
 }
 
 void Calculator::writeResults()

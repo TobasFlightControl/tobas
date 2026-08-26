@@ -2,11 +2,11 @@
 
 #include <QPushButton>
 
+#include <tobas_drone_core/fixed_wing/fixed_wing.hpp>
 #include <tobas_kdl/tree.hpp>
 #include <tobas_kdl/tree_inertia_solver.hpp>
 #include <tobas_kdl/twist.hpp>
 #include <tobas_kdl/wrench.hpp>
-
 #include <tobas_setup_assistant/setting_tabs/fixed_wing/geometry_based/control_surfaces.hpp>
 #include <tobas_setup_assistant/setting_tabs/fixed_wing/geometry_based/wing.hpp>
 #include <tobas_setup_assistant/setting_tabs/fixed_wing/geometry_based/wings.hpp>
@@ -41,6 +41,7 @@ public:
     WingsWidget* wings,
     ControlSurfacesWidget* control_surfaces);
   void updateInternalDataStructures();
+  std::shared_ptr<FixedWingConfig> calcFixedWingConfig();
 
 private:
   const kdl::Tree& tree_;
@@ -104,6 +105,7 @@ private:
   void calcQCoeff(const double& cruise_speed, const double& cruise_alpha);
   void calcRCoeff(const double& cruise_speed, const double& cruise_alpha);
   void calcControlCoeff(const double& cruise_speed);  // TODO : consider cruise_alpha effect
+  void calcCoefficients();
   void writeResults();
 };
 }  // namespace gb

@@ -35,6 +35,12 @@ class FixedWingWidget : public BaseSettingWidget
   static constexpr int kTabHeight = 40;
 
 public:
+  enum Type
+  {
+    kGEOMETRY_BASED,
+    kMANUAL,
+  };
+
   explicit FixedWingWidget(const uadf::Model& uadf, const kdl::Tree& tree);
 
   const char* name() const override;
@@ -48,9 +54,11 @@ public:
   YAML::Node dump() const override;
   void load(const YAML::Node& node) override;
 
+  gb::Calculator* calculator() const;
   const mn::VehicleParametersWidget* vehicle() const;
   const mn::AerodynamicsCoefficientsWidget* aeroCoefs() const;
   const mn::ControlSurfacesWidget* controlSurfaces() const;
+  Type type() const;
 
 private:
   QButtonGroup* type_btn_group_;

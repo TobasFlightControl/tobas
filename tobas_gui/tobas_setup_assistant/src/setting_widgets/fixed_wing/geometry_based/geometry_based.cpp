@@ -61,6 +61,11 @@ bool GeometryBasedWidget::isValid()
   return wings_->isValid() && control_surfaces_->isValid();
 }
 
+Calculator* GeometryBasedWidget::calculator()
+{
+  return calculator_;
+}
+
 YAML::Node GeometryBasedWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
