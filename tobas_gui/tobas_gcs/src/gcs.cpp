@@ -5,6 +5,7 @@
 
 #include <exception>
 #include <limits>
+#include <ranges>
 #include <utility>
 
 #include <QButtonGroup>
@@ -136,10 +137,7 @@ GroundControlStationWidget::GroundControlStationWidget(int argc, char** argv) : 
   write_btn_ = new QPushButton("Write");
   restart_btn_ = new QPushButton("Restart");
   shutdown_btn_ = new QPushButton("Shutdown");
-  write_btn_->setEnabled(false);
-  restart_btn_->setEnabled(false);
-  shutdown_btn_->setEnabled(false);
-  setFlightControllerPlaceholder("Searching for FCs...");
+  resetFlightControllerPlaceholder();
 
   // Layout
   const auto project_cols = new QHBoxLayout();
@@ -192,13 +190,13 @@ GroundControlStationWidget::GroundControlStationWidget(int argc, char** argv) : 
   connect(fc_scanner_, &FlightControllerScanner::failed, this, &self::onFlightControllerScanFailed);
   connect(restart_btn_, &QPushButton::clicked, this, &self::onRestartButtonClicked);
   connect(shutdown_btn_, &QPushButton::clicked, this, &self::onShutdownButtonClicked);
-  connect(simulation_, &sim::SimulationWidget::started, this, &self::onSimRealStateChanged);
-  connect(simulation_, &sim::SimulationWidget::terminated, this, &self::onSimRealStateChanged);
+  connect(simulation_, &sim::SimulationWidget::started, this, &self::onSimulationStarted);
+  connect(simulation_, &sim::SimulationWidget::terminated, this, &self::onSimulationTerminated);
   connect(simulation_, &sim::SimulationWidget::telemetryLossExpected, this, &self::expectTelemetryLoss);
   connect(remote_conn_, &RemoteConnectionWidget::disconnected, this, &self::onRemoteConnectionDisconnected);
   connect(&bridge_, &rqt::RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
 
-  updateHeaderActionAvailability();
+  reset();
 }
 
 void GroundControlStationWidget::closeEvent(QCloseEvent* event)
@@ -272,7 +270,7 @@ void GroundControlStationWidget::initializeRosConnection()
 
   TOBAS_CHECK(ssh_client_->setEndpoint(host.toStdString(), cmn::kUserNameFC) == ssh::SshClient::kNoError);
 
-  const auto ns = path::join("/", drone_.name, kIdPrefix + std::to_string(id));
+  const auto ns = path::join('/', drone_.name, kIdPrefix + std::to_string(id));
   bridge_.initializeRosInterfaces(ros_node_, ns);
   sensor_calib_->initializeRosInterfaces(ros_node_, ns);
   actuator_test_->initializeRosInterfaces(ros_node_, ns);
@@ -339,16 +337,55 @@ bool GroundControlStationWidget::waitForHeartbeat() const
 
 void GroundControlStationWidget::updateHeaderActionAvailability()
 {
-  const auto target_ready = project_loaded_ && !currentHost().isEmpty();
+  const auto sim_stopped = !simulation_->isRunning();
+  const auto fc_found = fc_selector_->count() > 1;
+  const auto target_ready = !currentHost().isEmpty() && vehicle_id_->hasAcceptableInput();
   const auto disconnected = !connection_ready_;
+  const auto disarmed = !arming_ || !arming_->data;
 
-  load_btn_->setEnabled(disconnected);
-  fc_selector_->setEnabled(disconnected && project_loaded_ && fc_selector_->count() > 1);
-  vehicle_id_->setEnabled(disconnected && project_loaded_);
-  connect_btn_->setEnabled(target_ready);
-  write_btn_->setEnabled(target_ready);
-  restart_btn_->setEnabled(connection_ready_);
-  shutdown_btn_->setEnabled(connection_ready_);
+  load_btn_->setEnabled(sim_stopped && disconnected);
+  fc_selector_->setEnabled(sim_stopped && project_loaded_ && fc_found && disconnected);
+  vehicle_id_->setEnabled(sim_stopped && project_loaded_ && disconnected);
+  connect_btn_->setEnabled(project_loaded_ && target_ready);
+  write_btn_->setEnabled(sim_stopped && project_loaded_ && target_ready && disarmed);
+  restart_btn_->setEnabled(sim_stopped && connection_ready_ && disarmed);
+  shutdown_btn_->setEnabled(sim_stopped && connection_ready_ && disarmed);
+}
+
+void GroundControlStationWidget::updateFlightControllerList(const QVector<DiscoveredFlightController>& flight_controllers)
+{
+  if (flight_controllers.isEmpty()) {
+    setFlightControllerPlaceholder("No flight controller found");
+    updateHeaderActionAvailability();
+    return;
+  }
+
+  const auto selected_host = currentHost();
+
+  auto sorted_flight_controllers = flight_controllers;
+  std::ranges::sort(
+    sorted_flight_controllers,
+    [](const auto& lhs, const auto& rhs)
+    {
+      if (lhs.hostname == rhs.hostname) {
+        return lhs.address < rhs.address;
+      }
+      return lhs.hostname < rhs.hostname;
+    });
+
+  const QSignalBlocker block(fc_selector_);
+
+  fc_selector_->clear();
+  fc_selector_->addItem("Select FC...");
+  for (const auto& [index, elem] : std::views::enumerate(sorted_flight_controllers)) {
+    fc_selector_->addItem(elem.hostname + " (" + elem.address + ')');
+    fc_selector_->setItemData(index + 1, elem.address, kHostRole);
+  }
+
+  // Preserve the current selection, or automatically select the first FC when none has been selected yet.
+  const auto selected_index = fc_selector_->findData(selected_host, kHostRole);
+  const auto next_index = selected_index > 0 ? selected_index : (selected_host.isEmpty() ? 1 : 0);
+  fc_selector_->setCurrentIndex(next_index);
 }
 
 void GroundControlStationWidget::setFlightControllerPlaceholder(const QString& text)
@@ -358,8 +395,11 @@ void GroundControlStationWidget::setFlightControllerPlaceholder(const QString& t
   fc_selector_->clear();
   fc_selector_->addItem(text);
   fc_selector_->setCurrentIndex(0);
+}
 
-  updateHeaderActionAvailability();
+void GroundControlStationWidget::resetFlightControllerPlaceholder()
+{
+  setFlightControllerPlaceholder("Searching for flight controllers...");
 }
 
 QString GroundControlStationWidget::currentHost() const
@@ -772,44 +812,11 @@ void GroundControlStationWidget::onWriteButtonClicked()
 void GroundControlStationWidget::onFlightControllerScanFinished(
   const QVector<DiscoveredFlightController>& flight_controllers)
 {
-  if (connection_ready_) {
+  if (connection_ready_ || simulation_->isRunning()) {
     return;
   }
 
-  if (flight_controllers.isEmpty()) {
-    setFlightControllerPlaceholder("No FC found");
-    return;
-  }
-
-  const auto selected_host = currentHost();
-
-  auto sorted_flight_controllers = flight_controllers;
-  std::ranges::sort(
-    sorted_flight_controllers,
-    [](const auto& lhs, const auto& rhs)
-    {
-      if (lhs.hostname == rhs.hostname) {
-        return lhs.address < rhs.address;
-      }
-      return lhs.hostname < rhs.hostname;
-    });
-
-  const QSignalBlocker block(fc_selector_);
-
-  fc_selector_->clear();
-  fc_selector_->addItem("Select FC...");
-  for (const auto& flight_controller : sorted_flight_controllers) {
-    const auto label = flight_controller.hostname + " (" + flight_controller.address + ')';
-    fc_selector_->addItem(label);
-    const auto index = fc_selector_->count() - 1;
-    fc_selector_->setItemData(index, flight_controller.address, kHostRole);
-  }
-
-  // Preserve the current selection, or automatically select the first FC when none has been selected yet.
-  const auto selected_index = fc_selector_->findData(selected_host, kHostRole);
-  const auto next_index = selected_index > 0 ? selected_index : (selected_host.isEmpty() ? 1 : 0);
-  fc_selector_->setCurrentIndex(next_index);
-
+  updateFlightControllerList(flight_controllers);
   updateHeaderActionAvailability();
 }
 
@@ -817,12 +824,13 @@ void GroundControlStationWidget::onFlightControllerScanFailed(const QString& mes
 {
   qWarning() << "Failed to scan for flight controllers:" << message;
 
-  if (connection_ready_) {
+  if (connection_ready_ || simulation_->isRunning()) {
     return;
   }
 
   if (fc_selector_->count() <= 1) {
-    setFlightControllerPlaceholder("FC scan unavailable");
+    setFlightControllerPlaceholder("flight controller scan unavailable");
+    updateHeaderActionAvailability();
   }
 }
 
@@ -876,11 +884,27 @@ void GroundControlStationWidget::onShutdownButtonClicked()
   }
 }
 
-void GroundControlStationWidget::onSimRealStateChanged()
+void GroundControlStationWidget::onSimulationStarted()
 {
-  qDebug() << "GroundControlStationWidget::onSimRealStateChanged";
+  qDebug() << "GroundControlStationWidget::onSimulationStarted";
 
-  // Reset everything except the simulation widget.
+  fc_scanner_->stop();
+
+  // シミュレーション用のターゲットを設定
+  updateFlightControllerList({ DiscoveredFlightController("Simulation Model", "172.17.0.1") });
+  vehicle_id_->setValue(0);
+
+  reset(false);
+}
+
+void GroundControlStationWidget::onSimulationTerminated()
+{
+  qDebug() << "GroundControlStationWidget::onSimulationTerminated";
+
+  fc_scanner_->start();
+
+  resetFlightControllerPlaceholder();
+
   reset(false);
 }
 
@@ -902,6 +926,7 @@ void GroundControlStationWidget::onRemoteConnectionDisconnected()
 void GroundControlStationWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
 {
   arming_ = arming;
+  updateHeaderActionAvailability();
 }
 }  // namespace gcs
 }  // namespace gui

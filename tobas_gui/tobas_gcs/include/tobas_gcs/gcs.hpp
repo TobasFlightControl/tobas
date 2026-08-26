@@ -118,7 +118,9 @@ private:
   bool waitForHeartbeat() const;
 
   void updateHeaderActionAvailability();
+  void updateFlightControllerList(const QVector<DiscoveredFlightController>& flight_controllers);
   void setFlightControllerPlaceholder(const QString& text);
+  void resetFlightControllerPlaceholder();
 
   QString currentHost() const;
   int currentId() const;
@@ -142,7 +144,8 @@ private Q_SLOTS:
   void onRestartButtonClicked();
   void onShutdownButtonClicked();
 
-  void onSimRealStateChanged();
+  void onSimulationStarted();
+  void onSimulationTerminated();
   void onRemoteConnectionDisconnected();
 
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
