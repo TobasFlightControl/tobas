@@ -23,6 +23,7 @@
 
 #include "tobas_simulation_gui/gazebo.hpp"
 
+using namespace std::chrono_literals;
 namespace fs = std::filesystem;
 
 namespace tobas
@@ -31,10 +32,15 @@ namespace gui
 {
 namespace sim
 {
+namespace
+{
+constexpr auto kWaitForServerTimeout = 3s;
+}  // namespace
+
 SimulationWidget::SimulationWidget(const rqt::RosQtBridge& bridge) : spinner_(Qt::WindowModal, this)
 {
   start_stop_button_ = new qt::ToggleButton("Start", "Terminate");
-  start_stop_button_->setFixedSize(kButtonWidth, kButtonHeight);
+  start_stop_button_->setFixedSize(100, 40);
 
   sim_settings_ = new SimulationSettingsWidget();
   dynamic_config_ = new DynamicConfigWidget();
@@ -58,7 +64,6 @@ SimulationWidget::SimulationWidget(const rqt::RosQtBridge& bridge) : spinner_(Qt
   connect(&bridge, &rqt::RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
 
   reset();
-  setEnabled(false);
 }
 
 void SimulationWidget::reset()
@@ -75,7 +80,7 @@ void SimulationWidget::reset()
 
   start_stop_button_->setChecked(false);
 
-  sim_settings_->setEnabled(true);
+  sim_settings_->setEnabled(project_loaded_);
   dynamic_config_->setEnabled(false);
   commanders_->setEnabled(false);
 }
@@ -95,32 +100,28 @@ void SimulationWidget::updateProject(const fs::path& proj_path)
   TOBAS_CHECK(drone_.load(tbsdrn_path));
 
   commanders_->updateInternalDataStructures();
+
+  project_loaded_ = true;
 }
 
 void SimulationWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
 {
   node_ = std::move(node);
-  drone_id_ = fs::path(ns).filename().string();
 
   ssh_client_.emplace(node_);
   remote_proj_builder_.emplace(node_);
   dynamic_config_->initializeRosInterfaces(node_, ns);
   commanders_->initializeRosInterfaces(node_, ns);
-
-  setEnabled(true);
 }
 
 void SimulationWidget::clearRosInterfaces()
 {
   node_.reset();
-  drone_id_.clear();
 
   ssh_client_.reset();
   remote_proj_builder_.reset();
   dynamic_config_->clearRosInterfaces();
   commanders_->clearRosInterfaces();
-
-  setEnabled(false);
 }
 
 bool SimulationWidget::isRunning() const
@@ -408,7 +409,7 @@ std::map<QString, QString> SimulationWidget::makeGazeboLaunchArguments(bool laun
 {
   std::map<QString, QString> args{
     { "user_debug", qt::boolToText(sim_settings_->userDebug()) },
-    { "id", QString::fromStdString(drone_id_) },
+    { "id", QString::number(kDroneId) },
     { "launch_core", qt::boolToText(launch_core) },
     { "x", QString::number(sim_settings_->x()) },
     { "y", QString::number(sim_settings_->y()) },

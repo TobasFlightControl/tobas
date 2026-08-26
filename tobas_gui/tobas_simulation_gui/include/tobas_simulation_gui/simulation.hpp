@@ -34,17 +34,14 @@ class SimulationWidget : public QWidget
   using self = SimulationWidget;
   using super = QWidget;
 
-  static constexpr int kButtonWidth = 100;
-  static constexpr int kButtonHeight = 40;
-
-  static constexpr auto kWaitForServerTimeout = std::chrono::seconds(3);
-
 Q_SIGNALS:
   void telemetryLossExpected();
   void started();
   void terminated();
 
 public:
+  static constexpr int kDroneId = 0;
+
   explicit SimulationWidget(const rqt::RosQtBridge& bridge);
 
   void reset();
@@ -69,7 +66,6 @@ private:
   uadf::Model uadf_;
   kdl::Tree tree_;
   Drone drone_;
-  std::string drone_id_;
 
   QProcess* launch_proc_ = nullptr;
   qt::WaitSpinnerWidget spinner_;
@@ -80,6 +76,7 @@ private:
   DynamicConfigWidget* dynamic_config_;
   CommandersWidget* commanders_;
 
+  bool project_loaded_ = false;
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
 
   bool startSITL();
