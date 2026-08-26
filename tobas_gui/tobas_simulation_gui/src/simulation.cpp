@@ -409,7 +409,7 @@ std::map<QString, QString> SimulationWidget::makeGazeboLaunchArguments(bool laun
 {
   std::map<QString, QString> args{
     { "user_debug", qt::boolToText(sim_settings_->userDebug()) },
-    { "id", QString::number(kDroneId) },
+    { "id", "id" + QString::number(kDroneId) },
     { "launch_core", qt::boolToText(launch_core) },
     { "x", QString::number(sim_settings_->x()) },
     { "y", QString::number(sim_settings_->y()) },

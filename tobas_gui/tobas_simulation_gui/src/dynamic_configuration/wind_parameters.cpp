@@ -83,10 +83,10 @@ void WindParamsWidget::clearRosInterfaces()
 
 bool WindParamsWidget::start(ch::milliseconds timeout)
 {
-  // Prepare the service client.
+  // Prepare the service clients.
+  qInfo() << "Waiting for the Gazebo wind plugin.";
   bool success = true;
   QString message;
-
   qt::startThreadAndWait(
     [&]()
     {
@@ -101,18 +101,18 @@ bool WindParamsWidget::start(ch::milliseconds timeout)
         return;
       }
     });
-
   if (!success) {
     qWarning().noquote() << message;
     return false;
   }
 
-  // Load initial parameter values.
+  // Load the initial parameter values.
+  qInfo() << "Loading the initial wind parameters.";
   if (!loadSimParams()) {
     return false;
   }
 
-  // Save initial parameter values.
+  // Save the initial parameter values.
   init_mean_speed_ = getMeanSpeed();
   init_direction_ = getDirection();
   init_gust_speed_factor_ = getGustSpeedFactor();

@@ -104,11 +104,10 @@ void SuspendedLoadWidget::clearRosInterfaces()
 
 bool SuspendedLoadWidget::start(ch::milliseconds timeout)
 {
-  setParamsToDefault();
-
+  // Prepare the service clients.
+  qInfo() << "Waiting for the Gazebo suspended load plugin.";
   bool success = true;
   QString message;
-
   qt::startThreadAndWait(
     [&]()
     {
@@ -123,11 +122,14 @@ bool SuspendedLoadWidget::start(ch::milliseconds timeout)
         return;
       }
     });
-
   if (!success) {
     qWarning().noquote() << message;
     return false;
   }
+
+  // Set the parameters to their default values.
+  qInfo() << "Setting the suspended load parameters to their default values.";
+  setParamsToDefault();
 
   return true;
 }

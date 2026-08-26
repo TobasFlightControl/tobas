@@ -35,9 +35,9 @@ class SimulationWidget : public QWidget
   using super = QWidget;
 
 Q_SIGNALS:
-  void telemetryLossExpected();
   void started();
   void terminated();
+  void telemetryLossExpected();
 
 public:
   static constexpr int kDroneId = 0;

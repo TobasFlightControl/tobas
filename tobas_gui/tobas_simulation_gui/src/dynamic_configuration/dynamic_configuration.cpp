@@ -3,6 +3,7 @@
 
 #include "tobas_simulation_gui/dynamic_configuration/dynamic_configuration.hpp"
 
+#include <QDebug>
 #include <QVBoxLayout>
 
 #include <tobas_gui_common/constants.hpp>
@@ -50,10 +51,12 @@ void DynamicConfigWidget::clearRosInterfaces()
 
 bool DynamicConfigWidget::start(ch::milliseconds timeout)
 {
+  qInfo() << "Starting the wind manager.";
   if (!wind_params_->start(timeout)) {
     return false;
   }
 
+  qInfo() << "Starting the suspended load manager.";
   if (!suspended_load_->start(timeout)) {
     return false;
   }
