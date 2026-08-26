@@ -11,7 +11,7 @@ namespace gui
 {
 namespace sc
 {
-SensorCalibrationWidget::SensorCalibrationWidget(const RosQtBridge& bridge, const Drone& drone) : drone_(drone)
+SensorCalibrationWidget::SensorCalibrationWidget(const rqt::RosQtBridge& bridge, const Drone& drone) : drone_(drone)
 {
   setTabSize(kTabWidth, kTabHeight);
   enableWheelEvent(false);
@@ -28,9 +28,9 @@ SensorCalibrationWidget::SensorCalibrationWidget(const RosQtBridge& bridge, cons
   setTabsEnabled(false);
 
   // Connection
-  connect(&bridge, &RosQtBridge::imuReceived, this, &self::imuCb, Qt::QueuedConnection);
-  connect(&bridge, &RosQtBridge::magReceived, this, &self::magCb, Qt::QueuedConnection);
-  connect(&bridge, &RosQtBridge::rcInputReceived, this, &self::rcInputCb, Qt::QueuedConnection);
+  connect(&bridge, &rqt::RosQtBridge::imuReceived, this, &self::imuCb, Qt::QueuedConnection);
+  connect(&bridge, &rqt::RosQtBridge::magReceived, this, &self::magCb, Qt::QueuedConnection);
+  connect(&bridge, &rqt::RosQtBridge::rcInputReceived, this, &self::rcInputCb, Qt::QueuedConnection);
 }
 
 void SensorCalibrationWidget::reset()

@@ -32,7 +32,7 @@ Q_SIGNALS:
   void finished(bool success, const QString& message);
 
 public:
-  explicit AccelCalibrationThread(const RosQtBridge& bridge);
+  explicit AccelCalibrationThread(const rqt::RosQtBridge& bridge);
   ~AccelCalibrationThread();
 
   void run() override;

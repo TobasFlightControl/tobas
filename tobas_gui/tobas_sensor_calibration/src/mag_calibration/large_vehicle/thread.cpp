@@ -15,11 +15,11 @@ namespace gui
 {
 namespace sc
 {
-LargeVehicleMagCalibThread::LargeVehicleMagCalibThread(const RosQtBridge& bridge)
+LargeVehicleMagCalibThread::LargeVehicleMagCalibThread(const rqt::RosQtBridge& bridge)
 {
-  connect(&bridge, &RosQtBridge::rawMagReceived, this, &self::magCb, Qt::QueuedConnection);
-  connect(&bridge, &RosQtBridge::gnssReceived, this, &self::gnssCb, Qt::QueuedConnection);
-  connect(&bridge, &RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
+  connect(&bridge, &rqt::RosQtBridge::rawMagReceived, this, &self::magCb, Qt::QueuedConnection);
+  connect(&bridge, &rqt::RosQtBridge::gnssReceived, this, &self::gnssCb, Qt::QueuedConnection);
+  connect(&bridge, &rqt::RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
 }
 
 LargeVehicleMagCalibThread::~LargeVehicleMagCalibThread()

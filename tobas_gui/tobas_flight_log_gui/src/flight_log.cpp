@@ -13,7 +13,7 @@ namespace gui
 {
 namespace log
 {
-FlightLogWidget::FlightLogWidget(const RosQtBridge& bridge)
+FlightLogWidget::FlightLogWidget(const rqt::RosQtBridge& bridge)
 {
   recorder_ = new FlightLogRecorderWidget(bridge);
   logs_fc_ = new FlightLogsWidgetFC();

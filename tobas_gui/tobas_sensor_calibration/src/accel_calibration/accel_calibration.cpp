@@ -15,7 +15,7 @@ namespace gui
 {
 namespace sc
 {
-AccelCalibrationWidget::AccelCalibrationWidget(const RosQtBridge& bridge)
+AccelCalibrationWidget::AccelCalibrationWidget(const rqt::RosQtBridge& bridge)
   : spinner_(Qt::WindowModal, this), thread_(bridge)
 {
   const auto instruction = new qt::DescriptionWidget(
@@ -37,9 +37,9 @@ AccelCalibrationWidget::AccelCalibrationWidget(const RosQtBridge& bridge)
 
   // Connection
   connect(start_button_, &QPushButton::clicked, this, &self::onStartButtonClicked);
-  connect(&bridge, &RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
-  connect(&bridge, &RosQtBridge::rawImuReceived, this, &self::rawImuCb, Qt::QueuedConnection);
-  connect(&bridge, &RosQtBridge::imuReceived, this, &self::calibratedImuCb, Qt::QueuedConnection);
+  connect(&bridge, &rqt::RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
+  connect(&bridge, &rqt::RosQtBridge::rawImuReceived, this, &self::rawImuCb, Qt::QueuedConnection);
+  connect(&bridge, &rqt::RosQtBridge::imuReceived, this, &self::calibratedImuCb, Qt::QueuedConnection);
 }
 
 const char* AccelCalibrationWidget::title() const

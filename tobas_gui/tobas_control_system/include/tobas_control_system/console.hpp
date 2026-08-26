@@ -36,7 +36,7 @@ class ConsoleWidget : public QWidget
   static constexpr auto kUnknownColor = Qt::darkGray;
 
 public:
-  explicit ConsoleWidget(const RosQtBridge& bridge);
+  explicit ConsoleWidget(const rqt::RosQtBridge& bridge);
 
   void reset();
 

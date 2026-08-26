@@ -16,7 +16,7 @@ namespace gui
 {
 namespace sc
 {
-MagCalibrationWidget::MagCalibrationWidget(const RosQtBridge& bridge)
+MagCalibrationWidget::MagCalibrationWidget(const rqt::RosQtBridge& bridge)
 {
   btn_group_ = new QButtonGroup(this);
   btn_group_->setExclusive(true);

@@ -35,7 +35,7 @@ class BasePoseCommanderWidget : public QWidget
   static constexpr double kHomeAltitude = 3.0;  // [m]
 
 public:
-  explicit BasePoseCommanderWidget(const RosQtBridge& bridge);
+  explicit BasePoseCommanderWidget(const rqt::RosQtBridge& bridge);
 
   void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
   void clearRosInterfaces();

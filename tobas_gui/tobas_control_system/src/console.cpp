@@ -14,7 +14,7 @@ namespace gui
 {
 namespace ctrl
 {
-ConsoleWidget::ConsoleWidget(const RosQtBridge& bridge)
+ConsoleWidget::ConsoleWidget(const rqt::RosQtBridge& bridge)
 {
   table_ = new qt::TableWidget(0, kNumCols);
   table_->setHorizontalHeaderLabels({ "Stamp", "Name", "Level", "Message" });
@@ -36,7 +36,7 @@ ConsoleWidget::ConsoleWidget(const RosQtBridge& bridge)
   rows->addWidget(table_);
   setLayout(rows);
 
-  connect(&bridge, &RosQtBridge::messageReceived, this, &self::messageCb, Qt::QueuedConnection);
+  connect(&bridge, &rqt::RosQtBridge::messageReceived, this, &self::messageCb, Qt::QueuedConnection);
 }
 
 void ConsoleWidget::reset()

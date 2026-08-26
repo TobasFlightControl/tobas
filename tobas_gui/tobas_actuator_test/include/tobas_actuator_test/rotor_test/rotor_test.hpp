@@ -44,7 +44,7 @@ class RotorTestWidget : public BaseWidget
   static constexpr auto kWaitForService = std::chrono::seconds(3);
 
 public:
-  explicit RotorTestWidget(const RosQtBridge& bridge, const Drone& drone);
+  explicit RotorTestWidget(const rqt::RosQtBridge& bridge, const Drone& drone);
 
   const char* title() const override;
 
@@ -58,7 +58,7 @@ public:
 
 private:
   rclcpp::Node::SharedPtr node_;
-  const RosQtBridge& bridge_;
+  const rqt::RosQtBridge& bridge_;
   const Drone& drone_;
   ElectricPropulsionSystemConfig::ConstSharedPtr eprop_;
   cmn::ProjectPaths proj_paths_;

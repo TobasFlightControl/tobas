@@ -65,7 +65,7 @@ size_t splineMapSampleCount(const MapSplinePath& path, size_t segment)
 }
 }  // namespace
 
-MissionPlannerWidget::MissionPlannerWidget(const RosQtBridge& bridge) : spinner_(Qt::WindowModal, this)
+MissionPlannerWidget::MissionPlannerWidget(const rqt::RosQtBridge& bridge) : spinner_(Qt::WindowModal, this)
 {
   map_ = new MapWidget();
 
@@ -122,8 +122,8 @@ MissionPlannerWidget::MissionPlannerWidget(const RosQtBridge& bridge) : spinner_
   connect(focus_button_, &CommandButton::clicked, this, &self::onFocusButtonClicked);
   connect(command_list_, &qt::ListWidget::currentItemChanged, this, &self::onListItemChanged);
   connect(command_list_, &qt::ListWidget::itemMoved, this, &self::onListItemChanged);
-  connect(&bridge, &RosQtBridge::gnssReceived, this, &self::gnssCb, Qt::QueuedConnection);
-  connect(&bridge, &RosQtBridge::odomReceived, this, &self::odomCb, Qt::QueuedConnection);
+  connect(&bridge, &rqt::RosQtBridge::gnssReceived, this, &self::gnssCb, Qt::QueuedConnection);
+  connect(&bridge, &rqt::RosQtBridge::odomReceived, this, &self::odomCb, Qt::QueuedConnection);
   connect(this, &self::goalResponseReceived, this, &self::actionGoalResponseCb, Qt::QueuedConnection);
   connect(this, &self::feedbackReceived, this, &self::actionFeedbackCb, Qt::QueuedConnection);
   connect(this, &self::resultReceived, this, &self::actionResultCb, Qt::QueuedConnection);

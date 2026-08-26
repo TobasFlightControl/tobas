@@ -31,7 +31,7 @@ void appendArmReadinessIssue(QStringList& issues, const QString& label, uint8_t 
 }
 }  // namespace
 
-ArmStateBanner::ArmStateBanner(const RosQtBridge& bridge)
+ArmStateBanner::ArmStateBanner(const rqt::RosQtBridge& bridge)
 {
   setAlignment(Qt::AlignCenter);
   setAutoFillBackground(true);
@@ -39,8 +39,8 @@ ArmStateBanner::ArmStateBanner(const RosQtBridge& bridge)
   setFont(qt::DefaultFont(kPSize, QFont::Bold));
   setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
 
-  connect(&bridge, &RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
-  connect(&bridge, &RosQtBridge::vehicleHealthReceived, this, &self::healthCb, Qt::QueuedConnection);
+  connect(&bridge, &rqt::RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
+  connect(&bridge, &rqt::RosQtBridge::vehicleHealthReceived, this, &self::healthCb, Qt::QueuedConnection);
 }
 
 void ArmStateBanner::reset()

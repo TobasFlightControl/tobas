@@ -14,12 +14,12 @@ namespace gui
 {
 namespace ctrl
 {
-PoseViewerWidget::PoseViewerWidget(const RosQtBridge& bridge)
+PoseViewerWidget::PoseViewerWidget(const rqt::RosQtBridge& bridge)
 {
   reset();
 
-  connect(&bridge, &RosQtBridge::odomReceived, this, &self::odomCb, Qt::QueuedConnection);
-  connect(&bridge, &RosQtBridge::gnssReceived, this, &self::gnssCb, Qt::QueuedConnection);
+  connect(&bridge, &rqt::RosQtBridge::odomReceived, this, &self::odomCb, Qt::QueuedConnection);
+  connect(&bridge, &rqt::RosQtBridge::gnssReceived, this, &self::gnssCb, Qt::QueuedConnection);
 }
 
 void PoseViewerWidget::reset()

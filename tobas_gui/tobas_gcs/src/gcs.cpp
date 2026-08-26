@@ -196,7 +196,7 @@ GroundControlStationWidget::GroundControlStationWidget(int argc, char** argv) : 
   connect(simulation_, &sim::SimulationWidget::terminated, this, &self::onSimRealStateChanged);
   connect(simulation_, &sim::SimulationWidget::telemetryLossExpected, this, &self::expectTelemetryLoss);
   connect(remote_conn_, &RemoteConnectionWidget::disconnected, this, &self::onRemoteConnectionDisconnected);
-  connect(&bridge_, &RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
+  connect(&bridge_, &rqt::RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
 
   updateHeaderActionAvailability();
 }
@@ -334,7 +334,7 @@ void GroundControlStationWidget::disconnectFromFlightController()
 
 bool GroundControlStationWidget::waitForHeartbeat() const
 {
-  return static_cast<bool>(waitForMessage<&RosQtBridge::remoteHeartbeatReceived>(bridge_, kHeartbeatTimeout));
+  return static_cast<bool>(rqt::waitForMessage<&rqt::RosQtBridge::remoteHeartbeatReceived>(bridge_, kHeartbeatTimeout));
 }
 
 void GroundControlStationWidget::updateHeaderActionAvailability()

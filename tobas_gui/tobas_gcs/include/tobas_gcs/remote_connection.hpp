@@ -29,7 +29,7 @@ Q_SIGNALS:
   void disconnected();
 
 public:
-  explicit RemoteConnectionWidget(const RosQtBridge& bridge);
+  explicit RemoteConnectionWidget(const rqt::RosQtBridge& bridge);
 
   void start();
   void stop();
@@ -43,7 +43,7 @@ private:
     kUnknown,
   } state_ = kUnknown;
 
-  const RosQtBridge& bridge_;
+  const rqt::RosQtBridge& bridge_;
 
   QPixmap connected_;
   QPixmap disconnected_;

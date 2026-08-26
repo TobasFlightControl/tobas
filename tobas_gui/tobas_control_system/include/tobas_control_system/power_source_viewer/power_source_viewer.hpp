@@ -19,7 +19,7 @@ class PowerSourceViewerWidget : public qt::StackedWidget
   Q_OBJECT
 
 public:
-  explicit PowerSourceViewerWidget(const RosQtBridge& bridge, const Drone& drone);
+  explicit PowerSourceViewerWidget(const rqt::RosQtBridge& bridge, const Drone& drone);
 
   void reset();
   void updateInternalDataStructures();

@@ -9,7 +9,7 @@
 
 namespace tobas
 {
-namespace gui
+namespace rqt
 {
 RosQtBridge::RosQtBridge(QObject* parent) : super(parent)
 {
@@ -58,5 +58,5 @@ void RosQtBridge::add(
   const auto cb = [this](const typename MsgType::ConstSharedPtr& msg) { (this->*SignalType)(msg); };
   subs_[base_topic] = node->create_subscription<MsgType>(topic, qos, cb);
 }
-}  // namespace gui
+}  // namespace rqt
 }  // namespace tobas

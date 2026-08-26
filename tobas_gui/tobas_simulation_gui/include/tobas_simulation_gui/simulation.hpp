@@ -45,7 +45,7 @@ Q_SIGNALS:
   void terminated();
 
 public:
-  explicit SimulationWidget(const RosQtBridge& bridge);
+  explicit SimulationWidget(const rqt::RosQtBridge& bridge);
 
   void reset();
   void updateProject(const std::filesystem::path& proj_path);

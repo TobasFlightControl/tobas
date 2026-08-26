@@ -32,7 +32,7 @@ Q_SIGNALS:
   void finished(bool success, const QString& message);
 
 public:
-  explicit LargeVehicleMagCalibThread(const RosQtBridge& bridge);
+  explicit LargeVehicleMagCalibThread(const rqt::RosQtBridge& bridge);
   ~LargeVehicleMagCalibThread();
 
   void run() override;

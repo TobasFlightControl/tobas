@@ -13,7 +13,7 @@ namespace gui
 {
 namespace ctrl
 {
-HealthViewerWidget::HealthViewerWidget(const RosQtBridge& bridge)
+HealthViewerWidget::HealthViewerWidget(const rqt::RosQtBridge& bridge)
 {
   rt_compliance_status_ = new StatusWidget("Realtime Compliance");
   battery_voltage_status_ = new StatusWidget("Battery Voltage");
@@ -54,7 +54,7 @@ HealthViewerWidget::HealthViewerWidget(const RosQtBridge& bridge)
   setLayout(rows);
 
   // Connection
-  connect(&bridge, &RosQtBridge::vehicleHealthReceived, this, &self::healthCb, Qt::QueuedConnection);
+  connect(&bridge, &rqt::RosQtBridge::vehicleHealthReceived, this, &self::healthCb, Qt::QueuedConnection);
 }
 
 void HealthViewerWidget::reset()

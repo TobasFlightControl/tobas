@@ -45,7 +45,7 @@ class RCInputCalibrationWidget : public BaseWidget
   static constexpr int kRangeSideShort = 50;
 
 public:
-  explicit RCInputCalibrationWidget(const RosQtBridge& bridge, const Drone& drone);
+  explicit RCInputCalibrationWidget(const rqt::RosQtBridge& bridge, const Drone& drone);
 
   const char* title() const override;
   void reset() override;

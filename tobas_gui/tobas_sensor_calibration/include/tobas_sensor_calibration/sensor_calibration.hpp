@@ -27,7 +27,7 @@ class SensorCalibrationWidget : public qt::VerticalTabWidget
   static constexpr int kTabWidth = 70;
 
 public:
-  explicit SensorCalibrationWidget(const RosQtBridge& bridge, const Drone& drone);
+  explicit SensorCalibrationWidget(const rqt::RosQtBridge& bridge, const Drone& drone);
 
   void reset();
   void updateInternalDataStructures();

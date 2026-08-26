@@ -27,7 +27,7 @@ class ArmStateBanner : public QLabel
   static constexpr int kMaxArmReadinessIssues = 3;
 
 public:
-  explicit ArmStateBanner(const RosQtBridge& bridge);
+  explicit ArmStateBanner(const rqt::RosQtBridge& bridge);
 
   void reset();
 

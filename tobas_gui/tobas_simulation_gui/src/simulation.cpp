@@ -31,7 +31,7 @@ namespace gui
 {
 namespace sim
 {
-SimulationWidget::SimulationWidget(const RosQtBridge& bridge) : spinner_(Qt::WindowModal, this)
+SimulationWidget::SimulationWidget(const rqt::RosQtBridge& bridge) : spinner_(Qt::WindowModal, this)
 {
   start_stop_button_ = new qt::ToggleButton("Start", "Terminate");
   start_stop_button_->setFixedSize(kButtonWidth, kButtonHeight);
@@ -55,7 +55,7 @@ SimulationWidget::SimulationWidget(const RosQtBridge& bridge) : spinner_(Qt::Win
   // Connection
   connect(start_stop_button_, &qt::ToggleButton::checked, this, &self::onStartRequested);
   connect(start_stop_button_, &qt::ToggleButton::unchecked, this, &self::onTerminateRequested);
-  connect(&bridge, &RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
+  connect(&bridge, &rqt::RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
 
   reset();
   setEnabled(false);

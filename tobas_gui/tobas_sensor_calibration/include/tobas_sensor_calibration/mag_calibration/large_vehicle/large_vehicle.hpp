@@ -28,7 +28,7 @@ class LargeVehicleMagCalibWidget : public BaseMagCalibWidget
   static constexpr int kButtonHeight = 40;
 
 public:
-  explicit LargeVehicleMagCalibWidget(const RosQtBridge& bridge);
+  explicit LargeVehicleMagCalibWidget(const rqt::RosQtBridge& bridge);
 
   void reset() override;
   void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns) override;

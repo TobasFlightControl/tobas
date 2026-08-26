@@ -37,7 +37,7 @@ Q_SIGNALS:
   void recordFinished(const QString& log_name, bool is_real);
 
 public:
-  explicit FlightLogRecorderWidget(const RosQtBridge& bridge);
+  explicit FlightLogRecorderWidget(const rqt::RosQtBridge& bridge);
 
   void reset();
   void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);

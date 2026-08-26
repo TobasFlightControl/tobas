@@ -29,7 +29,7 @@ class AccelCalibrationWidget : public BaseWidget
   static constexpr int kButtonHeight = 40;
 
 public:
-  explicit AccelCalibrationWidget(const RosQtBridge& bridge);
+  explicit AccelCalibrationWidget(const rqt::RosQtBridge& bridge);
 
   const char* title() const override;
   void reset() override;

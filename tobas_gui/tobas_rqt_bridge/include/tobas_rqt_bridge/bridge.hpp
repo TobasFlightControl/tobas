@@ -15,7 +15,7 @@
 
 namespace tobas
 {
-namespace gui
+namespace rqt
 {
 class RosQtBridge : public QObject
 {
@@ -65,5 +65,5 @@ private:
     bool reliable = ros2::qos::kDefaultReliable,
     size_t queue_size = ros2::qos::kDefaultQueueSize);
 };
-}  // namespace gui
+}  // namespace rqt
 }  // namespace tobas

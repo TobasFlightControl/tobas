@@ -28,7 +28,7 @@ class MagCalibrationWidget : public BaseWidget
   static constexpr int kDefaultIndex = 0;
 
 public:
-  explicit MagCalibrationWidget(const RosQtBridge& bridge);
+  explicit MagCalibrationWidget(const rqt::RosQtBridge& bridge);
 
   const char* title() const override;
   void reset() override;

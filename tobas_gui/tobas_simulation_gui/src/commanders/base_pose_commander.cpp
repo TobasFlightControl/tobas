@@ -26,7 +26,7 @@ namespace gui
 {
 namespace sim
 {
-BasePoseCommanderWidget::BasePoseCommanderWidget(const RosQtBridge& bridge)
+BasePoseCommanderWidget::BasePoseCommanderWidget(const rqt::RosQtBridge& bridge)
 {
   const auto root_rows = new QVBoxLayout();
   setLayout(root_rows);
@@ -77,9 +77,9 @@ BasePoseCommanderWidget::BasePoseCommanderWidget(const RosQtBridge& bridge)
 
   reset();
 
-  connect(&bridge, &RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
-  connect(&bridge, &RosQtBridge::odomReceived, this, &self::odomCb, Qt::QueuedConnection);
-  connect(&bridge, &RosQtBridge::rcInputReceived, this, &self::rcInputCb, Qt::QueuedConnection);
+  connect(&bridge, &rqt::RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
+  connect(&bridge, &rqt::RosQtBridge::odomReceived, this, &self::odomCb, Qt::QueuedConnection);
+  connect(&bridge, &rqt::RosQtBridge::rcInputReceived, this, &self::rcInputCb, Qt::QueuedConnection);
 }
 
 void BasePoseCommanderWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)

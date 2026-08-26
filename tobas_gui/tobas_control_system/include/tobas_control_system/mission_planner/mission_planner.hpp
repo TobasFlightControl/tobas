@@ -49,7 +49,7 @@ Q_SIGNALS:
   void resultReceived(rclcpp_action::ResultCode code, const QString& message, uint32_t last_cmd_idx);
 
 public:
-  explicit MissionPlannerWidget(const RosQtBridge& bridge);
+  explicit MissionPlannerWidget(const rqt::RosQtBridge& bridge);
 
   void reset();
   void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);

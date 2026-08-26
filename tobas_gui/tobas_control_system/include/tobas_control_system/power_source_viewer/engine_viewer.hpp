@@ -32,7 +32,7 @@ class EngineViewerWidget : public QWidget
   static constexpr double kMaxOilTemp = 130.0;  // [degC]
 
 public:
-  explicit EngineViewerWidget(const RosQtBridge& bridge, const Drone& drone);
+  explicit EngineViewerWidget(const rqt::RosQtBridge& bridge, const Drone& drone);
 
   void reset();
   void updateInternalDataStructures();

@@ -16,7 +16,7 @@ namespace gui
 {
 namespace sc
 {
-LargeVehicleMagCalibWidget::LargeVehicleMagCalibWidget(const RosQtBridge& bridge)
+LargeVehicleMagCalibWidget::LargeVehicleMagCalibWidget(const rqt::RosQtBridge& bridge)
   : spinner_(Qt::WindowModal, this), thread_(bridge)
 {
   const auto instruction = new qt::DescriptionWidget(
@@ -40,7 +40,7 @@ LargeVehicleMagCalibWidget::LargeVehicleMagCalibWidget(const RosQtBridge& bridge
 
   // Connection
   connect(start_button_, &QPushButton::clicked, this, &self::onStartButtonClicked);
-  connect(&bridge, &RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
+  connect(&bridge, &rqt::RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
 }
 
 void LargeVehicleMagCalibWidget::reset()

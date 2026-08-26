@@ -17,7 +17,7 @@ namespace gui
 {
 namespace sim
 {
-CommandersWidget::CommandersWidget(const RosQtBridge& bridge, const kdl::Tree& tree, const Drone& drone)
+CommandersWidget::CommandersWidget(const rqt::RosQtBridge& bridge, const kdl::Tree& tree, const Drone& drone)
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);

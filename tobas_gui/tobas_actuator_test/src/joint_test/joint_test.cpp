@@ -15,7 +15,7 @@ namespace gui
 {
 namespace at
 {
-JointTestWidget::JointTestWidget(const RosQtBridge& bridge, const kdl::Tree& tree, const Drone& drone)
+JointTestWidget::JointTestWidget(const rqt::RosQtBridge& bridge, const kdl::Tree& tree, const Drone& drone)
   : tree_(tree), drone_(drone)
 {
   const auto instruction = new qt::DescriptionWidget(
@@ -61,7 +61,7 @@ JointTestWidget::JointTestWidget(const RosQtBridge& bridge, const kdl::Tree& tre
   connect(stop_button_, &QPushButton::clicked, this, &self::onStopButtonClicked);
   connect(zero_button_, &QPushButton::clicked, this, &self::onZeroButtonClicked);
   connect(home_button_, &QPushButton::clicked, this, &self::onHomeButtonClicked);
-  connect(&bridge, &RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
+  connect(&bridge, &rqt::RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
 }
 
 const char* JointTestWidget::title() const

@@ -35,7 +35,7 @@ namespace gui
 {
 namespace sc
 {
-CompleteMagCalibWidget::CompleteMagCalibWidget(const RosQtBridge& bridge) : rviz_manager_("rviz_mag_calibration")
+CompleteMagCalibWidget::CompleteMagCalibWidget(const rqt::RosQtBridge& bridge) : rviz_manager_("rviz_mag_calibration")
 {
   const auto instruction = new qt::DescriptionWidget(
     "1. Click \"Start,\" and the magnetic field points (white) will begin appearing in the view.\n\n"
@@ -91,9 +91,9 @@ CompleteMagCalibWidget::CompleteMagCalibWidget(const RosQtBridge& bridge) : rviz
   connect(start_button_, &QPushButton::clicked, this, &self::onStartButtonClicked);
   connect(finish_button_, &QPushButton::clicked, this, &self::onFinishButtonClicked);
   connect(cancel_button_, &QPushButton::clicked, this, &self::onCancelButtonClicked);
-  connect(&bridge, &RosQtBridge::rawMagReceived, this, &self::magCb, Qt::QueuedConnection);
-  connect(&bridge, &RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
-  connect(&bridge, &RosQtBridge::odomReceived, this, &self::odomCb, Qt::QueuedConnection);
+  connect(&bridge, &rqt::RosQtBridge::rawMagReceived, this, &self::magCb, Qt::QueuedConnection);
+  connect(&bridge, &rqt::RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
+  connect(&bridge, &rqt::RosQtBridge::odomReceived, this, &self::odomCb, Qt::QueuedConnection);
 }
 
 void CompleteMagCalibWidget::reset()

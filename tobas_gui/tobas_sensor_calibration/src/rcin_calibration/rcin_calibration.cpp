@@ -23,7 +23,7 @@ namespace gui
 {
 namespace sc
 {
-RCInputCalibrationWidget::RCInputCalibrationWidget(const RosQtBridge& bridge, const Drone& drone) : drone_(drone)
+RCInputCalibrationWidget::RCInputCalibrationWidget(const rqt::RosQtBridge& bridge, const Drone& drone) : drone_(drone)
 {
   const auto instruction = new qt::DescriptionWidget(
     "1. Click \"Start\" to begin displaying S.BUS data in the view.\n\n"
@@ -147,8 +147,8 @@ RCInputCalibrationWidget::RCInputCalibrationWidget(const RosQtBridge& bridge, co
   rows_->addLayout(rc_range_cols);
 
   // Other connections
-  connect(&bridge, &RosQtBridge::sbusReceived, this, &self::sbusCb, Qt::QueuedConnection);
-  connect(&bridge, &RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
+  connect(&bridge, &rqt::RosQtBridge::sbusReceived, this, &self::sbusCb, Qt::QueuedConnection);
+  connect(&bridge, &rqt::RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
 
   reset();
 }

@@ -11,7 +11,7 @@ namespace gui
 {
 namespace ctrl
 {
-PowerSourceViewerWidget::PowerSourceViewerWidget(const RosQtBridge& bridge, const Drone& drone) : drone_(drone)
+PowerSourceViewerWidget::PowerSourceViewerWidget(const rqt::RosQtBridge& bridge, const Drone& drone) : drone_(drone)
 {
   battery_viewer_ = new BatteryViewerWidget(bridge, drone);
   engine_viewer_ = new EngineViewerWidget(bridge, drone);

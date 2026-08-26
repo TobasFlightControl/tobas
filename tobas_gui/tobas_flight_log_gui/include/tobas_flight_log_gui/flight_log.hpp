@@ -22,7 +22,7 @@ class FlightLogWidget : public QWidget
   using super = QWidget;
 
 public:
-  explicit FlightLogWidget(const RosQtBridge& bridge);
+  explicit FlightLogWidget(const rqt::RosQtBridge& bridge);
 
   void reset();
   void onProjectLoaded();

@@ -34,7 +34,7 @@ std::string paramName(size_t ch)
 }
 }  // namespace
 
-RotorTestWidget::RotorTestWidget(const RosQtBridge& bridge, const Drone& drone) : bridge_(bridge), drone_(drone)
+RotorTestWidget::RotorTestWidget(const rqt::RosQtBridge& bridge, const Drone& drone) : bridge_(bridge), drone_(drone)
 {
   registered_.fill(false);
 
@@ -95,7 +95,7 @@ RotorTestWidget::RotorTestWidget(const RosQtBridge& bridge, const Drone& drone) 
   }
 
   connect(&update_timer_, &QTimer::timeout, this, &self::onUpdateTimerTimeout);
-  connect(&bridge, &RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
+  connect(&bridge, &rqt::RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
 }
 
 const char* RotorTestWidget::title() const
@@ -252,7 +252,7 @@ void RotorTestWidget::onStartButtonClicked()
 
   // Temporarily subscribe to rotor states.
   rotor_states_conn_ =
-    connect(&bridge_, &RosQtBridge::rotorStatesReceived, this, &self::rotorStatesCb, Qt::QueuedConnection);
+    connect(&bridge_, &rqt::RosQtBridge::rotorStatesReceived, this, &self::rotorStatesCb, Qt::QueuedConnection);
 
   // Publish commands at a fixed interval.
   update_timer_.start(kUpdatePeriod);

@@ -28,7 +28,7 @@ namespace gui
 {
 namespace log
 {
-FlightLogRecorderWidget::FlightLogRecorderWidget(const RosQtBridge& bridge) : spinner_(Qt::WindowModal, this)
+FlightLogRecorderWidget::FlightLogRecorderWidget(const rqt::RosQtBridge& bridge) : spinner_(Qt::WindowModal, this)
 {
   log_name_ = new qt::HistoryLineEdit();
   log_name_->setEnabled(false);
@@ -71,7 +71,7 @@ FlightLogRecorderWidget::FlightLogRecorderWidget(const RosQtBridge& bridge) : sp
   // Connection
   connect(start_stop_button_, &qt::ToggleButton::checked, this, &self::onStartRequested);
   connect(start_stop_button_, &qt::ToggleButton::unchecked, this, &self::onStopRequested);
-  connect(&bridge, &RosQtBridge::rosbagStateReceived, this, &self::rosbagStateCb, Qt::QueuedConnection);
+  connect(&bridge, &rqt::RosQtBridge::rosbagStateReceived, this, &self::rosbagStateCb, Qt::QueuedConnection);
 }
 
 void FlightLogRecorderWidget::reset()

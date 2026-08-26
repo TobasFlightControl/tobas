@@ -14,7 +14,7 @@ namespace gui
 {
 namespace ctrl
 {
-ControlSystemWidget::ControlSystemWidget(const RosQtBridge& bridge, const Drone& drone) : drone_(drone)
+ControlSystemWidget::ControlSystemWidget(const rqt::RosQtBridge& bridge, const Drone& drone) : drone_(drone)
 {
   // Components
   arm_state_banner_ = new ArmStateBanner(bridge);

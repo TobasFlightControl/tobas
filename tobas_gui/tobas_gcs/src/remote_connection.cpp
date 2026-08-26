@@ -16,7 +16,7 @@ namespace gui
 {
 namespace gcs
 {
-RemoteConnectionWidget::RemoteConnectionWidget(const RosQtBridge& bridge) : bridge_(bridge)
+RemoteConnectionWidget::RemoteConnectionWidget(const rqt::RosQtBridge& bridge) : bridge_(bridge)
 {
   const auto rsrc_dir = getResourceDir() / "connection";
   connected_ = QPixmap(QString::fromStdString(rsrc_dir / "connected.png"));
@@ -50,7 +50,7 @@ void RemoteConnectionWidget::start()
   setUnknown();
 
   heartbeat_conn_ =
-    connect(&bridge_, &RosQtBridge::remoteHeartbeatReceived, this, &self::heartbeatCb, Qt::QueuedConnection);
+    connect(&bridge_, &rqt::RosQtBridge::remoteHeartbeatReceived, this, &self::heartbeatCb, Qt::QueuedConnection);
   timeout_timer_.start();
 
   is_running_ = true;

@@ -25,7 +25,7 @@ class ControlSystemWidget : public QWidget
   Q_OBJECT
 
 public:
-  explicit ControlSystemWidget(const RosQtBridge& bridge, const Drone& drone);
+  explicit ControlSystemWidget(const rqt::RosQtBridge& bridge, const Drone& drone);
 
   void reset();
   void updateInternalDataStructures();

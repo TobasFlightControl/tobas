@@ -14,10 +14,10 @@ namespace gui
 {
 namespace sc
 {
-AccelCalibrationThread::AccelCalibrationThread(const RosQtBridge& bridge)
+AccelCalibrationThread::AccelCalibrationThread(const rqt::RosQtBridge& bridge)
 {
-  connect(&bridge, &RosQtBridge::rawImuReceived, this, &self::imuCb, Qt::QueuedConnection);
-  connect(&bridge, &RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
+  connect(&bridge, &rqt::RosQtBridge::rawImuReceived, this, &self::imuCb, Qt::QueuedConnection);
+  connect(&bridge, &rqt::RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
 }
 
 AccelCalibrationThread::~AccelCalibrationThread()

@@ -11,7 +11,7 @@
 
 namespace tobas
 {
-namespace gui
+namespace rqt
 {
 namespace detail
 {
@@ -59,5 +59,5 @@ auto waitForMessage(const RosQtBridge& bridge, int timeout_ms)
   QObject::disconnect(connection);
   return res;
 }
-}  // namespace gui
+}  // namespace rqt
 }  // namespace tobas

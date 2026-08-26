@@ -12,13 +12,13 @@ namespace gui
 {
 namespace ctrl
 {
-RotorsViewerWiddget::RotorsViewerWiddget(const RosQtBridge& bridge, const Drone& drone) : drone_(drone)
+RotorsViewerWiddget::RotorsViewerWiddget(const rqt::RosQtBridge& bridge, const Drone& drone) : drone_(drone)
 {
   cols_ = new QHBoxLayout();
   setLayout(cols_);
 
-  connect(&bridge, &RosQtBridge::rotorStatesReceived, this, &self::rotorStatesCb, Qt::QueuedConnection);
-  connect(&bridge, &RosQtBridge::rotorLivelinessReceived, this, &self::rotorLivelinessCb, Qt::QueuedConnection);
+  connect(&bridge, &rqt::RosQtBridge::rotorStatesReceived, this, &self::rotorStatesCb, Qt::QueuedConnection);
+  connect(&bridge, &rqt::RosQtBridge::rotorLivelinessReceived, this, &self::rotorLivelinessCb, Qt::QueuedConnection);
 }
 
 void RotorsViewerWiddget::reset()

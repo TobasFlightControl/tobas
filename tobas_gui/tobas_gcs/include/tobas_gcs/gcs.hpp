@@ -61,7 +61,7 @@ protected:
   void closeEvent(QCloseEvent* event) override;
 
 private:
-  RosQtBridge bridge_;
+  rqt::RosQtBridge bridge_;
 
   uadf::Model uadf_;
   kdl::Tree tree_;

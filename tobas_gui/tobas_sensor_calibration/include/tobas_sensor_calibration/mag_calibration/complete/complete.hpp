@@ -60,7 +60,7 @@ class CompleteMagCalibWidget : public BaseMagCalibWidget
   static constexpr size_t kFaceSize = kRightIdx + 1;
 
 public:
-  explicit CompleteMagCalibWidget(const RosQtBridge& bridge);
+  explicit CompleteMagCalibWidget(const rqt::RosQtBridge& bridge);
 
   void reset() override;
   void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns) override;

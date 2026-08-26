@@ -22,7 +22,7 @@ namespace gui
 {
 namespace ctrl
 {
-EngineViewerWidget::EngineViewerWidget(const RosQtBridge& bridge, const Drone& drone) : drone_(drone)
+EngineViewerWidget::EngineViewerWidget(const rqt::RosQtBridge& bridge, const Drone& drone) : drone_(drone)
 {
   fuel_quantity_ = new qt::ProgressBar();
   oil_temp_ = new qt::ProgressBar();
@@ -37,7 +37,7 @@ EngineViewerWidget::EngineViewerWidget(const RosQtBridge& bridge, const Drone& d
   setLayout(form);
 
   // Connection
-  connect(&bridge, &RosQtBridge::engineStateReceived, this, &self::engineStateCb, Qt::QueuedConnection);
+  connect(&bridge, &rqt::RosQtBridge::engineStateReceived, this, &self::engineStateCb, Qt::QueuedConnection);
 }
 
 void EngineViewerWidget::reset()

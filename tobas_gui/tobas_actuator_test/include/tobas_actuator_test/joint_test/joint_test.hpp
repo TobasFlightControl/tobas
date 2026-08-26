@@ -26,7 +26,7 @@ class JointTestWidget : public BaseWidget
   static constexpr int kButtonHeight = 40;
 
 public:
-  explicit JointTestWidget(const RosQtBridge& bridge, const kdl::Tree& tree, const Drone& drone);
+  explicit JointTestWidget(const rqt::RosQtBridge& bridge, const kdl::Tree& tree, const Drone& drone);
 
   const char* title() const override;
 

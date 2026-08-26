@@ -13,7 +13,7 @@ namespace gui
 {
 namespace at
 {
-ActuatorTestWidget::ActuatorTestWidget(const RosQtBridge& bridge, const kdl::Tree& tree, const Drone& drone)
+ActuatorTestWidget::ActuatorTestWidget(const rqt::RosQtBridge& bridge, const kdl::Tree& tree, const Drone& drone)
   : drone_(drone)
 {
   setTabSize(kTabWidth, kTabHeight);

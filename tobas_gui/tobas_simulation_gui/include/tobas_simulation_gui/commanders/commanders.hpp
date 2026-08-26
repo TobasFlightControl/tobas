@@ -20,7 +20,7 @@ class CommandersWidget : public QWidget
   using super = QWidget;
 
 public:
-  explicit CommandersWidget(const RosQtBridge& bridge, const kdl::Tree& tree, const Drone& drone);
+  explicit CommandersWidget(const rqt::RosQtBridge& bridge, const kdl::Tree& tree, const Drone& drone);
 
   void updateInternalDataStructures();
   void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
