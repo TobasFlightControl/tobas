@@ -33,10 +33,6 @@ FlightLogsWidgetFC::FlightLogsWidgetFC() : spinner_(Qt::WindowModal, this)
   read_button_->setFixedSize(kButtonWidth, kButtonHeight);
   clean_button_->setFixedSize(kButtonWidth, kButtonHeight);
 
-  // Disable this until TBS is loaded because SSH cannot connect until the host is known.
-  read_button_->setEnabled(false);
-  clean_button_->setEnabled(false);
-
   log_list_ = new qt::ListWidget();
   log_list_->setSelectionMode(QListWidget::NoSelection);
 
