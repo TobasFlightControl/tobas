@@ -1,7 +1,6 @@
 #include "tobas_setup_assistant/setting_tabs/fixed_wing/geometry_based/calculator.hpp"
 
 #include <format>
-#include <iostream>
 
 #include <tobas_kdl/conversion/coordinates.hpp>
 #include <tobas_qt_tools/message.hpp>
@@ -154,20 +153,48 @@ void Calculator::calcMacTranslations(const WingWidget* wing, kdl::Frame& M_T_R, 
 kdl::Wrench Calculator::calcMachineAeroDynamicForce(const kdl::Twist& twist_ref) const
 {
   kdl::Wrench wrench_all = kdl::Wrench::Zero();
-  for (int i = 0; i < wings_->count(); i++) {
-    const auto wing = wings_->getWing(i);
+  // TODO: main_wingは水平に置かれているという仮定が入っている, 吹き下ろしは主翼/尾翼間距離によって強さが違うが考慮していない
+  const auto& main_wing = wings_->getMainWing();
+  // 主翼後縁位置の計算, これより後ろにある翼には吹き下ろしの影響が入る
+  const auto x_main_wing_back = main_wing->position().x() - main_wing->c_root();
+  // 主翼吹き下ろし
+  kdl::Vector downwash;
+  // main wingに関して計算
+  {
     kdl::Frame M_T_R;  // mac座標系で表したref座標系のFrame
     kdl::Frame R_T_M;  // ref座標系で表したmac座標系のFrame
-    calcMacTranslations(wing, M_T_R, R_T_M);
-
+    calcMacTranslations(main_wing, M_T_R, R_T_M);
     // wing座標系で見た力とモーメント
     // twist_refはref座標系でみた これをmac座標系でみたtwist_wingを求める
     const auto twist_mac = M_T_R * twist_ref;
-    const auto wrench_mac = calcWingAeroDynamicForce(wing, twist_mac);
-
+    const auto wrench_mac = calcWingAeroDynamicForce(main_wing, twist_mac);
     // ref座標系で見た力とモーメントを求める
     // ref座標系でみたときのmac座標系までのtransition (rotation + position)を用いる
     const auto wrench_ref = R_T_M * wrench_mac;  // ref座標系でみた力とモーメント
+    wrench_all += wrench_ref;
+
+    // 主翼からの吹き下ろしの計算
+    const auto C_L_main = main_wing->c_lift(angleOfAttack(twist_mac.vel.data));
+    const auto epsilon = 2.0 * C_L_main / (M_PI * main_wing->aspectRatio());
+    downwash = kdl::Vector(0, 0, -epsilon * twist_ref.vel.norm());
+  }
+
+  // 他の翼に関して計算. 主翼からの吹き下ろしを考慮
+  for (int i = 0; i < wings_->count(); i++) {
+    const auto& wing = wings_->getWing(i);
+    if (wing == main_wing) {
+      continue;
+    }
+    kdl::Frame M_T_R;  // mac座標系で表したref座標系のFrame
+    kdl::Frame R_T_M;  // ref座標系で表したmac座標系のFrame
+    calcMacTranslations(wing, M_T_R, R_T_M);
+    kdl::Twist twist_ref_with_downwash = twist_ref;
+    if (wing->position().x() < x_main_wing_back) {
+      twist_ref_with_downwash.vel += downwash;
+    }
+    const auto twist_mac = M_T_R * twist_ref_with_downwash;
+    const auto wrench_mac = calcWingAeroDynamicForce(wing, twist_mac);
+    const auto wrench_ref = R_T_M * wrench_mac;
     wrench_all += wrench_ref;
   }
   return wrench_all;
@@ -251,13 +278,6 @@ void Calculator::calcLongitudalCoeff(const double& cruise_speed, const double& c
     c_pitch_0_ = coef(0);
     c_pitch_alpha_ = coef(1);
   }
-  std::cout << "C_lift_0 : " << c_lift_0_ << std::endl;
-  std::cout << "C_lift_alpha : " << c_lift_alpha_ << std::endl;
-  std::cout << "C_drag_0 : " << c_drag_0_ << std::endl;
-  std::cout << "C_drag_alpha : " << c_drag_alpha_ << std::endl;
-  std::cout << "C_drag_alpha2 : " << c_drag_alpha2_ << std::endl;
-  std::cout << "C_pitch_0 : " << c_pitch_0_ << std::endl;
-  std::cout << "C_pitch_alpha : " << c_pitch_alpha_ << std::endl;
 }
 
 void Calculator::calcAoSCoeff(const double& cruise_speed, const double& cruise_alpha)
@@ -280,9 +300,6 @@ void Calculator::calcAoSCoeff(const double& cruise_speed, const double& cruise_a
   c_side_beta_ = (wrench_plus.force.y() - wrench_minus.force.y()) / (q * S) / (2.0 * kDelta);
   c_roll_beta_ = (wrench_plus.torque.x() - wrench_minus.torque.x()) / (q * S * span) / (2.0 * kDelta);
   c_yaw_beta_ = (wrench_plus.torque.z() - wrench_minus.torque.z()) / (q * S * span) / (2.0 * kDelta);
-  std::cout << "C_Ybeta : " << c_side_beta_ << std::endl;
-  std::cout << "C_lbeta : " << c_roll_beta_ << std::endl;
-  std::cout << "C_rbeta : " << c_yaw_beta_ << std::endl;
 }
 
 void Calculator::calcPCoeff(const double& cruise_speed, const double& cruise_alpha)
@@ -303,9 +320,6 @@ void Calculator::calcPCoeff(const double& cruise_speed, const double& cruise_alp
   c_side_p_ = (wrench_plus.force.y() - wrench_minus.force.y()) / (q * S) / (2.0 * kDelta);
   c_roll_p_ = (wrench_plus.torque.x() - wrench_minus.torque.x()) / (q * S * span) / (2.0 * kDelta);
   c_yaw_p_ = (wrench_plus.torque.z() - wrench_minus.torque.z()) / (q * S * span) / (2.0 * kDelta);
-  std::cout << "C_Yp : " << c_side_p_ << std::endl;
-  std::cout << "C_lp : " << c_roll_p_ << std::endl;
-  std::cout << "C_np : " << c_yaw_p_ << std::endl;
 }
 
 void Calculator::calcQCoeff(const double& cruise_speed, const double& cruise_alpha)
@@ -324,7 +338,6 @@ void Calculator::calcQCoeff(const double& cruise_speed, const double& cruise_alp
   const auto q = dynamicPressure(st::kStandardAirDensity, cruise_speed);
   const auto S = wings_->getMainWing()->surfaceArea();
   c_pitch_q_ = (wrench_plus.torque.y() - wrench_minus.torque.y()) / (q * S * c_mac) / (2.0 * kDelta);
-  std::cout << "C_mq : " << c_pitch_q_ << std::endl;
 }
 
 void Calculator::calcRCoeff(const double& cruise_speed, const double& cruise_alpha)
@@ -345,9 +358,6 @@ void Calculator::calcRCoeff(const double& cruise_speed, const double& cruise_alp
   c_side_r_ = (wrench_plus.force.y() - wrench_minus.force.y()) / (q * S) / (2.0 * kDelta);
   c_roll_r_ = (wrench_plus.torque.x() - wrench_minus.torque.x()) / (q * S * span) / (2.0 * kDelta);
   c_yaw_r_ = (wrench_plus.torque.z() - wrench_minus.torque.z()) / (q * S * span) / (2.0 * kDelta);
-  std::cout << "C_Yr : " << c_side_r_ << std::endl;
-  std::cout << "C_lr : " << c_roll_r_ << std::endl;
-  std::cout << "C_nr : " << c_yaw_r_ << std::endl;
 }
 
 void Calculator::calcControlCoeff(const double& cruise_speed)
@@ -479,16 +489,6 @@ void Calculator::calcControlCoeff(const double& cruise_speed)
       wrench_ref.torque.z() /
       (dynamicPressure(st::kStandardAirDensity, cruise_speed) * main_wing->surfaceArea() * main_wing->span()) / kDelta;
     control_surface_coefs_[i] = coefs;
-  }
-  for (int i = 0; i < n_of_cs; i++) {
-    const auto coefs = control_surface_coefs_[i];
-    std::cout << "control surface No : " << i << std::endl;
-    std::cout << "drag : " << coefs.drag << std::endl;
-    std::cout << "lift : " << coefs.lift << std::endl;
-    std::cout << "side : " << coefs.side << std::endl;
-    std::cout << "roll : " << coefs.roll << std::endl;
-    std::cout << "pitch: " << coefs.pitch << std::endl;
-    std::cout << "yaw  : " << coefs.yaw << std::endl;
   }
 }
 

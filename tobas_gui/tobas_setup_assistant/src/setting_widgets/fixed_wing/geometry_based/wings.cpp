@@ -34,6 +34,7 @@ WingsWidget::WingsWidget()
 
   tabs_ = new qt::TabWidget();
   tabs_->tabBar()->setElideMode(Qt::ElideRight);
+  tabs_->enableWheelEvent(false);
   rows->addWidget(tabs_);
 
   const auto wing = new WingWidget();
