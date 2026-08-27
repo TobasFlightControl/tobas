@@ -17,7 +17,7 @@
   </group>
 
   <!-- Bridge communication between ROS and Gazebo: https://docs.ros.org/en/jazzy/p/ros_gz_bridge/#example-6-configuring-the-bridge-via-xml-launch-file -->
-  <ros_gz_bridge bridge_name="clock_bridge">
+  <ros_gz_bridge bridge_name="ros_gz_bridge">
     <topic ros_topic_name="/clock" gz_topic_name="/clock" ros_type_name="rosgraph_msgs/msg/Clock" gz_type_name="gz.msgs.Clock" lazy="False" direction="GZ_TO_ROS" qos_profile="CLOCK"/>
   </ros_gz_bridge>
 

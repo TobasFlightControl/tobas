@@ -9,8 +9,6 @@
 
 #include <tobas_drone_core/drone.hpp>
 #include <tobas_gui_common/project_paths.hpp>
-#include <tobas_gui_common/remote_project_builder.hpp>
-#include <tobas_gui_common/ssh_client.hpp>
 #include <tobas_kdl_parser/kdl_parser.hpp>
 #include <tobas_qt_tools/widgets/toggle_button.hpp>
 #include <tobas_qt_tools/widgets/wait_spinner.hpp>
@@ -60,8 +58,6 @@ private:
   uadf::Parser uadf_parser_;
   kdl::TreeParser tree_parser_;
   cmn::ProjectPaths proj_paths_;
-  std::optional<cmn::SshClientWrapper> ssh_client_;
-  std::optional<cmn::RemoteProjectBuilder> remote_proj_builder_;
 
   uadf::Model uadf_;
   kdl::Tree tree_;
@@ -77,27 +73,16 @@ private:
   CommandersWidget* commanders_;
 
   bool project_loaded_ = false;
-  tobas_msgs::msg::Arming::ConstSharedPtr arming_;
-
-  bool startSITL();
-  void terminateSITL();
-
-  bool startHITL();
-  void terminateHITL();
 
   std::map<QString, QString> makeGazeboLaunchArguments(bool launch_core) const;
   void launchSimulation(bool launch_core);
-
   void terminateLaunchProcess();
   void terminateSimulation();
-  void terminateSimulationAndWait();
 
 private Q_SLOTS:
   void onStartRequested();
   void onTerminateRequested();
   void onLaunchProcessFinished(int code, QProcess::ExitStatus status);
-
-  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
 };
 }  // namespace sim
 }  // namespace gui

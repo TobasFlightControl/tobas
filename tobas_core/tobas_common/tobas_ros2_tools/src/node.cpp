@@ -14,7 +14,7 @@ namespace ros2
 {
 namespace
 {
-std::string makeFQN(const std::string& name, const std::string& ns)
+std::string makeFqn(const std::string& name, const std::string& ns)
 {
   if (ns.empty() || ns == "/") {
     return "/" + name;
@@ -22,10 +22,15 @@ std::string makeFQN(const std::string& name, const std::string& ns)
   return (ns.back() == '/' ? ns : ns + "/") + name;
 }
 
+bool isValidFqn(const std::string& fqn)
+{
+  return fqn.starts_with('/');
+}
+
 bool isPresent(const rclcpp::node_interfaces::NodeGraphInterface::SharedPtr& graph, const std::string& target_fqn)
 {
-  for (auto& nn : graph->get_node_names_and_namespaces()) {
-    const auto fqn = makeFQN(nn.first, nn.second);
+  for (const auto& nn : graph->get_node_names_and_namespaces()) {
+    const auto fqn = makeFqn(nn.first, nn.second);
     if (fqn == target_fqn) {
       return true;
     }
@@ -34,9 +39,9 @@ bool isPresent(const rclcpp::node_interfaces::NodeGraphInterface::SharedPtr& gra
 }
 }  // namespace
 
-bool waitUntilNodeGone(const rclcpp::Node::SharedPtr& node, const std::string& target_fqn, ch::nanoseconds timeout)
+bool waitUntilNodeGone(const rclcpp::Node::SharedPtr& node, const std::string& target_fqn, ch::milliseconds timeout)
 {
-  if (target_fqn.empty() || !target_fqn.starts_with('/')) {
+  if (!isValidFqn(target_fqn)) {
     RCLCPP_ERROR_STREAM(node->get_logger(), "Invalid FQN: " << target_fqn);
     return false;
   }
@@ -51,7 +56,7 @@ bool waitUntilNodeGone(const rclcpp::Node::SharedPtr& node, const std::string& t
   }
 
   // Check for the target node periodically.
-  const auto deadline = ch::steady_clock::now() + timeout;
+  const auto deadline = timeout.count() > 0 ? ch::steady_clock::now() + timeout : ch::steady_clock::time_point::max();
   rclcpp::Rate rate(10.0, node->get_clock());
   while (rclcpp::ok()) {
     // Handle timeout.

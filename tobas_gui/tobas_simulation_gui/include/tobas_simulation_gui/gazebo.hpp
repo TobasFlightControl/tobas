@@ -3,9 +3,8 @@
 
 #pragma once
 
-#include <expected>
+#include <chrono>
 
-#include <QString>
 #include <rclcpp/node.hpp>
 
 namespace tobas
@@ -16,9 +15,8 @@ namespace sim
 {
 bool waitUntilGazeboServerReady();
 bool waitUntilGazeboRenderingReady();
-
-bool killGazeboServer();
-bool killGazeboServerAndWait(rclcpp::Node::SharedPtr node);
+bool waitUntilGazeboShutdown(rclcpp::Node::SharedPtr node, std::chrono::milliseconds timeout);
+void killGazeboServer();
 }  // namespace sim
 }  // namespace gui
 }  // namespace tobas

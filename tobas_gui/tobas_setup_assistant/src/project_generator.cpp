@@ -465,7 +465,6 @@ bool ProjectGenerator::generateConfigPackage(const inja::json& tpl_data)
   config_env_->generate(tpl_data, "real_interface.launch.py.tplpy", launch_dir);
   config_env_->generate(tpl_data, "real.launch.py.tplpy", launch_dir);
   config_env_->generate(tpl_data, "gazebo.launch.xml.tplxml", launch_dir);
-  config_env_->generate(tpl_data, "hitl.launch.py.tplpy", launch_dir);
 
   // Dynamic parameters
   if (!createEmptyYaml(proj_paths_.imuFiltDynParamsPath(), config_.clear_dynamic_params)) {

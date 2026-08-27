@@ -21,6 +21,7 @@
 #include <tobas_control_system/control_system.hpp>
 #include <tobas_flight_log_gui/flight_log.hpp>
 #include <tobas_gui_common/network_config.hpp>
+#include <tobas_gui_common/remote_project_builder.hpp>
 #include <tobas_gui_common/ssh_client.hpp>
 #include <tobas_gui_common/version.hpp>
 #include <tobas_kdl_parser/kdl_parser.hpp>

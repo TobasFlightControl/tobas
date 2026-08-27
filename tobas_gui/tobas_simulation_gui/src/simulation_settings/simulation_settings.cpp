@@ -27,9 +27,6 @@ SimulationSettingsWidget::SimulationSettingsWidget()
 
   const auto scroll_rows = qt::createScrollableQVBoxLayout(rows);
 
-  type_ = new LoopTypeWidget();
-  scroll_rows->addWidget(type_);
-
   world_ = new WorldWidget();
   scroll_rows->addWidget(world_);
 
@@ -43,11 +40,6 @@ SimulationSettingsWidget::SimulationSettingsWidget()
   scroll_rows->addWidget(debug_);
 
   scroll_rows->addStretch();
-}
-
-LoopType SimulationSettingsWidget::loopType() const
-{
-  return type_->loopType();
 }
 
 fs::path SimulationSettingsWidget::worldPath() const

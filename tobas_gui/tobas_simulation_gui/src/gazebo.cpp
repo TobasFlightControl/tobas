@@ -14,8 +14,9 @@
 #include <tobas_linux/error.hpp>
 #include <tobas_qt_tools/thread.hpp>
 #include <tobas_ros2_tools/node.hpp>
+#include <tobas_std_tools/check.hpp>
 
-using namespace std::chrono_literals;
+namespace ch = std::chrono;
 
 namespace tobas
 {
@@ -59,37 +60,27 @@ private:
   gz::msgs::Double msg_;
 };
 
-class KillGazeboThread : public QThread
+class WaitUntilGazeboShutdownThread : public QThread
 {
   Q_OBJECT
 
 Q_SIGNALS:
-  void finished(bool success, const QString& message);
+  void finished(bool success);
 
 public:
-  explicit KillGazeboThread(rclcpp::Node::SharedPtr node) : node_(node)
+  explicit WaitUntilGazeboShutdownThread(rclcpp::Node::SharedPtr node, ch::milliseconds timeout)
+    : node_(std::move(node)), timeout_(timeout)
   {
   }
 
   void run() override
   {
-    // Kill Gazebo server.
-    if (!killGazeboServer()) {
-      Q_EMIT finished(false, "Failed to send kill signal to the Gazebo server.");
-      return;
-    }
-
-    // Wait until the Gazebo server exits.
-    if (!ros2::waitUntilNodeGone(node_, "/tobas_ros_gz_bridge", 30s)) {
-      Q_EMIT finished(false, "Timed out waiting for the Gazebo server to shut down.");
-      return;
-    }
-
-    Q_EMIT finished(true, "");
+    Q_EMIT finished(ros2::waitUntilNodeGone(node_, "/ros_gz_bridge", timeout_));
   }
 
 private:
   const rclcpp::Node::SharedPtr node_;
+  const ch::milliseconds timeout_;
 };
 }  // namespace
 
@@ -105,23 +96,18 @@ bool waitUntilGazeboRenderingReady()
   return std::get<0>(qt::startThreadAndWait(thread, &WaitUntilGazeboRenderingReadyThread::finished));
 }
 
-bool killGazeboServer()
+bool waitUntilGazeboShutdown(rclcpp::Node::SharedPtr node, ch::milliseconds timeout)
+{
+  WaitUntilGazeboShutdownThread thread(std::move(node), timeout);
+  return std::get<0>(qt::startThreadAndWait(thread, &WaitUntilGazeboShutdownThread::finished));
+}
+
+void killGazeboServer()
 {
   // FIXME: The Gazebo server does not exit with only the `kill` command, so it is forcibly terminated.
   // This method may affect other processes.
-  return linux::CommandExecutor().execute(
-    "ps aux | grep \"gz sim\" | grep -v grep | awk '{ print \"kill -9\", $2 }' | sh");
-}
-
-bool killGazeboServerAndWait(rclcpp::Node::SharedPtr node)
-{
-  KillGazeboThread thread(node);
-  const auto [success, message] = qt::startThreadAndWait(thread, &KillGazeboThread::finished);
-  qDebug().nospace() << "KillGazeboThread::finished(" << success << ", " << message << ")";
-  if (!success) {
-    qWarning().noquote() << message;
-  }
-  return success;
+  linux::CommandExecutor exec;
+  TOBAS_CHECK(exec.execute("ps aux | grep \"gz sim\" | grep -v grep | awk '{ print \"kill -9\", $2 }' | sh"));
 }
 }  // namespace sim
 }  // namespace gui
