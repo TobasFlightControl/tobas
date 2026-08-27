@@ -94,7 +94,7 @@ private:
 
   double liftCoefficient(const gz::sim::EntityComponentManager& ecm, double alpha) const;
   double dragCoefficient(const gz::sim::EntityComponentManager& ecm, double alpha) const;
-  double sideCoefficient(const gz::sim::EntityComponentManager& ecm, double beta) const;
+  double sideCoefficient(const gz::sim::EntityComponentManager& ecm, double beta, double p, double r, double V) const;
   double rollCoefficient(const gz::sim::EntityComponentManager& ecm, double beta, double p, double r, double V) const;
   double pitchCoefficient(
     const gz::sim::EntityComponentManager& ecm,
@@ -106,7 +106,7 @@ private:
   double yawCoefficient(const gz::sim::EntityComponentManager& ecm, double beta, double p, double r, double V) const;
 
   gz::math::Vector3d
-  nonDimentionalAeroCoefs_Force(const gz::sim::EntityComponentManager& ecm, double alpha, double beta) const;
+  nonDimentionalAeroCoefs_Force(const gz::sim::EntityComponentManager& ecm, double alpha, double beta, double V) const;
   gz::math::Vector3d nonDimentionalAeroCoefs_Moment(
     const gz::sim::EntityComponentManager& ecm,
     double alpha,
@@ -245,7 +245,7 @@ void GazeboFixedWingPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::
   prev_alpha_ = alpha;
 
   // Dimensionless aerodynamic coefficients.
-  const auto force_coefs = nonDimentionalAeroCoefs_Force(ecm, alpha, beta);
+  const auto force_coefs = nonDimentionalAeroCoefs_Force(ecm, alpha, beta, V);
   const auto moment_coefs = nonDimentionalAeroCoefs_Moment(ecm, alpha, beta, alpha_rate, V);
 
   // Precompute constant parts.
@@ -275,7 +275,7 @@ void GazeboFixedWingPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::
 
   // Apply aerodynamic force.
   gz::math::Vector3d B_Pos_BC;
-  vectorKDLToGazebo(vehicle_params_.ac, B_Pos_BC);
+  vectorKDLToGazebo(vehicle_params_.ref, B_Pos_BC);
   base_link_->AddWorldWrench(ecm, force_W, torque_W, B_Pos_BC);
 
   // Publish debug messages.
@@ -298,9 +298,9 @@ void GazeboFixedWingPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
   getSdfParam(sdf, "wingSpan", vehicle_params_.wing_span, kPositive);
   getSdfParam(sdf, "meanAerodynamicChord", vehicle_params_.mac, kPositive);
 
-  gz::math::Vector3d ac;
-  getSdfParam(sdf, "aerodynamicCenter", ac);
-  vectorGazeboToKDL(ac, vehicle_params_.ac);
+  gz::math::Vector3d ref;
+  getSdfParam(sdf, "momentReferencePoint", ref);
+  vectorGazeboToKDL(ref, vehicle_params_.ref);
 
   getSdfParam(sdf, "lowerStallAngle", vehicle_params_.alpha_limit.lower);
   getSdfParam(sdf, "upperStallAngle", vehicle_params_.alpha_limit.upper);
@@ -312,8 +312,11 @@ void GazeboFixedWingPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
   getSdfParam(sdf, "cLift0", aero_coefs_.c_lift_0, kPositive);
   getSdfParam(sdf, "cLiftAlpha", aero_coefs_.c_lift_alpha, kPositive);
   getSdfParam(sdf, "cDrag0", aero_coefs_.c_drag_0, kPositive);
-  getSdfParam(sdf, "cDragAlpha", aero_coefs_.c_drag_alpha, kPositive);
+  getSdfParam(sdf, "cDragAlpha", aero_coefs_.c_drag_alpha);
+  getSdfParam(sdf, "cDragAlpha2", aero_coefs_.c_drag_alpha2, kPositive);
   getSdfParam(sdf, "cSideBeta", aero_coefs_.c_side_beta, kNegative);
+  getSdfParam(sdf, "cSideP", aero_coefs_.c_side_p);
+  getSdfParam(sdf, "cSideR", aero_coefs_.c_side_r);
 
   getSdfParam(sdf, "cRollBeta", aero_coefs_.c_roll_beta, kNegative);
   getSdfParam(sdf, "cRollP", aero_coefs_.c_roll_p, kNegative);
@@ -378,7 +381,7 @@ double GazeboFixedWingPlugin::liftCoefficient(const gz::sim::EntityComponentMana
 double GazeboFixedWingPlugin::dragCoefficient(const gz::sim::EntityComponentManager& ecm, double alpha) const
 {
   // Angle of attack.
-  auto C_D = aero_coefs_.c_drag_0 + aero_coefs_.c_drag_alpha * alpha;
+  auto C_D = aero_coefs_.c_drag_0 + aero_coefs_.c_drag_alpha * alpha + aero_coefs_.c_drag_alpha2 * alpha * alpha;
 
   // Control surfaces.
   for (const auto& [link_name, _] : control_surfaces_) {
@@ -388,10 +391,14 @@ double GazeboFixedWingPlugin::dragCoefficient(const gz::sim::EntityComponentMana
   return C_D;
 }
 
-double GazeboFixedWingPlugin::sideCoefficient(const gz::sim::EntityComponentManager& ecm, double beta) const
+double GazeboFixedWingPlugin::sideCoefficient(const gz::sim::EntityComponentManager& ecm, double beta, double p, double r, double V) const
 {
   // Sideslip angle.
   auto C_S = aero_coefs_.c_side_beta * beta;
+
+  // Angular velocity.
+  const auto& b = vehicle_params_.wing_span;
+  C_S += b / (2 * V) * (aero_coefs_.c_side_p * p + aero_coefs_.c_side_r * r);
 
   // Control surfaces.
   for (const auto& [link_name, _] : control_surfaces_) {
@@ -472,11 +479,18 @@ double GazeboFixedWingPlugin::yawCoefficient(
 gz::math::Vector3d GazeboFixedWingPlugin::nonDimentionalAeroCoefs_Force(
   const gz::sim::EntityComponentManager& ecm,
   double alpha,
-  double beta) const
+  double beta,
+  double V) const
 {
+  // Angular velocity.
+  auto gyro_B = gyro_B_->Data();
+  FLU2FRD(gyro_B);
+  const auto p = gyro_B.X();
+  const auto r = gyro_B.Z();
+
   const auto C_L = liftCoefficient(ecm, alpha);  // Lift coefficient (1.8-3)
   const auto C_D = dragCoefficient(ecm, alpha);  // Drag coefficient (1.8-3)
-  const auto C_S = sideCoefficient(ecm, beta);   // Side-force coefficient (1.8-5)
+  const auto C_S = sideCoefficient(ecm, beta, p, r, V);   // Side-force coefficient (1.8-5) (slightly changed)
 
   const auto cos_alpha = std::cos(alpha);
   const auto sin_alpha = std::sin(alpha);

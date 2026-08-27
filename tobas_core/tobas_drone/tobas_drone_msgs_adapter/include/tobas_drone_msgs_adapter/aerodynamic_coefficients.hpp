@@ -23,8 +23,11 @@ struct rclcpp::TypeAdapter<tobas::AerodynamicCoefficients, tobas_drone_msgs::msg
 
     dst.c_drag_0 = src.c_drag_0;
     dst.c_drag_alpha = src.c_drag_alpha;
+    dst.c_drag_alpha2 = src.c_drag_alpha2;
 
     dst.c_side_beta = src.c_side_beta;
+    dst.c_side_p = src.c_side_p;
+    dst.c_side_r = src.c_side_r;
 
     dst.c_roll_beta = src.c_roll_beta;
     dst.c_roll_p = src.c_roll_p;
@@ -48,8 +51,11 @@ struct rclcpp::TypeAdapter<tobas::AerodynamicCoefficients, tobas_drone_msgs::msg
 
     dst.c_drag_0 = src.c_drag_0;
     dst.c_drag_alpha = src.c_drag_alpha;
+    dst.c_drag_alpha2 = src.c_drag_alpha2;
 
     dst.c_side_beta = src.c_side_beta;
+    dst.c_side_p = src.c_side_p;
+    dst.c_side_r = src.c_side_r;
 
     dst.c_roll_beta = src.c_roll_beta;
     dst.c_roll_p = src.c_roll_p;

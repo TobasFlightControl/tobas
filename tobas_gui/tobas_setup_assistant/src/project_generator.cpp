@@ -357,7 +357,7 @@ Drone ProjectGenerator::createDrone() const
         drone.fixed_wing->vehicle.wing_surface = vehicle->wingSurface();
         drone.fixed_wing->vehicle.wing_span = vehicle->wingSpan();
         drone.fixed_wing->vehicle.mac = vehicle->mac();
-        drone.fixed_wing->vehicle.ac.data = vehicle->aerodynamicCenter();
+        drone.fixed_wing->vehicle.ref.data = vehicle->momentReferencePoint();
         drone.fixed_wing->vehicle.alpha_limit = vehicle->alphaLimit();
 
         // Aerodynamic Coefficients
@@ -366,7 +366,10 @@ Drone ProjectGenerator::createDrone() const
         drone.fixed_wing->aerodynamics.c_lift_alpha = aero_coefs->c_lift_alpha();
         drone.fixed_wing->aerodynamics.c_drag_0 = aero_coefs->c_drag_0();
         drone.fixed_wing->aerodynamics.c_drag_alpha = aero_coefs->c_drag_alpha();
+        drone.fixed_wing->aerodynamics.c_drag_alpha2 = aero_coefs->c_drag_alpha2();
         drone.fixed_wing->aerodynamics.c_side_beta = aero_coefs->c_side_beta();
+        drone.fixed_wing->aerodynamics.c_side_p = aero_coefs->c_side_p();
+        drone.fixed_wing->aerodynamics.c_side_r = aero_coefs->c_side_r();
         drone.fixed_wing->aerodynamics.c_roll_beta = aero_coefs->c_roll_beta();
         drone.fixed_wing->aerodynamics.c_roll_p = aero_coefs->c_roll_p();
         drone.fixed_wing->aerodynamics.c_roll_r = aero_coefs->c_roll_r();

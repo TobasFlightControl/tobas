@@ -46,7 +46,10 @@ public:
   double c_lift_alpha() const;
   double c_drag_0() const;
   double c_drag_alpha() const;
+  double c_drag_alpha2() const;
   double c_side_beta() const;
+  double c_side_p() const;
+  double c_side_r() const;
   double c_roll_beta() const;
   double c_roll_p() const;
   double c_roll_r() const;
@@ -64,7 +67,10 @@ public:
   void c_lift_alpha(const double& value);
   void c_drag_0(const double& value);
   void c_drag_alpha(const double& value);
+  void c_drag_alpha2(const double& value);
   void c_side_beta(const double& value);
+  void c_side_p(const double& value);
+  void c_side_r(const double& value);
   void c_roll_beta(const double& value);
   void c_roll_p(const double& value);
   void c_roll_r(const double& value);
@@ -89,7 +95,10 @@ private:
   qt::DoubleSpinBox* c_lift_alpha_;
   qt::DoubleSpinBox* c_drag_0_;
   qt::DoubleSpinBox* c_drag_alpha_;
+  qt::DoubleSpinBox* c_drag_alpha2_;
   qt::DoubleSpinBox* c_side_beta_;
+  qt::DoubleSpinBox* c_side_p_;
+  qt::DoubleSpinBox* c_side_r_;
   qt::DoubleSpinBox* c_roll_beta_;
   qt::DoubleSpinBox* c_roll_p_;
   qt::DoubleSpinBox* c_roll_r_;

@@ -51,7 +51,7 @@ bool VehicleParameters::load(const YAML::Node& node)
     return false;
   }
 
-  if (!yaml::load(kAeroCenterKey, node, ac.data)) {
+  if (!yaml::load(kMomentRefPointKey, node, ref.data)) {
     return false;
   }
 
@@ -69,7 +69,7 @@ YAML::Node VehicleParameters::dump() const
   node[kWingSurfaceKey] = yaml::format(wing_surface);
   node[kWingSpanKey] = yaml::format(wing_span);
   node[kMACKey] = yaml::format(mac);
-  node[kAeroCenterKey] = ac.data;
+  node[kMomentRefPointKey] = ref.data;
   node[kAlphaLimitLKey] = alpha_limit;
 
   return node;

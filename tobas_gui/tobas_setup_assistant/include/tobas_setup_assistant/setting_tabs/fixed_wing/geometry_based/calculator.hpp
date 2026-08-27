@@ -31,6 +31,8 @@ class Calculator : public QPushButton
 
   static constexpr int kButtonWidth = 125;
   static constexpr int kButtonHeight = 50;
+  static constexpr size_t kTestCases = 11;
+  static constexpr double kTestAlphaRange = 5.0 * M_PI / 180.0;
   static constexpr double kDelta = 1.0e-2 * M_PI / 180.0;
   static constexpr double kAffordableRate = 0.1;
 
@@ -60,6 +62,7 @@ private:
   // C_D = C_D0 + C_Dalpha * alpha + C_Dalpha2 * alpha^2
   double c_drag_0_;
   double c_drag_alpha_;
+  double c_drag_alpha2_;
   // C_Y = C_side_beta * beta + C_side_p * p_hat + C_side_r * r_hat. p_hat = b / 2V * p
   double c_side_beta_;
   double c_side_p_;  // not implemented in coeff widget
@@ -98,8 +101,7 @@ private:
   kdl::Wrench calcMachineAeroDynamicForce(const kdl::Twist& twist_ref) const;
   // 指定されたwingのmac座標系で見たとき, そのwingが発生する空力を計算する
   kdl::Wrench calcWingAeroDynamicForce(const WingWidget* wing, const kdl::Twist& twist_mac) const;
-  void calcCruiseCoeff(const double& cruise_speed, const double& cruise_alpha);
-  void calcAoACoeff(const double& cruise_speed, const double& cruise_alpha);
+  void calcLongitudalCoeff(const double& cruise_speed, const double& cruise_alpha);
   void calcAoSCoeff(const double& cruise_speed, const double& cruise_alpha);
   void calcPCoeff(const double& cruise_speed, const double& cruise_alpha);
   void calcQCoeff(const double& cruise_speed, const double& cruise_alpha);

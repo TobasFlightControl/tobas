@@ -42,20 +42,20 @@ public:
   double wingSurface() const;
   double wingSpan() const;
   double mac() const;
-  Eigen::Vector3d aerodynamicCenter() const;
+  Eigen::Vector3d momentReferencePoint() const;
   st::Range<double> alphaLimit() const;
   // setters
   void wingSurface(const double& value);
   void wingSpan(const double& value);
   void mac(const double& value);
-  void aerodynamicCenter(const Eigen::Vector3d& value);
+  void momentReferencePoint(const Eigen::Vector3d& value);
   void alphaLimit(const st::Range<double>& value);
 
 private:
   ParamGetterWidget_DoubleSpinBox* wing_surface_;
   ParamGetterWidget_DoubleSpinBox* wing_span_;
   ParamGetterWidget_DoubleSpinBox* mac_;
-  ParamGetterWidget_Vector3d* aerodynamic_center_;
+  ParamGetterWidget_Vector3d* moment_reference_point_;
   ParamGetterWidget_DoubleRange* alpha_limit_;
 };
 }  // namespace mn

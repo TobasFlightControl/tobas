@@ -83,7 +83,19 @@ bool AerodynamicCoefficients::load(const YAML::Node& node)
     return false;
   }
 
+  if (!yaml::load(kCDragAlpha2Key, node, c_drag_alpha2)) {
+    return false;
+  }
+
   if (!yaml::load(kCSideBetaKey, node, c_side_beta)) {
+    return false;
+  }
+
+  if (!yaml::load(kCSidePKey, node, c_side_p)) {
+    return false;
+  }
+
+  if (!yaml::load(kCSideRKey, node, c_side_r)) {
     return false;
   }
 
@@ -142,7 +154,10 @@ YAML::Node AerodynamicCoefficients::dump() const
   node[kCLiftAlphaKey] = yaml::format(c_lift_alpha);
   node[kCDrag0Key] = yaml::format(c_drag_0);
   node[kCDragAlphaKey] = yaml::format(c_drag_alpha);
+  node[kCDragAlpha2Key] = yaml::format(c_drag_alpha2);
   node[kCSideBetaKey] = yaml::format(c_side_beta);
+  node[kCSidePKey] = yaml::format(c_side_p);
+  node[kCSideRKey] = yaml::format(c_side_r);
   node[kCRollBetaKey] = yaml::format(c_roll_beta);
   node[kCRollPKey] = yaml::format(c_roll_p);
   node[kCRollRKey] = yaml::format(c_roll_r);

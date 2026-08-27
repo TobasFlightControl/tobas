@@ -64,10 +64,25 @@ AerodynamicsCoefficientsWidget::AerodynamicsCoefficientsWidget()
   c_drag_alpha_->setSuffix(" [/rad]");
   form_->addRow(new QLabel("c_drag_alpha"), c_drag_alpha_);
 
+  c_drag_alpha2_ = new qt::DoubleSpinBox();
+  c_drag_alpha2_->setDecimals(kStabilityCoefDecimals);
+  c_drag_alpha2_->setSuffix(" [/rad^2]");
+  form_->addRow(new QLabel("c_drag_alpha2"), c_drag_alpha2_);
+
   c_side_beta_ = new qt::DoubleSpinBox();
   c_side_beta_->setDecimals(kStabilityCoefDecimals);
   c_side_beta_->setSuffix(" [/rad]");
   form_->addRow(new QLabel("c_side_beta"), c_side_beta_);
+
+  c_side_p_ = new qt::DoubleSpinBox();
+  c_side_p_->setDecimals(kStabilityCoefDecimals);
+  c_side_p_->setSuffix(" [/rad]");
+  form_->addRow(new QLabel("c_side_p"), c_side_p_);
+
+  c_side_r_ = new qt::DoubleSpinBox();
+  c_side_r_->setDecimals(kStabilityCoefDecimals);
+  c_side_r_->setSuffix(" [/rad]");
+  form_->addRow(new QLabel("c_side_r"), c_side_r_);
 
   c_roll_beta_ = new qt::DoubleSpinBox();
   c_roll_beta_->setDecimals(kStabilityCoefDecimals);
@@ -135,7 +150,10 @@ void AerodynamicsCoefficientsWidget::setToDefaults()
   c_lift_alpha_->setValue(10.806);
   c_drag_0_->setValue(0.136);
   c_drag_alpha_->setValue(0.6737);
+  c_drag_alpha2_->setValue(1.6);
   c_side_beta_->setValue(-0.3073);
+  c_side_p_->setValue(0.0);
+  c_side_r_->setValue(0.0);
   c_roll_beta_->setValue(-0.0154);
   c_roll_p_->setValue(-0.1647);
   c_roll_r_->setValue(0.0117);
@@ -196,9 +214,24 @@ double AerodynamicsCoefficientsWidget::c_drag_alpha() const
   return c_drag_alpha_->value();
 }
 
+double AerodynamicsCoefficientsWidget::c_drag_alpha2() const
+{
+  return c_drag_alpha2_->value();
+}
+
 double AerodynamicsCoefficientsWidget::c_side_beta() const
 {
   return c_side_beta_->value();
+}
+
+double AerodynamicsCoefficientsWidget::c_side_p() const
+{
+  return c_side_p_->value();
+}
+
+double AerodynamicsCoefficientsWidget::c_side_r() const
+{
+  return c_side_r_->value();
 }
 
 double AerodynamicsCoefficientsWidget::c_roll_beta() const
@@ -276,9 +309,24 @@ void AerodynamicsCoefficientsWidget::c_drag_alpha(const double& value)
   return c_drag_alpha_->setValue(value);
 }
 
+void AerodynamicsCoefficientsWidget::c_drag_alpha2(const double& value)
+{
+  return c_drag_alpha2_->setValue(value);
+}
+
 void AerodynamicsCoefficientsWidget::c_side_beta(const double& value)
 {
   return c_side_beta_->setValue(value);
+}
+
+void AerodynamicsCoefficientsWidget::c_side_p(const double& value)
+{
+  return c_side_p_->setValue(value);
+}
+
+void AerodynamicsCoefficientsWidget::c_side_r(const double& value)
+{
+  return c_side_r_->setValue(value);
 }
 
 void AerodynamicsCoefficientsWidget::c_roll_beta(const double& value)
@@ -372,7 +420,10 @@ void AerodynamicsCoefficientsWidget::onLoadButtonClicked()
   c_lift_alpha_->setValue(parser.c_lift_alpha());
   c_drag_0_->setValue(parser.c_drag_0());
   c_drag_alpha_->setValue(parser.c_drag_alpha());
+  c_drag_alpha2_->setValue(parser.c_drag_alpha2());
   c_side_beta_->setValue(parser.c_side_beta());
+  c_side_p_->setValue(parser.c_side_p());
+  c_side_r_->setValue(parser.c_side_r());
   c_roll_beta_->setValue(parser.c_roll_beta());
   c_roll_p_->setValue(parser.c_roll_p());
   c_roll_r_->setValue(parser.c_roll_r());

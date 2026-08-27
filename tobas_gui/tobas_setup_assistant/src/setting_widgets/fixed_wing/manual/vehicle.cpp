@@ -41,10 +41,10 @@ VehicleParametersWidget::VehicleParametersWidget()
   mac_->setSuffix(" m");
   rows->addWidget(mac_);
 
-  aerodynamic_center_ = new ParamGetterWidget_Vector3d("Aerodynamic Center", "");
-  aerodynamic_center_->setDecimals(3);
-  aerodynamic_center_->setSuffix(" m");
-  rows->addWidget(aerodynamic_center_);
+  moment_reference_point_ = new ParamGetterWidget_Vector3d("Moment Reference Point", "The coordinates viewed in the origin-centered FLU coordinate system. We calculate the stability derivatives about this point.");
+  moment_reference_point_->setDecimals(3);
+  moment_reference_point_->setSuffix(" m");
+  rows->addWidget(moment_reference_point_);
 
   alpha_limit_ = new ParamGetterWidget_DoubleRange("Limitation of Angle of Attack", "");
   alpha_limit_->setDecimals(3);
@@ -61,7 +61,7 @@ void VehicleParametersWidget::setToDefaults()
   wing_surface_->setValue(0.47);
   wing_span_->setValue(2.59);
   mac_->setValue(0.18);
-  aerodynamic_center_->setValue({ 0.1, 0.0, 0.0 });
+  moment_reference_point_->setValue({ 0.1, 0.0, 0.0 });
   alpha_limit_->setValue({ -0.27, 0.27 });
 }
 
@@ -82,7 +82,7 @@ YAML::Node VehicleParametersWidget::dump() const
   node[wing_surface_->name()] = yaml::format(wing_surface_->getValue());
   node[wing_span_->name()] = yaml::format(wing_span_->getValue());
   node[mac_->name()] = yaml::format(mac_->getValue());
-  node[aerodynamic_center_->name()] = aerodynamic_center_->getValue();
+  node[moment_reference_point_->name()] = moment_reference_point_->getValue();
   node[alpha_limit_->name()] = alpha_limit_->getValue();
 
   return node;
@@ -93,7 +93,7 @@ void VehicleParametersWidget::load(const YAML::Node& node)
   wing_surface_->setValue(node[wing_surface_->name()].as<double>());
   wing_span_->setValue(node[wing_span_->name()].as<double>());
   mac_->setValue(node[mac_->name()].as<double>());
-  aerodynamic_center_->setValue(node[aerodynamic_center_->name()].as<Eigen::Vector3d>());
+  moment_reference_point_->setValue(node[moment_reference_point_->name()].as<Eigen::Vector3d>());
   alpha_limit_->setValue(node[alpha_limit_->name()].as<st::Range<double>>());
 }
 
@@ -112,9 +112,9 @@ double VehicleParametersWidget::mac() const
   return mac_->getValue();
 }
 
-Eigen::Vector3d VehicleParametersWidget::aerodynamicCenter() const
+Eigen::Vector3d VehicleParametersWidget::momentReferencePoint() const
 {
-  return aerodynamic_center_->getValue();
+  return moment_reference_point_->getValue();
 }
 
 st::Range<double> VehicleParametersWidget::alphaLimit() const
@@ -137,9 +137,9 @@ void VehicleParametersWidget::mac(const double& value)
   mac_->setValue(value);
 }
 
-void VehicleParametersWidget::aerodynamicCenter(const Eigen::Vector3d& value)
+void VehicleParametersWidget::momentReferencePoint(const Eigen::Vector3d& value)
 {
-  aerodynamic_center_->setValue(value);
+  moment_reference_point_->setValue(value);
 }
 
 void VehicleParametersWidget::alphaLimit(const st::Range<double>& value)

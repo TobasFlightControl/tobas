@@ -59,7 +59,7 @@ std::shared_ptr<FixedWingConfig> Calculator::calcFixedWingConfig()
   vehicle.wing_surface = main_wing->surfaceArea();
   vehicle.wing_span = main_wing->span();
   vehicle.mac = main_wing->c_mac();
-  vehicle.ac = B_Pos_B2R_;
+  vehicle.ref = B_Pos_B2R_;
   vehicle.alpha_limit = wings_->alphaLimit();
 
   auto& aerodynamics = fixed_wing->aerodynamics;
@@ -67,7 +67,10 @@ std::shared_ptr<FixedWingConfig> Calculator::calcFixedWingConfig()
   aerodynamics.c_lift_alpha = c_lift_alpha_;
   aerodynamics.c_drag_0 = c_drag_0_;
   aerodynamics.c_drag_alpha = c_drag_alpha_;
+  aerodynamics.c_drag_alpha2 = c_drag_alpha2_;
   aerodynamics.c_side_beta = c_side_beta_;
+  aerodynamics.c_side_p = c_side_p_;
+  aerodynamics.c_side_r = c_side_r_;
   aerodynamics.c_roll_beta = c_roll_beta_;
   aerodynamics.c_roll_p = c_roll_p_;
   aerodynamics.c_roll_r = c_roll_r_;
@@ -196,52 +199,70 @@ kdl::Wrench Calculator::calcWingAeroDynamicForce(const WingWidget* wing, const k
   return kdl::Wrench(force, moment);
 }
 
-void Calculator::calcCruiseCoeff(const double& cruise_speed, const double& cruise_alpha)
+void Calculator::calcLongitudalCoeff(const double& cruise_speed, const double& cruise_alpha)
 {
-  const auto vel = kdl::Vector(cruise_speed * cos(cruise_alpha), 0, cruise_speed * sin(cruise_alpha));
-  kdl::Vector rot(0, 0, 0);    // ref座標系(frd)での回転角速度
-  kdl::Twist twist(vel, rot);  // ref座標系(frd)でのtwist
-  const auto wrench = calcMachineAeroDynamicForce(twist);
-  double D, L;
-  XZ2DL(wrench.force, cruise_alpha, D, L);
-  const auto q = dynamicPressure(st::kStandardAirDensity, cruise_speed);
-  const auto S = wings_->getMainWing()->surfaceArea();
-  const auto c_mac = wings_->getMainWing()->c_mac();
-  c_lift_0_ = L / (q * S);
-  c_drag_0_ = D / (q * S);
-  c_pitch_0_ = wrench.torque.y() / (q * S * c_mac);
-  std::cout << "c_lift_0 : " << c_lift_0_ << std::endl;
-  std::cout << "c_drag_0 : " << c_drag_0_ << std::endl;
-  std::cout << "c_pitch_0 : " << c_pitch_0_ << std::endl;
-}
+  const Eigen::VectorXd alpha_test = Eigen::VectorXd::LinSpaced(kTestCases, cruise_alpha - kTestAlphaRange, cruise_alpha + kTestAlphaRange);
+  Eigen::VectorXd cl_results = Eigen::VectorXd::Zero(kTestCases);
+  Eigen::VectorXd cd_results = Eigen::VectorXd::Zero(kTestCases);
+  Eigen::VectorXd cm_results = Eigen::VectorXd::Zero(kTestCases);
 
-void Calculator::calcAoACoeff(const double& cruise_speed, const double& cruise_alpha)
-{
-  const auto alpha_plus = cruise_alpha + kDelta;
-  const auto alpha_minus = cruise_alpha - kDelta;
-  const auto vel_plus = kdl::Vector(cruise_speed * cos(alpha_plus), 0, cruise_speed * sin(alpha_plus));
-  const auto vel_minus = kdl::Vector(cruise_speed * cos(alpha_minus), 0, cruise_speed * sin(alpha_minus));
-  kdl::Vector rot(0, 0, 0);              // ref座標系(frd)での回転角速度
-  kdl::Twist twist_plus(vel_plus, rot);  // ref座標系(frd)でのtwist
-  kdl::Twist twist_minus(vel_minus, rot);
-  // alpha plus
-  const auto wrench_plus = calcMachineAeroDynamicForce(twist_plus);
-  double D_plus, L_plus;
-  XZ2DL(wrench_plus.force, alpha_plus, D_plus, L_plus);
-  // alpha minus
-  const auto wrench_minus = calcMachineAeroDynamicForce(twist_minus);
-  double D_minus, L_minus;
-  XZ2DL(wrench_minus.force, alpha_minus, D_minus, L_minus);
-  // numerical differentiation
-  const auto q = dynamicPressure(st::kStandardAirDensity, cruise_speed);
-  const auto S = wings_->getMainWing()->surfaceArea();
-  const auto c_mac = wings_->getMainWing()->c_mac();
-  c_lift_alpha_ = (L_plus - L_minus) / (q * S) / (2.0 * kDelta);
-  c_drag_alpha_ = (D_plus - D_minus) / (q * S) / (2.0 * kDelta);
-  c_pitch_alpha_ = (wrench_plus.torque.y() - wrench_minus.torque.y()) / (q * S * c_mac) / (2.0 * kDelta);
-  std::cout << "C_Lalpha : " << c_lift_alpha_ << std::endl;
-  std::cout << "C_Dalpha : " << c_drag_alpha_ << std::endl;
-  std::cout << "C_malpha : " << c_pitch_alpha_ << std::endl;
+  for (size_t i = 0; i < kTestCases; i++) {
+    const double alpha = alpha_test[i];
+    const auto vel = kdl::Vector(cruise_speed * cos(alpha), 0, cruise_speed * sin(alpha));
+    kdl::Twist twist(vel, kdl::Vector(0, 0, 0));
+    const auto wrench = calcMachineAeroDynamicForce(twist);
+    double D, L;
+    XZ2DL(wrench.force, alpha, D, L);
+    const auto q = dynamicPressure(st::kStandardAirDensity, cruise_speed);
+    const auto S = wings_->getMainWing()->surfaceArea();
+    const auto c_mac = wings_->getMainWing()->c_mac();
+    cl_results[i] = L / (q * S);
+    cd_results[i] = D / (q * S);
+    cm_results[i] = wrench.torque.y() / (q * S * c_mac);
+  }
+
+  // CL
+  {
+    Eigen::MatrixXd X(kTestCases, 2);
+    X.col(0).setOnes();
+    X.col(1) = alpha_test;
+    const Eigen::Vector2d coef =
+      X.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV)
+      .solve(cl_results);
+    c_lift_0_ = coef(0);
+    c_lift_alpha_ = coef(1);
+  }
+  // CD
+  {
+    Eigen::MatrixXd X(kTestCases, 3);
+    X.col(0).setOnes();
+    X.col(1) = alpha_test;
+    X.col(2) = alpha_test.array().square();
+    const Eigen::Vector3d coef =
+      X.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV)
+      .solve(cd_results);
+    c_drag_0_ = coef(0);
+    c_drag_alpha_ = coef(1);
+    c_drag_alpha2_ = coef(2);
+  }
+  // Cm
+  {
+    Eigen::MatrixXd X(kTestCases, 2);
+    X.col(0).setOnes();
+    X.col(1) = alpha_test;
+    const Eigen::Vector2d coef =
+      X.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV)
+      .solve(cm_results);
+    c_pitch_0_ = coef(0);
+    c_pitch_alpha_ = coef(1);
+  }
+  std::cout << "C_lift_0 : " << c_lift_0_ << std::endl;
+  std::cout << "C_lift_alpha : " << c_lift_alpha_ << std::endl;
+  std::cout << "C_drag_0 : " << c_drag_0_ << std::endl;
+  std::cout << "C_drag_alpha : " << c_drag_alpha_ << std::endl;
+  std::cout << "C_drag_alpha2 : " << c_drag_alpha2_ << std::endl;
+  std::cout << "C_pitch_0 : " << c_pitch_0_ << std::endl;
+  std::cout << "C_pitch_alpha : " << c_pitch_alpha_ << std::endl;
 }
 
 void Calculator::calcAoSCoeff(const double& cruise_speed, const double& cruise_alpha)
@@ -484,10 +505,8 @@ void Calculator::calcCoefficients()
   const auto C_L =
     mass_ * st::kGravity / (dynamicPressure(st::kStandardAirDensity, cruise_speed) * main_wing->surfaceArea());
   const auto cruise_alpha = (C_L - main_wing->c_lift_0()) / main_wing->c_lift_alpha();
-  // cruise時係数を求める
-  calcCruiseCoeff(cruise_speed, cruise_alpha);
-  // alphaに関して数値微分を取る
-  calcAoACoeff(cruise_speed, cruise_alpha);
+  // 縦の微係数を求める
+  calcLongitudalCoeff(cruise_speed, cruise_alpha);
   // betaに関して数値微分を取る
   calcAoSCoeff(cruise_speed, cruise_alpha);
   // pに関して数値微分を取る
@@ -507,7 +526,7 @@ void Calculator::writeResults()
   vehicle->wingSurface(main_wing->span());
   vehicle->wingSpan(main_wing->surfaceArea());
   vehicle->mac(main_wing->c_mac());
-  vehicle->aerodynamicCenter(B_Pos_B2R_.data);
+  vehicle->momentReferencePoint(B_Pos_B2R_.data);
   vehicle->alphaLimit(wings_->alphaLimit());
 
   auto aero_coefs = manual_->aeroCoefs();
@@ -515,9 +534,10 @@ void Calculator::writeResults()
   aero_coefs->c_lift_alpha(c_lift_alpha_);
   aero_coefs->c_drag_0(c_drag_0_);
   aero_coefs->c_drag_alpha(c_drag_alpha_);
-  // TODO: c_drag_alpha^2
+  aero_coefs->c_drag_alpha2(c_drag_alpha2_);
   aero_coefs->c_side_beta(c_side_beta_);
-  // TODO: c_side_p, c_side_r
+  aero_coefs->c_side_p(c_side_p_);
+  aero_coefs->c_side_r(c_side_r_);
   aero_coefs->c_roll_beta(c_roll_beta_);
   aero_coefs->c_roll_p(c_roll_p_);
   aero_coefs->c_roll_r(c_roll_r_);

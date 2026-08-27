@@ -284,7 +284,7 @@ void addFixedWingPlugin(
   plugin->InsertNewChildElement("wingSurface")->SetText(toString(vehicle.wing_surface).c_str());
   plugin->InsertNewChildElement("wingSpan")->SetText(toString(vehicle.wing_span).c_str());
   plugin->InsertNewChildElement("meanAerodynamicChord")->SetText(toString(vehicle.mac).c_str());
-  plugin->InsertNewChildElement("aerodynamicCenter")->SetText(toString(vehicle.ac.data).c_str());
+  plugin->InsertNewChildElement("momentReferencePoint")->SetText(toString(vehicle.ref.data).c_str());
   plugin->InsertNewChildElement("lowerStallAngle")->SetText(toString(vehicle.alpha_limit.lower).c_str());
   plugin->InsertNewChildElement("upperStallAngle")->SetText(toString(vehicle.alpha_limit.upper).c_str());
 
@@ -293,7 +293,10 @@ void addFixedWingPlugin(
   plugin->InsertNewChildElement("cLiftAlpha")->SetText(toString(aerodynamics.c_lift_alpha).c_str());
   plugin->InsertNewChildElement("cDrag0")->SetText(toString(aerodynamics.c_drag_0).c_str());
   plugin->InsertNewChildElement("cDragAlpha")->SetText(toString(aerodynamics.c_drag_alpha).c_str());
+  plugin->InsertNewChildElement("cDragAlpha2")->SetText(toString(aerodynamics.c_drag_alpha2).c_str());
   plugin->InsertNewChildElement("cSideBeta")->SetText(toString(aerodynamics.c_side_beta).c_str());
+  plugin->InsertNewChildElement("cSideP")->SetText(toString(aerodynamics.c_side_p).c_str());
+  plugin->InsertNewChildElement("cSideR")->SetText(toString(aerodynamics.c_side_r).c_str());
   plugin->InsertNewChildElement("cRollBeta")->SetText(toString(aerodynamics.c_roll_beta).c_str());
   plugin->InsertNewChildElement("cRollP")->SetText(toString(aerodynamics.c_roll_p).c_str());
   plugin->InsertNewChildElement("cRollR")->SetText(toString(aerodynamics.c_roll_r).c_str());

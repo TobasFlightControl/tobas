@@ -17,7 +17,10 @@ class AerodynamicCoefficients
   static constexpr char kCLiftAlphaKey[] = "c_lift_alpha";
   static constexpr char kCDrag0Key[] = "c_drag_0";
   static constexpr char kCDragAlphaKey[] = "c_drag_alpha";
+  static constexpr char kCDragAlpha2Key[] = "c_drag_alpha2";
   static constexpr char kCSideBetaKey[] = "c_side_beta";
+  static constexpr char kCSidePKey[] = "c_side_p";
+  static constexpr char kCSideRKey[] = "c_side_r";
   static constexpr char kCRollBetaKey[] = "c_roll_beta";
   static constexpr char kCRollPKey[] = "c_roll_p";
   static constexpr char kCRollRKey[] = "c_roll_r";
@@ -38,9 +41,12 @@ public:
   // Drag force
   double c_drag_0 = 0;      // [-]
   double c_drag_alpha = 0;  // [/rad]
+  double c_drag_alpha2 = 0; // [/rad^2]
 
   // Side force
   double c_side_beta = 0;  // [/rad]
+  double c_side_p = 0;     // [/rad]
+  double c_side_r = 0;     // [/rad]
 
   // Roll moment
   double c_roll_beta = 0;  // [/rad]

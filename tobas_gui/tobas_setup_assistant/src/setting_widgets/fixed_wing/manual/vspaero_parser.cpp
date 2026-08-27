@@ -106,9 +106,24 @@ double VSPAEROParser::c_drag_alpha() const
   return c_drag_alpha_;
 }
 
+double VSPAEROParser::c_drag_alpha2() const
+{
+  return c_drag_alpha2_;
+}
+
 double VSPAEROParser::c_side_beta() const
 {
   return c_side_beta_;
+}
+
+double VSPAEROParser::c_side_p() const
+{
+  return c_side_p_;
+}
+
+double VSPAEROParser::c_side_r() const
+{
+  return c_side_r_;
 }
 
 double VSPAEROParser::c_roll_beta() const

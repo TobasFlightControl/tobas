@@ -39,7 +39,7 @@ int StabilityDerivativesCG::update(const kdl::JntArray& q)
   const auto cog = inertia_solver_.getInertia().getCOG();
 
   // Update stability derivatives: (2.2-40), (3.2-23).
-  const auto dx = drone_.fixed_wing->vehicle.ac.x() - cog.x();
+  const auto dx = drone_.fixed_wing->vehicle.ref.x() - cog.x();
   const auto dx_b = dx / drone_.fixed_wing->vehicle.wing_span;
   const auto dx_c = dx / drone_.fixed_wing->vehicle.mac;
 
