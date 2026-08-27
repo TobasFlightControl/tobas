@@ -163,9 +163,11 @@ std::map<QString, QString> SimulationWidget::makeGazeboLaunchArguments() const
 
 void SimulationWidget::launchSimulation()
 {
-  const auto args = makeGazeboLaunchArguments();
+  const auto pkg_name = QString::fromStdString(proj_paths_.cfgPkgName());
+  constexpr char kLaunchFileName[] = "gazebo.launch.xml";
+  QStringList command = { "launch", pkg_name, kLaunchFileName };
 
-  QStringList command = { "launch", QString::fromStdString(proj_paths_.cfgPkgName()), "gazebo.launch.xml" };
+  const auto args = makeGazeboLaunchArguments();
   for (const auto& [arg_name, arg_value] : args) {
     command.append(arg_name + ":=" + arg_value);
   }
@@ -174,6 +176,8 @@ void SimulationWidget::launchSimulation()
   launch_proc_->setProcessChannelMode(QProcess::ForwardedChannels);  // Forward child process output to the caller.
   connect(launch_proc_, qOverload<int, QProcess::ExitStatus>(&QProcess::finished), this, &self::onLaunchProcessFinished);
   launch_proc_->start("ros2", command);
+
+  qInfo().nospace() << kLaunchFileName << " has been started with PID " << launch_proc_->processId() << ".";
 }
 
 void SimulationWidget::terminateLaunchProcess()

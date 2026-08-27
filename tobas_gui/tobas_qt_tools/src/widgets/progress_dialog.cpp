@@ -42,7 +42,7 @@ void ProgressDialog::hide()
 
 void ProgressDialog::setLabelText(const QString& text)
 {
-  qInfo() << text;
+  qInfo().noquote() << text;
   text_ = text;
 }
 
