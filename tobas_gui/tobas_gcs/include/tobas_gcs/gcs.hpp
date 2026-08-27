@@ -109,7 +109,7 @@ private:
   std::optional<cmn::SshClientWrapper> ssh_client_;
   std::optional<cmn::RemoteProjectBuilder> remote_proj_builder_;
 
-  void reset(bool include_simulation = true);
+  void reset();
   void updateInternalDataStructures();
   void initializeRosConnection();
   void clearRosConnection();

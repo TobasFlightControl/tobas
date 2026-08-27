@@ -13,7 +13,6 @@
 #include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_qt_tools/message.hpp>
-#include <tobas_qt_tools/thread.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 #include <tobas_string_tools/core.hpp>
 
@@ -61,8 +60,6 @@ SuspendedLoadWidget::SuspendedLoadWidget()
   cable_csa_->setMinimum(1);
   cable_csa_->setSuffix(QString::fromStdString(str::convertToSuperscript(" mm^2")));
 
-  setParamsToDefault();
-
   // Layout
   const auto header_cols = new QHBoxLayout();
   header_cols->addWidget(title);
@@ -86,6 +83,15 @@ SuspendedLoadWidget::SuspendedLoadWidget()
   // Connection
   connect(attach_detach_btn_, &qt::ToggleButton::checked, this, &self::onAttachRequested);
   connect(attach_detach_btn_, &qt::ToggleButton::unchecked, this, &self::onDetachRequested);
+
+  reset();
+}
+
+void SuspendedLoadWidget::reset()
+{
+  attach_detach_btn_->setChecked(false);
+
+  setParamsToDefault();
 }
 
 void SuspendedLoadWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
@@ -100,43 +106,6 @@ void SuspendedLoadWidget::clearRosInterfaces()
 {
   attach_sc_.reset();
   detach_sc_.reset();
-}
-
-bool SuspendedLoadWidget::start(ch::milliseconds timeout)
-{
-  // Prepare the service clients.
-  qInfo() << "Waiting for the Gazebo suspended load plugin.";
-  bool success = true;
-  QString message;
-  qt::startThreadAndWait(
-    [&]()
-    {
-      if (!attach_sc_->waitForService(timeout)) {
-        success = false;
-        message = "Failed to connect to \"" + QString(gazebo::kAttachSuspenedLoadSrv) + "\" service server.";
-        return;
-      }
-      if (!detach_sc_->waitForService(timeout)) {
-        success = false;
-        message = "Failed to connect to \"" + QString(gazebo::kDetachSuspenedLoadSrv) + "\" service server.";
-        return;
-      }
-    });
-  if (!success) {
-    qWarning().noquote() << message;
-    return false;
-  }
-
-  // Set the parameters to their default values.
-  qInfo() << "Setting the suspended load parameters to their default values.";
-  setParamsToDefault();
-
-  return true;
-}
-
-void SuspendedLoadWidget::reset()
-{
-  attach_detach_btn_->setChecked(false);
 }
 
 void SuspendedLoadWidget::setParamsToDefault()

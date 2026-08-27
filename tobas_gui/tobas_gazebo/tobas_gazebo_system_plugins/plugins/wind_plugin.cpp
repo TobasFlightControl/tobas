@@ -41,13 +41,6 @@ class GazeboWindPlugin : public BaseNode,
                          public gz::sim::ISystemConfigure,
                          public gz::sim::ISystemPostUpdate
 {
-  // Default parameters
-  static constexpr double kDefaultMeanWindSpeed = 0.0;          // [m/s]
-  static constexpr double kDefaultConstantWindDirection = 0.0;  // [rad]
-  static constexpr double kDefaultGustSpeedFactor = 1.0;        // [-]
-  static constexpr double kDefaultGustDuration = 5.0;           // [s]
-  static constexpr double kDefaultGustInterval = 10.0;          // [s]
-
   using self = GazeboWindPlugin;
   using GetSrv = tobas_gazebo_msgs::srv::GetWindParams;
   using SetSrv = tobas_gazebo_msgs::srv::SetWindParams;
@@ -105,13 +98,6 @@ void GazeboWindPlugin::Configure(
 {
   initialize("gazebo_wind_plugin", sdf);
   getSdfParams(sdf);
-
-  // Initialize wind parameters.
-  params_.mean_speed = kDefaultMeanWindSpeed;
-  params_.direction = kDefaultConstantWindDirection;
-  params_.gust_speed_factor = kDefaultGustSpeedFactor;
-  params_.gust_duration = kDefaultGustDuration;
-  params_.gust_interval = kDefaultGustInterval;
 
   const auto link = ecm.EntityByComponents(cmp::Link(), cmp::ParentEntity(model), cmp::Name(link_name_));
   if (link == gz::sim::kNullEntity) {

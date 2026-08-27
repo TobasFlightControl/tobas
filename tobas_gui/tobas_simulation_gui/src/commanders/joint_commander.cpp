@@ -40,8 +40,6 @@ JointCommanderWidget::JointCommanderWidget(const kdl::Tree& tree, const Drone& d
   center_button_->setFixedHeight(kCommandButtonHeight);
   random_button_->setFixedHeight(kCommandButtonHeight);
 
-  reset();
-
   // Layout
   const auto header_cols = new QHBoxLayout();
   header_cols->addWidget(title);
@@ -67,6 +65,34 @@ JointCommanderWidget::JointCommanderWidget(const kdl::Tree& tree, const Drone& d
   connect(center_button_, &QPushButton::clicked, this, &self::onCenterButtonClicked);
   connect(random_button_, &QPushButton::clicked, this, &self::onRandomButtonClicked);
   connect(&publish_cmd_timer_, &QTimer::timeout, this, &self::onPublishCommandTimerTimeout);
+
+  reset();
+}
+
+void JointCommanderWidget::reset()
+{
+  start_stop_button_->setChecked(false);
+
+  for (const auto& [_, commander] : commanders_) {
+    commander->setValue(0.0);
+    commander->setEnabled(false);
+  }
+
+  for (auto& cmd : tar_js_pos_.commands) {
+    cmd.data = 0.0;
+  }
+  for (auto& cmd : tar_js_vel_.commands) {
+    cmd.data = 0.0;
+  }
+  for (auto& cmd : tar_js_eff_.commands) {
+    cmd.data = 0.0;
+  }
+
+  home_button_->setEnabled(false);
+  center_button_->setEnabled(false);
+  random_button_->setEnabled(false);
+
+  publish_cmd_timer_.stop();
 }
 
 void JointCommanderWidget::updateInternalDataStructures()
@@ -211,37 +237,6 @@ void JointCommanderWidget::clearRosInterfaces()
   tar_js_pos_pub_.reset();
   tar_js_vel_pub_.reset();
   tar_js_eff_pub_.reset();
-}
-
-bool JointCommanderWidget::start(ch::milliseconds)
-{
-  return true;
-}
-
-void JointCommanderWidget::reset()
-{
-  start_stop_button_->setChecked(false);
-
-  for (const auto& [_, commander] : commanders_) {
-    commander->setValue(0.0);
-    commander->setEnabled(false);
-  }
-
-  for (auto& cmd : tar_js_pos_.commands) {
-    cmd.data = 0.0;
-  }
-  for (auto& cmd : tar_js_vel_.commands) {
-    cmd.data = 0.0;
-  }
-  for (auto& cmd : tar_js_eff_.commands) {
-    cmd.data = 0.0;
-  }
-
-  home_button_->setEnabled(false);
-  center_button_->setEnabled(false);
-  random_button_->setEnabled(false);
-
-  publish_cmd_timer_.stop();
 }
 
 void JointCommanderWidget::publishCurrentCommand()

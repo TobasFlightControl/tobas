@@ -215,7 +215,7 @@ void GroundControlStationWidget::closeEvent(QCloseEvent* event)
   event->accept();
 }
 
-void GroundControlStationWidget::reset(bool include_simulation)
+void GroundControlStationWidget::reset()
 {
   qt::processAllQueuedEvents();
 
@@ -233,7 +233,7 @@ void GroundControlStationWidget::reset(bool include_simulation)
   param_tuning_->reset();
   flight_log_->reset();
 
-  if (include_simulation) {
+  if (!simulation_->isRunning()) {
     simulation_->reset();
   }
 
@@ -277,7 +277,10 @@ void GroundControlStationWidget::initializeRosConnection()
   control_system_->initializeRosInterfaces(ros_node_, ns);
   param_tuning_->initializeRosInterfaces(ros_node_, ns);
   flight_log_->initializeRosInterfaces(ros_node_, ns);
-  simulation_->initializeRosInterfaces(ros_node_, ns);
+
+  if (simulation_->isRunning()) {
+    simulation_->initializeRosInterfaces(ros_node_, ns);
+  }
 
   connection_ready_ = true;
 }
@@ -894,18 +897,23 @@ void GroundControlStationWidget::onSimulationStarted()
   updateFlightControllerList({ DiscoveredFlightController("Simulation Model", "172.17.0.1") });
   vehicle_id_->setValue(0);
 
-  reset(false);
+  reset();
 }
 
 void GroundControlStationWidget::onSimulationTerminated()
 {
   qDebug() << "GroundControlStationWidget::onSimulationTerminated";
 
-  fc_scanner_->start();
+  if (connect_btn_->isChecked()) {
+    clearRosConnection();
+    connect_btn_->setChecked(false);
+    qInfo() << "ROS connection has been automatically closed.";
+  }
 
   resetFlightControllerPlaceholder();
+  reset();
 
-  reset(false);
+  fc_scanner_->start();
 }
 
 void GroundControlStationWidget::onRemoteConnectionDisconnected()

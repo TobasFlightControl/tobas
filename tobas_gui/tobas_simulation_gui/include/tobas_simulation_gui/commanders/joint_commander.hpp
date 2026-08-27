@@ -36,12 +36,10 @@ class JointCommanderWidget : public QWidget
 public:
   explicit JointCommanderWidget(const kdl::Tree& tree, const Drone& drone);
 
+  void reset();
   void updateInternalDataStructures();
   void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
   void clearRosInterfaces();
-
-  bool start(std::chrono::milliseconds timeout);
-  void reset();
 
 private:
   const kdl::Tree& tree_;

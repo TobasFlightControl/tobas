@@ -37,11 +37,10 @@ class BasePoseCommanderWidget : public QWidget
 public:
   explicit BasePoseCommanderWidget(const rqt::RosQtBridge& bridge);
 
+  void reset();
+  void updateInternalDataStructures();
   void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
   void clearRosInterfaces();
-
-  bool start(std::chrono::milliseconds timeout);
-  void reset();
 
 private:
   qt::ToggleButton* arming_button_;

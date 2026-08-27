@@ -11,7 +11,6 @@
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/message.hpp>
-#include <tobas_qt_tools/thread.hpp>
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
@@ -75,11 +74,34 @@ BasePoseCommanderWidget::BasePoseCommanderWidget(const rqt::RosQtBridge& bridge)
   button_cols->addWidget(home_button_);
   connect(home_button_, &QPushButton::clicked, this, &self::onHomeButtonClicked);
 
-  reset();
-
   connect(&bridge, &rqt::RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
   connect(&bridge, &rqt::RosQtBridge::odomReceived, this, &self::odomCb, Qt::QueuedConnection);
   connect(&bridge, &rqt::RosQtBridge::rcInputReceived, this, &self::rcInputCb, Qt::QueuedConnection);
+
+  reset();
+}
+
+void BasePoseCommanderWidget::reset()
+{
+  arming_.reset();
+  odom_.reset();
+  rcin_.reset();
+
+  arming_button_->setChecked(false);
+  home_button_->setEnabled(false);
+
+  for (const auto& cmd : cmd_xyz_) {
+    cmd->setValue(0.0);
+    cmd->setEnabled(false);
+  }
+  for (const auto& cmd : cmd_rpy_) {
+    cmd->setValue(0);
+    cmd->setEnabled(false);
+  }
+}
+
+void BasePoseCommanderWidget::updateInternalDataStructures()
+{
 }
 
 void BasePoseCommanderWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
@@ -102,48 +124,6 @@ void BasePoseCommanderWidget::clearRosInterfaces()
   pvapy_pub_.reset();
 
   set_arm_sc_.reset();
-}
-
-bool BasePoseCommanderWidget::start(ch::milliseconds timeout)
-{
-  bool success = true;
-  QString message;
-
-  qt::startThreadAndWait(
-    [&]()
-    {
-      if (!set_arm_sc_->waitForService(timeout)) {
-        success = false;
-        message = "Failed to connect to \"" + QString(service::kSetArm) + "\" service server.";
-        return;
-      }
-    });
-
-  if (!success) {
-    qWarning().noquote() << message;
-    return false;
-  }
-
-  return true;
-}
-
-void BasePoseCommanderWidget::reset()
-{
-  arming_.reset();
-  odom_.reset();
-  rcin_.reset();
-
-  arming_button_->setChecked(false);
-  home_button_->setEnabled(false);
-
-  for (const auto& cmd : cmd_xyz_) {
-    cmd->setValue(0.0);
-    cmd->setEnabled(false);
-  }
-  for (const auto& cmd : cmd_rpy_) {
-    cmd->setValue(0);
-    cmd->setEnabled(false);
-  }
 }
 
 bool BasePoseCommanderWidget::isRunning() const

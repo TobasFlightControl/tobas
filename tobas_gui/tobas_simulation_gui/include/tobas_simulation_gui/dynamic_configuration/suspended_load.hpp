@@ -38,11 +38,9 @@ class SuspendedLoadWidget : public QWidget
 public:
   explicit SuspendedLoadWidget();
 
+  void reset();
   void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
   void clearRosInterfaces();
-
-  bool start(std::chrono::milliseconds timeout);
-  void reset();
 
 private:
   ros2::SyncServiceClient<AttachSrv>::SharedPtr attach_sc_;

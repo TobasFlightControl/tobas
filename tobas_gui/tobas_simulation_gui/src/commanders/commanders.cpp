@@ -36,8 +36,15 @@ CommandersWidget::CommandersWidget(const rqt::RosQtBridge& bridge, const kdl::Tr
   scroll_rows->addStretch();
 }
 
+void CommandersWidget::reset()
+{
+  base_pose_commander_->reset();
+  joint_commander_->reset();
+}
+
 void CommandersWidget::updateInternalDataStructures()
 {
+  base_pose_commander_->updateInternalDataStructures();
   joint_commander_->updateInternalDataStructures();
 }
 
@@ -51,25 +58,6 @@ void CommandersWidget::clearRosInterfaces()
 {
   base_pose_commander_->clearRosInterfaces();
   joint_commander_->clearRosInterfaces();
-}
-
-bool CommandersWidget::start(ch::milliseconds timeout)
-{
-  if (!base_pose_commander_->start(timeout)) {
-    return false;
-  }
-
-  if (!joint_commander_->start(timeout)) {
-    return false;
-  }
-
-  return true;
-}
-
-void CommandersWidget::reset()
-{
-  base_pose_commander_->reset();
-  joint_commander_->reset();
 }
 }  // namespace sim
 }  // namespace gui

@@ -37,6 +37,12 @@ DynamicConfigWidget::DynamicConfigWidget()
   scroll_rows->addStretch();
 }
 
+void DynamicConfigWidget::reset()
+{
+  wind_params_->reset();
+  suspended_load_->reset();
+}
+
 void DynamicConfigWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
 {
   wind_params_->initializeRosInterfaces(node, ns);
@@ -47,27 +53,6 @@ void DynamicConfigWidget::clearRosInterfaces()
 {
   wind_params_->clearRosInterfaces();
   suspended_load_->clearRosInterfaces();
-}
-
-bool DynamicConfigWidget::start(ch::milliseconds timeout)
-{
-  qInfo() << "Starting the wind manager.";
-  if (!wind_params_->start(timeout)) {
-    return false;
-  }
-
-  qInfo() << "Starting the suspended load manager.";
-  if (!suspended_load_->start(timeout)) {
-    return false;
-  }
-
-  return true;
-}
-
-void DynamicConfigWidget::reset()
-{
-  wind_params_->reset();
-  suspended_load_->reset();
 }
 }  // namespace sim
 }  // namespace gui

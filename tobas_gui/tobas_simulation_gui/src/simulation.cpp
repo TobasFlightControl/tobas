@@ -110,8 +110,12 @@ void SimulationWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, con
 
   ssh_client_.emplace(node_);
   remote_proj_builder_.emplace(node_);
+
   dynamic_config_->initializeRosInterfaces(node_, ns);
+  dynamic_config_->setEnabled(true);
+
   commanders_->initializeRosInterfaces(node_, ns);
+  commanders_->setEnabled(true);
 }
 
 void SimulationWidget::clearRosInterfaces()
@@ -120,8 +124,12 @@ void SimulationWidget::clearRosInterfaces()
 
   ssh_client_.reset();
   remote_proj_builder_.reset();
+
   dynamic_config_->clearRosInterfaces();
+  dynamic_config_->setEnabled(false);
+
   commanders_->clearRosInterfaces();
+  commanders_->setEnabled(false);
 }
 
 bool SimulationWidget::isRunning() const
@@ -150,7 +158,7 @@ bool SimulationWidget::startSITL()
   }
 
   // Create a progress bar.
-  qt::ProgressDialog progress("Start SITL", 5, this);
+  qt::ProgressDialog progress("Start SITL", 3, this);
   progress.setCancelButton(nullptr);
   progress.show();
 
@@ -202,30 +210,6 @@ bool SimulationWidget::startSITL()
   }
   progress.progressStep();
 
-  // Start dynamic parameters.
-  progress.setLabelText("Starting dynamic configuration.");
-  if (!dynamic_config_->start(kWaitForServerTimeout)) {
-    progress.close();
-    if (launch_proc_) {
-      qt::qErrorBox(this, "Failed to start the dynamic configuration manager.");
-      reset();
-    }
-    return false;
-  }
-  progress.progressStep();
-
-  // Start commanders.
-  progress.setLabelText("Starting commanders.");
-  if (!commanders_->start(kWaitForServerTimeout)) {
-    progress.close();
-    if (launch_proc_) {
-      qt::qErrorBox(this, "Failed to start the commanders.");
-      reset();
-    }
-    return false;
-  }
-  progress.progressStep();
-
   progress.close();
   return true;
 }
@@ -262,7 +246,7 @@ bool SimulationWidget::startHITL()
   }
 
   // Create a progress bar.
-  qt::ProgressDialog progress("Start HITL", 10, this);
+  qt::ProgressDialog progress("Start HITL", 8, this);
   progress.setCancelButton(nullptr);
   progress.show();
 
@@ -339,22 +323,6 @@ bool SimulationWidget::startHITL()
   progress.setLabelText("Starting the Tobas HITL service.");
   if (ssh_client_->execute("systemctl restart tobas_hitl.service", true) != ssh::SshClient::kNoError) {
     qt::qErrorBox(this, "Failed to restart Tobas HITL service:\n\n" + QString(ssh_client_->errorMessage()));
-    progress.close();
-    return false;
-  }
-  progress.progressStep();
-
-  // Start dynamic parameters.
-  progress.setLabelText("Starting dynamic configuration.");
-  if (!dynamic_config_->start(kWaitForServerTimeout)) {
-    progress.close();
-    return false;
-  }
-  progress.progressStep();
-
-  // Start commanders.
-  progress.setLabelText("Starting commanders.");
-  if (!commanders_->start(kWaitForServerTimeout)) {
     progress.close();
     return false;
   }
@@ -481,6 +449,7 @@ void SimulationWidget::terminateLaunchProcess()
 
 void SimulationWidget::terminateSimulation()
 {
+  clearRosInterfaces();
   terminateLaunchProcess();
 
   if (!sim::killGazeboServer()) {
@@ -520,8 +489,6 @@ void SimulationWidget::onStartRequested()
   }
 
   sim_settings_->setEnabled(false);
-  dynamic_config_->setEnabled(true);
-  commanders_->setEnabled(true);
 
   qt::qInfoBox(this, "The simulation has started successfully.");
 

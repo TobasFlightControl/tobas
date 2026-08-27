@@ -29,11 +29,9 @@ class WindParamsWidget : public QWidget
 public:
   explicit WindParamsWidget();
 
+  void reset();
   void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
   void clearRosInterfaces();
-
-  bool start(std::chrono::milliseconds timeout);
-  void reset();
 
 private:
   ros2::SyncServiceClient<GetSrv>::SharedPtr get_sc_;
@@ -47,12 +45,6 @@ private:
   qt::DoubleSliderTextWidget* gust_duration_;
   qt::DoubleSliderTextWidget* gust_interval_;
 
-  double init_mean_speed_;
-  int init_direction_;
-  double init_gust_speed_factor_;
-  double init_gust_duration_;
-  double init_gust_interval_;
-
   double getMeanSpeed() const;        // [m/s]
   double getDirection() const;        // [rad]
   double getGustSpeedFactor() const;  // [-]
@@ -65,7 +57,7 @@ private:
   void setGustDuration(double value);
   void setGustInterval(double value);
 
-  bool loadSimParams();
+  void setParamsToDefault();
   bool sendGuiParams();
 
 private Q_SLOTS:
