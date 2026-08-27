@@ -22,7 +22,11 @@ RvizFrameManager::RvizFrameManager(int argc, char** argv, const std::string& nod
   if (!rclcpp::ok()) {
     rclcpp::InitOptions options;
     options.use_default_domain_id();
-    options.set_domain_id(options.get_domain_id() + 1);
+    size_t new_domain_id = 232;  // The maximum domain ID
+    if (new_domain_id == options.get_domain_id()) {
+      --new_domain_id;
+    }
+    options.set_domain_id(new_domain_id);
     rclcpp::init(argc, argv, options);
   }
 
