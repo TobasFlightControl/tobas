@@ -75,8 +75,8 @@ private:
 
   bool project_loaded_ = false;
 
-  std::map<QString, QString> makeGazeboLaunchArguments(bool launch_core) const;
-  void launchSimulation(bool launch_core);
+  std::map<QString, QString> makeGazeboLaunchArguments() const;
+  void launchSimulation();
   void terminateLaunchProcess();
   void terminateSimulation();
 

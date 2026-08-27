@@ -135,12 +135,11 @@ void SimulationWidget::closeEvent(QCloseEvent* event)
   event->accept();
 }
 
-std::map<QString, QString> SimulationWidget::makeGazeboLaunchArguments(bool launch_core) const
+std::map<QString, QString> SimulationWidget::makeGazeboLaunchArguments() const
 {
   std::map<QString, QString> args{
     { "user_debug", qt::boolToText(sim_settings_->userDebug()) },
     { "id", "id" + QString::number(kDroneId) },
-    { "launch_core", qt::boolToText(launch_core) },
     { "x", QString::number(sim_settings_->x()) },
     { "y", QString::number(sim_settings_->y()) },
     { "z", QString::number(sim_settings_->z()) },
@@ -162,9 +161,9 @@ std::map<QString, QString> SimulationWidget::makeGazeboLaunchArguments(bool laun
   return args;
 }
 
-void SimulationWidget::launchSimulation(bool launch_core)
+void SimulationWidget::launchSimulation()
 {
-  const auto args = makeGazeboLaunchArguments(launch_core);
+  const auto args = makeGazeboLaunchArguments();
 
   QStringList command = { "launch", QString::fromStdString(proj_paths_.cfgPkgName()), "gazebo.launch.xml" };
   for (const auto& [arg_name, arg_value] : args) {
@@ -251,7 +250,7 @@ void SimulationWidget::onStartRequested()
 
   // Launch Gazebo and wait for the server to start.
   progress.setLabelText("Launching the simulation.");
-  launchSimulation(true);
+  launchSimulation();
   if (!waitUntilGazeboServerReady()) {
     progress.close();
     if (launch_proc_) {
