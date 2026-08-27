@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <QPointer>
 #include <QProcess>
 #include <QPushButton>
 #include <QWidget>
@@ -63,7 +64,7 @@ private:
   kdl::Tree tree_;
   Drone drone_;
 
-  QProcess* launch_proc_ = nullptr;
+  QPointer<QProcess> launch_proc_;
   qt::WaitSpinnerWidget spinner_;
 
   qt::ToggleButton* start_stop_button_;

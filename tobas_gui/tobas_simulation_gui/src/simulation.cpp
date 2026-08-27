@@ -186,7 +186,7 @@ void SimulationWidget::terminateLaunchProcess()
 
   if (launch_proc_->state() != QProcess::Running) {
     qInfo() << "The roslaunch process is not running.";
-    launch_proc_ = nullptr;
+    launch_proc_->deleteLater();
     return;
   }
 
@@ -206,7 +206,7 @@ void SimulationWidget::terminateLaunchProcess()
   }
 
   // Reset `QProcess`.
-  launch_proc_ = nullptr;
+  launch_proc_->deleteLater();
 }
 
 void SimulationWidget::terminateSimulation()
@@ -290,9 +290,9 @@ void SimulationWidget::onTerminateRequested()
   Q_EMIT telemetryLossExpected();
 
   // Stop the Gazebo process on another thread.
-  qInfo() << "Terminating Gazebo.";
   terminateSimulation();
   spinner_.start();
+  qInfo() << "Waiting for Gazebo to shutdown.";
   while (!waitUntilGazeboShutdown(node_, 5s)) {
     qWarning() << "Failed to shutdown the Gazebo server. Trying again...";
   }
@@ -321,7 +321,7 @@ void SimulationWidget::onLaunchProcessFinished(int code, QProcess::ExitStatus st
     // Otherwise, if SIGINT is sent to an already-dead process from elsewhere,
     // it is promoted to SIGTERM after a few seconds and the entire GCS exits.
     launch_proc_->terminate();
-    launch_proc_ = nullptr;
+    launch_proc_->deleteLater();
 
     // Kill any Gazebo server that may still remain.
     killGazeboServer();
