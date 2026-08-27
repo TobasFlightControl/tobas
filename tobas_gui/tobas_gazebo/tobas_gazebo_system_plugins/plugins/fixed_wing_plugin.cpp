@@ -391,7 +391,12 @@ double GazeboFixedWingPlugin::dragCoefficient(const gz::sim::EntityComponentMana
   return C_D;
 }
 
-double GazeboFixedWingPlugin::sideCoefficient(const gz::sim::EntityComponentManager& ecm, double beta, double p, double r, double V) const
+double GazeboFixedWingPlugin::sideCoefficient(
+  const gz::sim::EntityComponentManager& ecm,
+  double beta,
+  double p,
+  double r,
+  double V) const
 {
   // Sideslip angle.
   auto C_S = aero_coefs_.c_side_beta * beta;
@@ -488,9 +493,9 @@ gz::math::Vector3d GazeboFixedWingPlugin::nonDimentionalAeroCoefs_Force(
   const auto p = gyro_B.X();
   const auto r = gyro_B.Z();
 
-  const auto C_L = liftCoefficient(ecm, alpha);  // Lift coefficient (1.8-3)
-  const auto C_D = dragCoefficient(ecm, alpha);  // Drag coefficient (1.8-3)
-  const auto C_S = sideCoefficient(ecm, beta, p, r, V);   // Side-force coefficient (1.8-5) (slightly changed)
+  const auto C_L = liftCoefficient(ecm, alpha);          // Lift coefficient (1.8-3)
+  const auto C_D = dragCoefficient(ecm, alpha);          // Drag coefficient (1.8-3)
+  const auto C_S = sideCoefficient(ecm, beta, p, r, V);  // Side-force coefficient (1.8-5) (slightly changed)
 
   const auto cos_alpha = std::cos(alpha);
   const auto sin_alpha = std::sin(alpha);

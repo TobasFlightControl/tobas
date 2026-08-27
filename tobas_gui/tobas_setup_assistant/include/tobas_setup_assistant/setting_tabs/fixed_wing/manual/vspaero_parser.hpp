@@ -54,8 +54,8 @@ private:
   double c_drag_alpha_;
   double c_drag_alpha2_ = 0.0;  // VSPAEROでは推算されないようだ?
   double c_side_beta_;
-  double c_side_p_ = 0.0; // VSPAEROでは推算されないようだ?
-  double c_side_r_ = 0.0; // VSPAEROでは推算されないようだ?
+  double c_side_p_ = 0.0;  // VSPAEROでは推算されないようだ?
+  double c_side_r_ = 0.0;  // VSPAEROでは推算されないようだ?
   double c_roll_beta_;
   double c_roll_p_;
   double c_roll_r_;

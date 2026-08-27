@@ -41,7 +41,10 @@ VehicleParametersWidget::VehicleParametersWidget()
   mac_->setSuffix(" m");
   rows->addWidget(mac_);
 
-  moment_reference_point_ = new ParamGetterWidget_Vector3d("Moment Reference Point", "The coordinates viewed in the origin-centered FLU coordinate system. We calculate the stability derivatives about this point.");
+  moment_reference_point_ = new ParamGetterWidget_Vector3d(
+    "Moment Reference Point",
+    "The coordinates viewed in the origin-centered FLU coordinate system. We calculate the stability derivatives about "
+    "this point.");
   moment_reference_point_->setDecimals(3);
   moment_reference_point_->setSuffix(" m");
   rows->addWidget(moment_reference_point_);

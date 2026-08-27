@@ -201,7 +201,8 @@ kdl::Wrench Calculator::calcWingAeroDynamicForce(const WingWidget* wing, const k
 
 void Calculator::calcLongitudalCoeff(const double& cruise_speed, const double& cruise_alpha)
 {
-  const Eigen::VectorXd alpha_test = Eigen::VectorXd::LinSpaced(kTestCases, cruise_alpha - kTestAlphaRange, cruise_alpha + kTestAlphaRange);
+  const Eigen::VectorXd alpha_test =
+    Eigen::VectorXd::LinSpaced(kTestCases, cruise_alpha - kTestAlphaRange, cruise_alpha + kTestAlphaRange);
   Eigen::VectorXd cl_results = Eigen::VectorXd::Zero(kTestCases);
   Eigen::VectorXd cd_results = Eigen::VectorXd::Zero(kTestCases);
   Eigen::VectorXd cm_results = Eigen::VectorXd::Zero(kTestCases);
@@ -226,9 +227,7 @@ void Calculator::calcLongitudalCoeff(const double& cruise_speed, const double& c
     Eigen::MatrixXd X(kTestCases, 2);
     X.col(0).setOnes();
     X.col(1) = alpha_test;
-    const Eigen::Vector2d coef =
-      X.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV)
-      .solve(cl_results);
+    const Eigen::Vector2d coef = X.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(cl_results);
     c_lift_0_ = coef(0);
     c_lift_alpha_ = coef(1);
   }
@@ -238,9 +237,7 @@ void Calculator::calcLongitudalCoeff(const double& cruise_speed, const double& c
     X.col(0).setOnes();
     X.col(1) = alpha_test;
     X.col(2) = alpha_test.array().square();
-    const Eigen::Vector3d coef =
-      X.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV)
-      .solve(cd_results);
+    const Eigen::Vector3d coef = X.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(cd_results);
     c_drag_0_ = coef(0);
     c_drag_alpha_ = coef(1);
     c_drag_alpha2_ = coef(2);
@@ -250,9 +247,7 @@ void Calculator::calcLongitudalCoeff(const double& cruise_speed, const double& c
     Eigen::MatrixXd X(kTestCases, 2);
     X.col(0).setOnes();
     X.col(1) = alpha_test;
-    const Eigen::Vector2d coef =
-      X.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV)
-      .solve(cm_results);
+    const Eigen::Vector2d coef = X.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(cm_results);
     c_pitch_0_ = coef(0);
     c_pitch_alpha_ = coef(1);
   }
@@ -523,8 +518,8 @@ void Calculator::writeResults()
 {
   auto vehicle = manual_->vehicle();
   const auto main_wing = wings_->getMainWing();
-  vehicle->wingSurface(main_wing->span());
-  vehicle->wingSpan(main_wing->surfaceArea());
+  vehicle->wingSurface(main_wing->surfaceArea());
+  vehicle->wingSpan(main_wing->span());
   vehicle->mac(main_wing->c_mac());
   vehicle->momentReferencePoint(B_Pos_B2R_.data);
   vehicle->alphaLimit(wings_->alphaLimit());

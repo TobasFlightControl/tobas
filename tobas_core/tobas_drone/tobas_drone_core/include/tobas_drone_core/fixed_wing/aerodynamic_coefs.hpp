@@ -39,9 +39,9 @@ public:
   double c_lift_alpha = 0;  // [/rad]
 
   // Drag force
-  double c_drag_0 = 0;      // [-]
-  double c_drag_alpha = 0;  // [/rad]
-  double c_drag_alpha2 = 0; // [/rad^2]
+  double c_drag_0 = 0;       // [-]
+  double c_drag_alpha = 0;   // [/rad]
+  double c_drag_alpha2 = 0;  // [/rad^2]
 
   // Side force
   double c_side_beta = 0;  // [/rad]

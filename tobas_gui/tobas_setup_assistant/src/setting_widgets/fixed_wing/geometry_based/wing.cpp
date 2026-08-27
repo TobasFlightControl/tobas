@@ -84,7 +84,7 @@ WingWidget::WingWidget()
   position_->setSuffix(" m");
   const auto position_label = new QLabel("Position");
   position_label->setToolTip(
-    "The position of the leading edge of the main wingtip as viewed in the base_link coordinate frame.");
+    "The position of the leading edge of the main wingroot as viewed in the base_link coordinate frame.");
   form->addVAlignedRow(position_label, position_);
 
   rotation_ = new qt::Vector3dEditHorizontal();
