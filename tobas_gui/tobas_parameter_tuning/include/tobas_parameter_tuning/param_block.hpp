@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include <filesystem>
-
 #include <yaml-cpp/yaml.h>
 #include <QLabel>
 #include <QLineEdit>
@@ -65,7 +63,7 @@ public:
   void clearRosInterfaces();
 
   bool load();
-  bool save(const std::filesystem::path& path);
+  bool save(const QString& path);
   void clear();
   bool setToDefaults();
 

@@ -3,8 +3,7 @@
 
 #pragma once
 
-#include <filesystem>
-
+#include <QString>
 #include <inja/inja.hpp>
 
 namespace tobas
@@ -16,16 +15,12 @@ namespace sa
 class TemplateGenerator
 {
 public:
-  explicit TemplateGenerator(const std::filesystem::path& tpl_dir);
+  explicit TemplateGenerator(const QString& tpl_dir);
 
-  void generate(
-    const inja::json& data,
-    const std::filesystem::path& rel_path,
-    const std::filesystem::path& out_dir,
-    bool overwrite = true);
+  void generate(const inja::json& data, const QString& rel_path, const QString& out_dir, bool overwrite = true);
 
 private:
-  const std::filesystem::path tpl_dir_;
+  const QString tpl_dir_;
 
   inja::Environment env_;
 };

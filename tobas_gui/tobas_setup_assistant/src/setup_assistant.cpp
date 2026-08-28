@@ -19,7 +19,6 @@
 #include <tobas_ros2_tools/package.hpp>
 #include <tobas_ros2_tools/util.hpp>
 #include <tobas_std_tools/check.hpp>
-#include <tobas_string_tools/core.hpp>
 #include <tobas_string_tools/stream.hpp>
 #include <tobas_urdf/exporter.hpp>
 #include <tobas_xml_tools/core.hpp>
@@ -111,7 +110,7 @@ void SetupAssistantWidget::enableSaveButtons(bool enable)
   save_as_btn_->setEnabled(enable);
 }
 
-bool SetupAssistantWidget::resolveMeshPaths(const fs::path& config_pkg_path, tinyxml2::XMLElement* elem)
+bool SetupAssistantWidget::resolveMeshPaths(const QString& config_pkg_path, tinyxml2::XMLElement* elem)
 {
   if (std::strcmp(elem->Name(), "mesh") == 0) {
     const auto filename = elem->Attribute("filename");
@@ -120,13 +119,14 @@ bool SetupAssistantWidget::resolveMeshPaths(const fs::path& config_pkg_path, tin
       return false;
     }
 
-    const auto config_pkg_name = config_pkg_path.filename().string();
+    const auto config_pkg_name = QFileInfo(config_pkg_path).fileName();
     const auto prefix = "package://" + config_pkg_name;
 
-    if (std::string(filename).starts_with(prefix)) {
-      const auto file_path = str::replace(std::string(filename), prefix, config_pkg_path);
+    const auto filename_qt = QString::fromUtf8(filename);
+    if (filename_qt.startsWith(prefix)) {
+      const auto file_path = QString(filename_qt).replace(prefix, config_pkg_path);
       const auto new_filename = "file://" + file_path;
-      elem->SetAttribute("filename", new_filename.c_str());
+      elem->SetAttribute("filename", new_filename.toUtf8().constData());
     }
   }
 
@@ -214,7 +214,7 @@ void SetupAssistantWidget::onNewButtonClicked()
 
     qInfo().nospace() << "UADF is in ROS package " << pkg_name_qt << ". Building it.";
     spinner_.start();
-    const auto build_success = cmn::colconBuild(colcon_, pkg_path.value(), ros2::expandUser(kColconWSPathHome));
+    const auto build_success = cmn::colconBuild(colcon_, pkg_path.value().c_str(), qt::expandUser(kColconWSPathHome));
     spinner_.stop();
 
     if (!build_success) {
@@ -317,7 +317,7 @@ void SetupAssistantWidget::onLoadButtonClicked()
   if (dialog.exec() != QDialog::Accepted) {
     return;
   }
-  const fs::path proj_path = dialog.selectedFiles().first().toStdString();
+  const auto proj_path = dialog.selectedFiles().first();
   const cmn::ProjectPaths proj_paths(proj_path);
 
   // Get the project version.
@@ -347,15 +347,14 @@ void SetupAssistantWidget::onLoadButtonClicked()
   }
 
   // Set the path text.
-  proj_path_->setText(QString::fromStdString(proj_path));
+  proj_path_->setText(proj_path);
 
   // Save the directory opened by the user.
-  const auto par_dir = proj_path.parent_path();
-  settings_store_.setValue(kLastOpenedDirKey_Load, QString::fromStdString(par_dir.string()));
+  settings_store_.setValue(kLastOpenedDirKey_Load, QFileInfo(proj_path).absolutePath());
 
   // Resolve mesh paths in the backup UADF so it can be parsed without building `config_pkg`.
   tinyxml2::XMLDocument uadf_doc;
-  if (uadf_doc.LoadFile(proj_paths.originalUadfPath().c_str()) != tinyxml2::XML_SUCCESS) {
+  if (uadf_doc.LoadFile(proj_paths.originalUadfPath().toUtf8().constData()) != tinyxml2::XML_SUCCESS) {
     qt::qErrorBox(this, "Failed to parse UADF document:\n\n" + QString(uadf_doc.ErrorStr()));
     return;
   }
@@ -400,7 +399,7 @@ void SetupAssistantWidget::onLoadButtonClicked()
 
   // Load user settings.
   const auto settings_path = proj_paths.backupSettingsPath();
-  const auto node = yaml::load(settings_path);
+  const auto node = yaml::load(settings_path.toStdString());
   if (!node) {
     qt::qErrorBox(this, "The user configuration file is collapsed. Please create a new Tobas project.");
     reset();
@@ -434,7 +433,7 @@ void SetupAssistantWidget::onSaveButtonClicked()
   }
 
   // Create the project.
-  if (!prj_gen_->generateProject(cur_proj_path.toStdString())) {
+  if (!prj_gen_->generateProject(cur_proj_path)) {
     return;
   }
 
@@ -473,7 +472,7 @@ void SetupAssistantWidget::onSaveAsButtonClicked()
   }
 
   // Create the project.
-  if (!prj_gen_->generateProject(proj_path.toStdString())) {
+  if (!prj_gen_->generateProject(proj_path)) {
     return;
   }
 

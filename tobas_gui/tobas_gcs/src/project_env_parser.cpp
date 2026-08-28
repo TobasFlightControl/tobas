@@ -3,6 +3,8 @@
 
 #include "tobas_gcs/project_env_parser.hpp"
 
+#include <QStringList>
+
 namespace tobas
 {
 namespace gui

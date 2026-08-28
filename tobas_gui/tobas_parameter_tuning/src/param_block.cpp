@@ -4,6 +4,7 @@
 #include "tobas_parameter_tuning/param_block.hpp"
 
 #include <QDebug>
+#include <QFileInfo>
 #include <QHBoxLayout>
 #include <QStyle>
 #include <QVBoxLayout>
@@ -17,7 +18,7 @@
 #include <tobas_yaml_tools/core.hpp>
 
 using namespace std::chrono_literals;
-namespace fs = std::filesystem;
+using namespace std::placeholders;
 
 namespace tobas
 {
@@ -105,12 +106,9 @@ bool ParamBlockWidget::load()
     cols->addWidget(config.line_edit);
     form_->addRow(param_name_label, cols);
 
-    connect(config.down_button_, &QPushButton::clicked, bind(&self::onIntDownButtonClicked, this, param.name));
-    connect(config.up_button_, &QPushButton::clicked, bind(&self::onIntUpButtonClicked, this, param.name));
-    connect(
-      config.slider,
-      &qt::Slider::valueChanged,
-      std::bind(&self::onIntSliderValueChanged, this, std::placeholders::_1, param.name));
+    connect(config.down_button_, &QPushButton::clicked, std::bind(&self::onIntDownButtonClicked, this, param.name));
+    connect(config.up_button_, &QPushButton::clicked, std::bind(&self::onIntUpButtonClicked, this, param.name));
+    connect(config.slider, &qt::Slider::valueChanged, std::bind(&self::onIntSliderValueChanged, this, _1, param.name));
   }
 
   for (const auto& param : params.doubles) {
@@ -147,29 +145,27 @@ bool ParamBlockWidget::load()
     cols->addWidget(config.line_edit);
     form_->addRow(param_name_label, cols);
 
-    connect(config.down_button_, &QPushButton::clicked, bind(&self::onDoubleDownButtonClicked, this, param.name));
-    connect(config.up_button_, &QPushButton::clicked, bind(&self::onDoubleUpButtonClicked, this, param.name));
+    connect(config.down_button_, &QPushButton::clicked, std::bind(&self::onDoubleDownButtonClicked, this, param.name));
+    connect(config.up_button_, &QPushButton::clicked, std::bind(&self::onDoubleUpButtonClicked, this, param.name));
     connect(
-      config.slider,
-      &qt::Slider::valueChanged,
-      std::bind(&self::onDoubleSliderValueChanged, this, std::placeholders::_1, param.name));
+      config.slider, &qt::Slider::valueChanged, std::bind(&self::onDoubleSliderValueChanged, this, _1, param.name));
   }
 
   return true;
 }
 
-bool ParamBlockWidget::save(const fs::path& path)
+bool ParamBlockWidget::save(const QString& path)
 {
   const auto config = createCurrentConfig();
 
   // Confirm that the configuration file exists.
-  if (!fs::is_regular_file(path)) {
-    qt::qErrorBox(this, QString::fromStdString(path) + " does not exist on PC.");
+  if (!QFileInfo(path).isFile()) {
+    qt::qErrorBox(this, path + " does not exist on PC.");
     return false;
   }
 
   // Save to the PC.
-  if (!yaml::save(path, config)) {
+  if (!yaml::save(path.toStdString(), config)) {
     qt::qErrorBox(this, "Failed to save configuration to PC.");
     return false;
   }

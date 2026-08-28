@@ -6,6 +6,7 @@
 #include <ranges>
 
 #include <QDebug>
+#include <QDir>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
@@ -13,8 +14,6 @@
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_std_tools/check.hpp>
-
-namespace fs = std::filesystem;
 
 namespace tobas
 {
@@ -77,14 +76,14 @@ void ParameterTuningWidget::reset()
   }
 }
 
-void ParameterTuningWidget::updateProject(const fs::path& proj_path)
+void ParameterTuningWidget::updateProject(const QString& proj_path)
 {
   // Update project path.
   proj_paths_.setProjPath(proj_path);
 
   // Load drone configuration.
   const auto tbsdrn_path = proj_paths_.tbsdrnPath();
-  TOBAS_CHECK(drone_.load(tbsdrn_path));
+  TOBAS_CHECK(drone_.load(tbsdrn_path.toStdString()));
 
   project_loaded_ = true;
 }
@@ -135,7 +134,7 @@ void ParameterTuningWidget::onSaveButtonClicked()
   const auto config_dir_path = proj_paths_.cfgConfigDirPath();
 
   for (const auto& [block, file_name] : std::views::zip(blocks_, file_names_)) {
-    const auto file_path = config_dir_path / file_name;
+    const auto file_path = QDir(config_dir_path).filePath(file_name);
     if (!block->save(file_path)) {
       return;
     }

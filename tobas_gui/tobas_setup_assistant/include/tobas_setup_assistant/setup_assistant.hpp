@@ -81,7 +81,7 @@ private:
   void reset();
 
   void enableSaveButtons(bool enable);
-  bool resolveMeshPaths(const std::filesystem::path& config_pkg_path, tinyxml2::XMLElement* elem);
+  bool resolveMeshPaths(const QString& config_pkg_path, tinyxml2::XMLElement* elem);
 
   bool updateInternalDataStructures();
 
