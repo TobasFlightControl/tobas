@@ -266,9 +266,10 @@ void GroundControlStationWidget::initializeRosConnection()
   ros_node_ = ros_node_manager_->node();
 
   ssh_client_.emplace(ros_node_);
-  remote_proj_builder_.emplace(ros_node_);
+  TOBAS_CHECK(ssh_client_->waitForLocalServer());
+  TOBAS_CHECK(ssh_client_->setEndpoint(host.toStdString(), cmn::kUserNameFC));
 
-  TOBAS_CHECK(ssh_client_->setEndpoint(host.toStdString(), cmn::kUserNameFC) == ssh::SshClient::kNoError);
+  remote_proj_builder_.emplace(ros_node_);
 
   const auto ns = path::join('/', drone_.name, kIdPrefix + std::to_string(id));
   bridge_.initializeRosInterfaces(ros_node_, ns);
@@ -564,9 +565,8 @@ void GroundControlStationWidget::onConnectRequested()
 {
   qDebug() << "GroundControlStationWidget::onConnectRequested";
 
-  connectToFlightController();
-
   spinner_.start();
+  connectToFlightController();
   const auto heartbeat_received = waitForHeartbeat();
   spinner_.stop();
 

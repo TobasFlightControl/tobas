@@ -17,6 +17,27 @@ namespace cmn
 {
 namespace
 {
+class SshWaitForLoaclServerThread : public QThread
+{
+  Q_OBJECT
+
+Q_SIGNALS:
+  void finished(bool server_ready);
+
+public:
+  explicit SshWaitForLoaclServerThread(ssh::SshClient& impl) : impl_(impl)
+  {
+  }
+
+  void run() override
+  {
+    Q_EMIT finished(impl_.waitForLocalServer());
+  }
+
+private:
+  ssh::SshClient& impl_;
+};
+
 class SshConnectThread : public QThread
 {
   Q_OBJECT
@@ -242,6 +263,12 @@ SshClientWrapper::SshClientWrapper(rclcpp::Node::SharedPtr node) : impl_(node)
 {
 }
 
+bool SshClientWrapper::waitForLocalServer()
+{
+  SshWaitForLoaclServerThread thread(impl_);
+  return std::get<0>(qt::startThreadAndWait(thread, &SshWaitForLoaclServerThread::finished));
+}
+
 ssh::SshClient::Error SshClientWrapper::errorCode() const
 {
   return impl_.errorCode();
@@ -252,7 +279,7 @@ const char* SshClientWrapper::errorMessage() const
   return impl_.errorMessage();
 }
 
-ssh::SshClient::Error SshClientWrapper::setEndpoint(const std::string& host, const std::string& user)
+bool SshClientWrapper::setEndpoint(const std::string& host, const std::string& user)
 {
   return impl_.setEndpoint(host, user);
 }

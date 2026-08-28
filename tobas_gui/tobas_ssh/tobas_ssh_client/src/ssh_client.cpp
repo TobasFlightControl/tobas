@@ -26,6 +26,12 @@ SshClient::SshClient(rclcpp::Node::SharedPtr node)
 {
 }
 
+bool SshClient::waitForLocalServer()
+{
+  // The endpoint configuration service is always available, so use it to detect the server.
+  return set_endpoint_sc_.waitForService();
+}
+
 SshClient::Error SshClient::errorCode() const
 {
   return error_code_;
@@ -45,18 +51,14 @@ const char* SshClient::errorMessage() const
   }
 }
 
-SshClient::Error SshClient::setEndpoint(const std::string& host, const std::string& user)
+bool SshClient::setEndpoint(const std::string& host, const std::string& user)
 {
   const auto req = std::make_shared<SetEndpoint::Request>();
   req->host = host;
   req->user = user;
 
   const auto res = set_endpoint_sc_.sendRequestAndWait(req);
-  if (!res) {
-    return error_code_ = kServerNotReady;
-  }
-
-  return error_code_ = kNoError;
+  return static_cast<bool>(res);
 }
 
 SshClient::Error SshClient::connect()

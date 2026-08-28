@@ -19,21 +19,20 @@ class SshClientWrapper
 public:
   explicit SshClientWrapper(rclcpp::Node::SharedPtr node);
 
+  bool waitForLocalServer();
+
   Impl::Error errorCode() const;
   const char* errorMessage() const;
 
-  Impl::Error setEndpoint(const std::string& host, const std::string& user);
+  bool setEndpoint(const std::string& host, const std::string& user);
 
   Impl::Error connect();
-
   Impl::Error execute(const std::string& command, std::string& output, bool superuser = false, bool background = false);
   Impl::Error execute(const std::string& command, bool superuser = false, bool background = false);
-
   Impl::Error scpGet(
     const std::string& remote_path,
     const std::string& local_path,
     std::function<void(uint64_t, uint64_t)> callback = nullptr);
-
   Impl::Error scpPut(
     const std::string& local_dir,
     const std::string& remote_dir,
@@ -41,11 +40,8 @@ public:
     const std::vector<std::string>& exclude_dirs,
     bool superuser = false,
     std::function<void(uint64_t, uint64_t)> callback = nullptr);
-
   Impl::Error sftpRead(const std::string& remote_path, std::string& text, bool superuser = false);
-
   Impl::Error sftpWrite(const std::string& remote_path, const std::string& text, bool superuser = false);
-
   Impl::Error list(const std::string& pardir, std::vector<std::string>& dst);
 
 private:

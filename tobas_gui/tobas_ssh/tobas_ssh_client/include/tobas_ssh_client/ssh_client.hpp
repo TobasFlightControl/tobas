@@ -21,7 +21,7 @@ namespace tobas
 namespace ssh
 {
 /**
- * @brief Client for the property server.
+ * @brief Client for the SSH server.
  * @note Calling this from a callback running on the same thread as the ROS node causes a deadlock.
  */
 class SshClient
@@ -48,6 +48,9 @@ public:
 
   explicit SshClient(rclcpp::Node::SharedPtr node);
 
+  /* Wait for the local server that communicates directly with the SSH server. */
+  bool waitForLocalServer();
+
   /* Getters */
 
   Error errorCode() const;
@@ -55,7 +58,7 @@ public:
 
   /* Setters */
 
-  Error setEndpoint(const std::string& host, const std::string& user);
+  bool setEndpoint(const std::string& host, const std::string& user);
 
   /* SSH commands */
 
