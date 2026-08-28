@@ -4,7 +4,6 @@
 #include "tobas_gcs/gcs.hpp"
 
 #include <exception>
-#include <limits>
 #include <ranges>
 #include <utility>
 
@@ -34,6 +33,7 @@
 #include "tobas_gcs/util.hpp"
 
 using namespace std::chrono_literals;
+
 namespace tobas
 {
 namespace gui
@@ -45,6 +45,9 @@ namespace
 constexpr auto kHostRole = Qt::UserRole;
 constexpr int kHeartbeatTimeout = 10000;  // [ms]
 constexpr char kIdPrefix[] = "id";
+
+constexpr int kLoadButtonWidth = 200;
+constexpr int kPowerButtonRadius = 40;
 
 std::unique_ptr<ros2::AsyncNodeManager> createRosNodeManager(
   const QString& static_peer,
@@ -116,47 +119,44 @@ GroundControlStationWidget::GroundControlStationWidget(int argc, char** argv) : 
 
   // Package manager
   proj_path_ = new QLineEdit();
-  proj_path_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-  proj_path_->setMaximumWidth(400);
   proj_path_->setReadOnly(true);
   proj_path_->setFocusPolicy(Qt::NoFocus);
-  load_btn_ = new QPushButton("Load");
+  load_btn_ = new QPushButton("Load Project");
+  load_btn_->setFixedWidth(kLoadButtonWidth);
 
   // FC selection
   fc_scanner_ = new FlightControllerScanner(this);
   fc_selector_ = new QComboBox();
-  fc_selector_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+  fc_selector_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+  resetFlightControllerPlaceholder();
   vehicle_id_ = new QSpinBox();
-  vehicle_id_->setRange(0, std::numeric_limits<int>::max());
+  vehicle_id_->setRange(0, INT32_MAX);
   vehicle_id_->setValue(0);
   connect_btn_ = new qt::ToggleButton("Connect", "Disconnect");
-
-  // Control buttons
   write_btn_ = new QPushButton("Write");
-  restart_btn_ = new QPushButton("Restart");
-  shutdown_btn_ = new QPushButton("Shutdown");
-  resetFlightControllerPlaceholder();
+
+  // Power buttons
+  restart_btn_ = new RestartButton(kPowerButtonRadius);
+  shutdown_btn_ = new ShutdownButton(kPowerButtonRadius);
 
   // Layout
-  const auto project_cols = new QHBoxLayout();
-  project_cols->addWidget(proj_path_);
-  project_cols->addWidget(load_btn_);
+  const auto configuration_cols = new QHBoxLayout();
+  configuration_cols->addWidget(new QLabel("Endpoint"));
+  configuration_cols->addWidget(fc_selector_);
+  configuration_cols->addWidget(new QLabel("ID"));
+  configuration_cols->addWidget(vehicle_id_);
 
-  const auto connection_cols = new QHBoxLayout();
-  connection_cols->addWidget(new QLabel("Endpoint"));
-  connection_cols->addWidget(fc_selector_);
-  connection_cols->addWidget(new QLabel("ID"));
-  connection_cols->addWidget(vehicle_id_);
-  connection_cols->addWidget(connect_btn_);
+  const auto button_cols = new QHBoxLayout();
+  button_cols->addWidget(connect_btn_);
+  button_cols->addWidget(write_btn_);
 
   const auto configuration_rows = new QVBoxLayout();
-  configuration_rows->addLayout(project_cols);
-  configuration_rows->addLayout(connection_cols);
+  configuration_rows->addWidget(proj_path_);
+  configuration_rows->addLayout(configuration_cols);
 
-  const auto control_rows = new QVBoxLayout();
-  control_rows->addWidget(write_btn_);
-  control_rows->addWidget(restart_btn_);
-  control_rows->addWidget(shutdown_btn_);
+  const auto button_rows = new QVBoxLayout();
+  button_rows->addWidget(load_btn_);
+  button_rows->addLayout(button_cols);
 
   const auto header_cols = new QHBoxLayout();
   header_cols->addWidget(sensor_calib_btn);
@@ -166,9 +166,12 @@ GroundControlStationWidget::GroundControlStationWidget(int argc, char** argv) : 
   header_cols->addWidget(flight_log_btn);
   header_cols->addWidget(simulation_btn);
   header_cols->addStretch();
+  header_cols->addWidget(remote_conn_);
   header_cols->addLayout(configuration_rows);
-  header_cols->addWidget(remote_conn_, 0, Qt::AlignVCenter);
-  header_cols->addLayout(control_rows);
+  header_cols->addLayout(button_rows);
+  qt::addSpacing(header_cols, 30, QSizePolicy::Preferred);  // Collapse this when there is not enough space.
+  header_cols->addWidget(restart_btn_);
+  header_cols->addWidget(shutdown_btn_);
 
   const auto rows = new QVBoxLayout();
   rows->addLayout(header_cols);

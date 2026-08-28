@@ -39,6 +39,8 @@
 #include "./flight_controller_scanner.hpp"
 #include "./project_env_parser.hpp"
 #include "./remote_connection.hpp"
+#include "./restart_button.hpp"
+#include "./shutdown_button.hpp"
 
 namespace tobas
 {
@@ -85,8 +87,8 @@ private:
   QSpinBox* vehicle_id_;
   qt::ToggleButton* connect_btn_;
   QPushButton* write_btn_;
-  QPushButton* restart_btn_;
-  QPushButton* shutdown_btn_;
+  RestartButton* restart_btn_;
+  ShutdownButton* shutdown_btn_;
 
   qt::WaitSpinnerWidget spinner_;
 
