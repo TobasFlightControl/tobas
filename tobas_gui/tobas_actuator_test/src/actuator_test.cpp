@@ -5,8 +5,6 @@
 
 #include <tobas_qt_tools/cast.hpp>
 
-namespace fs = std::filesystem;
-
 namespace tobas
 {
 namespace gui
@@ -35,7 +33,7 @@ void ActuatorTestWidget::reset()
   }
 }
 
-void ActuatorTestWidget::updateProject(const fs::path& proj_path)
+void ActuatorTestWidget::updateProject(const QString& proj_path)
 {
   setTabsEnabled(false);
 

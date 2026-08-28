@@ -6,6 +6,7 @@
 #include <QPointer>
 #include <QProcess>
 #include <QPushButton>
+#include <QString>
 #include <QWidget>
 
 #include <tobas_drone_core/drone.hpp>
@@ -44,7 +45,7 @@ public:
   explicit SimulationWidget(const rqt::RosQtBridge& bridge);
 
   void reset();
-  void updateProject(const std::filesystem::path& proj_path);
+  void updateProject(const QString& proj_path);
   void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
   void clearRosInterfaces();
 

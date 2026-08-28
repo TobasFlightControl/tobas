@@ -24,8 +24,6 @@
 
 #include "tobas_simulation_gui/gazebo.hpp"
 
-namespace fs = std::filesystem;
-
 namespace tobas
 {
 namespace gui
@@ -76,19 +74,19 @@ void SimulationWidget::reset()
   commanders_->setEnabled(false);
 }
 
-void SimulationWidget::updateProject(const fs::path& proj_path)
+void SimulationWidget::updateProject(const QString& proj_path)
 {
   // Update project path.
   proj_paths_.setProjPath(proj_path);
 
   // Load KDL tree.
   const auto uadf_path = proj_paths_.originalUadfPath();
-  TOBAS_CHECK(uadf_parser_.parseFromPath(uadf_path, uadf_));
+  TOBAS_CHECK(uadf_parser_.parseFromPath(uadf_path.toStdString(), uadf_));
   TOBAS_CHECK(tree_parser_.parseFromUrdf(*uadf_.urdf, tree_));
 
   // Load drone configuration.
   const auto tbsdrn_path = proj_paths_.tbsdrnPath();
-  TOBAS_CHECK(drone_.load(tbsdrn_path));
+  TOBAS_CHECK(drone_.load(tbsdrn_path.toStdString()));
 
   commanders_->updateInternalDataStructures();
 
@@ -161,7 +159,7 @@ void SimulationWidget::launchSimulation()
   TOBAS_CHECK(!launch_proc_);
   TOBAS_CHECK(state_ == kIdle);
 
-  const auto pkg_name = QString::fromStdString(proj_paths_.cfgPkgName());
+  const auto pkg_name = proj_paths_.cfgPkgName();
   constexpr char kLaunchFileName[] = "gazebo.launch.xml";
   QStringList command = { "launch", pkg_name, kLaunchFileName };
 

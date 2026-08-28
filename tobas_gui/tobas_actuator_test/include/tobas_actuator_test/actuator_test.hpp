@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <QString>
+
 #include <tobas_qt_tools/widgets/vertical_tab_widget.hpp>
 
 #include "./joint_test/joint_test.hpp"
@@ -29,7 +31,7 @@ public:
   explicit ActuatorTestWidget(const rqt::RosQtBridge& bridge, const kdl::Tree& tree, const Drone& drone);
 
   void reset();
-  void updateProject(const std::filesystem::path& proj_path);
+  void updateProject(const QString& proj_path);
   void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
   void clearRosInterfaces();
 

@@ -25,16 +25,16 @@ bool ProjectEnvParser::parseFromText(const QString& text)
     }
 
     // Get elements.
-    if (line.starts_with(kConfigPkgPrefix)) {
-      config_pkg = line.sliced(sizeof(kConfigPkgPrefix) - 1);
+    if (line.startsWith(kConfigPkgPrefix)) {
+      config_pkg = line.mid(sizeof(kConfigPkgPrefix) - 1);
       continue;
     }
-    if (line.starts_with(kNetworkIfacePrefix)) {
-      nic = line.sliced(sizeof(kNetworkIfacePrefix) - 1);
+    if (line.startsWith(kNetworkIfacePrefix)) {
+      nic = line.mid(sizeof(kNetworkIfacePrefix) - 1);
       continue;
     }
-    if (line.starts_with(kIdPrefix)) {
-      id = line.sliced(sizeof(kIdPrefix) - 1);
+    if (line.startsWith(kIdPrefix)) {
+      id = line.mid(sizeof(kIdPrefix) - 1);
       continue;
     }
   }

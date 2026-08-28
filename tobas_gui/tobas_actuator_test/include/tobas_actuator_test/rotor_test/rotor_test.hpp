@@ -4,6 +4,7 @@
 #pragma once
 
 #include <QPushButton>
+#include <QString>
 #include <QTimer>
 
 #include <tobas_drone_core/drone.hpp>
@@ -50,7 +51,7 @@ public:
 
   void reset() override;
 
-  void updateProject(const std::filesystem::path& proj_path);
+  void updateProject(const QString& proj_path);
   void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
   void clearRosInterfaces();
 

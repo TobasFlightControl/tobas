@@ -34,8 +34,6 @@
 #include "tobas_gcs/util.hpp"
 
 using namespace std::chrono_literals;
-namespace fs = std::filesystem;
-
 namespace tobas
 {
 namespace gui
@@ -246,7 +244,7 @@ void GroundControlStationWidget::reset()
 
 void GroundControlStationWidget::updateInternalDataStructures()
 {
-  const auto proj_path = proj_path_->text().toStdString();
+  const auto proj_path = proj_path_->text();
 
   sensor_calib_->updateInternalDataStructures();
   actuator_test_->updateProject(proj_path);
@@ -483,7 +481,7 @@ void GroundControlStationWidget::onLoadButtonClicked()
     return;
   }
   const auto proj_path = dialog.selectedFiles().first();
-  cmn::ProjectPaths proj_paths(proj_path.toStdString());
+  cmn::ProjectPaths proj_paths(proj_path);
 
   // Validate the project before replacing the current project or connection.
   const auto cur_version = cmn::Version::Current();
@@ -504,7 +502,7 @@ void GroundControlStationWidget::onLoadButtonClicked()
 
   // Confirm that the vehicle configuration file exists.
   const auto tbsdrn_path = proj_paths.tbsdrnPath();
-  if (!fs::is_regular_file(tbsdrn_path)) {
+  if (!QFileInfo(tbsdrn_path).isFile()) {
     qt::qErrorBox(this, "The drone configuration file does not exist. Please create a new Tobas project.");
     return;
   }
@@ -512,7 +510,7 @@ void GroundControlStationWidget::onLoadButtonClicked()
   // Load KDL tree.
   uadf::Model next_uadf;
   const auto uadf_path = proj_paths.originalUadfPath();
-  if (!uadf_parser_.parseFromPath(uadf_path, next_uadf)) {
+  if (!uadf_parser_.parseFromPath(uadf_path.toStdString(), next_uadf)) {
     qt::qErrorBox(this, "Failed to parse UADF:\n\n" + QString::fromStdString(uadf_parser_.errorMessage()));
     return;
   }
@@ -525,7 +523,7 @@ void GroundControlStationWidget::onLoadButtonClicked()
 
   // Load drone configuration.
   Drone next_drone;
-  if (!next_drone.load(tbsdrn_path)) {
+  if (!next_drone.load(tbsdrn_path.toStdString())) {
     qt::qErrorBox(this, "Failed to load drone configuration.");
     return;
   }
@@ -603,7 +601,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
   }
 
   const auto proj_path = proj_path_->text();
-  cmn::ProjectPaths proj_paths(proj_path.toStdString());
+  cmn::ProjectPaths proj_paths(proj_path);
 
   const auto config_pkg_name = proj_paths.cfgPkgName();
 
@@ -678,7 +676,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
   progress.setLabelText("Getting environment variables.");
   QString project_env_text;
   if (ssh_client_->sftpRead(kProjectEnvPath, project_env_text, true) == ssh::SshClient::kNoError) {
-    if (!project_env_parser_.parseFromText(project_env_text.toStdString())) {
+    if (!project_env_parser_.parseFromText(project_env_text)) {
       progress.close();
       disconnectFromFlightController();
       qt::qErrorBox(this, "Failed to parse configuration file.");
@@ -716,10 +714,8 @@ void GroundControlStationWidget::onWriteButtonClicked()
   progress.setLabelText("Setting environment variables.");
   project_env_parser_.config_pkg = config_pkg_name;
   project_env_parser_.nic = network_config_.interface;
-  project_env_parser_.id = kIdPrefix + std::to_string(currentId());
-  if (
-    ssh_client_->sftpWrite(kProjectEnvPath, QString::fromStdString(project_env_parser_.exportText()), true) !=
-    ssh::SshClient::kNoError) {
+  project_env_parser_.id = QString(kIdPrefix) + QString::number(currentId());
+  if (ssh_client_->sftpWrite(kProjectEnvPath, project_env_parser_.exportText(), true) != ssh::SshClient::kNoError) {
     progress.close();
     disconnectFromFlightController();
     qt::qErrorBox(this, "Failed to set environment variables:\n\n" + QString(ssh_client_->errorMessage()));
@@ -731,14 +727,8 @@ void GroundControlStationWidget::onWriteButtonClicked()
   progress.setLabelText("Sending the Tobas project to the flight controller.");
   const auto remote_dir = QString(kColconWSPathRoot) + "/src/";
   const auto mesh_path = proj_paths.cfgMeshDirPath();
-  const auto git_path = proj_paths.getProjPath() / ".git";
-  if (
-    ssh_client_->scpPut(
-      proj_path,
-      remote_dir,
-      true,
-      { QString::fromStdString(mesh_path.string()), QString::fromStdString(git_path.string()) },
-      true) != ssh::SshClient::kNoError) {
+  const auto git_path = QDir(proj_paths.getProjPath()).filePath(".git");
+  if (ssh_client_->scpPut(proj_path, remote_dir, true, { mesh_path, git_path }, true) != ssh::SshClient::kNoError) {
     progress.close();
     disconnectFromFlightController();
     qt::qErrorBox(this, "Failed to send Tobas project:\n\n" + QString(ssh_client_->errorMessage()));
@@ -751,7 +741,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
   if (!remote_proj_builder_->build(proj_paths.remoteProjPath())) {
     progress.close();
     disconnectFromFlightController();
-    const QString error_msg(remote_proj_builder_->getErrorMessage());
+    const auto error_msg = remote_proj_builder_->getErrorMessage();
     if (error_msg.size() < cmn::kSaveLogTextSizeThresh) {
       qt::qErrorBox(this, "Failed to build the Tobas project:\n\n" + error_msg);
     }
@@ -773,7 +763,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
   progress.setLabelText("Writing DDS configuration.");
   cyclonedds::Data dds_data;
   dds_data.interfaces.emplace_back("lo", 1, true);  // Multicast must be enabled to bridge the two NICs.
-  dds_data.interfaces.emplace_back(network_config_.interface, 0, true);
+  dds_data.interfaces.emplace_back(network_config_.interface.toStdString(), 0, true);
   const auto dds_config_if_text = cyclonedds::exportText(dds_data);
   if (
     ssh_client_->sftpWrite(kCycloneddsConfigPath, QString::fromStdString(dds_config_if_text), true) !=

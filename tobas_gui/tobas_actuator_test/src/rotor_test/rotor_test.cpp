@@ -18,8 +18,6 @@
 #include <tobas_yaml_tools/core.hpp>
 
 using namespace std::chrono_literals;
-namespace fs = std::filesystem;
-
 namespace tobas
 {
 namespace gui
@@ -124,7 +122,7 @@ void RotorTestWidget::reset()
   arming_.reset();
 }
 
-void RotorTestWidget::updateProject(const fs::path& proj_path)
+void RotorTestWidget::updateProject(const QString& proj_path)
 {
   // Update the project path.
   proj_paths_.setProjPath(proj_path);
@@ -285,7 +283,7 @@ void RotorTestWidget::onSaveButtonClicked()
     node[paramName(erotor->channel)] = rotor_widgets_.at(erotor->channel)->getGain();
   }
 
-  if (!yaml::save(proj_paths_.rpmCtrlDynParamsPath(), node)) {
+  if (!yaml::save(proj_paths_.rpmCtrlDynParamsPath().toStdString(), node)) {
     qt::qErrorBox(this, "Failed to save the RPM control gains to PC.");
     return;
   }
