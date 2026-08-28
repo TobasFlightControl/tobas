@@ -9,8 +9,6 @@
 
 #include "tobas_gui_common/project_paths.hpp"
 
-namespace fs = std::filesystem;
-
 namespace tobas
 {
 namespace gui
@@ -21,14 +19,14 @@ RemoteProjectBuilder::RemoteProjectBuilder(rclcpp::Node::SharedPtr node) : ssh_c
 {
 }
 
-bool RemoteProjectBuilder::build(const fs::path& remote_proj_path)
+bool RemoteProjectBuilder::build(const QString& remote_proj_path)
 {
   // Paramiko starts non-interactive sessions, so required environment variables must be set for each command.
   const auto pre_cmd =
     QString("source /opt/ros/jazzy/setup.bash && source /opt/tobas/local_setup.bash && cd %1").arg(kColconWSPathRoot);
 
   // `--symlink-install` does not work with root privileges.
-  const auto meta_pkg_name = QString::fromStdString(cmn::ProjectPaths(remote_proj_path).metaPkgName());
+  const auto meta_pkg_name = cmn::ProjectPaths(remote_proj_path).metaPkgName();
   const auto build_cmd =
     QString(
       "colcon build "
@@ -53,7 +51,7 @@ const QString& RemoteProjectBuilder::getOutput() const
   return output_;
 }
 
-const char* RemoteProjectBuilder::getErrorMessage() const
+QString RemoteProjectBuilder::getErrorMessage() const
 {
   return ssh_client_.errorMessage();
 }

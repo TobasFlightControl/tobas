@@ -3,9 +3,6 @@
 
 #pragma once
 
-#include <expected>
-#include <filesystem>
-
 #include <QString>
 
 #include <tobas_colcon_cpp/core.hpp>
@@ -17,7 +14,7 @@ namespace gui
 namespace cmn
 {
 /* Run `colcon build` without blocking Qt’s main thread. */
-bool colconBuild(colcon::Colcon& colcon, const std::filesystem::path& pkg_path, const std::filesystem::path& ws_path);
+bool colconBuild(colcon::Colcon& colcon, const QString& pkg_path, const QString& ws_path);
 }  // namespace cmn
 }  // namespace gui
 }  // namespace tobas

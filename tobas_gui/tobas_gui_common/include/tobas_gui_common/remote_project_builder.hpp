@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include <filesystem>
-
 #include "./ssh_client.hpp"
 
 namespace tobas
@@ -18,10 +16,10 @@ class RemoteProjectBuilder
 public:
   explicit RemoteProjectBuilder(rclcpp::Node::SharedPtr node);
 
-  bool build(const std::filesystem::path& remote_proj_path);
+  bool build(const QString& remote_proj_path);
 
   const QString& getOutput() const;
-  const char* getErrorMessage() const;
+  QString getErrorMessage() const;
 
 private:
   cmn::SshClientWrapper ssh_client_;

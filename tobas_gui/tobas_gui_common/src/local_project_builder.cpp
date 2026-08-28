@@ -6,12 +6,10 @@
 #include <QThread>
 
 #include <tobas_constants/path.hpp>
+#include <tobas_qt_tools/path.hpp>
 #include <tobas_qt_tools/thread.hpp>
-#include <tobas_ros2_tools/util.hpp>
 
 #include "tobas_gui_common/project_paths.hpp"
-
-namespace fs = std::filesystem;
 
 namespace tobas
 {
@@ -29,14 +27,14 @@ Q_SIGNALS:
   void finished(bool success, const QString& message);
 
 public:
-  explicit LocalProjectBuilderThread(const fs::path& proj_path) : proj_path_(proj_path)
+  explicit LocalProjectBuilderThread(const QString& proj_path) : proj_path_(proj_path)
   {
   }
 
   void run() override
   {
     if (!builder_.build(proj_path_)) {
-      Q_EMIT finished(false, QString::fromStdString(builder_.errorMessage()));
+      Q_EMIT finished(false, builder_.errorMessage());
       return;
     }
 
@@ -44,7 +42,7 @@ public:
   }
 
 private:
-  const fs::path proj_path_;
+  const QString proj_path_;
 
   LocalProjectBuilder builder_;
 };
@@ -61,20 +59,20 @@ LocalProjectBuilder::LocalProjectBuilder()
   colcon_.setCmakeCleanCache(true);
 }
 
-bool LocalProjectBuilder::build(const fs::path& proj_path)
+bool LocalProjectBuilder::build(const QString& proj_path)
 {
   const auto meta_pkg_path = ProjectPaths(proj_path).metaPkgPath();
-  const auto ws_path = ros2::expandUser(kColconWSPathHome);
+  const auto ws_path = qt::expandUser(kColconWSPathHome);
 
-  return colcon_.build(meta_pkg_path, ws_path);
+  return colcon_.build(meta_pkg_path.toStdString(), ws_path.toStdString());
 }
 
-const std::string& LocalProjectBuilder::errorMessage() const
+QString LocalProjectBuilder::errorMessage() const
 {
-  return colcon_.errorMessage();
+  return QString::fromStdString(colcon_.errorMessage());
 }
 
-std::expected<void, QString> buildLocalProject(const fs::path& proj_path)
+std::expected<void, QString> buildLocalProject(const QString& proj_path)
 {
   LocalProjectBuilderThread thread(proj_path);
   const auto [success, message] = qt::startThreadAndWait(thread, &LocalProjectBuilderThread::finished);

@@ -3,11 +3,12 @@
 
 #include "tobas_gui_common/project_paths.hpp"
 
+#include <QDir>
+#include <QFileInfo>
+
 #include <tobas_std_tools/check.hpp>
 
 #include "tobas_gui_common/constants.hpp"
-
-namespace fs = std::filesystem;
 
 namespace tobas
 {
@@ -15,159 +16,160 @@ namespace gui
 {
 namespace cmn
 {
-ProjectPaths::ProjectPaths(const fs::path& proj_path) : proj_path_(proj_path)
+ProjectPaths::ProjectPaths(const QString& proj_path) : proj_path_(proj_path)
 {
 }
 
-const fs::path& ProjectPaths::getProjPath() const
+const QString& ProjectPaths::getProjPath() const
 {
   return proj_path_;
 }
 
-void ProjectPaths::setProjPath(const fs::path& proj_path)
+void ProjectPaths::setProjPath(const QString& proj_path)
 {
   proj_path_ = proj_path;
 }
 
-fs::path ProjectPaths::remoteProjPath() const
+QString ProjectPaths::remoteProjPath() const
 {
-  return "/etc/tobas/colcon_ws/src" / proj_path_.filename();
+  return QDir("/etc/tobas/colcon_ws/src").filePath(QFileInfo(proj_path_).fileName());
 }
 
-std::string ProjectPaths::projName() const
+QString ProjectPaths::projName() const
 {
-  TOBAS_CHECK(proj_path_.extension() == kProjectExtension);
-  return proj_path_.stem();
+  const QFileInfo info(proj_path_);
+  TOBAS_CHECK('.' + info.suffix() == kProjectExtension);
+  return info.completeBaseName();
 }
 
-std::string ProjectPaths::metaPkgName() const
+QString ProjectPaths::metaPkgName() const
 {
   return projName();
 }
 
-std::string ProjectPaths::cfgPkgName() const
+QString ProjectPaths::cfgPkgName() const
 {
   return projName() + "_config";
 }
 
-std::string ProjectPaths::userMsgPkgName() const
+QString ProjectPaths::userMsgPkgName() const
 {
   return projName() + "_user_msgs";
 }
 
-std::string ProjectPaths::userCppPkgName() const
+QString ProjectPaths::userCppPkgName() const
 {
   return projName() + "_user_cpp";
 }
 
-std::string ProjectPaths::userPyPkgName() const
+QString ProjectPaths::userPyPkgName() const
 {
   return projName() + "_user_py";
 }
 
-fs::path ProjectPaths::metaPkgPath() const
+QString ProjectPaths::metaPkgPath() const
 {
-  return proj_path_ / metaPkgName();
+  return QDir(proj_path_).filePath(metaPkgName());
 }
 
-fs::path ProjectPaths::cfgPkgPath() const
+QString ProjectPaths::cfgPkgPath() const
 {
-  return proj_path_ / cfgPkgName();
+  return QDir(proj_path_).filePath(cfgPkgName());
 }
 
-fs::path ProjectPaths::userMsgPkgPath() const
+QString ProjectPaths::userMsgPkgPath() const
 {
-  return proj_path_ / userMsgPkgName();
+  return QDir(proj_path_).filePath(userMsgPkgName());
 }
 
-fs::path ProjectPaths::userCppPkgPath() const
+QString ProjectPaths::userCppPkgPath() const
 {
-  return proj_path_ / userCppPkgName();
+  return QDir(proj_path_).filePath(userCppPkgName());
 }
 
-fs::path ProjectPaths::userPyPkgPath() const
+QString ProjectPaths::userPyPkgPath() const
 {
-  return proj_path_ / userPyPkgName();
+  return QDir(proj_path_).filePath(userPyPkgName());
 }
 
-fs::path ProjectPaths::cfgConfigDirPath() const
+QString ProjectPaths::cfgConfigDirPath() const
 {
-  return cfgPkgPath() / "config";
+  return QDir(cfgPkgPath()).filePath("config");
 }
 
-fs::path ProjectPaths::cfgLaunchDirPath() const
+QString ProjectPaths::cfgLaunchDirPath() const
 {
-  return cfgPkgPath() / "launch";
+  return QDir(cfgPkgPath()).filePath("launch");
 }
 
-fs::path ProjectPaths::cfgMeshDirPath() const
+QString ProjectPaths::cfgMeshDirPath() const
 {
-  return cfgPkgPath() / "meshes";
+  return QDir(cfgPkgPath()).filePath("meshes");
 }
 
-fs::path ProjectPaths::cfgUrdfDirPath() const
+QString ProjectPaths::cfgUrdfDirPath() const
 {
-  return cfgPkgPath() / "urdf";
+  return QDir(cfgPkgPath()).filePath("urdf");
 }
 
-fs::path ProjectPaths::originalUadfPath() const
+QString ProjectPaths::originalUadfPath() const
 {
-  return cfgUrdfDirPath() / "original.uadf";
+  return QDir(cfgUrdfDirPath()).filePath("original.uadf");
 }
 
-fs::path ProjectPaths::xacroPath() const
+QString ProjectPaths::xacroPath() const
 {
-  return cfgUrdfDirPath() / "drone.xacro";
+  return QDir(cfgUrdfDirPath()).filePath("drone.xacro");
 }
 
-fs::path ProjectPaths::tbsdrnPath() const
+QString ProjectPaths::tbsdrnPath() const
 {
-  return cfgConfigDirPath() / "drone.tbsdrn";
+  return QDir(cfgConfigDirPath()).filePath("drone.tbsdrn");
 }
 
-fs::path ProjectPaths::networkConfigPath() const
+QString ProjectPaths::networkConfigPath() const
 {
-  return cfgConfigDirPath() / "network.yaml";
+  return QDir(cfgConfigDirPath()).filePath("network.yaml");
 }
 
-fs::path ProjectPaths::imuFiltDynParamsPath() const
+QString ProjectPaths::imuFiltDynParamsPath() const
 {
-  return cfgConfigDirPath() / kImuFilterDynamicParamFileName;
+  return QDir(cfgConfigDirPath()).filePath(kImuFilterDynamicParamFileName);
 }
 
-fs::path ProjectPaths::rpmCtrlDynParamsPath() const
+QString ProjectPaths::rpmCtrlDynParamsPath() const
 {
-  return cfgConfigDirPath() / kRpmControlDynamicParamFileName;
+  return QDir(cfgConfigDirPath()).filePath(kRpmControlDynamicParamFileName);
 }
 
-fs::path ProjectPaths::obsvDynParamsPath() const
+QString ProjectPaths::obsvDynParamsPath() const
 {
-  return cfgConfigDirPath() / kObserverDynamicParamFileName;
+  return QDir(cfgConfigDirPath()).filePath(kObserverDynamicParamFileName);
 }
 
-fs::path ProjectPaths::ctrlDynParamsPath() const
+QString ProjectPaths::ctrlDynParamsPath() const
 {
-  return cfgConfigDirPath() / kControllerDynamicParamFileName;
+  return QDir(cfgConfigDirPath()).filePath(kControllerDynamicParamFileName);
 }
 
-fs::path ProjectPaths::rcTeleopDynParamsPath() const
+QString ProjectPaths::rcTeleopDynParamsPath() const
 {
-  return cfgConfigDirPath() / kRcTeleopDynamicParamFileName;
+  return QDir(cfgConfigDirPath()).filePath(kRcTeleopDynamicParamFileName);
 }
 
-fs::path ProjectPaths::projBackupDirPath() const
+QString ProjectPaths::projBackupDirPath() const
 {
-  return proj_path_ / "backup";
+  return QDir(proj_path_).filePath("backup");
 }
 
-fs::path ProjectPaths::backupSettingsPath() const
+QString ProjectPaths::backupSettingsPath() const
 {
-  return projBackupDirPath() / "settings.yaml";
+  return QDir(projBackupDirPath()).filePath("settings.yaml");
 }
 
-fs::path ProjectPaths::versionPath() const
+QString ProjectPaths::versionPath() const
 {
-  return proj_path_ / "version";
+  return QDir(proj_path_).filePath("version");
 }
 }  // namespace cmn
 }  // namespace gui

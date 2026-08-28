@@ -20,16 +20,16 @@ class LocalProjectBuilder
 public:
   explicit LocalProjectBuilder();
 
-  bool build(const std::filesystem::path& proj_path);
+  bool build(const QString& proj_path);
 
-  const std::string& errorMessage() const;
+  QString errorMessage() const;
 
 private:
   colcon::Colcon colcon_;
 };
 
 /* Build a local project without blocking Qt’s main thread. */
-std::expected<void, QString> buildLocalProject(const std::filesystem::path& proj_path);
+std::expected<void, QString> buildLocalProject(const QString& proj_path);
 }  // namespace cmn
 }  // namespace gui
 }  // namespace tobas

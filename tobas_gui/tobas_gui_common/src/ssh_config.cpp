@@ -3,9 +3,8 @@
 
 #include "tobas_gui_common/ssh_config.hpp"
 
+#include <tobas_yaml_tools/convert/qstring.hpp>
 #include <tobas_yaml_tools/core.hpp>
-
-namespace fs = std::filesystem;
 
 namespace tobas
 {
@@ -13,9 +12,9 @@ namespace gui
 {
 namespace cmn
 {
-bool SshConfig::load(const fs::path& path)
+bool SshConfig::load(const QString& path)
 {
-  const auto node = yaml::load(path);
+  const auto node = yaml::load(path.toStdString());
   if (!node) {
     std::cerr << node.error() << std::endl;
     return false;
@@ -31,14 +30,14 @@ bool SshConfig::load(const fs::path& path)
   return true;
 }
 
-bool SshConfig::save(const fs::path& path) const
+bool SshConfig::save(const QString& path) const
 {
   YAML::Node node(YAML::NodeType::Map);
 
   node[kHostKey] = host;
   node[kUserKey] = user;
 
-  if (!yaml::save(path, node)) {
+  if (!yaml::save(path.toStdString(), node)) {
     return false;
   }
 
