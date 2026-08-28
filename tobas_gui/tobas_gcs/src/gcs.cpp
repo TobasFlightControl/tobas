@@ -267,7 +267,7 @@ void GroundControlStationWidget::initializeRosConnection()
 
   ssh_client_.emplace(ros_node_);
   TOBAS_CHECK(ssh_client_->waitForLocalServer());
-  TOBAS_CHECK(ssh_client_->setEndpoint(host.toStdString(), cmn::kUserNameFC));
+  TOBAS_CHECK(ssh_client_->setEndpoint(host, cmn::kUserNameFC));
 
   remote_proj_builder_.emplace(ros_node_);
 
@@ -482,8 +482,8 @@ void GroundControlStationWidget::onLoadButtonClicked()
   if (dialog.exec() != QDialog::Accepted) {
     return;
   }
-  const fs::path proj_path = dialog.selectedFiles().first().toStdString();
-  cmn::ProjectPaths proj_paths(proj_path);
+  const auto proj_path = dialog.selectedFiles().first();
+  cmn::ProjectPaths proj_paths(proj_path.toStdString());
 
   // Validate the project before replacing the current project or connection.
   const auto cur_version = cmn::Version::Current();
@@ -544,9 +544,8 @@ void GroundControlStationWidget::onLoadButtonClicked()
   network_config_ = std::move(next_network_config);
 
   // Commit the path only after every project file has been validated.
-  proj_path_->setText(QString::fromStdString(proj_path));
-  const auto par_dir = fs::path(proj_path).parent_path();
-  settings_store_.setValue(kLastOpenedDirKey, QString::fromStdString(par_dir.string()));
+  proj_path_->setText(proj_path);
+  settings_store_.setValue(kLastOpenedDirKey, QFileInfo(proj_path).absolutePath());
 
   // Update the internal states.
   clearRosConnection();
@@ -603,10 +602,9 @@ void GroundControlStationWidget::onWriteButtonClicked()
     return;
   }
 
-  const auto proj_path = proj_path_->text().toStdString();
-  cmn::ProjectPaths proj_paths(proj_path);
+  const auto proj_path = proj_path_->text();
+  cmn::ProjectPaths proj_paths(proj_path.toStdString());
 
-  const auto remote_proj_path = proj_paths.remoteProjPath();
   const auto config_pkg_name = proj_paths.cfgPkgName();
 
   // Create a progress bar.
@@ -627,7 +625,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
 
   // Check the FC version.
   progress.setLabelText("Checking the FC version.");
-  std::string fc_ver_text;
+  QString fc_ver_text;
   if (ssh_client_->execute("/opt/tobas/lib/tobas_version/show_version", fc_ver_text) != ssh::SshClient::kNoError) {
     progress.close();
     disconnectFromFlightController();
@@ -635,10 +633,10 @@ void GroundControlStationWidget::onWriteButtonClicked()
     return;
   }
   cmn::Version fc_version;
-  if (!fc_version.fromString(QString::fromStdString(fc_ver_text))) {
+  if (!fc_version.fromString(fc_ver_text)) {
     progress.close();
     disconnectFromFlightController();
-    qt::qErrorBox(this, "Failed to parse the FC version: " + QString::fromStdString(fc_ver_text));
+    qt::qErrorBox(this, "Failed to parse the FC version: " + fc_ver_text);
     return;
   }
   if (!fc_version.isCompatible(proj_version_)) {
@@ -678,9 +676,9 @@ void GroundControlStationWidget::onWriteButtonClicked()
 
   // Load environment variables; continue even if they cannot be loaded.
   progress.setLabelText("Getting environment variables.");
-  std::string project_env_text;
+  QString project_env_text;
   if (ssh_client_->sftpRead(kProjectEnvPath, project_env_text, true) == ssh::SshClient::kNoError) {
-    if (!project_env_parser_.parseFromText(project_env_text)) {
+    if (!project_env_parser_.parseFromText(project_env_text.toStdString())) {
       progress.close();
       disconnectFromFlightController();
       qt::qErrorBox(this, "Failed to parse configuration file.");
@@ -696,13 +694,13 @@ void GroundControlStationWidget::onWriteButtonClicked()
   if (config_pkg_name != project_env_parser_.config_pkg) {
     // Initialize the workspace.
     progress.setLabelText("Initializing colcon workspace.");
-    if (ssh_client_->execute(std::format("rm -rf {}", kColconWSPathRoot), true)) {
+    if (ssh_client_->execute(QString("rm -rf %1").arg(kColconWSPathRoot), true)) {
       progress.close();
       disconnectFromFlightController();
       qt::qErrorBox(this, "Failed to remove the old colcon workspace:\n\n" + QString(ssh_client_->errorMessage()));
       return;
     }
-    if (ssh_client_->execute(std::format("mkdir -p {}/src", kColconWSPathRoot), true)) {
+    if (ssh_client_->execute(QString("mkdir -p %1/src").arg(kColconWSPathRoot), true)) {
       progress.close();
       disconnectFromFlightController();
       qt::qErrorBox(this, "Failed to create a new colcon workspace:\n\n" + QString(ssh_client_->errorMessage()));
@@ -719,7 +717,9 @@ void GroundControlStationWidget::onWriteButtonClicked()
   project_env_parser_.config_pkg = config_pkg_name;
   project_env_parser_.nic = network_config_.interface;
   project_env_parser_.id = kIdPrefix + std::to_string(currentId());
-  if (ssh_client_->sftpWrite(kProjectEnvPath, project_env_parser_.exportText(), true) != ssh::SshClient::kNoError) {
+  if (
+    ssh_client_->sftpWrite(kProjectEnvPath, QString::fromStdString(project_env_parser_.exportText()), true) !=
+    ssh::SshClient::kNoError) {
     progress.close();
     disconnectFromFlightController();
     qt::qErrorBox(this, "Failed to set environment variables:\n\n" + QString(ssh_client_->errorMessage()));
@@ -729,10 +729,16 @@ void GroundControlStationWidget::onWriteButtonClicked()
 
   // Send the project.
   progress.setLabelText("Sending the Tobas project to the flight controller.");
-  const auto remote_dir = fs::path(kColconWSPathRoot) / "src/";
+  const auto remote_dir = QString(kColconWSPathRoot) + "/src/";
   const auto mesh_path = proj_paths.cfgMeshDirPath();
   const auto git_path = proj_paths.getProjPath() / ".git";
-  if (ssh_client_->scpPut(proj_path, remote_dir, true, { mesh_path, git_path }, true) != ssh::SshClient::kNoError) {
+  if (
+    ssh_client_->scpPut(
+      proj_path,
+      remote_dir,
+      true,
+      { QString::fromStdString(mesh_path.string()), QString::fromStdString(git_path.string()) },
+      true) != ssh::SshClient::kNoError) {
     progress.close();
     disconnectFromFlightController();
     qt::qErrorBox(this, "Failed to send Tobas project:\n\n" + QString(ssh_client_->errorMessage()));
@@ -769,7 +775,9 @@ void GroundControlStationWidget::onWriteButtonClicked()
   dds_data.interfaces.emplace_back("lo", 1, true);  // Multicast must be enabled to bridge the two NICs.
   dds_data.interfaces.emplace_back(network_config_.interface, 0, true);
   const auto dds_config_if_text = cyclonedds::exportText(dds_data);
-  if (ssh_client_->sftpWrite(kCycloneddsConfigPath, dds_config_if_text, true) != ssh::SshClient::kNoError) {
+  if (
+    ssh_client_->sftpWrite(kCycloneddsConfigPath, QString::fromStdString(dds_config_if_text), true) !=
+    ssh::SshClient::kNoError) {
     progress.close();
     disconnectFromFlightController();
     qt::qErrorBox(this, "Failed to write DDS configuration:\n\n" + QString(ssh_client_->errorMessage()));

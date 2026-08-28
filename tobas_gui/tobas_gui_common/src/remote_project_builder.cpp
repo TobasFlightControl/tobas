@@ -3,6 +3,8 @@
 
 #include "tobas_gui_common/remote_project_builder.hpp"
 
+#include <QDebug>
+
 #include <tobas_constants/path.hpp>
 
 #include "tobas_gui_common/project_paths.hpp"
@@ -15,37 +17,38 @@ namespace gui
 {
 namespace cmn
 {
-RemoteProjectBuilder::RemoteProjectBuilder(rclcpp::Node::SharedPtr node) : node_(node), ssh_client_(node)
+RemoteProjectBuilder::RemoteProjectBuilder(rclcpp::Node::SharedPtr node) : ssh_client_(node)
 {
 }
 
 bool RemoteProjectBuilder::build(const fs::path& remote_proj_path)
 {
-  const auto meta_pkg_name = cmn::ProjectPaths(remote_proj_path).metaPkgName();
-
   // Paramiko starts non-interactive sessions, so required environment variables must be set for each command.
   const auto pre_cmd =
-    std::format("source /opt/ros/jazzy/setup.bash && source /opt/tobas/local_setup.bash && cd {}", kColconWSPathRoot);
+    QString("source /opt/ros/jazzy/setup.bash && source /opt/tobas/local_setup.bash && cd %1").arg(kColconWSPathRoot);
 
   // `--symlink-install` does not work with root privileges.
-  const auto build_cmd = std::format(
-    "colcon build "
-    "--merge-install "
-    "--parallel-workers $(nproc) "
-    "--cmake-args -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS=\"-mcpu=native\" -DCMAKE_CXX_FLAGS=\"-mcpu=native\" "
-    "--packages-up-to {}",
-    meta_pkg_name);
+  const auto meta_pkg_name = QString::fromStdString(cmn::ProjectPaths(remote_proj_path).metaPkgName());
+  const auto build_cmd =
+    QString(
+      "colcon build "
+      "--merge-install "
+      "--parallel-workers $(nproc) "
+      "--cmake-args -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS=\"-mcpu=native\" -DCMAKE_CXX_FLAGS=\"-mcpu=native\" "
+      "--packages-up-to %1")
+      .arg(meta_pkg_name);
 
   // Finish if the build succeeds.
-  if (ssh_client_.execute(pre_cmd + " && " + build_cmd, output_, true) != ssh::SshClient::kNoError) {
-    RCLCPP_ERROR(node_->get_logger(), "Failed to build the remote package.");
+  const auto error = ssh_client_.execute(pre_cmd + " && " + build_cmd, output_, true);
+  if (error != ssh::SshClient::kNoError) {
+    qWarning() << "Failed to build the remote package.";
     return false;
   }
 
   return true;
 }
 
-const std::string& RemoteProjectBuilder::getOutput() const
+const QString& RemoteProjectBuilder::getOutput() const
 {
   return output_;
 }

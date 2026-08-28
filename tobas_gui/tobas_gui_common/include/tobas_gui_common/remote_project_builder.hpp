@@ -20,14 +20,13 @@ public:
 
   bool build(const std::filesystem::path& remote_proj_path);
 
-  const std::string& getOutput() const;
+  const QString& getOutput() const;
   const char* getErrorMessage() const;
 
 private:
-  const rclcpp::Node::SharedPtr node_;
   cmn::SshClientWrapper ssh_client_;
 
-  std::string output_;
+  QString output_;
 };
 }  // namespace cmn
 }  // namespace gui
