@@ -301,7 +301,7 @@ ssh::SshClient::Error SshClientWrapper::execute(const QString& command, QString&
 {
   SshExecuteThread thread(impl_, command, superuser, background);
   ssh::SshClient::Error error;
-  qInfo() << "Executing \"" << command << "\" via SSH on " << endpoint() << ".";
+  qInfo().noquote().nospace() << "Executing \"" << command << "\" via SSH on " << endpoint() << ".";
   std::tie(error, output) = qt::startThreadAndWait(thread, &SshExecuteThread::finished);
   return error;
 }
