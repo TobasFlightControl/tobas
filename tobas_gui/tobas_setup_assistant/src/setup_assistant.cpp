@@ -17,7 +17,6 @@
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/path.hpp>
 #include <tobas_ros2_tools/package.hpp>
-#include <tobas_ros2_tools/util.hpp>
 #include <tobas_std_tools/check.hpp>
 #include <tobas_string_tools/stream.hpp>
 #include <tobas_urdf/exporter.hpp>

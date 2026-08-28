@@ -4,6 +4,7 @@
 #include "tobas_gui_common/load_project_dialog.hpp"
 
 #include <QAbstractItemView>
+#include <QDebug>
 #include <QFileSystemModel>
 
 #include "tobas_gui_common/constants.hpp"
