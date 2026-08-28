@@ -54,8 +54,6 @@ protected:
   void closeEvent(QCloseEvent* event) override;
 
 private:
-  rclcpp::Node::SharedPtr node_;
-
   uadf::Parser uadf_parser_;
   kdl::TreeParser tree_parser_;
   cmn::ProjectPaths proj_paths_;
@@ -75,14 +73,24 @@ private:
 
   bool project_loaded_ = false;
 
+  enum SimulationState
+  {
+    kIdle,
+    kStarting,
+    kRunning,
+    kStopping,
+  } state_ = kIdle;
+
   std::map<QString, QString> makeGazeboLaunchArguments() const;
   void launchSimulation();
   void terminateLaunchProcess();
   void terminateSimulation();
+  void finalizeLaunchProcess(QProcess* process, int code, QProcess::ExitStatus status);
 
 private Q_SLOTS:
   void onStartRequested();
   void onTerminateRequested();
+  void onLaunchProcessErrorOccurred(QProcess::ProcessError error);
   void onLaunchProcessFinished(int code, QProcess::ExitStatus status);
 };
 }  // namespace sim

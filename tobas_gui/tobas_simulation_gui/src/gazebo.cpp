@@ -11,12 +11,8 @@
 #include <tobas_gazebo_common/constants.hpp>
 #include <tobas_gazebo_tools/transport.hpp>
 #include <tobas_linux/command_executor.hpp>
-#include <tobas_linux/error.hpp>
 #include <tobas_qt_tools/thread.hpp>
-#include <tobas_ros2_tools/node.hpp>
 #include <tobas_std_tools/check.hpp>
-
-namespace ch = std::chrono;
 
 namespace tobas
 {
@@ -59,29 +55,6 @@ public:
 private:
   gz::msgs::Double msg_;
 };
-
-class WaitUntilGazeboShutdownThread : public QThread
-{
-  Q_OBJECT
-
-Q_SIGNALS:
-  void finished(bool success);
-
-public:
-  explicit WaitUntilGazeboShutdownThread(rclcpp::Node::SharedPtr node, ch::milliseconds timeout)
-    : node_(std::move(node)), timeout_(timeout)
-  {
-  }
-
-  void run() override
-  {
-    Q_EMIT finished(ros2::waitUntilNodeGone(node_, "/ros_gz_bridge", timeout_));
-  }
-
-private:
-  const rclcpp::Node::SharedPtr node_;
-  const ch::milliseconds timeout_;
-};
 }  // namespace
 
 bool waitUntilGazeboServerReady()
@@ -94,12 +67,6 @@ bool waitUntilGazeboRenderingReady()
 {
   WaitUntilGazeboRenderingReadyThread thread;
   return std::get<0>(qt::startThreadAndWait(thread, &WaitUntilGazeboRenderingReadyThread::finished));
-}
-
-bool waitUntilGazeboShutdown(rclcpp::Node::SharedPtr node, ch::milliseconds timeout)
-{
-  WaitUntilGazeboShutdownThread thread(std::move(node), timeout);
-  return std::get<0>(qt::startThreadAndWait(thread, &WaitUntilGazeboShutdownThread::finished));
 }
 
 void killGazeboServer()

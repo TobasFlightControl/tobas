@@ -14,6 +14,7 @@
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_gui_common/local_project_builder.hpp>
 #include <tobas_linux/error.hpp>
+#include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/path.hpp>
 #include <tobas_qt_tools/string.hpp>
@@ -23,7 +24,6 @@
 
 #include "tobas_simulation_gui/gazebo.hpp"
 
-using namespace std::chrono_literals;
 namespace fs = std::filesystem;
 
 namespace tobas
@@ -62,14 +62,13 @@ SimulationWidget::SimulationWidget(const rqt::RosQtBridge& bridge) : spinner_(Qt
 
 void SimulationWidget::reset()
 {
+  TOBAS_CHECK(!launch_proc_);
+  TOBAS_CHECK(state_ == kIdle);
+
   dynamic_config_->reset();
   commanders_->reset();
 
-  if (launch_proc_) {
-    terminateSimulation();
-    qWarning() << "Gazebo was forcibly shut down.";
-  }
-
+  spinner_.stop();
   start_stop_button_->setChecked(false);
 
   sim_settings_->setEnabled(project_loaded_);
@@ -98,19 +97,15 @@ void SimulationWidget::updateProject(const fs::path& proj_path)
 
 void SimulationWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
 {
-  node_ = std::move(node);
-
-  dynamic_config_->initializeRosInterfaces(node_, ns);
+  dynamic_config_->initializeRosInterfaces(node, ns);
   dynamic_config_->setEnabled(true);
 
-  commanders_->initializeRosInterfaces(node_, ns);
+  commanders_->initializeRosInterfaces(node, ns);
   commanders_->setEnabled(true);
 }
 
 void SimulationWidget::clearRosInterfaces()
 {
-  node_.reset();
-
   dynamic_config_->clearRosInterfaces();
   dynamic_config_->setEnabled(false);
 
@@ -120,7 +115,7 @@ void SimulationWidget::clearRosInterfaces()
 
 bool SimulationWidget::isRunning() const
 {
-  return launch_proc_ && launch_proc_->state() == QProcess::Running;
+  return state_ != kIdle;
 }
 
 void SimulationWidget::closeEvent(QCloseEvent* event)
@@ -163,6 +158,9 @@ std::map<QString, QString> SimulationWidget::makeGazeboLaunchArguments() const
 
 void SimulationWidget::launchSimulation()
 {
+  TOBAS_CHECK(!launch_proc_);
+  TOBAS_CHECK(state_ == kIdle);
+
   const auto pkg_name = QString::fromStdString(proj_paths_.cfgPkgName());
   constexpr char kLaunchFileName[] = "gazebo.launch.xml";
   QStringList command = { "launch", pkg_name, kLaunchFileName };
@@ -175,48 +173,99 @@ void SimulationWidget::launchSimulation()
   launch_proc_ = new QProcess(this);
   launch_proc_->setProcessChannelMode(QProcess::ForwardedChannels);  // Forward child process output to the caller.
   connect(launch_proc_, qOverload<int, QProcess::ExitStatus>(&QProcess::finished), this, &self::onLaunchProcessFinished);
+  connect(launch_proc_, &QProcess::errorOccurred, this, &self::onLaunchProcessErrorOccurred);
   launch_proc_->start("ros2", command);
+
+  state_ = kStarting;
 
   qInfo().nospace() << kLaunchFileName << " has been started with PID " << launch_proc_->processId() << ".";
 }
 
 void SimulationWidget::terminateLaunchProcess()
 {
-  if (!launch_proc_) {
-    qInfo() << "The roslaunch process is null.";
-    return;
-  }
-
-  if (launch_proc_->state() != QProcess::Running) {
-    qInfo() << "The roslaunch process is not running.";
-    launch_proc_->deleteLater();
-    return;
-  }
+  TOBAS_CHECK(launch_proc_);
+  TOBAS_CHECK(launch_proc_->state() != QProcess::NotRunning);
 
   // Get the process ID.
   const auto pid = launch_proc_->processId();
+  TOBAS_CHECK(pid > 0);
 
   // Send SIGINT to the process.
   // If the parent process is forcibly stopped with `QProcess::terminate`, child processes such as nodes do not exit.
-  qInfo() << "Sending SIGINT to the launch process.";
-  if (kill(pid, SIGINT) != 0) {
-    if (errno == ESRCH) {
-      throw std::runtime_error("PID " + std::to_string(pid) + " not found.");
-    }
-    else {
-      throw std::runtime_error("Failed to kill PID " + std::to_string(pid) + ": " + linux::strError());
-    }
-  }
-
-  // Reset `QProcess`.
-  launch_proc_->deleteLater();
+  qInfo().nospace() << "Sending SIGINT to the the simulation process (" << pid << ").";
+  TOBAS_CHECK(kill(pid, SIGINT) == 0);
 }
 
 void SimulationWidget::terminateSimulation()
 {
-  clearRosInterfaces();
+  TOBAS_CHECK(launch_proc_);
+  TOBAS_CHECK(state_ != kIdle);
+
+  if (state_ == kStopping) {
+    qInfo() << "A simulation termination request has already been issued.";
+    return;
+  }
+
   terminateLaunchProcess();
   killGazeboServer();
+
+  state_ = kStopping;
+}
+
+void SimulationWidget::onLaunchProcessFinished(int code, QProcess::ExitStatus status)
+{
+  qDebug().nospace() << "SimulationWidget::onLaunchProcessFinished(" << code << ", " << status << ")";
+
+  const auto process = qt::qPointerCast<QProcess>(sender());
+  finalizeLaunchProcess(process, code, status);
+}
+
+void SimulationWidget::finalizeLaunchProcess(QProcess* process, int code, QProcess::ExitStatus status)
+{
+  TOBAS_CHECK(process == launch_proc_);
+
+  spinner_.stop();
+
+  const bool expected = (state_ == kStopping);
+  const auto error_string = process->errorString();
+  const auto std_out = QString::fromLocal8Bit(process->readAllStandardOutput());
+  const auto std_err = QString::fromLocal8Bit(process->readAllStandardError());
+
+  // Clear the guarded pointer before resetting the widget to prevent duplicate termination requests.
+  process->deleteLater();
+  launch_proc_ = nullptr;
+  state_ = kIdle;
+
+  clearRosInterfaces();
+  reset();
+
+  Q_EMIT terminated();
+
+  if (expected) {
+    qt::qInfoBox(this, "The simulation has been terminated successfully.");
+  }
+  else {
+    killGazeboServer();
+
+    const auto out_msg = std_out + "\n\n" + std_err;
+    const auto log_path = qt::writeTimestampedFile(out_msg + '\n', qt::expandUser(kGuiLogDir), "", "simulation_crash");
+
+    QString error_msg = "Simulation process was terminated unexpectedly";
+    if (status == QProcess::CrashExit) {
+      error_msg += ":\n\n" + error_string;
+    }
+    else {
+      error_msg += " with exit code " + QString::number(code) + ".";
+    }
+    if (log_path) {
+      error_msg += "\n\nThe output has been saved to:\n" + log_path.value();
+    }
+    else if (!out_msg.trimmed().isEmpty()) {
+      error_msg += "\n\n" + out_msg;
+    }
+
+    qt::qErrorBox(this, error_msg);
+  }
 }
 
 void SimulationWidget::onStartRequested()
@@ -257,9 +306,7 @@ void SimulationWidget::onStartRequested()
   launchSimulation();
   if (!waitUntilGazeboServerReady()) {
     progress.close();
-    if (launch_proc_) {
-      qt::qErrorBox(this, "Failed to start the Gazebo server.");
-    }
+    qt::qErrorBox(this, "Failed to start the Gazebo server.");
     reset();
     return;
   }
@@ -269,9 +316,7 @@ void SimulationWidget::onStartRequested()
   progress.setLabelText("Waiting for Gazebo rendering to start.");
   if (!waitUntilGazeboRenderingReady()) {
     progress.close();
-    if (launch_proc_) {
-      qt::qErrorBox(this, "Failed to get the Gazebo rendering information.");
-    }
+    qt::qErrorBox(this, "Failed to get the Gazebo rendering information.");
     reset();
     return;
   }
@@ -281,8 +326,9 @@ void SimulationWidget::onStartRequested()
   progress.close();
 
   sim_settings_->setEnabled(false);
-
+  state_ = kRunning;
   Q_EMIT started();
+
   qt::qInfoBox(this, "The simulation has started successfully.");
 }
 
@@ -290,62 +336,26 @@ void SimulationWidget::onTerminateRequested()
 {
   qDebug() << "SimulationWidget::onTerminateRequested";
 
+  TOBAS_CHECK(state_ == kRunning);
+
   Q_EMIT telemetryLossExpected();
-
-  // Stop the Gazebo process on another thread.
   terminateSimulation();
+  TOBAS_CHECK(state_ == kStopping);
+
+  qInfo() << "Waiting for the simulation process to shutdown.";
   spinner_.start();
-  qInfo() << "Waiting for Gazebo to shutdown.";
-  while (!waitUntilGazeboShutdown(node_, 5s)) {
-    qWarning() << "Failed to shutdown the Gazebo server. Trying again...";
-  }
-  spinner_.stop();
-
-  qInfo() << "Restoring to the state before the simulation started.";
-  reset();
-
-  Q_EMIT terminated();
-  qt::qInfoBox(this, "The simulation has been terminated successfully.");
 }
 
-void SimulationWidget::onLaunchProcessFinished(int code, QProcess::ExitStatus status)
+void SimulationWidget::onLaunchProcessErrorOccurred(QProcess::ProcessError error)
 {
-  qDebug().nospace() << "SimulationWidget::onLaunchProcessFinished(" << code << ", " << status << ")";
+  qDebug().nospace() << "SimulationWidget::onLaunchProcessErrorOccurred(" << error << ")";
 
-  if (status == QProcess::CrashExit) {
-    throw std::runtime_error("The simulation process crashed: " + launch_proc_->errorString().toStdString());
+  if (error != QProcess::FailedToStart) {
+    return;
   }
-  else if (code != 0) {
-    // Get the output.
-    const auto std_out = QString::fromLocal8Bit(launch_proc_->readAllStandardOutput());
-    const auto std_err = QString::fromLocal8Bit(launch_proc_->readAllStandardError());
 
-    // Destroy processes that have already exited.
-    // Otherwise, if SIGINT is sent to an already-dead process from elsewhere,
-    // it is promoted to SIGTERM after a few seconds and the entire GCS exits.
-    launch_proc_->terminate();
-    launch_proc_->deleteLater();
-
-    // Kill any Gazebo server that may still remain.
-    killGazeboServer();
-
-    // Save the output.
-    const auto out_msg = std_out + "\n\n" + std_err;
-    const auto log_path = qt::writeTimestampedFile(out_msg + '\n', qt::expandUser(kGuiLogDir), "", "simulation_crash");
-
-    // Show an error message.
-    if (log_path) {
-      qt::qErrorBox(
-        this, "Simulation process was terminated unexpectedly. The output has been saved to:\n" + log_path.value());
-    }
-    else {
-      qWarning() << "Failed to save the simulation crash output.";
-      qt::qErrorBox(this, "Simulation process was terminated unexpectedly:\n\n" + out_msg);
-    }
-
-    // Initialize the entire widget.
-    reset();
-  }
+  const auto process = qt::qPointerCast<QProcess>(sender());
+  finalizeLaunchProcess(process, -1, QProcess::CrashExit);
 }
 }  // namespace sim
 }  // namespace gui
