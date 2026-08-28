@@ -135,7 +135,7 @@ void UrdfBuilderPanel::onLoadButtonClicked()
   else if (file_path.endsWith(".xacro")) {
     // Expand XACRO.
     const auto command = "xacro " + file_path + " > " + TMP_URDF_PATH;
-    if (system(command.toUtf8()) != EXIT_SUCCESS) {
+    if (system(command.toUtf8().constData()) != EXIT_SUCCESS) {
       QMessageBox::warning(this, kError, "Failed to convert XACRO to URDF.");
       return;
     }

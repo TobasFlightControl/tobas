@@ -70,7 +70,7 @@ const char* AltitudeFrameWidget::label() const
 
 mission::AltitudeFrame AltitudeFrameWidget::getValue() const
 {
-  return textToAltFrame(combobox_->currentText().toUtf8());
+  return textToAltFrame(combobox_->currentText().toUtf8().constData());
 }
 
 void AltitudeFrameWidget::setValue(mission::AltitudeFrame value)
