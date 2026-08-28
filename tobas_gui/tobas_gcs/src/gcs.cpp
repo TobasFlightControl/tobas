@@ -895,7 +895,7 @@ void GroundControlStationWidget::onSimulationStarted()
   fc_scanner_->stop();
 
   // シミュレーション用のターゲットを設定
-  updateFlightControllerList({ DiscoveredFlightController("Simulation Model", "172.17.0.1") });
+  updateFlightControllerList({ DiscoveredFlightController("Simulation Model", "127.0.0.1") });
   vehicle_id_->setValue(0);
 
   reset();
