@@ -87,6 +87,8 @@ Rectangle {
     running: true
 
     onTriggered: {
+      map.plugin = mapPlugin;
+      console.debug("Map plugin set:", mapPlugin.name);
     }
   }
 
