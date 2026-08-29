@@ -141,8 +141,7 @@ void MjpgCompressor::callback(const sensor_msgs::msg::CompressedImage::ConstShar
         return;
       }
     }
-    auto message = std::make_shared<sensor_msgs::msg::Image>();
-    message = cv_bridge::CvImage(std_msgs::msg::Header(), "bgr8", image_resized).toImageMsg();
+    const auto message = cv_bridge::CvImage(std_msgs::msg::Header(), "bgr8", image_resized).toImageMsg();
     encoder_.encodeImage(*message);
   }
 }
