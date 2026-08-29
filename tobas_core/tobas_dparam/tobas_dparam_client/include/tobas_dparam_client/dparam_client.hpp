@@ -18,8 +18,6 @@ namespace dparam
 class DynamicParamClient
 {
 public:
-  using SharedPtr = std::shared_ptr<DynamicParamClient>;
-
   enum Error
   {
     kNoError = 0,

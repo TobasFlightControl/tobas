@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <optional>
+
 #include <gz/sim/components/AngularAcceleration.hh>
 #include <gz/sim/components/AngularVelocity.hh>
 #include <gz/sim/components/LinearAcceleration.hh>
@@ -58,7 +60,7 @@ private:
   const cmp::LinearAcceleration* acc_B_;
   const cmp::AngularAcceleration* dgyro_B_;
 
-  RateManager::SharedPtr rate_manager_;
+  std::optional<RateManager> rate_manager_;
 
   ros2::PublisherPtr<tobas_msgs::OdometryWithCovarianceStamped> odom_pub_;
 
@@ -89,7 +91,7 @@ void GazeboGroundTruthStatePlugin::Configure(
   acc_B_ = getComponent<cmp::LinearAcceleration>(link, ecm);
   dgyro_B_ = getComponent<cmp::AngularAcceleration>(link, ecm);
 
-  rate_manager_ = std::make_shared<RateManager>(update_rate_);
+  rate_manager_.emplace(update_rate_);
 
   odom_pub_ = createPublisher<tobas_msgs::OdometryWithCovarianceStamped>(kOdometryGtTopic);
 }

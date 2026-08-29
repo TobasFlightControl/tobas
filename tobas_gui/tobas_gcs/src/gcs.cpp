@@ -49,10 +49,7 @@ constexpr char kIdPrefix[] = "id";
 constexpr int kLoadButtonWidth = 200;
 constexpr int kPowerButtonRadius = 40;
 
-std::unique_ptr<ros2::AsyncNodeManager> createRosNodeManager(
-  const QString& static_peer,
-  std::vector<std::string> ros_args,
-  const rclcpp::Context::SharedPtr& context)
+rclcpp::Context::SharedPtr createRosContext(const QString& static_peer, std::vector<std::string> ros_args)
 {
   TOBAS_CHECK(qputenv("ROS_STATIC_PEERS", static_peer.toUtf8()));
 
@@ -64,9 +61,11 @@ std::unique_ptr<ros2::AsyncNodeManager> createRosNodeManager(
   rclcpp::InitOptions context_options;
   context_options.shutdown_on_signal = false;
   context_options.auto_initialize_logging(false);
+
+  const auto context = std::make_shared<rclcpp::Context>();
   context->init(static_cast<int>(ros_argv.size()), ros_argv.data(), context_options);
 
-  return std::make_unique<ros2::AsyncNodeManager>(context, "tobas_gcs");
+  return context;
 }
 }  // namespace
 
@@ -262,26 +261,26 @@ void GroundControlStationWidget::initializeRosConnection()
   const auto host = currentHost();
   const auto id = currentId();
 
-  ros_context_ = std::make_shared<rclcpp::Context>();
-  ros_node_manager_ = createRosNodeManager(host, ros_args_, ros_context_);
-  ros_node_ = ros_node_manager_->node();
+  const auto context = createRosContext(host, ros_args_);
+  ros_node_manager_.emplace(context, "tobas_gcs");
+  const auto ros_node = ros_node_manager_->node();
 
-  ssh_client_.emplace(ros_node_);
+  ssh_client_.emplace(ros_node);
   TOBAS_CHECK(ssh_client_->waitForLocalServer());
   TOBAS_CHECK(ssh_client_->setEndpoint(host, cmn::kUserNameFC));
 
-  remote_proj_builder_.emplace(ros_node_);
+  remote_proj_builder_.emplace(ros_node);
 
   const auto ns = path::join('/', drone_.name, kIdPrefix + std::to_string(id));
-  bridge_.initializeRosInterfaces(ros_node_, ns);
-  sensor_calib_->initializeRosInterfaces(ros_node_, ns);
-  actuator_test_->initializeRosInterfaces(ros_node_, ns);
-  control_system_->initializeRosInterfaces(ros_node_, ns);
-  param_tuning_->initializeRosInterfaces(ros_node_, ns);
-  flight_log_->initializeRosInterfaces(ros_node_, ns);
+  bridge_.initializeRosInterfaces(ros_node, ns);
+  sensor_calib_->initializeRosInterfaces(ros_node, ns);
+  actuator_test_->initializeRosInterfaces(ros_node, ns);
+  control_system_->initializeRosInterfaces(ros_node, ns);
+  param_tuning_->initializeRosInterfaces(ros_node, ns);
+  flight_log_->initializeRosInterfaces(ros_node, ns);
 
   if (simulation_->isRunning()) {
-    simulation_->initializeRosInterfaces(ros_node_, ns);
+    simulation_->initializeRosInterfaces(ros_node, ns);
   }
 
   connection_ready_ = true;
@@ -300,16 +299,10 @@ void GroundControlStationWidget::clearRosConnection()
   ssh_client_.reset();
   remote_proj_builder_.reset();
 
-  ros_node_.reset();
   if (ros_node_manager_) {
-    ros_node_manager_->clear();
+    ros_node_manager_->shutdown();
   }
   ros_node_manager_.reset();
-
-  if (ros_context_ && ros_context_->is_valid()) {
-    ros_context_->shutdown("Changing the GCS connection endpoint.");
-  }
-  ros_context_.reset();
 
   connection_ready_ = false;
 }

@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <optional>
+
 #include <gz/msgs/entity_factory.pb.h>
 #include <gz/msgs/marker.pb.h>
 #include <gz/sim/Link.hh>
@@ -65,7 +67,7 @@ private:
   std::string link_name_;
 
   // Aircraft
-  std::shared_ptr<gz::sim::Link> base_link_;
+  std::optional<gz::sim::Link> base_link_;
   const cmp::WorldPose* W_Pose_B_ = nullptr;
   const cmp::WorldLinearVelocity* W_Vel_WB_ = nullptr;
   const cmp::WorldAngularVelocity* W_Gyro_WB_ = nullptr;
@@ -80,7 +82,7 @@ private:
   double cable_csa_;     // [m^2] Cross-sectional area.
   bool load_exist_ = false;
   int load_index_ = 0;
-  std::shared_ptr<gz::sim::Link> load_link_;
+  std::optional<gz::sim::Link> load_link_;
   const cmp::WorldPose* W_Pose_L_ = nullptr;
   const cmp::WorldLinearVelocity* W_Vel_WL_ = nullptr;
   const cmp::WorldAngularVelocity* W_Gyro_WL_ = nullptr;
@@ -125,7 +127,7 @@ void GazeboSuspendedLoadPlugin::Configure(
   world_name_ = world_name.value();
 
   const auto link_entity = ecm.EntityByComponents(cmp::Link(), cmp::ParentEntity(model_entity), cmp::Name(link_name_));
-  base_link_ = std::make_shared<gz::sim::Link>(link_entity);
+  base_link_.emplace(link_entity);
   if (!base_link_->Valid(ecm)) {
     TOBAS_EXIT("Failed to find the specified link \"", link_name_, "\".");
   }
@@ -176,7 +178,7 @@ void GazeboSuspendedLoadPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::s
     }
 
     const auto link_entity = load_model.CanonicalLink(ecm);  // Get the canonical link of the model.
-    load_link_ = std::make_shared<gz::sim::Link>(link_entity);
+    load_link_.emplace(link_entity);
     if (!load_link_->Valid(ecm)) {
       TOBAS_EXIT("Failed to find the canonical link of the load.");
     }

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <optional>
 #include <ranges>
 
 #include <tobas_algorithm/core.hpp>
@@ -98,12 +99,14 @@ private:
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
 
   // Command
-  tobas_command_msgs::PosVelAccYaw::UniquePtr pos_cmd_;  // Position-control target value in the world coordinate system.
-  tobas_command_msgs::AccelYaw::UniquePtr acc_cmd_;  // Acceleration-control target value in the world coordinate system.
-  std::unique_ptr<kdl::Euler> tar_angle_;            // Target Euler angles in the world coordinate system.
-  std::unique_ptr<kdl::Vector> tar_gyro_;            // Target angular velocity in the body coordinate system.
-  kdl::Vector tar_dgyro_;                            // Target angular acceleration in the body coordinate system.
-  double tar_thrust_ = 0.0;                          // Target thrust in the body coordinate system.
+  std::optional<tobas_command_msgs::PosVelAccYaw>
+    pos_cmd_;  // Position-control target value in the world coordinate system.
+  std::optional<tobas_command_msgs::AccelYaw>
+    acc_cmd_;                            // Acceleration-control target value in the world coordinate system.
+  std::optional<kdl::Euler> tar_angle_;  // Target Euler angles in the world coordinate system.
+  std::optional<kdl::Vector> tar_gyro_;  // Target angular velocity in the body coordinate system.
+  kdl::Vector tar_dgyro_;                // Target angular acceleration in the body coordinate system.
+  double tar_thrust_ = 0.0;              // Target thrust in the body coordinate system.
 
   // Command smoothing
   traj::VelocityLimitedOnlineTrajectoryGenerator roll_filt_, pitch_filt_;
@@ -459,7 +462,7 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
   // Position controller.
   if (pos_cmd_) {
     if (!acc_cmd_) {
-      acc_cmd_ = std::make_unique<tobas_command_msgs::AccelYaw>();
+      acc_cmd_.emplace();
     }
 
     // Determine gains.
@@ -510,7 +513,7 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
   // Acceleration controller.
   if (acc_cmd_) {
     if (!tar_angle_) {
-      tar_angle_ = std::make_unique<kdl::Euler>();
+      tar_angle_.emplace();
     }
 
     // Compute thrust sum and target attitude.
@@ -530,7 +533,7 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
   // Attitude controller.
   if (tar_angle_) {
     if (!tar_gyro_) {
-      tar_gyro_ = std::make_unique<kdl::Vector>();
+      tar_gyro_.emplace();
     }
 
     // Determine gains.
@@ -704,7 +707,7 @@ void ControllerNode::positionCommandCb(const tobas_command_msgs::PosVelAccYaw::C
 
   // Create the command.
   if (!pos_cmd_) {
-    pos_cmd_ = std::make_unique<tobas_command_msgs::PosVelAccYaw>();
+    pos_cmd_.emplace();
     startSmoothTargetAttitude();
   }
 
@@ -723,7 +726,7 @@ void ControllerNode::accelCommandCb(const tobas_command_msgs::AccelYaw::ConstSha
 
   // Create the command.
   if (!acc_cmd_) {
-    acc_cmd_ = std::make_unique<tobas_command_msgs::AccelYaw>();
+    acc_cmd_.emplace();
     startSmoothTargetAttitude();
   }
 
@@ -753,7 +756,7 @@ void ControllerNode::angleCommandCb(const tobas_command_msgs::AngleThrottle::Con
 
   // Create the command.
   if (!tar_angle_) {
-    tar_angle_ = std::make_unique<kdl::Euler>();
+    tar_angle_.emplace();
   }
 
   // Update the command.
@@ -774,7 +777,7 @@ void ControllerNode::rateCommandCb(const tobas_command_msgs::RateThrottle::Const
 
   // Create the command.
   if (!tar_gyro_) {
-    tar_gyro_ = std::make_unique<kdl::Vector>();
+    tar_gyro_.emplace();
   }
 
   // Update the command.

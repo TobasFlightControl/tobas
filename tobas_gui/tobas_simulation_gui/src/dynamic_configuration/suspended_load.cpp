@@ -96,10 +96,8 @@ void SuspendedLoadWidget::reset()
 
 void SuspendedLoadWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
 {
-  attach_sc_ =
-    std::make_shared<ros2::SyncServiceClient<AttachSrv>>(node, path::join(ns, gazebo::kAttachSuspenedLoadSrv));
-  detach_sc_ =
-    std::make_shared<ros2::SyncServiceClient<DetachSrv>>(node, path::join(ns, gazebo::kDetachSuspenedLoadSrv));
+  attach_sc_.emplace(node, path::join(ns, gazebo::kAttachSuspenedLoadSrv));
+  detach_sc_.emplace(node, path::join(ns, gazebo::kDetachSuspenedLoadSrv));
 }
 
 void SuspendedLoadWidget::clearRosInterfaces()

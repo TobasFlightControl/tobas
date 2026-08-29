@@ -20,8 +20,8 @@ BaseNode::BaseNode()
 
 BaseNode::~BaseNode()
 {
-  if (executor_) {
-    executor_->cancel();
+  if (executor_.is_spinning()) {
+    executor_.cancel();
     spin_thread_.join();
   }
 }
@@ -49,10 +49,8 @@ void BaseNode::initialize(const std::string& name, const sdf::ElementConstPtr& s
 
   node_ = rclcpp::Node::make_shared(name, ns_, options);
 
-  executor_ = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
-  executor_->add_node(node_);
-  const auto spin = [this]() { executor_->spin(); };
-  spin_thread_ = std::thread(spin);
+  executor_.add_node(node_);
+  spin_thread_ = std::thread([this]() { executor_.spin(); });
 
   message_pub_ = createPublisher<tobas_msgs::msg::Message>(topic::kMessage, false, true, 1);
 }

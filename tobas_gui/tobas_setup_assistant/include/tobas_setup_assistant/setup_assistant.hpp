@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <optional>
+
 #include <QSettings>
 
 #include <tobas_colcon_cpp/core.hpp>
@@ -75,7 +77,7 @@ private:
   JointStatePublisherWidget* jsp_;
   SettingsWidget* settings_;
 
-  std::unique_ptr<ProjectGenerator> prj_gen_;
+  std::optional<ProjectGenerator> prj_gen_;
 
   /* Return all settings to their startup state. */
   void reset();

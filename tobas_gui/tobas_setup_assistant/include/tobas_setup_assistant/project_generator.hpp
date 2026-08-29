@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <optional>
+
 #include <tinyxml2.h>
 #include <QString>
 
@@ -52,11 +54,11 @@ private:
 
   cmn::ProjectPaths proj_paths_;
 
-  std::shared_ptr<TemplateGenerator> meta_env_;
-  std::shared_ptr<TemplateGenerator> config_env_;
-  std::shared_ptr<TemplateGenerator> user_msg_env_;
-  std::shared_ptr<TemplateGenerator> user_cpp_env_;
-  std::shared_ptr<TemplateGenerator> user_py_env_;
+  std::optional<TemplateGenerator> meta_env_;
+  std::optional<TemplateGenerator> config_env_;
+  std::optional<TemplateGenerator> user_msg_env_;
+  std::optional<TemplateGenerator> user_cpp_env_;
+  std::optional<TemplateGenerator> user_py_env_;
 
   inja::json createTemplateData() const;
   Drone createDrone() const;

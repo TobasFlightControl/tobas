@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <optional>
+
 #include <gz/sim/components/Link.hh>
 #include <gz/sim/components/Name.hh>
 #include <gz/sim/components/ParentEntity.hh>
@@ -48,7 +50,7 @@ private:
   double noise_stddev_;        // [Pa]
 
   const cmp::WorldPose* pose_W_;
-  RateManager::SharedPtr rate_manager_;
+  std::optional<RateManager> rate_manager_;
 
   std::random_device rnd_dev_;
   std::mt19937 rnd_gen_;
@@ -84,7 +86,7 @@ void GazeboBarometerPlugin::Configure(
   }
 
   pose_W_ = getComponent<cmp::WorldPose>(link, ecm);
-  rate_manager_ = std::make_shared<RateManager>(update_rate_);
+  rate_manager_.emplace(update_rate_);
   pressure_noise_ = NormalDistribution(0.0, noise_stddev_);
 
   pressure_pub_ = createPublisher<tobas_msgs::msg::FluidPressure>(topic::kAirPressure);

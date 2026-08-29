@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <optional>
+
 #include <gz/sim/components/Link.hh>
 #include <gz/sim/components/Name.hh>
 #include <gz/sim/components/ParentEntity.hh>
@@ -62,7 +64,7 @@ private:
   double noise_stddev_;        // [G]
   double hard_bias_norm_;      // [G]
 
-  RateManager::SharedPtr rate_manager_;
+  std::optional<RateManager> rate_manager_;
 
   const cmp::WorldPose* pose_W_;
 
@@ -70,7 +72,7 @@ private:
   double lat_, lon_;              // [deg] Current position
 
   std::random_device rnd_dev_;
-  NormalDistribution3d::SharedPtr noise_;
+  std::optional<NormalDistribution3d> noise_;
 
   ros2::PublisherPtr<tobas_msgs::MagneticField> mag_pub_;
 
@@ -90,7 +92,7 @@ void GazeboMagnetometerPlugin::Configure(
   initialize("gazebo_magnetometer_plugin", sdf);
   getSdfParams(sdf);
 
-  rate_manager_ = std::make_shared<RateManager>(update_rate_);
+  rate_manager_.emplace(update_rate_);
 
   const auto sc = getWorldSphericalCoordinates(ecm);
   if (!sc) {
@@ -109,7 +111,7 @@ void GazeboMagnetometerPlugin::Configure(
 
   hard_bias_ = createUnitSpherePoint(rnd_dev_) * hard_bias_norm_;
 
-  noise_ = std::make_shared<NormalDistribution3d>(rnd_dev_, 0.0, noise_stddev_);
+  noise_.emplace(rnd_dev_, 0.0, noise_stddev_);
 
   mag_pub_ = createPublisher<tobas_msgs::MagneticField>(topic::kMagneticField);
 }

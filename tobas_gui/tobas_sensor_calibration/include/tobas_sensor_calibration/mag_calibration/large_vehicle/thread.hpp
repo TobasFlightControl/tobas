@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <optional>
+
 #include <QThread>
 
 #include <tobas_algorithm/kahan.hpp>
@@ -45,7 +47,7 @@ private:
   rclcpp::Node::SharedPtr node_;
   geo::Geography geography_;
 
-  ros2::SyncServiceClient<tobas_real_msgs::srv::SetMagnetometerParams>::SharedPtr set_params_sc_;
+  std::optional<ros2::SyncServiceClient<tobas_real_msgs::srv::SetMagnetometerParams>> set_params_sc_;
 
   tobas_msgs::MagneticField::ConstSharedPtr mag_raw_;
   tobas_msgs::Gnss::ConstSharedPtr gnss_;

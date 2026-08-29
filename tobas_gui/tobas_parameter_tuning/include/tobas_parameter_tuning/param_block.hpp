@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <optional>
+
 #include <yaml-cpp/yaml.h>
 #include <QLabel>
 #include <QLineEdit>
@@ -70,8 +72,8 @@ public:
 private:
   const std::string node_name_;
 
-  ros2::SyncServiceClient<tobas_dparam_msgs::srv::GetParams>::SharedPtr get_param_sc_;
-  dparam::DynamicParamClient::SharedPtr dparam_cli_;
+  std::optional<ros2::SyncServiceClient<tobas_dparam_msgs::srv::GetParams>> get_param_sc_;
+  std::optional<dparam::DynamicParamClient> dparam_cli_;
 
   std::map<std::string, IntConfig> int_configs_;
   std::map<std::string, DoubleConfig> double_configs_;

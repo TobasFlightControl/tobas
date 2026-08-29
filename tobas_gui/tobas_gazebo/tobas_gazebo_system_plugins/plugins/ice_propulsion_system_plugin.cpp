@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <optional>
+
 #include <tobas_constants/ros_interface.hpp>
 #include <tobas_constants/throttle.hpp>
 #include <tobas_gazebo_common/constants.hpp>
@@ -69,7 +71,7 @@ private:
   gz::math::Vector3d wind_vel_W_ = gz::math::Vector3d::Zero;  // [m/s]
   builtin_interfaces::msg::Time prev_sim_time_;
   builtin_interfaces::msg::Time last_cmd_time_;  // Time when the last throttle command was issued
-  RateManager::SharedPtr publish_state_rate_manager_;
+  std::optional<RateManager> publish_state_rate_manager_;
 
   // Publishers
   ros2::PublisherPtr<tobas_msgs::msg::Latency> latency_pub_;
@@ -102,7 +104,7 @@ void GazeboIcePropulsionSystemPlugin::Configure(
   initialize("gazebo_ice_propulsion_system_plugin", sdf);
   getSdfParams(sdf);
 
-  publish_state_rate_manager_ = std::make_shared<RateManager>(publish_state_rate_);
+  publish_state_rate_manager_.emplace(publish_state_rate_);
 
   // Get robot model.
   const gz::sim::Model model(model_entity);

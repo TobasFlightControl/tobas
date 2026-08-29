@@ -111,8 +111,7 @@ void CompleteMagCalibWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr nod
 {
   node_ = std::move(node);
 
-  set_params_sc_ = std::make_shared<ros2::SyncServiceClient<tobas_real_msgs::srv::SetMagnetometerParams>>(
-    node_, path::join(ns, kRemoteIfaceNS, real::handler::mag::kSetParamSrv));
+  set_params_sc_.emplace(node_, path::join(ns, kRemoteIfaceNS, real::handler::mag::kSetParamSrv));
 }
 
 void CompleteMagCalibWidget::clearRosInterfaces()

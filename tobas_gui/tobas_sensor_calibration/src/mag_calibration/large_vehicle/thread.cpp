@@ -143,8 +143,7 @@ void LargeVehicleMagCalibThread::initializeRosInterfaces(rclcpp::Node::SharedPtr
   node_ = std::move(node);
 
   const auto srv_name = path::join(ns, kRemoteIfaceNS, real::handler::mag::kSetParamSrv);
-  set_params_sc_ =
-    std::make_shared<ros2::SyncServiceClient<tobas_real_msgs::srv::SetMagnetometerParams>>(node_, srv_name);
+  set_params_sc_.emplace(node_, srv_name);
 }
 
 void LargeVehicleMagCalibThread::clearRosInterfaces()

@@ -39,8 +39,7 @@ void RecordStartThread::run()
 
 void RecordStartThread::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
 {
-  sc_ = std::make_shared<ros2::SyncServiceClient<tobas_msgs::srv::BagRecordStart>>(
-    node, path::join(ns, kRemoteIfaceNS, service::kRosbagRecordStart));
+  sc_.emplace(node, path::join(ns, kRemoteIfaceNS, service::kRosbagRecordStart));
 }
 
 void RecordStartThread::clearRosInterfaces()

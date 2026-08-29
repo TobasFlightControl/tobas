@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <optional>
+
 #include <gz/sim/components/AngularAcceleration.hh>
 #include <gz/sim/components/AngularVelocity.hh>
 #include <gz/sim/components/Gravity.hh>
@@ -94,7 +96,7 @@ private:
   const cmp::AngularAcceleration* dgyro_B_;
   const cmp::Gravity* grav_W_;
 
-  RateManager::SharedPtr rate_manager_;
+  std::optional<RateManager> rate_manager_;
   ModelMassHolder mass_holder_;
   dsp::LowPassFilter<gz::math::Vector3d> acc_lpf_, gyro_lpf_, dgyro_lpf_;
   bool lpf_initialized_ = false;
@@ -111,7 +113,7 @@ private:
   ros2::PublisherPtr<tobas_msgs::Imu> imu_raw_pub_;
   ros2::PublisherPtr<tobas_msgs::Imu> imu_filt_pub_;
   ros2::PublisherPtr<tobas_gazebo_msgs::msg::ImuDebug> debug_pub_;
-  ImuSamplingTimePublisher::SharedPtr sampling_time_pub_;
+  std::optional<ImuSamplingTimePublisher> sampling_time_pub_;
 
   ros2::SubscriberPtr<tobas_gazebo_msgs::msg::EngineState> engine_state_sub_;
   std::vector<ros2::SubscriberPtr<tobas_gazebo_msgs::msg::RotorState>> rotor_state_subs_;
@@ -148,7 +150,7 @@ void GazeboImuPlugin::Configure(
   initialize("gazebo_imu_plugin", sdf);
   getSdfParams(sdf);
 
-  rate_manager_ = std::make_shared<RateManager>(update_rate_);
+  rate_manager_.emplace(update_rate_);
 
   const auto link = ecm.EntityByComponents(cmp::Link(), cmp::ParentEntity(model), cmp::Name(link_name_));
   if (link == gz::sim::kNullEntity) {
@@ -173,7 +175,7 @@ void GazeboImuPlugin::Configure(
   imu_raw_pub_ = createPublisher<tobas_msgs::Imu>(topic::kImuRaw);
   imu_filt_pub_ = createPublisher<tobas_msgs::Imu>(topic::kImuFilt);
   debug_pub_ = createPublisher<tobas_gazebo_msgs::msg::ImuDebug>(kDebugTopic);
-  sampling_time_pub_ = std::make_shared<ImuSamplingTimePublisher>(node_.get());
+  sampling_time_pub_.emplace(node_.get());
 
   engine_state_sub_ = createSubscriber(kEngineStateGtTopic, &self::engineStateCb, this);
 

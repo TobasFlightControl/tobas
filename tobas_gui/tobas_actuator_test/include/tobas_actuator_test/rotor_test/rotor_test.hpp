@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <optional>
+
 #include <QPushButton>
 #include <QString>
 #include <QTimer>
@@ -75,8 +77,8 @@ private:
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
 
   ros2::PublisherPtr<tobas_msgs::msg::RotorSpeedArray> tar_speeds_pub_;
-  dparam::DynamicParamClient::SharedPtr dparam_cli_;
-  ros2::SyncServiceClient<tobas_dparam_msgs::srv::GetParams>::SharedPtr get_params_sc_;
+  std::optional<dparam::DynamicParamClient> dparam_cli_;
+  std::optional<ros2::SyncServiceClient<tobas_dparam_msgs::srv::GetParams>> get_params_sc_;
 
   QMetaObject::Connection rotor_states_conn_;
 

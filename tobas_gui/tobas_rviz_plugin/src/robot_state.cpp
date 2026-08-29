@@ -20,16 +20,16 @@ rclcpp::Logger getLogger()
 }
 }  // namespace
 
-RobotState::RobotState(const RobotModel::ConstSharedPtr& robot_model) : robot_model_(robot_model)
+RobotState::RobotState(const RobotModel& robot_model) : robot_model_(robot_model)
 {
-  dirty_link_transforms_ = robot_model_->getRootJoint();
-  positions_.resize(robot_model_->getVariableCount());
-  variable_joint_transforms_.resize(robot_model_->getJointModelCount(), Eigen::Isometry3d::Identity());
-  global_link_transforms_.resize(robot_model_->getLinkModelCount(), Eigen::Isometry3d::Identity());
-  dirty_joint_transforms_.resize(robot_model_->getJointModelCount(), 1);
+  dirty_link_transforms_ = robot_model_.getRootJoint();
+  positions_.resize(robot_model_.getVariableCount());
+  variable_joint_transforms_.resize(robot_model_.getJointModelCount(), Eigen::Isometry3d::Identity());
+  global_link_transforms_.resize(robot_model_.getLinkModelCount(), Eigen::Isometry3d::Identity());
+  dirty_joint_transforms_.resize(robot_model_.getJointModelCount(), 1);
 }
 
-const RobotModel::ConstSharedPtr& RobotState::getRobotModel() const
+const RobotModel& RobotState::getRobotModel() const
 {
   return robot_model_;
 }
@@ -40,9 +40,9 @@ void RobotState::setVariablePositions(
 {
   assert(variable_names.size() == variable_positions.size());
   for (size_t i = 0; i < variable_names.size(); ++i) {
-    const auto index = robot_model_->getVariableIndex(variable_names[i]);
+    const auto index = robot_model_.getVariableIndex(variable_names[i]);
     positions_[index] = variable_positions[i];
-    const auto joint = robot_model_->getJointOfVariable(index);
+    const auto joint = robot_model_.getJointOfVariable(index);
     markDirtyJointTransforms(joint);
     updateMimicJoint(joint);
   }
@@ -50,7 +50,7 @@ void RobotState::setVariablePositions(
 
 void RobotState::setJointPositions(const std::string& joint_name, const Eigen::Isometry3d& transform)
 {
-  const auto joint = robot_model_->getJointModel(joint_name);
+  const auto joint = robot_model_.getJointModel(joint_name);
   if (joint->getVariableCount() == 0) {
     return;
   }
@@ -61,16 +61,16 @@ void RobotState::setJointPositions(const std::string& joint_name, const Eigen::I
 
 void RobotState::setToDefaultValues()
 {
-  robot_model_->getVariableDefaultPositions(positions_);
+  robot_model_.getVariableDefaultPositions(positions_);
   std::fill(dirty_joint_transforms_.begin(), dirty_joint_transforms_.end(), 1);
-  dirty_link_transforms_ = robot_model_->getRootJoint();
+  dirty_link_transforms_ = robot_model_.getRootJoint();
 }
 
 void RobotState::update(bool force)
 {
   if (force) {
     std::fill(dirty_joint_transforms_.begin(), dirty_joint_transforms_.end(), 1);
-    dirty_link_transforms_ = robot_model_->getRootJoint();
+    dirty_link_transforms_ = robot_model_.getRootJoint();
   }
   updateLinkTransforms();
 }
@@ -84,7 +84,7 @@ const Eigen::Isometry3d& RobotState::getGlobalLinkTransform(const LinkModel* lin
 void RobotState::markDirtyJointTransforms(const JointModel* joint)
 {
   dirty_joint_transforms_[joint->getJointIndex()] = 1;
-  dirty_link_transforms_ = !dirty_link_transforms_ ? joint : robot_model_->getCommonRoot(dirty_link_transforms_, joint);
+  dirty_link_transforms_ = !dirty_link_transforms_ ? joint : robot_model_.getCommonRoot(dirty_link_transforms_, joint);
 }
 
 void RobotState::updateMimicJoint(const JointModel* joint)

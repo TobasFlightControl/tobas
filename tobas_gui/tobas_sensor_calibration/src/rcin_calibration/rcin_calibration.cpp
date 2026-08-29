@@ -220,8 +220,7 @@ void RCInputCalibrationWidget::clearRosInterfaces()
 void RCInputCalibrationWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
 {
   const auto set_params_srv = path::join(ns, kRemoteIfaceNS, real::handler::rcin::kSetParamSrv);
-  set_params_sc_ =
-    std::make_shared<ros2::SyncServiceClient<tobas_real_msgs::srv::SetRcInputParams>>(std::move(node), set_params_srv);
+  set_params_sc_.emplace(std::move(node), set_params_srv);
 
   ros_initialized_ = true;
 }

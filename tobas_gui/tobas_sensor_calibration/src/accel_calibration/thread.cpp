@@ -123,8 +123,7 @@ void AccelCalibrationThread::reset()
 void AccelCalibrationThread::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
 {
   node_ = std::move(node);
-  set_params_sc_ = std::make_shared<ros2::SyncServiceClient<tobas_real_msgs::srv::SetImuParams>>(
-    node_, path::join(ns, kRemoteIfaceNS, real::handler::imu::kSetParamSrv));
+  set_params_sc_.emplace(node_, path::join(ns, kRemoteIfaceNS, real::handler::imu::kSetParamSrv));
 }
 
 void AccelCalibrationThread::clearRosInterfaces()

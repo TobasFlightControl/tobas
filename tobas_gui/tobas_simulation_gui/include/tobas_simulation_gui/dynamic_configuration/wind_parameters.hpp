@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <optional>
+
 #include <QPushButton>
 
 #include <tobas_qt_tools/widgets/slider_text.hpp>
@@ -34,8 +36,8 @@ public:
   void clearRosInterfaces();
 
 private:
-  ros2::SyncServiceClient<GetSrv>::SharedPtr get_sc_;
-  ros2::SyncServiceClient<SetSrv>::SharedPtr set_sc_;
+  std::optional<ros2::SyncServiceClient<GetSrv>> get_sc_;
+  std::optional<ros2::SyncServiceClient<SetSrv>> set_sc_;
 
   QPushButton* reset_button_;
 

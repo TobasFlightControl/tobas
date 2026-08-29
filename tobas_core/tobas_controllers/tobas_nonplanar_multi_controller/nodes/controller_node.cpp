@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <optional>
 #include <ranges>
 
 #include <tobas_constants/node.hpp>
@@ -76,11 +77,11 @@ private:
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
 
   // Command
-  tobas_command_msgs::PosVelAcc::UniquePtr pos_cmd_;
-  tobas_command_msgs::Accel::UniquePtr acc_cmd_;
-  tobas_command_msgs::Angle::UniquePtr angle_cmd_;
-  tobas_command_msgs::Rate::UniquePtr rate_cmd_;
-  std::unique_ptr<kdl::Vector> tar_dgyro_;
+  std::optional<tobas_command_msgs::PosVelAcc> pos_cmd_;
+  std::optional<tobas_command_msgs::Accel> acc_cmd_;
+  std::optional<tobas_command_msgs::Angle> angle_cmd_;
+  std::optional<tobas_command_msgs::Rate> rate_cmd_;
+  std::optional<kdl::Vector> tar_dgyro_;
 
   // Publishers
   ros2::PublisherPtr<tobas_msgs::msg::RotorThrustArray> tar_thrusts_pub_;
@@ -400,7 +401,7 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
   // Position controller.
   if (pos_cmd_) {
     if (!acc_cmd_) {
-      acc_cmd_ = std::make_unique<tobas_command_msgs::Accel>();
+      acc_cmd_.emplace();
     }
 
     // Current position and velocity viewed from the world coordinate system.
@@ -419,7 +420,7 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
   // Attitude controller.
   if (angle_cmd_) {
     if (!rate_cmd_) {
-      rate_cmd_ = std::make_unique<tobas_command_msgs::Rate>();
+      rate_cmd_.emplace();
     }
 
     // Compute target angular velocity; do not integrate error while grounded.
@@ -434,7 +435,7 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
   // Angular velocity controller.
   if (rate_cmd_) {
     if (!tar_dgyro_) {
-      tar_dgyro_ = std::make_unique<kdl::Vector>();
+      tar_dgyro_.emplace();
     }
 
     // Compute target angular acceleration.
@@ -542,7 +543,7 @@ void ControllerNode::positionCommandCb(const tobas_command_msgs::PosVelAcc::Cons
 
   // Create the command.
   if (!pos_cmd_) {
-    pos_cmd_ = std::make_unique<tobas_command_msgs::PosVelAcc>();
+    pos_cmd_.emplace();
   }
 
   // Update the command.
@@ -560,7 +561,7 @@ void ControllerNode::accelCommandCb(const tobas_command_msgs::Accel::ConstShared
 
   // Create the command.
   if (!acc_cmd_) {
-    acc_cmd_ = std::make_unique<tobas_command_msgs::Accel>();
+    acc_cmd_.emplace();
   }
 
   // Update the command.
@@ -575,7 +576,7 @@ void ControllerNode::angleCommandCb(const tobas_command_msgs::Angle::ConstShared
 
   // Create the command.
   if (!angle_cmd_) {
-    angle_cmd_ = std::make_unique<tobas_command_msgs::Angle>();
+    angle_cmd_.emplace();
   }
 
   // Update the command.
@@ -593,7 +594,7 @@ void ControllerNode::rateCommandCb(const tobas_command_msgs::Rate::ConstSharedPt
 
   // Create the command.
   if (!rate_cmd_) {
-    rate_cmd_ = std::make_unique<tobas_command_msgs::Rate>();
+    rate_cmd_.emplace();
   }
 
   // Update the command.

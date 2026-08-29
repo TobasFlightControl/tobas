@@ -46,11 +46,11 @@ ProjectGenerator::ProjectGenerator(
 {
   const auto pkg_share_path = QString::fromStdString(getPkgShareDir().string());
   const auto templates_path = QDir(pkg_share_path).filePath("templates");
-  meta_env_ = std::make_shared<TemplateGenerator>(QDir(templates_path).filePath("meta_package"));
-  config_env_ = std::make_shared<TemplateGenerator>(QDir(templates_path).filePath("config_package"));
-  user_msg_env_ = std::make_shared<TemplateGenerator>(QDir(templates_path).filePath("user_msg_package"));
-  user_cpp_env_ = std::make_shared<TemplateGenerator>(QDir(templates_path).filePath("user_cpp_package"));
-  user_py_env_ = std::make_shared<TemplateGenerator>(QDir(templates_path).filePath("user_py_package"));
+  meta_env_.emplace(QDir(templates_path).filePath("meta_package"));
+  config_env_.emplace(QDir(templates_path).filePath("config_package"));
+  user_msg_env_.emplace(QDir(templates_path).filePath("user_msg_package"));
+  user_cpp_env_.emplace(QDir(templates_path).filePath("user_cpp_package"));
+  user_py_env_.emplace(QDir(templates_path).filePath("user_py_package"));
 }
 
 bool ProjectGenerator::generateProject(const QString& proj_path)

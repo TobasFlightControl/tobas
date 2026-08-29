@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <optional>
+
 #include <QPushButton>
 
 #include <tobas_constants/rc_input.hpp>
@@ -56,7 +58,7 @@ public:
 private:
   const Drone& drone_;
 
-  ros2::SyncServiceClient<tobas_real_msgs::srv::SetRcInputParams>::SharedPtr set_params_sc_;
+  std::optional<ros2::SyncServiceClient<tobas_real_msgs::srv::SetRcInputParams>> set_params_sc_;
 
   bool ros_initialized_ = false;
   bool running_ = false;

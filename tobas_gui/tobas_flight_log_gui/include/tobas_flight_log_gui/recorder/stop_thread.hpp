@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <optional>
+
 #include <QThread>
 #include <rclcpp/node.hpp>
 
@@ -30,7 +32,7 @@ public:
   void clearRosInterfaces();
 
 private:
-  ros2::SyncServiceClient<tobas_msgs::srv::BagRecordStop>::SharedPtr sc_;
+  std::optional<ros2::SyncServiceClient<tobas_msgs::srv::BagRecordStop>> sc_;
 };
 }  // namespace log
 }  // namespace gui

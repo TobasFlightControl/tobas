@@ -57,7 +57,7 @@ void UrdfBuilderPanel::onInitialize()
 {
   Panel::onInitialize();
 
-  ogre_ctrl_ = std::make_shared<ogre::OgreController>(getDisplayContext());
+  ogre_ctrl_.emplace(getDisplayContext());
   update_timer_.start(ROBOT_MODEL_UPDATE_INTERVAL);
 }
 

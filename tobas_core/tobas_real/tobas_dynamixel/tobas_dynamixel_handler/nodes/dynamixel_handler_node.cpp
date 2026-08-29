@@ -3,6 +3,7 @@
 
 #include <filesystem>
 #include <fstream>
+#include <optional>
 
 #include <dynamixel_sdk/dynamixel_sdk.h>
 
@@ -55,10 +56,10 @@ public:
 private:
   dynamixel::PortHandler* poh_;
   dynamixel::PacketHandler* pah_;
-  std::unique_ptr<dynamixel::GroupSyncRead> core_sync_read_;
-  std::unique_ptr<dynamixel::GroupSyncRead> hes_sync_read_;
-  std::unique_ptr<dynamixel::GroupSyncWrite> pos_sync_write_;
-  std::unique_ptr<dynamixel::GroupSyncWrite> vel_sync_write_;
+  std::optional<dynamixel::GroupSyncRead> core_sync_read_;
+  std::optional<dynamixel::GroupSyncRead> hes_sync_read_;
+  std::optional<dynamixel::GroupSyncWrite> pos_sync_write_;
+  std::optional<dynamixel::GroupSyncWrite> vel_sync_write_;
 
   std::vector<int32_t> goal_positions_;
   std::vector<int32_t> goal_velocities_;
@@ -130,12 +131,12 @@ DynamixelHandlerNode::DynamixelHandlerNode(const rclcpp::NodeOptions& options)
   constexpr auto kCoreReadBegin = address::kPresentCurrent;
   constexpr auto kCoreReadEnd = address::kVelocityTrajectory;
   constexpr auto kCoreReadLength = kCoreReadEnd - kCoreReadBegin;
-  core_sync_read_ = std::make_unique<dynamixel::GroupSyncRead>(poh_, pah_, kCoreReadBegin, kCoreReadLength);
+  core_sync_read_.emplace(poh_, pah_, kCoreReadBegin, kCoreReadLength);
 
-  hes_sync_read_ = std::make_unique<dynamixel::GroupSyncRead>(poh_, pah_, address::kHardwareErrorStatus, 1);
+  hes_sync_read_.emplace(poh_, pah_, address::kHardwareErrorStatus, 1);
 
-  pos_sync_write_ = std::make_unique<dynamixel::GroupSyncWrite>(poh_, pah_, address::kGoalPosition, 4);
-  vel_sync_write_ = std::make_unique<dynamixel::GroupSyncWrite>(poh_, pah_, address::kGoalVelocity, 4);
+  pos_sync_write_.emplace(poh_, pah_, address::kGoalPosition, 4);
+  vel_sync_write_.emplace(poh_, pah_, address::kGoalVelocity, 4);
 
   // Open serial port.
   if (!poh_->openPort()) {

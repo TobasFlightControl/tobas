@@ -160,7 +160,7 @@ private:
 
   ros2::PublisherPtr<tobas_msgs::msg::Message> message_pub_;
 
-  rclcpp::executors::SingleThreadedExecutor::SharedPtr executor_;
+  rclcpp::executors::SingleThreadedExecutor executor_;
   std::thread spin_thread_;
 
   void gazeboLog(uint8_t level, const std::string& text) const;

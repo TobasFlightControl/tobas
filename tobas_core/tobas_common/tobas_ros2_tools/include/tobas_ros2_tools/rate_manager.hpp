@@ -12,8 +12,6 @@ namespace ros2
 class RateManager
 {
 public:
-  using SharedPtr = std::shared_ptr<RateManager>;
-
   explicit RateManager(double update_rate);
 
   void reset();

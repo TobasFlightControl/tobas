@@ -28,8 +28,6 @@ class OgreController
   static constexpr float kHighlightB = 0.0;
 
 public:
-  using SharedPtr = std::shared_ptr<OgreController>;
-
   explicit OgreController(rviz_common::DisplayContext* context);
   ~OgreController();
 

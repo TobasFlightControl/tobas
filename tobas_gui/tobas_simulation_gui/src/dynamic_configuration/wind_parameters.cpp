@@ -75,8 +75,8 @@ void WindParamsWidget::reset()
 
 void WindParamsWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
 {
-  get_sc_ = std::make_shared<ros2::SyncServiceClient<GetSrv>>(node, path::join(ns, gazebo::kGetWindParamsSrv));
-  set_sc_ = std::make_shared<ros2::SyncServiceClient<SetSrv>>(node, path::join(ns, gazebo::kSetWindParamsSrv));
+  get_sc_.emplace(node, path::join(ns, gazebo::kGetWindParamsSrv));
+  set_sc_.emplace(node, path::join(ns, gazebo::kSetWindParamsSrv));
 }
 
 void WindParamsWidget::clearRosInterfaces()

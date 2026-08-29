@@ -13,12 +13,9 @@ namespace rviz
 class RobotState
 {
 public:
-  using SharedPtr = std::shared_ptr<RobotState>;
-  using ConstSharedPtr = std::shared_ptr<const RobotState>;
+  explicit RobotState(const RobotModel& robot_model);
 
-  explicit RobotState(const RobotModel::ConstSharedPtr& robot_model);
-
-  const RobotModel::ConstSharedPtr& getRobotModel() const;
+  const RobotModel& getRobotModel() const;
 
   void
   setVariablePositions(const std::vector<std::string>& variable_names, const std::vector<double>& variable_positions);
@@ -39,7 +36,7 @@ private:
 
   bool checkLinkTransforms() const;
 
-  const RobotModel::ConstSharedPtr robot_model_;
+  const RobotModel& robot_model_;
   std::vector<double> positions_;
   const JointModel* dirty_link_transforms_ = nullptr;
   std::vector<Eigen::Isometry3d> variable_joint_transforms_;

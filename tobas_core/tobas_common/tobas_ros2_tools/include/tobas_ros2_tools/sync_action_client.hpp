@@ -9,6 +9,8 @@
 #include <rclcpp_action/client.hpp>
 #include <rclcpp_action/create_client.hpp>
 
+#include <action_msgs/srv/cancel_goal.hpp>
+
 #include "./future.hpp"
 
 /* For development. */
@@ -33,8 +35,6 @@ class SyncActionClient
   using FeedbackCb = std::function<void(const GoalHandlePtr&, const typename ActType::Feedback::ConstSharedPtr&)>;
 
 public:
-  using SharedPtr = std::shared_ptr<SyncActionClient>;
-
   explicit SyncActionClient(
     rclcpp::Node::SharedPtr node,
     const std::string& name,

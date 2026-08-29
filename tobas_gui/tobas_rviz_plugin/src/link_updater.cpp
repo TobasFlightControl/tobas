@@ -7,7 +7,7 @@ namespace tobas
 {
 namespace rviz
 {
-LinkUpdater::LinkUpdater(const RobotState::ConstSharedPtr& state) : robot_state_(state)
+LinkUpdater::LinkUpdater(const RobotState& state) : robot_state_(state)
 {
 }
 
@@ -18,12 +18,12 @@ bool LinkUpdater::getLinkTransforms(
   Ogre::Vector3& collision_position,
   Ogre::Quaternion& collision_orientation) const
 {
-  const auto link_model = robot_state_->getRobotModel()->getLinkModel(link_name);
+  const auto link_model = robot_state_.getRobotModel().getLinkModel(link_name);
   if (!link_model) {
     return false;
   }
 
-  const auto& transform = robot_state_->getGlobalLinkTransform(link_model);
+  const auto& transform = robot_state_.getGlobalLinkTransform(link_model);
   const Eigen::Vector3d pos = transform.translation();
   const Eigen::Quaterniond rot(transform.linear());
 

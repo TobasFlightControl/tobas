@@ -24,8 +24,6 @@ template <typename SrvType>
 class SyncServiceClient
 {
 public:
-  using SharedPtr = std::shared_ptr<SyncServiceClient>;
-
   explicit SyncServiceClient(
     rclcpp::Node::SharedPtr node,
     const std::string& name,

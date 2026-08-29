@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <optional>
+
 #include <QPushButton>
 
 #include <tobas_qt_tools/widgets/double_spin_box.hpp>
@@ -43,8 +45,8 @@ public:
   void clearRosInterfaces();
 
 private:
-  ros2::SyncServiceClient<AttachSrv>::SharedPtr attach_sc_;
-  ros2::SyncServiceClient<DetachSrv>::SharedPtr detach_sc_;
+  std::optional<ros2::SyncServiceClient<AttachSrv>> attach_sc_;
+  std::optional<ros2::SyncServiceClient<DetachSrv>> detach_sc_;
 
   qt::ToggleButton* attach_detach_btn_;
 

@@ -112,8 +112,7 @@ void BasePoseCommanderWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr no
   pvapy_pub_ =
     ros2::createPublisher<tobas_command_msgs::PosVelAccPitchYaw>(node, path::join(ns, topic::kPosVelAccPitchYawCmd));
 
-  set_arm_sc_ =
-    std::make_shared<ros2::SyncServiceClient<tobas_msgs::srv::SetArm>>(node, path::join(ns, service::kSetArm));
+  set_arm_sc_.emplace(node, path::join(ns, service::kSetArm));
 }
 
 void BasePoseCommanderWidget::clearRosInterfaces()

@@ -22,8 +22,6 @@ namespace ogre
 class StaticLinkUpdater : public rviz_default_plugins::robot::LinkUpdater
 {
 public:
-  using SharedPtr = std::shared_ptr<StaticLinkUpdater>;
-
   explicit StaticLinkUpdater(::urdf::ModelSharedPtr urdfPtr);
 
   bool getLinkTransforms(

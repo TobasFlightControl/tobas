@@ -42,9 +42,9 @@ ParamBlockWidget::ParamBlockWidget(const std::string& node_name, const QString& 
 void ParamBlockWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
 {
   const auto get_param_srv = path::join(ns, kRemoteIfaceNS, node_name_, service::kGetDynamicParams);
-  get_param_sc_ = std::make_shared<ros2::SyncServiceClient<tobas_dparam_msgs::srv::GetParams>>(node, get_param_srv);
+  get_param_sc_.emplace(node, get_param_srv);
 
-  dparam_cli_ = std::make_shared<dparam::DynamicParamClient>(node, node_name_, ns);
+  dparam_cli_.emplace(node, node_name_, ns);
 }
 
 void ParamBlockWidget::clearRosInterfaces()

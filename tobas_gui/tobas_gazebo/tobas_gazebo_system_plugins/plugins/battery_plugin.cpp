@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <optional>
+
 #include <tobas_constants/ros_interface.hpp>
 #include <tobas_gazebo_common/constants.hpp>
 #include <tobas_gazebo_conversions/gazebo_ros.hpp>
@@ -54,7 +56,7 @@ private:
 
   std::map<std::string, double> rotor_currents_;  // [A] Current flowing through each motor
   double q_;                                      // [As] Current charge amount
-  RateManager::SharedPtr rate_manager_;
+  std::optional<RateManager> rate_manager_;
 
   // Noise generator
   std::random_device rnd_dev_;
@@ -94,7 +96,7 @@ void GazeboBatteryPlugin::Configure(
   getSdfParams(sdf);
 
   q_ = capacity_;
-  rate_manager_ = std::make_shared<RateManager>(update_rate_);
+  rate_manager_.emplace(update_rate_);
 
   voltage_noise_ = NormalDistribution(0.0, voltage_noise_stddev_);
   current_noise_ = NormalDistribution(0.0, current_noise_stddev_);

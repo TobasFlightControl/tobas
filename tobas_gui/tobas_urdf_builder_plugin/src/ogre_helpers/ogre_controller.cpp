@@ -3,6 +3,8 @@
 
 #include "tobas_urdf_builder_plugin/ogre_helpers/ogre_controller.hpp"
 
+#include <optional>
+
 #include <OgreSceneManager.h>
 #include <rviz_default_plugins/robot/robot.hpp>
 #include <rviz_default_plugins/robot/robot_link.hpp>
@@ -22,7 +24,7 @@ namespace ogre
 {
 struct OgreController::PImpl
 {
-  explicit PImpl(rviz_common::DisplayContext* context) : ogre(context->getSceneManager()), link_updater(nullptr)
+  explicit PImpl(rviz_common::DisplayContext* context) : ogre(context->getSceneManager())
   {
     ogre.root_node = ogre.scene_manager->getRootSceneNode();
     ogre.robot_node = ogre.root_node->createChildSceneNode();
@@ -61,7 +63,7 @@ struct OgreController::PImpl
     Ogre::SceneNode* names_node = nullptr;
   } ogre;
 
-  ogre::StaticLinkUpdater::SharedPtr link_updater;
+  std::optional<ogre::StaticLinkUpdater> link_updater;
 };
 
 OgreController::OgreController(rviz_common::DisplayContext* context) : pimpl_(new OgreController::PImpl(context))
@@ -89,7 +91,7 @@ void OgreController::reloadRobot(const view_model::URDFViewModel& vm)
 {
   const auto& model = vm.urdf();
   pimpl_->rviz.robot->load(*model);
-  pimpl_->link_updater.reset(new ogre::StaticLinkUpdater(model));
+  pimpl_->link_updater.emplace(model);
 
   for (const auto& [name, link] : pimpl_->rviz.robot->getLinks()) {
     if (highlighted_links_.find(name) != highlighted_links_.end()) {

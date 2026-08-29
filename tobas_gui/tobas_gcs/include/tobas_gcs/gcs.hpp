@@ -105,9 +105,7 @@ private:
   bool connection_ready_ = false;
 
   std::vector<std::string> ros_args_;
-  rclcpp::Context::SharedPtr ros_context_;
-  std::unique_ptr<ros2::AsyncNodeManager> ros_node_manager_;
-  rclcpp::Node::SharedPtr ros_node_;
+  std::optional<ros2::AsyncNodeManager> ros_node_manager_;
 
   std::optional<cmn::SshClientWrapper> ssh_client_;
   std::optional<cmn::RemoteProjectBuilder> remote_proj_builder_;

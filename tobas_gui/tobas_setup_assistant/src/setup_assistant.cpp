@@ -63,7 +63,7 @@ SetupAssistantWidget::SetupAssistantWidget(rclcpp::Node::SharedPtr node)
   jsp_ = new JointStatePublisherWidget(node, uadf_, tree_);
   settings_ = new SettingsWidget(uadf_, tree_, sig_);
 
-  prj_gen_ = std::make_unique<ProjectGenerator>(uadf_, tree_, settings_, this);
+  prj_gen_.emplace(uadf_, tree_, settings_, this);
 
   // Layout
   const auto pkg_cols = new QHBoxLayout();

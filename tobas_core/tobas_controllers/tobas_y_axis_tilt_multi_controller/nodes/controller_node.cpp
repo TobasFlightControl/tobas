@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <optional>
 #include <ranges>
 
 #include <tobas_algorithm/core.hpp>
@@ -92,12 +93,12 @@ private:
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
 
   // Command
-  tobas_command_msgs::PosVelAccPitchYaw::UniquePtr pos_cmd_;  // Position-control target value in the WCS.
-  tobas_command_msgs::AccelPitchYaw::UniquePtr acc_cmd_;      // Acceleration-control target value in the WCS.
-  std::unique_ptr<kdl::Rotation> tar_rot_;                    // Target attitude in the body coordinate system.
-  std::unique_ptr<kdl::Vector> tar_gyro_;                     // Target angular velocity in the body coordinate system.
-  kdl::Vector tar_dgyro_;       // Target angular acceleration in the body coordinate system.
-  double ux_ = 0.0, uz_ = 0.0;  // Target thrust in the body coordinate system.
+  std::optional<tobas_command_msgs::PosVelAccPitchYaw> pos_cmd_;  // Position-control target value in the WCS.
+  std::optional<tobas_command_msgs::AccelPitchYaw> acc_cmd_;      // Acceleration-control target value in the WCS.
+  std::optional<kdl::Rotation> tar_rot_;                          // Target attitude in the body coordinate system.
+  std::optional<kdl::Vector> tar_gyro_;  // Target angular velocity in the body coordinate system.
+  kdl::Vector tar_dgyro_;                // Target angular acceleration in the body coordinate system.
+  double ux_ = 0.0, uz_ = 0.0;           // Target thrust in the body coordinate system.
 
   // Publishers
   ros2::PublisherPtr<tobas_msgs::msg::RotorThrustArray> tar_thrusts_pub_;
@@ -420,7 +421,7 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
   // Position controller.
   if (pos_cmd_) {
     if (!acc_cmd_) {
-      acc_cmd_ = std::make_unique<tobas_command_msgs::AccelPitchYaw>();
+      acc_cmd_.emplace();
     }
 
     // Determine gains.
@@ -467,7 +468,7 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
   // Acceleration controller.
   if (acc_cmd_) {
     if (!tar_rot_) {
-      tar_rot_ = std::make_unique<kdl::Rotation>();
+      tar_rot_.emplace();
     }
 
     // Compute thrust and target attitude.
@@ -484,7 +485,7 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
   // Attitude controller.
   if (tar_rot_) {
     if (!tar_gyro_) {
-      tar_gyro_ = std::make_unique<kdl::Vector>();
+      tar_gyro_.emplace();
     }
 
     // Determine gains.
@@ -645,7 +646,7 @@ void ControllerNode::positionCommandCb(const tobas_command_msgs::PosVelAccPitchY
 
   // Create the command.
   if (!pos_cmd_) {
-    pos_cmd_ = std::make_unique<tobas_command_msgs::PosVelAccPitchYaw>();
+    pos_cmd_.emplace();
   }
 
   // Update the command.
@@ -663,7 +664,7 @@ void ControllerNode::accelCommandCb(const tobas_command_msgs::AccelPitchYaw::Con
 
   // Create the command.
   if (!acc_cmd_) {
-    acc_cmd_ = std::make_unique<tobas_command_msgs::AccelPitchYaw>();
+    acc_cmd_.emplace();
   }
 
   // Update the command.
@@ -692,7 +693,7 @@ void ControllerNode::angleCommandCb(const tobas_command_msgs::AngleThrottleVecto
 
   // Create the command.
   if (!tar_rot_) {
-    tar_rot_ = std::make_unique<kdl::Rotation>();
+    tar_rot_.emplace();
   }
 
   // Update the command.
@@ -715,7 +716,7 @@ void ControllerNode::rateCommandCb(const tobas_command_msgs::RateThrottleVector:
 
   // Create the command.
   if (!tar_gyro_) {
-    tar_gyro_ = std::make_unique<kdl::Vector>(rate_cmd->rate);
+    tar_gyro_.emplace(rate_cmd->rate);
   }
 
   // Update the command.

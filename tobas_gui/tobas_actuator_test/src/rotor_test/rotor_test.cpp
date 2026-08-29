@@ -165,8 +165,8 @@ void RotorTestWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, cons
   if (eprop_) {
     tar_speeds_pub_ = ros2::createPublisher<tobas_msgs::msg::RotorSpeedArray>(
       node, path::join(ns, kRemoteIfaceNS, topic::kRotorSpeedsCmd));
-    dparam_cli_ = std::make_shared<dparam::DynamicParamClient>(node, node::kRpmControlConfigServer, ns);
-    get_params_sc_ = std::make_shared<ros2::SyncServiceClient<tobas_dparam_msgs::srv::GetParams>>(
+    dparam_cli_.emplace(node, node::kRpmControlConfigServer, ns);
+    get_params_sc_.emplace(
       node, path::join(ns, kRemoteIfaceNS, node::kRpmControlConfigServer, service::kGetDynamicParams));
   }
 

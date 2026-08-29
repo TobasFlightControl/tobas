@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <optional>
+
 #include <QThread>
 
 #include <tobas_algorithm/kahan.hpp>
@@ -44,7 +46,7 @@ public:
 private:
   rclcpp::Node::SharedPtr node_;
 
-  ros2::SyncServiceClient<tobas_real_msgs::srv::SetImuParams>::SharedPtr set_params_sc_;
+  std::optional<ros2::SyncServiceClient<tobas_real_msgs::srv::SetImuParams>> set_params_sc_;
 
   tobas_msgs::Imu::ConstSharedPtr imu_raw_;
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;

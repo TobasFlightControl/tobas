@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <optional>
+
 #include <QThread>
 #include <rclcpp/node.hpp>
 
@@ -31,7 +33,7 @@ public:
   void setLogName(const std::string& log_name);
 
 private:
-  ros2::SyncServiceClient<tobas_msgs::srv::BagRecordStart>::SharedPtr sc_;
+  std::optional<ros2::SyncServiceClient<tobas_msgs::srv::BagRecordStart>> sc_;
 
   std::string log_name_;
 };

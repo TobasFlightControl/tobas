@@ -37,8 +37,6 @@ class SshClient
   static constexpr char kScpPutAction[] = "ssh/scp_put";
 
 public:
-  using SharedPtr = std::shared_ptr<SshClient>;
-
   enum Error
   {
     kNoError = 0,

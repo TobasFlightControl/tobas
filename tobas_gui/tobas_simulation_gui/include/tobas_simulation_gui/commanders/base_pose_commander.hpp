@@ -4,6 +4,7 @@
 #pragma once
 
 #include <array>
+#include <optional>
 
 #include <QPushButton>
 
@@ -59,7 +60,7 @@ private:
   ros2::PublisherPtr<tobas_command_msgs::PosVelAccYaw> pvay_pub_;
   ros2::PublisherPtr<tobas_command_msgs::PosVelAccPitchYaw> pvapy_pub_;
 
-  ros2::SyncServiceClient<tobas_msgs::srv::SetArm>::SharedPtr set_arm_sc_;
+  std::optional<ros2::SyncServiceClient<tobas_msgs::srv::SetArm>> set_arm_sc_;
 
   bool isRunning() const;
 
