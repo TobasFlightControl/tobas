@@ -577,6 +577,11 @@ void GroundControlStationWidget::onConnectRequested()
     return;
   }
 
+  // Prevent the simulation from starting while connected to a real flight controller.
+  if (!simulation_->isRunning()) {
+    simulation_->setEnabled(false);
+  }
+
   qt::qInfoBox(this, "The connection to " + currentConnectionDescription() + " has been established successfully.");
 }
 
@@ -586,6 +591,10 @@ void GroundControlStationWidget::onDisconnectRequested()
 
   const auto connection = currentConnectionDescription();
   disconnectFromFlightController();
+
+  // Re-enable the simulation widget disabled during the real flight controller connection.
+  simulation_->setEnabled(true);
+
   qt::qInfoBox(this, "The connection to " + connection + " has been closed.");
 }
 
@@ -809,7 +818,10 @@ void GroundControlStationWidget::onWriteButtonClicked()
   progress.progressStep();
 
   progress.close();
+
   connect_btn_->setChecked(true);
+  simulation_->setEnabled(false);
+
   qt::qInfoBox(this, "Tobas project is installed successfully.");
 }
 
@@ -894,8 +906,9 @@ void GroundControlStationWidget::onSimulationStarted()
 
   fc_scanner_->stop();
 
-  // シミュレーション用のターゲットを設定
+  // Set the simulation target.
   updateFlightControllerList({ DiscoveredFlightController("Simulation Model", "127.0.0.1") });
+  fc_selector_->setCurrentIndex(1);
   vehicle_id_->setValue(0);
 
   reset();
