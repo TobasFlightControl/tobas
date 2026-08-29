@@ -81,11 +81,13 @@ void ControlSystemWidget::updateInternalDataStructures()
 void ControlSystemWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
 {
   mission_planner_->initializeRosInterfaces(node, ns);
+  arm_state_banner_->setConnected(true);
 }
 
 void ControlSystemWidget::clearRosInterfaces()
 {
   mission_planner_->clearRosInterfaces();
+  arm_state_banner_->setConnected(false);
 }
 }  // namespace ctrl
 }  // namespace gui

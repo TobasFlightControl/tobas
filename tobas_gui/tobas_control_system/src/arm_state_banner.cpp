@@ -51,6 +51,12 @@ void ArmStateBanner::reset()
   updateState();
 }
 
+void ArmStateBanner::setConnected(bool connected)
+{
+  connected_ = connected;
+  updateState();
+}
+
 QString ArmStateBanner::armReadinessIssueText() const
 {
   QStringList issues;
@@ -87,7 +93,10 @@ QString ArmStateBanner::armReadinessIssueText() const
 
 void ArmStateBanner::updateState()
 {
-  if (!arming_) {
+  if (!connected_) {
+    setStateText("Disconnected", Qt::lightGray, Qt::black);
+  }
+  else if (!arming_) {
     setStateText("Waiting for arming state", Qt::lightGray, Qt::black);
   }
   else if (!health_) {

@@ -30,10 +30,12 @@ public:
   explicit ArmStateBanner(const rqt::RosQtBridge& bridge);
 
   void reset();
+  void setConnected(bool connected);
 
 private:
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
   tobas_msgs::msg::VehicleHealth::ConstSharedPtr health_;
+  bool connected_ = false;
 
   QString armReadinessIssueText() const;
   void updateState();
