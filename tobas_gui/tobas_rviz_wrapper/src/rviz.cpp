@@ -4,6 +4,8 @@
 #include "tobas_rviz_wrapper/rviz.hpp"
 
 #include <OgreMaterialManager.h>
+#include <QMenuBar>
+#include <QStatusBar>
 #include <rviz_common/display_group.hpp>
 #include <rviz_common/properties/float_property.hpp>
 #include <rviz_common/properties/vector_property.hpp>
@@ -62,8 +64,8 @@ void RvizFrameManager::initialize(const QString& config_path)
 
   // Configure the visualization frame.
   frame_->load(config);
-  frame_->setMenuBar(nullptr);
-  frame_->setStatusBar(nullptr);
+  frame_->menuBar()->hide();
+  frame_->statusBar()->hide();
   frame_->setHideButtonVisibility(false);
   frame_->setStyleSheet("QSizeGrip { width: 0px; height: 0px; }");  // Remove sizegrip.
 
