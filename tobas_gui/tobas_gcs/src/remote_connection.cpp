@@ -19,9 +19,9 @@ namespace gcs
 RemoteConnectionWidget::RemoteConnectionWidget(const rqt::RosQtBridge& bridge) : bridge_(bridge)
 {
   const auto rsrc_dir = getResourceDir() / "connection";
-  connected_ = QPixmap(QString::fromStdString(rsrc_dir / "connected.png"));
-  disconnected_ = QPixmap(QString::fromStdString(rsrc_dir / "disconnected.png"));
-  unknown_ = QPixmap(QString::fromStdString(rsrc_dir / "unknown.png"));
+  pixmap_connected_ = QPixmap(QString::fromStdString(rsrc_dir / "connected.png"));
+  pixmap_disconnected_ = QPixmap(QString::fromStdString(rsrc_dir / "disconnected.png"));
+  pixmap_unknown_ = QPixmap(QString::fromStdString(rsrc_dir / "unknown.png"));
 
   icon_ = new QLabel();
   icon_->setFixedSize(120, 40);          // Fix the size so the pixmap is not displayed too large.
@@ -30,6 +30,8 @@ RemoteConnectionWidget::RemoteConnectionWidget(const rqt::RosQtBridge& bridge) :
   label_ = new QLabel();
 
   timeout_timer_.setInterval(kTimeout);
+
+  setEmpty();
 
   // Layout
   const auto rows = new QVBoxLayout();
@@ -62,7 +64,7 @@ void RemoteConnectionWidget::stop()
     return;
   }
 
-  setUnknown();
+  setEmpty();
 
   disconnect(heartbeat_conn_);
   timeout_timer_.stop();
@@ -81,25 +83,32 @@ void RemoteConnectionWidget::restart()
   start();
 }
 
+void RemoteConnectionWidget::setEmpty()
+{
+  icon_->clear();
+  label_->clear();
+  state_ = kNotRunning;
+}
+
 void RemoteConnectionWidget::setConnected()
 {
-  state_ = kConnected;
-  setIconPixmap(connected_);
+  setIconPixmap(pixmap_connected_);
   label_->setText("TELEM OK");
+  state_ = kConnected;
 }
 
 void RemoteConnectionWidget::setDisonnected()
 {
-  state_ = kDisonnected;
-  setIconPixmap(disconnected_);
+  setIconPixmap(pixmap_disconnected_);
   label_->setText("TELEM LOST");
+  state_ = kDisonnected;
 }
 
 void RemoteConnectionWidget::setUnknown()
 {
-  state_ = kUnknown;
-  setIconPixmap(unknown_);
+  setIconPixmap(pixmap_unknown_);
   label_->setText("Waiting...");
+  state_ = kUnknown;
 }
 
 void RemoteConnectionWidget::setIconPixmap(const QPixmap& pixmap)
