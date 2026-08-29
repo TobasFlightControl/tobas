@@ -283,7 +283,7 @@ const char* SshClientWrapper::errorMessage() const
 
 bool SshClientWrapper::setEndpoint(const QString& host, const QString& user)
 {
-  qInfo().noquote().nospace() << "Setting the SSH endpoint to " << endpoint() << ".";
+  qInfo().noquote().nospace() << "Setting the SSH endpoint to " << endpoint(host, user) << ".";
   const auto res = impl_.setEndpoint(host.toStdString(), user.toStdString());
   host_ = host;
   user_ = user;
@@ -362,7 +362,12 @@ ssh::SshClient::Error SshClientWrapper::list(const QString& pardir, QStringList&
 
 QString SshClientWrapper::endpoint() const
 {
-  return user_ + "@" + host_;
+  return endpoint(host_, user_);
+}
+
+QString SshClientWrapper::endpoint(const QString& host, const QString& user)
+{
+  return user + "@" + host;
 }
 }  // namespace cmn
 }  // namespace gui
