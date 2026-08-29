@@ -856,6 +856,7 @@ void GroundControlStationWidget::onRestartButtonClicked()
 
   // Confirm before restarting.
   if (!qt::yesOrNo(this, "Are you sure you want to restart " + currentConnectionDescription() + "?", qt::WARN)) {
+    restart_btn_->setChecked(false);
     return;
   }
 
@@ -873,6 +874,8 @@ void GroundControlStationWidget::onRestartButtonClicked()
     clearExpectedTelemetryLoss();
     qt::qErrorBox(this, res.error());
   }
+
+  restart_btn_->setChecked(false);
 }
 
 void GroundControlStationWidget::onShutdownButtonClicked()
@@ -881,6 +884,7 @@ void GroundControlStationWidget::onShutdownButtonClicked()
 
   // Confirm before shutting down.
   if (!qt::yesOrNo(this, "Are you sure you want to shut down " + currentConnectionDescription() + "?", qt::WARN)) {
+    shutdown_btn_->setChecked(false);
     return;
   }
 
@@ -898,6 +902,8 @@ void GroundControlStationWidget::onShutdownButtonClicked()
     clearExpectedTelemetryLoss();
     qt::qErrorBox(this, res.error());
   }
+
+  shutdown_btn_->setChecked(false);
 }
 
 void GroundControlStationWidget::onSimulationStarted()
