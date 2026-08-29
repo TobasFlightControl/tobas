@@ -2,9 +2,11 @@
 // Copyright (C) 2026 Tobas, Inc.
 
 #pragma once
+
 #include <random>
 
 #include <QElapsedTimer>
+#include <QPushButton>
 #include <QTimer>
 #include <QVBoxLayout>
 
@@ -36,9 +38,6 @@ class JointStatePublisherWidget : public QWidget
   using self = JointStatePublisherWidget;
   using super = QWidget;
 
-  static constexpr int kButtonHeight = 40;
-  static constexpr double kThrustJointAngularVelocity = M_PI / 6;  // [rad/s]
-
 public:
   explicit JointStatePublisherWidget(std::shared_ptr<rclcpp::Node> node, const uadf::Model& uadf, const kdl::Tree& tree);
 
@@ -59,6 +58,9 @@ private:
   std::mt19937 rnd_gen_;
 
   QVBoxLayout* slider_rows_;
+  QPushButton* zero_button_;
+  QPushButton* center_button_;
+  QPushButton* random_button_;
 
   sensor_msgs::msg::JointState js_;
   std::vector<qt::DoubleSliderDisplay*> sliders_;
@@ -70,7 +72,8 @@ private:
   QTimer publish_timer_;
   QElapsedTimer thrust_rotation_timer_;
 
-  void publish();
+  void publishCurrentPositions();
+  void setControlButtonsEnabled(bool enabled);
 
 private Q_SLOTS:
   void onValueChanged(double value, const std::string& jnt_name);

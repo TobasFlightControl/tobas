@@ -5,7 +5,6 @@
 
 #include <QDebug>
 #include <QHBoxLayout>
-#include <QPushButton>
 
 #include <tobas_math/definitions.hpp>
 #include <tobas_qt_tools/util.hpp>
@@ -19,6 +18,13 @@ namespace gui
 {
 namespace sa
 {
+namespace
+{
+constexpr int kButtonHeight = 40;
+constexpr int kPublishPositionsInterval = 10;             // [ms]
+constexpr double kThrustJointAngularVelocity = M_PI / 6;  // [rad/s]
+}  // namespace
+
 JointStatePublisherWidget::JointStatePublisherWidget(
   rclcpp::Node::SharedPtr node,
   const uadf::Model& uadf,
@@ -31,19 +37,21 @@ JointStatePublisherWidget::JointStatePublisherWidget(
   scroll_area->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
   scroll_area->setLayout(slider_rows_);
 
-  const auto zero_button = new QPushButton("Zero");
-  const auto center_button = new QPushButton("Center");
-  const auto random_button = new QPushButton("Random");
+  zero_button_ = new QPushButton("Zero");
+  center_button_ = new QPushButton("Center");
+  random_button_ = new QPushButton("Random");
 
-  zero_button->setFixedHeight(kButtonHeight);
-  center_button->setFixedHeight(kButtonHeight);
-  random_button->setFixedHeight(kButtonHeight);
+  zero_button_->setFixedHeight(kButtonHeight);
+  center_button_->setFixedHeight(kButtonHeight);
+  random_button_->setFixedHeight(kButtonHeight);
+
+  setControlButtonsEnabled(false);
 
   // Layout
   const auto button_cols = new QHBoxLayout();
-  button_cols->addWidget(zero_button);
-  button_cols->addWidget(center_button);
-  button_cols->addWidget(random_button);
+  button_cols->addWidget(zero_button_);
+  button_cols->addWidget(center_button_);
+  button_cols->addWidget(random_button_);
 
   const auto rows = new QVBoxLayout();
   rows->addWidget(scroll_area);
@@ -52,10 +60,10 @@ JointStatePublisherWidget::JointStatePublisherWidget(
   setLayout(rows);
 
   // Connection
-  connect(zero_button, &QPushButton::clicked, this, &self::onZeroButtonClicked);
-  connect(center_button, &QPushButton::clicked, this, &self::onCenterButtonClicked);
-  connect(random_button, &QPushButton::clicked, this, &self::onRandomButtonClicked);
-  connect(&publish_timer_, &QTimer::timeout, this, &self::publish);
+  connect(zero_button_, &QPushButton::clicked, this, &self::onZeroButtonClicked);
+  connect(center_button_, &QPushButton::clicked, this, &self::onCenterButtonClicked);
+  connect(random_button_, &QPushButton::clicked, this, &self::onRandomButtonClicked);
+  connect(&publish_timer_, &QTimer::timeout, this, &self::publishCurrentPositions);
 
   // Register publishers.
   js_pub_ = ros2::createPublisher<sensor_msgs::msg::JointState>(node_, "joint_states");
@@ -117,12 +125,15 @@ void JointStatePublisherWidget::updateInternalDataStructures()
 
   slider_rows_->addStretch();
 
+  // Enable the control buttons only when controllable joints exist.
+  setControlButtonsEnabled(!sliders_.empty());
+
   // Start to publish joint states.
-  publish_timer_.start(100);
+  publish_timer_.start(kPublishPositionsInterval);
   thrust_rotation_timer_.start();
 }
 
-void JointStatePublisherWidget::publish()
+void JointStatePublisherWidget::publishCurrentPositions()
 {
   // Update the thrust joint positions.
   const auto elapsed_sec = static_cast<double>(thrust_rotation_timer_.restart()) / 1000.0;
@@ -139,6 +150,13 @@ void JointStatePublisherWidget::publish()
   auto drs = std::make_unique<tobas_visualization_msgs::msg::DisplayRobotState>();
   drs->state.joint_state = js_;
   drs_pub_->publish(std::move(drs));
+}
+
+void JointStatePublisherWidget::setControlButtonsEnabled(bool enabled)
+{
+  zero_button_->setEnabled(enabled);
+  center_button_->setEnabled(enabled);
+  random_button_->setEnabled(enabled);
 }
 
 void JointStatePublisherWidget::onValueChanged(double value, const std::string& jnt_name)
