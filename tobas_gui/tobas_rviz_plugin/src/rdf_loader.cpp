@@ -7,11 +7,13 @@
 
 namespace tobas
 {
+namespace rviz
+{
 namespace
 {
 rclcpp::Logger getLogger()
 {
-  return tobas::getLogger("tobas.rdf_loader");
+  return tobas::rviz::getLogger("tobas.rdf_loader");
 }
 }  // namespace
 
@@ -70,4 +72,5 @@ void RDFLoader::urdfUpdateCallback(const std::string& new_urdf_string)
     new_model_cb_();
   }
 }
+}  // namespace rviz
 }  // namespace tobas

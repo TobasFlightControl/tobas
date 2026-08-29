@@ -8,6 +8,8 @@
 
 namespace tobas
 {
+namespace rviz
+{
 namespace
 {
 /* Stores the global logger used by Tobas. */
@@ -37,4 +39,5 @@ rclcpp::Logger getLogger(const std::string& name)
 {
   return getGlobalRootLogger().get_child(name);
 }
+}  // namespace rviz
 }  // namespace tobas

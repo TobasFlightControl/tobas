@@ -10,11 +10,13 @@
 
 namespace tobas
 {
+namespace rviz
+{
 namespace
 {
 rclcpp::Logger getLogger()
 {
-  return tobas::getLogger("tobas.robot_state");
+  return tobas::rviz::getLogger("tobas.robot_state");
 }
 }  // namespace
 
@@ -166,4 +168,5 @@ bool RobotState::checkLinkTransforms() const
   }
   return true;
 }
+}  // namespace rviz
 }  // namespace tobas

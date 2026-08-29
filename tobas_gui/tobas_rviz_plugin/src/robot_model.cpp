@@ -12,11 +12,13 @@
 
 namespace tobas
 {
+namespace rviz
+{
 namespace
 {
 rclcpp::Logger getLogger()
 {
-  return tobas::getLogger("tobas.robot_model");
+  return tobas::rviz::getLogger("tobas.robot_model");
 }
 
 using DescMap = std::map<
@@ -493,4 +495,5 @@ LinkModel* RobotModel::constructLinkModel(const urdf::Link* urdf_link)
   return new_link_model;
 }
 
+}  // namespace rviz
 }  // namespace tobas

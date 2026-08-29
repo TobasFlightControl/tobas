@@ -9,5 +9,8 @@
 
 namespace tobas
 {
+namespace rviz
+{
 bool robotStateMsgToRobotState(const tobas_visualization_msgs::msg::RobotState& robot_state, RobotState& state);
+}  // namespace rviz
 }  // namespace tobas

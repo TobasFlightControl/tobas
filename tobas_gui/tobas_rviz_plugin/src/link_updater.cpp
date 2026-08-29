@@ -5,6 +5,8 @@
 
 namespace tobas
 {
+namespace rviz
+{
 LinkUpdater::LinkUpdater(const RobotState::ConstSharedPtr& state) : robot_state_(state)
 {
 }
@@ -33,4 +35,5 @@ bool LinkUpdater::getLinkTransforms(
 
   return true;
 }
+}  // namespace rviz
 }  // namespace tobas

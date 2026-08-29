@@ -7,6 +7,8 @@
 
 namespace tobas
 {
+namespace rviz
+{
 class PrismaticJointModel : public JointModel
 {
 public:
@@ -23,4 +25,5 @@ public:
 private:
   Eigen::Vector3d axis_ = Eigen::Vector3d::Zero();  // The axis of the joint
 };
+}  // namespace rviz
 }  // namespace tobas

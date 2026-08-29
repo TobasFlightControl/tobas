@@ -9,6 +9,8 @@
 
 namespace tobas
 {
+namespace rviz
+{
 /**
  * @brief SynchronizedStringParameter is a way to load a string from the ROS environment.
  *
@@ -49,4 +51,5 @@ private:
 
   std::string content_;
 };
+}  // namespace rviz
 }  // namespace tobas

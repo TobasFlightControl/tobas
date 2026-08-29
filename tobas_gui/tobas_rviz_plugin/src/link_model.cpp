@@ -7,6 +7,8 @@
 
 namespace tobas
 {
+namespace rviz
+{
 LinkModel::LinkModel(const std::string& name, size_t link_index) : name_(name), link_index_(link_index)
 {
 }
@@ -74,4 +76,5 @@ void LinkModel::setJointOriginTransform(const Eigen::Isometry3d& transform)
     joint_origin_transform_.linear().isIdentity() &&
     joint_origin_transform_.translation().norm() < std::numeric_limits<double>::epsilon();
 }
+}  // namespace rviz
 }  // namespace tobas

@@ -24,6 +24,8 @@
 
 namespace tobas
 {
+namespace rviz
+{
 class RobotStateDisplay : public rviz_common::Display
 {
   Q_OBJECT
@@ -92,4 +94,5 @@ private Q_SLOTS:
   void changedUnhighlightColor();
   void changedReload();
 };
+}  // namespace rviz
 }  // namespace tobas

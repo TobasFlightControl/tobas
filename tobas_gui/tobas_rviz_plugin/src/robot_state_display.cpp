@@ -8,6 +8,8 @@
 
 namespace tobas
 {
+namespace rviz
+{
 RobotStateDisplay::RobotStateDisplay()
 {
   robot_description_property_ = new rviz_common::properties::StringProperty(
@@ -429,4 +431,5 @@ void RobotStateDisplay::changedReload()
     reset();
   }
 }
+}  // namespace rviz
 }  // namespace tobas

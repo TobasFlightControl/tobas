@@ -7,6 +7,8 @@
 
 namespace tobas
 {
+namespace rviz
+{
 class PlanarJointModel : public JointModel
 {
 public:
@@ -16,4 +18,5 @@ public:
   void computeTransform(const double* joint_values, Eigen::Isometry3d& transform) const override;
   void computeVariablePositions(const Eigen::Isometry3d& transform, double* joint_values) const override;
 };
+}  // namespace rviz
 }  // namespace tobas

@@ -10,11 +10,13 @@
 
 namespace tobas
 {
+namespace rviz
+{
 namespace
 {
 rclcpp::Logger getLogger()
 {
-  return tobas::getLogger("tobas.conversions");
+  return tobas::rviz::getLogger("tobas.conversions");
 }
 
 bool jointStateToRobotState(const sensor_msgs::msg::JointState& joint_state, RobotState& state)
@@ -76,4 +78,5 @@ bool robotStateMsgToRobotState(const tobas_visualization_msgs::msg::RobotState& 
   state.update();
   return joint_state_valid || multi_dof_state_valid;
 }
+}  // namespace rviz
 }  // namespace tobas

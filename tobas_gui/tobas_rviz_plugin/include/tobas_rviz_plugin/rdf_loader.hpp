@@ -10,6 +10,8 @@
 
 namespace tobas
 {
+namespace rviz
+{
 class RDFLoader
 {
   using NewModelCallback = std::function<void()>;
@@ -34,4 +36,5 @@ private:
   urdf::ModelInterfaceSharedPtr urdf_;
   NewModelCallback new_model_cb_;
 };
+}  // namespace rviz
 }  // namespace tobas
