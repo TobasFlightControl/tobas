@@ -319,6 +319,7 @@ void GroundControlStationWidget::connectToFlightController()
   TOBAS_CHECK(project_loaded_);
 
   fc_scanner_->stop();
+  connect_btn_->setChecked(true);
 
   clearRosConnection();
   initializeRosConnection();
@@ -329,10 +330,11 @@ void GroundControlStationWidget::disconnectFromFlightController()
 {
   TOBAS_CHECK(project_loaded_);
 
+  fc_scanner_->start();
+  connect_btn_->setChecked(false);
+
   clearRosConnection();
   reset();
-
-  fc_scanner_->start();
 }
 
 bool GroundControlStationWidget::waitForHeartbeat() const
@@ -572,7 +574,6 @@ void GroundControlStationWidget::onConnectRequested()
 
   if (!heartbeat_received) {
     disconnectFromFlightController();
-    connect_btn_->setChecked(false);
     qt::qErrorBox(this, "Timed out waiting for a heartbeat from " + currentHost() + ".");
     return;
   }
@@ -819,7 +820,6 @@ void GroundControlStationWidget::onWriteButtonClicked()
 
   progress.close();
 
-  connect_btn_->setChecked(true);
   simulation_->setEnabled(false);
 
   qt::qInfoBox(this, "Tobas project is installed successfully.");
@@ -895,8 +895,8 @@ void GroundControlStationWidget::onShutdownButtonClicked()
   spinner_.stop();
 
   if (res) {
+    disconnectFromFlightController();
     qt::qInfoBox(this, "The flight controller has been shut down successfully.");
-    reset();  // Call `reset()` last so ROS messages and other state held by widgets are reliably reset.
   }
   else {
     clearExpectedTelemetryLoss();
