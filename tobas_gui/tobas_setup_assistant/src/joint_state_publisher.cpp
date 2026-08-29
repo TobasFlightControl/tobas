@@ -93,7 +93,7 @@ void JointStatePublisherWidget::updateInternalDataStructures()
       const auto rotation_sign = thrust_it->second.direction == uadf::Thrust::CCW ? 1.0 : -1.0;
       thrust_joints_.push_back({ js_.position.size() - 1, rotation_sign });
 
-      qInfo().nospace() << QString::fromStdString(joint.name) << " will rotate automatically.";
+      qDebug() << QString::fromStdString(joint.name) << "will rotate automatically.";
     }
     else {  // Allow users to control other movable joints with sliders.
       const auto slider = new qt::DoubleSliderDisplay();
@@ -119,7 +119,7 @@ void JointStatePublisherWidget::updateInternalDataStructures()
       sliders_.push_back(slider);
       slider_rows_->addWidget(slider);
 
-      qInfo().nospace() << QString::fromStdString(joint.name) << "was added to the JSP slider.";
+      qDebug() << QString::fromStdString(joint.name) << "was added to the JSP slider.";
     }
   }
 
