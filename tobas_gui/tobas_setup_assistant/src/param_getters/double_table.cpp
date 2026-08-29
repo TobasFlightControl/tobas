@@ -3,6 +3,7 @@
 
 #include "tobas_setup_assistant/param_getters/double_table.hpp"
 
+#include <QDir>
 #include <QFileInfo>
 #include <QHBoxLayout>
 #include <QHeaderView>
@@ -11,7 +12,6 @@
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/double_spin_box.hpp>
-#include <tobas_ros2_tools/util.hpp>
 #include <tobas_std_tools/check.hpp>
 
 #include "tobas_setup_assistant/rapidcsv.hpp"
@@ -216,8 +216,7 @@ void ParamGetterWidget_DoubleTable::onCellValueChanged()
 
 QString ParamGetterWidget_DoubleTable::getCsvPath()
 {
-  const auto last_opened_dir =
-    settings_store_.value(last_opened_dir_key_, QString::fromStdString(ros2::getHomeDir())).toString();
+  const auto last_opened_dir = settings_store_.value(last_opened_dir_key_, QDir::homePath()).toString();
 
   const auto file_path = QFileDialog::getOpenFileName(
     this, title_, last_opened_dir, "CSV File (*.csv)", nullptr, QFileDialog::DontUseNativeDialog);
