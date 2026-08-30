@@ -1,0 +1,30 @@
+#!/bin/bash
+
+set -e
+
+SERVICE_TYPE="_tobas-fc._tcp"
+
+if ! command -v avahi-browse > /dev/null 2>&1; then
+  echo "avahi-browse is not installed. Install the avahi-utils package." >&2
+  exit 1
+fi
+
+if ! output=$(avahi-browse --parsable --resolve --terminate "${SERVICE_TYPE}"); then
+  echo "Failed to scan for Tobas flight controllers." >&2
+  exit 1
+fi
+
+awk -F ';' -v service_type="${SERVICE_TYPE}" '
+  $1 == "=" && $3 == "IPv4" && $5 == service_type && $7 != "" && $8 != "" && !addresses[$8]++ {
+    if (!found) {
+      print "HOSTNAME\tIP ADDRESS"
+    }
+    print $7 "\t" $8
+    found = 1
+  }
+  END {
+    if (!found) {
+      print "No Tobas flight controllers found." > "/dev/stderr"
+    }
+  }
+' <<< "${output}"
