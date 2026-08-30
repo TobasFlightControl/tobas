@@ -15,30 +15,26 @@ namespace tobas
 {
 namespace ublox
 {
-ZEDF9P::ZEDF9P() : rate_(kReqInterval)
+ZEDF9P::ZEDF9P()
 {
 }
 
 bool ZEDF9P::initialize(const char* spi_device)
 {
-  // Initialize SPI device.
-  if (!spi_.initialize(spi_device, tx_buf_, rx_buf_, kSpiClockFreq)) {
-    return false;
-  }
-
-  return true;
+  return transport_.initialize(spi_device);
 }
 
 bool ZEDF9P::update(bool nonblock)
 {
   scanner_.reset();
+  uint8_t data;
 
   if (nonblock) {
     // Check the start byte.
-    if (!spi_.transfer(1)) {
+    if (!transport_.receiveByte(data)) {
       return false;
     }
-    if (!scanner_.update(rx_buf_[0])) {
+    if (!scanner_.update(data)) {
       return false;
     }
 
@@ -49,18 +45,15 @@ bool ZEDF9P::update(bool nonblock)
   }
 
   // Scan one message.
-  rate_.start();
+  transport_.startReceive();
   while (scanner_.state() != UBXScanner::kDone) {
-    if (!spi_.transfer(1)) {
+    if (!transport_.receiveByte(data)) {
       return false;
     }
-    if (!scanner_.update(rx_buf_[0])) {
+    if (!scanner_.update(data)) {
       return false;
     }
-
-    // If the `SPI` request interval is too short, data cannot be acquired correctly,
-    // so sleep to keep at least the specified interval.
-    rate_.sleep();
+    transport_.waitReceiveInterval();
   }
 
   if (!verifyMessage()) {
@@ -484,6 +477,8 @@ bool ZEDF9P::enableUsb(bool enable)
 
 bool ZEDF9P::sendMessage(UbxClass cls, uint8_t id, const void* msg, uint16_t size)
 {
+  uint8_t message[kUbxBufferLength];
+
   UbxHeader header;
   header.sync1 = kUbxSync1;
   header.sync2 = kUbxSync2;
@@ -491,13 +486,13 @@ bool ZEDF9P::sendMessage(UbxClass cls, uint8_t id, const void* msg, uint16_t siz
   header.id = id;
   header.length = size;
 
-  const auto payload_pos = spliceMemory(tx_buf_, &header, sizeof(UbxHeader), 0);
-  const auto checksum_pos = spliceMemory(tx_buf_, msg, size, payload_pos);
+  const auto payload_pos = spliceMemory(message, &header, sizeof(UbxHeader), 0);
+  const auto checksum_pos = spliceMemory(message, msg, size, payload_pos);
 
-  const auto ck = computeChecksum(tx_buf_, checksum_pos);
-  const auto message_length = spliceMemory(tx_buf_, &ck, sizeof(CheckSum), checksum_pos);
+  const auto ck = computeChecksum(message, checksum_pos);
+  const auto message_length = spliceMemory(message, &ck, sizeof(CheckSum), checksum_pos);
 
-  return spi_.transfer(message_length);
+  return transport_.send(message, message_length);
 }
 
 bool ZEDF9P::waitForAcknowledge(UbxClass cls, uint8_t id)

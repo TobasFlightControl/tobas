@@ -3,11 +3,11 @@
 
 #pragma once
 
-#include <tobas_linux/spi_dev.hpp>
-#include <tobas_time_tools/rate.hpp>
+#include <chrono>
 
 #include "./ubx_payload.hpp"
 #include "./ubx_scanner.hpp"
+#include "./ubx_spi_transport.hpp"
 
 #define PACKED __attribute__((__packed__))  // Struct member variables are contiguous in memory.
 
@@ -27,15 +27,8 @@ namespace ublox
 class ZEDF9P
 {
 private:
-  static constexpr uint32_t kSpiClockFreq = 5'500'000;  // Maximum frequency is 5.5MHz.
-  static constexpr size_t kSpiBufSize = 256;
   static constexpr uint8_t kRG174CableDelay = 5;  // [ns/m] Coaxial cable delay.
   static constexpr auto kWaitForGnssAck = std::chrono::seconds(1);
-
-  // Interval for receiving one byte over `SPI` [us].
-  // A smaller value reduces communication latency,
-  // but too small a value overloads the receiver with requests and degrades accuracy.
-  static constexpr auto kReqInterval = std::chrono::microseconds(50);
 
 public:
   enum UbxClass : uint8_t
@@ -271,13 +264,9 @@ private:
   };
   /* ==============================*/
 
-  linux::SPIdev spi_;
-  uint8_t tx_buf_[kSpiBufSize];
-  uint8_t rx_buf_[kSpiBufSize];
+  UBXSPITransport transport_;
 
   UBXScanner scanner_;
-
-  tim::Rate rate_;
 
   template <typename T>
   bool cfgValSetSingle(CfgSize size, CfgGroup group, uint8_t id, T value);
