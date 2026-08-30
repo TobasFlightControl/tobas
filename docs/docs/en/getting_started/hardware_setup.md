@@ -80,7 +80,7 @@ note that the highest-priority available network will be selected.
 Run the following command in a terminal to select Cyclone DDS and launch Tobas GCS.
 
 ```bash
-$ RMW_IMPLEMENTATION=rmw_cyclonedds_cpp ros2 launch tobas_gcs gcs.launch.py
+$ ros2 launch tobas_gcs gcs.launch.py
 ```
 
 Click `Load Project`, then double-click `tobas_f450.TBS` created in Setup Assistant to load it.

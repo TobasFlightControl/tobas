@@ -1,7 +1,6 @@
 #!/bin/bash
 
-export ROS_DOMAIN_ID=0
-export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+set -e
 
 source /opt/ros/jazzy/setup.bash
 ros2 launch tobas_gcs gcs.launch.py

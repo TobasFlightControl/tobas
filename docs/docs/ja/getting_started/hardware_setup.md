@@ -80,7 +80,7 @@ GPSw (General Purpose Switch) はユーザが自由に使えるスイッチで�
 ターミナルで以下を実行し，Cyclone DDS を指定して Tobas GCS を起動します．
 
 ```bash
-$ RMW_IMPLEMENTATION=rmw_cyclonedds_cpp ros2 launch tobas_gcs gcs.launch.py
+$ ros2 launch tobas_gcs gcs.launch.py
 ```
 
 `Load Project`をクリックし，Setup Assistant で作成した`tobas_f450.TBS`をダブルクリックして読み込みます．
