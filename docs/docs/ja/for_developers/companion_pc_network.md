@@ -220,6 +220,7 @@ $ ssh pi@host1.local
 ```bash
 $ source /opt/ros/jazzy/setup.bash
 $ export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+$ export ROS_DOMAIN_ID=20
 $ export ROS_STATIC_PEERS=host1.local
 $ ros2 daemon stop
 $ ros2 topic list

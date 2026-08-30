@@ -15,8 +15,9 @@ def generate_launch_description():
     ld = LaunchDescription()
 
     # Set environment variables.
-    ld.add_action(SetEnvironmentVariable("RMW_IMPLEMENTATION", "rmw_cyclonedds_cpp"))
+    ld.add_action(SetEnvironmentVariable("ROS_DOMAIN_ID", "20"))
     ld.add_action(SetEnvironmentVariable("ROS_AUTOMATIC_DISCOVERY_RANGE", "LOCALHOST"))
+    ld.add_action(SetEnvironmentVariable("RMW_IMPLEMENTATION", "rmw_cyclonedds_cpp"))
 
     # Add ament prefix path.
     new_ament_prefix_path = PathJoinSubstitution([EnvironmentVariable("HOME"), ".local/share/tobas/colcon_ws/install"])
