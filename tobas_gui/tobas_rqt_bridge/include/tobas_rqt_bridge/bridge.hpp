@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <unordered_map>
+
 #include <QObject>
 #include <rclcpp/node.hpp>
 #include <rclcpp/subscription_base.hpp>
@@ -13,7 +15,7 @@
 
 namespace tobas
 {
-namespace gui
+namespace rqt
 {
 class RosQtBridge : public QObject
 {
@@ -46,38 +48,22 @@ Q_SIGNALS:
   void rawMagReceived(const tobas_msgs::MagneticField::ConstSharedPtr& msg);
 
 public:
-  explicit RosQtBridge(rclcpp::Node::SharedPtr node);
+  explicit RosQtBridge(QObject* parent = nullptr);
 
-  void initializeScopedTopics(const std::string& ns);
+  void initializeRosInterfaces(const rclcpp::Node::SharedPtr& node, const std::string& ns);
+  void clearRosInterfaces();
 
 private:
-  const rclcpp::Node::SharedPtr node_;
-
-  std::vector<rclcpp::SubscriptionBase::SharedPtr> global_subs_;
-  std::vector<rclcpp::SubscriptionBase::SharedPtr> scoped_subs_;
+  std::unordered_map<const char*, rclcpp::SubscriptionBase::SharedPtr> subs_;
 
   template <typename MsgType, auto SignalType>
   void add(
-    const std::string& topic,
-    std::vector<rclcpp::SubscriptionBase::SharedPtr>& buf,
-    bool latch,
-    bool reliable,
-    size_t queue_size);
-
-  template <typename MsgType, auto SignalType>
-  void addGlobal(
-    const std::string& topic,
-    bool latch = ros2::qos::kDefaultLatch,
-    bool reliable = ros2::qos::kDefaultReliable,
-    size_t queue_size = ros2::qos::kDefaultQueueSize);
-
-  template <typename MsgType, auto SignalType>
-  void addScoped(
+    const rclcpp::Node::SharedPtr& node,
     const std::string& ns,
-    const std::string& topic,
+    const char* base_topic,
     bool latch = ros2::qos::kDefaultLatch,
     bool reliable = ros2::qos::kDefaultReliable,
     size_t queue_size = ros2::qos::kDefaultQueueSize);
 };
-}  // namespace gui
+}  // namespace rqt
 }  // namespace tobas

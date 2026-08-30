@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <optional>
+
 #include <gz/sim/Joint.hh>
 #include <gz/sim/Model.hh>
 #include <gz/sim/components/JointTransmittedWrench.hh>
@@ -47,7 +49,7 @@ private:
     double home_pos;  // [rad]
   } param_;
 
-  std::shared_ptr<gz::sim::Joint> joint_;
+  std::optional<gz::sim::Joint> joint_;
   const cmp::JointTransmittedWrench* jnt_eff_;
 
   double tar_eff_ = 0.0;
@@ -82,7 +84,7 @@ void GazeboJointEffortControllerPlugin::Configure(
 
   // Get joint.
   const auto joint_entity = model.JointByName(ecm, joint_name_);
-  joint_ = std::make_shared<gz::sim::Joint>(joint_entity);
+  joint_.emplace(joint_entity);
   if (!joint_->Valid(ecm)) {
     TOBAS_EXIT("Failed to find joint \"", joint_name_, "\".");
   }

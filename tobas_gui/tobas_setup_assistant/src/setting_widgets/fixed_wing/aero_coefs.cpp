@@ -3,13 +3,13 @@
 
 #include "tobas_setup_assistant/setting_tabs/fixed_wing/aero_coefs.hpp"
 
+#include <QDir>
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QPushButton>
 
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
-#include <tobas_ros2_tools/util.hpp>
 #include <tobas_yaml_tools/format.hpp>
 
 #include "tobas_setup_assistant/constants.hpp"
@@ -257,8 +257,7 @@ double AerodynamicsCoefficientsWidget::c_yaw_r() const
 void AerodynamicsCoefficientsWidget::onLoadButtonClicked()
 {
   // Get the previously opened path.
-  const auto last_opened_dir =
-    settings_store_.value(kLastOpenedDirKey, QString::fromStdString(ros2::getHomeDir())).toString();
+  const auto last_opened_dir = settings_store_.value(kLastOpenedDirKey, QDir::homePath()).toString();
 
   // Get the params path.
   const auto file_path = QFileDialog::getOpenFileName(

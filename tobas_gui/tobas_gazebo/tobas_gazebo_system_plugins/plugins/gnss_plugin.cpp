@@ -2,6 +2,7 @@
 // Copyright (C) 2026 Tobas, Inc.
 
 #include <atomic>
+#include <optional>
 
 #include <gz/sim/components/AngularVelocity.hh>
 #include <gz/sim/components/LinearVelocity.hh>
@@ -76,7 +77,7 @@ private:
   double lon_0_;  // Longitude east of the origin [deg]
   double alt_0_;  // Altitude of the origin [m]
 
-  RateManager::SharedPtr rate_manager_;
+  std::optional<RateManager> rate_manager_;
 
   const cmp::WorldPose* pose_W_;
   const cmp::WorldLinearVelocity* vel_W_;
@@ -89,8 +90,8 @@ private:
   std::atomic_bool force_no_fix_ = false;
 
   std::random_device rnd_dev_;
-  NormalDistribution3d::SharedPtr dpos_noise_;
-  NormalDistribution3d::SharedPtr vel_noise_;
+  std::optional<NormalDistribution3d> dpos_noise_;
+  std::optional<NormalDistribution3d> vel_noise_;
 
   // Publishers
   ros2::PublisherPtr<tobas_msgs::Gnss> gnss_pub_;
@@ -125,7 +126,7 @@ void GazeboGnssPlugin::Configure(
   getSdfParams(sdf);
   setRandomDistribuitons();
 
-  rate_manager_ = std::make_shared<RateManager>(update_rate_);
+  rate_manager_.emplace(update_rate_);
 
   const auto sc = getWorldSphericalCoordinates(ecm);
   if (!sc) {
@@ -226,11 +227,11 @@ void GazeboGnssPlugin::setRandomDistribuitons()
   const auto hor_dpos_stddev = hor_pos_accuracy_ * std::sqrt(M_PI / pos_corr_time_);
   const auto ver_dpos_stddev = ver_pos_accuracy_ * std::sqrt(M_PI / pos_corr_time_);
   const gz::math::Vector3d dpos_stddev(hor_dpos_stddev, hor_dpos_stddev, ver_dpos_stddev);
-  dpos_noise_.reset(new NormalDistribution3d(rnd_dev_, gz::math::Vector3d::Zero, dpos_stddev));
+  dpos_noise_.emplace(rnd_dev_, gz::math::Vector3d::Zero, dpos_stddev);
 
   // Random generator for velocity.
   const gz::math::Vector3d vel_stddev(hor_vel_stddev_, hor_vel_stddev_, ver_vel_stddev_);
-  vel_noise_.reset(new NormalDistribution3d(rnd_dev_, gz::math::Vector3d::Zero, vel_stddev));
+  vel_noise_.emplace(rnd_dev_, gz::math::Vector3d::Zero, vel_stddev);
 }
 
 void GazeboGnssPlugin::fillCovariances(tobas_msgs::Gnss& gnss_msg)

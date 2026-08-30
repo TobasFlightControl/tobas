@@ -17,11 +17,7 @@ namespace gui
 {
 namespace sim
 {
-CommandersWidget::CommandersWidget(
-  rclcpp::Node::SharedPtr node,
-  const RosQtBridge& bridge,
-  const kdl::Tree& tree,
-  const Drone& drone)
+CommandersWidget::CommandersWidget(const rqt::RosQtBridge& bridge, const kdl::Tree& tree, const Drone& drone)
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);
@@ -31,13 +27,19 @@ CommandersWidget::CommandersWidget(
 
   const auto scroll_rows = qt::createScrollableQVBoxLayout(rows);
 
-  base_pose_commander_ = new BasePoseCommanderWidget(node, bridge, drone);
+  base_pose_commander_ = new BasePoseCommanderWidget(bridge);
   scroll_rows->addWidget(base_pose_commander_);
 
-  joint_commander_ = new JointCommanderWidget(node, tree, drone);
+  joint_commander_ = new JointCommanderWidget(tree, drone);
   scroll_rows->addWidget(joint_commander_);
 
   scroll_rows->addStretch();
+}
+
+void CommandersWidget::reset()
+{
+  base_pose_commander_->reset();
+  joint_commander_->reset();
 }
 
 void CommandersWidget::updateInternalDataStructures()
@@ -46,23 +48,16 @@ void CommandersWidget::updateInternalDataStructures()
   joint_commander_->updateInternalDataStructures();
 }
 
-bool CommandersWidget::start(ch::milliseconds timeout)
+void CommandersWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
 {
-  if (!base_pose_commander_->start(timeout)) {
-    return false;
-  }
-
-  if (!joint_commander_->start(timeout)) {
-    return false;
-  }
-
-  return true;
+  base_pose_commander_->initializeRosInterfaces(node, ns);
+  joint_commander_->initializeRosInterfaces(node, ns);
 }
 
-void CommandersWidget::reset()
+void CommandersWidget::clearRosInterfaces()
 {
-  base_pose_commander_->reset();
-  joint_commander_->reset();
+  base_pose_commander_->clearRosInterfaces();
+  joint_commander_->clearRosInterfaces();
 }
 }  // namespace sim
 }  // namespace gui

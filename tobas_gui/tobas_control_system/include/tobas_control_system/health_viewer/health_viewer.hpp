@@ -22,7 +22,7 @@ class HealthViewerWidget : public qt::ScrollArea
   using super = qt::ScrollArea;
 
 public:
-  explicit HealthViewerWidget(const RosQtBridge& bridge);
+  explicit HealthViewerWidget(const rqt::RosQtBridge& bridge);
 
   void reset();
 

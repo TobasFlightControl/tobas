@@ -3,6 +3,7 @@
 
 #include "tobas_qt_tools/message.hpp"
 
+#include <QDebug>
 #include <QMessageBox>
 
 namespace tobas
@@ -11,16 +12,19 @@ namespace qt
 {
 void qInfoBox(QWidget* parent, const QString& msg)
 {
+  qInfo().noquote() << msg;
   QMessageBox::information(parent, "INFO", msg);
 }
 
 void qWarnBox(QWidget* parent, const QString& msg)
 {
+  qWarning().noquote() << msg;
   QMessageBox::warning(parent, "WARN", msg);
 }
 
 void qErrorBox(QWidget* parent, const QString& msg)
 {
+  qCritical().noquote() << msg;
   QMessageBox::critical(parent, "ERROR", msg);
 }
 

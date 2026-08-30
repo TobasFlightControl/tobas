@@ -9,6 +9,8 @@ namespace ch = std::chrono;
 
 namespace tobas
 {
+namespace rviz
+{
 std::string SynchronizedStringParameter::loadInitialValue(
   const rclcpp::Node::SharedPtr& node,
   const std::string& name,
@@ -89,8 +91,8 @@ bool SynchronizedStringParameter::shouldPublish()
 bool SynchronizedStringParameter::waitForMessage(const rclcpp::Duration& timeout)
 {
   const auto nd_name = std::string(node_->get_name()).append("_ssp_").append(name_);
-  const auto temp_node = std::make_shared<rclcpp::Node>(nd_name, node_->get_namespace());
-  string_subscriber_ = temp_node->create_subscription<std_msgs::msg::String>(
+  rclcpp::Node temp_node(nd_name, node_->get_namespace());
+  string_subscriber_ = temp_node.create_subscription<std_msgs::msg::String>(
     name_,
     rclcpp::QoS(1).transient_local().reliable(),  // "transient_local()" is required for supporting late subscriptions.
     [this](const std_msgs::msg::String::ConstSharedPtr& msg) { return stringCallback(msg); });
@@ -120,4 +122,5 @@ void SynchronizedStringParameter::stringCallback(const std_msgs::msg::String::Co
   }
   content_ = msg->data;
 }
+}  // namespace rviz
 }  // namespace tobas

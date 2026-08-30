@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include <filesystem>
-
 #include <tobas_ros2_tools/definitions.hpp>
 #include <tobas_ros2_tools/sync_action_client.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
@@ -23,7 +21,7 @@ namespace tobas
 namespace ssh
 {
 /**
- * @brief Client for the property server.
+ * @brief Client for the SSH server.
  * @note Calling this from a callback running on the same thread as the ROS node causes a deadlock.
  */
 class SshClient
@@ -39,8 +37,6 @@ class SshClient
   static constexpr char kScpPutAction[] = "ssh/scp_put";
 
 public:
-  using SharedPtr = std::shared_ptr<SshClient>;
-
   enum Error
   {
     kNoError = 0,
@@ -50,6 +46,9 @@ public:
 
   explicit SshClient(rclcpp::Node::SharedPtr node);
 
+  /* Wait for the local server that communicates directly with the SSH server. */
+  bool waitForLocalServer();
+
   /* Getters */
 
   Error errorCode() const;
@@ -57,7 +56,7 @@ public:
 
   /* Setters */
 
-  Error setEndpoint(const std::string& host, const std::string& user);
+  bool setEndpoint(const std::string& host, const std::string& user);
 
   /* SSH commands */
 

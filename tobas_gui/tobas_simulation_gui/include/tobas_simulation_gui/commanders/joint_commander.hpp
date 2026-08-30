@@ -34,15 +34,14 @@ class JointCommanderWidget : public QWidget
   static constexpr int kPublishCommandPeriod = 100;  // [ms]
 
 public:
-  explicit JointCommanderWidget(rclcpp::Node::SharedPtr node, const kdl::Tree& tree, const Drone& drone);
+  explicit JointCommanderWidget(const kdl::Tree& tree, const Drone& drone);
 
-  void updateInternalDataStructures();
-
-  bool start(std::chrono::milliseconds timeout);
   void reset();
+  void updateInternalDataStructures();
+  void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
+  void clearRosInterfaces();
 
 private:
-  const rclcpp::Node::SharedPtr node_;
   const kdl::Tree& tree_;
   const Drone& drone_;
 

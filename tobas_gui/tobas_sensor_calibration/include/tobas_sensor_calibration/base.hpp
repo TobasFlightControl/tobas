@@ -3,8 +3,11 @@
 
 #pragma once
 
+#include <string>
+
 #include <QLabel>
 #include <QVBoxLayout>
+#include <rclcpp/node.hpp>
 
 #include <tobas_qt_tools/widgets/widget.hpp>
 
@@ -26,6 +29,12 @@ public:
 
   /* Initialize the widget without changing the robot structure. */
   virtual void reset() = 0;
+
+  virtual void updateInternalDataStructures() = 0;
+
+  virtual void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns) = 0;
+
+  virtual void clearRosInterfaces() = 0;
 
 protected:
   QVBoxLayout* rows_;

@@ -4,10 +4,10 @@
 #pragma once
 
 #include <array>
+#include <optional>
 
 #include <QPushButton>
 
-#include <tobas_drone_core/drone.hpp>
 #include <tobas_qt_tools/widgets/slider_display.hpp>
 #include <tobas_qt_tools/widgets/toggle_button.hpp>
 #include <tobas_ros2_tools/register.hpp>
@@ -36,17 +36,14 @@ class BasePoseCommanderWidget : public QWidget
   static constexpr double kHomeAltitude = 3.0;  // [m]
 
 public:
-  explicit BasePoseCommanderWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge, const Drone& drone);
+  explicit BasePoseCommanderWidget(const rqt::RosQtBridge& bridge);
 
-  void updateInternalDataStructures();
-
-  bool start(std::chrono::milliseconds timeout);
   void reset();
+  void updateInternalDataStructures();
+  void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
+  void clearRosInterfaces();
 
 private:
-  const rclcpp::Node::SharedPtr node_;
-  const Drone& drone_;
-
   qt::ToggleButton* arming_button_;
 
   std::array<qt::DoubleSliderDisplay*, 3> cmd_xyz_;  // [m]
@@ -63,7 +60,7 @@ private:
   ros2::PublisherPtr<tobas_command_msgs::PosVelAccYaw> pvay_pub_;
   ros2::PublisherPtr<tobas_command_msgs::PosVelAccPitchYaw> pvapy_pub_;
 
-  ros2::SyncServiceClient<tobas_msgs::srv::SetArm>::SharedPtr set_arm_sc_;
+  std::optional<ros2::SyncServiceClient<tobas_msgs::srv::SetArm>> set_arm_sc_;
 
   bool isRunning() const;
 

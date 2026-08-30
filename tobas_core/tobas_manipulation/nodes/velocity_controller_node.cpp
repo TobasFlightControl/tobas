@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <optional>
+
 #include <tobas_constants/ros_interface.hpp>
 #include <tobas_kdl/tree_active_joints_extractor.hpp>
 #include <tobas_kdl/tree_joint_parser.hpp>
@@ -45,7 +47,7 @@ private:
   TreeJointStateConverter cur_js_conv_;
   TreeJointStateConverter tar_js_conv_;
 
-  ros2::TransformListener::SharedPtr tf_listener_;
+  std::optional<ros2::TransformListener> tf_listener_;
   double jnt_time_const_;
   tobas_msgs::msg::JointStateArray home_js_;
 
@@ -111,7 +113,7 @@ void VelocityControllerNode::initialize()
   jnt_names_.insert(jnt_names.begin(), jnt_names.end());
 
   // `shared_from_this` cannot be called from the constructor.
-  tf_listener_ = std::make_shared<ros2::TransformListener>(shared_from_this());
+  tf_listener_.emplace(shared_from_this());
 
   addDynamicDoubleParam("joint_time_constant", &self::jointTimeConstCb, this, 0.1, 3, 1, 10, " s");
   addDynamicDoubleParam("linear_time_constant", &self::linearTimeConstCb, this, 0.1, 5, 1, 10, " s");

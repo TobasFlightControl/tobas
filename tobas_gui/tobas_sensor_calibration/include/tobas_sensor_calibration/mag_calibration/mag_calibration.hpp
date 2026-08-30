@@ -28,13 +28,13 @@ class MagCalibrationWidget : public BaseWidget
   static constexpr int kDefaultIndex = 0;
 
 public:
-  explicit MagCalibrationWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge);
+  explicit MagCalibrationWidget(const rqt::RosQtBridge& bridge);
 
   const char* title() const override;
-
   void reset() override;
-
-  void setNamespace(const std::string& ns);
+  void updateInternalDataStructures() override;
+  void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns) override;
+  void clearRosInterfaces() override;
 
 private:
   QButtonGroup* btn_group_;

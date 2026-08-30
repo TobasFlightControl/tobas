@@ -6,14 +6,14 @@
 #include <ranges>
 
 #include <QDebug>
+#include <QDir>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
 #include <tobas_constants/node.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/util.hpp>
-
-namespace fs = std::filesystem;
+#include <tobas_std_tools/check.hpp>
 
 namespace tobas
 {
@@ -21,15 +21,15 @@ namespace gui
 {
 namespace param
 {
-ParameterTuningWidget::ParameterTuningWidget(rclcpp::Node::SharedPtr node)
+ParameterTuningWidget::ParameterTuningWidget()
   : file_names_{ cmn::ProjectPaths::kImuFilterDynamicParamFileName,
                  cmn::ProjectPaths::kObserverDynamicParamFileName,
                  cmn::ProjectPaths::kControllerDynamicParamFileName,
                  cmn::ProjectPaths::kRcTeleopDynamicParamFileName }
-  , blocks_{ new ParamBlockWidget(node, node::kImuFilterConfigServer, "IMU Filter"),
-             new ParamBlockWidget(node, node::kObserver, "State Estimator"),
-             new ParamBlockWidget(node, node::kController, "Flight Controller"),
-             new ParamBlockWidget(node, node::kRcTeleop, "Radio Control") }
+  , blocks_{ new ParamBlockWidget(node::kImuFilterConfigServer, "IMU Filter"),
+             new ParamBlockWidget(node::kObserver, "State Estimator"),
+             new ParamBlockWidget(node::kController, "Flight Controller"),
+             new ParamBlockWidget(node::kRcTeleop, "Radio Control") }
 {
   load_button_ = new QPushButton("Load");
   save_button_ = new QPushButton("Save");
@@ -40,7 +40,6 @@ ParameterTuningWidget::ParameterTuningWidget(rclcpp::Node::SharedPtr node)
   dflt_button_->setFixedSize(kButtonWidth, kButtonHeight);
 
   reset();
-  load_button_->setEnabled(false);  // Disable the Load button until a project has been loaded.
 
   // Layout
   const auto root_rows = new QVBoxLayout();
@@ -67,7 +66,7 @@ ParameterTuningWidget::ParameterTuningWidget(rclcpp::Node::SharedPtr node)
 
 void ParameterTuningWidget::reset()
 {
-  load_button_->setEnabled(true);
+  load_button_->setEnabled(project_loaded_ && ros_initialized_);
   save_button_->setEnabled(false);
   dflt_button_->setEnabled(false);
 
@@ -77,27 +76,34 @@ void ParameterTuningWidget::reset()
   }
 }
 
-bool ParameterTuningWidget::updateProject(const fs::path& proj_path)
+void ParameterTuningWidget::updateProject(const QString& proj_path)
 {
-  reset();
-
   // Update project path.
   proj_paths_.setProjPath(proj_path);
 
   // Load drone configuration.
   const auto tbsdrn_path = proj_paths_.tbsdrnPath();
-  if (!drone_.load(tbsdrn_path)) {
-    qt::qErrorBox(this, "Failed to load drone configuration.");
-    return false;
-  }
+  TOBAS_CHECK(drone_.load(tbsdrn_path.toStdString()));
 
-  // Set namespace.
-  const auto ns = '/' + drone_.name;
+  project_loaded_ = true;
+}
+
+void ParameterTuningWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
+{
   for (const auto& block : blocks_) {
-    block->setNamespace(ns);
+    block->initializeRosInterfaces(node, ns);
   }
 
-  return true;
+  ros_initialized_ = true;
+}
+
+void ParameterTuningWidget::clearRosInterfaces()
+{
+  for (const auto& block : blocks_) {
+    block->clearRosInterfaces();
+  }
+
+  ros_initialized_ = false;
 }
 
 void ParameterTuningWidget::onLoadButtonClicked()
@@ -128,7 +134,7 @@ void ParameterTuningWidget::onSaveButtonClicked()
   const auto config_dir_path = proj_paths_.cfgConfigDirPath();
 
   for (const auto& [block, file_name] : std::views::zip(blocks_, file_names_)) {
-    const auto file_path = config_dir_path / file_name;
+    const auto file_path = QDir(config_dir_path).filePath(file_name);
     if (!block->save(file_path)) {
       return;
     }

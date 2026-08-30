@@ -16,7 +16,7 @@ namespace gui
 {
 namespace ctrl
 {
-CpuViewerWidget::CpuViewerWidget(const RosQtBridge& bridge)
+CpuViewerWidget::CpuViewerWidget(const rqt::RosQtBridge& bridge)
 {
   temp_ = new qt::ProgressBar();
   temp_->setFixedHeight(kBarHeight);
@@ -31,7 +31,7 @@ CpuViewerWidget::CpuViewerWidget(const RosQtBridge& bridge)
   setLayout(form);
 
   // Connection
-  connect(&bridge, &RosQtBridge::cpuReceived, this, &self::cpuCb, Qt::QueuedConnection);
+  connect(&bridge, &rqt::RosQtBridge::cpuReceived, this, &self::cpuCb, Qt::QueuedConnection);
 }
 
 void CpuViewerWidget::reset()

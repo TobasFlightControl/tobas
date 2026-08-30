@@ -28,7 +28,7 @@ class CpuViewerWidget : public QWidget
   static constexpr double kMaxTemp = 100.0;  // [degC]
 
 public:
-  explicit CpuViewerWidget(const RosQtBridge& bridge);
+  explicit CpuViewerWidget(const rqt::RosQtBridge& bridge);
 
   void reset();
 

@@ -16,8 +16,8 @@ namespace gui
 {
 namespace sc
 {
-LargeVehicleMagCalibWidget::LargeVehicleMagCalibWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge)
-  : spinner_(Qt::WindowModal, this), thread_(node, bridge)
+LargeVehicleMagCalibWidget::LargeVehicleMagCalibWidget(const rqt::RosQtBridge& bridge)
+  : spinner_(Qt::WindowModal, this), thread_(bridge)
 {
   const auto instruction = new qt::DescriptionWidget(
     "1. Make sure the GNSS is fixed. This is required to obtain the reference geomagnetic field.\n\n"
@@ -40,7 +40,7 @@ LargeVehicleMagCalibWidget::LargeVehicleMagCalibWidget(rclcpp::Node::SharedPtr n
 
   // Connection
   connect(start_button_, &QPushButton::clicked, this, &self::onStartButtonClicked);
-  connect(&bridge, &RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
+  connect(&bridge, &rqt::RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
 }
 
 void LargeVehicleMagCalibWidget::reset()
@@ -50,9 +50,14 @@ void LargeVehicleMagCalibWidget::reset()
   arming_.reset();
 }
 
-void LargeVehicleMagCalibWidget::setNamespace(const std::string& ns)
+void LargeVehicleMagCalibWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
 {
-  thread_.setNamespace(ns);
+  thread_.initializeRosInterfaces(std::move(node), ns);
+}
+
+void LargeVehicleMagCalibWidget::clearRosInterfaces()
+{
+  thread_.clearRosInterfaces();
 }
 
 void LargeVehicleMagCalibWidget::onStartButtonClicked()

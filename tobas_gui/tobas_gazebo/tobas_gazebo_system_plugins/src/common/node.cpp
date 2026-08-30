@@ -49,10 +49,11 @@ void BaseNode::initialize(const std::string& name, const sdf::ElementConstPtr& s
 
   node_ = rclcpp::Node::make_shared(name, ns_, options);
 
-  executor_ = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
+  // The executor constructor creates a guard condition using the ROS context,
+  // so defer construction until after `rclcpp::init()` has initialized that context.
+  executor_.emplace();
   executor_->add_node(node_);
-  const auto spin = [this]() { executor_->spin(); };
-  spin_thread_ = std::thread(spin);
+  spin_thread_ = std::thread([this]() { executor_->spin(); });
 
   message_pub_ = createPublisher<tobas_msgs::msg::Message>(topic::kMessage, false, true, 1);
 }

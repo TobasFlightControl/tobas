@@ -20,7 +20,7 @@ namespace gui
 {
 namespace ctrl
 {
-BatteryViewerWidget::BatteryViewerWidget(const RosQtBridge& bridge, const Drone& drone) : drone_(drone)
+BatteryViewerWidget::BatteryViewerWidget(const rqt::RosQtBridge& bridge, const Drone& drone) : drone_(drone)
 {
   voltage_ = new qt::ProgressBar();
   current_ = new qt::ProgressBar();
@@ -35,7 +35,7 @@ BatteryViewerWidget::BatteryViewerWidget(const RosQtBridge& bridge, const Drone&
   setLayout(form);
 
   // Connection
-  connect(&bridge, &RosQtBridge::batteryReceived, this, &self::batteryCb, Qt::QueuedConnection);
+  connect(&bridge, &rqt::RosQtBridge::batteryReceived, this, &self::batteryCb, Qt::QueuedConnection);
 }
 
 void BatteryViewerWidget::reset()

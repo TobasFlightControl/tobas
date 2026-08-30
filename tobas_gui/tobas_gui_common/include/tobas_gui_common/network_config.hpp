@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <filesystem>
+#include <QString>
 
 namespace tobas
 {
@@ -16,10 +16,10 @@ class NetworkConfig
   static constexpr char kInterfaceKey[] = "interface";
 
 public:
-  std::string interface;
+  QString interface;
 
-  bool load(const std::filesystem::path& path);
-  bool save(const std::filesystem::path& path) const;
+  bool load(const QString& path);
+  bool save(const QString& path) const;
 };
 }  // namespace cmn
 }  // namespace gui

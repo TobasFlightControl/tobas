@@ -12,8 +12,6 @@ namespace tobas
 class ImuSamplingTimePublisher
 {
 public:
-  using SharedPtr = std::shared_ptr<ImuSamplingTimePublisher>;
-
   explicit ImuSamplingTimePublisher(rclcpp::Node* node);
 
   void publish(const rclcpp::Time& cur_time);

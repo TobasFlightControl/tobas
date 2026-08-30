@@ -4,6 +4,7 @@
 #include "tobas_setup_assistant/save_project_dialog.hpp"
 
 #include <QDialogButtonBox>
+#include <QDir>
 #include <QEvent>
 #include <QGridLayout>
 #include <QKeyEvent>
@@ -12,7 +13,6 @@
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/path.hpp>
 #include <tobas_ros2_tools/package.hpp>
-#include <tobas_ros2_tools/util.hpp>
 
 namespace tobas
 {
@@ -75,7 +75,7 @@ void SaveProjectDialog::onProjectPathChanged()
   const auto proj_name = proj_name_->text();
 
   // Must be under the home directory.
-  if (!dir.startsWith(ros2::getHomeDir())) {
+  if (!dir.startsWith(QDir::homePath())) {
     warn_text_->setText("The Tobas project must be located under your home directory.");
     save_button_->setEnabled(false);
     return;

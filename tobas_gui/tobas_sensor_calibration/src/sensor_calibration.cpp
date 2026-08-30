@@ -11,30 +11,26 @@ namespace gui
 {
 namespace sc
 {
-SensorCalibrationWidget::SensorCalibrationWidget(
-  rclcpp::Node::SharedPtr node,
-  const RosQtBridge& bridge,
-  const Drone& drone)
-  : drone_(drone)
+SensorCalibrationWidget::SensorCalibrationWidget(const rqt::RosQtBridge& bridge, const Drone& drone) : drone_(drone)
 {
   setTabSize(kTabWidth, kTabHeight);
   enableWheelEvent(false);
 
-  accel_calib_ = new AccelCalibrationWidget(node, bridge);
+  accel_calib_ = new AccelCalibrationWidget(bridge);
   addTab(accel_calib_, "Accelerometer");
 
-  mag_calib_ = new MagCalibrationWidget(node, bridge);
+  mag_calib_ = new MagCalibrationWidget(bridge);
   addTab(mag_calib_, "Magnetometer");
 
-  rcin_calib_ = new RCInputCalibrationWidget(node, bridge, drone);
+  rcin_calib_ = new RCInputCalibrationWidget(bridge, drone);
   addTab(rcin_calib_, "Radio Control");
 
   setTabsEnabled(false);
 
   // Connection
-  connect(&bridge, &RosQtBridge::imuReceived, this, &self::imuCb, Qt::QueuedConnection);
-  connect(&bridge, &RosQtBridge::magReceived, this, &self::magCb, Qt::QueuedConnection);
-  connect(&bridge, &RosQtBridge::rcInputReceived, this, &self::rcInputCb, Qt::QueuedConnection);
+  connect(&bridge, &rqt::RosQtBridge::imuReceived, this, &self::imuCb, Qt::QueuedConnection);
+  connect(&bridge, &rqt::RosQtBridge::magReceived, this, &self::magCb, Qt::QueuedConnection);
+  connect(&bridge, &rqt::RosQtBridge::rcInputReceived, this, &self::rcInputCb, Qt::QueuedConnection);
 }
 
 void SensorCalibrationWidget::reset()
@@ -47,19 +43,27 @@ void SensorCalibrationWidget::reset()
 
 void SensorCalibrationWidget::updateInternalDataStructures()
 {
-  reset();
+  for (int i = 0; i < count(); ++i) {
+    getWidget(i)->updateInternalDataStructures();
+  }
+}
 
-  const auto ns = '/' + drone_.name;
+void SensorCalibrationWidget::clearRosInterfaces()
+{
+  for (int i = 0; i < count(); ++i) {
+    getWidget(i)->clearRosInterfaces();
+  }
 
-  accel_calib_->setNamespace(ns);
-  mag_calib_->setNamespace(ns);
-  rcin_calib_->updateInternalDataStructures();
+  setTabsEnabled(false);
+}
 
-  // Enable each tab.
+void SensorCalibrationWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
+{
+  for (int i = 0; i < count(); ++i) {
+    getWidget(i)->initializeRosInterfaces(node, ns);
+  }
+
   setTabsEnabled(true);
-
-  // Adjust distortion caused by showing or hiding tabs.
-  update();
 }
 
 BaseWidget* SensorCalibrationWidget::getWidget(int index)

@@ -20,8 +20,6 @@ namespace ros2
 class SyncParamClient
 {
 public:
-  using SharedPtr = std::shared_ptr<SyncParamClient>;
-
   enum ErrorCode
   {
     kNoError,

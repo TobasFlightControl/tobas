@@ -13,7 +13,6 @@
 #include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_qt_tools/message.hpp>
-#include <tobas_qt_tools/thread.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 #include <tobas_string_tools/core.hpp>
 
@@ -27,7 +26,7 @@ namespace gui
 {
 namespace sim
 {
-SuspendedLoadWidget::SuspendedLoadWidget(rclcpp::Node::SharedPtr node) : node_(node)
+SuspendedLoadWidget::SuspendedLoadWidget()
 {
   const auto title = new qt::Label("Suspended Load", cmn::kLabelPSize, QFont::Bold);
 
@@ -61,8 +60,6 @@ SuspendedLoadWidget::SuspendedLoadWidget(rclcpp::Node::SharedPtr node) : node_(n
   cable_csa_->setMinimum(1);
   cable_csa_->setSuffix(QString::fromStdString(str::convertToSuperscript(" mm^2")));
 
-  setParamsToDefault();
-
   // Layout
   const auto header_cols = new QHBoxLayout();
   header_cols->addWidget(title);
@@ -86,49 +83,27 @@ SuspendedLoadWidget::SuspendedLoadWidget(rclcpp::Node::SharedPtr node) : node_(n
   // Connection
   connect(attach_detach_btn_, &qt::ToggleButton::checked, this, &self::onAttachRequested);
   connect(attach_detach_btn_, &qt::ToggleButton::unchecked, this, &self::onDetachRequested);
-}
 
-void SuspendedLoadWidget::updateNamespace(const std::string& ns)
-{
-  attach_sc_ =
-    std::make_shared<ros2::SyncServiceClient<AttachSrv>>(node_, path::join(ns, gazebo::kAttachSuspenedLoadSrv));
-  detach_sc_ =
-    std::make_shared<ros2::SyncServiceClient<DetachSrv>>(node_, path::join(ns, gazebo::kDetachSuspenedLoadSrv));
-
-  setParamsToDefault();
-}
-
-bool SuspendedLoadWidget::start(ch::milliseconds timeout)
-{
-  bool success = true;
-  QString message;
-
-  qt::startThreadAndWait(
-    [&]()
-    {
-      if (!attach_sc_->waitForService(timeout)) {
-        success = false;
-        message = "Failed to connect to \"" + QString(gazebo::kAttachSuspenedLoadSrv) + "\" service server.";
-        return;
-      }
-      if (!detach_sc_->waitForService(timeout)) {
-        success = false;
-        message = "Failed to connect to \"" + QString(gazebo::kDetachSuspenedLoadSrv) + "\" service server.";
-        return;
-      }
-    });
-
-  if (!success) {
-    qWarning().noquote() << message;
-    return false;
-  }
-
-  return true;
+  reset();
 }
 
 void SuspendedLoadWidget::reset()
 {
   attach_detach_btn_->setChecked(false);
+
+  setParamsToDefault();
+}
+
+void SuspendedLoadWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
+{
+  attach_sc_.emplace(node, path::join(ns, gazebo::kAttachSuspenedLoadSrv));
+  detach_sc_.emplace(node, path::join(ns, gazebo::kDetachSuspenedLoadSrv));
+}
+
+void SuspendedLoadWidget::clearRosInterfaces()
+{
+  attach_sc_.reset();
+  detach_sc_.reset();
 }
 
 void SuspendedLoadWidget::setParamsToDefault()

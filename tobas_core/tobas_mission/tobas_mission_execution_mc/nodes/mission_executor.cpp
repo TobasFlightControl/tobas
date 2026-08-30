@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <cmath>
 #include <limits>
+#include <optional>
 #include <ranges>
 #include <span>
 #include <vector>
@@ -169,7 +170,7 @@ private:
   bool is_executing_ = false;
   bool is_manual_ctrl_enabled_ = false;
   uint8_t mission_priority_ = tobas_mission_msgs::msg::Priority::NORMAL;
-  std::unique_ptr<kdl::Vector> launch_point_;
+  std::optional<kdl::Vector> launch_point_;
 
   enum Status
   {
@@ -207,7 +208,7 @@ private:
   ros2::SubscriberPtr<tobas_msgs::msg::GeodeticCoordinates> gnss_origin_sub_;
   ros2::SubscriberPtr<tobas_msgs::RCInput> rcin_sub_;
 
-  ros2::SyncServiceClient<tobas_msgs::srv::SetArm>::SharedPtr set_arm_sc_;
+  std::optional<ros2::SyncServiceClient<tobas_msgs::srv::SetArm>> set_arm_sc_;
 
   ros2::ActionServerPtr<Action> as_;
 
@@ -1052,15 +1053,14 @@ void MulticopterMissionExecutorNode::armingCb(const tobas_msgs::msg::Arming::Con
   // Initialize.
   if (!arming_) {
     arming_ = arming;
-    set_arm_sc_ =
-      std::make_shared<ros2::SyncServiceClient<tobas_msgs::srv::SetArm>>(shared_from_this(), service::kSetArm);
+    set_arm_sc_.emplace(shared_from_this(), service::kSetArm);
     return;
   }
 
   // Save the arming point.
   if (!arming_->data && arming->data) {
     if (odom_) {
-      launch_point_ = std::make_unique<kdl::Vector>(odom_->odom.odom.frame.p);
+      launch_point_.emplace(odom_->odom.odom.frame.p);
     }
   }
 

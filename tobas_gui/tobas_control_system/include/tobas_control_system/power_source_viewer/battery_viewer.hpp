@@ -27,7 +27,7 @@ class BatteryViewerWidget : public QWidget
   static constexpr int kBarHeight = 30;
 
 public:
-  explicit BatteryViewerWidget(const RosQtBridge& bridge, const Drone& drone);
+  explicit BatteryViewerWidget(const rqt::RosQtBridge& bridge, const Drone& drone);
 
   void reset();
   void updateInternalDataStructures();

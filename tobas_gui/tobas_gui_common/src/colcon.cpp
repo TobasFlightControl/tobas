@@ -7,8 +7,6 @@
 
 #include <tobas_qt_tools/thread.hpp>
 
-namespace fs = std::filesystem;
-
 namespace tobas
 {
 namespace gui
@@ -25,25 +23,25 @@ Q_SIGNALS:
   void finished(bool success);
 
 public:
-  explicit ColconBuildThread(colcon::Colcon& colcon, const fs::path& pkg_path, const fs::path& ws_path)
+  explicit ColconBuildThread(colcon::Colcon& colcon, const QString& pkg_path, const QString& ws_path)
     : colcon_(colcon), pkg_path_(pkg_path), ws_path_(ws_path)
   {
   }
 
   void run() override
   {
-    const auto res = colcon_.build(pkg_path_, ws_path_);
+    const auto res = colcon_.build(pkg_path_.toStdString(), ws_path_.toStdString());
     Q_EMIT finished(res);
   }
 
 private:
   colcon::Colcon& colcon_;
-  const fs::path pkg_path_;
-  const fs::path ws_path_;
+  const QString pkg_path_;
+  const QString ws_path_;
 };
 }  // namespace
 
-bool colconBuild(colcon::Colcon& colcon, const fs::path& pkg_path, const fs::path& ws_path)
+bool colconBuild(colcon::Colcon& colcon, const QString& pkg_path, const QString& ws_path)
 {
   ColconBuildThread thread(colcon, pkg_path, ws_path);
   return std::get<0>(qt::startThreadAndWait(thread, &ColconBuildThread::finished));

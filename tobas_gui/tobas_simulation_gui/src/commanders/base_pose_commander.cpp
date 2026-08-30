@@ -11,7 +11,6 @@
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/message.hpp>
-#include <tobas_qt_tools/thread.hpp>
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
@@ -26,11 +25,7 @@ namespace gui
 {
 namespace sim
 {
-BasePoseCommanderWidget::BasePoseCommanderWidget(
-  rclcpp::Node::SharedPtr node,
-  const RosQtBridge& bridge,
-  const Drone& drone)
-  : node_(node), drone_(drone)
+BasePoseCommanderWidget::BasePoseCommanderWidget(const rqt::RosQtBridge& bridge)
 {
   const auto root_rows = new QVBoxLayout();
   setLayout(root_rows);
@@ -79,48 +74,11 @@ BasePoseCommanderWidget::BasePoseCommanderWidget(
   button_cols->addWidget(home_button_);
   connect(home_button_, &QPushButton::clicked, this, &self::onHomeButtonClicked);
 
+  connect(&bridge, &rqt::RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
+  connect(&bridge, &rqt::RosQtBridge::odomReceived, this, &self::odomCb, Qt::QueuedConnection);
+  connect(&bridge, &rqt::RosQtBridge::rcInputReceived, this, &self::rcInputCb, Qt::QueuedConnection);
+
   reset();
-
-  connect(&bridge, &RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
-  connect(&bridge, &RosQtBridge::odomReceived, this, &self::odomCb, Qt::QueuedConnection);
-  connect(&bridge, &RosQtBridge::rcInputReceived, this, &self::rcInputCb, Qt::QueuedConnection);
-}
-
-void BasePoseCommanderWidget::updateInternalDataStructures()
-{
-  const auto ns = '/' + drone_.name;
-
-  angle_pub_ = ros2::createPublisher<tobas_command_msgs::Angle>(node_, path::join(ns, topic::kAngleCmd));
-  pva_pub_ = ros2::createPublisher<tobas_command_msgs::PosVelAcc>(node_, path::join(ns, topic::kPosVelAccCmd));
-  pvay_pub_ = ros2::createPublisher<tobas_command_msgs::PosVelAccYaw>(node_, path::join(ns, topic::kPosVelAccYawCmd));
-  pvapy_pub_ =
-    ros2::createPublisher<tobas_command_msgs::PosVelAccPitchYaw>(node_, path::join(ns, topic::kPosVelAccPitchYawCmd));
-
-  set_arm_sc_ =
-    std::make_shared<ros2::SyncServiceClient<tobas_msgs::srv::SetArm>>(node_, path::join(ns, service::kSetArm));
-}
-
-bool BasePoseCommanderWidget::start(ch::milliseconds timeout)
-{
-  bool success = true;
-  QString message;
-
-  qt::startThreadAndWait(
-    [&]()
-    {
-      if (!set_arm_sc_->waitForService(timeout)) {
-        success = false;
-        message = "Failed to connect to \"" + QString(service::kSetArm) + "\" service server.";
-        return;
-      }
-    });
-
-  if (!success) {
-    qWarning().noquote() << message;
-    return false;
-  }
-
-  return true;
 }
 
 void BasePoseCommanderWidget::reset()
@@ -140,6 +98,31 @@ void BasePoseCommanderWidget::reset()
     cmd->setValue(0);
     cmd->setEnabled(false);
   }
+}
+
+void BasePoseCommanderWidget::updateInternalDataStructures()
+{
+}
+
+void BasePoseCommanderWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
+{
+  angle_pub_ = ros2::createPublisher<tobas_command_msgs::Angle>(node, path::join(ns, topic::kAngleCmd));
+  pva_pub_ = ros2::createPublisher<tobas_command_msgs::PosVelAcc>(node, path::join(ns, topic::kPosVelAccCmd));
+  pvay_pub_ = ros2::createPublisher<tobas_command_msgs::PosVelAccYaw>(node, path::join(ns, topic::kPosVelAccYawCmd));
+  pvapy_pub_ =
+    ros2::createPublisher<tobas_command_msgs::PosVelAccPitchYaw>(node, path::join(ns, topic::kPosVelAccPitchYawCmd));
+
+  set_arm_sc_.emplace(node, path::join(ns, service::kSetArm));
+}
+
+void BasePoseCommanderWidget::clearRosInterfaces()
+{
+  angle_pub_.reset();
+  pva_pub_.reset();
+  pvay_pub_.reset();
+  pvapy_pub_.reset();
+
+  set_arm_sc_.reset();
 }
 
 bool BasePoseCommanderWidget::isRunning() const

@@ -3,7 +3,10 @@
 
 #pragma once
 
+#include <optional>
+
 #include <tinyxml2.h>
+#include <QString>
 
 #include <tobas_drone_core/drone.hpp>
 #include <tobas_drone_core/propulsion_system/electric_propulsion_system/electric_propulsion_system.hpp>
@@ -34,7 +37,7 @@ public:
     const SettingsWidget* settings,
     QWidget* parent);
 
-  bool generateProject(const std::filesystem::path& proj_path);
+  bool generateProject(const QString& proj_path);
 
   void setClearDynamicParams(bool flag);
 
@@ -51,11 +54,11 @@ private:
 
   cmn::ProjectPaths proj_paths_;
 
-  std::shared_ptr<TemplateGenerator> meta_env_;
-  std::shared_ptr<TemplateGenerator> config_env_;
-  std::shared_ptr<TemplateGenerator> user_msg_env_;
-  std::shared_ptr<TemplateGenerator> user_cpp_env_;
-  std::shared_ptr<TemplateGenerator> user_py_env_;
+  std::optional<TemplateGenerator> meta_env_;
+  std::optional<TemplateGenerator> config_env_;
+  std::optional<TemplateGenerator> user_msg_env_;
+  std::optional<TemplateGenerator> user_cpp_env_;
+  std::optional<TemplateGenerator> user_py_env_;
 
   inja::json createTemplateData() const;
   Drone createDrone() const;
@@ -76,19 +79,18 @@ private:
   bool generateMissionExecutorStaticConfig();
   bool generateRcTeleopStaticConfig();
   bool generateImuFilterConfig();
-  bool generateSshConfig();
   bool generateNetworkConfig();
   bool generateOriginalUadf();
   bool generateModifiedUrdf();
 
   /* Create an empty file. */
-  bool createEmptyFile(const std::filesystem::path& file_path);
+  bool createEmptyFile(const QString& file_path);
 
   /* Create a YAML file with a map type and no elements. */
-  bool createEmptyYaml(const std::filesystem::path& file_path, bool overwrite);
+  bool createEmptyYaml(const QString& file_path, bool overwrite);
 
   /* Save `YAML::Node`. */
-  bool saveYamlNode(const std::filesystem::path& path, const YAML::Node& node);
+  bool saveYamlNode(const QString& path, const YAML::Node& node);
 
   /* Change all mesh file paths to paths under the package. */
   bool resolveModifiedUrdfMeshFilePaths(tinyxml2::XMLElement* elem);

@@ -3,6 +3,9 @@
 
 #include "tobas_ros2_tools/async_node_manager.hpp"
 
+#include <rclcpp/contexts/default_context.hpp>
+#include <rclcpp/executor_options.hpp>
+#include <rclcpp/node_options.hpp>
 #include <rclcpp/utilities.hpp>
 
 namespace tobas
@@ -15,26 +18,52 @@ AsyncNodeManager::AsyncNodeManager(int argc, char** argv, const std::string& nod
     rclcpp::init(argc, argv);
   }
 
-  node_ = rclcpp::Node::make_shared(node_name);
-  executor_ = std::make_unique<rclcpp::executors::SingleThreadedExecutor>();
-  executor_->add_node(node_);
-  executor_thread_ = std::make_unique<std::thread>([this]() { executor_->spin(); });
+  initialize(rclcpp::contexts::get_global_default_context(), node_name);
+}
+
+AsyncNodeManager::AsyncNodeManager(rclcpp::Context::SharedPtr context, const std::string& node_name)
+{
+  initialize(context, node_name);
 }
 
 AsyncNodeManager::~AsyncNodeManager()
 {
-  executor_->cancel();
-  executor_thread_->join();
+  shutdown();
 }
 
-rclcpp::Node::SharedPtr AsyncNodeManager::node()
+void AsyncNodeManager::shutdown()
 {
-  return node_;
+  if (executor_ && executor_->is_spinning()) {
+    executor_->cancel();
+  }
+
+  if (executor_thread_ && executor_thread_->joinable()) {
+    executor_thread_->join();
+  }
+
+  if (context_ && context_->is_valid()) {
+    context_->shutdown("");
+  }
+
+  node_.reset();
+  context_.reset();
+  executor_.reset();
+  executor_thread_.reset();
 }
 
-rclcpp::Node::ConstSharedPtr AsyncNodeManager::node() const
+void AsyncNodeManager::initialize(rclcpp::Context::SharedPtr context, const std::string& node_name)
 {
-  return node_;
+  context_ = std::move(context);
+
+  rclcpp::NodeOptions node_options;
+  node_options.context(context_);
+  node_ = rclcpp::Node::make_shared(node_name, node_options);
+
+  rclcpp::ExecutorOptions executor_options;
+  executor_options.context = context_;
+  executor_.emplace(executor_options);
+  executor_->add_node(node_);
+  executor_thread_.emplace([this]() { executor_->spin(); });
 }
 }  // namespace ros2
 }  // namespace tobas

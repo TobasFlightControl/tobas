@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <optional>
+
 #include <QThread>
 #include <rclcpp/node.hpp>
 
@@ -24,15 +26,13 @@ Q_SIGNALS:
   void finished(bool success, const QString& message, const QString& log_path);
 
 public:
-  explicit RecordStopThread(rclcpp::Node::SharedPtr node);
-
   void run() override;
 
-  void setNamespace(const std::string& ns);
+  void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
+  void clearRosInterfaces();
 
 private:
-  const rclcpp::Node::SharedPtr node_;
-  ros2::SyncServiceClient<tobas_msgs::srv::BagRecordStop>::SharedPtr sc_;
+  std::optional<ros2::SyncServiceClient<tobas_msgs::srv::BagRecordStop>> sc_;
 };
 }  // namespace log
 }  // namespace gui

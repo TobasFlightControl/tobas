@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <string>
+#include <QString>
 
 namespace tobas
 {
@@ -15,16 +15,18 @@ class ProjectEnvParser
 {
   static constexpr char kConfigPkgPrefix[] = "TOBAS_CONFIG_PKG=";
   static constexpr char kNetworkIfacePrefix[] = "TOBAS_NIC=";
+  static constexpr char kIdPrefix[] = "TOBAS_ID=";
 
 public:
-  std::string config_pkg;
-  std::string nic;
+  QString config_pkg;
+  QString nic;
+  QString id;
 
   explicit ProjectEnvParser();
 
-  bool parseFromText(const std::string& text);
+  bool parseFromText(const QString& text);
 
-  std::string exportText() const;
+  QString exportText() const;
 };
 }  // namespace gcs
 }  // namespace gui

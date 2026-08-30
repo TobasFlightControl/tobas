@@ -7,6 +7,9 @@
 
 namespace tobas
 {
+namespace rviz
+{
 /* Creates a namespaced logger. */
 rclcpp::Logger getLogger(const std::string& name);
+}  // namespace rviz
 }  // namespace tobas

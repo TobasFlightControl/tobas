@@ -3,7 +3,10 @@
 
 #pragma once
 
+#include <optional>
+
 #include <QPushButton>
+#include <QString>
 #include <QTimer>
 
 #include <tobas_drone_core/drone.hpp>
@@ -44,19 +47,21 @@ class RotorTestWidget : public BaseWidget
   static constexpr auto kWaitForService = std::chrono::seconds(3);
 
 public:
-  explicit RotorTestWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge, const Drone& drone);
+  explicit RotorTestWidget(const rqt::RosQtBridge& bridge, const Drone& drone);
 
   const char* title() const override;
 
   void reset() override;
 
-  void updateProject(const std::filesystem::path& proj_path);
+  void updateProject(const QString& proj_path);
+  void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
+  void clearRosInterfaces();
 
   int numRegisteredChannels() const;
 
 private:
-  const rclcpp::Node::SharedPtr node_;
-  const RosQtBridge& bridge_;
+  rclcpp::Node::SharedPtr node_;
+  const rqt::RosQtBridge& bridge_;
   const Drone& drone_;
   ElectricPropulsionSystemConfig::ConstSharedPtr eprop_;
   cmn::ProjectPaths proj_paths_;
@@ -72,8 +77,8 @@ private:
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
 
   ros2::PublisherPtr<tobas_msgs::msg::RotorSpeedArray> tar_speeds_pub_;
-  dparam::DynamicParamClient::SharedPtr dparam_cli_;
-  ros2::SyncServiceClient<tobas_dparam_msgs::srv::GetParams>::SharedPtr get_params_sc_;
+  std::optional<dparam::DynamicParamClient> dparam_cli_;
+  std::optional<ros2::SyncServiceClient<tobas_dparam_msgs::srv::GetParams>> get_params_sc_;
 
   QMetaObject::Connection rotor_states_conn_;
 

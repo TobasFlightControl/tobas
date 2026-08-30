@@ -8,6 +8,7 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
+  <depend>tobas_ros2_tools</depend>
   <depend>tobas_cyclonedds_config</depend>
   <depend>tobas_sensor_calibration</depend>
   <depend>tobas_actuator_test</depend>
@@ -17,6 +18,7 @@
   <depend>tobas_simulation_gui</depend>
 
   <exec_depend>rmw_cyclonedds_cpp</exec_depend>
+  <exec_depend>avahi-utils</exec_depend>
   <exec_depend>tobas_ssh_server</exec_depend>
   <exec_depend>tobas_tile_proxy</exec_depend>
   <exec_depend>tobas_gazebo_sim</exec_depend>

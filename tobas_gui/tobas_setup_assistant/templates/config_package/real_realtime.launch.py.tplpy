@@ -16,6 +16,7 @@ HARDWARE_PKG = "{{ hardware_pkg }}"
 LOG_LEVEL = "log_level"
 OUTPUT = "output"
 MULTIPROCESS = "multiprocess"
+ID = "id"
 
 
 def generate_launch_description():
@@ -25,19 +26,22 @@ def generate_launch_description():
     ld.add_action(DeclareLaunchArgument(LOG_LEVEL, default_value="info"))
     ld.add_action(DeclareLaunchArgument(OUTPUT, default_value="screen"))
     ld.add_action(DeclareLaunchArgument(MULTIPROCESS, default_value="false"))
+    ld.add_action(DeclareLaunchArgument(ID, default_value="id0"))
 
     # Get arguments
     log_level = LaunchConfiguration(LOG_LEVEL)
     output = LaunchConfiguration(OUTPUT)
     multiprocess = LaunchConfiguration(MULTIPROCESS)
+    id = LaunchConfiguration(ID)
 
+    namespace = PathJoinSubstitution([DRONE_NAME, id])
     config_pkg_share = FindPackageShare(CONFIG_PKG_NAME)
     user_cpp_pkg_share = FindPackageShare(USER_CPP_PKG_NAME)
     hw_pkg_share = FindPackageShare(HARDWARE_PKG)
 
     # Parse URDF
     xacro_path = PathJoinSubstitution([FindPackageShare(CONFIG_PKG_NAME), "urdf", "drone.xacro"])
-    urdf_text = Command([FindExecutable(name="xacro"), " ", xacro_path, f" DEBUG:=false"])
+    urdf_text = Command([FindExecutable(name="xacro"), " ", xacro_path, " DEBUG:=false ID:=", id])
 
     # Launch Tobas core software
     # To ensure stable registration of components, the component managers are launched first.
@@ -52,6 +56,7 @@ def generate_launch_description():
                 "use_sim_time": "false",
                 "ground_truth": "false",
                 "multiprocess": multiprocess,
+                "id": id,
             }.items(),
         )
     )
@@ -62,24 +67,25 @@ def generate_launch_description():
             PythonLaunchDescriptionSource(
                 PathJoinSubstitution([hw_pkg_share, "launch", "hardware_interfaces.launch.py"])
             ),
-            launch_arguments={"namespace": DRONE_NAME}.items(),
+            launch_arguments={"namespace": namespace}.items(),
         )
     )
 
     # Launch 1st priority nodes (Twist Control)
     ld.add_action(
         LoadComposableNodes(
-            target_container=f"{DRONE_NAME}/component_manager_1",
+            target_container=PathJoinSubstitution([namespace, "component_manager_1"]),
             composable_node_descriptions=[
                 ComposableNode(
                     package="tobas_real_ros",
                     plugin="tobas::real::ImuHandlerNode",
-                    namespace=DRONE_NAME,
+                    namespace=namespace,
+                    parameters=[{"section": DRONE_NAME}],
                 ),
                 ComposableNode(
                     package="tobas_real_ros",
                     plugin="tobas::real::IcePropulsionSystemHandlerNode",
-                    namespace=DRONE_NAME,
+                    namespace=namespace,
                 ),
             ],
         )
@@ -88,35 +94,37 @@ def generate_launch_description():
     # Launch 2nd priority nodes (Pose Control & Navigation & Manipulation)
     ld.add_action(
         LoadComposableNodes(
-            target_container=f"{DRONE_NAME}/component_manager_2",
+            target_container=PathJoinSubstitution([namespace, "component_manager_2"]),
             composable_node_descriptions=[
                 ComposableNode(
                     package="robot_state_publisher",
                     plugin="robot_state_publisher::RobotStatePublisher",
-                    namespace=DRONE_NAME,
+                    namespace=namespace,
                     parameters=[{"robot_description": urdf_text}],
                     remappings=[("/tf", "tf"), ("/tf_static", "tf_static")],
                 ),
                 ComposableNode(
                     package="tobas_sbus_driver",
                     plugin="tobas::SbusDriverNode",
-                    namespace=DRONE_NAME,
+                    namespace=namespace,
                     parameters=[{"device": "/dev/ttyAMA0"}],  # TODO: Change the device according to the FMU.
                 ),
                 ComposableNode(
                     package="tobas_real_ros",
                     plugin="tobas::real::RCInputHandlerNode",
-                    namespace=DRONE_NAME,
+                    namespace=namespace,
+                    parameters=[{"section": DRONE_NAME}],
                 ),
                 ComposableNode(
                     package="tobas_real_ros",
                     plugin="tobas::real::MagnetometerHandlerNode",
-                    namespace=DRONE_NAME,
+                    namespace=namespace,
+                    parameters=[{"section": DRONE_NAME}],
                 ),
                 ComposableNode(
                     package="tobas_real_ros",
                     plugin="tobas::real::JointsHandlerNode",
-                    namespace=DRONE_NAME,
+                    namespace=namespace,
                 ),
             ],
         )
@@ -125,12 +133,12 @@ def generate_launch_description():
     # Launch 3th priority nodes (Others)
     ld.add_action(
         LoadComposableNodes(
-            target_container=f"{DRONE_NAME}/component_manager_3",
+            target_container=PathJoinSubstitution([namespace, "component_manager_3"]),
             composable_node_descriptions=[
                 ComposableNode(
                     package="tobas_real_ros",
                     plugin="tobas::real::CpuHandlerNode",
-                    namespace=DRONE_NAME,
+                    namespace=namespace,
                 ),
             ],
         )
@@ -140,7 +148,7 @@ def generate_launch_description():
     ld.add_action(
         GroupAction(
             [
-                PushRosNamespace(DRONE_NAME),
+                PushRosNamespace(namespace),
                 IncludeLaunchDescription(
                     PythonLaunchDescriptionSource(
                         PathJoinSubstitution([user_cpp_pkg_share, "launch", "real_realtime.launch.py"])

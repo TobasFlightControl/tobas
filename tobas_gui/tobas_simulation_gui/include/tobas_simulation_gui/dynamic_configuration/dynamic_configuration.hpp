@@ -20,12 +20,11 @@ class DynamicConfigWidget : public QWidget
   using super = QWidget;
 
 public:
-  explicit DynamicConfigWidget(rclcpp::Node::SharedPtr node);
+  explicit DynamicConfigWidget();
 
-  void updateNamespace(const std::string& ns);
-
-  bool start(std::chrono::milliseconds timeout);
   void reset();
+  void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
+  void clearRosInterfaces();
 
 private:
   WindParamsWidget* wind_params_;

@@ -14,8 +14,7 @@ namespace gui
 {
 namespace ctrl
 {
-ControlSystemWidget::ControlSystemWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge, const Drone& drone)
-  : drone_(drone)
+ControlSystemWidget::ControlSystemWidget(const rqt::RosQtBridge& bridge, const Drone& drone) : drone_(drone)
 {
   // Components
   arm_state_banner_ = new ArmStateBanner(bridge);
@@ -27,7 +26,7 @@ ControlSystemWidget::ControlSystemWidget(rclcpp::Node::SharedPtr node, const Ros
   rotors_viewer_ = new RotorsViewerWiddget(bridge, drone);
   console_ = new ConsoleWidget(bridge);
   health_viewer_ = new HealthViewerWidget(bridge);
-  mission_planner_ = new MissionPlannerWidget(node, bridge);
+  mission_planner_ = new MissionPlannerWidget(bridge);
 
   // Layout
   const auto cols3 = new QHBoxLayout();
@@ -75,13 +74,20 @@ void ControlSystemWidget::reset()
 
 void ControlSystemWidget::updateInternalDataStructures()
 {
-  reset();
-
-  const auto ns = '/' + drone_.name;
-
   power_source_viewer_->updateInternalDataStructures();
   rotors_viewer_->updateInternalDataStructures();
-  mission_planner_->updateNamespace(ns);
+}
+
+void ControlSystemWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
+{
+  mission_planner_->initializeRosInterfaces(node, ns);
+  arm_state_banner_->setConnected(true);
+}
+
+void ControlSystemWidget::clearRosInterfaces()
+{
+  mission_planner_->clearRosInterfaces();
+  arm_state_banner_->setConnected(false);
 }
 }  // namespace ctrl
 }  // namespace gui

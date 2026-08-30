@@ -14,7 +14,7 @@ namespace gui
 {
 namespace ctrl
 {
-GnssViewerWidget::GnssViewerWidget(const RosQtBridge& bridge)
+GnssViewerWidget::GnssViewerWidget(const rqt::RosQtBridge& bridge)
 {
   status_ = new qt::FramedLabel();
   nsats_ = new qt::FramedLabel();
@@ -29,7 +29,7 @@ GnssViewerWidget::GnssViewerWidget(const RosQtBridge& bridge)
   setLayout(form);
 
   // Connection
-  connect(&bridge, &RosQtBridge::gnssReceived, this, &self::gnssCb, Qt::QueuedConnection);
+  connect(&bridge, &rqt::RosQtBridge::gnssReceived, this, &self::gnssCb, Qt::QueuedConnection);
 }
 
 void GnssViewerWidget::reset()

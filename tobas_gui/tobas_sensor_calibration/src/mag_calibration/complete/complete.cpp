@@ -35,8 +35,7 @@ namespace gui
 {
 namespace sc
 {
-CompleteMagCalibWidget::CompleteMagCalibWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge)
-  : node_(node), rviz_manager_("rviz_mag_calibration")
+CompleteMagCalibWidget::CompleteMagCalibWidget(const rqt::RosQtBridge& bridge) : rviz_manager_("rviz_mag_calibration")
 {
   const auto instruction = new qt::DescriptionWidget(
     "1. Click \"Start,\" and the magnetic field points (white) will begin appearing in the view.\n\n"
@@ -65,39 +64,7 @@ CompleteMagCalibWidget::CompleteMagCalibWidget(rclcpp::Node::SharedPtr node, con
   face_circles_.at(kLeftIdx) = new FaceCircleWidget("Left");
   face_circles_.at(kRightIdx) = new FaceCircleWidget("Right");
 
-  const auto rviz_config_path = getPkgShareDir() / "config/mag_calibration.rviz";
-  rviz_manager_.initialize(QString::fromStdString(rviz_config_path));
-
-  // Set the fixed frame.
-  // This must be a frame with TF published.
-  rviz_manager_.setFixedFrame(frame::kWorld);
-
-  const auto point_stamped_displays = rviz_manager_.getDisplays("PointStamped");
-  TOBAS_CHECK(point_stamped_displays.size() == 1);
-  const auto& samples_display = point_stamped_displays.at(0);
-
-  const auto point_cloud_displays = rviz_manager_.getDisplays("PointCloud");
-  TOBAS_CHECK(point_cloud_displays.size() == 3);
-  const auto& used_display = point_cloud_displays.at(0);
-  const auto& removed_display = point_cloud_displays.at(1);
-  const auto& calibrated_display = point_cloud_displays.at(2);
-
-  const auto marker_array_displays = rviz_manager_.getDisplays("MarkerArray");
-  TOBAS_CHECK(marker_array_displays.size() == 1);
-  const auto& ellipsoid_display = marker_array_displays.at(0);
-
-  static constexpr char kTopicProperty[] = "Topic";
-  samples_display->subProp(kTopicProperty)->setValue(kSampledPointsTopic);
-  used_display->subProp(kTopicProperty)->setValue(kUsedPointsTopic);
-  removed_display->subProp(kTopicProperty)->setValue(kRemovedPointsTopic);
-  calibrated_display->subProp(kTopicProperty)->setValue(kCalibratedPointsTopic);
-  ellipsoid_display->subProp(kTopicProperty)->setValue(kEllipsoidTopic);
-
-  samples_pub_ = ros2::createPublisher<geometry_msgs::msg::PointStamped>(node_, kSampledPointsTopic);
-  used_pub_ = ros2::createPublisher<sensor_msgs::msg::PointCloud>(node_, kUsedPointsTopic);
-  removed_pub_ = ros2::createPublisher<sensor_msgs::msg::PointCloud>(node_, kRemovedPointsTopic);
-  calibrated_pub_ = ros2::createPublisher<sensor_msgs::msg::PointCloud>(node_, kCalibratedPointsTopic);
-  ellipsoid_pub_ = ros2::createPublisher<visualization_msgs::msg::MarkerArray>(node_, kEllipsoidTopic);
+  initializeRviz();
 
   // Layout
   const auto button_cols = new QHBoxLayout();
@@ -124,11 +91,9 @@ CompleteMagCalibWidget::CompleteMagCalibWidget(rclcpp::Node::SharedPtr node, con
   connect(start_button_, &QPushButton::clicked, this, &self::onStartButtonClicked);
   connect(finish_button_, &QPushButton::clicked, this, &self::onFinishButtonClicked);
   connect(cancel_button_, &QPushButton::clicked, this, &self::onCancelButtonClicked);
-  connect(&bridge, &RosQtBridge::rawMagReceived, this, &self::magCb, Qt::QueuedConnection);
-  connect(&bridge, &RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
-  connect(&bridge, &RosQtBridge::odomReceived, this, &self::odomCb, Qt::QueuedConnection);
-
-  reset();
+  connect(&bridge, &rqt::RosQtBridge::rawMagReceived, this, &self::magCb, Qt::QueuedConnection);
+  connect(&bridge, &rqt::RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
+  connect(&bridge, &rqt::RosQtBridge::odomReceived, this, &self::odomCb, Qt::QueuedConnection);
 }
 
 void CompleteMagCalibWidget::reset()
@@ -142,10 +107,56 @@ void CompleteMagCalibWidget::reset()
   odom_.reset();
 }
 
-void CompleteMagCalibWidget::setNamespace(const std::string& ns)
+void CompleteMagCalibWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
 {
-  set_params_sc_ = std::make_shared<ros2::SyncServiceClient<tobas_real_msgs::srv::SetMagnetometerParams>>(
-    node_, path::join(ns, kRemoteIfaceNS, real::handler::mag::kSetParamSrv));
+  node_ = std::move(node);
+
+  set_params_sc_.emplace(node_, path::join(ns, kRemoteIfaceNS, real::handler::mag::kSetParamSrv));
+}
+
+void CompleteMagCalibWidget::clearRosInterfaces()
+{
+  node_.reset();
+
+  set_params_sc_.reset();
+}
+
+void CompleteMagCalibWidget::initializeRviz()
+{
+  const auto rviz_config_path = getPkgShareDir() / "config/mag_calibration.rviz";
+  rviz_manager_.initialize(QString::fromStdString(rviz_config_path));
+
+  // Set the fixed frame.
+  // This must be a frame with TF published.
+  rviz_manager_.setFixedFrame(frame::kWorld);
+
+  const auto point_stamped_displays = rviz_manager_.getDisplays("PointStamped");
+  TOBAS_CHECK(point_stamped_displays.size() == 1);
+  const auto& samples_display = point_stamped_displays.at(0);
+
+  const auto point_cloud_displays = rviz_manager_.getDisplays("PointCloud");
+  TOBAS_CHECK(point_cloud_displays.size() == 3);
+  const auto& used_display = point_cloud_displays.at(0);
+  const auto& removed_display = point_cloud_displays.at(1);
+  const auto& calibrated_display = point_cloud_displays.at(2);
+
+  const auto marker_array_displays = rviz_manager_.getDisplays("MarkerArray");
+  TOBAS_CHECK(marker_array_displays.size() == 1);
+  const auto& ellipsoid_display = marker_array_displays.at(0);
+
+  constexpr char kTopicProperty[] = "Topic";
+  samples_display->subProp(kTopicProperty)->setValue(kSampledPointsTopic);
+  used_display->subProp(kTopicProperty)->setValue(kUsedPointsTopic);
+  removed_display->subProp(kTopicProperty)->setValue(kRemovedPointsTopic);
+  calibrated_display->subProp(kTopicProperty)->setValue(kCalibratedPointsTopic);
+  ellipsoid_display->subProp(kTopicProperty)->setValue(kEllipsoidTopic);
+
+  const auto rviz_node = rviz_manager_.rawNode();
+  samples_pub_ = ros2::createPublisher<geometry_msgs::msg::PointStamped>(rviz_node, kSampledPointsTopic);
+  used_pub_ = ros2::createPublisher<sensor_msgs::msg::PointCloud>(rviz_node, kUsedPointsTopic);
+  removed_pub_ = ros2::createPublisher<sensor_msgs::msg::PointCloud>(rviz_node, kRemovedPointsTopic);
+  calibrated_pub_ = ros2::createPublisher<sensor_msgs::msg::PointCloud>(rviz_node, kCalibratedPointsTopic);
+  ellipsoid_pub_ = ros2::createPublisher<visualization_msgs::msg::MarkerArray>(rviz_node, kEllipsoidTopic);
 }
 
 void CompleteMagCalibWidget::paintEvent(QPaintEvent*)
@@ -184,7 +195,7 @@ void CompleteMagCalibWidget::resetToPreStart()
 void CompleteMagCalibWidget::clearDisplayPoints()
 {
   // FIXME: A `PointStamped` received slightly after clearing may still be displayed.
-  return rviz_manager_.resetTime();
+  rviz_manager_.resetTime();
 }
 
 int CompleteMagCalibWidget::numActiveSamples() const

@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <optional>
+
 #include <gz/sim/Joint.hh>
 #include <gz/sim/Link.hh>
 #include <gz/sim/Model.hh>
@@ -100,7 +102,7 @@ private:
   ch::steady_clock::duration prev_sim_time_;
   ch::steady_clock::duration last_cmd_time_;  // Time when the last throttle command was issued
   bool is_intact_ = true;
-  RateManager::SharedPtr publish_state_rate_manager_;
+  std::optional<RateManager> publish_state_rate_manager_;
 
   // Random
   std::random_device rnd_dev_;
@@ -108,9 +110,9 @@ private:
   RiceDistribution rice_;
 
   // Gazebo objects
-  std::shared_ptr<gz::sim::Joint> joint_;
-  std::shared_ptr<gz::sim::Link> link_;
-  std::shared_ptr<gz::sim::Link> parent_link_;
+  std::optional<gz::sim::Joint> joint_;
+  std::optional<gz::sim::Link> link_;
+  std::optional<gz::sim::Link> parent_link_;
   const cmp::JointAxis* jnt_axis_;
   const cmp::JointVelocity* jnt_vel_;
   const cmp::WorldPose* pose_W_;
@@ -171,7 +173,7 @@ void GazeboElectricPropulsionSystemPlugin::Configure(
 
   rice_ = RiceDistribution(1.0, param_.vib_force_var_rate);
 
-  publish_state_rate_manager_ = std::make_shared<RateManager>(param_.publish_state_rate);
+  publish_state_rate_manager_.emplace(param_.publish_state_rate);
 
   // Get robot model.
   const gz::sim::Model model(model_entity);
@@ -184,7 +186,7 @@ void GazeboElectricPropulsionSystemPlugin::Configure(
   if (!joint_entity.has_value()) {
     TOBAS_EXIT("Failed to find the parent joint of rotor link \"", link_name_, "\".");
   }
-  joint_ = std::make_shared<gz::sim::Joint>(joint_entity.value());
+  joint_.emplace(joint_entity.value());
   if (!joint_->Valid(ecm)) {
     TOBAS_EXIT("Failed to find rotor link \"", link_name_, "\".");
   }
@@ -200,7 +202,7 @@ void GazeboElectricPropulsionSystemPlugin::Configure(
 
   // Get child link.
   const auto link_entity = model.LinkByName(ecm, link_name_);
-  link_ = std::make_shared<gz::sim::Link>(link_entity);
+  link_.emplace(link_entity);
   if (!link_->Valid(ecm)) {
     TOBAS_EXIT("Failed to find the child link \"", link_name_, "\".");
   }
@@ -208,7 +210,7 @@ void GazeboElectricPropulsionSystemPlugin::Configure(
   // Get parent link.
   const auto parent_link_name = joint_->ParentLinkName(ecm).value();
   const auto parent_link_entity = model.LinkByName(ecm, parent_link_name);
-  parent_link_ = std::make_shared<gz::sim::Link>(parent_link_entity);
+  parent_link_.emplace(parent_link_entity);
   if (!parent_link_->Valid(ecm)) {
     TOBAS_EXIT("Failed to find the parent link \"", parent_link_name, "\".");
   }

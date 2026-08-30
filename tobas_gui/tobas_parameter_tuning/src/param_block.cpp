@@ -4,6 +4,7 @@
 #include "tobas_parameter_tuning/param_block.hpp"
 
 #include <QDebug>
+#include <QFileInfo>
 #include <QHBoxLayout>
 #include <QStyle>
 #include <QVBoxLayout>
@@ -17,7 +18,7 @@
 #include <tobas_yaml_tools/core.hpp>
 
 using namespace std::chrono_literals;
-namespace fs = std::filesystem;
+using namespace std::placeholders;
 
 namespace tobas
 {
@@ -25,8 +26,7 @@ namespace gui
 {
 namespace param
 {
-ParamBlockWidget::ParamBlockWidget(rclcpp::Node::SharedPtr node, const std::string& node_name, const QString& label)
-  : node_(node), node_name_(node_name)
+ParamBlockWidget::ParamBlockWidget(const std::string& node_name, const QString& label) : node_name_(node_name)
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);
@@ -39,17 +39,28 @@ ParamBlockWidget::ParamBlockWidget(rclcpp::Node::SharedPtr node, const std::stri
   rows->addLayout(form_);
 }
 
-void ParamBlockWidget::setNamespace(const std::string& ns)
+void ParamBlockWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
 {
   const auto get_param_srv = path::join(ns, kRemoteIfaceNS, node_name_, service::kGetDynamicParams);
-  get_param_sc_ = std::make_shared<ros2::SyncServiceClient<tobas_dparam_msgs::srv::GetParams>>(node_, get_param_srv);
+  get_param_sc_.emplace(node, get_param_srv);
 
-  dparam_cli_ = std::make_shared<dparam::DynamicParamClient>(node_, node_name_, ns);
+  dparam_cli_.emplace(node, node_name_, ns);
+}
+
+void ParamBlockWidget::clearRosInterfaces()
+{
+  dparam_cli_.reset();
+  get_param_sc_.reset();
 }
 
 bool ParamBlockWidget::load()
 {
   clear();
+
+  if (!get_param_sc_) {
+    qt::qErrorBox(this, "ROS interfaces have not been initialized.");
+    return false;
+  }
 
   // Get dynamic parameters.
   const auto req = std::make_shared<tobas_dparam_msgs::srv::GetParams::Request>();
@@ -95,12 +106,9 @@ bool ParamBlockWidget::load()
     cols->addWidget(config.line_edit);
     form_->addRow(param_name_label, cols);
 
-    connect(config.down_button_, &QPushButton::clicked, bind(&self::onIntDownButtonClicked, this, param.name));
-    connect(config.up_button_, &QPushButton::clicked, bind(&self::onIntUpButtonClicked, this, param.name));
-    connect(
-      config.slider,
-      &qt::Slider::valueChanged,
-      std::bind(&self::onIntSliderValueChanged, this, std::placeholders::_1, param.name));
+    connect(config.down_button_, &QPushButton::clicked, std::bind(&self::onIntDownButtonClicked, this, param.name));
+    connect(config.up_button_, &QPushButton::clicked, std::bind(&self::onIntUpButtonClicked, this, param.name));
+    connect(config.slider, &qt::Slider::valueChanged, std::bind(&self::onIntSliderValueChanged, this, _1, param.name));
   }
 
   for (const auto& param : params.doubles) {
@@ -137,29 +145,27 @@ bool ParamBlockWidget::load()
     cols->addWidget(config.line_edit);
     form_->addRow(param_name_label, cols);
 
-    connect(config.down_button_, &QPushButton::clicked, bind(&self::onDoubleDownButtonClicked, this, param.name));
-    connect(config.up_button_, &QPushButton::clicked, bind(&self::onDoubleUpButtonClicked, this, param.name));
+    connect(config.down_button_, &QPushButton::clicked, std::bind(&self::onDoubleDownButtonClicked, this, param.name));
+    connect(config.up_button_, &QPushButton::clicked, std::bind(&self::onDoubleUpButtonClicked, this, param.name));
     connect(
-      config.slider,
-      &qt::Slider::valueChanged,
-      std::bind(&self::onDoubleSliderValueChanged, this, std::placeholders::_1, param.name));
+      config.slider, &qt::Slider::valueChanged, std::bind(&self::onDoubleSliderValueChanged, this, _1, param.name));
   }
 
   return true;
 }
 
-bool ParamBlockWidget::save(const fs::path& path)
+bool ParamBlockWidget::save(const QString& path)
 {
   const auto config = createCurrentConfig();
 
   // Confirm that the configuration file exists.
-  if (!fs::is_regular_file(path)) {
-    qt::qErrorBox(this, QString::fromStdString(path) + " does not exist on PC.");
+  if (!QFileInfo(path).isFile()) {
+    qt::qErrorBox(this, path + " does not exist on PC.");
     return false;
   }
 
   // Save to the PC.
-  if (!yaml::save(path, config)) {
+  if (!yaml::save(path.toStdString(), config)) {
     qt::qErrorBox(this, "Failed to save configuration to PC.");
     return false;
   }
@@ -176,6 +182,11 @@ void ParamBlockWidget::clear()
 
 bool ParamBlockWidget::setToDefaults()
 {
+  if (!dparam_cli_) {
+    qt::qErrorBox(this, "ROS interfaces have not been initialized.");
+    return false;
+  }
+
   for (const auto& [name, config] : int_configs_) {
     if (config.slider->value() == config.dflt) {
       continue;

@@ -3,8 +3,11 @@
 
 #pragma once
 
+#include <optional>
+
 #include <QProgressBar>
 #include <QPushButton>
+#include <QVBoxLayout>
 #include <rviz_common/properties/property.hpp>
 
 #include <tobas_eigen_tools/ellipsoid.hpp>
@@ -59,18 +62,19 @@ class CompleteMagCalibWidget : public BaseMagCalibWidget
   static constexpr size_t kFaceSize = kRightIdx + 1;
 
 public:
-  explicit CompleteMagCalibWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge);
+  explicit CompleteMagCalibWidget(const rqt::RosQtBridge& bridge);
 
   void reset() override;
-  void setNamespace(const std::string& ns) override;
+  void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns) override;
+  void clearRosInterfaces() override;
 
 protected:
   void paintEvent(QPaintEvent* event) override;
 
 private:
-  const rclcpp::Node::SharedPtr node_;
+  rclcpp::Node::SharedPtr node_;
 
-  ros2::SyncServiceClient<tobas_real_msgs::srv::SetMagnetometerParams>::SharedPtr set_params_sc_;
+  std::optional<ros2::SyncServiceClient<tobas_real_msgs::srv::SetMagnetometerParams>> set_params_sc_;
 
   rviz::RvizFrameManager rviz_manager_;
 
@@ -82,8 +86,8 @@ private:
   std::array<FaceCircleWidget*, kFaceSize> face_circles_;
 
   // Measurement variables.
-  bool running_;
-  int cnt_;
+  bool running_ = false;
+  int cnt_ = 0;
   builtin_interfaces::msg::Time last_time_;
   size_t last_face_idx_;
   std::array<double, kFaceSize> rot_angles_;
@@ -102,6 +106,8 @@ private:
   ros2::PublisherPtr<sensor_msgs::msg::PointCloud> removed_pub_;
   ros2::PublisherPtr<sensor_msgs::msg::PointCloud> calibrated_pub_;
   ros2::PublisherPtr<visualization_msgs::msg::MarkerArray> ellipsoid_pub_;
+
+  void initializeRviz();
 
   /* Reset to the state before calibration starts. */
   void resetToPreStart();

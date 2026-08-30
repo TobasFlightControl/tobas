@@ -8,8 +8,6 @@
 #include <tobas_version/version.hpp>
 #include <tobas_yaml_tools/core.hpp>
 
-namespace fs = std::filesystem;
-
 namespace tobas
 {
 namespace gui
@@ -80,9 +78,9 @@ bool Version::fromString(QString str)
   return true;
 }
 
-bool Version::load(const fs::path& path)
+bool Version::load(const QString& path)
 {
-  const auto node = yaml::load(path);
+  const auto node = yaml::load(path.toStdString());
   if (!node) {
     qWarning() << node.error().c_str();
     return false;
@@ -101,7 +99,7 @@ bool Version::load(const fs::path& path)
   return true;
 }
 
-bool Version::save(const fs::path& path) const
+bool Version::save(const QString& path) const
 {
   YAML::Node node(YAML::NodeType::Map);
 
@@ -109,7 +107,7 @@ bool Version::save(const fs::path& path) const
   node[kMinorKey] = minor;
   node[kPatchKey] = patch;
 
-  if (!yaml::save(path, node)) {
+  if (!yaml::save(path.toStdString(), node)) {
     return false;
   }
 

@@ -37,6 +37,8 @@ public:
   explicit ImuHandlerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
+  std::string section_;
+
   enum Stage
   {
     kMeasureGyroBias,
@@ -74,6 +76,8 @@ private:
 ImuHandlerNode::ImuHandlerNode(const rclcpp::NodeOptions& options)
   : super("real_imu_handler", nodeOptions_Default(options))
 {
+  section_ = getStringParam("section");
+
   gyro_lpf_.setCutoffFrequency(kGyroLpfCutoff);
 
   const auto cfg_dir = linux::isSuperUser() ? fs::path(kConfigDirRoot) : ros2::expandUser(kConfigDirHome);
@@ -94,17 +98,17 @@ ImuHandlerNode::ImuHandlerNode(const rclcpp::NodeOptions& options)
 
 bool ImuHandlerNode::getConfig()
 {
-  if (!pt_.get(ns(), handler::imu::kOffsetXKey, acc_bias_.x())) {
+  if (!pt_.get(section_, handler::imu::kOffsetXKey, acc_bias_.x())) {
     TOBAS_ERROR("Failed to get \"", handler::imu::kOffsetXKey, "\".");
     return false;
   }
 
-  if (!pt_.get(ns(), handler::imu::kOffsetYKey, acc_bias_.y())) {
+  if (!pt_.get(section_, handler::imu::kOffsetYKey, acc_bias_.y())) {
     TOBAS_ERROR("Failed to get \"", handler::imu::kOffsetXKey, "\".");
     return false;
   }
 
-  if (!pt_.get(ns(), handler::imu::kOffsetZKey, acc_bias_.z())) {
+  if (!pt_.get(section_, handler::imu::kOffsetZKey, acc_bias_.z())) {
     TOBAS_ERROR("Failed to get \"", handler::imu::kOffsetXKey, "\".");
     return false;
   }
@@ -213,9 +217,9 @@ void ImuHandlerNode::setParamsCb(const SetParams::Request::ConstSharedPtr& req, 
   acc_bias_.z(req->offset_z);
 
   // Save parameters.
-  pt_.set(ns(), handler::imu::kOffsetXKey, req->offset_x);
-  pt_.set(ns(), handler::imu::kOffsetYKey, req->offset_y);
-  pt_.set(ns(), handler::imu::kOffsetZKey, req->offset_z);
+  pt_.set(section_, handler::imu::kOffsetXKey, req->offset_x);
+  pt_.set(section_, handler::imu::kOffsetYKey, req->offset_y);
+  pt_.set(section_, handler::imu::kOffsetZKey, req->offset_z);
   if (!pt_.save()) {
     res->success = false;
     res->message = "Failed to save parameters.";

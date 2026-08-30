@@ -7,6 +7,8 @@
 
 namespace tobas
 {
+namespace rviz
+{
 JointModel::JointModel(const std::string& name, size_t joint_index, size_t first_variable_index)
   : name_(name), joint_index_(joint_index), first_variable_index_(first_variable_index)
 {
@@ -106,4 +108,5 @@ const std::vector<const JointModel*>& JointModel::getDescendantJointModels() con
   return descendant_joint_models_;
 }
 
+}  // namespace rviz
 }  // namespace tobas

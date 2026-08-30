@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <optional>
+
 #include <ranges>
 
 #include <gz/sim/Joint.hh>
@@ -76,7 +78,7 @@ private:
   AerodynamicCoefficients aero_coefs_;
   std::map<std::string, ControlSurface> control_surfaces_;
 
-  std::shared_ptr<gz::sim::Link> base_link_;
+  std::optional<gz::sim::Link> base_link_;
   std::map<std::string, std::shared_ptr<gz::sim::Joint>> cs_joints_;  // Pointers to control-surface joints
 
   const cmp::WorldPose* pose_W_;
@@ -148,7 +150,7 @@ void GazeboFixedWingPlugin::Configure(
 
   // Get base link.
   const auto base_link_entity = model.LinkByName(ecm, base_link_name_);
-  base_link_ = std::make_shared<gz::sim::Link>(base_link_entity);
+  base_link_.emplace(base_link_entity);
   if (!base_link_->Valid(ecm)) {
     TOBAS_EXIT("Failed to find base link \"", base_link_name_, "\".");
   }

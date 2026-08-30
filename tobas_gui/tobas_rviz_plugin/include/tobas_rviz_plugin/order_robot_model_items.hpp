@@ -7,6 +7,8 @@
 
 namespace tobas
 {
+namespace rviz
+{
 struct OrderLinksByIndex
 {
   bool operator()(const LinkModel* a, const LinkModel* b) const
@@ -22,4 +24,5 @@ struct OrderJointsByIndex
     return a->getJointIndex() < b->getJointIndex();
   }
 };
+}  // namespace rviz
 }  // namespace tobas

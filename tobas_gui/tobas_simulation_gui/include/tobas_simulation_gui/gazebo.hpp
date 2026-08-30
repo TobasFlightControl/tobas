@@ -3,11 +3,6 @@
 
 #pragma once
 
-#include <expected>
-
-#include <QString>
-#include <rclcpp/node.hpp>
-
 namespace tobas
 {
 namespace gui
@@ -16,9 +11,7 @@ namespace sim
 {
 bool waitUntilGazeboServerReady();
 bool waitUntilGazeboRenderingReady();
-
-bool killGazeboServer();
-bool killGazeboServerAndWait(rclcpp::Node::SharedPtr node);
+void killGazeboServer();
 }  // namespace sim
 }  // namespace gui
 }  // namespace tobas

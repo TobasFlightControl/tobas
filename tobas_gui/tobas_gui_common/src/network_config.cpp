@@ -3,9 +3,8 @@
 
 #include "tobas_gui_common/network_config.hpp"
 
+#include <tobas_yaml_tools/convert/qstring.hpp>
 #include <tobas_yaml_tools/core.hpp>
-
-namespace fs = std::filesystem;
 
 namespace tobas
 {
@@ -13,9 +12,9 @@ namespace gui
 {
 namespace cmn
 {
-bool NetworkConfig::load(const fs::path& path)
+bool NetworkConfig::load(const QString& path)
 {
-  const auto node = yaml::load(path);
+  const auto node = yaml::load(path.toStdString());
   if (!node) {
     std::cerr << node.error() << std::endl;
     return false;
@@ -28,13 +27,13 @@ bool NetworkConfig::load(const fs::path& path)
   return true;
 }
 
-bool NetworkConfig::save(const fs::path& path) const
+bool NetworkConfig::save(const QString& path) const
 {
   YAML::Node node(YAML::NodeType::Map);
 
   node[kInterfaceKey] = interface;
 
-  if (!yaml::save(path, node)) {
+  if (!yaml::save(path.toStdString(), node)) {
     return false;
   }
 

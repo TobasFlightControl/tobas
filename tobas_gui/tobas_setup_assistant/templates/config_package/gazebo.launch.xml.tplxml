@@ -11,6 +11,7 @@
   <arg name="ground_truth" default="false"/>
   <arg name="standalone" default="false"/>
   <arg name="multiprocess" default="true"/>
+  <arg name="id" default="id0"/>
   <arg name="launch_core" default="true"/>
   <arg name="sbus_device" default=""/>
   <arg name="x" default="0.0" description="Initial X position in meters."/>
@@ -29,7 +30,7 @@
 
   <!-- Parse drone.xacro -->
   <arg name="xacro_path" default="$(find-pkg-share {{ config_pkg_name }})/urdf/drone.xacro"/>
-  <arg name="urdf_text" default="$(command 'xacro $(var xacro_path) DEBUG:=$(var user_debug)')"/>
+  <arg name="urdf_text" default="$(command 'xacro $(var xacro_path) DEBUG:=$(var user_debug) ID:=$(var id)')"/>
 
   <!-- Launch a Gazebo world -->
   <include file="$(find-pkg-share tobas_gazebo_sim)/launch/gazebo.launch.xml">
@@ -39,7 +40,7 @@
   </include>
 
   <group>
-    <push_ros_namespace namespace="{{ drone_name }}"/>
+    <push_ros_namespace namespace="{{ drone_name }}/$(var id)"/>
 
     <!-- Load a robot description -->
     <node pkg="robot_state_publisher" exec="robot_state_publisher" ros_args="--log-level $(var log_level)" output="$(var output)">
@@ -63,7 +64,9 @@
       <node pkg="tobas_sbus_driver" exec="sbus_driver" ros_args="--log-level $(var log_level)" output="$(var output)">
         <param name="device" value="$(var sbus_device)"/>
       </node>
-      <node pkg="tobas_real_ros" exec="rcin_handler" ros_args="--log-level $(var log_level)" output="$(var output)"/>
+      <node pkg="tobas_real_ros" exec="rcin_handler" ros_args="--log-level $(var log_level)" output="$(var output)">
+        <param name="section" value="{{ drone_name }}"/>
+      </node>
     </group>
     <!-- If no S.BUS device is specified, start the fake RC input publisher to pass the radio failsafe. -->
     <group if="$(eval '\'$(var sbus_device)\' == \'\'')">
@@ -93,6 +96,7 @@
       <arg name="ground_truth" value="$(var ground_truth)"/>
       <arg name="standalone" value="$(var standalone)"/>
       <arg name="multiprocess" value="$(var multiprocess)"/>
+      <arg name="id" value="$(var id)"/>
     </include>
   </group>
 

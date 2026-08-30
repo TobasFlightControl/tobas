@@ -4,6 +4,7 @@
 #pragma once
 
 #include <QWidget>
+#include <rclcpp/node.hpp>
 
 namespace tobas
 {
@@ -17,7 +18,8 @@ class BaseMagCalibWidget : public QWidget
 
 public:
   virtual void reset() = 0;
-  virtual void setNamespace(const std::string& ns) = 0;
+  virtual void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns) = 0;
+  virtual void clearRosInterfaces() = 0;
 };
 }  // namespace sc
 }  // namespace gui

@@ -4,7 +4,6 @@
 #pragma once
 
 #include "../base_setting.hpp"
-#include "./host/host.hpp"
 #include "./network_iface.hpp"
 
 namespace tobas
@@ -13,20 +12,19 @@ namespace gui
 {
 namespace sa
 {
-namespace rc
+namespace network
 {
-class RemoteConnectionWidget : public BaseSettingWidget
+class NetworkWidget : public BaseSettingWidget
 {
   Q_OBJECT
 
-  using self = RemoteConnectionWidget;
+  using self = NetworkWidget;
   using super = BaseSettingWidget;
 
   static constexpr char kNetworkIfaceLabel[] = "Network Interface";
-  static constexpr char kHostLabel[] = "Host";
 
 public:
-  explicit RemoteConnectionWidget();
+  explicit NetworkWidget();
 
   const char* name() const override;
   const char* title() const override;
@@ -40,13 +38,11 @@ public:
   void load(const YAML::Node& node) override;
 
   QString networkInterface() const;
-  QString host() const;
 
 private:
   NetworkIfaceWidget* nic_;
-  HostWidget* host_;
 };
-}  // namespace rc
+}  // namespace network
 }  // namespace sa
 }  // namespace gui
 }  // namespace tobas

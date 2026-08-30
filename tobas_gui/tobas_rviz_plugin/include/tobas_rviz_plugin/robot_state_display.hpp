@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <optional>
+
 #include <rclcpp/node.hpp>
 #include <rclcpp/subscription.hpp>
 #include <rviz_common/display.hpp>
@@ -23,6 +25,8 @@
 #include "./robot_state.hpp"
 
 namespace tobas
+{
+namespace rviz
 {
 class RobotStateDisplay : public rviz_common::Display
 {
@@ -58,10 +62,10 @@ protected:
   rclcpp::Node::SharedPtr node_;
   rclcpp::Subscription<tobas_visualization_msgs::msg::DisplayRobotState>::SharedPtr robot_state_sub_;
 
-  std::shared_ptr<RDFLoader> rdf_loader_;
-  std::shared_ptr<rviz_default_plugins::robot::Robot> robot_;
-  RobotModel::ConstSharedPtr robot_model_;
-  RobotState::SharedPtr robot_state_;
+  std::optional<RDFLoader> rdf_loader_;
+  std::optional<rviz_default_plugins::robot::Robot> robot_;
+  std::optional<RobotModel> robot_model_;
+  std::optional<RobotState> robot_state_;
   std::map<std::string, std_msgs::msg::ColorRGBA> highlights_;
   bool update_state_ = false;
 
@@ -92,4 +96,5 @@ private Q_SLOTS:
   void changedUnhighlightColor();
   void changedReload();
 };
+}  // namespace rviz
 }  // namespace tobas

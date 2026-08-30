@@ -29,25 +29,18 @@ Q_SIGNALS:
   void disconnected();
 
 public:
-  explicit RemoteConnectionWidget(const RosQtBridge& bridge);
+  explicit RemoteConnectionWidget(const rqt::RosQtBridge& bridge);
 
   void start();
   void stop();
   void restart();
 
 private:
-  enum State
-  {
-    kConnected,
-    kDisonnected,
-    kUnknown,
-  } state_ = kUnknown;
+  const rqt::RosQtBridge& bridge_;
 
-  const RosQtBridge& bridge_;
-
-  QPixmap connected_;
-  QPixmap disconnected_;
-  QPixmap unknown_;
+  QPixmap pixmap_connected_;
+  QPixmap pixmap_disconnected_;
+  QPixmap pixmap_unknown_;
 
   QLabel* icon_;
   QLabel* label_;
@@ -58,6 +51,15 @@ private:
 
   bool is_running_ = false;
 
+  enum State
+  {
+    kNotRunning,
+    kConnected,
+    kDisonnected,
+    kUnknown,
+  } state_ = kNotRunning;
+
+  void setEmpty();
   void setConnected();
   void setDisonnected();
   void setUnknown();

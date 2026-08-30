@@ -3,16 +3,14 @@
 
 #pragma once
 
-#include <expected>
-
+#include <QPointer>
 #include <QProcess>
 #include <QPushButton>
+#include <QString>
 #include <QWidget>
 
 #include <tobas_drone_core/drone.hpp>
 #include <tobas_gui_common/project_paths.hpp>
-#include <tobas_gui_common/remote_project_builder.hpp>
-#include <tobas_gui_common/ssh_client.hpp>
 #include <tobas_kdl_parser/kdl_parser.hpp>
 #include <tobas_qt_tools/widgets/toggle_button.hpp>
 #include <tobas_qt_tools/widgets/wait_spinner.hpp>
@@ -36,21 +34,20 @@ class SimulationWidget : public QWidget
   using self = SimulationWidget;
   using super = QWidget;
 
-  static constexpr int kButtonWidth = 100;
-  static constexpr int kButtonHeight = 40;
-
-  static constexpr auto kWaitForServerTimeout = std::chrono::seconds(3);
-
 Q_SIGNALS:
-  void telemetryLossExpected();
   void started();
   void terminated();
+  void telemetryLossExpected();
 
 public:
-  explicit SimulationWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge);
+  static constexpr int kDroneId = 0;
+
+  explicit SimulationWidget(const rqt::RosQtBridge& bridge);
 
   void reset();
-  bool updateProject(const std::filesystem::path& proj_path);
+  void updateProject(const QString& proj_path);
+  void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
+  void clearRosInterfaces();
 
   bool isRunning() const;
 
@@ -58,19 +55,15 @@ protected:
   void closeEvent(QCloseEvent* event) override;
 
 private:
-  const rclcpp::Node::SharedPtr node_;
-
   uadf::Parser uadf_parser_;
   kdl::TreeParser tree_parser_;
   cmn::ProjectPaths proj_paths_;
-  cmn::SshClientWrapper ssh_client_;
-  cmn::RemoteProjectBuilder remote_proj_builder_;
 
   uadf::Model uadf_;
   kdl::Tree tree_;
   Drone drone_;
 
-  QProcess* launch_proc_ = nullptr;
+  QPointer<QProcess> launch_proc_;
   qt::WaitSpinnerWidget spinner_;
 
   qt::ToggleButton* start_stop_button_;
@@ -79,27 +72,27 @@ private:
   DynamicConfigWidget* dynamic_config_;
   CommandersWidget* commanders_;
 
-  tobas_msgs::msg::Arming::ConstSharedPtr arming_;
+  bool project_loaded_ = false;
 
-  bool startSITL();
-  void terminateSITL();
+  enum SimulationState
+  {
+    kIdle,
+    kStarting,
+    kRunning,
+    kStopping,
+  } state_ = kIdle;
 
-  bool startHITL();
-  void terminateHITL();
-
-  std::map<QString, QString> makeGazeboLaunchArguments(bool launch_core) const;
-  void launchSimulation(bool launch_core);
-
+  std::map<QString, QString> makeGazeboLaunchArguments() const;
+  void launchSimulation();
   void terminateLaunchProcess();
   void terminateSimulation();
-  void terminateSimulationAndWait();
+  void finalizeLaunchProcess(QProcess* process, int code, QProcess::ExitStatus status);
 
 private Q_SLOTS:
   void onStartRequested();
   void onTerminateRequested();
+  void onLaunchProcessErrorOccurred(QProcess::ProcessError error);
   void onLaunchProcessFinished(int code, QProcess::ExitStatus status);
-
-  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
 };
 }  // namespace sim
 }  // namespace gui

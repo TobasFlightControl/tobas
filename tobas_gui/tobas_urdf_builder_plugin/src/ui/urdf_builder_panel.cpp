@@ -57,7 +57,7 @@ void UrdfBuilderPanel::onInitialize()
 {
   Panel::onInitialize();
 
-  ogre_ctrl_ = std::make_shared<ogre::OgreController>(getDisplayContext());
+  ogre_ctrl_.emplace(getDisplayContext());
   update_timer_.start(ROBOT_MODEL_UPDATE_INTERVAL);
 }
 
@@ -135,7 +135,7 @@ void UrdfBuilderPanel::onLoadButtonClicked()
   else if (file_path.endsWith(".xacro")) {
     // Expand XACRO.
     const auto command = "xacro " + file_path + " > " + TMP_URDF_PATH;
-    if (system(command.toUtf8()) != EXIT_SUCCESS) {
+    if (system(command.toUtf8().constData()) != EXIT_SUCCESS) {
       QMessageBox::warning(this, kError, "Failed to convert XACRO to URDF.");
       return;
     }

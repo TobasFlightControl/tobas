@@ -2,7 +2,7 @@ import re
 
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, RegisterEventHandler, EmitEvent, Shutdown
-from launch.substitutions import LaunchConfiguration
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch.event_handlers import OnProcessIO
 from launch_ros.actions import Node
 
@@ -12,6 +12,7 @@ DRONE_NAME = "{{ drone_name }}"
 # Arguments
 LOG_LEVEL = "log_level"
 OUTPUT = "output"
+ID = "id"
 
 
 def handle_output(event):
@@ -27,18 +28,21 @@ def generate_launch_description():
     # Declare arguments
     ld.add_action(DeclareLaunchArgument(LOG_LEVEL, default_value="info"))
     ld.add_action(DeclareLaunchArgument(OUTPUT, default_value="screen"))
+    ld.add_action(DeclareLaunchArgument(ID, default_value="id0"))
 
     # Get arguments
     log_level = LaunchConfiguration(LOG_LEVEL)
     output = LaunchConfiguration(OUTPUT)
+    id = LaunchConfiguration(ID)
 
+    namespace = PathJoinSubstitution([DRONE_NAME, id])
     ros_args = ["--log-level", log_level, "--disable-rosout-logs", "--disable-external-lib-logs"]
 
     # Launch component containers
     component_containers = Node(
         package="tobas_components_rt",
         executable="component_containers",
-        namespace=DRONE_NAME,
+        namespace=namespace,
         ros_arguments=ros_args,
         output=output,
     )

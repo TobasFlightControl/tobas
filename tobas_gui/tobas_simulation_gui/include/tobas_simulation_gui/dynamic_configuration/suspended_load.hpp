@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <optional>
+
 #include <QPushButton>
 
 #include <tobas_qt_tools/widgets/double_spin_box.hpp>
@@ -36,17 +38,15 @@ class SuspendedLoadWidget : public QWidget
   static constexpr int kDefaultCableCrossSectionArea = 50;  // [mm^2]
 
 public:
-  explicit SuspendedLoadWidget(rclcpp::Node::SharedPtr node);
+  explicit SuspendedLoadWidget();
 
-  void updateNamespace(const std::string& ns);
-
-  bool start(std::chrono::milliseconds timeout);
   void reset();
+  void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
+  void clearRosInterfaces();
 
 private:
-  const rclcpp::Node::SharedPtr node_;
-  ros2::SyncServiceClient<AttachSrv>::SharedPtr attach_sc_;
-  ros2::SyncServiceClient<DetachSrv>::SharedPtr detach_sc_;
+  std::optional<ros2::SyncServiceClient<AttachSrv>> attach_sc_;
+  std::optional<ros2::SyncServiceClient<DetachSrv>> detach_sc_;
 
   qt::ToggleButton* attach_detach_btn_;
 

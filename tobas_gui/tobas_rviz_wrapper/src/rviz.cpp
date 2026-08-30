@@ -4,6 +4,8 @@
 #include "tobas_rviz_wrapper/rviz.hpp"
 
 #include <OgreMaterialManager.h>
+#include <QMenuBar>
+#include <QStatusBar>
 #include <rviz_common/display_group.hpp>
 #include <rviz_common/properties/float_property.hpp>
 #include <rviz_common/properties/vector_property.hpp>
@@ -18,9 +20,16 @@ namespace rviz
 {
 RvizFrameManager::RvizFrameManager(int argc, char** argv, const std::string& node_name)
 {
-  // Initialize ROS node.
+  // Initialize ROS node in a unique domain ID.
   if (!rclcpp::ok()) {
-    rclcpp::init(argc, argv);
+    rclcpp::InitOptions options;
+    options.use_default_domain_id();
+    size_t new_domain_id = 232;  // The maximum domain ID
+    if (new_domain_id == options.get_domain_id()) {
+      --new_domain_id;
+    }
+    options.set_domain_id(new_domain_id);
+    rclcpp::init(argc, argv, options);
   }
 
   // Create the RViz ROS interface.
@@ -31,7 +40,12 @@ RvizFrameManager::RvizFrameManager(const std::string& node_name) : RvizFrameMana
 {
 }
 
-void RvizFrameManager::initialize(const QString& config_path, QWidget* parent)
+RvizFrameManager::~RvizFrameManager()
+{
+  clear();
+}
+
+void RvizFrameManager::initialize(const QString& config_path)
 {
   removeDefaultColorMaterials();
 
@@ -40,21 +54,39 @@ void RvizFrameManager::initialize(const QString& config_path, QWidget* parent)
   rviz_common::Config config;
   reader.readFile(config, config_path);
 
-  // Initialize visualization frame.
-  frame_ = new rviz_common::VisualizationFrame(node_, parent);
+  // Create a visualization frame.
+  // Keep the frame parentless so that QLayout::addWidget() reparents it as an embedded widget and clears its Qt::Window flag.
+  frame_ = new rviz_common::VisualizationFrame(node_, nullptr);
+
+  // Initialize the visualization frame.
   frame_->setSplashPath("");  // Do not show a splash image.
   frame_->initialize(node_);  // The initialization method must be called after the splash path is set.
 
-  // Configure visualization frame.
+  // Configure the visualization frame.
   frame_->load(config);
-  frame_->setMenuBar(nullptr);
-  frame_->setStatusBar(nullptr);
+  frame_->menuBar()->hide();
+  frame_->statusBar()->hide();
   frame_->setHideButtonVisibility(false);
   frame_->setStyleSheet("QSizeGrip { width: 0px; height: 0px; }");  // Remove sizegrip.
 
   // Get child instances.
   manager_ = frame_->getManager();
   display_group_ = manager_->getRootDisplayGroup();
+}
+
+void RvizFrameManager::clear()
+{
+  if (manager_) {
+    manager_->stopUpdate();
+    manager_->removeAllDisplays();
+  }
+
+  delete frame_;
+  frame_ = nullptr;
+  manager_ = nullptr;
+  display_group_ = nullptr;
+
+  node_.reset();
 }
 
 rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr RvizFrameManager::rvizNode()
@@ -74,7 +106,9 @@ QWidget* RvizFrameManager::widget()
 
 void RvizFrameManager::resetTime()
 {
-  manager_->resetTime();
+  if (manager_) {
+    manager_->resetTime();
+  }
 }
 
 QString RvizFrameManager::getFixedFrame() const

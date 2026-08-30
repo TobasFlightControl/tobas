@@ -3,6 +3,8 @@
 
 #include "tobas_qt_tools/widgets/progress_dialog.hpp"
 
+#include <QDebug>
+
 #include <tobas_math/core.hpp>
 
 #include "tobas_qt_tools/event.hpp"
@@ -40,12 +42,25 @@ void ProgressDialog::hide()
 
 void ProgressDialog::setLabelText(const QString& text)
 {
+  qInfo().noquote() << text;
   text_ = text;
 }
 
 void ProgressDialog::setStep(const int step)
 {
-  step_ = std::clamp(step, 0, num_steps_);
+  if (step < 0) {
+    qWarning().nospace() << "The given progress step (" << step << ") is negative.";
+    step_ = 0;
+  }
+  else if (step > num_steps_) {
+    qWarning().nospace() << "The given progress step (" << step << ") is greater than the number of total steps ("
+                         << num_steps_ << ").";
+    step_ = num_steps_;
+  }
+  else {
+    step_ = step;
+  }
+
   const auto value = math::remap(step_, 0, num_steps_, minimum(), maximum());
   setValue(value);
 }

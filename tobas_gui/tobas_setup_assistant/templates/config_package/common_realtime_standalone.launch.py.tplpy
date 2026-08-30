@@ -16,6 +16,7 @@ MISSION_EXECUTOR_PKG = "{{ mission_executor_pkg }}"
 LOG_LEVEL = "log_level"
 OUTPUT = "output"
 USE_SIM_TIME = "use_sim_time"
+ID = "id"
 
 
 def generate_launch_description():
@@ -25,16 +26,19 @@ def generate_launch_description():
     ld.add_action(DeclareLaunchArgument(LOG_LEVEL, default_value="info"))
     ld.add_action(DeclareLaunchArgument(OUTPUT, default_value="screen"))
     ld.add_action(DeclareLaunchArgument(USE_SIM_TIME, default_value="false"))
+    ld.add_action(DeclareLaunchArgument(ID, default_value="id0"))
 
     # Get arguments
     log_level = LaunchConfiguration(LOG_LEVEL)
     output = LaunchConfiguration(OUTPUT)
     use_sim_time = LaunchConfiguration(USE_SIM_TIME)
+    id = LaunchConfiguration(ID)
 
     # Set common parameters
     # cf. https://zenn.dev/ntrlmt/articles/d41c7e220ff0fe
     ld.add_action(SetParameter(USE_SIM_TIME, value=use_sim_time))
 
+    namespace = PathJoinSubstitution([DRONE_NAME, id])
     config_pkg_share = FindPackageShare(CONFIG_PKG_NAME)
     user_cpp_pkg_share = FindPackageShare(USER_CPP_PKG_NAME)
 
@@ -47,7 +51,7 @@ def generate_launch_description():
             package="tobas_eskf",
             executable="eskf_node",
             name="observer",
-            namespace=DRONE_NAME,
+            namespace=namespace,
             parameters=[PathJoinSubstitution([config_pkg_share, "config", "observer_static_standalone.yaml"])],
             remappings=tf_remap,
             ros_arguments=ros_args,
@@ -59,7 +63,7 @@ def generate_launch_description():
             package=CONTROLLER_PKG,
             executable="controller",
             name="controller",
-            namespace=DRONE_NAME,
+            namespace=namespace,
             parameters=[PathJoinSubstitution([config_pkg_share, "config", "controller_static_standalone.yaml"])],
             ros_arguments=ros_args,
             output=output,
@@ -69,7 +73,7 @@ def generate_launch_description():
         Node(
             package="tobas_rotor_controller",
             executable="rotor_controller",
-            namespace=DRONE_NAME,
+            namespace=namespace,
             ros_arguments=ros_args,
             output=output,
         )
@@ -78,7 +82,7 @@ def generate_launch_description():
         Node(
             package="tobas_disturbance_observer",
             executable="disturbance_observer",
-            namespace=DRONE_NAME,
+            namespace=namespace,
             ros_arguments=ros_args,
             output=output,
         )
@@ -89,7 +93,7 @@ def generate_launch_description():
         Node(
             package="tobas_rc_teleop",
             executable="rc_teleop",
-            namespace=DRONE_NAME,
+            namespace=namespace,
             parameters=[PathJoinSubstitution([config_pkg_share, "config", "rc_teleop_static_standalone.yaml"])],
             ros_arguments=ros_args,
             output=output,
@@ -99,7 +103,7 @@ def generate_launch_description():
         Node(
             package=MISSION_EXECUTOR_PKG,
             executable="mission_executor",
-            namespace=DRONE_NAME,
+            namespace=namespace,
             parameters=[PathJoinSubstitution([config_pkg_share, "config", "mission_executor_static_standalone.yaml"])],
             ros_arguments=ros_args,
             output=output,
@@ -109,7 +113,7 @@ def generate_launch_description():
         Node(
             package="tobas_object_avoidance",
             executable="object_avoidance",
-            namespace=DRONE_NAME,
+            namespace=namespace,
             ros_arguments=ros_args,
             output=output,
         )
@@ -120,7 +124,7 @@ def generate_launch_description():
         Node(
             package="tobas_connection_monitor",
             executable="heartbeat_sender",
-            namespace=DRONE_NAME,
+            namespace=namespace,
             ros_arguments=ros_args,
             output=output,
         )
@@ -129,7 +133,7 @@ def generate_launch_description():
         Node(
             package="tobas_tree_server",
             executable="tree_server",
-            namespace=DRONE_NAME,
+            namespace=namespace,
             ros_arguments=ros_args,
             output=output,
         )
@@ -138,7 +142,7 @@ def generate_launch_description():
         Node(
             package="tobas_drone_server",
             executable="drone_server",
-            namespace=DRONE_NAME,
+            namespace=namespace,
             parameters=[{"tbsdrn_path": PathJoinSubstitution([config_pkg_share, "config", "drone.tbsdrn"])}],
             ros_arguments=ros_args,
             output=output,
@@ -148,7 +152,7 @@ def generate_launch_description():
         Node(
             package="tobas_rosbag_recorder",
             executable="rosbag_recorder",
-            namespace=DRONE_NAME,
+            namespace=namespace,
             ros_arguments=ros_args,
             output=output,
         )
@@ -157,7 +161,7 @@ def generate_launch_description():
         Node(
             package="tobas_config_servers",
             executable="imu_filter_config_server",
-            namespace=DRONE_NAME,
+            namespace=namespace,
             parameters=[PathJoinSubstitution([config_pkg_share, "config", "imu_filter_static_standalone.yaml"])],
             ros_arguments=ros_args,
             output=output,
@@ -167,7 +171,7 @@ def generate_launch_description():
         Node(
             package="tobas_config_servers",
             executable="rpm_control_config_server",
-            namespace=DRONE_NAME,
+            namespace=namespace,
             ros_arguments=ros_args,
             output=output,
         )
@@ -176,7 +180,7 @@ def generate_launch_description():
         Node(
             package="tobas_failsafe",
             executable="health_monitor",
-            namespace=DRONE_NAME,
+            namespace=namespace,
             parameters=[PathJoinSubstitution([config_pkg_share, "config", "health_monitor_standalone.yaml"])],
             ros_arguments=ros_args,
             output=output,
@@ -186,7 +190,7 @@ def generate_launch_description():
         Node(
             package="tobas_failsafe",
             executable="failsafe_executor",
-            namespace=DRONE_NAME,
+            namespace=namespace,
             ros_arguments=ros_args,
             output=output,
         )
@@ -195,7 +199,7 @@ def generate_launch_description():
         Node(
             package="tobas_landing_detection",
             executable="landing_detector",
-            namespace=DRONE_NAME,
+            namespace=namespace,
             ros_arguments=ros_args,
             output=output,
         )
@@ -204,7 +208,7 @@ def generate_launch_description():
         Node(
             package="tobas_rotor_anomaly_detection",
             executable="rotor_anomaly_detector",
-            namespace=DRONE_NAME,
+            namespace=namespace,
             parameters=[PathJoinSubstitution([config_pkg_share, "config", "rotor_anomaly_detector_standalone.yaml"])],
             ros_arguments=ros_args,
             output=output,
@@ -214,7 +218,7 @@ def generate_launch_description():
         Node(
             package="tobas_vibration_filter",
             executable="vibration_filter",
-            namespace=DRONE_NAME,
+            namespace=namespace,
             ros_arguments=ros_args,
             output=output,
         )
@@ -223,7 +227,7 @@ def generate_launch_description():
         Node(
             package="tobas_joint_states_bridge",
             executable="joint_states_bridge",
-            namespace=DRONE_NAME,
+            namespace=namespace,
             ros_arguments=ros_args,
             output=output,
         )
@@ -232,7 +236,7 @@ def generate_launch_description():
         Node(
             package="tobas_topic_throttle",
             executable="topic_throttle",
-            namespace=DRONE_NAME,
+            namespace=namespace,
             ros_arguments=ros_args,
             output=output,
         )
@@ -242,7 +246,7 @@ def generate_launch_description():
     ld.add_action(
         GroupAction(
             [
-                PushRosNamespace(DRONE_NAME),
+                PushRosNamespace(namespace),
                 IncludeLaunchDescription(
                     PythonLaunchDescriptionSource(
                         PathJoinSubstitution([user_cpp_pkg_share, "launch", "common_realtime.launch.py"])

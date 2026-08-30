@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <filesystem>
+#include <QString>
 
 namespace tobas
 {
@@ -17,11 +17,11 @@ class SshConfig
   static constexpr char kUserKey[] = "user";
 
 public:
-  std::string host;
-  std::string user;
+  QString host;
+  QString user;
 
-  bool load(const std::filesystem::path& path);
-  bool save(const std::filesystem::path& path) const;
+  bool load(const QString& path);
+  bool save(const QString& path) const;
 };
 }  // namespace cmn
 }  // namespace gui

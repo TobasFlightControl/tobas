@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <optional>
+
 #include <QSettings>
 
 #include <tobas_colcon_cpp/core.hpp>
@@ -75,13 +77,13 @@ private:
   JointStatePublisherWidget* jsp_;
   SettingsWidget* settings_;
 
-  std::unique_ptr<ProjectGenerator> prj_gen_;
+  std::optional<ProjectGenerator> prj_gen_;
 
   /* Return all settings to their startup state. */
   void reset();
 
   void enableSaveButtons(bool enable);
-  bool resolveMeshPaths(const std::filesystem::path& config_pkg_path, tinyxml2::XMLElement* elem);
+  bool resolveMeshPaths(const QString& config_pkg_path, tinyxml2::XMLElement* elem);
 
   bool updateInternalDataStructures();
 

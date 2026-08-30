@@ -160,7 +160,6 @@ bool Drone::load(const YAML::Node& root_node)
     }
   }
   else {
-    cout << "\"" << kFixedWingKey << "\" is not defined." << endl;
     fixed_wing.reset();
   }
 

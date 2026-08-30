@@ -12,10 +12,10 @@
 #include "./setting_tabs/fixed_wing/fixed_wing.hpp"
 #include "./setting_tabs/hardware/hardware.hpp"
 #include "./setting_tabs/mission_executor/mission_executor.hpp"
+#include "./setting_tabs/network/network.hpp"
 #include "./setting_tabs/observer.hpp"
 #include "./setting_tabs/propulsion_system/propulsion_system.hpp"
 #include "./setting_tabs/rc_input.hpp"
-#include "./setting_tabs/remote_connection/remote_connection.hpp"
 #include "./settings_navigation.hpp"
 
 namespace tobas
@@ -35,7 +35,7 @@ public:
   propulsion::PropulsionSystemWidget* propulsion_system;
   fw::FixedWingWidget* fixed_wing;
   hw::HardwareWidget* hardware;
-  rc::RemoteConnectionWidget* remote_connection;
+  network::NetworkWidget* network;
   ObserverWidget* observer;
   ctrl::ControllerWidget* controller;
   mission::MissionExecutorWidget* mission;

@@ -3,21 +3,31 @@
 
 #pragma once
 
+#include <expected>
+#include <memory>
+#include <optional>
+#include <string>
+#include <vector>
+
+#include <QComboBox>
 #include <QLineEdit>
 #include <QPushButton>
 #include <QSettings>
+#include <QSpinBox>
 #include <QWidget>
+#include <rclcpp/context.hpp>
 
 #include <tobas_actuator_test/actuator_test.hpp>
 #include <tobas_control_system/control_system.hpp>
 #include <tobas_flight_log_gui/flight_log.hpp>
 #include <tobas_gui_common/network_config.hpp>
-#include <tobas_gui_common/project_paths.hpp>
+#include <tobas_gui_common/remote_project_builder.hpp>
 #include <tobas_gui_common/ssh_client.hpp>
-#include <tobas_gui_common/ssh_config.hpp>
 #include <tobas_gui_common/version.hpp>
 #include <tobas_kdl_parser/kdl_parser.hpp>
 #include <tobas_parameter_tuning/parameter_tuning.hpp>
+#include <tobas_qt_tools/widgets/toggle_button.hpp>
+#include <tobas_ros2_tools/async_node_manager.hpp>
 #include <tobas_sensor_calibration/sensor_calibration.hpp>
 #include <tobas_simulation_gui/simulation.hpp>
 #include <tobas_ssh_client/ssh_client.hpp>
@@ -26,7 +36,7 @@
 
 #include <tobas_msgs/msg/arming.hpp>
 
-#include "./network_checker.hpp"
+#include "./flight_controller_scanner.hpp"
 #include "./project_env_parser.hpp"
 #include "./remote_connection.hpp"
 #include "./restart_button.hpp"
@@ -47,21 +57,14 @@ class GroundControlStationWidget : public QWidget
 
   static constexpr char kLastOpenedDirKey[] = "gcs/last_opened_dir";
 
-  static constexpr int kPathMaxWidth = 400;
-  static constexpr int kPowerButtonRadius = 40;
-
 public:
-  explicit GroundControlStationWidget(rclcpp::Node::SharedPtr node);
-
-  void reset(bool include_simulation = true);
-  void updateInternalDataStructures();
+  explicit GroundControlStationWidget(int argc, char** argv);
 
 protected:
   void closeEvent(QCloseEvent* event) override;
 
 private:
-  RosQtBridge bridge_;
-  const NetworkChecker network_checker_;
+  rqt::RosQtBridge bridge_;
 
   uadf::Model uadf_;
   kdl::Tree tree_;
@@ -70,20 +73,20 @@ private:
   QSettings settings_store_;
   uadf::Parser uadf_parser_;
   kdl::TreeParser tree_parser_;
-  cmn::ProjectPaths proj_paths_;
   cmn::Version proj_version_;
-  cmn::SshConfig ssh_config_;
   cmn::NetworkConfig network_config_;
-  cmn::SshClientWrapper ssh_client_;
-  cmn::RemoteProjectBuilder remote_proj_builder_;
   ProjectEnvParser project_env_parser_;
 
   RemoteConnectionWidget* remote_conn_;
 
   QLineEdit* proj_path_;
   QPushButton* load_btn_;
-  QPushButton* write_btn_;
 
+  FlightControllerScanner* fc_scanner_;
+  QComboBox* fc_selector_;
+  QSpinBox* vehicle_id_;
+  qt::ToggleButton* connect_btn_;
+  QPushButton* write_btn_;
   RestartButton* restart_btn_;
   ShutdownButton* shutdown_btn_;
 
@@ -98,8 +101,31 @@ private:
 
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
   bool telemetry_loss_expected_ = false;
+  bool project_loaded_ = false;
+  bool connection_ready_ = false;
 
-  std::filesystem::path projectPath() const;
+  std::vector<std::string> ros_args_;
+  std::optional<ros2::AsyncNodeManager> ros_node_manager_;
+
+  std::optional<cmn::SshClientWrapper> ssh_client_;
+  std::optional<cmn::RemoteProjectBuilder> remote_proj_builder_;
+
+  void reset();
+  void updateInternalDataStructures();
+  void initializeRosConnection();
+  void clearRosConnection();
+  void connectToFlightController();
+  void disconnectFromFlightController();
+  bool waitForHeartbeat() const;
+
+  void updateHeaderActionAvailability();
+  void updateFlightControllerList(const QVector<DiscoveredFlightController>& flight_controllers);
+  void setFlightControllerPlaceholder(const QString& text);
+  void resetFlightControllerPlaceholder();
+
+  QString currentHost() const;
+  int currentId() const;
+  QString currentConnectionDescription() const;
 
   void expectTelemetryLoss();
   void clearExpectedTelemetryLoss();
@@ -109,12 +135,18 @@ private:
 
 private Q_SLOTS:
   void onLoadButtonClicked();
+  void onConnectRequested();
+  void onDisconnectRequested();
   void onWriteButtonClicked();
 
-  void onRestartButtonClicked(bool checked);
-  void onShutdownButtonClicked(bool checked);
+  void onFlightControllerScanFinished(const QVector<DiscoveredFlightController>& flight_controllers);
+  void onFlightControllerScanFailed(const QString& message);
 
-  void onSimRealStateChanged();
+  void onRestartButtonClicked();
+  void onShutdownButtonClicked();
+
+  void onSimulationStarted();
+  void onSimulationTerminated();
   void onRemoteConnectionDisconnected();
 
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);

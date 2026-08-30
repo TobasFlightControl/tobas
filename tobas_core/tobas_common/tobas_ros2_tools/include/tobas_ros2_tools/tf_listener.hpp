@@ -14,8 +14,6 @@ namespace ros2
 class TransformListener
 {
 public:
-  using SharedPtr = std::shared_ptr<TransformListener>;
-
   explicit TransformListener(rclcpp::Node::SharedPtr node);
 
   bool lookupTransform(const std::string& parent, const std::string& child, const rclcpp::Time& time = rclcpp::Time(0));

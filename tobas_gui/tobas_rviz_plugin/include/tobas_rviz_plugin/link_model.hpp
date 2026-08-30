@@ -10,6 +10,8 @@
 
 namespace tobas
 {
+namespace rviz
+{
 class JointModel;
 
 /* A link in the robot kinematic tree. */
@@ -47,4 +49,5 @@ private:
   bool joint_origin_transform_is_identity_ = true;
   Eigen::Isometry3d joint_origin_transform_ = Eigen::Isometry3d::Identity();
 };
+}  // namespace rviz
 }  // namespace tobas

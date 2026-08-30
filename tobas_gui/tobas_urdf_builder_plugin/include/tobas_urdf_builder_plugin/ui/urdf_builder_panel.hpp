@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <optional>
+
 #include <urdf/model.h>
 #include <QSettings>
 #include <QTimer>
@@ -73,7 +75,7 @@ private:
 
   Ui::URDFBuilderPanelUI* ui_;
   view_model::URDFViewModel vm_;
-  ogre::OgreController::SharedPtr ogre_ctrl_;
+  std::optional<ogre::OgreController> ogre_ctrl_;
 
   UpdateLinkDialog* link_dialog_;
   view_model::LinkViewModelPtr old_link_vm_;

@@ -49,13 +49,13 @@ Q_SIGNALS:
   void resultReceived(rclcpp_action::ResultCode code, const QString& message, uint32_t last_cmd_idx);
 
 public:
-  explicit MissionPlannerWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge);
+  explicit MissionPlannerWidget(const rqt::RosQtBridge& bridge);
 
   void reset();
-  void updateNamespace(const std::string& ns);
+  void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
+  void clearRosInterfaces();
 
 private:
-  const rclcpp::Node::SharedPtr node_;
   QSettings settings_store_;
   geo::Geography geography_;
 
@@ -76,7 +76,8 @@ private:
 
   qt::WaitSpinnerWidget spinner_;
 
-  bool mission_executing_;
+  bool ros_initialized_ = false;
+  bool mission_executing_ = false;
   Client::SharedPtr mission_ac_;
 
   QString getMissionDir();

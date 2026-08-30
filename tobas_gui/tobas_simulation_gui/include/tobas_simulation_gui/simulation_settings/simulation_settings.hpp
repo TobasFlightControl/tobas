@@ -4,7 +4,6 @@
 #pragma once
 
 #include "./debug.hpp"
-#include "./loop_type.hpp"
 #include "./pose.hpp"
 #include "./sbus.hpp"
 #include "./world/world.hpp"
@@ -25,8 +24,6 @@ class SimulationSettingsWidget : public QWidget
 public:
   explicit SimulationSettingsWidget();
 
-  LoopType loopType() const;
-
   std::filesystem::path worldPath() const;
 
   double x() const;      // [m]
@@ -41,7 +38,6 @@ public:
   bool userDebug() const;
 
 private:
-  LoopTypeWidget* type_;
   WorldWidget* world_;
   PoseWidget* pose_;
   SbusWidget* sbus_;

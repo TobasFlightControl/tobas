@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <filesystem>
+#include <QString>
 
 namespace tobas
 {
@@ -20,100 +20,97 @@ public:
   static constexpr char kControllerDynamicParamFileName[] = "controller_dynamic.yaml";
   static constexpr char kRcTeleopDynamicParamFileName[] = "rc_teleop_dynamic.yaml";
 
-  explicit ProjectPaths(const std::filesystem::path& proj_path = "");
+  explicit ProjectPaths(const QString& proj_path = "");
 
-  const std::filesystem::path& getProjPath() const;
-  void setProjPath(const std::filesystem::path& proj_path);
+  const QString& getProjPath() const;
+  void setProjPath(const QString& proj_path);
 
   /* Return the path of the Tobas package on the FC side. */
-  std::filesystem::path remoteProjPath() const;
+  QString remoteProjPath() const;
 
   /* Extract the Tobas package name without extension from the path. */
-  std::string projName() const;
+  QString projName() const;
 
   /* Return the Tobas meta-package name without extension. */
-  std::string metaPkgName() const;
+  QString metaPkgName() const;
 
   /* Return the Tobas config package name without extension. */
-  std::string cfgPkgName() const;
+  QString cfgPkgName() const;
 
   /* Return the Tobas user Msg package name without extension. */
-  std::string userMsgPkgName() const;
+  QString userMsgPkgName() const;
 
   /* Return the Tobas user C++ package name without extension. */
-  std::string userCppPkgName() const;
+  QString userCppPkgName() const;
 
   /* Return the Tobas user Python package name without extension. */
-  std::string userPyPkgName() const;
+  QString userPyPkgName() const;
 
   /* Return the absolute path of the Tobas meta-package. */
-  std::filesystem::path metaPkgPath() const;
+  QString metaPkgPath() const;
 
   /* Return the absolute path of the Tobas config package. */
-  std::filesystem::path cfgPkgPath() const;
+  QString cfgPkgPath() const;
 
   /* Return the absolute path of the Tobas user Msg package. */
-  std::filesystem::path userMsgPkgPath() const;
+  QString userMsgPkgPath() const;
 
   /* Return the absolute path of the Tobas user C++ package. */
-  std::filesystem::path userCppPkgPath() const;
+  QString userCppPkgPath() const;
 
   /* Return the absolute path of the Tobas user Python package. */
-  std::filesystem::path userPyPkgPath() const;
+  QString userPyPkgPath() const;
 
   /* Return the absolute path of the config directory in the config package. */
-  std::filesystem::path cfgConfigDirPath() const;
+  QString cfgConfigDirPath() const;
 
   /* Return the absolute path of the launch directory in the config package. */
-  std::filesystem::path cfgLaunchDirPath() const;
+  QString cfgLaunchDirPath() const;
 
   /* Return the absolute path of the meshes directory in the config package. */
-  std::filesystem::path cfgMeshDirPath() const;
+  QString cfgMeshDirPath() const;
 
   /* Return the absolute path of the urdf directory in the config package. */
-  std::filesystem::path cfgUrdfDirPath() const;
+  QString cfgUrdfDirPath() const;
 
   /* Return the absolute path of original.uadf. */
-  std::filesystem::path originalUadfPath() const;
+  QString originalUadfPath() const;
 
   /* Return the absolute path of drone.xacro. */
-  std::filesystem::path xacroPath() const;
+  QString xacroPath() const;
 
   /* Return the absolute path of drone.tbsdrn. */
-  std::filesystem::path tbsdrnPath() const;
-
-  /* Return the absolute path of ssh.yaml. */
-  std::filesystem::path sshConfigPath() const;
+  QString tbsdrnPath() const;
 
   /* Return the absolute path of network.yaml. */
-  std::filesystem::path networkConfigPath() const;
+  QString networkConfigPath() const;
 
   /* Return the absolute path of imu_filter_dynamic.yaml. */
-  std::filesystem::path imuFiltDynParamsPath() const;
+  QString imuFiltDynParamsPath() const;
 
   /* Return the absolute path of rpm_control_dynamic.yaml. */
-  std::filesystem::path rpmCtrlDynParamsPath() const;
+  QString rpmCtrlDynParamsPath() const;
 
   /* Return the absolute path of observer_dynamic.yaml. */
-  std::filesystem::path obsvDynParamsPath() const;
+  QString obsvDynParamsPath() const;
 
   /* Return the absolute path of controller_dynamic.yaml. */
-  std::filesystem::path ctrlDynParamsPath() const;
+  QString ctrlDynParamsPath() const;
 
   /* Return the absolute path of rc_teleop_dynamic.yaml. */
-  std::filesystem::path rcTeleopDynParamsPath() const;
+  QString rcTeleopDynParamsPath() const;
 
   /* Return the absolute path of the backup directory. */
-  std::filesystem::path projBackupDirPath() const;
+  QString projBackupDirPath() const;
 
   /* Return the absolute path of the backup config file. */
-  std::filesystem::path backupSettingsPath() const;
+  QString backupSettingsPath() const;
 
   /* Return the path of the version file. */
-  std::filesystem::path versionPath() const;
+  QString versionPath() const;
 
 private:
-  std::filesystem::path proj_path_;
+  QString proj_path_;
 };
 }  // namespace cmn
 }  // namespace gui

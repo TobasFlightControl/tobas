@@ -15,12 +15,16 @@ namespace gui
 {
 namespace sc
 {
-LargeVehicleMagCalibThread::LargeVehicleMagCalibThread(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge)
-  : node_(node)
+LargeVehicleMagCalibThread::LargeVehicleMagCalibThread(const rqt::RosQtBridge& bridge)
 {
-  connect(&bridge, &RosQtBridge::rawMagReceived, this, &self::magCb, Qt::QueuedConnection);
-  connect(&bridge, &RosQtBridge::gnssReceived, this, &self::gnssCb, Qt::QueuedConnection);
-  connect(&bridge, &RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
+  connect(&bridge, &rqt::RosQtBridge::rawMagReceived, this, &self::magCb, Qt::QueuedConnection);
+  connect(&bridge, &rqt::RosQtBridge::gnssReceived, this, &self::gnssCb, Qt::QueuedConnection);
+  connect(&bridge, &rqt::RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
+}
+
+LargeVehicleMagCalibThread::~LargeVehicleMagCalibThread()
+{
+  clearRosInterfaces();
 }
 
 void LargeVehicleMagCalibThread::run()
@@ -134,11 +138,18 @@ void LargeVehicleMagCalibThread::reset()
   }
 }
 
-void LargeVehicleMagCalibThread::setNamespace(const std::string& ns)
+void LargeVehicleMagCalibThread::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
 {
+  node_ = std::move(node);
+
   const auto srv_name = path::join(ns, kRemoteIfaceNS, real::handler::mag::kSetParamSrv);
-  set_params_sc_ =
-    std::make_shared<ros2::SyncServiceClient<tobas_real_msgs::srv::SetMagnetometerParams>>(node_, srv_name);
+  set_params_sc_.emplace(node_, srv_name);
+}
+
+void LargeVehicleMagCalibThread::clearRosInterfaces()
+{
+  node_.reset();
+  set_params_sc_.reset();
 }
 
 void LargeVehicleMagCalibThread::magCb(const tobas_msgs::MagneticField::ConstSharedPtr& mag_raw)

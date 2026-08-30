@@ -9,5 +9,5 @@ sensor_msgs/MultiDOFJointState multi_dof_joint_state
 
 # Flag indicating whether this scene is to be interpreted as a diff with respect to some other scene.
 # This is mostly important for handling the attached bodies
-# (whether or not to clear the attached bodies of a tobas::RobotState before updating it with this message).
+# (whether or not to clear the attached bodies of a tobas::rviz::RobotState before updating it with this message).
 bool is_diff

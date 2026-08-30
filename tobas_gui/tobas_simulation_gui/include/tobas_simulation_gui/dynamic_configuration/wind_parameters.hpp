@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <optional>
+
 #include <QPushButton>
 
 #include <tobas_qt_tools/widgets/slider_text.hpp>
@@ -27,17 +29,15 @@ class WindParamsWidget : public QWidget
   using SetSrv = tobas_gazebo_msgs::srv::SetWindParams;
 
 public:
-  explicit WindParamsWidget(rclcpp::Node::SharedPtr node);
+  explicit WindParamsWidget();
 
-  void updateNamespace(const std::string& ns);
-
-  bool start(std::chrono::milliseconds timeout);
   void reset();
+  void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
+  void clearRosInterfaces();
 
 private:
-  const rclcpp::Node::SharedPtr node_;
-  ros2::SyncServiceClient<GetSrv>::SharedPtr get_sc_;
-  ros2::SyncServiceClient<SetSrv>::SharedPtr set_sc_;
+  std::optional<ros2::SyncServiceClient<GetSrv>> get_sc_;
+  std::optional<ros2::SyncServiceClient<SetSrv>> set_sc_;
 
   QPushButton* reset_button_;
 
@@ -46,12 +46,6 @@ private:
   qt::DoubleSliderTextWidget* gust_speed_factor_;
   qt::DoubleSliderTextWidget* gust_duration_;
   qt::DoubleSliderTextWidget* gust_interval_;
-
-  double init_mean_speed_;
-  int init_direction_;
-  double init_gust_speed_factor_;
-  double init_gust_duration_;
-  double init_gust_interval_;
 
   double getMeanSpeed() const;        // [m/s]
   double getDirection() const;        // [rad]
@@ -65,7 +59,7 @@ private:
   void setGustDuration(double value);
   void setGustInterval(double value);
 
-  bool loadSimParams();
+  void setParamsToDefault();
   bool sendGuiParams();
 
 private Q_SLOTS:

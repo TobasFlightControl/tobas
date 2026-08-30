@@ -47,7 +47,6 @@ Rectangle {
   }
 
   Component.onCompleted: {
-    console.log("Available map service providers:", mapPlugin.availableServiceProviders);
     setMapCenter.connect(onSetMapCenter);
     setZoomLevel.connect(onSetZoomLevel);
     setArrowPosition.connect(onSetArrowPosition);
@@ -81,22 +80,41 @@ Rectangle {
     }
   }
 
+  // Assign the write-once plugin after QQuickWidget attaches the map to its QQuickWindow.
+  Timer {
+    interval: 0
+    repeat: false
+    running: true
+
+    onTriggered: {
+      map.plugin = mapPlugin;
+      console.debug("Map plugin set:", mapPlugin.name);
+    }
+  }
+
   // Map QML Type: https://doc.qt.io/qt-5/qml-qtlocation-map.html
   Map {
     id: map
-    activeMapType: map.supportedMapTypes[map.supportedMapTypes.length - 1] // Required when specifying a tile server.
     anchors.fill: parent
     center: QtPositioning.coordinate(Constants.defaultLatitude, Constants.defaultLongitude)
     copyrightsVisible: false
     maximumZoomLevel: 22 // Adjust to the tile server; too large is not a problem.
     minimumZoomLevel: 3 // Set this to the maximum value that shows the whole map.
     objectName: "map" // Object name for access from Qt.
-    plugin: mapPlugin
     zoomLevel: 3
 
     Component.onCompleted: {
       requested_zoom = zoomLevel;
       updateZoom();
+    }
+    onSupportedMapTypesChanged: {
+      if (supportedMapTypes.length > 0) {
+        const custom_map_type = supportedMapTypes[supportedMapTypes.length - 1]; // The custom tile server is always the last supported map type.
+        if (activeMapType !== custom_map_type) {
+          activeMapType = custom_map_type;
+          console.debug("Active map type set:", activeMapType.name);
+        }
+      }
     }
 
     // Zoom while adjusting scale on wheel events.
@@ -108,7 +126,6 @@ Rectangle {
         const anchor = map.toCoordinate(p); // Cursor position in geographic coordinates.
         const dz = (e.angleDelta.y / 120.0) * 0.5; // Zoom value change.
         requested_zoom = clamp(requested_zoom + dz, map.minimumZoomLevel, Constants.maximumZoomLevel); // Update the target zoom value.
-        // console.log("Zoom Level:", requested_zoom);
         updateZoom(); // Update zoom and scale.
         map.alignCoordinateToPoint(anchor, p); // Align the original geographic coordinate to the new cursor position.
         e.accepted = true;
@@ -188,15 +205,15 @@ Rectangle {
 
             onReleased: {
               // Child-object movement relative to the parent object caused by drag and drop.
-              let offset_x = circle.x;
-              let offset_y = circle.y;
+              const offset_x = circle.x;
+              const offset_y = circle.y;
 
               // Apply the child-object movement to the parent object.
-              let old_coord = waypoint.coordinate;
-              let old_point = map.fromCoordinate(old_coord);
-              let new_x = old_point.x + circle.x;
-              let new_y = old_point.y + circle.y;
-              let new_coord = map.toCoordinate(Qt.point(new_x, new_y));
+              const old_coord = waypoint.coordinate;
+              const old_point = map.fromCoordinate(old_coord);
+              const new_x = old_point.x + circle.x;
+              const new_y = old_point.y + circle.y;
+              const new_coord = map.toCoordinate(Qt.point(new_x, new_y));
               waypoint.coordinate = new_coord;
 
               // Reset the child-object offset.

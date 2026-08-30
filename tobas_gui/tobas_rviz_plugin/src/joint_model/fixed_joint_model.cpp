@@ -5,6 +5,8 @@
 
 namespace tobas
 {
+namespace rviz
+{
 FixedJointModel::FixedJointModel(const std::string& name, size_t joint_index, size_t first_variable_index)
   : JointModel(name, joint_index, first_variable_index)
 {
@@ -23,4 +25,5 @@ void FixedJointModel::computeTransform(const double*, Eigen::Isometry3d& transfo
 void FixedJointModel::computeVariablePositions(const Eigen::Isometry3d&, double*) const
 {
 }
+}  // namespace rviz
 }  // namespace tobas

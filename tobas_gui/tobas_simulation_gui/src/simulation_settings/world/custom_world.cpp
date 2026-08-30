@@ -3,12 +3,10 @@
 
 #include "tobas_simulation_gui/simulation_settings/world/custom_world.hpp"
 
+#include <QDir>
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QHBoxLayout>
-
-#include <tobas_ros2_tools/path.hpp>
-#include <tobas_ros2_tools/util.hpp>
 
 namespace fs = std::filesystem;
 
@@ -41,8 +39,7 @@ fs::path CustomWorldWidget::worldPath() const
 void CustomWorldWidget::onBrowseButtonClicked()
 {
   // Get the previously opened path.
-  const auto last_opened_dir =
-    settings_store_.value(kLastOpenedDirKey, QString::fromStdString(ros2::getHomeDir())).toString();
+  const auto last_opened_dir = settings_store_.value(kLastOpenedDirKey, QDir::homePath()).toString();
 
   // Get the world path.
   const auto file_path = QFileDialog::getOpenFileName(

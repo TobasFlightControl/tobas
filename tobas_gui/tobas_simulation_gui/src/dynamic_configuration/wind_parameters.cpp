@@ -12,7 +12,6 @@
 #include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_qt_tools/message.hpp>
-#include <tobas_qt_tools/thread.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 
@@ -26,7 +25,7 @@ namespace gui
 {
 namespace sim
 {
-WindParamsWidget::WindParamsWidget(rclcpp::Node::SharedPtr node) : node_(node)
+WindParamsWidget::WindParamsWidget()
 {
   const auto title = new qt::Label("Wind Parameters", cmn::kLabelPSize, QFont::Bold);
 
@@ -38,8 +37,6 @@ WindParamsWidget::WindParamsWidget(rclcpp::Node::SharedPtr node) : node_(node)
   gust_speed_factor_ = new qt::DoubleSliderTextWidget(0.0, 10.0, 1);
   gust_duration_ = new qt::DoubleSliderTextWidget(0.0, 10.0, 1);
   gust_interval_ = new qt::DoubleSliderTextWidget(0.0, 30.0, 1);
-
-  reset();
 
   // Layout
   const auto header_cols = new QHBoxLayout();
@@ -67,62 +64,25 @@ WindParamsWidget::WindParamsWidget(rclcpp::Node::SharedPtr node) : node_(node)
   connect(gust_speed_factor_, &qt::DoubleSliderTextWidget::valueChanged, this, &self::onValueChanged);
   connect(gust_duration_, &qt::DoubleSliderTextWidget::valueChanged, this, &self::onValueChanged);
   connect(gust_interval_, &qt::DoubleSliderTextWidget::valueChanged, this, &self::onValueChanged);
-}
 
-void WindParamsWidget::updateNamespace(const std::string& ns)
-{
-  get_sc_ = std::make_shared<ros2::SyncServiceClient<GetSrv>>(node_, path::join(ns, gazebo::kGetWindParamsSrv));
-  set_sc_ = std::make_shared<ros2::SyncServiceClient<SetSrv>>(node_, path::join(ns, gazebo::kSetWindParamsSrv));
-}
-
-bool WindParamsWidget::start(ch::milliseconds timeout)
-{
-  // Prepare the service client.
-  bool success = true;
-  QString message;
-
-  qt::startThreadAndWait(
-    [&]()
-    {
-      if (!get_sc_->waitForService(timeout)) {
-        success = false;
-        message = "Failed to connect to \"" + QString(gazebo::kGetWindParamsSrv) + "\" service server.";
-        return;
-      }
-      if (!set_sc_->waitForService(timeout)) {
-        success = false;
-        message = "Failed to connect to \"" + QString(gazebo::kSetWindParamsSrv) + "\" service server.";
-        return;
-      }
-    });
-
-  if (!success) {
-    qWarning().noquote() << message;
-    return false;
-  }
-
-  // Load initial parameter values.
-  if (!loadSimParams()) {
-    return false;
-  }
-
-  // Save initial parameter values.
-  init_mean_speed_ = getMeanSpeed();
-  init_direction_ = getDirection();
-  init_gust_speed_factor_ = getGustSpeedFactor();
-  init_gust_duration_ = getGustDuration();
-  init_gust_interval_ = getGustInterval();
-
-  return true;
+  reset();
 }
 
 void WindParamsWidget::reset()
 {
-  setMeanSpeed(0.0);
-  setDirection(0.0);
-  setGustSpeedFactor(0.0);
-  setGustDuration(0.0);
-  setGustInterval(0.0);
+  setParamsToDefault();
+}
+
+void WindParamsWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
+{
+  get_sc_.emplace(node, path::join(ns, gazebo::kGetWindParamsSrv));
+  set_sc_.emplace(node, path::join(ns, gazebo::kSetWindParamsSrv));
+}
+
+void WindParamsWidget::clearRosInterfaces()
+{
+  get_sc_.reset();
+  set_sc_.reset();
 }
 
 double WindParamsWidget::getMeanSpeed() const
@@ -180,24 +140,13 @@ void WindParamsWidget::setGustInterval(double value)
   gust_interval_->set(value);
 }
 
-bool WindParamsWidget::loadSimParams()
+void WindParamsWidget::setParamsToDefault()
 {
-  const auto req = std::make_shared<GetSrv::Request>();
-
-  const auto res = get_sc_->sendRequestAndWait(req);
-  if (!res) {
-    qt::qErrorBox(this, "Failed to call \"" + QString(gazebo::kGetWindParamsSrv) + "\" service.");
-    return false;
-  }
-
-  const auto& cur_params = res->params;
-  setMeanSpeed(cur_params.mean_speed);
-  setDirection(cur_params.direction);
-  setGustSpeedFactor(cur_params.gust_speed_factor);
-  setGustDuration(cur_params.gust_duration);
-  setGustInterval(cur_params.gust_interval);
-
-  return true;
+  setMeanSpeed(0.0);
+  setDirection(0.0);
+  setGustSpeedFactor(1.0);
+  setGustDuration(5.0);
+  setGustInterval(10.0);
 }
 
 bool WindParamsWidget::sendGuiParams()
@@ -225,12 +174,7 @@ bool WindParamsWidget::sendGuiParams()
 
 void WindParamsWidget::onResetButtonClicked()
 {
-  setMeanSpeed(init_mean_speed_);
-  setDirection(init_direction_);
-  setGustSpeedFactor(init_gust_speed_factor_);
-  setGustDuration(init_gust_duration_);
-  setGustInterval(init_gust_interval_);
-
+  setParamsToDefault();
   sendGuiParams();
 }
 

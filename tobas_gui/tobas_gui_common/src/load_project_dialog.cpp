@@ -4,6 +4,7 @@
 #include "tobas_gui_common/load_project_dialog.hpp"
 
 #include <QAbstractItemView>
+#include <QDebug>
 #include <QFileSystemModel>
 
 #include "tobas_gui_common/constants.hpp"
@@ -28,7 +29,8 @@ LoadProjectDialog::LoadProjectDialog(QWidget* parent, const QString& dir)
     // Get the internal view of the dialog.
     const auto view = findChild<QAbstractItemView*>(view_name);
     if (!view) {
-      throw std::runtime_error("Dialog view model \"" + view_name.toStdString() + "\" not found.");
+      qWarning() << "Dialog view model" << view_name << "not found.";
+      continue;
     }
 
     // Confirm when double-clicked or activated.

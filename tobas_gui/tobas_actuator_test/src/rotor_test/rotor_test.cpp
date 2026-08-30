@@ -18,8 +18,6 @@
 #include <tobas_yaml_tools/core.hpp>
 
 using namespace std::chrono_literals;
-namespace fs = std::filesystem;
-
 namespace tobas
 {
 namespace gui
@@ -34,9 +32,10 @@ std::string paramName(size_t ch)
 }
 }  // namespace
 
-RotorTestWidget::RotorTestWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge, const Drone& drone)
-  : node_(node), bridge_(bridge), drone_(drone)
+RotorTestWidget::RotorTestWidget(const rqt::RosQtBridge& bridge, const Drone& drone) : bridge_(bridge), drone_(drone)
 {
+  registered_.fill(false);
+
   const auto warning =
     new qt::DescriptionWidget("Warning: Ensure that propellers are removed from motors.\n\n", cmn::kBodyPSize);
   warning->setStyleSheet("color: red; font-weight: bold;");
@@ -59,7 +58,7 @@ RotorTestWidget::RotorTestWidget(rclcpp::Node::SharedPtr node, const RosQtBridge
 
   start_button_ = new QPushButton("Start");
   start_button_->setFixedSize(kButtonWidth, kButtonHeight);
-  start_button_->setEnabled(true);
+  start_button_->setEnabled(false);
   button_cols->addWidget(start_button_);
   connect(start_button_, &QPushButton::clicked, this, &self::onStartButtonClicked);
 
@@ -94,7 +93,7 @@ RotorTestWidget::RotorTestWidget(rclcpp::Node::SharedPtr node, const RosQtBridge
   }
 
   connect(&update_timer_, &QTimer::timeout, this, &self::onUpdateTimerTimeout);
-  connect(&bridge, &RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
+  connect(&bridge, &rqt::RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
 }
 
 const char* RotorTestWidget::title() const
@@ -115,7 +114,7 @@ void RotorTestWidget::reset()
   // Stop the timer.
   update_timer_.stop();
 
-  start_button_->setEnabled(true);
+  start_button_->setEnabled(numRegisteredChannels() > 0 && node_);
   stop_button_->setEnabled(false);
   save_button_->setEnabled(false);
 
@@ -123,10 +122,8 @@ void RotorTestWidget::reset()
   arming_.reset();
 }
 
-void RotorTestWidget::updateProject(const fs::path& proj_path)
+void RotorTestWidget::updateProject(const QString& proj_path)
 {
-  reset();
-
   // Update the project path.
   proj_paths_.setProjPath(proj_path);
 
@@ -157,20 +154,31 @@ void RotorTestWidget::updateProject(const fs::path& proj_path)
       const auto max_rpm = st::rps2rpm(drone_.prop->maxSpeed(link_name));
       rotor_widgets_.at(erotor->channel)->setMaximumRPM(max_rpm);
     }
-
-    const auto ns = '/' + drone_.name;
-    tar_speeds_pub_ = ros2::createPublisher<tobas_msgs::msg::RotorSpeedArray>(
-      node_, path::join(ns, kRemoteIfaceNS, topic::kRotorSpeedsCmd));
-    dparam_cli_ = std::make_shared<dparam::DynamicParamClient>(node_, node::kRpmControlConfigServer, ns);
-    get_params_sc_ = std::make_shared<ros2::SyncServiceClient<tobas_dparam_msgs::srv::GetParams>>(
-      node_, path::join(ns, kRemoteIfaceNS, node::kRpmControlConfigServer, service::kGetDynamicParams));
   }
   else {
     eprop_.reset();
-    tar_speeds_pub_.reset();
-    dparam_cli_.reset();
-    get_params_sc_.reset();
   }
+}
+
+void RotorTestWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
+{
+  if (eprop_) {
+    tar_speeds_pub_ = ros2::createPublisher<tobas_msgs::msg::RotorSpeedArray>(
+      node, path::join(ns, kRemoteIfaceNS, topic::kRotorSpeedsCmd));
+    dparam_cli_.emplace(node, node::kRpmControlConfigServer, ns);
+    get_params_sc_.emplace(
+      node, path::join(ns, kRemoteIfaceNS, node::kRpmControlConfigServer, service::kGetDynamicParams));
+  }
+
+  node_ = std::move(node);
+}
+
+void RotorTestWidget::clearRosInterfaces()
+{
+  get_params_sc_.reset();
+  dparam_cli_.reset();
+  tar_speeds_pub_.reset();
+  node_.reset();
 }
 
 int RotorTestWidget::numRegisteredChannels() const
@@ -187,7 +195,7 @@ void RotorTestWidget::publishTargetSppeds()
   auto tar_speeds = std::make_unique<tobas_msgs::msg::RotorSpeedArray>();
   tar_speeds->header.stamp = node_->now();
 
-  for (const auto& [link_name, _] : drone_.prop->rotors) {
+  for (const auto& [link_name, _] : eprop_->rotors) {
     const auto erotor = eprop_->getRotor(link_name);
 
     tar_speeds->speeds.emplace_back();
@@ -242,7 +250,7 @@ void RotorTestWidget::onStartButtonClicked()
 
   // Temporarily subscribe to rotor states.
   rotor_states_conn_ =
-    connect(&bridge_, &RosQtBridge::rotorStatesReceived, this, &self::rotorStatesCb, Qt::QueuedConnection);
+    connect(&bridge_, &rqt::RosQtBridge::rotorStatesReceived, this, &self::rotorStatesCb, Qt::QueuedConnection);
 
   // Publish commands at a fixed interval.
   update_timer_.start(kUpdatePeriod);
@@ -275,7 +283,7 @@ void RotorTestWidget::onSaveButtonClicked()
     node[paramName(erotor->channel)] = rotor_widgets_.at(erotor->channel)->getGain();
   }
 
-  if (!yaml::save(proj_paths_.rpmCtrlDynParamsPath(), node)) {
+  if (!yaml::save(proj_paths_.rpmCtrlDynParamsPath().toStdString(), node)) {
     qt::qErrorBox(this, "Failed to save the RPM control gains to PC.");
     return;
   }

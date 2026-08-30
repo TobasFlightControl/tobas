@@ -22,8 +22,15 @@ class RvizFrameManager
 public:
   explicit RvizFrameManager(int argc, char** argv, const std::string& node_name);
   explicit RvizFrameManager(const std::string& node_name);
+  ~RvizFrameManager();
 
-  void initialize(const QString& config_path, QWidget* parent = nullptr);
+  RvizFrameManager(const RvizFrameManager&) = delete;
+  RvizFrameManager& operator=(const RvizFrameManager&) = delete;
+  RvizFrameManager(RvizFrameManager&&) = delete;
+  RvizFrameManager& operator=(RvizFrameManager&&) = delete;
+
+  void initialize(const QString& config_path);
+  void clear();
 
   rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr rvizNode();
   rclcpp::Node::SharedPtr rawNode();
@@ -40,9 +47,9 @@ public:
 private:
   std::shared_ptr<rviz_common::ros_integration::RosNodeAbstraction> node_;
 
-  rviz_common::VisualizationFrame* frame_;
-  rviz_common::VisualizationManager* manager_;
-  rviz_common::DisplayGroup* display_group_;
+  rviz_common::VisualizationFrame* frame_ = nullptr;
+  rviz_common::VisualizationManager* manager_ = nullptr;
+  rviz_common::DisplayGroup* display_group_ = nullptr;
 
   void removeDefaultColorMaterials();
 };

@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <optional>
+
 #include <QThread>
 
 #include <tobas_algorithm/kahan.hpp>
@@ -32,18 +34,20 @@ Q_SIGNALS:
   void finished(bool success, const QString& message);
 
 public:
-  explicit LargeVehicleMagCalibThread(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge);
+  explicit LargeVehicleMagCalibThread(const rqt::RosQtBridge& bridge);
+  ~LargeVehicleMagCalibThread();
 
   void run() override;
 
   void reset();
-  void setNamespace(const std::string& ns);
+  void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
+  void clearRosInterfaces();
 
 private:
-  const rclcpp::Node::SharedPtr node_;
+  rclcpp::Node::SharedPtr node_;
   geo::Geography geography_;
 
-  ros2::SyncServiceClient<tobas_real_msgs::srv::SetMagnetometerParams>::SharedPtr set_params_sc_;
+  std::optional<ros2::SyncServiceClient<tobas_real_msgs::srv::SetMagnetometerParams>> set_params_sc_;
 
   tobas_msgs::MagneticField::ConstSharedPtr mag_raw_;
   tobas_msgs::Gnss::ConstSharedPtr gnss_;

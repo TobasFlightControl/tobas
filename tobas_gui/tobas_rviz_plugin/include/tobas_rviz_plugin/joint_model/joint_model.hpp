@@ -11,6 +11,8 @@
 
 namespace tobas
 {
+namespace rviz
+{
 class LinkModel;
 class JointModel;
 
@@ -134,4 +136,5 @@ private:
   /* The index of this joint's first variable, in the complete robot state */
   const size_t first_variable_index_;
 };
+}  // namespace rviz
 }  // namespace tobas

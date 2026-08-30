@@ -14,7 +14,7 @@ namespace gui
 {
 namespace sa
 {
-namespace rc
+namespace network
 {
 class NetworkIfaceWidget : public QWidget
 {
@@ -51,7 +51,7 @@ private:
 private Q_SLOTS:
   void onOtherButtonToggled(bool checked);
 };
-}  // namespace rc
+}  // namespace network
 }  // namespace sa
 }  // namespace gui
 }  // namespace tobas

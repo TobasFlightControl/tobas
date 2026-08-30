@@ -16,13 +16,10 @@ namespace gazebo
 class NormalDistribution3d
 {
 public:
-  using SharedPtr = std::shared_ptr<NormalDistribution3d>;
-
   explicit NormalDistribution3d(
     std::random_device& rnd_dev,
     const gz::math::Vector3d& mean,
     const gz::math::Vector3d& stddev);
-
   explicit NormalDistribution3d(std::random_device& rnd_dev, double mean, double stddev);
 
   gz::math::Vector3d get();
@@ -36,10 +33,7 @@ private:
 class UniformDistribution3d
 {
 public:
-  using SharedPtr = std::shared_ptr<UniformDistribution3d>;
-
   explicit UniformDistribution3d(std::random_device& rnd_dev, const gz::math::Vector3d& lb, const gz::math::Vector3d& ub);
-
   explicit UniformDistribution3d(std::random_device& rnd_dev, double lb, double ub);
 
   gz::math::Vector3d get();

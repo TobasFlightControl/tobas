@@ -35,9 +35,11 @@ class JointCommandsPublisherWidget : public QWidget
   static constexpr double kDefaultMaxEff = 10.0;   // [Nm]
 
 public:
-  explicit JointCommandsPublisherWidget(rclcpp::Node::SharedPtr node, const kdl::Tree& tree, const Drone& drone);
+  explicit JointCommandsPublisherWidget(const kdl::Tree& tree, const Drone& drone);
 
   void updateInternalDataStructures();
+  void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
+  void clearRosInterfaces();
 
   void start();
   void stop();
@@ -48,7 +50,7 @@ public:
   size_t numRegisteredChannels() const;
 
 private:
-  const rclcpp::Node::SharedPtr node_;
+  rclcpp::Node::SharedPtr node_;
   const kdl::Tree& tree_;
   const Drone& drone_;
 

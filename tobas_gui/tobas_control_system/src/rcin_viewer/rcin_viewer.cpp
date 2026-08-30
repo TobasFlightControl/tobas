@@ -19,7 +19,7 @@ namespace ctrl
 {
 namespace rcin
 {
-RCInputViewerWidget::RCInputViewerWidget(const RosQtBridge& bridge)
+RCInputViewerWidget::RCInputViewerWidget(const rqt::RosQtBridge& bridge)
 {
   yaw_pitch_ = new StickPanel("Yaw / Pitch", "Yaw", "Pitch");
   roll_throttle_ = new StickPanel("Roll / Throttle", "Roll", "Throttle");
@@ -55,7 +55,7 @@ RCInputViewerWidget::RCInputViewerWidget(const RosQtBridge& bridge)
   setLayout(cols);
 
   // Connection
-  connect(&bridge, &RosQtBridge::rcInputReceived, this, &self::rcInputCb, Qt::QueuedConnection);
+  connect(&bridge, &rqt::RosQtBridge::rcInputReceived, this, &self::rcInputCb, Qt::QueuedConnection);
 }
 
 void RCInputViewerWidget::reset()

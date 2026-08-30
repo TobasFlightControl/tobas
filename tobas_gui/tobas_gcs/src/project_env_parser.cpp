@@ -3,9 +3,7 @@
 
 #include "tobas_gcs/project_env_parser.hpp"
 
-#include <sstream>
-
-#include <tobas_string_tools/core.hpp>
+#include <QStringList>
 
 namespace tobas
 {
@@ -17,26 +15,28 @@ ProjectEnvParser::ProjectEnvParser()
 {
 }
 
-bool ProjectEnvParser::parseFromText(const std::string& text)
+bool ProjectEnvParser::parseFromText(const QString& text)
 {
-  const auto lines = str::splitLines(text);
-
-  for (auto line : lines) {
+  for (auto line : text.split('\n')) {
     // Trim whitespaces.
-    line = str::trim(line);
+    line = line.trimmed();
 
     // Skip blank lines and comments.
-    if (line.empty() || line.starts_with('#')) {
+    if (line.isEmpty() || line.startsWith('#')) {
       continue;
     }
 
     // Get elements.
-    if (line.starts_with(kConfigPkgPrefix)) {
-      config_pkg = line.substr(sizeof(kConfigPkgPrefix) - 1);
+    if (line.startsWith(kConfigPkgPrefix)) {
+      config_pkg = line.mid(sizeof(kConfigPkgPrefix) - 1);
       continue;
     }
-    if (line.starts_with(kNetworkIfacePrefix)) {
-      nic = line.substr(sizeof(kNetworkIfacePrefix) - 1);
+    if (line.startsWith(kNetworkIfacePrefix)) {
+      nic = line.mid(sizeof(kNetworkIfacePrefix) - 1);
+      continue;
+    }
+    if (line.startsWith(kIdPrefix)) {
+      id = line.mid(sizeof(kIdPrefix) - 1);
       continue;
     }
   }
@@ -44,14 +44,9 @@ bool ProjectEnvParser::parseFromText(const std::string& text)
   return true;
 }
 
-std::string ProjectEnvParser::exportText() const
+QString ProjectEnvParser::exportText() const
 {
-  std::ostringstream oss;
-
-  oss << kConfigPkgPrefix << config_pkg << std::endl;
-  oss << kNetworkIfacePrefix << nic << std::endl;
-
-  return oss.str();
+  return QString(kConfigPkgPrefix) + config_pkg + '\n' + kNetworkIfacePrefix + nic + '\n' + kIdPrefix + id + '\n';
 }
 }  // namespace gcs
 }  // namespace gui

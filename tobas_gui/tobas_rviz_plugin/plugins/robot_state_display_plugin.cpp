@@ -5,4 +5,4 @@
 
 #include "tobas_rviz_plugin/robot_state_display.hpp"
 
-PLUGINLIB_EXPORT_CLASS(tobas::RobotStateDisplay, rviz_common::Display)
+PLUGINLIB_EXPORT_CLASS(tobas::rviz::RobotStateDisplay, rviz_common::Display)

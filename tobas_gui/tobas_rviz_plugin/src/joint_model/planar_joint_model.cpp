@@ -7,6 +7,8 @@
 
 namespace tobas
 {
+namespace rviz
+{
 PlanarJointModel::PlanarJointModel(const std::string& name, size_t joint_index, size_t first_variable_index)
   : JointModel(name, joint_index, first_variable_index)
 {
@@ -49,4 +51,5 @@ void PlanarJointModel::computeVariablePositions(const Eigen::Isometry3d& transfo
     joint_values[2] = (std::acos(q.w()) * 2.0f) * (q.z() * s);
   }
 }
+}  // namespace rviz
 }  // namespace tobas

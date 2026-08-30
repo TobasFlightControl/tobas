@@ -9,11 +9,13 @@
 
 namespace tobas
 {
+namespace rviz
+{
 /* Update the links of an `rviz::Robot` using a `RobotState`. */
 class LinkUpdater : public rviz_default_plugins::robot::LinkUpdater
 {
 public:
-  explicit LinkUpdater(const RobotState::ConstSharedPtr& state);
+  explicit LinkUpdater(const RobotState& state);
 
   bool getLinkTransforms(
     const std::string& link_name,
@@ -23,6 +25,7 @@ public:
     Ogre::Quaternion& collision_orientation) const override;
 
 private:
-  RobotState::ConstSharedPtr robot_state_;
+  const RobotState& robot_state_;
 };
+}  // namespace rviz
 }  // namespace tobas

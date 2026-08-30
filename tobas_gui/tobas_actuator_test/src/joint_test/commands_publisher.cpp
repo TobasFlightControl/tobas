@@ -16,11 +16,8 @@ namespace gui
 {
 namespace at
 {
-JointCommandsPublisherWidget::JointCommandsPublisherWidget(
-  rclcpp::Node::SharedPtr node,
-  const kdl::Tree& tree,
-  const Drone& drone)
-  : node_(node), tree_(tree), drone_(drone), joint_parser_(tree)
+JointCommandsPublisherWidget::JointCommandsPublisherWidget(const kdl::Tree& tree, const Drone& drone)
+  : tree_(tree), drone_(drone), joint_parser_(tree)
 {
   rows_ = new QVBoxLayout();
   setLayout(rows_);
@@ -105,15 +102,28 @@ void JointCommandsPublisherWidget::updateInternalDataStructures()
     connect(commander, &qt::DoubleSliderDisplay::valueChanged, this, &self::onValueChanged);
     commanders_[jnt_name] = commander;
   }
+}
 
-  // Update topics.
-  const auto ns = '/' + drone_.name;
+void JointCommandsPublisherWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
+{
+  node_ = std::move(node);
+
   const auto pos_topic = path::join(ns, kRemoteIfaceNS, topic::kJointPosCmd);
   const auto vel_topic = path::join(ns, kRemoteIfaceNS, topic::kJointVelCmd);
   const auto eff_topic = path::join(ns, kRemoteIfaceNS, topic::kJointEffCmd);
   pos_pub_ = ros2::createPublisher<tobas_msgs::msg::JointCommandArray>(node_, pos_topic);
   vel_pub_ = ros2::createPublisher<tobas_msgs::msg::JointCommandArray>(node_, vel_topic);
   eff_pub_ = ros2::createPublisher<tobas_msgs::msg::JointCommandArray>(node_, eff_topic);
+}
+
+void JointCommandsPublisherWidget::clearRosInterfaces()
+{
+  stop();
+
+  eff_pub_.reset();
+  vel_pub_.reset();
+  pos_pub_.reset();
+  node_.reset();
 }
 
 void JointCommandsPublisherWidget::start()
@@ -158,8 +168,10 @@ void JointCommandsPublisherWidget::stop()
 void JointCommandsPublisherWidget::setZero()
 {
   for (const auto& [_, commander] : commanders_) {
-    commander->setValue(0.0);
+    commander->setValue(0.0, true);
   }
+
+  publishCurrentValues();
 }
 
 void JointCommandsPublisherWidget::setHome()
@@ -168,19 +180,21 @@ void JointCommandsPublisherWidget::setHome()
     const auto& joint = drone_.joints.at(jnt_name);
     switch (joint.cmd_iface) {
       case JointCommandInterface::kPosition:
-        commander->setValue(joint.home_pos);
+        commander->setValue(joint.home_pos, true);
         break;
       case JointCommandInterface::kVelocity:
-        commander->setValue(0.0);
+        commander->setValue(0.0, true);
         break;
       case JointCommandInterface::kEffort:
-        commander->setValue(0.0);
+        commander->setValue(0.0, true);
         break;
       case JointCommandInterface::kNone:
       default:
         throw;
     }
   }
+
+  publishCurrentValues();
 }
 
 size_t JointCommandsPublisherWidget::numRegisteredChannels() const
@@ -190,6 +204,10 @@ size_t JointCommandsPublisherWidget::numRegisteredChannels() const
 
 void JointCommandsPublisherWidget::publishCurrentValues()
 {
+  if (!node_) {
+    return;
+  }
+
   // Create messages.
   auto tar_pos = std::make_unique<tobas_msgs::msg::JointCommandArray>();
   auto tar_vel = std::make_unique<tobas_msgs::msg::JointCommandArray>();

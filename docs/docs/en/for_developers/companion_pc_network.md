@@ -267,11 +267,11 @@ $ export ROS_STATIC_PEERS="172.22.1.2"
 If each companion PC uses a unique FC-side subnet and each FC has a unique hostname, a single external PC can communicate with multiple vehicles.
 For example, configure three vehicles as follows:
 
-| Vehicle | FC-side subnet  | Companion PC | DHCP range                    | FC hostname   |
-| ------- | --------------- | ------------ | ----------------------------- | ------------- |
-| A       | `172.22.1.0/24` | `172.22.1.1` | `172.22.1.100`–`172.22.1.200` | `host1.local` |
-| B       | `172.22.2.0/24` | `172.22.2.1` | `172.22.2.100`–`172.22.2.200` | `host2.local` |
-| C       | `172.22.3.0/24` | `172.22.3.1` | `172.22.3.100`–`172.22.3.200` | `host3.local` |
+| Vehicle | FC-side subnet  | Companion PC | DHCP range                    | FC hostname   | Vehicle ID |
+| ------- | --------------- | ------------ | ----------------------------- | ------------- | ---------- |
+| A       | `172.22.1.0/24` | `172.22.1.1` | `172.22.1.100`–`172.22.1.200` | `host1.local` | `1`        |
+| B       | `172.22.2.0/24` | `172.22.2.1` | `172.22.2.100`–`172.22.2.200` | `host2.local` | `2`        |
+| C       | `172.22.3.0/24` | `172.22.3.1` | `172.22.3.100`–`172.22.3.200` | `host3.local` | `3`        |
 
 For ROS 2 communication with multiple FCs, specify static peers separated by semicolons.
 

@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <optional>
+
 #include <gz/sim/Joint.hh>
 #include <gz/sim/Model.hh>
 #include <gz/sim/components/JointPosition.hh>
@@ -53,7 +55,7 @@ private:
   std::map<std::string, const cmp::JointVelocity*> jnt_vel_;
   std::map<std::string, const cmp::JointTransmittedWrench*> jnt_eff_;
 
-  RateManager::SharedPtr rate_manager_;
+  std::optional<RateManager> rate_manager_;
 
   ros2::PublisherPtr<tobas_msgs::msg::JointStateArray> js_pub_;
 
@@ -74,7 +76,7 @@ void GazeboJointStateBroadcasterPlugin::Configure(
   initialize("gazebo_joint_state_broadcaster_plugin", sdf);
   getSdfParams(sdf);
 
-  rate_manager_ = std::make_shared<RateManager>(param_.update_rate);
+  rate_manager_.emplace(param_.update_rate);
 
   // Get robot model.
   const gz::sim::Model model(model_entity);

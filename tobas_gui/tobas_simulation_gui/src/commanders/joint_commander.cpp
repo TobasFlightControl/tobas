@@ -23,8 +23,8 @@ namespace gui
 {
 namespace sim
 {
-JointCommanderWidget::JointCommanderWidget(rclcpp::Node::SharedPtr node, const kdl::Tree& tree, const Drone& drone)
-  : node_(node), tree_(tree), drone_(drone), rnd_gen_(rnd_dev_()), joint_parser_(tree)
+JointCommanderWidget::JointCommanderWidget(const kdl::Tree& tree, const Drone& drone)
+  : tree_(tree), drone_(drone), rnd_gen_(rnd_dev_()), joint_parser_(tree)
 {
   const auto title = new qt::Label("User Joint", cmn::kLabelPSize, QFont::Bold);
 
@@ -39,8 +39,6 @@ JointCommanderWidget::JointCommanderWidget(rclcpp::Node::SharedPtr node, const k
   home_button_->setFixedHeight(kCommandButtonHeight);
   center_button_->setFixedHeight(kCommandButtonHeight);
   random_button_->setFixedHeight(kCommandButtonHeight);
-
-  reset();
 
   // Layout
   const auto header_cols = new QHBoxLayout();
@@ -67,6 +65,34 @@ JointCommanderWidget::JointCommanderWidget(rclcpp::Node::SharedPtr node, const k
   connect(center_button_, &QPushButton::clicked, this, &self::onCenterButtonClicked);
   connect(random_button_, &QPushButton::clicked, this, &self::onRandomButtonClicked);
   connect(&publish_cmd_timer_, &QTimer::timeout, this, &self::onPublishCommandTimerTimeout);
+
+  reset();
+}
+
+void JointCommanderWidget::reset()
+{
+  start_stop_button_->setChecked(false);
+
+  for (const auto& [_, commander] : commanders_) {
+    commander->setValue(0.0);
+    commander->setEnabled(false);
+  }
+
+  for (auto& cmd : tar_js_pos_.commands) {
+    cmd.data = 0.0;
+  }
+  for (auto& cmd : tar_js_vel_.commands) {
+    cmd.data = 0.0;
+  }
+  for (auto& cmd : tar_js_eff_.commands) {
+    cmd.data = 0.0;
+  }
+
+  home_button_->setEnabled(false);
+  center_button_->setEnabled(false);
+  random_button_->setEnabled(false);
+
+  publish_cmd_timer_.stop();
 }
 
 void JointCommanderWidget::updateInternalDataStructures()
@@ -191,49 +217,26 @@ void JointCommanderWidget::updateInternalDataStructures()
 
   // Enable joint commander only if at least one commander exists.
   start_stop_button_->setEnabled(!commanders_.empty());
+}
 
-  // Register command publishers.
-  const auto ns = '/' + drone_.name;
+void JointCommanderWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
+{
   if (!tar_js_pos_.commands.empty()) {
-    tar_js_pos_pub_ = ros2::createPublisher<CmdMsg>(node_, path::join(ns, topic::kJointPosCmd));
+    tar_js_pos_pub_ = ros2::createPublisher<CmdMsg>(node, path::join(ns, topic::kJointPosCmd));
   }
   if (!tar_js_vel_.commands.empty()) {
-    tar_js_vel_pub_ = ros2::createPublisher<CmdMsg>(node_, path::join(ns, topic::kJointVelCmd));
+    tar_js_vel_pub_ = ros2::createPublisher<CmdMsg>(node, path::join(ns, topic::kJointVelCmd));
   }
   if (!tar_js_eff_.commands.empty()) {
-    tar_js_eff_pub_ = ros2::createPublisher<CmdMsg>(node_, path::join(ns, topic::kJointEffCmd));
+    tar_js_eff_pub_ = ros2::createPublisher<CmdMsg>(node, path::join(ns, topic::kJointEffCmd));
   }
 }
 
-bool JointCommanderWidget::start(ch::milliseconds)
+void JointCommanderWidget::clearRosInterfaces()
 {
-  return true;
-}
-
-void JointCommanderWidget::reset()
-{
-  start_stop_button_->setChecked(false);
-
-  for (const auto& [_, commander] : commanders_) {
-    commander->setValue(0.0);
-    commander->setEnabled(false);
-  }
-
-  for (auto& cmd : tar_js_pos_.commands) {
-    cmd.data = 0.0;
-  }
-  for (auto& cmd : tar_js_vel_.commands) {
-    cmd.data = 0.0;
-  }
-  for (auto& cmd : tar_js_eff_.commands) {
-    cmd.data = 0.0;
-  }
-
-  home_button_->setEnabled(false);
-  center_button_->setEnabled(false);
-  random_button_->setEnabled(false);
-
-  publish_cmd_timer_.stop();
+  tar_js_pos_pub_.reset();
+  tar_js_vel_pub_.reset();
+  tar_js_eff_pub_.reset();
 }
 
 void JointCommanderWidget::publishCurrentCommand()

@@ -12,8 +12,6 @@ namespace tobas
 class ControlLatencyPublisher
 {
 public:
-  using SharedPtr = std::shared_ptr<ControlLatencyPublisher>;
-
   explicit ControlLatencyPublisher(rclcpp::Node* node);
 
   void publish(const builtin_interfaces::msg::Time& start_time);

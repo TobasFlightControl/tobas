@@ -8,6 +8,8 @@
 
 namespace tobas
 {
+namespace rviz
+{
 RobotStateDisplay::RobotStateDisplay()
 {
   robot_description_property_ = new rviz_common::properties::StringProperty(
@@ -99,7 +101,7 @@ void RobotStateDisplay::update(float wall_dt, float ros_dt)
   if (robot_ && update_state_ && robot_state_) {
     update_state_ = false;
     robot_state_->update();
-    robot_->update(LinkUpdater(robot_state_));
+    robot_->update(LinkUpdater(*robot_state_));
   }
 }
 
@@ -125,7 +127,7 @@ void RobotStateDisplay::onInitialize()
 
   robot_state_topic_property_->initialize(ros_node_abstraction);
   node_ = ros_node_abstraction->get_raw_node();
-  robot_ = std::make_shared<rviz_default_plugins::robot::Robot>(scene_node_, context_, "Robot State", this);
+  robot_.emplace(scene_node_, context_, "Robot State", this);
 
   changedEnableVisualVisible();
   changedEnableCollisionVisible();
@@ -165,7 +167,7 @@ void RobotStateDisplay::initializeLoader()
     return;
   }
 
-  rdf_loader_ = std::make_shared<RDFLoader>(node_, robot_description_property_->getStdString(), true);
+  rdf_loader_.emplace(node_, robot_description_property_->getStdString(), true);
   loadRobotModel();
   rdf_loader_->setNewModelCallback([this]() { return loadRobotModel(); });
 }
@@ -174,7 +176,8 @@ void RobotStateDisplay::loadRobotModel()
 {
   if (rdf_loader_->getURDF()) {
     try {
-      robot_model_ = std::make_shared<RobotModel>(rdf_loader_->getURDF());
+      robot_state_.reset();
+      robot_model_.emplace(rdf_loader_->getURDF());
 
       robot_->load(*robot_model_->getURDF());
       robot_->setVisualVisible(enable_visual_visible_->getBool());
@@ -182,7 +185,7 @@ void RobotStateDisplay::loadRobotModel()
       robot_->setInertiaVisible(enable_inertia_visible_->getBool());
       robot_->setVisible(true);
 
-      robot_state_ = std::make_shared<RobotState>(robot_model_);
+      robot_state_.emplace(*robot_model_);
       robot_state_->setToDefaultValues();
 
       const bool old_state = root_link_name_property_->blockSignals(true);
@@ -227,7 +230,7 @@ void RobotStateDisplay::newRobotStateCallback(
     return;
   }
   if (!robot_state_) {
-    robot_state_ = std::make_shared<RobotState>(robot_model_);
+    robot_state_.emplace(*robot_model_);
   }
 
   try {
@@ -429,4 +432,5 @@ void RobotStateDisplay::changedReload()
     reset();
   }
 }
+}  // namespace rviz
 }  // namespace tobas

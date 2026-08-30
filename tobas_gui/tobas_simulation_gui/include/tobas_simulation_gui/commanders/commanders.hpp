@@ -20,16 +20,12 @@ class CommandersWidget : public QWidget
   using super = QWidget;
 
 public:
-  explicit CommandersWidget(
-    rclcpp::Node::SharedPtr node,
-    const RosQtBridge& bridge,
-    const kdl::Tree& tree,
-    const Drone& drone);
+  explicit CommandersWidget(const rqt::RosQtBridge& bridge, const kdl::Tree& tree, const Drone& drone);
 
-  void updateInternalDataStructures();
-
-  bool start(std::chrono::milliseconds timeout);
   void reset();
+  void updateInternalDataStructures();
+  void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
+  void clearRosInterfaces();
 
 private:
   BasePoseCommanderWidget* base_pose_commander_;

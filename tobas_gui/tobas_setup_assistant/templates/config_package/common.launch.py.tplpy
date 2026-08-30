@@ -14,6 +14,7 @@ OUTPUT = "output"
 USE_SIM_TIME = "use_sim_time"
 STANDALONE = "standalone"
 MULTIPROCESS = "multiprocess"
+ID = "id"
 
 
 def generate_launch_description():
@@ -25,6 +26,7 @@ def generate_launch_description():
     ld.add_action(DeclareLaunchArgument(USE_SIM_TIME, default_value="false"))
     ld.add_action(DeclareLaunchArgument(STANDALONE, default_value="false"))
     ld.add_action(DeclareLaunchArgument(MULTIPROCESS, default_value="false"))
+    ld.add_action(DeclareLaunchArgument(ID, default_value="id0"))
 
     # Get arguments
     log_level = LaunchConfiguration(LOG_LEVEL)
@@ -32,6 +34,7 @@ def generate_launch_description():
     use_sim_time = LaunchConfiguration(USE_SIM_TIME)
     standalone = LaunchConfiguration(STANDALONE)
     multiprocess = LaunchConfiguration(MULTIPROCESS)
+    id = LaunchConfiguration(ID)
 
     config_pkg_share = FindPackageShare(CONFIG_PKG_NAME)
 
@@ -45,6 +48,7 @@ def generate_launch_description():
                 "log_level": log_level,
                 "output": output,
                 "use_sim_time": use_sim_time,
+                "id": id,
             }.items(),
             condition=IfCondition(standalone),
         )
@@ -59,6 +63,7 @@ def generate_launch_description():
                 "output": output,
                 "use_sim_time": use_sim_time,
                 "multiprocess": multiprocess,
+                "id": id,
             }.items(),
             condition=UnlessCondition(standalone),
         )
@@ -74,6 +79,7 @@ def generate_launch_description():
                 "log_level": log_level,
                 "output": output,
                 "use_sim_time": use_sim_time,
+                "id": id,
             }.items(),
         )
     )

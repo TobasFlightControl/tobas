@@ -3,21 +3,21 @@
 
 #include "tobas_flight_log_gui/logs_fc/logs_widget.hpp"
 
+#include <QDir>
+#include <QFileInfo>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
 #include <tobas_constants/path.hpp>
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
+#include <tobas_qt_tools/path.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 #include <tobas_qt_tools/widgets/progress_dialog.hpp>
-#include <tobas_ros2_tools/util.hpp>
 #include <tobas_std_tools/check.hpp>
 
 #include "tobas_flight_log_gui/constants.hpp"
 #include "tobas_flight_log_gui/logs_fc/log_item.hpp"
-
-namespace fs = std::filesystem;
 
 namespace tobas
 {
@@ -25,18 +25,13 @@ namespace gui
 {
 namespace log
 {
-FlightLogsWidgetFC::FlightLogsWidgetFC(rclcpp::Node::SharedPtr node)
-  : ssh_client_(node), spinner_(Qt::WindowModal, this)
+FlightLogsWidgetFC::FlightLogsWidgetFC() : spinner_(Qt::WindowModal, this)
 {
   read_button_ = new QPushButton("Read");
   clean_button_ = new QPushButton("Clean");
 
   read_button_->setFixedSize(kButtonWidth, kButtonHeight);
   clean_button_->setFixedSize(kButtonWidth, kButtonHeight);
-
-  // Disable this until TBS is loaded because SSH cannot connect until the host is known.
-  read_button_->setEnabled(false);
-  clean_button_->setEnabled(false);
 
   log_list_ = new qt::ListWidget();
   log_list_->setSelectionMode(QListWidget::NoSelection);
@@ -57,11 +52,33 @@ FlightLogsWidgetFC::FlightLogsWidgetFC(rclcpp::Node::SharedPtr node)
   // Connection
   connect(read_button_, &QPushButton::clicked, this, &self::onReadButtonClicked);
   connect(clean_button_, &QPushButton::clicked, this, &self::onCleanButtonClicked);
+
+  reset();
+}
+
+void FlightLogsWidgetFC::reset()
+{
+  clearLogs();
+
+  read_button_->setEnabled(project_loaded_ && ros_initialized_);
+  clean_button_->setEnabled(false);
 }
 
 void FlightLogsWidgetFC::onProjectLoaded()
 {
-  read_button_->setEnabled(true);
+  project_loaded_ = true;
+}
+
+void FlightLogsWidgetFC::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string&)
+{
+  ssh_client_.emplace(node);
+  ros_initialized_ = true;
+}
+
+void FlightLogsWidgetFC::clearRosInterfaces()
+{
+  ssh_client_.reset();
+  ros_initialized_ = false;
 }
 
 void FlightLogsWidgetFC::addLog(const QString& log_name)
@@ -112,14 +129,14 @@ void FlightLogsWidgetFC::sortLogs()
 
 void FlightLogsWidgetFC::onReadButtonClicked()
 {
-  std::vector<std::string> log_names;
+  QStringList log_names;
 
   spinner_.start();
-  const auto res = ssh_client_.list(kRosbagDirRoot, log_names);
+  const auto res = ssh_client_->list(kRosbagDirRoot, log_names);
   spinner_.stop();
 
   if (res != ssh::SshClient::kNoError) {
-    qt::qErrorBox(this, ssh_client_.errorMessage());
+    qt::qErrorBox(this, ssh_client_->errorMessage());
     return;
   }
 
@@ -131,7 +148,7 @@ void FlightLogsWidgetFC::onReadButtonClicked()
   }
 
   for (const auto& log_name : log_names) {
-    addLog(QString::fromStdString(log_name));
+    addLog(log_name);
   }
 
   sortLogs();
@@ -146,11 +163,11 @@ void FlightLogsWidgetFC::onCleanButtonClicked()
   }
 
   spinner_.start();
-  const auto res = ssh_client_.execute("rm -rf " + std::string(kRosbagDirRoot) + "/*", true);
+  const auto res = ssh_client_->execute("rm -rf " + QString(kRosbagDirRoot) + "/*", true);
   spinner_.stop();
 
   if (res != ssh::SshClient::kNoError) {
-    qt::qErrorBox(this, ssh_client_.errorMessage());
+    qt::qErrorBox(this, ssh_client_->errorMessage());
     return;
   }
 
@@ -159,22 +176,22 @@ void FlightLogsWidgetFC::onCleanButtonClicked()
 
 void FlightLogsWidgetFC::onDownloadButtonClicked(const QString& log_name)
 {
-  const auto rosbag_path = ros2::expandUser(kRosbagDirHome) / log_name.toStdString();
+  const auto local_pardir = qt::expandUser(kRosbagDirHome);
+  const auto local_rosbag_path = QDir(local_pardir).filePath(log_name);
 
-  if (fs::exists(rosbag_path)) {
-    if (qt::yesOrNo(this, QString(rosbag_path.c_str()) + " already exists. Do you want to overwrite it?", qt::WARN)) {
-      fs::remove_all(rosbag_path);
+  if (QFileInfo::exists(local_rosbag_path)) {
+    if (qt::yesOrNo(this, local_rosbag_path + " already exists. Do you want to overwrite it?", qt::WARN)) {
+      TOBAS_CHECK(QDir(local_rosbag_path).removeRecursively());
     }
     else {
       return;
     }
   }
 
-  const auto remote_rosbag_path = fs::path(kRosbagDirRoot) / log_name.toStdString();
-  const auto local_pardir = ros2::expandUser(kRosbagDirHome);
+  const auto remote_rosbag_path = QDir(kRosbagDirRoot).filePath(log_name);
 
-  if (!fs::is_directory(local_pardir)) {
-    TOBAS_CHECK(fs::create_directories(local_pardir));
+  if (!QDir(local_pardir).exists()) {
+    TOBAS_CHECK(QDir().mkpath(local_pardir));
   }
 
   qt::ProgressDialog progress("Downloading Flight Log", 100, this);
@@ -192,11 +209,11 @@ void FlightLogsWidgetFC::onDownloadButtonClicked(const QString& log_name)
   };
 
   progress.show();
-  const auto res = ssh_client_.scpGet(remote_rosbag_path, local_pardir, callback);
+  const auto res = ssh_client_->scpGet(remote_rosbag_path, local_pardir, callback);
   progress.close();
 
   if (res != ssh::SshClient::kNoError) {
-    qt::qErrorBox(this, ssh_client_.errorMessage());
+    qt::qErrorBox(this, ssh_client_->errorMessage());
     return;
   }
 
@@ -205,20 +222,18 @@ void FlightLogsWidgetFC::onDownloadButtonClicked(const QString& log_name)
 
 void FlightLogsWidgetFC::onDeleteButtonClicked(const QString& log_name)
 {
-  const auto log_path = ros2::expandUser(kRosbagDirHome) / log_name.toStdString();
-
   if (!qt::yesOrNo(this, "Do you want to delete flight log \"" + log_name + "\"?", qt::WARN)) {
     return;
   }
 
-  const auto rosbag_path = fs::path(kRosbagDirRoot) / log_name.toStdString();
+  const auto rosbag_path = QDir(kRosbagDirRoot).filePath(log_name);
 
   spinner_.start();
-  const auto res = ssh_client_.execute("rm -rf " + rosbag_path.string(), true);
+  const auto res = ssh_client_->execute("rm -rf " + rosbag_path, true);
   spinner_.stop();
 
   if (res != ssh::SshClient::kNoError) {
-    qt::qErrorBox(this, ssh_client_.errorMessage());
+    qt::qErrorBox(this, ssh_client_->errorMessage());
     return;
   }
 

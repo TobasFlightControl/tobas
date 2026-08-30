@@ -3,6 +3,7 @@
 
 #include "tobas_simulation_gui/dynamic_configuration/dynamic_configuration.hpp"
 
+#include <QDebug>
 #include <QVBoxLayout>
 
 #include <tobas_gui_common/constants.hpp>
@@ -17,7 +18,7 @@ namespace gui
 {
 namespace sim
 {
-DynamicConfigWidget::DynamicConfigWidget(rclcpp::Node::SharedPtr node)
+DynamicConfigWidget::DynamicConfigWidget()
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);
@@ -27,38 +28,31 @@ DynamicConfigWidget::DynamicConfigWidget(rclcpp::Node::SharedPtr node)
 
   const auto scroll_rows = qt::createScrollableQVBoxLayout(rows);
 
-  wind_params_ = new WindParamsWidget(node);
+  wind_params_ = new WindParamsWidget();
   scroll_rows->addWidget(wind_params_);
 
-  suspended_load_ = new SuspendedLoadWidget(node);
+  suspended_load_ = new SuspendedLoadWidget();
   scroll_rows->addWidget(suspended_load_);
 
   scroll_rows->addStretch();
-}
-
-void DynamicConfigWidget::updateNamespace(const std::string& ns)
-{
-  wind_params_->updateNamespace(ns);
-  suspended_load_->updateNamespace(ns);
-}
-
-bool DynamicConfigWidget::start(ch::milliseconds timeout)
-{
-  if (!wind_params_->start(timeout)) {
-    return false;
-  }
-
-  if (!suspended_load_->start(timeout)) {
-    return false;
-  }
-
-  return true;
 }
 
 void DynamicConfigWidget::reset()
 {
   wind_params_->reset();
   suspended_load_->reset();
+}
+
+void DynamicConfigWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
+{
+  wind_params_->initializeRosInterfaces(node, ns);
+  suspended_load_->initializeRosInterfaces(node, ns);
+}
+
+void DynamicConfigWidget::clearRosInterfaces()
+{
+  wind_params_->clearRosInterfaces();
+  suspended_load_->clearRosInterfaces();
 }
 }  // namespace sim
 }  // namespace gui

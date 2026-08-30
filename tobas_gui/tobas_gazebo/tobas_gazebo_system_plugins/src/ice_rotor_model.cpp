@@ -230,7 +230,7 @@ bool IceRotorModel::initializeGazeboObjects(gz::sim::EntityComponentManager& ecm
     gzerr << "Failed to find the parent joint of rotor link \"" << link_name_ << "\"." << std::endl;
     return false;
   }
-  joint_ = std::make_shared<gz::sim::Joint>(joint_entity.value());
+  joint_.emplace(joint_entity.value());
   if (!joint_->Valid(ecm)) {
     gzerr << "Failed to find rotor link \"" << link_name_ << "\"." << std::endl;
     return false;
@@ -248,7 +248,7 @@ bool IceRotorModel::initializeGazeboObjects(gz::sim::EntityComponentManager& ecm
 
   // Get child link.
   const auto link_entity = model.LinkByName(ecm, link_name_);
-  link_ = std::make_shared<gz::sim::Link>(link_entity);
+  link_.emplace(link_entity);
   if (!link_->Valid(ecm)) {
     gzerr << "Failed to find the child link \"" << link_name_ << "\"." << std::endl;
     return false;
@@ -257,7 +257,7 @@ bool IceRotorModel::initializeGazeboObjects(gz::sim::EntityComponentManager& ecm
   // Get parent link.
   const auto parent_link_name = joint_->ParentLinkName(ecm).value();
   const auto parent_link_entity = model.LinkByName(ecm, parent_link_name);
-  parent_link_ = std::make_shared<gz::sim::Link>(parent_link_entity);
+  parent_link_.emplace(parent_link_entity);
   if (!parent_link_->Valid(ecm)) {
     gzerr << "Failed to find the parent link \"" << parent_link_name << "\"." << std::endl;
     return false;

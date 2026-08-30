@@ -5,28 +5,22 @@
 
 #include <tobas_qt_tools/cast.hpp>
 
-namespace fs = std::filesystem;
-
 namespace tobas
 {
 namespace gui
 {
 namespace at
 {
-ActuatorTestWidget::ActuatorTestWidget(
-  rclcpp::Node::SharedPtr node,
-  const RosQtBridge& bridge,
-  const kdl::Tree& tree,
-  const Drone& drone)
+ActuatorTestWidget::ActuatorTestWidget(const rqt::RosQtBridge& bridge, const kdl::Tree& tree, const Drone& drone)
   : drone_(drone)
 {
   setTabSize(kTabWidth, kTabHeight);
   enableWheelEvent(false);
 
-  rotor_test_ = new RotorTestWidget(node, bridge, drone);
+  rotor_test_ = new RotorTestWidget(bridge, drone);
   addTab(rotor_test_, "Rotor Test");
 
-  joint_test_ = new JointTestWidget(node, bridge, tree, drone);
+  joint_test_ = new JointTestWidget(bridge, tree, drone);
   addTab(joint_test_, "Joint Test");
 
   setTabsEnabled(false);
@@ -39,9 +33,9 @@ void ActuatorTestWidget::reset()
   }
 }
 
-void ActuatorTestWidget::updateProject(const fs::path& proj_path)
+void ActuatorTestWidget::updateProject(const QString& proj_path)
 {
-  reset();
+  setTabsEnabled(false);
 
   rotor_test_->updateProject(proj_path);
   joint_test_->updateInternalDataStructures();
@@ -50,11 +44,24 @@ void ActuatorTestWidget::updateProject(const fs::path& proj_path)
   setTabEnabled(rotor_test_, rotor_test_->numRegisteredChannels() > 0);
   setTabEnabled(joint_test_, joint_test_->numRegisteredChannels() > 0);
 
-  // Enable each tab.
-  setTabsEnabled(true);
-
   // Adjust distortion caused by showing or hiding tabs.
   update();
+}
+
+void ActuatorTestWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
+{
+  rotor_test_->initializeRosInterfaces(node, ns);
+  joint_test_->initializeRosInterfaces(node, ns);
+
+  setTabsEnabled(true);
+}
+
+void ActuatorTestWidget::clearRosInterfaces()
+{
+  rotor_test_->clearRosInterfaces();
+  joint_test_->clearRosInterfaces();
+
+  setTabsEnabled(false);
 }
 
 BaseWidget* ActuatorTestWidget::getWidget(int index)

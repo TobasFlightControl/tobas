@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <optional>
+
 #include <QThread>
 
 #include <tobas_algorithm/kahan.hpp>
@@ -32,17 +34,19 @@ Q_SIGNALS:
   void finished(bool success, const QString& message);
 
 public:
-  explicit AccelCalibrationThread(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge);
+  explicit AccelCalibrationThread(const rqt::RosQtBridge& bridge);
+  ~AccelCalibrationThread();
 
   void run() override;
 
   void reset();
-  void setNamespace(const std::string& ns);
+  void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
+  void clearRosInterfaces();
 
 private:
-  const rclcpp::Node::SharedPtr node_;
+  rclcpp::Node::SharedPtr node_;
 
-  ros2::SyncServiceClient<tobas_real_msgs::srv::SetImuParams>::SharedPtr set_params_sc_;
+  std::optional<ros2::SyncServiceClient<tobas_real_msgs::srv::SetImuParams>> set_params_sc_;
 
   tobas_msgs::Imu::ConstSharedPtr imu_raw_;
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;

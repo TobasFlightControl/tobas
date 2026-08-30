@@ -13,8 +13,6 @@ namespace gazebo
 class RateManager
 {
 public:
-  using SharedPtr = std::shared_ptr<RateManager>;
-
   explicit RateManager(int update_rate);
 
   /* True if the cycle can be executed. */

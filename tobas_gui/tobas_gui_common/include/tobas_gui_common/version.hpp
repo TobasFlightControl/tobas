@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include <filesystem>
-
 #include <QString>
 
 namespace tobas
@@ -35,8 +33,8 @@ public:
   QString toString() const;
   bool fromString(QString str);
 
-  bool load(const std::filesystem::path& path);
-  bool save(const std::filesystem::path& path) const;
+  bool load(const QString& path);
+  bool save(const QString& path) const;
 
   /* Automatically define comparison operators that compare lexicographically in member declaration order (>= C++20). */
   auto operator<=>(const Version&) const = default;

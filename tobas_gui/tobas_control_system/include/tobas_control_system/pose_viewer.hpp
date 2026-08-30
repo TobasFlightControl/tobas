@@ -39,7 +39,7 @@ class PoseViewerWidget : public qt::Widget
   static constexpr int kAltitudeTickMaxY = kAltitudeTextY + 10;
 
 public:
-  explicit PoseViewerWidget(const RosQtBridge& bridge);
+  explicit PoseViewerWidget(const rqt::RosQtBridge& bridge);
 
   void reset();
 

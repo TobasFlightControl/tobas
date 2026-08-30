@@ -13,8 +13,6 @@ namespace tobas
 class MultiThreadedExecutorRT : public rclcpp::executors::MultiThreadedExecutor
 {
 public:
-  using SharedPtr = std::shared_ptr<MultiThreadedExecutorRT>;
-
   explicit MultiThreadedExecutorRT(linux::sched_t policy, size_t priority, uint32_t cpu_affinity, size_t num_threads);
 
   void spin() override;

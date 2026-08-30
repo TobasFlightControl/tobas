@@ -3,6 +3,9 @@
 
 #pragma once
 
+#include <chrono>
+#include <string>
+
 #include <rclcpp/node.hpp>
 
 namespace tobas
@@ -12,6 +15,6 @@ namespace ros2
 bool waitUntilNodeGone(
   const rclcpp::Node::SharedPtr& node,
   const std::string& target_fqn,  // FQN = Fully Qualified Name
-  std::chrono::nanoseconds timeout = std::chrono::nanoseconds::max());
+  std::chrono::milliseconds timeout = std::chrono::milliseconds(-1));
 }  // namespace ros2
 }  // namespace tobas

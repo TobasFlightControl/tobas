@@ -10,11 +10,13 @@
 
 namespace tobas
 {
+namespace rviz
+{
 namespace
 {
 rclcpp::Logger getLogger()
 {
-  return tobas::getLogger("tobas.conversions");
+  return tobas::rviz::getLogger("tobas.conversions");
 }
 
 bool jointStateToRobotState(const sensor_msgs::msg::JointState& joint_state, RobotState& state)
@@ -40,19 +42,19 @@ bool multiDofJointsToRobotState(const sensor_msgs::msg::MultiDOFJointState& mult
   }
 
   bool valid = true;
-  if (!multi_dof_state.joint_names.empty() && multi_dof_state.header.frame_id != state.getRobotModel()->getModelFrame()) {
+  if (!multi_dof_state.joint_names.empty() && multi_dof_state.header.frame_id != state.getRobotModel().getModelFrame()) {
     RCLCPP_WARN(
       getLogger(),
       "The transform for multi-dof joints was specified in frame '%s' "
       "but it was not possible to transform that to frame '%s'.",
       multi_dof_state.header.frame_id.c_str(),
-      state.getRobotModel()->getModelFrame().c_str());
+      state.getRobotModel().getModelFrame().c_str());
     valid = false;
   }
 
   for (size_t i = 0; i < multi_dof_state.joint_names.size(); ++i) {
     const auto& joint_name = multi_dof_state.joint_names[i];
-    if (!state.getRobotModel()->hasJointModel(joint_name)) {
+    if (!state.getRobotModel().hasJointModel(joint_name)) {
       RCLCPP_WARN(getLogger(), "No joint matching multi-dof joint '%s'.", joint_name.c_str());
       valid = false;
       continue;
@@ -76,4 +78,5 @@ bool robotStateMsgToRobotState(const tobas_visualization_msgs::msg::RobotState& 
   state.update();
   return joint_state_valid || multi_dof_state_valid;
 }
+}  // namespace rviz
 }  // namespace tobas
