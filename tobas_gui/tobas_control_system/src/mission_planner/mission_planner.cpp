@@ -452,7 +452,7 @@ void MissionPlannerWidget::onLoadButtonClicked()
 
   // Parse the mission.
   mission::Mission mission;
-  if (!mission.load(node.value())) {
+  if (!mission.load(*node)) {
     qt::qErrorBox(this, "Failed to load the mission file.");
     return;
   }

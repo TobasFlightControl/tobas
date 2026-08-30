@@ -755,7 +755,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
       const auto log_path =
         qt::writeTimestampedFile(error_msg + '\n', qt::expandUser(kGuiLogDir), "", "builderr_project_remote");
       if (log_path) {
-        qt::qErrorBox(this, "Failed to build the Tobas project. The output has been saved to:\n" + log_path.value());
+        qt::qErrorBox(this, "Failed to build the Tobas project. The output has been saved to:\n" + *log_path);
       }
       else {
         qt::qErrorBox(this, "Failed to build the Tobas project, and also failed to save the error message.");

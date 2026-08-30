@@ -98,9 +98,9 @@ void GazeboMagnetometerPlugin::Configure(
   if (!sc) {
     TOBAS_EXIT(sc.error());
   }
-  lat_0_ = sc.value().LatitudeReference().Degree();
-  lon_0_ = sc.value().LongitudeReference().Degree();
-  alt_0_ = sc.value().ElevationReference();
+  lat_0_ = sc->LatitudeReference().Degree();
+  lon_0_ = sc->LongitudeReference().Degree();
+  alt_0_ = sc->ElevationReference();
 
   const auto link = ecm.EntityByComponents(cmp::Link(), cmp::ParentEntity(model), cmp::Name(link_name_));
   if (link == gz::sim::kNullEntity) {

@@ -213,7 +213,7 @@ bool Drone::load(const fs::path& path)
     return false;
   }
 
-  if (!load(node.value())) {
+  if (!load(*node)) {
     cerr << "Failed to load drone." << endl;
     return false;
   }

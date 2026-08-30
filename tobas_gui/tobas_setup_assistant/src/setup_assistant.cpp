@@ -203,17 +203,17 @@ void SetupAssistantWidget::onNewButtonClicked()
 
   // Build the package if the UADF exists in a ROS package before installation.
   const auto pkg_path = ros2::getPackagePathOf(uadf_path.toStdString());
-  if (pkg_path && !ros2::isAlreadyBuiltAndInstalled(pkg_path.value())) {
-    const auto pkg_name = ros2::getPackageNameOf(pkg_path.value());
+  if (pkg_path && !ros2::isAlreadyBuiltAndInstalled(*pkg_path)) {
+    const auto pkg_name = ros2::getPackageNameOf(*pkg_path);
     if (!pkg_name) {
       qt::qErrorBox(this, "Failed to get the ROS package name of the UADF: " + QString::fromStdString(pkg_name.error()));
       return;
     }
-    const auto pkg_name_qt = QString::fromStdString(pkg_name.value());
+    const auto pkg_name_qt = QString::fromStdString(*pkg_name);
 
     qInfo().nospace() << "UADF is in ROS package " << pkg_name_qt << ". Building it.";
     spinner_.start();
-    const auto build_success = cmn::colconBuild(colcon_, pkg_path.value().c_str(), qt::expandUser(kColconWSPathHome));
+    const auto build_success = cmn::colconBuild(colcon_, pkg_path->c_str(), qt::expandUser(kColconWSPathHome));
     spinner_.stop();
 
     if (!build_success) {
@@ -225,8 +225,7 @@ void SetupAssistantWidget::onNewButtonClicked()
         const auto log_path =
           qt::writeTimestampedFile(error_msg + '\n', qt::expandUser(kGuiLogDir), "", "builderr_description_package");
         if (log_path) {
-          qt::qErrorBox(
-            this, "Failed to build \"" + pkg_name_qt + "\". The output has been saved to:\n" + log_path.value());
+          qt::qErrorBox(this, "Failed to build \"" + pkg_name_qt + "\". The output has been saved to:\n" + *log_path);
         }
         else {
           qt::qErrorBox(this, "Failed to build \"" + pkg_name_qt + "\", and also failed to save the error message.");
@@ -247,7 +246,7 @@ void SetupAssistantWidget::onNewButtonClicked()
       const auto log_path =
         qt::writeTimestampedFile(error_msg + '\n', qt::expandUser(kGuiLogDir), "", "xacro_parse_error");
       if (log_path) {
-        qt::qErrorBox(this, "Failed to parse XACRO. The output has been saved to:\n" + log_path.value());
+        qt::qErrorBox(this, "Failed to parse XACRO. The output has been saved to:\n" + *log_path);
       }
       else {
         qt::qErrorBox(this, "Failed to parse XACRO, and also failed to save the error message.");
@@ -407,7 +406,7 @@ void SetupAssistantWidget::onLoadButtonClicked()
 
   // Apply user settings to widgets.
   // Do not reset even if this fails.
-  if (settings_->load(node.value())) {
+  if (settings_->load(*node)) {
     qt::qInfoBox(this, "Tobas project has been loaded successfully.");
   }
 

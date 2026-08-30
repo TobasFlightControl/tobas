@@ -69,7 +69,7 @@ bool Bmm350PublisherNode::initialize()
     RCLCPP_WARN(get_logger(), "%s", odr.error());
     return false;
   }
-  if (!mag_.configure(odr.value(), avg.value())) {
+  if (!mag_.configure(*odr, *avg)) {
     RCLCPP_WARN(get_logger(), "Failed to stage BMM350 configuration.");
     return false;
   }

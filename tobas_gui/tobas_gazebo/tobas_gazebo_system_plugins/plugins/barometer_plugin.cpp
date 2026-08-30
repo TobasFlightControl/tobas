@@ -78,7 +78,7 @@ void GazeboBarometerPlugin::Configure(
   if (!sc) {
     TOBAS_EXIT(sc.error());
   }
-  alt_0_ = sc.value().ElevationReference();
+  alt_0_ = sc->ElevationReference();
 
   const auto link = ecm.EntityByComponents(cmp::Link(), cmp::ParentEntity(model), cmp::Name(link_name_));
   if (link == gz::sim::kNullEntity) {

@@ -31,19 +31,19 @@ int main(int argc, char** argv)
     return EXIT_FAILURE;
   }
 
-  const auto exported_line = tobas::ssh::ak::exportLine(data.value());
+  const auto exported_line = tobas::ssh::ak::exportLine(*data);
   if (!exported_line) {
     std::cerr << exported_line.error() << std::endl;
     return EXIT_FAILURE;
   }
 
-  const auto prettified_line = tobas::ssh::ak::prettify(data.value());
+  const auto prettified_line = tobas::ssh::ak::prettify(*data);
   if (!prettified_line) {
     std::cerr << prettified_line.error() << std::endl;
     return EXIT_FAILURE;
   }
 
   std::cout << "Original  : " << original_line << std::endl;
-  std::cout << "Exported  : " << exported_line.value() << std::endl;
-  std::cout << "Prettified: " << prettified_line.value() << std::endl;
+  std::cout << "Exported  : " << *exported_line << std::endl;
+  std::cout << "Prettified: " << *prettified_line << std::endl;
 }

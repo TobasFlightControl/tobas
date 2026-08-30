@@ -140,7 +140,7 @@ void GazeboFixedWingPlugin::Configure(
   if (!sc) {
     TOBAS_EXIT(sc.error());
   }
-  alt_0_ = sc.value().ElevationReference();
+  alt_0_ = sc->ElevationReference();
 
   // Get robot model.
   const gz::sim::Model model(model_entity);
@@ -164,33 +164,37 @@ void GazeboFixedWingPlugin::Configure(
   for (const auto& [link_name, _] : control_surfaces_) {
     // Get control surface joint.
     const auto joint_entity = findJointWithChildLink(ecm, link_name);
-    if (!joint_entity.has_value()) {
+    if (!joint_entity) {
       TOBAS_EXIT("Failed to find the parent joint of control surface link \"", link_name, "\".");
     }
-    const auto joint = std::make_shared<gz::sim::Joint>(joint_entity.value());
+    const auto joint = std::make_shared<gz::sim::Joint>(*joint_entity);
     if (!joint->Valid(ecm)) {
       TOBAS_EXIT("Failed to find control surface \"", link_name, "\".");
     }
 
-    // Get joint name.
-    const auto joint_name = joint->Name(ecm).value();
-
     // Check joint type.
-    const auto joint_type = joint->Type(ecm).value();
-    if (joint_type != sdf::JointType::REVOLUTE) {
+    const auto joint_type = joint->Type(ecm);
+    if (!joint_type) {
+      TOBAS_EXIT("Failed to get the joint type of \"", link_name, "\".");
+    }
+    if (*joint_type != sdf::JointType::REVOLUTE) {
       TOBAS_EXIT("The type of control surface joint \"", link_name, "\" must be revolute.");
     }
 
     // Check joint limits.
-    const auto joint_axis = joint->Axis(ecm).value().front();
+    const auto joint_axes = joint->Axis(ecm);
+    if (!joint_axes || joint_axes->size() == 0) {
+      TOBAS_EXIT("\"", link_name, "\" has no joint axis.");
+    }
+    const auto& joint_axis = joint_axes->front();
     if (joint_axis.Lower() >= joint_axis.Upper()) {
-      TOBAS_EXIT("The position limit of ", link_name, " is invalid.");
+      TOBAS_EXIT("The position limit of \"", link_name, "\" is invalid.");
     }
     if (joint_axis.MaxVelocity() <= 0.0) {
-      TOBAS_EXIT("The velocity limit of ", link_name, " must be positive.");
+      TOBAS_EXIT("The velocity limit of \"", link_name, "\" must be positive.");
     }
     if (joint_axis.Effort() <= 0.0) {
-      TOBAS_EXIT("The effort limit of ", link_name, " must be positive.");
+      TOBAS_EXIT("The effort limit of \"", link_name, "\" must be positive.");
     }
 
     // Add joint model.
@@ -364,7 +368,7 @@ void GazeboFixedWingPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 double
 GazeboFixedWingPlugin::getDeflection(const gz::sim::EntityComponentManager& ecm, const std::string& link_name) const
 {
-  return cs_joints_.at(link_name)->Position(ecm).value().front();
+  return cs_joints_.at(link_name)->Position(ecm)->front();
 }
 
 double GazeboFixedWingPlugin::liftCoefficient(const gz::sim::EntityComponentManager& ecm, double alpha) const

@@ -78,7 +78,7 @@
         std::cerr << res.error() << std::endl;                                                                         \
         return false;                                                                                                  \
       }                                                                                                                \
-      (field) = res.value();                                                                                           \
+      (field) = *res;                                                                                                  \
       return true;                                                                                                     \
     }())
 
@@ -204,7 +204,7 @@ bool Mission::load(const YAML::Node& mission_node)
 
     tobas::mission::MissionItem item;
 
-    if (type.value() == TYPE_WAYPOINT) {
+    if (*type == TYPE_WAYPOINT) {
       tobas::mission::Waypoint waypoint;
       if (!LOAD_PACKED_FIELD(WAYPOINT_LATITUDE, data_node, waypoint.latitude)) {
         return false;
@@ -260,7 +260,7 @@ bool Mission::load(const YAML::Node& mission_node)
       item.type = tobas::mission::Type::kWaypoint;
       item.data = tobas::st::toBytes(waypoint);
     }
-    else if (type.value() == TYPE_TAKEOFF) {
+    else if (*type == TYPE_TAKEOFF) {
       tobas::mission::Takeoff takeoff;
       if (!LOAD_PACKED_FIELD(TAKEOFF_ALTITUDE, data_node, takeoff.altitude)) {
         return false;
@@ -286,7 +286,7 @@ bool Mission::load(const YAML::Node& mission_node)
       item.type = tobas::mission::Type::kTakeoff;
       item.data = tobas::st::toBytes(takeoff);
     }
-    else if (type.value() == TYPE_LAND) {
+    else if (*type == TYPE_LAND) {
       tobas::mission::Land land;
       if (!LOAD_PACKED_FIELD(LAND_SPEED, data_node, land.speed)) {
         return false;
@@ -297,7 +297,7 @@ bool Mission::load(const YAML::Node& mission_node)
       item.type = tobas::mission::Type::kLand;
       item.data = tobas::st::toBytes(land);
     }
-    else if (type.value() == TYPE_RTL) {
+    else if (*type == TYPE_RTL) {
       tobas::mission::ReturnToLaunch rtl;
       if (!LOAD_PACKED_FIELD(RTL_MIN_ALTITUDE, data_node, rtl.min_altitude)) {
         return false;
@@ -339,7 +339,7 @@ bool Mission::load(const YAML::Node& mission_node)
       item.data = tobas::st::toBytes(rtl);
     }
     else {
-      std::cerr << "Invalid mission item type: " << type.value() << std::endl;
+      std::cerr << "Invalid mission item type: " << *type << std::endl;
       return false;
     }
 

@@ -38,8 +38,8 @@ bool Colcon::build(const fs::path& pkg_path, const fs::path& ws_path)
   }
 
   // Navigate to the estimated workspace.
-  if (chdir(exec_path.value().c_str()) != 0) {
-    error_msg_ = "Failed to navigate to \"" + exec_path.value().string() + "\": " + linux::strError();
+  if (chdir(exec_path->c_str()) != 0) {
+    error_msg_ = "Failed to navigate to \"" + exec_path->string() + "\": " + linux::strError();
     return false;
   }
 
@@ -58,7 +58,7 @@ bool Colcon::build(const fs::path& pkg_path, const fs::path& ws_path)
     "--packages-up-to {} ",
     buildBase(ws_path).string(),
     installBase(ws_path).string(),
-    pkg_name.value());
+    *pkg_name);
 
   // Add options.
   if (build_opts_.parallel_workers == 0) {
@@ -78,9 +78,9 @@ bool Colcon::build(const fs::path& pkg_path, const fs::path& ws_path)
   }
 
   // Build the Tobas project packages.
-  std::cout << "Executing \"" << build_cmd << "\" on " << exec_path.value() << "." << std::endl;
+  std::cout << "Executing \"" << build_cmd << "\" on " << *exec_path << "." << std::endl;
   if (!cmd_exec_.execute(build_cmd)) {
-    error_msg_ = "Failed to build \"" + pkg_name.value() + "\":\n" + cmd_exec_.getOutput();
+    error_msg_ = "Failed to build \"" + *pkg_name + "\":\n" + cmd_exec_.getOutput();
     return false;
   }
 

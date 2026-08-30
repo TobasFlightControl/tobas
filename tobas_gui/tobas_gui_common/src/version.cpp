@@ -86,13 +86,13 @@ bool Version::load(const QString& path)
     return false;
   }
 
-  if (!yaml::load(kMajorKey, node.value(), major)) {
+  if (!yaml::load(kMajorKey, *node, major)) {
     return false;
   }
-  if (!yaml::load(kMinorKey, node.value(), minor)) {
+  if (!yaml::load(kMinorKey, *node, minor)) {
     return false;
   }
-  if (!yaml::load(kPatchKey, node.value(), patch)) {
+  if (!yaml::load(kPatchKey, *node, patch)) {
     return false;
   }
 

@@ -84,14 +84,12 @@ bool PropertyTree::erase(boost::property_tree::ptree& node, boost::property_tree
   }
 
   // Recursively handle nested paths.
-  auto child_node_opt = node.get_child_optional(child_name);
-  if (!child_node_opt) {
+  const auto child_node = node.get_child_optional(child_name);
+  if (!child_node) {
     std::cerr << "Failed to get child node \"" << child_name << "\"." << std::endl;
     return false;
   }
-
-  auto& child_node = child_node_opt.get();
-  return erase(child_node, path);
+  return erase(*child_node, path);
 }
 
 std::string PropertyTree::sectionedKey(const std::string& section, const std::string& key)

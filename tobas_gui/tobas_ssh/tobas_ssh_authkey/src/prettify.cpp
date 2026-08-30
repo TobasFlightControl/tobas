@@ -47,17 +47,17 @@ std::string base64NoPad(const uint8_t* p, size_t n)
 std::expected<std::string, std::string> prettify(const Data& src)
 {
   if (src.key_type == SSH_KEYTYPE_UNKNOWN) {
-    return std::unexpected("SSH key type is unknown.");
+    return std::unexpected("The key type is unknown.");
   }
 
   if (!src.key) {
-    return std::unexpected("SSH key is null.");
+    return std::unexpected("The key is null.");
   }
 
   // Type name.
   const auto key_type_name = ssh_key_type_to_char(src.key_type);
   if (!key_type_name) {
-    return std::unexpected("Failed to get SSH key type name.");
+    return std::unexpected("Failed to get the key type name.");
   }
 
   // SHA256 fingerprint, matching the default OpenSSH display.

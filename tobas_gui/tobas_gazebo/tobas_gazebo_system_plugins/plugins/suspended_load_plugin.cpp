@@ -124,7 +124,7 @@ void GazeboSuspendedLoadPlugin::Configure(
   if (!world_name) {
     TOBAS_EXIT("Failed to get the world name: ", world_name.error());
   }
-  world_name_ = world_name.value();
+  world_name_ = *world_name;
 
   const auto link_entity = ecm.EntityByComponents(cmp::Link(), cmp::ParentEntity(model_entity), cmp::Name(link_name_));
   base_link_.emplace(link_entity);

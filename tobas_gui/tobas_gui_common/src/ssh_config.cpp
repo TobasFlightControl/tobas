@@ -20,10 +20,10 @@ bool SshConfig::load(const QString& path)
     return false;
   }
 
-  if (!yaml::load(kHostKey, node.value(), host)) {
+  if (!yaml::load(kHostKey, *node, host)) {
     return false;
   }
-  if (!yaml::load(kUserKey, node.value(), user)) {
+  if (!yaml::load(kUserKey, *node, user)) {
     return false;
   }
 

@@ -183,19 +183,19 @@ void GazeboElectricPropulsionSystemPlugin::Configure(
 
   // Get joint.
   const auto joint_entity = findJointWithChildLink(ecm, link_name_);
-  if (!joint_entity.has_value()) {
+  if (!joint_entity) {
     TOBAS_EXIT("Failed to find the parent joint of rotor link \"", link_name_, "\".");
   }
-  joint_.emplace(joint_entity.value());
+  joint_.emplace(*joint_entity);
   if (!joint_->Valid(ecm)) {
     TOBAS_EXIT("Failed to find rotor link \"", link_name_, "\".");
   }
 
   // Get joint name.
-  const auto joint_name = joint_->Name(ecm).value();
+  const auto joint_name = *joint_->Name(ecm);
 
   // Check joint type.
-  const auto joint_type = joint_->Type(ecm).value();
+  const auto joint_type = *joint_->Type(ecm);
   if (joint_type != sdf::JointType::CONTINUOUS && joint_type != sdf::JointType::REVOLUTE) {
     TOBAS_EXIT("Joint \"", joint_name, "\" is not a rotating joint.");
   }
@@ -208,7 +208,7 @@ void GazeboElectricPropulsionSystemPlugin::Configure(
   }
 
   // Get parent link.
-  const auto parent_link_name = joint_->ParentLinkName(ecm).value();
+  const auto parent_link_name = *joint_->ParentLinkName(ecm);
   const auto parent_link_entity = model.LinkByName(ecm, parent_link_name);
   parent_link_.emplace(parent_link_entity);
   if (!parent_link_->Valid(ecm)) {
@@ -216,8 +216,8 @@ void GazeboElectricPropulsionSystemPlugin::Configure(
   }
 
   // Create necessary components.
-  TOBAS_CHECK(jnt_axis_ = getComponent<cmp::JointAxis>(joint_entity.value(), ecm));
-  TOBAS_CHECK(jnt_vel_ = getComponent<cmp::JointVelocity>(joint_entity.value(), ecm));
+  TOBAS_CHECK(jnt_axis_ = getComponent<cmp::JointAxis>(*joint_entity, ecm));
+  TOBAS_CHECK(jnt_vel_ = getComponent<cmp::JointVelocity>(*joint_entity, ecm));
   TOBAS_CHECK(pose_W_ = getComponent<cmp::WorldPose>(link_entity, ecm));
   TOBAS_CHECK(linvel_W_ = getComponent<cmp::WorldLinearVelocity>(link_entity, ecm));
   TOBAS_CHECK(angvel_W_ = getComponent<cmp::WorldAngularVelocity>(link_entity, ecm));
@@ -310,7 +310,7 @@ void GazeboElectricPropulsionSystemPlugin::applyWrenchAndPublishState(
   const auto axis_W = R_W_L.RotateVector(axis_L);
 
   // Inertial moment
-  const auto I_W = link_->WorldInertiaMatrix(ecm).value();  // Assume the center of gravity lies on the rotation axis.
+  const auto I_W = *link_->WorldInertiaMatrix(ecm);  // Assume the center of gravity lies on the rotation axis.
   const auto inertial_moment_W = -(I_W * (acc_ * axis_W));
 
   // Coriolis moment (Gyro effect)

@@ -124,11 +124,11 @@ double IcePropulsionSystemConfig::thrustFromThrottle(const std::string& link_nam
 double IcePropulsionSystemConfig::maxEngineSpeed()
 {
   // Compute the engine speed at full throttle only once.
-  if (!max_engine_speed_.has_value()) {
+  if (!max_engine_speed_) {
     max_engine_speed_ = computeEngineSpeed(kMaxThrot);
   }
 
-  return max_engine_speed_.value();
+  return *max_engine_speed_;
 }
 
 double IcePropulsionSystemConfig::computeEngineSpeed(double throttle) const

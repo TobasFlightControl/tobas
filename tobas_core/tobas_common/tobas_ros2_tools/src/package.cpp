@@ -52,7 +52,7 @@ std::expected<std::string, std::string> getPackageNameOf(const fs::path& path)
     return std::unexpected(path.string() + " is not in a ROS package: " + pkg_path.error());
   }
 
-  const auto pkg_xml_path = pkg_path.value() / "package.xml";
+  const auto pkg_xml_path = *pkg_path / "package.xml";
   tinyxml2::XMLDocument doc;
   if (doc.LoadFile(pkg_xml_path.c_str()) != tinyxml2::XML_SUCCESS) {
     return std::unexpected(doc.ErrorStr());
@@ -78,7 +78,7 @@ std::expected<fs::path, std::string> estimateWorkspaceOf(const fs::path& path)
     return std::unexpected("\"" + path.string() + "\" is not in a ROS package: " + pkg_path.error());
   }
 
-  auto cur = pkg_path.value().parent_path();
+  auto cur = pkg_path->parent_path();
   while (true) {
     const auto parent = cur.parent_path();
     if (cur.filename() == "src") {

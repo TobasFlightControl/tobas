@@ -47,7 +47,7 @@ private:
   std::vector<ssh::ak::Data> keys_;
   qt::ListWidget* list_;
 
-  void addKey(const ssh::ak::Data& key);
+  bool addKey(const ssh::ak::Data& key);
   bool writeCurrentConfig();
 
   static std::string authorizedKeysPath();

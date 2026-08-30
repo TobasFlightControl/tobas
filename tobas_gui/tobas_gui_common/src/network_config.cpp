@@ -20,7 +20,7 @@ bool NetworkConfig::load(const QString& path)
     return false;
   }
 
-  if (!yaml::load(kInterfaceKey, node.value(), interface)) {
+  if (!yaml::load(kInterfaceKey, *node, interface)) {
     return false;
   }
 

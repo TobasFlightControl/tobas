@@ -38,16 +38,15 @@ bool takeoff(rclcpp::Node::SharedPtr node)
   goal.mission.items.push_back(mission_item);
 
   // Execute the action.
-  const auto res = client.sendGoalAndWait(goal);
-  if (!res) {
+  const auto result = client.sendGoalAndWait(goal);
+  if (!result) {
     RCLCPP_ERROR(node->get_logger(), "Failed to call takeoff action.");
     return false;
   }
 
   // Check whether the action succeeded.
-  const auto result = res.value();
-  if (result.code != rclcpp_action::ResultCode::SUCCEEDED) {
-    RCLCPP_ERROR_STREAM(node->get_logger(), "Failed to takeoff: " << result.result->error_message);
+  if (result->code != rclcpp_action::ResultCode::SUCCEEDED) {
+    RCLCPP_ERROR_STREAM(node->get_logger(), "Failed to takeoff: " << result->result->error_message);
     return false;
   }
 
@@ -72,16 +71,15 @@ bool land(rclcpp::Node::SharedPtr node)
   goal.mission.items.push_back(mission_item);
 
   // Execute the action.
-  const auto res = client.sendGoalAndWait(goal);
-  if (!res) {
+  const auto result = client.sendGoalAndWait(goal);
+  if (!result) {
     RCLCPP_ERROR(node->get_logger(), "Failed to call land action.");
     return false;
   }
 
   // Check whether the action succeeded.
-  const auto result = res.value();
-  if (result.code != rclcpp_action::ResultCode::SUCCEEDED) {
-    RCLCPP_ERROR_STREAM(node->get_logger(), "Failed to land: " << result.result->error_message);
+  if (result->code != rclcpp_action::ResultCode::SUCCEEDED) {
+    RCLCPP_ERROR_STREAM(node->get_logger(), "Failed to land: " << result->result->error_message);
     return false;
   }
 
