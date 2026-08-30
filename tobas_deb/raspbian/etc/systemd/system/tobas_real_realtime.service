@@ -6,8 +6,6 @@ PartOf=tobas_real.target
 Type=simple
 EnvironmentFile=/etc/tobas/common.env
 EnvironmentFile=/etc/tobas/config/project.env
-# Avoid external network communication to improve real-time performance.
-Environment="ROS_AUTOMATIC_DISCOVERY_RANGE=LOCALHOST"
 # Use the loopback interface for inter-process communication.
 Environment='CYCLONEDDS_URI=<CycloneDDS><Domain><General><Interfaces><NetworkInterface name="lo"/></Interfaces></General></Domain></CycloneDDS>'
 ExecStart=/bin/bash -c 'source /opt/ros/jazzy/setup.bash && source /opt/tobas/local_setup.bash && source /etc/tobas/colcon_ws/install/local_setup.bash && exec ros2 launch ${TOBAS_CONFIG_PKG} real_realtime.launch.py id:=${TOBAS_ID}'

@@ -8,7 +8,6 @@ PartOf=tobas_real.target
 Type=simple
 EnvironmentFile=/etc/tobas/common.env
 EnvironmentFile=/etc/tobas/config/project.env
-Environment="ROS_AUTOMATIC_DISCOVERY_RANGE=SUBNET"
 Environment="CYCLONEDDS_URI=/etc/tobas/config/cyclonedds.xml"
 # Wait until the NIC used for inter-network communication has an IP address.
 ExecStartPre=/usr/lib/systemd/systemd-networkd-wait-online --interface=${TOBAS_NIC}:routable --ipv4 --timeout=0
