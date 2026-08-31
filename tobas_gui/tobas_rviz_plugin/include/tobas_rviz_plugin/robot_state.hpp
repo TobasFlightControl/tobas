@@ -25,20 +25,20 @@ public:
   void setToDefaultValues();
   void update(bool force = false);
 
-  const Eigen::Isometry3d& getGlobalLinkTransform(const LinkModel* link) const;
+  const Eigen::Isometry3d& getGlobalLinkTransform(const LinkModel::ConstSharedPtr& link) const;
 
 private:
-  void markDirtyJointTransforms(const JointModel* joint);
-  void updateMimicJoint(const JointModel* joint);
+  void markDirtyJointTransforms(const JointModel::ConstSharedPtr& joint);
+  void updateMimicJoint(const JointModel::ConstSharedPtr& joint);
   void updateLinkTransforms();
-  void updateLinkTransformsInternal(const JointModel* start);
-  const Eigen::Isometry3d& getJointTransform(const JointModel* joint);
+  void updateLinkTransformsInternal(const JointModel::ConstSharedPtr& start);
+  const Eigen::Isometry3d& getJointTransform(const JointModel::ConstSharedPtr& joint);
 
   bool checkLinkTransforms() const;
 
   const RobotModel& robot_model_;
   std::vector<double> positions_;
-  const JointModel* dirty_link_transforms_ = nullptr;
+  JointModel::ConstSharedPtr dirty_link_transforms_;
   std::vector<Eigen::Isometry3d> variable_joint_transforms_;
   std::vector<Eigen::Isometry3d> global_link_transforms_;
   std::vector<uint8_t> dirty_joint_transforms_;

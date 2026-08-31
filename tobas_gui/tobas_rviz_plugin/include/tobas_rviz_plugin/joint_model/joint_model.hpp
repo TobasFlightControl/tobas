@@ -4,6 +4,7 @@
 #pragma once
 
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -17,7 +18,7 @@ class LinkModel;
 class JointModel;
 
 /* Map of names to instances for JointModel. */
-using JointModelMap = std::map<std::string, JointModel*>;
+using JointModelMap = std::map<std::string, std::shared_ptr<JointModel>>;
 
 /**
  * @brief A joint from the robot.
@@ -26,6 +27,9 @@ using JointModelMap = std::map<std::string, JointModel*>;
 class JointModel
 {
 public:
+  using SharedPtr = std::shared_ptr<JointModel>;
+  using ConstSharedPtr = std::shared_ptr<const JointModel>;
+
   /* The different types of joints we support. */
   enum JointType
   {
@@ -47,9 +51,9 @@ public:
   JointType getType() const;
 
   /* Get the link that this joint connects to. */
-  const LinkModel* getChildLinkModel() const;
+  std::shared_ptr<const LinkModel> getChildLinkModel() const;
 
-  void setChildLinkModel(const LinkModel* link);
+  void setChildLinkModel(const std::shared_ptr<const LinkModel>& link);
 
   /* Get the names of the variables that make up this joint, in the order they appear in corresponding states. */
   const std::vector<std::string>& getVariableNames() const;
@@ -67,7 +71,7 @@ public:
   virtual void getVariableDefaultPositions(double* values) const = 0;
 
   /* Get the joint this one is mimicking. */
-  const JointModel* getMimic() const;
+  ConstSharedPtr getMimic() const;
 
   /* If mimicking a joint, this is the offset added to that joint's value. */
   double getMimicOffset() const;
@@ -76,21 +80,21 @@ public:
   double getMimicFactor() const;
 
   /* Mark this joint as mimicking `mimic` using `factor` and `offset`. */
-  void setMimic(const JointModel* mimic, double factor, double offset);
+  void setMimic(const ConstSharedPtr& mimic, double factor, double offset);
 
   /* The joint models whose values would be modified if the value of this joint changed. */
-  const std::vector<const JointModel*>& getMimicRequests() const;
+  std::vector<ConstSharedPtr> getMimicRequests() const;
 
   /* Notify this joint that there is another joint that mimics it. */
-  void addMimicRequest(const JointModel* joint);
-  void addDescendantJointModel(const JointModel* joint);
-  void addDescendantLinkModel(const LinkModel* link);
+  void addMimicRequest(const ConstSharedPtr& joint);
+  void addDescendantJointModel(const ConstSharedPtr& joint);
+  void addDescendantLinkModel(const std::shared_ptr<const LinkModel>& link);
 
   /* Get all the link models that descend from this joint, in the kinematic tree. */
-  const std::vector<const LinkModel*>& getDescendantLinkModels() const;
+  std::vector<std::shared_ptr<const LinkModel>> getDescendantLinkModels() const;
 
   /* Get all the joint models that descend from this joint, in the kinematic tree. */
-  const std::vector<const JointModel*>& getDescendantJointModels() const;
+  std::vector<ConstSharedPtr> getDescendantJointModels() const;
 
   /* Given the joint values for a joint, compute the corresponding transform. */
   virtual void computeTransform(const double* joint_values, Eigen::Isometry3d& transform) const = 0;
@@ -106,10 +110,10 @@ protected:
   std::vector<std::string> variable_names_;
 
   /* The link after this joint */
-  const LinkModel* child_link_model_ = nullptr;
+  std::shared_ptr<const LinkModel> child_link_model_;
 
-  /* The joint this one mimics (nullptr for joints that do not mimic) */
-  const JointModel* mimic_ = nullptr;
+  /* Non-owning because the mimicked joint also records this joint as a mimic request. */
+  std::weak_ptr<const JointModel> mimic_;
 
   /* The multiplier to the mimic joint */
   double mimic_factor_ = 1.0;
@@ -117,14 +121,14 @@ protected:
   /* The offset to the mimic joint */
   double mimic_offset_ = 0.0;
 
-  /* The set of joints that should get a value copied to them when this joint changes */
-  std::vector<const JointModel*> mimic_requests_;
+  /* Non-owning reverse references to prevent cycles between mimicking joints. */
+  std::vector<std::weak_ptr<const JointModel>> mimic_requests_;
 
-  /* Pointers to all the links that will be moved if this joint changes value */
-  std::vector<const LinkModel*> descendant_link_models_;
+  /* Non-owning caches; the robot model and kinematic tree own these descendants. */
+  std::vector<std::weak_ptr<const LinkModel>> descendant_link_models_;
 
-  /* Pointers to all the joints that follow this one in the kinematic tree (including mimic joints) */
-  std::vector<const JointModel*> descendant_joint_models_;
+  /* Non-owning cache of joints that follow this one, including mimic joints. */
+  std::vector<std::weak_ptr<const JointModel>> descendant_joint_models_;
 
 private:
   /* Name of the joint */

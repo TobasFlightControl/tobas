@@ -22,13 +22,15 @@ rclcpp::Logger getLogger()
 }
 
 using DescMap = std::map<
-  const JointModel*,
-  std::pair<std::set<const LinkModel*, OrderLinksByIndex>, std::set<const JointModel*, OrderJointsByIndex>>>;
+  JointModel::ConstSharedPtr,
+  std::pair<
+    std::set<LinkModel::ConstSharedPtr, OrderLinksByIndex>,
+    std::set<JointModel::ConstSharedPtr, OrderJointsByIndex>>>;
 
 void computeDescendantsHelper(
-  const JointModel* joint,
-  std::vector<const JointModel*>& parents,
-  std::set<const JointModel*>& seen,
+  const JointModel::ConstSharedPtr& joint,
+  std::vector<JointModel::ConstSharedPtr>& parents,
+  std::set<JointModel::ConstSharedPtr>& seen,
   DescMap& descendants)
 {
   if (!joint) {
@@ -65,7 +67,7 @@ void computeDescendantsHelper(
   parents.pop_back();
 }
 
-void computeCommonRootsHelper(const JointModel* joint, std::vector<int>& common_roots, int size)
+void computeCommonRootsHelper(const JointModel::ConstSharedPtr& joint, std::vector<int>& common_roots, int size)
 {
   if (!joint) {
     return;
@@ -111,16 +113,6 @@ RobotModel::RobotModel(const urdf::ModelInterfaceSharedPtr& urdf_model)
   buildModel(*urdf_model);
 }
 
-RobotModel::~RobotModel()
-{
-  for (const auto& joint_model : joint_model_vector_) {
-    delete joint_model;
-  }
-  for (const auto& link_model : link_model_vector_) {
-    delete link_model;
-  }
-}
-
 const std::string& RobotModel::getModelFrame() const
 {
   return model_frame_;
@@ -131,7 +123,7 @@ const urdf::ModelInterfaceSharedPtr& RobotModel::getURDF() const
   return urdf_;
 }
 
-const JointModel* RobotModel::getRootJoint() const
+JointModel::ConstSharedPtr RobotModel::getRootJoint() const
 {
   return root_joint_;
 }
@@ -141,7 +133,7 @@ bool RobotModel::hasJointModel(const std::string& name) const
   return joint_model_map_.find(name) != joint_model_map_.end();
 }
 
-const JointModel* RobotModel::getJointModel(const std::string& name) const
+JointModel::ConstSharedPtr RobotModel::getJointModel(const std::string& name) const
 {
   const auto it = joint_model_map_.find(name);
   if (it == joint_model_map_.end()) {
@@ -151,7 +143,7 @@ const JointModel* RobotModel::getJointModel(const std::string& name) const
   return it->second;
 }
 
-const JointModel* RobotModel::getJointOfVariable(int variable_index) const
+JointModel::ConstSharedPtr RobotModel::getJointOfVariable(int variable_index) const
 {
   return joints_of_variable_[variable_index];
 }
@@ -161,12 +153,12 @@ size_t RobotModel::getJointModelCount() const
   return joint_model_vector_.size();
 }
 
-const LinkModel* RobotModel::getRootLink() const
+LinkModel::ConstSharedPtr RobotModel::getRootLink() const
 {
   return root_link_;
 }
 
-const LinkModel* RobotModel::getLinkModel(const std::string& name) const
+LinkModel::ConstSharedPtr RobotModel::getLinkModel(const std::string& name) const
 {
   const auto it = link_model_map_.find(name);
   if (it != link_model_map_.end()) {
@@ -204,7 +196,8 @@ size_t RobotModel::getVariableIndex(const std::string& variable) const
   return it->second;
 }
 
-const JointModel* RobotModel::getCommonRoot(const JointModel* a, const JointModel* b) const
+JointModel::ConstSharedPtr
+RobotModel::getCommonRoot(const JointModel::ConstSharedPtr& a, const JointModel::ConstSharedPtr& b) const
 {
   if (!a) {
     return b;
@@ -230,13 +223,13 @@ void RobotModel::buildModel(const urdf::ModelInterface& urdf_model)
   RCLCPP_INFO(getLogger(), "Loading robot model '%s'...", model_name_.c_str());
 
   if (urdf_model.getRoot()) {
-    const auto root_link_ptr = urdf_model.getRoot().get();
-    model_frame_ = root_link_ptr->name;
+    const auto root_link = urdf_model.getRoot();
+    model_frame_ = root_link->name;
 
     RCLCPP_DEBUG(getLogger(), "... building kinematic chain.");
-    root_joint_ = buildRecursive(nullptr, root_link_ptr);
+    root_joint_ = buildRecursive(nullptr, root_link);
     if (root_joint_) {
-      root_link_ = root_joint_->getChildLinkModel();
+      root_link_ = link_model_map_.at(root_joint_->getChildLinkModel()->getName());
     }
     RCLCPP_DEBUG(getLogger(), "... building mimic joints.");
     buildMimic(urdf_model);
@@ -253,7 +246,7 @@ void RobotModel::buildMimic(const urdf::ModelInterface& urdf_model)
 {
   // Compute mimic joints.
   for (const auto& joint_model : joint_model_vector_) {
-    const auto jm = urdf_model.getJoint(joint_model->getName()).get();
+    const auto jm = urdf_model.getJoint(joint_model->getName());
     if (jm) {
       if (jm->mimic) {
         const auto jit = joint_model_map_.find(jm->mimic->joint_name);
@@ -308,7 +301,7 @@ void RobotModel::buildMimic(const urdf::ModelInterface& urdf_model)
   // Build mimic requests.
   for (const auto& joint_model : joint_model_vector_) {
     if (joint_model->getMimic()) {
-      const_cast<JointModel*>(joint_model->getMimic())->addMimicRequest(joint_model);
+      joint_model_map_.at(joint_model->getMimic()->getName())->addMimicRequest(joint_model);
       mimic_joints_.push_back(joint_model);
     }
   }
@@ -318,8 +311,6 @@ void RobotModel::buildJointInfo()
 {
   // Construct additional maps for easy access by name.
   variable_count_ = 0;
-  active_joint_model_start_index_.reserve(joint_model_vector_.size());
-  joints_of_variable_.reserve(joint_model_vector_.size());
 
   for (const auto& joint : joint_model_vector_) {
     const auto& name_order = joint->getVariableNames();
@@ -350,13 +341,13 @@ void RobotModel::buildJointInfo()
 void RobotModel::computeDescendants()
 {
   // Compute the list of descendants for all joints.
-  std::vector<const JointModel*> parents;
-  std::set<const JointModel*> seen;
+  std::vector<JointModel::ConstSharedPtr> parents;
+  std::set<JointModel::ConstSharedPtr> seen;
 
   DescMap descendants;
   computeDescendantsHelper(root_joint_, parents, seen, descendants);
   for (const auto& descendant : descendants) {
-    const auto jm = const_cast<JointModel*>(descendant.first);
+    const auto jm = joint_model_map_.at(descendant.first->getName());
     for (const auto& jt : descendant.second.second) {
       jm->addDescendantJointModel(jt);
     }
@@ -398,7 +389,8 @@ void RobotModel::computeCommonRoots()
   }
 }
 
-JointModel* RobotModel::buildRecursive(LinkModel* parent, const urdf::Link* urdf_link)
+JointModel::SharedPtr
+RobotModel::buildRecursive(const LinkModel::SharedPtr& parent, const urdf::LinkConstSharedPtr& urdf_link)
 {
   // Construct the joint.
   const auto joint = constructJointModel(urdf_link);
@@ -423,7 +415,7 @@ JointModel* RobotModel::buildRecursive(LinkModel* parent, const urdf::Link* urdf
 
   // Recursively build child links (and joints).
   for (const auto& child_link : urdf_link->child_links) {
-    const auto jm = buildRecursive(link, child_link.get());
+    const auto jm = buildRecursive(link, child_link);
     if (jm) {
       link->addChildJointModel(jm);
     }
@@ -431,10 +423,10 @@ JointModel* RobotModel::buildRecursive(LinkModel* parent, const urdf::Link* urdf
   return joint;
 }
 
-JointModel* RobotModel::constructJointModel(const urdf::Link* child_link)
+JointModel::SharedPtr RobotModel::constructJointModel(const urdf::LinkConstSharedPtr& child_link)
 {
-  JointModel* new_joint_model = nullptr;
-  const auto parent_joint = child_link->parent_joint ? child_link->parent_joint.get() : nullptr;
+  JointModel::SharedPtr new_joint_model;
+  const auto parent_joint = child_link->parent_joint;
   const auto joint_index = joint_model_vector_.size();
   const auto first_variable_index = joint_model_vector_.empty() ? 0 :
                                                                   joint_model_vector_.back()->getFirstVariableIndex() +
@@ -444,28 +436,28 @@ JointModel* RobotModel::constructJointModel(const urdf::Link* child_link)
   if (parent_joint) {
     switch (parent_joint->type) {
       case urdf::Joint::REVOLUTE: {
-        const auto j = new RevoluteJointModel(parent_joint->name, joint_index, first_variable_index);
+        const auto j = std::make_shared<RevoluteJointModel>(parent_joint->name, joint_index, first_variable_index);
         j->setAxis(Eigen::Vector3d(parent_joint->axis.x, parent_joint->axis.y, parent_joint->axis.z));
         new_joint_model = j;
       } break;
       case urdf::Joint::CONTINUOUS: {
-        const auto j = new RevoluteJointModel(parent_joint->name, joint_index, first_variable_index);
+        const auto j = std::make_shared<RevoluteJointModel>(parent_joint->name, joint_index, first_variable_index);
         j->setAxis(Eigen::Vector3d(parent_joint->axis.x, parent_joint->axis.y, parent_joint->axis.z));
         new_joint_model = j;
       } break;
       case urdf::Joint::PRISMATIC: {
-        const auto j = new PrismaticJointModel(parent_joint->name, joint_index, first_variable_index);
+        const auto j = std::make_shared<PrismaticJointModel>(parent_joint->name, joint_index, first_variable_index);
         j->setAxis(Eigen::Vector3d(parent_joint->axis.x, parent_joint->axis.y, parent_joint->axis.z));
         new_joint_model = j;
       } break;
       case urdf::Joint::FLOATING:
-        new_joint_model = new FloatingJointModel(parent_joint->name, joint_index, first_variable_index);
+        new_joint_model = std::make_shared<FloatingJointModel>(parent_joint->name, joint_index, first_variable_index);
         break;
       case urdf::Joint::PLANAR:
-        new_joint_model = new PlanarJointModel(parent_joint->name, joint_index, first_variable_index);
+        new_joint_model = std::make_shared<PlanarJointModel>(parent_joint->name, joint_index, first_variable_index);
         break;
       case urdf::Joint::FIXED:
-        new_joint_model = new FixedJointModel(parent_joint->name, joint_index, first_variable_index);
+        new_joint_model = std::make_shared<FixedJointModel>(parent_joint->name, joint_index, first_variable_index);
         break;
       case urdf::Joint::UNKNOWN:
       default:
@@ -476,16 +468,16 @@ JointModel* RobotModel::constructJointModel(const urdf::Link* child_link)
   else  // If parent_joint passed in as null, then we're at root of URDF model.
   {
     RCLCPP_INFO(getLogger(), "No root/virtual joint specified in URDF. Assuming fixed joint.");
-    new_joint_model = new FixedJointModel("ASSUMED_FIXED_ROOT_JOINT", joint_index, first_variable_index);
+    new_joint_model = std::make_shared<FixedJointModel>("ASSUMED_FIXED_ROOT_JOINT", joint_index, first_variable_index);
   }
 
   return new_joint_model;
 }
 
-LinkModel* RobotModel::constructLinkModel(const urdf::Link* urdf_link)
+LinkModel::SharedPtr RobotModel::constructLinkModel(const urdf::LinkConstSharedPtr& urdf_link)
 {
   const auto link_index = link_model_vector_.size();
-  const auto new_link_model = new LinkModel(urdf_link->name, link_index);
+  const auto new_link_model = std::make_shared<LinkModel>(urdf_link->name, link_index);
 
   if (urdf_link->parent_joint) {
     new_link_model->setJointOriginTransform(

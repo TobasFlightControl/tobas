@@ -75,19 +75,19 @@ void RobotState::update(bool force)
   updateLinkTransforms();
 }
 
-const Eigen::Isometry3d& RobotState::getGlobalLinkTransform(const LinkModel* link) const
+const Eigen::Isometry3d& RobotState::getGlobalLinkTransform(const LinkModel::ConstSharedPtr& link) const
 {
   assert(checkLinkTransforms());
   return global_link_transforms_[link->getLinkIndex()];
 }
 
-void RobotState::markDirtyJointTransforms(const JointModel* joint)
+void RobotState::markDirtyJointTransforms(const JointModel::ConstSharedPtr& joint)
 {
   dirty_joint_transforms_[joint->getJointIndex()] = 1;
   dirty_link_transforms_ = !dirty_link_transforms_ ? joint : robot_model_.getCommonRoot(dirty_link_transforms_, joint);
 }
 
-void RobotState::updateMimicJoint(const JointModel* joint)
+void RobotState::updateMimicJoint(const JointModel::ConstSharedPtr& joint)
 {
   if (joint->getVariableCount() == 0) {
     return;
@@ -96,7 +96,7 @@ void RobotState::updateMimicJoint(const JointModel* joint)
   for (const auto& mimic_joint : joint->getMimicRequests()) {
     positions_[mimic_joint->getFirstVariableIndex()] =
       mimic_joint->getMimicFactor() * value + mimic_joint->getMimicOffset();
-    markDirtyJointTransforms(mimic_joint);
+    markDirtyJointTransforms(robot_model_.getJointModel(mimic_joint->getName()));
   }
 }
 
@@ -104,11 +104,11 @@ void RobotState::updateLinkTransforms()
 {
   if (dirty_link_transforms_) {
     updateLinkTransformsInternal(dirty_link_transforms_);
-    dirty_link_transforms_ = nullptr;
+    dirty_link_transforms_.reset();
   }
 }
 
-void RobotState::updateLinkTransformsInternal(const JointModel* start)
+void RobotState::updateLinkTransformsInternal(const JointModel::ConstSharedPtr& start)
 {
   for (const auto& link : start->getDescendantLinkModels()) {
     const auto link_index = link->getLinkIndex();
@@ -145,7 +145,7 @@ void RobotState::updateLinkTransformsInternal(const JointModel* start)
   }
 }
 
-const Eigen::Isometry3d& RobotState::getJointTransform(const JointModel* joint)
+const Eigen::Isometry3d& RobotState::getJointTransform(const JointModel::ConstSharedPtr& joint)
 {
   const auto index = joint->getJointIndex();
   if (joint->getVariableCount() == 0) {

@@ -9,6 +9,22 @@ namespace tobas
 {
 namespace rviz
 {
+namespace
+{
+/* Promote cached non-owning references for callers, omitting objects whose owners have released them. */
+template <typename T>
+std::vector<std::shared_ptr<const T>> lockAll(const std::vector<std::weak_ptr<const T>>& weak_ptrs)
+{
+  std::vector<std::shared_ptr<const T>> shared_ptrs;
+  for (const auto& weak_ptr : weak_ptrs) {
+    if (const auto shared_ptr = weak_ptr.lock()) {
+      shared_ptrs.push_back(shared_ptr);
+    }
+  }
+  return shared_ptrs;
+}
+}  // namespace
+
 JointModel::JointModel(const std::string& name, size_t joint_index, size_t first_variable_index)
   : name_(name), joint_index_(joint_index), first_variable_index_(first_variable_index)
 {
@@ -26,12 +42,12 @@ JointModel::JointType JointModel::getType() const
   return type_;
 }
 
-const LinkModel* JointModel::getChildLinkModel() const
+LinkModel::ConstSharedPtr JointModel::getChildLinkModel() const
 {
   return child_link_model_;
 }
 
-void JointModel::setChildLinkModel(const LinkModel* link)
+void JointModel::setChildLinkModel(const LinkModel::ConstSharedPtr& link)
 {
   child_link_model_ = link;
 }
@@ -56,9 +72,9 @@ size_t JointModel::getJointIndex() const
   return joint_index_;
 }
 
-const JointModel* JointModel::getMimic() const
+JointModel::ConstSharedPtr JointModel::getMimic() const
 {
-  return mimic_;
+  return mimic_.lock();
 }
 
 double JointModel::getMimicOffset() const
@@ -71,41 +87,41 @@ double JointModel::getMimicFactor() const
   return mimic_factor_;
 }
 
-void JointModel::setMimic(const JointModel* mimic, double factor, double offset)
+void JointModel::setMimic(const ConstSharedPtr& mimic, double factor, double offset)
 {
   mimic_ = mimic;
   mimic_factor_ = factor;
   mimic_offset_ = offset;
 }
 
-const std::vector<const JointModel*>& JointModel::getMimicRequests() const
+std::vector<JointModel::ConstSharedPtr> JointModel::getMimicRequests() const
 {
-  return mimic_requests_;
+  return lockAll(mimic_requests_);
 }
 
-void JointModel::addMimicRequest(const JointModel* joint)
+void JointModel::addMimicRequest(const ConstSharedPtr& joint)
 {
   mimic_requests_.push_back(joint);
 }
 
-void JointModel::addDescendantJointModel(const JointModel* joint)
+void JointModel::addDescendantJointModel(const ConstSharedPtr& joint)
 {
   descendant_joint_models_.push_back(joint);
 }
 
-void JointModel::addDescendantLinkModel(const LinkModel* link)
+void JointModel::addDescendantLinkModel(const LinkModel::ConstSharedPtr& link)
 {
   descendant_link_models_.push_back(link);
 }
 
-const std::vector<const LinkModel*>& JointModel::getDescendantLinkModels() const
+std::vector<LinkModel::ConstSharedPtr> JointModel::getDescendantLinkModels() const
 {
-  return descendant_link_models_;
+  return lockAll(descendant_link_models_);
 }
 
-const std::vector<const JointModel*>& JointModel::getDescendantJointModels() const
+std::vector<JointModel::ConstSharedPtr> JointModel::getDescendantJointModels() const
 {
-  return descendant_joint_models_;
+  return lockAll(descendant_joint_models_);
 }
 
 }  // namespace rviz
