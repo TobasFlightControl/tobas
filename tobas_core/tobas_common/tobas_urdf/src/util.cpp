@@ -13,7 +13,7 @@ namespace tobas
 {
 namespace urdf
 {
-fs::path resolveURI(const std::string& uri)
+fs::path resolveUri(const std::string& uri)
 {
   static constexpr char kPackagePrefix[] = "package://";
   static constexpr char kAbsPathPrefix[] = "file://";
