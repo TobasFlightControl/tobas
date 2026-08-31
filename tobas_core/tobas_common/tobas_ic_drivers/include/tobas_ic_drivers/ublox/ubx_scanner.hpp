@@ -23,7 +23,7 @@ static constexpr uint8_t kUbxSync2 = 0x62;
 
 static constexpr size_t kUbxBufferLength = 256;
 
-class UBXScanner
+class UbxScanner
 {
 public:
   enum State
@@ -40,7 +40,11 @@ public:
     kDone,
   };
 
-  explicit UBXScanner();
+  explicit UbxScanner();
+  UbxScanner(UbxScanner&& _other) = default;
+  UbxScanner& operator=(UbxScanner&& _other) = default;
+  UbxScanner(const UbxScanner& _other) = default;
+  UbxScanner& operator=(const UbxScanner& _other) = default;
 
   void reset();
   bool update(const uint8_t& data);
@@ -64,52 +68,52 @@ private:
   State state_;                       // Current scanner state
 };
 
-inline UBXScanner::State UBXScanner::state() const
+inline UbxScanner::State UbxScanner::state() const
 {
   return state_;
 }
 
-inline size_t UBXScanner::messageLength() const
+inline size_t UbxScanner::messageLength() const
 {
   return kUbxFixedLength + payload_length_;
 }
 
-inline const uint8_t* UBXScanner::getSync1() const
+inline const uint8_t* UbxScanner::getSync1() const
 {
   return buffer_ + pos_ - messageLength();
 }
 
-inline const uint8_t* UBXScanner::getSync2() const
+inline const uint8_t* UbxScanner::getSync2() const
 {
   return getSync1() + 1;
 }
 
-inline const uint8_t* UBXScanner::getClass() const
+inline const uint8_t* UbxScanner::getClass() const
 {
   return getSync1() + kUbxSyncLength;
 }
 
-inline const uint8_t* UBXScanner::getId() const
+inline const uint8_t* UbxScanner::getId() const
 {
   return getClass() + kUbxClassLength;
 }
 
-inline const uint8_t* UBXScanner::getLength() const
+inline const uint8_t* UbxScanner::getLength() const
 {
   return getId() + kUbxIdLength;
 }
 
-inline const uint8_t* UBXScanner::getPayload() const
+inline const uint8_t* UbxScanner::getPayload() const
 {
   return getLength() + kUbxLengthLength;
 }
 
-inline const uint8_t* UBXScanner::getChecksumA() const
+inline const uint8_t* UbxScanner::getChecksumA() const
 {
   return getPayload() + payload_length_;
 }
 
-inline const uint8_t* UBXScanner::getChecksumB() const
+inline const uint8_t* UbxScanner::getChecksumB() const
 {
   return getChecksumA() + 1;
 }

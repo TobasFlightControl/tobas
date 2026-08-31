@@ -5,6 +5,10 @@
 
 #include <cassert>
 #include <cstring>
+#include <memory>
+#include <utility>
+
+#include "tobas_ic_drivers/ublox/ubx_spi_transport.hpp"
 
 #define NOT_IMPLEMENTED "Not implemented."
 #define NOT_RECEIVABLE "Not receivable."
@@ -15,45 +19,70 @@ namespace tobas
 {
 namespace ublox
 {
-ZEDF9P::ZEDF9P()
+ZEDF9P::ZEDF9P() : ZEDF9P(std::make_unique<UbxTransportSpi>())
 {
 }
 
-bool ZEDF9P::initialize(const char* spi_device)
+ZEDF9P::ZEDF9P(std::unique_ptr<UbxTransport> _transport) : transport_(std::move(_transport))
 {
-  return transport_.initialize(spi_device);
+  assert(transport_);
+}
+
+bool ZEDF9P::initialize(const char* _device)
+{
+  receive_rate_.reset();
+
+  const auto interval = transport_->receiveByteInterval();
+  if (interval.count() < 0) {
+    return false;
+  }
+
+  if (!transport_->initialize(_device)) {
+    return false;
+  }
+
+  if (interval.count() > 0) {
+    receive_rate_.emplace(interval);
+  }
+
+  return true;
 }
 
 bool ZEDF9P::update(bool nonblock)
 {
   scanner_.reset();
-  uint8_t data;
 
   if (nonblock) {
     // Check the start byte.
-    if (!transport_.receiveByte(data)) {
+    const auto data = transport_->receiveByte();
+    if (!data) {
       return false;
     }
-    if (!scanner_.update(data)) {
+    if (!scanner_.update(*data)) {
       return false;
     }
 
     // Return if no data has arrived.
-    if (scanner_.state() == UBXScanner::kSync1) {
+    if (scanner_.state() == UbxScanner::kSync1) {
       return false;
     }
   }
 
   // Scan one message.
-  transport_.startReceive();
-  while (scanner_.state() != UBXScanner::kDone) {
-    if (!transport_.receiveByte(data)) {
+  if (receive_rate_) {
+    receive_rate_->start();
+  }
+  while (scanner_.state() != UbxScanner::kDone) {
+    const auto data = transport_->receiveByte();
+    if (!data) {
       return false;
     }
-    if (!scanner_.update(data)) {
+    if (!scanner_.update(*data)) {
       return false;
     }
-    transport_.waitReceiveInterval();
+    if (receive_rate_) {
+      receive_rate_->sleep();
+    }
   }
 
   if (!verifyMessage()) {
@@ -477,8 +506,6 @@ bool ZEDF9P::enableUsb(bool enable)
 
 bool ZEDF9P::sendMessage(UbxClass cls, uint8_t id, const void* msg, uint16_t size)
 {
-  uint8_t message[kUbxBufferLength];
-
   UbxHeader header;
   header.sync1 = kUbxSync1;
   header.sync2 = kUbxSync2;
@@ -486,13 +513,13 @@ bool ZEDF9P::sendMessage(UbxClass cls, uint8_t id, const void* msg, uint16_t siz
   header.id = id;
   header.length = size;
 
-  const auto payload_pos = spliceMemory(message, &header, sizeof(UbxHeader), 0);
-  const auto checksum_pos = spliceMemory(message, msg, size, payload_pos);
+  const auto payload_pos = spliceMemory(message_buf_, &header, sizeof(UbxHeader), 0);
+  const auto checksum_pos = spliceMemory(message_buf_, msg, size, payload_pos);
 
-  const auto ck = computeChecksum(message, checksum_pos);
-  const auto message_length = spliceMemory(message, &ck, sizeof(CheckSum), checksum_pos);
+  const auto ck = computeChecksum(message_buf_, checksum_pos);
+  const auto message_length = spliceMemory(message_buf_, &ck, sizeof(CheckSum), checksum_pos);
 
-  return transport_.send(message, message_length);
+  return transport_->send(message_buf_, message_length);
 }
 
 bool ZEDF9P::waitForAcknowledge(UbxClass cls, uint8_t id)

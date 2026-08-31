@@ -3,23 +3,33 @@
 
 #pragma once
 
+#include <chrono>
 #include <cstddef>
 #include <cstdint>
+#include <optional>
 
 namespace tobas
 {
 namespace ublox
 {
-class UBXTransport
+class UbxTransport
 {
 public:
-  virtual ~UBXTransport() = default;
+  explicit UbxTransport() = default;
+  UbxTransport(UbxTransport&& _other) = delete;
+  UbxTransport& operator=(UbxTransport&& _other) = delete;
+  UbxTransport(const UbxTransport& _other) = delete;
+  UbxTransport& operator=(const UbxTransport& _other) = delete;
 
-  virtual bool initialize(const char* device) = 0;
-  virtual void startReceive() = 0;
-  virtual bool receiveByte(uint8_t& data) = 0;
-  virtual void waitReceiveInterval() = 0;
-  virtual bool send(const uint8_t* data, size_t length) = 0;
+  virtual ~UbxTransport() = default;
+
+  virtual bool initialize(const char* _device) noexcept = 0;
+  virtual std::optional<uint8_t> receiveByte() noexcept = 0;
+
+  /** @brief Return zero if byte reception does not require pacing. */
+  virtual std::chrono::microseconds receiveByteInterval() const noexcept = 0;
+
+  virtual bool send(const uint8_t* _data, size_t _length) noexcept = 0;
 };
 }  // namespace ublox
 }  // namespace tobas

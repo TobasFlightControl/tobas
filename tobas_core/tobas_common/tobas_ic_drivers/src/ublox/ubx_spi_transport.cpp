@@ -9,43 +9,37 @@ namespace tobas
 {
 namespace ublox
 {
-UBXSPITransport::UBXSPITransport() : rate_(kReqInterval)
+UbxTransportSpi::UbxTransportSpi()
 {
 }
 
-bool UBXSPITransport::initialize(const char* device)
+bool UbxTransportSpi::initialize(const char* _device) noexcept
 {
-  return spi_.initialize(device, tx_buf_, rx_buf_, kSpiClockFreq);
+  return spi_.initialize(_device, tx_buf_, rx_buf_, kSpiClockFreq);
 }
 
-void UBXSPITransport::startReceive()
-{
-  rate_.start();
-}
-
-bool UBXSPITransport::receiveByte(uint8_t& data)
+std::optional<uint8_t> UbxTransportSpi::receiveByte() noexcept
 {
   if (!spi_.transfer(1)) {
+    return std::nullopt;
+  }
+
+  return rx_buf_[0];
+}
+
+std::chrono::microseconds UbxTransportSpi::receiveByteInterval() const noexcept
+{
+  return kReceiveByteInterval;
+}
+
+bool UbxTransportSpi::send(const uint8_t* _data, size_t _length) noexcept
+{
+  if (_length > kSpiBufSize) {
     return false;
   }
 
-  data = rx_buf_[0];
-  return true;
-}
-
-void UBXSPITransport::waitReceiveInterval()
-{
-  rate_.sleep();
-}
-
-bool UBXSPITransport::send(const uint8_t* data, size_t length)
-{
-  if (length > kSpiBufSize) {
-    return false;
-  }
-
-  std::memcpy(tx_buf_, data, length);
-  return spi_.transfer(length);
+  std::memcpy(tx_buf_, _data, _length);
+  return spi_.transfer(_length);
 }
 }  // namespace ublox
 }  // namespace tobas
