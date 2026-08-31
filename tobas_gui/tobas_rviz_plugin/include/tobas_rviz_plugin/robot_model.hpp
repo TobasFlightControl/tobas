@@ -25,8 +25,6 @@ namespace rviz
 class RobotModel
 {
 public:
-  using ConstSharedPtr = std::shared_ptr<const RobotModel>;
-
   explicit RobotModel(const urdf::ModelInterfaceSharedPtr& urdf_model);
   ~RobotModel();
 
