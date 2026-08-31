@@ -327,7 +327,6 @@ void MissionPlannerWidget::addSplinePathToMap(const std::vector<QGeoCoordinate>&
 
   const auto& origin = waypoints.front();
   std::vector<Eigen::Vector2d> points;
-  points.reserve(waypoints.size());
   for (const auto& waypoint : waypoints) {
     const auto coord =
       geography_.geodeticToPlane(waypoint.latitude(), waypoint.longitude(), origin.latitude(), origin.longitude());

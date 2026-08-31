@@ -16,7 +16,6 @@ std::string base64NoPad(const uint8_t* p, size_t n)
   static constexpr char T[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
   std::string out;
-  out.reserve((n * 4 + 2) / 3);
 
   size_t i = 0;
   while (i + 3 <= n) {

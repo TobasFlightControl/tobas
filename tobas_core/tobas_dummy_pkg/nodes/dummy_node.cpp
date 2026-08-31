@@ -19,7 +19,6 @@ std::string randomAlNum(size_t n)
   std::uniform_int_distribution<size_t> dist(0, alphabet.size() - 1);
 
   std::string s;
-  s.reserve(n);
   for (size_t i = 0; i < n; ++i) {
     s.push_back(alphabet[dist(rng)]);
   }

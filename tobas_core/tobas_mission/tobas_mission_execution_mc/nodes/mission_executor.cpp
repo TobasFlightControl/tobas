@@ -606,7 +606,6 @@ bool MulticopterMissionExecutorNode::executeWaypoints(
 
   // Waypoints are grouped into one continuous path until stop_at_waypoint requests an arrival check.
   std::vector<Eigen::Vector3d> path_points;
-  path_points.reserve(goals.size() + 1);
   path_points.push_back(start_pos.data);
 
   for (const auto& goal : goals) {
