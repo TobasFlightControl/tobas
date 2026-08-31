@@ -936,7 +936,7 @@ bool ProjectGenerator::resolveModifiedUrdfMeshFilePaths(tinyxml2::XMLElement* el
       return false;
     }
 
-    const auto src_path = QString::fromStdString(urdf::resolveURI(filename).string());
+    const auto src_path = QString::fromStdString(urdf::resolveUri(filename).string());
     const QFileInfo src_info(src_path);
     if (!src_info.exists()) {
       qt::qErrorBox(parent_, "Mesh file " + src_path + " does not exist.");
@@ -996,7 +996,7 @@ bool ProjectGenerator::replaceOriginalUadfMeshFilePaths(tinyxml2::XMLElement* el
       return false;
     }
 
-    const auto src_path = QString::fromStdString(urdf::resolveURI(filename).string());
+    const auto src_path = QString::fromStdString(urdf::resolveUri(filename).string());
     const auto base_name = QFileInfo(src_path).fileName();
 
     // Specify as a relative path from `config_pkg`.
@@ -1224,19 +1224,30 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
       continue;
     }
 
+    const auto limits = uadf_.urdf->getJoint(joint.name)->limits;
+    if (!limits) {
+      qt::qErrorBox(parent_, "No limit is set for the servo joint \"" + QString::fromStdString(joint.name) + "\".");
+      return false;
+    }
+
     switch (joint.cmd_iface) {
       case JointCommandInterface::kNone: {
-        break;
+        qt::qErrorBox(
+          parent_,
+          "Please set the command interface for the servo joint \"" + QString::fromStdString(joint.name) + "\".");
+        return false;
       }
       case JointCommandInterface::kPosition: {
-        const auto max_vel = uadf_.urdf->getJoint(joint.name)->limits->velocity;
+        const auto max_vel = limits->velocity;
         if (max_vel <= 0.0) {
-          qWarning() << "The maximum velocity of" << QString::fromStdString(joint.name) << "is invalid:" << max_vel;
-          break;
+          qt::qErrorBox(
+            parent_,
+            "The maximum velocity of the servo joint \"" + QString::fromStdString(joint.name) + "\" must be positive.");
+          return false;
         }
 
-        // Use the time required to rotate 60 deg at maximum speed as the time constant. In other words, maximum speed
-        // is reached at 60 deg error.
+        // Use the time required to rotate 60 deg at maximum speed as the time constant.
+        // In other words, maximum speed is reached at 60 deg error.
         // TODO: Reproduce servo motor specifications such as no-load speed more accurately.
         const auto time_const = M_PI_3 / max_vel;
         xml::addJointPositionControllerPlugin(robot, ns, joint.name, joint.home_pos, time_const);
