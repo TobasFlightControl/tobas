@@ -903,29 +903,42 @@ void GroundControlStationWidget::onSimulationStarted()
 {
   qDebug() << "GroundControlStationWidget::onSimulationStarted";
 
-  fc_scanner_->stop();
+  // Reset the entire widget.
+  reset();
+
+  // Disable features specific to real hardware.
+  sensor_calib_->setEnabled(false);
+  actuator_test_->setEnabled(false);
 
   // Set the simulation target.
   updateFlightControllerList({ DiscoveredFlightController("Simulation Model", "127.0.0.1") });
   fc_selector_->setCurrentIndex(1);
   vehicle_id_->setValue(0);
 
-  reset();
+  // Stop scanning for flight controllers.
+  fc_scanner_->stop();
 }
 
 void GroundControlStationWidget::onSimulationTerminated()
 {
   qDebug() << "GroundControlStationWidget::onSimulationTerminated";
 
+  // Disconnect if ROS communication is active.
   if (connect_btn_->isChecked()) {
     clearRosConnection();
     connect_btn_->setChecked(false);
     qInfo() << "ROS connection has been automatically closed.";
   }
 
-  resetFlightControllerPlaceholder();
+  // Reset the entire widget.
   reset();
 
+  // Re-enable features specific to real hardware.
+  sensor_calib_->setEnabled(true);
+  actuator_test_->setEnabled(true);
+
+  // Resume scanning for flight controllers.
+  resetFlightControllerPlaceholder();
   fc_scanner_->start();
 }
 
