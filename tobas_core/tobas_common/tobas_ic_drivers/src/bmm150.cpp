@@ -14,6 +14,19 @@ namespace tobas
 {
 namespace driver
 {
+namespace
+{
+constexpr uint8_t kI2cAddress = 0x10;  // ref: p.36
+constexpr uint8_t kSelfTestRef = 0x01;
+// Overflow handling numbers from the Bosch BMM150 Sensor API.
+constexpr int16_t kXyaxesFlipOverflowAdcval = -4096;
+constexpr int16_t kZaxisHallOverflowAdcval = -16384;
+constexpr int16_t kOverflowOutput = -32768;  // Raw magnetometer value returned on overflow.
+constexpr int16_t kNegativeSaturationZ = -32767;
+constexpr int16_t kPositiveSaturationZ = 32767;
+constexpr double kResolution = 1.0 / 16.0;  // (int16_t)raw_data * kResolution is approximately microteslas.
+}  // namespace
+
 BMM150::BMM150()
 {
 }

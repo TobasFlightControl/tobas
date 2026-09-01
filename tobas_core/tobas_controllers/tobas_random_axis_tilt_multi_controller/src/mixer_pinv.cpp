@@ -17,6 +17,11 @@ namespace tobas
 {
 namespace random_axis_tilt_multicopter
 {
+namespace
+{
+constexpr double kMinVerticalForcePerMass = 1.0;  // [m/s^2]
+}  // namespace
+
 PinvMixer::PinvMixer(const Drone& drone, const kdl::Tree& tree)
   : super(drone, tree), fk_solver_(tree), inertia_solver_(tree)
 {

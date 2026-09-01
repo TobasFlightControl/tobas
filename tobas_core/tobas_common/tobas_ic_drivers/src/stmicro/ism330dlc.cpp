@@ -12,6 +12,12 @@ namespace tobas
 {
 namespace stm
 {
+namespace
+{
+constexpr uint32_t kSpiClockFreq = 10'000'000;  // Maximum frequency is 10MHz.
+constexpr uint8_t kReadFlag = 0x80;
+}  // namespace
+
 ISM330DLC::ISM330DLC()
 {
 }

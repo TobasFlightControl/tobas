@@ -13,10 +13,6 @@ namespace tobas
 {
 class FixedWingConfig
 {
-  static constexpr char kVehicleKey[] = "vehicle";
-  static constexpr char kAerodynamicsKey[] = "aerodynamics";
-  static constexpr char kControlSurfacesKey[] = "control_surfaces";
-
 public:
   using SharedPtr = std::shared_ptr<FixedWingConfig>;
   using ConstSharedPtr = std::shared_ptr<const FixedWingConfig>;

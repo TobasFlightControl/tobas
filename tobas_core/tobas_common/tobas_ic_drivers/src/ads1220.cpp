@@ -15,6 +15,13 @@ namespace tobas
 {
 namespace driver
 {
+namespace
+{
+constexpr uint32_t kSpiClockFreq = 5'000'000;  // Minimum period is 150ns (6.67MHz)
+constexpr double kVref = 2.048;                // Internal 2.048-V reference (p.42)
+constexpr double kGain = 1.0;
+}  // namespace
+
 ADS1220::ADS1220()
 {
 }

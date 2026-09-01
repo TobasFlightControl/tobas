@@ -9,6 +9,12 @@ namespace tobas
 {
 namespace stm
 {
+namespace
+{
+constexpr uint8_t kI2cAddress = 0b1011100;
+constexpr double kTempScale = 100;  // [LSB/degC]
+}  // namespace
+
 ILPS22QS::ILPS22QS()
 {
 }

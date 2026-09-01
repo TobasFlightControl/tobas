@@ -13,8 +13,6 @@ namespace fc1xx
 {
 class Battery
 {
-  static constexpr char kSpiDevice[] = "/dev/spidev0.1";
-  static constexpr uint32_t kSpiClockFreq = 30'000'000;  // [Hz]
   static constexpr size_t kChannelSize = 2;
 
 public:

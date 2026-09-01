@@ -11,8 +11,6 @@ namespace tobas
 {
 class ElectricPropulsionSystemConfig : public PropulsionSystemConfig
 {
-  static constexpr char kBatteryKey[] = "battery";
-
 public:
   using SharedPtr = std::shared_ptr<ElectricPropulsionSystemConfig>;
   using ConstSharedPtr = std::shared_ptr<const ElectricPropulsionSystemConfig>;

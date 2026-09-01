@@ -19,7 +19,7 @@ namespace driver
 class CxGb400 : public linux::VideoDev
 {
 public:
-  static constexpr std::chrono::milliseconds kSendAttitudeInterval = std::chrono::milliseconds(200);
+  static constexpr auto kSendAttitudeInterval = std::chrono::milliseconds(200);
   static constexpr double kPitchCmdMax = 45.0;    // [deg]
   static constexpr double kPitchCmdMin = -115.0;  // [deg]
   static constexpr double kYawCmdMax = 85.0;      // [deg]
@@ -246,8 +246,6 @@ public:
     uint16_t& iso);
 
 private:
-  static constexpr double kGimbalAngleResolution = 1.0 / 0.01;
-
   enum UnitId : uint8_t
   {
     kUnit1 = 0x6,

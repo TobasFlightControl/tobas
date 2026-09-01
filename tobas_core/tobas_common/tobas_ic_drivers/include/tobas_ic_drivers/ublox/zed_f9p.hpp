@@ -27,15 +27,7 @@ namespace ublox
 class ZEDF9P
 {
 private:
-  static constexpr uint32_t kSpiClockFreq = 5'500'000;  // Maximum frequency is 5.5MHz.
   static constexpr size_t kSpiBufSize = 256;
-  static constexpr uint8_t kRG174CableDelay = 5;  // [ns/m] Coaxial cable delay.
-  static constexpr auto kWaitForGnssAck = std::chrono::seconds(1);
-
-  // Interval for receiving one byte over `SPI` [us].
-  // A smaller value reduces communication latency,
-  // but too small a value overloads the receiver with requests and degrades accuracy.
-  static constexpr auto kReqInterval = std::chrono::microseconds(50);
 
 public:
   enum UbxClass : uint8_t

@@ -9,6 +9,13 @@ using namespace std;
 
 namespace tobas
 {
+namespace
+{
+constexpr char kVehicleKey[] = "vehicle";
+constexpr char kAerodynamicsKey[] = "aerodynamics";
+constexpr char kControlSurfacesKey[] = "control_surfaces";
+}  // namespace
+
 void FixedWingConfig::clear()
 {
   control_surfaces.clear();

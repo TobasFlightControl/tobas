@@ -12,6 +12,12 @@
 
 namespace tobas
 {
+namespace
+{
+constexpr char kEngineKey[] = "engine";
+constexpr char kRotorsKey[] = "rotors";
+}  // namespace
+
 bool IcePropulsionSystemConfig::isValid() const
 {
   // Rotors

@@ -10,6 +10,12 @@
 
 namespace tobas
 {
+namespace
+{
+constexpr char kC0Key[] = "c0";
+constexpr char kC1Key[] = "c1";
+}  // namespace
+
 bool VppMotorConstant::isValid() const
 {
   if (c1 <= 0.0) {

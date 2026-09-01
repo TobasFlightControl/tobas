@@ -12,6 +12,15 @@ using namespace std;
 
 namespace tobas
 {
+namespace
+{
+constexpr char kWingSurfaceKey[] = "wing_surface";
+constexpr char kWingSpanKey[] = "wing_span";
+constexpr char kMACKey[] = "mean_aerodynamic_chord";
+constexpr char kAeroCenterKey[] = "aerodynamic_center";
+constexpr char kAlphaLimitLKey[] = "alpha_limit";
+}  // namespace
+
 bool VehicleParameters::isValid() const
 {
   if (wing_surface <= 0) {

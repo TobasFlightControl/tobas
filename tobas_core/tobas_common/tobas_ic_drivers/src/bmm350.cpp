@@ -14,6 +14,11 @@ namespace tobas
 {
 namespace driver
 {
+namespace
+{
+constexpr uint8_t kI2cAddress = 0x14;
+}  // namespace
+
 BMM350::BMM350()
 {
 }

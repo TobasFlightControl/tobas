@@ -9,6 +9,16 @@
 
 namespace tobas
 {
+namespace
+{
+constexpr char kGearRatioKey[] = "gear_ratio";
+constexpr char kPitchLimitKey[] = "pitch_limit";
+constexpr char kCenterPitchKey[] = "center_pitch";
+constexpr char kMotorConstKey[] = "motor_constant";
+constexpr char kMomentConstKey[] = "moment_constant";
+constexpr char kHardwareIfaceKey[] = "hw_iface";
+}  // namespace
+
 bool IceRotorConfig::isValid() const
 {
   if (!super::isValid()) {

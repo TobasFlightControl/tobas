@@ -16,6 +16,12 @@ namespace tobas
 {
 namespace kdl
 {
+namespace
+{
+constexpr double kInitLambda = 10.0;
+constexpr double kInitV = 2.0;
+}  // namespace
+
 ChainIkSolverPos_LM::ChainIkSolverPos_LM(const Chain& chain) : super(chain)
 {
   L_.head<3>().fill(kDefaultWeightPos);

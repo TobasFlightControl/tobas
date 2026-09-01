@@ -12,9 +12,6 @@ namespace tobas
 {
 class PropulsionSystemConfig
 {
-protected:
-  static constexpr char kRotorsKey[] = "rotors";
-
 public:
   using SharedPtr = std::shared_ptr<PropulsionSystemConfig>;
   using ConstSharedPtr = std::shared_ptr<const PropulsionSystemConfig>;

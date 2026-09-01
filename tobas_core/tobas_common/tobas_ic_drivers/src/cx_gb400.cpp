@@ -9,6 +9,11 @@ namespace tobas
 {
 namespace driver
 {
+namespace
+{
+constexpr double kGimbalAngleResolution = 1.0 / 0.01;
+}  // namespace
+
 CxGb400::CxGb400() : linux::VideoDev::VideoDev()
 {
 }

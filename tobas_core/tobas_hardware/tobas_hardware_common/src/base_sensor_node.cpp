@@ -7,6 +7,12 @@ namespace tobas
 {
 namespace hardware
 {
+namespace
+{
+constexpr char kStartMainTimerSrvSuffix[] = "/start_main_timer";
+constexpr char kStopMainTimerSrvSuffix[] = "/stop_main_timer";
+}  // namespace
+
 BaseSensorNode::BaseSensorNode(const std::string& name, const rclcpp::NodeOptions& options)
   : super(name, nodeOptions_Default(options))
 {

@@ -14,6 +14,17 @@ namespace fs = filesystem;
 
 namespace tobas
 {
+namespace
+{
+constexpr char kNameKey[] = "name";
+constexpr char kJointsKey[] = "joints";
+constexpr char kPwmsKey[] = "pwms";
+constexpr char kPropulsionSystemTypeKey[] = "propulsion_system_type";
+constexpr char kPropulsionSystemKey[] = "propulsion_system";
+constexpr char kFixedWingKey[] = "fixed_wing";
+constexpr char kNumSbusChannelsKey[] = "num_sbus_channels";
+}  // namespace
+
 void Drone::clear()
 {
   name.clear();

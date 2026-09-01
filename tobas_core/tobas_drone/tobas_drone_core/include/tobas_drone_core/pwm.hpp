@@ -17,11 +17,6 @@ using PwmConfigMap = std::map<std::string, PwmConfig>;  // Name -> PwmConfig
 
 class PwmConfig
 {
-  static constexpr char kChannelKey[] = "channel";
-  static constexpr char kNameKey[] = "name";
-  static constexpr char kPeriodRangeKey[] = "period_range";
-  static constexpr char kValueRangeKey[] = "value_range";
-
 public:
   uint32_t channel = 0;
   std::string name = "";

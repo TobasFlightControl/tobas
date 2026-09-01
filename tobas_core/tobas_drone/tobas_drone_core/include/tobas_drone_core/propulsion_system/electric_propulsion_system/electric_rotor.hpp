@@ -17,15 +17,6 @@ class ElectricRotorConfig : public RotorConfig
 {
   using super = RotorConfig;
 
-  static constexpr char kChannelKey[] = "channel";
-  static constexpr char kNumPolesKey[] = "num_poles";
-  static constexpr char kKvKey[] = "kv";
-  static constexpr char kInternalResistanceKey[] = "internal_resistance";
-  static constexpr char kMinSpeed[] = "minimum_speed";
-  static constexpr char kPropellerDiameterKey[] = "propeller_diameter";
-  static constexpr char kMotorConstKey[] = "motor_constant";
-  static constexpr char kMomentConstKey[] = "moment_constant";
-
 public:
   using SharedPtr = std::shared_ptr<ElectricRotorConfig>;
   using ConstSharedPtr = std::shared_ptr<const ElectricRotorConfig>;

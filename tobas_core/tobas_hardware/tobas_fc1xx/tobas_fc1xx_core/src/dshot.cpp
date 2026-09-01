@@ -14,6 +14,22 @@ namespace tobas
 {
 namespace fc1xx
 {
+namespace
+{
+// Commands
+constexpr uint8_t kSetThrottleCmd = 0;
+constexpr uint8_t kSetTargetRPMCmd = 1;
+constexpr uint8_t kSetKvCmd = 2;
+constexpr uint8_t kSetResistanceCmd = 3;
+constexpr uint8_t kSetDiameterCmd = 4;
+constexpr uint8_t kSetMomentConstCmd = 5;
+constexpr uint8_t kSetHalfNumPolesCmd = 6;
+constexpr uint8_t kSetGainCmd = 7;
+
+constexpr char kSpiDevice[] = "/dev/spidev1.0";
+constexpr uint32_t kSpiClockFreq = 30'000'000;  // [Hz]
+}  // namespace
+
 DShot::DShot() noexcept : crc_(algo::CRC32Left::CRC_32)
 {
   crc_.initialize();

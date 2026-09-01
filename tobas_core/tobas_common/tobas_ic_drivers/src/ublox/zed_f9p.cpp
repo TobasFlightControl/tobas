@@ -9,12 +9,23 @@
 #define NOT_IMPLEMENTED "Not implemented."
 #define NOT_RECEIVABLE "Not receivable."
 
+using namespace std::chrono_literals;
+
 namespace ch = std::chrono;
 
 namespace tobas
 {
 namespace ublox
 {
+namespace
+{
+constexpr uint32_t kSpiClockFreq = 5'500'000;  // Maximum frequency is 5.5MHz.
+constexpr uint8_t kRG174CableDelay = 5;        // [ns/m] Coaxial cable delay.
+constexpr auto kWaitForGnssAck = 1s;
+// Interval for receiving one byte over SPI. A shorter interval reduces latency but can overload the receiver.
+constexpr auto kReqInterval = 50us;
+}  // namespace
+
 ZEDF9P::ZEDF9P() : rate_(kReqInterval)
 {
 }

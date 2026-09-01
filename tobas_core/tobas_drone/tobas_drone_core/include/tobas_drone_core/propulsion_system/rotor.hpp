@@ -11,10 +11,6 @@ namespace tobas
 {
 class RotorConfig
 {
-  static constexpr char kLinkNameKey[] = "link_name";
-  static constexpr char kDirectionKey[] = "direction";
-  static constexpr char kTiltJointName[] = "tilt_joint_name";
-
 public:
   using SharedPtr = std::shared_ptr<RotorConfig>;
   using ConstSharedPtr = std::shared_ptr<const RotorConfig>;

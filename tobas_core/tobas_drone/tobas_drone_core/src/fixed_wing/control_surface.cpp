@@ -11,6 +11,18 @@ using namespace std;
 
 namespace tobas
 {
+namespace
+{
+constexpr char kChannelKey[] = "channel";
+constexpr char kLinkNameKey[] = "link_name";
+constexpr char kCLiftDeltaKey[] = "c_lift_delta";
+constexpr char kCDragAbsDeltaKey[] = "c_drag_abs_delta";
+constexpr char kCSideDeltaKey[] = "c_side_delta";
+constexpr char kCRollDeltaKey[] = "c_roll_delta";
+constexpr char kCPitchDeltaKey[] = "c_pitch_delta";
+constexpr char kCYawDeltaKey[] = "c_yaw_delta";
+}  // namespace
+
 bool ControlSurface::isValid() const
 {
   if (link_name.empty()) {

@@ -10,6 +10,15 @@ using namespace std;
 
 namespace tobas
 {
+namespace
+{
+constexpr char kNominalVoltageKey[] = "nominal_voltage";
+constexpr char kMaxVoltageKey[] = "max_voltage";
+constexpr char kSagVoltageKey[] = "sag_voltage";
+constexpr char kMaxCurrentKey[] = "max_current";
+constexpr char kInternalResistanceKey[] = "internal_resistance";
+}  // namespace
+
 bool BatteryConfig::isValid() const
 {
   if (sag_voltage <= 0.0) {

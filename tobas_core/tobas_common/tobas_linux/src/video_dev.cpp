@@ -18,6 +18,11 @@ namespace tobas
 {
 namespace linux
 {
+namespace
+{
+constexpr uint32_t kBufferSize = 3;
+}  // namespace
+
 VideoDev::VideoDev()
 {
 }

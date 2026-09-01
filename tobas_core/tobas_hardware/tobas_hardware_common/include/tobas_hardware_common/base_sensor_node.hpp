@@ -17,9 +17,6 @@ class BaseSensorNode : public BaseNode
   using super = BaseNode;
   using Empty = std_srvs::srv::Empty;
 
-  static constexpr char kStartMainTimerSrvSuffix[] = "/start_main_timer";
-  static constexpr char kStopMainTimerSrvSuffix[] = "/stop_main_timer";
-
 public:
   explicit BaseSensorNode(const std::string& name, const rclcpp::NodeOptions& options);
 

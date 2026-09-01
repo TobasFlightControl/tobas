@@ -3,8 +3,16 @@
 
 #include "./rosbag_recorder.hpp"
 
+using namespace std::chrono_literals;
+
 namespace tobas
 {
+namespace
+{
+constexpr auto kMainTimerPeriod = 1s;
+constexpr auto kMinAvailableSize = 500'000'000;  // [byte]
+}  // namespace
+
 RosbagRecorderNode::RosbagRecorderNode(const rclcpp::NodeOptions& options)
   : super("rosbag_recorder", nodeOptions_Default(options))
   , ns_(std::string(get_namespace()) + "/")

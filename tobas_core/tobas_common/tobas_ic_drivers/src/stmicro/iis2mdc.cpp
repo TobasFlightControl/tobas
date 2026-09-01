@@ -9,6 +9,13 @@ namespace tobas
 {
 namespace stm
 {
+namespace
+{
+constexpr uint8_t kI2cAddress = 0b0011110;
+constexpr uint8_t kMultiReadFlag = 0x80;  // cf. 6.1.1: I2C operation (p.23)
+constexpr double kSensitivity = 1.5e-3;   // [gauss/LSB]
+}  // namespace
+
 IIS2MDC::IIS2MDC()
 {
 }

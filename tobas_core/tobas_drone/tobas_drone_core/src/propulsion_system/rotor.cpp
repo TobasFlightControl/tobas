@@ -9,6 +9,13 @@ using namespace std;
 
 namespace tobas
 {
+namespace
+{
+constexpr char kLinkNameKey[] = "link_name";
+constexpr char kDirectionKey[] = "direction";
+constexpr char kTiltJointName[] = "tilt_joint_name";
+}  // namespace
+
 bool RotorConfig::isValid() const
 {
   if (link_name.empty()) {

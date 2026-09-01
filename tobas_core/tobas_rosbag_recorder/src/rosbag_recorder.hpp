@@ -42,9 +42,6 @@ class RosbagRecorderNode : public BaseNode
   using StopSrv = tobas_msgs::srv::BagRecordStop;
   using CleanSrv = std_srvs::srv::Trigger;
 
-  static constexpr auto kMainTimerPeriod = std::chrono::seconds(1);
-  static constexpr auto kMinAvailableSize = 500'000'000;  // [byte]
-
 public:
   explicit RosbagRecorderNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 

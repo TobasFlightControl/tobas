@@ -11,6 +11,13 @@ namespace tobas
 {
 namespace fc1xx
 {
+namespace
+{
+constexpr char kSpiDevice[] = "/dev/spidev1.1";
+constexpr uint32_t kSpiClockFreq = 50'000'000;  // [Hz]
+constexpr uint16_t kMaxPeriod = 2500;           // [us]
+}  // namespace
+
 PWM::PWM() : crc_(algo::CRC32Left::CRC_32)
 {
   crc_.initialize();

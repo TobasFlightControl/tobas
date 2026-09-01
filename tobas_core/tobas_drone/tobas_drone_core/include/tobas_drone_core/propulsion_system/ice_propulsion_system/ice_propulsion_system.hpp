@@ -13,8 +13,6 @@ class IcePropulsionSystemConfig : public PropulsionSystemConfig
 {
   using self = IcePropulsionSystemConfig;
 
-  static constexpr char kEngineKey[] = "engine";
-
 public:
   using SharedPtr = std::shared_ptr<IcePropulsionSystemConfig>;
   using ConstSharedPtr = std::shared_ptr<const IcePropulsionSystemConfig>;

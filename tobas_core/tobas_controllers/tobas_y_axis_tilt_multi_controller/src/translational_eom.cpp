@@ -12,6 +12,11 @@ namespace tobas
 {
 namespace y_axis_tilt_multicopter
 {
+namespace
+{
+constexpr double kMinVerticalForcePerMass = 1.0;  // [m/s^2]
+}  // namespace
+
 TranslationalEoM::TranslationalEoM(const kdl::Tree& tree) : mass_holder_(tree), grav_W_(0, 0, -st::kGravity)
 {
 }

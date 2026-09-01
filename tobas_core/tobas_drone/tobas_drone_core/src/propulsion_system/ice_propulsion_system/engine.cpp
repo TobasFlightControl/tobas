@@ -11,6 +11,12 @@
 
 namespace tobas
 {
+namespace
+{
+constexpr char kEngineConstantKey[] = "engine_constant";
+constexpr char kHardwareIfaceKey[] = "hw_iface";
+}  // namespace
+
 bool EngineConfig::isValid() const
 {
   if (engine_const.first <= 0.0 || engine_const.second <= 0.0) {

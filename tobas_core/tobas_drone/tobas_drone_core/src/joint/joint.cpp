@@ -10,6 +10,15 @@ using namespace std;
 
 namespace tobas
 {
+namespace
+{
+constexpr char kNameKey[] = "joint_name";
+constexpr char kRoleKey[] = "role";
+constexpr char kCommandIfaceKey[] = "cmd_iface";
+constexpr char kHardwareIfaceKey[] = "hw_iface";
+constexpr char kHomePosKey[] = "home_position";
+}  // namespace
+
 bool JointConfig::isValid() const
 {
   if (name.empty()) {
