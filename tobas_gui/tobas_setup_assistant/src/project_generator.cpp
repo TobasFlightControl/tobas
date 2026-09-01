@@ -37,6 +37,26 @@ namespace gui
 {
 namespace sa
 {
+namespace
+{
+constexpr char kRosParamsKey[] = "ros__parameters";
+
+constexpr char kDoNotEditThisPackage[] = "DO_NOT_EDIT_THIS_PACKAGE";
+constexpr char kYouCanEditThisPackage[] = "YOU_CAN_EDIT_THIS_PACKAGE";
+
+TurningDirection turningDirectionUadfToTbsdrn(const uadf::Thrust::Direction& src)
+{
+  switch (src) {
+    case uadf::Thrust::CW:
+      return TurningDirection::CW;
+    case uadf::Thrust::CCW:
+      return TurningDirection::CCW;
+    default:
+      throw;
+  }
+}
+}  // namespace
+
 ProjectGenerator::ProjectGenerator(
   const uadf::Model& uadf,
   const kdl::Tree& tree,
@@ -53,57 +73,37 @@ ProjectGenerator::ProjectGenerator(
   user_py_env_.emplace(QDir(templates_path).filePath("user_py_package"));
 }
 
-bool ProjectGenerator::generateProject(const QString& proj_path)
+void ProjectGenerator::generateProject(const QString& proj_path)
 {
   // Set the project path.
   proj_paths_.setProjPath(proj_path);
 
   // Create the Tobas package.
-  if (!QDir().mkpath(proj_path)) {
-    qt::qErrorBox(parent_, "Failed to create Tobas project path:\n" + proj_path);
-    return false;
-  }
+  TOBAS_CHECK(QDir().mkpath(proj_path));
 
   // Create template items.
   const auto tpl_data = createTemplateData();
 
   // Create the meta package.
-  if (!generateMetaPackage(tpl_data)) {
-    return false;
-  }
+  generateMetaPackage(tpl_data);
 
   // Create the configuration package.
-  if (!generateConfigPackage(tpl_data)) {
-    return false;
-  }
+  generateConfigPackage(tpl_data);
 
   // Create the user message package.
-  if (!generateUserMsgPackage(tpl_data)) {
-    return false;
-  }
+  generateUserMsgPackage(tpl_data);
 
   // Create the user C++ package.
-  if (!generateUserCppPackage(tpl_data)) {
-    return false;
-  }
+  generateUserCppPackage(tpl_data);
 
   // Create the user Python package.
-  if (!generateUserPyPackage(tpl_data)) {
-    return false;
-  }
+  generateUserPyPackage(tpl_data);
 
   // Create the backup file.
-  if (!generateBackupFiles()) {
-    return false;
-  }
+  generateBackupFiles();
 
   // Create the version file.
-  if (!cmn::Version::Current().save(proj_paths_.versionPath())) {
-    qt::qErrorBox(parent_, "Failed to save the current version.");
-    return false;
-  }
-
-  return true;
+  TOBAS_CHECK(cmn::Version::Current().save(proj_paths_.versionPath()));
 }
 
 void ProjectGenerator::setClearDynamicParams(bool flag)
@@ -422,35 +422,31 @@ bool ProjectGenerator::hasServoJoint() const
   return false;
 }
 
-bool ProjectGenerator::generateMetaPackage(const inja::json& tpl_data)
+void ProjectGenerator::generateMetaPackage(const inja::json& tpl_data)
 {
   const auto meta_pkg_path = proj_paths_.metaPkgPath();
-  QDir().mkpath(meta_pkg_path);
+  TOBAS_CHECK(QDir().mkpath(meta_pkg_path));
 
   meta_env_->generate(tpl_data, "CMakeLists.txt.tplcmake", meta_pkg_path);
   meta_env_->generate(tpl_data, "package.xml.tplxml", meta_pkg_path);
 
-  if (!createEmptyFile(QDir(meta_pkg_path).filePath(kDoNotEditThisPackage))) {
-    return false;
-  }
-
-  return true;
+  createEmptyFile(QDir(meta_pkg_path).filePath(kDoNotEditThisPackage));
 }
 
-bool ProjectGenerator::generateConfigPackage(const inja::json& tpl_data)
+void ProjectGenerator::generateConfigPackage(const inja::json& tpl_data)
 {
   const auto pkg_path = proj_paths_.cfgPkgPath();
-  QDir().mkpath(pkg_path);
+  TOBAS_CHECK(QDir().mkpath(pkg_path));
 
   // Create directories.
   const auto config_dir = proj_paths_.cfgConfigDirPath();
   const auto launch_dir = proj_paths_.cfgLaunchDirPath();
   const auto mesh_dir = proj_paths_.cfgMeshDirPath();
   const auto urdf_dir = proj_paths_.cfgUrdfDirPath();
-  QDir().mkpath(config_dir);
-  QDir().mkpath(launch_dir);
-  QDir().mkpath(mesh_dir);
-  QDir().mkpath(urdf_dir);
+  TOBAS_CHECK(QDir().mkpath(config_dir));
+  TOBAS_CHECK(QDir().mkpath(launch_dir));
+  TOBAS_CHECK(QDir().mkpath(mesh_dir));
+  TOBAS_CHECK(QDir().mkpath(urdf_dir));
 
   // Generate from templates.
   config_env_->generate(tpl_data, "CMakeLists.txt.tplcmake", pkg_path);
@@ -467,94 +463,54 @@ bool ProjectGenerator::generateConfigPackage(const inja::json& tpl_data)
   config_env_->generate(tpl_data, "gazebo.launch.xml.tplxml", launch_dir);
 
   // Dynamic parameters
-  if (!createEmptyYaml(proj_paths_.imuFiltDynParamsPath(), config_.clear_dynamic_params)) {
-    return false;
-  }
-  if (!createEmptyYaml(proj_paths_.rpmCtrlDynParamsPath(), config_.clear_dynamic_params)) {
-    return false;
-  }
-  if (!createEmptyYaml(proj_paths_.obsvDynParamsPath(), config_.clear_dynamic_params)) {
-    return false;
-  }
-  if (!createEmptyYaml(proj_paths_.ctrlDynParamsPath(), config_.clear_dynamic_params)) {
-    return false;
-  }
-  if (!createEmptyYaml(proj_paths_.rcTeleopDynParamsPath(), config_.clear_dynamic_params)) {
-    return false;
-  }
+  createEmptyYaml(proj_paths_.imuFiltDynParamsPath(), config_.clear_dynamic_params);
+  createEmptyYaml(proj_paths_.rpmCtrlDynParamsPath(), config_.clear_dynamic_params);
+  createEmptyYaml(proj_paths_.obsvDynParamsPath(), config_.clear_dynamic_params);
+  createEmptyYaml(proj_paths_.ctrlDynParamsPath(), config_.clear_dynamic_params);
+  createEmptyYaml(proj_paths_.rcTeleopDynParamsPath(), config_.clear_dynamic_params);
 
   // Other files.
-  if (!createEmptyFile(QDir(pkg_path).filePath(kDoNotEditThisPackage))) {
-    return false;
-  }
-  if (!generateDroneConfig()) {
-    return false;
-  }
-  if (!generateHealthMonitorConfig()) {
-    return false;
-  }
-  if (!generateObserverStaticConfig()) {
-    return false;
-  }
-  if (!generateControllerStaticConfig()) {
-    return false;
-  }
-  if (!generateMissionExecutorStaticConfig()) {
-    return false;
-  }
-  if (!generateRcTeleopStaticConfig()) {
-    return false;
-  }
-  if (!generateImuFilterConfig()) {
-    return false;
-  }
-  if (!generateRotorAnomalyDetectorConfig()) {
-    return false;
-  }
-  if (!generateNetworkConfig()) {
-    return false;
-  }
-  if (!generateOriginalUadf()) {
-    return false;
-  }
-  if (!generateModifiedUrdf()) {
-    return false;
-  }
-
-  return true;
+  createEmptyFile(QDir(pkg_path).filePath(kDoNotEditThisPackage));
+  generateDroneConfig();
+  generateHealthMonitorConfig();
+  generateObserverStaticConfig();
+  generateControllerStaticConfig();
+  generateMissionExecutorStaticConfig();
+  generateRcTeleopStaticConfig();
+  generateImuFilterConfig();
+  generateRotorAnomalyDetectorConfig();
+  generateNetworkConfig();
+  generateOriginalUadf();
+  generateModifiedUrdf();
 }
 
-bool ProjectGenerator::generateUserMsgPackage(const inja::json& tpl_data)
+void ProjectGenerator::generateUserMsgPackage(const inja::json& tpl_data)
 {
   const auto pkg_path = proj_paths_.userMsgPkgPath();
 
   // Create the package.
-  QDir().mkpath(pkg_path);
+  TOBAS_CHECK(QDir().mkpath(pkg_path));
 
   // Create from templates.
   user_msg_env_->generate(tpl_data, "CMakeLists.txt.tplcmake", pkg_path, false);
   user_msg_env_->generate(tpl_data, "package.xml.tplxml", pkg_path, false);
 
   // Other files.
-  if (!createEmptyFile(QDir(pkg_path).filePath(kYouCanEditThisPackage))) {
-    return false;
-  }
-
-  return true;
+  createEmptyFile(QDir(pkg_path).filePath(kYouCanEditThisPackage));
 }
 
-bool ProjectGenerator::generateUserCppPackage(const inja::json& tpl_data)
+void ProjectGenerator::generateUserCppPackage(const inja::json& tpl_data)
 {
   const auto pkg_path = proj_paths_.userCppPkgPath();
 
   // Create the package.
-  QDir().mkpath(pkg_path);
+  TOBAS_CHECK(QDir().mkpath(pkg_path));
 
   // Create directories.
   const auto launch_dir = QDir(pkg_path).filePath("launch");
   const auto nodes_dir = QDir(pkg_path).filePath("nodes");
-  QDir().mkpath(launch_dir);
-  QDir().mkpath(nodes_dir);
+  TOBAS_CHECK(QDir().mkpath(launch_dir));
+  TOBAS_CHECK(QDir().mkpath(nodes_dir))
 
   // Create from templates.
   user_cpp_env_->generate(tpl_data, "CMakeLists.txt.tplcmake", pkg_path, false);
@@ -567,20 +523,16 @@ bool ProjectGenerator::generateUserCppPackage(const inja::json& tpl_data)
   user_cpp_env_->generate(tpl_data, "user_node.cpp.tplcpp", nodes_dir, false);
 
   // Other files.
-  if (!createEmptyFile(QDir(pkg_path).filePath(kYouCanEditThisPackage))) {
-    return false;
-  }
-
-  return true;
+  createEmptyFile(QDir(pkg_path).filePath(kYouCanEditThisPackage));
 }
 
-bool ProjectGenerator::generateUserPyPackage(const inja::json& tpl_data)
+void ProjectGenerator::generateUserPyPackage(const inja::json& tpl_data)
 {
   const auto pkg_path = proj_paths_.userPyPkgPath();
   const auto pkg_name = proj_paths_.userPyPkgName();
 
   // Create the package.
-  QDir().mkpath(pkg_path);
+  TOBAS_CHECK(QDir().mkpath(pkg_path));
 
   // Create an empty resource file.
   const auto resource_file = QDir(pkg_path).filePath("resource/" + pkg_name);
@@ -589,8 +541,8 @@ bool ProjectGenerator::generateUserPyPackage(const inja::json& tpl_data)
   // Create directories.
   const auto launch_dir = QDir(pkg_path).filePath("launch");
   const auto lib_dir = QDir(pkg_path).filePath(pkg_name);
-  QDir().mkpath(launch_dir);
-  QDir().mkpath(lib_dir);
+  TOBAS_CHECK(QDir().mkpath(launch_dir));
+  TOBAS_CHECK(QDir().mkpath(lib_dir));
 
   // Create from templates.
   user_py_env_->generate(tpl_data, "package.xml.tplxml", pkg_path, false);
@@ -602,45 +554,29 @@ bool ProjectGenerator::generateUserPyPackage(const inja::json& tpl_data)
   user_py_env_->generate(tpl_data, "user_node.py.tplpy", lib_dir, false);
 
   // Other files.
-  if (!createEmptyFile(QDir(pkg_path).filePath(kYouCanEditThisPackage))) {
-    return false;
-  }
-  if (!createEmptyFile(QDir(lib_dir).filePath("__init__.py"))) {
-    return false;
-  }
-
-  return true;
+  createEmptyFile(QDir(pkg_path).filePath(kYouCanEditThisPackage));
+  createEmptyFile(QDir(lib_dir).filePath("__init__.py"));
 }
 
-bool ProjectGenerator::generateBackupFiles()
+void ProjectGenerator::generateBackupFiles()
 {
   // Create directories.
   const auto backup_dir = proj_paths_.projBackupDirPath();
-  QDir().mkpath(backup_dir);
+  TOBAS_CHECK(QDir().mkpath(backup_dir));
 
   // Configuration files.
   const auto backup_data = settings_->dump();
-  if (!saveYamlNode(proj_paths_.backupSettingsPath(), backup_data)) {
-    return false;
-  }
-
-  return true;
+  saveYamlNode(proj_paths_.backupSettingsPath(), backup_data);
 }
 
-bool ProjectGenerator::generateDroneConfig()
+void ProjectGenerator::generateDroneConfig()
 {
   const auto drone = createDrone();
-
   const auto tbsdrn_path = proj_paths_.tbsdrnPath();
-  if (!drone.save(tbsdrn_path.toStdString())) {
-    qt::qErrorBox(parent_, "Failed to save drone configuration.");
-    return false;
-  }
-
-  return true;
+  TOBAS_CHECK(drone.save(tbsdrn_path.toStdString()));
 }
 
-bool ProjectGenerator::generateHealthMonitorConfig()
+void ProjectGenerator::generateHealthMonitorConfig()
 {
   YAML::Node params(YAML::NodeType::Map);
   params["check_realtime_compliance"] = settings_->failsafe->checkRealtimeCompliance();
@@ -664,21 +600,15 @@ bool ProjectGenerator::generateHealthMonitorConfig()
 
   // For component
   const auto node_component = params;
-  if (!saveYamlNode(QDir(config_dir).filePath("health_monitor.yaml"), node_component)) {
-    return false;
-  }
+  saveYamlNode(QDir(config_dir).filePath("health_monitor.yaml"), node_component);
 
   // For standalone
   YAML::Node node_standalone(YAML::NodeType::Map);
   node_standalone["/**"]["health_monitor"][kRosParamsKey] = params;
-  if (!saveYamlNode(QDir(config_dir).filePath("health_monitor_standalone.yaml"), node_standalone)) {
-    return false;
-  }
-
-  return true;
+  saveYamlNode(QDir(config_dir).filePath("health_monitor_standalone.yaml"), node_standalone);
 }
 
-bool ProjectGenerator::generateRotorAnomalyDetectorConfig()
+void ProjectGenerator::generateRotorAnomalyDetectorConfig()
 {
   YAML::Node params(YAML::NodeType::Map);
   params["no_communication_timeout"] = yaml::format(settings_->failsafe->escNoCommunicationTimeout());
@@ -687,21 +617,15 @@ bool ProjectGenerator::generateRotorAnomalyDetectorConfig()
 
   // For component
   const auto node_component = params;
-  if (!saveYamlNode(QDir(config_dir).filePath("rotor_anomaly_detector.yaml"), node_component)) {
-    return false;
-  }
+  saveYamlNode(QDir(config_dir).filePath("rotor_anomaly_detector.yaml"), node_component);
 
   // For standalone
   YAML::Node node_standalone(YAML::NodeType::Map);
   node_standalone["/**"]["rotor_anomaly_detector"][kRosParamsKey] = params;
-  if (!saveYamlNode(QDir(config_dir).filePath("rotor_anomaly_detector_standalone.yaml"), node_standalone)) {
-    return false;
-  }
-
-  return true;
+  saveYamlNode(QDir(config_dir).filePath("rotor_anomaly_detector_standalone.yaml"), node_standalone);
 }
 
-bool ProjectGenerator::generateObserverStaticConfig()
+void ProjectGenerator::generateObserverStaticConfig()
 {
   YAML::Node params(YAML::NodeType::Map);
   params["frame_id"] = tree_.getRootName();
@@ -724,21 +648,15 @@ bool ProjectGenerator::generateObserverStaticConfig()
 
   // For component
   const auto node_component = params;
-  if (!saveYamlNode(QDir(config_dir).filePath("observer_static.yaml"), node_component)) {
-    return false;
-  }
+  saveYamlNode(QDir(config_dir).filePath("observer_static.yaml"), node_component);
 
   // For standalone
   YAML::Node node_standalone(YAML::NodeType::Map);
   node_standalone["/**"][node::kObserver][kRosParamsKey] = params;
-  if (!saveYamlNode(QDir(config_dir).filePath("observer_static_standalone.yaml"), node_standalone)) {
-    return false;
-  }
-
-  return true;
+  saveYamlNode(QDir(config_dir).filePath("observer_static_standalone.yaml"), node_standalone);
 }
 
-bool ProjectGenerator::generateControllerStaticConfig()
+void ProjectGenerator::generateControllerStaticConfig()
 {
   const auto params = settings_->controller->staticParams();
   TOBAS_CHECK(params.IsMap());
@@ -747,21 +665,15 @@ bool ProjectGenerator::generateControllerStaticConfig()
 
   // For component
   const auto node_component = params;
-  if (!saveYamlNode(QDir(config_dir).filePath("controller_static.yaml"), node_component)) {
-    return false;
-  }
+  saveYamlNode(QDir(config_dir).filePath("controller_static.yaml"), node_component);
 
   // For standalone
   YAML::Node node_standalone(YAML::NodeType::Map);
   node_standalone["/**"][node::kController][kRosParamsKey] = params;
-  if (!saveYamlNode(QDir(config_dir).filePath("controller_static_standalone.yaml"), node_standalone)) {
-    return false;
-  }
-
-  return true;
+  saveYamlNode(QDir(config_dir).filePath("controller_static_standalone.yaml"), node_standalone);
 }
 
-bool ProjectGenerator::generateMissionExecutorStaticConfig()
+void ProjectGenerator::generateMissionExecutorStaticConfig()
 {
   const auto params = settings_->mission->staticParams();
   TOBAS_CHECK(params.IsMap());
@@ -770,21 +682,15 @@ bool ProjectGenerator::generateMissionExecutorStaticConfig()
 
   // For component
   const auto node_component = params;
-  if (!saveYamlNode(QDir(config_dir).filePath("mission_executor_static.yaml"), node_component)) {
-    return false;
-  }
+  saveYamlNode(QDir(config_dir).filePath("mission_executor_static.yaml"), node_component);
 
   // For standalone
   YAML::Node node_standalone(YAML::NodeType::Map);
   node_standalone["/**"][node::kMissionExecutor][kRosParamsKey] = params;
-  if (!saveYamlNode(QDir(config_dir).filePath("mission_executor_static_standalone.yaml"), node_standalone)) {
-    return false;
-  }
-
-  return true;
+  saveYamlNode(QDir(config_dir).filePath("mission_executor_static_standalone.yaml"), node_standalone);
 }
 
-bool ProjectGenerator::generateRcTeleopStaticConfig()
+void ProjectGenerator::generateRcTeleopStaticConfig()
 {
   YAML::Node params(YAML::NodeType::Map);
   params["acrobat_mode"] = settings_->controller->acrobatModeCommand();
@@ -797,21 +703,15 @@ bool ProjectGenerator::generateRcTeleopStaticConfig()
 
   // For component
   const auto node_component = params;
-  if (!saveYamlNode(QDir(config_dir).filePath("rc_teleop_static.yaml"), node_component)) {
-    return false;
-  }
+  saveYamlNode(QDir(config_dir).filePath("rc_teleop_static.yaml"), node_component);
 
   // For standalone
   YAML::Node node_standalone(YAML::NodeType::Map);
   node_standalone["/**"][node::kRcTeleop][kRosParamsKey] = params;
-  if (!saveYamlNode(QDir(config_dir).filePath("rc_teleop_static_standalone.yaml"), node_standalone)) {
-    return false;
-  }
-
-  return true;
+  saveYamlNode(QDir(config_dir).filePath("rc_teleop_static_standalone.yaml"), node_standalone);
 }
 
-bool ProjectGenerator::generateImuFilterConfig()
+void ProjectGenerator::generateImuFilterConfig()
 {
   YAML::Node params(YAML::NodeType::Map);
   params["has_rpm_filter"] = settings_->hardware->hasRpmFilter();
@@ -820,201 +720,151 @@ bool ProjectGenerator::generateImuFilterConfig()
 
   // For component
   const auto node_component = params;
-  if (!saveYamlNode(QDir(config_dir).filePath("imu_filter_static.yaml"), node_component)) {
-    return false;
-  }
+  saveYamlNode(QDir(config_dir).filePath("imu_filter_static.yaml"), node_component);
 
   // For standalone
   YAML::Node node_standalone(YAML::NodeType::Map);
   node_standalone["/**"][node::kRcTeleop][kRosParamsKey] = params;
-  if (!saveYamlNode(QDir(config_dir).filePath("imu_filter_static_standalone.yaml"), node_standalone)) {
-    return false;
-  }
-
-  return true;
+  saveYamlNode(QDir(config_dir).filePath("imu_filter_static_standalone.yaml"), node_standalone);
 }
 
-bool ProjectGenerator::generateNetworkConfig()
+void ProjectGenerator::generateNetworkConfig()
 {
   cmn::NetworkConfig config;
   config.interface = settings_->network->networkInterface();
 
-  if (!config.save(proj_paths_.networkConfigPath())) {
-    qt::qErrorBox(parent_, "Failed to save the network configuration.");
-    return false;
-  }
-
-  return true;
+  TOBAS_CHECK(config.save(proj_paths_.networkConfigPath()));
 }
 
-bool ProjectGenerator::generateOriginalUadf()
+void ProjectGenerator::generateOriginalUadf()
 {
   // Export the original UADF.
   const auto doc = uadf::exportUADF(uadf_);
   const auto robot = doc->RootElement();
 
   // Modify.
-  if (!replaceOriginalUadfMeshFilePaths(robot)) {
-    return false;
-  }
+  replaceOriginalUadfMeshFilePaths(robot);
 
   // Save.
-  if (doc->SaveFile(proj_paths_.originalUadfPath().toUtf8().constData()) != tinyxml2::XML_SUCCESS) {
-    qt::qErrorBox(parent_, "Failed to save the original UADF.");
-    return false;
-  }
-
-  return true;
+  TOBAS_CHECK(doc->SaveFile(proj_paths_.originalUadfPath().toUtf8().constData()) == tinyxml2::XML_SUCCESS);
 }
 
-bool ProjectGenerator::generateModifiedUrdf()
+void ProjectGenerator::generateModifiedUrdf()
 {
   // Export the original URDF.
   const auto doc = urdf::exportUrdf(*uadf_.urdf);
   const auto robot = doc->RootElement();
 
   // Modify.
-  if (!resolveModifiedUrdfMeshFilePaths(robot)) {
-    return false;
-  }
-  if (!removePropellerJointLimits(robot)) {
-    return false;
-  }
-  if (!addXmlElements(robot)) {
-    return false;
-  }
+  resolveModifiedUrdfMeshFilePaths(robot);
+  removePropellerJointLimits(robot);
+  addXmlElements(robot);
 
   // Save.
-  if (doc->SaveFile(proj_paths_.xacroPath().toUtf8().constData()) != tinyxml2::XML_SUCCESS) {
-    qt::qErrorBox(parent_, "Failed to save the modified URDF.");
-    return false;
-  }
-
-  return true;
+  TOBAS_CHECK(doc->SaveFile(proj_paths_.xacroPath().toUtf8().constData()) == tinyxml2::XML_SUCCESS);
 }
 
-bool ProjectGenerator::createEmptyFile(const QString& file_path)
+void ProjectGenerator::createEmptyFile(const QString& file_path)
 {
-  const auto res = path::createFilePath(file_path.toStdString(), true);
-  if (!res) {
-    qt::qErrorBox(parent_, "Failed to create \"" + file_path + "\":\n" + res.error().c_str());
-    return false;
-  }
-
-  return true;
+  TOBAS_CHECK(path::createFilePath(file_path.toStdString(), true));
 }
 
-bool ProjectGenerator::createEmptyYaml(const QString& file_path, bool overwrite)
+void ProjectGenerator::createEmptyYaml(const QString& file_path, bool overwrite)
 {
-  if (!overwrite && QFileInfo(file_path).isFile()) {
-    return true;
+  if (overwrite || !QFileInfo(file_path).isFile()) {
+    saveYamlNode(file_path, YAML::Node(YAML::NodeType::Map));
   }
-
-  if (!saveYamlNode(file_path, YAML::Node(YAML::NodeType::Map))) {
-    return false;
-  }
-
-  return true;
 }
 
-bool ProjectGenerator::saveYamlNode(const QString& path, const YAML::Node& node)
+void ProjectGenerator::saveYamlNode(const QString& path, const YAML::Node& node)
 {
-  if (!yaml::save(path.toStdString(), node)) {
-    qt::qErrorBox(parent_, "Failed to save \"" + path + "\".");
-    return false;
-  }
-
-  return true;
+  TOBAS_CHECK(yaml::save(path.toStdString(), node));
 }
 
-bool ProjectGenerator::resolveModifiedUrdfMeshFilePaths(tinyxml2::XMLElement* elem)
+void ProjectGenerator::resolveModifiedUrdfMeshFilePaths(tinyxml2::XMLElement* elem)
 {
-  if (std::strcmp(elem->Name(), "mesh") == 0) {
-    const auto filename = elem->Attribute("filename");
-    if (!filename) {
-      qt::qErrorBox(parent_, "Mesh element does not have attribute: \"filename\"");
-      return false;
-    }
+  // Check the current element.
+  resolveModifiedUrdfMeshFilePath(elem);
 
-    const auto src_path = QString::fromStdString(urdf::resolveUri(filename).string());
-    const QFileInfo src_info(src_path);
-    if (!src_info.exists()) {
-      qt::qErrorBox(parent_, "Mesh file " + src_path + " does not exist.");
-      return false;
-    }
-
-    // Copy mesh files under the Tobas package as needed.
-    const auto base_name = src_info.fileName();
-    const auto dst_path = QDir(proj_paths_.cfgMeshDirPath()).filePath(base_name);
-    const QFileInfo dst_info(dst_path);
-    if (dst_info.exists()) {
-      // If `dst_path` exists but differs from `src_path`, delete it before copying because `QFile::copy` does not overwrite it.
-      if (src_info.canonicalFilePath() != dst_info.canonicalFilePath()) {
-        if (!QFile::remove(dst_path)) {
-          qt::qErrorBox(parent_, "Failed to remove " + dst_path + ".");
-          return false;
-        }
-
-        if (!QFile::copy(src_path, dst_path)) {
-          qt::qErrorBox(parent_, "Failed to copy " + src_path + " to " + dst_path + ".");
-          return false;
-        }
-      }
-    }
-    else {
-      // If `dst_path` does not exist, simply copy it.
-      if (!QFile::copy(src_path, dst_path)) {
-        qt::qErrorBox(parent_, "Failed to copy " + src_path + " to " + dst_path + ".");
-        return false;
-      }
-    }
-
-    // Replace mesh file paths.
-    // Ignition cannot find paths in the `package://<pkg_name>` format,
-    // so embed a xacro command to replace them with absolute paths.
-    // cf. https://github.com/moveit/moveit_resources/blob/ros2/panda_description/urdf/panda.urdf.xacro
-    const auto new_filename = "file://$(find " + proj_paths_.cfgPkgName() + ")/meshes/" + base_name;
-    elem->SetAttribute("filename", new_filename.toUtf8().constData());
-  }
-
-  // Check child elements recursively.
+  // Check the child elements recursively.
   for (auto child = elem->FirstChildElement(); child; child = child->NextSiblingElement()) {
-    if (!resolveModifiedUrdfMeshFilePaths(child)) {
-      return false;
-    }
+    resolveModifiedUrdfMeshFilePaths(child);
   }
-
-  return true;
 }
 
-bool ProjectGenerator::replaceOriginalUadfMeshFilePaths(tinyxml2::XMLElement* elem)
+void ProjectGenerator::resolveModifiedUrdfMeshFilePath(tinyxml2::XMLElement* elem)
 {
-  if (std::strcmp(elem->Name(), "mesh") == 0) {
-    const auto filename = elem->Attribute("filename");
-    if (!filename) {
-      qt::qErrorBox(parent_, "Mesh element does not have attribute: \"filename\"");
-      return false;
-    }
-
-    const auto src_path = QString::fromStdString(urdf::resolveUri(filename).string());
-    const auto base_name = QFileInfo(src_path).fileName();
-
-    // Specify as a relative path from `config_pkg`.
-    const auto new_filename = "package://" + proj_paths_.cfgPkgName() + "/meshes/" + base_name;
-    elem->SetAttribute("filename", new_filename.toUtf8().constData());
+  if (std::strcmp(elem->Name(), "mesh") != 0) {
+    return;
   }
 
-  // Check child elements recursively.
-  for (auto child = elem->FirstChildElement(); child; child = child->NextSiblingElement()) {
-    if (!replaceOriginalUadfMeshFilePaths(child)) {
-      return false;
-    }
+  const auto filename = elem->Attribute("filename");
+  if (!filename) {
+    qWarning() << "Mesh element does not have attribute: \"filename\"";
+    return;
   }
 
-  return true;
+  const auto src_path = QString::fromStdString(urdf::resolveUri(filename).string());
+  const QFileInfo src_info(src_path);
+  if (!src_info.exists()) {
+    qWarning() << "Mesh file" << src_path << "does not exist.";
+    return;
+  }
+
+  // Copy mesh files under the Tobas package as needed.
+  const auto base_name = src_info.fileName();
+  const auto dst_path = QDir(proj_paths_.cfgMeshDirPath()).filePath(base_name);
+  const QFileInfo dst_info(dst_path);
+  if (dst_info.exists()) {
+    // If `dst_path` exists but differs from `src_path`, delete it before copying because `QFile::copy` does not overwrite it.
+    if (src_info.canonicalFilePath() != dst_info.canonicalFilePath()) {
+      TOBAS_CHECK(QFile::remove(dst_path));
+      TOBAS_CHECK(QFile::copy(src_path, dst_path));
+    }
+  }
+  else {
+    // If `dst_path` does not exist, simply copy it.
+    TOBAS_CHECK(QFile::copy(src_path, dst_path));
+  }
+
+  // Replace mesh file paths.
+  // Ignition cannot find paths in the `package://<pkg_name>` format,
+  // so embed a xacro command to replace them with absolute paths.
+  // cf. https://github.com/moveit/moveit_resources/blob/ros2/panda_description/urdf/panda.urdf.xacro
+  const auto new_filename = "file://$(find " + proj_paths_.cfgPkgName() + ")/meshes/" + base_name;
+  elem->SetAttribute("filename", new_filename.toUtf8().constData());
 }
 
-bool ProjectGenerator::removePropellerJointLimits(tinyxml2::XMLElement* robot)
+void ProjectGenerator::replaceOriginalUadfMeshFilePaths(tinyxml2::XMLElement* elem)
+{
+  // Check the current element.
+  if (std::strcmp(elem->Name(), "mesh") != 0) {
+    return;
+  }
+
+  // Check the child elements recursively.
+  for (auto child = elem->FirstChildElement(); child; child = child->NextSiblingElement()) {
+    replaceOriginalUadfMeshFilePaths(child);
+  }
+}
+
+void ProjectGenerator::replaceOriginalUadfMeshFilePath(tinyxml2::XMLElement* elem)
+{
+  const auto filename = elem->Attribute("filename");
+  if (!filename) {
+    qWarning() << "Mesh element does not have attribute: \"filename\"";
+    return;
+  }
+
+  const auto src_path = QString::fromStdString(urdf::resolveUri(filename).string());
+  const auto base_name = QFileInfo(src_path).fileName();
+
+  // Specify as a relative path from `config_pkg`.
+  const auto new_filename = "package://" + proj_paths_.cfgPkgName() + "/meshes/" + base_name;
+  elem->SetAttribute("filename", new_filename.toUtf8().constData());
+}
+
+void ProjectGenerator::removePropellerJointLimits(tinyxml2::XMLElement* robot)
 {
   std::set<std::string> prop_jnt_names;
   const auto& prop = settings_->propulsion_system;
@@ -1028,8 +878,8 @@ bool ProjectGenerator::removePropellerJointLimits(tinyxml2::XMLElement* robot)
     if (std::strcmp(child->Name(), "joint") == 0) {
       const auto jnt_name = child->Attribute("name");
       if (!jnt_name) {
-        qt::qErrorBox(parent_, "Joint element does not have attribute: \"name\"");
-        return false;
+        qWarning() << "Joint element does not have attribute: \"name\"";
+        continue;
       }
       if (prop_jnt_names.contains(jnt_name)) {
         for (auto gchild = child->FirstChildElement(); gchild; gchild = gchild->NextSiblingElement()) {
@@ -1041,11 +891,9 @@ bool ProjectGenerator::removePropellerJointLimits(tinyxml2::XMLElement* robot)
       }
     }
   }
-
-  return true;
 }
 
-bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
+void ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
 {
   const auto ns = uadf_.urdf->getName() + "/$(arg ID)";
   const auto& root_name = tree_.getRootName();
@@ -1226,25 +1074,17 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
 
     const auto limits = uadf_.urdf->getJoint(joint.name)->limits;
     if (!limits) {
-      qt::qErrorBox(parent_, "No limit is set for the servo joint \"" + QString::fromStdString(joint.name) + "\".");
-      return false;
+      qWarning().nospace() << "No limit is set for the servo joint " + QString::fromStdString(joint.name) + ".";
+      continue;
     }
 
     switch (joint.cmd_iface) {
       case JointCommandInterface::kNone: {
-        qt::qErrorBox(
-          parent_,
-          "Please set the command interface for the servo joint \"" + QString::fromStdString(joint.name) + "\".");
-        return false;
+        break;
       }
       case JointCommandInterface::kPosition: {
         const auto max_vel = limits->velocity;
-        if (max_vel <= 0.0) {
-          qt::qErrorBox(
-            parent_,
-            "The maximum velocity of the servo joint \"" + QString::fromStdString(joint.name) + "\" must be positive.");
-          return false;
-        }
+        TOBAS_CHECK(max_vel > 0.0);
 
         // Use the time required to rotate 60 deg at maximum speed as the time constant.
         // In other words, maximum speed is reached at 60 deg error.
@@ -1279,22 +1119,8 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
   // LookAt position plugin
   xml::addGazeboLookAtPositionPlugin(robot, ns, root_name);
 
-  // Base static joint for debug
+  // Base  joint for debug
   xml::addBaseStaticJoint(robot, tree_.getRootName());
-
-  return true;
-}
-
-TurningDirection ProjectGenerator::turningDirectionUadfToTbsdrn(const uadf::Thrust::Direction& src)
-{
-  switch (src) {
-    case uadf::Thrust::CW:
-      return TurningDirection::CW;
-    case uadf::Thrust::CCW:
-      return TurningDirection::CCW;
-    default:
-      throw;
-  }
 }
 }  // namespace sa
 }  // namespace gui

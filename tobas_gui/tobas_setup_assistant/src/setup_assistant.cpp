@@ -431,9 +431,7 @@ void SetupAssistantWidget::onSaveButtonClicked()
   }
 
   // Create the project.
-  if (!prj_gen_->generateProject(cur_proj_path)) {
-    return;
-  }
+  prj_gen_->generateProject(cur_proj_path);
 
   qt::qInfoBox(this, "Tobas project has been updated.");
 }
@@ -470,9 +468,7 @@ void SetupAssistantWidget::onSaveAsButtonClicked()
   }
 
   // Create the project.
-  if (!prj_gen_->generateProject(proj_path)) {
-    return;
-  }
+  prj_gen_->generateProject(proj_path);
 
   // Set the project path.
   proj_path_->setText(proj_path);
