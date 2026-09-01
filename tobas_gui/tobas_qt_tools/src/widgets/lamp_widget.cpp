@@ -3,8 +3,6 @@
 
 #include "tobas_qt_tools/widgets/lamp_widget.hpp"
 
-#include <format>
-
 namespace tobas
 {
 namespace qt
@@ -35,23 +33,31 @@ void LampWidget::setColor(const RGBColor& color)
 
 void LampWidget::draw()
 {
-  constexpr char QSS[] = "QLabel {{"
-                         "border: 2px solid lightgray;"
-                         "border-radius: {}px;"
-                         "background-color:"
-                         "QLinearGradient("
-                         "y1: 0, y2: 1,"
-                         "stop: 0 WHITE,"
-                         "stop: 0.2 #{:02X}{:02X}{:02X},"
-                         "stop: 0.8 #{:02X}{:02X}{:02X},"
-                         "stop: 1 #{:02X}{:02X}{:02X}"
-                         ");"
-                         "}}";
+  const auto qss = QStringLiteral("QLabel {"
+                                  "border: 2px solid lightgray;"
+                                  "border-radius: %1px;"
+                                  "background-color:"
+                                  "QLinearGradient("
+                                  "y1: 0, y2: 1,"
+                                  "stop: 0 WHITE,"
+                                  "stop: 0.2 #%2%3%4,"
+                                  "stop: 0.8 #%5%6%7,"
+                                  "stop: 1 #%8%9%10"
+                                  ");"
+                                  "}");
 
   const auto radius = sizeHint().height() / 2;
   const auto grad = c_.mean(RGBColor::White());
-  const auto qss = std::format(QSS, radius, grad.r, grad.g, grad.b, c_.r, c_.g, c_.b, c_.r, c_.g, c_.b);
-  setStyleSheet(QString::fromStdString(qss));
+  setStyleSheet(qss.arg(radius)
+                  .arg(grad.r, 2, 16, QLatin1Char('0'))
+                  .arg(grad.g, 2, 16, QLatin1Char('0'))
+                  .arg(grad.b, 2, 16, QLatin1Char('0'))
+                  .arg(c_.r, 2, 16, QLatin1Char('0'))
+                  .arg(c_.g, 2, 16, QLatin1Char('0'))
+                  .arg(c_.b, 2, 16, QLatin1Char('0'))
+                  .arg(c_.r, 2, 16, QLatin1Char('0'))
+                  .arg(c_.g, 2, 16, QLatin1Char('0'))
+                  .arg(c_.b, 2, 16, QLatin1Char('0')));
 }
 }  // namespace qt
 }  // namespace tobas
