@@ -32,9 +32,9 @@ bool FrameTypeDetector::updateInternalDataStructures()
 
 FrameTypeDetectionResult FrameTypeDetector::determineFrameType()
 {
-  constexpr char kIsNotSupported[] = "is not supported.";
+  constexpr char kIsNotSupported[] = "\nis not supported.";
 
-  std::string msg = "Airframe\n";
+  std::string msg = "Airframe\n\n";
 
   if (uadf_.control_surfaces.empty()) {
     msg += "  • which does not have fixed wings\n";
