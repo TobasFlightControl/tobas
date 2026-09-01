@@ -7,6 +7,7 @@
 #include <QPainter>
 
 #include <tobas_math/core.hpp>
+#include <tobas_std_tools/unit_conversions.hpp>
 
 namespace tobas
 {
@@ -14,6 +15,27 @@ namespace gui
 {
 namespace ctrl
 {
+namespace
+{
+constexpr int kOriginalSize = 640;
+constexpr int kLineWidth = 3;       // Gauge line width.
+constexpr int kScaleInterval = 10;  // [deg]
+constexpr int kRollRadius = 200;    // Roll circle radius.
+constexpr int kRollTickLength = 10;
+constexpr double kPitchAngleOfView = st::deg2rad(120);  // [rad] Approximately the human field of view.
+constexpr int kPitchVisualRange = 25;                   // [deg] Pitch angle range to draw.
+constexpr int kPitchLineLength = 100;
+constexpr double kYawAngleOfView = st::deg2rad(120);  // [rad]
+constexpr int kYawLineY = 60;
+constexpr int kYawTickLength = 10;
+constexpr int kAltitudeVisualRange = 25;   // [m]
+constexpr int kAltitudeScaleInterval = 5;  // [m]
+constexpr int kAltitudeTickLength = 12;
+constexpr int kAltitudeTickX = 40;
+constexpr int kAltitudeTextY = kYawLineY + 40;
+constexpr int kAltitudeTickMaxY = kAltitudeTextY + 10;
+}  // namespace
+
 PoseViewerWidget::PoseViewerWidget(const rqt::RosQtBridge& bridge)
 {
   reset();

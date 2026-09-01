@@ -26,6 +26,11 @@ namespace propulsion
 {
 namespace electric
 {
+namespace
+{
+constexpr char kPropellerNameKey[] = "propeller_name";
+}  // namespace
+
 AerodynamicsWidget_Preset::AerodynamicsWidget_Preset(const PropellerWidget* propeller) : propeller_(propeller)
 {
   data_name_ = new qt::ComboBox();

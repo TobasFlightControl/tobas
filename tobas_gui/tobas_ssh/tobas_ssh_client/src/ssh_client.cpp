@@ -13,6 +13,19 @@ namespace tobas
 {
 namespace ssh
 {
+namespace
+{
+constexpr char kSetEndpointSrv[] = "ssh/set_endpoint";
+constexpr char kConnectSrv[] = "ssh/connect";
+constexpr char kExecuteSrv[] = "ssh/execute";
+constexpr char kSftpReadSrv[] = "ssh/sftp_read";
+constexpr char kSftpWriteSrv[] = "ssh/sftp_write";
+constexpr char kListSrv[] = "ssh/list";
+
+constexpr char kScpGetAction[] = "ssh/scp_get";
+constexpr char kScpPutAction[] = "ssh/scp_put";
+}  // namespace
+
 SshClient::SshClient(rclcpp::Node::SharedPtr node)
   : node_(node)
   , set_endpoint_sc_(node, kSetEndpointSrv)

@@ -15,6 +15,11 @@ namespace sa
 {
 namespace network
 {
+namespace
+{
+constexpr char kNetworkIfaceLabel[] = "Network Interface";
+}  // namespace
+
 NetworkWidget::NetworkWidget()
 {
   nic_ = new NetworkIfaceWidget();

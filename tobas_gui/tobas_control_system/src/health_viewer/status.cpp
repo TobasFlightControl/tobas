@@ -15,6 +15,12 @@ namespace gui
 {
 namespace ctrl
 {
+namespace
+{
+constexpr int kStatusWidth = 40;
+constexpr int kTextPSize = 12;
+}  // namespace
+
 StatusWidget::StatusWidget(const QString& text)
 {
   setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);

@@ -28,8 +28,6 @@ class PropulsionSystemWidget : public BaseSettingWidget
   using self = PropulsionSystemWidget;
   using super = BaseSettingWidget;
 
-  static constexpr char kTypeKey[] = "propulsion_system_type";
-
 public:
   explicit PropulsionSystemWidget(const uadf::Model& uadf, Signals& sig);
 

@@ -26,11 +26,6 @@ class HardwareWidget : public BaseSettingWidget
   using self = HardwareWidget;
   using super = BaseSettingWidget;
 
-  static constexpr char kTypeKey[] = "hardware_type";
-
-  static constexpr char kPwmLabel[] = "PWM";
-  static constexpr char kDShotLabel[] = "DShot";
-
 public:
   explicit HardwareWidget(const uadf::Model& uadf, const Signals& sig);
 

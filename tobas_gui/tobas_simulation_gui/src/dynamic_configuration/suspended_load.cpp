@@ -26,6 +26,15 @@ namespace gui
 {
 namespace sim
 {
+namespace
+{
+constexpr double kDefaultLoadSize = 0.3;           // [m]
+constexpr double kDefaultLoadMass = 1.0;           // [kg]
+constexpr double kDefaultCableLength = 3.0;        // [m]
+constexpr int kDefaultCableYoungModulus = 200;     // [MPa] Low-density polyethylene.
+constexpr int kDefaultCableCrossSectionArea = 50;  // [mm^2]
+}  // namespace
+
 SuspendedLoadWidget::SuspendedLoadWidget()
 {
   const auto title = new qt::Label("Suspended Load", cmn::kLabelPSize, QFont::Bold);

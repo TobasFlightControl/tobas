@@ -26,6 +26,13 @@ namespace gui
 {
 namespace param
 {
+namespace
+{
+constexpr int kLabelPSize = 12;
+constexpr int kParamNameWidth = 250;
+constexpr int kLineEditWidth = 150;
+}  // namespace
+
 ParamBlockWidget::ParamBlockWidget(const std::string& node_name, const QString& label) : node_name_(node_name)
 {
   const auto rows = new QVBoxLayout();

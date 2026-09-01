@@ -39,10 +39,6 @@ class SetupAssistantWidget : public QWidget
   using self = SetupAssistantWidget;
   using super = QWidget;
 
-  static constexpr char kLastOpenedDirKey_New[] = "setup_assistant/last_opened_dir/new";
-  static constexpr char kLastOpenedDirKey_Load[] = "setup_assistant/last_opened_dir/load";
-  static constexpr char kLastOpenedDirKey_Save[] = "setup_assistant/last_opened_dir/save";
-
 public:
   explicit SetupAssistantWidget(rclcpp::Node::SharedPtr node);
 

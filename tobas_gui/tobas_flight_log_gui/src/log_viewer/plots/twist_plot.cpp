@@ -13,6 +13,12 @@ namespace gui
 {
 namespace log
 {
+namespace
+{
+constexpr double kMinLinearScale = 1.0;   // [m/s]
+constexpr double kMinAngularScale = 1.0;  // [rad/s]
+}  // namespace
+
 TwistPlotWidget::TwistPlotWidget()
   : cur_curves_{ "Current Linear Velocity X [m/s]",    "Current Linear Velocity Y [m/s]",
                  "Current Linear Velocity Z [m/s]",    "Current Angular Velocity X [rad/s]",

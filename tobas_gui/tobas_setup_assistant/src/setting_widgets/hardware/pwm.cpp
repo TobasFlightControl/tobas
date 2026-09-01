@@ -23,6 +23,20 @@ namespace sa
 {
 namespace hw
 {
+namespace
+{
+constexpr int kTargetNameCol = 0;
+constexpr int kPeriodLbCol = kTargetNameCol + 1;
+constexpr int kPeriodUbCol = kPeriodLbCol + 1;
+constexpr int kNumCols = kPeriodUbCol + 1;
+
+constexpr char kTargetNameLabel[] = "Target";
+constexpr char kPeriodLbLabel[] = "PWM Period (LB)";
+constexpr char kPeriodUbLabel[] = "PWM Period (UB)";
+
+constexpr int kPeriodDecimals = 2;
+}  // namespace
+
 PwmWidget::PwmWidget(const uadf::Model& uadf, const Signals& sig) : super(0, kNumCols), uadf_(uadf)
 {
   setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);

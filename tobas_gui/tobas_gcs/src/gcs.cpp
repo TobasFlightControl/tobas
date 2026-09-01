@@ -42,6 +42,8 @@ namespace gcs
 {
 namespace
 {
+constexpr char kLastOpenedDirKey[] = "gcs/last_opened_dir";
+
 constexpr auto kHostRole = Qt::UserRole;
 constexpr int kHeartbeatTimeout = 10000;  // [ms]
 constexpr char kIdPrefix[] = "id";
@@ -913,7 +915,7 @@ void GroundControlStationWidget::onSimulationStarted()
   // Set the simulation target.
   updateFlightControllerList({ DiscoveredFlightController("Simulation Model", "127.0.0.1") });
   fc_selector_->setCurrentIndex(1);
-  vehicle_id_->setValue(0);
+  vehicle_id_->setValue(sim::SimulationWidget::kDroneId);
 
   // Stop scanning for flight controllers.
   fc_scanner_->stop();

@@ -21,16 +21,51 @@ namespace sa
 {
 namespace ctrl
 {
+namespace
+{
+constexpr char kAcrobatLabel[] = "Acrobat Mode";
+constexpr char kStabilizeLabel[] = "Stabilize Mode";
+constexpr char kLoiterLabel[] = "Loiter Mode";
+
+constexpr char kRateThrottleLabel[] = "Angle Rate + Throttle";
+constexpr char kRateThrottleVectorLabel[] = "Angle Rate + Throttle + Thrust Direction";
+constexpr char kAngleThrottleLabel[] = "Euler Angle + Throttle";
+constexpr char kAngleThrottleVectorLabel[] = "Euler Angle + Throttle + Thrust Direction";
+constexpr char kAccelYawLabel[] = "Accel + Yaw";
+constexpr char kAccelPitchYawLabel[] = "Accel + Pitch + Yaw";
+constexpr char kPosVelAccYawLabel[] = "Position + Velocity + Yaw";
+constexpr char kPosVelAccPitchYawLabel[] = "Position + Velocity + Pitch + Yaw";
+constexpr char kAccelRateLabel[] = "Accel + Angle Rate";
+constexpr char kAccelAngleLabel[] = "Accel + Euler Angle";
+constexpr char kPosVelAccAngleLabel[] = "Position + Velocity + Angle";
+constexpr char kSpeedRollDeltaPitchLabel[] = "Speed + Roll + Pitch";
+
+const std::map<QString, RcCommand> kCommandMap{
+  { kRateThrottleLabel, RcCommand::kRateThrottle },
+  { kRateThrottleVectorLabel, RcCommand::kRateThrottleVector },
+  { kAngleThrottleLabel, RcCommand::kAngleThrottle },
+  { kAngleThrottleVectorLabel, RcCommand::kAngleThrottleVector },
+  { kAccelYawLabel, RcCommand::kAccelYaw },
+  { kAccelPitchYawLabel, RcCommand::kAccelPitchYaw },
+  { kPosVelAccYawLabel, RcCommand::kPosVelAccYaw },
+  { kPosVelAccPitchYawLabel, RcCommand::kPosVelAccPitchYaw },
+  { kAccelRateLabel, RcCommand::kAccelRate },
+  { kAccelAngleLabel, RcCommand::kAccelAngle },
+  { kPosVelAccAngleLabel, RcCommand::kPosVelAccAngle },
+  { kSpeedRollDeltaPitchLabel, RcCommand::kSpeedRollDPitch },
+};
+}  // namespace
+
 CustomFrameWidget::CustomFrameWidget()
 {
-  TOBAS_CHECK(command_map_.size() == magic_enum::enum_count<RcCommand>());
+  TOBAS_CHECK(kCommandMap.size() == magic_enum::enum_count<RcCommand>());
 
   acrobat_mode_ = new qt::ComboBox();
   stabilize_mode_ = new qt::ComboBox();
   loiter_mode_ = new qt::ComboBox();
 
   // Add command choices.
-  for (const auto& [text, _] : command_map_) {
+  for (const auto& [text, _] : kCommandMap) {
     acrobat_mode_->addItem(text);
     stabilize_mode_->addItem(text);
     loiter_mode_->addItem(text);
@@ -74,17 +109,17 @@ QString CustomFrameWidget::pluginName() const
 
 RcCommand CustomFrameWidget::acrobatModeCommand() const
 {
-  return command_map_.at(acrobat_mode_->currentText());
+  return kCommandMap.at(acrobat_mode_->currentText());
 }
 
 RcCommand CustomFrameWidget::stabilizeModeCommand() const
 {
-  return command_map_.at(stabilize_mode_->currentText());
+  return kCommandMap.at(stabilize_mode_->currentText());
 }
 
 RcCommand CustomFrameWidget::loiterModeCommand() const
 {
-  return command_map_.at(loiter_mode_->currentText());
+  return kCommandMap.at(loiter_mode_->currentText());
 }
 
 YAML::Node CustomFrameWidget::staticParams() const

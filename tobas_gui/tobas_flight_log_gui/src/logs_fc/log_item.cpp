@@ -15,6 +15,11 @@ namespace gui
 {
 namespace log
 {
+namespace
+{
+constexpr int kButtonWidth = 80;
+}  // namespace
+
 FlightLogItemWidgetFC::FlightLogItemWidgetFC(const QString& log_name)
 {
   log_name_ = new QLabel(log_name);

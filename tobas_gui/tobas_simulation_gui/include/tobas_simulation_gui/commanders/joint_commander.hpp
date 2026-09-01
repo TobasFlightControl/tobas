@@ -31,8 +31,6 @@ class JointCommanderWidget : public QWidget
   using super = QWidget;
   using CmdMsg = tobas_msgs::msg::JointCommandArray;
 
-  static constexpr int kPublishCommandPeriod = 100;  // [ms]
-
 public:
   explicit JointCommanderWidget(const kdl::Tree& tree, const Drone& drone);
 

@@ -21,6 +21,13 @@ namespace gui
 {
 namespace sa
 {
+namespace
+{
+constexpr bool kDefaultVisualEnabled = true;
+constexpr bool kDefaultCollisionEnabled = false;
+constexpr bool kDefaultInertiaEnabled = false;
+}  // namespace
+
 RvizWidget::RvizWidget(const uadf::Model& uadf, const kdl::Tree& tree)
   : uadf_(uadf), tree_(tree), rviz_manager_("rviz_robot_state_display")
 {

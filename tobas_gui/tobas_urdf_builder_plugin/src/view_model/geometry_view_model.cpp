@@ -27,6 +27,15 @@ namespace ub
 {
 namespace view_model
 {
+namespace
+{
+constexpr double kDefaultRadius = 0.0;
+constexpr double kDefaultLength = 0.0;
+constexpr double kDefaultWidth = 0.0;
+constexpr double kDefaultHeight = 0.0;
+constexpr double kDefaultScale = 1.0;
+}  // namespace
+
 GeometryViewModel::GeometryViewModel(const ::urdf::GeometrySharedPtr& model)
   : BaseViewModel<::urdf::Geometry, GeometryViewModel>(model)
   , type_(model_->type)

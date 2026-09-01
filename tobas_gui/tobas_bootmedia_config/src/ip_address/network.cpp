@@ -19,6 +19,14 @@ namespace bm
 {
 namespace
 {
+constexpr char kMatchSection[] = "Match";
+constexpr char kNetworkSection[] = "Network";
+constexpr char kNameKey[] = "Name";
+constexpr char kDhcpKey[] = "DHCP";
+constexpr char kAddressKey[] = "Address";
+constexpr char kGatewayKey[] = "Gateway";
+constexpr char kDnsKey[] = "DNS";
+
 bool ipv4StringToInt(const std::string& text, uint32_t& out)
 {
   in_addr addr;

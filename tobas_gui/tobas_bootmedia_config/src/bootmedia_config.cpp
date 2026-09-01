@@ -22,6 +22,12 @@ namespace gui
 {
 namespace bm
 {
+namespace
+{
+constexpr int kTabWidth = 70;
+constexpr int kTabHeight = 35;
+}  // namespace
+
 BootmediaConfigWidget::BootmediaConfigWidget()
 {
   media_manager_ = new MediaManagerWidget();

@@ -12,12 +12,20 @@
 
 #include <tobas_gazebo_common/constants.hpp>
 
+using namespace std::chrono_literals;
+
 namespace ch = std::chrono;
 
 namespace tobas
 {
 namespace gazebo
 {
+namespace
+{
+constexpr double kAlpha = 0.05;
+constexpr auto kPublishPeriod = 1000ms;
+}  // namespace
+
 TobasRenderInfo::TobasRenderInfo()
 {
 }

@@ -19,6 +19,13 @@ namespace gui
 {
 namespace ctrl
 {
+namespace
+{
+constexpr int kLablePSize = 12;
+constexpr int kButtonWidth = 100;
+constexpr int kButtonHeight = 40;
+}  // namespace
+
 BaseCommandWidget::BaseCommandWidget()
 {
   const auto root_rows = new QVBoxLayout();

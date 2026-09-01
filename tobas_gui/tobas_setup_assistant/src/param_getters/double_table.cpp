@@ -22,6 +22,15 @@ namespace gui
 {
 namespace sa
 {
+namespace
+{
+constexpr int kButtonWidth = 90;
+constexpr int kButtonHeight = 36;
+
+constexpr double kDefaultValue = 0.0;
+constexpr int kDefaultDecimals = 2;
+}  // namespace
+
 ParamGetterWidget_DoubleTable::ParamGetterWidget_DoubleTable(
   const QString& param_name,
   const QString& title,

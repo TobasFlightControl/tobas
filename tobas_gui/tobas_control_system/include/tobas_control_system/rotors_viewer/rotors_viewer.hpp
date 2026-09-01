@@ -23,9 +23,6 @@ class RotorsViewerWiddget : public QWidget
   using self = RotorsViewerWiddget;
   using super = QWidget;
 
-  static constexpr char kAliveBackgroundColor[] = "transparent";
-  static constexpr char kDeadBackgroundColor[] = "red";
-
 public:
   explicit RotorsViewerWiddget(const rqt::RosQtBridge& bridge, const Drone& drone);
 

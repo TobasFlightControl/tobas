@@ -15,6 +15,12 @@ namespace gui
 {
 namespace at
 {
+namespace
+{
+constexpr int kButtonWidth = 100;
+constexpr int kButtonHeight = 40;
+}  // namespace
+
 JointTestWidget::JointTestWidget(const rqt::RosQtBridge& bridge, const kdl::Tree& tree, const Drone& drone)
   : tree_(tree), drone_(drone)
 {

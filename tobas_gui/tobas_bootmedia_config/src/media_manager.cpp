@@ -23,6 +23,13 @@ namespace gui
 {
 namespace bm
 {
+namespace
+{
+constexpr int kMediaNameWidth = 600;
+constexpr int kConnectButtonWidth = 100;
+constexpr mode_t kPermission = 0755;  // rwxr-xr-x
+}  // namespace
+
 MediaManagerWidget::MediaManagerWidget()
 {
   media_name_ = new qt::ComboBox();

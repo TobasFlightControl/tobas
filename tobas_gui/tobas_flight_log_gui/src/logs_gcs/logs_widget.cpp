@@ -29,6 +29,15 @@ namespace gui
 {
 namespace log
 {
+namespace
+{
+constexpr int kButtonWidth = 100;
+constexpr int kButtonHeight = 40;
+constexpr int kListItemHeight = 40;
+
+constexpr char kLastOpenedDirKey[] = "flight_logs_gcs/last_opened_dir";
+}  // namespace
+
 FlightLogsWidgetGCS::FlightLogsWidgetGCS() : spinner_(Qt::WindowModal, this)
 {
   read_button_ = new QPushButton("Read");

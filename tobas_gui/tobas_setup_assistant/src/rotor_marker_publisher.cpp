@@ -17,6 +17,11 @@ namespace gui
 {
 namespace sa
 {
+namespace
+{
+constexpr double kArrowLength = 0.2;  // TODO: Reflect the expected maximum thrust in the arrow length.
+}  // namespace
+
 RotorMarkerPublisher::RotorMarkerPublisher(rclcpp::Node::SharedPtr node, const uadf::Model& uadf)
   : node_(node), uadf_(uadf)
 {

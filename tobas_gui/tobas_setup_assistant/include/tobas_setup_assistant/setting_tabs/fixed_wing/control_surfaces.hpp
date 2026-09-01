@@ -23,30 +23,6 @@ class ControlSurfacesWidget : public qt::TableWidget
   using self = ControlSurfacesWidget;
   using super = qt::TableWidget;
 
-  static constexpr int kColWidth = 120;
-  static constexpr double kAngleLimit = M_PI_4;
-
-  // Columns
-  static constexpr int kLinkNameCol = 0;
-  static constexpr int kJointNameCol = kLinkNameCol + 1;
-  static constexpr int kLiftCoefCol = kJointNameCol + 1;
-  static constexpr int kDragCoefCol = kLiftCoefCol + 1;
-  static constexpr int kSideCoefCol = kDragCoefCol + 1;
-  static constexpr int kRollCoefCol = kSideCoefCol + 1;
-  static constexpr int kPitchCoefCol = kRollCoefCol + 1;
-  static constexpr int kYawCoefCol = kPitchCoefCol + 1;
-  static constexpr int kNumCols = kYawCoefCol + 1;
-
-  // Labels
-  static constexpr char kLinkNameLabel[] = "Link Name";
-  static constexpr char kJointNameLabel[] = "Joint Name";
-  static constexpr char kLiftCoefLabel[] = "Lift Coef";
-  static constexpr char kDragCoefLabel[] = "Drag Coef";
-  static constexpr char kSideCoefLabel[] = "Side Coef";
-  static constexpr char kRollCoefLabel[] = "Roll Coef";
-  static constexpr char kPitchCoefLabel[] = "Pitch Coef";
-  static constexpr char kYawCoefLabel[] = "Yaw Coef";
-
 public:
   explicit ControlSurfacesWidget(const uadf::Model& uadf);
 

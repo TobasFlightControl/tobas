@@ -22,12 +22,6 @@ class FlightLogsWidgetGCS : public QWidget
   using self = FlightLogsWidgetGCS;
   using super = QWidget;
 
-  static constexpr int kButtonWidth = 100;
-  static constexpr int kButtonHeight = 40;
-  static constexpr int kListItemHeight = 40;
-
-  static constexpr char kLastOpenedDirKey[] = "flight_logs_gcs/last_opened_dir";
-
 Q_SIGNALS:
   void logSelected(const QString& log_name);
   void logDeselected();

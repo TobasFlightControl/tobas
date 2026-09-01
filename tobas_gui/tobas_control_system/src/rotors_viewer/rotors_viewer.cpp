@@ -12,6 +12,12 @@ namespace gui
 {
 namespace ctrl
 {
+namespace
+{
+constexpr char kAliveBackgroundColor[] = "transparent";
+constexpr char kDeadBackgroundColor[] = "red";
+}  // namespace
+
 RotorsViewerWiddget::RotorsViewerWiddget(const rqt::RosQtBridge& bridge, const Drone& drone) : drone_(drone)
 {
   cols_ = new QHBoxLayout();

@@ -21,12 +21,6 @@ namespace view_model
 {
 class GeometryViewModel : public BaseViewModel<::urdf::Geometry, GeometryViewModel>
 {
-  static constexpr double kDefaultRadius = 0.0;
-  static constexpr double kDefaultLength = 0.0;
-  static constexpr double kDefaultWidth = 0.0;
-  static constexpr double kDefaultHeight = 0.0;
-  static constexpr double kDefaultScale = 1.0;
-
 public:
   explicit GeometryViewModel(const ::urdf::GeometrySharedPtr& model);
 

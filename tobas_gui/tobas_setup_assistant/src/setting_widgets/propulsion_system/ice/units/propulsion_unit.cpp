@@ -16,6 +16,14 @@ namespace propulsion
 {
 namespace ice
 {
+namespace
+{
+constexpr int kButtonWidth = 125;
+constexpr int kButtonHeight = 50;
+constexpr int kTabWidth = 120;
+constexpr int kTabHeight = 40;
+}  // namespace
+
 PropulsionUnitWidget::PropulsionUnitWidget()
 {
   const auto rows = new QVBoxLayout();

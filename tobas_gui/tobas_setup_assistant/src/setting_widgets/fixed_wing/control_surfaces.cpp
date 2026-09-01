@@ -25,6 +25,33 @@ namespace sa
 {
 namespace fw
 {
+namespace
+{
+constexpr int kColWidth = 120;
+constexpr double kAngleLimit = M_PI_4;
+
+/* Columns */
+constexpr int kLinkNameCol = 0;
+constexpr int kJointNameCol = kLinkNameCol + 1;
+constexpr int kLiftCoefCol = kJointNameCol + 1;
+constexpr int kDragCoefCol = kLiftCoefCol + 1;
+constexpr int kSideCoefCol = kDragCoefCol + 1;
+constexpr int kRollCoefCol = kSideCoefCol + 1;
+constexpr int kPitchCoefCol = kRollCoefCol + 1;
+constexpr int kYawCoefCol = kPitchCoefCol + 1;
+constexpr int kNumCols = kYawCoefCol + 1;
+
+/* Labels */
+constexpr char kLinkNameLabel[] = "Link Name";
+constexpr char kJointNameLabel[] = "Joint Name";
+constexpr char kLiftCoefLabel[] = "Lift Coef";
+constexpr char kDragCoefLabel[] = "Drag Coef";
+constexpr char kSideCoefLabel[] = "Side Coef";
+constexpr char kRollCoefLabel[] = "Roll Coef";
+constexpr char kPitchCoefLabel[] = "Pitch Coef";
+constexpr char kYawCoefLabel[] = "Yaw Coef";
+}  // namespace
+
 ControlSurfacesWidget::ControlSurfacesWidget(const uadf::Model& uadf) : super(0, kNumCols), uadf_(uadf)
 {
   const auto rows = new QVBoxLayout();

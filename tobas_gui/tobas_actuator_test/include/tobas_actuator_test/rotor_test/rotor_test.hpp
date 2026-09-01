@@ -41,11 +41,6 @@ class RotorTestWidget : public BaseWidget
   using self = RotorTestWidget;
   using super = BaseWidget;
 
-  static constexpr int kButtonWidth = 100;
-  static constexpr int kButtonHeight = 40;
-  static constexpr int kUpdatePeriod = 10;  // [ms]
-  static constexpr auto kWaitForService = std::chrono::seconds(3);
-
 public:
   explicit RotorTestWidget(const rqt::RosQtBridge& bridge, const Drone& drone);
 

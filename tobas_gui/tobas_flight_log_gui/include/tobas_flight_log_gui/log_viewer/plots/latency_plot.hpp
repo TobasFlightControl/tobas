@@ -20,12 +20,6 @@ class LatencyPlotWidget : public BasePlotWidget
 {
   Q_OBJECT
 
-  static constexpr int kSamplingTimeMin = 500;     // [us]
-  static constexpr int kSamplingTimeMax = 2000;    // [us]
-  static constexpr int kControlLatencyMin = 0;     // [us]
-  static constexpr int kControlLatencyMax = 1500;  // [us]
-  static constexpr int kBinWidth = 10;             // [us]
-
 public:
   explicit LatencyPlotWidget();
 

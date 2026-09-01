@@ -23,6 +23,13 @@ namespace sa
 {
 namespace hw
 {
+namespace
+{
+constexpr char kTypeKey[] = "hardware_type";
+constexpr char kPwmLabel[] = "PWM";
+constexpr char kDShotLabel[] = "DShot";
+}  // namespace
+
 HardwareWidget::HardwareWidget(const uadf::Model& uadf, const Signals& sig)
 {
   type_ = new qt::ComboBox();

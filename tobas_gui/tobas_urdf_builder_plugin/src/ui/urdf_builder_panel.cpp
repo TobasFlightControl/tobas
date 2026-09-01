@@ -31,6 +31,11 @@ namespace ub
 {
 namespace ui
 {
+namespace
+{
+constexpr char kConfigKey_LastOpenedDir[] = "urdf_builder_panel/last_opened_dir";
+}  // namespace
+
 UrdfBuilderPanel::UrdfBuilderPanel(QWidget* parent)
   : rviz_common::Panel(parent), settings_store_("tobas", "urdf_builder")
 {

@@ -28,10 +28,6 @@ class BaseCommandWidget : public QWidget
   using self = BaseCommandWidget;
   using super = QWidget;
 
-  static constexpr int kLablePSize = 12;
-  static constexpr int kButtonWidth = 100;
-  static constexpr int kButtonHeight = 40;
-
 Q_SIGNALS:
   void updated();
   void deleteButtonClicked();

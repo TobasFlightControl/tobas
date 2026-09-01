@@ -41,6 +41,12 @@ namespace ctrl
 {
 namespace
 {
+constexpr char kCacheDirOnline[] = "~/.cache/tobas/tiles/online";
+constexpr char kCacheDirOffline[] = "~/.cache/tobas/tiles/offline";
+
+constexpr uintmax_t kCacheMaxSize = 1 << 30;  // 1GiB
+constexpr char kLastOpenedDirKey[] = "mission_planner/last_opened_dir";
+
 using MapSplinePath = traj::CatmullRomPath<Eigen::Vector2d>;
 
 size_t splineMapSampleCount(const MapSplinePath& path, size_t segment)

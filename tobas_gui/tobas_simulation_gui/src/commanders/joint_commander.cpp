@@ -23,6 +23,11 @@ namespace gui
 {
 namespace sim
 {
+namespace
+{
+constexpr int kPublishCommandPeriod = 100;  // [ms]
+}  // namespace
+
 JointCommanderWidget::JointCommanderWidget(const kdl::Tree& tree, const Drone& drone)
   : tree_(tree), drone_(drone), rnd_gen_(rnd_dev_()), joint_parser_(tree)
 {

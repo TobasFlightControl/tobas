@@ -16,6 +16,13 @@ namespace gui
 {
 namespace at
 {
+namespace
+{
+constexpr int kPublishPeriod = 10;        // [ms]
+constexpr double kDefaultMaxVel = M_2PI;  // [rad/s]
+constexpr double kDefaultMaxEff = 10.0;   // [Nm]
+}  // namespace
+
 JointCommandsPublisherWidget::JointCommandsPublisherWidget(const kdl::Tree& tree, const Drone& drone)
   : tree_(tree), drone_(drone), joint_parser_(tree)
 {

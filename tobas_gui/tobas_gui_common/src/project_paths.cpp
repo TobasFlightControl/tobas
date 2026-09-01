@@ -16,6 +16,15 @@ namespace gui
 {
 namespace cmn
 {
+namespace
+{
+constexpr char kImuFilterDynamicParamFileName[] = "imu_filter_dynamic.yaml";
+constexpr char kRpmControlDynamicParamFileName[] = "rpm_control_dynamic.yaml";
+constexpr char kObserverDynamicParamFileName[] = "observer_dynamic.yaml";
+constexpr char kControllerDynamicParamFileName[] = "controller_dynamic.yaml";
+constexpr char kRcTeleopDynamicParamFileName[] = "rc_teleop_dynamic.yaml";
+}  // namespace
+
 ProjectPaths::ProjectPaths(const QString& proj_path) : proj_path_(proj_path)
 {
 }

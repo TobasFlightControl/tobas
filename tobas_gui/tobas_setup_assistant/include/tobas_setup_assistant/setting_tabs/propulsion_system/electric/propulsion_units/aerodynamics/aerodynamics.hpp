@@ -24,8 +24,6 @@ class AerodynamicsWidget : public BaseSelectedLinkSettingWidget
 {
   Q_OBJECT
 
-  static constexpr char kMethodNameKey[] = "method_name";
-
 public:
   explicit AerodynamicsWidget(const PropellerWidget* propeller);
 

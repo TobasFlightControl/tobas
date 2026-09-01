@@ -25,6 +25,12 @@ namespace ub
 {
 namespace ui
 {
+namespace
+{
+constexpr char kConfigKey_VisualGeometryMeshBrowseDir[] = "update_link_dialog/visual_geometry_mesh_dir";
+constexpr char kConfigKey_CollisionGeometryMeshBrowseDir[] = "update_link_dialog/collision_geometry_mesh_dir";
+}  // namespace
+
 UpdateLinkDialog::UpdateLinkDialog(UrdfBuilderPanel* main)
   : super(main)
   , settings_store_("tobas", "urdf_builder")

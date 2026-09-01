@@ -13,9 +13,6 @@ namespace cmn
 {
 class SshConfig
 {
-  static constexpr char kHostKey[] = "host";
-  static constexpr char kUserKey[] = "user";
-
 public:
   QString host;
   QString user;

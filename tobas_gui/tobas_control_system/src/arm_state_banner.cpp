@@ -20,6 +20,10 @@ namespace ctrl
 {
 namespace
 {
+constexpr int kHeight = 30;
+constexpr int kPSize = 14;
+constexpr int kMaxArmReadinessIssues = 3;
+
 void appendArmReadinessIssue(QStringList& issues, const QString& label, uint8_t status)
 {
   if (status == tobas_msgs::msg::VehicleHealth::FAILED) {

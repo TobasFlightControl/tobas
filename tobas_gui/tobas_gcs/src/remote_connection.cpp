@@ -16,6 +16,11 @@ namespace gui
 {
 namespace gcs
 {
+namespace
+{
+constexpr int kTimeout = 10000;  // [ms]
+}  // namespace
+
 RemoteConnectionWidget::RemoteConnectionWidget(const rqt::RosQtBridge& bridge) : bridge_(bridge)
 {
   const auto rsrc_dir = getResourceDir() / "connection";

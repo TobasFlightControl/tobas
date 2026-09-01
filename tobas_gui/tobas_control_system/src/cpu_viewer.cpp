@@ -16,6 +16,15 @@ namespace gui
 {
 namespace ctrl
 {
+namespace
+{
+constexpr int kLabelPSize = 12;
+constexpr int kBarHeight = 30;
+
+constexpr double kMinTemp = 0.0;    // [degC]
+constexpr double kMaxTemp = 100.0;  // [degC]
+}  // namespace
+
 CpuViewerWidget::CpuViewerWidget(const rqt::RosQtBridge& bridge)
 {
   temp_ = new qt::ProgressBar();

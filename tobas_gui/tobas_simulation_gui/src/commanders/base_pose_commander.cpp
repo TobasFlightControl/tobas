@@ -25,6 +25,11 @@ namespace gui
 {
 namespace sim
 {
+namespace
+{
+constexpr double kHomeAltitude = 3.0;  // [m]
+}  // namespace
+
 BasePoseCommanderWidget::BasePoseCommanderWidget(const rqt::RosQtBridge& bridge)
 {
   const auto root_rows = new QVBoxLayout();

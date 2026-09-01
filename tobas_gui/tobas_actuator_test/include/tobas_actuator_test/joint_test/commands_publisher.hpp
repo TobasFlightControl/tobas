@@ -30,10 +30,6 @@ class JointCommandsPublisherWidget : public QWidget
   using self = JointCommandsPublisherWidget;
   using super = QWidget;
 
-  static constexpr int kPublishPeriod = 10;        // [ms]
-  static constexpr double kDefaultMaxVel = M_2PI;  // [rad/s]
-  static constexpr double kDefaultMaxEff = 10.0;   // [Nm]
-
 public:
   explicit JointCommandsPublisherWidget(const kdl::Tree& tree, const Drone& drone);
 

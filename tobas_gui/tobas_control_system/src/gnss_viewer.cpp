@@ -14,6 +14,12 @@ namespace gui
 {
 namespace ctrl
 {
+namespace
+{
+constexpr int kLabelPSize = 12;
+constexpr int kLabelMinWidth = 60;
+}  // namespace
+
 GnssViewerWidget::GnssViewerWidget(const rqt::RosQtBridge& bridge)
 {
   status_ = new qt::FramedLabel();

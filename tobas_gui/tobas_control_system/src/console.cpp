@@ -14,6 +14,24 @@ namespace gui
 {
 namespace ctrl
 {
+namespace
+{
+constexpr int kMaxRows = 1000;  // Maximum number of messages to display.
+constexpr int kStampCol = 0;
+constexpr int kNameCol = 1;
+constexpr int kLevelCol = 2;
+constexpr int kMessageCol = 3;
+constexpr int kNumCols = 4;
+
+/* Message colors */
+constexpr auto kDebugColor = Qt::darkGreen;
+constexpr auto kInfoColor = Qt::black;
+constexpr auto kWarnColor = Qt::darkYellow;
+constexpr auto kErrorColor = Qt::darkRed;
+constexpr auto kFatalColor = Qt::darkMagenta;
+constexpr auto kUnknownColor = Qt::darkGray;
+}  // namespace
+
 ConsoleWidget::ConsoleWidget(const rqt::RosQtBridge& bridge)
 {
   table_ = new qt::TableWidget(0, kNumCols);

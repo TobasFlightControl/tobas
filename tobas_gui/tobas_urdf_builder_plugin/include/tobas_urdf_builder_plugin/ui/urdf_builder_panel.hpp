@@ -39,8 +39,6 @@ class UrdfBuilderPanel : public rviz_common::Panel
   using self = UrdfBuilderPanel;
   using super = rviz_common::Panel;
 
-  static constexpr char kConfigKey_LastOpenedDir[] = "urdf_builder_panel/last_opened_dir";
-
 public:
   explicit UrdfBuilderPanel(QWidget* parent = nullptr);
   ~UrdfBuilderPanel() override;

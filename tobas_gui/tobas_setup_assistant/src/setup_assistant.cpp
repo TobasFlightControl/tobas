@@ -34,6 +34,13 @@ namespace gui
 {
 namespace sa
 {
+namespace
+{
+constexpr char kLastOpenedDirKey_New[] = "setup_assistant/last_opened_dir/new";
+constexpr char kLastOpenedDirKey_Load[] = "setup_assistant/last_opened_dir/load";
+constexpr char kLastOpenedDirKey_Save[] = "setup_assistant/last_opened_dir/save";
+}  // namespace
+
 SetupAssistantWidget::SetupAssistantWidget(rclcpp::Node::SharedPtr node)
   : frame_type_detector_(uadf_, tree_)
   , rsp_client_(node, "robot_state_publisher")

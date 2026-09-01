@@ -22,6 +22,16 @@ namespace sa
 {
 namespace hw
 {
+namespace
+{
+constexpr int kTargetNameCol = 0;
+constexpr int kBidirectionalCol = kTargetNameCol + 1;
+constexpr int kNumCols = kBidirectionalCol + 1;
+
+constexpr char kTargetNameLabel[] = "Target";
+constexpr char kBidirectionalLabel[] = "Bidirectional";
+}  // namespace
+
 DShotWidget::DShotWidget(const uadf::Model& uadf, const Signals& sig) : super(0, kNumCols), uadf_(uadf)
 {
   setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);

@@ -17,6 +17,11 @@ namespace gui
 {
 namespace sa
 {
+namespace
+{
+constexpr char kEscNoCommTimeoutKey[] = "esc_no_comm_timeout";
+}  // namespace
+
 FailsafeWidget::FailsafeWidget()
 {
   items_[kRtComplianceIdx] = new qt::CheckBox("Check realtime compliance");

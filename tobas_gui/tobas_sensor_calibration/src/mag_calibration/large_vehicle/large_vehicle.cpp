@@ -16,6 +16,12 @@ namespace gui
 {
 namespace sc
 {
+namespace
+{
+constexpr int kButtonWidth = 100;
+constexpr int kButtonHeight = 40;
+}  // namespace
+
 LargeVehicleMagCalibWidget::LargeVehicleMagCalibWidget(const rqt::RosQtBridge& bridge)
   : spinner_(Qt::WindowModal, this), thread_(bridge)
 {

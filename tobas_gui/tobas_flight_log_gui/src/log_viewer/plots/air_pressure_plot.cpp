@@ -13,6 +13,11 @@ namespace gui
 {
 namespace log
 {
+namespace
+{
+constexpr double kMinPressureScale = 0.1;  // [hPa]
+}  // namespace
+
 AirPressurePlotWidget::AirPressurePlotWidget() : curve_("Pressure [hPa]")
 {
   const auto rows = new QVBoxLayout();

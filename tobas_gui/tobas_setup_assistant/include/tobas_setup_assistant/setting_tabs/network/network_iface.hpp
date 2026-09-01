@@ -23,14 +23,6 @@ class NetworkIfaceWidget : public QWidget
   using self = NetworkIfaceWidget;
   using super = QWidget;
 
-  static constexpr int kWiredIdx = 0;
-  static constexpr int kWirelessIdx = 1;
-  static constexpr int kAccessPointIdx = 2;
-  static constexpr int kOtherIdx = 3;
-
-  static constexpr char kNicTypeKey[] = "nic_type";
-  static constexpr char kOtherNicNameKey[] = "other_nic_name";
-
 public:
   explicit NetworkIfaceWidget();
 

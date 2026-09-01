@@ -21,8 +21,6 @@ class NetworkWidget : public BaseSettingWidget
   using self = NetworkWidget;
   using super = BaseSettingWidget;
 
-  static constexpr char kNetworkIfaceLabel[] = "Network Interface";
-
 public:
   explicit NetworkWidget();
 

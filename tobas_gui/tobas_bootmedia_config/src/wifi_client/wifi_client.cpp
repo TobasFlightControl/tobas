@@ -22,6 +22,15 @@ namespace bm
 {
 namespace
 {
+constexpr int kColWidth = 150;
+
+constexpr int kKeyMgmtCol = 0;
+constexpr int kSsidCol = kKeyMgmtCol + 1;
+constexpr int kPskCol = kSsidCol + 1;
+constexpr int kPriorityCol = kPskCol + 1;
+constexpr int kHiddenCol = kPriorityCol + 1;
+constexpr int kNumCols = kHiddenCol + 1;
+
 std::string configPath()
 {
   return std::string(kRootPath) + "/etc/wpa_supplicant/wpa_supplicant-nl80211-wlan0.conf";

@@ -15,6 +15,13 @@ namespace gui
 {
 namespace at
 {
+namespace
+{
+constexpr int kPipeWidth = 50;
+constexpr int kMinRotorCtrlGain = 0;
+constexpr int kMaxRotorCtrlGain = 30;
+}  // namespace
+
 RotorWidget::RotorWidget()
 {
   text_ = new QLabel();

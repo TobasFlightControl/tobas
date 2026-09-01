@@ -16,6 +16,11 @@ namespace gui
 {
 namespace sim
 {
+namespace
+{
+constexpr char kLastOpenedDirKey[] = "simulation_settings/world/custom_world/last_opened_dir";
+}  // namespace
+
 CustomWorldWidget::CustomWorldWidget()
 {
   const auto cols = new QHBoxLayout();

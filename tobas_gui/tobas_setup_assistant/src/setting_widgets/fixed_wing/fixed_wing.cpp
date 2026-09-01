@@ -16,6 +16,13 @@ namespace sa
 {
 namespace fw
 {
+namespace
+{
+constexpr char kVehicleLabel[] = "Vehicle Parameters";
+constexpr char kAeroCoefsLabel[] = "Aerodynamic Coefficients";
+constexpr char kControlSurfacesLabel[] = "Control Surfaces";
+}  // namespace
+
 FixedWingWidget::FixedWingWidget(const uadf::Model& uadf)
 {
   // Vehicle

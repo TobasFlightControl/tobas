@@ -11,6 +11,12 @@ namespace gui
 {
 namespace log
 {
+namespace
+{
+constexpr int kTabWidth = 110;
+constexpr int kTabHeight = 50;
+}  // namespace
+
 PlotTabWidget::PlotTabWidget(
   const QVector<tobas_msgs::msg::OdometryWithCovarianceStamped>& odom_data,
   const QVector<tobas_msgs::msg::OdometryStamped>& setpoint_data,

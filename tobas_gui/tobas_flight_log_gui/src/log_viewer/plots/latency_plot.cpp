@@ -13,6 +13,15 @@ namespace gui
 {
 namespace log
 {
+namespace
+{
+constexpr int kSamplingTimeMin = 500;     // [us]
+constexpr int kSamplingTimeMax = 2000;    // [us]
+constexpr int kControlLatencyMin = 0;     // [us]
+constexpr int kControlLatencyMax = 1500;  // [us]
+constexpr int kBinWidth = 10;             // [us]
+}  // namespace
+
 LatencyPlotWidget::LatencyPlotWidget()
   : sampling_time_curve_("IMU Sampling Interval [us]")
   , ctrl_latency_curve_("Control Latency [us]")

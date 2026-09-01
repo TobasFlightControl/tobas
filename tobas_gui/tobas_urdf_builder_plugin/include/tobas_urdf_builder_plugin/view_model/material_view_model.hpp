@@ -20,10 +20,6 @@ namespace view_model
 {
 class MaterialViewModel : public BaseViewModel<::urdf::Material, MaterialViewModel>
 {
-  static constexpr float kDefaultColorR = 1.0;
-  static constexpr float kDefaultColorG = 1.0;
-  static constexpr float kDefaultColorB = 1.0;
-
 public:
   explicit MaterialViewModel(const ::urdf::MaterialSharedPtr& model);
 

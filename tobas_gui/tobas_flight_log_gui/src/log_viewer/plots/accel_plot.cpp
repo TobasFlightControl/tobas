@@ -13,6 +13,12 @@ namespace gui
 {
 namespace log
 {
+namespace
+{
+constexpr double kMinLinearScale = 1.0;   // [m/s²]
+constexpr double kMinAngularScale = 1.0;  // [rad/s²]
+}  // namespace
+
 AccelPlotWidget::AccelPlotWidget()
   : cur_curves_{ "Current Linear Accel X [m/s²]",    "Current Linear Accel Y [m/s²]",
                  "Current Linear Accel Z [m/s²]",    "Current Angular Accel X [rad/s²]",

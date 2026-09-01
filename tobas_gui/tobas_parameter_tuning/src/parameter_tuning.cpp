@@ -21,11 +21,22 @@ namespace gui
 {
 namespace param
 {
+namespace
+{
+constexpr char kImuFilterDynamicParamFileName[] = "imu_filter_dynamic.yaml";
+constexpr char kObserverDynamicParamFileName[] = "observer_dynamic.yaml";
+constexpr char kControllerDynamicParamFileName[] = "controller_dynamic.yaml";
+constexpr char kRcTeleopDynamicParamFileName[] = "rc_teleop_dynamic.yaml";
+
+constexpr int kButtonWidth = 100;
+constexpr int kButtonHeight = 40;
+}  // namespace
+
 ParameterTuningWidget::ParameterTuningWidget()
-  : file_names_{ cmn::ProjectPaths::kImuFilterDynamicParamFileName,
-                 cmn::ProjectPaths::kObserverDynamicParamFileName,
-                 cmn::ProjectPaths::kControllerDynamicParamFileName,
-                 cmn::ProjectPaths::kRcTeleopDynamicParamFileName }
+  : file_names_{ kImuFilterDynamicParamFileName,
+                 kObserverDynamicParamFileName,
+                 kControllerDynamicParamFileName,
+                 kRcTeleopDynamicParamFileName }
   , blocks_{ new ParamBlockWidget(node::kImuFilterConfigServer, "IMU Filter"),
              new ParamBlockWidget(node::kObserver, "State Estimator"),
              new ParamBlockWidget(node::kController, "Flight Controller"),

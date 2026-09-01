@@ -15,6 +15,12 @@ namespace gui
 {
 namespace log
 {
+namespace
+{
+constexpr double kMinVoltageScale = 0.1;  // [V]
+constexpr double kMinCurrentScale = 0.1;  // [A]
+}  // namespace
+
 BatteryPlotWidget::BatteryPlotWidget() : voltage_curve_("Voltage [V]"), current_curve_("Current [A]")
 {
   const auto rows = new QVBoxLayout();

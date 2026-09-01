@@ -21,6 +21,9 @@ namespace log
 {
 namespace
 {
+constexpr double kMinPositionScale = 1.0;  // [m]
+constexpr double kMinAngleScale = 4.0;     // [deg]
+
 /* Maps an angle to the closest equivalent value on the previous sample's continuous branch. */
 double unwrapAngle(double angle, std::optional<double>& previous_angle)
 {

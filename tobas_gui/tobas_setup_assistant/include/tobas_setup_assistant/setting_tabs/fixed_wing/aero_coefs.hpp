@@ -25,10 +25,6 @@ class AerodynamicsCoefficientsWidget : public QWidget
   using self = AerodynamicsCoefficientsWidget;
   using super = QWidget;
 
-  static constexpr int kButtonWidth = 180;
-  static constexpr int kButtonHeight = 60;
-  static constexpr char kLastOpenedDirKey[] = "fixed_wing/aero_coefs/last_opened_dir";
-
 public:
   explicit AerodynamicsCoefficientsWidget();
 

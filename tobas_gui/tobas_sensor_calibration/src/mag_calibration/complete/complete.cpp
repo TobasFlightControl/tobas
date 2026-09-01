@@ -35,6 +35,24 @@ namespace gui
 {
 namespace sc
 {
+namespace
+{
+constexpr char kSampledPointsTopic[] = "rviz/mag_calibration/sampled";
+constexpr char kUsedPointsTopic[] = "rviz/mag_calibration/used";
+constexpr char kRemovedPointsTopic[] = "rviz/mag_calibration/removed";
+constexpr char kCalibratedPointsTopic[] = "rviz/mag_calibration/calibrated";
+constexpr char kEllipsoidTopic[] = "rviz/mag_calibration/ellipsoid";
+
+constexpr int kButtonWidth = 100;
+constexpr int kButtonHeight = 40;
+constexpr int kEllipsoidLineStep = 20;  // [deg]
+constexpr double kRvizPointScale = 10.0;
+constexpr double kMinYawRate = M_PI / 30;     // [rad/s]
+constexpr double kMaxYawRate = M_PI_2;        // [rad/s]
+constexpr double kYawAngleThresh = 8 * M_PI;  // [rad]
+constexpr double kZScoreThresh = 2.0;
+}  // namespace
+
 CompleteMagCalibWidget::CompleteMagCalibWidget(const rqt::RosQtBridge& bridge) : rviz_manager_("rviz_mag_calibration")
 {
   const auto instruction = new qt::DescriptionWidget(

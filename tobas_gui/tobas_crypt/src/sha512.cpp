@@ -16,6 +16,12 @@ namespace tobas
 {
 namespace crypt
 {
+namespace
+{
+constexpr char kUrandomPath[] = "/dev/urandom";
+constexpr size_t kLength = 16;
+}  // namespace
+
 Sha512::Sha512(int rounds) : rounds_(rounds)
 {
 }

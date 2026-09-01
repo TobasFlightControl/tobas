@@ -22,6 +22,11 @@ namespace gui
 {
 namespace log
 {
+namespace
+{
+constexpr rcutils_time_point_value_t kExpirationTime = 1'000'000'000;  // [ns]
+}  // namespace
+
 ExportThreadCsv::ExportThreadCsv(const QString& log_name, const QString& save_path)
   : log_name_(log_name), save_path_(save_path)
 {

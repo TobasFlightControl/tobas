@@ -26,6 +26,11 @@ namespace at
 {
 namespace
 {
+constexpr int kButtonWidth = 100;
+constexpr int kButtonHeight = 40;
+constexpr int kUpdatePeriod = 10;  // [ms]
+constexpr auto kWaitForService = 3s;
+
 std::string paramName(size_t ch)
 {
   return param::kRpmControlGainPrefix + std::to_string(ch);

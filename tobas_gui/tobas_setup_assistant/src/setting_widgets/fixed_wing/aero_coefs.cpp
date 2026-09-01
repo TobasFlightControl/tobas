@@ -24,6 +24,14 @@ namespace sa
 {
 namespace fw
 {
+namespace
+{
+constexpr int kButtonWidth = 180;
+constexpr int kButtonHeight = 60;
+
+constexpr char kLastOpenedDirKey[] = "fixed_wing/aero_coefs/last_opened_dir";
+}  // namespace
+
 AerodynamicsCoefficientsWidget::AerodynamicsCoefficientsWidget()
 {
   const auto rows = new QVBoxLayout();

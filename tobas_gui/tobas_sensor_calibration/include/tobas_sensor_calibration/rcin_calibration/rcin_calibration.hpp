@@ -31,21 +31,6 @@ class RCInputCalibrationWidget : public BaseWidget
   using self = RCInputCalibrationWidget;
   using super = BaseWidget;
 
-  // The basic S.BUS throttle range is 172 to 1811.
-  static constexpr int kMinPeriod = 0;
-  static constexpr int kMaxPeriod = 2000;
-
-  // Each S.BUS channel value is at least 1000 and at most 2000, so
-  // using 1000 as the threshold prevents the human error of moving a three-position switch through only two positions.
-  static constexpr int kMinSignalRange = 1000;
-
-  static constexpr char kOnText[] = "ON";
-  static constexpr char kOffText[] = "OFF";
-
-  static constexpr int kButtonWidth = 100;
-  static constexpr int kButtonHeight = 40;
-  static constexpr int kRangeSideShort = 50;
-
 public:
   explicit RCInputCalibrationWidget(const rqt::RosQtBridge& bridge, const Drone& drone);
 

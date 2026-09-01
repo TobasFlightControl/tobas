@@ -12,6 +12,11 @@ namespace gui
 {
 namespace cmn
 {
+namespace
+{
+constexpr char kInterfaceKey[] = "interface";
+}  // namespace
+
 bool NetworkConfig::load(const QString& path)
 {
   const auto node = yaml::load(path.toStdString());

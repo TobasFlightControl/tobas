@@ -18,6 +18,12 @@ namespace gui
 {
 namespace sim
 {
+namespace
+{
+constexpr std::array kDefaultXYZ = { 0.0, 0.0, 0.5 };  // [m]
+constexpr std::array kDefaultRPY = { 0, 0, 0 };        // [deg]
+}  // namespace
+
 PoseWidget::PoseWidget()
 {
   const auto rows = new QVBoxLayout();

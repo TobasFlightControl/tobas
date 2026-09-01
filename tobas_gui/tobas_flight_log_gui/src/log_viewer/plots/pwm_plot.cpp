@@ -15,6 +15,11 @@ namespace gui
 {
 namespace log
 {
+namespace
+{
+constexpr int kPwmChannels = 8;
+}  // namespace
+
 PwmPlotWidget::PwmPlotWidget()
 {
   const auto grid = new QGridLayout();

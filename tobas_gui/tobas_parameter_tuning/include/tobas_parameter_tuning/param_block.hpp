@@ -54,10 +54,6 @@ class ParamBlockWidget : public QWidget
   using self = ParamBlockWidget;
   using super = QWidget;
 
-  static constexpr int kLabelPSize = 12;
-  static constexpr int kParamNameWidth = 250;
-  static constexpr int kLineEditWidth = 150;
-
 public:
   explicit ParamBlockWidget(const std::string& node_name, const QString& label);
 

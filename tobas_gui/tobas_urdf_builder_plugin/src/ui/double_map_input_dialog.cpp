@@ -18,6 +18,15 @@ namespace ub
 {
 namespace ui
 {
+namespace
+{
+constexpr double kMaxValue = 1000.0;
+constexpr double kMinValue = 0.0;
+constexpr double kDefaultValue = kMinValue;
+constexpr double kSingleStep = 0.1;
+constexpr int kDecimals = 6;
+}  // namespace
+
 DoubleMapInputDialog::DoubleMapInputDialog(QWidget* parent, const QString& title, const QStringList& field_names)
   : super(parent)
 {

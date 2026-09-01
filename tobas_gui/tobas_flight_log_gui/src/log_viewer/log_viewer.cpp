@@ -24,6 +24,11 @@ namespace gui
 {
 namespace log
 {
+namespace
+{
+constexpr double kWindowDuration = 5.0;  // [s]
+}  // namespace
+
 FlightLogViewerWidget::FlightLogViewerWidget()
 {
   const auto odom = addData<tobas_msgs::msg::OdometryWithCovarianceStamped>(topic::kOdometry);

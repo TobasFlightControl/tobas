@@ -13,6 +13,11 @@ namespace gui
 {
 namespace log
 {
+namespace
+{
+constexpr std::array kSoftBiasColor = { Qt::red, Qt::green, Qt::blue, Qt::magenta, Qt::yellow, Qt::black };
+}  // namespace
+
 ObserverFeedbackPlotWidget::ObserverFeedbackPlotWidget()
   : acc_bias_curves_{ "Accel Bias X [m/s²]", "Accel Bias Y [m/s²]", "Accel Bias Z [m/s²]" }
   , gyro_bias_curves_{ "Gyro Bias X [rad/s]", "Gyro Bias Y [rad/s]", "Gyro Bias Z [rad/s]" }

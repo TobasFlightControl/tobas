@@ -25,11 +25,6 @@ class MediaManagerWidget : public QWidget
   using self = MediaManagerWidget;
   using super = QWidget;
 
-  static constexpr int kMediaNameWidth = 600;
-  static constexpr int kConnectButtonWidth = 100;
-
-  static constexpr mode_t kPermission = 0755;  // rwxr-xr-x
-
 Q_SIGNALS:
   void connected(const BootMedia& media);
   void disconnected();

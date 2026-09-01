@@ -14,6 +14,13 @@ namespace gui
 {
 namespace cmn
 {
+namespace
+{
+constexpr char kMajorKey[] = "major";
+constexpr char kMinorKey[] = "minor";
+constexpr char kPatchKey[] = "patch";
+}  // namespace
+
 Version::Version()
 {
 }

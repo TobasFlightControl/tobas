@@ -22,10 +22,6 @@ class FlightLogsWidgetFC : public QWidget
   using self = FlightLogsWidgetFC;
   using super = QWidget;
 
-  static constexpr int kButtonWidth = 100;
-  static constexpr int kButtonHeight = 40;
-  static constexpr int kListItemHeight = 40;
-
 Q_SIGNALS:
   void logDownloaded(const QString& log_name);
 

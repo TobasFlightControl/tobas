@@ -14,12 +14,6 @@ namespace cmn
 class ProjectPaths
 {
 public:
-  static constexpr char kImuFilterDynamicParamFileName[] = "imu_filter_dynamic.yaml";
-  static constexpr char kRpmControlDynamicParamFileName[] = "rpm_control_dynamic.yaml";
-  static constexpr char kObserverDynamicParamFileName[] = "observer_dynamic.yaml";
-  static constexpr char kControllerDynamicParamFileName[] = "controller_dynamic.yaml";
-  static constexpr char kRcTeleopDynamicParamFileName[] = "rc_teleop_dynamic.yaml";
-
   explicit ProjectPaths(const QString& proj_path = "");
 
   const QString& getProjPath() const;

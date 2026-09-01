@@ -24,10 +24,6 @@ class RvizWidget : public QWidget
   using self = RvizWidget;
   using super = QWidget;
 
-  static constexpr bool kDefaultVisualEnabled = true;
-  static constexpr bool kDefaultCollisionEnabled = false;
-  static constexpr bool kDefaultInertiaEnabled = false;
-
 public:
   explicit RvizWidget(const uadf::Model& uadf, const kdl::Tree& tree);
 

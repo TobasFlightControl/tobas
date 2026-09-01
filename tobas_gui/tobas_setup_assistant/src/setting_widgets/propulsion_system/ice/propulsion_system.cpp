@@ -20,6 +20,12 @@ namespace propulsion
 {
 namespace ice
 {
+namespace
+{
+constexpr char kEngineTitle[] = "Engine";
+constexpr char kPropulsionUnitTitle[] = "Propulsion Units";
+}  // namespace
+
 PropulsionSystemWidget::PropulsionSystemWidget(const uadf::Model& uadf)
 {
   engine = new EngineWidget();

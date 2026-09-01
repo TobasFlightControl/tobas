@@ -13,8 +13,6 @@ namespace cmn
 {
 class NetworkConfig
 {
-  static constexpr char kInterfaceKey[] = "interface";
-
 public:
   QString interface;
 

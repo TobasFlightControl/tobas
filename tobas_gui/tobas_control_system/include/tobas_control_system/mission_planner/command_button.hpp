@@ -18,9 +18,6 @@ class CommandButton : public QPushButton
   using self = CommandButton;
   using super = QPushButton;
 
-  static constexpr int kMaxWidth = 100;
-  static constexpr int kMinHeight = 35;
-
 public:
   explicit CommandButton(const QString& text);
 };

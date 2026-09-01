@@ -10,6 +10,13 @@ namespace tobas
 {
 namespace gazebo
 {
+namespace
+{
+constexpr double kDefaultVibrationForceCoef = 0.0015;
+constexpr double kDefaultVibrationForceVariationRate = 0.2;
+constexpr double kDefaultVibrationDoubleFreqCoef = 1.0;
+}  // namespace
+
 EngineModel::EngineModel(const IceRotorModelMap& rotors) : rotors_(rotors), rnd_gen_(rnd_dev_())
 {
 }

@@ -23,12 +23,6 @@ class DoubleMapInputDialog : public QDialog
   using self = DoubleMapInputDialog;
   using super = QDialog;
 
-  static constexpr double kMaxValue = 1000.0;
-  static constexpr double kMinValue = 0.0;
-  static constexpr double kDefaultValue = kMinValue;
-  static constexpr double kSingleStep = 0.1;
-  static constexpr int kDecimals = 6;
-
 public:
   explicit DoubleMapInputDialog(QWidget* parent, const QString& title, const QStringList& field_names);
 

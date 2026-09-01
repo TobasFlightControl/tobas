@@ -22,6 +22,17 @@ namespace ub
 {
 namespace ogre
 {
+namespace
+{
+constexpr float kAxesLength = 0.1;
+constexpr float kAxesRadius = 0.01;
+constexpr float kCharHeight = 0.03;  // Character size displayed in the model view.
+
+constexpr float kHighlightR = 0.0;
+constexpr float kHighlightG = 1.0;
+constexpr float kHighlightB = 0.0;
+}  // namespace
+
 struct OgreController::PImpl
 {
   explicit PImpl(rviz_common::DisplayContext* context) : ogre(context->getSceneManager())

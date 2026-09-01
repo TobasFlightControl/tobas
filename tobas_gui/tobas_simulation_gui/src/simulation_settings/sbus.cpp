@@ -19,6 +19,11 @@ namespace gui
 {
 namespace sim
 {
+namespace
+{
+constexpr char kDirPath[] = "/dev/serial/by-id";
+}  // namespace
+
 SbusWidget::SbusWidget() : dir_(kDirPath)
 {
   device_names_ = new qt::ComboBox();

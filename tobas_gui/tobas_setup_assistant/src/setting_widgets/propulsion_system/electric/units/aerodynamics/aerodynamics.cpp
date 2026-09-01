@@ -21,6 +21,11 @@ namespace propulsion
 {
 namespace electric
 {
+namespace
+{
+constexpr char kMethodNameKey[] = "method_name";
+}  // namespace
+
 AerodynamicsWidget::AerodynamicsWidget(const PropellerWidget* propeller) : propeller_(propeller)
 {
   const auto rows = new QVBoxLayout();

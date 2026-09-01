@@ -24,6 +24,12 @@ namespace sa
 {
 namespace mission
 {
+namespace
+{
+constexpr char kNoneKey[] = "none";
+constexpr char kMulticopterKey[] = "multicopter";
+}  // namespace
+
 MissionExecutorWidget::MissionExecutorWidget()
 {
   stack_ = new qt::StackedWidget();

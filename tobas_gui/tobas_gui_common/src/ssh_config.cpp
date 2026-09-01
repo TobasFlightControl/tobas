@@ -12,6 +12,12 @@ namespace gui
 {
 namespace cmn
 {
+namespace
+{
+constexpr char kHostKey[] = "host";
+constexpr char kUserKey[] = "user";
+}  // namespace
+
 bool SshConfig::load(const QString& path)
 {
   const auto node = yaml::load(path.toStdString());

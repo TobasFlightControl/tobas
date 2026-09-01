@@ -18,6 +18,12 @@ namespace propulsion
 {
 namespace ice
 {
+namespace
+{
+constexpr int kTabWidth = 150;
+constexpr int kTabHeight = 50;
+}  // namespace
+
 PropulsionUnitsWidget::PropulsionUnitsWidget(const uadf::Model& uadf) : uadf_(uadf)
 {
   setTabSize(kTabWidth, kTabHeight);

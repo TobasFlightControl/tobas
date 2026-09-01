@@ -20,6 +20,12 @@ namespace gui
 {
 namespace ctrl
 {
+namespace
+{
+constexpr int kLabelPSize = 12;
+constexpr int kBarHeight = 30;
+}  // namespace
+
 BatteryViewerWidget::BatteryViewerWidget(const rqt::RosQtBridge& bridge, const Drone& drone) : drone_(drone)
 {
   voltage_ = new qt::ProgressBar();

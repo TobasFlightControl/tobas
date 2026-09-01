@@ -19,9 +19,6 @@ class GnssViewerWidget : public QWidget
   using self = GnssViewerWidget;
   using super = QWidget;
 
-  static constexpr int kLabelPSize = 12;
-  static constexpr int kLabelMinWidth = 60;
-
 public:
   explicit GnssViewerWidget(const rqt::RosQtBridge& bridge);
 

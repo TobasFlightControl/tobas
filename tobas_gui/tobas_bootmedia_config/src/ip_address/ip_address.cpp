@@ -16,6 +16,12 @@ namespace gui
 {
 namespace bm
 {
+namespace
+{
+constexpr int kTabWidth = 135;
+constexpr int kTabHeight = 45;
+}  // namespace
+
 IpAddressWidget::IpAddressWidget()
 {
   tabs_ = new qt::TabWidget();

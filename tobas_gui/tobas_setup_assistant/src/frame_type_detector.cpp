@@ -4,6 +4,7 @@
 #include "tobas_setup_assistant/frame_type_detector.hpp"
 
 #include <tobas_std_tools/check.hpp>
+#include <tobas_std_tools/unit_conversions.hpp>
 
 namespace tobas
 {
@@ -11,6 +12,11 @@ namespace gui
 {
 namespace sa
 {
+namespace
+{
+constexpr double kJntAxisParallelTol = st::deg2rad(5);  // [rad]
+}  // namespace
+
 FrameTypeDetector::FrameTypeDetector(const uadf::Model& uadf, const kdl::Tree& tree)
   : uadf_(uadf), tree_(tree), jnt_parser_(tree), axis_solver_(tree)
 {

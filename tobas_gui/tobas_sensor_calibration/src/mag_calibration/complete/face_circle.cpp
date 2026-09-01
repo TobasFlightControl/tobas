@@ -12,6 +12,17 @@ namespace gui
 {
 namespace sc
 {
+namespace
+{
+constexpr int kLineWidth = 10;
+
+constexpr auto kFillColorComplete = Qt::green;
+constexpr auto kFillColorIncomplete = Qt::gray;
+constexpr auto kFillColorProgress = Qt::yellow;
+constexpr auto kLineColorSelected = Qt::red;
+constexpr auto kLineColorDeselected = Qt::black;
+}  // namespace
+
 FaceCircleWidget::FaceCircleWidget(const QString& text) : text_(text)
 {
 }

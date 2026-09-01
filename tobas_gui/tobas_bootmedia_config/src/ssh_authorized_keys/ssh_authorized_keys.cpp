@@ -22,6 +22,16 @@ namespace gui
 {
 namespace bm
 {
+namespace
+{
+constexpr int kColWidth = 300;
+
+constexpr int kSsidCol = 0;
+constexpr int kPskCol = kSsidCol + 1;
+constexpr int kPriorityCol = kPskCol + 1;
+constexpr int kNumCols = kPriorityCol + 1;
+}  // namespace
+
 SshAuthorizedKeysWidget::SshAuthorizedKeysWidget()
 {
   add_button_ = new QPushButton("Add");

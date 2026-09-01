@@ -8,12 +8,21 @@
 #include <tobas_real_common/handler.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 
+using namespace std::chrono_literals;
+
 namespace tobas
 {
 namespace gui
 {
 namespace sc
 {
+namespace
+{
+constexpr size_t kDataCount = 200;
+constexpr auto kCollectDataTimeout = 30s;
+constexpr double kAccelBiasNormThresh = 1.0;  // [m/s^2] ISM330DLC has up to 85 mg (= 0.83 m/s^2) offset.
+}  // namespace
+
 AccelCalibrationThread::AccelCalibrationThread(const rqt::RosQtBridge& bridge)
 {
   connect(&bridge, &rqt::RosQtBridge::rawImuReceived, this, &self::imuCb, Qt::QueuedConnection);

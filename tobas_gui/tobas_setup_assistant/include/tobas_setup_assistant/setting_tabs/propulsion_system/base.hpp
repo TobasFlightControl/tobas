@@ -20,9 +20,6 @@ class BasePropulsionSystemWidget : public QWidget
 {
   Q_OBJECT
 
-  static constexpr int kTabWidth = 150;
-  static constexpr int kTabHeight = 50;
-
 public:
   virtual const char* name() const = 0;
 

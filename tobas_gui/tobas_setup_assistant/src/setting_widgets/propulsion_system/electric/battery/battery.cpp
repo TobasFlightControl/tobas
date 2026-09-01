@@ -19,6 +19,11 @@ namespace propulsion
 {
 namespace electric
 {
+namespace
+{
+constexpr char kTypeKey[] = "battery_type";
+}  // namespace
+
 BatteryWidget::BatteryWidget()
 {
   type_ = new qt::ComboBox();

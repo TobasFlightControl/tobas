@@ -28,6 +28,12 @@ namespace gui
 {
 namespace log
 {
+namespace
+{
+constexpr int kButtonWidth = 150;
+constexpr int kButtonHeight = 60;
+}  // namespace
+
 FlightLogRecorderWidget::FlightLogRecorderWidget(const rqt::RosQtBridge& bridge) : spinner_(Qt::WindowModal, this)
 {
   log_name_ = new qt::HistoryLineEdit();

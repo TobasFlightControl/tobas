@@ -19,9 +19,6 @@ class TobasRenderInfo : public gz::gui::Plugin
   using self = TobasRenderInfo;
   using super = gz::gui::Plugin;
 
-  static constexpr double kAlpha = 0.05;
-  static constexpr auto kPublishPeriod = std::chrono::milliseconds(1000);
-
 public:
   explicit TobasRenderInfo();
 

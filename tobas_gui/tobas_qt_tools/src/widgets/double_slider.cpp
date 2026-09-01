@@ -9,6 +9,11 @@ namespace tobas
 {
 namespace qt
 {
+namespace
+{
+constexpr int kRange = 10000;
+}  // namespace
+
 DoubleSlider::DoubleSlider(Qt::Orientation orientation, QWidget* parent) : super(orientation, parent)
 {
   super::setRange(0, kRange);

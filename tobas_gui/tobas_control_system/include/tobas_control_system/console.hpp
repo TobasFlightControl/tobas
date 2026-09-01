@@ -19,22 +19,6 @@ class ConsoleWidget : public QWidget
   using self = ConsoleWidget;
   using super = QWidget;
 
-  static constexpr int kMaxRows = 1000;  // Maximum number of messages to display.
-
-  static constexpr int kStampCol = 0;
-  static constexpr int kNameCol = 1;
-  static constexpr int kLevelCol = 2;
-  static constexpr int kMessageCol = 3;
-  static constexpr int kNumCols = 4;
-
-  // Message color; case-insensitive.
-  static constexpr auto kDebugColor = Qt::darkGreen;
-  static constexpr auto kInfoColor = Qt::black;
-  static constexpr auto kWarnColor = Qt::darkYellow;
-  static constexpr auto kErrorColor = Qt::darkRed;
-  static constexpr auto kFatalColor = Qt::darkMagenta;
-  static constexpr auto kUnknownColor = Qt::darkGray;
-
 public:
   explicit ConsoleWidget(const rqt::RosQtBridge& bridge);
 

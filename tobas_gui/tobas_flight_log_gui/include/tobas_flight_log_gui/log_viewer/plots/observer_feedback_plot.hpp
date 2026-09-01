@@ -24,10 +24,6 @@ class ObserverFeedbackPlotWidget : public BasePlotWidget
   static constexpr size_t kMagHardBiasSize = 3;
   static constexpr size_t kMagSoftBiasSize = 6;
 
-  static constexpr Qt::GlobalColor kSoftBiasColor[] = {
-    Qt::red, Qt::green, Qt::blue, Qt::magenta, Qt::yellow, Qt::black
-  };
-
 public:
   explicit ObserverFeedbackPlotWidget();
 

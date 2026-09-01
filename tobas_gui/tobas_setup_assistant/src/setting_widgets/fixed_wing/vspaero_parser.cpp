@@ -16,6 +16,16 @@ namespace sa
 {
 namespace fw
 {
+namespace
+{
+constexpr char CL[] = "CL";
+constexpr char CD[] = "CD";
+constexpr char CS[] = "CS";
+constexpr char CMl[] = "CMl";
+constexpr char CMm[] = "CMm";
+constexpr char CMn[] = "CMn";
+}  // namespace
+
 bool VSPAEROParser::parse(const std::string& stab_path)
 {
   std::ifstream file(stab_path);

@@ -25,8 +25,6 @@ class SbusWidget : public QWidget
   using self = SbusWidget;
   using super = QWidget;
 
-  static constexpr char kDirPath[] = "/dev/serial/by-id";
-
 public:
   explicit SbusWidget();
 

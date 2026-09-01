@@ -14,14 +14,22 @@
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 
-#define MAX_FUEL_QUANTITY 100.0  // TODO: Include fuel capacity in `EngineConfig`.
-
 namespace tobas
 {
 namespace gui
 {
 namespace ctrl
 {
+namespace
+{
+constexpr int kLabelPSize = 12;
+constexpr int kBarHeight = 30;
+
+constexpr double kMaxFuelQuantity = 100.0;  // TODO: Include fuel capacity in `EngineConfig`.
+constexpr double kMinOilTemp = 0.0;         // [degC]
+constexpr double kMaxOilTemp = 130.0;       // [degC]
+}  // namespace
+
 EngineViewerWidget::EngineViewerWidget(const rqt::RosQtBridge& bridge, const Drone& drone) : drone_(drone)
 {
   fuel_quantity_ = new qt::ProgressBar();
@@ -60,7 +68,7 @@ void EngineViewerWidget::updateInternalDataStructures()
 
 void EngineViewerWidget::updateFuelQuantity(const double& fuel_quantity)
 {
-  const auto fuel_rate = math::remap(fuel_quantity, 0.0, MAX_FUEL_QUANTITY, 0.0, 100.0);
+  const auto fuel_rate = math::remap(fuel_quantity, 0.0, kMaxFuelQuantity, 0.0, 100.0);
   fuel_quantity_->setPercentage(fuel_rate);
   fuel_quantity_->setFormat(
     std::format("{:.2f} L ({:.0f} %)", fuel_quantity, std::clamp(fuel_rate, 0.0, 100.0)).c_str());

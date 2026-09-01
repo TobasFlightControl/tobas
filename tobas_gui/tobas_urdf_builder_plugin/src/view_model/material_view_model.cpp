@@ -11,6 +11,13 @@ namespace ub
 {
 namespace view_model
 {
+namespace
+{
+constexpr float kDefaultColorR = 1.0f;
+constexpr float kDefaultColorG = 1.0f;
+constexpr float kDefaultColorB = 1.0f;
+}  // namespace
+
 MaterialViewModel::MaterialViewModel(const ::urdf::MaterialSharedPtr& model)
   : BaseViewModel<::urdf::Material, MaterialViewModel>(model)
 {

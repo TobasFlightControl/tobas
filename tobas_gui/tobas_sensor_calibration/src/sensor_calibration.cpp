@@ -11,6 +11,13 @@ namespace gui
 {
 namespace sc
 {
+namespace
+{
+// Without at least this much height, the `TabBar` text is clipped horizontally for some reason.
+constexpr int kTabHeight = 35;
+constexpr int kTabWidth = 70;
+}  // namespace
+
 SensorCalibrationWidget::SensorCalibrationWidget(const rqt::RosQtBridge& bridge, const Drone& drone) : drone_(drone)
 {
   setTabSize(kTabWidth, kTabHeight);

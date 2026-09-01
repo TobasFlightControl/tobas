@@ -11,6 +11,13 @@ namespace gui
 {
 namespace at
 {
+namespace
+{
+// Without at least this much height, the `TabBar` text is clipped horizontally for some reason.
+constexpr int kTabHeight = 35;
+constexpr int kTabWidth = 70;
+}  // namespace
+
 ActuatorTestWidget::ActuatorTestWidget(const rqt::RosQtBridge& bridge, const kdl::Tree& tree, const Drone& drone)
   : drone_(drone)
 {

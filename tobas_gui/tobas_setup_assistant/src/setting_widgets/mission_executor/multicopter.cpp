@@ -22,6 +22,23 @@ namespace sa
 {
 namespace mission
 {
+namespace
+{
+constexpr char kWaypointMaxHorizontalVelocityParam[] = "waypoint/max_horizontal_velocity";
+constexpr char kWaypointMaxHorizontalAccelParam[] = "waypoint/max_horizontal_accel";
+constexpr char kWaypointMaxHorizontalJerkParam[] = "waypoint/max_horizontal_jerk";
+constexpr char kWaypointMaxVerticalVelocityParam[] = "waypoint/max_vertical_velocity";
+constexpr char kWaypointMaxVerticalAccelParam[] = "waypoint/max_vertical_accel";
+constexpr char kWaypointMaxVerticalJerkParam[] = "waypoint/max_vertical_jerk";
+constexpr char kWaypointMaxHeadingRateParam[] = "waypoint/max_heading_rate";
+constexpr char kWaypointMaxHeadingAccelParam[] = "waypoint/max_heading_accel";
+constexpr char kTakeoffMaxSpeedParam[] = "takeoff/max_speed";
+constexpr char kTakeoffMaxAccelParam[] = "takeoff/max_accel";
+constexpr char kTakeoffMaxJerkParam[] = "takeoff/max_jerk";
+constexpr char kLandSpeedParam[] = "land/speed";
+constexpr char kRtlMinAltitudeParam[] = "rtl/min_altitude";
+}  // namespace
+
 MulticopterWidget::MulticopterWidget()
 {
   // https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_XY_CRUISE

@@ -9,12 +9,20 @@
 #include <tobas_real_common/handler.hpp>
 #include <tobas_time_tools/util.hpp>
 
+using namespace std::chrono_literals;
+
 namespace tobas
 {
 namespace gui
 {
 namespace sc
 {
+namespace
+{
+constexpr size_t kDataCount = 200;
+constexpr auto kCollectDataTimeout = 10s;
+}  // namespace
+
 LargeVehicleMagCalibThread::LargeVehicleMagCalibThread(const rqt::RosQtBridge& bridge)
 {
   connect(&bridge, &rqt::RosQtBridge::rawMagReceived, this, &self::magCb, Qt::QueuedConnection);

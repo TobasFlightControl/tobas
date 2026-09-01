@@ -22,8 +22,6 @@ class CustomWorldWidget : public BaseWorldWidget
   using self = CustomWorldWidget;
   using super = BaseWorldWidget;
 
-  static constexpr char kLastOpenedDirKey[] = "simulation_settings/world/custom_world/last_opened_dir";
-
 public:
   explicit CustomWorldWidget();
 
