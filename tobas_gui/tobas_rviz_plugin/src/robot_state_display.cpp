@@ -404,7 +404,7 @@ void RobotStateDisplay::changedAllLinks()
 void RobotStateDisplay::changedHighlightColor()
 {
   if (!robot_) {
-    qCritical("Robot is null.");
+    qCritical() << "Robot is null.";
     return;
   }
 
@@ -420,7 +420,7 @@ void RobotStateDisplay::changedHighlightColor()
 void RobotStateDisplay::changedUnhighlightColor()
 {
   if (!robot_) {
-    qCritical("Robot is null.");
+    qCritical() << "Robot is null.";
     return;
   }
 

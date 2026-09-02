@@ -53,12 +53,8 @@ std::string SynchronizedStringParameter::loadInitialValue(
   const auto timeout = rclcpp::Duration::from_seconds(d_timeout);
 
   if (!waitForMessage(timeout)) {
-    qCritical(
-      "Could not find parameter %s and did not receive %s via std_msgs::msg::String subscription "
-      "within %f seconds.",
-      name_.c_str(),
-      name_.c_str(),
-      d_timeout);
+    qCritical().nospace() << "Could not find parameter " << name_.c_str() << " and did not receive " << name_.c_str()
+                          << " via std_msgs::msg::String subscription within " << d_timeout << " seconds.";
   }
   if (!keep_open) {
     string_subscriber_.reset();

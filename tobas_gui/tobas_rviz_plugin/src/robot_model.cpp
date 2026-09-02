@@ -131,7 +131,7 @@ JointModel::ConstSharedPtr RobotModel::getJointModel(const std::string& name) co
 {
   const auto it = joint_model_map_.find(name);
   if (it == joint_model_map_.end()) {
-    qCritical("Joint '%s' not found in model '%s'.", name.c_str(), model_name_.c_str());
+    qCritical().nospace() << "Joint '" << name.c_str() << "' not found in model '" << model_name_.c_str() << "'.";
     return nullptr;
   }
   return it->second;
@@ -158,7 +158,7 @@ LinkModel::ConstSharedPtr RobotModel::getLinkModel(const std::string& name) cons
   if (it != link_model_map_.end()) {
     return it->second;
   }
-  qCritical("Link '%s' not found in model '%s'.", name.c_str(), model_name_.c_str());
+  qCritical().nospace() << "Link '" << name.c_str() << "' not found in model '" << model_name_.c_str() << "'.";
   return nullptr;
 }
 
@@ -214,25 +214,25 @@ void RobotModel::updateMimicJoints(double* values) const
 void RobotModel::buildModel(const urdf::ModelInterface& urdf_model)
 {
   model_name_ = urdf_model.getName();
-  qInfo("Loading robot model '%s'...", model_name_.c_str());
+  qInfo().nospace() << "Loading robot model '" << model_name_.c_str() << "'...";
 
   if (urdf_model.getRoot()) {
     const auto root_link = urdf_model.getRoot();
     model_frame_ = root_link->name;
 
-    qDebug("... building kinematic chain.");
+    qDebug() << "... building kinematic chain.";
     root_joint_ = buildRecursive(nullptr, root_link);
     if (root_joint_) {
       root_link_ = link_model_map_.at(root_joint_->getChildLinkModel()->getName());
     }
-    qDebug("... building mimic joints.");
+    qDebug() << "... building mimic joints.";
     buildMimic(urdf_model);
 
-    qDebug("... computing joint indexing.");
+    qDebug() << "... computing joint indexing.";
     buildJointInfo();
   }
   else {
-    qWarning("No root link found.");
+    qWarning() << "No root link found.";
   }
 }
 
@@ -249,15 +249,13 @@ void RobotModel::buildMimic(const urdf::ModelInterface& urdf_model)
             joint_model->setMimic(jit->second, jm->mimic->multiplier, jm->mimic->offset);
           }
           else {
-            qCritical(
-              "Joint '%s' cannot mimic joint '%s' because they have different number of DOF",
-              joint_model->getName().c_str(),
-              jm->mimic->joint_name.c_str());
+            qCritical().nospace() << "Joint '" << joint_model->getName().c_str() << "' cannot mimic joint '"
+                                  << jm->mimic->joint_name.c_str() << "' because they have different number of DOF";
           }
         }
         else {
-          qCritical(
-            "Joint '%s' cannot mimic unknown joint '%s'", joint_model->getName().c_str(), jm->mimic->joint_name.c_str());
+          qCritical().nospace() << "Joint '" << joint_model->getName().c_str() << "' cannot mimic unknown joint '"
+                                << jm->mimic->joint_name.c_str() << "'";
         }
       }
     }
@@ -277,7 +275,7 @@ void RobotModel::buildMimic(const urdf::ModelInterface& urdf_model)
           change = true;
         }
         if (joint_model == joint_model->getMimic()) {
-          qCritical("Cycle found in joint that mimic each other. Ignoring all mimic joints.");
+          qCritical() << "Cycle found in joint that mimic each other. Ignoring all mimic joints.";
           for (const auto& joint_model_recal : joint_model_vector_) {
             joint_model_recal->setMimic(nullptr, 0.0, 0.0);
           }
@@ -451,13 +449,13 @@ JointModel::SharedPtr RobotModel::constructJointModel(const urdf::LinkConstShare
         break;
       case urdf::Joint::UNKNOWN:
       default:
-        qCritical("Unknown joint type: %d", static_cast<int>(parent_joint->type));
+        qCritical() << "Unknown joint type:" << static_cast<int>(parent_joint->type);
         break;
     }
   }
   else  // If parent_joint passed in as null, then we're at root of URDF model.
   {
-    qInfo("No root/virtual joint specified in URDF. Assuming fixed joint.");
+    qInfo() << "No root/virtual joint specified in URDF. Assuming fixed joint.";
     new_joint_model = std::make_shared<FixedJointModel>("ASSUMED_FIXED_ROOT_JOINT", joint_index, first_variable_index);
   }
 

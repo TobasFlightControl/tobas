@@ -134,7 +134,7 @@ void RvizFrameManager::setOrbitView(
   view_manager->setCurrentViewControllerType("rviz_default_plugins/Orbit");
   const auto view = view_manager->getCurrent();
   if (!view) {
-    qWarning("Failed to get the current RViz view controller.");
+    qWarning() << "Failed to get the current RViz view controller.";
     return;
   }
 
@@ -142,7 +142,7 @@ void RvizFrameManager::setOrbitView(
   {
     const auto prop = qobject_cast<rviz_common::properties::FloatProperty*>(view->subProp(name));
     if (!prop) {
-      qWarning("Failed to get RViz view property: %s", name);
+      qWarning() << "Failed to get RViz view property:" << name;
       return;
     }
     prop->setFloat(value);
@@ -152,9 +152,10 @@ void RvizFrameManager::setOrbitView(
   set_float("Yaw", yaw);
   set_float("Pitch", pitch);
 
-  const auto focal_point = qobject_cast<rviz_common::properties::VectorProperty*>(view->subProp("Focal Point"));
+  constexpr char kFocalPoint[] = "Focal Point";
+  const auto focal_point = qobject_cast<rviz_common::properties::VectorProperty*>(view->subProp(kFocalPoint));
   if (!focal_point) {
-    qWarning("Failed to get RViz view property: Focal Point");
+    qWarning() << "Failed to get RViz view property:" << kFocalPoint;
     return;
   }
   focal_point->setVector(Ogre::Vector3(focal_x, focal_y, focal_z));
@@ -168,7 +169,7 @@ std::vector<rviz_common::Display*> RvizFrameManager::getDisplays(const QString& 
     const auto display = display_group_->getDisplayAt(i);
 
     if (!display) {
-      qWarning("Failed to get display of index %d", i);
+      qWarning().nospace() << "Failed to get display of index " << i << ".";
       continue;
     };
 

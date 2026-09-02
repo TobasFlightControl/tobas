@@ -46,7 +46,7 @@ bool RDFLoader::loadFromStrings()
 {
   auto urdf = std::make_unique<urdf::Model>();
   if (!urdf->initString(urdf_string_)) {
-    qCritical("Failed to parse URDF.");
+    qCritical() << "Failed to parse URDF.";
     return false;
   }
 

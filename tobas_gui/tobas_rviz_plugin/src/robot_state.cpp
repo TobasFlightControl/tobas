@@ -152,7 +152,7 @@ const Eigen::Isometry3d& RobotState::getJointTransform(const JointModel::ConstSh
 bool RobotState::checkLinkTransforms() const
 {
   if (dirty_link_transforms_) {
-    qWarning("Returning dirty link transforms.");
+    qWarning() << "Returning dirty link transforms.";
     return false;
   }
   return true;
