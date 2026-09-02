@@ -16,15 +16,6 @@ namespace gui
 {
 namespace cmn
 {
-namespace
-{
-constexpr char kImuFilterDynamicParamFileName[] = "imu_filter_dynamic.yaml";
-constexpr char kRpmControlDynamicParamFileName[] = "rpm_control_dynamic.yaml";
-constexpr char kObserverDynamicParamFileName[] = "observer_dynamic.yaml";
-constexpr char kControllerDynamicParamFileName[] = "controller_dynamic.yaml";
-constexpr char kRcTeleopDynamicParamFileName[] = "rc_teleop_dynamic.yaml";
-}  // namespace
-
 ProjectPaths::ProjectPaths(const QString& proj_path) : proj_path_(proj_path)
 {
 }
@@ -143,27 +134,27 @@ QString ProjectPaths::networkConfigPath() const
 
 QString ProjectPaths::imuFiltDynParamsPath() const
 {
-  return QDir(cfgConfigDirPath()).filePath(kImuFilterDynamicParamFileName);
+  return QDir(cfgConfigDirPath()).filePath("imu_filter_dynamic.yaml");
 }
 
 QString ProjectPaths::rpmCtrlDynParamsPath() const
 {
-  return QDir(cfgConfigDirPath()).filePath(kRpmControlDynamicParamFileName);
+  return QDir(cfgConfigDirPath()).filePath("rpm_control_dynamic.yaml");
 }
 
 QString ProjectPaths::obsvDynParamsPath() const
 {
-  return QDir(cfgConfigDirPath()).filePath(kObserverDynamicParamFileName);
+  return QDir(cfgConfigDirPath()).filePath("observer_dynamic.yaml");
 }
 
 QString ProjectPaths::ctrlDynParamsPath() const
 {
-  return QDir(cfgConfigDirPath()).filePath(kControllerDynamicParamFileName);
+  return QDir(cfgConfigDirPath()).filePath("controller_dynamic.yaml");
 }
 
 QString ProjectPaths::rcTeleopDynParamsPath() const
 {
-  return QDir(cfgConfigDirPath()).filePath(kRcTeleopDynamicParamFileName);
+  return QDir(cfgConfigDirPath()).filePath("rc_teleop_dynamic.yaml");
 }
 
 QString ProjectPaths::projBackupDirPath() const

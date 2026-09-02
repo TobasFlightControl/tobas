@@ -18,13 +18,6 @@ namespace gui
 {
 namespace sa
 {
-namespace
-{
-constexpr int kButtonHeight = 40;
-constexpr int kPublishPositionsInterval = 10;             // [ms]
-constexpr double kThrustJointAngularVelocity = M_PI / 6;  // [rad/s]
-}  // namespace
-
 JointStatePublisherWidget::JointStatePublisherWidget(
   rclcpp::Node::SharedPtr node,
   const uadf::Model& uadf,
@@ -41,6 +34,7 @@ JointStatePublisherWidget::JointStatePublisherWidget(
   center_button_ = new QPushButton("Center");
   random_button_ = new QPushButton("Random");
 
+  constexpr int kButtonHeight = 40;
   zero_button_->setFixedHeight(kButtonHeight);
   center_button_->setFixedHeight(kButtonHeight);
   random_button_->setFixedHeight(kButtonHeight);
@@ -129,6 +123,7 @@ void JointStatePublisherWidget::updateInternalDataStructures()
   setControlButtonsEnabled(!sliders_.empty());
 
   // Start to publish joint states.
+  constexpr int kPublishPositionsInterval = 10;  // [ms]
   publish_timer_.start(kPublishPositionsInterval);
   thrust_rotation_timer_.start();
 }
@@ -137,6 +132,7 @@ void JointStatePublisherWidget::publishCurrentPositions()
 {
   // Update the thrust joint positions.
   const auto elapsed_sec = static_cast<double>(thrust_rotation_timer_.restart()) / 1000.0;
+  constexpr double kThrustJointAngularVelocity = M_PI / 6;  // [rad/s]
   for (const auto& thrust_joint : thrust_joints_) {
     auto& position = js_.position.at(thrust_joint.state_index);
     position = std::remainder(position + thrust_joint.rotation_sign * kThrustJointAngularVelocity * elapsed_sec, M_2PI);

@@ -15,9 +15,6 @@ namespace ice
 {
 namespace
 {
-constexpr int kTabWidth = 135;
-constexpr int kTabHeight = 45;
-
 constexpr char kDynamicsLabel[] = "Dynamics";
 constexpr char kResponseLabel[] = "Response";
 }  // namespace
@@ -25,7 +22,7 @@ constexpr char kResponseLabel[] = "Response";
 EngineWidget::EngineWidget()
 {
   enableWheelEvent(false);
-  setTabSize(kTabWidth, kTabHeight);
+  setTabSize(135, 45);
 
   dynamics_ = new EngineDynamicsWidget();
   response_ = new EngineResponseWidget();

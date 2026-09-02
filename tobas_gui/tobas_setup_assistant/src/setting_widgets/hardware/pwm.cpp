@@ -34,7 +34,6 @@ constexpr char kTargetNameLabel[] = "Target";
 constexpr char kPeriodLbLabel[] = "PWM Period (LB)";
 constexpr char kPeriodUbLabel[] = "PWM Period (UB)";
 
-constexpr int kPeriodDecimals = 2;
 }  // namespace
 
 PwmWidget::PwmWidget(const uadf::Model& uadf, const Signals& sig) : super(0, kNumCols), uadf_(uadf)
@@ -215,7 +214,7 @@ const qt::DoubleSpinBox* PwmWidget::periodUbWidget(int row) const
 
 void PwmWidget::addLastChannel()
 {
-  const auto row = rowCount();
+  constexpr int kPeriodDecimals = 2;
 
   // Target name
   const auto target_name = new qt::ComboBox();
@@ -258,6 +257,7 @@ void PwmWidget::addLastChannel()
   period_ub->setSuffix(" us");
 
   // Insert table row.
+  const auto row = rowCount();
   insertRow(row);
   setVerticalHeaderItem(row, new QTableWidgetItem("CH" + QString::number(row)));
   setCellWidget(row, kTargetNameCol, target_name);

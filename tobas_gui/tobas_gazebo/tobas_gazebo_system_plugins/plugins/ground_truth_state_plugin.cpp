@@ -34,8 +34,6 @@ class GazeboGroundTruthStatePlugin : public BaseNode,
                                      public gz::sim::ISystemConfigure,
                                      public gz::sim::ISystemPostUpdate
 {
-  static constexpr int kDefaultUpdateRate = 0;  // [Hz]
-
   using self = GazeboGroundTruthStatePlugin;
 
 public:
@@ -136,6 +134,8 @@ void GazeboGroundTruthStatePlugin::PostUpdate(const gz::sim::UpdateInfo& info, c
 
 void GazeboGroundTruthStatePlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
+  constexpr int kDefaultUpdateRate = 0;  // [Hz]
+
   getSdfParam(sdf, "linkName", link_name_);
   getSdfParam(sdf, "updateRate", update_rate_, kDefaultUpdateRate, kNonNegative);
 }

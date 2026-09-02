@@ -21,9 +21,6 @@ namespace propulsion
 {
 namespace
 {
-constexpr int kTabWidth = 150;
-constexpr int kTabHeight = 50;
-
 constexpr char kTypeKey[] = "propulsion_system_type";
 }  // namespace
 

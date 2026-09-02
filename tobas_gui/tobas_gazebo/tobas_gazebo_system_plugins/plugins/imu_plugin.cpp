@@ -56,14 +56,6 @@ class GazeboImuPlugin : public BaseNode,
                         public gz::sim::ISystemConfigure,
                         public gz::sim::ISystemPostUpdate
 {
-  // Constants
-  static constexpr char kDebugTopic[] = "gazebo/imu_debug";
-
-  // TODO: Consider acceleration ratio and gyro vibration more carefully.
-  static constexpr double kVibrationAccVerHorRate = 1.0;
-  static constexpr double kVibrationAccGyroRate = 0.05;
-  static constexpr double kVibrationGyroAttiHeadRate = 0.5;
-
   using self = GazeboImuPlugin;
 
 public:
@@ -147,6 +139,8 @@ void GazeboImuPlugin::Configure(
   gz::sim::EntityComponentManager& ecm,
   gz::sim::EventManager&)
 {
+  constexpr char kDebugTopic[] = "gazebo/imu_debug";
+
   initialize("gazebo_imu_plugin", sdf);
   getSdfParams(sdf);
 
@@ -308,6 +302,11 @@ void GazeboImuPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 
 void GazeboImuPlugin::addNoise(gz::math::Vector3d& acc, gz::math::Vector3d& gyro, const double& dt)
 {
+  // TODO: Consider acceleration ratio and gyro vibration more carefully.
+  constexpr double kVibrationAccVerHorRate = 1.0;
+  constexpr double kVibrationAccGyroRate = 0.05;
+  constexpr double kVibrationGyroAttiHeadRate = 0.5;
+
   // Compute vibration force.
   auto vibration_force_sum = engine_vibration_force_;
   for (const auto& [_, vibration_force] : rotor_vibration_forces_) {

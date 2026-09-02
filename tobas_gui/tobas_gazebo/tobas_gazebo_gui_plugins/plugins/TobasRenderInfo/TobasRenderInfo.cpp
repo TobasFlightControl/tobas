@@ -13,19 +13,12 @@
 #include <tobas_gazebo_common/constants.hpp>
 
 using namespace std::chrono_literals;
-
 namespace ch = std::chrono;
 
 namespace tobas
 {
 namespace gazebo
 {
-namespace
-{
-constexpr double kAlpha = 0.05;
-constexpr auto kPublishPeriod = 1000ms;
-}  // namespace
-
 TobasRenderInfo::TobasRenderInfo()
 {
 }
@@ -77,9 +70,11 @@ void TobasRenderInfo::onRender()
     fps_ema_ = fps_inst;
   }
   else {
+    constexpr double kAlpha = 0.05;
     fps_ema_ = kAlpha * fps_inst + (1.0 - kAlpha) * fps_ema_;
   }
 
+  constexpr auto kPublishPeriod = 1000ms;
   if (now - t_last_pub_ >= kPublishPeriod) {
     fps_msg_.set_data(fps_ema_);
     fps_pub_.Publish(fps_msg_);

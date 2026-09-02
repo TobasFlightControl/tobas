@@ -26,15 +26,6 @@ namespace gui
 {
 namespace sim
 {
-namespace
-{
-constexpr double kDefaultLoadSize = 0.3;           // [m]
-constexpr double kDefaultLoadMass = 1.0;           // [kg]
-constexpr double kDefaultCableLength = 3.0;        // [m]
-constexpr int kDefaultCableYoungModulus = 200;     // [MPa] Low-density polyethylene.
-constexpr int kDefaultCableCrossSectionArea = 50;  // [mm^2]
-}  // namespace
-
 SuspendedLoadWidget::SuspendedLoadWidget()
 {
   const auto title = new qt::Label("Suspended Load", cmn::kLabelPSize, QFont::Bold);
@@ -118,11 +109,11 @@ void SuspendedLoadWidget::clearRosInterfaces()
 void SuspendedLoadWidget::setParamsToDefault()
 {
   attach_point_->setVector(Eigen::Vector3d::Zero());
-  load_size_->setVector(Eigen::Vector3d::Constant(kDefaultLoadSize));
-  load_mass_->setValue(kDefaultLoadMass);
-  cable_length_->setValue(kDefaultCableLength);
-  cable_young_->setValue(kDefaultCableYoungModulus);
-  cable_csa_->setValue(kDefaultCableCrossSectionArea);
+  load_size_->setVector(Eigen::Vector3d::Constant(0.3));
+  load_mass_->setValue(1.0);
+  cable_length_->setValue(3.0);
+  cable_young_->setValue(200);  // Low-density polyethylene
+  cable_csa_->setValue(50);
 }
 
 void SuspendedLoadWidget::onAttachRequested()

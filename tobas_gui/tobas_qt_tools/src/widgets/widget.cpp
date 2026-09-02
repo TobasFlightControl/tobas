@@ -32,7 +32,7 @@ int Widget::calcMaxTextPointSize(const QString& text, const QPoint& center) cons
     const auto text_width = fm.horizontalAdvance(text);
     const auto text_height = fm.height();
 
-    static constexpr double kMargin = 0.1;
+    constexpr double kMargin = 0.1;
     if (center.x() - text_width / 2 < width() * kMargin || width() * (1 - kMargin) < center.x() + text_width / 2) {
       break;
     }

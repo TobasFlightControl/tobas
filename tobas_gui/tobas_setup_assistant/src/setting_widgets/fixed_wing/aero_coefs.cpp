@@ -24,14 +24,6 @@ namespace sa
 {
 namespace fw
 {
-namespace
-{
-constexpr int kButtonWidth = 180;
-constexpr int kButtonHeight = 60;
-
-constexpr char kLastOpenedDirKey[] = "fixed_wing/aero_coefs/last_opened_dir";
-}  // namespace
-
 AerodynamicsCoefficientsWidget::AerodynamicsCoefficientsWidget()
 {
   const auto rows = new QVBoxLayout();
@@ -41,7 +33,7 @@ AerodynamicsCoefficientsWidget::AerodynamicsCoefficientsWidget()
   rows->addLayout(cols);
 
   const auto load_button = new QPushButton("Load VSPAERO Output");
-  load_button->setFixedSize(kButtonWidth, kButtonHeight);
+  load_button->setFixedSize(180, 60);
   connect(load_button, &QPushButton::clicked, this, &self::onLoadButtonClicked);
   rows->addWidget(load_button);
 
@@ -265,6 +257,7 @@ double AerodynamicsCoefficientsWidget::c_yaw_r() const
 void AerodynamicsCoefficientsWidget::onLoadButtonClicked()
 {
   // Get the previously opened path.
+  constexpr char kLastOpenedDirKey[] = "fixed_wing/aero_coefs/last_opened_dir";
   const auto last_opened_dir = settings_store_.value(kLastOpenedDirKey, QDir::homePath()).toString();
 
   // Get the params path.

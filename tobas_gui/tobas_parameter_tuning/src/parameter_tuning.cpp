@@ -21,22 +21,8 @@ namespace gui
 {
 namespace param
 {
-namespace
-{
-constexpr char kImuFilterDynamicParamFileName[] = "imu_filter_dynamic.yaml";
-constexpr char kObserverDynamicParamFileName[] = "observer_dynamic.yaml";
-constexpr char kControllerDynamicParamFileName[] = "controller_dynamic.yaml";
-constexpr char kRcTeleopDynamicParamFileName[] = "rc_teleop_dynamic.yaml";
-
-constexpr int kButtonWidth = 100;
-constexpr int kButtonHeight = 40;
-}  // namespace
-
 ParameterTuningWidget::ParameterTuningWidget()
-  : file_names_{ kImuFilterDynamicParamFileName,
-                 kObserverDynamicParamFileName,
-                 kControllerDynamicParamFileName,
-                 kRcTeleopDynamicParamFileName }
+  : file_names_{ "imu_filter_dynamic.yaml", "observer_dynamic.yaml", "controller_dynamic.yaml", "rc_teleop_dynamic.yaml" }
   , blocks_{ new ParamBlockWidget(node::kImuFilterConfigServer, "IMU Filter"),
              new ParamBlockWidget(node::kObserver, "State Estimator"),
              new ParamBlockWidget(node::kController, "Flight Controller"),
@@ -46,6 +32,8 @@ ParameterTuningWidget::ParameterTuningWidget()
   save_button_ = new QPushButton("Save");
   dflt_button_ = new QPushButton("Default");
 
+  constexpr int kButtonWidth = 100;
+  constexpr int kButtonHeight = 40;
   load_button_->setFixedSize(kButtonWidth, kButtonHeight);
   save_button_->setFixedSize(kButtonWidth, kButtonHeight);
   dflt_button_->setFixedSize(kButtonWidth, kButtonHeight);

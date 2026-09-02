@@ -23,25 +23,15 @@ namespace gui
 {
 namespace sc
 {
-namespace
-{
-// The basic S.BUS throttle range is 172 to 1811.
-constexpr int kMinPeriod = 0;
-constexpr int kMaxPeriod = 2000;
-// Each S.BUS channel value is at least 1000 and at most 2000, so
-// using 1000 as the threshold prevents the human error of moving a three-position switch through only two positions.
-constexpr int kMinSignalRange = 1000;
-
-constexpr char kOnText[] = "ON";
-constexpr char kOffText[] = "OFF";
-
-constexpr int kButtonWidth = 100;
-constexpr int kButtonHeight = 40;
-constexpr int kRangeSideShort = 50;
-}  // namespace
-
 RCInputCalibrationWidget::RCInputCalibrationWidget(const rqt::RosQtBridge& bridge, const Drone& drone) : drone_(drone)
 {
+  // The basic S.BUS throttle range is 172 to 1811.
+  constexpr int kMinPeriod = 0;
+  constexpr int kMaxPeriod = 2000;
+  constexpr int kButtonWidth = 100;
+  constexpr int kButtonHeight = 40;
+  constexpr int kRangeSideShort = 50;
+
   const auto instruction = new qt::DescriptionWidget(
     "1. Click \"Start\" to begin displaying S.BUS data in the view.\n\n"
     "2. For each channel, operate the stick or switch to ensure it covers the entire range. "
@@ -177,6 +167,9 @@ const char* RCInputCalibrationWidget::title() const
 
 void RCInputCalibrationWidget::reset()
 {
+  constexpr char kOnText[] = "ON";
+  constexpr char kOffText[] = "OFF";
+
   running_ = false;
 
   sbus_.reset();
@@ -383,6 +376,10 @@ void RCInputCalibrationWidget::onCancelButtonClicked()
 
 void RCInputCalibrationWidget::onFinishButtonClicked()
 {
+  // Each S.BUS channel value is at least 1000 and at most 2000,
+  // so using 1000 as the threshold prevents the human error of moving a three-position switch through only two positions.
+  constexpr int kMinSignalRange = 1000;
+
   // Confirm that messages have been received.
   if (!roll_range_->getValue()) {
     qt::qWarnBox(this, "No S.BUS message is received.");

@@ -125,7 +125,7 @@ void GazeboJointPositionControllerPlugin::registerRosInterfaces()
 void GazeboJointPositionControllerPlugin::commandCb(const tobas_gazebo_msgs::msg::JointCommand::ConstSharedPtr& cmd)
 {
   // Clamp the target position with a small margin because commands stop being accepted once the limit is exceeded.
-  static constexpr double kJointLimitMargin = 1e-2;  // [rad]
+  constexpr double kJointLimitMargin = 1e-2;  // [rad]
   const auto lower = jnt_axis_->Data().Lower() + kJointLimitMargin;
   const auto upper = jnt_axis_->Data().Upper() - kJointLimitMargin;
   assert(lower < upper);

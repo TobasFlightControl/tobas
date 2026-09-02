@@ -18,10 +18,6 @@ namespace sa
 {
 namespace
 {
-static constexpr auto kSectionTopSpacing = 12;
-static constexpr auto kSectionRowHeight = 28;
-static constexpr auto kNavigationRowHeight = 38;
-
 bool isSelectableEntry(const QModelIndex& index)
 {
   // Entries store their IDs in UserRole. Section headings and spacers deliberately leave this role empty.
@@ -61,12 +57,12 @@ void SettingsNavigationWidget::addSection(const QString& title)
   if (count() > 0) {
     const auto spacer = new QListWidgetItem(this);
     spacer->setFlags(Qt::NoItemFlags);
-    spacer->setSizeHint(QSize(0, kSectionTopSpacing));
+    spacer->setSizeHint(QSize(0, 12));
   }
 
   const auto item = new QListWidgetItem(title, this);
   item->setFlags(Qt::ItemIsEnabled);  // Keep the heading visually enabled while excluding it from selection.
-  item->setSizeHint(QSize(0, kSectionRowHeight));
+  item->setSizeHint(QSize(0, 28));
 
   auto font = item->font();
   font.setBold(true);
@@ -77,7 +73,7 @@ void SettingsNavigationWidget::addEntry(const QString& title, int id)
 {
   const auto item = new QListWidgetItem(title, this);
   item->setData(Qt::UserRole, id);
-  item->setSizeHint(QSize(0, kNavigationRowHeight));
+  item->setSizeHint(QSize(0, 38));
 }
 
 void SettingsNavigationWidget::setCurrentEntry(int id)

@@ -42,11 +42,6 @@ class GazeboSuspendedLoadPlugin : public BaseNode,
                                   public gz::sim::ISystemConfigure,
                                   public gz::sim::ISystemPreUpdate
 {
-  static constexpr char kPluginName[] = "gazebo_suspended_load_plugin";
-  static constexpr char kLoadNamePrefix[] = "load_";
-  static constexpr double kStopLoadRotationTimeConst = 10.0;  // [s]
-  static constexpr int kUpdateMarkerRate = 60;                // [Hz]
-
   using self = GazeboSuspendedLoadPlugin;
   using AttachSrv = tobas_gazebo_msgs::srv::AttachSuspendedLoad;
   using DetachSrv = tobas_gazebo_msgs::srv::DetachSuspendedLoad;
@@ -105,7 +100,7 @@ private:
   void detachLoadCb(const DetachSrv::Request::ConstSharedPtr& req, const DetachSrv::Response::SharedPtr& res);
 };
 
-GazeboSuspendedLoadPlugin::GazeboSuspendedLoadPlugin() : rate_manager_(kUpdateMarkerRate)
+GazeboSuspendedLoadPlugin::GazeboSuspendedLoadPlugin() : rate_manager_(60)
 {
 }
 
@@ -115,6 +110,8 @@ void GazeboSuspendedLoadPlugin::Configure(
   gz::sim::EntityComponentManager& ecm,
   gz::sim::EventManager&)
 {
+  constexpr char kPluginName[] = "gazebo_suspended_load_plugin";
+
   initialize(kPluginName, sdf);
 
   // Keep SDF parameters minimal so values can be adjusted from the GUI.
@@ -158,6 +155,8 @@ void GazeboSuspendedLoadPlugin::Configure(
 
 void GazeboSuspendedLoadPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::EntityComponentManager& ecm)
 {
+  constexpr double kStopLoadRotationTimeConst = 10.0;  // [s]
+
   if (!load_exist_) {
     return;
   }
@@ -270,6 +269,8 @@ void GazeboSuspendedLoadPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::s
 
 std::string GazeboSuspendedLoadPlugin::loadName() const
 {
+  constexpr char kLoadNamePrefix[] = "load_";
+
   return kLoadNamePrefix + std::to_string(load_index_);
 }
 

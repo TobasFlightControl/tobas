@@ -16,11 +16,6 @@ namespace gui
 {
 namespace sim
 {
-namespace
-{
-constexpr char kLastOpenedDirKey[] = "simulation_settings/world/custom_world/last_opened_dir";
-}  // namespace
-
 CustomWorldWidget::CustomWorldWidget()
 {
   const auto cols = new QHBoxLayout();
@@ -43,6 +38,8 @@ fs::path CustomWorldWidget::worldPath() const
 
 void CustomWorldWidget::onBrowseButtonClicked()
 {
+  constexpr char kLastOpenedDirKey[] = "simulation_settings/world/custom_world/last_opened_dir";
+
   // Get the previously opened path.
   const auto last_opened_dir = settings_store_.value(kLastOpenedDirKey, QDir::homePath()).toString();
 

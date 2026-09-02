@@ -86,8 +86,9 @@ void D435DepthNoiseModel::applyNoise(const size_t& width, const size_t& height, 
     return;
   }
 
+  constexpr float kSubpixelErr = 0.1f;  // [px] Calibration error
   const auto f = 0.5f * (width / std::tan(horizontal_fov_ / 2.0f));
-  const auto multiplier = (SubpixelErr) / (f * baseline_ * 1e+6f);
+  const auto multiplier = kSubpixelErr / (f * baseline_ * 1e+6f);
   Eigen::Map<Eigen::VectorXf> data_vector_map(data, width * height);
 
   // Formula taken from the Intel Whitepaper:
@@ -99,7 +100,8 @@ void D435DepthNoiseModel::applyNoise(const size_t& width, const size_t& height, 
   // Sample noise for each pixel and transform variance according to error at this depth.
   for (size_t i = 0; i < width * height; ++i) {
     if (inRange(data_vector_map[i])) {
-      data_vector_map[i] += noise_(rnd_gen_) * std::min(noise(i), MaxStddev);
+      constexpr float kMaxStddev = 3.0f;  // [m] cutoff for distance standard deviation
+      data_vector_map[i] += noise_(rnd_gen_) * std::min(noise(i), kMaxStddev);
     }
     else {
       data_vector_map[i] = bad_point_;

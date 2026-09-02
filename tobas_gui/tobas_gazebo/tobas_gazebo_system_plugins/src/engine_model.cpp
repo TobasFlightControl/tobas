@@ -10,13 +10,6 @@ namespace tobas
 {
 namespace gazebo
 {
-namespace
-{
-constexpr double kDefaultVibrationForceCoef = 0.0015;
-constexpr double kDefaultVibrationForceVariationRate = 0.2;
-constexpr double kDefaultVibrationDoubleFreqCoef = 1.0;
-}  // namespace
-
 EngineModel::EngineModel(const IceRotorModelMap& rotors) : rotors_(rotors), rnd_gen_(rnd_dev_())
 {
 }
@@ -101,19 +94,19 @@ bool EngineModel::getSdfParams(const sdf::ElementConstPtr& sdf)
     return false;
   }
 
-  getSdfParam(sdf, "vibrationForceCoefficient", vibration_force_coef_, kDefaultVibrationForceCoef);
+  getSdfParam(sdf, "vibrationForceCoefficient", vibration_force_coef_, 0.0015);
   if (vibration_force_coef_ < 0.0) {
     gzerr << "The vibration force coefficient must be non-negative." << std::endl;
     return false;
   }
 
-  getSdfParam(sdf, "vibrationForceVariationRate", vibration_force_variation_rate_, kDefaultVibrationForceVariationRate);
+  getSdfParam(sdf, "vibrationForceVariationRate", vibration_force_variation_rate_, 0.2);
   if (vibration_force_variation_rate_ < 0.0) {
     gzerr << "The vibration force variation rate must be non-negative." << std::endl;
     return false;
   }
 
-  getSdfParam(sdf, "vibrationDoubleFrequencyCoefficient", vibration_double_freq_coef_, kDefaultVibrationDoubleFreqCoef);
+  getSdfParam(sdf, "vibrationDoubleFrequencyCoefficient", vibration_double_freq_coef_, 1.0);
   if (vibration_double_freq_coef_ < 0.0) {
     gzerr << "The vibration double frequency coefficient must be non-negative." << std::endl;
     return false;

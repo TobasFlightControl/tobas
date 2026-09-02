@@ -56,12 +56,6 @@ class GazeboElectricPropulsionSystemPlugin : public BaseNode,
                                              public gz::sim::ISystemConfigure,
                                              public gz::sim::ISystemPreUpdate
 {
-  // Constants
-  static constexpr char kDebugTopicNS[] = "gazebo/rotor_debug";
-  static constexpr double kAutoStopTimeout = 0.5;    // [s]
-  static constexpr double kMinBatteryVoltage = 3.0;  // [V]
-  static constexpr double kThrotLimitMargin = 1e-3;  // [-]
-
   using self = GazeboElectricPropulsionSystemPlugin;
   using BreakSrv = std_srvs::srv::Trigger;
 
@@ -231,6 +225,8 @@ void GazeboElectricPropulsionSystemPlugin::PreUpdate(
   const gz::sim::UpdateInfo& info,
   gz::sim::EntityComponentManager& ecm)
 {
+  constexpr double kAutoStopTimeout = 0.5;  // [s]
+
   // Update the previous simulation step time.
   prev_sim_time_ = info.simTime;
 
@@ -284,6 +280,8 @@ void GazeboElectricPropulsionSystemPlugin::getSdfParams(const sdf::ElementConstP
 
 void GazeboElectricPropulsionSystemPlugin::registerRosInterfaces()
 {
+  constexpr char kDebugTopicNS[] = "gazebo/rotor_debug";
+
   state_pub_ = createPublisher<tobas_msgs::msg::RotorState>(path::join(kRotorStateTopicNS, link_name_));
   state_gt_pub_ = createPublisher<tobas_gazebo_msgs::msg::RotorState>(path::join(kRotorStateGtTopicNS, link_name_));
   debug_pub_ = createPublisher<tobas_gazebo_msgs::msg::RotorDebug>(path::join(kDebugTopicNS, link_name_));
@@ -437,6 +435,9 @@ void GazeboElectricPropulsionSystemPlugin::updateJointState(gz::sim::EntityCompo
 
 void GazeboElectricPropulsionSystemPlugin::throttleCmdCb(const tobas_gazebo_msgs::msg::Throttle::ConstSharedPtr& throttle)
 {
+  constexpr double kMinBatteryVoltage = 3.0;  // [V]
+  constexpr double kThrotLimitMargin = 1e-3;  // [-]
+
   // Ignore the command if battery information is unavailable or the voltage is too low.
   if (!battery_gt_ || battery_gt_->voltage < kMinBatteryVoltage) {
     return;

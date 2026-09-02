@@ -48,9 +48,6 @@ public:
 
 class D435DepthNoiseModel : public DepthNoiseModel
 {
-  static constexpr float SubpixelErr = 0.1f;  // [px] Calibration error
-  static constexpr float MaxStddev = 3.0f;    // [m] cutoff for distance standard deviation
-
   using super = DepthNoiseModel;
 
 public:

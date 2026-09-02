@@ -13,14 +13,6 @@ namespace propulsion
 {
 namespace electric
 {
-namespace
-{
-constexpr double kNominalVoltagePerCell = 3.7;  // Nominal voltage per cell.
-constexpr double kMaxVoltagePerCell = 4.2;      // Maximum voltage per cell.
-constexpr double kSagVoltagePerCell = 3.4;      // Voltage where discharge characteristics change abruptly.
-constexpr double kVoltageThreshPerCell = 3.2;   // Warning threshold considering voltage drop.
-}  // namespace
-
 BatteryWidget_LiPo::BatteryWidget_LiPo()
 {
   const auto rows = new QVBoxLayout();
@@ -91,16 +83,19 @@ void BatteryWidget_LiPo::load(const YAML::Node& node)
 
 double BatteryWidget_LiPo::nominalVoltage()
 {
+  constexpr double kNominalVoltagePerCell = 3.7;  // Nominal voltage per cell
   return num_cells_->getValue() * kNominalVoltagePerCell;
 }
 
 double BatteryWidget_LiPo::maxVoltage()
 {
+  constexpr double kMaxVoltagePerCell = 4.2;  // Maximum voltage per cell
   return num_cells_->getValue() * kMaxVoltagePerCell;
 }
 
 double BatteryWidget_LiPo::sagVoltage()
 {
+  constexpr double kSagVoltagePerCell = 3.4;  // Voltage where discharge characteristics change abruptly
   return num_cells_->getValue() * kSagVoltagePerCell;
 }
 

@@ -37,16 +37,6 @@ class GazeboTetherStationPlugin : public BaseNode,
                                   public gz::sim::ISystemConfigure,
                                   public gz::sim::ISystemPreUpdate
 {
-  // Constants
-  static constexpr char kPluginName[] = "gazebo_tether_station_plugin";
-  static constexpr int kUpdateMarkerRate = 60;  // [Hz]
-
-  // Default parameters
-  static constexpr double kDefaultInitTension = 1.0;       // [N]
-  static constexpr double kDefaultInitMaxLength = 5.0;     // [N]
-  static constexpr double kDefaultYoungModulus = 200.0;    // [MPa] Low-density polyethylene.
-  static constexpr double kDefaultCrossSectionArea = 1.0;  // [mm^2]
-
   using self = GazeboTetherStationPlugin;
   using GetSrv = tobas_gazebo_msgs::srv::GetTetherParams;
   using SetSrv = tobas_gazebo_msgs::srv::SetTetherParams;
@@ -97,7 +87,7 @@ private:
   void setParamsCb(const SetSrv::Request::ConstSharedPtr& req, const SetSrv::Response::SharedPtr& res);
 };
 
-GazeboTetherStationPlugin::GazeboTetherStationPlugin() : rate_manager_(kUpdateMarkerRate)
+GazeboTetherStationPlugin::GazeboTetherStationPlugin() : rate_manager_(60)
 {
 }
 
@@ -107,6 +97,8 @@ void GazeboTetherStationPlugin::Configure(
   gz::sim::EntityComponentManager& ecm,
   gz::sim::EventManager&)
 {
+  constexpr char kPluginName[] = "gazebo_tether_station_plugin";
+
   initialize(kPluginName, sdf);
   getSdfParams(sdf);
 
@@ -190,6 +182,11 @@ void GazeboTetherStationPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::s
 
 void GazeboTetherStationPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
+  constexpr double kDefaultInitTension = 1.0;       // [N]
+  constexpr double kDefaultInitMaxLength = 5.0;     // [N]
+  constexpr double kDefaultYoungModulus = 200.0;    // [MPa] Low-density polyethylene.
+  constexpr double kDefaultCrossSectionArea = 1.0;  // [mm^2]
+
   getSdfParam(sdf, "linkName", link_name_);
   getSdfParam(sdf, "worldEnd", W_Pos_WP_, gz::math::Vector3d::Zero);
   getSdfParam(sdf, "droneEnd", B_Pos_BQ_, gz::math::Vector3d::Zero);

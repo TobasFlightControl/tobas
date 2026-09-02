@@ -37,7 +37,6 @@ class CompleteMagCalibWidget : public BaseMagCalibWidget
   using self = CompleteMagCalibWidget;
   using super = BaseMagCalibWidget;
 
-  static constexpr int kMinDataSize = 500;
   static constexpr int kMaxDataSize = 10000;  // RViz limits the maximum to 100000.
 
   static constexpr size_t kTopIdx = 0;

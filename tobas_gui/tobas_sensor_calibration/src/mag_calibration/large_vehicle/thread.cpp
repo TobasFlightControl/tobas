@@ -17,12 +17,6 @@ namespace gui
 {
 namespace sc
 {
-namespace
-{
-constexpr size_t kDataCount = 200;
-constexpr auto kCollectDataTimeout = 10s;
-}  // namespace
-
 LargeVehicleMagCalibThread::LargeVehicleMagCalibThread(const rqt::RosQtBridge& bridge)
 {
   connect(&bridge, &rqt::RosQtBridge::rawMagReceived, this, &self::magCb, Qt::QueuedConnection);
@@ -76,6 +70,7 @@ void LargeVehicleMagCalibThread::run()
   const auto start_time = clock->now();
   rclcpp::Rate rate(100.0, clock);
   while (rclcpp::ok()) {
+    constexpr size_t kDataCount = 200;
     if (cnt_ >= kDataCount) {
       break;
     }
@@ -84,6 +79,7 @@ void LargeVehicleMagCalibThread::run()
       get_data_ = false;
       return;
     }
+    constexpr auto kCollectDataTimeout = 10s;
     if (clock->now() - start_time > kCollectDataTimeout) {
       Q_EMIT finished(false, "Timeout before Magnetic field collection is completed.");
       get_data_ = false;

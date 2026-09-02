@@ -14,7 +14,6 @@ namespace gcs
 namespace
 {
 constexpr char kServiceType[] = "_tobas-fc._tcp";
-constexpr int kScanInterval = 5000;  // [ms]
 
 QVector<DiscoveredFlightController> parse(const QString& output)
 {
@@ -44,6 +43,7 @@ QVector<DiscoveredFlightController> parse(const QString& output)
 
 FlightControllerScanner::FlightControllerScanner(QObject* parent) : super(parent), process_(this)
 {
+  constexpr int kScanInterval = 5000;  // [ms]
   scan_timer_.setInterval(kScanInterval);
 
   connect(&scan_timer_, &QTimer::timeout, this, &self::scanOnce);

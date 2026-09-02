@@ -54,9 +54,6 @@ class GazeboFixedWingPlugin : public BaseNode,
                               public gz::sim::ISystemPreUpdate
 {
   // Constants
-  static constexpr char kControlSurfaceKey[] = "controlSurface";
-  static constexpr char kDebugTopic[] = "gazebo/fixed_wing_debug";
-
   using self = GazeboFixedWingPlugin;
 
 public:
@@ -132,6 +129,8 @@ void GazeboFixedWingPlugin::Configure(
   gz::sim::EntityComponentManager& ecm,
   gz::sim::EventManager&)
 {
+  constexpr char kDebugTopic[] = "gazebo/fixed_wing_debug";
+
   initialize("gazebo_fixed_wing_plugin", sdf);
   getSdfParams(sdf);
 
@@ -300,6 +299,8 @@ void GazeboFixedWingPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::
 
 void GazeboFixedWingPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
+  constexpr char kControlSurfaceKey[] = "controlSurface";
+
   getSdfParam(sdf, "baseLinkName", base_link_name_);
 
   // Vehicle

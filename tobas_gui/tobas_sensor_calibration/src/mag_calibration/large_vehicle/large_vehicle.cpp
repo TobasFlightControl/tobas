@@ -16,12 +16,6 @@ namespace gui
 {
 namespace sc
 {
-namespace
-{
-constexpr int kButtonWidth = 100;
-constexpr int kButtonHeight = 40;
-}  // namespace
-
 LargeVehicleMagCalibWidget::LargeVehicleMagCalibWidget(const rqt::RosQtBridge& bridge)
   : spinner_(Qt::WindowModal, this), thread_(bridge)
 {
@@ -35,7 +29,7 @@ LargeVehicleMagCalibWidget::LargeVehicleMagCalibWidget(const rqt::RosQtBridge& b
     cmn::kBodyPSize);
 
   start_button_ = new QPushButton("Start");
-  start_button_->setFixedSize(kButtonWidth, kButtonHeight);
+  start_button_->setFixedSize(100, 40);
 
   // Layout
   const auto rows = new QVBoxLayout();

@@ -42,14 +42,8 @@ namespace gcs
 {
 namespace
 {
-constexpr char kLastOpenedDirKey[] = "gcs/last_opened_dir";
-
 constexpr auto kHostRole = Qt::UserRole;
-constexpr int kHeartbeatTimeout = 10000;  // [ms]
 constexpr char kIdPrefix[] = "id";
-
-constexpr int kLoadButtonWidth = 200;
-constexpr int kPowerButtonRadius = 40;
 
 rclcpp::Context::SharedPtr createRosContext(const QString& static_peer, std::vector<std::string> ros_args)
 {
@@ -123,7 +117,7 @@ GroundControlStationWidget::GroundControlStationWidget(int argc, char** argv) : 
   proj_path_->setReadOnly(true);
   proj_path_->setFocusPolicy(Qt::NoFocus);
   load_btn_ = new QPushButton("Load Project");
-  load_btn_->setFixedWidth(kLoadButtonWidth);
+  load_btn_->setFixedWidth(200);
 
   // FC selection
   fc_scanner_ = new FlightControllerScanner(this);
@@ -137,6 +131,7 @@ GroundControlStationWidget::GroundControlStationWidget(int argc, char** argv) : 
   write_btn_ = new QPushButton("Write");
 
   // Power buttons
+  constexpr int kPowerButtonRadius = 40;
   restart_btn_ = new RestartButton(kPowerButtonRadius);
   shutdown_btn_ = new ShutdownButton(kPowerButtonRadius);
 
@@ -334,6 +329,7 @@ void GroundControlStationWidget::disconnectFromFlightController()
 
 bool GroundControlStationWidget::waitForHeartbeat() const
 {
+  constexpr int kHeartbeatTimeout = 10000;  // [ms]
   return static_cast<bool>(rqt::waitForMessage<&rqt::RosQtBridge::remoteHeartbeatReceived>(bridge_, kHeartbeatTimeout));
 }
 
@@ -473,6 +469,7 @@ void GroundControlStationWidget::onLoadButtonClicked()
   if (!QFileInfo(default_dir).isDir()) {
     default_dir = QDir::homePath();
   }
+  constexpr char kLastOpenedDirKey[] = "gcs/last_opened_dir";
   const auto last_opened_dir = settings_store_.value(kLastOpenedDirKey, default_dir).toString();
 
   // Update the project path.

@@ -26,20 +26,13 @@ namespace gui
 {
 namespace param
 {
-namespace
-{
-constexpr int kLabelPSize = 12;
-constexpr int kParamNameWidth = 250;
-constexpr int kLineEditWidth = 150;
-}  // namespace
-
 ParamBlockWidget::ParamBlockWidget(const std::string& node_name, const QString& label) : node_name_(node_name)
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);
 
   label_ = new QLabel(label);
-  label_->setFont(qt::DefaultFont(kLabelPSize, QFont::Bold));
+  label_->setFont(qt::DefaultFont(12, QFont::Bold));
   qt::addWidgetCenter(label_, rows);
 
   form_ = new qt::FormLayout();
@@ -62,6 +55,9 @@ void ParamBlockWidget::clearRosInterfaces()
 
 bool ParamBlockWidget::load()
 {
+  constexpr int kParamNameWidth = 250;
+  constexpr int kLineEditWidth = 150;
+
   clear();
 
   if (!get_param_sc_) {

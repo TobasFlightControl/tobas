@@ -11,7 +11,7 @@ namespace gazebo
 {
 bool getTurningDirection(const sdf::ElementConstPtr& sdf, int& dst)
 {
-  static constexpr char kDirectionKey[] = "turningDirection";
+  constexpr char kDirectionKey[] = "turningDirection";
 
   if (!sdf->HasElement(kDirectionKey)) {
     return false;

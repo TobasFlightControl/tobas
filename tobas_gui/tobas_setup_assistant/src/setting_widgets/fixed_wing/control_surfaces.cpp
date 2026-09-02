@@ -27,9 +27,6 @@ namespace fw
 {
 namespace
 {
-constexpr int kColWidth = 120;
-constexpr double kAngleLimit = M_PI_4;
-
 /* Columns */
 constexpr int kLinkNameCol = 0;
 constexpr int kJointNameCol = kLinkNameCol + 1;
@@ -67,7 +64,7 @@ ControlSurfacesWidget::ControlSurfacesWidget(const uadf::Model& uadf) : super(0,
     kPitchCoefLabel,
     kYawCoefLabel,
   });
-  setColumnsWidth(kColWidth);
+  setColumnsWidth(120);
   setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
   setHeaderSectionsClickable(false);

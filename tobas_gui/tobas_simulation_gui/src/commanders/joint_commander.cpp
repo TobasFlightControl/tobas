@@ -23,11 +23,6 @@ namespace gui
 {
 namespace sim
 {
-namespace
-{
-constexpr int kPublishCommandPeriod = 100;  // [ms]
-}  // namespace
-
 JointCommanderWidget::JointCommanderWidget(const kdl::Tree& tree, const Drone& drone)
   : tree_(tree), drone_(drone), rnd_gen_(rnd_dev_()), joint_parser_(tree)
 {
@@ -276,6 +271,7 @@ void JointCommanderWidget::onStartRequested()
   random_button_->setEnabled(true);
 
   // Start sending commands at fixed time intervals.
+  constexpr int kPublishCommandPeriod = 100;  // [ms]
   publish_cmd_timer_.start(kPublishCommandPeriod);
 
   qt::qInfoBox(this, "GUI teleoperation is ready.");

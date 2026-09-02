@@ -12,11 +12,6 @@ namespace gui
 {
 namespace sa
 {
-namespace
-{
-constexpr double kJntAxisParallelTol = st::deg2rad(5);  // [rad]
-}  // namespace
-
 FrameTypeDetector::FrameTypeDetector(const uadf::Model& uadf, const kdl::Tree& tree)
   : uadf_(uadf), tree_(tree), jnt_parser_(tree), axis_solver_(tree)
 {
@@ -120,6 +115,7 @@ bool FrameTypeDetector::isJntAxisAlwaysParallel(
   if (joint.type != kdl::Joint::kFixed) {
     TOBAS_CHECK(axis_solver_.jntToCart(q_zeros_, link_name) == kdl::SolverI::kNoError);
     const auto& cur_axis = axis_solver_.getAxis();
+    constexpr double kJntAxisParallelTol = st::deg2rad(5);  // [rad]
     if (!cur_axis.isParallel(tar_axis, same_direction_only, kJntAxisParallelTol)) {
       return false;
     }

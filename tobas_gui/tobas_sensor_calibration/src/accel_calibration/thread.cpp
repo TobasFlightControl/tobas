@@ -16,13 +16,6 @@ namespace gui
 {
 namespace sc
 {
-namespace
-{
-constexpr size_t kDataCount = 200;
-constexpr auto kCollectDataTimeout = 30s;
-constexpr double kAccelBiasNormThresh = 1.0;  // [m/s^2] ISM330DLC has up to 85 mg (= 0.83 m/s^2) offset.
-}  // namespace
-
 AccelCalibrationThread::AccelCalibrationThread(const rqt::RosQtBridge& bridge)
 {
   connect(&bridge, &rqt::RosQtBridge::rawImuReceived, this, &self::imuCb, Qt::QueuedConnection);
@@ -60,6 +53,7 @@ void AccelCalibrationThread::run()
   const auto start_time = clock->now();
   rclcpp::Rate rate(100.0, clock);
   while (rclcpp::ok()) {
+    constexpr size_t kDataCount = 200;
     if (cnt_ >= kDataCount) {
       break;
     }
@@ -68,6 +62,7 @@ void AccelCalibrationThread::run()
       get_data_ = false;
       return;
     }
+    constexpr auto kCollectDataTimeout = 30s;
     if (clock->now() - start_time > kCollectDataTimeout) {
       Q_EMIT finished(false, "Timeout before IMU data collection is completed.");
       get_data_ = false;
@@ -90,6 +85,7 @@ void AccelCalibrationThread::run()
   const auto acc_bias = acc_mean - acc_ref;
 
   // Fail if the bias is abnormally large.
+  constexpr double kAccelBiasNormThresh = 1.0;  // [m/s^2] ISM330DLC has up to 85 mg (= 0.83 m/s^2) offset.
   if (acc_bias.norm() > kAccelBiasNormThresh) {
     Q_EMIT finished(false, "Acceleration error is too high. Verify that the FMU is correctly oriented.");
     return;

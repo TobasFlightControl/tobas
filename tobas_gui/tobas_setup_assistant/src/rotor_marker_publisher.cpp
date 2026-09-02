@@ -17,11 +17,6 @@ namespace gui
 {
 namespace sa
 {
-namespace
-{
-constexpr double kArrowLength = 0.2;  // TODO: Reflect the expected maximum thrust in the arrow length.
-}  // namespace
-
 RotorMarkerPublisher::RotorMarkerPublisher(rclcpp::Node::SharedPtr node, const uadf::Model& uadf)
   : node_(node), uadf_(uadf)
 {
@@ -51,6 +46,7 @@ void RotorMarkerPublisher::updateInternalDataStructures()
     const auto joint = uadf_.urdf->getJoint(joint_name);
 
     // Thrust line of action.
+    constexpr double kArrowLength = 0.2;  // TODO: Reflect the expected maximum thrust in the arrow length.
     const auto arrow_start = kdl::Vector::Zero();
     const auto arrow_end = kdl::vectorUrdfToKdl(joint->axis) * kArrowLength;
     const auto arrow_scale = kdl::Vector(0.1, 0.2, 0.3) * kArrowLength;

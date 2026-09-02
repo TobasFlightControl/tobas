@@ -15,12 +15,6 @@ namespace sc
 namespace
 {
 constexpr int kLineWidth = 10;
-
-constexpr auto kFillColorComplete = Qt::green;
-constexpr auto kFillColorIncomplete = Qt::gray;
-constexpr auto kFillColorProgress = Qt::yellow;
-constexpr auto kLineColorSelected = Qt::red;
-constexpr auto kLineColorDeselected = Qt::black;
 }  // namespace
 
 FaceCircleWidget::FaceCircleWidget(const QString& text) : text_(text)
@@ -75,11 +69,11 @@ void FaceCircleWidget::paintEvent(QPaintEvent*)
   painter.setRenderHint(QPainter::Antialiasing);
 
   if (completed_) {
-    drawCircle(painter, kFillColorComplete);
+    drawCircle(painter, Qt::green);
   }
   else {
-    drawCircle(painter, kFillColorIncomplete);
-    drawCircleLowerHalf(painter, kFillColorProgress, progress_);
+    drawCircle(painter, Qt::gray);
+    drawCircleLowerHalf(painter, Qt::yellow, progress_);
   }
 
   drawOutline(painter);
@@ -150,6 +144,9 @@ void FaceCircleWidget::drawCircleLowerHalf(QPainter& painter, const QColor& colo
 
 void FaceCircleWidget::drawOutline(QPainter& painter)
 {
+  constexpr auto kLineColorSelected = Qt::red;
+  constexpr auto kLineColorDeselected = Qt::black;
+
   painter.save();
 
   const auto center = getCenter();
