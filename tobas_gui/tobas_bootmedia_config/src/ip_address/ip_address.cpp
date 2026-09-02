@@ -16,16 +16,10 @@ namespace gui
 {
 namespace bm
 {
-namespace
-{
-constexpr int kTabWidth = 135;
-constexpr int kTabHeight = 45;
-}  // namespace
-
 IpAddressWidget::IpAddressWidget()
 {
   tabs_ = new qt::TabWidget();
-  tabs_->setTabSize(kTabWidth, kTabHeight);
+  tabs_->setTabSize(135, 45);
   tabs_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
   tabs_->addTab(new IPv4Widget("eth0"), "Wired");
   tabs_->addTab(new IPv4Widget("wlan0"), "Wireless");

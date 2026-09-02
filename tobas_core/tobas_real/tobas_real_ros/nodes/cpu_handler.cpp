@@ -21,8 +21,6 @@ namespace real
 class CpuHandlerNode : public BaseNode
 {
   static constexpr auto kSamplingPeriod = 100ms;
-  static constexpr char kTemperatureFilePath[] = "/sys/class/thermal/thermal_zone0/temp";
-  static constexpr char kStatisticsFilePath[] = "/proc/stat";
 
   using self = CpuHandlerNode;
   using super = BaseNode;
@@ -88,19 +86,29 @@ bool CpuHandlerNode::getFrequency()
 
 bool CpuHandlerNode::getTemperature()
 {
+  constexpr char kTemperatureFilePath[] = "/sys/class/thermal/thermal_zone0/temp";
+
+  // Open the file.
   std::ifstream temp_file(kTemperatureFilePath);
   if (!temp_file) {
     TOBAS_ERROR("Failed to open ", kTemperatureFilePath, ".");
     return false;
   }
+
+  // Read the contents of the file.
   temp_file >> temp_millidegrees_;
+
+  // Convert the temperature unit to SI units.
   temp_ = static_cast<double>(temp_millidegrees_) * 1e-3;
+
   return true;
 }
 
 bool CpuHandlerNode::getLoad()
 {
-  // Load the file.
+  constexpr char kStatisticsFilePath[] = "/proc/stat";
+
+  // Open the file.
   std::ifstream stat_file(kStatisticsFilePath);
   if (!stat_file) {
     TOBAS_ERROR("Failed to open ", kStatisticsFilePath, ".");

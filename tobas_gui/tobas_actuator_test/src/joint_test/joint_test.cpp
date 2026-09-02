@@ -15,15 +15,12 @@ namespace gui
 {
 namespace at
 {
-namespace
-{
-constexpr int kButtonWidth = 100;
-constexpr int kButtonHeight = 40;
-}  // namespace
-
 JointTestWidget::JointTestWidget(const rqt::RosQtBridge& bridge, const kdl::Tree& tree, const Drone& drone)
   : tree_(tree), drone_(drone)
 {
+  constexpr int kButtonWidth = 100;
+  constexpr int kButtonHeight = 40;
+
   const auto instruction = new qt::DescriptionWidget(
     "1. Click \"Start\" to start joint test.\n\n"
     "2. For each channel, confirm that the position, velocity, or effort is correctly following the command.\n\n"

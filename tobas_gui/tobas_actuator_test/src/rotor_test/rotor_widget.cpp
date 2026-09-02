@@ -15,13 +15,6 @@ namespace gui
 {
 namespace at
 {
-namespace
-{
-constexpr int kPipeWidth = 50;
-constexpr int kMinRotorCtrlGain = 0;
-constexpr int kMaxRotorCtrlGain = 30;
-}  // namespace
-
 RotorWidget::RotorWidget()
 {
   text_ = new QLabel();
@@ -29,7 +22,7 @@ RotorWidget::RotorWidget()
 
   cur_rpm_meter_ = new QwtThermo();
   cur_rpm_meter_->setLowerBound(0);
-  cur_rpm_meter_->setPipeWidth(kPipeWidth);
+  cur_rpm_meter_->setPipeWidth(50);
 
   tar_rpm_slider_ = new QwtSlider(Qt::Vertical);
   tar_rpm_slider_->setLowerBound(0);
@@ -37,6 +30,8 @@ RotorWidget::RotorWidget()
   tar_rpm_slider_->setTrough(false);
   tar_rpm_slider_->setGroove(true);
 
+  constexpr int kMinRotorCtrlGain = 0;
+  constexpr int kMaxRotorCtrlGain = 30;
   gain_slider_ = new QwtSlider(Qt::Vertical);
   gain_slider_->setScale(kMinRotorCtrlGain, kMaxRotorCtrlGain);
   gain_slider_->setTotalSteps(kMaxRotorCtrlGain - kMinRotorCtrlGain);  // Step size is 1.

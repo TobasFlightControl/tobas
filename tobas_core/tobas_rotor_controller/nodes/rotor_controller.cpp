@@ -29,7 +29,6 @@ class RotorControllerNode : public BaseNode
 
   using SetArm = tobas_msgs::srv::SetArm;
 
-  static constexpr auto kPublishArmingPeriod = 1s;
   static constexpr auto kAutoDisarmBeforeCmdTimeout = 10s;
   static constexpr auto kAutoDisarmAfterCmdTimeout = 500ms;
 
@@ -83,7 +82,7 @@ RotorControllerNode::RotorControllerNode(const rclcpp::NodeOptions& options)
 
   set_arm_ss_ = createService<SetArm>(service::kSetArm, &self::setArmCb, this);
 
-  publish_arming_timer_ = createTimer(kPublishArmingPeriod, &self::publishCurrentArmingState, this);
+  publish_arming_timer_ = createTimer(1s, &self::publishCurrentArmingState, this);
 }
 
 void RotorControllerNode::publishCurrentArmingState()

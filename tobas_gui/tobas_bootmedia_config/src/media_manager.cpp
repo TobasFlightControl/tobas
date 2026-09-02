@@ -23,20 +23,13 @@ namespace gui
 {
 namespace bm
 {
-namespace
-{
-constexpr int kMediaNameWidth = 600;
-constexpr int kConnectButtonWidth = 100;
-constexpr mode_t kPermission = 0755;  // rwxr-xr-x
-}  // namespace
-
 MediaManagerWidget::MediaManagerWidget()
 {
   media_name_ = new qt::ComboBox();
-  media_name_->setFixedWidth(kMediaNameWidth);
+  media_name_->setFixedWidth(600);
 
   connect_btn_ = new qt::ToggleButton("Connect", "Disconnect");
-  connect_btn_->setFixedWidth(kConnectButtonWidth);
+  connect_btn_->setFixedWidth(100);
   connect_btn_->setEnabled(false);
 
   // Layout
@@ -99,6 +92,8 @@ std::pair<std::string, std::string> MediaManagerWidget::getVendorAndModel(udev_d
 
 void MediaManagerWidget::onConnectRequested()
 {
+  constexpr mode_t kPermission = 0755;  // rwxr-xr-x
+
   // Check administrator privileges.
   if (!linux::isSuperUser()) {
     qt::qErrorBox(this, "Permission denied. Run as root (or use sudo) to perform this operation.");

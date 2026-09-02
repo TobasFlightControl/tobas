@@ -16,13 +16,6 @@ namespace gui
 {
 namespace at
 {
-namespace
-{
-constexpr int kPublishPeriod = 10;        // [ms]
-constexpr double kDefaultMaxVel = M_2PI;  // [rad/s]
-constexpr double kDefaultMaxEff = 10.0;   // [Nm]
-}  // namespace
-
 JointCommandsPublisherWidget::JointCommandsPublisherWidget(const kdl::Tree& tree, const Drone& drone)
   : tree_(tree), drone_(drone), joint_parser_(tree)
 {
@@ -73,6 +66,7 @@ void JointCommandsPublisherWidget::updateInternalDataStructures()
       case JointCommandInterface::kVelocity: {
         auto max_vel = joint_parser_.maxVelocity(jnt_name);
         if (std::isinf(max_vel)) {
+          constexpr double kDefaultMaxVel = M_2PI;  // [rad/s]
           max_vel = kDefaultMaxVel;
         }
 
@@ -86,6 +80,7 @@ void JointCommandsPublisherWidget::updateInternalDataStructures()
       case JointCommandInterface::kEffort: {
         auto max_eff = joint_parser_.maxEffort(jnt_name);
         if (std::isinf(max_eff)) {
+          constexpr double kDefaultMaxEff = 10.0;  // [Nm]
           max_eff = kDefaultMaxEff;
         }
 
@@ -135,6 +130,8 @@ void JointCommandsPublisherWidget::clearRosInterfaces()
 
 void JointCommandsPublisherWidget::start()
 {
+  constexpr int kPublishPeriod = 10;  // [ms]
+
   // Enable the commander.
   for (const auto& [jnt_name, commander] : commanders_) {
     const auto& joint = drone_.joints.at(jnt_name);

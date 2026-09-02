@@ -17,7 +17,6 @@
 #include <tobas_std_tools/check.hpp>
 #include <tobas_yaml_tools/core.hpp>
 
-using namespace std::chrono_literals;
 namespace tobas
 {
 namespace gui
@@ -26,11 +25,6 @@ namespace at
 {
 namespace
 {
-constexpr int kButtonWidth = 100;
-constexpr int kButtonHeight = 40;
-constexpr int kUpdatePeriod = 10;  // [ms]
-constexpr auto kWaitForService = 3s;
-
 std::string paramName(size_t ch)
 {
   return param::kRpmControlGainPrefix + std::to_string(ch);
@@ -39,6 +33,9 @@ std::string paramName(size_t ch)
 
 RotorTestWidget::RotorTestWidget(const rqt::RosQtBridge& bridge, const Drone& drone) : bridge_(bridge), drone_(drone)
 {
+  constexpr int kButtonWidth = 100;
+  constexpr int kButtonHeight = 40;
+
   registered_.fill(false);
 
   const auto warning =
@@ -230,6 +227,8 @@ bool RotorTestWidget::loadCurrentGains()
 
 void RotorTestWidget::onStartButtonClicked()
 {
+  constexpr int kUpdatePeriod = 10;  // [ms]
+
   qDebug() << "RotorTestWidget::onStartButtonClicked";
 
   // Confirm that the vehicle is not armed.

@@ -9,7 +9,6 @@ namespace tobas
 {
 namespace
 {
-constexpr auto kMainTimerPeriod = 1s;
 constexpr auto kMinAvailableSize = 500'000'000;  // [byte]
 }  // namespace
 
@@ -36,7 +35,7 @@ RosbagRecorderNode::RosbagRecorderNode(const rclcpp::NodeOptions& options)
   clean_srv_ = createService<CleanSrv>(service::kRosbagClean, &self::cleanCb, this);
 
   // Start main timer.
-  main_timer_ = createTimer(kMainTimerPeriod, &self::mainTimerCb, this);
+  main_timer_ = createTimer(1s, &self::mainTimerCb, this);
 }
 
 size_t RosbagRecorderNode::getDiskAvailableSize() const noexcept

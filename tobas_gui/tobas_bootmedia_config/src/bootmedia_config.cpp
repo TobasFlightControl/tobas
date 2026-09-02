@@ -22,19 +22,13 @@ namespace gui
 {
 namespace bm
 {
-namespace
-{
-constexpr int kTabWidth = 70;
-constexpr int kTabHeight = 35;
-}  // namespace
-
 BootmediaConfigWidget::BootmediaConfigWidget()
 {
   media_manager_ = new MediaManagerWidget();
 
   tabs_ = new qt::VerticalTabWidget();
   tabs_->enableWheelEvent(false);
-  tabs_->setTabSize(kTabWidth, kTabHeight);
+  tabs_->setTabSize(70, 35);
 
   tabs_->addTab(new HostnameWidget(), "Hostname");
   tabs_->addTab(new LoginPasswordWidget(), "Login Password");

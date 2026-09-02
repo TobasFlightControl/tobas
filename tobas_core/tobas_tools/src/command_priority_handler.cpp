@@ -9,17 +9,14 @@ using namespace std::chrono_literals;
 
 namespace tobas
 {
-namespace
-{
-constexpr auto kHighestLevelTimeout = 500ms;
-}  // namespace
-
 CommandPriorityHandler::CommandPriorityHandler()
 {
 }
 
 bool CommandPriorityHandler::update(const uint8_t& new_priority, const rclcpp::Time& cur_time)
 {
+  constexpr auto kHighestLevelTimeout = 500ms;
+
   if (new_priority >= cur_priority_ || cur_time - t_last_highest_priority_ > kHighestLevelTimeout) {
     if (new_priority > cur_priority_) {
       std::cout << "Command priority up: " << (int)cur_priority_ << " -> " << (int)new_priority << std::endl;

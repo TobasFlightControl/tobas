@@ -47,11 +47,11 @@ bool SBUS::initialize(const char* device)
     return false;
   }
 
-  if (!uart_.setBaudRate(kBaudRate)) {
+  if (!uart_.setBaudRate(100'000)) {
     return false;
   }
 
-  if (!uart_.setDataBits(kDataBits)) {
+  if (!uart_.setDataBits(8)) {
     return false;
   }
 
@@ -83,8 +83,11 @@ void SBUS::spin()
 
 void SBUS::readThreadFunc(std::stop_token st)
 {
+  static constexpr size_t kDataSize = 22;
+
   uint8_t start_byte, end_byte, flags;
   std::array<uint8_t, kDataSize> data;
+  uint256_t bits;
 
   // Receive one byte at a time instead of in bulk.
   // The inverter or the Linux UART device may split the data unexpectedly.
@@ -122,35 +125,25 @@ void SBUS::readThreadFunc(std::stop_token st)
       continue;
     }
 
-    // Decode packet.
-    decodeData(data);
-    decodeFlags(flags);
+    // Decode data.
+    bits = 0;
+    for (size_t idx = 0; idx < kDataSize; ++idx) {
+      bits |= (static_cast<uint256_t>(data[idx]) << (8 * idx));
+    }
+    for (size_t ch = 0; ch < kChannelSize; ++ch) {
+      constexpr size_t kChannelBits = 11;
+      constexpr uint16_t kMask = (1 << kChannelBits) - 1;
+      packet_.periods.at(ch) = ((bits >> (kChannelBits * ch)) & kMask).convert_to<uint16_t>();
+    }
+
+    // Decode flags
+    packet_.ch17 = (flags >> 0) & 1;
+    packet_.ch18 = (flags >> 1) & 1;
+    packet_.frame_lost = (flags >> 2) & 1;
+    packet_.failsafe = (flags >> 3) & 1;
 
     // Call user callback.
     packet_cb_(packet_);
   }
-}
-
-void SBUS::decodeData(const std::array<uint8_t, kDataSize>& data)
-{
-  // Convert the data to one bit sequence first because carrying across bytes is cumbersome.
-  uint256_t bits = 0;
-  for (size_t idx = 0; idx < kDataSize; ++idx) {
-    bits |= (static_cast<uint256_t>(data.at(idx)) << (kDataBits * idx));
-  }
-
-  // Extract 11 bits at a time.
-  constexpr uint16_t kMask = (1 << kChannelBits) - 1;
-  for (size_t ch = 0; ch < kChannelSize; ++ch) {
-    packet_.periods.at(ch) = ((bits >> (kChannelBits * ch)) & kMask).convert_to<uint16_t>();
-  }
-}
-
-void SBUS::decodeFlags(uint8_t flags)
-{
-  packet_.ch17 = (flags >> 0) & 1;
-  packet_.ch18 = (flags >> 1) & 1;
-  packet_.frame_lost = (flags >> 2) & 1;
-  packet_.failsafe = (flags >> 3) & 1;
 }
 }  // namespace tobas

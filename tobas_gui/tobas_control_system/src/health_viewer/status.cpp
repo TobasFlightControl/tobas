@@ -15,21 +15,15 @@ namespace gui
 {
 namespace ctrl
 {
-namespace
-{
-constexpr int kStatusWidth = 40;
-constexpr int kTextPSize = 12;
-}  // namespace
-
 StatusWidget::StatusWidget(const QString& text)
 {
   setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
 
   status_ = new qt::FramedLabel();
   status_->setAlignment(Qt::AlignCenter);
-  status_->setFixedWidth(kStatusWidth);
+  status_->setFixedWidth(40);
 
-  label_ = new qt::Label(text, kTextPSize);
+  label_ = new qt::Label(text, 12);
 
   reset();
 

@@ -37,11 +37,6 @@ public:
   inline const Packet& packet() const;
 
 private:
-  static constexpr uint32_t kBaudRate = 100'000;  // [bps]
-  static constexpr size_t kChannelBits = 11;
-  static constexpr size_t kDataBits = 8;
-  static constexpr size_t kDataSize = 22;
-
   const std::function<void(const Packet&)> packet_cb_;
 
   linux::UARTdev uart_;
@@ -49,9 +44,6 @@ private:
 
   std::jthread read_thread_;
   void readThreadFunc(std::stop_token st);
-
-  void decodeData(const std::array<uint8_t, kDataSize>& data);
-  void decodeFlags(uint8_t flags);
 };
 
 inline const SBUS::Packet& SBUS::packet() const

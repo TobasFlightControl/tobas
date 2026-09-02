@@ -22,8 +22,6 @@ namespace bm
 {
 namespace
 {
-constexpr int kColWidth = 150;
-
 constexpr int kKeyMgmtCol = 0;
 constexpr int kSsidCol = kKeyMgmtCol + 1;
 constexpr int kPskCol = kSsidCol + 1;
@@ -49,7 +47,7 @@ WifiClientWidget::WifiClientWidget()
 
   table_ = new qt::TableWidget(0, kNumCols);
   table_->setHorizontalHeaderLabels({ "AKM", "SSID", "PSK", "Priority", "Hidden" });
-  table_->setColumnsWidth(kColWidth);
+  table_->setColumnsWidth(150);
   table_->setEditTriggers(QAbstractItemView::NoEditTriggers);    // Disable editing.
   table_->setSelectionBehavior(QAbstractItemView::SelectRows);   // Select by row.
   table_->setSelectionMode(QAbstractItemView::SingleSelection);  // Select only one row.
