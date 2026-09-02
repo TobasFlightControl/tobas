@@ -838,9 +838,7 @@ void ProjectGenerator::resolveModifiedUrdfMeshFilePath(tinyxml2::XMLElement* ele
 void ProjectGenerator::replaceOriginalUadfMeshFilePaths(tinyxml2::XMLElement* elem)
 {
   // Check the current element.
-  if (std::strcmp(elem->Name(), "mesh") != 0) {
-    return;
-  }
+  replaceOriginalUadfMeshFilePath(elem);
 
   // Check the child elements recursively.
   for (auto child = elem->FirstChildElement(); child; child = child->NextSiblingElement()) {
@@ -850,6 +848,10 @@ void ProjectGenerator::replaceOriginalUadfMeshFilePaths(tinyxml2::XMLElement* el
 
 void ProjectGenerator::replaceOriginalUadfMeshFilePath(tinyxml2::XMLElement* elem)
 {
+  if (std::strcmp(elem->Name(), "mesh") != 0) {
+    return;
+  }
+
   const auto filename = elem->Attribute("filename");
   if (!filename) {
     qWarning() << "Mesh element does not have attribute: 'filename'";
