@@ -5,20 +5,23 @@
 
 #include <iostream>
 
-#define ELECTRIC_TEXT "electric"
-#define ICE_TEXT "ice"
-
 using namespace std;
 
 namespace tobas
 {
+namespace
+{
+constexpr char kElectricText[] = "electric";
+constexpr char kIceText[] = "ice";
+}  // namespace
+
 string textFromEnum(PropulsionSystem cmd_iface)
 {
   switch (cmd_iface) {
     case PropulsionSystem::kElectric:
-      return ELECTRIC_TEXT;
+      return kElectricText;
     case PropulsionSystem::kIce:
-      return ICE_TEXT;
+      return kIceText;
     default:
       throw;
   }
@@ -26,11 +29,11 @@ string textFromEnum(PropulsionSystem cmd_iface)
 
 bool enumFromText(const string& text, PropulsionSystem& dst)
 {
-  if (text == ELECTRIC_TEXT) {
+  if (text == kElectricText) {
     dst = PropulsionSystem::kElectric;
     return true;
   }
-  else if (text == ICE_TEXT) {
+  else if (text == kIceText) {
     dst = PropulsionSystem::kIce;
     return true;
   }

@@ -8,8 +8,6 @@
 
 #include <tobas_std_tools/vector.hpp>
 
-#define QT_QPA_PLATFORM "QT_QPA_PLATFORM"
-
 namespace tobas
 {
 namespace gui
@@ -45,8 +43,9 @@ bool NonRosArgumentParser::setPlatformXcb()
     return true;
   }
 
-  if (env.contains(QT_QPA_PLATFORM)) {
-    std::cerr << "Cannot set display platform because \"" << QT_QPA_PLATFORM << "\" is set." << std::endl;
+  constexpr char kQtQpaPlatform[] = "QT_QPA_PLATFORM";
+  if (env.contains(kQtQpaPlatform)) {
+    std::cerr << "Cannot set display platform because \"" << kQtQpaPlatform << "\" is set." << std::endl;
     return false;
   }
 

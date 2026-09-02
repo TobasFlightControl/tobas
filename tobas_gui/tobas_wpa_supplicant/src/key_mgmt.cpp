@@ -5,27 +5,30 @@
 
 #include <iostream>
 
-#define NONE_TOKEN "NONE"
-#define WPA_PSK_TOKEN "WPA-PSK"
-#define SAE_TOKEN "SAE"
-
-#define NONE_LABEL "None"
-#define WPA_PSK_LABEL "WPA2-Personal"
-#define SAE_LABEL "WPA3-Personal"
-
 namespace tobas
 {
 namespace wpa
 {
+namespace
+{
+constexpr char kNoneToken[] = "NONE";
+constexpr char kWpaPskToken[] = "WPA-PSK";
+constexpr char kSaeToken[] = "SAE";
+
+constexpr char kNoneLabel[] = "None";
+constexpr char kWpaPskLabel[] = "WPA2-Personal";
+constexpr char kSaeLabel[] = "WPA3-Personal";
+}  // namespace
+
 std::string tokenFromEnum(KeyMgmt key_mgmt)
 {
   switch (key_mgmt) {
     case KeyMgmt::NONE:
-      return NONE_TOKEN;
+      return kNoneToken;
     case KeyMgmt::WPA_PSK:
-      return WPA_PSK_TOKEN;
+      return kWpaPskToken;
     case KeyMgmt::SAE:
-      return SAE_TOKEN;
+      return kSaeToken;
     default:
       throw;
   }
@@ -33,15 +36,15 @@ std::string tokenFromEnum(KeyMgmt key_mgmt)
 
 bool enumFromToken(const std::string& token, KeyMgmt& dst)
 {
-  if (token == NONE_TOKEN) {
+  if (token == kNoneToken) {
     dst = KeyMgmt::NONE;
     return true;
   }
-  else if (token == WPA_PSK_TOKEN) {
+  else if (token == kWpaPskToken) {
     dst = KeyMgmt::WPA_PSK;
     return true;
   }
-  else if (token == SAE_TOKEN) {
+  else if (token == kSaeToken) {
     dst = KeyMgmt::SAE;
     return true;
   }
@@ -55,11 +58,11 @@ std::string labelFromEnum(KeyMgmt key_mgmt)
 {
   switch (key_mgmt) {
     case KeyMgmt::NONE:
-      return NONE_LABEL;
+      return kNoneLabel;
     case KeyMgmt::WPA_PSK:
-      return WPA_PSK_LABEL;
+      return kWpaPskLabel;
     case KeyMgmt::SAE:
-      return SAE_LABEL;
+      return kSaeLabel;
     default:
       throw;
   }
@@ -67,15 +70,15 @@ std::string labelFromEnum(KeyMgmt key_mgmt)
 
 bool enumFromLabel(const std::string& label, KeyMgmt& dst)
 {
-  if (label == NONE_LABEL) {
+  if (label == kNoneLabel) {
     dst = KeyMgmt::NONE;
     return true;
   }
-  else if (label == WPA_PSK_LABEL) {
+  else if (label == kWpaPskLabel) {
     dst = KeyMgmt::WPA_PSK;
     return true;
   }
-  else if (label == SAE_LABEL) {
+  else if (label == kSaeLabel) {
     dst = KeyMgmt::SAE;
     return true;
   }

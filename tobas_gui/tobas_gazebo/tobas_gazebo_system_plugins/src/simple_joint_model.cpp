@@ -5,8 +5,6 @@
 
 #include <gz/common/Console.hh>
 
-#define POS_MARGIN 1e-2  // [rad]
-
 namespace tobas
 {
 namespace gazebo
@@ -29,7 +27,8 @@ double SimpleJointModel::getCurrentPosition() const
 
 void SimpleJointModel::setTargetPosition(double tar_pos)
 {
-  if (pos_limit.inRange(tar_pos, POS_MARGIN)) {
+  constexpr auto kPositionMargin = 1e-2;  // [rad]
+  if (pos_limit.inRange(tar_pos, kPositionMargin)) {
     tar_pos_ = tar_pos;
   }
   else {

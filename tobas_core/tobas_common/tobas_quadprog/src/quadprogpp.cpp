@@ -5,8 +5,6 @@
 
 #include <QuadProg++/QuadProg++.hh>
 
-#define F_VALUE_THRESHOLD 1e+10
-
 using namespace std;
 using namespace Eigen;
 
@@ -86,7 +84,7 @@ bool QuadProgppSolver::solve()
 
   // Solve the QP.
   const double f_value = quadprogpp::solve_quadprog(G_, g0_, CE_, ce0_, CI_, ci0_, x_);
-  if (f_value > F_VALUE_THRESHOLD) {
+  if (f_value > 1e+10) {
     error_msg_ = "QPP is infeasible.";
     return false;
   }

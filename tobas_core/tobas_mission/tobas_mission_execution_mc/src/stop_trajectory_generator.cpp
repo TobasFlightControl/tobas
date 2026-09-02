@@ -8,12 +8,15 @@
 
 #include <tobas_math/core.hpp>
 
-#define EPS 1e-6
-
 namespace tobas
 {
 namespace mission
 {
+namespace
+{
+constexpr double kEps = 1e-6;
+}  // namespace
+
 StopTrajectory::StopTrajectory(double p0, double v0, double a0, double am, double jm)
   : p0_(p0), v0_(v0), a0_(a0), am_(am), jm_(jm)
 {
@@ -22,7 +25,7 @@ StopTrajectory::StopTrajectory(double p0, double v0, double a0, double am, doubl
   assert(jm_ > 0.0);
 
   // Special case when already stopped.
-  if (v0_ < EPS) {
+  if (v0_ < kEps) {
     t1_ = t2_ = t3_ = 0.0;
     return;
   }
@@ -43,7 +46,7 @@ StopTrajectory::StopTrajectory(double p0, double v0, double a0, double am, doubl
 
 traj::TrajectoryPoint StopTrajectory::get(double t) const noexcept
 {
-  if (v0_ < EPS) {
+  if (v0_ < kEps) {
     return { p0_, 0.0, 0.0 };
   }
 

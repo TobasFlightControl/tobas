@@ -5,20 +5,23 @@
 
 #include <iostream>
 
-#define PWM_TEXT "pwm"
-#define OTHER_TEXT "other"
-
 using namespace std;
 
 namespace tobas
 {
+namespace
+{
+constexpr char kPwmText[] = "pwm";
+constexpr char kOtherText[] = "other";
+}  // namespace
+
 string textFromEnum(HardwareInterface value)
 {
   switch (value) {
     case HardwareInterface::kPwm:
-      return PWM_TEXT;
+      return kPwmText;
     case HardwareInterface::kOther:
-      return OTHER_TEXT;
+      return kOtherText;
     default:
       throw;
   }
@@ -26,11 +29,11 @@ string textFromEnum(HardwareInterface value)
 
 bool enumFromText(const string& text, HardwareInterface& dst)
 {
-  if (text == PWM_TEXT) {
+  if (text == kPwmText) {
     dst = HardwareInterface::kPwm;
     return true;
   }
-  else if (text == OTHER_TEXT) {
+  else if (text == kOtherText) {
     dst = HardwareInterface::kOther;
     return true;
   }

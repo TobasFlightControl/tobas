@@ -10,63 +10,6 @@
 
 #include "tobas_mission_items/mission_items.hpp"
 
-// Mission item elements
-#define TYPE_KEY "type"
-#define DATA_KEY "data"
-
-// Mission item types
-#define TYPE_WAYPOINT "waypoint"
-#define TYPE_TAKEOFF "takeoff"
-#define TYPE_LAND "land"
-#define TYPE_RTL "rtl"
-
-// Waypoint elements
-#define WAYPOINT_LATITUDE "latitude"
-#define WAYPOINT_LONGITUDE "longitude"
-#define WAYPOINT_ALTITUDE "altitude"
-#define WAYPOINT_ALTITUDE_FRAME "altitude_frame"
-#define WAYPOINT_AUTO_HEADING "auto_heading"
-#define WAYPOINT_STOP_AT_WAYPOINT "stop_at_waypoint"
-#define WAYPOINT_MAX_HORIZONTAL_VELOCITY "max_horizontal_velocity"
-#define WAYPOINT_MAX_HORIZONTAL_ACCEL "max_horizontal_accel"
-#define WAYPOINT_MAX_HORIZONTAL_JERK "max_horizontal_jerk"
-#define WAYPOINT_MAX_VERTICAL_VELOCITY "max_vertical_velocity"
-#define WAYPOINT_MAX_VERTICAL_ACCEL "max_vertical_accel"
-#define WAYPOINT_MAX_VERTICAL_JERK "max_vertical_jerk"
-#define WAYPOINT_MAX_HEADING_RATE "max_heading_rate"
-#define WAYPOINT_MAX_HEADING_ACCEL "max_heading_accel"
-#define WAYPOINT_ACCEPTANCE_RADIUS "acceptance_radius"
-#define WAYPOINT_ALTITUDE_TOLERANCE "altitude_tolerance"
-#define WAYPOINT_TIMEOUT "timeout"
-
-// Takeoff elements
-#define TAKEOFF_ALTITUDE "altitude"
-#define TAKEOFF_ALTITUDE_FRAME "altitude_frame"
-#define TAKEOFF_MAX_SPEED "max_speed"
-#define TAKEOFF_MAX_ACCEL "max_accel"
-#define TAKEOFF_MAX_JERK "max_jerk"
-#define TAKEOFF_ALTITUDE_TOLERANCE "altitude_tolerance"
-#define TAKEOFF_TIMEOUT "timeout"
-
-// Land elements
-#define LAND_SPEED "speed"
-#define LAND_TIMEOUT "timeout"
-
-// RTL elements
-#define RTL_MIN_ALTITUDE "min_altitude"
-#define RTL_ALTITUDE_FRAME "altitude_frame"
-#define RTL_MAX_HORIZONTAL_VELOCITY "max_horizontal_velocity"
-#define RTL_MAX_HORIZONTAL_ACCEL "max_horizontal_accel"
-#define RTL_MAX_HORIZONTAL_JERK "max_horizontal_jerk"
-#define RTL_MAX_VERTICAL_VELOCITY "max_vertical_velocity"
-#define RTL_MAX_VERTICAL_ACCEL "max_vertical_accel"
-#define RTL_MAX_VERTICAL_JERK "max_vertical_jerk"
-#define RTL_MAX_HEADING_RATE "max_heading_rate"
-#define RTL_MAX_HEADING_ACCEL "max_heading_accel"
-#define RTL_ACCEPTANCE_RADIUS "acceptance_radius"
-#define RTL_ALTITUDE_TOLERANCE "altitude_tolerance"
-#define RTL_TIMEOUT "timeout"
-
 /* Define a macro that assigns directly because packed struct elements cannot be bound to function arguments. */
 #define LOAD_PACKED_FIELD(key, parent, field)                                                                          \
   (                                                                                                                    \
@@ -86,6 +29,65 @@ namespace tobas
 {
 namespace mission
 {
+namespace
+{
+// Mission item elements
+constexpr char kTypeKey[] = "type";
+constexpr char kDataKey[] = "data";
+
+// Mission item types
+constexpr char kTypeWaypoint[] = "waypoint";
+constexpr char kTypeTakeoff[] = "takeoff";
+constexpr char kTypeLand[] = "land";
+constexpr char kTypeRtl[] = "rtl";
+
+// Waypoint elements
+constexpr char kWaypointLatitude[] = "latitude";
+constexpr char kWaypointLongitude[] = "longitude";
+constexpr char kWaypointAltitude[] = "altitude";
+constexpr char kWaypointAltitudeFrame[] = "altitude_frame";
+constexpr char kWaypointAutoHeading[] = "auto_heading";
+constexpr char kWaypointStopAtWaypoint[] = "stop_at_waypoint";
+constexpr char kWaypointMaxHorizontalVelocity[] = "max_horizontal_velocity";
+constexpr char kWaypointMaxHorizontalAccel[] = "max_horizontal_accel";
+constexpr char kWaypointMaxHorizontalJerk[] = "max_horizontal_jerk";
+constexpr char kWaypointMaxVerticalVelocity[] = "max_vertical_velocity";
+constexpr char kWaypointMaxVerticalAccel[] = "max_vertical_accel";
+constexpr char kWaypointMaxVerticalJerk[] = "max_vertical_jerk";
+constexpr char kWaypointMaxHeadingRate[] = "max_heading_rate";
+constexpr char kWaypointMaxHeadingAccel[] = "max_heading_accel";
+constexpr char kWaypointAcceptanceRadius[] = "acceptance_radius";
+constexpr char kWaypointAltitudeTolerance[] = "altitude_tolerance";
+constexpr char kWaypointTimeout[] = "timeout";
+
+// Takeoff elements
+constexpr char kTakeoffAltitude[] = "altitude";
+constexpr char kTakeoffAltitudeFrame[] = "altitude_frame";
+constexpr char kTakeoffMaxSpeed[] = "max_speed";
+constexpr char kTakeoffMaxAccel[] = "max_accel";
+constexpr char kTakeoffMaxJerk[] = "max_jerk";
+constexpr char kTakeoffAltitudeTolerance[] = "altitude_tolerance";
+constexpr char kTakeoffTimeout[] = "timeout";
+
+// Land elements
+constexpr char kLandSpeed[] = "speed";
+constexpr char kLandTimeout[] = "timeout";
+
+// RTL elements
+constexpr char kRtlMinAltitude[] = "min_altitude";
+constexpr char kRtlMaxHorizontalVelocity[] = "max_horizontal_velocity";
+constexpr char kRtlMaxHorizontalAccel[] = "max_horizontal_accel";
+constexpr char kRtlMaxHorizontalJerk[] = "max_horizontal_jerk";
+constexpr char kRtlMaxVerticalVelocity[] = "max_vertical_velocity";
+constexpr char kRtlMaxVerticalAccel[] = "max_vertical_accel";
+constexpr char kRtlMaxVerticalJerk[] = "max_vertical_jerk";
+constexpr char kRtlMaxHeadingRate[] = "max_heading_rate";
+constexpr char kRtlMaxHeadingAccel[] = "max_heading_accel";
+constexpr char kRtlAcceptanceRadius[] = "acceptance_radius";
+constexpr char kRtlAltitudeTolerance[] = "altitude_tolerance";
+constexpr char kRtlTimeout[] = "timeout";
+}  // namespace
+
 YAML::Node Mission::dump() const
 {
   constexpr int kGnssPrecision = 12;
@@ -103,24 +105,24 @@ YAML::Node Mission::dump() const
           std::cerr << "Failed to decode a waypoint mission." << std::endl;
           continue;
         }
-        item_node[TYPE_KEY] = TYPE_WAYPOINT;
-        data_node[WAYPOINT_LATITUDE] = tobas::yaml::format(waypoint.latitude, kGnssPrecision);
-        data_node[WAYPOINT_LONGITUDE] = tobas::yaml::format(waypoint.longitude, kGnssPrecision);
-        data_node[WAYPOINT_ALTITUDE] = tobas::yaml::format(waypoint.altitude);
-        data_node[WAYPOINT_ALTITUDE_FRAME] = waypoint.altitude_frame;
-        data_node[WAYPOINT_AUTO_HEADING] = waypoint.auto_heading;
-        data_node[WAYPOINT_STOP_AT_WAYPOINT] = waypoint.stop_at_waypoint;
-        data_node[WAYPOINT_MAX_HORIZONTAL_VELOCITY] = tobas::yaml::format(waypoint.max_horizontal_velocity);
-        data_node[WAYPOINT_MAX_HORIZONTAL_ACCEL] = tobas::yaml::format(waypoint.max_horizontal_accel);
-        data_node[WAYPOINT_MAX_HORIZONTAL_JERK] = tobas::yaml::format(waypoint.max_horizontal_jerk);
-        data_node[WAYPOINT_MAX_VERTICAL_VELOCITY] = tobas::yaml::format(waypoint.max_vertical_velocity);
-        data_node[WAYPOINT_MAX_VERTICAL_ACCEL] = tobas::yaml::format(waypoint.max_vertical_accel);
-        data_node[WAYPOINT_MAX_VERTICAL_JERK] = tobas::yaml::format(waypoint.max_vertical_jerk);
-        data_node[WAYPOINT_MAX_HEADING_RATE] = tobas::yaml::format(waypoint.max_heading_rate);
-        data_node[WAYPOINT_MAX_HEADING_ACCEL] = tobas::yaml::format(waypoint.max_heading_accel);
-        data_node[WAYPOINT_ACCEPTANCE_RADIUS] = tobas::yaml::format(waypoint.acceptance_radius);
-        data_node[WAYPOINT_ALTITUDE_TOLERANCE] = tobas::yaml::format(waypoint.altitude_tolerance);
-        data_node[WAYPOINT_TIMEOUT] = tobas::yaml::format(waypoint.timeout);
+        item_node[kTypeKey] = kTypeWaypoint;
+        data_node[kWaypointLatitude] = tobas::yaml::format(waypoint.latitude, kGnssPrecision);
+        data_node[kWaypointLongitude] = tobas::yaml::format(waypoint.longitude, kGnssPrecision);
+        data_node[kWaypointAltitude] = tobas::yaml::format(waypoint.altitude);
+        data_node[kWaypointAltitudeFrame] = waypoint.altitude_frame;
+        data_node[kWaypointAutoHeading] = waypoint.auto_heading;
+        data_node[kWaypointStopAtWaypoint] = waypoint.stop_at_waypoint;
+        data_node[kWaypointMaxHorizontalVelocity] = tobas::yaml::format(waypoint.max_horizontal_velocity);
+        data_node[kWaypointMaxHorizontalAccel] = tobas::yaml::format(waypoint.max_horizontal_accel);
+        data_node[kWaypointMaxHorizontalJerk] = tobas::yaml::format(waypoint.max_horizontal_jerk);
+        data_node[kWaypointMaxVerticalVelocity] = tobas::yaml::format(waypoint.max_vertical_velocity);
+        data_node[kWaypointMaxVerticalAccel] = tobas::yaml::format(waypoint.max_vertical_accel);
+        data_node[kWaypointMaxVerticalJerk] = tobas::yaml::format(waypoint.max_vertical_jerk);
+        data_node[kWaypointMaxHeadingRate] = tobas::yaml::format(waypoint.max_heading_rate);
+        data_node[kWaypointMaxHeadingAccel] = tobas::yaml::format(waypoint.max_heading_accel);
+        data_node[kWaypointAcceptanceRadius] = tobas::yaml::format(waypoint.acceptance_radius);
+        data_node[kWaypointAltitudeTolerance] = tobas::yaml::format(waypoint.altitude_tolerance);
+        data_node[kWaypointTimeout] = tobas::yaml::format(waypoint.timeout);
         break;
       }
       case tobas::mission::Type::kTakeoff: {
@@ -129,14 +131,14 @@ YAML::Node Mission::dump() const
           std::cerr << "Failed to decode a takeoff mission." << std::endl;
           continue;
         }
-        item_node[TYPE_KEY] = TYPE_TAKEOFF;
-        data_node[TAKEOFF_ALTITUDE] = tobas::yaml::format(takeoff.altitude);
-        data_node[TAKEOFF_ALTITUDE_FRAME] = takeoff.altitude_frame;
-        data_node[TAKEOFF_MAX_SPEED] = tobas::yaml::format(takeoff.max_speed);
-        data_node[TAKEOFF_MAX_ACCEL] = tobas::yaml::format(takeoff.max_accel);
-        data_node[TAKEOFF_MAX_JERK] = tobas::yaml::format(takeoff.max_jerk);
-        data_node[TAKEOFF_ALTITUDE_TOLERANCE] = tobas::yaml::format(takeoff.altitude_tolerance);
-        data_node[TAKEOFF_TIMEOUT] = tobas::yaml::format(takeoff.timeout);
+        item_node[kTypeKey] = kTypeTakeoff;
+        data_node[kTakeoffAltitude] = tobas::yaml::format(takeoff.altitude);
+        data_node[kTakeoffAltitudeFrame] = takeoff.altitude_frame;
+        data_node[kTakeoffMaxSpeed] = tobas::yaml::format(takeoff.max_speed);
+        data_node[kTakeoffMaxAccel] = tobas::yaml::format(takeoff.max_accel);
+        data_node[kTakeoffMaxJerk] = tobas::yaml::format(takeoff.max_jerk);
+        data_node[kTakeoffAltitudeTolerance] = tobas::yaml::format(takeoff.altitude_tolerance);
+        data_node[kTakeoffTimeout] = tobas::yaml::format(takeoff.timeout);
         break;
       }
       case tobas::mission::Type::kLand: {
@@ -145,9 +147,9 @@ YAML::Node Mission::dump() const
           std::cerr << "Failed to decode a land mission." << std::endl;
           continue;
         }
-        item_node[TYPE_KEY] = TYPE_LAND;
-        data_node[LAND_SPEED] = tobas::yaml::format(land.speed);
-        data_node[LAND_TIMEOUT] = tobas::yaml::format(land.timeout);
+        item_node[kTypeKey] = kTypeLand;
+        data_node[kLandSpeed] = tobas::yaml::format(land.speed);
+        data_node[kLandTimeout] = tobas::yaml::format(land.timeout);
         break;
       }
       case tobas::mission::Type::kReturnToLaunch: {
@@ -156,26 +158,26 @@ YAML::Node Mission::dump() const
           std::cerr << "Failed to decode a RTL mission." << std::endl;
           continue;
         }
-        item_node[TYPE_KEY] = TYPE_RTL;
-        data_node[RTL_MIN_ALTITUDE] = tobas::yaml::format(rtl.min_altitude);
-        data_node[RTL_MAX_HORIZONTAL_VELOCITY] = tobas::yaml::format(rtl.max_horizontal_velocity);
-        data_node[RTL_MAX_HORIZONTAL_ACCEL] = tobas::yaml::format(rtl.max_horizontal_accel);
-        data_node[RTL_MAX_HORIZONTAL_JERK] = tobas::yaml::format(rtl.max_horizontal_jerk);
-        data_node[RTL_MAX_VERTICAL_VELOCITY] = tobas::yaml::format(rtl.max_vertical_velocity);
-        data_node[RTL_MAX_VERTICAL_ACCEL] = tobas::yaml::format(rtl.max_vertical_accel);
-        data_node[RTL_MAX_VERTICAL_JERK] = tobas::yaml::format(rtl.max_vertical_jerk);
-        data_node[RTL_MAX_HEADING_RATE] = tobas::yaml::format(rtl.max_heading_rate);
-        data_node[RTL_MAX_HEADING_ACCEL] = tobas::yaml::format(rtl.max_heading_accel);
-        data_node[RTL_ACCEPTANCE_RADIUS] = tobas::yaml::format(rtl.acceptance_radius);
-        data_node[RTL_ALTITUDE_TOLERANCE] = tobas::yaml::format(rtl.altitude_tolerance);
-        data_node[RTL_TIMEOUT] = tobas::yaml::format(rtl.timeout);
+        item_node[kTypeKey] = kTypeRtl;
+        data_node[kRtlMinAltitude] = tobas::yaml::format(rtl.min_altitude);
+        data_node[kRtlMaxHorizontalVelocity] = tobas::yaml::format(rtl.max_horizontal_velocity);
+        data_node[kRtlMaxHorizontalAccel] = tobas::yaml::format(rtl.max_horizontal_accel);
+        data_node[kRtlMaxHorizontalJerk] = tobas::yaml::format(rtl.max_horizontal_jerk);
+        data_node[kRtlMaxVerticalVelocity] = tobas::yaml::format(rtl.max_vertical_velocity);
+        data_node[kRtlMaxVerticalAccel] = tobas::yaml::format(rtl.max_vertical_accel);
+        data_node[kRtlMaxVerticalJerk] = tobas::yaml::format(rtl.max_vertical_jerk);
+        data_node[kRtlMaxHeadingRate] = tobas::yaml::format(rtl.max_heading_rate);
+        data_node[kRtlMaxHeadingAccel] = tobas::yaml::format(rtl.max_heading_accel);
+        data_node[kRtlAcceptanceRadius] = tobas::yaml::format(rtl.acceptance_radius);
+        data_node[kRtlAltitudeTolerance] = tobas::yaml::format(rtl.altitude_tolerance);
+        data_node[kRtlTimeout] = tobas::yaml::format(rtl.timeout);
         break;
       }
       default:
         throw;
     }
 
-    item_node[DATA_KEY] = data_node;
+    item_node[kDataKey] = data_node;
     mission_node.push_back(item_node);
   }
 
@@ -190,149 +192,149 @@ bool Mission::load(const YAML::Node& mission_node)
   }
 
   for (const auto& item_node : mission_node) {
-    const auto type = tobas::yaml::load<std::string>(TYPE_KEY, item_node);
+    const auto type = tobas::yaml::load<std::string>(kTypeKey, item_node);
     if (!type) {
       std::cerr << type.error() << std::endl;
       return false;
     }
 
-    const auto data_node = item_node[DATA_KEY];
+    const auto data_node = item_node[kDataKey];
     if (!data_node.IsDefined()) {
-      std::cerr << "\"" << DATA_KEY << "\" is not defined." << std::endl;
+      std::cerr << "\"" << kDataKey << "\" is not defined." << std::endl;
       return false;
     }
 
     tobas::mission::MissionItem item;
 
-    if (*type == TYPE_WAYPOINT) {
+    if (*type == kTypeWaypoint) {
       tobas::mission::Waypoint waypoint;
-      if (!LOAD_PACKED_FIELD(WAYPOINT_LATITUDE, data_node, waypoint.latitude)) {
+      if (!LOAD_PACKED_FIELD(kWaypointLatitude, data_node, waypoint.latitude)) {
         return false;
       }
-      if (!LOAD_PACKED_FIELD(WAYPOINT_LONGITUDE, data_node, waypoint.longitude)) {
+      if (!LOAD_PACKED_FIELD(kWaypointLongitude, data_node, waypoint.longitude)) {
         return false;
       }
-      if (!LOAD_PACKED_FIELD(WAYPOINT_ALTITUDE, data_node, waypoint.altitude)) {
+      if (!LOAD_PACKED_FIELD(kWaypointAltitude, data_node, waypoint.altitude)) {
         return false;
       }
-      if (!LOAD_PACKED_FIELD(WAYPOINT_ALTITUDE_FRAME, data_node, waypoint.altitude_frame)) {
+      if (!LOAD_PACKED_FIELD(kWaypointAltitudeFrame, data_node, waypoint.altitude_frame)) {
         return false;
       }
-      if (!LOAD_PACKED_FIELD(WAYPOINT_AUTO_HEADING, data_node, waypoint.auto_heading)) {
+      if (!LOAD_PACKED_FIELD(kWaypointAutoHeading, data_node, waypoint.auto_heading)) {
         return false;
       }
-      if (!LOAD_PACKED_FIELD(WAYPOINT_STOP_AT_WAYPOINT, data_node, waypoint.stop_at_waypoint)) {
+      if (!LOAD_PACKED_FIELD(kWaypointStopAtWaypoint, data_node, waypoint.stop_at_waypoint)) {
         return false;
       }
-      if (!LOAD_PACKED_FIELD(WAYPOINT_MAX_HORIZONTAL_VELOCITY, data_node, waypoint.max_horizontal_velocity)) {
+      if (!LOAD_PACKED_FIELD(kWaypointMaxHorizontalVelocity, data_node, waypoint.max_horizontal_velocity)) {
         return false;
       }
-      if (!LOAD_PACKED_FIELD(WAYPOINT_MAX_HORIZONTAL_ACCEL, data_node, waypoint.max_horizontal_accel)) {
+      if (!LOAD_PACKED_FIELD(kWaypointMaxHorizontalAccel, data_node, waypoint.max_horizontal_accel)) {
         return false;
       }
-      if (!LOAD_PACKED_FIELD(WAYPOINT_MAX_HORIZONTAL_JERK, data_node, waypoint.max_horizontal_jerk)) {
+      if (!LOAD_PACKED_FIELD(kWaypointMaxHorizontalJerk, data_node, waypoint.max_horizontal_jerk)) {
         return false;
       }
-      if (!LOAD_PACKED_FIELD(WAYPOINT_MAX_VERTICAL_VELOCITY, data_node, waypoint.max_vertical_velocity)) {
+      if (!LOAD_PACKED_FIELD(kWaypointMaxVerticalVelocity, data_node, waypoint.max_vertical_velocity)) {
         return false;
       }
-      if (!LOAD_PACKED_FIELD(WAYPOINT_MAX_VERTICAL_ACCEL, data_node, waypoint.max_vertical_accel)) {
+      if (!LOAD_PACKED_FIELD(kWaypointMaxVerticalAccel, data_node, waypoint.max_vertical_accel)) {
         return false;
       }
-      if (!LOAD_PACKED_FIELD(WAYPOINT_MAX_VERTICAL_JERK, data_node, waypoint.max_vertical_jerk)) {
+      if (!LOAD_PACKED_FIELD(kWaypointMaxVerticalJerk, data_node, waypoint.max_vertical_jerk)) {
         return false;
       }
-      if (!LOAD_PACKED_FIELD(WAYPOINT_MAX_HEADING_RATE, data_node, waypoint.max_heading_rate)) {
+      if (!LOAD_PACKED_FIELD(kWaypointMaxHeadingRate, data_node, waypoint.max_heading_rate)) {
         return false;
       }
-      if (!LOAD_PACKED_FIELD(WAYPOINT_MAX_HEADING_ACCEL, data_node, waypoint.max_heading_accel)) {
+      if (!LOAD_PACKED_FIELD(kWaypointMaxHeadingAccel, data_node, waypoint.max_heading_accel)) {
         return false;
       }
-      if (!LOAD_PACKED_FIELD(WAYPOINT_ACCEPTANCE_RADIUS, data_node, waypoint.acceptance_radius)) {
+      if (!LOAD_PACKED_FIELD(kWaypointAcceptanceRadius, data_node, waypoint.acceptance_radius)) {
         return false;
       }
-      if (!LOAD_PACKED_FIELD(WAYPOINT_ALTITUDE_TOLERANCE, data_node, waypoint.altitude_tolerance)) {
+      if (!LOAD_PACKED_FIELD(kWaypointAltitudeTolerance, data_node, waypoint.altitude_tolerance)) {
         return false;
       }
-      if (!LOAD_PACKED_FIELD(WAYPOINT_TIMEOUT, data_node, waypoint.timeout)) {
+      if (!LOAD_PACKED_FIELD(kWaypointTimeout, data_node, waypoint.timeout)) {
         return false;
       }
       item.type = tobas::mission::Type::kWaypoint;
       item.data = tobas::st::toBytes(waypoint);
     }
-    else if (*type == TYPE_TAKEOFF) {
+    else if (*type == kTypeTakeoff) {
       tobas::mission::Takeoff takeoff;
-      if (!LOAD_PACKED_FIELD(TAKEOFF_ALTITUDE, data_node, takeoff.altitude)) {
+      if (!LOAD_PACKED_FIELD(kTakeoffAltitude, data_node, takeoff.altitude)) {
         return false;
       }
-      if (!LOAD_PACKED_FIELD(TAKEOFF_ALTITUDE_FRAME, data_node, takeoff.altitude_frame)) {
+      if (!LOAD_PACKED_FIELD(kTakeoffAltitudeFrame, data_node, takeoff.altitude_frame)) {
         return false;
       }
-      if (!LOAD_PACKED_FIELD(TAKEOFF_MAX_SPEED, data_node, takeoff.max_speed)) {
+      if (!LOAD_PACKED_FIELD(kTakeoffMaxSpeed, data_node, takeoff.max_speed)) {
         return false;
       }
-      if (!LOAD_PACKED_FIELD(TAKEOFF_MAX_ACCEL, data_node, takeoff.max_accel)) {
+      if (!LOAD_PACKED_FIELD(kTakeoffMaxAccel, data_node, takeoff.max_accel)) {
         return false;
       }
-      if (!LOAD_PACKED_FIELD(TAKEOFF_MAX_JERK, data_node, takeoff.max_jerk)) {
+      if (!LOAD_PACKED_FIELD(kTakeoffMaxJerk, data_node, takeoff.max_jerk)) {
         return false;
       }
-      if (!LOAD_PACKED_FIELD(TAKEOFF_ALTITUDE_TOLERANCE, data_node, takeoff.altitude_tolerance)) {
+      if (!LOAD_PACKED_FIELD(kTakeoffAltitudeTolerance, data_node, takeoff.altitude_tolerance)) {
         return false;
       }
-      if (!LOAD_PACKED_FIELD(TAKEOFF_TIMEOUT, data_node, takeoff.timeout)) {
+      if (!LOAD_PACKED_FIELD(kTakeoffTimeout, data_node, takeoff.timeout)) {
         return false;
       }
       item.type = tobas::mission::Type::kTakeoff;
       item.data = tobas::st::toBytes(takeoff);
     }
-    else if (*type == TYPE_LAND) {
+    else if (*type == kTypeLand) {
       tobas::mission::Land land;
-      if (!LOAD_PACKED_FIELD(LAND_SPEED, data_node, land.speed)) {
+      if (!LOAD_PACKED_FIELD(kLandSpeed, data_node, land.speed)) {
         return false;
       }
-      if (!LOAD_PACKED_FIELD(LAND_TIMEOUT, data_node, land.timeout)) {
+      if (!LOAD_PACKED_FIELD(kLandTimeout, data_node, land.timeout)) {
         return false;
       }
       item.type = tobas::mission::Type::kLand;
       item.data = tobas::st::toBytes(land);
     }
-    else if (*type == TYPE_RTL) {
+    else if (*type == kTypeRtl) {
       tobas::mission::ReturnToLaunch rtl;
-      if (!LOAD_PACKED_FIELD(RTL_MIN_ALTITUDE, data_node, rtl.min_altitude)) {
+      if (!LOAD_PACKED_FIELD(kRtlMinAltitude, data_node, rtl.min_altitude)) {
         return false;
       }
-      if (!LOAD_PACKED_FIELD(RTL_MAX_HORIZONTAL_VELOCITY, data_node, rtl.max_horizontal_velocity)) {
+      if (!LOAD_PACKED_FIELD(kRtlMaxHorizontalVelocity, data_node, rtl.max_horizontal_velocity)) {
         return false;
       }
-      if (!LOAD_PACKED_FIELD(RTL_MAX_HORIZONTAL_ACCEL, data_node, rtl.max_horizontal_accel)) {
+      if (!LOAD_PACKED_FIELD(kRtlMaxHorizontalAccel, data_node, rtl.max_horizontal_accel)) {
         return false;
       }
-      if (!LOAD_PACKED_FIELD(RTL_MAX_HORIZONTAL_JERK, data_node, rtl.max_horizontal_jerk)) {
+      if (!LOAD_PACKED_FIELD(kRtlMaxHorizontalJerk, data_node, rtl.max_horizontal_jerk)) {
         return false;
       }
-      if (!LOAD_PACKED_FIELD(RTL_MAX_VERTICAL_VELOCITY, data_node, rtl.max_vertical_velocity)) {
+      if (!LOAD_PACKED_FIELD(kRtlMaxVerticalVelocity, data_node, rtl.max_vertical_velocity)) {
         return false;
       }
-      if (!LOAD_PACKED_FIELD(RTL_MAX_VERTICAL_ACCEL, data_node, rtl.max_vertical_accel)) {
+      if (!LOAD_PACKED_FIELD(kRtlMaxVerticalAccel, data_node, rtl.max_vertical_accel)) {
         return false;
       }
-      if (!LOAD_PACKED_FIELD(RTL_MAX_VERTICAL_JERK, data_node, rtl.max_vertical_jerk)) {
+      if (!LOAD_PACKED_FIELD(kRtlMaxVerticalJerk, data_node, rtl.max_vertical_jerk)) {
         return false;
       }
-      if (!LOAD_PACKED_FIELD(RTL_MAX_HEADING_RATE, data_node, rtl.max_heading_rate)) {
+      if (!LOAD_PACKED_FIELD(kRtlMaxHeadingRate, data_node, rtl.max_heading_rate)) {
         return false;
       }
-      if (!LOAD_PACKED_FIELD(RTL_MAX_HEADING_ACCEL, data_node, rtl.max_heading_accel)) {
+      if (!LOAD_PACKED_FIELD(kRtlMaxHeadingAccel, data_node, rtl.max_heading_accel)) {
         return false;
       }
-      if (!LOAD_PACKED_FIELD(RTL_ACCEPTANCE_RADIUS, data_node, rtl.acceptance_radius)) {
+      if (!LOAD_PACKED_FIELD(kRtlAcceptanceRadius, data_node, rtl.acceptance_radius)) {
         return false;
       }
-      if (!LOAD_PACKED_FIELD(RTL_ALTITUDE_TOLERANCE, data_node, rtl.altitude_tolerance)) {
+      if (!LOAD_PACKED_FIELD(kRtlAltitudeTolerance, data_node, rtl.altitude_tolerance)) {
         return false;
       }
-      if (!LOAD_PACKED_FIELD(RTL_TIMEOUT, data_node, rtl.timeout)) {
+      if (!LOAD_PACKED_FIELD(kRtlTimeout, data_node, rtl.timeout)) {
         return false;
       }
       item.type = tobas::mission::Type::kReturnToLaunch;

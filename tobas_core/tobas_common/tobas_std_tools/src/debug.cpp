@@ -13,7 +13,7 @@ namespace st
 {
 void _printLocation(const char* file, int line)
 {
-  std::cout << GREEN_PREFIX << "Called from file " << file << ", line " << line << COLOR_RESET << std::endl;
+  std::cout << kGreenPrefix << "Called from file " << file << ", line " << line << kColorReset << std::endl;
 }
 }  // namespace st
 }  // namespace tobas

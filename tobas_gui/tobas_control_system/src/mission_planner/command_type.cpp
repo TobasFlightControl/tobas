@@ -5,28 +5,31 @@
 
 #include <stdexcept>
 
-#define WAYPOINT_LABEL "Waypoint"
-#define TAKEOFF_LABEL "Takeoff"
-#define LAND_LABEL "Land"
-#define RTL_LABEL "Return to Launch"
-
 namespace tobas
 {
 namespace gui
 {
 namespace ctrl
 {
+namespace
+{
+constexpr char kWaypointLabel[] = "Waypoint";
+constexpr char kTakeoffLabel[] = "Takeoff";
+constexpr char kLandLabel[] = "Land";
+constexpr char kRtlLabel[] = "Return to Launch";
+}  // namespace
+
 QString commandToText(mission::Type cmd)
 {
   switch (cmd) {
     case mission::Type::kWaypoint:
-      return WAYPOINT_LABEL;
+      return kWaypointLabel;
     case mission::Type::kTakeoff:
-      return TAKEOFF_LABEL;
+      return kTakeoffLabel;
     case mission::Type::kLand:
-      return LAND_LABEL;
+      return kLandLabel;
     case mission::Type::kReturnToLaunch:
-      return RTL_LABEL;
+      return kRtlLabel;
     default:
       throw std::runtime_error("Invalid command type: " + std::to_string(cmd));
   }
@@ -34,16 +37,16 @@ QString commandToText(mission::Type cmd)
 
 mission::Type textToCommand(const QString& text)
 {
-  if (text == WAYPOINT_LABEL) {
+  if (text == kWaypointLabel) {
     return mission::Type::kWaypoint;
   }
-  else if (text == TAKEOFF_LABEL) {
+  else if (text == kTakeoffLabel) {
     return mission::Type::kTakeoff;
   }
-  else if (text == LAND_LABEL) {
+  else if (text == kLandLabel) {
     return mission::Type::kLand;
   }
-  else if (text == RTL_LABEL) {
+  else if (text == kRtlLabel) {
     return mission::Type::kReturnToLaunch;
   }
   else {

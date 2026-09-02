@@ -10,12 +10,15 @@
 
 #include <tobas_math/core.hpp>
 
-#define EPS 1e-6  // If this is too small, convergence may never occur.
-
 namespace tobas
 {
 namespace traj
 {
+namespace
+{
+constexpr auto kEps = 1e-6;  // If this is too small, convergence may never occur.
+}  // namespace
+
 JerkLimitedTrajectory::JerkLimitedTrajectory(double p0, double pf, double max_jerk, double max_acc, double max_vel)
   : p0_(p0), pd_(std::abs(pf - p0)), sign_(math::sign(pf - p0)), jm_(max_jerk), am_(max_acc), vm_(max_vel)
 {
@@ -24,7 +27,7 @@ JerkLimitedTrajectory::JerkLimitedTrajectory(double p0, double pf, double max_je
   assert(vm_ > 0.0);
 
   // Handle the exceptional case where the start and target positions match.
-  if (pd_ < EPS) {
+  if (pd_ < kEps) {
     t1_ = t2_ = t3_ = t4_ = 0.0;
     return;
   }
@@ -38,7 +41,7 @@ JerkLimitedTrajectory::JerkLimitedTrajectory(double p0, double pf, double max_je
 
     // Condition for reaching the maximum acceleration.
     if (math::sqr(am_) > vm_ * jm_) {
-      am_ = std::sqrt(vm_ * jm_) - EPS;
+      am_ = std::sqrt(vm_ * jm_) - kEps;
       ok = false;
     }
 
@@ -47,7 +50,7 @@ JerkLimitedTrajectory::JerkLimitedTrajectory(double p0, double pf, double max_je
     const auto b = am_ / jm_;
     const auto c = -pd_;
     if (a * math::sqr(vm_) + b * vm_ + c > 0) {
-      vm_ = (std::sqrt(math::sqr(b) - 4 * a * c) - b) / (2 * a) - EPS;
+      vm_ = (std::sqrt(math::sqr(b) - 4 * a * c) - b) / (2 * a) - kEps;
       ok = false;
     }
 
@@ -68,7 +71,7 @@ JerkLimitedTrajectory::JerkLimitedTrajectory(double p0, double pf, double max_je
 
 TrajectoryPoint JerkLimitedTrajectory::get(double t) const noexcept
 {
-  if (pd_ < EPS) {
+  if (pd_ < kEps) {
     return { p0_, 0.0, 0.0 };
   }
 

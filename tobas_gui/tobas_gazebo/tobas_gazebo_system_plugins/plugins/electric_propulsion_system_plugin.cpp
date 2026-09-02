@@ -38,11 +38,6 @@
 #include "tobas_gazebo_system_plugins/rate_manager.hpp"
 #include "tobas_gazebo_system_plugins/sdf.hpp"
 
-// Motor inductance is often unknown, so use the fact that its product with Kv is roughly constant.
-// Because the ESC electronically suppresses current changes,
-// apparent inductance is much larger than the measured value, perhaps around 100 times.
-#define L_KV 2.0
-
 namespace ch = std::chrono;
 namespace cmp = gz::sim::components;
 
@@ -393,6 +388,11 @@ void GazeboElectricPropulsionSystemPlugin::applyWrenchAndPublishState(
 
 void GazeboElectricPropulsionSystemPlugin::updateJointState(gz::sim::EntityComponentManager& ecm, double dt)
 {
+  // Motor inductance is often unknown, so use the fact that its product with Kv is roughly constant.
+  // Because the ESC electronically suppresses current changes,
+  // apparent inductance is much larger than the measured value, perhaps around 100 times.
+  constexpr double L_KV = 2.0;
+
   // Motor dynamics coefficients (memo: 2-78).
   const auto a = 2.0 * L_KV * param_.moment_const * param_.motor_const;
   const auto b = param_.resistance * param_.kv * param_.moment_const * param_.motor_const;

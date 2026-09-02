@@ -10,8 +10,6 @@
 #include <tobas_std_tools/geometry.hpp>
 #include <tobas_std_tools/standard_atmosphere.hpp>
 
-#define E3 Eigen::Diagonal3d(1, 1, 1)
-
 using namespace std::chrono_literals;
 namespace ch = std::chrono;
 
@@ -19,6 +17,11 @@ namespace tobas
 {
 namespace eskf
 {
+namespace
+{
+const Eigen::Diagonal3d E3(1, 1, 1);
+}  // namespace
+
 ErrorStateKalmanFilter::ErrorStateKalmanFilter() : x_history_(500ms)
 {
   // Fill the fixed parts of the observation equations.

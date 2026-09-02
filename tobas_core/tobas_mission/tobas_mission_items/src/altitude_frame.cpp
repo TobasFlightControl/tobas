@@ -5,18 +5,21 @@
 
 #include <iostream>
 
-#define RELATIVE_TO_LAUNCH_TEXT "relative_to_launch"
-#define MEAN_SEA_LEVEL_TEXT "mean_sea_level"
-
 namespace YAML
 {
+namespace
+{
+constexpr char kRelativeToLaunchText[] = "relative_to_launch";
+constexpr char kMeanSeaLevelText[] = "mean_sea_level";
+}  // namespace
+
 Node convert<tobas::mission::AltitudeFrame>::encode(const tobas::mission::AltitudeFrame& rhs)
 {
   switch (rhs) {
     case tobas::mission::AltitudeFrame::kRelativeToLaunch:
-      return Node(RELATIVE_TO_LAUNCH_TEXT);
+      return Node(kRelativeToLaunchText);
     case tobas::mission::AltitudeFrame::kMeanSeaLevel:
-      return Node(MEAN_SEA_LEVEL_TEXT);
+      return Node(kMeanSeaLevelText);
     default:
       throw;
   }
@@ -30,11 +33,11 @@ bool convert<tobas::mission::AltitudeFrame>::decode(const Node& node, tobas::mis
 
   const auto text = node.as<std::string>();
 
-  if (text == RELATIVE_TO_LAUNCH_TEXT) {
+  if (text == kRelativeToLaunchText) {
     rhs = tobas::mission::AltitudeFrame::kRelativeToLaunch;
     return true;
   }
-  else if (text == MEAN_SEA_LEVEL_TEXT) {
+  else if (text == kMeanSeaLevelText) {
     rhs = tobas::mission::AltitudeFrame::kMeanSeaLevel;
     return true;
   }

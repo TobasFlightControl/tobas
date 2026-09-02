@@ -19,10 +19,6 @@
 #include "tobas_urdf_builder_plugin/ui/update_link_dialog.hpp"
 #include "tobas_urdf_builder_plugin/utils/widget_item.hpp"
 
-#define ROBOT_MODEL_UPDATE_INTERVAL 10  // [ms]
-#define INVALID_CHARS " '\"#$%&()^~|,.<>/\\!?"
-#define TMP_URDF_PATH "/tmp/urdf_builder.urdf"
-
 namespace tobas
 {
 namespace gui
@@ -63,7 +59,7 @@ void UrdfBuilderPanel::onInitialize()
   Panel::onInitialize();
 
   ogre_ctrl_.emplace(getDisplayContext());
-  update_timer_.start(ROBOT_MODEL_UPDATE_INTERVAL);
+  update_timer_.start(10);
 }
 
 void UrdfBuilderPanel::load(const rviz_common::Config& config)
@@ -138,15 +134,17 @@ void UrdfBuilderPanel::onLoadButtonClicked()
     ui_->Path->setText(file_path);
   }
   else if (file_path.endsWith(".xacro")) {
+    constexpr char kTemporaryUrdfPath[] = "/tmp/urdf_builder.urdf";
+
     // Expand XACRO.
-    const auto command = "xacro " + file_path + " > " + TMP_URDF_PATH;
+    const auto command = "xacro " + file_path + " > " + kTemporaryUrdfPath;
     if (system(command.toUtf8().constData()) != EXIT_SUCCESS) {
       QMessageBox::warning(this, kError, "Failed to convert XACRO to URDF.");
       return;
     }
 
     // Parse the URDF.
-    if (!vm_.loadRobot(TMP_URDF_PATH)) {
+    if (!vm_.loadRobot(kTemporaryUrdfPath)) {
       QMessageBox::warning(this, kError, "Failed to parse XACRO.");
       return;
     }
@@ -530,7 +528,8 @@ bool UrdfBuilderPanel::isRobotNameValid()
     return false;
   }
 
-  for (const auto& ch : INVALID_CHARS) {
+  constexpr char kInvalidChars[] = " '\"#$%&()^~|,.<>/\\!?";
+  for (const auto& ch : kInvalidChars) {
     if (name.contains(ch)) {
       QMessageBox::warning(this, kError, "Robot name cannot contain '" + QString(ch) + "'.");
       return false;

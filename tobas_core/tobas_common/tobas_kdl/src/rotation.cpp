@@ -9,12 +9,15 @@
 
 #include "tobas_kdl/utilities/utility.hpp"
 
-#define EPS 1e-12
-
 namespace tobas
 {
 namespace kdl
 {
+namespace
+{
+constexpr double kEps = 1e-12;
+}  // namespace
+
 Rotation Rotation::RotX(double angle)
 {
   const auto cs = std::cos(angle);
@@ -130,7 +133,7 @@ bool Rotation::isValid(std::string& error_msg) const
 void Rotation::getQuaternion(double& x, double& y, double& z, double& w) const
 {
   const auto trace = data.trace();
-  if (trace > EPS) {
+  if (trace > kEps) {
     const auto s = 0.5 / std::sqrt(trace + 1.0);
     w = 0.25 / s;
     x = (data(2, 1) - data(1, 2)) * s;
@@ -165,7 +168,7 @@ void Rotation::getQuaternion(double& x, double& y, double& z, double& w) const
 void Rotation::getRPY(double& roll, double& pitch, double& yaw) const
 {
   pitch = getPitch();
-  if (std::abs(pitch) > (M_PI_2 - EPS)) {
+  if (std::abs(pitch) > (M_PI_2 - kEps)) {
     yaw = std::atan2(-data(0, 1), data(1, 1));
     roll = 0.0;
   }
@@ -190,20 +193,19 @@ Vector Rotation::getRot() const
 
 std::pair<double, Vector> Rotation::getAngleAxis() const
 {
-  constexpr auto eps2 = EPS * 10;  // margin to distinguish between 0 and 180 degrees
-
   // Optional check that input is pure rotation, 'isRotationMatrix' is defined at:
   // http://www.euclideanspace.com/maths/algebra/matrix/orthogonal/rotation/
 
   if (
-    std::abs(data(0, 1) - data(1, 0) < EPS) && std::abs(data(0, 2) - data(2, 0)) < EPS &&
-    std::abs(data(1, 2) - data(2, 1)) < EPS) {
+    std::abs(data(0, 1) - data(1, 0) < kEps) && std::abs(data(0, 2) - data(2, 0)) < kEps &&
+    std::abs(data(1, 2) - data(2, 1)) < kEps) {
     // Singularity found.
     // First check for identity matrix which must have +1
     // for all terms in leading diagonal and zero in other terms.
+    constexpr auto kEps_10 = kEps * 10;  // Margin to distinguish between 0 and 180 degrees.
     if (
-      std::abs(data(0, 1) + data(1, 0)) < eps2 && std::abs(data(0, 2) + data(2, 0)) < eps2 &&
-      std::abs(data(1, 2) + data(2, 1)) < eps2 && std::abs(trace() - 3) < eps2) {
+      std::abs(data(0, 1) + data(1, 0)) < kEps_10 && std::abs(data(0, 2) + data(2, 0)) < kEps_10 &&
+      std::abs(data(1, 2) + data(2, 1)) < kEps_10 && std::abs(trace() - 3) < kEps_10) {
       // This singularity is the identity matrix, so the angle is 0 and the axis is arbitrary.
       return { 0.0, Vector::UnitZ() };
     }

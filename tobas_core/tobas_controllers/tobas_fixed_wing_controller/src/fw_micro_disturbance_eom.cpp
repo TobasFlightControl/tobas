@@ -12,12 +12,15 @@
 #include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_tools/fixed_wing.hpp>
 
-#define X_AXIS Eigen::Vector3d(1, 0, 0)
-
 namespace tobas
 {
 namespace fixed_wing
 {
+namespace
+{
+const Eigen::Vector3d kXAxis(1, 0, 0);
+}  // namespace
+
 MicroDisturbanceEoM::MicroDisturbanceEoM(const Drone& drone, const kdl::Tree& tree)
   : drone_(drone), tree_(tree), fk_solver_(tree), inertia_solver_(tree), trim_(drone, tree)
 {
@@ -178,7 +181,7 @@ int MicroDisturbanceEoM::update(const double& V, const double& rho, const kdl::J
     const auto P_cog_rotor = fk_solver_.getFrame().p - P_base_cog;
     const auto d = rotor->sign();
     const auto cm = rotor->momentConst();
-    Eigen::Vector3d v = I_cog_inv * (P_cog_rotor.data.cross(X_AXIS) - (d * cm) * X_AXIS);  // FLU
+    Eigen::Vector3d v = I_cog_inv * (P_cog_rotor.data.cross(kXAxis) - (d * cm) * kXAxis);  // FLU
     eigen::vectorFluToFrd(v);                                                              // FLU -> FRD
     B_.block(kStateIdx_p, idx, 3, 1) = v;
   }

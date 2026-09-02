@@ -5,34 +5,37 @@
 
 #include <iostream>
 
-#define UNDEFINED "Undefined"
-#define PLANAR_MULTICOPTER "Planar Multicopter"
-#define NON_PLANAR_MULTICOPTER "Non-Planar Multicopter"
-#define Y_AXIS_TILT_MULTICOPTER "Y Axis Tilt Multicopter"
-#define RANDOM_AXIS_TILT_MULTICOPTER "Random Axis Tilt Multicopter"
-#define FIXED_WING "Fixed Wing"
-
 namespace tobas
 {
 namespace gui
 {
 namespace sa
 {
+namespace
+{
+constexpr char kUndefined[] = "Undefined";
+constexpr char kPlanarMulticopter[] = "Planar Multicopter";
+constexpr char kNonPlanarMulticopter[] = "Non-Planar Multicopter";
+constexpr char kYAxisTiltMulticopter[] = "Y Axis Tilt Multicopter";
+constexpr char kRandomAxisTiltMulticopter[] = "Random Axis Tilt Multicopter";
+constexpr char kFixedWing[] = "Fixed Wing";
+}  // namespace
+
 std::string textFromEnum(FrameType arg)
 {
   switch (arg) {
     case FrameType::kUndefined:
-      return UNDEFINED;
+      return kUndefined;
     case FrameType::kPlanarMulticopter:
-      return PLANAR_MULTICOPTER;
+      return kPlanarMulticopter;
     case FrameType::kNonPlanarMulticopter:
-      return NON_PLANAR_MULTICOPTER;
+      return kNonPlanarMulticopter;
     case FrameType::kYAxisTiltMulticopter:
-      return Y_AXIS_TILT_MULTICOPTER;
+      return kYAxisTiltMulticopter;
     case FrameType::kRandomAxisTiltMulticopter:
-      return RANDOM_AXIS_TILT_MULTICOPTER;
+      return kRandomAxisTiltMulticopter;
     case FrameType::kFixedWing:
-      return FIXED_WING;
+      return kFixedWing;
     default:
       throw;
   }
@@ -40,27 +43,27 @@ std::string textFromEnum(FrameType arg)
 
 bool enumFromText(const std::string& text, FrameType& dst)
 {
-  if (text == UNDEFINED) {
+  if (text == kUndefined) {
     dst = FrameType::kUndefined;
     return true;
   }
-  else if (text == PLANAR_MULTICOPTER) {
+  else if (text == kPlanarMulticopter) {
     dst = FrameType::kPlanarMulticopter;
     return true;
   }
-  else if (text == NON_PLANAR_MULTICOPTER) {
+  else if (text == kNonPlanarMulticopter) {
     dst = FrameType::kNonPlanarMulticopter;
     return true;
   }
-  else if (text == Y_AXIS_TILT_MULTICOPTER) {
+  else if (text == kYAxisTiltMulticopter) {
     dst = FrameType::kYAxisTiltMulticopter;
     return true;
   }
-  else if (text == RANDOM_AXIS_TILT_MULTICOPTER) {
+  else if (text == kRandomAxisTiltMulticopter) {
     dst = FrameType::kRandomAxisTiltMulticopter;
     return true;
   }
-  else if (text == FIXED_WING) {
+  else if (text == kFixedWing) {
     dst = FrameType::kFixedWing;
     return true;
   }

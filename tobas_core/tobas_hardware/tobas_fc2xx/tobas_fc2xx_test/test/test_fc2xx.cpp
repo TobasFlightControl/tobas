@@ -277,6 +277,6 @@ int main()
   }
   std::cout << "S.BUS test passed." << std::endl;
 
-  std::cout << GREEN_PREFIX << "All tests passed." << COLOR_RESET << std::endl;
+  std::cout << tobas::st::kGreenPrefix << "All tests passed." << tobas::st::kColorReset << std::endl;
   return EXIT_SUCCESS;
 }

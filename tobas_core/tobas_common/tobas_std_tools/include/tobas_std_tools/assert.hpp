@@ -17,8 +17,8 @@
   {                                                                                                                    \
     if (!static_cast<bool>(expr)) /* The condition `expr` is evaluated for the first time here. */                     \
     {                                                                                                                  \
-      std::cout << RED_PREFIX << __FILE__ << ":" << __LINE__ << ": Assertion failed: " << msg << COLOR_RESET           \
-                << std::endl;                                                                                          \
+      std::cout << ::tobas::st::kRedPrefix << __FILE__ << ":" << __LINE__ << ": Assertion failed: " << msg             \
+                << ::tobas::st::kColorReset << std::endl;                                                              \
       std::abort();                                                                                                    \
     }                                                                                                                  \
   }
