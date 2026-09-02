@@ -9,16 +9,10 @@ namespace gui
 {
 namespace ctrl
 {
-namespace
-{
-constexpr int kMaxWidth = 100;
-constexpr int kMinHeight = 35;
-}  // namespace
-
 CommandButton::CommandButton(const QString& text) : super(text)
 {
-  setMaximumWidth(kMaxWidth);
-  setMinimumHeight(kMinHeight);
+  setMaximumWidth(100);
+  setMinimumHeight(35);
   setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 }
 }  // namespace ctrl

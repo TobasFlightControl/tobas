@@ -15,20 +15,16 @@ namespace gui
 {
 namespace log
 {
-namespace
-{
-constexpr int kButtonWidth = 80;
-}  // namespace
-
 FlightLogItemWidgetFC::FlightLogItemWidgetFC(const QString& log_name)
 {
   log_name_ = new QLabel(log_name);
   log_name_->setFont(qt::DefaultFont(kPSize3));
 
   download_button_ = new QPushButton("Download");
-  download_button_->setFixedWidth(kButtonWidth);
-
   delete_button_ = new QPushButton("Delete");
+
+  constexpr int kButtonWidth = 80;
+  download_button_->setFixedWidth(kButtonWidth);
   delete_button_->setFixedWidth(kButtonWidth);
 
   // Layout

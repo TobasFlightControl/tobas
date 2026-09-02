@@ -20,22 +20,18 @@ namespace gui
 {
 namespace ctrl
 {
-namespace
-{
-constexpr int kLabelPSize = 12;
-constexpr int kBarHeight = 30;
-}  // namespace
-
 BatteryViewerWidget::BatteryViewerWidget(const rqt::RosQtBridge& bridge, const Drone& drone) : drone_(drone)
 {
   voltage_ = new qt::ProgressBar();
   current_ = new qt::ProgressBar();
 
+  constexpr int kBarHeight = 30;
   voltage_->setFixedHeight(kBarHeight);
   current_->setFixedHeight(kBarHeight);
 
   // Layout
   const auto form = new qt::FormLayout();
+  constexpr int kLabelPSize = 12;
   form->addVAlignedRow(new qt::Label("Volt", kLabelPSize), voltage_);
   form->addVAlignedRow(new qt::Label("Curr", kLabelPSize), current_);
   setLayout(form);

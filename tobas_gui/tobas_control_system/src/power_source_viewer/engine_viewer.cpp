@@ -20,26 +20,18 @@ namespace gui
 {
 namespace ctrl
 {
-namespace
-{
-constexpr int kLabelPSize = 12;
-constexpr int kBarHeight = 30;
-
-constexpr double kMaxFuelQuantity = 100.0;  // TODO: Include fuel capacity in `EngineConfig`.
-constexpr double kMinOilTemp = 0.0;         // [degC]
-constexpr double kMaxOilTemp = 130.0;       // [degC]
-}  // namespace
-
 EngineViewerWidget::EngineViewerWidget(const rqt::RosQtBridge& bridge, const Drone& drone) : drone_(drone)
 {
   fuel_quantity_ = new qt::ProgressBar();
   oil_temp_ = new qt::ProgressBar();
 
+  constexpr int kBarHeight = 30;
   fuel_quantity_->setFixedHeight(kBarHeight);
   oil_temp_->setFixedHeight(kBarHeight);
 
   // Layout
   const auto form = new qt::FormLayout();
+  constexpr int kLabelPSize = 12;
   form->addVAlignedRow(new qt::Label("Fuel QTY", kLabelPSize), fuel_quantity_);
   form->addVAlignedRow(new qt::Label("Oil Temp", kLabelPSize), oil_temp_);
   setLayout(form);
@@ -68,6 +60,7 @@ void EngineViewerWidget::updateInternalDataStructures()
 
 void EngineViewerWidget::updateFuelQuantity(const double& fuel_quantity)
 {
+  constexpr double kMaxFuelQuantity = 100.0;  // TODO: Include fuel capacity in `EngineConfig`.
   const auto fuel_rate = math::remap(fuel_quantity, 0.0, kMaxFuelQuantity, 0.0, 100.0);
   fuel_quantity_->setPercentage(fuel_rate);
   fuel_quantity_->setFormat(
@@ -86,6 +79,8 @@ void EngineViewerWidget::updateFuelQuantity(const double& fuel_quantity)
 
 void EngineViewerWidget::updateOilTemperature(const double& oil_temp)
 {
+  constexpr double kMinOilTemp = 0.0;    // [degC]
+  constexpr double kMaxOilTemp = 130.0;  // [degC]
   const auto oil_temp_rate = math::remap(oil_temp, kMinOilTemp, kMaxOilTemp, 0.0, 100.0);
   oil_temp_->setPercentage(oil_temp_rate);
   oil_temp_->setFormat(std::format("{:.1f} ℃", oil_temp).c_str());

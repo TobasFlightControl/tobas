@@ -41,10 +41,6 @@ namespace ctrl
 {
 namespace
 {
-constexpr char kCacheDirOnline[] = "~/.cache/tobas/tiles/online";
-constexpr char kCacheDirOffline[] = "~/.cache/tobas/tiles/offline";
-
-constexpr uintmax_t kCacheMaxSize = 1 << 30;  // 1GiB
 constexpr char kLastOpenedDirKey[] = "mission_planner/last_opened_dir";
 
 using MapSplinePath = traj::CatmullRomPath<Eigen::Vector2d>;
@@ -647,12 +643,12 @@ void MissionPlannerWidget::onCacheButtonClicked()
 {
   qDebug() << "MissionPlannerWidget::onCacheButtonClicked";
 
-  if (!qt::yesOrNo(this, "Do you want to cache map tiles to offline storage?", qt::WARN)) {
+  if (!qt::yesOrNo(this, "Do you want to cache the current online map tiles to the offline storage?", qt::WARN)) {
     return;
   }
 
-  const auto dir_from = qt::expandUser(kCacheDirOnline).toStdString();
-  const auto dir_to = qt::expandUser(kCacheDirOffline).toStdString();
+  const auto dir_from = qt::expandUser("~/.cache/tobas/tiles/online").toStdString();
+  const auto dir_to = qt::expandUser("~/.cache/tobas/tiles/offline").toStdString();
 
   if (!fs::is_directory(dir_to)) {
     TOBAS_CHECK(fs::create_directories(dir_to));
@@ -692,7 +688,8 @@ void MissionPlannerWidget::onCacheButtonClicked()
   std::partial_sum(sizes.begin(), sizes.end(), sizes_cs.begin());
 
   // Find the first position that exceeds the maximum size.
-  auto it = std::lower_bound(sizes_cs.begin(), sizes_cs.end(), kCacheMaxSize);
+  constexpr uintmax_t kCacheMaxSize = 1 << 30;  // 1GiB
+  const auto it = std::lower_bound(sizes_cs.begin(), sizes_cs.end(), kCacheMaxSize);
   const auto last_alive_idx = std::distance(sizes_cs.begin(), it);
 
   // Delete files whose total size exceeds the limit.
@@ -702,7 +699,7 @@ void MissionPlannerWidget::onCacheButtonClicked()
     }
   }
 
-  qt::qInfoBox(this, QString("Map tiles are cached to %1.").arg(kCacheDirOffline));
+  qt::qInfoBox(this, "The current online map tiles have been cached.");
 }
 
 void MissionPlannerWidget::onExecuteButtonClicked()

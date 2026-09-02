@@ -18,16 +18,11 @@ namespace ctrl
 namespace
 {
 constexpr int kOriginalSize = 640;
-constexpr int kLineWidth = 3;       // Gauge line width.
-constexpr int kScaleInterval = 10;  // [deg]
-constexpr int kRollRadius = 200;    // Roll circle radius.
-constexpr int kRollTickLength = 10;
+constexpr int kLineWidth = 3;                           // Gauge line width.
+constexpr int kScaleInterval = 10;                      // [deg]
 constexpr double kPitchAngleOfView = st::deg2rad(120);  // [rad] Approximately the human field of view.
-constexpr int kPitchVisualRange = 25;                   // [deg] Pitch angle range to draw.
-constexpr int kPitchLineLength = 100;
-constexpr double kYawAngleOfView = st::deg2rad(120);  // [rad]
+constexpr double kYawAngleOfView = st::deg2rad(120);    // [rad]
 constexpr int kYawLineY = 60;
-constexpr int kYawTickLength = 10;
 constexpr int kAltitudeVisualRange = 25;   // [m]
 constexpr int kAltitudeScaleInterval = 5;  // [m]
 constexpr int kAltitudeTickLength = 12;
@@ -210,6 +205,9 @@ void PoseViewerWidget::drawSky(QPainter& painter)
 
 void PoseViewerWidget::drawRoll(QPainter& painter)
 {
+  constexpr int kRollRadius = 200;  // Roll circle radius.
+  constexpr int kRollTickLength = 10;
+
   painter.save();
 
   // Move to the circle center as seen from the vehicle.
@@ -250,6 +248,9 @@ void PoseViewerWidget::drawRoll(QPainter& painter)
 
 void PoseViewerWidget::drawPitch(QPainter& painter)
 {
+  constexpr int kPitchVisualRange = 25;  // [deg] Pitch angle range to draw.
+  constexpr int kPitchLineLength = 100;
+
   painter.save();
 
   // Move to the center position as seen from the vehicle.
@@ -298,6 +299,8 @@ void PoseViewerWidget::drawPitch(QPainter& painter)
 
 void PoseViewerWidget::drawYaw(QPainter& painter)
 {
+  constexpr int kYawTickLength = 10;
+
   painter.save();
 
   // Scale to the widget size.

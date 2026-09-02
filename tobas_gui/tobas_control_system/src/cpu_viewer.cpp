@@ -16,25 +16,18 @@ namespace gui
 {
 namespace ctrl
 {
-namespace
-{
-constexpr int kLabelPSize = 12;
-constexpr int kBarHeight = 30;
-
-constexpr double kMinTemp = 0.0;    // [degC]
-constexpr double kMaxTemp = 100.0;  // [degC]
-}  // namespace
-
 CpuViewerWidget::CpuViewerWidget(const rqt::RosQtBridge& bridge)
 {
   temp_ = new qt::ProgressBar();
-  temp_->setFixedHeight(kBarHeight);
-
   load_ = new qt::ProgressBar();
+
+  constexpr int kBarHeight = 30;
+  temp_->setFixedHeight(kBarHeight);
   load_->setFixedHeight(kBarHeight);
 
   // Layout
   const auto form = new qt::FormLayout();
+  constexpr int kLabelPSize = 12;
   form->addVAlignedRow(new qt::Label("Temp", kLabelPSize), temp_);
   form->addVAlignedRow(new qt::Label("Load", kLabelPSize), load_);
   setLayout(form);
@@ -51,6 +44,8 @@ void CpuViewerWidget::reset()
 
 void CpuViewerWidget::cpuCb(const tobas_msgs::msg::Cpu::ConstSharedPtr& cpu)
 {
+  constexpr double kMinTemp = 0.0;    // [degC]
+  constexpr double kMaxTemp = 100.0;  // [degC]
   const auto temp_rate = math::remap(cpu->temperature, kMinTemp, kMaxTemp, 0.0, 100.0);
   temp_->setPercentage(temp_rate);
   temp_->setFormat(std::format("{:.0f} ℃", cpu->temperature).c_str());

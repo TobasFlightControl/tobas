@@ -263,22 +263,26 @@ std::unique_ptr<tobas_msgs::msg::VehicleHealth> HealthMonitorNode::createHealthM
   if (do_check_.radio_link) {
     if (rcin_) {
       switch (rcin_->status) {
-        case tobas_msgs::msg::RCInput::STATUS_OK:
+        case tobas_msgs::msg::RCInput::STATUS_OK: {
           break;
-        case tobas_msgs::msg::RCInput::STATUS_FRAME_LOST:
+        }
+        case tobas_msgs::msg::RCInput::STATUS_FRAME_LOST: {
           health->radio_link = tobas_msgs::msg::VehicleHealth::FAILED;
           health->ok = false;
           break;
-        case tobas_msgs::msg::RCInput::STATUS_TIMEOUT:
+        }
+        case tobas_msgs::msg::RCInput::STATUS_TIMEOUT: {
           constexpr auto kRadioLinkLostTimeThresh = 500ms;
           if (rcin_->header.stamp - t_last_valid_rcin_ > kRadioLinkLostTimeThresh) {
             health->radio_link = tobas_msgs::msg::VehicleHealth::FAILED;
             health->ok = false;
           }
           break;
-        default:
+        }
+        default: {
           TOBAS_WARN("Invalid RC status: ", (int)rcin_->status);
           break;
+        }
       }
     }
     else {

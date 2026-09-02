@@ -16,24 +16,20 @@ namespace tobas
 {
 namespace crypt
 {
-namespace
-{
-constexpr char kUrandomPath[] = "/dev/urandom";
-constexpr size_t kLength = 16;
-}  // namespace
-
 Sha512::Sha512(int rounds) : rounds_(rounds)
 {
 }
 
 std::string Sha512::createSalt() const
 {
+  constexpr char kUrandomPath[] = "/dev/urandom";
   const auto fd = ::open(kUrandomPath, O_RDONLY);
   if (fd < 0) {
     std::cerr << "Failed to open " << kUrandomPath << ": " << linux::strError() << std::endl;
     return {};
   }
 
+  constexpr size_t kLength = 16;
   std::vector<uint8_t> buf(kLength);
   const auto n = ::read(fd, buf.data(), buf.size());
   ::close(fd);

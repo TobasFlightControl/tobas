@@ -22,11 +22,6 @@ namespace gui
 {
 namespace log
 {
-namespace
-{
-constexpr rcutils_time_point_value_t kExpirationTime = 1'000'000'000;  // [ns]
-}  // namespace
-
 ExportThreadCsv::ExportThreadCsv(const QString& log_name, const QString& save_path)
   : log_name_(log_name), save_path_(save_path)
 {
@@ -95,6 +90,7 @@ void ExportThreadCsv::run()
         histmap_[cur_time][topic::kImuRaw] = ser_data;
 
         // Write old data incrementally to prevent the history map from growing too large.
+        constexpr rcutils_time_point_value_t kExpirationTime = 1'000'000'000;  // [ns]
         exportOldestImuLine(csv_file, cur_time - kExpirationTime);
       }
       else if (topic.ends_with(str::concat('/', topic::kOdometry).data())) {

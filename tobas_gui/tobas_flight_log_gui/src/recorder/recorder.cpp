@@ -28,19 +28,13 @@ namespace gui
 {
 namespace log
 {
-namespace
-{
-constexpr int kButtonWidth = 150;
-constexpr int kButtonHeight = 60;
-}  // namespace
-
 FlightLogRecorderWidget::FlightLogRecorderWidget(const rqt::RosQtBridge& bridge) : spinner_(Qt::WindowModal, this)
 {
   log_name_ = new qt::HistoryLineEdit();
   log_name_->setEnabled(false);
 
   start_stop_button_ = new qt::ToggleButton("▶ Start Recording", "■ Stop Recording");
-  start_stop_button_->setFixedSize(kButtonWidth, kButtonHeight);
+  start_stop_button_->setFixedSize(150, 60);
 
   duration_ = new QLCDNumber(8);
   duration_->setSegmentStyle(QLCDNumber::Flat);

@@ -11,12 +11,6 @@ namespace gui
 {
 namespace log
 {
-namespace
-{
-constexpr int kTabWidth = 110;
-constexpr int kTabHeight = 50;
-}  // namespace
-
 PlotTabWidget::PlotTabWidget(
   const QVector<tobas_msgs::msg::OdometryWithCovarianceStamped>& odom_data,
   const QVector<tobas_msgs::msg::OdometryStamped>& setpoint_data,
@@ -121,7 +115,7 @@ PlotTabWidget::PlotTabWidget(
   addTab(obsv_fb_plot_, "Observer");
   addTab(mr_ctrl_fb_plot_, "Multirotor\nController");
 
-  setTabSize(kTabWidth, kTabHeight);
+  setTabSize(110, 50);
 
   connect(this, &self::currentChanged, this, &self::onCurrentWidgetChanged);
 }

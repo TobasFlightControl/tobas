@@ -15,12 +15,6 @@ namespace gui
 {
 namespace log
 {
-namespace
-{
-constexpr double kMinVoltageScale = 0.1;  // [V]
-constexpr double kMinCurrentScale = 0.1;  // [A]
-}  // namespace
-
 BatteryPlotWidget::BatteryPlotWidget() : voltage_curve_("Voltage [V]"), current_curve_("Current [A]")
 {
   const auto rows = new QVBoxLayout();
@@ -75,10 +69,12 @@ void BatteryPlotWidget::setData(const QVector<tobas_msgs::msg::Battery>& batt_ms
   }
 
   voltage_curve_.setSamples(t_data, voltage_data);
+  constexpr double kMinVoltageScale = 0.1;  // [V]
   setVerticalScale(*voltage_plot_, voltage_range, kMinVoltageScale);
   voltage_plot_->replot();
 
   current_curve_.setSamples(t_data, current_data);
+  constexpr double kMinCurrentScale = 0.1;  // [A]
   const auto current_scale_min = std::max(current_range.center() - kMinCurrentScale, 0.0);
   current_range.include(current_scale_min);
   current_range.include(current_scale_min + 2 * kMinCurrentScale);

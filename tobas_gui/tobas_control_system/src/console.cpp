@@ -16,25 +16,15 @@ namespace ctrl
 {
 namespace
 {
-constexpr int kMaxRows = 1000;  // Maximum number of messages to display.
 constexpr int kStampCol = 0;
 constexpr int kNameCol = 1;
 constexpr int kLevelCol = 2;
 constexpr int kMessageCol = 3;
-constexpr int kNumCols = 4;
-
-/* Message colors */
-constexpr auto kDebugColor = Qt::darkGreen;
-constexpr auto kInfoColor = Qt::black;
-constexpr auto kWarnColor = Qt::darkYellow;
-constexpr auto kErrorColor = Qt::darkRed;
-constexpr auto kFatalColor = Qt::darkMagenta;
-constexpr auto kUnknownColor = Qt::darkGray;
 }  // namespace
 
 ConsoleWidget::ConsoleWidget(const rqt::RosQtBridge& bridge)
 {
-  table_ = new qt::TableWidget(0, kNumCols);
+  table_ = new qt::TableWidget(0, 4);
   table_->setHorizontalHeaderLabels({ "Stamp", "Name", "Level", "Message" });
   table_->setEditTriggers(QAbstractItemView::NoEditTriggers);  // Disable editing.
   table_->setSelectionMode(QAbstractItemView::NoSelection);    // Disable selection.
@@ -71,6 +61,7 @@ void ConsoleWidget::messageCb(const tobas_msgs::msg::Message::ConstSharedPtr& ms
 
   // If rows overflow, delete the oldest row.
   const auto num_rows = table_->rowCount();
+  constexpr int kMaxRows = 1000;  // Maximum number of messages to display.
   if (num_rows > kMaxRows) {
     table_->removeRow(num_rows - 1);
   }
@@ -90,37 +81,49 @@ void ConsoleWidget::messageCb(const tobas_msgs::msg::Message::ConstSharedPtr& ms
   message_item->setToolTip(message);
 
   switch (msg->level) {
-    case tobas_msgs::msg::Message::LEVEL_DEBUG:
+    case tobas_msgs::msg::Message::LEVEL_DEBUG: {
       level_item->setText("Debug");
+      constexpr auto kDebugColor = Qt::darkGreen;
       level_item->setForeground(kDebugColor);
       message_item->setForeground(kDebugColor);
       break;
-    case tobas_msgs::msg::Message::LEVEL_INFO:
+    }
+    case tobas_msgs::msg::Message::LEVEL_INFO: {
       level_item->setText("Info");
+      constexpr auto kInfoColor = Qt::black;
       level_item->setForeground(kInfoColor);
       message_item->setForeground(kInfoColor);
       break;
-    case tobas_msgs::msg::Message::LEVEL_WARN:
+    }
+    case tobas_msgs::msg::Message::LEVEL_WARN: {
       level_item->setText("Warn");
+      constexpr auto kWarnColor = Qt::darkYellow;
       level_item->setForeground(kWarnColor);
       message_item->setForeground(kWarnColor);
       break;
-    case tobas_msgs::msg::Message::LEVEL_ERROR:
+    }
+    case tobas_msgs::msg::Message::LEVEL_ERROR: {
       level_item->setText("Error");
+      constexpr auto kErrorColor = Qt::darkRed;
       level_item->setForeground(kErrorColor);
       message_item->setForeground(kErrorColor);
       break;
-    case tobas_msgs::msg::Message::LEVEL_FATAL:
+    }
+    case tobas_msgs::msg::Message::LEVEL_FATAL: {
       level_item->setText("Fatal");
+      constexpr auto kFatalColor = Qt::darkMagenta;
       level_item->setForeground(kFatalColor);
       message_item->setForeground(kFatalColor);
       break;
-    default:
+    }
+    default: {
       qWarning() << "Unknown message level:" << static_cast<int>(msg->level);
       level_item->setText("Unknown");
+      constexpr auto kUnknownColor = Qt::darkGray;
       level_item->setForeground(kUnknownColor);
       message_item->setForeground(kUnknownColor);
       break;
+    }
   }
 
   table_->setItem(0, kLevelCol, level_item);

@@ -13,12 +13,6 @@ namespace gui
 {
 namespace log
 {
-namespace
-{
-constexpr double kMinLinearScale = 1.0;   // [m/s]
-constexpr double kMinAngularScale = 1.0;  // [rad/s]
-}  // namespace
-
 TwistPlotWidget::TwistPlotWidget()
   : cur_curves_{ "Current Linear Velocity X [m/s]",    "Current Linear Velocity Y [m/s]",
                  "Current Linear Velocity Z [m/s]",    "Current Angular Velocity X [rad/s]",
@@ -66,6 +60,8 @@ void TwistPlotWidget::setData(
   const auto ranges = updateCurrentSamples(odom_msgs);
   const auto tar_ranges = updateTargetSamples(setpoint_msgs);
 
+  constexpr double kMinLinearScale = 1.0;   // [m/s]
+  constexpr double kMinAngularScale = 1.0;  // [rad/s]
   for (size_t i = 0; i < kNumAxes; ++i) {
     const auto minimum_half_range = i < kNumAxesPerGroup ? kMinLinearScale : kMinAngularScale;
     setTargetCenteredVerticalScale(*plots_[i], ranges[i], tar_ranges[i], minimum_half_range);

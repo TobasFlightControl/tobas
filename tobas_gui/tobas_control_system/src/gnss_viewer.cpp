@@ -14,22 +14,18 @@ namespace gui
 {
 namespace ctrl
 {
-namespace
-{
-constexpr int kLabelPSize = 12;
-constexpr int kLabelMinWidth = 60;
-}  // namespace
-
 GnssViewerWidget::GnssViewerWidget(const rqt::RosQtBridge& bridge)
 {
   status_ = new qt::FramedLabel();
   nsats_ = new qt::FramedLabel();
 
+  constexpr int kLabelMinWidth = 60;
   status_->setMinimumWidth(kLabelMinWidth);
   nsats_->setMinimumWidth(kLabelMinWidth);
 
   // Layout
   const auto form = new qt::FormLayout();
+  constexpr int kLabelPSize = 12;
   form->addVAlignedRow(new qt::Label("Status", kLabelPSize), status_);
   form->addVAlignedRow(new qt::Label("NSats", kLabelPSize), nsats_);
   setLayout(form);
