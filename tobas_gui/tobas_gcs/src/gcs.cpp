@@ -902,9 +902,6 @@ void GroundControlStationWidget::onSimulationStarted()
 {
   qDebug() << "GroundControlStationWidget::onSimulationStarted";
 
-  // Reset the entire widget.
-  reset();
-
   // Disable features specific to real hardware.
   sensor_calib_->setEnabled(false);
   actuator_test_->setEnabled(false);
@@ -916,6 +913,9 @@ void GroundControlStationWidget::onSimulationStarted()
 
   // Stop scanning for flight controllers.
   fc_scanner_->stop();
+
+  // Reset the entire widget.
+  reset();
 }
 
 void GroundControlStationWidget::onSimulationTerminated()
@@ -929,9 +929,6 @@ void GroundControlStationWidget::onSimulationTerminated()
     qInfo() << "ROS connection has been automatically closed.";
   }
 
-  // Reset the entire widget.
-  reset();
-
   // Re-enable features specific to real hardware.
   sensor_calib_->setEnabled(true);
   actuator_test_->setEnabled(true);
@@ -939,6 +936,9 @@ void GroundControlStationWidget::onSimulationTerminated()
   // Resume scanning for flight controllers.
   resetFlightControllerPlaceholder();
   fc_scanner_->start();
+
+  // Reset the entire widget.
+  reset();
 }
 
 void GroundControlStationWidget::onRemoteConnectionDisconnected()
