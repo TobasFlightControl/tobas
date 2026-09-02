@@ -220,15 +220,11 @@ void RobotModel::buildModel(const urdf::ModelInterface& urdf_model)
     const auto root_link = urdf_model.getRoot();
     model_frame_ = root_link->name;
 
-    qDebug() << "... building kinematic chain.";
     root_joint_ = buildRecursive(nullptr, root_link);
     if (root_joint_) {
       root_link_ = link_model_map_.at(root_joint_->getChildLinkModel()->getName());
     }
-    qDebug() << "... building mimic joints.";
     buildMimic(urdf_model);
-
-    qDebug() << "... computing joint indexing.";
     buildJointInfo();
   }
   else {
