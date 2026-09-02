@@ -16,8 +16,6 @@ namespace fc1xx
 {
 class BaroDriverNode : public hardware::BaseSensorNode
 {
-  static constexpr auto kSamplingPeriod = 20ms;
-
   using self = BaroDriverNode;
   using super = hardware::BaseSensorNode;
 
@@ -49,6 +47,8 @@ void BaroDriverNode::initialize()
   baro_pub_ = createPublisher<tobas_msgs::msg::FluidPressure>(topic::kAirPressure);
 
   initialize_timer_->cancel();
+
+  constexpr auto kSamplingPeriod = 20ms;
   main_timer_ = createWallTimer(kSamplingPeriod, &self::mainTimerCb, this);
 }
 

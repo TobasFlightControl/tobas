@@ -13,7 +13,6 @@ namespace tobas
 {
 namespace
 {
-constexpr char kChannelKey[] = "channel";
 constexpr char kLinkNameKey[] = "link_name";
 constexpr char kCLiftDeltaKey[] = "c_lift_delta";
 constexpr char kCDragAbsDeltaKey[] = "c_drag_abs_delta";

@@ -12,8 +12,6 @@ namespace tobas
 {
 class FakeRcInputPublisherNode : public BaseNode
 {
-  static constexpr auto kSamplingPeriod = 10ms;
-
   using self = FakeRcInputPublisherNode;
   using super = BaseNode;
 
@@ -31,7 +29,7 @@ FakeRcInputPublisherNode::FakeRcInputPublisherNode(const rclcpp::NodeOptions& op
   : super("fake_rcin_publisher", nodeOptions_Default(options))
 {
   pub_ = createPublisher<tobas_msgs::RCInput>(topic::kRcInput);
-  timer_ = createTimer(kSamplingPeriod, &self::timerCb, this);
+  timer_ = createTimer(10ms, &self::timerCb, this);
 }
 
 void FakeRcInputPublisherNode::timerCb()

@@ -15,19 +15,13 @@ namespace tobas
 {
 namespace driver
 {
-namespace
-{
-constexpr uint32_t kSpiClockFreq = 5'000'000;  // Minimum period is 150ns (6.67MHz)
-constexpr double kVref = 2.048;                // Internal 2.048-V reference (p.42)
-constexpr double kGain = 1.0;
-}  // namespace
-
 ADS1220::ADS1220()
 {
 }
 
 bool ADS1220::initialize(const char* spi_device)
 {
+  constexpr uint32_t kSpiClockFreq = 5'000'000;  // Minimum period is 150ns (6.67MHz)
   if (!spi_.initialize(spi_device, tx_buf_, rx_buf_, kSpiClockFreq)) {
     return false;
   }
@@ -74,6 +68,8 @@ bool ADS1220::readVoltage(double& dst)
 
   // Scaling.
   // TODO: Convert to the actual voltage.
+  constexpr double kVref = 2.048;  // Internal 2.048-V reference (p.42)
+  constexpr double kGain = 1.0;
   dst = math::remap<double>(lsb, -(1 << 23), (1 << 23), 0.0, 2 * kVref / kGain);
 
   return true;

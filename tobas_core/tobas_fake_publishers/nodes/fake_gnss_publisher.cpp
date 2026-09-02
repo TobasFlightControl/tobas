@@ -12,11 +12,6 @@ namespace tobas
 {
 class FakeGnssPublisherNode : public BaseNode
 {
-  static constexpr auto kSamplingPeriod = 200ms;
-
-  static constexpr double kDefaultPosStddev = 3.0;  // [m]
-  static constexpr double kDefaultVelStddev = 0.3;  // [m/s]
-
   using self = FakeGnssPublisherNode;
   using super = BaseNode;
 
@@ -24,8 +19,8 @@ public:
   explicit FakeGnssPublisherNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  double pos_stddev_;
-  double vel_stddev_;
+  double pos_stddev_;  // [m]
+  double vel_stddev_;  // [m/s]
 
   ros2::PublisherPtr<tobas_msgs::Gnss> gnss_pub_;
   ros2::TimerPtr timer_;
@@ -36,11 +31,11 @@ private:
 FakeGnssPublisherNode::FakeGnssPublisherNode(const rclcpp::NodeOptions& options)
   : super("fake_batt_publisher", nodeOptions_Default(options))
 {
-  pos_stddev_ = getDoubleParam("position_stddev", kDefaultPosStddev);
-  vel_stddev_ = getDoubleParam("velocity_stddev", kDefaultVelStddev);
+  pos_stddev_ = getDoubleParam("position_stddev", 3.0);
+  vel_stddev_ = getDoubleParam("velocity_stddev", 0.3);
 
   gnss_pub_ = createPublisher<tobas_msgs::Gnss>(topic::kGnss);
-  timer_ = createTimer(kSamplingPeriod, &self::timerCb, this);
+  timer_ = createTimer(200ms, &self::timerCb, this);
 }
 
 void FakeGnssPublisherNode::timerCb()

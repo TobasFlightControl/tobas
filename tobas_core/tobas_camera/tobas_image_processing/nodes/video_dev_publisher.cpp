@@ -23,8 +23,6 @@ namespace camera
  */
 class VideoDevPublisherNode : public BaseNode
 {
-  static constexpr int kFps = 30;
-
 public:
   explicit VideoDevPublisherNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
@@ -57,6 +55,7 @@ VideoDevPublisherNode::VideoDevPublisherNode(const rclcpp::NodeOptions& options)
     img_publisher_ = createPublisher<sensor_msgs::msg::Image>(image_topic);
   }
 
+  constexpr int kFps = 30;
   timer_ = createTimer(std::chrono::milliseconds(1000 / kFps), &VideoDevPublisherNode::timerCallback, this);
 }
 

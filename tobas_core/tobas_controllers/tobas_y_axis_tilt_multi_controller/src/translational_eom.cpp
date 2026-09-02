@@ -12,11 +12,6 @@ namespace tobas
 {
 namespace y_axis_tilt_multicopter
 {
-namespace
-{
-constexpr double kMinVerticalForcePerMass = 1.0;  // [m/s^2]
-}  // namespace
-
 TranslationalEoM::TranslationalEoM(const kdl::Tree& tree) : mass_holder_(tree), grav_W_(0, 0, -st::kGravity)
 {
 }
@@ -43,6 +38,7 @@ bool TranslationalEoM::solve(
   // the rate of change in the tilt-angle solution becomes relatively large.
   // The mixer ignores delay in tilt-angle tracking, so large tilt-angle displacement should be avoided.
   // Therefore, at minimum, ensure that thrust is generated vertically upward.
+  constexpr double kMinVerticalForcePerMass = 1.0;  // [m/s^2]
   f_W.z(std::max(f_W.z(), mass * kMinVerticalForcePerMass));
 
   // Convert the target force to the local coordinate system before roll.

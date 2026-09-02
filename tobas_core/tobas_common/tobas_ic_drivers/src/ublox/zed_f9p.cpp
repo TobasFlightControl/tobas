@@ -17,22 +17,14 @@ namespace tobas
 {
 namespace ublox
 {
-namespace
-{
-constexpr uint32_t kSpiClockFreq = 5'500'000;  // Maximum frequency is 5.5MHz.
-constexpr uint8_t kRG174CableDelay = 5;        // [ns/m] Coaxial cable delay.
-constexpr auto kWaitForGnssAck = 1s;
-// Interval for receiving one byte over SPI. A shorter interval reduces latency but can overload the receiver.
-constexpr auto kReqInterval = 50us;
-}  // namespace
-
-ZEDF9P::ZEDF9P() : rate_(kReqInterval)
+ZEDF9P::ZEDF9P() : rate_(50us)
 {
 }
 
 bool ZEDF9P::initialize(const char* spi_device)
 {
   // Initialize SPI device.
+  constexpr uint32_t kSpiClockFreq = 5'500'000;  // Maximum frequency is 5.5MHz.
   if (!spi_.initialize(spi_device, tx_buf_, rx_buf_, kSpiClockFreq)) {
     return false;
   }
@@ -485,6 +477,7 @@ bool ZEDF9P::enableSpiProtocol_SPARTN(bool enable_input)
 
 bool ZEDF9P::setAntennaLength(uint8_t length_m)
 {
+  constexpr uint8_t kRG174CableDelay = 5;  // [ns/m] Coaxial cable delay.
   return cfgValSetSingle<uint16_t>(TWO_BYTES, CFG_TP, 0x01, length_m * kRG174CableDelay);  // CFG-TP-ANT_CABLEDELAY
 }
 
@@ -519,6 +512,7 @@ bool ZEDF9P::waitForAcknowledge(UbxClass cls, uint8_t id)
   const auto cls_str = std::to_string(int(cls));
   const auto id_str = std::to_string(int(id));
 
+  constexpr auto kWaitForGnssAck = 1s;
   const auto deadline = ch::steady_clock::now() + kWaitForGnssAck;
 
   while (ch::steady_clock::now() < deadline) {

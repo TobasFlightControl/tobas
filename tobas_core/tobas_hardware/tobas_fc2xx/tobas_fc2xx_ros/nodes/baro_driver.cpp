@@ -16,8 +16,6 @@ namespace fc2xx
 {
 class BaroDriverNode : public BaseNode
 {
-  static constexpr auto kSamplingPeriod = 20ms;
-
   using self = BaroDriverNode;
   using super = BaseNode;
 
@@ -52,6 +50,7 @@ bool BaroDriverNode::initialize()
 
   baro_pub_ = createPublisher<tobas_msgs::msg::FluidPressure>(topic::kAirPressure);
 
+  constexpr auto kSamplingPeriod = 20ms;
   main_timer_ = createWallTimer(kSamplingPeriod, &self::mainTimerCb, this);
 
   return true;

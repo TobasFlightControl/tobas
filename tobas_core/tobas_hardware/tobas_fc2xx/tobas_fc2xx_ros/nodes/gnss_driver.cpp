@@ -16,13 +16,6 @@ namespace fc2xx
 {
 class GnssDriverNode : public BaseNode
 {
-  static constexpr char kSpiDevice[] = "/dev/spidev1.0";
-  static constexpr auto kMainTimerPeriod = 1ms;
-
-  // GNSS receiver update period [ms]
-  // This cannot be too short because an overly high frequency fills the FIFO and causes a time shift.
-  static constexpr size_t kMeasPeriod = 1000 / 20;
-
   using self = GnssDriverNode;
   using super = BaseNode;
 
@@ -58,7 +51,7 @@ GnssDriverNode::GnssDriverNode(const rclcpp::NodeOptions& options)
 
 bool GnssDriverNode::initialize()
 {
-  if (!gnss_.initialize(kSpiDevice)) {
+  if (!gnss_.initialize("/dev/spidev1.0")) {
     TOBAS_ERROR("Failed to initialize GNSS driver. Retrying...");
     return false;
   }
@@ -73,6 +66,7 @@ bool GnssDriverNode::initialize()
 
   gnss_pub_ = createPublisher<tobas_msgs::Gnss>(topic::kGnss);
 
+  constexpr auto kMainTimerPeriod = 1ms;
   main_timer_ = createWallTimer(kMainTimerPeriod, &self::mainTimerCb, this);
 
   return true;
@@ -85,7 +79,9 @@ bool GnssDriverNode::configure()
     return false;
   }
 
-  if (!gnss_.configureMeasurementRate(kMeasPeriod)) {
+  // The measurement rate cannot be too short because an overly high frequency fills the FIFO and causes a time shift.
+  constexpr uint16_t kMeasRate = 20;  // [Hz]
+  if (!gnss_.configureMeasurementRate(1000 / kMeasRate)) {
     TOBAS_ERROR("Failed to configure measurement rate.");
     return false;
   }

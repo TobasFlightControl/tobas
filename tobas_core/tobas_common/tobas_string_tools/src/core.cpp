@@ -86,7 +86,7 @@ std::string trim(const std::string& s)
     return {};
   }
 
-  static constexpr char del[] = " \t\n\r\f\v";
+  constexpr char del[] = " \t\n\r\f\v";
   const auto first = s.find_first_not_of(del);
   const auto last = s.find_last_not_of(del);
 

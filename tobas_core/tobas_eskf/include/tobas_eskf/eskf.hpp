@@ -32,7 +32,7 @@ class ErrorStateKalmanFilter
   // Nominal state indices.
   static constexpr size_t kPosIdx = 0;
   static constexpr size_t kAltIdx = kPosIdx + 2;
-  static constexpr size_t kVelIdx = kPosIdx + 3;
+  static constexpr size_t kVelIdx = kAltIdx + 1;
   static constexpr size_t kQuatIdx = kVelIdx + 3;
   static constexpr size_t kAccBiasIdx = kQuatIdx + 4;
   static constexpr size_t kGyroBiasIdx = kAccBiasIdx + 3;
@@ -45,7 +45,7 @@ class ErrorStateKalmanFilter
   // Error-state indices.
   static constexpr size_t kDeltaPosIdx = 0;
   static constexpr size_t kDeltaAltIdx = kDeltaPosIdx + 2;
-  static constexpr size_t kDeltaVelIdx = kDeltaPosIdx + 3;
+  static constexpr size_t kDeltaVelIdx = kDeltaAltIdx + 1;
   static constexpr size_t kDeltaThetaIdx = kDeltaVelIdx + 3;
   static constexpr size_t kDeltaAccBiasIdx = kDeltaThetaIdx + 3;
   static constexpr size_t kDeltaGyroBiasIdx = kDeltaAccBiasIdx + 3;
@@ -54,27 +54,6 @@ class ErrorStateKalmanFilter
   static constexpr size_t kDeltaBaroAltBiasIdx = kDeltaMagSoftBiasIdx + 6;
   static constexpr size_t kDeltaGravIdx = kDeltaBaroAltBiasIdx + 1;
   static constexpr size_t kDeltaStateSize = kDeltaGravIdx + 1;
-
-  // Variable ranges.
-  static constexpr double kMaxAccBias = 1.0;                // [m/s^2]
-  static constexpr double kMaxGyroBias = 0.1;               // [rad/s]
-  static constexpr double kMaxMagHardBias = 2.0;            // [-]
-  static constexpr double kMinMagSoftBiasEigenValue = 0.1;  // [-]
-  static constexpr double kMinGravity = 9.75;               // [m/s^2]
-  static constexpr double kMaxGravity = 9.85;               // [m/s^2]
-
-  // Limits on sensor uncertainty.
-  // Each sensor reading includes bias, so an extremely small variance observed at rest or in similar conditions,
-  // where the bias component is likely dominant, does not represent the real uncertainty.
-  // If a biased value is treated as certain and the covariance does not grow,
-  // observation correction may not be applied and the attitude may diverge,
-  // so lower bounds are imposed on the eigenvalues.
-  static constexpr double kMinGyroStddev = 0.01;  // [rad/s]
-  static constexpr double kMinAccStddev = 0.1;    // [m/s^2]
-
-  // Miscellaneous.
-  static constexpr auto kStateHistoryTimeWindow = std::chrono::milliseconds(500);
-  static constexpr double kFreeFallAccelNormThresh = 0.1;  // [G]
 
   using StateMatrix = Eigen::Matrix<double, kStateSize, kStateSize>;
   using StateVector = Eigen::Vector<double, kStateSize>;

@@ -12,19 +12,13 @@ namespace tobas
 {
 namespace fc1xx
 {
-namespace
-{
-constexpr char kSpiDevice[] = "/dev/spidev0.1";
-constexpr uint32_t kSpiClockFreq = 30'000'000;  // [Hz]
-}  // namespace
-
 Battery::Battery()
 {
 }
 
 bool Battery::initialize()
 {
-  if (!spi_.initialize(kSpiDevice, tx_buf_, rx_buf_, kSpiClockFreq)) {
+  if (!spi_.initialize("/dev/spidev0.1", tx_buf_, rx_buf_, 30'000'000)) {
     return false;
   }
 

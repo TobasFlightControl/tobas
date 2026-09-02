@@ -15,8 +15,8 @@ namespace urdf
 {
 fs::path resolveUri(const std::string& uri)
 {
-  static constexpr char kPackagePrefix[] = "package://";
-  static constexpr char kAbsPathPrefix[] = "file://";
+  constexpr char kPackagePrefix[] = "package://";
+  constexpr char kAbsPathPrefix[] = "file://";
 
   if (uri.starts_with(kPackagePrefix)) {
     const auto pkg_name = str::split(str::lstrip(uri, kPackagePrefix), '/').front();

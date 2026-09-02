@@ -12,18 +12,13 @@ namespace tobas
 {
 namespace stm
 {
-namespace
-{
-constexpr uint32_t kSpiClockFreq = 10'000'000;  // Maximum frequency is 10MHz.
-constexpr uint8_t kReadFlag = 0x80;
-}  // namespace
-
 ISM330DLC::ISM330DLC()
 {
 }
 
 bool ISM330DLC::initialize(const char* spi_device)
 {
+  constexpr uint32_t kSpiClockFreq = 10'000'000;  // Maximum frequency is 10MHz.
   if (!spi_.initialize(spi_device, tx_buf_, rx_buf_, kSpiClockFreq)) {
     return false;
   }
@@ -259,6 +254,7 @@ bool ISM330DLC::readImu(double& ax, double& ay, double& az, double& gx, double& 
 
 bool ISM330DLC::readRegs(const uint8_t& addr, const size_t& bytes)
 {
+  constexpr uint8_t kReadFlag = 0x80;
   tx_buf_[0] = addr | kReadFlag;
 
   if (!spi_.transfer(bytes + 1)) {

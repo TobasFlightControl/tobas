@@ -9,11 +9,6 @@ namespace tobas
 {
 namespace driver
 {
-namespace
-{
-constexpr double kGimbalAngleResolution = 1.0 / 0.01;
-}  // namespace
-
 CxGb400::CxGb400() : linux::VideoDev::VideoDev()
 {
 }
@@ -125,6 +120,7 @@ bool CxGb400::sendGimbalCtrl(const double& pitch_deg, const double& yaw_deg)
     return false;
   }
 
+  constexpr double kGimbalAngleResolution = 1.0 / 0.01;
   GimbalCtrlMsg msg;
   msg.pitch_cmd_type = 0x02;
   msg.yaw_cmd_type = 0x02;

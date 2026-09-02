@@ -12,13 +12,15 @@
 
 #define E3 Eigen::Diagonal3d(1, 1, 1)
 
+using namespace std::chrono_literals;
+
 namespace ch = std::chrono;
 
 namespace tobas
 {
 namespace eskf
 {
-ErrorStateKalmanFilter::ErrorStateKalmanFilter() : x_history_(kStateHistoryTimeWindow)
+ErrorStateKalmanFilter::ErrorStateKalmanFilter() : x_history_(500ms)
 {
   // Fill the fixed parts of the observation equations.
   H_pos_.setZero();
@@ -335,6 +337,13 @@ double ErrorStateKalmanFilter::measureIMU(
   const Eigen::Vector3d acc_grav_W = W_Rot_B * acc_B + getGravVector(x_);
 
   // Correct IMU covariance.
+  // Each sensor reading includes bias, so an extremely small variance observed at rest or in similar conditions,
+  // where the bias component is likely dominant, does not represent the real uncertainty.
+  // If a biased value is treated as certain and the covariance does not grow,
+  // observation correction may not be applied and the attitude may diverge,
+  // so lower bounds are imposed on the eigenvalues.
+  constexpr double kMinAccStddev = 0.1;    // [m/s^2]
+  constexpr double kMinGyroStddev = 0.01;  // [rad/s]
   const auto acc_cov_fixed = eigen::nearestPositiveDefinite(acc_cov, math::sqr(kMinAccStddev));
   const auto gyro_cov_fixed = eigen::nearestPositiveDefinite(gyro_cov, math::sqr(kMinGyroStddev));
 
@@ -377,6 +386,7 @@ double ErrorStateKalmanFilter::measureIMU(
   // so correction is performed according to Kalman filter theory.
   // During free fall or when acceleration is too large, the acceleration may not reflect attitude at all,
   // so the gravity-direction observation is limited to acceleration values in this range.
+  constexpr double kFreeFallAccelNormThresh = 0.1;  // [G]
   const auto acc_norm = acc_meas.norm();
   const auto gravity = getGravity(x_);
   if (acc_norm < kFreeFallAccelNormThresh * gravity) {
@@ -677,6 +687,14 @@ void ErrorStateKalmanFilter::setMagSoftBiasFromMatrix(const Eigen::Matrix3d& T)
 
 void ErrorStateKalmanFilter::applyConstraints()
 {
+  // Variable ranges.
+  constexpr double kMaxAccBias = 1.0;                // [m/s^2]
+  constexpr double kMaxGyroBias = 0.1;               // [rad/s]
+  constexpr double kMaxMagHardBias = 2.0;            // [-]
+  constexpr double kMinMagSoftBiasEigenValue = 0.1;  // [-]
+  constexpr double kMinGravity = 9.75;               // [m/s^2]
+  constexpr double kMaxGravity = 9.85;               // [m/s^2]
+
   // Quaternion norm is one.
   x_.segment<4>(kQuatIdx) = getHamilton().normalized();
 

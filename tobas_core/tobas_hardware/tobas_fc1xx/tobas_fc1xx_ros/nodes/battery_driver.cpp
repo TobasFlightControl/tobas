@@ -17,8 +17,6 @@ namespace fc1xx
 {
 class BatteryDriverNode : public hardware::BaseSensorNode
 {
-  static constexpr auto kSamplingPeriod = 100ms;  // TODO: Increase this after properly separating SPI devices.
-
   using self = BatteryDriverNode;
   using super = hardware::BaseSensorNode;
 
@@ -52,6 +50,8 @@ void BatteryDriverNode::initialize()
   battery_pub_ = createPublisher<tobas_msgs::msg::Battery>(topic::kBattery);
 
   initialize_timer_->cancel();
+
+  constexpr auto kSamplingPeriod = 100ms;  // TODO: Increase this after properly separating SPI devices.
   main_timer_ = createWallTimer(kSamplingPeriod, &self::mainTimerCb, this);
 }
 

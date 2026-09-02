@@ -12,11 +12,6 @@ namespace tobas
 {
 class FakeBattPublisherNode : public BaseNode
 {
-  static constexpr auto kSamplingPeriod = 10ms;
-
-  static constexpr double kDefaultVoltage = 14.8;  // [V]
-  static constexpr double kDefaultCurrent = 20.0;  // [A]
-
   using self = FakeBattPublisherNode;
   using super = BaseNode;
 
@@ -24,8 +19,8 @@ public:
   explicit FakeBattPublisherNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  double voltage_;
-  double current_;
+  double voltage_;  // [V]
+  double current_;  // [A]
 
   ros2::PublisherPtr<tobas_msgs::msg::Battery> batt_pub_;
   ros2::TimerPtr timer_;
@@ -36,11 +31,11 @@ private:
 FakeBattPublisherNode::FakeBattPublisherNode(const rclcpp::NodeOptions& options)
   : super("fake_batt_publisher", nodeOptions_Default(options))
 {
-  voltage_ = getDoubleParam("voltage", kDefaultVoltage);
-  current_ = getDoubleParam("current", kDefaultCurrent);
+  voltage_ = getDoubleParam("voltage", 14.8);
+  current_ = getDoubleParam("current", 20.0);
 
   batt_pub_ = createPublisher<tobas_msgs::msg::Battery>(topic::kBattery);
-  timer_ = createTimer(kSamplingPeriod, &self::timerCb, this);
+  timer_ = createTimer(10ms, &self::timerCb, this);
 }
 
 void FakeBattPublisherNode::timerCb()

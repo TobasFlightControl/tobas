@@ -9,7 +9,7 @@ using namespace std;
 
 int main()
 {
-  static constexpr char path[] = "/tmp/this/is/the/file/created/by/create_file";
+  constexpr char path[] = "/tmp/this/is/the/file/created/by/create_file";
 
   const auto res = tobas::path::createFilePath(path);
   if (!res) {

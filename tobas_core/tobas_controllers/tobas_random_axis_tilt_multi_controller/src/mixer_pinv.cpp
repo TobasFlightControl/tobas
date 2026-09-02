@@ -17,11 +17,6 @@ namespace tobas
 {
 namespace random_axis_tilt_multicopter
 {
-namespace
-{
-constexpr double kMinVerticalForcePerMass = 1.0;  // [m/s^2]
-}  // namespace
-
 PinvMixer::PinvMixer(const Drone& drone, const kdl::Tree& tree)
   : super(drone, tree), fk_solver_(tree), inertia_solver_(tree)
 {
@@ -169,6 +164,7 @@ bool PinvMixer::solve(
   // the rate of change in the tilt-angle solution becomes relatively large.
   // The mixer ignores delay in tilt-angle tracking, so large tilt-angle displacement should be avoided.
   // Therefore, at minimum, ensure that thrust is generated vertically upward.
+  constexpr double kMinVerticalForcePerMass = 1.0;  // [m/s^2]
   eom_trans_right_W.z(max(eom_trans_right_W.z(), mass * kMinVerticalForcePerMass));
   f_.head<3>() = cur_rot.inverse(eom_trans_right_W).data;
 

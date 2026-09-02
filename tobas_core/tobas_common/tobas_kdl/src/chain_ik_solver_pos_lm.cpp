@@ -16,12 +16,6 @@ namespace tobas
 {
 namespace kdl
 {
-namespace
-{
-constexpr double kInitLambda = 10.0;
-constexpr double kInitV = 2.0;
-}  // namespace
-
 ChainIkSolverPos_LM::ChainIkSolverPos_LM(const Chain& chain) : super(chain)
 {
   L_.head<3>().fill(kDefaultWeightPos);
@@ -70,6 +64,8 @@ int ChainIkSolverPos_LM::cartToJnt(const JntArray& q_init, const Frame& T_base_g
   computeJacobian(q);
   jac_ = L_.asDiagonal() * jac_;
 
+  constexpr double kInitLambda = 10.0;
+  constexpr double kInitV = 2.0;
   auto lambda = kInitLambda;
   auto v = kInitV;
   for (size_t i = 0; i < max_iter_; ++i) {
@@ -87,14 +83,12 @@ int ChainIkSolverPos_LM::cartToJnt(const JntArray& q_init, const Frame& T_base_g
       error_msg_ = "The joint position increments are to small";
       return error_code_;
     }
-
     if (grad_.transpose() * grad_ < eps_jnt_ * eps_jnt_) {
       q_out_.data = q;
       error_code_ = E_GRADIENT_JOINTS_TOO_SMALL;
       error_msg_ = "The gradient of E towards the joints is to small";
       return error_code_;
     }
-
     VectorXd q_new = q + diffq;
     enforceJointLimits(q_new);
     computeFwdPos(q_new);

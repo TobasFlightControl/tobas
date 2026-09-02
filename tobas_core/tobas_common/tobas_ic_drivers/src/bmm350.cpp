@@ -14,18 +14,13 @@ namespace tobas
 {
 namespace driver
 {
-namespace
-{
-constexpr uint8_t kI2cAddress = 0x14;
-}  // namespace
-
 BMM350::BMM350()
 {
 }
 
 bool BMM350::initialize(const char* i2c_device)
 {
-  if (!i2c_.initialize(i2c_device, kI2cAddress)) {
+  if (!i2c_.initialize(i2c_device, 0x14)) {
     std::cerr << "Failed to initialize I2C device." << std::endl;
     return false;
   }

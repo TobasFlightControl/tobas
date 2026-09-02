@@ -12,23 +12,6 @@ namespace tobas
 {
 namespace fc2xx
 {
-namespace
-{
-// Commands
-constexpr uint8_t kSetThrottleCmd = 0;
-constexpr uint8_t kSetTargetRPMCmd = 1;
-constexpr uint8_t kSetKvCmd = 2;
-constexpr uint8_t kSetResistanceCmd = 3;
-constexpr uint8_t kSetDiameterCmd = 4;
-constexpr uint8_t kSetMomentConstCmd = 5;
-constexpr uint8_t kSetHalfNumPolesCmd = 6;
-constexpr uint8_t kSetGainCmd = 7;
-constexpr uint8_t kNoOperationCmd = UINT8_MAX;
-
-constexpr char kSpiDevice[] = "/dev/spidev0.0";
-constexpr uint32_t kSpiClockFreq = 12'000'000;  // [Hz]
-}  // namespace
-
 DShot::DShot() noexcept : crc_(algo::CRC32Left::CRC_32)
 {
   crc_.initialize();
@@ -37,7 +20,7 @@ DShot::DShot() noexcept : crc_(algo::CRC32Left::CRC_32)
 bool DShot::initialize() noexcept
 {
   // Initialize SPI communication.
-  if (!spi_.initialize(kSpiDevice, tx_buf_, rx_buf_, kSpiClockFreq)) {
+  if (!spi_.initialize("/dev/spidev0.0", tx_buf_, rx_buf_, 12'000'000)) {
     return false;
   }
 
@@ -91,6 +74,7 @@ bool DShot::setThrottle(size_t ch, uint16_t throttle) noexcept
     return false;
   }
 
+  constexpr uint8_t kSetThrottleCmd = 0;
   tx_buf_[ch] = (kSetThrottleCmd << 28) | throttle;
 
   return true;
@@ -113,6 +97,7 @@ bool DShot::setTargetSpeed(size_t ch, double rps) noexcept
     return false;
   }
 
+  constexpr uint8_t kSetTargetRPMCmd = 1;
   tx_buf_[ch] = (kSetTargetRPMCmd << 28) | rpm;
 
   return true;
@@ -139,6 +124,7 @@ bool DShot::setKv(size_t ch, double kv_si) noexcept
     return false;
   }
 
+  constexpr uint8_t kSetKvCmd = 2;
   tx_buf_[ch] = (kSetKvCmd << 28) | kv;
 
   return true;
@@ -165,6 +151,7 @@ bool DShot::setInternalResistance(size_t ch, double resistance) noexcept
     return false;
   }
 
+  constexpr uint8_t kSetResistanceCmd = 3;
   tx_buf_[ch] = (kSetResistanceCmd << 28) | resistance_mohm;
 
   return true;
@@ -191,6 +178,7 @@ bool DShot::setPropellerDiameter(size_t ch, double diameter) noexcept
     return false;
   }
 
+  constexpr uint8_t kSetDiameterCmd = 4;
   tx_buf_[ch] = (kSetDiameterCmd << 28) | diameter_mm;
 
   return true;
@@ -217,6 +205,7 @@ bool DShot::setMomentConstant(size_t ch, double moment_const) noexcept
     return false;
   }
 
+  constexpr uint8_t kSetMomentConstCmd = 5;
   tx_buf_[ch] = (kSetMomentConstCmd << 28) | moment_const_scaled;
 
   return true;
@@ -244,6 +233,7 @@ bool DShot::setNumPoles(size_t ch, uint16_t num_poles) noexcept
     return false;
   }
 
+  constexpr uint8_t kSetHalfNumPolesCmd = 6;
   tx_buf_[ch] = (kSetHalfNumPolesCmd << 28) | half_num_poles;
   half_num_poles_.at(ch) = half_num_poles;
 
@@ -261,6 +251,7 @@ bool DShot::setRpmControlGain(size_t ch, uint8_t gain) noexcept
     return false;
   }
 
+  constexpr uint8_t kSetGainCmd = 7;
   tx_buf_[ch] = (kSetGainCmd << 28) | gain;
 
   return true;
@@ -272,6 +263,7 @@ bool DShot::setNoOperation(size_t ch) noexcept
     return false;
   }
 
+  constexpr uint8_t kNoOperationCmd = UINT8_MAX;
   tx_buf_[ch] = (kNoOperationCmd << 28);
 
   return true;

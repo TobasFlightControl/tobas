@@ -33,8 +33,6 @@ class PwmBattImuDriverNode : public BaseNode
 
   using clock = std::chrono::steady_clock;
 
-  static constexpr auto kMinCommunicationInterval = 200us;  // Communication errors occur at 100 us.
-
 public:
   explicit PwmBattImuDriverNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
@@ -106,6 +104,7 @@ bool PwmBattImuDriverNode::initialize()
 
 bool PwmBattImuDriverNode::transfer()
 {
+  constexpr auto kMinCommunicationInterval = 200us;  // Communication errors occur at 100 us.
   std::this_thread::sleep_until(last_comm_time_ + kMinCommunicationInterval);
   const auto res = driver_.transfer();
   last_comm_time_ = clock::now();

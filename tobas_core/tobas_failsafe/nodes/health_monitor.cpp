@@ -29,28 +29,6 @@ namespace tobas
 {
 class HealthMonitorNode : public BaseNode
 {
-  static constexpr auto kMainTimerPeriod = 100ms;
-
-  static constexpr auto kImuSamplingTimeThresh = 5ms;
-  static constexpr auto kRTComplianceCheckTimeWindow = 1s;
-  static constexpr auto kBattVoltageDownTimeThresh = 10s;
-  static constexpr auto kBattVoltageUpTimeThresh = 30s;
-  static constexpr auto kRadioLinkLostTimeThresh = 500ms;
-  static constexpr auto kGnssFixLossTimeThresh = 1s;
-  static constexpr auto kGnssFixRecoveryTimeThresh = 3s;
-  static constexpr double kPosDriftThresh = 1.0;  // [m]
-  static constexpr auto kPosDriftCheckTimeWindow = 5s;
-  static constexpr double kCPUTempThresh = 80.0;             // [degC]
-  static constexpr double kAttitudeThresh = M_PI / 12;       // [rad]
-  static constexpr double kHorPosStddevThresh = 1.0;         // [m]
-  static constexpr double kVerPosStddevThresh = 2.0;         // [m]
-  static constexpr double kAttiStddevThresh = M_PI / 24;     // [rad]
-  static constexpr double kHeadStddevThresh = M_PI / 12;     // [rad]
-  static constexpr double kMagLpfCutoff = 1.0;               // [s]
-  static constexpr double kMagLengthErrorThresh = 0.2;       // [-]
-  static constexpr double kMagAlignErrorThresh = M_PI / 12;  // [rad]
-  static constexpr double kVibrationLevelThresh = 10.0;      // [m/s^2]
-
   using self = HealthMonitorNode;
   using super = BaseNode;
 
@@ -146,12 +124,11 @@ private:
 HealthMonitorNode::HealthMonitorNode(const rclcpp::NodeOptions& options)
   : super("health_monitor", nodeOptions_Default(options))
   , t_last_rt_violation_(now())
-  , pos_bufs_{ st::TimestampedBufferDouble(kPosDriftCheckTimeWindow),
-               st::TimestampedBufferDouble(kPosDriftCheckTimeWindow),
-               st::TimestampedBufferDouble(kPosDriftCheckTimeWindow) }
+  , pos_bufs_{ st::TimestampedBufferDouble(5s), st::TimestampedBufferDouble(5s), st::TimestampedBufferDouble(5s) }
 {
   getStaticRosParams();
 
+  constexpr double kMagLpfCutoff = 1.0;  // [s]
   mag_B_lpf_.setCutoffFrequency(kMagLpfCutoff);
   mag_W_lpf_.setCutoffFrequency(kMagLpfCutoff);
 
@@ -176,7 +153,7 @@ HealthMonitorNode::HealthMonitorNode(const rclcpp::NodeOptions& options)
     user_health_sub_ = createSubscriber(topic::kUserDefinedHealthStatus, &self::userDefinedHealthStatusCb, this);
   }
 
-  main_timer_ = createTimer(kMainTimerPeriod, &self::mainTimerCb, this);
+  main_timer_ = createTimer(100ms, &self::mainTimerCb, this);
 }
 
 void HealthMonitorNode::getStaticRosParams()
@@ -202,7 +179,6 @@ void HealthMonitorNode::getStaticRosParams()
 std::unique_ptr<tobas_msgs::msg::VehicleHealth> HealthMonitorNode::createHealthMessage() const
 {
   auto health = std::make_unique<tobas_msgs::msg::VehicleHealth>();
-
   health->header.stamp = now();
   health->ok = true;
 
@@ -211,6 +187,7 @@ std::unique_ptr<tobas_msgs::msg::VehicleHealth> HealthMonitorNode::createHealthM
   // This must be checked because poor communication can slow node graph construction and degrade real-time behavior.
   if (do_check_.realtime_compliance) {
     if (sampling_time_) {
+      constexpr auto kRTComplianceCheckTimeWindow = 1s;
       if (sampling_time_->header.stamp - t_last_rt_violation_ < kRTComplianceCheckTimeWindow) {
         health->realtime_compliance = tobas_msgs::msg::VehicleHealth::FAILED;
         health->ok = false;
@@ -267,6 +244,7 @@ std::unique_ptr<tobas_msgs::msg::VehicleHealth> HealthMonitorNode::createHealthM
   // CPU temperature
   if (do_check_.cpu_temperature) {
     if (cpu_) {
+      constexpr double kCPUTempThresh = 80.0;  // [degC]
       if (cpu_->temperature > kCPUTempThresh) {
         health->cpu_temperature = tobas_msgs::msg::VehicleHealth::FAILED;
         health->ok = false;
@@ -292,6 +270,7 @@ std::unique_ptr<tobas_msgs::msg::VehicleHealth> HealthMonitorNode::createHealthM
           health->ok = false;
           break;
         case tobas_msgs::msg::RCInput::STATUS_TIMEOUT:
+          constexpr auto kRadioLinkLostTimeThresh = 500ms;
           if (rcin_->header.stamp - t_last_valid_rcin_ > kRadioLinkLostTimeThresh) {
             health->radio_link = tobas_msgs::msg::VehicleHealth::FAILED;
             health->ok = false;
@@ -334,6 +313,7 @@ std::unique_ptr<tobas_msgs::msg::VehicleHealth> HealthMonitorNode::createHealthM
   // Attitude angle
   if (do_check_.attitude_level && !arming_->data) {
     if (odom_) {
+      constexpr double kAttitudeThresh = M_PI / 12;  // [rad]
       const auto [roll, pitch, _] = odom_->odom.odom.frame.M.getRPY();
       if (std::max(std::abs(roll), std::abs(pitch)) > kAttitudeThresh) {
         health->attitude_level = tobas_msgs::msg::VehicleHealth::FAILED;
@@ -370,6 +350,7 @@ std::unique_ptr<tobas_msgs::msg::VehicleHealth> HealthMonitorNode::createHealthM
   if (do_check_.position_stability && !arming_->data) {
     if (odom_) {
       for (const auto& buf : pos_bufs_) {
+        constexpr double kPosDriftThresh = 1.0;  // [m]
         if (!buf.isFilled() || buf.range() > kPosDriftThresh) {
           health->position_stability = tobas_msgs::msg::VehicleHealth::FAILED;
           health->ok = false;
@@ -389,6 +370,7 @@ std::unique_ptr<tobas_msgs::msg::VehicleHealth> HealthMonitorNode::createHealthM
   // Horizontal position estimation accuracy
   if (do_check_.horizontal_position_accuracy) {
     if (odom_) {
+      constexpr double kHorPosStddevThresh = 1.0;  // [m]
       const auto hor_pos_var = odom_->odom.position_covariance.diagonal().head<2>().maxCoeff();
       if (hor_pos_var > math::sqr(kHorPosStddevThresh)) {
         health->horizontal_position_accuracy = tobas_msgs::msg::VehicleHealth::FAILED;
@@ -407,6 +389,7 @@ std::unique_ptr<tobas_msgs::msg::VehicleHealth> HealthMonitorNode::createHealthM
   // Vertical position estimation accuracy
   if (do_check_.vertical_position_accuracy) {
     if (odom_) {
+      constexpr double kVerPosStddevThresh = 2.0;  // [m]
       const auto ver_pos_var = odom_->odom.position_covariance(2, 2);
       if (ver_pos_var > math::sqr(kVerPosStddevThresh)) {
         health->vertical_position_accuracy = tobas_msgs::msg::VehicleHealth::FAILED;
@@ -425,6 +408,7 @@ std::unique_ptr<tobas_msgs::msg::VehicleHealth> HealthMonitorNode::createHealthM
   // Attitude estimation accuracy
   if (do_check_.attitude_accuracy) {
     if (odom_) {
+      constexpr double kAttiStddevThresh = M_PI / 24;  // [rad]
       const auto atti_var = odom_->odom.orientation_covariance.diagonal().head<2>().maxCoeff();
       if (atti_var > math::sqr(kAttiStddevThresh)) {
         health->attitude_accuracy = tobas_msgs::msg::VehicleHealth::FAILED;
@@ -443,6 +427,7 @@ std::unique_ptr<tobas_msgs::msg::VehicleHealth> HealthMonitorNode::createHealthM
   // Heading estimation accuracy
   if (do_check_.heading_accuracy) {
     if (odom_) {
+      constexpr double kHeadStddevThresh = M_PI / 12;  // [rad]
       const auto head_var = odom_->odom.orientation_covariance(2, 2);
       if (head_var > math::sqr(kHeadStddevThresh)) {
         health->heading_accuracy = tobas_msgs::msg::VehicleHealth::FAILED;
@@ -461,6 +446,7 @@ std::unique_ptr<tobas_msgs::msg::VehicleHealth> HealthMonitorNode::createHealthM
   // Magnetic field offset
   if (do_check_.mag_offset) {
     if (mag_) {
+      constexpr double kMagLengthErrorThresh = 0.2;  // [-]
       if (std::abs(mag_B_lpf_.getValue().norm() - 1.0) > kMagLengthErrorThresh) {
         health->mag_offset = tobas_msgs::msg::VehicleHealth::FAILED;
         health->ok = false;
@@ -478,6 +464,7 @@ std::unique_ptr<tobas_msgs::msg::VehicleHealth> HealthMonitorNode::createHealthM
   // Whether the magnetic field vector in the world frame matches the reference
   if (do_check_.mag_alignment) {
     if (mag_ && mag_ref_) {
+      constexpr double kMagAlignErrorThresh = M_PI / 12;                       // [rad]
       const auto align_error = mag_W_lpf_.getValue().argument(mag_ref_->mag);  // [rad]
       if (align_error > kMagAlignErrorThresh) {
         health->mag_alignment = tobas_msgs::msg::VehicleHealth::FAILED;
@@ -498,6 +485,7 @@ std::unique_ptr<tobas_msgs::msg::VehicleHealth> HealthMonitorNode::createHealthM
     if (vibe_) {
       // Vibration levels below 30m/s/s are normally acceptable.
       // cf. https://ardupilot.org/copter/docs/common-diagnosing-problems-using-logs.html#vibrations
+      constexpr double kVibrationLevelThresh = 10.0;  // [m/s^2]
       if (vibe_->data.max() > kVibrationLevelThresh) {
         health->vibration_level = tobas_msgs::msg::VehicleHealth::FAILED;
         health->ok = false;
@@ -582,6 +570,7 @@ void HealthMonitorNode::battCb(const tobas_msgs::msg::Battery::ConstSharedPtr& b
     }
 
     // Switch state if the voltage stays below the threshold for a fixed time.
+    constexpr auto kBattVoltageDownTimeThresh = 10s;
     if (cur_time - t_last_voltage_ok_ > kBattVoltageDownTimeThresh) {
       batt_voltage_ok_ = false;
       t_last_voltage_ng_ = cur_time;
@@ -595,6 +584,7 @@ void HealthMonitorNode::battCb(const tobas_msgs::msg::Battery::ConstSharedPtr& b
 
     // Switch state if the voltage stays above the threshold for a fixed time.
     // Usually the vehicle does not naturally recover from low voltage, so this transition should be conservative.
+    constexpr auto kBattVoltageUpTimeThresh = 30s;
     if (cur_time - t_last_voltage_ng_ > kBattVoltageUpTimeThresh) {
       batt_voltage_ok_ = true;
       t_last_voltage_ok_ = cur_time;
@@ -624,6 +614,7 @@ void HealthMonitorNode::rotorLivCb(const tobas_msgs::msg::RotorLivelinessArray::
 void HealthMonitorNode::samplingTimeCb(const tobas_msgs::msg::Latency::ConstSharedPtr& sampling_time)
 {
   // Check message time difference.
+  constexpr auto kImuSamplingTimeThresh = 5ms;
   if (sampling_time->data > kImuSamplingTimeThresh) {
     t_last_rt_violation_ = rclcpp::Time(sampling_time->header.stamp, get_clock()->get_clock_type());
   }
@@ -646,6 +637,8 @@ void HealthMonitorNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::
 
 void HealthMonitorNode::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss)
 {
+  constexpr auto kGnssFixLossTimeThresh = 1s;
+  constexpr auto kGnssFixRecoveryTimeThresh = 3s;
   const auto fix_available = (gnss->fix_type == tobas_msgs::msg::Gnss::FIX_3D);
   const auto& cur_time = gnss->header.stamp;
 
