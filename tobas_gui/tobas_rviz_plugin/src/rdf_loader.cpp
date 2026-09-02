@@ -3,20 +3,12 @@
 
 #include "tobas_rviz_plugin/rdf_loader.hpp"
 
-#include "tobas_rviz_plugin/logger.hpp"
+#include <QDebug>
 
 namespace tobas
 {
 namespace rviz
 {
-namespace
-{
-rclcpp::Logger getLogger()
-{
-  return tobas::rviz::getLogger("tobas.rdf_loader");
-}
-}  // namespace
-
 RDFLoader::RDFLoader(
   const rclcpp::Node::SharedPtr& node,
   const std::string& ros_name,
@@ -37,7 +29,7 @@ RDFLoader::RDFLoader(
     return;
   }
 
-  RCLCPP_INFO_STREAM(getLogger(), "Loaded robot model in " << (node->now() - start).seconds() << " seconds.");
+  qInfo() << "Loaded robot model in" << (node->now() - start).seconds() << "seconds.";
 }
 
 const urdf::ModelInterfaceSharedPtr& RDFLoader::getURDF() const
@@ -54,7 +46,7 @@ bool RDFLoader::loadFromStrings()
 {
   auto urdf = std::make_unique<urdf::Model>();
   if (!urdf->initString(urdf_string_)) {
-    RCLCPP_ERROR(getLogger(), "Failed to parse URDF.");
+    qCritical("Failed to parse URDF.");
     return false;
   }
 

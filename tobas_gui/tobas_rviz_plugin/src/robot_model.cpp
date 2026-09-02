@@ -5,9 +5,8 @@
 
 #include <set>
 
-#include <rclcpp/logging.hpp>
+#include <QDebug>
 
-#include "tobas_rviz_plugin/logger.hpp"
 #include "tobas_rviz_plugin/order_robot_model_items.hpp"
 
 namespace tobas
@@ -16,11 +15,6 @@ namespace rviz
 {
 namespace
 {
-rclcpp::Logger getLogger()
-{
-  return tobas::rviz::getLogger("tobas.robot_model");
-}
-
 using DescMap = std::map<
   JointModel::ConstSharedPtr,
   std::pair<
@@ -137,7 +131,7 @@ JointModel::ConstSharedPtr RobotModel::getJointModel(const std::string& name) co
 {
   const auto it = joint_model_map_.find(name);
   if (it == joint_model_map_.end()) {
-    RCLCPP_ERROR(getLogger(), "Joint '%s' not found in model '%s'.", name.c_str(), model_name_.c_str());
+    qCritical("Joint '%s' not found in model '%s'.", name.c_str(), model_name_.c_str());
     return nullptr;
   }
   return it->second;
@@ -164,7 +158,7 @@ LinkModel::ConstSharedPtr RobotModel::getLinkModel(const std::string& name) cons
   if (it != link_model_map_.end()) {
     return it->second;
   }
-  RCLCPP_ERROR(getLogger(), "Link '%s' not found in model '%s'.", name.c_str(), model_name_.c_str());
+  qCritical("Link '%s' not found in model '%s'.", name.c_str(), model_name_.c_str());
   return nullptr;
 }
 
@@ -220,25 +214,25 @@ void RobotModel::updateMimicJoints(double* values) const
 void RobotModel::buildModel(const urdf::ModelInterface& urdf_model)
 {
   model_name_ = urdf_model.getName();
-  RCLCPP_INFO(getLogger(), "Loading robot model '%s'...", model_name_.c_str());
+  qInfo("Loading robot model '%s'...", model_name_.c_str());
 
   if (urdf_model.getRoot()) {
     const auto root_link = urdf_model.getRoot();
     model_frame_ = root_link->name;
 
-    RCLCPP_DEBUG(getLogger(), "... building kinematic chain.");
+    qDebug("... building kinematic chain.");
     root_joint_ = buildRecursive(nullptr, root_link);
     if (root_joint_) {
       root_link_ = link_model_map_.at(root_joint_->getChildLinkModel()->getName());
     }
-    RCLCPP_DEBUG(getLogger(), "... building mimic joints.");
+    qDebug("... building mimic joints.");
     buildMimic(urdf_model);
 
-    RCLCPP_DEBUG(getLogger(), "... computing joint indexing.");
+    qDebug("... computing joint indexing.");
     buildJointInfo();
   }
   else {
-    RCLCPP_WARN(getLogger(), "No root link found.");
+    qWarning("No root link found.");
   }
 }
 
@@ -255,19 +249,15 @@ void RobotModel::buildMimic(const urdf::ModelInterface& urdf_model)
             joint_model->setMimic(jit->second, jm->mimic->multiplier, jm->mimic->offset);
           }
           else {
-            RCLCPP_ERROR(
-              getLogger(),
+            qCritical(
               "Joint '%s' cannot mimic joint '%s' because they have different number of DOF",
               joint_model->getName().c_str(),
               jm->mimic->joint_name.c_str());
           }
         }
         else {
-          RCLCPP_ERROR(
-            getLogger(),
-            "Joint '%s' cannot mimic unknown joint '%s'",
-            joint_model->getName().c_str(),
-            jm->mimic->joint_name.c_str());
+          qCritical(
+            "Joint '%s' cannot mimic unknown joint '%s'", joint_model->getName().c_str(), jm->mimic->joint_name.c_str());
         }
       }
     }
@@ -287,7 +277,7 @@ void RobotModel::buildMimic(const urdf::ModelInterface& urdf_model)
           change = true;
         }
         if (joint_model == joint_model->getMimic()) {
-          RCLCPP_ERROR(getLogger(), "Cycle found in joint that mimic each other. Ignoring all mimic joints.");
+          qCritical("Cycle found in joint that mimic each other. Ignoring all mimic joints.");
           for (const auto& joint_model_recal : joint_model_vector_) {
             joint_model_recal->setMimic(nullptr, 0.0, 0.0);
           }
@@ -461,13 +451,13 @@ JointModel::SharedPtr RobotModel::constructJointModel(const urdf::LinkConstShare
         break;
       case urdf::Joint::UNKNOWN:
       default:
-        RCLCPP_ERROR(getLogger(), "Unknown joint type: %d", static_cast<int>(parent_joint->type));
+        qCritical("Unknown joint type: %d", static_cast<int>(parent_joint->type));
         break;
     }
   }
   else  // If parent_joint passed in as null, then we're at root of URDF model.
   {
-    RCLCPP_INFO(getLogger(), "No root/virtual joint specified in URDF. Assuming fixed joint.");
+    qInfo("No root/virtual joint specified in URDF. Assuming fixed joint.");
     new_joint_model = std::make_shared<FixedJointModel>("ASSUMED_FIXED_ROOT_JOINT", joint_index, first_variable_index);
   }
 

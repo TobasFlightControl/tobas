@@ -4,6 +4,7 @@
 #include "tobas_rviz_wrapper/rviz.hpp"
 
 #include <OgreMaterialManager.h>
+#include <QDebug>
 #include <QMenuBar>
 #include <QStatusBar>
 #include <rviz_common/display_group.hpp>
@@ -133,7 +134,7 @@ void RvizFrameManager::setOrbitView(
   view_manager->setCurrentViewControllerType("rviz_default_plugins/Orbit");
   const auto view = view_manager->getCurrent();
   if (!view) {
-    RCLCPP_WARN(rawNode()->get_logger(), "Failed to get the current RViz view controller.");
+    qWarning("Failed to get the current RViz view controller.");
     return;
   }
 
@@ -141,7 +142,7 @@ void RvizFrameManager::setOrbitView(
   {
     const auto prop = qobject_cast<rviz_common::properties::FloatProperty*>(view->subProp(name));
     if (!prop) {
-      RCLCPP_WARN_STREAM(rawNode()->get_logger(), "Failed to get RViz view property: " << name);
+      qWarning("Failed to get RViz view property: %s", name);
       return;
     }
     prop->setFloat(value);
@@ -153,7 +154,7 @@ void RvizFrameManager::setOrbitView(
 
   const auto focal_point = qobject_cast<rviz_common::properties::VectorProperty*>(view->subProp("Focal Point"));
   if (!focal_point) {
-    RCLCPP_WARN(rawNode()->get_logger(), "Failed to get RViz view property: Focal Point");
+    qWarning("Failed to get RViz view property: Focal Point");
     return;
   }
   focal_point->setVector(Ogre::Vector3(focal_x, focal_y, focal_z));
@@ -167,7 +168,7 @@ std::vector<rviz_common::Display*> RvizFrameManager::getDisplays(const QString& 
     const auto display = display_group_->getDisplayAt(i);
 
     if (!display) {
-      RCLCPP_WARN_STREAM(rawNode()->get_logger(), "Failed to get display of index " << std::to_string(i));
+      qWarning("Failed to get display of index %d", i);
       continue;
     };
 

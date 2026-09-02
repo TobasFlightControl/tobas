@@ -3,6 +3,8 @@
 
 #include <rclcpp/wait_set.hpp>
 
+#include <QDebug>
+
 #include "tobas_rviz_plugin/synchronized_string_parameter.hpp"
 
 namespace ch = std::chrono;
@@ -51,8 +53,7 @@ std::string SynchronizedStringParameter::loadInitialValue(
   const auto timeout = rclcpp::Duration::from_seconds(d_timeout);
 
   if (!waitForMessage(timeout)) {
-    RCLCPP_ERROR_ONCE(
-      node_->get_logger(),
+    qCritical(
       "Could not find parameter %s and did not receive %s via std_msgs::msg::String subscription "
       "within %f seconds.",
       name_.c_str(),

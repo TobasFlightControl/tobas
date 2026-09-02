@@ -3,23 +3,12 @@
 
 #include "tobas_rviz_plugin/robot_state.hpp"
 
-#include <rclcpp/logger.hpp>
-#include <rclcpp/logging.hpp>
-
-#include "tobas_rviz_plugin/logger.hpp"
+#include <QDebug>
 
 namespace tobas
 {
 namespace rviz
 {
-namespace
-{
-rclcpp::Logger getLogger()
-{
-  return tobas::rviz::getLogger("tobas.robot_state");
-}
-}  // namespace
-
 RobotState::RobotState(const RobotModel& robot_model) : robot_model_(robot_model)
 {
   dirty_link_transforms_ = robot_model_.getRootJoint();
@@ -163,7 +152,7 @@ const Eigen::Isometry3d& RobotState::getJointTransform(const JointModel::ConstSh
 bool RobotState::checkLinkTransforms() const
 {
   if (dirty_link_transforms_) {
-    RCLCPP_WARN(getLogger(), "Returning dirty link transforms");
+    qWarning("Returning dirty link transforms.");
     return false;
   }
   return true;

@@ -3,10 +3,8 @@
 
 #include "tobas_rviz_plugin/conversions.hpp"
 
-#include <rclcpp/logging.hpp>
+#include <QDebug>
 #include <tf2_eigen/tf2_eigen.hpp>
-
-#include "tobas_rviz_plugin/logger.hpp"
 
 namespace tobas
 {
@@ -14,16 +12,10 @@ namespace rviz
 {
 namespace
 {
-rclcpp::Logger getLogger()
-{
-  return tobas::rviz::getLogger("tobas.conversions");
-}
-
 bool jointStateToRobotState(const sensor_msgs::msg::JointState& joint_state, RobotState& state)
 {
   if (joint_state.name.size() != joint_state.position.size()) {
-    RCLCPP_ERROR(
-      getLogger(),
+    qCritical(
       "Different number of names and positions in JointState message: %zu, %zu",
       joint_state.name.size(),
       joint_state.position.size());
@@ -37,14 +29,13 @@ bool jointStateToRobotState(const sensor_msgs::msg::JointState& joint_state, Rob
 bool multiDofJointsToRobotState(const sensor_msgs::msg::MultiDOFJointState& multi_dof_state, RobotState& state)
 {
   if (multi_dof_state.joint_names.size() != multi_dof_state.transforms.size()) {
-    RCLCPP_ERROR(getLogger(), "Different number of names and transforms in MultiDOFJointState message.");
+    qCritical("Different number of names and transforms in MultiDOFJointState message.");
     return false;
   }
 
   bool valid = true;
   if (!multi_dof_state.joint_names.empty() && multi_dof_state.header.frame_id != state.getRobotModel().getModelFrame()) {
-    RCLCPP_WARN(
-      getLogger(),
+    qWarning(
       "The transform for multi-dof joints was specified in frame '%s' "
       "but it was not possible to transform that to frame '%s'.",
       multi_dof_state.header.frame_id.c_str(),
@@ -55,7 +46,7 @@ bool multiDofJointsToRobotState(const sensor_msgs::msg::MultiDOFJointState& mult
   for (size_t i = 0; i < multi_dof_state.joint_names.size(); ++i) {
     const auto& joint_name = multi_dof_state.joint_names[i];
     if (!state.getRobotModel().hasJointModel(joint_name)) {
-      RCLCPP_WARN(getLogger(), "No joint matching multi-dof joint '%s'.", joint_name.c_str());
+      qWarning("No joint matching multi-dof joint '%s'.", joint_name.c_str());
       valid = false;
       continue;
     }
@@ -69,7 +60,7 @@ bool multiDofJointsToRobotState(const sensor_msgs::msg::MultiDOFJointState& mult
 bool robotStateMsgToRobotState(const tobas_visualization_msgs::msg::RobotState& robot_state, RobotState& state)
 {
   if (!robot_state.is_diff && robot_state.joint_state.name.empty() && robot_state.multi_dof_joint_state.joint_names.empty()) {
-    RCLCPP_ERROR(getLogger(), "Found empty JointState message.");
+    qCritical("Found empty JointState message.");
     return false;
   }
 

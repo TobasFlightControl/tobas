@@ -3,6 +3,8 @@
 
 #include "tobas_rviz_plugin/robot_state_display.hpp"
 
+#include <QDebug>
+
 #include "tobas_rviz_plugin/conversions.hpp"
 #include "tobas_rviz_plugin/link_updater.hpp"
 
@@ -402,7 +404,7 @@ void RobotStateDisplay::changedAllLinks()
 void RobotStateDisplay::changedHighlightColor()
 {
   if (!robot_) {
-    RCLCPP_ERROR(node_->get_logger(), "Robot is null.");
+    qCritical("Robot is null.");
     return;
   }
 
@@ -418,7 +420,7 @@ void RobotStateDisplay::changedHighlightColor()
 void RobotStateDisplay::changedUnhighlightColor()
 {
   if (!robot_) {
-    RCLCPP_ERROR(node_->get_logger(), "Robot is null.");
+    qCritical("Robot is null.");
     return;
   }
 
