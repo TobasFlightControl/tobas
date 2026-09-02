@@ -13,7 +13,6 @@
 #define E3 Eigen::Diagonal3d(1, 1, 1)
 
 using namespace std::chrono_literals;
-
 namespace ch = std::chrono;
 
 namespace tobas

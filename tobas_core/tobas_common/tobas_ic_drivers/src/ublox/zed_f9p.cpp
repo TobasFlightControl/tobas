@@ -10,7 +10,6 @@
 #define NOT_RECEIVABLE "Not receivable."
 
 using namespace std::chrono_literals;
-
 namespace ch = std::chrono;
 
 namespace tobas
