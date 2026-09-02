@@ -13,29 +13,16 @@ namespace tobas
 {
 namespace ssh
 {
-namespace
-{
-constexpr char kSetEndpointSrv[] = "ssh/set_endpoint";
-constexpr char kConnectSrv[] = "ssh/connect";
-constexpr char kExecuteSrv[] = "ssh/execute";
-constexpr char kSftpReadSrv[] = "ssh/sftp_read";
-constexpr char kSftpWriteSrv[] = "ssh/sftp_write";
-constexpr char kListSrv[] = "ssh/list";
-
-constexpr char kScpGetAction[] = "ssh/scp_get";
-constexpr char kScpPutAction[] = "ssh/scp_put";
-}  // namespace
-
 SshClient::SshClient(rclcpp::Node::SharedPtr node)
   : node_(node)
-  , set_endpoint_sc_(node, kSetEndpointSrv)
-  , connect_sc_(node, kConnectSrv)
-  , execute_sc_(node, kExecuteSrv)
-  , sftp_read_sc_(node, kSftpReadSrv)
-  , sftp_write_sc_(node, kSftpWriteSrv)
-  , list_sc_(node, kListSrv)
-  , scp_get_ac_(node, kScpGetAction)
-  , scp_put_ac_(node, kScpPutAction)
+  , set_endpoint_sc_(node, "ssh/set_endpoint")
+  , connect_sc_(node, "ssh/connect")
+  , execute_sc_(node, "ssh/execute")
+  , sftp_read_sc_(node, "ssh/sftp_read")
+  , sftp_write_sc_(node, "ssh/sftp_write")
+  , list_sc_(node, "ssh/list")
+  , scp_get_ac_(node, "ssh/scp_get")
+  , scp_put_ac_(node, "ssh/scp_put")
 {
 }
 
