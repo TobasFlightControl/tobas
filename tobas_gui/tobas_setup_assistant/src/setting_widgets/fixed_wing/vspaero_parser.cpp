@@ -28,7 +28,7 @@ bool VSPAEROParser::parse(const std::string& stab_path)
   std::ifstream file(stab_path);
 
   if (!file.is_open()) {
-    std::cerr << "Failed to open \"" << stab_path << "\"." << std::endl;
+    std::cerr << "Failed to open '" << stab_path << "'." << std::endl;
     return false;
   }
 
@@ -83,7 +83,7 @@ bool VSPAEROParser::parse(const std::string& stab_path)
 
   for (const auto& [line_name, found] : line_found) {
     if (!found) {
-      std::cerr << "\"" << line_name << "\" line is not found." << std::endl;
+      std::cerr << "'" << line_name << "' line is not found." << std::endl;
       return false;
     }
   }

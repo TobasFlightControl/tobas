@@ -126,17 +126,17 @@ void GazeboSuspendedLoadPlugin::Configure(
   const auto link_entity = ecm.EntityByComponents(cmp::Link(), cmp::ParentEntity(model_entity), cmp::Name(link_name_));
   base_link_.emplace(link_entity);
   if (!base_link_->Valid(ecm)) {
-    TOBAS_EXIT("Failed to find the specified link \"", link_name_, "\".");
+    TOBAS_EXIT("Failed to find the specified link '", link_name_, "'.");
   }
 
   if (!(W_Pose_B_ = getComponent<cmp::WorldPose>(link_entity, ecm))) {
-    TOBAS_EXIT("Failed to get the world pose of \"", link_name_, "\".");
+    TOBAS_EXIT("Failed to get the world pose of '", link_name_, "'.");
   }
   if (!(W_Vel_WB_ = getComponent<cmp::WorldLinearVelocity>(link_entity, ecm))) {
-    TOBAS_EXIT("Failed to get the world linear velocity of \"", link_name_, "\".");
+    TOBAS_EXIT("Failed to get the world linear velocity of '", link_name_, "'.");
   }
   if (!(W_Gyro_WB_ = getComponent<cmp::WorldAngularVelocity>(link_entity, ecm))) {
-    TOBAS_EXIT("Failed to get the world angular velocity of \"", link_name_, "\".");
+    TOBAS_EXIT("Failed to get the world angular velocity of '", link_name_, "'.");
   }
 
   if (!mass_holder_.initialize(model_entity, ecm)) {

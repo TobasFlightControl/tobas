@@ -49,7 +49,7 @@ bool enumFromToken(const std::string& token, KeyMgmt& dst)
     return true;
   }
   else {
-    std::cerr << "Key management \"" << token << "\" is not supported." << std::endl;
+    std::cerr << "Key management '" << token << "' is not supported." << std::endl;
     return false;
   }
 }

@@ -227,23 +227,23 @@ bool IceRotorModel::initializeGazeboObjects(gz::sim::EntityComponentManager& ecm
   // Get joint.
   const auto joint_entity = findJointWithChildLink(ecm, link_name_);
   if (!joint_entity) {
-    gzerr << "Failed to find the parent joint of rotor link \"" << link_name_ << "\"." << std::endl;
+    gzerr << "Failed to find the parent joint of rotor link '" << link_name_ << "'." << std::endl;
     return false;
   }
   joint_.emplace(*joint_entity);
   if (!joint_->Valid(ecm)) {
-    gzerr << "Failed to find rotor link \"" << link_name_ << "\"." << std::endl;
+    gzerr << "Failed to find rotor link '" << link_name_ << "'." << std::endl;
     return false;
   }
 
   // Check joint type.
   const auto joint_type = joint_->Type(ecm);
   if (!joint_type) {
-    gzerr << "Failed to get the joint type of \"" << link_name_ << "\"." << std::endl;
+    gzerr << "Failed to get the joint type of '" << link_name_ << "'." << std::endl;
     return false;
   }
   if (joint_type != sdf::JointType::CONTINUOUS && joint_type != sdf::JointType::REVOLUTE) {
-    gzerr << "Rotor link \"" << link_name_ << "\" must have a rotating joint." << std::endl;
+    gzerr << "Rotor link '" << link_name_ << "' must have a rotating joint." << std::endl;
     return false;
   }
 
@@ -251,20 +251,20 @@ bool IceRotorModel::initializeGazeboObjects(gz::sim::EntityComponentManager& ecm
   const auto link_entity = model.LinkByName(ecm, link_name_);
   link_.emplace(link_entity);
   if (!link_->Valid(ecm)) {
-    gzerr << "Failed to find the child link \"" << link_name_ << "\"." << std::endl;
+    gzerr << "Failed to find the child link '" << link_name_ << "'." << std::endl;
     return false;
   }
 
   // Get parent link.
   const auto parent_link_name = joint_->ParentLinkName(ecm);
   if (!parent_link_name) {
-    gzerr << "Failed to get the parent link name of \"" << link_name_ << "\"." << std::endl;
+    gzerr << "Failed to get the parent link name of '" << link_name_ << "'." << std::endl;
     return false;
   }
   const auto parent_link_entity = model.LinkByName(ecm, *parent_link_name);
   parent_link_.emplace(parent_link_entity);
   if (!parent_link_->Valid(ecm)) {
-    gzerr << "Failed to find the parent link \"" << *parent_link_name << "\"." << std::endl;
+    gzerr << "Failed to find the parent link '" << *parent_link_name << "'." << std::endl;
     return false;
   }
 

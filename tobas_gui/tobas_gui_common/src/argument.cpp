@@ -45,7 +45,7 @@ bool NonRosArgumentParser::setPlatformXcb()
 
   constexpr char kQtQpaPlatform[] = "QT_QPA_PLATFORM";
   if (env.contains(kQtQpaPlatform)) {
-    std::cerr << "Cannot set display platform because \"" << kQtQpaPlatform << "\" is set." << std::endl;
+    std::cerr << "Cannot set display platform because '" << kQtQpaPlatform << "' is set." << std::endl;
     return false;
   }
 

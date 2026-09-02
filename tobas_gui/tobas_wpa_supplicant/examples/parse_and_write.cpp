@@ -43,6 +43,6 @@ int main()
     return EXIT_FAILURE;
   }
 
-  std::cout << "Configuration file is saved as \"" << output_path << "\"." << std::endl;
+  std::cout << "Configuration file is saved as '" << output_path << "'." << std::endl;
   return EXIT_SUCCESS;
 }

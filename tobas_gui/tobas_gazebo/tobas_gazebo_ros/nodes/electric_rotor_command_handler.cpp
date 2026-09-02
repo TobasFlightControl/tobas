@@ -91,7 +91,7 @@ void ElectricRotorCommandHandlerNode::targetSpeedsCb(const tobas_msgs::msg::Roto
   for (const auto& speed : tar_speeds->speeds) {
     // Check link name.
     if (!throttle_pubs_.contains(speed.link_name)) {
-      TOBAS_ERROR("Electric rotor \"" + speed.link_name + "\" does not exist.");
+      TOBAS_ERROR("Electric rotor '" + speed.link_name + "' does not exist.");
       continue;
     }
 

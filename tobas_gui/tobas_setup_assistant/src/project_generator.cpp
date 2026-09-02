@@ -800,7 +800,7 @@ void ProjectGenerator::resolveModifiedUrdfMeshFilePath(tinyxml2::XMLElement* ele
 
   const auto filename = elem->Attribute("filename");
   if (!filename) {
-    qWarning() << "Mesh element does not have attribute: \"filename\"";
+    qWarning() << "Mesh element does not have attribute: 'filename'";
     return;
   }
 
@@ -852,7 +852,7 @@ void ProjectGenerator::replaceOriginalUadfMeshFilePath(tinyxml2::XMLElement* ele
 {
   const auto filename = elem->Attribute("filename");
   if (!filename) {
-    qWarning() << "Mesh element does not have attribute: \"filename\"";
+    qWarning() << "Mesh element does not have attribute: 'filename'";
     return;
   }
 
@@ -878,7 +878,7 @@ void ProjectGenerator::removePropellerJointLimits(tinyxml2::XMLElement* robot)
     if (std::strcmp(child->Name(), "joint") == 0) {
       const auto jnt_name = child->Attribute("name");
       if (!jnt_name) {
-        qWarning() << "Joint element does not have attribute: \"name\"";
+        qWarning() << "Joint element does not have attribute: 'name'";
         continue;
       }
       if (prop_jnt_names.contains(jnt_name)) {

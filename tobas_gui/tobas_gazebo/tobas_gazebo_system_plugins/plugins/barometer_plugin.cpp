@@ -82,7 +82,7 @@ void GazeboBarometerPlugin::Configure(
 
   const auto link = ecm.EntityByComponents(cmp::Link(), cmp::ParentEntity(model), cmp::Name(link_name_));
   if (link == gz::sim::kNullEntity) {
-    TOBAS_EXIT("Failed to find specified link \"", link_name_, "\".");
+    TOBAS_EXIT("Failed to find specified link '", link_name_, "'.");
   }
 
   pose_W_ = getComponent<cmp::WorldPose>(link, ecm);

@@ -22,10 +22,10 @@ JointTestWidget::JointTestWidget(const rqt::RosQtBridge& bridge, const kdl::Tree
   constexpr int kButtonHeight = 40;
 
   const auto instruction = new qt::DescriptionWidget(
-    "1. Click \"Start\" to start joint test.\n\n"
+    "1. Click 'Start' to start joint test.\n\n"
     "2. For each channel, confirm that the position, velocity, or effort is correctly following the command.\n\n"
     "3. If any joint does not behave as expected, please review the UADF or Setup Assistant settings.\n\n"
-    "4. Click \"Stop\" to stop joint test.\n\n",
+    "4. Click 'Stop' to stop joint test.\n\n",
     cmn::kBodyPSize);
 
   start_button_ = new QPushButton("Start");

@@ -241,7 +241,7 @@ bool ParamGetterWidget_DoubleTable::isValidData(const Eigen::MatrixXd& src)
   for (int col = 0; col < num_entry_; ++col) {
     const auto column = src.col(col).array().eval();
     if ((column < minimum_.at(col)).any() || (maximum_.at(col) < column).any()) {
-      qt::qErrorBox(this, "Some values of field \"" + labels_.at(col) + "\" are out of limits.");
+      qt::qErrorBox(this, "Some values of field '" + labels_.at(col) + "' are out of limits.");
       return false;
     }
   }

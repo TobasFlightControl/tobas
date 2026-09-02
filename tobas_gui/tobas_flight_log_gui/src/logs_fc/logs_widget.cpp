@@ -224,7 +224,7 @@ void FlightLogsWidgetFC::onDownloadButtonClicked(const QString& log_name)
 
 void FlightLogsWidgetFC::onDeleteButtonClicked(const QString& log_name)
 {
-  if (!qt::yesOrNo(this, "Do you want to delete flight log \"" + log_name + "\"?", qt::WARN)) {
+  if (!qt::yesOrNo(this, "Do you want to delete flight log '" + log_name + "'?", qt::WARN)) {
     return;
   }
 

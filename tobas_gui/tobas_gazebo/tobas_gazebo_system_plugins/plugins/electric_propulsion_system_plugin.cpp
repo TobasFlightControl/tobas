@@ -173,11 +173,11 @@ void GazeboElectricPropulsionSystemPlugin::Configure(
   // Get joint.
   const auto joint_entity = findJointWithChildLink(ecm, link_name_);
   if (!joint_entity) {
-    TOBAS_EXIT("Failed to find the parent joint of rotor link \"", link_name_, "\".");
+    TOBAS_EXIT("Failed to find the parent joint of rotor link '", link_name_, "'.");
   }
   joint_.emplace(*joint_entity);
   if (!joint_->Valid(ecm)) {
-    TOBAS_EXIT("Failed to find rotor link \"", link_name_, "\".");
+    TOBAS_EXIT("Failed to find rotor link '", link_name_, "'.");
   }
 
   // Get joint name.
@@ -186,14 +186,14 @@ void GazeboElectricPropulsionSystemPlugin::Configure(
   // Check joint type.
   const auto joint_type = *joint_->Type(ecm);
   if (joint_type != sdf::JointType::CONTINUOUS && joint_type != sdf::JointType::REVOLUTE) {
-    TOBAS_EXIT("Joint \"", joint_name, "\" is not a rotating joint.");
+    TOBAS_EXIT("Joint '", joint_name, "' is not a rotating joint.");
   }
 
   // Get child link.
   const auto link_entity = model.LinkByName(ecm, link_name_);
   link_.emplace(link_entity);
   if (!link_->Valid(ecm)) {
-    TOBAS_EXIT("Failed to find the child link \"", link_name_, "\".");
+    TOBAS_EXIT("Failed to find the child link '", link_name_, "'.");
   }
 
   // Get parent link.
@@ -201,7 +201,7 @@ void GazeboElectricPropulsionSystemPlugin::Configure(
   const auto parent_link_entity = model.LinkByName(ecm, parent_link_name);
   parent_link_.emplace(parent_link_entity);
   if (!parent_link_->Valid(ecm)) {
-    TOBAS_EXIT("Failed to find the parent link \"", parent_link_name, "\".");
+    TOBAS_EXIT("Failed to find the parent link '", parent_link_name, "'.");
   }
 
   // Create necessary components.
@@ -244,7 +244,7 @@ void GazeboElectricPropulsionSystemPlugin::PreUpdate(
 
   // Check aliasing.
   if (std::abs(velocitySim() * dt) > M_PI) {
-    TOBAS_WARN_THROTTLE(kWarnPeriod, "Aliasing on motor \"", link_name_, "\" might occur. Lower simulation time step.");
+    TOBAS_WARN_THROTTLE(kWarnPeriod, "Aliasing on motor '", link_name_, "' might occur. Lower simulation time step.");
   }
 
   // Update simulation state.
@@ -335,9 +335,9 @@ void GazeboElectricPropulsionSystemPlugin::applyWrenchAndPublishState(
   // For safety, treat the ESC as burned out if overcurrent flows even momentarily.
   if (current > param_.max_current) {
     TOBAS_ERROR(
-      "The ESC of rotor \"",
+      "The ESC of rotor '",
       link_name_,
-      "\" is critically damaged due to an overcurrent of ",
+      "' is critically damaged due to an overcurrent of ",
       current,
       " A, which exceeded its maximum current capacity of ",
       param_.max_current,
@@ -475,10 +475,10 @@ void GazeboElectricPropulsionSystemPlugin::breakCb(
   if (is_intact_) {
     is_intact_ = false;
     throt_ = 0.0;
-    res->message = "Rotor \"" + link_name_ + "\" has been broken.";
+    res->message = "Rotor '" + link_name_ + "' has been broken.";
   }
   else {
-    res->message = "Rotor \"" + link_name_ + "\" is already broken.";
+    res->message = "Rotor '" + link_name_ + "' is already broken.";
   }
 
   res->success = true;

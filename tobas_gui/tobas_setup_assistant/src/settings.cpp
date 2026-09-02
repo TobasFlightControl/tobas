@@ -117,7 +117,7 @@ bool SettingsWidget::isValid()
       for (const auto& elem : uadf_.thrusts) {
         const auto joint_name = QString::fromStdString(elem.first);
         if (!hardware->dshot()->contains(joint_name)) {
-          qt::qWarnBox(this, "Please specify a DShot channel for electric rotor \"" + joint_name + "\".");
+          qt::qWarnBox(this, "Please specify a DShot channel for electric rotor '" + joint_name + "'.");
           setCurrentPage(hardware);
           return false;
         }
@@ -158,7 +158,7 @@ bool SettingsWidget::load(const YAML::Node& node)
       page->load(node[page->name()]);
     }
     catch (const std::exception& e) {
-      qt::qErrorBox(this, "Failed to load settings of \"" + QString(page->name()) + "\":\n\n" + e.what());
+      qt::qErrorBox(this, "Failed to load settings of '" + QString(page->name()) + "':\n\n" + e.what());
       success = false;
     }
   }

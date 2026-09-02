@@ -52,7 +52,7 @@ void JointCommandsPublisherWidget::updateInternalDataStructures()
         const auto min_pos = joint_parser_.lowerLimit(jnt_name);
         const auto max_pos = joint_parser_.upperLimit(jnt_name);
         if (std::isinf(min_pos) || std::isinf(max_pos)) {
-          qt::qErrorBox(this, "The position limit of joint \"" + QString::fromStdString(jnt_name) + "\" is invalid.");
+          qt::qErrorBox(this, "The position limit of joint '" + QString::fromStdString(jnt_name) + "' is invalid.");
           continue;
         }
 
@@ -92,7 +92,7 @@ void JointCommandsPublisherWidget::updateInternalDataStructures()
         break;
       }
       case JointCommandInterface::kNone: {
-        qt::qErrorBox(this, "The command interface of joint \"" + QString::fromStdString(jnt_name) + "\" is not set.");
+        qt::qErrorBox(this, "The command interface of joint '" + QString::fromStdString(jnt_name) + "' is not set.");
         continue;
       }
       default: {

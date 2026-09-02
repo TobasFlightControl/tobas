@@ -202,7 +202,7 @@ bool Network::parseAddressLine(const std::string& text)
 {
   const auto slash_pos = text.find('/');
   if (slash_pos == std::string_view::npos) {
-    std::cerr << "Failed to find \"/\" in address." << std::endl;
+    std::cerr << "Failed to find '/' in address." << std::endl;
     return false;
   }
 

@@ -83,7 +83,7 @@ void SaveProjectDialog::onProjectPathChanged()
 
   // Must be under the src directory.
   if (!dir.contains("/src/") && !dir.endsWith("/src")) {
-    warn_text_->setText("The Tobas project must be located under a \"src\" directory.");
+    warn_text_->setText("The Tobas project must be located under a 'src' directory.");
     save_button_->setEnabled(false);
     return;
   }

@@ -89,7 +89,7 @@ void GazeboJointStateBroadcasterPlugin::Configure(
     const auto joint_entity = model.JointByName(ecm, jnt_name);
     const auto joint = std::make_shared<gz::sim::Joint>(joint_entity);
     if (!joint->Valid(ecm)) {
-      TOBAS_EXIT("Failed to find joint \"", jnt_name, "\".");
+      TOBAS_EXIT("Failed to find joint '", jnt_name, "'.");
     }
     TOBAS_CHECK(jnt_pos_[jnt_name] = getComponent<cmp::JointPosition>(joint_entity, ecm));
     TOBAS_CHECK(jnt_vel_[jnt_name] = getComponent<cmp::JointVelocity>(joint_entity, ecm));

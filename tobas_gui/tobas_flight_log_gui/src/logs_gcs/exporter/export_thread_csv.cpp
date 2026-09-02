@@ -166,7 +166,7 @@ void ExportThreadCsv::run()
     }
     catch (const std::exception& e) {
       csv_file.close();
-      Q_EMIT finished(false, "Failed to deserialize \"" + QString::fromStdString(topic) + "\".");
+      Q_EMIT finished(false, "Failed to deserialize '" + QString::fromStdString(topic) + "'.");
       return;
     }
   }

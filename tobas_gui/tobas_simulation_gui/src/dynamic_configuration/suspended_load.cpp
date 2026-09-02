@@ -130,7 +130,7 @@ void SuspendedLoadWidget::onAttachRequested()
 
   const auto res = attach_sc_->sendRequestAndWait(req);
   if (!res) {
-    qt::qErrorBox(this, "Failed to call \"" + QString(gazebo::kAttachSuspenedLoadSrv) + "\" service.");
+    qt::qErrorBox(this, "Failed to call '" + QString(gazebo::kAttachSuspenedLoadSrv) + "' service.");
     reset();
     return;
   }
@@ -148,7 +148,7 @@ void SuspendedLoadWidget::onDetachRequested()
 
   const auto res = detach_sc_->sendRequestAndWait(req);
   if (!res) {
-    qt::qErrorBox(this, "Failed to call \"" + QString(gazebo::kDetachSuspenedLoadSrv) + "\" service.");
+    qt::qErrorBox(this, "Failed to call '" + QString(gazebo::kDetachSuspenedLoadSrv) + "' service.");
     reset();
     return;
   }

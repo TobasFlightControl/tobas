@@ -38,7 +38,7 @@ bool waitForMessage(
 
   // Start subscription.
   if (!node.Subscribe(_topic, cb)) {
-    gzerr << "Failed to subscribe \"" << _topic << "\"." << std::endl;
+    gzerr << "Failed to subscribe '" << _topic << "'." << std::endl;
     return false;
   }
 

@@ -276,7 +276,7 @@ void FlightLogsWidgetGCS::onDeleteButtonClicked(const QString& log_name)
 
   const auto log_path = ros2::expandUser(kRosbagDirHome) / log_name.toStdString();
 
-  if (!qt::yesOrNo(this, "Do you want to delete flight log \"" + log_name + "\"?", qt::WARN)) {
+  if (!qt::yesOrNo(this, "Do you want to delete flight log '" + log_name + "'?", qt::WARN)) {
     return;
   }
 

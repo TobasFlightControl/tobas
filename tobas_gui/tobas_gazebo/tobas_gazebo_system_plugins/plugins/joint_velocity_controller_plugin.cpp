@@ -86,7 +86,7 @@ void GazeboJointVelocityControllerPlugin::Configure(
   const auto joint_entity = model.JointByName(ecm, joint_name_);
   joint_.emplace(joint_entity);
   if (!joint_->Valid(ecm)) {
-    TOBAS_EXIT("Failed to find joint \"", joint_name_, "\".");
+    TOBAS_EXIT("Failed to find joint '", joint_name_, "'.");
   }
 
   // Get joint velocity.

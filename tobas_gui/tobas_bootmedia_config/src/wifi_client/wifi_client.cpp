@@ -264,7 +264,7 @@ void WifiClientWidget::onRemoveButtonClicked()
   }
 
   // Confirm before deleting the selected network.
-  if (!qt::yesOrNo(this, "Are you sure you want to remove \"" + getSsid(row) + "\"?", qt::WARN)) {
+  if (!qt::yesOrNo(this, "Are you sure you want to remove '" + getSsid(row) + "'?", qt::WARN)) {
     return;
   }
 

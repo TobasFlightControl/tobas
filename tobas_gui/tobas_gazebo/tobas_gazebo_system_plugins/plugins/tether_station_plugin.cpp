@@ -108,7 +108,7 @@ void GazeboTetherStationPlugin::Configure(
   const auto link_entity = ecm.EntityByComponents(cmp::Link(), cmp::ParentEntity(model_entity), cmp::Name(link_name_));
   link_.emplace(link_entity);
   if (!link_->Valid(ecm)) {
-    TOBAS_EXIT("Failed to find the specified link \"", link_name_, "\".");
+    TOBAS_EXIT("Failed to find the specified link '", link_name_, "'.");
   }
 
   TOBAS_CHECK(pose_W_ = getComponent<cmp::WorldPose>(link_entity, ecm));

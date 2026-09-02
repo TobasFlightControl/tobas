@@ -26,7 +26,7 @@ void ComboBox::removeText(const QString& text)
 {
   const auto index = findText(text);
   if (index < 0) {
-    throw std::runtime_error("\"" + text.toStdString() + "\" does not exist in the combo box choices.");
+    throw std::runtime_error("'" + text.toStdString() + "' does not exist in the combo box choices.");
   }
   removeItem(index);
 }
@@ -43,7 +43,7 @@ void ComboBox::setCurrentText(const QString& text)
 {
   const auto index = findText(text);
   if (index < 0) {
-    throw std::runtime_error("\"" + text.toStdString() + "\" does not exist in the combo box choices.");
+    throw std::runtime_error("'" + text.toStdString() + "' does not exist in the combo box choices.");
   }
   super::setCurrentIndex(index);
 }

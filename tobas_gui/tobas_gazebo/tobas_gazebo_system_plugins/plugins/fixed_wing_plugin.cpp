@@ -151,7 +151,7 @@ void GazeboFixedWingPlugin::Configure(
   const auto base_link_entity = model.LinkByName(ecm, base_link_name_);
   base_link_.emplace(base_link_entity);
   if (!base_link_->Valid(ecm)) {
-    TOBAS_EXIT("Failed to find base link \"", base_link_name_, "\".");
+    TOBAS_EXIT("Failed to find base link '", base_link_name_, "'.");
   }
 
   // Create necessary components.
@@ -164,36 +164,36 @@ void GazeboFixedWingPlugin::Configure(
     // Get control surface joint.
     const auto joint_entity = findJointWithChildLink(ecm, link_name);
     if (!joint_entity) {
-      TOBAS_EXIT("Failed to find the parent joint of control surface link \"", link_name, "\".");
+      TOBAS_EXIT("Failed to find the parent joint of control surface link '", link_name, "'.");
     }
     const auto joint = std::make_shared<gz::sim::Joint>(*joint_entity);
     if (!joint->Valid(ecm)) {
-      TOBAS_EXIT("Failed to find control surface \"", link_name, "\".");
+      TOBAS_EXIT("Failed to find control surface '", link_name, "'.");
     }
 
     // Check joint type.
     const auto joint_type = joint->Type(ecm);
     if (!joint_type) {
-      TOBAS_EXIT("Failed to get the joint type of \"", link_name, "\".");
+      TOBAS_EXIT("Failed to get the joint type of '", link_name, "'.");
     }
     if (*joint_type != sdf::JointType::REVOLUTE) {
-      TOBAS_EXIT("The type of control surface joint \"", link_name, "\" must be revolute.");
+      TOBAS_EXIT("The type of control surface joint '", link_name, "' must be revolute.");
     }
 
     // Check joint limits.
     const auto joint_axes = joint->Axis(ecm);
     if (!joint_axes || joint_axes->size() == 0) {
-      TOBAS_EXIT("\"", link_name, "\" has no joint axis.");
+      TOBAS_EXIT("'", link_name, "' has no joint axis.");
     }
     const auto& joint_axis = joint_axes->front();
     if (joint_axis.Lower() >= joint_axis.Upper()) {
-      TOBAS_EXIT("The position limit of \"", link_name, "\" is invalid.");
+      TOBAS_EXIT("The position limit of '", link_name, "' is invalid.");
     }
     if (joint_axis.MaxVelocity() <= 0.0) {
-      TOBAS_EXIT("The velocity limit of \"", link_name, "\" must be positive.");
+      TOBAS_EXIT("The velocity limit of '", link_name, "' must be positive.");
     }
     if (joint_axis.Effort() <= 0.0) {
-      TOBAS_EXIT("The effort limit of \"", link_name, "\" must be positive.");
+      TOBAS_EXIT("The effort limit of '", link_name, "' must be positive.");
     }
 
     // Add joint model.

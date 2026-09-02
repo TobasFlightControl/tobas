@@ -110,7 +110,7 @@ void GazeboIcePropulsionSystemPlugin::Configure(
   // Initialize rotor models.
   auto rotor_elem = sdf->FindElement(kRotorKey);
   if (!rotor_elem) {
-    TOBAS_EXIT("Please specify \"", kRotorKey, "\" elements.");
+    TOBAS_EXIT("Please specify '", kRotorKey, "' elements.");
   }
   while (rotor_elem) {
     IceRotorModel rotor;
@@ -120,7 +120,7 @@ void GazeboIcePropulsionSystemPlugin::Configure(
     }
 
     if (rotors_.contains(rotor.getLinkName())) {
-      TOBAS_EXIT("Rotor link name \"", rotor.getLinkName(), "\" is duplicated.");
+      TOBAS_EXIT("Rotor link name '", rotor.getLinkName(), "' is duplicated.");
     }
 
     rotors_[rotor.getLinkName()] = rotor;
@@ -130,7 +130,7 @@ void GazeboIcePropulsionSystemPlugin::Configure(
   // Initialize engine model.
   const auto engine_elem = sdf->FindElement(kEngineKey);
   if (!engine_elem) {
-    TOBAS_EXIT("Please specify \"", kEngineKey, "\" element.");
+    TOBAS_EXIT("Please specify '", kEngineKey, "' element.");
   }
   if (!engine_.initialize(engine_elem)) {
     TOBAS_EXIT("Failed to initialize engine model.");
@@ -252,11 +252,11 @@ void GazeboIcePropulsionSystemPlugin::iceCommandCb(
   // Update propeller pitch angle.
   for (const auto& elem : ice_cmd->pitch_angles) {
     if (!rotors_.contains(elem.link_name)) {
-      TOBAS_WARN("Rotor link \"", elem.link_name, "\" does not exist.");
+      TOBAS_WARN("Rotor link '", elem.link_name, "' does not exist.");
       continue;
     }
     if (!std::isfinite(elem.angle)) {
-      TOBAS_WARN("The commanded pitch angle of propeller \"", elem.link_name, "\" is not finite: ", elem.angle);
+      TOBAS_WARN("The commanded pitch angle of propeller '", elem.link_name, "' is not finite: ", elem.angle);
       rotors_.at(elem.link_name).setTargetPitchAngle(0.0);
       continue;
     }

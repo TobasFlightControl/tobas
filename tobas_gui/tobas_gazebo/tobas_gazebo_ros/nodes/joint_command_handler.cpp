@@ -90,18 +90,18 @@ void JointCommandHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCo
   for (const auto& tbs_cmd : positions->commands) {
     const auto& jnt_name = tbs_cmd.name;
     if (!ctrl_map_.contains(jnt_name)) {
-      TOBAS_ERROR("Controller for joint \"", jnt_name, "\" is not found.");
+      TOBAS_ERROR("Controller for joint '", jnt_name, "' is not found.");
       continue;
     }
 
     const auto& cmd_iface = ctrl_map_[jnt_name].first;
     if (cmd_iface != JointCommandInterface::kPosition) {
       TOBAS_ERROR(
-        "The command interface of joint \"",
+        "The command interface of joint '",
         jnt_name,
-        "\" is not position. So received position command for joint \"",
+        "' is not position. So received position command for joint '",
         jnt_name,
-        "\" is ignored.");
+        "' is ignored.");
       continue;
     }
 
@@ -115,18 +115,18 @@ void JointCommandHandlerNode::jointVelocitiesCmdCb(const tobas_msgs::msg::JointC
     const auto& jnt_name = tbs_cmd.name;
 
     if (!ctrl_map_.contains(jnt_name)) {
-      TOBAS_ERROR("Controller for joint \"", jnt_name, "\" is not found.");
+      TOBAS_ERROR("Controller for joint '", jnt_name, "' is not found.");
       continue;
     }
 
     const auto& cmd_iface = ctrl_map_[jnt_name].first;
     if (cmd_iface != JointCommandInterface::kVelocity) {
       TOBAS_ERROR(
-        "The command interface of joint \"",
+        "The command interface of joint '",
         jnt_name,
-        "\" is not velocity. So received velocity command for joint \"",
+        "' is not velocity. So received velocity command for joint '",
         jnt_name,
-        "\" is ignored.");
+        "' is ignored.");
       continue;
     }
 
@@ -139,18 +139,18 @@ void JointCommandHandlerNode::jointEffortsCmdCb(const tobas_msgs::msg::JointComm
   for (const auto& tbs_cmd : efforts->commands) {
     const auto& jnt_name = tbs_cmd.name;
     if (!ctrl_map_.contains(jnt_name)) {
-      TOBAS_ERROR("Controller for joint \"", jnt_name, "\" is not found.");
+      TOBAS_ERROR("Controller for joint '", jnt_name, "' is not found.");
       continue;
     }
 
     const auto& cmd_iface = ctrl_map_[jnt_name].first;
     if (cmd_iface != JointCommandInterface::kEffort) {
       TOBAS_ERROR(
-        "The command interface of joint \"",
+        "The command interface of joint '",
         jnt_name,
-        "\" is not effort. So received effort command for joint \"",
+        "' is not effort. So received effort command for joint '",
         jnt_name,
-        "\" is ignored.");
+        "' is ignored.");
       continue;
     }
 

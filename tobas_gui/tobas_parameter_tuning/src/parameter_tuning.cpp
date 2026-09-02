@@ -142,7 +142,7 @@ void ParameterTuningWidget::onSaveButtonClicked()
   qt::qInfoBox(
     this,
     "Dynamic parameters have been saved to the local project. "
-    "Please click \"Write\" button again to flash them to the FC.");
+    "Please click 'Write' button again to flash them to the FC.");
 }
 
 void ParameterTuningWidget::onDefaultButtonClicked()

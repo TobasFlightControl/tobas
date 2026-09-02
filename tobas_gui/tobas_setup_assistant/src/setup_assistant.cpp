@@ -121,7 +121,7 @@ bool SetupAssistantWidget::resolveMeshPaths(const QString& config_pkg_path, tiny
   if (std::strcmp(elem->Name(), "mesh") == 0) {
     const auto filename = elem->Attribute("filename");
     if (!filename) {
-      qt::qErrorBox(settings_, "Mesh element does not have attribute: \"filename\"");
+      qt::qErrorBox(settings_, "Mesh element does not have attribute: 'filename'");
       return false;
     }
 
@@ -226,16 +226,16 @@ void SetupAssistantWidget::onNewButtonClicked()
     if (!build_success) {
       const auto error_msg = QString::fromStdString(colcon_.errorMessage());
       if (error_msg.size() < cmn::kSaveLogTextSizeThresh) {
-        qt::qErrorBox(this, "Failed to build \"" + pkg_name_qt + "\":\n\n" + error_msg);
+        qt::qErrorBox(this, "Failed to build '" + pkg_name_qt + "':\n\n" + error_msg);
       }
       else {
         const auto log_path =
           qt::writeTimestampedFile(error_msg + '\n', qt::expandUser(kGuiLogDir), "", "builderr_description_package");
         if (log_path) {
-          qt::qErrorBox(this, "Failed to build \"" + pkg_name_qt + "\". The output has been saved to:\n" + *log_path);
+          qt::qErrorBox(this, "Failed to build '" + pkg_name_qt + "'. The output has been saved to:\n" + *log_path);
         }
         else {
-          qt::qErrorBox(this, "Failed to build \"" + pkg_name_qt + "\", and also failed to save the error message.");
+          qt::qErrorBox(this, "Failed to build '" + pkg_name_qt + "', and also failed to save the error message.");
         }
       }
       return;

@@ -53,14 +53,14 @@ RcInputPublisher::RcInputPublisher(const rclcpp::NodeOptions& _options)
 void RcInputPublisher::initialize()
 {
   if (!gamepad_.initialize(device_path_)) {
-    TOBAS_WARN("Failed to initialize gamepad RC input with device \"", device_path_, "\". Retrying...");
+    TOBAS_WARN("Failed to initialize gamepad RC input with device '", device_path_, "'. Retrying...");
     return;
   }
 
   initialize_timer_->cancel();
   timer_ = createWallTimer(10ms, &self::timerCallback, this);
 
-  TOBAS_INFO("Initialized gamepad RC input with device \"", device_path_, "\".");
+  TOBAS_INFO("Initialized gamepad RC input with device '", device_path_, "'.");
 }
 
 void RcInputPublisher::timerCallback()

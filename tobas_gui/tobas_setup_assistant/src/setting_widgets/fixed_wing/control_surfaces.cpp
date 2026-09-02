@@ -122,7 +122,7 @@ void ControlSurfacesWidget::load(const YAML::Node& node)
 
     const auto row = find(link_name);
     if (row < 0) {
-      throw std::runtime_error("Failed to find CS link \"" + link_name.toStdString() + "\".");
+      throw std::runtime_error("Failed to find CS link '" + link_name.toStdString() + "'.");
     }
 
     linkName(row, link_name);

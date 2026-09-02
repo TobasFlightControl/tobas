@@ -62,7 +62,7 @@ void RotorStatesPublisherNode::rotorStateCb(const tobas_msgs::msg::RotorState::C
   const auto& link_name = rotor_state->link_name;
 
   if (rotor_states_.contains(link_name)) {
-    TOBAS_WARN("Rotor \"", link_name, "\" is already updated.");
+    TOBAS_WARN("Rotor '", link_name, "' is already updated.");
     return;
   }
 

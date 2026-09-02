@@ -33,13 +33,13 @@ bool Colcon::build(const fs::path& pkg_path, const fs::path& ws_path)
   // Estimate the workspace path.
   const auto exec_path = ros2::estimateWorkspaceOf(pkg_path);
   if (!exec_path) {
-    error_msg_ = "Failed to estimate the workspace path of \"" + pkg_path.string() + "\": " + exec_path.error();
+    error_msg_ = "Failed to estimate the workspace path of '" + pkg_path.string() + "': " + exec_path.error();
     return false;
   }
 
   // Navigate to the estimated workspace.
   if (chdir(exec_path->c_str()) != 0) {
-    error_msg_ = "Failed to navigate to \"" + exec_path->string() + "\": " + linux::strError();
+    error_msg_ = "Failed to navigate to '" + exec_path->string() + "': " + linux::strError();
     return false;
   }
 
@@ -78,9 +78,9 @@ bool Colcon::build(const fs::path& pkg_path, const fs::path& ws_path)
   }
 
   // Build the Tobas project packages.
-  std::cout << "Executing \"" << build_cmd << "\" on " << *exec_path << "." << std::endl;
+  std::cout << "Executing '" << build_cmd << "' on " << *exec_path << "." << std::endl;
   if (!cmd_exec_.execute(build_cmd)) {
-    error_msg_ = "Failed to build \"" + *pkg_name + "\":\n" + cmd_exec_.getOutput();
+    error_msg_ = "Failed to build '" + *pkg_name + "':\n" + cmd_exec_.getOutput();
     return false;
   }
 
@@ -91,13 +91,13 @@ bool Colcon::cleanWorkspace(const fs::path& ws_path)
 {
   // Navigate to the colcon workspace.
   if (chdir(ws_path.c_str()) != 0) {
-    error_msg_ = "Failed to navigate to \"" + ws_path.string() + "\": " + linux::strError();
+    error_msg_ = "Failed to navigate to '" + ws_path.string() + "': " + linux::strError();
     return false;
   }
 
   // Clean the workspace.
   if (!cmd_exec_.execute("colcon clean workspace -y")) {
-    error_msg_ = "Failed to clean \"" + ws_path.string() + "\":\n" + cmd_exec_.getOutput();
+    error_msg_ = "Failed to clean '" + ws_path.string() + "':\n" + cmd_exec_.getOutput();
     return false;
   }
 

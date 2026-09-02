@@ -73,7 +73,7 @@ bool PwmWidget::isValid()
       continue;
     }
     if (target_name_set.contains(target_name)) {
-      qt::qWarnBox(this, "PWM target \"" + target_name + "\" is duplicated.");
+      qt::qWarnBox(this, "PWM target '" + target_name + "' is duplicated.");
       return false;
     }
     target_name_set.insert(target_name);
@@ -278,7 +278,7 @@ void PwmWidget::removeLastChannel()
   removeRow(row);
 
   if (!target_name.isEmpty()) {
-    qt::qWarnBox(this, "PWM configuration for \"" + target_name + "\" has been removed.");
+    qt::qWarnBox(this, "PWM configuration for '" + target_name + "' has been removed.");
   }
 }
 

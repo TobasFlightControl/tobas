@@ -23,7 +23,7 @@ LargeVehicleMagCalibWidget::LargeVehicleMagCalibWidget(const rqt::RosQtBridge& b
     "1. Make sure the GNSS is fixed. This is required to obtain the reference geomagnetic field.\n\n"
     "2. Place the vehicle on a level surface.\n\n"
     "3. Point the front of the flight controller as precisely as possible toward true north.\n\n"
-    "4. Click \"Start\". Calibration will complete in a few seconds.\n\n"
+    "4. Click 'Start'. Calibration will complete in a few seconds.\n\n"
     "5. Check that the heading indicator and the heading of the arrow on the map are stable "
     "and match the orientation of the vehicle when turning it e.g. to the cardinal directions.\n\n",
     cmn::kBodyPSize);

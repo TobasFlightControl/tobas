@@ -138,7 +138,7 @@ void PropulsionUnitsWidget::onCopyToAllButtonClicked(const QString& link_name)
     dst_widget->copyFrom(src_widget);
   }
 
-  qt::qInfoBox(this, "The settings of \"" + link_name + "\" have been copied to all the other propulsion units.");
+  qt::qInfoBox(this, "The settings of '" + link_name + "' have been copied to all the other propulsion units.");
 }
 }  // namespace electric
 }  // namespace propulsion

@@ -82,7 +82,7 @@ void IpAddressWidget::onWriteButtonClicked()
     const auto network = getWidget(i)->dump();
     const auto path = networkFilePath(network.name);
     if (!network.save(path)) {
-      qt::qErrorBox(this, "Failed to write the settings of \"" + QString::fromStdString(network.name) + "\".");
+      qt::qErrorBox(this, "Failed to write the settings of '" + QString::fromStdString(network.name) + "'.");
       return;
     }
   }
