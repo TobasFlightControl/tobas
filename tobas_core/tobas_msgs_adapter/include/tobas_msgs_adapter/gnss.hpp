@@ -15,6 +15,7 @@ struct Gnss
 {
   std_msgs::msg::Header header;
   uint8_t fix_type;
+  uint8_t rtk_status;
   double latitude;
   double longitude;
   double height_wgs84;
@@ -42,6 +43,7 @@ struct rclcpp::TypeAdapter<tobas_msgs::Gnss, tobas_msgs::msg::Gnss>
   {
     dst.header = src.header;
     dst.fix_type = src.fix_type;
+    dst.rtk_status = src.rtk_status;
     dst.latitude = src.latitude;
     dst.longitude = src.longitude;
     dst.height_wgs84 = src.height_wgs84;
@@ -56,6 +58,7 @@ struct rclcpp::TypeAdapter<tobas_msgs::Gnss, tobas_msgs::msg::Gnss>
   {
     dst.header = src.header;
     dst.fix_type = src.fix_type;
+    dst.rtk_status = src.rtk_status;
     dst.latitude = src.latitude;
     dst.longitude = src.longitude;
     dst.height_wgs84 = src.height_wgs84;

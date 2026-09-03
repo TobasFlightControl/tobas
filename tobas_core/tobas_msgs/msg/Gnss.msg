@@ -12,6 +12,12 @@ uint8 FIX_3D = 3
 uint8 GPS_DEAD_RECHONING_COMBINED = 4
 uint8 TIME_ONLY_FIX = 5
 
+uint8 rtk_status
+uint8 STAND_ALONE = 0
+uint8 CORRECTION_RECEIVED = 1
+uint8 RTK_FLOAT = 2
+uint8 RTK_FIXED = 3
+
 # Position
 float64 latitude                               # Geodetic latitude [deg]
 float64 longitude                              # Geodetic longitude [deg]
