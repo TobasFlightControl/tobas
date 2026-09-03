@@ -7,6 +7,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <expected>
 #include <map>
 
 namespace tobas
@@ -20,6 +21,14 @@ namespace linux
 class UARTdev
 {
 public:
+  enum class ReceiveError
+  {
+    kNoData,
+    kDeviceError,
+  };
+
+  using ReceiveResult = std::expected<uint8_t, ReceiveError>;
+
   enum ParityMode : tcflag_t
   {
     kOdd,
@@ -29,9 +38,9 @@ public:
   explicit UARTdev();
   ~UARTdev();
 
-  bool initialize(const char* uart_dev, bool block_mode = false);
+  bool initialize(const char* uart_dev, bool block_mode = false) noexcept;
 
-  bool setBaudRate(uint32_t baud_rate);
+  bool setBaudRate(uint32_t baud_rate) noexcept;
   bool setDataBits(uint8_t data_bits);
   bool setSingleStopBit();
   bool setDoubleStopBit();
@@ -47,6 +56,23 @@ public:
   bool send(const uint8_t* data, size_t length);
   bool receive(uint8_t* data, size_t length);
 
+  /**
+   * @brief Receive one byte.
+   *
+   * If `_nonblock` is `true`, return `kNoData` without waiting when no byte is available.
+   * Otherwise, wait until one byte is received or a device error occurs.
+   * `kNoData` is temporary; `kDeviceError` indicates a communication failure.
+   */
+  ReceiveResult tryReceiveByte(bool _nonblock) noexcept;
+
+  /**
+   * @brief Attempt to send all specified bytes.
+   *
+   * Wait for the device to become writable as needed, even if its file descriptor is non-blocking.
+   * A `true` result guarantees that all bytes were sent; a `false` result does not guarantee completion.
+   */
+  bool sendAll(const uint8_t* _data, size_t _length) noexcept;
+
   /* Receive 1 byte. */
   uint8_t receiveByte();
 
@@ -57,12 +83,12 @@ private:
   int uart_fd_ = -1;
   struct termios options_;
 
-  bool getConfig();
-  bool setConfig();
+  bool getConfig() noexcept;
+  bool setConfig() noexcept;
 
-  bool isStandardBaudRate(uint32_t baud_rate);
-  bool setStandardBaudRate(uint32_t baud_rate);
-  bool setNonStandardBaudRate(uint32_t baud_rate);
+  bool isStandardBaudRate(uint32_t baud_rate) noexcept;
+  bool setStandardBaudRate(uint32_t baud_rate) noexcept;
+  bool setNonStandardBaudRate(uint32_t baud_rate) noexcept;
 };
 }  // namespace linux
 }  // namespace tobas

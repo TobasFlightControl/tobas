@@ -4,10 +4,13 @@
 #include "tobas_linux/uart_dev.hpp"
 
 #include <fcntl.h>
+#include <poll.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
 
+#include <cerrno>
 #include <cstring>
+#include <expected>
 #include <iostream>
 #include <thread>
 
@@ -64,7 +67,7 @@ UARTdev::~UARTdev()
   }
 }
 
-bool UARTdev::initialize(const char* uart_dev, bool block_mode)
+bool UARTdev::initialize(const char* uart_dev, bool block_mode) noexcept
 {
   block_mode_ = block_mode;
 
@@ -131,7 +134,7 @@ bool UARTdev::initialize(const char* uart_dev, bool block_mode)
   return true;
 }
 
-bool UARTdev::setBaudRate(uint32_t baud_rate)
+bool UARTdev::setBaudRate(uint32_t baud_rate) noexcept
 {
   if (isStandardBaudRate(baud_rate)) {
     return setStandardBaudRate(baud_rate);
@@ -271,6 +274,119 @@ bool UARTdev::receive(uint8_t* data, size_t length)
   return true;
 }
 
+UARTdev::ReceiveResult UARTdev::tryReceiveByte(bool _nonblock) noexcept
+{
+  if (uart_fd_ < 0) {
+    return unexpected(ReceiveError::kDeviceError);
+  }
+
+  struct pollfd poll_fd = { uart_fd_, POLLIN, 0 };
+
+  while (true) {
+    poll_fd.revents = 0;
+    const auto poll_result = poll(&poll_fd, 1, _nonblock ? 0 : -1);
+    if (poll_result < 0) {
+      if (errno == EINTR) {
+        continue;
+      }
+
+      cerr << "UART RX poll failed: " << strError() << endl;
+      return unexpected(ReceiveError::kDeviceError);
+    }
+    if (poll_result == 0) {
+      return unexpected(ReceiveError::kNoData);
+    }
+
+    if ((poll_fd.revents & POLLNVAL) != 0) {
+      cerr << "UART RX poll reported a device error." << endl;
+      return unexpected(ReceiveError::kDeviceError);
+    }
+
+    if ((poll_fd.revents & POLLIN) != 0) {
+      uint8_t data;
+      const auto read_result = ::read(uart_fd_, &data, 1);
+      if (read_result == 1) {
+        return data;
+      }
+      if (read_result == 0) {
+        cerr << "UART RX reached the end of the device stream." << endl;
+        return unexpected(ReceiveError::kDeviceError);
+      }
+      if (errno == EINTR) {
+        continue;
+      }
+      if (errno == EAGAIN || errno == EWOULDBLOCK) {
+        if (_nonblock) {
+          return unexpected(ReceiveError::kNoData);
+        }
+        continue;
+      }
+
+      cerr << "UART RX failed: " << strError() << endl;
+      return unexpected(ReceiveError::kDeviceError);
+    }
+
+    if ((poll_fd.revents & POLLERR) != 0) {
+      cerr << "UART RX poll reported a device error." << endl;
+      return unexpected(ReceiveError::kDeviceError);
+    }
+
+    if ((poll_fd.revents & POLLHUP) != 0) {
+      cerr << "UART RX device hung up." << endl;
+      return unexpected(ReceiveError::kDeviceError);
+    }
+
+    if (_nonblock) {
+      return unexpected(ReceiveError::kNoData);
+    }
+  }
+}
+
+bool UARTdev::sendAll(const uint8_t* _data, size_t _length) noexcept
+{
+  size_t sent_length = 0;
+  while (sent_length < _length) {
+    const auto write_result = ::write(uart_fd_, _data + sent_length, _length - sent_length);
+    if (write_result > 0) {
+      sent_length += static_cast<size_t>(write_result);
+      continue;
+    }
+    if (write_result == 0) {
+      cerr << "UART TX transmitted zero bytes." << endl;
+      return false;
+    }
+    if (errno == EINTR) {
+      continue;
+    }
+    if (errno != EAGAIN && errno != EWOULDBLOCK) {
+      cerr << "UART TX failed: " << strError() << endl;
+      return false;
+    }
+
+    struct pollfd poll_fd = { uart_fd_, POLLOUT, 0 };
+    while (true) {
+      const auto poll_result = poll(&poll_fd, 1, -1);
+      if (poll_result < 0) {
+        if (errno == EINTR) {
+          continue;
+        }
+
+        cerr << "UART TX poll failed: " << strError() << endl;
+        return false;
+      }
+      if ((poll_fd.revents & (POLLERR | POLLHUP | POLLNVAL)) != 0) {
+        cerr << "UART TX poll reported a device error." << endl;
+        return false;
+      }
+      if ((poll_fd.revents & POLLOUT) != 0) {
+        break;
+      }
+    }
+  }
+
+  return true;
+}
+
 uint8_t UARTdev::receiveByte()
 {
   if (!block_mode_) {
@@ -285,7 +401,7 @@ uint8_t UARTdev::receiveByte()
   return byte;
 }
 
-bool UARTdev::getConfig()
+bool UARTdev::getConfig() noexcept
 {
   if (tcgetattr(uart_fd_, &options_) != 0) {
     cerr << "Failed to get serial port settings." << endl;
@@ -294,7 +410,7 @@ bool UARTdev::getConfig()
   return true;
 }
 
-bool UARTdev::setConfig()
+bool UARTdev::setConfig() noexcept
 {
   if (tcsetattr(uart_fd_, TCSANOW, &options_) != 0) {
     cerr << "Failed to set serial port settings." << endl;
@@ -306,12 +422,12 @@ bool UARTdev::setConfig()
   return true;
 }
 
-bool UARTdev::isStandardBaudRate(uint32_t baud_rate)
+bool UARTdev::isStandardBaudRate(uint32_t baud_rate) noexcept
 {
   return baudrate_constants_.contains(baud_rate);
 }
 
-bool UARTdev::setStandardBaudRate(uint32_t baud_rate)
+bool UARTdev::setStandardBaudRate(uint32_t baud_rate) noexcept
 {
   const auto& flag = baudrate_constants_.at(baud_rate);
 
@@ -323,7 +439,7 @@ bool UARTdev::setStandardBaudRate(uint32_t baud_rate)
   return setConfig();
 }
 
-bool UARTdev::setNonStandardBaudRate(uint32_t baud_rate)
+bool UARTdev::setNonStandardBaudRate(uint32_t baud_rate) noexcept
 {
   options_.c_cflag &= ~CBAUD;
   options_.c_cflag |= CBAUDEX;

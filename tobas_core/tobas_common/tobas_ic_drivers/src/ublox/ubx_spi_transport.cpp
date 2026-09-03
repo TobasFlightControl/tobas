@@ -4,6 +4,7 @@
 #include "tobas_ic_drivers/ublox/ubx_spi_transport.hpp"
 
 #include <cstring>
+#include <expected>
 
 namespace tobas
 {
@@ -18,10 +19,12 @@ bool UbxTransportSpi::initialize(const char* _device) noexcept
   return spi_.initialize(_device, tx_buf_, rx_buf_, kSpiClockFreq);
 }
 
-std::optional<uint8_t> UbxTransportSpi::receiveByte() noexcept
+UbxTransport::ReceiveResult UbxTransportSpi::receiveByte(bool _nonblock) noexcept
 {
+  static_cast<void>(_nonblock);
+
   if (!spi_.transfer(1)) {
-    return std::nullopt;
+    return std::unexpected(ReceiveError::kDeviceError);
   }
 
   return rx_buf_[0];
