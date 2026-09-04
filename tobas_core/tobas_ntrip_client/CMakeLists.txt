@@ -12,6 +12,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werro
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(ament_cmake REQUIRED)
+find_package(Boost REQUIRED)
 
 set(AMENT_DEPENDENCIES rclcpp rclcpp_components tobas_constants tobas_msgs tobas_node)
 
@@ -19,7 +20,7 @@ foreach(dependency IN ITEMS ${AMENT_DEPENDENCIES})
   find_package(${dependency} REQUIRED)
 endforeach()
 
-include_directories(include)
+include_directories(include ${Boost_INCLUDE_DIRS})
 
 file(GLOB_RECURSE LIB_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_TARGETS})
