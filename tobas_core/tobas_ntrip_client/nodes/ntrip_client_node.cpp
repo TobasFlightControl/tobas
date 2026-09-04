@@ -47,7 +47,7 @@ NtripClientNode::NtripClientNode(const rclcpp::NodeOptions& options) : super("nt
     return;
   }
 
-  rtcm_pub_ = createPublisher<tobas_msgs::msg::BinaryPacket>(tobas::kRtcmCorrectionTopic);
+  rtcm_pub_ = createPublisher<tobas_msgs::msg::BinaryPacket>(topic::kRtcmCorrection);
   timer_ = createTimer(kIntervalTime, &NtripClientNode::timerCallback, this);
 }
 
