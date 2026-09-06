@@ -6,6 +6,7 @@
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
+#include <optional>
 
 #include <tobas_linux/spi_dev.hpp>
 
@@ -25,7 +26,7 @@ public:
   UbxTransportSpi& operator=(const UbxTransportSpi& _other) = delete;
 
   bool initialize(const char* _device) noexcept override;
-  ReceiveResult receiveByte(bool _nonblock) noexcept override;
+  std::optional<uint8_t> receiveByte() noexcept override;
   std::chrono::microseconds receiveByteInterval() const noexcept override;
   bool send(const uint8_t* _data, size_t _length) noexcept override;
 

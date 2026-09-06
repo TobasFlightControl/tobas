@@ -50,21 +50,15 @@ bool ZEDF9P::initialize(const char* _device)
 
 bool ZEDF9P::update(bool nonblock)
 {
-  if (scanner_.state() == UbxScanner::kDone) {
-    scanner_.reset();
-  }
+  scanner_.reset();
 
-  if (nonblock && scanner_.state() == UbxScanner::kSync1) {
+  if (nonblock) {
     // Check the start byte.
-    const auto data = transport_->receiveByte(true);
+    const auto data = transport_->receiveByte();
     if (!data) {
-      if (data.error() == UbxTransport::ReceiveError::kDeviceError) {
-        scanner_.reset();
-      }
       return false;
     }
     if (!scanner_.update(*data)) {
-      scanner_.reset();
       return false;
     }
 
@@ -79,15 +73,11 @@ bool ZEDF9P::update(bool nonblock)
     receive_rate_->start();
   }
   while (scanner_.state() != UbxScanner::kDone) {
-    const auto data = transport_->receiveByte(nonblock);
+    const auto data = transport_->receiveByte();
     if (!data) {
-      if (data.error() == UbxTransport::ReceiveError::kDeviceError) {
-        scanner_.reset();
-      }
       return false;
     }
     if (!scanner_.update(*data)) {
-      scanner_.reset();
       return false;
     }
     if (receive_rate_) {
@@ -96,7 +86,6 @@ bool ZEDF9P::update(bool nonblock)
   }
 
   if (!verifyMessage()) {
-    scanner_.reset();
     return false;
   }
 

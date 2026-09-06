@@ -3,8 +3,6 @@
 
 #include "tobas_ic_drivers/ublox/ubx_uart_transport.hpp"
 
-#include <expected>
-
 namespace tobas
 {
 namespace ublox
@@ -18,21 +16,9 @@ bool UbxTransportUart::initialize(const char* _device) noexcept
   return uart_.initialize(_device, false) && uart_.setBaudRate(baud_rate_);
 }
 
-UbxTransport::ReceiveResult UbxTransportUart::receiveByte(bool _nonblock) noexcept
+std::optional<uint8_t> UbxTransportUart::receiveByte() noexcept
 {
-  const auto result = uart_.tryReceiveByte(_nonblock);
-  if (result) {
-    return *result;
-  }
-
-  switch (result.error()) {
-    case linux::UARTdev::ReceiveError::kNoData:
-      return std::unexpected(ReceiveError::kNoData);
-    case linux::UARTdev::ReceiveError::kDeviceError:
-      return std::unexpected(ReceiveError::kDeviceError);
-  }
-
-  return std::unexpected(ReceiveError::kDeviceError);
+  return uart_.tryReceiveByte();
 }
 
 std::chrono::microseconds UbxTransportUart::receiveByteInterval() const noexcept
@@ -42,7 +28,7 @@ std::chrono::microseconds UbxTransportUart::receiveByteInterval() const noexcept
 
 bool UbxTransportUart::send(const uint8_t* _data, size_t _length) noexcept
 {
-  return uart_.sendAll(_data, _length);
+  return uart_.send(_data, _length);
 }
 }  // namespace ublox
 }  // namespace tobas
