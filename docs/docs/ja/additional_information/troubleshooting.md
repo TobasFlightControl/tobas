@@ -9,21 +9,29 @@
 ### 1. ディスプレイサーバが X11 になっていない可能性
 
 `Settings / System / About / System Details`
-から，ディスプレイサーバが X11 になっていることを確認してください．
+を開き，`Windowing System`が X11 になっていることを確認してください．
 
-![troubleshooting/system_details](../../assets/troubleshooting/system_details.png)
-
-もしも X11 でない場合，例えば Wayland と表示されている場合は，
+もし X11 でない場合，例えば Wayland と表示されている場合は，
 Ubuntu の起動画面でユーザ名を選択した際に画面右下に現れる歯車から，ディスプレイサーバを以下のように選択してください．
 
-- `Ubuntu` もしくは `Ubuntu on Wayland` が選択可能な場合 → `Ubuntu`
-- `Ubuntu on Xorg` もしくは `Ubuntu` が選択可能な場合 → `Ubuntu on Xorg`
+- `Ubuntu`もしくは`Ubuntu on Wayland`が選択可能な場合 → `Ubuntu`
+- `Ubuntu on Xorg`もしくは`Ubuntu`が選択可能な場合 → `Ubuntu on Xorg`
+
+### 2. GPU ドライバがインストールされていない可能性
+
+`Settings / System / About / System Details`
+を開き，`Graphics`に適切な GPU が表示されていることを確認してください．
+
+ご使用の PC の仕様と異なる GPU が表示されている場合は，ドライバが正しく機能していない可能性があります．
+搭載された GPU に対応したドライバをインストールしてください．
+
+![troubleshooting/system_details](../../assets/troubleshooting/system_details.png)
 
 ## FC と PC 間の ROS 通信ができない
 
 ---
 
-### 1. ファイアウォールがUDPを弾いている可能性
+### 1. ファイアウォールが UDP を拒否している可能性
 
 ROS 2 のネットワーク間通信は内部で UDP を用いていますが，
 ファイアウォールがそれを許可していない可能性があります．
@@ -35,7 +43,7 @@ $ sudo ufw status
 ```
 
 本当は使用するポートのみを許可するのが望ましいですが，
-ひとまずUFWを無効化して再起動すると通信できるようになります．
+ひとまず UFW を無効化して再起動すると通信できるようになります．
 
 ```bash
 $ sudo ufw disable

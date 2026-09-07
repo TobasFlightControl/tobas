@@ -8,14 +8,25 @@ This section summarizes known issues and their solutions.
 
 ### 1. The display server may not be set to X11
 
-From `Settings / System / About / System Details`, confirm that the display server is set to X11.
+Open `Settings / System / About / System Details`
+and check that `Windowing System` is set to X11.
 
-![troubleshooting/system_details](../../assets/troubleshooting/system_details.png)
-
-If it is not X11—for example, if it shows Wayland—select your username on the Ubuntu login screen, click the gear icon in the lower-right corner, and select the display server as follows:
+If it is not X11—for example, if it shows Wayland—
+select your username on the Ubuntu login screen,
+then use the gear icon that appears in the bottom-right corner to select the display server as follows.
 
 - If `Ubuntu` or `Ubuntu on Wayland` is available → `Ubuntu`
 - If `Ubuntu on Xorg` or `Ubuntu` is available → `Ubuntu on Xorg`
+
+### 2. The GPU driver may not be installed
+
+Open `Settings / System / About / System Details`
+and check that the correct GPU is shown in `Graphics`.
+
+If the GPU shown does not match your PC's specifications, the driver may not be working correctly.
+Install the appropriate driver for your GPU.
+
+![troubleshooting/system_details](../../assets/troubleshooting/system_details.png)
 
 ## ROS communication between the FC and PC is not working
 
@@ -31,8 +42,8 @@ If the list of allowed ports does not include UDP ports in the 7400 range, this 
 $ sudo ufw status
 ```
 
-Ideally, only the required ports should be allowed.
-For now, disabling UFW and rebooting should enable communication.
+Ideally, you should allow only the ports in use,
+but for now, disabling UFW and rebooting should restore communication.
 
 ```bash
 $ sudo ufw disable
