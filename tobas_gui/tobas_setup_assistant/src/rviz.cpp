@@ -24,6 +24,10 @@ namespace sa
 RvizWidget::RvizWidget(const uadf::Model& uadf, const kdl::Tree& tree)
   : uadf_(uadf), tree_(tree), rviz_manager_("rviz_robot_state_display")
 {
+  constexpr bool kDefaultVisualEnabled = true;
+  constexpr bool kDefaultCollisionEnabled = false;
+  constexpr bool kDefaultInertiaEnabled = false;
+
   // Declare ROS parameters.
   constexpr char kMinimulUrdf[] = "<robot name=\"empty\"><link name=\"root\"/></robot>";
   ros2::declareParam(rviz_manager_.rawNode(), kRobotDescriptionParam, kMinimulUrdf);

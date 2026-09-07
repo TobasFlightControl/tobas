@@ -11,6 +11,13 @@ namespace gui
 {
 namespace gcs
 {
+namespace
+{
+constexpr char kConfigPkgPrefix[] = "TOBAS_CONFIG_PKG=";
+constexpr char kNetworkIfacePrefix[] = "TOBAS_NIC=";
+constexpr char kIdPrefix[] = "TOBAS_ID=";
+}  // namespace
+
 ProjectEnvParser::ProjectEnvParser()
 {
 }

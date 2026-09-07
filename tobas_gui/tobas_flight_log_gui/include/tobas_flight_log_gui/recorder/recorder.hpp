@@ -30,9 +30,6 @@ class FlightLogRecorderWidget : public QWidget
   using self = FlightLogRecorderWidget;
   using super = QWidget;
 
-  static constexpr int kButtonWidth = 150;
-  static constexpr int kButtonHeight = 60;
-
 Q_SIGNALS:
   void recordFinished(const QString& log_name, bool is_real);
 

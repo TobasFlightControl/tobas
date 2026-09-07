@@ -23,10 +23,6 @@ class FixedWingWidget : public BaseSettingWidget
   using self = FixedWingWidget;
   using super = BaseSettingWidget;
 
-  static constexpr char kVehicleLabel[] = "Vehicle Parameters";
-  static constexpr char kAeroCoefsLabel[] = "Aerodynamic Coefficients";
-  static constexpr char kControlSurfacesLabel[] = "Control Surfaces";
-
 public:
   explicit FixedWingWidget(const uadf::Model& uadf);
 

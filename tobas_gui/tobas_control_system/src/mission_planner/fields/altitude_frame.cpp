@@ -10,9 +10,6 @@
 #include <QHBoxLayout>
 #include <magic_enum/magic_enum.hpp>
 
-#define RELATIVE_TO_LAUNCH_LABEL "Relative to Launch"
-#define MEAN_SEA_LEVEL_LABEL "Mean Sea Level"
-
 namespace tobas
 {
 namespace gui
@@ -23,13 +20,16 @@ namespace field
 {
 namespace
 {
+constexpr char kRelativeToLaunchLabel[] = "Relative to Launch";
+constexpr char kMeanSeaLevelLabel[] = "Mean Sea Level";
+
 const char* altFrameToText(mission::AltitudeFrame frame)
 {
   switch (frame) {
     case mission::kRelativeToLaunch:
-      return RELATIVE_TO_LAUNCH_LABEL;
+      return kRelativeToLaunchLabel;
     case mission::kMeanSeaLevel:
-      return MEAN_SEA_LEVEL_LABEL;
+      return kMeanSeaLevelLabel;
     default:
       throw std::runtime_error(std::format("Invalid altitude frame: {}", (int)frame));
   }
@@ -37,10 +37,10 @@ const char* altFrameToText(mission::AltitudeFrame frame)
 
 mission::AltitudeFrame textToAltFrame(const char* text)
 {
-  if (std::strcmp(text, RELATIVE_TO_LAUNCH_LABEL) == 0) {
+  if (std::strcmp(text, kRelativeToLaunchLabel) == 0) {
     return mission::kRelativeToLaunch;
   }
-  else if (std::strcmp(text, MEAN_SEA_LEVEL_LABEL) == 0) {
+  else if (std::strcmp(text, kMeanSeaLevelLabel) == 0) {
     return mission::kMeanSeaLevel;
   }
   else {

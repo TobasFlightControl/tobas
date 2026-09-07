@@ -22,12 +22,12 @@ PropulsionUnitWidget::PropulsionUnitWidget()
   setLayout(rows);
 
   copy_to_all_btn_ = new QPushButton("Copy To All");
-  copy_to_all_btn_->setFixedSize(kButtonWidth, kButtonHeight);
+  copy_to_all_btn_->setFixedSize(125, 50);
   qt::addWidgetCenter(copy_to_all_btn_, rows);
 
   tabs_ = new qt::TabWidget();
   tabs_->enableWheelEvent(false);
-  tabs_->setTabSize(kTabWidth, kTabHeight);
+  tabs_->setTabSize(120, 40);
   rows->addWidget(tabs_);
 
   esc_ = new ESCWidget();

@@ -42,8 +42,6 @@ class ExportThreadCsv : public ExportThread
   using SerializedDataMap = std::map<std::string, std::shared_ptr<rcutils_uint8_array_t>>;
   using HistoryMap = std::map<Time, SerializedDataMap>;
 
-  static constexpr Time kExpirationTime = 1'000'000'000;  // [ns]
-
 public:
   explicit ExportThreadCsv(const QString& log_name, const QString& save_path);
 

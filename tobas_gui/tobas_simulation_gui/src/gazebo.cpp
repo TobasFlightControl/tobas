@@ -74,7 +74,7 @@ void killGazeboServer()
   // FIXME: The Gazebo server does not exit with only the `kill` command, so it is forcibly terminated.
   // This method may affect other processes.
   linux::CommandExecutor exec;
-  qInfo() << "Killing all processes containing \"gz sim\".";
+  qInfo() << "Killing all processes containing 'gz sim'.";
   TOBAS_CHECK(exec.execute("ps aux | grep \"gz sim\" | grep -v grep | awk '{ print \"kill -9\", $2 }' | sh"));
 }
 }  // namespace sim

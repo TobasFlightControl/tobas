@@ -16,6 +16,11 @@ namespace tobas
 {
 namespace qt
 {
+namespace
+{
+constexpr char kNormalizeIpv6HextetOnFocusOutProperty[] = "normalizeIpv6HextetOnFocusOut";
+}  // namespace
+
 IPv6Edit::IPv6Edit(QWidget* parent) : super(parent)
 {
   const auto cols = new QHBoxLayout();

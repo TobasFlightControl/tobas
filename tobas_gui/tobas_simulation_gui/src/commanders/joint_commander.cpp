@@ -271,6 +271,7 @@ void JointCommanderWidget::onStartRequested()
   random_button_->setEnabled(true);
 
   // Start sending commands at fixed time intervals.
+  constexpr int kPublishCommandPeriod = 100;  // [ms]
   publish_cmd_timer_.start(kPublishCommandPeriod);
 
   qt::qInfoBox(this, "GUI teleoperation is ready.");

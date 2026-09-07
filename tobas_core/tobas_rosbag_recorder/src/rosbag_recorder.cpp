@@ -3,8 +3,15 @@
 
 #include "./rosbag_recorder.hpp"
 
+using namespace std::chrono_literals;
+
 namespace tobas
 {
+namespace
+{
+constexpr auto kMinAvailableSize = 500'000'000;  // [byte]
+}  // namespace
+
 RosbagRecorderNode::RosbagRecorderNode(const rclcpp::NodeOptions& options)
   : super("rosbag_recorder", nodeOptions_Default(options))
   , ns_(std::string(get_namespace()) + "/")
@@ -28,7 +35,7 @@ RosbagRecorderNode::RosbagRecorderNode(const rclcpp::NodeOptions& options)
   clean_srv_ = createService<CleanSrv>(service::kRosbagClean, &self::cleanCb, this);
 
   // Start main timer.
-  main_timer_ = createTimer(kMainTimerPeriod, &self::mainTimerCb, this);
+  main_timer_ = createTimer(1s, &self::mainTimerCb, this);
 }
 
 size_t RosbagRecorderNode::getDiskAvailableSize() const noexcept

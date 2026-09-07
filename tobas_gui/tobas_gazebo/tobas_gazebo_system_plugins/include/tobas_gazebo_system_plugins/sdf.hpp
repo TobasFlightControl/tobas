@@ -15,7 +15,7 @@ template <typename T>
 bool getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, T& param)
 {
   if (!sdf->HasElement(name)) {
-    gzerr << "Please specify \"" << name << "\"." << std::endl;
+    gzerr << "Please specify '" << name << "'." << std::endl;
     return false;
   }
 
@@ -27,7 +27,7 @@ template <typename T>
 void getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, T& param, const T& dflt)
 {
   if (!sdf->Get(name, param, dflt)) {
-    gzwarn << "SDF parameter \"" << name << "\" is not specified. The default value \"" << dflt << "\" is used."
+    gzwarn << "SDF parameter '" << name << "' is not specified. The default value '" << dflt << "' is used."
            << std::endl;
   }
 }

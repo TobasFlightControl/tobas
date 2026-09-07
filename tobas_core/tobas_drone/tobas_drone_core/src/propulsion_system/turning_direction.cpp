@@ -5,20 +5,23 @@
 
 #include <iostream>
 
-#define CCW_TEXT "ccw"
-#define CW_TEXT "cw"
-
 using namespace std;
 
 namespace tobas
 {
+namespace
+{
+constexpr char kCcwText[] = "ccw";
+constexpr char kCwText[] = "cw";
+}  // namespace
+
 string textFromEnum(TurningDirection cmd_iface)
 {
   switch (cmd_iface) {
     case TurningDirection::CCW:
-      return CCW_TEXT;
+      return kCcwText;
     case TurningDirection::CW:
-      return CW_TEXT;
+      return kCwText;
     default:
       throw;
   }
@@ -26,11 +29,11 @@ string textFromEnum(TurningDirection cmd_iface)
 
 bool enumFromText(const string& text, TurningDirection& dst)
 {
-  if (text == CCW_TEXT) {
+  if (text == kCcwText) {
     dst = TurningDirection::CCW;
     return true;
   }
-  else if (text == CW_TEXT) {
+  else if (text == kCwText) {
     dst = TurningDirection::CW;
     return true;
   }

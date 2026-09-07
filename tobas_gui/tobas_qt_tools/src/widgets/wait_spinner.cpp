@@ -11,20 +11,48 @@ namespace tobas
 {
 namespace qt
 {
-WaitSpinnerWidget::WaitSpinnerWidget(QWidget* parent, bool center_on_parent, bool disable_parent_when_spinning)
-  : QWidget(parent), center_on_parent_(center_on_parent), disable_parent_when_spinning_(disable_parent_when_spinning)
+namespace
+{
+int lineCountDistanceFromPrimary(int current, int primary, int total_num_lines)
+{
+  auto distance = primary - current;
+  if (distance < 0) {
+    distance += total_num_lines;
+  }
+  return distance;
+}
+
+QColor currentLineColor(int count_dist, int total_num_lines, double trail_fade_perc, double min_opacity, QColor color)
+{
+  if (count_dist == 0) {
+    return color;
+  }
+
+  const auto min_alpha = min_opacity / 100.0;
+  const auto dist_thresh = static_cast<int>(std::ceil((total_num_lines - 1) * trail_fade_perc / 100.0));
+
+  if (count_dist > dist_thresh) {
+    color.setAlphaF(min_alpha);
+  }
+  else {
+    const auto alpha_diff = color.alphaF() - min_alpha;
+    const auto gradient = alpha_diff / static_cast<double>(dist_thresh + 1);
+    const auto result_alpha = std::clamp(color.alphaF() - gradient * count_dist, 0.0, 1.0);
+    color.setAlphaF(result_alpha);
+  }
+
+  return color;
+}
+}  // namespace
+
+WaitSpinnerWidget::WaitSpinnerWidget(QWidget* parent, bool center_on_parent)
+  : super(parent), center_on_parent_(center_on_parent)
 {
   initialize();
 }
 
-WaitSpinnerWidget::WaitSpinnerWidget(
-  Qt::WindowModality modality,
-  QWidget* parent,
-  bool center_on_parent,
-  bool disable_parent_when_spinning)
-  : QWidget(parent, Qt::Dialog | Qt::FramelessWindowHint)
-  , center_on_parent_(center_on_parent)
-  , disable_parent_when_spinning_(disable_parent_when_spinning)
+WaitSpinnerWidget::WaitSpinnerWidget(Qt::WindowModality modality, QWidget* parent, bool center_on_parent)
+  : super(parent, Qt::Dialog | Qt::FramelessWindowHint), center_on_parent_(center_on_parent)
 {
   initialize();
 
@@ -46,6 +74,7 @@ void WaitSpinnerWidget::initialize()
 void WaitSpinnerWidget::paintEvent(QPaintEvent*)
 {
   updatePosition();
+
   QPainter painter(this);
   painter.fillRect(rect(), Qt::transparent);
   painter.setRenderHint(QPainter::Antialiasing, true);
@@ -64,7 +93,7 @@ void WaitSpinnerWidget::paintEvent(QPaintEvent*)
     const auto distance = lineCountDistanceFromPrimary(i, cur_counter_, num_lines_);
     const auto color = currentLineColor(distance, num_lines_, trail_fade_perc_, min_trail_opacity_, color_);
     painter.setBrush(color);
-    // TODO improve the way rounded rect is painted
+    // TODO: Improve the way rounded rect is painted.
     painter.drawRoundedRect(
       QRect(0, -line_width_ / 2, line_length_, line_width_), roundness_, roundness_, Qt::RelativeSize);
     painter.restore();
@@ -73,33 +102,29 @@ void WaitSpinnerWidget::paintEvent(QPaintEvent*)
 
 void WaitSpinnerWidget::start()
 {
+  if (is_spinning_) {
+    return;
+  }
+
   updatePosition();
-  is_spinning_ = true;
   show();
 
-  if (parentWidget() && disable_parent_when_spinning_) {
-    parentWidget()->setEnabled(false);
-  }
-
-  if (!timer_->isActive()) {
-    timer_->start();
-    cur_counter_ = 0;
-  }
+  timer_->start();
+  cur_counter_ = 0;
+  is_spinning_ = true;
 }
 
 void WaitSpinnerWidget::stop()
 {
-  is_spinning_ = false;
+  if (!is_spinning_) {
+    return;
+  }
+
   hide();
 
-  if (parentWidget() && disable_parent_when_spinning_) {
-    parentWidget()->setEnabled(true);
-  }
-
-  if (timer_->isActive()) {
-    timer_->stop();
-    cur_counter_ = 0;
-  }
+  timer_->stop();
+  cur_counter_ = 0;
+  is_spinning_ = false;
 }
 
 void WaitSpinnerWidget::setColor(QColor color)
@@ -228,45 +253,6 @@ void WaitSpinnerWidget::updatePosition()
   if (parentWidget() && center_on_parent_) {
     move(parentWidget()->width() / 2 - width() / 2, parentWidget()->height() / 2 - height() / 2);
   }
-}
-
-int WaitSpinnerWidget::lineCountDistanceFromPrimary(int current, int primary, int total_num_lines)
-{
-  auto distance = primary - current;
-  if (distance < 0) {
-    distance += total_num_lines;
-  }
-  return distance;
-}
-
-QColor WaitSpinnerWidget::currentLineColor(
-  int count_dist,
-  int total_num_lines,
-  double trail_fade_perc,
-  double min_opacity,
-  QColor color)
-{
-  if (count_dist == 0) {
-    return color;
-  }
-
-  const auto min_alpha_f = min_opacity / 100.0;
-  const auto dist_thresh = static_cast<int>(ceil((total_num_lines - 1) * trail_fade_perc / 100.0));
-
-  if (count_dist > dist_thresh) {
-    color.setAlphaF(min_alpha_f);
-  }
-  else {
-    const auto alpha_diff = color.alphaF() - min_alpha_f;
-    const auto gradient = alpha_diff / static_cast<double>(dist_thresh + 1);
-    auto result_alpha = color.alphaF() - gradient * count_dist;
-
-    // If alpha is out of bounds, clip it.
-    result_alpha = std::min(1.0, std::max(0.0, result_alpha));
-    color.setAlphaF(result_alpha);
-  }
-
-  return color;
 }
 }  // namespace qt
 }  // namespace tobas

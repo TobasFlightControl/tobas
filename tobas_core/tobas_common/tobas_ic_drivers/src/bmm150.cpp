@@ -14,13 +14,23 @@ namespace tobas
 {
 namespace driver
 {
+namespace
+{
+// Overflow handling numbers from the Bosch BMM150 Sensor API.
+constexpr int16_t kXyaxesFlipOverflowAdcval = -4096;
+constexpr int16_t kZaxisHallOverflowAdcval = -16384;
+constexpr int16_t kOverflowOutput = -32768;  // Raw magnetometer value returned on overflow.
+constexpr int16_t kNegativeSaturationZ = -32767;
+constexpr int16_t kPositiveSaturationZ = 32767;
+}  // namespace
+
 BMM150::BMM150()
 {
 }
 
 bool BMM150::initialize(const char* i2c_device)
 {
-  if (!i2c_.initialize(i2c_device, kI2cAddress)) {
+  if (!i2c_.initialize(i2c_device, 0x10)) {
     cerr << "Failed to initialize I2C device." << endl;
     return false;
   }
@@ -64,6 +74,7 @@ bool BMM150::readMag(double& mx, double& my, double& mz)
     return false;
   }
 
+  constexpr uint8_t kSelfTestRef = 0x01;
   if ((mag_buf_[0] & 1) != kSelfTestRef) {
     cerr << "Failed in x-axis self test." << endl;
     return false;
@@ -91,6 +102,8 @@ bool BMM150::readMag(double& mx, double& my, double& mz)
 
   // Compensate for the temperature effect using resistance value of hall sensor based on
   // https://github.com/boschsensortec/BMM150_SensorAPI/blob/master/bmm150.c compensate_x
+  // (int16_t)raw_data * kResolution is approximately microteslas.
+  constexpr double kResolution = 1.0 / 16.0;
   mx = static_cast<double>(compensateX(raw_data_x, r_hall)) * kResolution;
   my = static_cast<double>(compensateY(raw_data_y, r_hall)) * kResolution;
   mz = static_cast<double>(compensateZ(raw_data_z, r_hall)) * kResolution;

@@ -203,7 +203,7 @@ void CxGb400PublisherNode::timerCallback()
   }
 
   // Send the multicopter attitude to the camera.
-  if ((now - last_attitude_send_).to_chrono<std::chrono::milliseconds>() >= camera_.kSendAttitudeInterval) {
+  if ((now - last_attitude_send_).to_chrono<std::chrono::milliseconds>() >= driver::CxGb400::kSendAttitudeInterval) {
     if (camera_.sendCopterAttitude(
           copter_attitude_.w(), copter_attitude_.x(), copter_attitude_.y(), copter_attitude_.z())) {
       last_attitude_send_ = now;

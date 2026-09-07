@@ -18,7 +18,7 @@ Battery::Battery()
 
 bool Battery::initialize()
 {
-  if (!spi_.initialize(kSpiDevice, tx_buf_, rx_buf_, kSpiClockFreq)) {
+  if (!spi_.initialize("/dev/spidev0.1", tx_buf_, rx_buf_, 30'000'000)) {
     return false;
   }
 

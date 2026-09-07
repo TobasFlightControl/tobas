@@ -16,19 +16,6 @@ class PwmBattImu
 public:
   static constexpr size_t kPwmChannels = 8;
 
-private:
-  static constexpr char kSpiDevice[] = "/dev/spidev0.1";
-  static constexpr uint32_t kSpiClockFreq = 12'000'000;  // [Hz]
-
-  static constexpr size_t kPacketLength = 22;  // uint16
-  static constexpr size_t kCmdTypeIdx = 0;
-  static constexpr size_t kCrcIdx = kPacketLength - 2;  // uint16
-
-  static constexpr double kAccelScale = 0.488 * 1e-3 * st::kGravity;
-  static constexpr double kGyroScale = 35.0 * 1e-3 * st::kDeg2Rad;
-  static constexpr double kDGyroScale = st::kDeg2Rad / 3.2767;
-
-public:
   explicit PwmBattImu();
 
   bool initialize();
@@ -50,6 +37,14 @@ public:
   inline void getFilteredDGyro(double& x, double& y, double& z) const;
 
 private:
+  static constexpr size_t kPacketLength = 22;  // uint16
+  static constexpr size_t kCmdTypeIdx = 0;
+  static constexpr size_t kCrcIdx = kPacketLength - 2;  // uint16
+
+  static constexpr double kAccelScale = 0.488 * 1e-3 * st::kGravity;
+  static constexpr double kGyroScale = 35.0 * 1e-3 * st::kDeg2Rad;
+  static constexpr double kDGyroScale = st::kDeg2Rad / 3.2767;
+
   linux::SPIdev spi_;
 
   uint16_t tx_buf_[kPacketLength] = {};

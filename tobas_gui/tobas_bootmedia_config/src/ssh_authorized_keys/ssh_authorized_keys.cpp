@@ -81,8 +81,10 @@ bool SshAuthorizedKeysWidget::onConnected()
     // Reflect the current keys in the list.
     keys_.clear();
     list_->clear();
-    for (const auto& key : keys.value()) {
-      addKey(key);
+    for (const auto& key : *keys) {
+      if (!addKey(key)) {
+        return false;
+      }
     }
   }
   else {
@@ -102,12 +104,19 @@ bool SshAuthorizedKeysWidget::onConnected()
   return true;
 }
 
-void SshAuthorizedKeysWidget::addKey(const ssh::ak::Data& key)
+bool SshAuthorizedKeysWidget::addKey(const ssh::ak::Data& key)
 {
-  keys_.push_back(key);
+  const auto key_disp = ssh::ak::prettify(key);
+  if (!key_disp) {
+    qt::qErrorBox(
+      this, "Failed to convert the SSH public key to a display string: " + QString::fromStdString(key_disp.error()));
+    return false;
+  }
 
-  const auto key_disp = ssh::ak::prettify(key).value();
-  list_->addItem(QString::fromStdString(key_disp));
+  keys_.push_back(key);
+  list_->addItem(QString::fromStdString(*key_disp));
+
+  return true;
 }
 
 bool SshAuthorizedKeysWidget::writeCurrentConfig()
@@ -120,7 +129,7 @@ bool SshAuthorizedKeysWidget::writeCurrentConfig()
       qt::qErrorBox(this, "Failed to export SSH key: " + QString::fromStdString(line.error()));
       return false;
     }
-    content += line.value() + '\n';
+    content += *line + '\n';
   }
 
   // Write the configuration.
@@ -152,12 +161,14 @@ void SshAuthorizedKeysWidget::onAddButtonClicked()
   const auto line = dialog.getKey().toStdString();
   const auto key = ssh::ak::parseLine(line);
   if (!key) {
-    qt::qErrorBox(this, "Invalid key: " + QString::fromStdString(key.error()));
+    qt::qErrorBox(this, "Invalid SSH public key: " + QString::fromStdString(key.error()));
     return;
   }
 
   // Add the key.
-  addKey(key.value());
+  if (!addKey(*key)) {
+    return;
+  }
 
   // Apply the current configuration to the media.
   if (!writeCurrentConfig()) {

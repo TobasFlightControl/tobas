@@ -421,6 +421,8 @@ void UpdateLinkDialog::onRemoveCollisionButtonClicked()
 
 void UpdateLinkDialog::onVisualGeometryMeshBrowseButtonClicked()
 {
+  constexpr char kConfigKey_VisualGeometryMeshBrowseDir[] = "update_link_dialog/visual_geometry_mesh_dir";
+
   qDebug() << "UpdateLinkDialog::onVisualGeometryMeshBrowseButtonClicked";
 
   // Get the last opened directory.
@@ -443,6 +445,8 @@ void UpdateLinkDialog::onVisualGeometryMeshBrowseButtonClicked()
 
 void UpdateLinkDialog::onCollisionGeometryMeshBrowseButtonClicked()
 {
+  constexpr char kConfigKey_CollisionGeometryMeshBrowseDir[] = "update_link_dialog/collision_geometry_mesh_dir";
+
   qDebug() << "UpdateLinkDialog::onCollisionGeometryMeshBrowseButtonClicked";
 
   // Get the last opened directory.

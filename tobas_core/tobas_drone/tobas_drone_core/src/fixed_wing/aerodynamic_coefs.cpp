@@ -10,6 +10,26 @@ using namespace std;
 
 namespace tobas
 {
+namespace
+{
+constexpr char kCLift0Key[] = "c_lift_0";
+constexpr char kCLiftAlphaKey[] = "c_lift_alpha";
+constexpr char kCDrag0Key[] = "c_drag_0";
+constexpr char kCDragAlphaKey[] = "c_drag_alpha";
+constexpr char kCSideBetaKey[] = "c_side_beta";
+constexpr char kCRollBetaKey[] = "c_roll_beta";
+constexpr char kCRollPKey[] = "c_roll_p";
+constexpr char kCRollRKey[] = "c_roll_r";
+constexpr char kCPitch0Key[] = "c_pitch_0";
+constexpr char kCPitchAlphaKey[] = "c_pitch_alpha";
+constexpr char kCPitchAbsBetaKey[] = "c_pitch_abs_beta";
+constexpr char kCPitchAlphaRateKey[] = "c_pitch_alpha_rate";
+constexpr char kCPitchQKey[] = "c_pitch_q";
+constexpr char kCYawBetaKey[] = "c_yaw_beta";
+constexpr char kCYawPKey[] = "c_yaw_p";
+constexpr char kCYawRKey[] = "c_yaw_r";
+}  // namespace
+
 bool AerodynamicCoefficients::isValid() const
 {
   if (c_lift_0 <= 0) {

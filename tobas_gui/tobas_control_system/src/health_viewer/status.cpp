@@ -21,9 +21,9 @@ StatusWidget::StatusWidget(const QString& text)
 
   status_ = new qt::FramedLabel();
   status_->setAlignment(Qt::AlignCenter);
-  status_->setFixedWidth(kStatusWidth);
+  status_->setFixedWidth(40);
 
-  label_ = new qt::Label(text, kTextPSize);
+  label_ = new qt::Label(text, 12);
 
   reset();
 

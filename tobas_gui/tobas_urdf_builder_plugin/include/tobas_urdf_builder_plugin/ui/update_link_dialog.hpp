@@ -35,9 +35,6 @@ class UpdateLinkDialog : public QDialog
   using self = UpdateLinkDialog;
   using super = QDialog;
 
-  static constexpr char kConfigKey_VisualGeometryMeshBrowseDir[] = "update_link_dialog/visual_geometry_mesh_dir";
-  static constexpr char kConfigKey_CollisionGeometryMeshBrowseDir[] = "update_link_dialog/collision_geometry_mesh_dir";
-
 Q_SIGNALS:
   void Changed();
 

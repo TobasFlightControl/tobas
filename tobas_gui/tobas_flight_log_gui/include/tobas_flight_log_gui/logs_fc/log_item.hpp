@@ -19,8 +19,6 @@ class FlightLogItemWidgetFC : public QWidget
   using self = FlightLogItemWidgetFC;
   using super = QWidget;
 
-  static constexpr int kButtonWidth = 80;
-
 Q_SIGNALS:
   void downloadButtonClicked(const QString& log_name);
   void deleteButtonClicked(const QString& log_name);

@@ -14,6 +14,13 @@ namespace gui
 {
 namespace cmn
 {
+namespace
+{
+constexpr char kMajorKey[] = "major";
+constexpr char kMinorKey[] = "minor";
+constexpr char kPatchKey[] = "patch";
+}  // namespace
+
 Version::Version()
 {
 }
@@ -86,13 +93,13 @@ bool Version::load(const QString& path)
     return false;
   }
 
-  if (!yaml::load(kMajorKey, node.value(), major)) {
+  if (!yaml::load(kMajorKey, *node, major)) {
     return false;
   }
-  if (!yaml::load(kMinorKey, node.value(), minor)) {
+  if (!yaml::load(kMinorKey, *node, minor)) {
     return false;
   }
-  if (!yaml::load(kPatchKey, node.value(), patch)) {
+  if (!yaml::load(kPatchKey, *node, patch)) {
     return false;
   }
 

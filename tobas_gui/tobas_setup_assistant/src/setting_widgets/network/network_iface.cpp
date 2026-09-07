@@ -21,6 +21,17 @@ namespace sa
 {
 namespace network
 {
+namespace
+{
+constexpr int kWiredIdx = 0;
+constexpr int kWirelessIdx = kWiredIdx + 1;
+constexpr int kAccessPointIdx = kWirelessIdx + 1;
+constexpr int kOtherIdx = kAccessPointIdx + 1;
+
+constexpr char kNicTypeKey[] = "nic_type";
+constexpr char kOtherNicNameKey[] = "other_nic_name";
+}  // namespace
+
 NetworkIfaceWidget::NetworkIfaceWidget()
 {
   nic_btn_group_ = new QButtonGroup(this);

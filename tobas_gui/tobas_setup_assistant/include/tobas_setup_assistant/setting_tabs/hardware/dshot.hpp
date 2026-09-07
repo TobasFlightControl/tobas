@@ -27,13 +27,6 @@ class DShotWidget : public qt::TableWidget
   using self = DShotWidget;
   using super = qt::TableWidget;
 
-  static constexpr int kTargetNameCol = 0;
-  static constexpr int kBidirectionalCol = kTargetNameCol + 1;
-  static constexpr int kNumCols = kBidirectionalCol + 1;
-
-  static constexpr char kTargetNameLabel[] = "Target";
-  static constexpr char kBidirectionalLabel[] = "Bidirectional";
-
 public:
   explicit DShotWidget(const uadf::Model& uadf, const Signals& sig);
 

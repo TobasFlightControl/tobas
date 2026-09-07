@@ -19,13 +19,6 @@ class IceRotorConfig : public RotorConfig
 {
   using super = RotorConfig;
 
-  static constexpr char kGearRatioKey[] = "gear_ratio";
-  static constexpr char kPitchLimitKey[] = "pitch_limit";
-  static constexpr char kCenterPitchKey[] = "center_pitch";
-  static constexpr char kMotorConstKey[] = "motor_constant";
-  static constexpr char kMomentConstKey[] = "moment_constant";
-  static constexpr char kHardwareIfaceKey[] = "hw_iface";
-
 public:
   using SharedPtr = std::shared_ptr<IceRotorConfig>;
   using ConstSharedPtr = std::shared_ptr<const IceRotorConfig>;

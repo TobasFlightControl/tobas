@@ -20,14 +20,6 @@ namespace tobas
  */
 class Drone
 {
-  static constexpr char kNameKey[] = "name";
-  static constexpr char kJointsKey[] = "joints";
-  static constexpr char kPwmsKey[] = "pwms";
-  static constexpr char kPropulsionSystemTypeKey[] = "propulsion_system_type";
-  static constexpr char kPropulsionSystemKey[] = "propulsion_system";
-  static constexpr char kFixedWingKey[] = "fixed_wing";
-  static constexpr char kNumSbusChannelsKey[] = "num_sbus_channels";
-
 public:
   using SharedPtr = std::shared_ptr<Drone>;
   using ConstSharedPtr = std::shared_ptr<const Drone>;

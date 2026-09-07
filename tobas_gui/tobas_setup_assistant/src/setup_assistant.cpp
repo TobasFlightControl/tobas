@@ -34,6 +34,13 @@ namespace gui
 {
 namespace sa
 {
+namespace
+{
+constexpr char kLastOpenedDirKey_New[] = "setup_assistant/last_opened_dir/new";
+constexpr char kLastOpenedDirKey_Load[] = "setup_assistant/last_opened_dir/load";
+constexpr char kLastOpenedDirKey_Save[] = "setup_assistant/last_opened_dir/save";
+}  // namespace
+
 SetupAssistantWidget::SetupAssistantWidget(rclcpp::Node::SharedPtr node)
   : frame_type_detector_(uadf_, tree_)
   , rsp_client_(node, "robot_state_publisher")
@@ -114,7 +121,7 @@ bool SetupAssistantWidget::resolveMeshPaths(const QString& config_pkg_path, tiny
   if (std::strcmp(elem->Name(), "mesh") == 0) {
     const auto filename = elem->Attribute("filename");
     if (!filename) {
-      qt::qErrorBox(settings_, "Mesh element does not have attribute: \"filename\"");
+      qt::qErrorBox(settings_, "Mesh element does not have attribute: 'filename'");
       return false;
     }
 
@@ -203,33 +210,32 @@ void SetupAssistantWidget::onNewButtonClicked()
 
   // Build the package if the UADF exists in a ROS package before installation.
   const auto pkg_path = ros2::getPackagePathOf(uadf_path.toStdString());
-  if (pkg_path && !ros2::isAlreadyBuiltAndInstalled(pkg_path.value())) {
-    const auto pkg_name = ros2::getPackageNameOf(pkg_path.value());
+  if (pkg_path && !ros2::isAlreadyBuiltAndInstalled(*pkg_path)) {
+    const auto pkg_name = ros2::getPackageNameOf(*pkg_path);
     if (!pkg_name) {
       qt::qErrorBox(this, "Failed to get the ROS package name of the UADF: " + QString::fromStdString(pkg_name.error()));
       return;
     }
-    const auto pkg_name_qt = QString::fromStdString(pkg_name.value());
+    const auto pkg_name_qt = QString::fromStdString(*pkg_name);
 
     qInfo().nospace() << "UADF is in ROS package " << pkg_name_qt << ". Building it.";
     spinner_.start();
-    const auto build_success = cmn::colconBuild(colcon_, pkg_path.value().c_str(), qt::expandUser(kColconWSPathHome));
+    const auto build_success = cmn::colconBuild(colcon_, pkg_path->c_str(), qt::expandUser(kColconWSPathHome));
     spinner_.stop();
 
     if (!build_success) {
       const auto error_msg = QString::fromStdString(colcon_.errorMessage());
       if (error_msg.size() < cmn::kSaveLogTextSizeThresh) {
-        qt::qErrorBox(this, "Failed to build \"" + pkg_name_qt + "\":\n\n" + error_msg);
+        qt::qErrorBox(this, "Failed to build '" + pkg_name_qt + "':\n\n" + error_msg);
       }
       else {
         const auto log_path =
           qt::writeTimestampedFile(error_msg + '\n', qt::expandUser(kGuiLogDir), "", "builderr_description_package");
         if (log_path) {
-          qt::qErrorBox(
-            this, "Failed to build \"" + pkg_name_qt + "\". The output has been saved to:\n" + log_path.value());
+          qt::qErrorBox(this, "Failed to build '" + pkg_name_qt + "'. The output has been saved to:\n" + *log_path);
         }
         else {
-          qt::qErrorBox(this, "Failed to build \"" + pkg_name_qt + "\", and also failed to save the error message.");
+          qt::qErrorBox(this, "Failed to build '" + pkg_name_qt + "', and also failed to save the error message.");
         }
       }
       return;
@@ -247,7 +253,7 @@ void SetupAssistantWidget::onNewButtonClicked()
       const auto log_path =
         qt::writeTimestampedFile(error_msg + '\n', qt::expandUser(kGuiLogDir), "", "xacro_parse_error");
       if (log_path) {
-        qt::qErrorBox(this, "Failed to parse XACRO. The output has been saved to:\n" + log_path.value());
+        qt::qErrorBox(this, "Failed to parse XACRO. The output has been saved to:\n" + *log_path);
       }
       else {
         qt::qErrorBox(this, "Failed to parse XACRO, and also failed to save the error message.");
@@ -407,7 +413,7 @@ void SetupAssistantWidget::onLoadButtonClicked()
 
   // Apply user settings to widgets.
   // Do not reset even if this fails.
-  if (settings_->load(node.value())) {
+  if (settings_->load(*node)) {
     qt::qInfoBox(this, "Tobas project has been loaded successfully.");
   }
 
@@ -432,9 +438,7 @@ void SetupAssistantWidget::onSaveButtonClicked()
   }
 
   // Create the project.
-  if (!prj_gen_->generateProject(cur_proj_path)) {
-    return;
-  }
+  prj_gen_->generateProject(cur_proj_path);
 
   qt::qInfoBox(this, "Tobas project has been updated.");
 }
@@ -471,9 +475,7 @@ void SetupAssistantWidget::onSaveAsButtonClicked()
   }
 
   // Create the project.
-  if (!prj_gen_->generateProject(proj_path)) {
-    return;
-  }
+  prj_gen_->generateProject(proj_path);
 
   // Set the project path.
   proj_path_->setText(proj_path);

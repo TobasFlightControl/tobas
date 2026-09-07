@@ -22,10 +22,6 @@ class ArmStateBanner : public QLabel
   using self = ArmStateBanner;
   using super = QLabel;
 
-  static constexpr int kHeight = 30;
-  static constexpr int kPSize = 14;
-  static constexpr int kMaxArmReadinessIssues = 3;
-
 public:
   explicit ArmStateBanner(const rqt::RosQtBridge& bridge);
 

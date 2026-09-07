@@ -23,9 +23,6 @@ class IpAddressWidget : public BaseConfigWidget
   using self = IpAddressWidget;
   using super = BaseConfigWidget;
 
-  static constexpr int kTabWidth = 135;
-  static constexpr int kTabHeight = 45;
-
 public:
   explicit IpAddressWidget();
 

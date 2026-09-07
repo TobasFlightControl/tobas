@@ -15,13 +15,6 @@ namespace fw
 {
 class VSPAEROParser
 {
-  static constexpr char CL[] = "CL";
-  static constexpr char CD[] = "CD";
-  static constexpr char CS[] = "CS";
-  static constexpr char CMl[] = "CMl";
-  static constexpr char CMm[] = "CMm";
-  static constexpr char CMn[] = "CMn";
-
 public:
   bool parse(const std::string& stab_path);
 

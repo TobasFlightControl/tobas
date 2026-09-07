@@ -13,10 +13,16 @@ namespace propulsion
 {
 namespace ice
 {
+namespace
+{
+constexpr char kDynamicsLabel[] = "Dynamics";
+constexpr char kResponseLabel[] = "Response";
+}  // namespace
+
 EngineWidget::EngineWidget()
 {
   enableWheelEvent(false);
-  setTabSize(kTabWidth, kTabHeight);
+  setTabSize(135, 45);
 
   dynamics_ = new EngineDynamicsWidget();
   response_ = new EngineResponseWidget();

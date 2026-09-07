@@ -16,6 +16,14 @@ namespace propulsion
 {
 namespace ice
 {
+namespace
+{
+constexpr double a = M_2PI;    // 2D lift curve slope (ideal value)
+constexpr double B = 0.9;      // Tip loss factor
+constexpr double gamma = 8.0;  // Lock number (typical value, cf. Balic Helicopter Aerodynamics p.66)
+constexpr double C_d0 = 0.02;  // Profile drag coefficient (typical value)
+}  // namespace
+
 BladeTheory::BladeTheory(int num_blades, double radius, double blade_chord, double pitch_angle, double air_density)
   : N_(num_blades), R_(radius), c_(blade_chord), theta_(pitch_angle), rho_(air_density)
 {

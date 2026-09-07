@@ -33,8 +33,6 @@ class BasePoseCommanderWidget : public QWidget
   using self = BasePoseCommanderWidget;
   using super = QWidget;
 
-  static constexpr double kHomeAltitude = 3.0;  // [m]
-
 public:
   explicit BasePoseCommanderWidget(const rqt::RosQtBridge& bridge);
 

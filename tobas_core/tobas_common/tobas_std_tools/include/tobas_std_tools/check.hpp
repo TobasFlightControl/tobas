@@ -11,8 +11,8 @@
 #define TOBAS_CHECK(expr)                                                                                              \
   {                                                                                                                    \
     if (!static_cast<bool>(expr)) {                                                                                    \
-      std::cout << RED_PREFIX << "Check failed: " << #expr << " (" << __FILE__ << ":" << __LINE__ << ")"               \
-                << COLOR_RESET << std::endl;                                                                           \
+      std::cout << ::tobas::st::kRedPrefix << "Check failed: " << #expr << " (" << __FILE__ << ":" << __LINE__ << ")"  \
+                << ::tobas::st::kColorReset << std::endl;                                                              \
       std::abort();                                                                                                    \
     }                                                                                                                  \
   }

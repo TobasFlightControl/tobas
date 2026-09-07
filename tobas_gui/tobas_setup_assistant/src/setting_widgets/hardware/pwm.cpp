@@ -23,6 +23,19 @@ namespace sa
 {
 namespace hw
 {
+namespace
+{
+constexpr int kTargetNameCol = 0;
+constexpr int kPeriodLbCol = kTargetNameCol + 1;
+constexpr int kPeriodUbCol = kPeriodLbCol + 1;
+constexpr int kNumCols = kPeriodUbCol + 1;
+
+constexpr char kTargetNameLabel[] = "Target";
+constexpr char kPeriodLbLabel[] = "PWM Period (LB)";
+constexpr char kPeriodUbLabel[] = "PWM Period (UB)";
+
+}  // namespace
+
 PwmWidget::PwmWidget(const uadf::Model& uadf, const Signals& sig) : super(0, kNumCols), uadf_(uadf)
 {
   setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
@@ -60,7 +73,7 @@ bool PwmWidget::isValid()
       continue;
     }
     if (target_name_set.contains(target_name)) {
-      qt::qWarnBox(this, "PWM target \"" + target_name + "\" is duplicated.");
+      qt::qWarnBox(this, "PWM target '" + target_name + "' is duplicated.");
       return false;
     }
     target_name_set.insert(target_name);
@@ -201,7 +214,7 @@ const qt::DoubleSpinBox* PwmWidget::periodUbWidget(int row) const
 
 void PwmWidget::addLastChannel()
 {
-  const auto row = rowCount();
+  constexpr int kPeriodDecimals = 2;
 
   // Target name
   const auto target_name = new qt::ComboBox();
@@ -244,6 +257,7 @@ void PwmWidget::addLastChannel()
   period_ub->setSuffix(" us");
 
   // Insert table row.
+  const auto row = rowCount();
   insertRow(row);
   setVerticalHeaderItem(row, new QTableWidgetItem("CH" + QString::number(row)));
   setCellWidget(row, kTargetNameCol, target_name);
@@ -264,7 +278,7 @@ void PwmWidget::removeLastChannel()
   removeRow(row);
 
   if (!target_name.isEmpty()) {
-    qt::qWarnBox(this, "PWM configuration for \"" + target_name + "\" has been removed.");
+    qt::qWarnBox(this, "PWM configuration for '" + target_name + "' has been removed.");
   }
 }
 

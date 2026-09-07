@@ -20,7 +20,7 @@ namespace ice
 {
 PropulsionUnitsWidget::PropulsionUnitsWidget(const uadf::Model& uadf) : uadf_(uadf)
 {
-  setTabSize(kTabWidth, kTabHeight);
+  setTabSize(150, 50);
 }
 
 void PropulsionUnitsWidget::updateInternalDataStructures()
@@ -138,7 +138,7 @@ void PropulsionUnitsWidget::onCopyToAllButtonClicked(const QString& link_name)
     dst_widget->copyFrom(src_widget);
   }
 
-  qt::qInfoBox(this, "The settings of \"" + link_name + "\" have been copied to all the other propulsion units.");
+  qt::qInfoBox(this, "The settings of '" + link_name + "' have been copied to all the other propulsion units.");
 }
 }  // namespace ice
 }  // namespace propulsion

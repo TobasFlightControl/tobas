@@ -37,33 +37,34 @@ ParamGetterWidget_DoubleTable::ParamGetterWidget_DoubleTable(
 
   minimum_.fill(std::numeric_limits<double>::lowest(), num_entry_);
   maximum_.fill(std::numeric_limits<double>::max(), num_entry_);
-  default_.fill(kDefaultValue, num_entry_);
-  decimals_.fill(kDefaultDecimals, num_entry_);
-
-  const auto cols = new QHBoxLayout();
-  rows_->addLayout(cols);
+  default_.fill(0.0, num_entry_);
+  decimals_.fill(2, num_entry_);
 
   const auto add_row_btn = new QPushButton("Add Row");
-  add_row_btn->setFixedSize(kButtonWidth, kButtonHeight);
-  cols->addWidget(add_row_btn);
-
   const auto delete_row_btn = new QPushButton("Delete Row");
-  delete_row_btn->setFixedSize(kButtonWidth, kButtonHeight);
-  cols->addWidget(delete_row_btn);
-
   const auto clear_btn = new QPushButton("Clear");
-  clear_btn->setFixedSize(kButtonWidth, kButtonHeight);
-  cols->addWidget(clear_btn);
-
   const auto load_csv_btn = new QPushButton("Load CSV");
-  load_csv_btn->setFixedSize(kButtonWidth, kButtonHeight);
-  cols->addWidget(load_csv_btn);
 
-  cols->addStretch();  // Left-align the button.
+  constexpr int kButtonWidth = 90;
+  constexpr int kButtonHeight = 36;
+  add_row_btn->setFixedSize(kButtonWidth, kButtonHeight);
+  delete_row_btn->setFixedSize(kButtonWidth, kButtonHeight);
+  clear_btn->setFixedSize(kButtonWidth, kButtonHeight);
+  load_csv_btn->setFixedSize(kButtonWidth, kButtonHeight);
 
   table_ = new qt::TableWidget(0, num_entry_);
   table_->verticalHeader()->setVisible(true);  // Show row numbers.
   table_->setHorizontalHeaderLabels(labels);
+
+  // Layout
+  const auto cols = new QHBoxLayout();
+  cols->addWidget(add_row_btn);
+  cols->addWidget(delete_row_btn);
+  cols->addWidget(clear_btn);
+  cols->addWidget(load_csv_btn);
+  cols->addStretch();  // Left-align the button.
+
+  rows_->addLayout(cols);
   rows_->addWidget(table_);
 
   // Connection
@@ -240,7 +241,7 @@ bool ParamGetterWidget_DoubleTable::isValidData(const Eigen::MatrixXd& src)
   for (int col = 0; col < num_entry_; ++col) {
     const auto column = src.col(col).array().eval();
     if ((column < minimum_.at(col)).any() || (maximum_.at(col) < column).any()) {
-      qt::qErrorBox(this, "Some values of field \"" + labels_.at(col) + "\" are out of limits.");
+      qt::qErrorBox(this, "Some values of field '" + labels_.at(col) + "' are out of limits.");
       return false;
     }
   }

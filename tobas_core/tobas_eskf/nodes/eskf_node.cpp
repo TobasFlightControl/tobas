@@ -53,11 +53,6 @@ class ErrorStateKalmanFilterNode : public BaseNode
   static constexpr double kInitRotStddev = M_PI_4;  // [rad]
   static constexpr double kInitMagStddev = 0.5;     // [-]
 
-  // Other constants
-  static constexpr double kAccurateAttitudeStddevThresh = 0.05;  // [rad]
-  static constexpr size_t kInitMagCount = 100;
-  static constexpr size_t kInitBaroCount = 100;
-
 public:
   explicit ErrorStateKalmanFilterNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
@@ -764,6 +759,7 @@ void ErrorStateKalmanFilterNode::magCb(const tobas_msgs::MagneticField::ConstSha
   // temporarily use the first geomagnetic vector as the reference.
   if (!mag_ref_set_) {
     // Wait until the attitude stabilizes.
+    constexpr double kAccurateAttitudeStddevThresh = 0.05;  // [rad]
     const auto rot_cov = eskf_.getRotationCovariance();
     const auto atti_var = (rot_cov(0, 0) + rot_cov(1, 1)) / 2;
     const auto atti_stddev = std::sqrt(atti_var);  // [rad]
@@ -801,6 +797,7 @@ void ErrorStateKalmanFilterNode::magCb(const tobas_msgs::MagneticField::ConstSha
     }
 
     // Set the mean value as the reference vector after enough geomagnetic data has been accumulated.
+    constexpr size_t kInitMagCount = 100;
     if (++init_mag_cnt_ >= kInitMagCount) {
       Eigen::Vector3d init_mag_mean;
       for (size_t i = 0; i < 3; ++i) {
@@ -832,6 +829,7 @@ void ErrorStateKalmanFilterNode::baroCb(const tobas_msgs::msg::FluidPressure::Co
 
   // Set the initial barometric altitude value.
   if (!baro_alt_origin_set_) {
+    constexpr size_t kInitBaroCount = 100;
     init_pres_sum_.add(msg->pressure);
     if (++init_pres_cnt_ >= kInitBaroCount) {
       const auto init_pres_mean = init_pres_sum_.get() / init_pres_cnt_;

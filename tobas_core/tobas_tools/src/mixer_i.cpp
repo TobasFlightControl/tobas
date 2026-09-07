@@ -3,8 +3,6 @@
 
 #include "tobas_tools/mixer_i.hpp"
 
-using namespace std;
-
 namespace tobas
 {
 MixerI::MixerI(const Drone& drone, const kdl::Tree& tree) : drone_(drone), tree_(tree)
@@ -26,10 +24,10 @@ bool MixerI::updateInternalDataStructures()
   return true;
 }
 
-bool MixerI::setRotorLiveliness(const string& link_name, bool alive)
+bool MixerI::setRotorLiveliness(const std::string& link_name, bool alive)
 {
   if (!rotor_alive_.contains(link_name)) {
-    cerr << "Invalid rotor link name: " << link_name << endl;
+    std::cerr << "Invalid rotor link name: " << link_name << std::endl;
     return false;
   }
 

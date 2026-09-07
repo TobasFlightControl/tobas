@@ -11,6 +11,12 @@ using namespace std;
 
 namespace tobas
 {
+namespace
+{
+constexpr char kBatteryKey[] = "battery";
+constexpr char kRotorsKey[] = "rotors";
+}  // namespace
+
 bool ElectricPropulsionSystemConfig::isValid() const
 {
   // Rotors

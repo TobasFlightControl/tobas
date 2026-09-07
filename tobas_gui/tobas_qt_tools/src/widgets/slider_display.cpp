@@ -8,15 +8,18 @@
 
 #include "tobas_qt_tools/font.hpp"
 
-#define TEXT_PSIZE 9
-
 namespace tobas
 {
 namespace qt
 {
+namespace
+{
+constexpr int kTextPointSize = 9;
+}  // namespace
+
 IntSliderDisplay::IntSliderDisplay(QWidget* parent) : super(parent)
 {
-  const DefaultFont font(TEXT_PSIZE, QFont::Bold);
+  const DefaultFont font(kTextPointSize, QFont::Bold);
 
   text_ = new QLabel();
   text_->setFont(font);
@@ -121,7 +124,7 @@ void IntSliderDisplay::onSliderValueChanged(int value)
 
 DoubleSliderDisplay::DoubleSliderDisplay(QWidget* parent) : super(parent)
 {
-  const DefaultFont font(TEXT_PSIZE, QFont::Bold);
+  const DefaultFont font(kTextPointSize, QFont::Bold);
 
   text_ = new QLabel();
   text_->setFont(font);

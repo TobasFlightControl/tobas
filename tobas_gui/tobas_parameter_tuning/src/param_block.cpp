@@ -32,7 +32,7 @@ ParamBlockWidget::ParamBlockWidget(const std::string& node_name, const QString& 
   setLayout(rows);
 
   label_ = new QLabel(label);
-  label_->setFont(qt::DefaultFont(kLabelPSize, QFont::Bold));
+  label_->setFont(qt::DefaultFont(12, QFont::Bold));
   qt::addWidgetCenter(label_, rows);
 
   form_ = new qt::FormLayout();
@@ -55,6 +55,9 @@ void ParamBlockWidget::clearRosInterfaces()
 
 bool ParamBlockWidget::load()
 {
+  constexpr int kParamNameWidth = 250;
+  constexpr int kLineEditWidth = 150;
+
   clear();
 
   if (!get_param_sc_) {
@@ -66,7 +69,7 @@ bool ParamBlockWidget::load()
   const auto req = std::make_shared<tobas_dparam_msgs::srv::GetParams::Request>();
   const auto res = get_param_sc_->sendRequestAndWait(req);
   if (!res) {
-    qt::qErrorBox(this, "Failed to get dynamic parameters configuration of \"" + label_->text() + "\".");
+    qt::qErrorBox(this, "Failed to get dynamic parameters configuration of '" + label_->text() + "'.");
     return false;
   }
   const auto& params = res->params;
@@ -194,7 +197,7 @@ bool ParamBlockWidget::setToDefaults()
 
     if (dparam_cli_->setInt(name, config.dflt) != dparam::DynamicParamClient::kNoError) {
       qWarning() << dparam_cli_->errorMessage();
-      qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter \"" + name.c_str() + "\".");
+      qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter '" + name.c_str() + "'.");
       return false;
     }
 
@@ -210,7 +213,7 @@ bool ParamBlockWidget::setToDefaults()
 
     if (dparam_cli_->setDouble(name, config.dflt) != dparam::DynamicParamClient::kNoError) {
       qWarning() << dparam_cli_->errorMessage();
-      qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter \"" + name.c_str() + "\".");
+      qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter '" + name.c_str() + "'.");
       return false;
     }
 
@@ -255,7 +258,7 @@ void ParamBlockWidget::onIntSliderValueChanged(long value, const std::string& na
   config.line_edit->setText(QString::number(config.step * value) + config.prefix);
 
   if (dparam_cli_->setInt(name, value) != dparam::DynamicParamClient::kNoError) {
-    qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter \"" + name.c_str() + "\".");
+    qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter '" + name.c_str() + "'.");
   }
 }
 
@@ -277,7 +280,7 @@ void ParamBlockWidget::onDoubleSliderValueChanged(long value, const std::string&
   config.line_edit->setText(QString::number(config.step * value) + config.prefix);
 
   if (dparam_cli_->setDouble(name, value) != dparam::DynamicParamClient::kNoError) {
-    qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter \"" + name.c_str() + "\".");
+    qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter '" + name.c_str() + "'.");
   }
 }
 }  // namespace param

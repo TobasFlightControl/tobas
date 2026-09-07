@@ -4,14 +4,11 @@
 #include "tobas_quadprog/dual_active_set.hpp"
 
 #include <iostream>
+#include <limits>
 
 #include <eigen3/Eigen/Cholesky>
 
 #include <tobas_math/core.hpp>
-
-#define EPS std::numeric_limits<double>::epsilon()
-#define INF std::numeric_limits<double>::infinity()
-#define TOL_FACTOR 100.0
 
 // #define TRACE_SOLVER
 
@@ -19,6 +16,13 @@ namespace tobas
 {
 namespace quadprog
 {
+namespace
+{
+constexpr double kEps = std::numeric_limits<double>::epsilon();
+constexpr double kInfinity = std::numeric_limits<double>::infinity();
+constexpr double kToleranceFactor = 100.0;
+}  // namespace
+
 DualActiveSetSolver::DualActiveSetSolver() : super()
 {
 }
@@ -111,7 +115,7 @@ bool DualActiveSetSolver::solve()
 
     // Compute full step length t2: i.e., the minimum step in primal space
     // s.t. the constraint becomes feasible.
-    const auto t2 = z_.dot(z_) > EPS ? (-np_.dot(x_) - scaled.h(i)) / z_.dot(np_) : 0.0;
+    const auto t2 = z_.dot(z_) > kEps ? (-np_.dot(x_) - scaled.h(i)) / z_.dot(np_) : 0.0;
 
     // Set x = x + t2 * z.
     x_ += t2 * z_;
@@ -161,7 +165,7 @@ bool DualActiveSetSolver::solve()
 #endif
 
         const auto psi = s_.head(m_).cwiseMin(0.0).sum();  // Sum of all infeasibilities
-        if (std::abs(psi) <= m_ * EPS * c_ * TOL_FACTOR) {
+        if (std::abs(psi) <= m_ * kEps * c_ * kToleranceFactor) {
           // Numerically there are no infeasibilities anymore.
           x_opt_ = x_.cwiseProduct(x_scale);
           return true;
@@ -223,7 +227,7 @@ bool DualActiveSetSolver::solve()
 
         // Compute t1: partial step length
         // = maximum step in dual space without violating dual feasibility.
-        auto t1 = INF;
+        auto t1 = kInfinity;
         // Find the index l s.t. it reaches the minimum of u+[x] / r.
         for (Eigen::Index k = p_; k < iq_; ++k) {
           if (r_(k) > 0.0) {
@@ -236,13 +240,13 @@ bool DualActiveSetSolver::solve()
 
         // Compute t2: full step length
         // = minimum step in primal space such that the constraint ip becomes feasible.
-        auto t2 = INF;
-        if (z_.dot(z_) > EPS)  // i.e. z != 0
+        auto t2 = kInfinity;
+        if (z_.dot(z_) > kEps)  // i.e. z != 0
         {
           t2 = -s_(ip_) / z_.dot(np_);
           if (t2 < 0)  // Patch suggested by Takano Akio for handling numerical inconsistencies
           {
-            t2 = INF;
+            t2 = kInfinity;
           }
         }
 
@@ -256,13 +260,13 @@ bool DualActiveSetSolver::solve()
         // Step 2c: determine new S-pair and take step:
 
         // case (i): no step in primal or dual space
-        if (t >= INF) {
+        if (t >= kInfinity) {
           error_msg_ = "QPP is infeasible.";
           return false;
         }
 
         // case (ii): step in dual space
-        if (t2 >= INF) {
+        if (t2 >= kInfinity) {
           // Set u = u + t * [-r 1] and drop constraint l from the active set A.
           u_.head(iq_) -= t * r_.head(iq_);
           u_(iq_) += t;
@@ -296,7 +300,7 @@ bool DualActiveSetSolver::solve()
         cout << "A:\n" << A_.head(iq_ + 1).transpose() << endl;
 #endif
 
-        if (std::abs(t - t2) < EPS) {
+        if (std::abs(t - t2) < kEps) {
 #ifdef TRACE_SOLVER
           cout << "Full step has taken " << t << endl;
           cout << "x:\n" << x_.transpose() << endl;
@@ -412,7 +416,7 @@ bool DualActiveSetSolver::addConstraint()
     auto cc = d_(j - 1);
     auto ss = d_(j);
     const auto h = distance(cc, ss);
-    if (std::abs(h) < EPS)  // h == 0
+    if (std::abs(h) < kEps)  // h == 0
     {
       continue;
     }
@@ -448,7 +452,7 @@ bool DualActiveSetSolver::addConstraint()
   cout << "d:\n" << d_.head(iq_).transpose() << endl;
 #endif
 
-  if (std::abs(d_(iq_ - 1)) <= EPS * R_norm_) {
+  if (std::abs(d_(iq_ - 1)) <= kEps * R_norm_) {
     error_msg_ = "Problem degenerate.";
     return false;
   }
@@ -501,7 +505,7 @@ void DualActiveSetSolver::deleteConstraint(const Eigen::Index& l)
     auto cc = R_(j, j);
     auto ss = R_(j + 1, j);
     const auto h = distance(cc, ss);
-    if (std::abs(h) < EPS)  // h == 0
+    if (std::abs(h) < kEps)  // h == 0
     {
       continue;
     }

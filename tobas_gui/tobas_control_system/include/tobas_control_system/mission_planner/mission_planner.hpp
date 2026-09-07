@@ -37,12 +37,6 @@ class MissionPlannerWidget : public QWidget
   using Client = rclcpp_action::Client<Action>;
   using GoalHandle = rclcpp_action::ClientGoalHandle<Action>;
 
-  static constexpr char kCacheDirOnline[] = "~/.cache/tobas/tiles/online";
-  static constexpr char kCacheDirOffline[] = "~/.cache/tobas/tiles/offline";
-  static constexpr uintmax_t kCacheMaxSize = 1 << 30;  // 1GiB
-
-  static constexpr char kLastOpenedDirKey[] = "mission_planner/last_opened_dir";
-
 Q_SIGNALS:
   void goalResponseReceived(bool ok);
   void feedbackReceived(uint32_t current_command_index);

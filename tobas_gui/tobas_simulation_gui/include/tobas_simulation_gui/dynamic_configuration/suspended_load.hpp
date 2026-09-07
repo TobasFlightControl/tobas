@@ -31,12 +31,6 @@ class SuspendedLoadWidget : public QWidget
   using AttachSrv = tobas_gazebo_msgs::srv::AttachSuspendedLoad;
   using DetachSrv = tobas_gazebo_msgs::srv::DetachSuspendedLoad;
 
-  static constexpr double kDefaultLoadSize = 0.3;           // [m]
-  static constexpr double kDefaultLoadMass = 1.0;           // [kg]
-  static constexpr double kDefaultCableLength = 3.0;        // [m]
-  static constexpr int kDefaultCableYoungModulus = 200;     // [MPa] Low-density polyethylene.
-  static constexpr int kDefaultCableCrossSectionArea = 50;  // [mm^2]
-
 public:
   explicit SuspendedLoadWidget();
 

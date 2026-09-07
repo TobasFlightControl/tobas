@@ -12,8 +12,6 @@ namespace tobas
 {
 class CommandPriorityHandler
 {
-  static constexpr auto kHighestLevelTimeout = std::chrono::milliseconds(500);
-
 public:
   explicit CommandPriorityHandler();
 

@@ -13,23 +13,6 @@ namespace tobas
  */
 class AerodynamicCoefficients
 {
-  static constexpr char kCLift0Key[] = "c_lift_0";
-  static constexpr char kCLiftAlphaKey[] = "c_lift_alpha";
-  static constexpr char kCDrag0Key[] = "c_drag_0";
-  static constexpr char kCDragAlphaKey[] = "c_drag_alpha";
-  static constexpr char kCSideBetaKey[] = "c_side_beta";
-  static constexpr char kCRollBetaKey[] = "c_roll_beta";
-  static constexpr char kCRollPKey[] = "c_roll_p";
-  static constexpr char kCRollRKey[] = "c_roll_r";
-  static constexpr char kCPitch0Key[] = "c_pitch_0";
-  static constexpr char kCPitchAlphaKey[] = "c_pitch_alpha";
-  static constexpr char kCPitchAbsBetaKey[] = "c_pitch_abs_beta";
-  static constexpr char kCPitchAlphaRateKey[] = "c_pitch_alpha_rate";
-  static constexpr char kCPitchQKey[] = "c_pitch_q";
-  static constexpr char kCYawBetaKey[] = "c_yaw_beta";
-  static constexpr char kCYawPKey[] = "c_yaw_p";
-  static constexpr char kCYawRKey[] = "c_yaw_r";
-
 public:
   // Lift force
   double c_lift_0 = 0;      // [-]

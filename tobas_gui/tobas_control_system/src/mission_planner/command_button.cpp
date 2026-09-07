@@ -11,8 +11,8 @@ namespace ctrl
 {
 CommandButton::CommandButton(const QString& text) : super(text)
 {
-  setMaximumWidth(kMaxWidth);
-  setMinimumHeight(kMinHeight);
+  setMaximumWidth(100);
+  setMinimumHeight(35);
   setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 }
 }  // namespace ctrl

@@ -21,11 +21,33 @@ namespace gui
 {
 namespace sa
 {
+namespace
+{
+// Columns
+constexpr int kLinkNameCol = 0;
+constexpr int kJointNameCol = kLinkNameCol + 1;
+constexpr int kCmdIfaceCol = kJointNameCol + 1;
+constexpr int kHomePosCol = kCmdIfaceCol + 1;
+constexpr int kNumCols = kHomePosCol + 1;
+
+// Field Labels
+constexpr char kLinkNameLabel[] = "Link Name";
+constexpr char kJointNameLabel[] = "Joint Name";
+constexpr char kCmdIfaceLabel[] = "Command Interface";
+constexpr char kHomePosLabel[] = "Home Position";
+
+// Command Interface Labels
+constexpr char kCmdIfaceLabel_Position[] = "Position";
+constexpr char kCmdIfaceLabel_Velocity[] = "Velocity";
+constexpr char kCmdIfaceLabel_Effort[] = "Effort";
+constexpr char kCmdIfaceLabel_None[] = "None";
+}  // namespace
+
 ExtraJointsWidget::ExtraJointsWidget(const uadf::Model& uadf, const kdl::Tree& tree) : uadf_(uadf), tree_(tree)
 {
   table_ = new qt::TableWidget(0, kNumCols);
   table_->setHeaderSectionsClickable(false);
-  table_->setHorizontalHeaderLabels({ kLinkNameLabel, kJointNameLabel, kRoleLabel, kCmdIfaceLabel, kHomePosLabel });
+  table_->setHorizontalHeaderLabels({ kLinkNameLabel, kJointNameLabel, kCmdIfaceLabel, kHomePosLabel });
   table_->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
   addWidget(table_);
 }
@@ -103,7 +125,6 @@ YAML::Node ExtraJointsWidget::dump() const
   for (int row = 0; row < table_->rowCount(); ++row) {
     YAML::Node sub_node(YAML::NodeType::Map);
 
-    sub_node[kRoleLabel] = roleWidget(row)->currentText();
     sub_node[kCmdIfaceLabel] = commandIfaceWidget(row)->currentText();
     sub_node[kHomePosLabel] = homePositionWidget(row)->value();
 
@@ -123,11 +144,8 @@ void ExtraJointsWidget::load(const YAML::Node& node)
     const auto row = findLink(link_name);
     TOBAS_CHECK(row >= 0);
 
-    roleWidget(row)->setCurrentText(sub_node[kRoleLabel].as<QString>());
     commandIfaceWidget(row)->setCurrentText(sub_node[kCmdIfaceLabel].as<QString>());
     homePositionWidget(row)->setValue(sub_node[kHomePosLabel].as<int>());
-
-    updateEnability(row);
   }
 }
 
@@ -139,21 +157,6 @@ QString ExtraJointsWidget::getLinkName(int row) const
 QString ExtraJointsWidget::getJointName(int row) const
 {
   return jointNameWidget(row)->text();
-}
-
-JointRole ExtraJointsWidget::getRole(int row) const
-{
-  const auto text = roleWidget(row)->currentText();
-
-  if (text == kRoleLabel_UserActive) {
-    return JointRole::kUserActive;
-  }
-  else if (text == kRoleLabel_UserPassive) {
-    return JointRole::kUserPassive;
-  }
-  else {
-    throw;
-  }
 }
 
 JointCommandInterface ExtraJointsWidget::getCommandInterface(int row) const
@@ -177,28 +180,15 @@ JointCommandInterface ExtraJointsWidget::getCommandInterface(int row) const
   }
 }
 
+JointRole ExtraJointsWidget::getRole(int row) const
+{
+  const auto cmd_iface = getCommandInterface(row);
+  return cmd_iface == JointCommandInterface::kNone ? JointRole::kUserPassive : JointRole::kUserActive;
+}
+
 double ExtraJointsWidget::getHomePosition(int row) const
 {
   return st::deg2rad(homePositionWidget(row)->value());
-}
-
-void ExtraJointsWidget::setRole(int row, JointRole value)
-{
-  QString text;
-  switch (value) {
-    case JointRole::kUserActive:
-      text = kRoleLabel_UserActive;
-      break;
-    case JointRole::kUserPassive:
-      text = kRoleLabel_UserPassive;
-      break;
-    case JointRole::kTiltJoint:
-    case JointRole::kControlSurface:
-    default:
-      throw;
-  }
-
-  roleWidget(row)->setCurrentText(text);
 }
 
 void ExtraJointsWidget::setCommandInterface(int row, JointCommandInterface value)
@@ -263,29 +253,14 @@ QLabel* ExtraJointsWidget::linkNameWidget(int row)
   return qt::qPointerCast<QLabel>(table_->cellWidget(row, kLinkNameCol));
 }
 
-QLabel* ExtraJointsWidget::jointNameWidget(int row)
-{
-  return qt::qPointerCast<QLabel>(table_->cellWidget(row, kJointNameCol));
-}
-
-qt::ComboBox* ExtraJointsWidget::roleWidget(int row)
-{
-  return qt::qPointerCast<qt::ComboBox>(table_->cellWidget(row, kRoleCol));
-}
-
-qt::ComboBox* ExtraJointsWidget::commandIfaceWidget(int row)
-{
-  return qt::qPointerCast<qt::ComboBox>(table_->cellWidget(row, kCmdIfaceCol));
-}
-
-qt::SpinBox* ExtraJointsWidget::homePositionWidget(int row)
-{
-  return qt::qPointerCast<qt::SpinBox>(table_->cellWidget(row, kHomePosCol));
-}
-
 const QLabel* ExtraJointsWidget::linkNameWidget(int row) const
 {
   return qt::qConstPointerCast<QLabel>(table_->cellWidget(row, kLinkNameCol));
+}
+
+QLabel* ExtraJointsWidget::jointNameWidget(int row)
+{
+  return qt::qPointerCast<QLabel>(table_->cellWidget(row, kJointNameCol));
 }
 
 const QLabel* ExtraJointsWidget::jointNameWidget(int row) const
@@ -293,14 +268,19 @@ const QLabel* ExtraJointsWidget::jointNameWidget(int row) const
   return qt::qConstPointerCast<QLabel>(table_->cellWidget(row, kJointNameCol));
 }
 
-const qt::ComboBox* ExtraJointsWidget::roleWidget(int row) const
+qt::ComboBox* ExtraJointsWidget::commandIfaceWidget(int row)
 {
-  return qt::qConstPointerCast<qt::ComboBox>(table_->cellWidget(row, kRoleCol));
+  return qt::qPointerCast<qt::ComboBox>(table_->cellWidget(row, kCmdIfaceCol));
 }
 
 const qt::ComboBox* ExtraJointsWidget::commandIfaceWidget(int row) const
 {
   return qt::qConstPointerCast<qt::ComboBox>(table_->cellWidget(row, kCmdIfaceCol));
+}
+
+qt::SpinBox* ExtraJointsWidget::homePositionWidget(int row)
+{
+  return qt::qPointerCast<qt::SpinBox>(table_->cellWidget(row, kHomePosCol));
 }
 
 const qt::SpinBox* ExtraJointsWidget::homePositionWidget(int row) const
@@ -315,50 +295,14 @@ void ExtraJointsWidget::clear()
 
 void ExtraJointsWidget::reset(int row)
 {
-  roleWidget(row)->setCurrentText(kRoleLabel_UserActive);
-
-  setDefaultValues(row);
-  updateEnability(row);
-}
-
-void ExtraJointsWidget::setDefaultValues(int row)
-{
-  // Set the command interface and hardware interface according to the role.
-  switch (getRole(row)) {
-    case JointRole::kUserActive:
-      commandIfaceWidget(row)->setCurrentText(kCmdIfaceLabel_Position);
-      break;
-    case JointRole::kUserPassive:
-      commandIfaceWidget(row)->setCurrentText(kCmdIfaceLabel_None);
-      break;
-    case JointRole::kTiltJoint:
-    case JointRole::kControlSurface:
-    default:
-      throw;
+  const auto cmd_iface = commandIfaceWidget(row);
+  if (cmd_iface->isEnabled()) {
+    cmd_iface->setCurrentText(kCmdIfaceLabel_Position);
   }
 
-  // Common default values.
-  homePositionWidget(row)->setValue(0);
-}
-
-void ExtraJointsWidget::updateEnability(int row)
-{
-  // Role-specific fields.
-  switch (getRole(row)) {
-    case JointRole::kUserActive:
-      roleWidget(row)->setEnabled(true);
-      commandIfaceWidget(row)->setEnabled(true);
-      homePositionWidget(row)->setEnabled(true);
-      break;
-    case JointRole::kUserPassive:
-      roleWidget(row)->setEnabled(true);
-      commandIfaceWidget(row)->setEnabled(false);
-      homePositionWidget(row)->setEnabled(false);
-      break;
-    case JointRole::kTiltJoint:
-    case JointRole::kControlSurface:
-    default:
-      throw;
+  const auto home_pos = homePositionWidget(row);
+  if (home_pos->isEnabled()) {
+    home_pos->setValue(0);
   }
 }
 
@@ -368,17 +312,12 @@ void ExtraJointsWidget::addLink(const std::string& link_name)
 
   const auto seg_it = tree_.getSegment(link_name);
   const auto& joint = seg_it->second.segment.joint();
+  const auto& joint_name = joint.name;
+  TOBAS_CHECK(joint.type == kdl::Joint::kRotation);
 
   // Name
   const auto link_name_label = new QLabel(QString::fromStdString(link_name));
-  const auto joint_name_label = new QLabel(QString::fromStdString(joint.name));
-
-  // Role
-  const auto role = new qt::ComboBox();
-  role->addItems({
-    kRoleLabel_UserActive,
-    kRoleLabel_UserPassive,
-  });
+  const auto joint_name_label = new QLabel(QString::fromStdString(joint_name));
 
   // Command Interface
   const auto cmd_iface = new qt::ComboBox();
@@ -391,26 +330,28 @@ void ExtraJointsWidget::addLink(const std::string& link_name)
 
   // Home Position
   const auto home_pos = new qt::SpinBox();
-  home_pos->setMinimum(std::round(st::rad2deg(std::isinf(joint.lower_limit) ? -M_PI : joint.lower_limit)));
-  home_pos->setMaximum(std::round(st::rad2deg(std::isinf(joint.upper_limit) ? M_PI : joint.upper_limit)));
+  home_pos->setMinimum(std::isinf(joint.lower_limit) ? -180 : std::round(st::rad2deg(joint.lower_limit)));
+  home_pos->setMaximum(std::isinf(joint.upper_limit) ? +180 : std::round(st::rad2deg(joint.upper_limit)));
   home_pos->setSuffix(" deg");
 
-  // Insert table row
+  // Treat the joint as passive if its limits are invalid.
+  const auto limits = uadf_.urdf->getJoint(joint_name)->limits;
+  if (!limits || limits->lower >= limits->upper || limits->velocity <= 0.0 || limits->effort <= 0.0) {
+    cmd_iface->setCurrentText(kCmdIfaceLabel_None);
+    cmd_iface->setEnabled(false);
+    home_pos->setValue(0);
+    home_pos->setEnabled(false);
+  }
+
+  // Insert table row.
   table_->insertRow(row);
   table_->setCellWidget(row, kLinkNameCol, link_name_label);
   table_->setCellWidget(row, kJointNameCol, joint_name_label);
-  table_->setCellWidget(row, kRoleCol, role);
   table_->setCellWidget(row, kCmdIfaceCol, cmd_iface);
   table_->setCellWidget(row, kHomePosCol, home_pos);
 
-  // Connection
-  connect(role, &qt::ComboBox::currentTextChanged, std::bind(&self::onRoleChanged, this, row));
-}
-
-void ExtraJointsWidget::onRoleChanged(int row)
-{
-  setDefaultValues(row);
-  updateEnability(row);
+  // Set to the default values.
+  reset(row);
 }
 }  // namespace sa
 }  // namespace gui

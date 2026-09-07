@@ -20,13 +20,6 @@ namespace ogre
 {
 class OgreController
 {
-  static constexpr float kAxesLength = 0.1;
-  static constexpr float kAxesRadius = 0.01;
-  static constexpr float kCharHeight = 0.03;  // Character size displayed in the model view.
-  static constexpr float kHighlightR = 0.0;
-  static constexpr float kHighlightG = 1.0;
-  static constexpr float kHighlightB = 0.0;
-
 public:
   explicit OgreController(rviz_common::DisplayContext* context);
   ~OgreController();

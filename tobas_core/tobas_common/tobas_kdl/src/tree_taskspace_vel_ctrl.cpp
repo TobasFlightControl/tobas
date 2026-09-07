@@ -11,6 +11,7 @@ namespace kdl
 {
 TreeTaskSpaceVelCtrl::TreeTaskSpaceVelCtrl(const Tree& tree) : super(tree), fk_(tree), ik_(tree)
 {
+  constexpr double kDefaultTimeConst = 0.3;  // [s]
   setLinearTimeConst(Vector::Constant(kDefaultTimeConst));
   setAngularTimeConst(Vector::Constant(kDefaultTimeConst));
 }

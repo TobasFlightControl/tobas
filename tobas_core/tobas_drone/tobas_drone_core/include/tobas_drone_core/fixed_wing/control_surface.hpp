@@ -23,15 +23,6 @@ using ControlSurfaceMap = std::map<std::string, ControlSurface>;  // Joint Name 
  */
 class ControlSurface
 {
-  static constexpr char kChannelKey[] = "channel";
-  static constexpr char kLinkNameKey[] = "link_name";
-  static constexpr char kCLiftDeltaKey[] = "c_lift_delta";
-  static constexpr char kCDragAbsDeltaKey[] = "c_drag_abs_delta";
-  static constexpr char kCSideDeltaKey[] = "c_side_delta";
-  static constexpr char kCRollDeltaKey[] = "c_roll_delta";
-  static constexpr char kCPitchDeltaKey[] = "c_pitch_delta";
-  static constexpr char kCYawDeltaKey[] = "c_yaw_delta";
-
 public:
   std::string link_name = "";
 

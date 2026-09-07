@@ -4,6 +4,7 @@
 #include "tobas_setup_assistant/frame_type_detector.hpp"
 
 #include <tobas_std_tools/check.hpp>
+#include <tobas_std_tools/unit_conversions.hpp>
 
 namespace tobas
 {
@@ -32,9 +33,9 @@ bool FrameTypeDetector::updateInternalDataStructures()
 
 FrameTypeDetectionResult FrameTypeDetector::determineFrameType()
 {
-  constexpr char kIsNotSupported[] = "is not supported.";
+  constexpr char kIsNotSupported[] = "\nis not supported.";
 
-  std::string msg = "Airframe\n";
+  std::string msg = "Airframe\n\n";
 
   if (uadf_.control_surfaces.empty()) {
     msg += "  • which does not have fixed wings\n";
@@ -114,6 +115,7 @@ bool FrameTypeDetector::isJntAxisAlwaysParallel(
   if (joint.type != kdl::Joint::kFixed) {
     TOBAS_CHECK(axis_solver_.jntToCart(q_zeros_, link_name) == kdl::SolverI::kNoError);
     const auto& cur_axis = axis_solver_.getAxis();
+    constexpr double kJntAxisParallelTol = st::deg2rad(5);  // [rad]
     if (!cur_axis.isParallel(tar_axis, same_direction_only, kJntAxisParallelTol)) {
       return false;
     }

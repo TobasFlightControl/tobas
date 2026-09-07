@@ -34,8 +34,6 @@ class GazeboGroundTruthStatePlugin : public BaseNode,
                                      public gz::sim::ISystemConfigure,
                                      public gz::sim::ISystemPostUpdate
 {
-  static constexpr int kDefaultUpdateRate = 0;  // [Hz]
-
   using self = GazeboGroundTruthStatePlugin;
 
 public:
@@ -82,7 +80,7 @@ void GazeboGroundTruthStatePlugin::Configure(
 
   const auto link = ecm.EntityByComponents(cmp::Link(), cmp::ParentEntity(model), cmp::Name(link_name_));
   if (link == gz::sim::kNullEntity) {
-    TOBAS_EXIT("Failed to find specified link \"", link_name_, "\".");
+    TOBAS_EXIT("Failed to find specified link '", link_name_, "'.");
   }
 
   pose_W_ = getComponent<cmp::WorldPose>(link, ecm);
@@ -136,6 +134,8 @@ void GazeboGroundTruthStatePlugin::PostUpdate(const gz::sim::UpdateInfo& info, c
 
 void GazeboGroundTruthStatePlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
+  constexpr int kDefaultUpdateRate = 0;  // [Hz]
+
   getSdfParam(sdf, "linkName", link_name_);
   getSdfParam(sdf, "updateRate", update_rate_, kDefaultUpdateRate, kNonNegative);
 }

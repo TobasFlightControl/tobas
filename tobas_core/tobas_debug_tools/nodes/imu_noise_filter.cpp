@@ -19,13 +19,11 @@ class ImuNoiseFilter : public BaseNode
   using self = ImuNoiseFilter;
   using super = BaseNode;
 
-  static constexpr size_t kWindowSize = 400;     // 1 second at 400 Hz
-  static constexpr double kHpfCutoffFreq = 1.0;  // [Hz]
-
 public:
   explicit ImuNoiseFilter(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
+  static constexpr size_t kWindowSize = 400;  // 1 second at 400 Hz
   dsp::NoiseVarianceFilter<double, 3, kWindowSize> acc_noise_filter_;
   dsp::NoiseVarianceFilter<double, 3, kWindowSize> gyro_noise_filter_;
 
@@ -49,6 +47,7 @@ ImuNoiseFilter::ImuNoiseFilter(const rclcpp::NodeOptions& options)
 void ImuNoiseFilter::imuCb(const tobas_msgs::Imu::ConstSharedPtr& imu)
 {
   if (!imu_) {
+    constexpr double kHpfCutoffFreq = 1.0;  // [Hz]
     acc_noise_filter_.initialize(kHpfCutoffFreq, imu->accel.data);
     gyro_noise_filter_.initialize(kHpfCutoffFreq, imu->gyro.data);
     imu_ = imu;

@@ -12,11 +12,6 @@ namespace tobas
 /* cm = a (φ-φ0) + b + c / (φ-φ0) */
 class VppMomentConstant
 {
-  static constexpr char kAKey[] = "a";
-  static constexpr char kBKey[] = "b";
-  static constexpr char kCKey[] = "c";
-  static constexpr char kPhi0Key[] = "phi0";
-
 public:
   double a;
   double b;

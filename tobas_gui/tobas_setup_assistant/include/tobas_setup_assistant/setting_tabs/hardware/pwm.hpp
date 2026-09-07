@@ -27,17 +27,6 @@ class PwmWidget : public qt::TableWidget
   using self = PwmWidget;
   using super = qt::TableWidget;
 
-  static constexpr int kTargetNameCol = 0;
-  static constexpr int kPeriodLbCol = kTargetNameCol + 1;
-  static constexpr int kPeriodUbCol = kPeriodLbCol + 1;
-  static constexpr int kNumCols = kPeriodUbCol + 1;
-
-  static constexpr char kTargetNameLabel[] = "Target";
-  static constexpr char kPeriodLbLabel[] = "PWM Period (LB)";
-  static constexpr char kPeriodUbLabel[] = "PWM Period (UB)";
-
-  static constexpr int kPeriodDecimals = 2;
-
 public:
   // Special target labels
   static constexpr char kEngineThrotLabel[] = "Engine Throttle";

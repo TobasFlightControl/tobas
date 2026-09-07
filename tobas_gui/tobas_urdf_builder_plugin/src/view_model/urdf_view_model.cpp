@@ -137,17 +137,17 @@ void URDFViewModel::addLink(const LinkViewModelPtr& link_vm)
   }
 
   if (urdf_->links_.find(link_name) != urdf_->links_.end()) {
-    throw std::runtime_error("Link \"" + link_name + "\" already exists.");
+    throw std::runtime_error("Link '" + link_name + "' already exists.");
   }
 
   if (urdf_->joints_.find(joint_name) != urdf_->joints_.end()) {
-    throw std::runtime_error("Joint \"" + joint_name + "\" already exists.");
+    throw std::runtime_error("Joint '" + joint_name + "' already exists.");
   }
 
   if (parent_link_name.empty()) {
     if (urdf_->root_link_) {
       throw std::runtime_error(
-        "The root link already exists, but the parent link of \"" + link_name + "\" is not specified.");
+        "The root link already exists, but the parent link of '" + link_name + "' is not specified.");
     }
 
     urdf_->root_link_ = link_vm->model();
@@ -162,7 +162,7 @@ void URDFViewModel::addLink(const LinkViewModelPtr& link_vm)
     }
 
     if (urdf_->links_.find(parent_link_name) == urdf_->links_.end()) {
-      throw std::runtime_error("Parent link \"" + parent_link_name + "\" does not exist.");
+      throw std::runtime_error("Parent link '" + parent_link_name + "' does not exist.");
     }
 
     const auto& parent_link = urdf_->links_.at(parent_link_name);

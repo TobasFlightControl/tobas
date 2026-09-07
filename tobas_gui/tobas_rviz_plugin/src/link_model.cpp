@@ -23,33 +23,33 @@ size_t LinkModel::getLinkIndex() const
   return link_index_;
 }
 
-const JointModel* LinkModel::getParentJointModel() const
+JointModel::ConstSharedPtr LinkModel::getParentJointModel() const
 {
-  return parent_joint_model_;
+  return parent_joint_model_.lock();
 }
 
-void LinkModel::setParentJointModel(const JointModel* joint)
+void LinkModel::setParentJointModel(const JointModel::ConstSharedPtr& joint)
 {
   parent_joint_model_ = joint;
   is_parent_joint_fixed_ = joint->getType() == JointModel::kFixed;
 }
 
-const LinkModel* LinkModel::getParentLinkModel() const
+LinkModel::ConstSharedPtr LinkModel::getParentLinkModel() const
 {
-  return parent_link_model_;
+  return parent_link_model_.lock();
 }
 
-void LinkModel::setParentLinkModel(const LinkModel* link)
+void LinkModel::setParentLinkModel(const ConstSharedPtr& link)
 {
   parent_link_model_ = link;
 }
 
-const std::vector<const JointModel*>& LinkModel::getChildJointModels() const
+const std::vector<JointModel::ConstSharedPtr>& LinkModel::getChildJointModels() const
 {
   return child_joint_models_;
 }
 
-void LinkModel::addChildJointModel(const JointModel* joint)
+void LinkModel::addChildJointModel(const JointModel::ConstSharedPtr& joint)
 {
   child_joint_models_.push_back(joint);
 }

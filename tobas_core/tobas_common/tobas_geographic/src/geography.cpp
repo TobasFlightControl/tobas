@@ -16,7 +16,6 @@ namespace
 constexpr double kGrs80SemiMajorAxis = 6378137.0;         // [m]
 constexpr double kGrs80Flattening = 1.0 / 298.257222101;  // [-]
 constexpr double kCentralScale = 0.9999;                  // [-]
-constexpr double kNanoTeslaToGauss = 1e-5;
 }  // namespace
 
 Geography::Geography(const std::string& name)
@@ -53,6 +52,8 @@ MagneticField Geography::magneticField(double latitude, double longitude, double
 
   magnetic_model_(decimal_year, latitude, longitude, height_wgs84, east_, north_, up_);
   GeographicLib::MagneticModel::FieldComponents(east_, north_, up_, horizontal_, total_, declination_, inclination_);
+
+  constexpr double kNanoTeslaToGauss = 1e-5;
   return { east_ * kNanoTeslaToGauss, north_ * kNanoTeslaToGauss, up_ * kNanoTeslaToGauss, total_ * kNanoTeslaToGauss };
 }
 }  // namespace geo

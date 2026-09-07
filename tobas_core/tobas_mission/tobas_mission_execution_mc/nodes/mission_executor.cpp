@@ -133,7 +133,6 @@ class MulticopterMissionExecutorNode : public BaseNode
 
   static constexpr double kCommandRate = 100.0;      // [Hz]
   static constexpr double kAttitudeRate = M_PI / 6;  // [rad/s]
-  static constexpr double kMinBrakeDuration = 0.1;   // [s]
 
 public:
   explicit MulticopterMissionExecutorNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -451,6 +450,7 @@ void MulticopterMissionExecutorNode::brake()
     0.0, vz0_norm, az0_norm * math::sign(vz0 * az0), wp_cfg_.max_ver_acc, wp_cfg_.max_ver_jerk);
 
   // Get the duration.
+  constexpr double kMinBrakeDuration = 0.1;  // [s]
   const auto duration = std::max(traj_xy.duration(), traj_z.duration());
   if (duration < kMinBrakeDuration) {
     return;  // Exit without publishing commands when already almost stopped.
@@ -606,7 +606,6 @@ bool MulticopterMissionExecutorNode::executeWaypoints(
 
   // Waypoints are grouped into one continuous path until stop_at_waypoint requests an arrival check.
   std::vector<Eigen::Vector3d> path_points;
-  path_points.reserve(goals.size() + 1);
   path_points.push_back(start_pos.data);
 
   for (const auto& goal : goals) {

@@ -154,9 +154,9 @@ bool testBarometer()
 
 bool testGnssReceiver()
 {
-  tobas::ublox::ZEDF9P gnss;
+  tobas::ublox::ZEDF9P gnss("/dev/spidev1.0");
 
-  if (!gnss.initialize("/dev/spidev1.0")) {
+  if (!gnss.initialize()) {
     std::cerr << "Failed to initialize GNSS driver." << std::endl;
     return false;
   }
@@ -189,7 +189,7 @@ bool testGnssReceiver()
   const auto start_time = ch::steady_clock::now();
 
   while (ch::steady_clock::now() - start_time < 3s) {
-    if (!gnss.update(false)) {
+    if (!gnss.update()) {
       std::cerr << "Failed to update GNSS driver." << std::endl;
       return false;
     }
@@ -277,6 +277,6 @@ int main()
   }
   std::cout << "S.BUS test passed." << std::endl;
 
-  std::cout << GREEN_PREFIX << "All tests passed." << COLOR_RESET << std::endl;
+  std::cout << tobas::st::kGreenPrefix << "All tests passed." << tobas::st::kColorReset << std::endl;
   return EXIT_SUCCESS;
 }

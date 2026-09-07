@@ -19,7 +19,6 @@ class IPv4Edit : public QWidget
   using super = QWidget;
 
   static constexpr size_t kNumFields = 4;
-  static constexpr char kEmptyMeansZeroProperty[] = "emptyMeansZero";
 
 public:
   explicit IPv4Edit(QWidget* parent = nullptr);

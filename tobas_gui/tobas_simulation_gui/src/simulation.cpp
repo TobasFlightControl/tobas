@@ -256,7 +256,7 @@ void SimulationWidget::finalizeLaunchProcess(QProcess* process, int code, QProce
       error_msg += " with exit code " + QString::number(code) + ".";
     }
     if (log_path) {
-      error_msg += "\n\nThe output has been saved to:\n" + log_path.value();
+      error_msg += "\n\nThe output has been saved to:\n" + *log_path;
     }
     else if (!out_msg.trimmed().isEmpty()) {
       error_msg += "\n\n" + out_msg;
@@ -288,7 +288,7 @@ void SimulationWidget::onStartRequested()
       const auto log_path =
         qt::writeTimestampedFile(error_msg + '\n', qt::expandUser(kGuiLogDir), "", "builderr_project_local");
       if (log_path) {
-        qt::qErrorBox(this, "Failed to build the Tobas project. The output has been saved to:\n" + log_path.value());
+        qt::qErrorBox(this, "Failed to build the Tobas project. The output has been saved to:\n" + *log_path);
       }
       else {
         qt::qErrorBox(this, "Failed to build the Tobas project, and also failed to save the error message.");

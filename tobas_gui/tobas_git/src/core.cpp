@@ -25,7 +25,7 @@ std::string getGitConfigValue(const char* key)
       git_config_entry_free(entry);
     }
     else {
-      std::cerr << "Failed to get git config entry: \"" << key << "\"" << std::endl;
+      std::cerr << "Failed to get git config entry: '" << key << "'" << std::endl;
     }
 
     git_config_free(config);

@@ -8,15 +8,18 @@
 #include <cstring>
 #include <stdexcept>
 
-#define STD_INPUT_FD 0  // File descriptor for standard input
-
 namespace tobas
 {
 namespace keyboard
 {
+namespace
+{
+constexpr int kStandardInputFd = 0;
+}  // namespace
+
 KeyboardReader::KeyboardReader()
 {
-  tcgetattr(STD_INPUT_FD, &tempcopy_);
+  tcgetattr(kStandardInputFd, &tempcopy_);
   std::memcpy(&changed_, &tempcopy_, sizeof(termios));
 
   changed_.c_lflag &= ~(ICANON | ECHO);
@@ -28,18 +31,18 @@ KeyboardReader::KeyboardReader()
   changed_.c_cc[VMIN] = 0;  // Set the minimum character count to 0, so this returns immediately without input.
   changed_.c_cc[VTIME] = 0;
 
-  tcsetattr(STD_INPUT_FD, TCSANOW, &changed_);
+  tcsetattr(kStandardInputFd, TCSANOW, &changed_);
 }
 
 KeyboardReader::~KeyboardReader()
 {
-  tcsetattr(STD_INPUT_FD, TCSANOW, &tempcopy_);
+  tcsetattr(kStandardInputFd, TCSANOW, &tempcopy_);
 }
 
 signed char KeyboardReader::readKey()
 {
   char buf = 0;
-  if (read(STD_INPUT_FD, &buf, 1) < 0) {
+  if (read(kStandardInputFd, &buf, 1) < 0) {
     return -1;
   }
   return buf;

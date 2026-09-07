@@ -23,36 +23,6 @@ PositionBarWidget::PositionBarWidget(double minimum, double maximum, QWidget* pa
 {
 }
 
-bool PositionBarWidget::hasCenterText() const
-{
-  return center_text_.has_value();
-}
-
-bool PositionBarWidget::hasLowerText() const
-{
-  return lower_text_.has_value();
-}
-
-bool PositionBarWidget::hasUpperText() const
-{
-  return upper_text_.has_value();
-}
-
-bool PositionBarWidget::hasValue() const
-{
-  return value_.has_value();
-}
-
-bool PositionBarWidget::hasLower() const
-{
-  return lower_.has_value();
-}
-
-bool PositionBarWidget::hasUpper() const
-{
-  return upper_.has_value();
-}
-
 double PositionBarWidget::getMinimum() const
 {
   return minimum_;
@@ -73,44 +43,54 @@ int PositionBarWidget::getTextPSize() const
   return text_psize_;
 }
 
-const QString& PositionBarWidget::getCenterText() const
+std::optional<QString> PositionBarWidget::getCenterText() const
 {
-  return center_text_.value();
+  return center_text_;
 }
 
-const QString& PositionBarWidget::getLowerText() const
+std::optional<QString> PositionBarWidget::getLowerText() const
 {
-  return lower_text_.value();
+  return lower_text_;
 }
 
-const QString& PositionBarWidget::getUpperText() const
+std::optional<QString> PositionBarWidget::getUpperText() const
 {
-  return upper_text_.value();
+  return upper_text_;
 }
 
-double PositionBarWidget::getValue() const
+std::optional<double> PositionBarWidget::getValue() const
 {
-  return value_.value();
+  return value_;
 }
 
-double PositionBarWidget::getLower() const
+std::optional<double> PositionBarWidget::getLower() const
 {
-  return lower_.value();
+  return lower_;
 }
 
-double PositionBarWidget::getUpper() const
+std::optional<double> PositionBarWidget::getUpper() const
 {
-  return upper_.value();
+  return upper_;
 }
 
-double PositionBarWidget::getMiddle() const
+std::optional<double> PositionBarWidget::getMiddle() const
 {
-  return (lower_.value() + upper_.value()) / 2;
+  if (lower_ && upper_) {
+    return (*lower_ + *upper_) / 2;
+  }
+  else {
+    return std::nullopt;
+  }
 }
 
-double PositionBarWidget::getRange() const
+std::optional<double> PositionBarWidget::getRange() const
 {
-  return upper_.value() - lower_.value();
+  if (lower_ && upper_) {
+    return *upper_ - *lower_;
+  }
+  else {
+    return std::nullopt;
+  }
 }
 
 void PositionBarWidget::setMinimum(double minimum)

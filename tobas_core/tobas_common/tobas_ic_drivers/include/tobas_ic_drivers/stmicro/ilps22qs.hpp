@@ -16,9 +16,6 @@ namespace stm
  */
 class ILPS22QS
 {
-  static constexpr uint8_t kI2cAddress = 0b1011100;
-  static constexpr double kTempScale = 100;  // [LSB/degC]
-
 public:
   explicit ILPS22QS();
 

@@ -23,10 +23,6 @@ class ActuatorTestWidget : public qt::VerticalTabWidget
   using self = ActuatorTestWidget;
   using super = qt::VerticalTabWidget;
 
-  // Without at least this much height, the `TabBar` text is clipped horizontally for some reason.
-  static constexpr int kTabHeight = 35;
-  static constexpr int kTabWidth = 70;
-
 public:
   explicit ActuatorTestWidget(const rqt::RosQtBridge& bridge, const kdl::Tree& tree, const Drone& drone);
 

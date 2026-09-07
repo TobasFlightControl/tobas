@@ -19,8 +19,6 @@ class PwmPlotWidget : public BasePlotWidget
 {
   Q_OBJECT
 
-  static constexpr int kPwmChannels = 8;
-
 public:
   explicit PwmPlotWidget();
 

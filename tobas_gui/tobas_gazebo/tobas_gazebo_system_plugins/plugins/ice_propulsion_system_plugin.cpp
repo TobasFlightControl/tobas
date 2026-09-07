@@ -39,14 +39,6 @@ class GazeboIcePropulsionSystemPlugin : public BaseNode,
                                         public gz::sim::ISystemPostUpdate
 {
   // Constants
-  static constexpr char kRotorKey[] = "rotor";
-  static constexpr char kEngineKey[] = "engine";
-  static constexpr double kAutoStopTimeout = 0.5;    // [s]
-  static constexpr double kThrotLimitMargin = 1e-3;  // [-]
-
-  // Default parameters
-  static constexpr size_t kDefaultPublishStateRate = 100;  // [Hz]
-
   using self = GazeboIcePropulsionSystemPlugin;
 
 public:
@@ -101,6 +93,9 @@ void GazeboIcePropulsionSystemPlugin::Configure(
   gz::sim::EntityComponentManager& ecm,
   gz::sim::EventManager&)
 {
+  constexpr char kRotorKey[] = "rotor";
+  constexpr char kEngineKey[] = "engine";
+
   initialize("gazebo_ice_propulsion_system_plugin", sdf);
   getSdfParams(sdf);
 
@@ -115,7 +110,7 @@ void GazeboIcePropulsionSystemPlugin::Configure(
   // Initialize rotor models.
   auto rotor_elem = sdf->FindElement(kRotorKey);
   if (!rotor_elem) {
-    TOBAS_EXIT("Please specify \"", kRotorKey, "\" elements.");
+    TOBAS_EXIT("Please specify '", kRotorKey, "' elements.");
   }
   while (rotor_elem) {
     IceRotorModel rotor;
@@ -125,7 +120,7 @@ void GazeboIcePropulsionSystemPlugin::Configure(
     }
 
     if (rotors_.contains(rotor.getLinkName())) {
-      TOBAS_EXIT("Rotor link name \"", rotor.getLinkName(), "\" is duplicated.");
+      TOBAS_EXIT("Rotor link name '", rotor.getLinkName(), "' is duplicated.");
     }
 
     rotors_[rotor.getLinkName()] = rotor;
@@ -135,7 +130,7 @@ void GazeboIcePropulsionSystemPlugin::Configure(
   // Initialize engine model.
   const auto engine_elem = sdf->FindElement(kEngineKey);
   if (!engine_elem) {
-    TOBAS_EXIT("Please specify \"", kEngineKey, "\" element.");
+    TOBAS_EXIT("Please specify '", kEngineKey, "' element.");
   }
   if (!engine_.initialize(engine_elem)) {
     TOBAS_EXIT("Failed to initialize engine model.");
@@ -147,6 +142,8 @@ void GazeboIcePropulsionSystemPlugin::Configure(
 
 void GazeboIcePropulsionSystemPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::EntityComponentManager& ecm)
 {
+  constexpr double kAutoStopTimeout = 0.5;  // [s]
+
   // Update the previous simulation step time.
   ros2::timeChronoToMsg(info.simTime, prev_sim_time_);
 
@@ -210,6 +207,8 @@ void GazeboIcePropulsionSystemPlugin::PostUpdate(const gz::sim::UpdateInfo& info
 
 void GazeboIcePropulsionSystemPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
+  constexpr size_t kDefaultPublishStateRate = 100;  // [Hz]
+
   getSdfParam(sdf, "publishStateRate", publish_state_rate_, kDefaultPublishStateRate, kNonNegative);
 }
 
@@ -233,6 +232,8 @@ void GazeboIcePropulsionSystemPlugin::registerPubSub()
 void GazeboIcePropulsionSystemPlugin::iceCommandCb(
   const tobas_msgs::msg::IcePropulsionSystemCommand::ConstSharedPtr& ice_cmd)
 {
+  constexpr double kThrotLimitMargin = 1e-3;  // [-]
+
   // Update the time when the last command was received.
   last_cmd_time_ = prev_sim_time_;
 
@@ -251,11 +252,11 @@ void GazeboIcePropulsionSystemPlugin::iceCommandCb(
   // Update propeller pitch angle.
   for (const auto& elem : ice_cmd->pitch_angles) {
     if (!rotors_.contains(elem.link_name)) {
-      TOBAS_WARN("Rotor link \"", elem.link_name, "\" does not exist.");
+      TOBAS_WARN("Rotor link '", elem.link_name, "' does not exist.");
       continue;
     }
     if (!std::isfinite(elem.angle)) {
-      TOBAS_WARN("The commanded pitch angle of propeller \"", elem.link_name, "\" is not finite: ", elem.angle);
+      TOBAS_WARN("The commanded pitch angle of propeller '", elem.link_name, "' is not finite: ", elem.angle);
       rotors_.at(elem.link_name).setTargetPitchAngle(0.0);
       continue;
     }

@@ -8,7 +8,6 @@
 #include <cstddef>
 #include <cstdint>
 #include <map>
-#include <optional>
 
 namespace tobas
 {
@@ -47,9 +46,6 @@ public:
 
   bool send(const uint8_t* data, size_t length);
   bool receive(uint8_t* data, size_t length);
-
-  /* Receive 1 byte in non-blocking mode. */
-  std::optional<uint8_t> tryReceiveByte();
 
   /* Receive 1 byte. */
   uint8_t receiveByte();

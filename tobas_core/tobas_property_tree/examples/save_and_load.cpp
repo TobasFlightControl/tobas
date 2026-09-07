@@ -28,12 +28,12 @@ ostream& operator<<(ostream& os, const vector<T>& vec)
 
 int main()
 {
-  static constexpr char kIntKey[] = "ns.int";
-  static constexpr char kDoubleKey[] = "ns.double";
-  static constexpr char kStringKey[] = "ns.string";
-  static constexpr char kIntListKey[] = "ns.int_list";
-  static constexpr char kDoubleListKey[] = "ns.double_list";
-  static constexpr char kStringListKey[] = "ns.string_list";
+  constexpr char kIntKey[] = "ns.int";
+  constexpr char kDoubleKey[] = "ns.double";
+  constexpr char kStringKey[] = "ns.string";
+  constexpr char kIntListKey[] = "ns.int_list";
+  constexpr char kDoubleListKey[] = "ns.double_list";
+  constexpr char kStringListKey[] = "ns.string_list";
 
   tobas::ptree::PropertyTree pt;
 

@@ -3,7 +3,7 @@
 
 #include "tobas_keyboard/utils.hpp"
 
-#include <X11/XKBlib.h>  // Including this in the header may cause #define conflicts.
+#include <X11/XKBlib.h>  // Including this in the header may cause `#define` conflicts.
 
 namespace tobas
 {

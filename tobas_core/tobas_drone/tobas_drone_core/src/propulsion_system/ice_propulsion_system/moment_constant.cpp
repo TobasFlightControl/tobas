@@ -11,6 +11,14 @@
 
 namespace tobas
 {
+namespace
+{
+constexpr char kAKey[] = "a";
+constexpr char kBKey[] = "b";
+constexpr char kCKey[] = "c";
+constexpr char kPhi0Key[] = "phi0";
+}  // namespace
+
 bool VppMomentConstant::isValid() const
 {
   if (a <= 0.0 || c <= 0.0) {

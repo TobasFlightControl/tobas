@@ -18,9 +18,6 @@ class StatusWidget : public QWidget
 {
   Q_OBJECT
 
-  static constexpr int kStatusWidth = 40;
-  static constexpr int kTextPSize = 12;
-
 public:
   enum Status
   {

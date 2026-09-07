@@ -28,7 +28,7 @@ BaseNode::~BaseNode()
 
 void BaseNode::initialize(const std::string& name, const sdf::ElementConstPtr& sdf)
 {
-  gzmsg << "Initializing \"" << name << "\"." << std::endl;
+  gzmsg << "Initializing '" << name << "'." << std::endl;
 
   name_ = name;
 

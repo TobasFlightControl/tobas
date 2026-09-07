@@ -15,14 +15,14 @@ namespace ssh
 {
 SshClient::SshClient(rclcpp::Node::SharedPtr node)
   : node_(node)
-  , set_endpoint_sc_(node, kSetEndpointSrv)
-  , connect_sc_(node, kConnectSrv)
-  , execute_sc_(node, kExecuteSrv)
-  , sftp_read_sc_(node, kSftpReadSrv)
-  , sftp_write_sc_(node, kSftpWriteSrv)
-  , list_sc_(node, kListSrv)
-  , scp_get_ac_(node, kScpGetAction)
-  , scp_put_ac_(node, kScpPutAction)
+  , set_endpoint_sc_(node, "ssh/set_endpoint")
+  , connect_sc_(node, "ssh/connect")
+  , execute_sc_(node, "ssh/execute")
+  , sftp_read_sc_(node, "ssh/sftp_read")
+  , sftp_write_sc_(node, "ssh/sftp_write")
+  , list_sc_(node, "ssh/list")
+  , scp_get_ac_(node, "ssh/scp_get")
+  , scp_put_ac_(node, "ssh/scp_put")
 {
 }
 
@@ -114,23 +114,22 @@ SshClient::Error SshClient::scpGet(
   goal.remote_path = remote_path;
   goal.local_path = local_path;
 
-  std::optional<rclcpp_action::ClientGoalHandle<ScpGet>::WrappedResult> result_opt;
+  std::optional<rclcpp_action::ClientGoalHandle<ScpGet>::WrappedResult> result;
   if (callback) {
     const auto feedback_cb =
       [callback](const rclcpp_action::ClientGoalHandle<ScpGet>::SharedPtr&, const ScpGet::Feedback::ConstSharedPtr& fb)
     { callback(fb->total_size, fb->transferred); };
-    result_opt = scp_get_ac_.sendGoalAndWait(goal, feedback_cb);
+    result = scp_get_ac_.sendGoalAndWait(goal, feedback_cb);
   }
   else {
-    result_opt = scp_get_ac_.sendGoalAndWait(goal);
+    result = scp_get_ac_.sendGoalAndWait(goal);
   }
-  if (!result_opt) {
+  if (!result) {
     return error_code_ = kServerNotReady;
   }
 
-  const auto& result = result_opt.value();
-  if (result.code != rclcpp_action::ResultCode::SUCCEEDED) {
-    server_error_msg_ = result.result->error_message;
+  if (result->code != rclcpp_action::ResultCode::SUCCEEDED) {
+    server_error_msg_ = result->result->error_message;
     return error_code_ = kServerError;
   }
 
@@ -152,23 +151,22 @@ SshClient::Error SshClient::scpPut(
   goal.exclude_dirs = exclude_dirs;
   goal.superuser = superuser;
 
-  std::optional<rclcpp_action::ClientGoalHandle<ScpPut>::WrappedResult> result_opt;
+  std::optional<rclcpp_action::ClientGoalHandle<ScpPut>::WrappedResult> result;
   if (callback) {
     const auto feedback_cb =
       [callback](const rclcpp_action::ClientGoalHandle<ScpPut>::SharedPtr&, const ScpPut::Feedback::ConstSharedPtr& fb)
     { callback(fb->total_size, fb->transferred); };
-    result_opt = scp_put_ac_.sendGoalAndWait(goal, feedback_cb);
+    result = scp_put_ac_.sendGoalAndWait(goal, feedback_cb);
   }
   else {
-    result_opt = scp_put_ac_.sendGoalAndWait(goal);
+    result = scp_put_ac_.sendGoalAndWait(goal);
   }
-  if (!result_opt) {
+  if (!result) {
     return error_code_ = kServerNotReady;
   }
 
-  const auto& result = result_opt.value();
-  if (result.code != rclcpp_action::ResultCode::SUCCEEDED) {
-    server_error_msg_ = result.result->error_message;
+  if (result->code != rclcpp_action::ResultCode::SUCCEEDED) {
+    server_error_msg_ = result->result->error_message;
     return error_code_ = kServerError;
   }
 

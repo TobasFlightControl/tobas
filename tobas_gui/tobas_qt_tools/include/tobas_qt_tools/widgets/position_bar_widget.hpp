@@ -20,25 +20,18 @@ public:
   explicit PositionBarWidget(QWidget* parent = nullptr);
   explicit PositionBarWidget(double minimum, double maximum, QWidget* parent = nullptr);
 
-  bool hasCenterText() const;
-  bool hasLowerText() const;
-  bool hasUpperText() const;
-  bool hasValue() const;
-  bool hasLower() const;
-  bool hasUpper() const;
-
   double getMinimum() const;
   double getMaximum() const;
   int getLineWidth() const;
   int getTextPSize() const;
-  const QString& getCenterText() const;
-  const QString& getLowerText() const;
-  const QString& getUpperText() const;
-  double getValue() const;
-  double getLower() const;
-  double getUpper() const;
-  double getMiddle() const;
-  double getRange() const;
+  std::optional<QString> getCenterText() const;
+  std::optional<QString> getLowerText() const;
+  std::optional<QString> getUpperText() const;
+  std::optional<double> getValue() const;
+  std::optional<double> getLower() const;
+  std::optional<double> getUpper() const;
+  std::optional<double> getMiddle() const;
+  std::optional<double> getRange() const;
 
   void setMinimum(double minimum);
   void setMaximum(double maximum);

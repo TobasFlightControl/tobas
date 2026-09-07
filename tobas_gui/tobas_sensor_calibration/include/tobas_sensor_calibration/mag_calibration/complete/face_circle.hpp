@@ -18,13 +18,6 @@ class FaceCircleWidget : public qt::Widget
   using self = FaceCircleWidget;
   using super = qt::Widget;
 
-  static constexpr int kLineWidth = 10;
-  static constexpr auto kFillColorComplete = Qt::green;
-  static constexpr auto kFillColorIncomplete = Qt::gray;
-  static constexpr auto kFillColorProgress = Qt::yellow;
-  static constexpr auto kLineColorSelected = Qt::red;
-  static constexpr auto kLineColorDeselected = Qt::black;
-
 public:
   explicit FaceCircleWidget(const QString& text);
 

@@ -19,9 +19,9 @@ MaterialViewModel::MaterialViewModel(const ::urdf::MaterialSharedPtr& model)
     model_->name = "material_" + std::to_string(utils::timeNowMilliseconds());
 
     // Set default color.
-    model_->color.r = kDefaultColorR;
-    model_->color.g = kDefaultColorG;
-    model_->color.b = kDefaultColorB;
+    model_->color.r = 1.0f;
+    model_->color.g = 1.0f;
+    model_->color.b = 1.0f;
     model_->color.a = kDefaultRobotAlpha;
   }
 }

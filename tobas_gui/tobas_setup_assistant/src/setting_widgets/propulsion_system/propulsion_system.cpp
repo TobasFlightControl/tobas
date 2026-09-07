@@ -19,6 +19,11 @@ namespace sa
 {
 namespace propulsion
 {
+namespace
+{
+constexpr char kTypeKey[] = "propulsion_system_type";
+}  // namespace
+
 PropulsionSystemWidget::PropulsionSystemWidget(const uadf::Model& uadf, Signals& sig) : sig_(sig)
 {
   type_btn_group_ = new QButtonGroup(this);

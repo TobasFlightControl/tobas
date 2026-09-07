@@ -25,9 +25,6 @@ class MissionExecutorWidget : public BaseSettingWidget
   using self = MissionExecutorWidget;
   using super = BaseSettingWidget;
 
-  static constexpr char kNoneKey[] = "none";
-  static constexpr char kMulticopterKey[] = "multicopter";
-
 public:
   explicit MissionExecutorWidget();
 

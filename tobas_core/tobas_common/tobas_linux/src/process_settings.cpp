@@ -17,6 +17,14 @@ namespace tobas
 {
 namespace linux
 {
+namespace
+{
+constexpr char kOptionLockMemory[] = "--lock-memory";
+constexpr char kOptionLockMemorySize[] = "--lock-memory-size";
+constexpr char kOptionPriority[] = "--priority";
+constexpr char kOptionCPUAffinity[] = "--cpu-affinity";
+}  // namespace
+
 bool ProcessSettings::init(int argc, char* argv[])
 {
   if (st::commandLineOptionExists(argv, argv + argc, "-h")) {

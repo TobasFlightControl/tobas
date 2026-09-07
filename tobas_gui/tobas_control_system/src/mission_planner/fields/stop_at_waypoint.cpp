@@ -5,9 +5,6 @@
 
 #include <QHBoxLayout>
 
-#define PASS_THROUGH_LABEL "Pass Through"
-#define STOP_AT_WAYPOINT_LABEL "Stop at Waypoint"
-
 namespace tobas
 {
 namespace gui
@@ -16,11 +13,17 @@ namespace ctrl
 {
 namespace field
 {
+namespace
+{
+constexpr char kPassThroughLabel[] = "Pass Through";
+constexpr char kStopAtWaypointLabel[] = "Stop at Waypoint";
+}  // namespace
+
 StopAtWaypointWidget::StopAtWaypointWidget()
 {
   combobox_ = new qt::ComboBox();
-  combobox_->addItem(PASS_THROUGH_LABEL);
-  combobox_->addItem(STOP_AT_WAYPOINT_LABEL);
+  combobox_->addItem(kPassThroughLabel);
+  combobox_->addItem(kStopAtWaypointLabel);
 
   const auto cols = new QHBoxLayout();
   setLayout(cols);
@@ -36,12 +39,12 @@ const char* StopAtWaypointWidget::label() const
 
 bool StopAtWaypointWidget::getValue() const
 {
-  return combobox_->currentText() == STOP_AT_WAYPOINT_LABEL;
+  return combobox_->currentText() == kStopAtWaypointLabel;
 }
 
 void StopAtWaypointWidget::setValue(bool value)
 {
-  combobox_->setCurrentText(value ? STOP_AT_WAYPOINT_LABEL : PASS_THROUGH_LABEL);
+  combobox_->setCurrentText(value ? kStopAtWaypointLabel : kPassThroughLabel);
 }
 }  // namespace field
 }  // namespace ctrl

@@ -34,14 +34,14 @@ DoubleMapInputDialog::DoubleMapInputDialog(QWidget* parent, const QString& title
     layout->addWidget(label);
 
     const auto spin_box = new QDoubleSpinBox();
-    spin_box->setMaximum(kMaxValue);
-    spin_box->setMinimum(kMinValue);
-    spin_box->setValue(kDefaultValue);
-    spin_box->setSingleStep(kSingleStep);
-    spin_box->setDecimals(kDecimals);
+    spin_box->setMaximum(1000.0);
+    spin_box->setMinimum(0.0);
+    spin_box->setValue(0.0);
+    spin_box->setSingleStep(0.1);
+    spin_box->setDecimals(6);
     layout->addWidget(spin_box);
 
-    field2value_[field_name] = kDefaultValue;
+    field2value_[field_name] = spin_box->value();
     spinbox2field_[spin_box] = field_name;
     connect(spin_box, qOverload<double>(&QDoubleSpinBox::valueChanged), this, &self::onSpinBoxValueChanged);
   }

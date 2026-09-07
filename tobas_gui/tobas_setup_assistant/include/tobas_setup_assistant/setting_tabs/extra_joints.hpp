@@ -29,31 +29,6 @@ class ExtraJointsWidget : public BaseSettingWidget
   using self = ExtraJointsWidget;
   using super = BaseSettingWidget;
 
-  // Columns
-  static constexpr int kLinkNameCol = 0;
-  static constexpr int kJointNameCol = kLinkNameCol + 1;
-  static constexpr int kRoleCol = kJointNameCol + 1;
-  static constexpr int kCmdIfaceCol = kRoleCol + 1;
-  static constexpr int kHomePosCol = kCmdIfaceCol + 1;
-  static constexpr int kNumCols = kHomePosCol + 1;
-
-  // Field Labels
-  static constexpr char kLinkNameLabel[] = "Link Name";
-  static constexpr char kJointNameLabel[] = "Joint Name";
-  static constexpr char kRoleLabel[] = "Role";
-  static constexpr char kCmdIfaceLabel[] = "Command Interface";
-  static constexpr char kHomePosLabel[] = "Home Position";
-
-  // Role Labels
-  static constexpr char kRoleLabel_UserActive[] = "User Active";
-  static constexpr char kRoleLabel_UserPassive[] = "User Passive";
-
-  // Command Interface Labels
-  static constexpr char kCmdIfaceLabel_Position[] = "Position";
-  static constexpr char kCmdIfaceLabel_Velocity[] = "Velocity";
-  static constexpr char kCmdIfaceLabel_Effort[] = "Effort";
-  static constexpr char kCmdIfaceLabel_None[] = "None";
-
 public:
   explicit ExtraJointsWidget(const uadf::Model& uadf, const kdl::Tree& tree);
 
@@ -76,7 +51,6 @@ public:
   double getHomePosition(int row) const;  // [rad]
 
   // Setters
-  void setRole(int row, JointRole value);
   void setCommandInterface(int row, JointCommandInterface value);
   void setHomePosition(int row, double value);  // [rad]
 
@@ -96,25 +70,20 @@ private:
   qt::TableWidget* table_;
 
   QLabel* linkNameWidget(int row);
-  QLabel* jointNameWidget(int row);
-  qt::ComboBox* roleWidget(int row);
-  qt::ComboBox* commandIfaceWidget(int row);
-  qt::SpinBox* homePositionWidget(int row);
-
   const QLabel* linkNameWidget(int row) const;
+
+  QLabel* jointNameWidget(int row);
   const QLabel* jointNameWidget(int row) const;
-  const qt::ComboBox* roleWidget(int row) const;
+
+  qt::ComboBox* commandIfaceWidget(int row);
   const qt::ComboBox* commandIfaceWidget(int row) const;
+
+  qt::SpinBox* homePositionWidget(int row);
   const qt::SpinBox* homePositionWidget(int row) const;
 
   void clear();
   void reset(int row);
-  void setDefaultValues(int row);
-  void updateEnability(int row);
   void addLink(const std::string& link_name);
-
-private Q_SLOTS:
-  void onRoleChanged(int row);
 };
 }  // namespace sa
 }  // namespace gui

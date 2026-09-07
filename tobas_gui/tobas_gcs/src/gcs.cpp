@@ -43,11 +43,7 @@ namespace gcs
 namespace
 {
 constexpr auto kHostRole = Qt::UserRole;
-constexpr int kHeartbeatTimeout = 10000;  // [ms]
 constexpr char kIdPrefix[] = "id";
-
-constexpr int kLoadButtonWidth = 200;
-constexpr int kPowerButtonRadius = 40;
 
 rclcpp::Context::SharedPtr createRosContext(const QString& static_peer, std::vector<std::string> ros_args)
 {
@@ -121,7 +117,7 @@ GroundControlStationWidget::GroundControlStationWidget(int argc, char** argv) : 
   proj_path_->setReadOnly(true);
   proj_path_->setFocusPolicy(Qt::NoFocus);
   load_btn_ = new QPushButton("Load Project");
-  load_btn_->setFixedWidth(kLoadButtonWidth);
+  load_btn_->setFixedWidth(200);
 
   // FC selection
   fc_scanner_ = new FlightControllerScanner(this);
@@ -135,6 +131,7 @@ GroundControlStationWidget::GroundControlStationWidget(int argc, char** argv) : 
   write_btn_ = new QPushButton("Write");
 
   // Power buttons
+  constexpr int kPowerButtonRadius = 40;
   restart_btn_ = new RestartButton(kPowerButtonRadius);
   shutdown_btn_ = new ShutdownButton(kPowerButtonRadius);
 
@@ -332,6 +329,7 @@ void GroundControlStationWidget::disconnectFromFlightController()
 
 bool GroundControlStationWidget::waitForHeartbeat() const
 {
+  constexpr int kHeartbeatTimeout = 10000;  // [ms]
   return static_cast<bool>(rqt::waitForMessage<&rqt::RosQtBridge::remoteHeartbeatReceived>(bridge_, kHeartbeatTimeout));
 }
 
@@ -471,6 +469,7 @@ void GroundControlStationWidget::onLoadButtonClicked()
   if (!QFileInfo(default_dir).isDir()) {
     default_dir = QDir::homePath();
   }
+  constexpr char kLastOpenedDirKey[] = "gcs/last_opened_dir";
   const auto last_opened_dir = settings_store_.value(kLastOpenedDirKey, default_dir).toString();
 
   // Update the project path.
@@ -755,7 +754,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
       const auto log_path =
         qt::writeTimestampedFile(error_msg + '\n', qt::expandUser(kGuiLogDir), "", "builderr_project_remote");
       if (log_path) {
-        qt::qErrorBox(this, "Failed to build the Tobas project. The output has been saved to:\n" + log_path.value());
+        qt::qErrorBox(this, "Failed to build the Tobas project. The output has been saved to:\n" + *log_path);
       }
       else {
         qt::qErrorBox(this, "Failed to build the Tobas project, and also failed to save the error message.");
@@ -903,13 +902,19 @@ void GroundControlStationWidget::onSimulationStarted()
 {
   qDebug() << "GroundControlStationWidget::onSimulationStarted";
 
-  fc_scanner_->stop();
+  // Disable features specific to real hardware.
+  sensor_calib_->setEnabled(false);
+  actuator_test_->setEnabled(false);
 
   // Set the simulation target.
   updateFlightControllerList({ DiscoveredFlightController("Simulation Model", "127.0.0.1") });
   fc_selector_->setCurrentIndex(1);
-  vehicle_id_->setValue(0);
+  vehicle_id_->setValue(sim::SimulationWidget::kDroneId);
 
+  // Stop scanning for flight controllers.
+  fc_scanner_->stop();
+
+  // Reset the entire widget.
   reset();
 }
 
@@ -917,16 +922,23 @@ void GroundControlStationWidget::onSimulationTerminated()
 {
   qDebug() << "GroundControlStationWidget::onSimulationTerminated";
 
+  // Disconnect if ROS communication is active.
   if (connect_btn_->isChecked()) {
     clearRosConnection();
     connect_btn_->setChecked(false);
     qInfo() << "ROS connection has been automatically closed.";
   }
 
-  resetFlightControllerPlaceholder();
-  reset();
+  // Re-enable features specific to real hardware.
+  sensor_calib_->setEnabled(true);
+  actuator_test_->setEnabled(true);
 
+  // Resume scanning for flight controllers.
+  resetFlightControllerPlaceholder();
   fc_scanner_->start();
+
+  // Reset the entire widget.
+  reset();
 }
 
 void GroundControlStationWidget::onRemoteConnectionDisconnected()

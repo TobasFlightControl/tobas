@@ -15,6 +15,11 @@ namespace tobas
 {
 namespace qt
 {
+namespace
+{
+constexpr char kEmptyMeansZeroProperty[] = "emptyMeansZero";
+}  // namespace
+
 IPv4Edit::IPv4Edit(QWidget* parent) : super(parent)
 {
   const auto cols = new QHBoxLayout();

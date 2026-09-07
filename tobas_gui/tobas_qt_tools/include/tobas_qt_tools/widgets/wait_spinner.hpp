@@ -25,20 +25,15 @@ public:
    * @brief Constructor for "standard" widget behaviour.
    * Use this constructor if you wish to, e.g. embed your widget in another.
    */
-  WaitSpinnerWidget(QWidget* parent = nullptr, bool center_on_parent = true, bool disable_parent_when_spinning = true);
+  explicit WaitSpinnerWidget(QWidget* parent = nullptr, bool center_on_parent = true);
 
   /**
    * @brief Constructor.
    * Use this constructor to automatically create a modal ("blocking") spinner on top of the calling widget/window.
-   * If a valid parent widget is provided,
-   * "center_on_parent" will ensure that the spinner automatically centers itself on it,
-   * if not, "center_on_parent" is ignored.
+   * If a valid parent widget is provided, `center_on_parent` will ensure
+   * that the spinner automatically centers itself on it, if not, `center_on_parent` is ignored.
    */
-  WaitSpinnerWidget(
-    Qt::WindowModality modality,
-    QWidget* parent = nullptr,
-    bool center_on_parent = true,
-    bool disable_parent_when_spinning = true);
+  explicit WaitSpinnerWidget(Qt::WindowModality modality, QWidget* parent = nullptr, bool center_on_parent = true);
 
   void setColor(QColor color);
   void setRoundness(double roundness);
@@ -74,7 +69,6 @@ private Q_SLOTS:
 
 private:
   const bool center_on_parent_;
-  const bool disable_parent_when_spinning_;
 
   QColor color_ = Qt::black;
   double roundness_ = 100.0;  // 0..100
@@ -89,10 +83,6 @@ private:
   bool is_spinning_ = false;
 
   QTimer* timer_;
-
-  static int lineCountDistanceFromPrimary(int current, int primary, int tobas_num_lines);
-  static QColor
-  currentLineColor(int distance, int tobas_num_lines, double trail_fade_perc, double min_opacity, QColor color);
 
   void initialize();
   void updateSize();

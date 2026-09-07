@@ -46,6 +46,7 @@ ObserverFeedbackPlotWidget::ObserverFeedbackPlotWidget()
 
   mag_soft_bias_plot_ = new QwtPlot2();
   mag_soft_bias_plot_->setAxisNoLabel(QwtPlot::xBottom);
+  constexpr std::array kSoftBiasColor = { Qt::red, Qt::green, Qt::blue, Qt::magenta, Qt::yellow, Qt::black };
   for (size_t i = 0; i < kMagSoftBiasSize; ++i) {
     mag_soft_bias_curves_[i].setPen(kSoftBiasColor[i], kLineWidth);
     mag_soft_bias_curves_[i].attach(mag_soft_bias_plot_);

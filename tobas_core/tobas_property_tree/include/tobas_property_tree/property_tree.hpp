@@ -22,24 +22,24 @@ public:
   bool save();
 
   template <typename T>
-  bool get(const std::string& key, T& value) const;
+  bool get(const std::string& key, T& dst) const;
   template <typename T>
-  void set(const std::string& key, const T& value);
+  void set(const std::string& key, const T& src);
 
   template <typename T>
-  bool get(const std::string& key, std::vector<T>& vec) const;
+  bool get(const std::string& key, std::vector<T>& dst) const;
   template <typename T>
-  void set(const std::string& key, const std::vector<T>& vec);
+  void set(const std::string& key, const std::vector<T>& src);
 
   template <typename T, size_t N>
-  bool get(const std::string& key, std::array<T, N>& arr) const;
+  bool get(const std::string& key, std::array<T, N>& dst) const;
   template <typename T, size_t N>
-  void set(const std::string& key, const std::array<T, N>& arr);
+  void set(const std::string& key, const std::array<T, N>& src);
 
   template <typename T>
-  bool get(const std::string& section, const std::string& key, T& value) const;
+  bool get(const std::string& section, const std::string& key, T& dst) const;
   template <typename T>
-  void set(const std::string& section, const std::string& key, const T& value);
+  void set(const std::string& section, const std::string& key, const T& src);
 
   inline const std::filesystem::path& filePath() const;
 
@@ -55,52 +55,52 @@ private:
 };
 
 template <typename T>
-bool PropertyTree::get(const std::string& key, T& value) const
+bool PropertyTree::get(const std::string& key, T& dst) const
 {
-  const auto opt = root_node_.get_optional<T>(key);
-  if (!opt) {
+  const auto value = root_node_.get_optional<T>(key);
+  if (!value) {
     return false;
   }
 
-  value = opt.get();
+  dst = *value;
   return true;
 }
 
 template <typename T>
-void PropertyTree::set(const std::string& key, const T& value)
+void PropertyTree::set(const std::string& key, const T& src)
 {
-  root_node_.put(key, value);
+  root_node_.put(key, src);
 }
 
 template <typename T>
-bool PropertyTree::get(const std::string& key, std::vector<T>& vec) const
+bool PropertyTree::get(const std::string& key, std::vector<T>& dst) const
 {
-  const auto list_node_opt = root_node_.get_child_optional(key);
-  if (!list_node_opt) {
+  const auto list_node = root_node_.get_child_optional(key);
+  if (!list_node) {
     return false;
   }
 
-  vec.clear();
-  for (const auto& [_, elem_node] : list_node_opt.get()) {
-    const auto value_opt = elem_node.get_optional<T>("");
-    if (!value_opt) {
+  dst.clear();
+  for (const auto& [_, elem_node] : *list_node) {
+    const auto value = elem_node.get_optional<T>("");
+    if (!value) {
       return false;
     }
 
-    vec.push_back(value_opt.get());
+    dst.push_back(*value);
   }
 
   return true;
 }
 
 template <typename T>
-void PropertyTree::set(const std::string& key, const std::vector<T>& vec)
+void PropertyTree::set(const std::string& key, const std::vector<T>& src)
 {
   boost::property_tree::ptree list_node;
 
-  for (const auto& value : vec) {
+  for (const auto& elem : src) {
     boost::property_tree::ptree elem_node;
-    elem_node.put("", value);
+    elem_node.put("", elem);
     list_node.push_back(std::make_pair("", elem_node));
   }
 
@@ -108,40 +108,39 @@ void PropertyTree::set(const std::string& key, const std::vector<T>& vec)
 }
 
 template <typename T, size_t N>
-bool PropertyTree::get(const std::string& key, std::array<T, N>& arr) const
+bool PropertyTree::get(const std::string& key, std::array<T, N>& dst) const
 {
-  const auto list_node_opt = root_node_.get_child_optional(key);
-  if (!list_node_opt) {
+  const auto list_node = root_node_.get_child_optional(key);
+  if (!list_node) {
     return false;
   }
 
-  const auto list_node = list_node_opt.get();
-  if (list_node.size() != N) {
-    std::cerr << "Property tree list node size mismatch: " << list_node.size() << " != " << N << std::endl;
+  if (list_node->size() != N) {
+    std::cerr << "Property tree list node size mismatch: " << list_node->size() << " != " << N << std::endl;
     return false;
   }
 
-  for (const auto& [idx, item] : std::views::enumerate(list_node)) {
+  for (const auto& [idx, item] : std::views::enumerate(*list_node)) {
     const auto& elem_node = item.second;
-    const auto value_opt = elem_node.get_optional<T>("");
-    if (!value_opt) {
+    const auto value = elem_node.get_optional<T>("");
+    if (!value) {
       return false;
     }
 
-    arr.at(idx) = value_opt.get();
+    dst.at(idx) = *value;
   }
 
   return true;
 }
 
 template <typename T, size_t N>
-void PropertyTree::set(const std::string& key, const std::array<T, N>& arr)
+void PropertyTree::set(const std::string& key, const std::array<T, N>& src)
 {
   boost::property_tree::ptree list_node;
 
-  for (const auto& value : arr) {
+  for (const auto& elem : src) {
     boost::property_tree::ptree elem_node;
-    elem_node.put("", value);
+    elem_node.put("", elem);
     list_node.push_back(std::make_pair("", elem_node));
   }
 
@@ -149,15 +148,15 @@ void PropertyTree::set(const std::string& key, const std::array<T, N>& arr)
 }
 
 template <typename T>
-bool PropertyTree::get(const std::string& section, const std::string& key, T& value) const
+bool PropertyTree::get(const std::string& section, const std::string& key, T& dst) const
 {
-  return get(sectionedKey(section, key), value);
+  return get(sectionedKey(section, key), dst);
 }
 
 template <typename T>
-void PropertyTree::set(const std::string& section, const std::string& key, const T& value)
+void PropertyTree::set(const std::string& section, const std::string& key, const T& src)
 {
-  set(sectionedKey(section, key), value);
+  set(sectionedKey(section, key), src);
 }
 
 inline const std::filesystem::path& PropertyTree::filePath() const

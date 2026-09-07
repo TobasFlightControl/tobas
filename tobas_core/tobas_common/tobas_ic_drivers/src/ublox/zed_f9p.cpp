@@ -10,16 +10,14 @@
 
 #include "tobas_ic_drivers/ublox/ubx_spi_transport.hpp"
 
-#define NOT_IMPLEMENTED "Not implemented."
-#define NOT_RECEIVABLE "Not receivable."
-
+using namespace std::chrono_literals;
 namespace ch = std::chrono;
 
 namespace tobas
 {
 namespace ublox
 {
-ZEDF9P::ZEDF9P() : ZEDF9P(std::make_unique<UbxTransportSpi>())
+ZEDF9P::ZEDF9P(const char* _device) : ZEDF9P(std::make_unique<UbxTransportSpi>(_device))
 {
 }
 
@@ -28,50 +26,32 @@ ZEDF9P::ZEDF9P(std::unique_ptr<UbxTransport> _transport) : transport_(std::move(
   assert(transport_);
 }
 
-bool ZEDF9P::initialize(const char* _device)
+bool ZEDF9P::initialize()
 {
-  receive_rate_.reset();
-
-  const auto interval = transport_->receiveByteInterval();
-  if (interval.count() < 0) {
-    return false;
-  }
-
-  if (!transport_->initialize(_device)) {
-    return false;
-  }
-
-  if (interval.count() > 0) {
-    receive_rate_.emplace(interval);
-  }
-
-  return true;
+  receive_rate_.setInterval(transport_->receiveByteInterval());
+  return transport_->initialize();
 }
 
-bool ZEDF9P::update(bool nonblock)
+bool ZEDF9P::update()
 {
   scanner_.reset();
 
-  if (nonblock) {
-    // Check the start byte.
-    const auto data = transport_->receiveByte();
-    if (!data) {
-      return false;
-    }
-    if (!scanner_.update(*data)) {
-      return false;
-    }
+  // Check the start byte.
+  const auto first_byte = transport_->receiveByte();
+  if (!first_byte) {
+    return false;
+  }
+  if (!scanner_.update(*first_byte)) {
+    return false;
+  }
 
-    // Return if no data has arrived.
-    if (scanner_.state() == UbxScanner::kSync1) {
-      return false;
-    }
+  // Return if no data has arrived.
+  if (scanner_.state() == UbxScanner::kSync1) {
+    return false;
   }
 
   // Scan one message.
-  if (receive_rate_) {
-    receive_rate_->start();
-  }
+  receive_rate_.start();
   while (scanner_.state() != UbxScanner::kDone) {
     const auto data = transport_->receiveByte();
     if (!data) {
@@ -80,9 +60,7 @@ bool ZEDF9P::update(bool nonblock)
     if (!scanner_.update(*data)) {
       return false;
     }
-    if (receive_rate_) {
-      receive_rate_->sleep();
-    }
+    receive_rate_.sleep();
   }
 
   if (!verifyMessage()) {
@@ -94,31 +72,34 @@ bool ZEDF9P::update(bool nonblock)
 
 bool ZEDF9P::enableSpiMessage(UbxClass cls, uint8_t id, bool enable)
 {
+  constexpr char kNotImplemented[] = "Not implemented.";
+  constexpr char kNotReceivable[] = "Not receivable.";
+
   CfgValSet<uint8_t, 1> cfg;
 
   switch (cls) {
     case CLASS_ACK: {
-      std::cerr << NOT_RECEIVABLE << std::endl;
+      std::cerr << kNotReceivable << std::endl;
       return false;
     }
     case CLASS_CFG: {
-      std::cerr << NOT_RECEIVABLE << std::endl;
+      std::cerr << kNotReceivable << std::endl;
       return false;
     }
     case CLASS_INF: {
-      std::cerr << NOT_IMPLEMENTED << std::endl;  // TODO
+      std::cerr << kNotImplemented << std::endl;  // TODO
       return false;
     }
     case CLASS_LOG: {
-      std::cerr << NOT_IMPLEMENTED << std::endl;  // TODO
+      std::cerr << kNotImplemented << std::endl;  // TODO
       return false;
     }
     case CLASS_MGA: {
-      std::cerr << NOT_IMPLEMENTED << std::endl;  // TODO
+      std::cerr << kNotImplemented << std::endl;  // TODO
       return false;
     }
     case CLASS_MON: {
-      std::cerr << NOT_IMPLEMENTED << std::endl;  // TODO
+      std::cerr << kNotImplemented << std::endl;  // TODO
       return false;
     }
     case CLASS_NAV: {
@@ -166,7 +147,7 @@ bool ZEDF9P::enableSpiMessage(UbxClass cls, uint8_t id, bool enable)
           cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x91);  // CFG-MSGOUT-UBX_NAV_RELPOSNED_SPI
           break;
         case NAV_RESETODO:
-          std::cerr << NOT_RECEIVABLE << std::endl;
+          std::cerr << kNotReceivable << std::endl;
           return false;
         case NAV_SAT:
           cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x19);  // CFG-MSGOUT-UBX_NAV_SAT_SPI
@@ -214,29 +195,29 @@ bool ZEDF9P::enableSpiMessage(UbxClass cls, uint8_t id, bool enable)
           cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x46);  // CFG-MSGOUT-UBX_NAV_VELNED_SPI
           break;
         default:
-          std::cerr << NOT_IMPLEMENTED << std::endl;  // TODO
+          std::cerr << kNotImplemented << std::endl;  // TODO
           return false;
       }
       break;
     }
     case CLASS_NAV2: {
-      std::cerr << NOT_IMPLEMENTED << std::endl;  // TODO
+      std::cerr << kNotImplemented << std::endl;  // TODO
       return false;
     }
     case CLASS_RXM: {
-      std::cerr << NOT_IMPLEMENTED << std::endl;  // TODO
+      std::cerr << kNotImplemented << std::endl;  // TODO
       return false;
     }
     case CLASS_SEC: {
-      std::cerr << NOT_IMPLEMENTED << std::endl;  // TODO
+      std::cerr << kNotImplemented << std::endl;  // TODO
       return false;
     }
     case CLASS_TIM: {
-      std::cerr << NOT_IMPLEMENTED << std::endl;  // TODO
+      std::cerr << kNotImplemented << std::endl;  // TODO
       return false;
     }
     case CLASS_UPD: {
-      std::cerr << NOT_IMPLEMENTED << std::endl;  // TODO
+      std::cerr << kNotImplemented << std::endl;  // TODO
       return false;
     }
     default: {
@@ -496,6 +477,7 @@ bool ZEDF9P::enableSpiProtocol_SPARTN(bool enable_input)
 
 bool ZEDF9P::setAntennaLength(uint8_t length_m)
 {
+  constexpr uint8_t kRG174CableDelay = 5;  // [ns/m] Coaxial cable delay.
   return cfgValSetSingle<uint16_t>(TWO_BYTES, CFG_TP, 0x01, length_m * kRG174CableDelay);  // CFG-TP-ANT_CABLEDELAY
 }
 
@@ -513,13 +495,13 @@ bool ZEDF9P::sendMessage(UbxClass cls, uint8_t id, const void* msg, uint16_t siz
   header.id = id;
   header.length = size;
 
-  const auto payload_pos = spliceMemory(message_buf_, &header, sizeof(UbxHeader), 0);
-  const auto checksum_pos = spliceMemory(message_buf_, msg, size, payload_pos);
+  const auto payload_pos = spliceMemory(tx_buf_, &header, sizeof(UbxHeader), 0);
+  const auto checksum_pos = spliceMemory(tx_buf_, msg, size, payload_pos);
 
-  const auto ck = computeChecksum(message_buf_, checksum_pos);
-  const auto message_length = spliceMemory(message_buf_, &ck, sizeof(CheckSum), checksum_pos);
+  const auto ck = computeChecksum(tx_buf_, checksum_pos);
+  const auto message_length = spliceMemory(tx_buf_, &ck, sizeof(CheckSum), checksum_pos);
 
-  return transport_->send(message_buf_, message_length);
+  return transport_->send(tx_buf_, message_length);
 }
 
 bool ZEDF9P::waitForAcknowledge(UbxClass cls, uint8_t id)
@@ -530,10 +512,11 @@ bool ZEDF9P::waitForAcknowledge(UbxClass cls, uint8_t id)
   const auto cls_str = std::to_string(int(cls));
   const auto id_str = std::to_string(int(id));
 
+  constexpr auto kWaitForGnssAck = 1s;
   const auto deadline = ch::steady_clock::now() + kWaitForGnssAck;
 
   while (ch::steady_clock::now() < deadline) {
-    if (!update(false)) {
+    if (!update()) {
       return false;
     }
 

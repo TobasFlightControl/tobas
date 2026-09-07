@@ -30,7 +30,7 @@ template <typename T>
 void setAttribute(tinyxml2::XMLElement* elem, const char* name, const std::optional<T>& value)
 {
   if (value) {
-    elem->SetAttribute(name, value.value());
+    elem->SetAttribute(name, *value);
   }
 }
 }  // namespace xml

@@ -24,6 +24,11 @@ namespace gui
 {
 namespace log
 {
+namespace
+{
+constexpr double kWindowDuration = 5.0;  // [s]
+}  // namespace
+
 FlightLogViewerWidget::FlightLogViewerWidget()
 {
   const auto odom = addData<tobas_msgs::msg::OdometryWithCovarianceStamped>(topic::kOdometry);
@@ -207,7 +212,7 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
     for (const auto& elem : data_) {
       if (topic.ends_with(elem->getTopic())) {
         if (!elem->decode(cur_time, ser_data)) {
-          qt::qErrorBox(this, "Failed to deserialize \"" + QString::fromStdString(topic) + "\".");
+          qt::qErrorBox(this, "Failed to deserialize '" + QString::fromStdString(topic) + "'.");
           decode_fail_topics_.insert(topic);
         }
         break;

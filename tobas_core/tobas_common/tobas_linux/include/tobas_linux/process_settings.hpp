@@ -12,11 +12,6 @@ namespace linux
 {
 class ProcessSettings
 {
-  static constexpr char kOptionLockMemory[] = "--lock-memory";
-  static constexpr char kOptionLockMemorySize[] = "--lock-memory-size";
-  static constexpr char kOptionPriority[] = "--priority";
-  static constexpr char kOptionCPUAffinity[] = "--cpu-affinity";
-
 public:
   bool init(int argc, char* argv[]);
 

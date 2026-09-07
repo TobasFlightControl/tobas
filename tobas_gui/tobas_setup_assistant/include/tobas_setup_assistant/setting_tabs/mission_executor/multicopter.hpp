@@ -20,23 +20,6 @@ class MulticopterWidget : public BaseExecutorWidget
 {
   Q_OBJECT
 
-  static constexpr char kWaypointMaxHorizontalVelocityParam[] = "waypoint/max_horizontal_velocity";
-  static constexpr char kWaypointMaxHorizontalAccelParam[] = "waypoint/max_horizontal_accel";
-  static constexpr char kWaypointMaxHorizontalJerkParam[] = "waypoint/max_horizontal_jerk";
-  static constexpr char kWaypointMaxVerticalVelocityParam[] = "waypoint/max_vertical_velocity";
-  static constexpr char kWaypointMaxVerticalAccelParam[] = "waypoint/max_vertical_accel";
-  static constexpr char kWaypointMaxVerticalJerkParam[] = "waypoint/max_vertical_jerk";
-  static constexpr char kWaypointMaxHeadingRateParam[] = "waypoint/max_heading_rate";
-  static constexpr char kWaypointMaxHeadingAccelParam[] = "waypoint/max_heading_accel";
-
-  static constexpr char kTakeoffMaxSpeedParam[] = "takeoff/max_speed";
-  static constexpr char kTakeoffMaxAccelParam[] = "takeoff/max_accel";
-  static constexpr char kTakeoffMaxJerkParam[] = "takeoff/max_jerk";
-
-  static constexpr char kLandSpeedParam[] = "land/speed";
-
-  static constexpr char kRtlMinAltitudeParam[] = "rtl/min_altitude";
-
 public:
   explicit MulticopterWidget();
 

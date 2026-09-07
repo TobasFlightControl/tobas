@@ -26,8 +26,6 @@ class BatteryWidget : public qt::ScrollArea
   using self = BatteryWidget;
   using super = qt::ScrollArea;
 
-  static constexpr char kTypeKey[] = "battery_type";
-
 public:
   explicit BatteryWidget();
 

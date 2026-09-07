@@ -56,8 +56,6 @@ void QwtPlotHistogramWrapper::setSamples(
     ++counts[index];
   }
 
-  samples.reserve(bin_count);
-
   for (int i = 0; i < bin_count; ++i) {
     const double left = min_value + i * bin_width;
     const double right = left + bin_width;

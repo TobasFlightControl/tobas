@@ -19,20 +19,19 @@ namespace ublox
 class UbxTransportUart final : public UbxTransport
 {
 public:
-  explicit UbxTransportUart(uint32_t _baud_rate);
+  explicit UbxTransportUart(const char* _device, uint32_t _baud_rate);
   UbxTransportUart(UbxTransportUart&& _other) = delete;
   UbxTransportUart& operator=(UbxTransportUart&& _other) = delete;
   UbxTransportUart(const UbxTransportUart& _other) = delete;
   UbxTransportUart& operator=(const UbxTransportUart& _other) = delete;
 
-  bool initialize(const char* _device) noexcept override;
+  bool initialize() noexcept override;
   std::optional<uint8_t> receiveByte() noexcept override;
   std::chrono::microseconds receiveByteInterval() const noexcept override;
   bool send(const uint8_t* _data, size_t _length) noexcept override;
 
 private:
-  static constexpr auto kReceiveByteInterval = std::chrono::microseconds(0);
-
+  const char* device_;
   const uint32_t baud_rate_;
   linux::UARTdev uart_;
 };

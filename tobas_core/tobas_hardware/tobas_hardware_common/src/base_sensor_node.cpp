@@ -10,8 +10,8 @@ namespace hardware
 BaseSensorNode::BaseSensorNode(const std::string& name, const rclcpp::NodeOptions& options)
   : super(name, nodeOptions_Default(options))
 {
-  start_ss_ = createService<Empty>(name + kStartMainTimerSrvSuffix, &self::startMainTimerSrvCb, this);
-  stop_ss_ = createService<Empty>(name + kStopMainTimerSrvSuffix, &self::stopMainTimerSrvCb, this);
+  start_ss_ = createService<Empty>(name + "/start_main_timer", &self::startMainTimerSrvCb, this);
+  stop_ss_ = createService<Empty>(name + "/stop_main_timer", &self::stopMainTimerSrvCb, this);
 }
 
 void BaseSensorNode::startMainTimerSrvCb(const Empty::Request::ConstSharedPtr&, const Empty::Response::SharedPtr&)

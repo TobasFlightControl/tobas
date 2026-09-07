@@ -21,12 +21,6 @@ class CpuViewerWidget : public QWidget
   using self = CpuViewerWidget;
   using super = QWidget;
 
-  static constexpr int kLabelPSize = 12;
-  static constexpr int kBarHeight = 30;
-
-  static constexpr double kMinTemp = 0.0;    // [degC]
-  static constexpr double kMaxTemp = 100.0;  // [degC]
-
 public:
   explicit CpuViewerWidget(const rqt::RosQtBridge& bridge);
 

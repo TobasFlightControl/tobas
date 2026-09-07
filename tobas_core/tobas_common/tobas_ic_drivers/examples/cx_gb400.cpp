@@ -56,7 +56,7 @@ int main(int argc, char** argv)
   last_send = ch::system_clock::now();
   now = last_send;
   while (true) {
-    if (ch::duration_cast<ch::milliseconds>(now - last_send) > camera.kSendAttitudeInterval) {
+    if (ch::duration_cast<ch::milliseconds>(now - last_send) > tobas::driver::CxGb400::kSendAttitudeInterval) {
       if (!camera.sendCopterAttitude(1.0, 0.0, 0.0, 0.0)) {
         std::cerr << "Failed to send attitude." << std::endl;
         return EXIT_FAILURE;

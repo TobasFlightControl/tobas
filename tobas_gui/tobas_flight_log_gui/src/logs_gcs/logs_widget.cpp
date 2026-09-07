@@ -34,6 +34,8 @@ FlightLogsWidgetGCS::FlightLogsWidgetGCS() : spinner_(Qt::WindowModal, this)
   read_button_ = new QPushButton("Read");
   clean_button_ = new QPushButton("Clean");
 
+  constexpr int kButtonWidth = 100;
+  constexpr int kButtonHeight = 40;
   read_button_->setFixedSize(kButtonWidth, kButtonHeight);
   clean_button_->setFixedSize(kButtonWidth, kButtonHeight);
 
@@ -65,7 +67,7 @@ FlightLogsWidgetGCS::FlightLogsWidgetGCS() : spinner_(Qt::WindowModal, this)
 void FlightLogsWidgetGCS::addLog(const QString& log_name)
 {
   const auto list_item = new qt::ListWidgetItem();
-  list_item->setSizeHint(QSize(0, kListItemHeight));
+  list_item->setSizeHint(QSize(0, 40));
   list_item->setData(Qt::UserRole, log_name);
   log_list_->addItem(list_item);
 
@@ -211,8 +213,9 @@ void FlightLogsWidgetGCS::onExportButtonClicked(const QString& log_name)
 {
   qDebug().nospace() << "FlightLogsWidgetGCS::onExportButtonClicked(" << log_name << ")";
 
-  static constexpr char kFilterTextCsv[] = "CSV Files (*.csv)";
-  static constexpr char kFilterTextRosbag[] = "ROS bag Archive (*.zip)";
+  constexpr char kFilterTextCsv[] = "CSV Files (*.csv)";
+  constexpr char kFilterTextRosbag[] = "ROS bag Archive (*.zip)";
+  constexpr char kLastOpenedDirKey[] = "flight_logs_gcs/last_opened_dir";
 
   // Get the last opened directory path.
   const auto last_opened_dir =
@@ -273,7 +276,7 @@ void FlightLogsWidgetGCS::onDeleteButtonClicked(const QString& log_name)
 
   const auto log_path = ros2::expandUser(kRosbagDirHome) / log_name.toStdString();
 
-  if (!qt::yesOrNo(this, "Do you want to delete flight log \"" + log_name + "\"?", qt::WARN)) {
+  if (!qt::yesOrNo(this, "Do you want to delete flight log '" + log_name + "'?", qt::WARN)) {
     return;
   }
 

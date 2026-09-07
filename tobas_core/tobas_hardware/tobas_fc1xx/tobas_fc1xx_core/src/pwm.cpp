@@ -18,7 +18,7 @@ PWM::PWM() : crc_(algo::CRC32Left::CRC_32)
 
 bool PWM::initialize()
 {
-  if (!spi_.initialize(kSpiDevice, tx_buf_, rx_buf_, kSpiClockFreq)) {
+  if (!spi_.initialize("/dev/spidev1.1", tx_buf_, rx_buf_, 50'000'000)) {
     return false;
   }
 
@@ -32,6 +32,7 @@ bool PWM::setPeriod(size_t ch, uint16_t period_us)
     return false;
   }
 
+  constexpr uint16_t kMaxPeriod = 2500;  // [us]
   if (period_us > kMaxPeriod) {
     cerr << "PWM period cannot be greater than " << kMaxPeriod << " [us].";
     return false;

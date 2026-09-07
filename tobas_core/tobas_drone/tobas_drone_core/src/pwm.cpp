@@ -10,6 +10,14 @@ using namespace std;
 
 namespace tobas
 {
+namespace
+{
+constexpr char kChannelKey[] = "channel";
+constexpr char kNameKey[] = "name";
+constexpr char kPeriodRangeKey[] = "period_range";
+constexpr char kValueRangeKey[] = "value_range";
+}  // namespace
+
 bool PwmConfig::isValid() const
 {
   if (name.empty()) {

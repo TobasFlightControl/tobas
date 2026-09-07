@@ -17,7 +17,6 @@
 #include <tobas_std_tools/check.hpp>
 #include <tobas_yaml_tools/core.hpp>
 
-using namespace std::chrono_literals;
 namespace tobas
 {
 namespace gui
@@ -34,6 +33,9 @@ std::string paramName(size_t ch)
 
 RotorTestWidget::RotorTestWidget(const rqt::RosQtBridge& bridge, const Drone& drone) : bridge_(bridge), drone_(drone)
 {
+  constexpr int kButtonWidth = 100;
+  constexpr int kButtonHeight = 40;
+
   registered_.fill(false);
 
   const auto warning =
@@ -43,13 +45,13 @@ RotorTestWidget::RotorTestWidget(const rqt::RosQtBridge& bridge, const Drone& dr
 
   const auto instruction = new qt::DescriptionWidget(
     "1. Connect the ESCs to the FC in the correct order.\n\n"
-    "2. Click \"Start\" to enable motors.\n\n"
+    "2. Click 'Start' to enable motors.\n\n"
     "3. For each channel, confirm the following:\n"
     "   - The motor rotates in the correct direction. If not, swap any two of the three ESC-motor connections.\n"
     "   - The motor does not rotate when the command RPM is 0.\n\n"
     "4. Tune the control gain of each channel to the maximum value at which no vibrations or abnormal noise occur.\n\n"
-    "5. Click \"Save\" to save the control gains.\n\n"
-    "6. Click \"Stop\" to disable motors.\n\n",
+    "5. Click 'Save' to save the control gains.\n\n"
+    "6. Click 'Stop' to disable motors.\n\n",
     cmn::kBodyPSize);
   rows_->addWidget(instruction);
 
@@ -225,6 +227,8 @@ bool RotorTestWidget::loadCurrentGains()
 
 void RotorTestWidget::onStartButtonClicked()
 {
+  constexpr int kUpdatePeriod = 10;  // [ms]
+
   qDebug() << "RotorTestWidget::onStartButtonClicked";
 
   // Confirm that the vehicle is not armed.
@@ -291,7 +295,7 @@ void RotorTestWidget::onSaveButtonClicked()
   qt::qInfoBox(
     this,
     "The RPM control gains have been saved to the local project. "
-    "Please click \"Write\" button again to flash them to the FC.");
+    "Please click 'Write' button again to flash them to the FC.");
 }
 
 void RotorTestWidget::onTargetRPMChanged(int, size_t)

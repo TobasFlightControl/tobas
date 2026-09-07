@@ -12,12 +12,6 @@ namespace tobas
 {
 class VehicleParameters
 {
-  static constexpr char kWingSurfaceKey[] = "wing_surface";
-  static constexpr char kWingSpanKey[] = "wing_span";
-  static constexpr char kMACKey[] = "mean_aerodynamic_chord";
-  static constexpr char kAeroCenterKey[] = "aerodynamic_center";
-  static constexpr char kAlphaLimitLKey[] = "alpha_limit";
-
 public:
   double wing_surface = 0;                   // Wing surface [m^2]
   double wing_span = 0;                      // Wing span [m]

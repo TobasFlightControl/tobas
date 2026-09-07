@@ -16,10 +16,6 @@ class DoubleSlider : public Slider
   using self = DoubleSlider;
   using super = Slider;
 
-  static constexpr int kRange = 10000;
-  static constexpr double kDefaultMinimum = 0.0;
-  static constexpr double kDefaultMaximum = 1.0;
-
 Q_SIGNALS:
   void valueChanged(double value);
 
@@ -41,8 +37,8 @@ private Q_SLOTS:
   void onSliderValueChanged(int slider_value);
 
 private:
-  double min_ = kDefaultMinimum;
-  double max_ = kDefaultMaximum;
+  double min_ = 0.0;
+  double max_ = 1.0;
 
   double valueFromSlider(int slider_value) const;
 };

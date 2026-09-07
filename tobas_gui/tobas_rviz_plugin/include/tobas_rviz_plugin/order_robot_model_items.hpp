@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "./joint_model/joint_model.hpp"
 #include "./link_model.hpp"
 
 namespace tobas
@@ -11,7 +12,7 @@ namespace rviz
 {
 struct OrderLinksByIndex
 {
-  bool operator()(const LinkModel* a, const LinkModel* b) const
+  bool operator()(const LinkModel::ConstSharedPtr& a, const LinkModel::ConstSharedPtr& b) const
   {
     return a->getLinkIndex() < b->getLinkIndex();
   }
@@ -19,7 +20,7 @@ struct OrderLinksByIndex
 
 struct OrderJointsByIndex
 {
-  bool operator()(const JointModel* a, const JointModel* b) const
+  bool operator()(const JointModel::ConstSharedPtr& a, const JointModel::ConstSharedPtr& b) const
   {
     return a->getJointIndex() < b->getJointIndex();
   }

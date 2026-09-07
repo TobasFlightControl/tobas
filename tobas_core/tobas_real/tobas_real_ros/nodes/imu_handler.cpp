@@ -29,10 +29,6 @@ class ImuHandlerNode : public BaseNode
   using super = BaseNode;
   using SetParams = tobas_real_msgs::srv::SetImuParams;
 
-  static constexpr int kMeasureGyroBiasCount = 1000;  // [-]
-  static constexpr double kGyroLpfCutoff = 30.0;      // [Hz]
-  static constexpr auto kMotionDetectedDeadTime = 3s;
-
 public:
   explicit ImuHandlerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
@@ -78,6 +74,7 @@ ImuHandlerNode::ImuHandlerNode(const rclcpp::NodeOptions& options)
 {
   section_ = getStringParam("section");
 
+  constexpr double kGyroLpfCutoff = 30.0;  // [Hz]
   gyro_lpf_.setCutoffFrequency(kGyroLpfCutoff);
 
   const auto cfg_dir = linux::isSuperUser() ? fs::path(kConfigDirRoot) : ros2::expandUser(kConfigDirHome);
@@ -155,6 +152,7 @@ void ImuHandlerNode::imuRawCb(const tobas_msgs::Imu::ConstSharedPtr& imu_raw_in)
       }
 
       // Do not measure for a fixed time after the last detected vehicle motion.
+      constexpr auto kMotionDetectedDeadTime = 3s;
       if (cur_time - t_last_motion_detected_ < kMotionDetectedDeadTime) {
         break;
       }
@@ -166,6 +164,7 @@ void ImuHandlerNode::imuRawCb(const tobas_msgs::Imu::ConstSharedPtr& imu_raw_in)
 
       // Once enough data is accumulated, use the average angular velocity as the bias estimate.
       // Then move to the next stage.
+      constexpr int kMeasureGyroBiasCount = 1000;  // [-]
       if (++gyro_bias_cnt_ == kMeasureGyroBiasCount) {
         for (size_t i = 0; i < 3; ++i) {
           gyro_bias_(i) = gyro_sum_[i].get() / kMeasureGyroBiasCount;

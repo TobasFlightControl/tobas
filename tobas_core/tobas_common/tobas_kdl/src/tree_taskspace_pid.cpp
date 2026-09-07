@@ -11,6 +11,12 @@ namespace tobas
 {
 namespace kdl
 {
+namespace
+{
+constexpr double kDefaultStiffness = 25.0;
+constexpr double kDefaultDamping = 10.0;
+}  // namespace
+
 TreeTaskSpacePID::TreeTaskSpacePID(const Tree& tree, const Vector& grav)
   : super(tree)
   , fk_(tree)

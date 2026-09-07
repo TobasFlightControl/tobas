@@ -10,6 +10,18 @@ using namespace std;
 
 namespace tobas
 {
+namespace
+{
+constexpr char kChannelKey[] = "channel";
+constexpr char kNumPolesKey[] = "num_poles";
+constexpr char kKvKey[] = "kv";
+constexpr char kInternalResistanceKey[] = "internal_resistance";
+constexpr char kMinSpeed[] = "minimum_speed";
+constexpr char kPropellerDiameterKey[] = "propeller_diameter";
+constexpr char kMotorConstKey[] = "motor_constant";
+constexpr char kMomentConstKey[] = "moment_constant";
+}  // namespace
+
 bool ElectricRotorConfig::isValid() const
 {
   if (!super::isValid()) {

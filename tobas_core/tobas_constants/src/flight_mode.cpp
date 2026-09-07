@@ -5,23 +5,26 @@
 
 #include <iostream>
 
-#define ACROBAT_TEXT "acrobat"
-#define STABILIZE_TEXT "stabilize"
-#define LOITER_TEXT "loiter"
-
 using namespace std;
 
 namespace tobas
 {
+namespace
+{
+constexpr char kAcrobatText[] = "acrobat";
+constexpr char kStabilizeText[] = "stabilize";
+constexpr char kLoiterText[] = "loiter";
+}  // namespace
+
 string textFromEnum(FlightMode mode)
 {
   switch (mode) {
     case FlightMode::kAcrobat:
-      return ACROBAT_TEXT;
+      return kAcrobatText;
     case FlightMode::kStabilize:
-      return STABILIZE_TEXT;
+      return kStabilizeText;
     case FlightMode::kLoiter:
-      return LOITER_TEXT;
+      return kLoiterText;
     default:
       throw;
   }
@@ -29,15 +32,15 @@ string textFromEnum(FlightMode mode)
 
 bool enumFromText(const string& text, FlightMode& dst)
 {
-  if (text == ACROBAT_TEXT) {
+  if (text == kAcrobatText) {
     dst = FlightMode::kAcrobat;
     return true;
   }
-  else if (text == STABILIZE_TEXT) {
+  else if (text == kStabilizeText) {
     dst = FlightMode::kStabilize;
     return true;
   }
-  else if (text == LOITER_TEXT) {
+  else if (text == kLoiterText) {
     dst = FlightMode::kLoiter;
     return true;
   }

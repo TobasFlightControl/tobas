@@ -23,7 +23,7 @@ public:
 
   virtual ~UbxTransport() = default;
 
-  virtual bool initialize(const char* _device) noexcept = 0;
+  virtual bool initialize() noexcept = 0;
   virtual std::optional<uint8_t> receiveByte() noexcept = 0;
 
   /** @brief Return zero if byte reception does not require pacing. */

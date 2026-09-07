@@ -5,7 +5,6 @@
 
 #include <tobas_kdl/tree_joint_axis_solver.hpp>
 #include <tobas_kdl/tree_joint_parser.hpp>
-#include <tobas_std_tools/unit_conversions.hpp>
 #include <tobas_uadf/model.hpp>
 
 #include "./frame_type.hpp"
@@ -36,8 +35,6 @@ public:
   FrameTypeDetectionResult determineFrameType();
 
 private:
-  static constexpr double kJntAxisParallelTol = st::deg2rad(5);  // [rad]
-
   bool isJntAxisAlwaysParallel(const std::string& link_name, const kdl::Vector& tar_axis, bool same_direction_only);
   bool isJntAxisAlwaysPerpendicular(const std::string& link_name, const kdl::Vector& tar_axis);
   bool allThrustJointAxesAlwaysParallel(const kdl::Vector& tar_axis, bool same_direction_only);

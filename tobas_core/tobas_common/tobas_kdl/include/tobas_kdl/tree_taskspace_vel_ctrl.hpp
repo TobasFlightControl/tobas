@@ -16,8 +16,6 @@ class TreeTaskSpaceVelCtrl : public TreeSolverI
   using super = TreeSolverI;
 
 public:
-  static constexpr double kDefaultTimeConst = 0.3;  // [s]
-
   explicit TreeTaskSpaceVelCtrl(const Tree& tree);
 
   bool updateInternalDataStructures() override;

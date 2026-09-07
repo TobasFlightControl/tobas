@@ -9,35 +9,37 @@
 
 #include <tobas_math/core.hpp>
 
-#define R0 6356766.0                // Earth radius at 45 degrees north latitude [m].
-#define TROPOPAUSE_ALTITUDE 1.1e+4  // Tropopause, the boundary between the troposphere and stratosphere [m].
-
-// ICAO standard atmosphere.
-#define R 8.31432    // Gas constant [J/K/mol].
-#define P0 101325.0  // Sea-level pressure [Pa].
-#define G 9.80665    // Gravitational acceleration [m/s^2].
-#define T0 288.15    // Sea-level temperature [K].
-#define L -0.0065    // Temperature lapse rate [K/m].
-#define M 0.0289664  // Molar mass of sea-level air [kg/mol].
-
 namespace tobas
 {
 namespace st
 {
+namespace
+{
+constexpr double kEarthRadius = 6356766.0;      // Earth radius at 45 degrees north latitude [m].
+constexpr double kTropopauseAltitude = 1.1e+4;  // Boundary between the troposphere and stratosphere [m].
+
+constexpr double kGasConstant = 8.31432;             // ICAO standard atmosphere [J/K/mol].
+constexpr double kSeaLevelPressure = 101325.0;       // ICAO standard atmosphere [Pa].
+constexpr double kGravity = 9.80665;                 // ICAO standard atmosphere [m/s^2].
+constexpr double kSeaLevelTemperature = 288.15;      // ICAO standard atmosphere [K].
+constexpr double kTemperatureLapseRate = -0.0065;    // ICAO standard atmosphere [K/m].
+constexpr double kSeaLevelAirMolarMass = 0.0289664;  // ICAO standard atmosphere [kg/mol].
+}  // namespace
+
 double gphToAltitude(const double& gph)
 {
-  return R0 * gph / (R0 - gph);
+  return kEarthRadius * gph / (kEarthRadius - gph);
 }
 
 double altitudeToGPH(const double& altitude)
 {
-  return R0 * altitude / (R0 + altitude);
+  return kEarthRadius * altitude / (kEarthRadius + altitude);
 }
 
 double gphToTemperature(const double& gph)
 {
-  if (gph <= TROPOPAUSE_ALTITUDE) {
-    return T0 + L * gph;
+  if (gph <= kTropopauseAltitude) {
+    return kSeaLevelTemperature + kTemperatureLapseRate * gph;
   }
   else {
     throw;  // TODO
@@ -52,7 +54,7 @@ double altitudeToTemperature(const double& altitude)
 
 double gphToPressure(const double& gph)
 {
-  if (gph <= TROPOPAUSE_ALTITUDE) {
+  if (gph <= kTropopauseAltitude) {
     double T = gphToTemperature(gph);
     return temperatureToPressure(T);
   }
@@ -65,8 +67,8 @@ double pressureToTemperature(const double& p)
 {
   assert(p > 0.0);
 
-  constexpr auto exp = (L * R) / (G * M);
-  return T0 * std::pow(P0 / p, exp);
+  constexpr auto kExponent = (kTemperatureLapseRate * kGasConstant) / (kGravity * kSeaLevelAirMolarMass);
+  return kSeaLevelTemperature * std::pow(kSeaLevelPressure / p, kExponent);
 }
 
 double altitudeToPressure(const double& altitude)
@@ -79,8 +81,8 @@ double temperatureToPressure(const double& T)
 {
   assert(T > 0.0);
 
-  constexpr auto exp = (G * M) / (L * R);
-  return P0 * std::pow(T0 / T, exp);
+  constexpr auto kExponent = (kGravity * kSeaLevelAirMolarMass) / (kTemperatureLapseRate * kGasConstant);
+  return kSeaLevelPressure * std::pow(kSeaLevelTemperature / T, kExponent);
 }
 
 double gphToDensity(const double& gph)
@@ -97,33 +99,34 @@ double altitudeToDensity(const double& altitude)
 
 double pressureToDensity(const double& p)
 {
-  constexpr auto c = M / R;
+  constexpr auto kCoefficient = kSeaLevelAirMolarMass / kGasConstant;
   const auto T = pressureToTemperature(p);
-  return c * p / T;
+  return kCoefficient * p / T;
 }
 
 double pressureToAltitude(const double& pressure)
 {
   assert(pressure > 0.0);
 
-  constexpr auto a = T0 / L;
-  constexpr auto b = -(L * R) / (G * M);
+  constexpr auto kTemperatureToAltitudeScale = kSeaLevelTemperature / kTemperatureLapseRate;
+  constexpr auto kPressureExponent = -(kTemperatureLapseRate * kGasConstant) / (kGravity * kSeaLevelAirMolarMass);
 
-  const auto gph = a * (std::pow(pressure / P0, b) - 1.0);
-  assert(gph < TROPOPAUSE_ALTITUDE);  // Error is large above 11 km altitude.
+  const auto gph = kTemperatureToAltitudeScale * (std::pow(pressure / kSeaLevelPressure, kPressureExponent) - 1.0);
+  assert(gph < kTropopauseAltitude);  // Error is large above 11 km altitude.
 
   return gphToAltitude(gph);
 }
 
 void pressureToAltitude(const double& pressure, const double& pressure_var, double& altitude, double& altitude_var)
 {
-  constexpr auto a = T0 / L;
-  constexpr auto b = -(L * R) / (G * M);
-  constexpr auto c = -a * b;
+  constexpr auto kTemperatureToAltitudeScale = kSeaLevelTemperature / kTemperatureLapseRate;
+  constexpr auto kPressureExponent = -(kTemperatureLapseRate * kGasConstant) / (kGravity * kSeaLevelAirMolarMass);
+  constexpr auto kPressureToAltitudeScale = -kTemperatureToAltitudeScale * kPressureExponent;
 
   altitude = pressureToAltitude(pressure);
 
-  const auto amp = (c / pressure) * std::pow(pressure / P0, b);  // Altitude noise / pressure noise ~ 1e-2.
+  // Altitude noise / pressure noise ~ 1e-2
+  const auto amp = (kPressureToAltitudeScale / pressure) * std::pow(pressure / kSeaLevelPressure, kPressureExponent);
   altitude_var = math::sqr(amp) * pressure_var;
 }
 }  // namespace st

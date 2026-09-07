@@ -13,7 +13,7 @@ bool getXmlParam(const tinyxml2::XMLElement* elem, const char* name, double& par
 {
   const auto child_elem = elem->FirstChildElement(name);
   if (!child_elem) {
-    gzerr << "XML parameter \"" << name << "\" does not exist." << std::endl;
+    gzerr << "XML parameter '" << name << "' does not exist." << std::endl;
     return false;
   }
 

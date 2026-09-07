@@ -90,6 +90,7 @@ void ExportThreadCsv::run()
         histmap_[cur_time][topic::kImuRaw] = ser_data;
 
         // Write old data incrementally to prevent the history map from growing too large.
+        constexpr rcutils_time_point_value_t kExpirationTime = 1'000'000'000;  // [ns]
         exportOldestImuLine(csv_file, cur_time - kExpirationTime);
       }
       else if (topic.ends_with(str::concat('/', topic::kOdometry).data())) {
@@ -165,7 +166,7 @@ void ExportThreadCsv::run()
     }
     catch (const std::exception& e) {
       csv_file.close();
-      Q_EMIT finished(false, "Failed to deserialize \"" + QString::fromStdString(topic) + "\".");
+      Q_EMIT finished(false, "Failed to deserialize '" + QString::fromStdString(topic) + "'.");
       return;
     }
   }

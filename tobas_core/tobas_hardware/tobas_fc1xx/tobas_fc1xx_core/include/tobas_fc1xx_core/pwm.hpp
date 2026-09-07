@@ -15,11 +15,6 @@ class PWM
 public:
   static constexpr size_t kChannelSize = 8;
 
-private:
-  static constexpr char kSpiDevice[] = "/dev/spidev1.1";
-  static constexpr uint32_t kSpiClockFreq = 50'000'000;  // [Hz]
-  static constexpr uint16_t kMaxPeriod = 2500;           // [us]
-
 public:
   explicit PWM();
 

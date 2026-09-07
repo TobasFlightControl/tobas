@@ -24,9 +24,6 @@ class PropulsionSystemWidget : public BasePropulsionSystemWidget
   using self = PropulsionSystemWidget;
   using super = BasePropulsionSystemWidget;
 
-  static constexpr char kEngineTitle[] = "Engine";
-  static constexpr char kPropulsionUnitTitle[] = "Propulsion Units";
-
 public:
   EngineWidget* engine;
   PropulsionUnitsWidget* units;

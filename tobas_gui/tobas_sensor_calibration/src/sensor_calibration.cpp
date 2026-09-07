@@ -13,8 +13,8 @@ namespace sc
 {
 SensorCalibrationWidget::SensorCalibrationWidget(const rqt::RosQtBridge& bridge, const Drone& drone) : drone_(drone)
 {
-  setTabSize(kTabWidth, kTabHeight);
-  enableWheelEvent(false);
+  // Without at least this much height, the `TabBar` text is clipped horizontally for some reason.
+  setTabSize(70, 35);
 
   accel_calib_ = new AccelCalibrationWidget(bridge);
   addTab(accel_calib_, "Accelerometer");
@@ -25,6 +25,7 @@ SensorCalibrationWidget::SensorCalibrationWidget(const rqt::RosQtBridge& bridge,
   rcin_calib_ = new RCInputCalibrationWidget(bridge, drone);
   addTab(rcin_calib_, "Radio Control");
 
+  enableWheelEvent(false);
   setTabsEnabled(false);
 
   // Connection

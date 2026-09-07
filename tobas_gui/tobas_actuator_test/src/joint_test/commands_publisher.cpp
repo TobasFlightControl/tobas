@@ -52,7 +52,7 @@ void JointCommandsPublisherWidget::updateInternalDataStructures()
         const auto min_pos = joint_parser_.lowerLimit(jnt_name);
         const auto max_pos = joint_parser_.upperLimit(jnt_name);
         if (std::isinf(min_pos) || std::isinf(max_pos)) {
-          qt::qErrorBox(this, "The position limit of joint \"" + QString::fromStdString(jnt_name) + "\" is invalid.");
+          qt::qErrorBox(this, "The position limit of joint '" + QString::fromStdString(jnt_name) + "' is invalid.");
           continue;
         }
 
@@ -66,6 +66,7 @@ void JointCommandsPublisherWidget::updateInternalDataStructures()
       case JointCommandInterface::kVelocity: {
         auto max_vel = joint_parser_.maxVelocity(jnt_name);
         if (std::isinf(max_vel)) {
+          constexpr double kDefaultMaxVel = M_2PI;  // [rad/s]
           max_vel = kDefaultMaxVel;
         }
 
@@ -79,6 +80,7 @@ void JointCommandsPublisherWidget::updateInternalDataStructures()
       case JointCommandInterface::kEffort: {
         auto max_eff = joint_parser_.maxEffort(jnt_name);
         if (std::isinf(max_eff)) {
+          constexpr double kDefaultMaxEff = 10.0;  // [Nm]
           max_eff = kDefaultMaxEff;
         }
 
@@ -90,7 +92,7 @@ void JointCommandsPublisherWidget::updateInternalDataStructures()
         break;
       }
       case JointCommandInterface::kNone: {
-        qt::qErrorBox(this, "The command interface of joint \"" + QString::fromStdString(jnt_name) + "\" is not set.");
+        qt::qErrorBox(this, "The command interface of joint '" + QString::fromStdString(jnt_name) + "' is not set.");
         continue;
       }
       default: {
@@ -128,6 +130,8 @@ void JointCommandsPublisherWidget::clearRosInterfaces()
 
 void JointCommandsPublisherWidget::start()
 {
+  constexpr int kPublishPeriod = 10;  // [ms]
+
   // Enable the commander.
   for (const auto& [jnt_name, commander] : commanders_) {
     const auto& joint = drone_.joints.at(jnt_name);

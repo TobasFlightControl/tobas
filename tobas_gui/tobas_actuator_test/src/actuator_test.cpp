@@ -14,8 +14,8 @@ namespace at
 ActuatorTestWidget::ActuatorTestWidget(const rqt::RosQtBridge& bridge, const kdl::Tree& tree, const Drone& drone)
   : drone_(drone)
 {
-  setTabSize(kTabWidth, kTabHeight);
-  enableWheelEvent(false);
+  // Without at least this much height, the `TabBar` text is clipped horizontally for some reason.
+  setTabSize(35, 70);
 
   rotor_test_ = new RotorTestWidget(bridge, drone);
   addTab(rotor_test_, "Rotor Test");
@@ -23,6 +23,7 @@ ActuatorTestWidget::ActuatorTestWidget(const rqt::RosQtBridge& bridge, const kdl
   joint_test_ = new JointTestWidget(bridge, tree, drone);
   addTab(joint_test_, "Joint Test");
 
+  enableWheelEvent(false);
   setTabsEnabled(false);
 }
 

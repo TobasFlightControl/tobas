@@ -9,12 +9,6 @@ namespace tobas
 {
 class BatteryConfig
 {
-  static constexpr char kNominalVoltageKey[] = "nominal_voltage";
-  static constexpr char kMaxVoltageKey[] = "max_voltage";
-  static constexpr char kSagVoltageKey[] = "sag_voltage";
-  static constexpr char kMaxCurrentKey[] = "max_current";
-  static constexpr char kInternalResistanceKey[] = "internal_resistance";
-
 public:
   double nominal_voltage = 0.0;      // Nominal voltage [V].
   double max_voltage = 0.0;          // Voltage at full charge [V].

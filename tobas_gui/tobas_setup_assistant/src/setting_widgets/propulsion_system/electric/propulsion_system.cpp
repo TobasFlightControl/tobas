@@ -20,6 +20,12 @@ namespace propulsion
 {
 namespace electric
 {
+namespace
+{
+constexpr char kBatteryTitle[] = "Battery";
+constexpr char kPropulsionUnitTitle[] = "Propulsion Units";
+}  // namespace
+
 PropulsionSystemWidget::PropulsionSystemWidget(const uadf::Model& uadf)
 {
   battery = new BatteryWidget();

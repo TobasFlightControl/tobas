@@ -39,8 +39,6 @@ class FailsafeWidget : public BaseSettingWidget
   static constexpr size_t kUserDefinedConditionIdx = kVibrationLevelIdx + 1;
   static constexpr size_t kItemSize = kUserDefinedConditionIdx + 1;
 
-  static constexpr char kEscNoCommTimeoutKey[] = "esc_no_comm_timeout";
-
 public:
   explicit FailsafeWidget();
 

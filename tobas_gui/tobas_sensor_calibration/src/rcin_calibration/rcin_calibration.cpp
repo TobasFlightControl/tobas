@@ -25,11 +25,18 @@ namespace sc
 {
 RCInputCalibrationWidget::RCInputCalibrationWidget(const rqt::RosQtBridge& bridge, const Drone& drone) : drone_(drone)
 {
+  // The basic S.BUS throttle range is 172 to 1811.
+  constexpr int kMinPeriod = 0;
+  constexpr int kMaxPeriod = 2000;
+  constexpr int kButtonWidth = 100;
+  constexpr int kButtonHeight = 40;
+  constexpr int kRangeSideShort = 50;
+
   const auto instruction = new qt::DescriptionWidget(
-    "1. Click \"Start\" to begin displaying S.BUS data in the view.\n\n"
+    "1. Click 'Start' to begin displaying S.BUS data in the view.\n\n"
     "2. For each channel, operate the stick or switch to ensure it covers the entire range. "
     "If the stick's movement is opposite to that of the bar, adjust the transmitter settings accordingly.\n\n"
-    "3. When the full range of all channels has been covered, click \"Finish.\"\n\n",
+    "3. When the full range of all channels has been covered, click 'Finish.'\n\n",
     cmn::kBodyPSize);
 
   const auto button_cols = new QHBoxLayout();
@@ -160,6 +167,9 @@ const char* RCInputCalibrationWidget::title() const
 
 void RCInputCalibrationWidget::reset()
 {
+  constexpr char kOnText[] = "ON";
+  constexpr char kOffText[] = "OFF";
+
   running_ = false;
 
   sbus_.reset();
@@ -249,28 +259,28 @@ bool RCInputCalibrationWidget::saveParamsToGcs()
 
   const auto& section = drone_.name;
 
-  pt.set(section, real::handler::rcin::kRollLeftKey, roll_range_->getLower());
-  pt.set(section, real::handler::rcin::kRollRightKey, roll_range_->getUpper());
-  pt.set(section, real::handler::rcin::kPitchUpKey, pitch_range_->getLower());
-  pt.set(section, real::handler::rcin::kPitchDownKey, pitch_range_->getUpper());
-  pt.set(section, real::handler::rcin::kYawLeftKey, yaw_range_->getLower());
-  pt.set(section, real::handler::rcin::kYawRightKey, yaw_range_->getUpper());
-  pt.set(section, real::handler::rcin::kThrotUpKey, throt_range_->getLower());
-  pt.set(section, real::handler::rcin::kThrotDownKey, throt_range_->getUpper());
-  pt.set(section, real::handler::rcin::kModeAcrobatKey, mode_range_->getUpper());
-  pt.set(section, real::handler::rcin::kModeStabilizeKey, mode_range_->getMiddle());
-  pt.set(section, real::handler::rcin::kModeLoiterKey, mode_range_->getLower());
-  pt.set(section, real::handler::rcin::kSubModeOnKey, sub_mode_range_->getLower());
-  pt.set(section, real::handler::rcin::kSubModeOffKey, sub_mode_range_->getUpper());
-  pt.set(section, real::handler::rcin::kEnableOnKey, enable_range_->getLower());
-  pt.set(section, real::handler::rcin::kEnableOffKey, enable_range_->getUpper());
-  pt.set(section, real::handler::rcin::kKillOnKey, kill_range_->getLower());
-  pt.set(section, real::handler::rcin::kKillOffKey, kill_range_->getUpper());
+  pt.set(section, real::handler::rcin::kRollLeftKey, roll_range_->getLower().value());
+  pt.set(section, real::handler::rcin::kRollRightKey, roll_range_->getUpper().value());
+  pt.set(section, real::handler::rcin::kPitchUpKey, pitch_range_->getLower().value());
+  pt.set(section, real::handler::rcin::kPitchDownKey, pitch_range_->getUpper().value());
+  pt.set(section, real::handler::rcin::kYawLeftKey, yaw_range_->getLower().value());
+  pt.set(section, real::handler::rcin::kYawRightKey, yaw_range_->getUpper().value());
+  pt.set(section, real::handler::rcin::kThrotUpKey, throt_range_->getLower().value());
+  pt.set(section, real::handler::rcin::kThrotDownKey, throt_range_->getUpper().value());
+  pt.set(section, real::handler::rcin::kModeAcrobatKey, mode_range_->getUpper().value());
+  pt.set(section, real::handler::rcin::kModeStabilizeKey, mode_range_->getMiddle().value());
+  pt.set(section, real::handler::rcin::kModeLoiterKey, mode_range_->getLower().value());
+  pt.set(section, real::handler::rcin::kSubModeOnKey, sub_mode_range_->getLower().value());
+  pt.set(section, real::handler::rcin::kSubModeOffKey, sub_mode_range_->getUpper().value());
+  pt.set(section, real::handler::rcin::kEnableOnKey, enable_range_->getLower().value());
+  pt.set(section, real::handler::rcin::kEnableOffKey, enable_range_->getUpper().value());
+  pt.set(section, real::handler::rcin::kKillOnKey, kill_range_->getLower().value());
+  pt.set(section, real::handler::rcin::kKillOffKey, kill_range_->getUpper().value());
 
   std::array<int, kMaxNumOfGpsw> gpsw_on, gpsw_off;
   for (size_t i = 0; i < numOfGpswChannels(); ++i) {
-    gpsw_on[i] = gpsw_ranges_[i]->getLower();
-    gpsw_off[i] = gpsw_ranges_[i]->getUpper();
+    gpsw_on[i] = gpsw_ranges_[i]->getLower().value();
+    gpsw_off[i] = gpsw_ranges_[i]->getUpper().value();
   }
   for (size_t i = numOfGpswChannels(); i < kMaxNumOfGpsw; ++i) {
     gpsw_on[i] = std::numeric_limits<uint16_t>::max();
@@ -291,27 +301,27 @@ bool RCInputCalibrationWidget::saveParamsToFc()
 {
   const auto req = std::make_shared<tobas_real_msgs::srv::SetRcInputParams::Request>();
 
-  req->roll_left = roll_range_->getLower();
-  req->roll_right = roll_range_->getUpper();
-  req->pitch_up = pitch_range_->getLower();
-  req->pitch_down = pitch_range_->getUpper();
-  req->yaw_left = yaw_range_->getLower();
-  req->yaw_right = yaw_range_->getUpper();
-  req->throttle_up = throt_range_->getLower();
-  req->throttle_down = throt_range_->getUpper();
-  req->mode_acrobat = mode_range_->getUpper();
-  req->mode_stabilize = mode_range_->getMiddle();
-  req->mode_loiter = mode_range_->getLower();
-  req->sub_mode_on = sub_mode_range_->getLower();
-  req->sub_mode_off = sub_mode_range_->getUpper();
-  req->enable_on = enable_range_->getLower();
-  req->enable_off = enable_range_->getUpper();
-  req->kill_on = kill_range_->getLower();
-  req->kill_off = kill_range_->getUpper();
+  req->roll_left = roll_range_->getLower().value();
+  req->roll_right = roll_range_->getUpper().value();
+  req->pitch_up = pitch_range_->getLower().value();
+  req->pitch_down = pitch_range_->getUpper().value();
+  req->yaw_left = yaw_range_->getLower().value();
+  req->yaw_right = yaw_range_->getUpper().value();
+  req->throttle_up = throt_range_->getLower().value();
+  req->throttle_down = throt_range_->getUpper().value();
+  req->mode_acrobat = mode_range_->getUpper().value();
+  req->mode_stabilize = mode_range_->getMiddle().value();
+  req->mode_loiter = mode_range_->getLower().value();
+  req->sub_mode_on = sub_mode_range_->getLower().value();
+  req->sub_mode_off = sub_mode_range_->getUpper().value();
+  req->enable_on = enable_range_->getLower().value();
+  req->enable_off = enable_range_->getUpper().value();
+  req->kill_on = kill_range_->getLower().value();
+  req->kill_off = kill_range_->getUpper().value();
 
   for (size_t i = 0; i < numOfGpswChannels(); ++i) {
-    req->gpsw_on[i] = gpsw_ranges_[i]->getLower();
-    req->gpsw_off[i] = gpsw_ranges_[i]->getUpper();
+    req->gpsw_on[i] = gpsw_ranges_[i]->getLower().value();
+    req->gpsw_off[i] = gpsw_ranges_[i]->getUpper().value();
   }
   for (size_t i = numOfGpswChannels(); i < kMaxNumOfGpsw; ++i) {
     req->gpsw_on[i] = std::numeric_limits<uint16_t>::max();
@@ -366,48 +376,52 @@ void RCInputCalibrationWidget::onCancelButtonClicked()
 
 void RCInputCalibrationWidget::onFinishButtonClicked()
 {
+  // Each S.BUS channel value is at least 1000 and at most 2000,
+  // so using 1000 as the threshold prevents the human error of moving a three-position switch through only two positions.
+  constexpr int kMinSignalRange = 1000;
+
   // Confirm that messages have been received.
-  if (!roll_range_->hasValue()) {
+  if (!roll_range_->getValue()) {
     qt::qWarnBox(this, "No S.BUS message is received.");
     return;
   }
 
   // Check each channel value range.
-  if (roll_range_->getRange() < kMinSignalRange) {
+  if (roll_range_->getRange().value() < kMinSignalRange) {
     qt::qWarnBox(this, "The signal range of Roll channel is too narrow.");
     return;
   }
-  if (pitch_range_->getRange() < kMinSignalRange) {
+  if (pitch_range_->getRange().value() < kMinSignalRange) {
     qt::qWarnBox(this, "The signal range of Pitch channel is too narrow.");
     return;
   }
-  if (yaw_range_->getRange() < kMinSignalRange) {
+  if (yaw_range_->getRange().value() < kMinSignalRange) {
     qt::qWarnBox(this, "The signal range of Yaw channel is too narrow.");
     return;
   }
-  if (throt_range_->getRange() < kMinSignalRange) {
+  if (throt_range_->getRange().value() < kMinSignalRange) {
     qt::qWarnBox(this, "The signal range of Throttle channel is too narrow.");
     return;
   }
-  if (mode_range_->getRange() < kMinSignalRange) {
+  if (mode_range_->getRange().value() < kMinSignalRange) {
     qt::qWarnBox(this, "The signal range of Mode channel is too narrow.");
     return;
   }
-  if (sub_mode_range_->getRange() < kMinSignalRange) {
+  if (sub_mode_range_->getRange().value() < kMinSignalRange) {
     qt::qWarnBox(this, "The signal range of Sub-Mode channel is too narrow.");
     return;
   }
-  if (enable_range_->getRange() < kMinSignalRange) {
+  if (enable_range_->getRange().value() < kMinSignalRange) {
     qt::qWarnBox(this, "The signal range of Enable channel is too narrow.");
     return;
   }
-  if (kill_range_->getRange() < kMinSignalRange) {
+  if (kill_range_->getRange().value() < kMinSignalRange) {
     qt::qWarnBox(this, "The signal range of Kill channel is too narrow.");
     return;
   }
 
   for (size_t i = 0; i < numOfGpswChannels(); ++i) {
-    if (gpsw_ranges_.at(i)->getRange() < kMinSignalRange) {
+    if (gpsw_ranges_.at(i)->getRange().value() < kMinSignalRange) {
       qt::qWarnBox(this, "The signal range of GPSw " + QString::number(i + 1) + " channel is too narrow.");
       return;
     }

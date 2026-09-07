@@ -25,20 +25,6 @@ public:
     bool failsafe;
   };
 
-private:
-  static constexpr uint32_t kBaudRate = 100'000;  // [bps]
-  static constexpr size_t kChannelBits = 11;
-  static constexpr size_t kDataBits = 8;
-  static constexpr size_t kDataSize = 22;
-  static constexpr size_t kTelemSize = 3;
-
-  static constexpr size_t kStartIdx = 0;
-  static constexpr size_t kDataIdx = kStartIdx + 1;
-  static constexpr size_t kFlagsIdx = kDataIdx + kDataSize;
-  static constexpr size_t kEndIdx = kFlagsIdx + 1;
-  static constexpr size_t kPacketSize = kEndIdx + 1;
-
-public:
   explicit SBUS(std::function<void(const Packet&)> packet_cb);
   ~SBUS();
 
@@ -58,9 +44,6 @@ private:
 
   std::jthread read_thread_;
   void readThreadFunc(std::stop_token st);
-
-  void decodeData(const std::array<uint8_t, kDataSize>& data);
-  void decodeFlags(uint8_t flags);
 };
 
 inline const SBUS::Packet& SBUS::packet() const

@@ -30,6 +30,8 @@ FlightLogsWidgetFC::FlightLogsWidgetFC() : spinner_(Qt::WindowModal, this)
   read_button_ = new QPushButton("Read");
   clean_button_ = new QPushButton("Clean");
 
+  constexpr int kButtonWidth = 100;
+  constexpr int kButtonHeight = 40;
   read_button_->setFixedSize(kButtonWidth, kButtonHeight);
   clean_button_->setFixedSize(kButtonWidth, kButtonHeight);
 
@@ -84,7 +86,7 @@ void FlightLogsWidgetFC::clearRosInterfaces()
 void FlightLogsWidgetFC::addLog(const QString& log_name)
 {
   const auto list_item = new qt::ListWidgetItem();
-  list_item->setSizeHint(QSize(0, kListItemHeight));
+  list_item->setSizeHint(QSize(0, 40));
   list_item->setData(Qt::UserRole, log_name);
   log_list_->addItem(list_item);
 
@@ -222,7 +224,7 @@ void FlightLogsWidgetFC::onDownloadButtonClicked(const QString& log_name)
 
 void FlightLogsWidgetFC::onDeleteButtonClicked(const QString& log_name)
 {
-  if (!qt::yesOrNo(this, "Do you want to delete flight log \"" + log_name + "\"?", qt::WARN)) {
+  if (!qt::yesOrNo(this, "Do you want to delete flight log '" + log_name + "'?", qt::WARN)) {
     return;
   }
 

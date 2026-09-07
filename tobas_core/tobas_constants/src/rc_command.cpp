@@ -5,50 +5,53 @@
 
 #include <iostream>
 
-#define RATE_THROTTLE_TEXT "rate_throttle"
-#define RATE_THROTTLE_VECTOR_TEXT "rate_throttle_vector"
-#define ANGLE_THROTTLE_TEXT "angle_throttle"
-#define ANGLE_THROTTLE_VECTOR_TEXT "angle_throttle_vector"
-#define ACCEL_YAW_TEXT "accel_yaw"
-#define ACCEL_PITCH_YAW_TEXT "accel_pitch_yaw"
-#define POS_VEL_ACC_YAW_TEXT "pos_vel_acc_yaw"
-#define POS_VEL_ACC_PITCH_YAW_TEXT "pos_vel_acc_pitch_yaw"
-#define ACCEL_RATE_TEXT "accel_rate"
-#define ACCEL_ANGLE_TEXT "accel_angle"
-#define POS_VEL_ACC_ANGLE_TEXT "pos_vel_acc_angle"
-#define SPEED_ROLL_DPITCH_TEXT "speed_roll_dpitch"
-
 using namespace std;
 
 namespace tobas
 {
+namespace
+{
+constexpr char kRateThrottleText[] = "rate_throttle";
+constexpr char kRateThrottleVectorText[] = "rate_throttle_vector";
+constexpr char kAngleThrottleText[] = "angle_throttle";
+constexpr char kAngleThrottleVectorText[] = "angle_throttle_vector";
+constexpr char kAccelYawText[] = "accel_yaw";
+constexpr char kAccelPitchYawText[] = "accel_pitch_yaw";
+constexpr char kPosVelAccYawText[] = "pos_vel_acc_yaw";
+constexpr char kPosVelAccPitchYawText[] = "pos_vel_acc_pitch_yaw";
+constexpr char kAccelRateText[] = "accel_rate";
+constexpr char kAccelAngleText[] = "accel_angle";
+constexpr char kPosVelAccAngleText[] = "pos_vel_acc_angle";
+constexpr char kSpeedRollDPitchText[] = "speed_roll_dpitch";
+}  // namespace
+
 string textFromEnum(RcCommand cmd)
 {
   switch (cmd) {
     case RcCommand::kRateThrottle:
-      return RATE_THROTTLE_TEXT;
+      return kRateThrottleText;
     case RcCommand::kRateThrottleVector:
-      return RATE_THROTTLE_VECTOR_TEXT;
+      return kRateThrottleVectorText;
     case RcCommand::kAngleThrottle:
-      return ANGLE_THROTTLE_TEXT;
+      return kAngleThrottleText;
     case RcCommand::kAngleThrottleVector:
-      return ANGLE_THROTTLE_VECTOR_TEXT;
+      return kAngleThrottleVectorText;
     case RcCommand::kAccelYaw:
-      return ACCEL_YAW_TEXT;
+      return kAccelYawText;
     case RcCommand::kAccelPitchYaw:
-      return ACCEL_PITCH_YAW_TEXT;
+      return kAccelPitchYawText;
     case RcCommand::kPosVelAccYaw:
-      return POS_VEL_ACC_YAW_TEXT;
+      return kPosVelAccYawText;
     case RcCommand::kPosVelAccPitchYaw:
-      return POS_VEL_ACC_PITCH_YAW_TEXT;
+      return kPosVelAccPitchYawText;
     case RcCommand::kAccelRate:
-      return ACCEL_RATE_TEXT;
+      return kAccelRateText;
     case RcCommand::kAccelAngle:
-      return ACCEL_ANGLE_TEXT;
+      return kAccelAngleText;
     case RcCommand::kPosVelAccAngle:
-      return POS_VEL_ACC_ANGLE_TEXT;
+      return kPosVelAccAngleText;
     case RcCommand::kSpeedRollDPitch:
-      return SPEED_ROLL_DPITCH_TEXT;
+      return kSpeedRollDPitchText;
     default:
       throw;
   }
@@ -56,51 +59,51 @@ string textFromEnum(RcCommand cmd)
 
 bool enumFromText(const string& text, RcCommand& dst)
 {
-  if (text == RATE_THROTTLE_TEXT) {
+  if (text == kRateThrottleText) {
     dst = RcCommand::kRateThrottle;
     return true;
   }
-  else if (text == RATE_THROTTLE_VECTOR_TEXT) {
+  else if (text == kRateThrottleVectorText) {
     dst = RcCommand::kRateThrottleVector;
     return true;
   }
-  else if (text == ANGLE_THROTTLE_TEXT) {
+  else if (text == kAngleThrottleText) {
     dst = RcCommand::kAngleThrottle;
     return true;
   }
-  else if (text == ANGLE_THROTTLE_VECTOR_TEXT) {
+  else if (text == kAngleThrottleVectorText) {
     dst = RcCommand::kAngleThrottleVector;
     return true;
   }
-  else if (text == ACCEL_YAW_TEXT) {
+  else if (text == kAccelYawText) {
     dst = RcCommand::kAccelYaw;
     return true;
   }
-  else if (text == ACCEL_PITCH_YAW_TEXT) {
+  else if (text == kAccelPitchYawText) {
     dst = RcCommand::kAccelPitchYaw;
     return true;
   }
-  else if (text == POS_VEL_ACC_YAW_TEXT) {
+  else if (text == kPosVelAccYawText) {
     dst = RcCommand::kPosVelAccYaw;
     return true;
   }
-  else if (text == POS_VEL_ACC_PITCH_YAW_TEXT) {
+  else if (text == kPosVelAccPitchYawText) {
     dst = RcCommand::kPosVelAccPitchYaw;
     return true;
   }
-  else if (text == ACCEL_RATE_TEXT) {
+  else if (text == kAccelRateText) {
     dst = RcCommand::kAccelRate;
     return true;
   }
-  else if (text == ACCEL_ANGLE_TEXT) {
+  else if (text == kAccelAngleText) {
     dst = RcCommand::kAccelAngle;
     return true;
   }
-  else if (text == POS_VEL_ACC_ANGLE_TEXT) {
+  else if (text == kPosVelAccAngleText) {
     dst = RcCommand::kPosVelAccAngle;
     return true;
   }
-  else if (text == SPEED_ROLL_DPITCH_TEXT) {
+  else if (text == kSpeedRollDPitchText) {
     dst = RcCommand::kSpeedRollDPitch;
     return true;
   }

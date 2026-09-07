@@ -71,7 +71,7 @@ bool IPv4Widget::load(const Network& src)
       qt::qErrorBox(this, prefix.error());
       return false;
     }
-    prefix_->setCurrentIndex(prefix.value());
+    prefix_->setCurrentIndex(*prefix);
 
     address_->setFromInt(src.manual.address);
     gateway_->setFromInt(src.manual.gateway);

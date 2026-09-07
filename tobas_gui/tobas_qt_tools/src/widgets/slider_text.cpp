@@ -7,12 +7,15 @@
 #include <QHBoxLayout>
 #include <QIntValidator>
 
-#define VALUE_WIDTH 100
-
 namespace tobas
 {
 namespace qt
 {
+namespace
+{
+constexpr int kValueWidth = 100;
+}  // namespace
+
 IntSliderTextWidget::IntSliderTextWidget(int minimum, int maximum, QWidget* parent) : super(parent)
 {
   const auto cols = new QHBoxLayout();
@@ -28,7 +31,7 @@ IntSliderTextWidget::IntSliderTextWidget(int minimum, int maximum, QWidget* pare
   cols->addWidget(new QLabel(QString::number(maximum)));
 
   line_edit_ = new QLineEdit();
-  line_edit_->setFixedWidth(VALUE_WIDTH);
+  line_edit_->setFixedWidth(kValueWidth);
   line_edit_->setAlignment(Qt::AlignRight);
   line_edit_->setValidator(new QIntValidator(minimum, maximum));
   connect(line_edit_, &QLineEdit::returnPressed, this, &self::onLineEditReturnPressed);
@@ -88,7 +91,7 @@ DoubleSliderTextWidget::DoubleSliderTextWidget(double minimum, double maximum, i
   cols->addWidget(new QLabel(QString::number(maximum, 'f', decimals)));
 
   line_edit_ = new QLineEdit();
-  line_edit_->setFixedWidth(VALUE_WIDTH);
+  line_edit_->setFixedWidth(kValueWidth);
   line_edit_->setAlignment(Qt::AlignRight);
   line_edit_->setValidator(new QDoubleValidator(minimum, maximum, decimals));
   connect(line_edit_, &QLineEdit::returnPressed, this, &self::onLineEditReturnPressed);

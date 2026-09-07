@@ -28,7 +28,7 @@ BaseCommandWidget::BaseCommandWidget()
   root_rows->addLayout(header_cols);
 
   label_ = new QLabel();
-  label_->setFont(qt::DefaultFont(kLablePSize, QFont::Bold));
+  label_->setFont(qt::DefaultFont(12, QFont::Bold));
   header_cols->addWidget(label_);
 
   header_cols->addStretch();

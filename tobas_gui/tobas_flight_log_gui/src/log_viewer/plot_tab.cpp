@@ -115,7 +115,7 @@ PlotTabWidget::PlotTabWidget(
   addTab(obsv_fb_plot_, "Observer");
   addTab(mr_ctrl_fb_plot_, "Multirotor\nController");
 
-  setTabSize(kTabWidth, kTabHeight);
+  setTabSize(110, 50);
 
   connect(this, &self::currentChanged, this, &self::onCurrentWidgetChanged);
 }

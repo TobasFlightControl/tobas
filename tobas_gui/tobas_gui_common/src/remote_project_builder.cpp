@@ -28,12 +28,11 @@ bool RemoteProjectBuilder::build(const QString& remote_proj_path)
   // `--symlink-install` does not work with root privileges.
   const auto meta_pkg_name = cmn::ProjectPaths(remote_proj_path).metaPkgName();
   const auto build_cmd =
-    QString(
-      "colcon build "
-      "--merge-install "
-      "--parallel-workers $(nproc) "
-      "--cmake-args -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS=\"-mcpu=native\" -DCMAKE_CXX_FLAGS=\"-mcpu=native\" "
-      "--packages-up-to %1")
+    QString("colcon build "
+            "--merge-install "
+            "--parallel-workers $(nproc) "
+            "--cmake-args -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS='-mcpu=native' -DCMAKE_CXX_FLAGS='-mcpu=native' "
+            "--packages-up-to %1")
       .arg(meta_pkg_name);
 
   // Finish if the build succeeds.

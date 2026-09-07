@@ -9,13 +9,13 @@ namespace tobas
 {
 namespace ublox
 {
-UbxTransportSpi::UbxTransportSpi()
+UbxTransportSpi::UbxTransportSpi(const char* _device) : device_(_device)
 {
 }
 
-bool UbxTransportSpi::initialize(const char* _device) noexcept
+bool UbxTransportSpi::initialize() noexcept
 {
-  return spi_.initialize(_device, tx_buf_, rx_buf_, kSpiClockFreq);
+  return spi_.initialize(device_, tx_buf_, rx_buf_, kSpiClockFreq);
 }
 
 std::optional<uint8_t> UbxTransportSpi::receiveByte() noexcept
@@ -29,7 +29,7 @@ std::optional<uint8_t> UbxTransportSpi::receiveByte() noexcept
 
 std::chrono::microseconds UbxTransportSpi::receiveByteInterval() const noexcept
 {
-  return kReceiveByteInterval;
+  return std::chrono::microseconds(50);
 }
 
 bool UbxTransportSpi::send(const uint8_t* _data, size_t _length) noexcept

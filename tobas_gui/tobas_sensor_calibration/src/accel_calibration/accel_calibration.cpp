@@ -20,12 +20,12 @@ AccelCalibrationWidget::AccelCalibrationWidget(const rqt::RosQtBridge& bridge)
 {
   const auto instruction = new qt::DescriptionWidget(
     "1. Place the flight controller on a level surface. The yellow Raw marker is a rough guide before calibration.\n\n"
-    "2. Click \"Start\". Calibration will complete in a few seconds.\n\n"
+    "2. Click 'Start'. Calibration will complete in a few seconds.\n\n"
     "3. Confirm that the green Calibrated marker appears near the center.\n\n",
     cmn::kBodyPSize);
 
   start_button_ = new QPushButton("Start");
-  start_button_->setFixedSize(kButtonWidth, kButtonHeight);
+  start_button_->setFixedSize(100, 40);
 
   level_indicator_ = new LevelIndicatorWidget();
 

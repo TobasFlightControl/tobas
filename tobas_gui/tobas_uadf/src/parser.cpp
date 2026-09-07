@@ -49,15 +49,15 @@ bool Parser::parseFromXml(const tinyxml2::XMLDocument* uadf_doc, Model& uadf_mod
               thrust.direction = Thrust::CCW;
             }
             else {
-              error_msg_ = "Thrust joint \"" + std::string(joint_name) + "\" has invalid direction \"" +
-                           std::string(direction) + "\". It must be \"cw\" or \"ccw\".";
+              error_msg_ = "Thrust joint '" + std::string(joint_name) + "' has invalid direction '" +
+                           std::string(direction) + "'. It must be 'cw' or 'ccw'.";
               return false;
             }
           }
         }
 
         if (!direction_found) {
-          error_msg_ = "Thrust joint \"" + std::string(joint_name) + "\" has no \"direction\" element.";
+          error_msg_ = "Thrust joint '" + std::string(joint_name) + "' has no 'direction' element.";
           return false;
         }
 

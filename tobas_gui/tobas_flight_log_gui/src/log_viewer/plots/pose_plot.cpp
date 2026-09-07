@@ -80,6 +80,8 @@ void PosePlotWidget::setData(
   const auto ranges = updateCurrentSamples(odom_msgs);
   const auto tar_ranges = updateTargetSamples(setpoint_msgs, ranges);
 
+  constexpr double kMinPositionScale = 1.0;  // [m]
+  constexpr double kMinAngleScale = 4.0;     // [deg]
   for (size_t i = 0; i < kNumAxes; ++i) {
     const auto minimum_half_range = i <= kZAxis ? kMinPositionScale : kMinAngleScale;
     setTargetCenteredVerticalScale(*plots_[i], ranges[i], tar_ranges[i], minimum_half_range);

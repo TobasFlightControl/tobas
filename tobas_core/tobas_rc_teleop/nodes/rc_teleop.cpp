@@ -37,11 +37,11 @@ namespace rc
 {
 class RCTeleopNode : public BaseNode
 {
-  static constexpr double kArmCommandInfoPeriod = 2.0;  // [s]
-  static constexpr double kWarnPeriod = 1.0;            // [s]
-
   using self = RCTeleopNode;
   using super = BaseNode;
+
+  static constexpr double kArmCommandInfoPeriod = 2.0;  // [s]
+  static constexpr double kWarnPeriod = 1.0;            // [s]
 
 public:
   explicit RCTeleopNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());

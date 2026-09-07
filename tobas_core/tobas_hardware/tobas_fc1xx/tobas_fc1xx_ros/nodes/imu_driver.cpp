@@ -22,8 +22,6 @@ namespace fc1xx
 {
 class ImuDriverNode : public hardware::BaseSensorNode
 {
-  static constexpr char kSpiDevice[] = "/dev/spidev0.0";
-
   using self = ImuDriverNode;
   using super = hardware::BaseSensorNode;
 
@@ -70,7 +68,7 @@ ImuDriverNode::ImuDriverNode(const rclcpp::NodeOptions& options)
 
 bool ImuDriverNode::initializeImuDriver()
 {
-  if (!imu_.initialize(kSpiDevice)) {
+  if (!imu_.initialize("/dev/spidev0.0")) {
     TOBAS_ERROR("Failed to initialize IMU.");
     return false;
   }

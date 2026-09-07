@@ -20,8 +20,6 @@ class PosVelAccAngleController : public BaseController
   using self = PosVelAccAngleController;
   using super = BaseController;
 
-  static constexpr double kMaxPositionError = 5.0;  // [m]
-
 public:
   explicit PosVelAccAngleController();
 

@@ -12,6 +12,11 @@ namespace gui
 {
 namespace cmn
 {
+namespace
+{
+constexpr char kInterfaceKey[] = "interface";
+}  // namespace
+
 bool NetworkConfig::load(const QString& path)
 {
   const auto node = yaml::load(path.toStdString());
@@ -20,7 +25,7 @@ bool NetworkConfig::load(const QString& path)
     return false;
   }
 
-  if (!yaml::load(kInterfaceKey, node.value(), interface)) {
+  if (!yaml::load(kInterfaceKey, *node, interface)) {
     return false;
   }
 

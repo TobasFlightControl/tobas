@@ -16,8 +16,6 @@ namespace fc1xx
 {
 class MagDriverNode : public hardware::BaseSensorNode
 {
-  static constexpr auto kSamplingPeriod = 10ms;
-
   using self = MagDriverNode;
   using super = hardware::BaseSensorNode;
 
@@ -51,6 +49,8 @@ void MagDriverNode::initialize()
   mag_pub_ = createPublisher<tobas_msgs::MagneticField>(real::topic::kMagneticField);
 
   initialize_timer_->cancel();
+
+  constexpr auto kSamplingPeriod = 10ms;
   main_timer_ = createWallTimer(kSamplingPeriod, &self::mainTimerCb, this);
 }
 

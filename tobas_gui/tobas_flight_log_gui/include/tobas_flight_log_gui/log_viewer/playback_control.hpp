@@ -21,8 +21,6 @@ class PlaybackControlWidget : public QWidget
   using self = PlaybackControlWidget;
   using super = QWidget;
 
-  static constexpr int kTimerInterval = 40;  // [ms]
-
 Q_SIGNALS:
   void timeChanged(double sec);
 

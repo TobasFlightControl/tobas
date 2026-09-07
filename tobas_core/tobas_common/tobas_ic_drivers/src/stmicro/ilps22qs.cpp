@@ -15,7 +15,7 @@ ILPS22QS::ILPS22QS()
 
 bool ILPS22QS::initialize(const char* i2c_device)
 {
-  if (!i2c_.initialize(i2c_device, kI2cAddress)) {
+  if (!i2c_.initialize(i2c_device, 0b1011100)) {
     return false;
   }
 
@@ -47,6 +47,7 @@ bool ILPS22QS::readTemperature(double& temperature)
     return false;
   }
 
+  constexpr double kTempScale = 100.0;  // [LSB/degC]
   temperature = static_cast<double>(temp_lsb_) / kTempScale;
 
   return true;
@@ -71,7 +72,7 @@ bool ILPS22QS::checkWhoAmI()
 
 bool ILPS22QS::configure()
 {
-  constexpr uint8_t fs_mode = FS_MODE_1260HPA;
+  constexpr auto fs_mode = FS_MODE_1260HPA;
 
   if (!i2c_.writeByte(CTRL_REG1, ODR_100HZ | AVG_32, true)) {
     std::cerr << "Failed to write to CTRL_REG1." << std::endl;

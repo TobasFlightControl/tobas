@@ -46,8 +46,6 @@ class ControllerNode : public BaseNode
   using self = ControllerNode;
   using super = BaseNode;
 
-  static constexpr double kModeTransitionMaxAttiRate = M_PI_2;
-
 public:
   explicit ControllerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
@@ -183,6 +181,7 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   , trans_eom_(tree_)
   , mixer_(drone_, tree_)
 {
+  constexpr double kModeTransitionMaxAttiRate = M_PI_2;
   roll_filt_.setMaxVelocity(kModeTransitionMaxAttiRate);
   pitch_filt_.setMaxVelocity(kModeTransitionMaxAttiRate);
 

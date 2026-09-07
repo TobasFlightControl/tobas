@@ -35,8 +35,8 @@ ArmStateBanner::ArmStateBanner(const rqt::RosQtBridge& bridge)
 {
   setAlignment(Qt::AlignCenter);
   setAutoFillBackground(true);
-  setFixedHeight(kHeight);
-  setFont(qt::DefaultFont(kPSize, QFont::Bold));
+  setFixedHeight(30);
+  setFont(qt::DefaultFont(14, QFont::Bold));
   setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
 
   connect(&bridge, &rqt::RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
@@ -82,6 +82,7 @@ QString ArmStateBanner::armReadinessIssueText() const
     return "";
   }
 
+  constexpr int kMaxArmReadinessIssues = 3;
   const auto n_hidden = issues.size() - kMaxArmReadinessIssues;
   const auto visible_issues = issues.mid(0, kMaxArmReadinessIssues);
   if (n_hidden <= 0) {

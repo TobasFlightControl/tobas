@@ -18,7 +18,7 @@ PwmBattImu::PwmBattImu() : crc_(algo::CRC32Left::CRC_32)
 bool PwmBattImu::initialize()
 {
   // Initialize the SPI device.
-  if (!spi_.initialize(kSpiDevice, tx_buf_, rx_buf_, kSpiClockFreq)) {
+  if (!spi_.initialize("/dev/spidev0.1", tx_buf_, rx_buf_, 12'000'000)) {
     return false;
   }
 

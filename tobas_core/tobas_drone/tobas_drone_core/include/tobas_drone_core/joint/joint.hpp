@@ -19,12 +19,6 @@ using JointConfigMap = std::map<std::string, JointConfig>;  // Joint Name -> Joi
 
 class JointConfig
 {
-  static constexpr char kNameKey[] = "joint_name";
-  static constexpr char kRoleKey[] = "role";
-  static constexpr char kCommandIfaceKey[] = "cmd_iface";
-  static constexpr char kHardwareIfaceKey[] = "hw_iface";
-  static constexpr char kHomePosKey[] = "home_position";
-
 public:
   std::string name = "";
   JointRole role = JointRole::kUserPassive;

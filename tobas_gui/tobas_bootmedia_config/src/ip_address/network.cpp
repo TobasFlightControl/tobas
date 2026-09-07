@@ -19,6 +19,14 @@ namespace bm
 {
 namespace
 {
+constexpr char kMatchSection[] = "Match";
+constexpr char kNetworkSection[] = "Network";
+constexpr char kNameKey[] = "Name";
+constexpr char kDhcpKey[] = "DHCP";
+constexpr char kAddressKey[] = "Address";
+constexpr char kGatewayKey[] = "Gateway";
+constexpr char kDnsKey[] = "DNS";
+
 bool ipv4StringToInt(const std::string& text, uint32_t& out)
 {
   in_addr addr;
@@ -194,7 +202,7 @@ bool Network::parseAddressLine(const std::string& text)
 {
   const auto slash_pos = text.find('/');
   if (slash_pos == std::string_view::npos) {
-    std::cerr << "Failed to find \"/\" in address." << std::endl;
+    std::cerr << "Failed to find '/' in address." << std::endl;
     return false;
   }
 

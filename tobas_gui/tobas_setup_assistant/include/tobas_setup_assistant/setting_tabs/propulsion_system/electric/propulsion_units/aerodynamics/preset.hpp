@@ -26,8 +26,6 @@ class AerodynamicsWidget_Preset : public AerodynamicsWidget_Base
 {
   Q_OBJECT
 
-  static constexpr char kPropellerNameKey[] = "propeller_name";
-
   enum DataType
   {
     kThrustStand,

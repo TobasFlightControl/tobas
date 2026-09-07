@@ -43,16 +43,15 @@ bool takeoff(rclcpp::Node::SharedPtr node)
   goal.mission.items.push_back(mission_item);
 
   // Execute action.
-  const auto res = client.sendGoalAndWait(goal);
-  if (!res) {
+  const auto result = client.sendGoalAndWait(goal);
+  if (!result) {
     RCLCPP_ERROR(node->get_logger(), "Failed to call takeoff action.");
     return false;
   }
 
   // Check action result.
-  const auto result = res.value();
-  if (result.code != rclcpp_action::ResultCode::SUCCEEDED) {
-    RCLCPP_ERROR_STREAM(node->get_logger(), "Takeoff action failed: " << result.result->error_message);
+  if (result->code != rclcpp_action::ResultCode::SUCCEEDED) {
+    RCLCPP_ERROR_STREAM(node->get_logger(), "Takeoff action failed: " << result->result->error_message);
     return false;
   }
 
@@ -85,8 +84,8 @@ int main(int argc, char** argv)
     RCLCPP_ERROR(node->get_logger(), init_pose.error());
     return EXIT_FAILURE;
   }
-  auto cmd_pos = init_pose.value().p;
-  auto cmd_yaw = init_pose.value().M.getYaw();
+  auto cmd_pos = init_pose->p;
+  auto cmd_yaw = init_pose->M.getYaw();
 
   // Calculate target-value changes for one keyboard input.
   const auto repeat_interval_ms = tobas::keyboard::getKeyboardRepeatInterval();
@@ -94,9 +93,9 @@ int main(int argc, char** argv)
     RCLCPP_ERROR(node->get_logger(), repeat_interval_ms.error());
     return EXIT_FAILURE;
   }
-  const auto repeat_interval = static_cast<double>(repeat_interval_ms.value()) * 1e-3;  // [s]
-  const auto delta_pos = 3.0 * repeat_interval;                                         // m/s x s = m
-  const auto delta_rot = M_PI_2 * repeat_interval;                                      // rad/s x s = rad
+  const auto repeat_interval = static_cast<double>(*repeat_interval_ms) * 1e-3;  // [s]
+  const auto delta_pos = 3.0 * repeat_interval;                                  // m/s x s = m
+  const auto delta_rot = M_PI_2 * repeat_interval;                               // rad/s x s = rad
 
   // Target value limits
   const tobas::st::Range<double> x_limit(-10.0, 10.0);

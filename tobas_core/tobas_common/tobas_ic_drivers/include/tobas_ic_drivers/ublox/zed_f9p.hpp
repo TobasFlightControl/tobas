@@ -3,9 +3,7 @@
 
 #pragma once
 
-#include <chrono>
 #include <memory>
-#include <optional>
 
 #include <tobas_time_tools/rate.hpp>
 
@@ -30,10 +28,6 @@ namespace ublox
  */
 class ZEDF9P
 {
-private:
-  static constexpr uint8_t kRG174CableDelay = 5;  // [ns/m] Coaxial cable delay.
-  static constexpr auto kWaitForGnssAck = std::chrono::seconds(1);
-
 public:
   enum UbxClass : uint8_t
   {
@@ -115,15 +109,15 @@ public:
     E_SCOOTER = 12,
   };
 
-  explicit ZEDF9P();
+  explicit ZEDF9P(const char* _device);
   explicit ZEDF9P(std::unique_ptr<UbxTransport> _transport);
   ZEDF9P(ZEDF9P&& _other) = delete;
   ZEDF9P& operator=(ZEDF9P&& _other) = delete;
   ZEDF9P(const ZEDF9P& _other) = delete;
   ZEDF9P& operator=(const ZEDF9P& _other) = delete;
 
-  bool initialize(const char* _device);
-  bool update(bool nonblock = true);
+  bool initialize();
+  bool update();
 
   /* ===== Configurations =====*/
 
@@ -274,10 +268,10 @@ private:
   /* ==============================*/
 
   std::unique_ptr<UbxTransport> transport_;
-  std::optional<tim::Rate> receive_rate_;
+  tim::Rate receive_rate_;
 
   UbxScanner scanner_;
-  uint8_t message_buf_[kUbxBufferLength];
+  uint8_t tx_buf_[kUbxBufferLength];
 
   template <typename T>
   bool cfgValSetSingle(CfgSize size, CfgGroup group, uint8_t id, T value);

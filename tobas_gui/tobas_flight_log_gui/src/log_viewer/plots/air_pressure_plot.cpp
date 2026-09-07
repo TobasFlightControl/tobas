@@ -50,6 +50,7 @@ void AirPressurePlotWidget::setData(const QVector<tobas_msgs::msg::FluidPressure
   }
 
   curve_.setSamples(t_data, val_data);
+  constexpr double kMinPressureScale = 0.1;  // [hPa]
   setVerticalScale(*plot_, range, kMinPressureScale);
   plot_->replot();
 }

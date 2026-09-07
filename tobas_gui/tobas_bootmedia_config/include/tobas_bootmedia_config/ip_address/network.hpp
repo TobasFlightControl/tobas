@@ -15,15 +15,6 @@ namespace bm
 {
 class Network
 {
-  static constexpr char kMatchSection[] = "Match";
-  static constexpr char kNetworkSection[] = "Network";
-
-  static constexpr char kNameKey[] = "Name";
-  static constexpr char kDhcpKey[] = "DHCP";
-  static constexpr char kAddressKey[] = "Address";
-  static constexpr char kGatewayKey[] = "Gateway";
-  static constexpr char kDnsKey[] = "DNS";
-
 public:
   explicit Network();
 

@@ -19,8 +19,6 @@ namespace linux
  */
 class VideoDev
 {
-  static constexpr uint32_t kBufferSize = 3;
-
 public:
   struct ImgFormat
   {

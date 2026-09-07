@@ -7,7 +7,6 @@
 
 #include <tobas_eigen_tools/linalg.hpp>
 
-#define EPS 1e-6
 // #define TRACE_SOLVER
 
 using namespace std;
@@ -76,7 +75,7 @@ SQP::Error SQP::solve()
     }
 
     // Solve the local QP.
-    qp_.problem.P = eigen::nearestPositiveDefinite(H, EPS);
+    qp_.problem.P = eigen::nearestPositiveDefinite(H, 1e-6);
     qp_.problem.q = dfdx_(x_).transpose();
     qp_.problem.A = dgdx_(x_);
     qp_.problem.b = -g_(x_);

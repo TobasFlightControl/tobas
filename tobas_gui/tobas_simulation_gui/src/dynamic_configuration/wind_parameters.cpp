@@ -160,7 +160,7 @@ bool WindParamsWidget::sendGuiParams()
 
   const auto res = set_sc_->sendRequestAndWait(req);
   if (!res) {
-    qt::qErrorBox(this, "Failed to call \"" + QString(gazebo::kSetWindParamsSrv) + "\" service.");
+    qt::qErrorBox(this, "Failed to call '" + QString(gazebo::kSetWindParamsSrv) + "' service.");
     return false;
   }
 

@@ -282,7 +282,7 @@ void BasePoseCommanderWidget::onHomeButtonClicked()
 {
   cmd_xyz_[0]->setValue(0.0);
   cmd_xyz_[1]->setValue(0.0);
-  cmd_xyz_[2]->setValue(kHomeAltitude);
+  cmd_xyz_[2]->setValue(3.0);
   cmd_rpy_[0]->setValue(0);
   cmd_rpy_[1]->setValue(0);
   cmd_rpy_[2]->setValue(0);

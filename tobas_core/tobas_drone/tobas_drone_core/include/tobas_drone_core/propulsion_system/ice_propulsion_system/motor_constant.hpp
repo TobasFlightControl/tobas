@@ -10,9 +10,6 @@ namespace tobas
 /* ct = c0 + c1 φ */
 class VppMotorConstant
 {
-  static constexpr char kC0Key[] = "c0";
-  static constexpr char kC1Key[] = "c1";
-
 public:
   double c0;
   double c1;

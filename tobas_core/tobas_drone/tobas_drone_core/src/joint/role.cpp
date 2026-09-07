@@ -5,26 +5,29 @@
 
 #include <iostream>
 
-#define TILT_JOINT "tilt_joint"
-#define CONTROL_SURFACE "control_surface"
-#define USER_ACTIVE "user_active"
-#define USER_PASSIVE "user_passive"
-
 using namespace std;
 
 namespace tobas
 {
+namespace
+{
+constexpr char kTiltJoint[] = "tilt_joint";
+constexpr char kControlSurface[] = "control_surface";
+constexpr char kUserActive[] = "user_active";
+constexpr char kUserPassive[] = "user_passive";
+}  // namespace
+
 string textFromEnum(JointRole role)
 {
   switch (role) {
     case JointRole::kTiltJoint:
-      return TILT_JOINT;
+      return kTiltJoint;
     case JointRole::kControlSurface:
-      return CONTROL_SURFACE;
+      return kControlSurface;
     case JointRole::kUserActive:
-      return USER_ACTIVE;
+      return kUserActive;
     case JointRole::kUserPassive:
-      return USER_PASSIVE;
+      return kUserPassive;
     default:
       throw;
   }
@@ -32,19 +35,19 @@ string textFromEnum(JointRole role)
 
 bool enumFromText(const string& text, JointRole& dst)
 {
-  if (text == TILT_JOINT) {
+  if (text == kTiltJoint) {
     dst = JointRole::kTiltJoint;
     return true;
   }
-  else if (text == CONTROL_SURFACE) {
+  else if (text == kControlSurface) {
     dst = JointRole::kControlSurface;
     return true;
   }
-  else if (text == USER_ACTIVE) {
+  else if (text == kUserActive) {
     dst = JointRole::kUserActive;
     return true;
   }
-  else if (text == USER_PASSIVE) {
+  else if (text == kUserPassive) {
     dst = JointRole::kUserPassive;
     return true;
   }

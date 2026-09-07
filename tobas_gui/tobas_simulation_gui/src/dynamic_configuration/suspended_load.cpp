@@ -109,11 +109,11 @@ void SuspendedLoadWidget::clearRosInterfaces()
 void SuspendedLoadWidget::setParamsToDefault()
 {
   attach_point_->setVector(Eigen::Vector3d::Zero());
-  load_size_->setVector(Eigen::Vector3d::Constant(kDefaultLoadSize));
-  load_mass_->setValue(kDefaultLoadMass);
-  cable_length_->setValue(kDefaultCableLength);
-  cable_young_->setValue(kDefaultCableYoungModulus);
-  cable_csa_->setValue(kDefaultCableCrossSectionArea);
+  load_size_->setVector(Eigen::Vector3d::Constant(0.3));
+  load_mass_->setValue(1.0);
+  cable_length_->setValue(3.0);
+  cable_young_->setValue(200);  // Low-density polyethylene
+  cable_csa_->setValue(50);
 }
 
 void SuspendedLoadWidget::onAttachRequested()
@@ -130,7 +130,7 @@ void SuspendedLoadWidget::onAttachRequested()
 
   const auto res = attach_sc_->sendRequestAndWait(req);
   if (!res) {
-    qt::qErrorBox(this, "Failed to call \"" + QString(gazebo::kAttachSuspenedLoadSrv) + "\" service.");
+    qt::qErrorBox(this, "Failed to call '" + QString(gazebo::kAttachSuspenedLoadSrv) + "' service.");
     reset();
     return;
   }
@@ -148,7 +148,7 @@ void SuspendedLoadWidget::onDetachRequested()
 
   const auto res = detach_sc_->sendRequestAndWait(req);
   if (!res) {
-    qt::qErrorBox(this, "Failed to call \"" + QString(gazebo::kDetachSuspenedLoadSrv) + "\" service.");
+    qt::qErrorBox(this, "Failed to call '" + QString(gazebo::kDetachSuspenedLoadSrv) + "' service.");
     reset();
     return;
   }

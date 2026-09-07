@@ -16,6 +16,11 @@ namespace gui
 {
 namespace sc
 {
+namespace
+{
+constexpr int kDefaultIndex = 0;
+}  // namespace
+
 MagCalibrationWidget::MagCalibrationWidget(const rqt::RosQtBridge& bridge)
 {
   btn_group_ = new QButtonGroup(this);

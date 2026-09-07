@@ -35,12 +35,17 @@ namespace gui
 {
 namespace sc
 {
+namespace
+{
+constexpr double kRvizPointScale = 10.0;
+}  // namespace
+
 CompleteMagCalibWidget::CompleteMagCalibWidget(const rqt::RosQtBridge& bridge) : rviz_manager_("rviz_mag_calibration")
 {
   const auto instruction = new qt::DescriptionWidget(
-    "1. Click \"Start,\" and the magnetic field points (white) will begin appearing in the view.\n\n"
+    "1. Click 'Start,' and the magnetic field points (white) will begin appearing in the view.\n\n"
     "2. With each face up, rotate the FC around the gravity vector until each gauge is full and green.\n\n"
-    "3. When all six faces are green and the progress bar reaches 100%, click \"Finish.\"\n\n"
+    "3. When all six faces are green and the progress bar reaches 100%, click 'Finish.'\n\n"
     "4. Confirm that the calibrated point cloud (green) draws a neat sphere around the origin.\n\n",
     cmn::kBodyPSize);
 
@@ -48,6 +53,8 @@ CompleteMagCalibWidget::CompleteMagCalibWidget(const rqt::RosQtBridge& bridge) :
   finish_button_ = new QPushButton("Finish");
   cancel_button_ = new QPushButton("Cancel");
 
+  constexpr int kButtonWidth = 100;
+  constexpr int kButtonHeight = 40;
   start_button_->setFixedSize(kButtonWidth, kButtonHeight);
   finish_button_->setFixedSize(kButtonWidth, kButtonHeight);
   cancel_button_->setFixedSize(kButtonWidth, kButtonHeight);
@@ -123,6 +130,12 @@ void CompleteMagCalibWidget::clearRosInterfaces()
 
 void CompleteMagCalibWidget::initializeRviz()
 {
+  constexpr char kSampledPointsTopic[] = "rviz/mag_calibration/sampled";
+  constexpr char kUsedPointsTopic[] = "rviz/mag_calibration/used";
+  constexpr char kRemovedPointsTopic[] = "rviz/mag_calibration/removed";
+  constexpr char kCalibratedPointsTopic[] = "rviz/mag_calibration/calibrated";
+  constexpr char kEllipsoidTopic[] = "rviz/mag_calibration/ellipsoid";
+
   const auto rviz_config_path = getPkgShareDir() / "config/mag_calibration.rviz";
   rviz_manager_.initialize(QString::fromStdString(rviz_config_path));
 
@@ -247,7 +260,7 @@ size_t CompleteMagCalibWidget::computeFaceIndex() const
 
 void CompleteMagCalibWidget::subsample()
 {
-  static constexpr int N = 30;
+  constexpr int N = 30;
 
   // Find the bounding box.
   auto lb = kdl::Vector::Constant(std::numeric_limits<double>::max());
@@ -337,6 +350,7 @@ void CompleteMagCalibWidget::removeOutliers()
     }
     const auto& p = buf_.at(pi);
     const auto dist = (p - mean).norm();
+    constexpr double kZScoreThresh = 2.0;
     if (dist > dist_stddev * kZScoreThresh) {
       qWarning().nospace() << "Point (" << p.x() << ", " << p.y() << ", " << p.z() << ") was identified as an outlier.";
       active_.at(pi) = false;
@@ -509,6 +523,8 @@ void CompleteMagCalibWidget::displayPointClouds(const eigen::Ellipsoid& ellipsoi
 
 void CompleteMagCalibWidget::displayEllipsoidWireFrame(const eigen::Ellipsoid& ellipsoid)
 {
+  constexpr int kEllipsoidLineStep = 20;  // [deg]
+
   auto markers = std::make_unique<visualization_msgs::msg::MarkerArray>();
 
   visualization_msgs::msg::Marker marker;
@@ -616,6 +632,7 @@ void CompleteMagCalibWidget::onFinishButtonClicked()
 {
   TOBAS_CHECK(cnt_ <= kMaxDataSize);
 
+  constexpr int kMinDataSize = 500;
   if (cnt_ < kMinDataSize) {
     qt::qWarnBox(this, "The number of collected samples is too small.");
     return;
@@ -733,6 +750,10 @@ void CompleteMagCalibWidget::magCb(const tobas_msgs::MagneticField::ConstSharedP
   }
 
   if (!finish_button_->isEnabled()) {
+    constexpr double kMinYawRate = M_PI / 30;     // [rad/s]
+    constexpr double kMaxYawRate = M_PI_2;        // [rad/s]
+    constexpr double kYawAngleThresh = 8 * M_PI;  // [rad]
+
     // Update the rotation amount for the current orientation.
     if (!completed_.at(face_idx)) {
       // Calculate the rotation speed around the global Z axis.

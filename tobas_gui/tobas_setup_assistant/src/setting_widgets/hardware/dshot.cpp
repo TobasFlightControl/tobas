@@ -22,6 +22,16 @@ namespace sa
 {
 namespace hw
 {
+namespace
+{
+constexpr int kTargetNameCol = 0;
+constexpr int kBidirectionalCol = kTargetNameCol + 1;
+constexpr int kNumCols = kBidirectionalCol + 1;
+
+constexpr char kTargetNameLabel[] = "Target";
+constexpr char kBidirectionalLabel[] = "Bidirectional";
+}  // namespace
+
 DShotWidget::DShotWidget(const uadf::Model& uadf, const Signals& sig) : super(0, kNumCols), uadf_(uadf)
 {
   setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
@@ -59,7 +69,7 @@ bool DShotWidget::isValid()
       continue;
     }
     if (target_name_set.contains(target_name)) {
-      qt::qWarnBox(this, "DShot target \"" + target_name + "\" is duplicated.");
+      qt::qWarnBox(this, "DShot target '" + target_name + "' is duplicated.");
       return false;
     }
     target_name_set.insert(target_name);
@@ -211,7 +221,7 @@ void DShotWidget::removeLastChannel()
   removeRow(row);
 
   if (!target_name.isEmpty()) {
-    qt::qWarnBox(this, "PWM configuration for \"" + target_name + "\" has been removed.");
+    qt::qWarnBox(this, "PWM configuration for '" + target_name + "' has been removed.");
   }
 }
 

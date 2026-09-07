@@ -42,11 +42,6 @@ class GazeboSuspendedLoadPlugin : public BaseNode,
                                   public gz::sim::ISystemConfigure,
                                   public gz::sim::ISystemPreUpdate
 {
-  static constexpr char kPluginName[] = "gazebo_suspended_load_plugin";
-  static constexpr char kLoadNamePrefix[] = "load_";
-  static constexpr double kStopLoadRotationTimeConst = 10.0;  // [s]
-  static constexpr int kUpdateMarkerRate = 60;                // [Hz]
-
   using self = GazeboSuspendedLoadPlugin;
   using AttachSrv = tobas_gazebo_msgs::srv::AttachSuspendedLoad;
   using DetachSrv = tobas_gazebo_msgs::srv::DetachSuspendedLoad;
@@ -105,7 +100,7 @@ private:
   void detachLoadCb(const DetachSrv::Request::ConstSharedPtr& req, const DetachSrv::Response::SharedPtr& res);
 };
 
-GazeboSuspendedLoadPlugin::GazeboSuspendedLoadPlugin() : rate_manager_(kUpdateMarkerRate)
+GazeboSuspendedLoadPlugin::GazeboSuspendedLoadPlugin() : rate_manager_(60)
 {
 }
 
@@ -115,6 +110,8 @@ void GazeboSuspendedLoadPlugin::Configure(
   gz::sim::EntityComponentManager& ecm,
   gz::sim::EventManager&)
 {
+  constexpr char kPluginName[] = "gazebo_suspended_load_plugin";
+
   initialize(kPluginName, sdf);
 
   // Keep SDF parameters minimal so values can be adjusted from the GUI.
@@ -124,22 +121,22 @@ void GazeboSuspendedLoadPlugin::Configure(
   if (!world_name) {
     TOBAS_EXIT("Failed to get the world name: ", world_name.error());
   }
-  world_name_ = world_name.value();
+  world_name_ = *world_name;
 
   const auto link_entity = ecm.EntityByComponents(cmp::Link(), cmp::ParentEntity(model_entity), cmp::Name(link_name_));
   base_link_.emplace(link_entity);
   if (!base_link_->Valid(ecm)) {
-    TOBAS_EXIT("Failed to find the specified link \"", link_name_, "\".");
+    TOBAS_EXIT("Failed to find the specified link '", link_name_, "'.");
   }
 
   if (!(W_Pose_B_ = getComponent<cmp::WorldPose>(link_entity, ecm))) {
-    TOBAS_EXIT("Failed to get the world pose of \"", link_name_, "\".");
+    TOBAS_EXIT("Failed to get the world pose of '", link_name_, "'.");
   }
   if (!(W_Vel_WB_ = getComponent<cmp::WorldLinearVelocity>(link_entity, ecm))) {
-    TOBAS_EXIT("Failed to get the world linear velocity of \"", link_name_, "\".");
+    TOBAS_EXIT("Failed to get the world linear velocity of '", link_name_, "'.");
   }
   if (!(W_Gyro_WB_ = getComponent<cmp::WorldAngularVelocity>(link_entity, ecm))) {
-    TOBAS_EXIT("Failed to get the world angular velocity of \"", link_name_, "\".");
+    TOBAS_EXIT("Failed to get the world angular velocity of '", link_name_, "'.");
   }
 
   if (!mass_holder_.initialize(model_entity, ecm)) {
@@ -158,6 +155,8 @@ void GazeboSuspendedLoadPlugin::Configure(
 
 void GazeboSuspendedLoadPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::EntityComponentManager& ecm)
 {
+  constexpr double kStopLoadRotationTimeConst = 10.0;  // [s]
+
   if (!load_exist_) {
     return;
   }
@@ -270,6 +269,8 @@ void GazeboSuspendedLoadPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::s
 
 std::string GazeboSuspendedLoadPlugin::loadName() const
 {
+  constexpr char kLoadNamePrefix[] = "load_";
+
   return kLoadNamePrefix + std::to_string(load_index_);
 }
 

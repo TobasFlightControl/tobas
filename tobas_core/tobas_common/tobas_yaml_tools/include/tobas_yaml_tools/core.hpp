@@ -37,7 +37,7 @@ bool load(const std::string& key, const YAML::Node& parent, T& value) noexcept
     return false;
   }
 
-  value = res.value();
+  value = *res;
   return true;
 }
 

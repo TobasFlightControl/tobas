@@ -38,11 +38,6 @@
 #include "tobas_gazebo_system_plugins/rate_manager.hpp"
 #include "tobas_gazebo_system_plugins/sdf.hpp"
 
-// Motor inductance is often unknown, so use the fact that its product with Kv is roughly constant.
-// Because the ESC electronically suppresses current changes,
-// apparent inductance is much larger than the measured value, perhaps around 100 times.
-#define L_KV 2.0
-
 namespace ch = std::chrono;
 namespace cmp = gz::sim::components;
 
@@ -56,12 +51,6 @@ class GazeboElectricPropulsionSystemPlugin : public BaseNode,
                                              public gz::sim::ISystemConfigure,
                                              public gz::sim::ISystemPreUpdate
 {
-  // Constants
-  static constexpr char kDebugTopicNS[] = "gazebo/rotor_debug";
-  static constexpr double kAutoStopTimeout = 0.5;    // [s]
-  static constexpr double kMinBatteryVoltage = 3.0;  // [V]
-  static constexpr double kThrotLimitMargin = 1e-3;  // [-]
-
   using self = GazeboElectricPropulsionSystemPlugin;
   using BreakSrv = std_srvs::srv::Trigger;
 
@@ -183,41 +172,41 @@ void GazeboElectricPropulsionSystemPlugin::Configure(
 
   // Get joint.
   const auto joint_entity = findJointWithChildLink(ecm, link_name_);
-  if (!joint_entity.has_value()) {
-    TOBAS_EXIT("Failed to find the parent joint of rotor link \"", link_name_, "\".");
+  if (!joint_entity) {
+    TOBAS_EXIT("Failed to find the parent joint of rotor link '", link_name_, "'.");
   }
-  joint_.emplace(joint_entity.value());
+  joint_.emplace(*joint_entity);
   if (!joint_->Valid(ecm)) {
-    TOBAS_EXIT("Failed to find rotor link \"", link_name_, "\".");
+    TOBAS_EXIT("Failed to find rotor link '", link_name_, "'.");
   }
 
   // Get joint name.
-  const auto joint_name = joint_->Name(ecm).value();
+  const auto joint_name = *joint_->Name(ecm);
 
   // Check joint type.
-  const auto joint_type = joint_->Type(ecm).value();
+  const auto joint_type = *joint_->Type(ecm);
   if (joint_type != sdf::JointType::CONTINUOUS && joint_type != sdf::JointType::REVOLUTE) {
-    TOBAS_EXIT("Joint \"", joint_name, "\" is not a rotating joint.");
+    TOBAS_EXIT("Joint '", joint_name, "' is not a rotating joint.");
   }
 
   // Get child link.
   const auto link_entity = model.LinkByName(ecm, link_name_);
   link_.emplace(link_entity);
   if (!link_->Valid(ecm)) {
-    TOBAS_EXIT("Failed to find the child link \"", link_name_, "\".");
+    TOBAS_EXIT("Failed to find the child link '", link_name_, "'.");
   }
 
   // Get parent link.
-  const auto parent_link_name = joint_->ParentLinkName(ecm).value();
+  const auto parent_link_name = *joint_->ParentLinkName(ecm);
   const auto parent_link_entity = model.LinkByName(ecm, parent_link_name);
   parent_link_.emplace(parent_link_entity);
   if (!parent_link_->Valid(ecm)) {
-    TOBAS_EXIT("Failed to find the parent link \"", parent_link_name, "\".");
+    TOBAS_EXIT("Failed to find the parent link '", parent_link_name, "'.");
   }
 
   // Create necessary components.
-  TOBAS_CHECK(jnt_axis_ = getComponent<cmp::JointAxis>(joint_entity.value(), ecm));
-  TOBAS_CHECK(jnt_vel_ = getComponent<cmp::JointVelocity>(joint_entity.value(), ecm));
+  TOBAS_CHECK(jnt_axis_ = getComponent<cmp::JointAxis>(*joint_entity, ecm));
+  TOBAS_CHECK(jnt_vel_ = getComponent<cmp::JointVelocity>(*joint_entity, ecm));
   TOBAS_CHECK(pose_W_ = getComponent<cmp::WorldPose>(link_entity, ecm));
   TOBAS_CHECK(linvel_W_ = getComponent<cmp::WorldLinearVelocity>(link_entity, ecm));
   TOBAS_CHECK(angvel_W_ = getComponent<cmp::WorldAngularVelocity>(link_entity, ecm));
@@ -231,6 +220,8 @@ void GazeboElectricPropulsionSystemPlugin::PreUpdate(
   const gz::sim::UpdateInfo& info,
   gz::sim::EntityComponentManager& ecm)
 {
+  constexpr double kAutoStopTimeout = 0.5;  // [s]
+
   // Update the previous simulation step time.
   prev_sim_time_ = info.simTime;
 
@@ -253,7 +244,7 @@ void GazeboElectricPropulsionSystemPlugin::PreUpdate(
 
   // Check aliasing.
   if (std::abs(velocitySim() * dt) > M_PI) {
-    TOBAS_WARN_THROTTLE(kWarnPeriod, "Aliasing on motor \"", link_name_, "\" might occur. Lower simulation time step.");
+    TOBAS_WARN_THROTTLE(kWarnPeriod, "Aliasing on motor '", link_name_, "' might occur. Lower simulation time step.");
   }
 
   // Update simulation state.
@@ -284,6 +275,8 @@ void GazeboElectricPropulsionSystemPlugin::getSdfParams(const sdf::ElementConstP
 
 void GazeboElectricPropulsionSystemPlugin::registerRosInterfaces()
 {
+  constexpr char kDebugTopicNS[] = "gazebo/rotor_debug";
+
   state_pub_ = createPublisher<tobas_msgs::msg::RotorState>(path::join(kRotorStateTopicNS, link_name_));
   state_gt_pub_ = createPublisher<tobas_gazebo_msgs::msg::RotorState>(path::join(kRotorStateGtTopicNS, link_name_));
   debug_pub_ = createPublisher<tobas_gazebo_msgs::msg::RotorDebug>(path::join(kDebugTopicNS, link_name_));
@@ -310,7 +303,7 @@ void GazeboElectricPropulsionSystemPlugin::applyWrenchAndPublishState(
   const auto axis_W = R_W_L.RotateVector(axis_L);
 
   // Inertial moment
-  const auto I_W = link_->WorldInertiaMatrix(ecm).value();  // Assume the center of gravity lies on the rotation axis.
+  const auto I_W = *link_->WorldInertiaMatrix(ecm);  // Assume the center of gravity lies on the rotation axis.
   const auto inertial_moment_W = -(I_W * (acc_ * axis_W));
 
   // Coriolis moment (Gyro effect)
@@ -342,9 +335,9 @@ void GazeboElectricPropulsionSystemPlugin::applyWrenchAndPublishState(
   // For safety, treat the ESC as burned out if overcurrent flows even momentarily.
   if (current > param_.max_current) {
     TOBAS_ERROR(
-      "The ESC of rotor \"",
+      "The ESC of rotor '",
       link_name_,
-      "\" is critically damaged due to an overcurrent of ",
+      "' is critically damaged due to an overcurrent of ",
       current,
       " A, which exceeded its maximum current capacity of ",
       param_.max_current,
@@ -395,6 +388,11 @@ void GazeboElectricPropulsionSystemPlugin::applyWrenchAndPublishState(
 
 void GazeboElectricPropulsionSystemPlugin::updateJointState(gz::sim::EntityComponentManager& ecm, double dt)
 {
+  // Motor inductance is often unknown, so use the fact that its product with Kv is roughly constant.
+  // Because the ESC electronically suppresses current changes,
+  // apparent inductance is much larger than the measured value, perhaps around 100 times.
+  constexpr double L_KV = 2.0;
+
   // Motor dynamics coefficients (memo: 2-78).
   const auto a = 2.0 * L_KV * param_.moment_const * param_.motor_const;
   const auto b = param_.resistance * param_.kv * param_.moment_const * param_.motor_const;
@@ -437,6 +435,9 @@ void GazeboElectricPropulsionSystemPlugin::updateJointState(gz::sim::EntityCompo
 
 void GazeboElectricPropulsionSystemPlugin::throttleCmdCb(const tobas_gazebo_msgs::msg::Throttle::ConstSharedPtr& throttle)
 {
+  constexpr double kMinBatteryVoltage = 3.0;  // [V]
+  constexpr double kThrotLimitMargin = 1e-3;  // [-]
+
   // Ignore the command if battery information is unavailable or the voltage is too low.
   if (!battery_gt_ || battery_gt_->voltage < kMinBatteryVoltage) {
     return;
@@ -474,10 +475,10 @@ void GazeboElectricPropulsionSystemPlugin::breakCb(
   if (is_intact_) {
     is_intact_ = false;
     throt_ = 0.0;
-    res->message = "Rotor \"" + link_name_ + "\" has been broken.";
+    res->message = "Rotor '" + link_name_ + "' has been broken.";
   }
   else {
-    res->message = "Rotor \"" + link_name_ + "\" is already broken.";
+    res->message = "Rotor '" + link_name_ + "' is already broken.";
   }
 
   res->success = true;

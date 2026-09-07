@@ -22,10 +22,7 @@ namespace gui
 namespace param
 {
 ParameterTuningWidget::ParameterTuningWidget()
-  : file_names_{ cmn::ProjectPaths::kImuFilterDynamicParamFileName,
-                 cmn::ProjectPaths::kObserverDynamicParamFileName,
-                 cmn::ProjectPaths::kControllerDynamicParamFileName,
-                 cmn::ProjectPaths::kRcTeleopDynamicParamFileName }
+  : file_names_{ "imu_filter_dynamic.yaml", "observer_dynamic.yaml", "controller_dynamic.yaml", "rc_teleop_dynamic.yaml" }
   , blocks_{ new ParamBlockWidget(node::kImuFilterConfigServer, "IMU Filter"),
              new ParamBlockWidget(node::kObserver, "State Estimator"),
              new ParamBlockWidget(node::kController, "Flight Controller"),
@@ -35,6 +32,8 @@ ParameterTuningWidget::ParameterTuningWidget()
   save_button_ = new QPushButton("Save");
   dflt_button_ = new QPushButton("Default");
 
+  constexpr int kButtonWidth = 100;
+  constexpr int kButtonHeight = 40;
   load_button_->setFixedSize(kButtonWidth, kButtonHeight);
   save_button_->setFixedSize(kButtonWidth, kButtonHeight);
   dflt_button_->setFixedSize(kButtonWidth, kButtonHeight);
@@ -143,7 +142,7 @@ void ParameterTuningWidget::onSaveButtonClicked()
   qt::qInfoBox(
     this,
     "Dynamic parameters have been saved to the local project. "
-    "Please click \"Write\" button again to flash them to the FC.");
+    "Please click 'Write' button again to flash them to the FC.");
 }
 
 void ParameterTuningWidget::onDefaultButtonClicked()

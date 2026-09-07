@@ -19,7 +19,7 @@ namespace bm
 IpAddressWidget::IpAddressWidget()
 {
   tabs_ = new qt::TabWidget();
-  tabs_->setTabSize(kTabWidth, kTabHeight);
+  tabs_->setTabSize(135, 45);
   tabs_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
   tabs_->addTab(new IPv4Widget("eth0"), "Wired");
   tabs_->addTab(new IPv4Widget("wlan0"), "Wireless");
@@ -82,7 +82,7 @@ void IpAddressWidget::onWriteButtonClicked()
     const auto network = getWidget(i)->dump();
     const auto path = networkFilePath(network.name);
     if (!network.save(path)) {
-      qt::qErrorBox(this, "Failed to write the settings of \"" + QString::fromStdString(network.name) + "\".");
+      qt::qErrorBox(this, "Failed to write the settings of '" + QString::fromStdString(network.name) + "'.");
       return;
     }
   }

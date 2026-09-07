@@ -23,13 +23,6 @@ class SshAuthorizedKeysWidget : public BaseConfigWidget
   using self = SshAuthorizedKeysWidget;
   using super = BaseConfigWidget;
 
-  static constexpr int kColWidth = 300;
-
-  static constexpr int kSsidCol = 0;
-  static constexpr int kPskCol = 1;
-  static constexpr int kPriorityCol = 2;
-  static constexpr int kNumCols = 3;
-
 public:
   explicit SshAuthorizedKeysWidget();
 
@@ -47,7 +40,7 @@ private:
   std::vector<ssh::ak::Data> keys_;
   qt::ListWidget* list_;
 
-  void addKey(const ssh::ak::Data& key);
+  bool addKey(const ssh::ak::Data& key);
   bool writeCurrentConfig();
 
   static std::string authorizedKeysPath();

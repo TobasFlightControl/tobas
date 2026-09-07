@@ -29,6 +29,7 @@ RemoteConnectionWidget::RemoteConnectionWidget(const rqt::RosQtBridge& bridge) :
 
   label_ = new QLabel();
 
+  constexpr int kTimeout = 10000;  // [ms]
   timeout_timer_.setInterval(kTimeout);
 
   setEmpty();

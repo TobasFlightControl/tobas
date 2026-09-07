@@ -21,13 +21,6 @@ class LandingDetectorNode : public BaseNode
   using self = LandingDetectorNode;
   using super = BaseNode;
 
-  static constexpr auto kPublishPeriod = 1s;
-  static constexpr double kDistForceLpfCutoff = 1.0;       // [Hz]
-  static constexpr double kTakeoffWeightRateThresh = 0.3;  // [-]
-  static constexpr auto kTakeoffDetectTimeThresh = 200ms;
-  static constexpr double kLandWeightRateThresh = 0.7;  // [-]
-  static constexpr auto kLandDetectTimeThresh = 1s;
-
 public:
   explicit LandingDetectorNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
@@ -59,8 +52,7 @@ private:
 LandingDetectorNode::LandingDetectorNode(const rclcpp::NodeOptions& options)
   : super("landing_detector", nodeOptions_Default(options)), mass_holder_(tree_)
 {
-  static_assert(kTakeoffWeightRateThresh < kLandWeightRateThresh);  // Hysteresis is required.
-
+  constexpr double kDistForceLpfCutoff = 1.0;  // [Hz]
   force_z_lpf_.setCutoffFrequency(kDistForceLpfCutoff);
 
   landed_pub_ = createPublisher<tobas_msgs::msg::LandedState>(topic::kLanded);
@@ -106,7 +98,7 @@ void LandingDetectorNode::disturbanceForceCb(const tobas_kdl_msgs::WrenchStamped
     dist_force_ = dist_force;
     t_last_no_change_ = dist_force->header.stamp;
     force_z_lpf_.setValue(force_z);
-    publish_timer_ = createTimer(kPublishPeriod, &self::publishTimerCb, this);
+    publish_timer_ = createTimer(1s, &self::publishTimerCb, this);
     return;
   }
 
@@ -123,8 +115,10 @@ void LandingDetectorNode::disturbanceForceCb(const tobas_kdl_msgs::WrenchStamped
   const auto& force_z_filt = force_z_lpf_.getValue();
   const auto weight = mass_holder_.getMass() * st::kGravity;
   if (landed_) {
+    constexpr double kTakeoffWeightRateThresh = 0.3;  // [-]
     const auto force_z_thresh = weight * kTakeoffWeightRateThresh;
     if (force_z_filt < force_z_thresh) {
+      constexpr auto kTakeoffDetectTimeThresh = 200ms;
       if (cur_time - t_last_no_change_ > kTakeoffDetectTimeThresh) {
         TOBAS_INFO("Takeoff detected.");
         changeState(false, cur_time);
@@ -135,8 +129,10 @@ void LandingDetectorNode::disturbanceForceCb(const tobas_kdl_msgs::WrenchStamped
     }
   }
   else {
+    constexpr double kLandWeightRateThresh = 0.7;  // [-]
     const auto force_z_thresh = weight * kLandWeightRateThresh;
     if (force_z_filt > force_z_thresh) {
+      constexpr auto kLandDetectTimeThresh = 1s;
       if (cur_time - t_last_no_change_ > kLandDetectTimeThresh) {
         TOBAS_INFO("Landing detected.");
         changeState(true, cur_time);

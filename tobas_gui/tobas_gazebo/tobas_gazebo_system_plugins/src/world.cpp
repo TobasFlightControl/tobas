@@ -34,12 +34,12 @@ std::expected<std::string, const char*> getWorldName(const gz::sim::EntityCompon
     return std::unexpected(world.error());
   }
 
-  const auto name_opt = world.value().Name(ecm);
-  if (!name_opt) {
+  const auto name = world->Name(ecm);
+  if (!name) {
     return std::unexpected("No world name.");
   }
 
-  return name_opt.value();
+  return *name;
 }
 
 std::expected<gz::math::SphericalCoordinates, const char*>
@@ -50,12 +50,12 @@ getWorldSphericalCoordinates(const gz::sim::EntityComponentManager& ecm)
     return std::unexpected(world.error());
   }
 
-  const auto sc_opt = world.value().SphericalCoordinates(ecm);
-  if (!sc_opt) {
+  const auto sc = world->SphericalCoordinates(ecm);
+  if (!sc) {
     return std::unexpected("No spherical coordinates on the world.");
   }
 
-  return sc_opt.value();
+  return *sc;
 }
 }  // namespace gazebo
 }  // namespace tobas

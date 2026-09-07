@@ -22,6 +22,13 @@ namespace ub
 {
 namespace ogre
 {
+namespace
+{
+constexpr float kHighlightR = 0.0f;
+constexpr float kHighlightG = 1.0f;
+constexpr float kHighlightB = 0.0f;
+}  // namespace
+
 struct OgreController::PImpl
 {
   explicit PImpl(rviz_common::DisplayContext* context) : ogre(context->getSceneManager())
@@ -123,12 +130,15 @@ void OgreController::reloadAxes(const view_model::URDFViewModel& vm)
       continue;
     }
 
+    constexpr float kAxesLength = 0.1f;
+    constexpr float kAxesRadius = 0.01f;
     const auto axes = std::make_shared<rviz_rendering::Axes>(
       pimpl_->ogre.scene_manager, pimpl_->ogre.axes_node, kAxesLength, kAxesRadius);
     axes->setPosition(position);
     axes->setOrientation(orientation);
     pimpl_->rviz.axes.push_back(axes);
 
+    constexpr float kCharHeight = 0.03f;  // Character size displayed in the model view.
     auto name_text = new rviz_rendering::MovableText(pair.second->name, "Liberation Sans", kCharHeight);
     name_text->setTextAlignment(rviz_rendering::MovableText::H_CENTER, rviz_rendering::MovableText::V_BELOW);
 

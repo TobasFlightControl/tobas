@@ -57,22 +57,6 @@ public:
     DSHOT_CMD_SIGNAL_LINE_ERPM_PERIOD_TELEMETRY = 47,
   };
 
-private:
-  // Commands
-  static constexpr uint8_t kSetThrottleCmd = 0;
-  static constexpr uint8_t kSetTargetRPMCmd = 1;
-  static constexpr uint8_t kSetKvCmd = 2;
-  static constexpr uint8_t kSetResistanceCmd = 3;
-  static constexpr uint8_t kSetDiameterCmd = 4;
-  static constexpr uint8_t kSetMomentConstCmd = 5;
-  static constexpr uint8_t kSetHalfNumPolesCmd = 6;
-  static constexpr uint8_t kSetGainCmd = 7;
-  static constexpr uint8_t kNoOperationCmd = UINT8_MAX;
-
-  static constexpr char kSpiDevice[] = "/dev/spidev0.0";
-  static constexpr uint32_t kSpiClockFreq = 12'000'000;  // [Hz]
-
-public:
   explicit DShot() noexcept;
 
   bool initialize() noexcept;

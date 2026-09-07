@@ -14,8 +14,6 @@ namespace gazebo
 {
 class CpuHandlerNode : public BaseNode
 {
-  static constexpr auto kSamplingPeriod = 1s;
-
   using self = CpuHandlerNode;
   using super = BaseNode;
 
@@ -35,6 +33,8 @@ private:
 CpuHandlerNode::CpuHandlerNode(const rclcpp::NodeOptions& options) : super("cpu_handler", nodeOptions_Default(options))
 {
   cpu_pub_ = createPublisher<tobas_msgs::msg::Cpu>(topic::kCpu);
+
+  constexpr auto kSamplingPeriod = 1s;
   main_timer_ = createTimer(kSamplingPeriod, &self::mainTimerCb, this);
 }
 

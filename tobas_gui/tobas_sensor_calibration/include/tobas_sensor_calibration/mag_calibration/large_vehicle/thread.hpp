@@ -27,9 +27,6 @@ class LargeVehicleMagCalibThread : public QThread
   using self = LargeVehicleMagCalibThread;
   using super = QThread;
 
-  static constexpr size_t kDataCount = 200;
-  static constexpr auto kCollectDataTimeout = std::chrono::seconds(10);
-
 Q_SIGNALS:
   void finished(bool success, const QString& message);
 

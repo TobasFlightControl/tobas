@@ -18,8 +18,6 @@ namespace driver
  */
 class BMM350
 {
-  static constexpr uint8_t kI2cAddress = 0x14;
-
 public:
   explicit BMM350();
 

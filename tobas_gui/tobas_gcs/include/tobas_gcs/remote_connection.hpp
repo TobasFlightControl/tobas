@@ -23,8 +23,6 @@ class RemoteConnectionWidget : public QWidget
   using self = RemoteConnectionWidget;
   using super = QWidget;
 
-  static constexpr int kTimeout = 10000;  // [ms]
-
 Q_SIGNALS:
   void disconnected();
 

@@ -40,9 +40,6 @@ namespace kdl
  */
 class ChainIkSolverPos_LM : public ChainIkSolverPos
 {
-  static constexpr double kInitLambda = 10.0;
-  static constexpr double kInitV = 2.0;
-
   using super = ChainIkSolverPos;
 
 public:

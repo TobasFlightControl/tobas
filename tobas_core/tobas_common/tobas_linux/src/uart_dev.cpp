@@ -7,7 +7,6 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 
-#include <cerrno>
 #include <cstring>
 #include <iostream>
 #include <thread>
@@ -270,21 +269,6 @@ bool UARTdev::receive(uint8_t* data, size_t length)
   }
 
   return true;
-}
-
-std::optional<uint8_t> UARTdev::tryReceiveByte()
-{
-  uint8_t data;
-  const auto result = ::read(uart_fd_, &data, 1);
-  if (result == 1) {
-    return data;
-  }
-  if (result == 0 || errno == EAGAIN || errno == EWOULDBLOCK) {
-    return std::nullopt;
-  }
-
-  cerr << "UART RX failed: " << strError() << endl;
-  return std::nullopt;
 }
 
 uint8_t UARTdev::receiveByte()

@@ -17,33 +17,33 @@ void colorMessageHandler(QtMsgType type, const QMessageLogContext& context, cons
   QString color, label;
   switch (type) {
     case QtDebugMsg:
-      color = CYAN_PREFIX;
+      color = st::kCyanPrefix;
       label = "DEBUG";
       break;
     case QtInfoMsg:
-      color = GREEN_PREFIX;
+      color = st::kGreenPrefix;
       label = "INFO";
       break;
     case QtWarningMsg:
-      color = YELLOW_PREFIX;
+      color = st::kYellowPrefix;
       label = "WARN";
       break;
     case QtCriticalMsg:
-      color = RED_PREFIX;
+      color = st::kRedPrefix;
       label = "CRIT";
       break;
     case QtFatalMsg:
-      color = MAGENTA_PREFIX;
+      color = st::kMagentaPrefix;
       label = "FATAL";
       break;
     default:
-      color = COLOR_RESET;
+      color = st::kColorReset;
       label = "LOG";
       break;
   }
 
   QTextStream ts(stderr);
-  ts << color << '[' << label << "] " << msg << COLOR_RESET;
+  ts << color << '[' << label << "] " << msg << st::kColorReset;
 
   if (context.file && context.line > 0) {
     ts << " (" << context.file << ':' << context.line << ')';

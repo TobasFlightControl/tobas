@@ -26,16 +26,6 @@ namespace ssh
  */
 class SshClient
 {
-  static constexpr char kSetEndpointSrv[] = "ssh/set_endpoint";
-  static constexpr char kConnectSrv[] = "ssh/connect";
-  static constexpr char kExecuteSrv[] = "ssh/execute";
-  static constexpr char kSftpReadSrv[] = "ssh/sftp_read";
-  static constexpr char kSftpWriteSrv[] = "ssh/sftp_write";
-  static constexpr char kListSrv[] = "ssh/list";
-
-  static constexpr char kScpGetAction[] = "ssh/scp_get";
-  static constexpr char kScpPutAction[] = "ssh/scp_put";
-
 public:
   enum Error
   {

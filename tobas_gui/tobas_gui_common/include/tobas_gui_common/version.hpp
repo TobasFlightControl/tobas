@@ -13,10 +13,6 @@ namespace cmn
 {
 class Version
 {
-  static constexpr char kMajorKey[] = "major";
-  static constexpr char kMinorKey[] = "minor";
-  static constexpr char kPatchKey[] = "patch";
-
 public:
   int major = -1;
   int minor = -1;

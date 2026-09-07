@@ -14,6 +14,11 @@ namespace gui
 {
 namespace log
 {
+namespace
+{
+constexpr int kTimerInterval = 40;  // [ms]
+}  // namespace
+
 PlaybackControlWidget::PlaybackControlWidget()
 {
   play_button_ = new QPushButton();

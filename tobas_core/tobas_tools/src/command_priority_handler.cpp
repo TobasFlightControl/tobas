@@ -5,7 +5,7 @@
 
 #include <iostream>
 
-using namespace std;
+using namespace std::chrono_literals;
 
 namespace tobas
 {
@@ -15,12 +15,14 @@ CommandPriorityHandler::CommandPriorityHandler()
 
 bool CommandPriorityHandler::update(const uint8_t& new_priority, const rclcpp::Time& cur_time)
 {
+  constexpr auto kHighestLevelTimeout = 500ms;
+
   if (new_priority >= cur_priority_ || cur_time - t_last_highest_priority_ > kHighestLevelTimeout) {
     if (new_priority > cur_priority_) {
-      cout << "Command priority up: " << (int)cur_priority_ << " -> " << (int)new_priority << endl;
+      std::cout << "Command priority up: " << (int)cur_priority_ << " -> " << (int)new_priority << std::endl;
     }
     else if (new_priority < cur_priority_) {
-      cout << "Command priority down: " << (int)cur_priority_ << " -> " << (int)new_priority << endl;
+      std::cout << "Command priority down: " << (int)cur_priority_ << " -> " << (int)new_priority << std::endl;
     }
 
     cur_priority_ = new_priority;

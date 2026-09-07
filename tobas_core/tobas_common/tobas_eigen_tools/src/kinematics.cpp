@@ -3,10 +3,10 @@
 
 #include "tobas_eigen_tools/kinematics.hpp"
 
+#include <limits>
+
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/assert.hpp>
-
-#define EPS std::numeric_limits<double>::epsilon()
 
 using namespace Eigen;
 
@@ -14,6 +14,11 @@ namespace tobas
 {
 namespace eigen
 {
+namespace
+{
+[[maybe_unused]] constexpr auto kEps = std::numeric_limits<double>::epsilon();
+}  // namespace
+
 Matrix3d angvelFromEulerrateGlobal(double pitch, double yaw)
 {
   const auto cos_pitch = std::cos(pitch);
@@ -72,7 +77,7 @@ Matrix3d eulerrateFromAngvelGlobal(double pitch, double yaw)
   const auto tan_pitch = std::tan(pitch);
   const auto cos_yaw = std::cos(yaw);
   const auto sin_yaw = std::sin(yaw);
-  assert(cos_pitch > EPS);
+  assert(cos_pitch > kEps);
 
   Matrix3d res;
   res(0, 0) = cos_yaw / cos_pitch;
@@ -99,7 +104,7 @@ Matrix3d eulerrateFromAngvelLocal(double roll, double pitch)
   const auto sin_roll = std::sin(roll);
   const auto cos_pitch = std::cos(pitch);
   const auto tan_pitch = std::tan(pitch);
-  assertWithMsg(cos_pitch > EPS, "roll: " << roll << ", pitch: " << pitch);
+  assertWithMsg(cos_pitch > kEps, "roll: " << roll << ", pitch: " << pitch);
 
   Matrix3d res;
   res(0, 0) = 1;

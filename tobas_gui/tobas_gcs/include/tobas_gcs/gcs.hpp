@@ -55,8 +55,6 @@ class GroundControlStationWidget : public QWidget
   using self = GroundControlStationWidget;
   using super = QWidget;
 
-  static constexpr char kLastOpenedDirKey[] = "gcs/last_opened_dir";
-
 public:
   explicit GroundControlStationWidget(int argc, char** argv);
 

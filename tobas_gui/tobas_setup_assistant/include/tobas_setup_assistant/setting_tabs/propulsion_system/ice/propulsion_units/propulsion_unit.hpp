@@ -25,11 +25,6 @@ class PropulsionUnitWidget : public QWidget
 {
   Q_OBJECT
 
-  static constexpr int kButtonWidth = 125;
-  static constexpr int kButtonHeight = 50;
-  static constexpr int kTabWidth = 120;
-  static constexpr int kTabHeight = 40;
-
 Q_SIGNALS:
   void copyToAllButtonClicked();
 
