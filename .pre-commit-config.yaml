@@ -83,10 +83,14 @@ repos:
         files: \.qml$
       - id: prettier-markdown
         name: prettier-markdown
-        entry: prettier --write
+        # Add spaces between Japanese text/punctuation and alphanumerics.
+        entry: sh -c 'textlint --fix --config .textlintrc.json "$@" && prettier --write "$@"' --
         language: node
         language_version: 22.17.1
-        additional_dependencies: ["prettier@3.6.2"]
+        additional_dependencies:
+          - "prettier@3.6.2"
+          - "textlint@15.8.0"
+          - "textlint-rule-ja-space-between-half-and-full-width@3.0.3"
         files: \.md$
       - id: normalize-japanese-punctuation
         name: normalize Japanese punctuation

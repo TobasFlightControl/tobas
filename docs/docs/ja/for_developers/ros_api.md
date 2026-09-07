@@ -703,7 +703,7 @@ tobas_msgs/JointCommand[] commands
 
 ### Gazebo
 
-Gazeboシミュレーション時にのみ使用されるトピックです．
+Gazebo シミュレーション時にのみ使用されるトピックです．
 
 #### gazebo/ground_truth/battery (tobas_msgs/Battery)
 
@@ -803,7 +803,7 @@ string message
 
 ### Gazebo
 
-Gazeboシミュレーション時にのみ使用されるサービスです．
+Gazebo シミュレーション時にのみ使用されるサービスです．
 
 #### gazebo/charge_battery (std_srvs/Empty)
 
@@ -815,7 +815,7 @@ Gazeboシミュレーション時にのみ使用されるサービスです．
 
 #### gazebo/lose_gnss_fix (std_srvs/Trigger)
 
-シミュレーションを再起動するまで，以降のGNSSメッセージを`NO_FIX`にする．
+シミュレーションを再起動するまで，以降の GNSS メッセージを`NO_FIX`にする．
 
 ```txt
 ---
