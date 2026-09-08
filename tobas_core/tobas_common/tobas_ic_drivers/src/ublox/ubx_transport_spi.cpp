@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include "tobas_ic_drivers/ublox/ubx_spi_transport.hpp"
+#include "tobas_ic_drivers/ublox/ubx_transport_spi.hpp"
 
 #include <cstring>
 

@@ -8,7 +8,7 @@
 #include <tobas_ic_drivers/stmicro/iis2mdc.hpp>
 #include <tobas_ic_drivers/stmicro/ilps22qs.hpp>
 #include <tobas_ic_drivers/stmicro/ism330dlc.hpp>
-#include <tobas_ic_drivers/ublox/ubx_spi_transport.hpp>
+#include <tobas_ic_drivers/ublox/ubx_transport_spi.hpp>
 #include <tobas_ic_drivers/ublox/zed_f9p.hpp>
 #include <tobas_sbus_driver/sbus.hpp>
 #include <tobas_std_tools/ansi_text_styles.hpp>

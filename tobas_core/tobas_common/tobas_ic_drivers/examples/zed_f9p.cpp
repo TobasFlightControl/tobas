@@ -3,8 +3,8 @@
 
 #include <iostream>
 
-#include <tobas_ic_drivers/ublox/ubx_spi_transport.hpp>
-#include <tobas_ic_drivers/ublox/ubx_uart_transport.hpp>
+#include <tobas_ic_drivers/ublox/ubx_transport_spi.hpp>
+#include <tobas_ic_drivers/ublox/ubx_transport_uart.hpp>
 #include <tobas_ic_drivers/ublox/zed_f9p.hpp>
 
 using namespace std;

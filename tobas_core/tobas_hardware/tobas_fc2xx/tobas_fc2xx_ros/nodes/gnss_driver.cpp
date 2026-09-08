@@ -3,7 +3,7 @@
 
 #include <tobas_constants/ros_interface.hpp>
 #include <tobas_hardware_common/constants.hpp>
-#include <tobas_ic_drivers/ublox/ubx_spi_transport.hpp>
+#include <tobas_ic_drivers/ublox/ubx_transport_spi.hpp>
 #include <tobas_ic_drivers/ublox/zed_f9p.hpp>
 #include <tobas_node/node.hpp>
 
