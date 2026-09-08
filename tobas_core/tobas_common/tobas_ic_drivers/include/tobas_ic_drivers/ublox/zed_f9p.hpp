@@ -3,11 +3,13 @@
 
 #pragma once
 
-#include <tobas_linux/spi_dev.hpp>
+#include <memory>
+
 #include <tobas_time_tools/rate.hpp>
 
 #include "./ubx_payload.hpp"
 #include "./ubx_scanner.hpp"
+#include "./ubx_transport.hpp"
 
 #define PACKED __attribute__((__packed__))  // Struct member variables are contiguous in memory.
 
@@ -16,7 +18,7 @@ namespace tobas
 namespace ublox
 {
 /**
- * @brief A Linux driver of u-blox ZED-F9P using SPI interface and UBX protocol.
+ * @brief A Linux driver of u-blox ZED-F9P using UBX protocol.
  *
  * [Product Page](https://www.u-blox.com/en/product/zed-f9p-module)
  *
@@ -26,9 +28,6 @@ namespace ublox
  */
 class ZEDF9P
 {
-private:
-  static constexpr size_t kSpiBufSize = 256;
-
 public:
   enum UbxClass : uint8_t
   {
@@ -110,10 +109,15 @@ public:
     E_SCOOTER = 12,
   };
 
-  explicit ZEDF9P();
+  explicit ZEDF9P(const char* _device);
+  explicit ZEDF9P(std::unique_ptr<UbxTransport> _transport);
+  ZEDF9P(ZEDF9P&& _other) = delete;
+  ZEDF9P& operator=(ZEDF9P&& _other) = delete;
+  ZEDF9P(const ZEDF9P& _other) = delete;
+  ZEDF9P& operator=(const ZEDF9P& _other) = delete;
 
-  bool initialize(const char* spi_device);
-  bool update(bool nonblock = true);
+  bool initialize();
+  bool update();
 
   /* ===== Configurations =====*/
 
@@ -263,13 +267,11 @@ private:
   };
   /* ==============================*/
 
-  linux::SPIdev spi_;
-  uint8_t tx_buf_[kSpiBufSize];
-  uint8_t rx_buf_[kSpiBufSize];
+  std::unique_ptr<UbxTransport> transport_;
+  tim::Rate receive_rate_;
 
-  UBXScanner scanner_;
-
-  tim::Rate rate_;
+  UbxScanner scanner_;
+  uint8_t tx_buf_[kUbxBufferLength];
 
   template <typename T>
   bool cfgValSetSingle(CfgSize size, CfgGroup group, uint8_t id, T value);

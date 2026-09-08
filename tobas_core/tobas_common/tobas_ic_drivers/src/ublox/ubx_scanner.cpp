@@ -9,18 +9,18 @@ namespace tobas
 {
 namespace ublox
 {
-UBXScanner::UBXScanner()
+UbxScanner::UbxScanner()
 {
   reset();
 }
 
-void UBXScanner::reset()
+void UbxScanner::reset()
 {
   pos_ = 0;
   state_ = kSync1;
 }
 
-bool UBXScanner::update(const uint8_t& data)
+bool UbxScanner::update(const uint8_t& data)
 {
   if (state_ != kDone) {
     buffer_[pos_++] = data;

@@ -5,6 +5,10 @@
 
 #include <cassert>
 #include <cstring>
+#include <memory>
+#include <utility>
+
+#include "tobas_ic_drivers/ublox/ubx_spi_transport.hpp"
 
 using namespace std::chrono_literals;
 namespace ch = std::chrono;
@@ -13,53 +17,50 @@ namespace tobas
 {
 namespace ublox
 {
-ZEDF9P::ZEDF9P() : rate_(50us)
+ZEDF9P::ZEDF9P(const char* _device) : ZEDF9P(std::make_unique<UbxTransportSpi>(_device))
 {
 }
 
-bool ZEDF9P::initialize(const char* spi_device)
+ZEDF9P::ZEDF9P(std::unique_ptr<UbxTransport> _transport) : transport_(std::move(_transport))
 {
-  // Initialize SPI device.
-  constexpr uint32_t kSpiClockFreq = 5'500'000;  // Maximum frequency is 5.5MHz.
-  if (!spi_.initialize(spi_device, tx_buf_, rx_buf_, kSpiClockFreq)) {
-    return false;
-  }
-
-  return true;
+  assert(transport_);
 }
 
-bool ZEDF9P::update(bool nonblock)
+bool ZEDF9P::initialize()
+{
+  receive_rate_.setInterval(transport_->receiveByteInterval());
+  return transport_->initialize();
+}
+
+bool ZEDF9P::update()
 {
   scanner_.reset();
 
-  if (nonblock) {
-    // Check the start byte.
-    if (!spi_.transfer(1)) {
-      return false;
-    }
-    if (!scanner_.update(rx_buf_[0])) {
-      return false;
-    }
+  // Check the start byte.
+  const auto first_byte = transport_->receiveByte();
+  if (!first_byte) {
+    return false;
+  }
+  if (!scanner_.update(*first_byte)) {
+    return false;
+  }
 
-    // Return if no data has arrived.
-    if (scanner_.state() == UBXScanner::kSync1) {
-      return false;
-    }
+  // Return if no data has arrived.
+  if (scanner_.state() == UbxScanner::kSync1) {
+    return false;
   }
 
   // Scan one message.
-  rate_.start();
-  while (scanner_.state() != UBXScanner::kDone) {
-    if (!spi_.transfer(1)) {
+  receive_rate_.start();
+  while (scanner_.state() != UbxScanner::kDone) {
+    const auto data = transport_->receiveByte();
+    if (!data) {
       return false;
     }
-    if (!scanner_.update(rx_buf_[0])) {
+    if (!scanner_.update(*data)) {
       return false;
     }
-
-    // If the `SPI` request interval is too short, data cannot be acquired correctly,
-    // so sleep to keep at least the specified interval.
-    rate_.sleep();
+    receive_rate_.sleep();
   }
 
   if (!verifyMessage()) {
@@ -500,7 +501,7 @@ bool ZEDF9P::sendMessage(UbxClass cls, uint8_t id, const void* msg, uint16_t siz
   const auto ck = computeChecksum(tx_buf_, checksum_pos);
   const auto message_length = spliceMemory(tx_buf_, &ck, sizeof(CheckSum), checksum_pos);
 
-  return spi_.transfer(message_length);
+  return transport_->send(tx_buf_, message_length);
 }
 
 bool ZEDF9P::waitForAcknowledge(UbxClass cls, uint8_t id)
@@ -515,7 +516,7 @@ bool ZEDF9P::waitForAcknowledge(UbxClass cls, uint8_t id)
   const auto deadline = ch::steady_clock::now() + kWaitForGnssAck;
 
   while (ch::steady_clock::now() < deadline) {
-    if (!update(false)) {
+    if (!update()) {
       return false;
     }
 

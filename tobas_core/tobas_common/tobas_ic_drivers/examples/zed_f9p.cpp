@@ -15,7 +15,7 @@ int main(int argc, char** argv)
   }
   const auto device = argv[1];
 
-  tobas::ublox::ZEDF9P gnss;
+  tobas::ublox::ZEDF9P gnss(device);
 
   tobas::ublox::payload::NAV_COV cov;
   tobas::ublox::payload::NAV_HPPOSLLH hpposllh;
@@ -27,7 +27,7 @@ int main(int argc, char** argv)
   tobas::ublox::payload::NAV_VELNED velned;
 
   cout << "Initializing GNSS device." << endl;
-  if (!gnss.initialize(device)) {
+  if (!gnss.initialize()) {
     cerr << "Failed to initialize GNSS driver." << endl;
     return EXIT_FAILURE;
   }
@@ -103,7 +103,7 @@ int main(int argc, char** argv)
   cout << "Initial configuration finished successfully." << endl;
 
   while (true) {
-    if (!gnss.update(false)) {
+    if (!gnss.update()) {
       cerr << "Failed to update GNSS driver." << endl;
       return EXIT_FAILURE;
     }

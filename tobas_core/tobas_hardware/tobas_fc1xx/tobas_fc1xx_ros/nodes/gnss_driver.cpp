@@ -42,14 +42,14 @@ private:
 };
 
 GnssDriverNode::GnssDriverNode(const rclcpp::NodeOptions& options)
-  : super("fc1xx_gnss_driver", nodeOptions_Default(options))
+  : super("fc1xx_gnss_driver", nodeOptions_Default(options)), gnss_("/dev/spidev1.2")
 {
   initialize_timer_ = createWallTimer(hardware::kRetryInitializationInterval, &self::initialize, this);
 }
 
 void GnssDriverNode::initialize()
 {
-  if (!gnss_.initialize("/dev/spidev1.2")) {
+  if (!gnss_.initialize()) {
     TOBAS_ERROR("Failed to initialize GNSS driver. Retrying...");
     return;
   }
