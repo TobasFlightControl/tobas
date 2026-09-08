@@ -41,10 +41,11 @@ public:
   };
 
   explicit UbxScanner();
-  UbxScanner(UbxScanner&& _other) = default;
-  UbxScanner& operator=(UbxScanner&& _other) = default;
-  UbxScanner(const UbxScanner& _other) = default;
-  UbxScanner& operator=(const UbxScanner& _other) = default;
+
+  UbxScanner(UbxScanner&& _other) = delete;
+  UbxScanner& operator=(UbxScanner&& _other) = delete;
+  UbxScanner(const UbxScanner& _other) = delete;
+  UbxScanner& operator=(const UbxScanner& _other) = delete;
 
   void reset();
   bool update(const uint8_t& data);
