@@ -13,22 +13,36 @@ UbxTransportUart::UbxTransportUart(const char* _device, uint32_t _baud_rate) : d
 
 bool UbxTransportUart::initialize() noexcept
 {
-  return uart_.initialize(device_, false) && uart_.setBaudRate(baud_rate_);
+  if (!uart_.initialize(device_, true)) {
+    return false;
+  }
+
+  if (!uart_.setBaudRate(baud_rate_)) {
+    return false;
+  }
+
+  if (!uart_.setDataBits(8)) {
+    return false;
+  }
+
+  if (!uart_.setSingleStopBit()) {
+    return false;
+  }
+
+  if (!uart_.disableParity()) {
+    return false;
+  }
+
+  return true;
 }
 
 std::optional<uint8_t> UbxTransportUart::receiveByte() noexcept
 {
-  uint8_t data;
-  if (!uart_.receive(&data, 1)) {
+  if (!uart_.receive(&data_, 1)) {
     return std::nullopt;
   }
 
-  return data;
-}
-
-std::chrono::microseconds UbxTransportUart::receiveByteInterval() const noexcept
-{
-  return std::chrono::microseconds(0);
+  return data_;
 }
 
 bool UbxTransportUart::send(const uint8_t* _data, size_t _length) noexcept

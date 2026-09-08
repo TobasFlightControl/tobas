@@ -109,15 +109,15 @@ public:
     E_SCOOTER = 12,
   };
 
-  explicit ZEDF9P(const char* _device);
   explicit ZEDF9P(std::unique_ptr<UbxTransport> _transport);
+
   ZEDF9P(ZEDF9P&& _other) = delete;
   ZEDF9P& operator=(ZEDF9P&& _other) = delete;
   ZEDF9P(const ZEDF9P& _other) = delete;
   ZEDF9P& operator=(const ZEDF9P& _other) = delete;
 
   bool initialize();
-  bool update();
+  bool update(bool blocking = false);
 
   /* ===== Configurations =====*/
 
@@ -267,10 +267,9 @@ private:
   };
   /* ==============================*/
 
-  std::unique_ptr<UbxTransport> transport_;
-  tim::Rate receive_rate_;
-
+  const std::unique_ptr<UbxTransport> transport_;
   UbxScanner scanner_;
+  tim::Rate scan_rate_;
   uint8_t tx_buf_[kUbxBufferLength];
 
   template <typename T>

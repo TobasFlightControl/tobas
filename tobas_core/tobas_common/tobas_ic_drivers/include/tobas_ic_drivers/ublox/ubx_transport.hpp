@@ -16,6 +16,7 @@ class UbxTransport
 {
 public:
   explicit UbxTransport() = default;
+
   UbxTransport(UbxTransport&& _other) = delete;
   UbxTransport& operator=(UbxTransport&& _other) = delete;
   UbxTransport(const UbxTransport& _other) = delete;
@@ -25,10 +26,6 @@ public:
 
   virtual bool initialize() noexcept = 0;
   virtual std::optional<uint8_t> receiveByte() noexcept = 0;
-
-  /** @brief Return zero if byte reception does not require pacing. */
-  virtual std::chrono::microseconds receiveByteInterval() const noexcept = 0;
-
   virtual bool send(const uint8_t* _data, size_t _length) noexcept = 0;
 };
 }  // namespace ublox

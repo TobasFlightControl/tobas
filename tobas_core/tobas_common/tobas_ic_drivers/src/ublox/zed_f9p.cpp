@@ -8,8 +8,6 @@
 #include <memory>
 #include <utility>
 
-#include "tobas_ic_drivers/ublox/ubx_spi_transport.hpp"
-
 using namespace std::chrono_literals;
 namespace ch = std::chrono;
 
@@ -17,41 +15,38 @@ namespace tobas
 {
 namespace ublox
 {
-ZEDF9P::ZEDF9P(const char* _device) : ZEDF9P(std::make_unique<UbxTransportSpi>(_device))
-{
-}
-
-ZEDF9P::ZEDF9P(std::unique_ptr<UbxTransport> _transport) : transport_(std::move(_transport))
+ZEDF9P::ZEDF9P(std::unique_ptr<UbxTransport> _transport) : transport_(std::move(_transport)), scan_rate_(50us)
 {
   assert(transport_);
 }
 
 bool ZEDF9P::initialize()
 {
-  receive_rate_.setInterval(transport_->receiveByteInterval());
   return transport_->initialize();
 }
 
-bool ZEDF9P::update()
+bool ZEDF9P::update(bool blocking)
 {
   scanner_.reset();
 
-  // Check the start byte.
-  const auto first_byte = transport_->receiveByte();
-  if (!first_byte) {
-    return false;
-  }
-  if (!scanner_.update(*first_byte)) {
-    return false;
-  }
+  if (!blocking) {
+    // Check the start byte.
+    const auto first_byte = transport_->receiveByte();
+    if (!first_byte) {
+      return false;
+    }
+    if (!scanner_.update(*first_byte)) {
+      return false;
+    }
 
-  // Return if no data has arrived.
-  if (scanner_.state() == UbxScanner::kSync1) {
-    return false;
+    // Return if no data has arrived.
+    if (scanner_.state() == UbxScanner::kSync1) {
+      return false;
+    }
   }
 
   // Scan one message.
-  receive_rate_.start();
+  scan_rate_.start();
   while (scanner_.state() != UbxScanner::kDone) {
     const auto data = transport_->receiveByte();
     if (!data) {
@@ -60,7 +55,7 @@ bool ZEDF9P::update()
     if (!scanner_.update(*data)) {
       return false;
     }
-    receive_rate_.sleep();
+    scan_rate_.sleep();
   }
 
   if (!verifyMessage()) {
@@ -509,14 +504,14 @@ bool ZEDF9P::waitForAcknowledge(UbxClass cls, uint8_t id)
   payload::ACK_ACK ack;
   payload::ACK_NAK nak;
 
-  const auto cls_str = std::to_string(int(cls));
-  const auto id_str = std::to_string(int(id));
+  const auto cls_str = std::to_string(static_cast<int>(cls));
+  const auto id_str = std::to_string(static_cast<int>(id));
 
   constexpr auto kWaitForGnssAck = 1s;
   const auto deadline = ch::steady_clock::now() + kWaitForGnssAck;
 
   while (ch::steady_clock::now() < deadline) {
-    if (!update()) {
+    if (!update(true)) {
       return false;
     }
 
@@ -553,7 +548,7 @@ bool ZEDF9P::waitForAcknowledge(UbxClass cls, uint8_t id)
         break;
 
       default:
-        std::cerr << "Unexpected ACK ID: " << (int)latestId() << std::endl;
+        std::cerr << "Unexpected ACK ID: " << static_cast<int>(latestId()) << std::endl;
         break;
     }
   }

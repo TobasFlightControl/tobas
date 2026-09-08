@@ -3,19 +3,30 @@
 
 #include <iostream>
 
+#include <tobas_ic_drivers/ublox/ubx_spi_transport.hpp>
+#include <tobas_ic_drivers/ublox/ubx_uart_transport.hpp>
 #include <tobas_ic_drivers/ublox/zed_f9p.hpp>
 
 using namespace std;
 
 int main(int argc, char** argv)
 {
-  if (argc != 2) {
-    cerr << "Usage: " << argv[0] << " <SPI Device>" << endl;
-    return EXIT_FAILURE;
-  }
-  const auto device = argv[1];
+  unique_ptr<tobas::ublox::UbxTransport> transport;
 
-  tobas::ublox::ZEDF9P gnss(device);
+  switch (argc) {
+    case 2:
+      transport = make_unique<tobas::ublox::UbxTransportSpi>(argv[1]);
+      break;
+    case 3:
+      transport = make_unique<tobas::ublox::UbxTransportUart>(argv[1], stoi(argv[2]));
+      break;
+    default:
+      cerr << "Usage 1: " << argv[0] << " <SPI Device>" << endl;
+      cerr << "Usage 2: " << argv[0] << " <UART Device> <Baud Rate>" << endl;
+      return EXIT_FAILURE;
+  }
+
+  tobas::ublox::ZEDF9P gnss(move(transport));
 
   tobas::ublox::payload::NAV_COV cov;
   tobas::ublox::payload::NAV_HPPOSLLH hpposllh;
@@ -103,8 +114,8 @@ int main(int argc, char** argv)
   cout << "Initial configuration finished successfully." << endl;
 
   while (true) {
-    if (!gnss.update()) {
-      cerr << "Failed to update GNSS driver." << endl;
+    if (!gnss.update(true)) {
+      cerr << "Failed to receive a GNSS message." << endl;
       return EXIT_FAILURE;
     }
 

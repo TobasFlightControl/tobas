@@ -27,11 +27,6 @@ std::optional<uint8_t> UbxTransportSpi::receiveByte() noexcept
   return rx_buf_[0];
 }
 
-std::chrono::microseconds UbxTransportSpi::receiveByteInterval() const noexcept
-{
-  return std::chrono::microseconds(50);
-}
-
 bool UbxTransportSpi::send(const uint8_t* _data, size_t _length) noexcept
 {
   if (_length > kSpiBufSize) {

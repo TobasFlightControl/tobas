@@ -20,6 +20,7 @@ class UbxTransportUart final : public UbxTransport
 {
 public:
   explicit UbxTransportUart(const char* _device, uint32_t _baud_rate);
+
   UbxTransportUart(UbxTransportUart&& _other) = delete;
   UbxTransportUart& operator=(UbxTransportUart&& _other) = delete;
   UbxTransportUart(const UbxTransportUart& _other) = delete;
@@ -27,13 +28,14 @@ public:
 
   bool initialize() noexcept override;
   std::optional<uint8_t> receiveByte() noexcept override;
-  std::chrono::microseconds receiveByteInterval() const noexcept override;
   bool send(const uint8_t* _data, size_t _length) noexcept override;
 
 private:
   const char* device_;
   const uint32_t baud_rate_;
+
   linux::UARTdev uart_;
+  uint8_t data_;
 };
 }  // namespace ublox
 }  // namespace tobas

@@ -8,6 +8,7 @@
 #include <tobas_ic_drivers/stmicro/iis2mdc.hpp>
 #include <tobas_ic_drivers/stmicro/ilps22qs.hpp>
 #include <tobas_ic_drivers/stmicro/ism330dlc.hpp>
+#include <tobas_ic_drivers/ublox/ubx_spi_transport.hpp>
 #include <tobas_ic_drivers/ublox/zed_f9p.hpp>
 #include <tobas_sbus_driver/sbus.hpp>
 #include <tobas_std_tools/ansi_text_styles.hpp>
@@ -181,7 +182,7 @@ bool testPowerSensor()
 
 bool testGnssReceiver()
 {
-  tobas::ublox::ZEDF9P gnss("/dev/spidev1.2");
+  tobas::ublox::ZEDF9P gnss(std::make_unique<tobas::ublox::UbxTransportSpi>("/dev/spidev1.2"));
 
   if (!gnss.initialize()) {
     std::cerr << "Failed to initialize GNSS driver." << std::endl;
@@ -216,8 +217,8 @@ bool testGnssReceiver()
   const auto start_time = ch::steady_clock::now();
 
   while (ch::steady_clock::now() - start_time < 3s) {
-    if (!gnss.update()) {
-      std::cerr << "Failed to update GNSS driver." << std::endl;
+    if (!gnss.update(true)) {
+      std::cerr << "Failed to receive a GNSS message." << std::endl;
       return false;
     }
 

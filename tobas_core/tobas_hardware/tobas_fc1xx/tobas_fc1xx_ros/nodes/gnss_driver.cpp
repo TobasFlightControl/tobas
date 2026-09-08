@@ -4,6 +4,7 @@
 #include <tobas_constants/ros_interface.hpp>
 #include <tobas_hardware_common/base_sensor_node.hpp>
 #include <tobas_hardware_common/constants.hpp>
+#include <tobas_ic_drivers/ublox/ubx_spi_transport.hpp>
 #include <tobas_ic_drivers/ublox/zed_f9p.hpp>
 #include <tobas_std_tools/gnss.hpp>
 
@@ -42,7 +43,8 @@ private:
 };
 
 GnssDriverNode::GnssDriverNode(const rclcpp::NodeOptions& options)
-  : super("fc1xx_gnss_driver", nodeOptions_Default(options)), gnss_("/dev/spidev1.2")
+  : super("fc1xx_gnss_driver", nodeOptions_Default(options))
+  , gnss_(std::make_unique<ublox::UbxTransportSpi>("/dev/spidev1.2"))
 {
   initialize_timer_ = createWallTimer(hardware::kRetryInitializationInterval, &self::initialize, this);
 }
