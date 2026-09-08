@@ -13,12 +13,13 @@ class Rate
 {
 public:
   explicit Rate();
-  explicit Rate(const std::chrono::microseconds& period);
-  explicit Rate(const double& freq);
+  explicit Rate(const std::chrono::microseconds& _period);
+  explicit Rate(const double& _freq);
 
-  void setInterval(const std::chrono::microseconds& _interval);
   void start();
   void sleep();
+
+  void setInterval(const std::chrono::microseconds& _period);
 
 private:
   std::chrono::microseconds period_ = {};
