@@ -7,7 +7,7 @@ Tobas Setup Assistant を用いて機体構成に関する設定を行います�
 Tobas Setup Assistant は，Tobas を用いてドローンを飛ばすのに必要なプロジェクトフォルダを作成するための GUI です．
 プロジェクトフォルダには，機体の質量特性，プロペラの空気特性，モータの電気特性といった，ドローンを飛ばすのに必要な全ての情報が含まれます．
 Tobas Setup Assistant を使用するためには，ユーザの機体を表現した Universal Aircraft Description Format (UADF) ファイルが必要です．
-UADF の詳細については[What is UADF](../additional_information/what_is_uadf.md)をご参照ください．
+UADF の詳細については[What Is UADF?](../additional_information/what_is_uadf.md)をご参照ください．
 
 ## 準備
 

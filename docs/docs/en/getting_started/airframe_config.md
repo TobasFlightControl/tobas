@@ -7,7 +7,7 @@ Use Tobas Setup Assistant to configure the airframe.
 Tobas Setup Assistant is a GUI for creating the project folder required to fly a drone using Tobas.
 The project folder contains all the information required to fly the drone, including the aircraft's mass properties, the propeller's aerodynamic properties, and the motor's electrical properties.
 To use Tobas Setup Assistant, you need a Universal Aircraft Description Format (UADF) file that describes your aircraft.
-For details about UADF, see [What is UADF](../additional_information/what_is_uadf.md).
+For details about UADF, see [What Is UADF?](../additional_information/what_is_uadf.md).
 
 ## Preparation
 
