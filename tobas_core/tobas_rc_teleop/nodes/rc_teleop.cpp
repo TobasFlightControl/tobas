@@ -30,7 +30,7 @@
 #include "tobas_rc_teleop/pos_vel_acc_yaw.hpp"
 #include "tobas_rc_teleop/rate_throttle.hpp"
 #include "tobas_rc_teleop/rate_throttle_vector.hpp"
-#include "tobas_rc_teleop/speed_roll_dpitch.hpp"
+#include "tobas_rc_teleop/elev_aile_rud_throttle.hpp"
 
 namespace tobas
 {
@@ -193,8 +193,8 @@ void RCTeleopNode::initializeControllers()
       case RcCommand::kPosVelAccAngle:
         controllers_[mode] = std::make_unique<PosVelAccAngleController>();
         break;
-      case RcCommand::kSpeedRollDPitch:
-        controllers_[mode] = std::make_unique<SpeedRollDeltaPitchController>();
+      case RcCommand::kElevAileRudThrottle:
+        controllers_[mode] = std::make_unique<ElevAileRudThrottleController>();
         break;
       default:
         TOBAS_EXIT("Invalid flight mode: ", (int)mode);

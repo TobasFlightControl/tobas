@@ -91,7 +91,22 @@ FrameTypeDetectionResult FrameTypeDetector::determineFrameType()
   }
   else {
     msg += "  • which has fixed wings\n";
-    return { FrameType::kUndefined, msg + kIsNotSupported };  // TODO: Support fixed wings.
+
+    if (uadf_.tilts.empty()) {
+      msg += "  • which does not have any tilt rotors\n";
+
+      if (uadf_.thrusts.size() < 3) {
+        return { FrameType::kFixedWing, {} };
+      }
+      else {
+        msg += "  • which has 3 or more propellers\n";
+        return { FrameType::kUndefined, msg + kIsNotSupported }; // TODO: Support lift & cruise VTOL
+      }
+    }
+    else {
+      msg += "  • which has at least one tilt rotors\n";
+      return { FrameType::kUndefined, msg + kIsNotSupported }; // TODO: Support tilt rotor VTOL
+    }
   }
 }
 

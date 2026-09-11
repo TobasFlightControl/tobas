@@ -42,17 +42,17 @@ QString FixedWingWidget::pluginName() const
 
 RcCommand FixedWingWidget::acrobatModeCommand() const
 {
-  return RcCommand::kSpeedRollDPitch;  // TODO
+  return RcCommand::kElevAileRudThrottle;
 }
 
 RcCommand FixedWingWidget::stabilizeModeCommand() const
 {
-  return RcCommand::kSpeedRollDPitch;  // TODO
+  return RcCommand::kAngleThrottle;
 }
 
 RcCommand FixedWingWidget::loiterModeCommand() const
 {
-  return RcCommand::kSpeedRollDPitch;  // TODO
+  return RcCommand::kAngleThrottle;  // TODO
 }
 
 YAML::Node FixedWingWidget::staticParams() const

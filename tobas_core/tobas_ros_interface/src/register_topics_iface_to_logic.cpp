@@ -13,7 +13,7 @@
 #include <tobas_command_msgs/msg/pos_vel_acc_yaw.hpp>
 #include <tobas_command_msgs/msg/rate.hpp>
 #include <tobas_command_msgs/msg/rate_throttle.hpp>
-#include <tobas_command_msgs/msg/speed_roll_delta_pitch.hpp>
+#include <tobas_command_msgs/msg/elev_aile_rud_throttle.hpp>
 #include <tobas_kdl_msgs/msg/frame_with_covariance_stamped.hpp>
 #include <tobas_msgs/msg/ice_propulsion_system_command.hpp>
 #include <tobas_msgs/msg/joint_command_array.hpp>
@@ -42,8 +42,8 @@ void RosInterfaceNode::registerTopicsIfaceToLogic()
   addTopicIfaceToLogic<tobas_command_msgs::msg::PosVelAccYaw>(topic::kPosVelAccYawCmd, topic::kPosVelAccYawCmd);
   addTopicIfaceToLogic<tobas_command_msgs::msg::PosVelAccPitchYaw>(
     topic::kPosVelAccPitchYawCmd, topic::kPosVelAccPitchYawCmd);
-  addTopicIfaceToLogic<tobas_command_msgs::msg::SpeedRollDeltaPitch>(
-    topic::kSpeedRollDpitchCmd, topic::kSpeedRollDpitchCmd);
+  addTopicIfaceToLogic<tobas_command_msgs::msg::ElevAileRudThrottle>(
+    topic::kElevAileRudThrottleCmd, topic::kElevAileRudThrottleCmd);
   addTopicIfaceToLogic<tobas_msgs::msg::JointCommandArray>(topic::kJointPosCmd, topic::kJointPosCmd);
   addTopicIfaceToLogic<tobas_msgs::msg::JointCommandArray>(topic::kJointVelCmd, topic::kJointVelCmd);
   addTopicIfaceToLogic<tobas_msgs::msg::JointCommandArray>(topic::kJointEffCmd, topic::kJointEffCmd);

@@ -309,28 +309,30 @@ void GazeboFixedWingPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
   }
 
   // Aerodynamics
-  getSdfParam(sdf, "cLift0", aero_coefs_.c_lift_0, kPositive);
+  // 固定翼機として成立するために正 / 負でないといけないパラメータは多いが, そこの正負ではエラー判定しない
+  // 物理的に明確にありえないもののみエラー判定
+  getSdfParam(sdf, "cLift0", aero_coefs_.c_lift_0);
   getSdfParam(sdf, "cLiftAlpha", aero_coefs_.c_lift_alpha, kPositive);
   getSdfParam(sdf, "cDrag0", aero_coefs_.c_drag_0, kPositive);
   getSdfParam(sdf, "cDragAlpha", aero_coefs_.c_drag_alpha);
   getSdfParam(sdf, "cDragAlpha2", aero_coefs_.c_drag_alpha2, kPositive);
-  getSdfParam(sdf, "cSideBeta", aero_coefs_.c_side_beta, kNegative);
+  getSdfParam(sdf, "cSideBeta", aero_coefs_.c_side_beta);
   getSdfParam(sdf, "cSideP", aero_coefs_.c_side_p);
   getSdfParam(sdf, "cSideR", aero_coefs_.c_side_r);
 
-  getSdfParam(sdf, "cRollBeta", aero_coefs_.c_roll_beta, kNegative);
-  getSdfParam(sdf, "cRollP", aero_coefs_.c_roll_p, kNegative);
+  getSdfParam(sdf, "cRollBeta", aero_coefs_.c_roll_beta);
+  getSdfParam(sdf, "cRollP", aero_coefs_.c_roll_p);
   getSdfParam(sdf, "cRollR", aero_coefs_.c_roll_r);
 
   getSdfParam(sdf, "cPitch0", aero_coefs_.c_pitch_0);
-  getSdfParam(sdf, "cPitchAlpha", aero_coefs_.c_pitch_alpha, kNegative);
+  getSdfParam(sdf, "cPitchAlpha", aero_coefs_.c_pitch_alpha);
   getSdfParam(sdf, "cPitchAbsBeta", aero_coefs_.c_pitch_abs_beta);
   getSdfParam(sdf, "cPitchAlphaRate", aero_coefs_.c_pitch_alpha_rate);
-  getSdfParam(sdf, "cPitchQ", aero_coefs_.c_pitch_q, kNegative);
+  getSdfParam(sdf, "cPitchQ", aero_coefs_.c_pitch_q);
 
   getSdfParam(sdf, "cYawBeta", aero_coefs_.c_yaw_beta);
   getSdfParam(sdf, "cYawP", aero_coefs_.c_yaw_p);
-  getSdfParam(sdf, "cYawR", aero_coefs_.c_yaw_r, kNegative);
+  getSdfParam(sdf, "cYawR", aero_coefs_.c_yaw_r);
 
   // ControlSurface
   if (sdf->HasElement(kControlSurfaceKey)) {
@@ -340,7 +342,7 @@ void GazeboFixedWingPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
     while (cs_elem) {
       ControlSurface cs;
 
-      getSdfParam(cs_elem, "jointName", cs.link_name);
+      getSdfParam(cs_elem, "linkName", cs.link_name);
       if (joint_names.contains(cs.link_name)) {
         TOBAS_EXIT("The joint names of each control surface must be unique.");
       }

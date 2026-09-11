@@ -65,7 +65,7 @@ static constexpr char kAccelPitchYawCmd[] = "command/accel_pitch_yaw";
 static constexpr char kPosVelAccCmd[] = "command/pos_vel_acc";
 static constexpr char kPosVelAccYawCmd[] = "command/pos_vel_acc_yaw";
 static constexpr char kPosVelAccPitchYawCmd[] = "command/pos_vel_acc_pitch_yaw";
-static constexpr char kSpeedRollDpitchCmd[] = "command/speed_roll_delta_pitch";
+static constexpr char kElevAileRudThrottleCmd[] = "command/elev_aile_rud_throttle";
 
 // Joint Command
 static constexpr char kJointPosCmd[] = "command/joint_positions";

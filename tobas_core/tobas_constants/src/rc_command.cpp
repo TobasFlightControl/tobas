@@ -16,7 +16,7 @@
 #define ACCEL_RATE_TEXT "accel_rate"
 #define ACCEL_ANGLE_TEXT "accel_angle"
 #define POS_VEL_ACC_ANGLE_TEXT "pos_vel_acc_angle"
-#define SPEED_ROLL_DPITCH_TEXT "speed_roll_dpitch"
+#define ELEV_AILE_RUD_THROTTLE_TEXT "elev_aile_rud_throttle"
 
 using namespace std;
 
@@ -47,8 +47,8 @@ string textFromEnum(RcCommand cmd)
       return ACCEL_ANGLE_TEXT;
     case RcCommand::kPosVelAccAngle:
       return POS_VEL_ACC_ANGLE_TEXT;
-    case RcCommand::kSpeedRollDPitch:
-      return SPEED_ROLL_DPITCH_TEXT;
+    case RcCommand::kElevAileRudThrottle:
+      return ELEV_AILE_RUD_THROTTLE_TEXT;
     default:
       throw;
   }
@@ -100,8 +100,8 @@ bool enumFromText(const string& text, RcCommand& dst)
     dst = RcCommand::kPosVelAccAngle;
     return true;
   }
-  else if (text == SPEED_ROLL_DPITCH_TEXT) {
-    dst = RcCommand::kSpeedRollDPitch;
+  else if (text == ELEV_AILE_RUD_THROTTLE_TEXT) {
+    dst = RcCommand::kElevAileRudThrottle;
     return true;
   }
   else {
