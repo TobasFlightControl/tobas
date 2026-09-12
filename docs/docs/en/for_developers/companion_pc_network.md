@@ -222,6 +222,7 @@ Therefore, set the FC's hostname in `ROS_STATIC_PEERS` on the external PC so tha
 $ source /opt/ros/jazzy/setup.bash
 $ export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 $ export ROS_DOMAIN_ID=20
+$ export ROS_AUTOMATIC_DISCOVERY_RANGE=LOCALHOST
 $ export ROS_STATIC_PEERS=host1.local
 $ ros2 daemon stop
 $ ros2 topic list
