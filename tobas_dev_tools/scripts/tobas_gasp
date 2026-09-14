@@ -6,7 +6,7 @@ set -e
 
 # Check usage
 if [ $# -eq 0 ]; then
-  echo "Usage: $(basename "$0") <commit message>"
+  echo "Usage: $(basename "$0") <commit message>" >&2
   exit 1
 fi
 
