@@ -2,38 +2,42 @@
 
 set -e
 
-PARDIR=$(realpath $(dirname "$0"))
+# Check username.
+if [ "$(id -un)" != "pi" ]; then
+  echo "This script can only be executed on RPi." >&2
+  exit 1
+fi
 
-# Stop main service
-echo "Stopping Tobas main service."
+# Show usage.
+if [ $# -lt 1 ]; then
+  echo "Usage: $(basename "$0") <package>" >&2
+  exit 1
+fi
+
+# Stop the systemd service.
 sudo systemctl stop tobas_real.target
-if [ $? -ne 0 ]; then
-  echo "Failed to stop tobas_real.target." >&2
-  exit 1
-fi
 
-# Build Tobas
-echo "Building Tobas."
-bash ${PARDIR}/tobas_build_release_upto $1
-if [ $? -ne 0 ]; then
-  echo "Failed to build." >&2
-  exit 1
-fi
+# Navigate to the colcon workspace.
+cd ~/colcon_ws/
 
-# Install Tobas
-echo "Installing Tobas."
-bash ${PARDIR}/tobas_install
-if [ $? -ne 0 ]; then
-  echo "Failed to install." >&2
-  exit 1
-fi
+# Limit the number of threads used to build a single package.
+export MAKEFLAGS="-j1"
 
-# Restart main service
-echo "Restarting Tobas main service."
+# Build and install the specified package and its dependencies.
+sudo bash -c '
+source /opt/ros/jazzy/setup.bash && \
+colcon build \
+  --merge-install \
+  --parallel-workers 1 \
+  --install-base /opt/tobas \
+  --cmake-args \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_C_FLAGS="-mcpu=native" \
+    -DCMAKE_CXX_FLAGS="-mcpu=native" \
+  --packages-up-to $1 \
+'
+
+# Restart the systemd service.
 sudo systemctl restart tobas_real.target
-if [ $? -ne 0 ]; then
-  echo "Failed to restart tobas_real.target." >&2
-  exit 1
-fi
 
 echo -e "\033[32mDeployment finished successfully.\033[0m"
