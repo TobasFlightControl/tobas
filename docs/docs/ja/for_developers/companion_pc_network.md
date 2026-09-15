@@ -219,10 +219,10 @@ $ ssh pi@host1.local
 
 ```bash
 $ source /opt/ros/jazzy/setup.bash
-$ export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 $ export ROS_DOMAIN_ID=20
 $ export ROS_AUTOMATIC_DISCOVERY_RANGE=LOCALHOST
 $ export ROS_STATIC_PEERS=host1.local
+$ export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 $ ros2 daemon stop
 $ ros2 topic list
 ```
