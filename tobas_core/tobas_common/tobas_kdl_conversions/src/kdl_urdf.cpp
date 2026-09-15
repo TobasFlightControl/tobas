@@ -3,8 +3,6 @@
 
 #include "tobas_kdl_conversions/kdl_urdf.hpp"
 
-using namespace std;
-
 namespace tobas
 {
 namespace kdl
@@ -89,7 +87,7 @@ Frame poseUrdfToKdl(const ::urdf::Pose& u)
 
 void inertiaKdlToUrdf(const RigidBodyInertia&, ::urdf::Inertial&)
 {
-  throw runtime_error("Not implemented yet.");  // TODO
+  throw std::runtime_error("Not implemented yet.");  // TODO
 }
 
 void inertiaUrdfToKdl(const ::urdf::Inertial& u, RigidBodyInertia& k)
@@ -115,7 +113,7 @@ RigidBodyInertia inertiaUrdfToKdl(const ::urdf::Inertial& u)
 
 void jointKdlToUrdf(const Joint&, ::urdf::Joint&)
 {
-  throw runtime_error("Not implemented yet.");  // TODO
+  throw std::runtime_error("Not implemented yet.");  // TODO
 }
 
 void jointUrdfToKdl(const ::urdf::Joint& u, Joint& k)
@@ -135,7 +133,7 @@ void jointUrdfToKdl(const ::urdf::Joint& u, Joint& k)
       k.type = Joint::kTranslation;
     }
     else {
-      throw runtime_error("Unknown joint type of joint: " + u.name);
+      throw std::runtime_error("Unknown joint type of joint: " + u.name);
     }
 
     // Origin

@@ -3,13 +3,11 @@
 
 #include "tobas_kdl_conversions/kdl_eigen.hpp"
 
-using namespace Eigen;
-
 namespace tobas
 {
 namespace kdl
 {
-void quaternionKDLToEigen(const Quaternion& k, Quaterniond& e)
+void quaternionKDLToEigen(const Quaternion& k, Eigen::Quaterniond& e)
 {
   e.x() = k.x;
   e.y() = k.y;
@@ -17,7 +15,7 @@ void quaternionKDLToEigen(const Quaternion& k, Quaterniond& e)
   e.w() = k.w;
 }
 
-void quaternionEigenToKDL(const Quaterniond& e, Quaternion& k)
+void quaternionEigenToKDL(const Eigen::Quaterniond& e, Quaternion& k)
 {
   k.x = e.x();
   k.y = e.y();
