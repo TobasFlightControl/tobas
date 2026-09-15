@@ -33,13 +33,14 @@ public:
   Rotation M;  // Orientation of the frame
 
   inline explicit Frame(const Rotation& R, const Vector& V);
-  // The rotation matrix defaults to identity.
+  /* The rotation matrix defaults to identity. */
   inline explicit Frame(const Vector& V);
-  // The position matrix defaults to zero.
+  /* The position defaults to zero. */
   inline explicit Frame(const Rotation& R);
+  /* The position defaults to zero and the rotation matrix defaults to identity. */
   inline explicit Frame();
 
-  // @return the identity transformation Frame(Rotation::Identity(),Vector::Zero()).
+  /* The identity transformation `Frame(Rotation::Identity(), Vector::Zero())` */
   static inline Frame Identity();
 
   /**
@@ -84,6 +85,8 @@ public:
    * ASME Journal of Applied Mechanics, 23:215-221, 1955.
    */
   static inline Frame DH(double a, double alpha, double d, double theta);
+
+  static inline Frame XYZRPY(double x, double y, double z, double roll, double pitch, double yaw);
 
   inline bool isValid(std::string& error_msg) const;
 
@@ -133,15 +136,15 @@ public:
   inline friend std::ostream& operator<<(std::ostream& os, const Frame& arg);
 };
 
+inline Frame::Frame(const Rotation& R, const Vector& V) : p(V), M(R)
+{
+}
+
 inline Frame::Frame(const Rotation& R) : p(Vector::Zero()), M(R)
 {
 }
 
 inline Frame::Frame(const Vector& V) : p(V), M(Rotation::Identity())
-{
-}
-
-inline Frame::Frame(const Rotation& R, const Vector& V) : p(V), M(R)
 {
 }
 
@@ -170,6 +173,11 @@ inline Frame Frame::DH(double a, double alpha, double d, double theta)
   const auto sa = std::sin(alpha);
   const auto ca = std::cos(alpha);
   return Frame(Rotation(ct, -st * ca, st * sa, st, ct * ca, -ct * sa, 0, sa, ca), Vector(a * ct, a * st, d));
+}
+
+inline Frame Frame::XYZRPY(double x, double y, double z, double roll, double pitch, double yaw)
+{
+  return Frame(Rotation::RPY(roll, pitch, yaw), Vector(x, y, z));
 }
 
 inline bool Frame::isValid(std::string& error_msg) const
