@@ -1,9 +1,11 @@
 #include "tobas_ntrip_client/ntrip_client.hpp"
 
 #include <arpa/inet.h>
+#include <netdb.h>
 #include <sys/fcntl.h>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
+#include <unistd.h>
 
 #include <boost/beast/core/detail/base64.hpp>
 #include <iomanip>
@@ -18,6 +20,27 @@ NtripClient::NtripClient()
 {
 }
 
+NtripClient::~NtripClient()
+{
+  closeSocket();
+}
+
+void NtripClient::closeSocket()
+{
+  is_connected_ = false;
+  if (socket_ >= 0) {
+    close(socket_);
+    socket_ = -1;
+  }
+  receive_deque_.clear();
+  scanner_.reset();
+}
+
+bool NtripClient::isConnected() const
+{
+  return is_connected_;
+}
+
 bool NtripClient::initialize(
   const char* server_ip,
   const int& server_port,
@@ -27,13 +50,30 @@ bool NtripClient::initialize(
   const double& latitude,
   const double& longitude)
 {
+  closeSocket();
+
   // TCP通信用のsocketを作成
   socket_ = socket(AF_INET, SOCK_STREAM, 0);
+  if (socket_ < 0) {
+    std::cerr << "Failed to create socket." << std::endl;
+    return false;
+  }
 
   // NTRIP Casterのaddressを設定
-  server_address_.sin_addr.s_addr = inet_addr(server_ip);
-  server_address_.sin_port = htons(server_port);
   server_address_.sin_family = AF_INET;
+  server_address_.sin_port = htons(server_port);
+  auto addr = inet_addr(server_ip);
+  if (addr != INADDR_NONE) {
+    server_address_.sin_addr.s_addr = addr;
+  } else {
+    struct hostent* he = gethostbyname(server_ip);
+    if (he == nullptr || he->h_addr_list[0] == nullptr) {
+      std::cerr << "Failed to resolve hostname: " << server_ip << std::endl;
+      closeSocket();
+      return false;
+    }
+    server_address_.sin_addr = *reinterpret_cast<struct in_addr*>(he->h_addr_list[0]);
+  }
 
   // NTRIP Casterに接続する
   timeval timeout;
@@ -41,15 +81,18 @@ bool NtripClient::initialize(
   timeout.tv_usec = 0;
   if (!connectWithTimeout(socket_, reinterpret_cast<sockaddr*>(&server_address_), sizeof(server_address_), timeout)) {
     std::cerr << "Failed in connectWithTimeout" << std::endl;
+    closeSocket();
     return false;
   }
 
   const auto mount_point_stat = checkMountPoint(mount_point, user_name, password);
   if (mount_point_stat == SUCCESS) {
     std::cout << "Successfully connected to the mount point." << std::endl;
+    is_connected_ = true;
     return true;
   }
   if (mount_point_stat == AUTHORIZATION_FAILURE || mount_point_stat == OTHER_FAILURE) {
+    closeSocket();
     return false;
   }
   // 接続できていない場合でsource tableが返ってきている場合は，source tableから近くのmount pointを探して接続
@@ -72,25 +115,40 @@ bool NtripClient::initialize(
 
     // 距離が近い順にmount pointを表示 TODO : 自動でmount pointに接続する
     std::cout << "Recommended mount points : ";
-    for (size_t i = 0; i < kMountPointsToShow; i++) {
+    for (size_t i = 0; i < kMountPointsToShow && i < sorted_moint_points.size(); i++) {
       std::cout << sorted_moint_points[i] << " ";
     }
     std::cout << std::endl;
 
-    // dequeから処理が終わったsource tableのデータを削除
-    receive_deque_.resize(0);
+    closeSocket();
     return false;
   }
   std::cerr << "Unexpected error." << std::endl;
+  closeSocket();
   return false;
 }
 
 std::vector<std::vector<uint8_t>> NtripClient::receiveRtcmData()
 {
+  if (!is_connected_ || socket_ < 0) {
+    return {};
+  }
+
   // receive data from the mount point
   while (true) {
+    errno = 0;
     auto receive_size = nonblockReceive(socket_, receive_buffer_, kChunkSize, 0);
-    if (receive_size <= 0) {
+    if (receive_size == 0) {
+      std::cerr << "NTRIP caster closed connection." << std::endl;
+      closeSocket();
+      break;
+    }
+    if (receive_size < 0) {
+      if (errno == EAGAIN || errno == EWOULDBLOCK) {
+        break;
+      }
+      std::cerr << "Socket error on receive: " << errno << std::endl;
+      closeSocket();
       break;
     }
     receive_deque_.insert(receive_deque_.end(), receive_buffer_, receive_buffer_ + receive_size);
@@ -110,6 +168,32 @@ std::vector<std::vector<uint8_t>> NtripClient::receiveRtcmData()
   }
 
   return packets;
+}
+
+bool NtripClient::sendData(const std::string& data)
+{
+  if (!is_connected_ || socket_ < 0) {
+    return false;
+  }
+  auto sended_size = send(socket_, data.c_str(), data.size(), MSG_NOSIGNAL);
+  if (sended_size < 0) {
+    std::cerr << "Failed to send data to NTRIP caster." << std::endl;
+    closeSocket();
+    return false;
+  }
+  return sended_size == static_cast<ssize_t>(data.size());
+}
+
+bool NtripClient::sendNmeaGga(const std::string& gga)
+{
+  std::string formatted = gga;
+  if (formatted.size() < 2 || formatted.substr(formatted.size() - 2) != "\r\n") {
+    if (!formatted.empty() && formatted.back() == '\n') {
+      formatted.pop_back();
+    }
+    formatted += "\r\n";
+  }
+  return sendData(formatted);
 }
 
 std::string

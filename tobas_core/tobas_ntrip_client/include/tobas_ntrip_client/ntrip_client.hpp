@@ -14,6 +14,7 @@ class NtripClient
 {
 public:
   explicit NtripClient();
+  ~NtripClient();
   // NTRIP serverへ接続し，mount pointからデータを取得し始める．
   // 通信でブロッキングが発生しているので，この関数を実行するとある程度の時間スレッドが停止する
   bool initialize(
@@ -26,6 +27,14 @@ public:
     const double& longitude);
   // mount pointからRTCM3.3 protocolのデータを受信する nonblockingで受信を行う
   std::vector<std::vector<uint8_t>> receiveRtcmData();
+  // NTRIP serverへデータを送信する
+  bool sendData(const std::string& data);
+  // NMEA GGAセンテンスを送信する
+  bool sendNmeaGga(const std::string& gga);
+  // 接続中かどうかを返す
+  bool isConnected() const;
+  // ソケットを閉じる
+  void closeSocket();
 
 private:
   static constexpr int kTimeout = 5;  // 5 second
@@ -33,13 +42,14 @@ private:
   static constexpr size_t kMountPointsToShow = 5;
   enum MountPointStatus : uint8_t
   {
-    SUCCESS,                // ICY 200 OKが含まれるデータを受信，接続成功
-    GET_SOURCE_TABLE,       // SOURCETABLE 200 OKが含まれるsource tableのデータを受信，RTK2goへの接続はできているが，
-                            // mount pointへの接続はできていない
+    SUCCESS,  // ICY 200 OKが含まれるデータを受信，接続成功
+    GET_SOURCE_TABLE,  // SOURCETABLE 200 OKが含まれるsource tableのデータを受信，RTK2goへの接続はできているが，
+                       // mount pointへの接続はできていない
     AUTHORIZATION_FAILURE,  // 401が含まれるデータを受信，認証に失敗している
     OTHER_FAILURE,          // その他のエラー
   };
-  int socket_;
+  int socket_ = -1;
+  bool is_connected_ = false;
   struct sockaddr_in server_address_;
   char receive_buffer_[kChunkSize];  // 受信したデータ用buffer ここではデータ処理は行わずにreceive_dequeへ送りそちらで行う
   std::deque<uint8_t>

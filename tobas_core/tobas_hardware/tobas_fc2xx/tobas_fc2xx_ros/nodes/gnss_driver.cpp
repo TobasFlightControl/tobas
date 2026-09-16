@@ -56,7 +56,7 @@ GnssDriverNode::GnssDriverNode(const rclcpp::NodeOptions& options)
 
 bool GnssDriverNode::initialize()
 {
-  if (!gnss_.initialize("/dev/spidev1.0")) {
+  if (!gnss_.initialize("/dev/spidev1.2")) {
     TOBAS_ERROR("Failed to initialize GNSS driver. Retrying...");
     return false;
   }
@@ -287,9 +287,7 @@ void GnssDriverNode::mainTimerCb()
 }
 
 void GnssDriverNode::rtcmCorrectionSubCb(const tobas_msgs::msg::BinaryPacket::ConstSharedPtr& msg)
-{
-  gnss_.registerRtcmCorrectionData(msg->data);
-}
+{ gnss_.registerRtcmCorrectionData(msg->data); }
 }  // namespace fc2xx
 }  // namespace tobas
 
