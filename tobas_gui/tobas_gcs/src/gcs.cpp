@@ -224,6 +224,9 @@ void GroundControlStationWidget::reset()
     remote_conn_->stop();
   }
 
+  restart_btn_->setChecked(false);
+  shutdown_btn_->setChecked(false);
+
   sensor_calib_->reset();
   actuator_test_->reset();
   control_system_->reset();
@@ -852,22 +855,32 @@ void GroundControlStationWidget::onRestartButtonClicked()
     return;
   }
 
+  spinner_.start();
+
   // Restart the systemd service.
   expectTelemetryLoss();
-  spinner_.start();
   const auto res = restartInBackground();
+  if (!res) {
+    spinner_.stop();
+    reset();
+    qt::qErrorBox(this, res.error());
+    return;
+  }
+
+  // Reset the entire widget.
+  reset();
+
+  // Verify the ROS connection.
+  if (!waitForHeartbeat()) {
+    spinner_.stop();
+    disconnectFromFlightController();
+    qt::qErrorBox(this, "Timed out waiting for a heartbeat from " + currentHost() + ".");
+    return;
+  }
+
   spinner_.stop();
 
-  if (res) {
-    qt::qInfoBox(this, "The flight controller has been restarted successfully.");
-    reset();
-  }
-  else {
-    clearExpectedTelemetryLoss();
-    qt::qErrorBox(this, res.error());
-  }
-
-  restart_btn_->setChecked(false);
+  qt::qInfoBox(this, "The flight controller has been restarted successfully.");
 }
 
 void GroundControlStationWidget::onShutdownButtonClicked()
@@ -891,11 +904,9 @@ void GroundControlStationWidget::onShutdownButtonClicked()
     qt::qInfoBox(this, "The flight controller has been shut down successfully.");
   }
   else {
-    clearExpectedTelemetryLoss();
+    reset();
     qt::qErrorBox(this, res.error());
   }
-
-  shutdown_btn_->setChecked(false);
 }
 
 void GroundControlStationWidget::onSimulationStarted()
