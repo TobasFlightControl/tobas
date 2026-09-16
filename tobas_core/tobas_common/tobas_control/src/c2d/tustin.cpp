@@ -5,7 +5,6 @@
 
 #include <eigen3/Eigen/LU>  // Required for `inverse()`.
 
-using namespace std;
 using namespace Eigen;
 
 namespace tobas

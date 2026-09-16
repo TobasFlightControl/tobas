@@ -14,8 +14,6 @@ namespace quadprog
  */
 class PrimalDualInteriorPointSolver : public QuadProgSolver
 {
-  using super = QuadProgSolver;
-
 public:
   explicit PrimalDualInteriorPointSolver();
 

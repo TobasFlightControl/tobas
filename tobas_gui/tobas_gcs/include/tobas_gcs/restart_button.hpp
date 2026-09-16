@@ -15,7 +15,6 @@ class RestartButton : public QPushButton
 {
   Q_OBJECT
 
-  using self = RestartButton;
   using super = QPushButton;
 
 public:

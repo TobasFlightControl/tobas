@@ -10,7 +10,6 @@
 #include <tobas_constants/node.hpp>
 #include <tobas_constants/ros_interface.hpp>
 #include <tobas_gui_common/constants.hpp>
-#include <tobas_math/core.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
 #include <tobas_std_tools/array.hpp>

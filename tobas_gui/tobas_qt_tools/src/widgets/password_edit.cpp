@@ -4,8 +4,6 @@
 #include "tobas_qt_tools/widgets/password_edit.hpp"
 
 #include <QAction>
-#include <QDebug>
-#include <QFile>
 
 #include "tobas_qt_tools/path.hpp"
 

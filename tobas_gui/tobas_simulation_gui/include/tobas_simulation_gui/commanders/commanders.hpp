@@ -16,9 +16,6 @@ class CommandersWidget : public QWidget
 {
   Q_OBJECT
 
-  using self = CommandersWidget;
-  using super = QWidget;
-
 public:
   explicit CommandersWidget(const rqt::RosQtBridge& bridge, const kdl::Tree& tree, const Drone& drone);
 

@@ -20,7 +20,6 @@ class RotorWidget : public QWidget
   Q_OBJECT
 
   using self = RotorWidget;
-  using super = QWidget;
 
 Q_SIGNALS:
   void targetRPMChanged(int rpm);

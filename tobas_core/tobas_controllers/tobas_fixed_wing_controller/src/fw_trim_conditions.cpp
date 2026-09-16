@@ -3,8 +3,6 @@
 
 #include "tobas_fixed_wing_controller/fw_trim_conditions.hpp"
 
-#include <tobas_std_tools/console.hpp>
-#include <tobas_std_tools/standard_atmosphere.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_tools/fixed_wing.hpp>
 

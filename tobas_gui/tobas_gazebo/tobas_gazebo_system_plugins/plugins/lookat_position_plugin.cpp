@@ -11,7 +11,6 @@
 #include <tobas_gazebo_common/constants.hpp>
 #include <tobas_gazebo_conversions/gazebo_msg.hpp>
 #include <tobas_gazebo_tools/utils.hpp>
-#include <tobas_ros2_tools/time.hpp>
 
 #include "tobas_gazebo_system_plugins/common/common.hpp"
 
@@ -26,8 +25,6 @@ class GazeboLookAtPositionPlugin : public BaseNode,
                                    public gz::sim::ISystemConfigure,
                                    public gz::sim::ISystemPostUpdate
 {
-  using self = GazeboLookAtPositionPlugin;
-
 public:
   explicit GazeboLookAtPositionPlugin();
 

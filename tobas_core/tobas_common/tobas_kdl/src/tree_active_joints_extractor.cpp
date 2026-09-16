@@ -3,8 +3,6 @@
 
 #include "tobas_kdl/tree_active_joints_extractor.hpp"
 
-using namespace std;
-
 namespace tobas
 {
 namespace kdl

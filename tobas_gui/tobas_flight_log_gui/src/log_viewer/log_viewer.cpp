@@ -14,7 +14,6 @@
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_ros2_tools/rosbag.hpp>
 #include <tobas_ros2_tools/util.hpp>
-#include <tobas_string_tools/chars.hpp>
 
 namespace fs = std::filesystem;
 

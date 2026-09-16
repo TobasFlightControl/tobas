@@ -23,7 +23,6 @@ class MediaManagerWidget : public QWidget
   Q_OBJECT
 
   using self = MediaManagerWidget;
-  using super = QWidget;
 
 Q_SIGNALS:
   void connected(const BootMedia& media);

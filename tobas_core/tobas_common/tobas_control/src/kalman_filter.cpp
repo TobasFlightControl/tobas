@@ -8,10 +8,8 @@
 #include <tobas_eigen_tools/core.hpp>
 #include <tobas_eigen_tools/linalg.hpp>
 
-#include "tobas_control/dare.hpp"
 #include "tobas_control/util.hpp"
 
-using namespace std;
 using namespace Eigen;
 
 namespace tobas

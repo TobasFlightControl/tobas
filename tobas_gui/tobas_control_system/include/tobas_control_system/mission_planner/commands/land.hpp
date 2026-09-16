@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <tobas_mission_items/mission_items.hpp>
+
 #include "../fields/land_speed.hpp"
 #include "./base.hpp"
 
@@ -15,9 +17,6 @@ namespace ctrl
 class LandWidget : public BaseCommandWidget
 {
   Q_OBJECT
-
-  using self = LandWidget;
-  using super = BaseCommandWidget;
 
 public:
   explicit LandWidget();

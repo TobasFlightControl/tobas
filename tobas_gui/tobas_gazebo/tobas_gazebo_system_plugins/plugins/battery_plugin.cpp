@@ -5,7 +5,6 @@
 
 #include <tobas_constants/ros_interface.hpp>
 #include <tobas_gazebo_common/constants.hpp>
-#include <tobas_gazebo_conversions/gazebo_ros.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_ros2_tools/time.hpp>
 

@@ -23,7 +23,6 @@ class BaseSettingWidget : public qt::ScrollArea
   Q_OBJECT
 
   using self = BaseSettingWidget;
-  using super = qt::ScrollArea;
 
 public:
   explicit BaseSettingWidget();

@@ -3,8 +3,6 @@
 
 #include "tobas_kdl/tree_taskspace_vel_ctrl.hpp"
 
-using namespace std;
-
 namespace tobas
 {
 namespace kdl

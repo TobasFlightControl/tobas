@@ -39,7 +39,6 @@ class RotorTestWidget : public BaseWidget
   Q_OBJECT
 
   using self = RotorTestWidget;
-  using super = BaseWidget;
 
 public:
   explicit RotorTestWidget(const rqt::RosQtBridge& bridge, const Drone& drone);

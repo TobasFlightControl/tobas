@@ -22,9 +22,6 @@ class EngineWidget : public qt::TabWidget
 {
   Q_OBJECT
 
-  using self = EngineWidget;
-  using super = qt::TabWidget;
-
 public:
   explicit EngineWidget();
 

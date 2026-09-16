@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <cmath>
+
 #include "./utility.hpp"
 
 namespace tobas

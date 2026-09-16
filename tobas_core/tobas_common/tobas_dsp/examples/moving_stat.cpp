@@ -1,10 +1,14 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <array>
+#include <cstdlib>
+#include <iostream>
 #include <random>
+#include <string>
+#include <vector>
 
 #include <tobas_dsp/moving_stat.hpp>
-#include <tobas_std_tools/vector.hpp>
 
 #define LENGTH 1000
 

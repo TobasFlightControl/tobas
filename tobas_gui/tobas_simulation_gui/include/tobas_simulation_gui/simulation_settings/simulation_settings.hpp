@@ -18,9 +18,6 @@ class SimulationSettingsWidget : public QWidget
 {
   Q_OBJECT
 
-  using self = SimulationSettingsWidget;
-  using super = QWidget;
-
 public:
   explicit SimulationSettingsWidget();
 

@@ -3,7 +3,7 @@
 
 #include "tobas_gazebo_tools/link_world_pose_solver.hpp"
 
-#include <iostream>
+#include <ostream>
 
 #include <gz/common/Console.hh>
 #include <gz/sim/components/Model.hh>

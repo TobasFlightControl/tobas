@@ -19,7 +19,6 @@ class PlaybackControlWidget : public QWidget
   Q_OBJECT
 
   using self = PlaybackControlWidget;
-  using super = QWidget;
 
 Q_SIGNALS:
   void timeChanged(double sec);

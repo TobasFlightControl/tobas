@@ -12,7 +12,6 @@
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_yaml_tools/format.hpp>
 
-#include "tobas_setup_assistant/constants.hpp"
 #include "tobas_setup_assistant/setting_tabs/fixed_wing/constants.hpp"
 #include "tobas_setup_assistant/setting_tabs/fixed_wing/vspaero_parser.hpp"
 

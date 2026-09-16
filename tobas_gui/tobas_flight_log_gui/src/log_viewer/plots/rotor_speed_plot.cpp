@@ -9,7 +9,6 @@
 
 #include <qwt/qwt_scale_engine.h>
 
-#include <tobas_qt_tools/util.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 

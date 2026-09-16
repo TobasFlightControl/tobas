@@ -24,7 +24,6 @@ class ControllerWidget : public BaseSettingWidget
   Q_OBJECT
 
   using self = ControllerWidget;
-  using super = BaseSettingWidget;
 
 public:
   explicit ControllerWidget();

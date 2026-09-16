@@ -10,10 +10,8 @@
 
 #include <tobas_constants/ros_interface.hpp>
 #include <tobas_gazebo_conversions/gazebo_kdl.hpp>
-#include <tobas_gazebo_tools/math.hpp>
 #include <tobas_gazebo_tools/utils.hpp>
 #include <tobas_geographic/geography.hpp>
-#include <tobas_math/core.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_time_tools/util.hpp>
 

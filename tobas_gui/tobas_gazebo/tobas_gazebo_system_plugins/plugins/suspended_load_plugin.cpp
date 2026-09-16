@@ -27,7 +27,6 @@
 #include "tobas_gazebo_system_plugins/common/common.hpp"
 #include "tobas_gazebo_system_plugins/inertia.hpp"
 #include "tobas_gazebo_system_plugins/rate_manager.hpp"
-#include "tobas_gazebo_system_plugins/sdf.hpp"
 #include "tobas_gazebo_system_plugins/sdf_string.hpp"
 #include "tobas_gazebo_system_plugins/world.hpp"
 

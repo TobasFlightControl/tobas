@@ -3,8 +3,6 @@
 
 #include "tobas_qt_tools/string.hpp"
 
-#include <QRegularExpression>
-
 namespace tobas
 {
 namespace qt

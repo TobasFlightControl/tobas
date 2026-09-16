@@ -61,7 +61,6 @@ struct Action : public ActionBase
 
 class RosInterfaceNode : public BaseNode
 {
-  using self = RosInterfaceNode;
   using super = BaseNode;
 
 public:

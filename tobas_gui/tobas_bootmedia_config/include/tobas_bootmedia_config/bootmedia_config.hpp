@@ -19,7 +19,6 @@ class BootmediaConfigWidget : public QWidget
   Q_OBJECT
 
   using self = BootmediaConfigWidget;
-  using super = QWidget;
 
 public:
   explicit BootmediaConfigWidget();

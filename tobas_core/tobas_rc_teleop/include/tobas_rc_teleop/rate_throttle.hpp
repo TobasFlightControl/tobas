@@ -14,7 +14,6 @@ namespace rc
 class RateThrottleController : public BaseController
 {
   using self = RateThrottleController;
-  using super = BaseController;
 
 public:
   explicit RateThrottleController();

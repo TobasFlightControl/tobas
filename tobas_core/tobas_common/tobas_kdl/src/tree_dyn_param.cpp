@@ -3,8 +3,6 @@
 
 #include "tobas_kdl/tree_dyn_param.hpp"
 
-using namespace std;
-
 namespace tobas
 {
 namespace kdl

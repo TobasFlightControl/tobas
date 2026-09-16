@@ -21,7 +21,6 @@ class BatteryViewerWidget : public QWidget
   Q_OBJECT
 
   using self = BatteryViewerWidget;
-  using super = QWidget;
 
 public:
   explicit BatteryViewerWidget(const rqt::RosQtBridge& bridge, const Drone& drone);

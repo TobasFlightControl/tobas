@@ -3,7 +3,7 @@
 
 #include "tobas_gcs/gcs.hpp"
 
-#include <exception>
+#include <memory>
 #include <ranges>
 #include <utility>
 

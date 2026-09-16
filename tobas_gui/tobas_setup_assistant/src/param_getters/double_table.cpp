@@ -4,6 +4,7 @@
 #include "tobas_setup_assistant/param_getters/double_table.hpp"
 
 #include <QDir>
+#include <QFileDialog>
 #include <QFileInfo>
 #include <QHBoxLayout>
 #include <QHeaderView>

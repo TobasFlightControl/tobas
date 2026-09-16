@@ -6,7 +6,6 @@
 #include <tobas_constants/node.hpp>
 #include <tobas_constants/time.hpp>
 #include <tobas_control/lqd.hpp>
-#include <tobas_eigen_tools/core.hpp>
 #include <tobas_kdl/tree_mass_holder.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_ros2_tools/time.hpp>

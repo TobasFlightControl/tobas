@@ -20,9 +20,6 @@ class BatteryWidget_LiPo : public BatteryWidget_Base
 {
   Q_OBJECT
 
-  using self = BatteryWidget_LiPo;
-  using super = BatteryWidget_Base;
-
 public:
   explicit BatteryWidget_LiPo();
 

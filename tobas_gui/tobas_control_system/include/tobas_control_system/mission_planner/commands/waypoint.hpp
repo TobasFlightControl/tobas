@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <tobas_mission_items/mission_items.hpp>
+
 #include "../fields/acceptance_radius.hpp"
 #include "../fields/altitude.hpp"
 #include "../fields/altitude_frame.hpp"
@@ -29,9 +31,6 @@ namespace ctrl
 class WaypointWidget : public BaseCommandWidget
 {
   Q_OBJECT
-
-  using self = WaypointWidget;
-  using super = BaseCommandWidget;
 
 public:
   explicit WaypointWidget();

@@ -7,7 +7,6 @@
 #include <tobas_constants/node.hpp>
 #include <tobas_constants/time.hpp>
 #include <tobas_drone_core/drone.hpp>
-#include <tobas_kdl/tree_joint_parser.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_pose_pid/angle_axis_pi.hpp>
 #include <tobas_pose_pid/position_pid.hpp>

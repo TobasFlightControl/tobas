@@ -21,7 +21,6 @@ class SshAuthorizedKeysWidget : public BaseConfigWidget
   Q_OBJECT
 
   using self = SshAuthorizedKeysWidget;
-  using super = BaseConfigWidget;
 
 public:
   explicit SshAuthorizedKeysWidget();

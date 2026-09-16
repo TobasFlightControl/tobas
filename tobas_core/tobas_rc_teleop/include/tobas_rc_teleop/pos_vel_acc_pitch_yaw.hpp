@@ -17,7 +17,6 @@ namespace rc
 class PosVelAccPitchYawController : public BaseController
 {
   using self = PosVelAccPitchYawController;
-  using super = BaseController;
 
 public:
   explicit PosVelAccPitchYawController();

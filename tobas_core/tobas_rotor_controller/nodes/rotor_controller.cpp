@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <algorithm>
+
 #include <boost/polymorphic_pointer_cast.hpp>
 
-#include <tobas_algorithm/core.hpp>
 #include <tobas_constants/time.hpp>
 #include <tobas_math/core.hpp>
 #include <tobas_node/node.hpp>
-#include <tobas_std_tools/vector.hpp>
 
 #include <tobas_drone_msgs_adapter/drone.hpp>
 #include <tobas_msgs/msg/arming.hpp>

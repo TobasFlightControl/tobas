@@ -16,7 +16,6 @@ class IntGetter : public QWidget
   Q_OBJECT
 
   using self = IntGetter;
-  using super = QWidget;
 
 Q_SIGNALS:
   void valueChanged(int value);

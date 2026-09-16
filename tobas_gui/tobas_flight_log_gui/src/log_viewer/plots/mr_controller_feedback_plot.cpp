@@ -5,8 +5,6 @@
 
 #include <QGridLayout>
 
-#include <tobas_eigen_tools/geometry.hpp>
-#include <tobas_kdl/rotation.hpp>
 #include <tobas_ros2_tools/time.hpp>
 
 namespace tobas

@@ -5,8 +5,6 @@
 
 #include <iostream>
 
-#include <eigen3/Eigen/LU>
-
 #include <tobas_eigen_tools/core.hpp>
 
 #include "tobas_control/care.hpp"

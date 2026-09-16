@@ -4,7 +4,6 @@
 #pragma once
 
 #include <chrono>
-#include <memory>
 
 namespace tobas
 {

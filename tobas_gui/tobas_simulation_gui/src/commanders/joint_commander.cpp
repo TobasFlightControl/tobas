@@ -15,8 +15,6 @@
 
 #include "tobas_simulation_gui/commanders/constants.hpp"
 
-namespace ch = std::chrono;
-
 namespace tobas
 {
 namespace gui

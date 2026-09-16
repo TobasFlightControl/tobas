@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <tobas_mission_items/mission_items.hpp>
+
 #include "../fields/acceptance_radius.hpp"
 #include "../fields/altitude_tolerance.hpp"
 #include "../fields/max_heading_accel.hpp"
@@ -25,9 +27,6 @@ namespace ctrl
 class ReturnToLaunchWidget : public BaseCommandWidget
 {
   Q_OBJECT
-
-  using self = ReturnToLaunchWidget;
-  using super = BaseCommandWidget;
 
 public:
   explicit ReturnToLaunchWidget();

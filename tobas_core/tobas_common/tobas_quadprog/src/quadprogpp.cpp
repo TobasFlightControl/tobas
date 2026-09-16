@@ -5,7 +5,6 @@
 
 #include <QuadProg++/QuadProg++.hh>
 
-using namespace std;
 using namespace Eigen;
 
 namespace quadprogpp

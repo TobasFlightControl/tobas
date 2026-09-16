@@ -21,7 +21,6 @@ class LoginPasswordWidget : public BaseConfigWidget
   Q_OBJECT
 
   using self = LoginPasswordWidget;
-  using super = BaseConfigWidget;
 
 public:
   explicit LoginPasswordWidget();

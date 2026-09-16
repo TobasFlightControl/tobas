@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <QPushButton>
+
 #include <tobas_drone_core/drone.hpp>
 #include <tobas_rqt_bridge/bridge.hpp>
 
@@ -20,7 +22,6 @@ class JointTestWidget : public BaseWidget
   Q_OBJECT
 
   using self = JointTestWidget;
-  using super = BaseWidget;
 
 public:
   explicit JointTestWidget(const rqt::RosQtBridge& bridge, const kdl::Tree& tree, const Drone& drone);

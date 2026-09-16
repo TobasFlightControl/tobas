@@ -37,7 +37,6 @@ class SetupAssistantWidget : public QWidget
   Q_OBJECT
 
   using self = SetupAssistantWidget;
-  using super = QWidget;
 
 public:
   explicit SetupAssistantWidget(rclcpp::Node::SharedPtr node);

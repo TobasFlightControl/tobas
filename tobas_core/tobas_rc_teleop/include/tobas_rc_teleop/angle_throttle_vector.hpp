@@ -16,7 +16,6 @@ namespace rc
 class AngleThrottleVectorController : public BaseController
 {
   using self = AngleThrottleVectorController;
-  using super = BaseController;
 
 public:
   explicit AngleThrottleVectorController();

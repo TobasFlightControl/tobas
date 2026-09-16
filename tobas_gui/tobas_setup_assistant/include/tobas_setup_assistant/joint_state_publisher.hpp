@@ -11,7 +11,6 @@
 #include <QVBoxLayout>
 
 #include <tobas_kdl/tree.hpp>
-#include <tobas_math/definitions.hpp>
 #include <tobas_qt_tools/widgets/slider_display.hpp>
 #include <tobas_ros2_tools/definitions.hpp>
 #include <tobas_uadf/model.hpp>
@@ -36,7 +35,6 @@ class JointStatePublisherWidget : public QWidget
   Q_OBJECT
 
   using self = JointStatePublisherWidget;
-  using super = QWidget;
 
 public:
   explicit JointStatePublisherWidget(std::shared_ptr<rclcpp::Node> node, const uadf::Model& uadf, const kdl::Tree& tree);

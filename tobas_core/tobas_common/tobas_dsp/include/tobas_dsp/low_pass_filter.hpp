@@ -5,7 +5,6 @@
 
 #include <cassert>
 #include <cmath>
-#include <iostream>
 
 #include <tobas_math/definitions.hpp>
 

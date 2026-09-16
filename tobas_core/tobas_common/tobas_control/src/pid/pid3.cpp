@@ -3,7 +3,6 @@
 
 #include "tobas_control/pid/pid3.hpp"
 
-using namespace std;
 using namespace Eigen;
 
 namespace tobas

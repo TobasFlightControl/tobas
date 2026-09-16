@@ -26,7 +26,6 @@ class RCInputViewerWidget : public QWidget
   Q_OBJECT
 
   using self = RCInputViewerWidget;
-  using super = QWidget;
 
 public:
   explicit RCInputViewerWidget(const rqt::RosQtBridge& bridge);

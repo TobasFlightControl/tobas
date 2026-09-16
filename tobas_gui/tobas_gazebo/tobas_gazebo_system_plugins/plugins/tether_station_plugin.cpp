@@ -24,7 +24,6 @@
 
 #include "tobas_gazebo_system_plugins/common/common.hpp"
 #include "tobas_gazebo_system_plugins/rate_manager.hpp"
-#include "tobas_gazebo_system_plugins/sdf.hpp"
 
 namespace cmp = gz::sim::components;
 

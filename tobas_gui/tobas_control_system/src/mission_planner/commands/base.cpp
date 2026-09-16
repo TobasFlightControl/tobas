@@ -9,6 +9,7 @@
 #include <QLabel>
 #include <QStackedWidget>
 #include <QTimer>
+#include <QVBoxLayout>
 
 #include <tobas_qt_tools/font.hpp>
 #include <tobas_qt_tools/widgets/scroll_area.hpp>

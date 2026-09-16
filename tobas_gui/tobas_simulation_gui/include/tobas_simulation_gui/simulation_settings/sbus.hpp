@@ -5,7 +5,6 @@
 
 #include <filesystem>
 
-#include <QComboBox>
 #include <QDir>
 #include <QTimer>
 #include <QWidget>
@@ -23,7 +22,6 @@ class SbusWidget : public QWidget
   Q_OBJECT
 
   using self = SbusWidget;
-  using super = QWidget;
 
 public:
   explicit SbusWidget();

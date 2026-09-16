@@ -3,7 +3,6 @@
 
 #include "tobas_simulation_gui/dynamic_configuration/wind_parameters.hpp"
 
-#include <QDebug>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
@@ -16,8 +15,6 @@
 #include <tobas_std_tools/unit_conversions.hpp>
 
 #include "tobas_simulation_gui/dynamic_configuration/constants.hpp"
-
-namespace ch = std::chrono;
 
 namespace tobas
 {

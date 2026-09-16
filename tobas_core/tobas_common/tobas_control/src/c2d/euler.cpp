@@ -3,7 +3,6 @@
 
 #include "tobas_control/c2d/euler.hpp"
 
-using namespace std;
 using namespace Eigen;
 
 namespace tobas

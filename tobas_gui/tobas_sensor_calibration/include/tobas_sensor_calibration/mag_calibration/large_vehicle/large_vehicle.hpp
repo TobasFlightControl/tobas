@@ -22,7 +22,6 @@ class LargeVehicleMagCalibWidget : public BaseMagCalibWidget
   Q_OBJECT
 
   using self = LargeVehicleMagCalibWidget;
-  using super = BaseMagCalibWidget;
 
 public:
   explicit LargeVehicleMagCalibWidget(const rqt::RosQtBridge& bridge);

@@ -18,7 +18,6 @@ class TobasLookAtCamera : public gz::gui::Plugin
 {
   Q_OBJECT
 
-  using self = TobasLookAtCamera;
   using super = gz::gui::Plugin;
 
 public:

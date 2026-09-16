@@ -19,7 +19,6 @@ class CpuViewerWidget : public QWidget
   Q_OBJECT
 
   using self = CpuViewerWidget;
-  using super = QWidget;
 
 public:
   explicit CpuViewerWidget(const rqt::RosQtBridge& bridge);

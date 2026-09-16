@@ -23,7 +23,6 @@ class AerodynamicsCoefficientsWidget : public QWidget
   Q_OBJECT
 
   using self = AerodynamicsCoefficientsWidget;
-  using super = QWidget;
 
 public:
   explicit AerodynamicsCoefficientsWidget();

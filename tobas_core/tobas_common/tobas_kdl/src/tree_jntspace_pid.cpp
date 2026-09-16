@@ -3,8 +3,6 @@
 
 #include "tobas_kdl/tree_jntspace_pid.hpp"
 
-using namespace std;
-
 namespace tobas
 {
 namespace kdl

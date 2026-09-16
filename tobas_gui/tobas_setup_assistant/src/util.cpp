@@ -5,8 +5,6 @@
 
 #include <ament_index_cpp/get_package_share_directory.hpp>
 
-#include "tobas_setup_assistant/constants.hpp"
-
 namespace fs = std::filesystem;
 
 namespace tobas

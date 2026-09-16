@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include <QFileDialog>
 #include <QSettings>
 #include <eigen3/Eigen/Core>
 

@@ -18,7 +18,6 @@ namespace rc
 class PosVelAccAngleController : public BaseController
 {
   using self = PosVelAccAngleController;
-  using super = BaseController;
 
 public:
   explicit PosVelAccAngleController();

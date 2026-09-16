@@ -5,7 +5,6 @@
 
 #include <filesystem>
 
-#include <QDebug>
 #include <QFormLayout>
 
 #include <tobas_crypt/crypt.hpp>

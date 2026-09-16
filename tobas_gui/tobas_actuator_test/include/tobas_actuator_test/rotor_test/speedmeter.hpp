@@ -15,9 +15,6 @@ class SpeedmeterWidget : public QQuickWidget
 {
   Q_OBJECT
 
-  using self = SpeedmeterWidget;
-  using super = QQuickWidget;
-
 public:
   explicit SpeedmeterWidget();
 

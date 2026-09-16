@@ -3,8 +3,6 @@
 
 #include "tobas_gcs/restart_button.hpp"
 
-#include <QGraphicsDropShadowEffect>
-
 namespace tobas
 {
 namespace gui

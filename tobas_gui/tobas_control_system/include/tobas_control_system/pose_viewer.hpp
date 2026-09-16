@@ -17,7 +17,6 @@ class PoseViewerWidget : public qt::Widget
   Q_OBJECT
 
   using self = PoseViewerWidget;
-  using super = qt::Widget;
 
 public:
   explicit PoseViewerWidget(const rqt::RosQtBridge& bridge);

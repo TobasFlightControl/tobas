@@ -31,8 +31,6 @@ class GazeboJointStateBroadcasterPlugin : public BaseNode,
                                           public gz::sim::ISystemConfigure,
                                           public gz::sim::ISystemPostUpdate
 {
-  using self = GazeboJointStateBroadcasterPlugin;
-
 public:
   explicit GazeboJointStateBroadcasterPlugin();
 

@@ -8,7 +8,6 @@
 
 #include <tobas_eigen_tools/geometry.hpp>
 #include <tobas_std_tools/map.hpp>
-#include <tobas_std_tools/standard_atmosphere.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_tools/fixed_wing.hpp>
 

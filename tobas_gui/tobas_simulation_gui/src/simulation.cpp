@@ -13,7 +13,6 @@
 #include <tobas_constants/path.hpp>
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_gui_common/local_project_builder.hpp>
-#include <tobas_linux/error.hpp>
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/path.hpp>

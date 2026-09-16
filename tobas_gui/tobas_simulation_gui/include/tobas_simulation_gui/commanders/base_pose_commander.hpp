@@ -31,7 +31,6 @@ class BasePoseCommanderWidget : public QWidget
   Q_OBJECT
 
   using self = BasePoseCommanderWidget;
-  using super = QWidget;
 
 public:
   explicit BasePoseCommanderWidget(const rqt::RosQtBridge& bridge);

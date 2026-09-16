@@ -5,8 +5,6 @@
 
 #include <ranges>
 
-#include <tobas_std_tools/universal_constants.hpp>
-
 namespace tobas
 {
 namespace planar_multicopter

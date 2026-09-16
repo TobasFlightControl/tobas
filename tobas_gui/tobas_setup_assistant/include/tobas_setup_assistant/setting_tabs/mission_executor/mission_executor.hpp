@@ -22,9 +22,6 @@ class MissionExecutorWidget : public BaseSettingWidget
 {
   Q_OBJECT
 
-  using self = MissionExecutorWidget;
-  using super = BaseSettingWidget;
-
 public:
   explicit MissionExecutorWidget();
 

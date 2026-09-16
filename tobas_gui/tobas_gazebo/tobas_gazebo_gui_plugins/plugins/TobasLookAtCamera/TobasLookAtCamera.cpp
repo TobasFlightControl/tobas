@@ -3,7 +3,6 @@
 
 #include "./TobasLookAtCamera.hpp"
 
-#include <boost/polymorphic_pointer_cast.hpp>
 #include <gz/common/Console.hh>
 #include <gz/gui/Application.hh>
 #include <gz/gui/GuiEvents.hh>

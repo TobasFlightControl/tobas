@@ -14,8 +14,6 @@ namespace quadprog
  */
 class QpOasesSolver : public QuadProgSolver
 {
-  using super = QuadProgSolver;
-
 public:
   explicit QpOasesSolver();
 

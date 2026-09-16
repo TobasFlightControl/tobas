@@ -7,8 +7,6 @@
 
 #include <tobas_math/core.hpp>
 
-#include "tobas_qt_tools/event.hpp"
-
 using namespace std::chrono_literals;
 
 namespace tobas

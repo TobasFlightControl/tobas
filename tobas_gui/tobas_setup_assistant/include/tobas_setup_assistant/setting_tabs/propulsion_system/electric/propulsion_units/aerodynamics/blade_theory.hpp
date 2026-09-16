@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include <tobas_math/definitions.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 
 namespace tobas

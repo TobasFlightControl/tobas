@@ -15,7 +15,6 @@ namespace rc
 class AccelRateController : public BaseController
 {
   using self = AccelRateController;
-  using super = BaseController;
 
 public:
   explicit AccelRateController();

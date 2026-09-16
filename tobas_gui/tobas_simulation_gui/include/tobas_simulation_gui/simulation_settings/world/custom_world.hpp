@@ -20,7 +20,6 @@ class CustomWorldWidget : public BaseWorldWidget
   Q_OBJECT
 
   using self = CustomWorldWidget;
-  using super = BaseWorldWidget;
 
 public:
   explicit CustomWorldWidget();

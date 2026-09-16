@@ -20,9 +20,6 @@ class ActuatorTestWidget : public qt::VerticalTabWidget
 {
   Q_OBJECT
 
-  using self = ActuatorTestWidget;
-  using super = qt::VerticalTabWidget;
-
 public:
   explicit ActuatorTestWidget(const rqt::RosQtBridge& bridge, const kdl::Tree& tree, const Drone& drone);
 

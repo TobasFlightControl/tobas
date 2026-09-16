@@ -12,7 +12,6 @@
 #include <rviz_common/panel.hpp>
 
 #include "../ogre_helpers/ogre_controller.hpp"
-#include "../ogre_helpers/static_link_updater.hpp"
 #include "../view_model/urdf_view_model.hpp"
 #include "./update_link_dialog.hpp"
 
@@ -37,7 +36,6 @@ class UrdfBuilderPanel : public rviz_common::Panel
   Q_OBJECT
 
   using self = UrdfBuilderPanel;
-  using super = rviz_common::Panel;
 
 public:
   explicit UrdfBuilderPanel(QWidget* parent = nullptr);

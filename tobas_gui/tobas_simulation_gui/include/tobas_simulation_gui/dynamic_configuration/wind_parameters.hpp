@@ -24,7 +24,6 @@ class WindParamsWidget : public QWidget
   Q_OBJECT
 
   using self = WindParamsWidget;
-  using super = QWidget;
   using GetSrv = tobas_gazebo_msgs::srv::GetWindParams;
   using SetSrv = tobas_gazebo_msgs::srv::SetWindParams;
 

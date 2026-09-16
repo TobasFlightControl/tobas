@@ -4,8 +4,7 @@
 #include "tobas_trajectory_generation/online/velocity_limited.hpp"
 
 #include <cassert>
-
-#include <tobas_math/core.hpp>
+#include <cmath>
 
 namespace tobas
 {

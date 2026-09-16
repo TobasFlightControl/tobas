@@ -17,7 +17,6 @@ namespace rc
 class AccelAngleController : public BaseController
 {
   using self = AccelAngleController;
-  using super = BaseController;
 
 public:
   explicit AccelAngleController();

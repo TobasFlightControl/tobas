@@ -3,7 +3,6 @@
 
 #include "tobas_bootmedia_config/hostname/hostname.hpp"
 
-#include <QDebug>
 #include <QFormLayout>
 #include <inja/inja.hpp>
 

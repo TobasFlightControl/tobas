@@ -22,9 +22,6 @@ class MagCalibrationWidget : public BaseWidget
 {
   Q_OBJECT
 
-  using self = MagCalibrationWidget;
-  using super = BaseWidget;
-
 public:
   explicit MagCalibrationWidget(const rqt::RosQtBridge& bridge);
 

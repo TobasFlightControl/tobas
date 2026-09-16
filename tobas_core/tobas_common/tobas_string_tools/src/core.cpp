@@ -4,7 +4,6 @@
 #include "tobas_string_tools/core.hpp"
 
 #include <algorithm>
-#include <cstdint>
 #include <iostream>
 #include <map>
 #include <regex>

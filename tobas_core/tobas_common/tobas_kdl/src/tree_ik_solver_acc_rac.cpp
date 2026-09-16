@@ -3,7 +3,7 @@
 
 #include "tobas_kdl/tree_ik_solver_acc_rac.hpp"
 
-#include <tobas_eigen_tools/linalg.hpp>
+#include <tobas_eigen_tools/core.hpp>
 #include <tobas_quadprog/utils.hpp>
 
 using namespace std;

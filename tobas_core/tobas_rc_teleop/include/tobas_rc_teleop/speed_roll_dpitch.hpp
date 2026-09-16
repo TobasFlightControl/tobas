@@ -14,7 +14,6 @@ namespace rc
 class SpeedRollDeltaPitchController : public BaseController
 {
   using self = SpeedRollDeltaPitchController;
-  using super = BaseController;
 
 public:
   explicit SpeedRollDeltaPitchController();

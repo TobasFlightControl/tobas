@@ -3,10 +3,8 @@
 
 #include "tobas_trajectory_generation/offline/jerk_limited.hpp"
 
-#include <algorithm>
 #include <cassert>
 #include <iostream>
-#include <limits>
 
 #include <tobas_math/core.hpp>
 

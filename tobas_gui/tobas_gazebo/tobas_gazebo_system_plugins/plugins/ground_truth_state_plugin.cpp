@@ -12,7 +12,6 @@
 #include <gz/sim/components/ParentEntity.hh>
 #include <gz/sim/components/Pose.hh>
 
-#include <tobas_constants/ros_interface.hpp>
 #include <tobas_gazebo_common/constants.hpp>
 #include <tobas_gazebo_conversions/gazebo_kdl.hpp>
 #include <tobas_gazebo_tools/utils.hpp>
@@ -34,8 +33,6 @@ class GazeboGroundTruthStatePlugin : public BaseNode,
                                      public gz::sim::ISystemConfigure,
                                      public gz::sim::ISystemPostUpdate
 {
-  using self = GazeboGroundTruthStatePlugin;
-
 public:
   explicit GazeboGroundTruthStatePlugin();
 

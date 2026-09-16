@@ -3,8 +3,6 @@
 
 #include "tobas_kdl/tree_joint_parser.hpp"
 
-using namespace std;
-
 namespace tobas
 {
 namespace kdl

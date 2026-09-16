@@ -4,7 +4,6 @@
 #pragma once
 
 #include <expected>
-#include <memory>
 #include <optional>
 #include <string>
 #include <vector>
@@ -30,7 +29,6 @@
 #include <tobas_ros2_tools/async_node_manager.hpp>
 #include <tobas_sensor_calibration/sensor_calibration.hpp>
 #include <tobas_simulation_gui/simulation.hpp>
-#include <tobas_ssh_client/ssh_client.hpp>
 #include <tobas_uadf/model.hpp>
 #include <tobas_uadf/parser.hpp>
 
@@ -53,7 +51,6 @@ class GroundControlStationWidget : public QWidget
   Q_OBJECT
 
   using self = GroundControlStationWidget;
-  using super = QWidget;
 
 public:
   explicit GroundControlStationWidget(int argc, char** argv);

@@ -7,7 +7,6 @@
 #include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/util.hpp>
-#include <tobas_std_tools/array.hpp>
 #include <tobas_std_tools/check.hpp>
 
 namespace tobas

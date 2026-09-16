@@ -3,8 +3,6 @@
 
 #include <optional>
 
-#include <ranges>
-
 #include <gz/sim/Joint.hh>
 #include <gz/sim/Link.hh>
 #include <gz/sim/Model.hh>
@@ -23,7 +21,6 @@
 #include <tobas_std_tools/check.hpp>
 #include <tobas_std_tools/range.hpp>
 #include <tobas_std_tools/standard_atmosphere.hpp>
-#include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_tools/fixed_wing.hpp>
 
 #include <tobas_gazebo_msgs/msg/fixed_wing_debug.hpp>

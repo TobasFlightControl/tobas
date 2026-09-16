@@ -21,7 +21,6 @@ class HostnameWidget : public BaseConfigWidget
   Q_OBJECT
 
   using self = HostnameWidget;
-  using super = BaseConfigWidget;
 
 public:
   explicit HostnameWidget();

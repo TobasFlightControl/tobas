@@ -3,7 +3,6 @@
 
 #include "tobas_simulation_gui/dynamic_configuration/suspended_load.hpp"
 
-#include <QDebug>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
@@ -17,8 +16,6 @@
 #include <tobas_string_tools/core.hpp>
 
 #include "tobas_simulation_gui/dynamic_configuration/constants.hpp"
-
-namespace ch = std::chrono;
 
 namespace tobas
 {

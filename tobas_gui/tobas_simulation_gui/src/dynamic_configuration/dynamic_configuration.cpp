@@ -3,14 +3,11 @@
 
 #include "tobas_simulation_gui/dynamic_configuration/dynamic_configuration.hpp"
 
-#include <QDebug>
 #include <QVBoxLayout>
 
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
-
-namespace ch = std::chrono;
 
 namespace tobas
 {

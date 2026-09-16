@@ -15,7 +15,6 @@ class QwtPlot2 : public QwtPlot
 {
   Q_OBJECT
 
-  using self = QwtPlot2;
   using super = QwtPlot;
 
 public:

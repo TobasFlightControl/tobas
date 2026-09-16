@@ -20,9 +20,6 @@ class TransmissionWidget : public BaseSelectedLinkSettingWidget
 {
   Q_OBJECT
 
-  using self = TransmissionWidget;
-  using super = BaseSelectedLinkSettingWidget;
-
 public:
   explicit TransmissionWidget();
 

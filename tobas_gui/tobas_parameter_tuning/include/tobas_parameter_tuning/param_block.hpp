@@ -52,7 +52,6 @@ class ParamBlockWidget : public QWidget
   Q_OBJECT
 
   using self = ParamBlockWidget;
-  using super = QWidget;
 
 public:
   explicit ParamBlockWidget(const std::string& node_name, const QString& label);

@@ -15,9 +15,6 @@ class DebugWidget : public QWidget
 {
   Q_OBJECT
 
-  using self = DebugWidget;
-  using super = QWidget;
-
 public:
   explicit DebugWidget();
 

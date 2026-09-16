@@ -21,7 +21,6 @@ class RemoteConnectionWidget : public QWidget
   Q_OBJECT
 
   using self = RemoteConnectionWidget;
-  using super = QWidget;
 
 Q_SIGNALS:
   void disconnected();

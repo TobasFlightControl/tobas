@@ -4,6 +4,7 @@
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/aerodynamics/blade_theory.hpp"
 
 #include <tobas_math/core.hpp>
+#include <tobas_math/definitions.hpp>
 #include <tobas_std_tools/check.hpp>
 
 namespace tobas

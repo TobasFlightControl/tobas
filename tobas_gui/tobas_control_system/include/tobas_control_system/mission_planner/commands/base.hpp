@@ -6,10 +6,8 @@
 #include <QLabel>
 #include <QMap>
 #include <QPushButton>
-#include <QVBoxLayout>
 #include <QWidget>
 
-#include <tobas_mission_items/mission_items.hpp>
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_qt_tools/widgets/check_box.hpp>
 
@@ -26,7 +24,6 @@ class BaseCommandWidget : public QWidget
   Q_OBJECT
 
   using self = BaseCommandWidget;
-  using super = QWidget;
 
 Q_SIGNALS:
   void updated();

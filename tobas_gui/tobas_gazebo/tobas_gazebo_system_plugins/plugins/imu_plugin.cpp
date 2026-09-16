@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <cmath>
 #include <optional>
 
 #include <gz/sim/components/AngularAcceleration.hh>
@@ -21,11 +22,9 @@
 #include <tobas_gazebo_conversions/gazebo_ros.hpp>
 #include <tobas_gazebo_tools/model_mass_holder.hpp>
 #include <tobas_gazebo_tools/utils.hpp>
-#include <tobas_math/core.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_std_tools/check.hpp>
-#include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_tools/imu_sampling_time_publisher.hpp>
 
 #include <tobas_gazebo_msgs/msg/engine_state.hpp>

@@ -22,9 +22,6 @@ class MapWidget : public QQuickWidget
 {
   Q_OBJECT
 
-  using self = MapWidget;
-  using super = QQuickWidget;
-
 Q_SIGNALS:
   void waypointMoved(int index, double latitude, double longitude);
 

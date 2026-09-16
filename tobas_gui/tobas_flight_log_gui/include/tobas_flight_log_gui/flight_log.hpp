@@ -19,7 +19,6 @@ class FlightLogWidget : public QWidget
   Q_OBJECT
 
   using self = FlightLogWidget;
-  using super = QWidget;
 
 public:
   explicit FlightLogWidget(const rqt::RosQtBridge& bridge);

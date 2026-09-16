@@ -3,8 +3,6 @@
 
 #include "tobas_ic_drivers/bmm150.hpp"
 
-#include <bitset>
-#include <cstring>
 #include <iostream>
 #include <thread>
 

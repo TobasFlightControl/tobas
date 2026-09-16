@@ -18,9 +18,6 @@ class FailsafeWidget : public BaseSettingWidget
 {
   Q_OBJECT
 
-  using self = FailsafeWidget;
-  using super = BaseSettingWidget;
-
   static constexpr size_t kRtComplianceIdx = 0;
   static constexpr size_t kBatteryVoltageIdx = kRtComplianceIdx + 1;
   static constexpr size_t kCpuTempIdx = kBatteryVoltageIdx + 1;

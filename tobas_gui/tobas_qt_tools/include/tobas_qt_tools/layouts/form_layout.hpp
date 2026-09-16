@@ -17,9 +17,6 @@ class FormLayout : public QFormLayout
 {
   Q_OBJECT
 
-  using self = FormLayout;
-  using super = QFormLayout;
-
 public:
   using QFormLayout::QFormLayout;
 

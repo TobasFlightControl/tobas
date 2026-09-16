@@ -15,9 +15,6 @@ class AppButton : public QToolButton
 {
   Q_OBJECT
 
-  using self = AppButton;
-  using super = QToolButton;
-
 public:
   explicit AppButton(const QString& text, const QString& icon_path);
 };

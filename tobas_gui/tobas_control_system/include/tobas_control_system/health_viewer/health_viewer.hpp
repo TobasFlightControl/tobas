@@ -19,7 +19,6 @@ class HealthViewerWidget : public qt::ScrollArea
   Q_OBJECT
 
   using self = HealthViewerWidget;
-  using super = qt::ScrollArea;
 
 public:
   explicit HealthViewerWidget(const rqt::RosQtBridge& bridge);

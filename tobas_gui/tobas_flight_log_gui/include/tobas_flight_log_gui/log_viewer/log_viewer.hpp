@@ -22,7 +22,6 @@ class FlightLogViewerWidget : public QWidget
   Q_OBJECT
 
   using self = FlightLogViewerWidget;
-  using super = QWidget;
 
 public:
   explicit FlightLogViewerWidget();

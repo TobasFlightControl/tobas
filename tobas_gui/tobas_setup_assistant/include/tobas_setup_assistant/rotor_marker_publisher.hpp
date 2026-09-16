@@ -26,7 +26,6 @@ class RotorMarkerPublisher : public QObject
   Q_OBJECT
 
   using self = RotorMarkerPublisher;
-  using super = QObject;
 
 public:
   explicit RotorMarkerPublisher(rclcpp::Node::SharedPtr node, const uadf::Model& uadf);

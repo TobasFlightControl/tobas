@@ -3,11 +3,9 @@
 
 #include <unistd.h>
 
-#include <iostream>
+#include <cstdlib>
 
 #include <tobas_linux/schedule.hpp>
-
-using namespace std;
 
 int main()
 {

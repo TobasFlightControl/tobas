@@ -32,7 +32,6 @@
 #include <tobas_msgs_adapter/odometry_with_covariance_stamped.hpp>
 
 #include "tobas_eskf/eskf.hpp"
-#include "tobas_eskf/util.hpp"
 
 using namespace Eigen;
 

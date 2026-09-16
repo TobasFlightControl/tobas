@@ -23,7 +23,6 @@ class AccelCalibrationWidget : public BaseWidget
   Q_OBJECT
 
   using self = AccelCalibrationWidget;
-  using super = BaseWidget;
 
 public:
   explicit AccelCalibrationWidget(const rqt::RosQtBridge& bridge);

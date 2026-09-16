@@ -4,7 +4,6 @@
 #include "tobas_gazebo_system_plugins/depth_noise_models.hpp"
 
 #include <algorithm>
-#include <iostream>
 
 #include <eigen3/Eigen/Core>
 

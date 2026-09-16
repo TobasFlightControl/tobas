@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include <cmath>
-
 namespace tobas
 {
 namespace kdl

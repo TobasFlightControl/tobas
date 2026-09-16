@@ -21,7 +21,6 @@ class WorldWidget : public QWidget
   Q_OBJECT
 
   using self = WorldWidget;
-  using super = QWidget;
 
 public:
   explicit WorldWidget();

@@ -7,6 +7,7 @@
 #include <cmath>
 
 #include <QPainter>
+#include <QPointF>
 
 #include <tobas_std_tools/unit_conversions.hpp>
 

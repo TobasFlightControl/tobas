@@ -5,7 +5,6 @@
 
 #include <cstring>
 #include <iostream>
-#include <stdexcept>
 #include <string>
 
 #include <tobas_std_tools/cmdline_parser.hpp>

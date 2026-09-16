@@ -21,9 +21,6 @@ class EngineResponseWidget : public QWidget
 {
   Q_OBJECT
 
-  using self = EngineResponseWidget;
-  using super = QWidget;
-
 public:
   explicit EngineResponseWidget();
 

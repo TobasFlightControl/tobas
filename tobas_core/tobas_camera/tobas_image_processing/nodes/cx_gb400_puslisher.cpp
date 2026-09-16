@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include <linux/videodev2.h>
-
 #include <cv_bridge/cv_bridge.hpp>
 #include <eigen3/Eigen/Geometry>
 #include <ffmpeg_encoder_decoder/encoder.hpp>

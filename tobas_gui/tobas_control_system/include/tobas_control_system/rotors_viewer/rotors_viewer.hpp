@@ -21,7 +21,6 @@ class RotorsViewerWiddget : public QWidget
   Q_OBJECT
 
   using self = RotorsViewerWiddget;
-  using super = QWidget;
 
 public:
   explicit RotorsViewerWiddget(const rqt::RosQtBridge& bridge, const Drone& drone);

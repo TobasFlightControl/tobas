@@ -31,7 +31,6 @@ class MissionPlannerWidget : public QWidget
   Q_OBJECT
 
   using self = MissionPlannerWidget;
-  using super = QWidget;
 
   using Action = tobas_mission_msgs::action::ExecuteMission;
   using Client = rclcpp_action::Client<Action>;

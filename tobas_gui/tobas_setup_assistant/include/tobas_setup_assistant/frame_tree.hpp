@@ -20,7 +20,6 @@ class FrameTreeWidget : public QTreeWidget
   Q_OBJECT
 
   using self = FrameTreeWidget;
-  using super = QTreeWidget;
 
 public:
   explicit FrameTreeWidget(const kdl::Tree& tree, RvizWidget* rviz);

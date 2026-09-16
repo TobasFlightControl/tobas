@@ -28,7 +28,6 @@ class JointCommanderWidget : public QWidget
   Q_OBJECT
 
   using self = JointCommanderWidget;
-  using super = QWidget;
   using CmdMsg = tobas_msgs::msg::JointCommandArray;
 
 public:

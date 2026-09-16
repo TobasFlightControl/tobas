@@ -23,7 +23,6 @@ class EngineViewerWidget : public QWidget
   Q_OBJECT
 
   using self = EngineViewerWidget;
-  using super = QWidget;
 
 public:
   explicit EngineViewerWidget(const rqt::RosQtBridge& bridge, const Drone& drone);

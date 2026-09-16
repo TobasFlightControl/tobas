@@ -3,11 +3,8 @@
 
 #include "tobas_kdl/chain_ik_solver_vel_pinv.hpp"
 
-#include <iostream>
-
 #include <eigen3/Eigen/SVD>
 
-using namespace std;
 using namespace Eigen;
 
 namespace tobas

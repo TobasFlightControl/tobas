@@ -4,10 +4,8 @@
 #include "tobas_actuator_test/joint_test/joint_test.hpp"
 
 #include <tobas_gui_common/constants.hpp>
-#include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
-#include <tobas_ros2_tools/register.hpp>
 
 namespace tobas
 {

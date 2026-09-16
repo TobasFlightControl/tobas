@@ -16,9 +16,6 @@ class DynamicConfigWidget : public QWidget
 {
   Q_OBJECT
 
-  using self = DynamicConfigWidget;
-  using super = QWidget;
-
 public:
   explicit DynamicConfigWidget();
 

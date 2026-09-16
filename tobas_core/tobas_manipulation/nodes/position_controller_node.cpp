@@ -1,16 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include <optional>
-
 #include <tobas_constants/ros_interface.hpp>
-#include <tobas_kdl/tree_active_joints_extractor.hpp>
-#include <tobas_kdl_conversions/kdl_msg.hpp>
 #include <tobas_node/node.hpp>
-#include <tobas_tools/tree_joint_state_converter.hpp>
 
 #include <tobas_drone_msgs_adapter/drone.hpp>
 #include <tobas_msgs/msg/joint_command_array.hpp>
+#include <tobas_msgs/msg/joint_state_array.hpp>
 #include <tobas_msgs_adapter/link_state_array.hpp>
 
 #include "tobas_manipulation/constants.hpp"

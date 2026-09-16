@@ -4,10 +4,8 @@
 #include "tobas_linux/uart_dev.hpp"
 
 #include <fcntl.h>
-#include <sys/ioctl.h>
 #include <unistd.h>
 
-#include <cstring>
 #include <iostream>
 #include <thread>
 

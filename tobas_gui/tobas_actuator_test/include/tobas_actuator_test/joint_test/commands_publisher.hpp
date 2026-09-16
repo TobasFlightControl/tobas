@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include <QPushButton>
 #include <QTimer>
 #include <QVBoxLayout>
 #include <QWidget>
@@ -28,7 +27,6 @@ class JointCommandsPublisherWidget : public QWidget
   Q_OBJECT
 
   using self = JointCommandsPublisherWidget;
-  using super = QWidget;
 
 public:
   explicit JointCommandsPublisherWidget(const kdl::Tree& tree, const Drone& drone);

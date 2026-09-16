@@ -14,7 +14,6 @@ class LabeledDoubleSpinBox : public QWidget
   Q_OBJECT
 
   using self = LabeledDoubleSpinBox;
-  using super = QWidget;
 
 Q_SIGNALS:
   void valueChanged(double value);

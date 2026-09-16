@@ -6,10 +6,11 @@
 #include <malloc.h>
 #include <sys/mman.h>
 #include <sys/resource.h>
+#include <unistd.h>
 
 #include <cstring>
 #include <iostream>
-#include <memory>
+#include <new>
 #include <vector>
 
 #include "tobas_linux/error.hpp"

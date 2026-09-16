@@ -3,7 +3,6 @@
 
 #include <boost/polymorphic_pointer_cast.hpp>
 
-#include <tobas_constants/path.hpp>
 #include <tobas_constants/time.hpp>
 #include <tobas_drone_core/propulsion_system/electric_propulsion_system/electric_propulsion_system.hpp>
 #include <tobas_fc2xx_core/dshot.hpp>

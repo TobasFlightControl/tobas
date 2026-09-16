@@ -16,9 +16,6 @@ class AuthorInformationWidget : public BaseSettingWidget
 {
   Q_OBJECT
 
-  using self = AuthorInformationWidget;
-  using super = BaseSettingWidget;
-
 public:
   explicit AuthorInformationWidget();
 

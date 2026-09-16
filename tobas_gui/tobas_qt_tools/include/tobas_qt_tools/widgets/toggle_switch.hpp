@@ -13,7 +13,6 @@ class ToggleSwitch : public qt::Widget
 {
   Q_OBJECT
 
-  using self = ToggleSwitch;
   using super = qt::Widget;
 
 Q_SIGNALS:

@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include <fcntl.h>
-#include <linux/videodev2.h>
-#include <unistd.h>
-
 #include <cv_bridge/cv_bridge.hpp>
 #include <ffmpeg_encoder_decoder/encoder.hpp>
 #include <ffmpeg_image_transport_msgs/msg/ffmpeg_packet.hpp>
@@ -12,9 +8,7 @@
 #include <opencv2/core/types.hpp>
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc.hpp>
-#include <sensor_msgs/image_encodings.hpp>
 
-#include <tobas_linux/video_dev.hpp>
 #include <tobas_node/node.hpp>
 
 #include <sensor_msgs/msg/compressed_image.hpp>

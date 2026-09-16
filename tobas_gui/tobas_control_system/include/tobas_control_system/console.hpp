@@ -17,7 +17,6 @@ class ConsoleWidget : public QWidget
   Q_OBJECT
 
   using self = ConsoleWidget;
-  using super = QWidget;
 
 public:
   explicit ConsoleWidget(const rqt::RosQtBridge& bridge);

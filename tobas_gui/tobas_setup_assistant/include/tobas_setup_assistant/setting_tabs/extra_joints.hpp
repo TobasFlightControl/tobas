@@ -4,7 +4,6 @@
 #pragma once
 
 #include <QLabel>
-#include <QPushButton>
 
 #include <tobas_drone_core/joint/command_interface.hpp>
 #include <tobas_drone_core/joint/role.hpp>
@@ -25,9 +24,6 @@ namespace sa
 class ExtraJointsWidget : public BaseSettingWidget
 {
   Q_OBJECT
-
-  using self = ExtraJointsWidget;
-  using super = BaseSettingWidget;
 
 public:
   explicit ExtraJointsWidget(const uadf::Model& uadf, const kdl::Tree& tree);

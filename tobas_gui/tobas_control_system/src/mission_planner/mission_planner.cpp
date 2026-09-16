@@ -14,7 +14,6 @@
 #include <tobas_geographic/geography.hpp>
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_mission_msgs_adapter/mission.hpp>
-#include <tobas_path_tools/core.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>

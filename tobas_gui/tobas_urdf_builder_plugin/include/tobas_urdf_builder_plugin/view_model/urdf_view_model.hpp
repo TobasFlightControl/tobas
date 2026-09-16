@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include <memory>
-
 #include <tinyxml2.h>
 #include <urdf/model.h>
 

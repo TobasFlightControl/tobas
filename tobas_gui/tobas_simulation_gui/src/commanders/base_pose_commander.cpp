@@ -3,7 +3,6 @@
 
 #include "tobas_simulation_gui/commanders/base_pose_commander.hpp"
 
-#include <QDebug>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
@@ -11,13 +10,10 @@
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/message.hpp>
-#include <tobas_qt_tools/util.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 
 #include "tobas_simulation_gui/commanders/constants.hpp"
-
-namespace ch = std::chrono;
 
 namespace tobas
 {

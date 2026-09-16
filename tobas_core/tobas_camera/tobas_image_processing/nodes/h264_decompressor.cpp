@@ -1,18 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include <fcntl.h>
-#include <linux/videodev2.h>
-#include <unistd.h>
-
 #include <ffmpeg_encoder_decoder/decoder.hpp>
-#include <ffmpeg_encoder_decoder/utils.hpp>
 #include <ffmpeg_image_transport_msgs/msg/ffmpeg_packet.hpp>
 
-#include <tobas_linux/video_dev.hpp>
 #include <tobas_node/node.hpp>
 
-#include <sensor_msgs/msg/compressed_image.hpp>
 #include <sensor_msgs/msg/image.hpp>
 
 using namespace std::placeholders;

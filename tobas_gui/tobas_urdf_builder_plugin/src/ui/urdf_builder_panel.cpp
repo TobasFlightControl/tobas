@@ -8,12 +8,9 @@
 #include <QMessageBox>
 #include <boost/polymorphic_cast.hpp>
 #include <pluginlib/class_list_macros.hpp>
-#include <rviz_default_plugins/robot/robot.hpp>
-#include <rviz_default_plugins/robot/robot_link.hpp>
 
 #include "ui_urdf_builder_panel.h"
 
-#include "tobas_urdf_builder_plugin/ogre_helpers/static_link_updater.hpp"
 #include "tobas_urdf_builder_plugin/ui/add_link_dialog.hpp"
 #include "tobas_urdf_builder_plugin/ui/save_urdf_dialog.hpp"
 #include "tobas_urdf_builder_plugin/ui/update_link_dialog.hpp"

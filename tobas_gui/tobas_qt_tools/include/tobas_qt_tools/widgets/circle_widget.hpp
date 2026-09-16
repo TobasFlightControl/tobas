@@ -13,7 +13,6 @@ class CircleWidget : public qt::Widget
 {
   Q_OBJECT
 
-  using self = CircleWidget;
   using super = qt::Widget;
 
 public:

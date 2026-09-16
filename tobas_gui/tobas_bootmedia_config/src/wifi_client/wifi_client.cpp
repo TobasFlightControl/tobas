@@ -3,7 +3,6 @@
 
 #include "tobas_bootmedia_config/wifi_client/wifi_client.hpp"
 
-#include <QDebug>
 #include <QEvent>
 
 #include <tobas_qt_tools/cast.hpp>

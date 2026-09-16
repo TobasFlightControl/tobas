@@ -17,7 +17,6 @@
 #include <tobas_math/definitions.hpp>
 #include <tobas_path_tools/core.hpp>
 #include <tobas_qt_tools/cast.hpp>
-#include <tobas_qt_tools/message.hpp>
 #include <tobas_std_tools/check.hpp>
 #include <tobas_string_tools/core.hpp>
 #include <tobas_uadf/exporter.hpp>

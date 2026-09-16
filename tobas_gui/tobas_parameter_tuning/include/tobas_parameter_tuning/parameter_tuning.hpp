@@ -22,7 +22,6 @@ class ParameterTuningWidget : public QWidget
   Q_OBJECT
 
   using self = ParameterTuningWidget;
-  using super = QWidget;
 
   static constexpr size_t kNumBlocks = 4;
 

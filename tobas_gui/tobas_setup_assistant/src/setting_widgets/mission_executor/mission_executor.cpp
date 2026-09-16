@@ -3,18 +3,9 @@
 
 #include "tobas_setup_assistant/setting_tabs/mission_executor/mission_executor.hpp"
 
-#include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
-#include <tobas_std_tools/check.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
-
-#include "tobas_setup_assistant/setting_tabs/controller/custom.hpp"
-#include "tobas_setup_assistant/setting_tabs/controller/fixed_wing.hpp"
-#include "tobas_setup_assistant/setting_tabs/controller/non_planar_multicopter.hpp"
-#include "tobas_setup_assistant/setting_tabs/controller/planar_multicopter.hpp"
-#include "tobas_setup_assistant/setting_tabs/controller/random_axis_tilt_multicopter.hpp"
-#include "tobas_setup_assistant/setting_tabs/controller/y_axis_tilt_multicopter.hpp"
 
 namespace tobas
 {

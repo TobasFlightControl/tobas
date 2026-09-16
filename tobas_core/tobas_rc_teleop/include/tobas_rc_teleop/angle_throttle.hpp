@@ -16,7 +16,6 @@ namespace rc
 class AngleThrottleController : public BaseController
 {
   using self = AngleThrottleController;
-  using super = BaseController;
 
 public:
   explicit AngleThrottleController();

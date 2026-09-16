@@ -3,8 +3,6 @@
 
 #include "tobas_ssh_authkey/export.hpp"
 
-#include <cstring>
-
 namespace tobas
 {
 namespace ssh

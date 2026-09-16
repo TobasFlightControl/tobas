@@ -7,7 +7,6 @@
 
 #include <QProgressBar>
 #include <QPushButton>
-#include <QVBoxLayout>
 #include <rviz_common/properties/property.hpp>
 
 #include <tobas_eigen_tools/ellipsoid.hpp>
@@ -35,7 +34,6 @@ class CompleteMagCalibWidget : public BaseMagCalibWidget
   Q_OBJECT
 
   using self = CompleteMagCalibWidget;
-  using super = BaseMagCalibWidget;
 
   static constexpr int kMaxDataSize = 10000;  // RViz limits the maximum to 100000.
 

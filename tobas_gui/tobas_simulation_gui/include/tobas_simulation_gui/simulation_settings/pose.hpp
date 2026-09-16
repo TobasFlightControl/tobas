@@ -18,9 +18,6 @@ class PoseWidget : public QWidget
 {
   Q_OBJECT
 
-  using self = PoseWidget;
-  using super = QWidget;
-
 public:
   explicit PoseWidget();
 

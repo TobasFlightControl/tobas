@@ -12,18 +12,16 @@
 
 #include <tobas_gazebo_msgs/msg/engine_state.hpp>
 #include <tobas_gazebo_msgs/msg/rotor_state.hpp>
-#include <tobas_gazebo_msgs/msg/throttle.hpp>
 #include <tobas_msgs/msg/engine_state.hpp>
 #include <tobas_msgs/msg/ice_propulsion_system_command.hpp>
 #include <tobas_msgs/msg/latency.hpp>
-#include <tobas_msgs/msg/rotor_state_array.hpp>
+#include <tobas_msgs/msg/rotor_state.hpp>
 #include <tobas_msgs_adapter/wind.hpp>
 
 #include "tobas_gazebo_system_plugins/common/common.hpp"
 #include "tobas_gazebo_system_plugins/engine_model.hpp"
 #include "tobas_gazebo_system_plugins/ice_rotor_model.hpp"
 #include "tobas_gazebo_system_plugins/rate_manager.hpp"
-#include "tobas_gazebo_system_plugins/sdf.hpp"
 
 namespace ch = std::chrono;
 

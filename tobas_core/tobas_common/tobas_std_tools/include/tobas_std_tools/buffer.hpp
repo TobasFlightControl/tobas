@@ -4,7 +4,6 @@
 #pragma once
 
 #include <cassert>
-#include <string>
 #include <vector>
 
 #include "./assert.hpp"

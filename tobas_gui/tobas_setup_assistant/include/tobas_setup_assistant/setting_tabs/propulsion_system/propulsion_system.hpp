@@ -26,7 +26,6 @@ class PropulsionSystemWidget : public BaseSettingWidget
   Q_OBJECT
 
   using self = PropulsionSystemWidget;
-  using super = BaseSettingWidget;
 
 public:
   explicit PropulsionSystemWidget(const uadf::Model& uadf, Signals& sig);

@@ -21,7 +21,6 @@ class IPv4Widget : public BaseNetworkWidget
   Q_OBJECT
 
   using self = IPv4Widget;
-  using super = BaseNetworkWidget;
 
   /* Method index */
   enum Method : int

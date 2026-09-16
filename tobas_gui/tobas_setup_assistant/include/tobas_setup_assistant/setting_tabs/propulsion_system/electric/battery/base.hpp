@@ -20,9 +20,6 @@ class BatteryWidget_Base : public QWidget
 {
   Q_OBJECT
 
-  using self = BatteryWidget_Base;
-  using super = QWidget;
-
 public:
   virtual const char* name() const = 0;
   virtual void setToDefaults() = 0;

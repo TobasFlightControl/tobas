@@ -17,7 +17,6 @@ class FlightLogItemWidgetGCS : public QWidget
   Q_OBJECT
 
   using self = FlightLogItemWidgetGCS;
-  using super = QWidget;
 
 Q_SIGNALS:
   void exportButtonClicked(const QString& log_name);

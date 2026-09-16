@@ -4,7 +4,6 @@
 #include <tobas_constants/node.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_real_common/handler.hpp>
-#include <tobas_real_common/ros_interface.hpp>
 
 #include <std_srvs/srv/trigger.hpp>
 

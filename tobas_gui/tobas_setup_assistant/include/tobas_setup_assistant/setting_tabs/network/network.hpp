@@ -18,9 +18,6 @@ class NetworkWidget : public BaseSettingWidget
 {
   Q_OBJECT
 
-  using self = NetworkWidget;
-  using super = BaseSettingWidget;
-
 public:
   explicit NetworkWidget();
 

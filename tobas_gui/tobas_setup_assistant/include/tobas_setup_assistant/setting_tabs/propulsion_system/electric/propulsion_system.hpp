@@ -22,7 +22,6 @@ class PropulsionSystemWidget : public BasePropulsionSystemWidget
   Q_OBJECT
 
   using self = PropulsionSystemWidget;
-  using super = BasePropulsionSystemWidget;
 
 public:
   BatteryWidget* battery;

@@ -7,7 +7,6 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 
-#include <cassert>
 #include <cstring>
 #include <iostream>
 

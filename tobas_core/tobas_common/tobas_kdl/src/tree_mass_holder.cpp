@@ -3,11 +3,7 @@
 
 #include "tobas_kdl/tree_mass_holder.hpp"
 
-#include <iostream>
-
 #include <tobas_algorithm/kahan.hpp>
-
-using namespace std;
 
 namespace tobas
 {

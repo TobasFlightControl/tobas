@@ -20,7 +20,6 @@ class FlightLogsWidgetFC : public QWidget
   Q_OBJECT
 
   using self = FlightLogsWidgetFC;
-  using super = QWidget;
 
 Q_SIGNALS:
   void logDownloaded(const QString& log_name);

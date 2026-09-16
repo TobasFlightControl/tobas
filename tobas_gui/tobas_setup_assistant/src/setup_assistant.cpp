@@ -13,18 +13,15 @@
 #include <tobas_gui_common/load_project_dialog.hpp>
 #include <tobas_gui_common/project_paths.hpp>
 #include <tobas_gui_common/version.hpp>
-#include <tobas_path_tools/core.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/path.hpp>
 #include <tobas_ros2_tools/package.hpp>
 #include <tobas_std_tools/check.hpp>
-#include <tobas_string_tools/stream.hpp>
 #include <tobas_urdf/exporter.hpp>
 #include <tobas_xml_tools/core.hpp>
 #include <tobas_yaml_tools/core.hpp>
 
 #include "tobas_setup_assistant/save_project_dialog.hpp"
-#include "tobas_setup_assistant/xacro_parser.hpp"
 
 namespace fs = std::filesystem;
 

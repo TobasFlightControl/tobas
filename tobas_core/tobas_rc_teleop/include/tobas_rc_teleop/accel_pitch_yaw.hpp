@@ -16,7 +16,6 @@ namespace rc
 class AccelPitchYawController : public BaseController
 {
   using self = AccelPitchYawController;
-  using super = BaseController;
 
 public:
   explicit AccelPitchYawController();

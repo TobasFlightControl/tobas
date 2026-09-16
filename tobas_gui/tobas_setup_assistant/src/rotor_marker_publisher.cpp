@@ -5,8 +5,6 @@
 
 #include <ranges>
 
-#include <QDebug>
-
 #include <tobas_kdl_conversions/kdl_msg.hpp>
 #include <tobas_kdl_conversions/kdl_urdf.hpp>
 #include <tobas_ros2_tools/register.hpp>

@@ -5,7 +5,6 @@
 
 #include <cassert>
 #include <cmath>
-#include <stdexcept>
 
 #include <tobas_math/core.hpp>
 

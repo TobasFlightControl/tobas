@@ -7,8 +7,6 @@
 #include <tobas_math/float.hpp>
 #include <tobas_math/linalg.hpp>
 
-#include "tobas_kdl/utilities/utility.hpp"
-
 namespace tobas
 {
 namespace kdl

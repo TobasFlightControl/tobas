@@ -24,7 +24,6 @@ class HardwareWidget : public BaseSettingWidget
   Q_OBJECT
 
   using self = HardwareWidget;
-  using super = BaseSettingWidget;
 
 public:
   explicit HardwareWidget(const uadf::Model& uadf, const Signals& sig);

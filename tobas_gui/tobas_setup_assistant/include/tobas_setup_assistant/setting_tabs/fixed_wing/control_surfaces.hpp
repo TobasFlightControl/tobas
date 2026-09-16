@@ -20,7 +20,6 @@ class ControlSurfacesWidget : public qt::TableWidget
 {
   Q_OBJECT
 
-  using self = ControlSurfacesWidget;
   using super = qt::TableWidget;
 
 public:

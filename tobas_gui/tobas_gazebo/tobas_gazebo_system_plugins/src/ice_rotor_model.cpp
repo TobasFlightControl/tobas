@@ -6,7 +6,6 @@
 #include <tobas_gazebo_tools/utils.hpp>
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/check.hpp>
-#include <tobas_std_tools/unit_conversions.hpp>
 
 #include "tobas_gazebo_system_plugins/common/constants.hpp"
 #include "tobas_gazebo_system_plugins/sdf.hpp"

@@ -6,7 +6,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-#include <cinttypes>
+#include <cstdint>
 #include <iostream>
 #include <vector>
 

@@ -5,7 +5,6 @@
 
 #include <QPointer>
 #include <QProcess>
-#include <QPushButton>
 #include <QString>
 #include <QWidget>
 
@@ -32,7 +31,6 @@ class SimulationWidget : public QWidget
   Q_OBJECT
 
   using self = SimulationWidget;
-  using super = QWidget;
 
 Q_SIGNALS:
   void started();

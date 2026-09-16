@@ -20,9 +20,6 @@ class FixedWingWidget : public BaseSettingWidget
 {
   Q_OBJECT
 
-  using self = FixedWingWidget;
-  using super = BaseSettingWidget;
-
 public:
   explicit FixedWingWidget(const uadf::Model& uadf);
 

@@ -15,7 +15,6 @@ class FaceCircleWidget : public qt::Widget
 {
   Q_OBJECT
 
-  using self = FaceCircleWidget;
   using super = qt::Widget;
 
 public:

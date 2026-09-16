@@ -3,9 +3,6 @@
 
 #include "tobas_control/util.hpp"
 
-#include <iostream>
-
-#include <tobas_eigen_tools/core.hpp>
 #include <tobas_eigen_tools/linalg.hpp>
 #include <tobas_quadprog/utils.hpp>
 
