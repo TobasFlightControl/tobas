@@ -3,22 +3,6 @@
 
 #include "tobas_urdf_builder_plugin/view_model/joint_view_model.hpp"
 
-#include "tobas_urdf_builder_plugin/utils/urdf_clone.hpp"
-
-using JointType = decltype(::urdf::Joint::type);
-
-static const std::map<JointType, QString> kJointTypeToNameMap = {
-  { ::urdf::Joint::FIXED, "Fixed" },           { ::urdf::Joint::REVOLUTE, "Revolute" },
-  { ::urdf::Joint::CONTINUOUS, "Continuous" }, { ::urdf::Joint::PRISMATIC, "Prismatic" },
-  { ::urdf::Joint::FLOATING, "Floating" },     { ::urdf::Joint::PLANAR, "Planar" },
-};
-
-static const std::map<QString, JointType> kJointNameToTypeMap = {
-  { "Fixed", ::urdf::Joint::FIXED },           { "Revolute", ::urdf::Joint::REVOLUTE },
-  { "Continuous", ::urdf::Joint::CONTINUOUS }, { "Prismatic", ::urdf::Joint::PRISMATIC },
-  { "Floating", ::urdf::Joint::FLOATING },     { "Planar", ::urdf::Joint::PLANAR },
-};
-
 namespace tobas
 {
 namespace gui
@@ -56,14 +40,54 @@ void JointViewModel::name(const QString& name)
   model_->name = name.toStdString();
 }
 
-const QString& JointViewModel::type() const
+QString JointViewModel::type() const
 {
-  return kJointTypeToNameMap.at(model_->type);
+  switch (model_->type) {
+    case ::urdf::Joint::UNKNOWN:
+      return "Unknown";
+    case ::urdf::Joint::REVOLUTE:
+      return "Revolute";
+    case ::urdf::Joint::CONTINUOUS:
+      return "Continuous";
+    case ::urdf::Joint::PRISMATIC:
+      return "Prismatic";
+    case ::urdf::Joint::FLOATING:
+      return "Floating";
+    case ::urdf::Joint::PLANAR:
+      return "Planar";
+    case ::urdf::Joint::FIXED:
+      return "Fixed";
+    default:
+      throw;
+  }
 }
 
 void JointViewModel::type(const QString& type)
 {
-  model_->type = kJointNameToTypeMap.at(type);
+  if (type == "Unknown") {
+    model_->type = ::urdf::Joint::UNKNOWN;
+  }
+  else if (type == "Revolute") {
+    model_->type = ::urdf::Joint::REVOLUTE;
+  }
+  else if (type == "Continuous") {
+    model_->type = ::urdf::Joint::CONTINUOUS;
+  }
+  else if (type == "Prismatic") {
+    model_->type = ::urdf::Joint::PRISMATIC;
+  }
+  else if (type == "Floating") {
+    model_->type = ::urdf::Joint::FLOATING;
+  }
+  else if (type == "Planar") {
+    model_->type = ::urdf::Joint::PLANAR;
+  }
+  else if (type == "Fixed") {
+    model_->type = ::urdf::Joint::FIXED;
+  }
+  else {
+    throw std::runtime_error("Invalid joint type: " + type.toStdString());
+  }
 
   if (limitsEnabled()) {
     limits_.reset(new JointLimitsViewModel(model_->limits));

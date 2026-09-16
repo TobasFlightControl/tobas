@@ -29,7 +29,7 @@ public:
   QString name() const;
   void name(const QString& name);
 
-  const QString& type() const;
+  QString type() const;
   void type(const QString& type);
 
   const ::urdf::Pose& origin() const;
