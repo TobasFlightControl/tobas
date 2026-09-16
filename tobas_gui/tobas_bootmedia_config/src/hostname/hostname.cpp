@@ -21,6 +21,14 @@ namespace gui
 {
 namespace bm
 {
+namespace
+{
+std::string hostnameFilePath()
+{
+  return std::string(kRootPath) + "/etc/hostname";
+}
+}  // namespace
+
 HostnameWidget::HostnameWidget()
 {
   hostname_ = new QLineEdit();
@@ -115,16 +123,6 @@ bool HostnameWidget::writeHostsFile(const QString& hostname)
   }
 
   return true;
-}
-
-std::string HostnameWidget::hostnameFilePath()
-{
-  return std::string(kRootPath) + "/etc/hostname";
-}
-
-std::string HostnameWidget::hostsFilePath()
-{
-  return std::string(kRootPath) + "/etc/hosts";
 }
 
 void HostnameWidget::onHostnameChanged(const QString& hostname)

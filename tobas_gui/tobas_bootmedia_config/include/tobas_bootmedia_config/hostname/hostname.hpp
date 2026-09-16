@@ -42,9 +42,6 @@ private:
   bool writeHostnameFile(const QString& hostname);
   bool writeHostsFile(const QString& hostname);
 
-  static std::string hostnameFilePath();
-  static std::string hostsFilePath();
-
 private Q_SLOTS:
   void onHostnameChanged(const QString& hostname);
   void onWriteButtonClicked();
