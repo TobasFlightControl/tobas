@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <tobas_constants/ntrip.hpp>
 #include <tobas_constants/ros_interface.hpp>
 #include <tobas_hardware_common/constants.hpp>
 #include <tobas_ic_drivers/ublox/zed_f9p.hpp>
 #include <tobas_node/node.hpp>
 
+#include <tobas_msgs/msg/binary_packet.hpp>
 #include <tobas_msgs_adapter/gnss.hpp>
 
 using namespace std::chrono_literals;
@@ -27,10 +29,12 @@ private:
 
   ublox::payload::NAV_PVT pvt_;
   ublox::payload::NAV_COV cov_;
+  ublox::payload::NAV_STATUS status_;
 
   std::map<ublox::ZEDF9P::UbxNavId, bool> is_received_;
 
   ros2::PublisherPtr<tobas_msgs::Gnss> gnss_pub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::BinaryPacket> rtcm_correction_sub_;
   ros2::TimerPtr initialize_timer_, main_timer_;
 
   bool initialize();
@@ -39,6 +43,7 @@ private:
 
   void initializeTimerCb();
   void mainTimerCb();
+  void rtcmCorrectionSubCb(const tobas_msgs::msg::BinaryPacket::ConstSharedPtr& msg);
 };
 
 GnssDriverNode::GnssDriverNode(const rclcpp::NodeOptions& options)
@@ -63,8 +68,11 @@ bool GnssDriverNode::initialize()
 
   is_received_[ublox::ZEDF9P::NAV_PVT] = false;
   is_received_[ublox::ZEDF9P::NAV_COV] = false;
+  is_received_[ublox::ZEDF9P::NAV_STATUS] = false;
 
   gnss_pub_ = createPublisher<tobas_msgs::Gnss>(topic::kGnss);
+  rtcm_correction_sub_ =
+    createSubscriber<tobas_msgs::msg::BinaryPacket>(topic::kRtcmCorrection, &GnssDriverNode::rtcmCorrectionSubCb, this);
 
   constexpr auto kMainTimerPeriod = 1ms;
   main_timer_ = createWallTimer(kMainTimerPeriod, &self::mainTimerCb, this);
@@ -121,6 +129,10 @@ bool GnssDriverNode::configure()
   }
   if (!gnss_.enableSpiMessage(ublox::ZEDF9P::CLASS_NAV, ublox::ZEDF9P::NAV_COV, true)) {
     TOBAS_ERROR("Failed to enable NAV_COV message.");
+    return false;
+  }
+  if (!gnss_.enableSpiMessage(ublox::ZEDF9P::CLASS_NAV, ublox::ZEDF9P::NAV_STATUS, true)) {
+    TOBAS_ERROR("Failed to enable NAV_STATUS message.");
     return false;
   }
 
@@ -193,6 +205,10 @@ void GnssDriverNode::mainTimerCb()
       cov_.decode(gnss_.payload());
       is_received_.at(ublox::ZEDF9P::NAV_COV) = true;
       break;
+    case ublox::ZEDF9P::NAV_STATUS:
+      status_.decode(gnss_.payload());
+      is_received_.at(ublox::ZEDF9P::NAV_STATUS) = true;
+      break;
     default:
       warnUnnecessaryUBXMessage();
       return;
@@ -250,8 +266,29 @@ void GnssDriverNode::mainTimerCb()
   gnss_msg->fix_type = pvt_.fixType;
   gnss_msg->num_satellites_used = pvt_.numSV;
 
+  // Fill rtk status
+  if (!status_.diffCorr) {
+    gnss_msg->rtk_status = tobas_msgs::msg::Gnss::STAND_ALONE;
+  }
+  else {
+    if (status_.carrSoln == ublox::payload::NAV_STATUS::CarrierPhaseRangeSolutionStatus::FLOATING_AMBIGUITY) {
+      gnss_msg->rtk_status = tobas_msgs::msg::Gnss::RTK_FLOAT;
+    }
+    else if (status_.carrSoln == ublox::payload::NAV_STATUS::CarrierPhaseRangeSolutionStatus::FIXED_AMBIGUITY) {
+      gnss_msg->rtk_status = tobas_msgs::msg::Gnss::RTK_FIXED;
+    }
+    else {
+      gnss_msg->rtk_status = tobas_msgs::msg::Gnss::CORRECTION_RECEIVED;
+    }
+  }
+
   // Publish GNSS message.
   gnss_pub_->publish(std::move(gnss_msg));
+}
+
+void GnssDriverNode::rtcmCorrectionSubCb(const tobas_msgs::msg::BinaryPacket::ConstSharedPtr& msg)
+{
+  gnss_.registerRtcmCorrectionData(msg->data);
 }
 }  // namespace fc2xx
 }  // namespace tobas

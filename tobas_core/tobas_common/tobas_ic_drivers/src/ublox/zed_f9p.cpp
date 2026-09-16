@@ -33,9 +33,26 @@ bool ZEDF9P::update(bool nonblock)
   scanner_.reset();
 
   if (nonblock) {
+    bool sended = false;
+    uint8_t send_data = kDefaultData;  // 送るデータがないときは0xFFを送信
+    {
+      std::lock_guard<std::mutex> lock(send_buffer_mutex_);
+      if (!send_buffer_.empty()) {
+        send_data = send_buffer_[0];
+        sended = true;
+      }
+    }
+    tx_buf_[0] = send_data;
+
     // Check the start byte.
-    if (!spi_.transfer(1)) {
+    if (!spi_.transfer(1)) {  // データを送信しながら受信する Back-to-back read and write access
       return false;
+    }
+    if (sended) {
+      std::lock_guard<std::mutex> lock(send_buffer_mutex_);
+      if (!send_buffer_.empty()) {
+        send_buffer_.pop_front();  // 送信したデータはbufferから取り除く
+      }
     }
     if (!scanner_.update(rx_buf_[0])) {
       return false;
@@ -50,8 +67,24 @@ bool ZEDF9P::update(bool nonblock)
   // Scan one message.
   rate_.start();
   while (scanner_.state() != UBXScanner::kDone) {
+    bool sended = false;
+    uint8_t send_data = kDefaultData;
+    {
+      std::lock_guard<std::mutex> lock(send_buffer_mutex_);
+      if (!send_buffer_.empty()) {
+        send_data = send_buffer_[0];
+        sended = true;
+      }
+    }
+    tx_buf_[0] = send_data;
     if (!spi_.transfer(1)) {
       return false;
+    }
+    if (sended) {
+      std::lock_guard<std::mutex> lock(send_buffer_mutex_);
+      if (!send_buffer_.empty()) {
+        send_buffer_.pop_front();
+      }
     }
     if (!scanner_.update(rx_buf_[0])) {
       return false;
@@ -67,6 +100,12 @@ bool ZEDF9P::update(bool nonblock)
   }
 
   return true;
+}
+
+void ZEDF9P::registerRtcmCorrectionData(const std::vector<uint8_t>& data)
+{
+  std::lock_guard<std::mutex> lock(send_buffer_mutex_);
+  send_buffer_.insert(send_buffer_.end(), data.begin(), data.end());
 }
 
 bool ZEDF9P::enableSpiMessage(UbxClass cls, uint8_t id, bool enable)
@@ -271,9 +310,7 @@ bool ZEDF9P::enableGps()
 }
 
 bool ZEDF9P::disableGps()
-{
-  return enableGps(false);
-}
+{ return enableGps(false); }
 
 bool ZEDF9P::enableSbas()
 {
@@ -293,9 +330,7 @@ bool ZEDF9P::enableSbas()
 }
 
 bool ZEDF9P::disableSbas()
-{
-  return enableGps(false);
-}
+{ return enableGps(false); }
 
 bool ZEDF9P::enableGalileo()
 {
@@ -328,9 +363,7 @@ bool ZEDF9P::enableGalileo()
 }
 
 bool ZEDF9P::disableGalileo()
-{
-  return enableGalileo(false);
-}
+{ return enableGalileo(false); }
 
 bool ZEDF9P::enableBeiDou()
 {
@@ -363,9 +396,7 @@ bool ZEDF9P::enableBeiDou()
 }
 
 bool ZEDF9P::disableBeiDou()
-{
-  return enableBeiDou(false);
-}
+{ return enableBeiDou(false); }
 
 bool ZEDF9P::enableQzss()
 {
@@ -398,9 +429,7 @@ bool ZEDF9P::enableQzss()
 }
 
 bool ZEDF9P::disableQzss()
-{
-  return enableQzss(false);
-}
+{ return enableQzss(false); }
 
 bool ZEDF9P::enableGlonass()
 {
@@ -427,9 +456,7 @@ bool ZEDF9P::enableGlonass()
 }
 
 bool ZEDF9P::disableGlonass()
-{
-  return enableGlonass(false);
-}
+{ return enableGlonass(false); }
 
 bool ZEDF9P::enableNavIc()
 {
@@ -450,29 +477,19 @@ bool ZEDF9P::enableNavIc()
 }
 
 bool ZEDF9P::disableNavIc()
-{
-  return enableNavIc(false);
-}
+{ return enableNavIc(false); }
 
 bool ZEDF9P::enableSpiProtocol_UBX(bool enable_input, bool enable_output)
-{
-  return enableSpiInputProtocol(UBX, enable_input) && enableSpiOutputProtocol(UBX, enable_output);
-}
+{ return enableSpiInputProtocol(UBX, enable_input) && enableSpiOutputProtocol(UBX, enable_output); }
 
 bool ZEDF9P::enableSpiProtocol_NMEA(bool enable_input, bool enable_output)
-{
-  return enableSpiInputProtocol(NMEA, enable_input) && enableSpiOutputProtocol(NMEA, enable_output);
-}
+{ return enableSpiInputProtocol(NMEA, enable_input) && enableSpiOutputProtocol(NMEA, enable_output); }
 
 bool ZEDF9P::enableSpiProtocol_RTCM3X(bool enable_input, bool enable_output)
-{
-  return enableSpiInputProtocol(RTCM3X, enable_input) && enableSpiOutputProtocol(RTCM3X, enable_output);
-}
+{ return enableSpiInputProtocol(RTCM3X, enable_input) && enableSpiOutputProtocol(RTCM3X, enable_output); }
 
 bool ZEDF9P::enableSpiProtocol_SPARTN(bool enable_input)
-{
-  return enableSpiInputProtocol(SPARTN, enable_input);
-}
+{ return enableSpiInputProtocol(SPARTN, enable_input); }
 
 bool ZEDF9P::setAntennaLength(uint8_t length_m)
 {
@@ -562,9 +579,7 @@ bool ZEDF9P::waitForAcknowledge(UbxClass cls, uint8_t id)
 }
 
 bool ZEDF9P::configure(UbxCfgId cfg_id, const void* msg, uint16_t size)
-{
-  return sendMessage(CLASS_CFG, cfg_id, msg, size) && waitForAcknowledge(CLASS_CFG, cfg_id);
-}
+{ return sendMessage(CLASS_CFG, cfg_id, msg, size) && waitForAcknowledge(CLASS_CFG, cfg_id); }
 
 bool ZEDF9P::verifyMessage() const
 {
@@ -743,8 +758,6 @@ size_t ZEDF9P::spliceMemory(uint8_t* dest, const void* src, size_t size, size_t 
 }
 
 uint32_t ZEDF9P::configKeyID(CfgSize size, CfgGroup group, uint8_t id)
-{
-  return (size << 28) | (group << 16) | id;
-}
+{ return (size << 28) | (group << 16) | id; }
 }  // namespace ublox
 }  // namespace tobas

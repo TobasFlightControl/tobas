@@ -5,5 +5,8 @@
 
 namespace tobas
 {
-static constexpr char kRtcmCorrectionTopic[] = "rtcm_correction";
+namespace topic
+{
+static constexpr char kRtcmCorrection[] = "rtcm_correction";
+}  // namespace topic
 }  // namespace tobas

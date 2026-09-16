@@ -3,6 +3,10 @@
 
 #pragma once
 
+#include <deque>
+#include <mutex>
+#include <vector>
+
 #include <tobas_linux/spi_dev.hpp>
 #include <tobas_time_tools/rate.hpp>
 
@@ -28,6 +32,7 @@ class ZEDF9P
 {
 private:
   static constexpr size_t kSpiBufSize = 256;
+  static constexpr uint8_t kDefaultData = 0xFF;
 
 public:
   enum UbxClass : uint8_t
@@ -114,6 +119,8 @@ public:
 
   bool initialize(const char* spi_device);
   bool update(bool nonblock = true);
+  // rtcm correction dataを登録する 登録したデータはupdate関数内で少しずつ送る
+  void registerRtcmCorrectionData(const std::vector<uint8_t>& data);
 
   /* ===== Configurations =====*/
 
@@ -268,6 +275,9 @@ private:
   uint8_t rx_buf_[kSpiBufSize];
 
   UBXScanner scanner_;
+
+  std::deque<uint8_t> send_buffer_;
+  mutable std::mutex send_buffer_mutex_;
 
   tim::Rate rate_;
 
