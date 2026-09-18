@@ -32,6 +32,7 @@ struct IntConfig
 
   QPushButton* down_button_;
   QPushButton* up_button_;
+  QPushButton* reset_button_;
   qt::Slider* slider;
   QLineEdit* line_edit;
 };
@@ -45,6 +46,7 @@ struct DoubleConfig
 
   QPushButton* down_button_;
   QPushButton* up_button_;
+  QPushButton* reset_button_;
   qt::Slider* slider;
   QLineEdit* line_edit;
 };
@@ -83,10 +85,12 @@ private:
 private Q_SLOTS:
   void onIntDownButtonClicked(const std::string& name);
   void onIntUpButtonClicked(const std::string& name);
+  void onIntResetButtonClicked(const std::string& name);
   void onIntSliderValueChanged(long value, const std::string& name);
 
   void onDoubleDownButtonClicked(const std::string& name);
   void onDoubleUpButtonClicked(const std::string& name);
+  void onDoubleResetButtonClicked(const std::string& name);
   void onDoubleSliderValueChanged(long value, const std::string& name);
 };
 }  // namespace param

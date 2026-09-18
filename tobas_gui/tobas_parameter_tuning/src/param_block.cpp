@@ -74,6 +74,10 @@ bool ParamBlockWidget::load()
   const auto& params = res->params;
 
   // Add sliders.
+  constexpr char kDecreaseButtonTooltip[] = "Decrease by one step";
+  constexpr char kIncreaseButtonTooltip[] = "Increase by one step";
+  constexpr char kResetButtonTooltip[] = "Reset to initial value";
+
   for (const auto& param : params.ints) {
     const auto param_name_label = new QLabel(QString::fromStdString(param.name));
     param_name_label->setFixedWidth(kParamNameWidth);
@@ -86,9 +90,15 @@ bool ParamBlockWidget::load()
 
     config.down_button_ = new QPushButton();
     config.down_button_->setIcon(style()->standardIcon(QStyle::SP_ArrowDown));
+    config.down_button_->setToolTip(kDecreaseButtonTooltip);
 
     config.up_button_ = new QPushButton();
     config.up_button_->setIcon(style()->standardIcon(QStyle::SP_ArrowUp));
+    config.up_button_->setToolTip(kIncreaseButtonTooltip);
+
+    config.reset_button_ = new QPushButton();
+    config.reset_button_->setIcon(style()->standardIcon(QStyle::SP_BrowserReload));
+    config.reset_button_->setToolTip(kResetButtonTooltip);
 
     config.slider = new qt::Slider(Qt::Horizontal);
     config.slider->setRange(param.minimum_value, param.maximum_value);
@@ -105,12 +115,14 @@ bool ParamBlockWidget::load()
     const auto cols = new QHBoxLayout();
     cols->addWidget(config.down_button_);
     cols->addWidget(config.up_button_);
+    cols->addWidget(config.reset_button_);
     cols->addWidget(config.slider);
     cols->addWidget(config.line_edit);
     form_->addRow(param_name_label, cols);
 
     connect(config.down_button_, &QPushButton::clicked, std::bind(&self::onIntDownButtonClicked, this, param.name));
     connect(config.up_button_, &QPushButton::clicked, std::bind(&self::onIntUpButtonClicked, this, param.name));
+    connect(config.reset_button_, &QPushButton::clicked, std::bind(&self::onIntResetButtonClicked, this, param.name));
     connect(config.slider, &qt::Slider::valueChanged, std::bind(&self::onIntSliderValueChanged, this, _1, param.name));
   }
 
@@ -126,9 +138,15 @@ bool ParamBlockWidget::load()
 
     config.down_button_ = new QPushButton();
     config.down_button_->setIcon(style()->standardIcon(QStyle::SP_ArrowDown));
+    config.down_button_->setToolTip(kDecreaseButtonTooltip);
 
     config.up_button_ = new QPushButton();
     config.up_button_->setIcon(style()->standardIcon(QStyle::SP_ArrowUp));
+    config.up_button_->setToolTip(kIncreaseButtonTooltip);
+
+    config.reset_button_ = new QPushButton();
+    config.reset_button_->setIcon(style()->standardIcon(QStyle::SP_BrowserReload));
+    config.reset_button_->setToolTip(kResetButtonTooltip);
 
     config.slider = new qt::Slider(Qt::Horizontal);
     config.slider->setRange(param.minimum_value, param.maximum_value);
@@ -145,12 +163,14 @@ bool ParamBlockWidget::load()
     const auto cols = new QHBoxLayout();
     cols->addWidget(config.down_button_);
     cols->addWidget(config.up_button_);
+    cols->addWidget(config.reset_button_);
     cols->addWidget(config.slider);
     cols->addWidget(config.line_edit);
     form_->addRow(param_name_label, cols);
 
     connect(config.down_button_, &QPushButton::clicked, std::bind(&self::onDoubleDownButtonClicked, this, param.name));
     connect(config.up_button_, &QPushButton::clicked, std::bind(&self::onDoubleUpButtonClicked, this, param.name));
+    connect(config.reset_button_, &QPushButton::clicked, std::bind(&self::onDoubleResetButtonClicked, this, param.name));
     connect(
       config.slider, &qt::Slider::valueChanged, std::bind(&self::onDoubleSliderValueChanged, this, _1, param.name));
   }
@@ -253,6 +273,19 @@ void ParamBlockWidget::onIntUpButtonClicked(const std::string& name)
   config.slider->setValue(config.slider->value() + 1);
 }
 
+void ParamBlockWidget::onIntResetButtonClicked(const std::string& name)
+{
+  if (!qt::yesOrNo(
+        this,
+        "Are you sure you want to reset parameter '" + QString::fromStdString(name) + "' to its initial value?",
+        qt::WARN)) {
+    return;
+  }
+
+  auto& config = int_configs_.at(name);
+  config.slider->setValue(config.initial_value);
+}
+
 void ParamBlockWidget::onIntSliderValueChanged(long value, const std::string& name)
 {
   auto& config = int_configs_.at(name);
@@ -273,6 +306,19 @@ void ParamBlockWidget::onDoubleUpButtonClicked(const std::string& name)
 {
   auto& config = double_configs_.at(name);
   config.slider->setValue(config.slider->value() + 1);
+}
+
+void ParamBlockWidget::onDoubleResetButtonClicked(const std::string& name)
+{
+  if (!qt::yesOrNo(
+        this,
+        "Are you sure you want to reset parameter '" + QString::fromStdString(name) + "' to its initial value?",
+        qt::WARN)) {
+    return;
+  }
+
+  auto& config = double_configs_.at(name);
+  config.slider->setValue(config.initial_value);
 }
 
 void ParamBlockWidget::onDoubleSliderValueChanged(long value, const std::string& name)
