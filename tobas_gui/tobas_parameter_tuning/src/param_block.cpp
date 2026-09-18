@@ -237,7 +237,7 @@ void ParamBlockWidget::clear()
   double_configs_.clear();
 }
 
-bool ParamBlockWidget::setToDefaults()
+bool ParamBlockWidget::setToInitialValues()
 {
   if (!dparam_cli_) {
     qt::qErrorBox(this, "ROS interfaces have not been initialized.");
@@ -245,37 +245,37 @@ bool ParamBlockWidget::setToDefaults()
   }
 
   for (const auto& [name, config] : int_configs_) {
-    if (config.slider->value() == config.default_value) {
-      continue;
-    }
-
-    if (dparam_cli_->setInt(name, config.default_value) != dparam::DynamicParamClient::kNoError) {
-      qWarning() << dparam_cli_->errorMessage();
-      qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter '" + name.c_str() + "'.");
+    if (!setValue(name, config, config.initial_value)) {
       return false;
     }
-
-    const QSignalBlocker block(config.slider);
-    config.slider->setValue(config.default_value);
-    config.line_edit->setText(QString::number(config.step * config.default_value) + config.prefix);
-    updateButtonStates(config);
   }
 
   for (const auto& [name, config] : double_configs_) {
-    if (config.slider->value() == config.default_value) {
-      continue;
-    }
-
-    if (dparam_cli_->setDouble(name, config.default_value) != dparam::DynamicParamClient::kNoError) {
-      qWarning() << dparam_cli_->errorMessage();
-      qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter '" + name.c_str() + "'.");
+    if (!setValue(name, config, config.initial_value)) {
       return false;
     }
+  }
 
-    const QSignalBlocker block(config.slider);
-    config.slider->setValue(config.default_value);
-    config.line_edit->setText(QString::number(config.step * config.default_value) + config.prefix);
-    updateButtonStates(config);
+  return true;
+}
+
+bool ParamBlockWidget::setToDefaultValues()
+{
+  if (!dparam_cli_) {
+    qt::qErrorBox(this, "ROS interfaces have not been initialized.");
+    return false;
+  }
+
+  for (const auto& [name, config] : int_configs_) {
+    if (!setValue(name, config, config.default_value)) {
+      return false;
+    }
+  }
+
+  for (const auto& [name, config] : double_configs_) {
+    if (!setValue(name, config, config.default_value)) {
+      return false;
+    }
   }
 
   return true;
@@ -294,6 +294,27 @@ YAML::Node ParamBlockWidget::createCurrentConfig() const
   }
 
   return res;
+}
+
+template <typename Config>
+bool ParamBlockWidget::setValue(const std::string& name, const Config& config, int32_t value)
+{
+  if (config.slider->value() == value) {
+    return true;
+  }
+
+  if (dparam_cli_->setInt(name, value) != dparam::DynamicParamClient::kNoError) {
+    qWarning() << dparam_cli_->errorMessage();
+    qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter '" + name.c_str() + "'.");
+    return false;
+  }
+
+  const QSignalBlocker block(config.slider);
+  config.slider->setValue(value);
+  config.line_edit->setText(QString::number(config.step * value) + config.prefix);
+  updateButtonStates(config);
+
+  return true;
 }
 
 void ParamBlockWidget::onIntDownButtonClicked(const std::string& name)

@@ -68,7 +68,9 @@ public:
   bool load();
   bool save(const QString& path);
   void clear();
-  bool setToDefaults();
+
+  bool setToInitialValues();
+  bool setToDefaultValues();
 
 private:
   const std::string node_name_;
@@ -83,6 +85,9 @@ private:
   qt::FormLayout* form_;
 
   YAML::Node createCurrentConfig() const;
+
+  template <typename Config>
+  bool setValue(const std::string& name, const Config& config, int32_t value);
 
 private Q_SLOTS:
   void onIntDownButtonClicked(const std::string& name);
