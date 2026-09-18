@@ -106,6 +106,25 @@ If you only want to install and use Tobas, start from the
 
 4. Build and install
 
+   Run the build inside a tmux session on the FC so it continues even if the SSH connection drops.
+   Start a named session:
+
+   ```bash
+   pi@<hostname> $ tmux new -s tobas-build
+   ```
+
+   Inside the tmux session, run:
+
    ```bash
    pi@<hostname> $ /home/pi/colcon_ws/src/tobas/tobas_dev_tools/scripts/tobas_deploy_upto tobas
    ```
+
+   To detach while the build continues, press `Ctrl+b`, then `d`.
+   If SSH disconnects, log in to the FC again and reattach to the existing session:
+
+   ```bash
+   $ ssh pi@<host>
+   pi@<hostname> $ tmux attach -t tobas-build
+   ```
+
+   After the build and installation finish, run `exit` inside tmux to close the session.
