@@ -15,209 +15,186 @@ BaseNode::BaseNode(const std::string& node_name, const rclcpp::NodeOptions& opti
   message_pub_ = createPublisher<tobas_msgs::msg::Message>(topic::kMessage, false, true, 1);
 }
 
-bool BaseNode::getBoolParam(const std::string& name)
+bool BaseNode::getBoolParam(const std::string& param_name)
 {
-  if (has_parameter(name)) {
-    return get_parameter(name).as_bool();
+  if (has_parameter(param_name)) {
+    return get_parameter(param_name).as_bool();
   }
   else {
-    return declareParam<bool>(name);
+    return declareParam<bool>(param_name);
   }
 }
 
-long BaseNode::getIntParam(const std::string& name)
+long BaseNode::getIntParam(const std::string& param_name)
 {
-  if (has_parameter(name)) {
-    return get_parameter(name).as_int();
+  if (has_parameter(param_name)) {
+    return get_parameter(param_name).as_int();
   }
   else {
-    return declareParam<long>(name);
+    return declareParam<long>(param_name);
   }
 }
 
-double BaseNode::getDoubleParam(const std::string& name)
+double BaseNode::getDoubleParam(const std::string& param_name)
 {
-  if (has_parameter(name)) {
-    return get_parameter(name).as_double();
+  if (has_parameter(param_name)) {
+    return get_parameter(param_name).as_double();
   }
   else {
-    return declareParam<double>(name);
+    return declareParam<double>(param_name);
   }
 }
 
-std::string BaseNode::getStringParam(const std::string& name)
+std::string BaseNode::getStringParam(const std::string& param_name)
 {
-  if (has_parameter(name)) {
-    return get_parameter(name).as_string();
+  if (has_parameter(param_name)) {
+    return get_parameter(param_name).as_string();
   }
   else {
-    return declareParam<std::string>(name);
+    return declareParam<std::string>(param_name);
   }
 }
 
-std::vector<bool> BaseNode::getBoolArrayParam(const std::string& name)
+std::vector<bool> BaseNode::getBoolArrayParam(const std::string& param_name)
 {
-  if (has_parameter(name)) {
-    return get_parameter(name).as_bool_array();
+  if (has_parameter(param_name)) {
+    return get_parameter(param_name).as_bool_array();
   }
   else {
-    return declareParam<std::vector<bool>>(name);
+    return declareParam<std::vector<bool>>(param_name);
   }
 }
 
-std::vector<uint8_t> BaseNode::getByteArrayParam(const std::string& name)
+std::vector<uint8_t> BaseNode::getByteArrayParam(const std::string& param_name)
 {
-  if (has_parameter(name)) {
-    return get_parameter(name).as_byte_array();
+  if (has_parameter(param_name)) {
+    return get_parameter(param_name).as_byte_array();
   }
   else {
-    return declareParam<std::vector<uint8_t>>(name);
+    return declareParam<std::vector<uint8_t>>(param_name);
   }
 }
 
-std::vector<long> BaseNode::getIntArrayParam(const std::string& name)
+std::vector<long> BaseNode::getIntArrayParam(const std::string& param_name)
 {
-  if (has_parameter(name)) {
-    return get_parameter(name).as_integer_array();
+  if (has_parameter(param_name)) {
+    return get_parameter(param_name).as_integer_array();
   }
   else {
-    return declareParam<std::vector<long>>(name);
+    return declareParam<std::vector<long>>(param_name);
   }
 }
 
-std::vector<double> BaseNode::getDoubleArrayParam(const std::string& name)
+std::vector<double> BaseNode::getDoubleArrayParam(const std::string& param_name)
 {
-  if (has_parameter(name)) {
-    return get_parameter(name).as_double_array();
+  if (has_parameter(param_name)) {
+    return get_parameter(param_name).as_double_array();
   }
   else {
-    return declareParam<std::vector<double>>(name);
+    return declareParam<std::vector<double>>(param_name);
   }
 }
 
-std::vector<std::string> BaseNode::getStringArrayParam(const std::string& name)
+std::vector<std::string> BaseNode::getStringArrayParam(const std::string& param_name)
 {
-  if (has_parameter(name)) {
-    return get_parameter(name).as_string_array();
+  if (has_parameter(param_name)) {
+    return get_parameter(param_name).as_string_array();
   }
   else {
-    return declareParam<std::vector<std::string>>(name);
+    return declareParam<std::vector<std::string>>(param_name);
   }
 }
 
-bool BaseNode::getBoolParam(const std::string& name, const bool& dflt) noexcept
+bool BaseNode::getBoolParam(const std::string& param_name, const bool& dflt) noexcept
 {
-  if (has_parameter(name)) {
-    return get_parameter(name).as_bool();
+  if (has_parameter(param_name)) {
+    return get_parameter(param_name).as_bool();
   }
   else {
-    return declareParam(name, dflt);
+    return declareParam(param_name, dflt);
   }
 }
 
-long BaseNode::getIntParam(const std::string& name, const long& dflt) noexcept
+long BaseNode::getIntParam(const std::string& param_name, const long& dflt) noexcept
 {
-  if (has_parameter(name)) {
-    return get_parameter(name).as_int();
+  if (has_parameter(param_name)) {
+    return get_parameter(param_name).as_int();
   }
   else {
-    return declareParam(name, dflt);
+    return declareParam(param_name, dflt);
   }
 }
 
-double BaseNode::getDoubleParam(const std::string& name, const double& dflt) noexcept
+double BaseNode::getDoubleParam(const std::string& param_name, const double& dflt) noexcept
 {
-  if (has_parameter(name)) {
-    return get_parameter(name).as_double();
+  if (has_parameter(param_name)) {
+    return get_parameter(param_name).as_double();
   }
   else {
-    return declareParam(name, dflt);
+    return declareParam(param_name, dflt);
   }
 }
 
-std::string BaseNode::getStringParam(const std::string& name, const std::string& dflt) noexcept
+std::string BaseNode::getStringParam(const std::string& param_name, const std::string& dflt) noexcept
 {
-  if (has_parameter(name)) {
-    return get_parameter(name).as_string();
+  if (has_parameter(param_name)) {
+    return get_parameter(param_name).as_string();
   }
   else {
-    return declareParam(name, dflt);
+    return declareParam(param_name, dflt);
   }
 }
 
-std::vector<bool> BaseNode::getBoolArrayParam(const std::string& name, const std::vector<bool>& dflt) noexcept
+std::vector<bool> BaseNode::getBoolArrayParam(const std::string& param_name, const std::vector<bool>& dflt) noexcept
 {
-  if (has_parameter(name)) {
-    return get_parameter(name).as_bool_array();
+  if (has_parameter(param_name)) {
+    return get_parameter(param_name).as_bool_array();
   }
   else {
-    return declareParam(name, dflt);
+    return declareParam(param_name, dflt);
   }
 }
 
-std::vector<uint8_t> BaseNode::getByteArrayParam(const std::string& name, const std::vector<uint8_t>& dflt) noexcept
+std::vector<uint8_t>
+BaseNode::getByteArrayParam(const std::string& param_name, const std::vector<uint8_t>& dflt) noexcept
 {
-  if (has_parameter(name)) {
-    return get_parameter(name).as_byte_array();
+  if (has_parameter(param_name)) {
+    return get_parameter(param_name).as_byte_array();
   }
   else {
-    return declareParam(name, dflt);
+    return declareParam(param_name, dflt);
   }
 }
 
-std::vector<long> BaseNode::getIntArrayParam(const std::string& name, const std::vector<long>& dflt) noexcept
+std::vector<long> BaseNode::getIntArrayParam(const std::string& param_name, const std::vector<long>& dflt) noexcept
 {
-  if (has_parameter(name)) {
-    return get_parameter(name).as_integer_array();
+  if (has_parameter(param_name)) {
+    return get_parameter(param_name).as_integer_array();
   }
   else {
-    return declareParam(name, dflt);
+    return declareParam(param_name, dflt);
   }
 }
 
-std::vector<double> BaseNode::getDoubleArrayParam(const std::string& name, const std::vector<double>& dflt) noexcept
+std::vector<double>
+BaseNode::getDoubleArrayParam(const std::string& param_name, const std::vector<double>& dflt) noexcept
 {
-  if (has_parameter(name)) {
-    return get_parameter(name).as_double_array();
+  if (has_parameter(param_name)) {
+    return get_parameter(param_name).as_double_array();
   }
   else {
-    return declareParam(name, dflt);
+    return declareParam(param_name, dflt);
   }
 }
 
 std::vector<std::string>
-BaseNode::getStringArrayParam(const std::string& name, const std::vector<std::string>& dflt) noexcept
+BaseNode::getStringArrayParam(const std::string& param_name, const std::vector<std::string>& dflt) noexcept
 {
-  if (has_parameter(name)) {
-    return get_parameter(name).as_string_array();
+  if (has_parameter(param_name)) {
+    return get_parameter(param_name).as_string_array();
   }
   else {
-    return declareParam(name, dflt);
-  }
-}
-
-void BaseNode::setClockType(rclcpp::NodeOptions& options)
-{
-  const auto clock_type = ros2::getEnv("TOBAS_CLOCK_TYPE");
-
-  if (!clock_type) {
-    return;
-  }
-
-  if (std::strcmp(clock_type, "ros_time") == 0) {
-    options.clock_type(RCL_ROS_TIME);  // Use the system clock if no reference clock is available.
-    options.use_clock_thread(true);    // Use a dedicated thread because `/clock` may be received.
-  }
-  else if (std::strcmp(clock_type, "system_time") == 0) {
-    options.clock_type(RCL_SYSTEM_TIME);  // System clock synchronized with NTP.
-    options.use_clock_thread(false);      // No dedicated thread is needed because `/clock` is not received.
-  }
-  else if (std::strcmp(clock_type, "steady_time") == 0) {
-    options.clock_type(RCL_STEADY_TIME);  // Monotonic timer unaffected by NTP.
-    options.use_clock_thread(false);      // No dedicated thread is needed because `/clock` is not received.
-  }
-  else {
-    std::cerr << "Unknown clock type: " << clock_type << std::endl;
+    return declareParam(param_name, dflt);
   }
 }
 
@@ -267,5 +244,30 @@ void BaseNode::getDParamCb(
   const tobas_dparam_msgs::srv::GetParams::Response::SharedPtr& res)
 {
   res->params = dparams_;
+}
+
+void BaseNode::setClockType(rclcpp::NodeOptions& options)
+{
+  const auto clock_type = ros2::getEnv("TOBAS_CLOCK_TYPE");
+
+  if (!clock_type) {
+    return;
+  }
+
+  if (std::strcmp(clock_type, "ros_time") == 0) {
+    options.clock_type(RCL_ROS_TIME);  // Use the system clock if no reference clock is available.
+    options.use_clock_thread(true);    // Use a dedicated thread because `/clock` may be received.
+  }
+  else if (std::strcmp(clock_type, "system_time") == 0) {
+    options.clock_type(RCL_SYSTEM_TIME);  // System clock synchronized with NTP.
+    options.use_clock_thread(false);      // No dedicated thread is needed because `/clock` is not received.
+  }
+  else if (std::strcmp(clock_type, "steady_time") == 0) {
+    options.clock_type(RCL_STEADY_TIME);  // Monotonic timer unaffected by NTP.
+    options.use_clock_thread(false);      // No dedicated thread is needed because `/clock` is not received.
+  }
+  else {
+    std::cerr << "Unknown clock type: " << clock_type << std::endl;
+  }
 }
 }  // namespace tobas

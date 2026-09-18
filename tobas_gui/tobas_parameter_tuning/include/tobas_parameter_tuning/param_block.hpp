@@ -26,7 +26,8 @@ namespace param
 struct IntConfig
 {
   long step;
-  long dflt;
+  long default_value;
+  long initial_value;
   QString prefix;
 
   QPushButton* down_button_;
@@ -38,7 +39,8 @@ struct IntConfig
 struct DoubleConfig
 {
   double step;
-  long dflt;
+  long default_value;
+  long initial_value;
   QString prefix;
 
   QPushButton* down_button_;

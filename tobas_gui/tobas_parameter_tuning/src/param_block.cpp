@@ -80,7 +80,8 @@ bool ParamBlockWidget::load()
 
     IntConfig config;
     config.step = param.step;
-    config.dflt = param.dflt;
+    config.default_value = param.default_value;
+    config.initial_value = param.initial_value;
     config.prefix = QString::fromStdString(str::convertToSuperscript(param.prefix));
 
     config.down_button_ = new QPushButton();
@@ -90,14 +91,14 @@ bool ParamBlockWidget::load()
     config.up_button_->setIcon(style()->standardIcon(QStyle::SP_ArrowUp));
 
     config.slider = new qt::Slider(Qt::Horizontal);
-    config.slider->setRange(param.min, param.max);
-    config.slider->setValue(param.value);
+    config.slider->setRange(param.minimum_value, param.maximum_value);
+    config.slider->setValue(param.current_value);
 
     config.line_edit = new QLineEdit();
     config.line_edit->setFixedWidth(kLineEditWidth);
     config.line_edit->setAlignment(Qt::AlignRight);
     config.line_edit->setReadOnly(true);
-    config.line_edit->setText(QString::number(param.step * param.value) + config.prefix);
+    config.line_edit->setText(QString::number(param.step * param.current_value) + config.prefix);
 
     int_configs_[param.name] = config;
 
@@ -119,7 +120,8 @@ bool ParamBlockWidget::load()
 
     DoubleConfig config;
     config.step = param.step;
-    config.dflt = param.dflt;
+    config.default_value = param.default_value;
+    config.initial_value = param.initial_value;
     config.prefix = QString::fromStdString(str::convertToSuperscript(param.prefix));
 
     config.down_button_ = new QPushButton();
@@ -129,14 +131,14 @@ bool ParamBlockWidget::load()
     config.up_button_->setIcon(style()->standardIcon(QStyle::SP_ArrowUp));
 
     config.slider = new qt::Slider(Qt::Horizontal);
-    config.slider->setRange(param.min, param.max);
-    config.slider->setValue(param.value);
+    config.slider->setRange(param.minimum_value, param.maximum_value);
+    config.slider->setValue(param.current_value);
 
     config.line_edit = new QLineEdit();
     config.line_edit->setFixedWidth(kLineEditWidth);
     config.line_edit->setAlignment(Qt::AlignRight);
     config.line_edit->setReadOnly(true);
-    config.line_edit->setText(QString::number(param.step * param.value) + config.prefix);
+    config.line_edit->setText(QString::number(param.step * param.current_value) + config.prefix);
 
     double_configs_[param.name] = config;
 
@@ -190,35 +192,35 @@ bool ParamBlockWidget::setToDefaults()
   }
 
   for (const auto& [name, config] : int_configs_) {
-    if (config.slider->value() == config.dflt) {
+    if (config.slider->value() == config.default_value) {
       continue;
     }
 
-    if (dparam_cli_->setInt(name, config.dflt) != dparam::DynamicParamClient::kNoError) {
+    if (dparam_cli_->setInt(name, config.default_value) != dparam::DynamicParamClient::kNoError) {
       qWarning() << dparam_cli_->errorMessage();
       qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter '" + name.c_str() + "'.");
       return false;
     }
 
     const QSignalBlocker block(config.slider);
-    config.slider->setValue(config.dflt);
-    config.line_edit->setText(QString::number(config.step * config.dflt) + config.prefix);
+    config.slider->setValue(config.default_value);
+    config.line_edit->setText(QString::number(config.step * config.default_value) + config.prefix);
   }
 
   for (const auto& [name, config] : double_configs_) {
-    if (config.slider->value() == config.dflt) {
+    if (config.slider->value() == config.default_value) {
       continue;
     }
 
-    if (dparam_cli_->setDouble(name, config.dflt) != dparam::DynamicParamClient::kNoError) {
+    if (dparam_cli_->setDouble(name, config.default_value) != dparam::DynamicParamClient::kNoError) {
       qWarning() << dparam_cli_->errorMessage();
       qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter '" + name.c_str() + "'.");
       return false;
     }
 
     const QSignalBlocker block(config.slider);
-    config.slider->setValue(config.dflt);
-    config.line_edit->setText(QString::number(config.step * config.dflt) + config.prefix);
+    config.slider->setValue(config.default_value);
+    config.line_edit->setText(QString::number(config.step * config.default_value) + config.prefix);
   }
 
   return true;

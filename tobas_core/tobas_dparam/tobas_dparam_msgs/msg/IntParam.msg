@@ -3,8 +3,9 @@
 
 string name
 int64 step
-int64 dflt
-int64 min
-int64 max
-int64 value
+int64 default_value
+int64 initial_value
+int64 minimum_value
+int64 maximum_value
+int64 current_value
 string prefix

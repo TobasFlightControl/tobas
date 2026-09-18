@@ -218,7 +218,7 @@ bool RotorTestWidget::loadCurrentGains()
 
   for (const auto& [ch, param] : std::views::enumerate(res->params.ints)) {
     TOBAS_CHECK(param.name == paramName(ch));
-    rotor_widgets_.at(ch)->setGain(param.value);
+    rotor_widgets_.at(ch)->setGain(param.current_value);
   }
 
   return true;
