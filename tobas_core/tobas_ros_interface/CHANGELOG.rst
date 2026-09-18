@@ -2,8 +2,8 @@
 Changelog for package tobas_ros_interface
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.16.1 (2026-09-18)
+-------------------
 * PWMコマンドのインターフェースを追加
 * Contributors: Masayoshi Dohi
 
