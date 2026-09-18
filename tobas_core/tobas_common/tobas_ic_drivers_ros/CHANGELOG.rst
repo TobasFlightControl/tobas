@@ -1,0 +1,62 @@
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Changelog for package tobas_ic_drivers_ros
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Forthcoming
+-----------
+
+2.16.0 (2026-07-29)
+-------------------
+* Add description
+* 0.0.0 -> 2.16.0
+* コメント改善
+* Merge branch 'feature/gcs_layout' into jazzy
+* delete unecessary "this->"
+* Contributors: Masayoshi Dohi
+
+2.15.0 (2026-06-29)
+-------------------
+* Merge branch 'jazzy-dev' into jazzy
+* .
+* .
+* Merge pull request `#8 <https://github.com/TobasFlightControl/tobas/issues/8>`_ from TobasFlightControl/feature/bmm350_driver
+  add: Implement BMM350 driver functions and nodes
+* move drivers: ILPS22QS, IIS2MDC
+* fix: BMM350 review comments
+* add: Implement BMM350 driver functions and nodes
+* .
+* add license
+* add license
+* Merge branch 'feature/add_namespace' into jazzy-dev
+* add namespace
+* Merge branch 'jazzy-dev' into feature/objetc_avoidance
+* Merge branch 'jazzy-dev' into jazzy
+* add compile option: -Wswitch-enum
+* Contributors: Masayoshi Dohi, Tetsuka Daiki, onionitsuka
+
+2.12.1 (2026-02-18 12:13:14 +0900)
+----------------------------------
+
+2.12.0 (2026-02-18 12:13:14 +0900)
+----------------------------------
+
+2.11.0 (2026-02-13)
+-------------------
+
+2.10.0 (2026-01-29)
+-------------------
+
+2.8.0 (2025-09-25)
+------------------
+* Merge branch 'jazzy-dev' into jazzy
+* edit cmakes
+* リンクエラーを検出
+* Contributors: Masayoshi Dohi
+
+2.7.0 (2025-09-09)
+------------------
+* Merge branch 'jazzy-develop' into jazzy
+* .
+* コンパイルオプションを追加
+* refactor
+* Contributors: Masayoshi Dohi

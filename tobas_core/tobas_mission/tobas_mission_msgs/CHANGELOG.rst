@@ -1,0 +1,51 @@
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Changelog for package tobas_mission_msgs
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Forthcoming
+-----------
+
+2.16.0 (2026-07-29)
+-------------------
+* Add description
+* 0.0.0 -> 2.16.0
+* Contributors: Masayoshi Dohi
+
+2.15.0 (2026-06-29)
+-------------------
+* Merge branch 'jazzy-dev' into jazzy
+* Merge branch 'feature/impl_mission_planner' into jazzy-dev
+* 最後に実行中だったミッション番号を返す
+* Add license headers
+* ミッション構造体を定義
+* Merge branch 'jazzy-dev' into jazzy
+* add license
+* add license
+* Merge branch 'release/v2.12' into feature/refine_img_processing
+* Contributors: Masayoshi Dohi, ok10171
+
+2.12.1 (2026-02-18 12:13:14 +0900)
+----------------------------------
+
+2.12.0 (2026-02-18 12:13:14 +0900)
+----------------------------------
+* Merge branch 'jazzy-dev' into jazzy
+* change: ミッションに優先度を定義
+* ミッションにエラーコードを追加
+* Contributors: Masayoshi Dohi
+
+2.11.0 (2026-02-13)
+-------------------
+* Merge branch 'jazzy-dev' into jazzy
+* Merge branch 'feature/mission_execution' into jazzy-dev
+* ミッション用のメッセージを作成
+* Contributors: Masayoshi Dohi
+
+2.10.0 (2026-01-29)
+-------------------
+
+2.8.0 (2025-09-25)
+------------------
+
+2.7.0 (2025-09-09)
+------------------

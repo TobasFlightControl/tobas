@@ -1,0 +1,46 @@
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Changelog for package tobas_gamepad_core
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Forthcoming
+-----------
+
+2.16.0 (2026-07-29)
+-------------------
+* magic_enum.hpp -> magic_enum/magic_enum.hpp
+* magic_enumとcxxoptsのサブモジュールを削除
+* fix
+* 0.0.0 -> 2.16.0
+* Merge branch 'feature/use-geographiclib' into jazzy
+* .
+* .
+* コメント改善
+* Merge branch 'feature/english_translation' into jazzy
+* English translation
+* English translation
+* Contributors: Masayoshi Dohi
+
+2.15.0 (2026-06-29)
+-------------------
+* Merge branch 'jazzy-dev' into jazzy
+* .
+* 依存関係を書くなど
+* Contributors: Masayoshi Dohi
+
+2.12.1 (2026-02-18 12:13:14 +0900)
+----------------------------------
+
+2.12.0 (2026-02-18 12:13:14 +0900)
+----------------------------------
+
+2.11.0 (2026-02-13)
+-------------------
+
+2.10.0 (2026-01-29)
+-------------------
+
+2.8.0 (2025-09-25)
+------------------
+
+2.7.0 (2025-09-09)
+------------------

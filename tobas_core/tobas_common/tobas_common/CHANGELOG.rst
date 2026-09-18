@@ -1,0 +1,53 @@
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Changelog for package tobas_common
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Forthcoming
+-----------
+
+2.16.0 (2026-07-29)
+-------------------
+* Add description
+* 0.0.0 -> 2.16.0
+* Merge branch 'feature/use-geographiclib' into jazzy
+* GNSS関連の計算をgeographilibに
+* Merge branch 'feature/english_translation' into jazzy
+* delete unused packages
+* Contributors: Masayoshi Dohi
+
+2.15.0 (2026-06-29)
+-------------------
+* Merge branch 'jazzy-dev' into jazzy
+* add license
+* Merge branch 'jazzy-dev' into feature/objetc_avoidance
+* Merge branch 'jazzy-dev' into jazzy
+* move
+* Merge branch 'release/v2.12' into feature/refine_img_processing
+* Contributors: Masayoshi Dohi, Tetsuka Daiki, ok10171
+
+2.12.1 (2026-02-18 12:13:14 +0900)
+----------------------------------
+
+2.12.0 (2026-02-18 12:13:14 +0900)
+----------------------------------
+
+2.11.0 (2026-02-13)
+-------------------
+* Merge branch 'jazzy-dev' into jazzy
+* move messages
+* Contributors: Masayoshi Dohi
+
+2.10.0 (2026-01-29)
+-------------------
+
+2.8.0 (2025-09-25)
+------------------
+
+2.7.0 (2025-09-09)
+------------------
+* Merge branch 'jazzy-develop' into jazzy
+* modify: URDF関連のコードを別パッケージに分離
+* LinearSplineを実装
+* move
+* refactor
+* Contributors: Masayoshi Dohi

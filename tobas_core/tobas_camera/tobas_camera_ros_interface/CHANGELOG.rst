@@ -1,0 +1,46 @@
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Changelog for package tobas_camera_ros_interface
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Forthcoming
+-----------
+
+2.16.0 (2026-07-29)
+-------------------
+* Add description
+* 0.0.0 -> 2.16.0
+* Merge pull request `#11 <https://github.com/TobasFlightControl/tobas/issues/11>`_ from TobasFlightControl/feature/add_cxgb400_functions
+  Feature/add cxgb400 functions
+* feat: add functions related to exposure status settings
+* Contributors: Masayoshi Dohi, ok10171
+
+2.15.0 (2026-06-29)
+-------------------
+* Merge branch 'jazzy-dev' into jazzy
+* add license
+* add license
+* Merge branch 'feature/add_namespace' into jazzy-dev
+* Merge branch 'jazzy-dev' into feature/objetc_avoidance
+* tobas_camera
+* Merge branch 'jazzy-dev' into jazzy
+* tobas_constantsをファイル分割
+* カメラ系のパッケージをtobas_camera以下にまとめた
+* Contributors: Masayoshi Dohi, Tetsuka Daiki
+
+2.12.1 (2026-02-18 12:13:14 +0900)
+----------------------------------
+
+2.12.0 (2026-02-18 12:13:14 +0900)
+----------------------------------
+
+2.11.0 (2026-02-13)
+-------------------
+
+2.10.0 (2026-01-29)
+-------------------
+
+2.8.0 (2025-09-25)
+------------------
+
+2.7.0 (2025-09-09)
+------------------
