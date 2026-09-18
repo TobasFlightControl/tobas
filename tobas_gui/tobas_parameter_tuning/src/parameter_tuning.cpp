@@ -137,7 +137,7 @@ void ParameterTuningWidget::onLoadButtonClicked()
   reset_button_->setEnabled(true);
   default_button_->setEnabled(true);
 
-  qt::qInfoBox(this, "Dynamic parameters are loaded successfully.");
+  qt::qInfoBox(this, "Dynamic parameters have been loaded successfully.");
 }
 
 void ParameterTuningWidget::onSaveButtonClicked()
