@@ -29,7 +29,7 @@ private:
 DroneServerNode::DroneServerNode(const rclcpp::NodeOptions& options)
   : super("drone_server", nodeOptions_DParam(options))
 {
-  addDynamicStringParam("tbsdrn_path", &self::fileParamCb, this);
+  addDynamicStringParam("tbsdrn_path", &self::fileParamCb, this, "");
 
   drone_pub_ = createPublisher<Drone>(topic::kDrone, true, true);
 }
