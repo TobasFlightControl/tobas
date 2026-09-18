@@ -25,6 +25,18 @@ namespace gui
 {
 namespace param
 {
+namespace
+{
+template <typename Config>
+void updateButtonStates(const Config& config)
+{
+  const auto value = config.slider->value();
+  config.down_button_->setEnabled(value > config.slider->minimum());
+  config.up_button_->setEnabled(value < config.slider->maximum());
+  config.reset_button_->setEnabled(value != config.initial_value);
+}
+}  // namespace
+
 ParamBlockWidget::ParamBlockWidget(const std::string& node_name, const QString& label) : node_name_(node_name)
 {
   const auto rows = new QVBoxLayout();
@@ -103,6 +115,7 @@ bool ParamBlockWidget::load()
     config.slider = new qt::Slider(Qt::Horizontal);
     config.slider->setRange(param.minimum_value, param.maximum_value);
     config.slider->setValue(param.current_value);
+    updateButtonStates(config);
 
     config.line_edit = new QLineEdit();
     config.line_edit->setFixedWidth(kLineEditWidth);
@@ -151,6 +164,7 @@ bool ParamBlockWidget::load()
     config.slider = new qt::Slider(Qt::Horizontal);
     config.slider->setRange(param.minimum_value, param.maximum_value);
     config.slider->setValue(param.current_value);
+    updateButtonStates(config);
 
     config.line_edit = new QLineEdit();
     config.line_edit->setFixedWidth(kLineEditWidth);
@@ -225,6 +239,7 @@ bool ParamBlockWidget::setToDefaults()
     const QSignalBlocker block(config.slider);
     config.slider->setValue(config.default_value);
     config.line_edit->setText(QString::number(config.step * config.default_value) + config.prefix);
+    updateButtonStates(config);
   }
 
   for (const auto& [name, config] : double_configs_) {
@@ -241,6 +256,7 @@ bool ParamBlockWidget::setToDefaults()
     const QSignalBlocker block(config.slider);
     config.slider->setValue(config.default_value);
     config.line_edit->setText(QString::number(config.step * config.default_value) + config.prefix);
+    updateButtonStates(config);
   }
 
   return true;
@@ -290,6 +306,7 @@ void ParamBlockWidget::onIntSliderValueChanged(long value, const std::string& na
 {
   auto& config = int_configs_.at(name);
   config.line_edit->setText(QString::number(config.step * value) + config.prefix);
+  updateButtonStates(config);
 
   if (dparam_cli_->setInt(name, value) != dparam::DynamicParamClient::kNoError) {
     qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter '" + name.c_str() + "'.");
@@ -325,6 +342,7 @@ void ParamBlockWidget::onDoubleSliderValueChanged(long value, const std::string&
 {
   auto& config = double_configs_.at(name);
   config.line_edit->setText(QString::number(config.step * value) + config.prefix);
+  updateButtonStates(config);
 
   if (dparam_cli_->setDouble(name, value) != dparam::DynamicParamClient::kNoError) {
     qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter '" + name.c_str() + "'.");
