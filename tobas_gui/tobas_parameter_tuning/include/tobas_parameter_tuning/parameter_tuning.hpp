@@ -42,7 +42,8 @@ private:
 
   QPushButton* load_button_;
   QPushButton* save_button_;
-  QPushButton* dflt_button_;
+  QPushButton* reset_button_;
+  QPushButton* default_button_;
 
   bool project_loaded_ = false;
   bool ros_initialized_ = false;
@@ -50,6 +51,7 @@ private:
 private Q_SLOTS:
   void onLoadButtonClicked();
   void onSaveButtonClicked();
+  void onResetButtonClicked();
   void onDefaultButtonClicked();
 };
 }  // namespace param

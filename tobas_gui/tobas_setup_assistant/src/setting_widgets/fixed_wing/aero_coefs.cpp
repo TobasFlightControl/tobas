@@ -302,7 +302,7 @@ void AerodynamicsCoefficientsWidget::onLoadButtonClicked()
   c_yaw_p_->setValue(parser.c_yaw_p());
   c_yaw_r_->setValue(parser.c_yaw_r());
 
-  qt::qInfoBox(this, "Coefficients are loaded successfully.");
+  qt::qInfoBox(this, "Coefficients have been loaded successfully.");
 }
 }  // namespace fw
 }  // namespace sa

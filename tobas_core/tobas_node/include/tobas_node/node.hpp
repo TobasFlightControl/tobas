@@ -160,58 +160,60 @@ public:
   inline void fatalThrottle(const char* file, int line, double period, const Args&... args);
 
   template <typename Obj>
-  void addDynamicBoolParam(const std::string& name, bool (Obj::*fp)(const bool&), Obj* obj, const bool& dflt = false);
+  void
+  addDynamicBoolParam(const std::string& param_name, bool (Obj::*fp)(const bool&), Obj* obj, const bool& default_value);
 
   template <typename Obj>
   void addDynamicIntParam(
-    const std::string& name,
+    const std::string& param_name,
     bool (Obj::*fp)(const long&),
     Obj* obj,
     const long& step,
-    const long& dflt,
-    const long& _min,
-    const long& _max,
+    const long& default_value,
+    const long& minimum_value,
+    const long& maximum_value,
     const std::string& prefix = "");
 
   template <typename Obj>
   void addDynamicDoubleParam(
-    const std::string& name,
+    const std::string& param_name,
     bool (Obj::*fp)(const double&),
     Obj* obj,
     const double& step,
-    const long& dflt,
-    const long& _min,
-    const long& _max,
+    const long& default_value,
+    const long& minimum_value,
+    const long& maximum_value,
     const std::string& prefix = "");
 
   template <typename Obj>
   void addDynamicStringParam(
-    const std::string& name,
+    const std::string& param_name,
     bool (Obj::*fp)(const std::string&),
     Obj* obj,
-    const std::string& dflt = "");
+    const std::string& default_value);
 
-  bool getBoolParam(const std::string& name);
-  long getIntParam(const std::string& name);
-  double getDoubleParam(const std::string& name);
-  std::string getStringParam(const std::string& name);
-  std::vector<bool> getBoolArrayParam(const std::string& name);
-  std::vector<uint8_t> getByteArrayParam(const std::string& name);
-  std::vector<long> getIntArrayParam(const std::string& name);
-  std::vector<double> getDoubleArrayParam(const std::string& name);
-  std::vector<std::string> getStringArrayParam(const std::string& name);
+  bool getBoolParam(const std::string& param_name);
+  long getIntParam(const std::string& param_name);
+  double getDoubleParam(const std::string& param_name);
+  std::string getStringParam(const std::string& param_name);
+  std::vector<bool> getBoolArrayParam(const std::string& param_name);
+  std::vector<uint8_t> getByteArrayParam(const std::string& param_name);
+  std::vector<long> getIntArrayParam(const std::string& param_name);
+  std::vector<double> getDoubleArrayParam(const std::string& param_name);
+  std::vector<std::string> getStringArrayParam(const std::string& param_name);
 
-  bool getBoolParam(const std::string& name, const bool& dflt) noexcept;
-  long getIntParam(const std::string& name, const long& dflt) noexcept;
-  double getDoubleParam(const std::string& name, const double& dflt) noexcept;
-  std::string getStringParam(const std::string& name, const std::string& dflt) noexcept;
-  std::vector<bool> getBoolArrayParam(const std::string& name, const std::vector<bool>& dflt) noexcept;
-  std::vector<uint8_t> getByteArrayParam(const std::string& name, const std::vector<uint8_t>& dflt) noexcept;
-  std::vector<long> getIntArrayParam(const std::string& name, const std::vector<long>& dflt) noexcept;
-  std::vector<double> getDoubleArrayParam(const std::string& name, const std::vector<double>& dflt) noexcept;
-  std::vector<std::string> getStringArrayParam(const std::string& name, const std::vector<std::string>& dflt) noexcept;
-
-  static void setClockType(rclcpp::NodeOptions& options);
+  bool getBoolParam(const std::string& param_name, const bool& default_value) noexcept;
+  long getIntParam(const std::string& param_name, const long& default_value) noexcept;
+  double getDoubleParam(const std::string& param_name, const double& default_value) noexcept;
+  std::string getStringParam(const std::string& param_name, const std::string& default_value) noexcept;
+  std::vector<bool> getBoolArrayParam(const std::string& param_name, const std::vector<bool>& default_value) noexcept;
+  std::vector<uint8_t>
+  getByteArrayParam(const std::string& param_name, const std::vector<uint8_t>& default_value) noexcept;
+  std::vector<long> getIntArrayParam(const std::string& param_name, const std::vector<long>& default_value) noexcept;
+  std::vector<double>
+  getDoubleArrayParam(const std::string& param_name, const std::vector<double>& default_value) noexcept;
+  std::vector<std::string>
+  getStringArrayParam(const std::string& param_name, const std::vector<std::string>& default_value) noexcept;
 
   /* Tobas default node options. */
   static rclcpp::NodeOptions nodeOptions_Default(rclcpp::NodeOptions options);
@@ -231,19 +233,21 @@ private:
   ros2::ServiceServerPtr<tobas_dparam_msgs::srv::GetParams> get_dparam_ss_;
 
   template <typename T>
-  T declareParam(const std::string& name);
+  T declareParam(const std::string& param_name);
 
   template <typename T>
-  T declareParam(const std::string& name, const T& dflt);
+  T declareParam(const std::string& param_name, const T& default_value);
 
   template <typename T>
-  void declareDynamicParam(const std::string& name, const T& dflt);
+  T declareDynamicParam(const std::string& param_name, const T& default_value);
 
   void rclcppLog(uint8_t level, const std::string& text) const;
 
   void getDParamCb(
     const tobas_dparam_msgs::srv::GetParams::Request::ConstSharedPtr& req,
     const tobas_dparam_msgs::srv::GetParams::Response::SharedPtr& res);
+
+  static void setClockType(rclcpp::NodeOptions& options);
 
   static inline std::string createID(const char* file, int line);
 };
@@ -339,167 +343,175 @@ BaseNode::createWallTimer(std::chrono::duration<RepType, DurType> period, void (
 }
 
 template <typename Obj>
-void BaseNode::addDynamicBoolParam(const std::string& name, bool (Obj::*fp)(const bool&), Obj* obj, const bool& dflt)
+void BaseNode::addDynamicBoolParam(
+  const std::string& param_name,
+  bool (Obj::*fp)(const bool&),
+  Obj* obj,
+  const bool& default_value)
 {
-  if (has_parameter(name)) {
-    TOBAS_ERROR("Parameter \"", name, "\" is already declared.");
+  if (has_parameter(param_name)) {
+    TOBAS_ERROR("Parameter \"", param_name, "\" is already declared.");
     return;
   }
 
-  declareDynamicParam(name, dflt);
+  const auto initial_value = declareDynamicParam(param_name, default_value);
 
-  const auto cb = [this, name, fp, obj](const rclcpp::Parameter& param)
+  tobas_dparam_msgs::msg::BoolParam dparam;
+  dparam.name = param_name;
+  dparam.default_value = default_value;
+  dparam.initial_value = initial_value;
+  dparams_.bools.push_back(dparam);
+
+  const auto cb = [this, param_name, fp, obj](const rclcpp::Parameter& param)
   {
     const auto value = param.as_bool();
     if ((obj->*fp)(value)) {
       for (auto& bool_param : dparams_.bools) {
-        if (bool_param.name == name) {
-          bool_param.value = value;
+        if (bool_param.name == param_name) {
+          bool_param.current_value = value;
           break;
         }
       }
-      TOBAS_INFO("Boolean parameter \"", name, "\" has been updated to ", value, ".");
+      TOBAS_INFO("Boolean parameter \"", param_name, "\" has been updated to ", value, ".");
     }
   };
-  const auto cb_handle = dparam_sub_.add_parameter_callback(name, cb);
+  const auto cb_handle = dparam_sub_.add_parameter_callback(param_name, cb);
   dparam_handles_.push_back(cb_handle);
-
-  tobas_dparam_msgs::msg::BoolParam dparam;
-  dparam.name = name;
-  dparam.dflt = dflt;
-  dparams_.bools.push_back(dparam);
 }
 
 template <typename Obj>
 void BaseNode::addDynamicIntParam(
-  const std::string& name,
+  const std::string& param_name,
   bool (Obj::*fp)(const long&),
   Obj* obj,
   const long& step,
-  const long& dflt,
-  const long& _min,
-  const long& _max,
+  const long& default_value,
+  const long& minimum_value,
+  const long& maximum_value,
   const std::string& prefix)
 {
-  TOBAS_ASSERT(_min <= dflt && dflt <= _max);
-  TOBAS_ASSERT(_max - _min < kMaxDynamicParamSteps);
+  TOBAS_ASSERT(minimum_value <= default_value && default_value <= maximum_value);
+  TOBAS_ASSERT(maximum_value - minimum_value < kMaxDynamicParamSteps);
 
-  if (has_parameter(name)) {
-    TOBAS_ERROR("Parameter \"", name, "\" is already declared.");
+  if (has_parameter(param_name)) {
+    TOBAS_ERROR("Parameter \"", param_name, "\" is already declared.");
     return;
   }
 
-  declareDynamicParam(name, dflt);
+  const auto initial_value = declareDynamicParam(param_name, default_value);
 
-  const auto cb = [this, name, fp, obj, step, _min, _max, prefix](const rclcpp::Parameter& param)
+  tobas_dparam_msgs::msg::IntParam dparam;
+  dparam.name = param_name;
+  dparam.step = step;
+  dparam.default_value = default_value;
+  dparam.initial_value = initial_value;
+  dparam.minimum_value = minimum_value;
+  dparam.maximum_value = maximum_value;
+  dparam.prefix = prefix;
+  dparams_.ints.push_back(dparam);
+
+  const auto cb = [this, param_name, fp, obj, step, minimum_value, maximum_value, prefix](const rclcpp::Parameter& param)
   {
-    const auto lsb = std::clamp(param.as_int(), _min, _max);
+    const auto lsb = std::clamp(param.as_int(), minimum_value, maximum_value);
     const auto value = step * lsb;
     if ((obj->*fp)(value)) {
       for (auto& int_param : dparams_.ints) {
-        if (int_param.name == name) {
-          int_param.value = lsb;
+        if (int_param.name == param_name) {
+          int_param.current_value = lsb;
           break;
         }
       }
-      TOBAS_INFO("Integer parameter \"", name, "\" has been updated to ", value, prefix, ".");
+      TOBAS_INFO("Integer parameter \"", param_name, "\" has been updated to ", value, prefix, ".");
     }
   };
-  const auto cb_handle = dparam_sub_.add_parameter_callback(name, cb);
+  const auto cb_handle = dparam_sub_.add_parameter_callback(param_name, cb);
   dparam_handles_.push_back(cb_handle);
-
-  tobas_dparam_msgs::msg::IntParam dparam;
-  dparam.name = name;
-  dparam.step = step;
-  dparam.dflt = dflt;
-  dparam.min = _min;
-  dparam.max = _max;
-  dparam.prefix = prefix;
-  dparams_.ints.push_back(dparam);
 }
 
 template <typename Obj>
 void BaseNode::addDynamicDoubleParam(
-  const std::string& name,
+  const std::string& param_name,
   bool (Obj::*fp)(const double&),
   Obj* obj,
   const double& step,
-  const long& dflt,
-  const long& _min,
-  const long& _max,
+  const long& default_value,
+  const long& minimum_value,
+  const long& maximum_value,
   const std::string& prefix)
 {
-  TOBAS_ASSERT(_min <= dflt && dflt <= _max);
-  TOBAS_ASSERT(_max - _min < kMaxDynamicParamSteps);
+  TOBAS_ASSERT(minimum_value <= default_value && default_value <= maximum_value);
+  TOBAS_ASSERT(maximum_value - minimum_value < kMaxDynamicParamSteps);
 
-  if (has_parameter(name)) {
-    TOBAS_ERROR("Parameter \"", name, "\" is already declared.");
+  if (has_parameter(param_name)) {
+    TOBAS_ERROR("Parameter \"", param_name, "\" is already declared.");
     return;
   }
 
-  declareDynamicParam(name, dflt);
+  const auto initial_value = declareDynamicParam(param_name, default_value);
 
-  const auto cb = [this, name, fp, obj, step, _min, _max, prefix](const rclcpp::Parameter& param)
+  tobas_dparam_msgs::msg::DoubleParam dparam;
+  dparam.name = param_name;
+  dparam.step = step;
+  dparam.default_value = default_value;
+  dparam.initial_value = initial_value;
+  dparam.minimum_value = minimum_value;
+  dparam.maximum_value = maximum_value;
+  dparam.prefix = prefix;
+  dparams_.doubles.push_back(dparam);
+
+  const auto cb = [this, param_name, fp, obj, step, minimum_value, maximum_value, prefix](const rclcpp::Parameter& param)
   {
-    const auto lsb = std::clamp(param.as_int(), _min, _max);
+    const auto lsb = std::clamp(param.as_int(), minimum_value, maximum_value);
     const auto value = step * lsb;
     if ((obj->*fp)(value)) {
       for (auto& double_param : dparams_.doubles) {
-        if (double_param.name == name) {
-          double_param.value = lsb;
+        if (double_param.name == param_name) {
+          double_param.current_value = lsb;
           break;
         }
       }
-      TOBAS_INFO("Double parameter \"", name, "\" has been updated to ", value, prefix, ".");
+      TOBAS_INFO("Double parameter \"", param_name, "\" has been updated to ", value, prefix, ".");
     }
   };
-  const auto cb_handle = dparam_sub_.add_parameter_callback(name, cb);
+  const auto cb_handle = dparam_sub_.add_parameter_callback(param_name, cb);
   dparam_handles_.push_back(cb_handle);
-
-  tobas_dparam_msgs::msg::DoubleParam dparam;
-  dparam.name = name;
-  dparam.step = step;
-  dparam.dflt = dflt;
-  dparam.min = _min;
-  dparam.max = _max;
-  dparam.prefix = prefix;
-  dparams_.doubles.push_back(dparam);
 }
 
 template <typename Obj>
 void BaseNode::addDynamicStringParam(
-  const std::string& name,
+  const std::string& param_name,
   bool (Obj::*fp)(const std::string&),
   Obj* obj,
-  const std::string& dflt)
+  const std::string& default_value)
 {
-  if (has_parameter(name)) {
-    TOBAS_ERROR("Parameter \"", name, "\" is already declared.");
+  if (has_parameter(param_name)) {
+    TOBAS_ERROR("Parameter \"", param_name, "\" is already declared.");
     return;
   }
 
-  declareDynamicParam(name, dflt);
+  const auto initial_value = declareDynamicParam(param_name, default_value);
 
-  const auto cb = [this, name, fp, obj](const rclcpp::Parameter& param)
+  tobas_dparam_msgs::msg::StringParam dparam;
+  dparam.name = param_name;
+  dparam.default_value = default_value;
+  dparam.initial_value = initial_value;
+  dparams_.strings.push_back(dparam);
+
+  const auto cb = [this, param_name, fp, obj](const rclcpp::Parameter& param)
   {
     const auto& value = param.as_string();
     if ((obj->*fp)(value)) {
       for (auto& string_param : dparams_.strings) {
-        if (string_param.name == name) {
-          string_param.value = value;
+        if (string_param.name == param_name) {
+          string_param.current_value = value;
           break;
         }
       }
-      TOBAS_INFO("String parameter \"", name, "\" has been updated to \"", value, "\".");
+      TOBAS_INFO("String parameter \"", param_name, "\" has been updated to \"", value, "\".");
     }
   };
-  const auto cb_handle = dparam_sub_.add_parameter_callback(name, cb);
+  const auto cb_handle = dparam_sub_.add_parameter_callback(param_name, cb);
   dparam_handles_.push_back(cb_handle);
-
-  tobas_dparam_msgs::msg::StringParam dparam;
-  dparam.name = name;
-  dparam.dflt = dflt;
-  dparams_.strings.push_back(dparam);
 }
 
 template <typename... Args>
@@ -640,50 +652,50 @@ inline void BaseNode::fatalThrottle(const char* file, int line, double period, c
 }
 
 template <typename T>
-T BaseNode::declareParam(const std::string& name)
+T BaseNode::declareParam(const std::string& param_name)
 {
   try {
-    return declare_parameter<T>(name);
+    return declare_parameter<T>(param_name);
   }
   catch (const rclcpp::exceptions::UninitializedStaticallyTypedParameterException&) {
-    TOBAS_EXIT("Parameter \"", name, "\" is not initialized.");
+    TOBAS_EXIT("Parameter \"", param_name, "\" is not initialized.");
   }
   catch (const std::exception& e) {
-    TOBAS_EXIT("Unexptected error while declaring \"", name, "\": ", e.what());
+    TOBAS_EXIT("Unexptected error while declaring \"", param_name, "\": ", e.what());
   }
 }
 
 template <typename T>
-T BaseNode::declareParam(const std::string& name, const T& dflt)
+T BaseNode::declareParam(const std::string& param_name, const T& default_value)
 {
   try {
-    return declare_parameter<T>(name);
+    return declare_parameter<T>(param_name);
   }
   catch (const rclcpp::exceptions::UninitializedStaticallyTypedParameterException&) {
-    TOBAS_WARN("Parameter \"", name, "\" is not initialized. The default value \"", dflt, "\" is set.");
+    TOBAS_WARN("Parameter \"", param_name, "\" is not initialized. The default value \"", default_value, "\" is set.");
 
     // At this point the parameter has only been declared, so set the default value.
-    const auto set_param_res = set_parameter(rclcpp::Parameter(name, dflt));
+    const auto set_param_res = set_parameter(rclcpp::Parameter(param_name, default_value));
     if (!set_param_res.successful) {
-      TOBAS_ERROR("Failed to set \"", name, "\": ", set_param_res.reason);
+      TOBAS_ERROR("Failed to set \"", param_name, "\": ", set_param_res.reason);
     }
 
-    return dflt;
+    return default_value;
   }
   catch (const std::exception& e) {
-    TOBAS_EXIT("Unexptected error while declaring \"", name, "\": ", e.what());
+    TOBAS_EXIT("Unexptected error while declaring \"", param_name, "\": ", e.what());
   }
 }
 
 template <typename T>
-void BaseNode::declareDynamicParam(const std::string& _name, const T& _dflt)
+T BaseNode::declareDynamicParam(const std::string& _name, const T& _default_value)
 {
-  declare_parameter(_name, _dflt);
-
   if (!get_dparam_ss_) {
     get_dparam_ss_ = createService<tobas_dparam_msgs::srv::GetParams>(
       name() + "/" + service::kGetDynamicParams, &self::getDParamCb, this);
   }
+
+  return declare_parameter(_name, _default_value);
 }
 
 inline std::string BaseNode::createID(const char* file, int line)

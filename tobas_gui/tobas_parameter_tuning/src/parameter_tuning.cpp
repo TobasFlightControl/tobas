@@ -29,14 +29,23 @@ ParameterTuningWidget::ParameterTuningWidget()
              new ParamBlockWidget(node::kRcTeleop, "Radio Control") }
 {
   load_button_ = new QPushButton("Load");
+  load_button_->setToolTip("Load current dynamic parameters from the connected vehicle.");
+
   save_button_ = new QPushButton("Save");
-  dflt_button_ = new QPushButton("Default");
+  save_button_->setToolTip("Save current dynamic parameters to the local project.");
+
+  reset_button_ = new QPushButton("Reset");
+  reset_button_->setToolTip("Reset all dynamic parameters to their initial values.");
+
+  default_button_ = new QPushButton("Default");
+  default_button_->setToolTip("Restore all dynamic parameters to their default values.");
 
   constexpr int kButtonWidth = 100;
   constexpr int kButtonHeight = 40;
   load_button_->setFixedSize(kButtonWidth, kButtonHeight);
   save_button_->setFixedSize(kButtonWidth, kButtonHeight);
-  dflt_button_->setFixedSize(kButtonWidth, kButtonHeight);
+  reset_button_->setFixedSize(kButtonWidth, kButtonHeight);
+  default_button_->setFixedSize(kButtonWidth, kButtonHeight);
 
   reset();
 
@@ -48,7 +57,9 @@ ParameterTuningWidget::ParameterTuningWidget()
   root_rows->addLayout(button_cols);
   button_cols->addWidget(load_button_);
   button_cols->addWidget(save_button_);
-  button_cols->addWidget(dflt_button_);
+  button_cols->addSpacing(50);
+  button_cols->addWidget(reset_button_);
+  button_cols->addWidget(default_button_);
   button_cols->addStretch();
 
   const auto param_rows = qt::createScrollableQVBoxLayout(root_rows);
@@ -60,14 +71,16 @@ ParameterTuningWidget::ParameterTuningWidget()
   // Connection
   connect(load_button_, &QPushButton::clicked, this, &self::onLoadButtonClicked);
   connect(save_button_, &QPushButton::clicked, this, &self::onSaveButtonClicked);
-  connect(dflt_button_, &QPushButton::clicked, this, &self::onDefaultButtonClicked);
+  connect(reset_button_, &QPushButton::clicked, this, &self::onResetButtonClicked);
+  connect(default_button_, &QPushButton::clicked, this, &self::onDefaultButtonClicked);
 }
 
 void ParameterTuningWidget::reset()
 {
   load_button_->setEnabled(project_loaded_ && ros_initialized_);
   save_button_->setEnabled(false);
-  dflt_button_->setEnabled(false);
+  reset_button_->setEnabled(false);
+  default_button_->setEnabled(false);
 
   for (const auto& block : blocks_) {
     block->clear();
@@ -121,9 +134,10 @@ void ParameterTuningWidget::onLoadButtonClicked()
   }
 
   save_button_->setEnabled(true);
-  dflt_button_->setEnabled(true);
+  reset_button_->setEnabled(true);
+  default_button_->setEnabled(true);
 
-  qt::qInfoBox(this, "Dynamic parameters are loaded successfully.");
+  qt::qInfoBox(this, "Dynamic parameters have been loaded successfully.");
 }
 
 void ParameterTuningWidget::onSaveButtonClicked()
@@ -145,22 +159,38 @@ void ParameterTuningWidget::onSaveButtonClicked()
     "Please click 'Write' button again to flash them to the FC.");
 }
 
-void ParameterTuningWidget::onDefaultButtonClicked()
+void ParameterTuningWidget::onResetButtonClicked()
 {
-  qDebug() << "ParameterTuningWidget::onDefaultButtonClicked";
+  qDebug() << "ParameterTuningWidget::onResetButtonClicked";
 
-  // Confirm before resetting all parameters.
-  if (!qt::yesOrNo(this, "Are you sure you want to reset all parameters to their defaults?", qt::WARN)) {
+  if (!qt::yesOrNo(this, "Are you sure you want to reset all parameters to their initial values?", qt::WARN)) {
     return;
   }
 
   for (const auto& block : blocks_) {
-    if (!block->setToDefaults()) {
+    if (!block->setToInitialValues()) {
       return;
     }
   }
 
-  qt::qInfoBox(this, "Dynamic parameters are set to their defaults successfully.");
+  qt::qInfoBox(this, "Dynamic parameters have been set to their initial values successfully.");
+}
+
+void ParameterTuningWidget::onDefaultButtonClicked()
+{
+  qDebug() << "ParameterTuningWidget::onDefaultButtonClicked";
+
+  if (!qt::yesOrNo(this, "Are you sure you want to reset all parameters to their default values?", qt::WARN)) {
+    return;
+  }
+
+  for (const auto& block : blocks_) {
+    if (!block->setToDefaultValues()) {
+      return;
+    }
+  }
+
+  qt::qInfoBox(this, "Dynamic parameters have been set to their default values successfully.");
 }
 }  // namespace param
 }  // namespace gui

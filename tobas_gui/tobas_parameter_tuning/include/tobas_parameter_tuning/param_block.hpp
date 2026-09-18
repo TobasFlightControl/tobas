@@ -26,11 +26,14 @@ namespace param
 struct IntConfig
 {
   long step;
-  long dflt;
+  long default_value;
+  long initial_value;
   QString prefix;
 
   QPushButton* down_button_;
   QPushButton* up_button_;
+  QPushButton* reset_button_;
+  QPushButton* home_button_;
   qt::Slider* slider;
   QLineEdit* line_edit;
 };
@@ -38,11 +41,14 @@ struct IntConfig
 struct DoubleConfig
 {
   double step;
-  long dflt;
+  long default_value;
+  long initial_value;
   QString prefix;
 
   QPushButton* down_button_;
   QPushButton* up_button_;
+  QPushButton* reset_button_;
+  QPushButton* home_button_;
   qt::Slider* slider;
   QLineEdit* line_edit;
 };
@@ -62,7 +68,9 @@ public:
   bool load();
   bool save(const QString& path);
   void clear();
-  bool setToDefaults();
+
+  bool setToInitialValues();
+  bool setToDefaultValues();
 
 private:
   const std::string node_name_;
@@ -78,13 +86,20 @@ private:
 
   YAML::Node createCurrentConfig() const;
 
+  template <typename Config>
+  bool setValue(const std::string& name, const Config& config, int32_t value);
+
 private Q_SLOTS:
   void onIntDownButtonClicked(const std::string& name);
   void onIntUpButtonClicked(const std::string& name);
+  void onIntResetButtonClicked(const std::string& name);
+  void onIntHomeButtonClicked(const std::string& name);
   void onIntSliderValueChanged(long value, const std::string& name);
 
   void onDoubleDownButtonClicked(const std::string& name);
   void onDoubleUpButtonClicked(const std::string& name);
+  void onDoubleResetButtonClicked(const std::string& name);
+  void onDoubleHomeButtonClicked(const std::string& name);
   void onDoubleSliderValueChanged(long value, const std::string& name);
 };
 }  // namespace param
