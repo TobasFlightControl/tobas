@@ -234,6 +234,8 @@ FC のトピックが表示されれば discovery は正常です．
 $ ros2 topic echo <Topic Name>
 ```
 
+同様の手順でコンパニオン PC から FC へのアクセスも可能です．
+
 ## 発展
 
 ---

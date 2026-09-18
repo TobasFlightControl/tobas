@@ -235,6 +235,8 @@ Also verify that messages can actually be received.
 $ ros2 topic echo <Topic Name>
 ```
 
+You can also access the FC from the companion PC using the same procedure.
+
 ## Advanced
 
 ---
