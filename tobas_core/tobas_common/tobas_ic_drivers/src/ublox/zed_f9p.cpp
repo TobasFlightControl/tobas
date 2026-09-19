@@ -33,34 +33,45 @@ bool ZEDF9P::update(bool nonblock)
   scanner_.reset();
 
   if (nonblock) {
-    bool sended = false;
-    uint8_t send_data = kDefaultData;  // 送るデータがないときは0xFFを送信
-    {
-      std::lock_guard<std::mutex> lock(send_buffer_mutex_);
-      if (!send_buffer_.empty()) {
-        send_data = send_buffer_[0];
-        sended = true;
+    rate_.start();
+    while (true) {
+      bool sended = false;
+      uint8_t send_data = kDefaultData;  // 送るデータがないときは0xFFを送信
+      {
+        std::lock_guard<std::mutex> lock(send_buffer_mutex_);
+        if (!send_buffer_.empty()) {
+          send_data = send_buffer_[0];
+          sended = true;
+        }
       }
-    }
-    tx_buf_[0] = send_data;
+      tx_buf_[0] = send_data;
 
-    // スタートバイトを確認
-    if (!spi_.transfer(1)) {  // データを送信しながら受信する Back-to-back read and write access
-      return false;
-    }
-    if (sended) {
-      std::lock_guard<std::mutex> lock(send_buffer_mutex_);
-      if (!send_buffer_.empty()) {
-        send_buffer_.pop_front();  // 送信したデータはbufferから取り除く
+      // スタートバイトを確認
+      if (!spi_.transfer(1)) {  // データを送信しながら受信する Back-to-back read and write access
+        return false;
       }
-    }
-    if (!scanner_.update(rx_buf_[0])) {
-      return false;
-    }
+      if (sended) {
+        std::lock_guard<std::mutex> lock(send_buffer_mutex_);
+        if (!send_buffer_.empty()) {
+          send_buffer_.pop_front();  // 送信したデータはbufferから取り除く
+        }
+      }
+      if (!scanner_.update(rx_buf_[0])) {
+        return false;
+      }
 
-    // データが来てなければ終了
-    if (scanner_.state() == UBXScanner::kSync1) {
-      return false;
+      // 受信データからUBXパケットが開始されたらメッセージスキャンへ進む
+      if (scanner_.state() != UBXScanner::kSync1) {
+        break;
+      }
+
+      // 送るべきデータがもう無ければアイドル終了
+      if (!sended) {
+        return false;
+      }
+
+      // SPIリクエストの間隔が短すぎると正しくデータが取得できないため，一定の間隔以上になるようスリープ
+      rate_.sleep();
     }
   }
 
@@ -104,6 +115,11 @@ bool ZEDF9P::update(bool nonblock)
 void ZEDF9P::registerRtcmCorrectionData(const std::vector<uint8_t>& data)
 {
   std::lock_guard<std::mutex> lock(send_buffer_mutex_);
+  // バッファが過大に溜まった場合は古いデータを破棄して遅延を防ぐ（最大4KB=約3〜4秒分）
+  constexpr size_t kMaxSendBufferSize = 4096;
+  if (send_buffer_.size() > kMaxSendBufferSize) {
+    send_buffer_.clear();
+  }
   send_buffer_.insert(send_buffer_.end(), data.begin(), data.end());
 }
 
