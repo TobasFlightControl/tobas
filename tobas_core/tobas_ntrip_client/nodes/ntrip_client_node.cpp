@@ -73,9 +73,9 @@ NtripClientNode::NtripClientNode(const rclcpp::NodeOptions& options) : super("nt
 {
   server_ip_ = getStringParam("server_ip", kDefaultServerIp);
   server_port_ = getIntParam("server_port", kDefaultServerPort);
-  mount_point_ = getStringParam("mount_point");
-  user_name_ = getStringParam("user_name");
-  password_ = getStringParam("password", kDefaultPassword);
+  mount_point_ = getStringParam("mount_point", "");
+  user_name_ = getStringParam("user_name", "");
+  password_ = getStringParam("password", "");
   default_latitude_ = getDoubleParam("latitude", 35.6580992);  // デフォルトは日本経緯度原点
   default_longitude_ = getDoubleParam("longitude", 139.7413575);
   send_position_ = getBoolParam("send_position", true);

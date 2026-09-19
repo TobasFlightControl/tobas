@@ -199,15 +199,15 @@ bool NtripClient::sendNmeaGga(const std::string& gga)
 std::string
 NtripClient::createHttpRequest(const std::string& mount_point, const std::string& user_name, const std::string& password)
 {
-  std::string basic_credentials = base64Encode(std::string(user_name) + ":" + std::string(password));
-  std::string http_request =
-    "GET /" + mount_point +
-    " HTTP/1.0\r\n"
-    "User-Agent: NTRIP str2str\r\n"  // str2strを名乗らないと何故かsource tableが返ってくるだけで通信に成功しない
-    "Authorization: Basic " +
-    basic_credentials +
-    "\r\n"
-    "\r\n";
+  std::string http_request = "GET /" + mount_point + " HTTP/1.0\r\n";
+  http_request += "User-Agent: NTRIP str2str\r\n";
+  http_request += "Accept: */*\r\n";
+  http_request += "Connection: close\r\n";
+  if (!user_name.empty() && user_name != "none") {
+    std::string basic_credentials = base64Encode(user_name + ":" + password);
+    http_request += "Authorization: Basic " + basic_credentials + "\r\n";
+  }
+  http_request += "\r\n";
   return http_request;
 }
 

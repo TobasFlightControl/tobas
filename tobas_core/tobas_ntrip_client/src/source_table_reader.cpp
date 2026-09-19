@@ -24,9 +24,7 @@ SourceTableReader::SourceTableReader(const std::string& data)
         moint_point_data_splitted.push_back(buf);
       }
       auto splitted_size = moint_point_data_splitted.size();
-      if (
-        splitted_size != kBITRATE + 1 ||
-        splitted_size != kMISC + 1) {  // データの個数がbit rateまでのサイズか，miscまでのサイズの場合は推定正しい
+      if (splitted_size > kLONGITUDE) {  // 少なくとも経度(Index 10)までのカラムが存在することを確認
         moint_points_.push_back(moint_point_data_splitted);
       }
     }
