@@ -78,6 +78,7 @@ GroundControlStationWidget::GroundControlStationWidget(int argc, char** argv) : 
   param_tuning_ = new param::ParameterTuningWidget();
   flight_log_ = new log::FlightLogWidget(bridge_);
   simulation_ = new sim::SimulationWidget(bridge_);
+  fc_console_ = new console::FcConsoleWidget();
 
   const auto rsrc_dir = QString::fromStdString(getResourceDir() / "tool");
   const auto sensor_calib_btn = new AppButton("Sensor Calib", rsrc_dir + "/sensor_calibration.svg");
@@ -86,6 +87,7 @@ GroundControlStationWidget::GroundControlStationWidget(int argc, char** argv) : 
   const auto param_tuning_btn = new AppButton("Param Tuning", rsrc_dir + "/parameter_tuning.svg");
   const auto flight_log_btn = new AppButton("Flight Log", rsrc_dir + "/flight_log.svg");
   const auto simulation_btn = new AppButton("Simulation", rsrc_dir + "/simulation.svg");
+  const auto fc_console_btn = new AppButton("FC Console", rsrc_dir + "/fc_console.svg");
 
   const auto app_sw = new qt::StackedWidget();
   app_sw->addWidget(sensor_calib_);
@@ -94,6 +96,7 @@ GroundControlStationWidget::GroundControlStationWidget(int argc, char** argv) : 
   app_sw->addWidget(param_tuning_);
   app_sw->addWidget(flight_log_);
   app_sw->addWidget(simulation_);
+  app_sw->addWidget(fc_console_);
 
   const auto btn_group = new QButtonGroup(this);
   int btn_id = 0;
@@ -103,6 +106,7 @@ GroundControlStationWidget::GroundControlStationWidget(int argc, char** argv) : 
   btn_group->addButton(param_tuning_btn, btn_id++);
   btn_group->addButton(flight_log_btn, btn_id++);
   btn_group->addButton(simulation_btn, btn_id++);
+  btn_group->addButton(fc_console_btn, btn_id++);
 
   // Default page
   app_sw->setCurrentWidget(control_system_);
@@ -161,6 +165,7 @@ GroundControlStationWidget::GroundControlStationWidget(int argc, char** argv) : 
   header_cols->addWidget(param_tuning_btn);
   header_cols->addWidget(flight_log_btn);
   header_cols->addWidget(simulation_btn);
+  header_cols->addWidget(fc_console_btn);
   header_cols->addStretch();
   header_cols->addWidget(remote_conn_);
   header_cols->addLayout(configuration_rows);
@@ -177,7 +182,7 @@ GroundControlStationWidget::GroundControlStationWidget(int argc, char** argv) : 
 
   // Connection
   connect(btn_group, &QButtonGroup::idClicked, app_sw, &QStackedWidget::setCurrentIndex);
-  connect(fc_selector_, qOverload<int>(&QComboBox::currentIndexChanged), this, &self::updateHeaderActionAvailability);
+  connect(fc_selector_, qOverload<int>(&QComboBox::currentIndexChanged), this, &self::onEndpointChanged);
   connect(vehicle_id_, &QSpinBox::textChanged, this, &self::updateHeaderActionAvailability);
   connect(load_btn_, &QPushButton::clicked, this, &self::onLoadButtonClicked);
   connect(connect_btn_, &qt::ToggleButton::checked, this, &self::onConnectRequested);
@@ -191,9 +196,13 @@ GroundControlStationWidget::GroundControlStationWidget(int argc, char** argv) : 
   connect(simulation_, &sim::SimulationWidget::terminated, this, &self::onSimulationTerminated);
   connect(simulation_, &sim::SimulationWidget::telemetryLossExpected, this, &self::expectTelemetryLoss);
   connect(remote_conn_, &RemoteConnectionWidget::disconnected, this, &self::onRemoteConnectionDisconnected);
+  connect(fc_console_, &console::FcConsoleWidget::runningChanged, this, &self::updateHeaderActionAvailability);
   connect(&bridge_, &rqt::RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
 
   reset();
+
+  // Journal access only needs an SSH endpoint, even before a project or ROS connection is available.
+  fc_scanner_->start();
 }
 
 void GroundControlStationWidget::closeEvent(QCloseEvent* event)
@@ -208,6 +217,7 @@ void GroundControlStationWidget::closeEvent(QCloseEvent* event)
   param_tuning_->close();
   flight_log_->close();
   simulation_->close();
+  fc_console_->close();
 
   event->accept();
 }
@@ -345,7 +355,7 @@ void GroundControlStationWidget::updateHeaderActionAvailability()
   const auto disarmed = !arming_ || !arming_->data;
 
   load_btn_->setEnabled(sim_stopped && disconnected);
-  fc_selector_->setEnabled(sim_stopped && project_loaded_ && fc_found && disconnected);
+  fc_selector_->setEnabled(sim_stopped && fc_found && disconnected && !fc_console_->isRunning());
   vehicle_id_->setEnabled(sim_stopped && project_loaded_ && disconnected);
   connect_btn_->setEnabled(project_loaded_ && target_ready);
   write_btn_->setEnabled(sim_stopped && project_loaded_ && target_ready && disarmed);
@@ -556,6 +566,12 @@ void GroundControlStationWidget::onLoadButtonClicked()
 
   // Show a dialog indicating that the project was loaded successfully.
   qt::qInfoBox(this, "Tobas project has been loaded successfully.");
+}
+
+void GroundControlStationWidget::onEndpointChanged()
+{
+  updateHeaderActionAvailability();
+  fc_console_->setEndpoint(currentHost(), cmn::kUserNameFC);
 }
 
 void GroundControlStationWidget::onConnectRequested()
@@ -823,7 +839,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
 void GroundControlStationWidget::onFlightControllerScanFinished(
   const QVector<DiscoveredFlightController>& flight_controllers)
 {
-  if (connection_ready_ || simulation_->isRunning()) {
+  if (connection_ready_ || simulation_->isRunning() || fc_console_->isRunning()) {
     return;
   }
 
@@ -835,7 +851,7 @@ void GroundControlStationWidget::onFlightControllerScanFailed(const QString& mes
 {
   qWarning() << "Failed to scan for flight controllers:" << message;
 
-  if (connection_ready_ || simulation_->isRunning()) {
+  if (connection_ready_ || simulation_->isRunning() || fc_console_->isRunning()) {
     return;
   }
 

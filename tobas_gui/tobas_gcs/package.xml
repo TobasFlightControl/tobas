@@ -16,6 +16,7 @@
   <depend>tobas_parameter_tuning</depend>
   <depend>tobas_flight_log_gui</depend>
   <depend>tobas_simulation_gui</depend>
+  <depend>tobas_fc_console</depend>
 
   <exec_depend>rmw_cyclonedds_cpp</exec_depend>
   <exec_depend>avahi-utils</exec_depend>

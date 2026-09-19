@@ -18,6 +18,7 @@
 
 #include <tobas_actuator_test/actuator_test.hpp>
 #include <tobas_control_system/control_system.hpp>
+#include <tobas_fc_console/fc_console.hpp>
 #include <tobas_flight_log_gui/flight_log.hpp>
 #include <tobas_gui_common/network_config.hpp>
 #include <tobas_gui_common/remote_project_builder.hpp>
@@ -93,6 +94,7 @@ private:
   param::ParameterTuningWidget* param_tuning_;
   log::FlightLogWidget* flight_log_;
   sim::SimulationWidget* simulation_;
+  console::FcConsoleWidget* fc_console_;
 
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
   bool telemetry_loss_expected_ = false;
@@ -129,6 +131,8 @@ private:
   std::expected<void, QString> shutdownInBackground();
 
 private Q_SLOTS:
+  void onEndpointChanged();
+
   void onLoadButtonClicked();
   void onConnectRequested();
   void onDisconnectRequested();
