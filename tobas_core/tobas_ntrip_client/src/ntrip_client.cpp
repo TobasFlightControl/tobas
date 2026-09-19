@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_ntrip_client/ntrip_client.hpp"
 
 #include <arpa/inet.h>
@@ -21,9 +24,7 @@ NtripClient::NtripClient()
 }
 
 NtripClient::~NtripClient()
-{
-  closeSocket();
-}
+{ closeSocket(); }
 
 void NtripClient::closeSocket()
 {
@@ -37,9 +38,7 @@ void NtripClient::closeSocket()
 }
 
 bool NtripClient::isConnected() const
-{
-  return is_connected_;
-}
+{ return is_connected_; }
 
 bool NtripClient::initialize(
   const char* server_ip,
@@ -65,7 +64,8 @@ bool NtripClient::initialize(
   auto addr = inet_addr(server_ip);
   if (addr != INADDR_NONE) {
     server_address_.sin_addr.s_addr = addr;
-  } else {
+  }
+  else {
     struct hostent* he = gethostbyname(server_ip);
     if (he == nullptr || he->h_addr_list[0] == nullptr) {
       std::cerr << "Failed to resolve hostname: " << server_ip << std::endl;

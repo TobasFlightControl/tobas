@@ -1,9 +1,10 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_ntrip_client/rtcm_scanner.hpp"
 
 RtcmScanner::RtcmScanner()
-{
-  reset();
-}
+{ reset(); }
 
 void RtcmScanner::reset()
 {

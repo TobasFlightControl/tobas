@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <netinet/in.h>
@@ -42,9 +45,9 @@ private:
   static constexpr size_t kMountPointsToShow = 5;
   enum MountPointStatus : uint8_t
   {
-    SUCCESS,  // ICY 200 OKが含まれるデータを受信，接続成功
-    GET_SOURCE_TABLE,  // SOURCETABLE 200 OKが含まれるsource tableのデータを受信，RTK2goへの接続はできているが，
-                       // mount pointへの接続はできていない
+    SUCCESS,                // ICY 200 OKが含まれるデータを受信，接続成功
+    GET_SOURCE_TABLE,       // SOURCETABLE 200 OKが含まれるsource tableのデータを受信，RTK2goへの接続はできているが，
+                            // mount pointへの接続はできていない
     AUTHORIZATION_FAILURE,  // 401が含まれるデータを受信，認証に失敗している
     OTHER_FAILURE,          // その他のエラー
   };

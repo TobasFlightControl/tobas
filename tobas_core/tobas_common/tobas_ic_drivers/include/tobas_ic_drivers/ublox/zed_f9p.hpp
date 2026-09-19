@@ -13,7 +13,7 @@
 #include "./ubx_payload.hpp"
 #include "./ubx_scanner.hpp"
 
-#define PACKED __attribute__((__packed__))  // Struct member variables are contiguous in memory.
+#define PACKED __attribute__((__packed__))  // 構造体のメンバ変数がメモリ上で連続する
 
 namespace tobas
 {
@@ -31,8 +31,15 @@ namespace ublox
 class ZEDF9P
 {
 private:
-  static constexpr size_t kSpiBufSize = 256;
+  static constexpr size_t kSPIBufSize = 256;
   static constexpr uint8_t kDefaultData = 0xFF;
+  static constexpr uint32_t kSPIClockFreq = 5'500'000;  // Maximum frequency is 5.5MHz
+  // static constexpr uint8_t kRG174CableDelay = 5;  // [ns/m] 同軸ケーブルの遅延
+  // static constexpr auto kWaitForGnssAck = std::chrono::seconds(1);
+
+  // SPIで1バイト受け取る間隔 [us]
+  // 小さいほど通信遅延を小さくできるが，小さすぎるとレシーバへのリクエスト過多で精度が落ちる．
+  static constexpr auto kReqInterval = std::chrono::microseconds(50);
 
 public:
   enum UbxClass : uint8_t
@@ -115,6 +122,15 @@ public:
     E_SCOOTER = 12,
   };
 
+  /* SPI Protocol Key ID */
+  enum CfgProtocol : uint8_t
+  {
+    UBX = 0x01,
+    NMEA = 0x02,
+    RTCM3X = 0x04,
+    SPARTN = 0x05,
+  };
+
   explicit ZEDF9P();
 
   bool initialize(const char* spi_device);
@@ -154,7 +170,7 @@ public:
   bool enableSpiProtocol_RTCM3X(bool enable_input, bool enable_output);
   bool enableSpiProtocol_SPARTN(bool enable_input);
 
-  /* Set the analog transmission delay from the length of the `RF174` cable. */
+  /* RF174ケーブルの長さからアナログ伝達の遅延を設定する． */
   bool setAntennaLength(uint8_t length_m);
 
   bool enableUsb(bool enable);
@@ -170,7 +186,7 @@ private:
   /* Supported storage size identifiers */
   enum CfgSize : uint8_t
   {
-    ONE_BIT = 0x01,  // Only the LSB is used.
+    ONE_BIT = 0x01,  // Only the LSB is used
     ONE_BYTE = 0x02,
     TWO_BYTES = 0x03,
     FOUR_BYTES = 0x04,
@@ -219,15 +235,6 @@ private:
     CFG_USBOUTPROT = 0x78,    // Output Protocol Configuration of the USB Interface
   };
 
-  /* SPI Protocol Key ID */
-  enum CfgProtocol : uint8_t
-  {
-    UBX = 0x01,
-    NMEA = 0x02,
-    RTCM3X = 0x04,
-    SPARTN = 0x05,
-  };
-
   struct PACKED UbxHeader
   {
     uint8_t sync1;
@@ -256,7 +263,7 @@ private:
   {
     const uint8_t version = 0x00;  // Message version, set to 0
 
-    // The layers where the configuration should be applied.
+    // The layers where the configuration should be applied
     enum CfgLayer : uint8_t
     {
       RAM = 0b001,
@@ -271,8 +278,8 @@ private:
   /* ==============================*/
 
   linux::SPIdev spi_;
-  uint8_t tx_buf_[kSpiBufSize];
-  uint8_t rx_buf_[kSpiBufSize];
+  uint8_t tx_buf_[kSPIBufSize];
+  uint8_t rx_buf_[kSPIBufSize];
 
   UBXScanner scanner_;
 
@@ -332,19 +339,13 @@ private:
 };
 
 inline ZEDF9P::UbxClass ZEDF9P::latestClass() const
-{
-  return static_cast<UbxClass>(*scanner_.getClass());
-}
+{ return static_cast<UbxClass>(*scanner_.getClass()); }
 
 inline uint8_t ZEDF9P::latestId() const
-{
-  return *scanner_.getId();
-}
+{ return *scanner_.getId(); }
 
 inline const uint8_t* ZEDF9P::payload() const
-{
-  return scanner_.getPayload();
-}
+{ return scanner_.getPayload(); }
 
 template <typename T>
 bool ZEDF9P::cfgValSetSingle(CfgSize size, CfgGroup group, uint8_t id, T value)

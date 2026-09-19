@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include "tobas_ntrip_client/source_table_reader.hpp"
 
 #include <algorithm>

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #include <chrono>
 #include <mutex>
 #include <optional>
@@ -25,7 +28,8 @@ public:
   explicit NtripClientNode(const rclcpp::NodeOptions& options);
 
 private:
-  static constexpr char kDefaultServerIp[] = "3.14.70.106";  // RTK2GO http://rtk2go.com/
+  // static constexpr char kDefaultServerIp[] = "3.14.70.106";  // RTK2GO http://rtk2go.com/
+  static constexpr char kDefaultServerIp[] = "rtk2go.com";
   static constexpr int kDefaultServerPort = 2101;
   static constexpr char kDefaultPassword[] = "none";
   static constexpr std::chrono::duration kIntervalTime =
@@ -72,8 +76,8 @@ NtripClientNode::NtripClientNode(const rclcpp::NodeOptions& options) : super("nt
   mount_point_ = getStringParam("mount_point");
   user_name_ = getStringParam("user_name");
   password_ = getStringParam("password", kDefaultPassword);
-  default_latitude_ = getDoubleParam("latitude", 0.0);  // 最も近くのmount pointを探すため / 初期位置 degree
-  default_longitude_ = getDoubleParam("longitude", 0.0);
+  default_latitude_ = getDoubleParam("latitude", 35.6580992);  // デフォルトは日本経緯度原点
+  default_longitude_ = getDoubleParam("longitude", 139.7413575);
   send_position_ = getBoolParam("send_position", true);
   send_position_interval_ = getDoubleParam("send_position_interval", kDefaultSendPositionInterval);
   auto_reconnect_ = getBoolParam("auto_reconnect", true);

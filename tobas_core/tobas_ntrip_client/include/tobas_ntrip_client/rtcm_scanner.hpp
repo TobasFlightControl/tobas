@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
 #pragma once
 
 #include <cstddef>
@@ -61,36 +64,22 @@ private:
 };
 
 inline RtcmScanner::State RtcmScanner::state() const
-{
-  return state_;
-}
+{ return state_; }
 
 inline size_t RtcmScanner::messageLength() const
-{
-  return kRtcmFixedLength + payload_length_;
-}
+{ return kRtcmFixedLength + payload_length_; }
 
 inline const uint8_t* RtcmScanner::getPreamble() const
-{
-  return buffer_ + pos_ - messageLength();
-}
+{ return buffer_ + pos_ - messageLength(); }
 
 inline const uint8_t* RtcmScanner::getLength() const
-{
-  return getPreamble() + kRtcmPreambleLength;
-}
+{ return getPreamble() + kRtcmPreambleLength; }
 
 inline const uint8_t* RtcmScanner::getPayload() const
-{
-  return getLength() + kRtcmLengthLength;
-}
+{ return getLength() + kRtcmLengthLength; }
 
 inline const uint8_t* RtcmScanner::getChecksum() const
-{
-  return getPayload() + payload_length_;
-}
+{ return getPayload() + payload_length_; }
 
 inline const uint8_t* RtcmScanner::getEnd() const
-{
-  return getChecksum() + kRtcmCheckSumLength;
-}
+{ return getChecksum() + kRtcmCheckSumLength; }
