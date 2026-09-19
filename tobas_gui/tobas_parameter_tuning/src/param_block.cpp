@@ -331,26 +331,12 @@ void ParamBlockWidget::onIntUpButtonClicked(const std::string& name)
 
 void ParamBlockWidget::onIntResetButtonClicked(const std::string& name)
 {
-  if (!qt::yesOrNo(
-        this,
-        "Are you sure you want to reset parameter '" + QString::fromStdString(name) + "' to its initial value?",
-        qt::WARN)) {
-    return;
-  }
-
   auto& config = int_configs_.at(name);
   config.slider->setValue(config.initial_value);
 }
 
 void ParamBlockWidget::onIntHomeButtonClicked(const std::string& name)
 {
-  if (!qt::yesOrNo(
-        this,
-        "Are you sure you want to reset parameter '" + QString::fromStdString(name) + "' to its default value?",
-        qt::WARN)) {
-    return;
-  }
-
   auto& config = int_configs_.at(name);
   config.slider->setValue(config.default_value);
 }
