@@ -16,7 +16,7 @@ ROS 2 の apt リポジトリから Tobas をインストールします．
 
 ```bash
 $ sudo apt update
-$ sudo apt install ros-jazzy-tobas
+$ sudo apt install -y ros-jazzy-tobas
 ```
 
 ## フライトコントローラのイメージ書き込み

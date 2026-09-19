@@ -16,7 +16,7 @@ Install Tobas from the ROS 2 apt repository.
 
 ```bash
 $ sudo apt update
-$ sudo apt install ros-jazzy-tobas
+$ sudo apt install -y ros-jazzy-tobas
 ```
 
 ## Flashing the Flight Controller Image
