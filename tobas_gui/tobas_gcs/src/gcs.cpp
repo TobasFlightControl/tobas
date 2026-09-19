@@ -569,7 +569,7 @@ void GroundControlStationWidget::onConnectRequested()
 
   if (!heartbeat_received) {
     disconnectFromFlightController();
-    qt::qErrorBox(this, "Timed out waiting for a heartbeat from " + currentHost() + ".");
+    qt::qErrorBox(this, "Timed out waiting for a heartbeat from " + currentConnectionDescription() + ".");
     return;
   }
 
@@ -808,7 +808,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
   if (!waitForHeartbeat()) {
     progress.close();
     disconnectFromFlightController();
-    qt::qErrorBox(this, "Timed out waiting for a heartbeat from " + currentHost() + ".");
+    qt::qErrorBox(this, "Timed out waiting for a heartbeat from " + currentConnectionDescription() + ".");
     return;
   }
   progress.progressStep();
@@ -874,7 +874,7 @@ void GroundControlStationWidget::onRestartButtonClicked()
   if (!waitForHeartbeat()) {
     spinner_.stop();
     disconnectFromFlightController();
-    qt::qErrorBox(this, "Timed out waiting for a heartbeat from " + currentHost() + ".");
+    qt::qErrorBox(this, "Timed out waiting for a heartbeat from " + currentConnectionDescription() + ".");
     return;
   }
 
