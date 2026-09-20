@@ -77,8 +77,8 @@ GroundControlStationWidget::GroundControlStationWidget(int argc, char** argv) : 
   control_system_ = new ctrl::ControlSystemWidget(bridge_, drone_);
   param_tuning_ = new param::ParameterTuningWidget();
   flight_log_ = new log::FlightLogWidget(bridge_);
-  simulation_ = new sim::SimulationWidget(bridge_);
   fc_console_ = new console::FcConsoleWidget();
+  simulation_ = new sim::SimulationWidget(bridge_);
 
   const auto rsrc_dir = QString::fromStdString(getResourceDir() / "tool");
   const auto sensor_calib_btn = new AppButton("Sensor Calib", rsrc_dir + "/sensor_calibration.svg");
@@ -86,8 +86,8 @@ GroundControlStationWidget::GroundControlStationWidget(int argc, char** argv) : 
   const auto control_system_btn = new AppButton("Control System", rsrc_dir + "/control_system.svg");
   const auto param_tuning_btn = new AppButton("Param Tuning", rsrc_dir + "/parameter_tuning.svg");
   const auto flight_log_btn = new AppButton("Flight Log", rsrc_dir + "/flight_log.svg");
-  const auto simulation_btn = new AppButton("Simulation", rsrc_dir + "/simulation.svg");
   const auto fc_console_btn = new AppButton("FC Console", rsrc_dir + "/fc_console.svg");
+  const auto simulation_btn = new AppButton("Simulation", rsrc_dir + "/simulation.svg");
 
   const auto app_sw = new qt::StackedWidget();
   app_sw->addWidget(sensor_calib_);
@@ -95,8 +95,8 @@ GroundControlStationWidget::GroundControlStationWidget(int argc, char** argv) : 
   app_sw->addWidget(control_system_);
   app_sw->addWidget(param_tuning_);
   app_sw->addWidget(flight_log_);
-  app_sw->addWidget(simulation_);
   app_sw->addWidget(fc_console_);
+  app_sw->addWidget(simulation_);
 
   const auto btn_group = new QButtonGroup(this);
   int btn_id = 0;
@@ -105,8 +105,8 @@ GroundControlStationWidget::GroundControlStationWidget(int argc, char** argv) : 
   btn_group->addButton(control_system_btn, btn_id++);
   btn_group->addButton(param_tuning_btn, btn_id++);
   btn_group->addButton(flight_log_btn, btn_id++);
-  btn_group->addButton(simulation_btn, btn_id++);
   btn_group->addButton(fc_console_btn, btn_id++);
+  btn_group->addButton(simulation_btn, btn_id++);
 
   // Default page
   app_sw->setCurrentWidget(control_system_);
@@ -163,8 +163,8 @@ GroundControlStationWidget::GroundControlStationWidget(int argc, char** argv) : 
   header_cols->addWidget(control_system_btn);
   header_cols->addWidget(param_tuning_btn);
   header_cols->addWidget(flight_log_btn);
-  header_cols->addWidget(simulation_btn);
   header_cols->addWidget(fc_console_btn);
+  header_cols->addWidget(simulation_btn);
   header_cols->addStretch();
   header_cols->addWidget(remote_conn_);
   header_cols->addLayout(configuration_rows);
@@ -191,11 +191,11 @@ GroundControlStationWidget::GroundControlStationWidget(int argc, char** argv) : 
   connect(fc_scanner_, &FlightControllerScanner::failed, this, &self::onFlightControllerScanFailed);
   connect(restart_btn_, &QPushButton::clicked, this, &self::onRestartButtonClicked);
   connect(shutdown_btn_, &QPushButton::clicked, this, &self::onShutdownButtonClicked);
+  connect(remote_conn_, &RemoteConnectionWidget::disconnected, this, &self::onRemoteConnectionDisconnected);
+  connect(fc_console_, &console::FcConsoleWidget::runningChanged, this, &self::updateHeaderActionAvailability);
   connect(simulation_, &sim::SimulationWidget::started, this, &self::onSimulationStarted);
   connect(simulation_, &sim::SimulationWidget::terminated, this, &self::onSimulationTerminated);
   connect(simulation_, &sim::SimulationWidget::telemetryLossExpected, this, &self::expectTelemetryLoss);
-  connect(remote_conn_, &RemoteConnectionWidget::disconnected, this, &self::onRemoteConnectionDisconnected);
-  connect(fc_console_, &console::FcConsoleWidget::runningChanged, this, &self::updateHeaderActionAvailability);
   connect(&bridge_, &rqt::RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
 
   reset();
@@ -835,7 +835,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
 void GroundControlStationWidget::onFlightControllerScanFinished(
   const QVector<DiscoveredFlightController>& flight_controllers)
 {
-  if (connection_ready_ || simulation_->isRunning() || fc_console_->isRunning()) {
+  if (connection_ready_ || fc_console_->isRunning() || simulation_->isRunning()) {
     return;
   }
 
@@ -847,7 +847,7 @@ void GroundControlStationWidget::onFlightControllerScanFailed(const QString& mes
 {
   qWarning() << "Failed to scan for flight controllers:" << message;
 
-  if (connection_ready_ || simulation_->isRunning() || fc_console_->isRunning()) {
+  if (connection_ready_ || fc_console_->isRunning() || simulation_->isRunning()) {
     return;
   }
 

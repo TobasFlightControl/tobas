@@ -90,8 +90,8 @@ private:
   ctrl::ControlSystemWidget* control_system_;
   param::ParameterTuningWidget* param_tuning_;
   log::FlightLogWidget* flight_log_;
-  sim::SimulationWidget* simulation_;
   console::FcConsoleWidget* fc_console_;
+  sim::SimulationWidget* simulation_;
 
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
   bool telemetry_loss_expected_ = false;
