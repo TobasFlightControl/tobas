@@ -97,7 +97,9 @@ void FcConsoleWidget::setEndpoint(const QString& host, const QString& user)
     return;
   }
 
-  stop();
+  if (running_) {
+    stop();
+  }
 
   host_ = host;
   user_ = user;
