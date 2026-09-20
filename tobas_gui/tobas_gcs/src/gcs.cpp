@@ -127,7 +127,6 @@ GroundControlStationWidget::GroundControlStationWidget(int argc, char** argv) : 
   fc_scanner_ = new FlightControllerScanner(this);
   fc_selector_ = new QComboBox();
   fc_selector_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-  resetFlightControllerPlaceholder();
   vehicle_id_ = new QSpinBox();
   vehicle_id_->setRange(0, INT32_MAX);
   vehicle_id_->setValue(0);
@@ -200,6 +199,7 @@ GroundControlStationWidget::GroundControlStationWidget(int argc, char** argv) : 
   connect(&bridge_, &rqt::RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
 
   reset();
+  resetFlightControllerPlaceholder();
 
   // Journal access only needs an SSH endpoint, even before a project or ROS connection is available.
   fc_scanner_->start();
@@ -371,8 +371,6 @@ void GroundControlStationWidget::updateFlightControllerList(const QVector<Discov
     return;
   }
 
-  const auto selected_host = currentHost();
-
   auto sorted_flight_controllers = flight_controllers;
   std::ranges::sort(
     sorted_flight_controllers,
@@ -386,6 +384,7 @@ void GroundControlStationWidget::updateFlightControllerList(const QVector<Discov
 
   const QSignalBlocker block(fc_selector_);
 
+  const auto selected_host = currentHost();
   fc_selector_->clear();
   fc_selector_->addItem("Select FC...");
   for (const auto& [index, elem] : std::views::enumerate(sorted_flight_controllers)) {
@@ -395,17 +394,29 @@ void GroundControlStationWidget::updateFlightControllerList(const QVector<Discov
 
   // Preserve the current selection, or automatically select the first FC when none has been selected yet.
   const auto selected_index = fc_selector_->findData(selected_host, kHostRole);
-  const auto next_index = selected_index > 0 ? selected_index : (selected_host.isEmpty() ? 1 : 0);
-  fc_selector_->setCurrentIndex(next_index);
+  if (selected_index >= 0) {
+    fc_selector_->setCurrentIndex(selected_index);
+  }
+  else {
+    fc_selector_->setCurrentIndex(selected_host.isEmpty() ? 1 : 0);
+    onEndpointChanged();
+  }
 }
 
 void GroundControlStationWidget::setFlightControllerPlaceholder(const QString& text)
 {
   const QSignalBlocker block(fc_selector_);
 
+  const auto old_index = fc_selector_->currentIndex();
+
   fc_selector_->clear();
   fc_selector_->addItem(text);
-  fc_selector_->setCurrentIndex(0);
+
+  constexpr int kNewIndex = 0;
+  fc_selector_->setCurrentIndex(kNewIndex);
+  if (old_index != kNewIndex) {
+    onEndpointChanged();
+  }
 }
 
 void GroundControlStationWidget::resetFlightControllerPlaceholder()
@@ -570,6 +581,8 @@ void GroundControlStationWidget::onLoadButtonClicked()
 
 void GroundControlStationWidget::onEndpointChanged()
 {
+  qDebug() << "GroundControlStationWidget::onEndpointChanged";
+
   updateHeaderActionAvailability();
   fc_console_->setEndpoint(currentHost(), cmn::kUserNameFC);
 }
