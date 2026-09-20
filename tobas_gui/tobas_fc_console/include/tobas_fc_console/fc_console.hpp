@@ -36,7 +36,6 @@ public:
   void setEndpoint(const QString& host, const QString& user);
   bool isRunning() const;
 
-protected:
 private:
   QString host_;
   QString user_;
@@ -63,11 +62,15 @@ private:
   void start();
   void stop();
   void clear();
-  void save();
+
+  void onStartButtonClicked();
+  void onStopButtonClicked();
+  void onClearButtonClicked();
+  void onSaveButtonClicked();
 
   void onWrapToggled(bool checked);
-  void onFinished(int code, QProcess::ExitStatus status);
-  void onErrorOccurred(QProcess::ProcessError error);
+  void onProcessFinished(int code, QProcess::ExitStatus status);
+  void onProcessErrorOccurred(QProcess::ProcessError error);
 };
 }  // namespace console
 }  // namespace gui

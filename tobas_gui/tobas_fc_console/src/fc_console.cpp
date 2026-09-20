@@ -15,6 +15,7 @@
 #include <QVBoxLayout>
 
 #include <tobas_qt_tools/message.hpp>
+#include <tobas_std_tools/check.hpp>
 
 namespace tobas
 {
@@ -57,16 +58,16 @@ FcConsoleWidget::FcConsoleWidget(QWidget* parent) : QWidget(parent)
   rows->addWidget(output_);
   setLayout(rows);
 
-  connect(start_stop_btn_, &qt::ToggleButton::checked, this, &self::start);
-  connect(start_stop_btn_, &qt::ToggleButton::unchecked, this, &self::stop);
-  connect(save_btn, &QPushButton::clicked, this, &self::save);
-  connect(clear_btn, &QPushButton::clicked, this, &self::clear);
+  connect(start_stop_btn_, &qt::ToggleButton::checked, this, &self::onStartButtonClicked);
+  connect(start_stop_btn_, &qt::ToggleButton::unchecked, this, &self::onStopButtonClicked);
+  connect(clear_btn, &QPushButton::clicked, this, &self::onClearButtonClicked);
+  connect(save_btn, &QPushButton::clicked, this, &self::onSaveButtonClicked);
   connect(wrap, &QCheckBox::toggled, this, &self::onWrapToggled);
   connect(&flush_timer_, &QTimer::timeout, this, &self::flushOutput);
   connect(&process_, &QProcess::readyReadStandardOutput, this, &self::readStandardOutput);
   connect(&process_, &QProcess::readyReadStandardError, this, &self::readStandardError);
-  connect(&process_, qOverload<int, QProcess::ExitStatus>(&QProcess::finished), this, &self::onFinished);
-  connect(&process_, &QProcess::errorOccurred, this, &self::onErrorOccurred);
+  connect(&process_, qOverload<int, QProcess::ExitStatus>(&QProcess::finished), this, &self::onProcessFinished);
+  connect(&process_, &QProcess::errorOccurred, this, &self::onProcessErrorOccurred);
 
   flush_timer_.setInterval(50);
   decoder_.reset(QTextCodec::codecForName("UTF-8")->makeDecoder());
@@ -166,7 +167,10 @@ void FcConsoleWidget::flushOutput()
 
 void FcConsoleWidget::start()
 {
-  if (running_ || host_.isEmpty() || user_.isEmpty()) {
+  TOBAS_CHECK(!host_.isEmpty() && !user_.isEmpty());
+
+  if (running_) {
+    qWarning() << "The journalctl process is already running.";
     return;
   }
 
@@ -194,6 +198,7 @@ void FcConsoleWidget::start()
 void FcConsoleWidget::stop()
 {
   if (!running_) {
+    qWarning() << "The journalctl process is not running.";
     return;
   }
 
@@ -206,8 +211,31 @@ void FcConsoleWidget::clear()
   output_->clear();
 }
 
-void FcConsoleWidget::save()
+void FcConsoleWidget::onStartButtonClicked()
 {
+  qDebug() << "FcConsoleWidget::onStartButtonClicked";
+
+  start();
+}
+
+void FcConsoleWidget::onStopButtonClicked()
+{
+  qDebug() << "FcConsoleWidget::onStopButtonClicked";
+
+  stop();
+}
+
+void FcConsoleWidget::onClearButtonClicked()
+{
+  qDebug() << "FcConsoleWidget::onClearButtonClicked";
+
+  clear();
+}
+
+void FcConsoleWidget::onSaveButtonClicked()
+{
+  qDebug() << "FcConsoleWidget::onSaveButtonClicked";
+
   const auto path = QFileDialog::getSaveFileName(this, "Save FC console", "fc-console.log", "Log files (*.log *.txt)");
   if (path.isEmpty()) {
     return;
@@ -224,11 +252,15 @@ void FcConsoleWidget::save()
 
 void FcConsoleWidget::onWrapToggled(bool checked)
 {
+  qDebug().nospace() << "FcConsoleWidget::onWrapToggled(" << checked << ")";
+
   output_->setLineWrapMode(checked ? QPlainTextEdit::WidgetWidth : QPlainTextEdit::NoWrap);
 }
 
-void FcConsoleWidget::onFinished(int, QProcess::ExitStatus)
+void FcConsoleWidget::onProcessFinished(int code, QProcess::ExitStatus status)
 {
+  qDebug().nospace() << "FcConsoleWidget::onProcessFinished(" << code << ", " << status << ")";
+
   readOutput();
   flushOutput();
 
@@ -236,8 +268,10 @@ void FcConsoleWidget::onFinished(int, QProcess::ExitStatus)
   setRunning(false);
 }
 
-void FcConsoleWidget::onErrorOccurred(QProcess::ProcessError error)
+void FcConsoleWidget::onProcessErrorOccurred(QProcess::ProcessError error)
 {
+  qDebug().nospace() << "FcConsoleWidget::onProcessErrorOccurred(" << error << ")";
+
   if (error == QProcess::FailedToStart) {
     flush_timer_.stop();
     setRunning(false);
