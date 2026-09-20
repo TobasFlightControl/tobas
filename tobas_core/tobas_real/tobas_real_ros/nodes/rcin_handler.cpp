@@ -5,7 +5,6 @@
 
 #include <tobas_constants/path.hpp>
 #include <tobas_constants/rc_input.hpp>
-#include <tobas_constants/time.hpp>
 #include <tobas_linux/core.hpp>
 #include <tobas_math/core.hpp>
 #include <tobas_node/node.hpp>
@@ -255,8 +254,6 @@ void RCInputHandlerNode::sbusCb(const tobas_msgs::msg::Sbus::ConstSharedPtr& sbu
 
 void RCInputHandlerNode::timeoutTimerCb()
 {
-  TOBAS_WARN_THROTTLE(kTypicalWarnPeriod, "S.BUS timed out.");
-
   auto rcin_msg = std::make_unique<tobas_msgs::RCInput>();
   rcin_msg->header.stamp = now();
   rcin_msg->status = tobas_msgs::msg::RCInput::STATUS_TIMEOUT;
