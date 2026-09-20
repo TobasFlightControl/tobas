@@ -4,16 +4,16 @@
 #include "tobas_fc_console/fc_console.hpp"
 
 #include <QCheckBox>
+#include <QDebug>
 #include <QFileDialog>
-#include <QFontDatabase>
 #include <QHBoxLayout>
 #include <QIODevice>
-#include <QMessageBox>
 #include <QSaveFile>
 #include <QScrollBar>
 #include <QTextCursor>
-#include <QTextDocument>
 #include <QVBoxLayout>
+
+#include <tobas_qt_tools/message.hpp>
 
 namespace tobas
 {
@@ -23,10 +23,13 @@ namespace console
 {
 FcConsoleWidget::FcConsoleWidget(QWidget* parent) : QWidget(parent)
 {
+  constexpr char kRealtimeService[] = "tobas_real_realtime.service";
+  constexpr char kInterfaceService[] = "tobas_real_interface.service";
+
   service_ = new QComboBox();
-  service_->addItem("Realtime", "-u tobas_real_realtime.service");
-  service_->addItem("Interface", "-u tobas_real_interface.service");
-  service_->addItem("Both", "-u tobas_real_realtime.service -u tobas_real_interface.service");
+  service_->addItem("Realtime", "-u " + QString(kRealtimeService));
+  service_->addItem("Interface", "-u " + QString(kInterfaceService));
+  service_->addItem("Both", "-u " + QString(kRealtimeService) + " -u " + QString(kInterfaceService));
 
   start_btn_ = new QPushButton("Start");
   stop_btn_ = new QPushButton("Stop");
@@ -56,8 +59,6 @@ FcConsoleWidget::FcConsoleWidget(QWidget* parent) : QWidget(parent)
   setLayout(rows);
 
   flush_timer_.setInterval(50);
-  kill_timer_.setSingleShot(true);
-  kill_timer_.setInterval(1000);
 
   connect(start_btn_, &QPushButton::clicked, this, &self::start);
   connect(stop_btn_, &QPushButton::clicked, this, &self::stop);
@@ -65,24 +66,12 @@ FcConsoleWidget::FcConsoleWidget(QWidget* parent) : QWidget(parent)
   connect(clear_btn, &QPushButton::clicked, this, &self::onClearButtonClicked);
   connect(wrap, &QCheckBox::toggled, this, &self::onWrapToggled);
   connect(&flush_timer_, &QTimer::timeout, this, &self::flushOutput);
-  connect(&kill_timer_, &QTimer::timeout, this, &self::onKillTimeout);
-  connect(&process_, &QProcess::started, this, &self::onStarted);
   connect(&process_, &QProcess::readyReadStandardOutput, this, &self::readOutput);
   connect(&process_, &QProcess::readyReadStandardError, this, &self::readOutput);
-  connect(&process_, qOverload<int>(&QProcess::finished), this, &self::onFinished);
+  connect(&process_, qOverload<int, QProcess::ExitStatus>(&QProcess::finished), this, &self::onFinished);
   connect(&process_, &QProcess::errorOccurred, this, &self::onErrorOccurred);
 
   updateActions();
-}
-
-FcConsoleWidget::~FcConsoleWidget()
-{
-  // Reap the local SSH child even if the application exits without a close event.
-  process_.disconnect(this);
-  if (process_.state() != QProcess::NotRunning) {
-    process_.kill();
-    process_.waitForFinished(1000);
-  }
 }
 
 void FcConsoleWidget::setEndpoint(const QString& host, const QString& user)
@@ -90,9 +79,12 @@ void FcConsoleWidget::setEndpoint(const QString& host, const QString& user)
   if (host_ == host && user_ == user) {
     return;
   }
+
   stop();
+
   host_ = host;
   user_ = user;
+
   updateActions();
 }
 
@@ -110,7 +102,7 @@ void FcConsoleWidget::closeEvent(QCloseEvent* event)
 void FcConsoleWidget::updateActions()
 {
   start_btn_->setEnabled(!running_ && !host_.isEmpty() && !user_.isEmpty());
-  stop_btn_->setEnabled(running_ && !stopping_);
+  stop_btn_->setEnabled(running_);
   service_->setEnabled(!running_);
 }
 
@@ -178,7 +170,6 @@ void FcConsoleWidget::start()
   output_->clear();
   stdout_decoder_.reset(QTextCodec::codecForName("UTF-8")->makeDecoder());
   stderr_decoder_.reset(QTextCodec::codecForName("UTF-8")->makeDecoder());
-  stopping_ = false;
   setRunning(true);
   flush_timer_.start();
   process_.start("ssh", arguments, QIODevice::ReadOnly);
@@ -186,13 +177,12 @@ void FcConsoleWidget::start()
 
 void FcConsoleWidget::stop()
 {
-  if (!running_ || stopping_) {
+  if (!running_) {
     return;
   }
-  stopping_ = true;
+
   updateActions();
   process_.terminate();
-  kill_timer_.start();
 }
 
 void FcConsoleWidget::save()
@@ -205,7 +195,7 @@ void FcConsoleWidget::save()
   QSaveFile file(path);
   const auto contents = output_->toPlainText().toUtf8();
   if (!file.open(QIODevice::WriteOnly) || file.write(contents) != contents.size() || !file.commit()) {
-    QMessageBox::critical(this, "Save FC console", "Failed to save output: " + file.errorString());
+    qt::qErrorBox(this, "Failed to save output: " + file.errorString());
   }
 }
 
@@ -220,25 +210,11 @@ void FcConsoleWidget::onWrapToggled(bool checked)
   output_->setLineWrapMode(checked ? QPlainTextEdit::WidgetWidth : QPlainTextEdit::NoWrap);
 }
 
-void FcConsoleWidget::onKillTimeout()
-{
-  process_.kill();
-}
-
-void FcConsoleWidget::onStarted()
-{
-  if (stopping_) {
-    process_.terminate();
-  }
-}
-
-void FcConsoleWidget::onFinished()
+void FcConsoleWidget::onFinished(int, QProcess::ExitStatus)
 {
   readOutput();
   flushOutput();
   flush_timer_.stop();
-  kill_timer_.stop();
-  stopping_ = false;
   setRunning(false);
 }
 
@@ -246,12 +222,9 @@ void FcConsoleWidget::onErrorOccurred(QProcess::ProcessError error)
 {
   if (error == QProcess::FailedToStart) {
     flush_timer_.stop();
-    kill_timer_.stop();
-    stopping_ = false;
     setRunning(false);
   }
 }
-
 }  // namespace console
 }  // namespace gui
 }  // namespace tobas

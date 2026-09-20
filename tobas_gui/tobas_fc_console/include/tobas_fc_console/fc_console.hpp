@@ -30,7 +30,6 @@ Q_SIGNALS:
 
 public:
   explicit FcConsoleWidget(QWidget* parent = nullptr);
-  ~FcConsoleWidget() override;
 
   void setEndpoint(const QString& host, const QString& user);
   bool isRunning() const;
@@ -41,14 +40,13 @@ protected:
 private:
   QString host_;
   QString user_;
-  bool running_ = false;
-  bool stopping_ = false;
 
   QProcess process_;
   QTimer flush_timer_;
-  QTimer kill_timer_;
   std::unique_ptr<QTextDecoder> stdout_decoder_;
   std::unique_ptr<QTextDecoder> stderr_decoder_;
+
+  bool running_ = false;
   QString pending_output_;
 
   QComboBox* service_;
@@ -69,9 +67,7 @@ private:
 
   void onClearButtonClicked();
   void onWrapToggled(bool checked);
-  void onKillTimeout();
-  void onStarted();
-  void onFinished();
+  void onFinished(int code, QProcess::ExitStatus status);
   void onErrorOccurred(QProcess::ProcessError error);
 };
 }  // namespace console
