@@ -67,5 +67,5 @@ cd obj
 ## The most likely causes of failure are lack of disk space, lack of swap space or memory, or the wrong configure section uncommented.
 ## The new compiler is placed in /usr/local/bin, the existing compiler remains in /usr/bin and may be used by giving its version gcc-8 (say).
 if make -j $(nproc) && sudo make install; then
-  echo gcc-$VERSION is installed successfully.
+  echo gcc-$VERSION has been installed successfully.
 fi
