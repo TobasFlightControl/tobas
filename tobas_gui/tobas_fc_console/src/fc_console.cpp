@@ -136,14 +136,18 @@ void FcConsoleWidget::flushOutput()
     return;
   }
 
+  const auto scrollbar = output_->verticalScrollBar();
+  const auto follow = scrollbar->value() == scrollbar->maximum();
+
   // Keep the user's selection and do not add newlines between arbitrary SSH chunks.
   QTextCursor cursor(output_->document());
   cursor.movePosition(QTextCursor::End);
   cursor.insertText(pending_output_);
   pending_output_.clear();
 
-  const auto scrollbar = output_->verticalScrollBar();
-  scrollbar->setValue(scrollbar->maximum());
+  if (follow) {
+    scrollbar->setValue(scrollbar->maximum());
+  }
 }
 
 void FcConsoleWidget::start()
