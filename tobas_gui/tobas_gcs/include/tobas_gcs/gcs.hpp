@@ -56,9 +56,6 @@ class GroundControlStationWidget : public QWidget
 public:
   explicit GroundControlStationWidget(int argc, char** argv);
 
-protected:
-  void closeEvent(QCloseEvent* event) override;
-
 private:
   rqt::RosQtBridge bridge_;
 

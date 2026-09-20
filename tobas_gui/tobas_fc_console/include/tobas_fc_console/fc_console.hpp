@@ -31,13 +31,12 @@ Q_SIGNALS:
 
 public:
   explicit FcConsoleWidget(QWidget* parent = nullptr);
+  ~FcConsoleWidget();
 
   void setEndpoint(const QString& host, const QString& user);
   bool isRunning() const;
 
 protected:
-  void closeEvent(QCloseEvent* event) override;
-
 private:
   QString host_;
   QString user_;

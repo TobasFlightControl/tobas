@@ -205,23 +205,6 @@ GroundControlStationWidget::GroundControlStationWidget(int argc, char** argv) : 
   fc_scanner_->start();
 }
 
-void GroundControlStationWidget::closeEvent(QCloseEvent* event)
-{
-  qDebug() << "GroundControlStationWidget::closeEvent";
-
-  clearRosConnection();
-
-  sensor_calib_->close();
-  actuator_test_->close();
-  control_system_->close();
-  param_tuning_->close();
-  flight_log_->close();
-  simulation_->close();
-  fc_console_->close();
-
-  event->accept();
-}
-
 void GroundControlStationWidget::reset()
 {
   qt::processAllQueuedEvents();

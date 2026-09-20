@@ -74,6 +74,14 @@ FcConsoleWidget::FcConsoleWidget(QWidget* parent) : QWidget(parent)
   updateActions();
 }
 
+FcConsoleWidget::~FcConsoleWidget()
+{
+  if (running_) {
+    process_.blockSignals(true);
+    process_.terminate();
+  }
+}
+
 void FcConsoleWidget::setEndpoint(const QString& host, const QString& user)
 {
   if (host_ == host && user_ == user) {
@@ -91,14 +99,6 @@ void FcConsoleWidget::setEndpoint(const QString& host, const QString& user)
 bool FcConsoleWidget::isRunning() const
 {
   return running_;
-}
-
-void FcConsoleWidget::closeEvent(QCloseEvent* event)
-{
-  qDebug() << "FcConsoleWidget::closeEvent";
-
-  stop();
-  event->accept();
 }
 
 void FcConsoleWidget::updateActions()

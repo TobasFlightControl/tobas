@@ -41,6 +41,7 @@ public:
   static constexpr int kDroneId = 0;
 
   explicit SimulationWidget(const rqt::RosQtBridge& bridge);
+  ~SimulationWidget();
 
   void reset();
   void updateProject(const QString& proj_path);
@@ -48,9 +49,6 @@ public:
   void clearRosInterfaces();
 
   bool isRunning() const;
-
-protected:
-  void closeEvent(QCloseEvent* event) override;
 
 private:
   uadf::Parser uadf_parser_;

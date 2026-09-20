@@ -57,6 +57,15 @@ SimulationWidget::SimulationWidget(const rqt::RosQtBridge& bridge) : spinner_(Qt
   reset();
 }
 
+SimulationWidget::~SimulationWidget()
+{
+  if (launch_proc_) {
+    qWarning() << "Forcibly shutting down the simulation.";
+    launch_proc_->blockSignals(true);
+    terminateSimulation();
+  }
+}
+
 void SimulationWidget::reset()
 {
   TOBAS_CHECK(!launch_proc_);
@@ -113,18 +122,6 @@ void SimulationWidget::clearRosInterfaces()
 bool SimulationWidget::isRunning() const
 {
   return state_ != kIdle;
-}
-
-void SimulationWidget::closeEvent(QCloseEvent* event)
-{
-  qDebug() << "SimulationWidget::closeEvent";
-
-  // Destroy child processes when closing the parent widget.
-  if (launch_proc_) {
-    terminateSimulation();
-  }
-
-  event->accept();
 }
 
 std::map<QString, QString> SimulationWidget::makeGazeboLaunchArguments() const
