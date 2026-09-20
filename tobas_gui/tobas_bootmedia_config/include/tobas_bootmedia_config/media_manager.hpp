@@ -47,8 +47,8 @@ private:
   static std::pair<std::string, std::string> getVendorAndModel(udev_device* dev);
 
 private Q_SLOTS:
-  void onConnectRequested();
-  void onDisconnectRequested();
+  void onConnectButtonClicked();
+  void onDisconnectButtonClicked();
   void onScanTimerTimeout();
 };
 }  // namespace bm
