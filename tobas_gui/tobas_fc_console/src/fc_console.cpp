@@ -102,6 +102,54 @@ bool FcConsoleWidget::isRunning() const
   return running_;
 }
 
+void FcConsoleWidget::start()
+{
+  if (running_) {
+    qWarning() << "The journalctl process is already running.";
+    return;
+  }
+  if (host_.isEmpty() || user_.isEmpty()) {
+    qWarning() << "The endpoint has not been set yet.";
+    return;
+  }
+
+  clear();
+
+  // A single journalctl invocation reads history and follows it without a handover gap.
+  const auto command = "journalctl -b --no-pager -o short-monotonic -n all -f " + service_->currentData().toString();
+  const QStringList arguments = {
+    "-T",    "-n",
+    "-o",    "BatchMode=yes",
+    "-o",    "StrictHostKeyChecking=accept-new",
+    "-o",    "ConnectTimeout=10",
+    "-o",    "ServerAliveInterval=5",
+    "-o",    "ServerAliveCountMax=3",
+    "-l",    user_,
+    "--",    host_,
+    command,
+  };
+  process_.start("ssh", arguments, QIODevice::ReadOnly);
+
+  flush_timer_.start();
+  setRunning(true);
+}
+
+void FcConsoleWidget::stop()
+{
+  if (!running_) {
+    qWarning() << "The journalctl process is not running.";
+    return;
+  }
+
+  process_.terminate();
+}
+
+void FcConsoleWidget::clear()
+{
+  pending_output_.clear();
+  output_->clear();
+}
+
 void FcConsoleWidget::updateActions()
 {
   start_stop_btn_->setEnabled(running_ || (!host_.isEmpty() && !user_.isEmpty()));
@@ -163,52 +211,6 @@ void FcConsoleWidget::flushOutput()
   if (follow) {
     scrollbar->setValue(scrollbar->maximum());
   }
-}
-
-void FcConsoleWidget::start()
-{
-  TOBAS_CHECK(!host_.isEmpty() && !user_.isEmpty());
-
-  if (running_) {
-    qWarning() << "The journalctl process is already running.";
-    return;
-  }
-
-  clear();
-
-  // A single journalctl invocation reads history and follows it without a handover gap.
-  const auto command = "journalctl -b --no-pager -o short-monotonic -n all -f " + service_->currentData().toString();
-  const QStringList arguments = {
-    "-T",    "-n",
-    "-o",    "BatchMode=yes",
-    "-o",    "StrictHostKeyChecking=accept-new",
-    "-o",    "ConnectTimeout=10",
-    "-o",    "ServerAliveInterval=5",
-    "-o",    "ServerAliveCountMax=3",
-    "-l",    user_,
-    "--",    host_,
-    command,
-  };
-  process_.start("ssh", arguments, QIODevice::ReadOnly);
-
-  flush_timer_.start();
-  setRunning(true);
-}
-
-void FcConsoleWidget::stop()
-{
-  if (!running_) {
-    qWarning() << "The journalctl process is not running.";
-    return;
-  }
-
-  process_.terminate();
-}
-
-void FcConsoleWidget::clear()
-{
-  pending_output_.clear();
-  output_->clear();
 }
 
 void FcConsoleWidget::onStartButtonClicked()

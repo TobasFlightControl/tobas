@@ -36,6 +36,10 @@ public:
   void setEndpoint(const QString& host, const QString& user);
   bool isRunning() const;
 
+  void start();
+  void stop();
+  void clear();
+
 private:
   QString host_;
   QString user_;
@@ -58,10 +62,6 @@ private:
   void readStandardError();
   void readOutput();
   void flushOutput();
-
-  void start();
-  void stop();
-  void clear();
 
   void onStartButtonClicked();
   void onStopButtonClicked();
