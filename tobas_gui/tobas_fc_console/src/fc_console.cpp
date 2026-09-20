@@ -8,9 +8,11 @@
 #include <QFileDialog>
 #include <QHBoxLayout>
 #include <QIODevice>
+#include <QKeySequence>
 #include <QPushButton>
 #include <QSaveFile>
 #include <QScrollBar>
+#include <QShortcut>
 #include <QTextCursor>
 #include <QVBoxLayout>
 
@@ -68,6 +70,12 @@ FcConsoleWidget::FcConsoleWidget(QWidget* parent) : QWidget(parent)
   connect(&process_, &QProcess::readyReadStandardError, this, &self::readStandardError);
   connect(&process_, qOverload<int, QProcess::ExitStatus>(&QProcess::finished), this, &self::onProcessFinished);
   connect(&process_, &QProcess::errorOccurred, this, &self::onProcessErrorOccurred);
+
+  for (const auto key : { Qt::Key_Return, Qt::Key_Enter }) {
+    const auto shortcut = new QShortcut(QKeySequence(key), this);
+    shortcut->setContext(Qt::WidgetWithChildrenShortcut);
+    connect(shortcut, &QShortcut::activated, this, &self::scrollToEnd);
+  }
 
   flush_timer_.setInterval(50);
   decoder_.reset(QTextCodec::codecForName("UTF-8")->makeDecoder());
@@ -209,8 +217,14 @@ void FcConsoleWidget::flushOutput()
   pending_output_.clear();
 
   if (follow) {
-    scrollbar->setValue(scrollbar->maximum());
+    scrollToEnd();
   }
+}
+
+void FcConsoleWidget::scrollToEnd()
+{
+  const auto scrollbar = output_->verticalScrollBar();
+  scrollbar->setValue(scrollbar->maximum());
 }
 
 void FcConsoleWidget::onStartButtonClicked()

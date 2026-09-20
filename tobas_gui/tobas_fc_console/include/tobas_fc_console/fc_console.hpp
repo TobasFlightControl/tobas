@@ -62,6 +62,7 @@ private:
   void readStandardError();
   void readOutput();
   void flushOutput();
+  void scrollToEnd();
 
   void onStartButtonClicked();
   void onStopButtonClicked();
