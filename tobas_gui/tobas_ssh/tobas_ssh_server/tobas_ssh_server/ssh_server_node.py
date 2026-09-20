@@ -83,19 +83,19 @@ class SSHServerNode(Node):
             return res
 
         if req.superuser:
+            if req.command.count("'") > 0:
+                res.success = False
+                res.error_output = "Command with superuser privilege cannot contain single quotation marks."
+                return res
             if req.background:
                 self._cli.exec_command_bg_super(req.command)
                 res.success = True
-                res.output = ""
-                res.error_output = ""
             else:
                 res.success, res.output, res.error_output = self._cli.exec_command_super(req.command)
         else:
             if req.background:
                 self._cli.exec_command_bg(req.command)
                 res.success = True
-                res.output = ""
-                res.error_output = ""
             else:
                 res.success, res.output, res.error_output = self._cli.exec_command(req.command)
 

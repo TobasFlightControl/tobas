@@ -276,9 +276,9 @@ ssh::SshClient::Error SshClientWrapper::errorCode() const
   return impl_.errorCode();
 }
 
-const char* SshClientWrapper::errorMessage() const
+QString SshClientWrapper::errorMessage() const
 {
-  return impl_.errorMessage();
+  return QString::fromStdString(impl_.errorMessage());
 }
 
 bool SshClientWrapper::setEndpoint(const QString& host, const QString& user)
