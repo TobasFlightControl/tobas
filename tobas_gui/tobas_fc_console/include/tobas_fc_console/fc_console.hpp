@@ -8,10 +8,11 @@
 #include <QComboBox>
 #include <QPlainTextEdit>
 #include <QProcess>
-#include <QPushButton>
 #include <QTextDecoder>
 #include <QTimer>
 #include <QWidget>
+
+#include <tobas_qt_tools/widgets/toggle_button.hpp>
 
 namespace tobas
 {
@@ -48,8 +49,7 @@ private:
   std::unique_ptr<QTextDecoder> decoder_;
 
   QComboBox* service_;
-  QPushButton* start_btn_;
-  QPushButton* stop_btn_;
+  qt::ToggleButton* start_stop_btn_;
   QPlainTextEdit* output_;
 
   void updateActions();

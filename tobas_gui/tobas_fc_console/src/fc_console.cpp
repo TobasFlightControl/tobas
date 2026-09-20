@@ -8,6 +8,7 @@
 #include <QFileDialog>
 #include <QHBoxLayout>
 #include <QIODevice>
+#include <QPushButton>
 #include <QSaveFile>
 #include <QScrollBar>
 #include <QTextCursor>
@@ -31,8 +32,7 @@ FcConsoleWidget::FcConsoleWidget(QWidget* parent) : QWidget(parent)
   service_->addItem("Interface", "-u " + QString(kInterfaceService));
   service_->addItem("Both", "-u " + QString(kRealtimeService) + " -u " + QString(kInterfaceService));
 
-  start_btn_ = new QPushButton("Start");
-  stop_btn_ = new QPushButton("Stop");
+  start_stop_btn_ = new qt::ToggleButton("Start", "Stop");
 
   const auto wrap = new QCheckBox("Wrap lines");
   const auto clear_btn = new QPushButton("Clear");
@@ -46,8 +46,7 @@ FcConsoleWidget::FcConsoleWidget(QWidget* parent) : QWidget(parent)
 
   const auto controls = new QHBoxLayout();
   controls->addWidget(service_);
-  controls->addWidget(start_btn_);
-  controls->addWidget(stop_btn_);
+  controls->addWidget(start_stop_btn_);
   controls->addStretch();
   controls->addWidget(wrap);
   controls->addWidget(clear_btn);
@@ -58,8 +57,8 @@ FcConsoleWidget::FcConsoleWidget(QWidget* parent) : QWidget(parent)
   rows->addWidget(output_);
   setLayout(rows);
 
-  connect(start_btn_, &QPushButton::clicked, this, &self::start);
-  connect(stop_btn_, &QPushButton::clicked, this, &self::stop);
+  connect(start_stop_btn_, &qt::ToggleButton::checked, this, &self::start);
+  connect(start_stop_btn_, &qt::ToggleButton::unchecked, this, &self::stop);
   connect(save_btn, &QPushButton::clicked, this, &self::save);
   connect(clear_btn, &QPushButton::clicked, this, &self::clear);
   connect(wrap, &QCheckBox::toggled, this, &self::onWrapToggled);
@@ -96,14 +95,15 @@ bool FcConsoleWidget::isRunning() const
 
 void FcConsoleWidget::closeEvent(QCloseEvent* event)
 {
+  qDebug() << "FcConsoleWidget::closeEvent";
+
   stop();
   event->accept();
 }
 
 void FcConsoleWidget::updateActions()
 {
-  start_btn_->setEnabled(!running_ && !host_.isEmpty() && !user_.isEmpty());
-  stop_btn_->setEnabled(running_);
+  start_stop_btn_->setEnabled(running_ || (!host_.isEmpty() && !user_.isEmpty()));
   service_->setEnabled(!running_);
 }
 
