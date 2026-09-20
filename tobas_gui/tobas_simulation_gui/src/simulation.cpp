@@ -206,14 +206,6 @@ void SimulationWidget::terminateSimulation()
   state_ = kStopping;
 }
 
-void SimulationWidget::onLaunchProcessFinished(int code, QProcess::ExitStatus status)
-{
-  qDebug().nospace() << "SimulationWidget::onLaunchProcessFinished(" << code << ", " << status << ")";
-
-  const auto process = qt::qPointerCast<QProcess>(sender());
-  finalizeLaunchProcess(process, code, status);
-}
-
 void SimulationWidget::finalizeLaunchProcess(QProcess* process, int code, QProcess::ExitStatus status)
 {
   TOBAS_CHECK(process == launch_proc_);
@@ -338,6 +330,14 @@ void SimulationWidget::onTerminateRequested()
 
   qInfo() << "Waiting for the simulation process to shutdown.";
   spinner_.start();
+}
+
+void SimulationWidget::onLaunchProcessFinished(int code, QProcess::ExitStatus status)
+{
+  qDebug().nospace() << "SimulationWidget::onLaunchProcessFinished(" << code << ", " << status << ")";
+
+  const auto process = qt::qPointerCast<QProcess>(sender());
+  finalizeLaunchProcess(process, code, status);
 }
 
 void SimulationWidget::onLaunchProcessErrorOccurred(QProcess::ProcessError error)

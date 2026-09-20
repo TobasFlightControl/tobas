@@ -87,8 +87,8 @@ private:
 private Q_SLOTS:
   void onStartRequested();
   void onTerminateRequested();
-  void onLaunchProcessErrorOccurred(QProcess::ProcessError error);
   void onLaunchProcessFinished(int code, QProcess::ExitStatus status);
+  void onLaunchProcessErrorOccurred(QProcess::ProcessError error);
 };
 }  // namespace sim
 }  // namespace gui
