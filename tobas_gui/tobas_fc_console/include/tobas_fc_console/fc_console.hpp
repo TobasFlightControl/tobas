@@ -41,13 +41,11 @@ private:
   QString host_;
   QString user_;
 
-  QProcess process_;
-  QTimer flush_timer_;
-  std::unique_ptr<QTextDecoder> stdout_decoder_;
-  std::unique_ptr<QTextDecoder> stderr_decoder_;
-
   bool running_ = false;
   QString pending_output_;
+  QProcess process_;
+  QTimer flush_timer_;
+  std::unique_ptr<QTextDecoder> decoder_;
 
   QComboBox* service_;
   QPushButton* start_btn_;
@@ -58,14 +56,16 @@ private:
   void setRunning(bool running);
 
   void queueOutput(const QString& text);
+  void readStandardOutput();
+  void readStandardError();
   void readOutput();
   void flushOutput();
 
   void start();
   void stop();
+  void clear();
   void save();
 
-  void onClearButtonClicked();
   void onWrapToggled(bool checked);
   void onFinished(int code, QProcess::ExitStatus status);
   void onErrorOccurred(QProcess::ProcessError error);

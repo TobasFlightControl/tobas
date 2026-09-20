@@ -58,18 +58,19 @@ FcConsoleWidget::FcConsoleWidget(QWidget* parent) : QWidget(parent)
   rows->addWidget(output_);
   setLayout(rows);
 
-  flush_timer_.setInterval(50);
-
   connect(start_btn_, &QPushButton::clicked, this, &self::start);
   connect(stop_btn_, &QPushButton::clicked, this, &self::stop);
   connect(save_btn, &QPushButton::clicked, this, &self::save);
-  connect(clear_btn, &QPushButton::clicked, this, &self::onClearButtonClicked);
+  connect(clear_btn, &QPushButton::clicked, this, &self::clear);
   connect(wrap, &QCheckBox::toggled, this, &self::onWrapToggled);
   connect(&flush_timer_, &QTimer::timeout, this, &self::flushOutput);
-  connect(&process_, &QProcess::readyReadStandardOutput, this, &self::readOutput);
-  connect(&process_, &QProcess::readyReadStandardError, this, &self::readOutput);
+  connect(&process_, &QProcess::readyReadStandardOutput, this, &self::readStandardOutput);
+  connect(&process_, &QProcess::readyReadStandardError, this, &self::readStandardError);
   connect(&process_, qOverload<int, QProcess::ExitStatus>(&QProcess::finished), this, &self::onFinished);
   connect(&process_, &QProcess::errorOccurred, this, &self::onErrorOccurred);
+
+  flush_timer_.setInterval(50);
+  decoder_.reset(QTextCodec::codecForName("UTF-8")->makeDecoder());
 
   updateActions();
 }
@@ -115,6 +116,9 @@ void FcConsoleWidget::setRunning(bool running)
 
 void FcConsoleWidget::queueOutput(const QString& text)
 {
+  // Buffer SSH chunks so `flushOutput()` can batch display updates.
+  // Updating the widget on every receive event would repeatedly lay out text and scroll,
+  // making the UI less responsive when fetching a large journal history at startup.
   pending_output_ += text;
 
   // Bound bursts as well as the document, without inserting annotations into the journal text.
@@ -124,10 +128,20 @@ void FcConsoleWidget::queueOutput(const QString& text)
   }
 }
 
+void FcConsoleWidget::readStandardOutput()
+{
+  queueOutput(decoder_->toUnicode(process_.readAllStandardOutput()));
+}
+
+void FcConsoleWidget::readStandardError()
+{
+  queueOutput(decoder_->toUnicode(process_.readAllStandardError()));
+}
+
 void FcConsoleWidget::readOutput()
 {
-  queueOutput(stdout_decoder_->toUnicode(process_.readAllStandardOutput()));
-  queueOutput(stderr_decoder_->toUnicode(process_.readAllStandardError()));
+  readStandardOutput();
+  readStandardError();
 }
 
 void FcConsoleWidget::flushOutput()
@@ -156,6 +170,8 @@ void FcConsoleWidget::start()
     return;
   }
 
+  clear();
+
   // A single journalctl invocation reads history and follows it without a handover gap.
   const auto command = "journalctl -b --no-pager -o short-monotonic -n all -f " + service_->currentData().toString();
   const QStringList arguments = {
@@ -169,14 +185,10 @@ void FcConsoleWidget::start()
     "--",    host_,
     command,
   };
-
-  pending_output_.clear();
-  output_->clear();
-  stdout_decoder_.reset(QTextCodec::codecForName("UTF-8")->makeDecoder());
-  stderr_decoder_.reset(QTextCodec::codecForName("UTF-8")->makeDecoder());
-  setRunning(true);
-  flush_timer_.start();
   process_.start("ssh", arguments, QIODevice::ReadOnly);
+
+  flush_timer_.start();
+  setRunning(true);
 }
 
 void FcConsoleWidget::stop()
@@ -185,8 +197,13 @@ void FcConsoleWidget::stop()
     return;
   }
 
-  updateActions();
   process_.terminate();
+}
+
+void FcConsoleWidget::clear()
+{
+  pending_output_.clear();
+  output_->clear();
 }
 
 void FcConsoleWidget::save()
@@ -195,18 +212,14 @@ void FcConsoleWidget::save()
   if (path.isEmpty()) {
     return;
   }
+
   flushOutput();
+
   QSaveFile file(path);
   const auto contents = output_->toPlainText().toUtf8();
   if (!file.open(QIODevice::WriteOnly) || file.write(contents) != contents.size() || !file.commit()) {
     qt::qErrorBox(this, "Failed to save output: " + file.errorString());
   }
-}
-
-void FcConsoleWidget::onClearButtonClicked()
-{
-  pending_output_.clear();
-  output_->clear();
 }
 
 void FcConsoleWidget::onWrapToggled(bool checked)
@@ -218,6 +231,7 @@ void FcConsoleWidget::onFinished(int, QProcess::ExitStatus)
 {
   readOutput();
   flushOutput();
+
   flush_timer_.stop();
   setRunning(false);
 }
