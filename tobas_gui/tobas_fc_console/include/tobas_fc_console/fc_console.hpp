@@ -57,6 +57,9 @@ private:
   QString pending_output_;
   QProcess process_;
   QTimer flush_timer_;
+  QTimer status_timer_;
+  QString status_text_;
+  int status_animation_step_ = 0;
   std::unique_ptr<QTextDecoder> decoder_;
 
   QComboBox* service_;
@@ -64,8 +67,9 @@ private:
   QLabel* status_label_;
   QPlainTextEdit* output_;
 
-  void updateActions();
   void setStatus(Status status);
+  void updateStatusLabel();
+  void updateActions();
 
   void queueOutput(const QString& text);
   void readStandardOutput();
@@ -80,6 +84,7 @@ private:
   void onSaveButtonClicked();
 
   void onWrapToggled(bool checked);
+  void onStatusAnimationTimeout();
   void onProcessFinished(int code, QProcess::ExitStatus status);
   void onProcessErrorOccurred(QProcess::ProcessError error);
 

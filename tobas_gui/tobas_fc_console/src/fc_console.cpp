@@ -70,6 +70,7 @@ FcConsoleWidget::FcConsoleWidget(QWidget* parent) : QWidget(parent)
   connect(save_btn, &QPushButton::clicked, this, &self::onSaveButtonClicked);
   connect(wrap, &QCheckBox::toggled, this, &self::onWrapToggled);
   connect(&flush_timer_, &QTimer::timeout, this, &self::flushOutput);
+  connect(&status_timer_, &QTimer::timeout, this, &self::onStatusAnimationTimeout);
   connect(&process_, &QProcess::readyReadStandardOutput, this, &self::readStandardOutput);
   connect(&process_, &QProcess::readyReadStandardError, this, &self::readStandardError);
   connect(&process_, qOverload<int, QProcess::ExitStatus>(&QProcess::finished), this, &self::onProcessFinished);
@@ -82,6 +83,7 @@ FcConsoleWidget::FcConsoleWidget(QWidget* parent) : QWidget(parent)
   }
 
   flush_timer_.setInterval(50);
+  status_timer_.setInterval(500);
   decoder_.reset(QTextCodec::codecForName("UTF-8")->makeDecoder());
 
   setStatus(kStopped);
@@ -167,6 +169,62 @@ void FcConsoleWidget::clear()
   output_->clear();
 }
 
+void FcConsoleWidget::setStatus(Status status)
+{
+  switch (status) {
+    case kStopped:
+      status_text_.clear();
+      break;
+    case kWaiting:
+      status_text_ = "Waiting for system logs";
+      break;
+    case kReceiving:
+      status_text_ = "Receiving system logs";
+      break;
+    case kStopping:
+      status_text_ = "Stopping";
+      break;
+    case kError:
+      status_text_ = "Error";
+      break;
+    default:
+      throw;
+  }
+
+  if (status != kError) {
+    status_label_->setToolTip({});
+  }
+
+  const auto old_running = isRunning();
+  if (status != status_) {
+    qInfo() << "FC console status changed:" << status_ << "->" << status;
+    status_ = status;
+  }
+  const auto new_running = isRunning();
+
+  if (new_running) {
+    if (!status_timer_.isActive()) {
+      status_timer_.start();
+    }
+  }
+  else {
+    status_timer_.stop();
+    status_animation_step_ = 0;
+  }
+
+  updateStatusLabel();
+  updateActions();
+
+  if (old_running != new_running) {
+    Q_EMIT runningChanged(new_running);
+  }
+}
+
+void FcConsoleWidget::updateStatusLabel()
+{
+  status_label_->setText(status_text_ + QString(status_animation_step_, '.'));
+}
+
 void FcConsoleWidget::updateActions()
 {
   const auto running = isRunning();
@@ -195,48 +253,6 @@ void FcConsoleWidget::updateActions()
   }
 
   service_->setEnabled(!running);
-}
-
-void FcConsoleWidget::setStatus(Status status)
-{
-  switch (status) {
-    case kStopped:
-      status_label_->setText("");
-      break;
-    case kWaiting:
-      status_label_->setText("Waiting for system logs...");
-      break;
-    case kReceiving:
-      status_label_->setText("Receiving system logs...");
-      break;
-    case kStopping:
-      status_label_->setText("Stopping...");
-      break;
-    case kError:
-      status_label_->setText("Error");
-      break;
-    default:
-      throw;
-  }
-
-  if (status != kError) {
-    status_label_->setToolTip({});
-  }
-
-  const auto old_running = isRunning();
-
-  if (status != status_) {
-    qInfo() << "FC console status changed:" << status_ << "->" << status;
-    status_ = status;
-  }
-
-  const auto new_running = isRunning();
-
-  updateActions();
-
-  if (old_running != new_running) {
-    Q_EMIT runningChanged(new_running);
-  }
 }
 
 void FcConsoleWidget::queueOutput(const QString& text)
@@ -343,6 +359,12 @@ void FcConsoleWidget::onWrapToggled(bool checked)
   qDebug().nospace() << "FcConsoleWidget::onWrapToggled(" << checked << ")";
 
   output_->setLineWrapMode(checked ? QPlainTextEdit::WidgetWidth : QPlainTextEdit::NoWrap);
+}
+
+void FcConsoleWidget::onStatusAnimationTimeout()
+{
+  ++status_animation_step_ %= 4;
+  updateStatusLabel();
 }
 
 void FcConsoleWidget::onProcessFinished(int code, QProcess::ExitStatus status)
