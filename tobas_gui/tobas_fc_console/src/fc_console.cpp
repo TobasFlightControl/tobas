@@ -3,6 +3,8 @@
 
 #include "tobas_fc_console/fc_console.hpp"
 
+#include <set>
+
 #include <QCheckBox>
 #include <QDebug>
 #include <QFileDialog>
@@ -36,6 +38,7 @@ FcConsoleWidget::FcConsoleWidget(QWidget* parent) : QWidget(parent)
   service_->addItem("Both", "-u " + QString(kRealtimeService) + " -u " + QString(kInterfaceService));
 
   start_stop_btn_ = new qt::ToggleButton("Start", "Stop");
+  status_label_ = new QLabel();
 
   const auto wrap = new QCheckBox("Wrap lines");
   const auto clear_btn = new QPushButton("Clear");
@@ -50,6 +53,7 @@ FcConsoleWidget::FcConsoleWidget(QWidget* parent) : QWidget(parent)
   const auto controls = new QHBoxLayout();
   controls->addWidget(service_);
   controls->addWidget(start_stop_btn_);
+  controls->addWidget(status_label_);
   controls->addStretch();
   controls->addWidget(wrap);
   controls->addWidget(clear_btn);
@@ -80,12 +84,12 @@ FcConsoleWidget::FcConsoleWidget(QWidget* parent) : QWidget(parent)
   flush_timer_.setInterval(50);
   decoder_.reset(QTextCodec::codecForName("UTF-8")->makeDecoder());
 
-  updateActions();
+  setStatus(kStopped);
 }
 
 FcConsoleWidget::~FcConsoleWidget()
 {
-  if (running_) {
+  if (isRunning()) {
     process_.blockSignals(true);
     process_.terminate();
   }
@@ -97,7 +101,7 @@ void FcConsoleWidget::setEndpoint(const QString& host, const QString& user)
     return;
   }
 
-  if (running_) {
+  if (isRunning()) {
     stop();
     qt::qWarnBox(this, "System log retrieval was stopped because the endpoint changed during retrieval.");
   }
@@ -110,12 +114,13 @@ void FcConsoleWidget::setEndpoint(const QString& host, const QString& user)
 
 bool FcConsoleWidget::isRunning() const
 {
-  return running_;
+  static const std::set running_statuses = { kWaiting, kReceiving, kStopping };
+  return running_statuses.contains(status_);
 }
 
 void FcConsoleWidget::start()
 {
-  if (running_) {
+  if (isRunning()) {
     qWarning() << "The journalctl process is already running.";
     return;
   }
@@ -139,19 +144,20 @@ void FcConsoleWidget::start()
     "--",    host_,
     command,
   };
-  process_.start("ssh", arguments, QIODevice::ReadOnly);
 
+  setStatus(kWaiting);
   flush_timer_.start();
-  setRunning(true);
+  process_.start("ssh", arguments, QIODevice::ReadOnly);
 }
 
 void FcConsoleWidget::stop()
 {
-  if (!running_) {
+  if (!isRunning()) {
     qWarning() << "The journalctl process is not running.";
     return;
   }
 
+  setStatus(kStopping);
   process_.terminate();
 }
 
@@ -163,16 +169,74 @@ void FcConsoleWidget::clear()
 
 void FcConsoleWidget::updateActions()
 {
-  start_stop_btn_->setChecked(running_);
-  start_stop_btn_->setEnabled(running_ || (!host_.isEmpty() && !user_.isEmpty()));
-  service_->setEnabled(!running_);
+  const auto running = isRunning();
+
+  start_stop_btn_->setChecked(running);
+
+  const auto endpoint_set = !host_.isEmpty() && !user_.isEmpty();
+  switch (status_) {
+    case kStopped:
+      start_stop_btn_->setEnabled(endpoint_set);
+      break;
+    case kWaiting:
+      start_stop_btn_->setEnabled(false);
+      break;
+    case kReceiving:
+      start_stop_btn_->setEnabled(true);
+      break;
+    case kStopping:
+      start_stop_btn_->setEnabled(false);
+      break;
+    case kError:
+      start_stop_btn_->setEnabled(endpoint_set);
+      break;
+    default:
+      throw;
+  }
+
+  service_->setEnabled(!running);
 }
 
-void FcConsoleWidget::setRunning(bool running)
+void FcConsoleWidget::setStatus(Status status)
 {
-  running_ = running;
+  switch (status) {
+    case kStopped:
+      status_label_->setText("");
+      break;
+    case kWaiting:
+      status_label_->setText("Waiting for system logs...");
+      break;
+    case kReceiving:
+      status_label_->setText("Receiving system logs...");
+      break;
+    case kStopping:
+      status_label_->setText("Stopping...");
+      break;
+    case kError:
+      status_label_->setText("Error");
+      break;
+    default:
+      throw;
+  }
+
+  if (status != kError) {
+    status_label_->setToolTip({});
+  }
+
+  const auto old_running = isRunning();
+
+  if (status != status_) {
+    qInfo() << "FC console status changed:" << status_ << "->" << status;
+    status_ = status;
+  }
+
+  const auto new_running = isRunning();
+
   updateActions();
-  Q_EMIT runningChanged(running_);
+
+  if (old_running != new_running) {
+    Q_EMIT runningChanged(new_running);
+  }
 }
 
 void FcConsoleWidget::queueOutput(const QString& text)
@@ -191,7 +255,11 @@ void FcConsoleWidget::queueOutput(const QString& text)
 
 void FcConsoleWidget::readStandardOutput()
 {
-  queueOutput(decoder_->toUnicode(process_.readAllStandardOutput()));
+  const auto chunk = process_.readAllStandardOutput();
+  if (!chunk.isEmpty() && status_ == kWaiting) {
+    setStatus(kReceiving);
+  }
+  queueOutput(decoder_->toUnicode(chunk));
 }
 
 void FcConsoleWidget::readStandardError()
@@ -285,17 +353,51 @@ void FcConsoleWidget::onProcessFinished(int code, QProcess::ExitStatus status)
   flushOutput();
 
   flush_timer_.stop();
-  setRunning(false);
+  const auto failed = status_ != kStopping && (status_ == kError || status == QProcess::CrashExit || code != 0);
+  setStatus(failed ? kError : kStopped);
 }
 
 void FcConsoleWidget::onProcessErrorOccurred(QProcess::ProcessError error)
 {
   qDebug().nospace() << "FcConsoleWidget::onProcessErrorOccurred(" << error << ")";
 
+  if (status_ == kStopping && error != QProcess::FailedToStart) {
+    return;
+  }
+
+  setStatus(kError);
+  status_label_->setToolTip(process_.errorString());
+
   if (error == QProcess::FailedToStart) {
     flush_timer_.stop();
-    setRunning(false);
   }
+}
+
+QDebug operator<<(QDebug debug, const FcConsoleWidget::Status& status)
+{
+  const QDebugStateSaver saver(debug);
+
+  switch (status) {
+    case FcConsoleWidget::kStopped:
+      debug << "Stopped";
+      break;
+    case FcConsoleWidget::kWaiting:
+      debug << "Waiting";
+      break;
+    case FcConsoleWidget::kReceiving:
+      debug << "Receiving";
+      break;
+    case FcConsoleWidget::kStopping:
+      debug << "Stopping";
+      break;
+    case FcConsoleWidget::kError:
+      debug << "Error";
+      break;
+    default:
+      throw;
+  }
+
+  return debug;
 }
 }  // namespace console
 }  // namespace gui

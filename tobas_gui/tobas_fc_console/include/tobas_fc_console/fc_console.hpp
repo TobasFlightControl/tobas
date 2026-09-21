@@ -6,6 +6,7 @@
 #include <memory>
 
 #include <QComboBox>
+#include <QLabel>
 #include <QPlainTextEdit>
 #include <QProcess>
 #include <QTextDecoder>
@@ -41,10 +42,18 @@ public:
   void clear();
 
 private:
+  enum Status
+  {
+    kStopped,
+    kWaiting,
+    kReceiving,
+    kStopping,
+    kError,
+  } status_ = kStopped;
+
   QString host_;
   QString user_;
 
-  bool running_ = false;
   QString pending_output_;
   QProcess process_;
   QTimer flush_timer_;
@@ -52,10 +61,11 @@ private:
 
   QComboBox* service_;
   qt::ToggleButton* start_stop_btn_;
+  QLabel* status_label_;
   QPlainTextEdit* output_;
 
   void updateActions();
-  void setRunning(bool running);
+  void setStatus(Status status);
 
   void queueOutput(const QString& text);
   void readStandardOutput();
@@ -72,6 +82,8 @@ private:
   void onWrapToggled(bool checked);
   void onProcessFinished(int code, QProcess::ExitStatus status);
   void onProcessErrorOccurred(QProcess::ProcessError error);
+
+  friend QDebug operator<<(QDebug debug, const Status& status);
 };
 }  // namespace console
 }  // namespace gui
