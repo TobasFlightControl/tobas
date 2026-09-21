@@ -35,7 +35,7 @@ SshClient::Error SshClient::errorCode() const
   return error_code_;
 }
 
-const char* SshClient::errorMessage() const
+std::string SshClient::errorMessage() const
 {
   switch (error_code_) {
     case kNoError:
@@ -43,7 +43,7 @@ const char* SshClient::errorMessage() const
     case kServerNotReady:
       return "The SSH server is not ready.";
     case kServerError:
-      return server_error_msg_.c_str();
+      return server_error_msg_;
     default:
       return "Unknown error";
   }

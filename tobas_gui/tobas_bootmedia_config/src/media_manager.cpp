@@ -39,8 +39,8 @@ MediaManagerWidget::MediaManagerWidget()
   cols->addWidget(connect_btn_);
 
   // Connection
-  connect(connect_btn_, &qt::ToggleButton::checked, this, &self::onConnectRequested);
-  connect(connect_btn_, &qt::ToggleButton::unchecked, this, &self::onDisconnectRequested);
+  connect(connect_btn_, &qt::ToggleButton::checked, this, &self::onConnectButtonClicked);
+  connect(connect_btn_, &qt::ToggleButton::unchecked, this, &self::onDisconnectButtonClicked);
   connect(&scan_timer_, &QTimer::timeout, this, &self::onScanTimerTimeout);
 
   scan_timer_.start(1s);
@@ -90,7 +90,7 @@ std::pair<std::string, std::string> MediaManagerWidget::getVendorAndModel(udev_d
   return { vendor, model };
 }
 
-void MediaManagerWidget::onConnectRequested()
+void MediaManagerWidget::onConnectButtonClicked()
 {
   constexpr mode_t kPermission = 0755;  // rwxr-xr-x
 
@@ -144,7 +144,7 @@ void MediaManagerWidget::onConnectRequested()
   qt::qInfoBox(this, "The boot device was connected successfully.");
 }
 
-void MediaManagerWidget::onDisconnectRequested()
+void MediaManagerWidget::onDisconnectButtonClicked()
 {
   // Flush the kernel write cache to storage.
   sync();

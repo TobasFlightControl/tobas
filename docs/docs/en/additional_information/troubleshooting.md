@@ -49,16 +49,3 @@ but for now, disabling UFW and rebooting should restore communication.
 $ sudo ufw disable
 $ sudo reboot
 ```
-
-## The FC is not working after creating and flashing user code
-
----
-
-A runtime error may have occurred.
-Log in to the Raspberry Pi via SSH and check the console output with `journalctl` for possible clues.
-Use the arrow keys to navigate and press `Q` to exit.
-
-```bash
-$ ssh pi@${hostname}.local  # or pi@${ip_address}
-$ journalctl -u tobas_real_realtime.service -e  # or tobas_real_interface.service
-```

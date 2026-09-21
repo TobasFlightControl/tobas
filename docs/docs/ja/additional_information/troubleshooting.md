@@ -49,16 +49,3 @@ $ sudo ufw status
 $ sudo ufw disable
 $ sudo reboot
 ```
-
-## ユーザコードを作成して書き込んだが FC が動作していない
-
----
-
-ランタイムエラーが発生している可能性があります．
-SSH でラズパイにログインし，`journalctl`でコンソール出力を確認すると手がかりが掴めるかもしれません．
-十字キーで移動し，`Q`キーで終了できます．
-
-```bash
-$ ssh pi@${hostname}.local  # or pi@${ip_address}
-$ journalctl -u tobas_real_realtime.service -e  # or tobas_real_interface.service
-```

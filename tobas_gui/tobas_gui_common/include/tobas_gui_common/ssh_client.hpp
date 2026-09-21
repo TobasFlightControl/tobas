@@ -24,7 +24,7 @@ public:
   bool waitForLocalServer();
 
   Impl::Error errorCode() const;
-  const char* errorMessage() const;
+  QString errorMessage() const;
 
   bool setEndpoint(const QString& host, const QString& user);
 

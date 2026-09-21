@@ -42,7 +42,7 @@ public:
   /* Getters */
 
   Error errorCode() const;
-  const char* errorMessage() const;
+  std::string errorMessage() const;
 
   /* Setters */
 

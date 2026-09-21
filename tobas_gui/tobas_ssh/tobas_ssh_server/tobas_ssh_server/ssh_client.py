@@ -98,9 +98,7 @@ class SSHClientWrapper:
 
     def exec_command_super(self, command: str) -> Tuple[bool, str, str]:
         """Run a sudo command."""
-        if command.count("'") > 0:
-            raise RuntimeError('Command with superuser privilege cannot contain "\'".')
-
+        assert command.count("'")  == 0
         return self.exec_command(self._sudo_command(command))
 
     def exec_command_bg(self, command: str) -> None:

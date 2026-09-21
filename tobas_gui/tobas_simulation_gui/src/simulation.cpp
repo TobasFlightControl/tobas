@@ -57,6 +57,15 @@ SimulationWidget::SimulationWidget(const rqt::RosQtBridge& bridge) : spinner_(Qt
   reset();
 }
 
+SimulationWidget::~SimulationWidget()
+{
+  if (launch_proc_) {
+    qWarning() << "Forcibly shutting down the simulation.";
+    launch_proc_->blockSignals(true);
+    terminateSimulation();
+  }
+}
+
 void SimulationWidget::reset()
 {
   TOBAS_CHECK(!launch_proc_);
@@ -113,18 +122,6 @@ void SimulationWidget::clearRosInterfaces()
 bool SimulationWidget::isRunning() const
 {
   return state_ != kIdle;
-}
-
-void SimulationWidget::closeEvent(QCloseEvent* event)
-{
-  qDebug() << "SimulationWidget::closeEvent";
-
-  // Destroy child processes when closing the parent widget.
-  if (launch_proc_) {
-    terminateSimulation();
-  }
-
-  event->accept();
 }
 
 std::map<QString, QString> SimulationWidget::makeGazeboLaunchArguments() const
@@ -207,14 +204,6 @@ void SimulationWidget::terminateSimulation()
   killGazeboServer();
 
   state_ = kStopping;
-}
-
-void SimulationWidget::onLaunchProcessFinished(int code, QProcess::ExitStatus status)
-{
-  qDebug().nospace() << "SimulationWidget::onLaunchProcessFinished(" << code << ", " << status << ")";
-
-  const auto process = qt::qPointerCast<QProcess>(sender());
-  finalizeLaunchProcess(process, code, status);
 }
 
 void SimulationWidget::finalizeLaunchProcess(QProcess* process, int code, QProcess::ExitStatus status)
@@ -341,6 +330,14 @@ void SimulationWidget::onTerminateRequested()
 
   qInfo() << "Waiting for the simulation process to shutdown.";
   spinner_.start();
+}
+
+void SimulationWidget::onLaunchProcessFinished(int code, QProcess::ExitStatus status)
+{
+  qDebug().nospace() << "SimulationWidget::onLaunchProcessFinished(" << code << ", " << status << ")";
+
+  const auto process = qt::qPointerCast<QProcess>(sender());
+  finalizeLaunchProcess(process, code, status);
 }
 
 void SimulationWidget::onLaunchProcessErrorOccurred(QProcess::ProcessError error)

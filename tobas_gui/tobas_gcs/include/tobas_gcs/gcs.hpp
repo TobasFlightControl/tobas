@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 
+#include <QButtonGroup>
 #include <QComboBox>
 #include <QLineEdit>
 #include <QPushButton>
@@ -18,6 +19,7 @@
 
 #include <tobas_actuator_test/actuator_test.hpp>
 #include <tobas_control_system/control_system.hpp>
+#include <tobas_fc_console/fc_console.hpp>
 #include <tobas_flight_log_gui/flight_log.hpp>
 #include <tobas_gui_common/network_config.hpp>
 #include <tobas_gui_common/remote_project_builder.hpp>
@@ -25,6 +27,7 @@
 #include <tobas_gui_common/version.hpp>
 #include <tobas_kdl_parser/kdl_parser.hpp>
 #include <tobas_parameter_tuning/parameter_tuning.hpp>
+#include <tobas_qt_tools/widgets/stacked_widget.hpp>
 #include <tobas_qt_tools/widgets/toggle_button.hpp>
 #include <tobas_ros2_tools/async_node_manager.hpp>
 #include <tobas_sensor_calibration/sensor_calibration.hpp>
@@ -55,9 +58,6 @@ class GroundControlStationWidget : public QWidget
 public:
   explicit GroundControlStationWidget(int argc, char** argv);
 
-protected:
-  void closeEvent(QCloseEvent* event) override;
-
 private:
   rqt::RosQtBridge bridge_;
 
@@ -85,14 +85,18 @@ private:
   RestartButton* restart_btn_;
   ShutdownButton* shutdown_btn_;
 
-  qt::WaitSpinnerWidget spinner_;
+  QButtonGroup* app_btn_group_;
+  qt::StackedWidget* app_sw_;
 
   sc::SensorCalibrationWidget* sensor_calib_;
   at::ActuatorTestWidget* actuator_test_;
   ctrl::ControlSystemWidget* control_system_;
   param::ParameterTuningWidget* param_tuning_;
   log::FlightLogWidget* flight_log_;
+  console::FcConsoleWidget* fc_console_;
   sim::SimulationWidget* simulation_;
+
+  qt::WaitSpinnerWidget spinner_;
 
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
   bool telemetry_loss_expected_ = false;
@@ -128,10 +132,14 @@ private:
   std::expected<void, QString> restartInBackground();
   std::expected<void, QString> shutdownInBackground();
 
+  void setCurrentApplication(QWidget* widget);
+
 private Q_SLOTS:
+  void onEndpointChanged();
+
   void onLoadButtonClicked();
-  void onConnectRequested();
-  void onDisconnectRequested();
+  void onConnectButtonClicked();
+  void onDisconnectButtonClicked();
   void onWriteButtonClicked();
 
   void onFlightControllerScanFinished(const QVector<DiscoveredFlightController>& flight_controllers);
