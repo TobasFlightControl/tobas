@@ -3,8 +3,6 @@
 
 #include "tobas_fc_console/fc_console.hpp"
 
-#include <set>
-
 #include <QCheckBox>
 #include <QDateTime>
 #include <QDebug>
@@ -15,6 +13,7 @@
 #include <QPushButton>
 #include <QSaveFile>
 #include <QScrollBar>
+#include <QSet>
 #include <QShortcut>
 #include <QTextCursor>
 #include <QVBoxLayout>
@@ -117,7 +116,7 @@ void FcConsoleWidget::setEndpoint(const QString& host, const QString& user)
 
 bool FcConsoleWidget::isRunning() const
 {
-  static const std::set running_statuses = { kWaiting, kReceiving, kStopping };
+  static const QSet running_statuses = { kWaiting, kReceiving, kStopping };
   return running_statuses.contains(status_);
 }
 
