@@ -98,7 +98,7 @@ class SSHClientWrapper:
 
     def exec_command_super(self, command: str) -> Tuple[bool, str, str]:
         """Run a sudo command."""
-        assert command.count("'")  == 0
+        assert command.count("'") == 0
         return self.exec_command(self._sudo_command(command))
 
     def exec_command_bg(self, command: str) -> None:
