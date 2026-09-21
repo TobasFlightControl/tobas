@@ -57,7 +57,7 @@ std::expected<QString, QString> writeTimestampedFile(
   }
 
   // Generate the filename from date and time.
-  auto filename = QDateTime::currentDateTime().toString("yyyyMMdd_HHmmss_zzz");
+  auto filename = QDateTime::currentDateTime().toString("yyyy-MM-dd_HH-mm-ss");
   if (!prefix.isEmpty()) {
     filename = prefix + '_' + filename;
   }
