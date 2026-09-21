@@ -18,7 +18,9 @@
 #include <QTextCursor>
 #include <QVBoxLayout>
 
+#include <tobas_constants/path.hpp>
 #include <tobas_qt_tools/message.hpp>
+#include <tobas_qt_tools/path.hpp>
 #include <tobas_std_tools/check.hpp>
 
 namespace tobas
@@ -340,9 +342,10 @@ void FcConsoleWidget::onSaveButtonClicked()
 {
   qDebug() << "FcConsoleWidget::onSaveButtonClicked";
 
-  const auto timestamp = QDateTime::currentDateTime().toString("yyyyMMdd_HHmmss");
-  const auto filename = "fc-console_" + timestamp + ".log";
-  const auto path = QFileDialog::getSaveFileName(this, "Save FC console", filename, "Log files (*.log *.txt)");
+  const auto timestamp = QDateTime::currentDateTime().toString("yyyy-MM-dd_HH-mm-ss");
+  const auto default_filename = timestamp + "_fc_console.log";
+  const auto default_path = QDir(qt::expandUser(kGuiLogDir)).filePath(default_filename);
+  const auto path = QFileDialog::getSaveFileName(this, "Save FC Console", default_path, "Log files (*.log *.txt)");
   if (path.isEmpty()) {
     return;
   }
