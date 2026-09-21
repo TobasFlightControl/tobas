@@ -6,6 +6,7 @@
 #include <set>
 
 #include <QCheckBox>
+#include <QDateTime>
 #include <QDebug>
 #include <QFileDialog>
 #include <QHBoxLayout>
@@ -340,7 +341,9 @@ void FcConsoleWidget::onSaveButtonClicked()
 {
   qDebug() << "FcConsoleWidget::onSaveButtonClicked";
 
-  const auto path = QFileDialog::getSaveFileName(this, "Save FC console", "fc-console.log", "Log files (*.log *.txt)");
+  const auto timestamp = QDateTime::currentDateTime().toString("yyyyMMdd_HHmmss");
+  const auto filename = "fc-console_" + timestamp + ".log";
+  const auto path = QFileDialog::getSaveFileName(this, "Save FC console", filename, "Log files (*.log *.txt)");
   if (path.isEmpty()) {
     return;
   }
