@@ -183,9 +183,9 @@ bool SetupAssistantWidget::updateInternalDataStructures()
 void SetupAssistantWidget::onNewButtonClicked()
 {
   // Get the previously opened path.
-  const auto default_dir = fs::path(ament_index_cpp::get_package_share_directory("tobas_description")) / "urdf";
-  const auto last_opened_dir =
-    settings_store_.value(kLastOpenedDirKey_New, QString::fromStdString(default_dir.string())).toString();
+  const auto default_pkg_share = ament_index_cpp::get_package_share_directory("tobas_description");
+  const auto default_dir = QDir(QString::fromStdString(default_pkg_share)).filePath("urdf");
+  const auto last_opened_dir = settings_store_.value(kLastOpenedDirKey_New, default_dir).toString();
 
   // Get the UADF path.
   const auto uadf_path = QFileDialog::getOpenFileName(

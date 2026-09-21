@@ -3,15 +3,11 @@
 
 #include "tobas_qt_tools/path.hpp"
 
-#include <filesystem>
-
 #include <QDateTime>
 #include <QDir>
 #include <QSaveFile>
 #include <QTextStream>
 #include <ament_index_cpp/get_package_share_directory.hpp>
-
-namespace fs = std::filesystem;
 
 namespace tobas
 {
@@ -19,9 +15,8 @@ namespace qt
 {
 QString getResourcePath()
 {
-  const fs::path pkg_path(ament_index_cpp::get_package_share_directory("tobas_qt_tools"));
-  const auto resource_path = pkg_path / "resources";
-  return QString::fromStdString(resource_path);
+  const auto pkg_path = ament_index_cpp::get_package_share_directory("tobas_qt_tools");
+  return QDir(QString::fromStdString(pkg_path)).filePath("resources");
 }
 
 QString getBaseName(const QString& path)
