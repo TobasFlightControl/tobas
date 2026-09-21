@@ -1,0 +1,38 @@
+name: pre-commit
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pre-commit:
+    name: pre-commit
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Install check dependencies
+        run: |
+          sudo apt update
+          sudo apt install --no-install-recommends -y \
+            pre-commit black clang-format cmake-format qt6-declarative-dev-tools
+
+      - name: Cache pre-commit environments
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/pre-commit
+          key: pre-commit-ubuntu-24.04-${{ runner.arch }}-${{ hashFiles('.pre-commit-config.yaml', '.github/workflows/pre-commit.yml') }}
+
+      - name: Run checks
+        run: pre-commit run -a
