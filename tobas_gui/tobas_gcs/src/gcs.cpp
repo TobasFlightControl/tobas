@@ -189,7 +189,6 @@ GroundControlStationWidget::GroundControlStationWidget(int argc, char** argv) : 
   connect(restart_btn_, &QPushButton::clicked, this, &self::onRestartButtonClicked);
   connect(shutdown_btn_, &QPushButton::clicked, this, &self::onShutdownButtonClicked);
   connect(remote_conn_, &RemoteConnectionWidget::disconnected, this, &self::onRemoteConnectionDisconnected);
-  connect(fc_console_, &console::FcConsoleWidget::runningChanged, this, &self::updateHeaderActionAvailability);
   connect(simulation_, &sim::SimulationWidget::started, this, &self::onSimulationStarted);
   connect(simulation_, &sim::SimulationWidget::terminated, this, &self::onSimulationTerminated);
   connect(simulation_, &sim::SimulationWidget::telemetryLossExpected, this, &self::expectTelemetryLoss);
@@ -335,7 +334,7 @@ void GroundControlStationWidget::updateHeaderActionAvailability()
   const auto disarmed = !arming_ || !arming_->data;
 
   load_btn_->setEnabled(sim_stopped && disconnected);
-  fc_selector_->setEnabled(sim_stopped && fc_found && disconnected && !fc_console_->isRunning());
+  fc_selector_->setEnabled(sim_stopped && fc_found && disconnected);
   vehicle_id_->setEnabled(sim_stopped && project_loaded_ && disconnected);
   connect_btn_->setEnabled(project_loaded_ && target_ready);
   write_btn_->setEnabled(sim_stopped && project_loaded_ && target_ready && disarmed);
@@ -850,7 +849,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
 void GroundControlStationWidget::onFlightControllerScanFinished(
   const QVector<DiscoveredFlightController>& flight_controllers)
 {
-  if (connection_ready_ || fc_console_->isRunning() || simulation_->isRunning()) {
+  if (connection_ready_ || simulation_->isRunning()) {
     return;
   }
 
@@ -862,7 +861,7 @@ void GroundControlStationWidget::onFlightControllerScanFailed(const QString& mes
 {
   qWarning() << "Failed to scan for flight controllers:" << message;
 
-  if (connection_ready_ || fc_console_->isRunning() || simulation_->isRunning()) {
+  if (connection_ready_ || simulation_->isRunning()) {
     return;
   }
 

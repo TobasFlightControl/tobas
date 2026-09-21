@@ -99,6 +99,7 @@ void FcConsoleWidget::setEndpoint(const QString& host, const QString& user)
 
   if (running_) {
     stop();
+    qt::qWarnBox(this, "System log retrieval was stopped because the endpoint changed during retrieval.");
   }
 
   host_ = host;
@@ -162,6 +163,7 @@ void FcConsoleWidget::clear()
 
 void FcConsoleWidget::updateActions()
 {
+  start_stop_btn_->setChecked(running_);
   start_stop_btn_->setEnabled(running_ || (!host_.isEmpty() && !user_.isEmpty()));
   service_->setEnabled(!running_);
 }
