@@ -34,6 +34,14 @@ namespace tobas
 {
 namespace gazebo
 {
+/**
+ * @brief Attach a uniform box to an aircraft link using a detachable fixed joint.
+ *
+ * ROS service callbacks submit a request and wait without a timeout for PreUpdate to process it.
+ * Only the simulation thread modifies Gazebo entities and components.
+ * A successful response reports an ECM change or removal request;
+ * the physics engine applies the corresponding joint change during simulation updates.
+ */
 class GazeboFixedLoadPlugin : public BaseNode,
                               public gz::sim::System,
                               public gz::sim::ISystemConfigure,
@@ -46,7 +54,7 @@ class GazeboFixedLoadPlugin : public BaseNode,
   struct Operation
   {
     // Request
-    std::optional<AttachSrv::Request> attach;  // nullopt indicates a detach request.
+    std::optional<AttachSrv::Request> attach;  // `nullopt` indicates a detach request.
 
     // Response
     bool success = false;
@@ -66,12 +74,12 @@ private:
   std::optional<gz::sim::SdfEntityCreator> creator_;
   gz::sim::Entity world_entity_;
   gz::sim::Link base_link_;
-  gz::sim::Entity joint_entity_;
+  gz::sim::Entity joint_entity_ = gz::sim::kNullEntity;
 
   std::mutex mutex_;
   std::condition_variable cv_;
-  std::optional<Operation> pending_;
-  bool done_ = false;
+  std::optional<Operation> pending_;  // Retain the request and result until `submit()` consumes them.
+  bool done_ = false;                 // Protected by `mutex_`; prevents reprocessing a completed request.
   int load_index_ = 0;
 
   ros2::ServiceServerPtr<AttachSrv> attach_load_ss_;
@@ -119,7 +127,7 @@ void GazeboFixedLoadPlugin::PreUpdate(const gz::sim::UpdateInfo&, gz::sim::Entit
 {
   std::lock_guard lock(mutex_);
 
-  if (!pending_) {
+  if (!pending_ || done_) {
     return;
   }
 
@@ -146,8 +154,11 @@ void GazeboFixedLoadPlugin::submit(Operation& operation)
 
   pending_ = operation;
   done_ = false;
+
+  // Release the mutex while waiting so `PreUpdate` can execute the request.
   cv_.wait(lock, [this]() { return done_; });
 
+  // Consume the result before allowing another request to replace it.
   operation = *pending_;
   pending_.reset();
 }
@@ -171,7 +182,8 @@ bool GazeboFixedLoadPlugin::attachLoad(
     return false;
   }
 
-  // Compute the load pose in the world frame.
+  // Compose the attachment link's world pose with the load pose relative to that link.
+  // W: world frame, B: attachment link frame, L: load frame centered at its center of mass.
   gz::math::Pose3d T_B_L;
   gazebo::poseRosToGazebo(req.load_pose, T_B_L);
   const auto T_W_B = gz::sim::worldPose(base_link_.Entity(), ecm);
@@ -180,7 +192,7 @@ bool GazeboFixedLoadPlugin::attachLoad(
   // Include the attachment link entity to distinguish loads from different aircraft.
   const auto load_name = "fixed_load_" + std::to_string(base_link_.Entity()) + "_" + std::to_string(load_index_++);
 
-  // Load the SDF.
+  // Generate and parse the SDF for a uniform box.
   sdf::Root root;
   const auto sdf = makeBoxSdf(load_name, req.load_size.x, req.load_size.y, req.load_size.z, req.load_mass);
   const auto errors = root.LoadSdfString(sdf);
@@ -189,7 +201,7 @@ bool GazeboFixedLoadPlugin::attachLoad(
     return false;
   }
 
-  // Create the load entity.
+  // Create the load model and its child entities.
   const auto load_entity = creator_->CreateEntities(root.Model());
   if (load_entity == gz::sim::kNullEntity) {
     message = "Failed to create the load model.";
@@ -223,7 +235,7 @@ bool GazeboFixedLoadPlugin::detachLoad(std::string& message, gz::sim::EntityComp
     return false;
   }
 
-  // Removing only the joint preserves the load's pose and velocity for free fall.
+  // Request removal of only the joint; leave the load model and its state intact.
   ecm.RequestRemoveEntity(joint_entity_);
   joint_entity_ = gz::sim::kNullEntity;
 
