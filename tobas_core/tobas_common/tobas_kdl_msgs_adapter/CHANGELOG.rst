@@ -2,8 +2,17 @@
 Changelog for package tobas_kdl_msgs_adapter
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
+2.16.2 (2026-09-22)
+-------------------
+* modify: Bump version to 2.16.2
+* Contributors: Masayoshi Dohi
+
 2.16.1 (2026-09-18)
 -------------------
+* v2.16.1
 * fix: Add missing dependency
 * Contributors: Masayoshi Dohi
 

@@ -2,8 +2,19 @@
 Changelog for package tobas_std_tools
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
+2.16.2 (2026-09-22)
+-------------------
+* modify: Bump version to 2.16.2
+* fix: Backport Jenkins build fixes to Jazzy
+* Contributors: Masayoshi Dohi
+
 2.16.1 (2026-09-18)
 -------------------
+* v2.16.1
+* Contributors: Masayoshi Dohi
 
 2.16.0 (2026-07-29)
 -------------------
