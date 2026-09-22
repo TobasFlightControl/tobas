@@ -4,9 +4,8 @@ Changelog for package tobas_ssh_server
 
 Forthcoming
 -----------
-
-2.16.2 (2026-09-22)
--------------------
+* revert version
+* update CHANGELOG.rst
 * modify: Bump version to 2.16.2
 * fix: Backport Jenkins build fixes to Jazzy
 * Contributors: Masayoshi Dohi

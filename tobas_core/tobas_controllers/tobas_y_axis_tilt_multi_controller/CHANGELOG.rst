@@ -4,9 +4,8 @@ Changelog for package tobas_y_axis_tilt_multi_controller
 
 Forthcoming
 -----------
-
-2.16.2 (2026-09-22)
--------------------
+* revert version
+* update CHANGELOG.rst
 * modify: Bump version to 2.16.2
 * Contributors: Masayoshi Dohi
 

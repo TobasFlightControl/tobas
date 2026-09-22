@@ -4,9 +4,8 @@ Changelog for package tobas_topic_throttle
 
 Forthcoming
 -----------
-
-2.16.2 (2026-09-22)
--------------------
+* revert version
+* update CHANGELOG.rst
 * modify: Bump version to 2.16.2
 * Contributors: Masayoshi Dohi
 
