@@ -14,7 +14,6 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(AMENT_DEPENDENCIES tobas_ros2_tools tobas_ssh_msgs)
 
 find_package(ament_cmake REQUIRED)
-
 foreach(dependency IN ITEMS ${AMENT_DEPENDENCIES})
   find_package(${dependency} REQUIRED)
 endforeach()

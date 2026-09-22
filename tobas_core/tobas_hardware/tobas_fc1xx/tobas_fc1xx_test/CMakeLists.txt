@@ -14,7 +14,6 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(AMENT_DEPENDENCIES tobas_ic_drivers tobas_sbus_driver tobas_fc1xx_core)
 
 find_package(ament_cmake REQUIRED)
-
 foreach(dependency IN ITEMS ${AMENT_DEPENDENCIES})
   find_package(${dependency} REQUIRED)
 endforeach()

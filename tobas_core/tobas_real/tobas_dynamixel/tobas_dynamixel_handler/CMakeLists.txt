@@ -16,7 +16,6 @@ set(AMENT_DEPENDENCIES std_srvs dynamixel_sdk tobas_node tobas_msgs_adapter toba
 )
 
 find_package(ament_cmake REQUIRED)
-
 foreach(dependency IN ITEMS ${AMENT_DEPENDENCIES})
   find_package(${dependency} REQUIRED)
 endforeach()
