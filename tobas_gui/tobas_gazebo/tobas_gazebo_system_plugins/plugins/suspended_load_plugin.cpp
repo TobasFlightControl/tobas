@@ -62,9 +62,9 @@ private:
 
   // Aircraft
   std::optional<gz::sim::Link> base_link_;
-  const cmp::WorldPose* W_Pose_B_ = nullptr;
-  const cmp::WorldLinearVelocity* W_Vel_WB_ = nullptr;
-  const cmp::WorldAngularVelocity* W_Gyro_WB_ = nullptr;
+  const cmp::WorldPose* W_Pose_B_;
+  const cmp::WorldLinearVelocity* W_Vel_WB_;
+  const cmp::WorldAngularVelocity* W_Gyro_WB_;
 
   // Load
   gz::math::Vector3d B_Pos_BP_;
