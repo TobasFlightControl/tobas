@@ -1114,6 +1114,9 @@ void ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
   // Suspended load plugin
   xml::addGazeboSuspendedLoadPlugin(robot, ns, root_name);
 
+  // Fixed load plugin
+  xml::addGazeboFixedLoadPlugin(robot, ns, root_name);
+
   // Ground truth state plugin
   xml::addGazeboGroundTruthStatePlugin(robot, ns, root_name);
 

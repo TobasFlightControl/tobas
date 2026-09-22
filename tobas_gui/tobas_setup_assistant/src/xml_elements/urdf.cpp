@@ -396,6 +396,13 @@ void addGazeboLookAtPositionPlugin(tinyxml2::XMLElement* robot, const std::strin
   plugin->InsertNewChildElement("linkName")->SetText(link_name.c_str());
 }
 
+void addGazeboFixedLoadPlugin(tinyxml2::XMLElement* robot, const std::string& ns, const std::string& link_name)
+{
+  const auto plugin = addGazeboPlugin(robot, "tobas_gazebo_fixed_load_plugin", "tobas::gazebo::GazeboFixedLoadPlugin");
+  plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
+  plugin->InsertNewChildElement("linkName")->SetText(link_name.c_str());
+}
+
 void addGazeboSuspendedLoadPlugin(tinyxml2::XMLElement* robot, const std::string& ns, const std::string& link_name)
 {
   const auto plugin =
