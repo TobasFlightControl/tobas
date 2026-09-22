@@ -57,9 +57,6 @@ public:
   void PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::EntityComponentManager& ecm) override;
 
 private:
-  // SDF parameters
-  std::string link_name_;
-
   // Aircraft
   std::optional<gz::sim::Link> base_link_;
   const cmp::WorldPose* W_Pose_B_;
@@ -95,8 +92,7 @@ private:
 
   std::string loadName() const;
 
-  void attachLoadCb(const AttachSrv::Request::ConstSharedPtr& req, const AttachSrv::Response::SharedPtr& res);
-  void detachLoadCb(const DetachSrv::Request::ConstSharedPtr& req, const DetachSrv::Response::SharedPtr& res);
+
 };
 
 GazeboSuspendedLoadPlugin::GazeboSuspendedLoadPlugin() : rate_manager_(60)
@@ -114,7 +110,7 @@ void GazeboSuspendedLoadPlugin::Configure(
   initialize(kPluginName, sdf);
 
   // Keep SDF parameters minimal so values can be adjusted from the GUI.
-  getSdfParam(sdf, "linkName", link_name_);
+  const auto link_name = getSdfParam<std::string>(sdf, "linkName");
 
   const auto world_name = getWorldName(ecm);
   if (!world_name) {
@@ -122,20 +118,20 @@ void GazeboSuspendedLoadPlugin::Configure(
   }
   world_name_ = *world_name;
 
-  const auto link_entity = ecm.EntityByComponents(cmp::Link(), cmp::ParentEntity(model_entity), cmp::Name(link_name_));
+  const auto link_entity = ecm.EntityByComponents(cmp::Link(), cmp::ParentEntity(model_entity), cmp::Name(link_name));
   base_link_.emplace(link_entity);
   if (!base_link_->Valid(ecm)) {
-    TOBAS_EXIT("Failed to find the specified link '", link_name_, "'.");
+    TOBAS_EXIT("Failed to find the specified link '", link_name, "'.");
   }
 
   if (!(W_Pose_B_ = getComponent<cmp::WorldPose>(link_entity, ecm))) {
-    TOBAS_EXIT("Failed to get the world pose of '", link_name_, "'.");
+    TOBAS_EXIT("Failed to get the world pose of '", link_name, "'.");
   }
   if (!(W_Vel_WB_ = getComponent<cmp::WorldLinearVelocity>(link_entity, ecm))) {
-    TOBAS_EXIT("Failed to get the world linear velocity of '", link_name_, "'.");
+    TOBAS_EXIT("Failed to get the world linear velocity of '", link_name, "'.");
   }
   if (!(W_Gyro_WB_ = getComponent<cmp::WorldAngularVelocity>(link_entity, ecm))) {
-    TOBAS_EXIT("Failed to get the world angular velocity of '", link_name_, "'.");
+    TOBAS_EXIT("Failed to get the world angular velocity of '", link_name, "'.");
   }
 
   if (!mass_holder_.initialize(model_entity, ecm)) {
