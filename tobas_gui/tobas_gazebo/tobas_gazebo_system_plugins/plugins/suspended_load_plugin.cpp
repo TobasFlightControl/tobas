@@ -268,7 +268,7 @@ void GazeboSuspendedLoadPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::s
 
 std::string GazeboSuspendedLoadPlugin::loadName() const
 {
-  return "load_" + std::to_string(load_index_);
+  return "suspended_load_" + std::to_string(load_index_);
 }
 
 void GazeboSuspendedLoadPlugin::attachLoadCb(
