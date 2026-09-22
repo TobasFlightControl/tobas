@@ -11,6 +11,8 @@
 
 #include <tobas_std_tools/range.hpp>
 
+#include "./control_surface_type.hpp"
+
 namespace tobas
 {
 class ControlSurface;
@@ -25,6 +27,7 @@ class ControlSurface
 {
   static constexpr char kChannelKey[] = "channel";
   static constexpr char kLinkNameKey[] = "link_name";
+  static constexpr char kTypeKey[] = "type";
   static constexpr char kCLiftDeltaKey[] = "c_lift_delta";
   static constexpr char kCDragAbsDeltaKey[] = "c_drag_abs_delta";
   static constexpr char kCSideDeltaKey[] = "c_side_delta";
@@ -34,6 +37,7 @@ class ControlSurface
 
 public:
   std::string link_name = "";
+  ControlSurfaceType type = ControlSurfaceType::kOther;
 
   double c_lift_delta = 0.0;      // [/rad]
   double c_drag_abs_delta = 0.0;  // [/rad]

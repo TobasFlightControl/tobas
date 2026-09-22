@@ -393,6 +393,7 @@ Drone ProjectGenerator::createDrone() const
 
           ControlSurface cs;
           cs.link_name = link_name;
+          cs.type = css->type(i);
           cs.c_lift_delta = css->liftCoef(i);
           cs.c_drag_abs_delta = css->dragCoef(i);  // TODO: Do the signs need to be checked?
           cs.c_side_delta = css->sideCoef(i);

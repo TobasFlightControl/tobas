@@ -7,6 +7,7 @@
 
 #include <tobas_qt_tools/widgets/table_widget.hpp>
 #include <tobas_uadf/model.hpp>
+#include <tobas_drone_core/fixed_wing/control_surface_type.hpp>
 
 namespace tobas
 {
@@ -31,7 +32,8 @@ class ControlSurfacesWidget : public qt::TableWidget
   // Columns
   static constexpr int kLinkNameCol = 0;
   static constexpr int kJointNameCol = kLinkNameCol + 1;
-  static constexpr int kLiftCoefCol = kJointNameCol + 1;
+  static constexpr int kTypeCol = kJointNameCol + 1;
+  static constexpr int kLiftCoefCol = kTypeCol + 1;
   static constexpr int kDragCoefCol = kLiftCoefCol + 1;
   static constexpr int kSideCoefCol = kDragCoefCol + 1;
   static constexpr int kRollCoefCol = kSideCoefCol + 1;
@@ -42,6 +44,7 @@ class ControlSurfacesWidget : public qt::TableWidget
   // Labels
   static constexpr char kLinkNameLabel[] = "Link Name";
   static constexpr char kJointNameLabel[] = "Joint Name";
+  static constexpr char kTypeLabel[] = "Type";
   static constexpr char kLiftCoefLabel[] = "Lift Coef";
   static constexpr char kDragCoefLabel[] = "Drag Coef";
   static constexpr char kSideCoefLabel[] = "Side Coef";
@@ -74,6 +77,7 @@ public:
   // Getters
   QString linkName(int row) const;
   QString jointName(int row) const;
+  ControlSurfaceType type(int row) const;
   double liftCoef(int row) const;
   double dragCoef(int row) const;
   double sideCoef(int row) const;
@@ -84,6 +88,7 @@ public:
   // Setters
   void linkName(int row, const QString& text);
   void jointName(int row, const QString& text);
+  void type(int row, const ControlSurfaceType& index);
   void liftCoef(int row, double value);
   void dragCoef(int row, double value);
   void sideCoef(int row, double value);

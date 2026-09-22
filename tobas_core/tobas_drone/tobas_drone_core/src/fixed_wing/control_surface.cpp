@@ -30,6 +30,10 @@ bool ControlSurface::load(const YAML::Node& node)
     return false;
   }
 
+  if (!yaml::load(kTypeKey, node, type)) {
+    return false;
+  }
+
   if (!yaml::load(kCLiftDeltaKey, node, c_lift_delta)) {
     return false;
   }
@@ -62,6 +66,7 @@ YAML::Node ControlSurface::dump() const
   YAML::Node node(YAML::NodeType::Map);
 
   node[kLinkNameKey] = link_name;
+  node[kTypeKey] = type;
   node[kCLiftDeltaKey] = yaml::format(c_lift_delta);
   node[kCDragAbsDeltaKey] = yaml::format(c_drag_abs_delta);
   node[kCSideDeltaKey] = yaml::format(c_side_delta);

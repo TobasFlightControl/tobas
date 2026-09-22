@@ -35,7 +35,7 @@ ControlSurfacesWidget::ControlSurfacesWidget(const uadf::Model& uadf, WingsWidge
   setLayout(rows);
 
   setHorizontalHeaderLabels(
-    { kLinkNameLabel, kJointNameLabel, kWingLabel, kStartSpanLabel, kFinishSpanLabel, kChordRatioLabel });
+    { kLinkNameLabel, kJointNameLabel, kTypeLabel, kWingLabel, kStartSpanLabel, kFinishSpanLabel, kChordRatioLabel });
   setColumnsWidth(kColWidth);
   setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
@@ -81,6 +81,7 @@ YAML::Node ControlSurfacesWidget::dump() const
   for (int row = 0; row < rowCount(); ++row) {
     YAML::Node sub_node(YAML::NodeType::Map);
     sub_node[kJointNameLabel] = jointName(row);
+    sub_node[kTypeLabel] = static_cast<int>(type(row));
     sub_node[kWingLabel] = wingIdx(row);
     sub_node[kStartSpanLabel] = yaml::format(startSpan(row));
     sub_node[kFinishSpanLabel] = yaml::format(finishSpan(row));
@@ -106,6 +107,7 @@ void ControlSurfacesWidget::load(const YAML::Node& node)
 
     linkName(row, link_name);
     jointName(row, sub_node[kJointNameLabel].as<QString>());
+    type(row, static_cast<ControlSurfaceType>(sub_node[kTypeLabel].as<int>()));
     wingIdx(row, sub_node[kWingLabel].as<int>());
     startSpan(row, sub_node[kStartSpanLabel].as<double>());
     finishSpan(row, sub_node[kFinishSpanLabel].as<double>());
@@ -129,6 +131,13 @@ void ControlSurfacesWidget::add(const QString& link_name)
   joint_name_label->setFont(qt::DefaultFont(cmn::kBodyPSize));
   joint_name_label->setAlignment(Qt::AlignCenter);
   setCellWidget(row, kJointNameCol, joint_name_label);
+
+  const auto type = new qt::ComboBox();
+  type->insertItem(static_cast<uint8_t>(ControlSurfaceType::kAileron), "Aileron");
+  type->insertItem(static_cast<uint8_t>(ControlSurfaceType::kElevator), "Elevator");
+  type->insertItem(static_cast<uint8_t>(ControlSurfaceType::kRudder), "Rudder");
+  type->insertItem(static_cast<uint8_t>(ControlSurfaceType::kOther), "Other");
+  setCellWidget(row, kTypeCol, type);
 
   const auto wing = new qt::ComboBox();
   wing->insertItem(0, wings_widget_->requiredWingName());
@@ -170,6 +179,12 @@ QString ControlSurfacesWidget::jointName(int row) const
   return cell->text();
 }
 
+ControlSurfaceType ControlSurfacesWidget::type(int row) const
+{
+  const auto cell = qt::qConstPointerCast<qt::ComboBox>(cellWidget(row, kTypeCol));
+  return static_cast<ControlSurfaceType>(cell->currentIndex());
+}
+
 int ControlSurfacesWidget::wingIdx(int row) const
 {
   const auto cell = qt::qConstPointerCast<qt::ComboBox>(cellWidget(row, kWingCol));
@@ -206,6 +221,12 @@ void ControlSurfacesWidget::jointName(int row, const QString& text)
   return cell->setText(text);
 }
 
+void ControlSurfacesWidget::type(int row, const ControlSurfaceType& type)
+{
+  const auto cell = qt::qPointerCast<qt::ComboBox>(cellWidget(row, kTypeCol));
+  return cell->setCurrentIndex(static_cast<uint8_t>(type));
+}
+
 void ControlSurfacesWidget::wingIdx(int row, int index)
 {
   const auto cell = qt::qPointerCast<qt::ComboBox>(cellWidget(row, kWingCol));
@@ -232,6 +253,7 @@ void ControlSurfacesWidget::chordRatio(int row, double value)
 
 void ControlSurfacesWidget::setToDefault(int row)
 {
+  type(row, ControlSurfaceType::kOther);
   wingIdx(row, 0);
   startSpan(row, -1.0);
   finishSpan(row, 1.0);

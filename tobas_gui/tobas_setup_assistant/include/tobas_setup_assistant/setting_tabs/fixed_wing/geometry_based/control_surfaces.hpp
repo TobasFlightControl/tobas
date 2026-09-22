@@ -7,6 +7,7 @@
 
 #include <tobas_qt_tools/widgets/table_widget.hpp>
 #include <tobas_uadf/model.hpp>
+#include <tobas_drone_core/fixed_wing/control_surface_type.hpp>
 
 #include <tobas_setup_assistant/setting_tabs/fixed_wing/geometry_based/wings.hpp>
 
@@ -33,7 +34,8 @@ class ControlSurfacesWidget : public qt::TableWidget
   // Columns
   static constexpr int kLinkNameCol = 0;
   static constexpr int kJointNameCol = kLinkNameCol + 1;
-  static constexpr int kWingCol = kJointNameCol + 1;
+  static constexpr int kTypeCol = kJointNameCol + 1;
+  static constexpr int kWingCol = kTypeCol + 1;
   static constexpr int kStartSpanCol = kWingCol + 1;
   static constexpr int kFinishSpanCol = kStartSpanCol + 1;
   static constexpr int kChordRatioCol = kFinishSpanCol + 1;
@@ -42,6 +44,7 @@ class ControlSurfacesWidget : public qt::TableWidget
   // Labels
   static constexpr char kLinkNameLabel[] = "Link Name";
   static constexpr char kJointNameLabel[] = "Joint Name";
+  static constexpr char kTypeLabel[] = "Type";
   static constexpr char kWingLabel[] = "Wing Index";
   static constexpr char kStartSpanLabel[] = "Start Span";
   static constexpr char kFinishSpanLabel[] = "Finish Span";
@@ -62,6 +65,7 @@ public:
   // Getters
   QString linkName(int row) const;
   QString jointName(int row) const;
+  ControlSurfaceType type(int row) const;
   int wingIdx(int row) const;
   double startSpan(int row) const;
   double finishSpan(int row) const;
@@ -70,6 +74,7 @@ public:
   // Setters
   void linkName(int row, const QString& text);
   void jointName(int row, const QString& text);
+  void type(int row, const ControlSurfaceType& index);
   void wingIdx(int row, int index);
   void startSpan(int row, double value);
   void finishSpan(int row, double value);

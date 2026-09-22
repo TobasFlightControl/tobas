@@ -87,6 +87,7 @@ std::shared_ptr<FixedWingConfig> Calculator::calcFixedWingConfig()
     ControlSurface cs;
     const auto link_name = control_surfaces_->linkName(i).toStdString();
     cs.link_name = link_name;
+    cs.type = control_surfaces_->type(i);
     const auto coefs = control_surface_coefs_[i];
     cs.c_lift_delta = coefs.lift;
     cs.c_drag_abs_delta = coefs.drag;
@@ -547,6 +548,7 @@ void Calculator::writeResults()
 
   auto cs_widget = manual_->controlSurfaces();
   for (int i = 0; i < control_surfaces_->rowCount(); i++) {
+    cs_widget->type(i, control_surfaces_->type(i));
     cs_widget->liftCoef(i, control_surface_coefs_[i].lift);
     cs_widget->dragCoef(i, control_surface_coefs_[i].drag);
     cs_widget->sideCoef(i, control_surface_coefs_[i].side);

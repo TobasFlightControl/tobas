@@ -11,6 +11,7 @@
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/font.hpp>
+#include <tobas_qt_tools/widgets/combo_box.hpp>
 #include <tobas_qt_tools/widgets/double_spin_box.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 #include <tobas_yaml_tools/format.hpp>
@@ -35,6 +36,7 @@ ControlSurfacesWidget::ControlSurfacesWidget(const uadf::Model& uadf) : super(0,
   setHorizontalHeaderLabels({
     kLinkNameLabel,
     kJointNameLabel,
+    kTypeLabel,
     kLiftCoefLabel,
     kDragCoefLabel,
     kSideCoefLabel,
@@ -82,6 +84,7 @@ YAML::Node ControlSurfacesWidget::dump() const
   for (int row = 0; row < rowCount(); ++row) {
     YAML::Node sub_node(YAML::NodeType::Map);
     sub_node[kJointNameLabel] = jointName(row);
+    sub_node[kTypeLabel] = static_cast<int>(type(row));
     sub_node[kLiftCoefLabel] = yaml::format(liftCoef(row));
     sub_node[kDragCoefLabel] = yaml::format(dragCoef(row));
     sub_node[kSideCoefLabel] = yaml::format(sideCoef(row));
@@ -109,6 +112,7 @@ void ControlSurfacesWidget::load(const YAML::Node& node)
 
     linkName(row, link_name);
     jointName(row, sub_node[kJointNameLabel].as<QString>());
+    type(row, static_cast<ControlSurfaceType>(sub_node[kTypeLabel].as<int>()));
     liftCoef(row, sub_node[kLiftCoefLabel].as<double>());
     dragCoef(row, sub_node[kDragCoefLabel].as<double>());
     sideCoef(row, sub_node[kSideCoefLabel].as<double>());
@@ -157,6 +161,13 @@ void ControlSurfacesWidget::add(const QString& link_name)
   joint_name_label->setFont(qt::DefaultFont(cmn::kBodyPSize));
   joint_name_label->setAlignment(Qt::AlignCenter);
   setCellWidget(row, kJointNameCol, joint_name_label);
+
+  const auto type = new qt::ComboBox();
+  type->insertItem(static_cast<uint8_t>(ControlSurfaceType::kAileron), "Aileron");
+  type->insertItem(static_cast<uint8_t>(ControlSurfaceType::kElevator), "Elevator");
+  type->insertItem(static_cast<uint8_t>(ControlSurfaceType::kRudder), "Rudder");
+  type->insertItem(static_cast<uint8_t>(ControlSurfaceType::kOther), "Other");
+  setCellWidget(row, kTypeCol, type);
 
   const auto c_lift_delta = new qt::DoubleSpinBox();
   c_lift_delta->setDecimals(kStabilityCoefDecimals);
@@ -209,6 +220,12 @@ QString ControlSurfacesWidget::jointName(int row) const
   return cell->text();
 }
 
+ControlSurfaceType ControlSurfacesWidget::type(int row) const
+{
+  const auto cell = qt::qConstPointerCast<qt::ComboBox>(cellWidget(row, kTypeCol));
+  return static_cast<ControlSurfaceType>(cell->currentIndex());
+}
+
 double ControlSurfacesWidget::liftCoef(int row) const
 {
   const auto cell = qt::qConstPointerCast<qt::DoubleSpinBox>(cellWidget(row, kLiftCoefCol));
@@ -257,6 +274,12 @@ void ControlSurfacesWidget::jointName(int row, const QString& text)
   return cell->setText(text);
 }
 
+void ControlSurfacesWidget::type(int row, const ControlSurfaceType& type)
+{
+  const auto cell = qt::qPointerCast<qt::ComboBox>(cellWidget(row, kTypeCol));
+  return cell->setCurrentIndex(static_cast<uint8_t>(type));
+}
+
 void ControlSurfacesWidget::liftCoef(int row, double value)
 {
   const auto cell = qt::qPointerCast<qt::DoubleSpinBox>(cellWidget(row, kLiftCoefCol));
@@ -295,6 +318,7 @@ void ControlSurfacesWidget::yawCoef(int row, double value)
 
 void ControlSurfacesWidget::setToDefault(int row)
 {
+  type(row, ControlSurfaceType::kOther);
   liftCoef(row, 0.0);
   dragCoef(row, 0.0);
   sideCoef(row, 0.0);
