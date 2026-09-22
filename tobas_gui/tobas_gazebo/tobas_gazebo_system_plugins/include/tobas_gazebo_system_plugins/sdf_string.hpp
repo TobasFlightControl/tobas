@@ -15,9 +15,9 @@ std::string makeBoxSdf(
   double sy,
   double sz,
   double mass,
-  double px,
-  double py,
-  double pz,
+  double px = 0.0,
+  double py = 0.0,
+  double pz = 0.0,
   double rr = 0.0,
   double rp = 0.0,
   double ry = 0.0);
