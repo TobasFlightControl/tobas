@@ -1,18 +1,8 @@
-import os
 import os.path as osp
 from glob import glob
-from typing import List
 from setuptools import setup, find_packages
 
-pkg_name = osp.basename(osp.abspath(osp.curdir))
-
-
-def package_files(directory: str, data_files: List[str]) -> List[str]:
-    for path, _, filenames in os.walk(directory):
-        for _ in filenames:
-            data_files.append((f"share/{pkg_name}/{path}", glob(path + "/**/*.*", recursive=True)))
-    return data_files
-
+pkg_name = "tobas_ssh_server"
 
 data_files = []
 data_files.append(("share/ament_index/resource_index/packages", ["resource/" + pkg_name]))
@@ -29,11 +19,5 @@ setup(
     packages=find_packages(),
     data_files=data_files,
     install_requires=["setuptools"],
-    zip_safe=True,
-    maintainer="Masayoshi Dohi",
-    maintainer_email="m.dohi@tobas.jp",
-    description="TODO",
-    license="TODO",
-    tests_require=["pytest"],
     entry_points={"console_scripts": console_scripts},
 )
