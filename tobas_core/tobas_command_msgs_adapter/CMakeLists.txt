@@ -4,7 +4,6 @@ project(tobas_command_msgs_adapter)
 set(AMENT_DEPENDENCIES tobas_command_msgs tobas_kdl_msgs_adapter)
 
 find_package(ament_cmake REQUIRED)
-
 foreach(dependency IN ITEMS ${AMENT_DEPENDENCIES})
   find_package(${dependency} REQUIRED)
 endforeach()

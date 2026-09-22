@@ -4,7 +4,6 @@ project(tobas_cpp_code_style_example)
 set(AMENT_DEPENDENCIES rclcpp rclcpp_components std_msgs mavros_msgs tobas_math tobas_msgs_adapter)
 
 find_package(ament_cmake REQUIRED)
-
 foreach(dependency IN ITEMS ${AMENT_DEPENDENCIES})
   find_package(${dependency} REQUIRED)
 endforeach()

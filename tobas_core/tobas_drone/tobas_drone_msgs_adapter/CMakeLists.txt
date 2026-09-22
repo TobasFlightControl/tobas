@@ -4,7 +4,6 @@ project(tobas_drone_msgs_adapter)
 set(AMENT_DEPENDENCIES tobas_drone_core tobas_drone_msgs tobas_std_msgs_adapter tobas_kdl_msgs_adapter)
 
 find_package(ament_cmake REQUIRED)
-
 foreach(dependency IN ITEMS ${AMENT_DEPENDENCIES})
   find_package(${dependency} REQUIRED)
 endforeach()
