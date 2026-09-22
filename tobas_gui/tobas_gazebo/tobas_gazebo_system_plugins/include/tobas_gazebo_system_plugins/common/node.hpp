@@ -135,6 +135,8 @@ protected:
   void checkConstraint(const std::string& name, const T& param, const SdfConstraint& constr) const;
 
   template <typename T>
+  T getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name) const;
+  template <typename T>
   void getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, T& param) const;
   template <typename T>
   void getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, T& param, const T& dflt) const;
@@ -369,12 +371,18 @@ void BaseNode::checkConstraint(const std::string& name, const T& param, const Sd
 }
 
 template <typename T>
-void BaseNode::getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, T& param) const
+T BaseNode::getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name) const
 {
   if (!sdf->HasElement(name)) {
     TOBAS_EXIT("Please specify '", name, "'.");
   }
-  param = sdf->Get<T>(name);
+  return sdf->Get<T>(name);
+}
+
+template <typename T>
+void BaseNode::getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, T& param) const
+{
+  param = getSdfParam<T>(sdf, name);
 }
 
 template <typename T>

@@ -3,12 +3,12 @@
 
 #pragma once
 
-#include <tuple>
+#include <gz/math/MassMatrix3.hh>
 
 namespace tobas
 {
 namespace gazebo
 {
-std::tuple<double, double, double> boxInertia(double sx, double sy, double sz, double mass);
+gz::math::MassMatrix3d boxInertia(double sx, double sy, double sz, double mass);
 }  // namespace gazebo
 }  // namespace tobas

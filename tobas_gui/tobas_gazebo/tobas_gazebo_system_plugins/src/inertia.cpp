@@ -11,7 +11,7 @@ namespace tobas
 {
 namespace gazebo
 {
-std::tuple<double, double, double> boxInertia(double sx, double sy, double sz, double mass)
+gz::math::MassMatrix3d boxInertia(double sx, double sy, double sz, double mass)
 {
   assert(sx > 0.0);
   assert(sy > 0.0);
@@ -26,7 +26,7 @@ std::tuple<double, double, double> boxInertia(double sx, double sy, double sz, d
   const double iyy = c * (sz2 + sx2);
   const double izz = c * (sx2 + sy2);
 
-  return { ixx, iyy, izz };
+  return { mass, { ixx, iyy, izz }, gz::math::Vector3d::Zero };
 }
 }  // namespace gazebo
 }  // namespace tobas

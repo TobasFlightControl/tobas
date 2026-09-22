@@ -67,12 +67,12 @@ private:
   gz::math::Vector3d B_Pos_BP_;
   gz::math::Vector3d L_Pos_LQ_;
   double load_mass_;
-  gz::math::Matrix3d load_inertia_ = gz::math::Matrix3d::Zero;
+  gz::math::Matrix3d load_inertia_;
   double cable_length_;  // [m] Natural cable length
   double cable_young_;   // [Pa] Young modulus.
   double cable_csa_;     // [m^2] Cross-sectional area.
   bool load_exist_ = false;
-  int load_index_ = 0;
+  int load_index_ = -1;
   std::optional<gz::sim::Link> load_link_;
   const cmp::WorldPose* W_Pose_L_ = nullptr;
   const cmp::WorldLinearVelocity* W_Vel_WL_ = nullptr;
@@ -92,7 +92,8 @@ private:
 
   std::string loadName() const;
 
-
+  void attachLoadCb(const AttachSrv::Request::ConstSharedPtr& req, const AttachSrv::Response::SharedPtr& res);
+  void detachLoadCb(const DetachSrv::Request::ConstSharedPtr& req, const DetachSrv::Response::SharedPtr& res);
 };
 
 GazeboSuspendedLoadPlugin::GazeboSuspendedLoadPlugin() : rate_manager_(60)
@@ -264,7 +265,8 @@ void GazeboSuspendedLoadPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::s
 
 std::string GazeboSuspendedLoadPlugin::loadName() const
 {
-  return "suspended_load_" + std::to_string(load_index_);
+  // Use the same aircraft-specific name for spawning and looking up the load.
+  return "suspended_load_" + std::to_string(base_link_->Entity()) + "_" + std::to_string(load_index_);
 }
 
 void GazeboSuspendedLoadPlugin::attachLoadCb(
@@ -279,7 +281,7 @@ void GazeboSuspendedLoadPlugin::attachLoadCb(
 
   if (req->load_sx <= 0.0 || req->load_sy <= 0.0 || req->load_sz <= 0.0) {
     res->success = false;
-    res->message = "Load size must be positive.";
+    res->message = "Load dimensions must be positive.";
     return;
   }
   if (req->load_mass <= 0.0) {
@@ -345,14 +347,10 @@ void GazeboSuspendedLoadPlugin::attachLoadCb(
   vectorRosToGazebo(req->attachment_point, B_Pos_BP_);
   L_Pos_LQ_.Set(0.0, 0.0, sz_2);  // Assume the cable is attached to the center of the cuboid top face.
   load_mass_ = req->load_mass;
+  load_inertia_ = boxInertia(req->load_sx, req->load_sy, req->load_sz, req->load_mass).Moi();
   cable_length_ = req->cable_length;
   cable_young_ = req->cable_young_modulus;
   cable_csa_ = req->cable_cross_sectional_area;
-
-  const auto [ixx, iyy, izz] = boxInertia(req->load_sx, req->load_sy, req->load_sz, req->load_mass);
-  load_inertia_.Set(0, 0, ixx);
-  load_inertia_.Set(1, 1, iyy);
-  load_inertia_.Set(2, 2, izz);
 
   load_exist_ = true;
 
