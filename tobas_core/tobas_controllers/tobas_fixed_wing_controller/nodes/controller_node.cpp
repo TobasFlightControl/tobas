@@ -254,7 +254,7 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
   }
 
   // Compute elapsed time and update odometry.
-  const auto dt = (odom_flu->header.stamp - odom_flu_->header.stamp).seconds();
+  // const auto dt = (odom_flu->header.stamp - odom_flu_->header.stamp).seconds();
   odom_flu_ = odom_flu;
 
   if (deflections_) {
@@ -282,13 +282,13 @@ void ControllerNode::manualCmdCb(const tobas_command_msgs::msg::AileElevRudThrot
   for (const auto& [idx, cs_item] : std::views::enumerate(drone_.fixed_wing->control_surfaces)) {
     const auto type = cs_item.second.type;
     if (type == ControlSurfaceType::kAileron) {
-      deflections_->operator[](idx) = math::remap(manual_cmd->aileron, cmd->MIN_DEFLECTION, cmd->MAX_DEFLECTION, min_deflections_(idx), max_deflections_(idx));
+      deflections_->operator[](idx) = math::remap(manual_cmd->aileron, manual_cmd->MIN_DEFLECTION, manual_cmd->MAX_DEFLECTION, min_deflections_(idx), max_deflections_(idx));
     }
     else if (type == ControlSurfaceType::kElevator) {
-      deflections_->operator[](idx) = math::remap(manual_cmd->elevator, cmd->MIN_DEFLECTION, cmd->MAX_DEFLECTION, min_deflections_(idx), max_deflections_(idx));
+      deflections_->operator[](idx) = math::remap(manual_cmd->elevator, manual_cmd->MIN_DEFLECTION, manual_cmd->MAX_DEFLECTION, min_deflections_(idx), max_deflections_(idx));
     }
     else if (type == ControlSurfaceType::kRudder) {
-      deflections_->operator[](idx) = math::remap(manual_cmd->rudder, cmd->MIN_DEFLECTION, cmd->MAX_DEFLECTION, min_deflections_(idx), max_deflections_(idx));
+      deflections_->operator[](idx) = math::remap(manual_cmd->rudder, manual_cmd->MIN_DEFLECTION, manual_cmd->MAX_DEFLECTION, min_deflections_(idx), max_deflections_(idx));
     }
     else {
       deflections_->operator[](idx) = 0.0;
