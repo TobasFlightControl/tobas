@@ -20,7 +20,7 @@ enum class RcCommand
   kAccelRate,
   kAccelAngle,
   kPosVelAccAngle,
-  kElevAileRudThrottle,
+  kAileElevRudThrottle,
 };
 
 std::string textFromEnum(RcCommand cmd);

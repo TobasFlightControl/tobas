@@ -34,7 +34,7 @@ class CustomFrameWidget : public BaseControllerWidget
   static constexpr char kAccelRateLabel[] = "Accel + Angle Rate";
   static constexpr char kAccelAngleLabel[] = "Accel + Euler Angle";
   static constexpr char kPosVelAccAngleLabel[] = "Position + Velocity + Angle";
-  static constexpr char kElevAileRudThrottleLabel[] = "Elevator + Aileron + Rudder + Throttle";
+  static constexpr char kAileElevRudThrottleLabel[] = "Aileron + Elevator + Rudder + Throttle";
 
 public:
   explicit CustomFrameWidget();
@@ -69,7 +69,7 @@ private:
     { kAccelRateLabel, RcCommand::kAccelRate },
     { kAccelAngleLabel, RcCommand::kAccelAngle },
     { kPosVelAccAngleLabel, RcCommand::kPosVelAccAngle },
-    { kElevAileRudThrottleLabel, RcCommand::kElevAileRudThrottle },
+    { kAileElevRudThrottleLabel, RcCommand::kAileElevRudThrottle },
   };
 
   qt::ComboBox* acrobat_mode_;

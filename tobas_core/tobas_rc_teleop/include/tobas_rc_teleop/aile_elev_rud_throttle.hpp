@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <tobas_command_msgs/msg/elev_aile_rud_throttle.hpp>
+#include <tobas_command_msgs/msg/aile_elev_rud_throttle.hpp>
 
 #include "./base_controller.hpp"
 
@@ -11,16 +11,16 @@ namespace tobas
 {
 namespace rc
 {
-class ElevAileRudThrottleController : public BaseController
+class AileElevRudThrottleController : public BaseController
 {
-  using self = ElevAileRudThrottleController;
+  using self = AileElevRudThrottleController;
   using super = BaseController;
 
   static constexpr double kMaxDeflectionCommand = 1.0;
   static constexpr double kMinDeflectionCommand = -1.0;
 
 public:
-  explicit ElevAileRudThrottleController();
+  explicit AileElevRudThrottleController();
 
   bool requireHorizontalPosition() override;
   bool requireVerticalPosition() override;
@@ -33,7 +33,7 @@ public:
 
 private:
   // PubSub
-  ros2::PublisherPtr<tobas_command_msgs::msg::ElevAileRudThrottle> cmd_pub_;
+  ros2::PublisherPtr<tobas_command_msgs::msg::AileElevRudThrottle> cmd_pub_;
 };
 }  // namespace rc
 }  // namespace tobas

@@ -42,7 +42,7 @@ QString FixedWingWidget::pluginName() const
 
 RcCommand FixedWingWidget::acrobatModeCommand() const
 {
-  return RcCommand::kElevAileRudThrottle;
+  return RcCommand::kAileElevRudThrottle;
 }
 
 RcCommand FixedWingWidget::stabilizeModeCommand() const

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include "tobas_rc_teleop/elev_aile_rud_throttle.hpp"
+#include "tobas_rc_teleop/aile_elev_rud_throttle.hpp"
 
 #include <tobas_constants/ros_interface.hpp>
 #include <tobas_constants/throttle.hpp>
@@ -12,43 +12,43 @@ namespace tobas
 {
 namespace rc
 {
-ElevAileRudThrottleController::ElevAileRudThrottleController()
+AileElevRudThrottleController::AileElevRudThrottleController()
 {
 }
 
-bool ElevAileRudThrottleController::requireHorizontalPosition()
-{
-  return false;
-}
-
-bool ElevAileRudThrottleController::requireVerticalPosition()
+bool AileElevRudThrottleController::requireHorizontalPosition()
 {
   return false;
 }
 
-bool ElevAileRudThrottleController::requireAttitude()
+bool AileElevRudThrottleController::requireVerticalPosition()
 {
   return false;
 }
 
-bool ElevAileRudThrottleController::requireHeading()
+bool AileElevRudThrottleController::requireAttitude()
 {
   return false;
 }
 
-void ElevAileRudThrottleController::initialize(BaseNode* node, FlightMode)
+bool AileElevRudThrottleController::requireHeading()
 {
-  cmd_pub_ = node->createPublisher<tobas_command_msgs::msg::ElevAileRudThrottle>(topic::kElevAileRudThrottleCmd);
+  return false;
 }
 
-void ElevAileRudThrottleController::reset(const builtin_interfaces::msg::Time&, const tobas_msgs::Odometry&, bool)
+void AileElevRudThrottleController::initialize(BaseNode* node, FlightMode)
+{
+  cmd_pub_ = node->createPublisher<tobas_command_msgs::msg::AileElevRudThrottle>(topic::kAileElevRudThrottleCmd);
+}
+
+void AileElevRudThrottleController::reset(const builtin_interfaces::msg::Time&, const tobas_msgs::Odometry&, bool)
 {
 }
 
-void ElevAileRudThrottleController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry&, bool)
+void AileElevRudThrottleController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry&, bool)
 {
   // Create command.
-  auto cmd = std::make_unique<tobas_command_msgs::msg::ElevAileRudThrottle>();
+  auto cmd = std::make_unique<tobas_command_msgs::msg::AileElevRudThrottle>();
   cmd->header = rcin.header;
 
   // TODO exp, remapDead

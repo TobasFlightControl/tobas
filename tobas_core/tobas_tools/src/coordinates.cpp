@@ -28,31 +28,4 @@ void odometryFluToFrd(tobas_msgs::Odometry& arg)
 {
   odometryFluToFrd(arg, arg);
 }
-
-void speedRollDeltaPitchFrdToFlu(
-  const tobas_command_msgs::msg::SpeedRollDeltaPitch src,
-  tobas_command_msgs::msg::SpeedRollDeltaPitch& dst)
-{
-  dst.header = src.header;
-  dst.speed = src.speed;
-  dst.roll = src.roll;
-  dst.delta_pitch = -src.delta_pitch;
-}
-
-void speedRollDeltaPitchFluToFrd(
-  const tobas_command_msgs::msg::SpeedRollDeltaPitch src,
-  tobas_command_msgs::msg::SpeedRollDeltaPitch& dst)
-{
-  speedRollDeltaPitchFrdToFlu(src, dst);
-}
-
-void speedRollDeltaPitchFrdToFlu(tobas_command_msgs::msg::SpeedRollDeltaPitch& arg)
-{
-  speedRollDeltaPitchFrdToFlu(arg, arg);
-}
-
-void speedRollDeltaPitchFluToFrd(tobas_command_msgs::msg::SpeedRollDeltaPitch& arg)
-{
-  speedRollDeltaPitchFluToFrd(arg, arg);
-}
 }  // namespace tobas

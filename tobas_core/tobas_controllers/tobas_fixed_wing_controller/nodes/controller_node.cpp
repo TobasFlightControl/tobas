@@ -18,7 +18,7 @@
 #include <tobas_tools/coordinates.hpp>
 #include <tobas_tools/fixed_wing.hpp>
 
-#include <tobas_command_msgs/msg/elev_aile_rud_throttle.hpp>
+#include <tobas_command_msgs/msg/aile_elev_rud_throttle.hpp>
 #include <tobas_drone_msgs_adapter/drone.hpp>
 #include <tobas_kdl_msgs_adapter/tree.hpp>
 #include <tobas_msgs/msg/arming.hpp>
@@ -74,7 +74,7 @@ private:
   ros2::SubscriberPtr<tobas_msgs::msg::FluidPressure> air_pressure_sub_;
   ros2::SubscriberPtr<tobas_msgs::OdometryWithCovarianceStamped> odom_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
-  ros2::SubscriberPtr<tobas_command_msgs::msg::ElevAileRudThrottle> manual_cmd_sub_;
+  ros2::SubscriberPtr<tobas_command_msgs::msg::AileElevRudThrottle> manual_cmd_sub_;
 
   // Timers
   ros2::TimerPtr check_topics_timer_;
@@ -90,7 +90,7 @@ private:
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
   void airPressureCb(const tobas_msgs::msg::FluidPressure::ConstSharedPtr& pressure);
   void odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom_flu);
-  void manualCmdCb(const tobas_command_msgs::msg::ElevAileRudThrottle::ConstSharedPtr& cmd);
+  void manualCmdCb(const tobas_command_msgs::msg::AileElevRudThrottle::ConstSharedPtr& cmd);
 
   void checkTopicsTimerCb();
 };
@@ -108,7 +108,7 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   arming_sub_ = createSubscriber(topic::kArming, &self::armingCb, this);
   air_pressure_sub_ = createSubscriber(topic::kAirPressure, &self::airPressureCb, this);
   odom_sub_ = createSubscriber(topic::kOdometry, &self::odomCb, this);
-  manual_cmd_sub_ = createSubscriber(topic::kElevAileRudThrottleCmd, &self::manualCmdCb, this);
+  manual_cmd_sub_ = createSubscriber(topic::kAileElevRudThrottleCmd, &self::manualCmdCb, this);
 
   // Register timers.
   check_topics_timer_ = createTimer(kCheckTopicsPeriod, &self::checkTopicsTimerCb, this);
@@ -263,7 +263,7 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
   }
 }
 
-void ControllerNode::manualCmdCb(const tobas_command_msgs::msg::ElevAileRudThrottle::ConstSharedPtr& manual_cmd)
+void ControllerNode::manualCmdCb(const tobas_command_msgs::msg::AileElevRudThrottle::ConstSharedPtr& manual_cmd)
 {
   if (!isCommandAccepted(manual_cmd->priority)) {
     return;

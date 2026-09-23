@@ -4,8 +4,8 @@
 std_msgs/Header header
 tobas_command_msgs/Priority priority
 
-float64 elevator     # Target elevator deflection [-1, 1]
 float64 aileron      # Target aileron deflection [-1, 1]
+float64 elevator     # Target elevator deflection [-1, 1]
 float64 rudder       # Target rudder deflection [-1, 1]
 float64 throttle     # Target throttle [0, 1]
 
