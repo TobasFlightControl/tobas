@@ -45,6 +45,10 @@ private:
   kdl::Tree tree_;
 
   kdl::TreeMassHolder mass_holder_;
+  Eigen::VectorXd min_thrusts_;
+  Eigen::VectorXd max_thrusts_;
+  Eigen::VectorXd min_deflections_;
+  Eigen::VectorXd max_deflections_;
 
   // State
   bool is_initialized_ = false;
@@ -76,6 +80,7 @@ private:
   ros2::TimerPtr check_topics_timer_;
 
   bool initialize();
+  void setInputLimits();
   void publishThrusts(const builtin_interfaces::msg::Time& stamp, const Eigen::VectorXd& thrusts);
   void publishDeflections(const builtin_interfaces::msg::Time& stamp, const Eigen::VectorXd& deflections);
   bool isCommandAccepted(const tobas_command_msgs::msg::Priority& priority);
@@ -115,8 +120,32 @@ bool ControllerNode::initialize()
     return false;
   }
 
+  setInputLimits();
+
   is_initialized_ = true;
   return true;
+}
+
+void ControllerNode::setInputLimits()
+{
+  min_thrusts_.conservativeResize(drone_.prop->numRotors());
+  max_thrusts_.conservativeResize(drone_.prop->numRotors());
+  min_deflections_.conservativeResize(drone_.fixed_wing->numControlSurfaces());
+  max_deflections_.conservativeResize(drone_.fixed_wing->numControlSurfaces());
+
+  for (const auto& [idx, elem] : std::views::enumerate(drone_.prop->rotors)) {
+    const auto& link_name = elem.first;
+    min_thrusts_(idx) = drone_.prop->minThrust(link_name);
+    max_thrusts_(idx) = drone_.prop->maxThrust(link_name);
+  }
+
+  size_t cs_idx = 0;
+  for (const auto& [_, cs] : drone_.fixed_wing->control_surfaces) {
+    const auto& joint = tree_.getSegment(cs.link_name)->second.segment.joint();
+    min_deflections_(cs_idx) = joint.lower_limit;
+    max_deflections_(cs_idx) = joint.upper_limit;
+    ++cs_idx;
+  }
 }
 
 void ControllerNode::publishThrusts(const builtin_interfaces::msg::Time& stamp, const Eigen::VectorXd& thrusts)
@@ -243,18 +272,27 @@ void ControllerNode::manualCmdCb(const tobas_command_msgs::msg::ElevAileRudThrot
   // TODO: Stop the outer control loop.
 
   // Set command
+  // thrusts
   *thrusts_ = Eigen::VectorXd::Zero(drone_.prop->numRotors());
-  int i = 0;
-  for (const auto& [link_name, _] : drone_.prop->rotors) {
-    const auto thrust_at_full_throt = drone_.prop->thrustFromThrottle(link_name, kMaxThrot);
-    thrusts_->operator[](i) = thrust_at_full_throt * manual_cmd->throttle;
-    i++;
+  for (const auto& [idx, elem] : std::views::enumerate(drone_.prop->rotors)) {
+    thrusts_->operator[](idx) = max_thrusts_(idx) * manual_cmd->throttle;
   }
+  // control surface deflections
   *deflections_ = Eigen::VectorXd::Zero(drone_.fixed_wing->numControlSurfaces());
-  i = 0;
-  for (const auto& [link_name, _] : drone_.fixed_wing->control_surfaces) {
-    deflections_->operator[](i) = 0.0; // TODO: set values
-    i++;
+  for (const auto& [idx, cs_item] : std::views::enumerate(drone_.fixed_wing->control_surfaces)) {
+    const auto type = cs_item.second.type;
+    if (type == ControlSurfaceType::kAileron) {
+      deflections_->operator[](idx) = math::remap(manual_cmd->aileron, cmd->MIN_DEFLECTION, cmd->MAX_DEFLECTION, min_deflections_(idx), max_deflections_(idx));
+    }
+    else if (type == ControlSurfaceType::kElevator) {
+      deflections_->operator[](idx) = math::remap(manual_cmd->elevator, cmd->MIN_DEFLECTION, cmd->MAX_DEFLECTION, min_deflections_(idx), max_deflections_(idx));
+    }
+    else if (type == ControlSurfaceType::kRudder) {
+      deflections_->operator[](idx) = math::remap(manual_cmd->rudder, cmd->MIN_DEFLECTION, cmd->MAX_DEFLECTION, min_deflections_(idx), max_deflections_(idx));
+    }
+    else {
+      deflections_->operator[](idx) = 0.0;
+    }
   }
 }
 

@@ -36,15 +36,8 @@ bool ElevAileRudThrottleController::requireHeading()
   return false;
 }
 
-void ElevAileRudThrottleController::initialize(BaseNode* node, FlightMode mode)
+void ElevAileRudThrottleController::initialize(BaseNode* node, FlightMode)
 {
-  node->addDynamicDoubleParam(addMode("min_elev", mode), &self::minElevCb, this, 1.0, -15, -30, -1, " deg");
-  node->addDynamicDoubleParam(addMode("max_elev", mode), &self::maxElevCb, this, 1.0,  15,   1, 30, " deg");
-  node->addDynamicDoubleParam(addMode("min_aile", mode), &self::minAileCb, this, 1.0, -15, -30, -1, " deg");
-  node->addDynamicDoubleParam(addMode("max_aile", mode), &self::maxAileCb, this, 1.0,  15,   1, 30, " deg");
-  node->addDynamicDoubleParam(addMode("min_rud", mode), &self::minRudCb, this, 1.0, -15, -30, -1, " deg");
-  node->addDynamicDoubleParam(addMode("max_rud", mode), &self::maxRudCb, this, 1.0,  15,   1, 30, " deg");
-
   cmd_pub_ = node->createPublisher<tobas_command_msgs::msg::ElevAileRudThrottle>(topic::kElevAileRudThrottleCmd);
 }
 
@@ -59,49 +52,13 @@ void ElevAileRudThrottleController::update(const tobas_msgs::RCInput& rcin, cons
   cmd->header = rcin.header;
 
   // TODO exp, remapDead
-  cmd->elevator = remap(rcin.pitch, min_elev_, max_elev_);
-  cmd->aileron = remap(rcin.roll, min_aile_, max_aile_);
-  cmd->rudder = remap(rcin.yaw, min_rud_, max_rud_);
+  cmd->elevator = remap(rcin.pitch, cmd->MIN_DEFLECTION, cmd->MAX_DEFLECTION);
+  cmd->aileron = remap(rcin.roll, cmd->MIN_DEFLECTION, cmd->MAX_DEFLECTION);
+  cmd->rudder = remap(rcin.yaw, cmd->MIN_DEFLECTION, cmd->MAX_DEFLECTION);
   cmd->throttle = remap(rcin.throttle, kMinThrot, kMaxThrot);
 
   // Publish command.
   cmd_pub_->publish(std::move(cmd));
-}
-
-bool ElevAileRudThrottleController::minElevCb(const double& p)
-{
-  min_elev_ = st::deg2rad(p);
-  return true;
-}
-
-bool ElevAileRudThrottleController::maxElevCb(const double& p)
-{
-  max_elev_ = st::deg2rad(p);
-  return true;
-}
-
-bool ElevAileRudThrottleController::minAileCb(const double& p)
-{
-  min_aile_ = st::deg2rad(p);
-  return true;
-}
-
-bool ElevAileRudThrottleController::maxAileCb(const double& p)
-{
-  max_aile_ = st::deg2rad(p);
-  return true;
-}
-
-bool ElevAileRudThrottleController::minRudCb(const double& p)
-{
-  min_rud_ = st::deg2rad(p);
-  return true;
-}
-
-bool ElevAileRudThrottleController::maxRudCb(const double& p)
-{
-  max_rud_ = st::deg2rad(p);
-  return true;
 }
 }  // namespace rc
 }  // namespace tobas
