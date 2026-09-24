@@ -124,15 +124,9 @@ void GazeboSuspendedLoadPlugin::Configure(
     TOBAS_EXIT("Failed to find the specified link '", link_name, "'.");
   }
 
-  if (!(W_Pose_B_ = getComponent<cmp::WorldPose>(link_entity, ecm))) {
-    TOBAS_EXIT("Failed to get the world pose of '", link_name, "'.");
-  }
-  if (!(W_Vel_WB_ = getComponent<cmp::WorldLinearVelocity>(link_entity, ecm))) {
-    TOBAS_EXIT("Failed to get the world linear velocity of '", link_name, "'.");
-  }
-  if (!(W_Gyro_WB_ = getComponent<cmp::WorldAngularVelocity>(link_entity, ecm))) {
-    TOBAS_EXIT("Failed to get the world angular velocity of '", link_name, "'.");
-  }
+  W_Pose_B_ = getComponent<cmp::WorldPose>(link_entity, ecm);
+  W_Vel_WB_ = getComponent<cmp::WorldLinearVelocity>(link_entity, ecm);
+  W_Gyro_WB_ = getComponent<cmp::WorldAngularVelocity>(link_entity, ecm);
 
   if (!mass_holder_.initialize(model_entity, ecm)) {
     TOBAS_EXIT("Failed to initialize model mass holder.");
@@ -177,21 +171,9 @@ void GazeboSuspendedLoadPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::s
       TOBAS_EXIT("Failed to find the canonical link of the load.");
     }
 
-    if (!(W_Pose_L_ = getComponent<cmp::WorldPose>(link_entity, ecm))) {
-      TOBAS_ERROR("Failed to get the world pose of the load.");
-      load_exist_ = false;
-      return;
-    }
-    if (!(W_Vel_WL_ = getComponent<cmp::WorldLinearVelocity>(link_entity, ecm))) {
-      TOBAS_ERROR("Failed to get the world linear velocity of the load.");
-      load_exist_ = false;
-      return;
-    }
-    if (!(W_Gyro_WL_ = getComponent<cmp::WorldAngularVelocity>(link_entity, ecm))) {
-      TOBAS_ERROR("Failed to get the world angular velocity of the load.");
-      load_exist_ = false;
-      return;
-    }
+    W_Pose_L_ = getComponent<cmp::WorldPose>(link_entity, ecm);
+    W_Vel_WL_ = getComponent<cmp::WorldLinearVelocity>(link_entity, ecm);
+    W_Gyro_WL_ = getComponent<cmp::WorldAngularVelocity>(link_entity, ecm);
 
     return;  // Do not apply force in the cycle where components were obtained because values are not correct yet.
   }

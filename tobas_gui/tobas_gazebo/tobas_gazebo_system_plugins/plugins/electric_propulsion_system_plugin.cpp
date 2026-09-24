@@ -21,7 +21,6 @@
 #include <tobas_math/core.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_ros2_tools/time.hpp>
-#include <tobas_std_tools/check.hpp>
 
 #include <std_srvs/srv/trigger.hpp>
 
@@ -204,12 +203,12 @@ void GazeboElectricPropulsionSystemPlugin::Configure(
   }
 
   // Create necessary components.
-  TOBAS_CHECK(jnt_axis_ = getComponent<cmp::JointAxis>(joint_entity, ecm));
-  TOBAS_CHECK(jnt_vel_ = getComponent<cmp::JointVelocity>(joint_entity, ecm));
-  TOBAS_CHECK(pose_W_ = getComponent<cmp::WorldPose>(link_entity, ecm));
-  TOBAS_CHECK(linvel_W_ = getComponent<cmp::WorldLinearVelocity>(link_entity, ecm));
-  TOBAS_CHECK(angvel_W_ = getComponent<cmp::WorldAngularVelocity>(link_entity, ecm));
-  TOBAS_CHECK(inertial_ = getComponent<cmp::Inertial>(link_entity, ecm));
+  jnt_axis_ = getComponent<cmp::JointAxis>(joint_entity, ecm);
+  jnt_vel_ = getComponent<cmp::JointVelocity>(joint_entity, ecm);
+  pose_W_ = getComponent<cmp::WorldPose>(link_entity, ecm);
+  linvel_W_ = getComponent<cmp::WorldLinearVelocity>(link_entity, ecm);
+  angvel_W_ = getComponent<cmp::WorldAngularVelocity>(link_entity, ecm);
+  inertial_ = getComponent<cmp::Inertial>(link_entity, ecm);
 
   // Register ROS interfaces.
   registerRosInterfaces();

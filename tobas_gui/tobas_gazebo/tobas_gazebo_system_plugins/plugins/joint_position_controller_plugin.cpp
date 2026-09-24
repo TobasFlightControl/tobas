@@ -9,7 +9,6 @@
 #include <tobas_gazebo_common/constants.hpp>
 #include <tobas_gazebo_tools/utils.hpp>
 #include <tobas_path_tools/join.hpp>
-#include <tobas_std_tools/check.hpp>
 
 #include <tobas_gazebo_msgs/msg/joint_command.hpp>
 
@@ -81,8 +80,8 @@ void GazeboJointPositionControllerPlugin::Configure(
   }
 
   // Get joint position.
-  TOBAS_CHECK(jnt_pos_ = getComponent<cmp::JointPosition>(joint_entity, ecm));
-  TOBAS_CHECK(jnt_axis_ = getComponent<cmp::JointAxis>(joint_entity, ecm));
+  jnt_pos_ = getComponent<cmp::JointPosition>(joint_entity, ecm);
+  jnt_axis_ = getComponent<cmp::JointAxis>(joint_entity, ecm);
 
   // Reset joint position.
   tar_pos_ = getSdfParam<double>(sdf, "homePosition");

@@ -8,7 +8,6 @@
 #include <tobas_gazebo_common/constants.hpp>
 #include <tobas_gazebo_tools/utils.hpp>
 #include <tobas_path_tools/join.hpp>
-#include <tobas_std_tools/check.hpp>
 
 #include <tobas_gazebo_msgs/msg/joint_command.hpp>
 
@@ -78,7 +77,7 @@ void GazeboJointVelocityControllerPlugin::Configure(
   }
 
   // Get joint velocity.
-  TOBAS_CHECK(jnt_vel_ = getComponent<cmp::JointVelocity>(joint_entity, ecm));
+  jnt_vel_ = getComponent<cmp::JointVelocity>(joint_entity, ecm);
 
   // Reset joint position.
   const auto home_pos = getSdfParam<double>(sdf, "homePosition");

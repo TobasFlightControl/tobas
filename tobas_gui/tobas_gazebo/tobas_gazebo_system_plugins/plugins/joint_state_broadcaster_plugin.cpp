@@ -12,7 +12,6 @@
 #include <tobas_constants/ros_interface.hpp>
 #include <tobas_gazebo_tools/utils.hpp>
 #include <tobas_ros2_tools/time.hpp>
-#include <tobas_std_tools/check.hpp>
 
 #include <tobas_msgs/msg/joint_state_array.hpp>
 
@@ -80,9 +79,9 @@ void GazeboJointStateBroadcasterPlugin::Configure(
     if (!joint->Valid(ecm)) {
       TOBAS_EXIT("Failed to find joint '", jnt_name, "'.");
     }
-    TOBAS_CHECK(jnt_pos_[jnt_name] = getComponent<cmp::JointPosition>(joint_entity, ecm));
-    TOBAS_CHECK(jnt_vel_[jnt_name] = getComponent<cmp::JointVelocity>(joint_entity, ecm));
-    TOBAS_CHECK(jnt_eff_[jnt_name] = getComponent<cmp::JointTransmittedWrench>(joint_entity, ecm));
+    jnt_pos_[jnt_name] = getComponent<cmp::JointPosition>(joint_entity, ecm);
+    jnt_vel_[jnt_name] = getComponent<cmp::JointVelocity>(joint_entity, ecm);
+    jnt_eff_[jnt_name] = getComponent<cmp::JointTransmittedWrench>(joint_entity, ecm);
   }
 
   // Set update rate.

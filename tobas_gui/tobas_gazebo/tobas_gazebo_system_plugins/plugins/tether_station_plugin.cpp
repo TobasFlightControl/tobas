@@ -13,7 +13,6 @@
 #include <tobas_gazebo_conversions/gazebo_msg.hpp>
 #include <tobas_gazebo_tools/model_mass_holder.hpp>
 #include <tobas_gazebo_tools/utils.hpp>
-#include <tobas_std_tools/check.hpp>
 
 #include <tobas_gazebo_msgs/srv/get_tether_params.hpp>
 #include <tobas_gazebo_msgs/srv/set_tether_params.hpp>
@@ -107,9 +106,9 @@ void GazeboTetherStationPlugin::Configure(
     TOBAS_EXIT("Failed to find the specified link '", link_name_, "'.");
   }
 
-  TOBAS_CHECK(pose_W_ = getComponent<cmp::WorldPose>(link_entity, ecm));
-  TOBAS_CHECK(linvel_W_ = getComponent<cmp::WorldLinearVelocity>(link_entity, ecm));
-  TOBAS_CHECK(angvel_W_ = getComponent<cmp::WorldAngularVelocity>(link_entity, ecm));
+  pose_W_ = getComponent<cmp::WorldPose>(link_entity, ecm);
+  linvel_W_ = getComponent<cmp::WorldLinearVelocity>(link_entity, ecm);
+  angvel_W_ = getComponent<cmp::WorldAngularVelocity>(link_entity, ecm);
 
   if (!mass_holder_.initialize(model_entity, ecm)) {
     TOBAS_EXIT("Failed to initialize model mass holder.");

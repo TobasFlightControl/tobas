@@ -22,7 +22,6 @@
 #include <tobas_gazebo_tools/utils.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_ros2_tools/time.hpp>
-#include <tobas_std_tools/check.hpp>
 #include <tobas_tools/imu_sampling_time_publisher.hpp>
 
 #include <tobas_gazebo_msgs/msg/engine_state.hpp>
@@ -154,11 +153,11 @@ void GazeboImuPlugin::Configure(
     TOBAS_EXIT("Failed to get the world component.");
   }
 
-  TOBAS_CHECK(pose_W_ = getComponent<cmp::WorldPose>(link_entity, ecm));
-  TOBAS_CHECK(acc_B_ = getComponent<cmp::LinearAcceleration>(link_entity, ecm));
-  TOBAS_CHECK(gyro_B_ = getComponent<cmp::AngularVelocity>(link_entity, ecm));
-  TOBAS_CHECK(dgyro_B_ = getComponent<cmp::AngularAcceleration>(link_entity, ecm));
-  TOBAS_CHECK(grav_W_ = getComponent<cmp::Gravity>(world, ecm));
+  pose_W_ = getComponent<cmp::WorldPose>(link_entity, ecm);
+  acc_B_ = getComponent<cmp::LinearAcceleration>(link_entity, ecm);
+  gyro_B_ = getComponent<cmp::AngularVelocity>(link_entity, ecm);
+  dgyro_B_ = getComponent<cmp::AngularAcceleration>(link_entity, ecm);
+  grav_W_ = getComponent<cmp::Gravity>(world, ecm);
 
   if (!mass_holder_.initialize(model_entity, ecm)) {
     TOBAS_EXIT("Failed to initialize model mass holder.");
