@@ -276,6 +276,5 @@ bool IceRotorModel::initializeGazeboObjects(gz::sim::EntityComponentManager& ecm
 
   return true;
 }
-
 }  // namespace gazebo
 }  // namespace tobas
