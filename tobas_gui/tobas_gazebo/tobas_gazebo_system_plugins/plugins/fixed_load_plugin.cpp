@@ -77,10 +77,12 @@ private:
   std::condition_variable cv_;
   std::optional<Operation> pending_;  // Retain the request and result until `submit()` consumes them.
   bool done_ = false;                 // Protected by `mutex_`; prevents reprocessing a completed request.
-  int load_index_ = 0;
+  int load_index_ = -1;
 
   ros2::ServiceServerPtr<AttachSrv> attach_load_ss_;
   ros2::ServiceServerPtr<DetachSrv> detach_load_ss_;
+
+  std::string loadName() const;
 
   void submit(Operation& operation);
   bool attachLoad(const AttachSrv::Request& req, std::string& message, gz::sim::EntityComponentManager& ecm);
@@ -135,6 +137,11 @@ void GazeboFixedLoadPlugin::PreUpdate(const gz::sim::UpdateInfo&, gz::sim::Entit
   cv_.notify_all();
 }
 
+std::string GazeboFixedLoadPlugin::loadName() const
+{
+  return "fixed_load_" + std::to_string(link_entity_) + "_" + std::to_string(load_index_);
+}
+
 void GazeboFixedLoadPlugin::submit(Operation& operation)
 {
   std::unique_lock lock(mutex_);
@@ -182,8 +189,9 @@ bool GazeboFixedLoadPlugin::attachLoad(
   const auto T_W_B = gz::sim::worldPose(link_entity_, ecm);
   const auto T_W_L = T_W_B * T_B_L;
 
-  // Include the attachment link entity to distinguish loads from different aircraft.
-  const auto load_name = "fixed_load_" + std::to_string(link_entity_) + "_" + std::to_string(load_index_++);
+  // Increment the index to avoid duplicate model names.
+  ++load_index_;
+  const auto load_name = loadName();
 
   // Generate and parse the SDF for a uniform box.
   sdf::Root root;
@@ -244,6 +252,10 @@ void GazeboFixedLoadPlugin::attachLoadCb(
   submit(operation);
   res->success = operation.success;
   res->message = operation.message;
+
+  if (operation.success) {
+    TOBAS_INFO(loadName(), " has been created and attached to the vehicle successfully.");
+  }
 }
 
 void GazeboFixedLoadPlugin::detachLoadCb(
@@ -254,6 +266,10 @@ void GazeboFixedLoadPlugin::detachLoadCb(
   submit(operation);
   res->success = operation.success;
   res->message = operation.message;
+
+  if (operation.success) {
+    TOBAS_INFO(loadName(), " has been detached from the vehicle successfully.");
+  }
 }
 }  // namespace gazebo
 }  // namespace tobas

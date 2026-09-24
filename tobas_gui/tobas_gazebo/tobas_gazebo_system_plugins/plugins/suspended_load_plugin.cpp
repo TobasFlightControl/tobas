@@ -156,7 +156,6 @@ void GazeboSuspendedLoadPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::s
     if (model_entity == gz::sim::kNullEntity) {
       return;
     }
-    TOBAS_INFO("Load entity is found: ", model_entity);
 
     const gz::sim::Model load_model(model_entity);
     if (!load_model.Valid(ecm)) {
@@ -246,7 +245,6 @@ void GazeboSuspendedLoadPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::s
 
 std::string GazeboSuspendedLoadPlugin::loadName() const
 {
-  // Use the same aircraft-specific name for spawning and looking up the load.
   return "suspended_load_" + std::to_string(base_link_.Entity()) + "_" + std::to_string(load_index_);
 }
 
@@ -292,6 +290,7 @@ void GazeboSuspendedLoadPlugin::attachLoadCb(
 
   // Increment the index to avoid duplicate model names.
   ++load_index_;
+  const auto load_name = loadName();
 
   // Determine spawn position.
   const auto& W_Pose_B = W_Pose_B_->Data();
@@ -304,7 +303,7 @@ void GazeboSuspendedLoadPlugin::attachLoadCb(
     W_Pos_WP.Z() - req->cable_length - sz_2, sz_2);  // Lower by the cable length, but keep it above the ground.
 
   gz::msgs::EntityFactory gzreq;
-  gzreq.set_sdf(makeBoxSdf(loadName(), size.x, size.y, size.z, req->load_mass, px, py, pz));
+  gzreq.set_sdf(makeBoxSdf(load_name, size.x, size.y, size.z, req->load_mass, px, py, pz));
   gzreq.set_allow_renaming(true);
 
   gz::msgs::Boolean gzrep;
@@ -339,6 +338,8 @@ void GazeboSuspendedLoadPlugin::attachLoadCb(
 
   res->success = true;
   res->message.clear();
+
+  TOBAS_INFO(load_name, " has been created and attached to the vehicle successfully.");
 }
 
 void GazeboSuspendedLoadPlugin::detachLoadCb(
@@ -360,6 +361,8 @@ void GazeboSuspendedLoadPlugin::detachLoadCb(
 
   res->success = true;
   res->message.clear();
+
+  TOBAS_INFO(loadName(), " has been detached from the vehicle successfully.");
 }
 }  // namespace gazebo
 }  // namespace tobas
