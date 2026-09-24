@@ -71,8 +71,8 @@ public:
 private:
   // SDF parameters
   std::string link_name_;
-  int update_rate_;             // Update rate [Hz]
   gz::math::Vector3d offset_;   // B_Pos_BS
+  int update_rate_;             // Update rate [Hz]
   double acc_noise_density_;    // Accel noise density [m/s^2/√Hz]
   double acc_random_walk_;      // Accel bias random walk [m/s^2/s/√Hz]
   double acc_bias_corr_time_;   // Accel bias correlation time constant [s]
@@ -253,7 +253,6 @@ void GazeboImuPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim:
   // Publish raw IMU message.
   auto imu_raw_msg = std::make_unique<tobas_msgs::Imu>();
   imu_raw_msg->header.stamp = cur_time;
-  imu_raw_msg->header.frame_id = link_name_;
   vectorGazeboToKDL(acc_meas, imu_raw_msg->accel);
   vectorGazeboToKDL(gyro_meas, imu_raw_msg->gyro);
   vectorGazeboToKDL(dgyro_meas, imu_raw_msg->dgyro);
@@ -263,7 +262,6 @@ void GazeboImuPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim:
   if (lpf_initialized_) {
     auto imu_filt_msg = std::make_unique<tobas_msgs::Imu>();
     imu_filt_msg->header.stamp = cur_time;
-    imu_filt_msg->header.frame_id = link_name_;
     vectorGazeboToKDL(acc_lpf_.getValue(), imu_filt_msg->accel);
     vectorGazeboToKDL(gyro_lpf_.getValue(), imu_filt_msg->gyro);
     vectorGazeboToKDL(dgyro_lpf_.getValue(), imu_filt_msg->dgyro);
@@ -276,7 +274,6 @@ void GazeboImuPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim:
   // Publish debug message.
   auto debug_msg = std::make_unique<tobas_gazebo_msgs::msg::ImuDebug>();
   debug_msg->header.stamp = cur_time;
-  debug_msg->header.frame_id = link_name_;
   vectorGazeboToRos(acc_bias_, debug_msg->acc_bias);
   vectorGazeboToRos(gyro_bias_, debug_msg->gyro_bias);
   debug_pub_->publish(std::move(debug_msg));
@@ -284,19 +281,19 @@ void GazeboImuPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim:
 
 void GazeboImuPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
-  getSdfParam(sdf, "linkName", link_name_);
-  getSdfParam(sdf, "updateRate", update_rate_, kNonNegative);
-  getSdfParam(sdf, "offset", offset_);
+  link_name_ = getSdfParam<std::string>(sdf, "linkName");
+  offset_ = getSdfParam<gz::math::Vector3d>(sdf, "offset");
+  update_rate_ = getSdfParam<int>(sdf, "updateRate", kNonNegative);
 
-  getSdfParam(sdf, "accelNoiseDensity", acc_noise_density_, kNonNegative);
-  getSdfParam(sdf, "accelRandomWalk", acc_random_walk_, kNonNegative);
-  getSdfParam(sdf, "accelBiasCorrelationTime", acc_bias_corr_time_, kPositive);
+  acc_noise_density_ = getSdfParam<double>(sdf, "accelNoiseDensity", kNonNegative);
+  acc_random_walk_ = getSdfParam<double>(sdf, "accelRandomWalk", kNonNegative);
+  acc_bias_corr_time_ = getSdfParam<double>(sdf, "accelBiasCorrelationTime", kPositive);
 
-  getSdfParam(sdf, "gyroNoiseDensity", gyro_noise_density_, kNonNegative);
-  getSdfParam(sdf, "gyroRandomWalk", gyro_random_walk_, kNonNegative);
-  getSdfParam(sdf, "gyroBiasCorrelationTime", gyro_bias_corr_time_, kPositive);
+  gyro_noise_density_ = getSdfParam<double>(sdf, "gyroNoiseDensity", kNonNegative);
+  gyro_random_walk_ = getSdfParam<double>(sdf, "gyroRandomWalk", kNonNegative);
+  gyro_bias_corr_time_ = getSdfParam<double>(sdf, "gyroBiasCorrelationTime", kPositive);
 
-  getSdfParam(sdf, "rotorLinkNames", rotor_link_names_);
+  rotor_link_names_ = getSdfParam<std::vector<std::string>>(sdf, "rotorLinkNames");
 }
 
 void GazeboImuPlugin::addNoise(gz::math::Vector3d& acc, gz::math::Vector3d& gyro, const double& dt)

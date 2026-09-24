@@ -42,12 +42,8 @@ public:
   void PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager& ecm) override;
 
 private:
-  // SDF parameters
-  std::string link_name_;
-  int update_rate_;
   gz::math::Vector3d offset_;  // B_Pos_BS
   double alt_0_;               // [m]
-  double noise_stddev_;        // [Pa]
 
   const cmp::WorldPose* pose_W_;
   std::optional<RateManager> rate_manager_;
@@ -57,8 +53,6 @@ private:
   NormalDistribution pressure_noise_;
 
   ros2::PublisherPtr<tobas_msgs::msg::FluidPressure> pressure_pub_;
-
-  void getSdfParams(const sdf::ElementConstPtr& sdf);
 };
 
 GazeboBarometerPlugin::GazeboBarometerPlugin() : rnd_gen_(rnd_dev_())
@@ -72,7 +66,8 @@ void GazeboBarometerPlugin::Configure(
   gz::sim::EventManager&)
 {
   initialize("gazebo_barometer_plugin", sdf);
-  getSdfParams(sdf);
+
+  offset_ = getSdfParam<gz::math::Vector3d>(sdf, "offset", gz::math::Vector3d::Zero);
 
   const auto sc = getWorldSphericalCoordinates(ecm);
   if (!sc) {
@@ -80,14 +75,19 @@ void GazeboBarometerPlugin::Configure(
   }
   alt_0_ = sc->ElevationReference();
 
-  const auto link = ecm.EntityByComponents(cmp::Link(), cmp::ParentEntity(model), cmp::Name(link_name_));
+  const auto link_name = getSdfParam<std::string>(sdf, "linkName");
+  const auto link = ecm.EntityByComponents(cmp::Link(), cmp::ParentEntity(model), cmp::Name(link_name));
   if (link == gz::sim::kNullEntity) {
-    TOBAS_EXIT("Failed to find specified link '", link_name_, "'.");
+    TOBAS_EXIT("Failed to find specified link '", link_name, "'.");
   }
 
   pose_W_ = getComponent<cmp::WorldPose>(link, ecm);
-  rate_manager_.emplace(update_rate_);
-  pressure_noise_ = NormalDistribution(0.0, noise_stddev_);
+
+  const auto update_rate = getSdfParam<int>(sdf, "updateRate", kNonNegative);
+  rate_manager_.emplace(update_rate);
+
+  const auto noise_stddev = getSdfParam<double>(sdf, "noiseStddev", kNonNegative);
+  pressure_noise_ = NormalDistribution(0.0, noise_stddev);
 
   pressure_pub_ = createPublisher<tobas_msgs::msg::FluidPressure>(topic::kAirPressure);
 }
@@ -114,19 +114,10 @@ void GazeboBarometerPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz
   // Create a pressure message.
   auto pressure_msg = std::make_unique<tobas_msgs::msg::FluidPressure>();
   ros2::timeChronoToMsg(info.simTime, pressure_msg->header.stamp);
-  pressure_msg->header.frame_id = link_name_;
   pressure_msg->pressure = pressure;
 
   // Publish the pressure message.
   pressure_pub_->publish(std::move(pressure_msg));
-}
-
-void GazeboBarometerPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
-{
-  getSdfParam(sdf, "linkName", link_name_);
-  getSdfParam(sdf, "offset", offset_, gz::math::Vector3d::Zero);
-  getSdfParam(sdf, "updateRate", update_rate_, kNonNegative);
-  getSdfParam(sdf, "noiseStddev", noise_stddev_, kNonNegative);
 }
 }  // namespace gazebo
 }  // namespace tobas

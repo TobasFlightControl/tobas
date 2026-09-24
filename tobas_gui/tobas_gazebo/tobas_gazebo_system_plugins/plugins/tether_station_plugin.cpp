@@ -186,13 +186,13 @@ void GazeboTetherStationPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
   constexpr double kDefaultYoungModulus = 200.0;    // [MPa] Low-density polyethylene.
   constexpr double kDefaultCrossSectionArea = 1.0;  // [mm^2]
 
-  getSdfParam(sdf, "linkName", link_name_);
-  getSdfParam(sdf, "worldEnd", W_Pos_WP_, gz::math::Vector3d::Zero);
-  getSdfParam(sdf, "droneEnd", B_Pos_BQ_, gz::math::Vector3d::Zero);
-  getSdfParam(sdf, "initialTension", init_tension_, kDefaultInitTension, kNonNegative);
-  getSdfParam(sdf, "initialMaximumLength", init_max_length_, kDefaultInitMaxLength, kPositive);
-  getSdfParam(sdf, "youngModulus", young_, kDefaultYoungModulus, kPositive);
-  getSdfParam(sdf, "crossSectionArea", csa_, kDefaultCrossSectionArea, kPositive);
+  link_name_ = getSdfParam<std::string>(sdf, "linkName");
+  W_Pos_WP_ = getSdfParam<gz::math::Vector3d>(sdf, "worldEnd", gz::math::Vector3d::Zero);
+  B_Pos_BQ_ = getSdfParam<gz::math::Vector3d>(sdf, "droneEnd", gz::math::Vector3d::Zero);
+  init_tension_ = getSdfParam<double>(sdf, "initialTension", kDefaultInitTension, kNonNegative);
+  init_max_length_ = getSdfParam<double>(sdf, "initialMaximumLength", kDefaultInitMaxLength, kPositive);
+  young_ = getSdfParam<double>(sdf, "youngModulus", kDefaultYoungModulus, kPositive);
+  csa_ = getSdfParam<double>(sdf, "crossSectionArea", kDefaultCrossSectionArea, kPositive);
 }
 
 void GazeboTetherStationPlugin::getParamsCb(

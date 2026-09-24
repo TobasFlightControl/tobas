@@ -112,8 +112,8 @@ void addImuPlugin(
   tinyxml2::XMLElement* robot,
   const std::string& ns,
   const std::string& link_name,
-  int update_rate,
   const Eigen::Vector3d& offset,
+  int update_rate,
   double gyro_noise_density,
   double gyro_random_walk,
   double gyro_bias_corr_time,
@@ -125,8 +125,8 @@ void addImuPlugin(
   const auto plugin = addGazeboPlugin(robot, "tobas_gazebo_imu_plugin", "tobas::gazebo::GazeboImuPlugin");
   plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
   plugin->InsertNewChildElement("linkName")->SetText(link_name.c_str());
-  plugin->InsertNewChildElement("updateRate")->SetText(toString(update_rate).c_str());
   plugin->InsertNewChildElement("offset")->SetText(toString(offset).c_str());
+  plugin->InsertNewChildElement("updateRate")->SetText(toString(update_rate).c_str());
   plugin->InsertNewChildElement("gyroNoiseDensity")->SetText(toString(gyro_noise_density).c_str());
   plugin->InsertNewChildElement("gyroRandomWalk")->SetText(toString(gyro_random_walk).c_str());
   plugin->InsertNewChildElement("gyroBiasCorrelationTime")->SetText(toString(gyro_bias_corr_time).c_str());
@@ -140,8 +140,8 @@ void addMagnetometerPlugin(
   tinyxml2::XMLElement* robot,
   const std::string& ns,
   const std::string& link_name,
-  int update_rate,
   const Eigen::Vector3d& offset,
+  int update_rate,
   double noise_stddev,
   double hard_bias_norm)
 {
@@ -149,8 +149,8 @@ void addMagnetometerPlugin(
     addGazeboPlugin(robot, "tobas_gazebo_magnetometer_plugin", "tobas::gazebo::GazeboMagnetometerPlugin");
   plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
   plugin->InsertNewChildElement("linkName")->SetText(link_name.c_str());
-  plugin->InsertNewChildElement("updateRate")->SetText(toString(update_rate).c_str());
   plugin->InsertNewChildElement("offset")->SetText(toString(offset).c_str());
+  plugin->InsertNewChildElement("updateRate")->SetText(toString(update_rate).c_str());
   plugin->InsertNewChildElement("noiseStddev")->SetText(toString(noise_stddev).c_str());
   plugin->InsertNewChildElement("hardBiasNorm")->SetText(toString(hard_bias_norm).c_str());
 }
@@ -159,15 +159,15 @@ void addBarometerPlugin(
   tinyxml2::XMLElement* robot,
   const std::string& ns,
   const std::string& link_name,
-  int update_rate,
   const Eigen::Vector3d& offset,
+  int update_rate,
   double noise_stddev)
 {
   const auto plugin = addGazeboPlugin(robot, "tobas_gazebo_barometer_plugin", "tobas::gazebo::GazeboBarometerPlugin");
   plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
   plugin->InsertNewChildElement("linkName")->SetText(link_name.c_str());
-  plugin->InsertNewChildElement("updateRate")->SetText(toString(update_rate).c_str());
   plugin->InsertNewChildElement("offset")->SetText(toString(offset).c_str());
+  plugin->InsertNewChildElement("updateRate")->SetText(toString(update_rate).c_str());
   plugin->InsertNewChildElement("noiseStddev")->SetText(toString(noise_stddev).c_str());
 }
 
@@ -175,8 +175,8 @@ void addGnssPlugin(
   tinyxml2::XMLElement* robot,
   const std::string& ns,
   const std::string& link_name,
-  int update_rate,
   const Eigen::Vector3d& offset,
+  int update_rate,
   double delay,
   double position_corr_time,
   double hor_pos_accuracy,
@@ -188,8 +188,8 @@ void addGnssPlugin(
   const auto plugin = addGazeboPlugin(robot, "tobas_gazebo_gnss_plugin", "tobas::gazebo::GazeboGnssPlugin");
   plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
   plugin->InsertNewChildElement("linkName")->SetText(link_name.c_str());
-  plugin->InsertNewChildElement("updateRate")->SetText(toString(update_rate).c_str());
   plugin->InsertNewChildElement("offset")->SetText(toString(offset).c_str());
+  plugin->InsertNewChildElement("updateRate")->SetText(toString(update_rate).c_str());
   plugin->InsertNewChildElement("delay")->SetText(toString(delay).c_str());
   plugin->InsertNewChildElement("positionCorrTime")->SetText(toString(position_corr_time).c_str());
   plugin->InsertNewChildElement("horPosAccuracy")->SetText(toString(hor_pos_accuracy).c_str());

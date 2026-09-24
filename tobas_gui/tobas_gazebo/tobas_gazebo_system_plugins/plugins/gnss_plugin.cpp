@@ -63,8 +63,8 @@ private:
 
   // SDF parameters
   std::string link_name_;
-  int update_rate_;            // Update rate [Hz]
   gz::math::Vector3d offset_;  // B_Pos_BS [m]
+  int update_rate_;            // Update rate [Hz]
   double delay_;               // GNSS delay time [s]
   double pos_corr_time_;       // Correlation time constant of the OU process [s]
   double hor_pos_accuracy_;    // Horizontal position accuracy, expected error value [m]
@@ -185,7 +185,6 @@ void GazeboGnssPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim
 
   // Create the GNSS message.
   auto gnss_msg = std::make_unique<tobas_msgs::Gnss>();
-  gnss_msg->header.frame_id = link_name_;
   ros2::timeChronoToMsg(gnss_time, gnss_msg->header.stamp);
   if (force_no_fix_.load()) {
     gnss_msg->fix_type = tobas_msgs::msg::Gnss::NO_FIX;
@@ -205,19 +204,19 @@ void GazeboGnssPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim
 
 void GazeboGnssPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
-  getSdfParam(sdf, "linkName", link_name_);
-  getSdfParam(sdf, "updateRate", update_rate_, kNonNegative);
-  getSdfParam(sdf, "offset", offset_, gz::math::Vector3d::Zero);
+  link_name_ = getSdfParam<std::string>(sdf, "linkName");
+  offset_ = getSdfParam<gz::math::Vector3d>(sdf, "offset", gz::math::Vector3d::Zero);
+  update_rate_ = getSdfParam<int>(sdf, "updateRate", kNonNegative);
 
-  getSdfParam(sdf, "delay", delay_, kNonNegative);
-  getSdfParam(sdf, "positionCorrTime", pos_corr_time_, kPositive);
+  delay_ = getSdfParam<double>(sdf, "delay", kNonNegative);
+  pos_corr_time_ = getSdfParam<double>(sdf, "positionCorrTime", kPositive);
 
-  getSdfParam(sdf, "horPosAccuracy", hor_pos_accuracy_, kNonNegative);
-  getSdfParam(sdf, "verPosAccuracy", ver_pos_accuracy_, kNonNegative);
-  getSdfParam(sdf, "horVelStdDev", hor_vel_stddev_, kNonNegative);
-  getSdfParam(sdf, "verVelStdDev", ver_vel_stddev_, kNonNegative);
+  hor_pos_accuracy_ = getSdfParam<double>(sdf, "horPosAccuracy", kNonNegative);
+  ver_pos_accuracy_ = getSdfParam<double>(sdf, "verPosAccuracy", kNonNegative);
+  hor_vel_stddev_ = getSdfParam<double>(sdf, "horVelStdDev", kNonNegative);
+  ver_vel_stddev_ = getSdfParam<double>(sdf, "verVelStdDev", kNonNegative);
 
-  getSdfParam(sdf, "geoidUndulation", geoid_undulation_, 0.0);
+  geoid_undulation_ = getSdfParam<double>(sdf, "geoidUndulation", 0.0);
 }
 
 void GazeboGnssPlugin::setRandomDistribuitons()

@@ -45,10 +45,6 @@ public:
   void PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager& ecm) override;
 
 private:
-  // SDF parameters
-  std::string link_name_;
-  int update_rate_;
-
   const cmp::WorldPose* pose_W_;
   const cmp::LinearVelocity* vel_B_;
   const cmp::AngularVelocity* gyro_B_;
@@ -58,8 +54,6 @@ private:
   std::optional<RateManager> rate_manager_;
 
   ros2::PublisherPtr<tobas_msgs::OdometryWithCovarianceStamped> odom_pub_;
-
-  void getSdfParams(const sdf::ElementConstPtr& sdf);
 };
 
 GazeboGroundTruthStatePlugin::GazeboGroundTruthStatePlugin()
@@ -73,11 +67,11 @@ void GazeboGroundTruthStatePlugin::Configure(
   gz::sim::EventManager&)
 {
   initialize("gazebo_ground_truth_state_plugin", sdf);
-  getSdfParams(sdf);
 
-  const auto link = ecm.EntityByComponents(cmp::Link(), cmp::ParentEntity(model), cmp::Name(link_name_));
+  const auto link_name = getSdfParam<std::string>(sdf, "linkName");
+  const auto link = ecm.EntityByComponents(cmp::Link(), cmp::ParentEntity(model), cmp::Name(link_name));
   if (link == gz::sim::kNullEntity) {
-    TOBAS_EXIT("Failed to find specified link '", link_name_, "'.");
+    TOBAS_EXIT("Failed to find specified link '", link_name, "'.");
   }
 
   pose_W_ = getComponent<cmp::WorldPose>(link, ecm);
@@ -86,7 +80,8 @@ void GazeboGroundTruthStatePlugin::Configure(
   acc_B_ = getComponent<cmp::LinearAcceleration>(link, ecm);
   dgyro_B_ = getComponent<cmp::AngularAcceleration>(link, ecm);
 
-  rate_manager_.emplace(update_rate_);
+  const auto update_rate = getSdfParam<int>(sdf, "updateRate", 0, kNonNegative);
+  rate_manager_.emplace(update_rate);
 
   odom_pub_ = createPublisher<tobas_msgs::OdometryWithCovarianceStamped>(kOdometryGtTopic);
 }
@@ -99,7 +94,6 @@ void GazeboGroundTruthStatePlugin::PostUpdate(const gz::sim::UpdateInfo& info, c
 
   // Create Pose & Twist message.
   auto odom = std::make_unique<tobas_msgs::OdometryWithCovarianceStamped>();
-  odom->header.frame_id = link_name_;
 
   // Update time stamp.
   ros2::timeChronoToMsg(info.simTime, odom->header.stamp);
@@ -127,14 +121,6 @@ void GazeboGroundTruthStatePlugin::PostUpdate(const gz::sim::UpdateInfo& info, c
 
   // Publish state message.
   odom_pub_->publish(std::move(odom));
-}
-
-void GazeboGroundTruthStatePlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
-{
-  constexpr int kDefaultUpdateRate = 0;  // [Hz]
-
-  getSdfParam(sdf, "linkName", link_name_);
-  getSdfParam(sdf, "updateRate", update_rate_, kDefaultUpdateRate, kNonNegative);
 }
 }  // namespace gazebo
 }  // namespace tobas

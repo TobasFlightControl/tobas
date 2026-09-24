@@ -37,16 +37,11 @@ public:
   void PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager& ecm) override;
 
 private:
-  // SDF parameters
-  std::string link_name_;
-
   const cmp::WorldPose* pose_W_;
 
   gz::transport::Node node_;
   gz::msgs::Vector3d lookat_pos_;
   gz::transport::Node::Publisher lookat_pos_pub_;
-
-  void getSdfParams(const sdf::ElementConstPtr& sdf);
 };
 
 GazeboLookAtPositionPlugin::GazeboLookAtPositionPlugin()
@@ -60,11 +55,11 @@ void GazeboLookAtPositionPlugin::Configure(
   gz::sim::EventManager&)
 {
   initialize("gazebo_lookat_position_plugin", sdf);
-  getSdfParams(sdf);
 
-  const auto link = ecm.EntityByComponents(cmp::Link(), cmp::ParentEntity(model), cmp::Name(link_name_));
+  const auto link_name = getSdfParam<std::string>(sdf, "linkName");
+  const auto link = ecm.EntityByComponents(cmp::Link(), cmp::ParentEntity(model), cmp::Name(link_name));
   if (link == gz::sim::kNullEntity) {
-    TOBAS_EXIT("Failed to find specified link '", link_name_, "'.");
+    TOBAS_EXIT("Failed to find specified link '", link_name, "'.");
   }
 
   pose_W_ = getComponent<cmp::WorldPose>(link, ecm);
@@ -76,11 +71,6 @@ void GazeboLookAtPositionPlugin::PostUpdate(const gz::sim::UpdateInfo&, const gz
 {
   vector3dGzToMsg(pose_W_->Data().Pos(), lookat_pos_);
   lookat_pos_pub_.Publish(lookat_pos_);
-}
-
-void GazeboLookAtPositionPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
-{
-  getSdfParam(sdf, "linkName", link_name_);
 }
 }  // namespace gazebo
 }  // namespace tobas

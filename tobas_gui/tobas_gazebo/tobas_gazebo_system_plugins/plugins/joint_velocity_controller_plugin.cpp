@@ -43,21 +43,12 @@ public:
   void PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::EntityComponentManager& ecm) override;
 
 private:
-  std::string joint_name_;
-  struct Param
-  {
-    double home_pos;  // [rad]
-  } param_;
-
   std::optional<gz::sim::Joint> joint_;
   const cmp::JointVelocity* jnt_vel_;
 
   double tar_vel_ = 0.0;
 
   ros2::SubscriberPtr<tobas_gazebo_msgs::msg::JointCommand> cmd_sub_;
-
-  void getSdfParams(const sdf::ElementConstPtr& sdf);
-  void registerRosInterfaces();
 
   void commandCb(const tobas_gazebo_msgs::msg::JointCommand::ConstSharedPtr& cmd);
 };
@@ -72,9 +63,8 @@ void GazeboJointVelocityControllerPlugin::Configure(
   gz::sim::EntityComponentManager& ecm,
   gz::sim::EventManager&)
 {
-  joint_name_ = sdf->Get<std::string>("jointName");
-  initialize("gazebo_" + sanitizeNodeName(joint_name_) + "_controller_plugin", sdf);
-  getSdfParams(sdf);
+  const auto joint_name = sdf->Get<std::string>("jointName");
+  initialize("gazebo_" + sanitizeNodeName(joint_name) + "_controller_plugin", sdf);
 
   // Get robot model.
   const gz::sim::Model model(model_entity);
@@ -83,35 +73,26 @@ void GazeboJointVelocityControllerPlugin::Configure(
   }
 
   // Get joint.
-  const auto joint_entity = model.JointByName(ecm, joint_name_);
+  const auto joint_entity = model.JointByName(ecm, joint_name);
   joint_.emplace(joint_entity);
   if (!joint_->Valid(ecm)) {
-    TOBAS_EXIT("Failed to find joint '", joint_name_, "'.");
+    TOBAS_EXIT("Failed to find joint '", joint_name, "'.");
   }
 
   // Get joint velocity.
   TOBAS_CHECK(jnt_vel_ = getComponent<cmp::JointVelocity>(joint_entity, ecm));
 
   // Reset joint position.
-  joint_->ResetPosition(ecm, { param_.home_pos });
+  const auto home_pos = getSdfParam<double>(sdf, "homePosition");
+  joint_->ResetPosition(ecm, { home_pos });
 
   // Register ROS interfaces.
-  registerRosInterfaces();
+  cmd_sub_ = createSubscriber(path::join(kJointCommandTopicNS, joint_name), &self::commandCb, this);
 }
 
 void GazeboJointVelocityControllerPlugin::PreUpdate(const gz::sim::UpdateInfo&, gz::sim::EntityComponentManager& ecm)
 {
   joint_->SetVelocity(ecm, { tar_vel_ });  // This generates torque on the joint.
-}
-
-void GazeboJointVelocityControllerPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
-{
-  getSdfParam(sdf, "homePosition", param_.home_pos);
-}
-
-void GazeboJointVelocityControllerPlugin::registerRosInterfaces()
-{
-  cmd_sub_ = createSubscriber(path::join(kJointCommandTopicNS, joint_name_), &self::commandCb, this);
 }
 
 void GazeboJointVelocityControllerPlugin::commandCb(const tobas_gazebo_msgs::msg::JointCommand::ConstSharedPtr& cmd)

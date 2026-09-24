@@ -63,9 +63,6 @@ private:
     kOff,
   };
 
-  // SDF parameters
-  std::string link_name_;
-
   const cmp::WorldPose* pose_W_;
   const cmp::WorldLinearVelocity* vel_W_;
 
@@ -79,8 +76,6 @@ private:
 
   ros2::ServiceServerPtr<GetSrv> get_params_ss_;
   ros2::ServiceServerPtr<SetSrv> set_params_ss_;
-
-  void getSdfParams(const sdf::ElementConstPtr& sdf);
 
   void getParamsCb(const GetSrv::Request::ConstSharedPtr& req, const GetSrv::Response::SharedPtr& res);
   void setParamsCb(const SetSrv::Request::ConstSharedPtr& req, const SetSrv::Response::SharedPtr& res);
@@ -97,11 +92,11 @@ void GazeboWindPlugin::Configure(
   gz::sim::EventManager&)
 {
   initialize("gazebo_wind_plugin", sdf);
-  getSdfParams(sdf);
 
-  const auto link = ecm.EntityByComponents(cmp::Link(), cmp::ParentEntity(model), cmp::Name(link_name_));
+  const auto link_name = getSdfParam<std::string>(sdf, "linkName");
+  const auto link = ecm.EntityByComponents(cmp::Link(), cmp::ParentEntity(model), cmp::Name(link_name));
   if (link == gz::sim::kNullEntity) {
-    TOBAS_EXIT("Failed to find specified link '", link_name_, "'.");
+    TOBAS_EXIT("Failed to find specified link '", link_name, "'.");
   }
 
   pose_W_ = getComponent<cmp::WorldPose>(link, ecm);
@@ -164,11 +159,6 @@ void GazeboWindPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim
 
   // Publish wind velocity.
   wind_pub_->publish(std::move(wind_msg));
-}
-
-void GazeboWindPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
-{
-  getSdfParam(sdf, "linkName", link_name_);
 }
 
 void GazeboWindPlugin::getParamsCb(const GetSrv::Request::ConstSharedPtr&, const GetSrv::Response::SharedPtr& res)

@@ -918,8 +918,8 @@ void ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
     robot,
     ns,
     root_name,
-    kImuSamplingRate,
     Eigen::Vector3d::Zero(),  // TODO: Offset
+    kImuSamplingRate,
     fmu->gyroNoiseDensity(),
     fmu->gyroRandomWalk(),
     fmu->gyroBiasCorrTime(),
@@ -933,8 +933,8 @@ void ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
     robot,
     ns,
     root_name,
-    fmu->magUpdateRate(),
     Eigen::Vector3d::Zero(),  // TODO: Offset
+    fmu->magUpdateRate(),
     fmu->magNoiseStddev(),
     fmu->magHardBiasNorm());
 
@@ -943,8 +943,8 @@ void ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
     robot,
     ns,
     root_name,
-    fmu->presUpdateRate(),
     Eigen::Vector3d::Zero(),  // TODO: Offset
+    fmu->presUpdateRate(),
     fmu->presNoiseStddev());
 
   // GNSS plugin
@@ -952,10 +952,10 @@ void ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
     robot,
     ns,
     root_name,
-    fmu->gnssUpdateRate(),
     Eigen::Vector3d::Zero(),  // TODO: Offset
-    0.1,                      // The time for radio waves from GNSS satellites to reach the ground is roughly fixed.
-    30.0,                     // TODO: What is the actual GNSS position correlation time constant?
+    fmu->gnssUpdateRate(),
+    0.1,   // The time for radio waves from GNSS satellites to reach the ground is roughly fixed.
+    30.0,  // TODO: What is the actual GNSS position correlation time constant?
     fmu->gnssHorizontalPositionAccuracy(),
     fmu->gnssVerticalPositionAccuracy(),
     fmu->gnssHorizontalVelocityStddev(),

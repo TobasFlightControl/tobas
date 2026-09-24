@@ -298,43 +298,42 @@ void GazeboFixedWingPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
   constexpr char kControlSurfaceKey[] = "controlSurface";
 
-  getSdfParam(sdf, "baseLinkName", base_link_name_);
+  base_link_name_ = getSdfParam<std::string>(sdf, "baseLinkName");
 
   // Vehicle
-  getSdfParam(sdf, "wingSurface", vehicle_params_.wing_surface, kPositive);
-  getSdfParam(sdf, "wingSpan", vehicle_params_.wing_span, kPositive);
-  getSdfParam(sdf, "meanAerodynamicChord", vehicle_params_.mac, kPositive);
+  vehicle_params_.wing_surface = getSdfParam<double>(sdf, "wingSurface", kPositive);
+  vehicle_params_.wing_span = getSdfParam<double>(sdf, "wingSpan", kPositive);
+  vehicle_params_.mac = getSdfParam<double>(sdf, "meanAerodynamicChord", kPositive);
 
-  gz::math::Vector3d ac;
-  getSdfParam(sdf, "aerodynamicCenter", ac);
+  const auto ac = getSdfParam<gz::math::Vector3d>(sdf, "aerodynamicCenter");
   vectorGazeboToKDL(ac, vehicle_params_.ac);
 
-  getSdfParam(sdf, "lowerStallAngle", vehicle_params_.alpha_limit.lower);
-  getSdfParam(sdf, "upperStallAngle", vehicle_params_.alpha_limit.upper);
+  vehicle_params_.alpha_limit.lower = getSdfParam<double>(sdf, "lowerStallAngle");
+  vehicle_params_.alpha_limit.upper = getSdfParam<double>(sdf, "upperStallAngle");
   if (!vehicle_params_.alpha_limit.isValid()) {
     TOBAS_EXIT("Invalid stall angles");
   }
 
   // Aerodynamics
-  getSdfParam(sdf, "cLift0", aero_coefs_.c_lift_0, kPositive);
-  getSdfParam(sdf, "cLiftAlpha", aero_coefs_.c_lift_alpha, kPositive);
-  getSdfParam(sdf, "cDrag0", aero_coefs_.c_drag_0, kPositive);
-  getSdfParam(sdf, "cDragAlpha", aero_coefs_.c_drag_alpha, kPositive);
-  getSdfParam(sdf, "cSideBeta", aero_coefs_.c_side_beta, kNegative);
+  aero_coefs_.c_lift_0 = getSdfParam<double>(sdf, "cLift0", kPositive);
+  aero_coefs_.c_lift_alpha = getSdfParam<double>(sdf, "cLiftAlpha", kPositive);
+  aero_coefs_.c_drag_0 = getSdfParam<double>(sdf, "cDrag0", kPositive);
+  aero_coefs_.c_drag_alpha = getSdfParam<double>(sdf, "cDragAlpha", kPositive);
+  aero_coefs_.c_side_beta = getSdfParam<double>(sdf, "cSideBeta", kNegative);
 
-  getSdfParam(sdf, "cRollBeta", aero_coefs_.c_roll_beta, kNegative);
-  getSdfParam(sdf, "cRollP", aero_coefs_.c_roll_p, kNegative);
-  getSdfParam(sdf, "cRollR", aero_coefs_.c_roll_r);
+  aero_coefs_.c_roll_beta = getSdfParam<double>(sdf, "cRollBeta", kNegative);
+  aero_coefs_.c_roll_p = getSdfParam<double>(sdf, "cRollP", kNegative);
+  aero_coefs_.c_roll_r = getSdfParam<double>(sdf, "cRollR");
 
-  getSdfParam(sdf, "cPitch0", aero_coefs_.c_pitch_0);
-  getSdfParam(sdf, "cPitchAlpha", aero_coefs_.c_pitch_alpha, kNegative);
-  getSdfParam(sdf, "cPitchAbsBeta", aero_coefs_.c_pitch_abs_beta);
-  getSdfParam(sdf, "cPitchAlphaRate", aero_coefs_.c_pitch_alpha_rate);
-  getSdfParam(sdf, "cPitchQ", aero_coefs_.c_pitch_q, kNegative);
+  aero_coefs_.c_pitch_0 = getSdfParam<double>(sdf, "cPitch0");
+  aero_coefs_.c_pitch_alpha = getSdfParam<double>(sdf, "cPitchAlpha", kNegative);
+  aero_coefs_.c_pitch_abs_beta = getSdfParam<double>(sdf, "cPitchAbsBeta");
+  aero_coefs_.c_pitch_alpha_rate = getSdfParam<double>(sdf, "cPitchAlphaRate");
+  aero_coefs_.c_pitch_q = getSdfParam<double>(sdf, "cPitchQ", kNegative);
 
-  getSdfParam(sdf, "cYawBeta", aero_coefs_.c_yaw_beta);
-  getSdfParam(sdf, "cYawP", aero_coefs_.c_yaw_p);
-  getSdfParam(sdf, "cYawR", aero_coefs_.c_yaw_r, kNegative);
+  aero_coefs_.c_yaw_beta = getSdfParam<double>(sdf, "cYawBeta");
+  aero_coefs_.c_yaw_p = getSdfParam<double>(sdf, "cYawP");
+  aero_coefs_.c_yaw_r = getSdfParam<double>(sdf, "cYawR", kNegative);
 
   // ControlSurface
   if (sdf->HasElement(kControlSurfaceKey)) {
@@ -344,17 +343,17 @@ void GazeboFixedWingPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
     while (cs_elem) {
       ControlSurface cs;
 
-      getSdfParam(cs_elem, "jointName", cs.link_name);
+      cs.link_name = getSdfParam<std::string>(cs_elem, "jointName");
       if (joint_names.contains(cs.link_name)) {
         TOBAS_EXIT("The joint names of each control surface must be unique.");
       }
 
-      getSdfParam(cs_elem, "cLiftDelta", cs.c_lift_delta, 0.0);
-      getSdfParam(cs_elem, "cDragAbsDelta", cs.c_drag_abs_delta, 0.0);
-      getSdfParam(cs_elem, "cSideDelta", cs.c_side_delta, 0.0);
-      getSdfParam(cs_elem, "cRollDelta", cs.c_roll_delta, 0.0);
-      getSdfParam(cs_elem, "cPitchDelta", cs.c_pitch_delta, 0.0);
-      getSdfParam(cs_elem, "cYawDelta", cs.c_yaw_delta, 0.0);
+      cs.c_lift_delta = getSdfParam<double>(cs_elem, "cLiftDelta", 0.0);
+      cs.c_drag_abs_delta = getSdfParam<double>(cs_elem, "cDragAbsDelta", 0.0);
+      cs.c_side_delta = getSdfParam<double>(cs_elem, "cSideDelta", 0.0);
+      cs.c_roll_delta = getSdfParam<double>(cs_elem, "cRollDelta", 0.0);
+      cs.c_pitch_delta = getSdfParam<double>(cs_elem, "cPitchDelta", 0.0);
+      cs.c_yaw_delta = getSdfParam<double>(cs_elem, "cYawDelta", 0.0);
 
       joint_names.emplace(cs.link_name);
       control_surfaces_[cs.link_name] = cs;

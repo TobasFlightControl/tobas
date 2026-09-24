@@ -54,8 +54,8 @@ private:
 
   // SDF parameters
   std::string link_name_;
-  int update_rate_;            // [Hz] Update rate
   gz::math::Vector3d offset_;  // [m] B_Pos_BS
+  int update_rate_;            // [Hz] Update rate
   double lat_0_;               // [deg] Latitude north of the origin
   double lon_0_;               // [deg] Longitude east of the origin
   double alt_0_;               // [m] Altitude of the origin
@@ -146,7 +146,6 @@ void GazeboMagnetometerPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const
   // Create message.
   auto mag_msg = std::make_unique<tobas_msgs::MagneticField>();
   ros2::timeChronoToMsg(info.simTime, mag_msg->header.stamp);
-  mag_msg->header.frame_id = link_name_;
   vectorGazeboToKDL(field_meas, mag_msg->mag);
 
   // Publish message.
@@ -155,12 +154,12 @@ void GazeboMagnetometerPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const
 
 void GazeboMagnetometerPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
-  getSdfParam(sdf, "linkName", link_name_);
-  getSdfParam(sdf, "updateRate", update_rate_, kNonNegative);
-  getSdfParam(sdf, "offset", offset_);
+  link_name_ = getSdfParam<std::string>(sdf, "linkName");
+  offset_ = getSdfParam<gz::math::Vector3d>(sdf, "offset");
+  update_rate_ = getSdfParam<int>(sdf, "updateRate", kNonNegative);
 
-  getSdfParam(sdf, "noiseStddev", noise_stddev_, kNonNegative);
-  getSdfParam(sdf, "hardBiasNorm", hard_bias_norm_, kNonNegative);
+  noise_stddev_ = getSdfParam<double>(sdf, "noiseStddev", kNonNegative);
+  hard_bias_norm_ = getSdfParam<double>(sdf, "hardBiasNorm", kNonNegative);
 }
 }  // namespace gazebo
 }  // namespace tobas

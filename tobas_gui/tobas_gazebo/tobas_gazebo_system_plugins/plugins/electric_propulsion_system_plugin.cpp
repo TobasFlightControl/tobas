@@ -253,23 +253,23 @@ void GazeboElectricPropulsionSystemPlugin::PreUpdate(
 
 void GazeboElectricPropulsionSystemPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
-  getSdfParam(sdf, "kv", param_.kv, kPositive);
-  getSdfParam(sdf, "internalResistance", param_.resistance, kPositive);
-  getSdfParam(sdf, "numberOfBlades", param_.num_blades, kPositive);
+  param_.kv = getSdfParam<double>(sdf, "kv", kPositive);
+  param_.resistance = getSdfParam<double>(sdf, "internalResistance", kPositive);
+  param_.num_blades = getSdfParam<size_t>(sdf, "numberOfBlades", kPositive);
 
-  getSdfParam(sdf, "motorConstant", param_.motor_const, kPositive);
-  getSdfParam(sdf, "momentConstant", param_.moment_const, kPositive);
-  getSdfParam(sdf, "dragConstant", param_.drag_const, kNonNegative);
+  param_.motor_const = getSdfParam<double>(sdf, "motorConstant", kPositive);
+  param_.moment_const = getSdfParam<double>(sdf, "momentConstant", kPositive);
+  param_.drag_const = getSdfParam<double>(sdf, "dragConstant", kNonNegative);
 
   if (!getTurningDirection(sdf, param_.direction)) {
     TOBAS_EXIT("Failed to get turning direction.");
   }
 
-  getSdfParam(sdf, "maxCurrent", param_.max_current, kPositive);
+  param_.max_current = getSdfParam<double>(sdf, "maxCurrent", kPositive);
 
-  getSdfParam(sdf, "publishStateRate", param_.publish_state_rate, 400UL, kNonNegative);
-  getSdfParam(sdf, "vibrationForceCoefficient", param_.vib_force_coef, 1.5, kNonNegative);
-  getSdfParam(sdf, "vibrationForceVariationRate", param_.vib_force_var_rate, 0.3, kNonNegative);
+  param_.publish_state_rate = getSdfParam<size_t>(sdf, "publishStateRate", 400UL, kNonNegative);
+  param_.vib_force_coef = getSdfParam<double>(sdf, "vibrationForceCoefficient", 1.5, kNonNegative);
+  param_.vib_force_var_rate = getSdfParam<double>(sdf, "vibrationForceVariationRate", 0.3, kNonNegative);
 }
 
 void GazeboElectricPropulsionSystemPlugin::registerRosInterfaces()

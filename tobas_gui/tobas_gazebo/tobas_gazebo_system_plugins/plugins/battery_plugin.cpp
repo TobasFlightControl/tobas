@@ -170,15 +170,15 @@ void GazeboBatteryPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::
 
 void GazeboBatteryPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
-  getSdfParam(sdf, "updateRate", update_rate_, kNonNegative);
-  getSdfParam(sdf, "maxVoltage", max_voltage_, kPositive);
-  getSdfParam(sdf, "sagVoltage", sag_voltage_, kNonNegative);
-  getSdfParam(sdf, "maxCurrent", max_current_, kPositive);
-  getSdfParam(sdf, "currentCapacity", capacity_, kPositive);
-  getSdfParam(sdf, "internalRegistance", registance_, kNonNegative);
-  getSdfParam(sdf, "voltageNoiseStddev", voltage_noise_stddev_, 0.01, kNonNegative);
-  getSdfParam(sdf, "currentNoiseStddev", current_noise_stddev_, 0.01, kNonNegative);
-  getSdfParam(sdf, "rotorLinkNames", rotor_link_names_);
+  update_rate_ = getSdfParam<int>(sdf, "updateRate", kNonNegative);
+  max_voltage_ = getSdfParam<double>(sdf, "maxVoltage", kPositive);
+  sag_voltage_ = getSdfParam<double>(sdf, "sagVoltage", kNonNegative);
+  max_current_ = getSdfParam<double>(sdf, "maxCurrent", kPositive);
+  capacity_ = getSdfParam<double>(sdf, "currentCapacity", kPositive);
+  registance_ = getSdfParam<double>(sdf, "internalRegistance", kNonNegative);
+  voltage_noise_stddev_ = getSdfParam<double>(sdf, "voltageNoiseStddev", 0.01, kNonNegative);
+  current_noise_stddev_ = getSdfParam<double>(sdf, "currentNoiseStddev", 0.01, kNonNegative);
+  rotor_link_names_ = getSdfParam<std::vector<std::string>>(sdf, "rotorLinkNames");
 }
 
 double GazeboBatteryPlugin::currentVoltage()
