@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include <optional>
-
 #include <gz/msgs/entity_factory.pb.h>
 #include <gz/msgs/marker.pb.h>
 #include <gz/sim/Link.hh>
@@ -58,7 +56,7 @@ public:
 
 private:
   // Aircraft
-  std::optional<gz::sim::Link> base_link_;
+  gz::sim::Link base_link_;
   const cmp::WorldPose* W_Pose_B_;
   const cmp::WorldLinearVelocity* W_Vel_WB_;
   const cmp::WorldAngularVelocity* W_Gyro_WB_;
@@ -73,7 +71,7 @@ private:
   double cable_csa_;     // [m^2] Cross-sectional area.
   bool load_exist_ = false;
   int load_index_ = -1;
-  std::optional<gz::sim::Link> load_link_;
+  gz::sim::Link load_link_;
   const cmp::WorldPose* W_Pose_L_ = nullptr;
   const cmp::WorldLinearVelocity* W_Vel_WL_ = nullptr;
   const cmp::WorldAngularVelocity* W_Gyro_WL_ = nullptr;
@@ -120,8 +118,8 @@ void GazeboSuspendedLoadPlugin::Configure(
   world_name_ = *world_name;
 
   const auto link_entity = ecm.EntityByComponents(cmp::Link(), cmp::ParentEntity(model_entity), cmp::Name(link_name));
-  base_link_.emplace(link_entity);
-  if (!base_link_->Valid(ecm)) {
+  base_link_ = gz::sim::Link(link_entity);
+  if (!base_link_.Valid(ecm)) {
     TOBAS_EXIT("Failed to find the specified link '", link_name, "'.");
   }
 
@@ -158,7 +156,7 @@ void GazeboSuspendedLoadPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::s
   }
 
   // Make the load state accessible.
-  if (!load_link_) {
+  if (load_link_.Valid(ecm)) {
     const auto model_entity = ecm.EntityByComponents(cmp::Model(), cmp::Name(loadName()));
     if (model_entity == gz::sim::kNullEntity) {
       return;
@@ -173,8 +171,8 @@ void GazeboSuspendedLoadPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::s
     }
 
     const auto link_entity = load_model.CanonicalLink(ecm);  // Get the canonical link of the model.
-    load_link_.emplace(link_entity);
-    if (!load_link_->Valid(ecm)) {
+    load_link_ = gz::sim::Link(link_entity);
+    if (!load_link_.Valid(ecm)) {
       TOBAS_EXIT("Failed to find the canonical link of the load.");
     }
 
@@ -248,8 +246,8 @@ void GazeboSuspendedLoadPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::s
 
     // Apply tension along the cable direction and anti-rotation torque.
     const auto W_Force_PQ = T * W_Pos_PQ.Normalized();
-    base_link_->AddWorldForce(ecm, W_Force_PQ, B_Pos_BP_);
-    load_link_->AddWorldWrench(ecm, -W_Force_PQ, W_Torque_WL, L_Pos_LQ_);
+    base_link_.AddWorldForce(ecm, W_Force_PQ, B_Pos_BP_);
+    load_link_.AddWorldWrench(ecm, -W_Force_PQ, W_Torque_WL, L_Pos_LQ_);
   }
 
   // Update the line marker for visualization.
@@ -266,7 +264,7 @@ void GazeboSuspendedLoadPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::s
 std::string GazeboSuspendedLoadPlugin::loadName() const
 {
   // Use the same aircraft-specific name for spawning and looking up the load.
-  return "suspended_load_" + std::to_string(base_link_->Entity()) + "_" + std::to_string(load_index_);
+  return "suspended_load_" + std::to_string(base_link_.Entity()) + "_" + std::to_string(load_index_);
 }
 
 void GazeboSuspendedLoadPlugin::attachLoadCb(
@@ -370,7 +368,7 @@ void GazeboSuspendedLoadPlugin::detachLoadCb(
   }
 
   load_exist_ = false;
-  load_link_.reset();
+  load_link_.ResetEntity(gz::sim::kNullEntity);
   W_Pose_L_ = nullptr;
   W_Vel_WL_ = nullptr;
   W_Gyro_WL_ = nullptr;

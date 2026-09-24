@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include <optional>
-
 #include <gz/sim/Joint.hh>
 #include <gz/sim/Link.hh>
 #include <gz/sim/Model.hh>
@@ -72,8 +70,8 @@ private:
   AerodynamicCoefficients aero_coefs_;
   std::map<std::string, ControlSurface> control_surfaces_;
 
-  std::optional<gz::sim::Link> base_link_;
-  std::map<std::string, std::shared_ptr<gz::sim::Joint>> cs_joints_;  // Pointers to control-surface joints
+  gz::sim::Link base_link_;
+  std::map<std::string, gz::sim::Joint> cs_joints_;  // Pointers to control-surface joints
 
   const cmp::WorldPose* pose_W_;
   const cmp::WorldLinearVelocity* vel_W_;
@@ -146,8 +144,8 @@ void GazeboFixedWingPlugin::Configure(
 
   // Get base link.
   const auto base_link_entity = model.LinkByName(ecm, base_link_name_);
-  base_link_.emplace(base_link_entity);
-  if (!base_link_->Valid(ecm)) {
+  base_link_ = gz::sim::Link(base_link_entity);
+  if (!base_link_.Valid(ecm)) {
     TOBAS_EXIT("Failed to find base link '", base_link_name_, "'.");
   }
 
@@ -160,16 +158,16 @@ void GazeboFixedWingPlugin::Configure(
   for (const auto& [link_name, _] : control_surfaces_) {
     // Get control surface joint.
     const auto joint_entity = findJointWithChildLink(ecm, link_name);
-    if (!joint_entity) {
+    if (joint_entity == gz::sim::kNullEntity) {
       TOBAS_EXIT("Failed to find the parent joint of control surface link '", link_name, "'.");
     }
-    const auto joint = std::make_shared<gz::sim::Joint>(*joint_entity);
-    if (!joint->Valid(ecm)) {
+    const gz::sim::Joint joint(joint_entity);
+    if (!joint.Valid(ecm)) {
       TOBAS_EXIT("Failed to find control surface '", link_name, "'.");
     }
 
     // Check joint type.
-    const auto joint_type = joint->Type(ecm);
+    const auto joint_type = joint.Type(ecm);
     if (!joint_type) {
       TOBAS_EXIT("Failed to get the joint type of '", link_name, "'.");
     }
@@ -178,7 +176,7 @@ void GazeboFixedWingPlugin::Configure(
     }
 
     // Check joint limits.
-    const auto joint_axes = joint->Axis(ecm);
+    const auto joint_axes = joint.Axis(ecm);
     if (!joint_axes || joint_axes->size() == 0) {
       TOBAS_EXIT("'", link_name, "' has no joint axis.");
     }
@@ -281,7 +279,7 @@ void GazeboFixedWingPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::
   // Apply aerodynamic force.
   gz::math::Vector3d B_Pos_BC;
   vectorKDLToGazebo(vehicle_params_.ac, B_Pos_BC);
-  base_link_->AddWorldWrench(ecm, force_W, torque_W, B_Pos_BC);
+  base_link_.AddWorldWrench(ecm, force_W, torque_W, B_Pos_BC);
 
   // Publish debug messages.
   auto debug_msg = std::make_unique<tobas_gazebo_msgs::msg::FixedWingDebug>();
@@ -365,7 +363,7 @@ void GazeboFixedWingPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 double
 GazeboFixedWingPlugin::getDeflection(const gz::sim::EntityComponentManager& ecm, const std::string& link_name) const
 {
-  return cs_joints_.at(link_name)->Position(ecm)->front();
+  return cs_joints_.at(link_name).Position(ecm)->front();
 }
 
 double GazeboFixedWingPlugin::liftCoefficient(const gz::sim::EntityComponentManager& ecm, double alpha) const

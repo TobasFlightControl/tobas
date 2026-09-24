@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include <optional>
-
 #include <gz/sim/Joint.hh>
 #include <gz/sim/Model.hh>
 #include <gz/sim/components/JointTransmittedWrench.hh>
@@ -43,7 +41,7 @@ public:
   void PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::EntityComponentManager& ecm) override;
 
 private:
-  std::optional<gz::sim::Joint> joint_;
+  gz::sim::Joint joint_;
   const cmp::JointTransmittedWrench* jnt_eff_;
 
   double tar_eff_ = 0.0;
@@ -74,8 +72,8 @@ void GazeboJointEffortControllerPlugin::Configure(
 
   // Get joint.
   const auto joint_entity = model.JointByName(ecm, joint_name);
-  joint_.emplace(joint_entity);
-  if (!joint_->Valid(ecm)) {
+  joint_ = gz::sim::Joint(joint_entity);
+  if (!joint_.Valid(ecm)) {
     TOBAS_EXIT("Failed to find joint '", joint_name, "'.");
   }
 
@@ -84,7 +82,7 @@ void GazeboJointEffortControllerPlugin::Configure(
 
   // Reset joint position.
   const auto home_pos = getSdfParam<double>(sdf, "homePosition");
-  joint_->ResetPosition(ecm, { home_pos });
+  joint_.ResetPosition(ecm, { home_pos });
 
   // Register ROS interfaces.
   cmd_sub_ = createSubscriber(path::join(kJointCommandTopicNS, joint_name), &self::commandCb, this);
@@ -92,7 +90,7 @@ void GazeboJointEffortControllerPlugin::Configure(
 
 void GazeboJointEffortControllerPlugin::PreUpdate(const gz::sim::UpdateInfo&, gz::sim::EntityComponentManager& ecm)
 {
-  joint_->SetForce(ecm, { tar_eff_ });
+  joint_.SetForce(ecm, { tar_eff_ });
 }
 
 void GazeboJointEffortControllerPlugin::commandCb(const tobas_gazebo_msgs::msg::JointCommand::ConstSharedPtr& cmd)

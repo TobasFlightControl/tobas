@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include <optional>
-
 #include <gz/sim/Joint.hh>
 #include <gz/sim/Link.hh>
 #include <gz/sim/Model.hh>
@@ -68,9 +66,9 @@ private:
   VppDragConstant drag_const_;
 
   // Gazebo objects
-  std::optional<gz::sim::Joint> joint_;
-  std::optional<gz::sim::Link> link_;
-  std::optional<gz::sim::Link> parent_link_;
+  gz::sim::Joint joint_;
+  gz::sim::Link link_;
+  gz::sim::Link parent_link_;
   const gz::sim::components::JointAxis* jnt_axis_;
   const gz::sim::components::JointVelocity* jnt_vel_;
   const gz::sim::components::WorldPose* pose_W_;

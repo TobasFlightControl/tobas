@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include <optional>
-
 #include <gz/msgs/marker.pb.h>
 #include <gz/sim/Link.hh>
 #include <gz/sim/components/AngularVelocity.hh>
@@ -63,7 +61,7 @@ private:
 
   tobas_gazebo_msgs::msg::TetherParams params_;
 
-  std::optional<gz::sim::Link> link_;
+  gz::sim::Link link_;
 
   const cmp::WorldPose* pose_W_;
   const cmp::WorldLinearVelocity* linvel_W_;
@@ -105,8 +103,8 @@ void GazeboTetherStationPlugin::Configure(
   params_.maximum_length = init_max_length_;
 
   const auto link_entity = ecm.EntityByComponents(cmp::Link(), cmp::ParentEntity(model_entity), cmp::Name(link_name_));
-  link_.emplace(link_entity);
-  if (!link_->Valid(ecm)) {
+  link_ = gz::sim::Link(link_entity);
+  if (!link_.Valid(ecm)) {
     TOBAS_EXIT("Failed to find the specified link '", link_name_, "'.");
   }
 
@@ -169,7 +167,7 @@ void GazeboTetherStationPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::s
   // Apply tension along the cable direction.
   const auto axis_W = -W_Pos_PQ.Normalized();
   const auto force_W = T * axis_W;
-  link_->AddWorldForce(ecm, force_W, B_Pos_BQ_);
+  link_.AddWorldForce(ecm, force_W, B_Pos_BQ_);
 
   // Update the line marker for visualization.
   if (rate_manager_.update(info.simTime)) {

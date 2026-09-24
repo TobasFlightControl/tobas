@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include <optional>
-
 #include <gz/sim/Joint.hh>
 #include <gz/sim/Model.hh>
 #include <gz/sim/components/JointAxis.hh>
@@ -47,7 +45,7 @@ private:
   double time_const_;  // [s]
   double tar_pos_;
 
-  std::optional<gz::sim::Joint> joint_;
+  gz::sim::Joint joint_;
   const cmp::JointPosition* jnt_pos_;
   const cmp::JointAxis* jnt_axis_;
 
@@ -77,8 +75,8 @@ void GazeboJointPositionControllerPlugin::Configure(
 
   // Get joint.
   const auto joint_entity = model.JointByName(ecm, joint_name);
-  joint_.emplace(joint_entity);
-  if (!joint_->Valid(ecm)) {
+  joint_ = gz::sim::Joint(joint_entity);
+  if (!joint_.Valid(ecm)) {
     TOBAS_EXIT("Failed to find joint '", joint_name, "'.");
   }
 
@@ -88,7 +86,7 @@ void GazeboJointPositionControllerPlugin::Configure(
 
   // Reset joint position.
   tar_pos_ = getSdfParam<double>(sdf, "homePosition");
-  joint_->ResetPosition(ecm, { tar_pos_ });
+  joint_.ResetPosition(ecm, { tar_pos_ });
 
   // Configure the controller.
   time_const_ = getSdfParam<double>(sdf, "timeConstant", kPositive);
@@ -101,7 +99,7 @@ void GazeboJointPositionControllerPlugin::PreUpdate(const gz::sim::UpdateInfo&, 
 {
   const auto& cur_pos = jnt_pos_->Data().at(0);
   const auto tar_vel = (tar_pos_ - cur_pos) / time_const_;
-  joint_->SetVelocity(ecm, { tar_vel });  // This generates torque on the joint.
+  joint_.SetVelocity(ecm, { tar_vel });  // This generates torque on the joint.
 }
 
 void GazeboJointPositionControllerPlugin::commandCb(const tobas_gazebo_msgs::msg::JointCommand::ConstSharedPtr& cmd)

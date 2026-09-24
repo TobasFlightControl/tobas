@@ -110,7 +110,7 @@ void IceRotorModel::applyWrench(
   const auto axis_W = R_W_L.RotateVector(axis_L);
 
   // Coriolis moment (Gyro effect)
-  const auto I_W = *link_->WorldInertiaMatrix(ecm);  // Assume the center of gravity lies on the rotation axis.
+  const auto I_W = *link_.WorldInertiaMatrix(ecm);  // Assume the center of gravity lies on the rotation axis.
   const auto L_W = I_W * (getVelocity(engine_speed) * axis_W);  // Angular momentum of the propeller.
   const auto coriolis_moment_W = -angvel_W_->Data().Cross(L_W);
 
@@ -126,14 +126,14 @@ void IceRotorModel::applyWrench(
   const auto drag_moment_W = (-direction_ * getTorque(engine_speed)) * axis_W;
 
   // Apply wrench.
-  link_->AddWorldWrench(ecm, thrust_force_W + h_force_W, gz::math::Vector3d::Zero);
-  parent_link_->AddWorldWrench(ecm, gz::math::Vector3d::Zero, coriolis_moment_W + drag_moment_W);  // No inertial force.
+  link_.AddWorldWrench(ecm, thrust_force_W + h_force_W, gz::math::Vector3d::Zero);
+  parent_link_.AddWorldWrench(ecm, gz::math::Vector3d::Zero, coriolis_moment_W + drag_moment_W);  // No inertial force.
 }
 
 void IceRotorModel::updateJointPosition(gz::sim::EntityComponentManager& ecm, const double& engine_pos)
 {
   const auto pos = engine_pos / gear_ratio_ * direction_;
-  joint_->ResetPosition(ecm, { pos / kRotorSpeedSlowdownSim });
+  joint_.ResetPosition(ecm, { pos / kRotorSpeedSlowdownSim });
 }
 
 void IceRotorModel::step(const double& dt)
@@ -225,18 +225,18 @@ bool IceRotorModel::initializeGazeboObjects(gz::sim::EntityComponentManager& ecm
 {
   // Get joint.
   const auto joint_entity = findJointWithChildLink(ecm, link_name_);
-  if (!joint_entity) {
+  if (joint_entity == gz::sim::kNullEntity) {
     gzerr << "Failed to find the parent joint of rotor link '" << link_name_ << "'." << std::endl;
     return false;
   }
-  joint_.emplace(*joint_entity);
-  if (!joint_->Valid(ecm)) {
+  joint_ = gz::sim::Joint(joint_entity);
+  if (!joint_.Valid(ecm)) {
     gzerr << "Failed to find rotor link '" << link_name_ << "'." << std::endl;
     return false;
   }
 
   // Check joint type.
-  const auto joint_type = joint_->Type(ecm);
+  const auto joint_type = joint_.Type(ecm);
   if (!joint_type) {
     gzerr << "Failed to get the joint type of '" << link_name_ << "'." << std::endl;
     return false;
@@ -248,28 +248,28 @@ bool IceRotorModel::initializeGazeboObjects(gz::sim::EntityComponentManager& ecm
 
   // Get child link.
   const auto link_entity = model.LinkByName(ecm, link_name_);
-  link_.emplace(link_entity);
-  if (!link_->Valid(ecm)) {
+  link_ = gz::sim::Link(link_entity);
+  if (!link_.Valid(ecm)) {
     gzerr << "Failed to find the child link '" << link_name_ << "'." << std::endl;
     return false;
   }
 
   // Get parent link.
-  const auto parent_link_name = joint_->ParentLinkName(ecm);
+  const auto parent_link_name = joint_.ParentLinkName(ecm);
   if (!parent_link_name) {
     gzerr << "Failed to get the parent link name of '" << link_name_ << "'." << std::endl;
     return false;
   }
   const auto parent_link_entity = model.LinkByName(ecm, *parent_link_name);
-  parent_link_.emplace(parent_link_entity);
-  if (!parent_link_->Valid(ecm)) {
+  parent_link_ = gz::sim::Link(parent_link_entity);
+  if (!parent_link_.Valid(ecm)) {
     gzerr << "Failed to find the parent link '" << *parent_link_name << "'." << std::endl;
     return false;
   }
 
   // Create necessary components.
-  TOBAS_CHECK(jnt_axis_ = getComponent<cmp::JointAxis>(*joint_entity, ecm));
-  TOBAS_CHECK(jnt_vel_ = getComponent<cmp::JointVelocity>(*joint_entity, ecm));
+  TOBAS_CHECK(jnt_axis_ = getComponent<cmp::JointAxis>(joint_entity, ecm));
+  TOBAS_CHECK(jnt_vel_ = getComponent<cmp::JointVelocity>(joint_entity, ecm));
   TOBAS_CHECK(pose_W_ = getComponent<cmp::WorldPose>(link_entity, ecm));
   TOBAS_CHECK(linvel_W_ = getComponent<cmp::WorldLinearVelocity>(link_entity, ecm));
   TOBAS_CHECK(angvel_W_ = getComponent<cmp::WorldAngularVelocity>(link_entity, ecm));
