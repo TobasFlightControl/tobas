@@ -98,7 +98,7 @@ void GazeboFixedLoadPlugin::Configure(
 {
   initialize("gazebo_fixed_load_plugin", sdf);
 
-  world_entity_ = gz::sim::worldEntity(model_entity, ecm);
+  world_entity_ = gz::sim::worldEntity(ecm);
   if (world_entity_ == gz::sim::kNullEntity) {
     TOBAS_EXIT("Failed to find the world entity.");
   }

@@ -110,7 +110,7 @@ void GazeboSuspendedLoadPlugin::Configure(
   // Keep SDF parameters minimal so values can be adjusted from the GUI.
   const auto link_name = getSdfParam<std::string>(sdf, "linkName");
 
-  world_ = gz::sim::World(gz::sim::worldEntity(model_entity, ecm));
+  world_ = gz::sim::World(gz::sim::worldEntity(ecm));
   const auto world_name = world_.Name(ecm);
   if (!world_name) {
     TOBAS_EXIT("Failed to get the world name.");

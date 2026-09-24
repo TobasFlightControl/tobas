@@ -148,7 +148,7 @@ void GazeboImuPlugin::Configure(
     TOBAS_EXIT("Failed to find specified link '", link_name_, "'.");
   }
 
-  const auto world = gz::sim::worldEntity(model_entity, ecm);
+  const auto world = gz::sim::worldEntity(ecm);
   if (world == gz::sim::kNullEntity) {
     TOBAS_EXIT("Failed to get the world component.");
   }
