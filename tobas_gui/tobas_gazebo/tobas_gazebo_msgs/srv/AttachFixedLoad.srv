@@ -2,7 +2,7 @@
 # Copyright (C) 2026 Tobas, Inc.
 
 geometry_msgs/Pose load_pose     # Pose of the load's center of mass relative to the attachment link
-geometry_msgs/Vector3 load_size  # Positive box dimensions along the load frame's x, y, z axes [m]
+geometry_msgs/Vector3 load_size  # Box dimensions along the load frame's x, y, z axes [m]
 float64 load_mass                # Mass of the load [kg]
 ---
 bool success

@@ -260,7 +260,9 @@ void GazeboSuspendedLoadPlugin::attachLoadCb(
     return;
   }
 
-  if (req->load_sx <= 0.0 || req->load_sy <= 0.0 || req->load_sz <= 0.0) {
+  const auto& size = req->load_size;
+
+  if (size.x <= 0.0 || size.y <= 0.0 || size.z <= 0.0) {
     res->success = false;
     res->message = "Load dimensions must be positive.";
     return;
@@ -286,7 +288,7 @@ void GazeboSuspendedLoadPlugin::attachLoadCb(
     return;
   }
 
-  const auto sz_2 = req->load_sz / 2;
+  const auto sz_2 = size.z / 2;
 
   // Increment the index to avoid duplicate model names.
   ++load_index_;
@@ -302,7 +304,7 @@ void GazeboSuspendedLoadPlugin::attachLoadCb(
     W_Pos_WP.Z() - req->cable_length - sz_2, sz_2);  // Lower by the cable length, but keep it above the ground.
 
   gz::msgs::EntityFactory gzreq;
-  gzreq.set_sdf(makeBoxSdf(loadName(), req->load_sx, req->load_sy, req->load_sz, req->load_mass, px, py, pz));
+  gzreq.set_sdf(makeBoxSdf(loadName(), size.x, size.y, size.z, req->load_mass, px, py, pz));
   gzreq.set_allow_renaming(true);
 
   gz::msgs::Boolean gzrep;
@@ -328,7 +330,7 @@ void GazeboSuspendedLoadPlugin::attachLoadCb(
   vectorRosToGazebo(req->attachment_point, B_Pos_BP_);
   L_Pos_LQ_.Set(0.0, 0.0, sz_2);  // Assume the cable is attached to the center of the cuboid top face.
   load_mass_ = req->load_mass;
-  load_inertia_ = boxInertia(req->load_sx, req->load_sy, req->load_sz, req->load_mass).Moi();
+  load_inertia_ = boxInertia(size.x, size.y, size.z, req->load_mass).Moi();
   cable_length_ = req->cable_length;
   cable_young_ = req->cable_young_modulus;
   cable_csa_ = req->cable_cross_sectional_area;

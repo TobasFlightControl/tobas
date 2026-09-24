@@ -1,10 +1,8 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright (C) 2026 Tobas, Inc.
 
-geometry_msgs/Vector3 attachment_point  # [m] Attachment point on the aircraft wrt. the local frame
-float64 load_sx                         # [m]
-float64 load_sy                         # [m]
-float64 load_sz                         # [m]
+geometry_msgs/Vector3 attachment_point  # Attachment point on the aircraft wrt. the local frame [m]
+geometry_msgs/Vector3 load_size         # Box dimensions along the load frame's x, y, z axes [m]
 float64 load_mass                       # [kg]
 float64 cable_length                    # [m]
 float64 cable_young_modulus             # [Pa]

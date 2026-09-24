@@ -117,9 +117,7 @@ void SuspendedLoadWidget::onAttachRequested()
 {
   const auto req = std::make_shared<AttachSrv::Request>();
   tf::vectorEigenToMsg(attach_point_->vector(), req->attachment_point);
-  req->load_sx = load_size_->x();
-  req->load_sy = load_size_->y();
-  req->load_sz = load_size_->z();
+  tf::vectorEigenToMsg(load_size_->vector(), req->load_size);
   req->load_mass = load_mass_->value();
   req->cable_length = cable_length_->value();
   req->cable_young_modulus = cable_young_->value() * 1e+6;
