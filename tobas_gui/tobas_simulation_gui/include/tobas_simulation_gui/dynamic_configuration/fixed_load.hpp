@@ -6,13 +6,12 @@
 #include <optional>
 
 #include <tobas_qt_tools/widgets/double_spin_box.hpp>
-#include <tobas_qt_tools/widgets/spin_box.hpp>
 #include <tobas_qt_tools/widgets/toggle_button.hpp>
 #include <tobas_qt_tools/widgets/vector3d_edit_vertical.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
 
-#include <tobas_gazebo_msgs/srv/attach_suspended_load.hpp>
-#include <tobas_gazebo_msgs/srv/detach_suspended_load.hpp>
+#include <tobas_gazebo_msgs/srv/attach_fixed_load.hpp>
+#include <tobas_gazebo_msgs/srv/detach_fixed_load.hpp>
 
 namespace tobas
 {
@@ -20,16 +19,16 @@ namespace gui
 {
 namespace sim
 {
-class SuspendedLoadWidget : public QWidget
+class FixedLoadWidget : public QWidget
 {
   Q_OBJECT
 
-  using self = SuspendedLoadWidget;
-  using AttachSrv = tobas_gazebo_msgs::srv::AttachSuspendedLoad;
-  using DetachSrv = tobas_gazebo_msgs::srv::DetachSuspendedLoad;
+  using self = FixedLoadWidget;
+  using AttachSrv = tobas_gazebo_msgs::srv::AttachFixedLoad;
+  using DetachSrv = tobas_gazebo_msgs::srv::DetachFixedLoad;
 
 public:
-  explicit SuspendedLoadWidget();
+  explicit FixedLoadWidget();
 
   void reset();
   void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
@@ -41,12 +40,10 @@ private:
 
   qt::ToggleButton* attach_detach_btn_;
 
-  qt::Vector3dEditVertical* attach_point_;
+  qt::Vector3dEditVertical* load_position_;
+  qt::Vector3dEditVertical* load_angle_;
   qt::Vector3dEditVertical* load_size_;
   qt::DoubleSpinBox* load_mass_;
-  qt::DoubleSpinBox* cable_length_;
-  qt::SpinBox* cable_young_;
-  qt::SpinBox* cable_csa_;
 
   void setParamsToDefault();
 

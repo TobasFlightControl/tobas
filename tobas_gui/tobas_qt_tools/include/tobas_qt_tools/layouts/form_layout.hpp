@@ -24,7 +24,13 @@ public:
   void addVAlignedRow(QWidget* label, QWidget* field);
 
   /* Add a row with the label centered on the left. */
+  void addVAlignedRow(QWidget* label, QLayout* field);
+
+  /* Add a row with the label centered on the left. */
   void addVAlignedRow(const QString& label_text, QWidget* field);
+
+  /* Add a row with the label centered on the left. */
+  void addVAlignedRow(const QString& label_text, QLayout* field);
 
   /* Add an expanding stretch. */
   void addStretch();
