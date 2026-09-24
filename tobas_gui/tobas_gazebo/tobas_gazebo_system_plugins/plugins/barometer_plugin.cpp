@@ -3,9 +3,7 @@
 
 #include <optional>
 
-#include <gz/sim/components/Link.hh>
-#include <gz/sim/components/Name.hh>
-#include <gz/sim/components/ParentEntity.hh>
+#include <gz/sim/Model.hh>
 #include <gz/sim/components/Pose.hh>
 
 #include <tobas_constants/ros_interface.hpp>
@@ -34,7 +32,7 @@ public:
   explicit GazeboBarometerPlugin();
 
   void Configure(
-    const gz::sim::Entity& model,
+    const gz::sim::Entity& model_entity,
     const sdf::ElementConstPtr& sdf,
     gz::sim::EntityComponentManager& ecm,
     gz::sim::EventManager&) override;
@@ -60,7 +58,7 @@ GazeboBarometerPlugin::GazeboBarometerPlugin() : rnd_gen_(rnd_dev_())
 }
 
 void GazeboBarometerPlugin::Configure(
-  const gz::sim::Entity& model,
+  const gz::sim::Entity& model_entity,
   const sdf::ElementConstPtr& sdf,
   gz::sim::EntityComponentManager& ecm,
   gz::sim::EventManager&)
@@ -75,13 +73,14 @@ void GazeboBarometerPlugin::Configure(
   }
   alt_0_ = sc->ElevationReference();
 
+  const gz::sim::Model model(model_entity);
   const auto link_name = getSdfParam<std::string>(sdf, "linkName");
-  const auto link = ecm.EntityByComponents(cmp::Link(), cmp::ParentEntity(model), cmp::Name(link_name));
-  if (link == gz::sim::kNullEntity) {
+  const auto link_enitty = model.LinkByName(ecm, link_name);
+  if (link_enitty == gz::sim::kNullEntity) {
     TOBAS_EXIT("Failed to find specified link '", link_name, "'.");
   }
 
-  pose_W_ = getComponent<cmp::WorldPose>(link, ecm);
+  pose_W_ = getComponent<cmp::WorldPose>(link_enitty, ecm);
 
   const auto update_rate = getSdfParam<int>(sdf, "updateRate", kNonNegative);
   rate_manager_.emplace(update_rate);

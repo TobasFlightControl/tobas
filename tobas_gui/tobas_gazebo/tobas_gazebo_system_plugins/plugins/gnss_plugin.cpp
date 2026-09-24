@@ -4,11 +4,9 @@
 #include <atomic>
 #include <optional>
 
+#include <gz/sim/Model.hh>
 #include <gz/sim/components/AngularVelocity.hh>
 #include <gz/sim/components/LinearVelocity.hh>
-#include <gz/sim/components/Link.hh>
-#include <gz/sim/components/Name.hh>
-#include <gz/sim/components/ParentEntity.hh>
 #include <gz/sim/components/Pose.hh>
 
 #include <tobas_constants/ros_interface.hpp>
@@ -51,7 +49,7 @@ public:
   explicit GazeboGnssPlugin();
 
   void Configure(
-    const gz::sim::Entity& model,
+    const gz::sim::Entity& model_entity,
     const sdf::ElementConstPtr& sdf,
     gz::sim::EntityComponentManager& ecm,
     gz::sim::EventManager&) override;
@@ -117,7 +115,7 @@ GazeboGnssPlugin::GazeboGnssPlugin()
 }
 
 void GazeboGnssPlugin::Configure(
-  const gz::sim::Entity& model,
+  const gz::sim::Entity& model_entity,
   const sdf::ElementConstPtr& sdf,
   gz::sim::EntityComponentManager& ecm,
   gz::sim::EventManager&)
@@ -136,14 +134,15 @@ void GazeboGnssPlugin::Configure(
   lon_0_ = sc->LongitudeReference().Degree();
   alt_0_ = sc->ElevationReference();
 
-  const auto link = ecm.EntityByComponents(cmp::Link(), cmp::ParentEntity(model), cmp::Name(link_name_));
-  if (link == gz::sim::kNullEntity) {
+  const gz::sim::Model model(model_entity);
+  const auto link_entity = model.LinkByName(ecm, link_name_);
+  if (link_entity == gz::sim::kNullEntity) {
     TOBAS_EXIT("Failed to find specified link '", link_name_, "'.");
   }
 
-  pose_W_ = getComponent<cmp::WorldPose>(link, ecm);
-  vel_W_ = getComponent<cmp::WorldLinearVelocity>(link, ecm);
-  gyro_B_ = getComponent<cmp::AngularVelocity>(link, ecm);
+  pose_W_ = getComponent<cmp::WorldPose>(link_entity, ecm);
+  vel_W_ = getComponent<cmp::WorldLinearVelocity>(link_entity, ecm);
+  gyro_B_ = getComponent<cmp::AngularVelocity>(link_entity, ecm);
 
   gnss_pub_ = createPublisher<tobas_msgs::Gnss>(topic::kGnss);
   lose_fix_ss_ = createService<LoseFixSrv>(kLoseGnssFixSrv, &self::loseFixCb, this);

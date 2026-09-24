@@ -3,9 +3,7 @@
 
 #include <optional>
 
-#include <gz/sim/components/Link.hh>
-#include <gz/sim/components/Name.hh>
-#include <gz/sim/components/ParentEntity.hh>
+#include <gz/sim/Model.hh>
 #include <gz/sim/components/Pose.hh>
 
 #include <tobas_constants/ros_interface.hpp>
@@ -42,7 +40,7 @@ public:
   explicit GazeboMagnetometerPlugin();
 
   void Configure(
-    const gz::sim::Entity& model,
+    const gz::sim::Entity& model_entity,
     const sdf::ElementConstPtr& sdf,
     gz::sim::EntityComponentManager& ecm,
     gz::sim::EventManager&) override;
@@ -82,7 +80,7 @@ GazeboMagnetometerPlugin::GazeboMagnetometerPlugin()
 }
 
 void GazeboMagnetometerPlugin::Configure(
-  const gz::sim::Entity& model,
+  const gz::sim::Entity& model_entity,
   const sdf::ElementConstPtr& sdf,
   gz::sim::EntityComponentManager& ecm,
   gz::sim::EventManager&)
@@ -100,12 +98,13 @@ void GazeboMagnetometerPlugin::Configure(
   lon_0_ = sc->LongitudeReference().Degree();
   alt_0_ = sc->ElevationReference();
 
-  const auto link = ecm.EntityByComponents(cmp::Link(), cmp::ParentEntity(model), cmp::Name(link_name_));
-  if (link == gz::sim::kNullEntity) {
+  const gz::sim::Model model(model_entity);
+  const auto link_entity = model.LinkByName(ecm, link_name_);
+  if (link_entity == gz::sim::kNullEntity) {
     TOBAS_EXIT("Failed to find specified link '", link_name_, "'.");
   }
 
-  pose_W_ = getComponent<cmp::WorldPose>(link, ecm);
+  pose_W_ = getComponent<cmp::WorldPose>(link_entity, ecm);
 
   hard_bias_ = createUnitSpherePoint(rnd_dev_) * hard_bias_norm_;
 

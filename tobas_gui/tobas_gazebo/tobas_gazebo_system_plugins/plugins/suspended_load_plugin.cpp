@@ -4,12 +4,11 @@
 #include <gz/msgs/entity_factory.pb.h>
 #include <gz/msgs/marker.pb.h>
 #include <gz/sim/Link.hh>
+#include <gz/sim/Model.hh>
+#include <gz/sim/Util.hh>
+#include <gz/sim/World.hh>
 #include <gz/sim/components/AngularVelocity.hh>
 #include <gz/sim/components/LinearVelocity.hh>
-#include <gz/sim/components/Link.hh>
-#include <gz/sim/components/Model.hh>
-#include <gz/sim/components/Name.hh>
-#include <gz/sim/components/ParentEntity.hh>
 #include <gz/sim/components/Pose.hh>
 #include <gz/transport/Node.hh>
 
@@ -26,7 +25,6 @@
 #include "tobas_gazebo_system_plugins/inertia.hpp"
 #include "tobas_gazebo_system_plugins/rate_manager.hpp"
 #include "tobas_gazebo_system_plugins/sdf_string.hpp"
-#include "tobas_gazebo_system_plugins/world.hpp"
 
 namespace cmp = gz::sim::components;
 
@@ -47,7 +45,7 @@ public:
   explicit GazeboSuspendedLoadPlugin();
 
   void Configure(
-    const gz::sim::Entity& model,
+    const gz::sim::Entity& model_entity,
     const sdf::ElementConstPtr& sdf,
     gz::sim::EntityComponentManager& ecm,
     gz::sim::EventManager&) override;
@@ -76,6 +74,7 @@ private:
   const cmp::WorldLinearVelocity* W_Vel_WL_ = nullptr;
   const cmp::WorldAngularVelocity* W_Gyro_WL_ = nullptr;
 
+  gz::sim::World world_;
   std::string world_name_;
   ModelMassHolder mass_holder_;
   RateManager rate_manager_;
@@ -111,13 +110,15 @@ void GazeboSuspendedLoadPlugin::Configure(
   // Keep SDF parameters minimal so values can be adjusted from the GUI.
   const auto link_name = getSdfParam<std::string>(sdf, "linkName");
 
-  const auto world_name = getWorldName(ecm);
+  world_ = gz::sim::World(gz::sim::worldEntity(model_entity, ecm));
+  const auto world_name = world_.Name(ecm);
   if (!world_name) {
-    TOBAS_EXIT("Failed to get the world name: ", world_name.error());
+    TOBAS_EXIT("Failed to get the world name.");
   }
   world_name_ = *world_name;
 
-  const auto link_entity = ecm.EntityByComponents(cmp::Link(), cmp::ParentEntity(model_entity), cmp::Name(link_name));
+  const gz::sim::Model model(model_entity);
+  const auto link_entity = model.LinkByName(ecm, link_name);
   base_link_ = gz::sim::Link(link_entity);
   if (!base_link_.Valid(ecm)) {
     TOBAS_EXIT("Failed to find the specified link '", link_name, "'.");
@@ -156,8 +157,8 @@ void GazeboSuspendedLoadPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::s
   }
 
   // Make the load state accessible.
-  if (load_link_.Valid(ecm)) {
-    const auto model_entity = ecm.EntityByComponents(cmp::Model(), cmp::Name(loadName()));
+  if (!load_link_.Valid(ecm)) {
+    const auto model_entity = world_.ModelByName(ecm, loadName());
     if (model_entity == gz::sim::kNullEntity) {
       return;
     }

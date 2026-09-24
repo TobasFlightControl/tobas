@@ -3,11 +3,9 @@
 
 #include <gz/msgs/marker.pb.h>
 #include <gz/sim/Link.hh>
+#include <gz/sim/Model.hh>
 #include <gz/sim/components/AngularVelocity.hh>
 #include <gz/sim/components/LinearVelocity.hh>
-#include <gz/sim/components/Link.hh>
-#include <gz/sim/components/Name.hh>
-#include <gz/sim/components/ParentEntity.hh>
 #include <gz/sim/components/Pose.hh>
 #include <gz/transport/Node.hh>
 
@@ -102,7 +100,8 @@ void GazeboTetherStationPlugin::Configure(
   params_.tension = init_tension_;
   params_.maximum_length = init_max_length_;
 
-  const auto link_entity = ecm.EntityByComponents(cmp::Link(), cmp::ParentEntity(model_entity), cmp::Name(link_name_));
+  const gz::sim::Model model(model_entity);
+  const auto link_entity = model.LinkByName(ecm, link_name_);
   link_ = gz::sim::Link(link_entity);
   if (!link_.Valid(ecm)) {
     TOBAS_EXIT("Failed to find the specified link '", link_name_, "'.");

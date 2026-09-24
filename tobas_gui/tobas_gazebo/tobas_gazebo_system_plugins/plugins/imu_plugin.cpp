@@ -4,15 +4,13 @@
 #include <cmath>
 #include <optional>
 
+#include <gz/sim/Model.hh>
+#include <gz/sim/Util.hh>
 #include <gz/sim/components/AngularAcceleration.hh>
 #include <gz/sim/components/AngularVelocity.hh>
 #include <gz/sim/components/Gravity.hh>
 #include <gz/sim/components/LinearAcceleration.hh>
-#include <gz/sim/components/Link.hh>
-#include <gz/sim/components/Name.hh>
-#include <gz/sim/components/ParentEntity.hh>
 #include <gz/sim/components/Pose.hh>
-#include <gz/sim/components/World.hh>
 
 #include <tobas_constants/imu.hpp>
 #include <tobas_constants/ros_interface.hpp>
@@ -61,7 +59,7 @@ public:
   explicit GazeboImuPlugin();
 
   void Configure(
-    const gz::sim::Entity& model,
+    const gz::sim::Entity& model_entity,
     const sdf::ElementConstPtr& sdf,
     gz::sim::EntityComponentManager& ecm,
     gz::sim::EventManager&) override;
@@ -133,7 +131,7 @@ GazeboImuPlugin::GazeboImuPlugin() : normal_(rnd_dev_, 0.0, 1.0)
 }
 
 void GazeboImuPlugin::Configure(
-  const gz::sim::Entity& model,
+  const gz::sim::Entity& model_entity,
   const sdf::ElementConstPtr& sdf,
   gz::sim::EntityComponentManager& ecm,
   gz::sim::EventManager&)
@@ -145,23 +143,24 @@ void GazeboImuPlugin::Configure(
 
   rate_manager_.emplace(update_rate_);
 
-  const auto link = ecm.EntityByComponents(cmp::Link(), cmp::ParentEntity(model), cmp::Name(link_name_));
-  if (link == gz::sim::kNullEntity) {
+  const gz::sim::Model model(model_entity);
+  const auto link_entity = model.LinkByName(ecm, link_name_);
+  if (link_entity == gz::sim::kNullEntity) {
     TOBAS_EXIT("Failed to find specified link '", link_name_, "'.");
   }
 
-  const auto world = ecm.EntityByComponents(cmp::World());
+  const auto world = gz::sim::worldEntity(model_entity, ecm);
   if (world == gz::sim::kNullEntity) {
     TOBAS_EXIT("Failed to get the world component.");
   }
 
-  TOBAS_CHECK(pose_W_ = getComponent<cmp::WorldPose>(link, ecm));
-  TOBAS_CHECK(acc_B_ = getComponent<cmp::LinearAcceleration>(link, ecm));
-  TOBAS_CHECK(gyro_B_ = getComponent<cmp::AngularVelocity>(link, ecm));
-  TOBAS_CHECK(dgyro_B_ = getComponent<cmp::AngularAcceleration>(link, ecm));
+  TOBAS_CHECK(pose_W_ = getComponent<cmp::WorldPose>(link_entity, ecm));
+  TOBAS_CHECK(acc_B_ = getComponent<cmp::LinearAcceleration>(link_entity, ecm));
+  TOBAS_CHECK(gyro_B_ = getComponent<cmp::AngularVelocity>(link_entity, ecm));
+  TOBAS_CHECK(dgyro_B_ = getComponent<cmp::AngularAcceleration>(link_entity, ecm));
   TOBAS_CHECK(grav_W_ = getComponent<cmp::Gravity>(world, ecm));
 
-  if (!mass_holder_.initialize(model, ecm)) {
+  if (!mass_holder_.initialize(model_entity, ecm)) {
     TOBAS_EXIT("Failed to initialize model mass holder.");
   }
 

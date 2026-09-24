@@ -3,13 +3,11 @@
 
 #include <optional>
 
+#include <gz/sim/Model.hh>
 #include <gz/sim/components/AngularAcceleration.hh>
 #include <gz/sim/components/AngularVelocity.hh>
 #include <gz/sim/components/LinearAcceleration.hh>
 #include <gz/sim/components/LinearVelocity.hh>
-#include <gz/sim/components/Link.hh>
-#include <gz/sim/components/Name.hh>
-#include <gz/sim/components/ParentEntity.hh>
 #include <gz/sim/components/Pose.hh>
 
 #include <tobas_gazebo_common/constants.hpp>
@@ -37,7 +35,7 @@ public:
   explicit GazeboGroundTruthStatePlugin();
 
   void Configure(
-    const gz::sim::Entity& model,
+    const gz::sim::Entity& model_entity,
     const sdf::ElementConstPtr& sdf,
     gz::sim::EntityComponentManager& ecm,
     gz::sim::EventManager&) override;
@@ -61,24 +59,25 @@ GazeboGroundTruthStatePlugin::GazeboGroundTruthStatePlugin()
 }
 
 void GazeboGroundTruthStatePlugin::Configure(
-  const gz::sim::Entity& model,
+  const gz::sim::Entity& model_entity,
   const sdf::ElementConstPtr& sdf,
   gz::sim::EntityComponentManager& ecm,
   gz::sim::EventManager&)
 {
   initialize("gazebo_ground_truth_state_plugin", sdf);
 
+  const gz::sim::Model model(model_entity);
   const auto link_name = getSdfParam<std::string>(sdf, "linkName");
-  const auto link = ecm.EntityByComponents(cmp::Link(), cmp::ParentEntity(model), cmp::Name(link_name));
-  if (link == gz::sim::kNullEntity) {
+  const auto link_enitty = model.LinkByName(ecm, link_name);
+  if (link_enitty == gz::sim::kNullEntity) {
     TOBAS_EXIT("Failed to find specified link '", link_name, "'.");
   }
 
-  pose_W_ = getComponent<cmp::WorldPose>(link, ecm);
-  vel_B_ = getComponent<cmp::LinearVelocity>(link, ecm);
-  gyro_B_ = getComponent<cmp::AngularVelocity>(link, ecm);
-  acc_B_ = getComponent<cmp::LinearAcceleration>(link, ecm);
-  dgyro_B_ = getComponent<cmp::AngularAcceleration>(link, ecm);
+  pose_W_ = getComponent<cmp::WorldPose>(link_enitty, ecm);
+  vel_B_ = getComponent<cmp::LinearVelocity>(link_enitty, ecm);
+  gyro_B_ = getComponent<cmp::AngularVelocity>(link_enitty, ecm);
+  acc_B_ = getComponent<cmp::LinearAcceleration>(link_enitty, ecm);
+  dgyro_B_ = getComponent<cmp::AngularAcceleration>(link_enitty, ecm);
 
   const auto update_rate = getSdfParam<int>(sdf, "updateRate", 0, kNonNegative);
   rate_manager_.emplace(update_rate);

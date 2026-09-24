@@ -12,10 +12,7 @@
 #include <gz/sim/SdfEntityCreator.hh>
 #include <gz/sim/Util.hh>
 #include <gz/sim/components/DetachableJoint.hh>
-#include <gz/sim/components/Model.hh>
-#include <gz/sim/components/Name.hh>
 #include <gz/sim/components/Pose.hh>
-#include <gz/sim/components/World.hh>
 
 #include <tobas_gazebo_common/constants.hpp>
 #include <tobas_gazebo_conversions/gazebo_ros.hpp>
@@ -72,8 +69,8 @@ public:
 
 private:
   std::optional<gz::sim::SdfEntityCreator> creator_;
-  gz::sim::Entity world_entity_;
-  gz::sim::Link base_link_;
+  gz::sim::Entity world_entity_ = gz::sim::kNullEntity;
+  gz::sim::Entity link_entity_ = gz::sim::kNullEntity;
   gz::sim::Entity joint_entity_ = gz::sim::kNullEntity;
 
   std::mutex mutex_;
@@ -101,19 +98,15 @@ void GazeboFixedLoadPlugin::Configure(
 {
   initialize("gazebo_fixed_load_plugin", sdf);
 
-  world_entity_ = ecm.EntityByComponents(cmp::World());
+  world_entity_ = gz::sim::worldEntity(model_entity, ecm);
   if (world_entity_ == gz::sim::kNullEntity) {
     TOBAS_EXIT("Failed to find the world entity.");
   }
 
   const gz::sim::Model model(model_entity);
-  if (!model.Valid(ecm)) {
-    TOBAS_EXIT("Failed to find model.");
-  }
-
   const auto link_name = getSdfParam<std::string>(sdf, "linkName");
-  base_link_ = gz::sim::Link(model.LinkByName(ecm, link_name));
-  if (!base_link_.Valid(ecm)) {
+  link_entity_ = model.LinkByName(ecm, link_name);
+  if (link_entity_ == gz::sim::kNullEntity) {
     TOBAS_EXIT("Failed to find the specified link '", link_name, "'.");
   }
 
@@ -186,11 +179,11 @@ bool GazeboFixedLoadPlugin::attachLoad(
   // W: world frame, B: attachment link frame, L: load frame centered at its center of mass.
   gz::math::Pose3d T_B_L;
   gazebo::poseRosToGazebo(req.load_pose, T_B_L);
-  const auto T_W_B = gz::sim::worldPose(base_link_.Entity(), ecm);
+  const auto T_W_B = gz::sim::worldPose(link_entity_, ecm);
   const auto T_W_L = T_W_B * T_B_L;
 
   // Include the attachment link entity to distinguish loads from different aircraft.
-  const auto load_name = "fixed_load_" + std::to_string(base_link_.Entity()) + "_" + std::to_string(load_index_++);
+  const auto load_name = "fixed_load_" + std::to_string(link_entity_) + "_" + std::to_string(load_index_++);
 
   // Generate and parse the SDF for a uniform box.
   sdf::Root root;
@@ -223,7 +216,7 @@ bool GazeboFixedLoadPlugin::attachLoad(
   // including rotation about the offset. Do not leave velocity command components:
   // Gazebo would keep applying them and prevent free fall after detachment.
   joint_entity_ = ecm.CreateEntity();
-  ecm.CreateComponent(joint_entity_, cmp::DetachableJoint({ base_link_.Entity(), load_link.Entity(), "fixed" }));
+  ecm.CreateComponent(joint_entity_, cmp::DetachableJoint({ link_entity_, load_link.Entity(), "fixed" }));
 
   return true;
 }

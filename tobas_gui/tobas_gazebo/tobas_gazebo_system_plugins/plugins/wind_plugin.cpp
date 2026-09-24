@@ -1,10 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <gz/sim/Model.hh>
 #include <gz/sim/components/LinearVelocity.hh>
-#include <gz/sim/components/Link.hh>
-#include <gz/sim/components/Name.hh>
-#include <gz/sim/components/ParentEntity.hh>
 #include <gz/sim/components/Pose.hh>
 
 #include <tobas_constants/frame.hpp>
@@ -49,7 +47,7 @@ public:
   explicit GazeboWindPlugin();
 
   void Configure(
-    const gz::sim::Entity& model,
+    const gz::sim::Entity& model_entity,
     const sdf::ElementConstPtr& sdf,
     gz::sim::EntityComponentManager& ecm,
     gz::sim::EventManager&) override;
@@ -86,21 +84,22 @@ GazeboWindPlugin::GazeboWindPlugin()
 }
 
 void GazeboWindPlugin::Configure(
-  const gz::sim::Entity& model,
+  const gz::sim::Entity& model_entity,
   const sdf::ElementConstPtr& sdf,
   gz::sim::EntityComponentManager& ecm,
   gz::sim::EventManager&)
 {
   initialize("gazebo_wind_plugin", sdf);
 
+  const gz::sim::Model model(model_entity);
   const auto link_name = getSdfParam<std::string>(sdf, "linkName");
-  const auto link = ecm.EntityByComponents(cmp::Link(), cmp::ParentEntity(model), cmp::Name(link_name));
-  if (link == gz::sim::kNullEntity) {
+  const auto link_entity = model.LinkByName(ecm, link_name);
+  if (link_entity == gz::sim::kNullEntity) {
     TOBAS_EXIT("Failed to find specified link '", link_name, "'.");
   }
 
-  pose_W_ = getComponent<cmp::WorldPose>(link, ecm);
-  vel_W_ = getComponent<cmp::WorldLinearVelocity>(link, ecm);
+  pose_W_ = getComponent<cmp::WorldPose>(link_entity, ecm);
+  vel_W_ = getComponent<cmp::WorldLinearVelocity>(link_entity, ecm);
 
   wind_pub_ = createPublisher<tobas_msgs::Wind>(kWindGtTopic);
   get_params_ss_ = createService<GetSrv>(kGetWindParamsSrv, &self::getParamsCb, this);
