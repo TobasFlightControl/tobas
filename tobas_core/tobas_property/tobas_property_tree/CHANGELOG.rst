@@ -2,8 +2,8 @@
 Changelog for package tobas_property_tree
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.16.3 (2026-09-25)
+-------------------
 * fix: Backport remaining Jenkins build fixes
   Backport the six fix/jenkin-build commits from 978fce779 through
   90e093ae3, merged into rolling by 6042bef53.
