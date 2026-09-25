@@ -2,6 +2,18 @@
 Changelog for package tobas_gazebo_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* fix: Backport remaining Jenkins build fixes
+  Backport the six fix/jenkin-build commits from 978fce779 through
+  90e093ae3, merged into rolling by 6042bef53.
+  Declare Eigen, Qt and Boost dependencies, remove the unused OpenBLAS
+  and Boost array dependencies, and replace Boost polymorphic casts
+  with standard C++ casts.
+  Preserve Jazzy-specific code and apply the property-tree change at
+  its existing package location.
+* Contributors: Masayoshi Dohi
+
 2.16.2 (2026-09-22)
 -------------------
 * revert version

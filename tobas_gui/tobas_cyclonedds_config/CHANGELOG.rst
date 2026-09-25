@@ -2,6 +2,9 @@
 Changelog for package tobas_cyclonedds_config
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 2.16.2 (2026-09-22)
 -------------------
 * revert version

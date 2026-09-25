@@ -2,6 +2,9 @@
 Changelog for package tobas_simulation_gui
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 2.16.2 (2026-09-22)
 -------------------
 * revert version
