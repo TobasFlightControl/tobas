@@ -8,6 +8,8 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
+  <depend>qtbase5-dev</depend>
+
   <depend>tobas_path_tools</depend>
   <depend>tobas_ros2_tools</depend>
   <depend>tobas_constants</depend>
