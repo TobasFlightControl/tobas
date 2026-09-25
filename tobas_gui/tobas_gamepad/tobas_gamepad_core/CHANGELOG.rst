@@ -2,6 +2,11 @@
 Changelog for package tobas_gamepad_core
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Change maintainer
+* Contributors: Masayoshi Dohi
+
 2.16.3 (2026-09-25)
 -------------------
 

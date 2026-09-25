@@ -2,6 +2,9 @@
 Changelog for package tobas_rapidcsv_vendor
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 2.16.3 (2026-09-25)
 -------------------
 

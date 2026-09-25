@@ -2,6 +2,9 @@
 Changelog for package tobas_nonplanar_multi_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 2.16.3 (2026-09-25)
 -------------------
 

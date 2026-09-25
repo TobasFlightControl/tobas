@@ -2,6 +2,9 @@
 Changelog for package tobas_drone_msgs_adapter
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 2.16.3 (2026-09-25)
 -------------------
 * fix: Backport remaining Jenkins build fixes
