@@ -1,8 +1,9 @@
 <package format="3">
+
   <name>tobas_gamepad_ros</name>
   <version>2.16.3</version>
   <description>ROS nodes for tobas_gamepad_core</description>
-  <maintainer email="r.onitsuka@tobas.jp">Ryo Onitsuka</maintainer>
+  <maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
   <license>GPL-3.0-or-later</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
@@ -15,4 +16,5 @@
   <export>
     <build_type>ament_cmake</build_type>
   </export>
+
 </package>
