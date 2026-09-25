@@ -5,8 +5,7 @@
 
 #include <algorithm>
 #include <format>
-
-#include <boost/polymorphic_pointer_cast.hpp>
+#include <memory>
 
 #include <tobas_math/core.hpp>
 #include <tobas_qt_tools/color.hpp>
@@ -51,7 +50,7 @@ void EngineViewerWidget::updateInternalDataStructures()
   reset();
 
   if (drone_.prop->type() == PropulsionSystem::kIce) {
-    iprop_ = boost::polymorphic_pointer_downcast<IcePropulsionSystemConfig>(drone_.prop);
+    iprop_ = std::static_pointer_cast<IcePropulsionSystemConfig>(drone_.prop);
   }
   else {
     iprop_.reset();

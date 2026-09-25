@@ -8,6 +8,8 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
+  <depend>eigen</depend>
+  <depend>qtbase5-dev</depend>
   <depend>ament_index_cpp</depend>
   <depend>tobas_math</depend>
   <depend>tobas_std_tools</depend>

@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <memory>
+
 #include <tobas_constants/pwm_key.hpp>
 #include <tobas_constants/time.hpp>
 #include <tobas_node/node.hpp>
@@ -81,7 +83,7 @@ void IcePropulsionSystemHandlerNode::stopActuator()
 
   // Pitch angles
   for (const auto& [_, rotor] : iprop_->rotors) {
-    const auto irotor = boost::polymorphic_pointer_downcast<IceRotorConfig>(rotor);
+    const auto irotor = std::static_pointer_cast<IceRotorConfig>(rotor);
 
     // Set current pitch angle.
     pitch_angles_.at(irotor->link_name) = irotor->center_pitch;
@@ -127,12 +129,12 @@ void IcePropulsionSystemHandlerNode::droneCb(const Drone::ConstSharedPtr& drone)
   }
 
   drone_ = drone;
-  iprop_ = boost::polymorphic_pointer_downcast<IcePropulsionSystemConfig>(drone->prop);
+  iprop_ = std::static_pointer_cast<IcePropulsionSystemConfig>(drone->prop);
 
   // Initialize pitch angle map.
   pitch_angles_.clear();
   for (const auto& [_, rotor] : iprop_->rotors) {
-    const auto irotor = boost::polymorphic_pointer_downcast<IceRotorConfig>(rotor);
+    const auto irotor = std::static_pointer_cast<IceRotorConfig>(rotor);
     pitch_angles_[irotor->link_name] = irotor->center_pitch;
   }
 
@@ -155,7 +157,7 @@ void IcePropulsionSystemHandlerNode::engineStateCb(const tobas_msgs::msg::Engine
   rotor_states->header.stamp = engine_state->header.stamp;
 
   for (const auto& [link_name, rotor] : iprop_->rotors) {
-    const auto irotor = boost::polymorphic_pointer_downcast<IceRotorConfig>(rotor);
+    const auto irotor = std::static_pointer_cast<IceRotorConfig>(rotor);
 
     rotor_states->states.emplace_back();
     rotor_states->states.back().link_name = link_name;
@@ -202,7 +204,7 @@ void IcePropulsionSystemHandlerNode::iceCommandCb(
       TOBAS_ERROR("Rotor link \"", link_name, "\" is not found.");
       continue;
     }
-    const auto irotor = boost::polymorphic_pointer_downcast<IceRotorConfig>(rotor_it->second);
+    const auto irotor = std::static_pointer_cast<IceRotorConfig>(rotor_it->second);
 
     // Check pitch angle limit.
     if (!irotor->pitch_limit.inRange(cmd_angle)) {

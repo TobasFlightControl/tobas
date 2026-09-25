@@ -8,7 +8,7 @@
 
 	<buildtool_depend>ament_cmake</buildtool_depend>
 
-	<depend>libopenblas-dev</depend>
+	<depend>eigen</depend>
 	<depend>tobas_std_tools</depend>
 
 	<export>

@@ -3,9 +3,8 @@
 
 #include "tobas_actuator_test/rotor_test/rotor_test.hpp"
 
+#include <memory>
 #include <ranges>
-
-#include <boost/polymorphic_pointer_cast.hpp>
 
 #include <tobas_constants/node.hpp>
 #include <tobas_constants/ros_interface.hpp>
@@ -138,7 +137,7 @@ void RotorTestWidget::updateProject(const fs::path& proj_path)
   }
 
   if (drone_.prop->type() == PropulsionSystem::kElectric) {
-    eprop_ = boost::polymorphic_pointer_downcast<ElectricPropulsionSystemConfig>(drone_.prop);
+    eprop_ = std::static_pointer_cast<ElectricPropulsionSystemConfig>(drone_.prop);
 
     // Register motors.
     for (const auto& [link_name, _] : eprop_->rotors) {

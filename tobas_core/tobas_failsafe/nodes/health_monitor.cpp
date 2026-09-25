@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <memory>
+
 #include <tobas_constants/ros_interface.hpp>
 #include <tobas_dsp/low_pass_filter.hpp>
 #include <tobas_math/core.hpp>
@@ -206,7 +208,7 @@ void HealthMonitorNode::battCb(const tobas_msgs::msg::Battery::ConstSharedPtr& b
     return;
   }
 
-  const auto eprop = boost::polymorphic_pointer_downcast<ElectricPropulsionSystemConfig>(drone_->prop);
+  const auto eprop = std::static_pointer_cast<ElectricPropulsionSystemConfig>(drone_->prop);
   if (!eprop) {
     return;
   }
@@ -375,7 +377,7 @@ void HealthMonitorNode::mainTimerCb()
   // Branch by propulsion system type.
   switch (drone_->prop->type()) {
     case PropulsionSystem::kElectric: {
-      const auto eprop = boost::polymorphic_pointer_downcast<ElectricPropulsionSystemConfig>(drone_->prop);
+      const auto eprop = std::static_pointer_cast<ElectricPropulsionSystemConfig>(drone_->prop);
 
       // Battery voltage is above the threshold.
       if (do_check_.battery_voltage) {
@@ -400,7 +402,7 @@ void HealthMonitorNode::mainTimerCb()
       // Ignore unused item.
       health->battery_voltage = tobas_msgs::msg::VehicleHealth::IGNORED;
 
-      const auto iprop = boost::polymorphic_pointer_downcast<IcePropulsionSystemConfig>(drone_->prop);
+      const auto iprop = std::static_pointer_cast<IcePropulsionSystemConfig>(drone_->prop);
       (void)iprop;  // TODO
 
       break;

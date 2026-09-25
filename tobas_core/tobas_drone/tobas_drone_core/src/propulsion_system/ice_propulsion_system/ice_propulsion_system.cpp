@@ -4,8 +4,7 @@
 #include "tobas_drone_core/propulsion_system/ice_propulsion_system/ice_propulsion_system.hpp"
 
 #include <iostream>
-
-#include <boost/polymorphic_pointer_cast.hpp>
+#include <memory>
 
 #include <tobas_constants/throttle.hpp>
 #include <tobas_nlp/newton_1d.hpp>
@@ -184,7 +183,7 @@ double IcePropulsionSystemConfig::calc_k() const
 {
   double res = 0.0;
   for (const auto& [_, rotor] : rotors) {
-    const auto irotor = boost::polymorphic_pointer_downcast<IceRotorConfig>(rotor);
+    const auto irotor = std::static_pointer_cast<IceRotorConfig>(rotor);
     const auto& phi_r = irotor->center_pitch;
     const auto& n = irotor->gear_ratio;
     res += irotor->motorConst(phi_r) * irotor->momentConst(phi_r) / math::cube(n);
@@ -199,7 +198,7 @@ IceRotorConfig::SharedPtr IcePropulsionSystemConfig::getRotor(const std::string&
     std::cerr << "ICE rotor link \"" << link_name << "\" is not found." << std::endl;
     return nullptr;
   }
-  return boost::polymorphic_pointer_downcast<IceRotorConfig>(it->second);
+  return std::static_pointer_cast<IceRotorConfig>(it->second);
 }
 
 IceRotorConfig::ConstSharedPtr IcePropulsionSystemConfig::getRotor(const std::string& link_name) const
@@ -209,6 +208,6 @@ IceRotorConfig::ConstSharedPtr IcePropulsionSystemConfig::getRotor(const std::st
     std::cerr << "ICE rotor link \"" << link_name << "\" is not found." << std::endl;
     return nullptr;
   }
-  return boost::polymorphic_pointer_downcast<IceRotorConfig>(it->second);
+  return std::static_pointer_cast<IceRotorConfig>(it->second);
 }
 }  // namespace tobas

@@ -5,8 +5,7 @@
 
 #include <algorithm>
 #include <format>
-
-#include <boost/polymorphic_pointer_cast.hpp>
+#include <memory>
 
 #include <tobas_math/core.hpp>
 #include <tobas_qt_tools/color.hpp>
@@ -49,7 +48,7 @@ void BatteryViewerWidget::updateInternalDataStructures()
   reset();
 
   if (drone_.prop->type() == PropulsionSystem::kElectric) {
-    eprop_ = boost::polymorphic_pointer_downcast<ElectricPropulsionSystemConfig>(drone_.prop);
+    eprop_ = std::static_pointer_cast<ElectricPropulsionSystemConfig>(drone_.prop);
   }
   else {
     eprop_.reset();

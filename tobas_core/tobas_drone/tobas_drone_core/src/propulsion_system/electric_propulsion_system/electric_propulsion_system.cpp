@@ -4,8 +4,7 @@
 #include "tobas_drone_core/propulsion_system/electric_propulsion_system/electric_propulsion_system.hpp"
 
 #include <iostream>
-
-#include <boost/polymorphic_pointer_cast.hpp>
+#include <memory>
 
 using namespace std;
 
@@ -128,7 +127,7 @@ ElectricRotorConfig::SharedPtr ElectricPropulsionSystemConfig::getRotor(const st
     cerr << "Electric rotor link \"" << link_name << "\" is not found." << endl;
     return nullptr;
   }
-  return boost::polymorphic_pointer_downcast<ElectricRotorConfig>(it->second);
+  return std::static_pointer_cast<ElectricRotorConfig>(it->second);
 }
 
 ElectricRotorConfig::ConstSharedPtr ElectricPropulsionSystemConfig::getRotor(const std::string& link_name) const
@@ -138,6 +137,6 @@ ElectricRotorConfig::ConstSharedPtr ElectricPropulsionSystemConfig::getRotor(con
     cerr << "Electric rotor link \"" << link_name << "\" is not found." << endl;
     return nullptr;
   }
-  return boost::polymorphic_pointer_downcast<ElectricRotorConfig>(it->second);
+  return std::static_pointer_cast<ElectricRotorConfig>(it->second);
 }
 }  // namespace tobas
