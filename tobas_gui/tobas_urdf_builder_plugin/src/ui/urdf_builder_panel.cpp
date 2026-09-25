@@ -3,10 +3,11 @@
 
 #include "tobas_urdf_builder_plugin/ui/urdf_builder_panel.hpp"
 
+#include <cassert>
+
 #include <QDebug>
 #include <QMenu>
 #include <QMessageBox>
-#include <boost/polymorphic_cast.hpp>
 #include <pluginlib/class_list_macros.hpp>
 
 #include "ui_urdf_builder_panel.h"
@@ -239,7 +240,7 @@ void UrdfBuilderPanel::onLinkTreeWidgetItemChanged(QTreeWidgetItem* item, int)
 
   selectLink(item);
 
-  const auto link_item = boost::polymorphic_downcast<LinkTreeWidgetItem*>(item);
+  const auto link_item = dynamic_cast<LinkTreeWidgetItem*>(item);
   const auto link_name = link_item->viewModel()->name().toStdString();
 
   if (item->checkState(0) == Qt::Unchecked) {
@@ -293,7 +294,7 @@ void UrdfBuilderPanel::onRemoveLinkActionToggled(bool)
     return;
   }
 
-  const auto front = boost::polymorphic_downcast<LinkTreeWidgetItem*>(items.front());
+  const auto front = dynamic_cast<LinkTreeWidgetItem*>(items.front());
 
   // Prevent deleting the root link.
   const auto& link = front->viewModel()->model();
@@ -318,7 +319,7 @@ void UrdfBuilderPanel::onCloneLinkActionToggled(bool)
     return;
   }
 
-  const auto front = boost::polymorphic_downcast<LinkTreeWidgetItem*>(items.front());
+  const auto front = dynamic_cast<LinkTreeWidgetItem*>(items.front());
 
   // The root link cannot be duplicated.
   const auto& link = front->viewModel()->model();
@@ -398,7 +399,7 @@ void UrdfBuilderPanel::reloadLinkTree()
   QString selected_link_name = "";
   const auto& selected_items = ui_->LinkTreeWidget->selectedItems();
   if (!selected_items.empty()) {
-    const auto front = boost::polymorphic_downcast<LinkTreeWidgetItem*>(selected_items.front());
+    const auto front = dynamic_cast<LinkTreeWidgetItem*>(selected_items.front());
     selected_link_name = front->viewModel()->name();
   }
 
@@ -466,7 +467,7 @@ void UrdfBuilderPanel::selectLink(QTreeWidgetItem* item)
 
 void UrdfBuilderPanel::reflectSelectedItem(QTreeWidgetItem* item)
 {
-  const auto link_item = boost::polymorphic_downcast<LinkTreeWidgetItem*>(item);
+  const auto link_item = dynamic_cast<LinkTreeWidgetItem*>(item);
   const auto& link_vm = link_item->viewModel();
   const auto link_name = link_vm->name().toStdString();
 

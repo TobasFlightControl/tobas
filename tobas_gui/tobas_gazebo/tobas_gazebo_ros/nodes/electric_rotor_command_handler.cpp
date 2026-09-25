@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include <boost/polymorphic_pointer_cast.hpp>
+#include <memory>
 
 #include <tobas_constants/time.hpp>
 #include <tobas_gazebo_common/constants.hpp>
@@ -58,7 +58,7 @@ void ElectricRotorCommandHandlerNode::droneCb(const Drone::ConstSharedPtr& drone
     return;
   }
 
-  eprop_ = boost::polymorphic_pointer_downcast<ElectricPropulsionSystemConfig>(drone->prop);
+  eprop_ = std::static_pointer_cast<ElectricPropulsionSystemConfig>(drone->prop);
 
   // Register publishers.
   throttle_pubs_.clear();
