@@ -47,6 +47,7 @@ repos:
         args:
           - "--write-changes"
           - "--ignore-words=.codespell_words"
+        exclude: (^|/)CHANGELOG\.rst$
 
   - repo: local
     hooks:
