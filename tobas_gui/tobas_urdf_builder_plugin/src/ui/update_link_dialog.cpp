@@ -3,11 +3,12 @@
 
 #include "tobas_urdf_builder_plugin/ui/update_link_dialog.hpp"
 
+#include <cassert>
+
 #include <QColorDialog>
 #include <QDebug>
 #include <QFileDialog>
 #include <QMessageBox>
-#include <boost/polymorphic_cast.hpp>
 
 #include "ui_update_link_dialog.h"
 
@@ -286,7 +287,7 @@ void UpdateLinkDialog::onVisualListWidgetItemClicked(QListWidgetItem* item)
 {
   qDebug().nospace() << "UpdateLinkDialog::onVisualListWidgetItemClicked(" << item->text() << ")";
 
-  const auto visual_item = boost::polymorphic_downcast<VisualListWidgetItem*>(item);
+  const auto visual_item = dynamic_cast<VisualListWidgetItem*>(item);
   readFromVM(visual_item->viewModel());
 }
 
@@ -294,7 +295,7 @@ void UpdateLinkDialog::onCollisionListWidgetItemClicked(QListWidgetItem* item)
 {
   qDebug().nospace() << "UpdateLinkDialog::onCollisionListWidgetItemClicked(" << item->text() << ")";
 
-  const auto collision_item = boost::polymorphic_downcast<CollisionListWidgetItem*>(item);
+  const auto collision_item = dynamic_cast<CollisionListWidgetItem*>(item);
   readFromVM(collision_item->viewModel());
 }
 
@@ -361,13 +362,13 @@ void UpdateLinkDialog::onRemoveVisualButtonClicked()
   }
 
   const auto item = ui_->VisualListWidget->selectedItems().front();
-  const auto casted_item = boost::polymorphic_downcast<VisualListWidgetItem*>(item);
+  const auto casted_item = dynamic_cast<VisualListWidgetItem*>(item);
   link_vm_->remove(casted_item->viewModel());
   ui_->VisualListWidget->removeItemWidget(item);
   delete item;
 
   if (ui_->VisualListWidget->count() > 0) {
-    const auto first = boost::polymorphic_downcast<VisualListWidgetItem*>(ui_->VisualListWidget->item(0));
+    const auto first = dynamic_cast<VisualListWidgetItem*>(ui_->VisualListWidget->item(0));
     first->setSelected(true);
     readFromVM(first->viewModel());
   }
@@ -402,13 +403,13 @@ void UpdateLinkDialog::onRemoveCollisionButtonClicked()
   }
 
   const auto item = ui_->CollisionListWidget->selectedItems().front();
-  const auto casted_item = boost::polymorphic_downcast<CollisionListWidgetItem*>(item);
+  const auto casted_item = dynamic_cast<CollisionListWidgetItem*>(item);
   link_vm_->remove(casted_item->viewModel());
   ui_->CollisionListWidget->removeItemWidget(item);
   delete item;
 
   if (ui_->CollisionListWidget->count() > 0) {
-    const auto first = boost::polymorphic_downcast<CollisionListWidgetItem*>(ui_->CollisionListWidget->item(0));
+    const auto first = dynamic_cast<CollisionListWidgetItem*>(ui_->CollisionListWidget->item(0));
     first->setSelected(true);
     readFromVM(first->viewModel());
   }

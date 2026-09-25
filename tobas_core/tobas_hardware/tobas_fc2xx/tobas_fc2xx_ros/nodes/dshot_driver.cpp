@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include <boost/polymorphic_pointer_cast.hpp>
+#include <memory>
 
 #include <tobas_constants/time.hpp>
 #include <tobas_drone_core/propulsion_system/electric_propulsion_system/electric_propulsion_system.hpp>
@@ -179,7 +179,7 @@ void DShotDriverNode::publishCurrentRotorStates()
   rotor_states->header.stamp = now();
 
   for (const auto& [_, rotor] : eprop_->rotors) {
-    const auto erotor = boost::polymorphic_pointer_downcast<ElectricRotorConfig>(rotor);
+    const auto erotor = std::static_pointer_cast<ElectricRotorConfig>(rotor);
     rotor_states->states.emplace_back();
     rotor_states->states.back().link_name = rotor->link_name;
     if (dshot_.getValidity(erotor->channel)) {
@@ -204,7 +204,7 @@ void DShotDriverNode::publishErrorRotorStates()
   rotor_states->header.stamp = now();
 
   for (const auto& [_, rotor] : eprop_->rotors) {
-    const auto erotor = boost::polymorphic_pointer_downcast<ElectricRotorConfig>(rotor);
+    const auto erotor = std::static_pointer_cast<ElectricRotorConfig>(rotor);
     rotor_states->states.emplace_back();
     rotor_states->states.back().link_name = rotor->link_name;
     rotor_states->states.back().speed = NAN;
@@ -229,7 +229,7 @@ void DShotDriverNode::droneCb(const Drone::ConstSharedPtr& drone)
     return;
   }
 
-  eprop_ = boost::polymorphic_pointer_downcast<ElectricPropulsionSystemConfig>(drone->prop);
+  eprop_ = std::static_pointer_cast<ElectricPropulsionSystemConfig>(drone->prop);
 
   initialize_timer_ = createWallTimer(hardware::kRetryInitializationInterval, &self::initialize, this);
 }

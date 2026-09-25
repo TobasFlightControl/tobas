@@ -3,7 +3,8 @@
 
 #pragma once
 
-#include <boost/polymorphic_pointer_cast.hpp>
+#include <memory>
+
 #include <rclcpp/type_adapter.hpp>
 
 #include <tobas_drone_core/drone.hpp>
@@ -47,12 +48,12 @@ struct rclcpp::TypeAdapter<tobas::Drone, tobas_drone_msgs::msg::Drone>
       dst.prop_type = static_cast<int8_t>(src.prop->type());
       switch (src.prop->type()) {
         case tobas::PropulsionSystem::kElectric: {
-          const auto eprop = boost::polymorphic_pointer_downcast<tobas::ElectricPropulsionSystemConfig>(src.prop);
+          const auto eprop = std::static_pointer_cast<tobas::ElectricPropulsionSystemConfig>(src.prop);
           tobas_drone_msgs::ElectricPropulsionSystemConfigAdapter::convert_to_ros_message(*eprop, dst.eprop);
           break;
         }
         case tobas::PropulsionSystem::kIce: {
-          const auto iprop = boost::polymorphic_pointer_downcast<tobas::IcePropulsionSystemConfig>(src.prop);
+          const auto iprop = std::static_pointer_cast<tobas::IcePropulsionSystemConfig>(src.prop);
           tobas_drone_msgs::IcePropulsionSystemConfigAdapter::convert_to_ros_message(*iprop, dst.iprop);
           break;
         }
