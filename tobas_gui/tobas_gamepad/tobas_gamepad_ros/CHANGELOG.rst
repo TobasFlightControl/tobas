@@ -2,8 +2,8 @@
 Changelog for package tobas_gamepad_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.16.4 (2026-09-25)
+-------------------
 * Change maintainer
 * Contributors: Masayoshi Dohi
 
