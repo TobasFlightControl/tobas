@@ -34,7 +34,7 @@ GeometryBasedWidget::GeometryBasedWidget(const uadf::Model& uadf, const kdl::Tre
   rows->addWidget(control_surfaces_);
 
   // calculate button
-  calculator_ = new Calculator(tree, manual, wings_, control_surfaces_);
+  calculator_ = new Calculator(uadf, tree, manual, wings_, control_surfaces_);
   qt::addWidgetCenter(calculator_, rows);
 }
 

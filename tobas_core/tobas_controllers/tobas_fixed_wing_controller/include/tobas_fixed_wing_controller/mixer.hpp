@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include <tobas_kdl/tree_fk_solver_pos_all.hpp>
 #include <tobas_kdl/tree_inertia_solver.hpp>
 #include <tobas_tools/mixer_i.hpp>
 
@@ -33,7 +32,6 @@ public:
   double getDeflection(size_t idx) const; // rad
 
 private:
-  kdl::TreeFkSolverPosAll fk_solver_;
   kdl::TreeInertiaSolver inertia_solver_;
 
   // Fixed values.

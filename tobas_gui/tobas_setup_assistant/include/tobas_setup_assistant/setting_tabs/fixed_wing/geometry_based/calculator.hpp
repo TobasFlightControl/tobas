@@ -4,6 +4,7 @@
 
 #include <tobas_drone_core/fixed_wing/fixed_wing.hpp>
 #include <tobas_kdl/tree.hpp>
+#include <tobas_kdl/tree_fk_solver_pos_all.hpp>
 #include <tobas_kdl/tree_inertia_solver.hpp>
 #include <tobas_kdl/twist.hpp>
 #include <tobas_kdl/wrench.hpp>
@@ -35,9 +36,11 @@ class Calculator : public QPushButton
   static constexpr double kTestAlphaRange = 5.0 * M_PI / 180.0;
   static constexpr double kDelta = 1.0e-2 * M_PI / 180.0;
   static constexpr double kAffordableRate = 0.1;
+  static constexpr double kSignDetectThreshold = 0.5;
 
 public:
   explicit Calculator(
+    const uadf::Model& uadf,
     const kdl::Tree& tree,
     mn::ManualWidget* manual,
     WingsWidget* wings,
@@ -46,7 +49,9 @@ public:
   std::shared_ptr<FixedWingConfig> calcFixedWingConfig();
 
 private:
+  const uadf::Model& uadf_;
   const kdl::Tree& tree_;
+  kdl::TreeFkSolverPosAll fk_solver_;
   kdl::TreeInertiaSolver inertia_solver_;
 
   const mn::ManualWidget* manual_;

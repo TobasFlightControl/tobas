@@ -3,6 +3,7 @@
 #include <format>
 
 #include <tobas_kdl/conversion/coordinates.hpp>
+#include <tobas_kdl_conversions/kdl_urdf.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_tools/fixed_wing.hpp>
@@ -18,12 +19,15 @@ namespace fw
 namespace gb
 {
 Calculator::Calculator(
+  const uadf::Model& uadf,
   const kdl::Tree& tree,
   mn::ManualWidget* manual,
   WingsWidget* wings,
   ControlSurfacesWidget* control_surfaces)
   : super("Apply to Manual")
+  , uadf_(uadf)
   , tree_(tree)
+  , fk_solver_(tree)
   , inertia_solver_(tree)
   , manual_(manual)
   , wings_(wings)
@@ -36,12 +40,18 @@ Calculator::Calculator(
 
 void Calculator::updateInternalDataStructures()
 {
+  fk_solver_.updateInternalDataStructures();
   inertia_solver_.updateInternalDataStructures();
 
-  // Center of gravity and inertia tensor.
   kdl::JntArray q(tree_.getNrOfJoints());
+  // Compute forward kinematics.
+  if (fk_solver_.jntToCart(q) < 0) {
+    std::cerr << "Forward kinematics failed: " << fk_solver_.errorMessage() << std::endl;
+  }
+
+  // Center of gravity and inertia tensor.
   if (inertia_solver_.jntToCart(q) < 0) {
-    std::cout << inertia_solver_.errorMessage() << std::endl;
+    std::cerr << "Inertia solver failed: " << inertia_solver_.errorMessage() << std::endl;
   }
   const auto& I_base = inertia_solver_.getInertia();
   mass_ = I_base.getMass();
@@ -372,11 +382,38 @@ void Calculator::calcControlCoeff(const double& cruise_speed)
     kdl::Frame W_T_R;  // wing座標系で表したref座標系のFrame
     kdl::Frame R_T_W;  // ref座標系で表したwing座標系のFrame
     calcWingTranslations(wing, W_T_R, R_T_W);
+  
     // control surface properties
     const auto c_root = wing->c_root();
     const auto c_tip = wing->c_tip();
     const auto k1 = control_surfaces_->startSpan(i);
     const auto k2 = control_surfaces_->finishSpan(i);
+  
+    // 舵面の正の向きを推算
+    // base_link座標系でみた舵面ジョイントのaxisのベクトルを求める
+    const auto joint = uadf_.urdf->getJoint(control_surfaces_->jointName(i).toStdString());
+    const auto B_Rot_Par = fk_solver_.getFrame(joint->parent_link_name).M;
+    const auto Par_Rot_Joint = kdl::rotationUrdfToKdl(joint->parent_to_joint_origin_transform.rotation);
+    const auto B_axis = B_Rot_Par * Par_Rot_Joint * kdl::vectorUrdfToKdl(joint->axis);
+    // GUIに入力されたwingのrotationからwing座標系での[0, -1, 0]ベクトル (この向きで回すと正の揚力) のbase_link座標系でのベクトルを求める
+    const kdl::Vector rpy = wing->rotation();
+    const auto B_R_B2W =
+      kdl::Rotation::RPY(rpy.x(), rpy.y(), rpy.z());  // base_link座標系でみたときのbase_linkからwingまでのrotation
+    const auto B_axis_wing = B_R_B2W * kdl::Vector(0, -1, 0);
+    // B_axisとB_axis_wingの内積を取って1なら正, -1なら負の揚力が出る
+    const auto sign_detector = B_axis.dot(B_axis_wing);
+    double sign = 1.0;
+    if (sign_detector > kSignDetectThreshold) {
+      sign = 1.0;
+    }
+    else if (sign_detector < -kSignDetectThreshold) {
+      sign = -1.0;
+    }
+    else {
+      std::cerr << "Failed to estimate the sign of control surface axis effectiveness." << std::endl;
+    }
+
+    // 係数推算開始
     CsCoefs coefs;
     kdl::Wrench wrench_ref;  // ref座標系(frd)でのwrench
     if (k1 >= 0) {
@@ -388,7 +425,7 @@ void Calculator::calcControlCoeff(const double& cruise_speed)
       // 翼空力中心にかかる力
       // mac座標系はfrd座標系とする
       const auto r = control_surfaces_->chordRatio(i);
-      const auto c_ldelta = wing->c_lift_alpha() * (1 - 1 / M_PI * acos(2.0 * r - 1)) * kDelta;
+      const auto c_ldelta = sign * wing->c_lift_alpha() * (1 - 1 / M_PI * acos(2.0 * r - 1)) * kDelta;
       const auto lift = dynamicPressure(st::kStandardAirDensity, cruise_speed) * S_c * c_ldelta;
       const kdl::Wrench wrench_mac(kdl::Vector(0, 0, -lift), kdl::Vector(0, 0, 0));  // mac座標系でみたときのwrench
       // 翼座標系からみたときの翼空力中心の座標
@@ -410,7 +447,7 @@ void Calculator::calcControlCoeff(const double& cruise_speed)
       // 翼空力中心にかかる力
       // mac座標系はfrd座標系とする
       const auto r = control_surfaces_->chordRatio(i);
-      const auto c_ldelta = wing->c_lift_alpha() * (1 - 1 / M_PI * acos(2.0 * r - 1)) * kDelta;
+      const auto c_ldelta = sign * wing->c_lift_alpha() * (1 - 1 / M_PI * acos(2.0 * r - 1)) * kDelta;
       const auto lift = dynamicPressure(st::kStandardAirDensity, cruise_speed) * S_c * c_ldelta;
       const kdl::Wrench wrench_mac(kdl::Vector(0, 0, -lift), kdl::Vector(0, 0, 0));  // mac座標系でみたときのwrench
       // 翼座標系からみたときの翼空力中心の座標
@@ -435,7 +472,7 @@ void Calculator::calcControlCoeff(const double& cruise_speed)
         // 翼空力中心にかかる力
         // mac座標系はfrd座標系とする
         const auto r = control_surfaces_->chordRatio(i);
-        const auto c_ldelta = wing->c_lift_alpha() * (1 - 1 / M_PI * acos(2.0 * r - 1)) * kDelta;
+        const auto c_ldelta = sign * wing->c_lift_alpha() * (1 - 1 / M_PI * acos(2.0 * r - 1)) * kDelta;
         const auto lift = dynamicPressure(st::kStandardAirDensity, cruise_speed) * S_c * c_ldelta;
         const kdl::Wrench wrench_mac(kdl::Vector(0, 0, -lift), kdl::Vector(0, 0, 0));  // mac座標系でみたときのwrench
         // 翼座標系からみたときの翼空力中心の座標
@@ -457,7 +494,7 @@ void Calculator::calcControlCoeff(const double& cruise_speed)
         // 翼空力中心にかかる力
         // mac座標系はfrd座標系とする
         const auto r = control_surfaces_->chordRatio(i);
-        const auto c_ldelta = wing->c_lift_alpha() * (1 - 1 / M_PI * acos(2.0 * r - 1)) * kDelta;
+        const auto c_ldelta = sign * wing->c_lift_alpha() * (1 - 1 / M_PI * acos(2.0 * r - 1)) * kDelta;
         const auto lift = dynamicPressure(st::kStandardAirDensity, cruise_speed) * S_c * c_ldelta;
         const kdl::Wrench wrench_mac(kdl::Vector(0, 0, -lift), kdl::Vector(0, 0, 0));  // mac座標系でみたときのwrench
         // 翼座標系からみたときの翼空力中心の座標

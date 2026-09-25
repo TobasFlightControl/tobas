@@ -84,7 +84,7 @@ WingWidget::WingWidget()
   position_->setSuffix(" m");
   const auto position_label = new QLabel("Position");
   position_label->setToolTip(
-    "The position of the leading edge of the main wingroot as viewed in the base_link coordinate frame.");
+    "The position of the leading edge of the wingroot as viewed in the base_link coordinate frame.");
   form->addVAlignedRow(position_label, position_);
 
   rotation_ = new qt::Vector3dEditHorizontal();
@@ -92,7 +92,7 @@ WingWidget::WingWidget()
   rotation_->setSuffix(" rad");
   const auto rotation_label = new QLabel("Rotation");
   rotation_label->setToolTip(
-    "The rotation of the main wing coordinate frame as viewed in the base_link coordinate frame, expressed as Euler "
+    "The rotation of the wing coordinate frame as viewed in the base_link coordinate frame, expressed as Euler "
     "angles for rotations performed in the order X-Y-Z.");
   form->addVAlignedRow(rotation_label, rotation_);
 }

@@ -13,7 +13,7 @@ namespace tobas
 namespace fixed_wing
 {
 Mixer::Mixer(const Drone& drone, const kdl::Tree& tree)
-  : super(drone, tree), fk_solver_(tree), inertia_solver_(tree)
+  : super(drone, tree), inertia_solver_(tree)
 {
 }
 
@@ -26,16 +26,7 @@ bool Mixer::updateInternalDataStructures()
   q_0_.resize(tree_.getNrOfJoints());
   q_0_.setZero();
 
-  if (!fk_solver_.updateInternalDataStructures()) {
-    return false;
-  }
   if (!inertia_solver_.updateInternalDataStructures()) {
-    return false;
-  }
-
-  // Compute forward kinematics.
-  if (fk_solver_.jntToCart(q_0_) < 0) {
-    std::cerr << "Forward kinematics failed: " << fk_solver_.errorMessage() << std::endl;
     return false;
   }
 
