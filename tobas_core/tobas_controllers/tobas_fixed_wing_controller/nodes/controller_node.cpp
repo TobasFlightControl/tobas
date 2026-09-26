@@ -62,8 +62,6 @@ private:
   kdl::JntArray q_0_;
 
   bool is_initialized_ = false;
-  bool drone_received_ = false;
-  bool tree_received_ = false;
   bool topics_received_ = false;
   CommandPriorityHandler cmd_priority_handler_;
   tobas_msgs::msg::FluidPressure::ConstSharedPtr air_pressure_;           // Atmospheric pressure
@@ -439,28 +437,24 @@ void ControllerNode::droneCb(const Drone::ConstSharedPtr& drone)
 {
   drone_ = *drone;
 
-  if (tree_received_) {
+  if (!tree_.empty()) {
     if (!initialize()) {
       TOBAS_FATAL("Error occurred while initializing controller.");
       return;
     }
   }
-
-  drone_received_ = true;
 }
 
 void ControllerNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
 {
   tree_ = *tree;
 
-  if (drone_received_) {
+  if (!drone_.empty()) {
     if (!initialize()) {
       TOBAS_FATAL("Error occurred while initializing controller.");
       return;
     }
   }
-
-  tree_received_ = true;
 }
 
 void ControllerNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
@@ -543,12 +537,12 @@ void ControllerNode::commandCb(const tobas_command_msgs::msg::SpeedRollDeltaPitc
 
 void ControllerNode::checkTopicsTimerCb()
 {
-  if (!drone_received_) {
+  if (drone_.empty()) {
     TOBAS_WARN("Waiting for \"", topic::kDrone, "\".");
     return;
   }
 
-  if (!tree_received_) {
+  if (tree_.empty()) {
     TOBAS_WARN("Waiting for \"", topic::kKdlTree, "\".");
     return;
   }

@@ -64,8 +64,6 @@ private:
   kdl::Vector rate_gain_;
 
   // Mutable variables
-  bool drone_received_ = false;
-  bool tree_received_ = false;
   bool js_received_ = false;
   bool topics_received_ = false;
   CommandPriorityHandler cmd_priority_handler_;
@@ -335,35 +333,31 @@ void ControllerNode::droneCb(const Drone::ConstSharedPtr& drone)
 {
   drone_ = *drone;
 
-  if (drone->hasServoJoint()) {
+  if (!js_sub_ && drone->hasServoJoint()) {
     js_sub_ = createSubscriber(topic::kJointStates, &self::jointStateCb, this);
   }
-  else {
+  else if (js_sub_ && !drone->hasServoJoint()) {
     js_sub_.reset();
   }
 
-  if (tree_received_) {
+  if (!tree_.empty()) {
     if (!updateInternalDataStructures()) {
       TOBAS_FATAL("Error occurred while updating internal data structures.");
       return;
     }
   }
-
-  drone_received_ = true;
 }
 
 void ControllerNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
 {
   tree_ = *tree;
 
-  if (drone_received_) {
+  if (!drone_.empty()) {
     if (!updateInternalDataStructures()) {
       TOBAS_FATAL("Error occurred while updating internal data structures.");
       return;
     }
   }
-
-  tree_received_ = true;
 }
 
 void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom)
@@ -613,12 +607,12 @@ void ControllerNode::rateCommandCb(const tobas_command_msgs::Rate::ConstSharedPt
 
 void ControllerNode::checkTopicsTimerCb()
 {
-  if (!drone_received_) {
+  if (drone_.empty()) {
     TOBAS_WARN("Waiting for \"", topic::kDrone, "\".");
     return;
   }
 
-  if (!tree_received_) {
+  if (tree_.empty()) {
     TOBAS_WARN("Waiting for \"", topic::kKdlTree, "\".");
     return;
   }
