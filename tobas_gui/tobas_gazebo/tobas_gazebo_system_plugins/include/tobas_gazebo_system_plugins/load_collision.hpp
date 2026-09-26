@@ -15,14 +15,7 @@ namespace tobas
 {
 namespace gazebo
 {
-/**
- * @brief Check a proposed box load against every collision in the aircraft model.
- *
- * Uses oriented bounding boxes, so non-box shapes are checked conservatively.
- * Touching bounds are rejected too. Returns a reason on overlap or when a
- * collision cannot be checked, and `nullopt` when the placement is clear.
- * Does not create or modify entities.
- */
+/* Check a proposed box load against every collision in the aircraft model. */
 std::optional<std::string> checkLoadCollision(
   gz::sim::Entity model,
   const gz::math::Pose3d& load_pose,

@@ -30,8 +30,8 @@ namespace
 {
 std::optional<gz::math::AxisAlignedBox> meshBounds(const sdf::Mesh& shape)
 {
-  // Bounds of the source mesh also enclose its convex hull. Avoid running
-  // convex decomposition in the simulation thread just to compute bounds.
+  // Bounds of the source mesh also enclose its convex hull.
+  // Avoid running convex decomposition in the simulation thread just to compute bounds.
   auto source = shape;
   source.SetOptimization(sdf::MeshOptimization::NONE);
   const auto mesh = gz::sim::loadMesh(source);
@@ -49,7 +49,7 @@ std::optional<gz::math::AxisAlignedBox> meshBounds(const sdf::Mesh& shape)
     min = submesh->Min();
     max = submesh->Max();
     if (shape.CenterSubmesh()) {
-      const auto center = (min + max) * 0.5;
+      const auto center = (min + max) / 2;
       min -= center;
       max -= center;
     }
@@ -62,46 +62,56 @@ std::optional<gz::math::AxisAlignedBox> meshBounds(const sdf::Mesh& shape)
 std::optional<gz::math::AxisAlignedBox> geometryBounds(const sdf::Geometry& geometry)
 {
   gz::math::Vector3d size;
+
   switch (geometry.Type()) {
-    case sdf::GeometryType::BOX:
+    case sdf::GeometryType::BOX: {
       size = geometry.BoxShape()->Size();
-      break;
-    case sdf::GeometryType::SPHERE: {
-      const auto diameter = 2.0 * geometry.SphereShape()->Radius();
-      size.Set(diameter, diameter, diameter);
       break;
     }
     case sdf::GeometryType::CYLINDER: {
       const auto shape = geometry.CylinderShape();
-      size.Set(2.0 * shape->Radius(), 2.0 * shape->Radius(), shape->Length());
+      size.Set(2 * shape->Radius(), 2 * shape->Radius(), shape->Length());
+      break;
+    }
+    case sdf::GeometryType::SPHERE: {
+      const auto diameter = 2 * geometry.SphereShape()->Radius();
+      size.Set(diameter, diameter, diameter);
       break;
     }
     case sdf::GeometryType::CAPSULE: {
       const auto shape = geometry.CapsuleShape();
-      const auto diameter = 2.0 * shape->Radius();
+      const auto diameter = 2 * shape->Radius();
       size.Set(diameter, diameter, shape->Length() + diameter);
       break;
     }
-    case sdf::GeometryType::ELLIPSOID:
-      size = 2.0 * geometry.EllipsoidShape()->Radii();
-      break;
-    case sdf::GeometryType::CONE: {
-      const auto shape = geometry.ConeShape();
-      size.Set(2.0 * shape->Radius(), 2.0 * shape->Radius(), shape->Length());
+    case sdf::GeometryType::ELLIPSOID: {
+      size = 2 * geometry.EllipsoidShape()->Radii();
       break;
     }
-    case sdf::GeometryType::MESH:
+    case sdf::GeometryType::CONE: {
+      const auto shape = geometry.ConeShape();
+      size.Set(2 * shape->Radius(), 2 * shape->Radius(), shape->Length());
+      break;
+    }
+    case sdf::GeometryType::MESH: {
       return meshBounds(*geometry.MeshShape());
+    }
     case sdf::GeometryType::EMPTY:
     case sdf::GeometryType::PLANE:
     case sdf::GeometryType::HEIGHTMAP:
-    case sdf::GeometryType::POLYLINE:
+    case sdf::GeometryType::POLYLINE: {
       return std::nullopt;
+    }
+    default: {
+      throw;
+    }
   }
+
   if (!size.IsFinite() || size.Min() <= 0.0) {
     return std::nullopt;
   }
-  return gz::math::AxisAlignedBox(-0.5 * size, 0.5 * size);
+
+  return gz::math::AxisAlignedBox(-size / 2, size / 2);
 }
 
 bool boxesOverlap(
@@ -110,16 +120,15 @@ bool boxesOverlap(
   const gz::math::Pose3d& second_pose,
   const gz::math::Vector3d& second_size)
 {
-  const std::array<gz::math::Vector3d, 3> basis = { gz::math::Vector3d::UnitX,
-                                                    gz::math::Vector3d::UnitY,
-                                                    gz::math::Vector3d::UnitZ };
+  const std::array basis = { gz::math::Vector3d::UnitX, gz::math::Vector3d::UnitY, gz::math::Vector3d::UnitZ };
   std::array<gz::math::Vector3d, 3> first_axes, second_axes;
-  for (int i = 0; i < 3; ++i) {
+  for (size_t i = 0; i < 3; ++i) {
     first_axes[i] = first_pose.Rot().RotateVector(basis[i]);
     second_axes[i] = second_pose.Rot().RotateVector(basis[i]);
   }
 
   const auto offset = second_pose.Pos() - first_pose.Pos();
+
   const auto separated = [&](const gz::math::Vector3d& axis)
   {
     const auto length = axis.Length();
@@ -128,25 +137,27 @@ bool boxesOverlap(
     }
     const auto direction = axis / length;
     double radius = 0.0;
-    for (int i = 0; i < 3; ++i) {
-      radius += 0.5 * (first_size[i] * std::abs(first_axes[i].Dot(direction)) +
-                       second_size[i] * std::abs(second_axes[i].Dot(direction)));
+    for (size_t i = 0; i < 3; ++i) {
+      const auto tmp1 = first_size[i] * std::abs(first_axes[i].Dot(direction));
+      const auto tmp2 = second_size[i] * std::abs(second_axes[i].Dot(direction));
+      radius += (tmp1 + tmp2) / 2;
     }
     // Treat touching and sub-nanometer gaps as overlap to avoid roundoff holes.
     return std::abs(offset.Dot(direction)) > radius + 1e-9;
   };
 
   // Separating axis theorem: six face normals and nine edge cross products.
-  for (int i = 0; i < 3; ++i) {
+  for (size_t i = 0; i < 3; ++i) {
     if (separated(first_axes[i]) || separated(second_axes[i])) {
       return false;
     }
-    for (int j = 0; j < 3; ++j) {
+    for (size_t j = 0; j < 3; ++j) {
       if (separated(first_axes[i].Cross(second_axes[j]))) {
         return false;
       }
     }
   }
+
   return true;
 }
 }  // namespace
@@ -157,36 +168,30 @@ std::optional<std::string> checkLoadCollision(
   const gz::math::Vector3d& load_size,
   const gz::sim::EntityComponentManager& ecm)
 {
-  if (!load_pose.IsFinite() || !load_size.IsFinite() || load_size.Min() <= 0.0) {
-    return "Cannot check collisions: invalid load pose or dimensions.";
-  }
-  if (!ecm.HasEntity(model)) {
-    return "Cannot check collisions: aircraft model is missing.";
-  }
-
   for (const auto entity : ecm.Descendants(model)) {
     if (!ecm.Component<gz::sim::components::Collision>(entity)) {
       continue;
     }
-    const auto name = gz::sim::scopedName(entity, ecm, "::", false);
+
     const auto geometry = ecm.Component<gz::sim::components::Geometry>(entity);
-    if (!geometry || !ecm.Component<gz::sim::components::Pose>(entity)) {
-      return "Cannot check aircraft collision '" + name + "': missing geometry or pose.";
+    if (!geometry) {
+      continue;
     }
+
     const auto bounds = geometryBounds(geometry->Data());
-    if (!bounds || !bounds->Min().IsFinite() || !bounds->Max().IsFinite()) {
-      return "Cannot check aircraft collision '" + name + "': unsupported or invalid geometry, or unreadable mesh.";
+    if (!bounds) {
+      continue;
     }
+
     const auto collision_pose = gz::sim::worldPose(entity, ecm);
-    if (!collision_pose.IsFinite()) {
-      return "Cannot check aircraft collision '" + name + "': invalid pose.";
-    }
     const gz::math::Pose3d box_pose(collision_pose.CoordPositionAdd(bounds->Center()), collision_pose.Rot());
     if (boxesOverlap(load_pose, load_size, box_pose, bounds->Size())) {
+      const auto name = gz::sim::scopedName(entity, ecm, "::", false);
       return "Load overlaps or touches the bounding box of aircraft collision '" + name + "'.";
     }
   }
-  return std::nullopt;
+
+  return std::nullopt;  // No collision
 }
 }  // namespace gazebo
 }  // namespace tobas
