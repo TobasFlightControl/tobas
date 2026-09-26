@@ -2,6 +2,12 @@
 Changelog for package tobas_image_processing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+2.16.5 (2026-09-26)
+-------------------
+* Add dependencies
+* Add dependencies
+* Contributors: Masayoshi Dohi
+
 2.16.4 (2026-09-25)
 -------------------
 

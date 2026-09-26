@@ -1,12 +1,14 @@
 <package format="3">
 
   <name>tobas_rqt_bridge</name>
-  <version>2.16.4</version>
+  <version>2.16.5</version>
   <description>Qt signal bridge for delivering Tobas ROS 2 messages to GUI applications.</description>
   <maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
   <license>GPL-3.0-or-later</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>qtbase5-dev</depend>
 
   <depend>tobas_path_tools</depend>
   <depend>tobas_ros2_tools</depend>

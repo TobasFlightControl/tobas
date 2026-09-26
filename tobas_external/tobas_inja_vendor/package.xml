@@ -2,7 +2,7 @@
 <package format="3">
 
   <name>tobas_inja_vendor</name>
-  <version>2.16.4</version>
+  <version>2.16.5</version>
   <description>Vendor package for the header-only inja template engine</description>
   <maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
   <license>MIT</license>

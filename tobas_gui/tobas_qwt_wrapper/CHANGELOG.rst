@@ -2,6 +2,11 @@
 Changelog for package tobas_qwt_wrapper
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+2.16.5 (2026-09-26)
+-------------------
+* Add dependencies
+* Contributors: Masayoshi Dohi
+
 2.16.4 (2026-09-25)
 -------------------
 
