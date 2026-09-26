@@ -102,87 +102,87 @@ RCInputHandlerNode::RCInputHandlerNode(const rclcpp::NodeOptions& options)
 bool RCInputHandlerNode::getConfig()
 {
   if (!pt_.get(section_, handler::rcin::kRollLeftKey, roll_.lower)) {
-    TOBAS_ERROR("Failed to get \"", handler::rcin::kRollLeftKey, "\".");
+    TOBAS_ERROR("Failed to get '", handler::rcin::kRollLeftKey, "'.");
     return false;
   }
   if (!pt_.get(section_, handler::rcin::kRollRightKey, roll_.upper)) {
-    TOBAS_ERROR("Failed to get \"", handler::rcin::kRollRightKey, "\".");
+    TOBAS_ERROR("Failed to get '", handler::rcin::kRollRightKey, "'.");
     return false;
   }
 
   if (!pt_.get(section_, handler::rcin::kPitchUpKey, pitch_.upper)) {
-    TOBAS_ERROR("Failed to get \"", handler::rcin::kPitchUpKey, "\".");
+    TOBAS_ERROR("Failed to get '", handler::rcin::kPitchUpKey, "'.");
     return false;
   }
   if (!pt_.get(section_, handler::rcin::kPitchDownKey, pitch_.lower)) {
-    TOBAS_ERROR("Failed to get \"", handler::rcin::kPitchDownKey, "\".");
+    TOBAS_ERROR("Failed to get '", handler::rcin::kPitchDownKey, "'.");
     return false;
   }
 
   if (!pt_.get(section_, handler::rcin::kYawLeftKey, yaw_.upper)) {
-    TOBAS_ERROR("Failed to get \"", handler::rcin::kYawLeftKey, "\".");
+    TOBAS_ERROR("Failed to get '", handler::rcin::kYawLeftKey, "'.");
     return false;
   }
   if (!pt_.get(section_, handler::rcin::kYawRightKey, yaw_.lower)) {
-    TOBAS_ERROR("Failed to get \"", handler::rcin::kYawRightKey, "\".");
+    TOBAS_ERROR("Failed to get '", handler::rcin::kYawRightKey, "'.");
     return false;
   }
 
   if (!pt_.get(section_, handler::rcin::kThrotUpKey, throt_.lower)) {
-    TOBAS_ERROR("Failed to get \"", handler::rcin::kThrotUpKey, "\".");
+    TOBAS_ERROR("Failed to get '", handler::rcin::kThrotUpKey, "'.");
     return false;
   }
   if (!pt_.get(section_, handler::rcin::kThrotDownKey, throt_.upper)) {
-    TOBAS_ERROR("Failed to get \"", handler::rcin::kThrotDownKey, "\".");
+    TOBAS_ERROR("Failed to get '", handler::rcin::kThrotDownKey, "'.");
     return false;
   }
 
   if (!pt_.get(section_, handler::rcin::kModeAcrobatKey, modes_.at(FlightMode::kAcrobat))) {
-    TOBAS_ERROR("Failed to get \"", handler::rcin::kModeAcrobatKey, "\".");
+    TOBAS_ERROR("Failed to get '", handler::rcin::kModeAcrobatKey, "'.");
     return false;
   }
   if (!pt_.get(section_, handler::rcin::kModeStabilizeKey, modes_.at(FlightMode::kStabilize))) {
-    TOBAS_ERROR("Failed to get \"", handler::rcin::kModeStabilizeKey, "\".");
+    TOBAS_ERROR("Failed to get '", handler::rcin::kModeStabilizeKey, "'.");
     return false;
   }
   if (!pt_.get(section_, handler::rcin::kModeLoiterKey, modes_.at(FlightMode::kLoiter))) {
-    TOBAS_ERROR("Failed to get \"", handler::rcin::kModeLoiterKey, "\".");
+    TOBAS_ERROR("Failed to get '", handler::rcin::kModeLoiterKey, "'.");
     return false;
   }
 
   if (!pt_.get(section_, handler::rcin::kSubModeOnKey, sub_mode_on_)) {
-    TOBAS_ERROR("Failed to get \"", handler::rcin::kSubModeOnKey, "\".");
+    TOBAS_ERROR("Failed to get '", handler::rcin::kSubModeOnKey, "'.");
     return false;
   }
   if (!pt_.get(section_, handler::rcin::kSubModeOffKey, sub_mode_off_)) {
-    TOBAS_ERROR("Failed to get \"", handler::rcin::kSubModeOffKey, "\".");
+    TOBAS_ERROR("Failed to get '", handler::rcin::kSubModeOffKey, "'.");
     return false;
   }
 
   if (!pt_.get(section_, handler::rcin::kEnableOnKey, enable_on_)) {
-    TOBAS_ERROR("Failed to get \"", handler::rcin::kEnableOnKey, "\".");
+    TOBAS_ERROR("Failed to get '", handler::rcin::kEnableOnKey, "'.");
     return false;
   }
   if (!pt_.get(section_, handler::rcin::kEnableOffKey, enable_off_)) {
-    TOBAS_ERROR("Failed to get \"", handler::rcin::kEnableOffKey, "\".");
+    TOBAS_ERROR("Failed to get '", handler::rcin::kEnableOffKey, "'.");
     return false;
   }
 
   if (!pt_.get(section_, handler::rcin::kKillOnKey, kill_on_)) {
-    TOBAS_ERROR("Failed to get \"", handler::rcin::kKillOnKey, "\".");
+    TOBAS_ERROR("Failed to get '", handler::rcin::kKillOnKey, "'.");
     return false;
   }
   if (!pt_.get(section_, handler::rcin::kKillOffKey, kill_off_)) {
-    TOBAS_ERROR("Failed to get \"", handler::rcin::kKillOffKey, "\".");
+    TOBAS_ERROR("Failed to get '", handler::rcin::kKillOffKey, "'.");
     return false;
   }
 
   if (!pt_.get(section_, handler::rcin::kGpswOnKey, gpsw_on_)) {
-    TOBAS_ERROR("Failed to get \"", handler::rcin::kGpswOnKey, "\".");
+    TOBAS_ERROR("Failed to get '", handler::rcin::kGpswOnKey, "'.");
     return false;
   }
   if (!pt_.get(section_, handler::rcin::kGpswOffKey, gpsw_off_)) {
-    TOBAS_ERROR("Failed to get \"", handler::rcin::kGpswOffKey, "\".");
+    TOBAS_ERROR("Failed to get '", handler::rcin::kGpswOffKey, "'.");
     return false;
   }
 

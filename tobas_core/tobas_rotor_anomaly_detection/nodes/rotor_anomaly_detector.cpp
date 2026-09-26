@@ -104,7 +104,7 @@ void RotorAnomalyDetectorNode::statesCb(const tobas_msgs::msg::RotorStateArray::
   for (const auto& state : states->states) {
     const auto data_it = data_.find(state.link_name);
     if (data_it == data_.end()) {
-      TOBAS_WARN_THROTTLE(kTypicalWarnPeriod, "Invalid rotor: \"", state.link_name, "\"");
+      TOBAS_WARN_THROTTLE(kTypicalWarnPeriod, "Invalid rotor: '", state.link_name, "'");
       continue;
     }
 
@@ -118,7 +118,7 @@ void RotorAnomalyDetectorNode::statesCb(const tobas_msgs::msg::RotorStateArray::
           state_changed = true;
           data.is_alive = false;
           data.last_dead_time = cur_time;
-          TOBAS_WARN("No communication with rotor \"", state.link_name, "\".");
+          TOBAS_WARN("No communication with rotor '", state.link_name, "'.");
         }
       }
       else {
@@ -133,7 +133,7 @@ void RotorAnomalyDetectorNode::statesCb(const tobas_msgs::msg::RotorStateArray::
           state_changed = true;
           data.is_alive = true;
           data.last_alive_time = cur_time;
-          TOBAS_INFO("Communication with rotor \"", state.link_name, "\" has been recovered.");
+          TOBAS_INFO("Communication with rotor '", state.link_name, "' has been recovered.");
         }
       }
       else {

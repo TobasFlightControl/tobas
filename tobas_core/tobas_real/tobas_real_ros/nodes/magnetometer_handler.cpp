@@ -75,11 +75,11 @@ bool MagnetometerHandlerNode::getConfig()
   std::array<double, 6> soft_bias;
 
   if (!pt_.get(section_, handler::mag::kHardBiasKey, hard_bias)) {
-    TOBAS_ERROR("Failed to get \"", handler::mag::kHardBiasKey, "\" from configuration file.");
+    TOBAS_ERROR("Failed to get '", handler::mag::kHardBiasKey, "' from configuration file.");
     return false;
   }
   if (!pt_.get(section_, handler::mag::kSoftBiasKey, soft_bias)) {
-    TOBAS_ERROR("Failed to get \"", handler::mag::kSoftBiasKey, "\" from configuration file.");
+    TOBAS_ERROR("Failed to get '", handler::mag::kSoftBiasKey, "' from configuration file.");
     return false;
   }
 

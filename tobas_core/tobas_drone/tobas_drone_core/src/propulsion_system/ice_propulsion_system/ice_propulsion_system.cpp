@@ -22,7 +22,7 @@ bool IcePropulsionSystemConfig::isValid() const
   // Rotors
   for (const auto& [_, rotor] : rotors) {
     if (!rotor->isValid()) {
-      std::cerr << "The configuration of rotor \"" << rotor->link_name << "\" is invalid." << std::endl;
+      std::cerr << "The configuration of rotor '" << rotor->link_name << "' is invalid." << std::endl;
       return false;
     }
   }
@@ -42,11 +42,11 @@ bool IcePropulsionSystemConfig::load(const YAML::Node& root_node)
   // Rotors
   const auto rotors_node = root_node[kRotorsKey];
   if (!rotors_node.IsDefined()) {
-    std::cerr << "\"" << kRotorsKey << "\" is not defined." << std::endl;
+    std::cerr << "'" << kRotorsKey << "' is not defined." << std::endl;
     return false;
   }
   if (!rotors_node.IsSequence()) {
-    std::cerr << "\"" << kRotorsKey << "\" must be a sequence." << std::endl;
+    std::cerr << "'" << kRotorsKey << "' must be a sequence." << std::endl;
     return false;
   }
   for (const auto& rotor_node : rotors_node) {
@@ -61,7 +61,7 @@ bool IcePropulsionSystemConfig::load(const YAML::Node& root_node)
   // Engine
   const auto engine_node = root_node[kEngineKey];
   if (!engine_node.IsDefined()) {
-    std::cerr << "\"" << kEngineKey << "\" is not defined." << std::endl;
+    std::cerr << "'" << kEngineKey << "' is not defined." << std::endl;
     return false;
   }
   if (!engine.load(engine_node)) {
@@ -201,7 +201,7 @@ IceRotorConfig::SharedPtr IcePropulsionSystemConfig::getRotor(const std::string&
 {
   const auto it = rotors.find(link_name);
   if (it == rotors.end()) {
-    std::cerr << "ICE rotor link \"" << link_name << "\" is not found." << std::endl;
+    std::cerr << "ICE rotor link '" << link_name << "' is not found." << std::endl;
     return nullptr;
   }
   return std::static_pointer_cast<IceRotorConfig>(it->second);
@@ -211,7 +211,7 @@ IceRotorConfig::ConstSharedPtr IcePropulsionSystemConfig::getRotor(const std::st
 {
   const auto it = rotors.find(link_name);
   if (it == rotors.end()) {
-    std::cerr << "ICE rotor link \"" << link_name << "\" is not found." << std::endl;
+    std::cerr << "ICE rotor link '" << link_name << "' is not found." << std::endl;
     return nullptr;
   }
   return std::static_pointer_cast<IceRotorConfig>(it->second);

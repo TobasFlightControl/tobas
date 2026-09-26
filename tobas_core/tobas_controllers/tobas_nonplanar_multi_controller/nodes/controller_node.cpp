@@ -521,7 +521,7 @@ void ControllerNode::rotorLivelinessCb(const tobas_msgs::msg::RotorLivelinessArr
 
   for (const auto& data : rotor_liveliness->data) {
     if (!mixer_.setRotorLiveliness(data.link_name, data.alive)) {
-      TOBAS_ERROR("Failed to set the liveliness of rotor \"", data.link_name, "\".");
+      TOBAS_ERROR("Failed to set the liveliness of rotor '", data.link_name, "'.");
     }
   }
 }
@@ -595,37 +595,37 @@ void ControllerNode::rateCommandCb(const tobas_command_msgs::Rate::ConstSharedPt
 void ControllerNode::checkTopicsTimerCb()
 {
   if (drone_.empty()) {
-    TOBAS_WARN("Waiting for \"", topic::kDrone, "\".");
+    TOBAS_WARN("Waiting for '", topic::kDrone, "'.");
     return;
   }
 
   if (tree_.empty()) {
-    TOBAS_WARN("Waiting for \"", topic::kKdlTree, "\".");
+    TOBAS_WARN("Waiting for '", topic::kKdlTree, "'.");
     return;
   }
 
   if (!odom_) {
-    TOBAS_WARN("Waiting for \"", topic::kOdometry, "\".");
+    TOBAS_WARN("Waiting for '", topic::kOdometry, "'.");
     return;
   }
 
   if (dist_force_sub_ && !dist_force_) {
-    TOBAS_WARN("Waiting for \"", topic::kDisturbanceForce, "\".");
+    TOBAS_WARN("Waiting for '", topic::kDisturbanceForce, "'.");
     return;
   }
 
   if (js_sub_ && !js_received_) {
-    TOBAS_WARN("Waiting for \"", topic::kJointStates, "\".");
+    TOBAS_WARN("Waiting for '", topic::kJointStates, "'.");
     return;
   }
 
   if (!landed_) {
-    TOBAS_WARN("Waiting for \"", topic::kLanded, "\".");
+    TOBAS_WARN("Waiting for '", topic::kLanded, "'.");
     return;
   }
 
   if (!arming_) {
-    TOBAS_WARN("Waiting for \"", topic::kArming, "\".");
+    TOBAS_WARN("Waiting for '", topic::kArming, "'.");
     return;
   }
 

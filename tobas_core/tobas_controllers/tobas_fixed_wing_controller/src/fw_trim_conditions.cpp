@@ -57,11 +57,11 @@ bool TrimConditions::updateInternalDataStructures()
   b_ = aero.c_lift_0 - aero.c_pitch_0 * ml_raito;
 
   if (a_ <= 0.0) {
-    std::cerr << "The aerodynamic coefficient \"a\" must be positive." << std::endl;
+    std::cerr << "The aerodynamic coefficient 'a' must be positive." << std::endl;
     return false;
   }
   if (b_ <= 0.0) {
-    std::cerr << "The aerodynamic coefficient \"b\" must be positive." << std::endl;
+    std::cerr << "The aerodynamic coefficient 'b' must be positive." << std::endl;
     return false;
   }
 

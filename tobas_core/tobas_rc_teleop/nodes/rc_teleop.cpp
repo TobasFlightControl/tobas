@@ -206,7 +206,7 @@ void RCTeleopNode::initializeControllers()
 void RCTeleopNode::requestArmingRotors(bool arming)
 {
   if (!set_arm_sc_->service_is_ready()) {
-    TOBAS_ERROR("\"", service::kSetArm, "\" is not ready.");
+    TOBAS_ERROR("'", service::kSetArm, "' is not ready.");
     return;
   }
 
@@ -507,7 +507,7 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
 
         resetCurrentController(*rcin);
         cur_mode_ = rcin->mode;
-        TOBAS_INFO("First flight mode has been set to \"", mode2str_.at(rcin->mode), "\".");
+        TOBAS_INFO("First flight mode has been set to '", mode2str_.at(rcin->mode), "'.");
 
         t_disarm_start_ = rcin->header.stamp;
         stage_ = kRunning;
@@ -543,7 +543,7 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
       if (rcin->mode != cur_mode_ && isFlightModeApplicable(rcin->mode)) {
         resetCurrentController(*rcin);
         cur_mode_ = rcin->mode;
-        TOBAS_INFO("Flight mode changed to \"", mode2str_.at(rcin->mode), "\".");
+        TOBAS_INFO("Flight mode changed to '", mode2str_.at(rcin->mode), "'.");
       }
 
       const auto zero_throt_thresh =

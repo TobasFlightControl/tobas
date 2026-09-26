@@ -25,7 +25,7 @@ Tree::Tree(const Tree& arg)
 
   segments_.insert(make_pair(root_name_, TreeElement::Root(root_name_)));
   if (!addTree(arg, root_name_)) {
-    throw runtime_error("Failed to add \"" + root_name_ + "\".");
+    throw runtime_error("Failed to add '" + root_name_ + "'.");
   }
 }
 
@@ -38,7 +38,7 @@ Tree& Tree::operator=(const Tree& arg)
 
   segments_.insert(make_pair(root_name_, TreeElement::Root(root_name_)));
   if (!addTree(arg, root_name_)) {
-    throw runtime_error("Failed to add \"" + root_name_ + "\".");
+    throw runtime_error("Failed to add '" + root_name_ + "'.");
   }
 
   return *this;
@@ -59,7 +59,7 @@ Tree Tree::FloatingBase(const string& world_name, const string& base_name)
   x_jnt.axis(Vector::UnitX());
   const Segment x_seg(x_seg_name, x_jnt);
   if (!tree.addSegment(x_seg, world_name)) {
-    throw runtime_error("Failed to add \"" + x_seg_name + "\"");
+    throw runtime_error("Failed to add '" + x_seg_name + "'");
   }
 
   // Y
@@ -70,7 +70,7 @@ Tree Tree::FloatingBase(const string& world_name, const string& base_name)
   y_jnt.axis(Vector::UnitY());
   const Segment y_seg(y_seg_name, y_jnt);
   if (!tree.addSegment(y_seg, x_seg_name)) {
-    throw runtime_error("Failed to add \"" + y_seg_name + "\"");
+    throw runtime_error("Failed to add '" + y_seg_name + "'");
   }
 
   // Z
@@ -81,7 +81,7 @@ Tree Tree::FloatingBase(const string& world_name, const string& base_name)
   z_jnt.axis(Vector::UnitZ());
   const Segment z_seg(z_seg_name, z_jnt);
   if (!tree.addSegment(z_seg, y_seg_name)) {
-    throw runtime_error("Failed to add \"" + z_seg_name + "\"");
+    throw runtime_error("Failed to add '" + z_seg_name + "'");
   }
 
   // Yaw
@@ -92,7 +92,7 @@ Tree Tree::FloatingBase(const string& world_name, const string& base_name)
   yaw_jnt.axis(Vector::UnitZ());
   const Segment yaw_seg(yaw_seg_name, yaw_jnt);
   if (!tree.addSegment(yaw_seg, z_seg_name)) {
-    throw runtime_error("Failed to add \"" + yaw_seg_name + "\"");
+    throw runtime_error("Failed to add '" + yaw_seg_name + "'");
   }
 
   // Pitch
@@ -103,7 +103,7 @@ Tree Tree::FloatingBase(const string& world_name, const string& base_name)
   pitch_jnt.axis(Vector::UnitY());
   const Segment pitch_seg(pitch_seg_name, pitch_jnt);
   if (!tree.addSegment(pitch_seg, yaw_seg_name)) {
-    throw runtime_error("Failed to add \"" + pitch_seg_name + "\"");
+    throw runtime_error("Failed to add '" + pitch_seg_name + "'");
   }
 
   // Roll
@@ -114,7 +114,7 @@ Tree Tree::FloatingBase(const string& world_name, const string& base_name)
   roll_jnt.axis(Vector::UnitX());
   const Segment roll_seg(roll_seg_name, roll_jnt);
   if (!tree.addSegment(roll_seg, pitch_seg_name)) {
-    throw runtime_error("Failed to add \"" + roll_seg_name + "\"");
+    throw runtime_error("Failed to add '" + roll_seg_name + "'");
   }
 
   // Base
@@ -123,7 +123,7 @@ Tree Tree::FloatingBase(const string& world_name, const string& base_name)
   base_jnt.type = Joint::kFixed;
   const Segment base_seg(base_name, base_jnt);
   if (!tree.addSegment(base_seg, roll_seg_name)) {
-    throw runtime_error("Failed to add \"" + base_name + "\"");
+    throw runtime_error("Failed to add '" + base_name + "'");
   }
 
   return tree;
@@ -154,14 +154,14 @@ bool Tree::isValidRecursive(
 
   const auto& seg_name = seg.name();
   if (!seg_names.insert(seg_name).second) {
-    error_msg = "Segment name \"" + seg_name + "\" is duplicated.";
+    error_msg = "Segment name '" + seg_name + "' is duplicated.";
     return false;
   }
 
   if (seg_it != getRootSegment()) {
     const auto& jnt_name = seg.joint().name;
     if (!jnt_names.insert(jnt_name).second) {
-      error_msg = "Joint name \"" + jnt_name + "\" is duplicated.";
+      error_msg = "Joint name '" + jnt_name + "' is duplicated.";
       return false;
     }
 
@@ -182,13 +182,13 @@ bool Tree::isValidRecursive(
 bool Tree::addSegment(const Segment& segment, const string& hook_name)
 {
   if (segments_.contains(segment.name())) {
-    cerr << "Segment \"" + segment.name() + "\" already exists in the tree." << endl;
+    cerr << "Segment '" + segment.name() + "' already exists in the tree." << endl;
     return false;
   }
 
   const auto parent = segments_.find(hook_name);
   if (parent == segments_.end()) {
-    cerr << "Segment \"" + hook_name + "\" does not exist in the tree." << endl;
+    cerr << "Segment '" + hook_name + "' does not exist in the tree." << endl;
     return false;
   }
 
@@ -198,7 +198,7 @@ bool Tree::addSegment(const Segment& segment, const string& hook_name)
 
   // Check if insertion succeeded.
   if (!retval.second) {
-    cerr << "Failed to insert segment \"" + segment.name() + "\" into the tree." << endl;
+    cerr << "Failed to insert segment '" + segment.name() + "' into the tree." << endl;
     return false;
   }
 
@@ -220,16 +220,16 @@ bool Tree::removeSegment(const string& seg_name)
 {
   const auto seg_it = segments_.find(seg_name);
   if (seg_it == segments_.end()) {
-    cerr << "Segment \"" << seg_name << "\" does not exist in the tree." << endl;
+    cerr << "Segment '" << seg_name << "' does not exist in the tree." << endl;
     return false;
   }
 
   if (seg_it->first == root_name_) {
-    cerr << "Cannot remove root segment \"" << seg_name << "\"." << endl;
+    cerr << "Cannot remove root segment '" << seg_name << "'." << endl;
     return false;
   }
   if (!seg_it->second.children.empty()) {
-    cerr << "Cannot remove segment \"" << seg_name << "\" because it has children." << endl;
+    cerr << "Cannot remove segment '" << seg_name << "' because it has children." << endl;
     return false;
   }
 
@@ -299,7 +299,7 @@ bool Tree::getChain(const string& root_name, const string& tip_name, Chain& chai
     }
   }
   if (parents_chain_root.empty() || parents_chain_root.back() != root_name_) {
-    cerr << "Root segment \"" + root_name + "\" does not exist in the tree." << endl;
+    cerr << "Root segment '" + root_name + "' does not exist in the tree." << endl;
     return false;
   }
 
@@ -310,7 +310,7 @@ bool Tree::getChain(const string& root_name, const string& tip_name, Chain& chai
     }
   }
   if (parents_chain_tip.empty() || parents_chain_tip.back() != root_name_) {
-    cerr << "Tip segment \"" + tip_name + "\" does not exist in the tree." << endl;
+    cerr << "Tip segment '" + tip_name + "' does not exist in the tree." << endl;
     return false;
   }
 
@@ -359,7 +359,7 @@ bool Tree::getSubTree(const string& seg_name, Tree& tree, bool root_mass_ok) con
   // Confirm that the specified segment exists.
   const auto seg_it = segments_.find(seg_name);
   if (seg_it == segments_.end()) {
-    cerr << "Segment \"" + seg_name + "\" does not exist in the tree." << endl;
+    cerr << "Segment '" + seg_name + "' does not exist in the tree." << endl;
     return false;
   }
 

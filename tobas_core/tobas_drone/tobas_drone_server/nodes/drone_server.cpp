@@ -44,7 +44,7 @@ bool DroneServerNode::fileParamCb(const std::string& p)
 {
   // Load drone configuration.
   if (!drone_.load(p)) {
-    TOBAS_ERROR("Failed to load drone configuration from \"", p, "\".");
+    TOBAS_ERROR("Failed to load drone configuration from '", p, "'.");
     return false;
   }
 

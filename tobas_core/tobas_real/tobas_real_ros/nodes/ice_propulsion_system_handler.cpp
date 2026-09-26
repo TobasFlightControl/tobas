@@ -102,9 +102,9 @@ void IcePropulsionSystemHandlerNode::stopActuator()
       }
       default: {
         TOBAS_ERROR(
-          "The hardware interface of variable pitch propeller \"",
+          "The hardware interface of variable pitch propeller '",
           irotor->link_name,
-          "\" is invalid: ",
+          "' is invalid: ",
           (int)irotor->hw_iface);
         break;
       }
@@ -200,7 +200,7 @@ void IcePropulsionSystemHandlerNode::iceCommandCb(
     // Get rotor config.
     const auto rotor_it = iprop_->rotors.find(link_name);
     if (rotor_it == iprop_->rotors.end()) {
-      TOBAS_ERROR("Rotor link \"", link_name, "\" is not found.");
+      TOBAS_ERROR("Rotor link '", link_name, "' is not found.");
       continue;
     }
     const auto irotor = std::static_pointer_cast<IceRotorConfig>(rotor_it->second);
@@ -209,9 +209,9 @@ void IcePropulsionSystemHandlerNode::iceCommandCb(
     if (!irotor->pitch_limit.inRange(cmd_angle)) {
       TOBAS_WARN_THROTTLE(
         kTypicalWarnPeriod,
-        "Commanded pitch angle of propeller \"",
+        "Commanded pitch angle of propeller '",
         link_name,
-        "\" is out of its limit: ",
+        "' is out of its limit: ",
         cmd_angle,
         " ∉ ",
         irotor->pitch_limit);
@@ -235,7 +235,7 @@ void IcePropulsionSystemHandlerNode::iceCommandCb(
       }
       default: {
         TOBAS_ERROR(
-          "The hardware interface of variable pitch propeller \"", link_name, "\" is invalid: ", (int)irotor->hw_iface);
+          "The hardware interface of variable pitch propeller '", link_name, "' is invalid: ", (int)irotor->hw_iface);
         break;
       }
     }

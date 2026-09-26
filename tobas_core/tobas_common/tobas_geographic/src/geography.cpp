@@ -44,9 +44,9 @@ MagneticField Geography::magneticField(double latitude, double longitude, double
 {
   if (decimal_year > magnetic_model_.MaxTime() && !model_expiration_warned_) {
     PRINT_WARN(
-      "Magnetic model \"" << magnetic_model_.MagneticModelName() << "\" expired at decimal year "
-                          << magnetic_model_.MaxTime() << "; requested year is " << decimal_year
-                          << ". Update the bundled magnetic model data.");
+      "Magnetic model '" << magnetic_model_.MagneticModelName() << "' expired at decimal year "
+                         << magnetic_model_.MaxTime() << "; requested year is " << decimal_year
+                         << ". Update the bundled magnetic model data.");
     model_expiration_warned_ = true;
   }
 

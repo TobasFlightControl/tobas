@@ -108,7 +108,7 @@ void DisturbanceObserverNode::rotorStatesCb(const tobas_msgs::msg::RotorStateArr
     if (thrust_it == rotor_thrusts_.end()) {
       // Add this rotor if the link name is included in the vehicle model.
       if (!tree_.hasSegment(elem.link_name) || !drone_->prop->rotors.contains(elem.link_name)) {
-        TOBAS_ERROR("The drone does not have rotor named \"", elem.link_name, "\".");
+        TOBAS_ERROR("The drone does not have rotor named '", elem.link_name, "'.");
         continue;
       }
       rotor_thrusts_[elem.link_name] = 0.0;

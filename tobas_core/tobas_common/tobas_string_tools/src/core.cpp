@@ -45,7 +45,7 @@ std::pair<std::string, std::string> rsplit(const std::string& s, const char& c)
     return { before, after };
   }
   else {
-    std::cerr << "String \"" << s << "\" does not contain '" << c << "'" << std::endl;
+    std::cerr << "String '" << s << "' does not contain '" << c << "'" << std::endl;
     return { s, "" };
   }
 }

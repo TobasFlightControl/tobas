@@ -227,12 +227,12 @@ void DShotDriverNode::targetSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::Con
   for (const auto& elem : tar_speeds->speeds) {
     const auto erotor = eprop_->getRotor(elem.link_name);
     if (!erotor) {
-      TOBAS_ERROR("Rotor \"" + elem.link_name + "\" does not exist.");
+      TOBAS_ERROR("Rotor '" + elem.link_name + "' does not exist.");
       continue;
     }
 
     if (!dshot_.setTargetSpeed(erotor->channel, elem.speed)) {
-      TOBAS_ERROR("Failed to set the target speed of rotor \"", elem.link_name, "\".");
+      TOBAS_ERROR("Failed to set the target speed of rotor '", elem.link_name, "'.");
       continue;
     }
   }

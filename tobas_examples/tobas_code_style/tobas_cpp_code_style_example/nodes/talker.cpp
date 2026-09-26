@@ -33,7 +33,7 @@ void Talker::timerCb()
 {
   auto msg = std::make_unique<std_msgs::msg::String>();
   msg->data = "Hello World: " + std::to_string(cnt_++);
-  RCLCPP_INFO_STREAM(get_logger(), "Publishing: \"" << msg->data << "\" (" << msg.get() << ")");
+  RCLCPP_INFO_STREAM(get_logger(), "Publishing: '" << msg->data << "' (" << msg.get() << ")");
   pub_->publish(std::move(msg));
 }
 }  // namespace tobas

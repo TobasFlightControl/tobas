@@ -536,22 +536,22 @@ void ControllerNode::commandCb(const tobas_command_msgs::msg::SpeedRollDeltaPitc
 void ControllerNode::checkTopicsTimerCb()
 {
   if (drone_.empty()) {
-    TOBAS_WARN("Waiting for \"", topic::kDrone, "\".");
+    TOBAS_WARN("Waiting for '", topic::kDrone, "'.");
     return;
   }
 
   if (tree_.empty()) {
-    TOBAS_WARN("Waiting for \"", topic::kKdlTree, "\".");
+    TOBAS_WARN("Waiting for '", topic::kKdlTree, "'.");
     return;
   }
 
   if (!air_pressure_) {
-    TOBAS_WARN("Waiting for \"", topic::kAirPressure, "\".");
+    TOBAS_WARN("Waiting for '", topic::kAirPressure, "'.");
     return;
   }
 
   if (!odom_flu_) {
-    TOBAS_WARN("Waiting for \"", topic::kOdometry, "\".");
+    TOBAS_WARN("Waiting for '", topic::kOdometry, "'.");
     return;
   }
 

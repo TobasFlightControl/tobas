@@ -31,7 +31,7 @@ std::expected<void, std::string> createDirectories(const fs::path& dir_path, boo
       return {};
     }
     else {
-      return std::unexpected("\"" + dir_path.string() + "\" already exists.");
+      return std::unexpected("'" + dir_path.string() + "' already exists.");
     }
   }
 
@@ -51,7 +51,7 @@ std::expected<void, std::string> createFilePath(const fs::path& file_path, bool 
       return {};
     }
     else {
-      return std::unexpected("\"" + file_path.string() + "\" already exists.");
+      return std::unexpected("'" + file_path.string() + "' already exists.");
     }
   }
 
@@ -67,7 +67,7 @@ std::expected<void, std::string> createFilePath(const fs::path& file_path, bool 
   // Create an empty file.
   const std::ofstream file(file_path);
   if (!file) {
-    return std::unexpected("Failed to create \"" + file_path.string() + "\".");
+    return std::unexpected("Failed to create '" + file_path.string() + "'.");
   }
 
   return {};
@@ -95,7 +95,7 @@ size_t computeDirectorySize(const fs::path& dir_path)
 std::expected<void, std::string> clearDirectory(const fs::path& dir_path)
 {
   if (!fs::is_directory(dir_path)) {
-    return std::unexpected("\"" + dir_path.string() + "\" does not exist.");
+    return std::unexpected("'" + dir_path.string() + "' does not exist.");
   }
 
   for (const auto& entry : fs::directory_iterator(dir_path)) {

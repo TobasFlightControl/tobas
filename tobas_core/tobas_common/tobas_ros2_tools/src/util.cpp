@@ -21,12 +21,12 @@ const char* getEnv(const char* name)
   const char* error = rcutils_get_env(name, &value);
 
   if (error) {
-    std::cerr << "Failed to get \"" << name << "\": " << error << std::endl;
+    std::cerr << "Failed to get '" << name << "': " << error << std::endl;
     return nullptr;
   }
 
   if (std::strlen(value) == 0) {
-    std::cerr << "\"" << name << "\" is not set." << std::endl;
+    std::cerr << "'" << name << "' is not set." << std::endl;
     return nullptr;
   }
 

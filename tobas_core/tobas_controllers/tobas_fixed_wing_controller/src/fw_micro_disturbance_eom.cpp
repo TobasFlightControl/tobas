@@ -223,7 +223,7 @@ int MicroDisturbanceEoM::update(const double& V, const double& rho, const kdl::J
     if (thrust > max_thrust) {
       if (error_code_ > kWarn) {
         error_code_ = kWarn;
-        error_msg_ = std::format("Thrust force of \"{}\" is too large: {} > {}", link_name, thrust, max_thrust);
+        error_msg_ = std::format("Thrust force of '{}' is too large: {} > {}", link_name, thrust, max_thrust);
       }
       thrust = max_thrust;
     }

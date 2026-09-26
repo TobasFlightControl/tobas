@@ -51,7 +51,7 @@ bool waitUntilNodeGone(const rclcpp::Node::SharedPtr& node, const std::string& t
 
   // Exit immediately if the target is already absent.
   if (!isPresent(graph, target_fqn)) {
-    RCLCPP_INFO_STREAM(node->get_logger(), "Target FQN \"" << target_fqn << "\" does not exist.");
+    RCLCPP_INFO_STREAM(node->get_logger(), "Target FQN '" << target_fqn << "' does not exist.");
     return true;
   }
 
@@ -61,13 +61,13 @@ bool waitUntilNodeGone(const rclcpp::Node::SharedPtr& node, const std::string& t
   while (rclcpp::ok()) {
     // Handle timeout.
     if (ch::steady_clock::now() > deadline) {
-      RCLCPP_WARN_STREAM(node->get_logger(), "Timed out waiting for \"" << target_fqn << "\" to shut down.");
+      RCLCPP_WARN_STREAM(node->get_logger(), "Timed out waiting for '" << target_fqn << "' to shut down.");
       return false;
     }
 
     // Check whether the target node is still present after graph changes.
     if (!isPresent(graph, target_fqn)) {
-      RCLCPP_INFO_STREAM(node->get_logger(), "\"" << target_fqn << "\" has gone.");
+      RCLCPP_INFO_STREAM(node->get_logger(), "'" << target_fqn << "' has gone.");
       return true;
     }
 

@@ -42,7 +42,7 @@ template <size_t Channel>
 bool RpmControlConfigServer::gainCb(const long& p)
 {
   if (!config_sc_->service_is_ready()) {
-    TOBAS_ERROR("\"", service::kSetRpmControlGains, "\" is not ready.");
+    TOBAS_ERROR("'", service::kSetRpmControlGains, "' is not ready.");
     return false;
   }
 

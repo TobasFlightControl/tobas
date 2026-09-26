@@ -70,14 +70,14 @@ typename SrvType::Response::ConstSharedPtr SyncServiceClient<SrvType>::sendReque
 {
   // The service may not be ready immediately after client creation because DDS discovery may still be in progress.
   if (!client_->service_is_ready()) {
-    RCLCPP_ERROR_STREAM(node_->get_logger(), "\"" << client_->get_service_name() << "\" service is not ready.");
+    RCLCPP_ERROR_STREAM(node_->get_logger(), "'" << client_->get_service_name() << "' service is not ready.");
     return nullptr;
   }
 
   // Send the request and wait for the response.
   auto future = client_->async_send_request(req);
   if (waitForFuture(future, timeout) != std::future_status::ready) {
-    RCLCPP_ERROR_STREAM(node_->get_logger(), "Timeout before \"" << client_->get_service_name() << "\" response.");
+    RCLCPP_ERROR_STREAM(node_->get_logger(), "Timeout before '" << client_->get_service_name() << "' response.");
     return nullptr;
   }
 

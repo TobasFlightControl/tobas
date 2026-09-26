@@ -416,7 +416,7 @@ bool MulticopterMissionExecutorNode::armRotors(bool arming)
 
   const auto res = set_arm_sc_->sendRequestAndWait(req);
   if (!res) {
-    TOBAS_ERROR("Failed to call \"", service::kSetArm, "\" service.");
+    TOBAS_ERROR("Failed to call '", service::kSetArm, "' service.");
     return false;
   }
 

@@ -176,7 +176,7 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
       for (const auto& elem : tar_thrusts_msg->thrusts) {
         const auto erotor = eprop->getRotor(elem.link_name);
         if (!erotor) {
-          TOBAS_ERROR("Electric rotor \"" + elem.link_name + "\" does not exist.");
+          TOBAS_ERROR("Electric rotor '" + elem.link_name + "' does not exist.");
           continue;
         }
         const auto tar_thrust = std::max(elem.thrust, 0.0);
@@ -201,7 +201,7 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
       for (const auto& elem : tar_thrusts_msg->thrusts) {
         const auto irotor = iprop->getRotor(elem.link_name);
         if (!irotor) {
-          TOBAS_ERROR("ICE Rotor \"" + elem.link_name + "\" does not exist.");
+          TOBAS_ERROR("ICE Rotor '" + elem.link_name + "' does not exist.");
           continue;
         }
         const auto motor_const = irotor->motorConst(irotor->center_pitch);

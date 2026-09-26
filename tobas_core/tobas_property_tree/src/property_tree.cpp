@@ -77,7 +77,7 @@ bool PropertyTree::erase(boost::property_tree::ptree& node, boost::property_tree
   // If there is no namespace, remove the element and finish.
   if (path.empty()) {
     if (node.erase(child_name) == 0) {
-      std::cerr << "Failed to erase key \"" << child_name << "\"." << std::endl;
+      std::cerr << "Failed to erase key '" << child_name << "'." << std::endl;
       return false;
     }
     return true;
@@ -86,7 +86,7 @@ bool PropertyTree::erase(boost::property_tree::ptree& node, boost::property_tree
   // Recursively handle nested paths.
   const auto child_node = node.get_child_optional(child_name);
   if (!child_node) {
-    std::cerr << "Failed to get child node \"" << child_name << "\"." << std::endl;
+    std::cerr << "Failed to get child node '" << child_name << "'." << std::endl;
     return false;
   }
   return erase(*child_node, path);

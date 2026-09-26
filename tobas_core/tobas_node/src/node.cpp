@@ -10,7 +10,7 @@ namespace tobas
 BaseNode::BaseNode(const std::string& node_name, const rclcpp::NodeOptions& options)
   : super(node_name, options), dparam_sub_(this)
 {
-  RCLCPP_INFO_STREAM(get_logger(), "Initializing \"" << node_name << "\".");
+  RCLCPP_INFO_STREAM(get_logger(), "Initializing '" << node_name << "'.");
 
   message_pub_ = createPublisher<tobas_msgs::msg::Message>(topic::kMessage, false, true, 1);
 }

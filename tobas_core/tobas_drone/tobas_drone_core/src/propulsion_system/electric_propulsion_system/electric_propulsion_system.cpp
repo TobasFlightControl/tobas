@@ -21,7 +21,7 @@ bool ElectricPropulsionSystemConfig::isValid() const
   // Rotors
   for (const auto& [_, rotor] : rotors) {
     if (!rotor->isValid()) {
-      cerr << "The configuration of rotor \"" << rotor->link_name << "\" is invalid." << endl;
+      cerr << "The configuration of rotor '" << rotor->link_name << "' is invalid." << endl;
       return false;
     }
   }
@@ -41,11 +41,11 @@ bool ElectricPropulsionSystemConfig::load(const YAML::Node& root_node)
   // Rotors
   const auto rotors_node = root_node[kRotorsKey];
   if (!rotors_node.IsDefined()) {
-    cerr << "\"" << kRotorsKey << "\" is not defined." << endl;
+    cerr << "'" << kRotorsKey << "' is not defined." << endl;
     return false;
   }
   if (!rotors_node.IsSequence()) {
-    cerr << "\"" << kRotorsKey << "\" must be a sequence." << endl;
+    cerr << "'" << kRotorsKey << "' must be a sequence." << endl;
     return false;
   }
   for (const auto& rotor_node : rotors_node) {
@@ -60,7 +60,7 @@ bool ElectricPropulsionSystemConfig::load(const YAML::Node& root_node)
   // Battery
   const auto battery_node = root_node[kBatteryKey];
   if (!battery_node.IsDefined()) {
-    cerr << "\"" << kBatteryKey << "\" is not defined." << endl;
+    cerr << "'" << kBatteryKey << "' is not defined." << endl;
     return false;
   }
   if (!battery.load(battery_node)) {
@@ -130,7 +130,7 @@ ElectricRotorConfig::SharedPtr ElectricPropulsionSystemConfig::getRotor(const st
 {
   const auto it = rotors.find(link_name);
   if (it == rotors.end()) {
-    cerr << "Electric rotor link \"" << link_name << "\" is not found." << endl;
+    cerr << "Electric rotor link '" << link_name << "' is not found." << endl;
     return nullptr;
   }
   return std::static_pointer_cast<ElectricRotorConfig>(it->second);
@@ -140,7 +140,7 @@ ElectricRotorConfig::ConstSharedPtr ElectricPropulsionSystemConfig::getRotor(con
 {
   const auto it = rotors.find(link_name);
   if (it == rotors.end()) {
-    cerr << "Electric rotor link \"" << link_name << "\" is not found." << endl;
+    cerr << "Electric rotor link '" << link_name << "' is not found." << endl;
     return nullptr;
   }
   return std::static_pointer_cast<ElectricRotorConfig>(it->second);

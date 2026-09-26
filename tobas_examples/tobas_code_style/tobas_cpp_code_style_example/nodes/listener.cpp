@@ -27,7 +27,7 @@ Listener::Listener(const rclcpp::NodeOptions& _options) : rclcpp::Node("listener
 
 void Listener::msgCb(const std_msgs::msg::String::ConstSharedPtr& _msg)
 {
-  RCLCPP_INFO_STREAM(get_logger(), "I heard: \"" << _msg->data << "\" (" << _msg.get() << ")");
+  RCLCPP_INFO_STREAM(get_logger(), "I heard: '" << _msg->data << "' (" << _msg.get() << ")");
 }
 }  // namespace tobas
 

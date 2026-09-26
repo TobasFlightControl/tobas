@@ -47,14 +47,14 @@ bool Chain::isValid(string& error_msg) const
   for (const auto& [idx, seg] : views::enumerate(segments)) {
     const auto& seg_name = seg.name();
     if (!seg_names.insert(seg_name).second) {
-      error_msg = "Segment name \"" + seg_name + "\" is duplicated.";
+      error_msg = "Segment name '" + seg_name + "' is duplicated.";
       return false;
     }
 
     if (idx != 0) {
       const auto& jnt_name = seg.joint().name;
       if (!jnt_names.insert(jnt_name).second) {
-        error_msg = "Joint name \"" + jnt_name + "\" is duplicated.";
+        error_msg = "Joint name '" + jnt_name + "' is duplicated.";
         return false;
       }
 

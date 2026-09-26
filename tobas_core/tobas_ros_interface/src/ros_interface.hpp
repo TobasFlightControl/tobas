@@ -240,7 +240,7 @@ void RosInterfaceNode::serviceCallback(
   const typename SrvType::Response::SharedPtr& res)
 {
   if (!service->client->service_is_ready()) {
-    TOBAS_ERROR("\"", service->name, "\" service is not ready.");
+    TOBAS_ERROR("'", service->name, "' service is not ready.");
     return;
   }
 
@@ -256,7 +256,7 @@ void RosInterfaceNode::actionFeedbackCallback(
   const typename ActType::Feedback::ConstSharedPtr& fb_in)
 {
   if (!action->server_gh) {
-    TOBAS_WARN_THROTTLE(kTypicalWarnPeriod, "Waiting for \"", action->name, "\" action server goal handle.");
+    TOBAS_WARN_THROTTLE(kTypicalWarnPeriod, "Waiting for '", action->name, "' action server goal handle.");
     return;
   }
 
@@ -274,7 +274,7 @@ rclcpp_action::GoalResponse RosInterfaceNode::actionHandleGoal(
   using GoalHandle = rclcpp_action::ClientGoalHandle<ActType>;
 
   if (!action->client->action_server_is_ready()) {
-    TOBAS_WARN("\"", action->name, "\" action is not ready.");
+    TOBAS_WARN("'", action->name, "' action is not ready.");
     return rclcpp_action::GoalResponse::REJECT;
   }
 

@@ -58,11 +58,11 @@ void DynamicParamServer::callback(
 
   auto client_it = clients_.find(req->node_name);
   if (client_it == clients_.end()) {
-    TOBAS_INFO("Creating a new parameter client for \"", req->node_name, "\".");
+    TOBAS_INFO("Creating a new parameter client for '", req->node_name, "'.");
     ros2::SyncParamClient client(shared_from_this(), req->node_name);
     if (!client.waitForService(1s)) {
       res->success = false;
-      res->message = "Failed to find \"" + req->node_name + "\".";
+      res->message = "Failed to find '" + req->node_name + "'.";
       return;
     }
     client_it = clients_.insert({ req->node_name, client }).first;

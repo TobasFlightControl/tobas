@@ -350,7 +350,7 @@ void BaseNode::addDynamicBoolParam(
   const bool& default_value)
 {
   if (has_parameter(param_name)) {
-    TOBAS_ERROR("Parameter \"", param_name, "\" is already declared.");
+    TOBAS_ERROR("Parameter '", param_name, "' is already declared.");
     return;
   }
 
@@ -372,7 +372,7 @@ void BaseNode::addDynamicBoolParam(
           break;
         }
       }
-      TOBAS_INFO("Boolean parameter \"", param_name, "\" has been updated to ", value, ".");
+      TOBAS_INFO("Boolean parameter '", param_name, "' has been updated to ", value, ".");
     }
   };
   const auto cb_handle = dparam_sub_.add_parameter_callback(param_name, cb);
@@ -394,7 +394,7 @@ void BaseNode::addDynamicIntParam(
   TOBAS_ASSERT(maximum_value - minimum_value < kMaxDynamicParamSteps);
 
   if (has_parameter(param_name)) {
-    TOBAS_ERROR("Parameter \"", param_name, "\" is already declared.");
+    TOBAS_ERROR("Parameter '", param_name, "' is already declared.");
     return;
   }
 
@@ -421,7 +421,7 @@ void BaseNode::addDynamicIntParam(
           break;
         }
       }
-      TOBAS_INFO("Integer parameter \"", param_name, "\" has been updated to ", value, prefix, ".");
+      TOBAS_INFO("Integer parameter '", param_name, "' has been updated to ", value, prefix, ".");
     }
   };
   const auto cb_handle = dparam_sub_.add_parameter_callback(param_name, cb);
@@ -443,7 +443,7 @@ void BaseNode::addDynamicDoubleParam(
   TOBAS_ASSERT(maximum_value - minimum_value < kMaxDynamicParamSteps);
 
   if (has_parameter(param_name)) {
-    TOBAS_ERROR("Parameter \"", param_name, "\" is already declared.");
+    TOBAS_ERROR("Parameter '", param_name, "' is already declared.");
     return;
   }
 
@@ -470,7 +470,7 @@ void BaseNode::addDynamicDoubleParam(
           break;
         }
       }
-      TOBAS_INFO("Double parameter \"", param_name, "\" has been updated to ", value, prefix, ".");
+      TOBAS_INFO("Double parameter '", param_name, "' has been updated to ", value, prefix, ".");
     }
   };
   const auto cb_handle = dparam_sub_.add_parameter_callback(param_name, cb);
@@ -485,7 +485,7 @@ void BaseNode::addDynamicStringParam(
   const std::string& default_value)
 {
   if (has_parameter(param_name)) {
-    TOBAS_ERROR("Parameter \"", param_name, "\" is already declared.");
+    TOBAS_ERROR("Parameter '", param_name, "' is already declared.");
     return;
   }
 
@@ -507,7 +507,7 @@ void BaseNode::addDynamicStringParam(
           break;
         }
       }
-      TOBAS_INFO("String parameter \"", param_name, "\" has been updated to \"", value, "\".");
+      TOBAS_INFO("String parameter '", param_name, "' has been updated to '", value, "'.");
     }
   };
   const auto cb_handle = dparam_sub_.add_parameter_callback(param_name, cb);
@@ -658,10 +658,10 @@ T BaseNode::declareParam(const std::string& param_name)
     return declare_parameter<T>(param_name);
   }
   catch (const rclcpp::exceptions::UninitializedStaticallyTypedParameterException&) {
-    TOBAS_EXIT("Parameter \"", param_name, "\" is not initialized.");
+    TOBAS_EXIT("Parameter '", param_name, "' is not initialized.");
   }
   catch (const std::exception& e) {
-    TOBAS_EXIT("Unexptected error while declaring \"", param_name, "\": ", e.what());
+    TOBAS_EXIT("Unexptected error while declaring '", param_name, "': ", e.what());
   }
 }
 
@@ -672,18 +672,18 @@ T BaseNode::declareParam(const std::string& param_name, const T& default_value)
     return declare_parameter<T>(param_name);
   }
   catch (const rclcpp::exceptions::UninitializedStaticallyTypedParameterException&) {
-    TOBAS_WARN("Parameter \"", param_name, "\" is not initialized. The default value \"", default_value, "\" is set.");
+    TOBAS_WARN("Parameter '", param_name, "' is not initialized. The default value '", default_value, "' is set.");
 
     // At this point the parameter has only been declared, so set the default value.
     const auto set_param_res = set_parameter(rclcpp::Parameter(param_name, default_value));
     if (!set_param_res.successful) {
-      TOBAS_ERROR("Failed to set \"", param_name, "\": ", set_param_res.reason);
+      TOBAS_ERROR("Failed to set '", param_name, "': ", set_param_res.reason);
     }
 
     return default_value;
   }
   catch (const std::exception& e) {
-    TOBAS_EXIT("Unexptected error while declaring \"", param_name, "\": ", e.what());
+    TOBAS_EXIT("Unexptected error while declaring '", param_name, "': ", e.what());
   }
 }
 

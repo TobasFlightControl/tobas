@@ -200,7 +200,7 @@ bool Mission::load(const YAML::Node& mission_node)
 
     const auto data_node = item_node[kDataKey];
     if (!data_node.IsDefined()) {
-      std::cerr << "\"" << kDataKey << "\" is not defined." << std::endl;
+      std::cerr << "'" << kDataKey << "' is not defined." << std::endl;
       return false;
     }
 

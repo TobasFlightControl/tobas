@@ -48,7 +48,7 @@ SbusDriverNode::SbusDriverNode(const rclcpp::NodeOptions& options)
 void SbusDriverNode::initialize()
 {
   if (!sbus_.initialize(device_.c_str())) {
-    TOBAS_WARN("Failed to initialize the S.BUS driver with device \"", device_, "\". Retrying...");
+    TOBAS_WARN("Failed to initialize the S.BUS driver with device '", device_, "'. Retrying...");
     return;
   }
 

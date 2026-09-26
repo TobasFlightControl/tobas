@@ -78,7 +78,7 @@ bool UARTdev::initialize(const char* uart_dev, bool block_mode)
   }
   uart_fd_ = open(uart_dev, oflag);
   if (uart_fd_ < 0) {
-    cerr << "Failed to open UART device \"" << uart_dev << "\": " << strError() << endl;
+    cerr << "Failed to open UART device '" << uart_dev << "': " << strError() << endl;
     return false;
   }
 

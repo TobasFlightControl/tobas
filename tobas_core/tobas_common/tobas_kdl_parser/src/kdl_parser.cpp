@@ -49,8 +49,8 @@ bool TreeParser::parseFromUrdf(const ::urdf::ModelInterface& model, Tree& tree)
 
   // Error if root link has inertia. KDL does not support this.
   if (root_link->inertial) {
-    error_msg_ = "The root link \"" + root_link->name +
-                 "\" has an inertia specified in the URDF, "
+    error_msg_ = "The root link '" + root_link->name +
+                 "' has an inertia specified in the URDF, "
                  "but KDL does not support a root link with an inertia. "
                  "As a workaround, you can add an extra dummy link to your URDF.";
     return false;

@@ -32,7 +32,7 @@ char* getCommandLineOption(char** begin, char** end, const char* option)
   }
 
   if (idx < end_idx - 1 && !begin[idx++]) {
-    std::cerr << "Command line option \"" << option << "\" does not exist." << std::endl;
+    std::cerr << "Command line option '" << option << "' does not exist." << std::endl;
     return nullptr;
   }
 

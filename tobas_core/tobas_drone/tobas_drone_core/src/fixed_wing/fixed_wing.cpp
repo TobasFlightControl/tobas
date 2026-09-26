@@ -35,7 +35,7 @@ bool FixedWingConfig::isValid() const
 
   for (const auto& [_, cs] : control_surfaces) {
     if (!cs.isValid()) {
-      cerr << "The configuration of control surface \"" << cs.link_name << "\" is invalid." << endl;
+      cerr << "The configuration of control surface '" << cs.link_name << "' is invalid." << endl;
       return false;
     }
   }
@@ -50,7 +50,7 @@ bool FixedWingConfig::load(const YAML::Node& root_node)
   // Vehicle
   const auto vehicle_node = root_node[kVehicleKey];
   if (!vehicle_node.IsDefined()) {
-    cerr << "\"" << kVehicleKey << "\" is not defined." << endl;
+    cerr << "'" << kVehicleKey << "' is not defined." << endl;
     return false;
   }
   if (!vehicle.load(vehicle_node)) {
@@ -61,7 +61,7 @@ bool FixedWingConfig::load(const YAML::Node& root_node)
   // Aerodynamics
   const auto aero_node = root_node[kAerodynamicsKey];
   if (!aero_node.IsDefined()) {
-    cerr << "\"" << kAerodynamicsKey << "\" is not defined." << endl;
+    cerr << "'" << kAerodynamicsKey << "' is not defined." << endl;
     return false;
   }
   if (!aerodynamics.load(aero_node)) {
@@ -72,7 +72,7 @@ bool FixedWingConfig::load(const YAML::Node& root_node)
   // Control surfaces
   const auto css_node = root_node[kControlSurfacesKey];
   if (!css_node.IsSequence()) {
-    cerr << "\"" << kControlSurfacesKey << "\" is not defined." << endl;
+    cerr << "'" << kControlSurfacesKey << "' is not defined." << endl;
     return false;
   }
   for (const auto& cs_node : css_node) {

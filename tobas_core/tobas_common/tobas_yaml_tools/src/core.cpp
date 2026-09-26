@@ -39,7 +39,7 @@ bool save(const fs::path& path, const YAML::Node& node) noexcept
 {
   std::ofstream fout(path);
   if (!fout.is_open()) {
-    std::cerr << "Failed to open \"" << path << "\" for writing." << std::endl;
+    std::cerr << "Failed to open '" << path << "' for writing." << std::endl;
     return false;
   }
 

@@ -171,7 +171,7 @@ bool EffortControllerNode::jointSpaceControl(
   for (const auto& tar_state : tar_js.states) {
     const auto& jnt_name = tar_state.name;
     if (!jnt_names_.contains(jnt_name)) {
-      TOBAS_ERROR("The target joint \"", jnt_name, "\" is not included in the joint group.");
+      TOBAS_ERROR("The target joint '", jnt_name, "' is not included in the joint group.");
       return false;
     }
     efforts_msg.commands.emplace_back();
@@ -229,7 +229,7 @@ bool EffortControllerNode::taskSpaceControl(
   // Fill output message.
   for (const auto& jnt_name : active_jnt_names) {
     if (!jnt_names_.contains(jnt_name)) {
-      TOBAS_ERROR("The target joint \"", jnt_name, "\" is not included in the joint group.");
+      TOBAS_ERROR("The target joint '", jnt_name, "' is not included in the joint group.");
       return false;
     }
     efforts_msg.commands.emplace_back();
@@ -310,12 +310,12 @@ void EffortControllerNode::droneCb(const Drone::ConstSharedPtr& drone)
   for (const auto& jnt_name : jnt_names_) {
     const auto joint_it = drone->joints.find(jnt_name);
     if (joint_it == drone->joints.end()) {
-      TOBAS_WARN("The drone does not have joint \"", jnt_name, "\".");
+      TOBAS_WARN("The drone does not have joint '", jnt_name, "'.");
       continue;
     }
     const auto& joint = joint_it->second;
     if (joint.cmd_iface != JointCommandInterface::kEffort) {
-      TOBAS_WARN("The command interface of joint \"", jnt_name, "\" is not effort.");
+      TOBAS_WARN("The command interface of joint '", jnt_name, "' is not effort.");
       continue;
     }
     home_js_.states.emplace_back();

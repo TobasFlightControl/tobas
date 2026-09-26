@@ -60,12 +60,12 @@ std::expected<std::string, std::string> getPackageNameOf(const fs::path& path)
 
   const auto pkg = doc.FirstChildElement("package");
   if (!pkg) {
-    return std::unexpected("\"package\" element not found.");
+    return std::unexpected("'package' element not found.");
   }
 
   const auto name = pkg->FirstChildElement("name");
   if (!name) {
-    return std::unexpected("\"name\" element not found.");
+    return std::unexpected("'name' element not found.");
   }
 
   return name->GetText();
@@ -75,7 +75,7 @@ std::expected<fs::path, std::string> estimateWorkspaceOf(const fs::path& path)
 {
   const auto pkg_path = getPackagePathOf(path);
   if (!pkg_path) {
-    return std::unexpected("\"" + path.string() + "\" is not in a ROS package: " + pkg_path.error());
+    return std::unexpected("'" + path.string() + "' is not in a ROS package: " + pkg_path.error());
   }
 
   auto cur = pkg_path->parent_path();
@@ -85,7 +85,7 @@ std::expected<fs::path, std::string> estimateWorkspaceOf(const fs::path& path)
       return parent;
     }
     if (parent == cur) {
-      return std::unexpected("No \"src\" directory found.");
+      return std::unexpected("No 'src' directory found.");
     }
     cur = parent;
   }

@@ -88,7 +88,7 @@ bool ImuFilterConfigServer::notchFilterConfigReady() const
 bool ImuFilterConfigServer::sendLowPassFilterConfigRequest()
 {
   if (!config_lowpass_filter_sc_->service_is_ready()) {
-    TOBAS_ERROR("\"", service::kConfigureImuLowPassFilter, "\" is not ready.");
+    TOBAS_ERROR("'", service::kConfigureImuLowPassFilter, "' is not ready.");
     return false;
   }
 
@@ -105,7 +105,7 @@ bool ImuFilterConfigServer::sendLowPassFilterConfigRequest()
 bool ImuFilterConfigServer::sendRpmFilterConfigRequest()
 {
   if (!config_rpm_filter_sc_->service_is_ready()) {
-    TOBAS_ERROR("\"", service::kConfigureImuRpmFilter, "\" is not ready.");
+    TOBAS_ERROR("'", service::kConfigureImuRpmFilter, "' is not ready.");
     return false;
   }
 

@@ -50,7 +50,7 @@ bool Drone::isValid() const
 
   for (const auto& [_, joint] : joints) {
     if (!joint.isValid()) {
-      cerr << "The configuration of joint \"" << joint.name << "\" is invalid." << endl;
+      cerr << "The configuration of joint '" << joint.name << "' is invalid." << endl;
       return false;
     }
   }
@@ -89,11 +89,11 @@ bool Drone::load(const YAML::Node& root_node)
   // Joints
   const auto joints_node = root_node[kJointsKey];
   if (!joints_node.IsDefined()) {
-    cerr << "\"" << kJointsKey << "\" is not defined." << endl;
+    cerr << "'" << kJointsKey << "' is not defined." << endl;
     return false;
   }
   if (!joints_node.IsSequence()) {
-    cerr << "\"" << kJointsKey << "\" must be a sequence." << endl;
+    cerr << "'" << kJointsKey << "' must be a sequence." << endl;
     return false;
   }
   for (const auto& joint_node : joints_node) {
@@ -108,11 +108,11 @@ bool Drone::load(const YAML::Node& root_node)
   // PWM
   const auto pwms_node = root_node[kPwmsKey];
   if (!pwms_node.IsDefined()) {
-    cerr << "\"" << kPwmsKey << "\" is not defined." << endl;
+    cerr << "'" << kPwmsKey << "' is not defined." << endl;
     return false;
   }
   if (!pwms_node.IsSequence()) {
-    cerr << "\"" << kPwmsKey << "\" must be a sequence." << endl;
+    cerr << "'" << kPwmsKey << "' must be a sequence." << endl;
     return false;
   }
   for (const auto& pwm_node : pwms_node) {
@@ -132,7 +132,7 @@ bool Drone::load(const YAML::Node& root_node)
 
   const auto prop_node = root_node[kPropulsionSystemKey];
   if (!prop_node.IsDefined()) {
-    cerr << "\"" << kPropulsionSystemKey << "\" is not defined." << endl;
+    cerr << "'" << kPropulsionSystemKey << "' is not defined." << endl;
     return false;
   }
 

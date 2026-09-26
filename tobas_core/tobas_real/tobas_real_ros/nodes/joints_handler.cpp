@@ -149,7 +149,7 @@ void JointsHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCommandA
     // Get joint config.
     const auto joint_it = drone_->joints.find(jnt_name);
     if (joint_it == drone_->joints.end()) {
-      TOBAS_ERROR("Joint \"", jnt_name, "\" is not found.");
+      TOBAS_ERROR("Joint '", jnt_name, "' is not found.");
       continue;
     }
     const auto& joint = joint_it->second;
@@ -175,7 +175,7 @@ void JointsHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCommandA
         break;
       }
       default: {
-        TOBAS_ERROR("The hardware interface of joint \"", jnt_name, "\" is invalid: ", (int)joint.hw_iface);
+        TOBAS_ERROR("The hardware interface of joint '", jnt_name, "' is invalid: ", (int)joint.hw_iface);
         break;
       }
     }
@@ -258,7 +258,7 @@ void JointsHandlerNode::positionResetTimerCb()
         break;
       }
       default: {
-        TOBAS_WARN("The hardware interface of joint \"", joint.name, "\" is invalid: ", (int)joint.hw_iface);
+        TOBAS_WARN("The hardware interface of joint '", joint.name, "' is invalid: ", (int)joint.hw_iface);
         break;
       }
     }
