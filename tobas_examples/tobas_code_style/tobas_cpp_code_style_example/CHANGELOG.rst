@@ -2,6 +2,11 @@
 Changelog for package tobas_cpp_code_style_example
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Add dependencies
+* Contributors: Masayoshi Dohi
+
 2.16.4 (2026-09-25)
 -------------------
 

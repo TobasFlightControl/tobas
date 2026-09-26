@@ -2,6 +2,9 @@
 Changelog for package tobas_joint_states_bridge
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 2.16.4 (2026-09-25)
 -------------------
 

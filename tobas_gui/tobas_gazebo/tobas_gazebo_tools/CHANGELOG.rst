@@ -2,6 +2,9 @@
 Changelog for package tobas_gazebo_tools
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 2.16.4 (2026-09-25)
 -------------------
 

@@ -2,6 +2,11 @@
 Changelog for package tobas_fc1xx_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Add dependencies
+* Contributors: Masayoshi Dohi
+
 2.16.4 (2026-09-25)
 -------------------
 

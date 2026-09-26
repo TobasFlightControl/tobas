@@ -2,6 +2,9 @@
 Changelog for package tobas_planar_multi_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 2.16.4 (2026-09-25)
 -------------------
 

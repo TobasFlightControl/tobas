@@ -2,6 +2,11 @@
 Changelog for package tobas_examples_py
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Add dependencies
+* Contributors: Masayoshi Dohi
+
 2.16.4 (2026-09-25)
 -------------------
 

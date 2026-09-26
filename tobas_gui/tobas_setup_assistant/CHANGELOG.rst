@@ -2,6 +2,12 @@
 Changelog for package tobas_setup_assistant
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Add dependencies
+* Add dependencies
+* Contributors: Masayoshi Dohi
+
 2.16.4 (2026-09-25)
 -------------------
 
