@@ -4,7 +4,9 @@
 #pragma once
 
 #include <memory>
+#include <string>
 #include <unordered_set>
+#include <vector>
 
 #include "./chain.hpp"
 
@@ -70,6 +72,13 @@ public:
    * @param hook_name name of the segment to connect this segment with
    */
   bool addSegment(const Segment& segment, const std::string& hook_name);
+
+  /**
+   * @brief Removes a leaf segment without invalidating other segment iterators.
+   *
+   * @param seg_name name of the segment to remove from the tree
+   */
+  bool removeSegment(const std::string& seg_name);
 
   /**
    * @brief Adds a complete chain to the end of the segment with hook_name as seg_name.
