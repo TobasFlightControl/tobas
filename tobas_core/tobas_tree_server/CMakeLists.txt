@@ -11,7 +11,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Wswitch-enum -Werror")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-set(AMENT_DEPENDENCIES tobas_kdl_parser tobas_kdl_msgs_adapter tobas_node tobas_constants tobas_msgs)
+set(AMENT_DEPENDENCIES tobas_kdl tobas_kdl_parser tobas_kdl_msgs_adapter tobas_node tobas_constants tobas_msgs)
 
 find_package(ament_cmake REQUIRED)
 foreach(dependency IN ITEMS ${AMENT_DEPENDENCIES})
