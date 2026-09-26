@@ -175,16 +175,6 @@ std::string sanitize(const char* s)
   return std::string(first, last);
 }
 
-bool contains(const std::string& s, const std::string& sub)
-{
-  return s.find(sub) != std::string::npos;
-}
-
-bool contains(const std::string& s, const char& sub)
-{
-  return s.find(sub) != std::string::npos;
-}
-
 bool isValidFileName(const std::string& file_name)
 {
   if (file_name.empty() || file_name == "." || file_name == "..") {

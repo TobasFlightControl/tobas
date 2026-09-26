@@ -46,12 +46,6 @@ std::string replace(std::string s, const std::string& from, const std::string& t
 /* Remove control characters from a string. */
 std::string sanitize(const char* s);
 
-/* Check whether a substring is included. */
-bool contains(const std::string& s, const std::string& sub);
-
-/* Check whether a character is included. */
-bool contains(const std::string& s, const char& sub);
-
 /**
  * @brief Reject empty names, `.` and `..`, ASCII control characters, and reserved punctuation.
  * This does not check Windows reserved names, trailing spaces or periods, or filesystem length limits.
