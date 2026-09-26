@@ -1,9 +1,21 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright (C) 2026 Tobas, Inc.
 
+# Attach a load to the robot's kinematic tree with a fixed joint.
+
+# Non-empty identifier that must be unique among currently attached loads.
 string load_id
+
+# Name of the existing link to which the load is attached.
 string parent_link
+
+# Load inertia expressed in the parent link frame:
+# mass [kg], center of gravity relative to the parent link origin [m],
+# and rotational inertia about the center of gravity [kg * m^2].
 tobas_kdl_msgs/RigidBodyInertia inertia
 ---
+# True if the load was attached successfully.
 bool success
+
+# Error description on failure; empty on success.
 string message

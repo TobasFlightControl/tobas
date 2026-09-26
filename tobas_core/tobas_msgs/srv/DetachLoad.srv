@@ -1,7 +1,13 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright (C) 2026 Tobas, Inc.
 
+# Detach a previously attached load from the robot's kinematic tree.
+
+# Identifier specified in the corresponding AttachLoad request.
 string load_id
 ---
+# True if the load was detached successfully.
 bool success
+
+# Error description on failure; empty on success.
 string message
