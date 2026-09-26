@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include "tobas_gazebo_system_plugins/load_collision.hpp"
+#include "tobas_gazebo_system_plugins/box_model_collision.hpp"
 
 #include <array>
 #include <cmath>
@@ -162,10 +162,10 @@ bool boxesOverlap(
 }
 }  // namespace
 
-std::optional<std::string> checkLoadCollision(
+std::optional<std::string> checkBoxModelCollision(
   gz::sim::Entity model,
-  const gz::math::Pose3d& load_pose,
-  const gz::math::Vector3d& load_size,
+  const gz::math::Pose3d& box_pose,
+  const gz::math::Vector3d& box_size,
   const gz::sim::EntityComponentManager& ecm)
 {
   for (const auto entity : ecm.Descendants(model)) {
@@ -184,10 +184,10 @@ std::optional<std::string> checkLoadCollision(
     }
 
     const auto collision_pose = gz::sim::worldPose(entity, ecm);
-    const gz::math::Pose3d box_pose(collision_pose.CoordPositionAdd(bounds->Center()), collision_pose.Rot());
-    if (boxesOverlap(load_pose, load_size, box_pose, bounds->Size())) {
+    const gz::math::Pose3d collision_box_pose(collision_pose.CoordPositionAdd(bounds->Center()), collision_pose.Rot());
+    if (boxesOverlap(box_pose, box_size, collision_box_pose, bounds->Size())) {
       const auto name = gz::sim::scopedName(entity, ecm, "::", false);
-      return "Load overlaps or touches the bounding box of aircraft collision '" + name + "'.";
+      return "Box overlaps or touches the bounding box of model collision '" + name + "'.";
     }
   }
 

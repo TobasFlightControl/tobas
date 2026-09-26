@@ -15,11 +15,11 @@ namespace tobas
 {
 namespace gazebo
 {
-/* Check a proposed box load against every collision in the aircraft model. */
-std::optional<std::string> checkLoadCollision(
+/* Check a box against every collision in a model. */
+std::optional<std::string> checkBoxModelCollision(
   gz::sim::Entity model,
-  const gz::math::Pose3d& load_pose,
-  const gz::math::Vector3d& load_size,
+  const gz::math::Pose3d& box_pose,
+  const gz::math::Vector3d& box_size,
   const gz::sim::EntityComponentManager& ecm);
 }  // namespace gazebo
 }  // namespace tobas

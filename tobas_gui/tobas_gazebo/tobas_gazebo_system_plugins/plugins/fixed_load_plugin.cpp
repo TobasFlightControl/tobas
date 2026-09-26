@@ -20,8 +20,8 @@
 #include <tobas_gazebo_msgs/srv/attach_fixed_load.hpp>
 #include <tobas_gazebo_msgs/srv/detach_fixed_load.hpp>
 
+#include "tobas_gazebo_system_plugins/box_model_collision.hpp"
 #include "tobas_gazebo_system_plugins/common/common.hpp"
-#include "tobas_gazebo_system_plugins/load_collision.hpp"
 #include "tobas_gazebo_system_plugins/sdf_string.hpp"
 
 using namespace std::chrono_literals;
@@ -194,7 +194,7 @@ bool GazeboFixedLoadPlugin::attachLoad(
   // Reject unsafe placements before creating any entities or changing the index.
   gz::math::Vector3d load_size;
   vectorRosToGazebo(req.load_size, load_size);
-  if (const auto error = checkLoadCollision(model_entity_, T_W_L, load_size, ecm)) {
+  if (const auto error = checkBoxModelCollision(model_entity_, T_W_L, load_size, ecm)) {
     message = *error;
     return false;
   }
