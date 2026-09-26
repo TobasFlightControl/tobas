@@ -40,7 +40,7 @@ def generate_launch_description():
     hw_pkg_share = FindPackageShare(HARDWARE_PKG)
 
     # Parse URDF
-    xacro_path = PathJoinSubstitution([FindPackageShare(CONFIG_PKG_NAME), "urdf", "drone.xacro"])
+    xacro_path = PathJoinSubstitution([config_pkg_share, "urdf", "drone.xacro"])
     urdf_text = Command([FindExecutable(name="xacro"), " ", xacro_path, " DEBUG:=false ID:=", id])
 
     # Launch Tobas core software
