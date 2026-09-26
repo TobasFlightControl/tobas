@@ -1,8 +1,8 @@
 # ROS API
 
-全ての API を網羅してはおらず，主要なものについてのみ記載しています．
-詳しくは実行時に`$ ros2 topic list`等でご確認ください．
-`remote_interface`名前空間内の API を使うと，外部端末から FC と通信することもできます．
+Tobas が提供する主要なトピック，サービス，アクションを説明します．
+利用できる API は機体の構成や起動するノードによって異なります．実行時に`ros2 topic list`，`ros2 service list`，`ros2 action list`で確認してください．
+外部端末から FC と通信する場合は，`remote_interface`名前空間で公開されている API を使用します．
 
 ## トピック
 
@@ -13,11 +13,11 @@
 
 ### Common
 
-実機，シミュレーション両方で使用できるトピックです．
+実機とシミュレーションの両方で使用できるトピックです．
 
 #### battery (tobas_msgs/Battery)
 
-バッテリーの状態．
+バッテリーの電圧 [V] と電流 [A] を配信する．
 
 ```txt
 std_msgs/Header header
@@ -31,7 +31,7 @@ float64 current  # [A]
 
 #### engine_state (tobas_msgs/EngineState)
 
-エンジンの状態．
+エンジンの回転速度 [rad/s]，燃料残量 [L]，油温 [degC] を配信する．
 
 ```txt
 std_msgs/Header header
@@ -46,7 +46,7 @@ float64 oil_temperature  # [degC]
 
 #### cpu (tobas_msgs/Cpu)
 
-CPU の状態．
+FC の CPU の動作周波数 [Hz]，温度 [degC]，負荷を配信する．
 
 ```txt
 std_msgs/Header header
@@ -61,7 +61,8 @@ float64 load         # [-]
 
 #### sbus (tobas_msgs/Sbus)
 
-RC レシーバから取得した生の S.BUS メッセージ．
+RC レシーバから受信した S.BUS のチャンネル値と受信状態を配信する．
+`frame_lost`はフレームの欠落，`failsafe`はレシーバのフェイルセーフ状態を表す．
 
 ```txt
 std_msgs/Header header
@@ -78,7 +79,9 @@ bool failsafe
 
 #### rc_input (tobas_msgs/RCInput)
 
-S.BUS を変換し，扱いやすくしたメッセージ．
+RC 入力を操縦用の値に変換して配信する．
+ロール，ピッチ，スロットル，ヨーの入力に加え，飛行モード，操縦の有効・無効，キルスイッチ，汎用スイッチの状態を含む．
+`status`で入力の受信状態を確認できる．
 
 ```txt
 std_msgs/Header header
@@ -106,7 +109,8 @@ bool[8] gpsw      # CH9-16: General Purpose Switch
 
 #### imu_raw (tobas_msgs/Imu)
 
-フィルタリング前の IMU．
+フィルタリング前の IMU データを配信する．
+`accel`は加速度 [m/s^2]，`gyro`は角速度 [rad/s]，`dgyro`は角加速度 [rad/s^2] を表す．
 
 ```txt
 std_msgs/Header header
@@ -130,7 +134,8 @@ tobas_kdl_msgs/Vector dgyro  # [rad/s^2]
 
 #### imu_filtered (tobas_msgs/Imu)
 
-フィルタリング後の IMU．
+フィルタリング後の IMU データを配信する．
+`imu_raw`と同じ形式で，加速度，角速度，角加速度を含む．
 
 ```txt
 std_msgs/Header header
@@ -154,7 +159,8 @@ tobas_kdl_msgs/Vector dgyro  # [rad/s^2]
 
 #### magnetic_field (tobas_msgs/MagneticField)
 
-3 軸の地磁気．
+磁気センサから取得した 3 軸の磁場ベクトルを配信する．
+`mag`の各成分は無次元量として扱う．
 
 ```txt
 std_msgs/Header header
@@ -170,7 +176,7 @@ tobas_kdl_msgs/Vector mag  # [-]
 
 #### air_pressure (tobas_msgs/FluidPressure)
 
-大気圧．
+気圧センサから取得した大気圧を Pa 単位で配信する．
 
 ```txt
 std_msgs/Header header
@@ -183,7 +189,9 @@ float64 pressure  # [Pa]
 
 #### gnss (tobas_msgs/Gnss)
 
-GNSS から取得した位置と速度．
+GNSS による位置・速度の測定値と測位状態を配信する．
+位置は緯度・経度，WGS 84 楕円体からの高さ，平均海面からの高さで表し，対地速度は ENU 座標系で表す．
+位置・速度の共分散，測位種別，測位に使用した衛星数も含む．
 
 ```txt
 std_msgs/Header header
@@ -223,7 +231,8 @@ uint8 num_satellites_used  # Satellites used in the navigation solution
 
 #### rotor_states (tobas_msgs/RotorStateArray)
 
-各ロータの状態．
+各ロータの回転速度，推力，エラー状態を配信する．
+`states`の各要素は`link_name`でロータを識別する．
 
 ```txt
 std_msgs/Header header
@@ -242,7 +251,8 @@ tobas_msgs/RotorState[] states
 
 #### joint_states_2 (tobas_msgs/JointStateArray)
 
-可動ジョイントの状態．
+可動ジョイントごとの位置，速度，力またはトルクを配信する．
+`states`の各要素は`name`でジョイントを識別する．
 
 ```txt
 std_msgs/Header header
@@ -259,7 +269,9 @@ tobas_msgs/JointState[] states
 
 #### odom (tobas_msgs/OdometryWithCovarianceStamped)
 
-状態推定器によって推定された，起動位置に対する位置，速度，加速度．
+状態推定器が推定した機体の位置・姿勢，並進・角速度，並進・角加速度を配信する．
+位置・姿勢はグローバル座標系，速度・加速度は機体座標系で表す．
+位置，姿勢，速度，角速度の推定誤差の共分散も含む．
 
 ```txt
 std_msgs/Header header
@@ -306,8 +318,8 @@ tobas_msgs/OdometryWithCovariance odom
 
 #### trajectory_setpoint (tobas_msgs/OdometryStamped)
 
-制御器の現在の設定値．
-制御されていない値（例: 姿勢制御モードにおける位置速度）には NaN が入る．
+制御器が現在追従している位置・姿勢，速度，加速度の目標値を配信する．
+制御対象でない成分には NaN が入る．例えば，姿勢制御モードでは位置・速度の目標値が NaN になる．
 
 ```txt
 std_msgs/Header header
@@ -345,7 +357,8 @@ tobas_msgs/Odometry odom
 
 #### arming (tobas_msgs/Arming)
 
-全てのロータがアームされているか否か．
+ロータのアーム状態を配信する．
+`data`が`true`ならアーム状態，`false`ならディスアーム状態を表す．
 
 ```txt
 std_msgs/Header header
@@ -358,10 +371,13 @@ bool data
 
 ### Command
 
-ユーザは FC 内部からこれらのトピックを発行することでドローンを操作することができます．
-受け付けるコマンドは機体フレームの型と飛行モードによって決まるため，ROS 2 の CLI でご確認ください．
+これらのトピックに指令を発行すると，機体やジョイントの目標値を指定できます．
+利用できる指令は機体フレームの型と飛行モードによって異なります．実行時に ROS 2 の CLI で対象トピックと購読ノードを確認してください．
+`priority`を持つ指令では，通常指令を`NORMAL`，防御的な指令を`DEFENSIVE`，手動指令を`MANUAL`で指定します．
 
 #### command/rate (tobas_command_msgs/Rate)
+
+機体座標系の 3 軸まわりの目標角速度を rad/s 単位で指令する．
 
 ```txt
 std_msgs/Header header
@@ -383,6 +399,9 @@ tobas_kdl_msgs/Vector rate  # Target angular velocity expressed in the local fra
 
 #### command/rate_throttle (tobas_command_msgs/RateThrottle)
 
+機体座標系の目標角速度 [rad/s] とスロットルを指令する．
+`throttle`は 0 から 1 の範囲で指定する．
+
 ```txt
 std_msgs/Header header
 	builtin_interfaces/Time stamp
@@ -403,6 +422,9 @@ float64 throttle            # Target throttle [0, 1]
 ```
 
 #### command/rate_throttle_vector (tobas_command_msgs/RateThrottleVector)
+
+機体座標系の目標角速度 [rad/s]，スロットル，推力方向を指令する．
+`throttle`は 0 から 1 の範囲，`thrust_angle`は推力方向の角度 [rad] を指定する．
 
 ```txt
 std_msgs/Header header
@@ -426,6 +448,8 @@ float64 thrust_angle        # Target thrust angle [rad]
 
 #### command/angle (tobas_command_msgs/Angle)
 
+グローバル座標系に対する目標姿勢を，ロール・ピッチ・ヨーのオイラー角 [rad] で指令する．
+
 ```txt
 std_msgs/Header header
 	builtin_interfaces/Time stamp
@@ -445,6 +469,9 @@ tobas_kdl_msgs/Euler angle  # Target euler angles expressed in the global frame 
 ```
 
 #### command/angle_throttle (tobas_command_msgs/AngleThrottle)
+
+グローバル座標系に対する目標姿勢 [rad] とスロットルを指令する．
+`angle`にロール・ピッチ・ヨーを，`throttle`に 0 から 1 の値を指定する．
 
 ```txt
 std_msgs/Header header
@@ -466,6 +493,9 @@ float64 throttle            # Target throttle [0, 1]
 ```
 
 #### command/angle_throttle_vector (tobas_command_msgs/AngleThrottleVector)
+
+グローバル座標系に対する目標姿勢 [rad]，スロットル，推力方向を指令する．
+`angle`にロール・ピッチ・ヨー，`throttle`に 0 から 1 の値，`thrust_angle`に推力方向の角度 [rad] を指定する．
 
 ```txt
 std_msgs/Header header
@@ -489,6 +519,8 @@ float64 thrust_angle        # Target thrust angle [rad]
 
 #### command/accel (tobas_command_msgs/Accel)
 
+グローバル座標系の目標並進加速度を m/s^2 単位で指令する．
+
 ```txt
 std_msgs/Header header
 	builtin_interfaces/Time stamp
@@ -508,6 +540,8 @@ tobas_kdl_msgs/Vector accel  # Target linear acceleration expressed in the globa
 ```
 
 #### command/accel_yaw (tobas_command_msgs/AccelYaw)
+
+グローバル座標系の目標並進加速度 [m/s^2] と目標ヨー角 [rad] を指令する．
 
 ```txt
 std_msgs/Header header
@@ -530,6 +564,8 @@ float64 yaw                  # Target yaw angle [rad]
 
 #### command/accel_pitch_yaw (tobas_command_msgs/AccelPitchYaw)
 
+グローバル座標系の目標並進加速度 [m/s^2] と目標ピッチ角・ヨー角 [rad] を指令する．
+
 ```txt
 std_msgs/Header header
 	builtin_interfaces/Time stamp
@@ -551,6 +587,9 @@ float64 yaw                  # Target yaw angle [rad]
 ```
 
 #### command/pos_vel_acc (tobas_command_msgs/PosVelAcc)
+
+グローバル座標系の目標位置，速度，加速度をまとめて指令する．
+`pos`は位置 [m]，`vel`は速度 [m/s]，`acc`は加速度 [m/s^2] を指定する．
 
 ```txt
 std_msgs/Header header
@@ -580,6 +619,8 @@ tobas_kdl_msgs/Vector acc  # Target linear acceleration expressed in the global 
 
 #### command/pos_vel_acc_yaw (tobas_command_msgs/PosVelAccYaw)
 
+グローバル座標系の目標位置 [m]，速度 [m/s]，加速度 [m/s^2] と目標ヨー角 [rad] を指令する．
+
 ```txt
 std_msgs/Header header
 	builtin_interfaces/Time stamp
@@ -608,6 +649,8 @@ float64 yaw                # Target yaw angle [rad]
 ```
 
 #### command/pos_vel_acc_pitch_yaw (tobas_command_msgs/PosVelAccPitchYaw)
+
+グローバル座標系の目標位置 [m]，速度 [m/s]，加速度 [m/s^2] と目標ピッチ角・ヨー角 [rad] を指令する．
 
 ```txt
 std_msgs/Header header
@@ -639,6 +682,9 @@ float64 yaw                # Target yaw angle [rad]
 
 #### command/speed_roll_delta_pitch (tobas_command_msgs/SpeedRollDeltaPitch)
 
+固定翼機の目標速度 [m/s]，ロール角 [rad]，トリム姿勢からのピッチ角の差分 [rad] を指令する．
+`delta_pitch`はトリム時のピッチ角を基準とした変化量を指定する．
+
 ```txt
 std_msgs/Header header
 	builtin_interfaces/Time stamp
@@ -658,7 +704,8 @@ float64 delta_pitch  # [rad]
 
 #### command/joint_positions (tobas_msgs/JointCommandArray)
 
-ジョイントに対する位置指令．
+ジョイントごとの目標位置を指令する．
+`commands`の各要素にジョイント名`name`と目標値`data`を指定する．回転ジョイントでは角度 [rad]，直動ジョイントでは変位 [m] を用いる．
 
 ```txt
 std_msgs/Header header
@@ -673,7 +720,8 @@ tobas_msgs/JointCommand[] commands
 
 #### command/joint_velocities (tobas_msgs/JointCommandArray)
 
-ジョイントに対する速度指令．
+ジョイントごとの目標速度を指令する．
+`commands`の各要素にジョイント名`name`と目標値`data`を指定する．回転ジョイントでは角速度 [rad/s]，直動ジョイントでは速度 [m/s] を用いる．
 
 ```txt
 std_msgs/Header header
@@ -688,7 +736,8 @@ tobas_msgs/JointCommand[] commands
 
 #### command/joint_efforts (tobas_msgs/JointCommandArray)
 
-ジョイントに対する力指令．
+ジョイントごとに加える力またはトルクを指令する．
+`commands`の各要素にジョイント名`name`と指令値`data`を指定する．回転ジョイントではトルク [N·m]，直動ジョイントでは力 [N] を用いる．
 
 ```txt
 std_msgs/Header header
@@ -707,7 +756,7 @@ Gazebo シミュレーション時にのみ使用されるトピックです．
 
 #### gazebo/ground_truth/battery (tobas_msgs/Battery)
 
-バッテリーの状態の真値．
+Gazebo のバッテリーモデルが計算した電圧 [V] と電流 [A] の真値を配信する．
 
 ```txt
 std_msgs/Header header
@@ -721,7 +770,8 @@ float64 current  # [A]
 
 #### gazebo/ground_truth/odom (tobas_msgs/OdometryWithCovarianceStamped)
 
-起動位置に対する位置，速度，加速度の真値．
+Gazebo 上の機体の位置・姿勢，並進・角速度，並進・角加速度の真値を配信する．
+位置・姿勢は Gazebo のワールド座標系，速度・加速度は機体座標系で表す．共分散は全てゼロとなる．
 
 ```txt
 std_msgs/Header header
@@ -768,7 +818,8 @@ tobas_msgs/OdometryWithCovariance odom
 
 #### gazebo/ground_truth/wind (tobas_msgs/Wind)
 
-グローバル座標系における風速の真値．
+Gazebo 上で生成された風速ベクトルの真値を配信する．
+`vel`はグローバル座標系の各軸方向の速度 [m/s] を表す．
 
 ```txt
 std_msgs/Header header
@@ -788,16 +839,72 @@ tobas_kdl_msgs/Vector vel  # [m/s]
 
 ### Common
 
-実機，シミュレーション両方で使用できるサービスです．
+実機とシミュレーションの両方で使用できるサービスです．
 
 #### set_arm (tobas_msgs/SetArm)
 
-全てのロータのアーム状態を変更する．
+全ロータのアーム状態を変更する．
+`arming`に`true`を指定するとアーム，`false`を指定するとディスアームを要求する．
+`success`で処理の成否，`message`で結果の詳細を確認できる．
 
 ```txt
 bool arming
 ---
 bool success
+string message
+```
+
+#### attach_load (tobas_msgs/AttachLoad)
+
+機体の運動学ツリーの指定した親リンクに，荷重を固定ジョイントで追加する．
+`load_id`には取り付け済みの荷重と重複しない空でない識別子，`parent_link`には既存のリンク名を指定する．
+`inertia`には質量 [kg]，親リンク原点に対する重心位置 [m]，重心まわりの慣性テンソル [kg·m^2] を指定する．重心位置と慣性テンソルは親リンク座標系で表す．
+成功すると更新後のツリーを`kdl_tree`トピックに配信する．失敗時は`success`が`false`となり，`message`に理由が入る．
+
+```txt
+# Attach a load to the robot's kinematic tree with a fixed joint.
+
+# Non-empty identifier that must be unique among currently attached loads.
+string load_id
+
+# Name of the existing link to which the load is attached.
+string parent_link
+
+# Load inertia expressed in the parent link frame:
+# mass [kg], center of gravity relative to the parent link origin [m],
+# and rotational inertia about the center of gravity [kg * m^2].
+tobas_kdl_msgs/RigidBodyInertia inertia
+	float64 mass                            # [kg]
+	tobas_kdl_msgs/Vector cog               # [m]
+		float64 x
+		float64 y
+		float64 z
+	tobas_kdl_msgs/RotationalInertia i_cog  # [kg * m^2]
+		float64[9] data  # [kg * m^2]
+---
+# True if the load was attached successfully.
+bool success
+
+# Error description on failure; empty on success.
+string message
+```
+
+#### detach_load (tobas_msgs/DetachLoad)
+
+`attach_load`で追加した荷重を，`load_id`を指定して機体の運動学ツリーから削除する．
+取り付け時と同じ識別子を使用する．指定した荷重が取り付けられていない場合は失敗する．
+成功すると更新後のツリーを`kdl_tree`トピックに配信する．失敗時は`success`が`false`となり，`message`に理由が入る．
+
+```txt
+# Detach a previously attached load from the robot's kinematic tree.
+
+# Identifier specified in the corresponding AttachLoad request.
+string load_id
+---
+# True if the load was detached successfully.
+bool success
+
+# Error description on failure; empty on success.
 string message
 ```
 
@@ -807,7 +914,8 @@ Gazebo シミュレーション時にのみ使用されるサービスです．
 
 #### gazebo/charge_battery (std_srvs/Empty)
 
-バッテリーをフルチャージする．
+Gazebo のバッテリーを満充電の状態に戻す．
+リクエストとレスポンスに指定・取得するフィールドはない．
 
 ```txt
 ---
@@ -815,7 +923,8 @@ Gazebo シミュレーション時にのみ使用されるサービスです．
 
 #### gazebo/lose_gnss_fix (std_srvs/Trigger)
 
-シミュレーションを再起動するまで，以降の GNSS メッセージを`NO_FIX`にする．
+Gazebo の GNSS を測位不能の状態にする．
+呼び出し後はシミュレーションを再起動するまで，GNSS メッセージの`fix_type`が`NO_FIX`になる．
 
 ```txt
 ---
@@ -825,7 +934,8 @@ string message # informational, e.g. for error messages
 
 #### gazebo/break_rotor/${rotor_link_name} (std_srvs/Trigger)
 
-モータを強制的に停止する．
+指定したロータを Gazebo 上で故障状態にし，モータへのスロットル指令をゼロにする．
+`${rotor_link_name}`を対象ロータのリンク名に置き換えて呼び出す．
 
 ```txt
 ---
@@ -835,7 +945,8 @@ string message # informational, e.g. for error messages
 
 #### gazebo/get_wind_parameters (tobas_gazebo_msgs/GetWindParams)
 
-シミュレーション中の風を生成するパラメータを取得する．
+Gazebo の風モデルに現在設定されているパラメータを取得する．
+平均風速，風向，突風の倍率・継続時間・間隔を`params`に返す．
 
 ```txt
 ---
@@ -849,7 +960,8 @@ tobas_gazebo_msgs/WindParams params
 
 #### gazebo/set_wind_parameters (tobas_gazebo_msgs/SetWindParams)
 
-シミュレーション中の風を生成するパラメータを設定する．
+Gazebo の風モデルの平均風速，風向，突風の倍率・継続時間・間隔を変更する．
+リクエストの`params`に設定値を指定し，レスポンスの`params`で反映された値を確認する．
 
 ```txt
 tobas_gazebo_msgs/WindParams params
@@ -870,7 +982,7 @@ tobas_gazebo_msgs/WindParams params
 
 #### gazebo/get_tether_parameters (tobas_gazebo_msgs/GetTetherParams)
 
-テザーステーションに関するパラメータを取得する．
+Gazebo のテザーステーションに現在設定されている張力 [N] とケーブルの最大長 [m] を取得する．
 
 ```txt
 ---
@@ -881,7 +993,8 @@ tobas_gazebo_msgs/TetherParams params
 
 #### gazebo/set_tether_parameters (tobas_gazebo_msgs/SetTetherParams)
 
-テザーステーションに関するパラメータを設定する．
+Gazebo のテザーステーションの張力 [N] とケーブルの最大長 [m] を変更する．
+張力は 0 以上，最大長は 0 より大きい値を指定する．レスポンスの`params`で反映された値を確認できる．
 
 ```txt
 tobas_gazebo_msgs/TetherParams params
@@ -896,7 +1009,9 @@ tobas_gazebo_msgs/TetherParams params
 
 #### gazebo/attach_fixed_load (tobas_gazebo_msgs/AttachFixedLoad)
 
-固定荷物を取り付ける．
+Gazebo 上に直方体の荷物を生成し，機体の取り付け先リンクに固定する．
+`load_pose`に取り付け先リンクに対する荷物の重心位置・姿勢，`load_size`に荷物座標系の各軸方向の寸法 [m]，`load_mass`に質量 [kg] を指定する．
+各寸法と質量は正の値とする．既に固定荷物が取り付けられている場合は失敗する．
 
 ```txt
 geometry_msgs/Pose load_pose     # Pose of the load's center of mass relative to the attachment link
@@ -921,7 +1036,8 @@ string message
 
 #### gazebo/detach_fixed_load (tobas_gazebo_msgs/DetachFixedLoad)
 
-固定荷物を取り外す．
+Gazebo 上で固定荷物と機体を結ぶジョイントを解除する．
+取り外した荷物はシミュレーション内に残る．固定荷物が取り付けられていない場合は失敗する．
 
 ```txt
 ---
@@ -931,7 +1047,9 @@ string message
 
 #### gazebo/attach_suspended_load (tobas_gazebo_msgs/AttachSuspendedLoad)
 
-吊り下げ荷物を取り付ける．
+Gazebo 上に直方体の荷物を生成し，ケーブルで機体から吊り下げる．
+`attachment_point`に機体座標系での取り付け位置，`load_size`と`load_mass`に荷物の寸法・質量を指定する．
+ケーブルの長さ，ヤング率，断面積も指定する．各寸法，質量，ケーブルの各パラメータは正の値とする．既に吊り下げ荷物が取り付けられている場合は失敗する．
 
 ```txt
 geometry_msgs/Vector3 attachment_point  # Attachment point on the aircraft wrt. the local frame [m]
@@ -953,7 +1071,8 @@ string message
 
 #### gazebo/detach_suspended_load (tobas_gazebo_msgs/DetachSuspendedLoad)
 
-吊り下げ荷物を取り外す．
+Gazebo 上で吊り下げ荷物と機体の接続を解除し，ケーブルによる力の作用を停止する．
+取り外した荷物はシミュレーション内に残る．
 
 ```txt
 ---
@@ -967,12 +1086,14 @@ string message
 
 ### Common
 
-実機，シミュレーション両方で使用できるアクションです．
+実機とシミュレーションの両方で使用できるアクションです．
 
 #### execute_mission (tobas_mission_msgs/ExecuteMission)
 
-一連のミッションを実行する．
-各コマンドの具体的な内容は`tobas_mission_items`を参照．
+指定したミッション項目を順番に実行する．
+ゴールの`mission.items`に項目列，`priority`に実行優先度を指定する．
+フィードバックの`current_command_index`で実行中の項目を確認できる．結果にはエラーコード，エラー内容，最後のコマンドのインデックスを返す．
+各項目の種類とパラメータは`tobas_mission_items`を参照する．
 
 ```txt
 # Goal
