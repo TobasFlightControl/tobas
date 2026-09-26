@@ -10,6 +10,8 @@
 	<exec_depend>python3-uvicorn</exec_depend>
 	<exec_depend>python3-httpx</exec_depend>
 
+	<test_depend>python3-pytest</test_depend>
+
 	<export>
 		<build_type>ament_python</build_type>
 	</export>
