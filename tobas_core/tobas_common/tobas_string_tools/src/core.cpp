@@ -187,12 +187,18 @@ bool contains(const std::string& s, const char& sub)
 
 bool isValidFileName(const std::string& file_name)
 {
-  if (file_name.empty()) {
+  if (file_name.empty() || file_name == "." || file_name == "..") {
     return false;
   }
 
-  std::regex invalid_chars(R"([<>:\"/\\|?*])");
-  return !std::regex_search(file_name, invalid_chars);
+  // Reject path separators and reserved punctuation.
+  constexpr char kInvalidChars[] = R"(<>:"/\|?*)";
+  if (file_name.find_first_of(kInvalidChars) != std::string::npos) {
+    return false;
+  }
+
+  // Check ASCII control bytes, including NUL, without rejecting UTF-8 bytes.
+  return std::none_of(file_name.begin(), file_name.end(), [](unsigned char ch) { return ch < 0x20 || ch == 0x7F; });
 }
 
 bool isValidEmail(const std::string& email)

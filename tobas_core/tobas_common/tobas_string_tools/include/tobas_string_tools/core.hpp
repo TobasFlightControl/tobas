@@ -52,7 +52,10 @@ bool contains(const std::string& s, const std::string& sub);
 /* Check whether a character is included. */
 bool contains(const std::string& s, const char& sub);
 
-/* Check whether a file name contains no invalid strings. */
+/**
+ * @brief Reject empty names, `.` and `..`, ASCII control characters, and reserved punctuation.
+ * This does not check Windows reserved names, trailing spaces or periods, or filesystem length limits.
+ */
 bool isValidFileName(const std::string& file_name);
 
 /**
