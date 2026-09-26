@@ -28,6 +28,9 @@ DynamicConfigWidget::DynamicConfigWidget()
   wind_params_ = new WindParamsWidget();
   scroll_rows->addWidget(wind_params_);
 
+  fixed_load_ = new FixedLoadWidget();
+  scroll_rows->addWidget(fixed_load_);
+
   suspended_load_ = new SuspendedLoadWidget();
   scroll_rows->addWidget(suspended_load_);
 
@@ -37,18 +40,21 @@ DynamicConfigWidget::DynamicConfigWidget()
 void DynamicConfigWidget::reset()
 {
   wind_params_->reset();
+  fixed_load_->reset();
   suspended_load_->reset();
 }
 
 void DynamicConfigWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
 {
   wind_params_->initializeRosInterfaces(node, ns);
+  fixed_load_->initializeRosInterfaces(node, ns);
   suspended_load_->initializeRosInterfaces(node, ns);
 }
 
 void DynamicConfigWidget::clearRosInterfaces()
 {
   wind_params_->clearRosInterfaces();
+  fixed_load_->clearRosInterfaces();
   suspended_load_->clearRosInterfaces();
 }
 }  // namespace sim

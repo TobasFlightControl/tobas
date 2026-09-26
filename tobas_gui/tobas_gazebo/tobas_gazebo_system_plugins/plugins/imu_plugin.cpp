@@ -4,15 +4,13 @@
 #include <cmath>
 #include <optional>
 
+#include <gz/sim/Model.hh>
+#include <gz/sim/Util.hh>
 #include <gz/sim/components/AngularAcceleration.hh>
 #include <gz/sim/components/AngularVelocity.hh>
 #include <gz/sim/components/Gravity.hh>
 #include <gz/sim/components/LinearAcceleration.hh>
-#include <gz/sim/components/Link.hh>
-#include <gz/sim/components/Name.hh>
-#include <gz/sim/components/ParentEntity.hh>
 #include <gz/sim/components/Pose.hh>
-#include <gz/sim/components/World.hh>
 
 #include <tobas_constants/imu.hpp>
 #include <tobas_constants/ros_interface.hpp>
@@ -24,7 +22,6 @@
 #include <tobas_gazebo_tools/utils.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_ros2_tools/time.hpp>
-#include <tobas_std_tools/check.hpp>
 #include <tobas_tools/imu_sampling_time_publisher.hpp>
 
 #include <tobas_gazebo_msgs/msg/engine_state.hpp>
@@ -61,7 +58,7 @@ public:
   explicit GazeboImuPlugin();
 
   void Configure(
-    const gz::sim::Entity& model,
+    const gz::sim::Entity& model_entity,
     const sdf::ElementConstPtr& sdf,
     gz::sim::EntityComponentManager& ecm,
     gz::sim::EventManager&) override;
@@ -71,8 +68,8 @@ public:
 private:
   // SDF parameters
   std::string link_name_;
-  int update_rate_;             // Update rate [Hz]
   gz::math::Vector3d offset_;   // B_Pos_BS
+  int update_rate_;             // Update rate [Hz]
   double acc_noise_density_;    // Accel noise density [m/s^2/√Hz]
   double acc_random_walk_;      // Accel bias random walk [m/s^2/s/√Hz]
   double acc_bias_corr_time_;   // Accel bias correlation time constant [s]
@@ -133,7 +130,7 @@ GazeboImuPlugin::GazeboImuPlugin() : normal_(rnd_dev_, 0.0, 1.0)
 }
 
 void GazeboImuPlugin::Configure(
-  const gz::sim::Entity& model,
+  const gz::sim::Entity& model_entity,
   const sdf::ElementConstPtr& sdf,
   gz::sim::EntityComponentManager& ecm,
   gz::sim::EventManager&)
@@ -145,23 +142,24 @@ void GazeboImuPlugin::Configure(
 
   rate_manager_.emplace(update_rate_);
 
-  const auto link = ecm.EntityByComponents(cmp::Link(), cmp::ParentEntity(model), cmp::Name(link_name_));
-  if (link == gz::sim::kNullEntity) {
+  const gz::sim::Model model(model_entity);
+  const auto link_entity = model.LinkByName(ecm, link_name_);
+  if (link_entity == gz::sim::kNullEntity) {
     TOBAS_EXIT("Failed to find specified link '", link_name_, "'.");
   }
 
-  const auto world = ecm.EntityByComponents(cmp::World());
+  const auto world = gz::sim::worldEntity(ecm);
   if (world == gz::sim::kNullEntity) {
     TOBAS_EXIT("Failed to get the world component.");
   }
 
-  TOBAS_CHECK(pose_W_ = getComponent<cmp::WorldPose>(link, ecm));
-  TOBAS_CHECK(acc_B_ = getComponent<cmp::LinearAcceleration>(link, ecm));
-  TOBAS_CHECK(gyro_B_ = getComponent<cmp::AngularVelocity>(link, ecm));
-  TOBAS_CHECK(dgyro_B_ = getComponent<cmp::AngularAcceleration>(link, ecm));
-  TOBAS_CHECK(grav_W_ = getComponent<cmp::Gravity>(world, ecm));
+  pose_W_ = getComponent<cmp::WorldPose>(link_entity, ecm);
+  acc_B_ = getComponent<cmp::LinearAcceleration>(link_entity, ecm);
+  gyro_B_ = getComponent<cmp::AngularVelocity>(link_entity, ecm);
+  dgyro_B_ = getComponent<cmp::AngularAcceleration>(link_entity, ecm);
+  grav_W_ = getComponent<cmp::Gravity>(world, ecm);
 
-  if (!mass_holder_.initialize(model, ecm)) {
+  if (!mass_holder_.initialize(model_entity, ecm)) {
     TOBAS_EXIT("Failed to initialize model mass holder.");
   }
 
@@ -253,7 +251,6 @@ void GazeboImuPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim:
   // Publish raw IMU message.
   auto imu_raw_msg = std::make_unique<tobas_msgs::Imu>();
   imu_raw_msg->header.stamp = cur_time;
-  imu_raw_msg->header.frame_id = link_name_;
   vectorGazeboToKDL(acc_meas, imu_raw_msg->accel);
   vectorGazeboToKDL(gyro_meas, imu_raw_msg->gyro);
   vectorGazeboToKDL(dgyro_meas, imu_raw_msg->dgyro);
@@ -263,7 +260,6 @@ void GazeboImuPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim:
   if (lpf_initialized_) {
     auto imu_filt_msg = std::make_unique<tobas_msgs::Imu>();
     imu_filt_msg->header.stamp = cur_time;
-    imu_filt_msg->header.frame_id = link_name_;
     vectorGazeboToKDL(acc_lpf_.getValue(), imu_filt_msg->accel);
     vectorGazeboToKDL(gyro_lpf_.getValue(), imu_filt_msg->gyro);
     vectorGazeboToKDL(dgyro_lpf_.getValue(), imu_filt_msg->dgyro);
@@ -276,7 +272,6 @@ void GazeboImuPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim:
   // Publish debug message.
   auto debug_msg = std::make_unique<tobas_gazebo_msgs::msg::ImuDebug>();
   debug_msg->header.stamp = cur_time;
-  debug_msg->header.frame_id = link_name_;
   vectorGazeboToRos(acc_bias_, debug_msg->acc_bias);
   vectorGazeboToRos(gyro_bias_, debug_msg->gyro_bias);
   debug_pub_->publish(std::move(debug_msg));
@@ -284,19 +279,19 @@ void GazeboImuPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim:
 
 void GazeboImuPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
-  getSdfParam(sdf, "linkName", link_name_);
-  getSdfParam(sdf, "updateRate", update_rate_, kNonNegative);
-  getSdfParam(sdf, "offset", offset_);
+  link_name_ = getSdfParam<std::string>(sdf, "linkName");
+  offset_ = getSdfParam<gz::math::Vector3d>(sdf, "offset");
+  update_rate_ = getSdfParam<int>(sdf, "updateRate", kNonNegative);
 
-  getSdfParam(sdf, "accelNoiseDensity", acc_noise_density_, kNonNegative);
-  getSdfParam(sdf, "accelRandomWalk", acc_random_walk_, kNonNegative);
-  getSdfParam(sdf, "accelBiasCorrelationTime", acc_bias_corr_time_, kPositive);
+  acc_noise_density_ = getSdfParam<double>(sdf, "accelNoiseDensity", kNonNegative);
+  acc_random_walk_ = getSdfParam<double>(sdf, "accelRandomWalk", kNonNegative);
+  acc_bias_corr_time_ = getSdfParam<double>(sdf, "accelBiasCorrelationTime", kPositive);
 
-  getSdfParam(sdf, "gyroNoiseDensity", gyro_noise_density_, kNonNegative);
-  getSdfParam(sdf, "gyroRandomWalk", gyro_random_walk_, kNonNegative);
-  getSdfParam(sdf, "gyroBiasCorrelationTime", gyro_bias_corr_time_, kPositive);
+  gyro_noise_density_ = getSdfParam<double>(sdf, "gyroNoiseDensity", kNonNegative);
+  gyro_random_walk_ = getSdfParam<double>(sdf, "gyroRandomWalk", kNonNegative);
+  gyro_bias_corr_time_ = getSdfParam<double>(sdf, "gyroBiasCorrelationTime", kPositive);
 
-  getSdfParam(sdf, "rotorLinkNames", rotor_link_names_);
+  rotor_link_names_ = getSdfParam<std::vector<std::string>>(sdf, "rotorLinkNames");
 }
 
 void GazeboImuPlugin::addNoise(gz::math::Vector3d& acc, gz::math::Vector3d& gyro, const double& dt)

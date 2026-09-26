@@ -24,7 +24,7 @@ std::string makeBoxSdf(
   double rp,
   double ry)
 {
-  const auto [ixx, iyy, izz] = boxInertia(sx, sy, sz, mass);
+  const auto inertia = boxInertia(sx, sy, sz, mass);
 
   return std::format(
     R"(<?xml version="1.0"?>
@@ -67,9 +67,9 @@ std::string makeBoxSdf(
     rp,
     ry,
     mass,
-    ixx,
-    iyy,
-    izz,
+    inertia.Ixx(),
+    inertia.Iyy(),
+    inertia.Izz(),
     sx,
     sy,
     sz);

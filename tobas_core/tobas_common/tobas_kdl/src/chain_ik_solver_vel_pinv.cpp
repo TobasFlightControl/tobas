@@ -15,17 +15,11 @@ ChainIkSolverVel_pinv::ChainIkSolverVel_pinv(const Chain& chain) : super(chain),
 {
 }
 
-bool ChainIkSolverVel_pinv::updateInternalDataStructures()
+void ChainIkSolverVel_pinv::updateInternalDataStructures()
 {
-  if (!super::updateInternalDataStructures()) {
-    return false;
-  }
+  super::updateInternalDataStructures();
 
-  if (!jnt2jac_.updateInternalDataStructures()) {
-    return false;
-  }
-
-  return true;
+  jnt2jac_.updateInternalDataStructures();
 }
 
 int ChainIkSolverVel_pinv::cartToJnt(const JntArray& q, const Vector& v)

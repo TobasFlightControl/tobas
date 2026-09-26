@@ -18,7 +18,7 @@ class TreeTaskSpaceVelCtrl : public TreeSolverI
 public:
   explicit TreeTaskSpaceVelCtrl(const Tree& tree);
 
-  bool updateInternalDataStructures() override;
+  void updateInternalDataStructures() override;
 
   int cartToJnt(const JntArray& cur_q, const FrameMap& tar_p);
 

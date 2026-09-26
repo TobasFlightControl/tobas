@@ -3,12 +3,15 @@
 
 #pragma once
 
+#include <concepts>
+#include <optional>
+#include <utility>
+#include <vector>
+
 #include <gz/common/Console.hh>
 #include <rclcpp/executors/single_threaded_executor.hpp>
 #include <rclcpp/node.hpp>
 #include <sdf/sdf.hh>
-
-#include <optional>
 
 #include <tobas_ros2_tools/register.hpp>
 #include <tobas_std_tools/stream.hpp>
@@ -135,23 +138,20 @@ protected:
   void checkConstraint(const std::string& name, const T& param, const SdfConstraint& constr) const;
 
   template <typename T>
-  void getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, T& param) const;
+  T getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name) const;
   template <typename T>
-  void getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, T& param, const T& dflt) const;
+  T getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, const T& dflt) const;
   template <typename T>
-  void
-  getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, T& param, const SdfConstraint& constr) const;
+  T getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, const SdfConstraint& constr) const;
   template <typename T>
-  void getSdfParam(
-    const sdf::ElementConstPtr& sdf,
-    const std::string& name,
-    T& param,
-    const T& dflt,
-    const SdfConstraint& constr) const;
+  T getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, const T& dflt, const SdfConstraint& constr)
+    const;
   template <typename T>
-  void getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, std::vector<T>& params) const;
+    requires std::same_as<T, std::vector<typename T::value_type, typename T::allocator_type>>
+  T getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name) const;
   template <typename T>
-  void getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, std::pair<T, T>& param) const;
+    requires std::same_as<T, std::pair<typename T::first_type, typename T::first_type>>
+  T getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name) const;
 
 private:
   std::string name_;
@@ -369,49 +369,49 @@ void BaseNode::checkConstraint(const std::string& name, const T& param, const Sd
 }
 
 template <typename T>
-void BaseNode::getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, T& param) const
+T BaseNode::getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name) const
 {
   if (!sdf->HasElement(name)) {
     TOBAS_EXIT("Please specify '", name, "'.");
   }
-  param = sdf->Get<T>(name);
+  return sdf->Get<T>(name);
 }
 
 template <typename T>
-void BaseNode::getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, T& param, const T& dflt) const
+T BaseNode::getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, const T& dflt) const
 {
+  T param;
   if (!sdf->Get(name, param, dflt)) {
     TOBAS_WARN("SDF parameter '", name, "' is not specified. The default value '", dflt, "' is used.");
   }
+  return param;
 }
 
 template <typename T>
-void BaseNode::getSdfParam(
-  const sdf::ElementConstPtr& sdf,
-  const std::string& name,
-  T& param,
-  const SdfConstraint& constr) const
+T BaseNode::getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, const SdfConstraint& constr) const
 {
-  getSdfParam(sdf, name, param);
+  const auto param = getSdfParam<T>(sdf, name);
   checkConstraint(name, param, constr);
+  return param;
 }
 
 template <typename T>
-void BaseNode::getSdfParam(
+T BaseNode::getSdfParam(
   const sdf::ElementConstPtr& sdf,
   const std::string& name,
-  T& param,
   const T& dflt,
   const SdfConstraint& constr) const
 {
-  getSdfParam(sdf, name, param, dflt);
+  const auto param = getSdfParam<T>(sdf, name, dflt);
   checkConstraint(name, param, constr);
+  return param;
 }
 
 template <typename T>
-void BaseNode::getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, std::vector<T>& params) const
+  requires std::same_as<T, std::vector<typename T::value_type, typename T::allocator_type>>
+T BaseNode::getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name) const
 {
-  params.clear();
+  T params;
 
   const auto list_elem = sdf->FindElement(name);
   if (!list_elem) {
@@ -420,20 +420,19 @@ void BaseNode::getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& n
 
   auto item_elem = list_elem->FindElement("item");
   while (item_elem) {
-    const auto value = item_elem->Get<T>();
+    const auto value = item_elem->Get<typename T::value_type>();
     params.push_back(value);
     item_elem = item_elem->GetNextElement("item");
   }
+  return params;
 }
 
 template <typename T>
-void BaseNode::getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, std::pair<T, T>& param) const
+  requires std::same_as<T, std::pair<typename T::first_type, typename T::first_type>>
+T BaseNode::getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name) const
 {
-  gz::math::Vector2<T> tmp;
-  getSdfParam(sdf, name, tmp);
-
-  param.first = tmp.X();
-  param.second = tmp.Y();
+  const auto tmp = getSdfParam<gz::math::Vector2<typename T::first_type>>(sdf, name);
+  return { tmp.X(), tmp.Y() };
 }
 }  // namespace gazebo
 }  // namespace tobas

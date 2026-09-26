@@ -8,8 +8,10 @@
 #include <std_srvs/srv/trigger.hpp>
 
 #include <tobas_dparam_msgs/srv/get_params.hpp>
+#include <tobas_msgs/srv/attach_load.hpp>
 #include <tobas_msgs/srv/bag_record_start.hpp>
 #include <tobas_msgs/srv/bag_record_stop.hpp>
+#include <tobas_msgs/srv/detach_load.hpp>
 #include <tobas_msgs/srv/get_gnss_origin.hpp>
 #include <tobas_msgs/srv/set_arm.hpp>
 #include <tobas_msgs/srv/set_gnss_origin.hpp>
@@ -29,6 +31,8 @@ void RosInterfaceNode::registerServices()
   addService<tobas_msgs::srv::BagRecordStart>(service::kRosbagRecordStart);
   addService<tobas_msgs::srv::BagRecordStop>(service::kRosbagRecordStop);
   addService<std_srvs::srv::Trigger>(service::kRosbagClean);
+  addService<tobas_msgs::srv::AttachLoad>(service::kAttachLoad);
+  addService<tobas_msgs::srv::DetachLoad>(service::kDetachLoad);
   addService<tobas_dparam_msgs::srv::GetParams>(path::join(node::kImuFilterConfigServer, service::kGetDynamicParams));
   addService<tobas_dparam_msgs::srv::GetParams>(path::join(node::kRpmControlConfigServer, service::kGetDynamicParams));
   addService<tobas_dparam_msgs::srv::GetParams>(path::join(node::kObserver, service::kGetDynamicParams));

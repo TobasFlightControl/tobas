@@ -24,15 +24,11 @@ ChainIkSolverPos_LM::ChainIkSolverPos_LM(const Chain& chain) : super(chain)
   initialize();
 }
 
-bool ChainIkSolverPos_LM::updateInternalDataStructures()
+void ChainIkSolverPos_LM::updateInternalDataStructures()
 {
-  if (!super::updateInternalDataStructures()) {
-    return false;
-  }
+  super::updateInternalDataStructures();
 
   initialize();
-
-  return true;
 }
 
 void ChainIkSolverPos_LM::displayJacobian(const JntArray& jval)

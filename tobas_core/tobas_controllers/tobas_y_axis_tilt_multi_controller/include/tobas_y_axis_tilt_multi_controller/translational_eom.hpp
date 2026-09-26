@@ -15,7 +15,7 @@ class TranslationalEoM
 public:
   explicit TranslationalEoM(const kdl::Tree& tree);
 
-  bool updateInternalDataStructures();
+  void updateInternalDataStructures();
 
   /**
    * @brief Solve the translational equations of motion and convert target acceleration into two-axis thrust and roll angle.

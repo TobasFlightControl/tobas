@@ -18,7 +18,7 @@ class ChainJntSpaceInertiaSolver : public ChainSolverI
 public:
   explicit ChainJntSpaceInertiaSolver(const Chain& chain);
 
-  bool updateInternalDataStructures() override;
+  void updateInternalDataStructures() override;
 
   int jntToMass(const JntArray& q);
 

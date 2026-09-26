@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "./fixed_load.hpp"
 #include "./suspended_load.hpp"
 #include "./wind_parameters.hpp"
 
@@ -25,6 +26,7 @@ public:
 
 private:
   WindParamsWidget* wind_params_;
+  FixedLoadWidget* fixed_load_;
   SuspendedLoadWidget* suspended_load_;
 };
 }  // namespace sim

@@ -13,22 +13,14 @@ TreeDynParam::TreeDynParam(const Tree& tree, const Vector& grav)
   resize();
 }
 
-bool TreeDynParam::updateInternalDataStructures()
+void TreeDynParam::updateInternalDataStructures()
 {
-  if (!super::updateInternalDataStructures()) {
-    return false;
-  }
+  super::updateInternalDataStructures();
 
-  if (!rne_coriolis_.updateInternalDataStructures()) {
-    return false;
-  }
-  if (!rne_gravity_.updateInternalDataStructures()) {
-    return false;
-  }
+  rne_coriolis_.updateInternalDataStructures();
+  rne_gravity_.updateInternalDataStructures();
 
   resize();
-
-  return true;
 }
 
 int TreeDynParam::jntToCoriolis(const JntArray& q, const JntArray& qd)

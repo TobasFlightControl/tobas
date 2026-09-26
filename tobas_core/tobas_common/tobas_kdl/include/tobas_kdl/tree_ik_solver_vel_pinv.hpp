@@ -20,7 +20,7 @@ class TreeIkSolverVel_pinv : public TreeIkSolverVel
 public:
   explicit TreeIkSolverVel_pinv(const Tree& tree);
 
-  bool updateInternalDataStructures() override;
+  void updateInternalDataStructures() override;
 
   int cartToJnt(const JntArray& q_in, const TwistMap& v_in) override;
 

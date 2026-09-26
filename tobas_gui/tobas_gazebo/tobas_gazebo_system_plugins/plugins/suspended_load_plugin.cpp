@@ -1,17 +1,14 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include <optional>
-
 #include <gz/msgs/entity_factory.pb.h>
 #include <gz/msgs/marker.pb.h>
 #include <gz/sim/Link.hh>
+#include <gz/sim/Model.hh>
+#include <gz/sim/Util.hh>
+#include <gz/sim/World.hh>
 #include <gz/sim/components/AngularVelocity.hh>
 #include <gz/sim/components/LinearVelocity.hh>
-#include <gz/sim/components/Link.hh>
-#include <gz/sim/components/Model.hh>
-#include <gz/sim/components/Name.hh>
-#include <gz/sim/components/ParentEntity.hh>
 #include <gz/sim/components/Pose.hh>
 #include <gz/transport/Node.hh>
 
@@ -28,7 +25,6 @@
 #include "tobas_gazebo_system_plugins/inertia.hpp"
 #include "tobas_gazebo_system_plugins/rate_manager.hpp"
 #include "tobas_gazebo_system_plugins/sdf_string.hpp"
-#include "tobas_gazebo_system_plugins/world.hpp"
 
 namespace cmp = gz::sim::components;
 
@@ -49,7 +45,7 @@ public:
   explicit GazeboSuspendedLoadPlugin();
 
   void Configure(
-    const gz::sim::Entity& model,
+    const gz::sim::Entity& model_entity,
     const sdf::ElementConstPtr& sdf,
     gz::sim::EntityComponentManager& ecm,
     gz::sim::EventManager&) override;
@@ -57,11 +53,8 @@ public:
   void PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::EntityComponentManager& ecm) override;
 
 private:
-  // SDF parameters
-  std::string link_name_;
-
   // Aircraft
-  std::optional<gz::sim::Link> base_link_;
+  gz::sim::Link base_link_;
   const cmp::WorldPose* W_Pose_B_;
   const cmp::WorldLinearVelocity* W_Vel_WB_;
   const cmp::WorldAngularVelocity* W_Gyro_WB_;
@@ -70,17 +63,18 @@ private:
   gz::math::Vector3d B_Pos_BP_;
   gz::math::Vector3d L_Pos_LQ_;
   double load_mass_;
-  gz::math::Matrix3d load_inertia_ = gz::math::Matrix3d::Zero;
+  gz::math::Matrix3d load_inertia_;
   double cable_length_;  // [m] Natural cable length
   double cable_young_;   // [Pa] Young modulus.
   double cable_csa_;     // [m^2] Cross-sectional area.
   bool load_exist_ = false;
-  int load_index_ = 0;
-  std::optional<gz::sim::Link> load_link_;
+  int load_index_ = -1;
+  gz::sim::Link load_link_;
   const cmp::WorldPose* W_Pose_L_ = nullptr;
   const cmp::WorldLinearVelocity* W_Vel_WL_ = nullptr;
   const cmp::WorldAngularVelocity* W_Gyro_WL_ = nullptr;
 
+  gz::sim::World world_;
   std::string world_name_;
   ModelMassHolder mass_holder_;
   RateManager rate_manager_;
@@ -114,29 +108,25 @@ void GazeboSuspendedLoadPlugin::Configure(
   initialize(kPluginName, sdf);
 
   // Keep SDF parameters minimal so values can be adjusted from the GUI.
-  getSdfParam(sdf, "linkName", link_name_);
+  const auto link_name = getSdfParam<std::string>(sdf, "linkName");
 
-  const auto world_name = getWorldName(ecm);
+  world_ = gz::sim::World(gz::sim::worldEntity(ecm));
+  const auto world_name = world_.Name(ecm);
   if (!world_name) {
-    TOBAS_EXIT("Failed to get the world name: ", world_name.error());
+    TOBAS_EXIT("Failed to get the world name.");
   }
   world_name_ = *world_name;
 
-  const auto link_entity = ecm.EntityByComponents(cmp::Link(), cmp::ParentEntity(model_entity), cmp::Name(link_name_));
-  base_link_.emplace(link_entity);
-  if (!base_link_->Valid(ecm)) {
-    TOBAS_EXIT("Failed to find the specified link '", link_name_, "'.");
+  const gz::sim::Model model(model_entity);
+  const auto link_entity = model.LinkByName(ecm, link_name);
+  base_link_ = gz::sim::Link(link_entity);
+  if (!base_link_.Valid(ecm)) {
+    TOBAS_EXIT("Failed to find the specified link '", link_name, "'.");
   }
 
-  if (!(W_Pose_B_ = getComponent<cmp::WorldPose>(link_entity, ecm))) {
-    TOBAS_EXIT("Failed to get the world pose of '", link_name_, "'.");
-  }
-  if (!(W_Vel_WB_ = getComponent<cmp::WorldLinearVelocity>(link_entity, ecm))) {
-    TOBAS_EXIT("Failed to get the world linear velocity of '", link_name_, "'.");
-  }
-  if (!(W_Gyro_WB_ = getComponent<cmp::WorldAngularVelocity>(link_entity, ecm))) {
-    TOBAS_EXIT("Failed to get the world angular velocity of '", link_name_, "'.");
-  }
+  W_Pose_B_ = getComponent<cmp::WorldPose>(link_entity, ecm);
+  W_Vel_WB_ = getComponent<cmp::WorldLinearVelocity>(link_entity, ecm);
+  W_Gyro_WB_ = getComponent<cmp::WorldAngularVelocity>(link_entity, ecm);
 
   if (!mass_holder_.initialize(model_entity, ecm)) {
     TOBAS_EXIT("Failed to initialize model mass holder.");
@@ -161,12 +151,11 @@ void GazeboSuspendedLoadPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::s
   }
 
   // Make the load state accessible.
-  if (!load_link_) {
-    const auto model_entity = ecm.EntityByComponents(cmp::Model(), cmp::Name(loadName()));
+  if (!load_link_.Valid(ecm)) {
+    const auto model_entity = world_.ModelByName(ecm, loadName());
     if (model_entity == gz::sim::kNullEntity) {
       return;
     }
-    TOBAS_INFO("Load entity is found: ", model_entity);
 
     const gz::sim::Model load_model(model_entity);
     if (!load_model.Valid(ecm)) {
@@ -176,26 +165,14 @@ void GazeboSuspendedLoadPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::s
     }
 
     const auto link_entity = load_model.CanonicalLink(ecm);  // Get the canonical link of the model.
-    load_link_.emplace(link_entity);
-    if (!load_link_->Valid(ecm)) {
+    load_link_ = gz::sim::Link(link_entity);
+    if (!load_link_.Valid(ecm)) {
       TOBAS_EXIT("Failed to find the canonical link of the load.");
     }
 
-    if (!(W_Pose_L_ = getComponent<cmp::WorldPose>(link_entity, ecm))) {
-      TOBAS_ERROR("Failed to get the world pose of the load.");
-      load_exist_ = false;
-      return;
-    }
-    if (!(W_Vel_WL_ = getComponent<cmp::WorldLinearVelocity>(link_entity, ecm))) {
-      TOBAS_ERROR("Failed to get the world linear velocity of the load.");
-      load_exist_ = false;
-      return;
-    }
-    if (!(W_Gyro_WL_ = getComponent<cmp::WorldAngularVelocity>(link_entity, ecm))) {
-      TOBAS_ERROR("Failed to get the world angular velocity of the load.");
-      load_exist_ = false;
-      return;
-    }
+    W_Pose_L_ = getComponent<cmp::WorldPose>(link_entity, ecm);
+    W_Vel_WL_ = getComponent<cmp::WorldLinearVelocity>(link_entity, ecm);
+    W_Gyro_WL_ = getComponent<cmp::WorldAngularVelocity>(link_entity, ecm);
 
     return;  // Do not apply force in the cycle where components were obtained because values are not correct yet.
   }
@@ -251,8 +228,8 @@ void GazeboSuspendedLoadPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::s
 
     // Apply tension along the cable direction and anti-rotation torque.
     const auto W_Force_PQ = T * W_Pos_PQ.Normalized();
-    base_link_->AddWorldForce(ecm, W_Force_PQ, B_Pos_BP_);
-    load_link_->AddWorldWrench(ecm, -W_Force_PQ, W_Torque_WL, L_Pos_LQ_);
+    base_link_.AddWorldForce(ecm, W_Force_PQ, B_Pos_BP_);
+    load_link_.AddWorldWrench(ecm, -W_Force_PQ, W_Torque_WL, L_Pos_LQ_);
   }
 
   // Update the line marker for visualization.
@@ -268,7 +245,7 @@ void GazeboSuspendedLoadPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::s
 
 std::string GazeboSuspendedLoadPlugin::loadName() const
 {
-  return "load_" + std::to_string(load_index_);
+  return "suspended_load_" + std::to_string(base_link_.Entity()) + "_" + std::to_string(load_index_);
 }
 
 void GazeboSuspendedLoadPlugin::attachLoadCb(
@@ -281,9 +258,11 @@ void GazeboSuspendedLoadPlugin::attachLoadCb(
     return;
   }
 
-  if (req->load_sx <= 0.0 || req->load_sy <= 0.0 || req->load_sz <= 0.0) {
+  const auto& size = req->load_size;
+
+  if (size.x <= 0.0 || size.y <= 0.0 || size.z <= 0.0) {
     res->success = false;
-    res->message = "Load size must be positive.";
+    res->message = "Load dimensions must be positive.";
     return;
   }
   if (req->load_mass <= 0.0) {
@@ -307,10 +286,11 @@ void GazeboSuspendedLoadPlugin::attachLoadCb(
     return;
   }
 
-  const auto sz_2 = req->load_sz / 2;
+  const auto sz_2 = size.z / 2;
 
   // Increment the index to avoid duplicate model names.
   ++load_index_;
+  const auto load_name = loadName();
 
   // Determine spawn position.
   const auto& W_Pose_B = W_Pose_B_->Data();
@@ -323,7 +303,7 @@ void GazeboSuspendedLoadPlugin::attachLoadCb(
     W_Pos_WP.Z() - req->cable_length - sz_2, sz_2);  // Lower by the cable length, but keep it above the ground.
 
   gz::msgs::EntityFactory gzreq;
-  gzreq.set_sdf(makeBoxSdf(loadName(), req->load_sx, req->load_sy, req->load_sz, req->load_mass, px, py, pz));
+  gzreq.set_sdf(makeBoxSdf(load_name, size.x, size.y, size.z, req->load_mass, px, py, pz));
   gzreq.set_allow_renaming(true);
 
   gz::msgs::Boolean gzrep;
@@ -349,19 +329,17 @@ void GazeboSuspendedLoadPlugin::attachLoadCb(
   vectorRosToGazebo(req->attachment_point, B_Pos_BP_);
   L_Pos_LQ_.Set(0.0, 0.0, sz_2);  // Assume the cable is attached to the center of the cuboid top face.
   load_mass_ = req->load_mass;
+  load_inertia_ = boxInertia(size.x, size.y, size.z, req->load_mass).Moi();
   cable_length_ = req->cable_length;
   cable_young_ = req->cable_young_modulus;
   cable_csa_ = req->cable_cross_sectional_area;
-
-  const auto [ixx, iyy, izz] = boxInertia(req->load_sx, req->load_sy, req->load_sz, req->load_mass);
-  load_inertia_.Set(0, 0, ixx);
-  load_inertia_.Set(1, 1, iyy);
-  load_inertia_.Set(2, 2, izz);
 
   load_exist_ = true;
 
   res->success = true;
   res->message.clear();
+
+  TOBAS_INFO(load_name, " has been created and attached to the vehicle successfully.");
 }
 
 void GazeboSuspendedLoadPlugin::detachLoadCb(
@@ -376,13 +354,15 @@ void GazeboSuspendedLoadPlugin::detachLoadCb(
   }
 
   load_exist_ = false;
-  load_link_.reset();
+  load_link_.ResetEntity(gz::sim::kNullEntity);
   W_Pose_L_ = nullptr;
   W_Vel_WL_ = nullptr;
   W_Gyro_WL_ = nullptr;
 
   res->success = true;
   res->message.clear();
+
+  TOBAS_INFO(loadName(), " has been detached from the vehicle successfully.");
 }
 }  // namespace gazebo
 }  // namespace tobas

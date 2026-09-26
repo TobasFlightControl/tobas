@@ -14,15 +14,11 @@ ChainInertiaSolver::ChainInertiaSolver(const Chain& chain) : super(chain)
   resize();
 }
 
-bool ChainInertiaSolver::updateInternalDataStructures()
+void ChainInertiaSolver::updateInternalDataStructures()
 {
-  if (!super::updateInternalDataStructures()) {
-    return false;
-  }
+  super::updateInternalDataStructures();
 
   resize();
-
-  return true;
 }
 
 int ChainInertiaSolver::jntToCart(const JntArray& q)

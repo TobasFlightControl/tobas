@@ -12,22 +12,14 @@ ChainDynParam::ChainDynParam(const Chain& chain) : super(chain), rne_coriolis_(c
   resize();
 }
 
-bool ChainDynParam::updateInternalDataStructures()
+void ChainDynParam::updateInternalDataStructures()
 {
-  if (!super::updateInternalDataStructures()) {
-    return false;
-  }
+  super::updateInternalDataStructures();
 
-  if (!rne_coriolis_.updateInternalDataStructures()) {
-    return false;
-  }
-  if (!rne_gravity_.updateInternalDataStructures()) {
-    return false;
-  }
+  rne_coriolis_.updateInternalDataStructures();
+  rne_gravity_.updateInternalDataStructures();
 
   resize();
-
-  return true;
 }
 
 int ChainDynParam::jntToCoriolis(const JntArray& q, const JntArray& qd)

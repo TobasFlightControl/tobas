@@ -15,7 +15,7 @@ class TranslationalEoM
 public:
   explicit TranslationalEoM(const kdl::Tree& tree);
 
-  bool updateInternalDataStructures();
+  void updateInternalDataStructures();
 
   bool solve(
     const kdl::Rotation& cur_rot,

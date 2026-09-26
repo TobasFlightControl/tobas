@@ -1,0 +1,9 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (C) 2026 Tobas, Inc.
+
+string load_id
+string parent_link
+tobas_kdl_msgs/RigidBodyInertia inertia
+---
+bool success
+string message

@@ -19,7 +19,7 @@ class TreeFkSolverPosAll : public TreeSolverI
 public:
   explicit TreeFkSolverPosAll(const Tree& tree);
 
-  bool updateInternalDataStructures() override;
+  void updateInternalDataStructures() override;
 
   int jntToCart(const JntArray& q);
 

@@ -14,15 +14,11 @@ TreeJacobianSolver::TreeJacobianSolver(const Tree& tree) : super(tree)
   resize();
 }
 
-bool TreeJacobianSolver::updateInternalDataStructures()
+void TreeJacobianSolver::updateInternalDataStructures()
 {
-  if (!super::updateInternalDataStructures()) {
-    return false;
-  }
+  super::updateInternalDataStructures();
 
   resize();
-
-  return true;
 }
 
 int TreeJacobianSolver::jntToJac(const JntArray& q_in, const string& seg_name)

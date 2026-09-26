@@ -14,15 +14,11 @@ ChainJntSpaceInertiaSolver::ChainJntSpaceInertiaSolver(const Chain& chain) : sup
   resize();
 }
 
-bool ChainJntSpaceInertiaSolver::updateInternalDataStructures()
+void ChainJntSpaceInertiaSolver::updateInternalDataStructures()
 {
-  if (!super::updateInternalDataStructures()) {
-    return false;
-  }
+  super::updateInternalDataStructures();
 
   resize();
-
-  return true;
 }
 
 int ChainJntSpaceInertiaSolver::jntToMass(const JntArray& q)

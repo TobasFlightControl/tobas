@@ -13,16 +13,12 @@ TreeJointParser::TreeJointParser(const Tree& tree) : super(tree)
   parseJntNames();
 }
 
-bool TreeJointParser::updateInternalDataStructures()
+void TreeJointParser::updateInternalDataStructures()
 {
-  if (!super::updateInternalDataStructures()) {
-    return false;
-  }
+  super::updateInternalDataStructures();
 
   resize();
   parseJntNames();
-
-  return true;
 }
 
 void TreeJointParser::resize()

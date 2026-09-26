@@ -18,21 +18,14 @@ TreeIkSolverVel_pinv::TreeIkSolverVel_pinv(const Tree& tree) : super(tree), jnt2
   resize();
 }
 
-bool TreeIkSolverVel_pinv::updateInternalDataStructures()
+void TreeIkSolverVel_pinv::updateInternalDataStructures()
 {
-  if (!super::updateInternalDataStructures()) {
-    return false;
-  }
-  if (!jnt2jac_.updateInternalDataStructures()) {
-    return false;
-  }
-  if (!jntparser_.updateInternalDataStructures()) {
-    return false;
-  }
+  super::updateInternalDataStructures();
+
+  jnt2jac_.updateInternalDataStructures();
+  jntparser_.updateInternalDataStructures();
 
   resize();
-
-  return true;
 }
 
 int TreeIkSolverVel_pinv::cartToJnt(const JntArray& q_in, const TwistMap& v_in)

@@ -30,7 +30,7 @@ class TreeIdSolver_RNE : public TreeIdSolver
 public:
   explicit TreeIdSolver_RNE(const Tree& tree, const Vector& grav = Vector(0, 0, -st::kGravity));
 
-  bool updateInternalDataStructures() override;
+  void updateInternalDataStructures() override;
 
   /**
    * @brief Function to calculate from Cartesian forces to joint torques.

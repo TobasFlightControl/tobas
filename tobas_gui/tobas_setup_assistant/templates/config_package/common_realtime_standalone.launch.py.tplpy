@@ -1,8 +1,9 @@
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, GroupAction
-from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution, Command, FindExecutable
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node, SetParameter, PushRosNamespace
+from launch_ros.parameter_descriptions import ParameterValue
 from launch_ros.substitutions import FindPackageShare
 
 # Template parameters
@@ -44,6 +45,10 @@ def generate_launch_description():
 
     tf_remap = [("/tf", "tf"), ("/tf_static", "tf_static")]
     ros_args = ["--log-level", log_level, "--disable-rosout-logs", "--disable-external-lib-logs"]
+
+    # Parse URDF
+    xacro_path = PathJoinSubstitution([config_pkg_share, "urdf", "drone.xacro"])
+    urdf_text = Command([FindExecutable(name="xacro"), " ", xacro_path, " DEBUG:=false ID:=", id])
 
     # Launch 1st priority nodes (Twist Control)
     ld.add_action(
@@ -134,6 +139,7 @@ def generate_launch_description():
             package="tobas_tree_server",
             executable="tree_server",
             namespace=namespace,
+            parameters=[{"robot_description": urdf_text}],
             ros_arguments=ros_args,
             output=output,
         )

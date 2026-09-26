@@ -894,18 +894,54 @@ tobas_gazebo_msgs/TetherParams params
 	float64 maximum_length  # [m]
 ```
 
+#### gazebo/attach_fixed_load (tobas_gazebo_msgs/AttachFixedLoad)
+
+固定荷物を取り付ける．
+
+```txt
+geometry_msgs/Pose load_pose     # Pose of the load's center of mass relative to the attachment link
+	Point position
+		float64 x
+		float64 y
+		float64 z
+	Quaternion orientation
+		float64 x 0
+		float64 y 0
+		float64 z 0
+		float64 w 1
+geometry_msgs/Vector3 load_size  # Box dimensions along the load frame's x, y, z axes [m]
+	float64 x
+	float64 y
+	float64 z
+float64 load_mass                # Mass of the load [kg]
+---
+bool success
+string message
+```
+
+#### gazebo/detach_fixed_load (tobas_gazebo_msgs/DetachFixedLoad)
+
+固定荷物を取り外す．
+
+```txt
+---
+bool success
+string message
+```
+
 #### gazebo/attach_suspended_load (tobas_gazebo_msgs/AttachSuspendedLoad)
 
 吊り下げ荷物を取り付ける．
 
 ```txt
-geometry_msgs/Vector3 attachment_point  # [m] Attachment point on the aircraft wrt. the local frame
+geometry_msgs/Vector3 attachment_point  # Attachment point on the aircraft wrt. the local frame [m]
 	float64 x
 	float64 y
 	float64 z
-float64 load_sx                         # [m]
-float64 load_sy                         # [m]
-float64 load_sz                         # [m]
+geometry_msgs/Vector3 load_size         # Box dimensions along the load frame's x, y, z axes [m]
+	float64 x
+	float64 y
+	float64 z
 float64 load_mass                       # [kg]
 float64 cable_length                    # [m]
 float64 cable_young_modulus             # [Pa]

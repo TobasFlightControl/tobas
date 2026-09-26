@@ -40,7 +40,7 @@ def generate_launch_description():
     hw_pkg_share = FindPackageShare(HARDWARE_PKG)
 
     # Parse URDF
-    xacro_path = PathJoinSubstitution([FindPackageShare(CONFIG_PKG_NAME), "urdf", "drone.xacro"])
+    xacro_path = PathJoinSubstitution([config_pkg_share, "urdf", "drone.xacro"])
     urdf_text = Command([FindExecutable(name="xacro"), " ", xacro_path, " DEBUG:=false ID:=", id])
 
     # Launch Tobas core software
@@ -97,13 +97,6 @@ def generate_launch_description():
             target_container=PathJoinSubstitution([namespace, "component_manager_2"]),
             composable_node_descriptions=[
                 ComposableNode(
-                    package="robot_state_publisher",
-                    plugin="robot_state_publisher::RobotStatePublisher",
-                    namespace=namespace,
-                    parameters=[{"robot_description": urdf_text}],
-                    remappings=[("/tf", "tf"), ("/tf_static", "tf_static")],
-                ),
-                ComposableNode(
                     package="tobas_sbus_driver",
                     plugin="tobas::SbusDriverNode",
                     namespace=namespace,
@@ -135,6 +128,13 @@ def generate_launch_description():
         LoadComposableNodes(
             target_container=PathJoinSubstitution([namespace, "component_manager_3"]),
             composable_node_descriptions=[
+                ComposableNode(
+                    package="robot_state_publisher",
+                    plugin="robot_state_publisher::RobotStatePublisher",
+                    namespace=namespace,
+                    parameters=[{"robot_description": urdf_text}],
+                    remappings=[("/tf", "tf"), ("/tf_static", "tf_static")],
+                ),
                 ComposableNode(
                     package="tobas_real_ros",
                     plugin="tobas::real::CpuHandlerNode",

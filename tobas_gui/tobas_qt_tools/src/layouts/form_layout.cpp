@@ -22,7 +22,20 @@ void FormLayout::addVAlignedRow(QWidget* label, QWidget* field)
   addRow(label_widget, field);
 }
 
+void FormLayout::addVAlignedRow(QWidget* label, QLayout* field)
+{
+  const auto field_widget = new QWidget();
+  field_widget->setLayout(field);
+
+  addVAlignedRow(label, field_widget);
+}
+
 void FormLayout::addVAlignedRow(const QString& label_text, QWidget* field)
+{
+  addVAlignedRow(new QLabel(label_text), field);
+}
+
+void FormLayout::addVAlignedRow(const QString& label_text, QLayout* field)
 {
   addVAlignedRow(new QLabel(label_text), field);
 }

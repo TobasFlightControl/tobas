@@ -95,10 +95,7 @@ void JointCommanderWidget::reset()
 
 void JointCommanderWidget::updateInternalDataStructures()
 {
-  if (!joint_parser_.updateInternalDataStructures()) {
-    qt::qErrorBox(this, "Failed to update joint parser.");
-    return;
-  }
+  joint_parser_.updateInternalDataStructures();
 
   // Clear joints for previous robot.
   commanders_.clear();

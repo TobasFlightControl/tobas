@@ -14,19 +14,13 @@ TreeJntSpaceInertiaSolver::TreeJntSpaceInertiaSolver(const Tree& tree) : super(t
   resize();
 }
 
-bool TreeJntSpaceInertiaSolver::updateInternalDataStructures()
+void TreeJntSpaceInertiaSolver::updateInternalDataStructures()
 {
-  if (!super::updateInternalDataStructures()) {
-    return false;
-  }
+  super::updateInternalDataStructures();
 
-  if (!rne_.updateInternalDataStructures()) {
-    return false;
-  }
+  rne_.updateInternalDataStructures();
 
   resize();
-
-  return true;
 }
 
 int TreeJntSpaceInertiaSolver::jntToMass(const JntArray& q)

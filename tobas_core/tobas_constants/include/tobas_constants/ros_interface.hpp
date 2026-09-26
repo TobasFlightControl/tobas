@@ -13,7 +13,6 @@ namespace topic
 static constexpr char kMessage[] = "message";
 static constexpr char kDrone[] = "drone";
 static constexpr char kKdlTree[] = "kdl_tree";
-static constexpr char kRobotDescription[] = "robot_description";
 static constexpr char kBattery[] = "battery";
 static constexpr char kEngineState[] = "engine_state";
 static constexpr char kCpu[] = "cpu";
@@ -95,6 +94,8 @@ static constexpr char kSetGnssOrigin[] = "set_gnss_origin";
 static constexpr char kRosbagRecordStart[] = "rosbag_record_start";
 static constexpr char kRosbagRecordStop[] = "rosbag_record_stop";
 static constexpr char kRosbagClean[] = "rosbag_clean";
+static constexpr char kAttachLoad[] = "attach_load";
+static constexpr char kDetachLoad[] = "detach_load";
 static constexpr char kConfigureImuLowPassFilter[] = "configure_imu_lowpass_filter";
 static constexpr char kConfigureImuRpmFilter[] = "configure_imu_rpm_filter";
 static constexpr char kSetRpmControlGains[] = "set_rpm_control_gains";

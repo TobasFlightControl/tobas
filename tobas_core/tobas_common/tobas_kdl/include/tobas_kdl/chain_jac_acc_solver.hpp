@@ -23,7 +23,7 @@ class ChainJacAccSolver : public ChainSolverI
 public:
   explicit ChainJacAccSolver(const Chain& chain);
 
-  bool updateInternalDataStructures() override;
+  void updateInternalDataStructures() override;
 
   int jntToCart(const JntArray& q, const JntArray& qd);
 

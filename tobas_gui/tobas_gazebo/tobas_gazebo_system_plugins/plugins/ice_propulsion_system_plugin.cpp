@@ -207,7 +207,7 @@ void GazeboIcePropulsionSystemPlugin::getSdfParams(const sdf::ElementConstPtr& s
 {
   constexpr size_t kDefaultPublishStateRate = 100;  // [Hz]
 
-  getSdfParam(sdf, "publishStateRate", publish_state_rate_, kDefaultPublishStateRate, kNonNegative);
+  publish_state_rate_ = getSdfParam<size_t>(sdf, "publishStateRate", kDefaultPublishStateRate, kNonNegative);
 }
 
 void GazeboIcePropulsionSystemPlugin::registerPubSub()

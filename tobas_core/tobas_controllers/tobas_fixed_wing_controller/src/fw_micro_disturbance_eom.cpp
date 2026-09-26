@@ -32,12 +32,8 @@ bool MicroDisturbanceEoM::updateInternalDataStructures()
     return false;
   }
 
-  if (!fk_solver_.updateInternalDataStructures()) {
-    return false;
-  }
-  if (!inertia_solver_.updateInternalDataStructures()) {
-    return false;
-  }
+  fk_solver_.updateInternalDataStructures();
+  inertia_solver_.updateInternalDataStructures();
   if (!trim_.updateInternalDataStructures()) {
     return false;
   }

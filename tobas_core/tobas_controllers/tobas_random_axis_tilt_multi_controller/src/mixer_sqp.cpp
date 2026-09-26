@@ -29,15 +29,9 @@ bool SqpMixer::updateInternalDataStructures()
     return false;
   }
 
-  if (!joint_parser_.updateInternalDataStructures()) {
-    return false;
-  }
-  if (!fk_solver_.updateInternalDataStructures()) {
-    return false;
-  }
-  if (!inertia_solver_.updateInternalDataStructures()) {
-    return false;
-  }
+  joint_parser_.updateInternalDataStructures();
+  fk_solver_.updateInternalDataStructures();
+  inertia_solver_.updateInternalDataStructures();
   if (!np_mixer_.updateInternalDataStructures()) {
     return false;
   }

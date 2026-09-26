@@ -30,7 +30,7 @@ public:
 
   explicit TreeIkSolverPos_Online(const Tree& tree);
 
-  bool updateInternalDataStructures() override;
+  void updateInternalDataStructures() override;
 
   int cartToJnt(const JntArray& q_in, const FrameMap& p_in, const double& dt);
 

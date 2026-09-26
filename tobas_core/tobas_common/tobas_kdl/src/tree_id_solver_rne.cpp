@@ -12,15 +12,11 @@ TreeIdSolver_RNE::TreeIdSolver_RNE(const Tree& tree, const Vector& grav) : super
   initialize();
 }
 
-bool TreeIdSolver_RNE::updateInternalDataStructures()
+void TreeIdSolver_RNE::updateInternalDataStructures()
 {
-  if (!super::updateInternalDataStructures()) {
-    return false;
-  }
+  super::updateInternalDataStructures();
 
   initialize();
-
-  return true;
 }
 
 int TreeIdSolver_RNE::cartToJnt(const JntArray& q, const JntArray& qd, const JntArray& qdd, const WrenchMap& f_ext)

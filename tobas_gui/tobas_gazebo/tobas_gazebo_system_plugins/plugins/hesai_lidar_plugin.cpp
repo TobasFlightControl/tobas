@@ -116,12 +116,12 @@ void HesaiLidarPlugin::Configure(
 
 void HesaiLidarPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
-  getSdfParam(sdf, "topic", params_.topic);
-  getSdfParam(sdf, "updateRate", params_.update_rate);
-  getSdfParam(sdf, "parentSensorTopic", params_.parent_topic);
-  getSdfParam(sdf, "parentSensorUpdateRate", params_.parent_update_rate);
-  getSdfParam(sdf, "parentSensorHorizontalSamples", params_.horizontal_samples);
-  getSdfParam(sdf, "parentSensorVerticalSamples", params_.vertical_samples);
+  params_.topic = getSdfParam<std::string>(sdf, "topic");
+  params_.update_rate = getSdfParam<int>(sdf, "updateRate");
+  params_.parent_topic = getSdfParam<std::string>(sdf, "parentSensorTopic");
+  params_.parent_update_rate = getSdfParam<int>(sdf, "parentSensorUpdateRate");
+  params_.horizontal_samples = getSdfParam<int>(sdf, "parentSensorHorizontalSamples");
+  params_.vertical_samples = getSdfParam<int>(sdf, "parentSensorVerticalSamples");
 }
 
 void HesaiLidarPlugin::gpuRayCb(const gz::msgs::PointCloudPacked& msg)

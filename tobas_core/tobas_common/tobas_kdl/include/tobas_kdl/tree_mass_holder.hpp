@@ -17,7 +17,7 @@ class TreeMassHolder : public TreeSolverI
 public:
   explicit TreeMassHolder(const Tree& tree);
 
-  bool updateInternalDataStructures() override;
+  void updateInternalDataStructures() override;
 
   inline const double& getMass() const;
 

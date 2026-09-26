@@ -7,7 +7,6 @@
 #include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/util.hpp>
-#include <tobas_std_tools/check.hpp>
 
 namespace tobas
 {
@@ -26,7 +25,7 @@ JointCommandsPublisherWidget::JointCommandsPublisherWidget(const kdl::Tree& tree
 
 void JointCommandsPublisherWidget::updateInternalDataStructures()
 {
-  TOBAS_CHECK(joint_parser_.updateInternalDataStructures());
+  joint_parser_.updateInternalDataStructures();
 
   // Initialize.
   commanders_.clear();

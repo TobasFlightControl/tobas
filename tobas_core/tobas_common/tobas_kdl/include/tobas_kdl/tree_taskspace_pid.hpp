@@ -20,7 +20,7 @@ class TreeTaskSpacePID : public TreeSolverI
 public:
   explicit TreeTaskSpacePID(const Tree& tree, const Vector& grav = Vector(0, 0, -st::kGravity));
 
-  bool updateInternalDataStructures() override;
+  void updateInternalDataStructures() override;
 
   int cartToJnt(
     const JntArray& cur_q,

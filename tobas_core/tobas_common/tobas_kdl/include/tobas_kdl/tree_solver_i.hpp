@@ -15,7 +15,7 @@ class TreeSolverI : public SolverI
 public:
   inline explicit TreeSolverI(const Tree& tree);
 
-  inline virtual bool updateInternalDataStructures() override;
+  inline virtual void updateInternalDataStructures() override;
 
 protected:
   const Tree& tree_;
@@ -29,12 +29,10 @@ inline TreeSolverI::TreeSolverI(const Tree& tree) : tree_(tree), nj_(tree.getNrO
 {
 }
 
-inline bool TreeSolverI::updateInternalDataStructures()
+inline void TreeSolverI::updateInternalDataStructures()
 {
   nj_ = tree_.getNrOfJoints();
   ns_ = tree_.getNrOfSegments();
-
-  return true;
 }
 
 inline bool TreeSolverI::isUpToDate() const

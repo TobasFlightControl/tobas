@@ -182,13 +182,13 @@ bool Tree::isValidRecursive(
 bool Tree::addSegment(const Segment& segment, const string& hook_name)
 {
   if (segments_.contains(segment.name())) {
-    cerr << "\"" + segment.name() + "\" already exists in the tree." << endl;
+    cerr << "Segment \"" + segment.name() + "\" already exists in the tree." << endl;
     return false;
   }
 
   const auto parent = segments_.find(hook_name);
   if (parent == segments_.end()) {
-    cerr << "\"" + hook_name + "\" does not exist in the tree." << endl;
+    cerr << "Segment \"" + hook_name + "\" does not exist in the tree." << endl;
     return false;
   }
 
@@ -198,7 +198,7 @@ bool Tree::addSegment(const Segment& segment, const string& hook_name)
 
   // Check if insertion succeeded.
   if (!retval.second) {
-    cerr << "Failed to insert \"" + segment.name() + "\" into the tree." << endl;
+    cerr << "Failed to insert segment \"" + segment.name() + "\" into the tree." << endl;
     return false;
   }
 
@@ -212,6 +212,43 @@ bool Tree::addSegment(const Segment& segment, const string& hook_name)
   if (segment.joint().type != Joint::kFixed) {
     ++nj_;
   }
+
+  return true;
+}
+
+bool Tree::removeSegment(const string& seg_name)
+{
+  const auto seg_it = segments_.find(seg_name);
+  if (seg_it == segments_.end()) {
+    cerr << "Segment \"" << seg_name << "\" does not exist in the tree." << endl;
+    return false;
+  }
+
+  if (seg_it->first == root_name_) {
+    cerr << "Cannot remove root segment \"" << seg_name << "\"." << endl;
+    return false;
+  }
+  if (!seg_it->second.children.empty()) {
+    cerr << "Cannot remove segment \"" << seg_name << "\" because it has children." << endl;
+    return false;
+  }
+
+  // Keep movable joint indices contiguous and decrease the joint count.
+  if (seg_it->second.segment.joint().type != Joint::kFixed) {
+    const auto removed_index = seg_it->second.q_nr;
+    for (auto& [_, element] : segments_) {
+      if (element.segment.joint().type != Joint::kFixed && element.q_nr > removed_index) {
+        --element.q_nr;
+      }
+    }
+    --nj_;
+  }
+
+  // Remove the parent's reference before invalidating the segment iterator.
+  const auto parent = segments_.find(seg_it->second.parent->first);
+  std::erase(parent->second.children, seg_it);
+  segments_.erase(seg_it);
+  --ns_;
 
   return true;
 }
@@ -253,7 +290,7 @@ bool Tree::getChain(const string& root_name, const string& tip_name, Chain& chai
   // Clear chain.
   chain.clear();
 
-  // Walk down from root_name and tip_name to the seg of the tree.
+  // Walk down from `root_name` and `tip_name` to the seg of the tree.
   vector<SegmentMap::key_type> parents_chain_root, parents_chain_tip;
   for (auto s = getSegment(root_name); s != segments_.end(); s = s->second.parent) {
     parents_chain_root.push_back(s->first);
@@ -262,7 +299,7 @@ bool Tree::getChain(const string& root_name, const string& tip_name, Chain& chai
     }
   }
   if (parents_chain_root.empty() || parents_chain_root.back() != root_name_) {
-    cerr << "\"" + root_name + "\" does not exist in the tree." << endl;
+    cerr << "Root segment \"" + root_name + "\" does not exist in the tree." << endl;
     return false;
   }
 
@@ -273,7 +310,7 @@ bool Tree::getChain(const string& root_name, const string& tip_name, Chain& chai
     }
   }
   if (parents_chain_tip.empty() || parents_chain_tip.back() != root_name_) {
-    cerr << "\"" + tip_name + "\" does not exist in the tree." << endl;
+    cerr << "Tip segment \"" + tip_name + "\" does not exist in the tree." << endl;
     return false;
   }
 
@@ -322,7 +359,7 @@ bool Tree::getSubTree(const string& seg_name, Tree& tree, bool root_mass_ok) con
   // Confirm that the specified segment exists.
   const auto seg_it = segments_.find(seg_name);
   if (seg_it == segments_.end()) {
-    cerr << "\"" + seg_name + "\" does not exist in the tree." << endl;
+    cerr << "Segment \"" + seg_name + "\" does not exist in the tree." << endl;
     return false;
   }
 

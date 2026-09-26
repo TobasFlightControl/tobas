@@ -12,15 +12,11 @@ ChainIdSolver_RNE::ChainIdSolver_RNE(const Chain& chain) : super(chain), ag_(Acc
   resize();
 }
 
-bool ChainIdSolver_RNE::updateInternalDataStructures()
+void ChainIdSolver_RNE::updateInternalDataStructures()
 {
-  if (!super::updateInternalDataStructures()) {
-    return false;
-  }
+  super::updateInternalDataStructures();
 
   resize();
-
-  return true;
 }
 
 int ChainIdSolver_RNE::cartToJnt(

@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <array>
+
 #include <QWidget>
 #include <eigen3/Eigen/Core>
 
@@ -23,7 +25,7 @@ Q_SIGNALS:
   void valueChanged(const Eigen::Vector3d& vector);
 
 public:
-  explicit Vector3dEditVertical(QWidget* parent = nullptr);
+  explicit Vector3dEditVertical(const QStringList& labels = {}, QWidget* parent = nullptr);
 
   Eigen::Vector3d vector() const;
   void setVector(const Eigen::Vector3d& src);
@@ -31,6 +33,7 @@ public:
   void setDecimals(int decimals);
   void setMinimum(double minimum);
   void setMaximum(double maximum);
+  void setRange(double minimum, double maximum);
   void setSingleStep(double single_step);
   void setSuffix(const QString& suffix);
 
@@ -39,9 +42,7 @@ public:
   double z() const;
 
 private:
-  DoubleSpinBox* x_;
-  DoubleSpinBox* y_;
-  DoubleSpinBox* z_;
+  std::array<DoubleSpinBox*, 3> spin_boxes_;
 
 private Q_SLOTS:
   void onValueChanged(double value);

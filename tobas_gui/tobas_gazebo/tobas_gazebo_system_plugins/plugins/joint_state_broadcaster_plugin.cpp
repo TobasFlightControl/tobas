@@ -12,7 +12,6 @@
 #include <tobas_constants/ros_interface.hpp>
 #include <tobas_gazebo_tools/utils.hpp>
 #include <tobas_ros2_tools/time.hpp>
-#include <tobas_std_tools/check.hpp>
 
 #include <tobas_msgs/msg/joint_state_array.hpp>
 
@@ -43,11 +42,7 @@ public:
   void PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager& ecm) override;
 
 private:
-  struct Param
-  {
-    std::vector<std::string> joint_names;
-    int update_rate;
-  } param_;
+  std::vector<std::string> joint_names_;
 
   std::map<std::string, const cmp::JointPosition*> jnt_pos_;
   std::map<std::string, const cmp::JointVelocity*> jnt_vel_;
@@ -56,9 +51,6 @@ private:
   std::optional<RateManager> rate_manager_;
 
   ros2::PublisherPtr<tobas_msgs::msg::JointStateArray> js_pub_;
-
-  void getSdfParams(const sdf::ElementConstPtr& sdf);
-  void registerRosInterfaces();
 };
 
 GazeboJointStateBroadcasterPlugin::GazeboJointStateBroadcasterPlugin()
@@ -72,9 +64,6 @@ void GazeboJointStateBroadcasterPlugin::Configure(
   gz::sim::EventManager&)
 {
   initialize("gazebo_joint_state_broadcaster_plugin", sdf);
-  getSdfParams(sdf);
-
-  rate_manager_.emplace(param_.update_rate);
 
   // Get robot model.
   const gz::sim::Model model(model_entity);
@@ -83,19 +72,24 @@ void GazeboJointStateBroadcasterPlugin::Configure(
   }
 
   // Get joint states.
-  for (const auto& jnt_name : param_.joint_names) {
+  joint_names_ = getSdfParam<std::vector<std::string>>(sdf, "jointNames");
+  for (const auto& jnt_name : joint_names_) {
     const auto joint_entity = model.JointByName(ecm, jnt_name);
     const auto joint = std::make_shared<gz::sim::Joint>(joint_entity);
     if (!joint->Valid(ecm)) {
       TOBAS_EXIT("Failed to find joint '", jnt_name, "'.");
     }
-    TOBAS_CHECK(jnt_pos_[jnt_name] = getComponent<cmp::JointPosition>(joint_entity, ecm));
-    TOBAS_CHECK(jnt_vel_[jnt_name] = getComponent<cmp::JointVelocity>(joint_entity, ecm));
-    TOBAS_CHECK(jnt_eff_[jnt_name] = getComponent<cmp::JointTransmittedWrench>(joint_entity, ecm));
+    jnt_pos_[jnt_name] = getComponent<cmp::JointPosition>(joint_entity, ecm);
+    jnt_vel_[jnt_name] = getComponent<cmp::JointVelocity>(joint_entity, ecm);
+    jnt_eff_[jnt_name] = getComponent<cmp::JointTransmittedWrench>(joint_entity, ecm);
   }
 
+  // Set update rate.
+  const auto update_rate = getSdfParam<int>(sdf, "updateRate", kNonNegative);
+  rate_manager_.emplace(update_rate);
+
   // Register ROS interfaces.
-  registerRosInterfaces();
+  js_pub_ = createPublisher<tobas_msgs::msg::JointStateArray>(topic::kJointStates);
 }
 
 void GazeboJointStateBroadcasterPlugin::PostUpdate(
@@ -109,7 +103,7 @@ void GazeboJointStateBroadcasterPlugin::PostUpdate(
   auto js = std::make_unique<tobas_msgs::msg::JointStateArray>();
   ros2::timeChronoToMsg(info.simTime, js->header.stamp);
 
-  for (const auto& jnt_name : param_.joint_names) {
+  for (const auto& jnt_name : joint_names_) {
     tobas_msgs::msg::JointState state;
     state.name = jnt_name;
     state.position = jnt_pos_.at(jnt_name)->Data().at(0);
@@ -119,17 +113,6 @@ void GazeboJointStateBroadcasterPlugin::PostUpdate(
   }
 
   js_pub_->publish(std::move(js));
-}
-
-void GazeboJointStateBroadcasterPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
-{
-  getSdfParam(sdf, "jointNames", param_.joint_names);
-  getSdfParam(sdf, "updateRate", param_.update_rate, kNonNegative);
-}
-
-void GazeboJointStateBroadcasterPlugin::registerRosInterfaces()
-{
-  js_pub_ = createPublisher<tobas_msgs::msg::JointStateArray>(topic::kJointStates);
 }
 }  // namespace gazebo
 }  // namespace tobas

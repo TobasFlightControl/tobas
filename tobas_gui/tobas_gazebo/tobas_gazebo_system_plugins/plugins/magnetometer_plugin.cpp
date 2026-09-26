@@ -3,9 +3,7 @@
 
 #include <optional>
 
-#include <gz/sim/components/Link.hh>
-#include <gz/sim/components/Name.hh>
-#include <gz/sim/components/ParentEntity.hh>
+#include <gz/sim/Model.hh>
 #include <gz/sim/components/Pose.hh>
 
 #include <tobas_constants/ros_interface.hpp>
@@ -42,7 +40,7 @@ public:
   explicit GazeboMagnetometerPlugin();
 
   void Configure(
-    const gz::sim::Entity& model,
+    const gz::sim::Entity& model_entity,
     const sdf::ElementConstPtr& sdf,
     gz::sim::EntityComponentManager& ecm,
     gz::sim::EventManager&) override;
@@ -54,8 +52,8 @@ private:
 
   // SDF parameters
   std::string link_name_;
-  int update_rate_;            // [Hz] Update rate
   gz::math::Vector3d offset_;  // [m] B_Pos_BS
+  int update_rate_;            // [Hz] Update rate
   double lat_0_;               // [deg] Latitude north of the origin
   double lon_0_;               // [deg] Longitude east of the origin
   double alt_0_;               // [m] Altitude of the origin
@@ -82,7 +80,7 @@ GazeboMagnetometerPlugin::GazeboMagnetometerPlugin()
 }
 
 void GazeboMagnetometerPlugin::Configure(
-  const gz::sim::Entity& model,
+  const gz::sim::Entity& model_entity,
   const sdf::ElementConstPtr& sdf,
   gz::sim::EntityComponentManager& ecm,
   gz::sim::EventManager&)
@@ -100,12 +98,13 @@ void GazeboMagnetometerPlugin::Configure(
   lon_0_ = sc->LongitudeReference().Degree();
   alt_0_ = sc->ElevationReference();
 
-  const auto link = ecm.EntityByComponents(cmp::Link(), cmp::ParentEntity(model), cmp::Name(link_name_));
-  if (link == gz::sim::kNullEntity) {
+  const gz::sim::Model model(model_entity);
+  const auto link_entity = model.LinkByName(ecm, link_name_);
+  if (link_entity == gz::sim::kNullEntity) {
     TOBAS_EXIT("Failed to find specified link '", link_name_, "'.");
   }
 
-  pose_W_ = getComponent<cmp::WorldPose>(link, ecm);
+  pose_W_ = getComponent<cmp::WorldPose>(link_entity, ecm);
 
   hard_bias_ = createUnitSpherePoint(rnd_dev_) * hard_bias_norm_;
 
@@ -146,7 +145,6 @@ void GazeboMagnetometerPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const
   // Create message.
   auto mag_msg = std::make_unique<tobas_msgs::MagneticField>();
   ros2::timeChronoToMsg(info.simTime, mag_msg->header.stamp);
-  mag_msg->header.frame_id = link_name_;
   vectorGazeboToKDL(field_meas, mag_msg->mag);
 
   // Publish message.
@@ -155,12 +153,12 @@ void GazeboMagnetometerPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const
 
 void GazeboMagnetometerPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
-  getSdfParam(sdf, "linkName", link_name_);
-  getSdfParam(sdf, "updateRate", update_rate_, kNonNegative);
-  getSdfParam(sdf, "offset", offset_);
+  link_name_ = getSdfParam<std::string>(sdf, "linkName");
+  offset_ = getSdfParam<gz::math::Vector3d>(sdf, "offset");
+  update_rate_ = getSdfParam<int>(sdf, "updateRate", kNonNegative);
 
-  getSdfParam(sdf, "noiseStddev", noise_stddev_, kNonNegative);
-  getSdfParam(sdf, "hardBiasNorm", hard_bias_norm_, kNonNegative);
+  noise_stddev_ = getSdfParam<double>(sdf, "noiseStddev", kNonNegative);
+  hard_bias_norm_ = getSdfParam<double>(sdf, "hardBiasNorm", kNonNegative);
 }
 }  // namespace gazebo
 }  // namespace tobas

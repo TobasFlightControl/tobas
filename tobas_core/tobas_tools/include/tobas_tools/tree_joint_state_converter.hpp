@@ -18,7 +18,7 @@ class TreeJointStateConverter : public kdl::TreeSolverI
 public:
   explicit TreeJointStateConverter(const kdl::Tree& tree);
 
-  bool updateInternalDataStructures() override;
+  void updateInternalDataStructures() override;
 
   int convert(const tobas_msgs::msg::JointStateArray& msg);
 

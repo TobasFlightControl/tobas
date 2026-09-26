@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include <optional>
-
 #include <gz/sim/Joint.hh>
 #include <gz/sim/Model.hh>
 #include <gz/sim/components/JointAxis.hh>
@@ -11,7 +9,6 @@
 #include <tobas_gazebo_common/constants.hpp>
 #include <tobas_gazebo_tools/utils.hpp>
 #include <tobas_path_tools/join.hpp>
-#include <tobas_std_tools/check.hpp>
 
 #include <tobas_gazebo_msgs/msg/joint_command.hpp>
 
@@ -44,23 +41,14 @@ public:
   void PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::EntityComponentManager& ecm) override;
 
 private:
-  std::string joint_name_;
-  struct Param
-  {
-    double home_pos;    // [rad]
-    double time_const;  // [s]
-  } param_;
+  double time_const_;  // [s]
+  double tar_pos_;
 
-  std::optional<gz::sim::Joint> joint_;
+  gz::sim::Joint joint_;
   const cmp::JointPosition* jnt_pos_;
   const cmp::JointAxis* jnt_axis_;
 
-  double tar_pos_;
-
   ros2::SubscriberPtr<tobas_gazebo_msgs::msg::JointCommand> cmd_sub_;
-
-  void getSdfParams(const sdf::ElementConstPtr& sdf);
-  void registerRosInterfaces();
 
   void commandCb(const tobas_gazebo_msgs::msg::JointCommand::ConstSharedPtr& cmd);
 };
@@ -75,9 +63,8 @@ void GazeboJointPositionControllerPlugin::Configure(
   gz::sim::EntityComponentManager& ecm,
   gz::sim::EventManager&)
 {
-  joint_name_ = sdf->Get<std::string>("jointName");
-  initialize("gazebo_" + sanitizeNodeName(joint_name_) + "_controller_plugin", sdf);
-  getSdfParams(sdf);
+  const auto joint_name = sdf->Get<std::string>("jointName");
+  initialize("gazebo_" + sanitizeNodeName(joint_name) + "_controller_plugin", sdf);
 
   // Get robot model.
   const gz::sim::Model model(model_entity);
@@ -86,40 +73,32 @@ void GazeboJointPositionControllerPlugin::Configure(
   }
 
   // Get joint.
-  const auto joint_entity = model.JointByName(ecm, joint_name_);
-  joint_.emplace(joint_entity);
-  if (!joint_->Valid(ecm)) {
-    TOBAS_EXIT("Failed to find joint '", joint_name_, "'.");
+  const auto joint_entity = model.JointByName(ecm, joint_name);
+  joint_ = gz::sim::Joint(joint_entity);
+  if (!joint_.Valid(ecm)) {
+    TOBAS_EXIT("Failed to find joint '", joint_name, "'.");
   }
 
   // Get joint position.
-  TOBAS_CHECK(jnt_pos_ = getComponent<cmp::JointPosition>(joint_entity, ecm));
-  TOBAS_CHECK(jnt_axis_ = getComponent<cmp::JointAxis>(joint_entity, ecm));
+  jnt_pos_ = getComponent<cmp::JointPosition>(joint_entity, ecm);
+  jnt_axis_ = getComponent<cmp::JointAxis>(joint_entity, ecm);
 
   // Reset joint position.
-  tar_pos_ = param_.home_pos;
-  joint_->ResetPosition(ecm, { tar_pos_ });
+  tar_pos_ = getSdfParam<double>(sdf, "homePosition");
+  joint_.ResetPosition(ecm, { tar_pos_ });
+
+  // Configure the controller.
+  time_const_ = getSdfParam<double>(sdf, "timeConstant", kPositive);
 
   // Register ROS interfaces.
-  registerRosInterfaces();
+  cmd_sub_ = createSubscriber(path::join(kJointCommandTopicNS, joint_name), &self::commandCb, this);
 }
 
 void GazeboJointPositionControllerPlugin::PreUpdate(const gz::sim::UpdateInfo&, gz::sim::EntityComponentManager& ecm)
 {
   const auto& cur_pos = jnt_pos_->Data().at(0);
-  const auto tar_vel = (tar_pos_ - cur_pos) / param_.time_const;
-  joint_->SetVelocity(ecm, { tar_vel });  // This generates torque on the joint.
-}
-
-void GazeboJointPositionControllerPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
-{
-  getSdfParam(sdf, "homePosition", param_.home_pos);
-  getSdfParam(sdf, "timeConstant", param_.time_const, kPositive);
-}
-
-void GazeboJointPositionControllerPlugin::registerRosInterfaces()
-{
-  cmd_sub_ = createSubscriber(path::join(kJointCommandTopicNS, joint_name_), &self::commandCb, this);
+  const auto tar_vel = (tar_pos_ - cur_pos) / time_const_;
+  joint_.SetVelocity(ecm, { tar_vel });  // This generates torque on the joint.
 }
 
 void GazeboJointPositionControllerPlugin::commandCb(const tobas_gazebo_msgs::msg::JointCommand::ConstSharedPtr& cmd)

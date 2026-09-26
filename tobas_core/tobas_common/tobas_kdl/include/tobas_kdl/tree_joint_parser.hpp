@@ -19,7 +19,7 @@ class TreeJointParser : public TreeSolverI
 public:
   explicit TreeJointParser(const Tree& tree);
 
-  bool updateInternalDataStructures() override;
+  void updateInternalDataStructures() override;
 
   inline const std::string& jointName(const size_t& q_nr) const;
   inline const size_t& jointIndex(const std::string& jnt_name) const;

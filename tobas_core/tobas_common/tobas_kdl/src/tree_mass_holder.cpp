@@ -14,14 +14,11 @@ TreeMassHolder::TreeMassHolder(const Tree& tree) : super(tree)
   updateTotalMass();
 }
 
-bool TreeMassHolder::updateInternalDataStructures()
+void TreeMassHolder::updateInternalDataStructures()
 {
-  if (!super::updateInternalDataStructures()) {
-    return false;
-  }
+  super::updateInternalDataStructures();
 
   updateTotalMass();
-  return true;
 }
 
 void TreeMassHolder::updateTotalMass()

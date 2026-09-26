@@ -12,15 +12,11 @@ TreeJacAccSolver::TreeJacAccSolver(const Tree& tree) : super(tree)
   initialize();
 }
 
-bool TreeJacAccSolver::updateInternalDataStructures()
+void TreeJacAccSolver::updateInternalDataStructures()
 {
-  if (!super::updateInternalDataStructures()) {
-    return false;
-  }
+  super::updateInternalDataStructures();
 
   initialize();
-
-  return true;
 }
 
 int TreeJacAccSolver::jntToCart(const JntArray& q, const JntArray& qd)

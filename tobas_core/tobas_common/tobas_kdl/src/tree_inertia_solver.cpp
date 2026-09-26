@@ -12,15 +12,11 @@ TreeInertiaSolver::TreeInertiaSolver(const Tree& tree) : super(tree)
   initialize();
 }
 
-bool TreeInertiaSolver::updateInternalDataStructures()
+void TreeInertiaSolver::updateInternalDataStructures()
 {
-  if (!super::updateInternalDataStructures()) {
-    return false;
-  }
+  super::updateInternalDataStructures();
 
   initialize();
-
-  return true;
 }
 
 int TreeInertiaSolver::jntToCart(const JntArray& q)
