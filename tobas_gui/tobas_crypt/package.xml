@@ -10,6 +10,7 @@
 	<buildtool_depend>pkg-config</buildtool_depend>
 
 	<depend>libcrypt-dev</depend>
+
 	<depend>tobas_linux</depend>
 
 	<export>

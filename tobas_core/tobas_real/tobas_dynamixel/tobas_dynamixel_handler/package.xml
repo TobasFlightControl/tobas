@@ -10,6 +10,7 @@
 
 	<depend>std_srvs</depend>
 	<depend>dynamixel_sdk</depend>
+
 	<depend>tobas_node</depend>
 	<depend>tobas_msgs_adapter</depend>
 	<depend>tobas_dynamixel_msgs</depend>
