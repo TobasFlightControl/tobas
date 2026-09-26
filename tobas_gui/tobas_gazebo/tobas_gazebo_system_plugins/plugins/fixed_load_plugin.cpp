@@ -99,6 +99,7 @@ public:
 
 private:
   std::optional<gz::sim::SdfEntityCreator> creator_;
+  gz::sim::Entity model_entity_ = gz::sim::kNullEntity;
   gz::sim::Entity world_entity_ = gz::sim::kNullEntity;
   gz::sim::Entity link_entity_ = gz::sim::kNullEntity;
   gz::sim::Entity joint_entity_ = gz::sim::kNullEntity;
@@ -129,6 +130,7 @@ void GazeboFixedLoadPlugin::Configure(
   gz::sim::EventManager& events)
 {
   initialize("gazebo_fixed_load_plugin", sdf);
+  model_entity_ = model_entity;
 
   world_entity_ = gz::sim::worldEntity(ecm);
   if (world_entity_ == gz::sim::kNullEntity) {
@@ -141,9 +143,6 @@ void GazeboFixedLoadPlugin::Configure(
   if (link_entity_ == gz::sim::kNullEntity) {
     TOBAS_EXIT("Failed to find the specified link '", link_name, "'.");
   }
-
-  // Aircraft collision geometry is established at configuration time.
-  setModelCollisionMask(model_entity, kAircraftCollisionMask, ecm);
 
   creator_.emplace(ecm, events);
 
@@ -254,7 +253,8 @@ bool GazeboFixedLoadPlugin::attachLoad(
   }
 
   // Allow overlapping placement without generating contacts with the aircraft.
-  // Set the new load's group before its first physics step.
+  // Apply both groups in this `PreUpdate`, before physics can step the new load.
+  setModelCollisionMask(model_entity_, kAircraftCollisionMask, ecm);
   setModelCollisionMask(load_entity, kLoadCollisionMask, ecm);
 
   // The fixed joint makes the load follow the parent's rigid-body velocity,
