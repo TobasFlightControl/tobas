@@ -80,13 +80,14 @@ void LandingDetectorNode::changeState(bool landed, const builtin_interfaces::msg
 void LandingDetectorNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
 {
   tree_ = *tree;
+
   mass_holder_.updateInternalDataStructures();
 }
 
 void LandingDetectorNode::disturbanceForceCb(const tobas_kdl_msgs::WrenchStamped::ConstSharedPtr& dist_force)
 {
   // Verify that the KDL tree has been received.
-  if (tree_.getNrOfSegments() == 0) {
+  if (tree_.empty()) {
     return;
   }
 
