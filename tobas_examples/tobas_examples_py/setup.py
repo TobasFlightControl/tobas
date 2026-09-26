@@ -19,5 +19,6 @@ setup(
     packages=find_packages(),
     data_files=data_files,
     install_requires=["setuptools"],
+    extras_require={"test": ["pytest"]},
     entry_points={"console_scripts": console_scripts},
 )
