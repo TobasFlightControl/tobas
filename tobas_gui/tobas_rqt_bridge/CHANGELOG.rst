@@ -2,8 +2,8 @@
 Changelog for package tobas_rqt_bridge
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.16.5 (2026-09-26)
+-------------------
 * Add dependencies
 * Revert "fix: Add missing dependency"
   This reverts commit 7ed405ea5de7f7c7d47f15f8039b42248c3f5dde.

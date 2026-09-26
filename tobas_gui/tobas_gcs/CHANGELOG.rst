@@ -2,8 +2,8 @@
 Changelog for package tobas_gcs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.16.5 (2026-09-26)
+-------------------
 * Add dependencies
 * Add dependencies
 * Contributors: Masayoshi Dohi
