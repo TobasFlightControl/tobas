@@ -2,8 +2,8 @@
 Changelog for package tobas_control_system
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.16.5 (2026-09-26)
+-------------------
 * Add dependencies
 * Contributors: Masayoshi Dohi
 
