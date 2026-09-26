@@ -2,8 +2,8 @@
 Changelog for package tobas_urdf_builder
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-2.16.5 (2026-09-26)
--------------------
+Forthcoming
+-----------
 * Add dependencies
 * Contributors: Masayoshi Dohi
 
