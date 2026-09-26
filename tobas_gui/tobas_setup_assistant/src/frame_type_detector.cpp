@@ -17,14 +17,12 @@ FrameTypeDetector::FrameTypeDetector(const uadf::Model& uadf, const kdl::Tree& t
 {
 }
 
-bool FrameTypeDetector::updateInternalDataStructures()
+void FrameTypeDetector::updateInternalDataStructures()
 {
   q_zeros_ = kdl::JntArray::Zero(tree_.getNrOfJoints());
 
   jnt_parser_.updateInternalDataStructures();
   axis_solver_.updateInternalDataStructures();
-
-  return true;
 }
 
 FrameTypeDetectionResult FrameTypeDetector::determineFrameType()

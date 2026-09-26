@@ -146,9 +146,7 @@ bool SetupAssistantWidget::resolveMeshPaths(const QString& config_pkg_path, tiny
 bool SetupAssistantWidget::updateInternalDataStructures()
 {
   // Update KDL objects.
-  if (!frame_type_detector_.updateInternalDataStructures()) {
-    return false;
-  }
+  frame_type_detector_.updateInternalDataStructures();
 
   // Update widgets.
   rotor_marker_publisher_.updateInternalDataStructures();
