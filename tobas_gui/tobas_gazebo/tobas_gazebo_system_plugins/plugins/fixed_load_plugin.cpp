@@ -2,6 +2,7 @@
 // Copyright (C) 2026 Tobas, Inc.
 
 #include <condition_variable>
+#include <cstdint>
 #include <mutex>
 #include <optional>
 
@@ -11,6 +12,8 @@
 #include <gz/sim/Model.hh>
 #include <gz/sim/SdfEntityCreator.hh>
 #include <gz/sim/Util.hh>
+#include <gz/sim/components/Collision.hh>
+#include <gz/sim/components/CollisionBitmask.hh>
 #include <gz/sim/components/DetachableJoint.hh>
 #include <gz/sim/components/Pose.hh>
 
@@ -20,19 +23,46 @@
 #include <tobas_gazebo_msgs/srv/attach_fixed_load.hpp>
 #include <tobas_gazebo_msgs/srv/detach_fixed_load.hpp>
 
-#include "tobas_gazebo_system_plugins/box_model_collision.hpp"
 #include "tobas_gazebo_system_plugins/common/common.hpp"
 #include "tobas_gazebo_system_plugins/sdf_string.hpp"
 
-using namespace std::chrono_literals;
 namespace cmp = gz::sim::components;
 
 namespace tobas
 {
 namespace gazebo
 {
+namespace
+{
+// Keep aircraft and fixed loads in disjoint collision groups.
+// Default world collisions (0xFFFF) intersect both groups, so ground contact is preserved.
+// These groups apply to every instance of this plugin, including released loads.
+constexpr uint16_t kAircraftCollisionMask = 0x0001;
+constexpr uint16_t kLoadCollisionMask = 0x0002;
+
+void setModelCollisionMask(gz::sim::Entity model, uint16_t mask, gz::sim::EntityComponentManager& ecm)
+{
+  // Include every link and nested model, without changing visual geometry.
+  for (const auto entity : ecm.Descendants(model)) {
+    if (!ecm.Component<cmp::Collision>(entity)) {
+      continue;
+    }
+
+    // Gazebo applies these commands before the next physics step. Set both:
+    // collision is enabled when (category1 & collide2) | (category2 & collide1) is nonzero,
+    // so an existing category mask must not bypass the exclusion.
+    ecm.SetComponentData<cmp::CollideBitmaskCmd>(entity, mask);
+    ecm.SetComponentData<cmp::CategoryBitmaskCmd>(entity, mask);
+  }
+}
+}  // namespace
+
 /**
  * @brief Attach a uniform box to an aircraft link using a detachable fixed joint.
+ *
+ * Aircraft collisions use mask 0x0001 and fixed loads use 0x0002 for both category and collide masks.
+ * The groups never collide, even after detachment.
+ * Environment masks must intersect the corresponding group for contact.
  *
  * ROS service callbacks submit a request and wait without a timeout for PreUpdate to process it.
  * Only the simulation thread modifies Gazebo entities and components.
@@ -69,7 +99,6 @@ public:
 
 private:
   std::optional<gz::sim::SdfEntityCreator> creator_;
-  gz::sim::Entity model_entity_ = gz::sim::kNullEntity;
   gz::sim::Entity world_entity_ = gz::sim::kNullEntity;
   gz::sim::Entity link_entity_ = gz::sim::kNullEntity;
   gz::sim::Entity joint_entity_ = gz::sim::kNullEntity;
@@ -100,7 +129,6 @@ void GazeboFixedLoadPlugin::Configure(
   gz::sim::EventManager& events)
 {
   initialize("gazebo_fixed_load_plugin", sdf);
-  model_entity_ = model_entity;
 
   world_entity_ = gz::sim::worldEntity(ecm);
   if (world_entity_ == gz::sim::kNullEntity) {
@@ -113,6 +141,9 @@ void GazeboFixedLoadPlugin::Configure(
   if (link_entity_ == gz::sim::kNullEntity) {
     TOBAS_EXIT("Failed to find the specified link '", link_name, "'.");
   }
+
+  // Aircraft collision geometry is established at configuration time.
+  setModelCollisionMask(model_entity, kAircraftCollisionMask, ecm);
 
   creator_.emplace(ecm, events);
 
@@ -191,14 +222,6 @@ bool GazeboFixedLoadPlugin::attachLoad(
   const auto T_W_B = gz::sim::worldPose(link_entity_, ecm);
   const auto T_W_L = T_W_B * T_B_L;
 
-  // Reject unsafe placements before creating any entities or changing the index.
-  gz::math::Vector3d load_size;
-  vectorRosToGazebo(req.load_size, load_size);
-  if (const auto error = checkBoxModelCollision(model_entity_, T_W_L, load_size, ecm)) {
-    message = *error;
-    return false;
-  }
-
   // Increment the index to avoid duplicate model names.
   ++load_index_;
   const auto load_name = loadName();
@@ -229,6 +252,10 @@ bool GazeboFixedLoadPlugin::attachLoad(
     message = "Failed to create the load link.";
     return false;
   }
+
+  // Allow overlapping placement without generating contacts with the aircraft.
+  // Set the new load's group before its first physics step.
+  setModelCollisionMask(load_entity, kLoadCollisionMask, ecm);
 
   // The fixed joint makes the load follow the parent's rigid-body velocity,
   // including rotation about the offset. Do not leave velocity command components:
