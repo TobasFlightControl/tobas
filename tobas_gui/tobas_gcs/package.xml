@@ -16,6 +16,8 @@
   <depend>tobas_flight_log_gui</depend>
   <depend>tobas_simulation_gui</depend>
 
+  <exec_depend>launch</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
   <exec_depend>rmw_cyclonedds_cpp</exec_depend>
   <exec_depend>tobas_connection_monitor</exec_depend>
   <exec_depend>tobas_gazebo_sim</exec_depend>
