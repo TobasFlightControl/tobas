@@ -13,7 +13,6 @@ namespace topic
 static constexpr char kMessage[] = "message";
 static constexpr char kDrone[] = "drone";
 static constexpr char kKdlTree[] = "kdl_tree";
-static constexpr char kRobotDescription[] = "robot_description";
 static constexpr char kBattery[] = "battery";
 static constexpr char kEngineState[] = "engine_state";
 static constexpr char kCpu[] = "cpu";

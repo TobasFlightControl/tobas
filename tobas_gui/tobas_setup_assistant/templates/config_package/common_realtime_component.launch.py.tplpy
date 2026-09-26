@@ -1,10 +1,11 @@
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, GroupAction
-from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution, Command, FindExecutable
 from launch.conditions import IfCondition, UnlessCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import LoadComposableNodes, SetParameter, PushRosNamespace
 from launch_ros.descriptions import ComposableNode
+from launch_ros.parameter_descriptions import ParameterValue
 from launch_ros.substitutions import FindPackageShare
 
 # Template parameters
@@ -48,6 +49,10 @@ def generate_launch_description():
     namespace = PathJoinSubstitution([DRONE_NAME, id])
     config_pkg_share = FindPackageShare(CONFIG_PKG_NAME)
     user_cpp_pkg_share = FindPackageShare(USER_CPP_PKG_NAME)
+
+    # Parse URDF
+    xacro_path = PathJoinSubstitution([config_pkg_share, "urdf", "drone.xacro"])
+    urdf_text = Command([FindExecutable(name="xacro"), " ", xacro_path, " DEBUG:=false ID:=", id])
 
     # Launch component containers
     ld.add_action(
@@ -152,6 +157,7 @@ def generate_launch_description():
                     package="tobas_tree_server",
                     plugin="tobas::TreeServerNode",
                     namespace=namespace,
+                    parameters=[{"robot_description": urdf_text}],
                 ),
                 ComposableNode(
                     package="tobas_drone_server",
