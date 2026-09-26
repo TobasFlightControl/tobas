@@ -18,7 +18,7 @@ class ChainIkSolverVel_pinv : public ChainIkSolverVel
 public:
   explicit ChainIkSolverVel_pinv(const Chain& chain);
 
-  bool updateInternalDataStructures() override;
+  void updateInternalDataStructures() override;
 
   int cartToJnt(const JntArray& q, const Vector& v) override;
   int cartToJnt(const JntArray& q, const Twist& v) override;

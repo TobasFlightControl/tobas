@@ -157,9 +157,7 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
 
 bool ControllerNode::initialize()
 {
-  if (!mass_holder_.updateInternalDataStructures()) {
-    return false;
-  }
+  mass_holder_.updateInternalDataStructures();
   if (!eom_.updateInternalDataStructures()) {
     return false;
   }

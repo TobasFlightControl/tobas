@@ -19,7 +19,7 @@ class ChainIdSolver_RNE : public ChainSolverI
 public:
   explicit ChainIdSolver_RNE(const Chain& chain);
 
-  bool updateInternalDataStructures() override;
+  void updateInternalDataStructures() override;
 
   int cartToJnt(
     const JntArray& q,

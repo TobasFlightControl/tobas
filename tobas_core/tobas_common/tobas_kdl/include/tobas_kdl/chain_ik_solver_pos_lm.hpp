@@ -75,7 +75,7 @@ public:
    */
   explicit ChainIkSolverPos_LM(const Chain& chain);
 
-  virtual bool updateInternalDataStructures() override;
+  virtual void updateInternalDataStructures() override;
 
   /**
    * @brief computes the inverse position kinematics.

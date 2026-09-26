@@ -21,7 +21,7 @@ class TreeJntSpaceInertiaSolver : public TreeSolverI
 public:
   explicit TreeJntSpaceInertiaSolver(const Tree& tree);
 
-  bool updateInternalDataStructures() override;
+  void updateInternalDataStructures() override;
 
   /**
    * @brief Compute the joint-space inertia matrix using the unit vector method.

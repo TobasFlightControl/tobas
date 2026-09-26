@@ -16,9 +16,9 @@ TranslationalEoM::TranslationalEoM(const kdl::Tree& tree) : mass_holder_(tree), 
 {
 }
 
-bool TranslationalEoM::updateInternalDataStructures()
+void TranslationalEoM::updateInternalDataStructures()
 {
-  return mass_holder_.updateInternalDataStructures();
+  mass_holder_.updateInternalDataStructures();
 }
 
 bool TranslationalEoM::solve(

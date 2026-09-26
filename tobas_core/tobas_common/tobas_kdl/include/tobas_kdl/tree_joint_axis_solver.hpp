@@ -17,7 +17,7 @@ class TreeJointAxisSolver : public TreeSolverI
 public:
   explicit TreeJointAxisSolver(const Tree& tree);
 
-  bool updateInternalDataStructures() override;
+  void updateInternalDataStructures() override;
 
   /* Compute joint axis wrt. the root frame. */
   int jntToCart(const JntArray& q_in, const std::string& seg_name);

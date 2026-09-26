@@ -22,14 +22,8 @@ bool Mixer::updateInternalDataStructures()
     return false;
   }
 
-  if (!fk_solver_.updateInternalDataStructures()) {
-    std::cerr << fk_solver_.errorMessage() << std::endl;
-    return false;
-  }
-  if (!inertia_solver_.updateInternalDataStructures()) {
-    std::cerr << inertia_solver_.errorMessage() << std::endl;
-    return false;
-  }
+  fk_solver_.updateInternalDataStructures();
+  inertia_solver_.updateInternalDataStructures();
 
   // Compute forward kinematics.
   if (fk_solver_.jntToCart(kdl::JntArray::Zero(tree_.getNrOfJoints())) < 0) {

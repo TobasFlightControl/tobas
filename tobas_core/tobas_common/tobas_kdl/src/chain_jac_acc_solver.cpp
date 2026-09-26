@@ -12,15 +12,11 @@ ChainJacAccSolver::ChainJacAccSolver(const Chain& chain) : super(chain)
   resize();
 }
 
-bool ChainJacAccSolver::updateInternalDataStructures()
+void ChainJacAccSolver::updateInternalDataStructures()
 {
-  if (!super::updateInternalDataStructures()) {
-    return false;
-  }
+  super::updateInternalDataStructures();
 
   resize();
-
-  return true;
 }
 
 int ChainJacAccSolver::jntToCart(const JntArray& q, const JntArray& qd)

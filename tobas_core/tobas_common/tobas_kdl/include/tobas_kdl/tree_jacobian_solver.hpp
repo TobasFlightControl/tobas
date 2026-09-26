@@ -18,7 +18,7 @@ class TreeJacobianSolver : public TreeSolverI
 public:
   explicit TreeJacobianSolver(const Tree& tree);
 
-  bool updateInternalDataStructures() override;
+  void updateInternalDataStructures() override;
 
   int jntToJac(const JntArray& q, const std::string& seg_name);
 

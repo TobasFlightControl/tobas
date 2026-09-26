@@ -12,19 +12,13 @@ TreeJntSpacePID::TreeJntSpacePID(const Tree& tree, const Vector& grav) : super(t
   resize();
 }
 
-bool TreeJntSpacePID::updateInternalDataStructures()
+void TreeJntSpacePID::updateInternalDataStructures()
 {
-  if (!super::updateInternalDataStructures()) {
-    return false;
-  }
+  super::updateInternalDataStructures();
 
-  if (!rne_.updateInternalDataStructures()) {
-    return false;
-  }
+  rne_.updateInternalDataStructures();
 
   resize();
-
-  return true;
 }
 
 int TreeJntSpacePID::cartToJnt(

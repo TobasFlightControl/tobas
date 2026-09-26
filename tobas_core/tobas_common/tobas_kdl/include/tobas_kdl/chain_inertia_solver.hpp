@@ -19,7 +19,7 @@ class ChainInertiaSolver : public ChainSolverI
 public:
   explicit ChainInertiaSolver(const Chain& chain);
 
-  bool updateInternalDataStructures() override;
+  void updateInternalDataStructures() override;
 
   int jntToCart(const JntArray& q);
 

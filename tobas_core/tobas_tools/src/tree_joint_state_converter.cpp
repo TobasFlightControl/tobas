@@ -13,20 +13,14 @@ TreeJointStateConverter::TreeJointStateConverter(const kdl::Tree& tree) : super(
   setZero();
 }
 
-bool TreeJointStateConverter::updateInternalDataStructures()
+void TreeJointStateConverter::updateInternalDataStructures()
 {
-  if (!super::updateInternalDataStructures()) {
-    return false;
-  }
+  super::updateInternalDataStructures();
 
-  if (!jnt_parser_.updateInternalDataStructures()) {
-    return false;
-  }
+  jnt_parser_.updateInternalDataStructures();
 
   resize();
   setZero();
-
-  return true;
 }
 
 int TreeJointStateConverter::convert(const tobas_msgs::msg::JointStateArray& msg)

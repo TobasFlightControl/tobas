@@ -22,7 +22,7 @@ class ChainJacobianSolver : public ChainSolverI
 public:
   explicit ChainJacobianSolver(const Chain& chain);
 
-  virtual bool updateInternalDataStructures() override;
+  void updateInternalDataStructures() override;
 
   /**
    * Calculate the jacobian expressed in the base frame of the chain,

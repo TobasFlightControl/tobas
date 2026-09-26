@@ -23,7 +23,7 @@ class TreeJacAccSolver : public TreeSolverI
 public:
   explicit TreeJacAccSolver(const Tree& tree);
 
-  bool updateInternalDataStructures() override;
+  void updateInternalDataStructures() override;
 
   int jntToCart(const JntArray& q, const JntArray& qd);
 

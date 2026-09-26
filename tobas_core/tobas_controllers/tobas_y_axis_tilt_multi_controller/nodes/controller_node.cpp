@@ -213,15 +213,9 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
 
 bool ControllerNode::updateInternalDataStructures()
 {
-  if (!mass_holder_.updateInternalDataStructures()) {
-    return false;
-  }
-  if (!js_converter_.updateInternalDataStructures()) {
-    return false;
-  }
-  if (!trans_eom_.updateInternalDataStructures()) {
-    return false;
-  }
+  mass_holder_.updateInternalDataStructures();
+  js_converter_.updateInternalDataStructures();
+  trans_eom_.updateInternalDataStructures();
   if (!mixer_.updateInternalDataStructures()) {
     return false;
   }

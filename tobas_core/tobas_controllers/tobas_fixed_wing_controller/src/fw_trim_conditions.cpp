@@ -28,9 +28,7 @@ bool TrimConditions::updateInternalDataStructures()
   }
 
   // Update solvers.
-  if (!inertia_solver_.updateInternalDataStructures()) {
-    return false;
-  }
+  inertia_solver_.updateInternalDataStructures();
   if (!asd_cog_.updateInternalDataStructures()) {
     return false;
   }

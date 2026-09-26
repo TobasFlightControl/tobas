@@ -19,25 +19,15 @@ TreeIkSolverAcc_RAC::TreeIkSolverAcc_RAC(const Tree& tree)
   resize();
 }
 
-bool TreeIkSolverAcc_RAC::updateInternalDataStructures()
+void TreeIkSolverAcc_RAC::updateInternalDataStructures()
 {
-  if (!super::updateInternalDataStructures()) {
-    return false;
-  }
+  super::updateInternalDataStructures();
 
-  if (!jnt2jac_.updateInternalDataStructures()) {
-    return false;
-  }
-  if (!jnt2jdqd_.updateInternalDataStructures()) {
-    return false;
-  }
-  if (!jntparser_.updateInternalDataStructures()) {
-    return false;
-  }
+  jnt2jac_.updateInternalDataStructures();
+  jnt2jdqd_.updateInternalDataStructures();
+  jntparser_.updateInternalDataStructures();
 
   resize();
-
-  return true;
 }
 
 int TreeIkSolverAcc_RAC::cartToJnt(const JntArray& q_in, const JntArray& qd_in, const AccelMap& acc_in)

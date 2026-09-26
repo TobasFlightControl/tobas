@@ -21,12 +21,8 @@ bool FrameTypeDetector::updateInternalDataStructures()
 {
   q_zeros_ = kdl::JntArray::Zero(tree_.getNrOfJoints());
 
-  if (!jnt_parser_.updateInternalDataStructures()) {
-    return false;
-  }
-  if (!axis_solver_.updateInternalDataStructures()) {
-    return false;
-  }
+  jnt_parser_.updateInternalDataStructures();
+  axis_solver_.updateInternalDataStructures();
 
   return true;
 }

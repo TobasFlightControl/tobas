@@ -15,20 +15,12 @@ ChainIkSolverAcc_RAC::ChainIkSolverAcc_RAC(const Chain& chain) : super(chain), j
 {
 }
 
-bool ChainIkSolverAcc_RAC::updateInternalDataStructures()
+void ChainIkSolverAcc_RAC::updateInternalDataStructures()
 {
-  if (!super::updateInternalDataStructures()) {
-    return false;
-  }
+  super::updateInternalDataStructures();
 
-  if (!jnt2jac_.updateInternalDataStructures()) {
-    return false;
-  }
-  if (!jnt2jdqd_.updateInternalDataStructures()) {
-    return false;
-  }
-
-  return true;
+  jnt2jac_.updateInternalDataStructures();
+  jnt2jdqd_.updateInternalDataStructures();
 }
 
 int ChainIkSolverAcc_RAC::cartToJnt(const JntArray& q, const JntArray& qd, const Vector& acc_ref)

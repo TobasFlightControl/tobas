@@ -18,7 +18,7 @@ class TreeInertiaSolver : public TreeSolverI
 public:
   explicit TreeInertiaSolver(const Tree& tree);
 
-  bool updateInternalDataStructures() override;
+  void updateInternalDataStructures() override;
 
   /* Compute mass properties around the root link. */
   int jntToCart(const JntArray& q);

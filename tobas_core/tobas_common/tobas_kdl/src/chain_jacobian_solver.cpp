@@ -14,15 +14,11 @@ ChainJacobianSolver::ChainJacobianSolver(const Chain& chain) : super(chain)
   resize();
 }
 
-bool ChainJacobianSolver::updateInternalDataStructures()
+void ChainJacobianSolver::updateInternalDataStructures()
 {
-  if (!super::updateInternalDataStructures()) {
-    return false;
-  }
+  super::updateInternalDataStructures();
 
   resize();
-
-  return true;
 }
 
 bool ChainJacobianSolver::setLockedJoints(const vector<bool> locked_joints)

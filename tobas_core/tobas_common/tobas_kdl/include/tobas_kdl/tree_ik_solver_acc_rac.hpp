@@ -21,7 +21,7 @@ class TreeIkSolverAcc_RAC : public TreeIkSolverAcc
 public:
   explicit TreeIkSolverAcc_RAC(const Tree& tree);
 
-  bool updateInternalDataStructures() override;
+  void updateInternalDataStructures() override;
 
   int cartToJnt(const JntArray& q_in, const JntArray& qd_in, const AccelMap& acc_in) override;
 

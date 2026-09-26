@@ -17,7 +17,7 @@ class ChainDynParam : public ChainSolverI
 public:
   explicit ChainDynParam(const Chain& chain);
 
-  bool updateInternalDataStructures() override;
+  void updateInternalDataStructures() override;
 
   int jntToCoriolis(const JntArray& q, const JntArray& qd);
   int jntToGravity(const JntArray& q, const Vector& grav);
