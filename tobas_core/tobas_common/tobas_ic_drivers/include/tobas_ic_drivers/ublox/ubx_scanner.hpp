@@ -21,7 +21,7 @@ static constexpr size_t kUbxFixedLength = kUbxHeaderLength + kUbxChecksumLength;
 static constexpr uint8_t kUbxSync1 = 0xb5;
 static constexpr uint8_t kUbxSync2 = 0x62;
 
-static constexpr size_t kUbxBufferLength = 256;
+static constexpr size_t kUbxBufferLength = 2048;
 
 class UBXScanner
 {
@@ -65,53 +65,33 @@ private:
 };
 
 inline UBXScanner::State UBXScanner::state() const
-{
-  return state_;
-}
+{ return state_; }
 
 inline size_t UBXScanner::messageLength() const
-{
-  return kUbxFixedLength + payload_length_;
-}
+{ return kUbxFixedLength + payload_length_; }
 
 inline const uint8_t* UBXScanner::getSync1() const
-{
-  return buffer_ + pos_ - messageLength();
-}
+{ return buffer_ + pos_ - messageLength(); }
 
 inline const uint8_t* UBXScanner::getSync2() const
-{
-  return getSync1() + 1;
-}
+{ return getSync1() + 1; }
 
 inline const uint8_t* UBXScanner::getClass() const
-{
-  return getSync1() + kUbxSyncLength;
-}
+{ return getSync1() + kUbxSyncLength; }
 
 inline const uint8_t* UBXScanner::getId() const
-{
-  return getClass() + kUbxClassLength;
-}
+{ return getClass() + kUbxClassLength; }
 
 inline const uint8_t* UBXScanner::getLength() const
-{
-  return getId() + kUbxIdLength;
-}
+{ return getId() + kUbxIdLength; }
 
 inline const uint8_t* UBXScanner::getPayload() const
-{
-  return getLength() + kUbxLengthLength;
-}
+{ return getLength() + kUbxLengthLength; }
 
 inline const uint8_t* UBXScanner::getChecksumA() const
-{
-  return getPayload() + payload_length_;
-}
+{ return getPayload() + payload_length_; }
 
 inline const uint8_t* UBXScanner::getChecksumB() const
-{
-  return getChecksumA() + 1;
-}
+{ return getChecksumA() + 1; }
 }  // namespace ublox
 }  // namespace tobas

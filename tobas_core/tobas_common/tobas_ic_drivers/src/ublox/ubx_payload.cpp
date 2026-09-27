@@ -656,6 +656,22 @@ void NAV_VELNED::print(std::ostream& os) const
   os << "Speed accuracy estimate: " << sAcc << "[mm/s]" << std::endl;
   os << "Course / Heading accuracy estimate: " << cAcc << "[deg]" << std::endl;
 }
+
+void RXM_RTCM::decode(const uint8_t* p)
+{
+  version = algo::decodeU8(p + 0);
+  flags = algo::decodeU8(p + 1);
+  subType = algo::decodeU16(p + 2);
+  refStation = algo::decodeU16(p + 4);
+  msgType = algo::decodeU16(p + 6);
+}
+
+void RXM_RTCM::print(std::ostream& os) const
+{
+  os << "RXM_RTCM: version=" << static_cast<int>(version) << ", flags=" << static_cast<int>(flags)
+     << ", crcFailed=" << (crcFailed() ? "true" : "false") << ", msgUsed=" << static_cast<int>(msgUsed())
+     << ", subType=" << subType << ", refStation=" << refStation << ", msgType=" << msgType << std::endl;
+}
 }  // namespace payload
 }  // namespace ublox
 }  // namespace tobas

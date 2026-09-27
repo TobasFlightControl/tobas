@@ -33,7 +33,7 @@ private:
   static constexpr int kDefaultServerPort = 2101;
   static constexpr char kDefaultPassword[] = "none";
   static constexpr std::chrono::duration kIntervalTime =
-    1s;  // RTCM3.3 protocolのデータの受け取りに確認しに行く時間間隔
+    20ms;  // RTCM3.3 protocolのデータの受け取りに確認しに行く時間間隔
   static constexpr double kDefaultSendPositionInterval = 1.0;  // [s]
   static constexpr double kDefaultReconnectInterval = 5.0;     // [s]
 
@@ -84,7 +84,11 @@ NtripClientNode::NtripClientNode(const rclcpp::NodeOptions& options) : super("nt
   reconnect_interval_ = getDoubleParam("reconnect_interval", kDefaultReconnectInterval);
   gnss_topic_ = getStringParam("gnss_topic", topic::kGnss);
 
-  rtcm_pub_ = createPublisher<tobas_msgs::msg::BinaryPacket>(topic::kRtcmCorrection);
+  rtcm_pub_ = createPublisher<tobas_msgs::msg::BinaryPacket>(
+    topic::kRtcmCorrection,
+    false,  // latch
+    true,   // reliable
+    100);   // queue_size (バーストで届く複数RTCMメッセージのドロップを防止)
 
   if (send_position_) {
     gnss_sub_ = createSubscriber<tobas_msgs::msg::Gnss>(gnss_topic_, &NtripClientNode::gnssCallback, this);

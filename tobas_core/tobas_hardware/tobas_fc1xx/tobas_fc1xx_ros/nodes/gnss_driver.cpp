@@ -48,9 +48,7 @@ private:
 
 GnssDriverNode::GnssDriverNode(const rclcpp::NodeOptions& options)
   : super("fc1xx_gnss_driver", nodeOptions_Default(options))
-{
-  initialize_timer_ = createWallTimer(hardware::kRetryInitializationInterval, &self::initialize, this);
-}
+{ initialize_timer_ = createWallTimer(hardware::kRetryInitializationInterval, &self::initialize, this); }
 
 void GnssDriverNode::initialize()
 {
@@ -69,8 +67,13 @@ void GnssDriverNode::initialize()
   is_received_[ublox::ZEDF9P::NAV_STATUS] = false;
 
   gnss_pub_ = createPublisher<tobas_msgs::Gnss>(topic::kGnss);
-  rtcm_correction_sub_ =
-    createSubscriber<tobas_msgs::msg::BinaryPacket>(topic::kRtcmCorrection, &GnssDriverNode::rtcmCorrectionSubCb, this);
+  rtcm_correction_sub_ = createSubscriber<tobas_msgs::msg::BinaryPacket>(
+    topic::kRtcmCorrection,
+    &GnssDriverNode::rtcmCorrectionSubCb,
+    this,
+    false,  // latch
+    true,   // reliable
+    100);   // queue_size
 
   initialize_timer_->cancel();
   main_timer_ = createWallTimer(1ms, &self::mainTimerCb, this);
@@ -282,9 +285,7 @@ void GnssDriverNode::mainTimerCb()
 }
 
 void GnssDriverNode::rtcmCorrectionSubCb(const tobas_msgs::msg::BinaryPacket::ConstSharedPtr& msg)
-{
-  gnss_.registerRtcmCorrectionData(msg->data);
-}
+{ gnss_.registerRtcmCorrectionData(msg->data); }
 }  // namespace fc1xx
 }  // namespace tobas
 

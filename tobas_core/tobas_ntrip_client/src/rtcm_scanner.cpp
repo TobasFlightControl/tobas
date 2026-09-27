@@ -15,7 +15,13 @@ void RtcmScanner::reset()
 void RtcmScanner::update(const uint8_t& data)
 {
   if (state_ != kDone) {
-    buffer_[pos_++] = data;
+    if (pos_ < kRtcmBufferLength) {
+      buffer_[pos_++] = data;
+    }
+    else {
+      reset();
+      return;
+    }
   }
 
   switch (state_) {
@@ -29,16 +35,27 @@ void RtcmScanner::update(const uint8_t& data)
       break;
 
     case kLength1:
-      if (data > 0b0000'0100) {  // 下位2byte分のみがlengthを示しているはずだからdataが4を超えることはありえない
+      // RTCM 3.x: Byte 1 has 6 reserved bits (must be 0) and 2 bits of message length
+      if ((data & 0xFC) != 0) {
         reset();
+        break;
       }
-      payload_length_ = data << 8;
+      payload_length_ = static_cast<size_t>(data & 0x03) << 8;
       state_ = kLength2;
       break;
 
     case kLength2:
       payload_length_ += data;
-      state_ = kPayload;
+      if (payload_length_ > kRtcmMaxPayloadLength) {
+        reset();
+        break;
+      }
+      if (payload_length_ == 0) {
+        state_ = kCheckSum1;
+      }
+      else {
+        state_ = kPayload;
+      }
       break;
 
     case kPayload:

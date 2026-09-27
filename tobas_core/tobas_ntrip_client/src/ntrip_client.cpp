@@ -156,15 +156,15 @@ std::vector<std::vector<uint8_t>> NtripClient::receiveRtcmData()
 
   // parse receive data
   std::vector<std::vector<uint8_t>> packets;
-  auto size = receive_deque_.size();
-  for (size_t i = 0; i < size; i++) {
+  while (!receive_deque_.empty()) {
+    scanner_.update(receive_deque_.front());
+    receive_deque_.pop_front();
     if (scanner_.state() == RtcmScanner::kDone) {
-      auto packet = std::vector<uint8_t>(scanner_.getPreamble(), scanner_.getEnd());
-      packets.push_back(packet);
+      if (scanner_.checkSum()) {
+        packets.emplace_back(scanner_.getPreamble(), scanner_.getEnd());
+      }
       scanner_.reset();
     }
-    scanner_.update(receive_deque_[0]);
-    receive_deque_.pop_front();
   }
 
   return packets;

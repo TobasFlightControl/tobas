@@ -411,6 +411,7 @@ struct NAV_STATUS : public Payload
     SPOOFING_INDICATED = 2,
     MULTIPLE_SPOOFING_INDICATIONS = 3,
   } spoofDetState;
+
   enum CarrierPhaseRangeSolutionStatus : uint8_t
   {
     NO_SOLUTION = 0,
@@ -521,6 +522,24 @@ struct NAV_VELNED : public Payload
 
   uint32_t sAcc;  // Speed accuracy estimate [cm/s]
   double cAcc;    // Course / Heading accuracy estimate [deg]
+
+  void decode(const uint8_t* p) override;
+  void print(std::ostream& os) const override;
+};
+
+struct RXM_RTCM : public Payload
+{
+  uint8_t version;      // Message version (0x02 for this version)
+  uint8_t flags;        // RTCM input status flags (bit 0: crcFailed, bit 1-2: msgUsed)
+  uint16_t subType;     // Message subtype (only applies for RTCM 4072 message)
+  uint16_t refStation;  // Reference station ID
+  uint16_t msgType;     // RTCM message type (e.g. 1005, 1075, 1115)
+
+  bool crcFailed() const
+  { return (flags & 0x01) != 0; }
+
+  uint8_t msgUsed() const
+  { return (flags >> 1) & 0x03; }
 
   void decode(const uint8_t* p) override;
   void print(std::ostream& os) const override;

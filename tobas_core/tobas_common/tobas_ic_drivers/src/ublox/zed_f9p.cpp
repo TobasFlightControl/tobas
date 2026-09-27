@@ -6,7 +6,9 @@
 #include <cassert>
 #include <cstring>
 
-using namespace std::chrono_literals;
+#define NOT_IMPLEMENTED "Not implemented."
+#define NOT_RECEIVABLE "Not receivable."
+
 namespace ch = std::chrono;
 
 namespace tobas
@@ -20,8 +22,7 @@ ZEDF9P::ZEDF9P() : rate_(kReqInterval)
 bool ZEDF9P::initialize(const char* spi_device)
 {
   // Initialize SPI device.
-  // constexpr uint32_t kSpiClockFreq = 5'500'000;  // Maximum frequency is 5.5MHz.
-  if (!spi_.initialize(spi_device, tx_buf_, rx_buf_, kSPIClockFreq)) {
+  if (!spi_.initialize(spi_device, tx_buf_, rx_buf_, kSpiClockFreq)) {
     return false;
   }
 
@@ -36,7 +37,7 @@ bool ZEDF9P::update(bool nonblock)
     rate_.start();
     while (true) {
       bool sended = false;
-      uint8_t send_data = kDefaultData;  // 送るデータがないときは0xFFを送信
+      uint8_t send_data = kDefaultData;
       {
         std::lock_guard<std::mutex> lock(send_buffer_mutex_);
         if (!send_buffer_.empty()) {
@@ -46,36 +47,37 @@ bool ZEDF9P::update(bool nonblock)
       }
       tx_buf_[0] = send_data;
 
-      // スタートバイトを確認
-      if (!spi_.transfer(1)) {  // データを送信しながら受信する Back-to-back read and write access
+      // Check the start byte.
+      if (!spi_.transfer(1)) {
         return false;
       }
       if (sended) {
         std::lock_guard<std::mutex> lock(send_buffer_mutex_);
         if (!send_buffer_.empty()) {
-          send_buffer_.pop_front();  // 送信したデータはbufferから取り除く
+          send_buffer_.pop_front();
         }
       }
       if (!scanner_.update(rx_buf_[0])) {
         return false;
       }
 
-      // 受信データからUBXパケットが開始されたらメッセージスキャンへ進む
+      // Return if no data has arrived.
       if (scanner_.state() != UBXScanner::kSync1) {
         break;
       }
 
-      // 送るべきデータがもう無ければアイドル終了
+      // If no data has arrived and no data left to send, return.
       if (!sended) {
         return false;
       }
 
-      // SPIリクエストの間隔が短すぎると正しくデータが取得できないため，一定の間隔以上になるようスリープ
+      // If the `SPI` request interval is too short, data cannot be acquired correctly,
+      // so sleep to keep at least the specified interval.
       rate_.sleep();
     }
   }
 
-  // メッセージを1つスキャン
+  // Scan one message.
   rate_.start();
   while (scanner_.state() != UBXScanner::kDone) {
     bool sended = false;
@@ -88,6 +90,7 @@ bool ZEDF9P::update(bool nonblock)
       }
     }
     tx_buf_[0] = send_data;
+
     if (!spi_.transfer(1)) {
       return false;
     }
@@ -97,11 +100,13 @@ bool ZEDF9P::update(bool nonblock)
         send_buffer_.pop_front();
       }
     }
+
     if (!scanner_.update(rx_buf_[0])) {
       return false;
     }
 
-    // SPIリクエストの間隔が短すぎると正しくデータが取得できないため，一定の間隔以上になるようスリープ．
+    // If the `SPI` request interval is too short, data cannot be acquired correctly,
+    // so sleep to keep at least the specified interval.
     rate_.sleep();
   }
 
@@ -115,7 +120,6 @@ bool ZEDF9P::update(bool nonblock)
 void ZEDF9P::registerRtcmCorrectionData(const std::vector<uint8_t>& data)
 {
   std::lock_guard<std::mutex> lock(send_buffer_mutex_);
-  // バッファが過大に溜まった場合は古いデータを破棄して遅延を防ぐ（最大4KB=約3〜4秒分）
   constexpr size_t kMaxSendBufferSize = 4096;
   if (send_buffer_.size() > kMaxSendBufferSize) {
     send_buffer_.clear();
@@ -125,34 +129,31 @@ void ZEDF9P::registerRtcmCorrectionData(const std::vector<uint8_t>& data)
 
 bool ZEDF9P::enableSpiMessage(UbxClass cls, uint8_t id, bool enable)
 {
-  constexpr char kNotImplemented[] = "Not implemented.";
-  constexpr char kNotReceivable[] = "Not receivable.";
-
   CfgValSet<uint8_t, 1> cfg;
 
   switch (cls) {
     case CLASS_ACK: {
-      std::cerr << kNotReceivable << std::endl;
+      std::cerr << NOT_RECEIVABLE << std::endl;
       return false;
     }
     case CLASS_CFG: {
-      std::cerr << kNotReceivable << std::endl;
+      std::cerr << NOT_RECEIVABLE << std::endl;
       return false;
     }
     case CLASS_INF: {
-      std::cerr << kNotImplemented << std::endl;  // TODO
+      std::cerr << NOT_IMPLEMENTED << std::endl;  // TODO
       return false;
     }
     case CLASS_LOG: {
-      std::cerr << kNotImplemented << std::endl;  // TODO
+      std::cerr << NOT_IMPLEMENTED << std::endl;  // TODO
       return false;
     }
     case CLASS_MGA: {
-      std::cerr << kNotImplemented << std::endl;  // TODO
+      std::cerr << NOT_IMPLEMENTED << std::endl;  // TODO
       return false;
     }
     case CLASS_MON: {
-      std::cerr << kNotImplemented << std::endl;  // TODO
+      std::cerr << NOT_IMPLEMENTED << std::endl;  // TODO
       return false;
     }
     case CLASS_NAV: {
@@ -200,7 +201,7 @@ bool ZEDF9P::enableSpiMessage(UbxClass cls, uint8_t id, bool enable)
           cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x91);  // CFG-MSGOUT-UBX_NAV_RELPOSNED_SPI
           break;
         case NAV_RESETODO:
-          std::cerr << kNotReceivable << std::endl;
+          std::cerr << NOT_RECEIVABLE << std::endl;
           return false;
         case NAV_SAT:
           cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x19);  // CFG-MSGOUT-UBX_NAV_SAT_SPI
@@ -248,29 +249,29 @@ bool ZEDF9P::enableSpiMessage(UbxClass cls, uint8_t id, bool enable)
           cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x46);  // CFG-MSGOUT-UBX_NAV_VELNED_SPI
           break;
         default:
-          std::cerr << kNotImplemented << std::endl;  // TODO
+          std::cerr << NOT_IMPLEMENTED << std::endl;  // TODO
           return false;
       }
       break;
     }
     case CLASS_NAV2: {
-      std::cerr << kNotImplemented << std::endl;  // TODO
+      std::cerr << NOT_IMPLEMENTED << std::endl;  // TODO
       return false;
     }
     case CLASS_RXM: {
-      std::cerr << kNotImplemented << std::endl;  // TODO
+      std::cerr << NOT_IMPLEMENTED << std::endl;  // TODO
       return false;
     }
     case CLASS_SEC: {
-      std::cerr << kNotImplemented << std::endl;  // TODO
+      std::cerr << NOT_IMPLEMENTED << std::endl;  // TODO
       return false;
     }
     case CLASS_TIM: {
-      std::cerr << kNotImplemented << std::endl;  // TODO
+      std::cerr << NOT_IMPLEMENTED << std::endl;  // TODO
       return false;
     }
     case CLASS_UPD: {
-      std::cerr << kNotImplemented << std::endl;  // TODO
+      std::cerr << NOT_IMPLEMENTED << std::endl;  // TODO
       return false;
     }
     default: {
@@ -279,7 +280,7 @@ bool ZEDF9P::enableSpiMessage(UbxClass cls, uint8_t id, bool enable)
     }
   }
 
-  cfg.data[0].value = enable ? 1 : 0;  // Enableならば最大レート
+  cfg.data[0].value = enable ? 1 : 0;  // Maximum rate if enabled.
 
   return configure(CFG_VALSET, &cfg, sizeof(cfg));
 }
@@ -296,25 +297,25 @@ bool ZEDF9P::configureMeasurementRate(uint16_t period_ms)
 
 bool ZEDF9P::enableGps()
 {
-  // Enable GPS
+  // Enable GPS.
   if (!enableGps(true)) {
     std::cerr << "Failed to enable GPS." << std::endl;
     return false;
   }
 
-  // Enable L1 band
+  // Enable L1 band.
   if (!enableGpsL1()) {
     std::cerr << "Failed to enable GPS L1." << std::endl;
     return false;
   }
 
-  // Try to enable L2 band
+  // Try to enable L2 band.
   if (enableGpsL2()) {
     std::cout << "GPS L1/L2 is enabled." << std::endl;
     return true;
   }
 
-  // Try to enable L5 band
+  // Try to enable L5 band.
   if (enableGpsL5()) {
     std::cout << "GPS L1/L5 is enabled." << std::endl;
     return true;
@@ -329,13 +330,13 @@ bool ZEDF9P::disableGps()
 
 bool ZEDF9P::enableSbas()
 {
-  // Enable SBAS
+  // Enable SBAS.
   if (!enableSbas(true)) {
     std::cerr << "Failed to enable SBAS." << std::endl;
     return false;
   }
 
-  // Enable L1 band
+  // Enable L1 band.
   if (!enableSbasL1()) {
     std::cerr << "Failed to enable SBAS L1." << std::endl;
     return false;
@@ -355,19 +356,19 @@ bool ZEDF9P::enableGalileo()
     return false;
   }
 
-  // Enable L1 band
+  // Enable L1 band.
   if (!enableGalileoL1()) {
     std::cerr << "Failed to enable Galileo L1." << std::endl;
     return false;
   }
 
-  // Try to enable L2 band
+  // Try to enable L2 band.
   if (enableGalileoL2()) {
     std::cout << "Galileo L1/L2 is enabled." << std::endl;
     return true;
   }
 
-  // Try to enable L5 band
+  // Try to enable L5 band.
   if (enableGalileoL5()) {
     std::cout << "Galileo L1/L5 is enabled." << std::endl;
     return true;
@@ -382,25 +383,25 @@ bool ZEDF9P::disableGalileo()
 
 bool ZEDF9P::enableBeiDou()
 {
-  // Enable BeiDou
+  // Enable BeiDou.
   if (!enableBeiDou(true)) {
     std::cerr << "Failed to enable BeiDou." << std::endl;
     return false;
   }
 
-  // Enable L1 band
+  // Enable L1 band.
   if (!enableBeiDouL1()) {
     std::cerr << "Failed to enable BeiDou L1." << std::endl;
     return false;
   }
 
-  // Try to enable L2 band
+  // Try to enable L2 band.
   if (enableBeiDouL2()) {
     std::cout << "BeiDou L1/L2 is enabled." << std::endl;
     return true;
   }
 
-  // Try to enable L5 band
+  // Try to enable L5 band.
   if (enableBeiDouL5()) {
     std::cout << "BeiDou L1/L5 is enabled." << std::endl;
     return true;
@@ -415,25 +416,25 @@ bool ZEDF9P::disableBeiDou()
 
 bool ZEDF9P::enableQzss()
 {
-  // Enable QZSS
+  // Enable QZSS.
   if (!enableQzss(true)) {
     std::cerr << "Failed to enable QZSS." << std::endl;
     return false;
   }
 
-  // Enable L1 band
+  // Enable L1 band.
   if (!enableQzssL1()) {
     std::cerr << "Failed to enable QZSS L1." << std::endl;
     return false;
   }
 
-  // Try to enable L2 band
+  // Try to enable L2 band.
   if (enableQzssL2()) {
     std::cout << "QZSS L1/L2 is enabled." << std::endl;
     return true;
   }
 
-  // Try to enable L5 band
+  // Try to enable L5 band.
   if (enableQzssL5()) {
     std::cout << "QZSS L1/L5 is enabled." << std::endl;
     return true;
@@ -454,13 +455,13 @@ bool ZEDF9P::enableGlonass()
     return false;
   }
 
-  // Enable L1 band
+  // Enable L1 band.
   if (!enableGlonassL1()) {
     std::cerr << "Failed to enable GLONASS L1." << std::endl;
     return false;
   }
 
-  // Try to enable L2 band
+  // Try to enable L2 band.
   if (enableGlonassL2()) {
     std::cout << "GLONASS L1/L2 is enabled." << std::endl;
     return true;
@@ -475,13 +476,13 @@ bool ZEDF9P::disableGlonass()
 
 bool ZEDF9P::enableNavIc()
 {
-  // Enable NavIC
+  // Enable NavIC.
   if (!enableNavIc(true)) {
     std::cerr << "Failed to enable NavIC." << std::endl;
     return false;
   }
 
-  // Enable L5 band
+  // Enable L5 band.
   if (!enableNavIcL5()) {
     std::cerr << "Failed to enable NavIC L5." << std::endl;
     return false;
@@ -508,7 +509,6 @@ bool ZEDF9P::enableSpiProtocol_SPARTN(bool enable_input)
 
 bool ZEDF9P::setAntennaLength(uint8_t length_m)
 {
-  constexpr uint8_t kRG174CableDelay = 5;  // [ns/m] Coaxial cable delay.
   return cfgValSetSingle<uint16_t>(TWO_BYTES, CFG_TP, 0x01, length_m * kRG174CableDelay);  // CFG-TP-ANT_CABLEDELAY
 }
 
@@ -543,7 +543,6 @@ bool ZEDF9P::waitForAcknowledge(UbxClass cls, uint8_t id)
   const auto cls_str = std::to_string(int(cls));
   const auto id_str = std::to_string(int(id));
 
-  constexpr auto kWaitForGnssAck = 1s;
   const auto deadline = ch::steady_clock::now() + kWaitForGnssAck;
 
   while (ch::steady_clock::now() < deadline) {
