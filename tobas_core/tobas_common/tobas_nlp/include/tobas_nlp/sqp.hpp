@@ -3,6 +3,9 @@
 
 #pragma once
 
+#include <expected>
+#include <string>
+
 #include <tobas_eigen_tools/tensor.hpp>
 #include <tobas_quadprog/dual_active_set.hpp>
 
@@ -13,13 +16,6 @@ namespace nlp
 class SQP
 {
 public:
-  enum Error
-  {
-    kNoError = 0,
-    kMaxIterationExceeded = -1,
-    kQpFailed = -2,
-  };
-
   explicit SQP();
 
   void initialize(
@@ -34,21 +30,15 @@ public:
     std::function<Eigen::Tensor3Xd(const Eigen::VectorXd&)> dGdx,
     std::function<Eigen::Tensor3Xd(const Eigen::VectorXd&)> dHdx);
 
-  Error solve();
+  std::expected<Eigen::VectorXd, std::string> solve();
 
-  const Eigen::VectorXd& optimal() const;
   size_t iterations() const;
-
-  Error errorCode() const;
-  const char* errorMessage() const;
 
   bool setMaximumIterations(size_t max_iter);
   bool setRelativeTolerance(double rel_tol);
   bool setVariableScales(const Eigen::VectorXd& x_scale);
 
 private:
-  Error error_code_;
-
   Eigen::Index n_;  // The number of optimization variables
   Eigen::Index m_;  // The number of inequality constraints
   Eigen::Index p_;  // The number of equality constraints

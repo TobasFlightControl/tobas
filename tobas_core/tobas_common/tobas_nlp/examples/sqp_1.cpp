@@ -108,19 +108,18 @@ int main()
 
   sqp.initialize(x0, f, g, h, dfdx, dgdx, dhdx, dFdx, dGdx, dHdx);
 
-  if (sqp.solve() < 0) {
-    cerr << sqp.errorMessage() << endl;
+  const auto x_opt = sqp.solve();
+  if (!x_opt) {
+    cerr << x_opt.error() << endl;
     return EXIT_FAILURE;
   }
 
-  const auto& x_opt = sqp.optimal();
-
-  cout << "Optimal solution: " << x_opt.transpose() << endl;  // 4.04092525, 8.41773078
+  cout << "Optimal solution: " << x_opt->transpose() << endl;  // 4.04092525, 8.41773078
   cout << "Number of iterations: " << sqp.iterations() << endl;
   cout << "----------" << endl;
-  cout << "f(x*) = " << f(x_opt) << endl;
-  cout << "g(x*) = " << g(x_opt).transpose() << endl;
-  cout << "h(x*) = " << h(x_opt).transpose() << endl;
+  cout << "f(x*) = " << f(*x_opt) << endl;
+  cout << "g(x*) = " << g(*x_opt).transpose() << endl;
+  cout << "h(x*) = " << h(*x_opt).transpose() << endl;
 
   return EXIT_SUCCESS;
 }

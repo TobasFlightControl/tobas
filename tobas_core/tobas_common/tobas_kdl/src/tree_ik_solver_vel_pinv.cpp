@@ -3,6 +3,8 @@
 
 #include "tobas_kdl/tree_ik_solver_vel_pinv.hpp"
 
+#include <utility>
+
 #include <tobas_eigen_tools/core.hpp>
 #include <tobas_quadprog/utils.hpp>
 
@@ -82,10 +84,11 @@ int TreeIkSolverVel_pinv::cartToJnt(const JntArray& q_in, const TwistMap& v_in)
   quadprog::matIneqFromRange(qd_min.data, qd_max.data, qp_solver_.problem.A, qp_solver_.problem.b);
 
   // Solve the QP.
-  if (!qp_solver_.solve()) {
+  const auto qd_out = qp_solver_.solve();
+  if (!qd_out) {
     return setDefaultError(kQpFailed);
   }
-  qd_out_.data = qp_solver_.solution();
+  qd_out_.data = std::move(*qd_out);
 
   return setDefaultError(kNoError);
 }

@@ -66,7 +66,7 @@ QuadProgppSolver::QuadProgppSolver() : super()
 {
 }
 
-bool QuadProgppSolver::solve()
+std::expected<Eigen::VectorXd, std::string> QuadProgppSolver::solve()
 {
   checkProblemValidity();
 
@@ -84,17 +84,14 @@ bool QuadProgppSolver::solve()
   // Solve the QP.
   const double f_value = quadprogpp::solve_quadprog(G_, g0_, CE_, ce0_, CI_, ci0_, x_);
   if (f_value > 1e+10) {
-    error_msg_ = "QPP is infeasible.";
-    return false;
+    return std::unexpected("QPP is infeasible.");
   }
 
   VectorXd x_scaled(x_.size());
   quadprogpp::vectorQpToEigen(x_, x_scaled);
 
   // Restore the solution to the original scale.
-  x_opt_ = x_scaled.cwiseProduct(x_scale);
-
-  return true;
+  return x_scaled.cwiseProduct(x_scale).eval();
 }
 }  // namespace quadprog
 }  // namespace tobas

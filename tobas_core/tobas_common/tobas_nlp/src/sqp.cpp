@@ -55,14 +55,14 @@ void SQP::initialize(
   }
 }
 
-SQP::Error SQP::solve()
+std::expected<Eigen::VectorXd, std::string> SQP::solve()
 {
   iter_ = 0;
 
   while (true) {
     // Check the iteration limit.
     if (++iter_ > max_iter_) {
-      return error_code_ = kMaxIterationExceeded;
+      return std::unexpected("The number of iterations exceeded the limit.");
     }
 
     // Calculate the Hessian matrix of the Lagrangian.
@@ -82,14 +82,13 @@ SQP::Error SQP::solve()
     qp_.problem.G = dhdx_(x_);
     qp_.problem.h = -h_(x_);
 
-    if (!qp_.solve()) {
-      return error_code_ = kQpFailed;
+    const auto dx = qp_.solve();
+    if (!dx) {
+      return dx;
     }
 
-    const auto& dx = qp_.solution();
-
     // Update optimization variables.
-    x_ += dx;
+    x_ += *dx;
     lam_ = qp_.getLagrangeMultipliersIneq();
     mu_ = qp_.getLagrangeMultipliersEq();
 
@@ -103,39 +102,15 @@ SQP::Error SQP::solve()
 
     // Termination check.
     // cf. https://kotakku.github.io/cpp_robotics/tech_note/optimize/tolerances_and_stopping/
-    if ((dx.cwiseAbs().array() < (rel_tol_ * qp_.x_scale).array()).all()) {
-      return error_code_ = kNoError;
+    if ((dx->cwiseAbs().array() < (rel_tol_ * qp_.x_scale).array()).all()) {
+      return x_;
     }
   }
-}
-
-const VectorXd& SQP::optimal() const
-{
-  return x_;
 }
 
 size_t SQP::iterations() const
 {
   return iter_;
-}
-
-SQP::Error SQP::errorCode() const
-{
-  return error_code_;
-}
-
-const char* SQP::errorMessage() const
-{
-  switch (error_code_) {
-    case kNoError:
-      return "No error.";
-    case kMaxIterationExceeded:
-      return "The number of iterations exceeded the limit.";
-    case kQpFailed:
-      return qp_.errorMessage().c_str();
-    default:
-      return "Unknown error.";
-  }
 }
 
 bool SQP::setMaximumIterations(size_t max_iter)
