@@ -7,7 +7,6 @@
 #include <tobas_kdl/tree_fk_solver_pos_all.hpp>
 #include <tobas_kdl/tree_inertia_solver.hpp>
 #include <tobas_quadprog/dual_active_set.hpp>
-#include <tobas_time_tools/stopwatch.hpp>
 #include <tobas_tools/mixer_i.hpp>
 
 namespace tobas
@@ -52,7 +51,7 @@ private:
   Eigen::Matrix3Xd G_;                // Left-hand side of the EoM matrix equality.
   Eigen::Vector3d h_;                 // Right-hand side of the EoM matrix equality.
 
-  tim::Stopwatch stopwatch_;
+  Eigen::VectorXd thrusts_;
 
   void resizeAndFill();
 };

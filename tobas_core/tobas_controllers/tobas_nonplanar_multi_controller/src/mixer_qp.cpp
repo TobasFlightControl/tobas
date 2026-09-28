@@ -4,6 +4,7 @@
 #include "tobas_nonplanar_multi_controller/mixer_qp.hpp"
 
 #include <ranges>
+#include <utility>
 
 #include <tobas_constants/scale.hpp>
 #include <tobas_eigen_tools/operators.hpp>
@@ -124,22 +125,24 @@ bool QpMixer::solve(
   }
 
   // Solve the QPP.
-  if (!qp_.solve()) {
-    cerr << "QP failed: " << qp_.errorMessage() << endl;
+  const auto thrusts = qp_.solve();
+  if (!thrusts) {
+    cerr << "QP failed: " << thrusts.error() << endl;
     return false;
   }
+  thrusts_ = std::move(*thrusts);
 
   return true;
 }
 
 const Eigen::VectorXd& QpMixer::getThrusts() const
 {
-  return qp_.solution();
+  return thrusts_;
 }
 
 double QpMixer::getThrust(size_t idx) const
 {
-  return thrustDeadband(qp_.solution()(idx));
+  return thrustDeadband(thrusts_(idx));
 }
 
 bool QpMixer::setLinearWeight(double p)
