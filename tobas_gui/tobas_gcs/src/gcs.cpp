@@ -527,16 +527,15 @@ void GroundControlStationWidget::onLoadButtonClicked()
   }
 
   // Load KDL tree.
-  uadf::Model next_uadf;
   const auto uadf_path = proj_paths.originalUadfPath();
-  if (!uadf_parser_.parseFromPath(uadf_path.toStdString(), next_uadf)) {
-    qt::qErrorBox(this, "Failed to parse UADF:\n\n" + QString::fromStdString(uadf_parser_.errorMessage()));
+  const auto next_uadf = uadf_parser_.parseFromPath(uadf_path.toStdString());
+  if (!next_uadf) {
+    qt::qErrorBox(this, "Failed to parse UADF:\n\n" + QString::fromStdString(next_uadf.error()));
     return;
   }
-  kdl::Tree next_tree;
-  if (!tree_parser_.parseFromUrdf(*next_uadf.urdf, next_tree)) {
-    qt::qErrorBox(
-      this, "Failed to construct KDL tree from URDF:\n\n" + QString::fromStdString(tree_parser_.errorMessage()));
+  const auto next_tree = tree_parser_.parseFromUrdf(*next_uadf->urdf);
+  if (!next_tree) {
+    qt::qErrorBox(this, "Failed to construct KDL tree from URDF:\n\n" + QString::fromStdString(next_tree.error()));
     return;
   }
 
@@ -555,8 +554,8 @@ void GroundControlStationWidget::onLoadButtonClicked()
   }
 
   proj_version_ = std::move(next_proj_version);
-  uadf_ = std::move(next_uadf);
-  tree_ = std::move(next_tree);
+  uadf_ = std::move(*next_uadf);
+  tree_ = std::move(*next_tree);
   drone_ = std::move(next_drone);
   network_config_ = std::move(next_network_config);
 

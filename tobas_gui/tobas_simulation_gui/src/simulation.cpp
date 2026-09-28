@@ -4,6 +4,7 @@
 #include "tobas_simulation_gui/simulation.hpp"
 
 #include <csignal>
+#include <utility>
 
 #include <QCloseEvent>
 #include <QDebug>
@@ -87,10 +88,14 @@ void SimulationWidget::updateProject(const QString& proj_path)
   // Update project path.
   proj_paths_.setProjPath(proj_path);
 
-  // Load KDL tree.
+  // Load UADF.
   const auto uadf_path = proj_paths_.originalUadfPath();
-  TOBAS_CHECK(uadf_parser_.parseFromPath(uadf_path.toStdString(), uadf_));
-  TOBAS_CHECK(tree_parser_.parseFromUrdf(*uadf_.urdf, tree_));
+  const auto uadf = uadf_parser_.parseFromPath(uadf_path.toStdString());
+  uadf_ = std::move(*uadf);
+
+  // Load KDL tree.
+  const auto tree = tree_parser_.parseFromUrdf(*uadf_.urdf);
+  tree_ = std::move(*tree);
 
   // Load drone configuration.
   const auto tbsdrn_path = proj_paths_.tbsdrnPath();

@@ -3,6 +3,8 @@
 
 #include "tobas_setup_assistant/setup_assistant.hpp"
 
+#include <utility>
+
 #include <QDebug>
 #include <QFileInfo>
 #include <ament_index_cpp/get_package_share_directory.hpp>
@@ -258,19 +260,22 @@ void SetupAssistantWidget::onNewButtonClicked()
   }
 
   // Load UADF.
-  if (!uadf_parser_.parseFromText(uadf_text, uadf_)) {
-    qt::qErrorBox(this, "Failed to parse UADF:\n\n" + QString::fromStdString(uadf_parser_.errorMessage()));
+  const auto uadf = uadf_parser_.parseFromText(uadf_text);
+  if (!uadf) {
+    qt::qErrorBox(this, "Failed to parse UADF:\n\n" + QString::fromStdString(uadf.error()));
     reset();
     return;
   }
+  uadf_ = std::move(*uadf);
 
   // Load KDL tree.
-  if (!tree_parser_.parseFromUrdf(*uadf_.urdf, tree_)) {
-    qt::qErrorBox(
-      this, "Failed to construct KDL tree from URDF:\n\n" + QString::fromStdString(tree_parser_.errorMessage()));
+  const auto tree = tree_parser_.parseFromUrdf(*uadf_.urdf);
+  if (!tree) {
+    qt::qErrorBox(this, "Failed to construct KDL tree from URDF:\n\n" + QString::fromStdString(tree.error()));
     reset();
     return;
   }
+  tree_ = std::move(*tree);
 
   // Check model validity.
   if (!uadf_.valid()) {
@@ -363,19 +368,22 @@ void SetupAssistantWidget::onLoadButtonClicked()
   }
 
   // Load the backup UADF whose mesh paths are resolved.
-  if (!uadf_parser_.parseFromXml(&uadf_doc, uadf_)) {
-    qt::qErrorBox(this, "Failed to parse UADF:\n\n" + QString::fromStdString(uadf_parser_.errorMessage()));
+  const auto uadf = uadf_parser_.parseFromXml(&uadf_doc);
+  if (!uadf) {
+    qt::qErrorBox(this, "Failed to parse UADF:\n\n" + QString::fromStdString(uadf.error()));
     reset();
     return;
   }
+  uadf_ = std::move(*uadf);
 
   // Load KDL tree.
-  if (!tree_parser_.parseFromUrdf(*uadf_.urdf, tree_)) {
-    qt::qErrorBox(
-      this, "Failed to construct KDL tree from URDF:\n\n" + QString::fromStdString(tree_parser_.errorMessage()));
+  const auto tree = tree_parser_.parseFromUrdf(*uadf_.urdf);
+  if (!tree) {
+    qt::qErrorBox(this, "Failed to construct KDL tree from URDF:\n\n" + QString::fromStdString(tree.error()));
     reset();
     return;
   }
+  tree_ = std::move(*tree);
 
   // Check model validity.
   if (!uadf_.valid()) {

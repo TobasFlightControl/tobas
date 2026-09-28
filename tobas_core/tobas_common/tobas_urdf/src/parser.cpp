@@ -13,39 +13,34 @@ Parser::Parser() : oh_(console_bridge::CONSOLE_BRIDGE_LOG_ERROR)
 {
 }
 
-::urdf::ModelInterfaceSharedPtr Parser::parseFromPath(const std::string& path)
+std::expected<::urdf::ModelInterfaceSharedPtr, std::string> Parser::parseFromPath(const std::string& path)
 {
   console_bridge::useOutputHandler(&oh_);
-
   const auto res = ::urdf::parseURDFFile(path);
-  if (!res) {
-    error_msg_ = oh_.message();
-    oh_.clear();
-  }
-
   console_bridge::restorePreviousOutputHandler();
+
+  if (!res) {
+    const auto error_msg = oh_.message();
+    oh_.clear();
+    return std::unexpected(error_msg);
+  }
 
   return res;
 }
 
-::urdf::ModelInterfaceSharedPtr Parser::parseFromText(const std::string& xml)
+std::expected<::urdf::ModelInterfaceSharedPtr, std::string> Parser::parseFromText(const std::string& xml)
 {
   console_bridge::useOutputHandler(&oh_);
-
   const auto res = ::urdf::parseURDF(xml);
-  if (!res) {
-    error_msg_ = oh_.message();
-    oh_.clear();
-  }
-
   console_bridge::restorePreviousOutputHandler();
 
-  return res;
-}
+  if (!res) {
+    const auto error_msg = oh_.message();
+    oh_.clear();
+    return std::unexpected(error_msg);
+  }
 
-const std::string& Parser::errorMessage() const
-{
-  return error_msg_;
+  return res;
 }
 }  // namespace urdf
 }  // namespace tobas

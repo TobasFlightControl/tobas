@@ -14,10 +14,10 @@ Parser::Parser()
 {
 }
 
-bool Parser::parseFromXml(const tinyxml2::XMLDocument* uadf_doc, Model& uadf_model)
+std::expected<Model, std::string> Parser::parseFromXml(const tinyxml2::XMLDocument* uadf_doc)
 {
   // Initialize the model.
-  uadf_model.clear();
+  Model uadf_model;
 
   // Copy the XML document for editing.
   tinyxml2::XMLDocument uadf_doc_cp;
@@ -49,16 +49,15 @@ bool Parser::parseFromXml(const tinyxml2::XMLDocument* uadf_doc, Model& uadf_mod
               thrust.direction = Thrust::CCW;
             }
             else {
-              error_msg_ = "Thrust joint '" + std::string(joint_name) + "' has invalid direction '" +
-                           std::string(direction) + "'. It must be 'cw' or 'ccw'.";
-              return false;
+              return std::unexpected(
+                "Thrust joint '" + std::string(joint_name) + "' has invalid direction '" + std::string(direction) +
+                "'. It must be 'cw' or 'ccw'.");
             }
           }
         }
 
         if (!direction_found) {
-          error_msg_ = "Thrust joint '" + std::string(joint_name) + "' has no 'direction' element.";
-          return false;
+          return std::unexpected("Thrust joint '" + std::string(joint_name) + "' has no 'direction' element.");
         }
 
         uadf_model.thrusts[joint_name] = thrust;
@@ -88,40 +87,33 @@ bool Parser::parseFromXml(const tinyxml2::XMLDocument* uadf_doc, Model& uadf_mod
   const auto urdf_text = xml::xmlDocumentToString(&uadf_doc_cp);
 
   // Parse the URDF.
-  uadf_model.urdf = urdf_parser_.parseFromText(urdf_text);
-  if (!uadf_model.urdf) {
-    error_msg_ = urdf_parser_.errorMessage();
-    return false;
+  const auto urdf_model = urdf_parser_.parseFromText(urdf_text);
+  if (!urdf_model) {
+    return std::unexpected(urdf_model.error());
   }
+  uadf_model.urdf = *urdf_model;
 
-  return true;
+  return uadf_model;
 }
 
-bool Parser::parseFromText(const std::string& uadf_text, Model& uadf_model)
+std::expected<Model, std::string> Parser::parseFromText(const std::string& uadf_text)
 {
   tinyxml2::XMLDocument uadf_doc;
   if (uadf_doc.Parse(uadf_text.c_str()) != tinyxml2::XML_SUCCESS) {
-    error_msg_ = uadf_doc.ErrorStr();
-    return false;
+    return std::unexpected(uadf_doc.ErrorStr());
   }
 
-  return parseFromXml(&uadf_doc, uadf_model);
+  return parseFromXml(&uadf_doc);
 }
 
-bool Parser::parseFromPath(const std::string& uadf_path, Model& uadf_model)
+std::expected<Model, std::string> Parser::parseFromPath(const std::string& uadf_path)
 {
   std::string uadf_text;
   if (!str::readText(uadf_path, uadf_text)) {
-    error_msg_ = "Failed to open file: " + uadf_path;
-    return false;
+    return std::unexpected("Failed to open file: " + uadf_path);
   }
 
-  return parseFromText(uadf_text, uadf_model);
-}
-
-const std::string& Parser::errorMessage() const
-{
-  return error_msg_;
+  return parseFromText(uadf_text);
 }
 }  // namespace uadf
 }  // namespace tobas

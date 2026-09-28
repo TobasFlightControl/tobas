@@ -47,10 +47,12 @@ private:
 TreeServerNode::TreeServerNode(const rclcpp::NodeOptions& options) : super("tree_server", nodeOptions_Default(options))
 {
   const auto robot_description = getStringParam("robot_description");
-  if (!tree_parser_.parseFromText(robot_description, tree_)) {
-    TOBAS_ERROR("Failed to parse robot description: ", tree_parser_.errorMessage());
+  const auto tree = tree_parser_.parseFromText(robot_description);
+  if (!tree) {
+    TOBAS_ERROR("Failed to parse robot description: ", tree.error());
     return;
   }
+  tree_ = std::move(*tree);
 
   if (const auto result = tree_.validate(); !result) {
     TOBAS_ERROR("KDL tree is invalid: ", result.error());
