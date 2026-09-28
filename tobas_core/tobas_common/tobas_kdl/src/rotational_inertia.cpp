@@ -12,7 +12,7 @@ namespace tobas
 {
 namespace kdl
 {
-std::expected<void, std::string> RotationalInertia::isValid() const
+std::expected<void, std::string> RotationalInertia::validate() const
 {
   // Check that the matrix is symmetric.
   if (!eigen::isSymmetric(data)) {

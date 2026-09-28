@@ -64,7 +64,7 @@ public:
   static Rotation Quaternion(double x, double y, double z, double w);
 
   /* Check validity. */
-  std::expected<void, std::string> isValid() const;
+  std::expected<void, std::string> validate() const;
 
   inline bool isFinite() const;
 

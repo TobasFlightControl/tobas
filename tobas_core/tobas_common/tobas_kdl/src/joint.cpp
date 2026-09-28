@@ -9,7 +9,7 @@ namespace tobas
 {
 namespace kdl
 {
-std::expected<void, std::string> Joint::isValid() const
+std::expected<void, std::string> Joint::validate() const
 {
   if (name.empty()) {
     return std::unexpected("Joint name is empty.");

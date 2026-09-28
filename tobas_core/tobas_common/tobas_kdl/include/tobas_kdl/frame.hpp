@@ -91,7 +91,7 @@ public:
 
   static inline Frame XYZRPY(double x, double y, double z, double roll, double pitch, double yaw);
 
-  inline std::expected<void, std::string> isValid() const;
+  inline std::expected<void, std::string> validate() const;
 
   inline Eigen::Matrix4d matrix() const;
 
@@ -183,9 +183,9 @@ inline Frame Frame::XYZRPY(double x, double y, double z, double roll, double pit
   return Frame(Rotation::RPY(roll, pitch, yaw), Vector(x, y, z));
 }
 
-inline std::expected<void, std::string> Frame::isValid() const
+inline std::expected<void, std::string> Frame::validate() const
 {
-  return M.isValid();
+  return M.validate();
 }
 
 inline Eigen::Matrix4d Frame::matrix() const

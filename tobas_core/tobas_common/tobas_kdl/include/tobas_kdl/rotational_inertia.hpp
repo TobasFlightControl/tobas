@@ -23,7 +23,7 @@ public:
 
   static inline RotationalInertia Zero();
 
-  std::expected<void, std::string> isValid() const;
+  std::expected<void, std::string> validate() const;
 
   inline double ixx() const;
   inline double iyy() const;

@@ -36,7 +36,7 @@ public:
   static inline RigidBodyInertia Zero();
 
   /* Verify that the rotation matrix belongs to SO(3). */
-  std::expected<void, std::string> isValid() const;
+  std::expected<void, std::string> validate() const;
 
   /* Get the mass of the rigid body. */
   inline const double& getMass() const;

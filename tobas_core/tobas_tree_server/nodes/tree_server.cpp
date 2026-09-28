@@ -52,7 +52,7 @@ TreeServerNode::TreeServerNode(const rclcpp::NodeOptions& options) : super("tree
     return;
   }
 
-  if (const auto result = tree_.isValid(); !result) {
+  if (const auto result = tree_.validate(); !result) {
     TOBAS_ERROR("KDL tree is invalid: ", result.error());
     return;
   }
@@ -111,7 +111,7 @@ void TreeServerNode::attachCb(const AttachSrv::Request::ConstSharedPtr& req, con
   joint.type = kdl::Joint::kFixed;
 
   const auto inertia = parseLoad(*req);
-  if (const auto result = inertia.isValid(); !result) {
+  if (const auto result = inertia.validate(); !result) {
     res->message = result.error();
     return;
   }

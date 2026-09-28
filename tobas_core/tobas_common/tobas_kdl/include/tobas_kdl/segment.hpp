@@ -44,7 +44,7 @@ public:
     const RigidBodyInertia& I = RigidBodyInertia::Zero());
 
   /* Check validity (except for the root segment). */
-  std::expected<void, std::string> isValid() const;
+  std::expected<void, std::string> validate() const;
 
   /* Request the pose of the segment wrt. the parent frame. */
   inline Frame pose(double q) const;

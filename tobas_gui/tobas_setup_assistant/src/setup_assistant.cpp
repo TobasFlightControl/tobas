@@ -278,7 +278,7 @@ void SetupAssistantWidget::onNewButtonClicked()
     reset();
     return;
   }
-  if (const auto result = tree_.isValid(); !result) {
+  if (const auto result = tree_.validate(); !result) {
     qt::qErrorBox(this, "UADF is invalid: " + QString::fromStdString(result.error()));
     reset();
     return;
@@ -383,7 +383,7 @@ void SetupAssistantWidget::onLoadButtonClicked()
     reset();
     return;
   }
-  if (const auto result = tree_.isValid(); !result) {
+  if (const auto result = tree_.validate(); !result) {
     qt::qErrorBox(this, "UADF is invalid: " + QString::fromStdString(result.error()));
     reset();
     return;

@@ -64,7 +64,7 @@ public:
   void clear();
 
   /* Check validity. */
-  std::expected<void, std::string> isValid() const;
+  std::expected<void, std::string> validate() const;
 
   /**
    * @brief Adds a new segment to the end of the segment with hook_name as seg_name.
@@ -139,7 +139,7 @@ private:
   size_t nj_ = 0;
   size_t ns_ = 0;
 
-  std::expected<void, std::string> isValidRecursive(
+  std::expected<void, std::string> validateRecursive(
     const SegmentMap::const_iterator& seg_it,
     std::unordered_set<std::string>& seg_names,
     std::unordered_set<std::string>& jnt_names) const;

@@ -40,7 +40,7 @@ void Chain::clear()
   segments.clear();
 }
 
-std::expected<void, std::string> Chain::isValid() const
+std::expected<void, std::string> Chain::validate() const
 {
   unordered_set<string> seg_names, jnt_names;
 
@@ -56,7 +56,7 @@ std::expected<void, std::string> Chain::isValid() const
         return std::unexpected("Joint name '" + jnt_name + "' is duplicated.");
       }
 
-      if (const auto result = seg.isValid(); !result) {
+      if (const auto result = seg.validate(); !result) {
         return result;
       }
     }

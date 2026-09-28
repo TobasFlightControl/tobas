@@ -9,21 +9,21 @@ namespace tobas
 {
 namespace kdl
 {
-std::expected<void, std::string> Segment::isValid() const
+std::expected<void, std::string> Segment::validate() const
 {
   if (name_.empty()) {
     return std::unexpected("Segment name is empty.");
   }
 
-  if (const auto result = joint_.isValid(); !result) {
+  if (const auto result = joint_.validate(); !result) {
     return std::unexpected(name_ + "'s joint is invalid: " + result.error());
   }
 
-  if (const auto result = f_tip_.isValid(); !result) {
+  if (const auto result = f_tip_.validate(); !result) {
     return std::unexpected(name_ + "'s frame is invalid: " + result.error());
   }
 
-  if (const auto result = I_.isValid(); !result) {
+  if (const auto result = I_.validate(); !result) {
     return std::unexpected(name_ + "'s inertia is invalid: " + result.error());
   }
 

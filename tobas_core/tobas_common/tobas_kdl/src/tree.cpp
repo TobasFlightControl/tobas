@@ -137,13 +137,13 @@ void Tree::clear()
   ns_ = 0;
 }
 
-std::expected<void, std::string> Tree::isValid() const
+std::expected<void, std::string> Tree::validate() const
 {
   unordered_set<string> seg_names, jnt_names;
-  return isValidRecursive(getRootSegment(), seg_names, jnt_names);
+  return validateRecursive(getRootSegment(), seg_names, jnt_names);
 }
 
-std::expected<void, std::string> Tree::isValidRecursive(
+std::expected<void, std::string> Tree::validateRecursive(
   const SegmentMap::const_iterator& seg_it,
   unordered_set<string>& seg_names,
   unordered_set<string>& jnt_names) const
@@ -162,13 +162,13 @@ std::expected<void, std::string> Tree::isValidRecursive(
       return std::unexpected("Joint name '" + jnt_name + "' is duplicated.");
     }
 
-    if (const auto result = seg.isValid(); !result) {
+    if (const auto result = seg.validate(); !result) {
       return result;
     }
   }
 
   for (const auto& child_it : elem.children) {
-    if (const auto result = isValidRecursive(child_it, seg_names, jnt_names); !result) {
+    if (const auto result = validateRecursive(child_it, seg_names, jnt_names); !result) {
       return result;
     }
   }

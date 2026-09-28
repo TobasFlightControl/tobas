@@ -34,7 +34,7 @@ public:
   void clear();
 
   /* Check validity. */
-  std::expected<void, std::string> isValid() const;
+  std::expected<void, std::string> validate() const;
 
   /**
    * Adds a new segment to the <strong>end</strong> of the chain.

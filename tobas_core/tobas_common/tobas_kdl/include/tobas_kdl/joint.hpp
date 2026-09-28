@@ -42,7 +42,7 @@ public:
   inline explicit Joint();
 
   /* Check validity (except for the root joint). */
-  std::expected<void, std::string> isValid() const;
+  std::expected<void, std::string> validate() const;
 
   /* Get the normalized joint axis wrt. the parent frame. */
   inline const Vector& axis() const;

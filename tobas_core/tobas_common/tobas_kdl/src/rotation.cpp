@@ -118,7 +118,7 @@ Rotation Rotation::Quaternion(double x, double y, double z, double w)
     1 - (tyy + tzz), txy - twz, txz + twy, txy + twz, 1 - (txx + tzz), tyz - twx, txz - twy, tyz + twx, 1 - (txx + tyy));
 }
 
-std::expected<void, std::string> Rotation::isValid() const
+std::expected<void, std::string> Rotation::validate() const
 {
   if (!eigen::isSpecialOrthogonal(data)) {
     return std::unexpected("Rotation matrix must belong to SO(3).");
