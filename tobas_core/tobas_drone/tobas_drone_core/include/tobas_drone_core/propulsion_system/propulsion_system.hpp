@@ -25,7 +25,7 @@ public:
 
   virtual std::expected<void, std::string> validate() const = 0;
 
-  virtual bool load(const YAML::Node& node) = 0;
+  virtual std::expected<void, std::string> load(const YAML::Node& node) = 0;
   virtual YAML::Node dump() const = 0;
 
   virtual PropulsionSystem type() const = 0;

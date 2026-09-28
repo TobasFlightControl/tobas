@@ -73,73 +73,77 @@ std::expected<void, std::string> AerodynamicCoefficients::validate() const
   return {};
 }
 
-bool AerodynamicCoefficients::load(const YAML::Node& node)
+std::expected<void, std::string> AerodynamicCoefficients::load(const YAML::Node& node)
 {
-  if (!yaml::load(kCLift0Key, node, c_lift_0)) {
-    return false;
+  if (!node.IsDefined() || !node.IsMap()) {
+    return std::unexpected("Configuration node must be a map.");
   }
 
-  if (!yaml::load(kCLiftAlphaKey, node, c_lift_alpha)) {
-    return false;
+  if (const auto result = yaml::load(kCLift0Key, node, c_lift_0); !result) {
+    return result;
   }
 
-  if (!yaml::load(kCDrag0Key, node, c_drag_0)) {
-    return false;
+  if (const auto result = yaml::load(kCLiftAlphaKey, node, c_lift_alpha); !result) {
+    return result;
   }
 
-  if (!yaml::load(kCDragAlphaKey, node, c_drag_alpha)) {
-    return false;
+  if (const auto result = yaml::load(kCDrag0Key, node, c_drag_0); !result) {
+    return result;
   }
 
-  if (!yaml::load(kCSideBetaKey, node, c_side_beta)) {
-    return false;
+  if (const auto result = yaml::load(kCDragAlphaKey, node, c_drag_alpha); !result) {
+    return result;
   }
 
-  if (!yaml::load(kCRollBetaKey, node, c_roll_beta)) {
-    return false;
+  if (const auto result = yaml::load(kCSideBetaKey, node, c_side_beta); !result) {
+    return result;
   }
 
-  if (!yaml::load(kCRollPKey, node, c_roll_p)) {
-    return false;
+  if (const auto result = yaml::load(kCRollBetaKey, node, c_roll_beta); !result) {
+    return result;
   }
 
-  if (!yaml::load(kCRollRKey, node, c_roll_r)) {
-    return false;
+  if (const auto result = yaml::load(kCRollPKey, node, c_roll_p); !result) {
+    return result;
   }
 
-  if (!yaml::load(kCPitch0Key, node, c_pitch_0)) {
-    return false;
+  if (const auto result = yaml::load(kCRollRKey, node, c_roll_r); !result) {
+    return result;
   }
 
-  if (!yaml::load(kCPitchAlphaKey, node, c_pitch_alpha)) {
-    return false;
+  if (const auto result = yaml::load(kCPitch0Key, node, c_pitch_0); !result) {
+    return result;
   }
 
-  if (!yaml::load(kCPitchAbsBetaKey, node, c_pitch_abs_beta)) {
-    return false;
+  if (const auto result = yaml::load(kCPitchAlphaKey, node, c_pitch_alpha); !result) {
+    return result;
   }
 
-  if (!yaml::load(kCPitchAlphaRateKey, node, c_pitch_alpha_rate)) {
-    return false;
+  if (const auto result = yaml::load(kCPitchAbsBetaKey, node, c_pitch_abs_beta); !result) {
+    return result;
   }
 
-  if (!yaml::load(kCPitchQKey, node, c_pitch_q)) {
-    return false;
+  if (const auto result = yaml::load(kCPitchAlphaRateKey, node, c_pitch_alpha_rate); !result) {
+    return result;
   }
 
-  if (!yaml::load(kCYawBetaKey, node, c_yaw_beta)) {
-    return false;
+  if (const auto result = yaml::load(kCPitchQKey, node, c_pitch_q); !result) {
+    return result;
   }
 
-  if (!yaml::load(kCYawPKey, node, c_yaw_p)) {
-    return false;
+  if (const auto result = yaml::load(kCYawBetaKey, node, c_yaw_beta); !result) {
+    return result;
   }
 
-  if (!yaml::load(kCYawRKey, node, c_yaw_r)) {
-    return false;
+  if (const auto result = yaml::load(kCYawPKey, node, c_yaw_p); !result) {
+    return result;
   }
 
-  return true;
+  if (const auto result = yaml::load(kCYawRKey, node, c_yaw_r); !result) {
+    return result;
+  }
+
+  return {};
 }
 
 YAML::Node AerodynamicCoefficients::dump() const

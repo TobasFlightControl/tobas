@@ -5,6 +5,7 @@
 
 #include <iostream>
 #include <memory>
+#include <ranges>
 
 #include <tobas_constants/throttle.hpp>
 #include <tobas_nlp/newton_1d.hpp>
@@ -31,25 +32,26 @@ std::expected<void, std::string> IcePropulsionSystemConfig::validate() const
   return engine.validate();
 }
 
-bool IcePropulsionSystemConfig::load(const YAML::Node& root_node)
+std::expected<void, std::string> IcePropulsionSystemConfig::load(const YAML::Node& root_node)
 {
+  if (!root_node.IsDefined() || !root_node.IsMap()) {
+    return std::unexpected("ICE propulsion system node must be a map.");
+  }
+
   clear();
 
   // Rotors
   const auto rotors_node = root_node[kRotorsKey];
   if (!rotors_node.IsDefined()) {
-    std::cerr << "'" << kRotorsKey << "' is not defined." << std::endl;
-    return false;
+    return std::unexpected(std::string("'") + kRotorsKey + "' is not defined.");
   }
   if (!rotors_node.IsSequence()) {
-    std::cerr << "'" << kRotorsKey << "' must be a sequence." << std::endl;
-    return false;
+    return std::unexpected(std::string("'") + kRotorsKey + "' must be a sequence.");
   }
-  for (const auto& rotor_node : rotors_node) {
+  for (const auto& [idx, rotor_node] : std::views::enumerate(rotors_node)) {
     const auto irotor = std::make_shared<IceRotorConfig>();
-    if (!irotor->load(rotor_node)) {
-      std::cerr << "Failed to load the configuration of rotors." << std::endl;
-      return false;
+    if (const auto result = irotor->load(rotor_node); !result) {
+      return std::unexpected("Rotors[" + std::to_string(idx) + "]: " + result.error());
     }
     rotors[irotor->link_name] = irotor;
   }
@@ -57,18 +59,16 @@ bool IcePropulsionSystemConfig::load(const YAML::Node& root_node)
   // Engine
   const auto engine_node = root_node[kEngineKey];
   if (!engine_node.IsDefined()) {
-    std::cerr << "'" << kEngineKey << "' is not defined." << std::endl;
-    return false;
+    return std::unexpected(std::string("'") + kEngineKey + "' is not defined.");
   }
-  if (!engine.load(engine_node)) {
-    std::cerr << "Failed to load the configuration of engine." << std::endl;
-    return false;
+  if (const auto result = engine.load(engine_node); !result) {
+    return std::unexpected("Engine: " + result.error());
   }
 
   // Maximum engine speed
   max_engine_speed_ = computeEngineSpeed(kMaxThrot);
 
-  return true;
+  return {};
 }
 
 YAML::Node IcePropulsionSystemConfig::dump() const

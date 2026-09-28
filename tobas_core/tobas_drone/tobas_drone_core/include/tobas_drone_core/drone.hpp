@@ -39,10 +39,10 @@ public:
 
   std::expected<void, std::string> validate() const;
 
-  bool load(const YAML::Node& node);
+  std::expected<void, std::string> load(const YAML::Node& node);
   YAML::Node dump() const;
 
-  bool load(const std::filesystem::path& path);
+  std::expected<void, std::string> load(const std::filesystem::path& path);
   bool save(const std::filesystem::path& path) const;
 
   bool hasServoJoint() const;

@@ -90,21 +90,12 @@ void ParameterTuningWidget::reset()
 
 void ParameterTuningWidget::updateProject(const QString& proj_path)
 {
-  project_loaded_ = false;
-
   // Update project path.
   proj_paths_.setProjPath(proj_path);
 
   // Load drone configuration.
   const auto tbsdrn_path = proj_paths_.tbsdrnPath();
-  if (!drone_.load(tbsdrn_path.toStdString())) {
-    qt::qErrorBox(this, "Failed to load drone configuration.");
-    return;
-  }
-  if (const auto result = drone_.validate(); !result) {
-    qt::qErrorBox(this, "Drone configuration is invalid:\n\n" + QString::fromStdString(result.error()));
-    return;
-  }
+  TOBAS_CHECK(drone_.load(tbsdrn_path.toStdString()));
 
   project_loaded_ = true;
 }

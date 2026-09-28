@@ -541,8 +541,8 @@ void GroundControlStationWidget::onLoadButtonClicked()
 
   // Load drone configuration.
   Drone next_drone;
-  if (!next_drone.load(tbsdrn_path.toStdString())) {
-    qt::qErrorBox(this, "Failed to load drone configuration.");
+  if (const auto result = next_drone.load(tbsdrn_path.toStdString()); !result) {
+    qt::qErrorBox(this, "Failed to load drone configuration:\n\n" + QString::fromStdString(result.error()));
     return;
   }
   if (const auto result = next_drone.validate(); !result) {

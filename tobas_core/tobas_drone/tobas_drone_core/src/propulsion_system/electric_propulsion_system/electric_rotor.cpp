@@ -61,45 +61,49 @@ std::expected<void, std::string> ElectricRotorConfig::validate() const
   return {};
 }
 
-bool ElectricRotorConfig::load(const YAML::Node& node)
+std::expected<void, std::string> ElectricRotorConfig::load(const YAML::Node& node)
 {
-  if (!super::load(node)) {
-    return false;
+  if (!node.IsDefined() || !node.IsMap()) {
+    return std::unexpected("Configuration node must be a map.");
   }
 
-  if (!yaml::load(kChannelKey, node, channel)) {
-    return false;
+  if (const auto result = super::load(node); !result) {
+    return result;
   }
 
-  if (!yaml::load(kNumPolesKey, node, num_poles)) {
-    return false;
+  if (const auto result = yaml::load(kChannelKey, node, channel); !result) {
+    return result;
   }
 
-  if (!yaml::load(kKvKey, node, kv)) {
-    return false;
+  if (const auto result = yaml::load(kNumPolesKey, node, num_poles); !result) {
+    return result;
   }
 
-  if (!yaml::load(kInternalResistanceKey, node, internal_resistance)) {
-    return false;
+  if (const auto result = yaml::load(kKvKey, node, kv); !result) {
+    return result;
   }
 
-  if (!yaml::load(kMinSpeed, node, min_speed)) {
-    return false;
+  if (const auto result = yaml::load(kInternalResistanceKey, node, internal_resistance); !result) {
+    return result;
   }
 
-  if (!yaml::load(kPropellerDiameterKey, node, propeller_diameter)) {
-    return false;
+  if (const auto result = yaml::load(kMinSpeed, node, min_speed); !result) {
+    return result;
   }
 
-  if (!yaml::load(kMotorConstKey, node, motor_const)) {
-    return false;
+  if (const auto result = yaml::load(kPropellerDiameterKey, node, propeller_diameter); !result) {
+    return result;
   }
 
-  if (!yaml::load(kMomentConstKey, node, moment_const)) {
-    return false;
+  if (const auto result = yaml::load(kMotorConstKey, node, motor_const); !result) {
+    return result;
   }
 
-  return true;
+  if (const auto result = yaml::load(kMomentConstKey, node, moment_const); !result) {
+    return result;
+  }
+
+  return {};
 }
 
 YAML::Node ElectricRotorConfig::dump() const

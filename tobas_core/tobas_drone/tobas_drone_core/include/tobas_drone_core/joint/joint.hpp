@@ -29,7 +29,7 @@ public:
 
   std::expected<void, std::string> validate() const;
 
-  bool load(const YAML::Node& node);
+  std::expected<void, std::string> load(const YAML::Node& node);
   YAML::Node dump() const;
 
   inline bool isServoJoint() const;

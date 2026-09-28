@@ -25,17 +25,21 @@ std::expected<void, std::string> VppMotorConstant::validate() const
   return {};
 }
 
-bool VppMotorConstant::load(const YAML::Node& node)
+std::expected<void, std::string> VppMotorConstant::load(const YAML::Node& node)
 {
-  if (!yaml::load(kC0Key, node, c0)) {
-    return false;
+  if (!node.IsDefined() || !node.IsMap()) {
+    return std::unexpected("Configuration node must be a map.");
   }
 
-  if (!yaml::load(kC1Key, node, c1)) {
-    return false;
+  if (const auto result = yaml::load(kC0Key, node, c0); !result) {
+    return result;
   }
 
-  return true;
+  if (const auto result = yaml::load(kC1Key, node, c1); !result) {
+    return result;
+  }
+
+  return {};
 }
 
 YAML::Node VppMotorConstant::dump() const

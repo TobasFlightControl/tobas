@@ -42,29 +42,33 @@ std::expected<void, std::string> BatteryConfig::validate() const
   return {};
 }
 
-bool BatteryConfig::load(const YAML::Node& node)
+std::expected<void, std::string> BatteryConfig::load(const YAML::Node& node)
 {
-  if (!yaml::load(kNominalVoltageKey, node, nominal_voltage)) {
-    return false;
+  if (!node.IsDefined() || !node.IsMap()) {
+    return std::unexpected("Configuration node must be a map.");
   }
 
-  if (!yaml::load(kMaxVoltageKey, node, max_voltage)) {
-    return false;
+  if (const auto result = yaml::load(kNominalVoltageKey, node, nominal_voltage); !result) {
+    return result;
   }
 
-  if (!yaml::load(kSagVoltageKey, node, sag_voltage)) {
-    return false;
+  if (const auto result = yaml::load(kMaxVoltageKey, node, max_voltage); !result) {
+    return result;
   }
 
-  if (!yaml::load(kMaxCurrentKey, node, max_current)) {
-    return false;
+  if (const auto result = yaml::load(kSagVoltageKey, node, sag_voltage); !result) {
+    return result;
   }
 
-  if (!yaml::load(kInternalResistanceKey, node, internal_resistance)) {
-    return false;
+  if (const auto result = yaml::load(kMaxCurrentKey, node, max_current); !result) {
+    return result;
   }
 
-  return true;
+  if (const auto result = yaml::load(kInternalResistanceKey, node, internal_resistance); !result) {
+    return result;
+  }
+
+  return {};
 }
 
 YAML::Node BatteryConfig::dump() const

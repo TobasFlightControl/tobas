@@ -23,7 +23,7 @@ public:
 
   virtual std::expected<void, std::string> validate() const;
 
-  virtual bool load(const YAML::Node& node);
+  virtual std::expected<void, std::string> load(const YAML::Node& node);
   virtual YAML::Node dump() const;
 
   /* Ratio between thrust and reaction torque [m]. */

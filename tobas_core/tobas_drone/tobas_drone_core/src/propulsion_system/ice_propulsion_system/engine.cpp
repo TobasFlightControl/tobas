@@ -26,17 +26,21 @@ std::expected<void, std::string> EngineConfig::validate() const
   return {};
 }
 
-bool EngineConfig::load(const YAML::Node& node)
+std::expected<void, std::string> EngineConfig::load(const YAML::Node& node)
 {
-  if (!yaml::load(kEngineConstantKey, node, engine_const)) {
-    return false;
+  if (!node.IsDefined() || !node.IsMap()) {
+    return std::unexpected("Configuration node must be a map.");
   }
 
-  if (!yaml::load(kHardwareIfaceKey, node, hw_iface)) {
-    return false;
+  if (const auto result = yaml::load(kEngineConstantKey, node, engine_const); !result) {
+    return result;
   }
 
-  return true;
+  if (const auto result = yaml::load(kHardwareIfaceKey, node, hw_iface); !result) {
+    return result;
+  }
+
+  return {};
 }
 
 YAML::Node EngineConfig::dump() const

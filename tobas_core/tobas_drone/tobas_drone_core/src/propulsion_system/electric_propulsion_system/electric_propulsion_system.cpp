@@ -5,6 +5,7 @@
 
 #include <iostream>
 #include <memory>
+#include <ranges>
 
 namespace tobas
 {
@@ -28,41 +29,40 @@ std::expected<void, std::string> ElectricPropulsionSystemConfig::validate() cons
   return battery.validate();
 }
 
-bool ElectricPropulsionSystemConfig::load(const YAML::Node& root_node)
+std::expected<void, std::string> ElectricPropulsionSystemConfig::load(const YAML::Node& root_node)
 {
+  if (!root_node.IsDefined() || !root_node.IsMap()) {
+    return std::unexpected("Electric propulsion system node must be a map.");
+  }
+
   clear();
 
   // Rotors
   const auto rotors_node = root_node[kRotorsKey];
   if (!rotors_node.IsDefined()) {
-    std::cerr << "'" << kRotorsKey << "' is not defined." << std::endl;
-    return false;
+    return std::unexpected(std::string("'") + kRotorsKey + "' is not defined.");
   }
   if (!rotors_node.IsSequence()) {
-    std::cerr << "'" << kRotorsKey << "' must be a sequence." << std::endl;
-    return false;
+    return std::unexpected(std::string("'") + kRotorsKey + "' must be a sequence.");
   }
-  for (const auto& rotor_node : rotors_node) {
-    const auto rotor = std::make_shared<ElectricRotorConfig>();
-    if (!rotor->load(rotor_node)) {
-      std::cerr << "Failed to load the configuration of rotors." << std::endl;
-      return false;
+  for (const auto& [idx, rotor_node] : std::views::enumerate(rotors_node)) {
+    const auto erotor = std::make_shared<ElectricRotorConfig>();
+    if (const auto result = erotor->load(rotor_node); !result) {
+      return std::unexpected("Rotors[" + std::to_string(idx) + "]: " + result.error());
     }
-    rotors[rotor->link_name] = rotor;
+    rotors[erotor->link_name] = erotor;
   }
 
   // Battery
   const auto battery_node = root_node[kBatteryKey];
   if (!battery_node.IsDefined()) {
-    std::cerr << "'" << kBatteryKey << "' is not defined." << std::endl;
-    return false;
+    return std::unexpected(std::string("'") + kBatteryKey + "' is not defined.");
   }
-  if (!battery.load(battery_node)) {
-    std::cerr << "Failed to load the configuration of battery." << std::endl;
-    return false;
+  if (const auto result = battery.load(battery_node); !result) {
+    return std::unexpected("Battery: " + result.error());
   }
 
-  return true;
+  return {};
 }
 
 YAML::Node ElectricPropulsionSystemConfig::dump() const

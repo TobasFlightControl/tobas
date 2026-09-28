@@ -3,6 +3,8 @@
 
 #include "tobas_drone_core/fixed_wing/fixed_wing.hpp"
 
+#include <ranges>
+
 #include <tobas_yaml_tools/core.hpp>
 
 namespace tobas
@@ -38,48 +40,46 @@ std::expected<void, std::string> FixedWingConfig::validate() const
   return {};
 }
 
-bool FixedWingConfig::load(const YAML::Node& root_node)
+std::expected<void, std::string> FixedWingConfig::load(const YAML::Node& root_node)
 {
+  if (!root_node.IsDefined() || !root_node.IsMap()) {
+    return std::unexpected("Fixed wing node must be a map.");
+  }
+
   clear();
 
   // Vehicle
   const auto vehicle_node = root_node[kVehicleKey];
   if (!vehicle_node.IsDefined()) {
-    std::cerr << "'" << kVehicleKey << "' is not defined." << std::endl;
-    return false;
+    return std::unexpected(std::string("'") + kVehicleKey + "' is not defined.");
   }
-  if (!vehicle.load(vehicle_node)) {
-    std::cerr << "Failed to load vehicle parameters." << std::endl;
-    return false;
+  if (const auto result = vehicle.load(vehicle_node); !result) {
+    return std::unexpected("Vehicle parameters: " + result.error());
   }
 
   // Aerodynamics
   const auto aero_node = root_node[kAerodynamicsKey];
   if (!aero_node.IsDefined()) {
-    std::cerr << "'" << kAerodynamicsKey << "' is not defined." << std::endl;
-    return false;
+    return std::unexpected(std::string("'") + kAerodynamicsKey + "' is not defined.");
   }
-  if (!aerodynamics.load(aero_node)) {
-    std::cerr << "Failed to load aerodynamic parameters." << std::endl;
-    return false;
+  if (const auto result = aerodynamics.load(aero_node); !result) {
+    return std::unexpected("Aerodynamic parameters: " + result.error());
   }
 
   // Control surfaces
   const auto css_node = root_node[kControlSurfacesKey];
-  if (!css_node.IsSequence()) {
-    std::cerr << "'" << kControlSurfacesKey << "' is not defined." << std::endl;
-    return false;
+  if (!css_node.IsDefined() || !css_node.IsSequence()) {
+    return std::unexpected(std::string("'") + kControlSurfacesKey + "' must be a sequence.");
   }
-  for (const auto& cs_node : css_node) {
+  for (const auto& [idx, cs_node] : std::views::enumerate(css_node)) {
     ControlSurface cs;
-    if (!cs.load(cs_node)) {
-      std::cerr << "Failed to load the configuration of control surfaces." << std::endl;
-      return false;
+    if (const auto result = cs.load(cs_node); !result) {
+      return std::unexpected("Control surfaces[" + std::to_string(idx) + "]: " + result.error());
     }
     control_surfaces[cs.link_name] = cs;
   }
 
-  return true;
+  return {};
 }
 
 YAML::Node FixedWingConfig::dump() const

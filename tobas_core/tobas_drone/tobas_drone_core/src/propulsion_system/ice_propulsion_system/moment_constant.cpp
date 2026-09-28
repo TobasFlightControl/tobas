@@ -28,25 +28,29 @@ std::expected<void, std::string> VppMomentConstant::validate() const
   return {};
 }
 
-bool VppMomentConstant::load(const YAML::Node& node)
+std::expected<void, std::string> VppMomentConstant::load(const YAML::Node& node)
 {
-  if (!yaml::load(kAKey, node, a)) {
-    return false;
+  if (!node.IsDefined() || !node.IsMap()) {
+    return std::unexpected("Configuration node must be a map.");
   }
 
-  if (!yaml::load(kBKey, node, b)) {
-    return false;
+  if (const auto result = yaml::load(kAKey, node, a); !result) {
+    return result;
   }
 
-  if (!yaml::load(kCKey, node, c)) {
-    return false;
+  if (const auto result = yaml::load(kBKey, node, b); !result) {
+    return result;
   }
 
-  if (!yaml::load(kPhi0Key, node, phi0)) {
-    return false;
+  if (const auto result = yaml::load(kCKey, node, c); !result) {
+    return result;
   }
 
-  return true;
+  if (const auto result = yaml::load(kPhi0Key, node, phi0); !result) {
+    return result;
+  }
+
+  return {};
 }
 
 YAML::Node VppMomentConstant::dump() const

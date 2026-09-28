@@ -16,6 +16,9 @@ namespace yaml
 template <typename T>
 std::expected<T, std::string> load(const std::string& key, const YAML::Node& parent) noexcept
 {
+  if (!parent.IsDefined()) {
+    return std::unexpected("The parent node of key '" + key + "' is not defined.");
+  }
   if (!parent.IsMap()) {
     return std::unexpected("The type of the parent node of key '" + key + "' is not map.");
   }
@@ -29,16 +32,15 @@ std::expected<T, std::string> load(const std::string& key, const YAML::Node& par
 }
 
 template <typename T>
-bool load(const std::string& key, const YAML::Node& parent, T& value) noexcept
+std::expected<void, std::string> load(const std::string& key, const YAML::Node& parent, T& value) noexcept
 {
   const auto res = load<T>(key, parent);
   if (!res) {
-    std::cerr << res.error() << std::endl;
-    return false;
+    return std::unexpected(res.error());
   }
 
   value = *res;
-  return true;
+  return {};
 }
 
 /* Convert `YAML::Node` to text. */

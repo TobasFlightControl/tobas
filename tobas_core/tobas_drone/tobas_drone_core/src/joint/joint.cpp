@@ -26,29 +26,33 @@ std::expected<void, std::string> JointConfig::validate() const
   return {};
 }
 
-bool JointConfig::load(const YAML::Node& node)
+std::expected<void, std::string> JointConfig::load(const YAML::Node& node)
 {
-  if (!yaml::load(kNameKey, node, name)) {
-    return false;
+  if (!node.IsDefined() || !node.IsMap()) {
+    return std::unexpected("Configuration node must be a map.");
   }
 
-  if (!yaml::load(kRoleKey, node, role)) {
-    return false;
+  if (const auto result = yaml::load(kNameKey, node, name); !result) {
+    return result;
   }
 
-  if (!yaml::load(kCommandIfaceKey, node, cmd_iface)) {
-    return false;
+  if (const auto result = yaml::load(kRoleKey, node, role); !result) {
+    return result;
   }
 
-  if (!yaml::load(kHardwareIfaceKey, node, hw_iface)) {
-    return false;
+  if (const auto result = yaml::load(kCommandIfaceKey, node, cmd_iface); !result) {
+    return result;
   }
 
-  if (!yaml::load(kHomePosKey, node, home_pos)) {
-    return false;
+  if (const auto result = yaml::load(kHardwareIfaceKey, node, hw_iface); !result) {
+    return result;
   }
 
-  return true;
+  if (const auto result = yaml::load(kHomePosKey, node, home_pos); !result) {
+    return result;
+  }
+
+  return {};
 }
 
 YAML::Node JointConfig::dump() const

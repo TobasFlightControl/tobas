@@ -34,7 +34,7 @@ public:
 
   std::expected<void, std::string> validate() const override;
 
-  bool load(const YAML::Node& node) override;
+  std::expected<void, std::string> load(const YAML::Node& node) override;
   YAML::Node dump() const override;
 
   inline double momentConst() const override;

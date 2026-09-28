@@ -43,8 +43,8 @@ void DroneServerNode::publishDrone()
 bool DroneServerNode::fileParamCb(const std::string& p)
 {
   // Load drone configuration.
-  if (!drone_.load(p)) {
-    TOBAS_ERROR("Failed to load drone configuration from '", p, "'.");
+  if (const auto result = drone_.load(p); !result) {
+    TOBAS_ERROR("Failed to load drone configuration from '", p, "': ", result.error());
     return false;
   }
 
