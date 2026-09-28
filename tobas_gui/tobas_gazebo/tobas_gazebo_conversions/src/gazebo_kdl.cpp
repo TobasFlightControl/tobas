@@ -5,8 +5,6 @@
 
 #include "tobas_gazebo_conversions/gazebo_eigen.hpp"
 
-using namespace gz::math;
-
 namespace tobas
 {
 namespace gazebo

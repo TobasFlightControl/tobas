@@ -3,27 +3,25 @@
 
 #include "tobas_gazebo_tools/math.hpp"
 
-using namespace gz::math;
-
 namespace tobas
 {
 namespace gazebo
 {
-Quaterniond quaternionFromAngleAxis(const Vector3d& w)
+gz::math::Quaterniond quaternionFromAngleAxis(const gz::math::Vector3d& w)
 {
   const auto angle = w.Length();
   if (angle < 1e-9) {
-    return Quaterniond::Identity;
+    return gz::math::Quaterniond::Identity;
   }
 
   const auto axis = w.Normalized();
   const auto mag = std::sin(angle / 2);
-  return Quaterniond(std::cos(angle / 2), mag * axis.X(), mag * axis.Y(), mag * axis.Z());
+  return gz::math::Quaterniond(std::cos(angle / 2), mag * axis.X(), mag * axis.Y(), mag * axis.Z());
 }
 
-Matrix3d skewMatrix(const Vector3d& v)
+gz::math::Matrix3d skewMatrix(const gz::math::Vector3d& v)
 {
-  Matrix3d res;
+  gz::math::Matrix3d res;
   res(0, 0) = 0;
   res(0, 1) = -v.Z();
   res(0, 2) = v.Y();

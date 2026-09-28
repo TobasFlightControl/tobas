@@ -5,8 +5,6 @@
 
 #include <gz/sim/components/Inertial.hh>
 
-using namespace gz::sim;
-
 namespace tobas
 {
 namespace gazebo
@@ -23,7 +21,7 @@ bool ModelMassHolder::initialize(const gz::sim::Entity& model, const gz::sim::En
   }
 
   for (const auto& [link_name, link_entity] : model_links_parser_.getLinks()) {
-    const auto inertial_entity = ecm.Component<components::Inertial>(link_entity);
+    const auto inertial_entity = ecm.Component<gz::sim::components::Inertial>(link_entity);
     if (!inertial_entity) {
       gzerr << "Failed to get the inertial entity of '" << link_name << "'.";
       return false;
