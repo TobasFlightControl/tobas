@@ -217,11 +217,11 @@ void SetupAssistantWidget::onNewButtonClicked()
 
     qInfo().nospace() << "UADF is in ROS package " << pkg_name_qt << ". Building it.";
     spinner_.start();
-    const auto build_success = cmn::colconBuild(colcon_, pkg_path->c_str(), qt::expandUser(kColconWSPathHome));
+    const auto build_result = cmn::colconBuild(colcon_, pkg_path->c_str(), qt::expandUser(kColconWSPathHome));
     spinner_.stop();
 
-    if (!build_success) {
-      const auto error_msg = QString::fromStdString(colcon_.errorMessage());
+    if (!build_result) {
+      const auto& error_msg = build_result.error();
       if (error_msg.size() < cmn::kSaveLogTextSizeThresh) {
         qt::qErrorBox(this, "Failed to build '" + pkg_name_qt + "':\n\n" + error_msg);
       }
