@@ -20,17 +20,16 @@ constexpr char kCPitchDeltaKey[] = "c_pitch_delta";
 constexpr char kCYawDeltaKey[] = "c_yaw_delta";
 }  // namespace
 
-bool ControlSurface::isValid() const
+std::expected<void, std::string> ControlSurface::validate() const
 {
   if (link_name.empty()) {
-    std::cerr << "Link name is empty." << std::endl;
-    return false;
+    return std::unexpected("Link name is empty.");
   }
 
   // TODO: Check the joint range.
   // TODO: Check the signs of stability derivatives.
 
-  return true;
+  return {};
 }
 
 bool ControlSurface::load(const YAML::Node& node)

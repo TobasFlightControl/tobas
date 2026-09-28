@@ -4,6 +4,8 @@
 #pragma once
 
 #include <cassert>
+#include <expected>
+#include <string>
 
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
@@ -30,7 +32,7 @@ public:
   double motor_const = 0.0;          // Thrust coefficient [kg*m/rad^2].
   double moment_const = 0.0;         // Reaction torque coefficient [m].
 
-  bool isValid() const override;
+  std::expected<void, std::string> validate() const override;
 
   bool load(const YAML::Node& node) override;
   YAML::Node dump() const override;

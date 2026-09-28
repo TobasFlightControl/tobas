@@ -17,34 +17,29 @@ constexpr char kMaxCurrentKey[] = "max_current";
 constexpr char kInternalResistanceKey[] = "internal_resistance";
 }  // namespace
 
-bool BatteryConfig::isValid() const
+std::expected<void, std::string> BatteryConfig::validate() const
 {
   if (sag_voltage <= 0.0) {
-    std::cerr << "Battery sag voltage must be positive." << std::endl;
-    return false;
+    return std::unexpected("Battery sag voltage must be positive.");
   }
 
   if (nominal_voltage <= sag_voltage) {
-    std::cerr << "Battery nominal voltage must be greater than sag voltage." << std::endl;
-    return false;
+    return std::unexpected("Battery nominal voltage must be greater than sag voltage.");
   }
 
   if (max_voltage <= nominal_voltage) {
-    std::cerr << "Battery max voltage must be greater than nominal voltage." << std::endl;
-    return false;
+    return std::unexpected("Battery max voltage must be greater than nominal voltage.");
   }
 
   if (max_current <= 0.0) {
-    std::cerr << "Battery max current must be positive." << std::endl;
-    return false;
+    return std::unexpected("Battery max current must be positive.");
   }
 
   if (internal_resistance < 0.0) {
-    std::cerr << "Battery internal resistance must be non-negative." << std::endl;
-    return false;
+    return std::unexpected("Battery internal resistance must be non-negative.");
   }
 
-  return true;
+  return {};
 }
 
 bool BatteryConfig::load(const YAML::Node& node)

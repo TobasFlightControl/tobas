@@ -3,6 +3,9 @@
 
 #pragma once
 
+#include <expected>
+#include <string>
+
 #include <yaml-cpp/yaml.h>
 
 #include "./rotor.hpp"
@@ -20,7 +23,7 @@ public:
 
   virtual void clear();
 
-  virtual bool isValid() const = 0;
+  virtual std::expected<void, std::string> validate() const = 0;
 
   virtual bool load(const YAML::Node& node) = 0;
   virtual YAML::Node dump() const = 0;

@@ -4,6 +4,8 @@
 #pragma once
 
 #include <cassert>
+#include <expected>
+#include <string>
 
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/range.hpp>
@@ -30,7 +32,7 @@ public:
   VppMomentConstant moment_const;
   HardwareInterface hw_iface = HardwareInterface::kOther;
 
-  bool isValid() const override;
+  std::expected<void, std::string> validate() const override;
 
   bool load(const YAML::Node& node) override;
   YAML::Node dump() const override;

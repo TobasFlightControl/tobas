@@ -14,14 +14,13 @@ constexpr char kDirectionKey[] = "direction";
 constexpr char kTiltJointName[] = "tilt_joint_name";
 }  // namespace
 
-bool RotorConfig::isValid() const
+std::expected<void, std::string> RotorConfig::validate() const
 {
   if (link_name.empty()) {
-    std::cerr << "Link name is empty." << std::endl;
-    return false;
+    return std::unexpected("Link name is empty.");
   }
 
-  return true;
+  return {};
 }
 
 bool RotorConfig::load(const YAML::Node& node)

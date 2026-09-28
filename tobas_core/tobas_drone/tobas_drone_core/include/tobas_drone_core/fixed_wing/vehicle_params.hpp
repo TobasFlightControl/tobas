@@ -3,6 +3,9 @@
 
 #pragma once
 
+#include <expected>
+#include <string>
+
 #include <yaml-cpp/yaml.h>
 
 #include <tobas_kdl/vector.hpp>
@@ -19,7 +22,7 @@ public:
   kdl::Vector ac = { 0, 0, 0 };              // Aerodynamic Center wrt the frame origin (FLU) [m]
   st::Range<double> alpha_limit = { 0, 0 };  // Stall angles [rad]
 
-  bool isValid() const;
+  std::expected<void, std::string> validate() const;
 
   bool load(const YAML::Node& node);
   YAML::Node dump() const;

@@ -16,14 +16,13 @@ constexpr char kC0Key[] = "c0";
 constexpr char kC1Key[] = "c1";
 }  // namespace
 
-bool VppMotorConstant::isValid() const
+std::expected<void, std::string> VppMotorConstant::validate() const
 {
   if (c1 <= 0.0) {
-    std::cerr << "The second term of the motor constant must be positive." << std::endl;
-    return false;
+    return std::unexpected("The second term of the motor constant must be positive.");
   }
 
-  return true;
+  return {};
 }
 
 bool VppMotorConstant::load(const YAML::Node& node)

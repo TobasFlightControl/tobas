@@ -19,36 +19,33 @@ constexpr char kMomentConstKey[] = "moment_constant";
 constexpr char kHardwareIfaceKey[] = "hw_iface";
 }  // namespace
 
-bool IceRotorConfig::isValid() const
+std::expected<void, std::string> IceRotorConfig::validate() const
 {
-  if (!super::isValid()) {
-    return false;
+  if (const auto result = super::validate(); !result) {
+    return result;
   }
 
   if (gear_ratio <= 0.0) {
-    std::cerr << "Gear ratio must be positive." << std::endl;
-    return false;
+    return std::unexpected("Gear ratio must be positive.");
   }
 
   if (!pitch_limit.isValid()) {
-    std::cerr << "Pitch angle limit is invalid." << std::endl;
-    return false;
+    return std::unexpected("Pitch angle limit is invalid.");
   }
 
   if (!pitch_limit.inRange(center_pitch)) {
-    std::cerr << "Center pitch is out of its limit." << std::endl;
-    return false;
+    return std::unexpected("Center pitch is out of its limit.");
   }
 
-  if (!motor_const.isValid()) {
-    return false;
+  if (const auto result = motor_const.validate(); !result) {
+    return result;
   }
 
-  if (!moment_const.isValid()) {
-    return false;
+  if (const auto result = moment_const.validate(); !result) {
+    return result;
   }
 
-  return true;
+  return {};
 }
 
 bool IceRotorConfig::load(const YAML::Node& node)

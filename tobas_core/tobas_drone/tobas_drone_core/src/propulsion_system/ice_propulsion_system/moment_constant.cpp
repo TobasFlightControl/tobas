@@ -19,14 +19,13 @@ constexpr char kCKey[] = "c";
 constexpr char kPhi0Key[] = "phi0";
 }  // namespace
 
-bool VppMomentConstant::isValid() const
+std::expected<void, std::string> VppMomentConstant::validate() const
 {
   if (a <= 0.0 || c <= 0.0) {
-    std::cerr << "The first and third term of the moment constant must be positive." << std::endl;
-    return false;
+    return std::unexpected("The first and third term of the moment constant must be positive.");
   }
 
-  return true;
+  return {};
 }
 
 bool VppMomentConstant::load(const YAML::Node& node)

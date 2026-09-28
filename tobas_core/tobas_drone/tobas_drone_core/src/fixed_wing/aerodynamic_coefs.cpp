@@ -28,59 +28,49 @@ constexpr char kCYawPKey[] = "c_yaw_p";
 constexpr char kCYawRKey[] = "c_yaw_r";
 }  // namespace
 
-bool AerodynamicCoefficients::isValid() const
+std::expected<void, std::string> AerodynamicCoefficients::validate() const
 {
   if (c_lift_0 <= 0) {
-    std::cerr << "c_lift_0 must be positive." << std::endl;
-    return false;
+    return std::unexpected("c_lift_0 must be positive.");
   }
 
   if (c_lift_alpha <= 0) {
-    std::cerr << "c_lift_alpha must be positive." << std::endl;
-    return false;
+    return std::unexpected("c_lift_alpha must be positive.");
   }
 
   if (c_drag_0 <= 0) {
-    std::cerr << "c_drag_0 must be positive." << std::endl;
-    return false;
+    return std::unexpected("c_drag_0 must be positive.");
   }
 
   if (c_drag_alpha <= 0) {
-    std::cerr << "c_drag_alpha must be positive." << std::endl;
-    return false;
+    return std::unexpected("c_drag_alpha must be positive.");
   }
 
   if (c_side_beta >= 0) {
-    std::cerr << "c_side_beta must be negative." << std::endl;
-    return false;
+    return std::unexpected("c_side_beta must be negative.");
   }
 
   if (c_roll_beta >= 0) {
-    std::cerr << "c_roll_beta must be negative." << std::endl;
-    return false;
+    return std::unexpected("c_roll_beta must be negative.");
   }
 
   if (c_roll_p >= 0) {
-    std::cerr << "c_roll_p must be negative." << std::endl;
-    return false;
+    return std::unexpected("c_roll_p must be negative.");
   }
 
   if (c_pitch_alpha >= 0) {
-    std::cerr << "c_pitch_alpha must be negative." << std::endl;
-    return false;
+    return std::unexpected("c_pitch_alpha must be negative.");
   }
 
   if (c_pitch_q >= 0) {
-    std::cerr << "c_pitch_q must be negative." << std::endl;
-    return false;
+    return std::unexpected("c_pitch_q must be negative.");
   }
 
   if (c_yaw_r >= 0) {
-    std::cerr << "c_yaw_r must be negative." << std::endl;
-    return false;
+    return std::unexpected("c_yaw_r must be negative.");
   }
 
-  return true;
+  return {};
 }
 
 bool AerodynamicCoefficients::load(const YAML::Node& node)

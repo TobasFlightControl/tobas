@@ -191,7 +191,8 @@ bool IceRotorModel::getSdfParams(const sdf::ElementConstPtr& sdf)
   }
   motor_const_.c0 = motor_const.X();
   motor_const_.c1 = motor_const.Y();
-  if (!motor_const_.isValid()) {
+  if (const auto result = motor_const_.validate(); !result) {
+    gzerr << "Rotor '" << link_name_ << "': " << result.error() << std::endl;
     return false;
   }
 
@@ -203,7 +204,8 @@ bool IceRotorModel::getSdfParams(const sdf::ElementConstPtr& sdf)
   moment_const_.b = moment_const.Y();
   moment_const_.c = moment_const.Z();
   moment_const_.phi0 = moment_const.W();
-  if (!moment_const_.isValid()) {
+  if (const auto result = moment_const_.validate(); !result) {
+    gzerr << "Rotor '" << link_name_ << "': " << result.error() << std::endl;
     return false;
   }
 
@@ -213,7 +215,8 @@ bool IceRotorModel::getSdfParams(const sdf::ElementConstPtr& sdf)
   }
   drag_const_.c0 = drag_const.X();
   drag_const_.c1 = drag_const.Y();
-  if (!drag_const_.isValid()) {
+  if (const auto result = drag_const_.validate(); !result) {
+    gzerr << "Rotor '" << link_name_ << "': " << result.error() << std::endl;
     return false;
   }
 

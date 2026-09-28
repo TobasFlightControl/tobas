@@ -17,14 +17,13 @@ constexpr char kHardwareIfaceKey[] = "hw_iface";
 constexpr char kHomePosKey[] = "home_position";
 }  // namespace
 
-bool JointConfig::isValid() const
+std::expected<void, std::string> JointConfig::validate() const
 {
   if (name.empty()) {
-    std::cerr << "Joint name is empty." << std::endl;
-    return false;
+    return std::unexpected("Joint name is empty.");
   }
 
-  return true;
+  return {};
 }
 
 bool JointConfig::load(const YAML::Node& node)

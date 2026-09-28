@@ -3,6 +3,9 @@
 
 #pragma once
 
+#include <expected>
+#include <string>
+
 #include <yaml-cpp/yaml.h>
 
 namespace tobas
@@ -16,7 +19,7 @@ public:
   double max_current = 0.0;          // Maximum continuous current [A].
   double internal_resistance = 0.0;  // Internal resistance [Ω].
 
-  bool isValid() const;
+  std::expected<void, std::string> validate() const;
 
   bool load(const YAML::Node& node);
   YAML::Node dump() const;

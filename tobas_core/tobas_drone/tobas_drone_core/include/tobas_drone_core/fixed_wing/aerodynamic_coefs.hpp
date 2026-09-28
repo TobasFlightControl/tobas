@@ -3,6 +3,9 @@
 
 #pragma once
 
+#include <expected>
+#include <string>
+
 #include <yaml-cpp/yaml.h>
 
 namespace tobas
@@ -42,7 +45,7 @@ public:
   double c_yaw_p = 0;     // [s/rad]
   double c_yaw_r = 0;     // [s/rad]
 
-  bool isValid() const;
+  std::expected<void, std::string> validate() const;
 
   bool load(const YAML::Node& node);
   YAML::Node dump() const;

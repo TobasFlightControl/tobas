@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <expected>
 #include <map>
 #include <string>
 
@@ -23,7 +24,7 @@ public:
   std::pair<double, double> period_range = { 1000, 2000 };  // [us]
   std::pair<double, double> value_range = { 0, 0 };         // Range of values corresponding to PWM.
 
-  bool isValid() const;
+  std::expected<void, std::string> validate() const;
 
   bool load(const YAML::Node& node);
   YAML::Node dump() const;

@@ -3,7 +3,9 @@
 
 #pragma once
 
+#include <expected>
 #include <iostream>
+#include <string>
 
 #include <yaml-cpp/yaml.h>
 
@@ -17,7 +19,7 @@ public:
   std::pair<double, double> engine_const = { 0.0, 0.0 };  // A, B (memo: 3-28)
   HardwareInterface hw_iface = HardwareInterface::kOther;
 
-  bool isValid() const;
+  std::expected<void, std::string> validate() const;
 
   bool load(const YAML::Node& node);
   YAML::Node dump() const;

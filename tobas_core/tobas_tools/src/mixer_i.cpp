@@ -11,8 +11,8 @@ MixerI::MixerI(const Drone& drone, const kdl::Tree& tree) : drone_(drone), tree_
 
 std::expected<void, std::string> MixerI::updateInternalDataStructures()
 {
-  if (!drone_.isValid()) {
-    return std::unexpected("Drone configuration is invalid.");
+  if (const auto result = drone_.validate(); !result) {
+    return std::unexpected("Drone configuration is invalid: " + result.error());
   }
 
   rotor_alive_.clear();

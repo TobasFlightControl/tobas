@@ -19,26 +19,23 @@ void FixedWingConfig::clear()
   control_surfaces.clear();
 }
 
-bool FixedWingConfig::isValid() const
+std::expected<void, std::string> FixedWingConfig::validate() const
 {
-  if (!vehicle.isValid()) {
-    std::cerr << "The vehicle parameters are invalid." << std::endl;
-    return false;
+  if (const auto result = vehicle.validate(); !result) {
+    return std::unexpected("Vehicle parameters: " + result.error());
   }
 
-  if (!aerodynamics.isValid()) {
-    std::cerr << "The aerodynamic parameters are invalid." << std::endl;
-    return false;
+  if (const auto result = aerodynamics.validate(); !result) {
+    return std::unexpected("Aerodynamic parameters: " + result.error());
   }
 
   for (const auto& [_, cs] : control_surfaces) {
-    if (!cs.isValid()) {
-      std::cerr << "The configuration of control surface '" << cs.link_name << "' is invalid." << std::endl;
-      return false;
+    if (const auto result = cs.validate(); !result) {
+      return std::unexpected("Control surface '" + cs.link_name + "': " + result.error());
     }
   }
 
-  return true;
+  return {};
 }
 
 bool FixedWingConfig::load(const YAML::Node& root_node)

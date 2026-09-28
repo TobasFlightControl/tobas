@@ -19,29 +19,25 @@ constexpr char kAeroCenterKey[] = "aerodynamic_center";
 constexpr char kAlphaLimitLKey[] = "alpha_limit";
 }  // namespace
 
-bool VehicleParameters::isValid() const
+std::expected<void, std::string> VehicleParameters::validate() const
 {
   if (wing_surface <= 0) {
-    std::cerr << "Wing surface must be positive." << std::endl;
-    return false;
+    return std::unexpected("Wing surface must be positive.");
   }
 
   if (wing_span <= 0) {
-    std::cerr << "Wing span must be positive." << std::endl;
-    return false;
+    return std::unexpected("Wing span must be positive.");
   }
 
   if (mac <= 0) {
-    std::cerr << "Mean aerodynamic chord must be positive." << std::endl;
-    return false;
+    return std::unexpected("Mean aerodynamic chord must be positive.");
   }
 
   if (!alpha_limit.isValid()) {
-    std::cerr << "Invalid stall angles." << std::endl;
-    return false;
+    return std::unexpected("Invalid stall angles.");
   }
 
-  return true;
+  return {};
 }
 
 bool VehicleParameters::load(const YAML::Node& node)

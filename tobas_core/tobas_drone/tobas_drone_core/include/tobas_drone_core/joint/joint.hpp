@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <expected>
 #include <map>
 #include <string>
 
@@ -26,7 +27,7 @@ public:
   HardwareInterface hw_iface = HardwareInterface::kOther;
   double home_pos = 0.0;  // [rad | m]
 
-  bool isValid() const;
+  std::expected<void, std::string> validate() const;
 
   bool load(const YAML::Node& node);
   YAML::Node dump() const;

@@ -14,22 +14,18 @@ constexpr char kBatteryKey[] = "battery";
 constexpr char kRotorsKey[] = "rotors";
 }  // namespace
 
-bool ElectricPropulsionSystemConfig::isValid() const
+std::expected<void, std::string> ElectricPropulsionSystemConfig::validate() const
 {
-  // Rotors
-  for (const auto& [_, rotor] : rotors) {
-    if (!rotor->isValid()) {
-      std::cerr << "The configuration of rotor '" << rotor->link_name << "' is invalid." << std::endl;
-      return false;
+  for (const auto& [link_name, rotor] : rotors) {
+    if (!rotor) {
+      return std::unexpected("Rotor '" + link_name + "': configuration is missing.");
+    }
+    if (const auto result = rotor->validate(); !result) {
+      return std::unexpected("Rotor '" + link_name + "': " + result.error());
     }
   }
 
-  // Battery
-  if (!battery.isValid()) {
-    return false;
-  }
-
-  return true;
+  return battery.validate();
 }
 
 bool ElectricPropulsionSystemConfig::load(const YAML::Node& root_node)

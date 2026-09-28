@@ -33,47 +33,44 @@ void Drone::clear()
   fixed_wing.reset();
 }
 
-bool Drone::isValid() const
+std::expected<void, std::string> Drone::validate() const
 {
-  if (name == "") {
-    std::cerr << "This drone does not have name." << std::endl;
-    return false;
+  if (name.empty()) {
+    return std::unexpected("Drone name is empty.");
   }
 
   for (const auto& [_, pwm] : pwms) {
-    if (!pwm.isValid()) {
-      std::cerr << "The configuration of PWM channel " << pwm.channel << " is invalid." << std::endl;
-      return false;
+    if (const auto result = pwm.validate(); !result) {
+      return std::unexpected("PWM channel " + std::to_string(pwm.channel) + ": " + result.error());
     }
   }
 
   for (const auto& [_, joint] : joints) {
-    if (!joint.isValid()) {
-      std::cerr << "The configuration of joint '" << joint.name << "' is invalid." << std::endl;
-      return false;
+    if (const auto result = joint.validate(); !result) {
+      return std::unexpected("Joint '" + joint.name + "': " + result.error());
     }
   }
 
   if (!prop) {
-    std::cerr << "The configuration of propulsion system is null." << std::endl;
-    return false;
+    return std::unexpected("Propulsion system configuration is missing.");
   }
-  if (!prop->isValid()) {
-    std::cerr << "The configuration of propulsion system is invalid." << std::endl;
-    return false;
+  if (const auto result = prop->validate(); !result) {
+    return std::unexpected("Propulsion system: " + result.error());
   }
 
-  if (fixed_wing && !fixed_wing->isValid()) {
-    std::cerr << "The configuration of fixed wing is invalid." << std::endl;
-    return false;
+  if (fixed_wing) {
+    if (const auto result = fixed_wing->validate(); !result) {
+      return std::unexpected("Fixed wing: " + result.error());
+    }
   }
 
   if (num_sbus_channels < kMinSbusChannels || kMaxSbusChannels < num_sbus_channels) {
-    std::cerr << "The number of sbus channels is invalid." << std::endl;
-    return false;
+    return std::unexpected(
+      "The number of S.BUS channels must be between " + std::to_string(kMinSbusChannels) + " and " +
+      std::to_string(kMaxSbusChannels) + ".");
   }
 
-  return true;
+  return {};
 }
 
 bool Drone::load(const YAML::Node& root_node)

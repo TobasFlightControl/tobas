@@ -17,14 +17,13 @@ constexpr char kEngineConstantKey[] = "engine_constant";
 constexpr char kHardwareIfaceKey[] = "hw_iface";
 }  // namespace
 
-bool EngineConfig::isValid() const
+std::expected<void, std::string> EngineConfig::validate() const
 {
   if (engine_const.first <= 0.0 || engine_const.second <= 0.0) {
-    std::cerr << "Engine constants must be positive." << std::endl;
-    return false;
+    return std::unexpected("Engine constants must be positive.");
   }
 
-  return true;
+  return {};
 }
 
 bool EngineConfig::load(const YAML::Node& node)

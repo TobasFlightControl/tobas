@@ -3,7 +3,8 @@
 
 #pragma once
 
-#include <cmath>
+#include <expected>
+#include <string>
 
 #include <yaml-cpp/yaml.h>
 
@@ -26,7 +27,7 @@ public:
   {
   }
 
-  bool isValid() const;
+  std::expected<void, std::string> validate() const;
 
   bool load(const YAML::Node& node);
   YAML::Node dump() const;

@@ -3,7 +3,9 @@
 
 #pragma once
 
+#include <expected>
 #include <map>
+#include <string>
 
 #include "./turning_direction.hpp"
 
@@ -19,7 +21,7 @@ public:
   TurningDirection direction = TurningDirection::CCW;  // Rotation direction: CCW or CW.
   std::string tilt_joint_name = "";                    // Tilt joint name; an empty string means a fixed axis.
 
-  virtual bool isValid() const;
+  virtual std::expected<void, std::string> validate() const;
 
   virtual bool load(const YAML::Node& node);
   virtual YAML::Node dump() const;

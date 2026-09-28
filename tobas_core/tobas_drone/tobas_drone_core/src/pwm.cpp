@@ -16,19 +16,17 @@ constexpr char kPeriodRangeKey[] = "period_range";
 constexpr char kValueRangeKey[] = "value_range";
 }  // namespace
 
-bool PwmConfig::isValid() const
+std::expected<void, std::string> PwmConfig::validate() const
 {
   if (name.empty()) {
-    std::cerr << "PWM name is empty." << std::endl;
-    return false;
+    return std::unexpected("PWM name is empty.");
   }
 
   if (period_range.first <= 0.0 || period_range.second <= 0.0) {
-    std::cerr << "PWM period range of '" << name << "' must be positive." << std::endl;
-    return false;
+    return std::unexpected("PWM period range of '" + name + "' must be positive.");
   }
 
-  return true;
+  return {};
 }
 
 bool PwmConfig::load(const YAML::Node& node)

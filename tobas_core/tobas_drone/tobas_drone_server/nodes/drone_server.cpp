@@ -49,8 +49,8 @@ bool DroneServerNode::fileParamCb(const std::string& p)
   }
 
   // Check drone configuration validity.
-  if (!drone_.isValid()) {
-    TOBAS_ERROR("Drone configuration is invalid.");
+  if (const auto result = drone_.validate(); !result) {
+    TOBAS_ERROR("Drone configuration is invalid: ", result.error());
     return false;
   }
 

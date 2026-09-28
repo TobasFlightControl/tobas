@@ -17,22 +17,18 @@ constexpr char kEngineKey[] = "engine";
 constexpr char kRotorsKey[] = "rotors";
 }  // namespace
 
-bool IcePropulsionSystemConfig::isValid() const
+std::expected<void, std::string> IcePropulsionSystemConfig::validate() const
 {
-  // Rotors
-  for (const auto& [_, rotor] : rotors) {
-    if (!rotor->isValid()) {
-      std::cerr << "The configuration of rotor '" << rotor->link_name << "' is invalid." << std::endl;
-      return false;
+  for (const auto& [link_name, rotor] : rotors) {
+    if (!rotor) {
+      return std::unexpected("Rotor '" + link_name + "': configuration is missing.");
+    }
+    if (const auto result = rotor->validate(); !result) {
+      return std::unexpected("Rotor '" + link_name + "': " + result.error());
     }
   }
 
-  // Engine
-  if (!engine.isValid()) {
-    return false;
-  }
-
-  return true;
+  return engine.validate();
 }
 
 bool IcePropulsionSystemConfig::load(const YAML::Node& root_node)

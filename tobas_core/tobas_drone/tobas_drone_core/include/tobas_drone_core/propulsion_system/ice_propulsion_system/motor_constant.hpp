@@ -3,6 +3,9 @@
 
 #pragma once
 
+#include <expected>
+#include <string>
+
 #include <yaml-cpp/yaml.h>
 
 namespace tobas
@@ -22,7 +25,7 @@ public:
   {
   }
 
-  bool isValid() const;
+  std::expected<void, std::string> validate() const;
 
   bool load(const YAML::Node& node);
   YAML::Node dump() const;

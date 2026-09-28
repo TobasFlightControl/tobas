@@ -3,6 +3,9 @@
 
 #pragma once
 
+#include <expected>
+#include <string>
+
 #include "../propulsion_system.hpp"
 #include "./battery.hpp"
 #include "./electric_rotor.hpp"
@@ -17,7 +20,7 @@ public:
 
   BatteryConfig battery;
 
-  bool isValid() const override;
+  std::expected<void, std::string> validate() const override;
 
   bool load(const YAML::Node& node) override;
   YAML::Node dump() const override;

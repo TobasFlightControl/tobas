@@ -16,14 +16,13 @@ constexpr char kC0Key[] = "c0";
 constexpr char kC1Key[] = "c1";
 }  // namespace
 
-bool VppDragConstant::isValid() const
+std::expected<void, std::string> VppDragConstant::validate() const
 {
   if (c1 <= 0.0) {
-    std::cerr << "The second term of the drag constant must be positive." << std::endl;
-    return false;
+    return std::unexpected("The second term of the drag constant must be positive.");
   }
 
-  return true;
+  return {};
 }
 
 bool VppDragConstant::load(const YAML::Node& node)

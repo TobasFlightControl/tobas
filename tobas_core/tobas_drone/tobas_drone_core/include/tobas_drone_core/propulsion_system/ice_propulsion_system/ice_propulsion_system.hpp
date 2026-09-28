@@ -3,6 +3,9 @@
 
 #pragma once
 
+#include <expected>
+#include <string>
+
 #include "../propulsion_system.hpp"
 #include "./engine.hpp"
 #include "./ice_rotor.hpp"
@@ -19,7 +22,7 @@ public:
 
   EngineConfig engine;
 
-  bool isValid() const override;
+  std::expected<void, std::string> validate() const override;
 
   bool load(const YAML::Node& node) override;
   YAML::Node dump() const override;

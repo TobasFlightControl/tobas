@@ -545,6 +545,10 @@ void GroundControlStationWidget::onLoadButtonClicked()
     qt::qErrorBox(this, "Failed to load drone configuration.");
     return;
   }
+  if (const auto result = next_drone.validate(); !result) {
+    qt::qErrorBox(this, "Drone configuration is invalid:\n\n" + QString::fromStdString(result.error()));
+    return;
+  }
 
   // Load network configuration.
   cmn::NetworkConfig next_network_config;

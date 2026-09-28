@@ -4,6 +4,7 @@
 #pragma once
 
 #include <cstdint>
+#include <expected>
 #include <map>
 #include <string>
 
@@ -33,7 +34,7 @@ public:
   double c_pitch_delta = 0.0;     // [/rad]
   double c_yaw_delta = 0.0;       // [/rad]
 
-  bool isValid() const;
+  std::expected<void, std::string> validate() const;
 
   bool load(const YAML::Node& node);
   YAML::Node dump() const;
