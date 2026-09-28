@@ -137,46 +137,43 @@ void Tree::clear()
   ns_ = 0;
 }
 
-bool Tree::isValid(string& error_msg) const
+std::expected<void, std::string> Tree::isValid() const
 {
   unordered_set<string> seg_names, jnt_names;
-  return isValidRecursive(getRootSegment(), seg_names, jnt_names, error_msg);
+  return isValidRecursive(getRootSegment(), seg_names, jnt_names);
 }
 
-bool Tree::isValidRecursive(
+std::expected<void, std::string> Tree::isValidRecursive(
   const SegmentMap::const_iterator& seg_it,
   unordered_set<string>& seg_names,
-  unordered_set<string>& jnt_names,
-  string& error_msg) const
+  unordered_set<string>& jnt_names) const
 {
   const auto& elem = seg_it->second;
   const auto& seg = elem.segment;
 
   const auto& seg_name = seg.name();
   if (!seg_names.insert(seg_name).second) {
-    error_msg = "Segment name '" + seg_name + "' is duplicated.";
-    return false;
+    return std::unexpected("Segment name '" + seg_name + "' is duplicated.");
   }
 
   if (seg_it != getRootSegment()) {
     const auto& jnt_name = seg.joint().name;
     if (!jnt_names.insert(jnt_name).second) {
-      error_msg = "Joint name '" + jnt_name + "' is duplicated.";
-      return false;
+      return std::unexpected("Joint name '" + jnt_name + "' is duplicated.");
     }
 
-    if (!seg.isValid(error_msg)) {
-      return false;
+    if (const auto result = seg.isValid(); !result) {
+      return result;
     }
   }
 
   for (const auto& child_it : elem.children) {
-    if (!isValidRecursive(child_it, seg_names, jnt_names, error_msg)) {
-      return false;
+    if (const auto result = isValidRecursive(child_it, seg_names, jnt_names); !result) {
+      return result;
     }
   }
 
-  return true;
+  return {};
 }
 
 bool Tree::addSegment(const Segment& segment, const string& hook_name)

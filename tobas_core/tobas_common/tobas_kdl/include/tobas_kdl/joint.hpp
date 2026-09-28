@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <expected>
 #include <string>
 
 #include <tobas_eigen_tools/geometry.hpp>
@@ -41,7 +42,7 @@ public:
   inline explicit Joint();
 
   /* Check validity (except for the root joint). */
-  bool isValid(std::string& error_msg) const;
+  std::expected<void, std::string> isValid() const;
 
   /* Get the normalized joint axis wrt. the parent frame. */
   inline const Vector& axis() const;

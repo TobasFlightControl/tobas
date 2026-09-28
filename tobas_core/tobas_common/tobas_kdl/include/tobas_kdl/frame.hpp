@@ -3,6 +3,9 @@
 
 #pragma once
 
+#include <expected>
+#include <string>
+
 #include "./accel.hpp"
 #include "./impulse.hpp"
 #include "./rotation.hpp"
@@ -88,7 +91,7 @@ public:
 
   static inline Frame XYZRPY(double x, double y, double z, double roll, double pitch, double yaw);
 
-  inline bool isValid(std::string& error_msg) const;
+  inline std::expected<void, std::string> isValid() const;
 
   inline Eigen::Matrix4d matrix() const;
 
@@ -180,9 +183,9 @@ inline Frame Frame::XYZRPY(double x, double y, double z, double roll, double pit
   return Frame(Rotation::RPY(roll, pitch, yaw), Vector(x, y, z));
 }
 
-inline bool Frame::isValid(std::string& error_msg) const
+inline std::expected<void, std::string> Frame::isValid() const
 {
-  return M.isValid(error_msg);
+  return M.isValid();
 }
 
 inline Eigen::Matrix4d Frame::matrix() const

@@ -3,6 +3,9 @@
 
 #pragma once
 
+#include <expected>
+#include <string>
+
 #include "./accel.hpp"
 #include "./segment_jacobian.hpp"
 #include "./twist.hpp"
@@ -61,7 +64,7 @@ public:
   static Rotation Quaternion(double x, double y, double z, double w);
 
   /* Check validity. */
-  bool isValid(std::string& error_msg) const;
+  std::expected<void, std::string> isValid() const;
 
   inline bool isFinite() const;
 

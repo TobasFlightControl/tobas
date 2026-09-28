@@ -3,6 +3,9 @@
 
 #pragma once
 
+#include <expected>
+#include <string>
+
 #include "./frames.hpp"
 #include "./rotational_inertia.hpp"
 #include "./segment_jacobian.hpp"
@@ -33,7 +36,7 @@ public:
   static inline RigidBodyInertia Zero();
 
   /* Verify that the rotation matrix belongs to SO(3). */
-  bool isValid(std::string& error_msg) const;
+  std::expected<void, std::string> isValid() const;
 
   /* Get the mass of the rigid body. */
   inline const double& getMass() const;

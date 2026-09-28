@@ -3,6 +3,9 @@
 
 #pragma once
 
+#include <expected>
+#include <string>
+
 #include "./frames.hpp"
 
 namespace tobas
@@ -20,7 +23,7 @@ public:
 
   static inline RotationalInertia Zero();
 
-  bool isValid(std::string& error_msg) const;
+  std::expected<void, std::string> isValid() const;
 
   inline double ixx() const;
   inline double iyy() const;

@@ -40,31 +40,29 @@ void Chain::clear()
   segments.clear();
 }
 
-bool Chain::isValid(string& error_msg) const
+std::expected<void, std::string> Chain::isValid() const
 {
   unordered_set<string> seg_names, jnt_names;
 
   for (const auto& [idx, seg] : views::enumerate(segments)) {
     const auto& seg_name = seg.name();
     if (!seg_names.insert(seg_name).second) {
-      error_msg = "Segment name '" + seg_name + "' is duplicated.";
-      return false;
+      return std::unexpected("Segment name '" + seg_name + "' is duplicated.");
     }
 
     if (idx != 0) {
       const auto& jnt_name = seg.joint().name;
       if (!jnt_names.insert(jnt_name).second) {
-        error_msg = "Joint name '" + jnt_name + "' is duplicated.";
-        return false;
+        return std::unexpected("Joint name '" + jnt_name + "' is duplicated.");
       }
 
-      if (!seg.isValid(error_msg)) {
-        return false;
+      if (const auto result = seg.isValid(); !result) {
+        return result;
       }
     }
   }
 
-  return true;
+  return {};
 }
 
 void Chain::addSegment(const Segment& segment)
