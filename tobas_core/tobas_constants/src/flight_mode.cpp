@@ -3,6 +3,10 @@
 
 #include "tobas_constants/flight_mode.hpp"
 
+#include <iostream>
+
+using namespace std;
+
 namespace tobas
 {
 namespace
@@ -12,7 +16,7 @@ constexpr char kStabilizeText[] = "stabilize";
 constexpr char kLoiterText[] = "loiter";
 }  // namespace
 
-std::string flightModeTextFromEnum(FlightMode mode)
+string textFromEnum(FlightMode mode)
 {
   switch (mode) {
     case FlightMode::kAcrobat:
@@ -26,19 +30,23 @@ std::string flightModeTextFromEnum(FlightMode mode)
   }
 }
 
-std::expected<FlightMode, std::string> flightModeEnumFromText(const std::string& text)
+bool enumFromText(const string& text, FlightMode& dst)
 {
   if (text == kAcrobatText) {
-    return FlightMode::kAcrobat;
+    dst = FlightMode::kAcrobat;
+    return true;
   }
   else if (text == kStabilizeText) {
-    return FlightMode::kStabilize;
+    dst = FlightMode::kStabilize;
+    return true;
   }
   else if (text == kLoiterText) {
-    return FlightMode::kLoiter;
+    dst = FlightMode::kLoiter;
+    return true;
   }
   else {
-    return std::unexpected("Invalid flight mode string.");
+    cerr << "Invalid flight mode: " << text << endl;
+    return false;
   }
 }
 }  // namespace tobas
@@ -48,8 +56,8 @@ namespace YAML
 Node convert<tobas::FlightMode>::encode(const tobas::FlightMode& rhs)
 {
   Node node;
-  node = tobas::flightModeTextFromEnum(rhs);
-  return Node(tobas::flightModeTextFromEnum(rhs));
+  node = tobas::textFromEnum(rhs);
+  return Node(tobas::textFromEnum(rhs));
 }
 
 bool convert<tobas::FlightMode>::decode(const Node& node, tobas::FlightMode& rhs)
@@ -58,12 +66,6 @@ bool convert<tobas::FlightMode>::decode(const Node& node, tobas::FlightMode& rhs
     return false;
   }
 
-  const auto result = tobas::flightModeEnumFromText(node.as<std::string>());
-  if (!result) {
-    return false;
-  }
-
-  rhs = *result;
-  return true;
+  return tobas::enumFromText(node.as<string>(), rhs);
 }
 }  // namespace YAML

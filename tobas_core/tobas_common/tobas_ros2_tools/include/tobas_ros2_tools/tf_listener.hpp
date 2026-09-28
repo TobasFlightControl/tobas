@@ -3,12 +3,8 @@
 
 #pragma once
 
-#include <expected>
-#include <string>
-
 #include <tf2_ros/buffer.h>
 #include <tf2_ros/transform_listener.h>
-#include <geometry_msgs/msg/transform_stamped.hpp>
 #include <rclcpp/node.hpp>
 
 namespace tobas
@@ -20,13 +16,27 @@ class TransformListener
 public:
   explicit TransformListener(rclcpp::Node::SharedPtr node);
 
-  std::expected<geometry_msgs::msg::TransformStamped, std::string>
-  lookupTransform(const std::string& parent, const std::string& child, const rclcpp::Time& time = rclcpp::Time(0));
+  bool lookupTransform(const std::string& parent, const std::string& child, const rclcpp::Time& time = rclcpp::Time(0));
+
+  inline const geometry_msgs::msg::TransformStamped& getTransform();
+  inline const char* getErrorMessage();
 
 private:
   tf2_ros::Buffer tf_buffer_;
   tf2_ros::TransformListener tf_listener_;
+
+  geometry_msgs::msg::TransformStamped tf_;
+  const char* error_msg_;
 };
 
+inline const geometry_msgs::msg::TransformStamped& TransformListener::getTransform()
+{
+  return tf_;
+}
+
+inline const char* TransformListener::getErrorMessage()
+{
+  return error_msg_;
+}
 }  // namespace ros2
 }  // namespace tobas

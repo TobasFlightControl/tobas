@@ -17,12 +17,13 @@ namespace tobas
 {
 namespace linux
 {
-std::expected<void, std::string> setNonStandardBaudRate(int fd, uint32_t baud_rate)
+bool setNonStandardBaudRate(int fd, uint32_t baud_rate)
 {
   struct termios2 buf;
 
   if (ioctl(fd, TCGETS2, &buf) != 0) {
-    return std::unexpected("Failed to get termios2 struct (TCGETS2): " + strError());
+    cerr << "Failed to get termios2 struct (TCGETS2): " << strError() << endl;
+    return false;
   }
 
   buf.c_cflag &= ~CBAUD;
@@ -30,12 +31,13 @@ std::expected<void, std::string> setNonStandardBaudRate(int fd, uint32_t baud_ra
   buf.c_ispeed = buf.c_ospeed = baud_rate;
 
   if (ioctl(fd, TCSETS2, &buf) != 0) {
-    return std::unexpected("Failed to set termios2 struct (TCSETS2): " + strError());
+    cerr << "Failed to set termios2 struct (TCSETS2): " << strError() << endl;
+    return false;
   }
 
   this_thread::sleep_for(1ms);
 
-  return {};
+  return true;
 }
 }  // namespace linux
 }  // namespace tobas

@@ -25,22 +25,23 @@ MicroDisturbanceEoM::MicroDisturbanceEoM(const Drone& drone, const kdl::Tree& tr
 {
 }
 
-std::expected<void, std::string> MicroDisturbanceEoM::updateInternalDataStructures()
+bool MicroDisturbanceEoM::updateInternalDataStructures()
 {
   if (!drone_.fixed_wing) {
-    return std::unexpected("The drone is not equipped with fixed wing.");
+    std::cerr << "The drone is not equipped with fixed wing." << std::endl;
+    return false;
   }
 
   fk_solver_.updateInternalDataStructures();
   inertia_solver_.updateInternalDataStructures();
-  if (const auto result = trim_.updateInternalDataStructures(); !result) {
-    return result;
+  if (!trim_.updateInternalDataStructures()) {
+    return false;
   }
 
   resize();
   setInputLimits();
 
-  return {};
+  return true;
 }
 
 int MicroDisturbanceEoM::update(const double& V, const double& rho, const kdl::JntArray& q)

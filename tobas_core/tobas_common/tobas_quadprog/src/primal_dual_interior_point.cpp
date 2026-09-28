@@ -19,7 +19,7 @@ PrimalDualInteriorPointSolver::PrimalDualInteriorPointSolver()
 {
 }
 
-std::expected<Eigen::VectorXd, std::string> PrimalDualInteriorPointSolver::solve()
+bool PrimalDualInteriorPointSolver::solve()
 {
   checkProblemValidity();
 
@@ -27,8 +27,9 @@ std::expected<Eigen::VectorXd, std::string> PrimalDualInteriorPointSolver::solve
   const auto scaled = scaleProblem();
 
   if (is_first_solve_) {
-    if (const auto result = initialize(scaled); !result) {
-      return std::unexpected("Failed to initialize decision variables.: " + result.error());
+    if (!initialize(scaled)) {
+      error_msg_ = "Failed to initialize decision variables.";
+      return false;
     }
     is_first_solve_ = false;
   }
@@ -37,11 +38,13 @@ std::expected<Eigen::VectorXd, std::string> PrimalDualInteriorPointSolver::solve
   if (eq_dim_ == 0 && ineq_dim_ == 0) {
     const LLT<MatrixXd> llt(scaled.P);
     if (llt.info() == NumericalIssue) {
-      return std::unexpected("Cholesky decomposition failed.");
+      error_msg_ = "Cholesky decomposition failed.";
+      return false;
     }
 
     theta_ = -llt.solve(scaled.q);
-    return theta_.cwiseProduct(x_scale);
+    x_opt_ = theta_.cwiseProduct(x_scale);
+    return true;
   }
 
   // Iteration
@@ -88,40 +91,42 @@ std::expected<Eigen::VectorXd, std::string> PrimalDualInteriorPointSolver::solve
   // TODO: Check solution convergence and feasibility.
 
   // Restore the solution to the original scale.
-  return Eigen::VectorXd(theta_.cwiseProduct(x_scale));
+  x_opt_ = theta_.cwiseProduct(x_scale);
+
+  return true;
 }
 
-std::expected<void, std::string> PrimalDualInteriorPointSolver::setNumberOfIterations(const size_t& num_iter)
+bool PrimalDualInteriorPointSolver::setNumberOfIterations(const size_t& num_iter)
 {
   if (num_iter == 0) {
-    return std::unexpected("Number of iterations must be positive.");
+    return false;
   }
 
   num_iter_ = num_iter;
-  return {};
+  return true;
 }
 
-std::expected<void, std::string> PrimalDualInteriorPointSolver::setSigma(const double& sigma)
+bool PrimalDualInteriorPointSolver::setSigma(const double& sigma)
 {
   if (sigma <= 0.0 || 1.0 <= sigma) {
-    return std::unexpected("Sigma must be between 0 and 1.");
+    return false;
   }
 
   sigma_ = sigma;
-  return {};
+  return true;
 }
 
-std::expected<void, std::string> PrimalDualInteriorPointSolver::setAlphaTolerance(const double& alpha_tol)
+bool PrimalDualInteriorPointSolver::setAlphaTolerance(const double& alpha_tol)
 {
   if (alpha_tol <= 0.0 || 1.0 <= alpha_tol) {
-    return std::unexpected("Alpha tolerance must be between 0 and 1.");
+    return false;
   }
 
   alpha_tol_ = alpha_tol;
-  return {};
+  return true;
 }
 
-std::expected<void, std::string> PrimalDualInteriorPointSolver::initialize(const QuadProgProblem& scaled)
+bool PrimalDualInteriorPointSolver::initialize(const QuadProgProblem& scaled)
 {
   var_dim_ = scaled.q.rows();
   eq_dim_ = scaled.h.rows();
@@ -131,11 +136,10 @@ std::expected<void, std::string> PrimalDualInteriorPointSolver::initialize(const
   DualActiveSetSolver active_set_solver_;
   active_set_solver_.problem = scaled;
   active_set_solver_.x_scale = VectorXd::Ones(problem.varSize());
-  const auto theta = active_set_solver_.solve();
-  if (!theta) {
-    return std::unexpected(theta.error());
+  if (!active_set_solver_.solve()) {
+    return false;
   }
-  theta_ = std::move(*theta);
+  theta_ = active_set_solver_.solution();
 
   // Initialize inequality constraint Lagrange multipliers and slack variables to 1.
   lam_ = VectorXd::Ones(ineq_dim_);
@@ -144,7 +148,7 @@ std::expected<void, std::string> PrimalDualInteriorPointSolver::initialize(const
   A_ = MatrixXd::Zero(var_dim_ + eq_dim_, var_dim_ + eq_dim_);
   b_ = VectorXd::Zero(var_dim_ + eq_dim_);
 
-  return {};
+  return true;
 }
 
 double PrimalDualInteriorPointSolver::findAlpha(const VectorXd& dlam, const VectorXd& ds) const

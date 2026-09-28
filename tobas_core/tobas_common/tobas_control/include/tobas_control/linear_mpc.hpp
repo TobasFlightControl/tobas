@@ -3,9 +3,6 @@
 
 #pragma once
 
-#include <expected>
-#include <string>
-
 // #include <tobas_quadprog/quadprogpp.hpp>
 // #include <tobas_quadprog/qpoases.hpp>
 #include <tobas_quadprog/dual_active_set.hpp>
@@ -66,7 +63,10 @@ public:
 
   explicit LinearMPC();
 
-  std::expected<Eigen::VectorXd, std::string> solve();
+  bool solve();
+
+  inline const Eigen::VectorXd& optimalControlInput() const;
+  inline const std::string& errorMessage() const;
 
   friend std::ostream& operator<<(std::ostream& os, const LinearMPC& arg);
 
@@ -107,5 +107,15 @@ private:
   /* Create the overall inequality constraint matrix from the time series of inequality conditions A x <= b. */
   static Eigen::MatrixXd makeConstraintMatrix(const std::vector<LinearEquation>& ineqs, const Eigen::Index& H);
 };
+
+inline const Eigen::VectorXd& LinearMPC::optimalControlInput() const
+{
+  return last_input_;
+}
+
+inline const std::string& LinearMPC::errorMessage() const
+{
+  return qpsolver_.errorMessage();
+}
 }  // namespace ctrl
 }  // namespace tobas

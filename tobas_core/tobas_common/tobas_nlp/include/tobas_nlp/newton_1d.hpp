@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include <cstddef>
 #include <functional>
 
 namespace tobas
@@ -34,8 +33,8 @@ public:
   Error errorCode() const;
   const char* errorMessage() const;
 
-  void setMaximumIterations(size_t max_iter);
-  void setAbsoluteTolerance(double abs_tol);
+  bool setMaximumIterations(size_t max_iter);
+  bool setAbsoluteTolerance(double abs_tol);
 
 private:
   Error error_code_;

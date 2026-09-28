@@ -3,9 +3,6 @@
 
 #pragma once
 
-#include <expected>
-#include <string>
-
 #include <yaml-cpp/yaml.h>
 
 namespace tobas
@@ -26,8 +23,8 @@ enum class RcCommand
   kSpeedRollDPitch,
 };
 
-std::string rcCommandTextFromEnum(RcCommand cmd);
-std::expected<RcCommand, std::string> rcCommandEnumFromText(const std::string& text);
+std::string textFromEnum(RcCommand cmd);
+bool enumFromText(const std::string& text, RcCommand& dst);
 }  // namespace tobas
 
 namespace YAML

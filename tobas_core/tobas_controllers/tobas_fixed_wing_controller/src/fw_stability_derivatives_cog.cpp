@@ -12,14 +12,14 @@ StabilityDerivativesCG::StabilityDerivativesCG(const Drone& drone, const kdl::Tr
 {
 }
 
-std::expected<void, std::string> StabilityDerivativesCG::updateInternalDataStructures()
+bool StabilityDerivativesCG::updateInternalDataStructures()
 {
   inertia_solver_.updateInternalDataStructures();
 
   c_pitch_delta_cg_.clear();
   c_yaw_delta_cg_.clear();
 
-  return {};
+  return true;
 }
 
 int StabilityDerivativesCG::update(const kdl::JntArray& q)

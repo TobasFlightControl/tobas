@@ -17,11 +17,11 @@ class PrimalDualInteriorPointSolver : public QuadProgSolver
 public:
   explicit PrimalDualInteriorPointSolver();
 
-  std::expected<Eigen::VectorXd, std::string> solve() override;
+  bool solve() override;
 
-  std::expected<void, std::string> setNumberOfIterations(const size_t& num_iter);
-  std::expected<void, std::string> setSigma(const double& sigma);
-  std::expected<void, std::string> setAlphaTolerance(const double& alpha_tol);
+  bool setNumberOfIterations(const size_t& num_iter);
+  bool setSigma(const double& sigma);
+  bool setAlphaTolerance(const double& alpha_tol);
 
 private:
   size_t num_iter_ = 10;  // TODO
@@ -42,7 +42,7 @@ private:
   Eigen::MatrixXd A_;
   Eigen::VectorXd b_;
 
-  std::expected<void, std::string> initialize(const QuadProgProblem& scaled);
+  bool initialize(const QuadProgProblem& scaled);
   double findAlpha(const Eigen::VectorXd& dlam, const Eigen::VectorXd& ds) const;
 };
 }  // namespace quadprog

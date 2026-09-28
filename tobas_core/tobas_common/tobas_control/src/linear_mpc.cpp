@@ -3,6 +3,8 @@
 
 #include "tobas_control/linear_mpc.hpp"
 
+#include <iostream>
+
 #include <tobas_eigen_tools/core.hpp>
 
 using namespace Eigen;
@@ -15,7 +17,7 @@ LinearMPC::LinearMPC()
 {
 }
 
-std::expected<VectorXd, std::string> LinearMPC::solve()
+bool LinearMPC::solve()
 {
   // Initialization.
   if (is_first_solve_) {
@@ -115,16 +117,16 @@ std::expected<VectorXd, std::string> LinearMPC::solve()
   qpsolver_.x_scale.fill(1.0 / static_cast<double>(input_steps));
 
   // Solve the QP.
-  const auto dU = qpsolver_.solve();
-  if (!dU) {
-    return dU;
+  if (!qpsolver_.solve()) {
+    return false;
   }
 
   // Update the latest control input.
-  const auto du_scaled = dU->head(u_size_);
+  const auto& dU = qpsolver_.solution();
+  const auto du_scaled = dU.head(u_size_);
   last_input_ += du_scaled.cwiseProduct(input_scale);
 
-  return last_input_;
+  return true;
 }
 
 std::ostream& operator<<(std::ostream& os, const LinearMPC& arg)

@@ -3,9 +3,6 @@
 
 #pragma once
 
-#include <expected>
-#include <string>
-
 #include <cinttypes>
 
 namespace tobas
@@ -18,6 +15,6 @@ namespace linux
  *
  * @note As in pySerial, both `termios` in `termios.h` and `termios2` in `asm/termibits.h` must be configured.
  */
-std::expected<void, std::string> setNonStandardBaudRate(int fd, uint32_t baud_rate);
+bool setNonStandardBaudRate(int fd, uint32_t baud_rate);
 }  // namespace linux
 }  // namespace tobas

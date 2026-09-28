@@ -3,8 +3,7 @@
 
 #include "tobas_constants/rc_command.hpp"
 
-#include <expected>
-#include <string>
+#include <iostream>
 
 using namespace std;
 
@@ -26,7 +25,7 @@ constexpr char kPosVelAccAngleText[] = "pos_vel_acc_angle";
 constexpr char kSpeedRollDPitchText[] = "speed_roll_dpitch";
 }  // namespace
 
-string rcCommandTextFromEnum(RcCommand cmd)
+string textFromEnum(RcCommand cmd)
 {
   switch (cmd) {
     case RcCommand::kRateThrottle:
@@ -58,46 +57,59 @@ string rcCommandTextFromEnum(RcCommand cmd)
   }
 }
 
-std::expected<RcCommand, std::string> rcCommandEnumFromText(const std::string& text)
+bool enumFromText(const string& text, RcCommand& dst)
 {
   if (text == kRateThrottleText) {
-    return RcCommand::kRateThrottle;
+    dst = RcCommand::kRateThrottle;
+    return true;
   }
   else if (text == kRateThrottleVectorText) {
-    return RcCommand::kRateThrottleVector;
+    dst = RcCommand::kRateThrottleVector;
+    return true;
   }
   else if (text == kAngleThrottleText) {
-    return RcCommand::kAngleThrottle;
+    dst = RcCommand::kAngleThrottle;
+    return true;
   }
   else if (text == kAngleThrottleVectorText) {
-    return RcCommand::kAngleThrottleVector;
+    dst = RcCommand::kAngleThrottleVector;
+    return true;
   }
   else if (text == kAccelYawText) {
-    return RcCommand::kAccelYaw;
+    dst = RcCommand::kAccelYaw;
+    return true;
   }
   else if (text == kAccelPitchYawText) {
-    return RcCommand::kAccelPitchYaw;
+    dst = RcCommand::kAccelPitchYaw;
+    return true;
   }
   else if (text == kPosVelAccYawText) {
-    return RcCommand::kPosVelAccYaw;
+    dst = RcCommand::kPosVelAccYaw;
+    return true;
   }
   else if (text == kPosVelAccPitchYawText) {
-    return RcCommand::kPosVelAccPitchYaw;
+    dst = RcCommand::kPosVelAccPitchYaw;
+    return true;
   }
   else if (text == kAccelRateText) {
-    return RcCommand::kAccelRate;
+    dst = RcCommand::kAccelRate;
+    return true;
   }
   else if (text == kAccelAngleText) {
-    return RcCommand::kAccelAngle;
+    dst = RcCommand::kAccelAngle;
+    return true;
   }
   else if (text == kPosVelAccAngleText) {
-    return RcCommand::kPosVelAccAngle;
+    dst = RcCommand::kPosVelAccAngle;
+    return true;
   }
   else if (text == kSpeedRollDPitchText) {
-    return RcCommand::kSpeedRollDPitch;
+    dst = RcCommand::kSpeedRollDPitch;
+    return true;
   }
   else {
-    return std::unexpected("Invalid RC command string.");
+    cerr << "Invalid RC command: " << text << endl;
+    return false;
   }
 }
 }  // namespace tobas
@@ -107,8 +119,8 @@ namespace YAML
 Node convert<tobas::RcCommand>::encode(const tobas::RcCommand& rhs)
 {
   Node node;
-  node = tobas::rcCommandTextFromEnum(rhs);
-  return Node(tobas::rcCommandTextFromEnum(rhs));
+  node = tobas::textFromEnum(rhs);
+  return Node(tobas::textFromEnum(rhs));
 }
 
 bool convert<tobas::RcCommand>::decode(const Node& node, tobas::RcCommand& rhs)
@@ -117,12 +129,6 @@ bool convert<tobas::RcCommand>::decode(const Node& node, tobas::RcCommand& rhs)
     return false;
   }
 
-  const auto result = tobas::rcCommandEnumFromText(node.as<std::string>());
-  if (!result) {
-    return false;
-  }
-
-  rhs = *result;
-  return true;
+  return tobas::enumFromText(node.as<string>(), rhs);
 }
 }  // namespace YAML

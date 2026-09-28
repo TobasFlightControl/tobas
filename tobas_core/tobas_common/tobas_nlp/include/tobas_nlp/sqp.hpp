@@ -3,9 +3,6 @@
 
 #pragma once
 
-#include <expected>
-#include <string>
-
 #include <tobas_eigen_tools/tensor.hpp>
 #include <tobas_quadprog/dual_active_set.hpp>
 
@@ -16,6 +13,13 @@ namespace nlp
 class SQP
 {
 public:
+  enum Error
+  {
+    kNoError = 0,
+    kMaxIterationExceeded = -1,
+    kQpFailed = -2,
+  };
+
   explicit SQP();
 
   void initialize(
@@ -30,15 +34,21 @@ public:
     std::function<Eigen::Tensor3Xd(const Eigen::VectorXd&)> dGdx,
     std::function<Eigen::Tensor3Xd(const Eigen::VectorXd&)> dHdx);
 
-  std::expected<Eigen::VectorXd, std::string> solve();
+  Error solve();
 
-  inline size_t iterations() const;
+  const Eigen::VectorXd& optimal() const;
+  size_t iterations() const;
 
-  std::expected<void, std::string> setMaximumIterations(size_t max_iter);
-  std::expected<void, std::string> setRelativeTolerance(double rel_tol);
-  std::expected<void, std::string> setVariableScales(const Eigen::VectorXd& x_scale);
+  Error errorCode() const;
+  const char* errorMessage() const;
+
+  bool setMaximumIterations(size_t max_iter);
+  bool setRelativeTolerance(double rel_tol);
+  bool setVariableScales(const Eigen::VectorXd& x_scale);
 
 private:
+  Error error_code_;
+
   Eigen::Index n_;  // The number of optimization variables
   Eigen::Index m_;  // The number of inequality constraints
   Eigen::Index p_;  // The number of equality constraints
@@ -64,10 +74,5 @@ private:
   size_t max_iter_ = 100;
   double rel_tol_ = 1e-3;
 };
-
-inline size_t SQP::iterations() const
-{
-  return iter_;
-}
 }  // namespace nlp
 }  // namespace tobas

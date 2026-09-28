@@ -17,7 +17,7 @@ class QpOasesSolver : public QuadProgSolver
 public:
   explicit QpOasesSolver();
 
-  std::expected<Eigen::VectorXd, std::string> solve() override;
+  bool solve() override;
 
 private:
   int nWSR_ = 10;

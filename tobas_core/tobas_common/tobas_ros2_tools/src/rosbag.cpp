@@ -3,13 +3,15 @@
 
 #include "tobas_ros2_tools/rosbag.hpp"
 
+#include <iostream>
+
 #include <rosbag2_cpp/reindexer.hpp>
 
 namespace tobas
 {
 namespace ros2
 {
-std::expected<void, std::string> reindexRosBag(const std::string& uri, const std::string& storage_id) noexcept
+bool reindexRosBag(const std::string& uri, const std::string& storage_id) noexcept
 {
   rosbag2_cpp::Reindexer reindexer;
 
@@ -21,10 +23,11 @@ std::expected<void, std::string> reindexRosBag(const std::string& uri, const std
     reindexer.reindex(options);
   }
   catch (const std::exception& e) {
-    return std::unexpected("Failed to reindex " + uri + ": " + e.what());
+    std::cerr << "Failed to reindex " << uri + ": " << e.what() << std::endl;
+    return false;
   }
 
-  return {};
+  return true;
 }
 }  // namespace ros2
 }  // namespace tobas

@@ -20,7 +20,7 @@ class DualActiveSetSolver : public QuadProgSolver
 public:
   explicit DualActiveSetSolver();
 
-  std::expected<Eigen::VectorXd, std::string> solve() override;
+  bool solve() override;
 
   /* Get the Lagrange multipliers of the equality constraints. */
   Eigen::VectorXd getLagrangeMultipliersEq() const;
@@ -58,7 +58,7 @@ private:
   std::vector<bool> iaexcl_;
 
   void update_r();
-  std::expected<void, std::string> addConstraint();
+  bool addConstraint();
   void deleteConstraint(const Eigen::Index& l);
 
   // Euclidean distance between two numbers.

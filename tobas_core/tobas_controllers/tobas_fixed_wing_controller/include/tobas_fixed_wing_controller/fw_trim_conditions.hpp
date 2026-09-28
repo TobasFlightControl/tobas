@@ -22,7 +22,7 @@ class TrimConditions : public SolverI
 public:
   explicit TrimConditions(const Drone& drone, const kdl::Tree& tree);
 
-  std::expected<void, std::string> updateInternalDataStructures() override;
+  bool updateInternalDataStructures() override;
 
   /**
    * @brief Update the internal state.
