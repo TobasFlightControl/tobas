@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <expected>
 #include <string>
 
 #include <urdf_model/types.h>
@@ -19,19 +20,15 @@ class TreeParser
 public:
   explicit TreeParser();
 
-  bool parseFromPath(const std::string& path, Tree& tree);
-  bool parseFromText(const std::string& xml, Tree& tree);
-  bool parseFromUrdf(const ::urdf::ModelInterface& model, Tree& tree);
-
-  const std::string& errorMessage() const;
+  std::expected<void, std::string> parseFromPath(const std::string& path, Tree& tree);
+  std::expected<void, std::string> parseFromText(const std::string& xml, Tree& tree);
+  std::expected<void, std::string> parseFromUrdf(const ::urdf::ModelInterface& model, Tree& tree);
 
 private:
-  std::string error_msg_;
-
   urdf::Parser urdf_parser_;
 
   /* Recursive function to walk through tree. */
-  static void addChildrenToTree(const ::urdf::LinkConstSharedPtr& root, Tree& tree);
+  static std::expected<void, std::string> addChildrenToTree(const ::urdf::LinkConstSharedPtr& root, Tree& tree);
 };
 }  // namespace kdl
 }  // namespace tobas

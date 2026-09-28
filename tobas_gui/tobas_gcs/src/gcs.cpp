@@ -529,8 +529,8 @@ void GroundControlStationWidget::onLoadButtonClicked()
   // Load KDL tree.
   uadf::Model next_uadf;
   const auto uadf_path = proj_paths.originalUadfPath();
-  if (!uadf_parser_.parseFromPath(uadf_path.toStdString(), next_uadf)) {
-    qt::qErrorBox(this, "Failed to parse UADF:\n\n" + QString::fromStdString(uadf_parser_.errorMessage()));
+  if (const auto result = uadf_parser_.parseFromPath(uadf_path.toStdString(), next_uadf); !result) {
+    qt::qErrorBox(this, "Failed to parse UADF:\n\n" + QString::fromStdString(result.error()));
     return;
   }
   kdl::Tree next_tree;

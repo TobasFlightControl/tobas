@@ -258,8 +258,8 @@ void SetupAssistantWidget::onNewButtonClicked()
   }
 
   // Load UADF.
-  if (!uadf_parser_.parseFromText(uadf_text, uadf_)) {
-    qt::qErrorBox(this, "Failed to parse UADF:\n\n" + QString::fromStdString(uadf_parser_.errorMessage()));
+  if (const auto result = uadf_parser_.parseFromText(uadf_text, uadf_); !result) {
+    qt::qErrorBox(this, "Failed to parse UADF:\n\n" + QString::fromStdString(result.error()));
     reset();
     return;
   }
@@ -362,8 +362,8 @@ void SetupAssistantWidget::onLoadButtonClicked()
   }
 
   // Load the backup UADF whose mesh paths are resolved.
-  if (!uadf_parser_.parseFromXml(&uadf_doc, uadf_)) {
-    qt::qErrorBox(this, "Failed to parse UADF:\n\n" + QString::fromStdString(uadf_parser_.errorMessage()));
+  if (const auto result = uadf_parser_.parseFromXml(&uadf_doc, uadf_); !result) {
+    qt::qErrorBox(this, "Failed to parse UADF:\n\n" + QString::fromStdString(result.error()));
     reset();
     return;
   }
