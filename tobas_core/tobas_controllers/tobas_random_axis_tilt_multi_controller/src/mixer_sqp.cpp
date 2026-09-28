@@ -21,29 +21,25 @@ SqpMixer::SqpMixer(const Drone& drone, const kdl::Tree& tree)
 {
 }
 
-bool SqpMixer::updateInternalDataStructures()
+std::expected<void, std::string> SqpMixer::updateInternalDataStructures()
 {
-  if (!super::updateInternalDataStructures()) {
-    return false;
+  if (const auto result = super::updateInternalDataStructures(); !result) {
+    return result;
   }
 
   joint_parser_.updateInternalDataStructures();
   fk_solver_.updateInternalDataStructures();
   inertia_solver_.updateInternalDataStructures();
-  if (!np_mixer_.updateInternalDataStructures()) {
-    return false;
+  if (const auto result = np_mixer_.updateInternalDataStructures(); !result) {
+    return result;
   }
 
   resetTensors();
 
-  if (!initializeSQP()) {
-    return false;
-  }
-
-  return true;
+  return initializeSQP();
 }
 
-bool SqpMixer::solve(
+std::expected<void, std::string> SqpMixer::solve(
   const kdl::JntArray& cur_q,
   const kdl::Rotation& cur_rot,
   const kdl::Vector& cur_gyro_B,
@@ -54,14 +50,12 @@ bool SqpMixer::solve(
 {
   // Compute forward kinematics.
   if (fk_solver_.jntToCart(cur_q) < 0) {
-    std::cerr << "Forward kinematics failed: " << fk_solver_.errorMessage() << std::endl;
-    return false;
+    return std::unexpected("Forward kinematics failed: " + fk_solver_.errorMessage());
   }
 
   // Compute mass properties.
   if (inertia_solver_.jntToCart(cur_q) < 0) {
-    std::cerr << "Inertia solver failed: " << inertia_solver_.errorMessage() << std::endl;
-    return false;
+    return std::unexpected("Inertia solver failed: " + inertia_solver_.errorMessage());
   }
   const auto& inertia = inertia_solver_.getInertia();
   const auto& mass = inertia.getMass();
@@ -123,12 +117,11 @@ bool SqpMixer::solve(
   // Solve the SQP.
   const auto x_opt = sqp_.solve();
   if (!x_opt) {
-    std::cerr << "SQP failed: " << x_opt.error() << std::endl;
-    return false;
+    return std::unexpected("SQP failed: " + x_opt.error());
   }
   x_opt_ = std::move(*x_opt);
 
-  return true;
+  return {};
 }
 
 double SqpMixer::getThrust(size_t idx) const
@@ -144,7 +137,6 @@ double SqpMixer::getTiltAngle(size_t idx) const
 bool SqpMixer::setLinearWeight(double p)
 {
   if (p <= 0.0) {
-    std::cerr << "Linear weight must be positive." << std::endl;
     return false;
   }
 
@@ -155,7 +147,6 @@ bool SqpMixer::setLinearWeight(double p)
 bool SqpMixer::setAngularWeight(double p)
 {
   if (p <= 0.0) {
-    std::cerr << "Angular weight must be positive." << std::endl;
     return false;
   }
 
@@ -166,7 +157,6 @@ bool SqpMixer::setAngularWeight(double p)
 bool SqpMixer::setThrustWeight(double p)
 {
   if (p <= 0.0) {
-    std::cerr << "Thrust weight must be positive." << std::endl;
     return false;
   }
 
@@ -212,14 +202,14 @@ void SqpMixer::resetTensors()
   df_dx_2_.conservativeResize(2 * nr, 2 * nr);
 }
 
-bool SqpMixer::initializeSQP()
+std::expected<void, std::string> SqpMixer::initializeSQP()
 {
   const auto q0 = kdl::JntArray::Zero(tree_.getNrOfJoints());
   const auto R0 = kdl::Rotation::Identity();
   const auto v0 = kdl::Vector::Zero();
-  if (!np_mixer_.solve(q0, R0, v0, v0, v0)) {
-    std::cerr << "Failed to solve the Non-planar mixer." << std::endl;
-    return false;
+
+  if (const auto result = np_mixer_.solve(q0, R0, v0, v0, v0); !result) {
+    return std::unexpected("Failed to solve the Non-planar mixer: " + result.error());
   }
 
   const auto nr = drone_.prop->numRotors();
@@ -239,7 +229,7 @@ bool SqpMixer::initializeSQP()
     std::bind(&self::dGdx, this, std::placeholders::_1),
     std::bind(&self::dHdx, this, std::placeholders::_1));
 
-  return true;
+  return {};
 }
 
 double SqpMixer::f(const Eigen::VectorXd& x)

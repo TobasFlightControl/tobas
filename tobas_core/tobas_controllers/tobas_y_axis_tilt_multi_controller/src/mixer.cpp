@@ -16,10 +16,10 @@ Mixer::Mixer(const Drone& drone, const kdl::Tree& tree) : super(drone, tree), fk
 {
 }
 
-bool Mixer::updateInternalDataStructures()
+std::expected<void, std::string> Mixer::updateInternalDataStructures()
 {
-  if (!super::updateInternalDataStructures()) {
-    return false;
+  if (const auto result = super::updateInternalDataStructures(); !result) {
+    return result;
   }
 
   fk_solver_.updateInternalDataStructures();
@@ -27,8 +27,7 @@ bool Mixer::updateInternalDataStructures()
 
   // Compute forward kinematics.
   if (fk_solver_.jntToCart(kdl::JntArray::Zero(tree_.getNrOfJoints())) < 0) {
-    std::cerr << fk_solver_.errorMessage() << std::endl;
-    return false;
+    return std::unexpected("Forward kinematics failed: " + fk_solver_.errorMessage());
   }
 
   const auto nr = drone_.prop->numRotors();
@@ -67,17 +66,16 @@ bool Mixer::updateInternalDataStructures()
       const auto tilt_axis = B_T_gpar.M * par_elem.segment.joint().axis();  // Tilt axis viewed from the base link.
       const auto tilt_axis_y = tilt_axis.normalized().y();
       if (!math::isClose(std::abs(tilt_axis_y), 1.0)) {
-        std::cerr << "Tilt axis must be parallel to the Y axis." << std::endl;
-        return false;
+        return std::unexpected("Tilt axis must be parallel to the Y axis.");
       }
       info.sign = math::sign(tilt_axis_y);
     }
   }
 
-  return true;
+  return {};
 }
 
-bool Mixer::solve(
+std::expected<void, std::string> Mixer::solve(
   const kdl::JntArray& cur_q,
   const kdl::Vector& cur_gyro_B,
   const kdl::Vector& tar_dgyro_B,
@@ -87,14 +85,12 @@ bool Mixer::solve(
 {
   // Compute forward kinematics.
   if (fk_solver_.jntToCart(cur_q) < 0) {
-    std::cerr << "Forward kinematics failed: " << fk_solver_.errorMessage() << std::endl;
-    return false;
+    return std::unexpected("Forward kinematics failed: " + fk_solver_.errorMessage());
   }
 
   // Compute mass properties.
   if (inertia_solver_.jntToCart(cur_q) < 0) {
-    std::cerr << "Inertia solver failed: " << inertia_solver_.errorMessage() << std::endl;
-    return false;
+    return std::unexpected("Inertia solver failed: " + inertia_solver_.errorMessage());
   }
   const auto& inertia = inertia_solver_.getInertia();
   const auto B_Pos_B2G = inertia.getCOG();
@@ -178,7 +174,7 @@ bool Mixer::solve(
   // TODO: Consider constraints on the absolute thrust value; a convex optimization problem may work well.
   x_ = E_.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(f_);
 
-  return true;
+  return {};
 }
 
 double Mixer::getThrust(size_t idx) const

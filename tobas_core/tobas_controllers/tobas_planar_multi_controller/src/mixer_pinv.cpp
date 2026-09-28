@@ -14,10 +14,10 @@ PinvMixer::PinvMixer(const Drone& drone, const kdl::Tree& tree)
 {
 }
 
-bool PinvMixer::updateInternalDataStructures()
+std::expected<void, std::string> PinvMixer::updateInternalDataStructures()
 {
-  if (!super::updateInternalDataStructures()) {
-    return false;
+  if (const auto result = super::updateInternalDataStructures(); !result) {
+    return result;
   }
 
   fk_solver_.updateInternalDataStructures();
@@ -28,10 +28,10 @@ bool PinvMixer::updateInternalDataStructures()
 
   x_.conservativeResize(drone_.prop->numRotors());
 
-  return true;
+  return {};
 }
 
-bool PinvMixer::solve(
+std::expected<void, std::string> PinvMixer::solve(
   const kdl::JntArray& cur_q,
   const kdl::Vector& cur_gyro_B,
   const kdl::Vector& tar_dgyro_B,
@@ -42,14 +42,12 @@ bool PinvMixer::solve(
 
   // Compute forward kinematics.
   if (fk_solver_.jntToCart(cur_q) < 0) {
-    std::cerr << "Forward kinematics failed: " << fk_solver_.errorMessage() << std::endl;
-    return false;
+    return std::unexpected("Forward kinematics failed: " + fk_solver_.errorMessage());
   }
 
   // Compute mass properties.
   if (inertia_solver_.jntToCart(cur_q) < 0) {
-    std::cerr << "Inertia solver failed: " << inertia_solver_.errorMessage() << std::endl;
-    return false;
+    return std::unexpected("Inertia solver failed: " + inertia_solver_.errorMessage());
   }
   const auto& inertia = inertia_solver_.getInertia();
   const auto B_Pos_B2G = inertia.getCOG();
@@ -87,7 +85,7 @@ bool PinvMixer::solve(
   // TODO: Assign per-row priorities (`atti > thrust > yaw`) when `Rank(E) < 4` and the equation cannot be solved.
   x_ = E_.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(f_);
 
-  return true;
+  return {};
 }
 
 double PinvMixer::getThrust(size_t idx) const

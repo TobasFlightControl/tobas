@@ -18,10 +18,10 @@ PinvMixer::PinvMixer(const Drone& drone, const kdl::Tree& tree)
 {
 }
 
-bool PinvMixer::updateInternalDataStructures()
+std::expected<void, std::string> PinvMixer::updateInternalDataStructures()
 {
-  if (!super::updateInternalDataStructures()) {
-    return false;
+  if (const auto result = super::updateInternalDataStructures(); !result) {
+    return result;
   }
 
   fk_solver_.updateInternalDataStructures();
@@ -59,10 +59,10 @@ bool PinvMixer::updateInternalDataStructures()
     }
   }
 
-  return true;
+  return {};
 }
 
-bool PinvMixer::solve(
+std::expected<void, std::string> PinvMixer::solve(
   const kdl::JntArray& cur_q,
   const kdl::Rotation& cur_rot,
   const kdl::Vector& cur_gyro_B,
@@ -73,14 +73,12 @@ bool PinvMixer::solve(
 {
   // Compute forward kinematics.
   if (fk_solver_.jntToCart(cur_q) < 0) {
-    std::cerr << "Forward kinematics failed: " << fk_solver_.errorMessage() << std::endl;
-    return false;
+    return std::unexpected("Forward kinematics failed: " + fk_solver_.errorMessage());
   }
 
   // Compute mass properties.
   if (inertia_solver_.jntToCart(cur_q) < 0) {
-    std::cerr << "Inertia solver failed: " << inertia_solver_.errorMessage() << std::endl;
-    return false;
+    return std::unexpected("Inertia solver failed: " + inertia_solver_.errorMessage());
   }
   const auto& inertia = inertia_solver_.getInertia();
   const auto& mass = inertia.getMass();
@@ -182,7 +180,7 @@ bool PinvMixer::solve(
     }
   }
 
-  return true;
+  return {};
 }
 
 double PinvMixer::getThrust(size_t idx) const
@@ -200,7 +198,6 @@ double PinvMixer::getTiltAngle(size_t idx) const
 bool PinvMixer::setTiltAxisSingularDeclinationLB(double lb_rad)
 {
   if (lb_rad < 0.0) {
-    std::cerr << "The lower bind of singular tilt axis declination must be non-negative." << std::endl;
     return false;
   }
 
@@ -211,7 +208,6 @@ bool PinvMixer::setTiltAxisSingularDeclinationLB(double lb_rad)
 bool PinvMixer::setTiltAxisSingularDeclinationUB(double ub_rad)
 {
   if (ub_rad < 0.0) {
-    std::cerr << "The upper bind of singular tilt axis declination must be non-negative." << std::endl;
     return false;
   }
 

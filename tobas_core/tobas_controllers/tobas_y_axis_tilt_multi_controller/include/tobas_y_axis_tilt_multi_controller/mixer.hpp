@@ -20,9 +20,9 @@ class Mixer : public MixerI
 public:
   explicit Mixer(const Drone& drone, const kdl::Tree& tree);
 
-  bool updateInternalDataStructures() override;
+  std::expected<void, std::string> updateInternalDataStructures() override;
 
-  bool solve(
+  std::expected<void, std::string> solve(
     const kdl::JntArray& cur_q,
     const kdl::Vector& cur_gyro_B,
     const kdl::Vector& tar_dgyro_B,

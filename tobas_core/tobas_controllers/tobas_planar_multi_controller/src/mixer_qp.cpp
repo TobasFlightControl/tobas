@@ -20,10 +20,10 @@ QpMixer::QpMixer(const Drone& drone, const kdl::Tree& tree)
 {
 }
 
-bool QpMixer::updateInternalDataStructures()
+std::expected<void, std::string> QpMixer::updateInternalDataStructures()
 {
-  if (!super::updateInternalDataStructures()) {
-    return false;
+  if (const auto result = super::updateInternalDataStructures(); !result) {
+    return result;
   }
 
   fk_solver_.updateInternalDataStructures();
@@ -31,10 +31,10 @@ bool QpMixer::updateInternalDataStructures()
 
   resizeAndFill();
 
-  return true;
+  return {};
 }
 
-bool QpMixer::solve(
+std::expected<void, std::string> QpMixer::solve(
   const kdl::JntArray& cur_q,
   const kdl::Vector& cur_gyro_B,
   const kdl::Vector& tar_dgyro_B,
@@ -42,20 +42,17 @@ bool QpMixer::solve(
   const kdl::Vector& ext_torque_B)
 {
   if (tar_thrusts_sum < 0.0) {
-    std::cerr << "Target thrust must be non-negative: " << tar_thrusts_sum << " < 0" << std::endl;
-    return false;
+    return std::unexpected("Target thrust must be non-negative: " + std::to_string(tar_thrusts_sum) + " < 0");
   }
 
   // Compute forward kinematics.
   if (fk_solver_.jntToCart(cur_q) < 0) {
-    std::cerr << "Forward kinematics failed: " << fk_solver_.errorMessage() << std::endl;
-    return false;
+    return std::unexpected("Forward kinematics failed: " + fk_solver_.errorMessage());
   }
 
   // Compute mass properties.
   if (inertia_solver_.jntToCart(cur_q) < 0) {
-    std::cerr << "Inertia solver failed: " << inertia_solver_.errorMessage() << std::endl;
-    return false;
+    return std::unexpected("Inertia solver failed: " + inertia_solver_.errorMessage());
   }
   const auto& inertia = inertia_solver_.getInertia();
   const auto& mass = inertia.getMass();
@@ -122,8 +119,7 @@ bool QpMixer::solve(
 
   // Exit if thrust cannot be generated.
   if (max_thrust_sum == 0.0) {
-    std::cerr << "The vehicle cannot generate thrust." << std::endl;
-    return false;
+    return std::unexpected("The vehicle cannot generate thrust.");
   }
 
   // Equality constraints.
@@ -134,12 +130,11 @@ bool QpMixer::solve(
   // Solve the QPP.
   const auto thrusts = qp_.solve();
   if (!thrusts) {
-    std::cerr << "QP failed: " << thrusts.error() << std::endl;
-    return false;
+    return std::unexpected("QP failed: " + thrusts.error());
   }
   thrusts_ = std::move(*thrusts);
 
-  return true;
+  return {};
 }
 
 double QpMixer::getThrust(size_t idx) const
@@ -150,7 +145,6 @@ double QpMixer::getThrust(size_t idx) const
 bool QpMixer::setBaseWeight(double p)
 {
   if (p <= 0.0) {
-    std::cerr << "Base weight must be positive." << std::endl;
     return false;
   }
 
@@ -161,7 +155,6 @@ bool QpMixer::setBaseWeight(double p)
 bool QpMixer::setThrustWeight(double p)
 {
   if (p <= 0.0) {
-    std::cerr << "Thrust weight must be positive." << std::endl;
     return false;
   }
 

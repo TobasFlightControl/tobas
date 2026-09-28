@@ -20,10 +20,10 @@ QpMixer::QpMixer(const Drone& drone, const kdl::Tree& tree)
 {
 }
 
-bool QpMixer::updateInternalDataStructures()
+std::expected<void, std::string> QpMixer::updateInternalDataStructures()
 {
-  if (!super::updateInternalDataStructures()) {
-    return false;
+  if (const auto result = super::updateInternalDataStructures(); !result) {
+    return result;
   }
 
   fk_solver_.updateInternalDataStructures();
@@ -31,10 +31,10 @@ bool QpMixer::updateInternalDataStructures()
 
   resizeAndFill();
 
-  return true;
+  return {};
 }
 
-bool QpMixer::solve(
+std::expected<void, std::string> QpMixer::solve(
   const kdl::JntArray& cur_q,
   const kdl::Rotation& cur_rot,
   const kdl::Vector& cur_gyro_B,
@@ -45,14 +45,12 @@ bool QpMixer::solve(
 {
   // Compute forward kinematics.
   if (fk_solver_.jntToCart(cur_q) < 0) {
-    std::cerr << "Forward kinematics failed: " << fk_solver_.errorMessage() << std::endl;
-    return false;
+    return std::unexpected("Forward kinematics failed: " + fk_solver_.errorMessage());
   }
 
   // Compute mass properties.
   if (inertia_solver_.jntToCart(cur_q) < 0) {
-    std::cerr << "Inertia solver failed: " << inertia_solver_.errorMessage() << std::endl;
-    return false;
+    return std::unexpected("Inertia solver failed: " + inertia_solver_.errorMessage());
   }
   const auto& inertia = inertia_solver_.getInertia();
   const auto& mass = inertia.getMass();
@@ -123,12 +121,11 @@ bool QpMixer::solve(
   // Solve the QPP.
   const auto thrusts = qp_.solve();
   if (!thrusts) {
-    std::cerr << "QP failed: " << thrusts.error() << std::endl;
-    return false;
+    return std::unexpected("QP failed: " + thrusts.error());
   }
   thrusts_ = std::move(*thrusts);
 
-  return true;
+  return {};
 }
 
 const Eigen::VectorXd& QpMixer::getThrusts() const
@@ -144,7 +141,6 @@ double QpMixer::getThrust(size_t idx) const
 bool QpMixer::setLinearWeight(double p)
 {
   if (p <= 0.0) {
-    std::cerr << "Linear weight must be positive." << std::endl;
     return false;
   }
 
@@ -155,7 +151,6 @@ bool QpMixer::setLinearWeight(double p)
 bool QpMixer::setAngularWeight(double p)
 {
   if (p <= 0.0) {
-    std::cerr << "Angular weight must be positive." << std::endl;
     return false;
   }
 
@@ -166,7 +161,6 @@ bool QpMixer::setAngularWeight(double p)
 bool QpMixer::setThrustWeight(double p)
 {
   if (p <= 0.0) {
-    std::cerr << "Thrust weight must be positive." << std::endl;
     return false;
   }
 

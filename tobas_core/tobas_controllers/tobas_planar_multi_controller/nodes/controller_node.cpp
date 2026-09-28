@@ -237,7 +237,8 @@ bool ControllerNode::updateInternalDataStructures()
   mass_holder_.updateInternalDataStructures();
   js_converter_.updateInternalDataStructures();
   trans_eom_.updateInternalDataStructures();
-  if (!mixer_.updateInternalDataStructures()) {
+  if (const auto result = mixer_.updateInternalDataStructures(); !result) {
+    TOBAS_ERROR("Failed to update the mixer: ", result.error());
     return false;
   }
 
@@ -598,8 +599,10 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
     // Mixer.
     {
       const auto& dist_torque_B = do_dist_comp_rot_ ? dist_force_->wrench.torque : kdl::Vector::Zero();
-      if (!mixer_.solve(js_converter_.getPosition(), cur_gyro_B, tar_dgyro_, tar_thrust_, dist_torque_B)) {
-        TOBAS_FATAL("Failed to solve the mixing equation.");
+      const auto result = mixer_.solve(js_converter_.getPosition(), cur_gyro_B, tar_dgyro_, tar_thrust_, dist_torque_B);
+      if (!result) {
+        TOBAS_FATAL("Failed to solve the mixing equation: ", result.error());
+        // TODO: Defensive behavior
         return;
       }
 
@@ -680,8 +683,8 @@ void ControllerNode::rotorLivelinessCb(const tobas_msgs::msg::RotorLivelinessArr
   }
 
   for (const auto& data : rotor_liveliness->data) {
-    if (!mixer_.setRotorLiveliness(data.link_name, data.alive)) {
-      TOBAS_ERROR("Failed to set the liveliness of rotor '", data.link_name, "'.");
+    if (const auto result = mixer_.setRotorLiveliness(data.link_name, data.alive); !result) {
+      TOBAS_ERROR("Failed to set rotor liveliness: ", result.error());
     }
   }
 }

@@ -3,6 +3,9 @@
 
 #pragma once
 
+#include <expected>
+#include <string>
+
 #include <tobas_drone_core/drone.hpp>
 #include <tobas_kdl/tree.hpp>
 
@@ -16,9 +19,9 @@ class MixerI
 public:
   explicit MixerI(const Drone& drone, const kdl::Tree& tree);
 
-  virtual bool updateInternalDataStructures();
+  virtual std::expected<void, std::string> updateInternalDataStructures();
 
-  bool setRotorLiveliness(const std::string& link_name, bool alive);
+  std::expected<void, std::string> setRotorLiveliness(const std::string& link_name, bool alive);
 
   inline bool isInitialized() const;
 
@@ -30,14 +33,11 @@ protected:
 
   /* Set tiny thrust values below the threshold to zero. */
   inline double thrustDeadband(double thrust) const;
-
-private:
-  bool is_initialized_ = false;
 };
 
 inline bool MixerI::isInitialized() const
 {
-  return is_initialized_;
+  return rotor_alive_.size() > 0;
 }
 
 inline double MixerI::thrustDeadband(double thrust) const
