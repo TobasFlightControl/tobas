@@ -14,17 +14,15 @@ TransformListener::TransformListener(rclcpp::Node::SharedPtr node)
 {
 }
 
-bool TransformListener::lookupTransform(const string& parent, const string& child, const rclcpp::Time& time)
+std::expected<geometry_msgs::msg::TransformStamped, std::string>
+TransformListener::lookupTransform(const string& parent, const string& child, const rclcpp::Time& time)
 {
   try {
-    tf_ = tf_buffer_.lookupTransform(parent, child, time);
+    return tf_buffer_.lookupTransform(parent, child, time);
   }
-  catch (tf2::TransformException& e) {
-    error_msg_ = e.what();
-    return false;
+  catch (const tf2::TransformException& e) {
+    return std::unexpected(std::string(e.what()));
   }
-
-  return true;
 }
 }  // namespace ros2
 }  // namespace tobas

@@ -200,13 +200,14 @@ bool EffortControllerNode::taskSpaceControl(
   kdl::AccelMap a_ff;
   kdl::WrenchMap f_ext;
   for (const auto& ls : tar_ls.states) {
-    if (!tf_listener_->lookupTransform(tree_.getRootName(), tar_ls.header.frame_id)) {
-      TOBAS_ERROR(tf_listener_->getErrorMessage());
+    const auto transform = tf_listener_->lookupTransform(tree_.getRootName(), tar_ls.header.frame_id);
+    if (!transform) {
+      TOBAS_ERROR(transform.error());
       continue;
     }
 
     // Convert values expressed in the parent frame to values expressed in the base link.
-    kdl::transformMsgToKDL(tf_listener_->getTransform().transform, T_Base_Parent);
+    kdl::transformMsgToKDL(transform->transform, T_Base_Parent);
     tar_p[ls.name] = T_Base_Parent * ls.frame;
     tar_v[ls.name] = T_Base_Parent.M * ls.twist;
     a_ff[ls.name] = T_Base_Parent.M * ls.accel;
