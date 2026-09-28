@@ -3,20 +3,17 @@
 
 #include "tobas_control/equations.hpp"
 
-using namespace std;
-using namespace Eigen;
-
 namespace tobas
 {
 namespace ctrl
 {
-LinearEquation LinearEquation::scale(const VectorXd& scale) const
+LinearEquation LinearEquation::scale(const Eigen::VectorXd& scale) const
 {
   assert(scale.rows() == variableSize());
   assert((scale.array() > 0).all());
 
   auto res = *this;
-  for (Index c = 0; c < variableSize(); ++c) {
+  for (Eigen::Index c = 0; c < variableSize(); ++c) {
     res.A.col(c) *= scale(c);
   }
 
@@ -32,12 +29,12 @@ LinearEquation LinearEquation::discretise(const double& dt) const
   return res;
 }
 
-ostream& operator<<(ostream& os, const LinearEquation& arg)
+std::ostream& operator<<(std::ostream& os, const LinearEquation& arg)
 {
-  os << "A:" << endl;
-  os << arg.A << endl;
-  os << "b:" << endl;
-  os << arg.b << endl;
+  os << "A:" << std::endl;
+  os << arg.A << std::endl;
+  os << "b:" << std::endl;
+  os << arg.b << std::endl;
 
   return os;
 }

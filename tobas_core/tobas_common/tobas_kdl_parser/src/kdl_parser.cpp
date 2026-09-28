@@ -5,8 +5,6 @@
 
 #include <tobas_kdl_conversions/kdl_urdf.hpp>
 
-using namespace std;
-
 namespace tobas
 {
 namespace kdl
@@ -15,7 +13,7 @@ TreeParser::TreeParser()
 {
 }
 
-std::expected<Tree, std::string> TreeParser::parseFromPath(const string& path)
+std::expected<Tree, std::string> TreeParser::parseFromPath(const std::string& path)
 {
   const auto model = urdf_parser_.parseFromPath(path);
   if (!model) {
@@ -25,7 +23,7 @@ std::expected<Tree, std::string> TreeParser::parseFromPath(const string& path)
   return parseFromUrdf(**model);
 }
 
-std::expected<Tree, std::string> TreeParser::parseFromText(const string& xml)
+std::expected<Tree, std::string> TreeParser::parseFromText(const std::string& xml)
 {
   const auto model = urdf_parser_.parseFromText(xml);
   if (!model) {

@@ -5,21 +5,23 @@
 
 #include <tobas_eigen_tools/core.hpp>
 
-using namespace std;
-using namespace Eigen;
-
 namespace tobas
 {
 namespace quadprog
 {
-void matIneqFromRange(const VectorXd& lb, const VectorXd& ub, MatrixXd& A, VectorXd& b, const double inf)
+void matIneqFromRange(
+  const Eigen::VectorXd& lb,
+  const Eigen::VectorXd& ub,
+  Eigen::MatrixXd& A,
+  Eigen::VectorXd& b,
+  const double inf)
 {
   assert(lb.rows() == ub.rows());
   assert(((ub - lb).array() >= 0.0).all());
 
   const auto size = lb.rows();
 
-  const MatrixXd E = MatrixXd::Identity(size, size);
+  const Eigen::MatrixXd E = Eigen::MatrixXd::Identity(size, size);
   const auto left = eigen::concat(-E, E, 0);
   const auto right = eigen::concat(-lb, ub, 0);
   const auto is_valid = (right.array().abs() < inf).eval();

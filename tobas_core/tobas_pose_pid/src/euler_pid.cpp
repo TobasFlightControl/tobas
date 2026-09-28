@@ -8,8 +8,6 @@
 
 #include "./util.hpp"
 
-using namespace std;
-
 namespace tobas
 {
 EulerPID::EulerPID()
@@ -50,7 +48,7 @@ bool EulerPID::setNaturalFreq(int idx, double value)
   }
 
   if (value < 0.0) {
-    cerr << "Natural frequency must be non-negative." << endl;
+    std::cerr << "Natural frequency must be non-negative." << std::endl;
     return false;
   }
 
@@ -67,7 +65,7 @@ bool EulerPID::setDampingRatio(int idx, double value)
   }
 
   if (value < 0.0) {
-    cerr << "Damping ratio must be non-negative." << endl;
+    std::cerr << "Damping ratio must be non-negative." << std::endl;
     return false;
   }
 
@@ -84,7 +82,7 @@ bool EulerPID::setIntegralGain(int idx, double value)
   }
 
   if (value < 0.0) {
-    cerr << "Integral gain must be non-negative." << endl;
+    std::cerr << "Integral gain must be non-negative." << std::endl;
     return false;
   }
 

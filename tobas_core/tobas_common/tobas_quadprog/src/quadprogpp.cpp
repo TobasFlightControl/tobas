@@ -5,36 +5,34 @@
 
 #include <QuadProg++/QuadProg++.hh>
 
-using namespace Eigen;
-
 namespace quadprogpp
 {
-void matrixEigenToQp(const MatrixXd& e, Matrix<double>& q)
+void matrixEigenToQp(const Eigen::MatrixXd& e, Matrix<double>& q)
 {
   if (q.nrows() != e.rows() || q.ncols() != e.cols()) {
     q.resize(e.rows(), e.cols());
   }
 
-  for (Index i = 0; i < e.rows(); ++i) {
-    for (Index j = 0; j < e.cols(); ++j) {
+  for (Eigen::Index i = 0; i < e.rows(); ++i) {
+    for (Eigen::Index j = 0; j < e.cols(); ++j) {
       q[i][j] = e(i, j);
     }
   }
 }
 
-void matrixQpToEigen(const Matrix<double>& q, MatrixXd& e)
+void matrixQpToEigen(const Matrix<double>& q, Eigen::MatrixXd& e)
 {
   // Eigen cannot be resized casually here, so ensure the argument already has the correct size.
   assert(e.rows() == q.nrows() && e.cols() == q.ncols());
 
-  for (Index i = 0; i < e.rows(); ++i) {
-    for (Index j = 0; j < e.cols(); ++j) {
+  for (Eigen::Index i = 0; i < e.rows(); ++i) {
+    for (Eigen::Index j = 0; j < e.cols(); ++j) {
       e(i, j) = q[i][j];
     }
   }
 }
 
-void vectorEigenToQp(const VectorXd& e, Vector<double>& q)
+void vectorEigenToQp(const Eigen::VectorXd& e, Vector<double>& q)
 {
   assert(e.cols() == 1);
 
@@ -42,17 +40,17 @@ void vectorEigenToQp(const VectorXd& e, Vector<double>& q)
     q.resize(e.rows());
   }
 
-  for (Index i = 0; i < e.rows(); ++i) {
+  for (Eigen::Index i = 0; i < e.rows(); ++i) {
     q[i] = e(i);
   }
 }
 
-void vectorQpToEigen(const Vector<double>& q, VectorXd& e)
+void vectorQpToEigen(const Vector<double>& q, Eigen::VectorXd& e)
 {
   assert(e.rows() == q.size());
   assert(e.cols() == 1);
 
-  for (Index i = 0; i < e.rows(); ++i) {
+  for (Eigen::Index i = 0; i < e.rows(); ++i) {
     e(i) = q[i];
   }
 }
@@ -87,7 +85,7 @@ std::expected<Eigen::VectorXd, std::string> QuadProgppSolver::solve()
     return std::unexpected("QPP is infeasible.");
   }
 
-  VectorXd x_scaled(x_.size());
+  Eigen::VectorXd x_scaled(x_.size());
   quadprogpp::vectorQpToEigen(x_, x_scaled);
 
   // Restore the solution to the original scale.

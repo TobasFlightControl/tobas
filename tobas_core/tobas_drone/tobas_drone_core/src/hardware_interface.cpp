@@ -5,8 +5,6 @@
 
 #include <iostream>
 
-using namespace std;
-
 namespace tobas
 {
 namespace
@@ -15,7 +13,7 @@ constexpr char kPwmText[] = "pwm";
 constexpr char kOtherText[] = "other";
 }  // namespace
 
-string textFromEnum(HardwareInterface value)
+std::string textFromEnum(HardwareInterface value)
 {
   switch (value) {
     case HardwareInterface::kPwm:
@@ -27,7 +25,7 @@ string textFromEnum(HardwareInterface value)
   }
 }
 
-bool enumFromText(const string& text, HardwareInterface& dst)
+bool enumFromText(const std::string& text, HardwareInterface& dst)
 {
   if (text == kPwmText) {
     dst = HardwareInterface::kPwm;
@@ -38,7 +36,7 @@ bool enumFromText(const string& text, HardwareInterface& dst)
     return true;
   }
   else {
-    cerr << "Invalid joint hardware interface: " << text << endl;
+    std::cerr << "Invalid joint hardware interface: " << text << std::endl;
     return false;
   }
 }
@@ -59,6 +57,6 @@ bool convert<tobas::HardwareInterface>::decode(const Node& node, tobas::Hardware
     return false;
   }
 
-  return tobas::enumFromText(node.as<string>(), rhs);
+  return tobas::enumFromText(node.as<std::string>(), rhs);
 }
 }  // namespace YAML

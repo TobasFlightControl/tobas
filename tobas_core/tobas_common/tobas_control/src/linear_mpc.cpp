@@ -3,11 +3,7 @@
 
 #include "tobas_control/linear_mpc.hpp"
 
-#include <iostream>
-
 #include <tobas_eigen_tools/core.hpp>
-
-using namespace Eigen;
 
 namespace tobas
 {
@@ -24,18 +20,18 @@ std::expected<Eigen::VectorXd, std::string> LinearMPC::solve()
     x_size_ = state_scale.rows();
     u_size_ = input_scale.rows();
     z_size_ = control_scale.rows();
-    last_input_ = VectorXd::Zero(input_scale.rows());
+    last_input_ = Eigen::VectorXd::Zero(input_scale.rows());
     is_first_solve_ = false;
   }
 
   checkProblemValidity();
 
   // Scale the output matrix.
-  MatrixXd Cz_scaled = Cz;
-  for (Index c = 0; c < x_size_; ++c) {
+  Eigen::MatrixXd Cz_scaled = Cz;
+  for (Eigen::Index c = 0; c < x_size_; ++c) {
     Cz_scaled.col(c) *= state_scale(c);
   }
-  for (Index r = 0; r < z_size_; ++r) {
+  for (Eigen::Index r = 0; r < z_size_; ++r) {
     Cz_scaled.row(r) /= control_scale(r);
   }
 
@@ -43,7 +39,7 @@ std::expected<Eigen::VectorXd, std::string> LinearMPC::solve()
   std::vector<LinearDynamics> dyns_scaled;
   std::vector<LinearEquation> du_eqs_scaled, u_eqs_scaled, z_eqs_scaled;
   std::vector<LinearEquation> du_ineqs_scaled, u_ineqs_scaled, z_ineqs_scaled;
-  for (Index k = 0; k < prediction_steps; ++k) {
+  for (Eigen::Index k = 0; k < prediction_steps; ++k) {
     dyns_scaled.emplace_back(discrete_dynamics[k].scale(state_scale, input_scale));
 
     const auto du_eq = input_rate_eqs[k].discretise(time_step);
@@ -58,28 +54,28 @@ std::expected<Eigen::VectorXd, std::string> LinearMPC::solve()
   }
 
   // Scale the state vectors and related values.
-  const VectorXd x_scaled = current_state.array() / state_scale.array();
-  const VectorXd s_scaled = set_state.array() / control_scale.array();
-  const VectorXd last_u_scaled = last_input_.array() / input_scale.array();
+  const Eigen::VectorXd x_scaled = current_state.array() / state_scale.array();
+  const Eigen::VectorXd s_scaled = set_state.array() / control_scale.array();
+  const Eigen::VectorXd last_u_scaled = last_input_.array() / input_scale.array();
 
   // Weight matrices.
-  const DiagonalMatrix<double, Dynamic> Q = eigen::tile(control_weight, prediction_steps, 0).asDiagonal();
-  const MatrixXd R = eigen::tile(input_rate_weight, input_steps, 0).asDiagonal().toDenseMatrix();
-  const MatrixXd Sa = makeSa();
-  const MatrixXd Sb = makeSb(last_u_scaled);
+  const Eigen::DiagonalMatrix<double, Eigen::Dynamic> Q = eigen::tile(control_weight, prediction_steps, 0).asDiagonal();
+  const Eigen::MatrixXd R = eigen::tile(input_rate_weight, input_steps, 0).asDiagonal().toDenseMatrix();
+  const Eigen::MatrixXd Sa = makeSa();
+  const Eigen::MatrixXd Sb = makeSb(last_u_scaled);
 
   // (2.67)
-  const MatrixXd Psi = makePsi(dyns_scaled, Cz_scaled);
-  const MatrixXd Upsilon = makeUpsilon(dyns_scaled, Cz_scaled);
-  const MatrixXd Theta = makeTheta(dyns_scaled, Cz_scaled);
+  const Eigen::MatrixXd Psi = makePsi(dyns_scaled, Cz_scaled);
+  const Eigen::MatrixXd Upsilon = makeUpsilon(dyns_scaled, Cz_scaled);
+  const Eigen::MatrixXd Theta = makeTheta(dyns_scaled, Cz_scaled);
 
   // Precompute repeated calculations to reduce computation cost.
-  const VectorXd Psi_x = Psi * x_scaled;
-  const VectorXd Upsilon_u = Upsilon * last_u_scaled;
-  const MatrixXd Theta_Q = Theta.transpose() * Q;
+  const Eigen::VectorXd Psi_x = Psi * x_scaled;
+  const Eigen::VectorXd Upsilon_u = Upsilon * last_u_scaled;
+  const Eigen::MatrixXd Theta_Q = Theta.transpose() * Q;
 
-  const VectorXd Tau = makeTau(x_scaled, s_scaled, Cz_scaled);
-  const VectorXd Epsilon = Tau - Psi_x - Upsilon_u;  // (3.6)
+  const Eigen::VectorXd Tau = makeTau(x_scaled, s_scaled, Cz_scaled);
+  const Eigen::VectorXd Epsilon = Tau - Psi_x - Upsilon_u;  // (3.6)
 
   // Objective function.
   qpsolver_.problem.P = Theta_Q * Theta + R + Sa;  // Phi (= Eta)
@@ -140,7 +136,7 @@ std::ostream& operator<<(std::ostream& os, const LinearMPC& arg)
 void LinearMPC::checkProblemValidity()
 {
   // Dynamics
-  assert(static_cast<Index>(discrete_dynamics.size()) == prediction_steps);
+  assert(static_cast<Eigen::Index>(discrete_dynamics.size()) == prediction_steps);
   for ([[maybe_unused]] const auto& dyn : discrete_dynamics) {
     assert(dyn.stateSize() == x_size_ && dyn.inputSize() == u_size_);
     assert(dyn.isFinite());
@@ -180,14 +176,14 @@ void LinearMPC::checkProblemValidity()
   assert((control_weight.array() >= 0).all());
 
   // Constraints
-  assert(static_cast<Index>(input_rate_eqs.size()) == prediction_steps);
-  assert(static_cast<Index>(input_eqs.size()) == prediction_steps);
-  assert(static_cast<Index>(control_eqs.size()) == prediction_steps);
-  assert(static_cast<Index>(input_rate_ineqs.size()) == prediction_steps);
-  assert(static_cast<Index>(input_ineqs.size()) == prediction_steps);
-  assert(static_cast<Index>(control_ineqs.size()) == prediction_steps);
+  assert(static_cast<Eigen::Index>(input_rate_eqs.size()) == prediction_steps);
+  assert(static_cast<Eigen::Index>(input_eqs.size()) == prediction_steps);
+  assert(static_cast<Eigen::Index>(control_eqs.size()) == prediction_steps);
+  assert(static_cast<Eigen::Index>(input_rate_ineqs.size()) == prediction_steps);
+  assert(static_cast<Eigen::Index>(input_ineqs.size()) == prediction_steps);
+  assert(static_cast<Eigen::Index>(control_ineqs.size()) == prediction_steps);
 
-  for (Index k = 0; k < prediction_steps; ++k) {
+  for (Eigen::Index k = 0; k < prediction_steps; ++k) {
     assert(input_rate_eqs[k].variableSize() == u_size_);
     assert(input_eqs[k].variableSize() == u_size_);
     assert(control_eqs[k].variableSize() == z_size_);
@@ -211,54 +207,54 @@ void LinearMPC::checkProblemValidity()
 }
 
 void LinearMPC::updateQpConstraint(
-  const VectorXd& last_u,
-  const VectorXd& Psi_x,
-  const VectorXd& Upsilon_u,
-  const MatrixXd& Theta,
+  const Eigen::VectorXd& last_u,
+  const Eigen::VectorXd& Psi_x,
+  const Eigen::VectorXd& Upsilon_u,
+  const Eigen::MatrixXd& Theta,
   const std::vector<LinearEquation>& du_consts,
   const std::vector<LinearEquation>& u_consts,
   const std::vector<LinearEquation>& z_consts,
-  MatrixXd& A,
-  VectorXd& b)
+  Eigen::MatrixXd& A,
+  Eigen::VectorXd& b)
 {
   // p.53
-  const MatrixXd E = makeConstraintMatrix(du_consts, input_steps);
-  const MatrixXd F = makeConstraintMatrix(u_consts, input_steps);
-  const MatrixXd G = makeConstraintMatrix(z_consts, prediction_steps);
+  const Eigen::MatrixXd E = makeConstraintMatrix(du_consts, input_steps);
+  const Eigen::MatrixXd F = makeConstraintMatrix(u_consts, input_steps);
+  const Eigen::MatrixXd G = makeConstraintMatrix(z_consts, prediction_steps);
 
   // p.100
-  const MatrixXd W = E.leftCols(E.cols() - 1);
-  const VectorXd w = -E.col(E.cols() - 1);
+  const Eigen::MatrixXd W = E.leftCols(E.cols() - 1);
+  const Eigen::VectorXd w = -E.col(E.cols() - 1);
 
   // p.99
-  const MatrixXd F_gothic = makeFGothic(F);
-  const MatrixXd F_1 = F_gothic.leftCols(u_size_);
-  const VectorXd f = F.col(F.cols() - 1);
+  const Eigen::MatrixXd F_gothic = makeFGothic(F);
+  const Eigen::MatrixXd F_1 = F_gothic.leftCols(u_size_);
+  const Eigen::VectorXd f = F.col(F.cols() - 1);
 
   // p.100
-  const MatrixXd Gamma = G.leftCols(G.cols() - 1);
-  const VectorXd g = G.col(G.cols() - 1);
+  const Eigen::MatrixXd Gamma = G.leftCols(G.cols() - 1);
+  const Eigen::VectorXd g = G.col(G.cols() - 1);
 
   // (3.41)
   A = eigen::concat(F_gothic, Gamma * Theta, W, 0);
   b = eigen::concat(-F_1 * last_u - f, -Gamma * Psi_x - Gamma * Upsilon_u - g, w, 0);
 }
 
-MatrixXd LinearMPC::makeSa()
+Eigen::MatrixXd LinearMPC::makeSa()
 {
-  const MatrixXd S_diag = input_weight.asDiagonal();
+  const Eigen::MatrixXd S_diag = input_weight.asDiagonal();
 
   // Compute the cumulative sum of S. This is left over from the old implementation.
-  std::vector<MatrixXd> S_cumsum(input_steps + 1);
-  S_cumsum[0] = MatrixXd::Zero(u_size_, u_size_);
-  for (Index i = 0; i < input_steps; ++i) {
+  std::vector<Eigen::MatrixXd> S_cumsum(input_steps + 1);
+  S_cumsum[0] = Eigen::MatrixXd::Zero(u_size_, u_size_);
+  for (Eigen::Index i = 0; i < input_steps; ++i) {
     S_cumsum[i + 1] = S_cumsum[i] + S_diag;
   }
 
   // Fill the blocks.
-  MatrixXd Sa(u_size_ * input_steps, u_size_ * input_steps);
-  for (Index i = 0; i < input_steps; ++i) {
-    for (Index j = 0; j < input_steps; ++j) {
+  Eigen::MatrixXd Sa(u_size_ * input_steps, u_size_ * input_steps);
+  for (Eigen::Index i = 0; i < input_steps; ++i) {
+    for (Eigen::Index j = 0; j < input_steps; ++j) {
       Sa.block(u_size_ * i, u_size_ * j, u_size_, u_size_) = S_cumsum[input_steps] - S_cumsum[std::max(i, j)];
     }
   }
@@ -266,45 +262,45 @@ MatrixXd LinearMPC::makeSa()
   return Sa;
 }
 
-VectorXd LinearMPC::makeSb(const VectorXd& last_u_scaled)
+Eigen::VectorXd LinearMPC::makeSb(const Eigen::VectorXd& last_u_scaled)
 {
   // Exercise 3-5.
-  const VectorXd Sb_elem = input_weight.cwiseProduct(last_u_scaled);
+  const Eigen::VectorXd Sb_elem = input_weight.cwiseProduct(last_u_scaled);
 
   // Simplified using the facts that S is constant over the prediction horizon and u_ref is zero.
-  VectorXd Sb(u_size_ * input_steps);
-  for (Index i = 0; i < input_steps; ++i) {
+  Eigen::VectorXd Sb(u_size_ * input_steps);
+  for (Eigen::Index i = 0; i < input_steps; ++i) {
     Sb.segment(u_size_ * i, u_size_) = (input_steps - i) * Sb_elem;
   }
 
   return Sb;
 }
 
-MatrixXd LinearMPC::makeFGothic(const MatrixXd& F)
+Eigen::MatrixXd LinearMPC::makeFGothic(const Eigen::MatrixXd& F)
 {
   const auto n_cond_u = F.rows();  // Number of conditions in (3.35)
 
   // Compute cumulative sums of F elements.
-  std::vector<MatrixXd> F_cumsum(input_steps + 1);
-  F_cumsum[0] = MatrixXd::Zero(n_cond_u, u_size_);
-  for (Index i = 0; i < input_steps; ++i) {
+  std::vector<Eigen::MatrixXd> F_cumsum(input_steps + 1);
+  F_cumsum[0] = Eigen::MatrixXd::Zero(n_cond_u, u_size_);
+  for (Eigen::Index i = 0; i < input_steps; ++i) {
     F_cumsum[i + 1] = F_cumsum[i] + F.block(0, u_size_ * i, n_cond_u, u_size_);
   }
 
   // Create F_gothic.
-  MatrixXd F_gothic(n_cond_u, u_size_ * input_steps);
-  for (Index i = 0; i < input_steps; ++i) {
+  Eigen::MatrixXd F_gothic(n_cond_u, u_size_ * input_steps);
+  for (Eigen::Index i = 0; i < input_steps; ++i) {
     F_gothic.block(0, u_size_ * i, n_cond_u, u_size_) = F_cumsum[input_steps] - F_cumsum[i];
   }
 
   return F_gothic;
 }
 
-MatrixXd LinearMPC::makePsi(const std::vector<LinearDynamics>& dyns_scaled, const MatrixXd& Cz_scaled)
+Eigen::MatrixXd LinearMPC::makePsi(const std::vector<LinearDynamics>& dyns_scaled, const Eigen::MatrixXd& Cz_scaled)
 {
-  MatrixXd Psi(z_size_ * prediction_steps, x_size_);
-  MatrixXd tmp = MatrixXd::Identity(x_size_, x_size_);
-  for (Index i = 0; i < prediction_steps; ++i) {
+  Eigen::MatrixXd Psi(z_size_ * prediction_steps, x_size_);
+  Eigen::MatrixXd tmp = Eigen::MatrixXd::Identity(x_size_, x_size_);
+  for (Eigen::Index i = 0; i < prediction_steps; ++i) {
     tmp = dyns_scaled[i].A * tmp;
     Psi.block(z_size_ * i, 0, z_size_, x_size_) = Cz_scaled * tmp;
   }
@@ -312,11 +308,11 @@ MatrixXd LinearMPC::makePsi(const std::vector<LinearDynamics>& dyns_scaled, cons
   return Psi;
 }
 
-MatrixXd LinearMPC::makeUpsilon(const std::vector<LinearDynamics>& dyns_scaled, const MatrixXd& Cz_scaled)
+Eigen::MatrixXd LinearMPC::makeUpsilon(const std::vector<LinearDynamics>& dyns_scaled, const Eigen::MatrixXd& Cz_scaled)
 {
-  MatrixXd Upsilon(z_size_ * prediction_steps, u_size_);
-  MatrixXd tmp = MatrixXd::Zero(x_size_, u_size_);
-  for (Index i = 0; i < prediction_steps; ++i) {
+  Eigen::MatrixXd Upsilon(z_size_ * prediction_steps, u_size_);
+  Eigen::MatrixXd tmp = Eigen::MatrixXd::Zero(x_size_, u_size_);
+  for (Eigen::Index i = 0; i < prediction_steps; ++i) {
     tmp = dyns_scaled[i].A * tmp + dyns_scaled[i].B;
     Upsilon.block(z_size_ * i, 0, z_size_, u_size_) = Cz_scaled * tmp;
   }
@@ -324,18 +320,18 @@ MatrixXd LinearMPC::makeUpsilon(const std::vector<LinearDynamics>& dyns_scaled, 
   return Upsilon;
 }
 
-MatrixXd LinearMPC::makeTheta(const std::vector<LinearDynamics>& dyns_scaled, const MatrixXd& Cz_scaled)
+Eigen::MatrixXd LinearMPC::makeTheta(const std::vector<LinearDynamics>& dyns_scaled, const Eigen::MatrixXd& Cz_scaled)
 {
-  MatrixXd Theta(z_size_ * prediction_steps, u_size_ * input_steps);
-  std::vector<MatrixXd> tmp;
-  for (Index i = 0; i < prediction_steps; ++i) {
-    tmp.push_back(MatrixXd::Zero(x_size_, u_size_));
+  Eigen::MatrixXd Theta(z_size_ * prediction_steps, u_size_ * input_steps);
+  std::vector<Eigen::MatrixXd> tmp;
+  for (Eigen::Index i = 0; i < prediction_steps; ++i) {
+    tmp.push_back(Eigen::MatrixXd::Zero(x_size_, u_size_));
     const auto max_j = std::min(input_steps, i + 1);
-    for (Index j = 0; j < max_j; ++j) {
+    for (Eigen::Index j = 0; j < max_j; ++j) {
       tmp[j] = dyns_scaled[i].A * tmp[j] + dyns_scaled[i].B;
       Theta.block(z_size_ * i, u_size_ * j, z_size_, u_size_) = Cz_scaled * tmp[j];
     }
-    for (Index j = max_j; j < input_steps; ++j) {
+    for (Eigen::Index j = max_j; j < input_steps; ++j) {
       Theta.block(z_size_ * i, u_size_ * j, z_size_, u_size_).setZero();
     }
   }
@@ -343,26 +339,27 @@ MatrixXd LinearMPC::makeTheta(const std::vector<LinearDynamics>& dyns_scaled, co
   return Theta;
 }
 
-VectorXd LinearMPC::makeTau(const VectorXd& x_scaled, const VectorXd& s_scaled, const MatrixXd& Cz_scaled)
+Eigen::VectorXd
+LinearMPC::makeTau(const Eigen::VectorXd& x_scaled, const Eigen::VectorXd& s_scaled, const Eigen::MatrixXd& Cz_scaled)
 {
-  const VectorXd error = s_scaled - Cz_scaled * x_scaled;
+  const Eigen::VectorXd error = s_scaled - Cz_scaled * x_scaled;
   const auto decays = makeDecays();
 
-  VectorXd Tau(z_size_ * prediction_steps);
-  for (Index i = 0; i < prediction_steps; ++i) {
+  Eigen::VectorXd Tau(z_size_ * prediction_steps);
+  for (Eigen::Index i = 0; i < prediction_steps; ++i) {
     Tau.segment(z_size_ * i, z_size_) = s_scaled - decays[i].cwiseProduct(error);
   }
 
   return Tau;
 }
 
-std::vector<VectorXd> LinearMPC::makeDecays()
+std::vector<Eigen::VectorXd> LinearMPC::makeDecays()
 {
-  std::vector<VectorXd> decays(prediction_steps, VectorXd(z_size_));
+  std::vector<Eigen::VectorXd> decays(prediction_steps, Eigen::VectorXd(z_size_));
 
-  for (Index i = 0; i < prediction_steps; ++i) {
+  for (Eigen::Index i = 0; i < prediction_steps; ++i) {
     const auto coin_time = time_step * static_cast<double>(i + 1);
-    for (Index j = 0; j < z_size_; ++j) {
+    for (Eigen::Index j = 0; j < z_size_; ++j) {
       const auto& T_ref = decay_time_consts(j);
       decays[i](j) = T_ref > 0 ? std::exp(-coin_time / T_ref) : 0;
     }
@@ -371,15 +368,15 @@ std::vector<VectorXd> LinearMPC::makeDecays()
   return decays;
 }
 
-MatrixXd LinearMPC::makeConstraintMatrix(const std::vector<LinearEquation>& consts, const Index& H)
+Eigen::MatrixXd LinearMPC::makeConstraintMatrix(const std::vector<LinearEquation>& consts, const Eigen::Index& H)
 {
   const auto const_size = consts[0].equationSize();
   const auto var_size = consts[0].variableSize();
 
-  MatrixXd res(const_size * H, var_size * H + 1);
+  Eigen::MatrixXd res(const_size * H, var_size * H + 1);
   res.setZero();
 
-  for (Index k = 0; k < H; ++k) {
+  for (Eigen::Index k = 0; k < H; ++k) {
     res.block(const_size * k, var_size * k, const_size, var_size) = consts[k].A;
     res.block(const_size * k, var_size * H, const_size, 1) = -consts[k].b;
   }

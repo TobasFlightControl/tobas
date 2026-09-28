@@ -12,9 +12,6 @@
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 
-using namespace std;
-using namespace Eigen;
-
 namespace tobas
 {
 namespace random_axis_tilt_multicopter
@@ -57,13 +54,13 @@ bool SqpMixer::solve(
 {
   // Compute forward kinematics.
   if (fk_solver_.jntToCart(cur_q) < 0) {
-    cerr << "Forward kinematics failed: " << fk_solver_.errorMessage() << endl;
+    std::cerr << "Forward kinematics failed: " << fk_solver_.errorMessage() << std::endl;
     return false;
   }
 
   // Compute mass properties.
   if (inertia_solver_.jntToCart(cur_q) < 0) {
-    cerr << "Inertia solver failed: " << inertia_solver_.errorMessage() << endl;
+    std::cerr << "Inertia solver failed: " << inertia_solver_.errorMessage() << std::endl;
     return false;
   }
   const auto& inertia = inertia_solver_.getInertia();
@@ -71,7 +68,7 @@ bool SqpMixer::solve(
   const auto B_Pos_B2G = inertia.getCOG();
   const auto I_B = inertia.getRotationalInertiaCoG();
 
-  for (const auto& [idx, rotor_it] : views::enumerate(drone_.prop->rotors)) {
+  for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = rotor_it.second;
 
     // Update B.
@@ -79,7 +76,7 @@ bool SqpMixer::solve(
     const auto cm = rotor->momentConst();
     const auto& B_Pos_B2P = fk_solver_.getFrame(rotor->link_name).p;
     const auto r = B_Pos_B2P - B_Pos_B2G;
-    B_.block<3, 3>(3, 3 * idx) = eigen::skew(r.data) - (d * cm) * Diagonal3d(1, 1, 1);
+    B_.block<3, 3>(3, 3 * idx) = eigen::skew(r.data) - (d * cm) * Eigen::Diagonal3d(1, 1, 1);
 
     // Update ci0.
     const auto nr = drone_.prop->numRotors();
@@ -126,7 +123,7 @@ bool SqpMixer::solve(
   // Solve the SQP.
   const auto x_opt = sqp_.solve();
   if (!x_opt) {
-    cerr << "SQP failed: " << x_opt.error() << endl;
+    std::cerr << "SQP failed: " << x_opt.error() << std::endl;
     return false;
   }
   x_opt_ = std::move(*x_opt);
@@ -147,7 +144,7 @@ double SqpMixer::getTiltAngle(size_t idx) const
 bool SqpMixer::setLinearWeight(double p)
 {
   if (p <= 0.0) {
-    cerr << "Linear weight must be positive." << endl;
+    std::cerr << "Linear weight must be positive." << std::endl;
     return false;
   }
 
@@ -158,7 +155,7 @@ bool SqpMixer::setLinearWeight(double p)
 bool SqpMixer::setAngularWeight(double p)
 {
   if (p <= 0.0) {
-    cerr << "Angular weight must be positive." << endl;
+    std::cerr << "Angular weight must be positive." << std::endl;
     return false;
   }
 
@@ -169,7 +166,7 @@ bool SqpMixer::setAngularWeight(double p)
 bool SqpMixer::setThrustWeight(double p)
 {
   if (p <= 0.0) {
-    cerr << "Thrust weight must be positive." << endl;
+    std::cerr << "Thrust weight must be positive." << std::endl;
     return false;
   }
 
@@ -183,7 +180,7 @@ void SqpMixer::resetTensors()
 
   R_.resize(nr);
 
-  B_.conservativeResize(NoChange, 3 * nr);
+  B_.conservativeResize(Eigen::NoChange, 3 * nr);
   for (size_t i = 0; i < nr; ++i) {
     B_.block<3, 3>(0, 3 * i).setIdentity();
   }
@@ -221,53 +218,53 @@ bool SqpMixer::initializeSQP()
   const auto R0 = kdl::Rotation::Identity();
   const auto v0 = kdl::Vector::Zero();
   if (!np_mixer_.solve(q0, R0, v0, v0, v0)) {
-    cerr << "Failed to solve the Non-planar mixer." << endl;
+    std::cerr << "Failed to solve the Non-planar mixer." << std::endl;
     return false;
   }
 
   const auto nr = drone_.prop->numRotors();
-  VectorXd x0(2 * nr);
+  Eigen::VectorXd x0(2 * nr);
   x0.head(nr).setZero();
   x0.tail(nr) = np_mixer_.getThrusts();
 
   sqp_.initialize(
     x0,
-    bind(&self::f, this, std::placeholders::_1),
-    bind(&self::g, this, std::placeholders::_1),
-    bind(&self::h, this, std::placeholders::_1),
-    bind(&self::dfdx, this, std::placeholders::_1),
-    bind(&self::dgdx, this, std::placeholders::_1),
-    bind(&self::dhdx, this, std::placeholders::_1),
-    bind(&self::dFdx, this, std::placeholders::_1),
-    bind(&self::dGdx, this, std::placeholders::_1),
-    bind(&self::dHdx, this, std::placeholders::_1));
+    std::bind(&self::f, this, std::placeholders::_1),
+    std::bind(&self::g, this, std::placeholders::_1),
+    std::bind(&self::h, this, std::placeholders::_1),
+    std::bind(&self::dfdx, this, std::placeholders::_1),
+    std::bind(&self::dgdx, this, std::placeholders::_1),
+    std::bind(&self::dhdx, this, std::placeholders::_1),
+    std::bind(&self::dFdx, this, std::placeholders::_1),
+    std::bind(&self::dGdx, this, std::placeholders::_1),
+    std::bind(&self::dHdx, this, std::placeholders::_1));
 
   return true;
 }
 
-double SqpMixer::f(const VectorXd& x)
+double SqpMixer::f(const Eigen::VectorXd& x)
 {
   const auto [theta, tau] = splitState(x);
   const auto e = calc_e(theta, tau);
   return 0.5 * (e.transpose() * Q_ * e).value() + 0.5 * (tau.transpose() * R_ * tau).value();
 }
 
-VectorXd SqpMixer::g(const VectorXd& x)
+Eigen::VectorXd SqpMixer::g(const Eigen::VectorXd& x)
 {
   return Ci_ * x + ci0_;
 }
 
-VectorXd SqpMixer::h(const VectorXd&)
+Eigen::VectorXd SqpMixer::h(const Eigen::VectorXd&)
 {
-  return VectorXd(0);
+  return Eigen::VectorXd(0);
 }
 
-RowVectorXd SqpMixer::dfdx(const VectorXd& x)
+Eigen::RowVectorXd SqpMixer::dfdx(const Eigen::VectorXd& x)
 {
   const auto [theta, tau] = splitState(x);
 
   const auto C = calc_C(theta);
-  const Matrix6Xd QC = Q_ * C;
+  const Eigen::Matrix6Xd QC = Q_ * C;
 
   const auto nr = drone_.prop->numRotors();
   df_dx_.head(nr) = calc_e(theta, tau).transpose() * Q_ * calc_du_dtheta(theta, tau);
@@ -276,49 +273,49 @@ RowVectorXd SqpMixer::dfdx(const VectorXd& x)
   return df_dx_;
 }
 
-MatrixXd SqpMixer::dgdx(const VectorXd&)
+Eigen::MatrixXd SqpMixer::dgdx(const Eigen::VectorXd&)
 {
   return Ci_;
 }
 
-MatrixXd SqpMixer::dhdx(const VectorXd&)
+Eigen::MatrixXd SqpMixer::dhdx(const Eigen::VectorXd&)
 {
-  return MatrixXd(0, stateSize());
+  return Eigen::MatrixXd(0, stateSize());
 }
 
-MatrixXd SqpMixer::dFdx(const VectorXd& x)
+Eigen::MatrixXd SqpMixer::dFdx(const Eigen::VectorXd& x)
 {
   const auto [theta, tau] = splitState(x);
 
-  const VectorXd e = calc_e(theta, tau);
-  const MatrixXd C = calc_C(theta);
-  const VectorXd Qe = Q_ * e;
-  const MatrixXd QC = Q_ * C;
-  const Matrix6Xd du_dtheta = calc_du_dtheta(theta, tau);
-  const Tensor3Xd du_dtheta_2 = calc_du_dtheta_2(theta, tau);
-  const Tensor3Xd dC_dtheta = calc_dC_dtheta(theta);
+  const Eigen::VectorXd e = calc_e(theta, tau);
+  const Eigen::MatrixXd C = calc_C(theta);
+  const Eigen::VectorXd Qe = Q_ * e;
+  const Eigen::MatrixXd QC = Q_ * C;
+  const Eigen::Matrix6Xd du_dtheta = calc_du_dtheta(theta, tau);
+  const Eigen::Tensor3Xd du_dtheta_2 = calc_du_dtheta_2(theta, tau);
+  const Eigen::Tensor3Xd dC_dtheta = calc_dC_dtheta(theta);
 
   const auto nr = drone_.prop->numRotors();
 
   df_dx_2_.topLeftCorner(nr, nr) = Qe.transpose().eval() * du_dtheta_2 + du_dtheta.transpose() * Q_ * du_dtheta;
   df_dx_2_.bottomRightCorner(nr, nr) = C.transpose() * QC + R_.toDenseMatrix();
 
-  const MatrixXd d2f_dtheta_dtau = eigen::shuffle(dC_dtheta, { 2, 1, 0 }) * Qe + du_dtheta.transpose() * QC;
+  const Eigen::MatrixXd d2f_dtheta_dtau = eigen::shuffle(dC_dtheta, { 2, 1, 0 }) * Qe + du_dtheta.transpose() * QC;
   df_dx_2_.topRightCorner(nr, nr) = d2f_dtheta_dtau;
   df_dx_2_.bottomLeftCorner(nr, nr) = d2f_dtheta_dtau.transpose();
 
   return df_dx_2_;
 }
 
-Tensor3Xd SqpMixer::dGdx(const VectorXd&)
+Eigen::Tensor3Xd SqpMixer::dGdx(const Eigen::VectorXd&)
 {
   return dCi_dx_;
 }
 
-Tensor3Xd SqpMixer::dHdx(const VectorXd&)
+Eigen::Tensor3Xd SqpMixer::dHdx(const Eigen::VectorXd&)
 {
   const auto state_size = stateSize();
-  return Tensor3Xd(0, state_size, state_size);
+  return Eigen::Tensor3Xd(0, state_size, state_size);
 }
 
 size_t SqpMixer::stateSize() const
@@ -326,34 +323,34 @@ size_t SqpMixer::stateSize() const
   return drone_.prop->numRotors() * 2;
 }
 
-pair<VectorXd, VectorXd> SqpMixer::splitState(const VectorXd& x) const
+std::pair<Eigen::VectorXd, Eigen::VectorXd> SqpMixer::splitState(const Eigen::VectorXd& x) const
 {
   assert(static_cast<size_t>(x.size()) == stateSize());
 
-  const VectorXd angles = x.head(drone_.prop->numRotors());
-  const VectorXd thrusts = x.tail(drone_.prop->numRotors());
+  const Eigen::VectorXd angles = x.head(drone_.prop->numRotors());
+  const Eigen::VectorXd thrusts = x.tail(drone_.prop->numRotors());
 
   return { angles, thrusts };
 }
 
-Vector6d SqpMixer::calc_e(const VectorXd& theta, const VectorXd& tau)
+Eigen::Vector6d SqpMixer::calc_e(const Eigen::VectorXd& theta, const Eigen::VectorXd& tau)
 {
   return calc_u(theta, tau) - d_;
 }
 
-Vector6d SqpMixer::calc_u(const VectorXd& theta, const VectorXd& tau)
+Eigen::Vector6d SqpMixer::calc_u(const Eigen::VectorXd& theta, const Eigen::VectorXd& tau)
 {
   return calc_C(theta) * tau;
 }
 
-Matrix6Xd SqpMixer::calc_C(const VectorXd& theta)
+Eigen::Matrix6Xd SqpMixer::calc_C(const Eigen::VectorXd& theta)
 {
   return B_ * calc_N(theta);
 }
 
-const MatrixXd& SqpMixer::calc_N(const VectorXd& theta)
+const Eigen::MatrixXd& SqpMixer::calc_N(const Eigen::VectorXd& theta)
 {
-  for (const auto& [i, rotor_it] : views::enumerate(drone_.prop->rotors)) {
+  for (const auto& [i, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = rotor_it.second;
     const auto& elem = tree_.getSegment(rotor->link_name)->second;
 
@@ -380,9 +377,9 @@ const MatrixXd& SqpMixer::calc_N(const VectorXd& theta)
   return N_;
 }
 
-const Tensor3Xd& SqpMixer::calc_dN_dtheta(const VectorXd& theta)
+const Eigen::Tensor3Xd& SqpMixer::calc_dN_dtheta(const Eigen::VectorXd& theta)
 {
-  for (const auto& [i, rotor_it] : views::enumerate(drone_.prop->rotors)) {
+  for (const auto& [i, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = rotor_it.second;
     const auto& elem = tree_.getSegment(rotor->link_name)->second;
 
@@ -394,7 +391,7 @@ const Tensor3Xd& SqpMixer::calc_dN_dtheta(const VectorXd& theta)
       const auto& gpar_seg = gpar_elem.segment;
       const auto& axis_par = cur_seg.joint().axis().data;
       const auto& R_base2gpar = fk_solver_.getFrame(gpar_seg.name()).M.data;
-      const Vector3d dn_dtheta = R_base2gpar * par_seg.rotGrad(theta(i)) * axis_par;
+      const Eigen::Vector3d dn_dtheta = R_base2gpar * par_seg.rotGrad(theta(i)) * axis_par;
       eigen::setVectorX(dN_dtheta_, dn_dtheta, { 3 * (int)i, (int)i, (int)i });
     }
   }
@@ -402,9 +399,9 @@ const Tensor3Xd& SqpMixer::calc_dN_dtheta(const VectorXd& theta)
   return dN_dtheta_;
 }
 
-const Tensor4Xd& SqpMixer::calc_dN_dtheta_2(const VectorXd& theta)
+const Eigen::Tensor4Xd& SqpMixer::calc_dN_dtheta_2(const Eigen::VectorXd& theta)
 {
-  for (const auto& [i, rotor_it] : views::enumerate(drone_.prop->rotors)) {
+  for (const auto& [i, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = rotor_it.second;
     const auto& elem = tree_.getSegment(rotor->link_name)->second;
 
@@ -416,7 +413,7 @@ const Tensor4Xd& SqpMixer::calc_dN_dtheta_2(const VectorXd& theta)
       const auto& gpar_seg = gpar_elem.segment;
       const auto& axis_par = cur_seg.joint().axis().data;
       const auto& R_base2gpar = fk_solver_.getFrame(gpar_seg.name()).M.data;
-      const Vector3d dn_dtheta_2 = R_base2gpar * par_seg.rotGrad2(theta(i)) * axis_par;
+      const Eigen::Vector3d dn_dtheta_2 = R_base2gpar * par_seg.rotGrad2(theta(i)) * axis_par;
       eigen::setVectorX(dN_dtheta_2_, dn_dtheta_2, { 3 * (int)i, (int)i, (int)i, (int)i });
     }
   }
@@ -424,22 +421,22 @@ const Tensor4Xd& SqpMixer::calc_dN_dtheta_2(const VectorXd& theta)
   return dN_dtheta_2_;
 }
 
-Matrix6Xd SqpMixer::calc_du_dtheta(const VectorXd& theta, const VectorXd& tau)
+Eigen::Matrix6Xd SqpMixer::calc_du_dtheta(const Eigen::VectorXd& theta, const Eigen::VectorXd& tau)
 {
   return eigen::shuffle(calc_dC_dtheta(theta), { 0, 2, 1 }) * tau;
 }
 
-Tensor3Xd SqpMixer::calc_du_dtheta_2(const VectorXd& theta, const VectorXd& tau)
+Eigen::Tensor3Xd SqpMixer::calc_du_dtheta_2(const Eigen::VectorXd& theta, const Eigen::VectorXd& tau)
 {
   return eigen::shuffle(calc_dC_dtheta_2(theta), { 0, 3, 2, 1 }) * tau;
 }
 
-Tensor3Xd SqpMixer::calc_dC_dtheta(const VectorXd& theta)
+Eigen::Tensor3Xd SqpMixer::calc_dC_dtheta(const Eigen::VectorXd& theta)
 {
   return B_ * calc_dN_dtheta(theta);
 }
 
-Tensor4Xd SqpMixer::calc_dC_dtheta_2(const VectorXd& theta)
+Eigen::Tensor4Xd SqpMixer::calc_dC_dtheta_2(const Eigen::VectorXd& theta)
 {
   return B_ * calc_dN_dtheta_2(theta);
 }

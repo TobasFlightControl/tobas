@@ -3,8 +3,6 @@
 
 #include "tobas_control/pid/pid3.hpp"
 
-using namespace Eigen;
-
 namespace tobas
 {
 namespace ctrl
@@ -13,17 +11,17 @@ PID3::PID3()
 {
 }
 
-Vector3d PID3::update(
-  const Vector3d& cur_pos,
-  const Vector3d& cur_vel,
-  const Vector3d& tar_pos,
-  const Vector3d& tar_vel,
+Eigen::Vector3d PID3::update(
+  const Eigen::Vector3d& cur_pos,
+  const Eigen::Vector3d& cur_vel,
+  const Eigen::Vector3d& tar_pos,
+  const Eigen::Vector3d& tar_vel,
   const double& dt)
 {
   assert(dt >= 0);
 
-  const Vector3d ep = tar_pos - cur_pos;
-  const Vector3d ed = tar_vel - cur_vel;
+  const Eigen::Vector3d ep = tar_pos - cur_pos;
+  const Eigen::Vector3d ed = tar_vel - cur_vel;
 
   // Accumulate the integral error.
   ei_ += ep * dt;

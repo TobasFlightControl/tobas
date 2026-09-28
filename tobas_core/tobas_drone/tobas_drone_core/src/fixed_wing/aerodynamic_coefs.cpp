@@ -6,8 +6,6 @@
 #include <tobas_yaml_tools/core.hpp>
 #include <tobas_yaml_tools/format.hpp>
 
-using namespace std;
-
 namespace tobas
 {
 namespace
@@ -33,52 +31,52 @@ constexpr char kCYawRKey[] = "c_yaw_r";
 bool AerodynamicCoefficients::isValid() const
 {
   if (c_lift_0 <= 0) {
-    cerr << "c_lift_0 must be positive." << endl;
+    std::cerr << "c_lift_0 must be positive." << std::endl;
     return false;
   }
 
   if (c_lift_alpha <= 0) {
-    cerr << "c_lift_alpha must be positive." << endl;
+    std::cerr << "c_lift_alpha must be positive." << std::endl;
     return false;
   }
 
   if (c_drag_0 <= 0) {
-    cerr << "c_drag_0 must be positive." << endl;
+    std::cerr << "c_drag_0 must be positive." << std::endl;
     return false;
   }
 
   if (c_drag_alpha <= 0) {
-    cerr << "c_drag_alpha must be positive." << endl;
+    std::cerr << "c_drag_alpha must be positive." << std::endl;
     return false;
   }
 
   if (c_side_beta >= 0) {
-    cerr << "c_side_beta must be negative." << endl;
+    std::cerr << "c_side_beta must be negative." << std::endl;
     return false;
   }
 
   if (c_roll_beta >= 0) {
-    cerr << "c_roll_beta must be negative." << endl;
+    std::cerr << "c_roll_beta must be negative." << std::endl;
     return false;
   }
 
   if (c_roll_p >= 0) {
-    cerr << "c_roll_p must be negative." << endl;
+    std::cerr << "c_roll_p must be negative." << std::endl;
     return false;
   }
 
   if (c_pitch_alpha >= 0) {
-    cerr << "c_pitch_alpha must be negative." << endl;
+    std::cerr << "c_pitch_alpha must be negative." << std::endl;
     return false;
   }
 
   if (c_pitch_q >= 0) {
-    cerr << "c_pitch_q must be negative." << endl;
+    std::cerr << "c_pitch_q must be negative." << std::endl;
     return false;
   }
 
   if (c_yaw_r >= 0) {
-    cerr << "c_yaw_r must be negative." << endl;
+    std::cerr << "c_yaw_r must be negative." << std::endl;
     return false;
   }
 

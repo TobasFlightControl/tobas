@@ -5,8 +5,6 @@
 
 #include <iostream>
 
-using namespace std;
-
 namespace tobas
 {
 namespace
@@ -15,7 +13,7 @@ constexpr char kElectricText[] = "electric";
 constexpr char kIceText[] = "ice";
 }  // namespace
 
-string textFromEnum(PropulsionSystem cmd_iface)
+std::string textFromEnum(PropulsionSystem cmd_iface)
 {
   switch (cmd_iface) {
     case PropulsionSystem::kElectric:
@@ -27,7 +25,7 @@ string textFromEnum(PropulsionSystem cmd_iface)
   }
 }
 
-bool enumFromText(const string& text, PropulsionSystem& dst)
+bool enumFromText(const std::string& text, PropulsionSystem& dst)
 {
   if (text == kElectricText) {
     dst = PropulsionSystem::kElectric;
@@ -38,7 +36,7 @@ bool enumFromText(const string& text, PropulsionSystem& dst)
     return true;
   }
   else {
-    cerr << "Invalid propulsion system type: " << text << endl;
+    std::cerr << "Invalid propulsion system type: " << text << std::endl;
     return false;
   }
 }
@@ -59,6 +57,6 @@ bool convert<tobas::PropulsionSystem>::decode(const Node& node, tobas::Propulsio
     return false;
   }
 
-  return tobas::enumFromText(node.as<string>(), rhs);
+  return tobas::enumFromText(node.as<std::string>(), rhs);
 }
 }  // namespace YAML

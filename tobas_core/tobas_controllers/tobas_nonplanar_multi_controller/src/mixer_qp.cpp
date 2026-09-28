@@ -11,9 +11,6 @@
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 
-using namespace std;
-using namespace Eigen;
-
 namespace tobas
 {
 namespace nonplanar_multicopter
@@ -48,13 +45,13 @@ bool QpMixer::solve(
 {
   // Compute forward kinematics.
   if (fk_solver_.jntToCart(cur_q) < 0) {
-    cerr << "Forward kinematics failed: " << fk_solver_.errorMessage() << endl;
+    std::cerr << "Forward kinematics failed: " << fk_solver_.errorMessage() << std::endl;
     return false;
   }
 
   // Compute mass properties.
   if (inertia_solver_.jntToCart(cur_q) < 0) {
-    cerr << "Inertia solver failed: " << inertia_solver_.errorMessage() << endl;
+    std::cerr << "Inertia solver failed: " << inertia_solver_.errorMessage() << std::endl;
     return false;
   }
   const auto& inertia = inertia_solver_.getInertia();
@@ -63,7 +60,7 @@ bool QpMixer::solve(
   const auto I_B = inertia.getRotationalInertiaCoG();
 
   // Left-hand side of the EoM matrix equality.
-  for (const auto& [idx, rotor_it] : views::enumerate(drone_.prop->rotors)) {
+  for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = rotor_it.second;
 
     // Compute the rotation axis.
@@ -85,8 +82,7 @@ bool QpMixer::solve(
   // Right-hand side of the translational EoM.
   const kdl::Vector grav_W(0, 0, -st::kGravity);
   auto eom_trans_right_W = mass * (tar_acc_W - grav_W) - ext_force_W;  // [N]
-  eom_trans_right_W.z(
-    max(eom_trans_right_W.z(), 0.0));  // Limit thrust so that it is not generated vertically downward.
+  eom_trans_right_W.z(std::max(eom_trans_right_W.z(), 0.0));
   h_.head<3>() = cur_rot.inverse(eom_trans_right_W).data;
 
   // Right-hand side of the rotational EoM.
@@ -112,7 +108,7 @@ bool QpMixer::solve(
   qp_.problem.q = -G_.transpose() * Q_ * h_;
 
   // Inequality constraints.
-  for (const auto& [idx, rotor_it] : views::enumerate(drone_.prop->rotors)) {
+  for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = rotor_it.second;
     if (rotor_alive_[rotor->link_name]) {
       qp_.problem.b(idx) = drone_.prop->maxThrust(rotor->link_name);
@@ -127,7 +123,7 @@ bool QpMixer::solve(
   // Solve the QPP.
   const auto thrusts = qp_.solve();
   if (!thrusts) {
-    cerr << "QP failed: " << thrusts.error() << endl;
+    std::cerr << "QP failed: " << thrusts.error() << std::endl;
     return false;
   }
   thrusts_ = std::move(*thrusts);
@@ -148,7 +144,7 @@ double QpMixer::getThrust(size_t idx) const
 bool QpMixer::setLinearWeight(double p)
 {
   if (p <= 0.0) {
-    cerr << "Linear weight must be positive." << endl;
+    std::cerr << "Linear weight must be positive." << std::endl;
     return false;
   }
 
@@ -159,7 +155,7 @@ bool QpMixer::setLinearWeight(double p)
 bool QpMixer::setAngularWeight(double p)
 {
   if (p <= 0.0) {
-    cerr << "Angular weight must be positive." << endl;
+    std::cerr << "Angular weight must be positive." << std::endl;
     return false;
   }
 
@@ -170,7 +166,7 @@ bool QpMixer::setAngularWeight(double p)
 bool QpMixer::setThrustWeight(double p)
 {
   if (p <= 0.0) {
-    cerr << "Thrust weight must be positive." << endl;
+    std::cerr << "Thrust weight must be positive." << std::endl;
     return false;
   }
 
@@ -192,7 +188,7 @@ void QpMixer::resizeAndFill()
   qp_.problem.A.bottomRows(var_size).diagonal().fill(-1);
 
   R_.resize(var_size);
-  G_.resize(NoChange, var_size);
+  G_.resize(Eigen::NoChange, var_size);
 }
 }  // namespace nonplanar_multicopter
 }  // namespace tobas

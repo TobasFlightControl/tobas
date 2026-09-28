@@ -6,8 +6,6 @@
 #include <tobas_yaml_tools/core.hpp>
 #include <tobas_yaml_tools/format.hpp>
 
-using namespace std;
-
 namespace tobas
 {
 namespace
@@ -22,7 +20,7 @@ constexpr char kHomePosKey[] = "home_position";
 bool JointConfig::isValid() const
 {
   if (name.empty()) {
-    cerr << "Joint name is empty." << endl;
+    std::cerr << "Joint name is empty." << std::endl;
     return false;
   }
 

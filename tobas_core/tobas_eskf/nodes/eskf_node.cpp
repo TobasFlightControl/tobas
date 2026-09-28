@@ -33,8 +33,6 @@
 
 #include "tobas_eskf/eskf.hpp"
 
-using namespace Eigen;
-
 namespace tobas
 {
 class ErrorStateKalmanFilterNode : public BaseNode
@@ -59,8 +57,8 @@ private:
   geo::Geography geography_;
   eskf::ErrorStateKalmanFilter eskf_;
 
-  Vector3d pos_meas_;
-  Matrix6d gnss_cov_ = Matrix6d::Zero();
+  Eigen::Vector3d pos_meas_;
+  Eigen::Matrix6d gnss_cov_ = Eigen::Matrix6d::Zero();
   tobas_msgs::Imu::ConstSharedPtr imu_raw_, imu_filt_;
   tobas_msgs::MagneticField::ConstSharedPtr mag_;
   tobas_msgs::Gnss::ConstSharedPtr gnss_;
@@ -101,21 +99,21 @@ private:
   bool do_mag_soft_bias_estimation_;
   bool do_baro_alt_bias_estimation_;
   bool do_grav_estimation_;
-  Vector3d imu_offset_;   // [m] IMU position relative to the root link (Local).
-  Vector3d gnss_offset_;  // [m] GNSS receiver position relative to the root link (Local).
+  Eigen::Vector3d imu_offset_;   // [m] IMU position relative to the root link (Local).
+  Eigen::Vector3d gnss_offset_;  // [m] GNSS receiver position relative to the root link (Local).
 
   // Dynamic parameters
-  Matrix3d fixed_acc_cov_ = Matrix3d::Zero();       // [m^2/s^4]
-  Matrix3d fixed_gyro_cov_ = Matrix3d::Zero();      // [rad^2/s^2]
-  Matrix3d fixed_mag_cov_ = Matrix3d::Zero();       // [-]
-  double fixed_head_var_;                           // [rad^2]
-  double fixed_baro_alt_var_;                       // [m^2]
-  Matrix3d fixed_gnss_pos_cov_ = Matrix3d::Zero();  // [m^2]
-  Matrix3d fixed_gnss_vel_cov_ = Matrix3d::Zero();  // [m^2/s^2]
-  Matrix3d fixed_grav_cov_ = Matrix3d::Zero();      // [m^2/s^4]
-  double grav_stddev_min_;                          // [m/s^2]
-  double grav_stddev_max_;                          // [m/s^2]
-  double grav_stddev_rate_;                         // [-]
+  Eigen::Matrix3d fixed_acc_cov_ = Eigen::Matrix3d::Zero();       // [m^2/s^4]
+  Eigen::Matrix3d fixed_gyro_cov_ = Eigen::Matrix3d::Zero();      // [rad^2/s^2]
+  Eigen::Matrix3d fixed_mag_cov_ = Eigen::Matrix3d::Zero();       // [-]
+  double fixed_head_var_;                                         // [rad^2]
+  double fixed_baro_alt_var_;                                     // [m^2]
+  Eigen::Matrix3d fixed_gnss_pos_cov_ = Eigen::Matrix3d::Zero();  // [m^2]
+  Eigen::Matrix3d fixed_gnss_vel_cov_ = Eigen::Matrix3d::Zero();  // [m^2/s^2]
+  Eigen::Matrix3d fixed_grav_cov_ = Eigen::Matrix3d::Zero();      // [m^2/s^4]
+  double grav_stddev_min_;                                        // [m/s^2]
+  double grav_stddev_max_;                                        // [m/s^2]
+  double grav_stddev_rate_;                                       // [-]
 
   // Publishers
   ros2::PublisherPtr<tobas_msgs::OdometryWithCovarianceStamped> odom_pub_;
@@ -145,13 +143,13 @@ private:
   void registerDynamicRosParams();
   void registerRosInterfaces();
 
-  void setMagneticFieldRef(const Vector3d& mag_W);
+  void setMagneticFieldRef(const Eigen::Vector3d& mag_W);
   void fillOdometryMsg(tobas_msgs::OdometryWithCovarianceStamped& odom) const;
-  void publishMagRef(const Vector3d& mag_W) const;
+  void publishMagRef(const Eigen::Vector3d& mag_W) const;
   void publishGnssOrigin(double lat, double lon, double alt) const;
   void publishFeedback(const std_msgs::msg::Header& header) const;
-  double calcGravMeasNoiseStddev(const Vector3d& acc) const;
-  Matrix3d calcGravMeasNoiseCov(const Vector3d& acc) const;
+  double calcGravMeasNoiseStddev(const Eigen::Vector3d& acc) const;
+  Eigen::Matrix3d calcGravMeasNoiseCov(const Eigen::Vector3d& acc) const;
 
   double initAccelBiasStddev() const;
   double initGyroBiasStddev() const;
@@ -220,8 +218,8 @@ void ErrorStateKalmanFilterNode::getStaticRosParams()
 
   const auto imu_offset = getDoubleArrayParam("imu_offset");
   const auto gnss_offset = getDoubleArrayParam("gnss_offset");
-  imu_offset_ = Map<const Vector3d>(imu_offset.data());
-  gnss_offset_ = Map<const Vector3d>(gnss_offset.data());
+  imu_offset_ = Eigen::Map<const Eigen::Vector3d>(imu_offset.data());
+  gnss_offset_ = Eigen::Map<const Eigen::Vector3d>(gnss_offset.data());
 }
 
 void ErrorStateKalmanFilterNode::setupTransformMessage()
@@ -333,14 +331,16 @@ void ErrorStateKalmanFilterNode::registerRosInterfaces()
   set_gnss_origin_ss_ = createService<SetOriginSrv>(service::kSetGnssOrigin, &self::setGnssOriginCb, this);
 }
 
-void ErrorStateKalmanFilterNode::setMagneticFieldRef(const Vector3d& mag_W)
+void ErrorStateKalmanFilterNode::setMagneticFieldRef(const Eigen::Vector3d& mag_W)
 {
   // Set the geomagnetic reference value.
   eskf_.setMagneticFieldRef(mag_W);
 
   // Initialize magnetometer bias.
-  eskf_.initializeMagHardBias(Vector3d::Zero(), Vector3d::Constant(math::sqr(initMagHardBiasStddev())).asDiagonal());
-  eskf_.initializeMagSoftBias(Matrix3d::Identity(), Vector6d::Constant(math::sqr(initMagSoftBiasStddev())).asDiagonal());
+  const auto mag_hard_bias_var = math::sqr(initMagHardBiasStddev());
+  const auto mag_soft_bias_var = math::sqr(initMagSoftBiasStddev());
+  eskf_.initializeMagHardBias(Eigen::Vector3d::Zero(), Eigen::Vector3d::Constant(mag_hard_bias_var).asDiagonal());
+  eskf_.initializeMagSoftBias(Eigen::Matrix3d::Identity(), Eigen::Vector6d::Constant(mag_soft_bias_var).asDiagonal());
 
   // Initialize yaw if geomagnetic data has already been received.
   // Otherwise, when the yaw error is too large, even roll and pitch may be affected by the feedback.
@@ -351,7 +351,7 @@ void ErrorStateKalmanFilterNode::setMagneticFieldRef(const Vector3d& mag_W)
 
     // Move the geomagnetic field to ground coordinate system `G`,
     // whose yaw alone matches the body and whose XY axes are parallel to the ground.
-    const AngleAxisd R_G_B(old_yaw, Vector3d::UnitZ());
+    const Eigen::AngleAxisd R_G_B(old_yaw, Eigen::Vector3d::UnitZ());
     const auto mag_G = R_G_B.inverse() * (R_W_B * mag_->mag.data);  // Reduce computation by evaluating from the back.
     const auto& mx = mag_G.x();
     const auto& my = mag_G.y();
@@ -382,13 +382,13 @@ void ErrorStateKalmanFilterNode::setMagneticFieldRef(const Vector3d& mag_W)
 
 void ErrorStateKalmanFilterNode::fillOdometryMsg(tobas_msgs::OdometryWithCovarianceStamped& odom) const
 {
-  const Vector3d W_Pos_WI = eskf_.getPosition();
-  const Vector3d W_Vel_WI = eskf_.getVelocity();
-  const Quaterniond W_Rot_B = eskf_.getQuaternion();
-  const Quaterniond B_Rot_W = W_Rot_B.conjugate();
-  const Vector3d B_grav = B_Rot_W * Vector3d(0, 0, -eskf_.getGravity());
-  const Vector3d B_Acc = imu_filt_->accel.data - eskf_.getAccelBias() + B_grav;  // Acceleration excluding gravity.
-  const Vector3d B_Gyro = imu_filt_->gyro.data - eskf_.getGyroBias();
+  const Eigen::Vector3d W_Pos_WI = eskf_.getPosition();
+  const Eigen::Vector3d W_Vel_WI = eskf_.getVelocity();
+  const Eigen::Quaterniond W_Rot_B = eskf_.getQuaternion();
+  const Eigen::Quaterniond B_Rot_W = W_Rot_B.conjugate();
+  const Eigen::Vector3d B_grav = B_Rot_W * Eigen::Vector3d(0, 0, -eskf_.getGravity());
+  const Eigen::Vector3d B_Acc = imu_filt_->accel.data - eskf_.getAccelBias() + B_grav;
+  const Eigen::Vector3d B_Gyro = imu_filt_->gyro.data - eskf_.getGyroBias();
 
   // Header
   odom.header.stamp = imu_raw_->header.stamp;
@@ -417,7 +417,7 @@ void ErrorStateKalmanFilterNode::fillOdometryMsg(tobas_msgs::OdometryWithCovaria
   odom.odom.odom.accel.angular = imu_filt_->dgyro;
 }
 
-void ErrorStateKalmanFilterNode::publishMagRef(const Vector3d& mag_W) const
+void ErrorStateKalmanFilterNode::publishMagRef(const Eigen::Vector3d& mag_W) const
 {
   auto msg = std::make_unique<tobas_msgs::MagneticField>();
 
@@ -476,7 +476,7 @@ void ErrorStateKalmanFilterNode::publishFeedback(const std_msgs::msg::Header& he
   feedback_pub_->publish(std::move(feedback));
 }
 
-double ErrorStateKalmanFilterNode::calcGravMeasNoiseStddev(const Vector3d& acc) const
+double ErrorStateKalmanFilterNode::calcGravMeasNoiseStddev(const Eigen::Vector3d& acc) const
 {
   // Determine the uncertainty of the gravity-direction observation from the L2 norm of acceleration.
   // It is intuitive to consider the attitude observation from acceleration less certain as the error between
@@ -499,11 +499,11 @@ double ErrorStateKalmanFilterNode::calcGravMeasNoiseStddev(const Vector3d& acc) 
   return std::min(grav_stddev, grav_stddev_max_);
 }
 
-Matrix3d ErrorStateKalmanFilterNode::calcGravMeasNoiseCov(const Vector3d& acc) const
+Eigen::Matrix3d ErrorStateKalmanFilterNode::calcGravMeasNoiseCov(const Eigen::Vector3d& acc) const
 {
   const auto grav_stddev = calcGravMeasNoiseStddev(acc);
   const auto grav_var = math::sqr(grav_stddev);
-  return Vector3d::Constant(grav_var).asDiagonal();
+  return Eigen::Vector3d::Constant(grav_var).asDiagonal();
 }
 
 double ErrorStateKalmanFilterNode::initAccelBiasStddev() const
@@ -688,24 +688,24 @@ void ErrorStateKalmanFilterNode::imuRawCb(const tobas_msgs::Imu::ConstSharedPtr&
   // Initialize ESKF.
   if (!imu_raw_) {
     eskf_.initialize(
-      Vector3d::Zero(),                                                     // Init position
-      Vector3d::Constant(math::sqr(kInitPosStddev)).asDiagonal(),           // Init position covariance
-      Vector3d::Zero(),                                                     // Init velocity
-      Vector3d::Constant(math::sqr(kInitVelStddev)).asDiagonal(),           // Init velocity covariance
-      Quaterniond::Identity(),                                              // Init quaternion
-      Vector3d::Constant(math::sqr(kInitRotStddev)).asDiagonal(),           // Init rotation covariance
-      Vector3d::Zero(),                                                     // Init accel bias
-      Vector3d::Constant(math::sqr(initAccelBiasStddev())).asDiagonal(),    // Init accel bias covariance
-      Vector3d::Zero(),                                                     // Init gyro bias
-      Vector3d::Constant(math::sqr(initGyroBiasStddev())).asDiagonal(),     // Init gyro bias covariance
-      Vector3d::Zero(),                                                     // Init mag hard bias
-      Vector3d::Constant(math::sqr(initMagHardBiasStddev())).asDiagonal(),  // Init mag hard bias covariance
-      Matrix3d::Identity(),                                                 // Init mag soft bias
-      Vector6d::Constant(math::sqr(initMagSoftBiasStddev())).asDiagonal(),  // Init mag soft bias covariance
-      0.0,                                                                  // Init barometer altitude bias
-      math::sqr(initBaroAltBiasStddev()),                                   // Init barometer altitude bias variance
-      st::kGravity,                                                         // Init gravity
-      math::sqr(initGravBiasStddev()),                                      // Init gravity variance
+      Eigen::Vector3d::Zero(),                                                     // Init position
+      Eigen::Vector3d::Constant(math::sqr(kInitPosStddev)).asDiagonal(),           // Init position covariance
+      Eigen::Vector3d::Zero(),                                                     // Init velocity
+      Eigen::Vector3d::Constant(math::sqr(kInitVelStddev)).asDiagonal(),           // Init velocity covariance
+      Eigen::Quaterniond::Identity(),                                              // Init quaternion
+      Eigen::Vector3d::Constant(math::sqr(kInitRotStddev)).asDiagonal(),           // Init rotation covariance
+      Eigen::Vector3d::Zero(),                                                     // Init accel bias
+      Eigen::Vector3d::Constant(math::sqr(initAccelBiasStddev())).asDiagonal(),    // Init accel bias covariance
+      Eigen::Vector3d::Zero(),                                                     // Init gyro bias
+      Eigen::Vector3d::Constant(math::sqr(initGyroBiasStddev())).asDiagonal(),     // Init gyro bias covariance
+      Eigen::Vector3d::Zero(),                                                     // Init mag hard bias
+      Eigen::Vector3d::Constant(math::sqr(initMagHardBiasStddev())).asDiagonal(),  // Init mag hard bias covariance
+      Eigen::Matrix3d::Identity(),                                                 // Init mag soft bias
+      Eigen::Vector6d::Constant(math::sqr(initMagSoftBiasStddev())).asDiagonal(),  // Init mag soft bias covariance
+      0.0,                                                                         // Init barometer altitude bias
+      math::sqr(initBaroAltBiasStddev()),  // Init barometer altitude bias variance
+      st::kGravity,                        // Init gravity
+      math::sqr(initGravBiasStddev()),     // Init gravity variance
       cur_time);
     imu_raw_ = msg;
     return;
@@ -886,12 +886,12 @@ void ErrorStateKalmanFilterNode::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& 
     // Compute the geomagnetic reference value from the initial GNSS value.
     // TODO: Compute the reference value online according to position changes.
     const auto mag = geography_.magneticField(msg->latitude, msg->longitude, msg->height_wgs84, tim::yearFraction());
-    const Vector3d mag_W(mag.east, mag.north, mag.up);  // ENU coordinates
+    const Eigen::Vector3d mag_W(mag.east, mag.north, mag.up);  // ENU coordinates
     setMagneticFieldRef(mag_W);
 
     // Initialize with the position and velocity from the first received GNSS data.
     // Otherwise, excessive feedback may be applied to attitude.
-    eskf_.initializePosition(Vector3d::Zero(), pos_cov);
+    eskf_.initializePosition(Eigen::Vector3d::Zero(), pos_cov);
     eskf_.initializeVelocity(vel_meas, vel_cov);
   }
 
@@ -909,7 +909,7 @@ void ErrorStateKalmanFilterNode::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& 
   gnss_cov_.bottomRightCorner<3, 3>() = vel_cov;
 
   // Update ESKF.
-  const Vector3d imu2gnss = gnss_offset_ - imu_offset_;
+  const Eigen::Vector3d imu2gnss = gnss_offset_ - imu_offset_;
   const auto& gyro_meas = imu_filt_->gyro.data;
   const auto stamp = ros2::chronoFromRosTime(msg->header.stamp);
   const auto result = eskf_.measurePosVel(pos_meas_, vel_meas, gnss_cov_, imu2gnss, gyro_meas, stamp);
@@ -930,11 +930,11 @@ void ErrorStateKalmanFilterNode::externalPoseCb(const tobas_kdl_msgs::FrameWithC
   const auto& rot = pose.M;
   const auto& cov = msg->frame.covariance;
 
-  Quaterniond quat;
+  Eigen::Quaterniond quat;
   rot.getQuaternion(quat.x(), quat.y(), quat.z(), quat.w());
 
   const auto stamp = ros2::chronoFromRosTime(msg->header.stamp);
-  const auto result = eskf_.measurePose(pos.data, quat, cov, Vector3d::Zero(), stamp);  // TODO: offset
+  const auto result = eskf_.measurePose(pos.data, quat, cov, Eigen::Vector3d::Zero(), stamp);  // TODO: offset
   if (!result) {
     TOBAS_ERROR_THROTTLE(kTypicalErrorPeriod, "External pose measurement failed: ", result.error());
   }

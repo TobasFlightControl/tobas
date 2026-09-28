@@ -3,8 +3,6 @@
 
 #include "tobas_kdl/tree_joint_axis_solver.hpp"
 
-using namespace std;
-
 namespace tobas
 {
 namespace kdl
@@ -20,7 +18,7 @@ void TreeJointAxisSolver::updateInternalDataStructures()
   fk_solver_.updateInternalDataStructures();
 }
 
-int TreeJointAxisSolver::jntToCart(const JntArray& q_in, const string& seg_name)
+int TreeJointAxisSolver::jntToCart(const JntArray& q_in, const std::string& seg_name)
 {
   const auto cur_it = tree_.getSegment(seg_name);
   if (cur_it == tree_.getSegments().end()) {

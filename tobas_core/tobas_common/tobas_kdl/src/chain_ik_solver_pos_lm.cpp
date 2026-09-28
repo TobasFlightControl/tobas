@@ -9,9 +9,6 @@
 
 #include "tobas_kdl/frames.hpp"
 
-using namespace std;
-using namespace Eigen;
-
 namespace tobas
 {
 namespace kdl
@@ -37,7 +34,7 @@ void ChainIkSolverPos_LM::displayJacobian(const JntArray& jval)
   computeFwdPos(q);
   computeJacobian(q);
   svd_.compute(jac_);
-  cout << "Singular values : " << svd_.singularValues().transpose() << endl;
+  std::cout << "Singular values : " << svd_.singularValues().transpose() << std::endl;
 }
 
 int ChainIkSolverPos_LM::cartToJnt(const JntArray& q_init, const Frame& T_base_goal)
@@ -49,9 +46,9 @@ int ChainIkSolverPos_LM::cartToJnt(const JntArray& q_init, const Frame& T_base_g
     return setDefaultError(kSizeMismatch);
   }
 
-  VectorXd q = q_init.data;
+  Eigen::VectorXd q = q_init.data;
   computeFwdPos(q);
-  Vector6d delta_pos = L_.asDiagonal() * (T_base_head_ - T_base_goal).toTwist().ravel();
+  Eigen::Vector6d delta_pos = L_.asDiagonal() * (T_base_head_ - T_base_goal).toTwist().ravel();
   double delta_pos_norm = delta_pos.norm();
   if (delta_pos_norm < eps_cart_) {
     q_out_.data = q;
@@ -66,13 +63,13 @@ int ChainIkSolverPos_LM::cartToJnt(const JntArray& q_init, const Frame& T_base_g
   auto v = kInitV;
   for (size_t i = 0; i < max_iter_; ++i) {
     svd_.compute(jac_);
-    VectorXd Aii = svd_.singularValues();
-    for (Index j = 0; j < Aii.rows(); ++j) {
+    Eigen::VectorXd Aii = svd_.singularValues();
+    for (Eigen::Index j = 0; j < Aii.rows(); ++j) {
       Aii(j) = Aii(j) / (Aii(j) * Aii(j) + lambda);
     }
-    const VectorXd diffq = svd_.matrixV() * Aii.cwiseProduct(svd_.matrixU().transpose() * delta_pos);
+    const Eigen::VectorXd diffq = svd_.matrixV() * Aii.cwiseProduct(svd_.matrixU().transpose() * delta_pos);
     grad_ = jac_.transpose() * delta_pos;
-    const auto dnorm = diffq.lpNorm<Infinity>();
+    const auto dnorm = diffq.lpNorm<Eigen::Infinity>();
     if (dnorm < eps_jnt_) {
       q_out_.data = q;
       error_code_ = E_INCREMENT_JOINTS_TOO_SMALL;
@@ -85,10 +82,10 @@ int ChainIkSolverPos_LM::cartToJnt(const JntArray& q_init, const Frame& T_base_g
       error_msg_ = "The gradient of E towards the joints is to small";
       return error_code_;
     }
-    VectorXd q_new = q + diffq;
+    Eigen::VectorXd q_new = q + diffq;
     enforceJointLimits(q_new);
     computeFwdPos(q_new);
-    const Vector6d delta_pos_new = L_.asDiagonal() * (T_base_head_ - T_base_goal).toTwist().ravel();
+    const Eigen::Vector6d delta_pos_new = L_.asDiagonal() * (T_base_head_ - T_base_goal).toTwist().ravel();
     const auto delta_pos_new_norm = delta_pos_new.norm();
     auto rho = math::sqr(delta_pos_norm) - math::sqr(delta_pos_new_norm);
     rho /= diffq.transpose() * (lambda * diffq + grad_);
@@ -103,7 +100,7 @@ int ChainIkSolverPos_LM::cartToJnt(const JntArray& q_init, const Frame& T_base_g
       computeJacobian(q_new);
       jac_ = L_.asDiagonal() * jac_;
       const auto tmp = 2 * rho - 1;
-      lambda *= max(1 / 3.0, 1 - tmp * tmp * tmp);
+      lambda *= std::max(1 / 3.0, 1 - tmp * tmp * tmp);
       v = kInitV;
     }
     else {
@@ -157,14 +154,14 @@ bool ChainIkSolverPos_LM::setWeight(const Eigen::Vector6d& L)
 
 void ChainIkSolverPos_LM::initialize()
 {
-  jac_.conservativeResize(NoChange, nj_);
+  jac_.conservativeResize(Eigen::NoChange, nj_);
   grad_.conservativeResize(nj_);
   T_base_jointroot_.resize(nj_);
   T_base_jointtip_.resize(nj_);
-  svd_ = JacobiSVD<Matrix6Xd>(NoChange, nj_, ComputeThinU | ComputeThinV);
+  svd_ = Eigen::JacobiSVD<Eigen::Matrix6Xd>(Eigen::NoChange, nj_, Eigen::ComputeThinU | Eigen::ComputeThinV);
 }
 
-void ChainIkSolverPos_LM::computeFwdPos(const VectorXd& q)
+void ChainIkSolverPos_LM::computeFwdPos(const Eigen::VectorXd& q)
 {
   T_base_head_ = Frame::Identity();  // frame wrt. base of head
   size_t j = 0;                      // joint index
@@ -182,7 +179,7 @@ void ChainIkSolverPos_LM::computeFwdPos(const VectorXd& q)
   }
 }
 
-void ChainIkSolverPos_LM::computeJacobian(const VectorXd& q)
+void ChainIkSolverPos_LM::computeJacobian(const Eigen::VectorXd& q)
 {
   size_t j = 0;
   for (size_t i = 0; i < ns_; ++i) {
@@ -203,7 +200,7 @@ void ChainIkSolverPos_LM::enforceJointLimits(Eigen::VectorXd& q)
   for (size_t i = 0; i < ns_; ++i) {
     const auto& joint = chain_.getSegment(i).joint();
     if (joint.type != Joint::kFixed) {
-      q(j) = clamp(q(j), joint.lower_limit, joint.upper_limit);
+      q(j) = std::clamp(q(j), joint.lower_limit, joint.upper_limit);
       ++j;
     }
   }

@@ -6,8 +6,6 @@
 #include <ranges>
 #include <unordered_set>
 
-using namespace std;
-
 namespace tobas
 {
 namespace kdl
@@ -42,9 +40,9 @@ void Chain::clear()
 
 std::expected<void, std::string> Chain::validate() const
 {
-  unordered_set<string> seg_names, jnt_names;
+  std::unordered_set<std::string> seg_names, jnt_names;
 
-  for (const auto& [idx, seg] : views::enumerate(segments)) {
+  for (const auto& [idx, seg] : std::views::enumerate(segments)) {
     const auto& seg_name = seg.name();
     if (!seg_names.insert(seg_name).second) {
       return std::unexpected("Segment name '" + seg_name + "' is duplicated.");
@@ -81,10 +79,10 @@ void Chain::addChain(const Chain& chain)
   }
 }
 
-ostream& operator<<(ostream& os, const Chain& arg)
+std::ostream& operator<<(std::ostream& os, const Chain& arg)
 {
   for (const auto& seg : arg.segments) {
-    os << seg.name() << endl;
+    os << seg.name() << std::endl;
   }
   return os;
 }

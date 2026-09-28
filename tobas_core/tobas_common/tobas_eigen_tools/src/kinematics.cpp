@@ -8,8 +8,6 @@
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/assert.hpp>
 
-using namespace Eigen;
-
 namespace tobas
 {
 namespace eigen
@@ -19,14 +17,14 @@ namespace
 [[maybe_unused]] constexpr auto kEps = std::numeric_limits<double>::epsilon();
 }  // namespace
 
-Matrix3d angvelFromEulerrateGlobal(double pitch, double yaw)
+Eigen::Matrix3d angvelFromEulerrateGlobal(double pitch, double yaw)
 {
   const auto cos_pitch = std::cos(pitch);
   const auto sin_pitch = std::sin(pitch);
   const auto cos_yaw = std::cos(yaw);
   const auto sin_yaw = std::sin(yaw);
 
-  Matrix3d res;
+  Eigen::Matrix3d res;
   res(0, 0) = cos_pitch * cos_yaw;
   res(0, 1) = -sin_yaw;
   res(0, 2) = 0;
@@ -40,19 +38,19 @@ Matrix3d angvelFromEulerrateGlobal(double pitch, double yaw)
   return res;
 }
 
-Vector3d angvelFromEulerrateGlobal(const Vector3d& rpyd, double pitch, double yaw)
+Eigen::Vector3d angvelFromEulerrateGlobal(const Eigen::Vector3d& rpyd, double pitch, double yaw)
 {
   return angvelFromEulerrateGlobal(pitch, yaw) * rpyd;
 }
 
-Matrix3d angvelFromEulerrateLocal(double roll, double pitch)
+Eigen::Matrix3d angvelFromEulerrateLocal(double roll, double pitch)
 {
   const auto cos_roll = std::cos(roll);
   const auto sin_roll = std::sin(roll);
   const auto cos_pitch = std::cos(pitch);
   const auto sin_pitch = std::sin(pitch);
 
-  Matrix3d res;
+  Eigen::Matrix3d res;
   res(0, 0) = 1;
   res(0, 1) = 0;
   res(0, 2) = -sin_pitch;
@@ -66,12 +64,12 @@ Matrix3d angvelFromEulerrateLocal(double roll, double pitch)
   return res;
 }
 
-Vector3d angvelFromEulerrateLocal(const Vector3d& rpyd, double roll, double pitch)
+Eigen::Vector3d angvelFromEulerrateLocal(const Eigen::Vector3d& rpyd, double roll, double pitch)
 {
   return angvelFromEulerrateLocal(roll, pitch) * rpyd;
 }
 
-Matrix3d eulerrateFromAngvelGlobal(double pitch, double yaw)
+Eigen::Matrix3d eulerrateFromAngvelGlobal(double pitch, double yaw)
 {
   const auto cos_pitch = std::cos(pitch);
   const auto tan_pitch = std::tan(pitch);
@@ -79,7 +77,7 @@ Matrix3d eulerrateFromAngvelGlobal(double pitch, double yaw)
   const auto sin_yaw = std::sin(yaw);
   assert(cos_pitch > kEps);
 
-  Matrix3d res;
+  Eigen::Matrix3d res;
   res(0, 0) = cos_yaw / cos_pitch;
   res(0, 1) = sin_yaw / cos_pitch;
   res(0, 2) = 0;
@@ -93,12 +91,12 @@ Matrix3d eulerrateFromAngvelGlobal(double pitch, double yaw)
   return res;
 }
 
-Vector3d eulerrateFromAngvelGlobal(const Vector3d& angvel, double pitch, double yaw)
+Eigen::Vector3d eulerrateFromAngvelGlobal(const Eigen::Vector3d& angvel, double pitch, double yaw)
 {
   return eulerrateFromAngvelGlobal(pitch, yaw) * angvel;
 }
 
-Matrix3d eulerrateFromAngvelLocal(double roll, double pitch)
+Eigen::Matrix3d eulerrateFromAngvelLocal(double roll, double pitch)
 {
   const auto cos_roll = std::cos(roll);
   const auto sin_roll = std::sin(roll);
@@ -106,7 +104,7 @@ Matrix3d eulerrateFromAngvelLocal(double roll, double pitch)
   const auto tan_pitch = std::tan(pitch);
   assertWithMsg(cos_pitch > kEps, "roll: " << roll << ", pitch: " << pitch);
 
-  Matrix3d res;
+  Eigen::Matrix3d res;
   res(0, 0) = 1;
   res(0, 1) = sin_roll * tan_pitch;
   res(0, 2) = cos_roll * tan_pitch;
@@ -120,12 +118,13 @@ Matrix3d eulerrateFromAngvelLocal(double roll, double pitch)
   return res;
 }
 
-Vector3d eulerrateFromAngvelLocal(const Vector3d& angvel, double roll, double pitch)
+Eigen::Vector3d eulerrateFromAngvelLocal(const Eigen::Vector3d& angvel, double roll, double pitch)
 {
   return eulerrateFromAngvelLocal(roll, pitch) * angvel;
 }
 
-Vector3d euleraccFromAngaccGlobal(const Vector3d& angvel, const Vector3d& angacc, double pitch, double yaw)
+Eigen::Vector3d
+euleraccFromAngaccGlobal(const Eigen::Vector3d& angvel, const Eigen::Vector3d& angacc, double pitch, double yaw)
 {
   const auto cp = std::cos(pitch);
   const auto tp = std::tan(pitch);
@@ -134,7 +133,7 @@ Vector3d euleraccFromAngaccGlobal(const Vector3d& angvel, const Vector3d& angacc
 
   const auto rpyd = eulerrateFromAngvelGlobal(angvel, pitch, yaw);
 
-  Vector3d rpydd;
+  Eigen::Vector3d rpydd;
   rpydd.x() = rpyd.x() * rpyd.y() * tp + (angacc.x() + angvel.y() * rpyd.z()) * cy / cp +
               (angacc.y() - angvel.x() * rpyd.z()) * sy / cp;
   rpydd.y() = (angacc.y() - angvel.x() * rpyd.z()) * cy - (angacc.x() + angvel.y() * rpyd.z()) * sy;
@@ -144,7 +143,7 @@ Vector3d euleraccFromAngaccGlobal(const Vector3d& angvel, const Vector3d& angacc
   return rpydd;
 }
 
-Vector3d angaccFromEuleraccLocal(
+Eigen::Vector3d angaccFromEuleraccLocal(
   double roll,
   double pitch,
   double droll,
@@ -168,7 +167,7 @@ Vector3d angaccFromEuleraccLocal(
   const auto dpitch_dyaw = dpitch * dyaw;
   const auto dyaw_droll = dyaw * droll;
 
-  Vector3d dgyro;
+  Eigen::Vector3d dgyro;
   dgyro.x() = ddroll - ddyaw * sp - dpitch_dyaw * cp;
   dgyro.y() = ddpitch * cr - droll_dpitch * sr + ddyaw * sr_cp + dyaw_droll * cr_cp - dpitch_dyaw * sr_sp;
   dgyro.z() = -ddpitch * sr - droll_dpitch * cr + ddyaw * cr_cp - dyaw_droll * sr_cp - dpitch_dyaw * cr_sp;
@@ -176,7 +175,8 @@ Vector3d angaccFromEuleraccLocal(
   return dgyro;
 }
 
-Vector3d angaccFromEuleraccLocal(double roll, double pitch, const Vector3d& drpy, const Vector3d& ddrpy)
+Eigen::Vector3d
+angaccFromEuleraccLocal(double roll, double pitch, const Eigen::Vector3d& drpy, const Eigen::Vector3d& ddrpy)
 {
   return angaccFromEuleraccLocal(roll, pitch, drpy.x(), drpy.y(), drpy.z(), ddrpy.x(), ddrpy.y(), ddrpy.z());
 }

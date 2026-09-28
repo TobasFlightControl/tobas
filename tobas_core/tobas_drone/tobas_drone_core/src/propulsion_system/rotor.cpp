@@ -5,8 +5,6 @@
 
 #include <tobas_yaml_tools/core.hpp>
 
-using namespace std;
-
 namespace tobas
 {
 namespace
@@ -19,7 +17,7 @@ constexpr char kTiltJointName[] = "tilt_joint_name";
 bool RotorConfig::isValid() const
 {
   if (link_name.empty()) {
-    cerr << "Link name is empty." << endl;
+    std::cerr << "Link name is empty." << std::endl;
     return false;
   }
 

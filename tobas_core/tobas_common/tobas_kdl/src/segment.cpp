@@ -3,8 +3,6 @@
 
 #include "tobas_kdl/segment.hpp"
 
-using namespace std;
-
 namespace tobas
 {
 namespace kdl
@@ -30,11 +28,11 @@ std::expected<void, std::string> Segment::validate() const
   return {};
 }
 
-ostream& operator<<(ostream& os, const Segment& arg)
+std::ostream& operator<<(std::ostream& os, const Segment& arg)
 {
-  os << "Name: " << arg.name_ << endl;
-  os << "Joint:\n" << arg.joint_ << endl;
-  os << "Frame:\n" << arg.f_tip_ << endl;
+  os << "Name: " << arg.name_ << std::endl;
+  os << "Joint:\n" << arg.joint_ << std::endl;
+  os << "Frame:\n" << arg.f_tip_ << std::endl;
   os << "Inertia:\n" << arg.I_;
   return os;
 }

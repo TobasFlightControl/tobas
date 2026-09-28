@@ -5,8 +5,6 @@
 
 #include <ranges>
 
-using namespace std;
-
 namespace tobas
 {
 namespace kdl
@@ -56,7 +54,7 @@ int TreeTaskSpacePID::cartToJnt(
 
   // Create target acceleration map.
   AccelMap tar_a;
-  for (const auto& [tar_pi, tar_vi, ai_ff] : views::zip(tar_p, tar_v, a_ff)) {
+  for (const auto& [tar_pi, tar_vi, ai_ff] : std::views::zip(tar_p, tar_v, a_ff)) {
     // Check if all keys match.
     const auto& seg_name = tar_pi.first;
     if (tar_vi.first != seg_name || ai_ff.first != seg_name) {

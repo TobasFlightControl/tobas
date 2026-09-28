@@ -8,8 +8,6 @@
 #include <eigen3/Eigen/Eigenvalues>
 #include <eigen3/Eigen/LU>
 
-using namespace Eigen;
-
 namespace tobas
 {
 namespace eigen
@@ -19,7 +17,7 @@ Ellipsoid::Ellipsoid()
   setIdentity();
 }
 
-Ellipsoid::Ellipsoid(const Vector3d& b, const Vector6d& t)
+Ellipsoid::Ellipsoid(const Eigen::Vector3d& b, const Eigen::Vector6d& t)
 {
   setHardBias(b);
   setSoftBias(t);
@@ -28,28 +26,28 @@ Ellipsoid::Ellipsoid(const Vector3d& b, const Vector6d& t)
 bool Ellipsoid::initialize(const EllipsoidCoefficients& coefs)
 {
   // Ellipsoid equation: `x^T A x + b^T x + c = 0`.
-  Matrix3d A;
+  Eigen::Matrix3d A;
   A << coefs.a_xx, coefs.a_xy, coefs.a_zx, coefs.a_xy, coefs.a_yy, coefs.a_yz, coefs.a_zx, coefs.a_yz, coefs.a_zz;
-  Vector3d b;
+  Eigen::Vector3d b;
   b << coefs.b_x, coefs.b_y, coefs.b_z;
 
   // Diagonalize `A`.
-  const SelfAdjointEigenSolver<Matrix3d> eigen_solver(A);
-  const Vector3d Lam = eigen_solver.eigenvalues();
-  const Matrix3d P = eigen_solver.eigenvectors();
+  const Eigen::SelfAdjointEigenSolver<Eigen::Matrix3d> eigen_solver(A);
+  const Eigen::Vector3d Lam = eigen_solver.eigenvalues();
+  const Eigen::Matrix3d P = eigen_solver.eigenvectors();
 
-  const Vector3d Lam_inv = Lam.cwiseInverse();
-  const Matrix3d A_inv = P * Lam_inv.asDiagonal() * P.transpose();
-  const Vector3d A_inv_b = A_inv * b;
+  const Eigen::Vector3d Lam_inv = Lam.cwiseInverse();
+  const Eigen::Matrix3d A_inv = P * Lam_inv.asDiagonal() * P.transpose();
+  const Eigen::Vector3d A_inv_b = A_inv * b;
   const auto W = 0.25 * b.dot(A_inv_b) - coefs.c;
 
   // Calculate radii along the principal axes.
-  const Vector3d r2 = W * Lam_inv;
+  const Eigen::Vector3d r2 = W * Lam_inv;
   if (!(r2.array() > 0.0).all()) {
     std::cerr << "The given equation does not define an ellipsoid." << std::endl;
     return false;
   }
-  const Vector3d r = r2.cwiseSqrt();
+  const Eigen::Vector3d r = r2.cwiseSqrt();
 
   // Calculate biases.
   b_ = -0.5 * A_inv_b;
@@ -66,22 +64,22 @@ void Ellipsoid::setIdentity()
   T_inv_.setIdentity();
 }
 
-const Vector3d& Ellipsoid::getHardBias() const
+const Eigen::Vector3d& Ellipsoid::getHardBias() const
 {
   return b_;
 }
 
-void Ellipsoid::setHardBias(const Vector3d& b)
+void Ellipsoid::setHardBias(const Eigen::Vector3d& b)
 {
   b_ = b;
 }
 
-Vector6d Ellipsoid::getSoftBias() const
+Eigen::Vector6d Ellipsoid::getSoftBias() const
 {
-  return (Vector6d() << T_(0, 0), T_(1, 1), T_(2, 2), T_(0, 1), T_(1, 2), T_(2, 0)).finished();
+  return (Eigen::Vector6d() << T_(0, 0), T_(1, 1), T_(2, 2), T_(0, 1), T_(1, 2), T_(2, 0)).finished();
 }
 
-void Ellipsoid::setSoftBias(const Vector6d& t)
+void Ellipsoid::setSoftBias(const Eigen::Vector6d& t)
 {
   const auto& txx = t(0);
   const auto& tyy = t(1);

@@ -9,8 +9,7 @@
 #include "tobas_drone_core/propulsion_system/electric_propulsion_system/electric_propulsion_system.hpp"
 #include "tobas_drone_core/propulsion_system/ice_propulsion_system/ice_propulsion_system.hpp"
 
-using namespace std;
-namespace fs = filesystem;
+namespace fs = std::filesystem;
 
 namespace tobas
 {
@@ -37,40 +36,40 @@ void Drone::clear()
 bool Drone::isValid() const
 {
   if (name == "") {
-    cerr << "This drone does not have name." << endl;
+    std::cerr << "This drone does not have name." << std::endl;
     return false;
   }
 
   for (const auto& [_, pwm] : pwms) {
     if (!pwm.isValid()) {
-      cerr << "The configuration of PWM channel " << pwm.channel << " is invalid." << endl;
+      std::cerr << "The configuration of PWM channel " << pwm.channel << " is invalid." << std::endl;
       return false;
     }
   }
 
   for (const auto& [_, joint] : joints) {
     if (!joint.isValid()) {
-      cerr << "The configuration of joint '" << joint.name << "' is invalid." << endl;
+      std::cerr << "The configuration of joint '" << joint.name << "' is invalid." << std::endl;
       return false;
     }
   }
 
   if (!prop) {
-    cerr << "The configuration of propulsion system is null." << endl;
+    std::cerr << "The configuration of propulsion system is null." << std::endl;
     return false;
   }
   if (!prop->isValid()) {
-    cerr << "The configuration of propulsion system is invalid." << endl;
+    std::cerr << "The configuration of propulsion system is invalid." << std::endl;
     return false;
   }
 
   if (fixed_wing && !fixed_wing->isValid()) {
-    cerr << "The configuration of fixed wing is invalid." << endl;
+    std::cerr << "The configuration of fixed wing is invalid." << std::endl;
     return false;
   }
 
   if (num_sbus_channels < kMinSbusChannels || kMaxSbusChannels < num_sbus_channels) {
-    cerr << "The number of sbus channels is invalid." << endl;
+    std::cerr << "The number of sbus channels is invalid." << std::endl;
     return false;
   }
 
@@ -89,17 +88,17 @@ bool Drone::load(const YAML::Node& root_node)
   // Joints
   const auto joints_node = root_node[kJointsKey];
   if (!joints_node.IsDefined()) {
-    cerr << "'" << kJointsKey << "' is not defined." << endl;
+    std::cerr << "'" << kJointsKey << "' is not defined." << std::endl;
     return false;
   }
   if (!joints_node.IsSequence()) {
-    cerr << "'" << kJointsKey << "' must be a sequence." << endl;
+    std::cerr << "'" << kJointsKey << "' must be a sequence." << std::endl;
     return false;
   }
   for (const auto& joint_node : joints_node) {
     JointConfig joint;
     if (!joint.load(joint_node)) {
-      cerr << "Failed to load the configuration of joints." << endl;
+      std::cerr << "Failed to load the configuration of joints." << std::endl;
       return false;
     }
     joints[joint.name] = joint;
@@ -108,17 +107,17 @@ bool Drone::load(const YAML::Node& root_node)
   // PWM
   const auto pwms_node = root_node[kPwmsKey];
   if (!pwms_node.IsDefined()) {
-    cerr << "'" << kPwmsKey << "' is not defined." << endl;
+    std::cerr << "'" << kPwmsKey << "' is not defined." << std::endl;
     return false;
   }
   if (!pwms_node.IsSequence()) {
-    cerr << "'" << kPwmsKey << "' must be a sequence." << endl;
+    std::cerr << "'" << kPwmsKey << "' must be a sequence." << std::endl;
     return false;
   }
   for (const auto& pwm_node : pwms_node) {
     PwmConfig pwm;
     if (!pwm.load(pwm_node)) {
-      cerr << "Failed to load the configuration of PWM." << endl;
+      std::cerr << "Failed to load the configuration of PWM." << std::endl;
       return false;
     }
     pwms[pwm.name] = pwm;
@@ -132,31 +131,31 @@ bool Drone::load(const YAML::Node& root_node)
 
   const auto prop_node = root_node[kPropulsionSystemKey];
   if (!prop_node.IsDefined()) {
-    cerr << "'" << kPropulsionSystemKey << "' is not defined." << endl;
+    std::cerr << "'" << kPropulsionSystemKey << "' is not defined." << std::endl;
     return false;
   }
 
   switch (prop_type) {
     case PropulsionSystem::kElectric: {
-      const auto eprop = make_shared<ElectricPropulsionSystemConfig>();
+      const auto eprop = std::make_shared<ElectricPropulsionSystemConfig>();
       if (!eprop->load(prop_node)) {
-        cerr << "Failed to load the configuration of electric propulsion system." << endl;
+        std::cerr << "Failed to load the configuration of electric propulsion system." << std::endl;
         return false;
       }
-      prop = static_pointer_cast<PropulsionSystemConfig>(eprop);
+      prop = std::static_pointer_cast<PropulsionSystemConfig>(eprop);
       break;
     }
     case PropulsionSystem::kIce: {
-      const auto iprop = make_shared<IcePropulsionSystemConfig>();
+      const auto iprop = std::make_shared<IcePropulsionSystemConfig>();
       if (!iprop->load(prop_node)) {
-        cerr << "Failed to load the configuration of ICE propulsion system." << endl;
+        std::cerr << "Failed to load the configuration of ICE propulsion system." << std::endl;
         return false;
       }
-      prop = static_pointer_cast<PropulsionSystemConfig>(iprop);
+      prop = std::static_pointer_cast<PropulsionSystemConfig>(iprop);
       break;
     }
     default: {
-      cerr << "Invalid propulsion system type: " << (int)prop_type << endl;
+      std::cerr << "Invalid propulsion system type: " << (int)prop_type << std::endl;
       return false;
     }
   }
@@ -164,9 +163,9 @@ bool Drone::load(const YAML::Node& root_node)
   // Fixed Wing
   const auto fw_node = root_node[kFixedWingKey];
   if (fw_node.IsDefined()) {
-    fixed_wing = make_shared<FixedWingConfig>();
+    fixed_wing = std::make_shared<FixedWingConfig>();
     if (!fixed_wing->load(fw_node)) {
-      cerr << "Failed to load the configuration of fixed wing." << endl;
+      std::cerr << "Failed to load the configuration of fixed wing." << std::endl;
       return false;
     }
   }
@@ -220,12 +219,12 @@ bool Drone::load(const fs::path& path)
 {
   const auto node = yaml::load(path);
   if (!node) {
-    cerr << node.error() << endl;
+    std::cerr << node.error() << std::endl;
     return false;
   }
 
   if (!load(*node)) {
-    cerr << "Failed to load drone." << endl;
+    std::cerr << "Failed to load drone." << std::endl;
     return false;
   }
 

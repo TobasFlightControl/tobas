@@ -10,8 +10,6 @@
 #include <cstdarg>
 #include <cstdio>
 
-using namespace std;
-
 namespace tobas
 {
 namespace linux

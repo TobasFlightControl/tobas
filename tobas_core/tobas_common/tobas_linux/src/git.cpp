@@ -5,8 +5,6 @@
 
 #include <iostream>
 
-using namespace std;
-
 namespace tobas
 {
 namespace linux
@@ -15,20 +13,20 @@ GitHandler::GitHandler()
 {
 }
 
-string GitHandler::getUserName()
+std::string GitHandler::getUserName()
 {
   if (!command_executor_.execute("git config --global user.name")) {
-    cerr << "Failed to get Git user name." << endl;
+    std::cerr << "Failed to get Git user name." << std::endl;
     return "";
   }
 
   return command_executor_.getOutput();
 }
 
-string GitHandler::getUserEmail()
+std::string GitHandler::getUserEmail()
 {
   if (!command_executor_.execute("git config --global user.email")) {
-    cerr << "Failed to get Git user email." << endl;
+    std::cerr << "Failed to get Git user email." << std::endl;
     return "";
   }
 

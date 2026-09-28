@@ -8,8 +8,6 @@
 #include <tobas_yaml_tools/core.hpp>
 #include <tobas_yaml_tools/format.hpp>
 
-using namespace std;
-
 namespace tobas
 {
 namespace
@@ -24,22 +22,22 @@ constexpr char kAlphaLimitLKey[] = "alpha_limit";
 bool VehicleParameters::isValid() const
 {
   if (wing_surface <= 0) {
-    cerr << "Wing surface must be positive." << endl;
+    std::cerr << "Wing surface must be positive." << std::endl;
     return false;
   }
 
   if (wing_span <= 0) {
-    cerr << "Wing span must be positive." << endl;
+    std::cerr << "Wing span must be positive." << std::endl;
     return false;
   }
 
   if (mac <= 0) {
-    cerr << "Mean aerodynamic chord must be positive." << endl;
+    std::cerr << "Mean aerodynamic chord must be positive." << std::endl;
     return false;
   }
 
   if (!alpha_limit.isValid()) {
-    cerr << "Invalid stall angles." << endl;
+    std::cerr << "Invalid stall angles." << std::endl;
     return false;
   }
 

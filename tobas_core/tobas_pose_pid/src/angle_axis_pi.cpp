@@ -7,8 +7,6 @@
 
 #include "./util.hpp"
 
-using namespace std;
-
 namespace tobas
 {
 AngleAxisPI::AngleAxisPI()
@@ -38,7 +36,7 @@ bool AngleAxisPI::setProportionalGain(int idx, double value)
   }
 
   if (value < 0.0) {
-    cerr << "Proportional gain must be non-negative." << endl;
+    std::cerr << "Proportional gain must be non-negative." << std::endl;
     return false;
   }
 
@@ -54,7 +52,7 @@ bool AngleAxisPI::setIntegralGain(int idx, double value)
   }
 
   if (value < 0.0) {
-    cerr << "Integral gain must be non-negative." << endl;
+    std::cerr << "Integral gain must be non-negative." << std::endl;
     return false;
   }
 

@@ -5,14 +5,11 @@
 
 #include <tobas_eigen_tools/core.hpp>
 
-using namespace std;
-using namespace Eigen;
-
 namespace tobas
 {
 namespace quadprog
 {
-QuadProgProblem::QuadProgProblem(const Index& var_size, const Index& eq_size, const Index& ineq_size)
+QuadProgProblem::QuadProgProblem(const Eigen::Index& var_size, const Eigen::Index& eq_size, const Eigen::Index& ineq_size)
 {
   resize(var_size, eq_size, ineq_size);
 }
@@ -21,7 +18,7 @@ QuadProgProblem::QuadProgProblem()
 {
 }
 
-void QuadProgProblem::resize(const Index& var_size, const Index& eq_size, const Index& ineq_size)
+void QuadProgProblem::resize(const Eigen::Index& var_size, const Eigen::Index& eq_size, const Eigen::Index& ineq_size)
 {
   P.conservativeResize(var_size, var_size);
   q.conservativeResize(var_size);
@@ -64,14 +61,14 @@ bool QuadProgProblem::isFinite() const
          eigen::isFinite(b);
 }
 
-ostream& operator<<(ostream& os, const QuadProgProblem& arg)
+std::ostream& operator<<(std::ostream& os, const QuadProgProblem& arg)
 {
-  os << "P:\n" << arg.P << endl;
-  os << "q:\n" << arg.q << endl;
-  os << "G:\n" << arg.G << endl;
-  os << "h:\n" << arg.h << endl;
-  os << "A:\n" << arg.A << endl;
-  os << "b:\n" << arg.b << endl;
+  os << "P:\n" << arg.P << std::endl;
+  os << "q:\n" << arg.q << std::endl;
+  os << "G:\n" << arg.G << std::endl;
+  os << "h:\n" << arg.h << std::endl;
+  os << "A:\n" << arg.A << std::endl;
+  os << "b:\n" << arg.b << std::endl;
   return os;
 }
 
@@ -79,7 +76,7 @@ QuadProgSolver::QuadProgSolver()
 {
 }
 
-void QuadProgSolver::resize(const Index& var_size, const Index& eq_size, const Index& ineq_size)
+void QuadProgSolver::resize(const Eigen::Index& var_size, const Eigen::Index& eq_size, const Eigen::Index& ineq_size)
 {
   problem.resize(var_size, eq_size, ineq_size);
   x_scale.conservativeResize(var_size);
@@ -91,10 +88,10 @@ void QuadProgSolver::setZero()
   x_scale.setZero();
 }
 
-ostream& operator<<(ostream& os, const QuadProgSolver& arg)
+std::ostream& operator<<(std::ostream& os, const QuadProgSolver& arg)
 {
-  os << "problem:\n" << arg.problem << endl;
-  os << "x_scale:\n" << arg.x_scale.transpose() << endl;
+  os << "problem:\n" << arg.problem << std::endl;
+  os << "x_scale:\n" << arg.x_scale.transpose() << std::endl;
   return os;
 }
 
@@ -104,7 +101,7 @@ QuadProgProblem QuadProgSolver::scaleProblem() const
 
   // Scale so each element of `x` has a similar absolute value (memo: 2-21).
   // This changes the optimization variables but not the adjoint variables.
-  const DiagonalMatrix<double, Dynamic> x_scale_diag = x_scale.asDiagonal();
+  const Eigen::DiagonalMatrix<double, Eigen::Dynamic> x_scale_diag = x_scale.asDiagonal();
   scaled.P = x_scale_diag * problem.P * x_scale_diag;
   scaled.q = x_scale_diag * problem.q;
   scaled.G = problem.G * x_scale_diag;

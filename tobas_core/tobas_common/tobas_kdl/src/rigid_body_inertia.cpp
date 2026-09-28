@@ -3,9 +3,6 @@
 
 #include "tobas_kdl/rigid_body_inertia.hpp"
 
-using namespace std;
-using namespace Eigen;
-
 namespace tobas
 {
 namespace kdl
@@ -13,7 +10,7 @@ namespace kdl
 RigidBodyInertia::RigidBodyInertia(double m, const Vector& oc, const RotationalInertia& Ic) : m_(m), h_(m * oc)
 {
   const auto& c_eig = oc.data;
-  Matrix3d tmp = c_eig * c_eig.transpose();
+  Eigen::Matrix3d tmp = c_eig * c_eig.transpose();
   tmp.diagonal().array() -= c_eig.dot(c_eig);
   I_.data = Ic.data - m * tmp;
 }
@@ -27,10 +24,10 @@ std::expected<void, std::string> RigidBodyInertia::validate() const
   return I_.validate();
 }
 
-ostream& operator<<(ostream& os, const RigidBodyInertia& arg)
+std::ostream& operator<<(std::ostream& os, const RigidBodyInertia& arg)
 {
-  os << "Mass: " << arg.m_ << endl;
-  os << "Spatial Momentum: " << arg.h_ << endl;
+  os << "Mass: " << arg.m_ << std::endl;
+  os << "Spatial Momentum: " << arg.h_ << std::endl;
   os << "Rotational Inertia: " << arg.I_;
   return os;
 }

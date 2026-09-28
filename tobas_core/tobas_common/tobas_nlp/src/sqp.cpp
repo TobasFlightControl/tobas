@@ -9,9 +9,6 @@
 
 // #define TRACE_SOLVER
 
-using namespace std;
-using namespace Eigen;
-
 namespace tobas
 {
 namespace nlp
@@ -21,24 +18,24 @@ SQP::SQP()
 }
 
 void SQP::initialize(
-  const VectorXd& x0,
-  function<double(const VectorXd&)> f,
-  function<VectorXd(const VectorXd&)> g,
-  function<VectorXd(const VectorXd&)> h,
-  function<RowVectorXd(const VectorXd&)> dfdx,
-  function<MatrixXd(const VectorXd&)> dgdx,
-  function<MatrixXd(const VectorXd&)> dhdx,
-  function<MatrixXd(const VectorXd&)> dFdx,
-  function<Tensor3Xd(const VectorXd&)> dGdx,
-  function<Tensor3Xd(const VectorXd&)> dHdx)
+  const Eigen::VectorXd& x0,
+  std::function<double(const Eigen::VectorXd&)> f,
+  std::function<Eigen::VectorXd(const Eigen::VectorXd&)> g,
+  std::function<Eigen::VectorXd(const Eigen::VectorXd&)> h,
+  std::function<Eigen::RowVectorXd(const Eigen::VectorXd&)> dfdx,
+  std::function<Eigen::MatrixXd(const Eigen::VectorXd&)> dgdx,
+  std::function<Eigen::MatrixXd(const Eigen::VectorXd&)> dhdx,
+  std::function<Eigen::MatrixXd(const Eigen::VectorXd&)> dFdx,
+  std::function<Eigen::Tensor3Xd(const Eigen::VectorXd&)> dGdx,
+  std::function<Eigen::Tensor3Xd(const Eigen::VectorXd&)> dHdx)
 {
   n_ = x0.size();
   m_ = g(x0).size();
   p_ = h(x0).size();
 
   x_ = x0;
-  lam_ = VectorXd::Zero(m_);
-  mu_ = VectorXd::Zero(p_);
+  lam_ = Eigen::VectorXd::Zero(m_);
+  mu_ = Eigen::VectorXd::Zero(p_);
 
   f_ = f;
   g_ = g;
@@ -51,7 +48,7 @@ void SQP::initialize(
   dHdx_ = dHdx;
 
   if (qp_.x_scale.size() != n_) {
-    qp_.x_scale = VectorXd::Ones(n_);
+    qp_.x_scale = Eigen::VectorXd::Ones(n_);
   }
 }
 
@@ -93,11 +90,11 @@ std::expected<Eigen::VectorXd, std::string> SQP::solve()
     mu_ = qp_.getLagrangeMultipliersEq();
 
 #ifdef TRACE_SOLVER
-    cout << "Iteration: " << iter_ << endl;
-    cout << "x = " << x_.transpose() << endl;
-    cout << "lambda = " << lam_.transpose() << endl;
-    cout << "mu = " << mu_.transpose() << endl;
-    cout << "----------" << endl;
+    std::cout << "Iteration: " << iter_ << std::endl;
+    std::cout << "x = " << x_.transpose() << std::endl;
+    std::cout << "lambda = " << lam_.transpose() << std::endl;
+    std::cout << "mu = " << mu_.transpose() << std::endl;
+    std::cout << "----------" << std::endl;
 #endif
 
     // Termination check.
@@ -122,7 +119,7 @@ bool SQP::setMaximumIterations(size_t max_iter)
 bool SQP::setRelativeTolerance(double rel_tol)
 {
   if (rel_tol <= 0.0) {
-    cerr << "Relative tolerance must be positive." << endl;
+    std::cerr << "Relative tolerance must be positive." << std::endl;
     return false;
   }
 
@@ -133,12 +130,12 @@ bool SQP::setRelativeTolerance(double rel_tol)
 bool SQP::setVariableScales(const Eigen::VectorXd& x_scale)
 {
   if (x_scale.size() != n_) {
-    cerr << "The size of scale vector does not match that of variables." << endl;
+    std::cerr << "The size of scale vector does not match that of variables." << std::endl;
     return false;
   }
 
   if ((x_scale.array() <= 0).any()) {
-    cerr << "The scale of variables must be positive." << endl;
+    std::cerr << "The scale of variables must be positive." << std::endl;
     return false;
   }
 

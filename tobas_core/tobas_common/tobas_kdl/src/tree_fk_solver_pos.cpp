@@ -3,8 +3,6 @@
 
 #include "tobas_kdl/tree_fk_solver_pos.hpp"
 
-using namespace std;
-
 namespace tobas
 {
 namespace kdl
@@ -13,7 +11,7 @@ TreeFkSolverPos::TreeFkSolverPos(const Tree& tree) : super(tree)
 {
 }
 
-int TreeFkSolverPos::jntToCart(const JntArray& q, const string& seg_name)
+int TreeFkSolverPos::jntToCart(const JntArray& q, const std::string& seg_name)
 {
   if (!isUpToDate()) {
     return setDefaultError(kNotUpToDate);

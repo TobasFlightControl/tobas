@@ -6,15 +6,16 @@
 #include <tobas_eigen_tools/linalg.hpp>
 #include <tobas_quadprog/utils.hpp>
 
-#define EPS std::numeric_limits<double>::epsilon()
-
-using namespace Eigen;
-
 namespace tobas
 {
 namespace ctrl
 {
-MatrixXd ctrb(const MatrixXd& A, const MatrixXd& B)
+namespace
+{
+constexpr auto kEps = std::numeric_limits<double>::epsilon();
+}  // namespace
+
+Eigen::MatrixXd ctrb(const Eigen::MatrixXd& A, const Eigen::MatrixXd& B)
 {
   const auto x_size = A.rows();
   const auto u_size = B.cols();
@@ -22,8 +23,8 @@ MatrixXd ctrb(const MatrixXd& A, const MatrixXd& B)
   assert(A.rows() == x_size && A.cols() == x_size);
   assert(B.rows() == x_size && B.cols() == u_size);
 
-  MatrixXd Mc(x_size, u_size * x_size);
-  MatrixXd tmp = B;
+  Eigen::MatrixXd Mc(x_size, u_size * x_size);
+  Eigen::MatrixXd tmp = B;
   for (int i = 0; i < x_size; ++i) {
     Mc.block(0, u_size * i, x_size, u_size) = tmp;
     tmp = A * tmp;
@@ -32,7 +33,7 @@ MatrixXd ctrb(const MatrixXd& A, const MatrixXd& B)
   return Mc;
 }
 
-MatrixXd obsv(const MatrixXd& A, const MatrixXd& C)
+Eigen::MatrixXd obsv(const Eigen::MatrixXd& A, const Eigen::MatrixXd& C)
 {
   const auto x_size = A.rows();
   const auto y_size = C.rows();
@@ -40,8 +41,8 @@ MatrixXd obsv(const MatrixXd& A, const MatrixXd& C)
   assert(A.rows() == x_size && A.cols() == x_size);
   assert(C.rows() == y_size && C.cols() == x_size);
 
-  MatrixXd Mo(y_size * x_size, x_size);
-  MatrixXd tmp = C;
+  Eigen::MatrixXd Mo(y_size * x_size, x_size);
+  Eigen::MatrixXd tmp = C;
   for (int i = 0; i < x_size; ++i) {
     Mo.block(y_size * i, 0, y_size, x_size) = tmp;
     tmp = tmp * A;
@@ -50,7 +51,7 @@ MatrixXd obsv(const MatrixXd& A, const MatrixXd& C)
   return Mo;
 }
 
-bool isControllable(const MatrixXd& A, const MatrixXd& B)
+bool isControllable(const Eigen::MatrixXd& A, const Eigen::MatrixXd& B)
 {
   const auto x_size = A.rows();
   const auto Mc = ctrb(A, B);
@@ -58,7 +59,7 @@ bool isControllable(const MatrixXd& A, const MatrixXd& B)
   return rank == x_size;
 }
 
-bool isObservable(const MatrixXd& A, const MatrixXd& C)
+bool isObservable(const Eigen::MatrixXd& A, const Eigen::MatrixXd& C)
 {
   const auto x_size = A.rows();
   const auto Mo = obsv(A, C);
@@ -66,7 +67,7 @@ bool isObservable(const MatrixXd& A, const MatrixXd& C)
   return rank == x_size;
 }
 
-LinearEquation matIneqFromRange(const VectorXd& lb, const VectorXd& ub, const double& inf)
+LinearEquation matIneqFromRange(const Eigen::VectorXd& lb, const Eigen::VectorXd& ub, const double& inf)
 {
   LinearEquation res;
   quadprog::matIneqFromRange(lb, ub, res.A, res.b, inf);
@@ -75,12 +76,12 @@ LinearEquation matIneqFromRange(const VectorXd& lb, const VectorXd& ub, const do
 
 double firstOrderPos(const double& x0, const double& xd, const double& tau, const double& t)
 {
-  return xd - std::exp(-t / (tau + EPS)) * (xd - x0);
+  return xd - std::exp(-t / (tau + kEps)) * (xd - x0);
 }
 
 double firstOrderVel(const double& x0, const double& v0, const double& vd, const double& tau, const double& t)
 {
-  return x0 + vd * t - tau * (1 - std::exp(-t / (tau + EPS))) * (vd - v0);
+  return x0 + vd * t - tau * (1 - std::exp(-t / (tau + kEps))) * (vd - v0);
 }
 }  // namespace ctrl
 }  // namespace tobas

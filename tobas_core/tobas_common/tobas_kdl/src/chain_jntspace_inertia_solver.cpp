@@ -3,8 +3,6 @@
 
 #include "tobas_kdl/chain_jntspace_inertia_solver.hpp"
 
-using namespace std;
-
 namespace tobas
 {
 namespace kdl

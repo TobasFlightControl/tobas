@@ -3,8 +3,6 @@
 
 #include "tobas_kdl/tree_jacobian_solver.hpp"
 
-using namespace std;
-
 namespace tobas
 {
 namespace kdl
@@ -21,7 +19,7 @@ void TreeJacobianSolver::updateInternalDataStructures()
   resize();
 }
 
-int TreeJacobianSolver::jntToJac(const JntArray& q_in, const string& seg_name)
+int TreeJacobianSolver::jntToJac(const JntArray& q_in, const std::string& seg_name)
 {
   if (!isUpToDate()) {
     return setDefaultError(kNotUpToDate);

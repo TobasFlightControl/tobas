@@ -6,8 +6,6 @@
 #include <iostream>
 #include <memory>
 
-using namespace std;
-
 namespace tobas
 {
 namespace linux
@@ -16,12 +14,12 @@ CommandExecutor::CommandExecutor()
 {
 }
 
-bool CommandExecutor::execute(string command)
+bool CommandExecutor::execute(std::string command)
 {
   // Redirect standard error to standard output.
   // TODO: Support more complex redirection commands.
   const auto pos = command.find('>');
-  if (pos == string::npos) {
+  if (pos == std::string::npos) {
     command += " 2>&1";  // Append to the end when there is no redirection.
   }
   else {
@@ -29,9 +27,9 @@ bool CommandExecutor::execute(string command)
   }
 
   // Execute the command.
-  unique_ptr<FILE, int (*)(FILE*)> pipe(popen((command).c_str(), "r"), pclose);
+  std::unique_ptr<FILE, int (*)(FILE*)> pipe(popen((command).c_str(), "r"), pclose);
   if (!pipe) {
-    cerr << "popen() failed." << endl;
+    std::cerr << "popen() failed." << std::endl;
     return false;
   }
 

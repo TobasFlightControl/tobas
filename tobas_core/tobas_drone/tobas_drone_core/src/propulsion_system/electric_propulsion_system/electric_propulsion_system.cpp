@@ -6,8 +6,6 @@
 #include <iostream>
 #include <memory>
 
-using namespace std;
-
 namespace tobas
 {
 namespace
@@ -21,7 +19,7 @@ bool ElectricPropulsionSystemConfig::isValid() const
   // Rotors
   for (const auto& [_, rotor] : rotors) {
     if (!rotor->isValid()) {
-      cerr << "The configuration of rotor '" << rotor->link_name << "' is invalid." << endl;
+      std::cerr << "The configuration of rotor '" << rotor->link_name << "' is invalid." << std::endl;
       return false;
     }
   }
@@ -41,17 +39,17 @@ bool ElectricPropulsionSystemConfig::load(const YAML::Node& root_node)
   // Rotors
   const auto rotors_node = root_node[kRotorsKey];
   if (!rotors_node.IsDefined()) {
-    cerr << "'" << kRotorsKey << "' is not defined." << endl;
+    std::cerr << "'" << kRotorsKey << "' is not defined." << std::endl;
     return false;
   }
   if (!rotors_node.IsSequence()) {
-    cerr << "'" << kRotorsKey << "' must be a sequence." << endl;
+    std::cerr << "'" << kRotorsKey << "' must be a sequence." << std::endl;
     return false;
   }
   for (const auto& rotor_node : rotors_node) {
-    const auto rotor = make_shared<ElectricRotorConfig>();
+    const auto rotor = std::make_shared<ElectricRotorConfig>();
     if (!rotor->load(rotor_node)) {
-      cerr << "Failed to load the configuration of rotors." << endl;
+      std::cerr << "Failed to load the configuration of rotors." << std::endl;
       return false;
     }
     rotors[rotor->link_name] = rotor;
@@ -60,11 +58,11 @@ bool ElectricPropulsionSystemConfig::load(const YAML::Node& root_node)
   // Battery
   const auto battery_node = root_node[kBatteryKey];
   if (!battery_node.IsDefined()) {
-    cerr << "'" << kBatteryKey << "' is not defined." << endl;
+    std::cerr << "'" << kBatteryKey << "' is not defined." << std::endl;
     return false;
   }
   if (!battery.load(battery_node)) {
-    cerr << "Failed to load the configuration of battery." << endl;
+    std::cerr << "Failed to load the configuration of battery." << std::endl;
     return false;
   }
 
@@ -92,13 +90,13 @@ PropulsionSystem ElectricPropulsionSystemConfig::type() const
   return PropulsionSystem::kElectric;
 }
 
-double ElectricPropulsionSystemConfig::minSpeed(const string& link_name)
+double ElectricPropulsionSystemConfig::minSpeed(const std::string& link_name)
 {
   const auto rotor = getRotor(link_name);
   return rotor->min_speed;
 }
 
-double ElectricPropulsionSystemConfig::maxSpeed(const string& link_name)
+double ElectricPropulsionSystemConfig::maxSpeed(const std::string& link_name)
 {
   // FIXME: Reflect the maximum thrust while absorbing errors between electric and ICE models
   // and considering the battery or engine state.
@@ -107,13 +105,13 @@ double ElectricPropulsionSystemConfig::maxSpeed(const string& link_name)
   return rotor->speedFromVoltage(battery.nominal_voltage);
 }
 
-double ElectricPropulsionSystemConfig::minThrust(const string& link_name)
+double ElectricPropulsionSystemConfig::minThrust(const std::string& link_name)
 {
   const auto rotor = getRotor(link_name);
   return rotor->thrustFromSpeed(minSpeed(link_name));
 }
 
-double ElectricPropulsionSystemConfig::maxThrust(const string& link_name)
+double ElectricPropulsionSystemConfig::maxThrust(const std::string& link_name)
 {
   const auto rotor = getRotor(link_name);
   return rotor->thrustFromSpeed(maxSpeed(link_name));
@@ -130,7 +128,7 @@ ElectricRotorConfig::SharedPtr ElectricPropulsionSystemConfig::getRotor(const st
 {
   const auto it = rotors.find(link_name);
   if (it == rotors.end()) {
-    cerr << "Electric rotor link '" << link_name << "' is not found." << endl;
+    std::cerr << "Electric rotor link '" << link_name << "' is not found." << std::endl;
     return nullptr;
   }
   return std::static_pointer_cast<ElectricRotorConfig>(it->second);
@@ -140,7 +138,7 @@ ElectricRotorConfig::ConstSharedPtr ElectricPropulsionSystemConfig::getRotor(con
 {
   const auto it = rotors.find(link_name);
   if (it == rotors.end()) {
-    cerr << "Electric rotor link '" << link_name << "' is not found." << endl;
+    std::cerr << "Electric rotor link '" << link_name << "' is not found." << std::endl;
     return nullptr;
   }
   return std::static_pointer_cast<ElectricRotorConfig>(it->second);

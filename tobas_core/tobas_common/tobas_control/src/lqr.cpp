@@ -3,12 +3,7 @@
 
 #include "tobas_control/lqr.hpp"
 
-#include <iostream>
-
 #include "tobas_control/care.hpp"
-
-using namespace std;
-using namespace Eigen;
 
 namespace tobas
 {
@@ -18,7 +13,7 @@ LQR::LQR()
 {
 }
 
-VectorXd LQR::solve(const bool& update_gain)
+Eigen::VectorXd LQR::solve(const bool& update_gain)
 {
   checkProblemValidity();
 
@@ -27,14 +22,14 @@ VectorXd LQR::solve(const bool& update_gain)
   }
 
   // Scaling.
-  const VectorXd x_scaled = current_state.array() / state_scale.array();
-  const VectorXd s_scaled = target_state.array() / state_scale.array();
+  const Eigen::VectorXd x_scaled = current_state.array() / state_scale.array();
+  const Eigen::VectorXd s_scaled = target_state.array() / state_scale.array();
 
   const auto u_scaled = K_ * (s_scaled - x_scaled);
   return u_scaled.cwiseProduct(input_scale);
 }
 
-void LQR::resize(const Index& state_size, const Index& input_size)
+void LQR::resize(const Eigen::Index& state_size, const Eigen::Index& input_size)
 {
   dynamics.resize(state_size, input_size);
 
@@ -77,14 +72,14 @@ void LQR::checkProblemValidity()
   assert((input_weight.array() > 0.0).all());
 }
 
-ostream& operator<<(ostream& os, const LQR& arg)
+std::ostream& operator<<(std::ostream& os, const LQR& arg)
 {
-  os << "Dynamics:\n" << arg.dynamics << endl;
-  os << "Current state:\n" << arg.current_state << endl;
-  os << "Target state:\n" << arg.target_state << endl;
-  os << "State error:\n" << arg.target_state - arg.current_state << endl;
-  os << "Covariance matrix:\n" << arg.P_inf_ << endl;
-  os << "Gain:\n" << arg.K_ << endl;
+  os << "Dynamics:\n" << arg.dynamics << std::endl;
+  os << "Current state:\n" << arg.current_state << std::endl;
+  os << "Target state:\n" << arg.target_state << std::endl;
+  os << "State error:\n" << arg.target_state - arg.current_state << std::endl;
+  os << "Covariance matrix:\n" << arg.P_inf_ << std::endl;
+  os << "Gain:\n" << arg.K_ << std::endl;
 
   return os;
 }

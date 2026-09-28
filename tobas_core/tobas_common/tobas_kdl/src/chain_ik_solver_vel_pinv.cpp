@@ -5,8 +5,6 @@
 
 #include <eigen3/Eigen/SVD>
 
-using namespace Eigen;
-
 namespace tobas
 {
 namespace kdl
@@ -38,7 +36,7 @@ int ChainIkSolverVel_pinv::cartToJnt(const JntArray& q, const Vector& v)
   const auto& jac = jnt2jac_.getJacobian();
 
   // Compute the least-squares solution.
-  qd_out_.data = jac.data.topRows(3).jacobiSvd(ComputeThinU | ComputeThinV).solve(v.data);
+  qd_out_.data = jac.data.topRows(3).jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(v.data);
 
   return setDefaultError(kNoError);
 }
@@ -59,7 +57,7 @@ int ChainIkSolverVel_pinv::cartToJnt(const JntArray& q, const Twist& v)
   const auto& jac = jnt2jac_.getJacobian();
 
   // Compute the least-squares solution.
-  qd_out_.data = jac.data.jacobiSvd(ComputeThinU | ComputeThinV).solve(v.ravel());
+  qd_out_.data = jac.data.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(v.ravel());
 
   return setDefaultError(kNoError);
 }

@@ -8,9 +8,6 @@
 #include <tobas_eigen_tools/core.hpp>
 #include <tobas_quadprog/utils.hpp>
 
-using namespace std;
-using namespace Eigen;
-
 namespace tobas
 {
 namespace kdl
@@ -69,9 +66,9 @@ int TreeIkSolverAcc_RAC::cartToJnt(const JntArray& q_in, const JntArray& qd_in, 
   }
 
   // Objective function.
-  const VectorXd Wt = eigen::tile(Wt_, num_points, 0);
-  const VectorXd Wj = VectorXd::Constant(nj_, Wj_);
-  const MatrixXd JT_Wt = J_.transpose() * Wt.asDiagonal();
+  const Eigen::VectorXd Wt = eigen::tile(Wt_, num_points, 0);
+  const Eigen::VectorXd Wj = Eigen::VectorXd::Constant(nj_, Wj_);
+  const Eigen::MatrixXd JT_Wt = J_.transpose() * Wt.asDiagonal();
   qp_solver_.problem.P = JT_Wt * J_;
   qp_solver_.problem.P.diagonal() += Wj;
   qp_solver_.problem.q = -JT_Wt * a_;
@@ -101,7 +98,7 @@ int TreeIkSolverAcc_RAC::cartToJnt(const JntArray& q_in, const JntArray& qd_in, 
   return setDefaultError(kNoError);
 }
 
-bool TreeIkSolverAcc_RAC::setWeightTS(const Vector6d& Wt)
+bool TreeIkSolverAcc_RAC::setWeightTS(const Eigen::Vector6d& Wt)
 {
   if ((Wt.array() < 0).any()) {
     return false;
@@ -111,7 +108,7 @@ bool TreeIkSolverAcc_RAC::setWeightTS(const Vector6d& Wt)
   return true;
 }
 
-const Vector6d& TreeIkSolverAcc_RAC::getWeightTS() const
+const Eigen::Vector6d& TreeIkSolverAcc_RAC::getWeightTS() const
 {
   return Wt_;
 }
@@ -137,7 +134,7 @@ void TreeIkSolverAcc_RAC::resize()
   qdd_min_.conservativeResize(nj_);
   qdd_max_.conservativeResize(nj_);
 
-  qp_solver_.x_scale = VectorXd::Ones(nj_);
+  qp_solver_.x_scale = Eigen::VectorXd::Ones(nj_);
   qp_solver_.problem.G.conservativeResize(0, nj_);
   qp_solver_.problem.h.conservativeResize(0);
 }

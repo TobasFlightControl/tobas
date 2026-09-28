@@ -7,8 +7,6 @@
 
 #include "./util.hpp"
 
-using namespace std;
-
 namespace tobas
 {
 PositionPDD2::PositionPDD2()
@@ -45,7 +43,7 @@ bool PositionPDD2::setNaturalFreq(int idx, double value)
   }
 
   if (value <= 0.0) {
-    cerr << "Natural frequency must be positive." << endl;
+    std::cerr << "Natural frequency must be positive." << std::endl;
     return false;
   }
 
@@ -62,7 +60,7 @@ bool PositionPDD2::setInertiaRatio(int idx, double value)
   }
 
   if (value <= 0.0) {
-    cerr << "Inertia ratio must be positive." << endl;
+    std::cerr << "Inertia ratio must be positive." << std::endl;
     return false;
   }
 
@@ -79,7 +77,7 @@ bool PositionPDD2::setDampingRatio(int idx, double value)
   }
 
   if (value <= 0.0) {
-    cerr << "Damping ratio must be positive." << endl;
+    std::cerr << "Damping ratio must be positive." << std::endl;
     return false;
   }
 

@@ -7,16 +7,14 @@
 
 #include <iostream>
 
-using namespace std;
-
 namespace tobas
 {
 namespace linux
 {
-pid_t createSubprocess(const vector<char*>& _argv)
+pid_t createSubprocess(const std::vector<char*>& _argv)
 {
   if (_argv.empty()) {
-    cerr << "The size of command list is 0." << endl;
+    std::cerr << "The size of command list is 0." << std::endl;
     return -1;
   }
 
@@ -24,7 +22,7 @@ pid_t createSubprocess(const vector<char*>& _argv)
   // At this point, there are two processes with exactly the same contents.
   const auto pid = fork();
   if (pid < 0) {
-    cerr << "Failed to clone the calling process." << endl;
+    std::cerr << "Failed to clone the calling process." << std::endl;
     return -1;
   }
 
@@ -34,11 +32,11 @@ pid_t createSubprocess(const vector<char*>& _argv)
   }
   else {
     // If PID is 0, this is the child process, so replace its contents with the given command.
-    cout << "Executing: ";
+    std::cout << "Executing: ";
     for (const auto& cmd_elem : _argv) {
-      cout << cmd_elem << " ";
+      std::cout << cmd_elem << " ";
     }
-    cout << endl;
+    std::cout << std::endl;
 
     // Add the terminator to the argument list.
     auto argv = _argv;
@@ -48,15 +46,15 @@ pid_t createSubprocess(const vector<char*>& _argv)
     execvp(argv.front(), argv.data());
 
     // execvp returns only on failure.
-    cerr << "Subprocess failed." << endl;
+    std::cerr << "Subprocess failed." << std::endl;
     _exit(127);  // Error code commonly used when an exec call fails.
   }
 }
 
-pid_t createSubprocess(const string& command)
+pid_t createSubprocess(const std::string& command)
 {
   // Since const_cast does not copy, the command memory must remain valid when the process is created.
-  vector<char*> argv;
+  std::vector<char*> argv;
   argv.push_back(const_cast<char*>("/bin/bash"));
   argv.push_back(const_cast<char*>("-c"));
   argv.push_back(const_cast<char*>(command.c_str()));

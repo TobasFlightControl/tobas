@@ -5,8 +5,6 @@
 
 #include <iostream>
 
-using namespace std;
-
 namespace tobas
 {
 namespace
@@ -25,7 +23,7 @@ constexpr char kPosVelAccAngleText[] = "pos_vel_acc_angle";
 constexpr char kSpeedRollDPitchText[] = "speed_roll_dpitch";
 }  // namespace
 
-string textFromEnum(RcCommand cmd)
+std::string textFromEnum(RcCommand cmd)
 {
   switch (cmd) {
     case RcCommand::kRateThrottle:
@@ -57,7 +55,7 @@ string textFromEnum(RcCommand cmd)
   }
 }
 
-bool enumFromText(const string& text, RcCommand& dst)
+bool enumFromText(const std::string& text, RcCommand& dst)
 {
   if (text == kRateThrottleText) {
     dst = RcCommand::kRateThrottle;
@@ -108,7 +106,7 @@ bool enumFromText(const string& text, RcCommand& dst)
     return true;
   }
   else {
-    cerr << "Invalid RC command: " << text << endl;
+    std::cerr << "Invalid RC command: " << text << std::endl;
     return false;
   }
 }
@@ -129,6 +127,6 @@ bool convert<tobas::RcCommand>::decode(const Node& node, tobas::RcCommand& rhs)
     return false;
   }
 
-  return tobas::enumFromText(node.as<string>(), rhs);
+  return tobas::enumFromText(node.as<std::string>(), rhs);
 }
 }  // namespace YAML

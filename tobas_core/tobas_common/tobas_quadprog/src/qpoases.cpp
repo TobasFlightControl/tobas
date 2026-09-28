@@ -8,8 +8,6 @@
 #include <tobas_eigen_tools/core.hpp>
 #include <tobas_math/core.hpp>
 
-using namespace Eigen;
-
 namespace tobas
 {
 namespace quadprog
@@ -41,23 +39,23 @@ std::expected<Eigen::VectorXd, std::string> QpOasesSolver::solve()
   std::memcpy(g, scaled.q.data(), sizeof(g));
 
   // Copy elements one by one to account for column-major storage.
-  const MatrixXd A_eigen = eigen::concat(scaled.G, scaled.A, 0);
-  for (Index r = 0; r < con_size; ++r) {
-    for (Index c = 0; c < var_size; ++c) {
+  const Eigen::MatrixXd A_eigen = eigen::concat(scaled.G, scaled.A, 0);
+  for (Eigen::Index r = 0; r < con_size; ++r) {
+    for (Eigen::Index c = 0; c < var_size; ++c) {
       A[r * var_size + c] = A_eigen(r, c);
     }
   }
 
-  for (Index i = 0; i < var_size; ++i) {
+  for (Eigen::Index i = 0; i < var_size; ++i) {
     lb[i] = -qpOASES::INFTY;
     ub[i] = qpOASES::INFTY;
   }
 
-  const VectorXd inf = VectorXd::Constant(scaled.ineqSize(), -qpOASES::INFTY);
-  const VectorXd lbA_eigen = eigen::concat(scaled.h, inf, 0);
+  const Eigen::VectorXd inf = Eigen::VectorXd::Constant(scaled.ineqSize(), -qpOASES::INFTY);
+  const Eigen::VectorXd lbA_eigen = eigen::concat(scaled.h, inf, 0);
   std::memcpy(lbA, lbA_eigen.data(), sizeof(lbA));
 
-  const VectorXd ubA_eigen = eigen::concat(scaled.h, scaled.b, 0);
+  const Eigen::VectorXd ubA_eigen = eigen::concat(scaled.h, scaled.b, 0);
   std::memcpy(ubA, ubA_eigen.data(), sizeof(ubA));
 
   // Create the QP solver.
@@ -80,7 +78,7 @@ std::expected<Eigen::VectorXd, std::string> QpOasesSolver::solve()
   }
 
   // Restore the solution to the original scale.
-  VectorXd x_scaled = Map<VectorXd>(x_opt, var_size);
+  Eigen::VectorXd x_scaled = Eigen::Map<Eigen::VectorXd>(x_opt, var_size);
   return x_scaled.cwiseProduct(x_scale).eval();
 }
 }  // namespace quadprog

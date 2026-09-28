@@ -7,14 +7,13 @@
 
 #include <stdexcept>
 
-using namespace std;
-namespace fs = filesystem;
+namespace fs = std::filesystem;
 
 namespace tobas
 {
 namespace linux
 {
-string userName()
+std::string userName()
 {
   if (isSuperUser()) {
     return "root";
@@ -22,9 +21,9 @@ string userName()
   else {
     const auto user_name = getenv("USER");
     if (!user_name) {
-      throw runtime_error("USER environment variable not set.");
+      throw std::runtime_error("USER environment variable not set.");
     }
-    return string(user_name);
+    return std::string(user_name);
   }
 }
 
@@ -36,13 +35,13 @@ fs::path homeDir()
   else {
     const auto home_dir = getenv("HOME");
     if (!home_dir) {
-      throw runtime_error("HOME environment variable not set.");
+      throw std::runtime_error("HOME environment variable not set.");
     }
     return home_dir;
   }
 }
 
-fs::path expandUser(const string& path)
+fs::path expandUser(const std::string& path)
 {
   if (path.substr(0, 2) == "~/") {
     return homeDir() / path.substr(2);

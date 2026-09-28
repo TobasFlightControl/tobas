@@ -3,14 +3,11 @@
 
 #include "tobas_control/state_spaces.hpp"
 
-using namespace std;
-using namespace Eigen;
-
 namespace tobas
 {
 namespace ctrl
 {
-LinearDynamics LinearDynamics::scale(const VectorXd& x_scale, const VectorXd& u_scale) const
+LinearDynamics LinearDynamics::scale(const Eigen::VectorXd& x_scale, const Eigen::VectorXd& u_scale) const
 {
   assert(x_scale.rows() == stateSize());
   assert(u_scale.rows() == inputSize());
@@ -22,40 +19,40 @@ LinearDynamics LinearDynamics::scale(const VectorXd& x_scale, const VectorXd& u_
   auto res = *this;
 
   // memo: 2-20
-  for (Index c = 0; c < stateSize(); ++c) {
+  for (Eigen::Index c = 0; c < stateSize(); ++c) {
     res.A.col(c) *= x_scale(c);
   }
-  for (Index r = 0; r < stateSize(); ++r) {
+  for (Eigen::Index r = 0; r < stateSize(); ++r) {
     res.A.row(r) /= x_scale(r);
   }
-  for (Index c = 0; c < inputSize(); ++c) {
+  for (Eigen::Index c = 0; c < inputSize(); ++c) {
     res.B.col(c) *= u_scale(c);
   }
-  for (Index r = 0; r < stateSize(); ++r) {
+  for (Eigen::Index r = 0; r < stateSize(); ++r) {
     res.B.row(r) /= x_scale(r);
   }
 
   return res;
 }
 
-ostream& operator<<(ostream& os, const LinearDynamics& arg)
+std::ostream& operator<<(std::ostream& os, const LinearDynamics& arg)
 {
-  os << "A:" << endl;
-  os << arg.A << endl;
-  os << "B:" << endl;
-  os << arg.B << endl;
+  os << "A:" << std::endl;
+  os << arg.A << std::endl;
+  os << "B:" << std::endl;
+  os << arg.B << std::endl;
 
   return os;
 }
 
-ostream& operator<<(ostream& os, const LinearStateSpace& arg)
+std::ostream& operator<<(std::ostream& os, const LinearStateSpace& arg)
 {
-  os << "A:" << endl;
-  os << arg.A << endl;
-  os << "B:" << endl;
-  os << arg.B << endl;
-  os << "C:" << endl;
-  os << arg.C << endl;
+  os << "A:" << std::endl;
+  os << arg.A << std::endl;
+  os << "B:" << std::endl;
+  os << arg.B << std::endl;
+  os << "C:" << std::endl;
+  os << arg.C << std::endl;
 
   return os;
 }

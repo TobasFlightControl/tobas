@@ -4,12 +4,13 @@
 #include "tobas_ic_drivers/ads1220.hpp"
 
 #include <bitset>
+#include <chrono>
 #include <iostream>
 #include <thread>
 
 #include <tobas_math/core.hpp>
 
-using namespace std;
+using namespace std::chrono_literals;
 
 namespace tobas
 {
@@ -81,7 +82,7 @@ bool ADS1220::readCurrent(double&)
   // and read the current data before the switch takes effect.
   // See section 8.5.5, "Sending Commands" (p. 38).
 
-  cerr << "Not implemented." << endl;
+  std::cerr << "Not implemented." << std::endl;
   return false;
 }
 
@@ -92,7 +93,7 @@ bool ADS1220::reset()
   }
 
   // Wait at least (50us + 32 * t(CLK)) after the RESET command is sent before sending any other command.
-  this_thread::sleep_for(1ms);
+  std::this_thread::sleep_for(1ms);
 
   return true;
 }
@@ -126,7 +127,7 @@ bool ADS1220::configure(const uint8_t& rr, const uint8_t& tar_cfg)
   tx_buf_[0] = WREG | rrnn;
   tx_buf_[1] = tar_cfg;
   if (!spi_.transfer(2)) {
-    cerr << "Failed to send write register command." << endl;
+    std::cerr << "Failed to send write register command." << std::endl;
     return false;
   }
 
@@ -137,16 +138,16 @@ bool ADS1220::configure(const uint8_t& rr, const uint8_t& tar_cfg)
   // Verify that the configuration is reflected.
   tx_buf_[0] = RREG | rrnn;
   if (!spi_.transfer(2)) {
-    cerr << "Failed to send read register command." << endl;
+    std::cerr << "Failed to send read register command." << std::endl;
     return false;
   }
 
   const auto cur_cfg = rx_buf_[1];
   if (cur_cfg != tar_cfg) {
-    cerr << "Configuration is not reflected." << endl;
-    cerr << "Register   : " << bitset<2>(rr >> 2) << endl;
-    cerr << "Target data: " << bitset<8>(tar_cfg) << endl;
-    cerr << "Actual data: " << bitset<8>(cur_cfg) << endl;
+    std::cerr << "Configuration is not reflected." << std::endl;
+    std::cerr << "Register   : " << std::bitset<2>(rr >> 2) << std::endl;
+    std::cerr << "Target data: " << std::bitset<8>(tar_cfg) << std::endl;
+    std::cerr << "Actual data: " << std::bitset<8>(cur_cfg) << std::endl;
     return false;
   }
 

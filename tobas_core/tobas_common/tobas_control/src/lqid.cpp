@@ -3,20 +3,15 @@
 
 #include "tobas_control/lqid.hpp"
 
-#include <iostream>
-
 #include <tobas_eigen_tools/core.hpp>
 
 #include "tobas_control/care.hpp"
-
-using namespace std;
-using namespace Eigen;
 
 namespace tobas
 {
 namespace ctrl
 {
-LQID::LQID(const Index& state_size, const Index& input_size, const Index& integrate_size)
+LQID::LQID(const Eigen::Index& state_size, const Eigen::Index& input_size, const Eigen::Index& integrate_size)
   : dynamics(state_size, input_size)
   , C(integrate_size, state_size)
   , state_weight(state_size)
@@ -65,7 +60,7 @@ LQID::LQID(const Index& state_size, const Index& input_size, const Index& integr
   R_tilde_.setZero();
 }
 
-VectorXd LQID::solve(const double& dt, const bool& update_gain)
+Eigen::VectorXd LQID::solve(const double& dt, const bool& update_gain)
 {
   assert(dt >= 0);
 
@@ -84,8 +79,8 @@ VectorXd LQID::solve(const double& dt, const bool& update_gain)
   }
 
   // Update the integrated error.
-  const VectorXd y = C * current_state;
-  const VectorXd r = C * target_state;
+  const Eigen::VectorXd y = C * current_state;
+  const Eigen::VectorXd r = C * target_state;
   eps_ += (r - y) * dt;
   eps_ = eps_.cwiseMax(-max_integrated_error).cwiseMin(max_integrated_error);
   // cout << "Integrated error: " << eps_ << endl;
@@ -146,14 +141,14 @@ void LQID::updateGain()
   K_ = R_tilde_.diagonal().cwiseInverse().asDiagonal() * B_tilde_.transpose() * P_inf_;
 }
 
-ostream& operator<<(ostream& os, const LQID& arg)
+std::ostream& operator<<(std::ostream& os, const LQID& arg)
 {
-  os << "Dynamics:\n" << arg.dynamics << endl;
-  os << "Current state:\n" << arg.current_state << endl;
-  os << "Target state:\n" << arg.target_state << endl;
-  os << "State error:\n" << arg.target_state - arg.current_state << endl;
-  os << "Covariance matrix:\n" << arg.P_inf_ << endl;
-  os << "Gain:\n" << arg.K_ << endl;
+  os << "Dynamics:\n" << arg.dynamics << std::endl;
+  os << "Current state:\n" << arg.current_state << std::endl;
+  os << "Target state:\n" << arg.target_state << std::endl;
+  os << "State error:\n" << arg.target_state - arg.current_state << std::endl;
+  os << "Covariance matrix:\n" << arg.P_inf_ << std::endl;
+  os << "Gain:\n" << arg.K_ << std::endl;
 
   return os;
 }

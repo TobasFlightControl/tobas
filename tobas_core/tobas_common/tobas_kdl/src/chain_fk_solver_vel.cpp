@@ -3,8 +3,6 @@
 
 #include "tobas_kdl/chain_fk_solver_vel.hpp"
 
-using namespace std;
-
 namespace tobas
 {
 namespace kdl

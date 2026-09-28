@@ -6,8 +6,6 @@
 #include <tobas_yaml_tools/core.hpp>
 #include <tobas_yaml_tools/format.hpp>
 
-using namespace std;
-
 namespace tobas
 {
 namespace
@@ -22,27 +20,27 @@ constexpr char kInternalResistanceKey[] = "internal_resistance";
 bool BatteryConfig::isValid() const
 {
   if (sag_voltage <= 0.0) {
-    cerr << "Battery sag voltage must be positive." << endl;
+    std::cerr << "Battery sag voltage must be positive." << std::endl;
     return false;
   }
 
   if (nominal_voltage <= sag_voltage) {
-    cerr << "Battery nominal voltage must be greater than sag voltage." << endl;
+    std::cerr << "Battery nominal voltage must be greater than sag voltage." << std::endl;
     return false;
   }
 
   if (max_voltage <= nominal_voltage) {
-    cerr << "Battery max voltage must be greater than nominal voltage." << endl;
+    std::cerr << "Battery max voltage must be greater than nominal voltage." << std::endl;
     return false;
   }
 
   if (max_current <= 0.0) {
-    cerr << "Battery max current must be positive." << endl;
+    std::cerr << "Battery max current must be positive." << std::endl;
     return false;
   }
 
   if (internal_resistance < 0.0) {
-    cerr << "Battery internal resistance must be non-negative." << endl;
+    std::cerr << "Battery internal resistance must be non-negative." << std::endl;
     return false;
   }
 

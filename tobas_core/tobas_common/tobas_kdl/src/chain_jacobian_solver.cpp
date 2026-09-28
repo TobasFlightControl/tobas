@@ -3,8 +3,6 @@
 
 #include "tobas_kdl/chain_jacobian_solver.hpp"
 
-using namespace std;
-
 namespace tobas
 {
 namespace kdl
@@ -21,7 +19,7 @@ void ChainJacobianSolver::updateInternalDataStructures()
   resize();
 }
 
-bool ChainJacobianSolver::setLockedJoints(const vector<bool> locked_joints)
+bool ChainJacobianSolver::setLockedJoints(const std::vector<bool> locked_joints)
 {
   if (locked_joints.size() != locked_joints_.size()) {
     return false;

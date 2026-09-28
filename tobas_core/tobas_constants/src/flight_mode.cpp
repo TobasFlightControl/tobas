@@ -5,8 +5,6 @@
 
 #include <iostream>
 
-using namespace std;
-
 namespace tobas
 {
 namespace
@@ -16,7 +14,7 @@ constexpr char kStabilizeText[] = "stabilize";
 constexpr char kLoiterText[] = "loiter";
 }  // namespace
 
-string textFromEnum(FlightMode mode)
+std::string textFromEnum(FlightMode mode)
 {
   switch (mode) {
     case FlightMode::kAcrobat:
@@ -30,7 +28,7 @@ string textFromEnum(FlightMode mode)
   }
 }
 
-bool enumFromText(const string& text, FlightMode& dst)
+bool enumFromText(const std::string& text, FlightMode& dst)
 {
   if (text == kAcrobatText) {
     dst = FlightMode::kAcrobat;
@@ -45,7 +43,7 @@ bool enumFromText(const string& text, FlightMode& dst)
     return true;
   }
   else {
-    cerr << "Invalid flight mode: " << text << endl;
+    std::cerr << "Invalid flight mode: " << text << std::endl;
     return false;
   }
 }
@@ -66,6 +64,6 @@ bool convert<tobas::FlightMode>::decode(const Node& node, tobas::FlightMode& rhs
     return false;
   }
 
-  return tobas::enumFromText(node.as<string>(), rhs);
+  return tobas::enumFromText(node.as<std::string>(), rhs);
 }
 }  // namespace YAML

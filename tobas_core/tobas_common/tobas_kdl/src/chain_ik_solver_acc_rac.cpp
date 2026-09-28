@@ -5,8 +5,6 @@
 
 #include <eigen3/Eigen/SVD>
 
-using namespace Eigen;
-
 namespace tobas
 {
 namespace kdl
@@ -46,7 +44,7 @@ int ChainIkSolverAcc_RAC::cartToJnt(const JntArray& q, const JntArray& qd, const
 
   // Compute the least-squares solution.
   // TODO: eigen::minimizeWeightedNorm
-  qdd_out_.data = jac.data.topRows(3).jacobiSvd(ComputeThinU | ComputeThinV).solve(acc_diff.data);
+  qdd_out_.data = jac.data.topRows(3).jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(acc_diff.data);
 
   return setDefaultError(kNoError);
 }
@@ -75,7 +73,7 @@ int ChainIkSolverAcc_RAC::cartToJnt(const JntArray& q, const JntArray& qd, const
 
   // Compute the least-squares solution.
   // TODO: eigen::minimizeWeightedNorm
-  qdd_out_.data = jac.data.jacobiSvd(ComputeThinU | ComputeThinV).solve(acc_diff_ravel);
+  qdd_out_.data = jac.data.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(acc_diff_ravel);
 
   return setDefaultError(kNoError);
 }

@@ -7,8 +7,6 @@
 #include <tobas_yaml_tools/core.hpp>
 #include <tobas_yaml_tools/format.hpp>
 
-using namespace std;
-
 namespace tobas
 {
 namespace
@@ -25,7 +23,7 @@ constexpr char kCYawDeltaKey[] = "c_yaw_delta";
 bool ControlSurface::isValid() const
 {
   if (link_name.empty()) {
-    cerr << "Link name is empty." << endl;
+    std::cerr << "Link name is empty." << std::endl;
     return false;
   }
 

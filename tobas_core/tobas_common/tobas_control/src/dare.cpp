@@ -9,15 +9,17 @@
 
 #include "tobas_control/util.hpp"
 
-using namespace std;
-using namespace Eigen;
-
 namespace tobas
 {
 namespace ctrl
 {
-MatrixXd
-dare(const MatrixXd& A, const MatrixXd& B, const MatrixXd& Q, const MatrixXd& R, const double& tol, size_t max_iter)
+Eigen::MatrixXd dare(
+  const Eigen::MatrixXd& A,
+  const Eigen::MatrixXd& B,
+  const Eigen::MatrixXd& Q,
+  const Eigen::MatrixXd& R,
+  const double& tol,
+  size_t max_iter)
 {
   const auto n = A.rows();
   [[maybe_unused]] const auto l = B.cols();
@@ -31,29 +33,29 @@ dare(const MatrixXd& A, const MatrixXd& B, const MatrixXd& Q, const MatrixXd& R,
   assert(eigen::isSymmetricPositiveDefinite(R));
   assert(tol > 0.0);
 
-  const MatrixXd I = MatrixXd::Identity(n, n);
-  MatrixXd X_prev = MatrixXd::Zero(n, n);
-  MatrixXd X_next = MatrixXd::Identity(n, n);
+  const Eigen::MatrixXd I = Eigen::MatrixXd::Identity(n, n);
+  Eigen::MatrixXd X_prev = Eigen::MatrixXd::Zero(n, n);
+  Eigen::MatrixXd X_next = Eigen::MatrixXd::Identity(n, n);
   size_t iter = 0;
 
   while ((X_next - X_prev).norm() / X_next.norm() > tol) {
     X_prev = X_next;
 
     // Prior estimate.
-    const MatrixXd X_mid = A.transpose() * X_prev.selfadjointView<Lower>() * A + Q;
+    const Eigen::MatrixXd X_mid = A.transpose() * X_prev.selfadjointView<Eigen::Lower>() * A + Q;
 
     // Posterior estimate.
-    const MatrixXd XB = X_mid.selfadjointView<Lower>() * B;
+    const Eigen::MatrixXd XB = X_mid.selfadjointView<Eigen::Lower>() * B;
     const auto G = XB * (B.transpose() * XB + R).inverse();
     const auto I_GBt = I - G * B.transpose();
-    X_next = I_GBt * X_mid.selfadjointView<Lower>();
+    X_next = I_GBt * X_mid.selfadjointView<Eigen::Lower>();
 
     if (iter++ > max_iter) {
-      throw runtime_error("DARE failed to converge in " + to_string(max_iter) + " iterations.");
+      throw std::runtime_error("DARE failed to converge in " + std::to_string(max_iter) + " iterations.");
     }
   }
 
-  cout << "DARE has successfully converged in " << iter << " iterations." << endl;
+  std::cout << "DARE has successfully converged in " << iter << " iterations." << std::endl;
   return X_next;
 }
 }  // namespace ctrl

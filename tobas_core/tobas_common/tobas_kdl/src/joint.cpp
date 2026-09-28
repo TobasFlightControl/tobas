@@ -3,8 +3,6 @@
 
 #include "tobas_kdl/joint.hpp"
 
-using namespace std;
-
 namespace tobas
 {
 namespace kdl
@@ -32,17 +30,17 @@ const char* Joint::typeToText(JointType type)
   }
 }
 
-ostream& operator<<(ostream& os, const Joint& arg)
+std::ostream& operator<<(std::ostream& os, const Joint& arg)
 {
-  os << "Name: " << arg.name << endl;
-  os << "Type: " << Joint::typeToText(arg.type) << endl;
-  os << "Origin: " << arg.origin << endl;
-  os << "Axis: " << arg.axis() << endl;
-  os << "Damping: " << arg.damping << endl;
-  os << "Friction: " << arg.friction << endl;
-  os << "Lower Limit: " << arg.lower_limit << endl;
-  os << "Upper Limit: " << arg.upper_limit << endl;
-  os << "Max Effort: " << arg.max_effort << endl;
+  os << "Name: " << arg.name << std::endl;
+  os << "Type: " << Joint::typeToText(arg.type) << std::endl;
+  os << "Origin: " << arg.origin << std::endl;
+  os << "Axis: " << arg.axis() << std::endl;
+  os << "Damping: " << arg.damping << std::endl;
+  os << "Friction: " << arg.friction << std::endl;
+  os << "Lower Limit: " << arg.lower_limit << std::endl;
+  os << "Upper Limit: " << arg.upper_limit << std::endl;
+  os << "Max Effort: " << arg.max_effort << std::endl;
   os << "Max Velocity: " << arg.max_velocity;
   return os;
 }

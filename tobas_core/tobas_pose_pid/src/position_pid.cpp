@@ -7,8 +7,6 @@
 
 #include "./util.hpp"
 
-using namespace std;
-
 namespace tobas
 {
 PositionPID::PositionPID()
@@ -30,7 +28,7 @@ kdl::Vector PositionPID::update(
     if (ki_(i) > 0.0) {  // When using integral control
       // Accumulate integral error.
       const auto next_ei = ei_(i) + ep(i) * dt;
-      ei_(i) = clamp(next_ei, -max_i_acc_(i), max_i_acc_(i));
+      ei_(i) = std::clamp(next_ei, -max_i_acc_(i), max_i_acc_(i));
     }
     else  // When not using integral control
     {
@@ -50,7 +48,7 @@ bool PositionPID::setProportionalGain(int idx, double value)
   }
 
   if (value < 0.0) {
-    cerr << "Proportional gain must be non-negative." << endl;
+    std::cerr << "Proportional gain must be non-negative." << std::endl;
     return false;
   }
 
@@ -66,7 +64,7 @@ bool PositionPID::setIntegralGain(int idx, double value)
   }
 
   if (value < 0.0) {
-    cerr << "Integral gain must be non-negative." << endl;
+    std::cerr << "Integral gain must be non-negative." << std::endl;
     return false;
   }
 
@@ -82,7 +80,7 @@ bool PositionPID::setDerivativeGain(int idx, double value)
   }
 
   if (value < 0.0) {
-    cerr << "Derivative gain must be non-negative." << endl;
+    std::cerr << "Derivative gain must be non-negative." << std::endl;
     return false;
   }
 
@@ -98,7 +96,7 @@ bool PositionPID::setNaturalFreq(int idx, double value)
   }
 
   if (value < 0.0) {
-    cerr << "Natural frequency must be non-negative." << endl;
+    std::cerr << "Natural frequency must be non-negative." << std::endl;
     return false;
   }
 
@@ -115,7 +113,7 @@ bool PositionPID::setDampingRatio(int idx, double value)
   }
 
   if (value < 0.0) {
-    cerr << "Damping ratio must be non-negative." << endl;
+    std::cerr << "Damping ratio must be non-negative." << std::endl;
     return false;
   }
 
@@ -132,7 +130,7 @@ bool PositionPID::setMaxIntegralAccel(int idx, double value)
   }
 
   if (value <= 0.0) {
-    cerr << "Maximum acceleration must be positive." << endl;
+    std::cerr << "Maximum acceleration must be positive." << std::endl;
     return false;
   }
 

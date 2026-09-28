@@ -6,8 +6,6 @@
 #include <tobas_yaml_tools/core.hpp>
 #include <tobas_yaml_tools/format.hpp>
 
-using namespace std;
-
 namespace tobas
 {
 namespace
@@ -29,42 +27,42 @@ bool ElectricRotorConfig::isValid() const
   }
 
   if (num_poles <= 0) {
-    cerr << "The number of poles must be positive." << endl;
+    std::cerr << "The number of poles must be positive." << std::endl;
     return false;
   }
 
   if (num_poles % 2 != 0) {
-    cerr << "The number of poles must be even." << endl;
+    std::cerr << "The number of poles must be even." << std::endl;
     return false;
   }
 
   if (kv <= 0.0) {
-    cerr << "Kv value must be positive." << endl;
+    std::cerr << "Kv value must be positive." << std::endl;
     return false;
   }
 
   if (internal_resistance <= 0.0) {
-    cerr << "Internal resistance must be positive." << endl;
+    std::cerr << "Internal resistance must be positive." << std::endl;
     return false;
   }
 
   if (min_speed < 0.0) {
-    cerr << "Minimum rotation speed must be non-negative." << endl;
+    std::cerr << "Minimum rotation speed must be non-negative." << std::endl;
     return false;
   }
 
   if (propeller_diameter <= 0.0) {
-    cerr << "Propeller diameter must be positive." << endl;
+    std::cerr << "Propeller diameter must be positive." << std::endl;
     return false;
   }
 
   if (motor_const <= 0.0) {
-    cerr << "Motor constant must be positive." << endl;
+    std::cerr << "Motor constant must be positive." << std::endl;
     return false;
   }
 
   if (moment_const <= 0.0) {
-    cerr << "Moment constant must be positive." << endl;
+    std::cerr << "Moment constant must be positive." << std::endl;
     return false;
   }
 

@@ -5,8 +5,6 @@
 
 #include <tobas_yaml_tools/core.hpp>
 
-using namespace std;
-
 namespace tobas
 {
 namespace
@@ -24,18 +22,18 @@ void FixedWingConfig::clear()
 bool FixedWingConfig::isValid() const
 {
   if (!vehicle.isValid()) {
-    cerr << "The vehicle parameters are invalid." << endl;
+    std::cerr << "The vehicle parameters are invalid." << std::endl;
     return false;
   }
 
   if (!aerodynamics.isValid()) {
-    cerr << "The aerodynamic parameters are invalid." << endl;
+    std::cerr << "The aerodynamic parameters are invalid." << std::endl;
     return false;
   }
 
   for (const auto& [_, cs] : control_surfaces) {
     if (!cs.isValid()) {
-      cerr << "The configuration of control surface '" << cs.link_name << "' is invalid." << endl;
+      std::cerr << "The configuration of control surface '" << cs.link_name << "' is invalid." << std::endl;
       return false;
     }
   }
@@ -50,35 +48,35 @@ bool FixedWingConfig::load(const YAML::Node& root_node)
   // Vehicle
   const auto vehicle_node = root_node[kVehicleKey];
   if (!vehicle_node.IsDefined()) {
-    cerr << "'" << kVehicleKey << "' is not defined." << endl;
+    std::cerr << "'" << kVehicleKey << "' is not defined." << std::endl;
     return false;
   }
   if (!vehicle.load(vehicle_node)) {
-    cerr << "Failed to load vehicle parameters." << endl;
+    std::cerr << "Failed to load vehicle parameters." << std::endl;
     return false;
   }
 
   // Aerodynamics
   const auto aero_node = root_node[kAerodynamicsKey];
   if (!aero_node.IsDefined()) {
-    cerr << "'" << kAerodynamicsKey << "' is not defined." << endl;
+    std::cerr << "'" << kAerodynamicsKey << "' is not defined." << std::endl;
     return false;
   }
   if (!aerodynamics.load(aero_node)) {
-    cerr << "Failed to load aerodynamic parameters." << endl;
+    std::cerr << "Failed to load aerodynamic parameters." << std::endl;
     return false;
   }
 
   // Control surfaces
   const auto css_node = root_node[kControlSurfacesKey];
   if (!css_node.IsSequence()) {
-    cerr << "'" << kControlSurfacesKey << "' is not defined." << endl;
+    std::cerr << "'" << kControlSurfacesKey << "' is not defined." << std::endl;
     return false;
   }
   for (const auto& cs_node : css_node) {
     ControlSurface cs;
     if (!cs.load(cs_node)) {
-      cerr << "Failed to load the configuration of control surfaces." << endl;
+      std::cerr << "Failed to load the configuration of control surfaces." << std::endl;
       return false;
     }
     control_surfaces[cs.link_name] = cs;

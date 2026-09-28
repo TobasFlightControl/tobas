@@ -7,8 +7,6 @@
 
 #include "./util.hpp"
 
-using namespace std;
-
 namespace tobas
 {
 AngleAxisPID::AngleAxisPID()
@@ -45,7 +43,7 @@ bool AngleAxisPID::setNaturalFreq(int idx, double value)
   }
 
   if (value < 0.0) {
-    cerr << "Natural frequency must be non-negative." << endl;
+    std::cerr << "Natural frequency must be non-negative." << std::endl;
     return false;
   }
 
@@ -62,7 +60,7 @@ bool AngleAxisPID::setDampingRatio(int idx, double value)
   }
 
   if (value < 0.0) {
-    cerr << "Damping ratio must be non-negative." << endl;
+    std::cerr << "Damping ratio must be non-negative." << std::endl;
     return false;
   }
 
@@ -79,7 +77,7 @@ bool AngleAxisPID::setIntegralGain(int idx, double value)
   }
 
   if (value < 0.0) {
-    cerr << "Integral gain must be non-negative." << endl;
+    std::cerr << "Integral gain must be non-negative." << std::endl;
     return false;
   }
 

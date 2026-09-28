@@ -8,9 +8,6 @@
 #include <tobas_eigen_tools/core.hpp>
 #include <tobas_quadprog/utils.hpp>
 
-using namespace std;
-using namespace Eigen;
-
 namespace tobas
 {
 namespace kdl
@@ -61,9 +58,9 @@ int TreeIkSolverVel_pinv::cartToJnt(const JntArray& q_in, const TwistMap& v_in)
   }
 
   // Objective function.
-  const VectorXd Wt = eigen::tile(Wt_, num_points, 0);
-  const VectorXd Wj = VectorXd::Constant(nj_, Wj_);
-  const MatrixXd JT_Wt = J_.transpose() * Wt.asDiagonal();
+  const Eigen::VectorXd Wt = eigen::tile(Wt_, num_points, 0);
+  const Eigen::VectorXd Wj = Eigen::VectorXd::Constant(nj_, Wj_);
+  const Eigen::MatrixXd JT_Wt = J_.transpose() * Wt.asDiagonal();
   qp_solver_.problem.P = JT_Wt * J_;
   qp_solver_.problem.P.diagonal() += Wj;
   qp_solver_.problem.q = -JT_Wt * t_;
@@ -93,7 +90,7 @@ int TreeIkSolverVel_pinv::cartToJnt(const JntArray& q_in, const TwistMap& v_in)
   return setDefaultError(kNoError);
 }
 
-bool TreeIkSolverVel_pinv::setWeightTS(const Vector6d& Wt)
+bool TreeIkSolverVel_pinv::setWeightTS(const Eigen::Vector6d& Wt)
 {
   if ((Wt.array() < 0).any()) {
     return false;
@@ -103,7 +100,7 @@ bool TreeIkSolverVel_pinv::setWeightTS(const Vector6d& Wt)
   return true;
 }
 
-const Vector6d& TreeIkSolverVel_pinv::getWeightTS() const
+const Eigen::Vector6d& TreeIkSolverVel_pinv::getWeightTS() const
 {
   return Wt_;
 }
@@ -126,7 +123,7 @@ const double& TreeIkSolverVel_pinv::getWeightJS() const
 
 void TreeIkSolverVel_pinv::resize()
 {
-  qp_solver_.x_scale = VectorXd::Ones(nj_);
+  qp_solver_.x_scale = Eigen::VectorXd::Ones(nj_);
   qp_solver_.problem.G.conservativeResize(0, nj_);
   qp_solver_.problem.h.conservativeResize(0);
 }

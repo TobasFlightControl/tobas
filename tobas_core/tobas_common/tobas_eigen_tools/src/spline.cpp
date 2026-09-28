@@ -3,16 +3,14 @@
 
 #include "tobas_eigen_tools/spline.hpp"
 
-using namespace Eigen;
-
 namespace tobas
 {
 namespace eigen
 {
-SplineFunction::SplineFunction(const VectorXd& x_vec, const VectorXd& y_vec, const size_t& degree)
+SplineFunction::SplineFunction(const Eigen::VectorXd& x_vec, const Eigen::VectorXd& y_vec, const size_t& degree)
   : x_min_(x_vec.minCoeff())
   , x_max_(x_vec.maxCoeff())
-  , spline_(SplineFitting<Spline<double, 1>>::Interpolate(
+  , spline_(Eigen::SplineFitting<Eigen::Spline<double, 1>>::Interpolate(
       y_vec.transpose(),
       std::min<int>(x_vec.rows() - 1, degree),
       scaledValues(x_vec)))
@@ -34,7 +32,7 @@ double SplineFunction::scaledValue(const double& x) const
   return (x - x_min_) / (x_max_ - x_min_);
 }
 
-RowVectorXd SplineFunction::scaledValues(const VectorXd& x_vec) const
+Eigen::RowVectorXd SplineFunction::scaledValues(const Eigen::VectorXd& x_vec) const
 {
   return x_vec.unaryExpr([this](const double& x) { return scaledValue(x); }).transpose();
 }

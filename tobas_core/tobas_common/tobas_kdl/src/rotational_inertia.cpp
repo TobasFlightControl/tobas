@@ -5,9 +5,6 @@
 
 #include <tobas_eigen_tools/linalg.hpp>
 
-using namespace std;
-using namespace Eigen;
-
 namespace tobas
 {
 namespace kdl
@@ -20,8 +17,8 @@ std::expected<void, std::string> RotationalInertia::validate() const
   }
 
   // Compute the principal moments of inertia.
-  const EigenSolver<Matrix3d> es(data);
-  if (es.info() != Success) {
+  const Eigen::EigenSolver<Eigen::Matrix3d> es(data);
+  if (es.info() != Eigen::Success) {
     return std::unexpected("Failed to get the eigenvalues of the inertia matrix.");
   }
   const auto eigvals = es.eigenvalues().real().eval();

@@ -3,8 +3,6 @@
 
 #include "tobas_kdl/tree_ik_solver_pos_online.hpp"
 
-using namespace std;
-
 namespace tobas
 {
 namespace kdl

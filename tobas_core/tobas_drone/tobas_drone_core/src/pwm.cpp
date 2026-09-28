@@ -6,8 +6,6 @@
 #include <tobas_yaml_tools/convert/pair.hpp>
 #include <tobas_yaml_tools/core.hpp>
 
-using namespace std;
-
 namespace tobas
 {
 namespace
@@ -21,12 +19,12 @@ constexpr char kValueRangeKey[] = "value_range";
 bool PwmConfig::isValid() const
 {
   if (name.empty()) {
-    cerr << "PWM name is empty." << endl;
+    std::cerr << "PWM name is empty." << std::endl;
     return false;
   }
 
   if (period_range.first <= 0.0 || period_range.second <= 0.0) {
-    cerr << "PWM period range of '" << name << "' must be positive." << endl;
+    std::cerr << "PWM period range of '" << name << "' must be positive." << std::endl;
     return false;
   }
 

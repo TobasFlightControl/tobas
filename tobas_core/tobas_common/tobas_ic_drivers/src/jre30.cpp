@@ -5,8 +5,6 @@
 
 #include <iostream>
 
-using namespace std;
-
 namespace tobas
 {
 namespace driver
@@ -55,14 +53,14 @@ void JRE30Packet_C::decode(uint8_t* buf)
   // TODO
 }
 
-JRE30::JRE30(function<void(shared_ptr<const JRE30Packet>)> packet_cb)
+JRE30::JRE30(std::function<void(std::shared_ptr<const JRE30Packet>)> packet_cb)
   : packet_cb_(packet_cb), crc_(algo::CRC16Right::CRC_16_CCITT, 0xFFFF, 0xFFFF)
 {
   crc_.initialize();
 
-  packet_a_ = make_shared<JRE30Packet_A>();
-  packet_b_ = make_shared<JRE30Packet_B>();
-  packet_c_ = make_shared<JRE30Packet_C>();
+  packet_a_ = std::make_shared<JRE30Packet_A>();
+  packet_b_ = std::make_shared<JRE30Packet_B>();
+  packet_c_ = std::make_shared<JRE30Packet_C>();
 }
 
 JRE30::~JRE30()
@@ -97,7 +95,7 @@ bool JRE30::initialize(const char* uart_device)
 
 void JRE30::start()
 {
-  read_thread_ = jthread(bind(&JRE30::readThreadFunc, this, placeholders::_1));
+  read_thread_ = std::jthread(std::bind(&JRE30::readThreadFunc, this, std::placeholders::_1));
 }
 
 void JRE30::stop()
@@ -127,13 +125,13 @@ void JRE30::readThreadFunc(std::stop_token st)
 
     switch (buf_[1]) {
       case 'A':
-        packet_ = static_pointer_cast<JRE30Packet>(packet_a_);
+        packet_ = std::static_pointer_cast<JRE30Packet>(packet_a_);
         break;
       case 'B':
-        packet_ = static_pointer_cast<JRE30Packet>(packet_b_);
+        packet_ = std::static_pointer_cast<JRE30Packet>(packet_b_);
         break;
       case 'C':
-        packet_ = static_pointer_cast<JRE30Packet>(packet_c_);
+        packet_ = std::static_pointer_cast<JRE30Packet>(packet_c_);
         break;
       default:
         continue;
@@ -162,7 +160,7 @@ bool JRE30::checkCRC() const
   const uint16_t cr = (buf_[packet_size - 1] << 8) | buf_[packet_size - 2];
 
   if (cs != cr) {
-    cerr << "CRC failed: " << hex << uppercase << cs << " != " << cr << dec << endl;
+    std::cerr << "CRC failed: " << std::hex << std::uppercase << cs << " != " << cr << std::dec << std::endl;
     return false;
   }
 

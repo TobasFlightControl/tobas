@@ -3,8 +3,6 @@
 
 #include "tobas_kdl/solver_i.hpp"
 
-using namespace std;
-
 namespace tobas
 {
 namespace kdl
@@ -23,7 +21,7 @@ int SolverI::setDefaultError(const int& error_code)
   return error_code_;
 }
 
-string SolverI::defaultErrorMessage(const int& error_code) const
+std::string SolverI::defaultErrorMessage(const int& error_code) const
 {
   switch (error_code) {
     case kNoError:

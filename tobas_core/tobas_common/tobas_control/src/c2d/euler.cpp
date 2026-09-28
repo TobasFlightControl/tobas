@@ -3,14 +3,12 @@
 
 #include "tobas_control/c2d/euler.hpp"
 
-using namespace Eigen;
-
 namespace tobas
 {
 namespace ctrl
 {
-C2D_Euler::C2D_Euler(const Index& x_size, const Index& u_size)
-  : x_size_(x_size), u_size_(u_size), I_(MatrixXd::Identity(x_size, x_size))
+C2D_Euler::C2D_Euler(const Eigen::Index& x_size, const Eigen::Index& u_size)
+  : x_size_(x_size), u_size_(u_size), I_(Eigen::MatrixXd::Identity(x_size, x_size))
 {
 }
 

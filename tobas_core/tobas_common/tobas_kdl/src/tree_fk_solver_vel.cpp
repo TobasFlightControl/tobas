@@ -3,8 +3,6 @@
 
 #include "tobas_kdl/tree_fk_solver_vel.hpp"
 
-using namespace std;
-
 namespace tobas
 {
 namespace kdl
@@ -13,7 +11,7 @@ TreeFkSolverVel::TreeFkSolverVel(const Tree& tree) : super(tree)
 {
 }
 
-int TreeFkSolverVel::jntToCart(const JntArray& q, const JntArray& qd, const string& seg_name)
+int TreeFkSolverVel::jntToCart(const JntArray& q, const JntArray& qd, const std::string& seg_name)
 {
   if (!isUpToDate()) {
     return setDefaultError(kNotUpToDate);
