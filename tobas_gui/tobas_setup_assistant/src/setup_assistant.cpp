@@ -446,6 +446,11 @@ void SetupAssistantWidget::onSaveButtonClicked()
 
 void SetupAssistantWidget::onSaveAsButtonClicked()
 {
+  // Check whether user settings have any problems.
+  if (!settings_->isValid()) {
+    return;
+  }
+
   // Get the previously opened path.
   const auto default_dir = qt::expandUser(kColconWSPathHome) + "/src";
   TOBAS_CHECK(QDir().mkpath(default_dir));
