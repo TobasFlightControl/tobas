@@ -3,7 +3,6 @@
 
 #include "tobas_drone_core/propulsion_system/electric_propulsion_system/electric_propulsion_system.hpp"
 
-#include <iostream>
 #include <memory>
 #include <ranges>
 
@@ -124,7 +123,6 @@ ElectricRotorConfig::SharedPtr ElectricPropulsionSystemConfig::getRotor(const st
 {
   const auto it = rotors.find(link_name);
   if (it == rotors.end()) {
-    std::cerr << "Electric rotor link '" << link_name << "' is not found." << std::endl;
     return nullptr;
   }
   return std::static_pointer_cast<ElectricRotorConfig>(it->second);
@@ -134,7 +132,6 @@ ElectricRotorConfig::ConstSharedPtr ElectricPropulsionSystemConfig::getRotor(con
 {
   const auto it = rotors.find(link_name);
   if (it == rotors.end()) {
-    std::cerr << "Electric rotor link '" << link_name << "' is not found." << std::endl;
     return nullptr;
   }
   return std::static_pointer_cast<ElectricRotorConfig>(it->second);

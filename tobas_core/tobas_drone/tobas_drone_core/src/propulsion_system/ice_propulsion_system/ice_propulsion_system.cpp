@@ -3,7 +3,6 @@
 
 #include "tobas_drone_core/propulsion_system/ice_propulsion_system/ice_propulsion_system.hpp"
 
-#include <iostream>
 #include <memory>
 #include <ranges>
 
@@ -197,7 +196,6 @@ IceRotorConfig::SharedPtr IcePropulsionSystemConfig::getRotor(const std::string&
 {
   const auto it = rotors.find(link_name);
   if (it == rotors.end()) {
-    std::cerr << "ICE rotor link '" << link_name << "' is not found." << std::endl;
     return nullptr;
   }
   return std::static_pointer_cast<IceRotorConfig>(it->second);
@@ -207,7 +205,6 @@ IceRotorConfig::ConstSharedPtr IcePropulsionSystemConfig::getRotor(const std::st
 {
   const auto it = rotors.find(link_name);
   if (it == rotors.end()) {
-    std::cerr << "ICE rotor link '" << link_name << "' is not found." << std::endl;
     return nullptr;
   }
   return std::static_pointer_cast<IceRotorConfig>(it->second);
