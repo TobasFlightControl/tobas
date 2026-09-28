@@ -405,9 +405,12 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
       setpoint->odom.accel.angular = tar_dgyro_;
     }
 
+    if (!deflections_) {
+      deflections_  = std::make_unique<Eigen::VectorXd>();
+    }
     *deflections_ = Eigen::VectorXd::Zero(drone_.fixed_wing->numControlSurfaces());
     for (size_t idx = 0; idx < drone_.fixed_wing->numControlSurfaces(); idx++) {
-      deflections_->operator()(idx) = std::max(std::min(min_deflections_(idx), mixer_.getDeflection(idx)), max_deflections_(idx));
+      deflections_->operator()(idx) = std::clamp(mixer_.getDeflection(idx), min_deflections_(idx), max_deflections_(idx));
     }
   }
 
@@ -428,6 +431,14 @@ void ControllerNode::manualCmdCb(const tobas_command_msgs::msg::AileElevRudThrot
 
   // Stop the outer control loop.
   tar_angle_.reset();
+
+  // Create the command.
+  if (!thrusts_) {
+    thrusts_ = std::make_unique<Eigen::VectorXd>();
+  }
+  if (!deflections_) {
+    deflections_ = std::make_unique<Eigen::VectorXd>();
+  }
 
   // Set command
   // thrusts
@@ -475,6 +486,9 @@ void ControllerNode::angleCmdCb(const tobas_command_msgs::AngleThrottle::ConstSh
   // Create the command.
   if (!tar_angle_) {
     tar_angle_ = std::make_unique<kdl::Euler>();
+  }
+  if (!thrusts_) {
+    thrusts_ = std::make_unique<Eigen::VectorXd>();
   }
 
   // Update the command.

@@ -5,6 +5,7 @@
 
 #include <ranges>
 
+#include <tobas_kdl/conversion/coordinates.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_tools/fixed_wing.hpp>
 
@@ -60,8 +61,11 @@ bool Mixer::solve(
   // Left-hand side of the EoM matrix equality.
   for (const auto& [idx, pair] : std::views::enumerate(drone_.fixed_wing->control_surfaces)) {
     const auto& cs = pair.second;
-    E_(0, idx) = dynamicPressure(rho, std::max(V, kLowerLimitSpeed)) * drone_.fixed_wing->vehicle.wing_surface * drone_.fixed_wing->vehicle.wing_span * cs.c_roll_delta; // [Nm / rad]
-    E_(1, idx) = dynamicPressure(rho, std::max(V, kLowerLimitSpeed)) * drone_.fixed_wing->vehicle.wing_surface * drone_.fixed_wing->vehicle.mac * cs.c_pitch_delta; // [Nm / rad]
+    const kdl::Vector effectiveness_frd = kdl::Vector(cs.c_roll_delta, cs.c_pitch_delta, cs.c_yaw_delta);
+    kdl::Vector effectiveness_flu;
+    kdl::vectorFrdToFlu(effectiveness_frd, effectiveness_flu);
+    E_(0, idx) = dynamicPressure(rho, std::max(V, kLowerLimitSpeed)) * drone_.fixed_wing->vehicle.wing_surface * drone_.fixed_wing->vehicle.wing_span * effectiveness_flu.x(); // [Nm / rad]
+    E_(1, idx) = dynamicPressure(rho, std::max(V, kLowerLimitSpeed)) * drone_.fixed_wing->vehicle.wing_surface * drone_.fixed_wing->vehicle.mac * effectiveness_flu.y(); // [Nm / rad]
   }
 
   // Right-hand side of the EoM matrix equality.
