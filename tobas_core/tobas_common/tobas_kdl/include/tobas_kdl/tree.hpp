@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <expected>
 #include <memory>
 #include <string>
 #include <unordered_set>
@@ -63,7 +64,7 @@ public:
   void clear();
 
   /* Check validity. */
-  bool isValid(std::string& error_msg) const;
+  std::expected<void, std::string> validate() const;
 
   /**
    * @brief Adds a new segment to the end of the segment with hook_name as seg_name.
@@ -138,11 +139,10 @@ private:
   size_t nj_ = 0;
   size_t ns_ = 0;
 
-  bool isValidRecursive(
+  std::expected<void, std::string> validateRecursive(
     const SegmentMap::const_iterator& seg_it,
     std::unordered_set<std::string>& seg_names,
-    std::unordered_set<std::string>& jnt_names,
-    std::string& error_msg) const;
+    std::unordered_set<std::string>& jnt_names) const;
   bool addTreeRecursive(const SegmentMap::const_iterator& seg, const std::string& hook_name);
 };
 

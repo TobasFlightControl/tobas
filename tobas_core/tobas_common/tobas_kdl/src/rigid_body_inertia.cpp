@@ -18,18 +18,13 @@ RigidBodyInertia::RigidBodyInertia(double m, const Vector& oc, const RotationalI
   I_.data = Ic.data - m * tmp;
 }
 
-bool RigidBodyInertia::isValid(string& error_msg) const
+std::expected<void, std::string> RigidBodyInertia::validate() const
 {
   if (m_ < 0.0) {
-    error_msg = "Mass must be non-negative.";
-    return false;
+    return std::unexpected("Mass must be non-negative.");
   }
 
-  if (!I_.isValid(error_msg)) {
-    return false;
-  }
-
-  return true;
+  return I_.validate();
 }
 
 ostream& operator<<(ostream& os, const RigidBodyInertia& arg)

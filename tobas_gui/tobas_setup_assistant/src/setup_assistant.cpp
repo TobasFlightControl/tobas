@@ -3,6 +3,8 @@
 
 #include "tobas_setup_assistant/setup_assistant.hpp"
 
+#include <utility>
+
 #include <QDebug>
 #include <QFileInfo>
 #include <ament_index_cpp/get_package_share_directory.hpp>
@@ -215,11 +217,11 @@ void SetupAssistantWidget::onNewButtonClicked()
 
     qInfo().nospace() << "UADF is in ROS package " << pkg_name_qt << ". Building it.";
     spinner_.start();
-    const auto build_success = cmn::colconBuild(colcon_, pkg_path->c_str(), qt::expandUser(kColconWSPathHome));
+    const auto build_result = cmn::colconBuild(colcon_, pkg_path->c_str(), qt::expandUser(kColconWSPathHome));
     spinner_.stop();
 
-    if (!build_success) {
-      const auto error_msg = QString::fromStdString(colcon_.errorMessage());
+    if (!build_result) {
+      const auto& error_msg = build_result.error();
       if (error_msg.size() < cmn::kSaveLogTextSizeThresh) {
         qt::qErrorBox(this, "Failed to build '" + pkg_name_qt + "':\n\n" + error_msg);
       }
@@ -258,29 +260,31 @@ void SetupAssistantWidget::onNewButtonClicked()
   }
 
   // Load UADF.
-  if (!uadf_parser_.parseFromText(uadf_text, uadf_)) {
-    qt::qErrorBox(this, "Failed to parse UADF:\n\n" + QString::fromStdString(uadf_parser_.errorMessage()));
+  const auto uadf = uadf_parser_.parseFromText(uadf_text);
+  if (!uadf) {
+    qt::qErrorBox(this, "Failed to parse UADF:\n\n" + QString::fromStdString(uadf.error()));
     reset();
     return;
   }
+  uadf_ = std::move(*uadf);
 
   // Load KDL tree.
-  if (!tree_parser_.parseFromUrdf(*uadf_.urdf, tree_)) {
-    qt::qErrorBox(
-      this, "Failed to construct KDL tree from URDF:\n\n" + QString::fromStdString(tree_parser_.errorMessage()));
+  const auto tree = tree_parser_.parseFromUrdf(*uadf_.urdf);
+  if (!tree) {
+    qt::qErrorBox(this, "Failed to construct KDL tree from URDF:\n\n" + QString::fromStdString(tree.error()));
     reset();
     return;
   }
+  tree_ = std::move(*tree);
 
   // Check model validity.
-  std::string error_msg;
   if (!uadf_.valid()) {
     qt::qErrorBox(this, "UADF is invalid.");  // TODO: Show a detailed error message.
     reset();
     return;
   }
-  if (!tree_.isValid(error_msg)) {
-    qt::qErrorBox(this, "UADF is invalid: " + QString::fromStdString(error_msg));
+  if (const auto result = tree_.validate(); !result) {
+    qt::qErrorBox(this, "UADF is invalid: " + QString::fromStdString(result.error()));
     reset();
     return;
   }
@@ -364,29 +368,31 @@ void SetupAssistantWidget::onLoadButtonClicked()
   }
 
   // Load the backup UADF whose mesh paths are resolved.
-  if (!uadf_parser_.parseFromXml(&uadf_doc, uadf_)) {
-    qt::qErrorBox(this, "Failed to parse UADF:\n\n" + QString::fromStdString(uadf_parser_.errorMessage()));
+  const auto uadf = uadf_parser_.parseFromXml(&uadf_doc);
+  if (!uadf) {
+    qt::qErrorBox(this, "Failed to parse UADF:\n\n" + QString::fromStdString(uadf.error()));
     reset();
     return;
   }
+  uadf_ = std::move(*uadf);
 
   // Load KDL tree.
-  if (!tree_parser_.parseFromUrdf(*uadf_.urdf, tree_)) {
-    qt::qErrorBox(
-      this, "Failed to construct KDL tree from URDF:\n\n" + QString::fromStdString(tree_parser_.errorMessage()));
+  const auto tree = tree_parser_.parseFromUrdf(*uadf_.urdf);
+  if (!tree) {
+    qt::qErrorBox(this, "Failed to construct KDL tree from URDF:\n\n" + QString::fromStdString(tree.error()));
     reset();
     return;
   }
+  tree_ = std::move(*tree);
 
   // Check model validity.
-  std::string error_msg;
   if (!uadf_.valid()) {
     qt::qErrorBox(this, "UADF is invalid.");  // TODO: Show a detailed error message.
     reset();
     return;
   }
-  if (!tree_.isValid(error_msg)) {
-    qt::qErrorBox(this, "UADF is invalid: " + QString::fromStdString(error_msg));
+  if (const auto result = tree_.validate(); !result) {
+    qt::qErrorBox(this, "UADF is invalid: " + QString::fromStdString(result.error()));
     reset();
     return;
   }

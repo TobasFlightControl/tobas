@@ -21,32 +21,28 @@ Colcon::Colcon()
 {
 }
 
-bool Colcon::build(const fs::path& pkg_path, const fs::path& ws_path)
+std::expected<void, std::string> Colcon::build(const fs::path& pkg_path, const fs::path& ws_path)
 {
   // Get the package name.
   const auto pkg_name = ros2::getPackageNameOf(pkg_path);
   if (!pkg_name) {
-    error_msg_ = "Failed to get the package name: " + pkg_name.error();
-    return false;
+    return std::unexpected("Failed to get the package name: " + pkg_name.error());
   }
 
   // Estimate the workspace path.
   const auto exec_path = ros2::estimateWorkspaceOf(pkg_path);
   if (!exec_path) {
-    error_msg_ = "Failed to estimate the workspace path of '" + pkg_path.string() + "': " + exec_path.error();
-    return false;
+    return std::unexpected("Failed to estimate the workspace path of '" + pkg_path.string() + "': " + exec_path.error());
   }
 
   // Navigate to the estimated workspace.
   if (chdir(exec_path->c_str()) != 0) {
-    error_msg_ = "Failed to navigate to '" + exec_path->string() + "': " + linux::strError();
-    return false;
+    return std::unexpected("Failed to navigate to '" + exec_path->string() + "': " + linux::strError());
   }
 
   // Specify the log directory.
   if (setenv("COLCON_LOG_PATH", logBase(ws_path).c_str(), 1) != 0) {
-    error_msg_ = "Failed to set the colcon log directory path: " + linux::strError();
-    return false;
+    return std::unexpected("Failed to set the colcon log directory path: " + linux::strError());
   }
 
   // Create a build command.
@@ -80,33 +76,25 @@ bool Colcon::build(const fs::path& pkg_path, const fs::path& ws_path)
   // Build the Tobas project packages.
   std::cout << "Executing '" << build_cmd << "' on " << *exec_path << "." << std::endl;
   if (!cmd_exec_.execute(build_cmd)) {
-    error_msg_ = "Failed to build '" + *pkg_name + "':\n" + cmd_exec_.getOutput();
-    return false;
+    return std::unexpected("Failed to build '" + *pkg_name + "':\n" + cmd_exec_.getOutput());
   }
 
-  return true;
+  return {};
 }
 
-bool Colcon::cleanWorkspace(const fs::path& ws_path)
+std::expected<void, std::string> Colcon::cleanWorkspace(const fs::path& ws_path)
 {
   // Navigate to the colcon workspace.
   if (chdir(ws_path.c_str()) != 0) {
-    error_msg_ = "Failed to navigate to '" + ws_path.string() + "': " + linux::strError();
-    return false;
+    return std::unexpected("Failed to navigate to '" + ws_path.string() + "': " + linux::strError());
   }
 
   // Clean the workspace.
   if (!cmd_exec_.execute("colcon clean workspace -y")) {
-    error_msg_ = "Failed to clean '" + ws_path.string() + "':\n" + cmd_exec_.getOutput();
-    return false;
+    return std::unexpected("Failed to clean '" + ws_path.string() + "':\n" + cmd_exec_.getOutput());
   }
 
-  return true;
-}
-
-const std::string& Colcon::errorMessage() const
-{
-  return error_msg_;
+  return {};
 }
 
 void Colcon::setParallelWorkers(size_t num)

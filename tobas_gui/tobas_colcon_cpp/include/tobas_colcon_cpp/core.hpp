@@ -18,11 +18,9 @@ class Colcon
 public:
   explicit Colcon();
 
-  bool build(const std::filesystem::path& pkg_path, const std::filesystem::path& ws_path);
+  std::expected<void, std::string> build(const std::filesystem::path& pkg_path, const std::filesystem::path& ws_path);
 
-  bool cleanWorkspace(const std::filesystem::path& ws_path);
-
-  const std::string& errorMessage() const;
+  std::expected<void, std::string> cleanWorkspace(const std::filesystem::path& ws_path);
 
   void setParallelWorkers(size_t num);
   void setMergeInstall(bool enabled);
@@ -39,8 +37,6 @@ private:
   } build_opts_;
 
   linux::CommandExecutor cmd_exec_;
-
-  std::string error_msg_;
 
   static std::filesystem::path buildBase(const std::filesystem::path& ws_path);
   static std::filesystem::path installBase(const std::filesystem::path& ws_path);

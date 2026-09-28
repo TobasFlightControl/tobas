@@ -4,6 +4,7 @@
 #include "tobas_random_axis_tilt_multi_controller/mixer_sqp.hpp"
 
 #include <ranges>
+#include <utility>
 
 #include <tobas_constants/scale.hpp>
 #include <tobas_eigen_tools/geometry.hpp>
@@ -44,6 +45,7 @@ bool SqpMixer::updateInternalDataStructures()
 
   return true;
 }
+
 bool SqpMixer::solve(
   const kdl::JntArray& cur_q,
   const kdl::Rotation& cur_rot,
@@ -122,22 +124,24 @@ bool SqpMixer::solve(
   R_.diagonal().fill(cfg_.thrust_weight / math::sqr(thrust_scale));
 
   // Solve the SQP.
-  if (sqp_.solve() < 0) {
-    cerr << "SQP failed: " << sqp_.errorMessage() << endl;
+  const auto x_opt = sqp_.solve();
+  if (!x_opt) {
+    cerr << "SQP failed: " << x_opt.error() << endl;
     return false;
   }
+  x_opt_ = std::move(*x_opt);
 
   return true;
 }
 
 double SqpMixer::getThrust(size_t idx) const
 {
-  return thrustDeadband(sqp_.optimal()(drone_.prop->numRotors() + idx));
+  return thrustDeadband(x_opt_(drone_.prop->numRotors() + idx));
 }
 
 double SqpMixer::getTiltAngle(size_t idx) const
 {
-  return sqp_.optimal()(idx);
+  return x_opt_(idx);
 }
 
 bool SqpMixer::setLinearWeight(double p)

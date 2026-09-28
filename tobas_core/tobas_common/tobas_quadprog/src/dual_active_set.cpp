@@ -27,7 +27,7 @@ DualActiveSetSolver::DualActiveSetSolver() : super()
 {
 }
 
-bool DualActiveSetSolver::solve()
+std::expected<Eigen::VectorXd, std::string> DualActiveSetSolver::solve()
 {
   checkProblemValidity();
 
@@ -70,8 +70,7 @@ bool DualActiveSetSolver::solve()
   // Decompose the matrix P in the form L L^T.
   const Eigen::LLT<Eigen::MatrixXd> llt(scaled.P);
   if (llt.info() == Eigen::NumericalIssue) {
-    error_msg_ = "Cholesky decomposition failed.";
-    return false;
+    return std::unexpected("Cholesky decomposition failed.");
   }
 
 #ifdef TRACE_SOLVER
@@ -129,8 +128,7 @@ bool DualActiveSetSolver::solve()
     A_(i) = -i - 1;
 
     if (!addConstraint()) {
-      error_msg_ = "Constraints are linearly dependent.";
-      return false;
+      return std::unexpected("Constraints are linearly dependent.");
     }
   }
 
@@ -167,8 +165,7 @@ bool DualActiveSetSolver::solve()
         const auto psi = s_.head(m_).cwiseMin(0.0).sum();  // Sum of all infeasibilities
         if (std::abs(psi) <= m_ * kEps * c_ * kToleranceFactor) {
           // Numerically there are no infeasibilities anymore.
-          x_opt_ = x_.cwiseProduct(x_scale);
-          return true;
+          return x_.cwiseProduct(x_scale).eval();
         }
 
         // Save old values for u, A, and x.
@@ -187,8 +184,7 @@ bool DualActiveSetSolver::solve()
           }
         }
         if (ss_ >= 0.0) {
-          x_opt_ = x_.cwiseProduct(x_scale);
-          return true;
+          return x_.cwiseProduct(x_scale).eval();
         }
 
         // Set np = n(ip).
@@ -261,8 +257,7 @@ bool DualActiveSetSolver::solve()
 
         // case (i): no step in primal or dual space
         if (t >= kInfinity) {
-          error_msg_ = "QPP is infeasible.";
-          return false;
+          return std::unexpected("QPP is infeasible.");
         }
 
         // case (ii): step in dual space
@@ -453,7 +448,6 @@ bool DualActiveSetSolver::addConstraint()
 #endif
 
   if (std::abs(d_(iq_ - 1)) <= kEps * R_norm_) {
-    error_msg_ = "Problem degenerate.";
     return false;
   }
 

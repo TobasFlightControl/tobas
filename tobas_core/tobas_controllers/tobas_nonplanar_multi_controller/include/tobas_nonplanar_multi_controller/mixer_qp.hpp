@@ -58,6 +58,8 @@ private:
   Eigen::Matrix6Xd G_;                // Left-hand side of the EoM matrix equality.
   Eigen::Vector6d h_;                 // Right-hand side of the EoM matrix equality.
 
+  Eigen::VectorXd thrusts_;
+
   void resizeAndFill();
 };
 }  // namespace nonplanar_multicopter

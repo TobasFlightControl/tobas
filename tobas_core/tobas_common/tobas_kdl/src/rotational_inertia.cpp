@@ -12,19 +12,17 @@ namespace tobas
 {
 namespace kdl
 {
-bool RotationalInertia::isValid(string& error_msg) const
+std::expected<void, std::string> RotationalInertia::validate() const
 {
   // Check that the matrix is symmetric.
   if (!eigen::isSymmetric(data)) {
-    error_msg = "Inertia matrix must be symmetric.";
-    return false;
+    return std::unexpected("Inertia matrix must be symmetric.");
   }
 
   // Compute the principal moments of inertia.
   const EigenSolver<Matrix3d> es(data);
   if (es.info() != Success) {
-    error_msg = "Failed to get the eigenvalues of the inertia matrix.";
-    return false;
+    return std::unexpected("Failed to get the eigenvalues of the inertia matrix.");
   }
   const auto eigvals = es.eigenvalues().real().eval();
   const auto& i1 = eigvals.x();
@@ -33,17 +31,15 @@ bool RotationalInertia::isValid(string& error_msg) const
 
   // Check that the matrix is positive-semidefinite.
   if (i1 < 0.0 || i2 < 0.0 || i3 < 0.0) {
-    error_msg = "Inertia matrix must be positive-semidefinite.";
-    return false;
+    return std::unexpected("Inertia matrix must be positive-semidefinite.");
   }
 
   // Check that the principal moments satisfy the triangle inequality.
   if (i1 + i2 < i3 || i2 + i3 < i1 || i3 + i1 < i2) {
-    error_msg = "Inertia matrix is unrealistic.";
-    return false;
+    return std::unexpected("Inertia matrix is unrealistic.");
   }
 
-  return true;
+  return {};
 }
 }  // namespace kdl
 }  // namespace tobas

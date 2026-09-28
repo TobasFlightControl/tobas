@@ -18,7 +18,7 @@ QpOasesSolver::QpOasesSolver()
 {
 }
 
-bool QpOasesSolver::solve()
+std::expected<Eigen::VectorXd, std::string> QpOasesSolver::solve()
 {
   checkProblemValidity();
 
@@ -76,15 +76,12 @@ bool QpOasesSolver::solve()
   double x_opt[var_size];
   const auto ret = solver.getPrimalSolution(x_opt);
   if (ret != qpOASES::SUCCESSFUL_RETURN) {
-    error_msg_ = "qpOASES finished with error code " + std::to_string(ret);
-    return false;
+    return std::unexpected("qpOASES finished with error code " + std::to_string(ret));
   }
 
   // Restore the solution to the original scale.
   VectorXd x_scaled = Map<VectorXd>(x_opt, var_size);
-  x_opt_ = x_scaled.cwiseProduct(x_scale);
-
-  return true;
+  return x_scaled.cwiseProduct(x_scale).eval();
 }
 }  // namespace quadprog
 }  // namespace tobas

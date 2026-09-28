@@ -20,7 +20,7 @@ class DualActiveSetSolver : public QuadProgSolver
 public:
   explicit DualActiveSetSolver();
 
-  bool solve() override;
+  std::expected<Eigen::VectorXd, std::string> solve() override;
 
   /* Get the Lagrange multipliers of the equality constraints. */
   Eigen::VectorXd getLagrangeMultipliersEq() const;

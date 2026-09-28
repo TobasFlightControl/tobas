@@ -3,6 +3,8 @@
 
 #include "tobas_kdl/tree_ik_solver_acc_rac.hpp"
 
+#include <utility>
+
 #include <tobas_eigen_tools/core.hpp>
 #include <tobas_quadprog/utils.hpp>
 
@@ -90,10 +92,11 @@ int TreeIkSolverAcc_RAC::cartToJnt(const JntArray& q_in, const JntArray& qd_in, 
   quadprog::matIneqFromRange(qdd_min_, qdd_max_, qp_solver_.problem.A, qp_solver_.problem.b);
 
   // Solve the QP.
-  if (!qp_solver_.solve()) {
+  const auto qdd_out = qp_solver_.solve();
+  if (!qdd_out) {
     return setDefaultError(kQpFailed);
   }
-  qdd_out_.data = qp_solver_.solution();
+  qdd_out_.data = std::move(*qdd_out);
 
   return setDefaultError(kNoError);
 }

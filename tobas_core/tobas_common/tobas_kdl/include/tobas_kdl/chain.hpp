@@ -3,6 +3,9 @@
 
 #pragma once
 
+#include <expected>
+#include <string>
+
 #include "./segment.hpp"
 
 namespace tobas
@@ -31,7 +34,7 @@ public:
   void clear();
 
   /* Check validity. */
-  bool isValid(std::string& error_msg) const;
+  std::expected<void, std::string> validate() const;
 
   /**
    * Adds a new segment to the <strong>end</strong> of the chain.

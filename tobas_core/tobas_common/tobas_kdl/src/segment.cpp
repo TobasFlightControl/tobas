@@ -9,29 +9,25 @@ namespace tobas
 {
 namespace kdl
 {
-bool Segment::isValid(string& error_msg) const
+std::expected<void, std::string> Segment::validate() const
 {
   if (name_.empty()) {
-    error_msg = "Segment name is empty.";
-    return false;
+    return std::unexpected("Segment name is empty.");
   }
 
-  if (!joint_.isValid(error_msg)) {
-    error_msg = name_ + "'s joint is invalid: " + error_msg;
-    return false;
+  if (const auto result = joint_.validate(); !result) {
+    return std::unexpected(name_ + "'s joint is invalid: " + result.error());
   }
 
-  if (!f_tip_.isValid(error_msg)) {
-    error_msg = name_ + "'s frame is invalid: " + error_msg;
-    return false;
+  if (const auto result = f_tip_.validate(); !result) {
+    return std::unexpected(name_ + "'s frame is invalid: " + result.error());
   }
 
-  if (!I_.isValid(error_msg)) {
-    error_msg = name_ + "'s inertia is invalid: " + error_msg;
-    return false;
+  if (const auto result = I_.validate(); !result) {
+    return std::unexpected(name_ + "'s inertia is invalid: " + result.error());
   }
 
-  return true;
+  return {};
 }
 
 ostream& operator<<(ostream& os, const Segment& arg)

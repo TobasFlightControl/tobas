@@ -20,9 +20,7 @@ class LocalProjectBuilder
 public:
   explicit LocalProjectBuilder();
 
-  bool build(const QString& proj_path);
-
-  QString errorMessage() const;
+  std::expected<void, QString> build(const QString& proj_path);
 
 private:
   colcon::Colcon colcon_;

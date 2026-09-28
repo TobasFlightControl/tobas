@@ -184,12 +184,13 @@ bool VelocityControllerNode::taskSpaceControl(
   kdl::Frame T_Base_Parent;
   kdl::FrameMap tar_p;
   for (const auto& ls : tar_ls.states) {
-    if (!tf_listener_->lookupTransform(tree_.getRootName(), tar_ls.header.frame_id)) {
-      TOBAS_ERROR(tf_listener_->getErrorMessage());
+    const auto transform = tf_listener_->lookupTransform(tree_.getRootName(), tar_ls.header.frame_id);
+    if (!transform) {
+      TOBAS_ERROR(transform.error());
       continue;
     }
 
-    kdl::transformMsgToKDL(tf_listener_->getTransform().transform, T_Base_Parent);
+    kdl::transformMsgToKDL(transform->transform, T_Base_Parent);
     tar_p[ls.name] = T_Base_Parent * ls.frame;  // Base -> Segment tip
   }
 

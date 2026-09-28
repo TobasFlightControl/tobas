@@ -4,6 +4,7 @@
 #include "tobas_planar_multi_controller/mixer_qp.hpp"
 
 #include <ranges>
+#include <utility>
 
 #include <tobas_constants/scale.hpp>
 #include <tobas_eigen_tools/operators.hpp>
@@ -15,7 +16,7 @@ namespace tobas
 namespace planar_multicopter
 {
 QpMixer::QpMixer(const Drone& drone, const kdl::Tree& tree)
-  : super(drone, tree), fk_solver_(tree), inertia_solver_(tree), stopwatch_(100)
+  : super(drone, tree), fk_solver_(tree), inertia_solver_(tree)
 {
 }
 
@@ -131,19 +132,19 @@ bool QpMixer::solve(
   qp_.problem.h(0) = std::clamp(tar_thrusts_sum, min_thrust_sum + kThrustMargin, max_thrust_sum - kThrustMargin);
 
   // Solve the QPP.
-  // stopwatch_.start();
-  if (!qp_.solve()) {
-    std::cerr << "QP failed: " << qp_.errorMessage() << std::endl;
+  const auto thrusts = qp_.solve();
+  if (!thrusts) {
+    std::cerr << "QP failed: " << thrusts.error() << std::endl;
     return false;
   }
-  // stopwatch_.stop();
+  thrusts_ = std::move(*thrusts);
 
   return true;
 }
 
 double QpMixer::getThrust(size_t idx) const
 {
-  return thrustDeadband(qp_.solution()(idx));
+  return thrustDeadband(thrusts_(idx));
 }
 
 bool QpMixer::setBaseWeight(double p)

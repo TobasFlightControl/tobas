@@ -57,6 +57,7 @@ private:
   nonplanar_multicopter::QpMixer np_mixer_;
 
   nlp::SQP sqp_;
+  Eigen::VectorXd x_opt_;
 
   Eigen::Diagonal6d Q_;  // EoM weights.
   Eigen::DiagonalXd R_;  // Thrust weights.

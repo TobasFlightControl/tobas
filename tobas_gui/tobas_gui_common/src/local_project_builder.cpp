@@ -33,8 +33,8 @@ public:
 
   void run() override
   {
-    if (!builder_.build(proj_path_)) {
-      Q_EMIT finished(false, builder_.errorMessage());
+    if (const auto result = builder_.build(proj_path_); !result) {
+      Q_EMIT finished(false, result.error());
       return;
     }
 
@@ -59,17 +59,16 @@ LocalProjectBuilder::LocalProjectBuilder()
   colcon_.setCmakeCleanCache(true);
 }
 
-bool LocalProjectBuilder::build(const QString& proj_path)
+std::expected<void, QString> LocalProjectBuilder::build(const QString& proj_path)
 {
   const auto meta_pkg_path = ProjectPaths(proj_path).metaPkgPath();
   const auto ws_path = qt::expandUser(kColconWSPathHome);
 
-  return colcon_.build(meta_pkg_path.toStdString(), ws_path.toStdString());
-}
+  if (const auto result = colcon_.build(meta_pkg_path.toStdString(), ws_path.toStdString()); !result) {
+    return std::unexpected(QString::fromStdString(result.error()));
+  }
 
-QString LocalProjectBuilder::errorMessage() const
-{
-  return QString::fromStdString(colcon_.errorMessage());
+  return {};
 }
 
 std::expected<void, QString> buildLocalProject(const QString& proj_path)

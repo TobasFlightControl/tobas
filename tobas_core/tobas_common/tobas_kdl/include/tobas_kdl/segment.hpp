@@ -3,6 +3,9 @@
 
 #pragma once
 
+#include <expected>
+#include <string>
+
 #include "./frames.hpp"
 #include "./joint.hpp"
 #include "./rigid_body_inertia.hpp"
@@ -41,7 +44,7 @@ public:
     const RigidBodyInertia& I = RigidBodyInertia::Zero());
 
   /* Check validity (except for the root segment). */
-  bool isValid(std::string& error_msg) const;
+  std::expected<void, std::string> validate() const;
 
   /* Request the pose of the segment wrt. the parent frame. */
   inline Frame pose(double q) const;

@@ -15,58 +15,50 @@ TreeParser::TreeParser()
 {
 }
 
-bool TreeParser::parseFromPath(const string& path, Tree& tree)
+std::expected<Tree, std::string> TreeParser::parseFromPath(const string& path)
 {
   const auto model = urdf_parser_.parseFromPath(path);
   if (!model) {
-    error_msg_ = urdf_parser_.errorMessage();
-    return false;
+    return std::unexpected(model.error());
   }
 
-  return parseFromUrdf(*model, tree);
+  return parseFromUrdf(**model);
 }
 
-bool TreeParser::parseFromText(const string& xml, Tree& tree)
+std::expected<Tree, std::string> TreeParser::parseFromText(const string& xml)
 {
   const auto model = urdf_parser_.parseFromText(xml);
   if (!model) {
-    error_msg_ = urdf_parser_.errorMessage();
-    return false;
+    return std::unexpected(model.error());
   }
 
-  return parseFromUrdf(*model, tree);
+  return parseFromUrdf(**model);
 }
 
-bool TreeParser::parseFromUrdf(const ::urdf::ModelInterface& model, Tree& tree)
+std::expected<Tree, std::string> TreeParser::parseFromUrdf(const ::urdf::ModelInterface& model)
 {
   const auto root_link = model.getRoot();
   if (!root_link) {
-    error_msg_ = "Failed to get root link.";
-    return false;
+    return std::unexpected("Failed to get root link.");
   }
-
-  tree = Tree(root_link->name);
 
   // Error if root link has inertia. KDL does not support this.
   if (root_link->inertial) {
-    error_msg_ = "The root link '" + root_link->name +
-                 "' has an inertia specified in the URDF, "
-                 "but KDL does not support a root link with an inertia. "
-                 "As a workaround, you can add an extra dummy link to your URDF.";
-    return false;
+    return std::unexpected(
+      "The root link '" + root_link->name +
+      "' has an inertia specified in the URDF, "
+      "but KDL does not support a root link with an inertia. "
+      "As a workaround, you can add an extra dummy link to your URDF.");
   }
+
+  Tree tree(root_link->name);
 
   // Add all children.
   for (const auto& child : root_link->child_links) {
     addChildrenToTree(child, tree);
   }
 
-  return true;
-}
-
-const string& TreeParser::errorMessage() const
-{
-  return error_msg_;
+  return tree;
 }
 
 void TreeParser::addChildrenToTree(const ::urdf::LinkConstSharedPtr& root, Tree& tree)

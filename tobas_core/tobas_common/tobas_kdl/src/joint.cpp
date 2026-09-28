@@ -9,14 +9,13 @@ namespace tobas
 {
 namespace kdl
 {
-bool Joint::isValid(string& error_msg) const
+std::expected<void, std::string> Joint::validate() const
 {
   if (name.empty()) {
-    error_msg = "Joint name is empty.";
-    return false;
+    return std::unexpected("Joint name is empty.");
   }
 
-  return true;
+  return {};
 }
 
 const char* Joint::typeToText(JointType type)
