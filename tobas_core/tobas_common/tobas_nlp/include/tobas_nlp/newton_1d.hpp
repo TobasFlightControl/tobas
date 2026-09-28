@@ -3,7 +3,9 @@
 
 #pragma once
 
+#include <expected>
 #include <functional>
+#include <string>
 
 namespace tobas
 {
@@ -17,28 +19,17 @@ namespace nlp
 class NewtonSolver1d
 {
 public:
-  enum Error
-  {
-    kNoError = 0,
-    kMaxIterationExceeded = -1,
-    kInfeasible = -2,
-  };
-
   explicit NewtonSolver1d();
 
   void initialize(std::function<double(double)> f, std::function<double(double)> dfdx);
 
-  Error solve(double& x);
-
-  Error errorCode() const;
-  const char* errorMessage() const;
+  /* Solve from the initial value x and return the solution or an error message. */
+  std::expected<double, std::string> solve(double x);
 
   bool setMaximumIterations(size_t max_iter);
   bool setAbsoluteTolerance(double abs_tol);
 
 private:
-  Error error_code_;
-
   std::function<double(double)> f_;
   std::function<double(double)> dfdx_;
 

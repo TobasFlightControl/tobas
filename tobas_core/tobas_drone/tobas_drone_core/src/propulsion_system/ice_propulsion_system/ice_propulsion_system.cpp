@@ -3,6 +3,7 @@
 
 #include "tobas_drone_core/propulsion_system/ice_propulsion_system/ice_propulsion_system.hpp"
 
+#include <cassert>
 #include <memory>
 #include <ranges>
 
@@ -141,16 +142,13 @@ double IcePropulsionSystemConfig::computeEngineSpeed(double throttle) const
   nlp::NewtonSolver1d newton;
 
   newton.initialize(
-    bind(&self::speedFunc, this, throttle, std::placeholders::_1),
-    bind(&self::speedFuncDeriv, this, throttle, std::placeholders::_1));
+    std::bind(&self::speedFunc, this, throttle, std::placeholders::_1),
+    std::bind(&self::speedFuncDeriv, this, throttle, std::placeholders::_1));
 
-  double engine_speed = 0.0;
-  if (newton.solve(engine_speed) < 0) {
-    std::cerr << "Failed to solve the engine dynamics equation: " << newton.errorMessage() << std::endl;
-    return 0.0;
-  }
+  const auto engine_speed = newton.solve(0.0);
+  assert(engine_speed.has_value());
 
-  return engine_speed;
+  return *engine_speed;
 }
 
 double IcePropulsionSystemConfig::speedFunc(double throttle, double omega) const

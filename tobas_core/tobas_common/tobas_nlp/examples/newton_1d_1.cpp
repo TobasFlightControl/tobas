@@ -28,15 +28,15 @@ int main()
 
   newton.initialize(f, dfdx);
 
-  double x = 1;
-  if (newton.solve(x) < 0) {
-    cerr << newton.errorMessage() << endl;
+  const auto x = newton.solve(1.0);
+  if (!x) {
+    cerr << x.error() << endl;
     return EXIT_FAILURE;
   }
 
-  cout << "Optimal solution: " << x << endl;  // 0.4142
+  cout << "Optimal solution: " << *x << endl;  // 0.4142
   cout << "----------" << endl;
-  cout << "f(x*) = " << f(x) << endl;
+  cout << "f(x*) = " << f(*x) << endl;
 
   return EXIT_SUCCESS;
 }

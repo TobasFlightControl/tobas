@@ -3,8 +3,7 @@
 
 #include "tobas_drone_core/propulsion_system/ice_propulsion_system/moment_constant.hpp"
 
-#include <iostream>
-#include <limits>
+#include <cassert>
 
 #include <tobas_yaml_tools/core.hpp>
 #include <tobas_yaml_tools/format.hpp>
@@ -67,11 +66,7 @@ YAML::Node VppMomentConstant::dump() const
 
 double VppMomentConstant::compute(double phi) const
 {
-  if (phi <= phi0) {
-    std::cerr << "The moment constant cannot be computed because the pitch angle of " << phi
-              << "[rad] is smaller than the negative stall angle of " << phi0 << "[rad]." << std::endl;
-    return std::numeric_limits<double>::max();
-  }
+  assert(phi > phi0);
 
   const auto x = phi - phi0;
   return a * x + b + c / x;

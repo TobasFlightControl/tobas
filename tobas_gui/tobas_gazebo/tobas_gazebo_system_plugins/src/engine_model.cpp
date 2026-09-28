@@ -122,13 +122,13 @@ double EngineModel::computeSteadySpeed()
     return 0.0;
   }
 
-  double speed = 0.0;
-  if (newton_.solve(speed) < 0) {
-    gzerr << "Failed to solve the engine dynamics equation: " << newton_.errorMessage() << std::endl;
+  const auto speed = newton_.solve(0.0);
+  if (!speed) {
+    gzerr << "Failed to solve the engine dynamics equation: " << speed.error() << std::endl;
     return 0.0;
   }
 
-  return speed;
+  return *speed;
 }
 
 double EngineModel::speedFunc(double omega) const

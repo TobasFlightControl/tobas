@@ -5,7 +5,6 @@
 
 #include <cassert>
 #include <cmath>
-#include <iostream>
 
 // #define TRACE_SOLVER
 
@@ -23,7 +22,7 @@ void NewtonSolver1d::initialize(std::function<double(double)> f, std::function<d
   dfdx_ = dfdx;
 }
 
-NewtonSolver1d::Error NewtonSolver1d::solve(double& x)
+std::expected<double, std::string> NewtonSolver1d::solve(double x)
 {
   for (size_t iter = 0; iter < max_iter_; ++iter) {
     const auto f = f_(x);
@@ -41,14 +40,15 @@ NewtonSolver1d::Error NewtonSolver1d::solve(double& x)
     assert(std::isfinite(dfdx));
 
     // Stationary point case.
-    if (dfdx < std::numeric_limits<double>::epsilon()) {
-      if (f < std::numeric_limits<double>::epsilon()) {
+    constexpr auto kEps = std::numeric_limits<double>::epsilon();
+    if (dfdx < kEps) {
+      if (f < kEps) {
         // Exit if already at the solution.
-        return error_code_ = kNoError;
+        return x;
       }
       else {
         // Return an error if not converged.
-        return error_code_ = kInfeasible;
+        return std::unexpected("The algorithm is infeasible.");
       }
     }
 
@@ -57,30 +57,11 @@ NewtonSolver1d::Error NewtonSolver1d::solve(double& x)
 
     // Termination check.
     if (std::abs(dx) < abs_tol_) {
-      return error_code_ = kNoError;
+      return x;
     }
   }
 
-  return error_code_ = kMaxIterationExceeded;
-}
-
-NewtonSolver1d::Error NewtonSolver1d::errorCode() const
-{
-  return error_code_;
-}
-
-const char* NewtonSolver1d::errorMessage() const
-{
-  switch (error_code_) {
-    case kNoError:
-      return "No error.";
-    case kMaxIterationExceeded:
-      return "The number of iterations exceeded the limit.";
-    case kInfeasible:
-      return "The algorithm is infeasible.";
-    default:
-      return "Unknown error.";
-  }
+  return std::unexpected("The number of iterations exceeded the limit.");
 }
 
 bool NewtonSolver1d::setMaximumIterations(size_t max_iter)
@@ -92,7 +73,6 @@ bool NewtonSolver1d::setMaximumIterations(size_t max_iter)
 bool NewtonSolver1d::setAbsoluteTolerance(double abs_tol)
 {
   if (abs_tol <= 0.0) {
-    std::cerr << "Absolute tolerance must be positive." << std::endl;
     return false;
   }
 
