@@ -718,7 +718,10 @@ void ErrorStateKalmanFilterNode::imuRawCb(const tobas_msgs::Imu::ConstSharedPtr&
   const auto& acc_meas = msg->accel.data;
   const auto& gyro_meas = msg->gyro.data;
   const auto grav_cov = adaptive_grav_noise_ ? calcGravMeasNoiseCov(acc_meas) : fixed_grav_cov_;
-  eskf_.measureIMU(acc_meas, gyro_meas, fixed_acc_cov_, fixed_gyro_cov_, grav_cov, cur_time);
+  const auto result = eskf_.measureImu(acc_meas, gyro_meas, fixed_acc_cov_, fixed_gyro_cov_, grav_cov, cur_time);
+  if (!result) {
+    TOBAS_ERROR_THROTTLE(kTypicalErrorPeriod, "IMU measurement failed: ", result.error());
+  }
 
   // Do not publish any messages if filtered IMU message is not ready.
   if (!imu_filt_) {
@@ -812,11 +815,11 @@ void ErrorStateKalmanFilterNode::magCb(const tobas_msgs::MagneticField::ConstSha
   const auto stamp = ros2::chronoFromRosTime(msg->header.stamp);
 
   // Update all three axes when estimating bias; otherwise update yaw only.
-  if (do_mag_hard_bias_estimation_ || do_mag_soft_bias_estimation_) {
-    eskf_.measureMagneticField3d(mag_meas, fixed_mag_cov_, stamp);
-  }
-  else {
-    eskf_.measureMagneticFieldHead(mag_meas, fixed_head_var_, stamp);
+  const auto use_3d = (do_mag_hard_bias_estimation_ || do_mag_soft_bias_estimation_);
+  const auto result = use_3d ? eskf_.measureMagneticField3d(mag_meas, fixed_mag_cov_, stamp) :
+                               eskf_.measureMagneticFieldHead(mag_meas, fixed_head_var_, stamp);
+  if (!result) {
+    TOBAS_ERROR_THROTTLE(kTypicalErrorPeriod, "Magnetic field measurement failed: ", result.error());
   }
 }
 
@@ -840,7 +843,10 @@ void ErrorStateKalmanFilterNode::baroCb(const tobas_msgs::msg::FluidPressure::Co
   }
 
   const auto stamp = ros2::chronoFromRosTime(msg->header.stamp);
-  eskf_.measureAirPressure(msg->pressure, fixed_baro_alt_var_, stamp);
+  const auto result = eskf_.measureAirPressure(msg->pressure, fixed_baro_alt_var_, stamp);
+  if (!result) {
+    TOBAS_ERROR_THROTTLE(kTypicalErrorPeriod, "Air pressure measurement failed: ", result.error());
+  }
 }
 
 void ErrorStateKalmanFilterNode::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& msg)
@@ -906,7 +912,11 @@ void ErrorStateKalmanFilterNode::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& 
   const Vector3d imu2gnss = gnss_offset_ - imu_offset_;
   const auto& gyro_meas = imu_filt_->gyro.data;
   const auto stamp = ros2::chronoFromRosTime(msg->header.stamp);
-  gnss_anomaly_score_ = eskf_.measurePosVel(pos_meas_, vel_meas, gnss_cov_, imu2gnss, gyro_meas, stamp);
+  const auto result = eskf_.measurePosVel(pos_meas_, vel_meas, gnss_cov_, imu2gnss, gyro_meas, stamp);
+  gnss_anomaly_score_ = result.value_or(NAN);
+  if (!result) {
+    TOBAS_ERROR_THROTTLE(kTypicalErrorPeriod, "GNSS measurement failed: ", result.error());
+  }
 }
 
 void ErrorStateKalmanFilterNode::externalPoseCb(const tobas_kdl_msgs::FrameWithCovarianceStamped::ConstSharedPtr& msg)
@@ -916,12 +926,18 @@ void ErrorStateKalmanFilterNode::externalPoseCb(const tobas_kdl_msgs::FrameWithC
   }
 
   const auto& pose = msg->frame.frame;
+  const auto& pos = pose.p;
+  const auto& rot = pose.M;
+  const auto& cov = msg->frame.covariance;
 
   Quaterniond quat;
-  pose.M.getQuaternion(quat.x(), quat.y(), quat.z(), quat.w());
+  rot.getQuaternion(quat.x(), quat.y(), quat.z(), quat.w());
 
   const auto stamp = ros2::chronoFromRosTime(msg->header.stamp);
-  eskf_.measurePose(pose.p.data, quat, msg->frame.covariance, Vector3d::Zero(), stamp);  // TODO: Specify offset.
+  const auto result = eskf_.measurePose(pos.data, quat, cov, Vector3d::Zero(), stamp);  // TODO: offset
+  if (!result) {
+    TOBAS_ERROR_THROTTLE(kTypicalErrorPeriod, "External pose measurement failed: ", result.error());
+  }
 }
 
 void ErrorStateKalmanFilterNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& msg)

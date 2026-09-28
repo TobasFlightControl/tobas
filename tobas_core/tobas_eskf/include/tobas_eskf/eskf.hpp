@@ -3,6 +3,9 @@
 
 #pragma once
 
+#include <expected>
+#include <string>
+
 #include <eigen3/Eigen/Core>
 #include <eigen3/Eigen/Geometry>
 
@@ -144,8 +147,11 @@ public:
    * @param gyro_cov [rad^2/s^2] Covariance of gyro measurement noise.
    * @param grav_cov [m^2/s^4] Covariance of gravitational acceleration measurement noise.
    * @param time [s] Current time.
+   *
+   * @return Anomaly score, or an error message if attitude correction cannot be performed.
+   * @note During free fall, state prediction is still applied before returning an error.
    */
-  double measureIMU(
+  std::expected<double, std::string> measureImu(
     const Eigen::Vector3d& acc_meas,
     const Eigen::Vector3d& gyro_meas,
     const Eigen::Matrix3d& acc_cov,
@@ -160,9 +166,9 @@ public:
    * @param pos_cov Covariance of position measurement noise.
    * @param offset Offset of the observation frame from the IMU frame, expressed in the IMU frame.
    *
-   * @return Anomaly score
+   * @return Anomaly score, or an error message if the observation cannot be applied.
    */
-  double measurePosition(
+  std::expected<double, std::string> measurePosition(
     const Eigen::Vector3d& pos_meas,
     const Eigen::Matrix3d& pos_cov,
     const Eigen::Vector3d& offset,
@@ -176,16 +182,16 @@ public:
    * @param offset Offset of the observation frame from the IMU frame, expressed in the IMU frame.
    * @param gyro_meas Gyro sensor reading.
    *
-   * @return Anomaly score
+   * @return Anomaly score, or an error message if the observation cannot be applied.
    */
-  double measureVelocity(
+  std::expected<double, std::string> measureVelocity(
     const Eigen::Vector3d& vel_meas,
     const Eigen::Matrix3d& vel_cov,
     const Eigen::Vector3d& offset,
     const Eigen::Vector3d& gyro_meas,
     const std::chrono::steady_clock::time_point& time);
 
-  double measurePosVel(
+  std::expected<double, std::string> measurePosVel(
     const Eigen::Vector3d& pos_meas,
     const Eigen::Vector3d& vel_meas,
     const Eigen::Matrix6d& cov,
@@ -193,29 +199,29 @@ public:
     const Eigen::Vector3d& gyro_meas,
     const std::chrono::steady_clock::time_point& time);
 
-  double measureQuaternion(
+  std::expected<double, std::string> measureQuaternion(
     const Eigen::Quaterniond& q_meas,
     const Eigen::Matrix3d& theta_cov,
     const std::chrono::steady_clock::time_point& time);
 
-  double measurePose(
+  std::expected<double, std::string> measurePose(
     const Eigen::Vector3d& pos_meas,
     const Eigen::Quaterniond& q_meas,
     const Eigen::Matrix6d& cov,
     const Eigen::Vector3d& offset,
     const std::chrono::steady_clock::time_point& time);
 
-  double measureMagneticField3d(
+  std::expected<double, std::string> measureMagneticField3d(
     const Eigen::Vector3d& mag_meas,
     const Eigen::Matrix3d& mag_cov,
     const std::chrono::steady_clock::time_point& time);
 
-  double measureMagneticFieldHead(
+  std::expected<double, std::string> measureMagneticFieldHead(
     const Eigen::Vector3d& mag_meas,
     const double& yaw_var,
     const std::chrono::steady_clock::time_point& time);
 
-  double
+  std::expected<double, std::string>
   measureAirPressure(const double& pres, const double& alt_var, const std::chrono::steady_clock::time_point& time);
 
 private:
@@ -280,7 +286,7 @@ private:
   Eigen::Matrix<double, 3, 4> quatRotationDerivative(const StateVector& x, const Eigen::Vector3d& a) const;
 
   /* Output equation from quaternion to yaw. */
-  Eigen::RowVector4d hamiltonToYawOutputMatrix(const StateVector& x) const;
+  std::expected<Eigen::RowVector4d, std::string> hamiltonToYawOutputMatrix(const StateVector& x) const;
 
   void setMagSoftBiasFromMatrix(const Eigen::Matrix3d& T);
   void applyConstraints();
@@ -295,9 +301,9 @@ private:
    * but it should be tuned because the generally correct value is unknown;
    * in addition to sensor noise, the variance of the estimated attitude also affects it.
    *
-   * @return Anomaly score
+   * @return Anomaly score, or an error message if the observation cannot be applied.
    */
-  double measureGravity(
+  std::expected<double, std::string> measureGravity(
     const Eigen::Vector3d& acc_meas,
     const Eigen::Matrix3d& grav_cov,
     const std::chrono::steady_clock::time_point& time);

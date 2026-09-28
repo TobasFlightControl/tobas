@@ -3,7 +3,7 @@
 
 #include "tobas_eskf/eskf.hpp"
 
-#include <iostream>
+#include <format>
 
 #include <tobas_algorithm/core.hpp>
 #include <tobas_math/core.hpp>
@@ -230,7 +230,6 @@ void ErrorStateKalmanFilter::enableJosephForm(bool enable)
 bool ErrorStateKalmanFilter::setAccBiasProcNoiseDensity(double value)
 {
   if (value < 0.0) {
-    std::cerr << "The noise density of accelerometer bias process must be non-negative." << std::endl;
     return false;
   }
 
@@ -241,7 +240,6 @@ bool ErrorStateKalmanFilter::setAccBiasProcNoiseDensity(double value)
 bool ErrorStateKalmanFilter::setGyroBiasProcNoiseDensity(double value)
 {
   if (value < 0.0) {
-    std::cerr << "The noise density of gyroscope bias process must be non-negative." << std::endl;
     return false;
   }
 
@@ -252,7 +250,6 @@ bool ErrorStateKalmanFilter::setGyroBiasProcNoiseDensity(double value)
 bool ErrorStateKalmanFilter::setMagHardBiasProcNoiseDensity(double value)
 {
   if (value < 0.0) {
-    std::cerr << "The noise density of magnetometer hard-iron bias process must be non-negative." << std::endl;
     return false;
   }
 
@@ -263,7 +260,6 @@ bool ErrorStateKalmanFilter::setMagHardBiasProcNoiseDensity(double value)
 bool ErrorStateKalmanFilter::setMagSoftBiasProcNoiseDensity(double value)
 {
   if (value < 0.0) {
-    std::cerr << "The noise density of magnetometer soft-iron bias process must be non-negative." << std::endl;
     return false;
   }
 
@@ -274,7 +270,6 @@ bool ErrorStateKalmanFilter::setMagSoftBiasProcNoiseDensity(double value)
 bool ErrorStateKalmanFilter::setBaroAltBiasProcNoiseDensity(double value)
 {
   if (value < 0.0) {
-    std::cerr << "The noise density of barometer altitude bias process must be non-negative." << std::endl;
     return false;
   }
 
@@ -285,7 +280,6 @@ bool ErrorStateKalmanFilter::setBaroAltBiasProcNoiseDensity(double value)
 bool ErrorStateKalmanFilter::setGravProcNoiseDensity(double value)
 {
   if (value < 0.0) {
-    std::cerr << "The noise density of gravity process must be non-negative." << std::endl;
     return false;
   }
 
@@ -304,7 +298,7 @@ void ErrorStateKalmanFilter::setAirPressureOrigin(double pres)
   baro_alt_origin_ = st::pressureToAltitude(pres);
 }
 
-double ErrorStateKalmanFilter::measureIMU(
+std::expected<double, std::string> ErrorStateKalmanFilter::measureImu(
   const Eigen::Vector3d& acc_meas,
   const Eigen::Vector3d& gyro_meas,
   const Eigen::Matrix3d& acc_cov,
@@ -323,8 +317,7 @@ double ErrorStateKalmanFilter::measureIMU(
 
   // `dt = 0` cannot be accepted because quaternion normalization depends on it.
   if (dt <= 0.0) {
-    std::cerr << "IMU time gap must be positive: " << dt << " <= 0 [sec]" << std::endl;
-    return INFINITY;
+    return std::unexpected(std::format("IMU time gap must be positive: {} <= 0 [sec]", dt));
   }
 
   const Eigen::Vector3d acc_B = acc_meas - getAccelBias(x_);
@@ -392,14 +385,13 @@ double ErrorStateKalmanFilter::measureIMU(
   const auto acc_norm = acc_meas.norm();
   const auto gravity = getGravity(x_);
   if (acc_norm < kFreeFallAccelNormThresh * gravity) {
-    std::cerr << "Attitude correction cannot be performed because the aircraft is in free fall." << std::endl;
-    return INFINITY;
+    return std::unexpected("Attitude correction cannot be performed because the aircraft is in free fall.");
   }
 
   return measureGravity(acc_meas, grav_cov, time);
 }
 
-double ErrorStateKalmanFilter::measurePosition(
+std::expected<double, std::string> ErrorStateKalmanFilter::measurePosition(
   const Eigen::Vector3d& pos_meas,
   const Eigen::Matrix3d& pos_cov,
   const Eigen::Vector3d& offset,
@@ -417,7 +409,7 @@ double ErrorStateKalmanFilter::measurePosition(
   return correct(delta, pos_cov, H_pos_);
 }
 
-double ErrorStateKalmanFilter::measureVelocity(
+std::expected<double, std::string> ErrorStateKalmanFilter::measureVelocity(
   const Eigen::Vector3d& vel_meas,
   const Eigen::Matrix3d& vel_cov,
   const Eigen::Vector3d& offset,
@@ -442,7 +434,7 @@ double ErrorStateKalmanFilter::measureVelocity(
   return correct(delta, vel_cov, H_vel_);
 }
 
-double ErrorStateKalmanFilter::measurePosVel(
+std::expected<double, std::string> ErrorStateKalmanFilter::measurePosVel(
   const Eigen::Vector3d& pos_meas,
   const Eigen::Vector3d& vel_meas,
   const Eigen::Matrix6d& cov,
@@ -472,7 +464,7 @@ double ErrorStateKalmanFilter::measurePosVel(
   return correct(delta, cov, H_pv_);
 }
 
-double ErrorStateKalmanFilter::measureQuaternion(
+std::expected<double, std::string> ErrorStateKalmanFilter::measureQuaternion(
   const Eigen::Quaterniond& q_meas,
   const Eigen::Matrix3d& theta_cov,
   const ch::steady_clock::time_point& time)
@@ -485,7 +477,7 @@ double ErrorStateKalmanFilter::measureQuaternion(
   return correct(delta, theta_cov, H_theta_);
 }
 
-double ErrorStateKalmanFilter::measurePose(
+std::expected<double, std::string> ErrorStateKalmanFilter::measurePose(
   const Eigen::Vector3d& pos_meas,
   const Eigen::Quaterniond& q_meas,
   const Eigen::Matrix6d& cov,
@@ -507,14 +499,13 @@ double ErrorStateKalmanFilter::measurePose(
   return correct(delta, cov, H_pose_);
 }
 
-double ErrorStateKalmanFilter::measureMagneticField3d(
+std::expected<double, std::string> ErrorStateKalmanFilter::measureMagneticField3d(
   const Eigen::Vector3d& mag_meas,
   const Eigen::Matrix3d& mag_cov,
   const ch::steady_clock::time_point& time)
 {
   if (mag_W_.norm() == 0.0) {
-    std::cerr << "Reference magnetic field is not set." << std::endl;
-    return INFINITY;
+    return std::unexpected("Reference magnetic field is not set.");
   }
 
   const auto& x = x_history_.closestAfterValue(time);
@@ -539,14 +530,13 @@ double ErrorStateKalmanFilter::measureMagneticField3d(
   return correct(delta, mag_cov, H_mag_);
 }
 
-double ErrorStateKalmanFilter::measureMagneticFieldHead(
+std::expected<double, std::string> ErrorStateKalmanFilter::measureMagneticFieldHead(
   const Eigen::Vector3d& mag_meas,
   const double& yaw_var,
   const ch::steady_clock::time_point& time)
 {
   if (mag_W_.norm() == 0.0) {
-    std::cerr << "Reference magnetic field is not set." << std::endl;
-    return INFINITY;
+    return std::unexpected("Reference magnetic field is not set.");
   }
 
   const auto& x = x_history_.closestAfterValue(time);
@@ -568,13 +558,17 @@ double ErrorStateKalmanFilter::measureMagneticFieldHead(
   const auto delta = algo::wrapPi(yaw_meas - yaw_pred);
 
   // Update the output equation.
-  H_yaw_.block<1, 3>(0, kDeltaThetaIdx) = hamiltonToYawOutputMatrix(x) * getQ_dtheta(x);
+  const auto H = hamiltonToYawOutputMatrix(x);
+  if (!H) {
+    return std::unexpected(H.error());
+  }
+  H_yaw_.block<1, 3>(0, kDeltaThetaIdx) = *H * getQ_dtheta(x);
 
   // Update the posterior estimate.
   return correct(Eigen::Scalard(delta), Eigen::Scalard(yaw_var), H_yaw_);
 }
 
-double ErrorStateKalmanFilter::measureAirPressure(
+std::expected<double, std::string> ErrorStateKalmanFilter::measureAirPressure(
   const double& pres,
   const double& alt_var,
   const ch::steady_clock::time_point& time)
@@ -612,7 +606,8 @@ ErrorStateKalmanFilter::quatRotationDerivative(const StateVector& x, const Eigen
   return res;
 }
 
-Eigen::RowVector4d ErrorStateKalmanFilter::hamiltonToYawOutputMatrix(const StateVector& x) const
+std::expected<Eigen::RowVector4d, std::string>
+ErrorStateKalmanFilter::hamiltonToYawOutputMatrix(const StateVector& x) const
 {
   // cf. Ekf::fuseYaw321: https://github.com/PX4/PX4-ECL/blob/46dd05a9159817035dab6acebc33f8a3da69d3a7/EKF/mag_fusion.cpp#L420
 
@@ -675,8 +670,7 @@ Eigen::RowVector4d ErrorStateKalmanFilter::hamiltonToYawOutputMatrix(const State
     H(3) = -sb5 * (-sb0 * sb7 - sb9 * qz);
   }
   else {
-    std::cerr << "Unable to compute the output matrix of yaw angle observation." << std::endl;
-    return Eigen::RowVector4d::Zero();
+    return std::unexpected("Unable to compute the output matrix of yaw angle observation.");
   }
 
   return H;
@@ -733,7 +727,7 @@ void ErrorStateKalmanFilter::resetStateHistory()
   x_history_.add(t_last_imu_, x_);
 }
 
-double ErrorStateKalmanFilter::measureGravity(
+std::expected<double, std::string> ErrorStateKalmanFilter::measureGravity(
   const Eigen::Vector3d& acc_meas,
   const Eigen::Matrix3d& grav_cov,
   const ch::steady_clock::time_point& time)
