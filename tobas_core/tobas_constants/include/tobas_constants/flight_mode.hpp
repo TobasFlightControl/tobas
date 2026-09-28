@@ -3,6 +3,9 @@
 
 #pragma once
 
+#include <expected>
+#include <string>
+
 #include <yaml-cpp/yaml.h>
 
 namespace tobas
@@ -14,8 +17,8 @@ enum class FlightMode
   kLoiter,
 };
 
-std::string textFromEnum(FlightMode mode);
-bool enumFromText(const std::string& text, FlightMode& dst);
+std::string flightModeTextFromEnum(FlightMode mode);
+std::expected<FlightMode, std::string> flightModeEnumFromText(const std::string& text);
 }  // namespace tobas
 
 namespace YAML

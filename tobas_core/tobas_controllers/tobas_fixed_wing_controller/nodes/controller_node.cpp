@@ -158,7 +158,8 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
 bool ControllerNode::initialize()
 {
   mass_holder_.updateInternalDataStructures();
-  if (!eom_.updateInternalDataStructures()) {
+  if (const auto result = eom_.updateInternalDataStructures(); !result) {
+    TOBAS_ERROR(result.error());
     return false;
   }
 

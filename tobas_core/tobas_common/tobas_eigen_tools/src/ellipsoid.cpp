@@ -3,8 +3,6 @@
 
 #include "tobas_eigen_tools/ellipsoid.hpp"
 
-#include <iostream>
-
 #include <eigen3/Eigen/Eigenvalues>
 #include <eigen3/Eigen/LU>
 
@@ -25,7 +23,7 @@ Ellipsoid::Ellipsoid(const Vector3d& b, const Vector6d& t)
   setSoftBias(t);
 }
 
-bool Ellipsoid::initialize(const EllipsoidCoefficients& coefs)
+std::expected<void, std::string> Ellipsoid::initialize(const EllipsoidCoefficients& coefs)
 {
   // Ellipsoid equation: `x^T A x + b^T x + c = 0`.
   Matrix3d A;
@@ -46,8 +44,7 @@ bool Ellipsoid::initialize(const EllipsoidCoefficients& coefs)
   // Calculate radii along the principal axes.
   const Vector3d r2 = W * Lam_inv;
   if (!(r2.array() > 0.0).all()) {
-    std::cerr << "The given equation does not define an ellipsoid." << std::endl;
-    return false;
+    return std::unexpected("The given equation does not define an ellipsoid.");
   }
   const Vector3d r = r2.cwiseSqrt();
 
@@ -56,7 +53,7 @@ bool Ellipsoid::initialize(const EllipsoidCoefficients& coefs)
   T_ = P * r.asDiagonal() * P.transpose();
   T_inv_ = P * r.cwiseInverse().asDiagonal() * P.transpose();
 
-  return true;
+  return {};
 }
 
 void Ellipsoid::setIdentity()

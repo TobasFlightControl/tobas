@@ -23,38 +23,42 @@ int main()
   tobas::quadprog::QuadProgppSolver quadprog;
   quadprog.problem = problem;
   quadprog.x_scale = x_scale;
-  if (!quadprog.solve()) {
-    cerr << "QuadProgppSolver failed." << endl;
+  const auto quadprog_result = quadprog.solve();
+  if (!quadprog_result) {
+    cerr << "QuadProgppSolver failed: " << quadprog_result.error() << endl;
     return EXIT_FAILURE;
   }
-  cout << "QuadProg++ solution: " << quadprog.solution().transpose() << endl;
+  cout << "QuadProg++ solution: " << quadprog_result->transpose() << endl;
 
   tobas::quadprog::QpOasesSolver qpoases;
   qpoases.problem = problem;
   qpoases.x_scale = x_scale;
-  if (!qpoases.solve()) {
-    cerr << "QpOasesSolver failed." << endl;
+  const auto qpoases_result = qpoases.solve();
+  if (!qpoases_result) {
+    cerr << "QpOasesSolver failed: " << qpoases_result.error() << endl;
     return EXIT_FAILURE;
   }
-  cout << "qpOASES solution: " << qpoases.solution().transpose() << endl;
+  cout << "qpOASES solution: " << qpoases_result->transpose() << endl;
 
   tobas::quadprog::DualActiveSetSolver das;
   das.problem = problem;
   das.x_scale = x_scale;
-  if (!das.solve()) {
-    cerr << "DualActiveSetSolver failed." << endl;
+  const auto das_result = das.solve();
+  if (!das_result) {
+    cerr << "DualActiveSetSolver failed: " << das_result.error() << endl;
     return EXIT_FAILURE;
   }
-  cout << "DualActiveSet solution: " << das.solution().transpose() << endl;
+  cout << "DualActiveSet solution: " << das_result->transpose() << endl;
 
   tobas::quadprog::PrimalDualInteriorPointSolver ipm;
   ipm.problem = problem;
   ipm.x_scale = x_scale;
-  if (!ipm.solve()) {
-    cerr << "PrimalDualInteriorPointSolver failed." << endl;
+  const auto ipm_result = ipm.solve();
+  if (!ipm_result) {
+    cerr << "PrimalDualInteriorPointSolver failed: " << ipm_result.error() << endl;
     return EXIT_FAILURE;
   }
-  cout << "PrimalDualInteriorPointSolver solution: " << ipm.solution().transpose() << endl;
+  cout << "PrimalDualInteriorPointSolver solution: " << ipm_result->transpose() << endl;
 
   return EXIT_SUCCESS;
 }

@@ -3,6 +3,9 @@
 
 #pragma once
 
+#include <expected>
+#include <string>
+
 #include <eigen3/Eigen/Core>
 
 #include "./typedef.hpp"
@@ -37,7 +40,7 @@ public:
   explicit Ellipsoid();
   explicit Ellipsoid(const Eigen::Vector3d& b, const Eigen::Vector6d& t);
 
-  bool initialize(const EllipsoidCoefficients& coefs);
+  std::expected<void, std::string> initialize(const EllipsoidCoefficients& coefs);
 
   /* Set to the unit sphere. */
   void setIdentity();

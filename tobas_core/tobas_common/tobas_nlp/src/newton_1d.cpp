@@ -5,7 +5,6 @@
 
 #include <cassert>
 #include <cmath>
-#include <iostream>
 
 // #define TRACE_SOLVER
 
@@ -83,21 +82,14 @@ const char* NewtonSolver1d::errorMessage() const
   }
 }
 
-bool NewtonSolver1d::setMaximumIterations(size_t max_iter)
+void NewtonSolver1d::setMaximumIterations(size_t max_iter)
 {
   max_iter_ = max_iter;
-  return true;
 }
 
-bool NewtonSolver1d::setAbsoluteTolerance(double abs_tol)
+void NewtonSolver1d::setAbsoluteTolerance(double abs_tol)
 {
-  if (abs_tol <= 0.0) {
-    std::cerr << "Absolute tolerance must be positive." << std::endl;
-    return false;
-  }
-
-  abs_tol_ = abs_tol;
-  return true;
+  abs_tol_ = std::max(abs_tol, 0.0);
 }
 }  // namespace nlp
 }  // namespace tobas

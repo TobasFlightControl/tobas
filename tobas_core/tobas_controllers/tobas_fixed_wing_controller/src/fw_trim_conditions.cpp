@@ -15,28 +15,25 @@ TrimConditions::TrimConditions(const Drone& drone, const kdl::Tree& tree)
 {
 }
 
-bool TrimConditions::updateInternalDataStructures()
+std::expected<void, std::string> TrimConditions::updateInternalDataStructures()
 {
   // Check drone configuration.
   if (!drone_.fixed_wing) {
-    std::cerr << "The drone is not equipped with fixed wing." << std::endl;
-    return false;
+    return std::unexpected("The drone is not equipped with fixed wing.");
   }
   if (drone_.fixed_wing->numControlSurfaces() == 0) {
-    std::cerr << "The drone must have at least 1 control surfaces." << std::endl;
-    return false;
+    return std::unexpected("The drone must have at least 1 control surfaces.");
   }
 
   // Update solvers.
   inertia_solver_.updateInternalDataStructures();
-  if (!asd_cog_.updateInternalDataStructures()) {
-    return false;
+  if (const auto result = asd_cog_.updateInternalDataStructures(); !result) {
+    return result;
   }
 
   // Set mass.
   if (inertia_solver_.jntToCart(kdl::JntArray::Zero(tree_.getNrOfJoints())) < 0) {
-    std::cerr << "Inertia solver failed: " << inertia_solver_.errorMessage() << std::endl;
-    return false;
+    return std::unexpected("Inertia solver failed: " + inertia_solver_.errorMessage());
   }
   W_ = inertia_solver_.getInertia().getMass() * st::kGravity;
 
@@ -57,15 +54,13 @@ bool TrimConditions::updateInternalDataStructures()
   b_ = aero.c_lift_0 - aero.c_pitch_0 * ml_raito;
 
   if (a_ <= 0.0) {
-    std::cerr << "The aerodynamic coefficient 'a' must be positive." << std::endl;
-    return false;
+    return std::unexpected("The aerodynamic coefficient 'a' must be positive.");
   }
   if (b_ <= 0.0) {
-    std::cerr << "The aerodynamic coefficient 'b' must be positive." << std::endl;
-    return false;
+    return std::unexpected("The aerodynamic coefficient 'b' must be positive.");
   }
 
-  return true;
+  return {};
 }
 
 int TrimConditions::update(double V, const double& rho, const kdl::JntArray& q)

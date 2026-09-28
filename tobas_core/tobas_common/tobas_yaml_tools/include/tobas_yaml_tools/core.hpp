@@ -5,7 +5,7 @@
 
 #include <expected>
 #include <filesystem>
-#include <iostream>
+#include <string>
 
 #include <yaml-cpp/yaml.h>
 
@@ -29,22 +29,21 @@ std::expected<T, std::string> load(const std::string& key, const YAML::Node& par
 }
 
 template <typename T>
-bool load(const std::string& key, const YAML::Node& parent, T& value) noexcept
+std::expected<void, std::string> load(const std::string& key, const YAML::Node& parent, T& value) noexcept
 {
   const auto res = load<T>(key, parent);
   if (!res) {
-    std::cerr << res.error() << std::endl;
-    return false;
+    return std::unexpected(res.error());
   }
 
   value = *res;
-  return true;
+  return {};
 }
 
 /* Convert `YAML::Node` to text. */
 std::string dump(const YAML::Node& node) noexcept;
 
 std::expected<YAML::Node, std::string> load(const std::filesystem::path& path) noexcept;
-bool save(const std::filesystem::path& path, const YAML::Node& node) noexcept;
+std::expected<void, std::string> save(const std::filesystem::path& path, const YAML::Node& node) noexcept;
 }  // namespace yaml
 }  // namespace tobas

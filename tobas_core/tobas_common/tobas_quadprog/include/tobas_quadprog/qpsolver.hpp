@@ -3,6 +3,9 @@
 
 #pragma once
 
+#include <expected>
+#include <string>
+
 #include <eigen3/Eigen/Core>
 
 namespace tobas
@@ -51,20 +54,14 @@ public:
 
   explicit QuadProgSolver();
 
-  virtual bool solve() = 0;
+  virtual std::expected<Eigen::VectorXd, std::string> solve() = 0;
 
   void resize(const Eigen::Index& var_size, const Eigen::Index& eq_size, const Eigen::Index& ineq_size);
   void setZero();
 
-  inline const Eigen::VectorXd& solution() const;
-  inline const std::string& errorMessage() const;
-
   friend std::ostream& operator<<(std::ostream& os, const QuadProgSolver& arg);
 
 protected:
-  Eigen::VectorXd x_opt_;
-  std::string error_msg_;
-
   QuadProgProblem scaleProblem() const;
   void checkProblemValidity() const;
 };
@@ -82,16 +79,6 @@ inline Eigen::Index QuadProgProblem::eqSize() const
 inline Eigen::Index QuadProgProblem::ineqSize() const
 {
   return b.rows();
-}
-
-inline const Eigen::VectorXd& QuadProgSolver::solution() const
-{
-  return x_opt_;
-}
-
-inline const std::string& QuadProgSolver::errorMessage() const
-{
-  return error_msg_;
 }
 }  // namespace quadprog
 }  // namespace tobas

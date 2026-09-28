@@ -22,7 +22,7 @@ class QuadProgppSolver : public QuadProgSolver
 public:
   explicit QuadProgppSolver();
 
-  bool solve() override;
+  std::expected<Eigen::VectorXd, std::string> solve() override;
 
 private:
   quadprogpp::Matrix<double> G_;

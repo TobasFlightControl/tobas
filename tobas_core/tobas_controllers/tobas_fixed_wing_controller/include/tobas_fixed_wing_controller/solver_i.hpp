@@ -3,6 +3,9 @@
 
 #pragma once
 
+#include <expected>
+#include <string>
+
 #include <tobas_drone_core/drone.hpp>
 #include <tobas_kdl/tree.hpp>
 
@@ -26,7 +29,7 @@ public:
     kError = -2,   // Serious error that should stop processing.
   };
 
-  virtual bool updateInternalDataStructures() = 0;
+  virtual std::expected<void, std::string> updateInternalDataStructures() = 0;
 
   inline const int& errorCode() const;
   inline const std::string& errorMessage() const;

@@ -34,7 +34,7 @@ public:
 
   explicit MicroDisturbanceEoM(const Drone& drone, const kdl::Tree& tree);
 
-  bool updateInternalDataStructures() override;
+  std::expected<void, std::string> updateInternalDataStructures() override;
 
   /**
    * @brief Update the internal state.
