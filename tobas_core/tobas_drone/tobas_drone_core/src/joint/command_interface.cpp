@@ -3,8 +3,6 @@
 
 #include "tobas_drone_core/joint/command_interface.hpp"
 
-#include <iostream>
-
 namespace tobas
 {
 namespace
@@ -50,7 +48,6 @@ bool enumFromText(const std::string& text, JointCommandInterface& dst)
     return true;
   }
   else {
-    std::cerr << "Invalid joint command interface: " << text << std::endl;
     return false;
   }
 }

@@ -3,8 +3,6 @@
 
 #include "tobas_drone_core/propulsion_system/type.hpp"
 
-#include <iostream>
-
 namespace tobas
 {
 namespace
@@ -36,7 +34,6 @@ bool enumFromText(const std::string& text, PropulsionSystem& dst)
     return true;
   }
   else {
-    std::cerr << "Invalid propulsion system type: " << text << std::endl;
     return false;
   }
 }

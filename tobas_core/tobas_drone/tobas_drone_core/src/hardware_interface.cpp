@@ -3,8 +3,6 @@
 
 #include "tobas_drone_core/hardware_interface.hpp"
 
-#include <iostream>
-
 namespace tobas
 {
 namespace
@@ -36,7 +34,6 @@ bool enumFromText(const std::string& text, HardwareInterface& dst)
     return true;
   }
   else {
-    std::cerr << "Invalid joint hardware interface: " << text << std::endl;
     return false;
   }
 }

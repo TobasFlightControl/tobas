@@ -3,8 +3,6 @@
 
 #include "tobas_drone_core/joint/role.hpp"
 
-#include <iostream>
-
 namespace tobas
 {
 namespace
@@ -50,7 +48,6 @@ bool enumFromText(const std::string& text, JointRole& dst)
     return true;
   }
   else {
-    std::cerr << "Invalid joint role: " << text << std::endl;
     return false;
   }
 }

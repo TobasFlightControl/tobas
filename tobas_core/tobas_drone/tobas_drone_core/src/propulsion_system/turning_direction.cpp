@@ -3,8 +3,6 @@
 
 #include "tobas_drone_core/propulsion_system/turning_direction.hpp"
 
-#include <iostream>
-
 namespace tobas
 {
 namespace
@@ -36,7 +34,6 @@ bool enumFromText(const std::string& text, TurningDirection& dst)
     return true;
   }
   else {
-    std::cerr << "Invalid rotor turning direction: " << text << std::endl;
     return false;
   }
 }
