@@ -72,14 +72,14 @@ public:
    * @param segment new segment to add
    * @param hook_name name of the segment to connect this segment with
    */
-  std::expected<void, std::string> addSegment(const Segment& segment, const std::string& hook_name);
+  bool addSegment(const Segment& segment, const std::string& hook_name);
 
   /**
    * @brief Removes a leaf segment without invalidating other segment iterators.
    *
    * @param seg_name name of the segment to remove from the tree
    */
-  std::expected<void, std::string> removeSegment(const std::string& seg_name);
+  bool removeSegment(const std::string& seg_name);
 
   /**
    * @brief Adds a complete chain to the end of the segment with hook_name as seg_name.
@@ -87,7 +87,7 @@ public:
    * @param chain Chain to add
    * @param hook_name name of the segment to connect the chain with
    */
-  std::expected<void, std::string> addChain(const Chain& chain, const std::string& hook_name);
+  bool addChain(const Chain& chain, const std::string& hook_name);
 
   /**
    * @brief Adds a complete tree to the end of the segment with hookname as seg_name.
@@ -95,7 +95,7 @@ public:
    * @param tree Tree to add
    * @param hook_name name of the segment to connect the tree with
    */
-  std::expected<void, std::string> addTree(const Tree& tree, const std::string& hook_name);
+  bool addTree(const Tree& tree, const std::string& hook_name);
 
   /**
    * @brief Request the chain of the tree between root_name and tip_name.
@@ -106,17 +106,16 @@ public:
    * @param tip_name the name of the tip segment of the chain
    * @param chain the resulting chain
    */
-  std::expected<void, std::string>
-  getChain(const std::string& root_name, const std::string& tip_name, Chain& chain) const;
+  bool getChain(const std::string& root_name, const std::string& tip_name, Chain& chain) const;
 
   /**
    * @brief Extract a tree having seg_name as root. Only child segments of seg_name are added to the new tree.
    *
    * @param seg_name The name of the segment to be used as root of the new tree
    * @param tree The resulting sub-tree
-   * @param root_mass_ok If false and the new root segment has mass, returns an error.
+   * @param root_mass_ok If false and the new root segment has mass, it will throw an exception.
    */
-  std::expected<void, std::string> getSubTree(const std::string& seg_name, Tree& tree, bool root_mass_ok = false) const;
+  bool getSubTree(const std::string& seg_name, Tree& tree, bool root_mass_ok = false) const;
 
   inline size_t getNrOfJoints() const;
   inline size_t getNrOfSegments() const;
@@ -144,7 +143,7 @@ private:
     const SegmentMap::const_iterator& seg_it,
     std::unordered_set<std::string>& seg_names,
     std::unordered_set<std::string>& jnt_names) const;
-  std::expected<void, std::string> addTreeRecursive(const SegmentMap::const_iterator& seg, const std::string& hook_name);
+  bool addTreeRecursive(const SegmentMap::const_iterator& seg, const std::string& hook_name);
 };
 
 inline TreeElement::TreeElement(const Segment& _segment, const SegmentMap::const_iterator& _parent, size_t _q_nr)

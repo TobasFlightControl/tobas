@@ -68,8 +68,8 @@ struct rclcpp::TypeAdapter<tobas::kdl::Tree, tobas_kdl_msgs::msg::Tree>
 
         // Add the current link to the tree.
         tobas_kdl_msgs::SegmentAdapter::convert_to_custom(elem.segment, seg);
-        if (const auto result = tree.addSegment(seg, elem.parent_name); !result) {
-          throw std::runtime_error("Failed to add segment '" + elem.segment.name + "': " + result.error());
+        if (!tree.addSegment(seg, elem.parent_name)) {
+          throw std::runtime_error("Failed to add segment '" + elem.segment.name + "'.");
         }
         added_segs.insert(elem.segment.name);
 

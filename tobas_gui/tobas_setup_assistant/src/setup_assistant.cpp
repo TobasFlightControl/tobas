@@ -265,8 +265,9 @@ void SetupAssistantWidget::onNewButtonClicked()
   }
 
   // Load KDL tree.
-  if (const auto result = tree_parser_.parseFromUrdf(*uadf_.urdf, tree_); !result) {
-    qt::qErrorBox(this, "Failed to construct KDL tree from URDF:\n\n" + QString::fromStdString(result.error()));
+  if (!tree_parser_.parseFromUrdf(*uadf_.urdf, tree_)) {
+    qt::qErrorBox(
+      this, "Failed to construct KDL tree from URDF:\n\n" + QString::fromStdString(tree_parser_.errorMessage()));
     reset();
     return;
   }
@@ -369,8 +370,9 @@ void SetupAssistantWidget::onLoadButtonClicked()
   }
 
   // Load KDL tree.
-  if (const auto result = tree_parser_.parseFromUrdf(*uadf_.urdf, tree_); !result) {
-    qt::qErrorBox(this, "Failed to construct KDL tree from URDF:\n\n" + QString::fromStdString(result.error()));
+  if (!tree_parser_.parseFromUrdf(*uadf_.urdf, tree_)) {
+    qt::qErrorBox(
+      this, "Failed to construct KDL tree from URDF:\n\n" + QString::fromStdString(tree_parser_.errorMessage()));
     reset();
     return;
   }

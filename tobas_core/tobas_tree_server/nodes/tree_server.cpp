@@ -47,8 +47,8 @@ private:
 TreeServerNode::TreeServerNode(const rclcpp::NodeOptions& options) : super("tree_server", nodeOptions_Default(options))
 {
   const auto robot_description = getStringParam("robot_description");
-  if (const auto result = tree_parser_.parseFromText(robot_description, tree_); !result) {
-    TOBAS_ERROR("Failed to parse robot description: ", result.error());
+  if (!tree_parser_.parseFromText(robot_description, tree_)) {
+    TOBAS_ERROR("Failed to parse robot description: ", tree_parser_.errorMessage());
     return;
   }
 
@@ -117,8 +117,8 @@ void TreeServerNode::attachCb(const AttachSrv::Request::ConstSharedPtr& req, con
   }
 
   const kdl::Segment segment(segment_name, joint, kdl::Frame::Identity(), inertia);
-  if (const auto result = tree_.addSegment(segment, req->parent_link); !result) {
-    res->message = "Failed to add load '" + req->load_id + "': " + result.error();
+  if (!tree_.addSegment(segment, req->parent_link)) {
+    res->message = "Failed to add load '" + req->load_id + "'.";
     return;
   }
 
@@ -143,8 +143,8 @@ void TreeServerNode::detachCb(const DetachSrv::Request::ConstSharedPtr& req, con
   }
 
   const auto segment_name = loadSegmentName(req->load_id);
-  if (const auto result = tree_.removeSegment(segment_name); !result) {
-    res->message = "Failed to remove load '" + req->load_id + "': " + result.error();
+  if (!tree_.removeSegment(segment_name)) {
+    res->message = "Failed to remove load '" + req->load_id + "'.";
     return;
   }
 

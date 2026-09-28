@@ -534,8 +534,9 @@ void GroundControlStationWidget::onLoadButtonClicked()
     return;
   }
   kdl::Tree next_tree;
-  if (const auto result = tree_parser_.parseFromUrdf(*next_uadf.urdf, next_tree); !result) {
-    qt::qErrorBox(this, "Failed to construct KDL tree from URDF:\n\n" + QString::fromStdString(result.error()));
+  if (!tree_parser_.parseFromUrdf(*next_uadf.urdf, next_tree)) {
+    qt::qErrorBox(
+      this, "Failed to construct KDL tree from URDF:\n\n" + QString::fromStdString(tree_parser_.errorMessage()));
     return;
   }
 
