@@ -15,55 +15,61 @@ TreeParser::TreeParser()
 {
 }
 
-std::expected<void, std::string> TreeParser::parseFromPath(const string& path, Tree& tree)
+bool TreeParser::parseFromPath(const string& path, Tree& tree)
 {
   const auto model = urdf_parser_.parseFromPath(path);
   if (!model) {
-    return std::unexpected(model.error());
+    error_msg_ = urdf_parser_.errorMessage();
+    return false;
   }
 
-  return parseFromUrdf(**model, tree);
+  return parseFromUrdf(*model, tree);
 }
 
-std::expected<void, std::string> TreeParser::parseFromText(const string& xml, Tree& tree)
+bool TreeParser::parseFromText(const string& xml, Tree& tree)
 {
   const auto model = urdf_parser_.parseFromText(xml);
   if (!model) {
-    return std::unexpected(model.error());
+    error_msg_ = urdf_parser_.errorMessage();
+    return false;
   }
 
-  return parseFromUrdf(**model, tree);
+  return parseFromUrdf(*model, tree);
 }
 
-std::expected<void, std::string> TreeParser::parseFromUrdf(const ::urdf::ModelInterface& model, Tree& tree)
+bool TreeParser::parseFromUrdf(const ::urdf::ModelInterface& model, Tree& tree)
 {
   const auto root_link = model.getRoot();
   if (!root_link) {
-    return std::unexpected("Failed to get root link.");
+    error_msg_ = "Failed to get root link.";
+    return false;
   }
 
   tree = Tree(root_link->name);
 
   // Error if root link has inertia. KDL does not support this.
   if (root_link->inertial) {
-    return std::unexpected(
-      "The root link '" + root_link->name +
-      "' has an inertia specified in the URDF, "
-      "but KDL does not support a root link with an inertia. "
-      "As a workaround, you can add an extra dummy link to your URDF.");
+    error_msg_ = "The root link '" + root_link->name +
+                 "' has an inertia specified in the URDF, "
+                 "but KDL does not support a root link with an inertia. "
+                 "As a workaround, you can add an extra dummy link to your URDF.";
+    return false;
   }
 
   // Add all children.
   for (const auto& child : root_link->child_links) {
-    if (const auto result = addChildrenToTree(child, tree); !result) {
-      return result;
-    }
+    addChildrenToTree(child, tree);
   }
 
-  return {};
+  return true;
 }
 
-std::expected<void, std::string> TreeParser::addChildrenToTree(const ::urdf::LinkConstSharedPtr& root, Tree& tree)
+const string& TreeParser::errorMessage() const
+{
+  return error_msg_;
+}
+
+void TreeParser::addChildrenToTree(const ::urdf::LinkConstSharedPtr& root, Tree& tree)
 {
   // Construct the KDL joint.
   const auto joint = jointUrdfToKdl(*root->parent_joint);
@@ -81,18 +87,12 @@ std::expected<void, std::string> TreeParser::addChildrenToTree(const ::urdf::Lin
   const Segment segment(root->name, joint, f_tip, inertia);
 
   // Add segment to tree.
-  if (const auto result = tree.addSegment(segment, root->parent_joint->parent_link_name); !result) {
-    return result;
-  }
+  tree.addSegment(segment, root->parent_joint->parent_link_name);
 
-  // Recursively add all children.
+  // Recurslively add all children.
   for (const auto& child : root->child_links) {
-    if (const auto result = addChildrenToTree(child, tree); !result) {
-      return result;
-    }
+    addChildrenToTree(child, tree);
   }
-
-  return {};
 }
 }  // namespace kdl
 }  // namespace tobas
