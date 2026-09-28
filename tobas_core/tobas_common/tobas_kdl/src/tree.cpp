@@ -3,7 +3,8 @@
 
 #include "tobas_kdl/tree.hpp"
 
-#include <iostream>
+#include <ostream>
+#include <stdexcept>
 
 using namespace std;
 
@@ -24,8 +25,8 @@ Tree::Tree(const Tree& arg)
   ns_ = 0;
 
   segments_.insert(make_pair(root_name_, TreeElement::Root(root_name_)));
-  if (!addTree(arg, root_name_)) {
-    throw runtime_error("Failed to add '" + root_name_ + "'.");
+  if (const auto result = addTree(arg, root_name_); !result) {
+    throw runtime_error("Failed to add '" + root_name_ + "': " + result.error());
   }
 }
 
@@ -37,8 +38,8 @@ Tree& Tree::operator=(const Tree& arg)
   ns_ = 0;
 
   segments_.insert(make_pair(root_name_, TreeElement::Root(root_name_)));
-  if (!addTree(arg, root_name_)) {
-    throw runtime_error("Failed to add '" + root_name_ + "'.");
+  if (const auto result = addTree(arg, root_name_); !result) {
+    throw runtime_error("Failed to add '" + root_name_ + "': " + result.error());
   }
 
   return *this;
@@ -58,8 +59,8 @@ Tree Tree::FloatingBase(const string& world_name, const string& base_name)
   x_jnt.type = Joint::kTranslation;
   x_jnt.axis(Vector::UnitX());
   const Segment x_seg(x_seg_name, x_jnt);
-  if (!tree.addSegment(x_seg, world_name)) {
-    throw runtime_error("Failed to add '" + x_seg_name + "'");
+  if (const auto result = tree.addSegment(x_seg, world_name); !result) {
+    throw runtime_error("Failed to add '" + x_seg_name + "': " + result.error());
   }
 
   // Y
@@ -69,8 +70,8 @@ Tree Tree::FloatingBase(const string& world_name, const string& base_name)
   y_jnt.type = Joint::kTranslation;
   y_jnt.axis(Vector::UnitY());
   const Segment y_seg(y_seg_name, y_jnt);
-  if (!tree.addSegment(y_seg, x_seg_name)) {
-    throw runtime_error("Failed to add '" + y_seg_name + "'");
+  if (const auto result = tree.addSegment(y_seg, x_seg_name); !result) {
+    throw runtime_error("Failed to add '" + y_seg_name + "': " + result.error());
   }
 
   // Z
@@ -80,8 +81,8 @@ Tree Tree::FloatingBase(const string& world_name, const string& base_name)
   z_jnt.type = Joint::kTranslation;
   z_jnt.axis(Vector::UnitZ());
   const Segment z_seg(z_seg_name, z_jnt);
-  if (!tree.addSegment(z_seg, y_seg_name)) {
-    throw runtime_error("Failed to add '" + z_seg_name + "'");
+  if (const auto result = tree.addSegment(z_seg, y_seg_name); !result) {
+    throw runtime_error("Failed to add '" + z_seg_name + "': " + result.error());
   }
 
   // Yaw
@@ -91,8 +92,8 @@ Tree Tree::FloatingBase(const string& world_name, const string& base_name)
   yaw_jnt.type = Joint::kRotation;
   yaw_jnt.axis(Vector::UnitZ());
   const Segment yaw_seg(yaw_seg_name, yaw_jnt);
-  if (!tree.addSegment(yaw_seg, z_seg_name)) {
-    throw runtime_error("Failed to add '" + yaw_seg_name + "'");
+  if (const auto result = tree.addSegment(yaw_seg, z_seg_name); !result) {
+    throw runtime_error("Failed to add '" + yaw_seg_name + "': " + result.error());
   }
 
   // Pitch
@@ -102,8 +103,8 @@ Tree Tree::FloatingBase(const string& world_name, const string& base_name)
   pitch_jnt.type = Joint::kRotation;
   pitch_jnt.axis(Vector::UnitY());
   const Segment pitch_seg(pitch_seg_name, pitch_jnt);
-  if (!tree.addSegment(pitch_seg, yaw_seg_name)) {
-    throw runtime_error("Failed to add '" + pitch_seg_name + "'");
+  if (const auto result = tree.addSegment(pitch_seg, yaw_seg_name); !result) {
+    throw runtime_error("Failed to add '" + pitch_seg_name + "': " + result.error());
   }
 
   // Roll
@@ -113,8 +114,8 @@ Tree Tree::FloatingBase(const string& world_name, const string& base_name)
   roll_jnt.type = Joint::kRotation;
   roll_jnt.axis(Vector::UnitX());
   const Segment roll_seg(roll_seg_name, roll_jnt);
-  if (!tree.addSegment(roll_seg, pitch_seg_name)) {
-    throw runtime_error("Failed to add '" + roll_seg_name + "'");
+  if (const auto result = tree.addSegment(roll_seg, pitch_seg_name); !result) {
+    throw runtime_error("Failed to add '" + roll_seg_name + "': " + result.error());
   }
 
   // Base
@@ -122,8 +123,8 @@ Tree Tree::FloatingBase(const string& world_name, const string& base_name)
   base_jnt.name = base_name;
   base_jnt.type = Joint::kFixed;
   const Segment base_seg(base_name, base_jnt);
-  if (!tree.addSegment(base_seg, roll_seg_name)) {
-    throw runtime_error("Failed to add '" + base_name + "'");
+  if (const auto result = tree.addSegment(base_seg, roll_seg_name); !result) {
+    throw runtime_error("Failed to add '" + base_name + "': " + result.error());
   }
 
   return tree;
@@ -176,17 +177,15 @@ std::expected<void, std::string> Tree::isValidRecursive(
   return {};
 }
 
-bool Tree::addSegment(const Segment& segment, const string& hook_name)
+std::expected<void, std::string> Tree::addSegment(const Segment& segment, const string& hook_name)
 {
   if (segments_.contains(segment.name())) {
-    cerr << "Segment '" + segment.name() + "' already exists in the tree." << endl;
-    return false;
+    return std::unexpected("Segment '" + segment.name() + "' already exists in the tree.");
   }
 
   const auto parent = segments_.find(hook_name);
   if (parent == segments_.end()) {
-    cerr << "Segment '" + hook_name + "' does not exist in the tree." << endl;
-    return false;
+    return std::unexpected("Segment '" + hook_name + "' does not exist in the tree.");
   }
 
   // Insert new element.
@@ -195,8 +194,7 @@ bool Tree::addSegment(const Segment& segment, const string& hook_name)
 
   // Check if insertion succeeded.
   if (!retval.second) {
-    cerr << "Failed to insert segment '" + segment.name() + "' into the tree." << endl;
-    return false;
+    return std::unexpected("Failed to insert segment '" + segment.name() + "' into the tree.");
   }
 
   // Add iterator to new element in parents children list.
@@ -210,24 +208,21 @@ bool Tree::addSegment(const Segment& segment, const string& hook_name)
     ++nj_;
   }
 
-  return true;
+  return {};
 }
 
-bool Tree::removeSegment(const string& seg_name)
+std::expected<void, std::string> Tree::removeSegment(const string& seg_name)
 {
   const auto seg_it = segments_.find(seg_name);
   if (seg_it == segments_.end()) {
-    cerr << "Segment '" << seg_name << "' does not exist in the tree." << endl;
-    return false;
+    return std::unexpected("Segment '" + seg_name + "' does not exist in the tree.");
   }
 
   if (seg_it->first == root_name_) {
-    cerr << "Cannot remove root segment '" << seg_name << "'." << endl;
-    return false;
+    return std::unexpected("Cannot remove root segment '" + seg_name + "'.");
   }
   if (!seg_it->second.children.empty()) {
-    cerr << "Cannot remove segment '" << seg_name << "' because it has children." << endl;
-    return false;
+    return std::unexpected("Cannot remove segment '" + seg_name + "' because it has children.");
   }
 
   // Keep movable joint indices contiguous and decrease the joint count.
@@ -247,42 +242,42 @@ bool Tree::removeSegment(const string& seg_name)
   segments_.erase(seg_it);
   --ns_;
 
-  return true;
+  return {};
 }
 
-bool Tree::addChain(const Chain& chain, const string& hook_name)
+std::expected<void, std::string> Tree::addChain(const Chain& chain, const string& hook_name)
 {
   auto parent_name = hook_name;
   for (const auto& segment : chain.segments) {
-    if (!addSegment(segment, parent_name)) {
-      return false;
+    if (const auto result = addSegment(segment, parent_name); !result) {
+      return result;
     }
     parent_name = segment.name();
   }
 
-  return true;
+  return {};
 }
 
-bool Tree::addTree(const Tree& tree, const string& hook_name)
+std::expected<void, std::string> Tree::addTree(const Tree& tree, const string& hook_name)
 {
   return addTreeRecursive(tree.getRootSegment(), hook_name);
 }
 
-bool Tree::addTreeRecursive(const SegmentMap::const_iterator& seg, const string& hook_name)
+std::expected<void, std::string> Tree::addTreeRecursive(const SegmentMap::const_iterator& seg, const string& hook_name)
 {
   for (const auto& child : seg->second.children) {
-    if (!addSegment(child->second.segment, hook_name)) {
-      return false;
+    if (const auto result = addSegment(child->second.segment, hook_name); !result) {
+      return result;
     }
-    if (!addTreeRecursive(child, child->first)) {
-      return false;
+    if (const auto result = addTreeRecursive(child, child->first); !result) {
+      return result;
     }
   }
 
-  return true;
+  return {};
 }
 
-bool Tree::getChain(const string& root_name, const string& tip_name, Chain& chain) const
+std::expected<void, std::string> Tree::getChain(const string& root_name, const string& tip_name, Chain& chain) const
 {
   // Clear chain.
   chain.clear();
@@ -296,8 +291,7 @@ bool Tree::getChain(const string& root_name, const string& tip_name, Chain& chai
     }
   }
   if (parents_chain_root.empty() || parents_chain_root.back() != root_name_) {
-    cerr << "Root segment '" + root_name + "' does not exist in the tree." << endl;
-    return false;
+    return std::unexpected("Root segment '" + root_name + "' does not exist in the tree.");
   }
 
   for (auto s = getSegment(tip_name); s != segments_.end(); s = s->second.parent) {
@@ -307,8 +301,7 @@ bool Tree::getChain(const string& root_name, const string& tip_name, Chain& chai
     }
   }
   if (parents_chain_tip.empty() || parents_chain_tip.back() != root_name_) {
-    cerr << "Tip segment '" + tip_name + "' does not exist in the tree." << endl;
-    return false;
+    return std::unexpected("Tip segment '" + tip_name + "' does not exist in the tree.");
   }
 
   // Remove common part of segment lists.
@@ -348,34 +341,28 @@ bool Tree::getChain(const string& root_name, const string& tip_name, Chain& chai
     chain.addSegment(getSegment(*rit)->second.segment);
   }
 
-  return true;
+  return {};
 }
 
-bool Tree::getSubTree(const string& seg_name, Tree& tree, bool root_mass_ok) const
+std::expected<void, std::string> Tree::getSubTree(const string& seg_name, Tree& tree, bool root_mass_ok) const
 {
   // Confirm that the specified segment exists.
   const auto seg_it = segments_.find(seg_name);
   if (seg_it == segments_.end()) {
-    cerr << "Segment '" + seg_name + "' does not exist in the tree." << endl;
-    return false;
+    return std::unexpected("Segment '" + seg_name + "' does not exist in the tree.");
   }
 
   // Confirm that the new root segment does not have mass.
   if (!root_mass_ok) {
     const auto& segment = seg_it->second.segment;
     if (segment.inertia().getMass() > 0) {
-      cerr << "KDL does not support a root segment with an inertia." << endl;
-      return false;
+      return std::unexpected("KDL does not support a root segment with an inertia.");
     }
   }
 
   // Initialize the tree.
   tree = Tree(seg_name);
-  if (!tree.addTreeRecursive(seg_it, seg_name)) {
-    return false;
-  }
-
-  return true;
+  return tree.addTreeRecursive(seg_it, seg_name);
 }
 
 bool Tree::isEndSegment(const string& seg_name) const

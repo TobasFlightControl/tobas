@@ -3,6 +3,9 @@
 
 #pragma once
 
+#include <expected>
+#include <string>
+
 #include "./frames.hpp"
 
 namespace tobas
@@ -15,7 +18,8 @@ class CycloidGenerator3d
 public:
   explicit CycloidGenerator3d();
 
-  bool generate(const kdl::Vector& p0, const kdl::Vector& pf, const double& T, const double& h, const double& k = 5.0);
+  std::expected<void, std::string>
+  generate(const kdl::Vector& p0, const kdl::Vector& pf, const double& T, const double& h, const double& k = 5.0);
 
   /**
    * @brief Get the trajectory at time `t`.
@@ -26,7 +30,8 @@ public:
    * @param v Velocity at time `t`.
    * @param a Acceleration at time `t`.
    */
-  bool get(const double& t, const kdl::Rotation& r, kdl::Vector& p, kdl::Vector& v, kdl::Vector& a) const;
+  std::expected<void, std::string>
+  get(const double& t, const kdl::Rotation& r, kdl::Vector& p, kdl::Vector& v, kdl::Vector& a) const;
 
   /**
    * @brief Get the trajectory at time `t`.
@@ -36,7 +41,7 @@ public:
    * @param v Velocity at time `t`.
    * @param a Acceleration at time `t`.
    */
-  bool get(const double& t, kdl::Vector& p, kdl::Vector& v, kdl::Vector& a) const;
+  std::expected<void, std::string> get(const double& t, kdl::Vector& p, kdl::Vector& v, kdl::Vector& a) const;
 
   /**
    * @brief Get the trajectory at time `t`.
@@ -45,7 +50,7 @@ public:
    * @param p Position at time `t`.
    * @param v Velocity at time `t`.
    */
-  bool get(const double& t, kdl::Vector& p, kdl::Vector& v) const;
+  std::expected<void, std::string> get(const double& t, kdl::Vector& p, kdl::Vector& v) const;
 
   /**
    * @brief Get the trajectory at time `t`.
@@ -53,7 +58,7 @@ public:
    * @param t Time from the start point.
    * @param p Position at time `t`.
    */
-  bool get(const double& t, kdl::Vector& p) const;
+  std::expected<void, std::string> get(const double& t, kdl::Vector& p) const;
 
 private:
   kdl::Vector p0_;
