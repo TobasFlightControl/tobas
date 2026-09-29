@@ -95,12 +95,10 @@ private:
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
 
   // Command
-  std::optional<tobas_command_msgs::PosVelAccYaw>
-    pos_cmd_;  // Position-control target value in the world coordinate system.
-  std::optional<tobas_command_msgs::AccelYaw>
-    acc_cmd_;                             // Acceleration-control target value in the world coordinate system.
-  std::optional<kdl::Euler> tar_angle_;   // Target Euler angles in the world coordinate system.
-  std::optional<kdl::Vector> tar_gyro_;   // Target angular velocity in the body coordinate system.
+  std::optional<tobas_command_msgs::PosVelAccYaw> pos_cmd_;  // Position-control target value in the WCS.
+  std::optional<tobas_command_msgs::AccelYaw> acc_cmd_;      // Acceleration-control target value in the WCS.
+  std::optional<kdl::Euler> tar_angle_;                      // Target Euler angles in the WCS.
+  std::optional<kdl::Vector> tar_gyro_;                      // Target angular velocity in the body coordinate system.
   std::optional<kdl::Vector> tar_dgyro_;  // Target angular acceleration in the body coordinate system.
   double tar_thrust_ = 0.0;               // Target thrust in the body coordinate system.
 
