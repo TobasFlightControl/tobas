@@ -34,9 +34,9 @@ public:
 
   size_t iterations() const;
 
-  bool setMaximumIterations(size_t max_iter);
-  bool setRelativeTolerance(double rel_tol);
-  bool setVariableScales(const Eigen::VectorXd& x_scale);
+  void setMaximumIterations(size_t max_iter);
+  void setRelativeTolerance(double rel_tol);
+  void setVariableScales(const Eigen::VectorXd& x_scale);
 
 private:
   Eigen::Index n_;  // The number of optimization variables

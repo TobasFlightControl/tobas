@@ -3,7 +3,7 @@
 
 #include "tobas_nlp/sqp.hpp"
 
-#include <iostream>
+#include <cassert>
 
 #include <tobas_eigen_tools/linalg.hpp>
 
@@ -58,7 +58,7 @@ std::expected<Eigen::VectorXd, std::string> SQP::solve()
 
   while (true) {
     // Check the iteration limit.
-    if (++iter_ > max_iter_) {
+    if (max_iter_ > 0 && ++iter_ > max_iter_) {
       return std::unexpected("The number of iterations exceeded the limit.");
     }
 
@@ -110,37 +110,22 @@ size_t SQP::iterations() const
   return iter_;
 }
 
-bool SQP::setMaximumIterations(size_t max_iter)
+void SQP::setMaximumIterations(size_t max_iter)
 {
   max_iter_ = max_iter;
-  return true;
 }
 
-bool SQP::setRelativeTolerance(double rel_tol)
+void SQP::setRelativeTolerance(double rel_tol)
 {
-  if (rel_tol <= 0.0) {
-    std::cerr << "Relative tolerance must be positive." << std::endl;
-    return false;
-  }
-
+  assert(rel_tol > 0.0);
   rel_tol_ = rel_tol;
-  return true;
 }
 
-bool SQP::setVariableScales(const Eigen::VectorXd& x_scale)
+void SQP::setVariableScales(const Eigen::VectorXd& x_scale)
 {
-  if (x_scale.size() != n_) {
-    std::cerr << "The size of scale vector does not match that of variables." << std::endl;
-    return false;
-  }
-
-  if ((x_scale.array() <= 0).any()) {
-    std::cerr << "The scale of variables must be positive." << std::endl;
-    return false;
-  }
-
+  assert(x_scale.size() == n_);
+  assert((x_scale.array() > 0.0).all());
   qp_.x_scale = x_scale;
-  return true;
 }
 }  // namespace nlp
 }  // namespace tobas
