@@ -7,6 +7,7 @@
 #include <cstring>
 #include <memory>
 #include <utility>
+#include <vector>
 
 using namespace std::chrono_literals;
 namespace ch = std::chrono;
@@ -35,9 +36,7 @@ bool ZEDF9P::update(bool blocking)
     if (!first_byte) {
       return false;
     }
-    if (!scanner_.update(*first_byte)) {
-      return false;
-    }
+    scanner_.update(*first_byte);
 
     // Return if no data has arrived.
     if (scanner_.state() == UbxScanner::kSync1) {
@@ -52,9 +51,7 @@ bool ZEDF9P::update(bool blocking)
     if (!data) {
       return false;
     }
-    if (!scanner_.update(*data)) {
-      return false;
-    }
+    scanner_.update(*data);
     scan_rate_.sleep();
   }
 
@@ -483,6 +480,9 @@ bool ZEDF9P::enableUsb(bool enable)
 
 bool ZEDF9P::sendMessage(UbxClass cls, uint8_t id, const void* msg, uint16_t size)
 {
+  // Allocate space for the header, payload, and checksum of this message.
+  std::vector<uint8_t> tx_buf(sizeof(UbxHeader) + size + sizeof(CheckSum));
+
   UbxHeader header;
   header.sync1 = kUbxSync1;
   header.sync2 = kUbxSync2;
@@ -490,13 +490,13 @@ bool ZEDF9P::sendMessage(UbxClass cls, uint8_t id, const void* msg, uint16_t siz
   header.id = id;
   header.length = size;
 
-  const auto payload_pos = spliceMemory(tx_buf_, &header, sizeof(UbxHeader), 0);
-  const auto checksum_pos = spliceMemory(tx_buf_, msg, size, payload_pos);
+  const auto payload_pos = spliceMemory(tx_buf.data(), &header, sizeof(UbxHeader), 0);
+  const auto checksum_pos = spliceMemory(tx_buf.data(), msg, size, payload_pos);
 
-  const auto ck = computeChecksum(tx_buf_, checksum_pos);
-  const auto message_length = spliceMemory(tx_buf_, &ck, sizeof(CheckSum), checksum_pos);
+  const auto ck = computeChecksum(tx_buf.data(), checksum_pos);
+  const auto message_length = spliceMemory(tx_buf.data(), &ck, sizeof(CheckSum), checksum_pos);
 
-  return transport_->send(tx_buf_, message_length);
+  return transport_->send(tx_buf.data(), message_length);
 }
 
 bool ZEDF9P::waitForAcknowledge(UbxClass cls, uint8_t id)
