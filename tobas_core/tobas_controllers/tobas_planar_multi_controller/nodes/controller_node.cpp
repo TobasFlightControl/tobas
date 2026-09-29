@@ -98,11 +98,11 @@ private:
   std::optional<tobas_command_msgs::PosVelAccYaw>
     pos_cmd_;  // Position-control target value in the world coordinate system.
   std::optional<tobas_command_msgs::AccelYaw>
-    acc_cmd_;                            // Acceleration-control target value in the world coordinate system.
-  std::optional<kdl::Euler> tar_angle_;  // Target Euler angles in the world coordinate system.
-  std::optional<kdl::Vector> tar_gyro_;  // Target angular velocity in the body coordinate system.
-  kdl::Vector tar_dgyro_;                // Target angular acceleration in the body coordinate system.
-  double tar_thrust_ = 0.0;              // Target thrust in the body coordinate system.
+    acc_cmd_;                             // Acceleration-control target value in the world coordinate system.
+  std::optional<kdl::Euler> tar_angle_;   // Target Euler angles in the world coordinate system.
+  std::optional<kdl::Vector> tar_gyro_;   // Target angular velocity in the body coordinate system.
+  std::optional<kdl::Vector> tar_dgyro_;  // Target angular acceleration in the body coordinate system.
+  double tar_thrust_ = 0.0;               // Target thrust in the body coordinate system.
 
   // Command smoothing
   traj::VelocityLimitedOnlineTrajectoryGenerator roll_filt_, pitch_filt_;
@@ -564,27 +564,32 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
     feedback->angle_integral_error = rot_ctrl_.ei;
   }
 
+  // Angular velocity controller.
   if (tar_gyro_) {
-    // Angular velocity controller.
-    {
-      // Determine gains.
-      const auto atti_wn = rot_ctrl_.atti_wn * gain_throt;
-      const auto head_wn = rot_ctrl_.head_wn * gain_throt;
-      const auto atti_rate_gain = atti_wn * rot_ctrl_.atti_zeta * 2;
-      const auto head_rate_gain = head_wn * rot_ctrl_.head_zeta * 2;
-      const kdl::Vector rate_gain(atti_rate_gain, atti_rate_gain, head_rate_gain);
-
-      // Compute target angular acceleration.
-      tar_dgyro_ = rate_gain.hadamard(*tar_gyro_ - cur_gyro_B);
-
-      // Fill the feedback message.
-      setpoint->odom.twist.rot = *tar_gyro_;
+    if (!tar_dgyro_) {
+      tar_dgyro_.emplace();
     }
 
-    // Mixer.
+    // Determine gains.
+    const auto atti_wn = rot_ctrl_.atti_wn * gain_throt;
+    const auto head_wn = rot_ctrl_.head_wn * gain_throt;
+    const auto atti_rate_gain = atti_wn * rot_ctrl_.atti_zeta * 2;
+    const auto head_rate_gain = head_wn * rot_ctrl_.head_zeta * 2;
+    const kdl::Vector rate_gain(atti_rate_gain, atti_rate_gain, head_rate_gain);
+
+    // Compute target angular acceleration.
+    *tar_dgyro_ = rate_gain.hadamard(*tar_gyro_ - cur_gyro_B);
+
+    // Fill the feedback message.
+    setpoint->odom.twist.rot = *tar_gyro_;
+  }
+
+  // Mixer.
+  if (tar_dgyro_) {
+    // Solve the mixing equation.
     const auto& cur_q = js_converter_.getPosition();
     const auto& dist_torque_B = do_dist_comp_rot_ ? dist_force_->wrench.torque : kdl::Vector::Zero();
-    const auto mixer_result = mixer_.solve(cur_q, cur_gyro_B, tar_dgyro_, tar_thrust_, dist_torque_B);
+    const auto mixer_result = mixer_.solve(cur_q, cur_gyro_B, *tar_dgyro_, tar_thrust_, dist_torque_B);
     if (!mixer_result) {
       TOBAS_FATAL("Failed to solve the mixing equation: ", mixer_result.error());
       // TODO: Defensive behavior
@@ -592,7 +597,7 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
     }
 
     // Fill the feedback message.
-    setpoint->odom.accel.angular = tar_dgyro_;
+    setpoint->odom.accel.angular = *tar_dgyro_;
 
     // Publish target thrust.
     auto thrusts_msg = std::make_unique<tobas_msgs::msg::RotorThrustArray>();
@@ -653,6 +658,7 @@ void ControllerNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arm
     acc_cmd_.reset();
     tar_angle_.reset();
     tar_gyro_.reset();
+    tar_dgyro_.reset();
 
     TOBAS_INFO("The controller has been reset.");
   }
