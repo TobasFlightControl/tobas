@@ -81,9 +81,7 @@ public:
   inline bool isPerpendicular(const Vector& rhs) const;
 
   /* Determine whether two `Vector`s are parallel. */
-  bool
-  isParallel(const Vector& rhs, bool same_direction_only = false, double angle_tol_rad = 1e-3, double zero_tol = 1e-12)
-    const;
+  bool isParallel(const Vector& rhs, bool same_direction_only = false, double angle_tol_rad = 1e-3) const;
 
   /* Clamp each value. */
   inline Vector clamp(const double& lb, const double& ub) const;

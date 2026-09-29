@@ -3,27 +3,23 @@
 
 #include "tobas_kdl/vector.hpp"
 
-#include <iostream>
-
 #include <tobas_math/core.hpp>
 
 namespace tobas
 {
 namespace kdl
 {
-bool Vector::isParallel(const Vector& rhs, bool same_direction_only, double angle_tol_rad, double zero_tol) const
+bool Vector::isParallel(const Vector& rhs, bool same_direction_only, double angle_tol_rad) const
 {
-  assert(0.0 < angle_tol_rad && angle_tol_rad < 1.0);
-  assert(zero_tol > 0.0);
+  assert(angle_tol_rad > 0.0);
 
   const auto na2 = squaredNorm();
   const auto nb2 = rhs.squaredNorm();
 
   // Parallelism is undefined for zero vectors.
-  if (na2 < zero_tol || nb2 < zero_tol) {
-    std::cerr << "Parallelism is undefined for zero vector." << std::endl;
-    return false;
-  }
+  [[maybe_unused]] constexpr double kZeroTol = 1e-12;
+  assert(na2 > kZeroTol);
+  assert(nb2 > kZeroTol);
 
   const auto dot = this->dot(rhs);
   const auto cos2 = math::sqr(dot) / (na2 * nb2);
