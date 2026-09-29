@@ -58,9 +58,7 @@ struct rclcpp::TypeAdapter<tobas::Drone, tobas_drone_msgs::msg::Drone>
           break;
         }
         default: {
-          std::cerr << "Invalid propulsion system type: " << (int)src.prop->type() << std::endl;
-          dst.prop_type = -1;
-          break;
+          throw;
         }
       }
     }
@@ -116,9 +114,7 @@ struct rclcpp::TypeAdapter<tobas::Drone, tobas_drone_msgs::msg::Drone>
           break;
         }
         default: {
-          std::cerr << "Invalid propulsion system type: " << (int)src.prop_type << std::endl;
-          dst.prop.reset();
-          break;
+          throw;
         }
       }
     }
