@@ -99,78 +99,62 @@ YAML::Node Mission::dump() const
     YAML::Node data_node(YAML::NodeType::Map);
 
     switch (item.type) {
-      case tobas::mission::Type::kWaypoint: {
-        tobas::mission::Waypoint waypoint;
-        if (!tobas::st::fromBytes(item.data, waypoint)) {
-          std::cerr << "Failed to decode a waypoint mission." << std::endl;
-          continue;
-        }
+      case Type::kWaypoint: {
+        const auto waypoint = st::fromBytes<Waypoint>(item.data);
         item_node[kTypeKey] = kTypeWaypoint;
-        data_node[kWaypointLatitude] = tobas::yaml::format(waypoint.latitude, kGnssPrecision);
-        data_node[kWaypointLongitude] = tobas::yaml::format(waypoint.longitude, kGnssPrecision);
-        data_node[kWaypointAltitude] = tobas::yaml::format(waypoint.altitude);
+        data_node[kWaypointLatitude] = yaml::format(waypoint.latitude, kGnssPrecision);
+        data_node[kWaypointLongitude] = yaml::format(waypoint.longitude, kGnssPrecision);
+        data_node[kWaypointAltitude] = yaml::format(waypoint.altitude);
         data_node[kWaypointAltitudeFrame] = waypoint.altitude_frame;
         data_node[kWaypointAutoHeading] = waypoint.auto_heading;
         data_node[kWaypointStopAtWaypoint] = waypoint.stop_at_waypoint;
-        data_node[kWaypointMaxHorizontalVelocity] = tobas::yaml::format(waypoint.max_horizontal_velocity);
-        data_node[kWaypointMaxHorizontalAccel] = tobas::yaml::format(waypoint.max_horizontal_accel);
-        data_node[kWaypointMaxHorizontalJerk] = tobas::yaml::format(waypoint.max_horizontal_jerk);
-        data_node[kWaypointMaxVerticalVelocity] = tobas::yaml::format(waypoint.max_vertical_velocity);
-        data_node[kWaypointMaxVerticalAccel] = tobas::yaml::format(waypoint.max_vertical_accel);
-        data_node[kWaypointMaxVerticalJerk] = tobas::yaml::format(waypoint.max_vertical_jerk);
-        data_node[kWaypointMaxHeadingRate] = tobas::yaml::format(waypoint.max_heading_rate);
-        data_node[kWaypointMaxHeadingAccel] = tobas::yaml::format(waypoint.max_heading_accel);
-        data_node[kWaypointAcceptanceRadius] = tobas::yaml::format(waypoint.acceptance_radius);
-        data_node[kWaypointAltitudeTolerance] = tobas::yaml::format(waypoint.altitude_tolerance);
-        data_node[kWaypointTimeout] = tobas::yaml::format(waypoint.timeout);
+        data_node[kWaypointMaxHorizontalVelocity] = yaml::format(waypoint.max_horizontal_velocity);
+        data_node[kWaypointMaxHorizontalAccel] = yaml::format(waypoint.max_horizontal_accel);
+        data_node[kWaypointMaxHorizontalJerk] = yaml::format(waypoint.max_horizontal_jerk);
+        data_node[kWaypointMaxVerticalVelocity] = yaml::format(waypoint.max_vertical_velocity);
+        data_node[kWaypointMaxVerticalAccel] = yaml::format(waypoint.max_vertical_accel);
+        data_node[kWaypointMaxVerticalJerk] = yaml::format(waypoint.max_vertical_jerk);
+        data_node[kWaypointMaxHeadingRate] = yaml::format(waypoint.max_heading_rate);
+        data_node[kWaypointMaxHeadingAccel] = yaml::format(waypoint.max_heading_accel);
+        data_node[kWaypointAcceptanceRadius] = yaml::format(waypoint.acceptance_radius);
+        data_node[kWaypointAltitudeTolerance] = yaml::format(waypoint.altitude_tolerance);
+        data_node[kWaypointTimeout] = yaml::format(waypoint.timeout);
         break;
       }
-      case tobas::mission::Type::kTakeoff: {
-        tobas::mission::Takeoff takeoff;
-        if (!tobas::st::fromBytes(item.data, takeoff)) {
-          std::cerr << "Failed to decode a takeoff mission." << std::endl;
-          continue;
-        }
+      case Type::kTakeoff: {
+        const auto takeoff = st::fromBytes<Takeoff>(item.data);
         item_node[kTypeKey] = kTypeTakeoff;
-        data_node[kTakeoffAltitude] = tobas::yaml::format(takeoff.altitude);
+        data_node[kTakeoffAltitude] = yaml::format(takeoff.altitude);
         data_node[kTakeoffAltitudeFrame] = takeoff.altitude_frame;
-        data_node[kTakeoffMaxSpeed] = tobas::yaml::format(takeoff.max_speed);
-        data_node[kTakeoffMaxAccel] = tobas::yaml::format(takeoff.max_accel);
-        data_node[kTakeoffMaxJerk] = tobas::yaml::format(takeoff.max_jerk);
-        data_node[kTakeoffAltitudeTolerance] = tobas::yaml::format(takeoff.altitude_tolerance);
-        data_node[kTakeoffTimeout] = tobas::yaml::format(takeoff.timeout);
+        data_node[kTakeoffMaxSpeed] = yaml::format(takeoff.max_speed);
+        data_node[kTakeoffMaxAccel] = yaml::format(takeoff.max_accel);
+        data_node[kTakeoffMaxJerk] = yaml::format(takeoff.max_jerk);
+        data_node[kTakeoffAltitudeTolerance] = yaml::format(takeoff.altitude_tolerance);
+        data_node[kTakeoffTimeout] = yaml::format(takeoff.timeout);
         break;
       }
-      case tobas::mission::Type::kLand: {
-        tobas::mission::Land land;
-        if (!tobas::st::fromBytes(item.data, land)) {
-          std::cerr << "Failed to decode a land mission." << std::endl;
-          continue;
-        }
+      case Type::kLand: {
+        const auto land = st::fromBytes<Land>(item.data);
         item_node[kTypeKey] = kTypeLand;
-        data_node[kLandSpeed] = tobas::yaml::format(land.speed);
-        data_node[kLandTimeout] = tobas::yaml::format(land.timeout);
+        data_node[kLandSpeed] = yaml::format(land.speed);
+        data_node[kLandTimeout] = yaml::format(land.timeout);
         break;
       }
-      case tobas::mission::Type::kReturnToLaunch: {
-        tobas::mission::ReturnToLaunch rtl;
-        if (!tobas::st::fromBytes(item.data, rtl)) {
-          std::cerr << "Failed to decode a RTL mission." << std::endl;
-          continue;
-        }
+      case Type::kReturnToLaunch: {
+        const auto rtl = st::fromBytes<ReturnToLaunch>(item.data);
         item_node[kTypeKey] = kTypeRtl;
-        data_node[kRtlMinAltitude] = tobas::yaml::format(rtl.min_altitude);
-        data_node[kRtlMaxHorizontalVelocity] = tobas::yaml::format(rtl.max_horizontal_velocity);
-        data_node[kRtlMaxHorizontalAccel] = tobas::yaml::format(rtl.max_horizontal_accel);
-        data_node[kRtlMaxHorizontalJerk] = tobas::yaml::format(rtl.max_horizontal_jerk);
-        data_node[kRtlMaxVerticalVelocity] = tobas::yaml::format(rtl.max_vertical_velocity);
-        data_node[kRtlMaxVerticalAccel] = tobas::yaml::format(rtl.max_vertical_accel);
-        data_node[kRtlMaxVerticalJerk] = tobas::yaml::format(rtl.max_vertical_jerk);
-        data_node[kRtlMaxHeadingRate] = tobas::yaml::format(rtl.max_heading_rate);
-        data_node[kRtlMaxHeadingAccel] = tobas::yaml::format(rtl.max_heading_accel);
-        data_node[kRtlAcceptanceRadius] = tobas::yaml::format(rtl.acceptance_radius);
-        data_node[kRtlAltitudeTolerance] = tobas::yaml::format(rtl.altitude_tolerance);
-        data_node[kRtlTimeout] = tobas::yaml::format(rtl.timeout);
+        data_node[kRtlMinAltitude] = yaml::format(rtl.min_altitude);
+        data_node[kRtlMaxHorizontalVelocity] = yaml::format(rtl.max_horizontal_velocity);
+        data_node[kRtlMaxHorizontalAccel] = yaml::format(rtl.max_horizontal_accel);
+        data_node[kRtlMaxHorizontalJerk] = yaml::format(rtl.max_horizontal_jerk);
+        data_node[kRtlMaxVerticalVelocity] = yaml::format(rtl.max_vertical_velocity);
+        data_node[kRtlMaxVerticalAccel] = yaml::format(rtl.max_vertical_accel);
+        data_node[kRtlMaxVerticalJerk] = yaml::format(rtl.max_vertical_jerk);
+        data_node[kRtlMaxHeadingRate] = yaml::format(rtl.max_heading_rate);
+        data_node[kRtlMaxHeadingAccel] = yaml::format(rtl.max_heading_accel);
+        data_node[kRtlAcceptanceRadius] = yaml::format(rtl.acceptance_radius);
+        data_node[kRtlAltitudeTolerance] = yaml::format(rtl.altitude_tolerance);
+        data_node[kRtlTimeout] = yaml::format(rtl.timeout);
         break;
       }
       default:
@@ -192,7 +176,7 @@ bool Mission::load(const YAML::Node& mission_node)
   }
 
   for (const auto& item_node : mission_node) {
-    const auto type = tobas::yaml::load<std::string>(kTypeKey, item_node);
+    const auto type = yaml::load<std::string>(kTypeKey, item_node);
     if (!type) {
       std::cerr << type.error() << std::endl;
       return false;
@@ -204,10 +188,10 @@ bool Mission::load(const YAML::Node& mission_node)
       return false;
     }
 
-    tobas::mission::MissionItem item;
+    MissionItem item;
 
     if (*type == kTypeWaypoint) {
-      tobas::mission::Waypoint waypoint;
+      Waypoint waypoint;
       if (!LOAD_PACKED_FIELD(kWaypointLatitude, data_node, waypoint.latitude)) {
         return false;
       }
@@ -259,11 +243,11 @@ bool Mission::load(const YAML::Node& mission_node)
       if (!LOAD_PACKED_FIELD(kWaypointTimeout, data_node, waypoint.timeout)) {
         return false;
       }
-      item.type = tobas::mission::Type::kWaypoint;
-      item.data = tobas::st::toBytes(waypoint);
+      item.type = Type::kWaypoint;
+      item.data = st::toBytes(waypoint);
     }
     else if (*type == kTypeTakeoff) {
-      tobas::mission::Takeoff takeoff;
+      Takeoff takeoff;
       if (!LOAD_PACKED_FIELD(kTakeoffAltitude, data_node, takeoff.altitude)) {
         return false;
       }
@@ -285,22 +269,22 @@ bool Mission::load(const YAML::Node& mission_node)
       if (!LOAD_PACKED_FIELD(kTakeoffTimeout, data_node, takeoff.timeout)) {
         return false;
       }
-      item.type = tobas::mission::Type::kTakeoff;
-      item.data = tobas::st::toBytes(takeoff);
+      item.type = Type::kTakeoff;
+      item.data = st::toBytes(takeoff);
     }
     else if (*type == kTypeLand) {
-      tobas::mission::Land land;
+      Land land;
       if (!LOAD_PACKED_FIELD(kLandSpeed, data_node, land.speed)) {
         return false;
       }
       if (!LOAD_PACKED_FIELD(kLandTimeout, data_node, land.timeout)) {
         return false;
       }
-      item.type = tobas::mission::Type::kLand;
-      item.data = tobas::st::toBytes(land);
+      item.type = Type::kLand;
+      item.data = st::toBytes(land);
     }
     else if (*type == kTypeRtl) {
-      tobas::mission::ReturnToLaunch rtl;
+      ReturnToLaunch rtl;
       if (!LOAD_PACKED_FIELD(kRtlMinAltitude, data_node, rtl.min_altitude)) {
         return false;
       }
@@ -337,8 +321,8 @@ bool Mission::load(const YAML::Node& mission_node)
       if (!LOAD_PACKED_FIELD(kRtlTimeout, data_node, rtl.timeout)) {
         return false;
       }
-      item.type = tobas::mission::Type::kReturnToLaunch;
-      item.data = tobas::st::toBytes(rtl);
+      item.type = Type::kReturnToLaunch;
+      item.data = st::toBytes(rtl);
     }
     else {
       std::cerr << "Invalid mission item type: " << *type << std::endl;

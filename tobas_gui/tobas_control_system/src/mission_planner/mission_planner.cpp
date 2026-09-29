@@ -466,48 +466,28 @@ void MissionPlannerWidget::onLoadButtonClicked()
 
     switch (item.type) {
       case mission::Type::kWaypoint: {
-        mission::Waypoint waypoint;
-        if (!st::fromBytes(item.data, waypoint)) {
-          qt::qErrorBox(this, "Failed to load mission No. " + QString::number(cmd_number) + ": Waypoint");
-          clearMission();
-          return;
-        }
+        const auto waypoint = st::fromBytes<mission::Waypoint>(item.data);
         const auto widget = new WaypointWidget();
         widget->load(waypoint);
         addCommand(item.type, widget);
         break;
       }
       case mission::Type::kTakeoff: {
-        mission::Takeoff takeoff;
-        if (!st::fromBytes(item.data, takeoff)) {
-          qt::qErrorBox(this, "Failed to load mission No. " + QString::number(cmd_number) + ": Takeoff");
-          clearMission();
-          return;
-        }
+        const auto takeoff = st::fromBytes<mission::Takeoff>(item.data);
         const auto widget = new TakeoffWidget();
         widget->load(takeoff);
         addCommand(item.type, widget);
         break;
       }
       case mission::Type::kLand: {
-        mission::Land land;
-        if (!st::fromBytes(item.data, land)) {
-          qt::qErrorBox(this, "Failed to load mission No. " + QString::number(cmd_number) + ": Land");
-          clearMission();
-          return;
-        }
+        const auto land = st::fromBytes<mission::Land>(item.data);
         const auto widget = new LandWidget();
         widget->load(land);
         addCommand(item.type, widget);
         break;
       }
       case mission::Type::kReturnToLaunch: {
-        mission::ReturnToLaunch rtl;
-        if (!st::fromBytes(item.data, rtl)) {
-          qt::qErrorBox(this, "Failed to load mission No. " + QString::number(cmd_number) + ": ReturnToLaunch");
-          clearMission();
-          return;
-        }
+        const auto rtl = st::fromBytes<mission::ReturnToLaunch>(item.data);
         const auto widget = new ReturnToLaunchWidget();
         widget->load(rtl);
         addCommand(item.type, widget);

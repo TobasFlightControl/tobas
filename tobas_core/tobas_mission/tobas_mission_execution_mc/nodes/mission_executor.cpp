@@ -1148,11 +1148,7 @@ MulticopterMissionExecutorNode::handleGoal(const rclcpp_action::GoalUUID&, const
 
     switch (item.type) {
       case kWaypoint: {
-        Waypoint waypoint;
-        if (!st::fromBytes(item.data, waypoint)) {
-          TOBAS_WARN("Mission No. ", cmd_number, ": Size mismatch.");
-          return rclcpp_action::GoalResponse::REJECT;
-        }
+        const auto waypoint = st::fromBytes<Waypoint>(item.data);
 
         if (waypoint.latitude < -90 || 90 < waypoint.latitude) {
           TOBAS_WARN("Mission No. ", cmd_number, ": Invalid target latitude.");
@@ -1191,11 +1187,7 @@ MulticopterMissionExecutorNode::handleGoal(const rclcpp_action::GoalUUID&, const
         break;
       }
       case kTakeoff: {
-        Takeoff takeoff;
-        if (!st::fromBytes(item.data, takeoff)) {
-          TOBAS_WARN("Mission No. ", cmd_number, ": Size mismatch.");
-          return rclcpp_action::GoalResponse::REJECT;
-        }
+        const auto takeoff = st::fromBytes<Takeoff>(item.data);
 
         if (takeoff.altitude <= 0.0) {
           TOBAS_WARN("Mission No. ", cmd_number, ": Target altitude must be positive.");
@@ -1239,11 +1231,7 @@ MulticopterMissionExecutorNode::handleGoal(const rclcpp_action::GoalUUID&, const
         break;
       }
       case kLand: {
-        Land land;
-        if (!st::fromBytes(item.data, land)) {
-          TOBAS_WARN("Mission No. ", cmd_number, ": Size mismatch.");
-          return rclcpp_action::GoalResponse::REJECT;
-        }
+        const auto land = st::fromBytes<Land>(item.data);
 
         if (!armed) {
           TOBAS_WARN("Mission No. ", cmd_number, ": The vehicle must be armed before a land command.");
@@ -1260,11 +1248,7 @@ MulticopterMissionExecutorNode::handleGoal(const rclcpp_action::GoalUUID&, const
         break;
       }
       case kReturnToLaunch: {
-        ReturnToLaunch rtl;
-        if (!st::fromBytes(item.data, rtl)) {
-          TOBAS_WARN("Mission No. ", cmd_number, ": Size mismatch.");
-          return rclcpp_action::GoalResponse::REJECT;
-        }
+        const auto rtl = st::fromBytes<ReturnToLaunch>(item.data);
 
         if (!armed) {
           TOBAS_WARN("Mission No. ", cmd_number, ": The vehicle must be armed before a RTL command.");
@@ -1364,8 +1348,7 @@ void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& gh)
       case kWaypoint: {
         std::vector<Waypoint> waypoints;
         for (; idx < items.size() && items[idx].type == kWaypoint; ++idx) {
-          Waypoint waypoint;
-          st::fromBytes(items[idx].data, waypoint);
+          const auto waypoint = st::fromBytes<Waypoint>(item.data);
           waypoints.push_back(waypoint);
           if (waypoint.stop_at_waypoint) {
             ++idx;
@@ -1380,8 +1363,7 @@ void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& gh)
         break;
       }
       case kTakeoff: {
-        Takeoff takeoff;
-        st::fromBytes(item.data, takeoff);
+        const auto takeoff = st::fromBytes<Takeoff>(item.data);
         if (!executeTakeoff(takeoff, gh, res)) {
           is_executing_ = false;
           return;
@@ -1390,8 +1372,7 @@ void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& gh)
         break;
       }
       case kLand: {
-        Land land;
-        st::fromBytes(item.data, land);
+        const auto land = st::fromBytes<Land>(item.data);
         if (!executeLand(land, gh, res)) {
           is_executing_ = false;
           return;
@@ -1400,8 +1381,7 @@ void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& gh)
         break;
       }
       case kReturnToLaunch: {
-        ReturnToLaunch rtl;
-        st::fromBytes(item.data, rtl);
+        const auto rtl = st::fromBytes<ReturnToLaunch>(item.data);
         if (!executeRTL(rtl, gh, res)) {
           is_executing_ = false;
           return;

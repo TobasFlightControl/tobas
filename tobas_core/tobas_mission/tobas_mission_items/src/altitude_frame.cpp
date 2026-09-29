@@ -3,8 +3,6 @@
 
 #include "tobas_mission_items/altitude_frame.hpp"
 
-#include <iostream>
-
 namespace YAML
 {
 namespace
@@ -42,7 +40,6 @@ bool convert<tobas::mission::AltitudeFrame>::decode(const Node& node, tobas::mis
     return true;
   }
   else {
-    std::cerr << "Invalid altitude frame: " << text << std::endl;
     return false;
   }
 }
