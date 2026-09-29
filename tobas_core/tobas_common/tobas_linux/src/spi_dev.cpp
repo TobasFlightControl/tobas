@@ -8,7 +8,6 @@
 #include <unistd.h>
 
 #include <cstring>
-#include <iostream>
 
 namespace tobas
 {
@@ -29,7 +28,6 @@ bool SPIdev::initialize(const char* spi_dev, void* tx_buf, void* rx_buf, uint32_
 {
   spi_fd_ = open(spi_dev, O_RDWR);
   if (spi_fd_ < 0) {
-    std::cerr << "Failed to open SPI device: " << spi_dev << std::endl;
     return false;
   }
 
@@ -48,7 +46,6 @@ bool SPIdev::transfer(uint32_t length) noexcept
   spi_transfer_.len = length;
 
   if (ioctl(spi_fd_, SPI_IOC_MESSAGE(1), &spi_transfer_) < 0) {
-    std::cerr << "SPI transfer failed." << std::endl;
     return false;
   }
 
