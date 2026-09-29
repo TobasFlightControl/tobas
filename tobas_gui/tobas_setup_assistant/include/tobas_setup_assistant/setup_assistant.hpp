@@ -7,7 +7,6 @@
 
 #include <QSettings>
 
-#include <tobas_colcon_cpp/core.hpp>
 #include <tobas_kdl/tree.hpp>
 #include <tobas_kdl_parser/kdl_parser.hpp>
 #include <tobas_qt_tools/widgets/wait_spinner.hpp>
@@ -51,8 +50,6 @@ private:
 
   QSettings settings_store_;
   ros2::SyncParamClient rsp_client_;
-
-  colcon::Colcon colcon_;
 
   qt::WaitSpinnerWidget spinner_;
   Signals sig_;

@@ -47,9 +47,6 @@ SetupAssistantWidget::SetupAssistantWidget(rclcpp::Node::SharedPtr node)
   , spinner_(Qt::WindowModal, this)
   , rotor_marker_publisher_(node, uadf_)
 {
-  // `--merge-install` is required to add the workspace install directory directly to the path.
-  colcon_.setMergeInstall(true);
-
   // Package manager
   proj_path_ = new QLineEdit();
   proj_path_->setReadOnly(true);
@@ -218,7 +215,9 @@ void SetupAssistantWidget::onNewButtonClicked()
 
     qInfo().nospace() << "UADF is in ROS package " << pkg_name_qt << ". Building it.";
     spinner_.start();
-    const auto build_result = cmn::colconBuild(colcon_, pkg_path->c_str(), qt::expandUser(kColconWSPathHome));
+    // `--merge-install` is required to add the workspace install directory directly to the path.
+    const auto ws_path = qt::expandUser(kColconWSPathHome);
+    const auto build_result = cmn::colconBuild(pkg_path->c_str(), ws_path, { .merge_install = true });
     spinner_.stop();
 
     if (!build_result) {

@@ -19,11 +19,7 @@ namespace tobas
 {
 namespace colcon
 {
-Colcon::Colcon()
-{
-}
-
-std::expected<void, std::string> Colcon::build(const fs::path& pkg_path, const fs::path& ws_path)
+std::expected<void, std::string> build(const fs::path& pkg_path, const fs::path& ws_path, const BuildOptions& options)
 {
   // Get the package name.
   const auto pkg_name = ros2::getPackageNameOf(pkg_path);
@@ -43,7 +39,7 @@ std::expected<void, std::string> Colcon::build(const fs::path& pkg_path, const f
   }
 
   // Specify the log directory.
-  if (setenv("COLCON_LOG_PATH", logBase(ws_path).c_str(), 1) != 0) {
+  if (setenv("COLCON_LOG_PATH", (ws_path / "log").c_str(), 1) != 0) {
     return std::unexpected("Failed to set the colcon log directory path: " + linux::strError());
   }
 
@@ -54,24 +50,24 @@ std::expected<void, std::string> Colcon::build(const fs::path& pkg_path, const f
     "--build-base {} "
     "--install-base {} "
     "--packages-up-to {} ",
-    buildBase(ws_path).string(),
-    installBase(ws_path).string(),
+    (ws_path / "build").string(),
+    (ws_path / "install").string(),
     *pkg_name);
 
   // Add options.
-  if (build_opts_.parallel_workers == 0) {
+  if (options.parallel_workers == 0) {
     build_cmd += "--parallel-workers $(nproc) ";
   }
   else {
-    build_cmd += std::format("--parallel-workers {} ", build_opts_.parallel_workers);
+    build_cmd += std::format("--parallel-workers {} ", options.parallel_workers);
   }
-  if (build_opts_.merge_install) {
+  if (options.merge_install) {
     build_cmd += "--merge-install ";
   }
-  if (build_opts_.symlink_install) {
+  if (options.symlink_install) {
     build_cmd += "--symlink-install ";
   }
-  if (build_opts_.cmake_clean_cache) {
+  if (options.cmake_clean_cache) {
     build_cmd += "--cmake-clean-cache ";
   }
 
@@ -84,7 +80,7 @@ std::expected<void, std::string> Colcon::build(const fs::path& pkg_path, const f
   return {};
 }
 
-std::expected<void, std::string> Colcon::cleanWorkspace(const fs::path& ws_path)
+std::expected<void, std::string> cleanWorkspace(const fs::path& ws_path)
 {
   // Navigate to the colcon workspace.
   if (chdir(ws_path.c_str()) != 0) {
@@ -99,39 +95,5 @@ std::expected<void, std::string> Colcon::cleanWorkspace(const fs::path& ws_path)
   return {};
 }
 
-void Colcon::setParallelWorkers(size_t num)
-{
-  build_opts_.parallel_workers = num;
-}
-
-void Colcon::setMergeInstall(bool enabled)
-{
-  build_opts_.merge_install = enabled;
-}
-
-void Colcon::setSymlinkInstall(bool enabled)
-{
-  build_opts_.symlink_install = enabled;
-}
-
-void Colcon::setCmakeCleanCache(bool enabled)
-{
-  build_opts_.cmake_clean_cache = enabled;
-}
-
-fs::path Colcon::buildBase(const fs::path& ws_path)
-{
-  return ws_path / "build";
-}
-
-fs::path Colcon::installBase(const fs::path& ws_path)
-{
-  return ws_path / "install";
-}
-
-fs::path Colcon::logBase(const fs::path& ws_path)
-{
-  return ws_path / "log";
-}
 }  // namespace colcon
 }  // namespace tobas

@@ -7,25 +7,12 @@
 
 #include <QString>
 
-#include <tobas_colcon_cpp/core.hpp>
-
 namespace tobas
 {
 namespace gui
 {
 namespace cmn
 {
-class LocalProjectBuilder
-{
-public:
-  explicit LocalProjectBuilder();
-
-  std::expected<void, QString> build(const QString& proj_path);
-
-private:
-  colcon::Colcon colcon_;
-};
-
 /* Build a local project without blocking Qt’s main thread. */
 std::expected<void, QString> buildLocalProject(const QString& proj_path);
 }  // namespace cmn
