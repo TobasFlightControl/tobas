@@ -23,6 +23,7 @@
 #include <tobas_xml_tools/core.hpp>
 #include <tobas_yaml_tools/core.hpp>
 
+#include "tobas_setup_assistant/parse_xacro.hpp"
 #include "tobas_setup_assistant/save_project_dialog.hpp"
 
 namespace fs = std::filesystem;
@@ -240,9 +241,9 @@ void SetupAssistantWidget::onNewButtonClicked()
   }
 
   // Parse XACRO.
-  std::string uadf_text;
-  if (!xacro_parser_.parseFromPath(uadf_path.toStdString(), uadf_text)) {
-    const auto error_msg = QString::fromStdString(xacro_parser_.getOutput());
+  const auto uadf_text = parseXacroFromPath(uadf_path);
+  if (!uadf_text) {
+    const auto& error_msg = uadf_text.error();
     if (error_msg.size() < cmn::kSaveLogTextSizeThresh) {
       qt::qErrorBox(this, "Failed to parse XACRO:\n\n" + error_msg);
     }
@@ -260,7 +261,7 @@ void SetupAssistantWidget::onNewButtonClicked()
   }
 
   // Load UADF.
-  const auto uadf = uadf_parser_.parseFromText(uadf_text);
+  const auto uadf = uadf_parser_.parseFromText(uadf_text->toStdString());
   if (!uadf) {
     qt::qErrorBox(this, "Failed to parse UADF:\n\n" + QString::fromStdString(uadf.error()));
     reset();

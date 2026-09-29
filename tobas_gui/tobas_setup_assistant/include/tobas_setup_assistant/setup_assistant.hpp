@@ -24,7 +24,6 @@
 #include "./rviz.hpp"
 #include "./settings.hpp"
 #include "./signals.hpp"
-#include "./xacro_parser.hpp"
 
 namespace tobas
 {
@@ -47,7 +46,6 @@ private:
 
   FrameTypeDetector frame_type_detector_;
 
-  XacroParser xacro_parser_;
   uadf::Parser uadf_parser_;
   kdl::TreeParser tree_parser_;
 
