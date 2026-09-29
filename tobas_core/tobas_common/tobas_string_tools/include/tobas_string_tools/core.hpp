@@ -3,7 +3,9 @@
 
 #pragma once
 
+#include <expected>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace tobas
@@ -14,7 +16,7 @@ namespace str
 std::vector<std::string> split(const std::string& s, const char& c);
 
 /* Split a string at the last specified character. */
-std::pair<std::string, std::string> rsplit(const std::string& s, const char& c);
+std::expected<std::pair<std::string, std::string>, std::string> rsplit(const std::string& s, const char& c);
 
 /* Remove a specific string from the beginning. */
 std::string lstrip(const std::string& s, const std::string& del);

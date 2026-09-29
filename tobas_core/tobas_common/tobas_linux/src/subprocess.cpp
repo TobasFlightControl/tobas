@@ -5,25 +5,26 @@
 
 #include <unistd.h>
 
+#include <cerrno>
 #include <iostream>
+
+#include "tobas_linux/error.hpp"
 
 namespace tobas
 {
 namespace linux
 {
-pid_t createSubprocess(const std::vector<char*>& _argv)
+std::expected<pid_t, std::string> createSubprocess(const std::vector<char*>& _argv)
 {
   if (_argv.empty()) {
-    std::cerr << "The size of command list is 0." << std::endl;
-    return -1;
+    return std::unexpected("The size of command list is 0.");
   }
 
   // Clone the caller process.
   // At this point, there are two processes with exactly the same contents.
   const auto pid = fork();
   if (pid < 0) {
-    std::cerr << "Failed to clone the calling process." << std::endl;
-    return -1;
+    return std::unexpected("Failed to clone the calling process: " + strError());
   }
 
   if (pid > 0) {
@@ -51,7 +52,7 @@ pid_t createSubprocess(const std::vector<char*>& _argv)
   }
 }
 
-pid_t createSubprocess(const std::string& command)
+std::expected<pid_t, std::string> createSubprocess(const std::string& command)
 {
   // Since const_cast does not copy, the command memory must remain valid when the process is created.
   std::vector<char*> argv;

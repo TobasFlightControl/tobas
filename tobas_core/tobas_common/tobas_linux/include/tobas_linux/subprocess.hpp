@@ -3,6 +3,9 @@
 
 #pragma once
 
+#include <sys/types.h>
+
+#include <expected>
 #include <string>
 #include <vector>
 
@@ -10,9 +13,13 @@ namespace tobas
 {
 namespace linux
 {
-pid_t createSubprocess(const std::vector<char*>& _argv);
+/**
+ * @brief Return the child PID or an error if the argument list is empty or `fork()` fails.
+ * Execution failures in the child are reported by exit status 127.
+ */
+std::expected<pid_t, std::string> createSubprocess(const std::vector<char*>& _argv);
 
 /* Run a bash command in a subprocess. */
-pid_t createSubprocess(const std::string& command);
+std::expected<pid_t, std::string> createSubprocess(const std::string& command);
 }  // namespace linux
 }  // namespace tobas

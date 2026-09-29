@@ -26,7 +26,7 @@ QString getDefaultName()
 
   const auto user_name = ros2::getUserName();
   if (user_name) {
-    return QString(user_name);
+    return QString(*user_name);
   }
 
   return QString("todo");

@@ -3,17 +3,17 @@
 
 #pragma once
 
+#include <expected>
 #include <filesystem>
+#include <string>
 
 namespace tobas
 {
 namespace ros2
 {
-const char* getEnv(const char* name);
+std::expected<const char*, std::string> getEnv(const char* name);
 
-const char* getUserName();
-
-const char* getHomeDir();
+std::expected<const char*, std::string> getUserName();
 
 std::filesystem::path expandUser(const char* path);
 }  // namespace ros2

@@ -12,6 +12,11 @@ int main()
   const string input = "example/directory/file.txt";
   const auto output = tobas::str::rsplit(input, '/');
 
+  if (!output) {
+    cerr << output.error() << endl;
+    return 1;
+  }
+
   cout << "Input : " << input << endl;
-  cout << "Output: " << output.first << ", " << output.second << endl;
+  cout << "Output: " << output->first << ", " << output->second << endl;
 }

@@ -3,8 +3,10 @@
 
 #pragma once
 
+#include <cstddef>
 #include <expected>
 #include <filesystem>
+#include <string>
 
 namespace tobas
 {
@@ -26,7 +28,7 @@ std::expected<void, std::string> createDirectories(const std::filesystem::path& 
 std::expected<void, std::string> createFilePath(const std::filesystem::path& file_path, bool exist_ok = true);
 
 /* Calculate the total size [bytes] of all files in a directory. */
-size_t computeDirectorySize(const std::filesystem::path& dir_path);
+std::expected<size_t, std::string> computeDirectorySize(const std::filesystem::path& dir_path);
 
 /* Remove all files and subdirectories in a directory. */
 std::expected<void, std::string> clearDirectory(const std::filesystem::path& dir_path);
