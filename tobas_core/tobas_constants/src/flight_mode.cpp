@@ -3,8 +3,6 @@
 
 #include "tobas_constants/flight_mode.hpp"
 
-#include <iostream>
-
 namespace tobas
 {
 namespace
@@ -43,7 +41,6 @@ bool enumFromText(const std::string& text, FlightMode& dst)
     return true;
   }
   else {
-    std::cerr << "Invalid flight mode: " << text << std::endl;
     return false;
   }
 }

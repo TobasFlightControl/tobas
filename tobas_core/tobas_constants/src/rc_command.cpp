@@ -3,8 +3,6 @@
 
 #include "tobas_constants/rc_command.hpp"
 
-#include <iostream>
-
 namespace tobas
 {
 namespace
@@ -106,7 +104,6 @@ bool enumFromText(const std::string& text, RcCommand& dst)
     return true;
   }
   else {
-    std::cerr << "Invalid RC command: " << text << std::endl;
     return false;
   }
 }
