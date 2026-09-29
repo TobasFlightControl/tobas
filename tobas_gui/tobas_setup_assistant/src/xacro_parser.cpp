@@ -3,6 +3,8 @@
 
 #include "tobas_setup_assistant/xacro_parser.hpp"
 
+#include <tobas_linux/execute_command.hpp>
+
 #include <fstream>
 #include <iostream>
 
@@ -29,10 +31,12 @@ bool XacroParser::parseFromPath(const std::string& xacro_path, std::string& urdf
 
   // Expand XACRO and create a URDF.
   const auto command = "xacro " + xacro_path + " > " + tmp_urdf_path;
-  if (!command_executor_.execute(command)) {
-    std::cerr << "Failed to convert XACRO to URDF." << std::endl;
+  const auto result = linux::executeCommand(command);
+  if (!result) {
+    output_ = result.error();
     return false;
   }
+  output_ = *result;
   std::cout << "Temporary URDF is created: " << tmp_urdf_path << std::endl;
 
   // Read the created URDF.
@@ -84,7 +88,7 @@ bool XacroParser::parseFromText(const std::string& xacro_text, std::string& urdf
 
 const std::string& XacroParser::getOutput() const
 {
-  return command_executor_.getOutput();
+  return output_;
 }
 }  // namespace sa
 }  // namespace gui

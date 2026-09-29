@@ -3,6 +3,8 @@
 
 #include "tobas_colcon_cpp/core.hpp"
 
+#include <tobas_linux/execute_command.hpp>
+
 #include <unistd.h>
 
 #include <format>
@@ -75,8 +77,8 @@ std::expected<void, std::string> Colcon::build(const fs::path& pkg_path, const f
 
   // Build the Tobas project packages.
   std::cout << "Executing '" << build_cmd << "' on " << *exec_path << "." << std::endl;
-  if (!cmd_exec_.execute(build_cmd)) {
-    return std::unexpected("Failed to build '" + *pkg_name + "':\n" + cmd_exec_.getOutput());
+  if (const auto result = linux::executeCommand(build_cmd); !result) {
+    return std::unexpected("Failed to build '" + *pkg_name + "':\n" + result.error());
   }
 
   return {};
@@ -90,8 +92,8 @@ std::expected<void, std::string> Colcon::cleanWorkspace(const fs::path& ws_path)
   }
 
   // Clean the workspace.
-  if (!cmd_exec_.execute("colcon clean workspace -y")) {
-    return std::unexpected("Failed to clean '" + ws_path.string() + "':\n" + cmd_exec_.getOutput());
+  if (const auto result = linux::executeCommand("colcon clean workspace -y"); !result) {
+    return std::unexpected("Failed to clean '" + ws_path.string() + "':\n" + result.error());
   }
 
   return {};

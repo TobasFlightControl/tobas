@@ -3,34 +3,30 @@
 
 #include "tobas_linux/git.hpp"
 
-#include <iostream>
+#include <tobas_linux/execute_command.hpp>
 
 namespace tobas
 {
 namespace linux
 {
-GitHandler::GitHandler()
+std::expected<std::string, std::string> getGitUserName()
 {
-}
-
-std::string GitHandler::getUserName()
-{
-  if (!command_executor_.execute("git config --global user.name")) {
-    std::cerr << "Failed to get Git user name." << std::endl;
-    return "";
+  const auto result = executeCommand("git config --global user.name");
+  if (!result) {
+    return std::unexpected(result.error());
   }
 
-  return command_executor_.getOutput();
+  return result;
 }
 
-std::string GitHandler::getUserEmail()
+std::expected<std::string, std::string> getGitUserEmail()
 {
-  if (!command_executor_.execute("git config --global user.email")) {
-    std::cerr << "Failed to get Git user email." << std::endl;
-    return "";
+  const auto result = executeCommand("git config --global user.email");
+  if (!result) {
+    return std::unexpected(result.error());
   }
 
-  return command_executor_.getOutput();
+  return result;
 }
 }  // namespace linux
 }  // namespace tobas

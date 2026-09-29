@@ -7,8 +7,6 @@
 #include <filesystem>
 #include <string>
 
-#include <tobas_linux/command_executor.hpp>
-
 namespace tobas
 {
 namespace colcon
@@ -35,8 +33,6 @@ private:
     bool symlink_install = false;
     bool cmake_clean_cache = false;
   } build_opts_;
-
-  linux::CommandExecutor cmd_exec_;
 
   static std::filesystem::path buildBase(const std::filesystem::path& ws_path);
   static std::filesystem::path installBase(const std::filesystem::path& ws_path);

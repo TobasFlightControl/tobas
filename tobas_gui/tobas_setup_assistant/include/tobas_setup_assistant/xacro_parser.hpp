@@ -5,8 +5,6 @@
 
 #include <string>
 
-#include <tobas_linux/command_executor.hpp>
-
 namespace tobas
 {
 namespace gui
@@ -24,7 +22,7 @@ public:
   const std::string& getOutput() const;
 
 private:
-  linux::CommandExecutor command_executor_;
+  std::string output_;
 };
 }  // namespace sa
 }  // namespace gui

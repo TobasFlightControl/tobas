@@ -10,7 +10,7 @@
 
 #include <tobas_gazebo_common/constants.hpp>
 #include <tobas_gazebo_tools/transport.hpp>
-#include <tobas_linux/command_executor.hpp>
+#include <tobas_linux/execute_command.hpp>
 #include <tobas_qt_tools/thread.hpp>
 #include <tobas_std_tools/check.hpp>
 
@@ -73,9 +73,8 @@ void killGazeboServer()
 {
   // FIXME: The Gazebo server does not exit with only the `kill` command, so it is forcibly terminated.
   // This method may affect other processes.
-  linux::CommandExecutor exec;
   qInfo() << "Killing all processes containing 'gz sim'.";
-  TOBAS_CHECK(exec.execute("ps aux | grep \"gz sim\" | grep -v grep | awk '{ print \"kill -9\", $2 }' | sh"));
+  TOBAS_CHECK(linux::executeCommand("ps aux | grep \"gz sim\" | grep -v grep | awk '{ print \"kill -9\", $2 }' | sh"));
 }
 }  // namespace sim
 }  // namespace gui

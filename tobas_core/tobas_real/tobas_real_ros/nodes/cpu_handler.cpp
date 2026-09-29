@@ -5,7 +5,7 @@
 #include <sstream>
 
 #include <tobas_dsp/low_pass_filter.hpp>
-#include <tobas_linux/command_executor.hpp>
+#include <tobas_linux/execute_command.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_string_tools/core.hpp>
 
@@ -35,7 +35,6 @@ private:
   uint64_t freq_;
   double temp_, load_;
   dsp::LowPassFilter<double> temp_lpf_, load_lpf_;
-  linux::CommandExecutor command_executor_;
 
   // Publisher
   ros2::PublisherPtr<tobas_msgs::msg::Cpu> cpu_pub_;
@@ -74,13 +73,14 @@ CpuHandlerNode::CpuHandlerNode(const rclcpp::NodeOptions& options)
 
 bool CpuHandlerNode::getFrequency()
 {
-  if (!command_executor_.execute("vcgencmd measure_clock arm")) {
-    TOBAS_ERROR("Failed to get CPU clock frequency.");
+  const auto result = linux::executeCommand("vcgencmd measure_clock arm");
+  if (!result) {
+    TOBAS_ERROR("Failed to get CPU clock frequency: ", result.error());
     return false;
   }
 
-  const auto freq_str = str::split(command_executor_.getOutput(), '=').back();  // Extract only the numeric part.
-  freq_ = stoul(freq_str);                                                      // str -> uint64
+  const auto freq_str = str::split(*result, '=').back();  // Extract only the numeric part.
+  freq_ = stoul(freq_str);                                // str -> uint64
   return true;
 }
 
