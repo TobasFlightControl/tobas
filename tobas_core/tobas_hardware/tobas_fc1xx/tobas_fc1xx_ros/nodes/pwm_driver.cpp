@@ -55,11 +55,7 @@ void PwmDriverNode::pwmsCb(const tobas_msgs::msg::PwmArray::ConstSharedPtr& pwms
       TOBAS_ERROR("PWM channel ", elem.channel, " does not exist.");
       continue;
     }
-
-    if (!pwm_.setPeriod(elem.channel, elem.period)) {
-      TOBAS_ERROR("PWM command of channel ", elem.channel, " was rejected.");
-      continue;
-    }
+    pwm_.setPeriod(elem.channel, elem.period);
   }
 
   // Send PWM pwms.
