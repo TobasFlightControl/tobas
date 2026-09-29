@@ -410,7 +410,7 @@ void Calculator::calcControlCoeff(const double& cruise_speed)
       sign = -1.0;
     }
     else {
-      std::cerr << "Failed to estimate the sign of control surface axis effectiveness." << std::endl;
+      qt::qWarnBox(this, "Failed to estimate the sign of control surface axis effectiveness.");
     }
 
     // 係数推算開始
