@@ -462,8 +462,6 @@ void MissionPlannerWidget::onLoadButtonClicked()
 
   // Apply the mission to the planner widget.
   for (const auto& [idx, item] : std::views::enumerate(mission.items)) {
-    const auto cmd_number = idx + 1;
-
     switch (item.type) {
       case mission::Type::kWaypoint: {
         const auto waypoint = st::fromBytes<mission::Waypoint>(item.data);
