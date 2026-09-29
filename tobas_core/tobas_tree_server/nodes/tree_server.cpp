@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <chrono>
 #include <memory>
 #include <string>
 #include <unordered_set>
@@ -13,6 +14,8 @@
 #include <tobas_kdl_msgs_adapter/tree.hpp>
 #include <tobas_msgs/srv/attach_load.hpp>
 #include <tobas_msgs/srv/detach_load.hpp>
+
+using namespace std::chrono_literals;
 
 namespace tobas
 {
@@ -32,6 +35,7 @@ private:
   std::unordered_set<std::string> load_ids_;
 
   ros2::PublisherPtr<kdl::Tree> tree_pub_;
+  ros2::TimerPtr initial_publish_timer_;
   ros2::ServiceServerPtr<AttachSrv> attach_srv_;
   ros2::ServiceServerPtr<DetachSrv> detach_srv_;
 
@@ -39,6 +43,7 @@ private:
   static kdl::RigidBodyInertia parseLoad(const AttachSrv::Request& req);
 
   void publishTree();
+  void initialPublishTimerCb();
 
   void attachCb(const AttachSrv::Request::ConstSharedPtr& req, const AttachSrv::Response::SharedPtr& res);
   void detachCb(const DetachSrv::Request::ConstSharedPtr& req, const DetachSrv::Response::SharedPtr& res);
@@ -46,6 +51,7 @@ private:
 
 TreeServerNode::TreeServerNode(const rclcpp::NodeOptions& options) : super("tree_server", nodeOptions_Default(options))
 {
+  // Load a KDL tree.
   const auto robot_description = getStringParam("robot_description");
   const auto tree = tree_parser_.parseFromText(robot_description);
   if (!tree) {
@@ -54,16 +60,24 @@ TreeServerNode::TreeServerNode(const rclcpp::NodeOptions& options) : super("tree
   }
   tree_ = std::move(*tree);
 
+  // Validate the tree.
   if (const auto result = tree_.validate(); !result) {
     TOBAS_ERROR("KDL tree is invalid: ", result.error());
     return;
   }
 
+  // Register ROS interfaces.
   tree_pub_ = createPublisher<kdl::Tree>(topic::kKdlTree, true, true);
-
   attach_srv_ = createService<AttachSrv>(service::kAttachLoad, &self::attachCb, this);
   detach_srv_ = createService<DetachSrv>(service::kDetachLoad, &self::detachCb, this);
 
+  // Defer the initial publication until the executor starts processing callbacks.
+  initial_publish_timer_ = createTimer(0s, &self::initialPublishTimerCb, this);
+}
+
+void TreeServerNode::initialPublishTimerCb()
+{
+  initial_publish_timer_->cancel();
   publishTree();
 }
 
