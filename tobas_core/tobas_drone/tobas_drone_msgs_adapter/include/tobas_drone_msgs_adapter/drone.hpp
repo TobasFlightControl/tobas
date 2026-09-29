@@ -5,6 +5,7 @@
 
 #include <memory>
 
+#include <rclcpp/logging.hpp>
 #include <rclcpp/type_adapter.hpp>
 
 #include <tobas_drone_core/drone.hpp>
