@@ -3,7 +3,7 @@
 
 #include "tobas_wpa_supplicant/parse.hpp"
 
-#include <iostream>
+#include <stdexcept>
 
 #include <tobas_string_tools/core.hpp>
 
@@ -13,113 +13,9 @@ namespace tobas
 {
 namespace wpa
 {
-Parser::Parser()
+namespace
 {
-}
-
-bool Parser::parseFromText(const std::string& text, Data& dst)
-{
-  // Reset.
-  dst.networks.clear();
-
-  const auto lines = str::splitLines(text);
-  Network network;
-  bool in_network_block = false;
-
-  for (auto line : lines) {
-    // Remove leading and trailing whitespace.
-    line = str::trim(line);
-
-    // Skip empty and comment lines.
-    if (line.empty() || line.starts_with('#')) {
-      continue;
-    }
-
-    // country
-    if (line.starts_with(kCountryPrefix)) {
-      const auto country_str = line.substr(sizeof(kCountryPrefix) - 1);
-      if (!parseCountryCode(country_str, dst.country)) {
-        return false;
-      }
-      continue;
-    }
-
-    // ctrl_interface
-    if (line.starts_with(kCtrlInterfacePrefix)) {
-      dst.ctrl_interface = line.substr(sizeof(kCtrlInterfacePrefix) - 1);
-      continue;
-    }
-
-    // update_config
-    if (line.starts_with(kUpdateConfigPrefix)) {
-      dst.update_config = (line.substr(sizeof(kUpdateConfigPrefix) - 1) == "1");
-      continue;
-    }
-
-    // Start of a network block.
-    if (line == kStartNetworkBlock) {
-      network = Network();
-      in_network_block = true;
-      continue;
-    }
-
-    // End of a network block.
-    if (line == kStopNetworkBlock) {
-      if (!in_network_block) {
-        std::cerr << "Unexpected closing bracket." << std::endl;
-        return false;
-      }
-      dst.networks.push_back(network);
-      in_network_block = false;
-      continue;
-    }
-
-    if (in_network_block) {
-      // ssid
-      if (line.starts_with(kSsidPrefix)) {
-        network.ssid = str::stripQuates(line.substr(sizeof(kSsidPrefix) - 1));
-        continue;
-      }
-
-      // psk
-      if (line.starts_with(kPskPrefix)) {
-        network.psk = str::stripQuates(line.substr(sizeof(kPskPrefix) - 1));
-        continue;
-      }
-
-      // priority
-      if (line.starts_with(kPriorityPrefix)) {
-        network.priority = stoi(line.substr(sizeof(kPriorityPrefix) - 1));
-        continue;
-      }
-
-      // scan_ssid
-      if (line.starts_with(kScanSsidPrefix)) {
-        network.scan_ssid = static_cast<bool>(stoi(line.substr(sizeof(kScanSsidPrefix) - 1)));
-        continue;
-      }
-
-      // key_mgmt
-      if (line.starts_with(kKeyMgmtPrefix)) {
-        const auto key_mgmt_token = line.substr(sizeof(kKeyMgmtPrefix) - 1);
-        if (!enumFromToken(key_mgmt_token, network.key_mgmt)) {
-          return false;
-        }
-        continue;
-      }
-
-      // sae_password
-      if (line.starts_with(kSaePasswordPrefix)) {
-        network.psk = str::stripQuates(line.substr(sizeof(kSaePasswordPrefix) - 1));
-        continue;
-      }
-    }
-  }
-
-  return true;
-}
-
-bool Parser::parseCountryCode(const std::string& src, CountryCode& dst)
+bool parseCountryCode(const std::string& src, CountryCode& dst)
 {
   if (src == country_code::Afghanistan) {
     dst = CountryCode::AF;
@@ -1082,11 +978,139 @@ bool Parser::parseCountryCode(const std::string& src, CountryCode& dst)
     return true;
   }
   else {
-    std::cerr << "Invalid country code: " << src << std::endl;
     return false;
   }
 
   return true;
+}
+
+std::expected<int, std::string> parseInteger(const std::string& text, const std::string& field)
+{
+  try {
+    return std::stoi(text);
+  }
+  catch (const std::invalid_argument&) {
+    return std::unexpected("Invalid integer for " + field + ".");
+  }
+  catch (const std::out_of_range&) {
+    return std::unexpected("Integer out of range for " + field + ".");
+  }
+}
+}  // namespace
+
+std::expected<Data, std::string> parseFromText(const std::string& text)
+{
+  Data res;
+
+  const auto lines = str::splitLines(text);
+  Network network;
+  bool in_network_block = false;
+
+  for (auto line : lines) {
+    if (line.find_first_not_of(" \t\n\r\f\v") == std::string::npos) {
+      continue;
+    }
+
+    // Remove leading and trailing whitespace.
+    line = str::trim(line);
+
+    // Skip empty and comment lines.
+    if (line.empty() || line.starts_with('#')) {
+      continue;
+    }
+
+    // country
+    if (line.starts_with(kCountryPrefix)) {
+      const auto country_str = line.substr(sizeof(kCountryPrefix) - 1);
+      if (!parseCountryCode(country_str, res.country)) {
+        return std::unexpected("Invalid country code: " + country_str);
+      }
+      continue;
+    }
+
+    // ctrl_interface
+    if (line.starts_with(kCtrlInterfacePrefix)) {
+      res.ctrl_interface = line.substr(sizeof(kCtrlInterfacePrefix) - 1);
+      continue;
+    }
+
+    // update_config
+    if (line.starts_with(kUpdateConfigPrefix)) {
+      res.update_config = (line.substr(sizeof(kUpdateConfigPrefix) - 1) == "1");
+      continue;
+    }
+
+    // Start of a network block.
+    if (line == kStartNetworkBlock) {
+      network = Network();
+      in_network_block = true;
+      continue;
+    }
+
+    // End of a network block.
+    if (line == kStopNetworkBlock) {
+      if (!in_network_block) {
+        return std::unexpected("Unexpected closing bracket.");
+      }
+      res.networks.push_back(network);
+      in_network_block = false;
+      continue;
+    }
+
+    if (in_network_block) {
+      // ssid
+      if (line.starts_with(kSsidPrefix)) {
+        const auto value = line.substr(sizeof(kSsidPrefix) - 1);
+        network.ssid = value.empty() ? value : str::stripQuates(value);
+        continue;
+      }
+
+      // psk
+      if (line.starts_with(kPskPrefix)) {
+        const auto value = line.substr(sizeof(kPskPrefix) - 1);
+        network.psk = value.empty() ? value : str::stripQuates(value);
+        continue;
+      }
+
+      // priority
+      if (line.starts_with(kPriorityPrefix)) {
+        const auto priority = parseInteger(line.substr(sizeof(kPriorityPrefix) - 1), "priority");
+        if (!priority) {
+          return std::unexpected(priority.error());
+        }
+        network.priority = *priority;
+        continue;
+      }
+
+      // scan_ssid
+      if (line.starts_with(kScanSsidPrefix)) {
+        const auto scan_ssid = parseInteger(line.substr(sizeof(kScanSsidPrefix) - 1), "scan_ssid");
+        if (!scan_ssid) {
+          return std::unexpected(scan_ssid.error());
+        }
+        network.scan_ssid = static_cast<bool>(*scan_ssid);
+        continue;
+      }
+
+      // key_mgmt
+      if (line.starts_with(kKeyMgmtPrefix)) {
+        const auto key_mgmt_token = line.substr(sizeof(kKeyMgmtPrefix) - 1);
+        if (!enumFromToken(key_mgmt_token, network.key_mgmt)) {
+          return std::unexpected("Invalid key management token: " + key_mgmt_token);
+        }
+        continue;
+      }
+
+      // sae_password
+      if (line.starts_with(kSaePasswordPrefix)) {
+        const auto value = line.substr(sizeof(kSaePasswordPrefix) - 1);
+        network.psk = value.empty() ? value : str::stripQuates(value);
+        continue;
+      }
+    }
+  }
+
+  return res;
 }
 }  // namespace wpa
 }  // namespace tobas

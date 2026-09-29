@@ -37,7 +37,6 @@ protected:
 
 private:
   wpa::Data wpa_data_;
-  wpa::Parser wpa_parser_;
   wpa::Exporter wpa_exporter_;
 
   QPushButton* add_button_;
