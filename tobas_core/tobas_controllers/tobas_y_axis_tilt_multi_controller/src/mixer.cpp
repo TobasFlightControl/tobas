@@ -194,15 +194,11 @@ double Mixer::getTiltAngle(size_t idx) const
   const auto& info = info_.at(idx);
   const auto& state = state_.at(idx);
 
-  if (info.is_tilt) {
-    const auto tx = thrustDeadband(x_(info.column));
-    const auto tz = thrustDeadband(x_(info.column + 1));
-    return info.sign * (std::atan2(tx, tz) - state.alpha);
-  }
-  else {
-    std::cerr << "Rotor " << idx << " is not a tilt rotor." << std::endl;
-    return 0.0;
-  }
+  assert(info.is_tilt);
+
+  const auto tx = thrustDeadband(x_(info.column));
+  const auto tz = thrustDeadband(x_(info.column + 1));
+  return info.sign * (std::atan2(tx, tz) - state.alpha);
 }
 }  // namespace y_axis_tilt_multicopter
 }  // namespace tobas

@@ -3,8 +3,6 @@
 
 #include "tobas_planar_multi_controller/translational_eom.hpp"
 
-#include <iostream>
-
 #include <tobas_std_tools/universal_constants.hpp>
 
 namespace tobas
@@ -39,8 +37,7 @@ bool TranslationalEoM::solve(
 
   // Cannot be realized when an attitude angle exceeds 90 degrees.
   if (std::abs(roll_) > M_PI_2 || std::abs(pitch_) > M_PI_2) {
-    std::cerr << "Cannot solve translational EoM because the aircraft is upside-down." << std::endl;
-    return false;
+    return false;  // Cannot solve translational EoM because the aircraft is upside-down.
   }
 
   // Compute target attitude angles using the current heading to separate attitude tracking from heading tracking.
