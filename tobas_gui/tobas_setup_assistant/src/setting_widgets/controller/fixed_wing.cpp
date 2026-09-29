@@ -47,12 +47,12 @@ RcCommand FixedWingWidget::acrobatModeCommand() const
 
 RcCommand FixedWingWidget::stabilizeModeCommand() const
 {
-  return RcCommand::kAngleThrottle;
+  return RcCommand::kRollPitchDeltaYawrateThrottle;
 }
 
 RcCommand FixedWingWidget::loiterModeCommand() const
 {
-  return RcCommand::kAngleThrottle;  // TODO
+  return RcCommand::kRollPitchDeltaYawrateThrottle;  // TODO
 }
 
 YAML::Node FixedWingWidget::staticParams() const
