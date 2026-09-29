@@ -44,12 +44,12 @@ private:
   // PubSub
   ros2::PublisherPtr<tobas_command_msgs::AngleThrottle> cmd_pub_;
 
-  bool maxAttitudeCb(const double& p);
-  bool maxAttitudeRateCb(const double& p);
-  bool maxHeadingRateCb(const double& p);
-  bool attitudeExpoCb(const double& p);
-  bool headingExpoCb(const double& p);
-  bool throttleExpoCb(const double& p);
+  void maxAttitudeCb(const double& p);
+  void maxAttitudeRateCb(const double& p);
+  void maxHeadingRateCb(const double& p);
+  void attitudeExpoCb(const double& p);
+  void headingExpoCb(const double& p);
+  void throttleExpoCb(const double& p);
 };
 }  // namespace rc
 }  // namespace tobas

@@ -42,19 +42,19 @@ private:
 
   bool lowPassFilterConfigReady() const;
   bool notchFilterConfigReady() const;
-  bool sendLowPassFilterConfigRequest();
-  bool sendRpmFilterConfigRequest();
+  void sendLowPassFilterConfigRequest();
+  void sendRpmFilterConfigRequest();
 
   void lowPassFilterConfigResponseCb(rclcpp::Client<tobas_msgs::srv::ConfigureImuLowPassFilter>::SharedFuture future);
   void rpmFilterConfigResponseCb(rclcpp::Client<tobas_msgs::srv::ConfigureImuRpmFilter>::SharedFuture future);
 
-  bool lowPassFilterAccelCutoffCb(const long& p);
-  bool lowPassFilterGyroCutoffCb(const long& p);
-  bool lowPassFilterDGyroCutoffCb(const long& p);
-  bool rpmFilterQualityFactorCb(const long& p);
-  bool rpmFilterMinCenterFreqCb(const long& p);
-  bool rpmFilterFadeRangeCb(const long& p);
-  bool rpmFilterLpfCutoffCb(const long& p);
+  void lowPassFilterAccelCutoffCb(const long& p);
+  void lowPassFilterGyroCutoffCb(const long& p);
+  void lowPassFilterDGyroCutoffCb(const long& p);
+  void rpmFilterQualityFactorCb(const long& p);
+  void rpmFilterMinCenterFreqCb(const long& p);
+  void rpmFilterFadeRangeCb(const long& p);
+  void rpmFilterLpfCutoffCb(const long& p);
 
   void imuRawCb(const tobas_msgs::Imu::ConstSharedPtr& msg);
 };
@@ -85,11 +85,11 @@ bool ImuFilterConfigServer::notchFilterConfigReady() const
          notch_cfg_.lpf_cutoff >= 0;
 }
 
-bool ImuFilterConfigServer::sendLowPassFilterConfigRequest()
+void ImuFilterConfigServer::sendLowPassFilterConfigRequest()
 {
   if (!config_lowpass_filter_sc_->service_is_ready()) {
     TOBAS_ERROR("'", service::kConfigureImuLowPassFilter, "' is not ready.");
-    return false;
+    return;
   }
 
   const auto req = std::make_shared<tobas_msgs::srv::ConfigureImuLowPassFilter::Request>();
@@ -98,15 +98,13 @@ bool ImuFilterConfigServer::sendLowPassFilterConfigRequest()
   req->dgyro_cutoff = lowpass_cfg_.dgyro_cutoff;
 
   config_lowpass_filter_sc_->async_send_request(req, std::bind(&self::lowPassFilterConfigResponseCb, this, _1));
-
-  return true;
 }
 
-bool ImuFilterConfigServer::sendRpmFilterConfigRequest()
+void ImuFilterConfigServer::sendRpmFilterConfigRequest()
 {
   if (!config_rpm_filter_sc_->service_is_ready()) {
     TOBAS_ERROR("'", service::kConfigureImuRpmFilter, "' is not ready.");
-    return false;
+    return;
   }
 
   const auto req = std::make_shared<tobas_msgs::srv::ConfigureImuRpmFilter::Request>();
@@ -116,8 +114,6 @@ bool ImuFilterConfigServer::sendRpmFilterConfigRequest()
   req->lpf_cutoff = notch_cfg_.lpf_cutoff;
 
   config_rpm_filter_sc_->async_send_request(req, std::bind(&self::rpmFilterConfigResponseCb, this, _1));
-
-  return true;
 }
 
 void ImuFilterConfigServer::lowPassFilterConfigResponseCb(
@@ -140,95 +136,67 @@ void ImuFilterConfigServer::rpmFilterConfigResponseCb(
   }
 }
 
-bool ImuFilterConfigServer::lowPassFilterAccelCutoffCb(const long& p)
+void ImuFilterConfigServer::lowPassFilterAccelCutoffCb(const long& p)
 {
   lowpass_cfg_.accel_cutoff = p;
 
   if (lowPassFilterConfigReady()) {
-    if (!sendLowPassFilterConfigRequest()) {
-      return false;
-    }
+    sendLowPassFilterConfigRequest();
   }
-
-  return true;
 }
 
-bool ImuFilterConfigServer::lowPassFilterGyroCutoffCb(const long& p)
+void ImuFilterConfigServer::lowPassFilterGyroCutoffCb(const long& p)
 {
   lowpass_cfg_.gyro_cutoff = p;
 
   if (lowPassFilterConfigReady()) {
-    if (!sendLowPassFilterConfigRequest()) {
-      return false;
-    }
+    sendLowPassFilterConfigRequest();
   }
-
-  return true;
 }
 
-bool ImuFilterConfigServer::lowPassFilterDGyroCutoffCb(const long& p)
+void ImuFilterConfigServer::lowPassFilterDGyroCutoffCb(const long& p)
 {
   lowpass_cfg_.dgyro_cutoff = p;
 
   if (lowPassFilterConfigReady()) {
-    if (!sendLowPassFilterConfigRequest()) {
-      return false;
-    }
+    sendLowPassFilterConfigRequest();
   }
-
-  return true;
 }
 
-bool ImuFilterConfigServer::rpmFilterQualityFactorCb(const long& p)
+void ImuFilterConfigServer::rpmFilterQualityFactorCb(const long& p)
 {
   notch_cfg_.quality_factor = p;
 
   if (notchFilterConfigReady()) {
-    if (!sendRpmFilterConfigRequest()) {
-      return false;
-    }
+    sendRpmFilterConfigRequest();
   }
-
-  return true;
 }
 
-bool ImuFilterConfigServer::rpmFilterMinCenterFreqCb(const long& p)
+void ImuFilterConfigServer::rpmFilterMinCenterFreqCb(const long& p)
 {
   notch_cfg_.min_center_freq = p;
 
   if (notchFilterConfigReady()) {
-    if (!sendRpmFilterConfigRequest()) {
-      return false;
-    }
+    sendRpmFilterConfigRequest();
   }
-
-  return true;
 }
 
-bool ImuFilterConfigServer::rpmFilterFadeRangeCb(const long& p)
+void ImuFilterConfigServer::rpmFilterFadeRangeCb(const long& p)
 {
   notch_cfg_.fade_range = p;
 
   if (notchFilterConfigReady()) {
-    if (!sendRpmFilterConfigRequest()) {
-      return false;
-    }
+    sendRpmFilterConfigRequest();
   }
-
-  return true;
 }
 
-bool ImuFilterConfigServer::rpmFilterLpfCutoffCb(const long& p)
+void ImuFilterConfigServer::rpmFilterLpfCutoffCb(const long& p)
 {
   notch_cfg_.lpf_cutoff = p;
 
   if (notchFilterConfigReady()) {
-    if (!sendRpmFilterConfigRequest()) {
-      return false;
-    }
+    sendRpmFilterConfigRequest();
   }
-
-  return true;
 }
 
 void ImuFilterConfigServer::imuRawCb(const tobas_msgs::Imu::ConstSharedPtr&)

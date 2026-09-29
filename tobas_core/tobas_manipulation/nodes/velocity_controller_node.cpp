@@ -79,9 +79,9 @@ private:
     const tobas_msgs::LinkStateArray& tar_ls,
     tobas_msgs::msg::JointCommandArray& velocities_msg);
 
-  bool jointTimeConstCb(const double& p);
-  bool linearTimeConstCb(const double& p);
-  bool angularTimeConstCb(const double& p);
+  void jointTimeConstCb(const double& p);
+  void linearTimeConstCb(const double& p);
+  void angularTimeConstCb(const double& p);
 
   void droneCb(const Drone::ConstSharedPtr& drone);
   void treeCb(const kdl::Tree::ConstSharedPtr& tree);
@@ -220,30 +220,19 @@ bool VelocityControllerNode::taskSpaceControl(
   return true;
 }
 
-bool VelocityControllerNode::jointTimeConstCb(const double& p)
+void VelocityControllerNode::jointTimeConstCb(const double& p)
 {
   jnt_time_const_ = p;
-  return true;
 }
 
-bool VelocityControllerNode::linearTimeConstCb(const double& p)
+void VelocityControllerNode::linearTimeConstCb(const double& p)
 {
-  if (!vel_ctrl_.setLinearTimeConst(p)) {
-    TOBAS_ERROR("Failed to set linear tracking time constant.");
-    return false;
-  }
-
-  return true;
+  vel_ctrl_.setLinearTimeConst(p);
 }
 
-bool VelocityControllerNode::angularTimeConstCb(const double& p)
+void VelocityControllerNode::angularTimeConstCb(const double& p)
 {
-  if (!vel_ctrl_.setAngularTimeConst(p)) {
-    TOBAS_ERROR("Failed to set angular tracking time constant.");
-    return false;
-  }
-
-  return true;
+  vel_ctrl_.setAngularTimeConst(p);
 }
 
 void VelocityControllerNode::droneCb(const Drone::ConstSharedPtr& drone)

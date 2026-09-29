@@ -3,6 +3,7 @@
 
 #include "tobas_kdl/tree_taskspace_pid.hpp"
 
+#include <cassert>
 #include <ranges>
 
 namespace tobas
@@ -88,84 +89,52 @@ int TreeTaskSpacePID::cartToJnt(
   return setDefaultError(kNoError);
 }
 
-bool TreeTaskSpacePID::setLinearStiffness(const Vector& kp)
+void TreeTaskSpacePID::setLinearStiffness(const Vector& kp)
 {
-  if (kp.x() < 0 || kp.y() < 0 || kp.z() < 0) {
-    return false;
-  }
-
+  assert(kp.x() >= 0.0 && kp.y() >= 0.0 && kp.z() >= 0.0);
   kp_.linear = kp;
-  return true;
 }
 
-bool TreeTaskSpacePID::setAngularStiffness(const Vector& kp)
+void TreeTaskSpacePID::setAngularStiffness(const Vector& kp)
 {
-  if (kp.x() < 0 || kp.y() < 0 || kp.z() < 0) {
-    return false;
-  }
-
+  assert(kp.x() >= 0.0 && kp.y() >= 0.0 && kp.z() >= 0.0);
   kp_.angular = kp;
-  return true;
 }
 
-bool TreeTaskSpacePID::setLinearDamping(const Vector& kd)
+void TreeTaskSpacePID::setLinearDamping(const Vector& kd)
 {
-  if (kd.x() < 0 || kd.y() < 0 || kd.z() < 0) {
-    return false;
-  }
-
+  assert(kd.x() >= 0.0 && kd.y() >= 0.0 && kd.z() >= 0.0);
   kp_.linear = kd;
-  return true;
 }
 
-bool TreeTaskSpacePID::setAngularDamping(const Vector& kd)
+void TreeTaskSpacePID::setAngularDamping(const Vector& kd)
 {
-  if (kd.x() < 0 || kd.y() < 0 || kd.z() < 0) {
-    return false;
-  }
-
+  assert(kd.x() >= 0.0 && kd.y() >= 0.0 && kd.z() >= 0.0);
   kp_.angular = kd;
-  return true;
 }
 
-bool TreeTaskSpacePID::setLinearStiffness(const double& kp)
+void TreeTaskSpacePID::setLinearStiffness(const double& kp)
 {
-  if (kp < 0) {
-    return false;
-  }
-
+  assert(kp >= 0.0);
   kp_.linear.fill(kp);
-  return true;
 }
 
-bool TreeTaskSpacePID::setAngularStiffness(const double& kp)
+void TreeTaskSpacePID::setAngularStiffness(const double& kp)
 {
-  if (kp < 0) {
-    return false;
-  }
-
+  assert(kp >= 0.0);
   kp_.angular.fill(kp);
-  return true;
 }
 
-bool TreeTaskSpacePID::setLinearDamping(const double& kd)
+void TreeTaskSpacePID::setLinearDamping(const double& kd)
 {
-  if (kd < 0) {
-    return false;
-  }
-
+  assert(kd >= 0.0);
   kd_.linear.fill(kd);
-  return true;
 }
 
-bool TreeTaskSpacePID::setAngularDamping(const double& kd)
+void TreeTaskSpacePID::setAngularDamping(const double& kd)
 {
-  if (kd < 0) {
-    return false;
-  }
-
+  assert(kd >= 0.0);
   kd_.angular.fill(kd);
-  return true;
 }
 }  // namespace kdl
 }  // namespace tobas

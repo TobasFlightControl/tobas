@@ -46,15 +46,15 @@ private:
   // Publisher
   ros2::PublisherPtr<tobas_command_msgs::PosVelAccYaw> cmd_pub_;
 
-  bool maxHorizontalVelocityCb(const double& p);
-  bool maxHorizontalJerkCb(const double& p);
-  bool maxVerticalVelocityCb(const double& p);
-  bool maxVerticalJerkCb(const double& p);
-  bool maxHeadingRateCb(const double& p);
-  bool maxPositionErrorDown(const double& p);
-  bool horizontalVelocityExpoCb(const double& p);
-  bool verticalVelocityExpoCb(const double& p);
-  bool headingExpoCb(const double& p);
+  void maxHorizontalVelocityCb(const double& p);
+  void maxHorizontalJerkCb(const double& p);
+  void maxVerticalVelocityCb(const double& p);
+  void maxVerticalJerkCb(const double& p);
+  void maxHeadingRateCb(const double& p);
+  void maxPositionErrorDown(const double& p);
+  void horizontalVelocityExpoCb(const double& p);
+  void verticalVelocityExpoCb(const double& p);
+  void headingExpoCb(const double& p);
 };
 }  // namespace rc
 }  // namespace tobas

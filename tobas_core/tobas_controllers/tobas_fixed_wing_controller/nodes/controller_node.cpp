@@ -105,15 +105,15 @@ private:
   void updateDeflectionRateWeightLog10();
   void updateParameters();
 
-  bool forwardSpeedWeightCb(const long& p);
-  bool alphaWeightCb(const long& p);
-  bool betaWeightCb(const long& p);
-  bool attitudeWeightCb(const long& p);
-  bool angularVelicityWeightCb(const long& p);
-  bool thrustWeightLog10Cb(const long& p);
-  bool thrustRateWeightLog10Cb(const long& p);
-  bool deflectionWeightLog10Cb(const long& p);
-  bool deflectionRateWeightLog10Cb(const long& p);
+  void forwardSpeedWeightCb(const long& p);
+  void alphaWeightCb(const long& p);
+  void betaWeightCb(const long& p);
+  void attitudeWeightCb(const long& p);
+  void angularVelicityWeightCb(const long& p);
+  void thrustWeightLog10Cb(const long& p);
+  void thrustRateWeightLog10Cb(const long& p);
+  void deflectionWeightLog10Cb(const long& p);
+  void deflectionRateWeightLog10Cb(const long& p);
 
   void droneCb(const Drone::ConstSharedPtr& drone);
   void treeCb(const kdl::Tree::ConstSharedPtr& tree);
@@ -350,85 +350,76 @@ void ControllerNode::updateParameters()
   updateDeflectionRateWeightLog10();
 }
 
-bool ControllerNode::forwardSpeedWeightCb(const long& p)
+void ControllerNode::forwardSpeedWeightCb(const long& p)
 {
   params_.forward_speed_weight = p;
   if (is_initialized_) {
     updateForwardSpeedWeight();
   }
-  return true;
 }
 
-bool ControllerNode::alphaWeightCb(const long& p)
+void ControllerNode::alphaWeightCb(const long& p)
 {
   params_.alpha_weight = p;
   if (is_initialized_) {
     updateAlphaWeight();
   }
-  return true;
 }
 
-bool ControllerNode::betaWeightCb(const long& p)
+void ControllerNode::betaWeightCb(const long& p)
 {
   params_.beta_weight = p;
   if (is_initialized_) {
     updateBetaWeight();
   }
-  return true;
 }
 
-bool ControllerNode::attitudeWeightCb(const long& p)
+void ControllerNode::attitudeWeightCb(const long& p)
 {
   params_.attitude_weight = p;
   if (is_initialized_) {
     updateAttitudeWeight();
   }
-  return true;
 }
 
-bool ControllerNode::angularVelicityWeightCb(const long& p)
+void ControllerNode::angularVelicityWeightCb(const long& p)
 {
   params_.angular_velocity_weight = p;
   if (is_initialized_) {
     updateAngularVelicityWeight();
   }
-  return true;
 }
 
-bool ControllerNode::thrustWeightLog10Cb(const long& p)
+void ControllerNode::thrustWeightLog10Cb(const long& p)
 {
   params_.thrust_weight_log10 = p;
   if (is_initialized_) {
     updateThrustWeightLog10();
   }
-  return true;
 }
 
-bool ControllerNode::thrustRateWeightLog10Cb(const long& p)
+void ControllerNode::thrustRateWeightLog10Cb(const long& p)
 {
   params_.thrust_rate_weight_log10 = p;
   if (is_initialized_) {
     updateThrustRateWeightLog10();
   }
-  return true;
 }
 
-bool ControllerNode::deflectionWeightLog10Cb(const long& p)
+void ControllerNode::deflectionWeightLog10Cb(const long& p)
 {
   params_.deflection_weight_log10 = p;
   if (is_initialized_) {
     updateDeflectionWeightLog10();
   }
-  return true;
 }
 
-bool ControllerNode::deflectionRateWeightLog10Cb(const long& p)
+void ControllerNode::deflectionRateWeightLog10Cb(const long& p)
 {
   params_.deflection_rate_weight_log10 = p;
   if (is_initialized_) {
     updateDeflectionRateWeightLog10();
   }
-  return true;
 }
 
 void ControllerNode::droneCb(const Drone::ConstSharedPtr& drone)

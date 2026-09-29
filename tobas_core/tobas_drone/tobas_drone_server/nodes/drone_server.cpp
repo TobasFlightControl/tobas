@@ -23,7 +23,7 @@ private:
 
   void publishDrone();
 
-  bool fileParamCb(const std::string& p);
+  void fileParamCb(const std::string& p);
 };
 
 DroneServerNode::DroneServerNode(const rclcpp::NodeOptions& options)
@@ -40,25 +40,24 @@ void DroneServerNode::publishDrone()
   drone_pub_->publish(std::move(drone_msg));
 }
 
-bool DroneServerNode::fileParamCb(const std::string& p)
+void DroneServerNode::fileParamCb(const std::string& p)
 {
   // Load drone configuration.
   if (const auto result = drone_.load(p); !result) {
     TOBAS_ERROR("Failed to load drone configuration from '", p, "': ", result.error());
-    return false;
+    return;
   }
 
   // Check drone configuration validity.
   if (const auto result = drone_.validate(); !result) {
     TOBAS_ERROR("Drone configuration is invalid: ", result.error());
-    return false;
+    return;
   }
 
   // Publish drone configuration.
   publishDrone();
 
   TOBAS_INFO("New drone configuration message is published.");
-  return true;
 }
 }  // namespace tobas
 

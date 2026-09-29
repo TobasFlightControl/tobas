@@ -111,70 +111,59 @@ void AngleThrottleVectorController::update(const tobas_msgs::RCInput& rcin, cons
   cmd_pub_->publish(std::move(cmd));
 }
 
-bool AngleThrottleVectorController::maxRollCb(const double& p)
+void AngleThrottleVectorController::maxRollCb(const double& p)
 {
   max_roll_ = st::deg2rad(p);
-  return true;
 }
 
-bool AngleThrottleVectorController::maxRollRateCb(const double& p)
+void AngleThrottleVectorController::maxRollRateCb(const double& p)
 {
   roll_filt_.setMaxVelocity(st::deg2rad(p));
-  return true;
 }
 
-bool AngleThrottleVectorController::maxPitchCb(const double& p)
+void AngleThrottleVectorController::maxPitchCb(const double& p)
 {
   max_pitch_ = st::deg2rad(p);
-  return true;
 }
 
-bool AngleThrottleVectorController::maxPitchRateCb(const double& p)
+void AngleThrottleVectorController::maxPitchRateCb(const double& p)
 {
   pitch_filt_.setMaxVelocity(st::deg2rad(p));
-  return true;
 }
 
-bool AngleThrottleVectorController::maxYawRateCb(const double& p)
+void AngleThrottleVectorController::maxYawRateCb(const double& p)
 {
   max_yaw_rate_ = st::deg2rad(p);
-  return true;
 }
 
-bool AngleThrottleVectorController::maxThrustAngleCb(const double& p)
+void AngleThrottleVectorController::maxThrustAngleCb(const double& p)
 {
   max_thrust_angle_ = st::deg2rad(p);
-  return true;
 }
 
-bool AngleThrottleVectorController::maxThrustAngleRateCb(const double& p)
+void AngleThrottleVectorController::maxThrustAngleRateCb(const double& p)
 {
   thrust_angle_filt_.setMaxVelocity(st::deg2rad(p));
-  return true;
 }
 
-bool AngleThrottleVectorController::rollExpoCb(const double& p)
+void AngleThrottleVectorController::rollExpoCb(const double& p)
 {
   roll_expo_ = p / kExpoScale;
-  return true;
 }
 
-bool AngleThrottleVectorController::yawExpoCb(const double& p)
+void AngleThrottleVectorController::yawExpoCb(const double& p)
 {
   yaw_expo_ = p / kExpoScale;
-  return true;
 }
 
-bool AngleThrottleVectorController::throttleExpoCb(const double& p)
+void AngleThrottleVectorController::throttleExpoCb(const double& p)
 {
   throt_expo_ = p / kExpoScale;
-  return true;
 }
 
-bool AngleThrottleVectorController::thrustAngleExpoCb(const double& p)
+void AngleThrottleVectorController::thrustAngleExpoCb(const double& p)
 {
   thrust_angle_expo_ = p / kExpoScale;
-  return true;
 }
 }  // namespace rc
 }  // namespace tobas

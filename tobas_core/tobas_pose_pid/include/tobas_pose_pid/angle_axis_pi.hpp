@@ -14,8 +14,8 @@ public:
 
   kdl::Vector update(const kdl::Rotation& cur_rot, const kdl::Rotation& tar_rot, const double& dt);
 
-  bool setProportionalGain(int idx, double value);
-  bool setIntegralGain(int idx, double value);
+  void setProportionalGain(int idx, double value);
+  void setIntegralGain(int idx, double value);
 
   inline const kdl::Vector& getIntegralError() const;
   inline void resetIntegralError();

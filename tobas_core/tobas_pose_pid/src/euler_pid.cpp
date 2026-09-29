@@ -3,10 +3,10 @@
 
 #include "tobas_pose_pid/euler_pid.hpp"
 
+#include <cassert>
+
 #include <tobas_algorithm/core.hpp>
 #include <tobas_eigen_tools/kinematics.hpp>
-
-#include "./util.hpp"
 
 namespace tobas
 {
@@ -41,55 +41,31 @@ kdl::Vector EulerPID::update(
   return eigen::angaccFromEuleraccLocal(cur_rpy.roll, cur_rpy.pitch, cur_drpy, tar_ddrpy.data);
 }
 
-bool EulerPID::setNaturalFreq(int idx, double value)
+void EulerPID::setNaturalFreq(int idx, double value)
 {
-  if (!checkIndex(idx)) {
-    return false;
-  }
-
-  if (value < 0.0) {
-    std::cerr << "Natural frequency must be non-negative." << std::endl;
-    return false;
-  }
+  assert(0 <= idx && idx < 3);
+  assert(value >= 0.0);
 
   natural_freq_(idx) = value;
   updateGain();
-
-  return true;
 }
 
-bool EulerPID::setDampingRatio(int idx, double value)
+void EulerPID::setDampingRatio(int idx, double value)
 {
-  if (!checkIndex(idx)) {
-    return false;
-  }
-
-  if (value < 0.0) {
-    std::cerr << "Damping ratio must be non-negative." << std::endl;
-    return false;
-  }
+  assert(0 <= idx && idx < 3);
+  assert(value >= 0.0);
 
   damp_ratio_(idx) = value;
   updateGain();
-
-  return true;
 }
 
-bool EulerPID::setIntegralGain(int idx, double value)
+void EulerPID::setIntegralGain(int idx, double value)
 {
-  if (!checkIndex(idx)) {
-    return false;
-  }
-
-  if (value < 0.0) {
-    std::cerr << "Integral gain must be non-negative." << std::endl;
-    return false;
-  }
+  assert(0 <= idx && idx < 3);
+  assert(value >= 0.0);
 
   ki_(idx) = value;
   ei_(idx) = 0.0;
-
-  return true;
 }
 
 void EulerPID::updateGain()

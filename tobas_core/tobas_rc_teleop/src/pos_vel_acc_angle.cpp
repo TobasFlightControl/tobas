@@ -176,82 +176,70 @@ void PosVelAccAngleController::publishAngle(
   angle_pub_->publish(std::move(cmd));
 }
 
-bool PosVelAccAngleController::maxHorizontalVelocityCb(const double& p)
+void PosVelAccAngleController::maxHorizontalVelocityCb(const double& p)
 {
   max_hor_vel_ = p;
   vx_filt_.setMaxVelocity(p);
   vy_filt_.setMaxVelocity(p);
-  return true;
 }
 
-bool PosVelAccAngleController::maxHorizontalJerkCb(const double& p)
+void PosVelAccAngleController::maxHorizontalJerkCb(const double& p)
 {
   vx_filt_.setMaxJerk(p);
   vy_filt_.setMaxJerk(p);
-  return true;
 }
 
-bool PosVelAccAngleController::maxVerticalVelocityCb(const double& p)
+void PosVelAccAngleController::maxVerticalVelocityCb(const double& p)
 {
   max_ver_vel_ = p;
   vz_filt_.setMaxVelocity(p);
-  return true;
 }
 
-bool PosVelAccAngleController::maxVerticalJerkCb(const double& p)
+void PosVelAccAngleController::maxVerticalJerkCb(const double& p)
 {
   vz_filt_.setMaxJerk(p);
-  return true;
 }
 
-bool PosVelAccAngleController::maxAttitudeCb(const double& p)
+void PosVelAccAngleController::maxAttitudeCb(const double& p)
 {
   max_attitude_ = st::deg2rad(p);
-  return true;
 }
 
-bool PosVelAccAngleController::maxAttitudeRateCb(const double& p)
+void PosVelAccAngleController::maxAttitudeRateCb(const double& p)
 {
   const auto max_atti_rate = st::deg2rad(p);  // [rad/s]
   roll_filt_.setMaxVelocity(max_atti_rate);
   pitch_filt_.setMaxVelocity(max_atti_rate);
-  return true;
 }
 
-bool PosVelAccAngleController::maxHeadingRateCb(const double& p)
+void PosVelAccAngleController::maxHeadingRateCb(const double& p)
 {
   max_head_rate_ = st::deg2rad(p);
-  return true;
 }
 
-bool PosVelAccAngleController::maxPositionErrorDown(const double& p)
+void PosVelAccAngleController::maxPositionErrorDown(const double& p)
 {
   max_ep_down_ = p;
-  return true;
 }
 
-bool PosVelAccAngleController::horizontalVelocityExpoCb(const double& p)
+void PosVelAccAngleController::horizontalVelocityExpoCb(const double& p)
 {
   hor_vel_expo_ = p / kExpoScale;
-  return true;
 }
 
-bool PosVelAccAngleController::verticalVelocityExpoCb(const double& p)
+void PosVelAccAngleController::verticalVelocityExpoCb(const double& p)
 {
   ver_vel_expo_ = p / kExpoScale;
-  return true;
 }
 
-bool PosVelAccAngleController::attitudeExpoCb(const double& p)
+void PosVelAccAngleController::attitudeExpoCb(const double& p)
 {
   atti_expo_ = p / kExpoScale;
-  return true;
 }
 
-bool PosVelAccAngleController::headingExpoCb(const double& p)
+void PosVelAccAngleController::headingExpoCb(const double& p)
 {
   head_expo_ = p / kExpoScale;
-  return true;
 }
 }  // namespace rc
 }  // namespace tobas

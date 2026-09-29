@@ -19,9 +19,9 @@ public:
     const kdl::Vector& tar_gyro,
     const double& dt);
 
-  bool setNaturalFreq(int idx, double value);
-  bool setDampingRatio(int idx, double value);
-  bool setIntegralGain(int idx, double value);
+  void setNaturalFreq(int idx, double value);
+  void setDampingRatio(int idx, double value);
+  void setIntegralGain(int idx, double value);
 
   inline const kdl::Vector& getIntegralError() const;
   inline void resetIntegralError();

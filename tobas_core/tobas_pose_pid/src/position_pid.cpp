@@ -3,9 +3,7 @@
 
 #include "tobas_pose_pid/position_pid.hpp"
 
-#include <iostream>
-
-#include "./util.hpp"
+#include <cassert>
 
 namespace tobas
 {
@@ -41,102 +39,54 @@ kdl::Vector PositionPID::update(
   return kp_.hadamard(ep) + ki_.hadamard(ei_) + kd_.hadamard(ed);
 }
 
-bool PositionPID::setProportionalGain(int idx, double value)
+void PositionPID::setProportionalGain(int idx, double value)
 {
-  if (!checkIndex(idx)) {
-    return false;
-  }
-
-  if (value < 0.0) {
-    std::cerr << "Proportional gain must be non-negative." << std::endl;
-    return false;
-  }
+  assert(0 <= idx && idx < 3);
+  assert(value >= 0.0);
 
   kp_(idx) = value;
-
-  return true;
 }
 
-bool PositionPID::setIntegralGain(int idx, double value)
+void PositionPID::setIntegralGain(int idx, double value)
 {
-  if (!checkIndex(idx)) {
-    return false;
-  }
-
-  if (value < 0.0) {
-    std::cerr << "Integral gain must be non-negative." << std::endl;
-    return false;
-  }
+  assert(0 <= idx && idx < 3);
+  assert(value >= 0.0);
 
   ki_(idx) = value;
-
-  return true;
 }
 
-bool PositionPID::setDerivativeGain(int idx, double value)
+void PositionPID::setDerivativeGain(int idx, double value)
 {
-  if (!checkIndex(idx)) {
-    return false;
-  }
-
-  if (value < 0.0) {
-    std::cerr << "Derivative gain must be non-negative." << std::endl;
-    return false;
-  }
+  assert(0 <= idx && idx < 3);
+  assert(value >= 0.0);
 
   kd_(idx) = value;
-
-  return true;
 }
 
-bool PositionPID::setNaturalFreq(int idx, double value)
+void PositionPID::setNaturalFreq(int idx, double value)
 {
-  if (!checkIndex(idx)) {
-    return false;
-  }
-
-  if (value < 0.0) {
-    std::cerr << "Natural frequency must be non-negative." << std::endl;
-    return false;
-  }
+  assert(0 <= idx && idx < 3);
+  assert(value >= 0.0);
 
   natural_freq_(idx) = value;
   setGainFromSecondOrderFrom();
-
-  return true;
 }
 
-bool PositionPID::setDampingRatio(int idx, double value)
+void PositionPID::setDampingRatio(int idx, double value)
 {
-  if (!checkIndex(idx)) {
-    return false;
-  }
-
-  if (value < 0.0) {
-    std::cerr << "Damping ratio must be non-negative." << std::endl;
-    return false;
-  }
+  assert(0 <= idx && idx < 3);
+  assert(value >= 0.0);
 
   damp_ratio_(idx) = value;
   setGainFromSecondOrderFrom();
-
-  return true;
 }
 
-bool PositionPID::setMaxIntegralAccel(int idx, double value)
+void PositionPID::setMaxIntegralAccel(int idx, double value)
 {
-  if (!checkIndex(idx)) {
-    return false;
-  }
-
-  if (value <= 0.0) {
-    std::cerr << "Maximum acceleration must be positive." << std::endl;
-    return false;
-  }
+  assert(0 <= idx && idx < 3);
+  assert(value >= 0.0);
 
   max_i_acc_(idx) = value;
-
-  return true;
 }
 
 void PositionPID::setGainFromSecondOrderFrom()

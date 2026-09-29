@@ -3,6 +3,8 @@
 
 #include "tobas_kdl/tree_jntspace_pid.hpp"
 
+#include <cassert>
+
 namespace tobas
 {
 namespace kdl
@@ -56,24 +58,16 @@ int TreeJntSpacePID::cartToJnt(
   return cartToJnt(cur_q, cur_qd, tar_q, tar_qd, zeros_);
 }
 
-bool TreeJntSpacePID::setStiffness(const double& kp)
+void TreeJntSpacePID::setStiffness(const double& kp)
 {
-  if (kp < 0) {
-    return false;
-  }
-
+  assert(kp >= 0.0);
   kp_ = kp;
-  return true;
 }
 
-bool TreeJntSpacePID::setDamping(const double& kd)
+void TreeJntSpacePID::setDamping(const double& kd)
 {
-  if (kd < 0) {
-    return false;
-  }
-
+  assert(kd >= 0.0);
   kd_ = kd;
-  return true;
 }
 
 void TreeJntSpacePID::resize()

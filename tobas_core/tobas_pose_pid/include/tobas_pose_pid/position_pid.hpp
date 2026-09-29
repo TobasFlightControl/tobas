@@ -19,13 +19,13 @@ public:
     const kdl::Vector& tar_vel,
     const double& dt);
 
-  bool setProportionalGain(int idx, double value);
-  bool setIntegralGain(int idx, double value);
-  bool setDerivativeGain(int idx, double value);
+  void setProportionalGain(int idx, double value);
+  void setIntegralGain(int idx, double value);
+  void setDerivativeGain(int idx, double value);
 
-  bool setNaturalFreq(int idx, double value);
-  bool setDampingRatio(int idx, double value);
-  bool setMaxIntegralAccel(int idx, double value);
+  void setNaturalFreq(int idx, double value);
+  void setDampingRatio(int idx, double value);
+  void setMaxIntegralAccel(int idx, double value);
 
   inline const kdl::Vector& getIntegralError() const;
   inline void resetIntegralError();

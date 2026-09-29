@@ -3,6 +3,8 @@
 
 #include "tobas_kdl/tree_taskspace_vel_ctrl.hpp"
 
+#include <cassert>
+
 namespace tobas
 {
 namespace kdl
@@ -44,44 +46,28 @@ int TreeTaskSpaceVelCtrl::cartToJnt(const JntArray& cur_q, const FrameMap& tar_p
   return setDefaultError(kNoError);
 }
 
-bool TreeTaskSpaceVelCtrl::setLinearTimeConst(const Vector& t)
+void TreeTaskSpaceVelCtrl::setLinearTimeConst(const Vector& t)
 {
-  if (t.x() < 0 || t.y() < 0 || t.z() < 0) {
-    return false;
-  }
-
+  assert(t.x() > 0.0 && t.y() > 0.0 && t.z() > 0.0);
   gain_.linear = t.inverse();
-  return true;
 }
 
-bool TreeTaskSpaceVelCtrl::setAngularTimeConst(const Vector& t)
+void TreeTaskSpaceVelCtrl::setAngularTimeConst(const Vector& t)
 {
-  if (t.x() < 0 || t.y() < 0 || t.z() < 0) {
-    return false;
-  }
-
+  assert(t.x() > 0.0 && t.y() > 0.0 && t.z() > 0.0);
   gain_.angular = t.inverse();
-  return true;
 }
 
-bool TreeTaskSpaceVelCtrl::setLinearTimeConst(const double& t)
+void TreeTaskSpaceVelCtrl::setLinearTimeConst(const double& t)
 {
-  if (t < 0) {
-    return false;
-  }
-
-  gain_.linear.fill(1 / t);
-  return true;
+  assert(t > 0.0);
+  gain_.linear.fill(1.0 / t);
 }
 
-bool TreeTaskSpaceVelCtrl::setAngularTimeConst(const double& t)
+void TreeTaskSpaceVelCtrl::setAngularTimeConst(const double& t)
 {
-  if (t < 0) {
-    return false;
-  }
-
-  gain_.angular.fill(1 / t);
-  return true;
+  assert(t > 0.0);
+  gain_.angular.fill(1.0 / t);
 }
 }  // namespace kdl
 }  // namespace tobas

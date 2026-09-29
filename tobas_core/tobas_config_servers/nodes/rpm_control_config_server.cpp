@@ -26,7 +26,7 @@ private:
   ros2::ServiceClientPtr<tobas_msgs::srv::SetRpmControlGains> config_sc_;
 
   template <size_t Channel>
-  bool gainCb(const long& p);
+  void gainCb(const long& p);
 
   void rotorStatesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& msg);
 };
@@ -39,11 +39,11 @@ RpmControlConfigServer::RpmControlConfigServer(const rclcpp::NodeOptions& option
 }
 
 template <size_t Channel>
-bool RpmControlConfigServer::gainCb(const long& p)
+void RpmControlConfigServer::gainCb(const long& p)
 {
   if (!config_sc_->service_is_ready()) {
     TOBAS_ERROR("'", service::kSetRpmControlGains, "' is not ready.");
-    return false;
+    return;
   }
 
   gain_.channel = Channel;
@@ -53,8 +53,6 @@ bool RpmControlConfigServer::gainCb(const long& p)
   req->gains.push_back(gain_);
 
   config_sc_->async_send_request(req);
-
-  return true;
 }
 
 void RpmControlConfigServer::rotorStatesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr&)

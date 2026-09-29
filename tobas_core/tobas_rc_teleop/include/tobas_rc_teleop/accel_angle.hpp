@@ -52,16 +52,16 @@ private:
   void publishAccel(const builtin_interfaces::msg::Time& stamp, const kdl::Vector& acc);
   void publishAngle(const builtin_interfaces::msg::Time& stamp, double roll, double pitch, double yaw);
 
-  bool maxHorizontalAccelCb(const double& p);
-  bool maxHorizontalJerkCb(const double& p);
-  bool maxVerticalAccelCb(const double& p);
-  bool maxAttitudeCb(const double& p);
-  bool maxAttitudeRateCb(const double& p);
-  bool maxHeadingRateCb(const double& p);
-  bool horizontalAccelExpoCb(const double& p);
-  bool verticalAccelExpoCb(const double& p);
-  bool attitudeExpoCb(const double& p);
-  bool headingExpoCb(const double& p);
+  void maxHorizontalAccelCb(const double& p);
+  void maxHorizontalJerkCb(const double& p);
+  void maxVerticalAccelCb(const double& p);
+  void maxAttitudeCb(const double& p);
+  void maxAttitudeRateCb(const double& p);
+  void maxHeadingRateCb(const double& p);
+  void horizontalAccelExpoCb(const double& p);
+  void verticalAccelExpoCb(const double& p);
+  void attitudeExpoCb(const double& p);
+  void headingExpoCb(const double& p);
 };
 }  // namespace rc
 }  // namespace tobas

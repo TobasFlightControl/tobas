@@ -161,12 +161,12 @@ public:
 
   template <typename Obj>
   void
-  addDynamicBoolParam(const std::string& param_name, bool (Obj::*fp)(const bool&), Obj* obj, const bool& default_value);
+  addDynamicBoolParam(const std::string& param_name, void (Obj::*fp)(const bool&), Obj* obj, const bool& default_value);
 
   template <typename Obj>
   void addDynamicIntParam(
     const std::string& param_name,
-    bool (Obj::*fp)(const long&),
+    void (Obj::*fp)(const long&),
     Obj* obj,
     const long& step,
     const long& default_value,
@@ -177,7 +177,7 @@ public:
   template <typename Obj>
   void addDynamicDoubleParam(
     const std::string& param_name,
-    bool (Obj::*fp)(const double&),
+    void (Obj::*fp)(const double&),
     Obj* obj,
     const double& step,
     const long& default_value,
@@ -188,7 +188,7 @@ public:
   template <typename Obj>
   void addDynamicStringParam(
     const std::string& param_name,
-    bool (Obj::*fp)(const std::string&),
+    void (Obj::*fp)(const std::string&),
     Obj* obj,
     const std::string& default_value);
 
@@ -345,7 +345,7 @@ BaseNode::createWallTimer(std::chrono::duration<RepType, DurType> period, void (
 template <typename Obj>
 void BaseNode::addDynamicBoolParam(
   const std::string& param_name,
-  bool (Obj::*fp)(const bool&),
+  void (Obj::*fp)(const bool&),
   Obj* obj,
   const bool& default_value)
 {
@@ -365,15 +365,14 @@ void BaseNode::addDynamicBoolParam(
   const auto cb = [this, param_name, fp, obj](const rclcpp::Parameter& param)
   {
     const auto value = param.as_bool();
-    if ((obj->*fp)(value)) {
-      for (auto& bool_param : dparams_.bools) {
-        if (bool_param.name == param_name) {
-          bool_param.current_value = value;
-          break;
-        }
+    (obj->*fp)(value);
+    for (auto& bool_param : dparams_.bools) {
+      if (bool_param.name == param_name) {
+        bool_param.current_value = value;
+        break;
       }
-      TOBAS_INFO("Boolean parameter '", param_name, "' has been updated to ", value, ".");
     }
+    TOBAS_INFO("Boolean parameter '", param_name, "' has been updated to ", value, ".");
   };
   const auto cb_handle = dparam_sub_.add_parameter_callback(param_name, cb);
   dparam_handles_.push_back(cb_handle);
@@ -382,7 +381,7 @@ void BaseNode::addDynamicBoolParam(
 template <typename Obj>
 void BaseNode::addDynamicIntParam(
   const std::string& param_name,
-  bool (Obj::*fp)(const long&),
+  void (Obj::*fp)(const long&),
   Obj* obj,
   const long& step,
   const long& default_value,
@@ -414,15 +413,14 @@ void BaseNode::addDynamicIntParam(
   {
     const auto lsb = std::clamp(param.as_int(), minimum_value, maximum_value);
     const auto value = step * lsb;
-    if ((obj->*fp)(value)) {
-      for (auto& int_param : dparams_.ints) {
-        if (int_param.name == param_name) {
-          int_param.current_value = lsb;
-          break;
-        }
+    (obj->*fp)(value);
+    for (auto& int_param : dparams_.ints) {
+      if (int_param.name == param_name) {
+        int_param.current_value = lsb;
+        break;
       }
-      TOBAS_INFO("Integer parameter '", param_name, "' has been updated to ", value, prefix, ".");
     }
+    TOBAS_INFO("Integer parameter '", param_name, "' has been updated to ", value, prefix, ".");
   };
   const auto cb_handle = dparam_sub_.add_parameter_callback(param_name, cb);
   dparam_handles_.push_back(cb_handle);
@@ -431,7 +429,7 @@ void BaseNode::addDynamicIntParam(
 template <typename Obj>
 void BaseNode::addDynamicDoubleParam(
   const std::string& param_name,
-  bool (Obj::*fp)(const double&),
+  void (Obj::*fp)(const double&),
   Obj* obj,
   const double& step,
   const long& default_value,
@@ -463,15 +461,14 @@ void BaseNode::addDynamicDoubleParam(
   {
     const auto lsb = std::clamp(param.as_int(), minimum_value, maximum_value);
     const auto value = step * lsb;
-    if ((obj->*fp)(value)) {
-      for (auto& double_param : dparams_.doubles) {
-        if (double_param.name == param_name) {
-          double_param.current_value = lsb;
-          break;
-        }
+    (obj->*fp)(value);
+    for (auto& double_param : dparams_.doubles) {
+      if (double_param.name == param_name) {
+        double_param.current_value = lsb;
+        break;
       }
-      TOBAS_INFO("Double parameter '", param_name, "' has been updated to ", value, prefix, ".");
     }
+    TOBAS_INFO("Double parameter '", param_name, "' has been updated to ", value, prefix, ".");
   };
   const auto cb_handle = dparam_sub_.add_parameter_callback(param_name, cb);
   dparam_handles_.push_back(cb_handle);
@@ -480,7 +477,7 @@ void BaseNode::addDynamicDoubleParam(
 template <typename Obj>
 void BaseNode::addDynamicStringParam(
   const std::string& param_name,
-  bool (Obj::*fp)(const std::string&),
+  void (Obj::*fp)(const std::string&),
   Obj* obj,
   const std::string& default_value)
 {
@@ -500,15 +497,14 @@ void BaseNode::addDynamicStringParam(
   const auto cb = [this, param_name, fp, obj](const rclcpp::Parameter& param)
   {
     const auto& value = param.as_string();
-    if ((obj->*fp)(value)) {
-      for (auto& string_param : dparams_.strings) {
-        if (string_param.name == param_name) {
-          string_param.current_value = value;
-          break;
-        }
+    (obj->*fp)(value);
+    for (auto& string_param : dparams_.strings) {
+      if (string_param.name == param_name) {
+        string_param.current_value = value;
+        break;
       }
-      TOBAS_INFO("String parameter '", param_name, "' has been updated to '", value, "'.");
     }
+    TOBAS_INFO("String parameter '", param_name, "' has been updated to '", value, "'.");
   };
   const auto cb_handle = dparam_sub_.add_parameter_callback(param_name, cb);
   dparam_handles_.push_back(cb_handle);

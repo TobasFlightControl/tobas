@@ -3,6 +3,7 @@
 
 #include "tobas_nonplanar_multi_controller/mixer_qp.hpp"
 
+#include <cassert>
 #include <ranges>
 #include <utility>
 
@@ -138,34 +139,22 @@ double QpMixer::getThrust(size_t idx) const
   return thrustDeadband(thrusts_(idx));
 }
 
-bool QpMixer::setLinearWeight(double p)
+void QpMixer::setLinearWeight(double p)
 {
-  if (p <= 0.0) {
-    return false;
-  }
-
+  assert(p > 0.0);
   cfg_.linear_weight = p;
-  return true;
 }
 
-bool QpMixer::setAngularWeight(double p)
+void QpMixer::setAngularWeight(double p)
 {
-  if (p <= 0.0) {
-    return false;
-  }
-
+  assert(p > 0.0);
   cfg_.angular_weight = p;
-  return true;
 }
 
-bool QpMixer::setThrustWeight(double p)
+void QpMixer::setThrustWeight(double p)
 {
-  if (p <= 0.0) {
-    return false;
-  }
-
+  assert(p > 0.0);
   cfg_.thrust_weight = p;
-  return true;
 }
 
 void QpMixer::resizeAndFill()

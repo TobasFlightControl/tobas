@@ -3,6 +3,7 @@
 
 #include "tobas_eskf/eskf.hpp"
 
+#include <cassert>
 #include <format>
 
 #include <tobas_algorithm/core.hpp>
@@ -227,64 +228,40 @@ void ErrorStateKalmanFilter::enableJosephForm(bool enable)
   enable_joseph_form_ = enable;
 }
 
-bool ErrorStateKalmanFilter::setAccBiasProcNoiseDensity(double value)
+void ErrorStateKalmanFilter::setAccBiasProcNoiseDensity(double value)
 {
-  if (value < 0.0) {
-    return false;
-  }
-
+  assert(value >= 0.0);
   acc_bias_proc_noise_density_ = value;
-  return true;
 }
 
-bool ErrorStateKalmanFilter::setGyroBiasProcNoiseDensity(double value)
+void ErrorStateKalmanFilter::setGyroBiasProcNoiseDensity(double value)
 {
-  if (value < 0.0) {
-    return false;
-  }
-
+  assert(value >= 0.0);
   gyro_bias_proc_noise_density_ = value;
-  return true;
 }
 
-bool ErrorStateKalmanFilter::setMagHardBiasProcNoiseDensity(double value)
+void ErrorStateKalmanFilter::setMagHardBiasProcNoiseDensity(double value)
 {
-  if (value < 0.0) {
-    return false;
-  }
-
+  assert(value >= 0.0);
   mag_hard_bias_proc_noise_density_ = value;
-  return true;
 }
 
-bool ErrorStateKalmanFilter::setMagSoftBiasProcNoiseDensity(double value)
+void ErrorStateKalmanFilter::setMagSoftBiasProcNoiseDensity(double value)
 {
-  if (value < 0.0) {
-    return false;
-  }
-
+  assert(value >= 0.0);
   mag_soft_bias_proc_noise_density_ = value;
-  return true;
 }
 
-bool ErrorStateKalmanFilter::setBaroAltBiasProcNoiseDensity(double value)
+void ErrorStateKalmanFilter::setBaroAltBiasProcNoiseDensity(double value)
 {
-  if (value < 0.0) {
-    return false;
-  }
-
+  assert(value >= 0.0);
   baro_alt_bias_proc_noise_density_ = value;
-  return true;
 }
 
-bool ErrorStateKalmanFilter::setGravProcNoiseDensity(double value)
+void ErrorStateKalmanFilter::setGravProcNoiseDensity(double value)
 {
-  if (value < 0.0) {
-    return false;
-  }
-
+  assert(value >= 0.0);
   grav_proc_noise_density_ = value;
-  return true;
 }
 
 void ErrorStateKalmanFilter::setMagneticFieldRef(const Eigen::Vector3d& mag_W)

@@ -110,65 +110,55 @@ void AccelPitchYawController::update(const tobas_msgs::RCInput& rcin, const toba
   cmd_pub_->publish(std::move(cmd));
 }
 
-bool AccelPitchYawController::maxHorizontalAccelCb(const double& p)
+void AccelPitchYawController::maxHorizontalAccelCb(const double& p)
 {
   max_hor_acc_ = p;
-  return true;
 }
 
-bool AccelPitchYawController::maxHorizontalJerkCb(const double& p)
+void AccelPitchYawController::maxHorizontalJerkCb(const double& p)
 {
   ax_filt_.setMaxVelocity(p);
   ay_filt_.setMaxVelocity(p);
-  return true;
 }
 
-bool AccelPitchYawController::maxVerticalAccelCb(const double& p)
+void AccelPitchYawController::maxVerticalAccelCb(const double& p)
 {
   max_ver_acc_ = p;
-  return true;
 }
 
-bool AccelPitchYawController::maxPitchCb(const double& p)
+void AccelPitchYawController::maxPitchCb(const double& p)
 {
   max_pitch_ = st::deg2rad(p);
-  return true;
 }
 
-bool AccelPitchYawController::maxPitchRateCb(const double& p)
+void AccelPitchYawController::maxPitchRateCb(const double& p)
 {
   pitch_filt_.setMaxVelocity(st::deg2rad(p));
-  return true;
 }
 
-bool AccelPitchYawController::maxYawRateCb(const double& p)
+void AccelPitchYawController::maxYawRateCb(const double& p)
 {
   max_yaw_rate_ = st::deg2rad(p);
-  return true;
 }
 
-bool AccelPitchYawController::horizontalAccelExpoCb(const double& p)
+void AccelPitchYawController::horizontalAccelExpoCb(const double& p)
 {
   hor_acc_expo_ = p / kExpoScale;
-  return true;
 }
 
-bool AccelPitchYawController::verticalAccelExpoCb(const double& p)
+void AccelPitchYawController::verticalAccelExpoCb(const double& p)
 {
   ver_acc_expo_ = p / kExpoScale;
-  return true;
 }
 
-bool AccelPitchYawController::pitchExpoCb(const double& p)
+void AccelPitchYawController::pitchExpoCb(const double& p)
 {
   pitch_expo_ = p / kExpoScale;
-  return true;
 }
 
-bool AccelPitchYawController::yawExpoCb(const double& p)
+void AccelPitchYawController::yawExpoCb(const double& p)
 {
   yaw_expo_ = p / kExpoScale;
-  return true;
 }
 }  // namespace rc
 }  // namespace tobas

@@ -34,8 +34,8 @@ public:
   double getThrust(size_t idx) const;
   double getTiltAngle(size_t idx) const;
 
-  bool setTiltAxisSingularDeclinationLB(double lb_rad);
-  bool setTiltAxisSingularDeclinationUB(double ub_rad);
+  void setTiltAxisSingularDeclinationLB(double lb_rad);
+  void setTiltAxisSingularDeclinationUB(double ub_rad);
 
 private:
   struct Config

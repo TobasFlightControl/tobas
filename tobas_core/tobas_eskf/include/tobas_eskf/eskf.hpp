@@ -104,12 +104,12 @@ public:
   void enableCovInitialization(bool enable);
   void enableJosephForm(bool enable);
 
-  bool setAccBiasProcNoiseDensity(double value);      // [m/s^3/√Hz]
-  bool setGyroBiasProcNoiseDensity(double value);     // [rad/s^2/√Hz]
-  bool setMagHardBiasProcNoiseDensity(double value);  // [/s/√Hz]
-  bool setMagSoftBiasProcNoiseDensity(double value);  // [/s/√Hz]
-  bool setBaroAltBiasProcNoiseDensity(double value);  // [m/s/√Hz]
-  bool setGravProcNoiseDensity(double value);         // [m/s^3/√Hz]
+  void setAccBiasProcNoiseDensity(double value);      // [m/s^3/√Hz]
+  void setGyroBiasProcNoiseDensity(double value);     // [rad/s^2/√Hz]
+  void setMagHardBiasProcNoiseDensity(double value);  // [/s/√Hz]
+  void setMagSoftBiasProcNoiseDensity(double value);  // [/s/√Hz]
+  void setBaroAltBiasProcNoiseDensity(double value);  // [m/s/√Hz]
+  void setGravProcNoiseDensity(double value);         // [m/s^3/√Hz]
 
   void setMagneticFieldRef(const Eigen::Vector3d& mag_W);
   void setAirPressureOrigin(double pres);

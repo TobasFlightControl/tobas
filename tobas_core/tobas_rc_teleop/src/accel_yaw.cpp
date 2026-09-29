@@ -94,47 +94,40 @@ void AccelYawController::update(const tobas_msgs::RCInput& rcin, const tobas_msg
   cmd_pub_->publish(std::move(cmd));
 }
 
-bool AccelYawController::maxHorizontalAccelCb(const double& p)
+void AccelYawController::maxHorizontalAccelCb(const double& p)
 {
   max_hor_acc_ = p;
-  return true;
 }
 
-bool AccelYawController::maxHorizontalJerkCb(const double& p)
+void AccelYawController::maxHorizontalJerkCb(const double& p)
 {
   ax_filt_.setMaxVelocity(p);
   ay_filt_.setMaxVelocity(p);
-  return true;
 }
 
-bool AccelYawController::maxVerticalAccelCb(const double& p)
+void AccelYawController::maxVerticalAccelCb(const double& p)
 {
   max_ver_acc_ = p;
-  return true;
 }
 
-bool AccelYawController::maxHeadingRateCb(const double& p)
+void AccelYawController::maxHeadingRateCb(const double& p)
 {
   max_head_rate_ = st::deg2rad(p);
-  return true;
 }
 
-bool AccelYawController::horizontalAccelExpoCb(const double& p)
+void AccelYawController::horizontalAccelExpoCb(const double& p)
 {
   hor_acc_expo_ = p / kExpoScale;
-  return true;
 }
 
-bool AccelYawController::verticalAccelExpoCb(const double& p)
+void AccelYawController::verticalAccelExpoCb(const double& p)
 {
   ver_acc_expo_ = p / kExpoScale;
-  return true;
 }
 
-bool AccelYawController::headingExpoCb(const double& p)
+void AccelYawController::headingExpoCb(const double& p)
 {
   head_expo_ = p / kExpoScale;
-  return true;
 }
 }  // namespace rc
 }  // namespace tobas

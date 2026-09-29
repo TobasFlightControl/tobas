@@ -137,21 +137,21 @@ private:
   static kdl::Vector computeEulerError(const kdl::Euler& cur_rpy, const kdl::Euler& tar_rpy);
 
   // Parameter callbacks
-  bool horizontalNaturalFreqCb(const double& p);
-  bool horizontalDampingRatioCb(const double& p);
-  bool horizontalIGainCb(const double& p);
-  bool horizontalIMaxAccelCb(const double& p);
-  bool verticalNaturalFreqCb(const double& p);
-  bool verticalDampingRatioCb(const double& p);
-  bool verticalIGainCb(const double& p);
-  bool verticalIMaxAccelCb(const double& p);
-  bool attitudeNaturalFreqCb(const double& p);
-  bool attitudeDampingRatioCb(const double& p);
-  bool attitudeIGainCb(const double& p);
-  bool headingNaturalFreqCb(const double& p);
-  bool headingDampingRatioCb(const double& p);
-  bool headingIGainCb(const double& p);
-  bool throttleGainThresholdCb(const double& p);
+  void horizontalNaturalFreqCb(const double& p);
+  void horizontalDampingRatioCb(const double& p);
+  void horizontalIGainCb(const double& p);
+  void horizontalIMaxAccelCb(const double& p);
+  void verticalNaturalFreqCb(const double& p);
+  void verticalDampingRatioCb(const double& p);
+  void verticalIGainCb(const double& p);
+  void verticalIMaxAccelCb(const double& p);
+  void attitudeNaturalFreqCb(const double& p);
+  void attitudeDampingRatioCb(const double& p);
+  void attitudeIGainCb(const double& p);
+  void headingNaturalFreqCb(const double& p);
+  void headingDampingRatioCb(const double& p);
+  void headingIGainCb(const double& p);
+  void throttleGainThresholdCb(const double& p);
 
   // Topic callbacks
   void droneCb(const Drone::ConstSharedPtr& drone);
@@ -291,94 +291,79 @@ kdl::Vector ControllerNode::computeEulerError(const kdl::Euler& cur_rpy, const k
   return { roll_err, pitch_err, yaw_err };
 }
 
-bool ControllerNode::horizontalNaturalFreqCb(const double& p)
+void ControllerNode::horizontalNaturalFreqCb(const double& p)
 {
   trans_ctrl_.hor_wn = p;
-  return true;
 }
 
-bool ControllerNode::horizontalDampingRatioCb(const double& p)
+void ControllerNode::horizontalDampingRatioCb(const double& p)
 {
   trans_ctrl_.hor_zeta = p;
-  return true;
 }
 
-bool ControllerNode::horizontalIGainCb(const double& p)
+void ControllerNode::horizontalIGainCb(const double& p)
 {
   trans_ctrl_.hor_ki = p;
-  return true;
 }
 
-bool ControllerNode::horizontalIMaxAccelCb(const double& p)
+void ControllerNode::horizontalIMaxAccelCb(const double& p)
 {
   trans_ctrl_.hor_max_i_acc = p;
-  return true;
 }
 
-bool ControllerNode::verticalNaturalFreqCb(const double& p)
+void ControllerNode::verticalNaturalFreqCb(const double& p)
 {
   trans_ctrl_.ver_wn = p;
-  return true;
 }
 
-bool ControllerNode::verticalDampingRatioCb(const double& p)
+void ControllerNode::verticalDampingRatioCb(const double& p)
 {
   trans_ctrl_.ver_zeta = p;
-  return true;
 }
 
-bool ControllerNode::verticalIGainCb(const double& p)
+void ControllerNode::verticalIGainCb(const double& p)
 {
   trans_ctrl_.ver_ki = p;
-  return true;
 }
 
-bool ControllerNode::verticalIMaxAccelCb(const double& p)
+void ControllerNode::verticalIMaxAccelCb(const double& p)
 {
   trans_ctrl_.ver_max_i_acc = p;
-  return true;
 }
 
-bool ControllerNode::attitudeNaturalFreqCb(const double& p)
+void ControllerNode::attitudeNaturalFreqCb(const double& p)
 {
   rot_ctrl_.atti_wn = p;
-  return true;
 }
 
-bool ControllerNode::attitudeDampingRatioCb(const double& p)
+void ControllerNode::attitudeDampingRatioCb(const double& p)
 {
   rot_ctrl_.atti_zeta = p;
-  return true;
 }
 
-bool ControllerNode::attitudeIGainCb(const double& p)
+void ControllerNode::attitudeIGainCb(const double& p)
 {
   rot_ctrl_.atti_ki = p;
-  return true;
 }
 
-bool ControllerNode::headingNaturalFreqCb(const double& p)
+void ControllerNode::headingNaturalFreqCb(const double& p)
 {
   rot_ctrl_.head_wn = p;
-  return true;
 }
 
-bool ControllerNode::headingDampingRatioCb(const double& p)
+void ControllerNode::headingDampingRatioCb(const double& p)
 {
   rot_ctrl_.head_zeta = p;
-  return true;
 }
 
-bool ControllerNode::headingIGainCb(const double& p)
+void ControllerNode::headingIGainCb(const double& p)
 {
   rot_ctrl_.head_ki = p;
-  return true;
 }
 
-bool ControllerNode::throttleGainThresholdCb(const double& p)
+void ControllerNode::throttleGainThresholdCb(const double& p)
 {
   throttle_gain_thresh_ = p / 100.0;
-  return true;
 }
 
 void ControllerNode::droneCb(const Drone::ConstSharedPtr& drone)

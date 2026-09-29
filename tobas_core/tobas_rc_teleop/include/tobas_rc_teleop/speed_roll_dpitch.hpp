@@ -40,13 +40,13 @@ private:
   // PubSub
   ros2::PublisherPtr<tobas_command_msgs::msg::SpeedRollDeltaPitch> cmd_pub_;
 
-  bool minSpeedCb(const double& p);
-  bool maxSpeedCb(const double& p);
-  bool maxRollCb(const double& p);
-  bool maxDeltaPitchCb(const double& p);
-  bool speedExpoCb(const double& p);
-  bool rollExpoCb(const double& p);
-  bool pitchExpoCb(const double& p);
+  void minSpeedCb(const double& p);
+  void maxSpeedCb(const double& p);
+  void maxRollCb(const double& p);
+  void maxDeltaPitchCb(const double& p);
+  void speedExpoCb(const double& p);
+  void rollExpoCb(const double& p);
+  void pitchExpoCb(const double& p);
 };
 }  // namespace rc
 }  // namespace tobas

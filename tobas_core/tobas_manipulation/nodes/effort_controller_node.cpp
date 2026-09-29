@@ -80,12 +80,12 @@ private:
     const tobas_msgs::LinkStateArray& tar_ls,
     tobas_msgs::msg::JointCommandArray& efforts_msg);
 
-  bool jointStiffnessCb(const long& p);
-  bool jointDamping(const long& p);
-  bool linearStiffnessCb(const long& p);
-  bool angularStiffnessCb(const long& p);
-  bool linearDampingCb(const long& p);
-  bool angularDampingCb(const long& p);
+  void jointStiffnessCb(const long& p);
+  void jointDamping(const long& p);
+  void linearStiffnessCb(const long& p);
+  void angularStiffnessCb(const long& p);
+  void linearDampingCb(const long& p);
+  void angularDampingCb(const long& p);
 
   void droneCb(const Drone::ConstSharedPtr& drone);
   void treeCb(const kdl::Tree::ConstSharedPtr& tree);
@@ -241,64 +241,34 @@ bool EffortControllerNode::taskSpaceControl(
   return true;
 }
 
-bool EffortControllerNode::jointStiffnessCb(const long& p)
+void EffortControllerNode::jointStiffnessCb(const long& p)
 {
-  if (!pid_js_.setStiffness(p)) {
-    TOBAS_ERROR("Failed to set joint stiffness.");
-    return false;
-  }
-
-  return true;
+  pid_js_.setStiffness(p);
 }
 
-bool EffortControllerNode::jointDamping(const long& p)
+void EffortControllerNode::jointDamping(const long& p)
 {
-  if (!pid_js_.setDamping(p)) {
-    TOBAS_ERROR("Failed to set joint damping.");
-    return false;
-  }
-
-  return true;
+  pid_js_.setDamping(p);
 }
 
-bool EffortControllerNode::linearStiffnessCb(const long& p)
+void EffortControllerNode::linearStiffnessCb(const long& p)
 {
-  if (!pid_ts_.setLinearStiffness(p)) {
-    TOBAS_ERROR("Failed to set linear stiffness.");
-    return false;
-  }
-
-  return true;
+  pid_ts_.setLinearStiffness(p);
 }
 
-bool EffortControllerNode::angularStiffnessCb(const long& p)
+void EffortControllerNode::angularStiffnessCb(const long& p)
 {
-  if (!pid_ts_.setAngularStiffness(p)) {
-    TOBAS_ERROR("Failed to set angular stiffness.");
-    return false;
-  }
-
-  return true;
+  pid_ts_.setAngularStiffness(p);
 }
 
-bool EffortControllerNode::linearDampingCb(const long& p)
+void EffortControllerNode::linearDampingCb(const long& p)
 {
-  if (!pid_ts_.setLinearDamping(p)) {
-    TOBAS_ERROR("Failed to set linear damping.");
-    return false;
-  }
-
-  return true;
+  pid_ts_.setLinearDamping(p);
 }
 
-bool EffortControllerNode::angularDampingCb(const long& p)
+void EffortControllerNode::angularDampingCb(const long& p)
 {
-  if (!pid_ts_.setAngularDamping(p)) {
-    TOBAS_ERROR("Failed to set angular damping.");
-    return false;
-  }
-
-  return true;
+  pid_ts_.setAngularDamping(p);
 }
 
 void EffortControllerNode::droneCb(const Drone::ConstSharedPtr& drone)

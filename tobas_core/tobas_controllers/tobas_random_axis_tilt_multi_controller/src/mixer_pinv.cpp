@@ -3,6 +3,7 @@
 
 #include "tobas_random_axis_tilt_multi_controller/mixer_pinv.hpp"
 
+#include <cassert>
 #include <ranges>
 
 #include <tobas_eigen_tools/geometry.hpp>
@@ -195,24 +196,16 @@ double PinvMixer::getTiltAngle(size_t idx) const
   return std::atan2(ty, tx);
 }
 
-bool PinvMixer::setTiltAxisSingularDeclinationLB(double lb_rad)
+void PinvMixer::setTiltAxisSingularDeclinationLB(double lb_rad)
 {
-  if (lb_rad < 0.0) {
-    return false;
-  }
-
+  assert(lb_rad >= 0.0);
   cfg_.singular_declination_lb = lb_rad;
-  return true;
 }
 
-bool PinvMixer::setTiltAxisSingularDeclinationUB(double ub_rad)
+void PinvMixer::setTiltAxisSingularDeclinationUB(double ub_rad)
 {
-  if (ub_rad < 0.0) {
-    return false;
-  }
-
+  assert(ub_rad >= 0.0);
   cfg_.singular_declination_ub = ub_rad;
-  return true;
 }
 }  // namespace random_axis_tilt_multicopter
 }  // namespace tobas

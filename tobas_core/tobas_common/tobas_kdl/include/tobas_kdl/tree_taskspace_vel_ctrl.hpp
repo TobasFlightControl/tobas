@@ -22,10 +22,10 @@ public:
 
   int cartToJnt(const JntArray& cur_q, const FrameMap& tar_p);
 
-  bool setLinearTimeConst(const Vector& t);
-  bool setAngularTimeConst(const Vector& t);
-  bool setLinearTimeConst(const double& t);
-  bool setAngularTimeConst(const double& t);
+  void setLinearTimeConst(const Vector& t);
+  void setAngularTimeConst(const Vector& t);
+  void setLinearTimeConst(const double& t);
+  void setAngularTimeConst(const double& t);
 
   inline const JntArray& getVelocities() const;
 

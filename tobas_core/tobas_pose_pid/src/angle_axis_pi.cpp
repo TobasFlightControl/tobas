@@ -3,9 +3,7 @@
 
 #include "tobas_pose_pid/angle_axis_pi.hpp"
 
-#include <iostream>
-
-#include "./util.hpp"
+#include <cassert>
 
 namespace tobas
 {
@@ -29,36 +27,20 @@ kdl::Vector AngleAxisPI::update(const kdl::Rotation& cur_rot, const kdl::Rotatio
   return kp_.hadamard(ep) + ki_.hadamard(ei_);
 }
 
-bool AngleAxisPI::setProportionalGain(int idx, double value)
+void AngleAxisPI::setProportionalGain(int idx, double value)
 {
-  if (!checkIndex(idx)) {
-    return false;
-  }
-
-  if (value < 0.0) {
-    std::cerr << "Proportional gain must be non-negative." << std::endl;
-    return false;
-  }
+  assert(0 <= idx && idx < 3);
+  assert(value >= 0.0);
 
   kp_(idx) = value;
-
-  return true;
 }
 
-bool AngleAxisPI::setIntegralGain(int idx, double value)
+void AngleAxisPI::setIntegralGain(int idx, double value)
 {
-  if (!checkIndex(idx)) {
-    return false;
-  }
-
-  if (value < 0.0) {
-    std::cerr << "Integral gain must be non-negative." << std::endl;
-    return false;
-  }
+  assert(0 <= idx && idx < 3);
+  assert(value >= 0.0);
 
   ki_(idx) = value;
   ei_(idx) = 0.0;
-
-  return true;
 }
 }  // namespace tobas

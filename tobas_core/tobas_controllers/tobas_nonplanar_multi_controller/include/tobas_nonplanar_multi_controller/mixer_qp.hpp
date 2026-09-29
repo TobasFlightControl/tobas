@@ -37,9 +37,9 @@ public:
   const Eigen::VectorXd& getThrusts() const;
   double getThrust(size_t idx) const;
 
-  bool setLinearWeight(double p);
-  bool setAngularWeight(double p);
-  bool setThrustWeight(double p);
+  void setLinearWeight(double p);
+  void setAngularWeight(double p);
+  void setThrustWeight(double p);
 
 private:
   struct Config

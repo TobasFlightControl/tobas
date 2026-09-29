@@ -29,8 +29,8 @@ public:
     const JntArray& qdd_ff);
   int cartToJnt(const JntArray& cur_q, const JntArray& cur_qd, const JntArray& tar_q, const JntArray& tar_qd);
 
-  bool setStiffness(const double& kp);
-  bool setDamping(const double& kd);
+  void setStiffness(const double& kp);
+  void setDamping(const double& kd);
 
   inline const JntArray& getEfforts() const;
 

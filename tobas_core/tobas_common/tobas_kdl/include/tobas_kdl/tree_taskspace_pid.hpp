@@ -30,14 +30,14 @@ public:
     const AccelMap& a_ff,
     const WrenchMap& f_ext = WrenchMap());
 
-  bool setLinearStiffness(const Vector& kp);
-  bool setAngularStiffness(const Vector& kp);
-  bool setLinearDamping(const Vector& kd);
-  bool setAngularDamping(const Vector& kd);
-  bool setLinearStiffness(const double& kp);
-  bool setAngularStiffness(const double& kp);
-  bool setLinearDamping(const double& kd);
-  bool setAngularDamping(const double& kd);
+  void setLinearStiffness(const Vector& kp);
+  void setAngularStiffness(const Vector& kp);
+  void setLinearDamping(const Vector& kd);
+  void setAngularDamping(const Vector& kd);
+  void setLinearStiffness(const double& kp);
+  void setAngularStiffness(const double& kp);
+  void setLinearDamping(const double& kd);
+  void setAngularDamping(const double& kd);
 
   inline const JntArray& getEfforts() const;
 

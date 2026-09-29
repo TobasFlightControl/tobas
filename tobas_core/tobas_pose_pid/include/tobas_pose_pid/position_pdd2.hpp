@@ -21,9 +21,9 @@ public:
     const kdl::Vector& tar_acc,
     const double& dt);
 
-  bool setNaturalFreq(int idx, double value);
-  bool setInertiaRatio(int idx, double value);
-  bool setDampingRatio(int idx, double value);
+  void setNaturalFreq(int idx, double value);
+  void setInertiaRatio(int idx, double value);
+  void setDampingRatio(int idx, double value);
 
 private:
   // Config
