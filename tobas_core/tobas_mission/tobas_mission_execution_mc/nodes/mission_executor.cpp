@@ -1231,8 +1231,6 @@ MulticopterMissionExecutorNode::handleGoal(const rclcpp_action::GoalUUID&, const
         break;
       }
       case kLand: {
-        const auto land = st::fromBytes<Land>(item.data);
-
         if (!armed) {
           TOBAS_WARN("Mission No. ", cmd_number, ": The vehicle must be armed before a land command.");
           return rclcpp_action::GoalResponse::REJECT;
@@ -1248,8 +1246,6 @@ MulticopterMissionExecutorNode::handleGoal(const rclcpp_action::GoalUUID&, const
         break;
       }
       case kReturnToLaunch: {
-        const auto rtl = st::fromBytes<ReturnToLaunch>(item.data);
-
         if (!armed) {
           TOBAS_WARN("Mission No. ", cmd_number, ": The vehicle must be armed before a RTL command.");
           return rclcpp_action::GoalResponse::REJECT;
