@@ -50,11 +50,10 @@ bool Mixer::updateInternalDataStructures()
 bool Mixer::solve(
   const double& dt,
   const double& rho,
-  const kdl::Vector& cur_vel_B,
+  const double& airspeed,
   const kdl::Vector& cur_gyro_B,
   const kdl::Vector& tar_dgyro_B)
 {
-  const auto V = cur_vel_B.norm();
   const auto& inertia = inertia_solver_.getInertia();
   const auto I_B = inertia.getRotationalInertiaCoG();
 
@@ -64,13 +63,13 @@ bool Mixer::solve(
     const kdl::Vector effectiveness_frd = kdl::Vector(cs.c_roll_delta, cs.c_pitch_delta, cs.c_yaw_delta);
     kdl::Vector effectiveness_flu;
     kdl::vectorFrdToFlu(effectiveness_frd, effectiveness_flu);
-    E_(0, idx) = dynamicPressure(rho, std::max(V, kLowerLimitSpeed)) * drone_.fixed_wing->vehicle.wing_surface * drone_.fixed_wing->vehicle.wing_span * effectiveness_flu.x(); // [Nm / rad]
-    E_(1, idx) = dynamicPressure(rho, std::max(V, kLowerLimitSpeed)) * drone_.fixed_wing->vehicle.wing_surface * drone_.fixed_wing->vehicle.mac * effectiveness_flu.y(); // [Nm / rad]
+    E_(0, idx) = dynamicPressure(rho, std::max(airspeed, kLowerLimitSpeed)) * drone_.fixed_wing->vehicle.wing_surface * drone_.fixed_wing->vehicle.wing_span * effectiveness_flu.x(); // [Nm / rad]
+    E_(1, idx) = dynamicPressure(rho, std::max(airspeed, kLowerLimitSpeed)) * drone_.fixed_wing->vehicle.wing_surface * drone_.fixed_wing->vehicle.mac * effectiveness_flu.y(); // [Nm / rad]
   }
 
   // Right-hand side of the EoM matrix equality.
   kdl::Vector tar_dgyro_virtual = tar_dgyro_B; // これにより空力による応答遅れの影響を考慮
-  integral_error_y_ += V / kCruiseSpeed * omega_s_  * tar_dgyro_B.y() * dt;
+  integral_error_y_ += airspeed / kCruiseSpeed * omega_s_  * tar_dgyro_B.y() * dt;
   tar_dgyro_virtual.y() = tar_dgyro_B.y() + integral_error_y_;
   f_ = (I_B * tar_dgyro_virtual + cur_gyro_B * (I_B * cur_gyro_B)).data.head<2>();  // [Nm]
 

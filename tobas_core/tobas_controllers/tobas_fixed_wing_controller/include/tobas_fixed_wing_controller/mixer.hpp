@@ -25,7 +25,7 @@ public:
   bool solve(
     const double& dt,
     const double& rho,
-    const kdl::Vector& cur_vel_B,
+    const double& airspeed,
     const kdl::Vector& cur_gyro_B,
     const kdl::Vector& tar_dgyro_B);
 
