@@ -4,6 +4,7 @@
 #include "tobas_y_axis_tilt_multi_controller/mixer.hpp"
 
 #include <ranges>
+#include <utility>
 
 #include <tobas_eigen_tools/geometry.hpp>
 #include <tobas_math/float.hpp>
@@ -50,7 +51,6 @@ std::expected<void, std::string> Mixer::updateInternalDataStructures()
   }
 
   E_.conservativeResize(Eigen::NoChange, col);
-  x_.conservativeResize(col);
 
   for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = rotor_it.second;
@@ -75,7 +75,7 @@ std::expected<void, std::string> Mixer::updateInternalDataStructures()
   return {};
 }
 
-std::expected<void, std::string> Mixer::solve(
+std::expected<MixerSolution, std::string> Mixer::solve(
   const kdl::JntArray& cur_q,
   const kdl::Vector& cur_gyro_B,
   const kdl::Vector& tar_dgyro_B,
@@ -172,33 +172,27 @@ std::expected<void, std::string> Mixer::solve(
 
   // Least-squares solution of `Ex = f`; minimize the L2 norm of `x` when redundant degrees of freedom exist.
   // TODO: Consider constraints on the absolute thrust value; a convex optimization problem may work well.
-  x_ = E_.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(f_);
+  const auto x = E_.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(f_).eval();
 
-  return {};
-}
-
-double Mixer::getThrust(size_t idx) const
-{
-  const auto& info = info_.at(idx);
-
-  if (info.is_tilt) {
-    return thrustDeadband(x_.segment<2>(info.column).norm());
+  // Convert the solver variables to independently owned rotor commands.
+  const auto nr = drone_.prop->numRotors();
+  Eigen::VectorXd thrusts(nr);
+  Eigen::VectorXd tilt_angles(nr);
+  for (size_t idx = 0; idx < nr; ++idx) {
+    const auto& info = info_[idx];
+    if (info.is_tilt) {
+      thrusts(idx) = thrustDeadband(x.segment<2>(info.column).norm());
+      const auto tx = thrustDeadband(x(info.column));
+      const auto tz = thrustDeadband(x(info.column + 1));
+      tilt_angles(idx) = info.sign * (std::atan2(tx, tz) - state_[idx].alpha);
+    }
+    else {
+      thrusts(idx) = thrustDeadband(x(info.column));
+      tilt_angles(idx) = 0.0;
+    }
   }
-  else {
-    return thrustDeadband(x_(info.column));
-  }
-}
 
-double Mixer::getTiltAngle(size_t idx) const
-{
-  const auto& info = info_.at(idx);
-  const auto& state = state_.at(idx);
-
-  assert(info.is_tilt);
-
-  const auto tx = thrustDeadband(x_(info.column));
-  const auto tz = thrustDeadband(x_(info.column + 1));
-  return info.sign * (std::atan2(tx, tz) - state.alpha);
+  return MixerSolution{ std::move(thrusts), std::move(tilt_angles) };
 }
 }  // namespace y_axis_tilt_multicopter
 }  // namespace tobas

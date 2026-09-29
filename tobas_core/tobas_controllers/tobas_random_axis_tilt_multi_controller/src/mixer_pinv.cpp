@@ -5,6 +5,7 @@
 
 #include <cassert>
 #include <ranges>
+#include <utility>
 
 #include <tobas_eigen_tools/geometry.hpp>
 #include <tobas_eigen_tools/operators.hpp>
@@ -32,7 +33,6 @@ std::expected<void, std::string> PinvMixer::updateInternalDataStructures()
   info_.resize(nr);
   state_.resize(nr);
   E_.conservativeResize(Eigen::NoChange, 2 * nr);
-  x_.conservativeResize(2 * nr);
 
   for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = rotor_it.second;
@@ -63,7 +63,7 @@ std::expected<void, std::string> PinvMixer::updateInternalDataStructures()
   return {};
 }
 
-std::expected<void, std::string> PinvMixer::solve(
+std::expected<MixerSolution, std::string> PinvMixer::solve(
   const kdl::JntArray& cur_q,
   const kdl::Rotation& cur_rot,
   const kdl::Vector& cur_gyro_B,
@@ -169,31 +169,32 @@ std::expected<void, std::string> PinvMixer::solve(
 
   // Least-squares solution of `Ex = f`; minimize the L2 norm of `x` when redundant degrees of freedom exist.
   // TODO: Consider constraints on the absolute thrust value; a convex optimization problem may work well.
-  x_ = E_.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(f_);
+  Eigen::VectorXd x = E_.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(f_);
 
   // Fix to the minimum value because the thrust solution corresponding to the singular state has become zero.
   for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = rotor_it.second;
     const auto& state = state_[idx];
     if (state.is_singular) {
-      x_(2 * idx) = drone_.prop->minThrust(rotor->link_name);
-      x_(2 * idx + 1) = 0.0;
+      const auto col = 2 * idx;
+      x(col) = drone_.prop->minThrust(rotor->link_name);
+      x(col + 1) = 0.0;
     }
   }
 
-  return {};
-}
+  // Convert the solver variables to independently owned rotor commands.
+  const auto nr = drone_.prop->numRotors();
+  Eigen::VectorXd thrusts(nr);
+  Eigen::VectorXd tilt_angles(nr);
+  for (size_t idx = 0; idx < nr; ++idx) {
+    const auto col = 2 * idx;
+    thrusts(idx) = thrustDeadband(x.segment<2>(col).norm());
+    const auto tx = thrustDeadband(x(col));
+    const auto ty = thrustDeadband(x(col + 1));
+    tilt_angles(idx) = std::atan2(ty, tx);
+  }
 
-double PinvMixer::getThrust(size_t idx) const
-{
-  return thrustDeadband(x_.segment<2>(2 * idx).norm());
-}
-
-double PinvMixer::getTiltAngle(size_t idx) const
-{
-  const auto tx = thrustDeadband(x_(2 * idx));
-  const auto ty = thrustDeadband(x_(2 * idx + 1));
-  return std::atan2(ty, tx);
+  return MixerSolution{ std::move(thrusts), std::move(tilt_angles) };
 }
 
 void PinvMixer::setTiltAxisSingularDeclinationLB(double lb_rad)

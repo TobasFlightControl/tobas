@@ -31,7 +31,7 @@ std::expected<void, std::string> MixerI::setRotorLiveliness(const std::string& l
 
   const auto it = rotor_alive_.find(link_name);
   if (it == rotor_alive_.end()) {
-    return std::unexpected("Invalid rotor link name: " + link_name);
+    return std::unexpected("Rotor link name is unknown.");
   }
 
   it->second = alive;

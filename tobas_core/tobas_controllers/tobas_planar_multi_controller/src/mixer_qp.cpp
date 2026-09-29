@@ -4,7 +4,6 @@
 #include "tobas_planar_multi_controller/mixer_qp.hpp"
 
 #include <ranges>
-#include <utility>
 
 #include <tobas_constants/scale.hpp>
 #include <tobas_eigen_tools/operators.hpp>
@@ -34,7 +33,7 @@ std::expected<void, std::string> QpMixer::updateInternalDataStructures()
   return {};
 }
 
-std::expected<void, std::string> QpMixer::solve(
+std::expected<Eigen::VectorXd, std::string> QpMixer::solve(
   const kdl::JntArray& cur_q,
   const kdl::Vector& cur_gyro_B,
   const kdl::Vector& tar_dgyro_B,
@@ -132,14 +131,8 @@ std::expected<void, std::string> QpMixer::solve(
   if (!thrusts) {
     return std::unexpected("QP failed: " + thrusts.error());
   }
-  thrusts_ = std::move(*thrusts);
 
-  return {};
-}
-
-double QpMixer::getThrust(size_t idx) const
-{
-  return thrustDeadband(thrusts_(idx));
+  return thrustDeadband(*thrusts);
 }
 
 bool QpMixer::setBaseWeight(double p)

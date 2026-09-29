@@ -5,7 +5,6 @@
 
 #include <cassert>
 #include <ranges>
-#include <utility>
 
 #include <tobas_constants/scale.hpp>
 #include <tobas_eigen_tools/operators.hpp>
@@ -35,7 +34,7 @@ std::expected<void, std::string> QpMixer::updateInternalDataStructures()
   return {};
 }
 
-std::expected<void, std::string> QpMixer::solve(
+std::expected<Eigen::VectorXd, std::string> QpMixer::solve(
   const kdl::JntArray& cur_q,
   const kdl::Rotation& cur_rot,
   const kdl::Vector& cur_gyro_B,
@@ -120,23 +119,12 @@ std::expected<void, std::string> QpMixer::solve(
   }
 
   // Solve the QPP.
-  const auto thrusts = qp_.solve();
+  auto thrusts = qp_.solve();
   if (!thrusts) {
     return std::unexpected("QP failed: " + thrusts.error());
   }
-  thrusts_ = std::move(*thrusts);
 
-  return {};
-}
-
-const Eigen::VectorXd& QpMixer::getThrusts() const
-{
-  return thrusts_;
-}
-
-double QpMixer::getThrust(size_t idx) const
-{
-  return thrustDeadband(thrusts_(idx));
+  return thrustDeadband(*thrusts);
 }
 
 void QpMixer::setLinearWeight(double p)

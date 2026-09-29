@@ -582,18 +582,17 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
     }
 
     // Mixer.
-    {
-      const auto& dist_torque_B = do_dist_comp_rot_ ? dist_force_->wrench.torque : kdl::Vector::Zero();
-      const auto result = mixer_.solve(js_converter_.getPosition(), cur_gyro_B, tar_dgyro_, tar_thrust_, dist_torque_B);
-      if (!result) {
-        TOBAS_FATAL("Failed to solve the mixing equation: ", result.error());
-        // TODO: Defensive behavior
-        return;
-      }
-
-      // Fill the feedback message.
-      setpoint->odom.accel.angular = tar_dgyro_;
+    const auto& cur_q = js_converter_.getPosition();
+    const auto& dist_torque_B = do_dist_comp_rot_ ? dist_force_->wrench.torque : kdl::Vector::Zero();
+    const auto mixer_result = mixer_.solve(cur_q, cur_gyro_B, tar_dgyro_, tar_thrust_, dist_torque_B);
+    if (!mixer_result) {
+      TOBAS_FATAL("Failed to solve the mixing equation: ", mixer_result.error());
+      // TODO: Defensive behavior
+      return;
     }
+
+    // Fill the feedback message.
+    setpoint->odom.accel.angular = tar_dgyro_;
 
     // Publish target thrust.
     auto thrusts_msg = std::make_unique<tobas_msgs::msg::RotorThrustArray>();
@@ -601,7 +600,7 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
     for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
       thrusts_msg->thrusts.emplace_back();
       thrusts_msg->thrusts.back().link_name = rotor_it.first;
-      thrusts_msg->thrusts.back().thrust = mixer_.getThrust(idx);
+      thrusts_msg->thrusts.back().thrust = (*mixer_result)(idx);
     }
     tar_thrusts_pub_->publish(std::move(thrusts_msg));
 

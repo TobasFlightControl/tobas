@@ -462,7 +462,7 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
     for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
       tar_thrusts->thrusts.emplace_back();
       tar_thrusts->thrusts.back().link_name = rotor_it.first;
-      tar_thrusts->thrusts.back().thrust = mixer_.getThrust(idx);
+      tar_thrusts->thrusts.back().thrust = (*result)(idx);
     }
     tar_thrusts_pub_->publish(std::move(tar_thrusts));
 

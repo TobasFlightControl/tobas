@@ -8,6 +8,8 @@
 #include <tobas_kdl/tree_inertia_solver.hpp>
 #include <tobas_tools/mixer_i.hpp>
 
+#include "./mixer_solution.hpp"
+
 namespace tobas
 {
 namespace random_axis_tilt_multicopter
@@ -22,7 +24,7 @@ public:
 
   std::expected<void, std::string> updateInternalDataStructures() override;
 
-  std::expected<void, std::string> solve(
+  std::expected<MixerSolution, std::string> solve(
     const kdl::JntArray& cur_q,
     const kdl::Rotation& cur_rot,
     const kdl::Vector& cur_gyro_B,
@@ -30,9 +32,6 @@ public:
     const kdl::Vector& tar_dgyro_B,
     const kdl::Vector& ext_force_W = kdl::Vector::Zero(),
     const kdl::Vector& ext_torque_B = kdl::Vector::Zero());
-
-  double getThrust(size_t idx) const;
-  double getTiltAngle(size_t idx) const;
 
   void setTiltAxisSingularDeclinationLB(double lb_rad);
   void setTiltAxisSingularDeclinationUB(double ub_rad);
@@ -62,7 +61,6 @@ private:
 
   Eigen::Matrix6Xd E_;
   Eigen::Vector6d f_;
-  Eigen::VectorXd x_;
 };
 }  // namespace random_axis_tilt_multicopter
 }  // namespace tobas

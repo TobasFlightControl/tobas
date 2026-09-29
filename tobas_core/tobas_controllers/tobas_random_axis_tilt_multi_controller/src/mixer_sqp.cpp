@@ -39,7 +39,7 @@ std::expected<void, std::string> SqpMixer::updateInternalDataStructures()
   return initializeSQP();
 }
 
-std::expected<void, std::string> SqpMixer::solve(
+std::expected<MixerSolution, std::string> SqpMixer::solve(
   const kdl::JntArray& cur_q,
   const kdl::Rotation& cur_rot,
   const kdl::Vector& cur_gyro_B,
@@ -119,19 +119,11 @@ std::expected<void, std::string> SqpMixer::solve(
   if (!x_opt) {
     return std::unexpected("SQP failed: " + x_opt.error());
   }
-  x_opt_ = std::move(*x_opt);
 
-  return {};
-}
-
-double SqpMixer::getThrust(size_t idx) const
-{
-  return thrustDeadband(x_opt_(drone_.prop->numRotors() + idx));
-}
-
-double SqpMixer::getTiltAngle(size_t idx) const
-{
-  return x_opt_(idx);
+  const auto nr = drone_.prop->numRotors();
+  const auto thrusts = thrustDeadband(x_opt->tail(nr));
+  const auto tilt_angles = x_opt->head(nr);
+  return MixerSolution{ thrusts, tilt_angles };
 }
 
 bool SqpMixer::setLinearWeight(double p)
@@ -208,14 +200,15 @@ std::expected<void, std::string> SqpMixer::initializeSQP()
   const auto R0 = kdl::Rotation::Identity();
   const auto v0 = kdl::Vector::Zero();
 
-  if (const auto result = np_mixer_.solve(q0, R0, v0, v0, v0); !result) {
-    return std::unexpected("Failed to solve the Non-planar mixer: " + result.error());
+  const auto init_thrusts = np_mixer_.solve(q0, R0, v0, v0, v0);
+  if (!init_thrusts) {
+    return std::unexpected("Failed to solve the Non-planar mixer: " + init_thrusts.error());
   }
 
   const auto nr = drone_.prop->numRotors();
   Eigen::VectorXd x0(2 * nr);
   x0.head(nr).setZero();
-  x0.tail(nr) = np_mixer_.getThrusts();
+  x0.tail(nr) = *init_thrusts;
 
   sqp_.initialize(
     x0,
@@ -317,8 +310,8 @@ std::pair<Eigen::VectorXd, Eigen::VectorXd> SqpMixer::splitState(const Eigen::Ve
 {
   assert(static_cast<size_t>(x.size()) == stateSize());
 
-  const Eigen::VectorXd angles = x.head(drone_.prop->numRotors());
-  const Eigen::VectorXd thrusts = x.tail(drone_.prop->numRotors());
+  const auto angles = x.head(drone_.prop->numRotors());
+  const auto thrusts = x.tail(drone_.prop->numRotors());
 
   return { angles, thrusts };
 }

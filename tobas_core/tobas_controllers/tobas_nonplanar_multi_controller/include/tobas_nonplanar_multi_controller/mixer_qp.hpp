@@ -25,7 +25,7 @@ public:
 
   std::expected<void, std::string> updateInternalDataStructures() override;
 
-  std::expected<void, std::string> solve(
+  std::expected<Eigen::VectorXd, std::string> solve(
     const kdl::JntArray& cur_q,
     const kdl::Rotation& cur_rot,
     const kdl::Vector& cur_gyro_B,
@@ -33,9 +33,6 @@ public:
     const kdl::Vector& tar_dgyro_B,
     const kdl::Vector& ext_force_W = kdl::Vector::Zero(),
     const kdl::Vector& ext_torque_B = kdl::Vector::Zero());
-
-  const Eigen::VectorXd& getThrusts() const;
-  double getThrust(size_t idx) const;
 
   void setLinearWeight(double p);
   void setAngularWeight(double p);
@@ -57,8 +54,6 @@ private:
   Eigen::DiagonalXd R_;               // Thrust weights.
   Eigen::Matrix6Xd G_;                // Left-hand side of the EoM matrix equality.
   Eigen::Vector6d h_;                 // Right-hand side of the EoM matrix equality.
-
-  Eigen::VectorXd thrusts_;
 
   void resizeAndFill();
 };

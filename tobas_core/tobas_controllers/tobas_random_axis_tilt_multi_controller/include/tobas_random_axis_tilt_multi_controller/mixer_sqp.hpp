@@ -12,6 +12,8 @@
 #include <tobas_nonplanar_multi_controller/mixer_qp.hpp>
 #include <tobas_tools/mixer_i.hpp>
 
+#include "./mixer_solution.hpp"
+
 namespace tobas
 {
 namespace random_axis_tilt_multicopter
@@ -27,7 +29,7 @@ public:
 
   std::expected<void, std::string> updateInternalDataStructures() override;
 
-  std::expected<void, std::string> solve(
+  std::expected<MixerSolution, std::string> solve(
     const kdl::JntArray& cur_q,
     const kdl::Rotation& cur_rot,
     const kdl::Vector& cur_gyro_B,
@@ -35,9 +37,6 @@ public:
     const kdl::Vector& tar_dgyro_B,
     const kdl::Vector& ext_force_W = kdl::Vector::Zero(),
     const kdl::Vector& ext_torque_B = kdl::Vector::Zero());
-
-  double getThrust(size_t idx) const;
-  double getTiltAngle(size_t idx) const;
 
   bool setLinearWeight(double p);
   bool setAngularWeight(double p);
@@ -57,7 +56,6 @@ private:
   nonplanar_multicopter::QpMixer np_mixer_;
 
   nlp::SQP sqp_;
-  Eigen::VectorXd x_opt_;
 
   Eigen::Diagonal6d Q_;  // EoM weights.
   Eigen::DiagonalXd R_;  // Thrust weights.
