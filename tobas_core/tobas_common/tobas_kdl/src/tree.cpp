@@ -9,32 +9,31 @@ namespace tobas
 {
 namespace kdl
 {
-Tree::Tree(const std::string& root_name) : root_name_(root_name)
+Tree::Tree(const std::string& root_name)
 {
-  segments_.insert(std::make_pair(root_name_, TreeElement::Root(root_name_)));
+  root_seg_ = segments_.insert(std::make_pair(root_name, TreeElement::Root(root_name))).first;
 }
 
 Tree::Tree(const Tree& arg)
 {
-  segments_.clear();
-  root_name_ = arg.root_name_;
-  nj_ = 0;
-
-  segments_.insert(std::make_pair(root_name_, TreeElement::Root(root_name_)));
-  if (!addTree(arg, root_name_)) {
-    throw std::runtime_error("Failed to add '" + root_name_ + "'.");
-  }
+  *this = arg;
 }
 
 Tree& Tree::operator=(const Tree& arg)
 {
-  segments_.clear();
-  root_name_ = arg.root_name_;
-  nj_ = 0;
+  if (this == &arg) {
+    return *this;
+  }
 
-  segments_.insert(std::make_pair(root_name_, TreeElement::Root(root_name_)));
-  if (!addTree(arg, root_name_)) {
-    throw std::runtime_error("Failed to add '" + root_name_ + "'.");
+  clear();
+  if (arg.empty()) {
+    return *this;
+  }
+
+  const auto& root_name = arg.getRootName();
+  root_seg_ = segments_.insert(std::make_pair(root_name, TreeElement::Root(root_name))).first;
+  if (!addTree(arg, root_name)) {
+    throw std::runtime_error("Failed to add '" + root_name + "'.");
   }
 
   return *this;
@@ -128,14 +127,14 @@ Tree Tree::FloatingBase(const std::string& world_name, const std::string& base_n
 void Tree::clear()
 {
   segments_.clear();
-  root_name_.clear();
+  root_seg_ = segments_.end();
   nj_ = 0;
 }
 
 std::expected<void, std::string> Tree::validate() const
 {
   std::unordered_set<std::string> seg_names, jnt_names;
-  return validateRecursive(getRootSegment(), seg_names, jnt_names);
+  return validateRecursive(root_seg_, seg_names, jnt_names);
 }
 
 std::expected<void, std::string> Tree::validateRecursive(
@@ -151,7 +150,7 @@ std::expected<void, std::string> Tree::validateRecursive(
     return std::unexpected("Segment name '" + seg_name + "' is duplicated.");
   }
 
-  if (seg_it != getRootSegment()) {
+  if (seg_it != root_seg_) {
     const auto& jnt_name = seg.joint().name;
     if (!jnt_names.insert(jnt_name).second) {
       return std::unexpected("Joint name '" + jnt_name + "' is duplicated.");
@@ -207,36 +206,36 @@ bool Tree::addSegment(const Segment& segment, const std::string& hook_name)
 
 bool Tree::removeSegment(const std::string& seg_name)
 {
-  const auto seg_it = segments_.find(seg_name);
-  if (seg_it == segments_.end()) {
+  const auto tar_it = getSegment(seg_name);
+  if (tar_it == segments_.end()) {
     std::cerr << "Segment '" << seg_name << "' does not exist in the tree." << std::endl;
     return false;
   }
-
-  if (seg_it->first == root_name_) {
+  if (tar_it == root_seg_) {
     std::cerr << "Cannot remove root segment '" << seg_name << "'." << std::endl;
     return false;
   }
-  if (!seg_it->second.children.empty()) {
+
+  const auto& tar_elem = tar_it->second;
+  if (!tar_elem.children.empty()) {
     std::cerr << "Cannot remove segment '" << seg_name << "' because it has children." << std::endl;
     return false;
   }
 
   // Keep movable joint indices contiguous and decrease the joint count.
-  if (seg_it->second.segment.joint().type != Joint::kFixed) {
-    const auto removed_index = seg_it->second.q_nr;
-    for (auto& [_, element] : segments_) {
-      if (element.segment.joint().type != Joint::kFixed && element.q_nr > removed_index) {
-        --element.q_nr;
+  if (tar_elem.segment.joint().type != Joint::kFixed) {
+    for (auto& [_, elem] : segments_) {
+      if (elem.segment.joint().type != Joint::kFixed && elem.q_nr > tar_elem.q_nr) {
+        --elem.q_nr;
       }
     }
     --nj_;
   }
 
   // Remove the parent's reference before invalidating the segment iterator.
-  const auto parent = segments_.find(seg_it->second.parent->first);
-  std::erase(parent->second.children, seg_it);
-  segments_.erase(seg_it);
+  const auto par_it = segments_.find(tar_elem.parent->first);
+  std::erase(par_it->second.children, tar_it);
+  segments_.erase(tar_it);
 
   return true;
 }
@@ -263,7 +262,7 @@ bool Tree::addTreeRecursive(const SegmentMap::const_iterator& seg, const std::st
 bool Tree::getSubTree(const std::string& seg_name, Tree& tree, bool root_mass_ok) const
 {
   // Confirm that the specified segment exists.
-  const auto seg_it = segments_.find(seg_name);
+  const auto seg_it = getSegment(seg_name);
   if (seg_it == segments_.end()) {
     std::cerr << "Segment '" + seg_name + "' does not exist in the tree." << std::endl;
     return false;
@@ -272,7 +271,7 @@ bool Tree::getSubTree(const std::string& seg_name, Tree& tree, bool root_mass_ok
   // Confirm that the new root segment does not have mass.
   if (!root_mass_ok) {
     const auto& segment = seg_it->second.segment;
-    if (segment.inertia().getMass() > 0) {
+    if (segment.inertia().getMass() > 0.0) {
       std::cerr << "KDL does not support a root segment with an inertia." << std::endl;
       return false;
     }
@@ -289,20 +288,20 @@ bool Tree::getSubTree(const std::string& seg_name, Tree& tree, bool root_mass_ok
 
 bool Tree::isEndSegment(const std::string& seg_name) const
 {
-  const auto seg_it = segments_.find(seg_name);
-  if (seg_it == segments_.end()) {
-    return false;
-  }
+  const auto seg_it = getSegment(seg_name);
+  assert(seg_it != segments_.end());
   return seg_it->second.children.empty();
 }
 
 bool Tree::isFixedToRoot(const std::string& seg_name) const
 {
-  if (seg_name == root_name_) {
+  const auto seg_it = getSegment(seg_name);
+  assert(seg_it != segments_.end());
+
+  if (seg_it == root_seg_) {
     return true;
   }
 
-  const auto seg_it = getSegment(seg_name);
   const auto& elem = seg_it->second;
 
   const auto& joint = elem.segment.joint();
@@ -321,7 +320,7 @@ std::ostream& operator<<(std::ostream& os, const Tree& arg)
     os << "Number: " << elem.q_nr << std::endl;
 
     os << "Parent: ";
-    if (seg_name != arg.root_name_) {
+    if (seg_name != arg.getRootName()) {
       os << elem.parent->first << std::endl;
     }
     else {

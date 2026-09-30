@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <cassert>
 #include <expected>
 #include <memory>
 #include <string>
@@ -100,10 +101,10 @@ public:
 
   inline size_t getNrOfJoints() const;
   inline size_t getNrOfSegments() const;
+  inline const SegmentMap& getSegments() const;
   inline SegmentMap::const_iterator getSegment(const std::string& seg_name) const;
   inline SegmentMap::const_iterator getRootSegment() const;
   inline const std::string& getRootName() const;
-  inline const SegmentMap& getSegments() const;
 
   inline bool empty() const;
 
@@ -116,7 +117,7 @@ public:
 
 private:
   SegmentMap segments_;
-  std::string root_name_;
+  SegmentMap::const_iterator root_seg_ = segments_.end();
   size_t nj_ = 0;  // The number of movable joints
 
   std::expected<void, std::string> validateRecursive(
@@ -150,6 +151,11 @@ inline size_t Tree::getNrOfSegments() const
   return segments_.size();
 }
 
+inline const SegmentMap& Tree::getSegments() const
+{
+  return segments_;
+}
+
 inline SegmentMap::const_iterator Tree::getSegment(const std::string& seg_name) const
 {
   return segments_.find(seg_name);
@@ -157,17 +163,13 @@ inline SegmentMap::const_iterator Tree::getSegment(const std::string& seg_name) 
 
 inline SegmentMap::const_iterator Tree::getRootSegment() const
 {
-  return getSegment(root_name_);
+  return root_seg_;
 }
 
 inline const std::string& Tree::getRootName() const
 {
-  return getRootSegment()->first;
-}
-
-inline const SegmentMap& Tree::getSegments() const
-{
-  return segments_;
+  assert(root_seg_ != segments_.end());
+  return root_seg_->first;
 }
 
 inline bool Tree::empty() const
@@ -177,7 +179,7 @@ inline bool Tree::empty() const
 
 inline bool Tree::hasSegment(const std::string& seg_name) const
 {
-  return segments_.find(seg_name) != segments_.end();
+  return segments_.contains(seg_name);
 }
 }  // namespace kdl
 }  // namespace tobas
