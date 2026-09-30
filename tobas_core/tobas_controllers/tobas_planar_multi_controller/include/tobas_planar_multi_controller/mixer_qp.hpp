@@ -21,7 +21,7 @@ class QpMixer : public MixerI
 public:
   explicit QpMixer(const Drone& drone, const kdl::Tree& tree);
 
-  std::expected<void, std::string> updateInternalDataStructures() override;
+  void updateInternalDataStructures() override;
 
   std::expected<Eigen::VectorXd, std::string> solve(
     const kdl::JntArray& cur_q,

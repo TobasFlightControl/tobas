@@ -3,6 +3,7 @@
 
 #include "tobas_y_axis_tilt_multi_controller/mixer.hpp"
 
+#include <cassert>
 #include <ranges>
 #include <utility>
 
@@ -17,19 +18,16 @@ Mixer::Mixer(const Drone& drone, const kdl::Tree& tree) : super(drone, tree), fk
 {
 }
 
-std::expected<void, std::string> Mixer::updateInternalDataStructures()
+void Mixer::updateInternalDataStructures()
 {
-  if (const auto result = super::updateInternalDataStructures(); !result) {
-    return result;
-  }
+  super::updateInternalDataStructures();
 
   fk_solver_.updateInternalDataStructures();
   inertia_solver_.updateInternalDataStructures();
 
   // Compute forward kinematics.
-  if (fk_solver_.jntToCart(kdl::JntArray::Zero(tree_.getNrOfJoints())) < 0) {
-    return std::unexpected("Forward kinematics failed: " + fk_solver_.errorMessage());
-  }
+  [[maybe_unused]] const auto fk_result = fk_solver_.jntToCart(kdl::JntArray::Zero(tree_.getNrOfJoints()));
+  assert(fk_result >= 0);
 
   const auto nr = drone_.prop->numRotors();
   info_.resize(nr);
@@ -65,14 +63,10 @@ std::expected<void, std::string> Mixer::updateInternalDataStructures()
       const auto& B_T_gpar = fk_solver_.getFrame(gpar_elem.segment.name());
       const auto tilt_axis = B_T_gpar.M * par_elem.segment.joint().axis();  // Tilt axis viewed from the base link.
       const auto tilt_axis_y = tilt_axis.normalized().y();
-      if (!math::isClose(std::abs(tilt_axis_y), 1.0)) {
-        return std::unexpected("Tilt axis must be parallel to the Y axis.");
-      }
+      assert(math::isClose(std::abs(tilt_axis_y), 1.0));
       info.sign = math::sign(tilt_axis_y);
     }
   }
-
-  return {};
 }
 
 std::expected<MixerSolution, std::string> Mixer::solve(

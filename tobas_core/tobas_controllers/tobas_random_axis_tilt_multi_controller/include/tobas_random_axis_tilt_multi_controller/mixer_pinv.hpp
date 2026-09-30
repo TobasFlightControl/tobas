@@ -22,7 +22,7 @@ class PinvMixer : public MixerI
 public:
   explicit PinvMixer(const Drone& drone, const kdl::Tree& tree);
 
-  std::expected<void, std::string> updateInternalDataStructures() override;
+  void updateInternalDataStructures() override;
 
   std::expected<MixerSolution, std::string> solve(
     const kdl::JntArray& cur_q,

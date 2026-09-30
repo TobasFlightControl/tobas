@@ -129,7 +129,7 @@ private:
   // Timers
   ros2::TimerPtr check_topics_timer_;
 
-  bool updateInternalDataStructures();
+  void updateInternalDataStructures();
   bool isCommandAccepted(const tobas_command_msgs::msg::Priority& priority);
   void startSmoothTargetAttitude();
   static kdl::Vector computeEulerError(const kdl::Euler& cur_rpy, const kdl::Euler& tar_rpy);
@@ -230,15 +230,12 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   check_topics_timer_ = createTimer(kCheckTopicsPeriod, &self::checkTopicsTimerCb, this);
 }
 
-bool ControllerNode::updateInternalDataStructures()
+void ControllerNode::updateInternalDataStructures()
 {
   mass_holder_.updateInternalDataStructures();
   js_converter_.updateInternalDataStructures();
   trans_eom_.updateInternalDataStructures();
-  if (const auto result = mixer_.updateInternalDataStructures(); !result) {
-    TOBAS_ERROR("Failed to update the mixer: ", result.error());
-    return false;
-  }
+  mixer_.updateInternalDataStructures();
 
   // Update the maximum total thrust.
   max_thrust_sum_ = 0.0;
@@ -246,8 +243,6 @@ bool ControllerNode::updateInternalDataStructures()
     const auto thrust_at_full_throt = drone_.prop->thrustFromThrottle(link_name, kMaxThrot);
     max_thrust_sum_ += thrust_at_full_throt;
   }
-
-  return true;
 }
 
 bool ControllerNode::isCommandAccepted(const tobas_command_msgs::msg::Priority& priority)
@@ -376,10 +371,7 @@ void ControllerNode::droneCb(const Drone::ConstSharedPtr& drone)
   }
 
   if (!tree_.empty()) {
-    if (!updateInternalDataStructures()) {
-      TOBAS_FATAL("Error occurred while updating internal data structures.");
-      return;
-    }
+    updateInternalDataStructures();
   }
 }
 
@@ -388,10 +380,7 @@ void ControllerNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
   tree_ = *tree;
 
   if (!drone_.empty()) {
-    if (!updateInternalDataStructures()) {
-      TOBAS_FATAL("Error occurred while updating internal data structures.");
-      return;
-    }
+    updateInternalDataStructures();
   }
 }
 

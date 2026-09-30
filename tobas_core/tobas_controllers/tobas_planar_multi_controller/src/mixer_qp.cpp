@@ -19,18 +19,14 @@ QpMixer::QpMixer(const Drone& drone, const kdl::Tree& tree)
 {
 }
 
-std::expected<void, std::string> QpMixer::updateInternalDataStructures()
+void QpMixer::updateInternalDataStructures()
 {
-  if (const auto result = super::updateInternalDataStructures(); !result) {
-    return result;
-  }
+  super::updateInternalDataStructures();
 
   fk_solver_.updateInternalDataStructures();
   inertia_solver_.updateInternalDataStructures();
 
   resizeAndFill();
-
-  return {};
 }
 
 std::expected<Eigen::VectorXd, std::string> QpMixer::solve(

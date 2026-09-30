@@ -3,6 +3,7 @@
 
 #include "tobas_random_axis_tilt_multi_controller/mixer_sqp.hpp"
 
+#include <cassert>
 #include <ranges>
 #include <utility>
 
@@ -21,22 +22,17 @@ SqpMixer::SqpMixer(const Drone& drone, const kdl::Tree& tree)
 {
 }
 
-std::expected<void, std::string> SqpMixer::updateInternalDataStructures()
+void SqpMixer::updateInternalDataStructures()
 {
-  if (const auto result = super::updateInternalDataStructures(); !result) {
-    return result;
-  }
+  super::updateInternalDataStructures();
 
   joint_parser_.updateInternalDataStructures();
   fk_solver_.updateInternalDataStructures();
   inertia_solver_.updateInternalDataStructures();
-  if (const auto result = np_mixer_.updateInternalDataStructures(); !result) {
-    return result;
-  }
+  np_mixer_.updateInternalDataStructures();
 
   resetTensors();
-
-  return initializeSQP();
+  initializeSQP();
 }
 
 std::expected<MixerSolution, std::string> SqpMixer::solve(
@@ -194,21 +190,21 @@ void SqpMixer::resetTensors()
   df_dx_2_.conservativeResize(2 * nr, 2 * nr);
 }
 
-std::expected<void, std::string> SqpMixer::initializeSQP()
+void SqpMixer::initializeSQP()
 {
-  const auto q0 = kdl::JntArray::Zero(tree_.getNrOfJoints());
+  const auto nr = drone_.prop->numRotors();
+  const auto nj = tree_.getNrOfJoints();
+
+  const auto q0 = kdl::JntArray::Zero(nj);
   const auto R0 = kdl::Rotation::Identity();
   const auto v0 = kdl::Vector::Zero();
 
-  const auto init_thrusts = np_mixer_.solve(q0, R0, v0, v0, v0);
-  if (!init_thrusts) {
-    return std::unexpected("Failed to solve the Non-planar mixer: " + init_thrusts.error());
-  }
+  const auto mixer_result = np_mixer_.solve(q0, R0, v0, v0, v0);
+  const auto init_thrust = mixer_result ? *mixer_result : Eigen::VectorXd::Zero(nr);
 
-  const auto nr = drone_.prop->numRotors();
   Eigen::VectorXd x0(2 * nr);
   x0.head(nr).setZero();
-  x0.tail(nr) = *init_thrusts;
+  x0.tail(nr) = init_thrust;
 
   sqp_.initialize(
     x0,
@@ -221,8 +217,6 @@ std::expected<void, std::string> SqpMixer::initializeSQP()
     std::bind(&self::dFdx, this, std::placeholders::_1),
     std::bind(&self::dGdx, this, std::placeholders::_1),
     std::bind(&self::dHdx, this, std::placeholders::_1));
-
-  return {};
 }
 
 double SqpMixer::f(const Eigen::VectorXd& x)

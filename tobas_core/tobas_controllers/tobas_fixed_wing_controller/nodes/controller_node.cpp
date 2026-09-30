@@ -87,7 +87,7 @@ private:
   // Timers
   ros2::TimerPtr check_topics_timer_;
 
-  bool initialize();
+  void initialize();
   void updateCurrentStateVector();
   void updateSetStateVector();
   void publishThrusts(const builtin_interfaces::msg::Time& stamp, const Eigen::VectorXd& thrusts);
@@ -155,12 +155,10 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   check_topics_timer_ = createTimer(kCheckTopicsPeriod, &self::checkTopicsTimerCb, this);
 }
 
-bool ControllerNode::initialize()
+void ControllerNode::initialize()
 {
   mass_holder_.updateInternalDataStructures();
-  if (!eom_.updateInternalDataStructures()) {
-    return false;
-  }
+  eom_.updateInternalDataStructures();
 
   q_0_.resize(tree_.getNrOfJoints());
   q_0_.setZero();
@@ -192,7 +190,6 @@ bool ControllerNode::initialize()
   updateParameters();
 
   is_initialized_ = true;
-  return true;
 }
 
 void ControllerNode::updateCurrentStateVector()
@@ -427,10 +424,7 @@ void ControllerNode::droneCb(const Drone::ConstSharedPtr& drone)
   drone_ = *drone;
 
   if (!tree_.empty()) {
-    if (!initialize()) {
-      TOBAS_FATAL("Error occurred while initializing controller.");
-      return;
-    }
+    initialize();
   }
 }
 
@@ -439,10 +433,7 @@ void ControllerNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
   tree_ = *tree;
 
   if (!drone_.empty()) {
-    if (!initialize()) {
-      TOBAS_FATAL("Error occurred while initializing controller.");
-      return;
-    }
+    initialize();
   }
 }
 

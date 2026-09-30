@@ -102,7 +102,7 @@ private:
   // Timers
   ros2::TimerPtr check_topics_timer_;
 
-  bool updateInternalDataStructures();
+  void updateInternalDataStructures();
   void updateAttitudePDGain();
   void updateHeadingPDGain();
   bool isCommandAccepted(const tobas_command_msgs::msg::Priority& priority);
@@ -192,15 +192,10 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   check_topics_timer_ = createTimer(kCheckTopicsPeriod, &self::checkTopicsTimerCb, this);
 }
 
-bool ControllerNode::updateInternalDataStructures()
+void ControllerNode::updateInternalDataStructures()
 {
   js_converter_.updateInternalDataStructures();
-  if (const auto result = mixer_.updateInternalDataStructures(); !result) {
-    TOBAS_ERROR("Failed to update the mixer: ", result.error());
-    return false;
-  }
-
-  return true;
+  mixer_.updateInternalDataStructures();
 }
 
 void ControllerNode::updateAttitudePDGain()
@@ -346,10 +341,7 @@ void ControllerNode::droneCb(const Drone::ConstSharedPtr& drone)
   }
 
   if (!tree_.empty()) {
-    if (!updateInternalDataStructures()) {
-      TOBAS_FATAL("Error occurred while updating internal data structures.");
-      return;
-    }
+    updateInternalDataStructures();
   }
 }
 
@@ -358,10 +350,7 @@ void ControllerNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
   tree_ = *tree;
 
   if (!drone_.empty()) {
-    if (!updateInternalDataStructures()) {
-      TOBAS_FATAL("Error occurred while updating internal data structures.");
-      return;
-    }
+    updateInternalDataStructures();
   }
 }
 

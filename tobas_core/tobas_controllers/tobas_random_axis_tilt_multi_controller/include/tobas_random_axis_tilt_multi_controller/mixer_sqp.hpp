@@ -27,7 +27,7 @@ class SqpMixer : public MixerI
 public:
   explicit SqpMixer(const Drone& drone, const kdl::Tree& tree);
 
-  std::expected<void, std::string> updateInternalDataStructures() override;
+  void updateInternalDataStructures() override;
 
   std::expected<MixerSolution, std::string> solve(
     const kdl::JntArray& cur_q,
@@ -71,7 +71,7 @@ private:
   Eigen::MatrixXd df_dx_2_;
 
   void resetTensors();
-  std::expected<void, std::string> initializeSQP();
+  void initializeSQP();
 
   // Functions passed to SQP.
   double f(const Eigen::VectorXd& x);

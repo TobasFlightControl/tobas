@@ -17,7 +17,7 @@ class MixerI
 public:
   explicit MixerI(const Drone& drone, const kdl::Tree& tree);
 
-  virtual std::expected<void, std::string> updateInternalDataStructures();
+  virtual void updateInternalDataStructures();
 
   std::expected<void, std::string> setRotorLiveliness(const std::string& link_name, bool alive);
 

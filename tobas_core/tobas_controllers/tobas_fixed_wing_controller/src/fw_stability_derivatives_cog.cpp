@@ -3,6 +3,8 @@
 
 #include "tobas_fixed_wing_controller/fw_stability_derivatives_cog.hpp"
 
+#include <cassert>
+
 namespace tobas
 {
 namespace fixed_wing
@@ -12,14 +14,14 @@ StabilityDerivativesCG::StabilityDerivativesCG(const Drone& drone, const kdl::Tr
 {
 }
 
-bool StabilityDerivativesCG::updateInternalDataStructures()
+void StabilityDerivativesCG::updateInternalDataStructures()
 {
+  assert(drone_.fixed_wing);
+
   inertia_solver_.updateInternalDataStructures();
 
   c_pitch_delta_cg_.clear();
   c_yaw_delta_cg_.clear();
-
-  return true;
 }
 
 int StabilityDerivativesCG::update(const kdl::JntArray& q)

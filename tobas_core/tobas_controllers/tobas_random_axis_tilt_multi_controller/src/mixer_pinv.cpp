@@ -20,11 +20,9 @@ PinvMixer::PinvMixer(const Drone& drone, const kdl::Tree& tree)
 {
 }
 
-std::expected<void, std::string> PinvMixer::updateInternalDataStructures()
+void PinvMixer::updateInternalDataStructures()
 {
-  if (const auto result = super::updateInternalDataStructures(); !result) {
-    return result;
-  }
+  super::updateInternalDataStructures();
 
   fk_solver_.updateInternalDataStructures();
   inertia_solver_.updateInternalDataStructures();
@@ -59,8 +57,6 @@ std::expected<void, std::string> PinvMixer::updateInternalDataStructures()
       info.A.col(1).setZero();
     }
   }
-
-  return {};
 }
 
 std::expected<MixerSolution, std::string> PinvMixer::solve(

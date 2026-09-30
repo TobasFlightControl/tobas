@@ -14,19 +14,15 @@ PinvMixer::PinvMixer(const Drone& drone, const kdl::Tree& tree)
 {
 }
 
-std::expected<void, std::string> PinvMixer::updateInternalDataStructures()
+void PinvMixer::updateInternalDataStructures()
 {
-  if (const auto result = super::updateInternalDataStructures(); !result) {
-    return result;
-  }
+  super::updateInternalDataStructures();
 
   fk_solver_.updateInternalDataStructures();
   inertia_solver_.updateInternalDataStructures();
 
   E_.conservativeResize(Eigen::NoChange, drone_.prop->numRotors());
   E_.bottomRows<1>().setOnes();  // Left-hand side of the thrust-sum equality.
-
-  return {};
 }
 
 std::expected<Eigen::VectorXd, std::string> PinvMixer::solve(

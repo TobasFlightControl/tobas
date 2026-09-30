@@ -26,7 +26,7 @@ public:
     kError = -2,   // Serious error that should stop processing.
   };
 
-  virtual bool updateInternalDataStructures() = 0;
+  virtual void updateInternalDataStructures() = 0;
 
   inline const int& errorCode() const;
   inline const std::string& errorMessage() const;

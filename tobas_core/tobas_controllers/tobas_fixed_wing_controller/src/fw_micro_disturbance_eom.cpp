@@ -3,6 +3,7 @@
 
 #include "tobas_fixed_wing_controller/fw_micro_disturbance_eom.hpp"
 
+#include <cassert>
 #include <format>
 #include <ranges>
 
@@ -25,23 +26,16 @@ MicroDisturbanceEoM::MicroDisturbanceEoM(const Drone& drone, const kdl::Tree& tr
 {
 }
 
-bool MicroDisturbanceEoM::updateInternalDataStructures()
+void MicroDisturbanceEoM::updateInternalDataStructures()
 {
-  if (!drone_.fixed_wing) {
-    std::cerr << "The drone is not equipped with fixed wing." << std::endl;
-    return false;
-  }
+  assert(drone_.fixed_wing);
 
   fk_solver_.updateInternalDataStructures();
   inertia_solver_.updateInternalDataStructures();
-  if (!trim_.updateInternalDataStructures()) {
-    return false;
-  }
+  trim_.updateInternalDataStructures();
 
   resize();
   setInputLimits();
-
-  return true;
 }
 
 int MicroDisturbanceEoM::update(const double& V, const double& rho, const kdl::JntArray& q)

@@ -21,7 +21,7 @@ class StabilityDerivativesCG : public SolverI
 public:
   explicit StabilityDerivativesCG(const Drone& drone, const kdl::Tree& tree);
 
-  bool updateInternalDataStructures() override;
+  void updateInternalDataStructures() override;
 
   int update(const kdl::JntArray& q);
 

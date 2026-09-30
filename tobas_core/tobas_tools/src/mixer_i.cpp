@@ -3,24 +3,22 @@
 
 #include "tobas_tools/mixer_i.hpp"
 
+#include <cassert>
+
 namespace tobas
 {
 MixerI::MixerI(const Drone& drone, const kdl::Tree& tree) : drone_(drone), tree_(tree)
 {
 }
 
-std::expected<void, std::string> MixerI::updateInternalDataStructures()
+void MixerI::updateInternalDataStructures()
 {
-  if (const auto result = drone_.validate(); !result) {
-    return std::unexpected("Drone configuration is invalid: " + result.error());
-  }
+  assert(drone_.validate());
 
   rotor_alive_.clear();
   for (const auto& [link_name, _] : drone_.prop->rotors) {
     rotor_alive_[link_name] = true;
   }
-
-  return {};
 }
 
 std::expected<void, std::string> MixerI::setRotorLiveliness(const std::string& link_name, bool alive)

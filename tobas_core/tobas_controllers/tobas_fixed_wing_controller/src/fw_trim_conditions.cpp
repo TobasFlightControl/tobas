@@ -3,6 +3,7 @@
 
 #include "tobas_fixed_wing_controller/fw_trim_conditions.hpp"
 
+#include <cassert>
 #include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_tools/fixed_wing.hpp>
 
@@ -15,29 +16,19 @@ TrimConditions::TrimConditions(const Drone& drone, const kdl::Tree& tree)
 {
 }
 
-bool TrimConditions::updateInternalDataStructures()
+void TrimConditions::updateInternalDataStructures()
 {
   // Check drone configuration.
-  if (!drone_.fixed_wing) {
-    std::cerr << "The drone is not equipped with fixed wing." << std::endl;
-    return false;
-  }
-  if (drone_.fixed_wing->numControlSurfaces() == 0) {
-    std::cerr << "The drone must have at least 1 control surfaces." << std::endl;
-    return false;
-  }
+  assert(drone_.fixed_wing);
+  assert(drone_.fixed_wing->numControlSurfaces() > 0);
 
   // Update solvers.
   inertia_solver_.updateInternalDataStructures();
-  if (!asd_cog_.updateInternalDataStructures()) {
-    return false;
-  }
+  asd_cog_.updateInternalDataStructures();
 
   // Set mass.
-  if (inertia_solver_.jntToCart(kdl::JntArray::Zero(tree_.getNrOfJoints())) < 0) {
-    std::cerr << "Inertia solver failed: " << inertia_solver_.errorMessage() << std::endl;
-    return false;
-  }
+  [[maybe_unused]] const auto inertia_result = inertia_solver_.jntToCart(kdl::JntArray::Zero(tree_.getNrOfJoints()));
+  assert(inertia_result >= 0);
   W_ = inertia_solver_.getInertia().getMass() * st::kGravity;
 
   // Set elevator index.
@@ -56,16 +47,8 @@ bool TrimConditions::updateInternalDataStructures()
   a_ = aero.c_lift_alpha - aero.c_pitch_alpha * ml_raito;
   b_ = aero.c_lift_0 - aero.c_pitch_0 * ml_raito;
 
-  if (a_ <= 0.0) {
-    std::cerr << "The aerodynamic coefficient 'a' must be positive." << std::endl;
-    return false;
-  }
-  if (b_ <= 0.0) {
-    std::cerr << "The aerodynamic coefficient 'b' must be positive." << std::endl;
-    return false;
-  }
-
-  return true;
+  assert(a_ > 0.0);
+  assert(b_ > 0.0);
 }
 
 int TrimConditions::update(double V, const double& rho, const kdl::JntArray& q)
