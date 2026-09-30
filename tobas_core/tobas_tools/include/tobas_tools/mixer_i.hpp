@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <cmath>
 #include <expected>
 #include <string>
 
@@ -43,11 +44,11 @@ inline bool MixerI::isInitialized() const
 
 inline double MixerI::thrustDeadband(const double& thrust)
 {
-  return thrust < kZeroThrustThresh ? 0.0 : thrust;
+  return std::abs(thrust) > kZeroThrustThresh ? thrust : 0.0;
 }
 
 inline Eigen::VectorXd MixerI::thrustDeadband(const Eigen::VectorXd& thrusts)
 {
-  return (thrusts.array() < kZeroThrustThresh).select(0.0, thrusts);
+  return (thrusts.array().abs() > kZeroThrustThresh).select(thrusts, 0.0);
 }
 }  // namespace tobas
