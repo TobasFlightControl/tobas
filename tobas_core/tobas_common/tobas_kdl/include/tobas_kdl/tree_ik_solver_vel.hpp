@@ -3,26 +3,38 @@
 
 #pragma once
 
+#include <expected>
+#include <string>
+
 #include <tobas_quadprog/dual_active_set.hpp>
 
-#include "./tree_ik_solver.hpp"
 #include "./tree_jacobian_solver.hpp"
 #include "./tree_joint_parser.hpp"
+#include "./tree_solver_i.hpp"
 
 namespace tobas
 {
 namespace kdl
 {
-class TreeIkSolverVel_pinv : public TreeIkSolverVel
+class TreeIkSolverVel : public TreeSolverI
 {
-  using super = TreeIkSolverVel;
+  using super = TreeSolverI;
 
 public:
-  explicit TreeIkSolverVel_pinv(const Tree& tree);
+  explicit TreeIkSolverVel(const Tree& tree);
 
   void updateInternalDataStructures() override;
 
-  int cartToJnt(const JntArray& q_in, const TwistMap& v_in) override;
+  /**
+   * Calculate inverse velocity kinematics, from joint positions
+   * and cartesian velocities to joint velocities.
+   *
+   * @param q_in input joint positions
+   * @param v_in input cartesian velocity
+   *
+   * @return The solution, or the QP solver error.
+   */
+  std::expected<JntArray, std::string> cartToJnt(const JntArray& q_in, const TwistMap& v_in);
 
   const Eigen::Vector6d& getWeightTS() const;
   bool setWeightTS(const Eigen::Vector6d& Wt);
@@ -34,8 +46,8 @@ private:
   TreeJacobianSolver jnt2jac_;
   TreeJointParser jntparser_;
 
-  Eigen::Vector6d Wt_ = Eigen::Vector6d::Constant(kDefaultWeightTS);
-  double Wj_ = kDefaultWeightJS;
+  Eigen::Vector6d Wt_ = Eigen::Vector6d::Constant(1.0);
+  double Wj_ = 1e-3;   // TODO: Scale by the supported weight for each joint.
   Eigen::MatrixXd J_;  // Big jacobian
   Eigen::VectorXd t_;  // Big velocity in TS
 

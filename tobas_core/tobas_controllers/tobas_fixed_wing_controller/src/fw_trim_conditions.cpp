@@ -27,9 +27,8 @@ void TrimConditions::updateInternalDataStructures()
   asd_cog_.updateInternalDataStructures();
 
   // Set mass.
-  [[maybe_unused]] const auto inertia_result = inertia_solver_.jntToCart(kdl::JntArray::Zero(tree_.getNrOfJoints()));
-  assert(inertia_result >= 0);
-  W_ = inertia_solver_.getInertia().getMass() * st::kGravity;
+  const auto inertia = inertia_solver_.jntToCart(kdl::JntArray::Zero(tree_.getNrOfJoints()));
+  W_ = inertia.getMass() * st::kGravity;
 
   // Set elevator index.
   double max_c_pitch_delta = std::numeric_limits<double>::lowest();
@@ -58,7 +57,7 @@ int TrimConditions::update(double V, const double& rho, const kdl::JntArray& q)
 
   error_code_ = kNoError;
 
-  if (q.rows() != tree_.getNrOfJoints()) {
+  if (q.size() != tree_.getNrOfJoints()) {
     error_msg_ = kErrorSizeMismatch;
     return error_code_ = kError;
   }

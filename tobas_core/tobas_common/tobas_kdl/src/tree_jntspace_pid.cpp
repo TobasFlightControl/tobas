@@ -16,46 +16,36 @@ TreeJntSpacePID::TreeJntSpacePID(const Tree& tree, const Vector& grav) : super(t
 
 void TreeJntSpacePID::updateInternalDataStructures()
 {
-  super::updateInternalDataStructures();
-
   rne_.updateInternalDataStructures();
 
   resize();
 }
 
-int TreeJntSpacePID::cartToJnt(
+const JntArray& TreeJntSpacePID::cartToJnt(
   const JntArray& cur_q,
   const JntArray& cur_qd,
   const JntArray& tar_q,
   const JntArray& tar_qd,
   const JntArray& qdd_ff)
 {
-  if (!isUpToDate()) {
-    return setDefaultError(kNotUpToDate);
-  }
-  if (cur_q.rows() != nj_ || cur_qd.rows() != nj_ || tar_q.rows() != nj_ || tar_qd.rows() != nj_ || qdd_ff.rows() != nj_) {
-    return setDefaultError(kSizeMismatch);
-  }
+  assert(cur_q.size() == tree_.getNrOfJoints());
+  assert(cur_qd.size() == tree_.getNrOfJoints());
+  assert(tar_q.size() == tree_.getNrOfJoints());
+  assert(tar_qd.size() == tree_.getNrOfJoints());
+  assert(qdd_ff.size() == tree_.getNrOfJoints());
 
   // Compute target joint accelerations.
   // TODO: Add the I term.
   const auto tar_qdd = qdd_ff + kp_ * (tar_q - cur_q) + kd_ * (tar_qd - cur_qd);
 
   // Compute target joint efforts.
-  if (rne_.cartToJnt(cur_q, cur_qd, tar_qdd) < 0) {
-    return copyError(rne_);
-  }
-
-  return setDefaultError(kNoError);
+  return rne_.cartToJnt(cur_q, cur_qd, tar_qdd);
 }
 
-int TreeJntSpacePID::cartToJnt(
-  const JntArray& cur_q,
-  const JntArray& cur_qd,
-  const JntArray& tar_q,
-  const JntArray& tar_qd)
+const JntArray&
+TreeJntSpacePID::cartToJnt(const JntArray& cur_q, const JntArray& cur_qd, const JntArray& tar_q, const JntArray& tar_qd)
 {
-  return cartToJnt(cur_q, cur_qd, tar_q, tar_qd, zeros_);
+  return cartToJnt(cur_q, cur_qd, tar_q, tar_qd, q_zero_);
 }
 
 void TreeJntSpacePID::setStiffness(const double& kp)
@@ -72,7 +62,7 @@ void TreeJntSpacePID::setDamping(const double& kd)
 
 void TreeJntSpacePID::resize()
 {
-  zeros_ = JntArray::Zero(nj_);
+  q_zero_ = JntArray::Zero(tree_.getNrOfJoints());
 }
 }  // namespace kdl
 }  // namespace tobas

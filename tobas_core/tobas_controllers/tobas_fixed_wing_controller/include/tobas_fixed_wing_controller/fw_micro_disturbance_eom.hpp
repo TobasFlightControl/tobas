@@ -137,6 +137,7 @@ private:
   kdl::TreeFkSolverPos fk_solver_;
   kdl::TreeInertiaSolver inertia_solver_;
   TrimConditions trim_;
+  double mass_ = 0.0;
 
   size_t u_size_;
   Eigen::VectorXd min_u_;                     // Minimum control input.
@@ -374,7 +375,7 @@ inline const double& MicroDisturbanceEoM::r_phi() const
 
 inline double MicroDisturbanceEoM::u_thrust() const
 {
-  return 1 / inertia_solver_.getInertia().getMass();
+  return 1.0 / mass_;
 }
 
 inline const double& MicroDisturbanceEoM::alpha_delta(const size_t& cs_idx) const

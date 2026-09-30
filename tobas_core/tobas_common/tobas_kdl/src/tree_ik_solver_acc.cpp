@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include "tobas_kdl/tree_ik_solver_acc_rac.hpp"
+#include "tobas_kdl/tree_ik_solver_acc.hpp"
 
-#include <utility>
+#include <cassert>
 
 #include <tobas_eigen_tools/core.hpp>
 #include <tobas_quadprog/utils.hpp>
@@ -12,16 +12,13 @@ namespace tobas
 {
 namespace kdl
 {
-TreeIkSolverAcc_RAC::TreeIkSolverAcc_RAC(const Tree& tree)
-  : super(tree), jnt2jac_(tree_), jnt2jdqd_(tree_), jntparser_(tree_)
+TreeIkSolverAcc::TreeIkSolverAcc(const Tree& tree) : super(tree), jnt2jac_(tree_), jnt2jdqd_(tree_), jntparser_(tree_)
 {
   resize();
 }
 
-void TreeIkSolverAcc_RAC::updateInternalDataStructures()
+void TreeIkSolverAcc::updateInternalDataStructures()
 {
-  super::updateInternalDataStructures();
-
   jnt2jac_.updateInternalDataStructures();
   jnt2jdqd_.updateInternalDataStructures();
   jntparser_.updateInternalDataStructures();
@@ -29,36 +26,29 @@ void TreeIkSolverAcc_RAC::updateInternalDataStructures()
   resize();
 }
 
-int TreeIkSolverAcc_RAC::cartToJnt(const JntArray& q_in, const JntArray& qd_in, const AccelMap& acc_in)
+std::expected<JntArray, std::string>
+TreeIkSolverAcc::cartToJnt(const JntArray& q_in, const JntArray& qd_in, const AccelMap& acc_in)
 {
-  if (!isUpToDate()) {
-    return setDefaultError(kNotUpToDate);
-  }
-  if (q_in.rows() != nj_ || qd_in.rows()) {
-    return setDefaultError(kSizeMismatch);
-  }
+  assert(q_in.rows() == tree_.getNrOfJoints());
+  assert(qd_in.rows() == tree_.getNrOfJoints());
 
   const auto num_points = acc_in.size();
   const auto eq_dim = 6 * num_points;
 
   // Update Jdqd.
-  if (jnt2jdqd_.jntToCart(q_in, qd_in) < 0) {
-    return copyError(jnt2jdqd_);
-  }
+  const auto& jdqd = jnt2jdqd_.jntToCart(q_in, qd_in);
 
   // Create big jacobian and acceleration.
-  J_.conservativeResize(eq_dim, nj_);
+  J_.conservativeResize(eq_dim, tree_.getNrOfJoints());
   a_.conservativeResize(eq_dim);
   size_t i = 0;
   for (const auto& [seg_name, accel] : acc_in) {
     // Update big jacobian.
-    if (jnt2jac_.jntToJac(q_in, seg_name) < 0) {
-      return copyError(jnt2jac_);
-    }
-    J_.block(6 * i, 0, 6, nj_) = jnt2jac_.getJacobian().data;
+    const auto& jacob = jnt2jac_.jntToJac(q_in, seg_name);
+    J_.block(6 * i, 0, 6, tree_.getNrOfJoints()) = jacob.data;
 
     // Update big acceleration.
-    const auto& Jdqd = jnt2jdqd_.getJdqd(seg_name);
+    const auto& Jdqd = jdqd.at(seg_name);
     a_.segment(6 * i, 3) = (accel.linear - Jdqd.linear).data;
     a_.segment(6 * i + 3, 3) = (accel.angular - Jdqd.angular).data;
 
@@ -67,7 +57,7 @@ int TreeIkSolverAcc_RAC::cartToJnt(const JntArray& q_in, const JntArray& qd_in, 
 
   // Objective function.
   const Eigen::VectorXd Wt = eigen::tile(Wt_, num_points, 0);
-  const Eigen::VectorXd Wj = Eigen::VectorXd::Constant(nj_, Wj_);
+  const Eigen::VectorXd Wj = Eigen::VectorXd::Constant(tree_.getNrOfJoints(), Wj_);
   const Eigen::MatrixXd JT_Wt = J_.transpose() * Wt.asDiagonal();
   qp_solver_.problem.P = JT_Wt * J_;
   qp_solver_.problem.P.diagonal() += Wj;
@@ -76,7 +66,7 @@ int TreeIkSolverAcc_RAC::cartToJnt(const JntArray& q_in, const JntArray& qd_in, 
   // Inequality constraints.
   qdd_min_.fill(-INFINITY);
   qdd_max_.fill(INFINITY);
-  for (size_t j = 0; j < nj_; ++j) {
+  for (size_t j = 0; j < tree_.getNrOfJoints(); ++j) {
     // If the joint angle limit is already exceeded,
     // constrain the acceleration so the violation does not increase further.
     if (q_in(j) < jntparser_.lowerLimit(j)) {
@@ -91,14 +81,12 @@ int TreeIkSolverAcc_RAC::cartToJnt(const JntArray& q_in, const JntArray& qd_in, 
   // Solve the QP.
   const auto qdd_out = qp_solver_.solve();
   if (!qdd_out) {
-    return setDefaultError(kQpFailed);
+    return std::unexpected(qdd_out.error());
   }
-  qdd_out_.data = std::move(*qdd_out);
-
-  return setDefaultError(kNoError);
+  return JntArray(*qdd_out);
 }
 
-bool TreeIkSolverAcc_RAC::setWeightTS(const Eigen::Vector6d& Wt)
+bool TreeIkSolverAcc::setWeightTS(const Eigen::Vector6d& Wt)
 {
   if ((Wt.array() < 0).any()) {
     return false;
@@ -108,12 +96,12 @@ bool TreeIkSolverAcc_RAC::setWeightTS(const Eigen::Vector6d& Wt)
   return true;
 }
 
-const Eigen::Vector6d& TreeIkSolverAcc_RAC::getWeightTS() const
+const Eigen::Vector6d& TreeIkSolverAcc::getWeightTS() const
 {
   return Wt_;
 }
 
-bool TreeIkSolverAcc_RAC::setWeightJS(const double& Wj)
+bool TreeIkSolverAcc::setWeightJS(const double& Wj)
 {
   // Always include a regularization term to prevent numerical errors.
   if (Wj <= 0) {
@@ -124,18 +112,18 @@ bool TreeIkSolverAcc_RAC::setWeightJS(const double& Wj)
   return true;
 }
 
-const double& TreeIkSolverAcc_RAC::getWeightJS() const
+const double& TreeIkSolverAcc::getWeightJS() const
 {
   return Wj_;
 }
 
-void TreeIkSolverAcc_RAC::resize()
+void TreeIkSolverAcc::resize()
 {
-  qdd_min_.conservativeResize(nj_);
-  qdd_max_.conservativeResize(nj_);
+  qdd_min_.conservativeResize(tree_.getNrOfJoints());
+  qdd_max_.conservativeResize(tree_.getNrOfJoints());
 
-  qp_solver_.x_scale = Eigen::VectorXd::Ones(nj_);
-  qp_solver_.problem.G.conservativeResize(0, nj_);
+  qp_solver_.x_scale = Eigen::VectorXd::Ones(tree_.getNrOfJoints());
+  qp_solver_.problem.G.conservativeResize(0, tree_.getNrOfJoints());
   qp_solver_.problem.h.conservativeResize(0);
 }
 }  // namespace kdl

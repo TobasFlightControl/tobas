@@ -15,29 +15,25 @@ TreeDynParam::TreeDynParam(const Tree& tree, const Vector& grav)
 
 void TreeDynParam::updateInternalDataStructures()
 {
-  super::updateInternalDataStructures();
-
   rne_coriolis_.updateInternalDataStructures();
   rne_gravity_.updateInternalDataStructures();
 
   resize();
 }
 
-int TreeDynParam::jntToCoriolis(const JntArray& q, const JntArray& qd)
+const JntArray& TreeDynParam::jntToCoriolis(const JntArray& q, const JntArray& qd)
 {
-  rne_coriolis_.cartToJnt(q, qd, jntarray_null_);
-  return copyError(rne_coriolis_);
+  return rne_coriolis_.cartToJnt(q, qd, q_zero_);
 }
 
-int TreeDynParam::jntToGravity(const JntArray& q)
+const JntArray& TreeDynParam::jntToGravity(const JntArray& q)
 {
-  rne_gravity_.cartToJnt(q, jntarray_null_, jntarray_null_);
-  return copyError(rne_gravity_);
+  return rne_gravity_.cartToJnt(q, q_zero_, q_zero_);
 }
 
 void TreeDynParam::resize()
 {
-  jntarray_null_ = JntArray::Zero(nj_);
+  q_zero_ = JntArray::Zero(tree_.getNrOfJoints());
 }
 }  // namespace kdl
 }  // namespace tobas

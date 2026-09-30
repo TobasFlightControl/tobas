@@ -19,7 +19,6 @@ Tree::Tree(const Tree& arg)
   segments_.clear();
   root_name_ = arg.root_name_;
   nj_ = 0;
-  ns_ = 0;
 
   segments_.insert(std::make_pair(root_name_, TreeElement::Root(root_name_)));
   if (!addTree(arg, root_name_)) {
@@ -32,7 +31,6 @@ Tree& Tree::operator=(const Tree& arg)
   segments_.clear();
   root_name_ = arg.root_name_;
   nj_ = 0;
-  ns_ = 0;
 
   segments_.insert(std::make_pair(root_name_, TreeElement::Root(root_name_)));
   if (!addTree(arg, root_name_)) {
@@ -132,7 +130,6 @@ void Tree::clear()
   segments_.clear();
   root_name_.clear();
   nj_ = 0;
-  ns_ = 0;
 }
 
 std::expected<void, std::string> Tree::validate() const
@@ -200,9 +197,6 @@ bool Tree::addSegment(const Segment& segment, const std::string& hook_name)
   // Add iterator to new element in parents children list.
   parent->second.children.push_back(retval.first);
 
-  // Increase number of segments.
-  ++ns_;
-
   // Increase number of joints.
   if (segment.joint().type != Joint::kFixed) {
     ++nj_;
@@ -243,20 +237,6 @@ bool Tree::removeSegment(const std::string& seg_name)
   const auto parent = segments_.find(seg_it->second.parent->first);
   std::erase(parent->second.children, seg_it);
   segments_.erase(seg_it);
-  --ns_;
-
-  return true;
-}
-
-bool Tree::addChain(const Chain& chain, const std::string& hook_name)
-{
-  auto parent_name = hook_name;
-  for (const auto& segment : chain.segments) {
-    if (!addSegment(segment, parent_name)) {
-      return false;
-    }
-    parent_name = segment.name();
-  }
 
   return true;
 }
@@ -275,75 +255,6 @@ bool Tree::addTreeRecursive(const SegmentMap::const_iterator& seg, const std::st
     if (!addTreeRecursive(child, child->first)) {
       return false;
     }
-  }
-
-  return true;
-}
-
-bool Tree::getChain(const std::string& root_name, const std::string& tip_name, Chain& chain) const
-{
-  // Clear chain.
-  chain.clear();
-
-  // Walk down from `root_name` and `tip_name` to the seg of the tree.
-  std::vector<SegmentMap::key_type> parents_chain_root, parents_chain_tip;
-  for (auto s = getSegment(root_name); s != segments_.end(); s = s->second.parent) {
-    parents_chain_root.push_back(s->first);
-    if (s->first == root_name_) {
-      break;
-    }
-  }
-  if (parents_chain_root.empty() || parents_chain_root.back() != root_name_) {
-    std::cerr << "Root segment '" + root_name + "' does not exist in the tree." << std::endl;
-    return false;
-  }
-
-  for (auto s = getSegment(tip_name); s != segments_.end(); s = s->second.parent) {
-    parents_chain_tip.push_back(s->first);
-    if (s->first == root_name_) {
-      break;
-    }
-  }
-  if (parents_chain_tip.empty() || parents_chain_tip.back() != root_name_) {
-    std::cerr << "Tip segment '" + tip_name + "' does not exist in the tree." << std::endl;
-    return false;
-  }
-
-  // Remove common part of segment lists.
-  auto last_segment = root_name_;
-  while (!parents_chain_root.empty() && !parents_chain_tip.empty() &&
-         parents_chain_root.back() == parents_chain_tip.back()) {
-    last_segment = parents_chain_root.back();
-    parents_chain_root.pop_back();
-    parents_chain_tip.pop_back();
-  }
-  parents_chain_root.push_back(last_segment);
-
-  // Add the segments from the seg to the common frame.
-  for (size_t s = 0; s < parents_chain_root.size() - 1; ++s) {
-    const auto& seg = getSegment(parents_chain_root[s])->second.segment;
-    const auto f_tip = seg.pose(0).inverse();
-    auto jnt = seg.joint();
-    if (jnt.type == Joint::kRotation) {
-      jnt.type = Joint::kRotation;
-      jnt.origin = f_tip * jnt.origin;
-      jnt.axis(f_tip.M * (-jnt.axis()));
-    }
-    else if (jnt.type == Joint::kTranslation) {
-      jnt.type = Joint::kTranslation;
-      jnt.origin = f_tip * jnt.origin;
-      jnt.axis(f_tip.M * (-jnt.axis()));
-    }
-    chain.addSegment(Segment(
-      getSegment(parents_chain_root[s + 1])->second.segment.name(),
-      jnt,
-      f_tip,
-      getSegment(parents_chain_root[s + 1])->second.segment.inertia()));
-  }
-
-  // Add the segments from the common frame to the tip frame.
-  for (auto rit = parents_chain_tip.rbegin(); rit != parents_chain_tip.rend(); ++rit) {
-    chain.addSegment(getSegment(*rit)->second.segment);
   }
 
   return true;

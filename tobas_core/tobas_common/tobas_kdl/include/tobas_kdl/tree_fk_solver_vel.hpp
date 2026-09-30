@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <string>
+
 #include "./frame_vel.hpp"
 #include "./jntarray.hpp"
 #include "./tree_solver_i.hpp"
@@ -18,19 +20,10 @@ class TreeFkSolverVel : public TreeSolverI
 public:
   explicit TreeFkSolverVel(const Tree& tree);
 
-  int jntToCart(const JntArray& q, const JntArray& qd, const std::string& seg_name);
-
-  inline const FrameVel& getFrameVel() const;
+  FrameVel jntToCart(const JntArray& q, const JntArray& qd, const std::string& seg_name);
 
 private:
-  FrameVel p_out_;
-
   FrameVel recursiveFk(const JntArray& q, const JntArray& qd, const SegmentMap::const_iterator& seg_it);
 };
-
-inline const FrameVel& TreeFkSolverVel::getFrameVel() const
-{
-  return p_out_;
-}
 }  // namespace kdl
 }  // namespace tobas

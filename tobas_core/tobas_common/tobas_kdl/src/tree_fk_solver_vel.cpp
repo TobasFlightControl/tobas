@@ -3,6 +3,8 @@
 
 #include "tobas_kdl/tree_fk_solver_vel.hpp"
 
+#include <cassert>
+
 namespace tobas
 {
 namespace kdl
@@ -11,26 +13,18 @@ TreeFkSolverVel::TreeFkSolverVel(const Tree& tree) : super(tree)
 {
 }
 
-int TreeFkSolverVel::jntToCart(const JntArray& q, const JntArray& qd, const std::string& seg_name)
+FrameVel TreeFkSolverVel::jntToCart(const JntArray& q, const JntArray& qd, const std::string& seg_name)
 {
-  if (!isUpToDate()) {
-    return setDefaultError(kNotUpToDate);
-  }
-  if (q.rows() != nj_ || qd.rows() != nj_) {
-    return setDefaultError(kSizeMismatch);
-  }
-  if (!tree_.hasSegment(seg_name)) {
-    return setDefaultError(kOutputRange);
-  }
+  assert(q.size() == tree_.getNrOfJoints());
+  assert(qd.size() == tree_.getNrOfJoints());
+  assert(tree_.hasSegment(seg_name));
 
   const auto seg_it = tree_.getSegment(seg_name);
-  p_out_ = recursiveFk(q, qd, seg_it);
-  return setDefaultError(kNoError);
+  return recursiveFk(q, qd, seg_it);
 }
 
 FrameVel TreeFkSolverVel::recursiveFk(const JntArray& q, const JntArray& qd, const SegmentMap::const_iterator& cur_it)
 {
-  // Get the FraveVel for the current segment.
   const auto& cur_ele = cur_it->second;
   const auto& cur_seg = cur_ele.segment;
   const auto& cur_idx = cur_ele.q_nr;

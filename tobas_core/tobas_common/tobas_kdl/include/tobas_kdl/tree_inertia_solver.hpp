@@ -18,24 +18,11 @@ class TreeInertiaSolver : public TreeSolverI
 public:
   explicit TreeInertiaSolver(const Tree& tree);
 
-  void updateInternalDataStructures() override;
-
   /* Compute mass properties around the root link. */
-  int jntToCart(const JntArray& q);
-
-  inline const RigidBodyInertia& getInertia() const;
+  RigidBodyInertia jntToCart(const JntArray& q);
 
 private:
-  std::map<std::string, Frame> X_;
-  std::map<std::string, RigidBodyInertia> I_;
-
-  void initialize();
-  void step(const SegmentMap::const_iterator& cur_it, const JntArray& q);
+  RigidBodyInertia jntToCartRec(const SegmentMap::const_iterator& cur_it, const JntArray& q);
 };
-
-inline const RigidBodyInertia& TreeInertiaSolver::getInertia() const
-{
-  return I_.at(tree_.getRootSegment()->first);
-}
 }  // namespace kdl
 }  // namespace tobas

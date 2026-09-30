@@ -35,15 +35,10 @@ std::expected<Eigen::VectorXd, std::string> PinvMixer::solve(
   assert(tar_thrusts_sum > 0);
 
   // Compute forward kinematics.
-  if (fk_solver_.jntToCart(cur_q) < 0) {
-    return std::unexpected("Forward kinematics failed: " + fk_solver_.errorMessage());
-  }
+  const auto& frames = fk_solver_.jntToCart(cur_q);
 
   // Compute mass properties.
-  if (inertia_solver_.jntToCart(cur_q) < 0) {
-    return std::unexpected("Inertia solver failed: " + inertia_solver_.errorMessage());
-  }
-  const auto& inertia = inertia_solver_.getInertia();
+  const auto inertia = inertia_solver_.jntToCart(cur_q);
   const auto B_Pos_B2G = inertia.getCOG();
   const auto I_B = inertia.getRotationalInertiaCoG();
 
@@ -52,10 +47,10 @@ std::expected<Eigen::VectorXd, std::string> PinvMixer::solve(
     const auto& rotor = pair.second;
 
     if (rotor_alive_[rotor->link_name]) {
-      const auto& B_Pos_B2P = fk_solver_.getFrame(rotor->link_name).p;
+      const auto& B_Pos_B2P = frames.at(rotor->link_name).p;
 
       const auto& elem = tree_.getSegment(rotor->link_name)->second;
-      const auto& B_Rot_Par = fk_solver_.getFrame(elem.parent->first).M;
+      const auto& B_Rot_Par = frames.at(elem.parent->first).M;
       const auto axis_B = B_Rot_Par * elem.segment.joint().axis();
 
       const auto d = rotor->sign();

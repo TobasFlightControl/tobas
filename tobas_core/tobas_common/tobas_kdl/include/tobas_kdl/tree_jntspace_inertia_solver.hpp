@@ -4,16 +4,13 @@
 #pragma once
 
 #include "./jntspace_inertia_matrix.hpp"
-#include "./tree_id_solver_rne.hpp"
+#include "./tree_id_solver.hpp"
 #include "./tree_solver_i.hpp"
 
 namespace tobas
 {
 namespace kdl
 {
-/**
- * @brief Tree version of `kdl::ChainDynParam`.
- */
 class TreeJntSpaceInertiaSolver : public TreeSolverI
 {
   using super = TreeSolverI;
@@ -28,23 +25,19 @@ public:
    *
    * @param q Joint angles.
    */
-  int jntToMass(const JntArray& q);
-
-  inline const JntSpaceInertiaMatrix& getMass() const;
+  const JntSpaceInertiaMatrix& jntToMass(const JntArray& q);
 
 private:
-  TreeIdSolver_RNE rne_;
+  TreeIdSolver rne_bias_, rne_mass_;
 
+  size_t nj_;
   std::vector<JntArray> elements_;
-  JntSpaceInertiaMatrix H_out_;
-  JntArray jntarray_null_;
+  JntArray q_zero_;
+
+  JntSpaceInertiaMatrix mass_out_;
 
   void resize();
 };
 
-inline const JntSpaceInertiaMatrix& TreeJntSpaceInertiaSolver::getMass() const
-{
-  return H_out_;
-}
 }  // namespace kdl
 }  // namespace tobas

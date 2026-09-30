@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "./tree_id_solver_rne.hpp"
+#include "./tree_id_solver.hpp"
 
 namespace tobas
 {
@@ -21,32 +21,26 @@ public:
 
   void updateInternalDataStructures() override;
 
-  int cartToJnt(
+  const JntArray& cartToJnt(
     const JntArray& cur_q,
     const JntArray& cur_qd,
     const JntArray& tar_q,
     const JntArray& tar_qd,
     const JntArray& qdd_ff);
-  int cartToJnt(const JntArray& cur_q, const JntArray& cur_qd, const JntArray& tar_q, const JntArray& tar_qd);
+  const JntArray&
+  cartToJnt(const JntArray& cur_q, const JntArray& cur_qd, const JntArray& tar_q, const JntArray& tar_qd);
 
   void setStiffness(const double& kp);
   void setDamping(const double& kd);
 
-  inline const JntArray& getEfforts() const;
-
 private:
-  TreeIdSolver_RNE rne_;
-  JntArray zeros_;
+  TreeIdSolver rne_;
+  JntArray q_zero_;
 
   double kp_ = kDefaultStiffness;
   double kd_ = kDefaultDamping;
 
   void resize();
 };
-
-inline const JntArray& TreeJntSpacePID::getEfforts() const
-{
-  return rne_.getEfforts();
-}
 }  // namespace kdl
 }  // namespace tobas

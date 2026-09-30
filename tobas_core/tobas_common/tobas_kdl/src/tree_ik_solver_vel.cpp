@@ -1,8 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include "tobas_kdl/tree_ik_solver_vel_pinv.hpp"
+#include "tobas_kdl/tree_ik_solver_vel.hpp"
 
+#include <cassert>
+#include <ranges>
 #include <utility>
 
 #include <tobas_eigen_tools/core.hpp>
@@ -12,54 +14,44 @@ namespace tobas
 {
 namespace kdl
 {
-TreeIkSolverVel_pinv::TreeIkSolverVel_pinv(const Tree& tree) : super(tree), jnt2jac_(tree_), jntparser_(tree_)
+TreeIkSolverVel::TreeIkSolverVel(const Tree& tree) : super(tree), jnt2jac_(tree_), jntparser_(tree_)
 {
   resize();
 }
 
-void TreeIkSolverVel_pinv::updateInternalDataStructures()
+void TreeIkSolverVel::updateInternalDataStructures()
 {
-  super::updateInternalDataStructures();
-
   jnt2jac_.updateInternalDataStructures();
   jntparser_.updateInternalDataStructures();
 
   resize();
 }
 
-int TreeIkSolverVel_pinv::cartToJnt(const JntArray& q_in, const TwistMap& v_in)
+std::expected<JntArray, std::string> TreeIkSolverVel::cartToJnt(const JntArray& q_in, const TwistMap& v_in)
 {
-  if (!isUpToDate()) {
-    return setDefaultError(kNotUpToDate);
-  }
-  if (q_in.rows() != nj_) {
-    return setDefaultError(kSizeMismatch);
-  }
+  assert(q_in.rows() == tree_.getNrOfJoints());
 
   const auto num_points = v_in.size();
   const auto eq_dim = 6 * num_points;
 
   // Create big jacobian and velocity.
-  J_.conservativeResize(eq_dim, nj_);
+  J_.conservativeResize(eq_dim, tree_.getNrOfJoints());
   t_.conservativeResize(eq_dim);
-  size_t i = 0;
-  for (const auto& [seg_name, twist] : v_in) {
+  for (const auto& [i, entry] : std::views::enumerate(v_in)) {
+    const auto& [seg_name, twist] = entry;
+
     // Update big jacobian.
-    if (jnt2jac_.jntToJac(q_in, seg_name) < 0) {
-      return copyError(jnt2jac_);
-    }
-    J_.block(6 * i, 0, 6, nj_) = jnt2jac_.getJacobian().data;
+    const auto& jacob = jnt2jac_.jntToJac(q_in, seg_name);
+    J_.block(6 * i, 0, 6, tree_.getNrOfJoints()) = jacob.data;
 
     // Update big velocity.
     t_.segment(6 * i, 3) = twist.vel.data;
     t_.segment(6 * i + 3, 3) = twist.rot.data;
-
-    ++i;
   }
 
   // Objective function.
   const Eigen::VectorXd Wt = eigen::tile(Wt_, num_points, 0);
-  const Eigen::VectorXd Wj = Eigen::VectorXd::Constant(nj_, Wj_);
+  const Eigen::VectorXd Wj = Eigen::VectorXd::Constant(tree_.getNrOfJoints(), Wj_);
   const Eigen::MatrixXd JT_Wt = J_.transpose() * Wt.asDiagonal();
   qp_solver_.problem.P = JT_Wt * J_;
   qp_solver_.problem.P.diagonal() += Wj;
@@ -68,7 +60,7 @@ int TreeIkSolverVel_pinv::cartToJnt(const JntArray& q_in, const TwistMap& v_in)
   // Inequality constraints.
   auto qd_min = -jntparser_.maxVelocities();
   auto qd_max = +jntparser_.maxVelocities();
-  for (size_t j = 0; j < nj_; ++j) {
+  for (size_t j = 0; j < tree_.getNrOfJoints(); ++j) {
     // If the joint angle limit is already exceeded,
     // constrain the velocity so the violation does not increase further.
     if (q_in(j) < jntparser_.lowerLimit(j)) {
@@ -83,14 +75,12 @@ int TreeIkSolverVel_pinv::cartToJnt(const JntArray& q_in, const TwistMap& v_in)
   // Solve the QP.
   const auto qd_out = qp_solver_.solve();
   if (!qd_out) {
-    return setDefaultError(kQpFailed);
+    return std::unexpected(qd_out.error());
   }
-  qd_out_.data = std::move(*qd_out);
-
-  return setDefaultError(kNoError);
+  return JntArray(*qd_out);
 }
 
-bool TreeIkSolverVel_pinv::setWeightTS(const Eigen::Vector6d& Wt)
+bool TreeIkSolverVel::setWeightTS(const Eigen::Vector6d& Wt)
 {
   if ((Wt.array() < 0).any()) {
     return false;
@@ -100,12 +90,12 @@ bool TreeIkSolverVel_pinv::setWeightTS(const Eigen::Vector6d& Wt)
   return true;
 }
 
-const Eigen::Vector6d& TreeIkSolverVel_pinv::getWeightTS() const
+const Eigen::Vector6d& TreeIkSolverVel::getWeightTS() const
 {
   return Wt_;
 }
 
-bool TreeIkSolverVel_pinv::setWeightJS(const double& Wj)
+bool TreeIkSolverVel::setWeightJS(const double& Wj)
 {
   // Always include a regularization term to prevent numerical errors.
   if (Wj <= 0) {
@@ -116,15 +106,15 @@ bool TreeIkSolverVel_pinv::setWeightJS(const double& Wj)
   return true;
 }
 
-const double& TreeIkSolverVel_pinv::getWeightJS() const
+const double& TreeIkSolverVel::getWeightJS() const
 {
   return Wj_;
 }
 
-void TreeIkSolverVel_pinv::resize()
+void TreeIkSolverVel::resize()
 {
-  qp_solver_.x_scale = Eigen::VectorXd::Ones(nj_);
-  qp_solver_.problem.G.conservativeResize(0, nj_);
+  qp_solver_.x_scale = Eigen::VectorXd::Ones(tree_.getNrOfJoints());
+  qp_solver_.problem.G.conservativeResize(0, tree_.getNrOfJoints());
   qp_solver_.problem.h.conservativeResize(0);
 }
 }  // namespace kdl

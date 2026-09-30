@@ -557,8 +557,8 @@ void ControllerNode::jointStateCb(const tobas_msgs::msg::JointStateArray::ConstS
 {
   // Assume that information for different joints may arrive in separate messages,
   // and convert to KDL inside the callback instead of storing the message itself.
-  if (js_converter_.convert(*js) < 0) {
-    TOBAS_ERROR("Joint state converter failed: ", js_converter_.errorMessage());
+  if (const auto result = js_converter_.convert(*js); !result) {
+    TOBAS_ERROR("Joint state converter failed: ", result.error());
     return;
   }
 

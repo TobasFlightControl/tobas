@@ -141,8 +141,8 @@ void DisturbanceObserverNode::rotorLivelinessCb(
 
 void DisturbanceObserverNode::jointStatesCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& joint_states)
 {
-  if (js_converter_.convert(*joint_states) < 0) {
-    TOBAS_ERROR("Joint state converter failed: ", js_converter_.errorMessage());
+  if (const auto result = js_converter_.convert(*joint_states); !result) {
+    TOBAS_ERROR("Joint state converter failed: ", result.error());
     return;
   }
 
@@ -164,17 +164,11 @@ void DisturbanceObserverNode::odomCb(const tobas_msgs::OdometryWithCovarianceSta
   }
 
   // Calculate forward kinematics.
-  if (fk_solver_.jntToCart(js_converter_.getPosition()) < 0) {
-    TOBAS_ERROR("Forward kinematics failed: ", fk_solver_.errorMessage());
-    return;
-  }
+  const auto& fk_solver_result = fk_solver_.jntToCart(js_converter_.getPosition());
 
   // Calculate mass properties.
-  if (inertia_solver_.jntToCart(js_converter_.getPosition()) < 0) {
-    TOBAS_ERROR("Inertia solver failed: ", inertia_solver_.errorMessage());
-    return;
-  }
-  const auto& inertia = inertia_solver_.getInertia();
+  const auto inertia_solver_result = inertia_solver_.jntToCart(js_converter_.getPosition());
+  const auto& inertia = inertia_solver_result;
   const auto B_Pos_B2G = inertia.getCOG();
   const auto I_B = inertia.getRotationalInertiaCoG();
   const auto& mass = inertia.getMass();
@@ -187,12 +181,12 @@ void DisturbanceObserverNode::odomCb(const tobas_msgs::OdometryWithCovarianceSta
     const auto& rotor = drone_->prop->rotors.at(link_name);
 
     const auto& elem = tree_.getSegment(link_name)->second;
-    const auto& B_Rot_Par = fk_solver_.getFrame(elem.parent->first).M;
+    const auto& B_Rot_Par = fk_solver_result.at(elem.parent->first).M;
     const auto axis_B = B_Rot_Par * elem.segment.joint().axis();
 
     const auto d = rotor->sign();
     const auto cm = rotor->momentConst();
-    const auto& B_Pos_B2P = fk_solver_.getFrame(link_name).p;
+    const auto& B_Pos_B2P = fk_solver_result.at(link_name).p;
     const auto B_Pos_G2P = B_Pos_B2P - B_Pos_B2G;
 
     trans_sum += axis_B * thrust;

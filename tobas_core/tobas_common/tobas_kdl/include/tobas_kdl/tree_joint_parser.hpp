@@ -106,7 +106,7 @@ inline const JntArray& TreeJointParser::upperLimits() const
 
 inline double TreeJointParser::upperLimit(const size_t& q_nr) const
 {
-  assert(q_nr < nj_);
+  assert(q_nr < tree_.getNrOfJoints());
   return upper_limits_(q_nr);
 }
 
@@ -122,7 +122,7 @@ inline const JntArray& TreeJointParser::maxVelocities() const
 
 inline double TreeJointParser::maxVelocity(const size_t& q_nr) const
 {
-  assert(q_nr < nj_);
+  assert(q_nr < tree_.getNrOfJoints());
   return max_velocities_(q_nr);
 }
 

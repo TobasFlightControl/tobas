@@ -56,6 +56,7 @@ private:
   nonplanar_multicopter::QpMixer np_mixer_;
 
   nlp::SQP sqp_;
+  const kdl::FrameMap* frames_ = nullptr;  // Owned by `fk_solver_`; reused by the SQP callbacks.
 
   Eigen::Diagonal6d Q_;  // EoM weights.
   Eigen::DiagonalXd R_;  // Thrust weights.

@@ -9,65 +9,56 @@ namespace tobas
 {
 namespace kdl
 {
-TreeTaskSpaceVelCtrl::TreeTaskSpaceVelCtrl(const Tree& tree) : super(tree), fk_(tree), ik_(tree)
+TreeTaskSpaceVelCtrl::TreeTaskSpaceVelCtrl(const Tree& _tree) : super(_tree), fk_(_tree), ik_(_tree)
 {
   constexpr double kDefaultTimeConst = 0.3;  // [s]
-  setLinearTimeConst(Vector::Constant(kDefaultTimeConst));
-  setAngularTimeConst(Vector::Constant(kDefaultTimeConst));
+  setLinearTimeConst(kDefaultTimeConst);
+  setAngularTimeConst(kDefaultTimeConst);
 }
 
 void TreeTaskSpaceVelCtrl::updateInternalDataStructures()
 {
-  super::updateInternalDataStructures();
-
   fk_.updateInternalDataStructures();
   ik_.updateInternalDataStructures();
 }
 
-int TreeTaskSpaceVelCtrl::cartToJnt(const JntArray& cur_q, const FrameMap& tar_p)
+std::expected<JntArray, std::string> TreeTaskSpaceVelCtrl::cartToJnt(const JntArray& _cur_q, const FrameMap& _tar_p)
 {
   // Create target twist map.
   TwistMap tar_v;
-  for (const auto& [seg_name, frame] : tar_p) {
+  for (const auto& [seg_name, tar_p] : _tar_p) {
     // Compute current frame and twist.
-    if (fk_.jntToCart(cur_q, seg_name) < 0) {
-      return copyError(fk_);
-    }
-
+    const auto cur_p = fk_.jntToCart(_cur_q, seg_name);
     // Compute target cartesian velocity.
-    tar_v[seg_name] = gain_ * (frame - fk_.getFrame());
+    tar_v[seg_name] = gain_ * (tar_p - cur_p);
   }
 
   // Compute target joint velocities.
-  if (ik_.cartToJnt(cur_q, tar_v) < 0) {
-    return copyError(ik_);
-  }
-
-  return setDefaultError(kNoError);
+  return ik_.cartToJnt(_cur_q, tar_v);
 }
 
-void TreeTaskSpaceVelCtrl::setLinearTimeConst(const Vector& t)
+void TreeTaskSpaceVelCtrl::setLinearTimeConst(const Vector& _t)
 {
-  assert(t.x() > 0.0 && t.y() > 0.0 && t.z() > 0.0);
-  gain_.linear = t.inverse();
+  assert(_t.x() > 0.0 && _t.y() > 0.0 && _t.z() > 0.0);
+  gain_.linear = _t.inverse();
 }
 
-void TreeTaskSpaceVelCtrl::setAngularTimeConst(const Vector& t)
+void TreeTaskSpaceVelCtrl::setAngularTimeConst(const Vector& _t)
 {
-  assert(t.x() > 0.0 && t.y() > 0.0 && t.z() > 0.0);
-  gain_.angular = t.inverse();
+  assert(_t.x() > 0.0 && _t.y() > 0.0 && _t.z() > 0.0);
+  gain_.angular = _t.inverse();
 }
 
-void TreeTaskSpaceVelCtrl::setLinearTimeConst(const double& t)
+void TreeTaskSpaceVelCtrl::setLinearTimeConst(const double& _t)
 {
-  assert(t > 0.0);
-  gain_.linear.fill(1.0 / t);
+  assert(_t > 0.0);
+  gain_.linear.fill(1.0 / _t);
 }
 
-void TreeTaskSpaceVelCtrl::setAngularTimeConst(const double& t)
+void TreeTaskSpaceVelCtrl::setAngularTimeConst(const double& _t)
 {
-  assert(t > 0.0);
-  gain_.angular.fill(1.0 / t);
+  assert(_t > 0.0);
+  gain_.angular.fill(1.0 / _t);
 }
 }  // namespace kdl
 }  // namespace tobas

@@ -3,9 +3,12 @@
 
 #pragma once
 
+#include <expected>
+#include <string>
+
 #include "./taskspace_damping.hpp"
 #include "./tree_fk_solver_pos.hpp"
-#include "./tree_ik_solver_vel_pinv.hpp"
+#include "./tree_ik_solver_vel.hpp"
 
 namespace tobas
 {
@@ -16,29 +19,23 @@ class TreeTaskSpaceVelCtrl : public TreeSolverI
   using super = TreeSolverI;
 
 public:
-  explicit TreeTaskSpaceVelCtrl(const Tree& tree);
+  explicit TreeTaskSpaceVelCtrl(const Tree& _tree);
 
   void updateInternalDataStructures() override;
 
-  int cartToJnt(const JntArray& cur_q, const FrameMap& tar_p);
+  std::expected<JntArray, std::string> cartToJnt(const JntArray& _cur_q, const FrameMap& _tar_p);
 
-  void setLinearTimeConst(const Vector& t);
-  void setAngularTimeConst(const Vector& t);
-  void setLinearTimeConst(const double& t);
-  void setAngularTimeConst(const double& t);
-
-  inline const JntArray& getVelocities() const;
+  void setLinearTimeConst(const Vector& _t);
+  void setAngularTimeConst(const Vector& _t);
+  void setLinearTimeConst(const double& _t);
+  void setAngularTimeConst(const double& _t);
 
 private:
   TreeFkSolverPos fk_;
-  TreeIkSolverVel_pinv ik_;
+  TreeIkSolverVel ik_;
 
   TaskSpaceDamping gain_;
 };
 
-inline const JntArray& TreeTaskSpaceVelCtrl::getVelocities() const
-{
-  return ik_.getVelocities();
-}
 }  // namespace kdl
 }  // namespace tobas

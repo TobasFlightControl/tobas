@@ -42,7 +42,7 @@ int MicroDisturbanceEoM::update(const double& V, const double& rho, const kdl::J
 {
   assert(V > 0.0);
   assert(rho > 0.0);
-  assert(q.rows() == tree_.getNrOfJoints());
+  assert(q.size() == tree_.getNrOfJoints());
 
   error_code_ = kNoError;
 
@@ -59,11 +59,8 @@ int MicroDisturbanceEoM::update(const double& V, const double& rho, const kdl::J
   const auto& asd_cog = trim_.stabilityDerivativesCG();
 
   // Center of gravity and inertia tensor.
-  if (inertia_solver_.jntToCart(q) < 0) {
-    error_msg_ = inertia_solver_.errorMessage();
-    return error_code_ = kError;
-  }
-  const auto& I_base = inertia_solver_.getInertia();
+  const auto& I_base = inertia_solver_.jntToCart(q);
+  mass_ = I_base.getMass();
   const auto P_base_cog = I_base.getCOG();
   const auto I_cog = I_base.getRotationalInertiaCoG();
   // TODO: Check that the CoG is within the allowable range and that X-axis symmetry holds.
@@ -163,11 +160,8 @@ int MicroDisturbanceEoM::update(const double& V, const double& rho, const kdl::J
   const auto I_cog_inv = I_cog.data.inverse();
   for (const auto& [idx, elem] : std::views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = elem.second;
-    if (fk_solver_.jntToCart(q, rotor->link_name) < 0) {
-      error_msg_ = fk_solver_.errorMessage();
-      return error_code_ = kError;
-    }
-    const auto P_cog_rotor = fk_solver_.getFrame().p - P_base_cog;
+    const auto P_base_rotor = fk_solver_.jntToCart(q, rotor->link_name);
+    const auto P_cog_rotor = P_base_rotor.p - P_base_cog;
     const auto d = rotor->sign();
     const auto cm = rotor->momentConst();
     Eigen::Vector3d v = I_cog_inv * (P_cog_rotor.data.cross(kXAxis) - (d * cm) * kXAxis);  // FLU

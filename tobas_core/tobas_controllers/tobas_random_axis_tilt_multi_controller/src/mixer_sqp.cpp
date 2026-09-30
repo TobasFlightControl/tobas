@@ -45,15 +45,11 @@ std::expected<MixerSolution, std::string> SqpMixer::solve(
   const kdl::Vector& ext_torque_B)
 {
   // Compute forward kinematics.
-  if (fk_solver_.jntToCart(cur_q) < 0) {
-    return std::unexpected("Forward kinematics failed: " + fk_solver_.errorMessage());
-  }
+  const auto& frames = fk_solver_.jntToCart(cur_q);
+  frames_ = &frames;
 
   // Compute mass properties.
-  if (inertia_solver_.jntToCart(cur_q) < 0) {
-    return std::unexpected("Inertia solver failed: " + inertia_solver_.errorMessage());
-  }
-  const auto& inertia = inertia_solver_.getInertia();
+  const auto inertia = inertia_solver_.jntToCart(cur_q);
   const auto& mass = inertia.getMass();
   const auto B_Pos_B2G = inertia.getCOG();
   const auto I_B = inertia.getRotationalInertiaCoG();
@@ -64,7 +60,7 @@ std::expected<MixerSolution, std::string> SqpMixer::solve(
     // Update B.
     const auto d = rotor->sign();
     const auto cm = rotor->momentConst();
-    const auto& B_Pos_B2P = fk_solver_.getFrame(rotor->link_name).p;
+    const auto& B_Pos_B2P = frames_->at(rotor->link_name).p;
     const auto r = B_Pos_B2P - B_Pos_B2G;
     B_.block<3, 3>(3, 3 * idx) = eigen::skew(r.data) - (d * cm) * Eigen::Diagonal3d(1, 1, 1);
 
@@ -339,13 +335,13 @@ const Eigen::MatrixXd& SqpMixer::calc_N(const Eigen::VectorXd& theta)
       const auto& par_seg = par_elem.segment;
       const auto& gpar_seg = gpar_elem.segment;
       const auto& axis_par = cur_seg.joint().axis();
-      const auto& R_base2gpar = fk_solver_.getFrame(gpar_seg.name()).M;
+      const auto& R_base2gpar = frames_->at(gpar_seg.name()).M;
       const auto R_gpar2par = par_seg.pose(theta(i)).M;
       const auto axis_B = R_base2gpar * (R_gpar2par * axis_par);
       N_.block<3, 1>(3 * i, i) = axis_B.data;
     }
     else {
-      const auto& R_base2par = fk_solver_.getFrame(elem.parent->first).M;
+      const auto& R_base2par = frames_->at(elem.parent->first).M;
       const auto axis_B = R_base2par * elem.segment.joint().axis();
       N_.block<3, 1>(3 * i, i) = axis_B.data;
     }
@@ -367,7 +363,7 @@ const Eigen::Tensor3Xd& SqpMixer::calc_dN_dtheta(const Eigen::VectorXd& theta)
       const auto& par_seg = par_elem.segment;
       const auto& gpar_seg = gpar_elem.segment;
       const auto& axis_par = cur_seg.joint().axis().data;
-      const auto& R_base2gpar = fk_solver_.getFrame(gpar_seg.name()).M.data;
+      const auto& R_base2gpar = frames_->at(gpar_seg.name()).M.data;
       const Eigen::Vector3d dn_dtheta = R_base2gpar * par_seg.rotGrad(theta(i)) * axis_par;
       eigen::setVectorX(dN_dtheta_, dn_dtheta, { 3 * (int)i, (int)i, (int)i });
     }
@@ -389,7 +385,7 @@ const Eigen::Tensor4Xd& SqpMixer::calc_dN_dtheta_2(const Eigen::VectorXd& theta)
       const auto& par_seg = par_elem.segment;
       const auto& gpar_seg = gpar_elem.segment;
       const auto& axis_par = cur_seg.joint().axis().data;
-      const auto& R_base2gpar = fk_solver_.getFrame(gpar_seg.name()).M.data;
+      const auto& R_base2gpar = frames_->at(gpar_seg.name()).M.data;
       const Eigen::Vector3d dn_dtheta_2 = R_base2gpar * par_seg.rotGrad2(theta(i)) * axis_par;
       eigen::setVectorX(dN_dtheta_2_, dn_dtheta_2, { 3 * (int)i, (int)i, (int)i, (int)i });
     }

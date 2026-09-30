@@ -69,15 +69,10 @@ std::expected<MixerSolution, std::string> PinvMixer::solve(
   const kdl::Vector& ext_torque_B)
 {
   // Compute forward kinematics.
-  if (fk_solver_.jntToCart(cur_q) < 0) {
-    return std::unexpected("Forward kinematics failed: " + fk_solver_.errorMessage());
-  }
+  const auto& frames = fk_solver_.jntToCart(cur_q);
 
   // Compute mass properties.
-  if (inertia_solver_.jntToCart(cur_q) < 0) {
-    return std::unexpected("Inertia solver failed: " + inertia_solver_.errorMessage());
-  }
-  const auto& inertia = inertia_solver_.getInertia();
+  const auto inertia = inertia_solver_.jntToCart(cur_q);
   const auto& mass = inertia.getMass();
   const auto B_Pos_B2G = inertia.getCOG();
   const auto I_B = inertia.getRotationalInertiaCoG();
@@ -96,7 +91,7 @@ std::expected<MixerSolution, std::string> PinvMixer::solve(
     const auto& gpar_seg = gpar_elem.segment;
 
     // Get the grandparent frame.
-    const auto& B_T_gpar = fk_solver_.getFrame(gpar_seg.name());
+    const auto& B_T_gpar = frames.at(gpar_seg.name());
 
     if (info.is_tilt) {
       // Compute the deviation angle between the tilt axis and vertical direction.

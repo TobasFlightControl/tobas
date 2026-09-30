@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <string>
+
 #include "./frames.hpp"
 #include "./jntarray.hpp"
 #include "./tree_solver_i.hpp"
@@ -18,19 +20,10 @@ class TreeFkSolverPos : public TreeSolverI
 public:
   explicit TreeFkSolverPos(const Tree& tree);
 
-  int jntToCart(const JntArray& q, const std::string& seg_name);
-
-  inline const Frame& getFrame() const;
+  Frame jntToCart(const JntArray& q, const std::string& seg_name);
 
 private:
-  Frame p_out_;
-
   Frame recursiveFk(const JntArray& q, const SegmentMap::const_iterator& seg_it);
 };
-
-inline const Frame& TreeFkSolverPos::getFrame() const
-{
-  return p_out_;
-}
 }  // namespace kdl
 }  // namespace tobas

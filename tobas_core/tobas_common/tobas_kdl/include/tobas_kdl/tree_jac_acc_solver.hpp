@@ -14,7 +14,7 @@ namespace kdl
  * @brief Compute the `Jd qd` term in `xdd = J qd + Jd qd`.
  * `Jd qd` can be obtained by running the forward propagation of RNE with `qdd = 0` and `grav = 0`.
  *
- * cf. `tree_id_solver_rne.cpp`
+ * cf. `tree_id_solver.cpp`
  */
 class TreeJacAccSolver : public TreeSolverI
 {
@@ -25,23 +25,18 @@ public:
 
   void updateInternalDataStructures() override;
 
-  int jntToCart(const JntArray& q, const JntArray& qd);
-
-  inline const Accel& getJdqd(const std::string& seg_name) const;
+  const AccelMap& jntToCart(const JntArray& q, const JntArray& qd);
 
 private:
+  AccelMap jdqd_out_;
+
   RotationMap R_;
   TwistMap v_;
   AccelMap a_;
-  AccelMap Jdqd_out_;
 
-  void initialize();
+  void resize();
   void jntToCartRec(const SegmentMap::const_iterator& segment, const JntArray& q, const JntArray& qd);
 };
 
-inline const Accel& TreeJacAccSolver::getJdqd(const std::string& seg_name) const
-{
-  return Jdqd_out_.at(seg_name);
-}
 }  // namespace kdl
 }  // namespace tobas

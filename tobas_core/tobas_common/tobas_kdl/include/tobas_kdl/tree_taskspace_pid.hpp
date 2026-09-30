@@ -3,11 +3,14 @@
 
 #pragma once
 
+#include <expected>
+#include <string>
+
 #include "./taskspace_damping.hpp"
 #include "./taskspace_stiffness.hpp"
 #include "./tree_fk_solver_vel.hpp"
-#include "./tree_id_solver_rne.hpp"
-#include "./tree_ik_solver_acc_rac.hpp"
+#include "./tree_id_solver.hpp"
+#include "./tree_ik_solver_acc.hpp"
 
 namespace tobas
 {
@@ -22,7 +25,7 @@ public:
 
   void updateInternalDataStructures() override;
 
-  int cartToJnt(
+  std::expected<JntArray, std::string> cartToJnt(
     const JntArray& cur_q,
     const JntArray& cur_qd,
     const FrameMap& tar_p,
@@ -39,20 +42,13 @@ public:
   void setLinearDamping(const double& kd);
   void setAngularDamping(const double& kd);
 
-  inline const JntArray& getEfforts() const;
-
 private:
   TreeFkSolverVel fk_;
-  TreeIkSolverAcc_RAC rac_;
-  TreeIdSolver_RNE rne_;
+  TreeIkSolverAcc rac_;
+  TreeIdSolver rne_;
 
   TaskSpaceStiffness kp_;
   TaskSpaceDamping kd_;
 };
-
-inline const JntArray& TreeTaskSpacePID::getEfforts() const
-{
-  return rne_.getEfforts();
-}
 }  // namespace kdl
 }  // namespace tobas

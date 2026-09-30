@@ -25,7 +25,6 @@ public:
   inline void setZero();
 
   inline size_t size() const;
-  inline size_t rows() const;
 
   inline double max() const;
   inline double min() const;
@@ -88,12 +87,7 @@ void JntArray::setZero()
 
 inline size_t JntArray::size() const
 {
-  return static_cast<size_t>(data.rows());
-}
-
-inline size_t JntArray::rows() const
-{
-  return size();
+  return static_cast<size_t>(data.size());
 }
 
 inline double JntArray::max() const
@@ -118,7 +112,7 @@ inline JntArray JntArray::min(double x)
 
 inline JntArray JntArray::hadamard(const JntArray& arg)
 {
-  assert(rows() == arg.rows());
+  assert(size() == arg.size());
   return JntArray(data.cwiseProduct(arg.data));
 }
 
@@ -134,13 +128,13 @@ inline double& JntArray::operator()(size_t i)
 
 inline JntArray JntArray::operator+(const JntArray& rhs) const
 {
-  assert(rows() == rhs.rows());
+  assert(size() == rhs.size());
   return JntArray(data + rhs.data);
 }
 
 inline JntArray JntArray::operator-(const JntArray& rhs) const
 {
-  assert(rows() == rhs.rows());
+  assert(size() == rhs.size());
   return JntArray(data - rhs.data);
 }
 
@@ -157,14 +151,14 @@ inline JntArray JntArray::operator/(const double& rhs) const
 
 inline JntArray& JntArray::operator+=(const JntArray& rhs)
 {
-  assert(rows() == rhs.rows());
+  assert(size() == rhs.size());
   data += rhs.data;
   return *this;
 }
 
 inline JntArray& JntArray::operator-=(const JntArray& rhs)
 {
-  assert(rows() == rhs.rows());
+  assert(size() == rhs.size());
   data -= rhs.data;
   return *this;
 }

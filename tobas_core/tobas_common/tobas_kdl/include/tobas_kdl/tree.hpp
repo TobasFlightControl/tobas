@@ -9,7 +9,7 @@
 #include <unordered_set>
 #include <vector>
 
-#include "./chain.hpp"
+#include "./segment.hpp"
 
 namespace tobas
 {
@@ -82,31 +82,12 @@ public:
   bool removeSegment(const std::string& seg_name);
 
   /**
-   * @brief Adds a complete chain to the end of the segment with hook_name as seg_name.
-   *
-   * @param chain Chain to add
-   * @param hook_name name of the segment to connect the chain with
-   */
-  bool addChain(const Chain& chain, const std::string& hook_name);
-
-  /**
    * @brief Adds a complete tree to the end of the segment with hookname as seg_name.
    *
    * @param tree Tree to add
    * @param hook_name name of the segment to connect the tree with
    */
   bool addTree(const Tree& tree, const std::string& hook_name);
-
-  /**
-   * @brief Request the chain of the tree between root_name and tip_name.
-   * The root_name and tip_name can be in different branches of the tree,
-   * the root_name can be an ancestor of tip_name, and tip_name can be an ancestor of root_name.
-   *
-   * @param root_name the name of the root segment of the chain
-   * @param tip_name the name of the tip segment of the chain
-   * @param chain the resulting chain
-   */
-  bool getChain(const std::string& root_name, const std::string& tip_name, Chain& chain) const;
 
   /**
    * @brief Extract a tree having seg_name as root. Only child segments of seg_name are added to the new tree.
@@ -136,8 +117,7 @@ public:
 private:
   SegmentMap segments_;
   std::string root_name_;
-  size_t nj_ = 0;
-  size_t ns_ = 0;
+  size_t nj_ = 0;  // The number of movable joints
 
   std::expected<void, std::string> validateRecursive(
     const SegmentMap::const_iterator& seg_it,
@@ -167,7 +147,7 @@ inline size_t Tree::getNrOfJoints() const
 
 inline size_t Tree::getNrOfSegments() const
 {
-  return ns_;
+  return segments_.size();
 }
 
 inline SegmentMap::const_iterator Tree::getSegment(const std::string& seg_name) const
@@ -177,7 +157,7 @@ inline SegmentMap::const_iterator Tree::getSegment(const std::string& seg_name) 
 
 inline SegmentMap::const_iterator Tree::getRootSegment() const
 {
-  return segments_.find(root_name_);
+  return getSegment(root_name_);
 }
 
 inline const std::string& Tree::getRootName() const
@@ -192,7 +172,7 @@ inline const SegmentMap& Tree::getSegments() const
 
 inline bool Tree::empty() const
 {
-  return ns_ == 0;
+  return getNrOfSegments() == 0;
 }
 
 inline bool Tree::hasSegment(const std::string& seg_name) const

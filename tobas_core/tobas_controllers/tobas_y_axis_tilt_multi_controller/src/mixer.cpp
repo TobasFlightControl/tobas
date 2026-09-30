@@ -26,8 +26,7 @@ void Mixer::updateInternalDataStructures()
   inertia_solver_.updateInternalDataStructures();
 
   // Compute forward kinematics.
-  [[maybe_unused]] const auto fk_result = fk_solver_.jntToCart(kdl::JntArray::Zero(tree_.getNrOfJoints()));
-  assert(fk_result >= 0);
+  const auto& frames = fk_solver_.jntToCart(kdl::JntArray::Zero(tree_.getNrOfJoints()));
 
   const auto nr = drone_.prop->numRotors();
   info_.resize(nr);
@@ -60,7 +59,7 @@ void Mixer::updateInternalDataStructures()
       const auto& gpar_elem = par_elem.parent->second;
 
       // Store the sign of the tilt axis.
-      const auto& B_T_gpar = fk_solver_.getFrame(gpar_elem.segment.name());
+      const auto& B_T_gpar = frames.at(gpar_elem.segment.name());
       const auto tilt_axis = B_T_gpar.M * par_elem.segment.joint().axis();  // Tilt axis viewed from the base link.
       const auto tilt_axis_y = tilt_axis.normalized().y();
       assert(math::isClose(std::abs(tilt_axis_y), 1.0));
@@ -78,15 +77,10 @@ std::expected<MixerSolution, std::string> Mixer::solve(
   const kdl::Vector& ext_torque_B)
 {
   // Compute forward kinematics.
-  if (fk_solver_.jntToCart(cur_q) < 0) {
-    return std::unexpected("Forward kinematics failed: " + fk_solver_.errorMessage());
-  }
+  const auto& frames = fk_solver_.jntToCart(cur_q);
 
   // Compute mass properties.
-  if (inertia_solver_.jntToCart(cur_q) < 0) {
-    return std::unexpected("Inertia solver failed: " + inertia_solver_.errorMessage());
-  }
-  const auto& inertia = inertia_solver_.getInertia();
+  const auto inertia = inertia_solver_.jntToCart(cur_q);
   const auto B_Pos_B2G = inertia.getCOG();
   const auto I_B = inertia.getRotationalInertiaCoG();
 
@@ -106,7 +100,7 @@ std::expected<MixerSolution, std::string> Mixer::solve(
       // Update the rotor axis angle relative to the body frame at zero tilt angle.
       const auto& gpar_elem = par_elem.parent->second;
       const auto& gpar_seg = gpar_elem.segment;
-      const auto& B_T_gpar = fk_solver_.getFrame(gpar_seg.name());
+      const auto& B_T_gpar = frames.at(gpar_seg.name());
       const auto B_T_par = B_T_gpar * par_seg.pose(0.0);
       const auto n = B_T_par.M * cur_seg.joint().axis();
       state.alpha = std::atan2(n.x(), n.z());
@@ -138,13 +132,13 @@ std::expected<MixerSolution, std::string> Mixer::solve(
     }
     else {
       // Update the rotor axis angle relative to the body frame.
-      const auto& B_T_par = fk_solver_.getFrame(par_seg.name());
+      const auto& B_T_par = frames.at(par_seg.name());
       const auto n = B_T_par.M * cur_seg.joint().axis();
       state.alpha = std::atan2(n.x(), n.z());
 
       // Update the left-hand side of the equations of motion.
       if (rotor_alive_[rotor->link_name]) {
-        const auto& B_Pos_B2P = fk_solver_.getFrame(cur_seg.name()).p;
+        const auto& B_Pos_B2P = frames.at(cur_seg.name()).p;
         const auto B_Pos_G2P = B_Pos_B2P - B_Pos_B2G;
         E_.block<3, 1>(0, info.column) = (B_Pos_G2P * n - d_cm * n).data;
         E_(3, info.column) = std::sin(state.alpha);
