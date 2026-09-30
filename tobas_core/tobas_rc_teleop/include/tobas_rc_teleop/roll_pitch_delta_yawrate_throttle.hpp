@@ -36,7 +36,8 @@ private:
   double tar_yaw_;
 
   // ROS parameters.
-  double max_attitude_;   // [rad]
+  double max_roll_;       // [rad]
+  double max_pitch_;      // [rad]
   double max_head_rate_;  // [rad/s]
   double atti_expo_;
   double head_expo_;
@@ -45,8 +46,10 @@ private:
   // PubSub
   ros2::PublisherPtr<tobas_command_msgs::msg::RollPitchDeltaYawrateThrottle> cmd_pub_;
 
-  bool maxAttitudeCb(const double& p);
-  bool maxAttitudeRateCb(const double& p);
+  bool maxRollCb(const double& p);
+  bool maxRollRateCb(const double& p);
+  bool maxPitchCb(const double& p);
+  bool maxPitchRateCb(const double& p);
   bool maxHeadingRateCb(const double& p);
   bool attitudeExpoCb(const double& p);
   bool headingExpoCb(const double& p);

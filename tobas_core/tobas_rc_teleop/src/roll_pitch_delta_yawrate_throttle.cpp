@@ -38,10 +38,13 @@ bool RollPitchDeltaYawrateThrottleController::requireHeading()
 
 void RollPitchDeltaYawrateThrottleController::initialize(BaseNode* node, FlightMode mode)
 {
-  node->addDynamicDoubleParam(addMode("max_attitude", mode), &self::maxAttitudeCb, this, 5.0, 9, 1, 16, " deg");
+  node->addDynamicDoubleParam(addMode("max_roll", mode), &self::maxRollCb, this, 5.0, 9, 1, 16, " deg");
   node->addDynamicDoubleParam(
-    addMode("max_attitude_rate", mode), &self::maxAttitudeRateCb, this, 15.0, 6, 1, 12, " dps");
-  node->addDynamicDoubleParam(addMode("max_heading_rate", mode), &self::maxHeadingRateCb, this, 15.0, 6, 1, 12, " dps");
+    addMode("max_roll_rate", mode), &self::maxRollRateCb, this, 15.0, 6, 1, 12, " dps");
+  node->addDynamicDoubleParam(addMode("max_pitch", mode), &self::maxPitchCb, this, 2.0, 7, 1, 14, " deg");
+  node->addDynamicDoubleParam(
+    addMode("max_pitch_rate", mode), &self::maxPitchRateCb, this, 5.0, 6, 1, 12, " dps");
+  node->addDynamicDoubleParam(addMode("max_heading_rate", mode), &self::maxHeadingRateCb, this, 5.0, 6, 1, 12, " dps");
   node->addDynamicDoubleParam(addMode("attitude_expo", mode), &self::attitudeExpoCb, this, 5.0, -6, -20, 20);
   node->addDynamicDoubleParam(addMode("heading_expo", mode), &self::headingExpoCb, this, 5.0, -3, -20, 20);
   node->addDynamicDoubleParam(addMode("throttle_expo", mode), &self::throttleExpoCb, this, 5.0, 0, 0, 20);
@@ -71,11 +74,11 @@ void RollPitchDeltaYawrateThrottleController::update(const tobas_msgs::RCInput& 
   cmd->priority.data = tobas_command_msgs::msg::Priority::MANUAL;
 
   // Roll
-  roll_filt_.setTargetPointAndUpdate(expoRemapDead(rcin.roll, atti_expo_, -max_attitude_, max_attitude_), dt);
+  roll_filt_.setTargetPointAndUpdate(expoRemapDead(rcin.roll, atti_expo_, -max_roll_, max_roll_), dt);
   cmd->roll = roll_filt_.getTrajectoryPosition();
 
   // Pitch
-  pitch_filt_.setTargetPointAndUpdate(expoRemapDead(rcin.pitch, atti_expo_, -max_attitude_, max_attitude_), dt);
+  pitch_filt_.setTargetPointAndUpdate(expoRemapDead(rcin.pitch, atti_expo_, -max_pitch_, max_pitch_), dt);
   cmd->pitch = pitch_filt_.getTrajectoryPosition();
 
   // Yaw
@@ -89,17 +92,29 @@ void RollPitchDeltaYawrateThrottleController::update(const tobas_msgs::RCInput& 
   cmd_pub_->publish(std::move(cmd));
 }
 
-bool RollPitchDeltaYawrateThrottleController::maxAttitudeCb(const double& p)
+bool RollPitchDeltaYawrateThrottleController::maxRollCb(const double& p)
 {
-  max_attitude_ = st::deg2rad(p);
+  max_roll_ = st::deg2rad(p);
   return true;
 }
 
-bool RollPitchDeltaYawrateThrottleController::maxAttitudeRateCb(const double& p)
+bool RollPitchDeltaYawrateThrottleController::maxPitchCb(const double& p)
 {
-  const auto max_atti_rate = st::deg2rad(p);  // [rad/s]
-  roll_filt_.setMaxVelocity(max_atti_rate);
-  pitch_filt_.setMaxVelocity(max_atti_rate);
+  max_pitch_ = st::deg2rad(p);
+  return true;
+}
+
+bool RollPitchDeltaYawrateThrottleController::maxRollRateCb(const double& p)
+{
+  const auto max_roll_rate = st::deg2rad(p);  // [rad/s]
+  roll_filt_.setMaxVelocity(max_roll_rate);
+  return true;
+}
+
+bool RollPitchDeltaYawrateThrottleController::maxPitchRateCb(const double& p)
+{
+  const auto max_pitch_rate = st::deg2rad(p);  // [rad/s]
+  pitch_filt_.setMaxVelocity(max_pitch_rate);
   return true;
 }
 

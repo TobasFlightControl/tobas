@@ -37,7 +37,7 @@ bool Mixer::updateInternalDataStructures()
     return false;
   }
 
-  if (!calcShortPeriodModeAngularFreq()) {
+  if (!calcModesAngularFreq()) {
     return false;
   }
 
@@ -65,13 +65,19 @@ bool Mixer::solve(
     kdl::vectorFrdToFlu(effectiveness_frd, effectiveness_flu);
     E_(0, idx) = dynamicPressure(rho, std::max(airspeed, kLowerLimitSpeed)) * drone_.fixed_wing->vehicle.wing_surface * drone_.fixed_wing->vehicle.wing_span * effectiveness_flu.x(); // [Nm / rad]
     E_(1, idx) = dynamicPressure(rho, std::max(airspeed, kLowerLimitSpeed)) * drone_.fixed_wing->vehicle.wing_surface * drone_.fixed_wing->vehicle.mac * effectiveness_flu.y(); // [Nm / rad]
+    E_(2, idx) = dynamicPressure(rho, std::max(airspeed, kLowerLimitSpeed)) * drone_.fixed_wing->vehicle.wing_surface * drone_.fixed_wing->vehicle.wing_span * effectiveness_flu.z(); // [Nm / rad]
   }
 
   // Right-hand side of the EoM matrix equality.
   kdl::Vector tar_dgyro_virtual = tar_dgyro_B; // これにより空力による応答遅れの影響を考慮
+  integral_error_x_ += airspeed / kCruiseSpeed * omega_roll_ * tar_dgyro_B.x() * dt;
   integral_error_y_ += airspeed / kCruiseSpeed * omega_s_  * tar_dgyro_B.y() * dt;
+  integral_error_z_ += airspeed / kCruiseSpeed * omega_dutch_roll_ * tar_dgyro_B.z() * dt;
+  tar_dgyro_virtual.x() = tar_dgyro_B.x() + integral_error_x_;
   tar_dgyro_virtual.y() = tar_dgyro_B.y() + integral_error_y_;
-  f_ = (I_B * tar_dgyro_virtual + cur_gyro_B * (I_B * cur_gyro_B)).data.head<2>();  // [Nm]
+  // FIX: yawの制御も考慮, 現状定常旋回への移行までの過渡応答のところでintegral_error_z_がたまってしまい, ラダーの効きが小さい場合に目標yawrateを出せない
+  tar_dgyro_virtual.z() = 0; // tar_dgyro_B.z() + integral_error_z_;
+  f_ = (I_B * tar_dgyro_virtual + cur_gyro_B * (I_B * cur_gyro_B)).data;  // [Nm]
 
   // Solve `Ex = f`.
   x_ = E_.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(f_);
@@ -84,16 +90,24 @@ double Mixer::getDeflection(size_t idx) const
   return thrustDeadband(x_(idx));
 }
 
-bool Mixer::calcShortPeriodModeAngularFreq()
+bool Mixer::calcModesAngularFreq()
 {
   // Compute mass properties.
   const auto& inertia = inertia_solver_.getInertia();
   const auto I_B = inertia.getRotationalInertiaCoG();
   const auto I_yy = I_B.iyy();
 
+  // ロールモードの良い近似は\dot{p} - L_p p = 0
+  const auto b = drone_.fixed_wing->vehicle.wing_span;
+  const auto S = drone_.fixed_wing->vehicle.wing_surface;
+  const auto L_p = 0.5 * st::kStandardAirDensity * std::pow(kCruiseSpeed, 2) * S * b * drone_.fixed_wing->aerodynamics.c_roll_p * b / (2.0 * kCruiseSpeed) / I_yy;
+  if (L_p > 0) {
+    return false;
+  }
+  omega_roll_ = - L_p;
+
   // 短周期モードの良い近似は\ddot{\theta} - (M_q + M_alpha_dot) \dot{\theta} - M_\alpha \theta = 0
   const auto c_mac = drone_.fixed_wing->vehicle.mac;
-  const auto S = drone_.fixed_wing->vehicle.wing_surface;
   // const auto M_q = 0.5 * st::kStandardAirDensity * std::pow(kCruiseSpeed, 2) * S * c_mac * drone_.fixed_wing->aerodynamics.c_pitch_q * c_mac / (2.0 * kCruiseSpeed) / I_yy;
   // const auto M_alpha_dot = 0.5 * st::kStandardAirDensity * std::pow(kCruiseSpeed, 2) * S * c_mac * drone_.fixed_wing->aerodynamics.c_pitch_alpha_rate * c_mac / (2.0 * kCruiseSpeed) / I_yy;
   const auto M_alpha = 0.5 * st::kStandardAirDensity * std::pow(kCruiseSpeed, 2) * S * c_mac * drone_.fixed_wing->aerodynamics.c_pitch_alpha / I_yy;
@@ -104,6 +118,13 @@ bool Mixer::calcShortPeriodModeAngularFreq()
     return false;
   }
   omega_s_ = std::sqrt(omega_squared);
+
+  // ダッチロールモードの粗い近似はs^2 - N_r s + N_beta = 0 -> s - N_r = 0 (?)
+  const auto N_r = 0.5 * st::kStandardAirDensity * std::pow(kCruiseSpeed, 2) * S * b * drone_.fixed_wing->aerodynamics.c_yaw_r * b / (2.0 * kCruiseSpeed) / I_yy;
+  if (N_r > 0) {
+    return false;
+  }
+  omega_dutch_roll_ = - N_r;
   return true;
 }
 }  // namespace fixed_wing

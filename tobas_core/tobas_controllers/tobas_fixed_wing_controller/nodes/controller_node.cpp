@@ -430,6 +430,7 @@ void ControllerNode::manualCmdCb(const tobas_command_msgs::msg::AileElevRudThrot
 
   // Stop the outer control loop.
   tar_roll_pitch_dyawrate_.reset();
+  tar_gyro_.reset();
 
   // Create the command.
   if (!thrusts_) {

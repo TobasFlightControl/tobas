@@ -37,13 +37,17 @@ private:
   // Fixed values.
   kdl::JntArray q_0_;
 
+  double omega_roll_; // クルーズ時ロールモード角周波数
   double omega_s_; // クルーズ時短周期モード角周波数
-  double integral_error_y_ = 0.0; // 空力分補正のための積分要素
-  Eigen::Matrix2Xd E_;
-  Eigen::Vector2d f_; // [M_x, M_y]
+  double omega_dutch_roll_; // クルーズ時ダッチロールモード角周波数
+  double integral_error_x_ = 0.0; // 空力分補正のための積分要素
+  double integral_error_y_ = 0.0;
+  double integral_error_z_ = 0.0;
+  Eigen::Matrix3Xd E_;
+  Eigen::Vector3d f_; // [M_x, M_y, Mz]
   Eigen::VectorXd x_;
 
-  bool calcShortPeriodModeAngularFreq();
+  bool calcModesAngularFreq();
 };
 }  // namespace fixed_wing
 }  // namespace tobas
