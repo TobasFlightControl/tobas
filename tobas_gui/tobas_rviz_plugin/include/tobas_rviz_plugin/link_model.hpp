@@ -19,8 +19,6 @@ class JointModel;
 class LinkModel
 {
 public:
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-
   using SharedPtr = std::shared_ptr<LinkModel>;
   using ConstSharedPtr = std::shared_ptr<const LinkModel>;
 
