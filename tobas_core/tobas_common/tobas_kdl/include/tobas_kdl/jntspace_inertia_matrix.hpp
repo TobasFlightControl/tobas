@@ -11,7 +11,7 @@ namespace tobas
 {
 namespace kdl
 {
-/* This class represents a fixed `nj` matrix containing the Joint-Space Inertia Matrix of a `kdl::Chain`. */
+/* This class represents a fixed `nj` matrix containing the joint-space inertia matrix. */
 class JntSpaceInertiaMatrix
 {
 public:
