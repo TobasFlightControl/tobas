@@ -13,7 +13,7 @@
 #include <tobas_yaml_tools/format.hpp>
 
 #include "tobas_setup_assistant/setting_tabs/fixed_wing/constants.hpp"
-#include "tobas_setup_assistant/setting_tabs/fixed_wing/vspaero_parser.hpp"
+#include "tobas_setup_assistant/setting_tabs/fixed_wing/vspaero.hpp"
 
 namespace tobas
 {
@@ -278,29 +278,29 @@ void AerodynamicsCoefficientsWidget::onLoadButtonClicked()
   settings_store_.setValue(kLastOpenedDirKey, par_dir);
 
   // Load parameters.
-  VSPAEROParser parser;
-  if (!parser.parse(file_path.toStdString())) {
-    qt::qErrorBox(this, "Failed to read coefficients.");
+  const auto coefs = parseVspaero(file_path.toStdString());
+  if (!coefs) {
+    qt::qErrorBox(this, "Failed to read coefficients:\n\n" + QString::fromStdString(coefs.error()));
     return;
   }
 
   // Apply loaded parameters to the form.
-  c_lift_0_->setValue(parser.c_lift_0());
-  c_lift_alpha_->setValue(parser.c_lift_alpha());
-  c_drag_0_->setValue(parser.c_drag_0());
-  c_drag_alpha_->setValue(parser.c_drag_alpha());
-  c_side_beta_->setValue(parser.c_side_beta());
-  c_roll_beta_->setValue(parser.c_roll_beta());
-  c_roll_p_->setValue(parser.c_roll_p());
-  c_roll_r_->setValue(parser.c_roll_r());
-  c_pitch_0_->setValue(parser.c_pitch_0());
-  c_pitch_alpha_->setValue(parser.c_pitch_alpha());
-  c_pitch_abs_beta_->setValue(parser.c_pitch_abs_beta());
-  c_pitch_alpha_rate_->setValue(parser.c_pitch_alpha_rate());
-  c_pitch_q_->setValue(parser.c_pitch_q());
-  c_yaw_beta_->setValue(parser.c_yaw_beta());
-  c_yaw_p_->setValue(parser.c_yaw_p());
-  c_yaw_r_->setValue(parser.c_yaw_r());
+  c_lift_0_->setValue(coefs->c_lift_0);
+  c_lift_alpha_->setValue(coefs->c_lift_alpha);
+  c_drag_0_->setValue(coefs->c_drag_0);
+  c_drag_alpha_->setValue(coefs->c_drag_alpha);
+  c_side_beta_->setValue(coefs->c_side_beta);
+  c_roll_beta_->setValue(coefs->c_roll_beta);
+  c_roll_p_->setValue(coefs->c_roll_p);
+  c_roll_r_->setValue(coefs->c_roll_r);
+  c_pitch_0_->setValue(coefs->c_pitch_0);
+  c_pitch_alpha_->setValue(coefs->c_pitch_alpha);
+  c_pitch_abs_beta_->setValue(coefs->c_pitch_abs_beta);
+  c_pitch_alpha_rate_->setValue(coefs->c_pitch_alpha_rate);
+  c_pitch_q_->setValue(coefs->c_pitch_q);
+  c_yaw_beta_->setValue(coefs->c_yaw_beta);
+  c_yaw_p_->setValue(coefs->c_yaw_p);
+  c_yaw_r_->setValue(coefs->c_yaw_r);
 
   qt::qInfoBox(this, "Coefficients have been loaded successfully.");
 }
