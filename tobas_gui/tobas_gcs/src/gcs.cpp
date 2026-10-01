@@ -551,9 +551,9 @@ void GroundControlStationWidget::onLoadButtonClicked()
   }
 
   // Load network configuration.
-  cmn::NetworkConfig next_network_config;
-  if (!next_network_config.load(proj_paths.networkConfigPath())) {
-    qt::qErrorBox(this, "Failed to load network configuration.");
+  const auto next_network_config = cmn::loadNetworkConfig(proj_paths.networkConfigPath());
+  if (!next_network_config) {
+    qt::qErrorBox(this, "Failed to load network configuration:\n\n" + next_network_config.error());
     return;
   }
 
@@ -561,7 +561,7 @@ void GroundControlStationWidget::onLoadButtonClicked()
   uadf_ = std::move(*next_uadf);
   tree_ = std::move(*next_tree);
   drone_ = std::move(next_drone);
-  network_config_ = std::move(next_network_config);
+  network_config_ = std::move(*next_network_config);
 
   // Commit the path only after every project file has been validated.
   proj_path_->setText(proj_path);

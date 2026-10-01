@@ -732,7 +732,7 @@ void ProjectGenerator::generateNetworkConfig()
   cmn::NetworkConfig config;
   config.interface = settings_->network->networkInterface();
 
-  TOBAS_CHECK(config.save(proj_paths_.networkConfigPath()));
+  TOBAS_CHECK(cmn::saveNetworkConfig(proj_paths_.networkConfigPath(), config));
 }
 
 void ProjectGenerator::generateOriginalUadf()

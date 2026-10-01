@@ -5,7 +5,7 @@
 
 #include <expected>
 #include <filesystem>
-#include <iostream>
+#include <string>
 
 #include <yaml-cpp/yaml.h>
 
@@ -47,6 +47,6 @@ std::expected<void, std::string> load(const std::string& key, const YAML::Node& 
 std::string dump(const YAML::Node& node) noexcept;
 
 std::expected<YAML::Node, std::string> load(const std::filesystem::path& path) noexcept;
-bool save(const std::filesystem::path& path, const YAML::Node& node) noexcept;
+std::expected<void, std::string> save(const std::filesystem::path& path, const YAML::Node& node) noexcept;
 }  // namespace yaml
 }  // namespace tobas
