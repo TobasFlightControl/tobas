@@ -84,10 +84,6 @@ bool BMM150::readMag(double& mx, double& my, double& mz)
     std::cerr << "Failed in z-axis self test." << std::endl;
     return false;
   }
-  // if (((mag_buf_[6] & 1) == 0)) {
-  //   cerr << "Read Old Data" << endl;
-  //   return false;
-  // }
 
   const int16_t msb_data_x = static_cast<int16_t>(static_cast<int8_t>(mag_buf_[1]) * 32);
   const int16_t msb_data_y = static_cast<int16_t>(static_cast<int8_t>(mag_buf_[3]) * 32);
