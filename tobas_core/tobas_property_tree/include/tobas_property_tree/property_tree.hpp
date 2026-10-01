@@ -49,8 +49,6 @@ private:
 
   boost::property_tree::ptree root_node_;
 
-  bool erase(boost::property_tree::ptree& node, boost::property_tree::path path);
-
   static std::string sectionedKey(const std::string& section, const std::string& key);
 };
 
@@ -116,7 +114,6 @@ bool PropertyTree::get(const std::string& key, std::array<T, N>& dst) const
   }
 
   if (list_node->size() != N) {
-    std::cerr << "Property tree list node size mismatch: " << list_node->size() << " != " << N << std::endl;
     return false;
   }
 

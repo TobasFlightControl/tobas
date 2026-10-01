@@ -21,7 +21,7 @@ bool PropertyTree::initialize(const fs::path& file_path)
     // Load the file if it exists.
     try {
       boost::property_tree::json_parser::read_json(file_path, root_node_);
-      std::cout << file_path << " is loaded successfully." << std::endl;
+      std::cout << file_path << " has been loaded successfully." << std::endl;
     }
     catch (const std::exception& e) {
       // Remove the original file if loading fails.
@@ -62,34 +62,6 @@ bool PropertyTree::save()
   }
 
   return true;
-}
-
-bool PropertyTree::erase(boost::property_tree::ptree& node, boost::property_tree::path path)
-{
-  if (path.empty()) {
-    std::cerr << "Path is empty." << std::endl;
-    return false;
-  }
-
-  // Get the first path element.
-  const auto child_name = path.reduce();
-
-  // If there is no namespace, remove the element and finish.
-  if (path.empty()) {
-    if (node.erase(child_name) == 0) {
-      std::cerr << "Failed to erase key '" << child_name << "'." << std::endl;
-      return false;
-    }
-    return true;
-  }
-
-  // Recursively handle nested paths.
-  const auto child_node = node.get_child_optional(child_name);
-  if (!child_node) {
-    std::cerr << "Failed to get child node '" << child_name << "'." << std::endl;
-    return false;
-  }
-  return erase(*child_node, path);
 }
 
 std::string PropertyTree::sectionedKey(const std::string& section, const std::string& key)
