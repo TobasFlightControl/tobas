@@ -24,7 +24,7 @@ std::expected<const char*, std::string> getEnv(const char* name)
   }
 
   if (std::strlen(value) == 0) {
-    return std::unexpected("'" + std::string(name) + "' is not set.");
+    return std::unexpected("Environment variable '" + std::string(name) + "' is not set.");
   }
 
   return value;
