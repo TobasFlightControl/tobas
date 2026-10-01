@@ -211,14 +211,25 @@ double scale = 1.;  // NG
 
 <!-- Custom -->
 
-- Class, enum type, and function (method) doc comments: `/** ... */`. Do not use `@brief`.
+- Class, enum type, type alias (`using` or `typedef`), and function (method) doc comments: `/** ... */`. Do not use `@brief`.
+- Document function-like macros defined with `#define` in the same way as functions: place a `/** ... */` comment before the definition and follow the same tag order and spacing rules.
 - Keep a `/** ... */` comment on a single line when it fits within the 120-column limit, including indentation and delimiters.
 - Use a multiline `/** ... */` comment for longer descriptions or structured documentation such as `@param` and `@return`.
-- Do not insert blank lines between `@param` entries or between `@param` and `@return`.
+- Order documentation tags as `@tparam`, `@param`, `@return`, `@throws`, `@note`, `@warning`, `@see`.
+- Group `@tparam`, `@param`, `@return`, and `@throws` together, then group `@note`, `@warning`, and `@see` together.
+- Insert exactly one blank comment line between these two groups when both are present. Do not insert blank lines between tag entries within either group.
+- Separate the description from the first tag group with one blank comment line. Omit tags that do not apply; do not add empty groups.
+- Use `@throws`, not `@throw`. Keep template parameters and parameters in declaration order within their respective tag entries.
+- In Doxygen doc comments, use `@see` for references instead of `ref.`, `ref:`, `cf.`, or `cf:`.
+- Put each documentation tag on its own line. Continuation lines belong to that tag and stay with it.
+- In headers, use `// ...` for standalone explanations and section headings that do not document a specific declaration.
 - Short member variable and enumerator descriptions: append `///< ...` to the declaration when the whole line fits within the 120-column limit.
 - Longer member variable and enumerator descriptions: place `/** ... */` before the declaration. Do not use `@brief`.
 - Omit comments for member variables and enumerators whose meaning is self-evident from their names and types.
 - Implementation comments: `// ...`
+- In ordinary comments, introduce reference sources with `Ref:`, for example `// Ref: https://example.com/reference`.
+- When a reference includes a description and a URL, write `Ref: [description](URL)` instead of `Ref: description: URL`, for example `// Ref: [API reference](https://example.com/reference)`.
+- Do not use Doxygen tags in ordinary comments. Write plain text such as `Ref: ...`, `Note: ...`, or `Warning: ...`; the tag order and grouping rules above apply only to Doxygen doc comments.
 - Temporary commented-out code: `// ...`
 - Write all comments in English.
 - Add appropriate explanatory comments for each unit of processing.
