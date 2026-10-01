@@ -3,10 +3,10 @@
 
 #include "tobas_eigen_tools/kinematics.hpp"
 
+#include <cassert>
 #include <limits>
 
 #include <tobas_math/core.hpp>
-#include <tobas_std_tools/assert.hpp>
 
 namespace tobas
 {
@@ -102,7 +102,7 @@ Eigen::Matrix3d eulerrateFromAngvelLocal(double roll, double pitch)
   const auto sin_roll = std::sin(roll);
   const auto cos_pitch = std::cos(pitch);
   const auto tan_pitch = std::tan(pitch);
-  assertWithMsg(cos_pitch > kEps, "roll: " << roll << ", pitch: " << pitch);
+  assert(cos_pitch > kEps && "Pitch cosine must be greater than machine epsilon.");
 
   Eigen::Matrix3d res;
   res(0, 0) = 1;
