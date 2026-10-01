@@ -38,7 +38,7 @@
 #include <tobas_msgs/msg/arming.hpp>
 
 #include "./flight_controller_scanner.hpp"
-#include "./project_env_parser.hpp"
+#include "./project_env.hpp"
 #include "./remote_connection.hpp"
 #include "./restart_button.hpp"
 #include "./shutdown_button.hpp"
@@ -70,7 +70,7 @@ private:
   kdl::TreeParser tree_parser_;
   cmn::Version proj_version_;
   cmn::NetworkConfig network_config_;
-  ProjectEnvParser project_env_parser_;
+  ProjectEnv project_env_;
 
   RemoteConnectionWidget* remote_conn_;
 

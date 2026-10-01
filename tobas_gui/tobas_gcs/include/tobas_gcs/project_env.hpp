@@ -11,19 +11,15 @@ namespace gui
 {
 namespace gcs
 {
-class ProjectEnvParser
+struct ProjectEnv
 {
-public:
   QString config_pkg;
   QString nic;
   QString id;
-
-  explicit ProjectEnvParser();
-
-  bool parseFromText(const QString& text);
-
-  QString exportText() const;
 };
+
+ProjectEnv parseProjectEnv(const QString& text);
+QString exportProjectEnv(const ProjectEnv& env);
 }  // namespace gcs
 }  // namespace gui
 }  // namespace tobas

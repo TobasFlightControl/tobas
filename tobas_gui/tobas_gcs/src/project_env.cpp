@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include "tobas_gcs/project_env_parser.hpp"
+#include "tobas_gcs/project_env.hpp"
 
 #include <QStringList>
 
@@ -18,12 +18,9 @@ constexpr char kNetworkIfacePrefix[] = "TOBAS_NIC=";
 constexpr char kIdPrefix[] = "TOBAS_ID=";
 }  // namespace
 
-ProjectEnvParser::ProjectEnvParser()
+ProjectEnv parseProjectEnv(const QString& text)
 {
-}
-
-bool ProjectEnvParser::parseFromText(const QString& text)
-{
+  ProjectEnv env;
   for (auto line : text.split('\n')) {
     // Trim whitespaces.
     line = line.trimmed();
@@ -35,25 +32,26 @@ bool ProjectEnvParser::parseFromText(const QString& text)
 
     // Get elements.
     if (line.startsWith(kConfigPkgPrefix)) {
-      config_pkg = line.mid(sizeof(kConfigPkgPrefix) - 1);
+      env.config_pkg = line.mid(sizeof(kConfigPkgPrefix) - 1);
       continue;
     }
     if (line.startsWith(kNetworkIfacePrefix)) {
-      nic = line.mid(sizeof(kNetworkIfacePrefix) - 1);
+      env.nic = line.mid(sizeof(kNetworkIfacePrefix) - 1);
       continue;
     }
     if (line.startsWith(kIdPrefix)) {
-      id = line.mid(sizeof(kIdPrefix) - 1);
+      env.id = line.mid(sizeof(kIdPrefix) - 1);
       continue;
     }
   }
 
-  return true;
+  return env;
 }
 
-QString ProjectEnvParser::exportText() const
+QString exportProjectEnv(const ProjectEnv& env)
 {
-  return QString(kConfigPkgPrefix) + config_pkg + '\n' + kNetworkIfacePrefix + nic + '\n' + kIdPrefix + id + '\n';
+  return QString(kConfigPkgPrefix) + env.config_pkg + '\n' + kNetworkIfacePrefix + env.nic + '\n' + kIdPrefix + env.id +
+         '\n';
 }
 }  // namespace gcs
 }  // namespace gui

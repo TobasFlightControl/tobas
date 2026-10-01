@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright (C) 2026 Tobas, Inc.
 
-#include "tobas_mission_items/mission.hpp"
+#include "tobas_mission_items/mission_io.hpp"
 
 #include <tobas_std_tools/byte.hpp>
 #include <tobas_yaml_tools/convert/float64.hpp>
@@ -10,20 +10,16 @@
 
 #include "tobas_mission_items/mission_items.hpp"
 
-/** Define a macro that assigns directly because packed struct elements cannot be bound to function arguments. */
-#define LOAD_PACKED_FIELD(key, parent, field)                                                                          \
-  (                                                                                                                    \
-    [&]() noexcept -> bool                                                                                             \
-    {                                                                                                                  \
-      using FieldType = std::remove_cv_t<std::remove_reference_t<decltype(field)>>;                                    \
-      const auto res = tobas::yaml::load<FieldType>((key), (parent));                                                  \
-      if (!res) {                                                                                                      \
-        std::cerr << res.error() << std::endl;                                                                         \
-        return false;                                                                                                  \
-      }                                                                                                                \
-      (field) = *res;                                                                                                  \
-      return true;                                                                                                     \
-    }())
+/** Packed fields cannot be bound to references; assign only after conversion succeeds. */
+#define LOAD_PACKED_FIELD(_key, _parent, _field)                                                                       \
+  do {                                                                                                                 \
+    using FieldType = std::remove_cv_t<std::remove_reference_t<decltype(_field)>>;                                     \
+    const auto field = tobas::yaml::load<FieldType>((_key), (_parent));                                                \
+    if (!field) {                                                                                                      \
+      return std::unexpected("Failed to load '" + std::string(_key) + "': " + field.error());                          \
+    }                                                                                                                  \
+    (_field) = *field;                                                                                                 \
+  } while (false)
 
 namespace tobas
 {
@@ -88,13 +84,13 @@ constexpr char kRtlAltitudeTolerance[] = "altitude_tolerance";
 constexpr char kRtlTimeout[] = "timeout";
 }  // namespace
 
-YAML::Node Mission::dump() const
+YAML::Node dumpMission(const Mission& mission)
 {
   constexpr int kGnssPrecision = 12;
 
   YAML::Node mission_node(YAML::NodeType::Sequence);
 
-  for (const auto& item : items) {
+  for (const auto& item : mission.items) {
     YAML::Node item_node(YAML::NodeType::Map);
     YAML::Node data_node(YAML::NodeType::Map);
 
@@ -168,171 +164,92 @@ YAML::Node Mission::dump() const
   return mission_node;
 }
 
-bool Mission::load(const YAML::Node& mission_node)
+std::expected<Mission, std::string> loadMission(const YAML::Node& mission_node)
 {
+  Mission mission;
   if (!mission_node.IsSequence()) {
-    std::cerr << "YAML node type mismatch." << std::endl;
-    return false;
+    return std::unexpected("Mission node must be a sequence.");
   }
 
   for (const auto& item_node : mission_node) {
     const auto type = yaml::load<std::string>(kTypeKey, item_node);
     if (!type) {
-      std::cerr << type.error() << std::endl;
-      return false;
+      return std::unexpected("Failed to load a mission type: " + type.error());
     }
 
     const auto data_node = item_node[kDataKey];
     if (!data_node.IsDefined()) {
-      std::cerr << "'" << kDataKey << "' is not defined." << std::endl;
-      return false;
+      return std::unexpected("Mission item data is not defined.");
     }
 
     MissionItem item;
 
     if (*type == kTypeWaypoint) {
       Waypoint waypoint;
-      if (!LOAD_PACKED_FIELD(kWaypointLatitude, data_node, waypoint.latitude)) {
-        return false;
-      }
-      if (!LOAD_PACKED_FIELD(kWaypointLongitude, data_node, waypoint.longitude)) {
-        return false;
-      }
-      if (!LOAD_PACKED_FIELD(kWaypointAltitude, data_node, waypoint.altitude)) {
-        return false;
-      }
-      if (!LOAD_PACKED_FIELD(kWaypointAltitudeFrame, data_node, waypoint.altitude_frame)) {
-        return false;
-      }
-      if (!LOAD_PACKED_FIELD(kWaypointAutoHeading, data_node, waypoint.auto_heading)) {
-        return false;
-      }
-      if (!LOAD_PACKED_FIELD(kWaypointStopAtWaypoint, data_node, waypoint.stop_at_waypoint)) {
-        return false;
-      }
-      if (!LOAD_PACKED_FIELD(kWaypointMaxHorizontalVelocity, data_node, waypoint.max_horizontal_velocity)) {
-        return false;
-      }
-      if (!LOAD_PACKED_FIELD(kWaypointMaxHorizontalAccel, data_node, waypoint.max_horizontal_accel)) {
-        return false;
-      }
-      if (!LOAD_PACKED_FIELD(kWaypointMaxHorizontalJerk, data_node, waypoint.max_horizontal_jerk)) {
-        return false;
-      }
-      if (!LOAD_PACKED_FIELD(kWaypointMaxVerticalVelocity, data_node, waypoint.max_vertical_velocity)) {
-        return false;
-      }
-      if (!LOAD_PACKED_FIELD(kWaypointMaxVerticalAccel, data_node, waypoint.max_vertical_accel)) {
-        return false;
-      }
-      if (!LOAD_PACKED_FIELD(kWaypointMaxVerticalJerk, data_node, waypoint.max_vertical_jerk)) {
-        return false;
-      }
-      if (!LOAD_PACKED_FIELD(kWaypointMaxHeadingRate, data_node, waypoint.max_heading_rate)) {
-        return false;
-      }
-      if (!LOAD_PACKED_FIELD(kWaypointMaxHeadingAccel, data_node, waypoint.max_heading_accel)) {
-        return false;
-      }
-      if (!LOAD_PACKED_FIELD(kWaypointAcceptanceRadius, data_node, waypoint.acceptance_radius)) {
-        return false;
-      }
-      if (!LOAD_PACKED_FIELD(kWaypointAltitudeTolerance, data_node, waypoint.altitude_tolerance)) {
-        return false;
-      }
-      if (!LOAD_PACKED_FIELD(kWaypointTimeout, data_node, waypoint.timeout)) {
-        return false;
-      }
+      LOAD_PACKED_FIELD(kWaypointLatitude, data_node, waypoint.latitude);
+      LOAD_PACKED_FIELD(kWaypointLongitude, data_node, waypoint.longitude);
+      LOAD_PACKED_FIELD(kWaypointAltitude, data_node, waypoint.altitude);
+      LOAD_PACKED_FIELD(kWaypointAltitudeFrame, data_node, waypoint.altitude_frame);
+      LOAD_PACKED_FIELD(kWaypointAutoHeading, data_node, waypoint.auto_heading);
+      LOAD_PACKED_FIELD(kWaypointStopAtWaypoint, data_node, waypoint.stop_at_waypoint);
+      LOAD_PACKED_FIELD(kWaypointMaxHorizontalVelocity, data_node, waypoint.max_horizontal_velocity);
+      LOAD_PACKED_FIELD(kWaypointMaxHorizontalAccel, data_node, waypoint.max_horizontal_accel);
+      LOAD_PACKED_FIELD(kWaypointMaxHorizontalJerk, data_node, waypoint.max_horizontal_jerk);
+      LOAD_PACKED_FIELD(kWaypointMaxVerticalVelocity, data_node, waypoint.max_vertical_velocity);
+      LOAD_PACKED_FIELD(kWaypointMaxVerticalAccel, data_node, waypoint.max_vertical_accel);
+      LOAD_PACKED_FIELD(kWaypointMaxVerticalJerk, data_node, waypoint.max_vertical_jerk);
+      LOAD_PACKED_FIELD(kWaypointMaxHeadingRate, data_node, waypoint.max_heading_rate);
+      LOAD_PACKED_FIELD(kWaypointMaxHeadingAccel, data_node, waypoint.max_heading_accel);
+      LOAD_PACKED_FIELD(kWaypointAcceptanceRadius, data_node, waypoint.acceptance_radius);
+      LOAD_PACKED_FIELD(kWaypointAltitudeTolerance, data_node, waypoint.altitude_tolerance);
+      LOAD_PACKED_FIELD(kWaypointTimeout, data_node, waypoint.timeout);
       item.type = Type::kWaypoint;
       item.data = st::toBytes(waypoint);
     }
     else if (*type == kTypeTakeoff) {
       Takeoff takeoff;
-      if (!LOAD_PACKED_FIELD(kTakeoffAltitude, data_node, takeoff.altitude)) {
-        return false;
-      }
-      if (!LOAD_PACKED_FIELD(kTakeoffAltitudeFrame, data_node, takeoff.altitude_frame)) {
-        return false;
-      }
-      if (!LOAD_PACKED_FIELD(kTakeoffMaxSpeed, data_node, takeoff.max_speed)) {
-        return false;
-      }
-      if (!LOAD_PACKED_FIELD(kTakeoffMaxAccel, data_node, takeoff.max_accel)) {
-        return false;
-      }
-      if (!LOAD_PACKED_FIELD(kTakeoffMaxJerk, data_node, takeoff.max_jerk)) {
-        return false;
-      }
-      if (!LOAD_PACKED_FIELD(kTakeoffAltitudeTolerance, data_node, takeoff.altitude_tolerance)) {
-        return false;
-      }
-      if (!LOAD_PACKED_FIELD(kTakeoffTimeout, data_node, takeoff.timeout)) {
-        return false;
-      }
+      LOAD_PACKED_FIELD(kTakeoffAltitude, data_node, takeoff.altitude);
+      LOAD_PACKED_FIELD(kTakeoffAltitudeFrame, data_node, takeoff.altitude_frame);
+      LOAD_PACKED_FIELD(kTakeoffMaxSpeed, data_node, takeoff.max_speed);
+      LOAD_PACKED_FIELD(kTakeoffMaxAccel, data_node, takeoff.max_accel);
+      LOAD_PACKED_FIELD(kTakeoffMaxJerk, data_node, takeoff.max_jerk);
+      LOAD_PACKED_FIELD(kTakeoffAltitudeTolerance, data_node, takeoff.altitude_tolerance);
+      LOAD_PACKED_FIELD(kTakeoffTimeout, data_node, takeoff.timeout);
       item.type = Type::kTakeoff;
       item.data = st::toBytes(takeoff);
     }
     else if (*type == kTypeLand) {
       Land land;
-      if (!LOAD_PACKED_FIELD(kLandSpeed, data_node, land.speed)) {
-        return false;
-      }
-      if (!LOAD_PACKED_FIELD(kLandTimeout, data_node, land.timeout)) {
-        return false;
-      }
+      LOAD_PACKED_FIELD(kLandSpeed, data_node, land.speed);
+      LOAD_PACKED_FIELD(kLandTimeout, data_node, land.timeout);
       item.type = Type::kLand;
       item.data = st::toBytes(land);
     }
     else if (*type == kTypeRtl) {
       ReturnToLaunch rtl;
-      if (!LOAD_PACKED_FIELD(kRtlMinAltitude, data_node, rtl.min_altitude)) {
-        return false;
-      }
-      if (!LOAD_PACKED_FIELD(kRtlMaxHorizontalVelocity, data_node, rtl.max_horizontal_velocity)) {
-        return false;
-      }
-      if (!LOAD_PACKED_FIELD(kRtlMaxHorizontalAccel, data_node, rtl.max_horizontal_accel)) {
-        return false;
-      }
-      if (!LOAD_PACKED_FIELD(kRtlMaxHorizontalJerk, data_node, rtl.max_horizontal_jerk)) {
-        return false;
-      }
-      if (!LOAD_PACKED_FIELD(kRtlMaxVerticalVelocity, data_node, rtl.max_vertical_velocity)) {
-        return false;
-      }
-      if (!LOAD_PACKED_FIELD(kRtlMaxVerticalAccel, data_node, rtl.max_vertical_accel)) {
-        return false;
-      }
-      if (!LOAD_PACKED_FIELD(kRtlMaxVerticalJerk, data_node, rtl.max_vertical_jerk)) {
-        return false;
-      }
-      if (!LOAD_PACKED_FIELD(kRtlMaxHeadingRate, data_node, rtl.max_heading_rate)) {
-        return false;
-      }
-      if (!LOAD_PACKED_FIELD(kRtlMaxHeadingAccel, data_node, rtl.max_heading_accel)) {
-        return false;
-      }
-      if (!LOAD_PACKED_FIELD(kRtlAcceptanceRadius, data_node, rtl.acceptance_radius)) {
-        return false;
-      }
-      if (!LOAD_PACKED_FIELD(kRtlAltitudeTolerance, data_node, rtl.altitude_tolerance)) {
-        return false;
-      }
-      if (!LOAD_PACKED_FIELD(kRtlTimeout, data_node, rtl.timeout)) {
-        return false;
-      }
+      LOAD_PACKED_FIELD(kRtlMinAltitude, data_node, rtl.min_altitude);
+      LOAD_PACKED_FIELD(kRtlMaxHorizontalVelocity, data_node, rtl.max_horizontal_velocity);
+      LOAD_PACKED_FIELD(kRtlMaxHorizontalAccel, data_node, rtl.max_horizontal_accel);
+      LOAD_PACKED_FIELD(kRtlMaxHorizontalJerk, data_node, rtl.max_horizontal_jerk);
+      LOAD_PACKED_FIELD(kRtlMaxVerticalVelocity, data_node, rtl.max_vertical_velocity);
+      LOAD_PACKED_FIELD(kRtlMaxVerticalAccel, data_node, rtl.max_vertical_accel);
+      LOAD_PACKED_FIELD(kRtlMaxVerticalJerk, data_node, rtl.max_vertical_jerk);
+      LOAD_PACKED_FIELD(kRtlMaxHeadingRate, data_node, rtl.max_heading_rate);
+      LOAD_PACKED_FIELD(kRtlMaxHeadingAccel, data_node, rtl.max_heading_accel);
+      LOAD_PACKED_FIELD(kRtlAcceptanceRadius, data_node, rtl.acceptance_radius);
+      LOAD_PACKED_FIELD(kRtlAltitudeTolerance, data_node, rtl.altitude_tolerance);
+      LOAD_PACKED_FIELD(kRtlTimeout, data_node, rtl.timeout);
       item.type = Type::kReturnToLaunch;
       item.data = st::toBytes(rtl);
     }
     else {
-      std::cerr << "Invalid mission item type: " << *type << std::endl;
-      return false;
+      return std::unexpected("Invalid mission item type: " + *type);
     }
 
-    items.push_back(item);
+    mission.items.push_back(item);
   }
 
-  return true;
+  return mission;
 }
 }  // namespace mission
 }  // namespace tobas

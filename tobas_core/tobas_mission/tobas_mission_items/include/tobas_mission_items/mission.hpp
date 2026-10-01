@@ -6,8 +6,6 @@
 #include <cinttypes>
 #include <vector>
 
-#include <yaml-cpp/yaml.h>
-
 #include "./mission_items.hpp"
 
 namespace tobas
@@ -28,13 +26,9 @@ struct MissionItem
   std::vector<uint8_t> data;
 };
 
-class Mission
+struct Mission
 {
-public:
   std::vector<MissionItem> items;
-
-  YAML::Node dump() const;
-  bool load(const YAML::Node& node);
 };
 }  // namespace mission
 }  // namespace tobas

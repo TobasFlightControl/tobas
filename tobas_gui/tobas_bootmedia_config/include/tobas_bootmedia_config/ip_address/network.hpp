@@ -4,6 +4,7 @@
 #pragma once
 
 #include <cstdint>
+#include <expected>
 #include <string>
 #include <vector>
 
@@ -13,32 +14,23 @@ namespace gui
 {
 namespace bm
 {
-class Network
+struct Network
 {
-public:
-  explicit Network();
-
-  void clear();
-
-  bool load(const std::string& path);
-  bool save(const std::string& path) const;
-
-  std::string name;  ///< e.g. wlan0, eth0
-  bool automatic;    ///< If true, DHCP is used.
+  std::string name;       ///< e.g. wlan0, eth0
+  bool automatic = true;  ///< If true, DHCP is used.
 
   /** Fixed IP address configuration */
   struct Manual
   {
-    uint32_t address;           ///< e.g. 192.168.3.5
-    uint8_t prefix;             ///< e.g. /24
-    uint32_t gateway;           ///< e.g. 192.168.3.1
+    uint32_t address = {};      ///< e.g. 192.168.3.5
+    uint8_t prefix = {};        ///< e.g. /24
+    uint32_t gateway = {};      ///< e.g. 192.168.3.1
     std::vector<uint32_t> dns;  ///< e.g. 192.168.3.1, 1.1.1.1
   } manual;
-
-private:
-  void setAutomatic();
-  bool parseAddressLine(const std::string& text);
 };
+
+std::expected<Network, std::string> loadNetwork(const std::string& path);
+bool saveNetwork(const std::string& path, const Network& network);
 }  // namespace bm
 }  // namespace gui
 }  // namespace tobas
