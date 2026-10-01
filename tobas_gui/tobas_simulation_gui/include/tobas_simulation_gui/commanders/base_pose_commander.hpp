@@ -43,8 +43,8 @@ public:
 private:
   qt::ToggleButton* arming_button_;
 
-  std::array<qt::DoubleSliderDisplay*, 3> cmd_xyz_;  // [m]
-  std::array<qt::IntSliderDisplay*, 3> cmd_rpy_;     // [deg]
+  std::array<qt::DoubleSliderDisplay*, 3> cmd_xyz_;  ///< [m]
+  std::array<qt::IntSliderDisplay*, 3> cmd_rpy_;     ///< [deg]
 
   QPushButton* home_button_;
 

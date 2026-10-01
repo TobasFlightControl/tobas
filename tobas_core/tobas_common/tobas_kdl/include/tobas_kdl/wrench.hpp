@@ -16,8 +16,8 @@ using WrenchMap = std::map<std::string, Wrench>;
 class Wrench
 {
 public:
-  Vector force;   // Force that is applied at the origin of the current ref frame
-  Vector torque;  // Torque that is applied at the origin of the current ref frame
+  Vector force;   ///< Force that is applied at the origin of the current ref frame
+  Vector torque;  ///< Torque that is applied at the origin of the current ref frame
 
   inline explicit Wrench();
   inline explicit Wrench(const Vector& _force, const Vector& _torque);
@@ -27,12 +27,14 @@ public:
   inline void setZero();
   inline void setNaN();
 
-  // Changes the reference point of the wrench.
-  // The vector p is expressed in the same base as the wrench.
-  // The vector p is a vector from the old point to the new point.
+  /**
+   * Changes the reference point of the wrench.
+   * The vector p is expressed in the same base as the wrench.
+   * The vector p is a vector from the old point to the new point.
+   */
   inline Wrench refPoint(const Vector& p) const;
 
-  // Index-based access to components, first force(0..2), then torque(3..5)
+  /** Index-based access to components, first force(0..2), then torque(3..5) */
   inline double operator()(size_t index) const;
   inline double& operator()(size_t index);
 

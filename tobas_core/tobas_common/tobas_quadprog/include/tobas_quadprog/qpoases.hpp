@@ -9,9 +9,7 @@ namespace tobas
 {
 namespace quadprog
 {
-/**
- * @brief An Eigen wrapper of [qpOASES](https://github.com/coin-or/qpOASES)
- */
+/** An Eigen wrapper of [qpOASES](https://github.com/coin-or/qpOASES). */
 class QpOasesSolver : public QuadProgSolver
 {
 public:

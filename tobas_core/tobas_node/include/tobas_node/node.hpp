@@ -92,7 +92,7 @@ public:
     rclcpp::CallbackGroup::SharedPtr callback_group = nullptr);
 
   /**
-   * @brief Create an action server.
+   * Create an action server.
    *
    * @tparam ActType
    * @tparam Obj
@@ -101,7 +101,6 @@ public:
    * @param handle_cancel
    * @param execute Action execution function that runs in a separate thread.
    * @param obj
-   * @return ros2::ActionServerPtr<ActType>
    */
   template <typename ActType, typename Obj>
   ros2::ActionServerPtr<ActType> createAction(
@@ -215,10 +214,10 @@ public:
   std::vector<std::string>
   getStringArrayParam(const std::string& param_name, const std::vector<std::string>& default_value) noexcept;
 
-  /* Tobas default node options. */
+  /** Tobas default node options. */
   static rclcpp::NodeOptions nodeOptions_Default(rclcpp::NodeOptions options);
 
-  /* Node options for nodes with dynamic parameters. */
+  /** Node options for nodes with dynamic parameters. */
   static rclcpp::NodeOptions nodeOptions_DParam(rclcpp::NodeOptions options);
 
 private:
@@ -227,7 +226,7 @@ private:
 
   ros2::PublisherPtr<tobas_msgs::msg::Message> message_pub_;
 
-  tobas_dparam_msgs::msg::Parameters dparams_;  // Structure containing dynamic parameter settings and current values
+  tobas_dparam_msgs::msg::Parameters dparams_;  ///< Structure containing dynamic parameter settings and current values
   rclcpp::ParameterEventHandler dparam_sub_;
   std::vector<ros2::ParamHandlePtr> dparam_handles_;
   ros2::ServiceServerPtr<tobas_dparam_msgs::srv::GetParams> get_dparam_ss_;

@@ -12,8 +12,8 @@ namespace wpa
 enum KeyMgmt
 {
   NONE,
-  WPA_PSK,  // WPA2-Personal
-  SAE,      // WPA3-Personal
+  WPA_PSK,  ///< WPA2-Personal
+  SAE,      ///< WPA3-Personal
 };
 
 std::string tokenFromEnum(KeyMgmt key_mgmt);

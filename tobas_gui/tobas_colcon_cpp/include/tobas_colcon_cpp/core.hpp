@@ -14,7 +14,7 @@ namespace colcon
 {
 struct BuildOptions
 {
-  size_t parallel_workers = 0;  // Zero uses all available processors.
+  size_t parallel_workers = 0;  ///< Zero uses all available processors.
   bool merge_install = false;
   bool symlink_install = false;
   bool cmake_clean_cache = false;

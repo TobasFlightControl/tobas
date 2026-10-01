@@ -60,8 +60,8 @@ private:
   PositionPID pos_pid_;
   AngleAxisPI rot_pi_;
   QpMixer mixer_;
-  double atti_wn_, head_wn_;      // [rad/s]
-  double atti_zeta_, head_zeta_;  // [-]
+  double atti_wn_, head_wn_;      ///< [rad/s]
+  double atti_zeta_, head_zeta_;  ///< [-]
   kdl::Vector rate_gain_;
 
   // Mutable variables

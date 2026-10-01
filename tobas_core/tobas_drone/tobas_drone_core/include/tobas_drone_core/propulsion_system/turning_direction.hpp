@@ -16,7 +16,7 @@ enum class TurningDirection
 std::string textFromEnum(TurningDirection interface);
 bool enumFromText(const std::string& text, TurningDirection& dst);
 
-/* CCW = 1, CW = -1 */
+/** CCW = 1, CW = -1 */
 inline constexpr int sign(TurningDirection direction)
 {
   switch (direction) {

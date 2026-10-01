@@ -26,12 +26,10 @@ public:
   void updateInternalDataStructures() override;
 
   /**
-   * Calculate inverse velocity kinematics, from joint positions
-   * and cartesian velocities to joint velocities.
+   * Calculate inverse velocity kinematics, from joint positions and cartesian velocities to joint velocities.
    *
    * @param q_in input joint positions
    * @param v_in input cartesian velocity
-   *
    * @return The solution, or the QP solver error.
    */
   std::expected<JntArray, std::string> cartToJnt(const JntArray& q_in, const TwistMap& v_in);
@@ -48,8 +46,8 @@ private:
 
   Eigen::Vector6d Wt_ = Eigen::Vector6d::Constant(1.0);
   double Wj_ = 1e-3;   // TODO: Scale by the supported weight for each joint.
-  Eigen::MatrixXd J_;  // Big jacobian
-  Eigen::VectorXd t_;  // Big velocity in TS
+  Eigen::MatrixXd J_;  ///< Big jacobian
+  Eigen::VectorXd t_;  ///< Big velocity in TS
 
   quadprog::DualActiveSetSolver qp_solver_;
 

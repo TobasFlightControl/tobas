@@ -17,7 +17,8 @@ namespace tobas
 namespace ros2
 {
 /**
- * @brief Synchronous service client.
+ * Synchronous service client.
+ *
  * @note Service calls block the calling thread. Do not use this client where real-time behavior is required.
  */
 template <typename SrvType>
@@ -30,7 +31,7 @@ public:
     rclcpp::CallbackGroup::SharedPtr group = nullptr);
 
   /**
-   * @brief Call the service and wait for a response.
+   * Call the service and wait for a response.
    *
    * @param req Service request.
    * @param timeout Maximum time to wait for a response. Waits indefinitely when non-positive.

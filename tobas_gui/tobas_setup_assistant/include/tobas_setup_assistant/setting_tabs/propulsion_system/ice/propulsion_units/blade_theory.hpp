@@ -16,7 +16,7 @@ namespace propulsion
 {
 namespace ice
 {
-/* Approximate variable-pitch propeller aerodynamic parameters with blade theory and Taylor expansion (memo: 3-36). */
+/** Approximate variable-pitch propeller aerodynamic parameters with blade theory and Taylor expansion (memo: 3-36). */
 class BladeTheory
 {
 public:
@@ -38,13 +38,13 @@ private:
   const double theta_;
   const double rho_;
 
-  /* Solidity */
+  /** Solidity */
   double sigma() const;
 
-  /* Inflow ratio */
+  /** Inflow ratio */
   double lambda() const;
 
-  /* dlam / dtheta */
+  /** dlam / dtheta */
   double lambdaDeriv() const;
 };
 }  // namespace ice

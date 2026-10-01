@@ -14,7 +14,7 @@ namespace tobas
 {
 namespace y_axis_tilt_multicopter
 {
-/* memo: 3-39 */
+/** memo: 3-39 */
 class Mixer : public MixerI
 {
   using super = MixerI;
@@ -40,13 +40,13 @@ private:
   {
     bool is_tilt;
     size_t column;
-    int sign;  // Signs of the Y components of tilt axes viewed from the body frame.
+    int sign;  ///< Signs of the Y components of tilt axes viewed from the body frame.
   };
   std::vector<StaticRotorLinkInfo> info_;
 
   struct DynamicRotorLinkState
   {
-    double alpha;  // Tilt angle offsets viewed from the body frame [rad].
+    double alpha;  ///< Tilt angle offsets viewed from the body frame [rad].
   };
   std::vector<DynamicRotorLinkState> state_;
 

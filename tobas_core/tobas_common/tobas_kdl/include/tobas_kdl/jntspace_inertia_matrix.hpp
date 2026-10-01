@@ -11,7 +11,7 @@ namespace tobas
 {
 namespace kdl
 {
-/* This class represents a fixed `nj` matrix containing the joint-space inertia matrix. */
+/** This class represents a fixed `nj` matrix containing the joint-space inertia matrix. */
 class JntSpaceInertiaMatrix
 {
 public:
@@ -20,7 +20,7 @@ public:
   inline explicit JntSpaceInertiaMatrix();
   inline explicit JntSpaceInertiaMatrix(int nj);
 
-  /* Resize the array. */
+  /** Resize the array. */
   inline void resize(size_t nj);
 
   inline double operator()(size_t i, size_t j) const;

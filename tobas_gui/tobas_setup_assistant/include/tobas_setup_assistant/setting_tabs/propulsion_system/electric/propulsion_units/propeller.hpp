@@ -32,28 +32,28 @@ public:
   YAML::Node dump() const override;
   void load(const YAML::Node& node) override;
 
-  /* Number of blades per propeller */
+  /** Number of blades per propeller */
   int numBlades() const;
 
-  /* Diameter of the propeller's rotational plane [m] */
+  /** Diameter of the propeller's rotational plane [m] */
   double diameter() const;
 
-  /* Radius of the propeller's rotational plane [m] */
+  /** Radius of the propeller's rotational plane [m] */
   double radius() const;
 
-  /* Pitch length at the propeller tip [m] */
+  /** Pitch length at the propeller tip [m] */
   double pitchLength() const;
 
-  /* Pitch angle at the propeller tip [rad] */
+  /** Pitch angle at the propeller tip [rad] */
   double pitchAngle() const;
 
-  /* Minimum blade chord length [m] */
+  /** Minimum blade chord length [m] */
   double minChord() const;
 
-  /* Maximum blade chord length [m] */
+  /** Maximum blade chord length [m] */
   double maxChord() const;
 
-  /* Average blade chord length [m] */
+  /** Average blade chord length [m] */
   double meanChord() const;
 
 private:

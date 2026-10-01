@@ -14,7 +14,7 @@ namespace tobas
 {
 namespace dxl
 {
-/* Bridge between `tobas_msgs` and `tobas_dynamixel_msgs`. */
+/** Bridge between `tobas_msgs` and `tobas_dynamixel_msgs`. */
 class DynamixelBridgeNode : public BaseNode
 {
   using self = DynamixelBridgeNode;

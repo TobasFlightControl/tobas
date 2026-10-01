@@ -21,7 +21,6 @@ public:
   explicit ImuFilterConfigServer(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  // Dynamic parameters
   struct LowPassFilterConfig
   {
     int accel_cutoff = -1;

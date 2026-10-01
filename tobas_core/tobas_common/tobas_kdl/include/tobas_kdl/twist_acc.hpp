@@ -14,8 +14,8 @@ namespace kdl
 class TwistAcc
 {
 public:
-  VectorAcc vel;  // translational velocity and its 1st and 2nd derivative
-  VectorAcc rot;  // rotational velocity and its 1st and 2nd derivative
+  VectorAcc vel;  ///< translational velocity and its 1st and 2nd derivative
+  VectorAcc rot;  ///< rotational velocity and its 1st and 2nd derivative
 
   inline explicit TwistAcc();
   inline explicit TwistAcc(const VectorAcc& _vel, const VectorAcc& _rot);
@@ -26,7 +26,7 @@ public:
   inline void setNaN();
 
   /**
-   * @brief Changes the reference point of the TwistAcc.
+   * Changes the reference point of the TwistAcc.
    * The RVector v_base_AB is expressed in the same base as the TwistAcc.
    * The RVector v_base_AB is a RVector from the old point to the new point.
    * Complexity : 6M+6A

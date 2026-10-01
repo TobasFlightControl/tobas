@@ -9,19 +9,16 @@ namespace tobas
 {
 namespace ctrl
 {
-/**
- * @brief Linear Kalman filter.
- * cf. https://www.tdupress.jp/book/b349390.html
- */
+/** Linear Kalman filter. cf. https://www.tdupress.jp/book/b349390.html */
 class KalmanFilter
 {
 public:
-  LinearStateSpace ss;  // x(k+1) = A x(k) + B u(k), y(k) = C x(k): discrete-time state equation
-  Eigen::MatrixXd Bv;   // Process noise matrix
-  Eigen::MatrixXd Q;    // Process noise covariance
-  Eigen::MatrixXd R;    // Observation noise covariance
-  Eigen::VectorXd y;    // Observation
-  Eigen::VectorXd u;    // Control input, if any
+  LinearStateSpace ss;  ///< x(k+1) = A x(k) + B u(k), y(k) = C x(k): discrete-time state equation
+  Eigen::MatrixXd Bv;   ///< Process noise matrix
+  Eigen::MatrixXd Q;    ///< Process noise covariance
+  Eigen::MatrixXd R;    ///< Observation noise covariance
+  Eigen::VectorXd y;    ///< Observation
+  Eigen::VectorXd u;    ///< Control input, if any
 
   explicit KalmanFilter();
   explicit KalmanFilter(
@@ -51,13 +48,13 @@ private:
   void verify() const;
 };
 
-/* Estimate a constant value that includes white noise. */
+/** Estimate a constant value that includes white noise. */
 class IdentityKalmanFilter
 {
 public:
-  Eigen::MatrixXd Q;  // Process noise covariance
-  Eigen::MatrixXd R;  // Observation noise covariance
-  Eigen::VectorXd y;  // Observation
+  Eigen::MatrixXd Q;  ///< Process noise covariance
+  Eigen::MatrixXd R;  ///< Observation noise covariance
+  Eigen::VectorXd y;  ///< Observation
 
   explicit IdentityKalmanFilter(const Eigen::Index& size = 0);
 

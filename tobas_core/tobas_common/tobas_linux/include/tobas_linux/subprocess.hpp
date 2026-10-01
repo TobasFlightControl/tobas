@@ -14,12 +14,12 @@ namespace tobas
 namespace linux
 {
 /**
- * @brief Return the child PID or an error if the argument list is empty or `fork()` fails.
+ * Return the child PID or an error if the argument list is empty or `fork()` fails.
  * Execution failures in the child are reported by exit status 127.
  */
 std::expected<pid_t, std::string> createSubprocess(const std::vector<char*>& _argv);
 
-/* Run a bash command in a subprocess. */
+/** Run a bash command in a subprocess. */
 std::expected<pid_t, std::string> createSubprocess(const std::string& command);
 }  // namespace linux
 }  // namespace tobas

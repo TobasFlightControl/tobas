@@ -21,7 +21,7 @@ public:
   explicit QoS(bool latch, bool reliable, size_t queue_size);
 };
 
-/* The default topic QoS. */
+/** The default topic QoS. */
 class DefaultQoS : public QoS
 {
 public:

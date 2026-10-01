@@ -22,14 +22,14 @@ class IPv4Widget : public BaseNetworkWidget
 
   using self = IPv4Widget;
 
-  /* Method index */
+  /** Method index */
   enum Method : int
   {
     kAutomatic = 0,
     kManual = 1,
   };
 
-  /* Prefix length index */
+  /** Prefix length index */
   enum PrefixLength : int
   {
     kSlash8 = 0,

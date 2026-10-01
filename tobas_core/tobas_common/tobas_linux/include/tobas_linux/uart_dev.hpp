@@ -14,7 +14,7 @@ namespace tobas
 namespace linux
 {
 /**
- * @brief UART driver.
+ * UART driver.
  * cf. [pySerial](https://github.com/pyserial/pyserial/tree/7aeea35429d15f3eefed10bbb659674638903e3a)
  */
 class UARTdev
@@ -41,13 +41,13 @@ public:
   bool disableHungupClose();
   bool setTimeout(cc_t msec_100);
 
-  /* Set the minimum number of characters that receive() waits for. */
+  /** Set the minimum number of characters that `receive()` waits for. */
   bool setMinimumChars(uint8_t num);
 
   bool send(const uint8_t* data, size_t length);
   bool receive(uint8_t* data, size_t length);
 
-  /* Receive 1 byte. */
+  /** Receive 1 byte. */
   uint8_t receiveByte();
 
 private:

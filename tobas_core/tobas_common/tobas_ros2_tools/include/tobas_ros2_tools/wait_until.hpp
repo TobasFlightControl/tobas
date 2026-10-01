@@ -9,7 +9,7 @@ namespace tobas
 {
 namespace ros2
 {
-/* Wait for `timeout` until `predicate` returns true. */
+/** Wait for `timeout` until `predicate` returns true. */
 bool waitUntil(
   const rclcpp::Node::SharedPtr& node,
   const std::function<bool()>& predicate,

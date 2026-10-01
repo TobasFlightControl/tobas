@@ -23,16 +23,13 @@ namespace kdl
  * derivatives. (e.g. Rall1d< Rall1d<double>, Rall1d<double>, double> ).
  *
  * S is always passed by value.
- *
- * \par Class Type
- * Concrete implementation
  */
 template <typename T, typename V = T, typename S = T>
 class Rall1d
 {
 public:
-  T t;     // value
-  V grad;  // gradient
+  T t;     ///< value
+  V grad;  ///< gradient
 
   inline explicit Rall1d() : t(), grad()
   {
@@ -48,7 +45,6 @@ public:
   {
   }
 
-  /* Copy constructor. */
   inline Rall1d(const Rall1d<T, V, S>& r) : t(r.t), grad(r.grad)
   {
   }

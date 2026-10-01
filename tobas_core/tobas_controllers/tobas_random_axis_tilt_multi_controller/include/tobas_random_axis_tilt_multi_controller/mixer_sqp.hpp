@@ -18,7 +18,7 @@ namespace tobas
 {
 namespace random_axis_tilt_multicopter
 {
-/* Solve tilt-rotor multicopter mixing with SQP (memo: 3-12). */
+/** Solve tilt-rotor multicopter mixing with SQP (memo: 3-12). */
 class SqpMixer : public MixerI
 {
   using self = SqpMixer;
@@ -56,10 +56,10 @@ private:
   nonplanar_multicopter::QpMixer np_mixer_;
 
   nlp::SQP sqp_;
-  const kdl::FrameMap* frames_ = nullptr;  // Owned by `fk_solver_`; reused by the SQP callbacks.
+  const kdl::FrameMap* frames_ = nullptr;  ///< Owned by `fk_solver_`; reused by the SQP callbacks.
 
-  Eigen::Diagonal6d Q_;  // EoM weights.
-  Eigen::DiagonalXd R_;  // Thrust weights.
+  Eigen::Diagonal6d Q_;  ///< EoM weights.
+  Eigen::DiagonalXd R_;  ///< Thrust weights.
   Eigen::Matrix6Xd B_;
   Eigen::Vector6d d_;
   Eigen::MatrixXd N_;

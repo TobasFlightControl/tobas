@@ -11,7 +11,7 @@
 namespace tobas
 {
 /**
- * @brief Compute the angle of attack (`alpha`).
+ * Compute the angle of attack (`alpha`).
  *
  * @param u,w Aircraft velocity relative to wind in the FRD coordinate system [m/s].
  * @return double Angle of attack [rad].
@@ -22,7 +22,7 @@ inline double angleOfAttack(const double& u, const double& w)
 }
 
 /**
- * @brief Compute the angle of attack (`alpha`).
+ * Compute the angle of attack (`alpha`).
  *
  * @param linvel_B Aircraft velocity relative to wind in the FRD coordinate system [m/s].
  * @return double Angle of attack [rad].
@@ -33,7 +33,7 @@ inline double angleOfAttack(const Eigen::Vector3d& linvel_B)
 }
 
 /**
- * @brief Compute the sideslip angle (`beta`).
+ * Compute the sideslip angle (`beta`).
  *
  * @param u,v,w Aircraft velocity relative to wind in the FRD coordinate system [m/s].
  * @return double Sideslip angle [rad].
@@ -45,7 +45,7 @@ inline double angleOfSideSlip(const double& u, const double& v, const double& w)
 }
 
 /**
- * @brief Compute the sideslip angle (`beta`).
+ * Compute the sideslip angle (`beta`).
  *
  * @param linvel_B Aircraft velocity relative to wind in the FRD coordinate system [m/s].
  * @return double Sideslip angle [rad].
@@ -56,7 +56,7 @@ inline double angleOfSideSlip(const Eigen::Vector3d& linvel_B)
 }
 
 /**
- * @brief Compute dynamic pressure (`q_bar`).
+ * Compute dynamic pressure (`q_bar`).
  *
  * @param rho Air density [kg/m^3].
  * @param V Magnitude of aircraft velocity relative to wind [m/s].

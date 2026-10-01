@@ -9,9 +9,7 @@ namespace tobas
 {
 namespace ctrl
 {
-/**
- * @brief Base class for converting continuous-time state equations to discrete-time state equations.
- */
+/** Base class for converting continuous-time state equations to discrete-time state equations. */
 class BaseC2D
 {
 public:

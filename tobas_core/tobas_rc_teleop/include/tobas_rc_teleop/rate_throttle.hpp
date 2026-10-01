@@ -28,9 +28,9 @@ public:
   void update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom, bool landed) override;
 
 private:
-  // ROS parameters.
-  double max_atti_rate_;  // [rad/s]
-  double max_head_rate_;  // [rad/s]
+  // ROS parameters
+  double max_atti_rate_;  ///< [rad/s]
+  double max_head_rate_;  ///< [rad/s]
   double atti_expo_;
   double head_expo_;
   double throt_expo_;

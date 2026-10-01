@@ -19,8 +19,8 @@ public:
   explicit FakeGnssPublisherNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  double pos_stddev_;  // [m]
-  double vel_stddev_;  // [m/s]
+  double pos_stddev_;  ///< [m]
+  double vel_stddev_;  ///< [m/s]
 
   ros2::PublisherPtr<tobas_msgs::Gnss> gnss_pub_;
   ros2::TimerPtr timer_;

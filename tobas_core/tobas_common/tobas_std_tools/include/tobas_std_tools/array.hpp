@@ -12,7 +12,7 @@
 
 namespace std
 {
-/* Console output for `std::array`. */
+/** Console output for `std::array`. */
 template <typename T, size_t N>
 std::ostream& operator<<(std::ostream& os, const std::array<T, N>& arr)
 {
@@ -35,7 +35,7 @@ namespace tobas
 {
 namespace st
 {
-/* Naive Summation． The worst-case round-off error scales with O(nε). */
+/** Naive Summation． The worst-case round-off error scales with O(nε). */
 template <typename T, size_t N>
 T sum(const std::array<T, N>& arr)
 {
@@ -46,7 +46,7 @@ T sum(const std::array<T, N>& arr)
   return sum;
 }
 
-/* Kahan Summation. The worst-case round-off error scales with O(nε^2). */
+/** Kahan Summation. The worst-case round-off error scales with O(nε^2). */
 template <typename T, size_t N>
 T fsum(const std::array<T, N>& arr)
 {
@@ -57,7 +57,7 @@ T fsum(const std::array<T, N>& arr)
   return sum.get();
 }
 
-/* The average of Kahan Summation. */
+/** The average of Kahan Summation. */
 template <typename T, size_t N>
 T fmean(const std::array<T, N>& arr)
 {
@@ -69,7 +69,7 @@ T fmean(const std::array<T, N>& arr)
   }
 }
 
-/* Return the index of the closest value. */
+/** Return the index of the closest value. */
 template <typename T, size_t N>
 size_t closestIndex(const std::array<T, N>& arr, const T& val)
 {
@@ -89,14 +89,14 @@ size_t closestIndex(const std::array<T, N>& arr, const T& val)
   return closest_idx;
 }
 
-/* Count a specific element. */
+/** Count a specific element. */
 template <typename T, size_t N>
 inline size_t count(const std::array<T, N>& arr, const T& val)
 {
   return std::count(arr.begin(), arr.end(), val);
 }
 
-/* Return true when all elements are equal. */
+/** Return true when all elements are equal. */
 template <typename T, size_t N>
 inline bool allEqual(const std::array<T, N>& arr, const T& target)
 {

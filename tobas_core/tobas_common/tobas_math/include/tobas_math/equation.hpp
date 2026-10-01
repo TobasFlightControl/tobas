@@ -10,10 +10,10 @@ namespace tobas
 {
 namespace math
 {
-/* Solve: a x + b = 0 (a != 0) */
+/** Solve: a x + b = 0 (a != 0) */
 double solveLinearEquation(double a, double b);
 
-/* Solve: a x^2 + b x + c = 0 (a != 0) */
+/** Solve: a x^2 + b x + c = 0 (a != 0) */
 std::pair<std::complex<double>, std::complex<double>> solveQuadraticEquation(double a, double b, double c);
 
 /**

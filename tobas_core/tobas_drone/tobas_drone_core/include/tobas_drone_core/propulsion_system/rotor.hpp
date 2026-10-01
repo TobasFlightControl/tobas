@@ -17,22 +17,22 @@ public:
   using SharedPtr = std::shared_ptr<RotorConfig>;
   using ConstSharedPtr = std::shared_ptr<const RotorConfig>;
 
-  std::string link_name = "";                          // Propeller link name.
-  TurningDirection direction = TurningDirection::CCW;  // Rotation direction: CCW or CW.
-  std::string tilt_joint_name = "";                    // Tilt joint name; an empty string means a fixed axis.
+  std::string link_name = "";                          ///< Propeller link name.
+  TurningDirection direction = TurningDirection::CCW;  ///< Rotation direction: CCW or CW.
+  std::string tilt_joint_name = "";                    ///< Tilt joint name; an empty string means a fixed axis.
 
   virtual std::expected<void, std::string> validate() const;
 
   virtual std::expected<void, std::string> load(const YAML::Node& node);
   virtual YAML::Node dump() const;
 
-  /* Ratio between thrust and reaction torque [m]. */
+  /** Ratio between thrust and reaction torque [m]. */
   virtual double momentConst() const = 0;
 
-  /* Cost of generating thrust with this actuator, used for mixing. */
+  /** Cost of generating thrust with this actuator, used for mixing. */
   virtual double effortWeight() const = 0;
 
-  /* CCW = 1, CW = -1 */
+  /** CCW = 1, CW = -1 */
   inline int sign() const;
 };
 

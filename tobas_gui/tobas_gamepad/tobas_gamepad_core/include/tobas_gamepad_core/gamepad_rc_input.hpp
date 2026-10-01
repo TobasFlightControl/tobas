@@ -15,46 +15,32 @@ namespace tobas
 {
 namespace gamepad
 {
-/* RC input state generated from gamepad input.*/
+/** RC input state generated from gamepad input. */
 struct GamepadRcInputState
 {
-  /* Whether the input device is being read correctly.*/
-  bool ok = false;
-  /* Roll command [-1, 1]. */
-  double roll = 0.0;
-  /* Pitch command [-1, 1]. */
-  double pitch = 0.0;
-  /* Throttle command [-1, 1]. */
-  double throttle = 0.0;
-  /* Yaw command [-1, 1]. */
-  double yaw = 0.0;
-  /* Flight mode. */
+  bool ok = false;        ///< Whether the input device is being read correctly.
+  double roll = 0.0;      ///< Roll command [-1, 1].
+  double pitch = 0.0;     ///< Pitch command [-1, 1].
+  double throttle = 0.0;  ///< Throttle command [-1, 1].
+  double yaw = 0.0;       ///< Yaw command [-1, 1].
   FlightMode mode = FlightMode::kStabilize;
-  /* Submode toggle. */
-  bool sub_mode = false;
-  /* RC input enable switch. */
-  bool enable = false;
-  /* Kill switch. */
+  bool sub_mode = false;  ///< Submode toggle.
+  bool enable = false;    ///< RC input enable switch.
   bool kill = false;
-  /* General-purpose switch. */
-  std::array<bool, 8> gpsw = {};
+  std::array<bool, 8> gpsw = {};  ///< General-purpose switch.
 };
 
-/* Settings for converting gamepad input to RC input.*/
+/** Settings for converting gamepad input to RC input. */
 struct GamepadRcInputConfig
 {
-  /* Invert the roll axis. */
   bool invert_roll = false;
-  /* Invert the pitch axis. */
   bool invert_pitch = true;
-  /* Invert the throttle axis. */
   bool invert_throttle = true;
-  /* Invert the yaw axis. */
   bool invert_yaw = true;
 };
 
 /**
- * @brief Driver that reads gamepad input with libevdev and converts it to RC input state.
+ * Driver that reads gamepad input with libevdev and converts it to RC input state.
  *
  * Reads a Linux input event device and converts button input to switches and absolute-axis input
  * to normalized RC command values.
@@ -76,16 +62,16 @@ public:
 
   ~GamepadRcInput();
 
-  /* Open the input device and make it readable. */
+  /** Open the input device and make it readable. */
   bool initialize(const std::string& _device_path);
 
-  /* Close the input device.*/
+  /** Close the input device. */
   void close();
 
-  /* Return true if the input device is open. */
+  /** Return true if the input device is open. */
   bool isOpen() const;
 
-  /* Read the current RC input state.*/
+  /** Read the current RC input state. */
   bool read(GamepadRcInputState& _rc_input);
 
 private:

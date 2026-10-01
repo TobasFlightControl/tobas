@@ -10,7 +10,7 @@ namespace tobas
 namespace kdl
 {
 /**
- * @brief Spherical coordinate system.
+ * Spherical coordinate system.
  * cf. https://wiis.info/math/euclidean-space/euclidean-space/spherical-coordinates/
  */
 class SphericalCoordinate

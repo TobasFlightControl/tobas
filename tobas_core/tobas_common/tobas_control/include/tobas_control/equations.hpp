@@ -26,16 +26,16 @@ public:
 
   inline bool isFinite() const;
 
-  /* Variable dimension. */
+  /** Variable dimension. */
   inline Eigen::Index variableSize() const;
 
-  /* Equation or inequality dimension. */
+  /** Equation or inequality dimension. */
   inline Eigen::Index equationSize() const;
 
-  /* Create a matrix equation for scaled variables. */
+  /** Create a matrix equation for scaled variables. */
   LinearEquation scale(const Eigen::VectorXd& scale) const;
 
-  /* Discretize an equation for rates into an equation for increments. */
+  /** Discretize an equation for rates into an equation for increments. */
   LinearEquation discretise(const double& dt) const;
 
   friend std::ostream& operator<<(std::ostream& os, const LinearEquation& arg);

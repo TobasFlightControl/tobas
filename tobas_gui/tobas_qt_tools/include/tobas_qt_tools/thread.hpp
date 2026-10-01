@@ -39,7 +39,7 @@ void ensureMetaTypesRegistered()
 }
 }  // namespace detail
 
-/* Wait for a thread to finish without stopping the GUI. */
+/** Wait for a thread to finish without stopping the GUI. */
 template <typename Thread, typename... SigArgs>
 auto startThreadAndWait(Thread& thread, void (Thread::*signal)(SigArgs...)) -> std::tuple<std::decay_t<SigArgs>...>
 {
@@ -75,10 +75,10 @@ auto startThreadAndWait(Thread& thread, void (Thread::*signal)(SigArgs...)) -> s
   return result;
 }
 
-/* Create a thread that runs a function and wait for it to finish without stopping the GUI. */
+/** Create a thread that runs a function and wait for it to finish without stopping the GUI. */
 void startThreadAndWait(std::function<void()> func);
 
-/* Sleep for the specified time without stopping the GUI. */
+/** Sleep for the specified time without stopping the GUI. */
 template <typename RepType, typename DurType>
 void spinFor(std::chrono::duration<RepType, DurType> time)
 {

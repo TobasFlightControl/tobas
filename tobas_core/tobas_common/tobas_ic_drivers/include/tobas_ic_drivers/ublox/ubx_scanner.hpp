@@ -61,10 +61,10 @@ public:
   inline const uint8_t* getChecksumB() const;
 
 private:
-  std::vector<uint8_t> buffer_;  // Buffer for UBX message
-  size_t payload_length_;        // Length of current message payload
-  size_t pos_;                   // Indicates current buffer offset
-  State state_;                  // Current scanner state
+  std::vector<uint8_t> buffer_;  ///< Buffer for UBX message
+  size_t payload_length_;        ///< Length of current message payload
+  size_t pos_;                   ///< Indicates current buffer offset
+  State state_;                  ///< Current scanner state
 };
 
 inline UbxScanner::State UbxScanner::state() const

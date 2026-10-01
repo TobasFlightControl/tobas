@@ -12,8 +12,7 @@ namespace tobas
 namespace stm
 {
 /**
- * @brief A linux driver of 6-axis IMU.
- *
+ * A linux driver of 6-axis IMU.
  * Datasheet: https://www.st.com/resource/en/datasheet/ism330dlc.pdf
  */
 class ISM330DLC
@@ -72,14 +71,14 @@ public:
   bool setAccelFullScale(fs_xl_t fs);
   bool setGyroFullScale(fs_g_t fs);
 
-  /* Read the current acceleration [m/s^2] and gyro [rad/s]. */
+  /** Read the current acceleration [m/s^2] and gyro [rad/s]. */
   bool readImu(double& ax, double& ay, double& az, double& gx, double& gy, double& gz);
 
 private:
-  static constexpr size_t kImuDataSize = 6 * 2;  // Gyro + Accel
+  static constexpr size_t kImuDataSize = 6 * 2;  ///< Gyro + Accel
   static constexpr size_t kSpiBufSize = kImuDataSize + 1;
 
-  /* 9: Register mapping (p.37) */
+  /** 9: Register mapping (p.37) */
   enum register_t : uint8_t
   {
     // Who I am ID
@@ -138,8 +137,8 @@ private:
     FS_XL_4G = 0b10 << 2,
     FS_XL_8G = 0b11 << 2,
     FS_XL_16G = 0b01 << 2,
-    LPF1_BW_SEL_2 = 0 << 1,  // fc = ODR/2
-    LPF1_BW_SEL_4 = 1 << 1,  // fc = ODR/4
+    LPF1_BW_SEL_2 = 0 << 1,  ///< fc = ODR/2
+    LPF1_BW_SEL_4 = 1 << 1,  ///< fc = ODR/4
     BW0_XL_1500HZ = 0 << 0,
     BW0_XL_400HZ = 1 << 0,
   };
@@ -217,10 +216,10 @@ private:
   enum ctrl8_xl_t : uint8_t
   {
     LPF2_XL_EN = 1 << 7,
-    HPCF_XL_50 = 0b00 << 5,   // fc = ODR/50
-    HPCF_XL_100 = 0b01 << 5,  // fc = ODR/100
-    HPCF_XL_9 = 0b10 << 5,    // fc = ODR/9
-    HPCF_XL_400 = 0b11 << 5,  // fc = ODR/400
+    HPCF_XL_50 = 0b00 << 5,   ///< fc = ODR/50
+    HPCF_XL_100 = 0b01 << 5,  ///< fc = ODR/100
+    HPCF_XL_9 = 0b10 << 5,    ///< fc = ODR/9
+    HPCF_XL_400 = 0b11 << 5,  ///< fc = ODR/400
     HP_REF_MODE = 1 << 4,
     INPUT_COMPOSITE = 1 << 3,
     HP_SLOPE_XL_EN = 1 << 2,
@@ -241,15 +240,15 @@ private:
   uint8_t tx_buf_[kSpiBufSize];
   uint8_t rx_buf_[kSpiBufSize];
 
-  double acc_scale_;   // LSB -> m/s^2
-  double gyro_scale_;  // LSB -> rad/s
+  double acc_scale_;   ///< LSB -> m/s^2
+  double gyro_scale_;  ///< LSB -> rad/s
 
-  uint8_t res_[kImuDataSize];  // The results of readRegs are stored.
+  uint8_t res_[kImuDataSize];  ///< The results of readRegs are stored.
 
-  /* 6.5.1: SPI read (p.27) */
+  /** 6.5.1: SPI read (p.27) */
   bool readRegs(const uint8_t& addr, const size_t& bytes);
 
-  /* 6.5.2: SPI write (p.28) */
+  /** 6.5.2: SPI write (p.28) */
   bool writeReg(const uint8_t& addr, const uint8_t& data);
 
   bool checkWhoAmI();

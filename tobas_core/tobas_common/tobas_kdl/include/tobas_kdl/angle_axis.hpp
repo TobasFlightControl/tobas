@@ -27,7 +27,7 @@ public:
 
 private:
   double angle_;
-  Vector axis_;  // Axis of rotation (normalized)
+  Vector axis_;  ///< Axis of rotation (normalized)
 };
 
 inline AngleAxis::AngleAxis() : angle_(0), axis_(1, 0, 0)

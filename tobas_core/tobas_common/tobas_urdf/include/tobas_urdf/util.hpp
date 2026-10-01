@@ -9,7 +9,7 @@ namespace tobas
 {
 namespace urdf
 {
-/* Return the absolute path of a file in a URDF. */
+/** Return the absolute path of a file in a URDF. */
 std::filesystem::path resolveUri(const std::string& uri);
 }  // namespace urdf
 }  // namespace tobas

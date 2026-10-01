@@ -18,7 +18,7 @@ class TreeInertiaSolver : public TreeSolverI
 public:
   explicit TreeInertiaSolver(const Tree& tree);
 
-  /* Compute mass properties around the root link. */
+  /** Compute mass properties around the root link. */
   RigidBodyInertia jntToCart(const JntArray& q);
 
 private:

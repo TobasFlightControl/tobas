@@ -69,7 +69,7 @@ private:
 
   std::optional<ProjectGenerator> prj_gen_;
 
-  /* Return all settings to their startup state. */
+  /** Return all settings to their startup state. */
   void reset();
 
   void enableSaveButtons(bool enable);

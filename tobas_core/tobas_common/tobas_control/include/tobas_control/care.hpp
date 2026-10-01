@@ -10,7 +10,7 @@ namespace tobas
 namespace ctrl
 {
 /**
- * @brief Solve the continuous-time algebraic Riccati equation.
+ * Solve the continuous-time algebraic Riccati equation.
  * cf. Arimoto-Potter method: https://qiita.com/trgkpc/items/8210927d5b035912a153
  */
 Eigen::MatrixXd care_ArimotoPotter(
@@ -20,7 +20,7 @@ Eigen::MatrixXd care_ArimotoPotter(
   const Eigen::MatrixXd& R);
 
 /**
- * @brief Solve the continuous-time algebraic Riccati equation.
+ * Solve the continuous-time algebraic Riccati equation.
  *
  * @note Does not work correctly (2023/5/24).
  */

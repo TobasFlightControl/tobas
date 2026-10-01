@@ -21,7 +21,7 @@ namespace crypt
 {
 namespace
 {
-/* Read `/etc/shadow` line by line. */
+/** Read `/etc/shadow` line by line. */
 std::vector<std::string> readLines(const std::string& path)
 {
   std::ifstream ifs(path);
@@ -39,7 +39,7 @@ std::vector<std::string> readLines(const std::string& path)
   return lines;
 }
 
-/* Convert colon-separated text to an array. */
+/** Convert colon-separated text to an array. */
 std::vector<std::string> splitShadow(const std::string& line)
 {
   std::vector<std::string> fields;
@@ -59,7 +59,7 @@ std::vector<std::string> splitShadow(const std::string& line)
   return fields;
 }
 
-/* Convert an array back to colon-separated text. */
+/** Convert an array back to colon-separated text. */
 std::string joinShadow(const std::vector<std::string>& fields)
 {
   std::ostringstream ss;
@@ -72,7 +72,7 @@ std::string joinShadow(const std::vector<std::string>& fields)
   return ss.str();
 }
 
-/* Safely overwrite a file. */
+/** Safely overwrite a file. */
 bool atomicOverwrite(const std::string& path, const std::string& content)
 {
   // Save existing metadata.

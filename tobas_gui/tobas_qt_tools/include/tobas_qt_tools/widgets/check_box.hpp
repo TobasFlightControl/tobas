@@ -25,7 +25,7 @@ public:
 
   explicit CheckBox(const QString& text, bool checked, QWidget* parent = nullptr);
 
-  /* Display only the text normally even when disabled. */
+  /** Display only the text normally even when disabled. */
   void setDisabledTextNormal();
 };
 }  // namespace qt

@@ -14,7 +14,7 @@ namespace gui
 namespace sa
 {
 /**
- * @brief Common signals.
+ * Common signals.
  * Use a separate interface class to loosely couple widgets across hierarchy levels.
  * This follows the same idea as ROS messages.
  */

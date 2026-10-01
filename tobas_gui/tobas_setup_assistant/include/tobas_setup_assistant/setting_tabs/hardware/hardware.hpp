@@ -45,40 +45,40 @@ public:
   const char* fmuName() const;
   const char* hardwarePackage() const;
 
-  /* [rad/s/√Hz] */
+  /** [rad/s/√Hz] */
   double gyroNoiseDensity() const;
-  /* [rad/s^2/√Hz] */
+  /** [rad/s^2/√Hz] */
   double gyroRandomWalk() const;
-  /* [s] */
+  /** [s] */
   int gyroBiasCorrTime() const;
-  /* [m/s^2/√Hz] */
+  /** [m/s^2/√Hz] */
   double accNoiseDensity() const;
-  /* [m/s^3/√Hz] */
+  /** [m/s^3/√Hz] */
   double accRandomWalk() const;
-  /* [s] */
+  /** [s] */
   int accBiasCorrTime() const;
 
-  /* [Hz] */
+  /** [Hz] */
   int magUpdateRate() const;
-  /* [G] */
+  /** [G] */
   double magNoiseStddev() const;
-  /* [G] */
+  /** [G] */
   double magHardBiasNorm() const;
 
-  /* [Hz] */
+  /** [Hz] */
   int presUpdateRate() const;
-  /* [Pa] */
+  /** [Pa] */
   double presNoiseStddev() const;
 
-  /* [Hz] */
+  /** [Hz] */
   int gnssUpdateRate() const;
-  /* [m] */
+  /** [m] */
   double gnssHorizontalPositionAccuracy() const;
-  /* [m] */
+  /** [m] */
   double gnssVerticalPositionAccuracy() const;
-  /* [m/s] */
+  /** [m/s] */
   double gnssHorizontalVelocityStddev() const;
-  /* [m/s] */
+  /** [m/s] */
   double gnssVerticalVelocityStddev() const;
 
   int numPwmChannels() const;

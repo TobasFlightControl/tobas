@@ -15,7 +15,7 @@ namespace propulsion
 {
 namespace electric
 {
-/* Unsteady Aerodynamic Parameter Estimation for Multirotor Helicopters [Nguyen+, 2019] */
+/** Unsteady Aerodynamic Parameter Estimation for Multirotor Helicopters [Nguyen+, 2019] */
 class BladeTheory
 {
 public:
@@ -37,16 +37,16 @@ private:
   const double theta_;
   const double rho_;
 
-  /* Solidity */
+  /** Solidity */
   double sigma() const;
 
-  /* Inflow ratio */
+  /** Inflow ratio */
   double lambda() const;
 
-  /* Thrust coefficient */
+  /** Thrust coefficient */
   double C_T() const;
 
-  /* Horizontal force coefficient (divided by mu) */
+  /** Horizontal force coefficient (divided by mu) */
   double C_H() const;
 };
 }  // namespace electric

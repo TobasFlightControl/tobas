@@ -18,7 +18,7 @@ public:
 
 private:
   const Eigen::Index x_size_, u_size_;
-  const Eigen::MatrixXd I_;  // Identity matrix
+  const Eigen::MatrixXd I_;  ///< Identity matrix
 };
 }  // namespace ctrl
 }  // namespace tobas

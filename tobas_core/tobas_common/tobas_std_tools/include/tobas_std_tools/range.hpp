@@ -34,7 +34,7 @@ public:
 
   inline T clamp(const T& x) const;
 
-  /* Return true if value is clamped. */
+  /** Return true if value is clamped. */
   inline bool clamp(const T& src, T& dst) const;
 
   inline T range() const;

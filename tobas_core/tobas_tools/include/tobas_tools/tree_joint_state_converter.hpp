@@ -13,7 +13,7 @@
 
 namespace tobas
 {
-/* tobas_msgs/JointStateArray -> kdl::JntArray */
+/** `tobas_msgs/JointStateArray` -> `kdl::JntArray` */
 class TreeJointStateConverter : public kdl::TreeSolverI
 {
   using super = kdl::TreeSolverI;

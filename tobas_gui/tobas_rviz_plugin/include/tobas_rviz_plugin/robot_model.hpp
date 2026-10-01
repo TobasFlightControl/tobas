@@ -21,7 +21,7 @@ namespace tobas
 {
 namespace rviz
 {
-/* Kinematic information required to display a URDF robot. */
+/** Kinematic information required to display a URDF robot. */
 class RobotModel
 {
 public:

@@ -33,37 +33,37 @@ public:
   YAML::Node dump() const override;
   void load(const YAML::Node& node) override;
 
-  /* Number of blades per propeller */
+  /** Number of blades per propeller */
   int numBlades() const;
 
-  /* Diameter of the propeller's rotational plane [m] */
+  /** Diameter of the propeller's rotational plane [m] */
   double diameter() const;
 
-  /* Radius of the propeller's rotational plane [m] */
+  /** Radius of the propeller's rotational plane [m] */
   double radius() const;
 
-  /* Pitch length at the neutoral position [m] */
+  /** Pitch length at the neutoral position [m] */
   double pitchLengthNeutoral() const;
 
-  /* Pitch angle at the neutoral position [rad] */
+  /** Pitch angle at the neutoral position [rad] */
   double pitchAngleNeutoral() const;
 
-  /* Variable pitch angle limit around the neutoral position [rad] */
+  /** Variable pitch angle limit around the neutoral position [rad] */
   st::Range<double> pitchAngleLimit() const;
 
-  /* Center pitch angle for control [rad] */
+  /** Center pitch angle for control [rad] */
   double centerPitchAngle() const;
 
-  /* Maximum pitch angle rate [rad/s] */
+  /** Maximum pitch angle rate [rad/s] */
   double maxPitchAngleRate() const;
 
-  /* Minimum blade chord length [m] */
+  /** Minimum blade chord length [m] */
   double minChord() const;
 
-  /* Maximum blade chord length [m] */
+  /** Maximum blade chord length [m] */
   double maxChord() const;
 
-  /* Average blade chord length [m] */
+  /** Average blade chord length [m] */
   double meanChord() const;
 
 private:

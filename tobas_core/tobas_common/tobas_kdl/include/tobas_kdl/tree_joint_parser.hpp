@@ -43,7 +43,7 @@ public:
   inline double maxEffort(const size_t& q_nr) const;
   inline double maxEffort(const std::string& jnt_name) const;
 
-  /* Return whether the joint exists in the `Tree`. */
+  /** Return whether the joint exists in the `Tree`. */
   inline bool exist(const std::string& jnt_name) const;
 
 private:
@@ -58,7 +58,7 @@ private:
 
   void resize();
 
-  /* Get all actuated joint names and order them the same way as RNE. */
+  /** Get all actuated joint names and order them the same way as RNE. */
   void parseJntNames();
 
   void parseJntNamesStep(const SegmentMap::const_iterator& seg_it);

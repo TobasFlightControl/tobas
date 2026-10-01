@@ -9,9 +9,7 @@ namespace tobas
 {
 namespace quadprog
 {
-/**
- * @brief A Condensed and Sparse QP Formulation for Predictive Control [Jerez+, 2011]
- */
+/** A Condensed and Sparse QP Formulation for Predictive Control [Jerez+, 2011] */
 class PrimalDualInteriorPointSolver : public QuadProgSolver
 {
 public:

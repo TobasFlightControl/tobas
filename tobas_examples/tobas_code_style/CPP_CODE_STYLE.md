@@ -209,13 +209,17 @@ double scale = 1.;  // NG
 
 ## Comments
 
-- Doc comments, including class and function comments: `/** @brief ... */`
-- Variable comments: `/* ... */` or `/** @brief ... */`
-- Implementation comments: `// ...`
-- Temporary commented-out code: `// ...`
-
 <!-- Custom -->
 
+- Class, enum type, and function (method) doc comments: `/** ... */`. Do not use `@brief`.
+- Keep a `/** ... */` comment on a single line when it fits within the 120-column limit, including indentation and delimiters.
+- Use a multiline `/** ... */` comment for longer descriptions or structured documentation such as `@param` and `@return`.
+- Do not insert blank lines between `@param` entries or between `@param` and `@return`.
+- Short member variable and enumerator descriptions: append `///< ...` to the declaration when the whole line fits within the 120-column limit.
+- Longer member variable and enumerator descriptions: place `/** ... */` before the declaration. Do not use `@brief`.
+- Omit comments for member variables and enumerators whose meaning is self-evident from their names and types.
+- Implementation comments: `// ...`
+- Temporary commented-out code: `// ...`
 - Write all comments in English.
 - Add appropriate explanatory comments for each unit of processing.
 - Wrap keywords that appear in the code in backticks.

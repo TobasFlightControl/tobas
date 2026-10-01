@@ -9,7 +9,7 @@ namespace tobas
 {
 namespace eskf
 {
-/* Estimate heading variance from geomagnetic variance (memo: 2-75). */
+/** Estimate heading variance from geomagnetic variance (memo: 2-75). */
 double headingVarianceFromMag(const Eigen::Vector3d& mag, const Eigen::Matrix3d& cov);
 }  // namespace eskf
 }  // namespace tobas

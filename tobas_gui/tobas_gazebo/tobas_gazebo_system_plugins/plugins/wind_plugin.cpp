@@ -26,8 +26,8 @@ namespace tobas
 namespace gazebo
 {
 /**
- * @brief Modeling of Wind Phenomena and Analysis of Their Effects on UAV Trajectory Tracking
- * Performance [Siqueira+, 2017]. Implements the four wind components.
+ * Modeling of Wind Phenomena and Analysis of Their Effects on UAV Trajectory Tracking Performance [Siqueira+, 2017].
+ * Implements the four wind components.
  *
  * - Constant wind:
  * - Turbulance: https://jp.mathworks.com/help/aeroblks/drydenwindturbulencemodeldiscrete.html

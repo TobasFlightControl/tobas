@@ -44,17 +44,17 @@ public:
 private:
   // SDF parameters
   int update_rate_;
-  double max_voltage_;  // [V] Voltage at full charge
-  double sag_voltage_;  // [V] Voltage where discharge characteristics change abruptly. For LiPo, about 3.4 V per cell.
-  double max_current_;  // [A] Maximum current
-  double capacity_;     // [As] Electrical capacity
-  double registance_;   // [Ω] Internal resistance
-  double voltage_noise_stddev_;  // [V] Standard deviation of voltage observation noise
-  double current_noise_stddev_;  // [A] Standard deviation of current observation noise
+  double max_voltage_;           ///< [V] Voltage at full charge
+  double sag_voltage_;           ///< [V] Voltage where discharge characteristics change abruptly
+  double max_current_;           ///< [A] Maximum current
+  double capacity_;              ///< [As] Electrical capacity
+  double registance_;            ///< [Ω] Internal resistance
+  double voltage_noise_stddev_;  ///< [V] Standard deviation of voltage observation noise
+  double current_noise_stddev_;  ///< [A] Standard deviation of current observation noise
   std::vector<std::string> rotor_link_names_;
 
-  std::map<std::string, double> rotor_currents_;  // [A] Current flowing through each motor
-  double q_;                                      // [As] Current charge amount
+  std::map<std::string, double> rotor_currents_;  ///< [A] Current flowing through each motor
+  double q_;                                      ///< [As] Current charge amount
   std::optional<RateManager> rate_manager_;
 
   // Noise generator

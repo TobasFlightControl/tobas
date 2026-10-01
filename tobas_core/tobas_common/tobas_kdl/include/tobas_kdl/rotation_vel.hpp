@@ -12,8 +12,8 @@ namespace kdl
 class RotationVel
 {
 public:
-  Rotation R;  // Rotation matrix
-  Vector w;    // rotation vector
+  Rotation R;  ///< Rotation matrix
+  Vector w;    ///< rotation vector
 
   inline explicit RotationVel();
   inline explicit RotationVel(const Rotation& _R);
@@ -25,7 +25,7 @@ public:
   static inline RotationVel RotY(const doubleVel& angle);
   static inline RotationVel RotZ(const doubleVel& angle);
 
-  /* Axis must be normalized. rotation around a constant vector! */
+  /** Axis must be normalized. Rotation around a constant vector. */
   static inline RotationVel Rot(const Vector& axis, const doubleVel& angle);
 
   inline void setIdentity();

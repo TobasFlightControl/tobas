@@ -35,40 +35,35 @@ private:
   inline explicit TreeElement(const std::string& name);
 };
 
-/**
- * @brief This class encapsulates a tree kinematic interconnection structure.
- * It is built out of segments.
- */
+/** This class encapsulates a tree kinematic interconnection structure. It is built out of segments. */
 class Tree
 {
 public:
   using SharedPtr = std::shared_ptr<Tree>;
   using ConstSharedPtr = std::shared_ptr<const Tree>;
 
-  /**
-   * @brief The constructor of a tree, a new tree is always empty.
-   */
+  /** The constructor of a tree, a new tree is always empty. */
   explicit Tree(const std::string& root_name = "");
 
   /**
-   * @brief Copy constructor.
+   * Copy constructor.
    * Since `TreeElement` member variables contain pointers,
    * an explicit copy constructor is required to copy objects.
    */
   Tree(const Tree& arg);
   Tree& operator=(const Tree& arg);
 
-  /* Floating-link system with 6 DoF. */
+  /** Floating-link system with 6 DoF. */
   static Tree FloatingBase(const std::string& world_name, const std::string& base_name);
 
-  /* Clear all segments. */
+  /** Clear all segments. */
   void clear();
 
-  /* Check validity. */
+  /** Check validity. */
   std::expected<void, std::string> validate() const;
 
   /**
-   * @brief Adds a new segment to the end of the segment with hook_name as seg_name.
+   * Adds a new segment to the end of the segment with hook_name as seg_name.
    *
    * @param segment new segment to add
    * @param hook_name name of the segment to connect this segment with
@@ -76,14 +71,14 @@ public:
   bool addSegment(const Segment& segment, const std::string& hook_name);
 
   /**
-   * @brief Removes a leaf segment without invalidating other segment iterators.
+   * Removes a leaf segment without invalidating other segment iterators.
    *
    * @param seg_name name of the segment to remove from the tree
    */
   bool removeSegment(const std::string& seg_name);
 
   /**
-   * @brief Adds a complete tree to the end of the segment with hookname as seg_name.
+   * Adds a complete tree to the end of the segment with hookname as seg_name.
    *
    * @param tree Tree to add
    * @param hook_name name of the segment to connect the tree with
@@ -91,7 +86,7 @@ public:
   bool addTree(const Tree& tree, const std::string& hook_name);
 
   /**
-   * @brief Extract a tree having seg_name as root. Only child segments of seg_name are added to the new tree.
+   * Extract a tree having seg_name as root. Only child segments of seg_name are added to the new tree.
    *
    * @param seg_name The name of the segment to be used as root of the new tree
    * @param tree The resulting sub-tree
@@ -118,7 +113,7 @@ public:
 private:
   SegmentMap segments_;
   SegmentMap::const_iterator root_seg_ = segments_.end();
-  size_t nj_ = 0;  // The number of movable joints
+  size_t nj_ = 0;  ///< The number of movable joints
 
   std::expected<void, std::string> validateRecursive(
     const SegmentMap::const_iterator& seg_it,

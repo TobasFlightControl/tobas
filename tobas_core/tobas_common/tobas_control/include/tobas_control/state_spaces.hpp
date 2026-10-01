@@ -27,14 +27,14 @@ public:
   inline void resize(const Eigen::Index& x_size, const Eigen::Index& u_size);
   inline void setZero();
 
-  /* Compute A x + B u. */
+  /** Compute A x + B u. */
   inline Eigen::VectorXd dynamics(const Eigen::VectorXd& x, const Eigen::VectorXd& u) const;
 
   inline bool isSizeMatch() const;
   inline bool isFinite() const;
   inline bool isControllable() const;
 
-  /* Create state equations for scaled states and inputs. */
+  /** Create state equations for scaled states and inputs. */
   LinearDynamics scale(const Eigen::VectorXd& x_scale, const Eigen::VectorXd& u_scale) const;
 
   friend std::ostream& operator<<(std::ostream& os, const LinearDynamics& arg);
@@ -54,7 +54,7 @@ public:
 
   inline LinearDynamics getDynamics() const;
 
-  /* Update `A` and `B`. */
+  /** Update `A` and `B`. */
   inline void updateDynamics(const LinearDynamics& dyn);
 
   inline Eigen::Index stateSize() const;

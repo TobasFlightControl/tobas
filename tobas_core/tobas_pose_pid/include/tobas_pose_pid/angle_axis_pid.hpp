@@ -28,8 +28,8 @@ public:
 
 private:
   // Config
-  kdl::Vector natural_freq_ = { 10.0, 10.0, 10.0 };  // [rad/s]
-  kdl::Vector damp_ratio_ = { 1.0, 1.0, 1.0 };       // [-]
+  kdl::Vector natural_freq_ = { 10.0, 10.0, 10.0 };  ///< [rad/s]
+  kdl::Vector damp_ratio_ = { 1.0, 1.0, 1.0 };       ///< [-]
 
   // Gain
   kdl::Vector kp_;

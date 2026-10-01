@@ -12,7 +12,7 @@
 
 namespace tobas
 {
-/* Base class for mixers. */
+/** Base class for mixers. */
 class MixerI
 {
 public:
@@ -34,7 +34,7 @@ protected:
   static inline Eigen::VectorXd thrustDeadband(const Eigen::VectorXd& thrusts);
 
 private:
-  static constexpr double kZeroThrustThresh = 1e-2;  // [N]
+  static constexpr double kZeroThrustThresh = 1e-2;  ///< [N]
 };
 
 inline bool MixerI::isInitialized() const

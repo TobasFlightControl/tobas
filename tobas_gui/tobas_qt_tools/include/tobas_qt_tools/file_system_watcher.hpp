@@ -22,7 +22,7 @@ class FileSystemWatcher : public QFileSystemWatcher
 public:
   using super::QFileSystemWatcher;
 
-  /* Delete all watched paths. */
+  /** Delete all watched paths. */
   void clear();
 };
 }  // namespace qt

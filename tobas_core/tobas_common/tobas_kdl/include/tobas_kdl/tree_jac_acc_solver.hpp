@@ -11,10 +11,8 @@ namespace tobas
 namespace kdl
 {
 /**
- * @brief Compute the `Jd qd` term in `xdd = J qd + Jd qd`.
+ * Compute the `Jd qd` term in `xdd = J qd + Jd qd`.
  * `Jd qd` can be obtained by running the forward propagation of RNE with `qdd = 0` and `grav = 0`.
- *
- * cf. `tree_id_solver.cpp`
  */
 class TreeJacAccSolver : public TreeSolverI
 {

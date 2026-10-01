@@ -21,7 +21,7 @@ public:
   void setAxis(const Eigen::Vector3d& axis);
 
 private:
-  Eigen::Vector3d axis_ = Eigen::Vector3d::Zero();  // The axis of the joint
+  Eigen::Vector3d axis_ = Eigen::Vector3d::Zero();  ///< The axis of the joint
 };
 }  // namespace rviz
 }  // namespace tobas

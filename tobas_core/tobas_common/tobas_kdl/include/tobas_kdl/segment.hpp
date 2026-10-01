@@ -16,7 +16,7 @@ namespace tobas
 namespace kdl
 {
 /**
- * @brief This class encapsulates a simple segment, that is a "rigid body" (i.e., a frame and a rigid body inertia)
+ * This class encapsulates a simple segment, that is a "rigid body" (i.e., a frame and a rigid body inertia)
  * with a joint and with "handles", root and tip to connect to other segments.
  *
  * A simple segment is described by the following properties:
@@ -30,7 +30,7 @@ class Segment
 {
 public:
   /**
-   * @brief Constructor of the segment.
+   * Constructor of the segment.
    *
    * @param name Name of the segment
    * @param joint Joint of the segment
@@ -43,22 +43,22 @@ public:
     const Frame& f_tip = Frame::Identity(),
     const RigidBodyInertia& I = RigidBodyInertia::Zero());
 
-  /* Check validity (except for the root segment). */
+  /** Check validity (except for the root segment). */
   std::expected<void, std::string> validate() const;
 
-  /* Request the pose of the segment wrt. the parent frame. */
+  /** Request the pose of the segment wrt. the parent frame. */
   inline Frame pose(double q) const;
 
-  /* Request the 6D-velocity of the tip of the segment wrt. the parent frame. */
+  /** Request the 6D-velocity of the tip of the segment wrt. the parent frame. */
   inline Twist twist(double q, double qd) const;
 
-  /* Request the jacobian for the joint of this segment wrt. the parent frame. */
+  /** Request the jacobian for the joint of this segment wrt. the parent frame. */
   inline SegmentJacobian jacobian(double q) const;
 
-  /* Request the name of the segment. */
+  /** Request the name of the segment. */
   inline const std::string& name() const;
 
-  /* Request the joint of the segment. */
+  /** Request the joint of the segment. */
   inline const Joint& joint() const;
 
   /**
@@ -73,10 +73,10 @@ public:
    */
   inline Eigen::Matrix3d rotGrad2(double q) const;
 
-  /* Request the frame from the end of the joint (= drive shaft) to the tip of the segment. */
+  /** Request the frame from the end of the joint (= drive shaft) to the tip of the segment. */
   inline Frame frame() const;
 
-  /* Request the inertia of the segment. */
+  /** Request the inertia of the segment. */
   inline const RigidBodyInertia& inertia() const;
 
   friend std::ostream& operator<<(std::ostream& os, const Segment& arg);

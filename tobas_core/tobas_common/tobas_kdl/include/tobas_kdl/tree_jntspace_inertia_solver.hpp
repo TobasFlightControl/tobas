@@ -21,7 +21,7 @@ public:
   void updateInternalDataStructures() override;
 
   /**
-   * @brief Compute the joint-space inertia matrix using the unit vector method.
+   * Compute the joint-space inertia matrix using the unit vector method.
    *
    * @param q Joint angles.
    */

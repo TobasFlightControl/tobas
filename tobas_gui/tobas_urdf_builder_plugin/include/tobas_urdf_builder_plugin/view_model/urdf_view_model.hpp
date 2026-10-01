@@ -22,24 +22,24 @@ class URDFViewModel
 public:
   explicit URDFViewModel();
 
-  /* Get URDF model. */
+  /** Get URDF model. */
   const ::urdf::ModelSharedPtr& urdf() const;
 
-  /* Get the complete list of links. */
+  /** Get the complete list of links. */
   const std::map<std::string, ::urdf::LinkSharedPtr>& links() const;
 
-  /* Get the complete list of joints. */
+  /** Get the complete list of joints. */
   const std::map<std::string, ::urdf::JointSharedPtr>& joints() const;
 
-  /* Get the complete list of materials. */
+  /** Get the complete list of materials. */
   const std::map<std::string, ::urdf::MaterialSharedPtr>& materials() const;
 
-  /* Get the name of the robot model. */
+  /** Get the name of the robot model. */
   const std::string& name() const;
-  /* Set the name of the robot model. */
+  /** Set the name of the robot model. */
   void name(const std::string& name);
 
-  /* Get the root link (the parent of the tree describing the robot). */
+  /** Get the root link (the parent of the tree describing the robot). */
   const ::urdf::LinkSharedPtr& rootLink() const;
 
   const LinkViewModelPtr& rootLinkViewModel() const;
@@ -61,7 +61,7 @@ private:
   LinkViewModelPtr root_link_;
   size_t clone_count_ = 0;
 
-  /* Add a suffix to all links and joints under this node. */
+  /** Add a suffix to all links and joints under this node. */
   void addNameSuffixRec(const LinkViewModelPtr& link_vm, const QString& suffix);
 
   static void removeTextureTagsWithoutFilename(tinyxml2::XMLElement* element);

@@ -15,11 +15,10 @@ namespace tobas
 namespace eigen
 {
 /**
- * @brief Create a block diagonal matrix.
+ * Create a block diagonal matrix.
  *
  * @param A Submatrix.
  * @param num Number of blocks.
- *
  * @return Eigen::MatrixXd
  */
 template <typename Derived>
@@ -39,13 +38,12 @@ Eigen::MatrixXd blockDiag(const Eigen::MatrixBase<Derived>& A, const Eigen::Inde
 }
 
 /**
- * @brief Return a matrix created by repeating `A` in the row or column direction.
+ * Return a matrix created by repeating `A` in the row or column direction.
  * cf. `numpy.tile()`.
  *
  * @param A Submatrix.
  * @param num Number of repetitions.
  * @param axis Repetition direction: Row (0) or Column (1).
- *
  * @return Eigen::MatrixXd
  */
 template <typename Derived>
@@ -78,12 +76,11 @@ Eigen::MatrixXd tile(const Eigen::MatrixBase<Derived>& A, const Eigen::Index& nu
 }
 
 /**
- * @brief Concatenate two matrices in the row or column direction.
+ * Concatenate two matrices in the row or column direction.
  * cf. `numpy.concatenate()`.
  *
  * @param A,B Matrices to concatenate.
  * @param axis Concatenation direction: Row (0) or Column (1).
- *
  * @return Eigen::MatrixXd
  */
 template <typename T, typename U>
@@ -109,12 +106,11 @@ Eigen::MatrixXd concat(const Eigen::MatrixBase<T>& A, const Eigen::MatrixBase<U>
 }
 
 /**
- * @brief Concatenate three matrices in the row or column direction.
+ * Concatenate three matrices in the row or column direction.
  * cf. `numpy.concatenate()`.
  *
  * @param A,B,C Matrices to concatenate.
  * @param axis Concatenation direction: Row (0) or Column (1).
- *
  * @return Eigen::MatrixXd
  */
 template <typename T, typename U, typename V>
@@ -124,21 +120,21 @@ concat(const Eigen::MatrixBase<T>& A, const Eigen::MatrixBase<U>& B, const Eigen
   return concat(concat(A, B, axis), C, axis);
 }
 
-/* Convert `Eigen::Vector` to `std::vector`. */
+/** Convert `Eigen::Vector` to `std::vector`. */
 template <typename T, int N>
 inline std::vector<T> toStdVector(const Eigen::Vector<T, N>& v)
 {
   return std::vector<T>(v.data(), v.data() + v.size());
 }
 
-/* Convert `std::vector` to `Eigen::Vector`. */
+/** Convert `std::vector` to `Eigen::Vector`. */
 template <typename T>
 inline Eigen::Vector<T, Eigen::Dynamic> fromStdVector(const std::vector<T>& vec)
 {
   return Eigen::Map<const Eigen::Vector<T, Eigen::Dynamic>>(vec.data(), vec.size());
 }
 
-/* Convert `Eigen::Vector` to `std::array`. */
+/** Convert `Eigen::Vector` to `std::array`. */
 template <typename T, int N>
 inline std::array<T, N> toStdArray(const Eigen::Vector<T, N>& v)
 {
@@ -148,7 +144,7 @@ inline std::array<T, N> toStdArray(const Eigen::Vector<T, N>& v)
   return arr;
 }
 
-/* Convert `std::array` to `Eigen::Vector`. */
+/** Convert `std::array` to `Eigen::Vector`. */
 template <typename T, size_t N>
 inline Eigen::Vector<T, N> fromStdArray(const std::array<T, N>& arr)
 {
@@ -156,21 +152,21 @@ inline Eigen::Vector<T, N> fromStdArray(const std::array<T, N>& arr)
   return Eigen::Map<const Eigen::Vector<T, N>>(arr.data(), N);
 }
 
-/* Return true when the matrix is square. */
+/** Return true when the matrix is square. */
 template <typename Derived>
 inline bool isSquare(const Eigen::MatrixBase<Derived>& A)
 {
   return A.rows() == A.cols();
 }
 
-/* If true, this guarantees that the matrix contains no `nan` or `inf`. */
+/** If true, this guarantees that the matrix contains no `nan` or `inf`. */
 template <typename Derived>
 inline bool isFinite(const Eigen::MatrixBase<Derived>& x)
 {
   return ((x - x).array() == (x - x).array()).all();
 }
 
-/* Return true when two matrices are nearly equal. */
+/** Return true when two matrices are nearly equal. */
 template <typename Derived>
 bool isClose(
   const Eigen::MatrixBase<Derived>& x,
@@ -187,7 +183,7 @@ bool isClose(
 }
 
 /**
- * @brief Symmetrize a square matrix.
+ * Symmetrize a square matrix.
  *
  * @tparam Derived
  * @param A Matrix to symmetrize.
@@ -198,7 +194,7 @@ inline void symmetrise(Eigen::MatrixBase<Derived>& A)
   A = (A + A.transpose()) / 2;
 }
 
-/* Calculate means along rows. */
+/** Calculate means along rows. */
 template <typename Scalar, int Rows, int Cols>
 Eigen::Matrix<Scalar, Rows, 1> meanRow(const Eigen::Matrix<Scalar, Rows, Cols>& A)
 {
@@ -209,7 +205,7 @@ Eigen::Matrix<Scalar, Rows, 1> meanRow(const Eigen::Matrix<Scalar, Rows, Cols>& 
   return res;
 }
 
-/* Calculate means along columns. */
+/** Calculate means along columns. */
 template <typename Scalar, int Rows, int Cols>
 Eigen::Matrix<Scalar, Cols, 1> meanCol(const Eigen::Matrix<Scalar, Rows, Cols>& A)
 {
@@ -220,7 +216,7 @@ Eigen::Matrix<Scalar, Cols, 1> meanCol(const Eigen::Matrix<Scalar, Rows, Cols>& 
   return res;
 }
 
-/* Calculate variances along rows. */
+/** Calculate variances along rows. */
 template <typename Scalar, int Rows, int Cols>
 Eigen::Matrix<Scalar, Rows, 1> varianceRow(const Eigen::Matrix<Scalar, Rows, Cols>& A)
 {
@@ -232,7 +228,7 @@ Eigen::Matrix<Scalar, Rows, 1> varianceRow(const Eigen::Matrix<Scalar, Rows, Col
   return res;
 }
 
-/* Calculate variances along columns. */
+/** Calculate variances along columns. */
 template <typename Scalar, int Rows, int Cols>
 Eigen::Matrix<Scalar, Cols, 1> varianceCol(const Eigen::Matrix<Scalar, Rows, Cols>& A)
 {
@@ -244,7 +240,7 @@ Eigen::Matrix<Scalar, Cols, 1> varianceCol(const Eigen::Matrix<Scalar, Rows, Col
   return res;
 }
 
-/* Calculate vector variance. */
+/** Calculate vector variance. */
 template <typename Scalar, int Size>
 inline Scalar variance(const Eigen::Vector<Scalar, Size>& v)
 {

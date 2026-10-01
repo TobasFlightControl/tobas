@@ -29,7 +29,7 @@ public:
 private Q_SLOTS:
   void onItemChanged(QTreeWidgetItem* ite);
 
-  /* Adjust column widths according to string length. */
+  /** Adjust column widths according to string length. */
   void resizeColumns();
 
 private:

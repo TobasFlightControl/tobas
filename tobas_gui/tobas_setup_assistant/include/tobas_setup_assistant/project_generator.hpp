@@ -78,27 +78,27 @@ private:
   void generateOriginalUadf();
   void generateModifiedUrdf();
 
-  /* Create an empty file. */
+  /** Create an empty file. */
   void createEmptyFile(const QString& file_path);
 
-  /* Create a YAML file with a map type and no elements. */
+  /** Create a YAML file with a map type and no elements. */
   void createEmptyYaml(const QString& file_path, bool overwrite);
 
-  /* Save `YAML::Node`. */
+  /** Save `YAML::Node`. */
   void saveYamlNode(const QString& path, const YAML::Node& node);
 
-  /* Change mesh file paths to paths under the package. */
+  /** Change mesh file paths to paths under the package. */
   void resolveModifiedUrdfMeshFilePaths(tinyxml2::XMLElement* elem);
   void resolveModifiedUrdfMeshFilePath(tinyxml2::XMLElement* elem);
 
-  /* Change mesh file paths in the original URDF to paths under the package. */
+  /** Change mesh file paths in the original URDF to paths under the package. */
   void replaceOriginalUadfMeshFilePaths(tinyxml2::XMLElement* elem);
   void replaceOriginalUadfMeshFilePath(tinyxml2::XMLElement* elem);
 
-  /* Remove `limit` tags from propeller joints. */
+  /** Remove `limit` tags from propeller joints. */
   void removePropellerJointLimits(tinyxml2::XMLElement* robot);
 
-  /* Add Gazebo plugins and related elements to XML. */
+  /** Add Gazebo plugins and related elements to XML. */
   void addXmlElements(tinyxml2::XMLElement* robot);
 };
 }  // namespace sa

@@ -40,8 +40,8 @@ class RCTeleopNode : public BaseNode
   using self = RCTeleopNode;
   using super = BaseNode;
 
-  static constexpr double kArmCommandInfoPeriod = 2.0;  // [s]
-  static constexpr double kWarnPeriod = 1.0;            // [s]
+  static constexpr double kArmCommandInfoPeriod = 2.0;  ///< [s]
+  static constexpr double kWarnPeriod = 1.0;            ///< [s]
 
 public:
   explicit RCTeleopNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -66,11 +66,11 @@ private:
 
   // Static parameters
   std::map<FlightMode, RcCommand> modes_;
-  double arm_duration_, disarm_duration_;  // [s]
+  double arm_duration_, disarm_duration_;  ///< [s]
 
   // Dynamic parameters
   double arm_throt_thresh_;
-  double arm_throt_hyst_;  // Hysteresis to prevent chattering
+  double arm_throt_hyst_;  ///< Hysteresis to prevent chattering
 
   // Mutables
   FlightMode cur_mode_;

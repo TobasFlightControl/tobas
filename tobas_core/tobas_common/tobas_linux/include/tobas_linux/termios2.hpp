@@ -10,7 +10,7 @@ namespace tobas
 namespace linux
 {
 /**
- * @brief Set a non-standard baud rate.
+ * Set a non-standard baud rate.
  * cf. pySerial: https://github.com/pyserial/pyserial
  *
  * @note As in pySerial, both `termios` in `termios.h` and `termios2` in `asm/termibits.h` must be configured.

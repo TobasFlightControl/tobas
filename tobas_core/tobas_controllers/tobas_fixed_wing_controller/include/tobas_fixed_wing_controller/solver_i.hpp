@@ -21,9 +21,9 @@ protected:
 public:
   enum Error : int
   {
-    kNoError = 0,  // No error.
-    kWarn = -1,    // Warning only; continue processing.
-    kError = -2,   // Serious error that should stop processing.
+    kNoError = 0,
+    kWarn = -1,   ///< Warning only; continue processing.
+    kError = -2,  ///< Serious error that should stop processing.
   };
 
   virtual void updateInternalDataStructures() = 0;
@@ -35,7 +35,7 @@ protected:
   int error_code_ = kNoError;
   std::string error_msg_;
 
-  /* Update the error if the argument error code is more serious, then return the current error code. */
+  /** Update the error if the argument error code is more serious, then return the current error code. */
   inline int updateError(const SolverI& arg);
 };
 

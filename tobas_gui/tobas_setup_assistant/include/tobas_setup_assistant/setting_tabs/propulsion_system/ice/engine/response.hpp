@@ -30,10 +30,10 @@ public:
   YAML::Node dump() const;
   void load(const YAML::Node& node);
 
-  /* [s] */
+  /** [s] */
   double timeConstUp() const;
 
-  /* [s] */
+  /** [s] */
   double timeConstDown() const;
 
 private:

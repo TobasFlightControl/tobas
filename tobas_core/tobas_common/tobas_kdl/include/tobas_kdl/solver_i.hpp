@@ -8,7 +8,7 @@ namespace tobas
 namespace kdl
 {
 /**
- * @brief Common structure-update interface for kinematics and dynamics solvers.
+ * Common structure-update interface for kinematics and dynamics solvers.
  * Solving methods check their requirements with assertions.
  * Dynamically allocated results are preallocated and returned by const reference.
  * These results are overwritten by the next solve and invalidated by structure updates

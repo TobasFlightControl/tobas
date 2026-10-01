@@ -13,7 +13,7 @@ namespace gui
 namespace cmn
 {
 /**
- * @brief Edit command-line arguments.
+ * Edit command-line arguments.
  *
  * cf. [rviz2/src/main.cpp](https://github.com/ros2/rviz/blob/rolling/rviz2/src/main.cpp)
  */
@@ -25,16 +25,14 @@ public:
   int& argc();
   char** argv();
 
-  /**
-   * @brief Configure the display server to use X11.
-   */
+  /** Configure the display server to use X11. */
   bool setPlatformXcb();
 
 private:
   std::vector<std::string> args_;
 
-  int argc_;                 // Memory allocation is required for `argc`.
-  std::vector<char*> argv_;  // Memory allocation is required for `argv`.
+  int argc_;                 ///< Memory allocation is required for `argc`.
+  std::vector<char*> argv_;  ///< Memory allocation is required for `argv`.
 };
 }  // namespace cmn
 }  // namespace gui

@@ -9,7 +9,7 @@ namespace tobas
 {
 namespace algo
 {
-/* Stores the minimum value. */
+/** Stores the minimum value. */
 template <typename T>
 class MinimumHolder
 {
@@ -31,7 +31,7 @@ public:
     }
   }
 
-  /* Request the minimum value. */
+  /** Request the minimum value. */
   inline const T& get() const
   {
     return min_;
@@ -41,7 +41,7 @@ private:
   T min_;
 };
 
-/* Stores the maximum value. */
+/** Stores the maximum value. */
 template <typename T>
 class MaximumHolder
 {
@@ -63,7 +63,7 @@ public:
     }
   }
 
-  /* Request the maximum value. */
+  /** Request the maximum value. */
   inline const T& get() const
   {
     return max_;
@@ -73,7 +73,7 @@ private:
   T max_;
 };
 
-/* Stores the maximum and maximum values. */
+/** Stores the maximum and maximum values. */
 template <typename T>
 class RangeHolder
 {

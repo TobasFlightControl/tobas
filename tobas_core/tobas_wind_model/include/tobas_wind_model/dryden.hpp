@@ -14,9 +14,9 @@ static constexpr double kMinimumAltitude = 1.0;          // [m]
 };  // namespace dryden
 
 /**
- * @brief Dryden turbulance model
+ * Dryden turbulance model
  * https://jp.mathworks.com/help/aeroblks/drydenwindturbulencemodeldiscrete.html
- */
+ * */
 class DrydenComponents
 {
 public:
@@ -41,13 +41,13 @@ public:
 private:
   double mean_speed_ = 0.0;
 
-  double L_uv_, L_w_;          // [m] Turbulence scale length
-  double sigma_uv_, sigma_w_;  // [m/s] Standard deviation of wind speed
-  double r_uv_, r_w_;          // [-] Update rate
+  double L_uv_, L_w_;          ///< [m] Turbulence scale length
+  double sigma_uv_, sigma_w_;  ///< [m/s] Standard deviation of wind speed
+  double r_uv_, r_w_;          ///< [-] Update rate
 };
 
 /**
- * @brief Dryden turbulance model
+ * Dryden turbulance model
  * https://jp.mathworks.com/help/aeroblks/drydenwindturbulencemodeldiscrete.html
  */
 class DrydenSimulator
@@ -63,7 +63,7 @@ public:
   inline const double& w() const;
 
 private:
-  double u_ = 0.0, v_ = 0.0, w_ = 0.0;  // Gust components in the body frame
+  double u_ = 0.0, v_ = 0.0, w_ = 0.0;  ///< Gust components in the body frame
 
   DrydenComponents components_;
 

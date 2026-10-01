@@ -15,7 +15,7 @@ public:
   explicit CommandPriorityHandler();
 
   /**
-   * @brief Receive a command priority and determine whether to accept it.
+   * Receive a command priority and determine whether to accept it.
    *
    * Conditions for accepting a command:
    * 1. The priority is greater than or equal to the current priority.
@@ -30,6 +30,6 @@ public:
 
 private:
   uint8_t cur_priority_ = 0;
-  rclcpp::Time t_last_highest_priority_;  // Last time a highest-priority command arrived
+  rclcpp::Time t_last_highest_priority_;  ///< Last time a highest-priority command arrived
 };
 }  // namespace tobas

@@ -10,7 +10,7 @@ namespace tobas
 {
 namespace st
 {
-/* Return the minimum element. */
+/** Return the minimum element. */
 template <typename T>
 T min(const std::unordered_set<T>& set)
 {
@@ -23,7 +23,7 @@ T min(const std::unordered_set<T>& set)
   return res;
 }
 
-/* Return the maximum element. */
+/** Return the maximum element. */
 template <typename T>
 T max(const std::unordered_set<T>& set)
 {

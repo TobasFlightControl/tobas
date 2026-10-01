@@ -43,12 +43,14 @@ class ErrorStateKalmanFilterNode : public BaseNode
   using GetOriginSrv = tobas_msgs::srv::GetGnssOrigin;
   using SetOriginSrv = tobas_msgs::srv::SetGnssOrigin;
 
-  // Initial standard deviations.
-  // Covariance grows slowly but converges fairly quickly, so choosing a somewhat large value is acceptable.
-  static constexpr double kInitPosStddev = 5.0;     // [m]
-  static constexpr double kInitVelStddev = 1.0;     // [m/s]
-  static constexpr double kInitRotStddev = M_PI_4;  // [rad]
-  static constexpr double kInitMagStddev = 0.5;     // [-]
+  /**
+   * Initial standard deviations.
+   * Covariance grows slowly but converges fairly quickly, so choosing a somewhat large value is acceptable.
+   */
+  static constexpr double kInitPosStddev = 5.0;     ///< [m]
+  static constexpr double kInitVelStddev = 1.0;     ///< [m/s]
+  static constexpr double kInitRotStddev = M_PI_4;  ///< [rad]
+  static constexpr double kInitMagStddev = 0.5;     ///< [-]
 
 public:
   explicit ErrorStateKalmanFilterNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -71,19 +73,18 @@ private:
   size_t init_mag_cnt_ = 0;
   std::array<algo::Kahan<double>, 3> init_mag_sum_;
 
-  // Barometric altitude origin.
-  double baro_alt_origin_;  // Barometric altitude origin.
+  double baro_alt_origin_;  ///< Barometric altitude origin.
   bool baro_alt_origin_set_ = false;
   size_t init_pres_cnt_ = 0;
   algo::Kahan<double> init_pres_sum_;
 
-  // GNSS coordinate origin.
+  /** GNSS coordinate origin. */
   struct GeoPoint
   {
     double latitude;
     double longitude;
     double altitude;
-  } gnss_origin_;  // GNSS coordinate origin.
+  } gnss_origin_;  ///< GNSS coordinate origin.
 
   // Static parameters
   std::string frame_id_;
@@ -99,21 +100,21 @@ private:
   bool do_mag_soft_bias_estimation_;
   bool do_baro_alt_bias_estimation_;
   bool do_grav_estimation_;
-  Eigen::Vector3d imu_offset_;   // [m] IMU position relative to the root link (Local).
-  Eigen::Vector3d gnss_offset_;  // [m] GNSS receiver position relative to the root link (Local).
+  Eigen::Vector3d imu_offset_;   ///< [m] IMU position relative to the root link (Local).
+  Eigen::Vector3d gnss_offset_;  ///< [m] GNSS receiver position relative to the root link (Local).
 
   // Dynamic parameters
-  Eigen::Matrix3d fixed_acc_cov_ = Eigen::Matrix3d::Zero();       // [m^2/s^4]
-  Eigen::Matrix3d fixed_gyro_cov_ = Eigen::Matrix3d::Zero();      // [rad^2/s^2]
-  Eigen::Matrix3d fixed_mag_cov_ = Eigen::Matrix3d::Zero();       // [-]
-  double fixed_head_var_;                                         // [rad^2]
-  double fixed_baro_alt_var_;                                     // [m^2]
-  Eigen::Matrix3d fixed_gnss_pos_cov_ = Eigen::Matrix3d::Zero();  // [m^2]
-  Eigen::Matrix3d fixed_gnss_vel_cov_ = Eigen::Matrix3d::Zero();  // [m^2/s^2]
-  Eigen::Matrix3d fixed_grav_cov_ = Eigen::Matrix3d::Zero();      // [m^2/s^4]
-  double grav_stddev_min_;                                        // [m/s^2]
-  double grav_stddev_max_;                                        // [m/s^2]
-  double grav_stddev_rate_;                                       // [-]
+  Eigen::Matrix3d fixed_acc_cov_ = Eigen::Matrix3d::Zero();       ///< [m^2/s^4]
+  Eigen::Matrix3d fixed_gyro_cov_ = Eigen::Matrix3d::Zero();      ///< [rad^2/s^2]
+  Eigen::Matrix3d fixed_mag_cov_ = Eigen::Matrix3d::Zero();       ///< [-]
+  double fixed_head_var_;                                         ///< [rad^2]
+  double fixed_baro_alt_var_;                                     ///< [m^2]
+  Eigen::Matrix3d fixed_gnss_pos_cov_ = Eigen::Matrix3d::Zero();  ///< [m^2]
+  Eigen::Matrix3d fixed_gnss_vel_cov_ = Eigen::Matrix3d::Zero();  ///< [m^2/s^2]
+  Eigen::Matrix3d fixed_grav_cov_ = Eigen::Matrix3d::Zero();      ///< [m^2/s^4]
+  double grav_stddev_min_;                                        ///< [m/s^2]
+  double grav_stddev_max_;                                        ///< [m/s^2]
+  double grav_stddev_rate_;                                       ///< [-]
 
   // Publishers
   ros2::PublisherPtr<tobas_msgs::OdometryWithCovarianceStamped> odom_pub_;

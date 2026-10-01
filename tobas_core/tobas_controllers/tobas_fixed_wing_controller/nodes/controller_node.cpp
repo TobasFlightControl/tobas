@@ -64,13 +64,14 @@ private:
   bool is_initialized_ = false;
   bool topics_received_ = false;
   CommandPriorityHandler cmd_priority_handler_;
-  tobas_msgs::msg::FluidPressure::ConstSharedPtr air_pressure_;           // Atmospheric pressure
-  tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr odom_flu_;    // Current state in the FLU coordinate system
-  tobas_command_msgs::msg::SpeedRollDeltaPitch::ConstSharedPtr cmd_flu_;  // Current command in the FLU coordinate system
-  tobas_msgs::Odometry odom_frd_;                                         // Current state in the FRD coordinate system
-  tobas_msgs::msg::Arming::ConstSharedPtr arming_;                        // Rotor arming state
-  tobas_command_msgs::msg::SpeedRollDeltaPitch cmd_frd_;  // Current command in the FRD coordinate system
-  ctrl::LQD lqd_;                                         // Optimal regulator
+  tobas_msgs::msg::FluidPressure::ConstSharedPtr air_pressure_;         ///< Atmospheric pressure
+  tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr odom_flu_;  ///< Current state in the FLU coordinate system
+  /** Current command in the FLU coordinate system */
+  tobas_command_msgs::msg::SpeedRollDeltaPitch::ConstSharedPtr cmd_flu_;
+  tobas_msgs::Odometry odom_frd_;                         ///< Current state in the FRD coordinate system
+  tobas_msgs::msg::Arming::ConstSharedPtr arming_;        ///< Rotor arming state
+  tobas_command_msgs::msg::SpeedRollDeltaPitch cmd_frd_;  ///< Current command in the FRD coordinate system
+  ctrl::LQD lqd_;                                         ///< Optimal regulator
 
   // Publishers
   ros2::PublisherPtr<tobas_msgs::msg::RotorThrustArray> tar_thrusts_pub_;

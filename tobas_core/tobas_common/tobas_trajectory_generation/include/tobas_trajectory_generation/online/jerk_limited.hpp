@@ -10,7 +10,7 @@ namespace tobas
 namespace traj
 {
 /**
- * @brief Online update of the minimum-time trajectory that reaches the target state while satisfying constraints.
+ * Online update of the minimum-time trajectory that reaches the target state while satisfying constraints.
  *
  * @note Bang-bang control has no stability margin,
  * so it is difficult to use as a feedback loop in a real environment with delays and modeling errors.

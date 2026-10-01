@@ -37,12 +37,12 @@ private:
   kdl::Vector tar_pos_W_;
   double tar_yaw_;
 
-  // ROS parameters.
-  double max_hor_vel_;   // [m/s]
-  double max_ver_vel_;   // [m/s]
-  double max_pitch_;     // [rad]
-  double max_yaw_rate_;  // [rad/s]
-  double max_ep_down_;   // [m]
+  // ROS parameters
+  double max_hor_vel_;   ///< [m/s]
+  double max_ver_vel_;   ///< [m/s]
+  double max_pitch_;     ///< [rad]
+  double max_yaw_rate_;  ///< [rad/s]
+  double max_ep_down_;   ///< [m]
   double hor_vel_expo_;
   double ver_vel_expo_;
   double pitch_expo_;

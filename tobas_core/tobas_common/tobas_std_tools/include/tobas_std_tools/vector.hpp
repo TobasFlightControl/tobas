@@ -14,7 +14,7 @@
 
 namespace std
 {
-/* Console output for `std::vector`. */
+/** Console output for `std::vector`. */
 template <typename T>
 std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec)
 {
@@ -39,7 +39,7 @@ namespace tobas
 {
 namespace st
 {
-/* Naive Summation． The worst-case round-off error scales with O(nε). */
+/** Naive Summation． The worst-case round-off error scales with O(nε). */
 template <typename T>
 T sum(const std::vector<T>& arr)
 {
@@ -50,7 +50,7 @@ T sum(const std::vector<T>& arr)
   return sum;
 }
 
-/* Naive Summation． The worst-case round-off error scales with O(nε). */
+/** Naive Summation． The worst-case round-off error scales with O(nε). */
 template <typename T>
 T sum(const std::vector<T>& arr, size_t start, size_t size)
 {
@@ -64,7 +64,7 @@ T sum(const std::vector<T>& arr, size_t start, size_t size)
   return sum;
 }
 
-/* Kahan Summation. The worst-case round-off error scales with O(nε^2). */
+/** Kahan Summation. The worst-case round-off error scales with O(nε^2). */
 template <typename T>
 T fsum(const std::vector<T>& arr)
 {
@@ -75,7 +75,7 @@ T fsum(const std::vector<T>& arr)
   return sum.get();
 }
 
-/* Kahan Summation. The worst-case round-off error scales with O(nε^2). */
+/** Kahan Summation. The worst-case round-off error scales with O(nε^2). */
 template <typename T>
 T fsum(const std::vector<T>& arr, size_t start, size_t size)
 {
@@ -89,7 +89,7 @@ T fsum(const std::vector<T>& arr, size_t start, size_t size)
   return sum.get();
 }
 
-/* The average of Kahan Summation. */
+/** The average of Kahan Summation. */
 template <typename T>
 T fmean(const std::vector<T>& arr)
 {
@@ -100,7 +100,7 @@ T fmean(const std::vector<T>& arr)
   return fsum(arr) / arr.size();
 }
 
-/* The average of Kahan Summation. */
+/** The average of Kahan Summation. */
 template <typename T>
 T fmean(const std::vector<T>& arr, size_t start, size_t size)
 {
@@ -111,7 +111,7 @@ T fmean(const std::vector<T>& arr, size_t start, size_t size)
   return fsum(arr, start, size) / size;
 }
 
-/* The variance of data. */
+/** The variance of data. */
 template <typename T>
 T variance(const std::vector<T>& arr)
 {
@@ -127,7 +127,7 @@ T variance(const std::vector<T>& arr)
   return sum.get() / arr.size();
 }
 
-/* The variance of data. */
+/** The variance of data. */
 template <typename T>
 T variance(const std::vector<T>& arr, size_t start, size_t size)
 {
@@ -146,7 +146,7 @@ T variance(const std::vector<T>& arr, size_t start, size_t size)
   return sum.get() / size;
 }
 
-/* Calculate the weighted average of elements. */
+/** Calculate the weighted average of elements. */
 template <typename T, typename U>
 T average(const std::vector<T>& vec, const std::vector<U>& weights)
 {
@@ -163,14 +163,14 @@ T average(const std::vector<T>& vec, const std::vector<U>& weights)
   return res;
 }
 
-/* Calculate the average of elements. */
+/** Calculate the average of elements. */
 template <typename T>
 inline T average(const std::vector<T>& vec)
 {
   return average(vec, std::vector<double>(vec.size(), 1.0));
 }
 
-/* Get the element index from a `std::vector`. */
+/** Get the element index from a `std::vector`. */
 template <typename T>
 ssize_t findIndex(const std::vector<T>& vec, const T& item)
 {
@@ -181,14 +181,14 @@ ssize_t findIndex(const std::vector<T>& vec, const T& item)
   return ret - vec.begin();
 }
 
-/* Fill all elements with a single value. */
+/** Fill all elements with a single value. */
 template <typename T>
 inline void fill(std::vector<T>& vec, const T& item)
 {
   std::fill(vec.begin(), vec.end(), item);
 }
 
-/* Return true when all elements are greater than `a`. */
+/** Return true when all elements are greater than `a`. */
 template <typename T>
 bool all_gt(const std::vector<T>& vec, const T& a)
 {
@@ -200,7 +200,7 @@ bool all_gt(const std::vector<T>& vec, const T& a)
   return true;
 }
 
-/* Return true when all elements are less than `a`. */
+/** Return true when all elements are less than `a`. */
 template <typename T>
 bool all_lt(const std::vector<T>& vec, const T& a)
 {
@@ -212,7 +212,7 @@ bool all_lt(const std::vector<T>& vec, const T& a)
   return true;
 }
 
-/* Return true when all elements are greater than or equal to `a`. */
+/** Return true when all elements are greater than or equal to `a`. */
 template <typename T>
 bool all_ge(const std::vector<T>& vec, const T& a)
 {
@@ -224,7 +224,7 @@ bool all_ge(const std::vector<T>& vec, const T& a)
   return true;
 }
 
-/* Return true when all elements are less than or equal to `a`. */
+/** Return true when all elements are less than or equal to `a`. */
 template <typename T>
 bool all_le(const std::vector<T>& vec, const T& a)
 {
@@ -236,7 +236,7 @@ bool all_le(const std::vector<T>& vec, const T& a)
   return true;
 }
 
-/* Return the index of the closest value. */
+/** Return the index of the closest value. */
 template <typename T>
 size_t closestIndex(const std::vector<T>& vec, const T& a)
 {
@@ -256,7 +256,7 @@ size_t closestIndex(const std::vector<T>& vec, const T& a)
   return closest_idx;
 }
 
-/* Remove duplicate elements. */
+/** Remove duplicate elements. */
 template <typename T>
 std::vector<T> unique(const std::vector<T>& vec)
 {
@@ -273,28 +273,28 @@ std::vector<T> unique(const std::vector<T>& vec)
   return res;
 }
 
-/* Return true when all elements are unique. */
+/** Return true when all elements are unique. */
 template <typename T>
 inline bool isUnique(const std::vector<T>& vec)
 {
   return unique(vec).size() == vec.size();
 }
 
-/* Return true when the element is included. */
+/** Return true when the element is included. */
 template <typename T>
 inline bool contains(const std::vector<T>& vec, const T& val)
 {
   return std::find(vec.begin(), vec.end(), val) != vec.end();
 }
 
-/* Return true when all elements satisfy the condition. */
+/** Return true when all elements satisfy the condition. */
 template <typename T, typename Lambda>
 inline bool allOf(const std::vector<T>& vec, const Lambda& lambda)
 {
   return all_of(vec.begin(), vec.end(), lambda);
 }
 
-/* Merge two `std::vector`s. */
+/** Merge two `std::vector`s. */
 template <typename T>
 std::vector<T> merge(const std::vector<T>& vec1, const std::vector<T>& vec2)
 {
@@ -303,7 +303,7 @@ std::vector<T> merge(const std::vector<T>& vec1, const std::vector<T>& vec2)
   return res;
 }
 
-/* Return the element index. */
+/** Return the element index. */
 template <typename T>
 ssize_t index(const std::vector<T>& vec, const T& value)
 {
@@ -316,7 +316,7 @@ ssize_t index(const std::vector<T>& vec, const T& value)
   }
 }
 
-/* Remove the element at the specified index (O(N)). */
+/** Remove the element at the specified index (O(N)). */
 template <typename T>
 void eraseIndex(std::vector<T>& vec, size_t idx)
 {

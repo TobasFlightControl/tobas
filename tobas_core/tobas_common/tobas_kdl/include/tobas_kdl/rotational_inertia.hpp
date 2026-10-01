@@ -37,11 +37,11 @@ public:
   inline RotationalInertia operator+(const RotationalInertia& rhs) const;
   inline RotationalInertia& operator+=(const RotationalInertia& rhs);
 
-  /* Compute the angular momentum resulting from a rotational velocity omega. */
+  /** Compute the angular momentum resulting from a rotational velocity omega. */
   inline Vector operator*(const Vector& omega) const;
 
   inline friend RotationalInertia operator*(double a, const RotationalInertia& I);
-  /* Compute Ia = Rab Ib Rab^T. */
+  /** Compute Ia = Rab Ib Rab^T. */
   inline friend RotationalInertia operator*(const Rotation& R_a_b, const RotationalInertia& I_b);
 
   inline friend std::ostream& operator<<(std::ostream& os, const RotationalInertia& arg);

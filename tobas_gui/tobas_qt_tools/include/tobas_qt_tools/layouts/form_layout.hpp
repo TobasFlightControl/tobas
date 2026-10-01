@@ -20,34 +20,34 @@ class FormLayout : public QFormLayout
 public:
   using QFormLayout::QFormLayout;
 
-  /* Add a row with the label centered on the left. */
+  /** Add a row with the label centered on the left. */
   void addVAlignedRow(QWidget* label, QWidget* field);
 
-  /* Add a row with the label centered on the left. */
+  /** Add a row with the label centered on the left. */
   void addVAlignedRow(QWidget* label, QLayout* field);
 
-  /* Add a row with the label centered on the left. */
+  /** Add a row with the label centered on the left. */
   void addVAlignedRow(const QString& label_text, QWidget* field);
 
-  /* Add a row with the label centered on the left. */
+  /** Add a row with the label centered on the left. */
   void addVAlignedRow(const QString& label_text, QLayout* field);
 
-  /* Add an expanding stretch. */
+  /** Add an expanding stretch. */
   void addStretch();
 
-  /* Delete all forms. */
+  /** Delete all forms. */
   void clear();
 
-  /* Get the label of the specified row. */
+  /** Get the label of the specified row. */
   QWidget* getLabel(int row);
 
-  /* Get the widget of the specified row. */
+  /** Get the widget of the specified row. */
   QWidget* getWidget(int row);
 
-  /* Enable or disable the specified row. */
+  /** Enable or disable the specified row. */
   void setEnabled(int row, bool enabled);
 
-  /* Show or hide the specified row. */
+  /** Show or hide the specified row. */
   void setVisible(int row, bool visible);
 };
 }  // namespace qt

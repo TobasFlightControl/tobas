@@ -23,46 +23,46 @@ public:
   inline explicit Quaternion(const Rotation& rot);
   inline explicit Quaternion();
 
-  /* Identity `Quaternion`. */
+  /** Identity `Quaternion`. */
   static inline Quaternion Identity();
 
-  /* Create a `Quaternion` from an equivalent angle-axis `Vector`. */
+  /** Create a `Quaternion` from an equivalent angle-axis `Vector`. */
   static inline Quaternion AngleAxis(const Vector& a);
 
-  /* Create a `Quaternion` from Euler angles. */
+  /** Create a `Quaternion` from Euler angles. */
   static inline Quaternion RPY(double roll, double pitch, double yaw);
 
-  /* Convert a `Quaternion` to Euler angles. */
+  /** Convert a `Quaternion` to Euler angles. */
   inline void getRPY(double& roll, double& pitch, double& yaw) const;
 
-  /* Complex conjugate `Quaternion`. */
+  /** Complex conjugate `Quaternion`. */
   inline Quaternion complexConjugate() const;
 
-  /* Inverse `Quaternion`. */
+  /** Inverse `Quaternion`. */
   inline Quaternion inverse() const;
 
-  /* Sum of squared elements. */
+  /** Sum of squared elements. */
   inline double squaredNorm() const;
 
-  /* L2 norm. */
+  /** L2 norm. */
   inline double norm() const;
 
-  /* Normalize. */
+  /** Normalize. */
   inline Quaternion normalize() const;
 
-  /* Return true if this is a normalized `Quaternion`. */
+  /** Return true if this is a normalized `Quaternion`. */
   inline bool isNormalized() const;
 
-  /* Time derivative of the `Quaternion`. Note that angular velocity is defined locally. */
+  /** Time derivative of the `Quaternion`. Note that angular velocity is defined locally. */
   inline Quaternion differential(const Vector& angvel) const;
 
-  /* Divide all elements by a scalar. */
+  /** Divide all elements by a scalar. */
   inline Quaternion operator/(double rhs) const;
 
-  /* Composition of two rotations. */
+  /** Composition of two rotations. */
   inline Quaternion operator*(const Quaternion& rhs) const;
 
-  /* Rotate a 3D `Vector`. */
+  /** Rotate a 3D `Vector`. */
   inline Vector operator*(const Vector& v) const;
 
   inline friend std::ostream& operator<<(std::ostream& os, const Quaternion& arg);

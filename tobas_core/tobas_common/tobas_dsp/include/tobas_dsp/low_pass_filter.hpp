@@ -16,7 +16,7 @@ namespace tobas
 namespace dsp
 {
 /**
- * @brief First order low-pass filter.
+ * First order low-pass filter.
  *
  * @note The sampling frequency should be at least 10 times the cutoff frequency.
  */
@@ -34,7 +34,7 @@ public:
   void setCutoffFrequency(const double& fc_hz);
 
 private:
-  double wc_ = INFINITY;  // [rad/s]
+  double wc_ = INFINITY;  ///< [rad/s]
   T y_{};
   T prev_u_{};
 };

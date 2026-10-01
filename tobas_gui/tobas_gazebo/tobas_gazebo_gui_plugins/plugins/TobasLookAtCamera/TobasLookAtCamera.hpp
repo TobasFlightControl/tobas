@@ -13,7 +13,7 @@ namespace tobas
 {
 namespace gazebo
 {
-/* cf. gz-gui/src/plugins/camera_tracking/CameraTracking.cc */
+/** cf. gz-gui/src/plugins/camera_tracking/CameraTracking.cc */
 class TobasLookAtCamera : public gz::gui::Plugin
 {
   Q_OBJECT

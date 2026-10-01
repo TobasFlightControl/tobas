@@ -13,9 +13,7 @@ namespace tobas
 {
 namespace gamepad
 {
-/**
- * @brief Read gamepad input and publish it as RC input messages.
- */
+/** Read gamepad input and publish it as RC input messages. */
 class RcInputPublisher : public BaseNode
 {
   using self = RcInputPublisher;

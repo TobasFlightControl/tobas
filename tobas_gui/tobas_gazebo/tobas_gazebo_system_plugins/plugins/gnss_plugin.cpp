@@ -33,9 +33,7 @@ namespace tobas
 {
 namespace gazebo
 {
-/**
- * @brief Plugin that publishes GNSS position and velocity data.
- */
+/** Plugin that publishes GNSS position and velocity data. */
 class GazeboGnssPlugin : public BaseNode,
                          public gz::sim::System,
                          public gz::sim::ISystemConfigure,
@@ -61,19 +59,19 @@ private:
 
   // SDF parameters
   std::string link_name_;
-  gz::math::Vector3d offset_;  // B_Pos_BS [m]
-  int update_rate_;            // Update rate [Hz]
-  double delay_;               // GNSS delay time [s]
-  double pos_corr_time_;       // Correlation time constant of the OU process [s]
-  double hor_pos_accuracy_;    // Horizontal position accuracy, expected error value [m]
-  double ver_pos_accuracy_;    // Vertical position accuracy, expected error value [m]
-  double hor_vel_stddev_;      // Standard deviation of horizontal velocity noise [m/s]
-  double ver_vel_stddev_;      // Standard deviation of vertical velocity noise [m/s]
-  double geoid_undulation_;    // WGS 84 ellipsoid height minus MSL height [m]
+  gz::math::Vector3d offset_;  ///< B_Pos_BS [m]
+  int update_rate_;            ///< Update rate [Hz]
+  double delay_;               ///< GNSS delay time [s]
+  double pos_corr_time_;       ///< Correlation time constant of the OU process [s]
+  double hor_pos_accuracy_;    ///< Horizontal position accuracy, expected error value [m]
+  double ver_pos_accuracy_;    ///< Vertical position accuracy, expected error value [m]
+  double hor_vel_stddev_;      ///< Standard deviation of horizontal velocity noise [m/s]
+  double ver_vel_stddev_;      ///< Standard deviation of vertical velocity noise [m/s]
+  double geoid_undulation_;    ///< WGS 84 ellipsoid height minus MSL height [m]
 
-  double lat_0_;  // Latitude north of the origin [deg]
-  double lon_0_;  // Longitude east of the origin [deg]
-  double alt_0_;  // Altitude of the origin [m]
+  double lat_0_;  ///< Latitude north of the origin [deg]
+  double lon_0_;  ///< Longitude east of the origin [deg]
+  double alt_0_;  ///< Altitude of the origin [m]
 
   std::optional<RateManager> rate_manager_;
 

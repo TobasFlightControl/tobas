@@ -10,7 +10,7 @@
 namespace std
 {
 /**
- * @brief Hash function for Eigen matrix and vector.
+ * Hash function for Eigen matrix and vector.
  * https://wjngkoh.wordpress.com/2015/03/04/c-hash-function-for-eigen-matrix-and-vector/
  */
 template <typename Scalar, int Rows, int Cols>

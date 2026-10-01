@@ -9,61 +9,61 @@ namespace tobas
 {
 namespace st
 {
-/* degree -> radian */
+/** degree -> radian */
 inline constexpr double deg2rad(const double& deg)
 {
   return deg * (M_PI / 180.0);
 }
 
-/* radian -> degree */
+/** radian -> degree */
 inline constexpr double rad2deg(const double& rad)
 {
   return rad * (180.0 / M_PI);
 }
 
-/* rpm -> rad/s */
+/** rpm -> rad/s */
 inline constexpr double rpm2rps(const double& rpm)
 {
   return rpm * (M_PI / 30.0);
 }
 
-/* rad/s -> rpm */
+/** rad/s -> rpm */
 inline constexpr double rps2rpm(const double& rps)
 {
   return rps * (30.0 / M_PI);
 }
 
-/* inch -> m */
+/** inch -> m */
 inline constexpr double inch2meter(const double& inch)
 {
   return inch * 0.0254;
 }
 
-/* m -> inch */
+/** m -> inch */
 inline constexpr double meter2inch(const double& meter)
 {
   return meter / 0.0254;
 }
 
-/* feet -> m */
+/** feet -> m */
 inline constexpr double feet2meter(const double& feet)
 {
   return feet * 0.3048;
 }
 
-/* m -> feet */
+/** m -> feet */
 inline constexpr double meter2feet(const double& meter)
 {
   return meter / 0.3048;
 }
 
-/* yard -> m */
+/** yard -> m */
 inline constexpr double yard2meter(const double& yard)
 {
   return yard * 0.9144;
 }
 
-/* m -> yard */
+/** m -> yard */
 inline constexpr double meter2yard(const double& meter)
 {
   return meter / 0.9144;

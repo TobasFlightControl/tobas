@@ -10,7 +10,7 @@
 
 namespace tobas
 {
-/* ch = c0 + c1 φ */
+/** ch = c0 + c1 φ */
 class VppDragConstant
 {
 public:

@@ -9,7 +9,7 @@ namespace tobas
 {
 namespace kdl
 {
-/* Generate a 3D cycloid. */
+/** Generate a 3D cycloid. */
 class CycloidGenerator3d
 {
 public:
@@ -18,7 +18,7 @@ public:
   bool generate(const kdl::Vector& p0, const kdl::Vector& pf, const double& T, const double& h, const double& k = 5.0);
 
   /**
-   * @brief Get the trajectory at time `t`.
+   * Get the trajectory at time `t`.
    *
    * @param t Time from the start point.
    * @param r Rotation from the frame to view to the planning frame.
@@ -29,7 +29,7 @@ public:
   bool get(const double& t, const kdl::Rotation& r, kdl::Vector& p, kdl::Vector& v, kdl::Vector& a) const;
 
   /**
-   * @brief Get the trajectory at time `t`.
+   * Get the trajectory at time `t`.
    *
    * @param t Time from the start point.
    * @param p Position at time `t`.
@@ -39,7 +39,7 @@ public:
   bool get(const double& t, kdl::Vector& p, kdl::Vector& v, kdl::Vector& a) const;
 
   /**
-   * @brief Get the trajectory at time `t`.
+   * Get the trajectory at time `t`.
    *
    * @param t Time from the start point.
    * @param p Position at time `t`.
@@ -48,7 +48,7 @@ public:
   bool get(const double& t, kdl::Vector& p, kdl::Vector& v) const;
 
   /**
-   * @brief Get the trajectory at time `t`.
+   * Get the trajectory at time `t`.
    *
    * @param t Time from the start point.
    * @param p Position at time `t`.
@@ -64,7 +64,7 @@ private:
   double TT_;
   double kk_;
   kdl::Vector p_diff_;
-  const kdl::Rotation r0_;  // Identity matrix
+  const kdl::Rotation r0_;  ///< Identity matrix
 
   void getPos(const double& t, const kdl::Rotation& r, kdl::Vector& p) const;
   void getVel(const double& t, const kdl::Rotation& r, kdl::Vector& v) const;

@@ -15,8 +15,8 @@ namespace kdl
 class FrameAcc
 {
 public:
-  VectorAcc p;    // Translation, velocity and acceleration of origin.
-  RotationAcc M;  // Rotation,angular velocity, and angular acceleration of frame.
+  VectorAcc p;    ///< Translation, velocity and acceleration of origin.
+  RotationAcc M;  ///< Rotation,angular velocity, and angular acceleration of frame.
 
   inline explicit FrameAcc();
   inline explicit FrameAcc(const Frame& _T);

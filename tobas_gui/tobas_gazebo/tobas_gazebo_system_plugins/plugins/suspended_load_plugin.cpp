@@ -64,9 +64,9 @@ private:
   gz::math::Vector3d L_Pos_LQ_;
   double load_mass_;
   gz::math::Matrix3d load_inertia_;
-  double cable_length_;  // [m] Natural cable length
-  double cable_young_;   // [Pa] Young modulus.
-  double cable_csa_;     // [m^2] Cross-sectional area.
+  double cable_length_;  ///< [m] Natural cable length
+  double cable_young_;   ///< [Pa] Young modulus.
+  double cable_csa_;     ///< [m^2] Cross-sectional area.
   bool load_exist_ = false;
   int load_index_ = -1;
   gz::sim::Link load_link_;

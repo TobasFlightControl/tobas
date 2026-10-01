@@ -29,7 +29,7 @@ namespace tobas
 {
 namespace gazebo
 {
-/* Simulates engine and propellers. */
+/** Simulates engine and propellers. */
 class GazeboIcePropulsionSystemPlugin : public BaseNode,
                                         public gz::sim::System,
                                         public gz::sim::ISystemConfigure,
@@ -56,11 +56,11 @@ private:
   EngineModel engine_;
 
   // SDF parameters
-  size_t publish_state_rate_;  // [Hz]
+  size_t publish_state_rate_;  ///< [Hz]
 
-  gz::math::Vector3d wind_vel_W_ = gz::math::Vector3d::Zero;  // [m/s]
+  gz::math::Vector3d wind_vel_W_ = gz::math::Vector3d::Zero;  ///< [m/s]
   builtin_interfaces::msg::Time prev_sim_time_;
-  builtin_interfaces::msg::Time last_cmd_time_;  // Time when the last throttle command was issued
+  builtin_interfaces::msg::Time last_cmd_time_;  ///< Time when the last throttle command was issued
   std::optional<RateManager> publish_state_rate_manager_;
 
   // Publishers

@@ -37,9 +37,9 @@ public:
   inline void getFilteredDGyro(double& x, double& y, double& z) const;
 
 private:
-  static constexpr size_t kPacketLength = 22;  // uint16
+  static constexpr size_t kPacketLength = 22;  ///< uint16
   static constexpr size_t kCmdTypeIdx = 0;
-  static constexpr size_t kCrcIdx = kPacketLength - 2;  // uint16
+  static constexpr size_t kCrcIdx = kPacketLength - 2;  ///< uint16
 
   static constexpr double kAccelScale = 0.488 * 1e-3 * st::kGravity;
   static constexpr double kGyroScale = 35.0 * 1e-3 * st::kDeg2Rad;

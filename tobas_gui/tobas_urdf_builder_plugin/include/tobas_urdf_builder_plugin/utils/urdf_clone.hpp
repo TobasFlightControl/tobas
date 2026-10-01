@@ -15,7 +15,7 @@ namespace ub
 namespace utils
 {
 /**
- * @brief Default clone function.
+ * Default clone function.
  * If instance variables contain pointers, `make_shared` does not copy the pointees,
  * so specialization or overloading is required.
  */

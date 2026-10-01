@@ -20,7 +20,7 @@ void qInfoBox(QWidget* parent, const QString& msg);
 void qWarnBox(QWidget* parent, const QString& msg);
 void qErrorBox(QWidget* parent, const QString& msg);
 
-/* Show a dialog with a Yes/No question and return true for Yes. */
+/** Show a dialog with a Yes/No question and return true for Yes. */
 bool yesOrNo(QWidget* parent, const QString& text, QMessageLevel level);
 }  // namespace qt
 }  // namespace tobas

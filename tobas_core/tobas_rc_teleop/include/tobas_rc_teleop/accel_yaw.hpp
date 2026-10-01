@@ -34,10 +34,10 @@ private:
   traj::VelocityLimitedOnlineTrajectoryGenerator ax_filt_, ay_filt_;
   double tar_yaw_;
 
-  // ROS parameters.
-  double max_hor_acc_;    // [m/s]
-  double max_ver_acc_;    // [m/s]
-  double max_head_rate_;  // [rad/s]
+  // ROS parameters
+  double max_hor_acc_;    ///< [m/s]
+  double max_ver_acc_;    ///< [m/s]
+  double max_head_rate_;  ///< [rad/s]
   double hor_acc_expo_;
   double ver_acc_expo_;
   double head_expo_;

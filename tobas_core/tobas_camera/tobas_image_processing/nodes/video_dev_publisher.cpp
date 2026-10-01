@@ -14,9 +14,7 @@ namespace tobas
 {
 namespace camera
 {
-/**
- * @brief Use the VideoDev class from the tobas_linux package to control a UVC camera, capture images, and publish them.
- */
+/** Use the VideoDev class from the tobas_linux package to control a UVC camera, capture images, and publish them. */
 class VideoDevPublisherNode : public BaseNode
 {
 public:

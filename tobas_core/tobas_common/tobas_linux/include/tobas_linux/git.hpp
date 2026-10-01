@@ -10,10 +10,10 @@ namespace tobas
 {
 namespace linux
 {
-/* Return the Git user name. */
+/** Return the Git user name. */
 std::expected<std::string, std::string> getGitUserName();
 
-/* Return the Git email address. */
+/** Return the Git email address. */
 std::expected<std::string, std::string> getGitUserEmail();
 }  // namespace linux
 }  // namespace tobas

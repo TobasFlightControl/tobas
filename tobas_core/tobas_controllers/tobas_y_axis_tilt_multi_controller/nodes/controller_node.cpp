@@ -60,25 +60,25 @@ private:
   // Controller
   TranslationalEoM trans_eom_;
   Mixer mixer_;
-  double throttle_gain_thresh_;  // [-]
+  double throttle_gain_thresh_;  ///< [-]
   struct TranslationControlParameters
   {
-    double hor_wn, ver_wn;      // [rad/s]
-    double hor_zeta, ver_zeta;  // [-]
+    double hor_wn, ver_wn;      ///< [rad/s]
+    double hor_zeta, ver_zeta;  ///< [-]
     double hor_ki, ver_ki;
     double hor_max_i_acc, ver_max_i_acc;
     kdl::Vector ei = kdl::Vector::Zero();
   } trans_ctrl_;
   struct RotationControlParameters
   {
-    double atti_wn, head_wn;      // [rad/s]
-    double atti_zeta, head_zeta;  // [-]
+    double atti_wn, head_wn;      ///< [rad/s]
+    double atti_zeta, head_zeta;  ///< [-]
     double atti_ki, head_ki;
     kdl::Vector ei = kdl::Vector::Zero();
   } rot_ctrl_;
 
   // Values depending on drone configuration
-  double max_thrust_sum_;  // [N]
+  double max_thrust_sum_;  ///< [N]
 
   // State
   bool js_received_ = false;
@@ -90,12 +90,12 @@ private:
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
 
   // Command
-  std::optional<tobas_command_msgs::PosVelAccPitchYaw> pos_cmd_;  // Position-control target value in the WCS.
-  std::optional<tobas_command_msgs::AccelPitchYaw> acc_cmd_;      // Acceleration-control target value in the WCS.
-  std::optional<kdl::Rotation> tar_rot_;                          // Target attitude in the body coordinate system.
-  std::optional<kdl::Vector> tar_gyro_;   // Target angular velocity in the body coordinate system.
-  std::optional<kdl::Vector> tar_dgyro_;  // Target angular acceleration in the body coordinate system.
-  double ux_ = 0.0, uz_ = 0.0;            // Target thrust in the body coordinate system.
+  std::optional<tobas_command_msgs::PosVelAccPitchYaw> pos_cmd_;  ///< Position-control target value in the WCS.
+  std::optional<tobas_command_msgs::AccelPitchYaw> acc_cmd_;      ///< Acceleration-control target value in the WCS.
+  std::optional<kdl::Rotation> tar_rot_;                          ///< Target attitude in the body coordinate system.
+  std::optional<kdl::Vector> tar_gyro_;   ///< Target angular velocity in the body coordinate system.
+  std::optional<kdl::Vector> tar_dgyro_;  ///< Target angular acceleration in the body coordinate system.
+  double ux_ = 0.0, uz_ = 0.0;            ///< Target thrust in the body coordinate system.
 
   // Publishers
   ros2::PublisherPtr<tobas_msgs::msg::RotorThrustArray> tar_thrusts_pub_;

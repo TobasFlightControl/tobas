@@ -10,8 +10,7 @@ namespace tobas
 namespace stm
 {
 /**
- * @brief A linux driver of full-scale barometer.
- *
+ * A linux driver of full-scale barometer.
  * Datasheet: https://www.st.com/resource/en/datasheet/ilps22qs.pdf
  */
 class ILPS22QS
@@ -21,14 +20,14 @@ public:
 
   bool initialize(const char* i2c_device);
 
-  /* Read the current pressure [Pa]. */
+  /** Read the current pressure [Pa]. */
   bool readPressure(double& pressure);
 
-  /* Read the current temperature [degC]. */
+  /** Read the current temperature [degC]. */
   bool readTemperature(double& temperature);
 
 private:
-  /* 8: Register mapping (p.32) */
+  /** 8: Register mapping (p.32) */
   enum Register : uint8_t
   {
     // Interface control register
@@ -63,7 +62,7 @@ private:
   enum Config : uint8_t
   {
     // CTRL_REG1
-    ODR_0HZ = 0b0000 << 3,  // Default
+    ODR_0HZ = 0b0000 << 3,  ///< Default
     ODR_1HZ = 0b0001 << 3,
     ODR_4HZ = 0b0010 << 3,
     ODR_10HZ = 0b0011 << 3,
@@ -72,7 +71,7 @@ private:
     ODR_75HZ = 0b0110 << 3,
     ODR_100HZ = 0b0111 << 3,
     ODR_200HZ = 0b1000 << 3,
-    AVG_4 = 0b000 << 0,  // Default
+    AVG_4 = 0b000 << 0,  ///< Default
     AVG_8 = 0b001 << 0,
     AVG_16 = 0b010 << 0,
     AVG_32 = 0b011 << 0,
@@ -82,14 +81,14 @@ private:
 
     // CTRL_REG2
     REBOOT_MEMORY_CONTENT = 1 << 7,
-    FS_MODE_1260HPA = 0 << 6,  // Default
+    FS_MODE_1260HPA = 0 << 6,  ///< Default
     FS_MODE_4060HPA = 1 << 6,
-    LPF_CFG_4 = 0 << 5,  // Default
+    LPF_CFG_4 = 0 << 5,  ///< Default
     LPF_CFG_9 = 1 << 5,
-    ENABLE_LPF = 1 << 4,  // Default
+    ENABLE_LPF = 1 << 4,  ///< Default
     BLOCK_DATA_UPDATE = 1 << 3,
     SOFTWARE_RESET = 1 << 2,
-    ONESHOT = 1 << 0,  // Default
+    ONESHOT = 1 << 0,  ///< Default
 
     // CTRL_REG3
     AH_QVAR_EN = 1 << 7,
@@ -102,7 +101,7 @@ private:
   uint32_t pres_lsb_ = 0;
   int16_t temp_lsb_ = 0;
 
-  double pres_scale_;  // [LSB/Pa]
+  double pres_scale_;  ///< [LSB/Pa]
 
   bool checkWhoAmI();
   bool configure();

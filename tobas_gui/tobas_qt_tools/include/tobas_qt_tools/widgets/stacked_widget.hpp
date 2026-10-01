@@ -23,7 +23,7 @@ class StackedWidget : public QStackedWidget
 public:
   using super::QStackedWidget;
 
-  /* Delete all widgets and free memory. */
+  /** Delete all widgets and free memory. */
   void clear();
 
 public Q_SLOTS:

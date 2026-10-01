@@ -89,7 +89,7 @@ private:
   void registerCommandSubscribers();
   void registerDebugSubscribers();
 
-  /* Get the available disk space in bytes. */
+  /** Get the available disk space in bytes. */
   size_t getDiskAvailableSize() const noexcept;
 
   void publishRosbagState();

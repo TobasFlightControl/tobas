@@ -43,7 +43,7 @@ std::expected<void, std::string> load(const std::string& key, const YAML::Node& 
   return {};
 }
 
-/* Convert `YAML::Node` to text. */
+/** Convert `YAML::Node` to text. */
 std::string dump(const YAML::Node& node) noexcept;
 
 std::expected<YAML::Node, std::string> load(const std::filesystem::path& path) noexcept;

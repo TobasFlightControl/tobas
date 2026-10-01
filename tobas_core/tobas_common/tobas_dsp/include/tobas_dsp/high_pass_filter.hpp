@@ -29,7 +29,7 @@ public:
   void setCutoffFrequency(const double& fc_hz);
 
 private:
-  double wc_ = INFINITY;  // [rad/s]
+  double wc_ = INFINITY;  ///< [rad/s]
   T y_{};
   T prev_u_{};
 };

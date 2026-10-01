@@ -21,8 +21,8 @@ class PwmConfig
 public:
   uint32_t channel = 0;
   std::string name = "";
-  std::pair<double, double> period_range = { 1000, 2000 };  // [us]
-  std::pair<double, double> value_range = { 0, 0 };         // Range of values corresponding to PWM.
+  std::pair<double, double> period_range = { 1000, 2000 };  ///< [us]
+  std::pair<double, double> value_range = { 0, 0 };         ///< Range of values corresponding to PWM.
 
   std::expected<void, std::string> validate() const;
 

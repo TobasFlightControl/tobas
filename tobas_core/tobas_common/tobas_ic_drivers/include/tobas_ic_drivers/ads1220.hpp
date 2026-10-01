@@ -12,8 +12,7 @@ namespace tobas
 namespace driver
 {
 /**
- * @brief A linux driver of 2-channel ADC.
- *
+ * A linux driver of 2-channel ADC.
  * Datasheet: https://www.ti.com/jp/lit/ds/symlink/ads1220.pdf
  */
 class ADS1220
@@ -25,33 +24,33 @@ public:
 
   bool initialize(const char* spi_device);
 
-  /* Read the current value of the voltage channel [-1, 1] */
+  /** Read the current value of the voltage channel [-1, 1] */
   bool readVoltage(double& dst);
 
-  /* Read the current value of the current channel [-1, 1] */
+  /** Read the current value of the current channel [-1, 1] */
   bool readCurrent(double& dst);
 
 private:
-  /* 8.5.3: Commands */
+  /** 8.5.3: Commands */
   enum Command : uint8_t
   {
-    RESET = 0b00000110,      // Reset the device
-    START = 0b00001000,      // Start of restart conversions
-    POWERDOWN = 0b00000010,  // Enter power-down mode
-    RDATA = 0b00010000,      // Read data by command
-    RREG = 0b00100000,       // Read nn registers starting at address rr
-    WREG = 0b01000000,       // Write nn registers starting at address rr
+    RESET = 0b00000110,      ///< Reset the device
+    START = 0b00001000,      ///< Start of restart conversions
+    POWERDOWN = 0b00000010,  ///< Enter power-down mode
+    RDATA = 0b00010000,      ///< Read data by command
+    RREG = 0b00100000,       ///< Read nn registers starting at address rr
+    WREG = 0b01000000,       ///< Write nn registers starting at address rr
 
     DUMMY = 0xFF,
   };
 
-  /* 8.6: Register Map (p.39) */
+  /** 8.6: Register Map (p.39) */
   enum Register : uint8_t
   {
-    CFG_REG_0 = 0b00 << 2,  // Configuration Register 0
-    CFG_REG_1 = 0b01 << 2,  // Configuration Register 1
-    CFG_REG_2 = 0b10 << 2,  // Configuration Register 2
-    CFG_REG_3 = 0b11 << 2,  // Configuration Register 3
+    CFG_REG_0 = 0b00 << 2,  ///< Configuration Register 0
+    CFG_REG_1 = 0b01 << 2,  ///< Configuration Register 1
+    CFG_REG_2 = 0b10 << 2,  ///< Configuration Register 2
+    CFG_REG_3 = 0b11 << 2,  ///< Configuration Register 3
   };
 
   enum Config : uint8_t

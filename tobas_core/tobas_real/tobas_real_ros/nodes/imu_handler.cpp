@@ -42,7 +42,7 @@ private:
   } stage_ = kMeasureGyroBias;
 
   // Config
-  kdl::Vector acc_bias_;  // [m/s^2]
+  kdl::Vector acc_bias_;  ///< [m/s^2]
 
   // Gyro bias-related data
   kdl::Vector gyro_bias_;

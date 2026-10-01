@@ -28,9 +28,7 @@ namespace ub
 {
 namespace ui
 {
-/**
- * @brief Main panel embedded in the RViz window.
- */
+/** Main panel embedded in the RViz window. */
 class UrdfBuilderPanel : public rviz_common::Panel
 {
   Q_OBJECT

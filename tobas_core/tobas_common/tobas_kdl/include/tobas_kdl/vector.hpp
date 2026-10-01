@@ -17,9 +17,7 @@ namespace kdl
 class Vector;
 using VectorMap = std::map<std::string, Vector>;
 
-/**
- * @brief A concrete implementation of a 3 dimensional vector class.
- */
+/** A concrete implementation of a 3 dimensional vector class. */
 class Vector
 {
 public:
@@ -35,9 +33,9 @@ public:
   static inline Vector UnitY();
   static inline Vector UnitZ();
 
-  /* Access to elements, range checked when NDEBUG is not set, from 0..2 */
+  /** Access to elements, range checked when NDEBUG is not set, from 0..2 */
   inline double operator()(size_t index) const;
-  /* Access to elements, range checked when NDEBUG is not set, from 0..2 */
+  /** Access to elements, range checked when NDEBUG is not set, from 0..2 */
   inline double& operator()(size_t index);
 
   inline const double& x() const;
@@ -56,34 +54,34 @@ public:
 
   inline void fill(double value);
 
-  /* Get the minimum element. */
+  /** Get the minimum element. */
   inline double min() const;
 
-  /* Get the maximum element. */
+  /** Get the maximum element. */
   inline double max() const;
 
-  /* Compute the element-wise minimum of two `Vector`s. */
+  /** Compute the element-wise minimum of two `Vector`s. */
   inline Vector min(const Vector& rhs) const;
 
-  /* Compute the element-wise maximum of two `Vector`s. */
+  /** Compute the element-wise maximum of two `Vector`s. */
   inline Vector max(const Vector& rhs) const;
 
-  /* Compute the dot product of two `Vector`s. */
+  /** Compute the dot product of two `Vector`s. */
   inline double dot(const Vector& rhs) const;
 
-  /* Compute the element-wise product of two `Vector`s. */
+  /** Compute the element-wise product of two `Vector`s. */
   inline Vector hadamard(const Vector& rhs) const;
 
-  /* Compute the angle between two `Vector`s, from 0 to pi [rad]. */
+  /** Compute the angle between two `Vector`s, from 0 to pi [rad]. */
   inline double argument(const Vector& rhs) const;
 
-  /* Determine whether two `Vector`s are perpendicular. */
+  /** Determine whether two `Vector`s are perpendicular. */
   inline bool isPerpendicular(const Vector& rhs) const;
 
-  /* Determine whether two `Vector`s are parallel. */
+  /** Determine whether two `Vector`s are parallel. */
   bool isParallel(const Vector& rhs, bool same_direction_only = false, double angle_tol_rad = 1e-3) const;
 
-  /* Clamp each value. */
+  /** Clamp each value. */
   inline Vector clamp(const double& lb, const double& ub) const;
   inline Vector clamp(const Vector& lb, const Vector& ub) const;
 
@@ -103,12 +101,12 @@ public:
 
   inline bool isFinite() const;
 
-  /* An exact comparison. */
+  /** An exact comparison. */
   inline bool operator==(const Vector& rhs) const;
 
-  /* Adds a vector from the Vector object itself. */
+  /** Adds a vector from the Vector object itself. */
   inline Vector& operator+=(const Vector& arg);
-  /* Subtracts a vector from the Vector object itself. */
+  /** Subtracts a vector from the Vector object itself. */
   inline Vector& operator-=(const Vector& arg);
 
   inline friend Vector operator-(const Vector& arg);

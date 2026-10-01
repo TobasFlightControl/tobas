@@ -11,7 +11,7 @@ namespace tobas
 {
 namespace kdl
 {
-/* Compute the positions of all frames at once. */
+/** Compute the positions of all frames at once. */
 class TreeFkSolverPosAll : public TreeSolverI
 {
   using super = TreeSolverI;

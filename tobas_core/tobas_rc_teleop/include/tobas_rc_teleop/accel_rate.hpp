@@ -32,11 +32,11 @@ private:
   kdl::Vector tar_acc_G_;
   kdl::Vector tar_gyro_B_;
 
-  // ROS parameters.
-  double max_hor_acc_;    // [m/s]
-  double max_ver_acc_;    // [m/s]
-  double max_atti_rate_;  // [rad/s]
-  double max_head_rate_;  // [rad/s]
+  // ROS parameters
+  double max_hor_acc_;    ///< [m/s]
+  double max_ver_acc_;    ///< [m/s]
+  double max_atti_rate_;  ///< [rad/s]
+  double max_head_rate_;  ///< [rad/s]
   double hor_acc_expo_;
   double ver_acc_expo_;
   double atti_expo_;

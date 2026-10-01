@@ -35,10 +35,10 @@ public:
   virtual YAML::Node dump() const = 0;
   virtual void load(const YAML::Node& node) = 0;
 
-  /* [kg*m/rad^2] */
+  /** [kg*m/rad^2] */
   virtual double motorConst() const = 0;
 
-  /* [m] */
+  /** [m] */
   virtual double momentConst() const = 0;
 
 protected:

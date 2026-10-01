@@ -14,9 +14,9 @@ namespace kdl
 class VectorAcc
 {
 public:
-  Vector p;   // position vector
-  Vector v;   // velocity vector
-  Vector dv;  // acceleration vector
+  Vector p;   ///< position vector
+  Vector v;   ///< velocity vector
+  Vector dv;  ///< acceleration vector
 
   inline explicit VectorAcc();
   inline explicit VectorAcc(const Vector& _p);
@@ -42,19 +42,19 @@ public:
   inline friend VectorAcc operator-(const Vector& r1, const VectorAcc& r2);
   inline friend VectorAcc operator+(const VectorAcc& r1, const Vector& r2);
   inline friend VectorAcc operator-(const VectorAcc& r1, const Vector& r2);
-  /* cross prod. */
+  /** cross prod. */
   inline friend VectorAcc operator*(const VectorAcc& r1, const VectorAcc& r2);
   inline friend VectorAcc operator*(const VectorAcc& r1, const Vector& r2);
   inline friend VectorAcc operator*(const Vector& r1, const VectorAcc& r2);
   inline friend VectorAcc operator*(const VectorAcc& r1, double r2);
-  /* scalar mult. */
+  /** scalar mult. */
   inline friend VectorAcc operator*(double r1, const VectorAcc& r2);
   inline friend VectorAcc operator*(const doubleAcc& r1, const VectorAcc& r2);
   inline friend VectorAcc operator*(const VectorAcc& r2, const doubleAcc& r1);
   inline friend VectorAcc operator*(const Rotation& R, const VectorAcc& x);
   inline friend VectorAcc operator/(const VectorAcc& r1, double r2);
   inline friend VectorAcc operator/(const VectorAcc& r2, const doubleAcc& r1);
-  /* unary - */
+  /** unary - */
   inline friend VectorAcc operator-(const VectorAcc& r);
 };
 

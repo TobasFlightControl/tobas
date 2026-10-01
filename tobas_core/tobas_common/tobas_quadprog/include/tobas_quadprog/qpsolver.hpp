@@ -12,8 +12,8 @@ namespace tobas
 {
 namespace quadprog
 {
-/**
- * @brief Quadratic problem.
+/** Q
+ * uadratic problem.
  * minimize 0.5 x^T P x + q^T x s.t. G x = h & A x <= b
  */
 class QuadProgProblem
@@ -43,14 +43,14 @@ public:
 };
 
 /**
- * @brief A base class of quadratic problem solver.
+ * A base class of quadratic problem solver.
  * minimize 0.5 x^T P x + q^T x s.t. G x = h & A x <= b
  */
 class QuadProgSolver
 {
 public:
   QuadProgProblem problem;
-  Eigen::VectorXd x_scale;  // Decision variable scale.
+  Eigen::VectorXd x_scale;  ///< Decision variable scale.
 
   explicit QuadProgSolver();
 

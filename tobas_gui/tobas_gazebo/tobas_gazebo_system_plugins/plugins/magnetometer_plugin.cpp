@@ -27,7 +27,7 @@ namespace tobas
 namespace gazebo
 {
 /**
- * @brief Gazebo Magnetometer plugin
+ * Gazebo Magnetometer plugin.
  *
  * - Initial bias is assumed to be calibrated.
  */
@@ -52,20 +52,20 @@ private:
 
   // SDF parameters
   std::string link_name_;
-  gz::math::Vector3d offset_;  // [m] B_Pos_BS
-  int update_rate_;            // [Hz] Update rate
-  double lat_0_;               // [deg] Latitude north of the origin
-  double lon_0_;               // [deg] Longitude east of the origin
-  double alt_0_;               // [m] Altitude of the origin
-  double noise_stddev_;        // [G]
-  double hard_bias_norm_;      // [G]
+  gz::math::Vector3d offset_;  ///< [m] B_Pos_BS
+  int update_rate_;            ///< [Hz] Update rate
+  double lat_0_;               ///< [deg] Latitude north of the origin
+  double lon_0_;               ///< [deg] Longitude east of the origin
+  double alt_0_;               ///< [m] Altitude of the origin
+  double noise_stddev_;        ///< [G]
+  double hard_bias_norm_;      ///< [G]
 
   std::optional<RateManager> rate_manager_;
 
   const cmp::WorldPose* pose_W_;
 
-  gz::math::Vector3d hard_bias_;  // [G]
-  double lat_, lon_;              // [deg] Current position
+  gz::math::Vector3d hard_bias_;  ///< [G]
+  double lat_, lon_;              ///< [deg] Current position
 
   std::random_device rnd_dev_;
   std::optional<NormalDistribution3d> noise_;

@@ -33,7 +33,6 @@ public:
    * @param q_in input joint positions
    * @param qd_in input joint velocities
    * @param acc_in input cartesian acceleration
-   *
    * @return The solution, or the QP solver error.
    */
   std::expected<JntArray, std::string> cartToJnt(const JntArray& q_in, const JntArray& qd_in, const AccelMap& acc_in);
@@ -49,11 +48,11 @@ private:
   TreeJacAccSolver jnt2jdqd_;
   TreeJointParser jntparser_;
 
-  Eigen::Vector6d Wt_ = Eigen::Vector6d::Constant(1.0);  // Task space weight
-  double Wj_ = 1e-3;                                     // Joint space weight
-  Eigen::VectorXd qdd_min_, qdd_max_;                    // Joint acceleration limits
-  Eigen::MatrixXd J_;                                    // Big jacobian
-  Eigen::VectorXd a_;                                    // Big acceleration in TS
+  Eigen::Vector6d Wt_ = Eigen::Vector6d::Constant(1.0);  ///< Task space weight
+  double Wj_ = 1e-3;                                     ///< Joint space weight
+  Eigen::VectorXd qdd_min_, qdd_max_;                    ///< Joint acceleration limits
+  Eigen::MatrixXd J_;                                    ///< Big jacobian
+  Eigen::VectorXd a_;                                    ///< Big acceleration in TS
 
   quadprog::DualActiveSetSolver qp_solver_;
 

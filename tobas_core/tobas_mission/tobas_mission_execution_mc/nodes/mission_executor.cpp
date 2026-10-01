@@ -48,7 +48,7 @@ namespace
 {
 using CatmullRomPath = traj::CatmullRomPath<Eigen::Vector3d>;
 
-/* Return true when `value` is finite and positive. */
+/** Return true when `value` is finite and positive. */
 inline bool isPositive(double value)
 {
   return std::isfinite(value) && value > 0.0;
@@ -64,10 +64,12 @@ inline double selectConservativeLimit(double current, double candidate)
 
 struct PathComponentScale
 {
-  // Maximum horizontal and vertical component coefficients for path arc length `s`.
-  // For example, `horizontal = 1` and `vertical = 0` is a horizontal-only path.
-  // `horizontal = 0` and `vertical = 1` is a vertical-only path.
-  // `horizontal` and `vertical` are separate norms, so their sum is not necessarily 1.
+  /**
+   * Maximum horizontal and vertical component coefficients for path arc length `s`.
+   * For example, `horizontal = 1` and `vertical = 0` is a horizontal-only path.
+   * `horizontal = 0` and `vertical = 1` is a vertical-only path.
+   * `horizontal` and `vertical` are separate norms, so their sum is not necessarily 1.
+   */
   double horizontal = 0.0;
   double vertical = 0.0;
 };
@@ -131,8 +133,8 @@ class MulticopterMissionExecutorNode : public BaseNode
   using GoalHandle = rclcpp_action::ServerGoalHandle<Action>;
   using GoalHandlePtr = std::shared_ptr<GoalHandle>;
 
-  static constexpr double kCommandRate = 100.0;      // [Hz]
-  static constexpr double kAttitudeRate = M_PI / 6;  // [rad/s]
+  static constexpr double kCommandRate = 100.0;      ///< [Hz]
+  static constexpr double kAttitudeRate = M_PI / 6;  ///< [rad/s]
 
 public:
   explicit MulticopterMissionExecutorNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -142,28 +144,28 @@ private:
 
   struct WaypointConfig
   {
-    double max_hor_vel;    // [m/s]
-    double max_hor_acc;    // [m/s^2]
-    double max_hor_jerk;   // [m/s^3]
-    double max_ver_vel;    // [m/s]
-    double max_ver_acc;    // [m/s^2]
-    double max_ver_jerk;   // [m/s^3]
-    double max_head_rate;  // [rad/s]
-    double max_head_acc;   // [rad/s^2]
+    double max_hor_vel;    ///< [m/s]
+    double max_hor_acc;    ///< [m/s^2]
+    double max_hor_jerk;   ///< [m/s^3]
+    double max_ver_vel;    ///< [m/s]
+    double max_ver_acc;    ///< [m/s^2]
+    double max_ver_jerk;   ///< [m/s^3]
+    double max_head_rate;  ///< [rad/s]
+    double max_head_acc;   ///< [rad/s^2]
   } wp_cfg_;
   struct TakeoffConfig
   {
-    double max_speed;  // [m/s]
-    double max_accel;  // [m/s^2]
-    double max_jerk;   // [m/s^3]
+    double max_speed;  ///< [m/s]
+    double max_accel;  ///< [m/s^2]
+    double max_jerk;   ///< [m/s^3]
   } takeoff_cfg_;
   struct LandConfig
   {
-    double speed;  // [m/s]
+    double speed;  ///< [m/s]
   } land_cfg_;
   struct ReturnToLaunchConfig
   {
-    double min_alt;  // [m]
+    double min_alt;  ///< [m]
   } rtl_cfg_;
 
   bool is_executing_ = false;
@@ -178,7 +180,7 @@ private:
     kManualOverride,
   } status_ = kNoProblem;
 
-  /* Target trajectory point expressed in the global frame. */
+  /** Target trajectory point expressed in the global frame. */
   struct Command
   {
     kdl::Vector pos;
@@ -213,20 +215,20 @@ private:
 
   void getStaticRosParams();
 
-  /* Initialize the command from the setpoint if it exists, otherwise from the current state. */
+  /** Initialize the command from the setpoint if it exists, otherwise from the current state. */
   void initializeCommand();
 
-  /* Publish the command. */
+  /** Publish the command. */
   void publishCommand(const rclcpp::Time& stamp);
 
-  /* Arm or disarm rotors synchronously. */
+  /** Arm or disarm rotors synchronously. */
   bool armRotors(bool arming);
 
-  /* Smoothly stop from the current command. */
+  /** Smoothly stop from the current command. */
   void brake();
 
   /**
-   * @brief Handle shutdown appropriately in response to external requests.
+   * Handle shutdown appropriately in response to external requests.
    * This includes cancellation, supersession, and similar requests.
    *
    * @return bool Whether the mission can continue.
@@ -234,7 +236,7 @@ private:
   bool handleExternalRequest(const GoalHandlePtr& gh, const ResultPtr& res);
 
   /**
-   * @brief Verify the navigation states required by the current mission phase.
+   * Verify the navigation states required by the current mission phase.
    *
    * Vertical position accuracy is always required because every mission phase,
    * including the emergency landing fallback, uses altitude control.

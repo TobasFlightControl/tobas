@@ -13,7 +13,7 @@ namespace tobas
 namespace kdl
 {
 /**
- * @brief Recursive newton euler inverse dynamics solver for kinematic trees.
+ * Recursive newton euler inverse dynamics solver for kinematic trees.
  *
  * It calculates the torques for the joints, given the motion of the joints (q,qd,qdd),
  * external forces on the segments (expressed in the segments reference frame)
@@ -41,7 +41,6 @@ public:
    * @param qd input joint velocities
    * @param qdd input joint accelerations
    * @param f_ext the external forces (no gravity) on the segments
-   *
    * @return The solution.
    */
   const JntArray&

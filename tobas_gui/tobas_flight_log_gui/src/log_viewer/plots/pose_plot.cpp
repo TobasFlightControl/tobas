@@ -21,7 +21,7 @@ namespace log
 {
 namespace
 {
-/* Maps an angle to the closest equivalent value on the previous sample's continuous branch. */
+/** Maps an angle to the closest equivalent value on the previous sample's continuous branch. */
 double unwrapAngle(double angle, std::optional<double>& previous_angle)
 {
   if (!std::isfinite(angle)) {

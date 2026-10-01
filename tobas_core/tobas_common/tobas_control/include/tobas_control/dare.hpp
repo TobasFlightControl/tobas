@@ -9,9 +9,7 @@ namespace tobas
 {
 namespace ctrl
 {
-/**
- * @brief Solve the discrete-time algebraic Riccati equation.
- */
+/** Solve the discrete-time algebraic Riccati equation. */
 Eigen::MatrixXd dare(
   const Eigen::MatrixXd& A,
   const Eigen::MatrixXd& B,

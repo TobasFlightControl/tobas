@@ -22,7 +22,8 @@ namespace tobas
 namespace ros2
 {
 /**
- * @brief Synchronous action client.
+ * Synchronous action client.
+ *
  * @note Action calls block the calling thread. Do not use this client where real-time behavior is required.
  */
 template <typename ActType>
@@ -41,7 +42,7 @@ public:
     rclcpp::CallbackGroup::SharedPtr group = nullptr);
 
   /**
-   * @brief Call the action.
+   * Call the action.
    *
    * @param goal Action goal.
    *
@@ -51,7 +52,7 @@ public:
   sendGoal(const typename ActType::Goal& goal, FeedbackCb feedback_cb = nullptr);
 
   /**
-   * @brief Call the action and wait until a result is obtained.
+   * Call the action and wait until a result is obtained.
    *
    * @param goal Action goal.
    * @param get_result_timeout,cancel_goal_timeout Timeout for each step. Waits indefinitely when non-positive.

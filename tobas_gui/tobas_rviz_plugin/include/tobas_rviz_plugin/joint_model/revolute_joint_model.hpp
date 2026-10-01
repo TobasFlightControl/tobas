@@ -21,7 +21,7 @@ public:
   void setAxis(const Eigen::Vector3d& axis);
 
 private:
-  Eigen::Vector3d axis_ = Eigen::Vector3d::Zero();  // The axis of the joint
+  Eigen::Vector3d axis_ = Eigen::Vector3d::Zero();  ///< The axis of the joint
   double x2_ = 0.0, y2_ = 0.0, z2_ = 0.0, xy_ = 0.0, xz_ = 0.0, yz_ = 0.0;
 };
 }  // namespace rviz

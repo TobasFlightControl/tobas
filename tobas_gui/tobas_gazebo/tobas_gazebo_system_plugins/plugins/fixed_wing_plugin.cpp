@@ -34,7 +34,7 @@ namespace tobas
 namespace gazebo
 {
 /**
- * @brief Plugin for aerodynamic forces acting on fixed-wing aircraft.
+ * Plugin for aerodynamic forces acting on fixed-wing aircraft.
  * cf. Aircraft Flight Dynamics and Control: https://www.morikita.co.jp/books/mid/069081
  *
  * @note
@@ -64,13 +64,13 @@ public:
 private:
   // SDF parameters
   std::string base_link_name_;
-  double alt_0_;  // Geometric altitude of the reference point
+  double alt_0_;  ///< Geometric altitude of the reference point
   VehicleParameters vehicle_params_;
   AerodynamicCoefficients aero_coefs_;
   std::map<std::string, ControlSurface> control_surfaces_;
 
   gz::sim::Link base_link_;
-  std::map<std::string, gz::sim::Joint> cs_joints_;  // Pointers to control-surface joints
+  std::map<std::string, gz::sim::Joint> cs_joints_;  ///< Pointers to control-surface joints
 
   const cmp::WorldPose* pose_W_;
   const cmp::WorldLinearVelocity* vel_W_;
@@ -78,7 +78,7 @@ private:
 
   double prev_alpha_ = 0.0;
   bool is_initialized_ = false;
-  gz::math::Vector3d wind_vel_W_ = gz::math::Vector3d::Zero;  // Wind velocity [m/s]
+  gz::math::Vector3d wind_vel_W_ = gz::math::Vector3d::Zero;  ///< Wind velocity [m/s]
 
   // PubSub
   ros2::PublisherPtr<tobas_gazebo_msgs::msg::FixedWingDebug> debug_pub_;

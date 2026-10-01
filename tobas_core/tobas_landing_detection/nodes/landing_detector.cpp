@@ -27,7 +27,7 @@ public:
 private:
   bool landed_ = true;
   tobas_kdl_msgs::WrenchStamped::ConstSharedPtr dist_force_;
-  rclcpp::Time t_last_no_change_;  // Last time the upward vertical force crossed the threshold
+  rclcpp::Time t_last_no_change_;  ///< Last time the upward vertical force crossed the threshold
   dsp::LowPassFilter<double> force_z_lpf_;
 
   kdl::Tree tree_;

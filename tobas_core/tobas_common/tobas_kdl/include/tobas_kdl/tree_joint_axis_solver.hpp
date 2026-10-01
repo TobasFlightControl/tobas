@@ -21,7 +21,7 @@ public:
 
   void updateInternalDataStructures() override;
 
-  /* Compute joint axis wrt. the root frame. */
+  /** Compute joint axis wrt. the root frame. */
   Vector jntToCart(const JntArray& q_in, const std::string& seg_name);
 
 private:

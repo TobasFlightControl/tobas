@@ -11,14 +11,12 @@ namespace tobas
 {
 namespace kdl
 {
-/**
- * @brief represents both linear and angular damping.
- */
+/** represents both linear and angular damping. */
 class TaskSpaceDamping
 {
 public:
-  Vector linear;   // [Ns/m]
-  Vector angular;  // [Nms/rad]
+  Vector linear;   ///< [Ns/m]
+  Vector angular;  ///< [Nms/rad]
 
   inline explicit TaskSpaceDamping();
   inline explicit TaskSpaceDamping(const Vector& linear, const Vector& angular);

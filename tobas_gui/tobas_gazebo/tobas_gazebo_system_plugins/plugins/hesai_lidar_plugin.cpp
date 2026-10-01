@@ -18,7 +18,7 @@ namespace tobas
 namespace gazebo
 {
 /**
- * @brief Bridge Gazebo GPU LiDAR so it can be used from ROS 2 like a Hesai LiDAR.
+ * Bridge Gazebo GPU LiDAR so it can be used from ROS 2 like a Hesai LiDAR.
  *
  * Subscribes to messages emitted by the `gpu_lidar` sensor and `gz-sim-sensors-system` plugin,
  * subscribes to `gz::msgs::PointCloudPacked` messages,
@@ -47,12 +47,9 @@ private:
   } params_;
 
   // LiDAR-related values.
-  // Number of `gpu_ray` samples before one publish.
-  int sampling_times_;
-  // Number of `gpu_lidar` messages received and packed since the previous publish.
-  int phase_ = 0;
-  // Size used for one point in the message.
-  uint32_t point_step_;
+  int sampling_times_;   ///< Number of `gpu_ray` samples before one publish.
+  int phase_ = 0;        ///< Number of `gpu_lidar` messages received and packed since the previous publish.
+  uint32_t point_step_;  ///< Size used for one point in the message.
   // Message data layout.
   uint32_t x_offset_;
   uint32_t y_offset_;
@@ -60,11 +57,12 @@ private:
   uint32_t intensity_offset_;
   uint32_t ring_offset_;
   uint32_t timestamp_offset_;
-  // For each ring, the index where horizontal sampling starts.
-  // To distort point-cloud data, subsample only points starting from this index in `gpu_ray` data.
+  /**
+   * For each ring, the index where horizontal sampling starts.
+   * To distort point-cloud data, subsample only points starting from this index in `gpu_ray` data.
+   */
   std::vector<uint32_t> sampling_start_idx_;
-  // Index in LiDAR data where data is packed.
-  uint32_t lidar_data_index_ = 0;
+  uint32_t lidar_data_index_ = 0;  ///< Index in LiDAR data where data is packed.
 
   // Gazebo interfaces
   gz::transport::Node node_;
@@ -73,7 +71,7 @@ private:
   ros2::PublisherPtr<sensor_msgs::msg::PointCloud2> point_cloud_publisher_;
   sensor_msgs::msg::PointCloud2::UniquePtr point_cloud_msg_;
 
-  /* Load configurations from SDF. */
+  /** Load configurations from SDF. */
   void getSdfParams(const sdf::ElementConstPtr& sdf);
 
   void gpuRayCb(const gz::msgs::PointCloudPacked& msg);

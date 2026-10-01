@@ -15,14 +15,14 @@ namespace tobas
 {
 namespace eigen
 {
-/* Calculate the matrix rank. */
+/** Calculate the matrix rank. */
 template <typename Derived>
 inline Eigen::Index matrixRank(const Eigen::MatrixBase<Derived>& A)
 {
   return A.fullPivLu().rank();
 }
 
-/* Check whether a square matrix is symmetric. */
+/** Check whether a square matrix is symmetric. */
 template <typename Derived>
 inline bool isSymmetric(const Eigen::MatrixBase<Derived>& A)
 {
@@ -30,7 +30,7 @@ inline bool isSymmetric(const Eigen::MatrixBase<Derived>& A)
   return A.isApprox(A.transpose());
 }
 
-/* Check whether a square matrix is orthogonal. */
+/** Check whether a square matrix is orthogonal. */
 template <typename Derived>
 inline bool isOrthogonal(const Eigen::MatrixBase<Derived>& A)
 {
@@ -38,7 +38,7 @@ inline bool isOrthogonal(const Eigen::MatrixBase<Derived>& A)
   return (A * A.transpose()).isApprox(Eigen::MatrixBase<Derived>::Identity());
 }
 
-/* Check whether a square matrix is special orthogonal. */
+/** Check whether a square matrix is special orthogonal. */
 template <typename Derived>
 inline bool isSpecialOrthogonal(const Eigen::MatrixBase<Derived>& A)
 {
@@ -46,7 +46,7 @@ inline bool isSpecialOrthogonal(const Eigen::MatrixBase<Derived>& A)
 }
 
 /**
- * @brief Check whether a matrix is positive definite.
+ * Check whether a matrix is positive definite.
  * cf. https://stackoverflow.com/questions/35227131/
  */
 template <typename Derived>
@@ -56,7 +56,7 @@ inline bool isPositiveDefinite(const Eigen::MatrixBase<Derived>& A)
   return A.llt().info() != Eigen::NumericalIssue;
 }
 
-/* Check whether a matrix is positive semidefinite. */
+/** Check whether a matrix is positive semidefinite. */
 template <typename Derived>
 bool isSemiPositiveDefinite(const Eigen::MatrixBase<Derived>& A)
 {
@@ -70,21 +70,21 @@ bool isSemiPositiveDefinite(const Eigen::MatrixBase<Derived>& A)
   return D.minCoeff() >= -tol;
 }
 
-/* Check whether a matrix is symmetric positive definite. */
+/** Check whether a matrix is symmetric positive definite. */
 template <typename Derived>
 inline bool isSymmetricPositiveDefinite(const Eigen::MatrixBase<Derived>& A)
 {
   return isSymmetric(A) && isPositiveDefinite(A);
 }
 
-/* Check whether a matrix is symmetric positive semidefinite. */
+/** Check whether a matrix is symmetric positive semidefinite. */
 template <typename Derived>
 inline bool isSymmetricSemiPositiveDefinite(const Eigen::MatrixBase<Derived>& A)
 {
   return isSymmetric(A) && isSemiPositiveDefinite(A);
 }
 
-/* Find the nearest positive definite matrix. */
+/** Find the nearest positive definite matrix. */
 template <typename Derived>
 Derived nearestPositiveDefinite(const Eigen::MatrixBase<Derived>& A, double min_eigenvalue)
 {
@@ -109,7 +109,7 @@ Derived nearestPositiveDefinite(const Eigen::MatrixBase<Derived>& A, double min_
 }
 
 /**
- * @brief Weighted squared-norm minimization.
+ * Weighted squared-norm minimization.
  * minimize 0.5 ||Ax - b||^2_W1 + 0.5 ||x||^2_W2
  * <=> x = A^# b (A^# = (A^T W1 A + W2)^(-1) A^T W1) <- SR-inverse
  */

@@ -34,11 +34,11 @@ private:
   traj::VelocityLimitedOnlineTrajectoryGenerator roll_filt_, pitch_filt_, thrust_angle_filt_;
   double tar_yaw_;
 
-  // ROS parameters.
-  double max_roll_;          // [rad]
-  double max_pitch_;         // [rad]
-  double max_yaw_rate_;      // [rad/s]
-  double max_thrust_angle_;  // [rad]
+  // ROS parameters
+  double max_roll_;          ///< [rad]
+  double max_pitch_;         ///< [rad]
+  double max_yaw_rate_;      ///< [rad/s]
+  double max_thrust_angle_;  ///< [rad]
   double roll_expo_;
   double yaw_expo_;
   double throt_expo_;

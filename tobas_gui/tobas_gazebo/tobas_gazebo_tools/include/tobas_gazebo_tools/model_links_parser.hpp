@@ -13,7 +13,7 @@ namespace tobas
 {
 namespace gazebo
 {
-/* Hold all links that belong to the model. */
+/** Hold all links that belong to the model. */
 class ModelLinksParser
 {
 public:

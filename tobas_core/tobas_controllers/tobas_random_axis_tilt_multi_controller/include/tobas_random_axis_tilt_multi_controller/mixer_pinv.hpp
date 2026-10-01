@@ -14,7 +14,7 @@ namespace tobas
 {
 namespace random_axis_tilt_multicopter
 {
-/* Solve tilt-rotor multicopter mixing by variable transformation (memo: 3-16). */
+/** Solve tilt-rotor multicopter mixing by variable transformation (memo: 3-16). */
 class PinvMixer : public MixerI
 {
   using super = MixerI;
@@ -39,8 +39,8 @@ public:
 private:
   struct Config
   {
-    double singular_declination_lb = 0.0;  // [rad]
-    double singular_declination_ub = 0.0;  // [rad]
+    double singular_declination_lb = 0.0;  ///< [rad]
+    double singular_declination_ub = 0.0;  ///< [rad]
   } cfg_;
 
   kdl::TreeFkSolverPosAll fk_solver_;

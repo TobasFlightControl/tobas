@@ -24,17 +24,14 @@ namespace kdl
  * derivatives. (e.g. Rall1d< Rall1d<double>, Rall1d<double>, double> ).
  *
  * S is always passed by value.
- *
- * \par Class Type
- * Concrete implementation
  */
 template <class T, class V = T, class S = T>
 class Rall2d
 {
 public:
-  T t;   // value
-  V d;   // 1st derivative
-  V dd;  // 2nd derivative
+  T t;   ///< value
+  V d;   ///< 1st derivative
+  V dd;  ///< 2nd derivative
 
   // = Constructors
   inline explicit Rall2d() : t(), d(), dd(){};
@@ -55,7 +52,6 @@ public:
   {
   }
 
-  /* Copy constructor. */
   inline Rall2d(const Rall2d<T, V, S>& r) : t(r.t), d(r.d), dd(r.dd)
   {
   }

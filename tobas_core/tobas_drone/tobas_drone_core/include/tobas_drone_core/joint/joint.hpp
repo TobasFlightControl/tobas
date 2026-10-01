@@ -25,7 +25,7 @@ public:
   JointRole role = JointRole::kUserPassive;
   JointCommandInterface cmd_iface = JointCommandInterface::kNone;
   HardwareInterface hw_iface = HardwareInterface::kOther;
-  double home_pos = 0.0;  // [rad | m]
+  double home_pos = 0.0;  ///< [rad | m]
 
   std::expected<void, std::string> validate() const;
 
