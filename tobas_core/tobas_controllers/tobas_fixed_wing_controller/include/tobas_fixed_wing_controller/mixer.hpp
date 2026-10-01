@@ -36,10 +36,14 @@ private:
 
   // Fixed values.
   kdl::JntArray q_0_;
-
   double omega_roll_; // クルーズ時ロールモード角周波数
   double omega_s_; // クルーズ時短周期モード角周波数
   double omega_dutch_roll_; // クルーズ時ダッチロールモード角周波数
+  double max_roll_effectiveness_;
+  double max_pitch_effectiveness_;
+  double max_yaw_effectiveness_;
+
+  // Mutable values.
   double integral_error_x_ = 0.0; // 空力分補正のための積分要素
   double integral_error_y_ = 0.0;
   double integral_error_z_ = 0.0;

@@ -364,7 +364,7 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
     // TODO: Accumulate integral error while airborne.
 
     // Compute target Euler angle rates.
-    const auto yawrate_base_flu = - st::kGravity / std::max(kLowerLimitSpeed, airspeed) * std::sin(tar_rpdy.roll); // 定常旋回時のyawrate
+    const auto yawrate_base_flu = - st::kGravity / std::max(kLowerLimitSpeed, airspeed) * std::sin(cur_rpy.roll); // 定常旋回時のyawrate
     const auto yawrate_sp_flu = yawrate_base_flu + tar_rpdy.delta_yawrate;
     const auto tar_drpy = kdl::Vector(atti_angle_gain * roll_err, atti_angle_gain * pitch_err, yawrate_sp_flu);
 

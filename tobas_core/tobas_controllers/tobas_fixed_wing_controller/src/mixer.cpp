@@ -37,6 +37,23 @@ bool Mixer::updateInternalDataStructures()
     return false;
   }
 
+  max_roll_effectiveness_ = 0.0;
+  max_pitch_effectiveness_ = 0.0;
+  max_roll_effectiveness_ = 0.0;
+  for (const auto& [_, cs] : drone_.fixed_wing->control_surfaces) {
+    const auto& joint = tree_.getSegment(cs.link_name)->second.segment.joint();
+    const auto max_deflection = joint.upper_limit;
+    if (cs.type == ControlSurfaceType::kAileron) {
+      max_roll_effectiveness_ += std::abs(cs.c_roll_delta) * max_deflection;
+    }
+    if (cs.type == ControlSurfaceType::kElevator) {
+      max_pitch_effectiveness_ += std::abs(cs.c_pitch_delta) * max_deflection;
+    }
+    if (cs.type == ControlSurfaceType::kRudder) {
+      max_yaw_effectiveness_ += std::abs(cs.c_yaw_delta) * max_deflection;
+    }
+  }
+
   if (!calcModesAngularFreq()) {
     return false;
   }
@@ -69,18 +86,26 @@ bool Mixer::solve(
   }
 
   // Right-hand side of the EoM matrix equality.
-  kdl::Vector tar_dgyro_virtual = tar_dgyro_B; // これにより空力による応答遅れの影響を考慮
-  integral_error_x_ += airspeed / kCruiseSpeed * omega_roll_ * tar_dgyro_B.x() * dt;
-  integral_error_y_ += airspeed / kCruiseSpeed * omega_s_  * tar_dgyro_B.y() * dt;
-  integral_error_z_ += airspeed / kCruiseSpeed * omega_dutch_roll_ * tar_dgyro_B.z() * dt;
-  tar_dgyro_virtual.x() = tar_dgyro_B.x() + integral_error_x_;
-  tar_dgyro_virtual.y() = tar_dgyro_B.y() + integral_error_y_;
-  // FIX: yawの制御も考慮, 現状定常旋回への移行までの過渡応答のところでintegral_error_z_がたまってしまい, ラダーの効きが小さい場合に目標yawrateを出せない
-  tar_dgyro_virtual.z() = 0; // tar_dgyro_B.z() + integral_error_z_;
-  f_ = (I_B * tar_dgyro_virtual + cur_gyro_B * (I_B * cur_gyro_B)).data;  // [Nm]
+  // clip, clipしないと積分誤差が蓄積して振動
+  const auto max_droll  = dynamicPressure(rho, airspeed) * drone_.fixed_wing->vehicle.wing_surface * drone_.fixed_wing->vehicle.wing_span * max_roll_effectiveness_  / I_B.ixx();
+  const auto max_dpitch = dynamicPressure(rho, airspeed) * drone_.fixed_wing->vehicle.wing_surface * drone_.fixed_wing->vehicle.mac * max_pitch_effectiveness_ / I_B.iyy();
+  const auto max_dyaw   = dynamicPressure(rho, airspeed) * drone_.fixed_wing->vehicle.wing_surface * drone_.fixed_wing->vehicle.wing_span * max_yaw_effectiveness_ / I_B.izz();
+  const auto max_dgyro_B = kdl::Vector(max_droll, max_dpitch, max_dyaw);
+  const auto tar_dgyro_B_clipped = tar_dgyro_B.clamp(-max_dgyro_B, max_dgyro_B);
+  // 空力による応答遅れの影響を考慮
+  kdl::Vector tar_dgyro_virtual = tar_dgyro_B_clipped;
+  integral_error_x_ += airspeed / kCruiseSpeed * omega_roll_ * tar_dgyro_B_clipped.x() * dt;
+  integral_error_y_ += airspeed / kCruiseSpeed * omega_s_  * tar_dgyro_B_clipped.y() * dt;
+  integral_error_z_ += airspeed / kCruiseSpeed * omega_dutch_roll_ * tar_dgyro_B_clipped.z() * dt;
+  tar_dgyro_virtual.x() = tar_dgyro_B_clipped.x() + integral_error_x_;
+  tar_dgyro_virtual.y() = tar_dgyro_B_clipped.y() + integral_error_y_;
+  // FIX: yawの制御も考慮, 現状定常旋回への移行までの過渡応答のところでintegral_error_z_がたまってしまい, ラダーの効きが小さい場合に目標yawrateを出せない?
+  tar_dgyro_virtual.z() = tar_dgyro_B_clipped.z() + integral_error_z_;
+  f_ = (I_B * tar_dgyro_virtual + cur_gyro_B * (I_B * cur_gyro_B)).data; // [Nm]
 
   // Solve `Ex = f`.
   x_ = E_.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(f_);
+  std::cout << "x_ : " << x_.transpose() << std::endl;
 
   return true;
 }
@@ -95,12 +120,14 @@ bool Mixer::calcModesAngularFreq()
   // Compute mass properties.
   const auto& inertia = inertia_solver_.getInertia();
   const auto I_B = inertia.getRotationalInertiaCoG();
+  const auto I_xx = I_B.ixx();
   const auto I_yy = I_B.iyy();
+  const auto I_zz = I_B.izz();
 
   // ロールモードの良い近似は\dot{p} - L_p p = 0
   const auto b = drone_.fixed_wing->vehicle.wing_span;
   const auto S = drone_.fixed_wing->vehicle.wing_surface;
-  const auto L_p = 0.5 * st::kStandardAirDensity * std::pow(kCruiseSpeed, 2) * S * b * drone_.fixed_wing->aerodynamics.c_roll_p * b / (2.0 * kCruiseSpeed) / I_yy;
+  const auto L_p = 0.5 * st::kStandardAirDensity * std::pow(kCruiseSpeed, 2) * S * b * drone_.fixed_wing->aerodynamics.c_roll_p * b / (2.0 * kCruiseSpeed) / I_xx;
   if (L_p > 0) {
     return false;
   }
@@ -119,12 +146,13 @@ bool Mixer::calcModesAngularFreq()
   }
   omega_s_ = std::sqrt(omega_squared);
 
-  // ダッチロールモードの粗い近似はs^2 - N_r s + N_beta = 0 -> s - N_r = 0 (?)
-  const auto N_r = 0.5 * st::kStandardAirDensity * std::pow(kCruiseSpeed, 2) * S * b * drone_.fixed_wing->aerodynamics.c_yaw_r * b / (2.0 * kCruiseSpeed) / I_yy;
-  if (N_r > 0) {
+  // ダッチロールモードの粗い近似はs^2 - N_r s + N_beta = 0
+  // const auto N_r = 0.5 * st::kStandardAirDensity * std::pow(kCruiseSpeed, 2) * S * b * drone_.fixed_wing->aerodynamics.c_yaw_r * b / (2.0 * kCruiseSpeed) / I_zz;
+  const auto N_beta = 0.5 * st::kStandardAirDensity * std::pow(kCruiseSpeed, 2) * S * b * drone_.fixed_wing->aerodynamics.c_yaw_beta / I_zz;
+  if (N_beta < 0) {
     return false;
   }
-  omega_dutch_roll_ = - N_r;
+  omega_dutch_roll_ = std::sqrt(N_beta);
   return true;
 }
 }  // namespace fixed_wing
