@@ -105,9 +105,9 @@ private:
     LOW_INT_Z = 1 << 0,
 
     // CFG_REG_D
-    REPXY = 7,  ///< ref: p.13 recommended settings for Rep. XYZ, p.30 nXY = 1 + 2*REPXY
+    REPXY = 7,  ///< p.13 recommended settings for Rep. XYZ, p.30 nXY = 1 + 2*REPXY
 
-    REPZ = 26,  ///< ref: p.31 nZ = 1 + REPZ
+    REPZ = 26,  ///< p.31 nZ = 1 + REPZ
   };
 
   struct TrimData
@@ -134,7 +134,11 @@ private:
   bool execSelfTest();
   bool configure();
 
-  /** ref: https://github.com/boschsensortec/BMM150_SensorAPI/blob/master/bmm150.c (not written in data sheet) */
+  /**
+   * Read the sensor trim registers and store calibration data for magnetic field compensation.
+   *
+   * @see https://github.com/boschsensortec/BMM150_SensorAPI/blob/master/bmm150.c (not written in data sheet)
+   */
   bool readTrimRegisters();
 
   /**

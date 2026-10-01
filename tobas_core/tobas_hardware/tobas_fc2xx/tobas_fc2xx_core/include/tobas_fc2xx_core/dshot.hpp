@@ -12,7 +12,11 @@ namespace tobas
 {
 namespace fc2xx
 {
-/** cf. https://betaflight.com/docs/development/api/dshot */
+/**
+ * SPI interface for DShot motor commands and ESC telemetry on FC2XX hardware.
+ *
+ * @see https://betaflight.com/docs/development/api/dshot
+ */
 class DShot
 {
 public:

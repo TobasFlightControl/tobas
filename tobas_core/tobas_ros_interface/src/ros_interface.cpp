@@ -9,7 +9,7 @@ RosInterfaceNode::RosInterfaceNode(const rclcpp::NodeOptions& options)
   : super("ros_interface", nodeOptions_Default(options))
 {
   // Avoid deadlock when service callbacks are called recursively.
-  // cf. https://answers.ros.org/question/343279/ros2-how-to-implement-a-sync-service-client-in-a-node/
+  // Ref: https://answers.ros.org/question/343279/ros2-how-to-implement-a-sync-service-client-in-a-node/
   group_ = create_callback_group(rclcpp::CallbackGroupType::Reentrant);
 
   // Register ROS interfaces.

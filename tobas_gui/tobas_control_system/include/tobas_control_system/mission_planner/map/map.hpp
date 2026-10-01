@@ -16,7 +16,8 @@ namespace ctrl
 {
 /**
  * Widget embedding OpenStreetMap.
- * cf. https://stackoverflow.com/questions/36141170/creating-and-adding-mapquickitem-to-map-in-pyqt
+ *
+ * @see https://stackoverflow.com/questions/36141170/creating-and-adding-mapquickitem-to-map-in-pyqt
  */
 class MapWidget : public QQuickWidget
 {

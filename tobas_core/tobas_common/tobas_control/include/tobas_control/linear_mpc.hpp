@@ -18,7 +18,11 @@ namespace tobas
 {
 namespace ctrl
 {
-/** Linear model predictive control. cf. https://www.tdupress.jp/book/b349347.html */
+/**
+ * Linear model predictive control.
+ *
+ * @see https://www.tdupress.jp/book/b349347.html
+ */
 class LinearMPC
 {
 public:

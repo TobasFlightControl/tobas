@@ -148,6 +148,7 @@ public:
    * @param grav_cov [m^2/s^4] Covariance of gravitational acceleration measurement noise.
    * @param time [s] Current time.
    * @return Anomaly score, or an error message if attitude correction cannot be performed.
+   *
    * @note During free fall, state prediction is still applied before returning an error.
    */
   std::expected<double, std::string> measureImu(

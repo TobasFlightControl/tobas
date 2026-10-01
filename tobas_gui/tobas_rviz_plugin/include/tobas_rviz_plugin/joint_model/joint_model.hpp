@@ -17,7 +17,7 @@ namespace rviz
 class LinkModel;
 class JointModel;
 
-/* Map of names to instances for JointModel. */
+/** Map of names to instances for JointModel. */
 using JointModelMap = std::map<std::string, std::shared_ptr<JointModel>>;
 
 /** A joint from the robot. Models the transform that this joint applies in the kinematic chain. */

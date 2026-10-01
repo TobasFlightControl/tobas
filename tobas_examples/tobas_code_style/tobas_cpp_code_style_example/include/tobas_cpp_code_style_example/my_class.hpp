@@ -12,7 +12,7 @@ namespace my_namespace
 /** This is a short description that fits on a single line. */
 struct MyStruct
 {
-  /* Public data member only */
+  // Public data member only
   int public_data_member;
 };
 
@@ -23,7 +23,7 @@ struct MyStruct
 class MyClass
 {
 public:
-  /* Types and type aliases */
+  // Types and type aliases
   using Ptr = MyClass*;
 
   enum class ErrorCode
@@ -32,10 +32,10 @@ public:
     kError,
   };
 
-  /** Static constants */
+  // Static constants
   static constexpr int kStaticConstant = 0;
 
-  /** Factory functions */
+  // Factory functions
   static MyClass FactoryFunction();
 
   /** Default constructor */
@@ -52,7 +52,7 @@ public:
   /** Destructor */
   ~MyClass();
 
-  /* All other functions */
+  // All other functions
   bool initialize();
   inline int shortMethod() const;
 
@@ -63,10 +63,14 @@ public:
    * @param _non_primitive_input This is a description.
    * @param _output This is a description.
    * @return This is a description.
+   *
+   * @note Supplementary tags form a separate group with no blank lines between its entries.
+   * @warning This example does not assign a value to `_output`.
+   * @see shortMethod()
    */
   ErrorCode longMethod(int _primitive_input, const std::string& _non_primitive_input, double& _output);
 
-  /* All other data members */
+  // All other data members
   int public_data_member;
 
 protected:

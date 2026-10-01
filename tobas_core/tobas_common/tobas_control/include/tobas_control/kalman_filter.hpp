@@ -9,7 +9,11 @@ namespace tobas
 {
 namespace ctrl
 {
-/** Linear Kalman filter. cf. https://www.tdupress.jp/book/b349390.html */
+/**
+ * Linear Kalman filter.
+ *
+ * @see https://www.tdupress.jp/book/b349390.html
+ */
 class KalmanFilter
 {
 public:

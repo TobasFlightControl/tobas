@@ -15,7 +15,7 @@ namespace cmn
 /**
  * Edit command-line arguments.
  *
- * cf. [rviz2/src/main.cpp](https://github.com/ros2/rviz/blob/rolling/rviz2/src/main.cpp)
+ * @see [rviz2/src/main.cpp](https://github.com/ros2/rviz/blob/rolling/rviz2/src/main.cpp)
  */
 class NonRosArgumentParser
 {

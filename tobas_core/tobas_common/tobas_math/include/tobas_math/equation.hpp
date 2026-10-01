@@ -18,7 +18,8 @@ std::pair<std::complex<double>, std::complex<double>> solveQuadraticEquation(dou
 
 /**
  * Solve: a x^3 + b x^2 + c x + d = 0 (a != 0)
- * cf. https://oshima-gakushujuku.com/blog/math/formula-qubic-equation/
+ *
+ * @see https://oshima-gakushujuku.com/blog/math/formula-qubic-equation/
  */
 std::tuple<std::complex<double>, std::complex<double>, std::complex<double>>
 solveCubicEquation(double a, double b, double c, double d);

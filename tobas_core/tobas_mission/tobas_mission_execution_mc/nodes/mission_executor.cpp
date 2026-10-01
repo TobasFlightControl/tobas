@@ -967,7 +967,7 @@ bool MulticopterMissionExecutorNode::executeLand(const Land& goal, const GoalHan
 
 bool MulticopterMissionExecutorNode::executeRTL(const ReturnToLaunch& goal, const GoalHandlePtr& gh, const ResultPtr& res)
 {
-  // cf. [Return Mode | PX4](https://docs.px4.io/main/en/flight_modes/return)
+  // Ref: [Return Mode | PX4](https://docs.px4.io/main/en/flight_modes/return)
 
   if (!launch_point_) {
     res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;

@@ -36,7 +36,7 @@ public:
   inline int sign() const;
 };
 
-using RotorConfigMap = std::map<std::string, RotorConfig::SharedPtr>;  // Link Name -> RotorConfig
+using RotorConfigMap = std::map<std::string, RotorConfig::SharedPtr>;
 
 inline int RotorConfig::sign() const
 {

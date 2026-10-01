@@ -39,12 +39,13 @@ Eigen::MatrixXd blockDiag(const Eigen::MatrixBase<Derived>& A, const Eigen::Inde
 
 /**
  * Return a matrix created by repeating `A` in the row or column direction.
- * cf. `numpy.tile()`.
  *
  * @param A Submatrix.
  * @param num Number of repetitions.
  * @param axis Repetition direction: Row (0) or Column (1).
  * @return Eigen::MatrixXd
+ *
+ * @see `numpy.tile()`.
  */
 template <typename Derived>
 Eigen::MatrixXd tile(const Eigen::MatrixBase<Derived>& A, const Eigen::Index& num, const uint8_t& axis)
@@ -77,11 +78,12 @@ Eigen::MatrixXd tile(const Eigen::MatrixBase<Derived>& A, const Eigen::Index& nu
 
 /**
  * Concatenate two matrices in the row or column direction.
- * cf. `numpy.concatenate()`.
  *
  * @param A,B Matrices to concatenate.
  * @param axis Concatenation direction: Row (0) or Column (1).
  * @return Eigen::MatrixXd
+ *
+ * @see `numpy.concatenate()`.
  */
 template <typename T, typename U>
 Eigen::MatrixXd concat(const Eigen::MatrixBase<T>& A, const Eigen::MatrixBase<U>& B, const uint8_t& axis)
@@ -107,11 +109,12 @@ Eigen::MatrixXd concat(const Eigen::MatrixBase<T>& A, const Eigen::MatrixBase<U>
 
 /**
  * Concatenate three matrices in the row or column direction.
- * cf. `numpy.concatenate()`.
  *
  * @param A,B,C Matrices to concatenate.
  * @param axis Concatenation direction: Row (0) or Column (1).
  * @return Eigen::MatrixXd
+ *
+ * @see `numpy.concatenate()`.
  */
 template <typename T, typename U, typename V>
 inline Eigen::MatrixXd

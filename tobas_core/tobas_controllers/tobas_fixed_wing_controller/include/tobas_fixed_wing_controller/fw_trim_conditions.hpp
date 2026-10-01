@@ -57,10 +57,11 @@ public:
 
   /**
    * Range of velocity magnitudes that avoid stall.
-   * cf. Blue book, p.85, (2.9-47, 2.9-49)
    *
    * @param rho Air density [kg/m^3].
    * @return st::Range<double> Range of velocity magnitudes.
+   *
+   * @see Blue book, p.85, (2.9-47, 2.9-49)
    */
   st::Range<double> speedLimit(const double& rho) const;
 

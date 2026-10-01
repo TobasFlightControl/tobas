@@ -15,7 +15,7 @@ namespace field
 {
 TakeoffMaxAccelWidget::TakeoffMaxAccelWidget()
 {
-  // https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_ACC_UP_MAX
+  // Ref: https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_ACC_UP_MAX
   spin_box_ = new qt::DoubleSpinBox();
   spin_box_->setDecimals(1);
   spin_box_->setMinimum(1.0);

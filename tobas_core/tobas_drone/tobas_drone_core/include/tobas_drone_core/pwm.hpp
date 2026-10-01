@@ -14,7 +14,7 @@
 namespace tobas
 {
 class PwmConfig;
-using PwmConfigMap = std::map<std::string, PwmConfig>;  // Name -> PwmConfig
+using PwmConfigMap = std::map<std::string, PwmConfig>;
 
 class PwmConfig
 {

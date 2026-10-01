@@ -6,7 +6,7 @@
 #include <rclcpp/client.hpp>
 #include <rclcpp/node.hpp>
 
-/* For development. */
+/* For development */
 // #include <std_srvs/srv/empty.hpp>
 // using SrvType = std_srvs::srv::Empty;
 

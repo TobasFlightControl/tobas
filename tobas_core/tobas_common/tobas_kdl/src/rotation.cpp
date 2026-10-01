@@ -191,7 +191,7 @@ Vector Rotation::getRot() const
 std::pair<double, Vector> Rotation::getAngleAxis() const
 {
   // Optional check that input is pure rotation, 'isRotationMatrix' is defined at:
-  // http://www.euclideanspace.com/maths/algebra/matrix/orthogonal/rotation/
+  // Ref: http://www.euclideanspace.com/maths/algebra/matrix/orthogonal/rotation/
 
   if (
     std::abs(data(0, 1) - data(1, 0) < kEps) && std::abs(data(0, 2) - data(2, 0)) < kEps &&

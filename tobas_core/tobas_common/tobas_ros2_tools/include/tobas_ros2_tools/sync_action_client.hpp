@@ -13,7 +13,7 @@
 
 #include "./future.hpp"
 
-/* For development. */
+/* For development */
 // #include <tobas_std_msgs/action/empty.hpp>
 // using ActType = tobas_std_msgs::action::Empty;
 

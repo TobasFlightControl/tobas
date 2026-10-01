@@ -16,7 +16,7 @@
 namespace tobas
 {
 class JointConfig;
-using JointConfigMap = std::map<std::string, JointConfig>;  // Joint Name -> JointConfig
+using JointConfigMap = std::map<std::string, JointConfig>;
 
 class JointConfig
 {

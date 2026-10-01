@@ -35,7 +35,7 @@ bool IIS2MDC::initialize(const char* i2c_device)
 
 bool IIS2MDC::readMag(double& mx, double& my, double& mz)
 {
-  constexpr uint8_t kMultiReadFlag = 0x80;  // cf. 6.1.1: I2C operation (p.23)
+  constexpr uint8_t kMultiReadFlag = 0x80;  // Ref: 6.1.1: I2C operation (p.23)
   if (!i2c_.readBytes(OUTX_L_REG | kMultiReadFlag, sizeof(mag_buf_), mag_buf_)) {
     return false;
   }

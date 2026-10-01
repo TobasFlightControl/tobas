@@ -11,7 +11,8 @@ namespace ctrl
 {
 /**
  * Solve the continuous-time algebraic Riccati equation.
- * cf. Arimoto-Potter method: https://qiita.com/trgkpc/items/8210927d5b035912a153
+ *
+ * @see Arimoto-Potter method: https://qiita.com/trgkpc/items/8210927d5b035912a153
  */
 Eigen::MatrixXd care_ArimotoPotter(
   const Eigen::MatrixXd& A,

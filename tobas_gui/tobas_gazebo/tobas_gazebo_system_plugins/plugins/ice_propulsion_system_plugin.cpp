@@ -36,7 +36,6 @@ class GazeboIcePropulsionSystemPlugin : public BaseNode,
                                         public gz::sim::ISystemPreUpdate,
                                         public gz::sim::ISystemPostUpdate
 {
-  // Constants
   using self = GazeboIcePropulsionSystemPlugin;
 
 public:

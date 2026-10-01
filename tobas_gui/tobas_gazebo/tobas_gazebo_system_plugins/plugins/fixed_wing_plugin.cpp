@@ -35,19 +35,18 @@ namespace gazebo
 {
 /**
  * Plugin for aerodynamic forces acting on fixed-wing aircraft.
- * cf. Aircraft Flight Dynamics and Control: https://www.morikita.co.jp/books/mid/069081
  *
- * @note
- * All quantities use SI units.
+ * @note All quantities use SI units.
  * Separate plugins per control surface were considered, but all control surfaces are integrated
  * because computing lift coefficients and related values would become cumbersome.
+ * @see Aircraft Flight Dynamics and Control: https://www.morikita.co.jp/books/mid/069081
  */
 class GazeboFixedWingPlugin : public BaseNode,
                               public gz::sim::System,
                               public gz::sim::ISystemConfigure,
                               public gz::sim::ISystemPreUpdate
 {
-  // Constants
+  /** Constants */
   using self = GazeboFixedWingPlugin;
 
 public:

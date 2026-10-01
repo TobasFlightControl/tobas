@@ -12,7 +12,7 @@ namespace tim
 ch::system_clock::time_point tmToTimePoint(tm tm)
 {
   // Convert `tm` represented in UTC to `time_t`.
-  // https://dev.activebasic.com/egtra/2017/01/03/941/
+  // Ref: https://dev.activebasic.com/egtra/2017/01/03/941/
   const auto tt = timegm(&tm);
   if (tt < 0) {
     throw std::runtime_error("Failed to convert tm to time_t.");

@@ -15,7 +15,7 @@
 namespace tobas
 {
 class ControlSurface;
-using ControlSurfaceMap = std::map<std::string, ControlSurface>;  // Joint Name -> ControlSurface
+using ControlSurfaceMap = std::map<std::string, ControlSurface>;
 
 /**
  * Control sufrace.

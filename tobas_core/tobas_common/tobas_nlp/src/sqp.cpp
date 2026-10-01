@@ -98,7 +98,7 @@ std::expected<Eigen::VectorXd, std::string> SQP::solve()
 #endif
 
     // Termination check.
-    // cf. https://kotakku.github.io/cpp_robotics/tech_note/optimize/tolerances_and_stopping/
+    // Ref: https://kotakku.github.io/cpp_robotics/tech_note/optimize/tolerances_and_stopping/
     if ((dx->cwiseAbs().array() < (rel_tol_ * qp_.x_scale).array()).all()) {
       return x_;
     }

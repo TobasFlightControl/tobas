@@ -829,7 +829,7 @@ void ProjectGenerator::resolveModifiedUrdfMeshFilePath(tinyxml2::XMLElement* ele
   // Replace mesh file paths.
   // Ignition cannot find paths in the `package://<pkg_name>` format,
   // so embed a xacro command to replace them with absolute paths.
-  // cf. https://github.com/moveit/moveit_resources/blob/ros2/panda_description/urdf/panda.urdf.xacro
+  // Ref: https://github.com/moveit/moveit_resources/blob/ros2/panda_description/urdf/panda.urdf.xacro
   const auto new_filename = "file://$(find " + proj_paths_.cfgPkgName() + ")/meshes/" + base_name;
   elem->SetAttribute("filename", new_filename.toUtf8().constData());
 }

@@ -47,7 +47,8 @@ inline bool isSpecialOrthogonal(const Eigen::MatrixBase<Derived>& A)
 
 /**
  * Check whether a matrix is positive definite.
- * cf. https://stackoverflow.com/questions/35227131/
+ *
+ * @see https://stackoverflow.com/questions/35227131/
  */
 template <typename Derived>
 inline bool isPositiveDefinite(const Eigen::MatrixBase<Derived>& A)

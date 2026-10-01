@@ -11,7 +11,8 @@ namespace kdl
 {
 /**
  * Spherical coordinate system.
- * cf. https://wiis.info/math/euclidean-space/euclidean-space/spherical-coordinates/
+ *
+ * @see https://wiis.info/math/euclidean-space/euclidean-space/spherical-coordinates/
  */
 class SphericalCoordinate
 {

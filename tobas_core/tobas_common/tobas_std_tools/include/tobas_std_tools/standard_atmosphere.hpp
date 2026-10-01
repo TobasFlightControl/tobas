@@ -3,10 +3,8 @@
 
 #pragma once
 
-/**
- * Standard atmosphere.
- * cf. https://pigeon-poppo.com/standard-atmosphere/
- */
+// Standard atmosphere.
+// Ref: https://pigeon-poppo.com/standard-atmosphere/
 namespace tobas
 {
 namespace st

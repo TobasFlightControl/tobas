@@ -41,6 +41,7 @@ public:
    *
    * @param _odr `ODR` setting value.
    * @param _averaging Averaging setting value.
+   *
    * @note The settings are applied to the device in `applyConfiguration()` inside `initialize()`.
    */
   bool configure(ODR odr = ODR_100Hz, Averaging averaging = AVG_4);
@@ -231,6 +232,7 @@ private:
   /**
    * The first two bytes returned by `BMM350` during register reads are `0x00`,
    * so always read two extra bytes and discard the first two bytes.
+   *
    * @note Datasheet 9.2.3 Dummy bites in I2C mode
    * Datasheet: https://www.bosch-sensortec.com/products/motion-sensors/magnetometers/bmm350/
    */

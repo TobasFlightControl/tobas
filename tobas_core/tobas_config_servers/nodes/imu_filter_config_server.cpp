@@ -203,14 +203,16 @@ void ImuFilterConfigServer::imuRawCb(const tobas_msgs::Imu::ConstSharedPtr&)
   // Register dynamic parameters after confirming that raw IMU data can be received, meaning the node managing the IMU
   // filter is running. This ensures that the initial filter settings are applied reliably.
 
-  // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#IMU_ACCEL_CUTOFF
+  // Ref: https://docs.px4.io/main/en/advanced_config/parameter_reference.html#IMU_ACCEL_CUTOFF
   addDynamicIntParam("lowpass_filter/accel_cutoff", &self::lowPassFilterAccelCutoffCb, this, 5, 6, 0, 20, " Hz");
-  // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#IMU_GYRO_CUTOFF
+
+  // Ref: https://docs.px4.io/main/en/advanced_config/parameter_reference.html#IMU_GYRO_CUTOFF
   addDynamicIntParam("lowpass_filter/gyro_cutoff", &self::lowPassFilterGyroCutoffCb, this, 5, 8, 0, 20, " Hz");
-  // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#IMU_DGYRO_CUTOFF
+
+  // Ref: https://docs.px4.io/main/en/advanced_config/parameter_reference.html#IMU_DGYRO_CUTOFF
   addDynamicIntParam("lowpass_filter/dgyro_cutoff", &self::lowPassFilterDGyroCutoffCb, this, 5, 4, 0, 20, " Hz");
 
-  // cf. https://betaflight.com/docs/wiki/guides/current/DSHOT-RPM-Filtering
+  // Ref: https://betaflight.com/docs/wiki/guides/current/DSHOT-RPM-Filtering
   if (config_rpm_filter_sc_) {
     addDynamicIntParam("rpm_filter/quality_factor", &self::rpmFilterQualityFactorCb, this, 1, 0, 0, 10);  // Disabled
     addDynamicIntParam("rpm_filter/min_center_frequency", &self::rpmFilterMinCenterFreqCb, this, 10, 10, 2, 20, " Hz");

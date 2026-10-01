@@ -23,7 +23,7 @@
     abort();                                                                                                           \
   }
 
-/* Assertion that also works in release mode. Use it to check operations that should almost never fail. */
+/** Assertion that also works in release mode. Use it to check operations that should almost never fail. */
 #define TOBAS_ASSERT(expr)                                                                                             \
   {                                                                                                                    \
     if (!static_cast<bool>(expr)) {                                                                                    \

@@ -11,9 +11,9 @@ namespace linux
 {
 /**
  * Set a non-standard baud rate.
- * cf. pySerial: https://github.com/pyserial/pyserial
  *
  * @note As in pySerial, both `termios` in `termios.h` and `termios2` in `asm/termibits.h` must be configured.
+ * @see pySerial: https://github.com/pyserial/pyserial
  */
 bool setNonStandardBaudRate(int fd, uint32_t baud_rate);
 }  // namespace linux

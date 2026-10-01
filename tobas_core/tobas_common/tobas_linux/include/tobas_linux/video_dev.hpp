@@ -47,7 +47,8 @@ public:
 
   /**
    * Access Extension Unit Control directly.
-   * ref: https://docs.kernel.org/userspace-api/media/drivers/uvcvideo.html#extension-unit-xu-support
+   *
+   * @see https://docs.kernel.org/userspace-api/media/drivers/uvcvideo.html#extension-unit-xu-support
    */
   bool execUvcControl(const uvc_xu_control_query& query);
 

@@ -32,7 +32,7 @@ void KinectDepthNoiseModel::applyNoise(const size_t& width, const size_t& height
   }
 
   // Axial noise model from
-  // https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=6375037,
+  // Ref: https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=6375037,
   // Nguyen, Izadi & Lovell: "Modeling Kinect Sensor Noise for Improved 3D Reconstrucion and
   // Tracking", 3DIM/3DPVT, 2012. We are using the 10-60 Degree model as an approximation.
   Eigen::Map<Eigen::VectorXf> data_vector_map(data, width * height);

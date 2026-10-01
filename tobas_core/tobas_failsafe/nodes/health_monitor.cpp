@@ -489,7 +489,7 @@ std::unique_ptr<tobas_msgs::msg::VehicleHealth> HealthMonitorNode::createHealthM
   if (do_check_.vibration_level) {
     if (vibe_) {
       // Vibration levels below 30m/s/s are normally acceptable.
-      // cf. https://ardupilot.org/copter/docs/common-diagnosing-problems-using-logs.html#vibrations
+      // Ref: https://ardupilot.org/copter/docs/common-diagnosing-problems-using-logs.html#vibrations
       constexpr double kVibrationLevelThresh = 10.0;  // [m/s^2]
       if (vibe_->data.max() > kVibrationLevelThresh) {
         health->vibration_level = tobas_msgs::msg::VehicleHealth::FAILED;

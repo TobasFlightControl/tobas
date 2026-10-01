@@ -232,27 +232,27 @@ void ErrorStateKalmanFilterNode::setupTransformMessage()
 
 void ErrorStateKalmanFilterNode::registerDynamicRosParams()
 {
-  // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_ACC_NOISE
+  // Ref: https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_ACC_NOISE
   addDynamicDoubleParam("acc_meas_noise_stddev", &self::fixedAccMeasNoiseStddevCb, this, 0.05, 20, 1, 20, " m/s^2");
 
-  // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_GYR_NOISE
+  // Ref: https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_GYR_NOISE
   addDynamicDoubleParam("gyro_meas_noise_stddev", &self::fixedGyroMeasNoiseStddevCb, this, 0.005, 20, 1, 20, " rad/s");
 
-  // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_MAG_NOISE
+  // Ref: https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_MAG_NOISE
   addDynamicDoubleParam("mag_meas_noise_stddev", &self::fixedMagMeasNoiseStddevCb, this, 5.0, 1, 1, 20, " uT");
 
-  // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_HEAD_NOISE
+  // Ref: https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_HEAD_NOISE
   addDynamicDoubleParam("head_meas_noise_stddev", &self::fixedHeadMeasNoiseStddevCb, this, 0.05, 6, 1, 20, " rad");
 
-  // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_BARO_NOISE
+  // Ref: https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_BARO_NOISE
   addDynamicDoubleParam("baro_alt_meas_noise_stddev", &self::fixedBaroAltMeasNoiseStddevCb, this, 0.5, 7, 1, 30, " m");
 
   if (!adaptive_gnss_noise_) {
-    // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_GPS_P_NOISE
+    // Ref: https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_GPS_P_NOISE
     addDynamicDoubleParam(
       "gnss_pos_meas_noise_stddev", &self::fixedGnssPosMeasNoiseStddevCb, this, 0.1, 5, 1, 100, " m");
 
-    // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_GPS_V_NOISE
+    // Ref: https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_GPS_V_NOISE
     addDynamicDoubleParam(
       "gnss_vel_meas_noise_stddev", &self::fixedGnssVelMeasNoiseStddevCb, this, 0.1, 3, 1, 50, " m/s");
   }
@@ -268,31 +268,31 @@ void ErrorStateKalmanFilterNode::registerDynamicRosParams()
       "grav_meas_noise_stddev_rate", &self::adaptiveGravMeasNoiseStddevRateCb, this, 5.0, 20, 0, 100);
   }
   else {
-    // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_GRAV_NOISE
+    // Ref: https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_GRAV_NOISE
     addDynamicDoubleParam("grav_meas_noise_stddev", &self::fixedGravMeasNoiseStddevCb, this, 0.1, 3, 1, 20, " g");
   }
   if (do_acc_bias_estimation_) {
-    // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_ACC_B_NOISE
+    // Ref: https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_ACC_B_NOISE
     addDynamicDoubleParam(
       "acc_bias_proc_noise_density", &self::accBiasProcNoiseDensityCb, this, 1.0, 15, 0, 50, " ug/s/√Hz");
   }
   if (do_gyro_bias_estimation_) {
-    // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_GYR_B_NOISE
+    // Ref: https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_GYR_B_NOISE
     addDynamicDoubleParam(
       "gyro_bias_proc_noise_density", &self::gyroBiasProcNoiseDensityCb, this, 1.0, 3, 0, 30, " mdps/s/√Hz");
   }
   if (do_mag_hard_bias_estimation_) {
-    // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_MAG_B_NOISE
+    // Ref: https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_MAG_B_NOISE
     addDynamicDoubleParam(
       "mag_hard_bias_proc_noise_density", &self::magHardBiasProcNoiseDensityCb, this, 0.1, 5, 0, 100, " nT/s/√Hz");
   }
   if (do_mag_soft_bias_estimation_) {
-    // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_MAG_B_NOISE
+    // Ref: https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_MAG_B_NOISE
     addDynamicDoubleParam(
       "mag_soft_bias_proc_noise_density", &self::magSoftBiasProcNoiseDensityCb, this, 0.1, 5, 0, 100, " nT/s/√Hz");
   }
   if (do_baro_alt_bias_estimation_) {
-    // cf. https://github.com/PX4/PX4-Autopilot/blob/main/src/modules/ekf2/EKF/common.h (baro_bias_nsd)
+    // Ref: https://github.com/PX4/PX4-Autopilot/blob/main/src/modules/ekf2/EKF/common.h (baro_bias_nsd)
     addDynamicDoubleParam(
       "baro_alt_bias_proc_noise_density", &self::baroAltBiasProcNoiseDensityCb, this, 0.01, 13, 0, 100, " m/s/√Hz");
   }

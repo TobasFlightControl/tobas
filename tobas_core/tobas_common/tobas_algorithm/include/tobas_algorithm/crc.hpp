@@ -6,7 +6,7 @@
 #include <cinttypes>
 #include <cstddef>
 
-/* cf: https://qiita.com/tobira-code/items/dbcffc41f54201130b6c */
+// Ref: https://qiita.com/tobira-code/items/dbcffc41f54201130b6c
 namespace tobas
 {
 namespace algo

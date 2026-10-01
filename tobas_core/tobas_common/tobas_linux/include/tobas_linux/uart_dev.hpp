@@ -15,7 +15,8 @@ namespace linux
 {
 /**
  * UART driver.
- * cf. [pySerial](https://github.com/pyserial/pyserial/tree/7aeea35429d15f3eefed10bbb659674638903e3a)
+ *
+ * @see [pySerial](https://github.com/pyserial/pyserial/tree/7aeea35429d15f3eefed10bbb659674638903e3a)
  */
 class UARTdev
 {

@@ -119,7 +119,7 @@ public:
   bool initialize();
   bool update(bool blocking = false);
 
-  /* ===== Configurations =====*/
+  // ===== Configurations =====
 
   bool enableSpiMessage(UbxClass cls, uint8_t id, bool enable);
   bool configureDynamicsModel(DynamicsModel model);
@@ -156,7 +156,7 @@ public:
 
   bool enableUsb(bool enable);
 
-  /* ===== Getters ===== */
+  // ===== Getters =====
 
   inline UbxClass latestClass() const;
   inline uint8_t latestId() const;
@@ -240,7 +240,7 @@ private:
     uint8_t CK_B;
   };
 
-  /* ===== Payload structures ===== */
+  // ===== Payload structures =====
 
   template <typename ValueType>
   struct PACKED CfgData
@@ -267,7 +267,7 @@ private:
     CfgData<ValueType> data[N];  ///< Configuration data
   };
 
-  /* ==============================*/
+  // ==============================
 
   const std::unique_ptr<UbxTransport> transport_;
   UbxScanner scanner_;

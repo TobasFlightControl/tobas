@@ -26,7 +26,7 @@ KeyboardReader::KeyboardReader()
   changed_.c_cc[VEOF] = 2;
 
   // Set the input reception time limit.
-  // https://stackoverflow.com/questions/2917881/how-to-implement-a-timeout-in-read-function-call
+  // Ref: https://stackoverflow.com/questions/2917881/how-to-implement-a-timeout-in-read-function-call
   changed_.c_cc[VMIN] = 0;  // Set the minimum character count to 0, so this returns immediately without input.
   changed_.c_cc[VTIME] = 0;
 

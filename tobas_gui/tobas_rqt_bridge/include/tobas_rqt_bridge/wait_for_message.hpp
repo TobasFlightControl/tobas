@@ -32,7 +32,7 @@ struct SignalTraits<void (Class::*)(const Arg&)>
 template <auto SignalType>
 auto waitForMessage(const RosQtBridge& bridge, int timeout_ms)
 {
-  // Derive the message pointer type from the signal so callers only need to specify the signal itself.
+  /** Derive the message pointer type from the signal so callers only need to specify the signal itself. */
   using MsgPtr = typename detail::SignalTraits<decltype(SignalType)>::Argument;
 
   MsgPtr res;

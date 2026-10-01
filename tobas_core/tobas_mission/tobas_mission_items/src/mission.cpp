@@ -10,7 +10,7 @@
 
 #include "tobas_mission_items/mission_items.hpp"
 
-/* Define a macro that assigns directly because packed struct elements cannot be bound to function arguments. */
+/** Define a macro that assigns directly because packed struct elements cannot be bound to function arguments. */
 #define LOAD_PACKED_FIELD(key, parent, field)                                                                          \
   (                                                                                                                    \
     [&]() noexcept -> bool                                                                                             \

@@ -56,7 +56,8 @@ bool isValidFileName(const std::string& file_name);
 
 /**
  * Check whether an email address is valid.
- * cf. https://www.geeksforgeeks.org/check-if-email-address-valid-or-not-in-python/
+ *
+ * @see https://www.geeksforgeeks.org/check-if-email-address-valid-or-not-in-python/
  */
 bool isValidEmail(const std::string& email);
 

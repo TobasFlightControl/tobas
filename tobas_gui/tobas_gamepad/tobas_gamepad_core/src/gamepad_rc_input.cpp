@@ -98,7 +98,8 @@ bool GamepadRcInput::poll()
   }
 
   input_event event;
-  // ref: https://github.com/whot/libevdev/blob/master/tools/libevdev-events.c
+
+  // Ref: https://github.com/whot/libevdev/blob/master/tools/libevdev-events.c
   while (true) {
     const int rc = libevdev_next_event(dev_.get(), LIBEVDEV_READ_FLAG_NORMAL, &event);
     // A new event was read successfully.

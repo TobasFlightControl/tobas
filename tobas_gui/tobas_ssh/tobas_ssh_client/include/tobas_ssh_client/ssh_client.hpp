@@ -40,16 +40,16 @@ public:
   /** Wait for the local server that communicates directly with the SSH server. */
   bool waitForLocalServer();
 
-  /* Getters */
+  // Getters
 
   Error errorCode() const;
   std::string errorMessage() const;
 
-  /* Setters */
+  // Setters
 
   bool setEndpoint(const std::string& host, const std::string& user);
 
-  /* SSH commands */
+  // SSH commands
 
   Error connect();
 

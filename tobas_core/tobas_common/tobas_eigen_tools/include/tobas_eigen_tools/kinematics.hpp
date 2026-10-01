@@ -29,7 +29,8 @@ Eigen::Vector3d eulerrateFromAngvelGlobal(const Eigen::Vector3d& angvel, double 
 
 /**
  * Calculate the matrix that converts angular velocity expressed in the local frame to ZYX Euler angle rates.
- * cf. https://www.sky-engin.jp/blog/eulerian-angles/#toc7
+ *
+ * @see https://www.sky-engin.jp/blog/eulerian-angles/#toc7
  */
 Eigen::Matrix3d eulerrateFromAngvelLocal(double roll, double pitch);
 

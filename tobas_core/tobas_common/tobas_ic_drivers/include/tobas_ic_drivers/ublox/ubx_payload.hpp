@@ -122,7 +122,7 @@ struct NAV_HPPOSLLH : public Payload
 {
   uint8_t version;  ///< Message version (0x00 for this version)
 
-  /* flags: Additional flags */
+  // flags: Additional flags
   bool invalidLlh;  ///< Invalid lon, lat, height, hMSL, lonHp, latHp, heightHp and hMSLHp
 
   uint32_t iTOW;  ///< GPS time of week [ms]
@@ -203,7 +203,7 @@ struct NAV_PVT : public Payload
   uint8_t min;    ///< Minute of hour, range 0..59 (UTC) [min]
   uint8_t sec;    ///< Seconds of minute, range 0..60 (UTC) [s]
 
-  /* valid: Validity flags */
+  // valid: Validity flags
   bool validDate;      ///< Valid UTC Date
   bool validTime;      ///< Valid UTC Time of Day
   bool fullyResolved;  ///< UTC Time of Day has been fully resolved
@@ -214,7 +214,7 @@ struct NAV_PVT : public Payload
 
   FixType fixType;  ///< GNSSfix Type
 
-  /* flags: Fix status flags */
+  // flags: Fix status flags
   bool gnssFixOk;  ///< Valid fix (i.e within DOP & accuracy masks)
   bool diffSoln;   ///< Differential corrections were applied
   /** Power Save Mode state */
@@ -258,7 +258,7 @@ struct NAV_PVT : public Payload
   double headAcc;  ///< Heading accuracy estimate [deg]
   double pDOP;     ///< Position DOP
 
-  /* flags3: Additional flags */
+  // flags3: Additional flags
   bool invalidLlh;  ///< Invalid lon, lat, height and hMSL
 
   double headVeh;  ///< Heading of vehicle (2-D) [deg]

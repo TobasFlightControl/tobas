@@ -98,7 +98,7 @@ bool BMM150::readMag(double& mx, double& my, double& mz)
   const uint16_t r_hall = ((static_cast<uint16_t>(mag_buf_[7]) << 6) | (mag_buf_[6] >> 2));
 
   // Compensate for the temperature effect using resistance value of hall sensor based on
-  // https://github.com/boschsensortec/BMM150_SensorAPI/blob/master/bmm150.c compensate_x
+  // Ref: https://github.com/boschsensortec/BMM150_SensorAPI/blob/master/bmm150.c compensate_x
   // (int16_t)raw_data * kResolution is approximately microteslas.
   constexpr double kResolution = 1.0 / 16.0;
   mx = static_cast<double>(compensateX(raw_data_x, r_hall)) * kResolution;
