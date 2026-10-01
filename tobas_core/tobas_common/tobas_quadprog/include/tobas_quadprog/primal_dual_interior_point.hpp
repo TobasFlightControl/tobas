@@ -17,9 +17,9 @@ public:
 
   std::expected<Eigen::VectorXd, std::string> solve() override;
 
-  bool setNumberOfIterations(const size_t& num_iter);
-  bool setSigma(const double& sigma);
-  bool setAlphaTolerance(const double& alpha_tol);
+  void setNumberOfIterations(const size_t& num_iter);
+  void setSigma(const double& sigma);
+  void setAlphaTolerance(const double& alpha_tol);
 
 private:
   size_t num_iter_ = 10;  // TODO

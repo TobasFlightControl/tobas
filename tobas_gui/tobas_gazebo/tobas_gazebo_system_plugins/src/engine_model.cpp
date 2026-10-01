@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <cassert>
+
 #include <tobas_math/core.hpp>
 
 #include "tobas_gazebo_system_plugins/engine_model.hpp"
@@ -55,18 +57,14 @@ void EngineModel::setThrottle(const double& throttle)
   throttle_ = std::clamp(throttle, 0.0, 1.0);
 }
 
-bool EngineModel::step(const double& dt)
+void EngineModel::step(const double& dt)
 {
-  if (dt <= 0.0) {
-    return false;
-  }
+  assert(dt >= 0.0);
 
   position_ += getSpeed() * dt;
 
   const auto steady_speed = computeSteadySpeed();
   speed_filter_.update(steady_speed, dt);
-
-  return true;
 }
 
 bool EngineModel::getSdfParams(const sdf::ElementConstPtr& sdf)

@@ -29,8 +29,8 @@ void TreeIkSolverAcc::updateInternalDataStructures()
 std::expected<JntArray, std::string>
 TreeIkSolverAcc::cartToJnt(const JntArray& q_in, const JntArray& qd_in, const AccelMap& acc_in)
 {
-  assert(q_in.rows() == tree_.getNrOfJoints());
-  assert(qd_in.rows() == tree_.getNrOfJoints());
+  assert(q_in.size() == tree_.getNrOfJoints());
+  assert(qd_in.size() == tree_.getNrOfJoints());
 
   const auto num_points = acc_in.size();
   const auto eq_dim = 6 * num_points;
@@ -86,14 +86,11 @@ TreeIkSolverAcc::cartToJnt(const JntArray& q_in, const JntArray& qd_in, const Ac
   return JntArray(*qdd_out);
 }
 
-bool TreeIkSolverAcc::setWeightTS(const Eigen::Vector6d& Wt)
+void TreeIkSolverAcc::setWeightTS(const Eigen::Vector6d& Wt)
 {
-  if ((Wt.array() < 0).any()) {
-    return false;
-  }
+  assert((Wt.array() >= 0.0).all());
 
   Wt_ = Wt;
-  return true;
 }
 
 const Eigen::Vector6d& TreeIkSolverAcc::getWeightTS() const
@@ -101,15 +98,12 @@ const Eigen::Vector6d& TreeIkSolverAcc::getWeightTS() const
   return Wt_;
 }
 
-bool TreeIkSolverAcc::setWeightJS(const double& Wj)
+void TreeIkSolverAcc::setWeightJS(const double& Wj)
 {
   // Always include a regularization term to prevent numerical errors.
-  if (Wj <= 0) {
-    return false;
-  }
+  assert(Wj > 0.0);
 
   Wj_ = Wj;
-  return true;
 }
 
 const double& TreeIkSolverAcc::getWeightJS() const

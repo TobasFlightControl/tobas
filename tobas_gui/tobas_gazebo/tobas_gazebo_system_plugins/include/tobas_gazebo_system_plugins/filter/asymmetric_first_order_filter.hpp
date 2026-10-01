@@ -41,8 +41,8 @@ void AsymmetricFirstOrderFilter<T>::initialize(
   const double& time_const_down,
   const T& init_value)
 {
-  assert(time_const_up >= 0.0 && "Rise time constant must be non-negative.");
-  assert(time_const_down >= 0.0 && "Fall time constant must be non-negative.");
+  assert(time_const_up >= 0.0);
+  assert(time_const_down >= 0.0);
 
   time_const_up_ = time_const_up;
   time_const_down_ = time_const_down;
@@ -54,8 +54,8 @@ void AsymmetricFirstOrderFilter<T>::initialize(
 template <typename T>
 void AsymmetricFirstOrderFilter<T>::update(const T& input_value, const double& sampling_time)
 {
-  assert(is_initialized_ && "Filter must be initialized before updating.");
-  assert(sampling_time > 0.0 && "Sampling time must be positive.");
+  assert(is_initialized_);
+  assert(sampling_time >= 0.0);
 
   if (input_value > value_) {
     // Acceleration

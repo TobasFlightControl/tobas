@@ -118,34 +118,22 @@ std::expected<MixerSolution, std::string> SqpMixer::solve(
   return MixerSolution{ thrusts, tilt_angles };
 }
 
-bool SqpMixer::setLinearWeight(double p)
+void SqpMixer::setLinearWeight(double p)
 {
-  if (p <= 0.0) {
-    return false;
-  }
-
+  assert(p > 0.0);
   cfg_.linear_weight = p;
-  return true;
 }
 
-bool SqpMixer::setAngularWeight(double p)
+void SqpMixer::setAngularWeight(double p)
 {
-  if (p <= 0.0) {
-    return false;
-  }
-
+  assert(p > 0.0);
   cfg_.angular_weight = p;
-  return true;
 }
 
-bool SqpMixer::setThrustWeight(double p)
+void SqpMixer::setThrustWeight(double p)
 {
-  if (p <= 0.0) {
-    return false;
-  }
-
+  assert(p > 0.0);
   cfg_.thrust_weight = p;
-  return true;
 }
 
 void SqpMixer::resetTensors()

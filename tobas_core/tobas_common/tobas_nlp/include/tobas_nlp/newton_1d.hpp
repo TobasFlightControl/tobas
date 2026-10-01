@@ -25,8 +25,8 @@ public:
   /** Solve from the initial value x and return the solution or an error message. */
   std::expected<double, std::string> solve(double x);
 
-  bool setMaximumIterations(size_t max_iter);
-  bool setAbsoluteTolerance(double abs_tol);
+  void setMaximumIterations(size_t max_iter);
+  void setAbsoluteTolerance(double abs_tol);
 
 private:
   std::function<double(double)> f_;

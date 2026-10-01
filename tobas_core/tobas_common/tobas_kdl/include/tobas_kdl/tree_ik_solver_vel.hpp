@@ -35,10 +35,10 @@ public:
   std::expected<JntArray, std::string> cartToJnt(const JntArray& q_in, const TwistMap& v_in);
 
   const Eigen::Vector6d& getWeightTS() const;
-  bool setWeightTS(const Eigen::Vector6d& Wt);
+  void setWeightTS(const Eigen::Vector6d& Wt);
 
   const double& getWeightJS() const;
-  bool setWeightJS(const double& Wj);
+  void setWeightJS(const double& Wj);
 
 private:
   TreeJacobianSolver jnt2jac_;

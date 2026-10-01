@@ -15,7 +15,7 @@ class CycloidGenerator3d
 public:
   explicit CycloidGenerator3d();
 
-  bool generate(const kdl::Vector& p0, const kdl::Vector& pf, const double& T, const double& h, const double& k = 5.0);
+  void generate(const kdl::Vector& p0, const kdl::Vector& pf, const double& T, const double& h, const double& k = 5.0);
 
   /**
    * Get the trajectory at time `t`.
@@ -26,7 +26,7 @@ public:
    * @param v Velocity at time `t`.
    * @param a Acceleration at time `t`.
    */
-  bool get(const double& t, const kdl::Rotation& r, kdl::Vector& p, kdl::Vector& v, kdl::Vector& a) const;
+  void get(const double& t, const kdl::Rotation& r, kdl::Vector& p, kdl::Vector& v, kdl::Vector& a) const;
 
   /**
    * Get the trajectory at time `t`.
@@ -36,7 +36,7 @@ public:
    * @param v Velocity at time `t`.
    * @param a Acceleration at time `t`.
    */
-  bool get(const double& t, kdl::Vector& p, kdl::Vector& v, kdl::Vector& a) const;
+  void get(const double& t, kdl::Vector& p, kdl::Vector& v, kdl::Vector& a) const;
 
   /**
    * Get the trajectory at time `t`.
@@ -45,7 +45,7 @@ public:
    * @param p Position at time `t`.
    * @param v Velocity at time `t`.
    */
-  bool get(const double& t, kdl::Vector& p, kdl::Vector& v) const;
+  void get(const double& t, kdl::Vector& p, kdl::Vector& v) const;
 
   /**
    * Get the trajectory at time `t`.
@@ -53,7 +53,7 @@ public:
    * @param t Time from the start point.
    * @param p Position at time `t`.
    */
-  bool get(const double& t, kdl::Vector& p) const;
+  void get(const double& t, kdl::Vector& p) const;
 
 private:
   kdl::Vector p0_;

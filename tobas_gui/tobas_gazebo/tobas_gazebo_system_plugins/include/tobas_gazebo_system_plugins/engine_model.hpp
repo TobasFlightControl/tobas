@@ -33,7 +33,7 @@ public:
 
   void setThrottle(const double& throttle);
 
-  bool step(const double& dt);
+  void step(const double& dt);
 
 private:
   const IceRotorModelMap& rotors_;

@@ -30,8 +30,8 @@ public:
     const double& tar_thrusts_sum,
     const kdl::Vector& ext_torque_B = kdl::Vector::Zero());
 
-  bool setBaseWeight(double p);
-  bool setThrustWeight(double p);
+  void setBaseWeight(double p);
+  void setThrustWeight(double p);
 
 private:
   struct Config

@@ -29,7 +29,7 @@ void TreeIkSolverVel::updateInternalDataStructures()
 
 std::expected<JntArray, std::string> TreeIkSolverVel::cartToJnt(const JntArray& q_in, const TwistMap& v_in)
 {
-  assert(q_in.rows() == tree_.getNrOfJoints());
+  assert(q_in.size() == tree_.getNrOfJoints());
 
   const auto num_points = v_in.size();
   const auto eq_dim = 6 * num_points;
@@ -80,14 +80,11 @@ std::expected<JntArray, std::string> TreeIkSolverVel::cartToJnt(const JntArray& 
   return JntArray(*qd_out);
 }
 
-bool TreeIkSolverVel::setWeightTS(const Eigen::Vector6d& Wt)
+void TreeIkSolverVel::setWeightTS(const Eigen::Vector6d& Wt)
 {
-  if ((Wt.array() < 0).any()) {
-    return false;
-  }
+  assert((Wt.array() >= 0.0).all());
 
   Wt_ = Wt;
-  return true;
 }
 
 const Eigen::Vector6d& TreeIkSolverVel::getWeightTS() const
@@ -95,15 +92,12 @@ const Eigen::Vector6d& TreeIkSolverVel::getWeightTS() const
   return Wt_;
 }
 
-bool TreeIkSolverVel::setWeightJS(const double& Wj)
+void TreeIkSolverVel::setWeightJS(const double& Wj)
 {
   // Always include a regularization term to prevent numerical errors.
-  if (Wj <= 0) {
-    return false;
-  }
+  assert(Wj > 0.0);
 
   Wj_ = Wj;
-  return true;
 }
 
 const double& TreeIkSolverVel::getWeightJS() const

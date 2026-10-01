@@ -38,9 +38,9 @@ public:
     const kdl::Vector& ext_force_W = kdl::Vector::Zero(),
     const kdl::Vector& ext_torque_B = kdl::Vector::Zero());
 
-  bool setLinearWeight(double p);
-  bool setAngularWeight(double p);
-  bool setThrustWeight(double p);
+  void setLinearWeight(double p);
+  void setAngularWeight(double p);
+  void setThrustWeight(double p);
 
 private:
   struct Config

@@ -102,7 +102,7 @@ Eigen::Matrix3d eulerrateFromAngvelLocal(double roll, double pitch)
   const auto sin_roll = std::sin(roll);
   const auto cos_pitch = std::cos(pitch);
   const auto tan_pitch = std::tan(pitch);
-  assert(cos_pitch > kEps && "Pitch cosine must be greater than machine epsilon.");
+  assert(cos_pitch > kEps);
 
   Eigen::Matrix3d res;
   res(0, 0) = 1;

@@ -3,6 +3,7 @@
 
 #include "tobas_planar_multi_controller/mixer_qp.hpp"
 
+#include <cassert>
 #include <ranges>
 
 #include <tobas_constants/scale.hpp>
@@ -126,24 +127,16 @@ std::expected<Eigen::VectorXd, std::string> QpMixer::solve(
   return thrustDeadband(*thrusts);
 }
 
-bool QpMixer::setBaseWeight(double p)
+void QpMixer::setBaseWeight(double p)
 {
-  if (p <= 0.0) {
-    return false;
-  }
-
+  assert(p > 0.0);
   cfg_.base_weight = p;
-  return true;
 }
 
-bool QpMixer::setThrustWeight(double p)
+void QpMixer::setThrustWeight(double p)
 {
-  if (p <= 0.0) {
-    return false;
-  }
-
+  assert(p > 0.0);
   cfg_.thrust_weight = p;
-  return true;
 }
 
 void QpMixer::resizeAndFill()

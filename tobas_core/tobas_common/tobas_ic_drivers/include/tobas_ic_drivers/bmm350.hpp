@@ -44,7 +44,7 @@ public:
    *
    * @note The settings are applied to the device in `applyConfiguration()` inside `initialize()`.
    */
-  bool configure(ODR odr = ODR_100Hz, Averaging averaging = AVG_4);
+  void configure(ODR odr = ODR_100Hz, Averaging averaging = AVG_4);
 
   /** Read the current magnetic field data [uT]. */
   bool readMag(float& _mx, float& _my, float& _mz);

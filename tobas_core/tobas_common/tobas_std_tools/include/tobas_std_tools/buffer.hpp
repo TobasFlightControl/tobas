@@ -95,7 +95,7 @@ inline bool Buffer<T>::isEmpty() const
 template <typename T>
 inline const T& Buffer<T>::get(size_t idx) const
 {
-  assert(idx < std::min(max_size_, cur_) && "Buffer index must be less than the number of stored elements.");
+  assert(idx < std::min(max_size_, cur_));
   return data_[idx];
 }
 
