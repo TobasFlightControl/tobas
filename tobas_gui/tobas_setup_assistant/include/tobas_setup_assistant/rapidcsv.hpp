@@ -3,7 +3,11 @@
 
 #pragma once
 
+#include <exception>
+#include <expected>
 #include <filesystem>
+#include <string>
+#include <vector>
 
 #include <rapidcsv.h>
 
@@ -18,17 +22,14 @@ namespace csv
 rapidcsv::Document load(const std::filesystem::path& path);
 
 template <typename T>
-bool getColumn(const rapidcsv::Document& doc, const std::string& name, std::vector<T>& dst)
+std::expected<std::vector<T>, std::string> getColumn(const rapidcsv::Document& doc, const std::string& name)
 {
   try {
-    dst = doc.GetColumn<T>(name);
+    return doc.GetColumn<T>(name);
   }
   catch (const std::exception& e) {
-    std::cerr << e.what() << std::endl;
-    return false;
+    return std::unexpected(std::string(e.what()));
   }
-
-  return true;
 }
 }  // namespace csv
 }  // namespace sa
