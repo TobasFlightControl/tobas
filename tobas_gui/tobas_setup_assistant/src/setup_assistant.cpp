@@ -278,8 +278,8 @@ void SetupAssistantWidget::onNewButtonClicked()
   tree_ = std::move(*tree);
 
   // Check model validity.
-  if (!uadf_.valid()) {
-    qt::qErrorBox(this, "UADF is invalid.");  // TODO: Show a detailed error message.
+  if (const auto result = uadf_.validate(); !result) {
+    qt::qErrorBox(this, "UADF is invalid: " + QString::fromStdString(result.error()));
     reset();
     return;
   }
@@ -386,8 +386,8 @@ void SetupAssistantWidget::onLoadButtonClicked()
   tree_ = std::move(*tree);
 
   // Check model validity.
-  if (!uadf_.valid()) {
-    qt::qErrorBox(this, "UADF is invalid.");  // TODO: Show a detailed error message.
+  if (const auto result = uadf_.validate(); !result) {
+    qt::qErrorBox(this, "UADF is invalid: " + QString::fromStdString(result.error()));
     reset();
     return;
   }
