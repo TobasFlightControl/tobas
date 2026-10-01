@@ -3,7 +3,8 @@
 
 #pragma once
 
-#include <iostream>
+#include <cassert>
+#include <cmath>
 
 namespace tobas
 {
@@ -16,11 +17,11 @@ class AsymmetricFirstOrderFilter
 public:
   explicit AsymmetricFirstOrderFilter();
 
-  bool initialize(const double& time_const_up, const double& time_const_down, const T& init_value);
+  virtual void initialize(const double& time_const_up, const double& time_const_down, const T& init_value);
 
-  bool update(const T& input_value, const double& sampling_time);
+  virtual void update(const T& input_value, const double& sampling_time);
 
-  inline const T& getValue() const;
+  virtual inline const T& getValue() const;
 
 private:
   bool is_initialized_ = false;
@@ -35,36 +36,26 @@ AsymmetricFirstOrderFilter<T>::AsymmetricFirstOrderFilter()
 }
 
 template <typename T>
-bool AsymmetricFirstOrderFilter<T>::initialize(
+void AsymmetricFirstOrderFilter<T>::initialize(
   const double& time_const_up,
   const double& time_const_down,
   const T& init_value)
 {
-  if (time_const_up < 0.0 || time_const_down < 0.0) {
-    std::cerr << "Time constant must be non-negative." << std::endl;
-    return false;
-  }
+  assert(time_const_up >= 0.0 && "Rise time constant must be non-negative.");
+  assert(time_const_down >= 0.0 && "Fall time constant must be non-negative.");
 
   time_const_up_ = time_const_up;
   time_const_down_ = time_const_down;
   value_ = init_value;
 
   is_initialized_ = true;
-  return true;
 }
 
 template <typename T>
-bool AsymmetricFirstOrderFilter<T>::update(const T& input_value, const double& sampling_time)
+void AsymmetricFirstOrderFilter<T>::update(const T& input_value, const double& sampling_time)
 {
-  if (!is_initialized_) {
-    std::cerr << "Filter is not initialized yet." << std::endl;
-    return false;
-  }
-
-  if (sampling_time <= 0.0) {
-    std::cerr << "Sampling time must be positive." << std::endl;
-    return false;
-  }
+  assert(is_initialized_ && "Filter must be initialized before updating.");
+  assert(sampling_time > 0.0 && "Sampling time must be positive.");
 
   if (input_value > value_) {
     // Acceleration
@@ -76,8 +67,6 @@ bool AsymmetricFirstOrderFilter<T>::update(const T& input_value, const double& s
     const double alpha_down = time_const_down_ > 0 ? std::exp(-sampling_time / time_const_down_) : 0;
     value_ = alpha_down * value_ + (1 - alpha_down) * input_value;
   }
-
-  return true;
 }
 
 template <typename T>

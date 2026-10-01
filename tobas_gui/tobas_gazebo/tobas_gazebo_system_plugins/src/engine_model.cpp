@@ -20,9 +20,7 @@ bool EngineModel::initialize(const sdf::ElementConstPtr& sdf)
     return false;
   }
 
-  if (!speed_filter_.initialize(time_const_up_, time_const_down_, 0.0)) {
-    return false;
-  }
+  speed_filter_.initialize(time_const_up_, time_const_down_, 0.0);
 
   newton_.initialize(
     bind(&self::speedFunc, this, std::placeholders::_1), bind(&self::speedFuncDeriv, this, std::placeholders::_1));
@@ -66,9 +64,7 @@ bool EngineModel::step(const double& dt)
   position_ += getSpeed() * dt;
 
   const auto steady_speed = computeSteadySpeed();
-  if (!speed_filter_.update(steady_speed, dt)) {
-    return false;
-  }
+  speed_filter_.update(steady_speed, dt);
 
   return true;
 }
