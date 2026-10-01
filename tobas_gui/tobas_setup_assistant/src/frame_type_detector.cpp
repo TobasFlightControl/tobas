@@ -125,10 +125,7 @@ bool FrameTypeDetector::isJntAxisAlwaysPerpendicular(const std::string& link_nam
   const auto& elem = seg_it->second;
 
   const auto& joint = elem.segment.joint();
-  if (joint.type != kdl::Joint::kRotation) {
-    std::cerr << link_name << " does not have a rotation type joint." << std::endl;
-    return false;
-  }
+  TOBAS_CHECK(joint.type == kdl::Joint::kRotation);
 
   // Condition 1: The axis in question is perpendicular to the target at some generalized coordinate configuration.
   const auto axis = axis_solver_.jntToCart(q_zeros_, link_name);
@@ -212,7 +209,6 @@ bool FrameTypeDetector::eachTiltRotorAxesPerpendicular()
 bool FrameTypeDetector::allTiltRotorAxesPerpendicular()
 {
   if (uadf_.tilts.empty()) {
-    std::cerr << "No tilt joints exist." << std::endl;
     return false;
   }
 

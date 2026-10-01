@@ -68,7 +68,6 @@ bool enumFromText(const std::string& text, FrameType& dst)
     return true;
   }
   else {
-    std::cerr << "Invalid frame type: " << text << std::endl;
     return false;
   }
 }
