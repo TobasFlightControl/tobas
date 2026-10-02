@@ -10,9 +10,9 @@
 #include <QHBoxLayout>
 
 #include <tobas_linux/core.hpp>
-#include <tobas_linux/error.hpp>
 #include <tobas_linux/execute_command.hpp>
 #include <tobas_qt_tools/message.hpp>
+#include <tobas_std_tools/error.hpp>
 
 #include "tobas_bootmedia_config/constants.hpp"
 
@@ -125,12 +125,12 @@ void MediaManagerWidget::onConnectButtonClicked()
 
   // Mount the external storage.
   if (mount(sdx1.toUtf8().constData(), kBootPath, "vfat", MS_NOATIME, nullptr) < 0) {
-    qt::qErrorBox(this, "Failed to mount " + sdx1 + " on " + kBootPath + ": " + linux::strError().c_str());
+    qt::qErrorBox(this, "Failed to mount " + sdx1 + " on " + kBootPath + ": " + st::strError().c_str());
     connect_btn_->setChecked(false);
     return;
   }
   if (mount(sdx2.toUtf8().constData(), kRootPath, "ext4", MS_NOATIME, nullptr) < 0) {
-    qt::qErrorBox(this, "Failed to mount " + sdx2 + " on " + kRootPath + ": " + linux::strError().c_str());
+    qt::qErrorBox(this, "Failed to mount " + sdx2 + " on " + kRootPath + ": " + st::strError().c_str());
     connect_btn_->setChecked(false);
     return;
   }
@@ -152,12 +152,12 @@ void MediaManagerWidget::onDisconnectButtonClicked()
 
   // Unmount the external storage.
   if (umount2(kBootPath, 0) < 0) {
-    qt::qErrorBox(this, "Failed to unmount " + QString(kBootPath) + ": " + linux::strError().c_str());
+    qt::qErrorBox(this, "Failed to unmount " + QString(kBootPath) + ": " + st::strError().c_str());
     connect_btn_->setChecked(true);
     return;
   }
   if (umount2(kRootPath, 0) < 0) {
-    qt::qErrorBox(this, "Failed to unmount " + QString(kRootPath) + ": " + linux::strError().c_str());
+    qt::qErrorBox(this, "Failed to unmount " + QString(kRootPath) + ": " + st::strError().c_str());
     connect_btn_->setChecked(true);
     return;
   }

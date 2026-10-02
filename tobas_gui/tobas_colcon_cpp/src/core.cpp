@@ -10,8 +10,8 @@
 #include <format>
 #include <iostream>
 
-#include <tobas_linux/error.hpp>
 #include <tobas_ros2_tools/package.hpp>
+#include <tobas_std_tools/error.hpp>
 
 namespace fs = std::filesystem;
 
@@ -35,12 +35,12 @@ std::expected<void, std::string> build(const fs::path& pkg_path, const fs::path&
 
   // Navigate to the estimated workspace.
   if (chdir(exec_path->c_str()) != 0) {
-    return std::unexpected("Failed to navigate to '" + exec_path->string() + "': " + linux::strError());
+    return std::unexpected("Failed to navigate to '" + exec_path->string() + "': " + st::strError());
   }
 
   // Specify the log directory.
   if (setenv("COLCON_LOG_PATH", (ws_path / "log").c_str(), 1) != 0) {
-    return std::unexpected("Failed to set the colcon log directory path: " + linux::strError());
+    return std::unexpected("Failed to set the colcon log directory path: " + st::strError());
   }
 
   // Create a build command.
@@ -84,7 +84,7 @@ std::expected<void, std::string> cleanWorkspace(const fs::path& ws_path)
 {
   // Navigate to the colcon workspace.
   if (chdir(ws_path.c_str()) != 0) {
-    return std::unexpected("Failed to navigate to '" + ws_path.string() + "': " + linux::strError());
+    return std::unexpected("Failed to navigate to '" + ws_path.string() + "': " + st::strError());
   }
 
   // Clean the workspace.

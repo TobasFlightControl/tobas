@@ -11,7 +11,7 @@
 #include <fstream>
 #include <iostream>
 
-#include <tobas_linux/error.hpp>
+#include <tobas_std_tools/error.hpp>
 
 namespace ch = std::chrono;
 
@@ -26,7 +26,7 @@ std::vector<std::string> readLines(const std::string& path)
 {
   std::ifstream ifs(path);
   if (!ifs) {
-    std::cerr << "Failed to open " << path << ": " << linux::strError() << std::endl;
+    std::cerr << "Failed to open " << path << ": " << st::strError() << std::endl;
     return {};
   }
 
@@ -78,7 +78,7 @@ bool atomicOverwrite(const std::string& path, const std::string& content)
   // Save existing metadata.
   struct stat st;
   if (stat(path.c_str(), &st) < 0) {
-    std::cerr << "stat failed on " + path + ": " << linux::strError() << std::endl;
+    std::cerr << "stat failed on " + path + ": " << st::strError() << std::endl;
     return false;
   }
 
@@ -90,7 +90,7 @@ bool atomicOverwrite(const std::string& path, const std::string& content)
 
   auto fd = ::mkstemp(tmpc.data());
   if (fd < 0) {
-    std::cerr << "mkstemp failed: " << linux::strError() << std::endl;
+    std::cerr << "mkstemp failed: " << st::strError() << std::endl;
     return false;
   }
   tmp.assign(tmpc.data());
@@ -117,7 +117,7 @@ bool atomicOverwrite(const std::string& path, const std::string& content)
   // Append a newline if missing.
   if (content.empty() || content.back() != '\n') {
     if (::write(fd, "\n", 1) != 1) {
-      std::cerr << "write failed: " << linux::strError() << std::endl;
+      std::cerr << "write failed: " << st::strError() << std::endl;
       return false;
     }
   }
@@ -134,7 +134,7 @@ bool atomicOverwrite(const std::string& path, const std::string& content)
   // Replace atomically.
   if (::rename(tmp.c_str(), path.c_str()) < 0) {
     ::unlink(tmp.c_str());
-    std::cerr << "rename failed: " << linux::strError() << std::endl;
+    std::cerr << "rename failed: " << st::strError() << std::endl;
     return false;
   }
 

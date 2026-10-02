@@ -5,10 +5,9 @@
 
 #include <unistd.h>
 
-#include <cerrno>
 #include <iostream>
 
-#include "tobas_linux/error.hpp"
+#include <tobas_std_tools/error.hpp>
 
 namespace tobas
 {
@@ -24,7 +23,7 @@ std::expected<pid_t, std::string> createSubprocess(const std::vector<char*>& _ar
   // At this point, there are two processes with exactly the same contents.
   const auto pid = fork();
   if (pid < 0) {
-    return std::unexpected("Failed to clone the calling process: " + strError());
+    return std::unexpected("Failed to clone the calling process: " + st::strError());
   }
 
   if (pid > 0) {

@@ -9,9 +9,10 @@
 #include <sys/mman.h>
 #include <unistd.h>
 
-#include <cerrno>
-#include <cstring>
+#include <cstdlib>
 #include <iostream>
+
+#include <tobas_std_tools/error.hpp>
 
 namespace tobas
 {
@@ -122,7 +123,7 @@ void VideoDev::displaySupportedFormats()
 bool VideoDev::execUvcControl(const uvc_xu_control_query& query)
 {
   if (ioctl(fd_, UVCIOC_CTRL_QUERY, &query) < 0) {
-    std::cerr << "Failed to execute UVC control. errno=" << errno << " : " << strerror(errno) << std::endl;
+    std::cerr << "Failed to execute UVC control: " << st::strError() << std::endl;
     return false;
   }
   return true;
@@ -314,7 +315,7 @@ bool VideoDev::setImgFormat(const char* pixel_format, const uint32_t& width, con
     fmt_request.fmt.pix.height = height;
   }
   if (ioctl(fd_, VIDIOC_S_FMT, &fmt_request) < 0) {
-    std::cerr << "Failed to set image format. errno : " << errno << " : " << strerror(errno) << std::endl;
+    std::cerr << "Failed to set image format: " << st::strError() << std::endl;
     return false;
   }
   // Check format.

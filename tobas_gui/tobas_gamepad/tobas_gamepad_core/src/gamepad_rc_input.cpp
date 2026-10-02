@@ -7,8 +7,6 @@
 #include <unistd.h>
 
 #include <algorithm>
-#include <cerrno>
-#include <cstring>
 #include <utility>
 
 #include <libevdev/libevdev.h>
@@ -16,6 +14,7 @@
 
 #include <tobas_constants/flight_mode.hpp>
 #include <tobas_math/core.hpp>
+#include <tobas_std_tools/error.hpp>
 
 namespace tobas
 {
@@ -41,14 +40,14 @@ std::expected<void, std::string> GamepadDriver::initialize(const std::string& _d
 {
   fd_ = open(_device_path.c_str(), O_RDONLY | O_NONBLOCK | O_CLOEXEC);
   if (fd_ < 0) {
-    return std::unexpected("Failed to open input device: " + std::string(std::strerror(errno)));
+    return std::unexpected("Failed to open input device: " + st::strError());
   }
 
   libevdev* dev = nullptr;
   const auto rc = libevdev_new_from_fd(fd_, &dev);
   if (rc < 0) {
     close();
-    return std::unexpected("Failed to initialize libevdev: " + std::string(std::strerror(-rc)));
+    return std::unexpected("Failed to initialize libevdev: " + st::strError(-rc));
   }
   dev_.reset(dev);
 
@@ -120,7 +119,7 @@ std::expected<void, std::string> GamepadDriver::poll()
     }
 
     state_.ok = false;
-    return std::unexpected("Failed to read input device: " + std::string(std::strerror(-rc)));
+    return std::unexpected("Failed to read input device: " + st::strError(-rc));
   }
 }
 

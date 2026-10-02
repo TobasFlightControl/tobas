@@ -10,7 +10,8 @@
 #include <iostream>
 #include <thread>
 
-#include "tobas_linux/error.hpp"
+#include <tobas_std_tools/error.hpp>
+
 #include "tobas_linux/termios2.hpp"
 
 using namespace std::chrono_literals;
@@ -79,7 +80,7 @@ bool UARTdev::initialize(const char* uart_dev, bool block_mode)
   }
   uart_fd_ = open(uart_dev, oflag);
   if (uart_fd_ < 0) {
-    std::cerr << "Failed to open UART device '" << uart_dev << "': " << strError() << std::endl;
+    std::cerr << "Failed to open UART device '" << uart_dev << "': " << st::strError() << std::endl;
     return false;
   }
 
@@ -123,7 +124,7 @@ bool UARTdev::initialize(const char* uart_dev, bool block_mode)
 
   // Reset input buffer.
   if (tcflush(uart_fd_, TCIFLUSH) != 0) {
-    std::cerr << "Failed to reset input buffer: " << strError() << std::endl;
+    std::cerr << "Failed to reset input buffer: " << st::strError() << std::endl;
     return false;
   }
 
@@ -244,7 +245,7 @@ bool UARTdev::send(const uint8_t* data, size_t length)
 {
   const auto res = ::write(uart_fd_, data, length);
   if (res < 0) {
-    std::cerr << "UART TX failed: " << strError() << std::endl;
+    std::cerr << "UART TX failed: " << st::strError() << std::endl;
     return false;
   }
   if (res != static_cast<ssize_t>(length)) {
@@ -259,7 +260,7 @@ bool UARTdev::receive(uint8_t* data, size_t length)
 {
   const auto res = ::read(uart_fd_, data, length);
   if (res < 0) {
-    std::cerr << "UART RX failed: " << strError() << std::endl;
+    std::cerr << "UART RX failed: " << st::strError() << std::endl;
     return false;
   }
   if (res != static_cast<ssize_t>(length)) {

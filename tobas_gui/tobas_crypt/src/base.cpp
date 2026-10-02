@@ -7,7 +7,7 @@
 
 #include <cstring>
 
-#include <tobas_linux/error.hpp>
+#include <tobas_std_tools/error.hpp>
 
 namespace tobas
 {
@@ -25,7 +25,7 @@ std::expected<std::string, std::string> Crypt::crypt(const std::string& password
 
   const auto out = ::crypt_r(password.c_str(), salt->c_str(), &data);
   if (!out || out[0] == '*') {
-    return std::unexpected("crypt_r failed: " + linux::strError());
+    return std::unexpected("crypt_r failed: " + st::strError());
   }
 
   return std::string(out);

@@ -6,7 +6,7 @@
 #include <cstring>
 #include <format>
 
-#include <tobas_linux/error.hpp>
+#include <tobas_std_tools/error.hpp>
 
 namespace tobas
 {
@@ -40,7 +40,7 @@ std::expected<void, std::string> PwmBattImu::transfer()
 {
   // Transfer.
   if (!spi_.transfer(sizeof(tx_buf_))) {
-    return std::unexpected("SPI transfer failed: " + linux::strError());
+    return std::unexpected("SPI transfer failed: " + st::strError());
   }
 
   // Check CRC.

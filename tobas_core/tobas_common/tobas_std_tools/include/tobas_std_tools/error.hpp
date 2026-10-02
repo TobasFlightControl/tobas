@@ -3,13 +3,14 @@
 
 #pragma once
 
+#include <cerrno>
 #include <string>
 
 namespace tobas
 {
-namespace linux
+namespace st
 {
 /** Return an error string in the form "[Errno errno] strerror(errno)". */
 std::string strError(int error_number = errno);
-}  // namespace linux
+}  // namespace st
 }  // namespace tobas

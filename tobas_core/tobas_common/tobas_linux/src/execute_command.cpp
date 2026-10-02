@@ -6,11 +6,10 @@
 #include <sys/wait.h>
 
 #include <array>
-#include <cerrno>
 #include <cstdio>
 #include <memory>
 
-#include "tobas_linux/error.hpp"
+#include <tobas_std_tools/error.hpp>
 
 namespace tobas
 {
@@ -34,7 +33,7 @@ std::expected<std::string, std::string> executeCommand(std::string command)
   // The deleter closes the pipe and waits for the child even when reading exits early.
   std::unique_ptr<FILE, int (*)(FILE*)> pipe(popen(command.c_str(), "r"), pclose);
   if (!pipe) {
-    return std::unexpected("popen() failed: " + strError());
+    return std::unexpected("popen() failed: " + st::strError());
   }
 
   // Read until EOF rather than assuming the output fits in one buffer.
@@ -45,7 +44,7 @@ std::expected<std::string, std::string> executeCommand(std::string command)
     output += buffer.data();
   }
   if (ferror(pipe.get())) {
-    return std::unexpected("Failed to read command output: " + strError());
+    return std::unexpected("Failed to read command output: " + st::strError());
   }
 
   // Strip one final newline for line-oriented commands while preserving internal newlines.
@@ -57,7 +56,7 @@ std::expected<std::string, std::string> executeCommand(std::string command)
   // Release ownership first so the RAII deleter does not close the same pipe a second time.
   const auto status = pclose(pipe.release());
   if (status == -1) {
-    return std::unexpected("pclose() failed: " + strError());
+    return std::unexpected("pclose() failed: " + st::strError());
   }
   if (WIFEXITED(status) && WEXITSTATUS(status) == 0) {
     return output;

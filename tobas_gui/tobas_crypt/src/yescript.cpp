@@ -5,7 +5,7 @@
 
 #include <crypt.h>
 
-#include <tobas_linux/error.hpp>
+#include <tobas_std_tools/error.hpp>
 
 namespace tobas
 {
@@ -19,7 +19,7 @@ std::expected<std::string, std::string> Yescrypt::createSalt() const
 {
   char salt[CRYPT_GENSALT_OUTPUT_SIZE]{};
   if (!crypt_gensalt_rn("$y$", 0, nullptr, 0, salt, sizeof(salt))) {
-    return std::unexpected("crypt_gensalt_rn failed: " + linux::strError());
+    return std::unexpected("crypt_gensalt_rn failed: " + st::strError());
   }
   return std::string(salt);
 }

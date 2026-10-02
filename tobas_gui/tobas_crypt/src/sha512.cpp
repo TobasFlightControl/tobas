@@ -6,12 +6,11 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-#include <cerrno>
 #include <cstdint>
 #include <format>
 #include <vector>
 
-#include <tobas_linux/error.hpp>
+#include <tobas_std_tools/error.hpp>
 
 namespace tobas
 {
@@ -26,7 +25,7 @@ std::expected<std::string, std::string> Sha512::createSalt() const
   constexpr char kUrandomPath[] = "/dev/urandom";
   const auto fd = ::open(kUrandomPath, O_RDONLY);
   if (fd < 0) {
-    return std::unexpected(std::format("Failed to open {}: {}", kUrandomPath, linux::strError()));
+    return std::unexpected(std::format("Failed to open {}: {}", kUrandomPath, st::strError()));
   }
 
   constexpr size_t kLength = 16;
@@ -37,7 +36,7 @@ std::expected<std::string, std::string> Sha512::createSalt() const
 
   if (n != static_cast<ssize_t>(buf.size())) {
     if (n < 0) {
-      return std::unexpected("Failed to read urandom: " + linux::strError(read_errno));
+      return std::unexpected("Failed to read urandom: " + st::strError(read_errno));
     }
     return std::unexpected(std::format("Failed to read urandom: expected {} bytes, read {}.", buf.size(), n));
   }

@@ -1,17 +1,17 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include "tobas_linux/error.hpp"
+#include "tobas_std_tools/error.hpp"
 
 #include <cstring>
 
 namespace tobas
 {
-namespace linux
+namespace st
 {
 std::string strError(int error_number)
 {
-  return "[Errno " + std::to_string(error_number) + "] " + strerror(error_number);
+  return "[Errno " + std::to_string(error_number) + "] " + std::strerror(error_number);
 }
-}  // namespace linux
+}  // namespace st
 }  // namespace tobas

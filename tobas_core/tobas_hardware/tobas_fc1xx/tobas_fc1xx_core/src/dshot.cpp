@@ -7,8 +7,8 @@
 #include <format>
 #include <iostream>
 
-#include <tobas_linux/error.hpp>
 #include <tobas_math/definitions.hpp>
+#include <tobas_std_tools/error.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 
 namespace tobas
@@ -47,7 +47,7 @@ std::expected<void, std::string> DShot::transfer() noexcept
 
   // Transfer.
   if (!spi_.transfer(sizeof(tx_buf_))) {
-    return std::unexpected("SPI transfer failed: " + linux::strError());
+    return std::unexpected("SPI transfer failed: " + st::strError());
   }
 
   // Check CRC.
