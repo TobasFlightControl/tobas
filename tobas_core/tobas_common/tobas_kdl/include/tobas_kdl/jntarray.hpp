@@ -3,7 +3,11 @@
 
 #pragma once
 
-#include "./frames.hpp"
+#include <cassert>
+#include <cstddef>
+#include <ostream>
+
+#include <eigen3/Eigen/Core>
 
 namespace tobas
 {

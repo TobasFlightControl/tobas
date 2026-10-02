@@ -4,6 +4,7 @@
 #include "tobas_dparam_client/dparam_client.hpp"
 
 #include <tobas_dparam_common/constants.hpp>
+#include <tobas_path_tools/join.hpp>
 
 namespace tobas
 {

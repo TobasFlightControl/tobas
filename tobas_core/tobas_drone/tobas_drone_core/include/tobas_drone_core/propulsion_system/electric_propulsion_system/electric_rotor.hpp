@@ -8,7 +8,6 @@
 #include <string>
 
 #include <tobas_math/core.hpp>
-#include <tobas_std_tools/unit_conversions.hpp>
 
 #include "../rotor.hpp"
 

@@ -6,7 +6,6 @@
 #include <tobas_constants/node.hpp>
 #include <tobas_constants/rc_command.hpp>
 #include <tobas_constants/time.hpp>
-#include <tobas_math/core.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_ros2_tools/time.hpp>
 

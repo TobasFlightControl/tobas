@@ -3,8 +3,10 @@
 
 #pragma once
 
-#include "./frames.hpp"
-#include "./jacobian.hpp"
+#include <cstddef>
+
+#include <eigen3/Eigen/Core>
+
 #include "./jntarray.hpp"
 
 namespace tobas

@@ -11,6 +11,8 @@
 #include <tobas_constants/node.hpp>
 #include <tobas_constants/pwm_key.hpp>
 #include <tobas_constants/throttle.hpp>
+#include <tobas_drone_core/propulsion_system/electric_propulsion_system/electric_propulsion_system.hpp>
+#include <tobas_drone_core/propulsion_system/ice_propulsion_system/ice_propulsion_system.hpp>
 #include <tobas_gui_common/network_config.hpp>
 #include <tobas_gui_common/project_paths.hpp>
 #include <tobas_gui_common/version.hpp>
@@ -18,7 +20,6 @@
 #include <tobas_path_tools/core.hpp>
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_std_tools/check.hpp>
-#include <tobas_string_tools/core.hpp>
 #include <tobas_uadf/exporter.hpp>
 #include <tobas_urdf/exporter.hpp>
 #include <tobas_urdf/util.hpp>
@@ -27,6 +28,8 @@
 #include <tobas_yaml_tools/core.hpp>
 #include <tobas_yaml_tools/format.hpp>
 
+#include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_system.hpp"
+#include "tobas_setup_assistant/setting_tabs/propulsion_system/ice/propulsion_system.hpp"
 #include "tobas_setup_assistant/util.hpp"
 #include "tobas_setup_assistant/xml_elements/xml_elements.hpp"
 

@@ -16,7 +16,6 @@
 #include <tobas_eigen_tools/hash.hpp>
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_kdl_conversions/kdl_msg.hpp>
-#include <tobas_math/core.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>

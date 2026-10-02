@@ -4,10 +4,10 @@
 #pragma once
 
 #include <algorithm>
+#include <cassert>
 #include <cmath>
 #include <cstddef>
 #include <iterator>
-#include <ranges>
 #include <stdexcept>
 #include <utility>
 #include <vector>

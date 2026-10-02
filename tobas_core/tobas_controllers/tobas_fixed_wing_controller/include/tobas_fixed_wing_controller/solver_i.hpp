@@ -3,8 +3,7 @@
 
 #pragma once
 
-#include <tobas_drone_core/drone.hpp>
-#include <tobas_kdl/tree.hpp>
+#include <string>
 
 namespace tobas
 {

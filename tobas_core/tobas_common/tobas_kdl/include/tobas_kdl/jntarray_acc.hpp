@@ -3,10 +3,10 @@
 
 #pragma once
 
-#include "./frame_acc.hpp"
+#include <cassert>
+#include <cstddef>
+
 #include "./jntarray.hpp"
-#include "./jntarray_vel.hpp"
-#include "./utilities/utility.hpp"
 
 namespace tobas
 {

@@ -5,7 +5,6 @@
 
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
-#include <tobas_qt_tools/stream.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
 namespace tobas

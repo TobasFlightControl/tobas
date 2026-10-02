@@ -11,6 +11,9 @@
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
+#include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_system.hpp"
+#include "tobas_setup_assistant/setting_tabs/propulsion_system/ice/propulsion_system.hpp"
+
 namespace tobas
 {
 namespace gui

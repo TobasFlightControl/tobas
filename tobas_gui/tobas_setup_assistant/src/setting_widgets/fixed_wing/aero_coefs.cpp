@@ -6,6 +6,7 @@
 #include <QDir>
 #include <QFileDialog>
 #include <QFileInfo>
+#include <QLabel>
 #include <QPushButton>
 
 #include <tobas_qt_tools/cast.hpp>

@@ -3,6 +3,11 @@
 
 #include "./rosbag_recorder.hpp"
 
+#include <tobas_constants/path.hpp>
+#include <tobas_linux/core.hpp>
+#include <tobas_path_tools/core.hpp>
+#include <tobas_ros2_tools/util.hpp>
+
 using namespace std::chrono_literals;
 
 namespace tobas

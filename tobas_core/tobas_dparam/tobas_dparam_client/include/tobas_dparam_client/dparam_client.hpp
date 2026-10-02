@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include <tobas_path_tools/join.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
 
 #include <tobas_dparam_msgs/srv/set_bool.hpp>

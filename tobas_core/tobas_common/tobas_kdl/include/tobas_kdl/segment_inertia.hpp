@@ -3,8 +3,7 @@
 
 #pragma once
 
-#include "./accel.hpp"
-#include "./wrench.hpp"
+#include "./vector.hpp"
 
 namespace tobas
 {

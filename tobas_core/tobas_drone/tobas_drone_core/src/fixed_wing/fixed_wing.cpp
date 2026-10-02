@@ -5,8 +5,6 @@
 
 #include <ranges>
 
-#include <tobas_yaml_tools/core.hpp>
-
 namespace tobas
 {
 namespace

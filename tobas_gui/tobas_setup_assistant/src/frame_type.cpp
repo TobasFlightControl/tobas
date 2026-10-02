@@ -3,8 +3,6 @@
 
 #include "tobas_setup_assistant/frame_type.hpp"
 
-#include <iostream>
-
 namespace tobas
 {
 namespace gui
