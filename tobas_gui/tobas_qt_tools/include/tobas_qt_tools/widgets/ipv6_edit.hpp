@@ -29,7 +29,7 @@ public:
 
   __uint128_t toInt() const;
 
-  /* xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx */
+  /** xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx */
   QString toString() const;
 
   void setFromInt(__uint128_t address);

@@ -10,7 +10,7 @@ namespace YAML
 template <>
 struct convert<__uint128_t>
 {
-  static Node encode(const __uint128_t& rhs)
+  static Node encode(__uint128_t rhs)
   {
     Node node(NodeType::Sequence);
 

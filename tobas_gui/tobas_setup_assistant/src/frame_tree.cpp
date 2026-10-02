@@ -28,7 +28,7 @@ void FrameTreeWidget::updateInternalDataStructures()
   clear();
 
   // Add links to the tree recursively from the root link.
-  // cf. https://doc.qt.io/qtforpython/tutorials/basictutorial/treewidget.html
+  // Ref: https://doc.qt.io/qtforpython/tutorials/basictutorial/treewidget.html
   const auto& root_name = tree_.getRootName();
   const auto root_item = new QTreeWidgetItem({ QString::fromStdString(root_name) });
   addTreeItemsRec(root_item);

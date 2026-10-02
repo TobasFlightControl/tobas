@@ -22,35 +22,35 @@ public:
 
   bool initialize(const sdf::ElementConstPtr& sdf);
 
-  /* Rotational speed [rad/s]. */
+  /** Rotational speed [rad/s]. */
   double getSpeed() const;
 
-  /* Rotational position [rad]. */
+  /** Rotational position [rad]. */
   double getPosition() const;
 
-  /* Vibration force [N]. */
+  /** Vibration force [N]. */
   double getVibrationForce();
 
-  void setThrottle(const double& throttle);
+  void setThrottle(double throttle);
 
-  bool step(const double& dt);
+  void step(double dt);
 
 private:
   const IceRotorModelMap& rotors_;
 
   // SDF parameters
-  std::pair<double, double> engine_const_;  // A, B (memo: 3-28)
-  double time_const_up_;                    // [s]
-  double time_const_down_;                  // [s]
-  double vibration_force_coef_;             // [N/(rad/s)^2]
-  double vibration_force_variation_rate_;   // [-]
-  double vibration_double_freq_coef_;       // [-]
+  std::pair<double, double> engine_const_;  ///< A, B (memo: 3-28)
+  double time_const_up_;                    ///< [s]
+  double time_const_down_;                  ///< [s]
+  double vibration_force_coef_;             ///< [N/(rad/s)^2]
+  double vibration_force_variation_rate_;   ///< [-]
+  double vibration_double_freq_coef_;       ///< [-]
 
   // Command
-  double throttle_ = 0.0;  // Throttle opening [0, 1].
+  double throttle_ = 0.0;  ///< Throttle opening [0, 1].
 
   // State
-  double position_ = 0.0;  // Position [rad].
+  double position_ = 0.0;  ///< Position [rad].
   AsymmetricFirstOrderFilter<double> speed_filter_;
 
   // Solver
@@ -63,10 +63,10 @@ private:
 
   bool getSdfParams(const sdf::ElementConstPtr& sdf);
 
-  /* Compute steady-state rotational speed from engine throttle and propeller pitch angle (memo: 3-29). */
+  /** Compute steady-state rotational speed from engine throttle and propeller pitch angle (memo: 3-29). */
   double computeSteadySpeed();
 
-  /* Function passed to the Newton-method solver (memo: 3-29). */
+  /** Function passed to the Newton-method solver (memo: 3-29). */
   double speedFunc(double omega) const;
   double speedFuncDeriv(double omega) const;
 

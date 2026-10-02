@@ -44,7 +44,7 @@ protected:
   void resizeEvent(QResizeEvent* event) override;
 
 private:
-  bool checked_ = false;  // ON/OFF state.
+  bool checked_ = false;  ///< ON/OFF state.
   bool ignore_mouse_press_event_ = false;
   QString text_ = "";
   int text_psize_ = 0;

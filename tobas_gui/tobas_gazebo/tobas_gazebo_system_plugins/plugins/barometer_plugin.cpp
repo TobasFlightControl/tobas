@@ -40,8 +40,8 @@ public:
   void PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager& ecm) override;
 
 private:
-  gz::math::Vector3d offset_;  // B_Pos_BS
-  double alt_0_;               // [m]
+  gz::math::Vector3d offset_;  ///< B_Pos_BS
+  double alt_0_;               ///< [m]
 
   const cmp::WorldPose* pose_W_;
   std::optional<RateManager> rate_manager_;

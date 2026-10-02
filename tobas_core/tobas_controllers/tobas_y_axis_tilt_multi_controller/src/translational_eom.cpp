@@ -3,8 +3,6 @@
 
 #include "tobas_y_axis_tilt_multi_controller/translational_eom.hpp"
 
-#include <iostream>
-
 #include <tobas_math/float.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 
@@ -23,8 +21,8 @@ void TranslationalEoM::updateInternalDataStructures()
 
 bool TranslationalEoM::solve(
   const kdl::Vector& tar_acc_W,
-  const double& tar_pitch,
-  const double& tar_yaw,
+  double tar_pitch,
+  double tar_yaw,
   const kdl::Vector& ext_force_W,
   double& ux_out,
   double& uz_out,
@@ -52,8 +50,7 @@ bool TranslationalEoM::solve(
   const auto sin_pitch = std::sin(tar_pitch);
   const auto den = fx * sin_pitch - fz * cos_pitch;
   if (den == 0.0) {
-    std::cerr << "Free fall is commanded." << std::endl;
-    return false;
+    return false;  // Free fall is commanded.
   }
   const auto sin_phi = std::clamp(fy / den, -1.0, 1.0);
   const auto phi = std::asin(sin_phi);

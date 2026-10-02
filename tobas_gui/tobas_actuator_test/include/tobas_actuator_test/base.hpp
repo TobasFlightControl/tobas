@@ -21,10 +21,10 @@ class BaseWidget : public qt::Widget
 public:
   explicit BaseWidget();
 
-  /* Title displayed at the top of the page. */
+  /** Title displayed at the top of the page. */
   virtual const char* title() const = 0;
 
-  /* Initialize the widget without changing the robot structure. */
+  /** Initialize the widget without changing the robot structure. */
   virtual void reset() = 0;
 
 protected:

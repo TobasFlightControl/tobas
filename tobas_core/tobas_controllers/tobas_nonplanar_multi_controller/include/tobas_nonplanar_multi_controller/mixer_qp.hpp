@@ -13,9 +13,7 @@ namespace tobas
 {
 namespace nonplanar_multicopter
 {
-/**
- * @brief Thrust mixing for nonplanar multicopters with constraints (memo: 2-49).
- */
+/** Thrust mixing for nonplanar multicopters with constraints (memo: 2-49). */
 class QpMixer : public MixerI
 {
   using super = MixerI;
@@ -23,9 +21,9 @@ class QpMixer : public MixerI
 public:
   explicit QpMixer(const Drone& drone, const kdl::Tree& tree);
 
-  std::expected<void, std::string> updateInternalDataStructures() override;
+  void updateInternalDataStructures() override;
 
-  std::expected<void, std::string> solve(
+  std::expected<Eigen::VectorXd, std::string> solve(
     const kdl::JntArray& cur_q,
     const kdl::Rotation& cur_rot,
     const kdl::Vector& cur_gyro_B,
@@ -34,12 +32,9 @@ public:
     const kdl::Vector& ext_force_W = kdl::Vector::Zero(),
     const kdl::Vector& ext_torque_B = kdl::Vector::Zero());
 
-  const Eigen::VectorXd& getThrusts() const;
-  double getThrust(size_t idx) const;
-
-  bool setLinearWeight(double p);
-  bool setAngularWeight(double p);
-  bool setThrustWeight(double p);
+  void setLinearWeight(double p);
+  void setAngularWeight(double p);
+  void setThrustWeight(double p);
 
 private:
   struct Config
@@ -52,13 +47,11 @@ private:
   kdl::TreeFkSolverPosAll fk_solver_;
   kdl::TreeInertiaSolver inertia_solver_;
 
-  quadprog::DualActiveSetSolver qp_;  // QP solver.
-  Eigen::Diagonal6d Q_;               // EoM weights.
-  Eigen::DiagonalXd R_;               // Thrust weights.
-  Eigen::Matrix6Xd G_;                // Left-hand side of the EoM matrix equality.
-  Eigen::Vector6d h_;                 // Right-hand side of the EoM matrix equality.
-
-  Eigen::VectorXd thrusts_;
+  quadprog::DualActiveSetSolver qp_;  ///< QP solver.
+  Eigen::Diagonal6d Q_;               ///< EoM weights.
+  Eigen::DiagonalXd R_;               ///< Thrust weights.
+  Eigen::Matrix6Xd G_;                ///< Left-hand side of the EoM matrix equality.
+  Eigen::Vector6d h_;                 ///< Right-hand side of the EoM matrix equality.
 
   void resizeAndFill();
 };

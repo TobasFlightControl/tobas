@@ -3,11 +3,14 @@
 
 #pragma once
 
+#include <expected>
+#include <string>
+
 #include "./taskspace_damping.hpp"
 #include "./taskspace_stiffness.hpp"
 #include "./tree_fk_solver_vel.hpp"
-#include "./tree_id_solver_rne.hpp"
-#include "./tree_ik_solver_acc_rac.hpp"
+#include "./tree_id_solver.hpp"
+#include "./tree_ik_solver_acc.hpp"
 
 namespace tobas
 {
@@ -22,7 +25,7 @@ public:
 
   void updateInternalDataStructures() override;
 
-  int cartToJnt(
+  std::expected<JntArray, std::string> cartToJnt(
     const JntArray& cur_q,
     const JntArray& cur_qd,
     const FrameMap& tar_p,
@@ -30,29 +33,22 @@ public:
     const AccelMap& a_ff,
     const WrenchMap& f_ext = WrenchMap());
 
-  bool setLinearStiffness(const Vector& kp);
-  bool setAngularStiffness(const Vector& kp);
-  bool setLinearDamping(const Vector& kd);
-  bool setAngularDamping(const Vector& kd);
-  bool setLinearStiffness(const double& kp);
-  bool setAngularStiffness(const double& kp);
-  bool setLinearDamping(const double& kd);
-  bool setAngularDamping(const double& kd);
-
-  inline const JntArray& getEfforts() const;
+  void setLinearStiffness(const Vector& kp);
+  void setAngularStiffness(const Vector& kp);
+  void setLinearDamping(const Vector& kd);
+  void setAngularDamping(const Vector& kd);
+  void setLinearStiffness(double kp);
+  void setAngularStiffness(double kp);
+  void setLinearDamping(double kd);
+  void setAngularDamping(double kd);
 
 private:
   TreeFkSolverVel fk_;
-  TreeIkSolverAcc_RAC rac_;
-  TreeIdSolver_RNE rne_;
+  TreeIkSolverAcc rac_;
+  TreeIdSolver rne_;
 
   TaskSpaceStiffness kp_;
   TaskSpaceDamping kd_;
 };
-
-inline const JntArray& TreeTaskSpacePID::getEfforts() const
-{
-  return rne_.getEfforts();
-}
 }  // namespace kdl
 }  // namespace tobas

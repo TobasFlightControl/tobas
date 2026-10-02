@@ -100,8 +100,8 @@ struct IceRotorParam
   TurningDirection direction;
   double gear_ratio;
   size_t num_blades;
-  st::Range<double> pitch_angle_limit;  // [rad]
-  double max_pitch_angle_rate;          // [rad/s]
+  st::Range<double> pitch_angle_limit;  ///< [rad]
+  double max_pitch_angle_rate;          ///< [rad/s]
   VppMotorConstant motor_const;
   VppMomentConstant moment_const;
   VppDragConstant drag_const;

@@ -17,7 +17,7 @@ public:
 private:
   const int rounds_;
 
-  std::string createSalt() const override;
+  std::expected<std::string, std::string> createSalt() const override;
 };
 }  // namespace crypt
 }  // namespace tobas

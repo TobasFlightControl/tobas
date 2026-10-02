@@ -4,7 +4,6 @@
 #include "tobas_bootmedia_config/ip_address/network.hpp"
 
 #include <charconv>
-#include <iostream>
 
 #include <arpa/inet.h>
 
@@ -27,14 +26,13 @@ constexpr char kAddressKey[] = "Address";
 constexpr char kGatewayKey[] = "Gateway";
 constexpr char kDnsKey[] = "DNS";
 
-bool ipv4StringToInt(const std::string& text, uint32_t& out)
+std::optional<uint32_t> ipv4StringToInt(const std::string& text)
 {
-  in_addr addr;
+  in_addr addr{};
   if (inet_pton(AF_INET, text.c_str(), &addr) != 1) {
-    std::cerr << "Failed to parse the IP address." << std::endl;
+    return std::nullopt;
   }
-  out = ntohl(addr.s_addr);  // little endian -> big endian
-  return true;
+  return ntohl(addr.s_addr);
 }
 
 std::string ipv4IntToString(uint32_t _addr)
@@ -48,23 +46,33 @@ std::string ipv4IntToString(uint32_t _addr)
   return std::string(buffer);
 }
 
-bool prefixStringToInt(const std::string& text, uint8_t& out)
+std::optional<uint8_t> prefixStringToInt(const std::string& text)
 {
-  const auto begin = text.data();
-  const auto end = text.data() + text.size();
-
-  uint32_t prefix{};  // Avoid [maybe-uninitialized]
-  const auto [ptr, ec] = std::from_chars(begin, end, prefix);
-
-  if (ec != std::errc{} || ptr != end) {
-    std::cerr << "Failed to parse the prefix length." << std::endl;
+  uint32_t prefix{};
+  const auto [ptr, ec] = std::from_chars(text.data(), text.data() + text.size(), prefix);
+  if (ec != std::errc{} || ptr != text.data() + text.size() || prefix > 32) {
+    return std::nullopt;
   }
-  if (prefix > 32) {
-    std::cerr << "Invalid prefix length: " << prefix << std::endl;
+  return static_cast<uint8_t>(prefix);
+}
+
+std::expected<Network::Manual, std::string> parseAddressLine(const std::string& text)
+{
+  const auto slash_pos = text.find('/');
+  if (slash_pos == std::string::npos) {
+    return std::unexpected("Missing '/' in address.");
   }
 
-  out = static_cast<uint8_t>(prefix);
-  return true;
+  const auto address = ipv4StringToInt(text.substr(0, slash_pos));
+  if (!address) {
+    return std::unexpected("Failed to get IPv4 address.");
+  }
+
+  const auto prefix = prefixStringToInt(text.substr(slash_pos + 1));
+  if (!prefix) {
+    return std::unexpected("Failed to get IPv4 prefix.");
+  }
+  return Network::Manual{ .address = *address, .prefix = *prefix, .gateway = {}, .dns = {} };
 }
 
 std::string prefixIntToString(uint8_t _prefix)
@@ -73,151 +81,102 @@ std::string prefixIntToString(uint8_t _prefix)
 }
 }  // namespace
 
-Network::Network()
+std::expected<Network, std::string> loadNetwork(const std::string& path)
 {
-}
-
-void Network::clear()
-{
-  name.clear();
-  setAutomatic();
-}
-
-bool Network::load(const std::string& path)
-{
+  Network network;
   CSimpleIniCaseA ini;
   ini.SetUnicode(true);
   ini.SetMultiKey(true);
 
   if (ini.LoadFile(path.c_str()) != SI_OK) {
-    std::cerr << "Failed to load " << path << "." << std::endl;
-    return false;
+    return std::unexpected("INI load failed.");
   }
 
-  clear();
-
-  name = ini.GetValue(kMatchSection, kNameKey, "");
-  if (name.empty()) {
-    std::cerr << "NIC name is not defined." << std::endl;
-    return false;
+  network.name = ini.GetValue(kMatchSection, kNameKey, "");
+  if (network.name.empty()) {
+    return std::unexpected("NIC name is not defined.");
   }
 
-  automatic = ini.GetBoolValue(kNetworkSection, kDhcpKey, false);
+  network.automatic = ini.GetBoolValue(kNetworkSection, kDhcpKey, false);
 
-  if (!automatic) {
+  if (!network.automatic) {
     // Address + Prefix
     {
       const std::string address_text = ini.GetValue(kNetworkSection, kAddressKey, "");
       if (address_text.empty()) {
-        std::cout << kNetworkSection << "." << kAddressKey << " is not defined." << std::endl;
-        setAutomatic();
-        return true;
+        network.automatic = true;
+        network.manual = {};
+        return network;
       }
-      if (!parseAddressLine(address_text)) {
-        std::cerr << "Failed to parse " << kNetworkSection << "." << kAddressKey << "." << std::endl;
-        return false;
+      const auto address = parseAddressLine(address_text);
+      if (!address) {
+        return std::unexpected("Failed to parse address line '" + address_text + "': " + address.error());
       }
+      network.manual = *address;
     }
 
     // Gateway
     {
       const std::string gateway_text = ini.GetValue(kNetworkSection, kGatewayKey, "");
       if (gateway_text.empty()) {
-        std::cout << kNetworkSection << "." << kGatewayKey << " is not defined." << std::endl;
-        setAutomatic();
-        return true;
+        network.automatic = true;
+        network.manual = {};
+        return network;
       }
-      if (!ipv4StringToInt(gateway_text, manual.gateway)) {
-        std::cerr << "Failed to parse " << kNetworkSection << "." << kGatewayKey << "." << std::endl;
-        return false;
+      const auto gateway = ipv4StringToInt(gateway_text);
+      if (!gateway) {
+        return std::unexpected("Failed to parse gateway line '" + gateway_text + "'.");
       }
+      network.manual.gateway = *gateway;
     }
 
     // DNS
     CSimpleIniCaseA::TNamesDepend dnss;
     if (ini.GetAllValues(kNetworkSection, kDnsKey, dnss)) {
       if (dnss.size() == 0) {
-        std::cout << kNetworkSection << "." << kDnsKey << " is not defined." << std::endl;
-        setAutomatic();
-        return true;
+        network.automatic = true;
+        network.manual = {};
+        return network;
       }
       for (const auto& dns : dnss) {
         if (!dns.pItem) {
-          std::cerr << "DNS is null." << std::endl;
-          return false;
+          return std::unexpected("DNS is null.");
         }
-        manual.dns.emplace_back();
-        if (!ipv4StringToInt(dns.pItem, manual.dns.back())) {
-          std::cerr << "Failed to parse " << kNetworkSection << "." << kDnsKey << "." << std::endl;
-          return false;
+        const auto value = ipv4StringToInt(dns.pItem);
+        if (!value) {
+          return std::unexpected("Failed to parse DNS line '" + std::string(dns.pItem) + "'.");
         }
+        network.manual.dns.push_back(*value);
       }
     }
   }
 
-  return true;
+  return network;
 }
 
-bool Network::save(const std::string& path) const
+bool saveNetwork(const std::string& path, const Network& network)
 {
   CSimpleIniCaseA ini;
   ini.SetUnicode(true);
   ini.SetMultiKey(true);
 
-  ini.SetValue(kMatchSection, kNameKey, name.c_str());
+  ini.SetValue(kMatchSection, kNameKey, network.name.c_str());
 
-  if (automatic) {
+  if (network.automatic) {
     ini.SetValue(kNetworkSection, kDhcpKey, "yes");
   }
   else {
-    const auto address_text = ipv4IntToString(manual.address) + prefixIntToString(manual.prefix);
-    const auto gateway_text = ipv4IntToString(manual.gateway);
+    const auto address_text = ipv4IntToString(network.manual.address) + prefixIntToString(network.manual.prefix);
+    const auto gateway_text = ipv4IntToString(network.manual.gateway);
     ini.SetValue(kNetworkSection, kAddressKey, address_text.c_str());
     ini.SetValue(kNetworkSection, kGatewayKey, gateway_text.c_str());
-    for (const auto& dns : manual.dns) {
+    for (const auto& dns : network.manual.dns) {
       const auto dns_text = ipv4IntToString(dns);
       ini.SetValue(kNetworkSection, kDnsKey, dns_text.c_str());
     }
   }
 
   if (ini.SaveFile(path.c_str()) != SI_OK) {
-    std::cerr << "Failed to save " << path << "." << std::endl;
-    return false;
-  }
-
-  return true;
-}
-
-void Network::setAutomatic()
-{
-  automatic = true;
-
-  manual.address = 0;
-  manual.prefix = 0;
-  manual.gateway = 0;
-  manual.dns.clear();
-}
-
-bool Network::parseAddressLine(const std::string& text)
-{
-  const auto slash_pos = text.find('/');
-  if (slash_pos == std::string_view::npos) {
-    std::cerr << "Failed to find '/' in address." << std::endl;
-    return false;
-  }
-
-  const auto ip_part = text.substr(0, slash_pos);
-  const auto prefix_part = text.substr(slash_pos + 1);
-
-  if (ip_part.empty() || prefix_part.empty()) {
-    std::cerr << "Failed to separate IP part and prefix part." << std::endl;
-    return false;
-  }
-
-  if (!ipv4StringToInt(ip_part, manual.address)) {
-    return false;
-  }
-  if (!prefixStringToInt(prefix_part, manual.prefix)) {
     return false;
   }
 

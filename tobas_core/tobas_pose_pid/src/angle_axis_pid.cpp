@@ -3,9 +3,7 @@
 
 #include "tobas_pose_pid/angle_axis_pid.hpp"
 
-#include <iostream>
-
-#include "./util.hpp"
+#include <cassert>
 
 namespace tobas
 {
@@ -19,7 +17,7 @@ kdl::Vector AngleAxisPID::update(
   const kdl::Vector& cur_gyro,
   const kdl::Rotation& tar_rot,
   const kdl::Vector& tar_gyro,
-  const double& dt)
+  double dt)
 {
   // Compute error in angle-axis form wrt. the local frame.
   const auto ep = (cur_rot.inverse() * tar_rot).getRot();
@@ -36,55 +34,31 @@ kdl::Vector AngleAxisPID::update(
   return kp_.hadamard(ep) + ki_.hadamard(ei_) + kd_.hadamard(ed);
 }
 
-bool AngleAxisPID::setNaturalFreq(int idx, double value)
+void AngleAxisPID::setNaturalFreq(int idx, double value)
 {
-  if (!checkIndex(idx)) {
-    return false;
-  }
-
-  if (value < 0.0) {
-    std::cerr << "Natural frequency must be non-negative." << std::endl;
-    return false;
-  }
+  assert(0 <= idx && idx < 3);
+  assert(value >= 0.0);
 
   natural_freq_(idx) = value;
   updateGain();
-
-  return true;
 }
 
-bool AngleAxisPID::setDampingRatio(int idx, double value)
+void AngleAxisPID::setDampingRatio(int idx, double value)
 {
-  if (!checkIndex(idx)) {
-    return false;
-  }
-
-  if (value < 0.0) {
-    std::cerr << "Damping ratio must be non-negative." << std::endl;
-    return false;
-  }
+  assert(0 <= idx && idx < 3);
+  assert(value >= 0.0);
 
   damp_ratio_(idx) = value;
   updateGain();
-
-  return true;
 }
 
-bool AngleAxisPID::setIntegralGain(int idx, double value)
+void AngleAxisPID::setIntegralGain(int idx, double value)
 {
-  if (!checkIndex(idx)) {
-    return false;
-  }
-
-  if (value < 0.0) {
-    std::cerr << "Integral gain must be non-negative." << std::endl;
-    return false;
-  }
+  assert(0 <= idx && idx < 3);
+  assert(value >= 0.0);
 
   ki_(idx) = value;
   ei_(idx) = 0.0;
-
-  return true;
 }
 
 void AngleAxisPID::updateGain()

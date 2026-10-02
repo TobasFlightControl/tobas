@@ -3,6 +3,8 @@
 
 #include "tobas_setup_assistant/setting_tabs/author_information.hpp"
 
+#include <QDebug>
+
 #include <tobas_git/core.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_ros2_tools/util.hpp>
@@ -20,13 +22,22 @@ namespace
 QString getDefaultName()
 {
   const auto git_user_name = git::getGitConfigValue("user.name");
-  if (!git_user_name.empty()) {
-    return QString::fromStdString(git_user_name);
+  if (!git_user_name) {
+    qWarning() << "Failed to get the git user name:" << QString::fromStdString(git_user_name.error());
+  }
+  else if (!git_user_name->empty()) {
+    return QString::fromStdString(*git_user_name);
+  }
+  else {
+    qWarning() << "Git user name is not set.";
   }
 
   const auto user_name = ros2::getUserName();
   if (user_name) {
-    return QString(user_name);
+    return QString(*user_name);
+  }
+  else {
+    qWarning() << "Failed to get the user name:" << QString::fromStdString(user_name.error());
   }
 
   return QString("todo");
@@ -35,8 +46,14 @@ QString getDefaultName()
 QString getDefaultEmail()
 {
   const auto git_user_email = git::getGitConfigValue("user.email");
-  if (!git_user_email.empty()) {
-    return QString::fromStdString(git_user_email);
+  if (!git_user_email) {
+    qWarning() << "Failed to get the git user email:" << QString::fromStdString(git_user_email.error());
+  }
+  else if (!git_user_email->empty()) {
+    return QString::fromStdString(*git_user_email);
+  }
+  else {
+    qWarning() << "Git user email is not set.";
   }
 
   return QString("todo@todo.todo");

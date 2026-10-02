@@ -38,12 +38,12 @@ private:
   kdl::Vector tar_pos_W_;
   double tar_yaw_;
 
-  // ROS parameters.
-  double max_hor_vel_;    // [m/s]
-  double max_ver_vel_;    // [m/s]
-  double max_attitude_;   // [rad]
-  double max_head_rate_;  // [rad/s]
-  double max_ep_down_;    // [m]
+  // ROS parameters
+  double max_hor_vel_;    ///< [m/s]
+  double max_ver_vel_;    ///< [m/s]
+  double max_attitude_;   ///< [rad]
+  double max_head_rate_;  ///< [rad/s]
+  double max_ep_down_;    ///< [m]
   double hor_vel_expo_;
   double ver_vel_expo_;
   double atti_expo_;
@@ -60,18 +60,18 @@ private:
     const kdl::Vector& acc);
   void publishAngle(const builtin_interfaces::msg::Time& stamp, double roll, double pitch, double yaw);
 
-  bool maxHorizontalVelocityCb(const double& p);
-  bool maxHorizontalJerkCb(const double& p);
-  bool maxVerticalVelocityCb(const double& p);
-  bool maxVerticalJerkCb(const double& p);
-  bool maxAttitudeCb(const double& p);
-  bool maxAttitudeRateCb(const double& p);
-  bool maxHeadingRateCb(const double& p);
-  bool maxPositionErrorDown(const double& p);
-  bool horizontalVelocityExpoCb(const double& p);
-  bool verticalVelocityExpoCb(const double& p);
-  bool attitudeExpoCb(const double& p);
-  bool headingExpoCb(const double& p);
+  void maxHorizontalVelocityCb(double p);
+  void maxHorizontalJerkCb(double p);
+  void maxVerticalVelocityCb(double p);
+  void maxVerticalJerkCb(double p);
+  void maxAttitudeCb(double p);
+  void maxAttitudeRateCb(double p);
+  void maxHeadingRateCb(double p);
+  void maxPositionErrorDown(double p);
+  void horizontalVelocityExpoCb(double p);
+  void verticalVelocityExpoCb(double p);
+  void attitudeExpoCb(double p);
+  void headingExpoCb(double p);
 };
 }  // namespace rc
 }  // namespace tobas

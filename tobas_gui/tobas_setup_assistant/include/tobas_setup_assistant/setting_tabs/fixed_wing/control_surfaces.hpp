@@ -32,13 +32,13 @@ public:
   YAML::Node dump() const;
   void load(const YAML::Node& node);
 
-  /* Number of registered control surfaces. */
+  /** Number of registered control surfaces. */
   int numUnits() const;
 
-  /* Return the currently selected link name, or an empty string if none exists. */
+  /** Return the currently selected link name, or an empty string if none exists. */
   QString selected() const;
 
-  /* Return the table row for the link name, or -1 if it does not exist. */
+  /** Return the table row for the link name, or -1 if it does not exist. */
   int find(const QString& link_name) const;
 
   void add(const QString& link_name);

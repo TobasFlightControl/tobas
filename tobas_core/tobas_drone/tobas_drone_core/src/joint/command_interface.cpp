@@ -55,7 +55,7 @@ bool enumFromText(const std::string& text, JointCommandInterface& dst)
 
 namespace YAML
 {
-Node convert<tobas::JointCommandInterface>::encode(const tobas::JointCommandInterface& rhs)
+Node convert<tobas::JointCommandInterface>::encode(tobas::JointCommandInterface rhs)
 {
   Node node;
   node = tobas::textFromEnum(rhs);

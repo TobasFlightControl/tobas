@@ -10,7 +10,7 @@ namespace tobas
 namespace ros2
 {
 /**
- * @brief Create a temporary file.
+ * Create a temporary file.
  *
  * @param path Path of the created file.
  * @return File descriptor.

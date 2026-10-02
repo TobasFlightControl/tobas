@@ -29,40 +29,40 @@ public:
 
   virtual const char* hardwarePackage() const = 0;
 
-  /* [rad/s/√Hz] */
+  /** [rad/s/√Hz] */
   virtual double gyroNoiseDensity() const = 0;
-  /* [rad/s^2/√Hz] */
+  /** [rad/s^2/√Hz] */
   virtual double gyroRandomWalk() const = 0;
-  /* [s] */
+  /** [s] */
   virtual int gyroBiasCorrTime() const = 0;
-  /* [m/s^2/√Hz] */
+  /** [m/s^2/√Hz] */
   virtual double accNoiseDensity() const = 0;
-  /* [m/s^3/√Hz] */
+  /** [m/s^3/√Hz] */
   virtual double accRandomWalk() const = 0;
-  /* [s] */
+  /** [s] */
   virtual int accBiasCorrTime() const = 0;
 
-  /* [Hz] */
+  /** [Hz] */
   virtual int magUpdateRate() const = 0;
-  /* [G] */
+  /** [G] */
   virtual double magNoiseStddev() const = 0;
-  /* [G] */
+  /** [G] */
   virtual double magHardBiasNorm() const = 0;
 
-  /* [Hz] */
+  /** [Hz] */
   virtual int presUpdateRate() const = 0;
-  /* [Pa] */
+  /** [Pa] */
   virtual double presNoiseStddev() const = 0;
 
-  /* [Hz] */
+  /** [Hz] */
   virtual int gnssUpdateRate() const = 0;
-  /* [m] */
+  /** [m] */
   virtual double gnssHorizontalPositionAccuracy() const = 0;
-  /* [m] */
+  /** [m] */
   virtual double gnssVerticalPositionAccuracy() const = 0;
-  /* [m/s] */
+  /** [m/s] */
   virtual double gnssHorizontalVelocityStddev() const = 0;
-  /* [m/s] */
+  /** [m/s] */
   virtual double gnssVerticalVelocityStddev() const = 0;
 
   virtual int numPwmChannels() const = 0;

@@ -9,9 +9,7 @@ namespace tobas
 {
 namespace quadprog
 {
-/**
- * @brief A Condensed and Sparse QP Formulation for Predictive Control [Jerez+, 2011]
- */
+/** A Condensed and Sparse QP Formulation for Predictive Control [Jerez+, 2011] */
 class PrimalDualInteriorPointSolver : public QuadProgSolver
 {
 public:
@@ -19,9 +17,9 @@ public:
 
   std::expected<Eigen::VectorXd, std::string> solve() override;
 
-  bool setNumberOfIterations(const size_t& num_iter);
-  bool setSigma(const double& sigma);
-  bool setAlphaTolerance(const double& alpha_tol);
+  void setNumberOfIterations(size_t num_iter);
+  void setSigma(double sigma);
+  void setAlphaTolerance(double alpha_tol);
 
 private:
   size_t num_iter_ = 10;  // TODO

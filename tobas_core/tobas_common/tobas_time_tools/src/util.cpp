@@ -9,13 +9,13 @@ namespace tobas
 {
 namespace tim
 {
-ch::system_clock::time_point tmToTimePoint(tm tm)
+std::expected<ch::system_clock::time_point, std::string> tmToTimePoint(tm tm)
 {
   // Convert `tm` represented in UTC to `time_t`.
-  // https://dev.activebasic.com/egtra/2017/01/03/941/
+  // Ref: https://dev.activebasic.com/egtra/2017/01/03/941/
   const auto tt = timegm(&tm);
   if (tt < 0) {
-    throw std::runtime_error("Failed to convert tm to time_t.");
+    return std::unexpected("Failed to convert tm to time_t.");
   }
 
   // The time zone does not affect conversion from `time_t` to `time_point`.
@@ -40,10 +40,15 @@ tm tmFromUTC(int year, int month, int day, int hour, int min, int sec)
   return tm;
 }
 
-ch::system_clock::time_point timePointFromUTC(int year, int month, int day, int hour, int min, int sec, int nano)
+std::expected<ch::system_clock::time_point, std::string>
+timePointFromUTC(int year, int month, int day, int hour, int min, int sec, int nano)
 {
   const auto tm = tmFromUTC(year, month, day, hour, min, sec);
-  return tmToTimePoint(tm) + ch::nanoseconds(nano);
+  const auto tp = tmToTimePoint(tm);
+  if (!tp) {
+    return std::unexpected(tp.error());
+  }
+  return *tp + ch::nanoseconds(nano);
 }
 
 double yearFraction(const ch::system_clock::time_point& tp)

@@ -24,9 +24,9 @@ public:
   void reset();
 
 private:
-  double roll_, pitch_, yaw_;  // Current Euler angles.
-  double alt_rel_;             // Current relative altitude from the takeoff point [m].
-  double alt_msl_;             // Current altitude above mean sea level [m].
+  double roll_, pitch_, yaw_;  ///< Current Euler angles.
+  double alt_rel_;             ///< Current relative altitude from the takeoff point [m].
+  double alt_msl_;             ///< Current altitude above mean sea level [m].
   bool alt_msl_valid_;
 
   void paintEvent(QPaintEvent* event) override;
@@ -43,16 +43,16 @@ private:
 
   void addGradation(QPainter& painter);
 
-  /* Determine whether a point in the camera frame is included in the sky. */
+  /** Determine whether a point in the camera frame is included in the sky. */
   bool isSky(const QPoint& p, double a, double b) const;
 
-  /* Convert pitch angle [rad] to window height. */
+  /** Convert pitch angle [rad] to window height. */
   static double pitchToHeight(double pitch);
 
-  /* Convert yaw angle [rad] to window width. */
+  /** Convert yaw angle [rad] to window width. */
   static double yawToWidth(double yaw);
 
-  /* Convert altitude difference [m] to window height. */
+  /** Convert altitude difference [m] to window height. */
   static double altitudeToHeight(double altitude);
 
 private Q_SLOTS:

@@ -26,7 +26,7 @@ public:
 
 private:
   // Parameters
-  double no_comm_timeout_;  // [s]
+  double no_comm_timeout_;  ///< [s]
 
   struct RotorData
   {
@@ -36,7 +36,7 @@ private:
   };
 
   Drone::ConstSharedPtr drone_;
-  std::map<std::string, RotorData> data_;  // Link Name -> RotorData
+  std::map<std::string, RotorData> data_;  ///< Link Name -> RotorData
 
   ros2::PublisherPtr<tobas_msgs::msg::RotorLivelinessArray> rotor_liveliness_pub_;
 

@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <cmath>
 #include <expected>
 #include <string>
 
@@ -11,15 +12,13 @@
 
 namespace tobas
 {
-/**
- * @brief Base class for mixers.
- */
+/** Base class for mixers. */
 class MixerI
 {
 public:
   explicit MixerI(const Drone& drone, const kdl::Tree& tree);
 
-  virtual std::expected<void, std::string> updateInternalDataStructures();
+  virtual void updateInternalDataStructures();
 
   std::expected<void, std::string> setRotorLiveliness(const std::string& link_name, bool alive);
 
@@ -31,8 +30,11 @@ protected:
 
   std::map<std::string, bool> rotor_alive_;
 
-  /* Set tiny thrust values below the threshold to zero. */
-  inline double thrustDeadband(double thrust) const;
+  static inline double thrustDeadband(double thrust);
+  static inline Eigen::VectorXd thrustDeadband(const Eigen::VectorXd& thrusts);
+
+private:
+  static constexpr double kZeroThrustThresh = 1e-2;  ///< [N]
 };
 
 inline bool MixerI::isInitialized() const
@@ -40,9 +42,13 @@ inline bool MixerI::isInitialized() const
   return rotor_alive_.size() > 0;
 }
 
-inline double MixerI::thrustDeadband(double thrust) const
+inline double MixerI::thrustDeadband(double thrust)
 {
-  constexpr double kZeroThrustThresh = 1e-2;  // [N]
   return std::abs(thrust) > kZeroThrustThresh ? thrust : 0.0;
+}
+
+inline Eigen::VectorXd MixerI::thrustDeadband(const Eigen::VectorXd& thrusts)
+{
+  return (thrusts.array().abs() > kZeroThrustThresh).select(thrusts, 0.0);
 }
 }  // namespace tobas

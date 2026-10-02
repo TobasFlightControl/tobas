@@ -43,12 +43,14 @@ class ErrorStateKalmanFilterNode : public BaseNode
   using GetOriginSrv = tobas_msgs::srv::GetGnssOrigin;
   using SetOriginSrv = tobas_msgs::srv::SetGnssOrigin;
 
-  // Initial standard deviations.
-  // Covariance grows slowly but converges fairly quickly, so choosing a somewhat large value is acceptable.
-  static constexpr double kInitPosStddev = 5.0;     // [m]
-  static constexpr double kInitVelStddev = 1.0;     // [m/s]
-  static constexpr double kInitRotStddev = M_PI_4;  // [rad]
-  static constexpr double kInitMagStddev = 0.5;     // [-]
+  /**
+   * Initial standard deviations.
+   * Covariance grows slowly but converges fairly quickly, so choosing a somewhat large value is acceptable.
+   */
+  static constexpr double kInitPosStddev = 5.0;     ///< [m]
+  static constexpr double kInitVelStddev = 1.0;     ///< [m/s]
+  static constexpr double kInitRotStddev = M_PI_4;  ///< [rad]
+  static constexpr double kInitMagStddev = 0.5;     ///< [-]
 
 public:
   explicit ErrorStateKalmanFilterNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -71,19 +73,18 @@ private:
   size_t init_mag_cnt_ = 0;
   std::array<algo::Kahan<double>, 3> init_mag_sum_;
 
-  // Barometric altitude origin.
-  double baro_alt_origin_;  // Barometric altitude origin.
+  double baro_alt_origin_;  ///< Barometric altitude origin.
   bool baro_alt_origin_set_ = false;
   size_t init_pres_cnt_ = 0;
   algo::Kahan<double> init_pres_sum_;
 
-  // GNSS coordinate origin.
+  /** GNSS coordinate origin. */
   struct GeoPoint
   {
     double latitude;
     double longitude;
     double altitude;
-  } gnss_origin_;  // GNSS coordinate origin.
+  } gnss_origin_;  ///< GNSS coordinate origin.
 
   // Static parameters
   std::string frame_id_;
@@ -99,21 +100,21 @@ private:
   bool do_mag_soft_bias_estimation_;
   bool do_baro_alt_bias_estimation_;
   bool do_grav_estimation_;
-  Eigen::Vector3d imu_offset_;   // [m] IMU position relative to the root link (Local).
-  Eigen::Vector3d gnss_offset_;  // [m] GNSS receiver position relative to the root link (Local).
+  Eigen::Vector3d imu_offset_;   ///< [m] IMU position relative to the root link (Local).
+  Eigen::Vector3d gnss_offset_;  ///< [m] GNSS receiver position relative to the root link (Local).
 
   // Dynamic parameters
-  Eigen::Matrix3d fixed_acc_cov_ = Eigen::Matrix3d::Zero();       // [m^2/s^4]
-  Eigen::Matrix3d fixed_gyro_cov_ = Eigen::Matrix3d::Zero();      // [rad^2/s^2]
-  Eigen::Matrix3d fixed_mag_cov_ = Eigen::Matrix3d::Zero();       // [-]
-  double fixed_head_var_;                                         // [rad^2]
-  double fixed_baro_alt_var_;                                     // [m^2]
-  Eigen::Matrix3d fixed_gnss_pos_cov_ = Eigen::Matrix3d::Zero();  // [m^2]
-  Eigen::Matrix3d fixed_gnss_vel_cov_ = Eigen::Matrix3d::Zero();  // [m^2/s^2]
-  Eigen::Matrix3d fixed_grav_cov_ = Eigen::Matrix3d::Zero();      // [m^2/s^4]
-  double grav_stddev_min_;                                        // [m/s^2]
-  double grav_stddev_max_;                                        // [m/s^2]
-  double grav_stddev_rate_;                                       // [-]
+  Eigen::Matrix3d fixed_acc_cov_ = Eigen::Matrix3d::Zero();       ///< [m^2/s^4]
+  Eigen::Matrix3d fixed_gyro_cov_ = Eigen::Matrix3d::Zero();      ///< [rad^2/s^2]
+  Eigen::Matrix3d fixed_mag_cov_ = Eigen::Matrix3d::Zero();       ///< [-]
+  double fixed_head_var_;                                         ///< [rad^2]
+  double fixed_baro_alt_var_;                                     ///< [m^2]
+  Eigen::Matrix3d fixed_gnss_pos_cov_ = Eigen::Matrix3d::Zero();  ///< [m^2]
+  Eigen::Matrix3d fixed_gnss_vel_cov_ = Eigen::Matrix3d::Zero();  ///< [m^2/s^2]
+  Eigen::Matrix3d fixed_grav_cov_ = Eigen::Matrix3d::Zero();      ///< [m^2/s^4]
+  double grav_stddev_min_;                                        ///< [m/s^2]
+  double grav_stddev_max_;                                        ///< [m/s^2]
+  double grav_stddev_rate_;                                       ///< [-]
 
   // Publishers
   ros2::PublisherPtr<tobas_msgs::OdometryWithCovarianceStamped> odom_pub_;
@@ -158,23 +159,23 @@ private:
   double initBaroAltBiasStddev() const;
   double initGravBiasStddev() const;
 
-  bool fixedAccMeasNoiseStddevCb(const double& p);
-  bool fixedGyroMeasNoiseStddevCb(const double& p);
-  bool fixedMagMeasNoiseStddevCb(const double& p);
-  bool fixedHeadMeasNoiseStddevCb(const double& p);
-  bool fixedBaroAltMeasNoiseStddevCb(const double& p);
-  bool fixedGnssPosMeasNoiseStddevCb(const double& p);
-  bool fixedGnssVelMeasNoiseStddevCb(const double& p);
-  bool fixedGravMeasNoiseStddevCb(const double& p);
-  bool adaptiveGravMeasNoiseStddevMinCb(const double& p);
-  bool adaptiveGravMeasNoiseStddevMaxCb(const double& p);
-  bool adaptiveGravMeasNoiseStddevRateCb(const double& p);
-  bool accBiasProcNoiseDensityCb(const double& p);
-  bool gyroBiasProcNoiseDensityCb(const double& p);
-  bool magHardBiasProcNoiseDensityCb(const double& p);
-  bool magSoftBiasProcNoiseDensityCb(const double& p);
-  bool baroAltBiasProcNoiseDensityCb(const double& p);
-  bool gravProcNoiseDensityCb(const double& ud_ug);
+  void fixedAccMeasNoiseStddevCb(double p);
+  void fixedGyroMeasNoiseStddevCb(double p);
+  void fixedMagMeasNoiseStddevCb(double p);
+  void fixedHeadMeasNoiseStddevCb(double p);
+  void fixedBaroAltMeasNoiseStddevCb(double p);
+  void fixedGnssPosMeasNoiseStddevCb(double p);
+  void fixedGnssVelMeasNoiseStddevCb(double p);
+  void fixedGravMeasNoiseStddevCb(double p);
+  void adaptiveGravMeasNoiseStddevMinCb(double p);
+  void adaptiveGravMeasNoiseStddevMaxCb(double p);
+  void adaptiveGravMeasNoiseStddevRateCb(double p);
+  void accBiasProcNoiseDensityCb(double p);
+  void gyroBiasProcNoiseDensityCb(double p);
+  void magHardBiasProcNoiseDensityCb(double p);
+  void magSoftBiasProcNoiseDensityCb(double p);
+  void baroAltBiasProcNoiseDensityCb(double p);
+  void gravProcNoiseDensityCb(double ud_ug);
 
   void imuRawCb(const tobas_msgs::Imu::ConstSharedPtr& msg);
   void imuFiltCb(const tobas_msgs::Imu::ConstSharedPtr& msg);
@@ -231,27 +232,27 @@ void ErrorStateKalmanFilterNode::setupTransformMessage()
 
 void ErrorStateKalmanFilterNode::registerDynamicRosParams()
 {
-  // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_ACC_NOISE
+  // Ref: https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_ACC_NOISE
   addDynamicDoubleParam("acc_meas_noise_stddev", &self::fixedAccMeasNoiseStddevCb, this, 0.05, 20, 1, 20, " m/s^2");
 
-  // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_GYR_NOISE
+  // Ref: https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_GYR_NOISE
   addDynamicDoubleParam("gyro_meas_noise_stddev", &self::fixedGyroMeasNoiseStddevCb, this, 0.005, 20, 1, 20, " rad/s");
 
-  // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_MAG_NOISE
+  // Ref: https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_MAG_NOISE
   addDynamicDoubleParam("mag_meas_noise_stddev", &self::fixedMagMeasNoiseStddevCb, this, 5.0, 1, 1, 20, " uT");
 
-  // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_HEAD_NOISE
+  // Ref: https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_HEAD_NOISE
   addDynamicDoubleParam("head_meas_noise_stddev", &self::fixedHeadMeasNoiseStddevCb, this, 0.05, 6, 1, 20, " rad");
 
-  // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_BARO_NOISE
+  // Ref: https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_BARO_NOISE
   addDynamicDoubleParam("baro_alt_meas_noise_stddev", &self::fixedBaroAltMeasNoiseStddevCb, this, 0.5, 7, 1, 30, " m");
 
   if (!adaptive_gnss_noise_) {
-    // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_GPS_P_NOISE
+    // Ref: https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_GPS_P_NOISE
     addDynamicDoubleParam(
       "gnss_pos_meas_noise_stddev", &self::fixedGnssPosMeasNoiseStddevCb, this, 0.1, 5, 1, 100, " m");
 
-    // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_GPS_V_NOISE
+    // Ref: https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_GPS_V_NOISE
     addDynamicDoubleParam(
       "gnss_vel_meas_noise_stddev", &self::fixedGnssVelMeasNoiseStddevCb, this, 0.1, 3, 1, 50, " m/s");
   }
@@ -267,31 +268,31 @@ void ErrorStateKalmanFilterNode::registerDynamicRosParams()
       "grav_meas_noise_stddev_rate", &self::adaptiveGravMeasNoiseStddevRateCb, this, 5.0, 20, 0, 100);
   }
   else {
-    // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_GRAV_NOISE
+    // Ref: https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_GRAV_NOISE
     addDynamicDoubleParam("grav_meas_noise_stddev", &self::fixedGravMeasNoiseStddevCb, this, 0.1, 3, 1, 20, " g");
   }
   if (do_acc_bias_estimation_) {
-    // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_ACC_B_NOISE
+    // Ref: https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_ACC_B_NOISE
     addDynamicDoubleParam(
       "acc_bias_proc_noise_density", &self::accBiasProcNoiseDensityCb, this, 1.0, 15, 0, 50, " ug/s/√Hz");
   }
   if (do_gyro_bias_estimation_) {
-    // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_GYR_B_NOISE
+    // Ref: https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_GYR_B_NOISE
     addDynamicDoubleParam(
       "gyro_bias_proc_noise_density", &self::gyroBiasProcNoiseDensityCb, this, 1.0, 3, 0, 30, " mdps/s/√Hz");
   }
   if (do_mag_hard_bias_estimation_) {
-    // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_MAG_B_NOISE
+    // Ref: https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_MAG_B_NOISE
     addDynamicDoubleParam(
       "mag_hard_bias_proc_noise_density", &self::magHardBiasProcNoiseDensityCb, this, 0.1, 5, 0, 100, " nT/s/√Hz");
   }
   if (do_mag_soft_bias_estimation_) {
-    // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_MAG_B_NOISE
+    // Ref: https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_MAG_B_NOISE
     addDynamicDoubleParam(
       "mag_soft_bias_proc_noise_density", &self::magSoftBiasProcNoiseDensityCb, this, 0.1, 5, 0, 100, " nT/s/√Hz");
   }
   if (do_baro_alt_bias_estimation_) {
-    // cf. https://github.com/PX4/PX4-Autopilot/blob/main/src/modules/ekf2/EKF/common.h (baro_bias_nsd)
+    // Ref: https://github.com/PX4/PX4-Autopilot/blob/main/src/modules/ekf2/EKF/common.h (baro_bias_nsd)
     addDynamicDoubleParam(
       "baro_alt_bias_proc_noise_density", &self::baroAltBiasProcNoiseDensityCb, this, 0.01, 13, 0, 100, " m/s/√Hz");
   }
@@ -536,148 +537,129 @@ double ErrorStateKalmanFilterNode::initGravBiasStddev() const
   return do_grav_estimation_ ? 0.1 : 0.0;
 }
 
-bool ErrorStateKalmanFilterNode::fixedAccMeasNoiseStddevCb(const double& p)
+void ErrorStateKalmanFilterNode::fixedAccMeasNoiseStddevCb(double p)
 {
   const auto acc_stddev = p;  // [m/s^2]
   const auto acc_var = math::sqr(acc_stddev);
   fixed_acc_cov_.diagonal().fill(acc_var);
-
-  return true;
 }
 
-bool ErrorStateKalmanFilterNode::fixedGyroMeasNoiseStddevCb(const double& p)
+void ErrorStateKalmanFilterNode::fixedGyroMeasNoiseStddevCb(double p)
 {
   const auto gyro_stddev = p;  // [rad/s]
   const auto gyro_var = math::sqr(gyro_stddev);
   fixed_gyro_cov_.diagonal().fill(gyro_var);
-
-  return true;
 }
 
-bool ErrorStateKalmanFilterNode::fixedMagMeasNoiseStddevCb(const double& p)
+void ErrorStateKalmanFilterNode::fixedMagMeasNoiseStddevCb(double p)
 {
   const auto mag_stddev = p * 1e-2 / st::kGeomagScale;  // [-]
   const auto mag_var = math::sqr(mag_stddev);
   fixed_mag_cov_.diagonal().fill(mag_var);
-
-  return true;
 }
 
-bool ErrorStateKalmanFilterNode::fixedHeadMeasNoiseStddevCb(const double& p)
+void ErrorStateKalmanFilterNode::fixedHeadMeasNoiseStddevCb(double p)
 {
   const auto head_stddev = p;  // [rad]
   fixed_head_var_ = math::sqr(head_stddev);
-
-  return true;
 }
 
-bool ErrorStateKalmanFilterNode::fixedBaroAltMeasNoiseStddevCb(const double& p)
+void ErrorStateKalmanFilterNode::fixedBaroAltMeasNoiseStddevCb(double p)
 {
   const auto baro_alt_stddev = p;  // [m]
   fixed_baro_alt_var_ = math::sqr(baro_alt_stddev);
-
-  return true;
 }
 
-bool ErrorStateKalmanFilterNode::fixedGnssPosMeasNoiseStddevCb(const double& p)
+void ErrorStateKalmanFilterNode::fixedGnssPosMeasNoiseStddevCb(double p)
 {
   assert(!adaptive_gnss_noise_);
 
   const auto gnss_pos_stddev = p;  // [m]
   const auto gnss_pos_var = math::sqr(gnss_pos_stddev);
   fixed_gnss_pos_cov_.diagonal().fill(gnss_pos_var);
-
-  return true;
 }
 
-bool ErrorStateKalmanFilterNode::fixedGnssVelMeasNoiseStddevCb(const double& p)
+void ErrorStateKalmanFilterNode::fixedGnssVelMeasNoiseStddevCb(double p)
 {
   assert(!adaptive_gnss_noise_);
 
   const auto gnss_vel_stddev = p;  // [m/s]
   const auto gnss_vel_var = math::sqr(gnss_vel_stddev);
   fixed_gnss_vel_cov_.diagonal().fill(gnss_vel_var);
-
-  return true;
 }
 
-bool ErrorStateKalmanFilterNode::fixedGravMeasNoiseStddevCb(const double& p)
+void ErrorStateKalmanFilterNode::fixedGravMeasNoiseStddevCb(double p)
 {
   assert(!adaptive_grav_noise_);
 
   const auto grav_stddev = p * st::kGravity;  // [m/s^2]
   const auto grav_var = math::sqr(grav_stddev);
   fixed_grav_cov_.diagonal().fill(grav_var);
-
-  return true;
 }
 
-bool ErrorStateKalmanFilterNode::adaptiveGravMeasNoiseStddevMinCb(const double& p)
+void ErrorStateKalmanFilterNode::adaptiveGravMeasNoiseStddevMinCb(double p)
 {
   assert(adaptive_grav_noise_);
   grav_stddev_min_ = p;
-  return true;
 }
 
-bool ErrorStateKalmanFilterNode::adaptiveGravMeasNoiseStddevMaxCb(const double& p)
+void ErrorStateKalmanFilterNode::adaptiveGravMeasNoiseStddevMaxCb(double p)
 {
   assert(adaptive_grav_noise_);
   grav_stddev_max_ = p;
-  return true;
 }
 
-bool ErrorStateKalmanFilterNode::adaptiveGravMeasNoiseStddevRateCb(const double& p)
+void ErrorStateKalmanFilterNode::adaptiveGravMeasNoiseStddevRateCb(double p)
 {
   assert(adaptive_grav_noise_);
   grav_stddev_rate_ = p;
-  return true;
 }
 
-bool ErrorStateKalmanFilterNode::accBiasProcNoiseDensityCb(const double& p)
+void ErrorStateKalmanFilterNode::accBiasProcNoiseDensityCb(double p)
 {
   assert(do_acc_bias_estimation_);
 
   const auto nd = p * 1e-6 * st::kGravity;  // ug/s/√Hz -> m/s^3/√Hz
-  return eskf_.setAccBiasProcNoiseDensity(nd);
+  eskf_.setAccBiasProcNoiseDensity(nd);
 }
 
-bool ErrorStateKalmanFilterNode::gyroBiasProcNoiseDensityCb(const double& p)
+void ErrorStateKalmanFilterNode::gyroBiasProcNoiseDensityCb(double p)
 {
   assert(do_gyro_bias_estimation_);
 
   const auto nd = p * 1e-3 * st::kDeg2Rad;  // mdps/s/√Hz -> rad/s^2/√Hz
-  return eskf_.setGyroBiasProcNoiseDensity(nd);
+  eskf_.setGyroBiasProcNoiseDensity(nd);
 }
 
-bool ErrorStateKalmanFilterNode::magHardBiasProcNoiseDensityCb(const double& p)
+void ErrorStateKalmanFilterNode::magHardBiasProcNoiseDensityCb(double p)
 {
   assert(do_mag_hard_bias_estimation_);
 
   const auto nd = p * 1e-5 / st::kGeomagScale;  // nT/s/√Hz -> /s/√Hz
-  return eskf_.setMagHardBiasProcNoiseDensity(nd);
+  eskf_.setMagHardBiasProcNoiseDensity(nd);
 }
 
-bool ErrorStateKalmanFilterNode::magSoftBiasProcNoiseDensityCb(const double& p)
+void ErrorStateKalmanFilterNode::magSoftBiasProcNoiseDensityCb(double p)
 {
   assert(do_mag_soft_bias_estimation_);
 
   const auto nd = p * 1e-5 / st::kGeomagScale;  // nT/s/√Hz -> /s/√Hz
-  return eskf_.setMagSoftBiasProcNoiseDensity(nd);
+  eskf_.setMagSoftBiasProcNoiseDensity(nd);
 }
 
-bool ErrorStateKalmanFilterNode::baroAltBiasProcNoiseDensityCb(const double& p)
+void ErrorStateKalmanFilterNode::baroAltBiasProcNoiseDensityCb(double p)
 {
   assert(do_baro_alt_bias_estimation_);
 
-  return eskf_.setBaroAltBiasProcNoiseDensity(p);
+  eskf_.setBaroAltBiasProcNoiseDensity(p);
 }
 
-bool ErrorStateKalmanFilterNode::gravProcNoiseDensityCb(const double& p)
+void ErrorStateKalmanFilterNode::gravProcNoiseDensityCb(double p)
 {
   assert(do_grav_estimation_);
 
   const auto nd = p * 1e-6 * st::kGravity;  // ug/s/√Hz -> m/s^3/√Hz
-  return eskf_.setGravProcNoiseDensity(nd);
+  eskf_.setGravProcNoiseDensity(nd);
 }
 
 void ErrorStateKalmanFilterNode::imuRawCb(const tobas_msgs::Imu::ConstSharedPtr& msg)

@@ -6,24 +6,26 @@
 #include <crypt.h>
 
 #include <cstring>
-#include <iostream>
 
-#include <tobas_linux/error.hpp>
+#include <tobas_std_tools/error.hpp>
 
 namespace tobas
 {
 namespace crypt
 {
-std::string Crypt::crypt(const std::string& password) const
+std::expected<std::string, std::string> Crypt::crypt(const std::string& password) const
 {
   struct crypt_data data;
   std::memset(&data, 0, sizeof(data));
 
   const auto salt = createSalt();
-  const auto out = ::crypt_r(password.c_str(), salt.c_str(), &data);
-  if (!out) {
-    std::cerr << "crypt_r failed: " << linux::strError() << std::endl;
-    return {};
+  if (!salt) {
+    return salt;
+  }
+
+  const auto out = ::crypt_r(password.c_str(), salt->c_str(), &data);
+  if (!out || out[0] == '*') {
+    return std::unexpected("crypt_r failed: " + st::strError());
   }
 
   return std::string(out);

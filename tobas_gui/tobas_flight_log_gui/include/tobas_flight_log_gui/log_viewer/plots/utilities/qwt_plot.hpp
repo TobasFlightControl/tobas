@@ -20,8 +20,8 @@ class QwtPlot2 : public QwtPlot
 public:
   explicit QwtPlot2(QWidget* parent = nullptr);
 
-  void setAxisNoLabel(const QwtPlot::Axis& axis);
-  void setAxisLabelUnit(const QwtPlot::Axis& axis, const QString& unit);
+  void setAxisNoLabel(QwtPlot::Axis axis);
+  void setAxisLabelUnit(QwtPlot::Axis axis, const QString& unit);
 
   void setupIndexedLabelPlot(const QStringList& labels);
 };

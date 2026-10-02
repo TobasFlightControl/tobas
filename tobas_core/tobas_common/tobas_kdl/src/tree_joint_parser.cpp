@@ -15,21 +15,21 @@ TreeJointParser::TreeJointParser(const Tree& tree) : super(tree)
 
 void TreeJointParser::updateInternalDataStructures()
 {
-  super::updateInternalDataStructures();
-
   resize();
   parseJntNames();
 }
 
 void TreeJointParser::resize()
 {
-  jnt_names_.resize(nj_);
+  const auto nj = tree_.getNrOfJoints();
+
+  jnt_names_.resize(nj);
   jnt_indexes_.clear();
   seg_names_.clear();
-  lower_limits_.resize(nj_);
-  upper_limits_.resize(nj_);
-  max_velocities_.resize(nj_);
-  max_efforts_.resize(nj_);
+  lower_limits_.resize(nj);
+  upper_limits_.resize(nj);
+  max_velocities_.resize(nj);
+  max_efforts_.resize(nj);
 }
 
 void TreeJointParser::parseJntNames()

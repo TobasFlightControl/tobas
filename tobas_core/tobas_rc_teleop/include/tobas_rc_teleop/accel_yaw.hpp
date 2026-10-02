@@ -34,10 +34,10 @@ private:
   traj::VelocityLimitedOnlineTrajectoryGenerator ax_filt_, ay_filt_;
   double tar_yaw_;
 
-  // ROS parameters.
-  double max_hor_acc_;    // [m/s]
-  double max_ver_acc_;    // [m/s]
-  double max_head_rate_;  // [rad/s]
+  // ROS parameters
+  double max_hor_acc_;    ///< [m/s]
+  double max_ver_acc_;    ///< [m/s]
+  double max_head_rate_;  ///< [rad/s]
   double hor_acc_expo_;
   double ver_acc_expo_;
   double head_expo_;
@@ -45,13 +45,13 @@ private:
   // Publisher
   ros2::PublisherPtr<tobas_command_msgs::AccelYaw> cmd_pub_;
 
-  bool maxHorizontalAccelCb(const double& p);
-  bool maxHorizontalJerkCb(const double& p);
-  bool maxVerticalAccelCb(const double& p);
-  bool maxHeadingRateCb(const double& p);
-  bool horizontalAccelExpoCb(const double& p);
-  bool verticalAccelExpoCb(const double& p);
-  bool headingExpoCb(const double& p);
+  void maxHorizontalAccelCb(double p);
+  void maxHorizontalJerkCb(double p);
+  void maxVerticalAccelCb(double p);
+  void maxHeadingRateCb(double p);
+  void horizontalAccelExpoCb(double p);
+  void verticalAccelExpoCb(double p);
+  void headingExpoCb(double p);
 };
 }  // namespace rc
 }  // namespace tobas

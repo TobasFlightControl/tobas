@@ -3,8 +3,6 @@
 
 #include "tobas_constants/flight_mode.hpp"
 
-#include <iostream>
-
 namespace tobas
 {
 namespace
@@ -43,7 +41,6 @@ bool enumFromText(const std::string& text, FlightMode& dst)
     return true;
   }
   else {
-    std::cerr << "Invalid flight mode: " << text << std::endl;
     return false;
   }
 }
@@ -51,7 +48,7 @@ bool enumFromText(const std::string& text, FlightMode& dst)
 
 namespace YAML
 {
-Node convert<tobas::FlightMode>::encode(const tobas::FlightMode& rhs)
+Node convert<tobas::FlightMode>::encode(tobas::FlightMode rhs)
 {
   Node node;
   node = tobas::textFromEnum(rhs);

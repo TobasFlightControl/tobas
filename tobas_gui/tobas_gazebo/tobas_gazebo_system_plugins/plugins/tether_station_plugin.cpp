@@ -51,10 +51,10 @@ private:
   std::string link_name_;
   gz::math::Vector3d W_Pos_WP_;
   gz::math::Vector3d B_Pos_BQ_;
-  double init_tension_;     // [N]
-  double init_max_length_;  // [m]
-  double young_;            // [MPa] Young modulus.
-  double csa_;              // [mm^2] Cross-sectional area.
+  double init_tension_;     ///< [N]
+  double init_max_length_;  ///< [m]
+  double young_;            ///< [MPa] Young modulus.
+  double csa_;              ///< [mm^2] Cross-sectional area.
 
   tobas_gazebo_msgs::msg::TetherParams params_;
 

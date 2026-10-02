@@ -3,69 +3,38 @@
 
 #include "tobas_kdl/tree_inertia_solver.hpp"
 
+#include <cassert>
+
 namespace tobas
 {
 namespace kdl
 {
 TreeInertiaSolver::TreeInertiaSolver(const Tree& tree) : super(tree)
 {
-  initialize();
 }
 
-void TreeInertiaSolver::updateInternalDataStructures()
+RigidBodyInertia TreeInertiaSolver::jntToCart(const JntArray& q)
 {
-  super::updateInternalDataStructures();
-
-  initialize();
-}
-
-int TreeInertiaSolver::jntToCart(const JntArray& q)
-{
-  if (!isUpToDate()) {
-    return setDefaultError(kNotUpToDate);
-  }
-  if (q.rows() != nj_) {
-    return setDefaultError(kSizeMismatch);
-  }
+  assert(q.size() == tree_.getNrOfJoints());
 
   const auto root_it = tree_.getRootSegment();
-  step(root_it, q);
-
-  return setDefaultError(kNoError);
+  return jntToCartRec(root_it, q);
 }
 
-void TreeInertiaSolver::initialize()
+RigidBodyInertia TreeInertiaSolver::jntToCartRec(const SegmentMap::const_iterator& cur_it, const JntArray& q)
 {
-  X_.clear();
-  I_.clear();
-  for (const auto& [seg_name, _] : tree_.getSegments()) {
-    X_[seg_name] = Frame::Identity();
-    I_[seg_name] = RigidBodyInertia::Zero();
-  }
-}
+  const auto& cur_elem = cur_it->second;
+  const auto& cur_seg = cur_elem.segment;
 
-void TreeInertiaSolver::step(const SegmentMap::const_iterator& cur_it, const JntArray& q)
-{
-  const auto& cur_name = cur_it->first;
-  const auto& cur_ele = cur_it->second;
-  const auto& cur_seg = cur_ele.segment;
-  const auto& par_it = cur_ele.parent;
-  const auto& par_name = par_it->first;
-
-  // Forward calculation.
-  const auto& qj = cur_seg.joint().type == Joint::kFixed ? 0.0 : q(cur_ele.q_nr);
-  X_.at(cur_name) = cur_seg.pose(qj);
-  I_.at(cur_name) = cur_seg.inertia();
-
-  // Propagate calculations over each child segment.
-  for (const auto& child_it : cur_ele.children) {
-    step(child_it, q);
+  auto inertia = cur_seg.inertia();
+  for (const auto& child_it : cur_elem.children) {
+    const auto& child_elem = child_it->second;
+    const auto& child_seg = child_elem.segment;
+    const auto qj = child_seg.joint().type == Joint::kFixed ? 0.0 : q(child_elem.q_nr);
+    inertia += child_seg.pose(qj) * jntToCartRec(child_it, q);
   }
 
-  // Backward calculation.
-  if (cur_it != tree_.getRootSegment()) {
-    I_.at(par_name) += X_.at(cur_name) * I_.at(cur_name);
-  }
+  return inertia;
 }
 }  // namespace kdl
 }  // namespace tobas

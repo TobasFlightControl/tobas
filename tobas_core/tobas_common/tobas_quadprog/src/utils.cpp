@@ -14,7 +14,7 @@ void matIneqFromRange(
   const Eigen::VectorXd& ub,
   Eigen::MatrixXd& A,
   Eigen::VectorXd& b,
-  const double inf)
+  double inf)
 {
   assert(lb.rows() == ub.rows());
   assert(((ub - lb).array() >= 0.0).all());
@@ -22,8 +22,8 @@ void matIneqFromRange(
   const auto size = lb.rows();
 
   const Eigen::MatrixXd E = Eigen::MatrixXd::Identity(size, size);
-  const auto left = eigen::concat(-E, E, 0);
-  const auto right = eigen::concat(-lb, ub, 0);
+  const auto left = eigen::concat(-E, E, Eigen::Vertical);
+  const auto right = eigen::concat(-lb, ub, Eigen::Vertical);
   const auto is_valid = (right.array().abs() < inf).eval();
   const auto num_valid = is_valid.count();
 

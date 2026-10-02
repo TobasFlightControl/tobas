@@ -44,7 +44,7 @@ private:
   gz::math::Vector3d values_;
 };
 
-/* Generate a random point on the unit sphere. */
+/** Generate a random point on the unit sphere. */
 gz::math::Vector3d createUnitSpherePoint(std::random_device& rnd_dev);
 }  // namespace gazebo
 }  // namespace tobas

@@ -13,7 +13,7 @@ namespace ssh
 {
 namespace ak
 {
-/* Convert an SSH public key to a display string. */
+/** Convert an SSH public key to a display string. */
 std::expected<std::string, std::string> prettify(const Data& src);
 }  // namespace ak
 }  // namespace ssh

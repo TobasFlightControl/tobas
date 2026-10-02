@@ -10,8 +10,7 @@ namespace tobas
 namespace stm
 {
 /**
- * @brief A linux driver of 3-axis magnetometer.
- *
+ * A linux driver of 3-axis magnetometer.
  * Datasheet: https://www.st.com/resource/en/datasheet/iis2mdc.pdf
  */
 class IIS2MDC
@@ -21,11 +20,11 @@ public:
 
   bool initialize(const char* i2c_device);
 
-  /* Read the current magnetic field [gauss]. */
+  /** Read the current magnetic field [gauss]. */
   bool readMag(double& mx, double& my, double& mz);
 
 private:
-  /* 7: Register mapping (p.27) */
+  /** 7: Register mapping (p.27) */
   enum Register : uint8_t
   {
     // Who I am ID
@@ -86,7 +85,9 @@ private:
   };
 
   linux::I2Cdev i2c_;
-  int16_t mag_buf_[3] = {};  // A signed 16-bit integer type is required to represent both positive and negative values.
+
+  /** A signed 16-bit integer type is required to represent both positive and negative values. */
+  int16_t mag_buf_[3] = {};
 
   bool checkWhoAmI();
   bool configure();

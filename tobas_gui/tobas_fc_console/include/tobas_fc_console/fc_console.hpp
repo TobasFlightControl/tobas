@@ -88,7 +88,7 @@ private:
   void onProcessFinished(int code, QProcess::ExitStatus status);
   void onProcessErrorOccurred(QProcess::ProcessError error);
 
-  friend QDebug operator<<(QDebug debug, const Status& status);
+  friend QDebug operator<<(QDebug debug, Status status);
 };
 }  // namespace console
 }  // namespace gui

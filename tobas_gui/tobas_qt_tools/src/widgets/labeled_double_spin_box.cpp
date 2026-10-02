@@ -30,7 +30,7 @@ double LabeledDoubleSpinBox::getValue() const
   return data_->value();
 }
 
-bool LabeledDoubleSpinBox::setValue(const double& value)
+bool LabeledDoubleSpinBox::setValue(double value)
 {
   if (value < data_->minimum() || data_->maximum() < value) {
     return false;

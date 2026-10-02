@@ -5,6 +5,7 @@
 
 #include <memory>
 
+#include <rclcpp/logging.hpp>
 #include <rclcpp/type_adapter.hpp>
 
 #include <tobas_drone_core/drone.hpp>
@@ -45,8 +46,9 @@ struct rclcpp::TypeAdapter<tobas::Drone, tobas_drone_msgs::msg::Drone>
 
     // Propulsion System
     if (src.prop) {
-      dst.prop_type = static_cast<int8_t>(src.prop->type());
-      switch (src.prop->type()) {
+      const auto prop_type = src.prop->type();
+      dst.prop_type = static_cast<int8_t>(prop_type);
+      switch (prop_type) {
         case tobas::PropulsionSystem::kElectric: {
           const auto eprop = std::static_pointer_cast<tobas::ElectricPropulsionSystemConfig>(src.prop);
           tobas_drone_msgs::ElectricPropulsionSystemConfigAdapter::convert_to_ros_message(*eprop, dst.eprop);
@@ -58,7 +60,7 @@ struct rclcpp::TypeAdapter<tobas::Drone, tobas_drone_msgs::msg::Drone>
           break;
         }
         default: {
-          std::cerr << "Invalid propulsion system type: " << (int)src.prop->type() << std::endl;
+          RCLCPP_ERROR_STREAM(getLogger(), "Invalid propulsion system type: " << (int)prop_type);
           dst.prop_type = -1;
           break;
         }
@@ -116,7 +118,7 @@ struct rclcpp::TypeAdapter<tobas::Drone, tobas_drone_msgs::msg::Drone>
           break;
         }
         default: {
-          std::cerr << "Invalid propulsion system type: " << (int)src.prop_type << std::endl;
+          RCLCPP_ERROR_STREAM(getLogger(), "Invalid propulsion system type: " << (int)src.prop_type);
           dst.prop.reset();
           break;
         }
@@ -137,6 +139,12 @@ struct rclcpp::TypeAdapter<tobas::Drone, tobas_drone_msgs::msg::Drone>
 
     // S.BUS Channels
     dst.num_sbus_channels = src.num_sbus_channels;
+  }
+
+private:
+  static rclcpp::Logger getLogger()
+  {
+    return get_logger("drone_adapter");
   }
 };
 

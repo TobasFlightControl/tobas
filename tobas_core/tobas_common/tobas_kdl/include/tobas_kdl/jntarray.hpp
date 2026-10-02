@@ -3,7 +3,11 @@
 
 #pragma once
 
-#include "./frames.hpp"
+#include <cassert>
+#include <cstddef>
+#include <ostream>
+
+#include <eigen3/Eigen/Core>
 
 namespace tobas
 {
@@ -25,7 +29,6 @@ public:
   inline void setZero();
 
   inline size_t size() const;
-  inline size_t rows() const;
 
   inline double max() const;
   inline double min() const;
@@ -40,16 +43,16 @@ public:
 
   inline JntArray operator+(const JntArray& rhs) const;
   inline JntArray operator-(const JntArray& rhs) const;
-  inline JntArray operator*(const double& rhs) const;
-  inline JntArray operator/(const double& rhs) const;
+  inline JntArray operator*(double rhs) const;
+  inline JntArray operator/(double rhs) const;
   inline JntArray& operator+=(const JntArray& rhs);
   inline JntArray& operator-=(const JntArray& rhs);
-  inline JntArray& operator*=(const double& rhs);
-  inline JntArray& operator/=(const double& rhs);
+  inline JntArray& operator*=(double rhs);
+  inline JntArray& operator/=(double rhs);
 
   inline friend JntArray operator+(const JntArray& arg);
   inline friend JntArray operator-(const JntArray& arg);
-  inline friend JntArray operator*(const double& lhs, const JntArray& rhs);
+  inline friend JntArray operator*(double lhs, const JntArray& rhs);
 
   inline friend std::ostream& operator<<(std::ostream& os, const JntArray& arg);
 };
@@ -88,12 +91,7 @@ void JntArray::setZero()
 
 inline size_t JntArray::size() const
 {
-  return static_cast<size_t>(data.rows());
-}
-
-inline size_t JntArray::rows() const
-{
-  return size();
+  return static_cast<size_t>(data.size());
 }
 
 inline double JntArray::max() const
@@ -118,7 +116,7 @@ inline JntArray JntArray::min(double x)
 
 inline JntArray JntArray::hadamard(const JntArray& arg)
 {
-  assert(rows() == arg.rows());
+  assert(size() == arg.size());
   return JntArray(data.cwiseProduct(arg.data));
 }
 
@@ -134,22 +132,22 @@ inline double& JntArray::operator()(size_t i)
 
 inline JntArray JntArray::operator+(const JntArray& rhs) const
 {
-  assert(rows() == rhs.rows());
+  assert(size() == rhs.size());
   return JntArray(data + rhs.data);
 }
 
 inline JntArray JntArray::operator-(const JntArray& rhs) const
 {
-  assert(rows() == rhs.rows());
+  assert(size() == rhs.size());
   return JntArray(data - rhs.data);
 }
 
-inline JntArray JntArray::operator*(const double& rhs) const
+inline JntArray JntArray::operator*(double rhs) const
 {
   return JntArray(data * rhs);
 }
 
-inline JntArray JntArray::operator/(const double& rhs) const
+inline JntArray JntArray::operator/(double rhs) const
 {
   assert(rhs != 0);
   return JntArray(data / rhs);
@@ -157,25 +155,25 @@ inline JntArray JntArray::operator/(const double& rhs) const
 
 inline JntArray& JntArray::operator+=(const JntArray& rhs)
 {
-  assert(rows() == rhs.rows());
+  assert(size() == rhs.size());
   data += rhs.data;
   return *this;
 }
 
 inline JntArray& JntArray::operator-=(const JntArray& rhs)
 {
-  assert(rows() == rhs.rows());
+  assert(size() == rhs.size());
   data -= rhs.data;
   return *this;
 }
 
-inline JntArray& JntArray::operator*=(const double& rhs)
+inline JntArray& JntArray::operator*=(double rhs)
 {
   data *= rhs;
   return *this;
 }
 
-inline JntArray& JntArray::operator/=(const double& rhs)
+inline JntArray& JntArray::operator/=(double rhs)
 {
   assert(rhs != 0);
   data /= rhs;
@@ -192,7 +190,7 @@ inline JntArray operator-(const JntArray& arg)
   return JntArray(-arg.data);
 }
 
-inline JntArray operator*(const double& lhs, const JntArray& rhs)
+inline JntArray operator*(double lhs, const JntArray& rhs)
 {
   return JntArray(lhs * rhs.data);
 }

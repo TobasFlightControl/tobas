@@ -41,7 +41,7 @@ bool enumFromText(const std::string& text, HardwareInterface& dst)
 
 namespace YAML
 {
-Node convert<tobas::HardwareInterface>::encode(const tobas::HardwareInterface& rhs)
+Node convert<tobas::HardwareInterface>::encode(tobas::HardwareInterface rhs)
 {
   Node node;
   node = tobas::textFromEnum(rhs);

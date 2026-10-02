@@ -13,7 +13,7 @@ namespace tobas
 namespace fixed_wing
 {
 /**
- * @brief Small-disturbance equations of motion around the trim state.
+ * Small-disturbance equations of motion around the trim state.
  * Provides dimensional aerodynamic stability derivatives individually.
  */
 class MicroDisturbanceEoM : public SolverI
@@ -34,16 +34,16 @@ public:
 
   explicit MicroDisturbanceEoM(const Drone& drone, const kdl::Tree& tree);
 
-  bool updateInternalDataStructures() override;
+  void updateInternalDataStructures() override;
 
   /**
-   * @brief Update the internal state.
+   * Update the internal state.
    *
    * @param V Magnitude of aircraft velocity relative to the atmosphere [m/s].
    * @param rho Air density [kg/m^3].
    * @param q Movable joint angles [rad].
    */
-  int update(const double& V, const double& rho, const kdl::JntArray& q);
+  int update(double V, double rho, const kdl::JntArray& q);
 
   inline const TrimConditions& trimCondition() const;
   inline const StabilityDerivativesCG& stabilityDerivativesCG() const;
@@ -55,28 +55,28 @@ public:
   inline Eigen::VectorXd minDeltaInput() const;
   inline Eigen::VectorXd maxDeltaInput() const;
 
-  /* Index of the control surface used for pitch trim. */
+  /** Index of the control surface used for pitch trim. */
   inline const std::string& elevatorLinkName() const;
   inline const size_t& inputSize() const;
 
   inline const Eigen::Matrix<double, kStateSize, kStateSize>& A() const;
   inline const Eigen::Matrix<double, kStateSize, Eigen::Dynamic>& B() const;
 
-  // X_u (2.2-36)
+  /** X_u (2.2-36) */
   inline const double& u_u() const;
-  // X_alpha (2.2-36)
+  /** X_alpha (2.2-36) */
   inline const double& u_alpha() const;
   inline const double& u_q() const;
   inline const double& u_theta() const;
 
-  // Z_u_bar (2.2-37)
+  /** Z_u_bar (2.2-37) */
   inline const double& alpha_u() const;
-  // Z_alpha_bar (2.2-37)
+  /** Z_alpha_bar (2.2-37) */
   inline const double& alpha_alpha() const;
   inline const double& alpha_q() const;
   inline const double& alpha_theta() const;
 
-  // Y_beta_bar (3.2-20)
+  /** Y_beta_bar (3.2-20) */
   inline const double& beta_beta() const;
   inline const double& beta_p() const;
   inline const double& beta_r() const;
@@ -92,43 +92,43 @@ public:
   inline const double& theta_q() const;
   inline const double& theta_theta() const;
 
-  // L_beta_dash (3.2-21)
+  /** L_beta_dash (3.2-21) */
   inline const double& p_beta() const;
-  // L_p_dash (3.2-21)
+  /** L_p_dash (3.2-21) */
   inline const double& p_p() const;
-  // L_r_dash (3.2-21)
+  /** L_r_dash (3.2-21) */
   inline const double& p_r() const;
   inline const double& p_phi() const;
 
-  // M_u_dash (2.2-39)
+  /** M_u_dash (2.2-39) */
   inline const double& q_u() const;
-  // M_alpha_dash (2.2-39)
+  /** M_alpha_dash (2.2-39) */
   inline const double& q_alpha() const;
-  // M_q_dash (2.2-39)
+  /** M_q_dash (2.2-39) */
   inline const double& q_q() const;
-  // M_theta_dash (2.2-39)
+  /** M_theta_dash (2.2-39) */
   inline const double& q_theta() const;
 
-  // N_beta_dash (3.2-22)
+  /** N_beta_dash (3.2-22) */
   inline const double& r_beta() const;
-  // N_p_dash (3.2-22)
+  /** N_p_dash (3.2-22) */
   inline const double& r_p() const;
-  // N_r_dash (3.2-22)
+  /** N_r_dash (3.2-22) */
   inline const double& r_r() const;
   inline const double& r_phi() const;
 
   inline double u_thrust() const;
 
-  // Z_delta_bar (2.2-37)
-  inline const double& alpha_delta(const size_t& cs_idx) const;
-  // Y_delta_bar (3.2-20)
-  inline const double& beta_delta(const size_t& cs_idx) const;
-  // L_delta_bar (3.2-21)
-  inline const double& p_delta(const size_t& cs_idx) const;
-  // M_delta_bar (2.2-38)
-  inline const double& q_delta(const size_t& cs_idx) const;
-  // N_delta_bar (3.2.22)
-  inline const double& r_delta(const size_t& cs_idx) const;
+  /** Z_delta_bar (2.2-37) */
+  inline const double& alpha_delta(size_t cs_idx) const;
+  /** Y_delta_bar (3.2-20) */
+  inline const double& beta_delta(size_t cs_idx) const;
+  /** L_delta_bar (3.2-21) */
+  inline const double& p_delta(size_t cs_idx) const;
+  /** M_delta_bar (2.2-38) */
+  inline const double& q_delta(size_t cs_idx) const;
+  /** N_delta_bar (3.2.22) */
+  inline const double& r_delta(size_t cs_idx) const;
 
 private:
   const Drone& drone_;
@@ -137,16 +137,17 @@ private:
   kdl::TreeFkSolverPos fk_solver_;
   kdl::TreeInertiaSolver inertia_solver_;
   TrimConditions trim_;
+  double mass_ = 0.0;
 
   size_t u_size_;
-  Eigen::VectorXd min_u_;                     // Minimum control input.
-  Eigen::VectorXd max_u_;                     // Maximum control input.
-  Eigen::Matrix<double, kStateSize, 1> x_0_;  // State at trim.
-  Eigen::VectorXd u_0_;                       // Control input at trim.
+  Eigen::VectorXd min_u_;                     ///< Minimum control input.
+  Eigen::VectorXd max_u_;                     ///< Maximum control input.
+  Eigen::Matrix<double, kStateSize, 1> x_0_;  ///< State at trim.
+  Eigen::VectorXd u_0_;                       ///< Control input at trim.
 
   // Buffers for each coefficient.
   Eigen::Matrix<double, kStateSize, kStateSize> A_;
-  Eigen::Matrix<double, kStateSize, Eigen::Dynamic> B_;  // Number of columns matches the number of control surfaces.
+  Eigen::Matrix<double, kStateSize, Eigen::Dynamic> B_;  ///< Number of columns matches the number of control surfaces.
 
   void resize();
   void setInputLimits();
@@ -374,30 +375,30 @@ inline const double& MicroDisturbanceEoM::r_phi() const
 
 inline double MicroDisturbanceEoM::u_thrust() const
 {
-  return 1 / inertia_solver_.getInertia().getMass();
+  return 1.0 / mass_;
 }
 
-inline const double& MicroDisturbanceEoM::alpha_delta(const size_t& cs_idx) const
+inline const double& MicroDisturbanceEoM::alpha_delta(size_t cs_idx) const
 {
   return B_(kStateIdx_alpha, drone_.prop->numRotors() + cs_idx);
 }
 
-inline const double& MicroDisturbanceEoM::beta_delta(const size_t& cs_idx) const
+inline const double& MicroDisturbanceEoM::beta_delta(size_t cs_idx) const
 {
   return B_(kStateIdx_beta, drone_.prop->numRotors() + cs_idx);
 }
 
-inline const double& MicroDisturbanceEoM::p_delta(const size_t& cs_idx) const
+inline const double& MicroDisturbanceEoM::p_delta(size_t cs_idx) const
 {
   return B_(kStateIdx_p, drone_.prop->numRotors() + cs_idx);
 }
 
-inline const double& MicroDisturbanceEoM::q_delta(const size_t& cs_idx) const
+inline const double& MicroDisturbanceEoM::q_delta(size_t cs_idx) const
 {
   return B_(kStateIdx_q, drone_.prop->numRotors() + cs_idx);
 }
 
-inline const double& MicroDisturbanceEoM::r_delta(const size_t& cs_idx) const
+inline const double& MicroDisturbanceEoM::r_delta(size_t cs_idx) const
 {
   return B_(kStateIdx_r, drone_.prop->numRotors() + cs_idx);
 }

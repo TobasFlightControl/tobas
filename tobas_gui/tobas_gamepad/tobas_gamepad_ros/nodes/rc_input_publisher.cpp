@@ -13,9 +13,7 @@ namespace tobas
 {
 namespace gamepad
 {
-/**
- * @brief Read gamepad input and publish it as RC input messages.
- */
+/** Read gamepad input and publish it as RC input messages. */
 class RcInputPublisher : public BaseNode
 {
   using self = RcInputPublisher;
@@ -27,24 +25,22 @@ public:
   void initialize();
 
 private:
-  void publishFromState(const GamepadRcInputState& _state);
+  void publishFromState(const GamepadState& _state);
   void timerCallback();
 
   std::string device_path_;
-  GamepadRcInput gamepad_;
+
+  GamepadDriver gamepad_;
+
   ros2::PublisherPtr<tobas_msgs::RCInput> publisher_;
   ros2::TimerPtr initialize_timer_;
-  ros2::TimerPtr timer_;
+  ros2::TimerPtr main_timer_;
 };
 
 RcInputPublisher::RcInputPublisher(const rclcpp::NodeOptions& _options)
   : super("rc_input_publisher", nodeOptions_Default(_options))
 {
-  device_path_ = getStringParam("device_path", "");
-  if (device_path_.empty()) {
-    TOBAS_WARN("No device path specified. This node will not work.");
-    return;
-  }
+  device_path_ = getStringParam("device_path");
 
   publisher_ = createPublisher<tobas_msgs::RCInput>(topic::kRcInput);
   initialize_timer_ = createWallTimer(1s, &self::initialize, this);
@@ -52,29 +48,29 @@ RcInputPublisher::RcInputPublisher(const rclcpp::NodeOptions& _options)
 
 void RcInputPublisher::initialize()
 {
-  if (!gamepad_.initialize(device_path_)) {
-    TOBAS_WARN("Failed to initialize gamepad RC input with device '", device_path_, "'. Retrying...");
+  if (const auto result = gamepad_.initialize(device_path_); !result) {
+    TOBAS_WARN("Failed to initialize gamepad driver: ", result.error(), ". Retrying...");
     return;
   }
 
   initialize_timer_->cancel();
-  timer_ = createWallTimer(10ms, &self::timerCallback, this);
+  main_timer_ = createWallTimer(10ms, &self::timerCallback, this);
 
-  TOBAS_INFO("Initialized gamepad RC input with device '", device_path_, "'.");
+  TOBAS_INFO("Gamepad driver has been initialized.");
 }
 
 void RcInputPublisher::timerCallback()
 {
-  GamepadRcInputState state;
-  if (!gamepad_.read(state)) {
-    TOBAS_WARN("Failed to read gamepad RC input.");
+  const auto state = gamepad_.read();
+  if (!state) {
+    TOBAS_WARN("Failed to read gamepad RC input: ", state.error());
     return;
   }
 
-  publishFromState(state);
+  publishFromState(*state);
 }
 
-void RcInputPublisher::publishFromState(const GamepadRcInputState& _state)
+void RcInputPublisher::publishFromState(const GamepadState& _state)
 {
   auto msg = std::make_unique<tobas_msgs::RCInput>();
   msg->header.stamp = now();
@@ -90,7 +86,6 @@ void RcInputPublisher::publishFromState(const GamepadRcInputState& _state)
   msg->gpsw = _state.gpsw;
   publisher_->publish(std::move(msg));
 }
-
 }  // namespace gamepad
 }  // namespace tobas
 

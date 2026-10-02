@@ -34,9 +34,9 @@ private:
   traj::VelocityLimitedOnlineTrajectoryGenerator roll_filt_, pitch_filt_;
   double tar_yaw_;
 
-  // ROS parameters.
-  double max_attitude_;   // [rad]
-  double max_head_rate_;  // [rad/s]
+  // ROS parameters
+  double max_attitude_;   ///< [rad]
+  double max_head_rate_;  ///< [rad/s]
   double atti_expo_;
   double head_expo_;
   double throt_expo_;
@@ -44,12 +44,12 @@ private:
   // PubSub
   ros2::PublisherPtr<tobas_command_msgs::AngleThrottle> cmd_pub_;
 
-  bool maxAttitudeCb(const double& p);
-  bool maxAttitudeRateCb(const double& p);
-  bool maxHeadingRateCb(const double& p);
-  bool attitudeExpoCb(const double& p);
-  bool headingExpoCb(const double& p);
-  bool throttleExpoCb(const double& p);
+  void maxAttitudeCb(double p);
+  void maxAttitudeRateCb(double p);
+  void maxHeadingRateCb(double p);
+  void attitudeExpoCb(double p);
+  void headingExpoCb(double p);
+  void throttleExpoCb(double p);
 };
 }  // namespace rc
 }  // namespace tobas

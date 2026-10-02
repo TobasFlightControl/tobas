@@ -10,7 +10,7 @@
 
 namespace tobas
 {
-/* ct = c0 + c1 φ */
+/** ct = c0 + c1 φ */
 class VppMotorConstant
 {
 public:

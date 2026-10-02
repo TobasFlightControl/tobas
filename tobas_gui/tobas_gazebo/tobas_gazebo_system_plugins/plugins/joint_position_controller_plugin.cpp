@@ -41,7 +41,7 @@ public:
   void PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::EntityComponentManager& ecm) override;
 
 private:
-  double time_const_;  // [s]
+  double time_const_;  ///< [s]
   double tar_pos_;
 
   gz::sim::Joint joint_;

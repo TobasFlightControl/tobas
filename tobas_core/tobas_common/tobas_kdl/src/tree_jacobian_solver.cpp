@@ -3,6 +3,8 @@
 
 #include "tobas_kdl/tree_jacobian_solver.hpp"
 
+#include <cassert>
+
 namespace tobas
 {
 namespace kdl
@@ -14,64 +16,54 @@ TreeJacobianSolver::TreeJacobianSolver(const Tree& tree) : super(tree)
 
 void TreeJacobianSolver::updateInternalDataStructures()
 {
-  super::updateInternalDataStructures();
-
   resize();
 }
 
-int TreeJacobianSolver::jntToJac(const JntArray& q_in, const std::string& seg_name)
+const Jacobian& TreeJacobianSolver::jntToJac(const JntArray& q_in, const std::string& seg_name)
 {
-  if (!isUpToDate()) {
-    return setDefaultError(kNotUpToDate);
-  }
-  if (q_in.rows() != nj_) {
-    return setDefaultError(kSizeMismatch);
-  }
-  if (!tree_.hasSegment(seg_name)) {
-    return setDefaultError(kOutputRange);
-  }
-
-  // Initialize.
-  J_out_.setZero();
-  T_total_.setIdentity();
+  assert(q_in.rows() == tree_.getNrOfJoints());
+  assert(tree_.hasSegment(seg_name));
 
   // Lets recursively iterate until we are in the root segment.
-  auto it = tree_.getSegment(seg_name);
   const auto root_it = tree_.getRootSegment();
-  while (it != root_it) {
-    const auto& ele = it->second;
-    const auto& seg = ele.segment;
-    const auto& q_nr = ele.q_nr;
+  auto cur_it = tree_.getSegment(seg_name);
+  auto T_total = Frame::Identity();
 
-    // Get the pose of the segment:
-    const auto T_local = seg.pose(q_in(q_nr));
-    // Calculate new T_end:
-    T_total_ = T_local * T_total_;
+  while (cur_it != root_it) {
+    const auto& cur_elem = cur_it->second;
+    const auto& cur_seg = cur_elem.segment;
+    const auto& j = cur_elem.q_nr;
+    const auto& qj = q_in(j);
 
-    // Get the twist of the segment:
-    if (seg.joint().type != Joint::kFixed) {
-      auto t_local = seg.jacobian(q_in(q_nr));
-      // Transform the endpoint of the local twist to the global endpoint:
-      t_local = t_local.refPoint(T_total_.p - T_local.p);
+    // Get the pose of the segment.
+    const auto T_local = cur_seg.pose(qj);
+    // Calculate new T_end.
+    T_total = T_local * T_total;
+
+    // Get the twist of the segment.
+    if (cur_seg.joint().type != Joint::kFixed) {
+      auto t_local = cur_seg.jacobian(qj);
+      // Transform the endpoint of the local twist to the global endpoint.
+      t_local = t_local.refPoint(T_total.p - T_local.p);
       // Transform the base of the twist to the endpoint.
-      t_local = T_total_.M.inverse(t_local);
-      // Store the twist in the jacobian:
-      J_out_.setColumn(q_nr, t_local);
+      t_local = T_total.M.inverse(t_local);
+      // Store the twist in the jacobian.
+      jac_out_.setColumn(j, t_local);
     }
 
     // Go to the parent.
-    it = ele.parent;
+    cur_it = cur_elem.parent;
   }
 
   // Change the base of the complete jacobian from the endpoint to the base.
-  J_out_.changeBase(T_total_.M);
+  jac_out_.changeBase(T_total.M);
 
-  return setDefaultError(kNoError);
+  return jac_out_;
 }
 
 void TreeJacobianSolver::resize()
 {
-  J_out_.resize(nj_);
+  jac_out_ = Jacobian::Zero(tree_.getNrOfJoints());
 }
 }  // namespace kdl
 }  // namespace tobas

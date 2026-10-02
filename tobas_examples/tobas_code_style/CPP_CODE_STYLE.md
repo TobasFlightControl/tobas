@@ -44,9 +44,6 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 - Sort the headers in each section alphabetically.
 - Do not use Unix directory aliases when including a related header: `../include/my_library/my_class.hpp` -> `my_library/my_class.hpp`
 - Use double quotes only for headers from the same library.
-
-<!-- Custom -->
-
 - Prefer C++ standard library headers over C-style headers whenever possible.
   - e.g. `<string.h>` -> `<cstring>`, `<stdlib.h>` -> `<cstdlib>`
 - Avoid expensive umbrella headers when more specific headers are available.
@@ -114,15 +111,13 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
   1. All other functions, including static and non-static member functions and friend functions
   1. All other data members, including static and non-static data members
 - Avoid `friend` whenever possible, and interact with other code only through `public` members.
-
-<!-- Custom -->
-
 - Use `= {}` for zero-initializing member variables.
 
 ## Functions
 
 - For readability and performance, prefer return values over output arguments.
-- Input arguments: pass primitive types by copy and non-primitive types by const reference.
+- Input arguments: pass primitive types, enums, and raw pointers by value, without top-level `const`.
+  Preserve `const` on pointed-to types. Pass other types, including smart pointers, by const reference.
 - Output arguments: pass by non-const reference.
 - Put input arguments before output arguments.
 - Keep each function focused. One function should do one thing.
@@ -137,9 +132,6 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 - Prefer `std::unique_ptr` over `std::shared_ptr` to make ownership clear.
 - Do not use `std::auto_ptr`.
 - Use `nullptr` instead of `NULL`.
-
-<!-- Custom -->
-
 - For null checks, write `if (!ptr)` instead of `if (ptr == nullptr)`.
 
 ## Exceptions
@@ -168,18 +160,12 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 - Prefer purpose-specific types such as `size_t`, `strdiff_t`, and `time_t` when appropriate.
 - When a specific integer size is required, use the integer types defined in `stdint.h`.
 - Do not use unsigned integer types except for special cases such as bit patterns. Use `assert` to guarantee non-negativity.
-
-<!-- Custom -->
-
 - Do not use non-standard types such as `uint`.
 
 ## Floating-Point Types
 
 - Use only `float` or `double`.
 - Do not use types such as `long double`.
-
-<!-- Custom -->
-
 - Write `double` literals with at least one digit after the decimal point. Use `1.0` instead of `1.`.
 
 ```cpp
@@ -209,21 +195,32 @@ double scale = 1.;  // NG
 
 ## Comments
 
-- Doc comments, including class and function comments: `/** @brief ... */`
-- Variable comments: `/* ... */` or `/** @brief ... */`
+- Class, enum type, type alias (`using` or `typedef`), and function (method) doc comments: `/** ... */`. Do not use `@brief`.
+- Document function-like macros defined with `#define` in the same way as functions: place a `/** ... */` comment before the definition and follow the same tag order and spacing rules.
+- Keep a `/** ... */` comment on a single line when it fits within the 120-column limit, including indentation and delimiters.
+- Use a multiline `/** ... */` comment for longer descriptions or structured documentation such as `@param` and `@return`.
+- Order documentation tags as `@tparam`, `@param`, `@return`, `@throws`, `@note`, `@warning`, `@see`.
+- Group `@tparam`, `@param`, `@return`, and `@throws` together, then group `@note`, `@warning`, and `@see` together.
+- Insert exactly one blank comment line between these two groups when both are present. Do not insert blank lines between tag entries within either group.
+- Separate the description from the first tag group with one blank comment line. Omit tags that do not apply; do not add empty groups.
+- Use `@throws`, not `@throw`. Keep template parameters and parameters in declaration order within their respective tag entries.
+- In Doxygen doc comments, use `@see` for references instead of `ref.`, `ref:`, `cf.`, or `cf:`.
+- Put each documentation tag on its own line. Continuation lines belong to that tag and stay with it.
+- In headers, use `// ...` for standalone explanations and section headings that do not document a specific declaration.
+- Short member variable and enumerator descriptions: append `///< ...` to the declaration when the whole line fits within the 120-column limit.
+- Longer member variable and enumerator descriptions: place `/** ... */` before the declaration. Do not use `@brief`.
+- Omit comments for member variables and enumerators whose meaning is self-evident from their names and types.
 - Implementation comments: `// ...`
+- In ordinary comments, introduce reference sources with `Ref:`, for example `// Ref: https://example.com/reference`.
+- When a reference includes a description and a URL, write `Ref: [description](URL)` instead of `Ref: description: URL`, for example `// Ref: [API reference](https://example.com/reference)`.
+- Do not use Doxygen tags in ordinary comments. Write plain text such as `Ref: ...`, `Note: ...`, or `Warning: ...`; the tag order and grouping rules above apply only to Doxygen doc comments.
 - Temporary commented-out code: `// ...`
-
-<!-- Custom -->
-
 - Write all comments in English.
 - Add appropriate explanatory comments for each unit of processing.
 - Wrap keywords that appear in the code in backticks.
 - Prefer line breaks at natural phrase boundaries.
 
 ## License Comments
-
-<!-- Custom -->
 
 - Put the license text at the beginning of each file.
 
@@ -233,14 +230,10 @@ double scale = 1.;  // NG
 
 ## ROS 2
 
-<!-- Custom -->
-
 - To support zero-copy delivery to unspecified subscribers, publish topics with `UniquePtr` and subscribe with `ConstSharedPtr`.
 - Group parameter retrieval, Publisher creation, and Subscriber creation separately so the interface is easy to understand.
 
 ## Miscellaneous
-
-<!-- Custom -->
 
 - Use uppercase letters in hexadecimal numbers: `0x1a2b` -> `0x1A2B`
 - Put a comma after the last enumerator in an enum.

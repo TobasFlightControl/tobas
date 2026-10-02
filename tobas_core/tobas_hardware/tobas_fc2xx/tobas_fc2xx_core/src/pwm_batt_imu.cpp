@@ -4,7 +4,9 @@
 #include "tobas_fc2xx_core/pwm_batt_imu.hpp"
 
 #include <cstring>
-#include <iostream>
+#include <format>
+
+#include <tobas_std_tools/error.hpp>
 
 namespace tobas
 {
@@ -34,22 +36,21 @@ bool PwmBattImu::initialize()
   return true;
 }
 
-bool PwmBattImu::transfer()
+std::expected<void, std::string> PwmBattImu::transfer()
 {
   // Transfer.
   if (!spi_.transfer(sizeof(tx_buf_))) {
-    return false;
+    return std::unexpected("SPI transfer failed: " + st::strError());
   }
 
   // Check CRC.
   const uint32_t cs = (rx_buf_[kCrcIdx + 1] << 16) | rx_buf_[kCrcIdx];
   const auto cr = crc_.compute((uint8_t*)rx_buf_, sizeof(uint16_t) * kCrcIdx);
   if (cs != cr) {
-    std::cerr << "CRC failed: " << std::hex << std::uppercase << cs << " != " << cr << std::dec << std::endl;
-    return false;
+    return std::unexpected(std::format("CRC mismatch: received 0x{:08X}, computed 0x{:08X}.", cs, cr));
   }
 
-  return true;
+  return {};
 }
 
 void PwmBattImu::setPwmPeriod(uint16_t* period_us)

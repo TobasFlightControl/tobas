@@ -10,8 +10,6 @@
 #include <tobas_qt_tools/widgets/description_widget.hpp>
 #include <tobas_qt_tools/widgets/scroll_area.hpp>
 
-#include "../param_getters/base.hpp"
-
 namespace tobas
 {
 namespace gui
@@ -31,19 +29,19 @@ public:
   virtual const char* title() const = 0;
   virtual const char* description() const = 0;
 
-  /* Update the internal state according to URDF changes. */
+  /** Update the internal state according to URDF changes. */
   virtual void updateInternalDataStructures() = 0;
 
-  /* Return all settings to their default values. */
+  /** Return all settings to their default values. */
   virtual void setToDefaults() = 0;
 
-  /* Return true when user settings have no problems. */
+  /** Return true when user settings have no problems. */
   virtual bool isValid() = 0;
 
-  /* Write user settings. */
+  /** Write user settings. */
   virtual YAML::Node dump() const = 0;
 
-  /* Load user settings. */
+  /** Load user settings. */
   virtual void load(const YAML::Node& node) = 0;
 
 protected:

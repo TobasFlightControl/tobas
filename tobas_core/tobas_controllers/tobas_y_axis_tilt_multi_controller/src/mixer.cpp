@@ -3,7 +3,9 @@
 
 #include "tobas_y_axis_tilt_multi_controller/mixer.hpp"
 
+#include <cassert>
 #include <ranges>
+#include <utility>
 
 #include <tobas_eigen_tools/geometry.hpp>
 #include <tobas_math/float.hpp>
@@ -16,19 +18,15 @@ Mixer::Mixer(const Drone& drone, const kdl::Tree& tree) : super(drone, tree), fk
 {
 }
 
-std::expected<void, std::string> Mixer::updateInternalDataStructures()
+void Mixer::updateInternalDataStructures()
 {
-  if (const auto result = super::updateInternalDataStructures(); !result) {
-    return result;
-  }
+  super::updateInternalDataStructures();
 
   fk_solver_.updateInternalDataStructures();
   inertia_solver_.updateInternalDataStructures();
 
   // Compute forward kinematics.
-  if (fk_solver_.jntToCart(kdl::JntArray::Zero(tree_.getNrOfJoints())) < 0) {
-    return std::unexpected("Forward kinematics failed: " + fk_solver_.errorMessage());
-  }
+  const auto& frames = fk_solver_.jntToCart(kdl::JntArray::Zero(tree_.getNrOfJoints()));
 
   const auto nr = drone_.prop->numRotors();
   info_.resize(nr);
@@ -50,7 +48,6 @@ std::expected<void, std::string> Mixer::updateInternalDataStructures()
   }
 
   E_.conservativeResize(Eigen::NoChange, col);
-  x_.conservativeResize(col);
 
   for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = rotor_it.second;
@@ -62,37 +59,28 @@ std::expected<void, std::string> Mixer::updateInternalDataStructures()
       const auto& gpar_elem = par_elem.parent->second;
 
       // Store the sign of the tilt axis.
-      const auto& B_T_gpar = fk_solver_.getFrame(gpar_elem.segment.name());
+      const auto& B_T_gpar = frames.at(gpar_elem.segment.name());
       const auto tilt_axis = B_T_gpar.M * par_elem.segment.joint().axis();  // Tilt axis viewed from the base link.
       const auto tilt_axis_y = tilt_axis.normalized().y();
-      if (!math::isClose(std::abs(tilt_axis_y), 1.0)) {
-        return std::unexpected("Tilt axis must be parallel to the Y axis.");
-      }
+      assert(math::isClose(std::abs(tilt_axis_y), 1.0));
       info.sign = math::sign(tilt_axis_y);
     }
   }
-
-  return {};
 }
 
-std::expected<void, std::string> Mixer::solve(
+std::expected<MixerSolution, std::string> Mixer::solve(
   const kdl::JntArray& cur_q,
   const kdl::Vector& cur_gyro_B,
   const kdl::Vector& tar_dgyro_B,
-  const double& ux,
-  const double& uz,
+  double ux,
+  double uz,
   const kdl::Vector& ext_torque_B)
 {
   // Compute forward kinematics.
-  if (fk_solver_.jntToCart(cur_q) < 0) {
-    return std::unexpected("Forward kinematics failed: " + fk_solver_.errorMessage());
-  }
+  const auto& frames = fk_solver_.jntToCart(cur_q);
 
   // Compute mass properties.
-  if (inertia_solver_.jntToCart(cur_q) < 0) {
-    return std::unexpected("Inertia solver failed: " + inertia_solver_.errorMessage());
-  }
-  const auto& inertia = inertia_solver_.getInertia();
+  const auto inertia = inertia_solver_.jntToCart(cur_q);
   const auto B_Pos_B2G = inertia.getCOG();
   const auto I_B = inertia.getRotationalInertiaCoG();
 
@@ -112,7 +100,7 @@ std::expected<void, std::string> Mixer::solve(
       // Update the rotor axis angle relative to the body frame at zero tilt angle.
       const auto& gpar_elem = par_elem.parent->second;
       const auto& gpar_seg = gpar_elem.segment;
-      const auto& B_T_gpar = fk_solver_.getFrame(gpar_seg.name());
+      const auto& B_T_gpar = frames.at(gpar_seg.name());
       const auto B_T_par = B_T_gpar * par_seg.pose(0.0);
       const auto n = B_T_par.M * cur_seg.joint().axis();
       state.alpha = std::atan2(n.x(), n.z());
@@ -144,13 +132,13 @@ std::expected<void, std::string> Mixer::solve(
     }
     else {
       // Update the rotor axis angle relative to the body frame.
-      const auto& B_T_par = fk_solver_.getFrame(par_seg.name());
+      const auto& B_T_par = frames.at(par_seg.name());
       const auto n = B_T_par.M * cur_seg.joint().axis();
       state.alpha = std::atan2(n.x(), n.z());
 
       // Update the left-hand side of the equations of motion.
       if (rotor_alive_[rotor->link_name]) {
-        const auto& B_Pos_B2P = fk_solver_.getFrame(cur_seg.name()).p;
+        const auto& B_Pos_B2P = frames.at(cur_seg.name()).p;
         const auto B_Pos_G2P = B_Pos_B2P - B_Pos_B2G;
         E_.block<3, 1>(0, info.column) = (B_Pos_G2P * n - d_cm * n).data;
         E_(3, info.column) = std::sin(state.alpha);
@@ -172,37 +160,27 @@ std::expected<void, std::string> Mixer::solve(
 
   // Least-squares solution of `Ex = f`; minimize the L2 norm of `x` when redundant degrees of freedom exist.
   // TODO: Consider constraints on the absolute thrust value; a convex optimization problem may work well.
-  x_ = E_.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(f_);
+  const auto x = E_.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(f_).eval();
 
-  return {};
-}
-
-double Mixer::getThrust(size_t idx) const
-{
-  const auto& info = info_.at(idx);
-
-  if (info.is_tilt) {
-    return thrustDeadband(x_.segment<2>(info.column).norm());
+  // Convert the solver variables to independently owned rotor commands.
+  const auto nr = drone_.prop->numRotors();
+  Eigen::VectorXd thrusts(nr);
+  Eigen::VectorXd tilt_angles(nr);
+  for (size_t idx = 0; idx < nr; ++idx) {
+    const auto& info = info_[idx];
+    if (info.is_tilt) {
+      thrusts(idx) = thrustDeadband(x.segment<2>(info.column).norm());
+      const auto tx = thrustDeadband(x(info.column));
+      const auto tz = thrustDeadband(x(info.column + 1));
+      tilt_angles(idx) = info.sign * (std::atan2(tx, tz) - state_[idx].alpha);
+    }
+    else {
+      thrusts(idx) = thrustDeadband(x(info.column));
+      tilt_angles(idx) = 0.0;
+    }
   }
-  else {
-    return thrustDeadband(x_(info.column));
-  }
-}
 
-double Mixer::getTiltAngle(size_t idx) const
-{
-  const auto& info = info_.at(idx);
-  const auto& state = state_.at(idx);
-
-  if (info.is_tilt) {
-    const auto tx = thrustDeadband(x_(info.column));
-    const auto tz = thrustDeadband(x_(info.column + 1));
-    return info.sign * (std::atan2(tx, tz) - state.alpha);
-  }
-  else {
-    std::cerr << "Rotor " << idx << " is not a tilt rotor." << std::endl;
-    return 0.0;
-  }
+  return MixerSolution{ std::move(thrusts), std::move(tilt_angles) };
 }
 }  // namespace y_axis_tilt_multicopter
 }  // namespace tobas

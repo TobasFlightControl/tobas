@@ -34,14 +34,14 @@ public:
 
   size_t iterations() const;
 
-  bool setMaximumIterations(size_t max_iter);
-  bool setRelativeTolerance(double rel_tol);
-  bool setVariableScales(const Eigen::VectorXd& x_scale);
+  void setMaximumIterations(size_t max_iter);
+  void setRelativeTolerance(double rel_tol);
+  void setVariableScales(const Eigen::VectorXd& x_scale);
 
 private:
-  Eigen::Index n_;  // The number of optimization variables
-  Eigen::Index m_;  // The number of inequality constraints
-  Eigen::Index p_;  // The number of equality constraints
+  Eigen::Index n_;  ///< The number of optimization variables
+  Eigen::Index m_;  ///< The number of inequality constraints
+  Eigen::Index p_;  ///< The number of equality constraints
 
   Eigen::VectorXd x_;
   Eigen::VectorXd lam_;

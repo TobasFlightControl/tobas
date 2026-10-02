@@ -4,7 +4,6 @@
 #include "tobas_path_tools/core.hpp"
 
 #include <fstream>
-#include <iostream>
 
 namespace fs = std::filesystem;
 
@@ -73,11 +72,10 @@ std::expected<void, std::string> createFilePath(const fs::path& file_path, bool 
   return {};
 }
 
-size_t computeDirectorySize(const fs::path& dir_path)
+std::expected<size_t, std::string> computeDirectorySize(const fs::path& dir_path)
 {
   if (!fs::is_directory(dir_path)) {
-    std::cerr << dir_path << " does not exist." << std::endl;
-    return 0;
+    return std::unexpected("'" + dir_path.string() + "' is not a directory.");
   }
 
   size_t total_size = 0;

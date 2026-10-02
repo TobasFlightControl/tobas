@@ -87,7 +87,7 @@ void MissionExecutorWidget::load(const YAML::Node& node)
   multicopter_->load(node[kMulticopterKey]);
 }
 
-void MissionExecutorWidget::setFrameType(const FrameType& type)
+void MissionExecutorWidget::setFrameType(FrameType type)
 {
   if (
     type == FrameType::kPlanarMulticopter || type == FrameType::kNonPlanarMulticopter ||

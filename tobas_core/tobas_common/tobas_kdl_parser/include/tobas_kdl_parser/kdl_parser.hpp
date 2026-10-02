@@ -27,7 +27,7 @@ public:
 private:
   urdf::Parser urdf_parser_;
 
-  /* Recursive function to walk through tree. */
+  /** Recursive function to walk through tree. */
   static void addChildrenToTree(const ::urdf::LinkConstSharedPtr& root, Tree& tree);
 };
 }  // namespace kdl

@@ -40,9 +40,9 @@ protected:
   bool isChecked(field::BaseFieldWidget* widget) const;
   void setChecked(field::BaseFieldWidget* widget, bool checked);
 
-  /* Return the configured value if checked; otherwise return NaN. */
+  /** Return the configured value if checked; otherwise return NaN. */
   double getValueOrDefault(field::FieldWidget<double>* widget) const;
-  /* Set a valid value as-is; use the default value if it is NaN. */
+  /** Set a valid value as-is; use the default value if it is NaN. */
   void setValueOrDefault(field::FieldWidget<double>* widget, double value);
 
 private:

@@ -9,7 +9,7 @@ namespace tobas
 {
 namespace quadprog
 {
-QuadProgProblem::QuadProgProblem(const Eigen::Index& var_size, const Eigen::Index& eq_size, const Eigen::Index& ineq_size)
+QuadProgProblem::QuadProgProblem(Eigen::Index var_size, Eigen::Index eq_size, Eigen::Index ineq_size)
 {
   resize(var_size, eq_size, ineq_size);
 }
@@ -18,7 +18,7 @@ QuadProgProblem::QuadProgProblem()
 {
 }
 
-void QuadProgProblem::resize(const Eigen::Index& var_size, const Eigen::Index& eq_size, const Eigen::Index& ineq_size)
+void QuadProgProblem::resize(Eigen::Index var_size, Eigen::Index eq_size, Eigen::Index ineq_size)
 {
   P.conservativeResize(var_size, var_size);
   q.conservativeResize(var_size);
@@ -76,7 +76,7 @@ QuadProgSolver::QuadProgSolver()
 {
 }
 
-void QuadProgSolver::resize(const Eigen::Index& var_size, const Eigen::Index& eq_size, const Eigen::Index& ineq_size)
+void QuadProgSolver::resize(Eigen::Index var_size, Eigen::Index eq_size, Eigen::Index ineq_size)
 {
   problem.resize(var_size, eq_size, ineq_size);
   x_scale.conservativeResize(var_size);

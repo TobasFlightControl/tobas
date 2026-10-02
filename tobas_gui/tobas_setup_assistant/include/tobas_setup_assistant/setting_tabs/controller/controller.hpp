@@ -39,7 +39,7 @@ public:
   YAML::Node dump() const override;
   void load(const YAML::Node& node) override;
 
-  void setFrameType(const FrameType& type);
+  void setFrameType(FrameType type);
 
   bool useBuiltinContrller() const;
 
@@ -64,7 +64,7 @@ private:
   BaseControllerWidget* selected();
   const BaseControllerWidget* selected() const;
 
-  void showCtrlWidgetWithFrameType(const FrameType& type);
+  void showCtrlWidgetWithFrameType(FrameType type);
 
 private Q_SLOTS:
   void onDontUseBuiltinCtrlCheckBoxToggled(bool checked);

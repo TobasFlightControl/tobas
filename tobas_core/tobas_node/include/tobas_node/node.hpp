@@ -23,7 +23,7 @@
     abort();                                                                                                           \
   }
 
-/* Assertion that also works in release mode. Use it to check operations that should almost never fail. */
+/** Assertion that also works in release mode. Use it to check operations that should almost never fail. */
 #define TOBAS_ASSERT(expr)                                                                                             \
   {                                                                                                                    \
     if (!static_cast<bool>(expr)) {                                                                                    \
@@ -92,7 +92,7 @@ public:
     rclcpp::CallbackGroup::SharedPtr callback_group = nullptr);
 
   /**
-   * @brief Create an action server.
+   * Create an action server.
    *
    * @tparam ActType
    * @tparam Obj
@@ -101,7 +101,6 @@ public:
    * @param handle_cancel
    * @param execute Action execution function that runs in a separate thread.
    * @param obj
-   * @return ros2::ActionServerPtr<ActType>
    */
   template <typename ActType, typename Obj>
   ros2::ActionServerPtr<ActType> createAction(
@@ -160,35 +159,34 @@ public:
   inline void fatalThrottle(const char* file, int line, double period, const Args&... args);
 
   template <typename Obj>
-  void
-  addDynamicBoolParam(const std::string& param_name, bool (Obj::*fp)(const bool&), Obj* obj, const bool& default_value);
+  void addDynamicBoolParam(const std::string& param_name, void (Obj::*fp)(bool), Obj* obj, bool default_value);
 
   template <typename Obj>
   void addDynamicIntParam(
     const std::string& param_name,
-    bool (Obj::*fp)(const long&),
+    void (Obj::*fp)(long),
     Obj* obj,
-    const long& step,
-    const long& default_value,
-    const long& minimum_value,
-    const long& maximum_value,
+    long step,
+    long default_value,
+    long minimum_value,
+    long maximum_value,
     const std::string& prefix = "");
 
   template <typename Obj>
   void addDynamicDoubleParam(
     const std::string& param_name,
-    bool (Obj::*fp)(const double&),
+    void (Obj::*fp)(double),
     Obj* obj,
-    const double& step,
-    const long& default_value,
-    const long& minimum_value,
-    const long& maximum_value,
+    double step,
+    long default_value,
+    long minimum_value,
+    long maximum_value,
     const std::string& prefix = "");
 
   template <typename Obj>
   void addDynamicStringParam(
     const std::string& param_name,
-    bool (Obj::*fp)(const std::string&),
+    void (Obj::*fp)(const std::string&),
     Obj* obj,
     const std::string& default_value);
 
@@ -202,9 +200,9 @@ public:
   std::vector<double> getDoubleArrayParam(const std::string& param_name);
   std::vector<std::string> getStringArrayParam(const std::string& param_name);
 
-  bool getBoolParam(const std::string& param_name, const bool& default_value) noexcept;
-  long getIntParam(const std::string& param_name, const long& default_value) noexcept;
-  double getDoubleParam(const std::string& param_name, const double& default_value) noexcept;
+  bool getBoolParam(const std::string& param_name, bool default_value) noexcept;
+  long getIntParam(const std::string& param_name, long default_value) noexcept;
+  double getDoubleParam(const std::string& param_name, double default_value) noexcept;
   std::string getStringParam(const std::string& param_name, const std::string& default_value) noexcept;
   std::vector<bool> getBoolArrayParam(const std::string& param_name, const std::vector<bool>& default_value) noexcept;
   std::vector<uint8_t>
@@ -215,10 +213,10 @@ public:
   std::vector<std::string>
   getStringArrayParam(const std::string& param_name, const std::vector<std::string>& default_value) noexcept;
 
-  /* Tobas default node options. */
+  /** Tobas default node options. */
   static rclcpp::NodeOptions nodeOptions_Default(rclcpp::NodeOptions options);
 
-  /* Node options for nodes with dynamic parameters. */
+  /** Node options for nodes with dynamic parameters. */
   static rclcpp::NodeOptions nodeOptions_DParam(rclcpp::NodeOptions options);
 
 private:
@@ -227,7 +225,7 @@ private:
 
   ros2::PublisherPtr<tobas_msgs::msg::Message> message_pub_;
 
-  tobas_dparam_msgs::msg::Parameters dparams_;  // Structure containing dynamic parameter settings and current values
+  tobas_dparam_msgs::msg::Parameters dparams_;  ///< Structure containing dynamic parameter settings and current values
   rclcpp::ParameterEventHandler dparam_sub_;
   std::vector<ros2::ParamHandlePtr> dparam_handles_;
   ros2::ServiceServerPtr<tobas_dparam_msgs::srv::GetParams> get_dparam_ss_;
@@ -343,11 +341,7 @@ BaseNode::createWallTimer(std::chrono::duration<RepType, DurType> period, void (
 }
 
 template <typename Obj>
-void BaseNode::addDynamicBoolParam(
-  const std::string& param_name,
-  bool (Obj::*fp)(const bool&),
-  Obj* obj,
-  const bool& default_value)
+void BaseNode::addDynamicBoolParam(const std::string& param_name, void (Obj::*fp)(bool), Obj* obj, bool default_value)
 {
   if (has_parameter(param_name)) {
     TOBAS_ERROR("Parameter '", param_name, "' is already declared.");
@@ -365,15 +359,14 @@ void BaseNode::addDynamicBoolParam(
   const auto cb = [this, param_name, fp, obj](const rclcpp::Parameter& param)
   {
     const auto value = param.as_bool();
-    if ((obj->*fp)(value)) {
-      for (auto& bool_param : dparams_.bools) {
-        if (bool_param.name == param_name) {
-          bool_param.current_value = value;
-          break;
-        }
+    (obj->*fp)(value);
+    for (auto& bool_param : dparams_.bools) {
+      if (bool_param.name == param_name) {
+        bool_param.current_value = value;
+        break;
       }
-      TOBAS_INFO("Boolean parameter '", param_name, "' has been updated to ", value, ".");
     }
+    TOBAS_INFO("Boolean parameter '", param_name, "' has been updated to ", value, ".");
   };
   const auto cb_handle = dparam_sub_.add_parameter_callback(param_name, cb);
   dparam_handles_.push_back(cb_handle);
@@ -382,12 +375,12 @@ void BaseNode::addDynamicBoolParam(
 template <typename Obj>
 void BaseNode::addDynamicIntParam(
   const std::string& param_name,
-  bool (Obj::*fp)(const long&),
+  void (Obj::*fp)(long),
   Obj* obj,
-  const long& step,
-  const long& default_value,
-  const long& minimum_value,
-  const long& maximum_value,
+  long step,
+  long default_value,
+  long minimum_value,
+  long maximum_value,
   const std::string& prefix)
 {
   TOBAS_ASSERT(minimum_value <= default_value && default_value <= maximum_value);
@@ -414,15 +407,14 @@ void BaseNode::addDynamicIntParam(
   {
     const auto lsb = std::clamp(param.as_int(), minimum_value, maximum_value);
     const auto value = step * lsb;
-    if ((obj->*fp)(value)) {
-      for (auto& int_param : dparams_.ints) {
-        if (int_param.name == param_name) {
-          int_param.current_value = lsb;
-          break;
-        }
+    (obj->*fp)(value);
+    for (auto& int_param : dparams_.ints) {
+      if (int_param.name == param_name) {
+        int_param.current_value = lsb;
+        break;
       }
-      TOBAS_INFO("Integer parameter '", param_name, "' has been updated to ", value, prefix, ".");
     }
+    TOBAS_INFO("Integer parameter '", param_name, "' has been updated to ", value, prefix, ".");
   };
   const auto cb_handle = dparam_sub_.add_parameter_callback(param_name, cb);
   dparam_handles_.push_back(cb_handle);
@@ -431,12 +423,12 @@ void BaseNode::addDynamicIntParam(
 template <typename Obj>
 void BaseNode::addDynamicDoubleParam(
   const std::string& param_name,
-  bool (Obj::*fp)(const double&),
+  void (Obj::*fp)(double),
   Obj* obj,
-  const double& step,
-  const long& default_value,
-  const long& minimum_value,
-  const long& maximum_value,
+  double step,
+  long default_value,
+  long minimum_value,
+  long maximum_value,
   const std::string& prefix)
 {
   TOBAS_ASSERT(minimum_value <= default_value && default_value <= maximum_value);
@@ -463,15 +455,14 @@ void BaseNode::addDynamicDoubleParam(
   {
     const auto lsb = std::clamp(param.as_int(), minimum_value, maximum_value);
     const auto value = step * lsb;
-    if ((obj->*fp)(value)) {
-      for (auto& double_param : dparams_.doubles) {
-        if (double_param.name == param_name) {
-          double_param.current_value = lsb;
-          break;
-        }
+    (obj->*fp)(value);
+    for (auto& double_param : dparams_.doubles) {
+      if (double_param.name == param_name) {
+        double_param.current_value = lsb;
+        break;
       }
-      TOBAS_INFO("Double parameter '", param_name, "' has been updated to ", value, prefix, ".");
     }
+    TOBAS_INFO("Double parameter '", param_name, "' has been updated to ", value, prefix, ".");
   };
   const auto cb_handle = dparam_sub_.add_parameter_callback(param_name, cb);
   dparam_handles_.push_back(cb_handle);
@@ -480,7 +471,7 @@ void BaseNode::addDynamicDoubleParam(
 template <typename Obj>
 void BaseNode::addDynamicStringParam(
   const std::string& param_name,
-  bool (Obj::*fp)(const std::string&),
+  void (Obj::*fp)(const std::string&),
   Obj* obj,
   const std::string& default_value)
 {
@@ -500,15 +491,14 @@ void BaseNode::addDynamicStringParam(
   const auto cb = [this, param_name, fp, obj](const rclcpp::Parameter& param)
   {
     const auto& value = param.as_string();
-    if ((obj->*fp)(value)) {
-      for (auto& string_param : dparams_.strings) {
-        if (string_param.name == param_name) {
-          string_param.current_value = value;
-          break;
-        }
+    (obj->*fp)(value);
+    for (auto& string_param : dparams_.strings) {
+      if (string_param.name == param_name) {
+        string_param.current_value = value;
+        break;
       }
-      TOBAS_INFO("String parameter '", param_name, "' has been updated to '", value, "'.");
     }
+    TOBAS_INFO("String parameter '", param_name, "' has been updated to '", value, "'.");
   };
   const auto cb_handle = dparam_sub_.add_parameter_callback(param_name, cb);
   dparam_handles_.push_back(cb_handle);

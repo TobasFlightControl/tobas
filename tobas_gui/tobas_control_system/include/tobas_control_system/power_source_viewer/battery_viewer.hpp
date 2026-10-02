@@ -35,8 +35,8 @@ private:
   qt::ProgressBar* voltage_;
   qt::ProgressBar* current_;
 
-  void updateVoltage(const double& voltage);
-  void updateCurrent(const double& current);
+  void updateVoltage(double voltage);
+  void updateCurrent(double current);
 
 private Q_SLOTS:
   void batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery);

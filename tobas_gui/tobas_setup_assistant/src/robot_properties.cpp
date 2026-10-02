@@ -34,7 +34,7 @@ void RobotPropertiesWidget::updateInternalDataStructures()
   mass_->setText(QString::number(mass_holder_.getMass()) + " kg");
 }
 
-void RobotPropertiesWidget::setFrameType(const FrameType& type)
+void RobotPropertiesWidget::setFrameType(FrameType type)
 {
   const auto text = QString::fromStdString(textFromEnum(type));
   frame_type_->setText(text);

@@ -12,11 +12,13 @@
 #include <tobas_nonplanar_multi_controller/mixer_qp.hpp>
 #include <tobas_tools/mixer_i.hpp>
 
+#include "./mixer_solution.hpp"
+
 namespace tobas
 {
 namespace random_axis_tilt_multicopter
 {
-/* Solve tilt-rotor multicopter mixing with SQP (memo: 3-12). */
+/** Solve tilt-rotor multicopter mixing with SQP (memo: 3-12). */
 class SqpMixer : public MixerI
 {
   using self = SqpMixer;
@@ -25,9 +27,9 @@ class SqpMixer : public MixerI
 public:
   explicit SqpMixer(const Drone& drone, const kdl::Tree& tree);
 
-  std::expected<void, std::string> updateInternalDataStructures() override;
+  void updateInternalDataStructures() override;
 
-  std::expected<void, std::string> solve(
+  std::expected<MixerSolution, std::string> solve(
     const kdl::JntArray& cur_q,
     const kdl::Rotation& cur_rot,
     const kdl::Vector& cur_gyro_B,
@@ -36,12 +38,9 @@ public:
     const kdl::Vector& ext_force_W = kdl::Vector::Zero(),
     const kdl::Vector& ext_torque_B = kdl::Vector::Zero());
 
-  double getThrust(size_t idx) const;
-  double getTiltAngle(size_t idx) const;
-
-  bool setLinearWeight(double p);
-  bool setAngularWeight(double p);
-  bool setThrustWeight(double p);
+  void setLinearWeight(double p);
+  void setAngularWeight(double p);
+  void setThrustWeight(double p);
 
 private:
   struct Config
@@ -57,10 +56,10 @@ private:
   nonplanar_multicopter::QpMixer np_mixer_;
 
   nlp::SQP sqp_;
-  Eigen::VectorXd x_opt_;
+  const kdl::FrameMap* frames_ = nullptr;  ///< Owned by `fk_solver_`; reused by the SQP callbacks.
 
-  Eigen::Diagonal6d Q_;  // EoM weights.
-  Eigen::DiagonalXd R_;  // Thrust weights.
+  Eigen::Diagonal6d Q_;  ///< EoM weights.
+  Eigen::DiagonalXd R_;  ///< Thrust weights.
   Eigen::Matrix6Xd B_;
   Eigen::Vector6d d_;
   Eigen::MatrixXd N_;
@@ -73,7 +72,7 @@ private:
   Eigen::MatrixXd df_dx_2_;
 
   void resetTensors();
-  std::expected<void, std::string> initializeSQP();
+  void initializeSQP();
 
   // Functions passed to SQP.
   double f(const Eigen::VectorXd& x);

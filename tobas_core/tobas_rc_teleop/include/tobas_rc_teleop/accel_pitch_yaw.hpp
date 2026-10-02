@@ -34,11 +34,11 @@ private:
   traj::VelocityLimitedOnlineTrajectoryGenerator ax_filt_, ay_filt_, pitch_filt_;
   double tar_yaw_;
 
-  // ROS parameters.
-  double max_hor_acc_;   // [m/s]
-  double max_ver_acc_;   // [m/s]
-  double max_pitch_;     // [rad]
-  double max_yaw_rate_;  // [rad/s]
+  // ROS parameters
+  double max_hor_acc_;   ///< [m/s]
+  double max_ver_acc_;   ///< [m/s]
+  double max_pitch_;     ///< [rad]
+  double max_yaw_rate_;  ///< [rad/s]
   double hor_acc_expo_;
   double ver_acc_expo_;
   double pitch_expo_;
@@ -47,16 +47,16 @@ private:
   // Publisher
   ros2::PublisherPtr<tobas_command_msgs::AccelPitchYaw> cmd_pub_;
 
-  bool maxHorizontalAccelCb(const double& p);
-  bool maxHorizontalJerkCb(const double& p);
-  bool maxVerticalAccelCb(const double& p);
-  bool maxPitchCb(const double& p);
-  bool maxPitchRateCb(const double& p);
-  bool maxYawRateCb(const double& p);
-  bool horizontalAccelExpoCb(const double& p);
-  bool verticalAccelExpoCb(const double& p);
-  bool pitchExpoCb(const double& p);
-  bool yawExpoCb(const double& p);
+  void maxHorizontalAccelCb(double p);
+  void maxHorizontalJerkCb(double p);
+  void maxVerticalAccelCb(double p);
+  void maxPitchCb(double p);
+  void maxPitchRateCb(double p);
+  void maxYawRateCb(double p);
+  void horizontalAccelExpoCb(double p);
+  void verticalAccelExpoCb(double p);
+  void pitchExpoCb(double p);
+  void yawExpoCb(double p);
 };
 }  // namespace rc
 }  // namespace tobas

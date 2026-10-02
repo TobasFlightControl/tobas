@@ -14,14 +14,12 @@ namespace kdl
 class Accel;
 using AccelMap = std::map<std::string, Accel>;
 
-/**
- * @brief represents both linear and angular acceleration.
- */
+/** represents both linear and angular acceleration. */
 class Accel
 {
 public:
-  Vector linear;   // [m/s^2]
-  Vector angular;  // [rad/s^2]
+  Vector linear;   ///< [m/s^2]
+  Vector angular;  ///< [rad/s^2]
 
   inline explicit Accel();
   inline explicit Accel(const Vector& linear, const Vector& angular);

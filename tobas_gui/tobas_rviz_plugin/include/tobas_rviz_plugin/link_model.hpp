@@ -15,12 +15,10 @@ namespace rviz
 {
 class JointModel;
 
-/* A link in the robot kinematic tree. */
+/** A link in the robot kinematic tree. */
 class LinkModel
 {
 public:
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-
   using SharedPtr = std::shared_ptr<LinkModel>;
   using ConstSharedPtr = std::shared_ptr<const LinkModel>;
 
@@ -47,7 +45,7 @@ private:
   const std::string name_;
   const size_t link_index_;
 
-  /* Parent references are non-owning to avoid cycles with the owning child relationships. */
+  /** Parent references are non-owning to avoid cycles with the owning child relationships. */
   std::weak_ptr<const JointModel> parent_joint_model_;
   std::weak_ptr<const LinkModel> parent_link_model_;
 

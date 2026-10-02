@@ -12,7 +12,7 @@ namespace tobas
 {
 namespace gazebo
 {
-/* Receive exactly one Gazebo message. */
+/** Receive exactly one Gazebo message. */
 template <typename MsgT, typename RepT = int64_t, typename RatioT = std::milli>
 bool waitForMessage(
   MsgT& _msg_out,

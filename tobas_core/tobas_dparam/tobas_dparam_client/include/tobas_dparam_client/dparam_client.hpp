@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include <tobas_path_tools/join.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
 
 #include <tobas_dparam_msgs/srv/set_bool.hpp>
@@ -27,9 +26,9 @@ public:
 
   explicit DynamicParamClient(rclcpp::Node::SharedPtr node, const std::string& node_name, const std::string& ns = "");
 
-  Error setBool(const std::string& param_name, const bool& value);
-  Error setInt(const std::string& param_name, const long& value);
-  Error setDouble(const std::string& param_name, const long& value);
+  Error setBool(const std::string& param_name, bool value);
+  Error setInt(const std::string& param_name, long value);
+  Error setDouble(const std::string& param_name, long value);
   Error setString(const std::string& param_name, const std::string& value);
 
   Error errorCode() const;

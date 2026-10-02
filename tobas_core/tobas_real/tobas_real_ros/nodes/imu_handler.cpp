@@ -42,7 +42,7 @@ private:
   } stage_ = kMeasureGyroBias;
 
   // Config
-  kdl::Vector acc_bias_;  // [m/s^2]
+  kdl::Vector acc_bias_;  ///< [m/s^2]
 
   // Gyro bias-related data
   kdl::Vector gyro_bias_;
@@ -78,8 +78,8 @@ ImuHandlerNode::ImuHandlerNode(const rclcpp::NodeOptions& options)
   gyro_lpf_.setCutoffFrequency(kGyroLpfCutoff);
 
   const auto cfg_dir = linux::isSuperUser() ? fs::path(kConfigDirRoot) : ros2::expandUser(kConfigDirHome);
-  if (!pt_.initialize((cfg_dir / handler::imu::kConfigFileName))) {
-    TOBAS_ERROR("Failed to initialize property tree. This node will not work.");
+  if (const auto result = pt_.initialize((cfg_dir / handler::imu::kConfigFileName)); !result) {
+    TOBAS_ERROR("Failed to initialize property tree: ", result.error(), ". This node will not work.");
     return;
   }
 
@@ -219,9 +219,9 @@ void ImuHandlerNode::setParamsCb(const SetParams::Request::ConstSharedPtr& req, 
   pt_.set(section_, handler::imu::kOffsetXKey, req->offset_x);
   pt_.set(section_, handler::imu::kOffsetYKey, req->offset_y);
   pt_.set(section_, handler::imu::kOffsetZKey, req->offset_z);
-  if (!pt_.save()) {
+  if (const auto result = pt_.save(); !result) {
     res->success = false;
-    res->message = "Failed to save parameters.";
+    res->message = "Failed to save parameters: " + result.error();
     return;
   }
 

@@ -53,8 +53,8 @@ bool ADS1220::initialize(const char* spi_device)
 bool ADS1220::readVoltage(double& dst)
 {
   // Read data.
-  // cf. 8.5.4 Reading Data (p.37)
-  // cf. https://www.denshi.club/pc/python/circuitpython/circuitpython-10-step2-6-adc1220.html
+  // Ref: 8.5.4 Reading Data (p.37)
+  // Ref: https://www.denshi.club/pc/python/circuitpython/circuitpython-10-step2-6-adc1220.html
   tx_buf_[0] = RDATA;
   if (!spi_.transfer(3)) {
     return false;
@@ -62,7 +62,7 @@ bool ADS1220::readVoltage(double& dst)
   int lsb = (rx_buf_[0] << 16) | (rx_buf_[1] << 8) | rx_buf_[2];
 
   // Decode a 24-bit signed integer.
-  // cf. 8.5.2 Data Format (p.35)
+  // Ref: 8.5.2 Data Format (p.35)
   if ((lsb >> 23) & 1) {
     lsb -= (1 << 24);
   }
@@ -80,7 +80,7 @@ bool ADS1220::readCurrent(double&)
 {
   // TODO: When `DRDY` goes LOW, send the multiplexer-switching command
   // and read the current data before the switch takes effect.
-  // See section 8.5.5, "Sending Commands" (p. 38).
+  // Ref: section 8.5.5, "Sending Commands" (p. 38).
 
   std::cerr << "Not implemented." << std::endl;
   return false;
@@ -108,7 +108,7 @@ bool ADS1220::powerDown()
   return sendStandAloneCommand(POWERDOWN);
 }
 
-bool ADS1220::sendStandAloneCommand(const uint8_t& cmd)
+bool ADS1220::sendStandAloneCommand(uint8_t cmd)
 {
   tx_buf_[0] = cmd;
   if (!spi_.transfer(1)) {
@@ -118,7 +118,7 @@ bool ADS1220::sendStandAloneCommand(const uint8_t& cmd)
   return true;
 }
 
-bool ADS1220::configure(const uint8_t& rr, const uint8_t& tar_cfg)
+bool ADS1220::configure(uint8_t rr, uint8_t tar_cfg)
 {
   constexpr uint8_t nn = 0b00;  // 1 [byte] - 1 = 0
   const uint8_t rrnn = rr | nn;

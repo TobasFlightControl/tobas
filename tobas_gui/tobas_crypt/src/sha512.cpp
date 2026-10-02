@@ -7,10 +7,10 @@
 #include <unistd.h>
 
 #include <cstdint>
-#include <iostream>
+#include <format>
 #include <vector>
 
-#include <tobas_linux/error.hpp>
+#include <tobas_std_tools/error.hpp>
 
 namespace tobas
 {
@@ -20,23 +20,25 @@ Sha512::Sha512(int rounds) : rounds_(rounds)
 {
 }
 
-std::string Sha512::createSalt() const
+std::expected<std::string, std::string> Sha512::createSalt() const
 {
   constexpr char kUrandomPath[] = "/dev/urandom";
   const auto fd = ::open(kUrandomPath, O_RDONLY);
   if (fd < 0) {
-    std::cerr << "Failed to open " << kUrandomPath << ": " << linux::strError() << std::endl;
-    return {};
+    return std::unexpected(std::format("Failed to open {}: {}", kUrandomPath, st::strError()));
   }
 
   constexpr size_t kLength = 16;
   std::vector<uint8_t> buf(kLength);
   const auto n = ::read(fd, buf.data(), buf.size());
+  const auto read_errno = errno;
   ::close(fd);
 
   if (n != static_cast<ssize_t>(buf.size())) {
-    std::cerr << "Failed to read urandom." << std::endl;
-    return {};
+    if (n < 0) {
+      return std::unexpected("Failed to read urandom: " + st::strError(read_errno));
+    }
+    return std::unexpected(std::format("Failed to read urandom: expected {} bytes, read {}.", buf.size(), n));
   }
 
   constexpr char tbl[] = "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";

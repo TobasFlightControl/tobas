@@ -17,19 +17,19 @@ public:
     const kdl::Vector& cur_gyro,
     const kdl::Rotation& tar_rot,
     const kdl::Vector& tar_gyro,
-    const double& dt);
+    double dt);
 
-  bool setNaturalFreq(int idx, double value);
-  bool setDampingRatio(int idx, double value);
-  bool setIntegralGain(int idx, double value);
+  void setNaturalFreq(int idx, double value);
+  void setDampingRatio(int idx, double value);
+  void setIntegralGain(int idx, double value);
 
   inline const kdl::Vector& getIntegralError() const;
   inline void resetIntegralError();
 
 private:
   // Config
-  kdl::Vector natural_freq_ = { 10.0, 10.0, 10.0 };  // [rad/s]
-  kdl::Vector damp_ratio_ = { 1.0, 1.0, 1.0 };       // [-]
+  kdl::Vector natural_freq_ = { 10.0, 10.0, 10.0 };  ///< [rad/s]
+  kdl::Vector damp_ratio_ = { 1.0, 1.0, 1.0 };       ///< [-]
 
   // Gain
   kdl::Vector kp_;

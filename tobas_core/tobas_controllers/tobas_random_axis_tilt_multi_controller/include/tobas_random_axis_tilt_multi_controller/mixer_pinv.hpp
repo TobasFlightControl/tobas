@@ -8,11 +8,13 @@
 #include <tobas_kdl/tree_inertia_solver.hpp>
 #include <tobas_tools/mixer_i.hpp>
 
+#include "./mixer_solution.hpp"
+
 namespace tobas
 {
 namespace random_axis_tilt_multicopter
 {
-/* Solve tilt-rotor multicopter mixing by variable transformation (memo: 3-16). */
+/** Solve tilt-rotor multicopter mixing by variable transformation (memo: 3-16). */
 class PinvMixer : public MixerI
 {
   using super = MixerI;
@@ -20,9 +22,9 @@ class PinvMixer : public MixerI
 public:
   explicit PinvMixer(const Drone& drone, const kdl::Tree& tree);
 
-  std::expected<void, std::string> updateInternalDataStructures() override;
+  void updateInternalDataStructures() override;
 
-  std::expected<void, std::string> solve(
+  std::expected<MixerSolution, std::string> solve(
     const kdl::JntArray& cur_q,
     const kdl::Rotation& cur_rot,
     const kdl::Vector& cur_gyro_B,
@@ -31,17 +33,14 @@ public:
     const kdl::Vector& ext_force_W = kdl::Vector::Zero(),
     const kdl::Vector& ext_torque_B = kdl::Vector::Zero());
 
-  double getThrust(size_t idx) const;
-  double getTiltAngle(size_t idx) const;
-
-  bool setTiltAxisSingularDeclinationLB(double lb_rad);
-  bool setTiltAxisSingularDeclinationUB(double ub_rad);
+  void setTiltAxisSingularDeclinationLB(double lb_rad);
+  void setTiltAxisSingularDeclinationUB(double ub_rad);
 
 private:
   struct Config
   {
-    double singular_declination_lb = 0.0;  // [rad]
-    double singular_declination_ub = 0.0;  // [rad]
+    double singular_declination_lb = 0.0;  ///< [rad]
+    double singular_declination_ub = 0.0;  ///< [rad]
   } cfg_;
 
   kdl::TreeFkSolverPosAll fk_solver_;
@@ -62,7 +61,6 @@ private:
 
   Eigen::Matrix6Xd E_;
   Eigen::Vector6d f_;
-  Eigen::VectorXd x_;
 };
 }  // namespace random_axis_tilt_multicopter
 }  // namespace tobas

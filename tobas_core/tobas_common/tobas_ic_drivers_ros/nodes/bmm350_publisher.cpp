@@ -32,7 +32,7 @@ private:
   rclcpp::TimerBase::SharedPtr timer_;
   rclcpp::Publisher<geometry_msgs::msg::PointStamped>::SharedPtr publisher_;
   driver::BMM350 mag_;
-  float mx_, my_, mz_;  // [uT]
+  float mx_, my_, mz_;  ///< [uT]
   bool initialized_ = false;
 };
 
@@ -68,10 +68,9 @@ bool Bmm350PublisherNode::initialize()
     RCLCPP_WARN(get_logger(), "%s", odr.error());
     return false;
   }
-  if (!mag_.configure(*odr, *avg)) {
-    RCLCPP_WARN(get_logger(), "Failed to stage BMM350 configuration.");
-    return false;
-  }
+
+  mag_.configure(*odr, *avg);
+
   if (!mag_.initialize()) {
     RCLCPP_WARN(get_logger(), "Failed to initialize magnetometer.");
     return false;

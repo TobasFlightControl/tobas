@@ -53,7 +53,7 @@ public:
   ~BaseNode();
 
 protected:
-  /* Constraints on SDF parameters. */
+  /** Constraints on SDF parameters. */
   enum SdfConstraint
   {
     kNone,
@@ -135,17 +135,16 @@ protected:
   inline void fatalThrottle(const char* file, int line, double period, const Args&... args);
 
   template <typename T>
-  void checkConstraint(const std::string& name, const T& param, const SdfConstraint& constr) const;
+  void checkConstraint(const std::string& name, const T& param, SdfConstraint constr) const;
 
   template <typename T>
   T getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name) const;
   template <typename T>
   T getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, const T& dflt) const;
   template <typename T>
-  T getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, const SdfConstraint& constr) const;
+  T getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, SdfConstraint constr) const;
   template <typename T>
-  T getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, const T& dflt, const SdfConstraint& constr)
-    const;
+  T getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, const T& dflt, SdfConstraint constr) const;
   template <typename T>
     requires std::same_as<T, std::vector<typename T::value_type, typename T::allocator_type>>
   T getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name) const;
@@ -338,7 +337,7 @@ inline void BaseNode::fatalThrottle(const char* file, int line, double period, c
 }
 
 template <typename T>
-void BaseNode::checkConstraint(const std::string& name, const T& param, const SdfConstraint& constr) const
+void BaseNode::checkConstraint(const std::string& name, const T& param, SdfConstraint constr) const
 {
   switch (constr) {
     case kNone:
@@ -388,7 +387,7 @@ T BaseNode::getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name
 }
 
 template <typename T>
-T BaseNode::getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, const SdfConstraint& constr) const
+T BaseNode::getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, SdfConstraint constr) const
 {
   const auto param = getSdfParam<T>(sdf, name);
   checkConstraint(name, param, constr);
@@ -396,11 +395,8 @@ T BaseNode::getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name
 }
 
 template <typename T>
-T BaseNode::getSdfParam(
-  const sdf::ElementConstPtr& sdf,
-  const std::string& name,
-  const T& dflt,
-  const SdfConstraint& constr) const
+T BaseNode::getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, const T& dflt, SdfConstraint constr)
+  const
 {
   const auto param = getSdfParam<T>(sdf, name, dflt);
   checkConstraint(name, param, constr);

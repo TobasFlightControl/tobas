@@ -7,15 +7,16 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <map>
+#include <optional>
 
 namespace tobas
 {
 namespace linux
 {
 /**
- * @brief UART driver.
- * cf. [pySerial](https://github.com/pyserial/pyserial/tree/7aeea35429d15f3eefed10bbb659674638903e3a)
+ * UART driver.
+ *
+ * @see [pySerial](https://github.com/pyserial/pyserial/tree/7aeea35429d15f3eefed10bbb659674638903e3a)
  */
 class UARTdev
 {
@@ -41,18 +42,16 @@ public:
   bool disableHungupClose();
   bool setTimeout(cc_t msec_100);
 
-  /* Set the minimum number of characters that receive() waits for. */
+  /** Set the minimum number of characters that `receive()` waits for. */
   bool setMinimumChars(uint8_t num);
 
   bool send(const uint8_t* data, size_t length);
   bool receive(uint8_t* data, size_t length);
 
-  /* Receive 1 byte. */
-  uint8_t receiveByte();
+  /** Receive 1 byte. */
+  std::optional<uint8_t> receiveByte();
 
 private:
-  const std::map<uint32_t, uint32_t> baudrate_constants_;
-
   bool block_mode_ = false;
   int uart_fd_ = -1;
   struct termios options_;

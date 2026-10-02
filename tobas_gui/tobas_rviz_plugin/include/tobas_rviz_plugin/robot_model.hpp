@@ -10,18 +10,14 @@
 
 #include <urdf/model.h>
 
-#include "./joint_model/fixed_joint_model.hpp"
-#include "./joint_model/floating_joint_model.hpp"
-#include "./joint_model/planar_joint_model.hpp"
-#include "./joint_model/prismatic_joint_model.hpp"
-#include "./joint_model/revolute_joint_model.hpp"
+#include "./joint_model/joint_model.hpp"
 #include "./link_model.hpp"
 
 namespace tobas
 {
 namespace rviz
 {
-/* Kinematic information required to display a URDF robot. */
+/** Kinematic information required to display a URDF robot. */
 class RobotModel
 {
 public:

@@ -50,13 +50,13 @@ public:
   void setCommandInterface(int row, JointCommandInterface value);
   void setHomePosition(int row, double value);  // [rad]
 
-  /* Number of registered joints. */
+  /** Number of registered joints. */
   int numJoints() const;
 
-  /* Return the table row for the link name, or -1 if it does not exist. */
+  /** Return the table row for the link name, or -1 if it does not exist. */
   int findLink(const QString& link_name) const;
 
-  /* Return the table row for the joint name, or -1 if it does not exist. */
+  /** Return the table row for the joint name, or -1 if it does not exist. */
   int findJoint(const QString& joint_name) const;
 
 private:

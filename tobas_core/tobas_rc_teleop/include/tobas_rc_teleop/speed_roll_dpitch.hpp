@@ -28,11 +28,11 @@ public:
   void update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom, bool landed) override;
 
 private:
-  // ROS parameters.
-  double min_speed_ = 0.0;                                 // [m/s]
-  double max_speed_ = std::numeric_limits<double>::max();  // [m/s]
-  double max_roll_;                                        // [rad]
-  double max_dpitch_;                                      // [rad]
+  // ROS parameters
+  double min_speed_ = 0.0;                                 ///< [m/s]
+  double max_speed_ = std::numeric_limits<double>::max();  ///< [m/s]
+  double max_roll_;                                        ///< [rad]
+  double max_dpitch_;                                      ///< [rad]
   double speed_expo_;
   double roll_expo_;
   double pitch_expo_;
@@ -40,13 +40,13 @@ private:
   // PubSub
   ros2::PublisherPtr<tobas_command_msgs::msg::SpeedRollDeltaPitch> cmd_pub_;
 
-  bool minSpeedCb(const double& p);
-  bool maxSpeedCb(const double& p);
-  bool maxRollCb(const double& p);
-  bool maxDeltaPitchCb(const double& p);
-  bool speedExpoCb(const double& p);
-  bool rollExpoCb(const double& p);
-  bool pitchExpoCb(const double& p);
+  void minSpeedCb(double p);
+  void maxSpeedCb(double p);
+  void maxRollCb(double p);
+  void maxDeltaPitchCb(double p);
+  void speedExpoCb(double p);
+  void rollExpoCb(double p);
+  void pitchExpoCb(double p);
 };
 }  // namespace rc
 }  // namespace tobas

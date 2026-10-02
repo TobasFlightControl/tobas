@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-/**
- * Solve: x^2 + 2x - 1 = 0
- */
+/** Solve: x^2 + 2x - 1 = 0 */
 
 #include <iostream>
 

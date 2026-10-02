@@ -5,6 +5,7 @@
 
 #include <QThread>
 
+#include <tobas_colcon_cpp/core.hpp>
 #include <tobas_constants/path.hpp>
 #include <tobas_qt_tools/path.hpp>
 #include <tobas_qt_tools/thread.hpp>
@@ -33,8 +34,14 @@ public:
 
   void run() override
   {
-    if (const auto result = builder_.build(proj_path_); !result) {
-      Q_EMIT finished(false, result.error());
+    const auto meta_pkg_path = ProjectPaths(proj_path_).metaPkgPath();
+    const auto ws_path = qt::expandUser(kColconWSPathHome);
+
+    // Use a merged install so the workspace install directory can be added directly to the path.
+    // Clear the CMake cache to avoid reusing another package with the same name from a previous build.
+    const colcon::BuildOptions options{ .merge_install = true, .cmake_clean_cache = true };
+    if (const auto result = colcon::build(meta_pkg_path.toStdString(), ws_path.toStdString(), options); !result) {
+      Q_EMIT finished(false, QString::fromStdString(result.error()));
       return;
     }
 
@@ -43,33 +50,8 @@ public:
 
 private:
   const QString proj_path_;
-
-  LocalProjectBuilder builder_;
 };
 }  // namespace
-
-LocalProjectBuilder::LocalProjectBuilder()
-{
-  // `--merge-install` is required to add the workspace install directory directly to the path.
-  colcon_.setMergeInstall(true);
-
-  // If a cache for another package with the same name as the target package remains under `/build`,
-  // `colcon` reuses that package regardless of the current directory.
-  // Therefore, clear the cache to ensure only the target package is built.
-  colcon_.setCmakeCleanCache(true);
-}
-
-std::expected<void, QString> LocalProjectBuilder::build(const QString& proj_path)
-{
-  const auto meta_pkg_path = ProjectPaths(proj_path).metaPkgPath();
-  const auto ws_path = qt::expandUser(kColconWSPathHome);
-
-  if (const auto result = colcon_.build(meta_pkg_path.toStdString(), ws_path.toStdString()); !result) {
-    return std::unexpected(QString::fromStdString(result.error()));
-  }
-
-  return {};
-}
 
 std::expected<void, QString> buildLocalProject(const QString& proj_path)
 {

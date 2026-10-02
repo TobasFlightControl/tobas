@@ -67,19 +67,19 @@ bool isObservable(const Eigen::MatrixXd& A, const Eigen::MatrixXd& C)
   return rank == x_size;
 }
 
-LinearEquation matIneqFromRange(const Eigen::VectorXd& lb, const Eigen::VectorXd& ub, const double& inf)
+LinearEquation matIneqFromRange(const Eigen::VectorXd& lb, const Eigen::VectorXd& ub, double inf)
 {
   LinearEquation res;
   quadprog::matIneqFromRange(lb, ub, res.A, res.b, inf);
   return res;
 }
 
-double firstOrderPos(const double& x0, const double& xd, const double& tau, const double& t)
+double firstOrderPos(double x0, double xd, double tau, double t)
 {
   return xd - std::exp(-t / (tau + kEps)) * (xd - x0);
 }
 
-double firstOrderVel(const double& x0, const double& v0, const double& vd, const double& tau, const double& t)
+double firstOrderVel(double x0, double v0, double vd, double tau, double t)
 {
   return x0 + vd * t - tau * (1 - std::exp(-t / (tau + kEps))) * (vd - v0);
 }

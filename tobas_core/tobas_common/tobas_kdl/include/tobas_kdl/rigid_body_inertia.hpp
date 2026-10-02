@@ -15,10 +15,10 @@ namespace tobas
 namespace kdl
 {
 /**
- *	@brief 6D Inertia of a rigid body.
+ * 6D Inertia of a rigid body.
  *
- *	The inertia is defined in a certain reference point and a certain reference base.
- *	The reference point does not have to coincide with the origin of the reference frame.
+ * The inertia is defined in a certain reference point and a certain reference base.
+ * The reference point does not have to coincide with the origin of the reference frame.
  */
 class RigidBodyInertia
 {
@@ -32,25 +32,25 @@ public:
     const Vector& oc = Vector::Zero(),
     const RotationalInertia& Ic = RotationalInertia::Zero());
 
-  /* Creates an inertia with zero mass, and zero RotationalInertia */
+  /** Creates an inertia with zero mass, and zero RotationalInertia */
   static inline RigidBodyInertia Zero();
 
-  /* Verify that the rotation matrix belongs to SO(3). */
+  /** Verify that the rotation matrix belongs to SO(3). */
   std::expected<void, std::string> validate() const;
 
-  /* Get the mass of the rigid body. */
+  /** Get the mass of the rigid body. */
   inline const double& getMass() const;
 
-  /* Get the spatial momentum of the rigid body. */
+  /** Get the spatial momentum of the rigid body. */
   inline const Vector& getSpatialMomentum() const;
 
-  /* Get the rotational inertia expressed in the reference frame (not the cog). */
+  /** Get the rotational inertia expressed in the reference frame (not the cog). */
   inline const RotationalInertia& getRotationalInertia() const;
 
-  /* Get the center of gravity of the rigid body. */
+  /** Get the center of gravity of the rigid body. */
   inline Vector getCOG() const;
 
-  /* Get the rotational inertia expressed in the center of gravity. */
+  /** Get the rotational inertia expressed in the center of gravity. */
   inline RotationalInertia getRotationalInertiaCoG() const;
 
   /**
@@ -73,9 +73,9 @@ public:
   friend std::ostream& operator<<(std::ostream& os, const RigidBodyInertia& arg);
 
 private:
-  double m_;             // [kg]
-  Vector h_;             // [kg m]
-  RotationalInertia I_;  // [kg m^2]
+  double m_;             ///< [kg]
+  Vector h_;             ///< [kg m]
+  RotationalInertia I_;  ///< [kg m^2]
 
   inline explicit RigidBodyInertia(double m, const Vector& h, const RotationalInertia& I, bool mhi);
 };

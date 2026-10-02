@@ -3,6 +3,7 @@
 
 #include "tobas_kdl/tree_taskspace_pid.hpp"
 
+#include <cassert>
 #include <ranges>
 
 namespace tobas
@@ -11,30 +12,29 @@ namespace kdl
 {
 namespace
 {
-constexpr double kDefaultStiffness = 25.0;
-constexpr double kDefaultDamping = 10.0;
+
 }  // namespace
 
 TreeTaskSpacePID::TreeTaskSpacePID(const Tree& tree, const Vector& grav)
-  : super(tree)
-  , fk_(tree)
-  , rac_(tree)
-  , rne_(tree, grav)
-  , kp_(Vector::Constant(kDefaultStiffness), Vector::Constant(kDefaultStiffness))
-  , kd_(Vector::Constant(kDefaultDamping), Vector::Constant(kDefaultDamping))
+  : super(tree), fk_(tree), rac_(tree), rne_(tree, grav)
 {
+  constexpr double kDefaultStiffness = 25.0;
+  setLinearStiffness(kDefaultStiffness);
+  setAngularStiffness(kDefaultStiffness);
+
+  constexpr double kDefaultDamping = 10.0;
+  setLinearDamping(kDefaultDamping);
+  setAngularDamping(kDefaultDamping);
 }
 
 void TreeTaskSpacePID::updateInternalDataStructures()
 {
-  super::updateInternalDataStructures();
-
   fk_.updateInternalDataStructures();
   rac_.updateInternalDataStructures();
   rne_.updateInternalDataStructures();
 }
 
-int TreeTaskSpacePID::cartToJnt(
+std::expected<JntArray, std::string> TreeTaskSpacePID::cartToJnt(
   const JntArray& cur_q,
   const JntArray& cur_qd,
   const FrameMap& tar_p,
@@ -42,31 +42,22 @@ int TreeTaskSpacePID::cartToJnt(
   const AccelMap& a_ff,
   const WrenchMap& f_ext)
 {
-  if (!isUpToDate()) {
-    return setDefaultError(kNotUpToDate);
-  }
-  if (cur_q.rows() != nj_ || cur_qd.rows() != nj_) {
-    setDefaultError(kSizeMismatch);
-  }
-  if (tar_p.size() != tar_v.size() || tar_p.size() != a_ff.size()) {
-    return setDefaultError(kSizeMismatch);
-  }
+  assert(cur_q.size() == tree_.getNrOfJoints());
+  assert(cur_qd.size() == tree_.getNrOfJoints());
+  assert(tar_p.size() == tar_v.size());
+  assert(tar_p.size() == a_ff.size());
 
   // Create target acceleration map.
   AccelMap tar_a;
   for (const auto& [tar_pi, tar_vi, ai_ff] : std::views::zip(tar_p, tar_v, a_ff)) {
     // Check if all keys match.
     const auto& seg_name = tar_pi.first;
-    if (tar_vi.first != seg_name || ai_ff.first != seg_name) {
-      error_msg_ = "The keys of input maps do not match.";
-      return (error_code_ = kOutputRange);
-    }
+    assert(tar_vi.first == seg_name);
+    assert(ai_ff.first == seg_name);
 
     // Compute current frame and twist.
-    if (fk_.jntToCart(cur_q, cur_qd, seg_name) < 0) {
-      return copyError(fk_);
-    }
-    const auto& cur_pv = fk_.getFrameVel();
+    const auto fk_result = fk_.jntToCart(cur_q, cur_qd, seg_name);
+    const auto& cur_pv = fk_result;
     const auto cur_p = cur_pv.getFrame();
     const auto cur_v = cur_pv.getTwist();
 
@@ -76,96 +67,61 @@ int TreeTaskSpacePID::cartToJnt(
   }
 
   // Compute target joint accelerations.
-  if (rac_.cartToJnt(cur_q, cur_qd, tar_a) < 0) {
-    return copyError(rac_);
+  const auto tar_qdd = rac_.cartToJnt(cur_q, cur_qd, tar_a);
+  if (!tar_qdd) {
+    return std::unexpected("Failed to solve RAC: " + tar_qdd.error());
   }
 
   // Compute target joint efforts.
-  if (rne_.cartToJnt(cur_q, cur_qd, rac_.getAccelerations(), f_ext) < 0) {
-    return copyError(rne_);
-  }
-
-  return setDefaultError(kNoError);
+  return rne_.cartToJnt(cur_q, cur_qd, tar_qdd.value(), f_ext);
 }
 
-bool TreeTaskSpacePID::setLinearStiffness(const Vector& kp)
+void TreeTaskSpacePID::setLinearStiffness(const Vector& kp)
 {
-  if (kp.x() < 0 || kp.y() < 0 || kp.z() < 0) {
-    return false;
-  }
-
+  assert(kp.x() >= 0.0 && kp.y() >= 0.0 && kp.z() >= 0.0);
   kp_.linear = kp;
-  return true;
 }
 
-bool TreeTaskSpacePID::setAngularStiffness(const Vector& kp)
+void TreeTaskSpacePID::setAngularStiffness(const Vector& kp)
 {
-  if (kp.x() < 0 || kp.y() < 0 || kp.z() < 0) {
-    return false;
-  }
-
+  assert(kp.x() >= 0.0 && kp.y() >= 0.0 && kp.z() >= 0.0);
   kp_.angular = kp;
-  return true;
 }
 
-bool TreeTaskSpacePID::setLinearDamping(const Vector& kd)
+void TreeTaskSpacePID::setLinearDamping(const Vector& kd)
 {
-  if (kd.x() < 0 || kd.y() < 0 || kd.z() < 0) {
-    return false;
-  }
-
+  assert(kd.x() >= 0.0 && kd.y() >= 0.0 && kd.z() >= 0.0);
   kp_.linear = kd;
-  return true;
 }
 
-bool TreeTaskSpacePID::setAngularDamping(const Vector& kd)
+void TreeTaskSpacePID::setAngularDamping(const Vector& kd)
 {
-  if (kd.x() < 0 || kd.y() < 0 || kd.z() < 0) {
-    return false;
-  }
-
+  assert(kd.x() >= 0.0 && kd.y() >= 0.0 && kd.z() >= 0.0);
   kp_.angular = kd;
-  return true;
 }
 
-bool TreeTaskSpacePID::setLinearStiffness(const double& kp)
+void TreeTaskSpacePID::setLinearStiffness(double kp)
 {
-  if (kp < 0) {
-    return false;
-  }
-
+  assert(kp >= 0.0);
   kp_.linear.fill(kp);
-  return true;
 }
 
-bool TreeTaskSpacePID::setAngularStiffness(const double& kp)
+void TreeTaskSpacePID::setAngularStiffness(double kp)
 {
-  if (kp < 0) {
-    return false;
-  }
-
+  assert(kp >= 0.0);
   kp_.angular.fill(kp);
-  return true;
 }
 
-bool TreeTaskSpacePID::setLinearDamping(const double& kd)
+void TreeTaskSpacePID::setLinearDamping(double kd)
 {
-  if (kd < 0) {
-    return false;
-  }
-
+  assert(kd >= 0.0);
   kd_.linear.fill(kd);
-  return true;
 }
 
-bool TreeTaskSpacePID::setAngularDamping(const double& kd)
+void TreeTaskSpacePID::setAngularDamping(double kd)
 {
-  if (kd < 0) {
-    return false;
-  }
-
+  assert(kd >= 0.0);
   kd_.angular.fill(kd);
-  return true;
 }
 }  // namespace kdl
 }  // namespace tobas

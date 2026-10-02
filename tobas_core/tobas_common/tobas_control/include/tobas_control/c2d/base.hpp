@@ -9,13 +9,11 @@ namespace tobas
 {
 namespace ctrl
 {
-/**
- * @brief Base class for converting continuous-time state equations to discrete-time state equations.
- */
+/** Base class for converting continuous-time state equations to discrete-time state equations. */
 class BaseC2D
 {
 public:
-  virtual LinearDynamics convert(const LinearDynamics& cont, const double& dt) = 0;
+  virtual LinearDynamics convert(const LinearDynamics& cont, double dt) = 0;
 };
 }  // namespace ctrl
 }  // namespace tobas

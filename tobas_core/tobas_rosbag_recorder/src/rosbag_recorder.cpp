@@ -3,6 +3,11 @@
 
 #include "./rosbag_recorder.hpp"
 
+#include <tobas_constants/path.hpp>
+#include <tobas_linux/core.hpp>
+#include <tobas_path_tools/core.hpp>
+#include <tobas_ros2_tools/util.hpp>
+
 using namespace std::chrono_literals;
 
 namespace tobas
@@ -60,11 +65,15 @@ void RosbagRecorderNode::publishRosbagState()
 
   if (recording_) {
     const auto file_size = path::computeDirectorySize(file_path_);
+    if (!file_size) {
+      TOBAS_ERROR(file_size.error());
+      return;
+    }
     const auto available_size = getDiskAvailableSize();
 
     rosbag_state->file_path = file_path_;
     rosbag_state->duration = cur_time - start_time_;
-    rosbag_state->file_size = file_size;
+    rosbag_state->file_size = *file_size;
     rosbag_state->available_size = available_size;
     rosbag_state->message_count = msg_cnt_;
 

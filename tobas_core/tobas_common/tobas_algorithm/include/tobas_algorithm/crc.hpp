@@ -6,7 +6,7 @@
 #include <cinttypes>
 #include <cstddef>
 
-/* cf: https://qiita.com/tobira-code/items/dbcffc41f54201130b6c */
+// Ref: https://qiita.com/tobira-code/items/dbcffc41f54201130b6c
 namespace tobas
 {
 namespace algo
@@ -26,7 +26,7 @@ class CRC16 : public CRC
 {
 public:
   /**
-   * @brief Construct a new CRC16 object
+   * Construct a new CRC16 object
    *
    * @param poly Generator polynomial, omitting the highest-order term.
    * @param init_value Initial value.
@@ -48,7 +48,7 @@ class CRC32 : public CRC
 {
 public:
   /**
-   * @brief Construct a new CRC32 object
+   * Construct a new CRC32 object
    *
    * @param poly Generator polynomial, omitting the highest-order term.
    * @param init_value Initial value.

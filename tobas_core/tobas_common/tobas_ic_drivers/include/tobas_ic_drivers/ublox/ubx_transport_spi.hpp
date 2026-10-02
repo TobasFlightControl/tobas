@@ -30,7 +30,7 @@ public:
   bool send(const uint8_t* _data, size_t _length) noexcept override;
 
 private:
-  static constexpr uint32_t kSpiClockFreq = 5'500'000;  // Maximum frequency is 5.5MHz.
+  static constexpr uint32_t kSpiClockFreq = 5'500'000;  ///< Maximum frequency is 5.5MHz.
   static constexpr size_t kSpiBufSize = 256;
 
   const char* device_;

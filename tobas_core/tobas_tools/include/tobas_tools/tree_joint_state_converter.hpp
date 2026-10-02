@@ -3,6 +3,9 @@
 
 #pragma once
 
+#include <expected>
+#include <string>
+
 #include <tobas_kdl/tree_joint_parser.hpp>
 #include <tobas_kdl/tree_solver_i.hpp>
 
@@ -10,7 +13,7 @@
 
 namespace tobas
 {
-/* tobas_msgs/JointStateArray -> kdl::JntArray */
+/** `tobas_msgs/JointStateArray` -> `kdl::JntArray` */
 class TreeJointStateConverter : public kdl::TreeSolverI
 {
   using super = kdl::TreeSolverI;
@@ -20,7 +23,7 @@ public:
 
   void updateInternalDataStructures() override;
 
-  int convert(const tobas_msgs::msg::JointStateArray& msg);
+  std::expected<void, std::string> convert(const tobas_msgs::msg::JointStateArray& msg);
 
   inline const kdl::JntArray& getPosition() const;
   inline const kdl::JntArray& getVelocity() const;

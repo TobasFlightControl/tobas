@@ -58,7 +58,7 @@ void setModelCollisionMask(gz::sim::Entity model, uint16_t mask, gz::sim::Entity
 }  // namespace
 
 /**
- * @brief Attach a uniform box to an aircraft link using a detachable fixed joint.
+ * Attach a uniform box to an aircraft link using a detachable fixed joint.
  *
  * Aircraft collisions use mask 0x0001 and fixed loads use 0x0002 for both category and collide masks.
  * The groups never collide, even after detachment.
@@ -81,7 +81,7 @@ class GazeboFixedLoadPlugin : public BaseNode,
   struct Operation
   {
     // Request
-    std::optional<AttachSrv::Request> attach;  // `nullopt` indicates a detach request.
+    std::optional<AttachSrv::Request> attach;  ///< `nullopt` indicates a detach request.
 
     // Response
     bool success = false;
@@ -106,8 +106,8 @@ private:
 
   std::mutex mutex_;
   std::condition_variable cv_;
-  std::optional<Operation> pending_;  // Retain the request and result until `submit()` consumes them.
-  bool done_ = false;                 // Protected by `mutex_`; prevents reprocessing a completed request.
+  std::optional<Operation> pending_;  ///< Retain the request and result until `submit()` consumes them.
+  bool done_ = false;                 ///< Protected by `mutex_`; prevents reprocessing a completed request.
   int load_index_ = -1;
 
   ros2::ServiceServerPtr<AttachSrv> attach_load_ss_;

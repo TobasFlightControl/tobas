@@ -11,9 +11,7 @@ namespace tobas
 {
 namespace dsp
 {
-/**
- * @brief Sequential moving mean and moving covariance calculation for vectors (memo: 2-66).
- */
+/** Sequential moving mean and moving covariance calculation for vectors (memo: 2-66). */
 template <typename Scalar, int Size, size_t Length>
 class MovingStatistics
 {
@@ -31,8 +29,8 @@ public:
 
 private:
   std::deque<DataType> que_;
-  DataType m_;  // Mean
-  CovType v_;   // Covariance
+  DataType m_;  ///< Mean
+  CovType v_;   ///< Covariance
 };
 
 template <typename Scalar, int Size, size_t Length>

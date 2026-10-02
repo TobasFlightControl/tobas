@@ -455,7 +455,7 @@ bool DualActiveSetSolver::addConstraint()
   return true;
 }
 
-void DualActiveSetSolver::deleteConstraint(const Eigen::Index& l)
+void DualActiveSetSolver::deleteConstraint(Eigen::Index l)
 {
 #ifdef TRACE_SOLVER
   cout << "Delete constraint " << l << " " << iq_;
@@ -529,7 +529,7 @@ void DualActiveSetSolver::deleteConstraint(const Eigen::Index& l)
   }
 }
 
-double DualActiveSetSolver::distance(const double& a, const double& b)
+double DualActiveSetSolver::distance(double a, double b)
 {
   const auto a1 = std::abs(a);
   const auto b1 = std::abs(b);

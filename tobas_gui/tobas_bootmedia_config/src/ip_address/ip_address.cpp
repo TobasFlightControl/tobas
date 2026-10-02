@@ -55,9 +55,9 @@ bool IpAddressWidget::onConnected()
     const auto widget = getWidget(i);
     const auto path = networkFilePath(widget->name().toStdString());
 
-    Network network;
-    if (network.load(path)) {
-      if (!getWidget(i)->load(network)) {
+    const auto network = loadNetwork(path);
+    if (network) {
+      if (!getWidget(i)->load(*network)) {
         return false;
       }
     }
@@ -81,7 +81,7 @@ void IpAddressWidget::onWriteButtonClicked()
   for (int i = 0; i < tabs_->count(); ++i) {
     const auto network = getWidget(i)->dump();
     const auto path = networkFilePath(network.name);
-    if (!network.save(path)) {
+    if (!saveNetwork(path, network)) {
       qt::qErrorBox(this, "Failed to write the settings of '" + QString::fromStdString(network.name) + "'.");
       return;
     }

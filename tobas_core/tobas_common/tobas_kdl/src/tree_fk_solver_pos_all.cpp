@@ -3,40 +3,41 @@
 
 #include "tobas_kdl/tree_fk_solver_pos_all.hpp"
 
+#include <cassert>
+
 namespace tobas
 {
 namespace kdl
 {
 TreeFkSolverPosAll::TreeFkSolverPosAll(const Tree& tree) : super(tree)
 {
+  updateInternalDataStructures();
 }
 
 void TreeFkSolverPosAll::updateInternalDataStructures()
 {
-  super::updateInternalDataStructures();
-
-  frames_.clear();
+  frames_out_.clear();
+  for (const auto& [name, _] : tree_.getSegments()) {
+    frames_out_.emplace(name, Frame::Identity());
+  }
 }
 
-int TreeFkSolverPosAll::jntToCart(const JntArray& q)
+const FrameMap& TreeFkSolverPosAll::jntToCart(const JntArray& q)
 {
-  if (!isUpToDate()) {
-    return setDefaultError(kNotUpToDate);
-  }
-  if (q.rows() != nj_) {
-    return setDefaultError(kSizeMismatch);
-  }
+  assert(q.size() == tree_.getNrOfJoints());
 
   const auto root_it = tree_.getRootSegment();
   const auto& root_name = root_it->first;
   const auto& root_ele = root_it->second;
 
-  frames_[root_name] = Frame::Identity();
+  auto& root_frame = frames_out_.at(root_name);
+  root_frame.setIdentity();
+
   for (const auto& child_it : root_ele.children) {
-    recursiveFk(q, frames_.at(root_name), child_it);
+    recursiveFk(q, root_frame, child_it);
   }
 
-  return setDefaultError(kNoError);
+  return frames_out_;
 }
 
 void TreeFkSolverPosAll::recursiveFk(const JntArray& q, const Frame& par_frame, const SegmentMap::const_iterator& cur_it)
@@ -46,11 +47,11 @@ void TreeFkSolverPosAll::recursiveFk(const JntArray& q, const Frame& par_frame, 
   const auto& cur_ele = cur_it->second;
 
   // Fill the frame for the current segment.
-  frames_[cur_name] = par_frame * cur_ele.segment.pose(q(cur_ele.q_nr));
+  frames_out_.at(cur_name) = par_frame * cur_ele.segment.pose(q(cur_ele.q_nr));
 
   // Spread to the children.
   for (const auto& child_it : cur_ele.children) {
-    recursiveFk(q, frames_.at(cur_name), child_it);
+    recursiveFk(q, frames_out_.at(cur_name), child_it);
   }
 }
 }  // namespace kdl

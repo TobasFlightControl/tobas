@@ -3,21 +3,16 @@
 
 #pragma once
 
+#include <expected>
+#include <string>
+
 #include "./data.hpp"
 
 namespace tobas
 {
 namespace wpa
 {
-class Parser
-{
-public:
-  explicit Parser();
-
-  bool parseFromText(const std::string& text, Data& dst);
-
-private:
-  static bool parseCountryCode(const std::string& src, CountryCode& dst);
-};
+/** Parse wpa_supplicant configuration text. */
+std::expected<Data, std::string> parseFromText(const std::string& text);
 }  // namespace wpa
 }  // namespace tobas

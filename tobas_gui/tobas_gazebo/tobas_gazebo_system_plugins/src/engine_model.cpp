@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <cassert>
+
 #include <tobas_math/core.hpp>
 
 #include "tobas_gazebo_system_plugins/engine_model.hpp"
@@ -20,9 +22,7 @@ bool EngineModel::initialize(const sdf::ElementConstPtr& sdf)
     return false;
   }
 
-  if (!speed_filter_.initialize(time_const_up_, time_const_down_, 0.0)) {
-    return false;
-  }
+  speed_filter_.initialize(time_const_up_, time_const_down_, 0.0);
 
   newton_.initialize(
     bind(&self::speedFunc, this, std::placeholders::_1), bind(&self::speedFuncDeriv, this, std::placeholders::_1));
@@ -52,25 +52,19 @@ double EngineModel::getVibrationForce()
   return amp * (std::sin(position_) + vibration_double_freq_coef_ * std::sin(position_ * 2)) * rice_(rnd_gen_);
 }
 
-void EngineModel::setThrottle(const double& throttle)
+void EngineModel::setThrottle(double throttle)
 {
   throttle_ = std::clamp(throttle, 0.0, 1.0);
 }
 
-bool EngineModel::step(const double& dt)
+void EngineModel::step(double dt)
 {
-  if (dt <= 0.0) {
-    return false;
-  }
+  assert(dt >= 0.0);
 
   position_ += getSpeed() * dt;
 
   const auto steady_speed = computeSteadySpeed();
-  if (!speed_filter_.update(steady_speed, dt)) {
-    return false;
-  }
-
-  return true;
+  speed_filter_.update(steady_speed, dt);
 }
 
 bool EngineModel::getSdfParams(const sdf::ElementConstPtr& sdf)

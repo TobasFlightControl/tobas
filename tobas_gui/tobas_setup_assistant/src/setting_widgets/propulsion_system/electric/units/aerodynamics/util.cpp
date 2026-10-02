@@ -19,7 +19,7 @@ namespace electric
 {
 namespace
 {
-/* Least-squares solution for the ratio (memo: 2-28). */
+/** Least-squares solution for the ratio (memo: 2-28). */
 double ratioLeastSquare(const Eigen::VectorXd& num, const Eigen::VectorXd& den)
 {
   assert(num.size() == den.size());

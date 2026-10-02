@@ -24,7 +24,7 @@ public:
     const Eigen::Vector3d& cur_vel,
     const Eigen::Vector3d& tar_pos,
     const Eigen::Vector3d& tar_vel,
-    const double& dt);
+    double dt);
 
   inline void reset();
 

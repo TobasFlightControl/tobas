@@ -12,8 +12,6 @@ namespace rviz
 class PrismaticJointModel : public JointModel
 {
 public:
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-
   explicit PrismaticJointModel(const std::string& name, size_t joint_index, size_t first_variable_index);
 
   void getVariableDefaultPositions(double* values) const override;
@@ -23,7 +21,7 @@ public:
   void setAxis(const Eigen::Vector3d& axis);
 
 private:
-  Eigen::Vector3d axis_ = Eigen::Vector3d::Zero();  // The axis of the joint
+  Eigen::Vector3d axis_ = Eigen::Vector3d::Zero();  ///< The axis of the joint
 };
 }  // namespace rviz
 }  // namespace tobas

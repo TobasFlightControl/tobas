@@ -19,8 +19,8 @@ public:
   explicit FakeBattPublisherNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  double voltage_;  // [V]
-  double current_;  // [A]
+  double voltage_;  ///< [V]
+  double current_;  ///< [A]
 
   ros2::PublisherPtr<tobas_msgs::msg::Battery> batt_pub_;
   ros2::TimerPtr timer_;

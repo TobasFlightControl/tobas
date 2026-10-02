@@ -4,7 +4,6 @@
 #include <optional>
 
 #include <tobas_constants/ros_interface.hpp>
-#include <tobas_kdl/tree_active_joints_extractor.hpp>
 #include <tobas_kdl/tree_jntspace_pid.hpp>
 #include <tobas_kdl/tree_joint_parser.hpp>
 #include <tobas_kdl/tree_taskspace_pid.hpp>
@@ -43,7 +42,6 @@ private:
   kdl::Tree tree_;
 
   kdl::TreeJointParser jnt_parser_;
-  kdl::TreeActiveJointsExtractor active_jnts_extractor_;
   kdl::TreeJntSpacePID pid_js_;
   kdl::TreeTaskSpacePID pid_ts_;
   TreeJointStateConverter cur_js_conv_;
@@ -80,12 +78,12 @@ private:
     const tobas_msgs::LinkStateArray& tar_ls,
     tobas_msgs::msg::JointCommandArray& efforts_msg);
 
-  bool jointStiffnessCb(const long& p);
-  bool jointDamping(const long& p);
-  bool linearStiffnessCb(const long& p);
-  bool angularStiffnessCb(const long& p);
-  bool linearDampingCb(const long& p);
-  bool angularDampingCb(const long& p);
+  void jointStiffnessCb(long p);
+  void jointDamping(long p);
+  void linearStiffnessCb(long p);
+  void angularStiffnessCb(long p);
+  void linearDampingCb(long p);
+  void angularDampingCb(long p);
 
   void droneCb(const Drone::ConstSharedPtr& drone);
   void treeCb(const kdl::Tree::ConstSharedPtr& tree);
@@ -99,7 +97,6 @@ private:
 EffortControllerNode::EffortControllerNode(const rclcpp::NodeOptions& options)
   : super("jointeff_trajectory_controller", nodeOptions_DParam(options))
   , jnt_parser_(tree_)
-  , active_jnts_extractor_(tree_)
   , pid_js_(tree_)
   , pid_ts_(tree_)
   , cur_js_conv_(tree_)
@@ -135,7 +132,7 @@ void EffortControllerNode::initialize()
   tar_js_sub_ = createSubscriber(topic::kEffCtrlJS, &self::targetJointStateCb, this);
   tar_ls_sub_ = createSubscriber(topic::kEffCtrlLS, &self::targetLinkStateCb, this);
 
-  auto_reset_timer_ = createTimer(manipulation::kAutoResetTimeThresh, &self::autoResetTimerCb, this, false);
+  auto_reset_timer_ = createTimer(kAutoResetTimeThresh, &self::autoResetTimerCb, this, false);
 
   initialize_timer_->cancel();
 }
@@ -146,12 +143,12 @@ bool EffortControllerNode::jointSpaceControl(
   tobas_msgs::msg::JointCommandArray& efforts_msg)
 {
   // JointState -> JntArray
-  if (cur_js_conv_.convert(cur_js) < 0) {
-    TOBAS_ERROR("Failed to convert current JointState to Jntarray: ", cur_js_conv_.errorMessage());
+  if (const auto result = cur_js_conv_.convert(cur_js); !result) {
+    TOBAS_ERROR("Failed to convert current JointState to Jntarray: ", result.error());
     return false;
   }
-  if (tar_js_conv_.convert(tar_js) < 0) {
-    TOBAS_ERROR("Failed to convert target JointState to Jntarray: ", tar_js_conv_.errorMessage());
+  if (const auto result = tar_js_conv_.convert(tar_js); !result) {
+    TOBAS_ERROR("Failed to convert target JointState to Jntarray: ", result.error());
     return false;
   }
 
@@ -161,11 +158,9 @@ bool EffortControllerNode::jointSpaceControl(
   const auto& tar_qd = tar_js_conv_.getVelocity();
 
   // Calculate joint torques with PID.
-  if (pid_js_.cartToJnt(cur_q, cur_qd, tar_q, tar_qd) < 0) {
-    TOBAS_ERROR("Joint space PID failed: ", pid_js_.errorMessage());
-    return false;
-  }
-  const auto efforts = tar_js_conv_.getEffort() + pid_js_.getEfforts();  // FF + FB
+  const auto& efforts_ff = tar_js_conv_.getEffort();
+  const auto& efforts_fb = pid_js_.cartToJnt(cur_q, cur_qd, tar_q, tar_qd);
+  const auto efforts = efforts_ff + efforts_fb;
 
   // Fill output message.
   for (const auto& tar_state : tar_js.states) {
@@ -187,9 +182,15 @@ bool EffortControllerNode::taskSpaceControl(
   const tobas_msgs::LinkStateArray& tar_ls,
   tobas_msgs::msg::JointCommandArray& efforts_msg)
 {
+  const auto active_jnt_names = findActiveJointNames(tree_, linkNames(tar_ls));
+  if (!active_jnt_names) {
+    TOBAS_ERROR("Failed to extract active joint names: ", active_jnt_names.error());
+    return false;
+  }
+
   // JointState -> JntArray
-  if (cur_js_conv_.convert(cur_js) < 0) {
-    TOBAS_ERROR("Failed to convert current JointState to Jntarray: ", cur_js_conv_.errorMessage());
+  if (const auto result = cur_js_conv_.convert(cur_js); !result) {
+    TOBAS_ERROR("Failed to convert current JointState to Jntarray: ", result.error());
     return false;
   }
 
@@ -217,88 +218,54 @@ bool EffortControllerNode::taskSpaceControl(
   // Calculate joint torques with PID.
   const auto& cur_q = cur_js_conv_.getPosition();
   const auto& cur_qd = cur_js_conv_.getVelocity();
-  if (pid_ts_.cartToJnt(cur_q, cur_qd, tar_p, tar_v, a_ff, f_ext) < 0) {
-    TOBAS_ERROR("Cartesian PID failed: ", pid_ts_.errorMessage());
+  const auto efforts = pid_ts_.cartToJnt(cur_q, cur_qd, tar_p, tar_v, a_ff, f_ext);
+  if (!efforts) {
+    TOBAS_ERROR("Failed to calculate target joint efforts: ", efforts.error());
     return false;
   }
-  const auto& efforts = pid_ts_.getEfforts();
-
-  // JntArray -> JointState
-  active_jnts_extractor_.solve(manipulation::linkNames(tar_ls));
-  const auto& active_jnt_names = active_jnts_extractor_.activeJointNames();
 
   // Fill output message.
-  for (const auto& jnt_name : active_jnt_names) {
+  for (const auto& jnt_name : active_jnt_names.value()) {
     if (!jnt_names_.contains(jnt_name)) {
       TOBAS_ERROR("The target joint '", jnt_name, "' is not included in the joint group.");
       return false;
     }
     efforts_msg.commands.emplace_back();
     efforts_msg.commands.back().name = jnt_name;
-    efforts_msg.commands.back().data = efforts((jnt_parser_.jointIndex(jnt_name)));
+    efforts_msg.commands.back().data = efforts.value()(jnt_parser_.jointIndex(jnt_name));
   }
 
   return true;
 }
 
-bool EffortControllerNode::jointStiffnessCb(const long& p)
+void EffortControllerNode::jointStiffnessCb(long p)
 {
-  if (!pid_js_.setStiffness(p)) {
-    TOBAS_ERROR("Failed to set joint stiffness.");
-    return false;
-  }
-
-  return true;
+  pid_js_.setStiffness(p);
 }
 
-bool EffortControllerNode::jointDamping(const long& p)
+void EffortControllerNode::jointDamping(long p)
 {
-  if (!pid_js_.setDamping(p)) {
-    TOBAS_ERROR("Failed to set joint damping.");
-    return false;
-  }
-
-  return true;
+  pid_js_.setDamping(p);
 }
 
-bool EffortControllerNode::linearStiffnessCb(const long& p)
+void EffortControllerNode::linearStiffnessCb(long p)
 {
-  if (!pid_ts_.setLinearStiffness(p)) {
-    TOBAS_ERROR("Failed to set linear stiffness.");
-    return false;
-  }
-
-  return true;
+  pid_ts_.setLinearStiffness(p);
 }
 
-bool EffortControllerNode::angularStiffnessCb(const long& p)
+void EffortControllerNode::angularStiffnessCb(long p)
 {
-  if (!pid_ts_.setAngularStiffness(p)) {
-    TOBAS_ERROR("Failed to set angular stiffness.");
-    return false;
-  }
-
-  return true;
+  pid_ts_.setAngularStiffness(p);
 }
 
-bool EffortControllerNode::linearDampingCb(const long& p)
+void EffortControllerNode::linearDampingCb(long p)
 {
-  if (!pid_ts_.setLinearDamping(p)) {
-    TOBAS_ERROR("Failed to set linear damping.");
-    return false;
-  }
-
-  return true;
+  pid_ts_.setLinearDamping(p);
 }
 
-bool EffortControllerNode::angularDampingCb(const long& p)
+void EffortControllerNode::angularDampingCb(long p)
 {
-  if (!pid_ts_.setAngularDamping(p)) {
-    TOBAS_ERROR("Failed to set angular damping.");
-    return false;
-  }
-
-  return true;
+  pid_ts_.setAngularDamping(p);
 }
 
 void EffortControllerNode::droneCb(const Drone::ConstSharedPtr& drone)
@@ -335,7 +302,6 @@ void EffortControllerNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
   tree_ = *tree;
 
   jnt_parser_.updateInternalDataStructures();
-  active_jnts_extractor_.updateInternalDataStructures();
   pid_js_.updateInternalDataStructures();
   pid_ts_.updateInternalDataStructures();
   cur_js_conv_.updateInternalDataStructures();
@@ -401,7 +367,7 @@ void EffortControllerNode::autoResetTimerCb()
 
   TOBAS_WARN(
     "The target joint states are automatically reset because ",
-    manipulation::kAutoResetTimeThresh,
+    kAutoResetTimeThresh,
     " have elapsed since the last command.");
 
   auto_reset_timer_->cancel();

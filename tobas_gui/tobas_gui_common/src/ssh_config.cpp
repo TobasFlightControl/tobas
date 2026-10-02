@@ -18,36 +18,36 @@ constexpr char kHostKey[] = "host";
 constexpr char kUserKey[] = "user";
 }  // namespace
 
-bool SshConfig::load(const QString& path)
+std::expected<SshConfig, QString> loadSshConfig(const QString& path)
 {
   const auto node = yaml::load(path.toStdString());
   if (!node) {
-    std::cerr << node.error() << std::endl;
-    return false;
+    return std::unexpected(QString::fromStdString(node.error()));
   }
 
-  if (!yaml::load(kHostKey, *node, host)) {
-    return false;
+  SshConfig config;
+  if (const auto result = yaml::load(kHostKey, *node, config.host); !result) {
+    return std::unexpected(QString::fromStdString(result.error()));
   }
-  if (!yaml::load(kUserKey, *node, user)) {
-    return false;
+  if (const auto result = yaml::load(kUserKey, *node, config.user); !result) {
+    return std::unexpected(QString::fromStdString(result.error()));
   }
 
-  return true;
+  return config;
 }
 
-bool SshConfig::save(const QString& path) const
+std::expected<void, QString> saveSshConfig(const QString& path, const SshConfig& config)
 {
   YAML::Node node(YAML::NodeType::Map);
 
-  node[kHostKey] = host;
-  node[kUserKey] = user;
+  node[kHostKey] = config.host;
+  node[kUserKey] = config.user;
 
-  if (!yaml::save(path.toStdString(), node)) {
-    return false;
+  if (const auto result = yaml::save(path.toStdString(), node); !result) {
+    return std::unexpected(QString::fromStdString(result.error()));
   }
 
-  return true;
+  return {};
 }
 }  // namespace cmn
 }  // namespace gui

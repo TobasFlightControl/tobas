@@ -20,7 +20,7 @@ LinearEquation LinearEquation::scale(const Eigen::VectorXd& scale) const
   return res;
 }
 
-LinearEquation LinearEquation::discretise(const double& dt) const
+LinearEquation LinearEquation::discretise(double dt) const
 {
   assert(dt >= 0);
 

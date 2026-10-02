@@ -34,7 +34,7 @@ private:
   std::map<std::string, SpeedmeterWidget*> meters_;
   QHBoxLayout* cols_;
 
-  void setSpeed(const std::string& link_name, const double& rps);
+  void setSpeed(const std::string& link_name, double rps);
 
   static QString bottomText(int rpm);
 

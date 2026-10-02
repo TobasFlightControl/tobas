@@ -20,7 +20,7 @@ namespace log
 {
 namespace
 {
-/* Resolved axis limits and the interval between major ticks. */
+/** Resolved axis limits and the interval between major ticks. */
 struct VerticalScale
 {
   double min;
@@ -28,7 +28,7 @@ struct VerticalScale
   double step;
 };
 
-/* Expand a data range to Qwt-aligned limits, using [-1, 1] when empty. */
+/** Expand a data range to Qwt-aligned limits, using [-1, 1] when empty. */
 VerticalScale makeVerticalScale(const VerticalScaleRange& range)
 {
   VerticalScale scale{ range.empty() ? -1.0 : range.min(), range.empty() ? 1.0 : range.max(), 0.0 };
@@ -36,7 +36,7 @@ VerticalScale makeVerticalScale(const VerticalScaleRange& range)
   return scale;
 }
 
-/* Apply a resolved scale to a plot's vertical axis. */
+/** Apply a resolved scale to a plot's vertical axis. */
 void applyVerticalScale(QwtPlot2& plot, const VerticalScale& scale)
 {
   plot.setAxisScale(QwtPlot::yLeft, scale.min, scale.max, scale.step);

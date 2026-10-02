@@ -181,15 +181,10 @@ void BMM350::updateCompensationFromOtp()
   mag_comp_.cross_z_y = static_cast<float>(fixSign(cross_z_y, SIGNED_8_BIT)) / 800.0f;
 }
 
-bool BMM350::configure(ODR odr, Averaging averaging)
+void BMM350::configure(ODR odr, Averaging averaging)
 {
-  if (!isValidOdr(odr) || !isValidAveraging(averaging)) {
-    std::cerr << "invalid ODR or averaging setting." << std::endl;
-    return false;
-  }
   odr_ = odr;
   averaging_ = averaging;
-  return true;
 }
 
 bool BMM350::applyConfiguration()

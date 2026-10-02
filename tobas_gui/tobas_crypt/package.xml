@@ -11,7 +11,7 @@
 
 	<depend>libcrypt-dev</depend>
 
-	<depend>tobas_linux</depend>
+	<depend>tobas_std_tools</depend>
 
 	<export>
 		<build_type>ament_cmake</build_type>

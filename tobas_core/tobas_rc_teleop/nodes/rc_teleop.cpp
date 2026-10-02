@@ -6,7 +6,6 @@
 #include <tobas_constants/node.hpp>
 #include <tobas_constants/rc_command.hpp>
 #include <tobas_constants/time.hpp>
-#include <tobas_math/core.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_ros2_tools/time.hpp>
 
@@ -40,8 +39,8 @@ class RCTeleopNode : public BaseNode
   using self = RCTeleopNode;
   using super = BaseNode;
 
-  static constexpr double kArmCommandInfoPeriod = 2.0;  // [s]
-  static constexpr double kWarnPeriod = 1.0;            // [s]
+  static constexpr double kArmCommandInfoPeriod = 2.0;  ///< [s]
+  static constexpr double kWarnPeriod = 1.0;            ///< [s]
 
 public:
   explicit RCTeleopNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -66,11 +65,11 @@ private:
 
   // Static parameters
   std::map<FlightMode, RcCommand> modes_;
-  double arm_duration_, disarm_duration_;  // [s]
+  double arm_duration_, disarm_duration_;  ///< [s]
 
   // Dynamic parameters
   double arm_throt_thresh_;
-  double arm_throt_hyst_;  // Hysteresis to prevent chattering
+  double arm_throt_hyst_;  ///< Hysteresis to prevent chattering
 
   // Mutables
   FlightMode cur_mode_;
@@ -104,8 +103,8 @@ private:
   void resetCurrentController(const tobas_msgs::RCInput& rcin);
   bool isFlightModeApplicable(FlightMode mode);
 
-  bool armThrottleThresholdCb(const double& p);
-  bool armThrottleHysteresisCb(const double& p);
+  void armThrottleThresholdCb(double p);
+  void armThrottleHysteresisCb(double p);
 
   void odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom);
   void setpointCb(const tobas_msgs::OdometryStamped::ConstSharedPtr& setpoint);
@@ -352,16 +351,14 @@ bool RCTeleopNode::isFlightModeApplicable(FlightMode mode)
   return true;
 }
 
-bool RCTeleopNode::armThrottleThresholdCb(const double& p)
+void RCTeleopNode::armThrottleThresholdCb(double p)
 {
   arm_throt_thresh_ = kRcInputRange * (p / 100.0);
-  return true;
 }
 
-bool RCTeleopNode::armThrottleHysteresisCb(const double& p)
+void RCTeleopNode::armThrottleHysteresisCb(double p)
 {
   arm_throt_hyst_ = kRcInputRange * (p / 100.0);
-  return true;
 }
 
 void RCTeleopNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom)

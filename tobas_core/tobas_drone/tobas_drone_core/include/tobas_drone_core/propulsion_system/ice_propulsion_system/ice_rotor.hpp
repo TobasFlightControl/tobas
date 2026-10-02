@@ -16,7 +16,7 @@
 
 namespace tobas
 {
-/* Gear + Propeller */
+/** Gear + Propeller */
 class IceRotorConfig : public RotorConfig
 {
   using super = RotorConfig;
@@ -25,9 +25,9 @@ public:
   using SharedPtr = std::shared_ptr<IceRotorConfig>;
   using ConstSharedPtr = std::shared_ptr<const IceRotorConfig>;
 
-  double gear_ratio = 0.0;                       // Reduction ratio [-].
-  st::Range<double> pitch_limit = { 0.0, 0.0 };  // Propeller pitch angle range [rad].
-  double center_pitch = 0.0;                     // Center of the propeller pitch angle [rad].
+  double gear_ratio = 0.0;                       ///< Reduction ratio [-].
+  st::Range<double> pitch_limit = { 0.0, 0.0 };  ///< Propeller pitch angle range [rad].
+  double center_pitch = 0.0;                     ///< Center of the propeller pitch angle [rad].
   VppMotorConstant motor_const;
   VppMomentConstant moment_const;
   HardwareInterface hw_iface = HardwareInterface::kOther;
@@ -40,22 +40,22 @@ public:
   inline double momentConst() const override;
   inline double effortWeight() const override;
 
-  /* Compute the thrust constant [kg*m/rad^2] from pitch angle [rad]. */
+  /** Compute the thrust constant [kg*m/rad^2] from pitch angle [rad]. */
   inline double motorConst(double pitch_angle) const;
 
-  /* Compute the reaction torque constant [m] from pitch angle [rad]. */
+  /** Compute the reaction torque constant [m] from pitch angle [rad]. */
   inline double momentConst(double pitch_angle) const;
 
-  /* Compute rotor speed [rad/s] from engine speed [rad/s]. */
+  /** Compute rotor speed [rad/s] from engine speed [rad/s]. */
   inline double speedEngineToRotor(double engine_speed) const;
 
-  /* Compute engine speed [rad/s] from rotor speed [rad/s]. */
+  /** Compute engine speed [rad/s] from rotor speed [rad/s]. */
   inline double speedRotorToEngine(double rotor_speed) const;
 
-  /* Compute thrust [N] from pitch angle [rad]. */
+  /** Compute thrust [N] from pitch angle [rad]. */
   inline double thrustFromPitch(double engine_speed, double pitch_angle) const;
 
-  /* Compute pitch angle [rad] from thrust [N]. */
+  /** Compute pitch angle [rad] from thrust [N]. */
   inline double pitchFromThrust(double engine_speed, double thrust) const;
 };
 

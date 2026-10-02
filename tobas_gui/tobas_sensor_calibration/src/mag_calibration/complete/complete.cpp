@@ -16,7 +16,6 @@
 #include <tobas_eigen_tools/hash.hpp>
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_kdl_conversions/kdl_msg.hpp>
-#include <tobas_math/core.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
@@ -429,7 +428,7 @@ bool CompleteMagCalibWidget::computeSoftBias(
 
   // Fit with an ellipsoid centered at the origin.
   // axx x^2 + ayy y^2 + azz z^2 + 2 axy xy + 2 ayz yz + 2 azx zx + c = 0
-  // cf. Estimate the equation with least squares: https://rikei-tawamure.com/entry/2021/10/07/211725
+  // Ref: [Estimate the equation with least squares](https://rikei-tawamure.com/entry/2021/10/07/211725)
   Eigen::MatrixX6d CE(size, 6);
   CE.col(0) = xx;
   CE.col(1) = yy;

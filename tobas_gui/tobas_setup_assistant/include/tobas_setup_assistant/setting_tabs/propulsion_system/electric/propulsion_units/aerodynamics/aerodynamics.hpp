@@ -35,13 +35,13 @@ public:
   YAML::Node dump() const override;
   void load(const YAML::Node& node) override;
 
-  /* [kg*m/rad^2] */
+  /** [kg*m/rad^2] */
   double motorConst() const;
 
-  /* [m] */
+  /** [m] */
   double momentConst() const;
 
-  /* [kg/rad] */
+  /** [kg/rad] */
   double dragConst() const;
 
 private:

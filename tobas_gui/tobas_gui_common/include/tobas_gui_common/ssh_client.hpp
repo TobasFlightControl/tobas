@@ -13,7 +13,7 @@ namespace gui
 {
 namespace cmn
 {
-/* SSH client wrapper that does not stop the GUI. */
+/** SSH client wrapper that does not stop the GUI. */
 class SshClientWrapper
 {
   using Impl = ssh::SshClient;

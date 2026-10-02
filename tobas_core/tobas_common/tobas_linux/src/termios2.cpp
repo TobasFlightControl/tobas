@@ -10,7 +10,7 @@
 #include <iostream>
 #include <thread>
 
-#include "tobas_linux/error.hpp"
+#include <tobas_std_tools/error.hpp>
 
 using namespace std::chrono_literals;
 
@@ -23,7 +23,7 @@ bool setNonStandardBaudRate(int fd, uint32_t baud_rate)
   struct termios2 buf;
 
   if (ioctl(fd, TCGETS2, &buf) != 0) {
-    std::cerr << "Failed to get termios2 struct (TCGETS2): " << strError() << std::endl;
+    std::cerr << "Failed to get termios2 struct (TCGETS2): " << st::strError() << std::endl;
     return false;
   }
 
@@ -32,7 +32,7 @@ bool setNonStandardBaudRate(int fd, uint32_t baud_rate)
   buf.c_ispeed = buf.c_ospeed = baud_rate;
 
   if (ioctl(fd, TCSETS2, &buf) != 0) {
-    std::cerr << "Failed to set termios2 struct (TCSETS2): " << strError() << std::endl;
+    std::cerr << "Failed to set termios2 struct (TCSETS2): " << st::strError() << std::endl;
     return false;
   }
 

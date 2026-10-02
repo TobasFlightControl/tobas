@@ -16,7 +16,7 @@ class Twist;
 using TwistMap = std::map<std::string, Twist>;
 
 /**
- * @brief represents both translational and rotational velocities.
+ * represents both translational and rotational velocities.
  *
  * This class represents a twist. A twist is the combination of translational
  * velocity and rotational velocity applied at one point.
@@ -24,8 +24,8 @@ using TwistMap = std::map<std::string, Twist>;
 class Twist
 {
 public:
-  Vector vel;  // The linear velocity of that point
-  Vector rot;  // The angular velocity of that point
+  Vector vel;  ///< The linear velocity of that point
+  Vector rot;  ///< The angular velocity of that point
 
   inline explicit Twist();
   inline explicit Twist(const Vector& vel, const Vector& rot);
@@ -38,16 +38,16 @@ public:
   inline Eigen::Vector6d ravel() const;
 
   /**
-   * @brief Changes the reference point of the twist.
-   * The vector p is expressed in the same base as the twist.
-   * The vector p is a vector from the old point to the new point.
+   * Changes the reference point of the twist.
+   * The vector `p` is expressed in the same base as the twist.
+   * The vector `p` is a vector from the old point to the new point.
    * Compute the twist of frame B in the same rigid body as self frame A.
    */
   inline Twist refPoint(const Vector& p) const;
 
-  // index-based access to components, first vel(0..2), then rot(3..5)
+  /** index-based access to components, first vel(0..2), then rot(3..5) */
   inline double operator()(size_t i) const;
-  // index-based access to components, first vel(0..2), then rot(3..5)
+  /** index-based access to components, first vel(0..2), then rot(3..5) */
   inline double& operator()(size_t i);
 
   inline Twist& operator+=(const Twist& arg);
@@ -61,7 +61,7 @@ public:
   inline friend Twist operator-(const Twist& lhs, const Twist& rhs);
 
   /**
-   * @brief Spatial cross product for 6d motion vectors,
+   * Spatial cross product for 6d motion vectors,
    * beware all of them have to be expressed in the same reference frame.
    */
   inline friend Accel operator*(const Twist& lhs, const Twist& rhs);

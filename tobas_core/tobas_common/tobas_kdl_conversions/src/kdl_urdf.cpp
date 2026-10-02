@@ -133,7 +133,7 @@ void jointUrdfToKdl(const ::urdf::Joint& u, Joint& k)
       k.type = Joint::kTranslation;
     }
     else {
-      throw std::runtime_error("Unknown joint type of joint: " + u.name);
+      throw std::runtime_error("The type of joint '" + u.name + "' is not supported by KDL.");
     }
 
     // Origin

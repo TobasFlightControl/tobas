@@ -64,20 +64,16 @@ std::expected<double, std::string> NewtonSolver1d::solve(double x)
   return std::unexpected("The number of iterations exceeded the limit.");
 }
 
-bool NewtonSolver1d::setMaximumIterations(size_t max_iter)
+void NewtonSolver1d::setMaximumIterations(size_t max_iter)
 {
   max_iter_ = max_iter;
-  return true;
 }
 
-bool NewtonSolver1d::setAbsoluteTolerance(double abs_tol)
+void NewtonSolver1d::setAbsoluteTolerance(double abs_tol)
 {
-  if (abs_tol <= 0.0) {
-    return false;
-  }
+  assert(abs_tol > 0.0);
 
   abs_tol_ = abs_tol;
-  return true;
 }
 }  // namespace nlp
 }  // namespace tobas

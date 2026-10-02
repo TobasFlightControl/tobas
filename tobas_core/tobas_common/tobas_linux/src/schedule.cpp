@@ -14,7 +14,7 @@ namespace tobas
 {
 namespace linux
 {
-bool checkRealtimePriority(const pthread_t& thread, const int& tar_policy, const int& tar_priority)
+bool checkRealtimePriority(pthread_t thread, int tar_policy, int tar_priority)
 {
   int cur_policy;
   sched_param cur_param;
@@ -37,7 +37,7 @@ bool checkRealtimePriority(const pthread_t& thread, const int& tar_policy, const
   return true;
 }
 
-bool setRealtimePriority(const int& tar_policy, const int& tar_priority)
+bool setRealtimePriority(int tar_policy, int tar_priority)
 {
   if (!isSuperUser()) {
     std::cerr << "Root privileges are required to set real-time priority." << std::endl;
@@ -66,12 +66,12 @@ bool setRealtimePriority(const int& tar_policy, const int& tar_priority)
   return true;
 }
 
-bool setRealtimePriorityFIFO(const int& priority)
+bool setRealtimePriorityFIFO(int priority)
 {
   return setRealtimePriority(SCHED_FIFO, priority);
 }
 
-bool setRealtimePriorityRR(const int& priority)
+bool setRealtimePriorityRR(int priority)
 {
   return setRealtimePriority(SCHED_RR, priority);
 }

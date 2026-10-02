@@ -30,27 +30,27 @@ public:
 
 protected:
   static constexpr int kExpoScale = 100;
-  static constexpr double kDeadband = 0.02;  // Adjust so RCInput snaps to zero in the dead zone
+  static constexpr double kDeadband = 0.02;  ///< Adjust so RCInput snaps to zero in the dead zone
 
-  /* Return 0 when the value is inside the deadband. */
+  /** Return 0 when the value is inside the deadband. */
   inline double deadband(double x) const;
 
-  /* Project an RCInput value into the range [lb, ub]. */
+  /** Project an RCInput value into the range [lb, ub]. */
   inline double remap(double x, double lb, double ub) const;
 
-  /* Return 0 when the RCInput value is inside the deadband; otherwise project it into [lb, ub]. */
+  /** Return 0 when the RCInput value is inside the deadband; otherwise project it into [lb, ub]. */
   inline double remapDead(double x, double lb, double ub) const;
 
-  /* expo -> remap */
+  /** expo -> remap */
   inline double expoRemap(double x, double exp, double lb, double ub) const;
 
-  /* dead -> expo -> remap */
+  /** dead -> expo -> remap */
   inline double expoRemapDead(double x, double exp, double lb, double ub) const;
 
-  /* Probably the same as Futaba's EXPO function: [-1, 1] -> [-1, 1] */
+  /** Probably the same as Futaba's EXPO function: [-1, 1] -> [-1, 1] */
   static inline double expo(double x, double exp);
 
-  /* Add a flight mode prefix to the text. */
+  /** Add a flight mode prefix to the text. */
   static std::string addMode(const std::string& text, FlightMode mode);
 };
 

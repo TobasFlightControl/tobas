@@ -29,7 +29,7 @@ public:
 
   uint32_t toInt() const;
 
-  /* xxx.xxx.xxx.xxx */
+  /** xxx.xxx.xxx.xxx */
   QString toString() const;
 
   void setFromInt(uint32_t address);

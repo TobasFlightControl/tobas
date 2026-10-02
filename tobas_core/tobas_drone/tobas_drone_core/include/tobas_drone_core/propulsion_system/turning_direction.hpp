@@ -16,7 +16,7 @@ enum class TurningDirection
 std::string textFromEnum(TurningDirection interface);
 bool enumFromText(const std::string& text, TurningDirection& dst);
 
-/* CCW = 1, CW = -1 */
+/** CCW = 1, CW = -1 */
 inline constexpr int sign(TurningDirection direction)
 {
   switch (direction) {
@@ -35,7 +35,7 @@ namespace YAML
 template <>
 struct convert<tobas::TurningDirection>
 {
-  static Node encode(const tobas::TurningDirection& rhs);
+  static Node encode(tobas::TurningDirection rhs);
   static bool decode(const Node& node, tobas::TurningDirection& rhs);
 };
 }  // namespace YAML

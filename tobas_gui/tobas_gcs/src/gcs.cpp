@@ -551,9 +551,9 @@ void GroundControlStationWidget::onLoadButtonClicked()
   }
 
   // Load network configuration.
-  cmn::NetworkConfig next_network_config;
-  if (!next_network_config.load(proj_paths.networkConfigPath())) {
-    qt::qErrorBox(this, "Failed to load network configuration.");
+  const auto next_network_config = cmn::loadNetworkConfig(proj_paths.networkConfigPath());
+  if (!next_network_config) {
+    qt::qErrorBox(this, "Failed to load network configuration:\n\n" + next_network_config.error());
     return;
   }
 
@@ -561,7 +561,7 @@ void GroundControlStationWidget::onLoadButtonClicked()
   uadf_ = std::move(*next_uadf);
   tree_ = std::move(*next_tree);
   drone_ = std::move(next_drone);
-  network_config_ = std::move(next_network_config);
+  network_config_ = std::move(*next_network_config);
 
   // Commit the path only after every project file has been validated.
   proj_path_->setText(proj_path);
@@ -706,12 +706,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
   progress.setLabelText("Getting environment variables.");
   QString project_env_text;
   if (ssh_client_->sftpRead(kProjectEnvPath, project_env_text, true) == ssh::SshClient::kNoError) {
-    if (!project_env_parser_.parseFromText(project_env_text)) {
-      progress.close();
-      disconnectFromFlightController();
-      qt::qErrorBox(this, "Failed to parse configuration file.");
-      return;
-    }
+    project_env_ = parseProjectEnv(project_env_text);
   }
   else {
     qWarning() << "Failed to get the current environment variables: " << ssh_client_->errorMessage();
@@ -719,7 +714,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
   progress.progressStep();
 
   // Use a clean build when packages change to avoid conflicts.
-  if (config_pkg_name != project_env_parser_.config_pkg) {
+  if (config_pkg_name != project_env_.config_pkg) {
     // Initialize the workspace.
     progress.setLabelText("Initializing colcon workspace.");
     if (ssh_client_->execute(QString("rm -rf %1").arg(kColconWSPathRoot), true)) {
@@ -742,10 +737,10 @@ void GroundControlStationWidget::onWriteButtonClicked()
 
   // Update environment variables.
   progress.setLabelText("Setting environment variables.");
-  project_env_parser_.config_pkg = config_pkg_name;
-  project_env_parser_.nic = network_config_.interface;
-  project_env_parser_.id = QString(kIdPrefix) + QString::number(currentId());
-  if (ssh_client_->sftpWrite(kProjectEnvPath, project_env_parser_.exportText(), true) != ssh::SshClient::kNoError) {
+  project_env_.config_pkg = config_pkg_name;
+  project_env_.nic = network_config_.interface;
+  project_env_.id = QString(kIdPrefix) + QString::number(currentId());
+  if (ssh_client_->sftpWrite(kProjectEnvPath, exportProjectEnv(project_env_), true) != ssh::SshClient::kNoError) {
     progress.close();
     disconnectFromFlightController();
     qt::qErrorBox(this, "Failed to set environment variables:\n\n" + ssh_client_->errorMessage());

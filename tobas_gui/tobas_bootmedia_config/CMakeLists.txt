@@ -15,7 +15,9 @@ set(AMENT_DEPENDENCIES
     magic_enum
     ament_index_cpp
     tobas_inja_vendor
+    tobas_std_tools
     tobas_path_tools
+    tobas_linux
     tobas_constants
     tobas_crypt
     tobas_ssh_authkey

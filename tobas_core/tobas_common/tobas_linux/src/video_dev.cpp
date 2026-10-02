@@ -9,9 +9,10 @@
 #include <sys/mman.h>
 #include <unistd.h>
 
-#include <cerrno>
-#include <cstring>
+#include <cstdlib>
 #include <iostream>
+
+#include <tobas_std_tools/error.hpp>
 
 namespace tobas
 {
@@ -49,9 +50,9 @@ VideoDev::~VideoDev()
 bool VideoDev::initialize(
   const char* video_dev,
   const char* pixel_format,
-  const bool& disable_video_streaming,
-  const uint32_t& width,
-  const uint32_t& height)
+  bool disable_video_streaming,
+  uint32_t width,
+  uint32_t height)
 {
   if (fd_ >= 0) {
     close(fd_);
@@ -122,7 +123,7 @@ void VideoDev::displaySupportedFormats()
 bool VideoDev::execUvcControl(const uvc_xu_control_query& query)
 {
   if (ioctl(fd_, UVCIOC_CTRL_QUERY, &query) < 0) {
-    std::cerr << "Failed to execute UVC control. errno=" << errno << " : " << strerror(errno) << std::endl;
+    std::cerr << "Failed to execute UVC control: " << st::strError() << std::endl;
     return false;
   }
   return true;
@@ -164,7 +165,7 @@ VideoDev::ImgFormat VideoDev::getImageFormat()
   return fmt_;
 }
 
-std::string VideoDev::FCC2S(const uint32_t& val)
+std::string VideoDev::FCC2S(uint32_t val)
 {
   std::string s;
   s += val & 0x7F;
@@ -236,7 +237,7 @@ bool VideoDev::mapBuffer()
   return true;
 }
 
-bool VideoDev::enqueue(const uint32_t& i)
+bool VideoDev::enqueue(uint32_t i)
 {
   v4l2_buffer buf = {};
   buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
@@ -294,7 +295,7 @@ int VideoDev::dequeue()
   return buf.index;
 }
 
-bool VideoDev::setImgFormat(const char* pixel_format, const uint32_t& width, const uint32_t& height)
+bool VideoDev::setImgFormat(const char* pixel_format, uint32_t width, uint32_t height)
 {
   v4l2_format fmt_request = {};
   fmt_request.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
@@ -314,7 +315,7 @@ bool VideoDev::setImgFormat(const char* pixel_format, const uint32_t& width, con
     fmt_request.fmt.pix.height = height;
   }
   if (ioctl(fd_, VIDIOC_S_FMT, &fmt_request) < 0) {
-    std::cerr << "Failed to set image format. errno : " << errno << " : " << strerror(errno) << std::endl;
+    std::cerr << "Failed to set image format: " << st::strError() << std::endl;
     return false;
   }
   // Check format.

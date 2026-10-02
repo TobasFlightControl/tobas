@@ -7,7 +7,6 @@
 
 #include <QSettings>
 
-#include <tobas_colcon_cpp/core.hpp>
 #include <tobas_kdl/tree.hpp>
 #include <tobas_kdl_parser/kdl_parser.hpp>
 #include <tobas_qt_tools/widgets/wait_spinner.hpp>
@@ -24,7 +23,6 @@
 #include "./rviz.hpp"
 #include "./settings.hpp"
 #include "./signals.hpp"
-#include "./xacro_parser.hpp"
 
 namespace tobas
 {
@@ -47,14 +45,11 @@ private:
 
   FrameTypeDetector frame_type_detector_;
 
-  XacroParser xacro_parser_;
   uadf::Parser uadf_parser_;
   kdl::TreeParser tree_parser_;
 
   QSettings settings_store_;
   ros2::SyncParamClient rsp_client_;
-
-  colcon::Colcon colcon_;
 
   qt::WaitSpinnerWidget spinner_;
   Signals sig_;
@@ -74,7 +69,7 @@ private:
 
   std::optional<ProjectGenerator> prj_gen_;
 
-  /* Return all settings to their startup state. */
+  /** Return all settings to their startup state. */
   void reset();
 
   void enableSaveButtons(bool enable);

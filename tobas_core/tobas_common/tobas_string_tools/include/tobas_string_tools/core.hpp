@@ -3,77 +3,80 @@
 
 #pragma once
 
+#include <expected>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace tobas
 {
 namespace str
 {
-/* Split a string and return a vector. */
-std::vector<std::string> split(const std::string& s, const char& c);
+/** Split a string and return a vector. */
+std::vector<std::string> split(const std::string& s, char c);
 
-/* Split a string at the last specified character. */
-std::pair<std::string, std::string> rsplit(const std::string& s, const char& c);
+/** Split a string at the last specified character. */
+std::expected<std::pair<std::string, std::string>, std::string> rsplit(const std::string& s, char c);
 
-/* Remove a specific string from the beginning. */
+/** Remove a specific string from the beginning. */
 std::string lstrip(const std::string& s, const std::string& del);
 
-/* Remove a specific string from the end. */
+/** Remove a specific string from the end. */
 std::string rstrip(const std::string& s, const std::string& del);
 
-/* Remove quotation marks. */
+/** Remove quotation marks. */
 std::string stripQuates(const std::string& s);
 
-/* Remove leading and trailing spaces, tabs, and control characters such as newlines. */
+/** Remove leading and trailing spaces, tabs, and control characters such as newlines. */
 std::string trim(const std::string& s);
 
-/* Split lines. */
+/** Split lines. */
 std::vector<std::string> splitLines(const std::string& text);
 
-/* Remove newline characters from a string. */
+/** Remove newline characters from a string. */
 std::string deleteNl(const std::string& s);
 
-/* Convert to lowercase. */
+/** Convert to lowercase. */
 std::string toLower(std::string arg);
 
-/* Convert to uppercase. */
+/** Convert to uppercase. */
 std::string toUpper(std::string arg);
 
-/* Replace a specific string in a string with another string. */
+/** Replace a specific string in a string with another string. */
 std::string replace(std::string s, const std::string& from, const std::string& to);
 
-/* Remove control characters from a string. */
+/** Remove control characters from a string. */
 std::string sanitize(const char* s);
 
 /**
- * @brief Reject empty names, `.` and `..`, ASCII control characters, and reserved punctuation.
+ * Reject empty names, `.` and `..`, ASCII control characters, and reserved punctuation.
  * This does not check Windows reserved names, trailing spaces or periods, or filesystem length limits.
  */
 bool isValidFileName(const std::string& file_name);
 
 /**
- * @brief Check whether an email address is valid.
- * cf. https://www.geeksforgeeks.org/check-if-email-address-valid-or-not-in-python/
+ * Check whether an email address is valid.
+ *
+ * @see https://www.geeksforgeeks.org/check-if-email-address-valid-or-not-in-python/
  */
 bool isValidEmail(const std::string& email);
 
-/* Converts digits following a caret (^) into their superscript equivalent. */
+/** Converts digits following a caret (^) into their superscript equivalent. */
 std::string convertToSuperscript(const std::string& input);
 
-/* Convert Title Case to PascalCase. */
+/** Convert Title Case to PascalCase. */
 std::string pascalFromTitle(const std::string& title_case);
 
-/* Convert snake_case to PascalCase. */
+/** Convert snake_case to PascalCase. */
 std::string pascalFromSnake(const std::string& snake_case);
 
-/* Convert snake_case to Title Case. */
+/** Convert snake_case to Title Case. */
 std::string titleFromSnake(const std::string& snake_case);
 
-/* Convert PascalCase to snake_case. */
+/** Convert PascalCase to snake_case. */
 std::string snakeFromPascal(const std::string& pascal_case);
 
-/* Convert Title Case to snake_case. */
+/** Convert Title Case to snake_case. */
 std::string snakeFromTitle(const std::string& title_case);
 }  // namespace str
 }  // namespace tobas

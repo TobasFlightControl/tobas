@@ -11,7 +11,7 @@ namespace tobas
 {
 namespace kdl
 {
-/* Compute the positions of all frames at once. */
+/** Compute the positions of all frames at once. */
 class TreeFkSolverPosAll : public TreeSolverI
 {
   using super = TreeSolverI;
@@ -21,25 +21,12 @@ public:
 
   void updateInternalDataStructures() override;
 
-  int jntToCart(const JntArray& q);
-
-  inline const Frame& getFrame(const std::string& seg_name) const;
-  inline const FrameMap& getFrames() const;
+  const FrameMap& jntToCart(const JntArray& q);
 
 private:
-  FrameMap frames_;
+  FrameMap frames_out_;
 
   void recursiveFk(const JntArray& q, const Frame& par_frame, const SegmentMap::const_iterator& cur_it);
 };
-
-inline const Frame& TreeFkSolverPosAll::getFrame(const std::string& seg_name) const
-{
-  return frames_.at(seg_name);
-}
-
-inline const FrameMap& TreeFkSolverPosAll::getFrames() const
-{
-  return frames_;
-}
 }  // namespace kdl
 }  // namespace tobas

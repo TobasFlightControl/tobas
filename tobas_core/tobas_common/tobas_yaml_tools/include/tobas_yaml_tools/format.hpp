@@ -10,7 +10,7 @@ namespace tobas
 namespace yaml
 {
 /**
- * @brief Convert a floating-point value to a YAML-compatible string.
+ * Convert a floating-point value to a YAML-compatible string.
  *
  * e.g. 100 -> 100.0, 0.000012345 -> 1.2345e-05
  */

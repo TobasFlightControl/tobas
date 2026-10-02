@@ -5,6 +5,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <vector>
 
 namespace tobas
 {
@@ -16,12 +17,9 @@ static constexpr size_t kUbxIdLength = 1;
 static constexpr size_t kUbxLengthLength = 2;
 static constexpr size_t kUbxChecksumLength = 2;
 static constexpr size_t kUbxHeaderLength = kUbxSyncLength + kUbxClassLength + kUbxIdLength + kUbxLengthLength;
-static constexpr size_t kUbxFixedLength = kUbxHeaderLength + kUbxChecksumLength;
 
 static constexpr uint8_t kUbxSync1 = 0xb5;
 static constexpr uint8_t kUbxSync2 = 0x62;
-
-static constexpr size_t kUbxBufferLength = 256;
 
 class UbxScanner
 {
@@ -48,7 +46,7 @@ public:
   UbxScanner& operator=(const UbxScanner& _other) = delete;
 
   void reset();
-  bool update(const uint8_t& data);
+  void update(uint8_t data);
 
   inline State state() const;
   inline size_t messageLength() const;
@@ -63,10 +61,10 @@ public:
   inline const uint8_t* getChecksumB() const;
 
 private:
-  uint8_t buffer_[kUbxBufferLength];  // Buffer for UBX message
-  size_t payload_length_;             // Length of current message payload
-  size_t pos_;                        // Indicates current buffer offset
-  State state_;                       // Current scanner state
+  std::vector<uint8_t> buffer_;  ///< Buffer for UBX message
+  size_t payload_length_;        ///< Length of current message payload
+  size_t pos_;                   ///< Indicates current buffer offset
+  State state_;                  ///< Current scanner state
 };
 
 inline UbxScanner::State UbxScanner::state() const
@@ -76,12 +74,12 @@ inline UbxScanner::State UbxScanner::state() const
 
 inline size_t UbxScanner::messageLength() const
 {
-  return kUbxFixedLength + payload_length_;
+  return kUbxHeaderLength + payload_length_ + kUbxChecksumLength;
 }
 
 inline const uint8_t* UbxScanner::getSync1() const
 {
-  return buffer_ + pos_ - messageLength();
+  return buffer_.data() + pos_ - messageLength();
 }
 
 inline const uint8_t* UbxScanner::getSync2() const

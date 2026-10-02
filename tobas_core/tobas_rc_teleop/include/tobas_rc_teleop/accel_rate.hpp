@@ -32,11 +32,11 @@ private:
   kdl::Vector tar_acc_G_;
   kdl::Vector tar_gyro_B_;
 
-  // ROS parameters.
-  double max_hor_acc_;    // [m/s]
-  double max_ver_acc_;    // [m/s]
-  double max_atti_rate_;  // [rad/s]
-  double max_head_rate_;  // [rad/s]
+  // ROS parameters
+  double max_hor_acc_;    ///< [m/s]
+  double max_ver_acc_;    ///< [m/s]
+  double max_atti_rate_;  ///< [rad/s]
+  double max_head_rate_;  ///< [rad/s]
   double hor_acc_expo_;
   double ver_acc_expo_;
   double atti_expo_;
@@ -49,14 +49,14 @@ private:
   void publishAccel(const builtin_interfaces::msg::Time& stamp, const kdl::Vector& acc);
   void publishRate(const builtin_interfaces::msg::Time& stamp, const kdl::Vector& rate);
 
-  bool maxHorizontalAccelCb(const double& p);
-  bool maxVerticalAccelCb(const double& p);
-  bool maxAttitudeRateCb(const double& p);
-  bool maxHeadingRateCb(const double& p);
-  bool horizontalAccelExpoCb(const double& p);
-  bool verticalAccelExpoCb(const double& p);
-  bool attitudeExpoCb(const double& p);
-  bool headingExpoCb(const double& p);
+  void maxHorizontalAccelCb(double p);
+  void maxVerticalAccelCb(double p);
+  void maxAttitudeRateCb(double p);
+  void maxHeadingRateCb(double p);
+  void horizontalAccelExpoCb(double p);
+  void verticalAccelExpoCb(double p);
+  void attitudeExpoCb(double p);
+  void headingExpoCb(double p);
 };
 }  // namespace rc
 }  // namespace tobas

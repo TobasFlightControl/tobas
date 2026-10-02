@@ -11,7 +11,7 @@ namespace tobas
 {
 namespace planar_multicopter
 {
-/* Thrust mixing for multicopters using a pseudoinverse matrix. */
+/** Thrust mixing for multicopters using a pseudoinverse matrix. */
 class PinvMixer : public MixerI
 {
   using super = MixerI;
@@ -19,16 +19,14 @@ class PinvMixer : public MixerI
 public:
   explicit PinvMixer(const Drone& drone, const kdl::Tree& tree);
 
-  std::expected<void, std::string> updateInternalDataStructures() override;
+  void updateInternalDataStructures() override;
 
-  std::expected<void, std::string> solve(
+  std::expected<Eigen::VectorXd, std::string> solve(
     const kdl::JntArray& cur_q,
     const kdl::Vector& cur_gyro_B,
     const kdl::Vector& tar_dgyro_B,
-    const double& tar_thrusts_sum,
+    double tar_thrusts_sum,
     const kdl::Vector& ext_torque_B = kdl::Vector::Zero());
-
-  double getThrust(size_t idx) const;
 
 private:
   kdl::TreeFkSolverPosAll fk_solver_;
@@ -36,7 +34,6 @@ private:
 
   Eigen::Matrix4Xd E_;
   Eigen::Vector4d f_;
-  Eigen::VectorXd x_;
 };
 }  // namespace planar_multicopter
 }  // namespace tobas

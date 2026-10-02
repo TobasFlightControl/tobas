@@ -9,7 +9,7 @@ namespace tobas
 {
 namespace st
 {
-/* Get the distance from the beginning of the map to an element. */
+/** Get the distance from the beginning of the map to an element. */
 template <typename T, typename U>
 ptrdiff_t getIndex(const std::map<T, U>& mp, const T& key)
 {

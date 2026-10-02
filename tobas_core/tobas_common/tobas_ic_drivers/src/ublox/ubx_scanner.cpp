@@ -3,13 +3,11 @@
 
 #include "tobas_ic_drivers/ublox/ubx_scanner.hpp"
 
-#include <iostream>
-
 namespace tobas
 {
 namespace ublox
 {
-UbxScanner::UbxScanner()
+UbxScanner::UbxScanner() : buffer_(kUbxHeaderLength)
 {
   reset();
 }
@@ -20,14 +18,14 @@ void UbxScanner::reset()
   state_ = kSync1;
 }
 
-bool UbxScanner::update(const uint8_t& data)
+void UbxScanner::update(uint8_t data)
 {
   if (state_ != kDone) {
     buffer_[pos_++] = data;
   }
 
   switch (state_) {
-    case kSync1:
+    case kSync1: {
       if (data == kUbxSync1) {
         state_ = kSync2;
       }
@@ -35,8 +33,8 @@ bool UbxScanner::update(const uint8_t& data)
         reset();
       }
       break;
-
-    case kSync2:
+    }
+    case kSync2: {
       switch (data) {
         case kUbxSync1:
           state_ = kSync1;
@@ -49,51 +47,51 @@ bool UbxScanner::update(const uint8_t& data)
           break;
       }
       break;
-
-    case kClass:
+    }
+    case kClass: {
       state_ = kId;
       break;
-
-    case kId:
+    }
+    case kId: {
       state_ = kLength1;
       break;
-
-    case kLength1:
+    }
+    case kLength1: {
       payload_length_ = data;
       state_ = kLength2;
       break;
-
-    case kLength2:
+    }
+    case kLength2: {
       payload_length_ += data << 8;
-      if (messageLength() > kUbxBufferLength) {
-        std::cerr << "The size of payload is larger than that of UBX buffer." << std::endl;
-        return false;
+      // Grow the buffer to fit the complete message, including its checksum.
+      const auto msg_length = messageLength();
+      if (msg_length > buffer_.size()) {
+        buffer_.resize(msg_length);
       }
       state_ = kPayload;
       break;
-
-    case kPayload:
+    }
+    case kPayload: {
       if (pos_ == kUbxHeaderLength + payload_length_) {
         state_ = kCkA;
       }
       break;
-
-    case kCkA:
+    }
+    case kCkA: {
       state_ = kCkB;
       break;
-
-    case kCkB:
+    }
+    case kCkB: {
       state_ = kDone;
       break;
-
-    case kDone:
+    }
+    case kDone: {
       break;
-
-    default:
+    }
+    default: {
       throw;
+    }
   }
-
-  return true;
 }
 }  // namespace ublox
 }  // namespace tobas

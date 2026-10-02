@@ -8,13 +8,12 @@
 #include <string>
 
 #include <tobas_math/core.hpp>
-#include <tobas_std_tools/unit_conversions.hpp>
 
 #include "../rotor.hpp"
 
 namespace tobas
 {
-/* ESC + Motor + Propeller */
+/** ESC + Motor + Propeller */
 class ElectricRotorConfig : public RotorConfig
 {
   using super = RotorConfig;
@@ -23,14 +22,14 @@ public:
   using SharedPtr = std::shared_ptr<ElectricRotorConfig>;
   using ConstSharedPtr = std::shared_ptr<const ElectricRotorConfig>;
 
-  uint32_t channel = 0;              // Channel to which the motor is connected.
-  uint32_t num_poles = 0;            // Number of motor poles.
-  double kv = 0.0;                   // Motor KV value [rad/s/V].
-  double internal_resistance = 0.0;  // Motor internal resistance [Ω].
-  double min_speed = 0.0;            // Minimum motor speed [rad/s].
-  double propeller_diameter = 0.0;   // Propeller diameter [m].
-  double motor_const = 0.0;          // Thrust coefficient [kg*m/rad^2].
-  double moment_const = 0.0;         // Reaction torque coefficient [m].
+  uint32_t channel = 0;              ///< Channel to which the motor is connected.
+  uint32_t num_poles = 0;            ///< Number of motor poles.
+  double kv = 0.0;                   ///< Motor Kv value [rad/s/V].
+  double internal_resistance = 0.0;  ///< Motor internal resistance [Ω].
+  double min_speed = 0.0;            ///< Minimum motor speed [rad/s].
+  double propeller_diameter = 0.0;   ///< Propeller diameter [m].
+  double motor_const = 0.0;          ///< Thrust coefficient [kg*m/rad^2].
+  double moment_const = 0.0;         ///< Reaction torque coefficient [m].
 
   std::expected<void, std::string> validate() const override;
 
@@ -40,25 +39,25 @@ public:
   inline double momentConst() const override;
   inline double effortWeight() const override;
 
-  /* Compute applied voltage [V] from rotational speed [rad/s]. */
+  /** Compute applied voltage [V] from rotational speed [rad/s]. */
   inline double voltageFromSpeed(double tar_speed) const;
 
-  /* Compute rotational speed [rad/s] from applied voltage [V]. */
+  /** Compute rotational speed [rad/s] from applied voltage [V]. */
   inline double speedFromVoltage(double voltage) const;
 
-  /* Compute thrust [N] from rotational speed [rad/s]. */
+  /** Compute thrust [N] from rotational speed [rad/s]. */
   inline double thrustFromSpeed(double tar_speed) const;
 
-  /* Compute rotational speed [rad/s] from thrust [N]. */
+  /** Compute rotational speed [rad/s] from thrust [N]. */
   inline double speedFromThrust(double thrust) const;
 
-  /* Compute thrust [N] from applied voltage. */
+  /** Compute thrust [N] from applied voltage. */
   inline double thrustFromVoltage(double voltage) const;
 
-  /* Compute throttle [0,1] from rotational speed [rad/s]. */
+  /** Compute throttle [0,1] from rotational speed [rad/s]. */
   inline double throttleFromSpeed(double tar_speed, double battery_voltage) const;
 
-  /* Compute throttle [0,1] from thrust [N]. */
+  /** Compute throttle [0,1] from thrust [N]. */
   inline double throttleFromThrust(double thrust, double battery_voltage) const;
 };
 

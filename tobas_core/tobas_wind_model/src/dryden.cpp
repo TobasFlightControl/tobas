@@ -14,7 +14,7 @@ DrydenComponents::DrydenComponents()
 {
 }
 
-void DrydenComponents::update(const double& relative_wind_speed, const double& altitude, const double& dt)
+void DrydenComponents::update(double relative_wind_speed, double altitude, double dt)
 {
   assert(relative_wind_speed >= 0);
   assert(dt >= 0);
@@ -36,7 +36,7 @@ void DrydenComponents::update(const double& relative_wind_speed, const double& a
   r_uv_ = relative_wind_speed / L_uv_ * dt;
 }
 
-void DrydenComponents::setMeanWindSpeed(const double& mean_wind_speed)
+void DrydenComponents::setMeanWindSpeed(double mean_wind_speed)
 {
   assert(mean_wind_speed >= 0);
   mean_speed_ = mean_wind_speed;
@@ -46,7 +46,7 @@ DrydenSimulator::DrydenSimulator() : rnd_gen_(rnd_dev_()), noise_(0, 1)
 {
 }
 
-void DrydenSimulator::update(const double& relative_wind_speed, const double& altitude, const double& dt)
+void DrydenSimulator::update(double relative_wind_speed, double altitude, double dt)
 {
   components_.update(relative_wind_speed, altitude, dt);
 
@@ -57,7 +57,7 @@ void DrydenSimulator::update(const double& relative_wind_speed, const double& al
   w_ = (1 - components_.updateRateVer()) * w_ + components_.noiseStddevVer() * noise_(rnd_gen_);
 }
 
-void DrydenSimulator::setMeanWindSpeed(const double& mean_wind_speed)
+void DrydenSimulator::setMeanWindSpeed(double mean_wind_speed)
 {
   components_.setMeanWindSpeed(mean_wind_speed);
 }

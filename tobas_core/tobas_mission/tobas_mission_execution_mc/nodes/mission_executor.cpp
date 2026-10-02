@@ -48,7 +48,7 @@ namespace
 {
 using CatmullRomPath = traj::CatmullRomPath<Eigen::Vector3d>;
 
-/* Return true when `value` is finite and positive. */
+/** Return true when `value` is finite and positive. */
 inline bool isPositive(double value)
 {
   return std::isfinite(value) && value > 0.0;
@@ -64,10 +64,12 @@ inline double selectConservativeLimit(double current, double candidate)
 
 struct PathComponentScale
 {
-  // Maximum horizontal and vertical component coefficients for path arc length `s`.
-  // For example, `horizontal = 1` and `vertical = 0` is a horizontal-only path.
-  // `horizontal = 0` and `vertical = 1` is a vertical-only path.
-  // `horizontal` and `vertical` are separate norms, so their sum is not necessarily 1.
+  /**
+   * Maximum horizontal and vertical component coefficients for path arc length `s`.
+   * For example, `horizontal = 1` and `vertical = 0` is a horizontal-only path.
+   * `horizontal = 0` and `vertical = 1` is a vertical-only path.
+   * `horizontal` and `vertical` are separate norms, so their sum is not necessarily 1.
+   */
   double horizontal = 0.0;
   double vertical = 0.0;
 };
@@ -131,8 +133,8 @@ class MulticopterMissionExecutorNode : public BaseNode
   using GoalHandle = rclcpp_action::ServerGoalHandle<Action>;
   using GoalHandlePtr = std::shared_ptr<GoalHandle>;
 
-  static constexpr double kCommandRate = 100.0;      // [Hz]
-  static constexpr double kAttitudeRate = M_PI / 6;  // [rad/s]
+  static constexpr double kCommandRate = 100.0;      ///< [Hz]
+  static constexpr double kAttitudeRate = M_PI / 6;  ///< [rad/s]
 
 public:
   explicit MulticopterMissionExecutorNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -142,28 +144,28 @@ private:
 
   struct WaypointConfig
   {
-    double max_hor_vel;    // [m/s]
-    double max_hor_acc;    // [m/s^2]
-    double max_hor_jerk;   // [m/s^3]
-    double max_ver_vel;    // [m/s]
-    double max_ver_acc;    // [m/s^2]
-    double max_ver_jerk;   // [m/s^3]
-    double max_head_rate;  // [rad/s]
-    double max_head_acc;   // [rad/s^2]
+    double max_hor_vel;    ///< [m/s]
+    double max_hor_acc;    ///< [m/s^2]
+    double max_hor_jerk;   ///< [m/s^3]
+    double max_ver_vel;    ///< [m/s]
+    double max_ver_acc;    ///< [m/s^2]
+    double max_ver_jerk;   ///< [m/s^3]
+    double max_head_rate;  ///< [rad/s]
+    double max_head_acc;   ///< [rad/s^2]
   } wp_cfg_;
   struct TakeoffConfig
   {
-    double max_speed;  // [m/s]
-    double max_accel;  // [m/s^2]
-    double max_jerk;   // [m/s^3]
+    double max_speed;  ///< [m/s]
+    double max_accel;  ///< [m/s^2]
+    double max_jerk;   ///< [m/s^3]
   } takeoff_cfg_;
   struct LandConfig
   {
-    double speed;  // [m/s]
+    double speed;  ///< [m/s]
   } land_cfg_;
   struct ReturnToLaunchConfig
   {
-    double min_alt;  // [m]
+    double min_alt;  ///< [m]
   } rtl_cfg_;
 
   bool is_executing_ = false;
@@ -178,7 +180,7 @@ private:
     kManualOverride,
   } status_ = kNoProblem;
 
-  /* Target trajectory point expressed in the global frame. */
+  /** Target trajectory point expressed in the global frame. */
   struct Command
   {
     kdl::Vector pos;
@@ -213,20 +215,20 @@ private:
 
   void getStaticRosParams();
 
-  /* Initialize the command from the setpoint if it exists, otherwise from the current state. */
+  /** Initialize the command from the setpoint if it exists, otherwise from the current state. */
   void initializeCommand();
 
-  /* Publish the command. */
+  /** Publish the command. */
   void publishCommand(const rclcpp::Time& stamp);
 
-  /* Arm or disarm rotors synchronously. */
+  /** Arm or disarm rotors synchronously. */
   bool armRotors(bool arming);
 
-  /* Smoothly stop from the current command. */
+  /** Smoothly stop from the current command. */
   void brake();
 
   /**
-   * @brief Handle shutdown appropriately in response to external requests.
+   * Handle shutdown appropriately in response to external requests.
    * This includes cancellation, supersession, and similar requests.
    *
    * @return bool Whether the mission can continue.
@@ -234,7 +236,7 @@ private:
   bool handleExternalRequest(const GoalHandlePtr& gh, const ResultPtr& res);
 
   /**
-   * @brief Verify the navigation states required by the current mission phase.
+   * Verify the navigation states required by the current mission phase.
    *
    * Vertical position accuracy is always required because every mission phase,
    * including the emergency landing fallback, uses altitude control.
@@ -965,7 +967,7 @@ bool MulticopterMissionExecutorNode::executeLand(const Land& goal, const GoalHan
 
 bool MulticopterMissionExecutorNode::executeRTL(const ReturnToLaunch& goal, const GoalHandlePtr& gh, const ResultPtr& res)
 {
-  // cf. [Return Mode | PX4](https://docs.px4.io/main/en/flight_modes/return)
+  // Ref: [Return Mode | PX4](https://docs.px4.io/main/en/flight_modes/return)
 
   if (!launch_point_) {
     res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
@@ -1148,11 +1150,7 @@ MulticopterMissionExecutorNode::handleGoal(const rclcpp_action::GoalUUID&, const
 
     switch (item.type) {
       case kWaypoint: {
-        Waypoint waypoint;
-        if (!st::fromBytes(item.data, waypoint)) {
-          TOBAS_WARN("Mission No. ", cmd_number, ": Size mismatch.");
-          return rclcpp_action::GoalResponse::REJECT;
-        }
+        const auto waypoint = st::fromBytes<Waypoint>(item.data);
 
         if (waypoint.latitude < -90 || 90 < waypoint.latitude) {
           TOBAS_WARN("Mission No. ", cmd_number, ": Invalid target latitude.");
@@ -1191,11 +1189,7 @@ MulticopterMissionExecutorNode::handleGoal(const rclcpp_action::GoalUUID&, const
         break;
       }
       case kTakeoff: {
-        Takeoff takeoff;
-        if (!st::fromBytes(item.data, takeoff)) {
-          TOBAS_WARN("Mission No. ", cmd_number, ": Size mismatch.");
-          return rclcpp_action::GoalResponse::REJECT;
-        }
+        const auto takeoff = st::fromBytes<Takeoff>(item.data);
 
         if (takeoff.altitude <= 0.0) {
           TOBAS_WARN("Mission No. ", cmd_number, ": Target altitude must be positive.");
@@ -1239,12 +1233,6 @@ MulticopterMissionExecutorNode::handleGoal(const rclcpp_action::GoalUUID&, const
         break;
       }
       case kLand: {
-        Land land;
-        if (!st::fromBytes(item.data, land)) {
-          TOBAS_WARN("Mission No. ", cmd_number, ": Size mismatch.");
-          return rclcpp_action::GoalResponse::REJECT;
-        }
-
         if (!armed) {
           TOBAS_WARN("Mission No. ", cmd_number, ": The vehicle must be armed before a land command.");
           return rclcpp_action::GoalResponse::REJECT;
@@ -1260,12 +1248,6 @@ MulticopterMissionExecutorNode::handleGoal(const rclcpp_action::GoalUUID&, const
         break;
       }
       case kReturnToLaunch: {
-        ReturnToLaunch rtl;
-        if (!st::fromBytes(item.data, rtl)) {
-          TOBAS_WARN("Mission No. ", cmd_number, ": Size mismatch.");
-          return rclcpp_action::GoalResponse::REJECT;
-        }
-
         if (!armed) {
           TOBAS_WARN("Mission No. ", cmd_number, ": The vehicle must be armed before a RTL command.");
           return rclcpp_action::GoalResponse::REJECT;
@@ -1364,8 +1346,7 @@ void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& gh)
       case kWaypoint: {
         std::vector<Waypoint> waypoints;
         for (; idx < items.size() && items[idx].type == kWaypoint; ++idx) {
-          Waypoint waypoint;
-          st::fromBytes(items[idx].data, waypoint);
+          const auto waypoint = st::fromBytes<Waypoint>(item.data);
           waypoints.push_back(waypoint);
           if (waypoint.stop_at_waypoint) {
             ++idx;
@@ -1380,8 +1361,7 @@ void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& gh)
         break;
       }
       case kTakeoff: {
-        Takeoff takeoff;
-        st::fromBytes(item.data, takeoff);
+        const auto takeoff = st::fromBytes<Takeoff>(item.data);
         if (!executeTakeoff(takeoff, gh, res)) {
           is_executing_ = false;
           return;
@@ -1390,8 +1370,7 @@ void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& gh)
         break;
       }
       case kLand: {
-        Land land;
-        st::fromBytes(item.data, land);
+        const auto land = st::fromBytes<Land>(item.data);
         if (!executeLand(land, gh, res)) {
           is_executing_ = false;
           return;
@@ -1400,8 +1379,7 @@ void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& gh)
         break;
       }
       case kReturnToLaunch: {
-        ReturnToLaunch rtl;
-        st::fromBytes(item.data, rtl);
+        const auto rtl = st::fromBytes<ReturnToLaunch>(item.data);
         if (!executeRTL(rtl, gh, res)) {
           is_executing_ = false;
           return;

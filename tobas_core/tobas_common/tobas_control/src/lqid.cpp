@@ -11,7 +11,7 @@ namespace tobas
 {
 namespace ctrl
 {
-LQID::LQID(const Eigen::Index& state_size, const Eigen::Index& input_size, const Eigen::Index& integrate_size)
+LQID::LQID(Eigen::Index state_size, Eigen::Index input_size, Eigen::Index integrate_size)
   : dynamics(state_size, input_size)
   , C(integrate_size, state_size)
   , state_weight(state_size)
@@ -60,7 +60,7 @@ LQID::LQID(const Eigen::Index& state_size, const Eigen::Index& input_size, const
   R_tilde_.setZero();
 }
 
-Eigen::VectorXd LQID::solve(const double& dt, const bool& update_gain)
+std::expected<Eigen::VectorXd, std::string> LQID::solve(double dt, bool update_gain)
 {
   assert(dt >= 0);
 
@@ -75,7 +75,9 @@ Eigen::VectorXd LQID::solve(const double& dt, const bool& update_gain)
   assert((max_integrated_error.array() >= 0).all());
 
   if (update_gain) {
-    updateGain();
+    if (const auto result = updateGainMatrix(); !result) {
+      return std::unexpected("Failed to update gain matrix: " + result.error());
+    }
   }
 
   // Update the integrated error.
@@ -98,7 +100,7 @@ Eigen::VectorXd LQID::solve(const double& dt, const bool& update_gain)
   return last_u_;
 }
 
-void LQID::updateGain()
+std::expected<void, std::string> LQID::updateGainMatrix()
 {
   assert(dynamics.stateSize() == x_size_ && dynamics.inputSize() == u_size_);
   assert(dynamics.isFinite());
@@ -135,10 +137,15 @@ void LQID::updateGain()
   R_tilde_.diagonal() = input_rate_weight;
 
   // Solve CARE.
-  P_inf_ = care_ArimotoPotter(A_tilde_, B_tilde_, Q_tilde_, R_tilde_);
+  const auto P_inf = care_ArimotoPotter(A_tilde_, B_tilde_, Q_tilde_, R_tilde_);
+  if (!P_inf) {
+    return std::unexpected("Failed to solve CARE: " + P_inf.error());
+  }
 
   // Compute the LQR solution.
-  K_ = R_tilde_.diagonal().cwiseInverse().asDiagonal() * B_tilde_.transpose() * P_inf_;
+  K_ = R_tilde_.diagonal().cwiseInverse().asDiagonal() * B_tilde_.transpose() * *P_inf;
+
+  return {};
 }
 
 std::ostream& operator<<(std::ostream& os, const LQID& arg)
@@ -147,7 +154,6 @@ std::ostream& operator<<(std::ostream& os, const LQID& arg)
   os << "Current state:\n" << arg.current_state << std::endl;
   os << "Target state:\n" << arg.target_state << std::endl;
   os << "State error:\n" << arg.target_state - arg.current_state << std::endl;
-  os << "Covariance matrix:\n" << arg.P_inf_ << std::endl;
   os << "Gain:\n" << arg.K_ << std::endl;
 
   return os;

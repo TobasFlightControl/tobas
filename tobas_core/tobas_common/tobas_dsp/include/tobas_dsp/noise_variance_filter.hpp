@@ -11,9 +11,7 @@ namespace tobas
 {
 namespace dsp
 {
-/**
- * @brief Online variance calculation for high-frequency noise components in a signal.
- */
+/** Online variance calculation for high-frequency noise components in a signal. */
 template <typename Scalar, int Size, size_t Length>
 class NoiseVarianceFilter
 {

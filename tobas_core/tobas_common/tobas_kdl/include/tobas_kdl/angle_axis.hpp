@@ -15,7 +15,7 @@ class AngleAxis
 {
 public:
   inline explicit AngleAxis();
-  inline explicit AngleAxis(const double& angle, const Vector& axis);
+  inline explicit AngleAxis(double angle, const Vector& axis);
   inline explicit AngleAxis(const Vector& angle_axis);
 
   inline Vector toVector() const;
@@ -27,14 +27,14 @@ public:
 
 private:
   double angle_;
-  Vector axis_;  // Axis of rotation (normalized)
+  Vector axis_;  ///< Axis of rotation (normalized)
 };
 
 inline AngleAxis::AngleAxis() : angle_(0), axis_(1, 0, 0)
 {
 }
 
-inline AngleAxis::AngleAxis(const double& angle, const Vector& axis) : angle_(angle), axis_(axis)
+inline AngleAxis::AngleAxis(double angle, const Vector& axis) : angle_(angle), axis_(axis)
 {
   axis_.normalize();
 }

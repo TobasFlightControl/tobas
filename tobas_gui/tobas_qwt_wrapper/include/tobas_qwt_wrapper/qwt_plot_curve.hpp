@@ -31,7 +31,7 @@ public:
 
   void attach(QwtPlot* plot);
 
-  /* Clear samples. */
+  /** Clear samples. */
   void clear();
 
 private:

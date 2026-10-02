@@ -4,7 +4,6 @@
 #include "tobas_yaml_tools/core.hpp"
 
 #include <fstream>
-#include <iostream>
 
 namespace fs = std::filesystem;
 
@@ -35,18 +34,21 @@ std::expected<YAML::Node, std::string> load(const fs::path& path) noexcept
   }
 }
 
-bool save(const fs::path& path, const YAML::Node& node) noexcept
+std::expected<void, std::string> save(const fs::path& path, const YAML::Node& node) noexcept
 {
   std::ofstream fout(path);
   if (!fout.is_open()) {
-    std::cerr << "Failed to open '" << path << "' for writing." << std::endl;
-    return false;
+    return std::unexpected("Failed to open '" + path.string() + "' for writing.");
   }
 
   fout << dump(node);
   fout.close();
 
-  return true;
+  if (fout.fail()) {
+    return std::unexpected("Failed to write YAML to '" + path.string() + "'.");
+  }
+
+  return {};
 }
 }  // namespace yaml
 }  // namespace tobas

@@ -84,10 +84,6 @@ bool BMM150::readMag(double& mx, double& my, double& mz)
     std::cerr << "Failed in z-axis self test." << std::endl;
     return false;
   }
-  // if (((mag_buf_[6] & 1) == 0)) {
-  //   cerr << "Read Old Data" << endl;
-  //   return false;
-  // }
 
   const int16_t msb_data_x = static_cast<int16_t>(static_cast<int8_t>(mag_buf_[1]) * 32);
   const int16_t msb_data_y = static_cast<int16_t>(static_cast<int8_t>(mag_buf_[3]) * 32);
@@ -98,7 +94,7 @@ bool BMM150::readMag(double& mx, double& my, double& mz)
   const uint16_t r_hall = ((static_cast<uint16_t>(mag_buf_[7]) << 6) | (mag_buf_[6] >> 2));
 
   // Compensate for the temperature effect using resistance value of hall sensor based on
-  // https://github.com/boschsensortec/BMM150_SensorAPI/blob/master/bmm150.c compensate_x
+  // Ref: https://github.com/boschsensortec/BMM150_SensorAPI/blob/master/bmm150.c compensate_x
   // (int16_t)raw_data * kResolution is approximately microteslas.
   constexpr double kResolution = 1.0 / 16.0;
   mx = static_cast<double>(compensateX(raw_data_x, r_hall)) * kResolution;
@@ -221,7 +217,7 @@ bool BMM150::readTrimRegisters()
   return true;
 }
 
-int16_t BMM150::compensateX(const int16_t& mag_data_x, const uint16_t& data_r_hall)
+int16_t BMM150::compensateX(int16_t mag_data_x, uint16_t data_r_hall)
 {
   uint16_t process_comp_x0 = 0;
 
@@ -263,7 +259,7 @@ int16_t BMM150::compensateX(const int16_t& mag_data_x, const uint16_t& data_r_ha
   }
 }
 
-int16_t BMM150::compensateY(const int16_t& mag_data_y, const uint16_t& data_r_hall)
+int16_t BMM150::compensateY(int16_t mag_data_y, uint16_t data_r_hall)
 {
   uint16_t process_comp_y0 = 0;
 
@@ -304,7 +300,7 @@ int16_t BMM150::compensateY(const int16_t& mag_data_y, const uint16_t& data_r_ha
   }
 }
 
-int16_t BMM150::compensateZ(const int16_t& mag_data_z, const uint16_t& data_r_hall)
+int16_t BMM150::compensateZ(int16_t mag_data_z, uint16_t data_r_hall)
 {
   if (mag_data_z != kZaxisHallOverflowAdcval) {
     if ((trim_data_.dig_z2 != 0) && (trim_data_.dig_z1 != 0) && (data_r_hall != 0) && (trim_data_.dig_xyz1 != 0)) {

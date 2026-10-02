@@ -105,7 +105,7 @@ std::vector<std::string> BaseNode::getStringArrayParam(const std::string& param_
   }
 }
 
-bool BaseNode::getBoolParam(const std::string& param_name, const bool& dflt) noexcept
+bool BaseNode::getBoolParam(const std::string& param_name, bool dflt) noexcept
 {
   if (has_parameter(param_name)) {
     return get_parameter(param_name).as_bool();
@@ -115,7 +115,7 @@ bool BaseNode::getBoolParam(const std::string& param_name, const bool& dflt) noe
   }
 }
 
-long BaseNode::getIntParam(const std::string& param_name, const long& dflt) noexcept
+long BaseNode::getIntParam(const std::string& param_name, long dflt) noexcept
 {
   if (has_parameter(param_name)) {
     return get_parameter(param_name).as_int();
@@ -125,7 +125,7 @@ long BaseNode::getIntParam(const std::string& param_name, const long& dflt) noex
   }
 }
 
-double BaseNode::getDoubleParam(const std::string& param_name, const double& dflt) noexcept
+double BaseNode::getDoubleParam(const std::string& param_name, double dflt) noexcept
 {
   if (has_parameter(param_name)) {
     return get_parameter(param_name).as_double();
@@ -251,23 +251,24 @@ void BaseNode::setClockType(rclcpp::NodeOptions& options)
   const auto clock_type = ros2::getEnv("TOBAS_CLOCK_TYPE");
 
   if (!clock_type) {
+    std::cerr << clock_type.error() << std::endl;
     return;
   }
 
-  if (std::strcmp(clock_type, "ros_time") == 0) {
+  if (std::strcmp(*clock_type, "ros_time") == 0) {
     options.clock_type(RCL_ROS_TIME);  // Use the system clock if no reference clock is available.
     options.use_clock_thread(true);    // Use a dedicated thread because `/clock` may be received.
   }
-  else if (std::strcmp(clock_type, "system_time") == 0) {
+  else if (std::strcmp(*clock_type, "system_time") == 0) {
     options.clock_type(RCL_SYSTEM_TIME);  // System clock synchronized with NTP.
     options.use_clock_thread(false);      // No dedicated thread is needed because `/clock` is not received.
   }
-  else if (std::strcmp(clock_type, "steady_time") == 0) {
+  else if (std::strcmp(*clock_type, "steady_time") == 0) {
     options.clock_type(RCL_STEADY_TIME);  // Monotonic timer unaffected by NTP.
     options.use_clock_thread(false);      // No dedicated thread is needed because `/clock` is not received.
   }
   else {
-    std::cerr << "Unknown clock type: " << clock_type << std::endl;
+    std::cerr << "Unknown clock type: " << *clock_type << std::endl;
   }
 }
 }  // namespace tobas

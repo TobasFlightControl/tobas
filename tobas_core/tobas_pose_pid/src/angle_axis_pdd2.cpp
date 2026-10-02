@@ -3,9 +3,7 @@
 
 #include "tobas_pose_pid/angle_axis_pdd2.hpp"
 
-#include <iostream>
-
-#include "./util.hpp"
+#include <cassert>
 
 namespace tobas
 {
@@ -21,7 +19,7 @@ kdl::Vector AngleAxisPDD2::update(
   const kdl::Rotation& tar_rot,
   const kdl::Vector& tar_gyro,
   const kdl::Vector& tar_dgyro,
-  const double& dt)
+  double dt)
 {
   // Compute error in angle-axis form wrt. the local frame.
   const auto ep = (cur_rot.inverse() * tar_rot).getRot();
@@ -36,55 +34,31 @@ kdl::Vector AngleAxisPDD2::update(
   return cmd_dgyro_;
 }
 
-bool AngleAxisPDD2::setNaturalFreq(int idx, double value)
+void AngleAxisPDD2::setNaturalFreq(int idx, double value)
 {
-  if (!checkIndex(idx)) {
-    return false;
-  }
-
-  if (value <= 0.0) {
-    std::cerr << "Natural frequency must be positive." << std::endl;
-    return false;
-  }
+  assert(0 <= idx && idx < 3);
+  assert(value >= 0.0);
 
   wn_(idx) = value;
   updateGain();
-
-  return true;
 }
 
-bool AngleAxisPDD2::setInertiaRatio(int idx, double value)
+void AngleAxisPDD2::setInertiaRatio(int idx, double value)
 {
-  if (!checkIndex(idx)) {
-    return false;
-  }
-
-  if (value <= 0.0) {
-    std::cerr << "Inertia ratio must be positive." << std::endl;
-    return false;
-  }
+  assert(0 <= idx && idx < 3);
+  assert(value >= 0.0);
 
   zeta_(idx) = value;
   updateGain();
-
-  return true;
 }
 
-bool AngleAxisPDD2::setDampingRatio(int idx, double value)
+void AngleAxisPDD2::setDampingRatio(int idx, double value)
 {
-  if (!checkIndex(idx)) {
-    return false;
-  }
-
-  if (value < 0.0) {
-    std::cerr << "Damping ratio must be non-negative." << std::endl;
-    return false;
-  }
+  assert(0 <= idx && idx < 3);
+  assert(value >= 0.0);
 
   xi_(idx) = value;
   updateGain();
-
-  return true;
 }
 
 void AngleAxisPDD2::updateGain()

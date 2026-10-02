@@ -4,6 +4,9 @@
 #pragma once
 
 #include <chrono>
+#include <ctime>
+#include <expected>
+#include <string>
 #include <thread>
 
 namespace tobas
@@ -36,15 +39,15 @@ inline constexpr std::chrono::duration<int, std::ratio<1, Hz>> periodFromFrequen
   return std::chrono::duration<int, std::ratio<1, Hz>>{ 1 };
 }
 
-std::chrono::system_clock::time_point tmToTimePoint(tm tm);
+std::expected<std::chrono::system_clock::time_point, std::string> tmToTimePoint(tm tm);
 tm timePointToTm(const std::chrono::system_clock::time_point& tp);
 
 tm tmFromUTC(int year, int month, int day, int hour, int min, int sec);
 
-std::chrono::system_clock::time_point
+std::expected<std::chrono::system_clock::time_point, std::string>
 timePointFromUTC(int year, int month, int day, int hour, int min, int sec, int nano);
 
-/* Convert a Gregorian date to a fractional year using day precision. */
+/** Convert a Gregorian date to a fractional year using day precision. */
 double yearFraction(const std::chrono::system_clock::time_point& tp = std::chrono::system_clock::now());
 }  // namespace tim
 }  // namespace tobas

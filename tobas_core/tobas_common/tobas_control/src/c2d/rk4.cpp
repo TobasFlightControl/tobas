@@ -7,7 +7,7 @@ namespace tobas
 {
 namespace ctrl
 {
-C2D_RK4::C2D_RK4(const Eigen::Index& x_size, const Eigen::Index& u_size)
+C2D_RK4::C2D_RK4(Eigen::Index x_size, Eigen::Index u_size)
 {
   resize(x_size, u_size);
 }
@@ -16,7 +16,7 @@ C2D_RK4::C2D_RK4()
 {
 }
 
-LinearDynamics C2D_RK4::convert(const LinearDynamics& cont, const double& dt)
+LinearDynamics C2D_RK4::convert(const LinearDynamics& cont, double dt)
 {
   assert(cont.stateSize() == x_size_ && cont.inputSize() == u_size_);
   assert(cont.isFinite());
@@ -44,7 +44,7 @@ LinearDynamics C2D_RK4::convert(const LinearDynamics& cont, const double& dt)
   return LinearDynamics(Ad, Bd);
 }
 
-void C2D_RK4::resize(const Eigen::Index& x_size, const Eigen::Index& u_size)
+void C2D_RK4::resize(Eigen::Index x_size, Eigen::Index u_size)
 {
   x_size_ = x_size;
   u_size_ = u_size;

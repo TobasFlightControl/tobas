@@ -25,13 +25,15 @@ int main()
 
   constexpr char output_path[] = "/tmp/cyclonedds.xml";
 
-  tobas::cyclonedds::Data data;
-  if (!tobas::cyclonedds::parseFromText(input_text, data)) {
+  const auto data = tobas::cyclonedds::parseFromText(input_text);
+  if (!data) {
+    std::cerr << data.error() << std::endl;
     return EXIT_FAILURE;
   }
 
-  const auto text = tobas::cyclonedds::exportText(data);
+  const auto text = tobas::cyclonedds::exportText(*data);
   if (!tobas::str::writeText(output_path, text)) {
+    std::cerr << "Write text failed." << std::endl;
     return EXIT_FAILURE;
   }
 

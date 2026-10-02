@@ -78,35 +78,35 @@ private:
 
   void clearMission();
 
-  /* Add a mission command to the planner. */
+  /** Add a mission command to the planner. */
   void addCommand(mission::Type type, BaseCommandWidget* widget);
 
-  /* Switch each widget to execute mode. */
+  /** Switch each widget to execute mode. */
   void setExecuteMode();
 
-  /* Switch each widget to edit mode. */
+  /** Switch each widget to edit mode. */
   void setEditMode();
 
-  /* Update the displayed command widget based on the selected list item. */
+  /** Update the displayed command widget based on the selected list item. */
   void listToCommands();
 
-  /* Redraw map objects based on the current commands. */
+  /** Redraw map objects based on the current commands. */
   void commandsToMap();
 
-  /* Update whether each `Waypoint` is a spline endpoint from the command sequence. */
+  /** Update whether each `Waypoint` is a spline endpoint from the command sequence. */
   void updateWaypointSplineEnds();
 
-  /* Draw the `Waypoint` sequence on the map as a spline. */
+  /** Draw the `Waypoint` sequence on the map as a spline. */
   void addSplinePathToMap(const std::vector<QGeoCoordinate>& waypoints);
 
-  /* Get the command widget corresponding to the list item. */
+  /** Get the command widget corresponding to the list item. */
   BaseCommandWidget* findCommandWidget(const QListWidgetItem* _item);
   const BaseCommandWidget* findCommandWidget(const QListWidgetItem* _item) const;
 
-  /* Get the last waypoint widget. */
+  /** Get the last waypoint widget. */
   const WaypointWidget* findLastWaypoint() const;
 
-  /* Create a mission from the current settings. */
+  /** Create a mission from the current settings. */
   tobas::mission::Mission createMission() const;
 
 private Q_SLOTS:

@@ -196,7 +196,7 @@ RotorSpeedPlotWidget::updateTargetSpeedSamples(const QVector<tobas_msgs::msg::Ro
   return { min_speed, max_speed };
 }
 
-void RotorSpeedPlotWidget::updateVerticalScale(const double min_speed, const double max_speed)
+void RotorSpeedPlotWidget::updateVerticalScale(double min_speed, double max_speed)
 {
   double scale_min = min_speed;
   double scale_max = std::max(max_speed, 1000.0);

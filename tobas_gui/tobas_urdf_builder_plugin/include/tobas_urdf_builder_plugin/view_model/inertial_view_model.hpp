@@ -38,13 +38,13 @@ public:
   Inertia inertia() const;
   void inertia(const Inertia& inertia);
 
-  /* Inertia wrt. CoM of a box. */
+  /** Inertia wrt. CoM of a box. */
   void buildInertiaBox(double x, double y, double z);
 
-  /* Inertia wrt. CoM of a cylinder. */
+  /** Inertia wrt. CoM of a cylinder. */
   void buildInertiaCylinder(double radius, double length);
 
-  /* Inertia wrt. CoM of a sphere. */
+  /** Inertia wrt. CoM of a sphere. */
   void buildInertiaSphere(double radius);
 };
 

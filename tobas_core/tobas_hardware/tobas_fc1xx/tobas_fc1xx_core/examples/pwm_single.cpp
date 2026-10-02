@@ -17,24 +17,24 @@ int main(int argc, char** argv)
   const size_t channel = stoul(argv[1]);
   const uint16_t period = stoi(argv[2]);
 
-  tobas::fc1xx::PWM pwm;
+  if (channel >= tobas::fc1xx::PWM::kChannelSize) {
+    cerr << "PWM channel out of range: " << channel << endl;
+    return EXIT_FAILURE;
+  }
 
+  tobas::fc1xx::PWM pwm;
   if (!pwm.initialize()) {
     cerr << "Failed to initialize PWM driver." << endl;
     return EXIT_FAILURE;
   }
 
-  while (true) {
-    if (!pwm.setPeriod(channel, period)) {
-      cerr << "Failed to set PWM period of channel " << channel << "." << endl;
-      continue;
-    }
+  pwm.setPeriod(channel, period);
 
+  while (true) {
     if (!pwm.transfer()) {
       cerr << "Failed to command PWM periods." << endl;
       continue;
     }
-
     this_thread::sleep_for(100ms);
   }
 

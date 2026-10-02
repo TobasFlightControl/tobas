@@ -4,7 +4,6 @@
 #include "tobas_ros2_tools/util.hpp"
 
 #include <cstring>
-#include <iostream>
 
 #include <rcutils/env.h>
 #include <rcutils/filesystem.h>
@@ -15,32 +14,25 @@ namespace tobas
 {
 namespace ros2
 {
-const char* getEnv(const char* name)
+std::expected<const char*, std::string> getEnv(const char* name)
 {
   const char* value = nullptr;
   const char* error = rcutils_get_env(name, &value);
 
   if (error) {
-    std::cerr << "Failed to get '" << name << "': " << error << std::endl;
-    return nullptr;
+    return std::unexpected(std::string(error));
   }
 
   if (std::strlen(value) == 0) {
-    std::cerr << "'" << name << "' is not set." << std::endl;
-    return nullptr;
+    return std::unexpected("Environment variable '" + std::string(name) + "' is not set.");
   }
 
   return value;
 }
 
-const char* getUserName()
+std::expected<const char*, std::string> getUserName()
 {
   return getEnv("USER");
-}
-
-const char* getHomeDir()
-{
-  return rcutils_get_home_dir();
 }
 
 fs::path expandUser(const char* path)

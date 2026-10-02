@@ -16,8 +16,8 @@ namespace tobas
 namespace kdl
 {
 /**
- * @brief This class encapsulates a simple joint, that is with one
- * parameterized degree of freedom and with scalar dynamic properties.
+ * This class encapsulates a simple joint,
+ * that is with one parameterized degree of freedom and with scalar dynamic properties.
  */
 class Joint
 {
@@ -31,7 +31,7 @@ public:
 
   std::string name = "";
   Joint::JointType type = kFixed;
-  Vector origin = Vector::Zero();  // The position of the drive shaft wrt. the parent frame
+  Vector origin = Vector::Zero();  ///< The position of the drive shaft wrt. the parent frame
   double damping = 0.0;
   double friction = 0.0;
   double lower_limit = -INFINITY;
@@ -41,31 +41,31 @@ public:
 
   inline explicit Joint();
 
-  /* Check validity (except for the root joint). */
+  /** Check validity (except for the root joint). */
   std::expected<void, std::string> validate() const;
 
-  /* Get the normalized joint axis wrt. the parent frame. */
+  /** Get the normalized joint axis wrt. the parent frame. */
   inline const Vector& axis() const;
 
-  /* Set joint axis. */
+  /** Set joint axis. */
   inline void axis(const Vector& axis);
 
-  /* Request the 6D-pose of the end of the joint wrt. the parent frame. */
+  /** Request the 6D-pose of the end of the joint wrt. the parent frame. */
   inline Frame pose(double q) const;
 
-  /* Request the resulting 6D-velocity of the end of the joint wrt. the parent frame. */
+  /** Request the resulting 6D-velocity of the end of the joint wrt. the parent frame. */
   inline Twist twist(double qd) const;
 
-  /* Request the resulting 6D-acceleration of the end of the joint wrt. the parent frame. */
+  /** Request the resulting 6D-acceleration of the end of the joint wrt. the parent frame. */
   inline Accel accel(double qdd) const;
 
-  /* Request the jacobian for this joint wrt. the parent frame. */
+  /** Request the jacobian for this joint wrt. the parent frame. */
   inline SegmentJacobian jacobian() const;
 
-  /* Compute the first derivative of the rotation matrix with respect to the joint position. */
+  /** Compute the first derivative of the rotation matrix with respect to the joint position. */
   inline Eigen::Matrix3d rotGrad(double q) const;
 
-  /* Compute the second derivative of the rotation matrix with respect to the joint position. */
+  /** Compute the second derivative of the rotation matrix with respect to the joint position. */
   inline Eigen::Matrix3d rotGrad2(double q) const;
 
   static const char* typeToText(JointType type);
@@ -73,7 +73,7 @@ public:
   friend std::ostream& operator<<(std::ostream& os, const Joint& arg);
 
 private:
-  Vector axis_ = Vector::UnitZ();  // The normalized joint axis wrt. the parent frame.
+  Vector axis_ = Vector::UnitZ();  ///< The normalized joint axis wrt. the parent frame.
 };
 
 inline Joint::Joint()

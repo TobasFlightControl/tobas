@@ -17,7 +17,7 @@ namespace propulsion
 namespace electric
 {
 /**
- * @brief Obtain thrust and torque coefficients from Thrust Stand experimental data.
+ * Obtain thrust and torque coefficients from Thrust Stand experimental data.
  * Obtain the drag coefficient from Blade Theory.
  */
 class AerodynamicsWidget_ThrustStand : public AerodynamicsWidget_Base

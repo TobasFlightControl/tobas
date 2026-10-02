@@ -71,8 +71,8 @@ RCInputHandlerNode::RCInputHandlerNode(const rclcpp::NodeOptions& options)
 
   // Initialize property tree.
   const auto cfg_dir = linux::isSuperUser() ? fs::path(kConfigDirRoot) : ros2::expandUser(kConfigDirHome);
-  if (!pt_.initialize((cfg_dir / handler::rcin::kConfigFileName))) {
-    TOBAS_ERROR("Failed to initialize property tree. This node will not work.");
+  if (const auto result = pt_.initialize((cfg_dir / handler::rcin::kConfigFileName)); !result) {
+    TOBAS_ERROR("Failed to initialize property tree: ", result.error(), ". This node will not work.");
     return;
   }
 
@@ -305,9 +305,9 @@ void RCInputHandlerNode::setParamsCb(
   pt_.set(section_, handler::rcin::kKillOffKey, req->kill_off);
   pt_.set(section_, handler::rcin::kGpswOnKey, req->gpsw_on);
   pt_.set(section_, handler::rcin::kGpswOffKey, req->gpsw_off);
-  if (!pt_.save()) {
+  if (const auto result = pt_.save(); !result) {
     res->success = false;
-    res->message = "Failed to save parameters.";
+    res->message = "Failed to save parameters: " + result.error();
     return;
   }
 

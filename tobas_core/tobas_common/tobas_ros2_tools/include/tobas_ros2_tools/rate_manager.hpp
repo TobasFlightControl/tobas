@@ -16,7 +16,7 @@ public:
 
   void reset();
 
-  /* Return true when the period is executable. */
+  /** Return true when the period is executable. */
   bool update(const rclcpp::Time& time);
 
 private:

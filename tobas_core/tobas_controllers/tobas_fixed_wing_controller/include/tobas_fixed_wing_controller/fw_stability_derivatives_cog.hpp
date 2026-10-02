@@ -13,7 +13,7 @@ namespace tobas
 namespace fixed_wing
 {
 /**
- * @brief Convert the reference frame of aerodynamic stability derivatives
+ * Convert the reference frame of aerodynamic stability derivatives
  * for moments from the aerodynamic center to the center of gravity.
  */
 class StabilityDerivativesCG : public SolverI
@@ -21,7 +21,7 @@ class StabilityDerivativesCG : public SolverI
 public:
   explicit StabilityDerivativesCG(const Drone& drone, const kdl::Tree& tree);
 
-  bool updateInternalDataStructures() override;
+  void updateInternalDataStructures() override;
 
   int update(const kdl::JntArray& q);
 

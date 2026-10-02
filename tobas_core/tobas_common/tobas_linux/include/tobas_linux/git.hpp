@@ -3,25 +3,17 @@
 
 #pragma once
 
-#include "./command_executor.hpp"
+#include <expected>
+#include <string>
 
 namespace tobas
 {
 namespace linux
 {
-class GitHandler
-{
-public:
-  explicit GitHandler();
+/** Return the Git user name. */
+std::expected<std::string, std::string> getGitUserName();
 
-  /* Return the user name. */
-  std::string getUserName();
-
-  /* Return the email address. */
-  std::string getUserEmail();
-
-private:
-  CommandExecutor command_executor_;
-};
+/** Return the Git email address. */
+std::expected<std::string, std::string> getGitUserEmail();
 }  // namespace linux
 }  // namespace tobas

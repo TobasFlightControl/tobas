@@ -3,8 +3,6 @@
 
 #include "tobas_drone_core/propulsion_system/ice_propulsion_system/drag_constant.hpp"
 
-#include <iostream>
-
 #include <tobas_yaml_tools/core.hpp>
 #include <tobas_yaml_tools/format.hpp>
 

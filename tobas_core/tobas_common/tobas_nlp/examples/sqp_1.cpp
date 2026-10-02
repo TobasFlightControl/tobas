@@ -1,12 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-/**
- * min  x0^2 + x0 * x1
- * s.t. x0^3 + x0 * x1 = 100
- *      x0^2 + 4 * x1 >= 50
- *      -100 <= x0, x1 <= 100
- */
+/** min  x0^2 + x0 * x1 s.t. x0^3 + x0 * x1 = 100 x0^2 + 4 * x1 >= 50 -100 <= x0, x1 <= 100 */
 
 #include <iostream>
 

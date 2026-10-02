@@ -2,6 +2,7 @@
 // Copyright (C) 2026 Tobas, Inc.
 
 #include <iostream>
+#include <ranges>
 #include <thread>
 
 #include "tobas_fc1xx_core/pwm.hpp"
@@ -19,11 +20,8 @@ int main()
   }
 
   while (true) {
-    for (size_t ch = 0; ch < tobas::fc1xx::PWM::kChannelSize; ++ch) {
-      if (!pwm.setPeriod(ch, periods[ch])) {
-        cerr << "Failed to set PWM period of channel " << ch << "." << endl;
-        continue;
-      }
+    for (const auto [ch, period] : std::views::enumerate(periods)) {
+      pwm.setPeriod(ch, period);
     }
 
     if (!pwm.transfer()) {

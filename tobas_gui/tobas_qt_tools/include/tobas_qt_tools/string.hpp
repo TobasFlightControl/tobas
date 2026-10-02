@@ -12,7 +12,7 @@ namespace tobas
 {
 namespace qt
 {
-/* boolean -> "true" or "false" */
+/** boolean -> "true" or "false" */
 QString boolToText(bool arg);
 
 QStringList stringListFromStdToQt(const std::vector<std::string>& src);

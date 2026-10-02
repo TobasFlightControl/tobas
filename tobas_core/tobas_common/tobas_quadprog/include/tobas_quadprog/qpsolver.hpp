@@ -12,8 +12,8 @@ namespace tobas
 {
 namespace quadprog
 {
-/**
- * @brief Quadratic problem.
+/** Q
+ * uadratic problem.
  * minimize 0.5 x^T P x + q^T x s.t. G x = h & A x <= b
  */
 class QuadProgProblem
@@ -26,10 +26,10 @@ public:
   Eigen::MatrixXd A;
   Eigen::VectorXd b;
 
-  explicit QuadProgProblem(const Eigen::Index& var_size, const Eigen::Index& eq_size, const Eigen::Index& ineq_size);
+  explicit QuadProgProblem(Eigen::Index var_size, Eigen::Index eq_size, Eigen::Index ineq_size);
   explicit QuadProgProblem();
 
-  void resize(const Eigen::Index& var_size, const Eigen::Index& eq_size, const Eigen::Index& ineq_size);
+  void resize(Eigen::Index var_size, Eigen::Index eq_size, Eigen::Index ineq_size);
   void setZero();
 
   bool isSizeMatch() const;
@@ -43,20 +43,20 @@ public:
 };
 
 /**
- * @brief A base class of quadratic problem solver.
+ * A base class of quadratic problem solver.
  * minimize 0.5 x^T P x + q^T x s.t. G x = h & A x <= b
  */
 class QuadProgSolver
 {
 public:
   QuadProgProblem problem;
-  Eigen::VectorXd x_scale;  // Decision variable scale.
+  Eigen::VectorXd x_scale;  ///< Decision variable scale.
 
   explicit QuadProgSolver();
 
   virtual std::expected<Eigen::VectorXd, std::string> solve() = 0;
 
-  void resize(const Eigen::Index& var_size, const Eigen::Index& eq_size, const Eigen::Index& ineq_size);
+  void resize(Eigen::Index var_size, Eigen::Index eq_size, Eigen::Index ineq_size);
   void setZero();
 
   friend std::ostream& operator<<(std::ostream& os, const QuadProgSolver& arg);

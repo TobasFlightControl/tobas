@@ -3,6 +3,8 @@
 
 #include "tobas_rc_teleop/speed_roll_dpitch.hpp"
 
+#include <cassert>
+
 #include <tobas_constants/ros_interface.hpp>
 #include <tobas_constants/throttle.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
@@ -69,56 +71,43 @@ void SpeedRollDeltaPitchController::update(const tobas_msgs::RCInput& rcin, cons
   cmd_pub_->publish(std::move(cmd));
 }
 
-bool SpeedRollDeltaPitchController::minSpeedCb(const double& p)
+void SpeedRollDeltaPitchController::minSpeedCb(double p)
 {
-  if (p >= max_speed_) {
-    std::cerr << "Minimum speed must be lower than maximum speed." << std::endl;
-    return false;
-  }
+  assert(p < max_speed_);
 
   min_speed_ = p;
-  return true;
 }
 
-bool SpeedRollDeltaPitchController::maxSpeedCb(const double& p)
+void SpeedRollDeltaPitchController::maxSpeedCb(double p)
 {
-  if (p <= min_speed_) {
-    std::cerr << "Maximum speed must be greater than minimum speed." << std::endl;
-    return false;
-  }
+  assert(p > min_speed_);
 
   max_speed_ = p;
-  return true;
 }
 
-bool SpeedRollDeltaPitchController::maxRollCb(const double& p)
+void SpeedRollDeltaPitchController::maxRollCb(double p)
 {
   max_roll_ = st::deg2rad(p);
-  return true;
 }
 
-bool SpeedRollDeltaPitchController::maxDeltaPitchCb(const double& p)
+void SpeedRollDeltaPitchController::maxDeltaPitchCb(double p)
 {
   max_dpitch_ = st::deg2rad(p);
-  return true;
 }
 
-bool SpeedRollDeltaPitchController::speedExpoCb(const double& p)
+void SpeedRollDeltaPitchController::speedExpoCb(double p)
 {
   speed_expo_ = p / kExpoScale;
-  return true;
 }
 
-bool SpeedRollDeltaPitchController::rollExpoCb(const double& p)
+void SpeedRollDeltaPitchController::rollExpoCb(double p)
 {
   roll_expo_ = p / kExpoScale;
-  return true;
 }
 
-bool SpeedRollDeltaPitchController::pitchExpoCb(const double& p)
+void SpeedRollDeltaPitchController::pitchExpoCb(double p)
 {
   pitch_expo_ = p / kExpoScale;
-  return true;
 }
 }  // namespace rc
 }  // namespace tobas

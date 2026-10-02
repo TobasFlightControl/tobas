@@ -3,21 +3,18 @@
 
 #pragma once
 
-#include "./accel.hpp"
-#include "./wrench.hpp"
+#include "./vector.hpp"
 
 namespace tobas
 {
 namespace kdl
 {
-/**
- * @brief Force generated on a segment per unit joint acceleration.
- */
+/** Force generated on a segment per unit joint acceleration. */
 class SegmentInertia
 {
 public:
-  Vector linear;   // [kg m] (Revolute) or [kg] (Prismatic)
-  Vector angular;  // [kg m^2] (Revolute) or 0 (Prismatic)
+  Vector linear;   ///< [kg m] (Revolute) or [kg] (Prismatic)
+  Vector angular;  ///< [kg m^2] (Revolute) or 0 (Prismatic)
 
   inline explicit SegmentInertia();
   inline explicit SegmentInertia(const Vector& linear, const Vector& angular);

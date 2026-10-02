@@ -3,7 +3,7 @@
 
 #include "tobas_kdl/trajectory.hpp"
 
-#include <iostream>
+#include <cassert>
 
 #include <tobas_math/core.hpp>
 #include <tobas_math/definitions.hpp>
@@ -16,25 +16,11 @@ CycloidGenerator3d::CycloidGenerator3d()
 {
 }
 
-bool CycloidGenerator3d::generate(
-  const kdl::Vector& p0,
-  const kdl::Vector& pf,
-  const double& T,
-  const double& h,
-  const double& k)
+void CycloidGenerator3d::generate(const kdl::Vector& p0, const kdl::Vector& pf, double T, double h, double k)
 {
-  if (T <= 0) {
-    std::cerr << "The period T must be positive." << std::endl;
-    return false;
-  }
-  if (h <= 0) {
-    std::cerr << " The height h must be positive." << std::endl;
-    return false;
-  }
-  if (k < 0) {
-    std::cerr << "The order k must be non-negative." << std::endl;
-    return false;
-  }
+  assert(T > 0.0);
+  assert(h > 0.0);
+  assert(k >= 0.0);
 
   p0_ = p0;
   pf_ = pf;
@@ -44,16 +30,11 @@ bool CycloidGenerator3d::generate(
   TT_ = math::sqr(T);
   kk_ = math::sqr(k);
   p_diff_ = pf - p0;
-
-  return true;
 }
 
-bool CycloidGenerator3d::get(const double& t, const Rotation& r, Vector& p, Vector& v, Vector& a) const
+void CycloidGenerator3d::get(double t, const Rotation& r, Vector& p, Vector& v, Vector& a) const
 {
-  if (t < 0) {
-    std::cerr << "The time t must be non-negative." << std::endl;
-    return false;
-  }
+  assert(t >= 0.0);
 
   if (t <= T_) {
     getPos(t, r, p);
@@ -65,28 +46,26 @@ bool CycloidGenerator3d::get(const double& t, const Rotation& r, Vector& p, Vect
     v.setZero();
     a.setZero();
   }
-
-  return true;
 }
 
-bool CycloidGenerator3d::get(const double& t, Vector& p, Vector& v, Vector& a) const
+void CycloidGenerator3d::get(double t, Vector& p, Vector& v, Vector& a) const
 {
-  return get(t, r0_, p, v, a);
+  get(t, r0_, p, v, a);
 }
 
-bool CycloidGenerator3d::get(const double& t, Vector& p, Vector& v) const
+void CycloidGenerator3d::get(double t, Vector& p, Vector& v) const
 {
   Vector dummy_vector;
-  return get(t, r0_, p, v, dummy_vector);
+  get(t, r0_, p, v, dummy_vector);
 }
 
-bool CycloidGenerator3d::get(const double& t, Vector& p) const
+void CycloidGenerator3d::get(double t, Vector& p) const
 {
   Vector dummy_vector;
-  return get(t, r0_, p, dummy_vector, dummy_vector);
+  get(t, r0_, p, dummy_vector, dummy_vector);
 }
 
-void CycloidGenerator3d::getPos(const double& t, const kdl::Rotation& r, Vector& p) const
+void CycloidGenerator3d::getPos(double t, const kdl::Rotation& r, Vector& p) const
 {
   const auto theta = computeTheta(t);
   const auto tmp = (theta - std::sin(theta)) / M_2PI;
@@ -98,7 +77,7 @@ void CycloidGenerator3d::getPos(const double& t, const kdl::Rotation& r, Vector&
   p = r * p;
 }
 
-void CycloidGenerator3d::getVel(const double& t, const kdl::Rotation& r, Vector& v) const
+void CycloidGenerator3d::getVel(double t, const kdl::Rotation& r, Vector& v) const
 {
   const auto theta = computeTheta(t);
   const auto tmp = (1 - std::cos(theta)) / T_;
@@ -110,7 +89,7 @@ void CycloidGenerator3d::getVel(const double& t, const kdl::Rotation& r, Vector&
   v = r * v;
 }
 
-void CycloidGenerator3d::getAcc(const double& t, const kdl::Rotation& r, Vector& a) const
+void CycloidGenerator3d::getAcc(double t, const kdl::Rotation& r, Vector& a) const
 {
   const auto theta = computeTheta(t);
   const auto tmp = M_2PI / TT_ * std::sin(theta);
@@ -122,9 +101,9 @@ void CycloidGenerator3d::getAcc(const double& t, const kdl::Rotation& r, Vector&
   a = r * a;
 }
 
-double CycloidGenerator3d::computeTheta(const double& t) const
+double CycloidGenerator3d::computeTheta(double t) const
 {
-  assert(t >= 0);
+  assert(t >= 0.0);
   return M_2PI * t / T_;
 }
 }  // namespace kdl

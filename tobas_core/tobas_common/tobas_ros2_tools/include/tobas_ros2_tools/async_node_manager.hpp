@@ -14,9 +14,7 @@ namespace tobas
 {
 namespace ros2
 {
-/**
- * @brief Create and manage a ROS node that runs on a thread separate from the main thread.
- */
+/** Create and manage a ROS node that runs on a thread separate from the main thread. */
 class AsyncNodeManager
 {
 public:

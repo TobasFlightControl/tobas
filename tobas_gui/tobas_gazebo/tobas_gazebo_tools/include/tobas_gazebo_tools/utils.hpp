@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include <optional>
 #include <string>
 
 #include <gz/sim/Entity.hh>
@@ -13,7 +12,7 @@ namespace tobas
 {
 namespace gazebo
 {
-/* Get the component directly under an entity. Create a new one if it does not exist. */
+/** Get the component directly under an entity. Create a new one if it does not exist. */
 template <typename CompType>
 CompType* getComponent(const gz::sim::Entity& entity, gz::sim::EntityComponentManager& ecm)
 {

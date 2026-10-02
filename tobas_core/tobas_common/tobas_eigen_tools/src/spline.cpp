@@ -7,7 +7,7 @@ namespace tobas
 {
 namespace eigen
 {
-SplineFunction::SplineFunction(const Eigen::VectorXd& x_vec, const Eigen::VectorXd& y_vec, const size_t& degree)
+SplineFunction::SplineFunction(const Eigen::VectorXd& x_vec, const Eigen::VectorXd& y_vec, size_t degree)
   : x_min_(x_vec.minCoeff())
   , x_max_(x_vec.maxCoeff())
   , spline_(Eigen::SplineFitting<Eigen::Spline<double, 1>>::Interpolate(
@@ -21,20 +21,20 @@ SplineFunction::SplineFunction(const Eigen::VectorXd& x_vec, const Eigen::Vector
   assert(degree <= 3);
 }
 
-double SplineFunction::operator()(const double& x) const
+double SplineFunction::operator()(double x) const
 {
   // x values need to be scaled down in extraction as well.
   return spline_(scaledValue(x))(0);
 }
 
-double SplineFunction::scaledValue(const double& x) const
+double SplineFunction::scaledValue(double x) const
 {
   return (x - x_min_) / (x_max_ - x_min_);
 }
 
 Eigen::RowVectorXd SplineFunction::scaledValues(const Eigen::VectorXd& x_vec) const
 {
-  return x_vec.unaryExpr([this](const double& x) { return scaledValue(x); }).transpose();
+  return x_vec.unaryExpr([this](double x) { return scaledValue(x); }).transpose();
 }
 }  // namespace eigen
 }  // namespace tobas

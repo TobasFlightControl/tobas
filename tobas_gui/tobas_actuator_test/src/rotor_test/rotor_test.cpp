@@ -13,6 +13,7 @@
 #include <tobas_qt_tools/widgets/description_widget.hpp>
 #include <tobas_std_tools/array.hpp>
 #include <tobas_std_tools/check.hpp>
+#include <tobas_std_tools/unit_conversions.hpp>
 #include <tobas_yaml_tools/core.hpp>
 
 namespace tobas

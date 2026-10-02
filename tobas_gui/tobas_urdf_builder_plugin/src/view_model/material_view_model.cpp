@@ -3,6 +3,8 @@
 
 #include "tobas_urdf_builder_plugin/view_model/material_view_model.hpp"
 
+#include "tobas_urdf_builder_plugin/utils/time.hpp"
+
 namespace tobas
 {
 namespace gui

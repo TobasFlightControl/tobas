@@ -107,9 +107,8 @@ bool FrameTypeDetector::isJntAxisAlwaysParallel(
   // at some generalized coordinate configuration.
   const auto& joint = elem.segment.joint();
   if (joint.type != kdl::Joint::kFixed) {
-    TOBAS_CHECK(axis_solver_.jntToCart(q_zeros_, link_name) == kdl::SolverI::kNoError);
-    const auto& cur_axis = axis_solver_.getAxis();
     constexpr double kJntAxisParallelTol = st::deg2rad(5);  // [rad]
+    const auto cur_axis = axis_solver_.jntToCart(q_zeros_, link_name);
     if (!cur_axis.isParallel(tar_axis, same_direction_only, kJntAxisParallelTol)) {
       return false;
     }
@@ -126,14 +125,10 @@ bool FrameTypeDetector::isJntAxisAlwaysPerpendicular(const std::string& link_nam
   const auto& elem = seg_it->second;
 
   const auto& joint = elem.segment.joint();
-  if (joint.type != kdl::Joint::kRotation) {
-    std::cerr << link_name << " does not have a rotation type joint." << std::endl;
-    return false;
-  }
+  TOBAS_CHECK(joint.type == kdl::Joint::kRotation);
 
   // Condition 1: The axis in question is perpendicular to the target at some generalized coordinate configuration.
-  TOBAS_CHECK(axis_solver_.jntToCart(q_zeros_, link_name) == kdl::SolverI::kNoError);
-  const auto& axis = axis_solver_.getAxis();
+  const auto axis = axis_solver_.jntToCart(q_zeros_, link_name);
   if (!axis.isPerpendicular(tar_axis)) {
     return false;
   }
@@ -214,15 +209,13 @@ bool FrameTypeDetector::eachTiltRotorAxesPerpendicular()
 bool FrameTypeDetector::allTiltRotorAxesPerpendicular()
 {
   if (uadf_.tilts.empty()) {
-    std::cerr << "No tilt joints exist." << std::endl;
     return false;
   }
 
   // Get one tilt axis.
   const auto& first_tilt_joint_name = uadf_.tilts.cbegin()->first;
   const auto& first_tilt_link_name = jnt_parser_.segmentName(first_tilt_joint_name);
-  TOBAS_CHECK(axis_solver_.jntToCart(q_zeros_, first_tilt_link_name) == kdl::SolverI::kNoError);
-  const auto first_tilt_joint_axis = axis_solver_.getAxis().clone();
+  const auto first_tilt_joint_axis = axis_solver_.jntToCart(q_zeros_, first_tilt_link_name);
 
   // It is sufficient for all tilt axes to be parallel to the first tilt axis
   // and for all rotor axes to be perpendicular to it.

@@ -1,7 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <cmath>
+#include <expected>
 #include <memory>
+#include <string>
 
 #include <tobas_constants/time.hpp>
 #include <tobas_drone_core/propulsion_system/electric_propulsion_system/electric_propulsion_system.hpp>
@@ -34,7 +37,6 @@ public:
 private:
   DShot dshot_;
 
-  std::array<uint8_t, DShot::kChannelSize> gains_ = {};
   bool is_commanded_ = false;
   ElectricPropulsionSystemConfig::ConstSharedPtr eprop_;
 
@@ -52,8 +54,8 @@ private:
   bool configure();
 
   void sleep();
-  bool transfer();
-  bool transferAndSleep();
+  std::expected<void, std::string> transfer();
+  std::expected<void, std::string> transferAndSleep();
 
   void publishCurrentRotorStates();
   void publishErrorRotorStates();
@@ -101,30 +103,30 @@ bool DShotDriverNode::configure()
   // Set Kv values.
   for (const auto& [link_name, _] : eprop_->rotors) {
     const auto erotor = eprop_->getRotor(link_name);
-    TOBAS_ASSERT(dshot_.setKv(erotor->channel, erotor->kv));
+    dshot_.setKv(erotor->channel, erotor->kv);
   }
-  if (!transferAndSleep()) {
-    TOBAS_ERROR("Failed to set Kv values.");
+  if (const auto result = transferAndSleep(); !result) {
+    TOBAS_ERROR("Failed to set Kv values: ", result.error());
     return false;
   }
 
   // Set internal resistances.
   for (const auto& [link_name, _] : eprop_->rotors) {
     const auto erotor = eprop_->getRotor(link_name);
-    TOBAS_ASSERT(dshot_.setInternalResistance(erotor->channel, erotor->internal_resistance));
+    dshot_.setInternalResistance(erotor->channel, erotor->internal_resistance);
   }
-  if (!transferAndSleep()) {
-    TOBAS_ERROR("Failed to set internal resistances.");
+  if (const auto result = transferAndSleep(); !result) {
+    TOBAS_ERROR("Failed to set internal resistances: ", result.error());
     return false;
   }
 
   // Set propeller diameters.
   for (const auto& [link_name, _] : eprop_->rotors) {
     const auto erotor = eprop_->getRotor(link_name);
-    TOBAS_ASSERT(dshot_.setPropellerDiameter(erotor->channel, erotor->propeller_diameter));
+    dshot_.setPropellerDiameter(erotor->channel, erotor->propeller_diameter);
   }
-  if (!transferAndSleep()) {
-    TOBAS_ERROR("Failed to set propeller diameters.");
+  if (const auto result = transferAndSleep(); !result) {
+    TOBAS_ERROR("Failed to set propeller diameters: ", result.error());
     return false;
   }
 
@@ -132,20 +134,20 @@ bool DShotDriverNode::configure()
   for (const auto& [link_name, _] : eprop_->rotors) {
     const auto erotor = eprop_->getRotor(link_name);
     const auto moment_const = erotor->motor_const * erotor->moment_const / std::pow(erotor->propeller_diameter, 5);
-    TOBAS_ASSERT(dshot_.setMomentConstant(erotor->channel, moment_const));
+    dshot_.setMomentConstant(erotor->channel, moment_const);
   }
-  if (!transferAndSleep()) {
-    TOBAS_ERROR("Failed to set moment constants.");
+  if (const auto result = transferAndSleep(); !result) {
+    TOBAS_ERROR("Failed to set moment constants: ", result.error());
     return false;
   }
 
   // Set the number of poles.
   for (const auto& [link_name, _] : eprop_->rotors) {
     const auto erotor = eprop_->getRotor(link_name);
-    TOBAS_ASSERT(dshot_.setNumPoles(erotor->channel, erotor->num_poles));
+    dshot_.setNumPoles(erotor->channel, erotor->num_poles);
   }
-  if (!transferAndSleep()) {
-    TOBAS_ERROR("Failed to set the number of poles.");
+  if (const auto result = transferAndSleep(); !result) {
+    TOBAS_ERROR("Failed to set the number of poles: ", result.error());
     return false;
   }
 
@@ -157,16 +159,15 @@ void DShotDriverNode::sleep()
   rclcpp::sleep_for(1ms);
 }
 
-bool DShotDriverNode::transfer()
+std::expected<void, std::string> DShotDriverNode::transfer()
 {
-  if (!dshot_.transfer()) {
-    TOBAS_ERROR_THROTTLE(kTypicalErrorPeriod, "Failed to communicate with the MCU.");
-    return false;
+  if (const auto result = dshot_.transfer(); !result) {
+    return result;
   }
-  return true;
+  return {};
 }
 
-bool DShotDriverNode::transferAndSleep()
+std::expected<void, std::string> DShotDriverNode::transferAndSleep()
 {
   const auto res = transfer();
   sleep();
@@ -243,19 +244,16 @@ void DShotDriverNode::targetSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::Con
       TOBAS_ERROR("Rotor '" + elem.link_name + "' does not exist.");
       continue;
     }
-
-    if (!dshot_.setTargetSpeed(erotor->channel, elem.speed)) {
-      TOBAS_ERROR("Failed to set the target speed of rotor '", elem.link_name, "'.");
-      continue;
-    }
+    dshot_.setTargetSpeed(erotor->channel, elem.speed);
   }
 
   // Send the commands and publish the rotor states.
   // NOTE: Even in the event of a communication error, the motor status must always be published.
-  if (transfer()) {
+  if (const auto result = transfer(); result) {
     publishCurrentRotorStates();
   }
   else {
+    TOBAS_ERROR_THROTTLE(kTypicalErrorPeriod, "Failed to command target speeds: ", result.error());
     publishErrorRotorStates();
   }
 
@@ -272,17 +270,17 @@ void DShotDriverNode::targetSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::Con
 void DShotDriverNode::setGainsCb(const SetGains::Request::ConstSharedPtr& req, const SetGains::Response::SharedPtr& res)
 {
   for (const auto& gain : req->gains) {
-    if (!dshot_.setRpmControlGain(gain.channel, gain.gain)) {
+    if (gain.channel >= DShot::kChannelSize) {
       res->success = false;
-      res->message = "RPM control gain of channel " + std::to_string((int)gain.channel) + " was rejected.";
+      res->message = "Channel '" + std::to_string(gain.channel) + "' is out of range.";
       return;
     }
-    gains_.at(gain.channel) = gain.gain;
+    dshot_.setRpmControlGain(gain.channel, gain.gain);
   }
 
-  if (!transfer()) {
+  if (const auto result = transfer(); !result) {
     res->success = false;
-    res->message = "Failed to communicate with the MCU.";
+    res->message = result.error();
     return;
   }
 
@@ -293,16 +291,14 @@ void DShotDriverNode::setGainsCb(const SetGains::Request::ConstSharedPtr& req, c
 void DShotDriverNode::autoStopTimerCb()
 {
   for (size_t ch = 0; ch < DShot::kChannelSize; ++ch) {
-    if (!dshot_.setThrottle(ch, DShot::DSHOT_CMD_MOTOR_STOP)) {
-      TOBAS_ERROR("Failed to set disarm throttle on channel ", ch, ".");
-      return;
-    }
+    dshot_.setThrottle(ch, DShot::DSHOT_CMD_MOTOR_STOP);
   }
 
-  if (transfer()) {
+  if (const auto result = transfer(); result) {
     publishCurrentRotorStates();
   }
   else {
+    TOBAS_ERROR("Failed to brake the rotors: ", result.error());
     publishErrorRotorStates();
   }
 

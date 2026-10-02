@@ -41,7 +41,7 @@ bool enumFromText(const std::string& text, TurningDirection& dst)
 
 namespace YAML
 {
-Node convert<tobas::TurningDirection>::encode(const tobas::TurningDirection& rhs)
+Node convert<tobas::TurningDirection>::encode(tobas::TurningDirection rhs)
 {
   Node node;
   node = tobas::textFromEnum(rhs);

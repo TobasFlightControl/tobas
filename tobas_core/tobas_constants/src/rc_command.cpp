@@ -3,8 +3,6 @@
 
 #include "tobas_constants/rc_command.hpp"
 
-#include <iostream>
-
 namespace tobas
 {
 namespace
@@ -106,7 +104,6 @@ bool enumFromText(const std::string& text, RcCommand& dst)
     return true;
   }
   else {
-    std::cerr << "Invalid RC command: " << text << std::endl;
     return false;
   }
 }
@@ -114,7 +111,7 @@ bool enumFromText(const std::string& text, RcCommand& dst)
 
 namespace YAML
 {
-Node convert<tobas::RcCommand>::encode(const tobas::RcCommand& rhs)
+Node convert<tobas::RcCommand>::encode(tobas::RcCommand rhs)
 {
   Node node;
   node = tobas::textFromEnum(rhs);

@@ -14,7 +14,7 @@ class Rate
 public:
   explicit Rate();
   explicit Rate(const std::chrono::microseconds& _period);
-  explicit Rate(const double& _freq);
+  explicit Rate(double _freq);
 
   void start();
   void sleep();

@@ -3,58 +3,51 @@
 
 #include "tobas_kdl/tree_jntspace_inertia_solver.hpp"
 
+#include <cassert>
+
 namespace tobas
 {
 namespace kdl
 {
-TreeJntSpaceInertiaSolver::TreeJntSpaceInertiaSolver(const Tree& tree) : super(tree), rne_(tree_, kdl::Vector::Zero())
+TreeJntSpaceInertiaSolver::TreeJntSpaceInertiaSolver(const Tree& tree)
+  : super(tree), rne_bias_(tree_, kdl::Vector::Zero()), rne_mass_(tree_, kdl::Vector::Zero())
 {
   resize();
 }
 
 void TreeJntSpaceInertiaSolver::updateInternalDataStructures()
 {
-  super::updateInternalDataStructures();
-
-  rne_.updateInternalDataStructures();
+  rne_bias_.updateInternalDataStructures();
+  rne_mass_.updateInternalDataStructures();
 
   resize();
 }
 
-int TreeJntSpaceInertiaSolver::jntToMass(const JntArray& q)
+const JntSpaceInertiaMatrix& TreeJntSpaceInertiaSolver::jntToMass(const JntArray& q)
 {
-  if (!isUpToDate()) {
-    return setDefaultError(kNotUpToDate);
-  }
-  if (q.rows() != nj_ || jntarray_null_.rows() != nj_) {
-    return setDefaultError(kSizeMismatch);
-  }
+  assert(q.size() == nj_);
 
-  if (rne_.cartToJnt(q, jntarray_null_, jntarray_null_) < 0) {
-    return copyError(rne_);
-  }
-  const auto bias = rne_.getEfforts();  // Copy because the value is overwritten next.
+  const auto& bias = rne_bias_.cartToJnt(q, q_zero_, q_zero_);
 
   for (size_t i = 0; i < nj_; ++i) {
-    if (rne_.cartToJnt(q, jntarray_null_, elements_[i]) < 0) {
-      return copyError(rne_);
-    }
-    const auto m = rne_.getEfforts() - bias;
-    H_out_.data.col(i) = m.data;
+    const auto& mass = rne_mass_.cartToJnt(q, q_zero_, elements_[i]);
+    mass_out_.data.col(i) = mass.data - bias.data;
   }
 
-  return setDefaultError(kNoError);
+  return mass_out_;
 }
 
 void TreeJntSpaceInertiaSolver::resize()
 {
-  elements_.resize(nj_, JntArray::Zero(nj_));
+  nj_ = tree_.getNrOfJoints();
+
+  elements_.assign(nj_, JntArray::Zero(nj_));
   for (size_t i = 0; i < nj_; ++i) {
-    elements_[i](i) = 1;
+    elements_[i](i) = 1.0;
   }
 
-  H_out_.resize(nj_);
-  jntarray_null_ = JntArray::Zero(nj_);
+  q_zero_ = JntArray::Zero(nj_);
+  mass_out_.resize(nj_);
 }
 }  // namespace kdl
 }  // namespace tobas

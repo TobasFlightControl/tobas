@@ -7,10 +7,10 @@ namespace tobas
 {
 namespace dsp
 {
-/* Prewarping for bilinear transformation. */
+/** Prewarping for bilinear transformation. */
 double prewarp(double wc, double dt);
 
-/* Convert the filter time constant [s] to the cutoff frequency [Hz]. */
+/** Convert the filter time constant [s] to the cutoff frequency [Hz]. */
 double cutoffFromTimeConst(double tau);
 }  // namespace dsp
 }  // namespace tobas

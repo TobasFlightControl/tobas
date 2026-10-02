@@ -12,8 +12,7 @@ namespace tobas
 namespace nlp
 {
 /**
- * @brief One-dimensional Newton method solver.
- *
+ * One-dimensional Newton method solver.
  * Solve: f(x) = 0
  */
 class NewtonSolver1d
@@ -23,11 +22,11 @@ public:
 
   void initialize(std::function<double(double)> f, std::function<double(double)> dfdx);
 
-  /* Solve from the initial value x and return the solution or an error message. */
+  /** Solve from the initial value x and return the solution or an error message. */
   std::expected<double, std::string> solve(double x);
 
-  bool setMaximumIterations(size_t max_iter);
-  bool setAbsoluteTolerance(double abs_tol);
+  void setMaximumIterations(size_t max_iter);
+  void setAbsoluteTolerance(double abs_tol);
 
 private:
   std::function<double(double)> f_;

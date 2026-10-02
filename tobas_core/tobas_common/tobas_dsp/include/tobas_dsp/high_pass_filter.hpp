@@ -21,15 +21,15 @@ class HighPassFilter : public BaseFilter<T>
 public:
   explicit HighPassFilter();
 
-  void update(const T& u, const double& dt) override;
+  void update(const T& u, double dt) override;
 
   inline const T& getValue() const override;
   inline void setValue(const T& x) override;
 
-  void setCutoffFrequency(const double& fc_hz);
+  void setCutoffFrequency(double fc_hz);
 
 private:
-  double wc_ = INFINITY;  // [rad/s]
+  double wc_ = INFINITY;  ///< [rad/s]
   T y_{};
   T prev_u_{};
 };
@@ -40,7 +40,7 @@ HighPassFilter<T>::HighPassFilter()
 }
 
 template <typename T>
-void HighPassFilter<T>::update(const T& u, const double& dt)
+void HighPassFilter<T>::update(const T& u, double dt)
 {
   assert(dt >= 0.0);
 
@@ -64,7 +64,7 @@ inline void HighPassFilter<T>::setValue(const T& x)
 }
 
 template <typename T>
-void HighPassFilter<T>::setCutoffFrequency(const double& fc_hz)
+void HighPassFilter<T>::setCutoffFrequency(double fc_hz)
 {
   if (fc_hz <= 0.0) {
     wc_ = INFINITY;

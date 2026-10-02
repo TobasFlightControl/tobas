@@ -3,9 +3,10 @@
 
 #pragma once
 
+#include <expected>
 #include <filesystem>
-#include <iostream>
 #include <ranges>
+#include <string>
 
 #include <boost/property_tree/ptree.hpp>
 
@@ -18,8 +19,8 @@ class PropertyTree
 public:
   explicit PropertyTree();
 
-  bool initialize(const std::filesystem::path& file_path);
-  bool save();
+  std::expected<void, std::string> initialize(const std::filesystem::path& file_path);
+  std::expected<void, std::string> save();
 
   template <typename T>
   bool get(const std::string& key, T& dst) const;
@@ -48,8 +49,6 @@ private:
   std::filesystem::path parent_dir_;
 
   boost::property_tree::ptree root_node_;
-
-  bool erase(boost::property_tree::ptree& node, boost::property_tree::path path);
 
   static std::string sectionedKey(const std::string& section, const std::string& key);
 };
@@ -116,7 +115,6 @@ bool PropertyTree::get(const std::string& key, std::array<T, N>& dst) const
   }
 
   if (list_node->size() != N) {
-    std::cerr << "Property tree list node size mismatch: " << list_node->size() << " != " << N << std::endl;
     return false;
   }
 

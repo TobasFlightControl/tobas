@@ -21,7 +21,6 @@
 #include <tobas_constants/path.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/path.hpp>
-#include <tobas_std_tools/check.hpp>
 
 namespace tobas
 {
@@ -400,7 +399,7 @@ void FcConsoleWidget::onProcessErrorOccurred(QProcess::ProcessError error)
   }
 }
 
-QDebug operator<<(QDebug debug, const FcConsoleWidget::Status& status)
+QDebug operator<<(QDebug debug, FcConsoleWidget::Status status)
 {
   const QDebugStateSaver saver(debug);
 

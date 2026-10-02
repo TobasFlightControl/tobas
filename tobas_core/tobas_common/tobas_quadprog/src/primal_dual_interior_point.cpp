@@ -3,6 +3,7 @@
 
 #include "tobas_quadprog/primal_dual_interior_point.hpp"
 
+#include <cassert>
 #include <utility>
 
 #include <eigen3/Eigen/Cholesky>
@@ -90,34 +91,22 @@ std::expected<Eigen::VectorXd, std::string> PrimalDualInteriorPointSolver::solve
   return theta_.cwiseProduct(x_scale).eval();
 }
 
-bool PrimalDualInteriorPointSolver::setNumberOfIterations(const size_t& num_iter)
+void PrimalDualInteriorPointSolver::setNumberOfIterations(size_t num_iter)
 {
-  if (num_iter == 0) {
-    return false;
-  }
-
+  assert(num_iter > 0);
   num_iter_ = num_iter;
-  return true;
 }
 
-bool PrimalDualInteriorPointSolver::setSigma(const double& sigma)
+void PrimalDualInteriorPointSolver::setSigma(double sigma)
 {
-  if (sigma <= 0.0 || 1.0 <= sigma) {
-    return false;
-  }
-
+  assert(sigma > 0.0 && sigma < 1.0);
   sigma_ = sigma;
-  return true;
 }
 
-bool PrimalDualInteriorPointSolver::setAlphaTolerance(const double& alpha_tol)
+void PrimalDualInteriorPointSolver::setAlphaTolerance(double alpha_tol)
 {
-  if (alpha_tol <= 0.0 || 1.0 <= alpha_tol) {
-    return false;
-  }
-
+  assert(alpha_tol > 0.0 && alpha_tol < 1.0);
   alpha_tol_ = alpha_tol;
-  return true;
 }
 
 std::expected<void, std::string> PrimalDualInteriorPointSolver::initialize(const QuadProgProblem& scaled)

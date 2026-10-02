@@ -18,7 +18,7 @@ namespace tobas
 namespace real
 {
 /**
- * @brief Receive joint position, velocity, and effort commands and command the appropriate hardware interface.
+ * Receive joint position, velocity, and effort commands and command the appropriate hardware interface.
  * Also publish the joint state.
  */
 class JointsHandlerNode : public BaseNode

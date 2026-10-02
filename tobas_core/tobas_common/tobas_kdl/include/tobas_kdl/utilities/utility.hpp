@@ -8,7 +8,7 @@ namespace tobas
 namespace kdl
 {
 /**
- * Auxiliary class for argument types (Trait-template class )
+ * Auxiliary class for argument types (Trait-template class)
  *
  * Is used to pass doubles by value, and arbitrary objects by const reference.
  * This is TWICE as fast (2 x less memory access) and avoids bugs in VC6++ concerning
@@ -19,7 +19,7 @@ template <class T>
 class TI
 {
 public:
-  typedef const T& Arg;  // Arg is used for passing the element to a function.
+  typedef const T& Arg;  //< Used for passing the element to a function.
 };
 
 template <>

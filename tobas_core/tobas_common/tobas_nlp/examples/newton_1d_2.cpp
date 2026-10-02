@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-/**
- * Solve: x^3 + 2 x^2 + 10 x - 20 = 0
- */
+/** Solve: x^3 + 2 x^2 + 10 x - 20 = 0 */
 
 #include <iostream>
 

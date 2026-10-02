@@ -4,15 +4,15 @@
 #include "tobas_string_tools/core.hpp"
 
 #include <algorithm>
-#include <iostream>
 #include <map>
 #include <regex>
+#include <sstream>
 
 namespace tobas
 {
 namespace str
 {
-std::vector<std::string> split(const std::string& s, const char& c)
+std::vector<std::string> split(const std::string& s, char c)
 {
   std::vector<std::string> res;
   if (s.find(c) == std::string::npos) {
@@ -34,19 +34,18 @@ std::vector<std::string> split(const std::string& s, const char& c)
   return res;
 }
 
-std::pair<std::string, std::string> rsplit(const std::string& s, const char& c)
+std::expected<std::pair<std::string, std::string>, std::string> rsplit(const std::string& s, char c)
 {
   // Find the last specified character.
-  size_t pos = s.rfind(c);
+  const auto pos = s.rfind(c);
 
   if (pos != std::string::npos) {
     std::string before = s.substr(0, pos);
     std::string after = s.substr(pos + 1);
-    return { before, after };
+    return std::pair{ before, after };
   }
   else {
-    std::cerr << "String '" << s << "' does not contain '" << c << "'" << std::endl;
-    return { s, "" };
+    return std::unexpected("String '" + s + "' does not contain '" + c + "'.");
   }
 }
 

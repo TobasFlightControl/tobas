@@ -31,8 +31,8 @@ public:
   double yaw() const;    // [rad]
 
 private:
-  std::array<qt::DoubleSpinBox*, 3> xyz_;  // [m]
-  std::array<qt::SpinBox*, 3> rpy_;        // [deg]
+  std::array<qt::DoubleSpinBox*, 3> xyz_;  ///< [m]
+  std::array<qt::SpinBox*, 3> rpy_;        ///< [deg]
 };
 }  // namespace sim
 }  // namespace gui

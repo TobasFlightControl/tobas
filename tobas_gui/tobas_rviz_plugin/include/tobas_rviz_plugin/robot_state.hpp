@@ -9,7 +9,7 @@ namespace tobas
 {
 namespace rviz
 {
-/* Joint positions and the link transforms derived from them. */
+/** Joint positions and the link transforms derived from them. */
 class RobotState
 {
 public:

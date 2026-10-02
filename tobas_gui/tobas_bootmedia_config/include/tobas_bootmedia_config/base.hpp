@@ -19,13 +19,13 @@ class BaseConfigWidget : public QWidget
 public:
   explicit BaseConfigWidget();
 
-  /* Title displayed at the top of the page. */
+  /** Title displayed at the top of the page. */
   virtual const char* title() const = 0;
 
-  /* Initialize the configuration. */
+  /** Initialize the configuration. */
   virtual void reset() = 0;
 
-  /* Method executed when a boot device is connected. */
+  /** Method executed when a boot device is connected. */
   virtual bool onConnected() = 0;
 
 protected:

@@ -7,6 +7,11 @@
 
 #include <QDebug>
 
+#include "tobas_rviz_plugin/joint_model/fixed_joint_model.hpp"
+#include "tobas_rviz_plugin/joint_model/floating_joint_model.hpp"
+#include "tobas_rviz_plugin/joint_model/planar_joint_model.hpp"
+#include "tobas_rviz_plugin/joint_model/prismatic_joint_model.hpp"
+#include "tobas_rviz_plugin/joint_model/revolute_joint_model.hpp"
 #include "tobas_rviz_plugin/order_robot_model_items.hpp"
 
 namespace tobas

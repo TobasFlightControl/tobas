@@ -39,7 +39,7 @@ std::expected<Eigen::VectorXd, std::string> QpOasesSolver::solve()
   std::memcpy(g, scaled.q.data(), sizeof(g));
 
   // Copy elements one by one to account for column-major storage.
-  const Eigen::MatrixXd A_eigen = eigen::concat(scaled.G, scaled.A, 0);
+  const Eigen::MatrixXd A_eigen = eigen::concat(scaled.G, scaled.A, Eigen::Vertical);
   for (Eigen::Index r = 0; r < con_size; ++r) {
     for (Eigen::Index c = 0; c < var_size; ++c) {
       A[r * var_size + c] = A_eigen(r, c);
@@ -52,10 +52,10 @@ std::expected<Eigen::VectorXd, std::string> QpOasesSolver::solve()
   }
 
   const Eigen::VectorXd inf = Eigen::VectorXd::Constant(scaled.ineqSize(), -qpOASES::INFTY);
-  const Eigen::VectorXd lbA_eigen = eigen::concat(scaled.h, inf, 0);
+  const Eigen::VectorXd lbA_eigen = eigen::concat(scaled.h, inf, Eigen::Vertical);
   std::memcpy(lbA, lbA_eigen.data(), sizeof(lbA));
 
-  const Eigen::VectorXd ubA_eigen = eigen::concat(scaled.h, scaled.b, 0);
+  const Eigen::VectorXd ubA_eigen = eigen::concat(scaled.h, scaled.b, Eigen::Vertical);
   std::memcpy(ubA, ubA_eigen.data(), sizeof(ubA));
 
   // Create the QP solver.

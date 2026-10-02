@@ -18,20 +18,12 @@ KalmanFilter::KalmanFilter()
 {
 }
 
-KalmanFilter::KalmanFilter(
-  const Eigen::Index& x_size,
-  const Eigen::Index& u_size,
-  const Eigen::Index& y_size,
-  const Eigen::Index& v_size)
+KalmanFilter::KalmanFilter(Eigen::Index x_size, Eigen::Index u_size, Eigen::Index y_size, Eigen::Index v_size)
 {
   resize(x_size, u_size, y_size, v_size);
 }
 
-void KalmanFilter::resize(
-  const Eigen::Index& x_size,
-  const Eigen::Index& u_size,
-  const Eigen::Index& y_size,
-  const Eigen::Index& v_size)
+void KalmanFilter::resize(Eigen::Index x_size, Eigen::Index u_size, Eigen::Index y_size, Eigen::Index v_size)
 {
   ss.resize(x_size, u_size, y_size);
   Bv.conservativeResize(x_size, v_size);
@@ -101,12 +93,12 @@ void KalmanFilter::verify() const
   assert(eigen::isSymmetricPositiveDefinite(R));
 }
 
-IdentityKalmanFilter::IdentityKalmanFilter(const Eigen::Index& size)
+IdentityKalmanFilter::IdentityKalmanFilter(Eigen::Index size)
 {
   resize(size);
 }
 
-void IdentityKalmanFilter::resize(const Eigen::Index& size)
+void IdentityKalmanFilter::resize(Eigen::Index size)
 {
   kf_.resize(size, 0, size, size);
   kf_.ss.A.setIdentity(size, size);

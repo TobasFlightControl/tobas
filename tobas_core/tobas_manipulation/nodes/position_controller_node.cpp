@@ -74,7 +74,7 @@ PositionControllerNode::PositionControllerNode(const rclcpp::NodeOptions& option
   tar_js_sub_ = createSubscriber(topic::kPosCtrlJS, &self::targetJointStateCb, this);
   tar_ls_sub_ = createSubscriber(topic::kPosCtrlLS, &self::targetLinkStateCb, this);
 
-  auto_reset_timer_ = createTimer(manipulation::kAutoResetTimeThresh, &self::autoResetTimerCb, this, false);
+  auto_reset_timer_ = createTimer(kAutoResetTimeThresh, &self::autoResetTimerCb, this, false);
 }
 
 bool PositionControllerNode::jointSpaceControl(tobas_msgs::msg::JointCommandArray& positions_msg)
@@ -186,7 +186,7 @@ void PositionControllerNode::autoResetTimerCb()
 
   TOBAS_WARN(
     "The target joint states are automatically reset because ",
-    manipulation::kAutoResetTimeThresh,
+    kAutoResetTimeThresh,
     " have elapsed since the last command.");
 
   auto_reset_timer_->cancel();

@@ -15,8 +15,9 @@ namespace gui
 {
 namespace cmn
 {
-/* Run `colcon build` without blocking Qt’s main thread. */
-std::expected<void, QString> colconBuild(colcon::Colcon& colcon, const QString& pkg_path, const QString& ws_path);
+/** Run `colcon build` without blocking Qt’s main thread. */
+std::expected<void, QString>
+colconBuild(const QString& pkg_path, const QString& ws_path, const colcon::BuildOptions& options = {});
 }  // namespace cmn
 }  // namespace gui
 }  // namespace tobas

@@ -23,9 +23,11 @@ public:
 
   inline void setZero();
 
-  // Changes the reference point of the wrench.
-  // The vector p is expressed in the same base as the wrench.
-  // The vector p is a vector from the old point to the new point.
+  /**
+   * Changes the reference point of the wrench.
+   * The vector p is expressed in the same base as the wrench.
+   * The vector p is a vector from the old point to the new point.
+   */
   inline Wrench refPoint(const gz::math::Vector3d& p) const;
 
   inline Wrench& operator+=(const Wrench& arg);
@@ -38,7 +40,7 @@ public:
   inline friend Wrench operator+(const Wrench& lhs, const Wrench& rhs);
   inline friend Wrench operator-(const Wrench& lhs, const Wrench& rhs);
 
-  /* Rotate wrench. */
+  /** Rotate wrench. */
   inline friend Wrench operator*(const gz::math::Quaterniond& lhs, const Wrench& rhs);
 };
 

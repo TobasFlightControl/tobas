@@ -28,9 +28,9 @@ public:
   void update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom, bool landed) override;
 
 private:
-  // ROS parameters.
-  double max_atti_rate_;  // [rad/s]
-  double max_head_rate_;  // [rad/s]
+  // ROS parameters
+  double max_atti_rate_;  ///< [rad/s]
+  double max_head_rate_;  ///< [rad/s]
   double atti_expo_;
   double head_expo_;
   double throt_expo_;
@@ -38,11 +38,11 @@ private:
   // PubSub
   ros2::PublisherPtr<tobas_command_msgs::RateThrottle> cmd_pub_;
 
-  bool maxAttitudeRateCb(const double& p);
-  bool maxHeadingRateCb(const double& p);
-  bool attitudeExpoCb(const double& p);
-  bool headingExpoCb(const double& p);
-  bool throttleExpoCb(const double& p);
+  void maxAttitudeRateCb(double p);
+  void maxHeadingRateCb(double p);
+  void attitudeExpoCb(double p);
+  void headingExpoCb(double p);
+  void throttleExpoCb(double p);
 };
 }  // namespace rc
 }  // namespace tobas

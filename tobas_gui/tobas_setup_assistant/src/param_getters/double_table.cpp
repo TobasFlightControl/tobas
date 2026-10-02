@@ -3,6 +3,8 @@
 
 #include "tobas_setup_assistant/param_getters/double_table.hpp"
 
+#include <utility>
+
 #include <QDir>
 #include <QFileDialog>
 #include <QFileInfo>
@@ -184,10 +186,12 @@ void ParamGetterWidget_DoubleTable::loadCsv()
   std::vector<std::vector<double>> columns(num_entry_);
   for (int i = 0; i < num_entry_; ++i) {
     const auto& label = labels_.at(i);
-    if (!csv::getColumn(doc, label.toStdString(), columns[i])) {
-      qt::qErrorBox(this, "Failed to get column: " + label);
+    const auto column = csv::getColumn<double>(doc, label.toStdString());
+    if (!column) {
+      qt::qErrorBox(this, "Failed to get column '" + label + "'\n\n" + QString::fromStdString(column.error()));
       return;
     }
+    columns[i] = std::move(*column);
   }
 
   // Fill data.

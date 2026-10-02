@@ -39,29 +39,29 @@ constexpr char kRtlMinAltitudeParam[] = "rtl/min_altitude";
 
 MulticopterWidget::MulticopterWidget()
 {
-  // https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_XY_CRUISE
+  // Ref: https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_XY_CRUISE
   wp_max_hor_vel_ = new qt::DoubleSpinBox();
   wp_max_hor_vel_->setDecimals(1);
   wp_max_hor_vel_->setMinimum(1.0);  // 3 m/s -> 1 m/s
   wp_max_hor_vel_->setMaximum(20.0);
   wp_max_hor_vel_->setSuffix(" m/s");
 
-  // https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_ACC_HOR_MAX
+  // Ref: https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_ACC_HOR_MAX
   wp_max_hor_acc_ = new qt::DoubleSpinBox();
   wp_max_hor_acc_->setDecimals(1);
   wp_max_hor_acc_->setMinimum(2.0);
   wp_max_hor_acc_->setMaximum(15.0);
   wp_max_hor_acc_->setSuffix(" m/s²");
 
-  // https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_JERK_AUTO
+  // Ref: https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_JERK_AUTO
   wp_max_hor_jerk_ = new qt::DoubleSpinBox();
   wp_max_hor_jerk_->setDecimals(1);
   wp_max_hor_jerk_->setMinimum(1.0);
   wp_max_hor_jerk_->setMaximum(80.0);
   wp_max_hor_jerk_->setSuffix(" m/s³");
 
-  // https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_Z_V_AUTO_DN
-  // https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_Z_V_AUTO_UP
+  // Ref: https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_Z_V_AUTO_DN
+  // Ref: https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_Z_V_AUTO_UP
   // TODO: Use separate settings for ascent and descent.
   wp_max_ver_vel_ = new qt::DoubleSpinBox();
   wp_max_ver_vel_->setDecimals(1);
@@ -69,8 +69,8 @@ MulticopterWidget::MulticopterWidget()
   wp_max_ver_vel_->setMaximum(4.0);
   wp_max_ver_vel_->setSuffix(" m/s");
 
-  // https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_ACC_DOWN_MAX
-  // https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_ACC_UP_MAX
+  // Ref: https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_ACC_DOWN_MAX
+  // Ref: https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_ACC_UP_MAX
   // TODO: Use separate settings for ascent and descent.
   wp_max_ver_acc_ = new qt::DoubleSpinBox();
   wp_max_ver_acc_->setDecimals(1);
@@ -78,54 +78,54 @@ MulticopterWidget::MulticopterWidget()
   wp_max_ver_acc_->setMaximum(15.0);
   wp_max_ver_acc_->setSuffix(" m/s²");
 
-  // https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_JERK_AUTO
+  // Ref: https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_JERK_AUTO
   wp_max_ver_jerk_ = new qt::DoubleSpinBox();
   wp_max_ver_jerk_->setDecimals(1);
   wp_max_ver_jerk_->setMinimum(1.0);
   wp_max_ver_jerk_->setMaximum(80.0);
   wp_max_ver_jerk_->setSuffix(" m/s³");
 
-  // https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_YAWRAUTO_MAX
+  // Ref: https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_YAWRAUTO_MAX
   wp_max_head_rate_ = new qt::SpinBox();
   wp_max_head_rate_->setMinimum(5);
   wp_max_head_rate_->setMaximum(360);
   wp_max_head_rate_->setSuffix(" deg/s");
 
-  // https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_YAWRAUTO_ACC
+  // Ref: https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_YAWRAUTO_ACC
   wp_max_head_acc_ = new qt::SpinBox();
   wp_max_head_acc_->setMinimum(5);
   wp_max_head_acc_->setMaximum(360);
   wp_max_head_acc_->setSuffix(" deg/s²");
 
-  // https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_TKO_SPEED
+  // Ref: https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_TKO_SPEED
   takeoff_max_speed_ = new qt::DoubleSpinBox();
   takeoff_max_speed_->setDecimals(1);
   takeoff_max_speed_->setMinimum(1.0);
   takeoff_max_speed_->setMaximum(5.0);
   takeoff_max_speed_->setSuffix(" m/s");
 
-  // https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_ACC_UP_MAX
+  // Ref: https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_ACC_UP_MAX
   takeoff_max_accel_ = new qt::DoubleSpinBox();
   takeoff_max_accel_->setDecimals(1);
   takeoff_max_accel_->setMinimum(1.0);
   takeoff_max_accel_->setMaximum(15.0);
   takeoff_max_accel_->setSuffix(" m/s²");
 
-  // https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_JERK_AUTO
+  // Ref: https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_JERK_AUTO
   takeoff_max_jerk_ = new qt::DoubleSpinBox();
   takeoff_max_jerk_->setDecimals(1);
   takeoff_max_jerk_->setMinimum(1.0);
   takeoff_max_jerk_->setMaximum(80.0);
   takeoff_max_jerk_->setSuffix(" m/s³");
 
-  // https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_LAND_SPEED
+  // Ref: https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_LAND_SPEED
   land_speed_ = new qt::DoubleSpinBox();
   land_speed_->setDecimals(1);
   land_speed_->setMinimum(0.6);
   land_speed_->setMaximum(2.0);
   land_speed_->setSuffix(" m/s");
 
-  // https://docs.px4.io/main/en/advanced_config/parameter_reference#RTL_RETURN_ALT
+  // Ref: https://docs.px4.io/main/en/advanced_config/parameter_reference#RTL_RETURN_ALT
   rtl_min_alt_ = new qt::DoubleSpinBox();
   rtl_min_alt_->setDecimals(2);
   rtl_min_alt_->setMinimum(0.0);
@@ -183,7 +183,7 @@ void MulticopterWidget::setToDefaults()
 
   land_speed_->setValue(0.7);
 
-  rtl_min_alt_->setValue(15.0);  // https://ardupilot.org/copter/docs/rtl-mode.html
+  rtl_min_alt_->setValue(15.0);  // Ref: https://ardupilot.org/copter/docs/rtl-mode.html
 }
 
 QString MulticopterWidget::executorPackage() const

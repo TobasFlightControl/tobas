@@ -7,8 +7,6 @@
 #include <unistd.h>
 
 #include <algorithm>
-#include <cerrno>
-#include <iostream>
 #include <utility>
 
 #include <libevdev/libevdev.h>
@@ -16,64 +14,51 @@
 
 #include <tobas_constants/flight_mode.hpp>
 #include <tobas_math/core.hpp>
+#include <tobas_std_tools/error.hpp>
 
 namespace tobas
 {
 namespace gamepad
 {
-void GamepadRcInput::LibevdevDeleter::operator()(libevdev* _dev) const
+void GamepadDriver::LibevdevDeleter::operator()(libevdev* _dev) const
 {
   if (_dev) {
     libevdev_free(_dev);
   }
 }
 
-GamepadRcInput::GamepadRcInput(GamepadRcInputConfig _config) : config_(std::move(_config))
+GamepadDriver::GamepadDriver(GamepadConfig _config) : config_(std::move(_config))
 {
 }
 
-GamepadRcInput::~GamepadRcInput()
+GamepadDriver::~GamepadDriver()
 {
   close();
 }
 
-bool GamepadRcInput::initialize(const std::string& _device_path)
+std::expected<void, std::string> GamepadDriver::initialize(const std::string& _device_path)
 {
-  if (_device_path.empty()) {
-    std::cerr << "Input device path is empty." << std::endl;
-    return false;
-  }
-
-  device_path_ = _device_path;
-  return openDevice();
-}
-
-bool GamepadRcInput::openDevice()
-{
-  close();
-
-  fd_ = open(device_path_.c_str(), O_RDONLY | O_NONBLOCK | O_CLOEXEC);
+  fd_ = open(_device_path.c_str(), O_RDONLY | O_NONBLOCK | O_CLOEXEC);
   if (fd_ < 0) {
-    std::cerr << "Failed to open input device." << std::endl;
-    return false;
+    return std::unexpected("Failed to open input device: " + st::strError());
   }
 
   libevdev* dev = nullptr;
-  const int rc = libevdev_new_from_fd(fd_, &dev);
+  const auto rc = libevdev_new_from_fd(fd_, &dev);
   if (rc < 0) {
-    std::cerr << "Failed to initialize libevdev." << std::endl;
     close();
-    return false;
+    return std::unexpected("Failed to initialize libevdev: " + st::strError(-rc));
   }
-
   dev_.reset(dev);
-  rc_input_ = {};
-  rc_input_.ok = true;
-  rc_input_.mode = FlightMode::kStabilize;
-  return true;
+
+  state_ = {};
+  state_.ok = true;
+  state_.mode = FlightMode::kStabilize;
+
+  return {};
 }
 
-void GamepadRcInput::close()
+void GamepadDriver::close()
 {
   dev_.reset();
 
@@ -82,25 +67,26 @@ void GamepadRcInput::close()
     fd_ = -1;
   }
 
-  rc_input_.ok = false;
+  state_.ok = false;
 }
 
-bool GamepadRcInput::isOpen() const
+bool GamepadDriver::isOpen() const
 {
   return fd_ >= 0 && dev_;
 }
 
-bool GamepadRcInput::poll()
+std::expected<void, std::string> GamepadDriver::poll()
 {
   if (!isOpen()) {
-    rc_input_.ok = false;
-    return false;
+    state_.ok = false;
+    return std::unexpected("Input device is not open.");
   }
 
   input_event event;
-  // ref: https://github.com/whot/libevdev/blob/master/tools/libevdev-events.c
+
+  // Ref: https://github.com/whot/libevdev/blob/master/tools/libevdev-events.c
   while (true) {
-    const int rc = libevdev_next_event(dev_.get(), LIBEVDEV_READ_FLAG_NORMAL, &event);
+    const auto rc = libevdev_next_event(dev_.get(), LIBEVDEV_READ_FLAG_NORMAL, &event);
     // A new event was read successfully.
     if (rc == LIBEVDEV_READ_STATUS_SUCCESS) {
       if (event.type == EV_KEY) {
@@ -128,40 +114,37 @@ bool GamepadRcInput::poll()
 
     // No events are currently available to read.
     if (rc == -EAGAIN) {
-      rc_input_.ok = true;
-      return true;
+      state_.ok = true;
+      return {};
     }
 
-    rc_input_.ok = false;
-    std::cerr << "Failed to read input device." << std::endl;
-    return false;
+    state_.ok = false;
+    return std::unexpected("Failed to read input device: " + st::strError(-rc));
   }
 }
 
-bool GamepadRcInput::read(GamepadRcInputState& _rc_input)
+std::expected<GamepadState, std::string> GamepadDriver::read()
 {
-  if (!poll()) {
-    return false;
+  if (const auto result = poll(); !result) {
+    return std::unexpected(result.error());
   }
 
-  _rc_input = rc_input_;
-  return true;
+  return state_;
 }
 
-double GamepadRcInput::normalizeAbs(int _code, int _value, bool _invert) const
+double GamepadDriver::normalizeAbs(int _code, int _value, bool _invert) const
 {
   if (!dev_) {
     return 0.0;
   }
 
-  const input_absinfo* info = libevdev_get_abs_info(dev_.get(), _code);
+  const auto info = libevdev_get_abs_info(dev_.get(), _code);
 
   if (!info || info->minimum >= 0 || info->maximum <= 0) {
     return 0.0;
   }
 
-  double normalized = math::remap<double>(
-    static_cast<double>(_value), static_cast<double>(info->minimum), static_cast<double>(info->maximum), -1.0, 1.0);
+  auto normalized = math::remap<double>(_value, info->minimum, info->maximum, -1.0, 1.0);
   normalized = std::clamp(normalized, -1.0, 1.0);
 
   if (_invert) {
@@ -171,41 +154,41 @@ double GamepadRcInput::normalizeAbs(int _code, int _value, bool _invert) const
   return normalized;
 }
 
-void GamepadRcInput::applyButton(int _code, int _value)
+void GamepadDriver::applyButton(int _code, int _value)
 {
   const bool pressed = (_value != 0);
 
   switch (_code) {
     // A button: enable the kill switch while pressed.
     case BTN_SOUTH:
-      rc_input_.kill = pressed;
+      state_.kill = pressed;
       break;
     // B button: toggle the submode.
     case BTN_EAST:
       if (pressed) {
-        rc_input_.sub_mode = !rc_input_.sub_mode;
+        state_.sub_mode = !state_.sub_mode;
       }
       break;
     // Y button: toggle `gpsw[1]`.
     case BTN_NORTH:
       if (pressed) {
-        rc_input_.gpsw[1] = !rc_input_.gpsw[1];
+        state_.gpsw[1] = !state_.gpsw[1];
       }
       break;
 
     // X button: toggle `gpsw[0]`.
     case BTN_WEST:
       if (pressed) {
-        rc_input_.gpsw[0] = !rc_input_.gpsw[0];
+        state_.gpsw[0] = !state_.gpsw[0];
       }
       break;
     // L1 button: switch the flight mode toward Acrobat.
     case BTN_TL:
       if (pressed) {
         constexpr auto kModes = magic_enum::enum_values<FlightMode>();
-        const auto mode_index = magic_enum::enum_index(rc_input_.mode).value_or(0);
+        const auto mode_index = magic_enum::enum_index(state_.mode).value_or(0);
         if (mode_index > 0) {
-          rc_input_.mode = (kModes[mode_index - 1]);
+          state_.mode = (kModes[mode_index - 1]);
         }
       }
       break;
@@ -213,22 +196,22 @@ void GamepadRcInput::applyButton(int _code, int _value)
     case BTN_TR:
       if (pressed) {
         constexpr auto kModes = magic_enum::enum_values<FlightMode>();
-        const auto mode_index = magic_enum::enum_index(rc_input_.mode).value_or(0);
+        const auto mode_index = magic_enum::enum_index(state_.mode).value_or(0);
         if ((mode_index + 1) < kModes.size()) {
-          rc_input_.mode = (kModes[mode_index + 1]);
+          state_.mode = (kModes[mode_index + 1]);
         }
       }
       break;
     // Back button: disable RC input.
     case BTN_SELECT:
       if (pressed) {
-        rc_input_.enable = false;
+        state_.enable = false;
       }
       break;
     // START button: enable RC input.
     case BTN_START:
       if (pressed) {
-        rc_input_.enable = true;
+        state_.enable = true;
       }
       break;
     default:
@@ -236,24 +219,24 @@ void GamepadRcInput::applyButton(int _code, int _value)
   }
 }
 
-void GamepadRcInput::applyAbs(int _code, int _value)
+void GamepadDriver::applyAbs(int _code, int _value)
 {
   switch (_code) {
     // Left stick horizontal: yaw.
     case ABS_X:
-      rc_input_.yaw = normalizeAbs(_code, _value, config_.invert_yaw);
+      state_.yaw = normalizeAbs(_code, _value, config_.invert_yaw);
       break;
     // Left stick vertical: pitch.
     case ABS_Y:
-      rc_input_.pitch = normalizeAbs(_code, _value, config_.invert_pitch);
+      state_.pitch = normalizeAbs(_code, _value, config_.invert_pitch);
       break;
     // Right stick horizontal: roll.
     case ABS_RX:
-      rc_input_.roll = normalizeAbs(_code, _value, config_.invert_roll);
+      state_.roll = normalizeAbs(_code, _value, config_.invert_roll);
       break;
     // Right stick vertical: throttle.
     case ABS_RY:
-      rc_input_.throttle = normalizeAbs(_code, _value, config_.invert_throttle);
+      state_.throttle = normalizeAbs(_code, _value, config_.invert_throttle);
       break;
     default:
       break;

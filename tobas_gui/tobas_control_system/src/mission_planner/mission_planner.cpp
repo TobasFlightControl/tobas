@@ -13,6 +13,7 @@
 #include <tobas_constants/ros_interface.hpp>
 #include <tobas_geographic/geography.hpp>
 #include <tobas_gui_common/constants.hpp>
+#include <tobas_mission_items/mission_io.hpp>
 #include <tobas_mission_msgs_adapter/mission.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/cast.hpp>
@@ -451,9 +452,9 @@ void MissionPlannerWidget::onLoadButtonClicked()
   }
 
   // Parse the mission.
-  mission::Mission mission;
-  if (!mission.load(*node)) {
-    qt::qErrorBox(this, "Failed to load the mission file.");
+  const auto mission = mission::loadMission(*node);
+  if (!mission) {
+    qt::qErrorBox(this, "Failed to load the mission file: " + QString::fromStdString(mission.error()));
     return;
   }
 
@@ -461,53 +462,31 @@ void MissionPlannerWidget::onLoadButtonClicked()
   clearMission();
 
   // Apply the mission to the planner widget.
-  for (const auto& [idx, item] : std::views::enumerate(mission.items)) {
-    const auto cmd_number = idx + 1;
-
+  for (const auto& [idx, item] : std::views::enumerate(mission->items)) {
     switch (item.type) {
       case mission::Type::kWaypoint: {
-        mission::Waypoint waypoint;
-        if (!st::fromBytes(item.data, waypoint)) {
-          qt::qErrorBox(this, "Failed to load mission No. " + QString::number(cmd_number) + ": Waypoint");
-          clearMission();
-          return;
-        }
+        const auto waypoint = st::fromBytes<mission::Waypoint>(item.data);
         const auto widget = new WaypointWidget();
         widget->load(waypoint);
         addCommand(item.type, widget);
         break;
       }
       case mission::Type::kTakeoff: {
-        mission::Takeoff takeoff;
-        if (!st::fromBytes(item.data, takeoff)) {
-          qt::qErrorBox(this, "Failed to load mission No. " + QString::number(cmd_number) + ": Takeoff");
-          clearMission();
-          return;
-        }
+        const auto takeoff = st::fromBytes<mission::Takeoff>(item.data);
         const auto widget = new TakeoffWidget();
         widget->load(takeoff);
         addCommand(item.type, widget);
         break;
       }
       case mission::Type::kLand: {
-        mission::Land land;
-        if (!st::fromBytes(item.data, land)) {
-          qt::qErrorBox(this, "Failed to load mission No. " + QString::number(cmd_number) + ": Land");
-          clearMission();
-          return;
-        }
+        const auto land = st::fromBytes<mission::Land>(item.data);
         const auto widget = new LandWidget();
         widget->load(land);
         addCommand(item.type, widget);
         break;
       }
       case mission::Type::kReturnToLaunch: {
-        mission::ReturnToLaunch rtl;
-        if (!st::fromBytes(item.data, rtl)) {
-          qt::qErrorBox(this, "Failed to load mission No. " + QString::number(cmd_number) + ": ReturnToLaunch");
-          clearMission();
-          return;
-        }
+        const auto rtl = st::fromBytes<mission::ReturnToLaunch>(item.data);
         const auto widget = new ReturnToLaunchWidget();
         widget->load(rtl);
         addCommand(item.type, widget);
@@ -561,7 +540,7 @@ void MissionPlannerWidget::onSaveButtonClicked()
 
   // Save the mission.
   const auto mission = createMission();
-  const auto node = mission.dump();
+  const auto node = mission::dumpMission(mission);
   if (!yaml::save(file_path.toStdString(), node)) {
     qt::qErrorBox(this, "Failed to save the current mission: " + file_path);
     return;

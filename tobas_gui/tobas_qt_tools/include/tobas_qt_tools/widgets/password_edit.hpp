@@ -23,7 +23,7 @@ public:
   void showText();
   void hideText();
 
-  /* Return to the startup state, clear plus hide. */
+  /** Return to the startup state, clear plus hide. */
   void reset();
 
 private:

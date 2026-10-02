@@ -11,7 +11,7 @@ namespace tobas
 {
 namespace eigen
 {
-/* axx x^2 + ayy y^2 + azz z^2 + 2 axy xy + 2 ayz yz + 2 azx zx + bx x + by y + bz z + c = 0 */
+/** axx x^2 + ayy y^2 + azz z^2 + 2 axy xy + 2 ayz yz + 2 azx zx + bx x + by y + bz z + c = 0 */
 struct EllipsoidCoefficients
 {
   double a_xx;
@@ -27,7 +27,7 @@ struct EllipsoidCoefficients
 };
 
 /**
- * @brief Mathematical representation of a 3D ellipsoid.
+ * Mathematical representation of a 3D ellipsoid.
  *
  * https://rikei-tawamure.com/entry/2021/09/27/111205
  */
@@ -39,7 +39,7 @@ public:
 
   bool initialize(const EllipsoidCoefficients& coefs);
 
-  /* Set to the unit sphere. */
+  /** Set to the unit sphere. */
   void setIdentity();
 
   const Eigen::Vector3d& getHardBias() const;
@@ -48,16 +48,16 @@ public:
   Eigen::Vector6d getSoftBias() const;
   void setSoftBias(const Eigen::Vector6d& t);
 
-  /* Map the unit sphere to the ellipsoid. */
+  /** Map the unit sphere to the ellipsoid. */
   inline Eigen::Vector3d fromUnitSphere(const Eigen::Vector3d& x) const;
 
-  /* Map the ellipsoid to the unit sphere. */
+  /** Map the ellipsoid to the unit sphere. */
   inline Eigen::Vector3d toUnitSphere(const Eigen::Vector3d& x) const;
 
 private:
-  Eigen::Vector3d b_;      // Hard-iron bias
-  Eigen::Matrix3d T_;      // Soft-iron bias
-  Eigen::Matrix3d T_inv_;  // Soft-iron bias (inverse)
+  Eigen::Vector3d b_;      ///< Hard-iron bias
+  Eigen::Matrix3d T_;      ///< Soft-iron bias
+  Eigen::Matrix3d T_inv_;  ///< Soft-iron bias (inverse)
 };
 
 inline Eigen::Vector3d Ellipsoid::fromUnitSphere(const Eigen::Vector3d& x) const

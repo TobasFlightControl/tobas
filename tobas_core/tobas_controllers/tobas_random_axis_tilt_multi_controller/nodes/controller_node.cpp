@@ -11,6 +11,7 @@
 #include <tobas_pose_pid/angle_axis_pi.hpp>
 #include <tobas_pose_pid/position_pid.hpp>
 #include <tobas_ros2_tools/time.hpp>
+#include <tobas_std_tools/unit_conversions.hpp>
 #include <tobas_tools/command_priority_handler.hpp>
 #include <tobas_tools/tree_joint_state_converter.hpp>
 
@@ -59,8 +60,8 @@ private:
   PositionPID pos_pid_;
   AngleAxisPI rot_pi_;
   PinvMixer mixer_;
-  double atti_wn_, head_wn_;      // [rad/s]
-  double atti_zeta_, head_zeta_;  // [-]
+  double atti_wn_, head_wn_;      ///< [rad/s]
+  double atti_zeta_, head_zeta_;  ///< [-]
   kdl::Vector rate_gain_;
 
   // Mutable variables
@@ -102,27 +103,27 @@ private:
   // Timers
   ros2::TimerPtr check_topics_timer_;
 
-  bool updateInternalDataStructures();
-  bool updateAttitudePDGain();
-  bool updateHeadingPDGain();
+  void updateInternalDataStructures();
+  void updateAttitudePDGain();
+  void updateHeadingPDGain();
   bool isCommandAccepted(const tobas_command_msgs::msg::Priority& priority);
 
-  bool horizontalNaturalFreqCb(const double& p);
-  bool horizontalDampingRatioCb(const double& p);
-  bool horizontalIGainCb(const double& p);
-  bool horizontalIMaxAccelCb(const double& p);
-  bool verticalNaturalFreqCb(const double& p);
-  bool verticalDampingRatioCb(const double& p);
-  bool verticalIGainCb(const double& p);
-  bool verticalIMaxAccelCb(const double& p);
-  bool attitudeNaturalFreqCb(const double& p);
-  bool attitudeDampingRatioCb(const double& p);
-  bool attitudeIGainCb(const double& p);
-  bool headingNaturalFreqCb(const double& p);
-  bool headingDampingRatioCb(const double& p);
-  bool headingIGainCb(const double& p);
-  bool tiltAsixSingularDeclinationLBCb(const double& lb_deg);
-  bool tiltAsixSingularDeclinationUBCb(const double& ub_deg);
+  void horizontalNaturalFreqCb(double p);
+  void horizontalDampingRatioCb(double p);
+  void horizontalIGainCb(double p);
+  void horizontalIMaxAccelCb(double p);
+  void verticalNaturalFreqCb(double p);
+  void verticalDampingRatioCb(double p);
+  void verticalIGainCb(double p);
+  void verticalIMaxAccelCb(double p);
+  void attitudeNaturalFreqCb(double p);
+  void attitudeDampingRatioCb(double p);
+  void attitudeIGainCb(double p);
+  void headingNaturalFreqCb(double p);
+  void headingDampingRatioCb(double p);
+  void headingIGainCb(double p);
+  void tiltAsixSingularDeclinationLBCb(double lb_deg);
+  void tiltAsixSingularDeclinationUBCb(double ub_deg);
 
   void droneCb(const Drone::ConstSharedPtr& drone);
   void treeCb(const kdl::Tree::ConstSharedPtr& tree);
@@ -160,8 +161,8 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   addDynamicDoubleParam("vertical_i_gain", &self::verticalIGainCb, this, 0.01, 10, 1, 30);
   addDynamicDoubleParam("attitude_i_gain", &self::attitudeIGainCb, this, 0.1, 10, 1, 30);
   addDynamicDoubleParam("heading_i_gain", &self::headingIGainCb, this, 0.01, 10, 1, 30);
-  addDynamicDoubleParam("horizontal_i_max_accel", &self::horizontalIMaxAccelCb, this, 0.5, 4, 0, 20, " m/s^2");
-  addDynamicDoubleParam("vertical_i_max_accel", &self::verticalIMaxAccelCb, this, 0.5, 4, 0, 20, " m/s^2");
+  addDynamicDoubleParam("horizontal_i_max_accel", &self::horizontalIMaxAccelCb, this, 0.5, 4, 1, 20, " m/s^2");
+  addDynamicDoubleParam("vertical_i_max_accel", &self::verticalIMaxAccelCb, this, 0.5, 4, 1, 20, " m/s^2");
   addDynamicDoubleParam(
     "tilt_axis_singular_declination_lb", &self::tiltAsixSingularDeclinationLBCb, this, 1.0, 10, 0, 45, " deg");
   addDynamicDoubleParam(
@@ -192,18 +193,13 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   check_topics_timer_ = createTimer(kCheckTopicsPeriod, &self::checkTopicsTimerCb, this);
 }
 
-bool ControllerNode::updateInternalDataStructures()
+void ControllerNode::updateInternalDataStructures()
 {
   js_converter_.updateInternalDataStructures();
-  if (const auto result = mixer_.updateInternalDataStructures(); !result) {
-    TOBAS_ERROR("Failed to update the mixer: ", result.error());
-    return false;
-  }
-
-  return true;
+  mixer_.updateInternalDataStructures();
 }
 
-bool ControllerNode::updateAttitudePDGain()
+void ControllerNode::updateAttitudePDGain()
 {
   // Compute gains when PD control is split into two stages (memo: 3-22).
   const auto angle_gain = atti_wn_ / atti_zeta_ / 2;
@@ -211,17 +207,18 @@ bool ControllerNode::updateAttitudePDGain()
 
   rate_gain_.x(rate_gain);
   rate_gain_.y(rate_gain);
-  return rot_pi_.setProportionalGain(0, angle_gain) && rot_pi_.setProportionalGain(1, angle_gain);
+  rot_pi_.setProportionalGain(0, angle_gain);
+  rot_pi_.setProportionalGain(1, angle_gain);
 }
 
-bool ControllerNode::updateHeadingPDGain()
+void ControllerNode::updateHeadingPDGain()
 {
   // Compute gains when PD control is split into two stages (memo: 3-22).
   const auto angle_gain = head_wn_ / head_zeta_ / 2;
   const auto rate_gain = head_wn_ * head_zeta_ * 2;
 
   rate_gain_.z(rate_gain);
-  return rot_pi_.setProportionalGain(2, angle_gain);
+  rot_pi_.setProportionalGain(2, angle_gain);
 }
 
 bool ControllerNode::isCommandAccepted(const tobas_command_msgs::msg::Priority& priority)
@@ -244,88 +241,93 @@ bool ControllerNode::isCommandAccepted(const tobas_command_msgs::msg::Priority& 
   return true;
 }
 
-bool ControllerNode::horizontalNaturalFreqCb(const double& p)
+void ControllerNode::horizontalNaturalFreqCb(double p)
 {
-  return pos_pid_.setNaturalFreq(0, p) && pos_pid_.setNaturalFreq(1, p);
+  pos_pid_.setNaturalFreq(0, p);
+  pos_pid_.setNaturalFreq(1, p);
 }
 
-bool ControllerNode::horizontalDampingRatioCb(const double& p)
+void ControllerNode::horizontalDampingRatioCb(double p)
 {
-  return pos_pid_.setDampingRatio(0, p) && pos_pid_.setDampingRatio(1, p);
+  pos_pid_.setDampingRatio(0, p);
+  pos_pid_.setDampingRatio(1, p);
 }
 
-bool ControllerNode::horizontalIGainCb(const double& p)
+void ControllerNode::horizontalIGainCb(double p)
 {
-  return pos_pid_.setIntegralGain(0, p) && pos_pid_.setIntegralGain(1, p);
+  pos_pid_.setIntegralGain(0, p);
+  pos_pid_.setIntegralGain(1, p);
 }
 
-bool ControllerNode::horizontalIMaxAccelCb(const double& p)
+void ControllerNode::horizontalIMaxAccelCb(double p)
 {
-  return pos_pid_.setMaxIntegralAccel(0, p) && pos_pid_.setMaxIntegralAccel(1, p);
+  pos_pid_.setMaxIntegralAccel(0, p);
+  pos_pid_.setMaxIntegralAccel(1, p);
 }
 
-bool ControllerNode::verticalNaturalFreqCb(const double& p)
+void ControllerNode::verticalNaturalFreqCb(double p)
 {
-  return pos_pid_.setNaturalFreq(2, p);
+  pos_pid_.setNaturalFreq(2, p);
 }
 
-bool ControllerNode::verticalDampingRatioCb(const double& p)
+void ControllerNode::verticalDampingRatioCb(double p)
 {
-  return pos_pid_.setDampingRatio(2, p);
+  pos_pid_.setDampingRatio(2, p);
 }
 
-bool ControllerNode::verticalIGainCb(const double& p)
+void ControllerNode::verticalIGainCb(double p)
 {
-  return pos_pid_.setIntegralGain(2, p);
+  pos_pid_.setIntegralGain(2, p);
 }
 
-bool ControllerNode::verticalIMaxAccelCb(const double& p)
+void ControllerNode::verticalIMaxAccelCb(double p)
 {
-  return pos_pid_.setMaxIntegralAccel(2, p);
+  pos_pid_.setMaxIntegralAccel(2, p);
 }
 
-bool ControllerNode::attitudeNaturalFreqCb(const double& p)
+void ControllerNode::attitudeNaturalFreqCb(double p)
 {
   atti_wn_ = p;
-  return updateAttitudePDGain();
+  updateAttitudePDGain();
 }
 
-bool ControllerNode::attitudeDampingRatioCb(const double& p)
+void ControllerNode::attitudeDampingRatioCb(double p)
 {
   atti_zeta_ = p;
-  return updateAttitudePDGain();
+  updateAttitudePDGain();
 }
 
-bool ControllerNode::attitudeIGainCb(const double& p)
+void ControllerNode::attitudeIGainCb(double p)
 {
-  return rot_pi_.setIntegralGain(0, p) && rot_pi_.setIntegralGain(1, p);
+  rot_pi_.setIntegralGain(0, p);
+  rot_pi_.setIntegralGain(1, p);
 }
 
-bool ControllerNode::headingNaturalFreqCb(const double& p)
+void ControllerNode::headingNaturalFreqCb(double p)
 {
   head_wn_ = p;
-  return updateHeadingPDGain();
+  updateHeadingPDGain();
 }
 
-bool ControllerNode::headingDampingRatioCb(const double& p)
+void ControllerNode::headingDampingRatioCb(double p)
 {
   head_zeta_ = p;
-  return updateHeadingPDGain();
+  updateHeadingPDGain();
 }
 
-bool ControllerNode::headingIGainCb(const double& p)
+void ControllerNode::headingIGainCb(double p)
 {
-  return rot_pi_.setIntegralGain(2, p);
+  rot_pi_.setIntegralGain(2, p);
 }
 
-bool ControllerNode::tiltAsixSingularDeclinationLBCb(const double& lb_deg)
+void ControllerNode::tiltAsixSingularDeclinationLBCb(double lb_deg)
 {
-  return mixer_.setTiltAxisSingularDeclinationLB(st::deg2rad(lb_deg));
+  mixer_.setTiltAxisSingularDeclinationLB(st::deg2rad(lb_deg));
 }
 
-bool ControllerNode::tiltAsixSingularDeclinationUBCb(const double& ub_deg)
+void ControllerNode::tiltAsixSingularDeclinationUBCb(double ub_deg)
 {
-  return mixer_.setTiltAxisSingularDeclinationUB(st::deg2rad(ub_deg));
+  mixer_.setTiltAxisSingularDeclinationUB(st::deg2rad(ub_deg));
 }
 
 void ControllerNode::droneCb(const Drone::ConstSharedPtr& drone)
@@ -340,10 +342,7 @@ void ControllerNode::droneCb(const Drone::ConstSharedPtr& drone)
   }
 
   if (!tree_.empty()) {
-    if (!updateInternalDataStructures()) {
-      TOBAS_FATAL("Error occurred while updating internal data structures.");
-      return;
-    }
+    updateInternalDataStructures();
   }
 }
 
@@ -352,10 +351,7 @@ void ControllerNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
   tree_ = *tree;
 
   if (!drone_.empty()) {
-    if (!updateInternalDataStructures()) {
-      TOBAS_FATAL("Error occurred while updating internal data structures.");
-      return;
-    }
+    updateInternalDataStructures();
   }
 }
 
@@ -435,22 +431,21 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
 
   // Mixer.
   if (acc_cmd_ && tar_dgyro_) {
-    {
-      // Solve the mixing equation.
-      const auto& dist_force_W = do_dist_comp_trans_ ? dist_force_->wrench.force : kdl::Vector::Zero();
-      const auto& dist_torque_B = do_dist_comp_rot_ ? dist_force_->wrench.torque : kdl::Vector::Zero();
-      const auto result = mixer_.solve(
-        js_converter_.getPosition(), cur_rot, cur_gyro_B, acc_cmd_->accel, *tar_dgyro_, dist_force_W, dist_torque_B);
-      if (!result) {
-        TOBAS_FATAL("Failed to solve the mixing equation: ", result.error());
-        // TODO: Defensive behavior
-        return;
-      }
-
-      // Fill the feedback message.
-      setpoint->odom.accel.linear = cur_rot.inverse(acc_cmd_->accel);
-      setpoint->odom.accel.angular = *tar_dgyro_;
+    // Solve the mixing equation.
+    const auto& cur_q = js_converter_.getPosition();
+    const auto& dist_force_W = do_dist_comp_trans_ ? dist_force_->wrench.force : kdl::Vector::Zero();
+    const auto& dist_torque_B = do_dist_comp_rot_ ? dist_force_->wrench.torque : kdl::Vector::Zero();
+    const auto mixer_result =
+      mixer_.solve(cur_q, cur_rot, cur_gyro_B, acc_cmd_->accel, *tar_dgyro_, dist_force_W, dist_torque_B);
+    if (!mixer_result) {
+      TOBAS_FATAL("Failed to solve the mixing equation: ", mixer_result.error());
+      // TODO: Defensive behavior
+      return;
     }
+
+    // Fill the feedback message.
+    setpoint->odom.accel.linear = cur_rot.inverse(acc_cmd_->accel);
+    setpoint->odom.accel.angular = *tar_dgyro_;
 
     // Publish thrust.
     auto tar_thrusts = std::make_unique<tobas_msgs::msg::RotorThrustArray>();
@@ -458,7 +453,7 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
     for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
       tar_thrusts->thrusts.emplace_back();
       tar_thrusts->thrusts.back().link_name = rotor_it.first;
-      tar_thrusts->thrusts.back().thrust = mixer_.getThrust(idx);
+      tar_thrusts->thrusts.back().thrust = mixer_result->thrusts(idx);
     }
     tar_thrusts_pub_->publish(std::move(tar_thrusts));
 
@@ -472,7 +467,7 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
       }
       tar_angles->commands.emplace_back();
       tar_angles->commands.back().name = rotor->tilt_joint_name;
-      tar_angles->commands.back().data = mixer_.getTiltAngle(idx);
+      tar_angles->commands.back().data = mixer_result->tilt_angles(idx);
     }
     tar_angles_pub_->publish(std::move(tar_angles));
 
@@ -491,8 +486,8 @@ void ControllerNode::jointStateCb(const tobas_msgs::msg::JointStateArray::ConstS
 {
   // Assume that information for different joints may arrive in separate messages,
   // and convert to KDL inside the callback instead of storing the message itself.
-  if (js_converter_.convert(*js) < 0) {
-    TOBAS_ERROR("Joint state converter failed: ", js_converter_.errorMessage());
+  if (const auto result = js_converter_.convert(*js); !result) {
+    TOBAS_ERROR("Joint state converter failed: ", result.error());
     return;
   }
 

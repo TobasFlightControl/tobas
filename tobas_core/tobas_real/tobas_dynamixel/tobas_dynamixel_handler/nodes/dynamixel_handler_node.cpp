@@ -33,15 +33,15 @@ struct DynamixelConfig
   uint8_t operating_mode;
 
   bool current_available;
-  double current_scaling_factor;  // code -> A
+  double current_scaling_factor;  ///< code -> A
 
-  double temp_limit;                // [degC]
-  st::Range<double> voltage_limit;  // [V]
-  double pwm_limit;                 // [%]
-  double current_limit;             // [A]
-  double acc_limit;                 // [rad/s^2]
-  double vel_limit;                 // [rad/s]
-  st::Range<double> pos_limit;      // [rad]
+  double temp_limit;                ///< [degC]
+  st::Range<double> voltage_limit;  ///< [V]
+  double pwm_limit;                 ///< [%]
+  double current_limit;             ///< [A]
+  double acc_limit;                 ///< [rad/s^2]
+  double vel_limit;                 ///< [rad/s]
+  st::Range<double> pos_limit;      ///< [rad]
 };
 
 class DynamixelHandlerNode : public BaseNode

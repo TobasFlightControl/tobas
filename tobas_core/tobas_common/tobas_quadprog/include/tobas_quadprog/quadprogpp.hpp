@@ -12,9 +12,7 @@ namespace tobas
 {
 namespace quadprog
 {
-/**
- * @brief An Eigen wrapper of [Quadprogpp](https://github.com/liuq/QuadProgpp)
- */
+/** An Eigen wrapper of [Quadprogpp](https://github.com/liuq/QuadProgpp). */
 class QuadProgppSolver : public QuadProgSolver
 {
   using super = QuadProgSolver;

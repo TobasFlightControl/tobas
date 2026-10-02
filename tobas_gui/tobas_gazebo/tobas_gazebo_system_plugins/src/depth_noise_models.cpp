@@ -7,7 +7,7 @@
 
 #include <eigen3/Eigen/Core>
 
-DepthNoiseModel::DepthNoiseModel(const float& min_depth, const float& max_depth)
+DepthNoiseModel::DepthNoiseModel(float min_depth, float max_depth)
   : bad_point_(std::numeric_limits<float>::quiet_NaN())
   , rnd_gen_(rnd_dev_())
   , min_depth_(min_depth)
@@ -15,24 +15,23 @@ DepthNoiseModel::DepthNoiseModel(const float& min_depth, const float& max_depth)
 {
 }
 
-bool DepthNoiseModel::inRange(const float& depth) const
+bool DepthNoiseModel::inRange(float depth) const
 {
   return min_depth_ < depth && depth < max_depth_;
 }
 
-KinectDepthNoiseModel::KinectDepthNoiseModel(const float& min_depth, const float& max_depth)
-  : super(min_depth, max_depth)
+KinectDepthNoiseModel::KinectDepthNoiseModel(float min_depth, float max_depth) : super(min_depth, max_depth)
 {
 }
 
-void KinectDepthNoiseModel::applyNoise(const size_t& width, const size_t& height, float* data)
+void KinectDepthNoiseModel::applyNoise(size_t width, size_t height, float* data)
 {
   if (!data) {
     return;
   }
 
   // Axial noise model from
-  // https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=6375037,
+  // Ref: https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=6375037,
   // Nguyen, Izadi & Lovell: "Modeling Kinect Sensor Noise for Improved 3D Reconstrucion and
   // Tracking", 3DIM/3DPVT, 2012. We are using the 10-60 Degree model as an approximation.
   Eigen::Map<Eigen::VectorXf> data_vector_map(data, width * height);
@@ -49,11 +48,11 @@ void KinectDepthNoiseModel::applyNoise(const size_t& width, const size_t& height
   }
 }
 
-PMDDepthNoiseModel::PMDDepthNoiseModel(const float& min_depth, const float& max_depth) : super(min_depth, max_depth)
+PMDDepthNoiseModel::PMDDepthNoiseModel(float min_depth, float max_depth) : super(min_depth, max_depth)
 {
 }
 
-void PMDDepthNoiseModel::applyNoise(const size_t& width, const size_t& height, float* data)
+void PMDDepthNoiseModel::applyNoise(size_t width, size_t height, float* data)
 {
   if (!data) {
     return;
@@ -79,7 +78,7 @@ D435DepthNoiseModel::D435DepthNoiseModel(float min_depth, float max_depth, float
 {
 }
 
-void D435DepthNoiseModel::applyNoise(const size_t& width, const size_t& height, float* data)
+void D435DepthNoiseModel::applyNoise(size_t width, size_t height, float* data)
 {
   if (!data) {
     return;

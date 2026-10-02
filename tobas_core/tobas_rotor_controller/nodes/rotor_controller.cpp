@@ -20,7 +20,7 @@ using namespace std::chrono_literals;
 
 namespace tobas
 {
-/* Realize the target thrust for the propulsion system. */
+/** Realize the target thrust for the propulsion system. */
 class RotorControllerNode : public BaseNode
 {
   using self = RotorControllerNode;
