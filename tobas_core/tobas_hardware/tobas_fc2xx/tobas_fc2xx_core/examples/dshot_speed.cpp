@@ -13,97 +13,80 @@ using namespace std;
 
 int main(int argc, char** argv)
 {
+  // Parse arguments.
   if (argc != 7) {
     cerr << "Usage: " << argv[0] << " <Channel> <KV> <Prop Diameter> <Poles> <Gain> <Target RPM>" << endl;
     return EXIT_FAILURE;
   }
-  const auto channel = stoi(argv[1]);
-  const auto kv = stoi(argv[2]);  // [rpm/V]
-  const auto d = stoi(argv[3]);   // [inch]
-  const auto poles = stoi(argv[4]);
-  const auto gain = stoi(argv[5]);
-  const auto tar_rpm = stoi(argv[6]);
+  const auto channel = stoul(argv[1]);
+  const auto kv = stoul(argv[2]);  // [rpm/V]
+  const auto d = stoul(argv[3]);   // [inch]
+  const auto poles = stoul(argv[4]);
+  const auto gain = stoul(argv[5]);
+  const auto tar_rpm = stoul(argv[6]);
+  if (channel >= tobas::fc2xx::DShot::kChannelSize) {
+    cerr << "DShot channel is out of range." << endl;
+    return EXIT_FAILURE;
+  }
 
+  // Initialize driver.
   tobas::fc2xx::DShot dshot;
-
   if (!dshot.initialize()) {
     cerr << "Failed to initialize DShot driver." << endl;
     return EXIT_FAILURE;
   }
 
-  if (!dshot.setKv(channel, tobas::st::rpm2rps(kv))) {
-    cerr << "Failed to set Kv." << endl;
-    return EXIT_FAILURE;
-  }
+  // Set parameters.
+  dshot.setKv(channel, tobas::st::rpm2rps(kv));
   if (!dshot.transfer()) {
     cerr << "Failed to send Kv." << endl;
     return EXIT_FAILURE;
   }
   this_thread::sleep_for(1ms);
 
-  if (!dshot.setInternalResistance(channel, 0.25)) {  // Typical value
-    cerr << "Failed to set internal resistance." << endl;
-    return EXIT_FAILURE;
-  }
+  dshot.setInternalResistance(channel, 0.25);
   if (!dshot.transfer()) {
     cerr << "Failed to send internal resistance." << endl;
     return EXIT_FAILURE;
   }
   this_thread::sleep_for(1ms);
 
-  if (!dshot.setPropellerDiameter(channel, tobas::st::inch2meter(d))) {
-    cerr << "Failed to set propeller diameter." << endl;
-    return EXIT_FAILURE;
-  }
+  dshot.setPropellerDiameter(channel, tobas::st::inch2meter(d));
   if (!dshot.transfer()) {
     cerr << "Failed to send propeller diameter." << endl;
     return EXIT_FAILURE;
   }
   this_thread::sleep_for(1ms);
 
-  if (!dshot.setMomentConstant(channel, 2e-4)) {  // Typical value
-    cerr << "Failed to set moment constant." << endl;
-    return EXIT_FAILURE;
-  }
+  dshot.setMomentConstant(channel, 2e-4);
   if (!dshot.transfer()) {
     cerr << "Failed to send moment constant." << endl;
     return EXIT_FAILURE;
   }
   this_thread::sleep_for(1ms);
 
-  if (!dshot.setNumPoles(channel, poles)) {
-    cerr << "Failed to set the number of poles." << endl;
-    return EXIT_FAILURE;
-  }
+  dshot.setNumPoles(channel, poles);
   if (!dshot.transfer()) {
     cerr << "Failed to send the number of poles." << endl;
     return EXIT_FAILURE;
   }
   this_thread::sleep_for(1ms);
 
-  if (!dshot.setRpmControlGain(channel, gain)) {
-    cerr << "Failed to set the speed control gain." << endl;
-    return EXIT_FAILURE;
-  }
+  dshot.setRpmControlGain(channel, gain);
   if (!dshot.transfer()) {
     cerr << "Failed to send the speed control gain." << endl;
     return EXIT_FAILURE;
   }
   this_thread::sleep_for(1ms);
 
+  // Command target speed.
+  dshot.setTargetSpeed(channel, tobas::st::rpm2rps(tar_rpm));
   while (true) {
-    if (!dshot.setTargetSpeed(channel, tobas::st::rpm2rps(tar_rpm))) {
-      cerr << "Failed to set target speed." << endl;
-      continue;
-    }
-
     if (!dshot.transfer()) {
       cerr << "Failed to send target speed." << endl;
       continue;
     }
-
     dshot.printCurrentState(channel);
-
     this_thread::sleep_for(10ms);
   }
 }

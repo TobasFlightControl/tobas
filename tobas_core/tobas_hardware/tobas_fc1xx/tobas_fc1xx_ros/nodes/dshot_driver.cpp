@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <cmath>
 #include <memory>
 
 #include <tobas_constants/time.hpp>
@@ -33,7 +34,6 @@ public:
 private:
   DShot dshot_;
 
-  std::array<uint8_t, DShot::kChannelSize> gains_ = {};
   bool is_commanded_ = false;
   ElectricPropulsionSystemConfig::ConstSharedPtr eprop_;
 
@@ -150,10 +150,7 @@ void DShotDriverNode::droneCb(const Drone::ConstSharedPtr& drone)
   // Set Kv values.
   for (const auto& [link_name, _] : eprop->rotors) {
     const auto erotor = eprop->getRotor(link_name);
-    if (!dshot_.setKv(erotor->channel, erotor->kv)) {
-      TOBAS_ERROR("Failed to set Kv of channel ", erotor->channel, ".");
-      return;
-    }
+    dshot_.setKv(erotor->channel, erotor->kv);
   }
   if (!transferAndSleep()) {
     return;
@@ -162,10 +159,7 @@ void DShotDriverNode::droneCb(const Drone::ConstSharedPtr& drone)
   // Set internal resistances.
   for (const auto& [link_name, _] : eprop->rotors) {
     const auto erotor = eprop->getRotor(link_name);
-    if (!dshot_.setInternalResistance(erotor->channel, erotor->internal_resistance)) {
-      TOBAS_ERROR("Failed to set internal resistance of channel ", erotor->channel, ".");
-      return;
-    }
+    dshot_.setInternalResistance(erotor->channel, erotor->internal_resistance);
   }
   if (!transferAndSleep()) {
     return;
@@ -174,10 +168,7 @@ void DShotDriverNode::droneCb(const Drone::ConstSharedPtr& drone)
   // Set propeller diameters.
   for (const auto& [link_name, _] : eprop->rotors) {
     const auto erotor = eprop->getRotor(link_name);
-    if (!dshot_.setPropellerDiameter(erotor->channel, erotor->propeller_diameter)) {
-      TOBAS_ERROR("Failed to set propeller diameter of channel ", erotor->channel, ".");
-      return;
-    }
+    dshot_.setPropellerDiameter(erotor->channel, erotor->propeller_diameter);
   }
   if (!transferAndSleep()) {
     return;
@@ -187,10 +178,7 @@ void DShotDriverNode::droneCb(const Drone::ConstSharedPtr& drone)
   for (const auto& [link_name, _] : eprop->rotors) {
     const auto erotor = eprop->getRotor(link_name);
     const auto moment_const = erotor->motor_const * erotor->moment_const / std::pow(erotor->propeller_diameter, 5);
-    if (!dshot_.setMomentConstant(erotor->channel, moment_const)) {
-      TOBAS_ERROR("Failed to set moment constant of channel ", erotor->channel, ".");
-      return;
-    }
+    dshot_.setMomentConstant(erotor->channel, moment_const);
   }
   if (!transferAndSleep()) {
     return;
@@ -199,10 +187,7 @@ void DShotDriverNode::droneCb(const Drone::ConstSharedPtr& drone)
   // Set the number of poles.
   for (const auto& [link_name, _] : eprop->rotors) {
     const auto erotor = eprop->getRotor(link_name);
-    if (!dshot_.setNumPoles(erotor->channel, erotor->num_poles)) {
-      TOBAS_ERROR("Failed to set the number of poles of channel ", erotor->channel, ".");
-      return;
-    }
+    dshot_.setNumPoles(erotor->channel, erotor->num_poles);
   }
   if (!transferAndSleep()) {
     return;
@@ -230,11 +215,7 @@ void DShotDriverNode::targetSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::Con
       TOBAS_ERROR("Rotor '" + elem.link_name + "' does not exist.");
       continue;
     }
-
-    if (!dshot_.setTargetSpeed(erotor->channel, elem.speed)) {
-      TOBAS_ERROR("Failed to set the target speed of rotor '", elem.link_name, "'.");
-      continue;
-    }
+    dshot_.setTargetSpeed(erotor->channel, elem.speed);
   }
 
   // Send the commands and publish the rotor states.
@@ -259,12 +240,12 @@ void DShotDriverNode::targetSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::Con
 void DShotDriverNode::setGainsCb(const SetGains::Request::ConstSharedPtr& req, const SetGains::Response::SharedPtr& res)
 {
   for (const auto& gain : req->gains) {
-    if (!dshot_.setRpmControlGain(gain.channel, gain.gain)) {
+    if (gain.channel >= DShot::kChannelSize) {
       res->success = false;
-      res->message = "Rotor control gain of channel " + std::to_string((int)gain.channel) + " was rejected.";
+      res->message = "Channel '" + std::to_string(gain.channel) + "' is out of range.";
       return;
     }
-    gains_.at(gain.channel) = gain.gain;
+    dshot_.setRpmControlGain(gain.channel, gain.gain);
   }
 
   if (!transfer()) {
@@ -280,10 +261,7 @@ void DShotDriverNode::setGainsCb(const SetGains::Request::ConstSharedPtr& req, c
 void DShotDriverNode::autoStopTimerCb()
 {
   for (size_t ch = 0; ch < DShot::kChannelSize; ++ch) {
-    if (!dshot_.setThrottle(ch, DShot::DSHOT_CMD_MOTOR_STOP)) {
-      TOBAS_ERROR("Failed to set disarm throttle on channel ", ch, ".");
-      return;
-    }
+    dshot_.setThrottle(ch, DShot::DSHOT_CMD_MOTOR_STOP);
   }
 
   if (transfer()) {
