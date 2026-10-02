@@ -803,7 +803,13 @@ void ProjectGenerator::resolveModifiedUrdfMeshFilePath(tinyxml2::XMLElement* ele
     return;
   }
 
-  const auto src_path = QString::fromStdString(urdf::resolveUri(filename).string());
+  const auto resolved_path = urdf::resolveUri(filename);
+  if (!resolved_path) {
+    qWarning().nospace() << "Failed to resolve mesh URI '" << filename << "': " << resolved_path.error().c_str();
+    return;
+  }
+
+  const auto src_path = QString::fromStdString(resolved_path->string());
   const QFileInfo src_info(src_path);
   if (!src_info.exists()) {
     qWarning() << "Mesh file" << src_path << "does not exist.";
@@ -857,7 +863,12 @@ void ProjectGenerator::replaceOriginalUadfMeshFilePath(tinyxml2::XMLElement* ele
     return;
   }
 
-  const auto src_path = QString::fromStdString(urdf::resolveUri(filename).string());
+  const auto resolved_path = urdf::resolveUri(filename);
+  if (!resolved_path) {
+    qWarning() << "Failed to resolve mesh URI:" << QString::fromStdString(resolved_path.error());
+    return;
+  }
+  const auto src_path = QString::fromStdString(resolved_path->string());
   const auto base_name = QFileInfo(src_path).fileName();
 
   // Specify as a relative path from `config_pkg`.

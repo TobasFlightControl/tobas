@@ -3,13 +3,15 @@
 
 #pragma once
 
+#include <expected>
 #include <filesystem>
+#include <string>
 
 namespace tobas
 {
 namespace urdf
 {
 /** Return the absolute path of a file in a URDF. */
-std::filesystem::path resolveUri(const std::string& uri);
+std::expected<std::filesystem::path, std::string> resolveUri(const std::string& uri);
 }  // namespace urdf
 }  // namespace tobas

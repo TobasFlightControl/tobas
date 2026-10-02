@@ -3,20 +3,22 @@
 
 #pragma once
 
+#include <expected>
 #include <filesystem>
+#include <string>
 
 namespace tobas
 {
 namespace linux
 {
 /** Get the user name. */
-std::string userName();
+std::expected<std::string, std::string> userName() noexcept;
 
 /** Get the home directory. */
-std::filesystem::path homeDir();
+std::expected<std::filesystem::path, std::string> homeDir() noexcept;
 
 /** Expand the home directory to an absolute path. */
-std::filesystem::path expandUser(const std::string& path);
+std::expected<std::filesystem::path, std::string> expandUser(const std::string& path) noexcept;
 
 /** Return true when the program is running with root privileges. */
 bool isSuperUser() noexcept;
