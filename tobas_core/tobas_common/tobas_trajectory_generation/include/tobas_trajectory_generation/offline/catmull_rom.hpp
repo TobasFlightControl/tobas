@@ -136,6 +136,8 @@ public:
     // only by those two points plus the neighboring points before and after them.
     // Ref: [Catmull–Rom spline](https://en.wikipedia.org/wiki/Catmull%E2%80%93Rom_spline)
 
+    assert(segment + 1 < points_.size());
+
     const auto& p0 = points_[segment];
     const auto& p1 = points_[segment + 1];
     const auto m0 = tangentAt(segment);

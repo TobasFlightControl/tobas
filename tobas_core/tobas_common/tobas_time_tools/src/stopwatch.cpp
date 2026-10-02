@@ -3,6 +3,7 @@
 
 #include "tobas_time_tools/stopwatch.hpp"
 
+#include <algorithm>
 #include <iostream>
 
 namespace ch = std::chrono;
@@ -11,11 +12,8 @@ namespace tobas
 {
 namespace tim
 {
-Stopwatch::Stopwatch(size_t samples) : samples_(samples)
+Stopwatch::Stopwatch(size_t samples) : samples_(std::max(samples, 1UL))
 {
-  if (samples == 0) {
-    throw std::runtime_error("The number of samples must be positive.");
-  }
 }
 
 void Stopwatch::start()

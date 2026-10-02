@@ -3,6 +3,7 @@
 
 #include "tobas_time_tools/rate.hpp"
 
+#include <cassert>
 #include <thread>
 
 using namespace std::chrono_literals;
@@ -24,10 +25,7 @@ Rate::Rate(const ch::microseconds& period)
 
 Rate::Rate(const double& freq) : period_(static_cast<uint64_t>(1e+6 / freq))
 {
-  if (freq <= 0.0) {
-    throw std::runtime_error("Frequency must be positive.");
-  }
-
+  assert(freq > 0.0);
   start();
 }
 
