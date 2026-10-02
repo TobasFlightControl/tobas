@@ -3,9 +3,10 @@
 
 #pragma once
 
+#include <expected>
 #include <filesystem>
-#include <iostream>
 #include <ranges>
+#include <string>
 
 #include <boost/property_tree/ptree.hpp>
 
@@ -18,8 +19,8 @@ class PropertyTree
 public:
   explicit PropertyTree();
 
-  bool initialize(const std::filesystem::path& file_path);
-  bool save();
+  std::expected<void, std::string> initialize(const std::filesystem::path& file_path);
+  std::expected<void, std::string> save();
 
   template <typename T>
   bool get(const std::string& key, T& dst) const;

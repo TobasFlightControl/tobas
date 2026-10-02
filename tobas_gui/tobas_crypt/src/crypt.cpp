@@ -155,7 +155,8 @@ bool setShadowPassword(
 
   // Generate hash.
   const auto hash = _crypt.crypt(_new_password);
-  if (hash.empty()) {
+  if (!hash) {
+    std::cerr << "Failed to generate hash: " << hash.error() << std::endl;
     return false;
   }
 
@@ -182,8 +183,8 @@ bool setShadowPassword(
         fields.resize(kMinNumFields, "");
       }
 
-      fields[1] = hash;                  // Hash.
-      fields[2] = std::to_string(days);  // Last change date.
+      fields[1] = *hash;                 // Hash
+      fields[2] = std::to_string(days);  // Last change date
       line = joinShadow(fields);
       found = true;
       break;

@@ -3,12 +3,15 @@
 
 #pragma once
 
+#include <expected>
+#include <string>
+
 #include "./data.hpp"
 
 namespace tobas
 {
 namespace cyclonedds
 {
-bool parseFromText(const std::string& text, Data& dst);
+std::expected<Data, std::string> parseFromText(const std::string& text);
 }  // namespace cyclonedds
 }  // namespace tobas

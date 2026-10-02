@@ -54,8 +54,8 @@ MagnetometerHandlerNode::MagnetometerHandlerNode(const rclcpp::NodeOptions& opti
   section_ = getStringParam("section");
 
   const auto cfg_dir = linux::isSuperUser() ? fs::path(kConfigDirRoot) : ros2::expandUser(kConfigDirHome);
-  if (!pt_.initialize((cfg_dir / handler::mag::kConfigFileName))) {
-    TOBAS_ERROR("Failed to initialize property tree. This node will not work.");
+  if (const auto result = pt_.initialize((cfg_dir / handler::mag::kConfigFileName)); !result) {
+    TOBAS_ERROR("Failed to initialize property tree: ", result.error(), ". This node will not work.");
     return;
   }
 
@@ -113,9 +113,9 @@ void MagnetometerHandlerNode::setParamsCb(
   // Save parameters.
   pt_.set(section_, handler::mag::kHardBiasKey, req->hard_bias);
   pt_.set(section_, handler::mag::kSoftBiasKey, req->soft_bias);
-  if (!pt_.save()) {
+  if (const auto result = pt_.save(); !result) {
     res->success = false;
-    res->message = "Failed to save parameters.";
+    res->message = "Failed to save parameters: " + result.error();
     return;
   }
 

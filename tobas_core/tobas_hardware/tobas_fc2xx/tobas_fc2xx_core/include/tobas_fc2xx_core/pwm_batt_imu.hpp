@@ -3,6 +3,9 @@
 
 #pragma once
 
+#include <expected>
+#include <string>
+
 #include <tobas_algorithm/crc.hpp>
 #include <tobas_linux/spi_dev.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
@@ -20,7 +23,7 @@ public:
 
   bool initialize();
 
-  bool transfer();
+  std::expected<void, std::string> transfer();
 
   void setPwmPeriod(uint16_t* period_us);
   void configureLowPassFilter(uint16_t acc_cutoff, uint16_t gyro_cutoff, uint16_t dgyro_cutoff);

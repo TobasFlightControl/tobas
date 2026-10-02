@@ -15,7 +15,7 @@ public:
   explicit Yescrypt();
 
 private:
-  std::string createSalt() const override;
+  std::expected<std::string, std::string> createSalt() const override;
 };
 }  // namespace crypt
 }  // namespace tobas

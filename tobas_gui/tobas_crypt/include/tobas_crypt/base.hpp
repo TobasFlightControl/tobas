@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <expected>
 #include <string>
 
 namespace tobas
@@ -12,10 +13,10 @@ namespace crypt
 class Crypt
 {
 public:
-  std::string crypt(const std::string& password) const;
+  std::expected<std::string, std::string> crypt(const std::string& password) const;
 
 private:
-  virtual std::string createSalt() const = 0;
+  virtual std::expected<std::string, std::string> createSalt() const = 0;
 };
 }  // namespace crypt
 }  // namespace tobas

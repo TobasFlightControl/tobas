@@ -279,10 +279,8 @@ void DShotDriverNode::setGainsCb(const SetGains::Request::ConstSharedPtr& req, c
   }
 
   if (const auto result = transfer(); !result) {
-    const auto error_message = "Failed to communicate with the MCU: " + result.error();
     res->success = false;
     res->message = result.error();
-    TOBAS_ERROR(error_message);
     return;
   }
 
