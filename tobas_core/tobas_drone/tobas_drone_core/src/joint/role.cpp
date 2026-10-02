@@ -71,7 +71,7 @@ bool isServoJoint(JointRole role)
 
 namespace YAML
 {
-Node convert<tobas::JointRole>::encode(const tobas::JointRole& rhs)
+Node convert<tobas::JointRole>::encode(tobas::JointRole rhs)
 {
   Node node;
   node = tobas::textFromEnum(rhs);

@@ -18,7 +18,7 @@ std::expected<Eigen::MatrixXd, std::string> dare(
   const Eigen::MatrixXd& B,
   const Eigen::MatrixXd& Q,
   const Eigen::MatrixXd& R,
-  const double& tol,
+  double tol,
   size_t max_iter) noexcept
 {
   const auto n = A.rows();

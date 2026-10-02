@@ -46,7 +46,7 @@ public:
   UbxScanner& operator=(const UbxScanner& _other) = delete;
 
   void reset();
-  void update(const uint8_t& data);
+  void update(uint8_t data);
 
   inline State state() const;
   inline size_t messageLength() const;

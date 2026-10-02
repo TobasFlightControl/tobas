@@ -27,8 +27,8 @@ public:
 
   void setLinearTimeConst(const Vector& _t);
   void setAngularTimeConst(const Vector& _t);
-  void setLinearTimeConst(const double& _t);
-  void setAngularTimeConst(const double& _t);
+  void setLinearTimeConst(double _t);
+  void setAngularTimeConst(double _t);
 
 private:
   TreeFkSolverPos fk_;

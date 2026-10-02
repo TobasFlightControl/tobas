@@ -177,17 +177,17 @@ public:
 
   bool initialize(
     const char* video_dev,
-    const CameraPosition& camera_position = CameraPosition::kAuto,
-    const bool disable_full_hd = true,
-    const bool disable_video_streaming = false);
+    CameraPosition camera_position = CameraPosition::kAuto,
+    bool disable_full_hd = true,
+    bool disable_video_streaming = false);
 
-  bool sendCopterAttitude(const double& q_w, const double& q_x, const double& q_y, const double& q_z);
+  bool sendCopterAttitude(double q_w, double q_x, double q_y, double q_z);
 
   /**
    * Send gimbal attitude control command.
    * Specify angles in degrees satisfying -115.0 < pitch_deg < 45.0, -85.0 < yaw_deg < 85.0.
    */
-  bool sendGimbalCtrl(const double& pitch_deg, const double& yaw_deg);
+  bool sendGimbalCtrl(double pitch_deg, double yaw_deg);
 
   /** Factory reset. */
   bool fullReset();
@@ -200,37 +200,37 @@ public:
   /** Take a still image using the current image quality setting. The image is saved to the built-in SD card. */
   bool takePictureToSd();
   /** Set still image quality. Choose from superfine, fine, and normal. */
-  bool setPhotoQuality(const PhotoQuality& photo_quality);
+  bool setPhotoQuality(PhotoQuality photo_quality);
   /** Start video recording. Videos are saved to the SD card. */
   bool startRecording();
   /** Stop video recording. Videos are saved to the SD card. */
   bool stopRecording();
   /** Set the video quality for recording. */
-  bool setVideoResolution(const VideoQuality& video_quality);
+  bool setVideoResolution(VideoQuality video_quality);
   /** Set the video frame rate for recording. */
-  bool setVideoFrameRate(const VideoFrameRate& video_frame_rate);
+  bool setVideoFrameRate(VideoFrameRate video_frame_rate);
   /** Get the exposure mode and update the given variable from the result. */
   bool getExposureMode(uint8_t& exposure_mode);
   /** Set the exposure mode. */
-  bool setExposureMode(const ExposureMode& exposure_mode);
+  bool setExposureMode(ExposureMode exposure_mode);
   /** Get the exposure time and update the given variable from the result. */
   bool getExposureTime(uint8_t& exposure_time);
   /** Set the exposure time. */
-  bool setExposureTime(const ExposureTime& exposure_time);
+  bool setExposureTime(ExposureTime exposure_time);
   /** Get ISO sensitivity and update the variable given as an argument from the result. */
   bool getIsoSensitivity(uint8_t& iso_sensitivity);
   /** Set ISO sensitivity. */
-  bool setIsoSensitivity(const IsoSensitivity& iso_sensitivity);
+  bool setIsoSensitivity(IsoSensitivity iso_sensitivity);
   /** Get exposure compensation and update the variable given as an argument from the result. */
   bool getExposureCompensation(uint8_t& exposure_compenstation);
   /** Set exposure compensation. */
-  bool setExposureCompensation(const ExposureCompensation& exposure_compensation);
+  bool setExposureCompensation(ExposureCompensation exposure_compensation);
   /** Get photometry mode and update the variable given as an argument from the result. */
   bool getPhotometry(uint8_t& photometry);
   /** Set photometry mode. */
-  bool setPhotometry(const Photometry& photometry);
+  bool setPhotometry(Photometry photometry);
   /** Set white balance. */
-  bool setWhiteBalance(const WhiteBalance& white_balance);
+  bool setWhiteBalance(WhiteBalance white_balance);
   /** Get camera status and update variables given as arguments from the result. */
   bool getCameraStatus(
     bool& sd_full,
@@ -310,7 +310,7 @@ private:
   };
   static_assert(sizeof(CameraStatusMsg) == 48, "CameraStatusMsg size is strange!");
 
-  bool interpretCameraError(const uint32_t& error_status, const CameraErrorStatusDigit& digit);
+  bool interpretCameraError(uint32_t error_status, CameraErrorStatusDigit digit);
 };
 }  // namespace driver
 }  // namespace tobas

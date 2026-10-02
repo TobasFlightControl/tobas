@@ -39,21 +39,20 @@ public:
   double getMomentConst() const;
   double getDragConst() const;
 
-  double getSpeed(const double& engine_speed) const;
-  double getVelocity(const double& engine_speed) const;
-  double getThrust(const double& engine_speed) const;
-  double getTorque(const double& engine_speed) const;
+  double getSpeed(double engine_speed) const;
+  double getVelocity(double engine_speed) const;
+  double getThrust(double engine_speed) const;
+  double getTorque(double engine_speed) const;
 
   double getPitchAngle() const;
 
-  void setTargetPitchAngle(const double& tar_pitch);
+  void setTargetPitchAngle(double tar_pitch);
 
-  void
-  applyWrench(gz::sim::EntityComponentManager& ecm, const double& engine_speed, const gz::math::Vector3d& wind_vel_W);
+  void applyWrench(gz::sim::EntityComponentManager& ecm, double engine_speed, const gz::math::Vector3d& wind_vel_W);
 
-  void updateJointPosition(gz::sim::EntityComponentManager& ecm, const double& engine_pos);
+  void updateJointPosition(gz::sim::EntityComponentManager& ecm, double engine_pos);
 
-  void step(const double& dt);
+  void step(double dt);
 
 private:
   // SDF parameters

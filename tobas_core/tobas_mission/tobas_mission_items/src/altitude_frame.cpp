@@ -11,7 +11,7 @@ constexpr char kRelativeToLaunchText[] = "relative_to_launch";
 constexpr char kMeanSeaLevelText[] = "mean_sea_level";
 }  // namespace
 
-Node convert<tobas::mission::AltitudeFrame>::encode(const tobas::mission::AltitudeFrame& rhs)
+Node convert<tobas::mission::AltitudeFrame>::encode(tobas::mission::AltitudeFrame rhs)
 {
   switch (rhs) {
     case tobas::mission::AltitudeFrame::kRelativeToLaunch:

@@ -10,10 +10,10 @@ namespace geometry_msgs
 {
 namespace msg
 {
-Vector3 operator*(const double& lhs, const Vector3& rhs);
-Vector3 operator*(const Vector3& lhs, const double& rhs);
-Vector3 operator/(const double& lhs, const Vector3& rhs);
-Vector3 operator/(const Vector3& lhs, const double& rhs);
+Vector3 operator*(double lhs, const Vector3& rhs);
+Vector3 operator*(const Vector3& lhs, double rhs);
+Vector3 operator/(double lhs, const Vector3& rhs);
+Vector3 operator/(const Vector3& lhs, double rhs);
 
 Vector3 operator+(const Vector3& lhs, const Vector3& rhs);
 Vector3 operator-(const Vector3& lhs, const Vector3& rhs);

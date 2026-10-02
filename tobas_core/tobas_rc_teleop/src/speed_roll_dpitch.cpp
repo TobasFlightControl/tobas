@@ -71,41 +71,41 @@ void SpeedRollDeltaPitchController::update(const tobas_msgs::RCInput& rcin, cons
   cmd_pub_->publish(std::move(cmd));
 }
 
-void SpeedRollDeltaPitchController::minSpeedCb(const double& p)
+void SpeedRollDeltaPitchController::minSpeedCb(double p)
 {
   assert(p < max_speed_);
 
   min_speed_ = p;
 }
 
-void SpeedRollDeltaPitchController::maxSpeedCb(const double& p)
+void SpeedRollDeltaPitchController::maxSpeedCb(double p)
 {
   assert(p > min_speed_);
 
   max_speed_ = p;
 }
 
-void SpeedRollDeltaPitchController::maxRollCb(const double& p)
+void SpeedRollDeltaPitchController::maxRollCb(double p)
 {
   max_roll_ = st::deg2rad(p);
 }
 
-void SpeedRollDeltaPitchController::maxDeltaPitchCb(const double& p)
+void SpeedRollDeltaPitchController::maxDeltaPitchCb(double p)
 {
   max_dpitch_ = st::deg2rad(p);
 }
 
-void SpeedRollDeltaPitchController::speedExpoCb(const double& p)
+void SpeedRollDeltaPitchController::speedExpoCb(double p)
 {
   speed_expo_ = p / kExpoScale;
 }
 
-void SpeedRollDeltaPitchController::rollExpoCb(const double& p)
+void SpeedRollDeltaPitchController::rollExpoCb(double p)
 {
   roll_expo_ = p / kExpoScale;
 }
 
-void SpeedRollDeltaPitchController::pitchExpoCb(const double& p)
+void SpeedRollDeltaPitchController::pitchExpoCb(double p)
 {
   pitch_expo_ = p / kExpoScale;
 }

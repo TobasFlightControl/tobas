@@ -64,10 +64,10 @@ void ErrorStateKalmanFilter::initialize(
   const Eigen::Matrix3d& init_mag_hard_bias_cov,
   const Eigen::Matrix3d& init_mag_soft_bias,
   const Eigen::Matrix6d& init_mag_soft_bias_cov,
-  const double& init_baro_alt_bias,
-  const double& init_baro_alt_bias_var,
-  const double& init_grav,
-  const double& init_grav_var,
+  double init_baro_alt_bias,
+  double init_baro_alt_bias_var,
+  double init_grav,
+  double init_grav_var,
   const ch::steady_clock::time_point& time)
 {
   // Set initial IMU time.
@@ -182,7 +182,7 @@ void ErrorStateKalmanFilter::initializeMagSoftBias(const Eigen::Matrix3d& value,
   resetStateHistory();
 }
 
-void ErrorStateKalmanFilter::initializeBaroAltBias(const double& value, const double& var)
+void ErrorStateKalmanFilter::initializeBaroAltBias(double value, double var)
 {
   assert(var >= 0.0);
 
@@ -195,7 +195,7 @@ void ErrorStateKalmanFilter::initializeBaroAltBias(const double& value, const do
   resetStateHistory();
 }
 
-void ErrorStateKalmanFilter::initializeGravity(const double& value, const double& var)
+void ErrorStateKalmanFilter::initializeGravity(double value, double var)
 {
   assert(var >= 0.0);
 
@@ -509,7 +509,7 @@ std::expected<double, std::string> ErrorStateKalmanFilter::measureMagneticField3
 
 std::expected<double, std::string> ErrorStateKalmanFilter::measureMagneticFieldHead(
   const Eigen::Vector3d& mag_meas,
-  const double& yaw_var,
+  double yaw_var,
   const ch::steady_clock::time_point& time)
 {
   if (mag_W_.norm() == 0.0) {
@@ -545,10 +545,8 @@ std::expected<double, std::string> ErrorStateKalmanFilter::measureMagneticFieldH
   return correct(Eigen::Scalard(delta), Eigen::Scalard(yaw_var), H_yaw_);
 }
 
-std::expected<double, std::string> ErrorStateKalmanFilter::measureAirPressure(
-  const double& pres,
-  const double& alt_var,
-  const ch::steady_clock::time_point& time)
+std::expected<double, std::string>
+ErrorStateKalmanFilter::measureAirPressure(double pres, double alt_var, const ch::steady_clock::time_point& time)
 {
   const auto& x = x_history_.closestAfterValue(time);
 

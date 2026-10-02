@@ -22,7 +22,7 @@ namespace YAML
 template <>
 struct convert<tobas::HardwareInterface>
 {
-  static Node encode(const tobas::HardwareInterface& rhs);
+  static Node encode(tobas::HardwareInterface rhs);
   static bool decode(const Node& node, tobas::HardwareInterface& rhs);
 };
 }  // namespace YAML

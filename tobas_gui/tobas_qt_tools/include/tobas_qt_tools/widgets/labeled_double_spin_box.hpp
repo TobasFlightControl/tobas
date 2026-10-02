@@ -22,7 +22,7 @@ public:
   explicit LabeledDoubleSpinBox(const QString& label_text);
 
   double getValue() const;
-  bool setValue(const double& value);
+  bool setValue(double value);
 
   void setDecimals(int decimals);
   void setMinimum(double minimum);

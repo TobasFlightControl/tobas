@@ -18,7 +18,7 @@ void UbxScanner::reset()
   state_ = kSync1;
 }
 
-void UbxScanner::update(const uint8_t& data)
+void UbxScanner::update(uint8_t data)
 {
   if (state_ != kDone) {
     buffer_[pos_++] = data;

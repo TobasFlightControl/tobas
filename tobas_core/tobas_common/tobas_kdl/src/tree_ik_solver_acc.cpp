@@ -98,7 +98,7 @@ const Eigen::Vector6d& TreeIkSolverAcc::getWeightTS() const
   return Wt_;
 }
 
-void TreeIkSolverAcc::setWeightJS(const double& Wj)
+void TreeIkSolverAcc::setWeightJS(double Wj)
 {
   // Always include a regularization term to prevent numerical errors.
   assert(Wj > 0.0);

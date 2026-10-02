@@ -51,7 +51,7 @@ bool isObservable(const Eigen::MatrixXd& A, const Eigen::MatrixXd& C);
  * @param inf Values greater than this are omitted from the matrix inequality.
  * @return `(A, b)` for `LinearEquation` `A @ x <= b`.
  */
-LinearEquation matIneqFromRange(const Eigen::VectorXd& lb, const Eigen::VectorXd& ub, const double& inf = 1e+12);
+LinearEquation matIneqFromRange(const Eigen::VectorXd& lb, const Eigen::VectorXd& ub, double inf = 1e+12);
 
 /**
  * Compute the position at time `t` when the position tracking error decays exponentially.
@@ -62,7 +62,7 @@ LinearEquation matIneqFromRange(const Eigen::VectorXd& lb, const Eigen::VectorXd
  * @param t Time, elapsed from the initial time 0.
  * @return double Position at time `t`.
  */
-double firstOrderPos(const double& x0, const double& xd, const double& tau, const double& t);
+double firstOrderPos(double x0, double xd, double tau, double t);
 
 /**
  * Compute the position at time `t` when the velocity tracking error decays exponentially. (memo: 1-47)
@@ -74,6 +74,6 @@ double firstOrderPos(const double& x0, const double& xd, const double& tau, cons
  * @param t Time, elapsed from the initial time 0.
  * @return double Position at time `t`.
  */
-double firstOrderVel(const double& x0, const double& v0, const double& vd, const double& tau, const double& t);
+double firstOrderVel(double x0, double v0, double vd, double tau, double t);
 }  // namespace ctrl
 }  // namespace tobas

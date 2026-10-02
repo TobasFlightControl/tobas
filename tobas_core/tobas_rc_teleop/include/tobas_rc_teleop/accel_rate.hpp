@@ -49,14 +49,14 @@ private:
   void publishAccel(const builtin_interfaces::msg::Time& stamp, const kdl::Vector& acc);
   void publishRate(const builtin_interfaces::msg::Time& stamp, const kdl::Vector& rate);
 
-  void maxHorizontalAccelCb(const double& p);
-  void maxVerticalAccelCb(const double& p);
-  void maxAttitudeRateCb(const double& p);
-  void maxHeadingRateCb(const double& p);
-  void horizontalAccelExpoCb(const double& p);
-  void verticalAccelExpoCb(const double& p);
-  void attitudeExpoCb(const double& p);
-  void headingExpoCb(const double& p);
+  void maxHorizontalAccelCb(double p);
+  void maxVerticalAccelCb(double p);
+  void maxAttitudeRateCb(double p);
+  void maxHeadingRateCb(double p);
+  void horizontalAccelExpoCb(double p);
+  void verticalAccelExpoCb(double p);
+  void attitudeExpoCb(double p);
+  void headingExpoCb(double p);
 };
 }  // namespace rc
 }  // namespace tobas

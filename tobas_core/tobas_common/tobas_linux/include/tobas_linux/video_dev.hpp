@@ -38,9 +38,9 @@ public:
   bool initialize(
     const char* video_dev,
     const char* pixcel_format = "MJPG",
-    const bool& disable_video_streaming = false,
-    const uint32_t& width = 0,
-    const uint32_t& height = 0);
+    bool disable_video_streaming = false,
+    uint32_t width = 0,
+    uint32_t height = 0);
 
   /** Display supported image formats. */
   void displaySupportedFormats();
@@ -62,7 +62,7 @@ public:
 
   ImgFormat getImageFormat();
 
-  std::string FCC2S(const uint32_t& val);
+  std::string FCC2S(uint32_t val);
 
 private:
   int fd_ = -1;
@@ -89,7 +89,7 @@ private:
   bool mapBuffer();
 
   /** Fill one image worth of memory in the i-th device-side buffer. */
-  bool enqueue(const uint32_t& i);
+  bool enqueue(uint32_t i);
 
   /** Fill device-side buffers. */
   bool fillDeviceBuffer();
@@ -104,7 +104,7 @@ private:
   int dequeue();
 
   /** Set the image format. */
-  bool setImgFormat(const char* pixcel_format, const uint32_t& width = 0, const uint32_t& height = 0);
+  bool setImgFormat(const char* pixcel_format, uint32_t width = 0, uint32_t height = 0);
 
   /** Request the image format. */
   bool requestImgFormat();

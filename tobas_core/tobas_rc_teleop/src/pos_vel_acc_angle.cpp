@@ -176,68 +176,68 @@ void PosVelAccAngleController::publishAngle(
   angle_pub_->publish(std::move(cmd));
 }
 
-void PosVelAccAngleController::maxHorizontalVelocityCb(const double& p)
+void PosVelAccAngleController::maxHorizontalVelocityCb(double p)
 {
   max_hor_vel_ = p;
   vx_filt_.setMaxVelocity(p);
   vy_filt_.setMaxVelocity(p);
 }
 
-void PosVelAccAngleController::maxHorizontalJerkCb(const double& p)
+void PosVelAccAngleController::maxHorizontalJerkCb(double p)
 {
   vx_filt_.setMaxJerk(p);
   vy_filt_.setMaxJerk(p);
 }
 
-void PosVelAccAngleController::maxVerticalVelocityCb(const double& p)
+void PosVelAccAngleController::maxVerticalVelocityCb(double p)
 {
   max_ver_vel_ = p;
   vz_filt_.setMaxVelocity(p);
 }
 
-void PosVelAccAngleController::maxVerticalJerkCb(const double& p)
+void PosVelAccAngleController::maxVerticalJerkCb(double p)
 {
   vz_filt_.setMaxJerk(p);
 }
 
-void PosVelAccAngleController::maxAttitudeCb(const double& p)
+void PosVelAccAngleController::maxAttitudeCb(double p)
 {
   max_attitude_ = st::deg2rad(p);
 }
 
-void PosVelAccAngleController::maxAttitudeRateCb(const double& p)
+void PosVelAccAngleController::maxAttitudeRateCb(double p)
 {
   const auto max_atti_rate = st::deg2rad(p);  // [rad/s]
   roll_filt_.setMaxVelocity(max_atti_rate);
   pitch_filt_.setMaxVelocity(max_atti_rate);
 }
 
-void PosVelAccAngleController::maxHeadingRateCb(const double& p)
+void PosVelAccAngleController::maxHeadingRateCb(double p)
 {
   max_head_rate_ = st::deg2rad(p);
 }
 
-void PosVelAccAngleController::maxPositionErrorDown(const double& p)
+void PosVelAccAngleController::maxPositionErrorDown(double p)
 {
   max_ep_down_ = p;
 }
 
-void PosVelAccAngleController::horizontalVelocityExpoCb(const double& p)
+void PosVelAccAngleController::horizontalVelocityExpoCb(double p)
 {
   hor_vel_expo_ = p / kExpoScale;
 }
 
-void PosVelAccAngleController::verticalVelocityExpoCb(const double& p)
+void PosVelAccAngleController::verticalVelocityExpoCb(double p)
 {
   ver_vel_expo_ = p / kExpoScale;
 }
 
-void PosVelAccAngleController::attitudeExpoCb(const double& p)
+void PosVelAccAngleController::attitudeExpoCb(double p)
 {
   atti_expo_ = p / kExpoScale;
 }
 
-void PosVelAccAngleController::headingExpoCb(const double& p)
+void PosVelAccAngleController::headingExpoCb(double p)
 {
   head_expo_ = p / kExpoScale;
 }

@@ -41,6 +41,6 @@ inline T min(T t, Args... args)
 double wrapPi(double angle);
 
 /** Limit the L2 norm of a 2D vector without changing its direction. */
-void clamp2d(double& x, double& y, const double& max_length);
+void clamp2d(double& x, double& y, double max_length);
 }  // namespace algo
 }  // namespace tobas

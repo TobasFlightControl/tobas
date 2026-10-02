@@ -148,7 +148,7 @@ private:
    * @param data_r_hall hall sensor resistance raw data (uint16_t)
    * @return int16_t compensated magneto X axis data
    */
-  int16_t compensateX(const int16_t& mag_data_x, const uint16_t& data_r_hall);
+  int16_t compensateX(int16_t mag_data_x, uint16_t data_r_hall);
 
   /**
    * This internal API is used to obtain the compensated magnetometer Y axis data in microteslas.
@@ -157,7 +157,7 @@ private:
    * @param data_r_hall hall sensor resistance raw data (uint16_t)
    * @return int16_t compensated magneto Y axis data
    */
-  int16_t compensateY(const int16_t& mag_data_y, const uint16_t& data_r_hall);
+  int16_t compensateY(int16_t mag_data_y, uint16_t data_r_hall);
 
   /**
    * This internal API is used to obtain the compensated magnetometer Z axis data in microteslas.
@@ -166,7 +166,7 @@ private:
    * @param data_r_hall hall sensor resistance raw data (uint16_t)
    * @return int16_t compensated magneto Z axis data
    */
-  int16_t compensateZ(const int16_t& mag_data_z, const uint16_t& data_r_hall);
+  int16_t compensateZ(int16_t mag_data_z, uint16_t data_r_hall);
 };
 }  // namespace driver
 }  // namespace tobas

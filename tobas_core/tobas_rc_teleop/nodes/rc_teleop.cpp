@@ -104,8 +104,8 @@ private:
   void resetCurrentController(const tobas_msgs::RCInput& rcin);
   bool isFlightModeApplicable(FlightMode mode);
 
-  void armThrottleThresholdCb(const double& p);
-  void armThrottleHysteresisCb(const double& p);
+  void armThrottleThresholdCb(double p);
+  void armThrottleHysteresisCb(double p);
 
   void odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom);
   void setpointCb(const tobas_msgs::OdometryStamped::ConstSharedPtr& setpoint);
@@ -352,12 +352,12 @@ bool RCTeleopNode::isFlightModeApplicable(FlightMode mode)
   return true;
 }
 
-void RCTeleopNode::armThrottleThresholdCb(const double& p)
+void RCTeleopNode::armThrottleThresholdCb(double p)
 {
   arm_throt_thresh_ = kRcInputRange * (p / 100.0);
 }
 
-void RCTeleopNode::armThrottleHysteresisCb(const double& p)
+void RCTeleopNode::armThrottleHysteresisCb(double p)
 {
   arm_throt_hyst_ = kRcInputRange * (p / 100.0);
 }

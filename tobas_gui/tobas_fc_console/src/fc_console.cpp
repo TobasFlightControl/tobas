@@ -400,7 +400,7 @@ void FcConsoleWidget::onProcessErrorOccurred(QProcess::ProcessError error)
   }
 }
 
-QDebug operator<<(QDebug debug, const FcConsoleWidget::Status& status)
+QDebug operator<<(QDebug debug, FcConsoleWidget::Status status)
 {
   const QDebugStateSaver saver(debug);
 

@@ -14,7 +14,7 @@ CommandPriorityHandler::CommandPriorityHandler()
 {
 }
 
-bool CommandPriorityHandler::update(const uint8_t& new_priority, const rclcpp::Time& cur_time)
+bool CommandPriorityHandler::update(uint8_t new_priority, const rclcpp::Time& cur_time)
 {
   constexpr auto kHighestLevelTimeout = 500ms;
 

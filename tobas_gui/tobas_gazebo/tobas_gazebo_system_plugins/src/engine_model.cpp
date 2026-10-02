@@ -52,12 +52,12 @@ double EngineModel::getVibrationForce()
   return amp * (std::sin(position_) + vibration_double_freq_coef_ * std::sin(position_ * 2)) * rice_(rnd_gen_);
 }
 
-void EngineModel::setThrottle(const double& throttle)
+void EngineModel::setThrottle(double throttle)
 {
   throttle_ = std::clamp(throttle, 0.0, 1.0);
 }
 
-void EngineModel::step(const double& dt)
+void EngineModel::step(double dt)
 {
   assert(dt >= 0.0);
 

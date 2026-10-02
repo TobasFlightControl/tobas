@@ -99,8 +99,8 @@ private:
   bool reset();
   bool start();
   bool powerDown();
-  bool sendStandAloneCommand(const uint8_t& cmd);
-  bool configure(const uint8_t& rr, const uint8_t& tar_cfg);
+  bool sendStandAloneCommand(uint8_t cmd);
+  bool configure(uint8_t rr, uint8_t tar_cfg);
 };
 }  // namespace driver
 }  // namespace tobas

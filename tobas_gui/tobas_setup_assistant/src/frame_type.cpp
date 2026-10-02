@@ -77,7 +77,7 @@ bool enumFromText(const std::string& text, FrameType& dst)
 
 namespace YAML
 {
-Node convert<tobas::gui::sa::FrameType>::encode(const tobas::gui::sa::FrameType& rhs)
+Node convert<tobas::gui::sa::FrameType>::encode(tobas::gui::sa::FrameType rhs)
 {
   Node node;
   node = tobas::gui::sa::textFromEnum(rhs);

@@ -12,7 +12,7 @@ namespace tobas
 {
 namespace str
 {
-std::vector<std::string> split(const std::string& s, const char& c)
+std::vector<std::string> split(const std::string& s, char c)
 {
   std::vector<std::string> res;
   if (s.find(c) == std::string::npos) {
@@ -34,7 +34,7 @@ std::vector<std::string> split(const std::string& s, const char& c)
   return res;
 }
 
-std::expected<std::pair<std::string, std::string>, std::string> rsplit(const std::string& s, const char& c)
+std::expected<std::pair<std::string, std::string>, std::string> rsplit(const std::string& s, char c)
 {
   // Find the last specified character.
   const auto pos = s.rfind(c);

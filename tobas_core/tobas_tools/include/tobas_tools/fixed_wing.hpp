@@ -16,7 +16,7 @@ namespace tobas
  * @param u,w Aircraft velocity relative to wind in the FRD coordinate system [m/s].
  * @return double Angle of attack [rad].
  */
-inline double angleOfAttack(const double& u, const double& w)
+inline double angleOfAttack(double u, double w)
 {
   return u > kMinAirSpeedThresh ? std::atan(w / u) : 0;
 }
@@ -38,7 +38,7 @@ inline double angleOfAttack(const Eigen::Vector3d& linvel_B)
  * @param u,v,w Aircraft velocity relative to wind in the FRD coordinate system [m/s].
  * @return double Sideslip angle [rad].
  */
-inline double angleOfSideSlip(const double& u, const double& v, const double& w)
+inline double angleOfSideSlip(double u, double v, double w)
 {
   const auto V = std::hypot(u, v, w);
   return V > kMinAirSpeedThresh ? std::asin(v / V) : 0;
@@ -62,7 +62,7 @@ inline double angleOfSideSlip(const Eigen::Vector3d& linvel_B)
  * @param V Magnitude of aircraft velocity relative to wind [m/s].
  * @return double Dynamic pressure [Pa].
  */
-inline double dynamicPressure(const double& rho, const double& V)
+inline double dynamicPressure(double rho, double V)
 {
   assert(rho > 0);
   assert(V >= 0);

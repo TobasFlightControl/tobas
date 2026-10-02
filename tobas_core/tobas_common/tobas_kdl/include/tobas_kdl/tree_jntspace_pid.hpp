@@ -30,8 +30,8 @@ public:
   const JntArray&
   cartToJnt(const JntArray& cur_q, const JntArray& cur_qd, const JntArray& tar_q, const JntArray& tar_qd);
 
-  void setStiffness(const double& kp);
-  void setDamping(const double& kd);
+  void setStiffness(double kp);
+  void setDamping(double kd);
 
 private:
   TreeIdSolver rne_;

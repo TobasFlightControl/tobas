@@ -18,7 +18,7 @@ std::expected<Eigen::MatrixXd, std::string> dare(
   const Eigen::MatrixXd& B,
   const Eigen::MatrixXd& Q,
   const Eigen::MatrixXd& R,
-  const double& tol = 1e-3,
+  double tol = 1e-3,
   size_t max_iter = 10000) noexcept;
 }  // namespace ctrl
 }  // namespace tobas

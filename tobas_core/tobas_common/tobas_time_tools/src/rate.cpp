@@ -23,7 +23,7 @@ Rate::Rate(const ch::microseconds& period)
   start();
 }
 
-Rate::Rate(const double& freq) : period_(static_cast<uint64_t>(1e+6 / freq))
+Rate::Rate(double freq) : period_(static_cast<uint64_t>(1e+6 / freq))
 {
   assert(freq > 0.0);
   start();

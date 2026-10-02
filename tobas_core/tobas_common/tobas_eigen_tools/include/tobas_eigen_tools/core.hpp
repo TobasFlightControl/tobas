@@ -180,8 +180,8 @@ template <typename Derived>
 bool isClose(
   const Eigen::MatrixBase<Derived>& x,
   const Eigen::MatrixBase<Derived>& y,
-  const double& abs_tol = 1e-8,
-  const double& rel_tol = 1e-5)
+  double abs_tol = 1e-8,
+  double rel_tol = 1e-5)
 {
   assert(x.rows() == y.rows());
   assert(x.cols() == y.cols());

@@ -15,7 +15,7 @@ LQD::LQD()
 {
 }
 
-std::expected<Eigen::VectorXd, std::string> LQD::solve(const double& dt, const bool& update_gain)
+std::expected<Eigen::VectorXd, std::string> LQD::solve(double dt, bool update_gain)
 {
   assert(dt >= 0);
   checkProblemValidity();
@@ -44,7 +44,7 @@ std::expected<Eigen::VectorXd, std::string> LQD::solve(const double& dt, const b
   return last_input;
 }
 
-void LQD::resize(const Eigen::Index& state_size, const Eigen::Index& input_size)
+void LQD::resize(Eigen::Index state_size, Eigen::Index input_size)
 {
   dynamics.resize(state_size, input_size);
 

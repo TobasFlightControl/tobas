@@ -35,7 +35,7 @@ namespace YAML
 template <>
 struct convert<tobas::TurningDirection>
 {
-  static Node encode(const tobas::TurningDirection& rhs);
+  static Node encode(tobas::TurningDirection rhs);
   static bool decode(const Node& node, tobas::TurningDirection& rhs);
 };
 }  // namespace YAML

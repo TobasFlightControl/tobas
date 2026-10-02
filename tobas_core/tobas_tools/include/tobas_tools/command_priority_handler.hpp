@@ -26,7 +26,7 @@ public:
    * @return true if the command is accepted.
    * @return false if the command is not accepted.
    */
-  bool update(const uint8_t& new_priority, const rclcpp::Time& cur_time);
+  bool update(uint8_t new_priority, const rclcpp::Time& cur_time);
 
 private:
   uint8_t cur_priority_ = 0;

@@ -77,9 +77,9 @@ private:
     const tobas_msgs::LinkStateArray& tar_ls,
     tobas_msgs::msg::JointCommandArray& velocities_msg);
 
-  void jointTimeConstCb(const double& p);
-  void linearTimeConstCb(const double& p);
-  void angularTimeConstCb(const double& p);
+  void jointTimeConstCb(double p);
+  void linearTimeConstCb(double p);
+  void angularTimeConstCb(double p);
 
   void droneCb(const Drone::ConstSharedPtr& drone);
   void treeCb(const kdl::Tree::ConstSharedPtr& tree);
@@ -219,17 +219,17 @@ bool VelocityControllerNode::taskSpaceControl(
   return true;
 }
 
-void VelocityControllerNode::jointTimeConstCb(const double& p)
+void VelocityControllerNode::jointTimeConstCb(double p)
 {
   jnt_time_const_ = p;
 }
 
-void VelocityControllerNode::linearTimeConstCb(const double& p)
+void VelocityControllerNode::linearTimeConstCb(double p)
 {
   vel_ctrl_.setLinearTimeConst(p);
 }
 
-void VelocityControllerNode::angularTimeConstCb(const double& p)
+void VelocityControllerNode::angularTimeConstCb(double p)
 {
   vel_ctrl_.setAngularTimeConst(p);
 }

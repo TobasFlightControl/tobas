@@ -83,10 +83,10 @@ public:
     const Eigen::Matrix3d& init_mag_hard_bias_cov,
     const Eigen::Matrix3d& init_mag_soft_bias,
     const Eigen::Matrix6d& init_mag_soft_bias_cov,
-    const double& init_baro_alt_bias,
-    const double& init_baro_alt_bias_var,
-    const double& init_grav,
-    const double& init_grav_var,
+    double init_baro_alt_bias,
+    double init_baro_alt_bias_var,
+    double init_grav,
+    double init_grav_var,
     const std::chrono::steady_clock::time_point& time);
 
   void initializePosition(const Eigen::Vector3d& value, const Eigen::Matrix3d& cov);
@@ -96,8 +96,8 @@ public:
   void initializeGyroBias(const Eigen::Vector3d& value, const Eigen::Matrix3d& cov);
   void initializeMagHardBias(const Eigen::Vector3d& value, const Eigen::Matrix3d& cov);
   void initializeMagSoftBias(const Eigen::Matrix3d& value, const Eigen::Matrix6d& cov);
-  void initializeBaroAltBias(const double& value, const double& var);
-  void initializeGravity(const double& value, const double& var);
+  void initializeBaroAltBias(double value, double var);
+  void initializeGravity(double value, double var);
 
   void enableSecondIntegral(bool enable);
   void enableCovSymmetrisation(bool enable);
@@ -216,11 +216,11 @@ public:
 
   std::expected<double, std::string> measureMagneticFieldHead(
     const Eigen::Vector3d& mag_meas,
-    const double& yaw_var,
+    double yaw_var,
     const std::chrono::steady_clock::time_point& time);
 
   std::expected<double, std::string>
-  measureAirPressure(const double& pres, const double& alt_var, const std::chrono::steady_clock::time_point& time);
+  measureAirPressure(double pres, double alt_var, const std::chrono::steady_clock::time_point& time);
 
 private:
   // Configuration

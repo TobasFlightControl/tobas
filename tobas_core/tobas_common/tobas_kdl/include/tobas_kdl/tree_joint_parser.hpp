@@ -21,26 +21,26 @@ public:
 
   void updateInternalDataStructures() override;
 
-  inline const std::string& jointName(const size_t& q_nr) const;
+  inline const std::string& jointName(size_t q_nr) const;
   inline const size_t& jointIndex(const std::string& jnt_name) const;
   inline const std::string& segmentName(const std::string& jnt_name) const;
 
   inline const Joint& joint(const std::string& jnt_name) const;
 
   inline const JntArray& lowerLimits() const;
-  inline double lowerLimit(const size_t& q_nr) const;
+  inline double lowerLimit(size_t q_nr) const;
   inline double lowerLimit(const std::string& jnt_name) const;
 
   inline const JntArray& upperLimits() const;
-  inline double upperLimit(const size_t& q_nr) const;
+  inline double upperLimit(size_t q_nr) const;
   inline double upperLimit(const std::string& jnt_name) const;
 
   inline const JntArray& maxVelocities() const;
-  inline double maxVelocity(const size_t& q_nr) const;
+  inline double maxVelocity(size_t q_nr) const;
   inline double maxVelocity(const std::string& jnt_name) const;
 
   inline const JntArray& maxEfforts() const;
-  inline double maxEffort(const size_t& q_nr) const;
+  inline double maxEffort(size_t q_nr) const;
   inline double maxEffort(const std::string& jnt_name) const;
 
   /** Return whether the joint exists in the `Tree`. */
@@ -64,7 +64,7 @@ private:
   void parseJntNamesStep(const SegmentMap::const_iterator& seg_it);
 };
 
-inline const std::string& TreeJointParser::jointName(const size_t& q_nr) const
+inline const std::string& TreeJointParser::jointName(size_t q_nr) const
 {
   return jnt_names_.at(q_nr);
 }
@@ -89,7 +89,7 @@ inline const JntArray& TreeJointParser::lowerLimits() const
   return lower_limits_;
 }
 
-inline double TreeJointParser::lowerLimit(const size_t& q_nr) const
+inline double TreeJointParser::lowerLimit(size_t q_nr) const
 {
   return lower_limits_(q_nr);
 }
@@ -104,7 +104,7 @@ inline const JntArray& TreeJointParser::upperLimits() const
   return upper_limits_;
 }
 
-inline double TreeJointParser::upperLimit(const size_t& q_nr) const
+inline double TreeJointParser::upperLimit(size_t q_nr) const
 {
   assert(q_nr < tree_.getNrOfJoints());
   return upper_limits_(q_nr);
@@ -120,7 +120,7 @@ inline const JntArray& TreeJointParser::maxVelocities() const
   return max_velocities_;
 }
 
-inline double TreeJointParser::maxVelocity(const size_t& q_nr) const
+inline double TreeJointParser::maxVelocity(size_t q_nr) const
 {
   assert(q_nr < tree_.getNrOfJoints());
   return max_velocities_(q_nr);
@@ -136,7 +136,7 @@ inline const JntArray& TreeJointParser::maxEfforts() const
   return max_efforts_;
 }
 
-inline double TreeJointParser::maxEffort(const size_t& q_nr) const
+inline double TreeJointParser::maxEffort(size_t q_nr) const
 {
   return max_efforts_(q_nr);
 }

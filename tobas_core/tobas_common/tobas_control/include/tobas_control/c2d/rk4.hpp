@@ -14,12 +14,12 @@ namespace ctrl
 class C2D_RK4 : BaseC2D
 {
 public:
-  explicit C2D_RK4(const Eigen::Index& x_size, const Eigen::Index& u_size);
+  explicit C2D_RK4(Eigen::Index x_size, Eigen::Index u_size);
   explicit C2D_RK4();
 
-  LinearDynamics convert(const LinearDynamics& cont, const double& dt) override;
+  LinearDynamics convert(const LinearDynamics& cont, double dt) override;
 
-  void resize(const Eigen::Index& x_size, const Eigen::Index& u_size);
+  void resize(Eigen::Index x_size, Eigen::Index u_size);
 
 private:
   Eigen::Index x_size_, u_size_;

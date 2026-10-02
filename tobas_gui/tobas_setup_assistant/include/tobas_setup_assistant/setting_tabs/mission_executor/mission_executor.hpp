@@ -36,7 +36,7 @@ public:
   YAML::Node dump() const override;
   void load(const YAML::Node& node) override;
 
-  void setFrameType(const FrameType& type);
+  void setFrameType(FrameType type);
 
   QString executorPackage() const;
   QString pluginName() const;

@@ -29,8 +29,8 @@ public:
 
   explicit LQR();
 
-  std::expected<Eigen::VectorXd, std::string> solve(const bool& update_gain = true) noexcept;
-  void resize(const Eigen::Index& state_size, const Eigen::Index& input_size);
+  std::expected<Eigen::VectorXd, std::string> solve(bool update_gain = true) noexcept;
+  void resize(Eigen::Index state_size, Eigen::Index input_size);
   std::expected<void, std::string> updateGainMatrix() noexcept;
 
   friend std::ostream& operator<<(std::ostream& os, const LQR& arg);

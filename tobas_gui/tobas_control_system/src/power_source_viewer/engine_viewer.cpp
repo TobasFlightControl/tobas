@@ -56,7 +56,7 @@ void EngineViewerWidget::updateInternalDataStructures()
   }
 }
 
-void EngineViewerWidget::updateFuelQuantity(const double& fuel_quantity)
+void EngineViewerWidget::updateFuelQuantity(double fuel_quantity)
 {
   constexpr double kMaxFuelQuantity = 100.0;  // TODO: Include fuel capacity in `EngineConfig`.
   const auto fuel_rate = math::remap(fuel_quantity, 0.0, kMaxFuelQuantity, 0.0, 100.0);
@@ -75,7 +75,7 @@ void EngineViewerWidget::updateFuelQuantity(const double& fuel_quantity)
   }
 }
 
-void EngineViewerWidget::updateOilTemperature(const double& oil_temp)
+void EngineViewerWidget::updateOilTemperature(double oil_temp)
 {
   constexpr double kMinOilTemp = 0.0;    // [degC]
   constexpr double kMaxOilTemp = 130.0;  // [degC]

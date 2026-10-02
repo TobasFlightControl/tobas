@@ -5,6 +5,7 @@
 
 #include <format>
 #include <ranges>
+#include <type_traits>
 
 #include <tobas_constants/frame.hpp>
 #include <tobas_path_tools/join.hpp>
@@ -20,6 +21,14 @@ namespace xml
 namespace
 {
 template <typename T>
+  requires std::is_arithmetic_v<T>
+std::string toString(T data)
+{
+  return std::to_string(data);
+}
+
+template <typename T>
+  requires(!std::is_arithmetic_v<T>)
 std::string toString(const T& data)
 {
   return std::to_string(data);
@@ -32,7 +41,7 @@ std::string toString<std::string>(const std::string& data)
 }
 
 template <>
-std::string toString<double>(const double& data)
+std::string toString<double>(double data)
 {
   return std::format("{:.{}g}", data, 9);
 }

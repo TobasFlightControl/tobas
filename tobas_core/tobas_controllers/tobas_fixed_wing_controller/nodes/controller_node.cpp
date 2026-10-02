@@ -106,15 +106,15 @@ private:
   void updateDeflectionRateWeightLog10();
   void updateParameters();
 
-  void forwardSpeedWeightCb(const long& p);
-  void alphaWeightCb(const long& p);
-  void betaWeightCb(const long& p);
-  void attitudeWeightCb(const long& p);
-  void angularVelicityWeightCb(const long& p);
-  void thrustWeightLog10Cb(const long& p);
-  void thrustRateWeightLog10Cb(const long& p);
-  void deflectionWeightLog10Cb(const long& p);
-  void deflectionRateWeightLog10Cb(const long& p);
+  void forwardSpeedWeightCb(long p);
+  void alphaWeightCb(long p);
+  void betaWeightCb(long p);
+  void attitudeWeightCb(long p);
+  void angularVelicityWeightCb(long p);
+  void thrustWeightLog10Cb(long p);
+  void thrustRateWeightLog10Cb(long p);
+  void deflectionWeightLog10Cb(long p);
+  void deflectionRateWeightLog10Cb(long p);
 
   void droneCb(const Drone::ConstSharedPtr& drone);
   void treeCb(const kdl::Tree::ConstSharedPtr& tree);
@@ -348,7 +348,7 @@ void ControllerNode::updateParameters()
   updateDeflectionRateWeightLog10();
 }
 
-void ControllerNode::forwardSpeedWeightCb(const long& p)
+void ControllerNode::forwardSpeedWeightCb(long p)
 {
   params_.forward_speed_weight = p;
   if (is_initialized_) {
@@ -356,7 +356,7 @@ void ControllerNode::forwardSpeedWeightCb(const long& p)
   }
 }
 
-void ControllerNode::alphaWeightCb(const long& p)
+void ControllerNode::alphaWeightCb(long p)
 {
   params_.alpha_weight = p;
   if (is_initialized_) {
@@ -364,7 +364,7 @@ void ControllerNode::alphaWeightCb(const long& p)
   }
 }
 
-void ControllerNode::betaWeightCb(const long& p)
+void ControllerNode::betaWeightCb(long p)
 {
   params_.beta_weight = p;
   if (is_initialized_) {
@@ -372,7 +372,7 @@ void ControllerNode::betaWeightCb(const long& p)
   }
 }
 
-void ControllerNode::attitudeWeightCb(const long& p)
+void ControllerNode::attitudeWeightCb(long p)
 {
   params_.attitude_weight = p;
   if (is_initialized_) {
@@ -380,7 +380,7 @@ void ControllerNode::attitudeWeightCb(const long& p)
   }
 }
 
-void ControllerNode::angularVelicityWeightCb(const long& p)
+void ControllerNode::angularVelicityWeightCb(long p)
 {
   params_.angular_velocity_weight = p;
   if (is_initialized_) {
@@ -388,7 +388,7 @@ void ControllerNode::angularVelicityWeightCb(const long& p)
   }
 }
 
-void ControllerNode::thrustWeightLog10Cb(const long& p)
+void ControllerNode::thrustWeightLog10Cb(long p)
 {
   params_.thrust_weight_log10 = p;
   if (is_initialized_) {
@@ -396,7 +396,7 @@ void ControllerNode::thrustWeightLog10Cb(const long& p)
   }
 }
 
-void ControllerNode::thrustRateWeightLog10Cb(const long& p)
+void ControllerNode::thrustRateWeightLog10Cb(long p)
 {
   params_.thrust_rate_weight_log10 = p;
   if (is_initialized_) {
@@ -404,7 +404,7 @@ void ControllerNode::thrustRateWeightLog10Cb(const long& p)
   }
 }
 
-void ControllerNode::deflectionWeightLog10Cb(const long& p)
+void ControllerNode::deflectionWeightLog10Cb(long p)
 {
   params_.deflection_weight_log10 = p;
   if (is_initialized_) {
@@ -412,7 +412,7 @@ void ControllerNode::deflectionWeightLog10Cb(const long& p)
   }
 }
 
-void ControllerNode::deflectionRateWeightLog10Cb(const long& p)
+void ControllerNode::deflectionRateWeightLog10Cb(long p)
 {
   params_.deflection_rate_weight_log10 = p;
   if (is_initialized_) {

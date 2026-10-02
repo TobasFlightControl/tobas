@@ -12,9 +12,9 @@ namespace ctrl
 class C2D_Euler : BaseC2D
 {
 public:
-  explicit C2D_Euler(const Eigen::Index& x_size, const Eigen::Index& u_size);
+  explicit C2D_Euler(Eigen::Index x_size, Eigen::Index u_size);
 
-  LinearDynamics convert(const LinearDynamics& cont, const double& dt) override;
+  LinearDynamics convert(const LinearDynamics& cont, double dt) override;
 
 private:
   const Eigen::Index x_size_, u_size_;

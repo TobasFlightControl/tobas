@@ -47,17 +47,17 @@ private:
   // PubSub
   ros2::PublisherPtr<tobas_command_msgs::AngleThrottleVector> cmd_pub_;
 
-  void maxRollCb(const double& p);
-  void maxRollRateCb(const double& p);
-  void maxPitchCb(const double& p);
-  void maxPitchRateCb(const double& p);
-  void maxYawRateCb(const double& p);
-  void maxThrustAngleCb(const double& p);
-  void maxThrustAngleRateCb(const double& p);
-  void rollExpoCb(const double& p);
-  void yawExpoCb(const double& p);
-  void throttleExpoCb(const double& p);
-  void thrustAngleExpoCb(const double& p);
+  void maxRollCb(double p);
+  void maxRollRateCb(double p);
+  void maxPitchCb(double p);
+  void maxPitchRateCb(double p);
+  void maxYawRateCb(double p);
+  void maxThrustAngleCb(double p);
+  void maxThrustAngleRateCb(double p);
+  void rollExpoCb(double p);
+  void yawExpoCb(double p);
+  void throttleExpoCb(double p);
+  void thrustAngleExpoCb(double p);
 };
 }  // namespace rc
 }  // namespace tobas

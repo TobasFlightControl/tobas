@@ -107,22 +107,22 @@ private:
   void updateHeadingPDGain();
   bool isCommandAccepted(const tobas_command_msgs::msg::Priority& priority);
 
-  void horizontalNaturalFreqCb(const double& p);
-  void horizontalDampingRatioCb(const double& p);
-  void horizontalIGainCb(const double& p);
-  void horizontalIMaxAccelCb(const double& p);
-  void verticalNaturalFreqCb(const double& p);
-  void verticalDampingRatioCb(const double& p);
-  void verticalIGainCb(const double& p);
-  void verticalIMaxAccelCb(const double& p);
-  void attitudeNaturalFreqCb(const double& p);
-  void attitudeDampingRatioCb(const double& p);
-  void attitudeIGainCb(const double& p);
-  void headingNaturalFreqCb(const double& p);
-  void headingDampingRatioCb(const double& p);
-  void headingIGainCb(const double& p);
-  void tiltAsixSingularDeclinationLBCb(const double& lb_deg);
-  void tiltAsixSingularDeclinationUBCb(const double& ub_deg);
+  void horizontalNaturalFreqCb(double p);
+  void horizontalDampingRatioCb(double p);
+  void horizontalIGainCb(double p);
+  void horizontalIMaxAccelCb(double p);
+  void verticalNaturalFreqCb(double p);
+  void verticalDampingRatioCb(double p);
+  void verticalIGainCb(double p);
+  void verticalIMaxAccelCb(double p);
+  void attitudeNaturalFreqCb(double p);
+  void attitudeDampingRatioCb(double p);
+  void attitudeIGainCb(double p);
+  void headingNaturalFreqCb(double p);
+  void headingDampingRatioCb(double p);
+  void headingIGainCb(double p);
+  void tiltAsixSingularDeclinationLBCb(double lb_deg);
+  void tiltAsixSingularDeclinationUBCb(double ub_deg);
 
   void droneCb(const Drone::ConstSharedPtr& drone);
   void treeCb(const kdl::Tree::ConstSharedPtr& tree);
@@ -240,91 +240,91 @@ bool ControllerNode::isCommandAccepted(const tobas_command_msgs::msg::Priority& 
   return true;
 }
 
-void ControllerNode::horizontalNaturalFreqCb(const double& p)
+void ControllerNode::horizontalNaturalFreqCb(double p)
 {
   pos_pid_.setNaturalFreq(0, p);
   pos_pid_.setNaturalFreq(1, p);
 }
 
-void ControllerNode::horizontalDampingRatioCb(const double& p)
+void ControllerNode::horizontalDampingRatioCb(double p)
 {
   pos_pid_.setDampingRatio(0, p);
   pos_pid_.setDampingRatio(1, p);
 }
 
-void ControllerNode::horizontalIGainCb(const double& p)
+void ControllerNode::horizontalIGainCb(double p)
 {
   pos_pid_.setIntegralGain(0, p);
   pos_pid_.setIntegralGain(1, p);
 }
 
-void ControllerNode::horizontalIMaxAccelCb(const double& p)
+void ControllerNode::horizontalIMaxAccelCb(double p)
 {
   pos_pid_.setMaxIntegralAccel(0, p);
   pos_pid_.setMaxIntegralAccel(1, p);
 }
 
-void ControllerNode::verticalNaturalFreqCb(const double& p)
+void ControllerNode::verticalNaturalFreqCb(double p)
 {
   pos_pid_.setNaturalFreq(2, p);
 }
 
-void ControllerNode::verticalDampingRatioCb(const double& p)
+void ControllerNode::verticalDampingRatioCb(double p)
 {
   pos_pid_.setDampingRatio(2, p);
 }
 
-void ControllerNode::verticalIGainCb(const double& p)
+void ControllerNode::verticalIGainCb(double p)
 {
   pos_pid_.setIntegralGain(2, p);
 }
 
-void ControllerNode::verticalIMaxAccelCb(const double& p)
+void ControllerNode::verticalIMaxAccelCb(double p)
 {
   pos_pid_.setMaxIntegralAccel(2, p);
 }
 
-void ControllerNode::attitudeNaturalFreqCb(const double& p)
+void ControllerNode::attitudeNaturalFreqCb(double p)
 {
   atti_wn_ = p;
   updateAttitudePDGain();
 }
 
-void ControllerNode::attitudeDampingRatioCb(const double& p)
+void ControllerNode::attitudeDampingRatioCb(double p)
 {
   atti_zeta_ = p;
   updateAttitudePDGain();
 }
 
-void ControllerNode::attitudeIGainCb(const double& p)
+void ControllerNode::attitudeIGainCb(double p)
 {
   rot_pi_.setIntegralGain(0, p);
   rot_pi_.setIntegralGain(1, p);
 }
 
-void ControllerNode::headingNaturalFreqCb(const double& p)
+void ControllerNode::headingNaturalFreqCb(double p)
 {
   head_wn_ = p;
   updateHeadingPDGain();
 }
 
-void ControllerNode::headingDampingRatioCb(const double& p)
+void ControllerNode::headingDampingRatioCb(double p)
 {
   head_zeta_ = p;
   updateHeadingPDGain();
 }
 
-void ControllerNode::headingIGainCb(const double& p)
+void ControllerNode::headingIGainCb(double p)
 {
   rot_pi_.setIntegralGain(2, p);
 }
 
-void ControllerNode::tiltAsixSingularDeclinationLBCb(const double& lb_deg)
+void ControllerNode::tiltAsixSingularDeclinationLBCb(double lb_deg)
 {
   mixer_.setTiltAxisSingularDeclinationLB(st::deg2rad(lb_deg));
 }
 
-void ControllerNode::tiltAsixSingularDeclinationUBCb(const double& ub_deg)
+void ControllerNode::tiltAsixSingularDeclinationUBCb(double ub_deg)
 {
   mixer_.setTiltAxisSingularDeclinationUB(st::deg2rad(ub_deg));
 }

@@ -108,7 +108,7 @@ bool ADS1220::powerDown()
   return sendStandAloneCommand(POWERDOWN);
 }
 
-bool ADS1220::sendStandAloneCommand(const uint8_t& cmd)
+bool ADS1220::sendStandAloneCommand(uint8_t cmd)
 {
   tx_buf_[0] = cmd;
   if (!spi_.transfer(1)) {
@@ -118,7 +118,7 @@ bool ADS1220::sendStandAloneCommand(const uint8_t& cmd)
   return true;
 }
 
-bool ADS1220::configure(const uint8_t& rr, const uint8_t& tar_cfg)
+bool ADS1220::configure(uint8_t rr, uint8_t tar_cfg)
 {
   constexpr uint8_t nn = 0b00;  // 1 [byte] - 1 = 0
   const uint8_t rrnn = rr | nn;

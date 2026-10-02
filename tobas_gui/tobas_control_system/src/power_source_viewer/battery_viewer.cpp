@@ -56,7 +56,7 @@ void BatteryViewerWidget::updateInternalDataStructures()
   }
 }
 
-void BatteryViewerWidget::updateVoltage(const double& voltage)
+void BatteryViewerWidget::updateVoltage(double voltage)
 {
   const auto volt_rate = math::remap(voltage, eprop_->battery.sag_voltage, eprop_->battery.max_voltage, 0.0, 100.0);
   voltage_->setPercentage(volt_rate);
@@ -73,7 +73,7 @@ void BatteryViewerWidget::updateVoltage(const double& voltage)
   }
 }
 
-void BatteryViewerWidget::updateCurrent(const double& current)
+void BatteryViewerWidget::updateCurrent(double current)
 {
   const auto current_rate = math::remap(current, 0.0, eprop_->battery.max_current, 0.0, 100.0);
   current_->setPercentage(current_rate);

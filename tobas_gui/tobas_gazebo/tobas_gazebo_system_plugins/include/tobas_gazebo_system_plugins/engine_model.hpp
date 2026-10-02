@@ -31,9 +31,9 @@ public:
   /** Vibration force [N]. */
   double getVibrationForce();
 
-  void setThrottle(const double& throttle);
+  void setThrottle(double throttle);
 
-  void step(const double& dt);
+  void step(double dt);
 
 private:
   const IceRotorModelMap& rotors_;

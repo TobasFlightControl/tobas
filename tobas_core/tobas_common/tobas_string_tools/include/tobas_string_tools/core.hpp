@@ -13,10 +13,10 @@ namespace tobas
 namespace str
 {
 /** Split a string and return a vector. */
-std::vector<std::string> split(const std::string& s, const char& c);
+std::vector<std::string> split(const std::string& s, char c);
 
 /** Split a string at the last specified character. */
-std::expected<std::pair<std::string, std::string>, std::string> rsplit(const std::string& s, const char& c);
+std::expected<std::pair<std::string, std::string>, std::string> rsplit(const std::string& s, char c);
 
 /** Remove a specific string from the beginning. */
 std::string lstrip(const std::string& s, const std::string& del);

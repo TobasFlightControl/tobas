@@ -128,55 +128,55 @@ void AccelAngleController::publishAngle(const builtin_interfaces::msg::Time& sta
   angle_pub_->publish(std::move(cmd));
 }
 
-void AccelAngleController::maxHorizontalAccelCb(const double& p)
+void AccelAngleController::maxHorizontalAccelCb(double p)
 {
   max_hor_acc_ = p;
 }
 
-void AccelAngleController::maxHorizontalJerkCb(const double& p)
+void AccelAngleController::maxHorizontalJerkCb(double p)
 {
   ax_filt_.setMaxVelocity(p);
   ay_filt_.setMaxVelocity(p);
 }
 
-void AccelAngleController::maxVerticalAccelCb(const double& p)
+void AccelAngleController::maxVerticalAccelCb(double p)
 {
   max_ver_acc_ = p;
 }
 
-void AccelAngleController::maxAttitudeCb(const double& p)
+void AccelAngleController::maxAttitudeCb(double p)
 {
   max_attitude_ = st::deg2rad(p);
 }
 
-void AccelAngleController::maxAttitudeRateCb(const double& p)
+void AccelAngleController::maxAttitudeRateCb(double p)
 {
   const auto max_atti_rate = st::deg2rad(p);  // [rad/s]
   roll_filt_.setMaxVelocity(max_atti_rate);
   pitch_filt_.setMaxVelocity(max_atti_rate);
 }
 
-void AccelAngleController::maxHeadingRateCb(const double& p)
+void AccelAngleController::maxHeadingRateCb(double p)
 {
   max_head_rate_ = st::deg2rad(p);
 }
 
-void AccelAngleController::horizontalAccelExpoCb(const double& p)
+void AccelAngleController::horizontalAccelExpoCb(double p)
 {
   hor_acc_expo_ = p / kExpoScale;
 }
 
-void AccelAngleController::verticalAccelExpoCb(const double& p)
+void AccelAngleController::verticalAccelExpoCb(double p)
 {
   ver_acc_expo_ = p / kExpoScale;
 }
 
-void AccelAngleController::attitudeExpoCb(const double& p)
+void AccelAngleController::attitudeExpoCb(double p)
 {
   atti_expo_ = p / kExpoScale;
 }
 
-void AccelAngleController::headingExpoCb(const double& p)
+void AccelAngleController::headingExpoCb(double p)
 {
   head_expo_ = p / kExpoScale;
 }

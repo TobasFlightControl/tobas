@@ -28,7 +28,7 @@ public:
   inline Vector(const Eigen::Vector3d& data);
 
   static inline Vector Zero();
-  static inline Vector Constant(const double& value);
+  static inline Vector Constant(double value);
   static inline Vector UnitX();
   static inline Vector UnitY();
   static inline Vector UnitZ();
@@ -82,7 +82,7 @@ public:
   bool isParallel(const Vector& rhs, bool same_direction_only = false, double angle_tol_rad = 1e-3) const;
 
   /** Clamp each value. */
-  inline Vector clamp(const double& lb, const double& ub) const;
+  inline Vector clamp(double lb, double ub) const;
   inline Vector clamp(const Vector& lb, const Vector& ub) const;
 
   inline void setZero();
@@ -142,7 +142,7 @@ inline Vector Vector::Zero()
   return Vector(Eigen::Vector3d::Zero());
 }
 
-inline Vector Vector::Constant(const double& value)
+inline Vector Vector::Constant(double value)
 {
   return Vector(Eigen::Vector3d::Constant(value));
 }
@@ -272,7 +272,7 @@ inline bool Vector::isPerpendicular(const Vector& rhs) const
   return math::isClose(dot(rhs), 0.0);
 }
 
-inline Vector Vector::clamp(const double& lb, const double& ub) const
+inline Vector Vector::clamp(double lb, double ub) const
 {
   return Vector(data.cwiseMax(lb).cwiseMin(ub));
 }

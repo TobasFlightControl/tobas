@@ -74,32 +74,32 @@ void RateThrottleVectorController::update(const tobas_msgs::RCInput& rcin, const
   cmd_pub_->publish(std::move(cmd));
 }
 
-void RateThrottleVectorController::maxAttitudeRateCb(const double& p)
+void RateThrottleVectorController::maxAttitudeRateCb(double p)
 {
   max_atti_rate_ = st::deg2rad(p);
 }
 
-void RateThrottleVectorController::maxHeadingRateCb(const double& p)
+void RateThrottleVectorController::maxHeadingRateCb(double p)
 {
   max_head_rate_ = st::deg2rad(p);
 }
 
-void RateThrottleVectorController::maxThrustAngleCb(const double& p)
+void RateThrottleVectorController::maxThrustAngleCb(double p)
 {
   max_thrust_angle_ = st::deg2rad(p);
 }
 
-void RateThrottleVectorController::attitudeExpoCb(const double& p)
+void RateThrottleVectorController::attitudeExpoCb(double p)
 {
   atti_expo_ = p / kExpoScale;
 }
 
-void RateThrottleVectorController::headingExpoCb(const double& p)
+void RateThrottleVectorController::headingExpoCb(double p)
 {
   head_expo_ = p / kExpoScale;
 }
 
-void RateThrottleVectorController::throttleExpoCb(const double& p)
+void RateThrottleVectorController::throttleExpoCb(double p)
 {
   throt_expo_ = p / kExpoScale;
 }

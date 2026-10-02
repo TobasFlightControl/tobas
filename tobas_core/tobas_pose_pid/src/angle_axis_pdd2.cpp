@@ -19,7 +19,7 @@ kdl::Vector AngleAxisPDD2::update(
   const kdl::Rotation& tar_rot,
   const kdl::Vector& tar_gyro,
   const kdl::Vector& tar_dgyro,
-  const double& dt)
+  double dt)
 {
   // Compute error in angle-axis form wrt. the local frame.
   const auto ep = (cur_rot.inverse() * tar_rot).getRot();

@@ -50,9 +50,9 @@ VideoDev::~VideoDev()
 bool VideoDev::initialize(
   const char* video_dev,
   const char* pixel_format,
-  const bool& disable_video_streaming,
-  const uint32_t& width,
-  const uint32_t& height)
+  bool disable_video_streaming,
+  uint32_t width,
+  uint32_t height)
 {
   if (fd_ >= 0) {
     close(fd_);
@@ -165,7 +165,7 @@ VideoDev::ImgFormat VideoDev::getImageFormat()
   return fmt_;
 }
 
-std::string VideoDev::FCC2S(const uint32_t& val)
+std::string VideoDev::FCC2S(uint32_t val)
 {
   std::string s;
   s += val & 0x7F;
@@ -237,7 +237,7 @@ bool VideoDev::mapBuffer()
   return true;
 }
 
-bool VideoDev::enqueue(const uint32_t& i)
+bool VideoDev::enqueue(uint32_t i)
 {
   v4l2_buffer buf = {};
   buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
@@ -295,7 +295,7 @@ int VideoDev::dequeue()
   return buf.index;
 }
 
-bool VideoDev::setImgFormat(const char* pixel_format, const uint32_t& width, const uint32_t& height)
+bool VideoDev::setImgFormat(const char* pixel_format, uint32_t width, uint32_t height)
 {
   v4l2_format fmt_request = {};
   fmt_request.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;

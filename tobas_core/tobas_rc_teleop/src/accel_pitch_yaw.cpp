@@ -110,53 +110,53 @@ void AccelPitchYawController::update(const tobas_msgs::RCInput& rcin, const toba
   cmd_pub_->publish(std::move(cmd));
 }
 
-void AccelPitchYawController::maxHorizontalAccelCb(const double& p)
+void AccelPitchYawController::maxHorizontalAccelCb(double p)
 {
   max_hor_acc_ = p;
 }
 
-void AccelPitchYawController::maxHorizontalJerkCb(const double& p)
+void AccelPitchYawController::maxHorizontalJerkCb(double p)
 {
   ax_filt_.setMaxVelocity(p);
   ay_filt_.setMaxVelocity(p);
 }
 
-void AccelPitchYawController::maxVerticalAccelCb(const double& p)
+void AccelPitchYawController::maxVerticalAccelCb(double p)
 {
   max_ver_acc_ = p;
 }
 
-void AccelPitchYawController::maxPitchCb(const double& p)
+void AccelPitchYawController::maxPitchCb(double p)
 {
   max_pitch_ = st::deg2rad(p);
 }
 
-void AccelPitchYawController::maxPitchRateCb(const double& p)
+void AccelPitchYawController::maxPitchRateCb(double p)
 {
   pitch_filt_.setMaxVelocity(st::deg2rad(p));
 }
 
-void AccelPitchYawController::maxYawRateCb(const double& p)
+void AccelPitchYawController::maxYawRateCb(double p)
 {
   max_yaw_rate_ = st::deg2rad(p);
 }
 
-void AccelPitchYawController::horizontalAccelExpoCb(const double& p)
+void AccelPitchYawController::horizontalAccelExpoCb(double p)
 {
   hor_acc_expo_ = p / kExpoScale;
 }
 
-void AccelPitchYawController::verticalAccelExpoCb(const double& p)
+void AccelPitchYawController::verticalAccelExpoCb(double p)
 {
   ver_acc_expo_ = p / kExpoScale;
 }
 
-void AccelPitchYawController::pitchExpoCb(const double& p)
+void AccelPitchYawController::pitchExpoCb(double p)
 {
   pitch_expo_ = p / kExpoScale;
 }
 
-void AccelPitchYawController::yawExpoCb(const double& p)
+void AccelPitchYawController::yawExpoCb(double p)
 {
   yaw_expo_ = p / kExpoScale;
 }

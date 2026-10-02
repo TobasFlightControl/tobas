@@ -15,7 +15,7 @@ class CycloidGenerator3d
 public:
   explicit CycloidGenerator3d();
 
-  void generate(const kdl::Vector& p0, const kdl::Vector& pf, const double& T, const double& h, const double& k = 5.0);
+  void generate(const kdl::Vector& p0, const kdl::Vector& pf, double T, double h, double k = 5.0);
 
   /**
    * Get the trajectory at time `t`.
@@ -26,7 +26,7 @@ public:
    * @param v Velocity at time `t`.
    * @param a Acceleration at time `t`.
    */
-  void get(const double& t, const kdl::Rotation& r, kdl::Vector& p, kdl::Vector& v, kdl::Vector& a) const;
+  void get(double t, const kdl::Rotation& r, kdl::Vector& p, kdl::Vector& v, kdl::Vector& a) const;
 
   /**
    * Get the trajectory at time `t`.
@@ -36,7 +36,7 @@ public:
    * @param v Velocity at time `t`.
    * @param a Acceleration at time `t`.
    */
-  void get(const double& t, kdl::Vector& p, kdl::Vector& v, kdl::Vector& a) const;
+  void get(double t, kdl::Vector& p, kdl::Vector& v, kdl::Vector& a) const;
 
   /**
    * Get the trajectory at time `t`.
@@ -45,7 +45,7 @@ public:
    * @param p Position at time `t`.
    * @param v Velocity at time `t`.
    */
-  void get(const double& t, kdl::Vector& p, kdl::Vector& v) const;
+  void get(double t, kdl::Vector& p, kdl::Vector& v) const;
 
   /**
    * Get the trajectory at time `t`.
@@ -53,7 +53,7 @@ public:
    * @param t Time from the start point.
    * @param p Position at time `t`.
    */
-  void get(const double& t, kdl::Vector& p) const;
+  void get(double t, kdl::Vector& p) const;
 
 private:
   kdl::Vector p0_;
@@ -66,11 +66,11 @@ private:
   kdl::Vector p_diff_;
   const kdl::Rotation r0_;  ///< Identity matrix
 
-  void getPos(const double& t, const kdl::Rotation& r, kdl::Vector& p) const;
-  void getVel(const double& t, const kdl::Rotation& r, kdl::Vector& v) const;
-  void getAcc(const double& t, const kdl::Rotation& r, kdl::Vector& a) const;
+  void getPos(double t, const kdl::Rotation& r, kdl::Vector& p) const;
+  void getVel(double t, const kdl::Rotation& r, kdl::Vector& v) const;
+  void getAcc(double t, const kdl::Rotation& r, kdl::Vector& a) const;
 
-  double computeTheta(const double& t) const;
+  double computeTheta(double t) const;
 };
 }  // namespace kdl
 }  // namespace tobas

@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <type_traits>
+
 #include <QLabel>
 #include <QVBoxLayout>
 #include <QWidget>
@@ -23,11 +25,12 @@ class ParamGetterWidget : public QWidget
 {
 public:
   using ValueType = T;
+  using ValueArgument = std::conditional_t<std::is_arithmetic_v<T>, T, const T&>;
 
   explicit ParamGetterWidget(const QString& param_name, const QString& description_text);
 
   virtual T getValue() const = 0;
-  virtual bool setValue(const T& src) = 0;
+  virtual bool setValue(ValueArgument src) = 0;
 
   std::string name() const;
 

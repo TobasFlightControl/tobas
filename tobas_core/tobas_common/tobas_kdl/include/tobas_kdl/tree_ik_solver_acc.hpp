@@ -41,7 +41,7 @@ public:
   void setWeightTS(const Eigen::Vector6d& Wt);
 
   const double& getWeightJS() const;
-  void setWeightJS(const double& Wj);
+  void setWeightJS(double Wj);
 
 private:
   TreeJacobianSolver jnt2jac_;

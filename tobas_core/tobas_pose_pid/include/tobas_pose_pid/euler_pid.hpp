@@ -17,7 +17,7 @@ public:
     const kdl::Vector& cur_gyro,
     const kdl::Euler& tar_rpy,
     const kdl::Vector& tar_gyro,
-    const double& dt);
+    double dt);
 
   void setNaturalFreq(int idx, double value);
   void setDampingRatio(int idx, double value);

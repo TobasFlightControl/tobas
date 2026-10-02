@@ -133,51 +133,51 @@ void PosVelAccYawController::update(const tobas_msgs::RCInput& rcin, const tobas
   cmd_pub_->publish(std::move(cmd));
 }
 
-void PosVelAccYawController::maxHorizontalVelocityCb(const double& p)
+void PosVelAccYawController::maxHorizontalVelocityCb(double p)
 {
   max_hor_vel_ = p;
   vx_filt_.setMaxVelocity(p);
   vy_filt_.setMaxVelocity(p);
 }
 
-void PosVelAccYawController::maxHorizontalJerkCb(const double& p)
+void PosVelAccYawController::maxHorizontalJerkCb(double p)
 {
   vx_filt_.setMaxJerk(p);
   vy_filt_.setMaxJerk(p);
 }
 
-void PosVelAccYawController::maxVerticalVelocityCb(const double& p)
+void PosVelAccYawController::maxVerticalVelocityCb(double p)
 {
   max_ver_vel_ = p;
   vz_filt_.setMaxVelocity(p);
 }
 
-void PosVelAccYawController::maxVerticalJerkCb(const double& p)
+void PosVelAccYawController::maxVerticalJerkCb(double p)
 {
   vz_filt_.setMaxJerk(p);
 }
 
-void PosVelAccYawController::maxHeadingRateCb(const double& p)
+void PosVelAccYawController::maxHeadingRateCb(double p)
 {
   max_head_rate_ = st::deg2rad(p);
 }
 
-void PosVelAccYawController::maxPositionErrorDown(const double& p)
+void PosVelAccYawController::maxPositionErrorDown(double p)
 {
   max_ep_down_ = p;
 }
 
-void PosVelAccYawController::horizontalVelocityExpoCb(const double& p)
+void PosVelAccYawController::horizontalVelocityExpoCb(double p)
 {
   hor_vel_expo_ = p / kExpoScale;
 }
 
-void PosVelAccYawController::verticalVelocityExpoCb(const double& p)
+void PosVelAccYawController::verticalVelocityExpoCb(double p)
 {
   ver_vel_expo_ = p / kExpoScale;
 }
 
-void PosVelAccYawController::headingExpoCb(const double& p)
+void PosVelAccYawController::headingExpoCb(double p)
 {
   head_expo_ = p / kExpoScale;
 }

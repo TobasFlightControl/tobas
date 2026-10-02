@@ -26,12 +26,12 @@ class LowPassFilter : public BaseFilter<T>
 public:
   explicit LowPassFilter();
 
-  void update(const T& u, const double& dt) override;
+  void update(const T& u, double dt) override;
 
   inline const T& getValue() const override;
   inline void setValue(const T& x) override;
 
-  void setCutoffFrequency(const double& fc_hz);
+  void setCutoffFrequency(double fc_hz);
 
 private:
   double wc_ = INFINITY;  ///< [rad/s]
@@ -45,7 +45,7 @@ LowPassFilter<T>::LowPassFilter()
 }
 
 template <typename T>
-void LowPassFilter<T>::update(const T& u, const double& dt)
+void LowPassFilter<T>::update(const T& u, double dt)
 {
   assert(dt >= 0.0);
 
@@ -69,7 +69,7 @@ inline void LowPassFilter<T>::setValue(const T& x)
 }
 
 template <typename T>
-void LowPassFilter<T>::setCutoffFrequency(const double& fc_hz)
+void LowPassFilter<T>::setCutoffFrequency(double fc_hz)
 {
   if (fc_hz <= 0.0) {
     wc_ = INFINITY;

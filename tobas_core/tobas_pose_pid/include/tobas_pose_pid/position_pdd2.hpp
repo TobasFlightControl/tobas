@@ -19,7 +19,7 @@ public:
     const kdl::Vector& tar_pos,
     const kdl::Vector& tar_vel,
     const kdl::Vector& tar_acc,
-    const double& dt);
+    double dt);
 
   void setNaturalFreq(int idx, double value);
   void setInertiaRatio(int idx, double value);

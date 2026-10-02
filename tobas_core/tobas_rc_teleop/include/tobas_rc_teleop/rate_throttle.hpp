@@ -38,11 +38,11 @@ private:
   // PubSub
   ros2::PublisherPtr<tobas_command_msgs::RateThrottle> cmd_pub_;
 
-  void maxAttitudeRateCb(const double& p);
-  void maxHeadingRateCb(const double& p);
-  void attitudeExpoCb(const double& p);
-  void headingExpoCb(const double& p);
-  void throttleExpoCb(const double& p);
+  void maxAttitudeRateCb(double p);
+  void maxHeadingRateCb(double p);
+  void attitudeExpoCb(double p);
+  void headingExpoCb(double p);
+  void throttleExpoCb(double p);
 };
 }  // namespace rc
 }  // namespace tobas

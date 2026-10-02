@@ -14,7 +14,7 @@ void matIneqFromRange(
   const Eigen::VectorXd& ub,
   Eigen::MatrixXd& A,
   Eigen::VectorXd& b,
-  const double inf)
+  double inf)
 {
   assert(lb.rows() == ub.rows());
   assert(((ub - lb).array() >= 0.0).all());

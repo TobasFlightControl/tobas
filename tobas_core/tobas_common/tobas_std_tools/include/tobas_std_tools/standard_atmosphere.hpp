@@ -15,7 +15,7 @@ namespace st
  * @param gph Geopotential height [m].
  * @return double Geometric altitude [m].
  */
-double gphToAltitude(const double& gph);
+double gphToAltitude(double gph);
 
 /**
  * Calculate geopotential height from geometric altitude.
@@ -23,7 +23,7 @@ double gphToAltitude(const double& gph);
  * @param altitude Geometric altitude [m].
  * @return double Geopotential height [m].
  */
-double altitudeToGPH(const double& altitude);
+double altitudeToGPH(double altitude);
 
 /**
  * Calculate standard atmosphere temperature from geopotential height.
@@ -31,7 +31,7 @@ double altitudeToGPH(const double& altitude);
  * @param gph Geopotential height [m].
  * @return double Standard atmosphere temperature [K].
  */
-double gphToTemperature(const double& gph);
+double gphToTemperature(double gph);
 
 /**
  * Calculate standard atmosphere temperature from geometric altitude.
@@ -39,7 +39,7 @@ double gphToTemperature(const double& gph);
  * @param altitude Geometric altitude [m].
  * @return double Standard atmosphere temperature [K].
  */
-double altitudeToTemperature(const double& altitude);
+double altitudeToTemperature(double altitude);
 
 /**
  * Calculate standard atmosphere temperature from atmospheric pressure.
@@ -49,7 +49,7 @@ double altitudeToTemperature(const double& altitude);
  *
  * @note Assumes the troposphere.
  */
-double pressureToTemperature(const double& p);
+double pressureToTemperature(double p);
 
 /**
  * Calculate standard atmosphere pressure from geopotential height.
@@ -57,7 +57,7 @@ double pressureToTemperature(const double& p);
  * @param gph Geopotential height [m].
  * @return double Standard atmosphere pressure [Pa].
  */
-double gphToPressure(const double& gph);
+double gphToPressure(double gph);
 
 /**
  * Calculate standard atmosphere pressure from geometric altitude.
@@ -65,7 +65,7 @@ double gphToPressure(const double& gph);
  * @param altitude Geometric altitude [m].
  * @return double Standard atmosphere pressure [Pa].
  */
-double altitudeToPressure(const double& altitude);
+double altitudeToPressure(double altitude);
 
 /**
  * Calculate standard atmosphere pressure from atmospheric temperature.
@@ -75,7 +75,7 @@ double altitudeToPressure(const double& altitude);
  *
  * @note Assumes the troposphere.
  */
-double temperatureToPressure(const double& T);
+double temperatureToPressure(double T);
 
 /**
  * Calculate standard atmosphere density from geopotential height.
@@ -83,7 +83,7 @@ double temperatureToPressure(const double& T);
  * @param gph Geopotential height [m].
  * @return double Standard atmosphere density [kg/m^3].
  */
-double gphToDensity(const double& gph);
+double gphToDensity(double gph);
 
 /**
  * Calculate standard atmosphere density from geometric altitude.
@@ -91,7 +91,7 @@ double gphToDensity(const double& gph);
  * @param altitude Geometric altitude [m].
  * @return double Standard atmosphere density [kg/m^3].
  */
-double altitudeToDensity(const double& altitude);
+double altitudeToDensity(double altitude);
 
 /**
  * Calculate standard atmosphere density from atmospheric pressure.
@@ -99,7 +99,7 @@ double altitudeToDensity(const double& altitude);
  * @param p Atmospheric pressure [Pa].
  * @return double Standard atmosphere density [kg/m^3].
  */
-double pressureToDensity(const double& p);
+double pressureToDensity(double p);
 
 /**
  * Calculate geometric altitude [m] from atmospheric pressure [Pa], assuming the standard troposphere.
@@ -107,7 +107,7 @@ double pressureToDensity(const double& p);
  * @param pressure Atmospheric pressure [Pa].
  * @return double Geometric altitude [m].
  */
-double pressureToAltitude(const double& pressure);
+double pressureToAltitude(double pressure);
 
 /**
  * Calculate geometric altitude [m] from atmospheric pressure [Pa], assuming the standard troposphere.
@@ -118,6 +118,6 @@ double pressureToAltitude(const double& pressure);
  * @param altitude Geometric altitude [m] (output).
  * @param altitude_var Geometric altitude variance [m^2] (output).
  */
-void pressureToAltitude(const double& pressure, const double& pressure_var, double& altitude, double& altitude_var);
+void pressureToAltitude(double pressure, double pressure_var, double& altitude, double& altitude_var);
 }  // namespace st
 }  // namespace tobas

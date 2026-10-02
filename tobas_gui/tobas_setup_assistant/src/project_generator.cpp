@@ -43,7 +43,7 @@ constexpr char kRosParamsKey[] = "ros__parameters";
 constexpr char kDoNotEditThisPackage[] = "DO_NOT_EDIT_THIS_PACKAGE";
 constexpr char kYouCanEditThisPackage[] = "YOU_CAN_EDIT_THIS_PACKAGE";
 
-TurningDirection turningDirectionUadfToTbsdrn(const uadf::Thrust::Direction& src)
+TurningDirection turningDirectionUadfToTbsdrn(uadf::Thrust::Direction src)
 {
   switch (src) {
     case uadf::Thrust::CW:

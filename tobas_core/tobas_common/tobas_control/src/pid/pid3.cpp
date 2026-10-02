@@ -16,7 +16,7 @@ Eigen::Vector3d PID3::update(
   const Eigen::Vector3d& cur_vel,
   const Eigen::Vector3d& tar_pos,
   const Eigen::Vector3d& tar_vel,
-  const double& dt)
+  double dt)
 {
   assert(dt >= 0);
 

@@ -111,7 +111,7 @@ bool enumFromText(const std::string& text, RcCommand& dst)
 
 namespace YAML
 {
-Node convert<tobas::RcCommand>::encode(const tobas::RcCommand& rhs)
+Node convert<tobas::RcCommand>::encode(tobas::RcCommand rhs)
 {
   Node node;
   node = tobas::textFromEnum(rhs);

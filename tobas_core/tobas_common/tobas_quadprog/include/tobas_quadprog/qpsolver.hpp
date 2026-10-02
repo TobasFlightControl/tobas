@@ -26,10 +26,10 @@ public:
   Eigen::MatrixXd A;
   Eigen::VectorXd b;
 
-  explicit QuadProgProblem(const Eigen::Index& var_size, const Eigen::Index& eq_size, const Eigen::Index& ineq_size);
+  explicit QuadProgProblem(Eigen::Index var_size, Eigen::Index eq_size, Eigen::Index ineq_size);
   explicit QuadProgProblem();
 
-  void resize(const Eigen::Index& var_size, const Eigen::Index& eq_size, const Eigen::Index& ineq_size);
+  void resize(Eigen::Index var_size, Eigen::Index eq_size, Eigen::Index ineq_size);
   void setZero();
 
   bool isSizeMatch() const;
@@ -56,7 +56,7 @@ public:
 
   virtual std::expected<Eigen::VectorXd, std::string> solve() = 0;
 
-  void resize(const Eigen::Index& var_size, const Eigen::Index& eq_size, const Eigen::Index& ineq_size);
+  void resize(Eigen::Index var_size, Eigen::Index eq_size, Eigen::Index ineq_size);
   void setZero();
 
   friend std::ostream& operator<<(std::ostream& os, const QuadProgSolver& arg);

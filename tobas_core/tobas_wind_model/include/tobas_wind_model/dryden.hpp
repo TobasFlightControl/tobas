@@ -22,8 +22,8 @@ class DrydenComponents
 public:
   explicit DrydenComponents();
 
-  void update(const double& relative_wind_speed, const double& altitude, const double& dt);
-  void setMeanWindSpeed(const double& mean_wind_speed);
+  void update(double relative_wind_speed, double altitude, double dt);
+  void setMeanWindSpeed(double mean_wind_speed);
 
   inline const double& scaleLengthLon() const;
   inline const double& scaleLengthLat() const;
@@ -55,8 +55,8 @@ class DrydenSimulator
 public:
   explicit DrydenSimulator();
 
-  void update(const double& relative_wind_speed, const double& altitude, const double& dt);
-  void setMeanWindSpeed(const double& mean_wind_speed);
+  void update(double relative_wind_speed, double altitude, double dt);
+  void setMeanWindSpeed(double mean_wind_speed);
 
   inline const double& u() const;
   inline const double& v() const;

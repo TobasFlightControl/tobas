@@ -37,7 +37,7 @@ int IntGetter::getValue() const
   return data_->value();
 }
 
-bool IntGetter::setValue(const int& value)
+bool IntGetter::setValue(int value)
 {
   if (value < data_->minimum() || data_->maximum() < value) {
     return false;

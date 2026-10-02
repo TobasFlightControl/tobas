@@ -47,16 +47,16 @@ private:
   // Publisher
   ros2::PublisherPtr<tobas_command_msgs::AccelPitchYaw> cmd_pub_;
 
-  void maxHorizontalAccelCb(const double& p);
-  void maxHorizontalJerkCb(const double& p);
-  void maxVerticalAccelCb(const double& p);
-  void maxPitchCb(const double& p);
-  void maxPitchRateCb(const double& p);
-  void maxYawRateCb(const double& p);
-  void horizontalAccelExpoCb(const double& p);
-  void verticalAccelExpoCb(const double& p);
-  void pitchExpoCb(const double& p);
-  void yawExpoCb(const double& p);
+  void maxHorizontalAccelCb(double p);
+  void maxHorizontalJerkCb(double p);
+  void maxVerticalAccelCb(double p);
+  void maxPitchCb(double p);
+  void maxPitchRateCb(double p);
+  void maxYawRateCb(double p);
+  void horizontalAccelExpoCb(double p);
+  void verticalAccelExpoCb(double p);
+  void pitchExpoCb(double p);
+  void yawExpoCb(double p);
 };
 }  // namespace rc
 }  // namespace tobas

@@ -47,13 +47,13 @@ private:
   void lowPassFilterConfigResponseCb(rclcpp::Client<tobas_msgs::srv::ConfigureImuLowPassFilter>::SharedFuture future);
   void rpmFilterConfigResponseCb(rclcpp::Client<tobas_msgs::srv::ConfigureImuRpmFilter>::SharedFuture future);
 
-  void lowPassFilterAccelCutoffCb(const long& p);
-  void lowPassFilterGyroCutoffCb(const long& p);
-  void lowPassFilterDGyroCutoffCb(const long& p);
-  void rpmFilterQualityFactorCb(const long& p);
-  void rpmFilterMinCenterFreqCb(const long& p);
-  void rpmFilterFadeRangeCb(const long& p);
-  void rpmFilterLpfCutoffCb(const long& p);
+  void lowPassFilterAccelCutoffCb(long p);
+  void lowPassFilterGyroCutoffCb(long p);
+  void lowPassFilterDGyroCutoffCb(long p);
+  void rpmFilterQualityFactorCb(long p);
+  void rpmFilterMinCenterFreqCb(long p);
+  void rpmFilterFadeRangeCb(long p);
+  void rpmFilterLpfCutoffCb(long p);
 
   void imuRawCb(const tobas_msgs::Imu::ConstSharedPtr& msg);
 };
@@ -135,7 +135,7 @@ void ImuFilterConfigServer::rpmFilterConfigResponseCb(
   }
 }
 
-void ImuFilterConfigServer::lowPassFilterAccelCutoffCb(const long& p)
+void ImuFilterConfigServer::lowPassFilterAccelCutoffCb(long p)
 {
   lowpass_cfg_.accel_cutoff = p;
 
@@ -144,7 +144,7 @@ void ImuFilterConfigServer::lowPassFilterAccelCutoffCb(const long& p)
   }
 }
 
-void ImuFilterConfigServer::lowPassFilterGyroCutoffCb(const long& p)
+void ImuFilterConfigServer::lowPassFilterGyroCutoffCb(long p)
 {
   lowpass_cfg_.gyro_cutoff = p;
 
@@ -153,7 +153,7 @@ void ImuFilterConfigServer::lowPassFilterGyroCutoffCb(const long& p)
   }
 }
 
-void ImuFilterConfigServer::lowPassFilterDGyroCutoffCb(const long& p)
+void ImuFilterConfigServer::lowPassFilterDGyroCutoffCb(long p)
 {
   lowpass_cfg_.dgyro_cutoff = p;
 
@@ -162,7 +162,7 @@ void ImuFilterConfigServer::lowPassFilterDGyroCutoffCb(const long& p)
   }
 }
 
-void ImuFilterConfigServer::rpmFilterQualityFactorCb(const long& p)
+void ImuFilterConfigServer::rpmFilterQualityFactorCb(long p)
 {
   notch_cfg_.quality_factor = p;
 
@@ -171,7 +171,7 @@ void ImuFilterConfigServer::rpmFilterQualityFactorCb(const long& p)
   }
 }
 
-void ImuFilterConfigServer::rpmFilterMinCenterFreqCb(const long& p)
+void ImuFilterConfigServer::rpmFilterMinCenterFreqCb(long p)
 {
   notch_cfg_.min_center_freq = p;
 
@@ -180,7 +180,7 @@ void ImuFilterConfigServer::rpmFilterMinCenterFreqCb(const long& p)
   }
 }
 
-void ImuFilterConfigServer::rpmFilterFadeRangeCb(const long& p)
+void ImuFilterConfigServer::rpmFilterFadeRangeCb(long p)
 {
   notch_cfg_.fade_range = p;
 
@@ -189,7 +189,7 @@ void ImuFilterConfigServer::rpmFilterFadeRangeCb(const long& p)
   }
 }
 
-void ImuFilterConfigServer::rpmFilterLpfCutoffCb(const long& p)
+void ImuFilterConfigServer::rpmFilterLpfCutoffCb(long p)
 {
   notch_cfg_.lpf_cutoff = p;
 

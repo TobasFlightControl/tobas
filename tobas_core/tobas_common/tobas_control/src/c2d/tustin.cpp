@@ -9,7 +9,7 @@ namespace tobas
 {
 namespace ctrl
 {
-C2D_Tustin::C2D_Tustin(const Eigen::Index& x_size, const Eigen::Index& u_size)
+C2D_Tustin::C2D_Tustin(Eigen::Index x_size, Eigen::Index u_size)
 {
   resize(x_size, u_size);
 }
@@ -18,7 +18,7 @@ C2D_Tustin::C2D_Tustin()
 {
 }
 
-LinearDynamics C2D_Tustin::convert(const LinearDynamics& cont, const double& dt)
+LinearDynamics C2D_Tustin::convert(const LinearDynamics& cont, double dt)
 {
   assert(cont.stateSize() == x_size_ && cont.inputSize() == u_size_);
   assert(cont.isFinite());
@@ -36,7 +36,7 @@ LinearDynamics C2D_Tustin::convert(const LinearDynamics& cont, const double& dt)
   return res;
 }
 
-void C2D_Tustin::resize(const Eigen::Index& x_size, const Eigen::Index& u_size)
+void C2D_Tustin::resize(Eigen::Index x_size, Eigen::Index u_size)
 {
   x_size_ = x_size;
   u_size_ = u_size;

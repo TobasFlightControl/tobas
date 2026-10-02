@@ -17,7 +17,7 @@ public:
     const kdl::Vector& cur_vel,
     const kdl::Vector& tar_pos,
     const kdl::Vector& tar_vel,
-    const double& dt);
+    double dt);
 
   void setProportionalGain(int idx, double value);
   void setIntegralGain(int idx, double value);

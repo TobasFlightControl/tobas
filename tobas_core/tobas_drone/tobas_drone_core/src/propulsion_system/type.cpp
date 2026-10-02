@@ -41,7 +41,7 @@ bool enumFromText(const std::string& text, PropulsionSystem& dst)
 
 namespace YAML
 {
-Node convert<tobas::PropulsionSystem>::encode(const tobas::PropulsionSystem& rhs)
+Node convert<tobas::PropulsionSystem>::encode(tobas::PropulsionSystem rhs)
 {
   Node node;
   node = tobas::textFromEnum(rhs);

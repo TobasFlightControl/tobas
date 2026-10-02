@@ -124,21 +124,21 @@ private:
   bool isCommandAccepted(const tobas_command_msgs::msg::Priority& priority);
 
   // Parameter callbacks
-  void horizontalNaturalFreqCb(const double& p);
-  void horizontalDampingRatioCb(const double& p);
-  void horizontalIGainCb(const double& p);
-  void horizontalIMaxAccelCb(const double& p);
-  void verticalNaturalFreqCb(const double& p);
-  void verticalDampingRatioCb(const double& p);
-  void verticalIGainCb(const double& p);
-  void verticalIMaxAccelCb(const double& p);
-  void attitudeNaturalFreqCb(const double& p);
-  void attitudeDampingRatioCb(const double& p);
-  void attitudeIGainCb(const double& p);
-  void headingNaturalFreqCb(const double& p);
-  void headingDampingRatioCb(const double& p);
-  void headingIGainCb(const double& p);
-  void throttleGainThresholdCb(const double& p);
+  void horizontalNaturalFreqCb(double p);
+  void horizontalDampingRatioCb(double p);
+  void horizontalIGainCb(double p);
+  void horizontalIMaxAccelCb(double p);
+  void verticalNaturalFreqCb(double p);
+  void verticalDampingRatioCb(double p);
+  void verticalIGainCb(double p);
+  void verticalIMaxAccelCb(double p);
+  void attitudeNaturalFreqCb(double p);
+  void attitudeDampingRatioCb(double p);
+  void attitudeIGainCb(double p);
+  void headingNaturalFreqCb(double p);
+  void headingDampingRatioCb(double p);
+  void headingIGainCb(double p);
+  void throttleGainThresholdCb(double p);
 
   // Topic callbacks
   void droneCb(const Drone::ConstSharedPtr& drone);
@@ -246,77 +246,77 @@ bool ControllerNode::isCommandAccepted(const tobas_command_msgs::msg::Priority& 
   return true;
 }
 
-void ControllerNode::horizontalNaturalFreqCb(const double& p)
+void ControllerNode::horizontalNaturalFreqCb(double p)
 {
   trans_ctrl_.hor_wn = p;
 }
 
-void ControllerNode::horizontalDampingRatioCb(const double& p)
+void ControllerNode::horizontalDampingRatioCb(double p)
 {
   trans_ctrl_.hor_zeta = p;
 }
 
-void ControllerNode::horizontalIGainCb(const double& p)
+void ControllerNode::horizontalIGainCb(double p)
 {
   trans_ctrl_.hor_ki = p;
 }
 
-void ControllerNode::horizontalIMaxAccelCb(const double& p)
+void ControllerNode::horizontalIMaxAccelCb(double p)
 {
   trans_ctrl_.hor_max_i_acc = p;
 }
 
-void ControllerNode::verticalNaturalFreqCb(const double& p)
+void ControllerNode::verticalNaturalFreqCb(double p)
 {
   trans_ctrl_.ver_wn = p;
 }
 
-void ControllerNode::verticalDampingRatioCb(const double& p)
+void ControllerNode::verticalDampingRatioCb(double p)
 {
   trans_ctrl_.ver_zeta = p;
 }
 
-void ControllerNode::verticalIGainCb(const double& p)
+void ControllerNode::verticalIGainCb(double p)
 {
   trans_ctrl_.ver_ki = p;
 }
 
-void ControllerNode::verticalIMaxAccelCb(const double& p)
+void ControllerNode::verticalIMaxAccelCb(double p)
 {
   trans_ctrl_.ver_max_i_acc = p;
 }
 
-void ControllerNode::attitudeNaturalFreqCb(const double& p)
+void ControllerNode::attitudeNaturalFreqCb(double p)
 {
   rot_ctrl_.atti_wn = p;
 }
 
-void ControllerNode::attitudeDampingRatioCb(const double& p)
+void ControllerNode::attitudeDampingRatioCb(double p)
 {
   rot_ctrl_.atti_zeta = p;
 }
 
-void ControllerNode::attitudeIGainCb(const double& p)
+void ControllerNode::attitudeIGainCb(double p)
 {
   rot_ctrl_.atti_ki = p;
 }
 
-void ControllerNode::headingNaturalFreqCb(const double& p)
+void ControllerNode::headingNaturalFreqCb(double p)
 {
   rot_ctrl_.head_wn = p;
 }
 
-void ControllerNode::headingDampingRatioCb(const double& p)
+void ControllerNode::headingDampingRatioCb(double p)
 {
   rot_ctrl_.head_zeta = p;
 }
 
-void ControllerNode::headingIGainCb(const double& p)
+void ControllerNode::headingIGainCb(double p)
 {
   rot_ctrl_.head_ki = p;
 }
 
-void ControllerNode::throttleGainThresholdCb(const double& p)
+void ControllerNode::throttleGainThresholdCb(double p)
 {
   throttle_gain_thresh_ = p / 100.0;
 }

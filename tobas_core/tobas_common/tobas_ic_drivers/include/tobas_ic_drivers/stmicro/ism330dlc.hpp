@@ -246,10 +246,10 @@ private:
   uint8_t res_[kImuDataSize];  ///< The results of readRegs are stored.
 
   /** 6.5.1: SPI read (p.27) */
-  bool readRegs(const uint8_t& addr, const size_t& bytes);
+  bool readRegs(uint8_t addr, size_t bytes);
 
   /** 6.5.2: SPI write (p.28) */
-  bool writeReg(const uint8_t& addr, const uint8_t& data);
+  bool writeReg(uint8_t addr, uint8_t data);
 
   bool checkWhoAmI();
 };

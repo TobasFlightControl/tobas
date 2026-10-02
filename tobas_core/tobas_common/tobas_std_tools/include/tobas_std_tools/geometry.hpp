@@ -14,15 +14,13 @@ namespace st
  *
  * @see https://qiita.com/aa_debdeb/items/abe90a9bd0b4809813da
  */
-std::tuple<double, double, double, double>
-quaternionFromEuler(const double& roll, const double& pitch, const double& yaw);
+std::tuple<double, double, double, double> quaternionFromEuler(double roll, double pitch, double yaw);
 
 /**
  * Calculate ZYX Euler angles (Roll,Pitch,Yaw) from a quaternion (X,Y,Z,W).
  *
  * @see https://qiita.com/aa_debdeb/items/abe90a9bd0b4809813da
  */
-std::tuple<double, double, double>
-eulerFromQuaternion(const double& x, const double& y, const double& z, const double& w);
+std::tuple<double, double, double> eulerFromQuaternion(double x, double y, double z, double w);
 }  // namespace st
 }  // namespace tobas

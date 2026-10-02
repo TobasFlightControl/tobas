@@ -25,7 +25,7 @@ public:
 
   void updateInternalDataStructures();
 
-  void setFrameType(const FrameType& type);
+  void setFrameType(FrameType type);
 
 private:
   const uadf::Model& uadf_;

@@ -56,10 +56,10 @@ private:
 
   void update_r();
   bool addConstraint();
-  void deleteConstraint(const Eigen::Index& l);
+  void deleteConstraint(Eigen::Index l);
 
   /** Euclidean distance between two numbers. */
-  static double distance(const double& a, const double& b);
+  static double distance(double a, double b);
 };
 }  // namespace quadprog
 }  // namespace tobas

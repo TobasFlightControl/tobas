@@ -91,19 +91,19 @@ std::expected<Eigen::VectorXd, std::string> PrimalDualInteriorPointSolver::solve
   return theta_.cwiseProduct(x_scale).eval();
 }
 
-void PrimalDualInteriorPointSolver::setNumberOfIterations(const size_t& num_iter)
+void PrimalDualInteriorPointSolver::setNumberOfIterations(size_t num_iter)
 {
   assert(num_iter > 0);
   num_iter_ = num_iter;
 }
 
-void PrimalDualInteriorPointSolver::setSigma(const double& sigma)
+void PrimalDualInteriorPointSolver::setSigma(double sigma)
 {
   assert(sigma > 0.0 && sigma < 1.0);
   sigma_ = sigma;
 }
 
-void PrimalDualInteriorPointSolver::setAlphaTolerance(const double& alpha_tol)
+void PrimalDualInteriorPointSolver::setAlphaTolerance(double alpha_tol)
 {
   assert(alpha_tol > 0.0 && alpha_tol < 1.0);
   alpha_tol_ = alpha_tol;

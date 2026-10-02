@@ -31,8 +31,8 @@ public:
 
   explicit LQD();
 
-  std::expected<Eigen::VectorXd, std::string> solve(const double& dt, const bool& update_gain = true);
-  void resize(const Eigen::Index& state_size, const Eigen::Index& input_size);
+  std::expected<Eigen::VectorXd, std::string> solve(double dt, bool update_gain = true);
+  void resize(Eigen::Index state_size, Eigen::Index input_size);
   std::expected<void, std::string> updateGainMatrix();
 
   friend std::ostream& operator<<(std::ostream& os, const LQD& arg);

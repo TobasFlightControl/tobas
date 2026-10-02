@@ -77,12 +77,12 @@ QwtPlot2::QwtPlot2(QWidget* parent) : super(parent)
   legend_item->setBorderPen(QPen(Qt::black, 1));  // Black border.
 }
 
-void QwtPlot2::setAxisNoLabel(const QwtPlot::Axis& axis)
+void QwtPlot2::setAxisNoLabel(QwtPlot::Axis axis)
 {
   setAxisScaleDraw(axis, new NoLabelScaleDraw());
 }
 
-void QwtPlot2::setAxisLabelUnit(const QwtPlot::Axis& axis, const QString& unit)
+void QwtPlot2::setAxisLabelUnit(QwtPlot::Axis axis, const QString& unit)
 {
   setAxisScaleDraw(axis, new UnitScaleDraw(unit));
 }

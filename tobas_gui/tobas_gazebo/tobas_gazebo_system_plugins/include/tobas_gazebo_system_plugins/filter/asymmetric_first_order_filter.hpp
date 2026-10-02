@@ -17,9 +17,9 @@ class AsymmetricFirstOrderFilter
 public:
   explicit AsymmetricFirstOrderFilter();
 
-  virtual void initialize(const double& time_const_up, const double& time_const_down, const T& init_value);
+  virtual void initialize(double time_const_up, double time_const_down, const T& init_value);
 
-  virtual void update(const T& input_value, const double& sampling_time);
+  virtual void update(const T& input_value, double sampling_time);
 
   virtual inline const T& getValue() const;
 
@@ -36,10 +36,7 @@ AsymmetricFirstOrderFilter<T>::AsymmetricFirstOrderFilter()
 }
 
 template <typename T>
-void AsymmetricFirstOrderFilter<T>::initialize(
-  const double& time_const_up,
-  const double& time_const_down,
-  const T& init_value)
+void AsymmetricFirstOrderFilter<T>::initialize(double time_const_up, double time_const_down, const T& init_value)
 {
   assert(time_const_up >= 0.0);
   assert(time_const_down >= 0.0);
@@ -52,7 +49,7 @@ void AsymmetricFirstOrderFilter<T>::initialize(
 }
 
 template <typename T>
-void AsymmetricFirstOrderFilter<T>::update(const T& input_value, const double& sampling_time)
+void AsymmetricFirstOrderFilter<T>::update(const T& input_value, double sampling_time)
 {
   assert(is_initialized_);
   assert(sampling_time >= 0.0);

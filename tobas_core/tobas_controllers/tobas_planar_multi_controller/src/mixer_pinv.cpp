@@ -29,7 +29,7 @@ std::expected<Eigen::VectorXd, std::string> PinvMixer::solve(
   const kdl::JntArray& cur_q,
   const kdl::Vector& cur_gyro_B,
   const kdl::Vector& tar_dgyro_B,
-  const double& tar_thrusts_sum,
+  double tar_thrusts_sum,
   const kdl::Vector& ext_torque_B)
 {
   assert(tar_thrusts_sum > 0);

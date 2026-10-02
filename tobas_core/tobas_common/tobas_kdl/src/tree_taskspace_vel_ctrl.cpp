@@ -49,13 +49,13 @@ void TreeTaskSpaceVelCtrl::setAngularTimeConst(const Vector& _t)
   gain_.angular = _t.inverse();
 }
 
-void TreeTaskSpaceVelCtrl::setLinearTimeConst(const double& _t)
+void TreeTaskSpaceVelCtrl::setLinearTimeConst(double _t)
 {
   assert(_t > 0.0);
   gain_.linear.fill(1.0 / _t);
 }
 
-void TreeTaskSpaceVelCtrl::setAngularTimeConst(const double& _t)
+void TreeTaskSpaceVelCtrl::setAngularTimeConst(double _t)
 {
   assert(_t > 0.0);
   gain_.angular.fill(1.0 / _t);

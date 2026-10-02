@@ -16,7 +16,7 @@ kdl::Vector PositionPID::update(
   const kdl::Vector& cur_vel,
   const kdl::Vector& tar_pos,
   const kdl::Vector& tar_vel,
-  const double& dt)
+  double dt)
 {
   // Calculate errors.
   const auto ep = tar_pos - cur_pos;

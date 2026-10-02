@@ -21,8 +21,8 @@ void TranslationalEoM::updateInternalDataStructures()
 
 bool TranslationalEoM::solve(
   const kdl::Vector& tar_acc_W,
-  const double& tar_pitch,
-  const double& tar_yaw,
+  double tar_pitch,
+  double tar_yaw,
   const kdl::Vector& ext_force_W,
   double& ux_out,
   double& uz_out,

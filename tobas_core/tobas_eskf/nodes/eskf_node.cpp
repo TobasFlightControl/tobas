@@ -159,23 +159,23 @@ private:
   double initBaroAltBiasStddev() const;
   double initGravBiasStddev() const;
 
-  void fixedAccMeasNoiseStddevCb(const double& p);
-  void fixedGyroMeasNoiseStddevCb(const double& p);
-  void fixedMagMeasNoiseStddevCb(const double& p);
-  void fixedHeadMeasNoiseStddevCb(const double& p);
-  void fixedBaroAltMeasNoiseStddevCb(const double& p);
-  void fixedGnssPosMeasNoiseStddevCb(const double& p);
-  void fixedGnssVelMeasNoiseStddevCb(const double& p);
-  void fixedGravMeasNoiseStddevCb(const double& p);
-  void adaptiveGravMeasNoiseStddevMinCb(const double& p);
-  void adaptiveGravMeasNoiseStddevMaxCb(const double& p);
-  void adaptiveGravMeasNoiseStddevRateCb(const double& p);
-  void accBiasProcNoiseDensityCb(const double& p);
-  void gyroBiasProcNoiseDensityCb(const double& p);
-  void magHardBiasProcNoiseDensityCb(const double& p);
-  void magSoftBiasProcNoiseDensityCb(const double& p);
-  void baroAltBiasProcNoiseDensityCb(const double& p);
-  void gravProcNoiseDensityCb(const double& ud_ug);
+  void fixedAccMeasNoiseStddevCb(double p);
+  void fixedGyroMeasNoiseStddevCb(double p);
+  void fixedMagMeasNoiseStddevCb(double p);
+  void fixedHeadMeasNoiseStddevCb(double p);
+  void fixedBaroAltMeasNoiseStddevCb(double p);
+  void fixedGnssPosMeasNoiseStddevCb(double p);
+  void fixedGnssVelMeasNoiseStddevCb(double p);
+  void fixedGravMeasNoiseStddevCb(double p);
+  void adaptiveGravMeasNoiseStddevMinCb(double p);
+  void adaptiveGravMeasNoiseStddevMaxCb(double p);
+  void adaptiveGravMeasNoiseStddevRateCb(double p);
+  void accBiasProcNoiseDensityCb(double p);
+  void gyroBiasProcNoiseDensityCb(double p);
+  void magHardBiasProcNoiseDensityCb(double p);
+  void magSoftBiasProcNoiseDensityCb(double p);
+  void baroAltBiasProcNoiseDensityCb(double p);
+  void gravProcNoiseDensityCb(double ud_ug);
 
   void imuRawCb(const tobas_msgs::Imu::ConstSharedPtr& msg);
   void imuFiltCb(const tobas_msgs::Imu::ConstSharedPtr& msg);
@@ -537,40 +537,40 @@ double ErrorStateKalmanFilterNode::initGravBiasStddev() const
   return do_grav_estimation_ ? 0.1 : 0.0;
 }
 
-void ErrorStateKalmanFilterNode::fixedAccMeasNoiseStddevCb(const double& p)
+void ErrorStateKalmanFilterNode::fixedAccMeasNoiseStddevCb(double p)
 {
   const auto acc_stddev = p;  // [m/s^2]
   const auto acc_var = math::sqr(acc_stddev);
   fixed_acc_cov_.diagonal().fill(acc_var);
 }
 
-void ErrorStateKalmanFilterNode::fixedGyroMeasNoiseStddevCb(const double& p)
+void ErrorStateKalmanFilterNode::fixedGyroMeasNoiseStddevCb(double p)
 {
   const auto gyro_stddev = p;  // [rad/s]
   const auto gyro_var = math::sqr(gyro_stddev);
   fixed_gyro_cov_.diagonal().fill(gyro_var);
 }
 
-void ErrorStateKalmanFilterNode::fixedMagMeasNoiseStddevCb(const double& p)
+void ErrorStateKalmanFilterNode::fixedMagMeasNoiseStddevCb(double p)
 {
   const auto mag_stddev = p * 1e-2 / st::kGeomagScale;  // [-]
   const auto mag_var = math::sqr(mag_stddev);
   fixed_mag_cov_.diagonal().fill(mag_var);
 }
 
-void ErrorStateKalmanFilterNode::fixedHeadMeasNoiseStddevCb(const double& p)
+void ErrorStateKalmanFilterNode::fixedHeadMeasNoiseStddevCb(double p)
 {
   const auto head_stddev = p;  // [rad]
   fixed_head_var_ = math::sqr(head_stddev);
 }
 
-void ErrorStateKalmanFilterNode::fixedBaroAltMeasNoiseStddevCb(const double& p)
+void ErrorStateKalmanFilterNode::fixedBaroAltMeasNoiseStddevCb(double p)
 {
   const auto baro_alt_stddev = p;  // [m]
   fixed_baro_alt_var_ = math::sqr(baro_alt_stddev);
 }
 
-void ErrorStateKalmanFilterNode::fixedGnssPosMeasNoiseStddevCb(const double& p)
+void ErrorStateKalmanFilterNode::fixedGnssPosMeasNoiseStddevCb(double p)
 {
   assert(!adaptive_gnss_noise_);
 
@@ -579,7 +579,7 @@ void ErrorStateKalmanFilterNode::fixedGnssPosMeasNoiseStddevCb(const double& p)
   fixed_gnss_pos_cov_.diagonal().fill(gnss_pos_var);
 }
 
-void ErrorStateKalmanFilterNode::fixedGnssVelMeasNoiseStddevCb(const double& p)
+void ErrorStateKalmanFilterNode::fixedGnssVelMeasNoiseStddevCb(double p)
 {
   assert(!adaptive_gnss_noise_);
 
@@ -588,7 +588,7 @@ void ErrorStateKalmanFilterNode::fixedGnssVelMeasNoiseStddevCb(const double& p)
   fixed_gnss_vel_cov_.diagonal().fill(gnss_vel_var);
 }
 
-void ErrorStateKalmanFilterNode::fixedGravMeasNoiseStddevCb(const double& p)
+void ErrorStateKalmanFilterNode::fixedGravMeasNoiseStddevCb(double p)
 {
   assert(!adaptive_grav_noise_);
 
@@ -597,25 +597,25 @@ void ErrorStateKalmanFilterNode::fixedGravMeasNoiseStddevCb(const double& p)
   fixed_grav_cov_.diagonal().fill(grav_var);
 }
 
-void ErrorStateKalmanFilterNode::adaptiveGravMeasNoiseStddevMinCb(const double& p)
+void ErrorStateKalmanFilterNode::adaptiveGravMeasNoiseStddevMinCb(double p)
 {
   assert(adaptive_grav_noise_);
   grav_stddev_min_ = p;
 }
 
-void ErrorStateKalmanFilterNode::adaptiveGravMeasNoiseStddevMaxCb(const double& p)
+void ErrorStateKalmanFilterNode::adaptiveGravMeasNoiseStddevMaxCb(double p)
 {
   assert(adaptive_grav_noise_);
   grav_stddev_max_ = p;
 }
 
-void ErrorStateKalmanFilterNode::adaptiveGravMeasNoiseStddevRateCb(const double& p)
+void ErrorStateKalmanFilterNode::adaptiveGravMeasNoiseStddevRateCb(double p)
 {
   assert(adaptive_grav_noise_);
   grav_stddev_rate_ = p;
 }
 
-void ErrorStateKalmanFilterNode::accBiasProcNoiseDensityCb(const double& p)
+void ErrorStateKalmanFilterNode::accBiasProcNoiseDensityCb(double p)
 {
   assert(do_acc_bias_estimation_);
 
@@ -623,7 +623,7 @@ void ErrorStateKalmanFilterNode::accBiasProcNoiseDensityCb(const double& p)
   eskf_.setAccBiasProcNoiseDensity(nd);
 }
 
-void ErrorStateKalmanFilterNode::gyroBiasProcNoiseDensityCb(const double& p)
+void ErrorStateKalmanFilterNode::gyroBiasProcNoiseDensityCb(double p)
 {
   assert(do_gyro_bias_estimation_);
 
@@ -631,7 +631,7 @@ void ErrorStateKalmanFilterNode::gyroBiasProcNoiseDensityCb(const double& p)
   eskf_.setGyroBiasProcNoiseDensity(nd);
 }
 
-void ErrorStateKalmanFilterNode::magHardBiasProcNoiseDensityCb(const double& p)
+void ErrorStateKalmanFilterNode::magHardBiasProcNoiseDensityCb(double p)
 {
   assert(do_mag_hard_bias_estimation_);
 
@@ -639,7 +639,7 @@ void ErrorStateKalmanFilterNode::magHardBiasProcNoiseDensityCb(const double& p)
   eskf_.setMagHardBiasProcNoiseDensity(nd);
 }
 
-void ErrorStateKalmanFilterNode::magSoftBiasProcNoiseDensityCb(const double& p)
+void ErrorStateKalmanFilterNode::magSoftBiasProcNoiseDensityCb(double p)
 {
   assert(do_mag_soft_bias_estimation_);
 
@@ -647,14 +647,14 @@ void ErrorStateKalmanFilterNode::magSoftBiasProcNoiseDensityCb(const double& p)
   eskf_.setMagSoftBiasProcNoiseDensity(nd);
 }
 
-void ErrorStateKalmanFilterNode::baroAltBiasProcNoiseDensityCb(const double& p)
+void ErrorStateKalmanFilterNode::baroAltBiasProcNoiseDensityCb(double p)
 {
   assert(do_baro_alt_bias_estimation_);
 
   eskf_.setBaroAltBiasProcNoiseDensity(p);
 }
 
-void ErrorStateKalmanFilterNode::gravProcNoiseDensityCb(const double& p)
+void ErrorStateKalmanFilterNode::gravProcNoiseDensityCb(double p)
 {
   assert(do_grav_estimation_);
 

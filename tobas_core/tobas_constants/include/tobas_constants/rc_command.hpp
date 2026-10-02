@@ -32,7 +32,7 @@ namespace YAML
 template <>
 struct convert<tobas::RcCommand>
 {
-  static Node encode(const tobas::RcCommand& rhs);
+  static Node encode(tobas::RcCommand rhs);
   static bool decode(const Node& node, tobas::RcCommand& rhs);
 };
 }  // namespace YAML

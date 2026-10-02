@@ -30,7 +30,7 @@ public:
   inline SegmentJacobian refPoint(const Vector& p) const;
 
   /** Compute task-space acceleration from joint-space acceleration. */
-  inline Accel accel(const double& qdd) const;
+  inline Accel accel(double qdd) const;
 
   /** Compute the force [N or Nm] acting on the joint. */
   inline double dot(const Wrench& rhs) const;
@@ -68,7 +68,7 @@ inline SegmentJacobian SegmentJacobian::refPoint(const Vector& p) const
   return SegmentJacobian(linear + angular * p, angular);
 }
 
-inline Accel SegmentJacobian::accel(const double& qdd) const
+inline Accel SegmentJacobian::accel(double qdd) const
 {
   return Accel(linear * qdd, angular * qdd);
 }

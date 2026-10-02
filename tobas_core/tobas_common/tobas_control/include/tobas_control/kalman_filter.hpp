@@ -25,14 +25,9 @@ public:
   Eigen::VectorXd u;    ///< Control input, if any
 
   explicit KalmanFilter();
-  explicit KalmanFilter(
-    const Eigen::Index& x_size,
-    const Eigen::Index& u_size,
-    const Eigen::Index& y_size,
-    const Eigen::Index& v_size);
+  explicit KalmanFilter(Eigen::Index x_size, Eigen::Index u_size, Eigen::Index y_size, Eigen::Index v_size);
 
-  void
-  resize(const Eigen::Index& x_size, const Eigen::Index& u_size, const Eigen::Index& y_size, const Eigen::Index& v_size);
+  void resize(Eigen::Index x_size, Eigen::Index u_size, Eigen::Index y_size, Eigen::Index v_size);
   void setZero();
   void initialize(const Eigen::VectorXd& init_x, const Eigen::MatrixXd& init_P);
   void update();
@@ -60,9 +55,9 @@ public:
   Eigen::MatrixXd R;  ///< Observation noise covariance
   Eigen::VectorXd y;  ///< Observation
 
-  explicit IdentityKalmanFilter(const Eigen::Index& size = 0);
+  explicit IdentityKalmanFilter(Eigen::Index size = 0);
 
-  void resize(const Eigen::Index& size);
+  void resize(Eigen::Index size);
   void setZero();
   void initialize(const Eigen::VectorXd& init_x, const Eigen::MatrixXd& init_P);
   void update();

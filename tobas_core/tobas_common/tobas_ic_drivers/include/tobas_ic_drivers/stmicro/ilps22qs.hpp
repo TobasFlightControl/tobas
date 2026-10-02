@@ -106,7 +106,7 @@ private:
   bool checkWhoAmI();
   bool configure();
 
-  void setPressureScale(const uint8_t& fs_mode);
+  void setPressureScale(uint8_t fs_mode);
 };
 }  // namespace stm
 }  // namespace tobas

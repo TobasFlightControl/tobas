@@ -37,9 +37,9 @@ public:
    */
   Eigen::VectorXd max_integrated_error;
 
-  explicit LQID(const Eigen::Index& state_size, const Eigen::Index& input_size, const Eigen::Index& integrate_size);
+  explicit LQID(Eigen::Index state_size, Eigen::Index input_size, Eigen::Index integrate_size);
 
-  std::expected<Eigen::VectorXd, std::string> solve(const double& dt, const bool& update_gain = true);
+  std::expected<Eigen::VectorXd, std::string> solve(double dt, bool update_gain = true);
   std::expected<void, std::string> updateGainMatrix();
 
   inline const Eigen::VectorXd& getIntegralError() const;

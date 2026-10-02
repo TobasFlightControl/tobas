@@ -13,7 +13,7 @@ LQR::LQR()
 {
 }
 
-std::expected<Eigen::VectorXd, std::string> LQR::solve(const bool& update_gain) noexcept
+std::expected<Eigen::VectorXd, std::string> LQR::solve(bool update_gain) noexcept
 {
   checkProblemValidity();
 
@@ -31,7 +31,7 @@ std::expected<Eigen::VectorXd, std::string> LQR::solve(const bool& update_gain) 
   return u_scaled.cwiseProduct(input_scale).eval();
 }
 
-void LQR::resize(const Eigen::Index& state_size, const Eigen::Index& input_size)
+void LQR::resize(Eigen::Index state_size, Eigen::Index input_size)
 {
   dynamics.resize(state_size, input_size);
 

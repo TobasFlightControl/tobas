@@ -108,7 +108,7 @@ private:
   std::vector<Eigen::VectorXd> makeDecays();
 
   /** Create the overall inequality constraint matrix from the time series of inequality conditions A x <= b. */
-  static Eigen::MatrixXd makeConstraintMatrix(const std::vector<LinearEquation>& ineqs, const Eigen::Index& H);
+  static Eigen::MatrixXd makeConstraintMatrix(const std::vector<LinearEquation>& ineqs, Eigen::Index H);
 };
 }  // namespace ctrl
 }  // namespace tobas

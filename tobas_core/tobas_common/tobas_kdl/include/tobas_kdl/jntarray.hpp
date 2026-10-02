@@ -39,16 +39,16 @@ public:
 
   inline JntArray operator+(const JntArray& rhs) const;
   inline JntArray operator-(const JntArray& rhs) const;
-  inline JntArray operator*(const double& rhs) const;
-  inline JntArray operator/(const double& rhs) const;
+  inline JntArray operator*(double rhs) const;
+  inline JntArray operator/(double rhs) const;
   inline JntArray& operator+=(const JntArray& rhs);
   inline JntArray& operator-=(const JntArray& rhs);
-  inline JntArray& operator*=(const double& rhs);
-  inline JntArray& operator/=(const double& rhs);
+  inline JntArray& operator*=(double rhs);
+  inline JntArray& operator/=(double rhs);
 
   inline friend JntArray operator+(const JntArray& arg);
   inline friend JntArray operator-(const JntArray& arg);
-  inline friend JntArray operator*(const double& lhs, const JntArray& rhs);
+  inline friend JntArray operator*(double lhs, const JntArray& rhs);
 
   inline friend std::ostream& operator<<(std::ostream& os, const JntArray& arg);
 };
@@ -138,12 +138,12 @@ inline JntArray JntArray::operator-(const JntArray& rhs) const
   return JntArray(data - rhs.data);
 }
 
-inline JntArray JntArray::operator*(const double& rhs) const
+inline JntArray JntArray::operator*(double rhs) const
 {
   return JntArray(data * rhs);
 }
 
-inline JntArray JntArray::operator/(const double& rhs) const
+inline JntArray JntArray::operator/(double rhs) const
 {
   assert(rhs != 0);
   return JntArray(data / rhs);
@@ -163,13 +163,13 @@ inline JntArray& JntArray::operator-=(const JntArray& rhs)
   return *this;
 }
 
-inline JntArray& JntArray::operator*=(const double& rhs)
+inline JntArray& JntArray::operator*=(double rhs)
 {
   data *= rhs;
   return *this;
 }
 
-inline JntArray& JntArray::operator/=(const double& rhs)
+inline JntArray& JntArray::operator/=(double rhs)
 {
   assert(rhs != 0);
   data /= rhs;
@@ -186,7 +186,7 @@ inline JntArray operator-(const JntArray& arg)
   return JntArray(-arg.data);
 }
 
-inline JntArray operator*(const double& lhs, const JntArray& rhs)
+inline JntArray operator*(double lhs, const JntArray& rhs)
 {
   return JntArray(lhs * rhs.data);
 }

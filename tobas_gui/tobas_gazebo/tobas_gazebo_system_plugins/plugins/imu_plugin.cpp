@@ -110,7 +110,7 @@ private:
   ros2::ServiceServerPtr<tobas_msgs::srv::ConfigureImuRpmFilter> config_rpm_filter_ss_;
 
   void getSdfParams(const sdf::ElementConstPtr& sdf);
-  void addNoise(gz::math::Vector3d& acc, gz::math::Vector3d& gyro, const double& dt);
+  void addNoise(gz::math::Vector3d& acc, gz::math::Vector3d& gyro, double dt);
 
   void engineStateCb(const tobas_gazebo_msgs::msg::EngineState::ConstSharedPtr& msg);
 
@@ -294,7 +294,7 @@ void GazeboImuPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
   rotor_link_names_ = getSdfParam<std::vector<std::string>>(sdf, "rotorLinkNames");
 }
 
-void GazeboImuPlugin::addNoise(gz::math::Vector3d& acc, gz::math::Vector3d& gyro, const double& dt)
+void GazeboImuPlugin::addNoise(gz::math::Vector3d& acc, gz::math::Vector3d& gyro, double dt)
 {
   // TODO: Consider acceleration ratio and gyro vibration more carefully.
   constexpr double kVibrationAccVerHorRate = 1.0;

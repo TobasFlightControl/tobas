@@ -369,7 +369,7 @@ std::vector<Eigen::VectorXd> LinearMPC::makeDecays()
   return decays;
 }
 
-Eigen::MatrixXd LinearMPC::makeConstraintMatrix(const std::vector<LinearEquation>& consts, const Eigen::Index& H)
+Eigen::MatrixXd LinearMPC::makeConstraintMatrix(const std::vector<LinearEquation>& consts, Eigen::Index H)
 {
   const auto const_size = consts[0].equationSize();
   const auto var_size = consts[0].variableSize();

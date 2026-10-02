@@ -32,7 +32,7 @@ namespace YAML
 template <>
 struct convert<tobas::gui::sa::FrameType>
 {
-  static Node encode(const tobas::gui::sa::FrameType& rhs);
+  static Node encode(tobas::gui::sa::FrameType rhs);
   static bool decode(const Node& node, tobas::gui::sa::FrameType& rhs);
 };
 }  // namespace YAML

@@ -100,25 +100,25 @@ void TreeTaskSpacePID::setAngularDamping(const Vector& kd)
   kp_.angular = kd;
 }
 
-void TreeTaskSpacePID::setLinearStiffness(const double& kp)
+void TreeTaskSpacePID::setLinearStiffness(double kp)
 {
   assert(kp >= 0.0);
   kp_.linear.fill(kp);
 }
 
-void TreeTaskSpacePID::setAngularStiffness(const double& kp)
+void TreeTaskSpacePID::setAngularStiffness(double kp)
 {
   assert(kp >= 0.0);
   kp_.angular.fill(kp);
 }
 
-void TreeTaskSpacePID::setLinearDamping(const double& kd)
+void TreeTaskSpacePID::setLinearDamping(double kd)
 {
   assert(kd >= 0.0);
   kd_.linear.fill(kd);
 }
 
-void TreeTaskSpacePID::setAngularDamping(const double& kd)
+void TreeTaskSpacePID::setAngularDamping(double kd)
 {
   assert(kd >= 0.0);
   kd_.angular.fill(kd);

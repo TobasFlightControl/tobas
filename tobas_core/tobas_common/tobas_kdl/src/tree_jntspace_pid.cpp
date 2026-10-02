@@ -48,13 +48,13 @@ TreeJntSpacePID::cartToJnt(const JntArray& cur_q, const JntArray& cur_qd, const 
   return cartToJnt(cur_q, cur_qd, tar_q, tar_qd, q_zero_);
 }
 
-void TreeJntSpacePID::setStiffness(const double& kp)
+void TreeJntSpacePID::setStiffness(double kp)
 {
   assert(kp >= 0.0);
   kp_ = kp;
 }
 
-void TreeJntSpacePID::setDamping(const double& kd)
+void TreeJntSpacePID::setDamping(double kd)
 {
   assert(kd >= 0.0);
   kd_ = kd;

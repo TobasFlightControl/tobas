@@ -16,12 +16,7 @@ CycloidGenerator3d::CycloidGenerator3d()
 {
 }
 
-void CycloidGenerator3d::generate(
-  const kdl::Vector& p0,
-  const kdl::Vector& pf,
-  const double& T,
-  const double& h,
-  const double& k)
+void CycloidGenerator3d::generate(const kdl::Vector& p0, const kdl::Vector& pf, double T, double h, double k)
 {
   assert(T > 0.0);
   assert(h > 0.0);
@@ -37,7 +32,7 @@ void CycloidGenerator3d::generate(
   p_diff_ = pf - p0;
 }
 
-void CycloidGenerator3d::get(const double& t, const Rotation& r, Vector& p, Vector& v, Vector& a) const
+void CycloidGenerator3d::get(double t, const Rotation& r, Vector& p, Vector& v, Vector& a) const
 {
   assert(t >= 0.0);
 
@@ -53,24 +48,24 @@ void CycloidGenerator3d::get(const double& t, const Rotation& r, Vector& p, Vect
   }
 }
 
-void CycloidGenerator3d::get(const double& t, Vector& p, Vector& v, Vector& a) const
+void CycloidGenerator3d::get(double t, Vector& p, Vector& v, Vector& a) const
 {
   get(t, r0_, p, v, a);
 }
 
-void CycloidGenerator3d::get(const double& t, Vector& p, Vector& v) const
+void CycloidGenerator3d::get(double t, Vector& p, Vector& v) const
 {
   Vector dummy_vector;
   get(t, r0_, p, v, dummy_vector);
 }
 
-void CycloidGenerator3d::get(const double& t, Vector& p) const
+void CycloidGenerator3d::get(double t, Vector& p) const
 {
   Vector dummy_vector;
   get(t, r0_, p, dummy_vector, dummy_vector);
 }
 
-void CycloidGenerator3d::getPos(const double& t, const kdl::Rotation& r, Vector& p) const
+void CycloidGenerator3d::getPos(double t, const kdl::Rotation& r, Vector& p) const
 {
   const auto theta = computeTheta(t);
   const auto tmp = (theta - std::sin(theta)) / M_2PI;
@@ -82,7 +77,7 @@ void CycloidGenerator3d::getPos(const double& t, const kdl::Rotation& r, Vector&
   p = r * p;
 }
 
-void CycloidGenerator3d::getVel(const double& t, const kdl::Rotation& r, Vector& v) const
+void CycloidGenerator3d::getVel(double t, const kdl::Rotation& r, Vector& v) const
 {
   const auto theta = computeTheta(t);
   const auto tmp = (1 - std::cos(theta)) / T_;
@@ -94,7 +89,7 @@ void CycloidGenerator3d::getVel(const double& t, const kdl::Rotation& r, Vector&
   v = r * v;
 }
 
-void CycloidGenerator3d::getAcc(const double& t, const kdl::Rotation& r, Vector& a) const
+void CycloidGenerator3d::getAcc(double t, const kdl::Rotation& r, Vector& a) const
 {
   const auto theta = computeTheta(t);
   const auto tmp = M_2PI / TT_ * std::sin(theta);
@@ -106,7 +101,7 @@ void CycloidGenerator3d::getAcc(const double& t, const kdl::Rotation& r, Vector&
   a = r * a;
 }
 
-double CycloidGenerator3d::computeTheta(const double& t) const
+double CycloidGenerator3d::computeTheta(double t) const
 {
   assert(t >= 0.0);
   return M_2PI * t / T_;

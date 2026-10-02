@@ -30,7 +30,7 @@ protected:
 
   std::map<std::string, bool> rotor_alive_;
 
-  static inline double thrustDeadband(const double& thrust);
+  static inline double thrustDeadband(double thrust);
   static inline Eigen::VectorXd thrustDeadband(const Eigen::VectorXd& thrusts);
 
 private:
@@ -42,7 +42,7 @@ inline bool MixerI::isInitialized() const
   return rotor_alive_.size() > 0;
 }
 
-inline double MixerI::thrustDeadband(const double& thrust)
+inline double MixerI::thrustDeadband(double thrust)
 {
   return std::abs(thrust) > kZeroThrustThresh ? thrust : 0.0;
 }

@@ -50,7 +50,7 @@ void TrimConditions::updateInternalDataStructures()
   assert(b_ > 0.0);
 }
 
-int TrimConditions::update(double V, const double& rho, const kdl::JntArray& q)
+int TrimConditions::update(double V, double rho, const kdl::JntArray& q)
 {
   assert(V > 0);
   assert(rho > 0);
@@ -129,7 +129,7 @@ int TrimConditions::update(double V, const double& rho, const kdl::JntArray& q)
   return error_code_;
 }
 
-st::Range<double> TrimConditions::speedLimit(const double& rho) const
+st::Range<double> TrimConditions::speedLimit(double rho) const
 {
   assert(rho > 0);
 
@@ -148,7 +148,7 @@ st::Range<double> TrimConditions::speedLimit(const double& rho) const
   return st::Range<double>(V_min, V_max);
 }
 
-double TrimConditions::takeOffSpeed(const double& rho) const
+double TrimConditions::takeOffSpeed(double rho) const
 {
   assert(rho > 0);
 

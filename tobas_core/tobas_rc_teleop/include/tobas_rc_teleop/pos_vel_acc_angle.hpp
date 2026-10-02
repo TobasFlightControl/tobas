@@ -60,18 +60,18 @@ private:
     const kdl::Vector& acc);
   void publishAngle(const builtin_interfaces::msg::Time& stamp, double roll, double pitch, double yaw);
 
-  void maxHorizontalVelocityCb(const double& p);
-  void maxHorizontalJerkCb(const double& p);
-  void maxVerticalVelocityCb(const double& p);
-  void maxVerticalJerkCb(const double& p);
-  void maxAttitudeCb(const double& p);
-  void maxAttitudeRateCb(const double& p);
-  void maxHeadingRateCb(const double& p);
-  void maxPositionErrorDown(const double& p);
-  void horizontalVelocityExpoCb(const double& p);
-  void verticalVelocityExpoCb(const double& p);
-  void attitudeExpoCb(const double& p);
-  void headingExpoCb(const double& p);
+  void maxHorizontalVelocityCb(double p);
+  void maxHorizontalJerkCb(double p);
+  void maxVerticalVelocityCb(double p);
+  void maxVerticalJerkCb(double p);
+  void maxAttitudeCb(double p);
+  void maxAttitudeRateCb(double p);
+  void maxHeadingRateCb(double p);
+  void maxPositionErrorDown(double p);
+  void horizontalVelocityExpoCb(double p);
+  void verticalVelocityExpoCb(double p);
+  void attitudeExpoCb(double p);
+  void headingExpoCb(double p);
 };
 }  // namespace rc
 }  // namespace tobas

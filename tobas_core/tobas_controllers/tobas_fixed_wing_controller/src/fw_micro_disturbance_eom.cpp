@@ -38,7 +38,7 @@ void MicroDisturbanceEoM::updateInternalDataStructures()
   setInputLimits();
 }
 
-int MicroDisturbanceEoM::update(const double& V, const double& rho, const kdl::JntArray& q)
+int MicroDisturbanceEoM::update(double V, double rho, const kdl::JntArray& q)
 {
   assert(V > 0.0);
   assert(rho > 0.0);

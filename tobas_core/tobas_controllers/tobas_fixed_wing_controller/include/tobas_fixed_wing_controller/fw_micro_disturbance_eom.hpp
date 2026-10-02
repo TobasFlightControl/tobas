@@ -43,7 +43,7 @@ public:
    * @param rho Air density [kg/m^3].
    * @param q Movable joint angles [rad].
    */
-  int update(const double& V, const double& rho, const kdl::JntArray& q);
+  int update(double V, double rho, const kdl::JntArray& q);
 
   inline const TrimConditions& trimCondition() const;
   inline const StabilityDerivativesCG& stabilityDerivativesCG() const;
@@ -120,15 +120,15 @@ public:
   inline double u_thrust() const;
 
   /** Z_delta_bar (2.2-37) */
-  inline const double& alpha_delta(const size_t& cs_idx) const;
+  inline const double& alpha_delta(size_t cs_idx) const;
   /** Y_delta_bar (3.2-20) */
-  inline const double& beta_delta(const size_t& cs_idx) const;
+  inline const double& beta_delta(size_t cs_idx) const;
   /** L_delta_bar (3.2-21) */
-  inline const double& p_delta(const size_t& cs_idx) const;
+  inline const double& p_delta(size_t cs_idx) const;
   /** M_delta_bar (2.2-38) */
-  inline const double& q_delta(const size_t& cs_idx) const;
+  inline const double& q_delta(size_t cs_idx) const;
   /** N_delta_bar (3.2.22) */
-  inline const double& r_delta(const size_t& cs_idx) const;
+  inline const double& r_delta(size_t cs_idx) const;
 
 private:
   const Drone& drone_;
@@ -378,27 +378,27 @@ inline double MicroDisturbanceEoM::u_thrust() const
   return 1.0 / mass_;
 }
 
-inline const double& MicroDisturbanceEoM::alpha_delta(const size_t& cs_idx) const
+inline const double& MicroDisturbanceEoM::alpha_delta(size_t cs_idx) const
 {
   return B_(kStateIdx_alpha, drone_.prop->numRotors() + cs_idx);
 }
 
-inline const double& MicroDisturbanceEoM::beta_delta(const size_t& cs_idx) const
+inline const double& MicroDisturbanceEoM::beta_delta(size_t cs_idx) const
 {
   return B_(kStateIdx_beta, drone_.prop->numRotors() + cs_idx);
 }
 
-inline const double& MicroDisturbanceEoM::p_delta(const size_t& cs_idx) const
+inline const double& MicroDisturbanceEoM::p_delta(size_t cs_idx) const
 {
   return B_(kStateIdx_p, drone_.prop->numRotors() + cs_idx);
 }
 
-inline const double& MicroDisturbanceEoM::q_delta(const size_t& cs_idx) const
+inline const double& MicroDisturbanceEoM::q_delta(size_t cs_idx) const
 {
   return B_(kStateIdx_q, drone_.prop->numRotors() + cs_idx);
 }
 
-inline const double& MicroDisturbanceEoM::r_delta(const size_t& cs_idx) const
+inline const double& MicroDisturbanceEoM::r_delta(size_t cs_idx) const
 {
   return B_(kStateIdx_r, drone_.prop->numRotors() + cs_idx);
 }

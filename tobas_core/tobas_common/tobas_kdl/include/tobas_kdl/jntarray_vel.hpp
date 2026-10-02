@@ -27,9 +27,9 @@ public:
 
   inline JntArrayVel operator+(const JntArrayVel& rhs) const;
   inline JntArrayVel operator-(const JntArrayVel& rhs) const;
-  inline JntArrayVel operator*(const double& rhs) const;
+  inline JntArrayVel operator*(double rhs) const;
   inline JntArrayVel operator*(const doubleVel& rhs) const;
-  inline JntArrayVel operator/(const double& rhs) const;
+  inline JntArrayVel operator/(double rhs) const;
   inline JntArrayVel operator/(const doubleVel& rhs) const;
 };
 
@@ -72,7 +72,7 @@ inline JntArrayVel JntArrayVel::operator-(const JntArrayVel& rhs) const
   return JntArrayVel(q - rhs.q, qd - rhs.qd);
 }
 
-inline JntArrayVel JntArrayVel::operator*(const double& rhs) const
+inline JntArrayVel JntArrayVel::operator*(double rhs) const
 {
   return JntArrayVel(q * rhs, qd * rhs);
 }
@@ -82,7 +82,7 @@ inline JntArrayVel JntArrayVel::operator*(const doubleVel& rhs) const
   return JntArrayVel(q * rhs.t, qd * rhs.t + q * rhs.grad);
 }
 
-inline JntArrayVel JntArrayVel::operator/(const double& rhs) const
+inline JntArrayVel JntArrayVel::operator/(double rhs) const
 {
   assert(rhs != 0);
   return JntArrayVel(q / rhs, qd / rhs);

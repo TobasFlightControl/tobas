@@ -37,10 +37,10 @@ public:
   void setAngularStiffness(const Vector& kp);
   void setLinearDamping(const Vector& kd);
   void setAngularDamping(const Vector& kd);
-  void setLinearStiffness(const double& kp);
-  void setAngularStiffness(const double& kp);
-  void setLinearDamping(const double& kd);
-  void setAngularDamping(const double& kd);
+  void setLinearStiffness(double kp);
+  void setAngularStiffness(double kp);
+  void setLinearDamping(double kd);
+  void setAngularDamping(double kd);
 
 private:
   TreeFkSolverVel fk_;

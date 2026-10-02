@@ -159,29 +159,28 @@ public:
   inline void fatalThrottle(const char* file, int line, double period, const Args&... args);
 
   template <typename Obj>
-  void
-  addDynamicBoolParam(const std::string& param_name, void (Obj::*fp)(const bool&), Obj* obj, const bool& default_value);
+  void addDynamicBoolParam(const std::string& param_name, void (Obj::*fp)(bool), Obj* obj, bool default_value);
 
   template <typename Obj>
   void addDynamicIntParam(
     const std::string& param_name,
-    void (Obj::*fp)(const long&),
+    void (Obj::*fp)(long),
     Obj* obj,
-    const long& step,
-    const long& default_value,
-    const long& minimum_value,
-    const long& maximum_value,
+    long step,
+    long default_value,
+    long minimum_value,
+    long maximum_value,
     const std::string& prefix = "");
 
   template <typename Obj>
   void addDynamicDoubleParam(
     const std::string& param_name,
-    void (Obj::*fp)(const double&),
+    void (Obj::*fp)(double),
     Obj* obj,
-    const double& step,
-    const long& default_value,
-    const long& minimum_value,
-    const long& maximum_value,
+    double step,
+    long default_value,
+    long minimum_value,
+    long maximum_value,
     const std::string& prefix = "");
 
   template <typename Obj>
@@ -201,9 +200,9 @@ public:
   std::vector<double> getDoubleArrayParam(const std::string& param_name);
   std::vector<std::string> getStringArrayParam(const std::string& param_name);
 
-  bool getBoolParam(const std::string& param_name, const bool& default_value) noexcept;
-  long getIntParam(const std::string& param_name, const long& default_value) noexcept;
-  double getDoubleParam(const std::string& param_name, const double& default_value) noexcept;
+  bool getBoolParam(const std::string& param_name, bool default_value) noexcept;
+  long getIntParam(const std::string& param_name, long default_value) noexcept;
+  double getDoubleParam(const std::string& param_name, double default_value) noexcept;
   std::string getStringParam(const std::string& param_name, const std::string& default_value) noexcept;
   std::vector<bool> getBoolArrayParam(const std::string& param_name, const std::vector<bool>& default_value) noexcept;
   std::vector<uint8_t>
@@ -342,11 +341,7 @@ BaseNode::createWallTimer(std::chrono::duration<RepType, DurType> period, void (
 }
 
 template <typename Obj>
-void BaseNode::addDynamicBoolParam(
-  const std::string& param_name,
-  void (Obj::*fp)(const bool&),
-  Obj* obj,
-  const bool& default_value)
+void BaseNode::addDynamicBoolParam(const std::string& param_name, void (Obj::*fp)(bool), Obj* obj, bool default_value)
 {
   if (has_parameter(param_name)) {
     TOBAS_ERROR("Parameter '", param_name, "' is already declared.");
@@ -380,12 +375,12 @@ void BaseNode::addDynamicBoolParam(
 template <typename Obj>
 void BaseNode::addDynamicIntParam(
   const std::string& param_name,
-  void (Obj::*fp)(const long&),
+  void (Obj::*fp)(long),
   Obj* obj,
-  const long& step,
-  const long& default_value,
-  const long& minimum_value,
-  const long& maximum_value,
+  long step,
+  long default_value,
+  long minimum_value,
+  long maximum_value,
   const std::string& prefix)
 {
   TOBAS_ASSERT(minimum_value <= default_value && default_value <= maximum_value);
@@ -428,12 +423,12 @@ void BaseNode::addDynamicIntParam(
 template <typename Obj>
 void BaseNode::addDynamicDoubleParam(
   const std::string& param_name,
-  void (Obj::*fp)(const double&),
+  void (Obj::*fp)(double),
   Obj* obj,
-  const double& step,
-  const long& default_value,
-  const long& minimum_value,
-  const long& maximum_value,
+  double step,
+  long default_value,
+  long minimum_value,
+  long maximum_value,
   const std::string& prefix)
 {
   TOBAS_ASSERT(minimum_value <= default_value && default_value <= maximum_value);

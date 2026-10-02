@@ -71,34 +71,34 @@ double IceRotorModel::getPitchAngle() const
   return pitch_angle_.getCurrentPosition();
 }
 
-double IceRotorModel::getSpeed(const double& engine_speed) const
+double IceRotorModel::getSpeed(double engine_speed) const
 {
   return engine_speed / gear_ratio_;
 }
 
-double IceRotorModel::getVelocity(const double& engine_speed) const
+double IceRotorModel::getVelocity(double engine_speed) const
 {
   return getSpeed(engine_speed) * direction_;
 }
 
-double IceRotorModel::getThrust(const double& engine_speed) const
+double IceRotorModel::getThrust(double engine_speed) const
 {
   return getMotorConst() * math::sqr(getSpeed(engine_speed));
 }
 
-double IceRotorModel::getTorque(const double& engine_speed) const
+double IceRotorModel::getTorque(double engine_speed) const
 {
   return getMomentConst() * getThrust(engine_speed);
 }
 
-void IceRotorModel::setTargetPitchAngle(const double& tar_pitch)
+void IceRotorModel::setTargetPitchAngle(double tar_pitch)
 {
   pitch_angle_.setTargetPosition(tar_pitch);
 }
 
 void IceRotorModel::applyWrench(
   gz::sim::EntityComponentManager& ecm,
-  const double& engine_speed,
+  double engine_speed,
   const gz::math::Vector3d& wind_vel_W)
 {
   assert(engine_speed >= 0.0);
@@ -129,13 +129,13 @@ void IceRotorModel::applyWrench(
   parent_link_.AddWorldWrench(ecm, gz::math::Vector3d::Zero, coriolis_moment_W + drag_moment_W);  // No inertial force.
 }
 
-void IceRotorModel::updateJointPosition(gz::sim::EntityComponentManager& ecm, const double& engine_pos)
+void IceRotorModel::updateJointPosition(gz::sim::EntityComponentManager& ecm, double engine_pos)
 {
   const auto pos = engine_pos / gear_ratio_ * direction_;
   joint_.ResetPosition(ecm, { pos / kRotorSpeedSlowdownSim });
 }
 
-void IceRotorModel::step(const double& dt)
+void IceRotorModel::step(double dt)
 {
   pitch_angle_.step(dt);
 }

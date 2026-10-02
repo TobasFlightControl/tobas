@@ -110,7 +110,7 @@ void ControllerWidget::load(const YAML::Node& node)
   }
 }
 
-void ControllerWidget::setFrameType(const FrameType& type)
+void ControllerWidget::setFrameType(FrameType type)
 {
   frame_type_ = type;
 
@@ -182,7 +182,7 @@ const BaseControllerWidget* ControllerWidget::selected() const
   return qt::qConstPointerCast<BaseControllerWidget>(stack_->currentWidget());
 }
 
-void ControllerWidget::showCtrlWidgetWithFrameType(const FrameType& type)
+void ControllerWidget::showCtrlWidgetWithFrameType(FrameType type)
 {
   for (int i = 0; i < stack_->count(); ++i) {
     if (widget(i)->frameType() == type) {

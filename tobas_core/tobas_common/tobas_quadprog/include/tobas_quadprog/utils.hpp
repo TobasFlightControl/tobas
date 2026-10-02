@@ -22,6 +22,6 @@ void matIneqFromRange(
   const Eigen::VectorXd& ub,
   Eigen::MatrixXd& A,
   Eigen::VectorXd& b,
-  const double inf = 1E+12);
+  double inf = 1E+12);
 }  // namespace quadprog
 }  // namespace tobas

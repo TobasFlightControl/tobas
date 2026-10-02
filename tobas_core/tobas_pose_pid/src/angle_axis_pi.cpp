@@ -11,7 +11,7 @@ AngleAxisPI::AngleAxisPI()
 {
 }
 
-kdl::Vector AngleAxisPI::update(const kdl::Rotation& cur_rot, const kdl::Rotation& tar_rot, const double& dt)
+kdl::Vector AngleAxisPI::update(const kdl::Rotation& cur_rot, const kdl::Rotation& tar_rot, double dt)
 {
   // Compute error in angle-axis form wrt. the local frame.
   const auto ep = (cur_rot.inverse() * tar_rot).getRot();

@@ -30,7 +30,7 @@ public:
    * @param q Joint angles [rad].
    * @return Error Error code
    */
-  int update(double V, const double& rho, const kdl::JntArray& q);
+  int update(double V, double rho, const kdl::JntArray& q);
 
   inline const StabilityDerivativesCG& stabilityDerivativesCG() const;
 
@@ -52,8 +52,8 @@ public:
   /** Speed in the X-axis direction [m/s]. */
   inline const double& u() const;
 
-  inline double minimumSpeed(const double& rho) const;
-  inline double maximumSpeed(const double& rho) const;
+  inline double minimumSpeed(double rho) const;
+  inline double maximumSpeed(double rho) const;
 
   /**
    * Range of velocity magnitudes that avoid stall.
@@ -63,10 +63,10 @@ public:
    *
    * @see Blue book, p.85, (2.9-47, 2.9-49)
    */
-  st::Range<double> speedLimit(const double& rho) const;
+  st::Range<double> speedLimit(double rho) const;
 
   /** Velocity at which enough lift to raise the aircraft is generated even when the angle of attack is zero. */
-  double takeOffSpeed(const double& rho) const;
+  double takeOffSpeed(double rho) const;
 
 private:
   const Drone& drone_;
@@ -133,12 +133,12 @@ inline const double& TrimConditions::u() const
   return u_;
 }
 
-inline double TrimConditions::minimumSpeed(const double& rho) const
+inline double TrimConditions::minimumSpeed(double rho) const
 {
   return speedLimit(rho).lower;
 }
 
-inline double TrimConditions::maximumSpeed(const double& rho) const
+inline double TrimConditions::maximumSpeed(double rho) const
 {
   return speedLimit(rho).upper;
 }

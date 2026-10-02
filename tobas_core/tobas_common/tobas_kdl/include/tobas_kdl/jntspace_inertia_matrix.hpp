@@ -33,8 +33,8 @@ public:
   Add(const JntSpaceInertiaMatrix& src1, const JntSpaceInertiaMatrix& src2, JntSpaceInertiaMatrix& dest);
   inline friend void
   Subtract(const JntSpaceInertiaMatrix& src1, const JntSpaceInertiaMatrix& src2, JntSpaceInertiaMatrix& dest);
-  inline friend void Multiply(const JntSpaceInertiaMatrix& src, const double& factor, JntSpaceInertiaMatrix& dest);
-  inline friend void Divide(const JntSpaceInertiaMatrix& src, const double& factor, JntSpaceInertiaMatrix& dest);
+  inline friend void Multiply(const JntSpaceInertiaMatrix& src, double factor, JntSpaceInertiaMatrix& dest);
+  inline friend void Divide(const JntSpaceInertiaMatrix& src, double factor, JntSpaceInertiaMatrix& dest);
   inline friend void Multiply(const JntSpaceInertiaMatrix& src, const JntArray& vec, JntArray& dest);
 };
 
@@ -82,12 +82,12 @@ inline void Subtract(const JntSpaceInertiaMatrix& src1, const JntSpaceInertiaMat
   dest.data = src1.data - src2.data;
 }
 
-inline void Multiply(const JntSpaceInertiaMatrix& src, const double& factor, JntSpaceInertiaMatrix& dest)
+inline void Multiply(const JntSpaceInertiaMatrix& src, double factor, JntSpaceInertiaMatrix& dest)
 {
   dest.data = factor * src.data;
 }
 
-inline void Divide(const JntSpaceInertiaMatrix& src, const double& factor, JntSpaceInertiaMatrix& dest)
+inline void Divide(const JntSpaceInertiaMatrix& src, double factor, JntSpaceInertiaMatrix& dest)
 {
   dest.data = src.data / factor;
 }

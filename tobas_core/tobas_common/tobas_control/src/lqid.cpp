@@ -11,7 +11,7 @@ namespace tobas
 {
 namespace ctrl
 {
-LQID::LQID(const Eigen::Index& state_size, const Eigen::Index& input_size, const Eigen::Index& integrate_size)
+LQID::LQID(Eigen::Index state_size, Eigen::Index input_size, Eigen::Index integrate_size)
   : dynamics(state_size, input_size)
   , C(integrate_size, state_size)
   , state_weight(state_size)
@@ -60,7 +60,7 @@ LQID::LQID(const Eigen::Index& state_size, const Eigen::Index& input_size, const
   R_tilde_.setZero();
 }
 
-std::expected<Eigen::VectorXd, std::string> LQID::solve(const double& dt, const bool& update_gain)
+std::expected<Eigen::VectorXd, std::string> LQID::solve(double dt, bool update_gain)
 {
   assert(dt >= 0);
 

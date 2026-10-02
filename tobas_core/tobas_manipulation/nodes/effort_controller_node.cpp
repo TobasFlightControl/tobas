@@ -78,12 +78,12 @@ private:
     const tobas_msgs::LinkStateArray& tar_ls,
     tobas_msgs::msg::JointCommandArray& efforts_msg);
 
-  void jointStiffnessCb(const long& p);
-  void jointDamping(const long& p);
-  void linearStiffnessCb(const long& p);
-  void angularStiffnessCb(const long& p);
-  void linearDampingCb(const long& p);
-  void angularDampingCb(const long& p);
+  void jointStiffnessCb(long p);
+  void jointDamping(long p);
+  void linearStiffnessCb(long p);
+  void angularStiffnessCb(long p);
+  void linearDampingCb(long p);
+  void angularDampingCb(long p);
 
   void droneCb(const Drone::ConstSharedPtr& drone);
   void treeCb(const kdl::Tree::ConstSharedPtr& tree);
@@ -238,32 +238,32 @@ bool EffortControllerNode::taskSpaceControl(
   return true;
 }
 
-void EffortControllerNode::jointStiffnessCb(const long& p)
+void EffortControllerNode::jointStiffnessCb(long p)
 {
   pid_js_.setStiffness(p);
 }
 
-void EffortControllerNode::jointDamping(const long& p)
+void EffortControllerNode::jointDamping(long p)
 {
   pid_js_.setDamping(p);
 }
 
-void EffortControllerNode::linearStiffnessCb(const long& p)
+void EffortControllerNode::linearStiffnessCb(long p)
 {
   pid_ts_.setLinearStiffness(p);
 }
 
-void EffortControllerNode::angularStiffnessCb(const long& p)
+void EffortControllerNode::angularStiffnessCb(long p)
 {
   pid_ts_.setAngularStiffness(p);
 }
 
-void EffortControllerNode::linearDampingCb(const long& p)
+void EffortControllerNode::linearDampingCb(long p)
 {
   pid_ts_.setLinearDamping(p);
 }
 
-void EffortControllerNode::angularDampingCb(const long& p)
+void EffortControllerNode::angularDampingCb(long p)
 {
   pid_ts_.setAngularDamping(p);
 }

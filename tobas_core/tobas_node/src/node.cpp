@@ -105,7 +105,7 @@ std::vector<std::string> BaseNode::getStringArrayParam(const std::string& param_
   }
 }
 
-bool BaseNode::getBoolParam(const std::string& param_name, const bool& dflt) noexcept
+bool BaseNode::getBoolParam(const std::string& param_name, bool dflt) noexcept
 {
   if (has_parameter(param_name)) {
     return get_parameter(param_name).as_bool();
@@ -115,7 +115,7 @@ bool BaseNode::getBoolParam(const std::string& param_name, const bool& dflt) noe
   }
 }
 
-long BaseNode::getIntParam(const std::string& param_name, const long& dflt) noexcept
+long BaseNode::getIntParam(const std::string& param_name, long dflt) noexcept
 {
   if (has_parameter(param_name)) {
     return get_parameter(param_name).as_int();
@@ -125,7 +125,7 @@ long BaseNode::getIntParam(const std::string& param_name, const long& dflt) noex
   }
 }
 
-double BaseNode::getDoubleParam(const std::string& param_name, const double& dflt) noexcept
+double BaseNode::getDoubleParam(const std::string& param_name, double dflt) noexcept
 {
   if (has_parameter(param_name)) {
     return get_parameter(param_name).as_double();

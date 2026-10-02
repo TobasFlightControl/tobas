@@ -7,7 +7,7 @@ namespace geometry_msgs
 {
 namespace msg
 {
-Vector3 operator*(const double& lhs, const Vector3& rhs)
+Vector3 operator*(double lhs, const Vector3& rhs)
 {
   Vector3 res;
   res.x = lhs * rhs.x;
@@ -16,7 +16,7 @@ Vector3 operator*(const double& lhs, const Vector3& rhs)
   return res;
 }
 
-Vector3 operator*(const Vector3& lhs, const double& rhs)
+Vector3 operator*(const Vector3& lhs, double rhs)
 {
   Vector3 res;
   res.x = lhs.x * rhs;
@@ -25,7 +25,7 @@ Vector3 operator*(const Vector3& lhs, const double& rhs)
   return res;
 }
 
-Vector3 operator/(const double& lhs, const Vector3& rhs)
+Vector3 operator/(double lhs, const Vector3& rhs)
 {
   Vector3 res;
   res.x = lhs / rhs.x;
@@ -34,7 +34,7 @@ Vector3 operator/(const double& lhs, const Vector3& rhs)
   return res;
 }
 
-Vector3 operator/(const Vector3& lhs, const double& rhs)
+Vector3 operator/(const Vector3& lhs, double rhs)
 {
   Vector3 res;
   res.x = lhs.x / rhs;

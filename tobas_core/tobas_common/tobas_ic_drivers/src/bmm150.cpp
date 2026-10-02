@@ -217,7 +217,7 @@ bool BMM150::readTrimRegisters()
   return true;
 }
 
-int16_t BMM150::compensateX(const int16_t& mag_data_x, const uint16_t& data_r_hall)
+int16_t BMM150::compensateX(int16_t mag_data_x, uint16_t data_r_hall)
 {
   uint16_t process_comp_x0 = 0;
 
@@ -259,7 +259,7 @@ int16_t BMM150::compensateX(const int16_t& mag_data_x, const uint16_t& data_r_ha
   }
 }
 
-int16_t BMM150::compensateY(const int16_t& mag_data_y, const uint16_t& data_r_hall)
+int16_t BMM150::compensateY(int16_t mag_data_y, uint16_t data_r_hall)
 {
   uint16_t process_comp_y0 = 0;
 
@@ -300,7 +300,7 @@ int16_t BMM150::compensateY(const int16_t& mag_data_y, const uint16_t& data_r_ha
   }
 }
 
-int16_t BMM150::compensateZ(const int16_t& mag_data_z, const uint16_t& data_r_hall)
+int16_t BMM150::compensateZ(int16_t mag_data_z, uint16_t data_r_hall)
 {
   if (mag_data_z != kZaxisHallOverflowAdcval) {
     if ((trim_data_.dig_z2 != 0) && (trim_data_.dig_z1 != 0) && (data_r_hall != 0) && (trim_data_.dig_xyz1 != 0)) {
