@@ -4,6 +4,8 @@
 #pragma once
 
 #include <array>
+#include <expected>
+#include <string>
 
 #include <tobas_algorithm/crc.hpp>
 #include <tobas_linux/spi_dev.hpp>
@@ -66,13 +68,13 @@ public:
   explicit DShot() noexcept;
 
   bool initialize() noexcept;
-  bool transfer() noexcept;
+  std::expected<void, std::string> transfer() noexcept;
 
   /** Set the DShot throttle directory. */
   void setThrottle(size_t ch, uint16_t throttle) noexcept;
   /** Set the target motor rotating speed [rad/s]. */
   void setTargetSpeed(size_t ch, double rps) noexcept;
-  /** Set the KV value [rad/s/V]. */
+  /** Set the Kv value [rad/s/V]. */
   void setKv(size_t ch, double kv_si) noexcept;
   /** Set the internal resistance [Ω]. */
   void setInternalResistance(size_t ch, double resistance) noexcept;

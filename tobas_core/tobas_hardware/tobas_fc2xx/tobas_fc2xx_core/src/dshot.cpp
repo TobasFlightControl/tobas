@@ -4,8 +4,10 @@
 #include "tobas_fc2xx_core/dshot.hpp"
 
 #include <cassert>
+#include <format>
 #include <iostream>
 
+#include <tobas_linux/error.hpp>
 #include <tobas_math/definitions.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 
@@ -46,25 +48,24 @@ bool DShot::initialize() noexcept
   return true;
 }
 
-bool DShot::transfer() noexcept
+std::expected<void, std::string> DShot::transfer() noexcept
 {
   // Compute CRC.
   tx_buf_[kChannelSize] = crc_.compute((uint8_t*)tx_buf_, sizeof(uint32_t) * kChannelSize);
 
   // Transfer.
   if (!spi_.transfer(sizeof(tx_buf_))) {
-    return false;
+    return std::unexpected("SPI transfer failed: " + linux::strError());
   }
 
   // Check CRC.
   const auto cs = rx_buf_[kChannelSize];
   const auto cr = crc_.compute((uint8_t*)rx_buf_, sizeof(uint32_t) * kChannelSize);
   if (cs != cr) {
-    std::cerr << "CRC failed: " << std::hex << std::uppercase << cs << " != " << cr << std::dec << std::endl;
-    return false;
+    return std::unexpected(std::format("CRC mismatch: received 0x{:08X}, computed 0x{:08X}.", cs, cr));
   }
 
-  return true;
+  return {};
 }
 
 void DShot::setThrottle(size_t ch, uint16_t throttle) noexcept

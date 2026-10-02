@@ -38,43 +38,43 @@ int main(int argc, char** argv)
 
   // Set parameters.
   dshot.setKv(channel, tobas::st::rpm2rps(kv));
-  if (!dshot.transfer()) {
-    cerr << "Failed to set Kv." << endl;
+  if (const auto result = dshot.transfer(); !result) {
+    cerr << "Failed to set Kv: " << result.error() << endl;
     return EXIT_FAILURE;
   }
   this_thread::sleep_for(1ms);
 
   dshot.setInternalResistance(channel, 0.25);
-  if (!dshot.transfer()) {
-    cerr << "Failed to set internal resistance." << endl;
+  if (const auto result = dshot.transfer(); !result) {
+    cerr << "Failed to set internal resistance: " << result.error() << endl;
     return EXIT_FAILURE;
   }
   this_thread::sleep_for(1ms);
 
   dshot.setPropellerDiameter(channel, tobas::st::inch2meter(d));
-  if (!dshot.transfer()) {
-    cerr << "Failed to set propeller diameter." << endl;
+  if (const auto result = dshot.transfer(); !result) {
+    cerr << "Failed to set propeller diameter: " << result.error() << endl;
     return EXIT_FAILURE;
   }
   this_thread::sleep_for(1ms);
 
   dshot.setMomentConstant(channel, 2e-4);
-  if (!dshot.transfer()) {
-    cerr << "Failed to set moment constant." << endl;
+  if (const auto result = dshot.transfer(); !result) {
+    cerr << "Failed to set moment constant: " << result.error() << endl;
     return EXIT_FAILURE;
   }
   this_thread::sleep_for(1ms);
 
   dshot.setNumPoles(channel, poles);
-  if (!dshot.transfer()) {
-    cerr << "Failed to set the number of poles." << endl;
+  if (const auto result = dshot.transfer(); !result) {
+    cerr << "Failed to set the number of poles: " << result.error() << endl;
     return EXIT_FAILURE;
   }
   this_thread::sleep_for(1ms);
 
   dshot.setRpmControlGain(channel, gain);
-  if (!dshot.transfer()) {
-    cerr << "Failed to set the speed control gain." << endl;
+  if (const auto result = dshot.transfer(); !result) {
+    cerr << "Failed to set the speed control gain: " << result.error() << endl;
     return EXIT_FAILURE;
   }
   this_thread::sleep_for(1ms);
@@ -82,8 +82,8 @@ int main(int argc, char** argv)
   // Command target speed.
   dshot.setTargetSpeed(channel, tobas::st::rpm2rps(tar_rpm));
   while (true) {
-    if (!dshot.transfer()) {
-      cerr << "Failed to set target speed." << endl;
+    if (const auto result = dshot.transfer(); !result) {
+      cerr << "Failed to set target speed: " << result.error() << endl;
       continue;
     }
     dshot.printCurrentState(channel);

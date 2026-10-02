@@ -25,8 +25,8 @@ int main()
 
   // Command throttles.
   while (true) {
-    if (!dshot.transfer()) {
-      cerr << "Failed to command DShot throttles." << endl;
+    if (const auto result = dshot.transfer(); !result) {
+      cerr << "Failed to command DShot throttles: " << result.error() << endl;
       continue;
     }
     dshot.printCurrentStates();
