@@ -3,6 +3,9 @@
 
 #pragma once
 
+#include <expected>
+#include <string>
+
 #include "./state_spaces.hpp"
 
 namespace tobas
@@ -36,8 +39,8 @@ public:
 
   explicit LQID(const Eigen::Index& state_size, const Eigen::Index& input_size, const Eigen::Index& integrate_size);
 
-  Eigen::VectorXd solve(const double& dt, const bool& update_gain = true);
-  void updateGain();
+  std::expected<Eigen::VectorXd, std::string> solve(const double& dt, const bool& update_gain = true);
+  std::expected<void, std::string> updateGainMatrix();
 
   inline const Eigen::VectorXd& getIntegralError() const;
 
@@ -61,7 +64,6 @@ private:
   Eigen::MatrixXd Q_tilde_;
   Eigen::MatrixXd R_tilde_;
 
-  Eigen::MatrixXd P_inf_;
   Eigen::MatrixXd K_;
 };
 

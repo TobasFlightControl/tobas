@@ -3,6 +3,9 @@
 
 #pragma once
 
+#include <expected>
+#include <string>
+
 #include <eigen3/Eigen/Core>
 
 namespace tobas
@@ -10,12 +13,12 @@ namespace tobas
 namespace ctrl
 {
 /** Solve the discrete-time algebraic Riccati equation. */
-Eigen::MatrixXd dare(
+std::expected<Eigen::MatrixXd, std::string> dare(
   const Eigen::MatrixXd& A,
   const Eigen::MatrixXd& B,
   const Eigen::MatrixXd& Q,
   const Eigen::MatrixXd& R,
   const double& tol = 1e-3,
-  size_t max_iter = 10000);
+  size_t max_iter = 10000) noexcept;
 }  // namespace ctrl
 }  // namespace tobas

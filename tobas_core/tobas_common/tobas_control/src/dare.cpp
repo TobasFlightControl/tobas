@@ -13,13 +13,13 @@ namespace tobas
 {
 namespace ctrl
 {
-Eigen::MatrixXd dare(
+std::expected<Eigen::MatrixXd, std::string> dare(
   const Eigen::MatrixXd& A,
   const Eigen::MatrixXd& B,
   const Eigen::MatrixXd& Q,
   const Eigen::MatrixXd& R,
   const double& tol,
-  size_t max_iter)
+  size_t max_iter) noexcept
 {
   const auto n = A.rows();
   [[maybe_unused]] const auto l = B.cols();
@@ -51,7 +51,7 @@ Eigen::MatrixXd dare(
     X_next = I_GBt * X_mid.selfadjointView<Eigen::Lower>();
 
     if (iter++ > max_iter) {
-      throw std::runtime_error("DARE failed to converge in " + std::to_string(max_iter) + " iterations.");
+      return std::unexpected("DARE failed to converge in " + std::to_string(max_iter) + " iterations.");
     }
   }
 

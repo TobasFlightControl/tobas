@@ -496,8 +496,12 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
   updateSetStateVector();
 
   // Compute the optimal control input.
-  const Eigen::VectorXd du = lqd_.solve(dt);
-  const Eigen::VectorXd u = eom_.trimInput() + du;
+  const auto du = lqd_.solve(dt);
+  if (!du) {
+    TOBAS_FATAL("Failed to solve LQD: ", du.error());
+    return;
+  }
+  const Eigen::VectorXd u = eom_.trimInput() + *du;
 
   const Eigen::VectorXd thrusts = u.head(drone_.prop->numRotors());
   const Eigen::VectorXd deflections = u.tail(drone_.fixed_wing->numControlSurfaces());

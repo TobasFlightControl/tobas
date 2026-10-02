@@ -3,6 +3,9 @@
 
 #pragma once
 
+#include <expected>
+#include <string>
+
 #include "./state_spaces.hpp"
 
 namespace tobas
@@ -26,14 +29,13 @@ public:
 
   explicit LQR();
 
-  Eigen::VectorXd solve(const bool& update_gain = true);
+  std::expected<Eigen::VectorXd, std::string> solve(const bool& update_gain = true) noexcept;
   void resize(const Eigen::Index& state_size, const Eigen::Index& input_size);
-  void updateGain();
+  std::expected<void, std::string> updateGainMatrix() noexcept;
 
   friend std::ostream& operator<<(std::ostream& os, const LQR& arg);
 
 private:
-  Eigen::MatrixXd P_inf_;
   Eigen::MatrixXd K_;
 
   void checkProblemValidity();

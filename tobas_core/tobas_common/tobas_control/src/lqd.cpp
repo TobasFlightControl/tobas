@@ -15,13 +15,15 @@ LQD::LQD()
 {
 }
 
-Eigen::VectorXd LQD::solve(const double& dt, const bool& update_gain)
+std::expected<Eigen::VectorXd, std::string> LQD::solve(const double& dt, const bool& update_gain)
 {
   assert(dt >= 0);
   checkProblemValidity();
 
   if (update_gain) {
-    updateGain();
+    if (const auto result = updateGainMatrix(); !result) {
+      return std::unexpected("Failed to update gain matrix: " + result.error());
+    }
   }
 
   // Scaling.
@@ -58,7 +60,7 @@ void LQD::resize(const Eigen::Index& state_size, const Eigen::Index& input_size)
   last_input.conservativeResize(input_size);
 }
 
-void LQD::updateGain()
+std::expected<void, std::string> LQD::updateGainMatrix()
 {
   const auto x_size = current_state.rows();
   const auto u_size = input_weight.rows();
@@ -82,10 +84,15 @@ void LQD::updateGain()
   const Eigen::MatrixXd R_tilde = input_rate_weight.asDiagonal();
 
   // Solve CARE.
-  P_inf_ = care_ArimotoPotter(A_tilde, B_tilde, Q_tilde, R_tilde);
+  const auto P_inf = care_ArimotoPotter(A_tilde, B_tilde, Q_tilde, R_tilde);
+  if (!P_inf) {
+    return std::unexpected("Failed to solve CARE: " + P_inf.error());
+  }
 
   // Compute the LQR solution.
-  K_ = R_tilde.diagonal().cwiseInverse().asDiagonal() * B_tilde.transpose() * P_inf_;
+  K_ = R_tilde.diagonal().cwiseInverse().asDiagonal() * B_tilde.transpose() * *P_inf;
+
+  return {};
 }
 
 void LQD::checkProblemValidity()
@@ -124,7 +131,6 @@ std::ostream& operator<<(std::ostream& os, const LQD& arg)
   os << "Current state:\n" << arg.current_state << std::endl;
   os << "Target state:\n" << arg.target_state << std::endl;
   os << "State error:\n" << arg.target_state - arg.current_state << std::endl;
-  os << "Covariance matrix:\n" << arg.P_inf_ << std::endl;
   os << "Gain:\n" << arg.K_ << std::endl;
 
   return os;

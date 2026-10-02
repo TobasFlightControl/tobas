@@ -13,8 +13,11 @@ namespace tobas
 {
 namespace ctrl
 {
-Eigen::MatrixXd
-care_ArimotoPotter(const Eigen::MatrixXd& A, const Eigen::MatrixXd& B, const Eigen::MatrixXd& Q, const Eigen::MatrixXd& R)
+std::expected<Eigen::MatrixXd, std::string> care_ArimotoPotter(
+  const Eigen::MatrixXd& A,
+  const Eigen::MatrixXd& B,
+  const Eigen::MatrixXd& Q,
+  const Eigen::MatrixXd& R) noexcept
 {
   const auto n = A.rows();
   [[maybe_unused]] const auto l = B.cols();
@@ -45,7 +48,7 @@ care_ArimotoPotter(const Eigen::MatrixXd& A, const Eigen::MatrixXd& B, const Eig
   // Get eigenvalues and eigenvectors.
   const Eigen::EigenSolver<Eigen::MatrixXd> es(H);
   if (es.info() != Eigen::Success) {
-    throw std::runtime_error("Failed to get eigenvalues.");
+    return std::unexpected("Failed to get eigenvalues.");
   }
   const auto eigvals = es.eigenvalues().real().eval();
   const auto eigvecs = es.eigenvectors().eval();  // Eigenvectors require the imaginary parts too.
@@ -54,7 +57,7 @@ care_ArimotoPotter(const Eigen::MatrixXd& A, const Eigen::MatrixXd& B, const Eig
   // Use a small margin because comparing with 0 can catch uninitialized values.
   const auto num_stable_eigvals = (eigvals.array() < -std::numeric_limits<double>::epsilon()).count();
   if (num_stable_eigvals != n) {
-    throw std::runtime_error("The number of stable eigenvalues does not match the order of the system.");
+    return std::unexpected("The number of stable eigenvalues does not match the order of the system.");
   }
 
   // Extract eigenvectors corresponding to stable eigenvalues.
@@ -71,7 +74,7 @@ care_ArimotoPotter(const Eigen::MatrixXd& A, const Eigen::MatrixXd& B, const Eig
   // Compute P with stable eigen vector matrix.
   const auto Y = eigvecs_stable.block(0, 0, n, n);
   const auto Z = eigvecs_stable.block(n, 0, n, n);
-  return (Z * Y.inverse()).real();
+  return (Z * Y.inverse()).real().eval();
 }
 
 Eigen::MatrixXd

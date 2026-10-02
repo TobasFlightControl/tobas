@@ -13,12 +13,14 @@ LQR::LQR()
 {
 }
 
-Eigen::VectorXd LQR::solve(const bool& update_gain)
+std::expected<Eigen::VectorXd, std::string> LQR::solve(const bool& update_gain) noexcept
 {
   checkProblemValidity();
 
   if (update_gain) {
-    updateGain();
+    if (const auto result = updateGainMatrix(); !result) {
+      return std::unexpected("Failed to update gain matrix: " + result.error());
+    }
   }
 
   // Scaling.
@@ -26,7 +28,7 @@ Eigen::VectorXd LQR::solve(const bool& update_gain)
   const Eigen::VectorXd s_scaled = target_state.array() / state_scale.array();
 
   const auto u_scaled = K_ * (s_scaled - x_scaled);
-  return u_scaled.cwiseProduct(input_scale);
+  return u_scaled.cwiseProduct(input_scale).eval();
 }
 
 void LQR::resize(const Eigen::Index& state_size, const Eigen::Index& input_size)
@@ -43,11 +45,20 @@ void LQR::resize(const Eigen::Index& state_size, const Eigen::Index& input_size)
   target_state.conservativeResize(state_size);
 }
 
-void LQR::updateGain()
+std::expected<void, std::string> LQR::updateGainMatrix() noexcept
 {
   const auto dyn_scaled = dynamics.scale(state_scale, input_scale);
-  P_inf_ = care_ArimotoPotter(dyn_scaled.A, dyn_scaled.B, state_weight.asDiagonal(), input_weight.asDiagonal());
-  K_ = input_weight.asDiagonal().inverse() * dyn_scaled.B.transpose() * P_inf_;
+  const auto Q = state_weight.asDiagonal();
+  const auto R = input_weight.asDiagonal();
+
+  const auto P_inf = care_ArimotoPotter(dyn_scaled.A, dyn_scaled.B, Q, R);
+  if (!P_inf) {
+    return std::unexpected("Failed to solve CARE: " + P_inf.error());
+  }
+
+  K_ = R.inverse() * dyn_scaled.B.transpose() * *P_inf;
+
+  return {};
 }
 
 void LQR::checkProblemValidity()
@@ -78,7 +89,6 @@ std::ostream& operator<<(std::ostream& os, const LQR& arg)
   os << "Current state:\n" << arg.current_state << std::endl;
   os << "Target state:\n" << arg.target_state << std::endl;
   os << "State error:\n" << arg.target_state - arg.current_state << std::endl;
-  os << "Covariance matrix:\n" << arg.P_inf_ << std::endl;
   os << "Gain:\n" << arg.K_ << std::endl;
 
   return os;
