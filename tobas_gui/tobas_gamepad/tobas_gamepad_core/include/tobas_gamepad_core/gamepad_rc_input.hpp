@@ -4,6 +4,7 @@
 #pragma once
 
 #include <array>
+#include <expected>
 #include <memory>
 #include <string>
 
@@ -16,7 +17,7 @@ namespace tobas
 namespace gamepad
 {
 /** RC input state generated from gamepad input. */
-struct GamepadRcInputState
+struct GamepadState
 {
   bool ok = false;        ///< Whether the input device is being read correctly.
   double roll = 0.0;      ///< Roll command [-1, 1].
@@ -31,7 +32,7 @@ struct GamepadRcInputState
 };
 
 /** Settings for converting gamepad input to RC input. */
-struct GamepadRcInputConfig
+struct GamepadConfig
 {
   bool invert_roll = false;
   bool invert_pitch = true;
@@ -45,7 +46,7 @@ struct GamepadRcInputConfig
  * Reads a Linux input event device and converts button input to switches and absolute-axis input
  * to normalized RC command values.
  */
-class GamepadRcInput
+class GamepadDriver
 {
 public:
   struct LibevdevDeleter
@@ -53,17 +54,17 @@ public:
     void operator()(libevdev* _dev) const;
   };
 
-  explicit GamepadRcInput(GamepadRcInputConfig _config = {});
+  explicit GamepadDriver(GamepadConfig _config = {});
 
-  GamepadRcInput(const GamepadRcInput& _other) = delete;
-  GamepadRcInput(GamepadRcInput&& _other) = delete;
-  GamepadRcInput& operator=(const GamepadRcInput& _other) = delete;
-  GamepadRcInput& operator=(GamepadRcInput&& _other) = delete;
+  GamepadDriver(const GamepadDriver& _other) = delete;
+  GamepadDriver(GamepadDriver&& _other) = delete;
+  GamepadDriver& operator=(const GamepadDriver& _other) = delete;
+  GamepadDriver& operator=(GamepadDriver&& _other) = delete;
 
-  ~GamepadRcInput();
+  ~GamepadDriver();
 
   /** Open the input device and make it readable. */
-  bool initialize(const std::string& _device_path);
+  std::expected<void, std::string> initialize(const std::string& _device_path);
 
   /** Close the input device. */
   void close();
@@ -72,18 +73,16 @@ public:
   bool isOpen() const;
 
   /** Read the current RC input state. */
-  bool read(GamepadRcInputState& _rc_input);
+  std::expected<GamepadState, std::string> read();
 
 private:
-  bool openDevice();
-  bool poll();
+  std::expected<void, std::string> poll();
   double normalizeAbs(int _code, int _value, bool _invert) const;
   void applyButton(int _code, int _value);
   void applyAbs(int _code, int _value);
 
-  GamepadRcInputConfig config_;
-  std::string device_path_;
-  GamepadRcInputState rc_input_;
+  GamepadState state_;
+  GamepadConfig config_;
   int fd_ = -1;
   std::unique_ptr<libevdev, LibevdevDeleter> dev_ = {};
 };
