@@ -25,7 +25,7 @@ public:
 
   uint32_t channel = 0;              ///< Channel to which the motor is connected.
   uint32_t num_poles = 0;            ///< Number of motor poles.
-  double kv = 0.0;                   ///< Motor KV value [rad/s/V].
+  double kv = 0.0;                   ///< Motor Kv value [rad/s/V].
   double internal_resistance = 0.0;  ///< Motor internal resistance [Ω].
   double min_speed = 0.0;            ///< Minimum motor speed [rad/s].
   double propeller_diameter = 0.0;   ///< Propeller diameter [m].
