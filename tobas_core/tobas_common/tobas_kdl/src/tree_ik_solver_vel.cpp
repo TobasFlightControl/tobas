@@ -50,7 +50,7 @@ std::expected<JntArray, std::string> TreeIkSolverVel::cartToJnt(const JntArray& 
   }
 
   // Objective function.
-  const Eigen::VectorXd Wt = eigen::tile(Wt_, num_points, 0);
+  const Eigen::VectorXd Wt = eigen::tile(Wt_, num_points, Eigen::Vertical);
   const Eigen::VectorXd Wj = Eigen::VectorXd::Constant(tree_.getNrOfJoints(), Wj_);
   const Eigen::MatrixXd JT_Wt = J_.transpose() * Wt.asDiagonal();
   qp_solver_.problem.P = JT_Wt * J_;

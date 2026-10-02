@@ -4,6 +4,7 @@
 #pragma once
 
 #include <array>
+#include <stdexcept>
 #include <vector>
 
 #include <eigen3/Eigen/Core>
@@ -22,7 +23,7 @@ namespace eigen
  * @return Eigen::MatrixXd
  */
 template <typename Derived>
-Eigen::MatrixXd blockDiag(const Eigen::MatrixBase<Derived>& A, const Eigen::Index& num)
+Eigen::MatrixXd blockDiag(const Eigen::MatrixBase<Derived>& A, Eigen::Index num)
 {
   assert(num > 0);
 
@@ -42,13 +43,13 @@ Eigen::MatrixXd blockDiag(const Eigen::MatrixBase<Derived>& A, const Eigen::Inde
  *
  * @param A Submatrix.
  * @param num Number of repetitions.
- * @param axis Repetition direction: Row (0) or Column (1).
+ * @param axis Repetition direction: `Eigen::Vertical` (rows) or `Eigen::Horizontal` (columns).
  * @return Eigen::MatrixXd
  *
  * @see `numpy.tile()`.
  */
 template <typename Derived>
-Eigen::MatrixXd tile(const Eigen::MatrixBase<Derived>& A, const Eigen::Index& num, const uint8_t& axis)
+Eigen::MatrixXd tile(const Eigen::MatrixBase<Derived>& A, Eigen::Index num, Eigen::DirectionType axis)
 {
   assert(num > 0);
 
@@ -56,22 +57,23 @@ Eigen::MatrixXd tile(const Eigen::MatrixBase<Derived>& A, const Eigen::Index& nu
   const auto c = A.cols();
 
   switch (axis) {
-    case 0: {
+    case Eigen::Vertical: {
       Eigen::MatrixXd res(r * num, c);
       for (Eigen::Index i = 0; i < num; ++i) {
         res.block(r * i, 0, r, c) = A;
       }
       return res;
     }
-    case 1: {
+    case Eigen::Horizontal: {
       Eigen::MatrixXd res(r, c * num);
       for (Eigen::Index i = 0; i < num; ++i) {
         res.block(0, c * i, r, c) = A;
       }
       return res;
     }
+    case Eigen::BothDirections:
     default: {
-      throw std::runtime_error("axis must be 0 or 1");
+      throw std::runtime_error("axis must be Eigen::Vertical or Eigen::Horizontal");
     }
   }
 }
@@ -80,29 +82,30 @@ Eigen::MatrixXd tile(const Eigen::MatrixBase<Derived>& A, const Eigen::Index& nu
  * Concatenate two matrices in the row or column direction.
  *
  * @param A,B Matrices to concatenate.
- * @param axis Concatenation direction: Row (0) or Column (1).
+ * @param axis Concatenation direction: `Eigen::Vertical` (rows) or `Eigen::Horizontal` (columns).
  * @return Eigen::MatrixXd
  *
  * @see `numpy.concatenate()`.
  */
 template <typename T, typename U>
-Eigen::MatrixXd concat(const Eigen::MatrixBase<T>& A, const Eigen::MatrixBase<U>& B, const uint8_t& axis)
+Eigen::MatrixXd concat(const Eigen::MatrixBase<T>& A, const Eigen::MatrixBase<U>& B, Eigen::DirectionType axis)
 {
   switch (axis) {
-    case 0: {
+    case Eigen::Vertical: {
       assert(A.cols() == B.cols());
       Eigen::MatrixXd res(A.rows() + B.rows(), A.cols());
       res << A, B;
       return res;
     }
-    case 1: {
+    case Eigen::Horizontal: {
       assert(A.rows() == B.rows());
       Eigen::MatrixXd res(A.rows(), A.cols() + B.cols());
       res << A, B;
       return res;
     }
+    case Eigen::BothDirections:
     default: {
-      throw std::runtime_error("axis must be 0 or 1");
+      throw std::runtime_error("axis must be Eigen::Vertical or Eigen::Horizontal");
     }
   }
 }
@@ -111,14 +114,17 @@ Eigen::MatrixXd concat(const Eigen::MatrixBase<T>& A, const Eigen::MatrixBase<U>
  * Concatenate three matrices in the row or column direction.
  *
  * @param A,B,C Matrices to concatenate.
- * @param axis Concatenation direction: Row (0) or Column (1).
+ * @param axis Concatenation direction: `Eigen::Vertical` (rows) or `Eigen::Horizontal` (columns).
  * @return Eigen::MatrixXd
  *
  * @see `numpy.concatenate()`.
  */
 template <typename T, typename U, typename V>
-inline Eigen::MatrixXd
-concat(const Eigen::MatrixBase<T>& A, const Eigen::MatrixBase<U>& B, const Eigen::MatrixBase<V>& C, const uint8_t& axis)
+inline Eigen::MatrixXd concat(
+  const Eigen::MatrixBase<T>& A,
+  const Eigen::MatrixBase<U>& B,
+  const Eigen::MatrixBase<V>& C,
+  Eigen::DirectionType axis)
 {
   return concat(concat(A, B, axis), C, axis);
 }

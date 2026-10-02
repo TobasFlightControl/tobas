@@ -59,8 +59,9 @@ std::expected<Eigen::VectorXd, std::string> LinearMPC::solve()
   const Eigen::VectorXd last_u_scaled = last_input_.array() / input_scale.array();
 
   // Weight matrices.
-  const Eigen::DiagonalMatrix<double, Eigen::Dynamic> Q = eigen::tile(control_weight, prediction_steps, 0).asDiagonal();
-  const Eigen::MatrixXd R = eigen::tile(input_rate_weight, input_steps, 0).asDiagonal().toDenseMatrix();
+  const Eigen::DiagonalMatrix<double, Eigen::Dynamic> Q =
+    eigen::tile(control_weight, prediction_steps, Eigen::Vertical).asDiagonal();
+  const Eigen::MatrixXd R = eigen::tile(input_rate_weight, input_steps, Eigen::Vertical).asDiagonal().toDenseMatrix();
   const Eigen::MatrixXd Sa = makeSa();
   const Eigen::MatrixXd Sb = makeSb(last_u_scaled);
 
@@ -236,8 +237,8 @@ void LinearMPC::updateQpConstraint(
   const Eigen::VectorXd g = G.col(G.cols() - 1);
 
   // (3.41)
-  A = eigen::concat(F_gothic, Gamma * Theta, W, 0);
-  b = eigen::concat(-F_1 * last_u - f, -Gamma * Psi_x - Gamma * Upsilon_u - g, w, 0);
+  A = eigen::concat(F_gothic, Gamma * Theta, W, Eigen::Vertical);
+  b = eigen::concat(-F_1 * last_u - f, -Gamma * Psi_x - Gamma * Upsilon_u - g, w, Eigen::Vertical);
 }
 
 Eigen::MatrixXd LinearMPC::makeSa()

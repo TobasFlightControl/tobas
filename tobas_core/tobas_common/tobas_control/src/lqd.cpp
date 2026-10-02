@@ -30,8 +30,8 @@ Eigen::VectorXd LQD::solve(const double& dt, const bool& update_gain)
   const Eigen::VectorXd last_u_scaled = last_input.array() / input_scale.array();
 
   // Create the augmented state.
-  const Eigen::VectorXd x_tilde = eigen::concat(x_scaled, last_u_scaled, 0);
-  const Eigen::VectorXd s_tilde = eigen::concat(s_scaled, Eigen::VectorXd::Zero(input_weight.rows()), 0);
+  const Eigen::VectorXd x_tilde = eigen::concat(x_scaled, last_u_scaled, Eigen::Vertical);
+  const Eigen::VectorXd s_tilde = eigen::concat(s_scaled, Eigen::VectorXd::Zero(input_weight.rows()), Eigen::Vertical);
 
   const auto ud_scaled = K_ * (s_tilde - x_tilde);
 
@@ -78,7 +78,7 @@ void LQD::updateGain()
   B_tilde.bottomRows(u_size).setIdentity();
 
   // Create weight matrices.
-  const Eigen::MatrixXd Q_tilde = eigen::concat(state_weight, input_weight, 0).asDiagonal();
+  const Eigen::MatrixXd Q_tilde = eigen::concat(state_weight, input_weight, Eigen::Vertical).asDiagonal();
   const Eigen::MatrixXd R_tilde = input_rate_weight.asDiagonal();
 
   // Solve CARE.
