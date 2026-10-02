@@ -38,11 +38,7 @@ bool UbxTransportUart::initialize() noexcept
 
 std::optional<uint8_t> UbxTransportUart::receiveByte() noexcept
 {
-  if (!uart_.receive(&data_, 1)) {
-    return std::nullopt;
-  }
-
-  return data_;
+  return uart_.receiveByte();
 }
 
 bool UbxTransportUart::send(const uint8_t* _data, size_t _length) noexcept

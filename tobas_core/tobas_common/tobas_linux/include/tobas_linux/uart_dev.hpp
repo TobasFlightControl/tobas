@@ -7,7 +7,7 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <map>
+#include <optional>
 
 namespace tobas
 {
@@ -49,11 +49,9 @@ public:
   bool receive(uint8_t* data, size_t length);
 
   /** Receive 1 byte. */
-  uint8_t receiveByte();
+  std::optional<uint8_t> receiveByte();
 
 private:
-  const std::map<uint32_t, uint32_t> baudrate_constants_;
-
   bool block_mode_ = false;
   int uart_fd_ = -1;
   struct termios options_;
