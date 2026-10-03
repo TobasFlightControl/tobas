@@ -1,7 +1,7 @@
 Package: tobas
 Maintainer: Masayoshi Dohi <m.dohi@tobas.jp>
 Architecture: arm64
-Version: 2.17.0
+Version: todo.todo.todo
 Description: Tobas Flight Controller
 Homepage: https://tobas.jp/
 Depends: linux-image-rpi-v8-rt, dphys-swapfile, openssh-server, avahi-daemon, hostapd, dnsmasq, netfilter-persistent, iptables-persistent, systemd-resolved
