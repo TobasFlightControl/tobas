@@ -9,7 +9,7 @@
 #include <tobas_qt_tools/string.hpp>
 #include <tobas_qt_tools/thread.hpp>
 
-Q_DECLARE_METATYPE(tobas::ssh::SshClient::Error);
+Q_DECLARE_METATYPE(tobas::gui::cmn::SshClientWrapper::Result);
 
 namespace tobas
 {
@@ -19,6 +19,14 @@ namespace cmn
 {
 namespace
 {
+SshClientWrapper::Result toQtResult(const ssh::SshClient::Result& result)
+{
+  if (!result) {
+    return std::unexpected(QString::fromStdString(result.error()));
+  }
+  return {};
+}
+
 class SshWaitForLoaclServerThread : public QThread
 {
   Q_OBJECT
@@ -45,7 +53,7 @@ class SshConnectThread : public QThread
   Q_OBJECT
 
 Q_SIGNALS:
-  void finished(tobas::ssh::SshClient::Error error);
+  void finished(SshClientWrapper::Result result);
 
 public:
   explicit SshConnectThread(ssh::SshClient& impl) : impl_(impl)
@@ -54,8 +62,8 @@ public:
 
   void run() override
   {
-    const auto error = impl_.connect();
-    Q_EMIT finished(error);
+    const auto result = impl_.connect();
+    Q_EMIT finished(toQtResult(result));
   }
 
 private:
@@ -67,7 +75,7 @@ class SshExecuteThread : public QThread
   Q_OBJECT
 
 Q_SIGNALS:
-  void finished(tobas::ssh::SshClient::Error error, const QString& output);
+  void finished(SshClientWrapper::Result result, const QString& output);
 
 public:
   explicit SshExecuteThread(ssh::SshClient& impl, const QString& command, bool superuser, bool background)
@@ -78,8 +86,8 @@ public:
   void run() override
   {
     std::string output;
-    const auto error = impl_.execute(command_.toStdString(), output, superuser_, background_);
-    Q_EMIT finished(error, QString::fromStdString(output));
+    const auto result = impl_.execute(command_.toStdString(), output, superuser_, background_);
+    Q_EMIT finished(toQtResult(result), QString::fromStdString(output));
   }
 
 private:
@@ -95,7 +103,7 @@ class ScpGetThread : public QThread
   Q_OBJECT
 
 Q_SIGNALS:
-  void finished(tobas::ssh::SshClient::Error error);
+  void finished(SshClientWrapper::Result result);
   void feedbackReceived(uint64_t total_size, uint64_t transferred);
 
 public:
@@ -116,8 +124,8 @@ public:
     const auto ros_cb = [this](uint64_t total_size, uint64_t transferred)
     { Q_EMIT feedbackReceived(total_size, transferred); };
 
-    const auto error = impl_.scpGet(remote_path_.toStdString(), local_path_.toStdString(), ros_cb);
-    Q_EMIT finished(error);
+    const auto result = impl_.scpGet(remote_path_.toStdString(), local_path_.toStdString(), ros_cb);
+    Q_EMIT finished(toQtResult(result));
   }
 
 private:
@@ -132,7 +140,7 @@ class ScpPutThread : public QThread
   Q_OBJECT
 
 Q_SIGNALS:
-  void finished(tobas::ssh::SshClient::Error error);
+  void finished(SshClientWrapper::Result result);
   void feedbackReceived(uint64_t total_size, uint64_t transferred);
 
 public:
@@ -161,14 +169,14 @@ public:
     const auto ros_cb = [this](uint64_t total_size, uint64_t transferred)
     { Q_EMIT feedbackReceived(total_size, transferred); };
 
-    const auto error = impl_.scpPut(
+    const auto result = impl_.scpPut(
       local_dir_.toStdString(),
       remote_dir_.toStdString(),
       parents_,
       qt::stringListFromQtToStd(exclude_dirs_),
       superuser_,
       ros_cb);
-    Q_EMIT finished(error);
+    Q_EMIT finished(toQtResult(result));
   }
 
 private:
@@ -186,7 +194,7 @@ class SftpReadThread : public QThread
   Q_OBJECT
 
 Q_SIGNALS:
-  void finished(tobas::ssh::SshClient::Error error, const QString& text);
+  void finished(SshClientWrapper::Result result, const QString& text);
 
 public:
   explicit SftpReadThread(ssh::SshClient& impl, const QString& remote_path, bool superuser)
@@ -197,8 +205,8 @@ public:
   void run() override
   {
     std::string text;
-    const auto error = impl_.sftpRead(remote_path_.toStdString(), text, superuser_);
-    Q_EMIT finished(error, QString::fromStdString(text));
+    const auto result = impl_.sftpRead(remote_path_.toStdString(), text, superuser_);
+    Q_EMIT finished(toQtResult(result), QString::fromStdString(text));
   }
 
 private:
@@ -213,7 +221,7 @@ class SftpWriteThread : public QThread
   Q_OBJECT
 
 Q_SIGNALS:
-  void finished(tobas::ssh::SshClient::Error error);
+  void finished(SshClientWrapper::Result result);
 
 public:
   explicit SftpWriteThread(ssh::SshClient& impl, const QString& remote_path, const QString& text, bool superuser)
@@ -223,8 +231,8 @@ public:
 
   void run() override
   {
-    const auto error = impl_.sftpWrite(remote_path_.toStdString(), text_.toStdString(), superuser_);
-    Q_EMIT finished(error);
+    const auto result = impl_.sftpWrite(remote_path_.toStdString(), text_.toStdString(), superuser_);
+    Q_EMIT finished(toQtResult(result));
   }
 
 private:
@@ -240,7 +248,7 @@ class SshListThread : public QThread
   Q_OBJECT
 
 Q_SIGNALS:
-  void finished(tobas::ssh::SshClient::Error error, const QStringList& list);
+  void finished(SshClientWrapper::Result result, const QStringList& list);
 
 public:
   explicit SshListThread(ssh::SshClient& impl, const QString& pardir) : impl_(impl), pardir_(pardir)
@@ -250,8 +258,8 @@ public:
   void run() override
   {
     std::vector<std::string> list;
-    const auto error = impl_.list(pardir_.toStdString(), list);
-    Q_EMIT finished(error, qt::stringListFromStdToQt(list));
+    const auto result = impl_.list(pardir_.toStdString(), list);
+    Q_EMIT finished(toQtResult(result), qt::stringListFromStdToQt(list));
   }
 
 private:
@@ -271,45 +279,36 @@ bool SshClientWrapper::waitForLocalServer()
   return std::get<0>(qt::startThreadAndWait(thread, &SshWaitForLoaclServerThread::finished));
 }
 
-ssh::SshClient::Error SshClientWrapper::errorCode() const
-{
-  return impl_.errorCode();
-}
-
-QString SshClientWrapper::errorMessage() const
-{
-  return QString::fromStdString(impl_.errorMessage());
-}
-
 bool SshClientWrapper::setEndpoint(const QString& host, const QString& user)
 {
   qInfo().noquote().nospace() << "Setting the SSH endpoint to " << user << "@" << host << ".";
   return impl_.setEndpoint(host.toStdString(), user.toStdString());
 }
 
-ssh::SshClient::Error SshClientWrapper::connect()
+SshClientWrapper::Result SshClientWrapper::connect()
 {
   SshConnectThread thread(impl_);
   qInfo().noquote().nospace() << "Connecting to " << endpoint() << " via SSH.";
   return std::get<0>(qt::startThreadAndWait(thread, &SshConnectThread::finished));
 }
 
-ssh::SshClient::Error SshClientWrapper::execute(const QString& command, QString& output, bool superuser, bool background)
+SshClientWrapper::Result
+SshClientWrapper::execute(const QString& command, QString& output, bool superuser, bool background)
 {
   SshExecuteThread thread(impl_, command, superuser, background);
-  ssh::SshClient::Error error;
+  SshClientWrapper::Result result;
   qInfo().noquote().nospace() << "Executing '" << command << "' via SSH on " << endpoint() << ".";
-  std::tie(error, output) = qt::startThreadAndWait(thread, &SshExecuteThread::finished);
-  return error;
+  std::tie(result, output) = qt::startThreadAndWait(thread, &SshExecuteThread::finished);
+  return result;
 }
 
-ssh::SshClient::Error SshClientWrapper::execute(const QString& command, bool superuser, bool background)
+SshClientWrapper::Result SshClientWrapper::execute(const QString& command, bool superuser, bool background)
 {
   QString output;
   return execute(command, output, superuser, background);
 }
 
-ssh::SshClient::Error SshClientWrapper::scpGet(
+SshClientWrapper::Result SshClientWrapper::scpGet(
   const QString& remote_path,
   const QString& local_path,
   std::function<void(uint64_t, uint64_t)> callback)
@@ -319,7 +318,7 @@ ssh::SshClient::Error SshClientWrapper::scpGet(
   return std::get<0>(qt::startThreadAndWait(thread, &ScpGetThread::finished));
 }
 
-ssh::SshClient::Error SshClientWrapper::scpPut(
+SshClientWrapper::Result SshClientWrapper::scpPut(
   const QString& local_dir,
   const QString& remote_dir,
   bool parents,
@@ -332,29 +331,29 @@ ssh::SshClient::Error SshClientWrapper::scpPut(
   return std::get<0>(qt::startThreadAndWait(thread, &ScpPutThread::finished));
 }
 
-ssh::SshClient::Error SshClientWrapper::sftpRead(const QString& remote_path, QString& text, bool superuser)
+SshClientWrapper::Result SshClientWrapper::sftpRead(const QString& remote_path, QString& text, bool superuser)
 {
   SftpReadThread thread(impl_, remote_path, superuser);
-  ssh::SshClient::Error error;
+  SshClientWrapper::Result result;
   qInfo().noquote().nospace() << "Reading " << remote_path << " via SFTP from " << endpoint() << ".";
-  std::tie(error, text) = qt::startThreadAndWait(thread, &SftpReadThread::finished);
-  return error;
+  std::tie(result, text) = qt::startThreadAndWait(thread, &SftpReadThread::finished);
+  return result;
 }
 
-ssh::SshClient::Error SshClientWrapper::sftpWrite(const QString& remote_path, const QString& text, bool superuser)
+SshClientWrapper::Result SshClientWrapper::sftpWrite(const QString& remote_path, const QString& text, bool superuser)
 {
   SftpWriteThread thread(impl_, remote_path, text, superuser);
   qInfo().noquote().nospace() << "Writing " << remote_path << " via SFTP to " << endpoint() << ".";
   return std::get<0>(qt::startThreadAndWait(thread, &SftpWriteThread::finished));
 }
 
-ssh::SshClient::Error SshClientWrapper::list(const QString& pardir, QStringList& list)
+SshClientWrapper::Result SshClientWrapper::list(const QString& pardir, QStringList& list)
 {
   SshListThread thread(impl_, pardir);
-  ssh::SshClient::Error error;
+  SshClientWrapper::Result result;
   qInfo().noquote().nospace() << "Getting the contents of " << pardir << " via SSH to " << endpoint() << ".";
-  std::tie(error, list) = qt::startThreadAndWait(thread, &SshListThread::finished);
-  return error;
+  std::tie(result, list) = qt::startThreadAndWait(thread, &SshListThread::finished);
+  return result;
 }
 
 QString SshClientWrapper::endpoint() const

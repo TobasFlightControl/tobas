@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <expected>
 #include <mutex>
 #include <string>
 
@@ -33,43 +34,29 @@ namespace ssh
 class SshClient
 {
 public:
-  enum Error
-  {
-    kNoError = 0,
-    kServerNotReady = -1,
-    kServerError = -2,
-  };
+  using Result = std::expected<void, std::string>;
 
   explicit SshClient(rclcpp::Node::SharedPtr node);
 
   /** Wait for the local server that communicates directly with the SSH server. */
   bool waitForLocalServer();
 
-  // Getters
-
-  Error errorCode() const;
-  std::string errorMessage() const;
-
   /** Latest endpoint published by the server, or empty before the first message arrives. */
   std::string endpoint() const;
 
-  // Setters
-
   bool setEndpoint(const std::string& host, const std::string& user);
 
-  // SSH commands
+  Result connect();
 
-  Error connect();
+  Result execute(const std::string& command, std::string& output, bool superuser = false, bool background = false);
+  Result execute(const std::string& command, bool superuser = false, bool background = false);
 
-  Error execute(const std::string& command, std::string& output, bool superuser = false, bool background = false);
-  Error execute(const std::string& command, bool superuser = false, bool background = false);
-
-  Error scpGet(
+  Result scpGet(
     const std::string& remote_path,
     const std::string& local_path,
     std::function<void(uint64_t, uint64_t)> callback = nullptr);
 
-  Error scpPut(
+  Result scpPut(
     const std::string& local_dir,
     const std::string& remote_dir,
     bool parents,
@@ -77,11 +64,11 @@ public:
     bool superuser = false,
     std::function<void(uint64_t, uint64_t)> callback = nullptr);
 
-  Error sftpRead(const std::string& remote_path, std::string& text, bool superuser = false);
+  Result sftpRead(const std::string& remote_path, std::string& text, bool superuser = false);
 
-  Error sftpWrite(const std::string& remote_path, const std::string& text, bool superuser = false);
+  Result sftpWrite(const std::string& remote_path, const std::string& text, bool superuser = false);
 
-  Error list(const std::string& pardir, std::vector<std::string>& dst);
+  Result list(const std::string& pardir, std::vector<std::string>& dst);
 
 private:
   const rclcpp::Node::SharedPtr node_;
@@ -98,9 +85,6 @@ private:
   ros2::SyncServiceClient<tobas_ssh_msgs::srv::List> list_sc_;
   ros2::SyncActionClient<tobas_ssh_msgs::action::ScpGet> scp_get_ac_;
   ros2::SyncActionClient<tobas_ssh_msgs::action::ScpPut> scp_put_ac_;
-
-  Error error_code_ = kNoError;
-  std::string server_error_msg_;
 };
 }  // namespace ssh
 }  // namespace tobas

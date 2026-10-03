@@ -3,8 +3,6 @@
 
 #include "tobas_gui_common/remote_project_builder.hpp"
 
-#include <QDebug>
-
 #include <tobas_constants/path.hpp>
 
 #include "tobas_gui_common/project_paths.hpp"
@@ -19,7 +17,7 @@ RemoteProjectBuilder::RemoteProjectBuilder(rclcpp::Node::SharedPtr node) : ssh_c
 {
 }
 
-bool RemoteProjectBuilder::build(const QString& remote_proj_path)
+std::expected<QString, QString> RemoteProjectBuilder::build(const QString& remote_proj_path)
 {
   // Paramiko starts non-interactive sessions, so required environment variables must be set for each command.
   const auto pre_cmd =
@@ -36,24 +34,12 @@ bool RemoteProjectBuilder::build(const QString& remote_proj_path)
       "--packages-up-to %1")
       .arg(meta_pkg_name);
 
-  // Finish if the build succeeds.
-  const auto error = ssh_client_.execute(pre_cmd + " && " + build_cmd, output_, true);
-  if (error != ssh::SshClient::kNoError) {
-    qWarning() << "Failed to build the remote package.";
-    return false;
+  QString output;
+  if (const auto result = ssh_client_.execute(pre_cmd + " && " + build_cmd, output, true); !result) {
+    return std::unexpected(result.error());
   }
 
-  return true;
-}
-
-const QString& RemoteProjectBuilder::getOutput() const
-{
-  return output_;
-}
-
-QString RemoteProjectBuilder::getErrorMessage() const
-{
-  return ssh_client_.errorMessage();
+  return output;
 }
 }  // namespace cmn
 }  // namespace gui

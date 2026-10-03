@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <expected>
+
 #include <QString>
 
 #include <tobas_ssh_client/ssh_client.hpp>
@@ -19,32 +21,31 @@ class SshClientWrapper
   using Impl = ssh::SshClient;
 
 public:
+  using Result = std::expected<void, QString>;
+
   explicit SshClientWrapper(rclcpp::Node::SharedPtr node);
 
   bool waitForLocalServer();
 
-  Impl::Error errorCode() const;
-  QString errorMessage() const;
-
   bool setEndpoint(const QString& host, const QString& user);
 
-  Impl::Error connect();
-  Impl::Error execute(const QString& command, QString& output, bool superuser = false, bool background = false);
-  Impl::Error execute(const QString& command, bool superuser = false, bool background = false);
-  Impl::Error scpGet(
+  Result connect();
+  Result execute(const QString& command, QString& output, bool superuser = false, bool background = false);
+  Result execute(const QString& command, bool superuser = false, bool background = false);
+  Result scpGet(
     const QString& remote_path,
     const QString& local_path,
     std::function<void(uint64_t, uint64_t)> callback = nullptr);
-  Impl::Error scpPut(
+  Result scpPut(
     const QString& local_dir,
     const QString& remote_dir,
     bool parents,
     const QStringList& exclude_dirs,
     bool superuser = false,
     std::function<void(uint64_t, uint64_t)> callback = nullptr);
-  Impl::Error sftpRead(const QString& remote_path, QString& text, bool superuser = false);
-  Impl::Error sftpWrite(const QString& remote_path, const QString& text, bool superuser = false);
-  Impl::Error list(const QString& pardir, QStringList& list);
+  Result sftpRead(const QString& remote_path, QString& text, bool superuser = false);
+  Result sftpWrite(const QString& remote_path, const QString& text, bool superuser = false);
+  Result list(const QString& pardir, QStringList& list);
 
 private:
   Impl impl_;

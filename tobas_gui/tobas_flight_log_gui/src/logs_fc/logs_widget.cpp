@@ -137,8 +137,8 @@ void FlightLogsWidgetFC::onReadButtonClicked()
   const auto res = ssh_client_->list(kRosbagDirRoot, log_names);
   spinner_.stop();
 
-  if (res != ssh::SshClient::kNoError) {
-    qt::qErrorBox(this, ssh_client_->errorMessage());
+  if (!res) {
+    qt::qErrorBox(this, "Failed to get the flight log names: " + res.error());
     return;
   }
 
@@ -168,8 +168,8 @@ void FlightLogsWidgetFC::onCleanButtonClicked()
   const auto res = ssh_client_->execute("rm -rf " + QString(kRosbagDirRoot) + "/*", true);
   spinner_.stop();
 
-  if (res != ssh::SshClient::kNoError) {
-    qt::qErrorBox(this, ssh_client_->errorMessage());
+  if (!res) {
+    qt::qErrorBox(this, "Failed to remove the flight logs: " + res.error());
     return;
   }
 
@@ -214,8 +214,8 @@ void FlightLogsWidgetFC::onDownloadButtonClicked(const QString& log_name)
   const auto res = ssh_client_->scpGet(remote_rosbag_path, local_pardir, callback);
   progress.close();
 
-  if (res != ssh::SshClient::kNoError) {
-    qt::qErrorBox(this, ssh_client_->errorMessage());
+  if (!res) {
+    qt::qErrorBox(this, "Failed to download '" + log_name + "': " + res.error());
     return;
   }
 
@@ -234,8 +234,8 @@ void FlightLogsWidgetFC::onDeleteButtonClicked(const QString& log_name)
   const auto res = ssh_client_->execute("rm -rf " + rosbag_path, true);
   spinner_.stop();
 
-  if (res != ssh::SshClient::kNoError) {
-    qt::qErrorBox(this, ssh_client_->errorMessage());
+  if (!res) {
+    qt::qErrorBox(this, "Failed to delete '" + log_name + "': " + res.error());
     return;
   }
 

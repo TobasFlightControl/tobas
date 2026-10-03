@@ -129,9 +129,6 @@ private:
   void expectTelemetryLoss();
   void clearExpectedTelemetryLoss();
 
-  std::expected<void, QString> restartInBackground();
-  std::expected<void, QString> shutdownInBackground();
-
   void setCurrentApplication(QWidget* widget);
 
 private Q_SLOTS:

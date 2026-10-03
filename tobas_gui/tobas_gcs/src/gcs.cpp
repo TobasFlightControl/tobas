@@ -432,31 +432,6 @@ void GroundControlStationWidget::clearExpectedTelemetryLoss()
   telemetry_loss_expected_ = false;
 }
 
-std::expected<void, QString> GroundControlStationWidget::restartInBackground()
-{
-  // Run the command.
-  const auto res = ssh_client_->execute("systemctl restart tobas_real.target", true);
-  if (res != ssh::SshClient::kNoError) {
-    return std::unexpected("Failed to restart the flight controller:\n\n" + ssh_client_->errorMessage());
-  }
-
-  return {};
-}
-
-std::expected<void, QString> GroundControlStationWidget::shutdownInBackground()
-{
-  // Run the command.
-  const auto res = ssh_client_->execute("poweroff", true, true);
-  if (res != ssh::SshClient::kNoError) {
-    return std::unexpected("Failed to shutdown the flight controller:\n\n" + ssh_client_->errorMessage());
-  }
-
-  // Wait long enough for the Raspberry Pi to shut down reliably.
-  qt::spinFor(5s);
-
-  return {};
-}
-
 void GroundControlStationWidget::setCurrentApplication(QWidget* widget)
 {
   const auto index = app_sw_->indexOf(widget);
@@ -643,10 +618,10 @@ void GroundControlStationWidget::onWriteButtonClicked()
   // Connect to the flight controller.
   progress.setLabelText("Connecting to the flight controller.");
   connectToFlightController();
-  if (ssh_client_->connect() != ssh::SshClient::kNoError) {
+  if (const auto result = ssh_client_->connect(); !result) {
     progress.close();
     disconnectFromFlightController();
-    qt::qErrorBox(this, "No SSH connection: " + ssh_client_->errorMessage());
+    qt::qErrorBox(this, "No SSH connection: " + result.error());
     return;
   }
   progress.progressStep();
@@ -654,10 +629,10 @@ void GroundControlStationWidget::onWriteButtonClicked()
   // Check the FC version.
   progress.setLabelText("Checking the FC version.");
   QString fc_ver_text;
-  if (ssh_client_->execute("/opt/tobas/lib/tobas_version/show_version", fc_ver_text) != ssh::SshClient::kNoError) {
+  if (const auto result = ssh_client_->execute("/opt/tobas/lib/tobas_version/show_version", fc_ver_text); !result) {
     progress.close();
     disconnectFromFlightController();
-    qt::qErrorBox(this, "Failed to retrieve the FC version: " + ssh_client_->errorMessage());
+    qt::qErrorBox(this, "Failed to retrieve the FC version: " + result.error());
     return;
   }
   cmn::Version fc_version;
@@ -681,11 +656,11 @@ void GroundControlStationWidget::onWriteButtonClicked()
   // Stop the service.
   progress.setLabelText("Stopping the Tobas real service.");
   expectTelemetryLoss();
-  if (ssh_client_->execute("systemctl stop tobas_real.target", true) != ssh::SshClient::kNoError) {
+  if (const auto result = ssh_client_->execute("systemctl stop tobas_real.target", true); !result) {
     progress.close();
     clearExpectedTelemetryLoss();
     disconnectFromFlightController();
-    qt::qErrorBox(this, "Failed to stop Tobas real service:\n\n" + ssh_client_->errorMessage());
+    qt::qErrorBox(this, "Failed to stop Tobas real service:\n\n" + result.error());
     return;
   }
   progress.progressStep();
@@ -693,11 +668,11 @@ void GroundControlStationWidget::onWriteButtonClicked()
   // Load environment variables; continue even if they cannot be loaded.
   progress.setLabelText("Getting environment variables.");
   QString project_env_text;
-  if (ssh_client_->sftpRead(kProjectEnvPath, project_env_text, true) == ssh::SshClient::kNoError) {
+  if (const auto result = ssh_client_->sftpRead(kProjectEnvPath, project_env_text, true); result) {
     project_env_ = parseProjectEnv(project_env_text);
   }
   else {
-    qWarning() << "Failed to get the current environment variables: " << ssh_client_->errorMessage();
+    qWarning() << "Failed to get the current environment variables: " << result.error();
   }
   progress.progressStep();
 
@@ -705,16 +680,16 @@ void GroundControlStationWidget::onWriteButtonClicked()
   if (config_pkg_name != project_env_.config_pkg) {
     // Initialize the workspace.
     progress.setLabelText("Initializing colcon workspace.");
-    if (ssh_client_->execute(QString("rm -rf %1").arg(kColconWSPathRoot), true)) {
+    if (const auto result = ssh_client_->execute(QString("rm -rf %1").arg(kColconWSPathRoot), true); !result) {
       progress.close();
       disconnectFromFlightController();
-      qt::qErrorBox(this, "Failed to remove the old colcon workspace:\n\n" + ssh_client_->errorMessage());
+      qt::qErrorBox(this, "Failed to remove the old colcon workspace:\n\n" + result.error());
       return;
     }
-    if (ssh_client_->execute(QString("mkdir -p %1/src").arg(kColconWSPathRoot), true)) {
+    if (const auto result = ssh_client_->execute(QString("mkdir -p %1/src").arg(kColconWSPathRoot), true); !result) {
       progress.close();
       disconnectFromFlightController();
-      qt::qErrorBox(this, "Failed to create a new colcon workspace:\n\n" + ssh_client_->errorMessage());
+      qt::qErrorBox(this, "Failed to create a new colcon workspace:\n\n" + result.error());
       return;
     }
     progress.progressStep();
@@ -728,10 +703,10 @@ void GroundControlStationWidget::onWriteButtonClicked()
   project_env_.config_pkg = config_pkg_name;
   project_env_.nic = network_config_.interface;
   project_env_.id = QString(kIdPrefix) + QString::number(currentId());
-  if (ssh_client_->sftpWrite(kProjectEnvPath, exportProjectEnv(project_env_), true) != ssh::SshClient::kNoError) {
+  if (const auto result = ssh_client_->sftpWrite(kProjectEnvPath, exportProjectEnv(project_env_), true); !result) {
     progress.close();
     disconnectFromFlightController();
-    qt::qErrorBox(this, "Failed to set environment variables:\n\n" + ssh_client_->errorMessage());
+    qt::qErrorBox(this, "Failed to set environment variables:\n\n" + result.error());
     return;
   }
   progress.progressStep();
@@ -741,20 +716,20 @@ void GroundControlStationWidget::onWriteButtonClicked()
   const auto remote_dir = QString(kColconWSPathRoot) + "/src/";
   const auto mesh_path = proj_paths.cfgMeshDirPath();
   const auto git_path = QDir(proj_paths.getProjPath()).filePath(".git");
-  if (ssh_client_->scpPut(proj_path, remote_dir, true, { mesh_path, git_path }, true) != ssh::SshClient::kNoError) {
+  if (const auto result = ssh_client_->scpPut(proj_path, remote_dir, true, { mesh_path, git_path }, true); !result) {
     progress.close();
     disconnectFromFlightController();
-    qt::qErrorBox(this, "Failed to send Tobas project:\n\n" + ssh_client_->errorMessage());
+    qt::qErrorBox(this, "Failed to send Tobas project:\n\n" + result.error());
     return;
   }
   progress.progressStep();
 
   // Build the project on another thread so the GUI does not stop.
   progress.setLabelText("Building the Tobas project.");
-  if (!remote_proj_builder_->build(proj_paths.remoteProjPath())) {
+  if (const auto result = remote_proj_builder_->build(proj_paths.remoteProjPath()); !result) {
+    const auto error_msg = result.error();
     progress.close();
     disconnectFromFlightController();
-    const auto error_msg = remote_proj_builder_->getErrorMessage();
     if (error_msg.size() < cmn::kSaveLogTextSizeThresh) {
       qt::qErrorBox(this, "Failed to build the Tobas project:\n\n" + error_msg);
     }
@@ -778,32 +753,32 @@ void GroundControlStationWidget::onWriteButtonClicked()
   dds_data.interfaces.emplace_back("lo", 1, true);  // Multicast must be enabled to bridge the two NICs.
   dds_data.interfaces.emplace_back(network_config_.interface.toStdString(), 0, true);
   const auto dds_config_if_text = cyclonedds::exportText(dds_data);
-  if (
-    ssh_client_->sftpWrite(kCycloneddsConfigPath, QString::fromStdString(dds_config_if_text), true) !=
-    ssh::SshClient::kNoError) {
+  if (const auto result =
+        ssh_client_->sftpWrite(kCycloneddsConfigPath, QString::fromStdString(dds_config_if_text), true);
+      !result) {
     progress.close();
     disconnectFromFlightController();
-    qt::qErrorBox(this, "Failed to write DDS configuration:\n\n" + ssh_client_->errorMessage());
+    qt::qErrorBox(this, "Failed to write DDS configuration:\n\n" + result.error());
     return;
   }
   progress.progressStep();
 
   // Enable the service.
   progress.setLabelText("Enabling the flight controller.");
-  if (ssh_client_->execute("systemctl enable tobas_real.target", true) != ssh::SshClient::kNoError) {
+  if (const auto result = ssh_client_->execute("systemctl enable tobas_real.target", true); !result) {
     progress.close();
     disconnectFromFlightController();
-    qt::qErrorBox(this, "Failed to enable Tobas real service:\n\n" + ssh_client_->errorMessage());
+    qt::qErrorBox(this, "Failed to enable Tobas real service:\n\n" + result.error());
     return;
   }
   progress.progressStep();
 
   // Start the service.
   progress.setLabelText("Starting the flight controller.");
-  if (ssh_client_->execute("systemctl start tobas_real.target", true) != ssh::SshClient::kNoError) {
+  if (const auto result = ssh_client_->execute("systemctl start tobas_real.target", true); !result) {
     progress.close();
     disconnectFromFlightController();
-    qt::qErrorBox(this, "Failed to start Tobas real service:\n\n" + ssh_client_->errorMessage());
+    qt::qErrorBox(this, "Failed to start Tobas real service:\n\n" + result.error());
     return;
   }
   progress.progressStep();
@@ -871,11 +846,11 @@ void GroundControlStationWidget::onRestartButtonClicked()
 
   // Restart the systemd service.
   expectTelemetryLoss();
-  const auto res = restartInBackground();
+  const auto res = ssh_client_->execute("systemctl restart tobas_real.target", true);
   if (!res) {
     spinner_.stop();
     reset();
-    qt::qErrorBox(this, res.error());
+    qt::qErrorBox(this, "Failed to restart the flight controller: " + res.error());
     return;
   }
 
@@ -908,17 +883,21 @@ void GroundControlStationWidget::onShutdownButtonClicked()
   // Shut down the OS.
   expectTelemetryLoss();
   spinner_.start();
-  const auto res = shutdownInBackground();
+  const auto res = ssh_client_->execute("poweroff", true, true);
+  if (!res) {
+    spinner_.stop();
+    reset();
+    qt::qErrorBox(this, "Failed to shutdown the flight controller: " + res.error());
+    return;
+  }
+
+  // Wait long enough for the FC to shut down reliably.
+  qt::spinFor(5s);
+
   spinner_.stop();
 
-  if (res) {
-    disconnectFromFlightController();
-    qt::qInfoBox(this, "The flight controller has been shut down successfully.");
-  }
-  else {
-    reset();
-    qt::qErrorBox(this, res.error());
-  }
+  disconnectFromFlightController();
+  qt::qInfoBox(this, "The flight controller has been shut down successfully.");
 }
 
 void GroundControlStationWidget::onSimulationStarted()

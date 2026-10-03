@@ -13,6 +13,11 @@ namespace tobas
 {
 namespace ssh
 {
+namespace
+{
+constexpr char kServerNotReadyMsg[] = "The SSH server is not ready.";
+}  // namespace
+
 SshClient::SshClient(rclcpp::Node::SharedPtr node)
   : node_(node)
   , set_endpoint_sc_(node, "ssh/set_endpoint")
@@ -46,25 +51,6 @@ bool SshClient::waitForLocalServer()
   return set_endpoint_sc_.waitForService();
 }
 
-SshClient::Error SshClient::errorCode() const
-{
-  return error_code_;
-}
-
-std::string SshClient::errorMessage() const
-{
-  switch (error_code_) {
-    case kNoError:
-      return "";
-    case kServerNotReady:
-      return "The SSH server is not ready.";
-    case kServerError:
-      return server_error_msg_;
-    default:
-      return "Unknown error";
-  }
-}
-
 bool SshClient::setEndpoint(const std::string& host, const std::string& user)
 {
   const auto req = std::make_shared<SetEndpoint::Request>();
@@ -75,24 +61,23 @@ bool SshClient::setEndpoint(const std::string& host, const std::string& user)
   return static_cast<bool>(res);
 }
 
-SshClient::Error SshClient::connect()
+SshClient::Result SshClient::connect()
 {
   const auto req = std::make_shared<Connect::Request>();
 
   const auto res = connect_sc_.sendRequestAndWait(req);
   if (!res) {
-    return error_code_ = kServerNotReady;
+    return std::unexpected(kServerNotReadyMsg);
   }
 
   if (!res->success) {
-    server_error_msg_ = res->message;
-    return error_code_ = kServerError;
+    return std::unexpected(res->message);
   }
 
-  return error_code_ = kNoError;
+  return {};
 }
 
-SshClient::Error SshClient::execute(const std::string& command, std::string& output, bool superuser, bool background)
+SshClient::Result SshClient::execute(const std::string& command, std::string& output, bool superuser, bool background)
 {
   const auto req = std::make_shared<Execute::Request>();
   req->command = command;
@@ -101,25 +86,24 @@ SshClient::Error SshClient::execute(const std::string& command, std::string& out
 
   const auto res = execute_sc_.sendRequestAndWait(req);
   if (!res) {
-    return error_code_ = kServerNotReady;
+    return std::unexpected(kServerNotReadyMsg);
   }
 
   if (!res->success) {
-    server_error_msg_ = res->error_output;
-    return error_code_ = kServerError;
+    return std::unexpected(res->error_output);
   }
 
   output = res->output;
-  return error_code_ = kNoError;
+  return {};
 }
 
-SshClient::Error SshClient::execute(const std::string& command, bool superuser, bool background)
+SshClient::Result SshClient::execute(const std::string& command, bool superuser, bool background)
 {
   std::string output;
   return execute(command, output, superuser, background);
 }
 
-SshClient::Error SshClient::scpGet(
+SshClient::Result SshClient::scpGet(
   const std::string& remote_path,
   const std::string& local_path,
   std::function<void(uint64_t, uint64_t)> callback)
@@ -139,18 +123,17 @@ SshClient::Error SshClient::scpGet(
     result = scp_get_ac_.sendGoalAndWait(goal);
   }
   if (!result) {
-    return error_code_ = kServerNotReady;
+    return std::unexpected(kServerNotReadyMsg);
   }
 
   if (result->code != rclcpp_action::ResultCode::SUCCEEDED) {
-    server_error_msg_ = result->result->error_message;
-    return error_code_ = kServerError;
+    return std::unexpected(result->result->error_message);
   }
 
-  return error_code_ = kNoError;
+  return {};
 }
 
-SshClient::Error SshClient::scpPut(
+SshClient::Result SshClient::scpPut(
   const std::string& local_dir,
   const std::string& remote_dir,
   bool parents,
@@ -176,18 +159,17 @@ SshClient::Error SshClient::scpPut(
     result = scp_put_ac_.sendGoalAndWait(goal);
   }
   if (!result) {
-    return error_code_ = kServerNotReady;
+    return std::unexpected(kServerNotReadyMsg);
   }
 
   if (result->code != rclcpp_action::ResultCode::SUCCEEDED) {
-    server_error_msg_ = result->result->error_message;
-    return error_code_ = kServerError;
+    return std::unexpected(result->result->error_message);
   }
 
-  return error_code_ = kNoError;
+  return {};
 }
 
-SshClient::Error SshClient::sftpRead(const std::string& remote_path, std::string& text, bool superuser)
+SshClient::Result SshClient::sftpRead(const std::string& remote_path, std::string& text, bool superuser)
 {
   const auto req = std::make_shared<SftpRead::Request>();
   req->remote_path = remote_path;
@@ -195,19 +177,18 @@ SshClient::Error SshClient::sftpRead(const std::string& remote_path, std::string
 
   const auto res = sftp_read_sc_.sendRequestAndWait(req);
   if (!res) {
-    return error_code_ = kServerNotReady;
+    return std::unexpected(kServerNotReadyMsg);
   }
 
   if (!res->success) {
-    server_error_msg_ = res->message;
-    return error_code_ = kServerError;
+    return std::unexpected(res->message);
   }
 
   text = res->text;
-  return error_code_ = kNoError;
+  return {};
 }
 
-SshClient::Error SshClient::sftpWrite(const std::string& remote_path, const std::string& text, bool superuser)
+SshClient::Result SshClient::sftpWrite(const std::string& remote_path, const std::string& text, bool superuser)
 {
   const auto req = std::make_shared<SftpWrite::Request>();
   req->remote_path = remote_path;
@@ -216,34 +197,32 @@ SshClient::Error SshClient::sftpWrite(const std::string& remote_path, const std:
 
   const auto res = sftp_write_sc_.sendRequestAndWait(req);
   if (!res) {
-    return error_code_ = kServerNotReady;
+    return std::unexpected(kServerNotReadyMsg);
   }
 
   if (!res->success) {
-    server_error_msg_ = res->message;
-    return error_code_ = kServerError;
+    return std::unexpected(res->message);
   }
 
-  return error_code_ = kNoError;
+  return {};
 }
 
-SshClient::Error SshClient::list(const std::string& pardir, std::vector<std::string>& dst)
+SshClient::Result SshClient::list(const std::string& pardir, std::vector<std::string>& dst)
 {
   const auto req = std::make_shared<List::Request>();
   req->pardir = pardir;
 
   const auto res = list_sc_.sendRequestAndWait(req);
   if (!res) {
-    return error_code_ = kServerNotReady;
+    return std::unexpected(kServerNotReadyMsg);
   }
 
   if (!res->success) {
-    server_error_msg_ = res->message;
-    return error_code_ = kServerError;
+    return std::unexpected(res->message);
   }
 
   dst = res->entries;
-  return error_code_ = kNoError;
+  return {};
 }
 }  // namespace ssh
 }  // namespace tobas
