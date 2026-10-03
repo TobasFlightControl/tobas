@@ -134,6 +134,7 @@ def generate_launch_description():
                     namespace=namespace,
                     parameters=[{"robot_description": urdf_text}],
                     remappings=[("/tf", "tf"), ("/tf_static", "tf_static")],
+                    extra_arguments=[{"use_intra_process_comms": True}],
                 ),
                 ComposableNode(
                     package="tobas_real_ros",
