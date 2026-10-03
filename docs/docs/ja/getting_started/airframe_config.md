@@ -16,7 +16,7 @@ UADF の詳細については[What is UADF](../additional_information/what_is_ua
 このチュートリアルでは，典型的なクアッドコプターである DJI F450 を使用します．
 構成部品は以下のとおりです：
 
-- フライトコントローラ: <a href=https://tobas.jp/product target="_blank">Tobas FC201</a>
+- フライトコントローラ: <a href=https://tobas.jp/product-1-1 target="_blank">Tobas FC201</a>
 - Power Module: <a href=https://holybro.com/products/pm02d-power-module target="_blank">Holybro PM02D</a>
 - フレーム: <a href=https://www.hawks-work.com/products/f450-drone-frame-450mm-wheelbase-quadcopter-frame-kit-with-landing-skid-gear target="_blank">DJI F450 Frame</a>
 - モータ: <a href=https://www.hawks-work.com/products/a2212-brushless-motor-920kv-for-multirotor-drone-and-others target="_blank">A2212 920KV</a> (CW x 2, CCW x 2)

@@ -52,7 +52,7 @@ You can configure the number of switches in Setup Assistant according to the tra
 The <a href=https://www.rc.futaba.co.jp/products/detail/I00000006 target="_blank">Futaba T10J</a>
 has fixed assignments for channels 1 through 4 as shown in the table above,
 while switches can be assigned freely to channels 5 and above.
-Press and hold the `+` button on the transmitter to open the menu, then select `AUXチャンネル`.
+Press and hold the `+` button on the transmitter to open the menu, then select `AUX Channel`.
 For this example, the channels were configured as follows.
 
 | Channel | Switch |
@@ -67,7 +67,7 @@ For this example, the channels were configured as follows.
 <br>
 
 When using a Futaba transmitter, you must also reverse the throttle stick.
-Press and hold the `+` button on the transmitter to open the menu, then select `リバース`.
+Press and hold the `+` button on the transmitter to open the menu, then select `Reverse`.
 Set only the throttle stick (`THR`) to reverse (`REV`).
 
 ## Loading and Writing a Tobas Project
@@ -81,7 +81,7 @@ note that the highest-priority available network will be selected.
 Run the following command in a terminal to launch Tobas GCS.
 
 ```bash
-$ ros2 launch tobas_gcs gcs.launch.py
+$ RMW_IMPLEMENTATION=rmw_cyclonedds_cpp ros2 launch tobas_gcs gcs.launch.py
 ```
 
 Click `Load Project`, then double-click `tobas_f450.TBS` created in Setup Assistant to load it.

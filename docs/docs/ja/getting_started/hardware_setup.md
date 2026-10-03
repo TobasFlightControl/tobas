@@ -81,7 +81,7 @@ GPSw (General Purpose Switch) はユーザが自由に使えるスイッチで�
 ターミナルで以下を実行し，Tobas GCS を起動します．
 
 ```bash
-$ ros2 launch tobas_gcs gcs.launch.py
+$ RMW_IMPLEMENTATION=rmw_cyclonedds_cpp ros2 launch tobas_gcs gcs.launch.py
 ```
 
 `Load Project`をクリックし，Setup Assistant で作成した`tobas_f450.TBS`をダブルクリックして読み込みます．
