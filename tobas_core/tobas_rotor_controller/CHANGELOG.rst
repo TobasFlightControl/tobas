@@ -2,6 +2,9 @@
 Changelog for package tobas_rotor_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 2.16.5 (2026-09-26)
 -------------------
 

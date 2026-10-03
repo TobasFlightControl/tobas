@@ -2,6 +2,9 @@
 Changelog for package tobas_dynamixel_msgs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 2.16.5 (2026-09-26)
 -------------------
 

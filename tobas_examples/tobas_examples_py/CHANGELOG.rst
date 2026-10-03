@@ -2,6 +2,12 @@
 Changelog for package tobas_examples_py
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* fix: Handle Python packages without tests
+  (cherry picked from commit 904ef978849656459fe6c07fa8466ec03523c721)
+* Contributors: Masayoshi Dohi
+
 2.16.5 (2026-09-26)
 -------------------
 * Add dependencies

@@ -2,6 +2,11 @@
 Changelog for package tobas_gcs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* fix: do not reject old fc version
+* Contributors: Masayoshi Dohi
+
 2.16.5 (2026-09-26)
 -------------------
 * Add dependencies

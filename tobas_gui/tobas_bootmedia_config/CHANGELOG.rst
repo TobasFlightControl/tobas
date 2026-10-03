@@ -2,6 +2,9 @@
 Changelog for package tobas_bootmedia_config
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 2.16.5 (2026-09-26)
 -------------------
 

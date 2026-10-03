@@ -2,6 +2,9 @@
 Changelog for package tobas_qwt_wrapper
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 2.16.5 (2026-09-26)
 -------------------
 * Add dependencies
