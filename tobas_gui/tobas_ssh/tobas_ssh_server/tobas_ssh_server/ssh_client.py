@@ -6,6 +6,7 @@ import os.path as osp
 import socket
 import stat
 import posixpath
+import shlex
 import paramiko
 from paramiko.config import SSH_PORT
 from scp import SCPClient
@@ -32,9 +33,6 @@ class SSHClientWrapper:
 
         self._cli = paramiko.SSHClient()
 
-        # Load `~/.ssh/known_hosts`.
-        self._cli.load_system_host_keys()
-
         # Handle cases where the server public key is not included in the client known_hosts.
         if reject_missing_host:
             missing_host_policy = paramiko.RejectPolicy()
@@ -51,20 +49,43 @@ class SSHClientWrapper:
         Do not check with `is_connected()` because running a command while disconnected may raise an "SSH session not active" error.
         """
         try:
+            # Reload `~/.ssh/known_hosts`, including changed and removed keys.
+            # Paramiko merges loaded keys, so clear its private cache first.
+            self._cli._system_host_keys.clear()
+            self._cli.load_system_host_keys()
+        except Exception as e:
+            self._cli.close()
+            raise RuntimeError(f"Failed to load SSH host keys: {e}") from e
+
+        try:
             self._cli.connect(
                 hostname=self._host,
                 port=self._port,
                 username=self._user,
                 password=self._passwd,
             )
+        except paramiko.BadHostKeyException as e:
+            self._cli.close()
+            known_host = self._host if self._port == SSH_PORT else f"[{self._host}]:{self._port}"
+            remove_command = f"ssh-keygen -R {shlex.quote(known_host)}"
+            raise RuntimeError(
+                f"SSH host key has changed for {known_host}. Verify the new host key fingerprint through a trusted channel. "
+                f"If the change is legitimate, run `{remove_command}` as the local user running tobas_ssh_server, "
+                "then connect using ssh and verify the fingerprint to register the new key in `~/.ssh/known_hosts`. "
+                "Retry the connection to reload the host keys."
+            ) from e
         except paramiko.AuthenticationException as e:
-            raise RuntimeError(f"Authentication failed: {e}")
+            self._cli.close()
+            raise RuntimeError(f"Authentication failed: {e}") from e
         except paramiko.SSHException as e:
-            raise RuntimeError(f"Failed to establish an SSH connection: {e}")
+            self._cli.close()
+            raise RuntimeError(f"Failed to establish an SSH connection: {e}") from e
         except socket.error as e:
-            raise RuntimeError(f"Failed to connect to {self._user}@{self._host}: {e}")
+            self._cli.close()
+            raise RuntimeError(f"Failed to connect to {self._user}@{self._host}: {e}") from e
         except Exception as e:
-            raise RuntimeError(f"Unexpected error occurred: {e}")
+            self._cli.close()
+            raise RuntimeError(f"Unexpected error occurred: {e}") from e
 
     def close(self) -> None:
         self._cli.close()
