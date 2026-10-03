@@ -3,6 +3,8 @@
 
 #include "tobas_ssh_client/ssh_client.hpp"
 
+#include <rclcpp/qos.hpp>
+
 using namespace tobas_ssh_msgs::srv;
 using namespace tobas_ssh_msgs::action;
 namespace fs = std::filesystem;
@@ -22,6 +24,20 @@ SshClient::SshClient(rclcpp::Node::SharedPtr node)
   , scp_get_ac_(node, "ssh/scp_get")
   , scp_put_ac_(node, "ssh/scp_put")
 {
+  endpoint_sub_ = node_->create_subscription<std_msgs::msg::String>(
+    "ssh/endpoint",
+    rclcpp::QoS(1).transient_local().reliable(),
+    [this](const std_msgs::msg::String::ConstSharedPtr& msg)
+    {
+      const std::lock_guard lock(mutex_);
+      endpoint_ = msg->data;
+    });
+}
+
+std::string SshClient::endpoint() const
+{
+  const std::lock_guard lock(mutex_);
+  return endpoint_;
 }
 
 bool SshClient::waitForLocalServer()

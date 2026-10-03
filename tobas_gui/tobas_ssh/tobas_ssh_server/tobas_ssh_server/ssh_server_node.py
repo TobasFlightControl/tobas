@@ -6,6 +6,9 @@ from rclpy.node import Node
 from rclpy.parameter import Parameter
 from rclpy.action import ActionServer
 from rclpy.action.server import ServerGoalHandle
+from rclpy.qos import QoSProfile, DurabilityPolicy, ReliabilityPolicy
+
+from std_msgs.msg import String
 
 from tobas_ssh_msgs.srv import *
 from tobas_ssh_msgs.action import *
@@ -24,11 +27,18 @@ class SSHServerNode(Node):
         host = self.get_parameter_or("host")
         user = self.get_parameter_or("user")
 
+        endpoint_qos = QoSProfile(
+            depth=1,
+            durability=DurabilityPolicy.TRANSIENT_LOCAL,
+            reliability=ReliabilityPolicy.RELIABLE,
+        )
+        self._endpoint_pub = self.create_publisher(String, "ssh/endpoint", endpoint_qos)
+
         self._cli = None
         if host.type_ == Parameter.Type.STRING and user.type_ == Parameter.Type.STRING:
             self._cli = SSHClientWrapper(host.value, user=user.value)
             self._create_ssh_services_and_actions()
-            self._client_ready_info(host.value, user.value)
+            self._publish_endpoint(host.value, user.value)
 
         self._set_endpoint_ss = self.create_service(SetEndpoint, "ssh/set_endpoint", self._set_endpoint_cb)
 
@@ -42,8 +52,10 @@ class SSHServerNode(Node):
         self._scp_get_as = ActionServer(self, ScpGet, "ssh/scp_get", self._scp_get_cb)
         self._scp_put_ss = ActionServer(self, ScpPut, "ssh/scp_put", self._scp_put_cb)
 
-    def _client_ready_info(self, host: str, user: str) -> None:
-        self.get_logger().info(f"SSH client initialized for {user}@{host}.")
+    def _publish_endpoint(self, host: str, user: str) -> None:
+        endpoint = f"{user}@{host}"
+        self._endpoint_pub.publish(String(data=endpoint))
+        self.get_logger().info(f"SSH client initialized for {endpoint}.")
 
     def _connect(self) -> bool:
         try:
@@ -62,7 +74,7 @@ class SSHServerNode(Node):
             self._cli.close()
             self._cli = SSHClientWrapper(req.host, user=req.user)
 
-        self._client_ready_info(req.host, req.user)
+        self._publish_endpoint(req.host, req.user)
         return res
 
     def _connect_cb(self, req: Connect.Request, res: Connect.Response) -> Execute.Response:

@@ -48,10 +48,8 @@ public:
 
 private:
   Impl impl_;
-  QString host_, user_;
 
   QString endpoint() const;
-  static QString endpoint(const QString& host, const QString& user);
 };
 }  // namespace cmn
 }  // namespace gui

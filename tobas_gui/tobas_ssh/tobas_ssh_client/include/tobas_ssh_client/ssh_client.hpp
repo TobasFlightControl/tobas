@@ -3,9 +3,14 @@
 
 #pragma once
 
+#include <mutex>
+#include <string>
+
 #include <tobas_ros2_tools/definitions.hpp>
 #include <tobas_ros2_tools/sync_action_client.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
+
+#include <std_msgs/msg/string.hpp>
 
 #include <tobas_ssh_msgs/action/scp_get.hpp>
 #include <tobas_ssh_msgs/action/scp_put.hpp>
@@ -45,6 +50,9 @@ public:
   Error errorCode() const;
   std::string errorMessage() const;
 
+  /** Latest endpoint published by the server, or empty before the first message arrives. */
+  std::string endpoint() const;
+
   // Setters
 
   bool setEndpoint(const std::string& host, const std::string& user);
@@ -78,13 +86,16 @@ public:
 private:
   const rclcpp::Node::SharedPtr node_;
 
+  mutable std::mutex mutex_;
+  std::string endpoint_;
+  rclcpp::Subscription<std_msgs::msg::String>::SharedPtr endpoint_sub_;
+
   ros2::SyncServiceClient<tobas_ssh_msgs::srv::SetEndpoint> set_endpoint_sc_;
   ros2::SyncServiceClient<tobas_ssh_msgs::srv::Connect> connect_sc_;
   ros2::SyncServiceClient<tobas_ssh_msgs::srv::Execute> execute_sc_;
   ros2::SyncServiceClient<tobas_ssh_msgs::srv::SftpRead> sftp_read_sc_;
   ros2::SyncServiceClient<tobas_ssh_msgs::srv::SftpWrite> sftp_write_sc_;
   ros2::SyncServiceClient<tobas_ssh_msgs::srv::List> list_sc_;
-
   ros2::SyncActionClient<tobas_ssh_msgs::action::ScpGet> scp_get_ac_;
   ros2::SyncActionClient<tobas_ssh_msgs::action::ScpPut> scp_put_ac_;
 
