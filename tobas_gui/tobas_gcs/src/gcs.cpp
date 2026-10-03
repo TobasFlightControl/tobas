@@ -676,18 +676,6 @@ void GroundControlStationWidget::onWriteButtonClicked()
         proj_version_.toString() + ").");
     return;
   }
-  else {
-    const auto cur_version = cmn::Version::Current();
-    if (fc_version < cur_version) {
-      progress.close();
-      disconnectFromFlightController();
-      qt::qWarnBox(
-        this,
-        "The FC version (" + fc_version.toString() + ") is older than the GCS version (" + cur_version.toString() +
-          "). Please update the FC image to incorporate bug fixes and other updates.");
-      return;
-    }
-  }
   progress.progressStep();
 
   // Stop the service.
