@@ -16,7 +16,7 @@ For details about UADF, see [What Is UADF?](../additional_information/what_is_ua
 This tutorial uses the DJI F450, a typical quadcopter.
 The components are as follows:
 
-- Flight controller: <a href=https://tobas.jp/product target="_blank">Tobas FC201</a>
+- Flight controller: <a href=https://tobas.jp/product-1-1 target="_blank">Tobas FC201</a>
 - Power module: <a href=https://holybro.com/products/pm02d-power-module target="_blank">Holybro PM02D</a>
 - Frame: <a href=https://www.hawks-work.com/products/f450-drone-frame-450mm-wheelbase-quadcopter-frame-kit-with-landing-skid-gear target="_blank">DJI F450 Frame</a>
 - Motor: <a href=https://www.hawks-work.com/products/a2212-brushless-motor-920kv-for-multirotor-drone-and-others target="_blank">A2212 920KV</a> (CW x 2, CCW x 2)

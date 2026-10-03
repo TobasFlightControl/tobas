@@ -37,8 +37,8 @@ $ sudo apt install -y ros-jazzy-tobas
 
 適当なイメージフラッシャーをインストールしてください．例えば以下が使用可能です．
 
-- <a href=https://etcher.balena.io/ target="_blank">balenaEtcher</a>
-- <a href=https://www.raspberrypi.com/software/ target="_blank">Raspberry Pi Imager</a>
+- <a href=https://etcher.balena.io/ target="_blank">balenaEtcher</a>: `$ sudo apt install balena-etcher`
+- <a href=https://www.raspberrypi.com/software/ target="_blank">Raspberry Pi Imager</a>: `$ sudo apt install rpi-imager`
 
 SD カードを，カードリーダーを介して PC に接続してください．
 

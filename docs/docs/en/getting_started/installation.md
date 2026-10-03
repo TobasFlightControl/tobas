@@ -36,8 +36,8 @@ Download <a href=https://drive.google.com/file/d/1B80llkgNSvuoI6HSFZNbjZA3OYDf1o
 
 Install a suitable image flashing tool. For example, you can use one of the following:
 
-- <a href=https://etcher.balena.io/ target="_blank">balenaEtcher</a>
-- <a href=https://www.raspberrypi.com/software/ target="_blank">Raspberry Pi Imager</a>
+- <a href=https://etcher.balena.io/ target="_blank">balenaEtcher</a>: `$ sudo apt install balena-etcher`
+- <a href=https://www.raspberrypi.com/software/ target="_blank">Raspberry Pi Imager</a>: `$ sudo apt install rpi-imager`
 
 Connect the SD card to the PC using the card reader.
 

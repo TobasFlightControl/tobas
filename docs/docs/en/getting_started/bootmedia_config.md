@@ -70,7 +70,7 @@ $ seahorse
 ```
 
 From the `+` button in the upper-left corner, select `Secure Shell key`.
-In the dialog that appears, enter an identifier such as `<ユーザ名>@<ホスト名>` in `Description`, then click `Generate`.
+In the dialog that appears, enter an identifier such as `<username>@<hostname>` in `Description`, then click `Generate`.
 In the next dialog, click `OK` to generate an SSH public and private key pair. You can leave the password blank.
 Then click `OpenSSH keys` and confirm that the generated key is displayed.
 Double-click the key, make a note of `Public key` in the dialog that appears, then close `Passwords and Keys`.
