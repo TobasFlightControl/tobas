@@ -108,11 +108,11 @@ bool GnssDriverNode::configure()
     TOBAS_ERROR("Failed to enable SBAS.");
     return false;
   }
-  if (!gnss_.enableGalileo()) {
+  if (!gnss_.disableGalileo()) {
     TOBAS_ERROR("Failed to enable Galileo.");
     return false;
   }
-  if (!gnss_.enableBeiDou()) {
+  if (!gnss_.disableBeiDou()) {
     TOBAS_ERROR("Failed to enable BeiDou.");
     return false;
   }
@@ -120,7 +120,7 @@ bool GnssDriverNode::configure()
     TOBAS_ERROR("Failed to enable QZSS.");
     return false;
   }
-  if (!gnss_.enableGlonass()) {
+  if (!gnss_.disableGlonass()) {
     TOBAS_ERROR("Failed to enable GLONASS.");
     return false;
   }
