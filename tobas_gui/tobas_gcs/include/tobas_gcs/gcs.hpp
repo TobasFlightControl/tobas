@@ -113,11 +113,6 @@ private:
   std::optional<cmn::SshClientWrapper> ssh_client_;
   std::optional<cmn::RemoteProjectBuilder> remote_proj_builder_;
 
-  QString currentAddress() const;
-  DiscoveredFlightController currentFlightController() const;
-  void updateSelectedFlightControllerConfiguration(const QString& drone, const QString& id);
-  QString currentConnectionDescription() const;
-
   void reset();
   void initializeRos();
   void deinitializeRos();
@@ -130,6 +125,11 @@ private:
   void updateFlightControllerList(const QVector<DiscoveredFlightController>& flight_controllers);
   void setFlightControllerPlaceholder(const QString& text);
   void resetFlightControllerPlaceholder();
+
+  QString currentAddress() const;
+  DiscoveredFlightController currentFlightController() const;
+  void updateSelectedFlightControllerConfiguration(const QString& drone, const QString& id);
+  QString currentConnectionDescription() const;
 
   void expectTelemetryLoss();
   void clearExpectedTelemetryLoss();
