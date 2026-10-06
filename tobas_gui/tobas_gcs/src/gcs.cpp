@@ -211,8 +211,66 @@ GroundControlStationWidget::GroundControlStationWidget(int argc, char** argv) : 
   reset();
 }
 
+bool GroundControlStationWidget::eventFilter(QObject* watched, QEvent* event)
+{
+  if (watched == proj_path_ && proj_path_->isEnabled()) {
+    if (event->type() == QEvent::MouseButtonRelease) {
+      const auto mouse_button = static_cast<QMouseEvent*>(event)->button();
+      if (mouse_button == Qt::LeftButton) {
+        onProjectSelectionRequested();
+        return true;
+      }
+    }
+    else if (event->type() == QEvent::KeyPress) {
+      const auto key = static_cast<QKeyEvent*>(event)->key();
+      if (key == Qt::Key_Return || key == Qt::Key_Enter) {
+        onProjectSelectionRequested();
+        return true;
+      }
+    }
+  }
+  return QWidget::eventFilter(watched, event);
+}
+
+QString GroundControlStationWidget::currentAddress() const
+{
+  return fc_selector_->currentData(kAddressRole).toString();
+}
+
+DiscoveredFlightController GroundControlStationWidget::currentFlightController() const
+{
+  const auto drone = fc_selector_->currentData(kDroneRole);
+  const auto id = fc_selector_->currentData(kIdRole);
+  return { {},
+           currentAddress(),
+           drone.isValid() ? std::optional<QString>(drone.toString()) : std::nullopt,
+           id.isValid() ? std::optional<QString>(id.toString()) : std::nullopt };
+}
+
+void GroundControlStationWidget::updateSelectedFlightControllerConfiguration(const QString& drone, const QString& id)
+{
+  const auto index = fc_selector_->currentIndex();
+  fc_selector_->setItemData(index, drone, kDroneRole);
+  fc_selector_->setItemData(index, id, kIdRole);
+
+  // The endpoint label prefix contains the host and address; replace only its configuration suffix.
+  const auto text = fc_selector_->currentText();
+  fc_selector_->setItemText(index, text.left(text.lastIndexOf(" [")) + " [" + drone + '/' + id + ']');
+}
+
+QString GroundControlStationWidget::currentConnectionDescription() const
+{
+  const auto fc = currentFlightController();
+  if (fc.address.isEmpty()) {
+    return "unconfigured FC";
+  }
+  return fc.address + (isVehicleConfigured(fc) ? " [" + *fc.drone + '/' + *fc.id + ']' : QString(" [unconfigured]"));
+}
+
 void GroundControlStationWidget::reset()
 {
+  qDebug() << "GroundControlStationWidget::reset";
+
   qt::processAllQueuedEvents();
 
   if (connection_ready_ || simulation_->isRunning()) {
@@ -252,6 +310,8 @@ void GroundControlStationWidget::reset()
 
 void GroundControlStationWidget::initializeRos()
 {
+  qDebug() << "GroundControlStationWidget::initializeRos";
+
   const auto host = currentAddress();
 
   const auto context = createRosContext(host, ros_args_);
@@ -267,6 +327,8 @@ void GroundControlStationWidget::initializeRos()
 
 void GroundControlStationWidget::deinitializeRos()
 {
+  qDebug() << "GroundControlStationWidget::deinitializeRos";
+
   bridge_.clearRosInterfaces();
   sensor_calib_->clearRosInterfaces();
   actuator_test_->clearRosInterfaces();
@@ -286,6 +348,8 @@ void GroundControlStationWidget::deinitializeRos()
 
 std::expected<void, QString> GroundControlStationWidget::connectToVehicle(const QString& drone, const QString& id)
 {
+  qDebug().nospace() << "GroundControlStationWidget::connectToVehicle(" << drone << ", " << id << ")";
+
   const auto ros_node = ros_node_manager_->node();
   const auto ns = path::join('/', drone.toStdString(), id.toStdString());
 
@@ -318,6 +382,8 @@ std::expected<void, QString> GroundControlStationWidget::connectToVehicle(const 
 
 void GroundControlStationWidget::disconnectFromVehicle()
 {
+  qDebug() << "GroundControlStationWidget::disconnectFromVehicle";
+
   deinitializeRos();
   setConnectionState(false);
   reset();
@@ -325,18 +391,24 @@ void GroundControlStationWidget::disconnectFromVehicle()
 
 void GroundControlStationWidget::setConnectionState(bool connected)
 {
+  qDebug().nospace() << "GroundControlStationWidget::setConnectionState(" << connected << ")";
+
   connection_ready_ = connected;
   connect_btn_->setChecked(connected);
 }
 
 bool GroundControlStationWidget::waitForHeartbeat() const
 {
+  qDebug() << "GroundControlStationWidget::waitForHeartbeat";
+
   constexpr int kHeartbeatTimeout = 10000;  // [ms]
   return static_cast<bool>(rqt::waitForMessage<&rqt::RosQtBridge::remoteHeartbeatReceived>(bridge_, kHeartbeatTimeout));
 }
 
 void GroundControlStationWidget::updateWidgetEnabledStates()
 {
+  qDebug() << "GroundControlStationWidget::updateWidgetEnabledStates";
+
   const auto sim_running = simulation_->isRunning();
   const auto fc_found = fc_selector_->count() > 1;
   const auto host_ready = !currentAddress().isEmpty();
@@ -358,6 +430,8 @@ void GroundControlStationWidget::updateWidgetEnabledStates()
 
 void GroundControlStationWidget::updateFlightControllerList(const QVector<DiscoveredFlightController>& flight_controllers)
 {
+  qDebug() << "GroundControlStationWidget::updateFlightControllerList";
+
   if (flight_controllers.isEmpty()) {
     setFlightControllerPlaceholder("No flight controller found");
     updateWidgetEnabledStates();
@@ -405,6 +479,8 @@ void GroundControlStationWidget::updateFlightControllerList(const QVector<Discov
 
 void GroundControlStationWidget::setFlightControllerPlaceholder(const QString& text)
 {
+  qDebug().nospace() << "GroundControlStationWidget::setFlightControllerPlaceholder(" << text << ")";
+
   const QSignalBlocker block(fc_selector_);
 
   const auto old_index = fc_selector_->currentIndex();
@@ -421,56 +497,29 @@ void GroundControlStationWidget::setFlightControllerPlaceholder(const QString& t
 
 void GroundControlStationWidget::resetFlightControllerPlaceholder()
 {
+  qDebug() << "GroundControlStationWidget::resetFlightControllerPlaceholder";
+
   setFlightControllerPlaceholder("Searching for flight controllers...");
-}
-
-QString GroundControlStationWidget::currentAddress() const
-{
-  return fc_selector_->currentData(kAddressRole).toString();
-}
-
-DiscoveredFlightController GroundControlStationWidget::currentFlightController() const
-{
-  const auto drone = fc_selector_->currentData(kDroneRole);
-  const auto id = fc_selector_->currentData(kIdRole);
-  return { {},
-           currentAddress(),
-           drone.isValid() ? std::optional<QString>(drone.toString()) : std::nullopt,
-           id.isValid() ? std::optional<QString>(id.toString()) : std::nullopt };
-}
-
-void GroundControlStationWidget::updateSelectedFlightControllerConfiguration(const QString& drone, const QString& id)
-{
-  const auto index = fc_selector_->currentIndex();
-  fc_selector_->setItemData(index, drone, kDroneRole);
-  fc_selector_->setItemData(index, id, kIdRole);
-
-  // The endpoint label prefix contains the host and address; replace only its configuration suffix.
-  const auto text = fc_selector_->currentText();
-  fc_selector_->setItemText(index, text.left(text.lastIndexOf(" [")) + " [" + drone + '/' + id + ']');
-}
-
-QString GroundControlStationWidget::currentConnectionDescription() const
-{
-  const auto fc = currentFlightController();
-  if (fc.address.isEmpty()) {
-    return "unconfigured FC";
-  }
-  return fc.address + (isVehicleConfigured(fc) ? " [" + *fc.drone + '/' + *fc.id + ']' : QString(" [unconfigured]"));
 }
 
 void GroundControlStationWidget::expectTelemetryLoss()
 {
+  qDebug() << "GroundControlStationWidget::expectTelemetryLoss";
+
   telemetry_loss_expected_ = true;
 }
 
 void GroundControlStationWidget::clearExpectedTelemetryLoss()
 {
+  qDebug() << "GroundControlStationWidget::clearExpectedTelemetryLoss";
+
   telemetry_loss_expected_ = false;
 }
 
 void GroundControlStationWidget::setCurrentApplication(QWidget* widget)
 {
+  qDebug().nospace() << "GroundControlStationWidget::setCurrentApplication(" << widget->objectName() << ")";
+
   const auto index = app_sw_->indexOf(widget);
   TOBAS_CHECK(index >= 0);
   const auto button = app_btn_group_->button(index);
@@ -486,27 +535,6 @@ void GroundControlStationWidget::onEndpointChanged()
 
   updateWidgetEnabledStates();
   fc_console_->setEndpoint(currentAddress(), cmn::kUserNameFC);
-}
-
-bool GroundControlStationWidget::eventFilter(QObject* watched, QEvent* event)
-{
-  if (watched == proj_path_ && proj_path_->isEnabled()) {
-    if (event->type() == QEvent::MouseButtonRelease) {
-      const auto mouse_button = static_cast<QMouseEvent*>(event)->button();
-      if (mouse_button == Qt::LeftButton) {
-        onProjectSelectionRequested();
-        return true;
-      }
-    }
-    else if (event->type() == QEvent::KeyPress) {
-      const auto key = static_cast<QKeyEvent*>(event)->key();
-      if (key == Qt::Key_Return || key == Qt::Key_Enter) {
-        onProjectSelectionRequested();
-        return true;
-      }
-    }
-  }
-  return QWidget::eventFilter(watched, event);
 }
 
 void GroundControlStationWidget::onProjectSelectionRequested()
@@ -617,7 +645,6 @@ void GroundControlStationWidget::onConnectButtonClicked()
 
   spinner_.start();
 
-  deinitializeRos();
   initializeRos();
 
   if (const auto result = connectToVehicle(*fc.drone, *fc.id); !result) {
