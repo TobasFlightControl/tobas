@@ -382,8 +382,8 @@ void GroundControlStationWidget::updateWidgetEnabledStates()
   restart_btn_->setEnabled(!sim_running && connection_ready_ && disarmed);
   shutdown_btn_->setEnabled(!sim_running && connection_ready_ && disarmed);
 
-  sensor_calib_->setEnabled(sim_running);
-  actuator_test_->setEnabled(sim_running);
+  sensor_calib_->setEnabled(!sim_running);
+  actuator_test_->setEnabled(!sim_running);
   simulation_->setEnabled(project_loaded_ && (!connection_ready_ || sim_running));
 }
 
