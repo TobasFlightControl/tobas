@@ -64,22 +64,24 @@ protected:
   bool eventFilter(QObject* watched, QEvent* event) override;
 
 private:
-  rqt::RosQtBridge bridge_;
-  VehicleConfiguration cur_vehicle_;
+  struct ProjectData
+  {
+    uadf::Model uadf;
+    kdl::Tree tree;
+    Drone drone;
+    cmn::Version version;
+    cmn::NetworkConfig network;
+    ProjectEnv env;
+  } project_;
 
   QSettings settings_store_;
   uadf::Parser uadf_parser_;
   kdl::TreeParser tree_parser_;
 
-  uadf::Model uadf_;
-  kdl::Tree tree_;
-  Drone drone_;
-  cmn::Version proj_version_;
-  cmn::NetworkConfig network_config_;
-  ProjectEnv project_env_;
+  rqt::RosQtBridge bridge_;
+  VehicleConfiguration cur_vehicle_;
 
   RemoteConnectionWidget* remote_conn_;
-
   FlightControllerScanner* fc_scanner_;
   QComboBox* fc_selector_;
   QLineEdit* proj_path_;

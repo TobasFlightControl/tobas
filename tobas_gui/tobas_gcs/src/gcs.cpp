@@ -541,13 +541,13 @@ void GroundControlStationWidget::onProjectSelectionRequested()
 
   // Validate the project before replacing the current project or connection.
   const auto cur_version = cmn::Version::Current();
-  cmn::Version next_proj_version;
-  if (next_proj_version.load(proj_paths.versionPath())) {
-    if (!next_proj_version.isCompatible(cur_version)) {
+  cmn::Version next_version;
+  if (next_version.load(proj_paths.versionPath())) {
+    if (!next_version.isCompatible(cur_version)) {
       qt::qWarnBox(
         this,
         "The current FC version (" + cur_version.toString() +
-          ") is incompatible with the version used to create this project (" + next_proj_version.toString() + ").");
+          ") is incompatible with the version used to create this project (" + next_version.toString() + ").");
       return;
     }
   }
@@ -588,17 +588,17 @@ void GroundControlStationWidget::onProjectSelectionRequested()
   }
 
   // Load network configuration.
-  const auto next_network_config = cmn::loadNetworkConfig(proj_paths.networkConfigPath());
-  if (!next_network_config) {
-    qt::qErrorBox(this, "Failed to load network configuration:\n\n" + next_network_config.error());
+  const auto next_network = cmn::loadNetworkConfig(proj_paths.networkConfigPath());
+  if (!next_network) {
+    qt::qErrorBox(this, "Failed to load network configuration:\n\n" + next_network.error());
     return;
   }
 
-  proj_version_ = std::move(next_proj_version);
-  uadf_ = std::move(*next_uadf);
-  tree_ = std::move(*next_tree);
-  drone_ = std::move(next_drone);
-  network_config_ = std::move(*next_network_config);
+  project_.version = std::move(next_version);
+  project_.uadf = std::move(*next_uadf);
+  project_.tree = std::move(*next_tree);
+  project_.drone = std::move(next_drone);
+  project_.network = std::move(*next_network);
 
   // Commit the path only after every project file has been validated.
   proj_path_->setText(proj_path);
@@ -665,7 +665,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
                                                   "most likely due to a runtime error in the user code. "
                                                   "Please check the console output.";
 
-  const auto next_drone = QString::fromStdString(drone_.name);
+  const auto next_drone = QString::fromStdString(project_.drone.name);
   const auto next_id = makeIdText(write_id_->value());
   const auto target = currentAddress() + " [" + next_drone + '/' + next_id + ']';
 
@@ -717,13 +717,13 @@ void GroundControlStationWidget::onWriteButtonClicked()
     qt::qErrorBox(this, "Failed to parse the FC version: " + fc_ver_text);
     return;
   }
-  if (!fc_version.isCompatible(proj_version_)) {
+  if (!fc_version.isCompatible(project_.version)) {
     progress.close();
     disconnectFromVehicle();
     qt::qWarnBox(
       this,
       "The FC version (" + fc_version.toString() + ") is incompatible with the version used to create this project (" +
-        proj_version_.toString() + ").");
+        project_.version.toString() + ").");
     return;
   }
   progress.progressStep();
@@ -744,7 +744,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
   progress.setLabelText("Getting environment variables.");
   QString project_env_text;
   if (const auto result = ssh_client_->sftpRead(kProjectEnvPath, project_env_text, true); result) {
-    project_env_ = parseProjectEnv(project_env_text);
+    project_.env = parseProjectEnv(project_env_text);
   }
   else {
     qWarning() << "Failed to get the current environment variables: " << result.error();
@@ -752,7 +752,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
   progress.progressStep();
 
   // Use a clean build when packages change to avoid conflicts.
-  if (config_pkg_name != project_env_.config_pkg) {
+  if (config_pkg_name != project_.env.config_pkg) {
     // Initialize the workspace.
     progress.setLabelText("Initializing colcon workspace.");
     if (const auto result = ssh_client_->execute(QString("rm -rf %1").arg(kColconWSPathRoot), true); !result) {
@@ -775,11 +775,11 @@ void GroundControlStationWidget::onWriteButtonClicked()
 
   // Update environment variables.
   progress.setLabelText("Setting environment variables.");
-  project_env_.config_pkg = config_pkg_name;
-  project_env_.nic = network_config_.interface;
-  project_env_.drone = next_drone;
-  project_env_.id = next_id;
-  if (const auto result = ssh_client_->sftpWrite(kProjectEnvPath, exportProjectEnv(project_env_), true); !result) {
+  project_.env.config_pkg = config_pkg_name;
+  project_.env.nic = project_.network.interface;
+  project_.env.drone = next_drone;
+  project_.env.id = next_id;
+  if (const auto result = ssh_client_->sftpWrite(kProjectEnvPath, exportProjectEnv(project_.env), true); !result) {
     progress.close();
     disconnectFromVehicle();
     qt::qErrorBox(this, "Failed to set environment variables:\n\n" + result.error());
@@ -827,7 +827,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
   progress.setLabelText("Writing DDS configuration.");
   cyclonedds::Data dds_data;
   dds_data.interfaces.emplace_back("lo", 1, true);  // Multicast must be enabled to bridge the two NICs.
-  dds_data.interfaces.emplace_back(network_config_.interface.toStdString(), 0, true);
+  dds_data.interfaces.emplace_back(project_.network.interface.toStdString(), 0, true);
   const auto dds_config_if_text = cyclonedds::exportText(dds_data);
   if (const auto result =
         ssh_client_->sftpWrite(kCycloneddsConfigPath, QString::fromStdString(dds_config_if_text), true);
@@ -998,7 +998,7 @@ void GroundControlStationWidget::onSimulationStarted()
   // Set the simulation target.
   updateFlightControllerList({ { "Simulation Model",
                                  "127.0.0.1",
-                                 QString::fromStdString(drone_.name),
+                                 QString::fromStdString(project_.drone.name),
                                  makeIdText(sim::SimulationWidget::kDroneId) } });
   fc_selector_->setCurrentIndex(1);
 
