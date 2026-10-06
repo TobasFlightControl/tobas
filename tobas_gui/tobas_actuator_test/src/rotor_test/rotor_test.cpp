@@ -59,19 +59,16 @@ RotorTestWidget::RotorTestWidget(const rqt::RosQtBridge& bridge, const Drone& dr
 
   start_button_ = new QPushButton("Start");
   start_button_->setFixedSize(kButtonWidth, kButtonHeight);
-  start_button_->setEnabled(false);
   button_cols->addWidget(start_button_);
   connect(start_button_, &QPushButton::clicked, this, &self::onStartButtonClicked);
 
   stop_button_ = new QPushButton("Stop");
   stop_button_->setFixedSize(kButtonWidth, kButtonHeight);
-  stop_button_->setEnabled(false);
   button_cols->addWidget(stop_button_);
   connect(stop_button_, &QPushButton::clicked, this, &self::onStopButtonClicked);
 
   save_button_ = new QPushButton("Save");
   save_button_->setFixedSize(kButtonWidth, kButtonHeight);
-  save_button_->setEnabled(false);
   button_cols->addWidget(save_button_);
   connect(save_button_, &QPushButton::clicked, this, &self::onSaveButtonClicked);
 
@@ -95,6 +92,8 @@ RotorTestWidget::RotorTestWidget(const rqt::RosQtBridge& bridge, const Drone& dr
 
   connect(&update_timer_, &QTimer::timeout, this, &self::onUpdateTimerTimeout);
   connect(&bridge, &rqt::RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
+
+  updateActionAvailability();
 }
 
 const char* RotorTestWidget::title() const
@@ -106,29 +105,29 @@ void RotorTestWidget::reset()
 {
   disconnect(rotor_states_conn_);
 
-  // Disable motor widgets.
+  // Reset motor widgets.
   for (const auto& widget : rotor_widgets_) {
     widget->reset();
-    widget->setEnabled(false);
   }
 
   // Stop the timer.
   update_timer_.stop();
 
-  start_button_->setEnabled(numRegisteredChannels() > 0 && node_);
-  stop_button_->setEnabled(false);
-  save_button_->setEnabled(false);
-
   running_ = false;
   arming_.reset();
+
+  updateActionAvailability();
 }
 
-void RotorTestWidget::updateProject(const QString& proj_path)
+void RotorTestWidget::setProjectPath(const QString& proj_path)
 {
-  // Update the project path.
   proj_paths_.setProjPath(proj_path);
 
-  // Initialize.
+  updateActionAvailability();
+}
+
+void RotorTestWidget::updateInternalDataStructures()
+{
   registered_.fill(false);
   for (size_t ch = 0; ch < kMaxDshotChannels; ++ch) {
     const auto text = "CH" + QString::number(ch) + ": unregistered";
@@ -159,6 +158,8 @@ void RotorTestWidget::updateProject(const QString& proj_path)
   else {
     eprop_.reset();
   }
+
+  updateActionAvailability();
 }
 
 void RotorTestWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
@@ -172,6 +173,8 @@ void RotorTestWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, cons
   }
 
   node_ = std::move(node);
+
+  updateActionAvailability();
 }
 
 void RotorTestWidget::clearRosInterfaces()
@@ -180,11 +183,24 @@ void RotorTestWidget::clearRosInterfaces()
   dparam_cli_.reset();
   tar_speeds_pub_.reset();
   node_.reset();
+
+  updateActionAvailability();
 }
 
 int RotorTestWidget::numRegisteredChannels() const
 {
   return st::count(registered_, true);
+}
+
+void RotorTestWidget::updateActionAvailability()
+{
+  start_button_->setEnabled(!running_ && node_);
+  stop_button_->setEnabled(running_);
+  save_button_->setEnabled(running_ && !proj_paths_.getProjPath().isEmpty());
+
+  for (size_t ch = 0; ch < kMaxDshotChannels; ++ch) {
+    rotor_widgets_.at(ch)->setEnabled(running_ && node_ && registered_.at(ch));
+  }
 }
 
 void RotorTestWidget::publishTargetSppeds()
@@ -245,12 +261,6 @@ void RotorTestWidget::onStartButtonClicked()
     return;
   }
 
-  // Enable motor widgets.
-  for (const auto& [link_name, _] : eprop_->rotors) {
-    const auto erotor = eprop_->getRotor(link_name);
-    rotor_widgets_.at(erotor->channel)->setEnabled(true);
-  }
-
   // Temporarily subscribe to rotor states.
   rotor_states_conn_ =
     connect(&bridge_, &rqt::RosQtBridge::rotorStatesReceived, this, &self::rotorStatesCb, Qt::QueuedConnection);
@@ -258,11 +268,8 @@ void RotorTestWidget::onStartButtonClicked()
   // Publish commands at a fixed interval.
   update_timer_.start(kUpdatePeriod);
 
-  start_button_->setEnabled(false);
-  stop_button_->setEnabled(true);
-  save_button_->setEnabled(true);
-
   running_ = true;
+  updateActionAvailability();
 
   qt::qInfoBox(this, "Rotor test started.");
 }
@@ -279,6 +286,8 @@ void RotorTestWidget::onStopButtonClicked()
 void RotorTestWidget::onSaveButtonClicked()
 {
   qDebug() << "RotorTestWidget::onSaveButtonClicked";
+
+  TOBAS_CHECK(!proj_paths_.getProjPath().isEmpty());
 
   YAML::Node node(YAML::NodeType::Map);
   for (const auto& [link_name, _] : eprop_->rotors) {

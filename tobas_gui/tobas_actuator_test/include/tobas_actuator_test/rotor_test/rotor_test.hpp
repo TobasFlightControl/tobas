@@ -47,7 +47,8 @@ public:
 
   void reset() override;
 
-  void updateProject(const QString& proj_path);
+  void setProjectPath(const QString& proj_path);
+  void updateInternalDataStructures();
   void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
   void clearRosInterfaces();
 
@@ -78,6 +79,7 @@ private:
 
   QTimer update_timer_;
 
+  void updateActionAvailability();
   void publishTargetSppeds();
   bool loadCurrentGains();
 

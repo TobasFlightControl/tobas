@@ -29,7 +29,7 @@ public:
   explicit ParameterTuningWidget();
 
   void reset();
-  void updateProject(const QString& proj_path);
+  void setProjectPath(const QString& proj_path);
   void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
   void clearRosInterfaces();
 
@@ -47,6 +47,9 @@ private:
 
   bool project_loaded_ = false;
   bool ros_initialized_ = false;
+  bool params_loaded_ = false;
+
+  void updateActionAvailability();
 
 private Q_SLOTS:
   void onLoadButtonClicked();

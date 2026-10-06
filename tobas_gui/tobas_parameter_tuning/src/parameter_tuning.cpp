@@ -77,10 +77,8 @@ ParameterTuningWidget::ParameterTuningWidget()
 
 void ParameterTuningWidget::reset()
 {
-  load_button_->setEnabled(project_loaded_ && ros_initialized_);
-  save_button_->setEnabled(false);
-  reset_button_->setEnabled(false);
-  default_button_->setEnabled(false);
+  params_loaded_ = false;
+  updateActionAvailability();
 
   for (const auto& block : blocks_) {
     block->clear();
@@ -88,7 +86,7 @@ void ParameterTuningWidget::reset()
   }
 }
 
-void ParameterTuningWidget::updateProject(const QString& proj_path)
+void ParameterTuningWidget::setProjectPath(const QString& proj_path)
 {
   // Update project path.
   proj_paths_.setProjPath(proj_path);
@@ -98,6 +96,7 @@ void ParameterTuningWidget::updateProject(const QString& proj_path)
   TOBAS_CHECK(drone_.load(tbsdrn_path.toStdString()));
 
   project_loaded_ = true;
+  updateActionAvailability();
 }
 
 void ParameterTuningWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
@@ -107,6 +106,7 @@ void ParameterTuningWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node
   }
 
   ros_initialized_ = true;
+  updateActionAvailability();
 }
 
 void ParameterTuningWidget::clearRosInterfaces()
@@ -116,6 +116,15 @@ void ParameterTuningWidget::clearRosInterfaces()
   }
 
   ros_initialized_ = false;
+  updateActionAvailability();
+}
+
+void ParameterTuningWidget::updateActionAvailability()
+{
+  load_button_->setEnabled(ros_initialized_);
+  save_button_->setEnabled(project_loaded_ && params_loaded_);
+  reset_button_->setEnabled(ros_initialized_ && params_loaded_);
+  default_button_->setEnabled(ros_initialized_ && params_loaded_);
 }
 
 void ParameterTuningWidget::onLoadButtonClicked()
@@ -133,9 +142,8 @@ void ParameterTuningWidget::onLoadButtonClicked()
     block->setVisible(true);
   }
 
-  save_button_->setEnabled(true);
-  reset_button_->setEnabled(true);
-  default_button_->setEnabled(true);
+  params_loaded_ = true;
+  updateActionAvailability();
 
   qt::qInfoBox(this, "Dynamic parameters have been loaded successfully.");
 }

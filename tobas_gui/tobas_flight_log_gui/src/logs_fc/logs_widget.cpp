@@ -62,13 +62,8 @@ void FlightLogsWidgetFC::reset()
 {
   clearLogs();
 
-  read_button_->setEnabled(project_loaded_ && ros_initialized_);
+  read_button_->setEnabled(ros_initialized_);
   clean_button_->setEnabled(false);
-}
-
-void FlightLogsWidgetFC::onProjectLoaded()
-{
-  project_loaded_ = true;
 }
 
 void FlightLogsWidgetFC::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string&)

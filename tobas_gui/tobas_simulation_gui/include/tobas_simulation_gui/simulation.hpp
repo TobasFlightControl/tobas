@@ -44,7 +44,7 @@ public:
   ~SimulationWidget();
 
   void reset();
-  void updateProject(const QString& proj_path);
+  void setProjectPath(const QString& proj_path);
   void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
   void clearRosInterfaces();
 

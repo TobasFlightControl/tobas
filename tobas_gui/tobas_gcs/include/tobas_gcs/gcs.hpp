@@ -10,6 +10,7 @@
 
 #include <QButtonGroup>
 #include <QComboBox>
+#include <QEvent>
 #include <QLineEdit>
 #include <QPushButton>
 #include <QSettings>
@@ -42,6 +43,7 @@
 #include "./remote_connection.hpp"
 #include "./restart_button.hpp"
 #include "./shutdown_button.hpp"
+#include "./vehicle_configuration.hpp"
 
 namespace tobas
 {
@@ -58,28 +60,30 @@ class GroundControlStationWidget : public QWidget
 public:
   explicit GroundControlStationWidget(int argc, char** argv);
 
+protected:
+  bool eventFilter(QObject* watched, QEvent* event) override;
+
 private:
   rqt::RosQtBridge bridge_;
-
-  uadf::Model uadf_;
-  kdl::Tree tree_;
-  Drone drone_;
+  VehicleConfiguration cur_vehicle_;
 
   QSettings settings_store_;
   uadf::Parser uadf_parser_;
   kdl::TreeParser tree_parser_;
+
+  uadf::Model uadf_;
+  kdl::Tree tree_;
+  Drone drone_;
   cmn::Version proj_version_;
   cmn::NetworkConfig network_config_;
   ProjectEnv project_env_;
 
   RemoteConnectionWidget* remote_conn_;
 
-  QLineEdit* proj_path_;
-  QPushButton* load_btn_;
-
   FlightControllerScanner* fc_scanner_;
   QComboBox* fc_selector_;
-  QSpinBox* vehicle_id_;
+  QLineEdit* proj_path_;
+  QSpinBox* write_id_;
   qt::ToggleButton* connect_btn_;
   QPushButton* write_btn_;
   RestartButton* restart_btn_;
@@ -110,20 +114,21 @@ private:
   std::optional<cmn::RemoteProjectBuilder> remote_proj_builder_;
 
   void reset();
-  void updateInternalDataStructures();
-  void initializeRosConnection();
-  void clearRosConnection();
-  void connectToFlightController();
-  void disconnectFromFlightController();
+  void initializeRos();
+  void deinitializeRos();
+  std::expected<void, QString> connectToVehicle(const QString& drone, const QString& id);
+  void disconnectFromVehicle();
+  void setConnectionState(bool connected);
   bool waitForHeartbeat() const;
 
-  void updateHeaderActionAvailability();
+  void updateWidgetEnabledStates();
   void updateFlightControllerList(const QVector<DiscoveredFlightController>& flight_controllers);
   void setFlightControllerPlaceholder(const QString& text);
   void resetFlightControllerPlaceholder();
 
-  QString currentHost() const;
-  int currentId() const;
+  QString currentAddress() const;
+  DiscoveredFlightController currentFlightController() const;
+  void updateSelectedFlightControllerConfiguration(const QString& drone, const QString& id);
   QString currentConnectionDescription() const;
 
   void expectTelemetryLoss();
@@ -134,7 +139,7 @@ private:
 private Q_SLOTS:
   void onEndpointChanged();
 
-  void onLoadButtonClicked();
+  void onProjectSelectionRequested();
   void onConnectButtonClicked();
   void onDisconnectButtonClicked();
   void onWriteButtonClicked();

@@ -15,6 +15,7 @@ namespace
 {
 constexpr char kConfigPkgPrefix[] = "TOBAS_CONFIG_PKG=";
 constexpr char kNetworkIfacePrefix[] = "TOBAS_NIC=";
+constexpr char kDronePrefix[] = "TOBAS_DRONE=";
 constexpr char kIdPrefix[] = "TOBAS_ID=";
 }  // namespace
 
@@ -39,6 +40,10 @@ ProjectEnv parseProjectEnv(const QString& text)
       env.nic = line.mid(sizeof(kNetworkIfacePrefix) - 1);
       continue;
     }
+    if (line.startsWith(kDronePrefix)) {
+      env.drone = line.mid(sizeof(kDronePrefix) - 1);
+      continue;
+    }
     if (line.startsWith(kIdPrefix)) {
       env.id = line.mid(sizeof(kIdPrefix) - 1);
       continue;
@@ -50,8 +55,12 @@ ProjectEnv parseProjectEnv(const QString& text)
 
 QString exportProjectEnv(const ProjectEnv& env)
 {
-  return QString(kConfigPkgPrefix) + env.config_pkg + '\n' + kNetworkIfacePrefix + env.nic + '\n' + kIdPrefix + env.id +
-         '\n';
+  QString res;
+  res += kConfigPkgPrefix + env.config_pkg + '\n';
+  res += kNetworkIfacePrefix + env.nic + '\n';
+  res += kDronePrefix + env.drone + '\n';
+  res += kIdPrefix + env.id + '\n';
+  return res;
 }
 }  // namespace gcs
 }  // namespace gui
