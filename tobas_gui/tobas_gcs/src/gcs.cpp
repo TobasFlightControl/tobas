@@ -373,18 +373,19 @@ void GroundControlStationWidget::updateWidgetEnabledStates()
   const auto host_ready = !currentAddress().isEmpty();
   const auto vehicle_configured = isVehicleConfigured(currentFlightController());
   const auto disarmed = !arming_ || !arming_->data;
+  const auto project_loaded = !proj_path_->text().isEmpty();
 
   fc_selector_->setEnabled(!sim_running && fc_found && !connection_ready_);
   proj_path_->setEnabled(!sim_running);
   write_id_->setEnabled(!sim_running);
   connect_btn_->setEnabled((connection_ready_ || (host_ready && vehicle_configured)));
-  write_btn_->setEnabled(!sim_running && project_loaded_ && host_ready && write_id_->hasAcceptableInput() && disarmed);
+  write_btn_->setEnabled(!sim_running && project_loaded && host_ready && write_id_->hasAcceptableInput() && disarmed);
   restart_btn_->setEnabled(!sim_running && connection_ready_ && disarmed);
   shutdown_btn_->setEnabled(!sim_running && connection_ready_ && disarmed);
 
   sensor_calib_->setEnabled(!sim_running);
   actuator_test_->setEnabled(!sim_running);
-  simulation_->setEnabled(project_loaded_ && (!connection_ready_ || sim_running));
+  simulation_->setEnabled(project_loaded && (!connection_ready_ || sim_running));
 }
 
 void GroundControlStationWidget::updateFlightControllerList(const QVector<DiscoveredFlightController>& flight_controllers)
@@ -609,7 +610,6 @@ void GroundControlStationWidget::onProjectSelectionRequested()
   param_tuning_->setProjectPath(proj_path);
   simulation_->setProjectPath(proj_path);
 
-  project_loaded_ = true;
   updateWidgetEnabledStates();
 
   // Show a dialog indicating that the project was loaded successfully.

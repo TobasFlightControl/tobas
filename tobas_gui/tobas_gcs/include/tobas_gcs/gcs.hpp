@@ -106,7 +106,6 @@ private:
 
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
   bool telemetry_loss_expected_ = false;
-  bool project_loaded_ = false;
   bool connection_ready_ = false;
 
   std::vector<std::string> ros_args_;
