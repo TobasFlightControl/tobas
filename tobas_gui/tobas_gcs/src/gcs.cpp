@@ -324,13 +324,13 @@ std::expected<void, QString> GroundControlStationWidget::connectToVehicle(const 
   }
   cur_vehicle_ = std::move(*vehicle);
 
-  bridge_.initializeRosInterfaces(ros_node, ns);
-
   sensor_calib_->updateInternalDataStructures();
-  sensor_calib_->initializeRosInterfaces(ros_node, ns);
   actuator_test_->updateInternalDataStructures();
-  actuator_test_->initializeRosInterfaces(ros_node, ns);
   control_system_->updateInternalDataStructures();
+
+  bridge_.initializeRosInterfaces(ros_node, ns);
+  sensor_calib_->initializeRosInterfaces(ros_node, ns);
+  actuator_test_->initializeRosInterfaces(ros_node, ns);
   control_system_->initializeRosInterfaces(ros_node, ns);
   param_tuning_->initializeRosInterfaces(ros_node, ns);
   flight_log_->initializeRosInterfaces(ros_node, ns);
