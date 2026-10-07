@@ -7,10 +7,14 @@
 #include <ranges>
 #include <utility>
 
+#include <QGridLayout>
 #include <QHBoxLayout>
+#include <QKeyEvent>
 #include <QLabel>
+#include <QMouseEvent>
 #include <QSignalBlocker>
 #include <QVBoxLayout>
+#include <QVariant>
 
 #include <tobas_constants/path.hpp>
 #include <tobas_cyclonedds_config/cyclonedds_config.hpp>
@@ -40,8 +44,25 @@ namespace gcs
 {
 namespace
 {
-constexpr auto kHostRole = Qt::UserRole;
-constexpr char kIdPrefix[] = "id";
+constexpr auto kAddressRole = Qt::UserRole;
+constexpr auto kDroneRole = Qt::UserRole + 1;
+constexpr auto kIdRole = Qt::UserRole + 2;
+
+QString makeIdText(int id)
+{
+  return "id" + QString::number(id);
+}
+
+bool isVehicleConfigured(const DiscoveredFlightController& fc)
+{
+  return fc.drone && fc.id;
+}
+
+QString endpointText(const DiscoveredFlightController& fc)
+{
+  const auto config = isVehicleConfigured(fc) ? *fc.drone + "/" + *fc.id : QString("unconfigured");
+  return fc.hostname + " (" + fc.address + ") [" + config + ']';
+}
 
 rclcpp::Context::SharedPtr createRosContext(const QString& static_peer, std::vector<std::string> ros_args)
 {
@@ -70,9 +91,9 @@ GroundControlStationWidget::GroundControlStationWidget(int argc, char** argv) : 
   }
 
   // Applications
-  sensor_calib_ = new sc::SensorCalibrationWidget(bridge_, drone_);
-  actuator_test_ = new at::ActuatorTestWidget(bridge_, tree_, drone_);
-  control_system_ = new ctrl::ControlSystemWidget(bridge_, drone_);
+  sensor_calib_ = new sc::SensorCalibrationWidget(bridge_, cur_vehicle_.drone);
+  actuator_test_ = new at::ActuatorTestWidget(bridge_, cur_vehicle_.tree, cur_vehicle_.drone);
+  control_system_ = new ctrl::ControlSystemWidget(bridge_, cur_vehicle_.drone);
   param_tuning_ = new param::ParameterTuningWidget();
   flight_log_ = new log::FlightLogWidget(bridge_);
   fc_console_ = new console::FcConsoleWidget();
@@ -116,17 +137,18 @@ GroundControlStationWidget::GroundControlStationWidget(int argc, char** argv) : 
   // Package manager
   proj_path_ = new QLineEdit();
   proj_path_->setReadOnly(true);
-  proj_path_->setFocusPolicy(Qt::NoFocus);
-  load_btn_ = new QPushButton("Load Project");
-  load_btn_->setFixedWidth(200);
+  proj_path_->setMinimumWidth(250);
+  proj_path_->setPlaceholderText("Click to select a project...");
+  proj_path_->setCursor(Qt::PointingHandCursor);
+  proj_path_->installEventFilter(this);
 
   // FC selection
   fc_scanner_ = new FlightControllerScanner(this);
   fc_selector_ = new QComboBox();
   fc_selector_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-  vehicle_id_ = new QSpinBox();
-  vehicle_id_->setRange(0, INT32_MAX);
-  vehicle_id_->setValue(0);
+  write_id_ = new QSpinBox();
+  write_id_->setRange(0, INT32_MAX);
+  write_id_->setValue(0);
   connect_btn_ = new qt::ToggleButton("Connect", "Disconnect");
   write_btn_ = new QPushButton("Write");
 
@@ -136,23 +158,16 @@ GroundControlStationWidget::GroundControlStationWidget(int argc, char** argv) : 
   shutdown_btn_ = new ShutdownButton(kPowerButtonRadius);
 
   // Layout
-  const auto configuration_cols = new QHBoxLayout();
-  configuration_cols->addWidget(new QLabel("Endpoint"));
-  configuration_cols->addWidget(fc_selector_);
-  configuration_cols->addWidget(new QLabel("ID"));
-  configuration_cols->addWidget(vehicle_id_);
-
-  const auto button_cols = new QHBoxLayout();
-  button_cols->addWidget(connect_btn_);
-  button_cols->addWidget(write_btn_);
-
-  const auto configuration_rows = new QVBoxLayout();
-  configuration_rows->addWidget(proj_path_);
-  configuration_rows->addLayout(configuration_cols);
-
-  const auto button_rows = new QVBoxLayout();
-  button_rows->addWidget(load_btn_);
-  button_rows->addLayout(button_cols);
+  const auto configuration = new QGridLayout();
+  configuration->addWidget(new QLabel("Endpoint"), 0, 0);
+  configuration->addWidget(fc_selector_, 0, 1, 1, 3);
+  configuration->addWidget(connect_btn_, 0, 4);
+  configuration->addWidget(new QLabel("Project"), 1, 0);
+  configuration->addWidget(proj_path_, 1, 1);
+  configuration->addWidget(new QLabel("ID"), 1, 2);
+  configuration->addWidget(write_id_, 1, 3);
+  configuration->addWidget(write_btn_, 1, 4);
+  configuration->setColumnStretch(1, 1);
 
   const auto header_cols = new QHBoxLayout();
   header_cols->addWidget(sensor_calib_btn);
@@ -164,8 +179,7 @@ GroundControlStationWidget::GroundControlStationWidget(int argc, char** argv) : 
   header_cols->addWidget(simulation_btn);
   header_cols->addStretch();
   header_cols->addWidget(remote_conn_);
-  header_cols->addLayout(configuration_rows);
-  header_cols->addLayout(button_rows);
+  header_cols->addLayout(configuration);
   qt::addSpacing(header_cols, 30, QSizePolicy::Preferred);  // Collapse this when there is not enough space.
   header_cols->addWidget(restart_btn_);
   header_cols->addWidget(shutdown_btn_);
@@ -179,8 +193,7 @@ GroundControlStationWidget::GroundControlStationWidget(int argc, char** argv) : 
   // Connection
   connect(app_btn_group_, &QButtonGroup::idClicked, app_sw_, &QStackedWidget::setCurrentIndex);
   connect(fc_selector_, qOverload<int>(&QComboBox::currentIndexChanged), this, &self::onEndpointChanged);
-  connect(vehicle_id_, &QSpinBox::textChanged, this, &self::updateHeaderActionAvailability);
-  connect(load_btn_, &QPushButton::clicked, this, &self::onLoadButtonClicked);
+  connect(write_id_, &QSpinBox::textChanged, this, &self::updateWidgetEnabledStates);
   connect(connect_btn_, &qt::ToggleButton::checked, this, &self::onConnectButtonClicked);
   connect(connect_btn_, &qt::ToggleButton::unchecked, this, &self::onDisconnectButtonClicked);
   connect(write_btn_, &QPushButton::clicked, this, &self::onWriteButtonClicked);
@@ -194,16 +207,43 @@ GroundControlStationWidget::GroundControlStationWidget(int argc, char** argv) : 
   connect(simulation_, &sim::SimulationWidget::telemetryLossExpected, this, &self::expectTelemetryLoss);
   connect(&bridge_, &rqt::RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
 
-  reset();
   resetFlightControllerPlaceholder();
+  reset();
+}
 
-  // Journal access only needs an SSH endpoint, even before a project or ROS connection is available.
-  fc_scanner_->start();
+bool GroundControlStationWidget::eventFilter(QObject* watched, QEvent* event)
+{
+  if (watched == proj_path_ && proj_path_->isEnabled()) {
+    if (event->type() == QEvent::MouseButtonRelease) {
+      const auto mouse_button = static_cast<QMouseEvent*>(event)->button();
+      if (mouse_button == Qt::LeftButton) {
+        onProjectSelectionRequested();
+        return true;
+      }
+    }
+    else if (event->type() == QEvent::KeyPress) {
+      const auto key = static_cast<QKeyEvent*>(event)->key();
+      if (key == Qt::Key_Return || key == Qt::Key_Enter) {
+        onProjectSelectionRequested();
+        return true;
+      }
+    }
+  }
+  return QWidget::eventFilter(watched, event);
 }
 
 void GroundControlStationWidget::reset()
 {
+  qDebug() << "GroundControlStationWidget::reset";
+
   qt::processAllQueuedEvents();
+
+  if (connection_ready_ || simulation_->isRunning()) {
+    fc_scanner_->stop();
+  }
+  else {
+    fc_scanner_->start();
+  }
 
   clearExpectedTelemetryLoss();
   if (connection_ready_) {
@@ -228,27 +268,16 @@ void GroundControlStationWidget::reset()
 
   arming_.reset();
 
-  updateHeaderActionAvailability();
+  updateWidgetEnabledStates();
 
   qt::processAllQueuedEvents();
 }
 
-void GroundControlStationWidget::updateInternalDataStructures()
+void GroundControlStationWidget::initializeRos()
 {
-  const auto proj_path = proj_path_->text();
+  qDebug() << "GroundControlStationWidget::initializeRos";
 
-  sensor_calib_->updateInternalDataStructures();
-  actuator_test_->updateProject(proj_path);
-  control_system_->updateInternalDataStructures();
-  param_tuning_->updateProject(proj_path);
-  flight_log_->onProjectLoaded();
-  simulation_->updateProject(proj_path);
-}
-
-void GroundControlStationWidget::initializeRosConnection()
-{
-  const auto host = currentHost();
-  const auto id = currentId();
+  const auto host = currentAddress();
 
   const auto context = createRosContext(host, ros_args_);
   ros_node_manager_.emplace(context, "tobas_gcs");
@@ -259,24 +288,12 @@ void GroundControlStationWidget::initializeRosConnection()
   TOBAS_CHECK(ssh_client_->setEndpoint(host, cmn::kUserNameFC));
 
   remote_proj_builder_.emplace(ros_node);
-
-  const auto ns = path::join('/', drone_.name, kIdPrefix + std::to_string(id));
-  bridge_.initializeRosInterfaces(ros_node, ns);
-  sensor_calib_->initializeRosInterfaces(ros_node, ns);
-  actuator_test_->initializeRosInterfaces(ros_node, ns);
-  control_system_->initializeRosInterfaces(ros_node, ns);
-  param_tuning_->initializeRosInterfaces(ros_node, ns);
-  flight_log_->initializeRosInterfaces(ros_node, ns);
-
-  if (simulation_->isRunning()) {
-    simulation_->initializeRosInterfaces(ros_node, ns);
-  }
-
-  connection_ready_ = true;
 }
 
-void GroundControlStationWidget::clearRosConnection()
+void GroundControlStationWidget::deinitializeRos()
 {
+  qDebug() << "GroundControlStationWidget::deinitializeRos";
+
   bridge_.clearRosInterfaces();
   sensor_calib_->clearRosInterfaces();
   actuator_test_->clearRosInterfaces();
@@ -292,31 +309,55 @@ void GroundControlStationWidget::clearRosConnection()
     ros_node_manager_->shutdown();
   }
   ros_node_manager_.reset();
-
-  connection_ready_ = false;
 }
 
-void GroundControlStationWidget::connectToFlightController()
+std::expected<void, QString> GroundControlStationWidget::connectToVehicle(const QString& drone, const QString& id)
 {
-  TOBAS_CHECK(project_loaded_);
+  qDebug().nospace() << "GroundControlStationWidget::connectToVehicle(" << drone << ", " << id << ")";
 
-  fc_scanner_->stop();
-  connect_btn_->setChecked(true);
+  const auto ros_node = ros_node_manager_->node();
+  const auto ns = path::join('/', drone.toStdString(), id.toStdString());
 
-  clearRosConnection();
-  initializeRosConnection();
+  const auto vehicle = loadVehicleConfiguration(ros_node, ns);
+  if (!vehicle) {
+    return std::unexpected(vehicle.error());
+  }
+  cur_vehicle_ = std::move(*vehicle);
+
+  sensor_calib_->updateInternalDataStructures();
+  actuator_test_->updateInternalDataStructures();
+  control_system_->updateInternalDataStructures();
+
+  bridge_.initializeRosInterfaces(ros_node, ns);
+  sensor_calib_->initializeRosInterfaces(ros_node, ns);
+  actuator_test_->initializeRosInterfaces(ros_node, ns);
+  control_system_->initializeRosInterfaces(ros_node, ns);
+  param_tuning_->initializeRosInterfaces(ros_node, ns);
+  flight_log_->initializeRosInterfaces(ros_node, ns);
+
+  if (simulation_->isRunning()) {
+    simulation_->initializeRosInterfaces(ros_node, ns);
+  }
+
+  setConnectionState(true);
+  reset();
+
+  return {};
+}
+
+void GroundControlStationWidget::disconnectFromVehicle()
+{
+  qDebug() << "GroundControlStationWidget::disconnectFromVehicle";
+
+  deinitializeRos();
+  setConnectionState(false);
   reset();
 }
 
-void GroundControlStationWidget::disconnectFromFlightController()
+void GroundControlStationWidget::setConnectionState(bool connected)
 {
-  TOBAS_CHECK(project_loaded_);
-
-  fc_scanner_->start();
-  connect_btn_->setChecked(false);
-
-  clearRosConnection();
-  reset();
+  connection_ready_ = connected;
+  connect_btn_->setChecked(connected);
 }
 
 bool GroundControlStationWidget::waitForHeartbeat() const
@@ -325,28 +366,33 @@ bool GroundControlStationWidget::waitForHeartbeat() const
   return static_cast<bool>(rqt::waitForMessage<&rqt::RosQtBridge::remoteHeartbeatReceived>(bridge_, kHeartbeatTimeout));
 }
 
-void GroundControlStationWidget::updateHeaderActionAvailability()
+void GroundControlStationWidget::updateWidgetEnabledStates()
 {
-  const auto sim_stopped = !simulation_->isRunning();
+  const auto sim_running = simulation_->isRunning();
   const auto fc_found = fc_selector_->count() > 1;
-  const auto target_ready = !currentHost().isEmpty() && vehicle_id_->hasAcceptableInput();
-  const auto disconnected = !connection_ready_;
+  const auto host_ready = !currentAddress().isEmpty();
+  const auto vehicle_configured = isVehicleConfigured(currentFlightController());
   const auto disarmed = !arming_ || !arming_->data;
+  const auto project_loaded = !proj_path_->text().isEmpty();
 
-  load_btn_->setEnabled(sim_stopped && disconnected);
-  fc_selector_->setEnabled(sim_stopped && fc_found && disconnected);
-  vehicle_id_->setEnabled(sim_stopped && project_loaded_ && disconnected);
-  connect_btn_->setEnabled(project_loaded_ && target_ready);
-  write_btn_->setEnabled(sim_stopped && project_loaded_ && target_ready && disarmed);
-  restart_btn_->setEnabled(sim_stopped && connection_ready_ && disarmed);
-  shutdown_btn_->setEnabled(sim_stopped && connection_ready_ && disarmed);
+  fc_selector_->setEnabled(!sim_running && fc_found && !connection_ready_);
+  proj_path_->setEnabled(!sim_running);
+  write_id_->setEnabled(!sim_running);
+  connect_btn_->setEnabled((connection_ready_ || (host_ready && vehicle_configured)));
+  write_btn_->setEnabled(!sim_running && project_loaded && host_ready && write_id_->hasAcceptableInput() && disarmed);
+  restart_btn_->setEnabled(!sim_running && connection_ready_ && disarmed);
+  shutdown_btn_->setEnabled(!sim_running && connection_ready_ && disarmed);
+
+  sensor_calib_->setEnabled(!sim_running);
+  actuator_test_->setEnabled(!sim_running);
+  simulation_->setEnabled(project_loaded && (!connection_ready_ || sim_running));
 }
 
 void GroundControlStationWidget::updateFlightControllerList(const QVector<DiscoveredFlightController>& flight_controllers)
 {
   if (flight_controllers.isEmpty()) {
     setFlightControllerPlaceholder("No flight controller found");
-    updateHeaderActionAvailability();
+    updateWidgetEnabledStates();
     return;
   }
 
@@ -363,21 +409,28 @@ void GroundControlStationWidget::updateFlightControllerList(const QVector<Discov
 
   const QSignalBlocker block(fc_selector_);
 
-  const auto selected_host = currentHost();
+  const auto selected_fc = currentFlightController();
   fc_selector_->clear();
   fc_selector_->addItem("Select FC...");
   for (const auto& [index, elem] : std::views::enumerate(sorted_flight_controllers)) {
-    fc_selector_->addItem(elem.hostname + " (" + elem.address + ')');
-    fc_selector_->setItemData(index + 1, elem.address, kHostRole);
+    fc_selector_->addItem(endpointText(elem));
+    fc_selector_->setItemData(index + 1, elem.address, kAddressRole);
+    fc_selector_->setItemData(index + 1, elem.drone ? QVariant(*elem.drone) : QVariant(), kDroneRole);
+    fc_selector_->setItemData(index + 1, elem.id ? QVariant(*elem.id) : QVariant(), kIdRole);
   }
 
   // Preserve the current selection, or automatically select the first FC when none has been selected yet.
-  const auto selected_index = fc_selector_->findData(selected_host, kHostRole);
+  const auto selected_index = fc_selector_->findData(selected_fc.address, kAddressRole);
   if (selected_index >= 0) {
     fc_selector_->setCurrentIndex(selected_index);
   }
   else {
-    fc_selector_->setCurrentIndex(selected_host.isEmpty() ? 1 : 0);
+    fc_selector_->setCurrentIndex(selected_fc.address.isEmpty() ? 1 : 0);
+  }
+
+  // TXT records can change even when the selected address remains the same.
+  const auto current_fc = currentFlightController();
+  if (selected_fc.address != current_fc.address || selected_fc.drone != current_fc.drone || selected_fc.id != current_fc.id) {
     onEndpointChanged();
   }
 }
@@ -403,23 +456,39 @@ void GroundControlStationWidget::resetFlightControllerPlaceholder()
   setFlightControllerPlaceholder("Searching for flight controllers...");
 }
 
-QString GroundControlStationWidget::currentHost() const
+QString GroundControlStationWidget::currentAddress() const
 {
-  return fc_selector_->currentData(kHostRole).toString();
+  return fc_selector_->currentData(kAddressRole).toString();
 }
 
-int GroundControlStationWidget::currentId() const
+DiscoveredFlightController GroundControlStationWidget::currentFlightController() const
 {
-  return vehicle_id_->value();
+  const auto drone = fc_selector_->currentData(kDroneRole);
+  const auto id = fc_selector_->currentData(kIdRole);
+  return { {},
+           currentAddress(),
+           drone.isValid() ? std::optional<QString>(drone.toString()) : std::nullopt,
+           id.isValid() ? std::optional<QString>(id.toString()) : std::nullopt };
+}
+
+void GroundControlStationWidget::updateSelectedFlightControllerConfiguration(const QString& drone, const QString& id)
+{
+  const auto index = fc_selector_->currentIndex();
+  fc_selector_->setItemData(index, drone, kDroneRole);
+  fc_selector_->setItemData(index, id, kIdRole);
+
+  // The endpoint label prefix contains the host and address; replace only its configuration suffix.
+  const auto text = fc_selector_->currentText();
+  fc_selector_->setItemText(index, text.left(text.lastIndexOf(" [")) + " [" + drone + '/' + id + ']');
 }
 
 QString GroundControlStationWidget::currentConnectionDescription() const
 {
-  if (currentHost().isEmpty()) {
+  const auto fc = currentFlightController();
+  if (fc.address.isEmpty()) {
     return "unconfigured FC";
   }
-
-  return currentHost() + " [ID: " + QString::number(currentId()) + ']';
+  return fc.address + (isVehicleConfigured(fc) ? " [" + *fc.drone + '/' + *fc.id + ']' : QString(" [unconfigured]"));
 }
 
 void GroundControlStationWidget::expectTelemetryLoss()
@@ -447,19 +516,13 @@ void GroundControlStationWidget::onEndpointChanged()
 {
   qDebug() << "GroundControlStationWidget::onEndpointChanged";
 
-  updateHeaderActionAvailability();
-  fc_console_->setEndpoint(currentHost(), cmn::kUserNameFC);
+  updateWidgetEnabledStates();
+  fc_console_->setEndpoint(currentAddress(), cmn::kUserNameFC);
 }
 
-void GroundControlStationWidget::onLoadButtonClicked()
+void GroundControlStationWidget::onProjectSelectionRequested()
 {
-  qDebug() << "GroundControlStationWidget::onLoadButtonClicked";
-
-  // Confirm that the simulation is not running.
-  if (simulation_->isRunning()) {
-    qt::qWarnBox(this, "Stop the simulation before loading a new project.");
-    return;
-  }
+  qDebug() << "GroundControlStationWidget::onProjectSelectionRequested";
 
   // Get the previously opened path.
   auto default_dir = qt::expandUser(kColconWSPathHome) + "/src";
@@ -479,13 +542,13 @@ void GroundControlStationWidget::onLoadButtonClicked()
 
   // Validate the project before replacing the current project or connection.
   const auto cur_version = cmn::Version::Current();
-  cmn::Version next_proj_version;
-  if (next_proj_version.load(proj_paths.versionPath())) {
-    if (!next_proj_version.isCompatible(cur_version)) {
+  cmn::Version next_version;
+  if (next_version.load(proj_paths.versionPath())) {
+    if (!next_version.isCompatible(cur_version)) {
       qt::qWarnBox(
         this,
         "The current FC version (" + cur_version.toString() +
-          ") is incompatible with the version used to create this project (" + next_proj_version.toString() + ").");
+          ") is incompatible with the version used to create this project (" + next_version.toString() + ").");
       return;
     }
   }
@@ -526,30 +589,28 @@ void GroundControlStationWidget::onLoadButtonClicked()
   }
 
   // Load network configuration.
-  const auto next_network_config = cmn::loadNetworkConfig(proj_paths.networkConfigPath());
-  if (!next_network_config) {
-    qt::qErrorBox(this, "Failed to load network configuration:\n\n" + next_network_config.error());
+  const auto next_network = cmn::loadNetworkConfig(proj_paths.networkConfigPath());
+  if (!next_network) {
+    qt::qErrorBox(this, "Failed to load network configuration:\n\n" + next_network.error());
     return;
   }
 
-  proj_version_ = std::move(next_proj_version);
-  uadf_ = std::move(*next_uadf);
-  tree_ = std::move(*next_tree);
-  drone_ = std::move(next_drone);
-  network_config_ = std::move(*next_network_config);
+  project_.version = std::move(next_version);
+  project_.uadf = std::move(*next_uadf);
+  project_.tree = std::move(*next_tree);
+  project_.drone = std::move(next_drone);
+  project_.network = std::move(*next_network);
 
   // Commit the path only after every project file has been validated.
   proj_path_->setText(proj_path);
   settings_store_.setValue(kLastOpenedDirKey, QFileInfo(proj_path).absolutePath());
 
-  // Update the internal states.
-  clearRosConnection();
-  updateInternalDataStructures();
-  reset();
+  // A local project supplies save paths and simulation inputs without replacing the connected vehicle model.
+  actuator_test_->setProjectPath(proj_path);
+  param_tuning_->setProjectPath(proj_path);
+  simulation_->setProjectPath(proj_path);
 
-  project_loaded_ = true;
-  updateHeaderActionAvailability();
-  fc_scanner_->start();
+  updateWidgetEnabledStates();
 
   // Show a dialog indicating that the project was loaded successfully.
   qt::qInfoBox(this, "Tobas project has been loaded successfully.");
@@ -559,21 +620,30 @@ void GroundControlStationWidget::onConnectButtonClicked()
 {
   qDebug() << "GroundControlStationWidget::onConnectButtonClicked";
 
-  spinner_.start();
-  connectToFlightController();
-  const auto heartbeat_received = waitForHeartbeat();
-  spinner_.stop();
+  fc_scanner_->stop();
 
-  if (!heartbeat_received) {
-    disconnectFromFlightController();
-    qt::qErrorBox(this, "Timed out waiting for a heartbeat from " + currentConnectionDescription() + ".");
+  const auto fc = currentFlightController();
+  const auto target = currentConnectionDescription();
+
+  spinner_.start();
+
+  initializeRos();
+
+  if (const auto result = connectToVehicle(*fc.drone, *fc.id); !result) {
+    spinner_.stop();
+    disconnectFromVehicle();
+    qt::qErrorBox(this, result.error());
     return;
   }
 
-  // Prevent the simulation from starting while connected to a real flight controller.
-  if (!simulation_->isRunning()) {
-    simulation_->setEnabled(false);
+  if (!waitForHeartbeat()) {
+    spinner_.stop();
+    disconnectFromVehicle();
+    qt::qErrorBox(this, "Timed out waiting for a heartbeat from " + target + ".");
+    return;
   }
+
+  spinner_.stop();
 
   qt::qInfoBox(this, "The connection to " + currentConnectionDescription() + " has been established successfully.");
 }
@@ -583,11 +653,7 @@ void GroundControlStationWidget::onDisconnectButtonClicked()
   qDebug() << "GroundControlStationWidget::onDisconnectButtonClicked";
 
   const auto connection = currentConnectionDescription();
-  disconnectFromFlightController();
-
-  // Re-enable the simulation widget disabled during the real flight controller connection.
-  simulation_->setEnabled(true);
-
+  disconnectFromVehicle();
   qt::qInfoBox(this, "The connection to " + connection + " has been closed.");
 }
 
@@ -595,12 +661,20 @@ void GroundControlStationWidget::onWriteButtonClicked()
 {
   qDebug() << "GroundControlStationWidget::onWriteButtonClicked";
 
+  constexpr char kPleaseCheckConsoleOutputMsg[] = "The flight code probably failed to start, "
+                                                  "most likely due to a runtime error in the user code. "
+                                                  "Please check the console output.";
+
+  const auto next_drone = QString::fromStdString(project_.drone.name);
+  const auto next_id = makeIdText(write_id_->value());
+  const auto target = currentAddress() + " [" + next_drone + '/' + next_id + ']';
+
   if (!qt::yesOrNo(
         this,
         "This operation will restart the flight control software, "
         "so it can only be performed when the aircraft is completely stationary. "
         "Do you want to write the project to " +
-          currentConnectionDescription() + "?",
+          target + "?",
         qt::WARN)) {
     return;
   }
@@ -611,16 +685,17 @@ void GroundControlStationWidget::onWriteButtonClicked()
   const auto config_pkg_name = proj_paths.cfgPkgName();
 
   // Create a progress bar.
-  qt::ProgressDialog progress("Write Tobas Project", 12, this);
+  qt::ProgressDialog progress("Write Tobas Project", 14, this);
   progress.setCancelButton(nullptr);
   progress.show();
 
   // Connect to the flight controller.
   progress.setLabelText("Connecting to the flight controller.");
-  connectToFlightController();
+  deinitializeRos();
+  initializeRos();
   if (const auto result = ssh_client_->connect(); !result) {
     progress.close();
-    disconnectFromFlightController();
+    disconnectFromVehicle();
     qt::qErrorBox(this, "No SSH connection: " + result.error());
     return;
   }
@@ -631,24 +706,24 @@ void GroundControlStationWidget::onWriteButtonClicked()
   QString fc_ver_text;
   if (const auto result = ssh_client_->execute("/opt/tobas/lib/tobas_version/show_version", fc_ver_text); !result) {
     progress.close();
-    disconnectFromFlightController();
+    disconnectFromVehicle();
     qt::qErrorBox(this, "Failed to retrieve the FC version: " + result.error());
     return;
   }
   cmn::Version fc_version;
   if (!fc_version.fromString(fc_ver_text)) {
     progress.close();
-    disconnectFromFlightController();
+    disconnectFromVehicle();
     qt::qErrorBox(this, "Failed to parse the FC version: " + fc_ver_text);
     return;
   }
-  if (!fc_version.isCompatible(proj_version_)) {
+  if (!fc_version.isCompatible(project_.version)) {
     progress.close();
-    disconnectFromFlightController();
+    disconnectFromVehicle();
     qt::qWarnBox(
       this,
       "The FC version (" + fc_version.toString() + ") is incompatible with the version used to create this project (" +
-        proj_version_.toString() + ").");
+        project_.version.toString() + ").");
     return;
   }
   progress.progressStep();
@@ -659,7 +734,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
   if (const auto result = ssh_client_->execute("systemctl stop tobas_real.target", true); !result) {
     progress.close();
     clearExpectedTelemetryLoss();
-    disconnectFromFlightController();
+    disconnectFromVehicle();
     qt::qErrorBox(this, "Failed to stop Tobas real service:\n\n" + result.error());
     return;
   }
@@ -669,7 +744,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
   progress.setLabelText("Getting environment variables.");
   QString project_env_text;
   if (const auto result = ssh_client_->sftpRead(kProjectEnvPath, project_env_text, true); result) {
-    project_env_ = parseProjectEnv(project_env_text);
+    project_.env = parseProjectEnv(project_env_text);
   }
   else {
     qWarning() << "Failed to get the current environment variables: " << result.error();
@@ -677,18 +752,18 @@ void GroundControlStationWidget::onWriteButtonClicked()
   progress.progressStep();
 
   // Use a clean build when packages change to avoid conflicts.
-  if (config_pkg_name != project_env_.config_pkg) {
+  if (config_pkg_name != project_.env.config_pkg) {
     // Initialize the workspace.
     progress.setLabelText("Initializing colcon workspace.");
     if (const auto result = ssh_client_->execute(QString("rm -rf %1").arg(kColconWSPathRoot), true); !result) {
       progress.close();
-      disconnectFromFlightController();
+      disconnectFromVehicle();
       qt::qErrorBox(this, "Failed to remove the old colcon workspace:\n\n" + result.error());
       return;
     }
     if (const auto result = ssh_client_->execute(QString("mkdir -p %1/src").arg(kColconWSPathRoot), true); !result) {
       progress.close();
-      disconnectFromFlightController();
+      disconnectFromVehicle();
       qt::qErrorBox(this, "Failed to create a new colcon workspace:\n\n" + result.error());
       return;
     }
@@ -700,12 +775,13 @@ void GroundControlStationWidget::onWriteButtonClicked()
 
   // Update environment variables.
   progress.setLabelText("Setting environment variables.");
-  project_env_.config_pkg = config_pkg_name;
-  project_env_.nic = network_config_.interface;
-  project_env_.id = QString(kIdPrefix) + QString::number(currentId());
-  if (const auto result = ssh_client_->sftpWrite(kProjectEnvPath, exportProjectEnv(project_env_), true); !result) {
+  project_.env.config_pkg = config_pkg_name;
+  project_.env.nic = project_.network.interface;
+  project_.env.drone = next_drone;
+  project_.env.id = next_id;
+  if (const auto result = ssh_client_->sftpWrite(kProjectEnvPath, exportProjectEnv(project_.env), true); !result) {
     progress.close();
-    disconnectFromFlightController();
+    disconnectFromVehicle();
     qt::qErrorBox(this, "Failed to set environment variables:\n\n" + result.error());
     return;
   }
@@ -718,7 +794,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
   const auto git_path = QDir(proj_paths.getProjPath()).filePath(".git");
   if (const auto result = ssh_client_->scpPut(proj_path, remote_dir, true, { mesh_path, git_path }, true); !result) {
     progress.close();
-    disconnectFromFlightController();
+    disconnectFromVehicle();
     qt::qErrorBox(this, "Failed to send Tobas project:\n\n" + result.error());
     return;
   }
@@ -729,7 +805,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
   if (const auto result = remote_proj_builder_->build(proj_paths.remoteProjPath()); !result) {
     const auto error_msg = result.error();
     progress.close();
-    disconnectFromFlightController();
+    disconnectFromVehicle();
     if (error_msg.size() < cmn::kSaveLogTextSizeThresh) {
       qt::qErrorBox(this, "Failed to build the Tobas project:\n\n" + error_msg);
     }
@@ -751,34 +827,56 @@ void GroundControlStationWidget::onWriteButtonClicked()
   progress.setLabelText("Writing DDS configuration.");
   cyclonedds::Data dds_data;
   dds_data.interfaces.emplace_back("lo", 1, true);  // Multicast must be enabled to bridge the two NICs.
-  dds_data.interfaces.emplace_back(network_config_.interface.toStdString(), 0, true);
+  dds_data.interfaces.emplace_back(project_.network.interface.toStdString(), 0, true);
   const auto dds_config_if_text = cyclonedds::exportText(dds_data);
   if (const auto result =
         ssh_client_->sftpWrite(kCycloneddsConfigPath, QString::fromStdString(dds_config_if_text), true);
       !result) {
     progress.close();
-    disconnectFromFlightController();
+    disconnectFromVehicle();
     qt::qErrorBox(this, "Failed to write DDS configuration:\n\n" + result.error());
     return;
   }
   progress.progressStep();
 
-  // Enable the service.
+  // Enable the flight control service.
   progress.setLabelText("Enabling the flight controller.");
   if (const auto result = ssh_client_->execute("systemctl enable tobas_real.target", true); !result) {
     progress.close();
-    disconnectFromFlightController();
+    disconnectFromVehicle();
     qt::qErrorBox(this, "Failed to enable Tobas real service:\n\n" + result.error());
     return;
   }
   progress.progressStep();
 
-  // Start the service.
+  // Start the flight control service.
   progress.setLabelText("Starting the flight controller.");
   if (const auto result = ssh_client_->execute("systemctl start tobas_real.target", true); !result) {
     progress.close();
-    disconnectFromFlightController();
+    disconnectFromVehicle();
     qt::qErrorBox(this, "Failed to start Tobas real service:\n\n" + result.error());
+    return;
+  }
+  progress.progressStep();
+
+  // Refresh discovery only after the new project has been built and started successfully.
+  progress.setLabelText("Updating the FC advertisement.");
+  if (const auto result = ssh_client_->execute("systemctl restart tobas_fc_advertise.service", true); !result) {
+    progress.close();
+    disconnectFromVehicle();
+    qt::qErrorBox(this, "Failed to update the FC advertisement:\n\n" + result.error());
+    return;
+  }
+  updateSelectedFlightControllerConfiguration(next_drone, next_id);
+  progress.progressStep();
+
+  // Connect to the vehicle.
+  progress.setLabelText("Receiving the vehicle configuration.");
+  if (const auto result = connectToVehicle(next_drone, next_id); !result) {
+    progress.close();
+    disconnectFromVehicle();
+    qt::qErrorBox(this, result.error() + ' ' + kPleaseCheckConsoleOutputMsg);
+    setCurrentApplication(fc_console_);
     return;
   }
   progress.progressStep();
@@ -787,23 +885,14 @@ void GroundControlStationWidget::onWriteButtonClicked()
   progress.setLabelText("Waiting for telemetry.");
   if (!waitForHeartbeat()) {
     progress.close();
-    disconnectFromFlightController();
-    qt::qErrorBox(
-      this,
-      "Timed out waiting for a heartbeat from " + currentConnectionDescription() +
-        ". "
-        "The flight code probably failed to start, "
-        "most likely due to a runtime error in the user code. "
-        "Please check the console output.");
+    disconnectFromVehicle();
+    qt::qErrorBox(this, "Timed out waiting for a heartbeat from " + target + ". " + kPleaseCheckConsoleOutputMsg);
     setCurrentApplication(fc_console_);
     return;
   }
   progress.progressStep();
 
   progress.close();
-
-  simulation_->setEnabled(false);
-
   qt::qInfoBox(this, "The current project has been flashed to the flight controller successfully.");
 }
 
@@ -815,7 +904,7 @@ void GroundControlStationWidget::onFlightControllerScanFinished(
   }
 
   updateFlightControllerList(flight_controllers);
-  updateHeaderActionAvailability();
+  updateWidgetEnabledStates();
 }
 
 void GroundControlStationWidget::onFlightControllerScanFailed(const QString& message)
@@ -828,7 +917,7 @@ void GroundControlStationWidget::onFlightControllerScanFailed(const QString& mes
 
   if (fc_selector_->count() <= 1) {
     setFlightControllerPlaceholder("flight controller scan unavailable");
-    updateHeaderActionAvailability();
+    updateWidgetEnabledStates();
   }
 }
 
@@ -836,8 +925,10 @@ void GroundControlStationWidget::onRestartButtonClicked()
 {
   qDebug() << "GroundControlStationWidget::onRestartButtonClicked";
 
+  const auto target = currentConnectionDescription();
+
   // Confirm before restarting.
-  if (!qt::yesOrNo(this, "Are you sure you want to restart " + currentConnectionDescription() + "?", qt::WARN)) {
+  if (!qt::yesOrNo(this, "Are you sure you want to restart " + target + "?", qt::WARN)) {
     restart_btn_->setChecked(false);
     return;
   }
@@ -860,8 +951,8 @@ void GroundControlStationWidget::onRestartButtonClicked()
   // Verify the ROS connection.
   if (!waitForHeartbeat()) {
     spinner_.stop();
-    disconnectFromFlightController();
-    qt::qErrorBox(this, "Timed out waiting for a heartbeat from " + currentConnectionDescription() + ".");
+    disconnectFromVehicle();
+    qt::qErrorBox(this, "Timed out waiting for a heartbeat from " + target + ".");
     return;
   }
 
@@ -896,7 +987,7 @@ void GroundControlStationWidget::onShutdownButtonClicked()
 
   spinner_.stop();
 
-  disconnectFromFlightController();
+  disconnectFromVehicle();
   qt::qInfoBox(this, "The flight controller has been shut down successfully.");
 }
 
@@ -904,17 +995,12 @@ void GroundControlStationWidget::onSimulationStarted()
 {
   qDebug() << "GroundControlStationWidget::onSimulationStarted";
 
-  // Disable features specific to real hardware.
-  sensor_calib_->setEnabled(false);
-  actuator_test_->setEnabled(false);
-
   // Set the simulation target.
-  updateFlightControllerList({ DiscoveredFlightController("Simulation Model", "127.0.0.1") });
+  updateFlightControllerList({ { "Simulation Model",
+                                 "127.0.0.1",
+                                 QString::fromStdString(project_.drone.name),
+                                 makeIdText(sim::SimulationWidget::kDroneId) } });
   fc_selector_->setCurrentIndex(1);
-  vehicle_id_->setValue(sim::SimulationWidget::kDroneId);
-
-  // Stop scanning for flight controllers.
-  fc_scanner_->stop();
 
   // Reset the entire widget.
   reset();
@@ -925,19 +1011,13 @@ void GroundControlStationWidget::onSimulationTerminated()
   qDebug() << "GroundControlStationWidget::onSimulationTerminated";
 
   // Disconnect if ROS communication is active.
-  if (connect_btn_->isChecked()) {
-    clearRosConnection();
-    connect_btn_->setChecked(false);
+  if (connection_ready_) {
+    disconnectFromVehicle();
     qInfo() << "ROS connection has been automatically closed.";
   }
 
-  // Re-enable features specific to real hardware.
-  sensor_calib_->setEnabled(true);
-  actuator_test_->setEnabled(true);
-
-  // Resume scanning for flight controllers.
+  // Restore the endpoint list before resuming discovery in `reset()`.
   resetFlightControllerPlaceholder();
-  fc_scanner_->start();
 
   // Reset the entire widget.
   reset();
@@ -961,7 +1041,7 @@ void GroundControlStationWidget::onRemoteConnectionDisconnected()
 void GroundControlStationWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
 {
   arming_ = arming;
-  updateHeaderActionAvailability();
+  updateWidgetEnabledStates();
 }
 }  // namespace gcs
 }  // namespace gui

@@ -77,13 +77,14 @@ void SimulationWidget::reset()
 
   spinner_.stop();
   start_stop_button_->setChecked(false);
+  start_stop_button_->setEnabled(project_loaded_);
 
   sim_settings_->setEnabled(project_loaded_);
   dynamic_config_->setEnabled(false);
   commanders_->setEnabled(false);
 }
 
-void SimulationWidget::updateProject(const QString& proj_path)
+void SimulationWidget::setProjectPath(const QString& proj_path)
 {
   // Update project path.
   proj_paths_.setProjPath(proj_path);
@@ -104,6 +105,7 @@ void SimulationWidget::updateProject(const QString& proj_path)
   commanders_->updateInternalDataStructures();
 
   project_loaded_ = true;
+  reset();
 }
 
 void SimulationWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)

@@ -17,7 +17,7 @@ sudo udevadm trigger
 sudo systemctl enable ssh.service
 
 # Advertise the Tobas FC on the local network
-sudo systemctl enable avahi-daemon.service
+sudo systemctl enable tobas_fc_advertise.service
 
 # Enable services for using RPi as an access point
 # https://www.mikan-tech.net/entry/raspi-wifi-ap-sta

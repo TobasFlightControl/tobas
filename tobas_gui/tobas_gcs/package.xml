@@ -10,13 +10,16 @@
 
   <depend>tobas_ros2_tools</depend>
   <depend>tobas_cyclonedds_config</depend>
+  <depend>tobas_drone_msgs_adapter</depend>
+  <depend>tobas_kdl_msgs_adapter</depend>
+
   <depend>tobas_sensor_calibration</depend>
   <depend>tobas_actuator_test</depend>
   <depend>tobas_control_system</depend>
   <depend>tobas_parameter_tuning</depend>
   <depend>tobas_flight_log_gui</depend>
-  <depend>tobas_simulation_gui</depend>
   <depend>tobas_fc_console</depend>
+  <depend>tobas_simulation_gui</depend>
 
   <exec_depend>launch</exec_depend>
   <exec_depend>launch_ros</exec_depend>

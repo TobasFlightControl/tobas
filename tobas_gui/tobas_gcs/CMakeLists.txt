@@ -14,13 +14,15 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(AMENT_DEPENDENCIES
     tobas_ros2_tools
     tobas_cyclonedds_config
+    tobas_drone_msgs_adapter
+    tobas_kdl_msgs_adapter
     tobas_sensor_calibration
     tobas_actuator_test
     tobas_control_system
     tobas_parameter_tuning
     tobas_flight_log_gui
-    tobas_simulation_gui
     tobas_fc_console
+    tobas_simulation_gui
 )
 
 find_package(ament_cmake REQUIRED)

@@ -15,6 +15,7 @@ struct ProjectEnv
 {
   QString config_pkg;
   QString nic;
+  QString drone;
   QString id;
 };
 
