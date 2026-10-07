@@ -48,6 +48,6 @@ source /opt/ros/jazzy/setup.bash
 
 # ===== Install ROS dependencies of Tobas =====
 rosdep update
-rosdep install --from-paths /opt/ros/jazzy/share/ -iy
+rosdep install -iy --from-paths /opt/ros/jazzy/share/
 
 echo -e "\033[32mInstallation finished successfully. Please restart your PC.\033[0m"

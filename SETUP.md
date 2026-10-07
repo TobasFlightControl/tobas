@@ -64,7 +64,7 @@ If you only want to install and use Tobas, start from the
 
    ```bash
    $ rosdep update
-   $ rosdep install --from-paths ~/colcon_ws/src/tobas -iry
+   $ rosdep install -iry --from-paths ~/colcon_ws/src/tobas
    ```
 
 6. Build
