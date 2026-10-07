@@ -42,12 +42,12 @@ sudo apt install -y ros-jazzy-desktop
 
 # Initialize rosdep (added)
 sudo rosdep init || true  # Treat already-initialized rosdep as success.
-rosdep update
 
 # Setup environment
 source /opt/ros/jazzy/setup.bash
 
 # ===== Install ROS dependencies of Tobas =====
-rosdep install --from-paths /opt/ros/jazzy/share/ -yi
+rosdep update
+rosdep install --from-paths /opt/ros/jazzy/share/ -iy
 
 echo -e "\033[32mInstallation finished successfully. Please restart your PC.\033[0m"

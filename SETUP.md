@@ -36,7 +36,6 @@ If you only want to install and use Tobas, start from the
 
    # Initialize rosdep
    $ sudo rosdep init
-   $ rosdep update
    ```
 
 2. Create colcon workspace
@@ -64,7 +63,8 @@ If you only want to install and use Tobas, start from the
 5. Install dependencies
 
    ```bash
-   $ rosdep install --from-paths ~/colcon_ws/src/tobas -yi
+   $ rosdep update
+   $ rosdep install --from-paths ~/colcon_ws/src/tobas -iry
    ```
 
 6. Build

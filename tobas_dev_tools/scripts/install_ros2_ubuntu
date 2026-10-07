@@ -42,7 +42,6 @@ sudo apt install -y ros-jazzy-desktop-full
 
 # Initialize rosdep
 sudo rosdep init | true
-rosdep update
 
 # Setup environment
 source /opt/ros/jazzy/setup.bash
