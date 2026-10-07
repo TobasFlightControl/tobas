@@ -241,8 +241,6 @@ bool RotorTestWidget::loadCurrentGains()
 
 void RotorTestWidget::onStartButtonClicked()
 {
-  constexpr int kUpdatePeriod = 10;  // [ms]
-
   qDebug() << "RotorTestWidget::onStartButtonClicked";
 
   // Apply the current gain.
@@ -256,6 +254,7 @@ void RotorTestWidget::onStartButtonClicked()
     connect(&bridge_, &rqt::RosQtBridge::rotorStatesReceived, this, &self::rotorStatesCb, Qt::QueuedConnection);
 
   // Publish commands at a fixed interval.
+  constexpr int kUpdatePeriod = 10;  // [ms]
   update_timer_.start(kUpdatePeriod);
 
   running_ = true;

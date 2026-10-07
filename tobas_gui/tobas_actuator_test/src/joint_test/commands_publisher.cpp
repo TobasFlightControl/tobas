@@ -128,8 +128,6 @@ void JointCommandsPublisherWidget::clearRosInterfaces()
 
 void JointCommandsPublisherWidget::start()
 {
-  constexpr int kPublishPeriod = 10;  // [ms]
-
   // Enable the commander.
   for (const auto& [jnt_name, commander] : commanders_) {
     const auto& joint = drone_.joints.at(jnt_name);
@@ -152,6 +150,7 @@ void JointCommandsPublisherWidget::start()
   }
 
   // Keep publishing commands at a fixed interval so the joints are not reset.
+  constexpr int kPublishPeriod = 10;  // [ms]
   publish_timer_.start(kPublishPeriod);
 }
 
