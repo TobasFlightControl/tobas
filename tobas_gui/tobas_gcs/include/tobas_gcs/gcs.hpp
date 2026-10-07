@@ -107,6 +107,7 @@ private:
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
   bool telemetry_loss_expected_ = false;
   bool connection_ready_ = false;
+  bool endpoint_operation_in_progress_ = false;
 
   std::vector<std::string> ros_args_;
   std::optional<ros2::AsyncNodeManager> ros_node_manager_;
@@ -123,6 +124,7 @@ private:
   bool waitForHeartbeat() const;
 
   void updateWidgetEnabledStates();
+  bool canUpdateFlightControllerList() const;
   void updateFlightControllerList(const QVector<DiscoveredFlightController>& flight_controllers);
   void setFlightControllerPlaceholder(const QString& text);
   void resetFlightControllerPlaceholder();

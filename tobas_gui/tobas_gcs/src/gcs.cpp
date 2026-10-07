@@ -7,11 +7,13 @@
 #include <ranges>
 #include <utility>
 
+#include <QAbstractItemView>
 #include <QGridLayout>
 #include <QHBoxLayout>
 #include <QKeyEvent>
 #include <QLabel>
 #include <QMouseEvent>
+#include <QScopedValueRollback>
 #include <QSignalBlocker>
 #include <QVBoxLayout>
 #include <QVariant>
@@ -209,6 +211,7 @@ GroundControlStationWidget::GroundControlStationWidget(int argc, char** argv) : 
 
   resetFlightControllerPlaceholder();
   reset();
+  fc_scanner_->start();
 }
 
 bool GroundControlStationWidget::eventFilter(QObject* watched, QEvent* event)
@@ -237,13 +240,6 @@ void GroundControlStationWidget::reset()
   qDebug() << "GroundControlStationWidget::reset";
 
   qt::processAllQueuedEvents();
-
-  if (connection_ready_ || simulation_->isRunning()) {
-    fc_scanner_->stop();
-  }
-  else {
-    fc_scanner_->start();
-  }
 
   clearExpectedTelemetryLoss();
   if (connection_ready_) {
@@ -349,6 +345,8 @@ void GroundControlStationWidget::disconnectFromVehicle()
 {
   qDebug() << "GroundControlStationWidget::disconnectFromVehicle";
 
+  const QScopedValueRollback block_discovery(endpoint_operation_in_progress_, true);
+
   deinitializeRos();
   setConnectionState(false);
   reset();
@@ -386,6 +384,14 @@ void GroundControlStationWidget::updateWidgetEnabledStates()
   sensor_calib_->setEnabled(!sim_running);
   actuator_test_->setEnabled(!sim_running);
   simulation_->setEnabled(project_loaded && (!connection_ready_ || sim_running));
+}
+
+bool GroundControlStationWidget::canUpdateFlightControllerList() const
+{
+  // Nested event loops can deliver scan results while an endpoint operation is still in progress.
+  // Keep the popup selection intact, too; refresh on the next scan after it closes.
+  return !connection_ready_ && !simulation_->isRunning() && !endpoint_operation_in_progress_ &&
+         !fc_selector_->view()->isVisible();
 }
 
 void GroundControlStationWidget::updateFlightControllerList(const QVector<DiscoveredFlightController>& flight_controllers)
@@ -620,7 +626,7 @@ void GroundControlStationWidget::onConnectButtonClicked()
 {
   qDebug() << "GroundControlStationWidget::onConnectButtonClicked";
 
-  fc_scanner_->stop();
+  const QScopedValueRollback block_discovery(endpoint_operation_in_progress_, true);
 
   const auto fc = currentFlightController();
   const auto target = currentConnectionDescription();
@@ -660,6 +666,9 @@ void GroundControlStationWidget::onDisconnectButtonClicked()
 void GroundControlStationWidget::onWriteButtonClicked()
 {
   qDebug() << "GroundControlStationWidget::onWriteButtonClicked";
+
+  // Freeze the endpoint before the confirmation dialog opens, through every success and failure path.
+  const QScopedValueRollback block_discovery(endpoint_operation_in_progress_, true);
 
   constexpr char kPleaseCheckConsoleOutputMsg[] = "The flight code probably failed to start, "
                                                   "most likely due to a runtime error in the user code. "
@@ -899,7 +908,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
 void GroundControlStationWidget::onFlightControllerScanFinished(
   const QVector<DiscoveredFlightController>& flight_controllers)
 {
-  if (connection_ready_ || simulation_->isRunning()) {
+  if (!canUpdateFlightControllerList()) {
     return;
   }
 
@@ -911,7 +920,7 @@ void GroundControlStationWidget::onFlightControllerScanFailed(const QString& mes
 {
   qWarning() << "Failed to scan for flight controllers:" << message;
 
-  if (connection_ready_ || simulation_->isRunning()) {
+  if (!canUpdateFlightControllerList()) {
     return;
   }
 
@@ -1016,7 +1025,7 @@ void GroundControlStationWidget::onSimulationTerminated()
     qInfo() << "ROS connection has been automatically closed.";
   }
 
-  // Restore the endpoint list before resuming discovery in `reset()`.
+  // Restore the endpoint list for the next discovery result.
   resetFlightControllerPlaceholder();
 
   // Reset the entire widget.
