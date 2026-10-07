@@ -33,7 +33,7 @@ QMap<QString, QString> parseTxtField(const QString& txt)
   return res;
 }
 
-std::optional<QString> getValue(const QMap<QString, QString>& map, const QString& key)
+std::optional<QString> getOptionalValue(const QMap<QString, QString>& map, const QString& key)
 {
   const auto it = map.find(key);
   if (it == map.end()) {
@@ -60,20 +60,36 @@ QVector<DiscoveredFlightController> parseAvahiBrowseResult(const QString& output
     if (fields.size() < 10) {
       continue;
     }
-    if (fields.at(0) != "=" || fields.at(2) != "IPv4" || fields.at(4) != kServiceType) {
+
+    const auto& event_type = fields.at(0);
+    if (event_type != "=") {
+      continue;
+    }
+
+    const auto& protocol = fields.at(2);
+    if (protocol != "IPv4") {
+      continue;
+    }
+
+    const auto& service_type = fields.at(4);
+    if (service_type != kServiceType) {
       continue;
     }
 
     const auto& hostname = fields.at(6);
-    const auto& address = fields.at(7);
-    const auto txt = parseTxtField(fields.at(9));
-
-    if (hostname.isEmpty() || address.isEmpty() || addresses.contains(address)) {
+    if (hostname.isEmpty()) {
       continue;
     }
 
+    const auto& address = fields.at(7);
+    if (address.isEmpty() || addresses.contains(address)) {
+      continue;
+    }
+
+    const auto txt = parseTxtField(fields.at(9));
+    flight_controllers.append({ hostname, address, getOptionalValue(txt, "drone"), getOptionalValue(txt, "id") });
+
     addresses.insert(address);
-    flight_controllers.append({ hostname, address, getValue(txt, "drone"), getValue(txt, "id") });
   }
 
   return flight_controllers;
