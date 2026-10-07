@@ -6,6 +6,7 @@
 #include <QPushButton>
 
 #include <tobas_drone_core/drone.hpp>
+#include <tobas_qt_tools/widgets/toggle_button.hpp>
 #include <tobas_rqt_bridge/bridge.hpp>
 
 #include "../base.hpp"
@@ -40,15 +41,17 @@ private:
   const kdl::Tree& tree_;
   const Drone& drone_;
 
-  QPushButton* start_button_;
-  QPushButton* stop_button_;
+  qt::ToggleButton* start_stop_button_;
   QPushButton* zero_button_;
   QPushButton* home_button_;
 
   JointCommandsPublisherWidget* commands_publisher_;
 
   bool ros_initialized_ = false;
+  bool running_ = false;
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
+
+  void updateActionAvailability();
 
 private Q_SLOTS:
   void onStartButtonClicked();

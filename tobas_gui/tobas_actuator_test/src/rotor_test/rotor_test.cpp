@@ -57,15 +57,11 @@ RotorTestWidget::RotorTestWidget(const rqt::RosQtBridge& bridge, const Drone& dr
   const auto button_cols = new QHBoxLayout();
   rows_->addLayout(button_cols);
 
-  start_button_ = new QPushButton("Start");
-  start_button_->setFixedSize(kButtonWidth, kButtonHeight);
-  button_cols->addWidget(start_button_);
-  connect(start_button_, &QPushButton::clicked, this, &self::onStartButtonClicked);
-
-  stop_button_ = new QPushButton("Stop");
-  stop_button_->setFixedSize(kButtonWidth, kButtonHeight);
-  button_cols->addWidget(stop_button_);
-  connect(stop_button_, &QPushButton::clicked, this, &self::onStopButtonClicked);
+  start_stop_button_ = new qt::ToggleButton("Start", "Stop");
+  start_stop_button_->setFixedSize(kButtonWidth, kButtonHeight);
+  button_cols->addWidget(start_stop_button_);
+  connect(start_stop_button_, &qt::ToggleButton::checked, this, &self::onStartButtonClicked);
+  connect(start_stop_button_, &qt::ToggleButton::unchecked, this, &self::onStopButtonClicked);
 
   save_button_ = new QPushButton("Save");
   save_button_->setFixedSize(kButtonWidth, kButtonHeight);
@@ -194,12 +190,15 @@ int RotorTestWidget::numRegisteredChannels() const
 
 void RotorTestWidget::updateActionAvailability()
 {
-  start_button_->setEnabled(!running_ && node_);
-  stop_button_->setEnabled(running_);
-  save_button_->setEnabled(running_ && !proj_paths_.getProjPath().isEmpty());
+  const auto disarmed = arming_ && !arming_->data;
+
+  start_stop_button_->setChecked(running_);
+  start_stop_button_->setEnabled(running_ || (node_ && disarmed));
+
+  save_button_->setEnabled(running_ && disarmed && !proj_paths_.getProjPath().isEmpty());
 
   for (size_t ch = 0; ch < kMaxDshotChannels; ++ch) {
-    rotor_widgets_.at(ch)->setEnabled(running_ && node_ && registered_.at(ch));
+    rotor_widgets_.at(ch)->setEnabled(node_ && running_ && disarmed && registered_.at(ch));
   }
 }
 
@@ -246,18 +245,9 @@ void RotorTestWidget::onStartButtonClicked()
 
   qDebug() << "RotorTestWidget::onStartButtonClicked";
 
-  // Confirm that the vehicle is not armed.
-  if (!arming_) {
-    qt::qWarnBox(this, "This operation cannot be performed because the arming status has not been received yet.");
-    return;
-  }
-  if (arming_->data) {
-    qt::qWarnBox(this, "This operation cannot be performed because the rotors are already armed.");
-    return;
-  }
-
   // Apply the current gain.
   if (!loadCurrentGains()) {
+    updateActionAvailability();
     return;
   }
 
@@ -345,6 +335,7 @@ void RotorTestWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& ar
   }
 
   arming_ = arming;
+  updateActionAvailability();
 }
 }  // namespace at
 }  // namespace gui

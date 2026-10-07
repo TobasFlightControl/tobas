@@ -26,28 +26,20 @@ JointTestWidget::JointTestWidget(const rqt::RosQtBridge& bridge, const kdl::Tree
     "4. Click 'Stop' to stop joint test.\n\n",
     cmn::kBodyPSize);
 
-  start_button_ = new QPushButton("Start");
-  start_button_->setFixedSize(kButtonWidth, kButtonHeight);
-  start_button_->setEnabled(false);
-
-  stop_button_ = new QPushButton("Stop");
-  stop_button_->setFixedSize(kButtonWidth, kButtonHeight);
-  stop_button_->setEnabled(false);
+  start_stop_button_ = new qt::ToggleButton("Start", "Stop");
+  start_stop_button_->setFixedSize(kButtonWidth, kButtonHeight);
 
   zero_button_ = new QPushButton("Zero");
   zero_button_->setFixedSize(kButtonWidth, kButtonHeight);
-  zero_button_->setEnabled(false);
 
   home_button_ = new QPushButton("Home");
   home_button_->setFixedSize(kButtonWidth, kButtonHeight);
-  home_button_->setEnabled(false);
 
   commands_publisher_ = new JointCommandsPublisherWidget(tree, drone);
 
   // Layout
   const auto cols = new QHBoxLayout();
-  cols->addWidget(start_button_);
-  cols->addWidget(stop_button_);
+  cols->addWidget(start_stop_button_);
   cols->addStretch();
   cols->addWidget(zero_button_);
   cols->addWidget(home_button_);
@@ -58,11 +50,13 @@ JointTestWidget::JointTestWidget(const rqt::RosQtBridge& bridge, const kdl::Tree
   rows_->addStretch();
 
   // Connection
-  connect(start_button_, &QPushButton::clicked, this, &self::onStartButtonClicked);
-  connect(stop_button_, &QPushButton::clicked, this, &self::onStopButtonClicked);
+  connect(start_stop_button_, &qt::ToggleButton::checked, this, &self::onStartButtonClicked);
+  connect(start_stop_button_, &qt::ToggleButton::unchecked, this, &self::onStopButtonClicked);
   connect(zero_button_, &QPushButton::clicked, this, &self::onZeroButtonClicked);
   connect(home_button_, &QPushButton::clicked, this, &self::onHomeButtonClicked);
   connect(&bridge, &rqt::RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
+
+  updateActionAvailability();
 }
 
 const char* JointTestWidget::title() const
@@ -74,12 +68,10 @@ void JointTestWidget::reset()
 {
   commands_publisher_->stop();
 
-  start_button_->setEnabled(numRegisteredChannels() > 0 && ros_initialized_);
-  stop_button_->setEnabled(false);
-  zero_button_->setEnabled(false);
-  home_button_->setEnabled(false);
-
+  running_ = false;
   arming_.reset();
+
+  updateActionAvailability();
 }
 
 void JointTestWidget::updateInternalDataStructures()
@@ -104,24 +96,24 @@ int JointTestWidget::numRegisteredChannels() const
   return commands_publisher_->numRegisteredChannels();
 }
 
+void JointTestWidget::updateActionAvailability()
+{
+  const auto disarmed = arming_ && !arming_->data;
+
+  start_stop_button_->setChecked(running_);
+  start_stop_button_->setEnabled(running_ || (ros_initialized_ && disarmed));
+
+  const auto ctrl_buttons_enabled = ros_initialized_ && running_ && disarmed;
+  zero_button_->setEnabled(ctrl_buttons_enabled);
+  home_button_->setEnabled(ctrl_buttons_enabled);
+}
+
 void JointTestWidget::onStartButtonClicked()
 {
-  // Confirm that the vehicle is not armed.
-  if (!arming_) {
-    qt::qWarnBox(this, "This operation cannot be performed because the arming status has not been received yet.");
-    return;
-  }
-  if (arming_->data) {
-    qt::qWarnBox(this, "This operation cannot be performed while the vehicle is armed.");
-    return;
-  }
-
   commands_publisher_->start();
 
-  start_button_->setEnabled(false);
-  stop_button_->setEnabled(true);
-  zero_button_->setEnabled(true);
-  home_button_->setEnabled(true);
+  running_ = true;
+  updateActionAvailability();
 
   qt::qInfoBox(this, "Joint test started.");
 }
@@ -148,6 +140,8 @@ void JointTestWidget::onHomeButtonClicked()
 void JointTestWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
 {
   arming_ = arming;
+
+  updateActionAvailability();
 }
 }  // namespace at
 }  // namespace gui
