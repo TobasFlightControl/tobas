@@ -145,6 +145,7 @@ void JointStatePublisherWidget::publishCurrentPositions()
 
   auto drs = std::make_unique<tobas_visualization_msgs::msg::DisplayRobotState>();
   drs->state.joint_state = js_;
+  drs->state.is_diff = js_.name.empty();  // Mark empty states as diffs to avoid RViz's empty JointState error.
   drs_pub_->publish(std::move(drs));
 }
 
