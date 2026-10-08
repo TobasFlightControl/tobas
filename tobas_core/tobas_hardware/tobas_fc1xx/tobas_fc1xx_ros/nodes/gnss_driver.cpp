@@ -5,7 +5,7 @@
 #include <tobas_hardware_common/base_sensor_node.hpp>
 #include <tobas_hardware_common/constants.hpp>
 #include <tobas_ic_drivers/ublox/ubx_transport_spi.hpp>
-#include <tobas_ic_drivers/ublox/zed_f9p.hpp>
+#include <tobas_ic_drivers/ublox/ublox_gnss.hpp>
 #include <tobas_std_tools/gnss.hpp>
 
 #include <tobas_msgs_adapter/gnss.hpp>
@@ -25,12 +25,12 @@ public:
   explicit GnssDriverNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  ublox::ZEDF9P gnss_;
+  ublox::UbloxGnss gnss_;
 
   ublox::payload::NAV_PVT pvt_;
   ublox::payload::NAV_COV cov_;
 
-  std::map<ublox::ZEDF9P::UbxNavId, bool> is_received_;
+  std::map<ublox::UbloxGnss::UbxNavId, bool> is_received_;
 
   ros2::PublisherPtr<tobas_msgs::Gnss> gnss_pub_;
   ros2::TimerPtr initialize_timer_;
@@ -61,8 +61,8 @@ void GnssDriverNode::initialize()
     return;
   }
 
-  is_received_[ublox::ZEDF9P::NAV_PVT] = false;
-  is_received_[ublox::ZEDF9P::NAV_COV] = false;
+  is_received_[ublox::UbloxGnss::NAV_PVT] = false;
+  is_received_[ublox::UbloxGnss::NAV_COV] = false;
 
   gnss_pub_ = createPublisher<tobas_msgs::Gnss>(topic::kGnss);
 
@@ -72,7 +72,7 @@ void GnssDriverNode::initialize()
 
 bool GnssDriverNode::configure()
 {
-  if (!gnss_.configureDynamicsModel(ublox::ZEDF9P::AIRBORNE_2G)) {
+  if (!gnss_.configureDynamicsModel(ublox::UbloxGnss::AIRBORNE_2G)) {
     TOBAS_ERROR("Failed to configure dynamics model.");
     return false;
   }
@@ -113,11 +113,11 @@ bool GnssDriverNode::configure()
   }
 
   // Enable messages.
-  if (!gnss_.enableSpiMessage(ublox::ZEDF9P::CLASS_NAV, ublox::ZEDF9P::NAV_PVT, true)) {
+  if (!gnss_.enableSpiMessage(ublox::UbloxGnss::CLASS_NAV, ublox::UbloxGnss::NAV_PVT, true)) {
     TOBAS_ERROR("Failed to enable NAV_PVT message.");
     return false;
   }
-  if (!gnss_.enableSpiMessage(ublox::ZEDF9P::CLASS_NAV, ublox::ZEDF9P::NAV_COV, true)) {
+  if (!gnss_.enableSpiMessage(ublox::UbloxGnss::CLASS_NAV, ublox::UbloxGnss::NAV_COV, true)) {
     TOBAS_ERROR("Failed to enable NAV_COV message.");
     return false;
   }
@@ -170,19 +170,19 @@ void GnssDriverNode::mainTimerCb()
     return;
   }
 
-  if (gnss_.latestClass() != ublox::ZEDF9P::CLASS_NAV) {
+  if (gnss_.latestClass() != ublox::UbloxGnss::CLASS_NAV) {
     warnUnnecessaryUBXMessage();
     return;
   }
 
   switch (gnss_.latestId()) {
-    case ublox::ZEDF9P::NAV_PVT:
+    case ublox::UbloxGnss::NAV_PVT:
       pvt_.decode(gnss_.payload());
-      is_received_.at(ublox::ZEDF9P::NAV_PVT) = true;
+      is_received_.at(ublox::UbloxGnss::NAV_PVT) = true;
       break;
-    case ublox::ZEDF9P::NAV_COV:
+    case ublox::UbloxGnss::NAV_COV:
       cov_.decode(gnss_.payload());
-      is_received_.at(ublox::ZEDF9P::NAV_COV) = true;
+      is_received_.at(ublox::UbloxGnss::NAV_COV) = true;
       break;
     default:
       warnUnnecessaryUBXMessage();

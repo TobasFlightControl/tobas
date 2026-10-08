@@ -1,13 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include "tobas_ic_drivers/ublox/zed_f9p.hpp"
+#include "tobas_ic_drivers/ublox/ublox_gnss.hpp"
 
 #include <cassert>
 #include <cstring>
 #include <memory>
 #include <utility>
-#include <vector>
 
 using namespace std::chrono_literals;
 namespace ch = std::chrono;
@@ -16,19 +15,87 @@ namespace tobas
 {
 namespace ublox
 {
-ZEDF9P::ZEDF9P(std::unique_ptr<UbxTransport> _transport) : transport_(std::move(_transport)), scan_rate_(50us)
+UbloxGnss::UbloxGnss(std::unique_ptr<UbxTransport> _transport) : transport_(std::move(_transport)), scan_rate_(50us)
 {
   assert(transport_);
 }
 
-bool ZEDF9P::initialize()
+bool UbloxGnss::initialize()
 {
   return transport_->initialize();
 }
 
-bool ZEDF9P::update(bool blocking)
+void UbloxGnss::setReceiverProfile(ReceiverProfile profile)
+{
+  receiver_profile_ = profile;
+}
+
+std::optional<std::string> UbloxGnss::getModuleName()
+{
+  if (!sendMessage(CLASS_MON, MON_VER, nullptr, 0)) {
+    return std::nullopt;
+  }
+
+  const auto deadline = ch::steady_clock::now() + 1s;
+
+  while (ch::steady_clock::now() < deadline) {
+    const auto remaining = ch::duration_cast<ch::milliseconds>(deadline - ch::steady_clock::now());
+
+    if (!update(true, remaining)) {
+      return std::nullopt;
+    }
+
+    if (latestClass() == CLASS_MON && latestId() == MON_VER) {
+      break;
+    }
+  }
+
+  if (latestClass() != CLASS_MON || latestId() != MON_VER) {
+    return std::nullopt;
+  }
+
+  const auto* length = scanner_.getLength();
+  const uint16_t payload_length =
+    static_cast<uint16_t>(length[0]) |
+    (static_cast<uint16_t>(length[1]) << 8);
+
+  const auto* data = payload();
+
+  constexpr uint16_t kMonVerFixedLength = 40;
+  constexpr uint16_t kExtensionLength = 30;
+
+  if (payload_length < kMonVerFixedLength) {
+    return std::nullopt;
+  }
+
+  for (uint16_t offset = kMonVerFixedLength;
+       offset + kExtensionLength <= payload_length;
+       offset += kExtensionLength) {
+
+    const char* extension =
+      reinterpret_cast<const char*>(&data[offset]);
+
+    constexpr char kModelPrefix[] = "MOD=";
+
+    if (std::strncmp(extension, kModelPrefix, 4) == 0) {
+      const char* model = extension + 4;
+
+      const size_t model_length =
+        strnlen(model, kExtensionLength - 4);
+
+      return std::string(model, model_length);
+    }
+  }
+
+  return std::nullopt;
+}
+
+bool UbloxGnss::update(bool blocking, std::chrono::milliseconds timeout)
 {
   scanner_.reset();
+
+  const bool use_timeout = timeout.count() > 0;
+  const auto deadline = ch::steady_clock::now() + timeout;
 
   if (!blocking) {
     // Check the start byte.
@@ -36,7 +103,9 @@ bool ZEDF9P::update(bool blocking)
     if (!first_byte) {
       return false;
     }
-    scanner_.update(*first_byte);
+    if (!scanner_.update(*first_byte)) {
+      return false;
+    }
 
     // Return if no data has arrived.
     if (scanner_.state() == UbxScanner::kSync1) {
@@ -47,11 +116,17 @@ bool ZEDF9P::update(bool blocking)
   // Scan one message.
   scan_rate_.start();
   while (scanner_.state() != UbxScanner::kDone) {
+    if (use_timeout && ch::steady_clock::now() >= deadline) {
+      return false;
+    }
+
     const auto data = transport_->receiveByte();
     if (!data) {
       return false;
     }
-    scanner_.update(*data);
+    if (!scanner_.update(*data)) {
+      return false;
+    }
     scan_rate_.sleep();
   }
 
@@ -62,7 +137,7 @@ bool ZEDF9P::update(bool blocking)
   return true;
 }
 
-bool ZEDF9P::enableSpiMessage(UbxClass cls, uint8_t id, bool enable)
+bool UbloxGnss::enableSpiMessage(UbxClass cls, uint8_t id, bool enable)
 {
   constexpr char kNotImplemented[] = "Not implemented.";
   constexpr char kNotReceivable[] = "Not receivable.";
@@ -223,17 +298,186 @@ bool ZEDF9P::enableSpiMessage(UbxClass cls, uint8_t id, bool enable)
   return configure(CFG_VALSET, &cfg, sizeof(cfg));
 }
 
-bool ZEDF9P::configureDynamicsModel(DynamicsModel model)
+bool UbloxGnss::configureDynamicsModel(DynamicsModel model)
 {
   return cfgValSetSingle<uint8_t>(ONE_BYTE, CFG_NAVSPG, 0x21, model);  // CFG-NAVSPG-DYNMODEL
 }
 
-bool ZEDF9P::configureMeasurementRate(uint16_t period_ms)
+bool UbloxGnss::configureMeasurementRate(uint16_t period_ms)
 {
   return cfgValSetSingle<uint16_t>(TWO_BYTES, CFG_RATE, 0x01, period_ms);  // CFG-RATE-MEAS
 }
 
-bool ZEDF9P::enableGps()
+bool UbloxGnss::configureUartBaudRate(uint32_t baud_rate)
+{
+  CfgValSet<uint32_t, 1> cfg;
+  cfg.data[0].key = configKeyID(FOUR_BYTES, CFG_UART1, 0x01);
+  cfg.data[0].value = baud_rate;
+  return sendMessage(CLASS_CFG, CFG_VALSET, &cfg, sizeof(cfg));
+}
+
+bool UbloxGnss::enableUartMessage(UbxClass cls, uint8_t id, bool enable)
+{
+  constexpr char kNotImplemented[] = "Not implemented.";
+  constexpr char kNotReceivable[] = "Not receivable.";
+
+  CfgValSet<uint8_t, 1> cfg;
+
+  switch (cls) {
+    case CLASS_ACK: {
+      std::cerr << kNotReceivable << std::endl;
+      return false;
+    }
+    case CLASS_CFG: {
+      std::cerr << kNotReceivable << std::endl;
+      return false;
+    }
+    case CLASS_INF: {
+      std::cerr << kNotImplemented << std::endl;  // TODO
+      return false;
+    }
+    case CLASS_LOG: {
+      std::cerr << kNotImplemented << std::endl;  // TODO
+      return false;
+    }
+    case CLASS_MGA: {
+      std::cerr << kNotImplemented << std::endl;  // TODO
+      return false;
+    }
+    case CLASS_MON: {
+      std::cerr << kNotImplemented << std::endl;  // TODO
+      return false;
+    }
+    case CLASS_NAV: {
+      switch (id) {
+        case NAV_CLOCK:
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x66);  // CFG-MSGOUT-UBX_NAV_CLOCK_UART
+          break;
+        case NAV_COV:
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x84);  // CFG-MSGOUT-UBX_NAV_COV_UART
+          break;
+        case NAV_DOP:
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x39);  // CFG-MSGOUT-UBX_NAV_DOP_UART
+          break;
+        case NAV_EOE:
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x60);  // CFG-MSGOUT-UBX_NAV_EOE_UART
+          break;
+        case NAV_GEOFENCE:
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0xA2);  // CFG-MSGOUT-UBX_NAV_GEOFENCE_UART
+          break;
+        case NAV_HPPOSECEF:
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x2F);  // CFG-MSGOUT-UBX_NAV_HPPOSECEF_UART
+          break;
+        case NAV_HPPOSLLH:
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x34);  // CFG-MSGOUT-UBX_NAV_HPPOSLLH_UART
+          break;
+        case NAV_ODO:
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x7F);  // CFG-MSGOUT-UBX_NAV_ODO_UART
+          break;
+        case NAV_ORB:
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x11);  // CFG-MSGOUT-UBX_NAV_ORB_UART
+          break;
+        case NAV_PL:
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x16);  // CFG-MSGOUT-UBX_NAV_PL_UART
+          break;
+        case NAV_POSECEF:
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x25);  // CFG-MSGOUT-UBX_NAV_POSECEF_UART
+          break;
+        case NAV_POSLLH:
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x2A);  // CFG-MSGOUT-UBX_NAV_POSLLH_UART
+          break;
+        case NAV_PVT:
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x07);  // CFG-MSGOUT-UBX_NAV_PVT_UART
+          break;
+        case NAV_RELPOSNED:
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x8E);  // CFG-MSGOUT-UBX_NAV_RELPOSNED_UART
+          break;
+        case NAV_RESETODO:
+          std::cerr << kNotReceivable << std::endl;
+          return false;
+        case NAV_SAT:
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x16);  // CFG-MSGOUT-UBX_NAV_SAT_UART
+          break;
+        case NAV_SBAS:
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x6B);  // CFG-MSGOUT-UBX_NAV_SBAS_UART
+          break;
+        case NAV_SIG:
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x46);  // CFG-MSGOUT-UBX_NAV_SIG_UART
+          break;
+        case NAV_SLAS:
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x37);  // CFG-MSGOUT-UBX_NAV_SLAS_UART
+          break;
+        case NAV_STATUS:
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x1B);  // CFG-MSGOUT-UBX_NAV_STATUS_UART
+          break;
+        case NAV_SVIN:
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x89);  // CFG-MSGOUT-UBX_NAV_SVIN_UART
+          break;
+        case NAV_TIMEBDS:
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x52);  // CFG-MSGOUT-UBX_NAV_TIMEBDS_UART
+          break;
+        case NAV_TIMEGAL:
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x57);  // CFG-MSGOUT-UBX_NAV_TIMEGAL_UART
+          break;
+        case NAV_TIMEGLO:
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x4D);  // CFG-MSGOUT-UBX_NAV_TIMEGLO_UART
+          break;
+        case NAV_TIMEGPS:
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x48);  // CFG-MSGOUT-UBX_NAV_TIMEGPS_UART
+          break;
+        case NAV_TIMELS:
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x61);  // CFG-MSGOUT-UBX_NAV_TIMELS_UART
+          break;
+        case NAV_TIMEQZSS:
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x87);  // CFG-MSGOUT-UBX_NAV_TIMEQZSS_UART
+          break;
+        case NAV_TIMEUTC:
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x5C);  // CFG-MSGOUT-UBX_NAV_TIMEUTC_UART
+          break;
+        case NAV_VELECEF:
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x3E);  // CFG-MSGOUT-UBX_NAV_VELECEF_UART
+          break;
+        case NAV_VELNED:
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x43);  // CFG-MSGOUT-UBX_NAV_VELNED_UART
+          break;
+        default:
+          std::cerr << kNotImplemented << std::endl;  // TODO
+          return false;
+      }
+      break;
+    }
+    case CLASS_NAV2: {
+      std::cerr << kNotImplemented << std::endl;  // TODO
+      return false;
+    }
+    case CLASS_RXM: {
+      std::cerr << kNotImplemented << std::endl;  // TODO
+      return false;
+    }
+    case CLASS_SEC: {
+      std::cerr << kNotImplemented << std::endl;  // TODO
+      return false;
+    }
+    case CLASS_TIM: {
+      std::cerr << kNotImplemented << std::endl;  // TODO
+      return false;
+    }
+    case CLASS_UPD: {
+      std::cerr << kNotImplemented << std::endl;  // TODO
+      return false;
+    }
+    default: {
+      std::cerr << "Invalid UBX class type: " << std::hex << cls << std::endl;
+      return false;
+    }
+  }
+
+  cfg.data[0].value = enable ? 1 : 0;  // Maximum rate if enabled.
+
+  return configure(CFG_VALSET, &cfg, sizeof(cfg));
+}
+
+bool UbloxGnss::enableGps()
 {
   // Enable GPS.
   if (!enableGps(true)) {
@@ -247,28 +491,42 @@ bool ZEDF9P::enableGps()
     return false;
   }
 
-  // Try to enable L2 band.
-  if (enableGpsL2()) {
+  // Enable L2 band for ZED-F9P.
+  if(receiver_profile_ == F9P) {
+    if (enableGpsL2()) {
+      std::cerr << "Failed to enable GPS L1." << std::endl;
+      return false;
+    }
+  }
+
     std::cout << "GPS L1/L2 is enabled." << std::endl;
     return true;
-  }
 
-  // Try to enable L5 band.
-  if (enableGpsL5()) {
-    std::cout << "GPS L1/L5 is enabled." << std::endl;
+  // Enable L2 and L5 band for ZED-X20P.
+  if (receiver_profile_ == X20P) {
+    if (!enableGpsL2()) {
+      std::cerr << "Failed to enable GPS L2." << std::endl;
+      return false;
+    }
+
+    if (!enableGpsL5()) {
+      std::cerr << "Failed to enable GPS L5." << std::endl;
+      return false;
+    }
+
+    std::cout << "GPS L1/L2/L5 is enabled." << std::endl;
     return true;
   }
 
-  std::cerr << "Failed to enable either GPS L2 or L5 bands." << std::endl;
   return false;
 }
 
-bool ZEDF9P::disableGps()
+bool UbloxGnss::disableGps()
 {
   return enableGps(false);
 }
 
-bool ZEDF9P::enableSbas()
+bool UbloxGnss::enableSbas()
 {
   // Enable SBAS.
   if (!enableSbas(true)) {
@@ -285,12 +543,12 @@ bool ZEDF9P::enableSbas()
   return true;
 }
 
-bool ZEDF9P::disableSbas()
+bool UbloxGnss::disableSbas()
 {
   return enableGps(false);
 }
 
-bool ZEDF9P::enableGalileo()
+bool UbloxGnss::enableGalileo()
 {
   // Enable Galileo.
   if (!enableGalileo(true)) {
@@ -320,12 +578,12 @@ bool ZEDF9P::enableGalileo()
   return false;
 }
 
-bool ZEDF9P::disableGalileo()
+bool UbloxGnss::disableGalileo()
 {
   return enableGalileo(false);
 }
 
-bool ZEDF9P::enableBeiDou()
+bool UbloxGnss::enableBeiDou()
 {
   // Enable BeiDou.
   if (!enableBeiDou(true)) {
@@ -355,12 +613,12 @@ bool ZEDF9P::enableBeiDou()
   return false;
 }
 
-bool ZEDF9P::disableBeiDou()
+bool UbloxGnss::disableBeiDou()
 {
   return enableBeiDou(false);
 }
 
-bool ZEDF9P::enableQzss()
+bool UbloxGnss::enableQzss()
 {
   // Enable QZSS.
   if (!enableQzss(true)) {
@@ -390,12 +648,12 @@ bool ZEDF9P::enableQzss()
   return false;
 }
 
-bool ZEDF9P::disableQzss()
+bool UbloxGnss::disableQzss()
 {
   return enableQzss(false);
 }
 
-bool ZEDF9P::enableGlonass()
+bool UbloxGnss::enableGlonass()
 {
   // Enable GLONASS.
   if (!enableGlonass(true)) {
@@ -419,12 +677,12 @@ bool ZEDF9P::enableGlonass()
   return true;
 }
 
-bool ZEDF9P::disableGlonass()
+bool UbloxGnss::disableGlonass()
 {
   return enableGlonass(false);
 }
 
-bool ZEDF9P::enableNavIc()
+bool UbloxGnss::enableNavIc()
 {
   // Enable NavIC.
   if (!enableNavIc(true)) {
@@ -442,47 +700,63 @@ bool ZEDF9P::enableNavIc()
   return false;
 }
 
-bool ZEDF9P::disableNavIc()
+bool UbloxGnss::disableNavIc()
 {
   return enableNavIc(false);
 }
 
-bool ZEDF9P::enableSpiProtocol_UBX(bool enable_input, bool enable_output)
+bool UbloxGnss::enableSpiProtocol_UBX(bool enable_input, bool enable_output)
 {
   return enableSpiInputProtocol(UBX, enable_input) && enableSpiOutputProtocol(UBX, enable_output);
 }
 
-bool ZEDF9P::enableSpiProtocol_NMEA(bool enable_input, bool enable_output)
+bool UbloxGnss::enableSpiProtocol_NMEA(bool enable_input, bool enable_output)
 {
   return enableSpiInputProtocol(NMEA, enable_input) && enableSpiOutputProtocol(NMEA, enable_output);
 }
 
-bool ZEDF9P::enableSpiProtocol_RTCM3X(bool enable_input, bool enable_output)
+bool UbloxGnss::enableSpiProtocol_RTCM3X(bool enable_input, bool enable_output)
 {
   return enableSpiInputProtocol(RTCM3X, enable_input) && enableSpiOutputProtocol(RTCM3X, enable_output);
 }
 
-bool ZEDF9P::enableSpiProtocol_SPARTN(bool enable_input)
+bool UbloxGnss::enableSpiProtocol_SPARTN(bool enable_input)
 {
   return enableSpiInputProtocol(SPARTN, enable_input);
 }
 
-bool ZEDF9P::setAntennaLength(uint8_t length_m)
+bool UbloxGnss::enableUartProtocol_UBX(bool enable_input, bool enable_output)
+{
+  return enableUartInputProtocol(UBX, enable_input) && enableUartOutputProtocol(UBX, enable_output);
+}
+
+bool UbloxGnss::enableUartProtocol_NMEA(bool enable_input, bool enable_output)
+{
+  return enableUartInputProtocol(NMEA, enable_input) && enableUartOutputProtocol(NMEA, enable_output);
+}
+
+bool UbloxGnss::enableUartProtocol_RTCM3X(bool enable_input, bool enable_output)
+{
+  return enableUartInputProtocol(RTCM3X, enable_input) && enableUartOutputProtocol(RTCM3X, enable_output);
+}
+
+bool UbloxGnss::enableUartProtocol_SPARTN(bool enable_input)
+{
+  return enableUartInputProtocol(SPARTN, enable_input);
+}
+bool UbloxGnss::setAntennaLength(uint8_t length_m)
 {
   constexpr uint8_t kRG174CableDelay = 5;  // [ns/m] Coaxial cable delay.
   return cfgValSetSingle<uint16_t>(TWO_BYTES, CFG_TP, 0x01, length_m * kRG174CableDelay);  // CFG-TP-ANT_CABLEDELAY
 }
 
-bool ZEDF9P::enableUsb(bool enable)
+bool UbloxGnss::enableUsb(bool enable)
 {
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_USB, 0x01, enable);  // CFG-USB-ENABLED
 }
 
-bool ZEDF9P::sendMessage(UbxClass cls, uint8_t id, const void* msg, uint16_t size)
+bool UbloxGnss::sendMessage(UbxClass cls, uint8_t id, const void* msg, uint16_t size)
 {
-  // Allocate space for the header, payload, and checksum of this message.
-  std::vector<uint8_t> tx_buf(sizeof(UbxHeader) + size + sizeof(CheckSum));
-
   UbxHeader header;
   header.sync1 = kUbxSync1;
   header.sync2 = kUbxSync2;
@@ -490,16 +764,16 @@ bool ZEDF9P::sendMessage(UbxClass cls, uint8_t id, const void* msg, uint16_t siz
   header.id = id;
   header.length = size;
 
-  const auto payload_pos = spliceMemory(tx_buf.data(), &header, sizeof(UbxHeader), 0);
-  const auto checksum_pos = spliceMemory(tx_buf.data(), msg, size, payload_pos);
+  const auto payload_pos = spliceMemory(tx_buf_, &header, sizeof(UbxHeader), 0);
+  const auto checksum_pos = spliceMemory(tx_buf_, msg, size, payload_pos);
 
-  const auto ck = computeChecksum(tx_buf.data(), checksum_pos);
-  const auto message_length = spliceMemory(tx_buf.data(), &ck, sizeof(CheckSum), checksum_pos);
+  const auto ck = computeChecksum(tx_buf_, checksum_pos);
+  const auto message_length = spliceMemory(tx_buf_, &ck, sizeof(CheckSum), checksum_pos);
 
-  return transport_->send(tx_buf.data(), message_length);
+  return transport_->send(tx_buf_, message_length);
 }
 
-bool ZEDF9P::waitForAcknowledge(UbxClass cls, uint8_t id)
+bool UbloxGnss::waitForAcknowledge(UbxClass cls, uint8_t id)
 {
   payload::ACK_ACK ack;
   payload::ACK_NAK nak;
@@ -557,12 +831,12 @@ bool ZEDF9P::waitForAcknowledge(UbxClass cls, uint8_t id)
   return false;
 }
 
-bool ZEDF9P::configure(UbxCfgId cfg_id, const void* msg, uint16_t size)
+bool UbloxGnss::configure(UbxCfgId cfg_id, const void* msg, uint16_t size)
 {
   return sendMessage(CLASS_CFG, cfg_id, msg, size) && waitForAcknowledge(CLASS_CFG, cfg_id);
 }
 
-bool ZEDF9P::verifyMessage() const
+bool UbloxGnss::verifyMessage() const
 {
   // Sync chars
   if (*scanner_.getSync1() != kUbxSync1 || *scanner_.getSync2() != kUbxSync2) {
@@ -584,82 +858,97 @@ bool ZEDF9P::verifyMessage() const
   return true;
 }
 
-bool ZEDF9P::enableGps(bool enable)
+bool UbloxGnss::enableGps(bool enable)
 {
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x1F, enable);  // CFG-SIGNAL-GPS_ENA
 }
 
-bool ZEDF9P::enableGpsL1()
+bool UbloxGnss::enableGpsL1()
 {
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x01, true);  // CFG-SIGNAL-GPS_L1CA_ENA
 }
 
-bool ZEDF9P::enableGpsL2()
+bool UbloxGnss::enableGpsL2()
 {
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x03, true);  // CFG-SIGNAL-GPS_L2C_ENA
 }
 
-bool ZEDF9P::enableGpsL5()
+bool UbloxGnss::enableGpsL5()
 {
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x04, true);  // CFG-SIGNAL-GPS_L5_ENA
 }
 
-bool ZEDF9P::enableSbas(bool enable)
+bool UbloxGnss::enableSbas(bool enable)
 {
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x20, enable);  // CFG-SIGNAL-SBAS_ENA
 }
 
-bool ZEDF9P::enableSbasL1()
+bool UbloxGnss::enableSbasL1()
 {
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x05, true);  // CFG-SIGNAL-SBAS_L1CA_ENA
 }
 
-bool ZEDF9P::enableGalileo(bool enable)
+bool UbloxGnss::enableGalileo(bool enable)
 {
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x21, enable);  // CFG-SIGNAL-GAL_ENA
 }
 
-bool ZEDF9P::enableGalileoL1()
+bool UbloxGnss::enableGalileoL1()
 {
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x07, true);  // CFG-SIGNAL-GAL_E1_ENA
 }
 
-bool ZEDF9P::enableGalileoL2()
+bool UbloxGnss::enableGalileoL2()
 {
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x0A, true);  // CFG-SIGNAL-GAL_E5B_ENA
 }
 
-bool ZEDF9P::enableGalileoL5()
+bool UbloxGnss::enableGalileoL5()
 {
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x09, true);  // CFG-SIGNAL-GAL_E5A_ENA
 }
 
-bool ZEDF9P::enableBeiDou(bool enable)
+bool UbloxGnss::enableGalileoE6()
+{
+  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x0B, true);  // CFG-SIGNAL-GAL_E6_ENA
+}
+
+bool UbloxGnss::enableBeiDou(bool enable)
 {
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x22, enable);  // CFG-SIGNAL-BDS_ENA
 }
 
-bool ZEDF9P::enableBeiDouL1()
+bool UbloxGnss::enableBeiDouL1()
 {
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x0D, true);  // CFG-SIGNAL-BDS_B1_ENA
 }
 
-bool ZEDF9P::enableBeiDouL2()
+bool UbloxGnss::enableBeiDouL1C()
+{
+  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x0F, true);  // CFG-SIGNAL-BDS_B1C_ENA
+}
+
+bool UbloxGnss::enableBeiDouL2()
 {
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x0E, true);  // CFG-SIGNAL-BDS_B2_ENA
 }
 
-bool ZEDF9P::enableBeiDouL5()
+bool UbloxGnss::enableBeiDouL3()
+{
+  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x10, true);  // CFG-SIGNAL-BDS_B3_ENA
+}
+
+bool UbloxGnss::enableBeiDouL5()
 {
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x28, true);  // CFG-SIGNAL-BDS_B2A_ENA
 }
 
-bool ZEDF9P::enableQzss(bool enable)
+bool UbloxGnss::enableQzss(bool enable)
 {
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x24, enable);  // CFG-SIGNAL-QZSS_ENA
 }
 
-bool ZEDF9P::enableQzssL1()
+bool UbloxGnss::enableQzssL1()
 {
   // CFG-SIGNAL-QZSS_L1CA_ENA
   if (!cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x12, true)) {
@@ -674,52 +963,62 @@ bool ZEDF9P::enableQzssL1()
   return true;
 }
 
-bool ZEDF9P::enableQzssL2()
+bool UbloxGnss::enableQzssL2()
 {
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x15, true);  // CFG-SIGNAL-QZSS_L2C_ENA
 }
 
-bool ZEDF9P::enableQzssL5()
+bool UbloxGnss::enableQzssL5()
 {
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x17, true);  // CFG-SIGNAL-QZSS_L5_ENA
 }
 
-bool ZEDF9P::enableGlonass(bool enable)
+bool UbloxGnss::enableGlonass(bool enable)
 {
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x25, enable);  // CFG-SIGNAL-GLO_ENA
 }
 
-bool ZEDF9P::enableGlonassL1()
+bool UbloxGnss::enableGlonassL1()
 {
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x18, true);  // CFG-SIGNAL-GLO_L1_ENA
 }
 
-bool ZEDF9P::enableGlonassL2()
+bool UbloxGnss::enableGlonassL2()
 {
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x1A, true);  // CFG-SIGNAL-GLO_L2_ENA
 }
 
-bool ZEDF9P::enableNavIc(bool enable)
+bool UbloxGnss::enableNavIc(bool enable)
 {
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x26, enable);  // CFG-SIGNAL-NAVIC_ENA
 }
 
-bool ZEDF9P::enableNavIcL5()
+bool UbloxGnss::enableNavIcL5()
 {
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x1D, true);  // CFG-SIGNAL-NAVIC_L5_ENA
 }
 
-bool ZEDF9P::enableSpiInputProtocol(CfgProtocol prot, bool enable)
+bool UbloxGnss::enableSpiInputProtocol(CfgProtocol prot, bool enable)
 {
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SPIINPROT, prot, enable);  // CFG-SPIINPROT-XXX
 }
 
-bool ZEDF9P::enableSpiOutputProtocol(CfgProtocol prot, bool enable)
+bool UbloxGnss::enableSpiOutputProtocol(CfgProtocol prot, bool enable)
 {
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SPIOUTPROT, prot, enable);  // CFG-SPIOUTPROT-XXX
 }
 
-ZEDF9P::CheckSum ZEDF9P::computeChecksum(const uint8_t* message, size_t checksum_pos)
+bool UbloxGnss::enableUartInputProtocol(CfgProtocol prot, bool enable)
+{
+  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_UART1INPROT, prot, enable);  // CFG-UART1INPROT-XXX
+}
+
+bool UbloxGnss::enableUartOutputProtocol(CfgProtocol prot, bool enable)
+{
+  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_UART1OUTPROT, prot, enable);  // CFG-UART1OUTPROT-XXX
+}
+
+UbloxGnss::CheckSum UbloxGnss::computeChecksum(const uint8_t* message, size_t checksum_pos)
 {
   CheckSum ck;
   ck.CK_A = ck.CK_B = 0;
@@ -732,13 +1031,13 @@ ZEDF9P::CheckSum ZEDF9P::computeChecksum(const uint8_t* message, size_t checksum
   return ck;
 }
 
-size_t ZEDF9P::spliceMemory(uint8_t* dest, const void* src, size_t size, size_t dest_offset)
+size_t UbloxGnss::spliceMemory(uint8_t* dest, const void* src, size_t size, size_t dest_offset)
 {
   std::memmove(dest + dest_offset, src, size);
   return dest_offset + size;
 }
 
-uint32_t ZEDF9P::configKeyID(CfgSize size, CfgGroup group, uint8_t id)
+uint32_t UbloxGnss::configKeyID(CfgSize size, CfgGroup group, uint8_t id)
 {
   return (size << 28) | (group << 16) | id;
 }

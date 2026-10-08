@@ -21,6 +21,8 @@ static constexpr size_t kUbxHeaderLength = kUbxSyncLength + kUbxClassLength + kU
 static constexpr uint8_t kUbxSync1 = 0xb5;
 static constexpr uint8_t kUbxSync2 = 0x62;
 
+static constexpr size_t kUbxBufferLength = 512;
+
 class UbxScanner
 {
 public:
