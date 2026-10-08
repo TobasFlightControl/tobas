@@ -103,9 +103,7 @@ bool UbloxGnss::update(bool blocking, std::chrono::milliseconds timeout)
     if (!first_byte) {
       return false;
     }
-    if (!scanner_.update(*first_byte)) {
-      return false;
-    }
+    scanner_.update(*first_byte);
 
     // Return if no data has arrived.
     if (scanner_.state() == UbxScanner::kSync1) {
@@ -124,9 +122,7 @@ bool UbloxGnss::update(bool blocking, std::chrono::milliseconds timeout)
     if (!data) {
       return false;
     }
-    if (!scanner_.update(*data)) {
-      return false;
-    }
+    scanner_.update(*data);
     scan_rate_.sleep();
   }
 
@@ -493,16 +489,15 @@ bool UbloxGnss::enableGps()
 
   // Enable L2 band for ZED-F9P.
   if(receiver_profile_ == F9P) {
-    if (enableGpsL2()) {
-      std::cerr << "Failed to enable GPS L1." << std::endl;
+    if (!enableGpsL2()) {
+      std::cerr << "Failed to enable GPS L2." << std::endl;
       return false;
     }
-  }
 
     std::cout << "GPS L1/L2 is enabled." << std::endl;
     return true;
 
-  // Enable L2 and L5 band for ZED-X20P.
+  }    // Enable L2 and L5 band for ZED-X20P.
   if (receiver_profile_ == X20P) {
     if (!enableGpsL2()) {
       std::cerr << "Failed to enable GPS L2." << std::endl;
@@ -556,25 +551,39 @@ bool UbloxGnss::enableGalileo()
     return false;
   }
 
-  // Enable L1 band.
-  if (!enableGalileoL1()) {
-    std::cerr << "Failed to enable Galileo L1." << std::endl;
+  // Enable E1 band.
+  if (!enableGalileoE1()) {
+    std::cerr << "Failed to enable Galileo E1." << std::endl;
     return false;
   }
 
-  // Try to enable L2 band.
-  if (enableGalileoL2()) {
-    std::cout << "Galileo L1/L2 is enabled." << std::endl;
+  /// Enable E5b band for ZED-F9P.
+  if (receiver_profile_ == F9P) {
+    if (!enableGalileoE5b()) {
+      std::cerr << "Failed to enable Galileo E5b." << std::endl;
+      return false;
+    }
+
+    std::cout << "Galileo E1/E5b is enabled." << std::endl;
     return true;
   }
 
-  // Try to enable L5 band.
-  if (enableGalileoL5()) {
-    std::cout << "Galileo L1/L5 is enabled." << std::endl;
+  // Enable E5a and E6 bands for ZED-X20P.
+  if (receiver_profile_ == X20P) {
+    if (!enableGalileoE5a()) {
+      std::cerr << "Failed to enable Galileo E5a." << std::endl;
+      return false;
+    }
+
+    if (!enableGalileoE6()) {
+      std::cerr << "Failed to enable Galileo E6." << std::endl;
+      return false;
+    }
+
+    std::cout << "Galileo E1/E5a/E6 is enabled." << std::endl;
     return true;
   }
 
-  std::cerr << "Failed to enable either Galileo L2 or L5 bands." << std::endl;
   return false;
 }
 
@@ -591,25 +600,44 @@ bool UbloxGnss::enableBeiDou()
     return false;
   }
 
-  // Enable L1 band.
-  if (!enableBeiDouL1()) {
-    std::cerr << "Failed to enable BeiDou L1." << std::endl;
+  // Enable B1I bands
+  if (!enableBeiDouB1I()) {
+    std::cerr << "Failed to enable GPS B1I." << std::endl;
     return false;
   }
 
-  // Try to enable L2 band.
-  if (enableBeiDouL2()) {
-    std::cout << "BeiDou L1/L2 is enabled." << std::endl;
+  // Enable B2I bands for ZED-F9P.
+  if (receiver_profile_ == F9P) {
+    if (!enableBeiDouB2I()) {
+      std::cerr << "Failed to enable BeiDou B2I." << std::endl;
+      return false;
+    }
+
+    std::cout << "BeiDou B1I/B2I is enabled." << std::endl;
     return true;
   }
 
-  // Try to enable L5 band.
-  if (enableBeiDouL5()) {
-    std::cout << "BeiDou L1/L5 is enabled." << std::endl;
+  // Enable B1C, B2a and B3I bands for ZED-X20P.
+  if (receiver_profile_ == X20P) {
+    if (!enableBeiDouB1C()) {
+      std::cerr << "Failed to enable BeiDou B1C." << std::endl;
+      return false;
+    }
+
+    if (!enableBeiDouB2a()) {
+      std::cerr << "Failed to enable BeiDou B2a." << std::endl;
+      return false;
+    }
+
+    if (!enableBeiDouB3I()) {
+      std::cerr << "Failed to enable BeiDou B3I." << std::endl;
+      return false;
+    }
+
+    std::cout << "BeiDou B1I/B1C/B2a/B3I is enabled." << std::endl;
     return true;
   }
 
-  std::cerr << "Failed to enable either BeiDou L2 or L5 bands." << std::endl;
   return false;
 }
 
@@ -632,19 +660,33 @@ bool UbloxGnss::enableQzss()
     return false;
   }
 
-  // Try to enable L2 band.
-  if (enableQzssL2()) {
+  // Enable L2 band for ZED-F9P.
+  if(receiver_profile_ == F9P) {
+    if (!enableQzssL2()) {
+      std::cerr << "Failed to enable QZSS L2." << std::endl;
+      return false;
+    }
+
     std::cout << "QZSS L1/L2 is enabled." << std::endl;
     return true;
-  }
 
-  // Try to enable L5 band.
-  if (enableQzssL5()) {
-    std::cout << "QZSS L1/L5 is enabled." << std::endl;
+  }
+  // Enable L2 and L5 band for ZED-X20P.
+  if (receiver_profile_ == X20P) {
+    if (!enableQzssL2()) {
+      std::cerr << "Failed to enable QZSS L2." << std::endl;
+      return false;
+    }
+
+    if (!enableQzssL5()) {
+      std::cerr << "Failed to enable QZSS L5." << std::endl;
+      return false;
+    }
+
+    std::cout << "QZSS L1/L2/L5 is enabled." << std::endl;
     return true;
   }
 
-  std::cerr << "Failed to enable either QZSS L2 or L5 bands." << std::endl;
   return false;
 }
 
@@ -697,7 +739,7 @@ bool UbloxGnss::enableNavIc()
   }
 
   std::cout << "NavIC L5 is enabled." << std::endl;
-  return false;
+  return true;
 }
 
 bool UbloxGnss::disableNavIc()
@@ -893,17 +935,17 @@ bool UbloxGnss::enableGalileo(bool enable)
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x21, enable);  // CFG-SIGNAL-GAL_ENA
 }
 
-bool UbloxGnss::enableGalileoL1()
+bool UbloxGnss::enableGalileoE1()
 {
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x07, true);  // CFG-SIGNAL-GAL_E1_ENA
 }
 
-bool UbloxGnss::enableGalileoL2()
+bool UbloxGnss::enableGalileoE5b()
 {
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x0A, true);  // CFG-SIGNAL-GAL_E5B_ENA
 }
 
-bool UbloxGnss::enableGalileoL5()
+bool UbloxGnss::enableGalileoE5a()
 {
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x09, true);  // CFG-SIGNAL-GAL_E5A_ENA
 }
@@ -918,27 +960,27 @@ bool UbloxGnss::enableBeiDou(bool enable)
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x22, enable);  // CFG-SIGNAL-BDS_ENA
 }
 
-bool UbloxGnss::enableBeiDouL1()
+bool UbloxGnss::enableBeiDouB1I()
 {
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x0D, true);  // CFG-SIGNAL-BDS_B1_ENA
 }
 
-bool UbloxGnss::enableBeiDouL1C()
+bool UbloxGnss::enableBeiDouB1C()
 {
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x0F, true);  // CFG-SIGNAL-BDS_B1C_ENA
 }
 
-bool UbloxGnss::enableBeiDouL2()
+bool UbloxGnss::enableBeiDouB2I()
 {
-  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x0E, true);  // CFG-SIGNAL-BDS_B2_ENA
+  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x0E, true);  // CFG-SIGNAL-BDS_B2I_ENA
 }
 
-bool UbloxGnss::enableBeiDouL3()
+bool UbloxGnss::enableBeiDouB3I()
 {
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x10, true);  // CFG-SIGNAL-BDS_B3_ENA
 }
 
-bool UbloxGnss::enableBeiDouL5()
+bool UbloxGnss::enableBeiDouB2a()
 {
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x28, true);  // CFG-SIGNAL-BDS_B2A_ENA
 }

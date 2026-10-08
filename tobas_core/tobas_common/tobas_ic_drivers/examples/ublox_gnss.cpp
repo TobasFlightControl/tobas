@@ -106,9 +106,11 @@ int main(int argc, char** argv)
   uint16_t measurement_period_ms;
 
   if (*module_name == "ZED-F9P") {
+    gnss.setReceiverProfile(tobas::ublox::UbloxGnss::F9P);
     measurement_period_ms = 100;
   }
   else if (*module_name == "ZED-X20P") {
+    gnss.setReceiverProfile(tobas::ublox::UbloxGnss::X20P);
     measurement_period_ms = 40;
   }
   else {
@@ -144,9 +146,18 @@ int main(int argc, char** argv)
     cerr << "Failed to enable QZSS." << endl;
     return EXIT_FAILURE;
   }
-  if (!gnss.disableGlonass()) {
-    cerr << "Failed to disable GLONASS." << endl;
-    return EXIT_FAILURE;
+
+  if (*module_name == "ZED-F9P") {
+    if (!gnss.disableGlonass()) {
+      cerr << "Failed to disable GLONASS." << endl;
+      return EXIT_FAILURE;
+    }
+  }
+  else if (*module_name == "ZED-X20P") {
+    if (!gnss.enableNavIc()) {
+      cerr << "Failed to enable NavIC." << endl;
+      return EXIT_FAILURE;
+    }
   }
 
   // Enable messages.

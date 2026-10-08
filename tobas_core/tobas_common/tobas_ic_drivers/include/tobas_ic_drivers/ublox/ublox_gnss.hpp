@@ -313,17 +313,17 @@ private:
   bool enableSbasL1();
 
   bool enableGalileo(bool enable);
-  bool enableGalileoL1();
-  bool enableGalileoL2();
-  bool enableGalileoL5();
+  bool enableGalileoE1();
+  bool enableGalileoE5b();
+  bool enableGalileoE5a();
   bool enableGalileoE6();
 
   bool enableBeiDou(bool enable);
-  bool enableBeiDouL1();
-  bool enableBeiDouL1C();
-  bool enableBeiDouL2();
-  bool enableBeiDouL3();
-  bool enableBeiDouL5();
+  bool enableBeiDouB1I();
+  bool enableBeiDouB1C();
+  bool enableBeiDouB2I();
+  bool enableBeiDouB3I();
+  bool enableBeiDouB2a();
 
   bool enableQzss(bool enable);
   bool enableQzssL1();

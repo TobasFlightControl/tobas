@@ -139,7 +139,7 @@ bool UARTdev::initialize(const char* uart_dev, bool block_mode)
 bool UARTdev::setBaudRate(uint32_t baud_rate)
 {
   if (tcdrain(uart_fd_) != 0) {
-    cerr << "Failed to drain UART output: " << strError() << endl;
+    std::cerr << "Failed to drain UART output: " << tobas::st::strError() << std::endl;
     return false;
   }
   if (isStandardBaudRate(baud_rate)) {
