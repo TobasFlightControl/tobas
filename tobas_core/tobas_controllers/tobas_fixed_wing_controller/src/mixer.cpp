@@ -44,13 +44,13 @@ bool Mixer::updateInternalDataStructures()
     const auto& joint = tree_.getSegment(cs.link_name)->second.segment.joint();
     const auto max_deflection = joint.upper_limit;
     if (cs.type == ControlSurfaceType::kAileron) {
-      max_roll_effectiveness_ += std::abs(cs.c_roll_delta) * max_deflection;
+      max_roll_effectiveness_ += std::abs(cs.c_roll_delta * max_deflection);
     }
     if (cs.type == ControlSurfaceType::kElevator) {
-      max_pitch_effectiveness_ += std::abs(cs.c_pitch_delta) * max_deflection;
+      max_pitch_effectiveness_ += std::abs(cs.c_pitch_delta * max_deflection);
     }
     if (cs.type == ControlSurfaceType::kRudder) {
-      max_yaw_effectiveness_ += std::abs(cs.c_yaw_delta) * max_deflection;
+      max_yaw_effectiveness_ += std::abs(cs.c_yaw_delta * max_deflection);
     }
   }
 
@@ -82,7 +82,7 @@ bool Mixer::solve(
     kdl::vectorFrdToFlu(effectiveness_frd, effectiveness_flu);
     E_(0, idx) = dynamicPressure(rho, std::max(airspeed, kLowerLimitSpeed)) * drone_.fixed_wing->vehicle.wing_surface * drone_.fixed_wing->vehicle.wing_span * effectiveness_flu.x(); // [Nm / rad]
     E_(1, idx) = dynamicPressure(rho, std::max(airspeed, kLowerLimitSpeed)) * drone_.fixed_wing->vehicle.wing_surface * drone_.fixed_wing->vehicle.mac * effectiveness_flu.y(); // [Nm / rad]
-    E_(2, idx) = dynamicPressure(rho, std::max(airspeed, kLowerLimitSpeed)) * drone_.fixed_wing->vehicle.wing_surface * drone_.fixed_wing->vehicle.wing_span * effectiveness_flu.z(); // [Nm / rad]
+    // E_(2, idx) = dynamicPressure(rho, std::max(airspeed, kLowerLimitSpeed)) * drone_.fixed_wing->vehicle.wing_surface * drone_.fixed_wing->vehicle.wing_span * effectiveness_flu.z(); // [Nm / rad]
   }
 
   // Right-hand side of the EoM matrix equality.
@@ -91,20 +91,38 @@ bool Mixer::solve(
   const auto max_dpitch = dynamicPressure(rho, airspeed) * drone_.fixed_wing->vehicle.wing_surface * drone_.fixed_wing->vehicle.mac * max_pitch_effectiveness_ / I_B.iyy();
   const auto max_dyaw   = dynamicPressure(rho, airspeed) * drone_.fixed_wing->vehicle.wing_surface * drone_.fixed_wing->vehicle.wing_span * max_yaw_effectiveness_ / I_B.izz();
   const auto max_dgyro_B = kdl::Vector(max_droll, max_dpitch, max_dyaw);
-  const auto tar_dgyro_B_clipped = tar_dgyro_B.clamp(-max_dgyro_B, max_dgyro_B);
+  // const auto tar_dgyro_B_clipped = tar_dgyro_B.clamp(-max_dgyro_B, max_dgyro_B);
   // 空力による応答遅れの影響を考慮
-  kdl::Vector tar_dgyro_virtual = tar_dgyro_B_clipped;
-  integral_error_x_ += airspeed / kCruiseSpeed * omega_roll_ * tar_dgyro_B_clipped.x() * dt;
-  integral_error_y_ += airspeed / kCruiseSpeed * omega_s_  * tar_dgyro_B_clipped.y() * dt;
-  integral_error_z_ += airspeed / kCruiseSpeed * omega_dutch_roll_ * tar_dgyro_B_clipped.z() * dt;
-  tar_dgyro_virtual.x() = tar_dgyro_B_clipped.x() + integral_error_x_;
-  tar_dgyro_virtual.y() = tar_dgyro_B_clipped.y() + integral_error_y_;
-  // FIX: yawの制御も考慮, 現状定常旋回への移行までの過渡応答のところでintegral_error_z_がたまってしまい, ラダーの効きが小さい場合に目標yawrateを出せない?
-  tar_dgyro_virtual.z() = tar_dgyro_B_clipped.z() + integral_error_z_;
-  f_ = (I_B * tar_dgyro_virtual + cur_gyro_B * (I_B * cur_gyro_B)).data; // [Nm]
+  // kdl::Vector tar_dgyro_virtual = tar_dgyro_B_clipped;
+  // std::cout << "airspeed : " << airspeed << std::endl;
+  // std::cout << "omega_roll_ : " << omega_roll_ << std::endl;
+  // std::cout << "tar_dgyro_B : " << tar_dgyro_B << std::endl;
+  // std::cout << "taw_dgyro_B_clipped : " << tar_dgyro_B_clipped << std::endl;
+  // std::cout << "dt : " << dt << std::endl;
+  // if (airspeed > 7.5){
+  //   integral_error_x_ += airspeed / kCruiseSpeed * omega_roll_ * tar_dgyro_B_clipped.x() * dt;
+  //   integral_error_y_ += airspeed / kCruiseSpeed * omega_s_  * tar_dgyro_B_clipped.y() * dt;
+  //   integral_error_z_ += airspeed / kCruiseSpeed * omega_dutch_roll_ * tar_dgyro_B_clipped.z() * dt;
+  // }
+  // tar_dgyro_virtual.x() = tar_dgyro_B_clipped.x() + integral_error_x_;
+  // tar_dgyro_virtual.y() = tar_dgyro_B_clipped.y() + integral_error_y_;
+  // // FIX: yawの制御も考慮, 現状定常旋回への移行までの過渡応答のところでintegral_error_z_がたまってしまい, ラダーの効きが小さい場合に目標yawrateを出せない?
+  // tar_dgyro_virtual.z() = tar_dgyro_B_clipped.z() + integral_error_z_;
+  // f_ = (I_B * tar_dgyro_virtual + cur_gyro_B * (I_B * cur_gyro_B)).data.head<2>(); // [Nm]
+
+  // 空力による応答遅れの影響を考慮してPI要素を挟む
+  // I制御に対してアンチワインドアップを行うため, 速度型PI要素を構成
+  kdl::Vector compensate_aerodynamics = kdl::Vector(airspeed / kCruiseSpeed * omega_roll_, airspeed / kCruiseSpeed * omega_s_, airspeed / kCruiseSpeed * omega_dutch_roll_);
+  tar_dgyro_virtual_ = (tar_dgyro_virtual_ + ((tar_dgyro_B - tar_dgyro_last_) / dt + compensate_aerodynamics.hadamard(tar_dgyro_B)) * dt).clamp(-max_dgyro_B, max_dgyro_B);
+  tar_dgyro_last_ = tar_dgyro_B;
+  f_ = (I_B * tar_dgyro_virtual_ + cur_gyro_B * (I_B * cur_gyro_B)).data.head<2>(); // [Nm]
 
   // Solve `Ex = f`.
   x_ = E_.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(f_);
+  std::cout << "tar_dgyro_B : " << tar_dgyro_B << std::endl;
+  std::cout << "tar_dgyro_virtual : " << tar_dgyro_virtual_ << std::endl;
+  std::cout << "E_ : " << E_ << std::endl;
+  std::cout << "f_ : " << f_.transpose() << std::endl;
   std::cout << "x_ : " << x_.transpose() << std::endl;
 
   return true;

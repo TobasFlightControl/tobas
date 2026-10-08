@@ -10,6 +10,7 @@
 #include <tobas_control/lqd.hpp>
 #include <tobas_eigen_tools/core.hpp>
 #include <tobas_eigen_tools/kinematics.hpp>
+#include <tobas_kdl/conversion/coordinates.hpp>
 #include <tobas_kdl/euler.hpp>
 #include <tobas_kdl/jntarray.hpp>
 #include <tobas_kdl/tree_mass_holder.hpp>
@@ -337,9 +338,14 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
 
   // Aliases.
   const auto& cur_rot = odom_flu->odom.odom.frame.M;
-  const auto& cur_vel_B = odom_flu->odom.odom.twist.vel;
-  const auto& cur_gyro_B = odom_flu->odom.odom.twist.rot;
-  const auto airspeed = cur_vel_B.norm();
+  const auto B_T_G = kdl::Frame(kdl::Rotation::Identity(), drone_.fixed_wing->vehicle.ref); // base_link座標系で表したCoG座標系のFrame
+  const auto cur_twist_G = B_T_G.inverse() * odom_flu->odom.odom.twist;
+  const auto& cur_vel_G = cur_twist_G.vel;
+  const auto& cur_gyro_G = cur_twist_G.rot;
+  const auto airspeed = cur_vel_G.norm();
+  kdl::Vector cur_vel_G_frd;
+  kdl::vectorFluToFrd(cur_vel_G, cur_vel_G_frd);
+  std::cout << "beta : " << angleOfSideSlip(cur_vel_G_frd.x(), cur_vel_G_frd.y(), cur_vel_G_frd.z()) / M_PI * 180.0 << " [deg]" << std::endl;
 
   // Attitude controller.
   if (tar_roll_pitch_dyawrate_) {
@@ -360,16 +366,20 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
     const kdl::Euler cur_rpy(cur_rot);
     const auto roll_err = algo::wrapPi(tar_rpdy.roll - cur_rpy.roll);
     const auto pitch_err = algo::wrapPi(tar_rpdy.pitch - cur_rpy.pitch);
+    // const auto beta = angleOfSideSlip(cur_vel_G_frd.x(), cur_vel_G_frd.y(), cur_vel_G_frd.z());
+    // const auto beta_err = algo::wrapPi(0.0 - beta);
 
     // TODO: Accumulate integral error while airborne.
 
     // Compute target Euler angle rates.
-    const auto yawrate_base_flu = - st::kGravity / std::max(kLowerLimitSpeed, airspeed) * std::sin(cur_rpy.roll); // 定常旋回時のyawrate
-    const auto yawrate_sp_flu = yawrate_base_flu + tar_rpdy.delta_yawrate;
-    const auto tar_drpy = kdl::Vector(atti_angle_gain * roll_err, atti_angle_gain * pitch_err, yawrate_sp_flu);
+    const auto tar_drpy = kdl::Vector(atti_angle_gain * roll_err, atti_angle_gain * pitch_err, 0.0);
 
     // Convert Euler angle rates to gyro values.
     *tar_gyro_ = eigen::angvelFromEulerrateLocal(tar_drpy.data, cur_rpy.roll, cur_rpy.pitch);
+    std::cout << "tar_roll : " << tar_rpdy.roll / M_PI * 180.0 << " [deg]" << std::endl;
+    std::cout << "cur_roll : " << cur_rpy.roll / M_PI * 180.0 << " [deg]" << std::endl;
+    std::cout << "tar_drpy : " << tar_drpy << " [rad/s]" << std::endl;
+    std::cout << "tar_gyro : " << *tar_gyro_ << " [rad/s]" << std::endl;
 
     // Fill the feedback message.
     setpoint->odom.frame.M = kdl::Euler(tar_roll_pitch_dyawrate_->roll, tar_roll_pitch_dyawrate_->pitch, 0.0).toRotation();
@@ -386,7 +396,7 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
       const kdl::Vector rate_gain(atti_rate_gain, atti_rate_gain, head_rate_gain);
 
       // Compute target angular acceleration.
-      tar_dgyro_ = rate_gain.hadamard(*tar_gyro_ - cur_gyro_B);
+      tar_dgyro_ = rate_gain.hadamard(*tar_gyro_ - cur_gyro_G);
 
       // Fill the feedback message.
       setpoint->odom.twist.rot = *tar_gyro_;
@@ -395,7 +405,7 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
     // Mixer.
     {
       const auto rho = st::pressureToDensity(air_pressure_->pressure);
-      if (!mixer_.solve(dt, rho, airspeed, cur_gyro_B, tar_dgyro_)) {
+      if (!mixer_.solve(dt, rho, airspeed, cur_gyro_G, tar_dgyro_)) {
         TOBAS_FATAL("Failed to solve the mixing equation.");
         return;
       }
