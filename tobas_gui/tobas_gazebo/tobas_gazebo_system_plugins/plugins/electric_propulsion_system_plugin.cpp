@@ -79,6 +79,9 @@ private:
     size_t publish_state_rate;  ///< [Hz]
     double vib_force_coef;      ///< [-]
     double vib_force_var_rate;  ///< [-]
+    bool apply_horizontal_force;
+    bool apply_inertial_moment;
+    bool apply_coriolis_moment;
   } param_;
 
   double throt_ = 0.0;  ///< [0, 1]
@@ -273,25 +276,32 @@ void GazeboElectricPropulsionSystemPlugin::PreUpdate(
   // Only add the missing reaction between real and simulated spin.
   const auto I_W = *link_.WorldInertiaMatrix(ecm);  // Assume the center of gravity lies on the rotation axis.
   const auto inertial_moment_W = -(I_W * ((acc - sim_acc) * axis_W));
+  if (param_.apply_inertial_moment) {
+    parent_link_.AddWorldWrench(ecm, gz::math::Vector3d::Zero, inertial_moment_W);
+  }
 
   // Coriolis moment (Gyro effect)
   const auto L_W = I_W * ((vel_ - sim_vel) * axis_W);  // Missing spin angular momentum.
   const auto coriolis_moment_W = -angvel_W_->Data().Cross(L_W);
+  if (param_.apply_coriolis_moment) {
+    parent_link_.AddWorldWrench(ecm, gz::math::Vector3d::Zero, coriolis_moment_W);
+  }
 
-  // External force: Thrust force
+  // Aerodynamic force: Thrust force
   const auto thrust_force_W = thrust * axis_W;
+  link_.AddWorldWrench(ecm, thrust_force_W, gz::math::Vector3d::Zero);
 
-  // External force: H-force
+  // Aerodynamic force: H-force
   const auto linvel_rel_W = linvel_W_->Data() - wind_vel_W_;
   const auto linvel_perp_W = linvel_rel_W - (linvel_rel_W.Dot(axis_W) * axis_W);
   const auto h_force_W = (-std::abs(vel_) * param_.drag_const) * linvel_perp_W;
+  if (param_.apply_horizontal_force) {
+    link_.AddWorldWrench(ecm, h_force_W, gz::math::Vector3d::Zero);
+  }
 
-  // External moment: Drag torque
+  // Aerodynamic moment: Drag torque
   const auto drag_moment_W = (-param_.direction * torque) * axis_W;
-
-  // Apply wrench.
-  link_.AddWorldWrench(ecm, thrust_force_W + h_force_W, gz::math::Vector3d::Zero);
-  parent_link_.AddWorldWrench(ecm, gz::math::Vector3d::Zero, inertial_moment_W + coriolis_moment_W + drag_moment_W);
+  parent_link_.AddWorldWrench(ecm, gz::math::Vector3d::Zero, drag_moment_W);
 
   // Publish the observed state.
   if (publish_state_rate_manager_->update(info.simTime)) {
@@ -357,6 +367,10 @@ void GazeboElectricPropulsionSystemPlugin::getSdfParams(const sdf::ElementConstP
   param_.publish_state_rate = getSdfParam<size_t>(sdf, "publishStateRate", 400UL, kNonNegative);
   param_.vib_force_coef = getSdfParam<double>(sdf, "vibrationForceCoefficient", 1.5, kNonNegative);
   param_.vib_force_var_rate = getSdfParam<double>(sdf, "vibrationForceVariationRate", 0.3, kNonNegative);
+
+  param_.apply_horizontal_force = getSdfParam<bool>(sdf, "applyHorizontalForce", true);
+  param_.apply_inertial_moment = getSdfParam<bool>(sdf, "applyInertialMoment", true);
+  param_.apply_coriolis_moment = getSdfParam<bool>(sdf, "applyCoriolisMoment", true);
 }
 
 void GazeboElectricPropulsionSystemPlugin::registerRosInterfaces()
