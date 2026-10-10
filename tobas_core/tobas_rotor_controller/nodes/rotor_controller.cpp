@@ -282,11 +282,11 @@ void RotorControllerNode::setArmCb(const SetArm::Request::ConstSharedPtr& req, c
     is_armed_ = true;
     publishCurrentArmingState();
     auto_disarm_timer_ = createTimer(kAutoDisarmBeforeCmdTimeout, &self::autoDisarmBeforeCmdTimerCb, this);
-    TOBAS_INFO("Arming request was accepted.");
+    TOBAS_INFO("Arming request has been accepted.");
   }
   else if (is_armed_ && !req->arming) {
     disarm();
-    TOBAS_INFO("Disarming request was accepted.");
+    TOBAS_INFO("Disarming request has been accepted.");
   }
 
   res->success = true;
