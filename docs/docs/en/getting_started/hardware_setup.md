@@ -26,7 +26,7 @@ Assemble the vehicle as configured in Setup Assistant.
 
 ---
 
-The S.BUS signal is expected to provide at least eight channels.
+The S.BUS signal is expected to provide at least 8 channels.
 In Tobas, each RC input channel has the following role:
 
 | Channel | Function        | Interface         |
