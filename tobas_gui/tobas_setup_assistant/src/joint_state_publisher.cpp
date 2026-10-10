@@ -3,6 +3,10 @@
 
 #include "tobas_setup_assistant/joint_state_publisher.hpp"
 
+#include <algorithm>
+#include <cmath>
+#include <functional>
+
 #include <QDebug>
 #include <QHBoxLayout>
 
@@ -90,25 +94,27 @@ void JointStatePublisherWidget::updateInternalDataStructures()
       qDebug() << QString::fromStdString(joint.name) << "will rotate automatically.";
     }
     else {  // Allow users to control other movable joints with sliders.
-      const auto slider = new qt::DoubleSliderDisplay();
+      const auto slider = new qt::IntSliderDisplay();
       slider->setText(QString::fromStdString(joint.name));
+
+      const auto is_rotation = joint.type == kdl::Joint::kRotation;
+      const auto position_per_step = is_rotation ? math::kDeg2Rad : 0.001;
 
       auto lower_limit = joint.lower_limit;
       auto upper_limit = joint.upper_limit;
-      if (joint.type == kdl::Joint::kRotation && upper_limit - lower_limit > M_2PI) {
+      if (is_rotation && upper_limit - lower_limit > M_2PI) {
         lower_limit = -M_PI;
         upper_limit = +M_PI;
       }
-      slider->setMinimum(lower_limit);
-      slider->setMaximum(upper_limit);
-
-      slider->setValue(0.0);
+      slider->setRange(std::round(lower_limit / position_per_step), std::round(upper_limit / position_per_step));
+      slider->setValue(0);
+      slider->setSuffix(is_rotation ? " deg" : " mm");
 
       connect(
         slider,
-        &qt::DoubleSliderDisplay::valueChanged,
+        &qt::IntSliderDisplay::valueChanged,
         this,
-        std::bind(&self::onValueChanged, this, std::placeholders::_1, joint.name));
+        std::bind(&self::onValueChanged, this, std::placeholders::_1, joint.name, position_per_step));
 
       sliders_.push_back(slider);
       slider_rows_->addWidget(slider);
@@ -156,7 +162,7 @@ void JointStatePublisherWidget::setControlButtonsEnabled(bool enabled)
   random_button_->setEnabled(enabled);
 }
 
-void JointStatePublisherWidget::onValueChanged(double value, const std::string& jnt_name)
+void JointStatePublisherWidget::onValueChanged(int value, const std::string& jnt_name, double position_per_step)
 {
   const auto idx = st::index(js_.name, jnt_name);
   if (idx < 0) {
@@ -164,7 +170,7 @@ void JointStatePublisherWidget::onValueChanged(double value, const std::string& 
     return;
   }
 
-  js_.position.at(idx) = value;
+  js_.position.at(idx) = value * position_per_step;
 }
 
 void JointStatePublisherWidget::onZeroButtonClicked()
@@ -185,7 +191,7 @@ void JointStatePublisherWidget::onCenterButtonClicked()
 void JointStatePublisherWidget::onRandomButtonClicked()
 {
   for (auto& slider : sliders_) {
-    std::uniform_real_distribution<double> uniform(slider->getMinimum(), slider->getMaximum());
+    std::uniform_int_distribution<int> uniform(slider->getMinimum(), slider->getMaximum());
     const auto value = uniform(rnd_gen_);
     slider->setValue(value);
   }

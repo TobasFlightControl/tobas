@@ -61,7 +61,7 @@ private:
   QPushButton* random_button_;
 
   sensor_msgs::msg::JointState js_;
-  std::vector<qt::DoubleSliderDisplay*> sliders_;
+  std::vector<qt::IntSliderDisplay*> sliders_;
   std::vector<ThrustJoint> thrust_joints_;
 
   ros2::PublisherPtr<sensor_msgs::msg::JointState> js_pub_;
@@ -74,7 +74,7 @@ private:
   void setControlButtonsEnabled(bool enabled);
 
 private Q_SLOTS:
-  void onValueChanged(double value, const std::string& jnt_name);
+  void onValueChanged(int value, const std::string& jnt_name, double position_per_step);
 
   void onZeroButtonClicked();
   void onCenterButtonClicked();

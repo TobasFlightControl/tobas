@@ -17,7 +17,7 @@ namespace
 constexpr int kTextPointSize = 9;
 }  // namespace
 
-IntSliderDisplay::IntSliderDisplay(QWidget* parent) : super(parent)
+IntSliderDisplay::IntSliderDisplay(QWidget* _parent) : super(_parent)
 {
   const DefaultFont font(kTextPointSize, QFont::Bold);
 
@@ -72,57 +72,58 @@ QString IntSliderDisplay::getSuffix() const
   return suffix_;
 }
 
-void IntSliderDisplay::setValue(int value, bool block_signal)
+void IntSliderDisplay::setValue(int _value, bool _block_signal)
 {
   const QSignalBlocker block(slider_);
-  slider_->setValue(value);
+  slider_->setValue(_value);
 
+  const auto value = slider_->value();
   value_->setText(QString::number(value) + suffix_);
 
-  if (!block_signal) {
+  if (!_block_signal) {
     Q_EMIT valueChanged(value);
   }
 }
 
-void IntSliderDisplay::setMinimum(int minimum)
+void IntSliderDisplay::setMinimum(int _minimum)
 {
-  slider_->setMinimum(minimum);
+  slider_->setMinimum(_minimum);
 }
 
-void IntSliderDisplay::setMaximum(int maximum)
+void IntSliderDisplay::setMaximum(int _maximum)
 {
-  slider_->setMaximum(maximum);
+  slider_->setMaximum(_maximum);
 }
 
-void IntSliderDisplay::setRange(int minimum, int maximum)
+void IntSliderDisplay::setRange(int _minimum, int _maximum)
 {
-  setMinimum(minimum);
-  setMaximum(maximum);
+  setMinimum(_minimum);
+  setMaximum(_maximum);
 }
 
-void IntSliderDisplay::setText(const QString& text)
+void IntSliderDisplay::setText(const QString& _text)
 {
-  text_->setText(text);
+  text_->setText(_text);
 }
 
-void IntSliderDisplay::setSuffix(const QString& suffix)
+void IntSliderDisplay::setSuffix(const QString& _suffix)
 {
-  suffix_ = suffix;
+  suffix_ = _suffix;
   updateValueText(getValue());
 }
 
-void IntSliderDisplay::updateValueText(int value)
+void IntSliderDisplay::updateValueText(int _value)
 {
-  value_->setText(QString::number(value) + suffix_);
+  value_->setText(QString::number(_value) + suffix_);
 }
 
-void IntSliderDisplay::onSliderValueChanged(int value)
+void IntSliderDisplay::onSliderValueChanged(int _value)
 {
-  updateValueText(value);
-  Q_EMIT valueChanged(value);
+  updateValueText(_value);
+  Q_EMIT valueChanged(_value);
 }
 
-DoubleSliderDisplay::DoubleSliderDisplay(QWidget* parent) : super(parent)
+DoubleSliderDisplay::DoubleSliderDisplay(QWidget* _parent) : super(_parent)
 {
   const DefaultFont font(kTextPointSize, QFont::Bold);
 
@@ -182,60 +183,61 @@ int DoubleSliderDisplay::getDecimals() const
   return decimals_;
 }
 
-void DoubleSliderDisplay::setValue(double value, bool block_signal)
+void DoubleSliderDisplay::setValue(double _value, bool _block_signal)
 {
   const QSignalBlocker block(slider_);
-  slider_->setValue(value);
+  slider_->setValue(_value);
 
+  const auto value = slider_->value();
   value_->setText(QString::number(value, 'f', decimals_) + suffix_);
 
-  if (!block_signal) {
+  if (!_block_signal) {
     Q_EMIT valueChanged(value);
   }
 }
 
-void DoubleSliderDisplay::setMinimum(double minimum)
+void DoubleSliderDisplay::setMinimum(double _minimum)
 {
-  slider_->setMinimum(minimum);
+  slider_->setMinimum(_minimum);
 }
 
-void DoubleSliderDisplay::setMaximum(double maximum)
+void DoubleSliderDisplay::setMaximum(double _maximum)
 {
-  slider_->setMaximum(maximum);
+  slider_->setMaximum(_maximum);
 }
 
-void DoubleSliderDisplay::setRange(double minimum, double maximum)
+void DoubleSliderDisplay::setRange(double _minimum, double _maximum)
 {
-  setMinimum(minimum);
-  setMaximum(maximum);
+  setMinimum(_minimum);
+  setMaximum(_maximum);
 }
 
-void DoubleSliderDisplay::setText(const QString& text)
+void DoubleSliderDisplay::setText(const QString& _text)
 {
-  text_->setText(text);
+  text_->setText(_text);
 }
 
-void DoubleSliderDisplay::setSuffix(const QString& suffix)
+void DoubleSliderDisplay::setSuffix(const QString& _suffix)
 {
-  suffix_ = suffix;
+  suffix_ = _suffix;
   updateValueText(getValue());
 }
 
-void DoubleSliderDisplay::setDecimals(int decimals)
+void DoubleSliderDisplay::setDecimals(int _decimals)
 {
-  decimals_ = decimals;
+  decimals_ = _decimals;
   updateValueText(getValue());
 }
 
-void DoubleSliderDisplay::updateValueText(double value)
+void DoubleSliderDisplay::updateValueText(double _value)
 {
-  value_->setText(QString::number(value, 'f', decimals_) + suffix_);
+  value_->setText(QString::number(_value, 'f', decimals_) + suffix_);
 }
 
-void DoubleSliderDisplay::onSliderValueChanged(double value)
+void DoubleSliderDisplay::onSliderValueChanged(double _value)
 {
-  updateValueText(value);
-  Q_EMIT valueChanged(value);
+  updateValueText(_value);
+  Q_EMIT valueChanged(_value);
 }
 }  // namespace qt
 }  // namespace tobas
