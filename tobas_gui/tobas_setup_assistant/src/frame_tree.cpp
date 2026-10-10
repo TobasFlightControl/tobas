@@ -39,6 +39,11 @@ void FrameTreeWidget::updateInternalDataStructures()
 
 void FrameTreeWidget::onItemChanged(QTreeWidgetItem* item)
 {
+  // Clearing the tree during a reload also clears the current item.
+  if (!item) {
+    return;
+  }
+
   const auto link_name = item->text(0);
   rviz_->heightLink(link_name);
 }
