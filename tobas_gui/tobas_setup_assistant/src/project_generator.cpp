@@ -1021,7 +1021,7 @@ void ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
           aero->momentConst(),
           aero->dragConst(),
           turningDirectionUadfToTbsdrn(uadf_.thrusts.at(cur_jnt.name).direction),
-          esc->maxCurrent());
+          esc->maxContinuousCurrent());
       }
 
       break;

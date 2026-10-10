@@ -85,7 +85,7 @@ void addElectricPropulsionSystemPlugin(
   double moment_const,
   double drag_const,
   TurningDirection direction,
-  double max_current);
+  double max_cont_current);
 
 struct EngineParam
 {

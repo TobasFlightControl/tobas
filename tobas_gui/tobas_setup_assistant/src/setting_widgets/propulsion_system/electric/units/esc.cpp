@@ -20,14 +20,14 @@ ESCWidget::ESCWidget()
   const auto rows = new QVBoxLayout();
   setLayout(rows);
 
-  max_current_ = new ParamGetterWidget_SpinBox(
-    "Maximum Current",
+  max_cont_current_ = new ParamGetterWidget_SpinBox(
+    "Maximum Continuous Current",
     "Maximum current that the ESC (Electronic Speed Controller) can safely handle. "
     "Exceeding this maximum current may lead to overheating or damage to the ESC, "
     "and in the worst case, it could cause failure or fire.");
-  max_current_->setMinimum(1);
-  max_current_->setSuffix(" A");
-  rows->addWidget(max_current_);
+  max_cont_current_->setMinimum(1);
+  max_cont_current_->setSuffix(" A");
+  rows->addWidget(max_cont_current_);
 
   rows->addStretch();
 }
@@ -39,7 +39,7 @@ const char* ESCWidget::name() const
 
 void ESCWidget::setToDefaults()
 {
-  max_current_->setValue(35);
+  max_cont_current_->setValue(35);
 }
 
 bool ESCWidget::isValid()
@@ -50,26 +50,26 @@ bool ESCWidget::isValid()
 void ESCWidget::copyFrom(const BaseSelectedLinkSettingWidget* src)
 {
   const auto derived = qt::qConstPointerCast<ESCWidget>(src);
-  max_current_->setValue(derived->max_current_->getValue());
+  max_cont_current_->setValue(derived->max_cont_current_->getValue());
 }
 
 YAML::Node ESCWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
-  node[max_current_->name()] = max_current_->getValue();
+  node[max_cont_current_->name()] = max_cont_current_->getValue();
 
   return node;
 }
 
 void ESCWidget::load(const YAML::Node& node)
 {
-  max_current_->setValue(node[max_current_->name()].as<int>());
+  max_cont_current_->setValue(node[max_cont_current_->name()].as<int>());
 }
 
-double ESCWidget::maxCurrent() const
+double ESCWidget::maxContinuousCurrent() const
 {
-  return max_current_->getValue();
+  return max_cont_current_->getValue();
 }
 }  // namespace electric
 }  // namespace propulsion

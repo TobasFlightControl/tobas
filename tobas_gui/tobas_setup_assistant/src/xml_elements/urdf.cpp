@@ -218,7 +218,7 @@ void addElectricPropulsionSystemPlugin(
   double moment_const,
   double drag_const,
   TurningDirection direction,
-  double max_current)
+  double max_cont_current)
 {
   const auto plugin = addGazeboPlugin(
     robot, "tobas_gazebo_electric_propulsion_system_plugin", "tobas::gazebo::GazeboElectricPropulsionSystemPlugin");
@@ -231,7 +231,7 @@ void addElectricPropulsionSystemPlugin(
   plugin->InsertNewChildElement("momentConstant")->SetText(toString(moment_const).c_str());
   plugin->InsertNewChildElement("dragConstant")->SetText(toString(drag_const).c_str());
   plugin->InsertNewChildElement("turningDirection")->SetText(textFromEnum(direction).c_str());
-  plugin->InsertNewChildElement("maxCurrent")->SetText(toString(max_current).c_str());
+  plugin->InsertNewChildElement("maxContinuousCurrent")->SetText(toString(max_cont_current).c_str());
 }
 
 void addIcePropulsionSystemPlugin(

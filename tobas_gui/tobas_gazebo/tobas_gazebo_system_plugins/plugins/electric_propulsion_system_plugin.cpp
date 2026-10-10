@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <cmath>
 #include <optional>
 
 #include <gz/sim/Joint.hh>
@@ -14,6 +15,7 @@
 #include <gz/sim/components/Pose.hh>
 
 #include <tobas_constants/throttle.hpp>
+#include <tobas_dsp/first_order_lag.hpp>
 #include <tobas_gazebo_common/constants.hpp>
 #include <tobas_gazebo_conversions/gazebo_kdl.hpp>
 #include <tobas_gazebo_conversions/gazebo_ros.hpp>
@@ -75,7 +77,8 @@ private:
     double moment_const;        ///< [m]
     double drag_const;          ///< [N*s^2/rad/m]
     int direction;              ///< Turning direction: 1(CCW) or -1(CW)
-    double max_current;         ///< [A] Maximum ESC current.
+    double max_cont_current;    ///< [A] Continuous ESC current rating.
+    double thermal_time_const;  ///< [s] ESC heating and cooling time constant.
     size_t publish_state_rate;  ///< [Hz]
     double vib_force_coef;      ///< [-]
     double vib_force_var_rate;  ///< [-]
@@ -92,6 +95,7 @@ private:
   clock::duration prev_sim_time_;
   clock::duration last_cmd_time_;  ///< Time when the last throttle command was issued
   bool is_intact_ = true;
+  dsp::FirstOrderLag<double> esc_thermal_model_;  ///< Normalized ESC thermal load; limit is 1.0.
   std::optional<RateManager> publish_state_rate_manager_;
 
   // Random
@@ -128,6 +132,7 @@ private:
 
   double velocitySim() const;
   double computeNextVelocity(double dt) const;
+  void failRotor();
 
   void throttleCmdCb(const tobas_gazebo_msgs::msg::Throttle::ConstSharedPtr& throttle);
   void batteryGtCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery_gt);
@@ -150,9 +155,9 @@ void GazeboElectricPropulsionSystemPlugin::Configure(
   initialize("gazebo_" + sanitizeNodeName(link_name_) + "_controller_plugin", sdf);
   getSdfParams(sdf);
 
-  rice_ = RiceDistribution(1.0, param_.vib_force_var_rate);
-
+  esc_thermal_model_.setTimeConstant(param_.thermal_time_const);
   publish_state_rate_manager_.emplace(param_.publish_state_rate);
+  rice_ = RiceDistribution(1.0, param_.vib_force_var_rate);
 
   // Get robot model.
   const gz::sim::Model model(model_entity);
@@ -240,23 +245,20 @@ void GazeboElectricPropulsionSystemPlugin::PreUpdate(
     TOBAS_WARN_THROTTLE(kWarnPeriod, "Aliasing on motor '", link_name_, "' might occur. Lower simulation time step.");
   }
 
-  // Check the current before advancing the motor so overcurrent stops it in this step.
-  // For safety, treat the ESC as burned out if overcurrent flows even momentarily.
+  // Estimate motor current from the aerodynamic load torque.
   const auto thrust = param_.motor_const * math::sqr(vel_);
   const auto torque = param_.moment_const * thrust;
   const auto kt = 1.0 / param_.kv;
   const auto current = torque / kt;
-  if (current > param_.max_current) {
-    TOBAS_ERROR(
-      "The ESC of rotor '",
-      link_name_,
-      "' is critically damaged due to an overcurrent of ",
-      current,
-      " A, which exceeded its maximum current capacity of ",
-      param_.max_current,
-      " A.");
-    is_intact_ = false;
-    throt_ = 0.0;
+
+  // Allow brief overloads and account for cooling before advancing the motor.
+  // A failed ESC is no longer energized, so its thermal load only decays.
+  const auto equilibrium_load = is_intact_ ? math::sqr(current / param_.max_cont_current) : 0.0;
+  esc_thermal_model_.update(equilibrium_load, dt);
+  const auto thermal_load = esc_thermal_model_.getValue();
+  if (is_intact_ && thermal_load > 1.0) {
+    failRotor();
+    TOBAS_WARN("The ESC of rotor '", link_name_, "' has been severely damaged by overcurrent.");
   }
 
   // Match the acceleration reaction to the velocity command for this physics step.
@@ -335,6 +337,7 @@ void GazeboElectricPropulsionSystemPlugin::PreUpdate(
   debug_msg->position = pos_;
   debug_msg->velocity = vel_;
   debug_msg->acceleration = acc;
+  debug_msg->esc_thermal_load = thermal_load;
   vectorGazeboToRos(inertial_moment_W, debug_msg->inertia_moment);
   vectorGazeboToRos(coriolis_moment_W, debug_msg->coriolis_moment);
   vectorGazeboToRos(thrust_force_W, debug_msg->thrust_force);
@@ -362,7 +365,10 @@ void GazeboElectricPropulsionSystemPlugin::getSdfParams(const sdf::ElementConstP
     TOBAS_EXIT("Failed to get turning direction.");
   }
 
-  param_.max_current = getSdfParam<double>(sdf, "maxCurrent", kPositive);
+  param_.max_cont_current = getSdfParam<double>(sdf, "maxContinuousCurrent", kPositive);
+
+  // From cold, 1.5 times the continuous current reaches the thermal limit in about 5 seconds (memo: 3-55).
+  param_.thermal_time_const = getSdfParam<double>(sdf, "thermalTimeConstant", 4.5, kPositive);
 
   param_.publish_state_rate = getSdfParam<size_t>(sdf, "publishStateRate", 400UL, kNonNegative);
   param_.vib_force_coef = getSdfParam<double>(sdf, "vibrationForceCoefficient", 1.5, kNonNegative);
@@ -468,13 +474,18 @@ void GazeboElectricPropulsionSystemPlugin::windSpeedGtCb(const tobas_msgs::Wind:
   vectorKDLToGazebo(wind_gt->vel, wind_vel_W_);
 }
 
+void GazeboElectricPropulsionSystemPlugin::failRotor()
+{
+  is_intact_ = false;
+  throt_ = 0.0;
+}
+
 void GazeboElectricPropulsionSystemPlugin::breakCb(
   const BreakSrv::Request::ConstSharedPtr&,
   const BreakSrv::Response::SharedPtr& res)
 {
   if (is_intact_) {
-    is_intact_ = false;
-    throt_ = 0.0;
+    failRotor();
     res->message = "Rotor '" + link_name_ + "' has been broken.";
   }
   else {

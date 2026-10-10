@@ -31,10 +31,10 @@ public:
   YAML::Node dump() const override;
   void load(const YAML::Node& node) override;
 
-  double maxCurrent() const;
+  double maxContinuousCurrent() const;
 
 private:
-  ParamGetterWidget_SpinBox* max_current_;
+  ParamGetterWidget_SpinBox* max_cont_current_;
 };
 }  // namespace electric
 }  // namespace propulsion
