@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <chrono>
 #include <optional>
 
 #include <tobas_constants/ros_interface.hpp>
@@ -139,6 +140,10 @@ void GazeboIcePropulsionSystemPlugin::Configure(
 
 void GazeboIcePropulsionSystemPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::EntityComponentManager& ecm)
 {
+  if (info.paused || info.dt <= ch::steady_clock::duration::zero()) {
+    return;
+  }
+
   constexpr double kAutoStopTimeout = 0.5;  // [s]
 
   // Update the previous simulation step time.
@@ -159,6 +164,10 @@ void GazeboIcePropulsionSystemPlugin::PreUpdate(const gz::sim::UpdateInfo& info,
 
 void GazeboIcePropulsionSystemPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)
 {
+  if (info.paused || info.dt <= ch::steady_clock::duration::zero()) {
+    return;
+  }
+
   // Step simulation
   const auto dt = ch::duration<double>(info.dt).count();
   for (auto& [_, rotor] : rotors_) {

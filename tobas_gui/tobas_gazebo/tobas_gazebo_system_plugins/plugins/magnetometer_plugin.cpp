@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <chrono>
 #include <optional>
 
 #include <gz/sim/Model.hh>
@@ -115,6 +116,10 @@ void GazeboMagnetometerPlugin::Configure(
 
 void GazeboMagnetometerPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)
 {
+  if (info.paused || info.dt <= std::chrono::steady_clock::duration::zero()) {
+    return;
+  }
+
   if (!rate_manager_->update(info.simTime)) {
     return;
   }

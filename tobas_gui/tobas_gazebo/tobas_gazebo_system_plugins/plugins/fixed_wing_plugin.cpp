@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <chrono>
+
 #include <gz/sim/Joint.hh>
 #include <gz/sim/Link.hh>
 #include <gz/sim/Model.hh>
@@ -200,6 +202,10 @@ void GazeboFixedWingPlugin::Configure(
 
 void GazeboFixedWingPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::EntityComponentManager& ecm)
 {
+  if (info.paused || info.dt <= ch::steady_clock::duration::zero()) {
+    return;
+  }
+
   // Base state.
   const auto& T_W_B = pose_W_->Data();
   const auto& P_W_B = T_W_B.Pos();

@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <chrono>
+
 #include <gz/sim/Model.hh>
 #include <gz/sim/components/LinearVelocity.hh>
 #include <gz/sim/components/Pose.hh>
@@ -108,6 +110,10 @@ void GazeboWindPlugin::Configure(
 
 void GazeboWindPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)
 {
+  if (info.paused || info.dt <= ch::steady_clock::duration::zero()) {
+    return;
+  }
+
   // Gust.
   const auto t_gust = ch::duration<double>(info.simTime - gust_state_change_time_).count();  // [s]
   switch (gust_state_) {

@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <chrono>
+
 #include <gz/msgs/marker.pb.h>
 #include <gz/sim/Link.hh>
 #include <gz/sim/Model.hh>
@@ -127,6 +129,10 @@ void GazeboTetherStationPlugin::Configure(
 
 void GazeboTetherStationPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::EntityComponentManager& ecm)
 {
+  if (info.paused || info.dt <= std::chrono::steady_clock::duration::zero()) {
+    return;
+  }
+
   // Get the current state.
   const auto& T_W_B = pose_W_->Data();
   const auto& W_Pos_WB = T_W_B.Pos();

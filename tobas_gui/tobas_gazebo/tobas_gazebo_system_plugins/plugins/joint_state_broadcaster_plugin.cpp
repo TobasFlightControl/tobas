@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <chrono>
 #include <optional>
 
 #include <gz/sim/Joint.hh>
@@ -96,6 +97,10 @@ void GazeboJointStateBroadcasterPlugin::PostUpdate(
   const gz::sim::UpdateInfo& info,
   const gz::sim::EntityComponentManager&)
 {
+  if (info.paused || info.dt <= ch::steady_clock::duration::zero()) {
+    return;
+  }
+
   if (!rate_manager_->update(info.simTime)) {
     return;
   }

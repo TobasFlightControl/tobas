@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <chrono>
+
 #include <gz/msgs/entity_factory.pb.h>
 #include <gz/msgs/marker.pb.h>
 #include <gz/sim/Link.hh>
@@ -144,8 +146,6 @@ void GazeboSuspendedLoadPlugin::Configure(
 
 void GazeboSuspendedLoadPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::EntityComponentManager& ecm)
 {
-  constexpr double kStopLoadRotationTimeConst = 10.0;  // [s]
-
   if (!load_exist_) {
     return;
   }
@@ -175,6 +175,10 @@ void GazeboSuspendedLoadPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::s
     W_Gyro_WL_ = getComponent<cmp::WorldAngularVelocity>(link_entity, ecm);
 
     return;  // Do not apply force in the cycle where components were obtained because values are not correct yet.
+  }
+
+  if (info.paused || info.dt <= std::chrono::steady_clock::duration::zero()) {
+    return;
   }
 
   // Get the vehicle state.
@@ -221,6 +225,7 @@ void GazeboSuspendedLoadPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::s
     const auto T = k * x + d * xd;  // [N]
 
     // Torque that counteracts load rotation, simulating air resistance and friction at the cable joint.
+    constexpr double kStopLoadRotationTimeConst = 10.0;  // [s]
     const auto L_Gyro_WL = W_Rot_L.RotateVectorReverse(W_Gyro_WL);
     const auto L_DGyro_WL = -(1.0 / kStopLoadRotationTimeConst) * L_Gyro_WL;
     const auto L_Torque_WL = load_inertia_ * L_DGyro_WL + L_Gyro_WL.Cross(load_inertia_ * L_Gyro_WL);

@@ -2,6 +2,7 @@
 // Copyright (C) 2026 Tobas, Inc.
 
 #include <atomic>
+#include <chrono>
 #include <optional>
 
 #include <gz/sim/Model.hh>
@@ -148,6 +149,10 @@ void GazeboGnssPlugin::Configure(
 
 void GazeboGnssPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)
 {
+  if (info.paused || info.dt <= ch::steady_clock::duration::zero()) {
+    return;
+  }
+
   // Add the current state to history.
   const auto& cur_time = info.simTime;
   history_.emplace_back(cur_time, pose_W_->Data(), vel_W_->Data(), gyro_B_->Data());
