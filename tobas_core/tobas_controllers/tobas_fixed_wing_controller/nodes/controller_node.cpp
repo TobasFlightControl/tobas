@@ -23,7 +23,7 @@
 #include <tobas_tools/fixed_wing.hpp>
 
 #include <tobas_command_msgs/msg/aile_elev_rud_throttle.hpp>
-#include <tobas_command_msgs/msg/roll_pitch_delta_yawrate_throttle.hpp>
+#include <tobas_command_msgs/msg/roll_pitch_side_slip_throttle.hpp>
 #include <tobas_drone_msgs_adapter/drone.hpp>
 #include <tobas_kdl_msgs_adapter/tree.hpp>
 #include <tobas_msgs/msg/arming.hpp>
@@ -71,13 +71,13 @@ private:
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;                      // Rotor arming state
 
   // Command
-  struct RollPitchDYawrate
+  struct RollPitchSideSlip
   {
-    double roll;           // [rad]
-    double pitch;          // [rad]
-    double delta_yawrate;  // [rad/s]
+    double roll;       // [rad]
+    double pitch;      // [rad]
+    double side_slip;  // [rad]
   };
-  std::unique_ptr<RollPitchDYawrate> tar_roll_pitch_dyawrate_ = nullptr;
+  std::unique_ptr<RollPitchSideSlip> tar_roll_pitch_sideslip_ = nullptr;
   std::unique_ptr<kdl::Vector> tar_drpb_ = nullptr;
   kdl::Vector tar_dgyro_;
   std::unique_ptr<Eigen::VectorXd> thrusts_ = nullptr;
@@ -105,7 +105,7 @@ private:
   ros2::SubscriberPtr<tobas_msgs::OdometryWithCovarianceStamped> odom_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
   ros2::SubscriberPtr<tobas_command_msgs::msg::AileElevRudThrottle> manual_cmd_sub_;
-  ros2::SubscriberPtr<tobas_command_msgs::msg::RollPitchDeltaYawrateThrottle> stabilize_cmd_sub_;
+  ros2::SubscriberPtr<tobas_command_msgs::msg::RollPitchSideSlipThrottle> stabilize_cmd_sub_;
 
   // Timers
   ros2::TimerPtr check_topics_timer_;
@@ -128,7 +128,7 @@ private:
   void airPressureCb(const tobas_msgs::msg::FluidPressure::ConstSharedPtr& pressure);
   void odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom_flu);
   void manualCmdCb(const tobas_command_msgs::msg::AileElevRudThrottle::ConstSharedPtr& cmd);
-  void stabilizeCmdCb(const tobas_command_msgs::msg::RollPitchDeltaYawrateThrottle::ConstSharedPtr& cmd);
+  void stabilizeCmdCb(const tobas_command_msgs::msg::RollPitchSideSlipThrottle::ConstSharedPtr& cmd);
 
   void checkTopicsTimerCb();
 };
@@ -157,7 +157,7 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   air_pressure_sub_ = createSubscriber(topic::kAirPressure, &self::airPressureCb, this);
   odom_sub_ = createSubscriber(topic::kOdometry, &self::odomCb, this);
   manual_cmd_sub_ = createSubscriber(topic::kAileElevRudThrottleCmd, &self::manualCmdCb, this);
-  stabilize_cmd_sub_ = createSubscriber(topic::kRollPitchDeltaYawrateThrottleCmd, &self::stabilizeCmdCb, this);
+  stabilize_cmd_sub_ = createSubscriber(topic::kRollPitchSideSlipThrottleCmd, &self::stabilizeCmdCb, this);
 
   // Register timers.
   check_topics_timer_ = createTimer(kCheckTopicsPeriod, &self::checkTopicsTimerCb, this);
@@ -312,7 +312,7 @@ void ControllerNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arm
   arming_ = arming;
 
   if (!arming->data) {
-    tar_roll_pitch_dyawrate_.reset();
+    tar_roll_pitch_sideslip_.reset();
     thrusts_.reset();
     deflections_.reset();
   }
@@ -350,7 +350,7 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
   const auto airspeed = cur_vel_G.norm();
 
   // Attitude controller.
-  if (tar_roll_pitch_dyawrate_) {
+  if (tar_roll_pitch_sideslip_) {
     if (!tar_drpb_) {
       tar_drpb_ = std::make_unique<kdl::Vector>();
     }
@@ -364,20 +364,20 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
     // Determine target attitude.
     // TODO: Limit the target-attitude rate during transition to avoid discontinuous target-attitude changes
     // when switching from attitude-control mode to position-control mode.
-    auto tar_rpdy = *tar_roll_pitch_dyawrate_;
+    auto tar_rpb = *tar_roll_pitch_sideslip_;
 
     // yaw角の大きなズレの影響を考慮外にするためにEuler角による引き算を行う
     const kdl::Euler cur_rpy(cur_rot);
-    const auto roll_err = algo::wrapPi(tar_rpdy.roll - cur_rpy.roll);
-    const auto pitch_err = algo::wrapPi(tar_rpdy.pitch - cur_rpy.pitch);
+    const auto roll_err = algo::wrapPi(tar_rpb.roll - cur_rpy.roll);
+    const auto pitch_err = algo::wrapPi(tar_rpb.pitch - cur_rpy.pitch);
     kdl::Vector cur_vel_G_frd;
     kdl::vectorFluToFrd(cur_vel_G, cur_vel_G_frd);
     const auto beta = angleOfSideSlip(cur_vel_G_frd.x(), cur_vel_G_frd.y(), cur_vel_G_frd.z());
     beta_dot_filter_.update(beta, dt);
-    const auto beta_err = algo::wrapPi(tar_rpdy.delta_yawrate - beta);
+    const auto beta_err = algo::wrapPi(tar_rpb.side_slip - beta);
     // std::cout << "beta : " << beta / M_PI * 180.0 << " [deg]" << std::endl;
     // std::cout << "beta_err : " << beta_err / M_PI * 180.0 << " [deg]" << std::endl;
-    // std::cout << "beta_sp : " << tar_rpdy.delta_yawrate / M_PI * 180.0 << " [deg]" << std::endl;
+    // std::cout << "beta_sp : " << tar_rpb.sideslip / M_PI * 180.0 << " [deg]" << std::endl;
 
     // TODO: Accumulate integral error while airborne.
 
@@ -386,7 +386,7 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
 
     // Fill the feedback message.
     setpoint->odom.frame.M =
-      kdl::Euler(tar_roll_pitch_dyawrate_->roll, tar_roll_pitch_dyawrate_->pitch, 0.0).toRotation();
+      kdl::Euler(tar_roll_pitch_sideslip_->roll, tar_roll_pitch_sideslip_->pitch, 0.0).toRotation();
   }
 
   if (tar_drpb_) {
@@ -451,7 +451,7 @@ void ControllerNode::manualCmdCb(const tobas_command_msgs::msg::AileElevRudThrot
   }
 
   // Stop the outer control loop.
-  tar_roll_pitch_dyawrate_.reset();
+  tar_roll_pitch_sideslip_.reset();
   tar_drpb_.reset();
 
   // Create the command.
@@ -502,7 +502,7 @@ void ControllerNode::manualCmdCb(const tobas_command_msgs::msg::AileElevRudThrot
   }
 }
 
-void ControllerNode::stabilizeCmdCb(const tobas_command_msgs::msg::RollPitchDeltaYawrateThrottle::ConstSharedPtr& cmd)
+void ControllerNode::stabilizeCmdCb(const tobas_command_msgs::msg::RollPitchSideSlipThrottle::ConstSharedPtr& cmd)
 {
   if (!isCommandAccepted(cmd->priority)) {
     return;
@@ -521,17 +521,17 @@ void ControllerNode::stabilizeCmdCb(const tobas_command_msgs::msg::RollPitchDelt
   // TODO: Stop the outer control loop.
 
   // Create the command.
-  if (!tar_roll_pitch_dyawrate_) {
-    tar_roll_pitch_dyawrate_ = std::make_unique<RollPitchDYawrate>();
+  if (!tar_roll_pitch_sideslip_) {
+    tar_roll_pitch_sideslip_ = std::make_unique<RollPitchSideSlip>();
   }
   if (!thrusts_) {
     thrusts_ = std::make_unique<Eigen::VectorXd>();
   }
 
   // Update the command.
-  tar_roll_pitch_dyawrate_->roll = cmd->roll;
-  tar_roll_pitch_dyawrate_->pitch = cmd->pitch;
-  tar_roll_pitch_dyawrate_->delta_yawrate = cmd->delta_yawrate;
+  tar_roll_pitch_sideslip_->roll = cmd->roll;
+  tar_roll_pitch_sideslip_->pitch = cmd->pitch;
+  tar_roll_pitch_sideslip_->side_slip = cmd->side_slip;
   // thrusts
   *thrusts_ = Eigen::VectorXd::Zero(drone_.prop->numRotors());
   for (const auto& [idx, elem] : std::views::enumerate(drone_.prop->rotors)) {

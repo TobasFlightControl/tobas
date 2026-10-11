@@ -5,7 +5,7 @@
 
 #include <tobas_trajectory_generation/online/velocity_limited.hpp>
 
-#include <tobas_command_msgs/msg/roll_pitch_delta_yawrate_throttle.hpp>
+#include <tobas_command_msgs/msg/roll_pitch_side_slip_throttle.hpp>
 
 #include "./base_controller.hpp"
 
@@ -13,13 +13,13 @@ namespace tobas
 {
 namespace rc
 {
-class RollPitchDeltaYawrateThrottleController : public BaseController
+class RollPitchSideSlipThrottleController : public BaseController
 {
-  using self = RollPitchDeltaYawrateThrottleController;
+  using self = RollPitchSideSlipThrottleController;
   using super = BaseController;
 
 public:
-  explicit RollPitchDeltaYawrateThrottleController();
+  explicit RollPitchSideSlipThrottleController();
 
   bool requireHorizontalPosition() override;
   bool requireVerticalPosition() override;
@@ -32,25 +32,25 @@ public:
 
 private:
   rclcpp::Time t_last_rcin_;
-  traj::VelocityLimitedOnlineTrajectoryGenerator roll_filt_, pitch_filt_;
-  double tar_yaw_;
+  traj::VelocityLimitedOnlineTrajectoryGenerator roll_filt_, pitch_filt_, side_slip_filt_;
 
   // ROS parameters.
   double max_roll_;       // [rad]
   double max_pitch_;      // [rad]
-  double max_head_rate_;  // [rad/s]
+  double max_side_slip_;  // [rad]
   double atti_expo_;
   double head_expo_;
   double throt_expo_;
 
   // PubSub
-  ros2::PublisherPtr<tobas_command_msgs::msg::RollPitchDeltaYawrateThrottle> cmd_pub_;
+  ros2::PublisherPtr<tobas_command_msgs::msg::RollPitchSideSlipThrottle> cmd_pub_;
 
   bool maxRollCb(const double& p);
   bool maxRollRateCb(const double& p);
   bool maxPitchCb(const double& p);
   bool maxPitchRateCb(const double& p);
-  bool maxHeadingRateCb(const double& p);
+  bool maxSideSlipCb(const double& p);
+  bool maxSideSlipRateCb(const double& p);
   bool attitudeExpoCb(const double& p);
   bool headingExpoCb(const double& p);
   bool throttleExpoCb(const double& p);
