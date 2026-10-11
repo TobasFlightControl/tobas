@@ -39,20 +39,22 @@ bool RollPitchDeltaYawrateThrottleController::requireHeading()
 void RollPitchDeltaYawrateThrottleController::initialize(BaseNode* node, FlightMode mode)
 {
   node->addDynamicDoubleParam(addMode("max_roll", mode), &self::maxRollCb, this, 5.0, 9, 1, 16, " deg");
-  node->addDynamicDoubleParam(
-    addMode("max_roll_rate", mode), &self::maxRollRateCb, this, 15.0, 6, 1, 12, " dps");
+  node->addDynamicDoubleParam(addMode("max_roll_rate", mode), &self::maxRollRateCb, this, 15.0, 6, 1, 12, " dps");
   node->addDynamicDoubleParam(addMode("max_pitch", mode), &self::maxPitchCb, this, 2.0, 7, 1, 14, " deg");
-  node->addDynamicDoubleParam(
-    addMode("max_pitch_rate", mode), &self::maxPitchRateCb, this, 5.0, 6, 1, 12, " dps");
+  node->addDynamicDoubleParam(addMode("max_pitch_rate", mode), &self::maxPitchRateCb, this, 5.0, 6, 1, 12, " dps");
   node->addDynamicDoubleParam(addMode("max_heading_rate", mode), &self::maxHeadingRateCb, this, 1.0, 6, 1, 12, " dps");
   node->addDynamicDoubleParam(addMode("attitude_expo", mode), &self::attitudeExpoCb, this, 5.0, -6, -20, 20);
   node->addDynamicDoubleParam(addMode("heading_expo", mode), &self::headingExpoCb, this, 5.0, -3, -20, 20);
   node->addDynamicDoubleParam(addMode("throttle_expo", mode), &self::throttleExpoCb, this, 5.0, 0, 0, 20);
 
-  cmd_pub_ = node->createPublisher<tobas_command_msgs::msg::RollPitchDeltaYawrateThrottle>(topic::kRollPitchDeltaYawrateThrottleCmd);
+  cmd_pub_ = node->createPublisher<tobas_command_msgs::msg::RollPitchDeltaYawrateThrottle>(
+    topic::kRollPitchDeltaYawrateThrottleCmd);
 }
 
-void RollPitchDeltaYawrateThrottleController::reset(const builtin_interfaces::msg::Time& stamp, const tobas_msgs::Odometry& setpoint, bool)
+void RollPitchDeltaYawrateThrottleController::reset(
+  const builtin_interfaces::msg::Time& stamp,
+  const tobas_msgs::Odometry& setpoint,
+  bool)
 {
   t_last_rcin_ = stamp;
 

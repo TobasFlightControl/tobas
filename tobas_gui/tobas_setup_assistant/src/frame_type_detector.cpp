@@ -100,12 +100,12 @@ FrameTypeDetectionResult FrameTypeDetector::determineFrameType()
       }
       else {
         msg += "  • which has 3 or more propellers\n";
-        return { FrameType::kUndefined, msg + kIsNotSupported }; // TODO: Support lift & cruise VTOL
+        return { FrameType::kUndefined, msg + kIsNotSupported };  // TODO: Support lift & cruise VTOL
       }
     }
     else {
       msg += "  • which has at least one tilt rotors\n";
-      return { FrameType::kUndefined, msg + kIsNotSupported }; // TODO: Support tilt rotor VTOL
+      return { FrameType::kUndefined, msg + kIsNotSupported };  // TODO: Support tilt rotor VTOL
     }
   }
 }

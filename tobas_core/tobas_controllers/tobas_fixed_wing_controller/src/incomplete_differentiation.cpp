@@ -7,7 +7,8 @@ namespace tobas
 namespace fixed_wing
 {
 IncompleteDifferentiation::IncompleteDifferentiation()
-{}
+{
+}
 
 IncompleteDifferentiation::IncompleteDifferentiation(const double& cutoff_frequency)
 {
@@ -30,5 +31,5 @@ double IncompleteDifferentiation::getValue()
   return theta_;
 }
 
-} // namespace fixed_wing
-} // namespace tobas
+}  // namespace fixed_wing
+}  // namespace tobas

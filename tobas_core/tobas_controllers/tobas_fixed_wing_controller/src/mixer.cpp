@@ -13,8 +13,7 @@ namespace tobas
 {
 namespace fixed_wing
 {
-Mixer::Mixer(const Drone& drone, const kdl::Tree& tree)
-  : super(drone, tree), inertia_solver_(tree)
+Mixer::Mixer(const Drone& drone, const kdl::Tree& tree) : super(drone, tree), inertia_solver_(tree)
 {
 }
 
@@ -69,11 +68,7 @@ bool Mixer::updateInternalDataStructures()
   return true;
 }
 
-bool Mixer::solve(
-  const double& dt,
-  const double& rho,
-  const double& airspeed,
-  const kdl::Vector& tar_dgyro_B)
+bool Mixer::solve(const double& dt, const double& rho, const double& airspeed, const kdl::Vector& tar_dgyro_B)
 {
   const auto& inertia = inertia_solver_.getInertia();
   const auto I_B = inertia.getRotationalInertiaCoG();
@@ -84,16 +79,22 @@ bool Mixer::solve(
     const kdl::Vector effectiveness_frd = kdl::Vector(cs.c_roll_delta, cs.c_pitch_delta, cs.c_yaw_delta);
     kdl::Vector effectiveness_flu;
     kdl::vectorFrdToFlu(effectiveness_frd, effectiveness_flu);
-    E_(0, idx) = dynamicPressure(rho, std::max(airspeed, kLowerLimitSpeed)) * drone_.fixed_wing->vehicle.wing_surface * drone_.fixed_wing->vehicle.wing_span * effectiveness_flu.x(); // [Nm / rad]
-    E_(1, idx) = dynamicPressure(rho, std::max(airspeed, kLowerLimitSpeed)) * drone_.fixed_wing->vehicle.wing_surface * drone_.fixed_wing->vehicle.mac * effectiveness_flu.y(); // [Nm / rad]
-    E_(2, idx) = dynamicPressure(rho, std::max(airspeed, kLowerLimitSpeed)) * drone_.fixed_wing->vehicle.wing_surface * drone_.fixed_wing->vehicle.wing_span * effectiveness_flu.z(); // [Nm / rad]
+    E_(0, idx) = dynamicPressure(rho, std::max(airspeed, kLowerLimitSpeed)) * drone_.fixed_wing->vehicle.wing_surface *
+                 drone_.fixed_wing->vehicle.wing_span * effectiveness_flu.x();  // [Nm / rad]
+    E_(1, idx) = dynamicPressure(rho, std::max(airspeed, kLowerLimitSpeed)) * drone_.fixed_wing->vehicle.wing_surface *
+                 drone_.fixed_wing->vehicle.mac * effectiveness_flu.y();  // [Nm / rad]
+    E_(2, idx) = dynamicPressure(rho, std::max(airspeed, kLowerLimitSpeed)) * drone_.fixed_wing->vehicle.wing_surface *
+                 drone_.fixed_wing->vehicle.wing_span * effectiveness_flu.z();  // [Nm / rad]
   }
 
   // Right-hand side of the EoM matrix equality.
   // clip, clipしないと積分誤差が蓄積して振動
-  const auto max_droll  = dynamicPressure(rho, airspeed) * drone_.fixed_wing->vehicle.wing_surface * drone_.fixed_wing->vehicle.wing_span * max_roll_effectiveness_  / I_B.ixx();
-  const auto max_dpitch = dynamicPressure(rho, airspeed) * drone_.fixed_wing->vehicle.wing_surface * drone_.fixed_wing->vehicle.mac * max_pitch_effectiveness_ / I_B.iyy();
-  const auto max_dyaw   = dynamicPressure(rho, airspeed) * drone_.fixed_wing->vehicle.wing_surface * drone_.fixed_wing->vehicle.wing_span * max_yaw_effectiveness_ / I_B.izz();
+  const auto max_droll = dynamicPressure(rho, airspeed) * drone_.fixed_wing->vehicle.wing_surface *
+                         drone_.fixed_wing->vehicle.wing_span * max_roll_effectiveness_ / I_B.ixx();
+  const auto max_dpitch = dynamicPressure(rho, airspeed) * drone_.fixed_wing->vehicle.wing_surface *
+                          drone_.fixed_wing->vehicle.mac * max_pitch_effectiveness_ / I_B.iyy();
+  const auto max_dyaw = dynamicPressure(rho, airspeed) * drone_.fixed_wing->vehicle.wing_surface *
+                        drone_.fixed_wing->vehicle.wing_span * max_yaw_effectiveness_ / I_B.izz();
 
   // 空力による応答遅れの影響を考慮してPI要素を挟む
   // I制御に対してアンチワインドアップを行うため, 速度型PI要素を構成
@@ -112,7 +113,10 @@ bool Mixer::solve(
   z2_controller_.setMaxMin(max_dyaw, -max_dyaw);
   z2_controller_.update(z_controller_.getValue(), dt);
 
-  f_ = Eigen::Vector3d(I_B.ixx() * x_controller_.getValue(), I_B.iyy() * y_controller_.getValue(), I_B.izz() * z2_controller_.getValue()); // [Nm]
+  f_ = Eigen::Vector3d(
+    I_B.ixx() * x_controller_.getValue(),
+    I_B.iyy() * y_controller_.getValue(),
+    I_B.izz() * z2_controller_.getValue());  // [Nm]
 
   // Solve `Ex = f`.
   x_ = E_.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(f_);
@@ -136,28 +140,33 @@ bool Mixer::calcModesAngularFreq()
   // ロールモードの良い近似は\dot{p} - L_p p = 0
   const auto b = drone_.fixed_wing->vehicle.wing_span;
   const auto S = drone_.fixed_wing->vehicle.wing_surface;
-  const auto L_p = 0.5 * st::kStandardAirDensity * std::pow(kCruiseSpeed, 2) * S * b * drone_.fixed_wing->aerodynamics.c_roll_p * b / (2.0 * kCruiseSpeed) / I_xx;
+  const auto L_p = 0.5 * st::kStandardAirDensity * std::pow(kCruiseSpeed, 2) * S * b *
+                   drone_.fixed_wing->aerodynamics.c_roll_p * b / (2.0 * kCruiseSpeed) / I_xx;
   if (L_p > 0) {
     return false;
   }
-  omega_roll_ = - L_p;
+  omega_roll_ = -L_p;
 
   // 短周期モードの良い近似は\ddot{\theta} - (M_q + M_alpha_dot) \dot{\theta} - M_\alpha \theta = 0
   const auto c_mac = drone_.fixed_wing->vehicle.mac;
-  // const auto M_q = 0.5 * st::kStandardAirDensity * std::pow(kCruiseSpeed, 2) * S * c_mac * drone_.fixed_wing->aerodynamics.c_pitch_q * c_mac / (2.0 * kCruiseSpeed) / I_yy;
-  // const auto M_alpha_dot = 0.5 * st::kStandardAirDensity * std::pow(kCruiseSpeed, 2) * S * c_mac * drone_.fixed_wing->aerodynamics.c_pitch_alpha_rate * c_mac / (2.0 * kCruiseSpeed) / I_yy;
-  const auto M_alpha = 0.5 * st::kStandardAirDensity * std::pow(kCruiseSpeed, 2) * S * c_mac * drone_.fixed_wing->aerodynamics.c_pitch_alpha / I_yy;
+  // const auto M_q = 0.5 * st::kStandardAirDensity * std::pow(kCruiseSpeed, 2) * S * c_mac * drone_.fixed_wing->aerodynamics.c_pitch_q
+  // * c_mac / (2.0 * kCruiseSpeed) / I_yy; const auto M_alpha_dot = 0.5 * st::kStandardAirDensity * std::pow(kCruiseSpeed,
+  // 2) * S * c_mac * drone_.fixed_wing->aerodynamics.c_pitch_alpha_rate * c_mac / (2.0 * kCruiseSpeed) / I_yy;
+  const auto M_alpha = 0.5 * st::kStandardAirDensity * std::pow(kCruiseSpeed, 2) * S * c_mac *
+                       drone_.fixed_wing->aerodynamics.c_pitch_alpha / I_yy;
   // 共振周波数はs^2 + 2 \zeta \omega s + \omega^2 = 0なら\omega \sqrt{1 - 2 \zeta^2}
   // TODO: 1次の項も考慮したほうがいいのか考える
-  const auto omega_squared = - M_alpha;
+  const auto omega_squared = -M_alpha;
   if (omega_squared < 0) {
     return false;
   }
   omega_s_ = std::sqrt(omega_squared);
 
   // ダッチロールモードの粗い近似はs^2 - N_r s + N_beta = 0
-  // const auto N_r = 0.5 * st::kStandardAirDensity * std::pow(kCruiseSpeed, 2) * S * b * drone_.fixed_wing->aerodynamics.c_yaw_r * b / (2.0 * kCruiseSpeed) / I_zz;
-  const auto N_beta = 0.5 * st::kStandardAirDensity * std::pow(kCruiseSpeed, 2) * S * b * drone_.fixed_wing->aerodynamics.c_yaw_beta / I_zz;
+  // const auto N_r = 0.5 * st::kStandardAirDensity * std::pow(kCruiseSpeed, 2) * S * b *
+  // drone_.fixed_wing->aerodynamics.c_yaw_r * b / (2.0 * kCruiseSpeed) / I_zz;
+  const auto N_beta = 0.5 * st::kStandardAirDensity * std::pow(kCruiseSpeed, 2) * S * b *
+                      drone_.fixed_wing->aerodynamics.c_yaw_beta / I_zz;
   if (N_beta < 0) {
     return false;
   }

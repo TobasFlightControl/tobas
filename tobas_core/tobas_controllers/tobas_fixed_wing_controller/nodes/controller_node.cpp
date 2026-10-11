@@ -36,7 +36,6 @@
 #include "tobas_fixed_wing_controller/incomplete_differentiation.hpp"
 #include "tobas_fixed_wing_controller/mixer.hpp"
 
-
 namespace tobas
 {
 namespace fixed_wing
@@ -45,7 +44,7 @@ class ControllerNode : public BaseNode
 {
   using self = ControllerNode;
   using super = BaseNode;
-  static constexpr double kBetaDotCutOffFreq = 30.0; // beta dot filterのカットオフ周波数
+  static constexpr double kBetaDotCutOffFreq = 30.0;  // beta dot filterのカットオフ周波数
 
 public:
   explicit ControllerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -67,16 +66,16 @@ private:
   bool tree_received_ = false;
   bool topics_received_ = false;
   CommandPriorityHandler cmd_priority_handler_;
-  tobas_msgs::msg::FluidPressure::ConstSharedPtr air_pressure_;           // Atmospheric pressure
-  tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr odom_flu_;    // Current state in the FLU coordinate system
-  tobas_msgs::msg::Arming::ConstSharedPtr arming_;                        // Rotor arming state
+  tobas_msgs::msg::FluidPressure::ConstSharedPtr air_pressure_;         // Atmospheric pressure
+  tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr odom_flu_;  // Current state in the FLU coordinate system
+  tobas_msgs::msg::Arming::ConstSharedPtr arming_;                      // Rotor arming state
 
   // Command
   struct RollPitchDYawrate
   {
-    double roll;  // [rad]
-    double pitch; // [rad]
-    double delta_yawrate; // [rad/s]
+    double roll;           // [rad]
+    double pitch;          // [rad]
+    double delta_yawrate;  // [rad/s]
   };
   std::unique_ptr<RollPitchDYawrate> tar_roll_pitch_dyawrate_ = nullptr;
   std::unique_ptr<kdl::Vector> tar_drpb_ = nullptr;
@@ -343,7 +342,8 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
 
   // Aliases.
   const auto& cur_rot = odom_flu->odom.odom.frame.M;
-  const auto B_T_G = kdl::Frame(kdl::Rotation::Identity(), drone_.fixed_wing->vehicle.ref); // base_link座標系で表したCoG座標系のFrame
+  const auto B_T_G =
+    kdl::Frame(kdl::Rotation::Identity(), drone_.fixed_wing->vehicle.ref);  // base_link座標系で表したCoG座標系のFrame
   const auto cur_twist_G = B_T_G.inverse() * odom_flu->odom.odom.twist;
   const auto& cur_vel_G = cur_twist_G.vel;
   const auto& cur_gyro_G = cur_twist_G.rot;
@@ -385,7 +385,8 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
     *tar_drpb_ = kdl::Vector(atti_angle_gain * roll_err, atti_angle_gain * pitch_err, head_angle_gain * beta_err);
 
     // Fill the feedback message.
-    setpoint->odom.frame.M = kdl::Euler(tar_roll_pitch_dyawrate_->roll, tar_roll_pitch_dyawrate_->pitch, 0.0).toRotation();
+    setpoint->odom.frame.M =
+      kdl::Euler(tar_roll_pitch_dyawrate_->roll, tar_roll_pitch_dyawrate_->pitch, 0.0).toRotation();
   }
 
   if (tar_drpb_) {
@@ -403,7 +404,10 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
       // TODO: 若干beta_dotが振動気味
       // std::cout << "tar_drpb_->z() : " << tar_drpb_->z() / M_PI * 180.0 << " [deg/s]" << std::endl;
       // std::cout << "beta_dot_filter_.getValue() : " << beta_dot_filter_.getValue() / M_PI * 180.0 << " [deg/s]" << std::endl;
-      tar_dgyro_ = kdl::Vector(atti_rate_gain * (tar_drpb_->x() - cur_gyro_G.x()), atti_rate_gain * (tar_drpb_->y() - cur_gyro_G.y()), head_rate_gain * (tar_drpb_->z() - beta_dot_filter_.getValue()));
+      tar_dgyro_ = kdl::Vector(
+        atti_rate_gain * (tar_drpb_->x() - cur_gyro_G.x()),
+        atti_rate_gain * (tar_drpb_->y() - cur_gyro_G.y()),
+        head_rate_gain * (tar_drpb_->z() - beta_dot_filter_.getValue()));
 
       // Fill the feedback message.
       setpoint->odom.twist.rot = *tar_drpb_;
@@ -422,11 +426,12 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
     }
 
     if (!deflections_) {
-      deflections_  = std::make_unique<Eigen::VectorXd>();
+      deflections_ = std::make_unique<Eigen::VectorXd>();
     }
     *deflections_ = Eigen::VectorXd::Zero(drone_.fixed_wing->numControlSurfaces());
     for (size_t idx = 0; idx < drone_.fixed_wing->numControlSurfaces(); idx++) {
-      deflections_->operator()(idx) = std::clamp(mixer_.getDeflection(idx), min_deflections_(idx), max_deflections_(idx));
+      deflections_->operator()(idx) =
+        std::clamp(mixer_.getDeflection(idx), min_deflections_(idx), max_deflections_(idx));
     }
   }
 
@@ -468,13 +473,28 @@ void ControllerNode::manualCmdCb(const tobas_command_msgs::msg::AileElevRudThrot
   for (const auto& [idx, cs_item] : std::views::enumerate(drone_.fixed_wing->control_surfaces)) {
     const auto type = cs_item.second.type;
     if (type == ControlSurfaceType::kAileron) {
-      deflections_->operator()(idx) = math::remap(manual_cmd->aileron, manual_cmd->MIN_DEFLECTION, manual_cmd->MAX_DEFLECTION, min_deflections_(idx), max_deflections_(idx));
+      deflections_->operator()(idx) = math::remap(
+        manual_cmd->aileron,
+        manual_cmd->MIN_DEFLECTION,
+        manual_cmd->MAX_DEFLECTION,
+        min_deflections_(idx),
+        max_deflections_(idx));
     }
     else if (type == ControlSurfaceType::kElevator) {
-      deflections_->operator()(idx) = math::remap(manual_cmd->elevator, manual_cmd->MIN_DEFLECTION, manual_cmd->MAX_DEFLECTION, min_deflections_(idx), max_deflections_(idx));
+      deflections_->operator()(idx) = math::remap(
+        manual_cmd->elevator,
+        manual_cmd->MIN_DEFLECTION,
+        manual_cmd->MAX_DEFLECTION,
+        min_deflections_(idx),
+        max_deflections_(idx));
     }
     else if (type == ControlSurfaceType::kRudder) {
-      deflections_->operator()(idx) = math::remap(manual_cmd->rudder, manual_cmd->MIN_DEFLECTION, manual_cmd->MAX_DEFLECTION, min_deflections_(idx), max_deflections_(idx));
+      deflections_->operator()(idx) = math::remap(
+        manual_cmd->rudder,
+        manual_cmd->MIN_DEFLECTION,
+        manual_cmd->MAX_DEFLECTION,
+        min_deflections_(idx),
+        max_deflections_(idx));
     }
     else {
       deflections_->operator()(idx) = 0.0;

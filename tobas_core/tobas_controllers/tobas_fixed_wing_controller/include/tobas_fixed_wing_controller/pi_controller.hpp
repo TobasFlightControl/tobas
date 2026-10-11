@@ -25,5 +25,5 @@ private:
   double max_ = 0.0;
   double min_ = 0.0;
 };
-} // namespace fixed_wing
-} // namespace tobas
+}  // namespace fixed_wing
+}  // namespace tobas

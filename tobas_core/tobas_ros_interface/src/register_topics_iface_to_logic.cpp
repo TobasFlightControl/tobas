@@ -6,6 +6,7 @@
 #include <tobas_command_msgs/msg/accel.hpp>
 #include <tobas_command_msgs/msg/accel_pitch_yaw.hpp>
 #include <tobas_command_msgs/msg/accel_yaw.hpp>
+#include <tobas_command_msgs/msg/aile_elev_rud_throttle.hpp>
 #include <tobas_command_msgs/msg/angle.hpp>
 #include <tobas_command_msgs/msg/angle_throttle.hpp>
 #include <tobas_command_msgs/msg/pos_vel_acc.hpp>
@@ -13,7 +14,6 @@
 #include <tobas_command_msgs/msg/pos_vel_acc_yaw.hpp>
 #include <tobas_command_msgs/msg/rate.hpp>
 #include <tobas_command_msgs/msg/rate_throttle.hpp>
-#include <tobas_command_msgs/msg/aile_elev_rud_throttle.hpp>
 #include <tobas_command_msgs/msg/roll_pitch_delta_yawrate_throttle.hpp>
 #include <tobas_kdl_msgs/msg/frame_with_covariance_stamped.hpp>
 #include <tobas_msgs/msg/ice_propulsion_system_command.hpp>

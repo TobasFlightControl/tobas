@@ -23,6 +23,7 @@
 #include "tobas_rc_teleop/accel_pitch_yaw.hpp"
 #include "tobas_rc_teleop/accel_rate.hpp"
 #include "tobas_rc_teleop/accel_yaw.hpp"
+#include "tobas_rc_teleop/aile_elev_rud_throttle.hpp"
 #include "tobas_rc_teleop/angle_throttle.hpp"
 #include "tobas_rc_teleop/angle_throttle_vector.hpp"
 #include "tobas_rc_teleop/pos_vel_acc_angle.hpp"
@@ -30,7 +31,6 @@
 #include "tobas_rc_teleop/pos_vel_acc_yaw.hpp"
 #include "tobas_rc_teleop/rate_throttle.hpp"
 #include "tobas_rc_teleop/rate_throttle_vector.hpp"
-#include "tobas_rc_teleop/aile_elev_rud_throttle.hpp"
 #include "tobas_rc_teleop/roll_pitch_delta_yawrate_throttle.hpp"
 
 namespace tobas

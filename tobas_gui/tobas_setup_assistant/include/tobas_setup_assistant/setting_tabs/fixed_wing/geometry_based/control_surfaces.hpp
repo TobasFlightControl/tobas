@@ -5,9 +5,9 @@
 
 #include <yaml-cpp/yaml.h>
 
+#include <tobas_drone_core/fixed_wing/control_surface_type.hpp>
 #include <tobas_qt_tools/widgets/table_widget.hpp>
 #include <tobas_uadf/model.hpp>
-#include <tobas_drone_core/fixed_wing/control_surface_type.hpp>
 
 #include <tobas_setup_assistant/setting_tabs/fixed_wing/geometry_based/wings.hpp>
 

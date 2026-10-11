@@ -382,13 +382,13 @@ void Calculator::calcControlCoeff(const double& cruise_speed)
     kdl::Frame W_T_R;  // wing座標系で表したref座標系のFrame
     kdl::Frame R_T_W;  // ref座標系で表したwing座標系のFrame
     calcWingTranslations(wing, W_T_R, R_T_W);
-  
+
     // control surface properties
     const auto c_root = wing->c_root();
     const auto c_tip = wing->c_tip();
     const auto k1 = control_surfaces_->startSpan(i);
     const auto k2 = control_surfaces_->finishSpan(i);
-  
+
     // 舵面の正の向きを推算
     // base_link座標系でみた舵面ジョイントのaxisのベクトルを求める
     const auto joint = uadf_.urdf->getJoint(control_surfaces_->jointName(i).toStdString());

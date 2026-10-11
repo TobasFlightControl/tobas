@@ -22,6 +22,5 @@ private:
   double u_last_ = 0.0;
 };
 
-} // namespace fixed_wing
-} // namespace tobas
-
+}  // namespace fixed_wing
+}  // namespace tobas

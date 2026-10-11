@@ -7,13 +7,13 @@ namespace tobas
 namespace fixed_wing
 {
 
-PIController::PIController()
-: p_(0.0), i_(0.0)
-{}
+PIController::PIController() : p_(0.0), i_(0.0)
+{
+}
 
-PIController::PIController(const double& p, const double& i)
-: p_(p), i_(i)
-{}
+PIController::PIController(const double& p, const double& i) : p_(p), i_(i)
+{
+}
 
 void PIController::setGains(const double& p, const double& i)
 {
@@ -38,5 +38,5 @@ double PIController::getValue()
   return input_;
 }
 
-} // namespace fixed_wing
-} // namespace tobas
+}  // namespace fixed_wing
+}  // namespace tobas
