@@ -116,8 +116,6 @@ bool Mixer::solve(
 
   // Solve `Ex = f`.
   x_ = E_.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(f_);
-  std::cout << "x_ : " << x_.transpose() << std::endl;
-
   return true;
 }
 

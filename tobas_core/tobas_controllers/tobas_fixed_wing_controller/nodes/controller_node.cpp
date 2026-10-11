@@ -33,6 +33,7 @@
 #include <tobas_msgs_adapter/odometry_stamped.hpp>
 #include <tobas_msgs_adapter/odometry_with_covariance_stamped.hpp>
 
+#include "tobas_fixed_wing_controller/incomplete_differentiation.hpp"
 #include "tobas_fixed_wing_controller/mixer.hpp"
 
 
@@ -58,8 +59,7 @@ private:
   Eigen::VectorXd max_thrusts_;
   Eigen::VectorXd min_deflections_;
   Eigen::VectorXd max_deflections_;
-  double beta_prev_;
-  dsp::LowPassFilter<double> beta_dot_filter_;
+  IncompleteDifferentiation beta_dot_filter_;
 
   // State
   bool is_initialized_ = false;
@@ -138,7 +138,6 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   : super(node::kController, nodeOptions_DParam(options)), mass_holder_(tree_), mixer_(drone_, tree_)
 {
   // setup beta_dot filter
-  beta_prev_ = 0.0;
   beta_dot_filter_.setCutoffFrequency(kBetaDotCutOffFreq);
 
   // Register dynamics parameters
@@ -374,12 +373,11 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
     kdl::Vector cur_vel_G_frd;
     kdl::vectorFluToFrd(cur_vel_G, cur_vel_G_frd);
     const auto beta = angleOfSideSlip(cur_vel_G_frd.x(), cur_vel_G_frd.y(), cur_vel_G_frd.z());
-    beta_dot_filter_.update((beta - beta_prev_) / dt, dt);
-    beta_prev_ = beta;
+    beta_dot_filter_.update(beta, dt);
     const auto beta_err = algo::wrapPi(tar_rpdy.delta_yawrate - beta);
-    std::cout << "beta : " << beta / M_PI * 180.0 << " [deg]" << std::endl;
-    std::cout << "beta_err : " << beta_err / M_PI * 180.0 << " [deg]" << std::endl;
-    std::cout << "beta_sp : " << tar_rpdy.delta_yawrate / M_PI * 180.0 << " [deg]" << std::endl;
+    // std::cout << "beta : " << beta / M_PI * 180.0 << " [deg]" << std::endl;
+    // std::cout << "beta_err : " << beta_err / M_PI * 180.0 << " [deg]" << std::endl;
+    // std::cout << "beta_sp : " << tar_rpdy.delta_yawrate / M_PI * 180.0 << " [deg]" << std::endl;
 
     // TODO: Accumulate integral error while airborne.
 
@@ -402,8 +400,9 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
 
       // Compute target angular acceleration.
       // roll = pitch = 0のときbeta = -yaw_frd = yaw_flu
-      std::cout << "tar_drpb_->z() : " << tar_drpb_->z() / M_PI * 180.0 << " [deg/s]" << std::endl;
-      std::cout << "beta_dot_filter_.getValue() : " << beta_dot_filter_.getValue() / M_PI * 180.0 << " [deg/s]" << std::endl;
+      // TODO: 若干beta_dotが振動気味
+      // std::cout << "tar_drpb_->z() : " << tar_drpb_->z() / M_PI * 180.0 << " [deg/s]" << std::endl;
+      // std::cout << "beta_dot_filter_.getValue() : " << beta_dot_filter_.getValue() / M_PI * 180.0 << " [deg/s]" << std::endl;
       tar_dgyro_ = kdl::Vector(atti_rate_gain * (tar_drpb_->x() - cur_gyro_G.x()), atti_rate_gain * (tar_drpb_->y() - cur_gyro_G.y()), head_rate_gain * (tar_drpb_->z() - beta_dot_filter_.getValue()));
 
       // Fill the feedback message.
