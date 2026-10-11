@@ -3,8 +3,10 @@
 
 #pragma once
 
+#include <array>
 #include <deque>
 #include <mutex>
+#include <optional>
 #include <vector>
 
 #include <tobas_linux/spi_dev.hpp>
@@ -132,12 +134,43 @@ public:
     SPARTN = 0x05,
   };
 
+  /* GNSS identifiers (same as `gnssId` in UBX messages) */
+  enum GnssId : uint8_t
+  {
+    GNSS_GPS = 0,
+    GNSS_SBAS = 1,
+    GNSS_GALILEO = 2,
+    GNSS_BEIDOU = 3,
+    GNSS_QZSS = 5,
+    GNSS_GLONASS = 6,
+    GNSS_NAVIC = 7,
+  };
+
+  /* GNSS and position in the epoch of an RTCM 3 observation message */
+  struct RtcmObservation
+  {
+    GnssId gnss;
+    // Whether more observation messages of the same epoch follow (the multiple message bit of MSM, the synchronous
+    // GNSS flag of legacy messages). The receiver processes an epoch when it receives the message where this is false.
+    bool more_messages_follow;
+  };
+
   explicit ZEDF9P();
 
   bool initialize(const char* spi_device);
   bool update(bool nonblock = true);
   // rtcm correction dataを登録する 登録したデータはupdate関数内で少しずつ送る
+  // If `data` is a single RTCM 3 frame containing observations of GNSS disabled in the receiver, it is discarded unless
+  // it is the last observation message of its epoch.
   void registerRtcmCorrectionData(const std::vector<uint8_t>& data);
+
+  /**
+   * @brief Parse the GNSS and the position in the epoch of an RTCM 3 observation message.
+   *
+   * @param frame RTCM 3 frame including the preamble, the length and the CRC.
+   * @return std::nullopt if `frame` is not a single RTCM 3 frame or is not an observation message (e.g. 1005, 1033).
+   */
+  static std::optional<RtcmObservation> parseRtcmObservation(const std::vector<uint8_t>& frame);
 
   /* ===== Configurations =====*/
 
@@ -285,17 +318,23 @@ private:
   UBXScanner scanner_;
 
   std::deque<uint8_t> send_buffer_;
+  // Whether each GNSS is enabled in the receiver, indexed by `GnssId`. Guarded by `send_buffer_mutex_`.
+  // GNSS that have not been configured are regarded as enabled so that their RTCM data is not discarded.
+  std::array<bool, 8> gnss_enabled_ = { true, true, true, true, true, true, true, true };
   mutable std::mutex send_buffer_mutex_;
 
   tim::Rate rate_;
 
   template <typename T>
-  bool cfgValSetSingle(CfgSize size, CfgGroup group, uint8_t id, T value);
+  bool cfgValSetSingle(CfgSize size, CfgGroup group, uint16_t id, T value);
 
   bool sendMessage(UbxClass cls, uint8_t id, const void* msg, uint16_t size);
   bool waitForAcknowledge(UbxClass cls, uint8_t id);
   bool configure(UbxCfgId cfg_id, const void* msg, uint16_t size);
   bool verifyMessage() const;
+
+  /* Enable or disable a GNSS with the given CFG-SIGNAL-XXX_ENA key and record the state. */
+  bool enableGnss(GnssId gnss, uint16_t key_id, bool enable);
 
   bool enableGps(bool enable);
   bool enableGpsL1();
@@ -336,7 +375,7 @@ private:
   static size_t spliceMemory(uint8_t* dest, const void* src, size_t size, size_t dest_offset = 0);
 
   /* Configuration Key ID | 6.2 Configuration Items */
-  static uint32_t configKeyID(CfgSize size, CfgGroup group, uint8_t id);
+  static uint32_t configKeyID(CfgSize size, CfgGroup group, uint16_t id);
 };
 
 inline ZEDF9P::UbxClass ZEDF9P::latestClass() const
@@ -349,7 +388,7 @@ inline const uint8_t* ZEDF9P::payload() const
 { return scanner_.getPayload(); }
 
 template <typename T>
-bool ZEDF9P::cfgValSetSingle(CfgSize size, CfgGroup group, uint8_t id, T value)
+bool ZEDF9P::cfgValSetSingle(CfgSize size, CfgGroup group, uint16_t id, T value)
 {
   CfgValSet<T, 1> cfg;
   cfg.data[0].key = configKeyID(size, group, id);

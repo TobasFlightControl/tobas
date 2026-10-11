@@ -127,17 +127,12 @@ std::string createGgaSentence(const tobas_msgs::msg::Gnss& gnss)
 
   double geoid_height = gnss.height_wgs84 - gnss.height_msl;
 
-  std::chrono::system_clock::time_point stamp_time;
-  if (gnss.header.stamp.sec > 0) {
-    stamp_time = std::chrono::system_clock::time_point(
-      std::chrono::seconds(gnss.header.stamp.sec) + std::chrono::nanoseconds(gnss.header.stamp.nanosec));
-  }
-  else {
-    stamp_time = std::chrono::system_clock::now();
-  }
+  // GGA requires UTC, but `header.stamp` is not UTC when the node clock is steady time (`TOBAS_CLOCK_TYPE=steady_time`)
+  // or simulation time. Use the system clock instead; the position is at most one GNSS update period old.
+  const auto utc_time = std::chrono::system_clock::now();
 
   return createGgaSentence(
-    gnss.latitude, gnss.longitude, gnss.height_msl, geoid_height, fix_quality, num_sats, 1.0, stamp_time);
+    gnss.latitude, gnss.longitude, gnss.height_msl, geoid_height, fix_quality, num_sats, 1.0, utc_time);
 }
 
 }  // namespace nmea

@@ -18,6 +18,14 @@ using namespace std::chrono_literals;
 
 namespace tobas
 {
+namespace
+{
+bool hasValidFix(const tobas_msgs::msg::Gnss& gnss)
+{
+  return gnss.fix_type == tobas_msgs::msg::Gnss::FIX_2D || gnss.fix_type == tobas_msgs::msg::Gnss::FIX_3D ||
+         gnss.fix_type == tobas_msgs::msg::Gnss::GPS_DEAD_RECHONING_COMBINED;
+}
+}  // namespace
 
 class NtripClientNode : public tobas::BaseNode
 {
@@ -36,6 +44,10 @@ private:
     20ms;  // RTCM3.3 protocolのデータの受け取りに確認しに行く時間間隔
   static constexpr double kDefaultSendPositionInterval = 1.0;  // [s]
   static constexpr double kDefaultReconnectInterval = 5.0;     // [s]
+  // Time to wait for a GNSS fix after connecting before sending the position given by the parameters instead.
+  static constexpr auto kGnssWaitTimeout = 10s;
+  // GNSS messages older than this are not used for GGA.
+  static constexpr auto kMaxGnssAge = 3s;
 
   std::string server_ip_;
   int server_port_;
@@ -60,6 +72,8 @@ private:
 
   std::mutex gnss_mutex_;
   std::optional<tobas_msgs::msg::Gnss> latest_gnss_;
+  std::chrono::steady_clock::time_point latest_gnss_time_;  // Time when `latest_gnss_` was received
+  std::chrono::steady_clock::time_point connected_time_;    // Time when the connection to the caster was established
 
   bool tryConnect();
   void sendCurrentPosition();
@@ -128,6 +142,7 @@ bool NtripClientNode::tryConnect()
   }
 
   TOBAS_INFO("Successfully connected to NTRIP Caster.");
+  connected_time_ = std::chrono::steady_clock::now();
 
   if (send_position_) {
     sendCurrentPosition();
@@ -145,13 +160,21 @@ void NtripClientNode::sendCurrentPosition()
   std::string gga;
   {
     std::lock_guard<std::mutex> lock(gnss_mutex_);
-    if (latest_gnss_.has_value()) {
+    const auto gnss_age = std::chrono::steady_clock::now() - latest_gnss_time_;
+    if (latest_gnss_.has_value() && hasValidFix(*latest_gnss_) && gnss_age < kMaxGnssAge) {
       gga = ntrip::nmea::createGgaSentence(*latest_gnss_);
     }
   }
 
   if (gga.empty()) {
+    // Casters that select the reference station automatically use the first GGA received,
+    // so wait for a GNSS fix instead of sending the parameter position immediately after connecting.
+    if (std::chrono::steady_clock::now() - connected_time_ < kGnssWaitTimeout) {
+      return;
+    }
+
     // GNSS未受信時のフォールバック: 設定パラメータから生成
+    TOBAS_WARN_THROTTLE(10.0, "No valid GNSS fix is available. The position given by the parameters is sent instead.");
     gga = ntrip::nmea::createGgaSentence(default_latitude_, default_longitude_);
   }
 
@@ -194,6 +217,7 @@ void NtripClientNode::gnssCallback(const tobas_msgs::msg::Gnss::ConstSharedPtr& 
 {
   std::lock_guard<std::mutex> lock(gnss_mutex_);
   latest_gnss_ = *msg;
+  latest_gnss_time_ = std::chrono::steady_clock::now();
 }
 
 }  // namespace tobas

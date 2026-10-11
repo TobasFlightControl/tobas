@@ -14,7 +14,7 @@ namespace ublox
 {
 namespace payload
 {
-// GNSSfix Type
+/** GNSSfix Type */
 enum FixType : uint8_t
 {
   NO_FIX = 0,
@@ -39,8 +39,8 @@ struct Payload
 
 struct ACK_NAK : public Payload
 {
-  uint8_t clsID;  // Class ID of the Not-Acknowledged Message
-  uint8_t msgID;  // Message ID of the Not-Acknowledged Message
+  uint8_t clsID;  ///< Class ID of the Not-Acknowledged Message
+  uint8_t msgID;  ///< Message ID of the Not-Acknowledged Message
 
   void decode(const uint8_t* p) override;
   void print(std::ostream& os) const override;
@@ -48,8 +48,8 @@ struct ACK_NAK : public Payload
 
 struct ACK_ACK : public Payload
 {
-  uint8_t clsID;  // Class ID of the Acknowledged Message
-  uint8_t msgID;  // Message ID of the Acknowledged Message
+  uint8_t clsID;  ///< Class ID of the Acknowledged Message
+  uint8_t msgID;  ///< Message ID of the Acknowledged Message
 
   void decode(const uint8_t* p) override;
   void print(std::ostream& os) const override;
@@ -65,23 +65,23 @@ struct NAV_CLOCK : public Payload
 
 struct NAV_COV : public Payload
 {
-  uint32_t iTOW;     // GPS time of week [ms]
-  uint8_t version;   // Message version (0x00 for this version)
-  bool posCovValid;  // Position covariance matrix validity flag
-  bool velCovValid;  // Velocity covariance matrix validity flag
+  uint32_t iTOW;     ///< GPS time of week [ms]
+  uint8_t version;   ///< Message version (0x00 for this version)
+  bool posCovValid;  ///< Position covariance matrix validity flag
+  bool velCovValid;  ///< Velocity covariance matrix validity flag
 
-  float posCovNN;  // Position covariance matrix value p_NN [m^2]
-  float posCovNE;  // Position covariance matrix value p_NE [m^2]
-  float posCovND;  // Position covariance matrix value p_ND [m^2]
-  float posCovEE;  // Position covariance matrix value p_EE [m^2]
-  float posCovED;  // Position covariance matrix value p_ED [m^2]
-  float posCovDD;  // Position covariance matrix value p_DD [m^2]
-  float velCovNN;  // Velocity covariance matrix value v_NN [m^2/s^2]
-  float velCovNE;  // Velocity covariance matrix value v_NE [m^2/s^2]
-  float velCovND;  // Velocity covariance matrix value v_ND [m^2/s^2]
-  float velCovEE;  // Velocity covariance matrix value v_EE [m^2/s^2]
-  float velCovED;  // Velocity covariance matrix value v_ED [m^2/s^2]
-  float velCovDD;  // Velocity covariance matrix value v_DD [m^2/s^2]
+  float posCovNN;  ///< Position covariance matrix value p_NN [m^2]
+  float posCovNE;  ///< Position covariance matrix value p_NE [m^2]
+  float posCovND;  ///< Position covariance matrix value p_ND [m^2]
+  float posCovEE;  ///< Position covariance matrix value p_EE [m^2]
+  float posCovED;  ///< Position covariance matrix value p_ED [m^2]
+  float posCovDD;  ///< Position covariance matrix value p_DD [m^2]
+  float velCovNN;  ///< Velocity covariance matrix value v_NN [m^2/s^2]
+  float velCovNE;  ///< Velocity covariance matrix value v_NE [m^2/s^2]
+  float velCovND;  ///< Velocity covariance matrix value v_ND [m^2/s^2]
+  float velCovEE;  ///< Velocity covariance matrix value v_EE [m^2/s^2]
+  float velCovED;  ///< Velocity covariance matrix value v_ED [m^2/s^2]
+  float velCovDD;  ///< Velocity covariance matrix value v_DD [m^2/s^2]
 
   void decode(const uint8_t* p) override;
   void print(std::ostream& os) const override;
@@ -121,25 +121,25 @@ struct NAV_HPPOSECEF : public Payload
 
 struct NAV_HPPOSLLH : public Payload
 {
-  uint8_t version;  // Message version (0x00 for this version)
+  uint8_t version;  ///< Message version (0x00 for this version)
 
   // flags: Additional flags
-  bool invalidLlh;  // Invalid lon, lat, height, hMSL, lonHp, latHp, heightHp and hMSLHp
+  bool invalidLlh;  ///< Invalid lon, lat, height, hMSL, lonHp, latHp, heightHp and hMSLHp
 
-  uint32_t iTOW;  // GPS time of week [ms]
+  uint32_t iTOW;  ///< GPS time of week [ms]
 
-  double lon;      // Longitude [deg]
-  double lat;      // Latitude [deg]
-  int32_t height;  // Height above ellipsoid [mm]
-  int32_t hMSL;    // Height above mean sea level [mm]
+  double lon;      ///< Longitude [deg]
+  double lat;      ///< Latitude [deg]
+  int32_t height;  ///< Height above ellipsoid [mm]
+  int32_t hMSL;    ///< Height above mean sea level [mm]
 
-  double lonHp;     // High precision component of longitude [deg]
-  double latHp;     // High precision component of latitude [deg]
-  double heightHp;  // High precision component of height above ellipsoid [mm]
-  double hMSLHp;    // High precision component of height above mean sea level [mm]
+  double lonHp;     ///< High precision component of longitude [deg]
+  double latHp;     ///< High precision component of latitude [deg]
+  double heightHp;  ///< High precision component of height above ellipsoid [mm]
+  double hMSLHp;    ///< High precision component of height above mean sea level [mm]
 
-  uint32_t hAcc;  // Horizontal accuracy estimate [mm]
-  uint32_t vAcc;  // Vertical accuracy estimate [mm]
+  uint32_t hAcc;  ///< Horizontal accuracy estimate [mm]
+  uint32_t vAcc;  ///< Vertical accuracy estimate [mm]
 
   void decode(const uint8_t* p) override;
   void print(std::ostream& os) const override;
@@ -179,15 +179,15 @@ struct NAV_POSECEF : public Payload
 
 struct NAV_POSLLH : public Payload
 {
-  uint32_t iTOW;  // GPS time of week [ms]
+  uint32_t iTOW;  ///< GPS time of week [ms]
 
-  double lon;      // Longitude [deg]
-  double lat;      // Latitude [deg]
-  int32_t height;  // Height above ellipsoid [mm]
-  int32_t hMSL;    // Height above mean sea level [mm]
+  double lon;      ///< Longitude [deg]
+  double lat;      ///< Latitude [deg]
+  int32_t height;  ///< Height above ellipsoid [mm]
+  int32_t hMSL;    ///< Height above mean sea level [mm]
 
-  uint32_t hAcc;  // Horizontal accuracy estimate [mm]
-  uint32_t vAcc;  // Vertical accuracy estimate [mm]
+  uint32_t hAcc;  ///< Horizontal accuracy estimate [mm]
+  uint32_t vAcc;  ///< Vertical accuracy estimate [mm]
 
   void decode(const uint8_t* p) override;
   void print(std::ostream& os) const override;
@@ -195,30 +195,31 @@ struct NAV_POSLLH : public Payload
 
 struct NAV_PVT : public Payload
 {
-  uint32_t iTOW;  // GPS time of week [ms]
+  uint32_t iTOW;  ///< GPS time of week [ms]
 
-  uint16_t year;  // Year (UTC) [y]
-  uint8_t month;  // Month, range 1..12 (UTC) [month]
-  uint8_t day;    // Day of month, range 1..31 (UTC) [d]
-  uint8_t hour;   // Hour of day, range 0..23 (UTC) [h]
-  uint8_t min;    // Minute of hour, range 0..59 (UTC) [min]
-  uint8_t sec;    // Seconds of minute, range 0..60 (UTC) [s]
+  uint16_t year;  ///< Year (UTC) [y]
+  uint8_t month;  ///< Month, range 1..12 (UTC) [month]
+  uint8_t day;    ///< Day of month, range 1..31 (UTC) [d]
+  uint8_t hour;   ///< Hour of day, range 0..23 (UTC) [h]
+  uint8_t min;    ///< Minute of hour, range 0..59 (UTC) [min]
+  uint8_t sec;    ///< Seconds of minute, range 0..60 (UTC) [s]
 
   // valid: Validity flags
-  bool validDate;      // Valid UTC Date
-  bool validTime;      // Valid UTC Time of Day
-  bool fullyResolved;  // UTC Time of Day has been fully resolved
-  bool validMag;       // Valid Magnetic declination
+  bool validDate;      ///< Valid UTC Date
+  bool validTime;      ///< Valid UTC Time of Day
+  bool fullyResolved;  ///< UTC Time of Day has been fully resolved
+  bool validMag;       ///< Valid Magnetic declination
 
-  uint32_t tAcc;  // Time accuracy estimate (UTC) [ns]
-  int32_t nano;   // Fraction of second, range -1e9 .. 1e9 (UTC) [ns]
+  uint32_t tAcc;  ///< Time accuracy estimate (UTC) [ns]
+  int32_t nano;   ///< Fraction of second, range -1e9 .. 1e9 (UTC) [ns]
 
-  FixType fixType;  // GNSSfix Type
+  FixType fixType;  ///< GNSSfix Type
 
   // flags: Fix status flags
-  bool gnssFixOk;                    // Valid fix (i.e within DOP & accuracy masks)
-  bool diffSoln;                     // Differential corrections were applied
-  enum PowerSaveModeState : uint8_t  // Power Save Mode state
+  bool gnssFixOk;  ///< Valid fix (i.e within DOP & accuracy masks)
+  bool diffSoln;   ///< Differential corrections were applied
+  /** Power Save Mode state */
+  enum PowerSaveModeState : uint8_t
   {
     NOT_ACTIVE = 0,
     ENABLED = 1,
@@ -227,42 +228,43 @@ struct NAV_PVT : public Payload
     POWER_OPTIMIXED_TRACKING = 4,
     INACTIVE = 4,
   } psmState;
-  bool headVehValid;                        // Heading of vehicle is valid
-  enum CarrierPhaseRangeSolution : uint8_t  // Carrier phase range solution status
+  bool headVehValid;  ///< Heading of vehicle is valid
+  /** Carrier phase range solution status */
+  enum CarrierPhaseRangeSolution : uint8_t
   {
-    NONE = 0,      // No carrier phase range solution
-    FLOATING = 1,  // Carrier phase range solution with floating ambiguities
-    FIXED = 2,     // Carrier phase range solution with fixed ambiguities
+    NONE = 0,      ///< No carrier phase range solution
+    FLOATING = 1,  ///< Carrier phase range solution with floating ambiguities
+    FIXED = 2,     ///< Carrier phase range solution with fixed ambiguities
   } carrSoln;
 
   // flags2: Additional flags
-  bool confirmedAvai;  // Information about UTC Date and Time of Day validity confirmation is available
-  bool confirmedDate;  // UTC Date validity could be confirmed
-  bool confirmedTime;  // UTC Time of Day could be confirmed
+  bool confirmedAvai;  ///< Information about UTC Date and Time of Day validity confirmation is available
+  bool confirmedDate;  ///< UTC Date validity could be confirmed
+  bool confirmedTime;  ///< UTC Time of Day could be confirmed
 
-  uint8_t numSV;  // Number of satellites used in Nav Solution
+  uint8_t numSV;  ///< Number of satellites used in Nav Solution
 
-  double lon;      // Longitude [deg]
-  double lat;      // Latitude [deg]
-  int32_t height;  // Height above ellipsoid [mm]
-  int32_t hMSL;    // Height above mean sea level [mm]
-  uint32_t hAcc;   // Horizontal accuracy estimate [mm]
-  uint32_t vAcc;   // Vertical accuracy estimate [mm]
-  int32_t velN;    // NED north veloity [mm/s]
-  int32_t velE;    // NED east veloity [mm/s]
-  int32_t velD;    // NED down veloity [mm/s]
-  int32_t gSpeed;  // Ground Speed (2-D) [mm/s]
-  double headMot;  // Heading of motion (2-D) [deg]
-  uint32_t sAcc;   // Speed accuracy estimate [mm/s]
-  double headAcc;  // Heading accuracy estimate [deg]
-  double pDOP;     // Position DOP
+  double lon;      ///< Longitude [deg]
+  double lat;      ///< Latitude [deg]
+  int32_t height;  ///< Height above ellipsoid [mm]
+  int32_t hMSL;    ///< Height above mean sea level [mm]
+  uint32_t hAcc;   ///< Horizontal accuracy estimate [mm]
+  uint32_t vAcc;   ///< Vertical accuracy estimate [mm]
+  int32_t velN;    ///< NED north veloity [mm/s]
+  int32_t velE;    ///< NED east veloity [mm/s]
+  int32_t velD;    ///< NED down veloity [mm/s]
+  int32_t gSpeed;  ///< Ground Speed (2-D) [mm/s]
+  double headMot;  ///< Heading of motion (2-D) [deg]
+  uint32_t sAcc;   ///< Speed accuracy estimate [mm/s]
+  double headAcc;  ///< Heading accuracy estimate [deg]
+  double pDOP;     ///< Position DOP
 
   // flags3: Additional flags
-  bool invalidLlh;  // Invalid lon, lat, height and hMSL
+  bool invalidLlh;  ///< Invalid lon, lat, height and hMSL
 
-  double headVeh;  // Heading of vehicle (2-D) [deg]
-  double magDec;   // Magnetic declination [deg]
-  double magAcc;   // Magnetic declination accuracy [deg]
+  double headVeh;  ///< Heading of vehicle (2-D) [deg]
+  double magDec;   ///< Magnetic declination [deg]
+  double magAcc;   ///< Magnetic declination accuracy [deg]
 
   void decode(const uint8_t* p) override;
   void print(std::ostream& os) const override;
@@ -288,12 +290,12 @@ struct NAV_SAT : public Payload
 {
   struct Satellite
   {
-    uint8_t gnssId;  // GNSS identifier for assignment
-    uint8_t svId;    // Satellite identifier for assignment
-    uint8_t cno;     // Carrier to noise ratio [dB-Hz]
-    int8_t elev;     // Elevation [deg]
-    int16_t azim;    // Azimuth [deg]
-    double prRes;    // Pseudorange residual [m]
+    uint8_t gnssId;  ///< GNSS identifier for assignment
+    uint8_t svId;    ///< Satellite identifier for assignment
+    uint8_t cno;     ///< Carrier to noise ratio [dB-Hz]
+    int8_t elev;     ///< Elevation [deg]
+    int16_t azim;    ///< Azimuth [deg]
+    double prRes;    ///< Pseudorange residual [m]
     enum QualityIndicator : uint8_t
     {
       NO_SIGNAL = 0,
@@ -302,16 +304,16 @@ struct NAV_SAT : public Payload
       SIGNAL_DETECTED_BUT_UNUSABLE = 3,
       CODE_LOCKED_AND_TIME_SYNCHRONIZED = 4,
       CODE_AND_CARRIER_LOCKED_AND_TIME_SYNCHRONIZED = 5,
-    } qualityInd;  // Signal quality indicator
-    bool svUsed;   // Signal in the subset specified in Signal Identifiers is currently being used for navigation
+    } qualityInd;  ///< Signal quality indicator
+    bool svUsed;   ///< Signal in the subset specified in Signal Identifiers is currently being used for navigation
     enum Health : uint8_t
     {
       UNKNOWN = 0,
       HEALTHY = 1,
       UNHEALTHY = 2,
-    } health;       // Signal health flag
-    bool diffCorr;  // Differential correction data is available for this SV
-    bool smoothed;  // Carrier smoothed pseudorange used
+    } health;       ///< Signal health flag
+    bool diffCorr;  ///< Differential correction data is available for this SV
+    bool smoothed;  ///< Carrier smoothed pseudorange used
     enum OrbitSource : uint8_t
     {
       NO_ORBIT_INFORMATION_AVAILABLE = 0,
@@ -320,24 +322,24 @@ struct NAV_SAT : public Payload
       ASSIST_NOW_OFFLINE_ORBIT_USED = 3,
       ASSIST_NOW_AUTONOMOUS_ORBIT_USED = 4,
       OTHER_ORBIT_INFORMATION_USED = 5,
-    } orbitSource;        // Orbit source
-    bool ephAvail;        // Ephemeris is available for this SV
-    bool almAvail;        // almanac is available for this SV
-    bool anoAvail;        // AssistNow Offline data is available for this SV
-    bool aopAvail;        // AssistNow Autonomous data is available for this SV
-    bool sbasCorrUsed;    // SBAS corrections have been used
-    bool rtcmCorrUsed;    // RTCM corrections have been used
-    bool slasCorrUsed;    // QZSS SLAS corrections have been used
-    bool spartnCorrUsed;  // SPARTN corrections have been used
-    bool prCorrUsed;      // Pseudorange corrections have been used
-    bool crCorrUsed;      // Carrier range corrections have been used
-    bool doCorrUsed;      // Range rate (Doppler) corrections have been used
-    bool clasCorrUsed;    // CLAS corrections have been used
+    } orbitSource;        ///< Orbit source
+    bool ephAvail;        ///< Ephemeris is available for this SV
+    bool almAvail;        ///< almanac is available for this SV
+    bool anoAvail;        ///< AssistNow Offline data is available for this SV
+    bool aopAvail;        ///< AssistNow Autonomous data is available for this SV
+    bool sbasCorrUsed;    ///< SBAS corrections have been used
+    bool rtcmCorrUsed;    ///< RTCM corrections have been used
+    bool slasCorrUsed;    ///< QZSS SLAS corrections have been used
+    bool spartnCorrUsed;  ///< SPARTN corrections have been used
+    bool prCorrUsed;      ///< Pseudorange corrections have been used
+    bool crCorrUsed;      ///< Carrier range corrections have been used
+    bool doCorrUsed;      ///< Range rate (Doppler) corrections have been used
+    bool clasCorrUsed;    ///< CLAS corrections have been used
   };
 
-  uint32_t iTOW;    // GPS time of week [ms]
-  uint8_t version;  // Message version
-  uint8_t numSvs;   // Number of satellites
+  uint32_t iTOW;    ///< GPS time of week [ms]
+  uint8_t version;  ///< Message version
+  uint8_t numSvs;   ///< Number of satellites
 
   std::vector<Satellite> satellites;
 
@@ -371,18 +373,19 @@ struct NAV_SLAS : public Payload
 
 struct NAV_STATUS : public Payload
 {
-  uint32_t iTOW;   // GPS time of week [ms]
-  FixType gpsFix;  // GPSfix Type, this value does not qualify a fix as valid and within the limits
+  uint32_t iTOW;   ///< GPS time of week [ms]
+  FixType gpsFix;  ///< GPSfix Type, this value does not qualify a fix as valid and within the limits
 
   // flags: Navigation Status Flags
-  bool gpsFixOk;  // Position and velocity valid and within DOP and ACC Masks
-  bool diffSoln;  // Differential corrections were applied
-  bool wknSet;    // Week Number valid
-  bool towSet;    // Time of Week valid
+  bool gpsFixOk;  ///< Position and velocity valid and within DOP and ACC Masks
+  bool diffSoln;  ///< Differential corrections were applied
+  bool wknSet;    ///< Week Number valid
+  bool towSet;    ///< Time of Week valid
 
   // fixStat: Fix Status Information
-  bool diffCorr;                    // Differential corrections available
-  enum MapMatchingStatus : uint8_t  // Map matching status
+  bool diffCorr;  ///< Differential corrections available
+  /** Map matching status */
+  enum MapMatchingStatus : uint8_t
   {
     // None
     NONE = 0b00,

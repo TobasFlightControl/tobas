@@ -120,11 +120,61 @@ bool ZEDF9P::update(bool nonblock)
 void ZEDF9P::registerRtcmCorrectionData(const std::vector<uint8_t>& data)
 {
   std::lock_guard<std::mutex> lock(send_buffer_mutex_);
+
+  // Observations of disabled GNSS are not used by the receiver, so discard them to reduce the data sent over `SPI`.
+  // The last observation message of an epoch is sent even if its GNSS is disabled, because the receiver does not
+  // process the epoch until it receives that message.
+  const auto observation = parseRtcmObservation(data);
+  if (observation && observation->more_messages_follow && !gnss_enabled_[observation->gnss]) {
+    return;
+  }
+
   constexpr size_t kMaxSendBufferSize = 4096;
   if (send_buffer_.size() > kMaxSendBufferSize) {
     send_buffer_.clear();
   }
   send_buffer_.insert(send_buffer_.end(), data.begin(), data.end());
+}
+
+std::optional<ZEDF9P::RtcmObservation> ZEDF9P::parseRtcmObservation(const std::vector<uint8_t>& frame)
+{
+  constexpr uint8_t kRtcmPreamble = 0xD3;
+  constexpr size_t kRtcmHeaderLength = 3;  // Preamble and message length
+  constexpr size_t kRtcmCrcLength = 3;
+  constexpr size_t kMinPayloadLength = 7;  // The message type and the flags read below are in the first 7 bytes.
+
+  // Only a single complete frame can be parsed, so anything else is passed through as is.
+  if (frame.size() < kRtcmHeaderLength + kMinPayloadLength + kRtcmCrcLength || frame[0] != kRtcmPreamble) {
+    return std::nullopt;
+  }
+  const size_t payload_length = (static_cast<size_t>(frame[1] & 0x03) << 8) | frame[2];
+  if (frame.size() != kRtcmHeaderLength + payload_length + kRtcmCrcLength) {
+    return std::nullopt;
+  }
+
+  const uint8_t* payload = &frame[kRtcmHeaderLength];
+  const auto bit = [payload](size_t pos) { return static_cast<bool>((payload[pos / 8] >> (7 - pos % 8)) & 1); };
+  const uint16_t type = static_cast<uint16_t>((payload[0] << 4) | (payload[1] >> 4));
+
+  // MSM1-MSM7: 1071-1077 (GPS), 1081-1087 (GLONASS), ..., 1131-1137 (NavIC)
+  // The multiple message bit follows the message type (12 bits), the station ID (12 bits) and the epoch time (30 bits).
+  if (type >= 1071 && type <= 1137 && type % 10 >= 1 && type % 10 <= 7) {
+    constexpr GnssId kMsmGnss[] = {
+      GNSS_GPS, GNSS_GLONASS, GNSS_GALILEO, GNSS_SBAS, GNSS_QZSS, GNSS_BEIDOU, GNSS_NAVIC
+    };
+    return RtcmObservation{ kMsmGnss[(type - 1071) / 10], bit(54) };
+  }
+
+  // Legacy RTK observations. The synchronous GNSS flag follows the message type, the station ID and the epoch time
+  // (30 bits for GPS, 27 bits for GLONASS).
+  if (type >= 1001 && type <= 1004) {
+    return RtcmObservation{ GNSS_GPS, bit(54) };
+  }
+  if (type >= 1009 && type <= 1012) {
+    return RtcmObservation{ GNSS_GLONASS, bit(51) };
+  }
+
+  return std::nullopt;
 }
 
 bool ZEDF9P::enableSpiMessage(UbxClass cls, uint8_t id, bool enable)
@@ -210,7 +260,7 @@ bool ZEDF9P::enableSpiMessage(UbxClass cls, uint8_t id, bool enable)
           cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x6E);  // CFG-MSGOUT-UBX_NAV_SBAS_SPI
           break;
         case NAV_SIG:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x49);  // CFG-MSGOUT-UBX_NAV_SIG_SPI
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x349);  // CFG-MSGOUT-UBX_NAV_SIG_SPI
           break;
         case NAV_SLAS:
           cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x3A);  // CFG-MSGOUT-UBX_NAV_SLAS_SPI
@@ -346,7 +396,7 @@ bool ZEDF9P::enableSbas()
 }
 
 bool ZEDF9P::disableSbas()
-{ return enableGps(false); }
+{ return enableSbas(false); }
 
 bool ZEDF9P::enableGalileo()
 {
@@ -617,9 +667,20 @@ bool ZEDF9P::verifyMessage() const
   return true;
 }
 
+bool ZEDF9P::enableGnss(GnssId gnss, uint16_t key_id, bool enable)
+{
+  if (!cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, key_id, enable)) {
+    return false;
+  }
+
+  std::lock_guard<std::mutex> lock(send_buffer_mutex_);
+  gnss_enabled_[gnss] = enable;
+  return true;
+}
+
 bool ZEDF9P::enableGps(bool enable)
 {
-  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x1F, enable);  // CFG-SIGNAL-GPS_ENA
+  return enableGnss(GNSS_GPS, 0x1F, enable);  // CFG-SIGNAL-GPS_ENA
 }
 
 bool ZEDF9P::enableGpsL1()
@@ -639,7 +700,7 @@ bool ZEDF9P::enableGpsL5()
 
 bool ZEDF9P::enableSbas(bool enable)
 {
-  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x20, enable);  // CFG-SIGNAL-SBAS_ENA
+  return enableGnss(GNSS_SBAS, 0x20, enable);  // CFG-SIGNAL-SBAS_ENA
 }
 
 bool ZEDF9P::enableSbasL1()
@@ -649,7 +710,7 @@ bool ZEDF9P::enableSbasL1()
 
 bool ZEDF9P::enableGalileo(bool enable)
 {
-  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x21, enable);  // CFG-SIGNAL-GAL_ENA
+  return enableGnss(GNSS_GALILEO, 0x21, enable);  // CFG-SIGNAL-GAL_ENA
 }
 
 bool ZEDF9P::enableGalileoL1()
@@ -669,7 +730,7 @@ bool ZEDF9P::enableGalileoL5()
 
 bool ZEDF9P::enableBeiDou(bool enable)
 {
-  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x22, enable);  // CFG-SIGNAL-BDS_ENA
+  return enableGnss(GNSS_BEIDOU, 0x22, enable);  // CFG-SIGNAL-BDS_ENA
 }
 
 bool ZEDF9P::enableBeiDouL1()
@@ -689,7 +750,7 @@ bool ZEDF9P::enableBeiDouL5()
 
 bool ZEDF9P::enableQzss(bool enable)
 {
-  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x24, enable);  // CFG-SIGNAL-QZSS_ENA
+  return enableGnss(GNSS_QZSS, 0x24, enable);  // CFG-SIGNAL-QZSS_ENA
 }
 
 bool ZEDF9P::enableQzssL1()
@@ -719,7 +780,7 @@ bool ZEDF9P::enableQzssL5()
 
 bool ZEDF9P::enableGlonass(bool enable)
 {
-  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x25, enable);  // CFG-SIGNAL-GLO_ENA
+  return enableGnss(GNSS_GLONASS, 0x25, enable);  // CFG-SIGNAL-GLO_ENA
 }
 
 bool ZEDF9P::enableGlonassL1()
@@ -734,7 +795,7 @@ bool ZEDF9P::enableGlonassL2()
 
 bool ZEDF9P::enableNavIc(bool enable)
 {
-  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x26, enable);  // CFG-SIGNAL-NAVIC_ENA
+  return enableGnss(GNSS_NAVIC, 0x26, enable);  // CFG-SIGNAL-NAVIC_ENA
 }
 
 bool ZEDF9P::enableNavIcL5()
@@ -771,7 +832,7 @@ size_t ZEDF9P::spliceMemory(uint8_t* dest, const void* src, size_t size, size_t 
   return dest_offset + size;
 }
 
-uint32_t ZEDF9P::configKeyID(CfgSize size, CfgGroup group, uint8_t id)
+uint32_t ZEDF9P::configKeyID(CfgSize size, CfgGroup group, uint16_t id)
 { return (size << 28) | (group << 16) | id; }
 }  // namespace ublox
 }  // namespace tobas
