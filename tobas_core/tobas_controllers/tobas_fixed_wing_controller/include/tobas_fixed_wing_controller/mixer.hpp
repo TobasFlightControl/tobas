@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "tobas_fixed_wing_controller/pi_controller.hpp"
+
 #include <tobas_kdl/tree_inertia_solver.hpp>
 #include <tobas_tools/mixer_i.hpp>
 
@@ -26,7 +28,6 @@ public:
     const double& dt,
     const double& rho,
     const double& airspeed,
-    const kdl::Vector& cur_gyro_B,
     const kdl::Vector& tar_dgyro_B);
 
   double getDeflection(size_t idx) const; // rad
@@ -44,11 +45,13 @@ private:
   double max_yaw_effectiveness_;
 
   // Mutable values.
-  kdl::Vector tar_dgyro_last_ = kdl::Vector::Zero();
-  kdl::Vector tar_dgyro_virtual_ = kdl::Vector::Zero();
-  Eigen::Matrix2Xd E_;
-  Eigen::Vector2d f_; // [M_x, M_y, Mz]
+  Eigen::Matrix3Xd E_;
+  Eigen::Vector3d f_; // [M_x, M_y, Mz]
   Eigen::VectorXd x_;
+  PIController x_controller_;
+  PIController y_controller_;
+  PIController z_controller_;
+  PIController z2_controller_;
 
   bool calcModesAngularFreq();
 };

@@ -7,7 +7,7 @@
 #include <tobas_constants/node.hpp>
 #include <tobas_constants/throttle.hpp>
 #include <tobas_constants/time.hpp>
-#include <tobas_control/lqd.hpp>
+#include <tobas_dsp/low_pass_filter.hpp>
 #include <tobas_eigen_tools/core.hpp>
 #include <tobas_eigen_tools/kinematics.hpp>
 #include <tobas_kdl/conversion/coordinates.hpp>
@@ -44,7 +44,7 @@ class ControllerNode : public BaseNode
 {
   using self = ControllerNode;
   using super = BaseNode;
-  static constexpr double kLowerLimitSpeed = 10.0; // m/s, 定常旋回yawrateの計算のためのクリップ値
+  static constexpr double kBetaDotCutOffFreq = 30.0; // beta dot filterのカットオフ周波数
 
 public:
   explicit ControllerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -58,6 +58,8 @@ private:
   Eigen::VectorXd max_thrusts_;
   Eigen::VectorXd min_deflections_;
   Eigen::VectorXd max_deflections_;
+  double beta_prev_;
+  dsp::LowPassFilter<double> beta_dot_filter_;
 
   // State
   bool is_initialized_ = false;
@@ -77,7 +79,7 @@ private:
     double delta_yawrate; // [rad/s]
   };
   std::unique_ptr<RollPitchDYawrate> tar_roll_pitch_dyawrate_ = nullptr;
-  std::unique_ptr<kdl::Vector> tar_gyro_ = nullptr;
+  std::unique_ptr<kdl::Vector> tar_drpb_ = nullptr;
   kdl::Vector tar_dgyro_;
   std::unique_ptr<Eigen::VectorXd> thrusts_ = nullptr;
   std::unique_ptr<Eigen::VectorXd> deflections_ = nullptr;
@@ -135,9 +137,13 @@ private:
 ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   : super(node::kController, nodeOptions_DParam(options)), mass_holder_(tree_), mixer_(drone_, tree_)
 {
+  // setup beta_dot filter
+  beta_prev_ = 0.0;
+  beta_dot_filter_.setCutoffFrequency(kBetaDotCutOffFreq);
+
   // Register dynamics parameters
   addDynamicDoubleParam("attitude_natural_frequency", &self::attitudeNaturalFreqCb, this, 1.0, 10, 1, 30, " rad/s");
-  addDynamicDoubleParam("heading_natural_frequency", &self::headingNaturalFreqCb, this, 0.5, 10, 1, 30, " rad/s");
+  addDynamicDoubleParam("heading_natural_frequency", &self::headingNaturalFreqCb, this, 0.2, 10, 1, 30, " rad/s");
   addDynamicDoubleParam("attitude_damping_ratio", &self::attitudeDampingRatioCb, this, 0.1, 10, 1, 20);
   addDynamicDoubleParam("heading_damping_ratio", &self::headingDampingRatioCb, this, 0.1, 10, 1, 20);
 
@@ -343,19 +349,18 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
   const auto& cur_vel_G = cur_twist_G.vel;
   const auto& cur_gyro_G = cur_twist_G.rot;
   const auto airspeed = cur_vel_G.norm();
-  kdl::Vector cur_vel_G_frd;
-  kdl::vectorFluToFrd(cur_vel_G, cur_vel_G_frd);
-  std::cout << "beta : " << angleOfSideSlip(cur_vel_G_frd.x(), cur_vel_G_frd.y(), cur_vel_G_frd.z()) / M_PI * 180.0 << " [deg]" << std::endl;
 
   // Attitude controller.
   if (tar_roll_pitch_dyawrate_) {
-    if (!tar_gyro_) {
-      tar_gyro_ = std::make_unique<kdl::Vector>();
+    if (!tar_drpb_) {
+      tar_drpb_ = std::make_unique<kdl::Vector>();
     }
 
     // Determine gains.
     const auto atti_wn = rot_ctrl_.atti_wn;
+    const auto head_wn = rot_ctrl_.head_wn;
     const auto atti_angle_gain = atti_wn / rot_ctrl_.atti_zeta / 2;
+    const auto head_angle_gain = head_wn / rot_ctrl_.atti_zeta / 2;
 
     // Determine target attitude.
     // TODO: Limit the target-attitude rate during transition to avoid discontinuous target-attitude changes
@@ -366,26 +371,26 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
     const kdl::Euler cur_rpy(cur_rot);
     const auto roll_err = algo::wrapPi(tar_rpdy.roll - cur_rpy.roll);
     const auto pitch_err = algo::wrapPi(tar_rpdy.pitch - cur_rpy.pitch);
-    // const auto beta = angleOfSideSlip(cur_vel_G_frd.x(), cur_vel_G_frd.y(), cur_vel_G_frd.z());
-    // const auto beta_err = algo::wrapPi(0.0 - beta);
+    kdl::Vector cur_vel_G_frd;
+    kdl::vectorFluToFrd(cur_vel_G, cur_vel_G_frd);
+    const auto beta = angleOfSideSlip(cur_vel_G_frd.x(), cur_vel_G_frd.y(), cur_vel_G_frd.z());
+    beta_dot_filter_.update((beta - beta_prev_) / dt, dt);
+    beta_prev_ = beta;
+    const auto beta_err = algo::wrapPi(tar_rpdy.delta_yawrate - beta);
+    std::cout << "beta : " << beta / M_PI * 180.0 << " [deg]" << std::endl;
+    std::cout << "beta_err : " << beta_err / M_PI * 180.0 << " [deg]" << std::endl;
+    std::cout << "beta_sp : " << tar_rpdy.delta_yawrate / M_PI * 180.0 << " [deg]" << std::endl;
 
     // TODO: Accumulate integral error while airborne.
 
     // Compute target Euler angle rates.
-    const auto tar_drpy = kdl::Vector(atti_angle_gain * roll_err, atti_angle_gain * pitch_err, 0.0);
-
-    // Convert Euler angle rates to gyro values.
-    *tar_gyro_ = eigen::angvelFromEulerrateLocal(tar_drpy.data, cur_rpy.roll, cur_rpy.pitch);
-    std::cout << "tar_roll : " << tar_rpdy.roll / M_PI * 180.0 << " [deg]" << std::endl;
-    std::cout << "cur_roll : " << cur_rpy.roll / M_PI * 180.0 << " [deg]" << std::endl;
-    std::cout << "tar_drpy : " << tar_drpy << " [rad/s]" << std::endl;
-    std::cout << "tar_gyro : " << *tar_gyro_ << " [rad/s]" << std::endl;
+    *tar_drpb_ = kdl::Vector(atti_angle_gain * roll_err, atti_angle_gain * pitch_err, head_angle_gain * beta_err);
 
     // Fill the feedback message.
     setpoint->odom.frame.M = kdl::Euler(tar_roll_pitch_dyawrate_->roll, tar_roll_pitch_dyawrate_->pitch, 0.0).toRotation();
   }
 
-  if (tar_gyro_) {
+  if (tar_drpb_) {
     // Angular velocity controller.
     {
       // Determine gains.
@@ -396,16 +401,19 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
       const kdl::Vector rate_gain(atti_rate_gain, atti_rate_gain, head_rate_gain);
 
       // Compute target angular acceleration.
-      tar_dgyro_ = rate_gain.hadamard(*tar_gyro_ - cur_gyro_G);
+      // roll = pitch = 0のときbeta = -yaw_frd = yaw_flu
+      std::cout << "tar_drpb_->z() : " << tar_drpb_->z() / M_PI * 180.0 << " [deg/s]" << std::endl;
+      std::cout << "beta_dot_filter_.getValue() : " << beta_dot_filter_.getValue() / M_PI * 180.0 << " [deg/s]" << std::endl;
+      tar_dgyro_ = kdl::Vector(atti_rate_gain * (tar_drpb_->x() - cur_gyro_G.x()), atti_rate_gain * (tar_drpb_->y() - cur_gyro_G.y()), head_rate_gain * (tar_drpb_->z() - beta_dot_filter_.getValue()));
 
       // Fill the feedback message.
-      setpoint->odom.twist.rot = *tar_gyro_;
+      setpoint->odom.twist.rot = *tar_drpb_;
     }
 
     // Mixer.
     {
       const auto rho = st::pressureToDensity(air_pressure_->pressure);
-      if (!mixer_.solve(dt, rho, airspeed, cur_gyro_G, tar_dgyro_)) {
+      if (!mixer_.solve(dt, rho, airspeed, tar_dgyro_)) {
         TOBAS_FATAL("Failed to solve the mixing equation.");
         return;
       }
@@ -440,7 +448,7 @@ void ControllerNode::manualCmdCb(const tobas_command_msgs::msg::AileElevRudThrot
 
   // Stop the outer control loop.
   tar_roll_pitch_dyawrate_.reset();
-  tar_gyro_.reset();
+  tar_drpb_.reset();
 
   // Create the command.
   if (!thrusts_) {
