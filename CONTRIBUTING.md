@@ -13,7 +13,7 @@ See [Setup](./SETUP.md) for source checkout, PC build, and FC deployment instruc
 Install dependencies:
 
 ```bash
-$ sudo apt install -y pre-commit black clang-format cmake-format qt6-declarative-dev-tools
+$ sudo apt install -y pre-commit black clang-format clang-tidy cmake-format qt6-declarative-dev-tools
 ```
 
 To check all:
