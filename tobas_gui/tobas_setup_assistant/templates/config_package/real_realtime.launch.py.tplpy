@@ -81,11 +81,13 @@ def generate_launch_description():
                     plugin="tobas::real::ImuHandlerNode",
                     namespace=namespace,
                     parameters=[{"section": DRONE_NAME}],
+                    extra_arguments=[{"use_intra_process_comms": True}],
                 ),
                 ComposableNode(
                     package="tobas_real_ros",
                     plugin="tobas::real::IcePropulsionSystemHandlerNode",
                     namespace=namespace,
+                    extra_arguments=[{"use_intra_process_comms": True}],
                 ),
             ],
         )
@@ -101,23 +103,27 @@ def generate_launch_description():
                     plugin="tobas::SbusDriverNode",
                     namespace=namespace,
                     parameters=[{"device": "/dev/ttyAMA0"}],  # TODO: Change the device according to the FMU.
+                    extra_arguments=[{"use_intra_process_comms": True}],
                 ),
                 ComposableNode(
                     package="tobas_real_ros",
                     plugin="tobas::real::RCInputHandlerNode",
                     namespace=namespace,
                     parameters=[{"section": DRONE_NAME}],
+                    extra_arguments=[{"use_intra_process_comms": True}],
                 ),
                 ComposableNode(
                     package="tobas_real_ros",
                     plugin="tobas::real::MagnetometerHandlerNode",
                     namespace=namespace,
                     parameters=[{"section": DRONE_NAME}],
+                    extra_arguments=[{"use_intra_process_comms": True}],
                 ),
                 ComposableNode(
                     package="tobas_real_ros",
                     plugin="tobas::real::JointsHandlerNode",
                     namespace=namespace,
+                    extra_arguments=[{"use_intra_process_comms": True}],
                 ),
             ],
         )
@@ -140,6 +146,7 @@ def generate_launch_description():
                     package="tobas_real_ros",
                     plugin="tobas::real::CpuHandlerNode",
                     namespace=namespace,
+                    extra_arguments=[{"use_intra_process_comms": True}],
                 ),
             ],
         )

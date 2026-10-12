@@ -12,6 +12,7 @@ def generate_launch_description():
 
     ld = LaunchDescription()
 
+    # Get arguments
     ld.add_action(DeclareLaunchArgument(NAMESPACE))
     ns = LaunchConfiguration(NAMESPACE)
 
@@ -24,16 +25,19 @@ def generate_launch_description():
                     package=pkg_name,
                     plugin="tobas::fc1xx::ImuDriverNode",
                     namespace=ns,
+                    extra_arguments=[{"use_intra_process_comms": True}],
                 ),
                 ComposableNode(
                     package=pkg_name,
                     plugin="tobas::fc1xx::DShotDriverNode",
                     namespace=ns,
+                    extra_arguments=[{"use_intra_process_comms": True}],
                 ),
                 ComposableNode(
                     package=pkg_name,
                     plugin="tobas::fc1xx::PwmDriverNode",
                     namespace=ns,
+                    extra_arguments=[{"use_intra_process_comms": True}],
                 ),
             ],
         )
@@ -48,21 +52,25 @@ def generate_launch_description():
                     package=pkg_name,
                     plugin="tobas::fc1xx::MagDriverNode",
                     namespace=ns,
+                    extra_arguments=[{"use_intra_process_comms": True}],
                 ),
                 ComposableNode(
                     package=pkg_name,
                     plugin="tobas::fc1xx::BaroDriverNode",
                     namespace=ns,
+                    extra_arguments=[{"use_intra_process_comms": True}],
                 ),
                 ComposableNode(
                     package=pkg_name,
                     plugin="tobas::fc1xx::GnssDriverNode",
                     namespace=ns,
+                    extra_arguments=[{"use_intra_process_comms": True}],
                 ),
                 ComposableNode(
                     package=pkg_name,
                     plugin="tobas::fc1xx::BatteryDriverNode",
                     namespace=ns,
+                    extra_arguments=[{"use_intra_process_comms": True}],
                 ),
             ],
         )
