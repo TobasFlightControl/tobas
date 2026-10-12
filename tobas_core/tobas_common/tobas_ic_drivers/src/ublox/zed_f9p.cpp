@@ -6,22 +6,21 @@
 #include <cassert>
 #include <cstring>
 
-#define NOT_IMPLEMENTED "Not implemented."
-#define NOT_RECEIVABLE "Not receivable."
-
+using namespace std::chrono_literals;
 namespace ch = std::chrono;
 
 namespace tobas
 {
 namespace ublox
 {
-ZEDF9P::ZEDF9P() : rate_(kReqInterval)
+ZEDF9P::ZEDF9P() : rate_(50us)
 {
 }
 
 bool ZEDF9P::initialize(const char* spi_device)
 {
   // Initialize SPI device.
+  constexpr uint32_t kSpiClockFreq = 5'500'000;  // Maximum frequency is 5.5MHz.
   if (!spi_.initialize(spi_device, tx_buf_, rx_buf_, kSpiClockFreq)) {
     return false;
   }
@@ -31,6 +30,8 @@ bool ZEDF9P::initialize(const char* spi_device)
 
 bool ZEDF9P::update(bool nonblock)
 {
+  constexpr uint8_t kDefaultData = 0xFF;  // Sent while there is no RTCM data to send.
+
   scanner_.reset();
 
   if (nonblock) {
@@ -175,31 +176,34 @@ std::optional<ZEDF9P::RtcmObservation> ZEDF9P::parseRtcmObservation(const std::v
 
 bool ZEDF9P::enableSpiMessage(UbxClass cls, uint8_t id, bool enable)
 {
+  constexpr char kNotImplemented[] = "Not implemented.";
+  constexpr char kNotReceivable[] = "Not receivable.";
+
   CfgValSet<uint8_t, 1> cfg;
 
   switch (cls) {
     case CLASS_ACK: {
-      std::cerr << NOT_RECEIVABLE << std::endl;
+      std::cerr << kNotReceivable << std::endl;
       return false;
     }
     case CLASS_CFG: {
-      std::cerr << NOT_RECEIVABLE << std::endl;
+      std::cerr << kNotReceivable << std::endl;
       return false;
     }
     case CLASS_INF: {
-      std::cerr << NOT_IMPLEMENTED << std::endl;  // TODO
+      std::cerr << kNotImplemented << std::endl;  // TODO
       return false;
     }
     case CLASS_LOG: {
-      std::cerr << NOT_IMPLEMENTED << std::endl;  // TODO
+      std::cerr << kNotImplemented << std::endl;  // TODO
       return false;
     }
     case CLASS_MGA: {
-      std::cerr << NOT_IMPLEMENTED << std::endl;  // TODO
+      std::cerr << kNotImplemented << std::endl;  // TODO
       return false;
     }
     case CLASS_MON: {
-      std::cerr << NOT_IMPLEMENTED << std::endl;  // TODO
+      std::cerr << kNotImplemented << std::endl;  // TODO
       return false;
     }
     case CLASS_NAV: {
@@ -247,7 +251,7 @@ bool ZEDF9P::enableSpiMessage(UbxClass cls, uint8_t id, bool enable)
           cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x91);  // CFG-MSGOUT-UBX_NAV_RELPOSNED_SPI
           break;
         case NAV_RESETODO:
-          std::cerr << NOT_RECEIVABLE << std::endl;
+          std::cerr << kNotReceivable << std::endl;
           return false;
         case NAV_SAT:
           cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x19);  // CFG-MSGOUT-UBX_NAV_SAT_SPI
@@ -295,29 +299,29 @@ bool ZEDF9P::enableSpiMessage(UbxClass cls, uint8_t id, bool enable)
           cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x46);  // CFG-MSGOUT-UBX_NAV_VELNED_SPI
           break;
         default:
-          std::cerr << NOT_IMPLEMENTED << std::endl;  // TODO
+          std::cerr << kNotImplemented << std::endl;  // TODO
           return false;
       }
       break;
     }
     case CLASS_NAV2: {
-      std::cerr << NOT_IMPLEMENTED << std::endl;  // TODO
+      std::cerr << kNotImplemented << std::endl;  // TODO
       return false;
     }
     case CLASS_RXM: {
-      std::cerr << NOT_IMPLEMENTED << std::endl;  // TODO
+      std::cerr << kNotImplemented << std::endl;  // TODO
       return false;
     }
     case CLASS_SEC: {
-      std::cerr << NOT_IMPLEMENTED << std::endl;  // TODO
+      std::cerr << kNotImplemented << std::endl;  // TODO
       return false;
     }
     case CLASS_TIM: {
-      std::cerr << NOT_IMPLEMENTED << std::endl;  // TODO
+      std::cerr << kNotImplemented << std::endl;  // TODO
       return false;
     }
     case CLASS_UPD: {
-      std::cerr << NOT_IMPLEMENTED << std::endl;  // TODO
+      std::cerr << kNotImplemented << std::endl;  // TODO
       return false;
     }
     default: {
@@ -577,6 +581,7 @@ bool ZEDF9P::enableSpiProtocol_SPARTN(bool enable_input)
 
 bool ZEDF9P::setAntennaLength(uint8_t length_m)
 {
+  constexpr uint8_t kRG174CableDelay = 5;  // [ns/m] Coaxial cable delay.
   return cfgValSetSingle<uint16_t>(TWO_BYTES, CFG_TP, 0x01, length_m * kRG174CableDelay);  // CFG-TP-ANT_CABLEDELAY
 }
 
@@ -611,6 +616,7 @@ bool ZEDF9P::waitForAcknowledge(UbxClass cls, uint8_t id)
   const auto cls_str = std::to_string(int(cls));
   const auto id_str = std::to_string(int(id));
 
+  constexpr auto kWaitForGnssAck = 1s;
   const auto deadline = ch::steady_clock::now() + kWaitForGnssAck;
 
   while (ch::steady_clock::now() < deadline) {

@@ -34,15 +34,6 @@ class ZEDF9P
 {
 private:
   static constexpr size_t kSpiBufSize = 256;
-  static constexpr uint8_t kDefaultData = 0xFF;
-  static constexpr uint32_t kSpiClockFreq = 5'500'000;  // Maximum frequency is 5.5MHz
-  static constexpr uint8_t kRG174CableDelay = 5;         // [ns/m] Coaxial cable delay.
-  static constexpr auto kWaitForGnssAck = std::chrono::seconds(1);
-
-  // Interval for receiving one byte over `SPI` [us].
-  // A smaller value reduces communication latency,
-  // but too small a value overloads the receiver with requests and degrades accuracy.
-  static constexpr auto kReqInterval = std::chrono::microseconds(50);
 
 public:
   enum UbxClass : uint8_t
@@ -123,15 +114,6 @@ public:
     MOTORBIKE = 10,
     ROBOTIC_LAWN_MOWER = 11,
     E_SCOOTER = 12,
-  };
-
-  /* SPI Protocol Key ID */
-  enum CfgProtocol : uint8_t
-  {
-    UBX = 0x01,
-    NMEA = 0x02,
-    RTCM3X = 0x04,
-    SPARTN = 0x05,
   };
 
   /* GNSS identifiers (same as `gnssId` in UBX messages) */
@@ -269,6 +251,15 @@ private:
     CFG_USBOUTPROT = 0x78,    ///< Output Protocol Configuration of the USB Interface
   };
 
+  /* SPI Protocol Key ID */
+  enum CfgProtocol : uint8_t
+  {
+    UBX = 0x01,
+    NMEA = 0x02,
+    RTCM3X = 0x04,
+    SPARTN = 0x05,
+  };
+
   struct PACKED UbxHeader
   {
     uint8_t sync1;
@@ -284,7 +275,7 @@ private:
     uint8_t CK_B;
   };
 
- // ===== Payload structures =====
+  // ===== Payload structures =====
 
   template <typename ValueType>
   struct PACKED CfgData

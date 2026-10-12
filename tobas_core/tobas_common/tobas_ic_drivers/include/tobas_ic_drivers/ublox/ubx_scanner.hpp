@@ -59,9 +59,9 @@ public:
 
 private:
   uint8_t buffer_[kUbxBufferLength];  ///< Buffer for UBX message
-  size_t payload_length_;        ///< Length of current message payload
-  size_t pos_;                   ///< Indicates current buffer offset
-  State state_;                  ///< Current scanner state
+  size_t payload_length_;             ///< Length of current message payload
+  size_t pos_;                        ///< Indicates current buffer offset
+  State state_;                       ///< Current scanner state
 };
 
 inline UBXScanner::State UBXScanner::state() const

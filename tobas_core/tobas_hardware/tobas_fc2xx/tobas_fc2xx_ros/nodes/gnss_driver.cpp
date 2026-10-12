@@ -18,13 +18,6 @@ namespace fc2xx
 {
 class GnssDriverNode : public BaseNode
 {
-  static constexpr char kSpiDevice[] = "/dev/spidev1.0";
-  static constexpr auto kMainTimerPeriod = 1ms;
-
-  // GNSS receiver update period [ms]
-  // This cannot be too short because an overly high frequency fills the FIFO and causes a time shift.
-  static constexpr size_t kMeasPeriod = 1000 / 20;
-
   using self = GnssDriverNode;
   using super = BaseNode;
 
@@ -44,28 +37,33 @@ private:
   ros2::SubscriberPtr<tobas_msgs::msg::BinaryPacket> rtcm_correction_sub_;
   ros2::TimerPtr initialize_timer_, main_timer_;
 
-  void initialize();
+  bool initialize();
   bool configure();
   void warnUnnecessaryUBXMessage();
 
+  void initializeTimerCb();
   void mainTimerCb();
   void rtcmCorrectionSubCb(const tobas_msgs::msg::BinaryPacket::ConstSharedPtr& msg);
 };
 
 GnssDriverNode::GnssDriverNode(const rclcpp::NodeOptions& options)
   : super("fc2xx_gnss_driver", nodeOptions_Default(options))
-{ initialize_timer_ = createWallTimer(hardware::kRetryInitializationInterval, &self::initialize, this); }
-
-void GnssDriverNode::initialize()
 {
-  if (!gnss_.initialize(kSpiDevice)) {
+  if (!initialize()) {
+    initialize_timer_ = createWallTimer(hardware::kRetryInitializationInterval, &self::initializeTimerCb, this);
+  }
+}
+
+bool GnssDriverNode::initialize()
+{
+  if (!gnss_.initialize("/dev/spidev1.0")) {
     TOBAS_ERROR("Failed to initialize GNSS driver. Retrying...");
-    return;
+    return false;
   }
 
   if (!configure()) {
     TOBAS_ERROR("Failed to configure GNSS receiver. Retrying...");
-    return;
+    return false;
   }
 
   is_received_[ublox::ZEDF9P::NAV_PVT] = false;
@@ -81,8 +79,10 @@ void GnssDriverNode::initialize()
     true,   // reliable
     100);   // queue_size
 
-  initialize_timer_->cancel();
+  constexpr auto kMainTimerPeriod = 1ms;
   main_timer_ = createWallTimer(kMainTimerPeriod, &self::mainTimerCb, this);
+
+  return true;
 }
 
 bool GnssDriverNode::configure()
@@ -92,7 +92,9 @@ bool GnssDriverNode::configure()
     return false;
   }
 
-  if (!gnss_.configureMeasurementRate(kMeasPeriod)) {
+  // The measurement rate cannot be too short because an overly high frequency fills the FIFO and causes a time shift.
+  constexpr uint16_t kMeasRate = 20;  // [Hz]
+  if (!gnss_.configureMeasurementRate(1000 / kMeasRate)) {
     TOBAS_ERROR("Failed to configure measurement rate.");
     return false;
   }
@@ -179,6 +181,13 @@ void GnssDriverNode::warnUnnecessaryUBXMessage()
   const auto cls = gnss_.latestClass();
   const auto id = gnss_.latestId();
   TOBAS_WARN("Unnecessary UBX message is received: (Class, ID) = (", (int)cls, ", ", (int)id, ")");
+}
+
+void GnssDriverNode::initializeTimerCb()
+{
+  if (initialize()) {
+    initialize_timer_->cancel();
+  }
 }
 
 void GnssDriverNode::mainTimerCb()
@@ -283,7 +292,9 @@ void GnssDriverNode::mainTimerCb()
 }
 
 void GnssDriverNode::rtcmCorrectionSubCb(const tobas_msgs::msg::BinaryPacket::ConstSharedPtr& msg)
-{ gnss_.registerRtcmCorrectionData(msg->data); }
+{
+  gnss_.registerRtcmCorrectionData(msg->data);
+}
 }  // namespace fc2xx
 }  // namespace tobas
 

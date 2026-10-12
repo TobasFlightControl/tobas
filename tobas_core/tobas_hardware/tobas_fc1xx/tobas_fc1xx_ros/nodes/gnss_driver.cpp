@@ -48,7 +48,9 @@ private:
 
 GnssDriverNode::GnssDriverNode(const rclcpp::NodeOptions& options)
   : super("fc1xx_gnss_driver", nodeOptions_Default(options))
-{ initialize_timer_ = createWallTimer(hardware::kRetryInitializationInterval, &self::initialize, this); }
+{
+  initialize_timer_ = createWallTimer(hardware::kRetryInitializationInterval, &self::initialize, this);
+}
 
 void GnssDriverNode::initialize()
 {
@@ -285,7 +287,9 @@ void GnssDriverNode::mainTimerCb()
 }
 
 void GnssDriverNode::rtcmCorrectionSubCb(const tobas_msgs::msg::BinaryPacket::ConstSharedPtr& msg)
-{ gnss_.registerRtcmCorrectionData(msg->data); }
+{
+  gnss_.registerRtcmCorrectionData(msg->data);
+}
 }  // namespace fc1xx
 }  // namespace tobas
 
