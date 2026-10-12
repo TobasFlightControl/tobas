@@ -13,7 +13,6 @@ template <typename T>
 class SymmetricFirstOrderFilter : public AsymmetricFirstOrderFilter<T>
 {
   using super = AsymmetricFirstOrderFilter<T>;
-  using super::initialize;
 
 public:
   explicit SymmetricFirstOrderFilter();
