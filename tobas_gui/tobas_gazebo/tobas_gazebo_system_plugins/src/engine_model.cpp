@@ -83,8 +83,8 @@ bool EngineModel::getSdfParams(const sdf::ElementConstPtr& sdf)
   if (!getSdfParam(sdf, "timeConstDown", time_const_down_)) {
     return false;
   }
-  if (time_const_up_ < 0.0 || time_const_down_ < 0.0) {
-    gzerr << "The time constant of engine speed convergence must be non-negative." << std::endl;
+  if (time_const_up_ <= 0.0 || time_const_down_ <= 0.0) {
+    gzerr << "The time constant of engine speed convergence must be positive." << std::endl;
     return false;
   }
 
