@@ -105,11 +105,11 @@ bool GnssDriverNode::configure()
     return false;
   }
   if (!gnss_.disableGalileo()) {
-    TOBAS_ERROR("Failed to enable Galileo.");
+    TOBAS_ERROR("Failed to disable Galileo.");
     return false;
   }
   if (!gnss_.disableBeiDou()) {
-    TOBAS_ERROR("Failed to enable BeiDou.");
+    TOBAS_ERROR("Failed to disable BeiDou.");
     return false;
   }
   if (!gnss_.enableQzss()) {
@@ -117,7 +117,7 @@ bool GnssDriverNode::configure()
     return false;
   }
   if (!gnss_.disableGlonass()) {
-    TOBAS_ERROR("Failed to enable GLONASS.");
+    TOBAS_ERROR("Failed to disable GLONASS.");
     return false;
   }
 

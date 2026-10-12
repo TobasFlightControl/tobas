@@ -120,10 +120,6 @@ bool ZEDF9P::update(bool nonblock)
 void ZEDF9P::registerRtcmCorrectionData(const std::vector<uint8_t>& data)
 {
   std::lock_guard<std::mutex> lock(send_buffer_mutex_);
-
-  // Observations of disabled GNSS are not used by the receiver, so discard them to reduce the data sent over `SPI`.
-  // The last observation message of an epoch is sent even if its GNSS is disabled, because the receiver does not
-  // process the epoch until it receives that message.
   const auto observation = parseRtcmObservation(data);
   if (observation && observation->more_messages_follow && !gnss_enabled_[observation->gnss]) {
     return;
@@ -376,7 +372,9 @@ bool ZEDF9P::enableGps()
 }
 
 bool ZEDF9P::disableGps()
-{ return enableGps(false); }
+{
+  return enableGps(false);
+}
 
 bool ZEDF9P::enableSbas()
 {
@@ -396,7 +394,9 @@ bool ZEDF9P::enableSbas()
 }
 
 bool ZEDF9P::disableSbas()
-{ return enableSbas(false); }
+{
+  return enableSbas(false);
+}
 
 bool ZEDF9P::enableGalileo()
 {
@@ -429,7 +429,9 @@ bool ZEDF9P::enableGalileo()
 }
 
 bool ZEDF9P::disableGalileo()
-{ return enableGalileo(false); }
+{
+  return enableGalileo(false);
+}
 
 bool ZEDF9P::enableBeiDou()
 {
@@ -462,7 +464,9 @@ bool ZEDF9P::enableBeiDou()
 }
 
 bool ZEDF9P::disableBeiDou()
-{ return enableBeiDou(false); }
+{
+  return enableBeiDou(false);
+}
 
 bool ZEDF9P::enableQzss()
 {
@@ -495,7 +499,9 @@ bool ZEDF9P::enableQzss()
 }
 
 bool ZEDF9P::disableQzss()
-{ return enableQzss(false); }
+{
+  return enableQzss(false);
+}
 
 bool ZEDF9P::enableGlonass()
 {
@@ -522,7 +528,9 @@ bool ZEDF9P::enableGlonass()
 }
 
 bool ZEDF9P::disableGlonass()
-{ return enableGlonass(false); }
+{
+  return enableGlonass(false);
+}
 
 bool ZEDF9P::enableNavIc()
 {
@@ -543,19 +551,29 @@ bool ZEDF9P::enableNavIc()
 }
 
 bool ZEDF9P::disableNavIc()
-{ return enableNavIc(false); }
+{
+  return enableNavIc(false);
+}
 
 bool ZEDF9P::enableSpiProtocol_UBX(bool enable_input, bool enable_output)
-{ return enableSpiInputProtocol(UBX, enable_input) && enableSpiOutputProtocol(UBX, enable_output); }
+{
+  return enableSpiInputProtocol(UBX, enable_input) && enableSpiOutputProtocol(UBX, enable_output);
+}
 
 bool ZEDF9P::enableSpiProtocol_NMEA(bool enable_input, bool enable_output)
-{ return enableSpiInputProtocol(NMEA, enable_input) && enableSpiOutputProtocol(NMEA, enable_output); }
+{
+  return enableSpiInputProtocol(NMEA, enable_input) && enableSpiOutputProtocol(NMEA, enable_output);
+}
 
 bool ZEDF9P::enableSpiProtocol_RTCM3X(bool enable_input, bool enable_output)
-{ return enableSpiInputProtocol(RTCM3X, enable_input) && enableSpiOutputProtocol(RTCM3X, enable_output); }
+{
+  return enableSpiInputProtocol(RTCM3X, enable_input) && enableSpiOutputProtocol(RTCM3X, enable_output);
+}
 
 bool ZEDF9P::enableSpiProtocol_SPARTN(bool enable_input)
-{ return enableSpiInputProtocol(SPARTN, enable_input); }
+{
+  return enableSpiInputProtocol(SPARTN, enable_input);
+}
 
 bool ZEDF9P::setAntennaLength(uint8_t length_m)
 {
@@ -643,7 +661,9 @@ bool ZEDF9P::waitForAcknowledge(UbxClass cls, uint8_t id)
 }
 
 bool ZEDF9P::configure(UbxCfgId cfg_id, const void* msg, uint16_t size)
-{ return sendMessage(CLASS_CFG, cfg_id, msg, size) && waitForAcknowledge(CLASS_CFG, cfg_id); }
+{
+  return sendMessage(CLASS_CFG, cfg_id, msg, size) && waitForAcknowledge(CLASS_CFG, cfg_id);
+}
 
 bool ZEDF9P::verifyMessage() const
 {
@@ -833,6 +853,8 @@ size_t ZEDF9P::spliceMemory(uint8_t* dest, const void* src, size_t size, size_t 
 }
 
 uint32_t ZEDF9P::configKeyID(CfgSize size, CfgGroup group, uint16_t id)
-{ return (size << 28) | (group << 16) | id; }
+{
+  return (size << 28) | (group << 16) | id;
+}
 }  // namespace ublox
 }  // namespace tobas

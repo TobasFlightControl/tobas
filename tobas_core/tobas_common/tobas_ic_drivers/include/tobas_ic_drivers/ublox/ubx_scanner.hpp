@@ -58,40 +58,60 @@ public:
   inline const uint8_t* getChecksumB() const;
 
 private:
-  uint8_t buffer_[kUbxBufferLength];  // Buffer for UBX message
-  size_t payload_length_;             // Length of current message payload
-  size_t pos_;                        // Indicates current buffer offset
-  State state_;                       // Current scanner state
+  uint8_t buffer_[kUbxBufferLength];  ///< Buffer for UBX message
+  size_t payload_length_;        ///< Length of current message payload
+  size_t pos_;                   ///< Indicates current buffer offset
+  State state_;                  ///< Current scanner state
 };
 
 inline UBXScanner::State UBXScanner::state() const
-{ return state_; }
+{
+  return state_;
+}
 
 inline size_t UBXScanner::messageLength() const
-{ return kUbxFixedLength + payload_length_; }
+{
+  return kUbxFixedLength + payload_length_;
+}
 
 inline const uint8_t* UBXScanner::getSync1() const
-{ return buffer_ + pos_ - messageLength(); }
+{
+  return buffer_ + pos_ - messageLength();
+}
 
 inline const uint8_t* UBXScanner::getSync2() const
-{ return getSync1() + 1; }
+{
+  return getSync1() + 1;
+}
 
 inline const uint8_t* UBXScanner::getClass() const
-{ return getSync1() + kUbxSyncLength; }
+{
+  return getSync1() + kUbxSyncLength;
+}
 
 inline const uint8_t* UBXScanner::getId() const
-{ return getClass() + kUbxClassLength; }
+{
+  return getClass() + kUbxClassLength;
+}
 
 inline const uint8_t* UBXScanner::getLength() const
-{ return getId() + kUbxIdLength; }
+{
+  return getId() + kUbxIdLength;
+}
 
 inline const uint8_t* UBXScanner::getPayload() const
-{ return getLength() + kUbxLengthLength; }
+{
+  return getLength() + kUbxLengthLength;
+}
 
 inline const uint8_t* UBXScanner::getChecksumA() const
-{ return getPayload() + payload_length_; }
+{
+  return getPayload() + payload_length_;
+}
 
 inline const uint8_t* UBXScanner::getChecksumB() const
-{ return getChecksumA() + 1; }
+{
+  return getChecksumA() + 1;
+}
 }  // namespace ublox
 }  // namespace tobas

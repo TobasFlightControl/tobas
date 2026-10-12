@@ -55,6 +55,51 @@ struct ACK_ACK : public Payload
   void print(std::ostream& os) const override;
 };
 
+struct MON_RF : public Payload
+{
+  struct Block
+  {
+    uint8_t blockId;  // RF block ID (0 = L1 band, 1 = L2 or L5 band depending on product configuration)
+    enum JammingState : uint8_t
+    {
+      JAMMING_UNKNOWN = 0,
+      JAMMING_OK = 1,
+      JAMMING_WARNING = 2,
+      JAMMING_CRITICAL = 3,
+    } jammingState;  // Output from jamming/interference monitor (deprecated by u-blox, use `jamInd` instead)
+    enum AntennaStatus : uint8_t
+    {
+      ANT_INIT = 0,
+      ANT_DONTKNOW = 1,
+      ANT_OK = 2,
+      ANT_SHORT = 3,
+      ANT_OPEN = 4,
+    } antStatus;  // Status of the antenna supervisor state machine
+    enum AntennaPower : uint8_t
+    {
+      ANT_POWER_OFF = 0,
+      ANT_POWER_ON = 1,
+      ANT_POWER_DONTKNOW = 2,
+    } antPower;           // Current power status of antenna
+    uint32_t postStatus;  // POST status word
+    uint16_t noisePerMS;  // Noise level as measured by the GPS core
+    uint16_t agcCnt;      // AGC monitor (counts SIGHI xor SIGLO, range 0 to 8191)
+    uint8_t jamInd;       // CW jamming indicator, scaled (0 = no CW jamming, 255 = strong CW jamming)
+    int8_t ofsI;          // Imbalance of I-part of complex signal, scaled (-128 = max. negative imbalance)
+    uint8_t magI;         // Magnitude of I-part of complex signal, scaled (0 = no signal, 255 = max. magnitude)
+    int8_t ofsQ;          // Imbalance of Q-part of complex signal, scaled (-128 = max. negative imbalance)
+    uint8_t magQ;         // Magnitude of Q-part of complex signal, scaled (0 = no signal, 255 = max. magnitude)
+  };
+
+  uint8_t version;  // Message version
+  uint8_t nBlocks;  // Number of RF blocks included
+
+  std::vector<Block> blocks;
+
+  void decode(const uint8_t* p) override;
+  void print(std::ostream& os) const override;
+};
+
 struct NAV_CLOCK : public Payload
 {
   // TODO
@@ -261,6 +306,22 @@ struct NAV_PVT : public Payload
 
   // flags3: Additional flags
   bool invalidLlh;  ///< Invalid lon, lat, height and hMSL
+  enum CorrectionAge : uint8_t  // Age of the most recently received differential correction
+  {
+    AGE_NOT_AVAILABLE = 0,
+    AGE_0_TO_1_SEC = 1,
+    AGE_1_TO_2_SEC = 2,
+    AGE_2_TO_5_SEC = 3,
+    AGE_5_TO_10_SEC = 4,
+    AGE_10_TO_15_SEC = 5,
+    AGE_15_TO_20_SEC = 6,
+    AGE_20_TO_30_SEC = 7,
+    AGE_30_TO_45_SEC = 8,
+    AGE_45_TO_60_SEC = 9,
+    AGE_60_TO_90_SEC = 10,
+    AGE_90_TO_120_SEC = 11,
+    AGE_120_SEC_OR_MORE = 12,
+  } lastCorrectionAge;
 
   double headVeh;  ///< Heading of vehicle (2-D) [deg]
   double magDec;   ///< Magnetic declination [deg]
@@ -357,7 +418,62 @@ struct NAV_SBAS : public Payload
 
 struct NAV_SIG : public Payload
 {
-  // TODO
+  struct Signal
+  {
+    uint8_t gnssId;  // GNSS identifier
+    uint8_t svId;    // Satellite identifier
+    uint8_t sigId;   // Signal identifier (meaning depends on `gnssId`)
+    uint8_t freqId;  // GLONASS frequency slot + 7 (range from 0 to 13)
+    double prRes;    // Pseudorange residual [m]
+    uint8_t cno;     // Carrier-to-noise density ratio [dB-Hz]
+    enum QualityIndicator : uint8_t
+    {
+      NO_SIGNAL = 0,
+      SEARCHING_SIGNAL = 1,
+      SIGNAL_ACQUIRED = 2,
+      SIGNAL_DETECTED_BUT_UNUSABLE = 3,
+      CODE_LOCKED_AND_TIME_SYNCHRONIZED = 4,
+      CODE_AND_CARRIER_LOCKED_AND_TIME_SYNCHRONIZED_1 = 5,
+      CODE_AND_CARRIER_LOCKED_AND_TIME_SYNCHRONIZED_2 = 6,
+      CODE_AND_CARRIER_LOCKED_AND_TIME_SYNCHRONIZED_3 = 7,
+    } qualityInd;  // Signal quality indicator
+    enum CorrectionSource : uint8_t
+    {
+      NO_CORRECTIONS = 0,
+      SBAS_CORRECTIONS = 1,
+      BEIDOU_CORRECTIONS = 2,
+      RTCM2_CORRECTIONS = 3,
+      RTCM3_OSR_CORRECTIONS = 4,
+      RTCM3_SSR_CORRECTIONS = 5,
+      QZSS_SLAS_CORRECTIONS = 6,
+      SPARTN_CORRECTIONS = 7,
+      CLAS_CORRECTIONS = 8,
+    } corrSource;  // Correction source
+    uint8_t
+      ionoModel;  // Ionospheric model used (0 = no model, 1 = Klobuchar GPS, 2 = SBAS, 3 = Klobuchar BeiDou, 8 = dual frequency)
+    enum Health : uint8_t
+    {
+      UNKNOWN = 0,
+      HEALTHY = 1,
+      UNHEALTHY = 2,
+    } health;         // Signal health flag
+    bool prSmoothed;  // Pseudorange has been smoothed
+    bool prUsed;      // Pseudorange has been used for this signal
+    bool crUsed;      // Carrier range has been used for this signal
+    bool doUsed;      // Range rate (Doppler) has been used for this signal
+    bool prCorrUsed;  // Pseudorange corrections have been used for this signal
+    bool crCorrUsed;  // Carrier range corrections have been used for this signal
+    bool doCorrUsed;  // Range rate (Doppler) corrections have been used for this signal
+
+    // Return true if both the code and the carrier phase are locked.
+    inline bool isCarrierLocked() const;
+  };
+
+  uint32_t iTOW;    // GPS time of week [ms]
+  uint8_t version;  // Message version
+  uint8_t numSigs;  // Number of signals
+
+  std::vector<Signal> signals;
 
   void decode(const uint8_t* p) override;
   void print(std::ostream& os) const override;
@@ -387,27 +503,28 @@ struct NAV_STATUS : public Payload
   /** Map matching status */
   enum MapMatchingStatus : uint8_t
   {
-    // None
     NONE = 0b00,
-    // Valid but not used, i.e. map matching data was received, but was too old
-    VALID_BUT_NOT_USED = 0b01,
-    // Valid and used, map matching data was applied
-    VALID_AND_USED_1 = 0b10,
-    // Valid and used, map matching data was applied.
-    // In case of sensor unavailability map matching data enables dead reckoning.
-    // This requires map matched latitude/longitude or heading data.
+    VALID_BUT_NOT_USED = 0b01,  ///< Valid but not used, i.e. map matching data was received, but was too old
+    VALID_AND_USED_1 = 0b10,    ///< Valid and used, map matching data was applied
+    /**
+     * Valid and used, map matching data was applied.
+     * In case of sensor unavailability map matching data enables dead reckoning.
+     * This requires map matched latitude/longitude or heading data.
+     */
     VALID_AND_USED_2 = 0b11,
   } mapMatching;
 
   // flags2: Further information about navigation output
-  enum PowerSaveModeState : uint8_t  // Power save mode state
+  /** Power save mode state */
+  enum PowerSaveModeState : uint8_t
   {
     ACQUISITION = 0,
     TRACKING = 1,
     POWER_OPTIMIXED_TRACKING = 2,
     INACTIVE = 3,
   } psmState;
-  enum SpoofDetectionState : uint8_t  // Spoofing detection state
+  /** Spoofing detection state */
+  enum SpoofDetectionState : uint8_t
   {
     UNKNOWN_OR_DEACTIVATED = 0,
     NO_SPOOFING_INDICATED = 1,
@@ -422,8 +539,8 @@ struct NAV_STATUS : public Payload
     FIXED_AMBIGUITY = 2,
   } carrSoln;
 
-  uint32_t ttff;  // Time to first fix [ms]
-  uint32_t msss;  // Milliseconds since Startup / Reset [ms]
+  uint32_t ttff;  ///< Time to first fix [ms]
+  uint32_t msss;  ///< Milliseconds since Startup / Reset [ms]
 
   void decode(const uint8_t* p) override;
   void print(std::ostream& os) const override;
@@ -463,17 +580,17 @@ struct NAV_TIMEGLO : public Payload
 
 struct NAV_TIMEGPS : public Payload
 {
-  uint32_t iTOW;  // GPS time of week of the navigation epoch [ms]
-  int32_t fTOW;   // Fractional part of iTOW [ns]
-  int16_t week;   // GPS week number of the navigation epoch
-  int8_t leapS;   // GPS leap seconds (GPS-UTC) [s]
+  uint32_t iTOW;  ///< GPS time of week of the navigation epoch [ms]
+  int32_t fTOW;   ///< Fractional part of iTOW [ns]
+  int16_t week;   ///< GPS week number of the navigation epoch
+  int8_t leapS;   ///< GPS leap seconds (GPS-UTC) [s]
 
   // valid: Validity Flags
-  bool towValid;    // Valid GPS time of week
-  bool weekValid;   // Valid GPS week number
-  bool leapSValid;  // Valid GPS leap seconds
+  bool towValid;    ///< Valid GPS time of week
+  bool weekValid;   ///< Valid GPS week number
+  bool leapSValid;  ///< Valid GPS leap seconds
 
-  uint32_t tAcc;  // Time Accuracy Estimate [ns]
+  uint32_t tAcc;  ///< Time Accuracy Estimate [ns]
 
   void decode(const uint8_t* p) override;
   void print(std::ostream& os) const override;
@@ -513,18 +630,18 @@ struct NAV_VELECEF : public Payload
 
 struct NAV_VELNED : public Payload
 {
-  uint32_t iTOW;  // GPS time of week [ms]
+  uint32_t iTOW;  ///< GPS time of week [ms]
 
-  int32_t velN;  // North velocity component [cm/s]
-  int32_t velE;  // East velocity component [cm/s]
-  int32_t velD;  // Down velocity component [cm/s]
+  int32_t velN;  ///< North velocity component [cm/s]
+  int32_t velE;  ///< East velocity component [cm/s]
+  int32_t velD;  ///< Down velocity component [cm/s]
 
-  uint32_t speed;   // Speed (3-D) [cm/s]
-  uint32_t gSpeed;  // Ground Speed (2-D) [cm/s]
-  double heading;   // Heading of motion 2-D [deg]
+  uint32_t speed;   ///< Speed (3-D) [cm/s]
+  uint32_t gSpeed;  ///< Ground Speed (2-D) [cm/s]
+  double heading;   ///< Heading of motion 2-D [deg]
 
-  uint32_t sAcc;  // Speed accuracy estimate [cm/s]
-  double cAcc;    // Course / Heading accuracy estimate [deg]
+  uint32_t sAcc;  ///< Speed accuracy estimate [cm/s]
+  double cAcc;    ///< Course / Heading accuracy estimate [deg]
 
   void decode(const uint8_t* p) override;
   void print(std::ostream& os) const override;
@@ -547,6 +664,9 @@ struct RXM_RTCM : public Payload
   void decode(const uint8_t* p) override;
   void print(std::ostream& os) const override;
 };
+
+inline bool NAV_SIG::Signal::isCarrierLocked() const
+{ return qualityInd >= CODE_AND_CARRIER_LOCKED_AND_TIME_SYNCHRONIZED_1; }
 }  // namespace payload
 }  // namespace ublox
 }  // namespace tobas
