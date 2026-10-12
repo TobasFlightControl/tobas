@@ -289,13 +289,13 @@ void SetupAssistantWidget::onNewButtonClicked()
     return;
   }
 
-  // Update the internal state.
+  // Update the internal states.
   if (!updateInternalDataStructures()) {
     reset();
     return;
   }
 
-  // Return all settings to their default values.
+  // Reset all settings to defaults.
   settings_->setToDefaults();
 
   // Clear the project path.
@@ -397,7 +397,7 @@ void SetupAssistantWidget::onLoadButtonClicked()
     return;
   }
 
-  // Update the internal state.
+  // Update the internal states.
   if (!updateInternalDataStructures()) {
     reset();
     return;
@@ -407,13 +407,16 @@ void SetupAssistantWidget::onLoadButtonClicked()
   const auto settings_path = proj_paths.backupSettingsPath();
   const auto node = yaml::load(settings_path.toStdString());
   if (!node) {
-    qt::qErrorBox(this, "The user configuration file is collapsed. Please create a new Tobas project.");
+    qt::qErrorBox(this, "Failed to load the user settings file. Please create a new Tobas project.");
     reset();
     return;
   }
 
+  // Reset all settings to defaults before applying user settings.
+  settings_->setToDefaults();
+
   // Apply user settings to widgets.
-  // Do not reset even if this fails.
+  // Do not reset settings even if this fails.
   if (settings_->load(*node)) {
     qt::qInfoBox(this, "Tobas project has been loaded successfully.");
   }
