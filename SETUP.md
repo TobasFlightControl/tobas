@@ -71,7 +71,7 @@ If you only want to install and use Tobas, start from the
 
    ```bash
    $ cd ~/colcon_ws
-   $ colcon build --symlink-install --parallel-workers $(nproc) --cmake-args -DCMAKE_BUILD_TYPE=Release --packages-up-to tobas
+   $ colcon build --symlink-install --parallel-workers $(nproc) --packages-up-to tobas --cmake-args -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
    ```
 
 7. Add the user to the `dialout` group (required to read S.BUS over USB during SITL)
